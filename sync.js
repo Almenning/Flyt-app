@@ -3,6 +3,7 @@
 const SUPABASE_URL='https://uopzveejnztbovncqbpq.supabase.co';
 const SUPABASE_KEY='sb_publishable_uK6xd8TJhN2MY10qHSQ2GQ_7hSIr2gv';
 const APP_URL='https://almenning.github.io/Flyt-app/';
+const RESET_URL='https://almenning.github.io/Flyt-app/reset.html';
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 let ctx=null,pollTimer=null,saveTimer=null,applying=false;
 const $=s=>document.querySelector(s);
@@ -34,13 +35,9 @@ function signupScreen(message=''){
 async function forgotPassword(){
   const email=$('#betaEmail').value.trim();if(!email){status('Skriv inn e-postadressen din først.',true);return}
   status('Sender lenke for nytt passord…');
-  const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:APP_URL});
+  const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:RESET_URL});
   if(error){status(error.message,true);return}
   status('Vi har sendt en lenke for å lage nytt passord. Sjekk innboksen og søppelpost.');
-}
-function recoveryScreen(){
-  showGate(shell(`<div class="ey" style="margin-top:16px">Nytt passord</div><p class="sub">Velg et nytt passord for Flyt-kontoen din.</p><input id="newPassword" class="field" type="password" minlength="6" autocomplete="new-password" placeholder="Nytt passord, minst 6 tegn"><button id="savePassword" class="primary full" style="margin-top:6px">Lagre nytt passord</button><p id="betaStatus" class="sub" style="min-height:42px"></p>`));
-  $('#savePassword').onclick=async()=>{const pw=$('#newPassword').value;if(pw.length<6){status('Passordet må ha minst 6 tegn.',true);return}status('Lagrer…');const {error}=await sb.auth.updateUser({password:pw});if(error){status(error.message,true);return}await sb.auth.signOut();loginScreen('Passordet er endret. Logg inn med det nye passordet.')};
 }
 async function signup(){const name=$('#betaName').value.trim(),email=$('#betaEmail').value.trim(),password=$('#betaPassword').value;if(!name){status('Skriv inn fornavnet ditt.',true);return}if(!email||password.length<6){status('Skriv inn gyldig e-post og minst 6 tegn i passordet.',true);return}status('Oppretter konto…');const {data,error}=await sb.auth.signUp({email,password,options:{data:{display_name:name},emailRedirectTo:APP_URL}});if(error){status(error.message,true);return}if(data.session){await sb.rpc('set_my_display_name',{p_name:name});await bootstrap();return}signupScreen('Kontoen er opprettet. Bekreft e-posten, gå tilbake hit og logg inn.')}
 async function signin(){const email=$('#betaEmail').value.trim(),password=$('#betaPassword').value;if(!email||!password){status('Skriv inn e-post og passord.',true);return}status('Logger inn…');const {error}=await sb.auth.signInWithPassword({email,password});if(error){status(error.message,true);return}await bootstrap()}
@@ -63,6 +60,5 @@ async function pull(){if(!ctx?.household)return;try{await loadContext();applyRem
 async function push(){if(applying||!ctx?.household)return;try{await sb.rpc('save_my_flyt_state',{p_data:sharedState()})}catch(e){}}
 function queueSave(){if(applying||!ctx?.household)return;clearTimeout(saveTimer);saveTimer=setTimeout(push,650)}function startPolling(){clearInterval(pollTimer);pollTimer=setInterval(pull,5000)}
 async function bootstrap(){ensureBetaUi();const {data:{session}}=await sb.auth.getSession();if(!session){authChoice();return}try{await loadContext()}catch(e){loginScreen('Kunne ikke hente kontoen. Logg inn på nytt.');return}if(!ctx?.household){householdScreen();return}applyRemote();showApp();startPolling()}
-sb.auth.onAuthStateChange((event)=>{if(event==='PASSWORD_RECOVERY')setTimeout(recoveryScreen,0)});
 window.FlytSync={queueSave,pull,bootstrap};window.addEventListener('DOMContentLoaded',bootstrap);
 })();
