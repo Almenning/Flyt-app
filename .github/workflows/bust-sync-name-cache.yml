@@ -16,7 +16,7 @@ jobs:
           from pathlib import Path
           p=Path('index.html')
           s=p.read_text()
-          s=s.replace('./sync.js?v=20260823-2034','./sync.js?v=20260823-2132',1)
+          s=s.replace('./sync.js?v=20260823-2034','./sync.js?v=20260823-2136',1)
           p.write_text(s)
           PY
       - name: Commit
