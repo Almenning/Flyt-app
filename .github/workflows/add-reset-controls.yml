@@ -1,0 +1,52 @@
+name: Add reset controls
+on:
+  push:
+    paths:
+      - '.github/workflows/add-reset-controls.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add reward and setup reset controls
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text()
+
+          old="""function rewards(){const offered=state.rewards.filter(r=>r.by===partner()),mine=state.rewards.filter(r=>r.by===state.user);return `<div class=\"ey\">Fristelser</div><h1 class=\"title\">Noe å glede seg til</h1><div class=\"card row\"><strong class=\"grow\">${state.user}</strong><span class=\"tag\">${state.points[state.user]||0} poeng</span></div><div class=\"section\"><strong>Fra ${partner()}</strong>${offered.map(r=>`<div class=\"card row\"><div class=\"grow\"><strong>${r.title}</strong><div class=\"taskmeta\">${r.requiresPoints?r.cost+' poeng':'Åpen'}</div></div><button class=\"small\" data-claim=\"${r.id}\" ${r.requiresPoints&&(state.points[state.user]||0)<r.cost?'disabled':''}>${r.requiresPoints&&(state.points[state.user]||0)<r.cost?'Låst':'Aktiver'}</button></div>`).join('')}</div><div class=\"section\"><strong>Mine tilbud</strong>${mine.map(r=>`<div class=\"card\"><strong>${r.title}</strong><div class=\"grid2\"><select class=\"field\" data-rlock=\"${r.id}\"><option value=\"1\" ${r.requiresPoints?'selected':''}>Krever poeng</option><option value=\"0\" ${!r.requiresPoints?'selected':''}>Åpen</option></select><input class=\"field\" type=\"number\" data-rcost=\"${r.id}\" value=\"${r.cost}\" ${!r.requiresPoints?'disabled':''}></div></div>`).join('')}</div><button id=\"addReward\" class=\"primary full\">+ Lag fristelse</button>`}"""
+          new="""function rewards(){const offered=state.rewards.filter(r=>r.by===partner()),mine=state.rewards.filter(r=>r.by===state.user);return `<div class=\"ey\">Fristelser</div><h1 class=\"title\">Noe å glede seg til</h1><div class=\"card row\"><strong class=\"grow\">${state.user}</strong><span class=\"tag\">${state.points[state.user]||0} poeng</span></div><div class=\"section\"><strong>Fra ${partner()}</strong>${offered.map(r=>`<div class=\"card row\"><div class=\"grow\"><strong>${r.title}</strong><div class=\"taskmeta\">${r.requiresPoints?r.cost+' poeng':'Åpen'}</div></div><button class=\"small\" data-claim=\"${r.id}\" ${r.requiresPoints&&(state.points[state.user]||0)<r.cost?'disabled':''}>${r.requiresPoints&&(state.points[state.user]||0)<r.cost?'Låst':'Aktiver'}</button></div>`).join('')}</div><div class=\"section\"><strong>Mine tilbud</strong>${mine.map(r=>`<div class=\"card\"><div class=\"row\"><strong class=\"grow\">${r.title}</strong><button class=\"small\" data-reset-reward=\"${r.id}\">Tilbakestill</button><button class=\"small\" data-delete-reward=\"${r.id}\">Slett</button></div><div class=\"grid2\"><select class=\"field\" data-rlock=\"${r.id}\"><option value=\"1\" ${r.requiresPoints?'selected':''}>Krever poeng</option><option value=\"0\" ${!r.requiresPoints?'selected':''}>Åpen</option></select><input class=\"field\" type=\"number\" data-rcost=\"${r.id}\" value=\"${r.cost}\" ${!r.requiresPoints?'disabled':''}></div></div>`).join('')}</div><button id=\"addReward\" class=\"primary full\">+ Lag fristelse</button>`}"""
+          if old not in s:
+            raise SystemExit('rewards function anchor not found')
+          s=s.replace(old,new,1)
+
+          click_anchor="""if(b.dataset.claim){const r=state.rewards.find(x=>x.id==b.dataset.claim);if(r&&(!r.requiresPoints||(state.points[state.user]||0)>=r.cost)){if(r.requiresPoints)state.points[state.user]-=r.cost;save();render();toast('Fristelsen er aktivert')}}"""
+          click_repl=click_anchor+"""if(b.dataset.resetReward){const r=state.rewards.find(x=>x.id==b.dataset.resetReward);if(r&&r.by===state.user&&confirm('Tilbakestille denne fristelsen til åpen?')){r.requiresPoints=false;r.cost=0;save();render();toast('Fristelsen er tilbakestilt')}}if(b.dataset.deleteReward){const i=state.rewards.findIndex(x=>x.id==b.dataset.deleteReward&&x.by===state.user);if(i>=0&&confirm('Slette denne fristelsen?')){state.rewards.splice(i,1);save();render();toast('Fristelsen er slettet')}}"""
+          if click_anchor not in s:
+            raise SystemExit('claim anchor not found')
+          s=s.replace(click_anchor,click_repl,1)
+
+          setup_anchor="""<div class=\"section\"><strong>Egendefinerte</strong>${state.custom.map(templateRow).join('')}<button id=\"customTask\" class=\"secondary full\" style=\"margin-top:10px\">+ Legg til ny egendefinert oppgave</button></div>`;bindSetup()}"""
+          setup_repl="""<div class=\"section\"><strong>Egendefinerte</strong>${state.custom.map(templateRow).join('')}<button id=\"customTask\" class=\"secondary full\" style=\"margin-top:10px\">+ Legg til ny egendefinert oppgave</button></div><div class=\"section\"><div class=\"card\"><strong>Tilbakestill gjøremål</strong><p class=\"sub\">Setter oppgavelisten tilbake til standardforslaget. Historikk, poeng og gjennomføringer beholdes.</p><button type=\"button\" id=\"resetTasks\" class=\"secondary full\">Tilbakestill gjøremål</button></div></div>`;bindSetup()}"""
+          if setup_anchor not in s:
+            raise SystemExit('setup anchor not found')
+          s=s.replace(setup_anchor,setup_repl,1)
+
+          bind_anchor="""const c=$('#customTask');if(c)c.onclick=()=>{const name=prompt('Navn på oppgaven');"""
+          bind_repl="""const reset=$('#resetTasks');if(reset)reset.onclick=()=>{if(!confirm('Tilbakestille gjøremål til standardoppsettet? Historikk og poeng beholdes.'))return;const ids=['dish_empty','dish_fill','kitchen','dinner','lunch','bag','bath','bed','laundry','trash','train'];state.tasks=LIB.filter(x=>ids.includes(x.id)).map(x=>({...x,owner:'Begge'}));state.custom=[];setupExpanded={};save();renderSetup();toast('Gjøremål er tilbakestilt')};const c=$('#customTask');if(c)c.onclick=()=>{const name=prompt('Navn på oppgaven');"""
+          if bind_anchor not in s:
+            raise SystemExit('bind setup anchor not found')
+          s=s.replace(bind_anchor,bind_repl,1)
+
+          p.write_text(s)
+          PY
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Legg til sletting og tilbakestilling"
+          git push
