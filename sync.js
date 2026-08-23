@@ -4,8 +4,9 @@ const SUPABASE_URL='https://uopzveejnztbovncqbpq.supabase.co';
 const SUPABASE_KEY='sb_publishable_uK6xd8TJhN2MY10qHSQ2GQ_7hSIr2gv';
 const APP_URL='https://almenning.github.io/Flyt-app/';
 const RESET_URL='https://almenning.github.io/Flyt-app/reset.html';
+if(!window.supabase){console.error('Flyt: Supabase-biblioteket mangler');return}
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-let ctx=null,pollTimer=null,saveTimer=null,applying=false;
+let ctx=null,pollTimer=null,saveTimer=null,applying=false,dirty=false,saving=false;
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const bridge=()=>window.FlytBridge;
@@ -33,14 +34,15 @@ function reviewPartnerSetup(){const p=partnerMember();const s=ctx?.state||{};con
 function openHouseSetup(joiner){showApp();setTimeout(()=>{const b=$('#setupBtn');if(b)b.click();if(joiner)bridge()?.toast?.('Se gjennom og juster oppsettet før dere starter')},50)}
 async function loadContext(){const {data,error}=await sb.rpc('get_my_flyt_context');if(error)throw error;ctx=data;return ctx}
 function myMember(){return ctx?.members?.find(m=>m.id===ctx?.user_id)||null}function myName(){return myMember()?.display_name||'Meg'}function partnerMember(){return ctx?.members?.find(m=>m.id!==ctx?.user_id)||null}
-function updateChrome(){const me=myMember(),p=partnerMember(),sw=$('#switchUser');if(sw){sw.textContent=p?`${me?.display_name||'Meg'} + ${p.display_name}`:(me?.display_name||'Meg');sw.disabled=true}const syn=$('#syncBtn');if(syn){syn.textContent=p?'Koblet':'Inviter';syn.onclick=()=>p?connectionSheet():inviteScreen(ctx?.household?.invite_code||'')}const lock=$('#lock');if(lock){lock.textContent='Logg ut';lock.onclick=async()=>{await sb.auth.signOut();ctx=null;authChoice()}}}
+function updateChrome(){const me=myMember(),p=partnerMember(),sw=$('#switchUser');if(sw){sw.textContent=p?`${me?.display_name||'Meg'} + ${p.display_name}`:(me?.display_name||'Meg');sw.disabled=true}const syn=$('#syncBtn');if(syn){syn.textContent=p?'Koblet':'Inviter';syn.onclick=()=>p?connectionSheet():inviteScreen(ctx?.household?.invite_code||'')}const lock=$('#lock');if(lock){lock.textContent='Logg ut';lock.onclick=async()=>{await sb.auth.signOut();ctx=null;dirty=false;authChoice()}}}
 function ensureSheet(){if($('#syncModal'))return;const el=document.createElement('div');el.id='syncModal';el.className='syncModal hidden';el.innerHTML='<div class="syncSheet"><div class="row"><div class="grow"><div class="ey">Par-kobling</div><h2 style="margin:4px 0">Flyt sammen</h2></div><button id="syncClose" class="pill">Lukk</button></div><div id="syncBody" style="margin-top:16px"></div></div>';document.body.appendChild(el);$('#syncClose').onclick=()=>el.classList.add('hidden')}
-function connectionSheet(){ensureSheet();const p=partnerMember();$('#syncBody').innerHTML=`<div class="card hero"><strong>Dere er koblet</strong><p class="sub">${esc(myName())} og ${esc(p?.display_name||'partner')} deler samme husholdning.</p></div><button id="syncNow" class="secondary full">Synkroniser nå</button>`;$('#syncNow').onclick=async()=>{await pull();bridge()?.toast?.('Flyt er oppdatert')};$('#syncModal').classList.remove('hidden')}
+function connectionSheet(){ensureSheet();const p=partnerMember();$('#syncBody').innerHTML=`<div class="card hero"><strong>Dere er koblet</strong><p class="sub">${esc(myName())} og ${esc(p?.display_name||'partner')} deler samme husholdning.</p></div><button id="syncNow" class="secondary full">Synkroniser nå</button>`;$('#syncNow').onclick=async()=>{await pull(true);bridge()?.toast?.('Flyt er oppdatert')};$('#syncModal').classList.remove('hidden')}
 function restoreActiveModule(view){if(view==='us'&&window.FlytOss?.render){window.FlytOss.render({refresh:false});return}if(view==='tasks'&&window.FlytTasksUI?.render){window.FlytTasksUI.render()}}
 function applyRemote(){if(!ctx?.state||!Object.keys(ctx.state).length||!bridge())return;const local=bridge().getState(),view=local.view||'home';applying=true;try{bridge().setState({...local,...ctx.state,user:myName(),view});setTimeout(()=>restoreActiveModule(view),0)}catch(e){console.error('Flyt remote state ignored:',e)}finally{applying=false}}
-async function pull(){if(!ctx?.household)return;try{await loadContext();applyRemote();updateChrome()}catch(e){}}
-async function push(){if(applying||!ctx?.household)return;try{await sb.rpc('save_my_flyt_state',{p_data:sharedState()})}catch(e){}}
-function queueSave(){if(applying||!ctx?.household)return;clearTimeout(saveTimer);saveTimer=setTimeout(push,650)}function startPolling(){clearInterval(pollTimer);pollTimer=setInterval(pull,5000)}
+async function pull(force=false){if(!ctx?.household)return;if((dirty||saving)&&!force)return;try{await loadContext();applyRemote();updateChrome()}catch(e){}}
+async function push(){if(applying||!ctx?.household||saving)return;saving=true;try{const {error}=await sb.rpc('save_my_flyt_state',{p_data:sharedState()});if(error)throw error;dirty=false;await loadContext()}catch(e){console.error('Flyt save failed:',e);dirty=true}finally{saving=false}}
+function queueSave(){if(applying||!ctx?.household)return;dirty=true;clearTimeout(saveTimer);saveTimer=setTimeout(push,650)}
+function startPolling(){clearInterval(pollTimer);pollTimer=setInterval(()=>pull(false),5000)}
 async function bootstrap(){ensureBetaUi();let session=null;try{const r=await sb.auth.getSession();session=r.data.session}catch(e){authChoice();return}if(!session){authChoice();return}try{await loadContext()}catch(e){loginScreen('Kunne ikke hente kontoen. Logg inn på nytt.');return}if(!ctx?.household){householdScreen();return}showApp();try{applyRemote()}catch(e){console.error('Flyt startup sync ignored:',e)}startPolling()}
 window.FlytSync={queueSave,pull,bootstrap};window.addEventListener('DOMContentLoaded',bootstrap);
 })();
