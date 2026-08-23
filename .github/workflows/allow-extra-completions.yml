@@ -1,0 +1,35 @@
+name: Allow extra task completions
+on:
+  push:
+    paths:
+      - '.github/workflows/allow-extra-completions.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch task completion logic
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text()
+          old="function tasks(){return `<div class=\"ey\">Gjøremål</div><h1 class=\"title\">Denne uken</h1><p class=\"sub\">Fleksible oppgaver kan tas tidlig. Dagsbundne oppgaver følger hverdagen.</p>${state.tasks.map(t=>{const n=countTask(t.id),done=n>=t.freq;return `<div class=\"card row\"><div class=\"grow\"><strong>${t.name}</strong><div class=\"taskmeta\">${t.cat} · ${t.owner} · ${n}/${t.freq} denne uken · ${t.pts} poeng</div></div>${done?'<span class=\"tag\">Ferdig ✓</span>':`<button class=\"small\" data-complete=\"${t.id}\">+ Gjort</button>`}</div>`}).join('')}<button class=\"primary full\" data-open-setup=\"1\">Rediger oppsett</button>`}"
+          new="function tasks(){return `<div class=\"ey\">Gjøremål</div><h1 class=\"title\">Denne uken</h1><p class=\"sub\">Fleksible oppgaver kan tas tidlig. Dagsbundne oppgaver følger hverdagen. Ukesmålet er en forventning, ikke et tak.</p>${state.tasks.map(t=>{const n=countTask(t.id),done=n>=t.freq;return `<div class=\"card row\"><div class=\"grow\"><strong>${t.name}</strong><div class=\"taskmeta\">${t.cat} · ${t.owner} · ${n}/${t.freq} denne uken · ${t.pts} poeng</div></div><div style=\"display:flex;align-items:center;gap:7px\">${done?'<span class=\"tag\">Mål nådd ✓</span>':''}<button class=\"small\" data-complete=\"${t.id}\">+ Gjort</button></div></div>`}).join('')}<button class=\"primary full\" data-open-setup=\"1\">Rediger oppsett</button>`}"
+          if old not in s: raise SystemExit('tasks marker not found')
+          s=s.replace(old,new,1)
+          old2="if(b.dataset.complete){const t=state.tasks.find(x=>x.id===b.dataset.complete);if(t&&countTask(t.id)<t.freq){const housePts=t.kind==='house'?t.pts:Math.round(t.pts*.2);state.completions.push({id:Date.now(),taskId:t.id,date:today(),by:state.user,kind:t.kind,housePts});state.points[state.user]=(state.points[state.user]||0)+t.pts;state.work.unshift({id:Date.now()+1,title:t.name,by:state.user,seen:false});save();render();toast('+'+t.pts+' poeng')}}"
+          new2="if(b.dataset.complete){const t=state.tasks.find(x=>x.id===b.dataset.complete);if(t){const housePts=t.kind==='house'?t.pts:Math.round(t.pts*.2);state.completions.push({id:Date.now(),taskId:t.id,date:today(),by:state.user,kind:t.kind,housePts});state.points[state.user]=(state.points[state.user]||0)+t.pts;state.work.unshift({id:Date.now()+1,title:t.name,by:state.user,seen:false});save();render();toast('+'+t.pts+' poeng')}}"
+          if old2 not in s: raise SystemExit('completion guard marker not found')
+          s=s.replace(old2,new2,1)
+          p.write_text(s)
+          PY
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Tillat ekstra utførelser utover ukesmålet"
+          git push
