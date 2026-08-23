@@ -1,0 +1,28 @@
+name: Bust Oss scroll cache
+on:
+  push:
+    paths:
+      - '.github/workflows/bust-oss-scroll-cache.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Bump Oss script version
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text()
+          s=s.replace('./oss.js?v=20260823-2001','./oss.js?v=20260823-2147',1)
+          p.write_text(s)
+          PY
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Tving fersk Oss med scroll-fiks"
+          git push
