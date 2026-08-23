@@ -50,7 +50,7 @@ function partner(){return state.user==='Tore'?'Jannicke':'Tore'}
 function toast(t){const e=$('#toast');e.textContent=t;e.classList.remove('hidden');setTimeout(()=>e.classList.add('hidden'),1600)}
 function isAuthed(){try{return localStorage.getItem(AUTH)==='1'||sessionStorage.getItem(AUTH)==='1'}catch(e){return false}}
 function openApp(){ $('#login').classList.add('hidden');if(!state.setupDone)openSetup(0)}
-if(isAuthed())openApp();
+/* Supabase beta-auth i sync.js styrer oppstart. Gammel PIN-autostart er deaktivert. */
 $('#loginForm').addEventListener('submit',e=>{e.preventDefault();if($('#pin').value.replace(/\D/g,'')!==PIN){$('#err').textContent='Feil kode.';return}try{($('#remember').checked?localStorage:sessionStorage).setItem(AUTH,'1')}catch(x){}openApp();render()});
 $('#pin').addEventListener('input',e=>e.target.value=e.target.value.replace(/\D/g,'').slice(0,6));
 $('#lock').onclick=()=>{try{localStorage.removeItem(AUTH);sessionStorage.removeItem(AUTH)}catch(e){}$('#login').classList.remove('hidden')};
