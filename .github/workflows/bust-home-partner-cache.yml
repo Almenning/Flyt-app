@@ -1,0 +1,29 @@
+name: Bust home partner cache
+on:
+  push:
+    paths:
+      - '.github/workflows/bust-home-partner-cache.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Bump home script version
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          p=Path('index.html')
+          s=p.read_text()
+          s=re.sub(r'./home-ui.js\\?v=[0-9-]+','./home-ui.js?v=20260823-2207',s,count=1)
+          p.write_text(s)
+          PY
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Tving fersk Hjem med partnerstatus"
+          git push
