@@ -1,0 +1,33 @@
+name: Expose sync RPC
+on:
+  push:
+    paths:
+      - '.github/workflows/expose-sync-rpc.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch sync API and bump cache
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('sync.js')
+          s=p.read_text()
+          s=s.replace('window.FlytSync={queueSave,pull,bootstrap,myName};','window.FlytSync={queueSave,pull,bootstrap,myName,rpc:(name,args)=>sb.rpc(name,args),getContext:()=>ctx};',1)
+          p.write_text(s)
+          p=Path('index.html')
+          s=p.read_text()
+          import re
+          s=re.sub(r'./sync.js\\?v=[0-9-]+','./sync.js?v=20260823-2201',s,count=1)
+          p.write_text(s)
+          PY
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add sync.js index.html
+          git commit -m "Eksponer sync RPC til Hjem"
+          git push
