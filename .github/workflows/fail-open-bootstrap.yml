@@ -1,0 +1,35 @@
+name: Fail-open Flyt bootstrap
+on:
+  push:
+    paths:
+      - '.github/workflows/fail-open-bootstrap.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch sync bootstrap
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('sync.js')
+          s=p.read_text()
+          old="function applyRemote(){if(!ctx?.state||!Object.keys(ctx.state).length||!bridge())return;const local=bridge().getState();applying=true;bridge().setState({...local,...ctx.state,user:myName(),view:local.view||'home'});applying=false}"
+          new="function applyRemote(){if(!ctx?.state||!Object.keys(ctx.state).length||!bridge())return;const local=bridge().getState();applying=true;try{bridge().setState({...local,...ctx.state,user:myName(),view:local.view||'home'})}catch(e){console.error('Flyt remote state ignored:',e)}finally{applying=false}}"
+          if old not in s: raise SystemExit('applyRemote marker not found')
+          s=s.replace(old,new,1)
+          old2="async function bootstrap(){ensureBetaUi();const {data:{session}}=await sb.auth.getSession();if(!session){authChoice();return}try{await loadContext()}catch(e){loginScreen('Kunne ikke hente kontoen. Logg inn på nytt.');return}if(!ctx?.household){householdScreen();return}applyRemote();showApp();startPolling()}"
+          new2="async function bootstrap(){ensureBetaUi();let session=null;try{const r=await sb.auth.getSession();session=r.data.session}catch(e){authChoice();return}if(!session){authChoice();return}try{await loadContext()}catch(e){loginScreen('Kunne ikke hente kontoen. Logg inn på nytt.');return}if(!ctx?.household){householdScreen();return}showApp();try{applyRemote()}catch(e){console.error('Flyt startup sync ignored:',e)}startPolling()}"
+          if old2 not in s: raise SystemExit('bootstrap marker not found')
+          s=s.replace(old2,new2,1)
+          p.write_text(s)
+          PY
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add sync.js
+          git commit -m "Vis appen selv om synk-state feiler"
+          git push
