@@ -1,0 +1,32 @@
+name: Remove legacy PIN autostart
+on:
+  push:
+    paths:
+      - '.github/workflows/remove-legacy-pin-autostart.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Remove legacy autostart
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text()
+          old="if(isAuthed())openApp();"
+          new="/* Supabase beta-auth i sync.js styrer oppstart. Gammel PIN-autostart er deaktivert. */"
+          if old not in s:
+              raise SystemExit('legacy autostart pattern not found')
+          s=s.replace(old,new,1)
+          p.write_text(s)
+          PY
+      - name: Commit fix
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Fjern gammel PIN-autostart fra Flyt-beta"
+          git push
