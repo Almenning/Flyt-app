@@ -44,5 +44,5 @@ async function push(){if(applying||!ctx?.household||saving)return;saving=true;tr
 function queueSave(){if(applying||!ctx?.household)return;dirty=true;clearTimeout(saveTimer);saveTimer=setTimeout(push,650)}
 function startPolling(){clearInterval(pollTimer);pollTimer=setInterval(()=>pull(false),5000)}
 async function bootstrap(){ensureBetaUi();let session=null;try{const r=await sb.auth.getSession();session=r.data.session;authName=String(session?.user?.user_metadata?.display_name||session?.user?.user_metadata?.name||authName||'').trim()}catch(e){authChoice();return}if(!session){authChoice();return}try{await loadContext()}catch(e){loginScreen('Kunne ikke hente kontoen. Logg inn på nytt.');return}if(!ctx?.household){householdScreen();return}showApp();try{applyRemote()}catch(e){console.error('Flyt startup sync ignored:',e)}startPolling()}
-window.FlytSync={queueSave,pull,bootstrap};window.addEventListener('DOMContentLoaded',bootstrap);
+window.FlytSync={queueSave,pull,bootstrap,myName};window.addEventListener('DOMContentLoaded',bootstrap);
 })();
