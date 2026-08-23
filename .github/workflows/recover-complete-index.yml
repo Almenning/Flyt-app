@@ -1,0 +1,40 @@
+name: Recover complete index
+on:
+  push:
+    paths:
+      - '.github/workflows/recover-complete-index.yml'
+permissions:
+  contents: write
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Restore complete index and current module versions
+        run: |
+          git cat-file blob 36d4ac58ca8743ea6e8608a7713df24f0a00d75e > index.html
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          p=Path('index.html')
+          s=p.read_text()
+          s=re.sub(r'\./sync\.js\?v=[^"\']+', './sync.js?v=20260823-2218', s, count=1)
+          s=re.sub(r'\./oss\.js\?v=[^"\']+', './oss.js?v=20260823-2218', s, count=1)
+          s=re.sub(r'\./tasks-ui\.js\?v=[^"\']+', './tasks-ui.js?v=20260823-2218', s, count=1)
+          s=re.sub(r'\./home-ui\.js\?v=[^"\']+', './home-ui.js?v=20260823-2218', s, count=1)
+          p.write_text(s)
+          PY
+      - name: Verify complete document
+        run: |
+          grep -q '<div class="app">' index.html
+          grep -q 'window.FlytBridge' index.html
+          grep -q '</html>' index.html
+      - name: Commit recovery
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Gjenopprett komplett Flyt-side"
+          git push
