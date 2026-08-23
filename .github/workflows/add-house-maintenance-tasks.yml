@@ -1,0 +1,34 @@
+name: Add house maintenance tasks
+on:
+  push:
+    paths:
+      - '.github/workflows/add-house-maintenance-tasks.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add predefined house maintenance tasks
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text()
+          anchor="{id:'pet_meds',cat:'Husdyr',name:'Gi medisiner/behandling',freq:7,pts:20,type:'daily',kind:'house'}];"
+          replacement="""{id:'pet_meds',cat:'Husdyr',name:'Gi medisiner/behandling',freq:7,pts:20,type:'daily',kind:'house'},
+{id:'windows',cat:'Hus',name:'Vaske vinduer',freq:1,pts:60,type:'period',kind:'house'},
+{id:'laundry_machine_clean',cat:'Hus',name:'Rense vaskemaskin/tørketrommel',freq:1,pts:40,type:'period',kind:'house'}];"""
+          if anchor not in s:
+            raise SystemExit('Task library anchor not found')
+          s=s.replace(anchor,replacement,1)
+          p.write_text(s)
+          PY
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Legg til vindusvask og maskinrens"
+          git push
