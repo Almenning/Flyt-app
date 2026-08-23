@@ -1,0 +1,72 @@
+name: Restructure task categories
+on:
+  push:
+    paths:
+      - '.github/workflows/restructure-task-categories.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restructure predefined categories
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text()
+
+          replacements={
+            "cat:'Hus',name:'Vaske bad'":"cat:'Bad',name:'Vaske bad'",
+            "cat:'Hus',name:'Støvsuge'":"cat:'Vask & klær',name:'Støvsuge'",
+            "cat:'Hus',name:'Rydde gangen'":"cat:'Stue',name:'Rydde gangen'",
+            "cat:'Hus',name:'Rydde stuen'":"cat:'Stue',name:'Rydde stuen'",
+            "cat:'Hus',name:'Bytte sengetøy'":"cat:'Soverom',name:'Bytte sengetøy'",
+            "cat:'Hus',name:'Vaske/brette klær'":"cat:'Vask & klær',name:'Vaske/brette klær'",
+            "cat:'Hus',name:'Søppel/pant'":"cat:'Vedlikehold',name:'Søppel/pant'",
+            "cat:'Usynlig arbeid',name:'Avtaler, lege og tannlege'":"cat:'Planlegging & admin',name:'Avtaler, lege og tannlege'",
+            "cat:'Usynlig arbeid',name:'Gaver og bursdager'":"cat:'Planlegging & admin',name:'Gaver og bursdager'",
+            "cat:'Husdyr',name:":"cat:'Dyr',name:",
+            "cat:'Periodisk vedlikehold',name:":"cat:'Vedlikehold',name:"
+          }
+          for a,b in replacements.items(): s=s.replace(a,b)
+
+          anchor="{id:'laundry_machine_clean',cat:'Vedlikehold',name:'Rense vaskemaskin/tørketrommel',freq:1,pts:40,type:'period',kind:'house'}];"
+          extra="""{id:'laundry_machine_clean',cat:'Vedlikehold',name:'Rense vaskemaskin/tørketrommel',freq:1,pts:40,type:'period',kind:'house'},
+{id:'floors',cat:'Vask & klær',name:'Vaske gulv',freq:2,pts:40,type:'flex',kind:'house'},
+{id:'dust',cat:'Vask & klær',name:'Tørke støv',freq:1,pts:30,type:'flex',kind:'house'},
+{id:'kids_bedding',cat:'Soverom',name:'Bytte sengetøy på barnas senger',freq:1,pts:45,type:'flex',kind:'house'},
+{id:'sofa_tidy',cat:'Stue',name:'Rydde sofa og oppholdsrom',freq:5,pts:15,type:'daily',kind:'house'},
+{id:'garden_mow',cat:'Hage & ute',name:'Klippe gress',freq:1,pts:50,type:'flex',kind:'house'},
+{id:'garden_tidy',cat:'Hage & ute',name:'Rydde uteområde',freq:1,pts:35,type:'flex',kind:'house'},
+{id:'garden_snow',cat:'Hage & ute',name:'Måke snø / strø',freq:1,pts:45,type:'flex',kind:'house'},
+{id:'car_wash',cat:'Bil',name:'Vaske bilen',freq:1,pts:40,type:'flex',kind:'house'},
+{id:'car_fuel',cat:'Bil',name:'Fylle drivstoff / lade',freq:1,pts:20,type:'flex',kind:'house'},
+{id:'car_service',cat:'Bil',name:'Bestille service / EU-kontroll',freq:1,pts:40,type:'period',kind:'house'},
+{id:'car_tires',cat:'Bil',name:'Skifte / følge opp dekk',freq:1,pts:50,type:'period',kind:'house'},
+{id:'shopping_household',cat:'Innkjøp',name:'Fylle på husholdningsvarer',freq:1,pts:25,type:'flex',kind:'house'},
+{id:'shopping_returns',cat:'Innkjøp',name:'Returnere varer / pakker',freq:1,pts:25,type:'flex',kind:'house'},
+{id:'weekly_menu',cat:'Planlegging & admin',name:'Lage ukemeny',freq:1,pts:30,type:'flex',kind:'house'},
+{id:'weekly_plan',cat:'Planlegging & admin',name:'Planlegge uken',freq:1,pts:35,type:'flex',kind:'house'},
+{id:'maintenance_smoke',cat:'Vedlikehold',name:'Sjekke røykvarslere',freq:1,pts:30,type:'period',kind:'house'},
+{id:'maintenance_service',cat:'Vedlikehold',name:'Bestille håndverker / service',freq:1,pts:40,type:'period',kind:'house'}];"""
+          if anchor not in s:
+            raise SystemExit('expanded task library anchor not found')
+          s=s.replace(anchor,extra,1)
+          p.write_text(s)
+
+          p=Path('tasks-ui.js')
+          s=p.read_text()
+          import re
+          s=re.sub(r"const ORDER=\[[^;]+;","const ORDER=['Barn','Kjøkken','Vask & klær','Stue','Bad','Soverom','Dyr','Hage & ute','Bil','Innkjøp','Vedlikehold','Planlegging & admin','Usynlig arbeid','Personlig investering','Egendefinert'];",s,count=1)
+          s=s.replace("if(raw==='Usynlig arbeid')return 'Usynlig arbeid';","if(raw==='Usynlig arbeid')return 'Usynlig arbeid';if(raw==='Dyr'||raw==='Husdyr')return 'Dyr';if(raw==='Hage & ute'||raw==='Utearbeid')return 'Hage & ute';if(raw==='Vask & klær')return 'Vask & klær';if(raw==='Stue')return 'Stue';if(raw==='Soverom')return 'Soverom';if(raw==='Bil')return 'Bil';if(raw==='Innkjøp')return 'Innkjøp';if(raw==='Vedlikehold'||raw==='Periodisk vedlikehold')return 'Vedlikehold';if(raw==='Planlegging & admin')return 'Planlegging & admin';",1)
+          p.write_text(s)
+          PY
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html tasks-ui.js
+          git commit -m "Strukturer gjøremål i tydelige kategorier"
+          git push
