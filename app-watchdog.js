@@ -36,7 +36,13 @@ function bridge(){return window.FlytBridge}
 function saveState(next){const b=bridge();if(!b)return;b.setState(next);window.FlytSync?.queueSave?.()}
 async function askConfirm(opts){const m=await modal();return m?m.confirm(opts):false}
 async function askPrompt(opts){const m=await modal();return m?m.prompt(opts):null}
+function setupStepFromTitle(){const t=(document.querySelector('#setupTitle')?.textContent||'').trim();if(t.includes('Hva er viktig'))return 0;if(t.includes('Bygg husholdningen'))return 1;if(t.includes('Slik blir Flyt'))return 2;return 0}
+function finishSetup(){const b=bridge(),s=b?.getState?.();if(!s)return;saveState({...s,setupDone:true,setupHistory:archive(s,'Lagret oppsett')});document.querySelector('#setup')?.classList.add('hidden');window.FlytTasksUI?.render?.({resetScroll:true});window.FlytHomeUI?.render?.({resetScroll:true})}
 document.addEventListener('click',async e=>{
+ const next=e.target.closest('#setupNext');
+ if(next&&!document.querySelector('#setup')?.classList.contains('hidden')){e.preventDefault();e.stopImmediatePropagation();const step=setupStepFromTitle();if(step<2)window.FlytTasksUI?.openSetup?.(step+1);else finishSetup();return}
+ const back=e.target.closest('#setupBack');
+ if(back&&!document.querySelector('#setup')?.classList.contains('hidden')){e.preventDefault();e.stopImmediatePropagation();const step=setupStepFromTitle();if(step>0)window.FlytTasksUI?.openSetup?.(step-1);return}
  const reset=e.target.closest('#resetActiveTasks,#resetTasks');
  if(reset){e.preventDefault();e.stopImmediatePropagation();const yes=await askConfirm({ey:'Oppsett',title:'Tilbakestille aktive gjøremål?',text:'Historikk, poeng og statistikk beholdes.',ok:'Tilbakestill'});if(!yes)return;const b=bridge(),s=b?.getState?.();if(!s)return;const relevant=s.categoryRelevant||{},tasks=DEFAULT_TASKS.filter(t=>relevant[t.cat]!==false).map(t=>({...t,owner:'Begge'}));saveState({...s,tasks,custom:reset.id==='resetTasks'?[]:(s.custom||[]),setupHistory:archive(s,'Før tilbakestilling')});window.FlytTasksUI?.openSetup?.(1);b.toast?.('Gjøremål er tilbakestilt');return}
  const restore=e.target.closest('[data-setup-restore]');
