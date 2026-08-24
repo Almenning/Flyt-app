@@ -1,0 +1,56 @@
+name: Add planned one-offs v2
+on:
+  push:
+    paths:
+      - '.github/workflows/add-planned-oneoffs-v2.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch tasks-ui
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('tasks-ui.js')
+          s=p.read_text()
+          if 'function plannedList(' in s:
+            raise SystemExit('planned one-offs already present')
+
+          anchor='function complete(id){'
+          funcs=r'''function plannedList(s){return Array.isArray(s.plannedTasks)?s.plannedTasks:[]}
+function dateFrom(d){const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');return `${y}-${m}-${day}`}
+function addDays(ds,n){const d=new Date(ds+'T12:00:00');d.setDate(d.getDate()+n);return dateFrom(d)}
+function plannedWindow(s){const list=plannedList(s);if(mode==='day')return list.filter(x=>x.date===localDate());const start=localDate(),end=addDays(start,13);return list.filter(x=>x.date>=start&&x.date<=end).sort((a,b)=>a.date.localeCompare(b.date)||Number(a.createdAt||0)-Number(b.createdAt||0))}
+function plannedCard(s,x){const mine=x.doneBy===s.user,when=new Date(x.date+'T12:00:00').toLocaleDateString('nb-NO',{weekday:'short',day:'numeric',month:'short'});return `<div class="card"><div class="row"><div class="grow"><strong>${x.title}</strong><div class="taskmeta">${when}${x.owner?' · '+x.owner:''}${x.reminder&&x.reminder!=='none'?' · '+(x.reminder==='dayBefore'?'Påminnelse dagen før':'Påminnelse samme dag'):''} · ${x.points||0} poeng</div></div>${x.done?'<span class="tag">Gjort ✓</span>':''}</div><div class="row" style="margin-top:10px">${!x.done?`<button type="button" class="small" data-planned-done="${x.id}">+ Gjort</button>`:mine?`<button type="button" class="small" data-planned-undo="${x.id}">− Angre</button>`:''}<button type="button" class="small" data-planned-delete="${x.id}">Slett</button></div></div>`}
+function plannedSection(s){const list=plannedWindow(s),label=mode==='day'?'Planlagt i dag':'Kommende planlagt';return `<div class="section"><div class="ey">${label}</div><p class="sub">Enkeltstående oppgaver. De gir poeng, men påvirker ikke faste mål eller 700 %-flyten.</p>${list.length?list.map(x=>plannedCard(s,x)).join(''):'<div class="card"><span class="sub">Ingen planlagte enkeltoppgaver.</span></div>'}<button type="button" id="openPlannedForm" class="secondary full">+ Planlegg enkeltoppgave</button><div id="plannedForm" class="card hidden"><strong>Ny enkeltoppgave</strong><label><span class="label">Hva skal gjøres?</span><input id="plannedTitle" class="field" placeholder="F.eks. tannlege med barn"></label><label><span class="label">Dato</span><input id="plannedDate" class="field" type="date" value="${localDate()}"></label><label><span class="label">Ansvarlig</span><select id="plannedOwner" class="field">${ownerOptions('')}</select></label><label><span class="label">Påminnelse</span><select id="plannedReminder" class="field"><option value="none">Ingen</option><option value="dayBefore">Dagen før</option><option value="sameDay">Samme dag</option></select></label><label><span class="label">Poeng</span><input id="plannedPoints" class="field" type="number" min="0" value="30"></label><button type="button" id="savePlannedTask" class="primary full">Legg til</button><button type="button" id="cancelPlannedForm" class="secondary full" style="margin-top:8px">Avbryt</button></div></div>`}
+'''
+          if anchor not in s: raise SystemExit('complete anchor missing')
+          s=s.replace(anchor,funcs+anchor,1)
+
+          needle="${mode==='day'&&!tasks.length?'<div class=\"card\">Ingen faste gjøremål i dag.</div>':''}${keys.map(k=>"
+          if needle not in s: raise SystemExit('render anchor missing')
+          s=s.replace(needle,"${plannedSection(s)}"+needle,1)
+
+          click_anchor="const nav=e.target.closest('#nav button[data-view=\"tasks\"]');"
+          actions=r'''const openPlan=e.target.closest('#openPlannedForm');if(openPlan){e.preventDefault();e.stopImmediatePropagation();$('#plannedForm')?.classList.remove('hidden');return}
+const cancelPlan=e.target.closest('#cancelPlannedForm');if(cancelPlan){e.preventDefault();e.stopImmediatePropagation();$('#plannedForm')?.classList.add('hidden');return}
+const savePlan=e.target.closest('#savePlannedTask');if(savePlan){e.preventDefault();e.stopImmediatePropagation();const s=getState(),title=$('#plannedTitle')?.value.trim(),date=$('#plannedDate')?.value,owner=$('#plannedOwner')?.value||'Begge',reminder=$('#plannedReminder')?.value||'none',points=Math.max(0,Number($('#plannedPoints')?.value)||0);if(!s||!title||!date){bridge()?.toast?.('Legg inn oppgave og dato');return}const x={id:'planned_'+Date.now(),title,date,owner,reminder,points,createdAt:Date.now(),done:false,doneBy:null,doneAt:null};saveState({...s,plannedTasks:[...plannedList(s),x]});render({resetScroll:false});bridge()?.toast?.('Enkeltoppgaven er planlagt');return}
+const pd=e.target.closest('[data-planned-done]');if(pd){e.preventDefault();e.stopImmediatePropagation();const s=getState(),list=plannedList(s).map(x=>({...x})),x=list.find(x=>x.id===pd.dataset.plannedDone);if(!s||!x||x.done)return;x.done=true;x.doneBy=s.user;x.doneAt=new Date().toISOString();const points={...(s.points||{})};points[s.user]=(points[s.user]||0)+Number(x.points||0);saveState({...s,plannedTasks:list,points});render({resetScroll:false});bridge()?.toast?.(`Planlagt oppgave registrert · +${x.points||0} poeng`);return}
+const pu=e.target.closest('[data-planned-undo]');if(pu){e.preventDefault();e.stopImmediatePropagation();const s=getState(),list=plannedList(s).map(x=>({...x})),x=list.find(x=>x.id===pu.dataset.plannedUndo);if(!s||!x||!x.done||x.doneBy!==s.user)return;const points={...(s.points||{})};points[s.user]=Math.max(0,(points[s.user]||0)-Number(x.points||0));x.done=false;x.doneBy=null;x.doneAt=null;saveState({...s,plannedTasks:list,points});render({resetScroll:false});return}
+const px=e.target.closest('[data-planned-delete]');if(px){e.preventDefault();e.stopImmediatePropagation();const s=getState(),x=plannedList(s).find(x=>x.id===px.dataset.plannedDelete);if(!s||!x)return;if(x.done){bridge()?.toast?.('Angre registreringen før du sletter');return}if(confirm('Slette denne planlagte enkeltoppgaven?')){saveState({...s,plannedTasks:plannedList(s).filter(x=>x.id!==px.dataset.plannedDelete)});render({resetScroll:false})}return}
+'''
+          if click_anchor not in s: raise SystemExit('click anchor missing')
+          s=s.replace(click_anchor,actions+click_anchor,1)
+          s=s.replace("version:'20260824-0927'","version:'20260824-0942'",1)
+          p.write_text(s)
+          PY
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tasks-ui.js
+          git commit -m "Legg til planlagte enkeltoppgaver"
+          git push
