@@ -1,0 +1,38 @@
+name: Load planned UI 0947
+on:
+  push:
+    paths:
+      - '.github/workflows/load-planned-ui-0947.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add planned UI script
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text()
+          if './planned-ui.js' not in s:
+            anchor='<script src="./tasks-ui.js?v=20260823-2218" defer></script>'
+            if anchor not in s:
+              import re
+              m=re.search(r'<script src="\./tasks-ui\.js\?v=[^"]+" defer></script>',s)
+              if not m: raise SystemExit('tasks-ui script anchor missing')
+              anchor=m.group(0)
+            s=s.replace(anchor,anchor+'\n<script src="./planned-ui.js?v=20260824-0947" defer></script>',1)
+          else:
+            import re
+            s=re.sub(r'\./planned-ui\.js\?v=[^"\']+','./planned-ui.js?v=20260824-0947',s,count=1)
+          p.write_text(s)
+          PY
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Last planlagte enkeltoppgaver i appen"
+          git push
