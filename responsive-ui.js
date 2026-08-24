@@ -7,4 +7,22 @@ html,body{max-width:100%;overflow-x:hidden}.app,.content,.top,.nav{min-width:0;m
 @media(max-width:390px){.content{padding-left:12px;padding-right:12px}.title{font-size:31px}.card{padding:13px}.top{padding-left:9px;padding-right:9px;gap:6px}.pill{padding:9px 11px}.nav button{font-size:9px}.homeStats{gap:6px}}
 `;
 document.head.appendChild(style);
+
+function setupVisible(){const el=document.querySelector('#setup');return !!el&&!el.classList.contains('hidden')}
+function currentSetupStep(){const title=(document.querySelector('#setupTitle')?.textContent||'').trim();if(title.includes('Hva er viktig'))return 0;if(title.includes('Bygg husholdningen'))return 1;if(title.includes('Slik blir Flyt'))return 2;const body=(document.querySelector('#setupBody')?.textContent||'');if(body.includes('Hva skal Flyt hjelpe'))return 0;if(body.includes('Hva gjør dere'))return 1;if(body.includes('Dette er deres oppsett')||body.includes('Dette er deres uke'))return 2;return 0}
+function withTasksUi(fn,tries=0){if(window.FlytTasksUI?.openSetup){fn(window.FlytTasksUI);return}if(tries<40)setTimeout(()=>withTasksUi(fn,tries+1),50)}
+function finishSetup(){const b=window.FlytBridge,s=b?.getState?.();if(s)b.setState({...s,setupDone:true});document.querySelector('#setup')?.classList.add('hidden');const view=b?.getState?.()?.view;if(view==='tasks')window.FlytTasksUI?.render?.({resetScroll:true});else window.FlytHomeUI?.render?.({resetScroll:true});window.FlytSync?.queueSave?.()}
+
+window.addEventListener('click',e=>{
+ if(!setupVisible())return;
+ const next=e.target.closest?.('#setupNext');
+ const back=e.target.closest?.('#setupBack');
+ if(!next&&!back)return;
+ e.preventDefault();
+ e.stopImmediatePropagation();
+ const step=currentSetupStep();
+ if(back){if(step>0)withTasksUi(api=>api.openSetup(step-1));return}
+ if(step<2){withTasksUi(api=>api.openSetup(step+1));return}
+ finishSetup();
+},true);
 })();
