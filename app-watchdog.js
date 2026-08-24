@@ -28,7 +28,7 @@ function loadCustomCategories(){loadScript('./custom-categories-ui.js?v=20260824
 function loadRecurrence(){loadScript('./recurrence-ui.js?v=20260824-1443','flyt-recurrence')}
 function loadBeta(){loadScript('./beta-ui.js?v=20260824-1628','flyt-beta')}
 function loadResponsive(){loadScript('./responsive-ui.js?v=20260824-1708','flyt-responsive')}
-function loadHome(){loadScript('./home-ui.js?v=20260824-1707','flyt-home-current')}
+function loadHome(){if(window.FlytHomeUI)return;loadScript('./home-ui.js?v=20260824-1707','flyt-home-current')}
 async function modal(){if(window.FlytModal)return window.FlytModal;loadModal();for(let i=0;i<40;i++){await new Promise(r=>setTimeout(r,50));if(window.FlytModal)return window.FlytModal}return null}
 function snapshot(s,label){return{id:Date.now()+'_'+Math.random().toString(36).slice(2,6),savedAt:new Date().toISOString(),label,tasks:structuredClone(s.tasks||[]),custom:structuredClone(s.custom||[]),areas:structuredClone(s.areas||{}),trainingFor:structuredClone(s.trainingFor||{}),categoryRelevant:structuredClone(s.categoryRelevant||{})}}
 function archive(s,label){const hist=Array.isArray(s.setupHistory)?[...s.setupHistory]:[],snap=snapshot(s,label);hist.unshift(snap);return hist.slice(0,5)}
