@@ -1,0 +1,122 @@
+name: Consolidate setup repair
+on:
+  push:
+    paths:
+      - '.github/workflows/consolidate-setup-repair.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Repair setup library, categories and history
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          p=Path('index.html')
+          s=p.read_text()
+
+          lib="""const LIB=[
+{id:'dish_empty',cat:'Kjøkken',name:'Tømme oppvaskmaskin',freq:7,pts:20,type:'daily',kind:'house'},
+{id:'dish_fill',cat:'Kjøkken',name:'Fylle oppvaskmaskin',freq:7,pts:20,type:'daily',kind:'house'},
+{id:'kitchen',cat:'Kjøkken',name:'Rydde kjøkken',freq:7,pts:25,type:'daily',kind:'house'},
+{id:'counter',cat:'Kjøkken',name:'Vaske kjøkkenbenken',freq:7,pts:15,type:'daily',kind:'house'},
+{id:'dinner',cat:'Kjøkken',name:'Lage middag',freq:5,pts:40,type:'daily',kind:'house'},
+{id:'shop',cat:'Innkjøp',name:'Handle mat',freq:2,pts:45,type:'flex',kind:'house'},
+{id:'lunch',cat:'Barn',name:'Lage matpakker',freq:5,pts:25,type:'daily',kind:'house'},
+{id:'bag',cat:'Barn',name:'Pakke sekk til barna',freq:5,pts:15,type:'daily',kind:'house'},
+{id:'homework',cat:'Barn',name:'Lekser',freq:5,pts:20,type:'flex',kind:'house'},
+{id:'bedkids',cat:'Barn',name:'Legging',freq:7,pts:35,type:'daily',kind:'house'},
+{id:'school',cat:'Barn',name:'Skole/barnehage-kommunikasjon',freq:2,pts:25,type:'flex',kind:'house'},
+{id:'kids_clothes_school',cat:'Barn',name:'Skifte klær til barnehage/skole',freq:2,pts:20,type:'flex',kind:'house'},
+{id:'kids_clothes_buy',cat:'Barn',name:'Kjøpe nye klær til barna',freq:1,pts:35,type:'period',kind:'house'},
+{id:'bath',cat:'Bad',name:'Vaske bad',freq:1,pts:70,type:'flex',kind:'house'},
+{id:'bath_tidy',cat:'Bad',name:'Rydde badet',freq:3,pts:20,type:'flex',kind:'house'},
+{id:'vacuum',cat:'Vask & klær',name:'Støvsuge',freq:2,pts:50,type:'flex',kind:'house'},
+{id:'floors',cat:'Vask & klær',name:'Vaske gulv',freq:2,pts:40,type:'flex',kind:'house'},
+{id:'dust',cat:'Vask & klær',name:'Tørke støv',freq:1,pts:30,type:'flex',kind:'house'},
+{id:'laundry',cat:'Vask & klær',name:'Vaske/brette klær',freq:3,pts:45,type:'flex',kind:'house'},
+{id:'living',cat:'Stue',name:'Rydde stuen',freq:3,pts:25,type:'flex',kind:'house'},
+{id:'hallway',cat:'Stue',name:'Rydde gangen',freq:3,pts:25,type:'flex',kind:'house'},
+{id:'sofa_tidy',cat:'Stue',name:'Rydde sofa og oppholdsrom',freq:5,pts:15,type:'daily',kind:'house'},
+{id:'bed',cat:'Soverom',name:'Bytte sengetøy',freq:1,pts:60,type:'flex',kind:'house'},
+{id:'kids_bedding',cat:'Soverom',name:'Bytte sengetøy på barnas senger',freq:1,pts:45,type:'flex',kind:'house'},
+{id:'trash',cat:'Vedlikehold',name:'Søppel/pant',freq:2,pts:25,type:'flex',kind:'house'},
+{id:'windows',cat:'Vedlikehold',name:'Vaske vinduer',freq:1,pts:60,type:'period',kind:'house'},
+{id:'laundry_machine_clean',cat:'Vedlikehold',name:'Rense vaskemaskin/tørketrommel',freq:1,pts:40,type:'period',kind:'house'},
+{id:'maintenance_smoke',cat:'Vedlikehold',name:'Sjekke røykvarslere',freq:1,pts:30,type:'period',kind:'house'},
+{id:'maintenance_service',cat:'Vedlikehold',name:'Bestille håndverker / service',freq:1,pts:40,type:'period',kind:'house'},
+{id:'admin',cat:'Planlegging & admin',name:'Avtaler, lege og tannlege',freq:1,pts:40,type:'period',kind:'house'},
+{id:'gifts',cat:'Planlegging & admin',name:'Gaver og bursdager',freq:1,pts:35,type:'period',kind:'house'},
+{id:'weekly_menu',cat:'Planlegging & admin',name:'Lage ukemeny',freq:1,pts:30,type:'flex',kind:'house'},
+{id:'weekly_plan',cat:'Planlegging & admin',name:'Planlegge uken',freq:1,pts:35,type:'flex',kind:'house'},
+{id:'shopping_household',cat:'Innkjøp',name:'Fylle på husholdningsvarer',freq:1,pts:25,type:'flex',kind:'house'},
+{id:'shopping_returns',cat:'Innkjøp',name:'Returnere varer / pakker',freq:1,pts:25,type:'flex',kind:'house'},
+{id:'pet_food',cat:'Dyr',name:'Gi mat og friskt vann',freq:7,pts:15,type:'daily',kind:'house'},
+{id:'pet_walk',cat:'Dyr',name:'Lufte hund',freq:7,pts:25,type:'daily',kind:'house'},
+{id:'pet_litter',cat:'Dyr',name:'Rense kattekasse',freq:7,pts:20,type:'daily',kind:'house'},
+{id:'pet_groom',cat:'Dyr',name:'Stell og børsting',freq:2,pts:20,type:'flex',kind:'house'},
+{id:'pet_home_clean',cat:'Dyr',name:'Rengjøre bur/akvarium/dyreområde',freq:1,pts:40,type:'flex',kind:'house'},
+{id:'pet_supplies',cat:'Dyr',name:'Kjøpe dyremat og utstyr',freq:1,pts:30,type:'flex',kind:'house'},
+{id:'pet_vet',cat:'Dyr',name:'Veterinær, vaksiner og avtaler',freq:1,pts:40,type:'period',kind:'house'},
+{id:'pet_meds',cat:'Dyr',name:'Gi medisiner/behandling',freq:7,pts:20,type:'daily',kind:'house'},
+{id:'garden_mow',cat:'Hage & ute',name:'Klippe gress',freq:1,pts:50,type:'flex',kind:'house'},
+{id:'garden_tidy',cat:'Hage & ute',name:'Rydde uteområde',freq:1,pts:35,type:'flex',kind:'house'},
+{id:'garden_snow',cat:'Hage & ute',name:'Måke snø / strø',freq:1,pts:45,type:'flex',kind:'house'},
+{id:'car_wash',cat:'Bil',name:'Vaske bilen',freq:1,pts:40,type:'flex',kind:'house'},
+{id:'car_fuel',cat:'Bil',name:'Fylle drivstoff / lade',freq:1,pts:20,type:'flex',kind:'house'},
+{id:'car_service',cat:'Bil',name:'Bestille service / EU-kontroll',freq:1,pts:40,type:'period',kind:'house'},
+{id:'car_tires',cat:'Bil',name:'Skifte / følge opp dekk',freq:1,pts:50,type:'period',kind:'house'},
+{id:'train',cat:'Personlig investering',name:'Trening',freq:3,pts:40,type:'flex',kind:'personal'}];"""
+          s,n=re.subn(r"const LIB=\[.*?\];\nfunction fresh",lib+"\nfunction fresh",s,count=1,flags=re.S)
+          if n!=1: raise SystemExit('LIB replacement failed')
+
+          if 'setupHistory:[]' not in s:
+            s=s.replace("}},work:[],rewards:","}},setupHistory:[],work:[],rewards:",1)
+
+          if 'function setupSnapshot(' not in s:
+            old="function closeSetup(){state.setupDone=true;save();$('#setup').classList.add('hidden');render()}"
+            new="""function setupSnapshot(label){return{id:Date.now()+'_'+Math.random().toString(36).slice(2,7),savedAt:new Date().toISOString(),label:label||'Lagret oppsett',tasks:JSON.parse(JSON.stringify(state.tasks||[])),custom:JSON.parse(JSON.stringify(state.custom||[])),areas:JSON.parse(JSON.stringify(state.areas||{})),trainingFor:JSON.parse(JSON.stringify(state.trainingFor||{}))}}
+function setupSignature(x){return JSON.stringify({tasks:x.tasks||[],custom:x.custom||[],areas:x.areas||{},trainingFor:x.trainingFor||{}})}
+function archiveSetup(label){state.setupHistory=Array.isArray(state.setupHistory)?state.setupHistory:[];const snap=setupSnapshot(label),last=state.setupHistory[0];if(last&&setupSignature(last)===setupSignature(snap))return;state.setupHistory.unshift(snap);state.setupHistory=state.setupHistory.slice(0,5)}
+function restoreSetupSnapshot(id){const snap=(state.setupHistory||[]).find(x=>x.id===id);if(!snap)return;archiveSetup('Før gjenoppretting');state.tasks=JSON.parse(JSON.stringify(snap.tasks||[]));state.custom=JSON.parse(JSON.stringify(snap.custom||[]));state.areas=JSON.parse(JSON.stringify(snap.areas||state.areas||{}));state.trainingFor=JSON.parse(JSON.stringify(snap.trainingFor||state.trainingFor||{}));setupExpanded={};save();renderSetup();toast('Tidligere oppsett er gjenopprettet')}
+function setupHistoryHtml(){const hist=Array.isArray(state.setupHistory)?state.setupHistory:[];if(!hist.length)return '<p class=\"sub\">Ingen tidligere oppsett lagret ennå.</p>';return hist.map(x=>{const d=new Date(x.savedAt),when=isNaN(d)?'Ukjent tidspunkt':d.toLocaleString('nb-NO',{dateStyle:'short',timeStyle:'short'}),count=(x.tasks||[]).length;return `<div class=\"card row\"><div class=\"grow\"><strong>${x.label||'Lagret oppsett'}</strong><div class=\"taskmeta\">${when} · ${count} gjøremål</div></div><button type=\"button\" class=\"small\" data-restore-setup=\"${x.id}\">Gjenopprett</button></div>`}).join('')}
+function closeSetup(){archiveSetup('Lagret oppsett');state.setupDone=true;save();$('#setup').classList.add('hidden');render()}"""
+            if old not in s: raise SystemExit('closeSetup anchor missing')
+            s=s.replace(old,new,1)
+
+          reset_section='<div class="section"><div class="card"><strong>Tilbakestill gjøremål</strong><p class="sub">Setter oppgavelisten tilbake til standardforslaget. Historikk, poeng og gjennomføringer beholdes.</p><button type="button" id="resetTasks" class="secondary full">Tilbakestill gjøremål</button></div></div>`;bindSetup()}'
+          hist_section='<div class="section"><strong>Oppsettshistorikk</strong><p class="sub">De fem siste oppsettene kan gjenopprettes uten å slette poeng, statistikk eller gjennomførte gjøremål.</p>${setupHistoryHtml()}</div><div class="section"><div class="card"><strong>Tilbakestill gjøremål</strong><p class="sub">Setter den aktive oppgavelisten tilbake til standardforslaget. Tidligere gjøremål, historikk, poeng, statistikk og gjennomføringer beholdes.</p><button type="button" id="resetTasks" class="secondary full">Tilbakestill gjøremål</button></div></div>`;bindSetup()}'
+          if 'Oppsettshistorikk' not in s:
+            if reset_section not in s: raise SystemExit('reset section anchor missing')
+            s=s.replace(reset_section,hist_section,1)
+
+          old_reset="const reset=$('#resetTasks');if(reset)reset.onclick=()=>{if(!confirm('Tilbakestille gjøremål til standardoppsettet? Historikk og poeng beholdes.'))return;const ids=['dish_empty','dish_fill','kitchen','dinner','lunch','bag','bath','bed','laundry','trash','train'];state.tasks=LIB.filter(x=>ids.includes(x.id)).map(x=>({...x,owner:'Begge'}));state.custom=[];setupExpanded={};save();renderSetup();toast('Gjøremål er tilbakestilt')};"
+          new_reset="document.querySelectorAll('[data-restore-setup]').forEach(el=>el.onclick=()=>{if(confirm('Gjenopprette dette oppsettet? Poeng, statistikk og gjennomføringer beholdes.'))restoreSetupSnapshot(el.dataset.restoreSetup)});const reset=$('#resetTasks');if(reset)reset.onclick=()=>{if(!confirm('Tilbakestille den aktive oppgavelisten? Tidligere gjøremål, poeng, statistikk og gjennomføringer beholdes.'))return;archiveSetup('Før tilbakestilling');const ids=['dish_empty','dish_fill','kitchen','dinner','lunch','bag','bath','bed','laundry','trash','train'];state.tasks=LIB.filter(x=>ids.includes(x.id)).map(x=>({...x,owner:'Begge'}));setupExpanded={};save();renderSetup();toast('Gjøremål er tilbakestilt')};"
+          if old_reset in s:
+            s=s.replace(old_reset,new_reset,1)
+          elif 'data-restore-setup' not in s:
+            raise SystemExit('reset handler anchor missing')
+
+          p.write_text(s)
+
+          p=Path('tasks-ui.js')
+          s=p.read_text()
+          s=re.sub(r"const ORDER=\[[^;]+;","const ORDER=['Barn','Kjøkken','Vask & klær','Stue','Bad','Soverom','Dyr','Hage & ute','Bil','Innkjøp','Vedlikehold','Planlegging & admin','Usynlig arbeid','Personlig investering','Egendefinert'];",s,count=1)
+          old_cat=re.search(r"function cat\(t\)\{.*?\}\nfunction rememberView",s,re.S)
+          if not old_cat: raise SystemExit('cat function missing')
+          new_cat="""function cat(t){const raw=(t.cat||'').trim(),name=(t.name||'').toLowerCase();if(raw==='Barn'||raw==='Unger')return 'Barn';if(raw==='Kjøkken')return 'Kjøkken';if(raw==='Bad'||t.id==='bath'||name.includes('bad'))return 'Bad';if(raw==='Vask & klær')return 'Vask & klær';if(raw==='Stue')return 'Stue';if(raw==='Soverom')return 'Soverom';if(raw==='Dyr'||raw==='Husdyr')return 'Dyr';if(raw==='Hage & ute'||raw==='Utearbeid'||/(hage|gress|snø|ute|hekk|løv|gårdsplass)/.test(name))return 'Hage & ute';if(raw==='Bil')return 'Bil';if(raw==='Innkjøp')return 'Innkjøp';if(raw==='Vedlikehold'||raw==='Periodisk vedlikehold')return 'Vedlikehold';if(raw==='Planlegging & admin')return 'Planlegging & admin';if(raw==='Usynlig arbeid')return 'Usynlig arbeid';if(raw==='Personlig investering')return 'Personlig investering';if(raw==='Egendefinert')return 'Egendefinert';if(raw==='Hus'){if(t.id==='living'||t.id==='hallway')return 'Stue';if(t.id==='bed')return 'Soverom';if(t.id==='laundry'||t.id==='vacuum')return 'Vask & klær';if(t.id==='trash')return 'Vedlikehold'}return raw||'Hus'}
+function rememberView"""
+          s=s[:old_cat.start()]+new_cat+s[old_cat.end():]
+          p.write_text(s)
+          PY
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html tasks-ui.js
+          git commit -m "Reparer oppsett, kategorier og historikk"
+          git push
