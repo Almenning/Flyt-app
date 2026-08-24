@@ -2,6 +2,7 @@
 'use strict';
 const $=s=>document.querySelector(s);
 const bridge=()=>window.FlytBridge;
+if(!window.FlytSeenUI&&!document.querySelector('script[data-flyt-seen]')){const sc=document.createElement('script');sc.src='./seen-ui.js?v=20260824-1114';sc.defer=true;sc.dataset.flytSeen='1';document.head.appendChild(sc)}
 let installed=false;
 const state=()=>bridge()?.getState?.()||null;
 const save=s=>{bridge()?.setState?.(s);window.FlytSync?.queueSave?.()};
@@ -27,5 +28,5 @@ document.addEventListener('click',e=>{
  const nav=e.target.closest('#nav button[data-view="tasks"],[data-task-mode]');if(nav)setTimeout(()=>{hook();paint()},0)
 },true);
 let tries=0;const timer=setInterval(()=>{hook();if(installed||++tries>40)clearInterval(timer)},100);
-window.FlytPlannedUI={paint,version:'20260824-0956'};
+window.FlytPlannedUI={paint,version:'20260824-1124'};
 })();
