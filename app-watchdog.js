@@ -21,11 +21,12 @@ function restoreOwnedView(view){if(view==='home'&&window.FlytHomeUI?.render){que
 function installRenderGuard(){const b=window.FlytBridge;if(!b||b.__stabilityWrapped)return false;const original=b.setState?.bind(b);if(!original)return false;b.setState=next=>{original(next);restoreOwnedView(next?.view)};b.__stabilityWrapped=true;restoreOwnedView(b.getState?.()?.view);return true}
 function keepGuardAlive(){if(installRenderGuard())return;let tries=0;const timer=setInterval(()=>{tries++;if(installRenderGuard()||tries>40)clearInterval(timer)},100)}
 function loadScript(src,key){if(document.querySelector(`script[data-${key}]`))return;const s=document.createElement('script');s.src=src;s.defer=true;s.setAttribute(`data-${key}`,'1');document.head.appendChild(s)}
-function loadPlanned(){loadScript('./planned-ui.js?v=20260824-0945','flyt-planned')}
+function loadPlanned(){loadScript('./planned-ui.js?v=20260824-1457','flyt-planned')}
 function loadDayCompleted(){loadScript('./tasks-day-completed-ui.js?v=20260824-1350','flyt-day-completed')}
 function loadModal(){loadScript('./modal-ui.js?v=20260824-1414','flyt-modal')}
-function loadCustomCategories(){loadScript('./custom-categories-ui.js?v=20260824-1427','flyt-custom-categories')}
+function loadCustomCategories(){loadScript('./custom-categories-ui.js?v=20260824-1548','flyt-custom-categories')}
 function loadRecurrence(){loadScript('./recurrence-ui.js?v=20260824-1443','flyt-recurrence')}
+function loadBeta(){loadScript('./beta-ui.js?v=20260824-1628','flyt-beta')}
 async function modal(){if(window.FlytModal)return window.FlytModal;loadModal();for(let i=0;i<40;i++){await new Promise(r=>setTimeout(r,50));if(window.FlytModal)return window.FlytModal}return null}
 function snapshot(s,label){return{id:Date.now()+'_'+Math.random().toString(36).slice(2,6),savedAt:new Date().toISOString(),label,tasks:structuredClone(s.tasks||[]),custom:structuredClone(s.custom||[]),areas:structuredClone(s.areas||{}),trainingFor:structuredClone(s.trainingFor||{}),categoryRelevant:structuredClone(s.categoryRelevant||{})}}
 function archive(s,label){const hist=Array.isArray(s.setupHistory)?[...s.setupHistory]:[],snap=snapshot(s,label);hist.unshift(snap);return hist.slice(0,5)}
@@ -49,7 +50,7 @@ document.addEventListener('click',async e=>{
  const deleteReward=e.target.closest('[data-delete-reward]');
  if(deleteReward){e.preventDefault();e.stopImmediatePropagation();const b=bridge(),s=b?.getState?.(),rewards=[...(s?.rewards||[])],i=rewards.findIndex(x=>String(x.id)===String(deleteReward.dataset.deleteReward)&&x.by===s.user);if(!s||i<0)return;const yes=await askConfirm({ey:'Fristelser',title:'Slette fristelsen?',text:'Fristelsen fjernes permanent.',ok:'Slett'});if(!yes)return;rewards.splice(i,1);saveState({...s,rewards});b.toast?.('Fristelsen er slettet');return}
 },true);
-window.addEventListener('DOMContentLoaded',()=>{loadModal();loadPlanned();loadDayCompleted();loadCustomCategories();loadRecurrence();keepGuardAlive();setTimeout(rescue,5000)});
+window.addEventListener('DOMContentLoaded',()=>{loadModal();loadPlanned();loadDayCompleted();loadCustomCategories();loadRecurrence();loadBeta();keepGuardAlive();setTimeout(rescue,5000)});
 window.addEventListener('error',()=>setTimeout(rescue,50));
 window.addEventListener('unhandledrejection',()=>setTimeout(rescue,50));
 })();
