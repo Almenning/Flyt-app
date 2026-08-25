@@ -1,11 +1,12 @@
 (()=>{
 'use strict';
-const RELEASE='20260825-2130';
+const RELEASE='20260825-2150';
 let installed=false;
 function css(){if(document.querySelector('#flytBuyerPolish'))return;const s=document.createElement('style');s.id='flytBuyerPolish';s.textContent=`
-#flytGlobalModal{z-index:300!important}
+#flytGlobalModal,#seenRequestModal,#flytDialog,#quickTemptationModal,#ossNotifyModal,#betaPanel{z-index:300!important}
 #statusAlertModal{z-index:320!important}
 #quickAlertModal{z-index:330!important}
+#syncModal{z-index:280!important}
 .toast{z-index:350!important}
 button{-webkit-tap-highlight-color:transparent}
 button:active{transform:scale(.985)}
@@ -36,7 +37,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 @media(min-width:601px){#flytMoreBtn{display:none!important}#flytAppMenu{align-items:center}#flytAppMenu .flytMenuSheet{width:390px;border-radius:26px;max-height:760px}}
 @media(prefers-reduced-motion:reduce){button:active{transform:none}.nav button{transition:none}}
 `;document.head.appendChild(s)}
-function normalizeOverlays(root=document){const map=[['#flytGlobalModal','300'],['#statusAlertModal','320'],['#quickAlertModal','330']];for(const [sel,z] of map){if(root.matches?.(sel))root.style.zIndex=z;root.querySelectorAll?.(sel).forEach(el=>el.style.zIndex=z)}document.querySelectorAll('.toast').forEach(el=>el.style.zIndex='350')}
+function normalizeOverlays(root=document){const map=[['#flytGlobalModal','300'],['#seenRequestModal','300'],['#flytDialog','300'],['#quickTemptationModal','300'],['#ossNotifyModal','300'],['#betaPanel','300'],['#syncModal','280'],['#statusAlertModal','320'],['#quickAlertModal','330']];for(const [sel,z] of map){if(root.matches?.(sel))root.style.zIndex=z;root.querySelectorAll?.(sel).forEach(el=>el.style.zIndex=z)}document.querySelectorAll('.toast').forEach(el=>el.style.zIndex='350')}
 function polishCopy(){document.querySelectorAll('#betaGate .ey').forEach(el=>{if(el.textContent.trim()==='Gratis privat beta')el.textContent='Privat beta'});document.querySelectorAll('#betaGate .sub').forEach(el=>{if(el.textContent.includes('antall ganger per uke, poeng, hvem som vanligvis gjør dem, timing'))el.textContent='Oppgaver, daglig/ukentlig/månedlig rytme, poeng, hvem som vanligvis gjør dem og hva som er viktig for dere.'});document.querySelectorAll('#content .sub').forEach(el=>{if(el.textContent.includes('hint, masing eller ren tankelesing'))el.textContent='Her kan dere gjøre behov, ønsker og usynlige bidrag tydelige før de blir til hint, misforståelser eller masing.'})}
 function registerSW(){if(!('serviceWorker'in navigator))return;navigator.serviceWorker.register(`./sw.js?v=${RELEASE}`).catch(()=>{})}
 function labelNav(){const labels={home:'Hjem',tasks:'Gjøre',seen:'Sett',rewards:'Fristelser',us:'Oss'};document.querySelectorAll('#nav button[data-view]').forEach(b=>{b.setAttribute('aria-label',labels[b.dataset.view]||b.dataset.view);if(b.classList.contains('on'))b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')})}
