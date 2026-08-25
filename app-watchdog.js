@@ -32,7 +32,7 @@ function loadRewardsEditGuard(){if(window.FlytRewardsEditGuard)return;loadScript
 function loadRewardsSummary(){if(window.FlytRewardsSummaryUI)return;loadScript('./rewards-summary-ui.js?v=20260825-0926','flyt-rewards-summary')}
 function loadRewardsUI(){if(window.FlytRewardsUI)return;loadScript('./rewards-ui.js?v=20260825-1228','flyt-rewards-ui')}
 function loadQuickTemptation(){if(window.FlytQuickTemptationUI)return;loadScript('./quick-temptation-ui.js?v=20260825-1238','flyt-quick-temptation')}
-function loadSetupNavGuard(){if(window.FlytSetupNavGuard)return;loadScript('./setup-nav-guard.js?v=20260825-1249','flyt-setup-nav')}
+function loadSetupNavGuard(){if(window.FlytSetupNavGuard)return;loadScript('./setup-nav-guard.js?v=20260825-1318','flyt-setup-nav')}
 function loadLegacyCleanup(){if(window.FlytLegacyCleanup)return;loadScript('./legacy-cleanup.js?v=20260825-1246','flyt-legacy-cleanup')}
 function loadTaskActionsGuard(){if(window.FlytTaskActionsGuard)return;loadScript('./task-actions-guard.js?v=20260825-0848','flyt-task-actions')}
 function loadHome(){if(window.FlytHomeUI)return;loadScript('./home-ui.js?v=20260824-1945','flyt-home-current')}
