@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const RELEASE='20260825-1942';
+const RELEASE='20260825-2007';
 let installed=false;
 function css(){if(document.querySelector('#flytBuyerPolish'))return;const s=document.createElement('style');s.id='flytBuyerPolish';s.textContent=`
 #flytGlobalModal{z-index:300!important}
@@ -10,6 +10,7 @@ function css(){if(document.querySelector('#flytBuyerPolish'))return;const s=docu
 button{-webkit-tap-highlight-color:transparent}
 button:active{transform:scale(.985)}
 button:disabled{opacity:.55;cursor:not-allowed}
+#switchUser:disabled{opacity:1;cursor:default}
 button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .content,#flytSetupV2Body{overscroll-behavior:contain}
 .top,.nav{-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
