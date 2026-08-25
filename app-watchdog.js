@@ -17,7 +17,7 @@ const DEFAULT_TASKS=[
 ];
 function visible(el){return !!el&&!el.classList.contains('hidden')&&getComputedStyle(el).display!=='none'}
 function rescue(){const app=document.querySelector('.app'),gate=document.querySelector('#betaGate'),legacy=document.querySelector('#login');if(visible(app)||visible(gate)||visible(legacy))return;const box=document.createElement('div');box.id='flytRescue';box.className='login';box.innerHTML='<div class="loginbox"><div class="logo">fl<b>y</b>t</div><div class="ey">Oppstart</div><h1 style="font:500 30px Georgia">Flyt fikk ikke startet</h1><p class="sub">Ingen data er slettet. Last siden på nytt for å prøve igjen.</p><button id="flytReload" class="primary full">Last inn Flyt på nytt</button></div>';document.body.appendChild(box);document.querySelector('#flytReload').onclick=()=>location.reload()}
-function restoreOwnedView(view){if(view==='home'&&window.FlytHomeUI?.render){queueMicrotask(()=>window.FlytHomeUI.render({resetScroll:false}));return}if(view==='tasks'&&window.FlytTasksUI?.render){queueMicrotask(()=>{window.FlytTasksUI.render({resetScroll:false});setTimeout(()=>window.FlytPlannedUI?.paint?.(),0)});return}if(view==='us'&&window.FlytOss?.render){queueMicrotask(()=>window.FlytOss.render({refresh:false}));return}if(view==='seen'&&window.FlytSeenUI?.render){queueMicrotask(()=>window.FlytSeenUI.render())}}
+function restoreOwnedView(view){if(view==='home'&&window.FlytHomeUI?.render){queueMicrotask(()=>window.FlytHomeUI.render({resetScroll:false}));return}if(view==='tasks'&&window.FlytTasksUI?.render){queueMicrotask(()=>{window.FlytTasksUI.render({resetScroll:false});setTimeout(()=>window.FlytPlannedUI?.paint?.(),0)});return}if(view==='us'&&window.FlytOss?.render){queueMicrotask(()=>window.FlytOss.render({refresh:false}));return}if(view==='seen'&&window.FlytSeenUI?.render){queueMicrotask(()=>window.FlytSeenUI.render());return}if(view==='rewards'&&window.FlytRewardsSummaryUI?.paint){queueMicrotask(()=>window.FlytRewardsSummaryUI.paint())}}
 function installRenderGuard(){const b=window.FlytBridge;if(!b||b.__stabilityWrapped)return false;const original=b.setState?.bind(b);if(!original)return false;b.setState=next=>{original(next);restoreOwnedView(next?.view)};b.__stabilityWrapped=true;restoreOwnedView(b.getState?.()?.view);return true}
 function keepGuardAlive(){if(installRenderGuard())return;let tries=0;const timer=setInterval(()=>{tries++;if(installRenderGuard()||tries>40)clearInterval(timer)},100)}
 function loadScript(src,key){if(document.querySelector(`script[data-${key}]`))return;const s=document.createElement('script');s.src=src;s.defer=true;s.setAttribute(`data-${key}`,'1');document.head.appendChild(s)}
@@ -29,6 +29,7 @@ function loadRecurrence(){if(window.FlytRecurrenceUI)return;loadScript('./recurr
 function loadBeta(){if(window.FlytBetaUI)return;loadScript('./beta-ui.js?v=20260824-1628','flyt-beta')}
 function loadResponsive(){if(document.querySelector('#flytResponsiveUi'))return;loadScript('./responsive-ui.js?v=20260825-0648','flyt-responsive')}
 function loadRewardsEditGuard(){if(window.FlytRewardsEditGuard)return;loadScript('./rewards-edit-guard.js?v=20260825-0708','flyt-rewards-edit')}
+function loadRewardsSummary(){if(window.FlytRewardsSummaryUI)return;loadScript('./rewards-summary-ui.js?v=20260825-0923','flyt-rewards-summary')}
 function loadSetupNavGuard(){if(window.FlytSetupNavGuard)return;loadScript('./setup-nav-guard.js?v=20260825-0832','flyt-setup-nav')}
 function loadLegacyCleanup(){if(window.FlytLegacyCleanup)return;loadScript('./legacy-cleanup.js?v=20260825-0838','flyt-legacy-cleanup')}
 function loadTaskActionsGuard(){if(window.FlytTaskActionsGuard)return;loadScript('./task-actions-guard.js?v=20260825-0848','flyt-task-actions')}
@@ -54,7 +55,7 @@ document.addEventListener('click',async e=>{
  const deleteReward=e.target.closest('[data-delete-reward]');
  if(deleteReward){e.preventDefault();e.stopImmediatePropagation();const b=bridge(),s=b?.getState?.(),rewards=[...(s?.rewards||[])],i=rewards.findIndex(x=>String(x.id)===String(deleteReward.dataset.deleteReward)&&x.by===s.user);if(!s||i<0)return;const yes=await askConfirm({ey:'Fristelser',title:'Slette fristelsen?',text:'Fristelsen fjernes permanent.',ok:'Slett'});if(!yes)return;rewards.splice(i,1);saveState({...s,rewards});b.toast?.('Fristelsen er slettet');return}
 },true);
-window.addEventListener('DOMContentLoaded',()=>{loadLegacyCleanup();loadResponsive();loadHome();loadModal();loadPlanned();loadDayCompleted();loadCustomCategories();loadRecurrence();loadBeta();loadRewardsEditGuard();loadSetupNavGuard();loadTaskActionsGuard();keepGuardAlive();setTimeout(rescue,5000)});
+window.addEventListener('DOMContentLoaded',()=>{loadLegacyCleanup();loadResponsive();loadHome();loadModal();loadPlanned();loadDayCompleted();loadCustomCategories();loadRecurrence();loadBeta();loadRewardsEditGuard();loadRewardsSummary();loadSetupNavGuard();loadTaskActionsGuard();keepGuardAlive();setTimeout(rescue,5000)});
 window.addEventListener('error',()=>setTimeout(rescue,50));
 window.addEventListener('unhandledrejection',()=>setTimeout(rescue,50));
 })();
