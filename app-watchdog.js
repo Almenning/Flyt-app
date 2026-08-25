@@ -1,14 +1,14 @@
 (()=>{
 'use strict';
 const DEFAULT_TASKS=[
-{id:'dish_empty',cat:'Kjøkken',name:'Tømme oppvaskmaskin',freq:7,pts:20,type:'daily',kind:'house'},
-{id:'dish_fill',cat:'Kjøkken',name:'Fylle oppvaskmaskin',freq:7,pts:20,type:'daily',kind:'house'},
-{id:'kitchen',cat:'Kjøkken',name:'Rydde kjøkken',freq:7,pts:25,type:'daily',kind:'house'},
-{id:'counter',cat:'Kjøkken',name:'Vaske kjøkkenbenken',freq:7,pts:15,type:'daily',kind:'house'},
-{id:'dinner',cat:'Kjøkken',name:'Lage middag',freq:5,pts:40,type:'daily',kind:'house'},
-{id:'lunch',cat:'Barn',name:'Lage matpakker',freq:5,pts:25,type:'daily',kind:'house'},
-{id:'bag',cat:'Barn',name:'Pakke sekk til barna',freq:5,pts:15,type:'daily',kind:'house'},
-{id:'bedkids',cat:'Barn',name:'Legging',freq:7,pts:35,type:'daily',kind:'house'},
+{id:'dish_empty',cat:'Kjøkken',name:'Tømme oppvaskmaskin',freq:1,pts:20,type:'daily',kind:'house'},
+{id:'dish_fill',cat:'Kjøkken',name:'Fylle oppvaskmaskin',freq:1,pts:20,type:'daily',kind:'house'},
+{id:'kitchen',cat:'Kjøkken',name:'Rydde kjøkken',freq:1,pts:25,type:'daily',kind:'house'},
+{id:'counter',cat:'Kjøkken',name:'Vaske kjøkkenbenken',freq:1,pts:15,type:'daily',kind:'house'},
+{id:'dinner',cat:'Kjøkken',name:'Lage middag',freq:1,pts:40,type:'daily',kind:'house'},
+{id:'lunch',cat:'Barn',name:'Lage matpakker',freq:1,pts:25,type:'daily',kind:'house'},
+{id:'bag',cat:'Barn',name:'Pakke sekk til barna',freq:1,pts:15,type:'daily',kind:'house'},
+{id:'bedkids',cat:'Barn',name:'Legging',freq:1,pts:35,type:'daily',kind:'house'},
 {id:'bath',cat:'Bad',name:'Vaske bad',freq:1,pts:70,type:'flex',kind:'house'},
 {id:'living',cat:'Stue',name:'Rydde stuen',freq:3,pts:25,type:'flex',kind:'house'},
 {id:'laundry',cat:'Vask & klær',name:'Vaske/brette klær',freq:3,pts:45,type:'flex',kind:'house'},
@@ -25,8 +25,8 @@ function loadBuyerPolish(){if(window.FlytBuyerPolish)return;loadScript('./buyer-
 function loadPlanned(){if(window.FlytPlannedUI)return;loadScript('./planned-ui.js?v=20260825-0910','flyt-planned')}
 function loadDayCompleted(){if(window.FlytTasksDayCompleted)return;loadScript('./tasks-day-completed-ui.js?v=20260824-1350','flyt-day-completed')}
 function loadModal(){if(window.FlytModal)return;loadScript('./modal-ui.js?v=20260825-1933','flyt-modal')}
-function loadCustomCategories(){if(window.FlytCustomCategories)return;loadScript('./custom-categories-ui.js?v=20260825-2338','flyt-custom-categories')}
-function loadRecurrence(){if(window.FlytRecurrenceUI)return;loadScript('./recurrence-ui.js?v=20260825-2344','flyt-recurrence')}
+function loadCustomCategories(){if(window.FlytCustomCategories?.version==='20260825-2338')return;loadScript('./custom-categories-ui.js?v=20260825-2338','flyt-custom-categories-2338')}
+function loadRecurrence(){if(window.FlytRecurrenceUI?.version==='20260825-2344')return;loadScript('./recurrence-ui.js?v=20260825-2344','flyt-recurrence-2344')}
 function loadBeta(){if(window.FlytBetaUI)return;loadScript('./beta-ui.js?v=20260824-1628','flyt-beta')}
 function loadResponsive(){if(document.querySelector('#flytResponsiveUi'))return;loadScript('./responsive-ui.js?v=20260825-0648','flyt-responsive')}
 function loadSeen(){if(window.FlytSeenUI)return;loadScript('./seen-ui.js?v=20260825-0702','flyt-seen-core')}
@@ -36,8 +36,8 @@ function loadRewardsUI(){if(window.FlytRewardsUI)return;loadScript('./rewards-ui
 function loadQuickTemptation(){if(window.FlytQuickTemptationUI)return;loadScript('./quick-temptation-ui.js?v=20260825-2210','flyt-quick-temptation')}
 function loadSetupV2(){if(window.FlytSetupV2)return;loadScript('./setup-v2.js?v=20260825-1802','flyt-setup-v2')}
 function loadSetupBack(){if(window.FlytSetupBackUI)return;loadScript('./setup-back-ui.js?v=20260825-2058','flyt-setup-back')}
-function loadDailyFrequency(){if(window.FlytDailyFrequencyUI)return;loadScript('./daily-frequency-ui.js?v=20260825-2352','flyt-daily-frequency')}
-function loadHome(){if(window.FlytHomeUI)return;loadScript('./home-ui.js?v=20260825-2342','flyt-home-current')}
+function loadDailyFrequency(){if(window.FlytDailyFrequencyUI?.version==='20260825-2356')return;loadScript('./daily-frequency-ui.js?v=20260825-2356','flyt-daily-frequency-2356')}
+function loadHome(){if(window.FlytHomeUI?.version==='20260825-2342')return;loadScript('./home-ui.js?v=20260825-2342','flyt-home-current-2342')}
 async function modal(){if(window.FlytModal)return window.FlytModal;loadModal();for(let i=0;i<40;i++){await new Promise(r=>setTimeout(r,50));if(window.FlytModal)return window.FlytModal}return null}
 function snapshot(s,label){return{id:Date.now()+'_'+Math.random().toString(36).slice(2,6),savedAt:new Date().toISOString(),label,tasks:structuredClone(s.tasks||[]),custom:structuredClone(s.custom||[]),areas:structuredClone(s.areas||{}),trainingFor:structuredClone(s.trainingFor||{}),categoryRelevant:structuredClone(s.categoryRelevant||{})}}
 function archive(s,label){const hist=Array.isArray(s.setupHistory)?[...s.setupHistory]:[],snap=snapshot(s,label);hist.unshift(snap);return hist.slice(0,5)}
