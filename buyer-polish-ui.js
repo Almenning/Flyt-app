@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const RELEASE='20260825-2007';
+const RELEASE='20260825-2026';
 let installed=false;
 function css(){if(document.querySelector('#flytBuyerPolish'))return;const s=document.createElement('style');s.id='flytBuyerPolish';s.textContent=`
 #flytGlobalModal{z-index:300!important}
@@ -14,12 +14,17 @@ button:disabled{opacity:.55;cursor:not-allowed}
 button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .content,#flytSetupV2Body{overscroll-behavior:contain}
 .top,.nav{-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+.top{box-shadow:0 5px 18px #5c30200a}
+.nav{box-shadow:0 -6px 20px #5c30200a}
+.nav button{border-radius:13px;transition:background .16s ease,color .16s ease,transform .12s ease}
+.nav button.on{background:#fff0e8}
+.nav b{line-height:1.05}
 #flytAppMenu{position:fixed;inset:0;z-index:285;background:#3a211b77;display:flex;align-items:flex-end;justify-content:center}
 #flytAppMenu .flytMenuSheet{width:100%;max-height:86dvh;overflow:auto;padding:18px 15px max(18px,env(safe-area-inset-bottom));border-radius:26px 26px 0 0;background:#fffaf7;box-shadow:0 -20px 60px #4d291f33}
 #flytAppMenu .flytMenuAction{width:100%;display:flex;align-items:center;gap:12px;text-align:left;margin-top:8px}
 #flytAppMenu .flytMenuIcon{width:30px;text-align:center;font-size:18px}
 @media(max-width:600px){
- .top{gap:7px;padding-left:10px;padding-right:10px;align-items:center}
+ .top{gap:7px;padding-left:10px;padding-right:10px;align-items:center;overflow:hidden!important}
  .top>#switchUser{min-width:0;max-width:calc(100% - 58px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px!important;padding:8px 11px!important;min-height:40px!important}
  .top>div{margin-left:auto;flex:0 0 auto;gap:5px!important}
  .top>div>#betaHelpBtn,.top>div>#syncBtn,.top>div>#setupBtn,.top>div>#setupBtnV2,.top>div>#lock{display:none!important}
@@ -28,10 +33,10 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
  .card{box-shadow:0 8px 22px #65351d0d}
 }
 @media(min-width:601px){#flytMoreBtn{display:none!important}#flytAppMenu{align-items:center}#flytAppMenu .flytMenuSheet{width:390px;border-radius:26px;max-height:760px}}
-@media(prefers-reduced-motion:reduce){button:active{transform:none}}
+@media(prefers-reduced-motion:reduce){button:active{transform:none}.nav button{transition:none}}
 `;document.head.appendChild(s)}
 function normalizeOverlays(root=document){const map=[['#flytGlobalModal','300'],['#statusAlertModal','320'],['#quickAlertModal','330']];for(const [sel,z] of map){if(root.matches?.(sel))root.style.zIndex=z;root.querySelectorAll?.(sel).forEach(el=>el.style.zIndex=z)}document.querySelectorAll('.toast').forEach(el=>el.style.zIndex='350')}
-function polishCopy(){document.querySelectorAll('#betaGate .ey').forEach(el=>{if(el.textContent.trim()==='Gratis privat beta')el.textContent='Privat beta'});document.querySelectorAll('#betaGate .sub').forEach(el=>{if(el.textContent.includes('antall ganger per uke, poeng, hvem som vanligvis gjør dem, timing'))el.textContent='Oppgaver, daglig/ukentlig/månedlig rytme, poeng, hvem som vanligvis gjør dem og hva som er viktig for dere.'})}
+function polishCopy(){document.querySelectorAll('#betaGate .ey').forEach(el=>{if(el.textContent.trim()==='Gratis privat beta')el.textContent='Privat beta'});document.querySelectorAll('#betaGate .sub').forEach(el=>{if(el.textContent.includes('antall ganger per uke, poeng, hvem som vanligvis gjør dem, timing'))el.textContent='Oppgaver, daglig/ukentlig/månedlig rytme, poeng, hvem som vanligvis gjør dem og hva som er viktig for dere.'});document.querySelectorAll('#content .sub').forEach(el=>{if(el.textContent.includes('hint, masing eller ren tankelesing'))el.textContent='Her kan dere gjøre behov, ønsker og usynlige bidrag tydelige før de blir til hint, misforståelser eller masing.'})}
 function ensureSetupAfterOnboarding(e){const b=e.target.closest?.('#reviewSetup,#continueSetup');if(!b)return;setTimeout(()=>{let tries=0;const t=setInterval(()=>{if(window.FlytSetupV2?.open){clearInterval(t);window.FlytSetupV2.open(0);if(b.id==='reviewSetup')window.FlytBridge?.toast?.('Se gjennom og juster oppsettet før dere starter');return}if(++tries>40)clearInterval(t)},50)},80)}
 function registerSW(){if(!('serviceWorker'in navigator))return;navigator.serviceWorker.register(`./sw.js?v=${RELEASE}`).catch(()=>{})}
 function labelNav(){const labels={home:'Hjem',tasks:'Gjøre',seen:'Sett',rewards:'Fristelser',us:'Oss'};document.querySelectorAll('#nav button[data-view]').forEach(b=>{b.setAttribute('aria-label',labels[b.dataset.view]||b.dataset.view);if(b.classList.contains('on'))b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')})}
