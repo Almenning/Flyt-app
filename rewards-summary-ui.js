@@ -1,0 +1,10 @@
+(()=>{
+'use strict';
+let painting=false;
+function state(){return window.FlytBridge?.getState?.()||null}
+function partnerName(s){const members=window.FlytSync?.getContext?.()?.members||[];const p=members.find(m=>m.display_name&&m.display_name!==s?.user);return p?.display_name||Object.keys(s?.points||{}).find(n=>n!==s?.user)||'Partner'}
+function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function paint(){if(painting)return;const s=state(),c=document.querySelector('#content');if(!s||!c||s.view!=='rewards')return;const h1=c.querySelector('h1.title');if(!h1)return;painting=true;const me=s.user||'Meg',partner=partnerName(s),points=s.points||{},existing=c.querySelector('[data-rewards-summary="1"]');const html=`<div class="card" data-rewards-summary="1"><div class="ey" style="margin-bottom:10px">Poengsaldo</div><div class="grid2"><div style="padding:12px;border:1px solid var(--line);border-radius:15px;background:#fff"><strong>${esc(me)}</strong><div class="tag" style="display:inline-block;margin-top:8px">${Number(points[me]||0)} poeng</div></div><div style="padding:12px;border:1px solid var(--line);border-radius:15px;background:#fff"><strong>${esc(partner)}</strong><div class="tag" style="display:inline-block;margin-top:8px">${Number(points[partner]||0)} poeng</div></div></div></div>`;if(existing){existing.outerHTML=html}else{const legacy=h1.nextElementSibling;if(legacy?.classList.contains('card')&&legacy.querySelector('.tag'))legacy.remove();h1.insertAdjacentHTML('afterend',html)}painting=false}
+const obs=new MutationObserver(()=>{if(!painting)queueMicrotask(paint)});window.addEventListener('DOMContentLoaded',()=>{const c=document.querySelector('#content');if(c){obs.observe(c,{childList:true,subtree:true});paint()}});let n=0;const timer=setInterval(()=>{const c=document.querySelector('#content');if(c){obs.observe(c,{childList:true,subtree:true});paint();clearInterval(timer)}else if(++n>60)clearInterval(timer)},100);
+window.FlytRewardsSummaryUI={paint,version:'20260825-0923'};
+})();
