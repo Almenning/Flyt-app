@@ -1,25 +1,23 @@
 (()=>{
 'use strict';
-let handledAt=0,handledKind='';
-function setupEl(){return document.querySelector('#setup')}
-function bodyEl(){return document.querySelector('#setupBody')}
-function nextEl(){return document.querySelector('#setupNext')}
-function backEl(){return document.querySelector('#setupBack')}
-function setupOpen(){const el=setupEl();return !!el&&!el.classList.contains('hidden')}
-function step(){const title=(document.querySelector('#setupTitle')?.textContent||'').trim();if(title.includes('Hva er viktig'))return 0;if(title.includes('Bygg husholdningen'))return 1;if(title.includes('Slik blir Flyt'))return 2;const body=(bodyEl()?.textContent||'');if(body.includes('Hva skal Flyt hjelpe'))return 0;if(body.includes('Hva gjør dere'))return 1;if(body.includes('Dette er deres oppsett')||body.includes('Dette er deres uke'))return 2;return 0}
-function hardenButtons(){for(const b of [nextEl(),backEl()])if(b){b.disabled=false;b.style.pointerEvents='auto';b.style.touchAction='manipulation';b.style.position='relative';b.style.zIndex='3'}}
-function settleSetupTop(){const setup=setupEl(),body=bodyEl();if(!setup||!body)return;setup.style.zIndex='120';setup.style.pointerEvents='auto';setup.style.touchAction='auto';body.style.overflowY='auto';body.style.webkitOverflowScrolling='touch';body.style.touchAction='pan-y';body.style.overscrollBehavior='contain';body.style.overflowAnchor='none';hardenButtons();const apply=()=>{body.scrollTop=0;setup.scrollTop=0};apply();requestAnimationFrame(()=>{apply();requestAnimationFrame(apply)});setTimeout(()=>{apply();body.style.overflowAnchor=''},120)}
-function openSetup(startStep){const api=window.FlytTasksUI;if(!api?.openSetup)return false;document.activeElement?.blur?.();api.openSetup(startStep);setupEl()?.classList.remove('hidden');settleSetupTop();setTimeout(()=>{if(setupOpen()&&step()!==startStep)api.openSetup(startStep)},40);return true}
-function finish(){const b=window.FlytBridge,s=b?.getState?.();if(s)b.setState({...s,setupDone:true});setupEl()?.classList.add('hidden');window.FlytSync?.queueSave?.();const view=b?.getState?.()?.view;if(view==='tasks')window.FlytTasksUI?.render?.({resetScroll:true});else window.FlytHomeUI?.render?.({resetScroll:true})}
-function go(dir){if(!setupOpen())return false;const n=step();if(dir<0){if(n>0)openSetup(n-1);return true}if(n<2){openSetup(n+1);return true}finish();return true}
-function isDuplicate(kind){const now=Date.now();if(handledKind===kind&&now-handledAt<650)return true;handledKind=kind;handledAt=now;return false}
-function navTarget(e){const el=e.target?.closest?.('#setupNext,#setupBack');return el&&setupOpen()?el:null}
-function openTarget(e){const el=e.target?.closest?.('#setupBtn,[data-open-setup],[data-open-new-setup]');return el&&!setupOpen()?el:null}
-function handle(e){const open=openTarget(e);if(open){const kind='open:'+open.id+':'+(open.dataset.openNewSetup||open.dataset.openSetup||'');if(isDuplicate(kind)){e.preventDefault();e.stopImmediatePropagation();return}const start=open.id==='setupBtn'?0:1;if(!openSetup(start))return;e.preventDefault();e.stopImmediatePropagation();return}const nav=navTarget(e);if(!nav)return;const kind=nav.id;if(isDuplicate(kind)){e.preventDefault();e.stopImmediatePropagation();return}const dir=nav.id==='setupBack'?-1:1;if(!go(dir))return;e.preventDefault();e.stopImmediatePropagation()}
-for(const type of ['pointerdown','touchstart','pointerup','click'])window.addEventListener(type,handle,{capture:true,passive:false});
-function bindDirect(){hardenButtons();const n=nextEl(),b=backEl();if(n&&!n.__flytDirect){n.__flytDirect=true;n.addEventListener('click',e=>{if(!setupOpen())return;e.preventDefault();go(1)})}if(b&&!b.__flytDirect){b.__flytDirect=true;b.addEventListener('click',e=>{if(!setupOpen())return;e.preventDefault();go(-1)})}}
-const obs=new MutationObserver(()=>{if(setupOpen()){settleSetupTop();bindDirect()}});
-window.addEventListener('DOMContentLoaded',()=>{const setup=setupEl();if(setup)obs.observe(setup,{attributes:true,childList:true,subtree:true});bindDirect()});
-window.addEventListener('pageshow',()=>{if(setupOpen()){settleSetupTop();bindDirect()}});
-window.FlytSetupNavGuard={go,openSetup,version:'20260825-1249'};
+let currentStep=0,installed=false;
+const setup=()=>document.querySelector('#setup');
+const body=()=>document.querySelector('#setupBody');
+const title=()=>document.querySelector('#setupTitle');
+const foot=()=>document.querySelector('.setupFoot');
+const oldNext=()=>document.querySelector('#setupNext');
+const oldBack=()=>document.querySelector('#setupBack');
+const api=()=>window.FlytTasksUI;
+function isOpen(){const el=setup();return !!el&&!el.classList.contains('hidden')}
+function detectStep(){const t=(title()?.textContent||'').trim(),b=(body()?.textContent||'');if(t.includes('Hva er viktig')||b.includes('Hva skal Flyt hjelpe'))return 0;if(t.includes('Bygg husholdningen')||b.includes('Hva gjør dere'))return 1;if(t.includes('Slik blir Flyt')||b.includes('Dette er deres oppsett')||b.includes('Dette er deres uke'))return 2;return currentStep}
+function styleOverlay(){const s=setup(),b=body(),f=foot();if(!s||!b||!f)return;s.style.zIndex='160';s.style.pointerEvents='auto';b.style.minHeight='0';b.style.overflowY='auto';b.style.webkitOverflowScrolling='touch';b.style.touchAction='pan-y';b.style.overscrollBehavior='contain';f.style.position='relative';f.style.zIndex='1000';f.style.pointerEvents='auto';f.style.background='#fff'}
+function syncControls(){const n=document.querySelector('#flytSetupNext'),b=document.querySelector('#flytSetupBack');if(!n||!b)return;b.style.visibility=currentStep===0?'hidden':'visible';n.textContent=currentStep===2?'Lagre oppsett':'Neste'}
+function ensureControls(){const f=foot(),on=oldNext(),ob=oldBack();if(!f||!on||!ob)return false;styleOverlay();on.style.display='none';ob.style.display='none';let back=document.querySelector('#flytSetupBack'),next=document.querySelector('#flytSetupNext');if(!back){back=document.createElement('button');back.id='flytSetupBack';back.type='button';back.className='secondary grow';back.textContent='Tilbake';back.style.pointerEvents='auto';back.style.touchAction='manipulation';back.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();if(currentStep>0)showStep(currentStep-1)});f.appendChild(back)}if(!next){next=document.createElement('button');next.id='flytSetupNext';next.type='button';next.className='primary grow';next.textContent='Neste';next.style.pointerEvents='auto';next.style.touchAction='manipulation';next.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();if(currentStep<2)showStep(currentStep+1);else finish()});f.appendChild(next)}syncControls();return true}
+function settleTop(){const b=body();if(!b)return;const apply=()=>{b.scrollTop=0};apply();requestAnimationFrame(()=>{apply();requestAnimationFrame(apply)})}
+function showStep(step){const a=api();if(!a?.openSetup)return false;currentStep=Math.max(0,Math.min(2,Number(step)||0));document.activeElement?.blur?.();a.openSetup(currentStep);setup()?.classList.remove('hidden');ensureControls();syncControls();settleTop();return true}
+function finish(){const hidden=oldNext();if(hidden){hidden.click();setTimeout(()=>{if(isOpen()){const b=window.FlytBridge,s=b?.getState?.();if(s)b.setState({...s,setupDone:true});setup()?.classList.add('hidden');window.FlytSync?.queueSave?.()}},50);return}const b=window.FlytBridge,s=b?.getState?.();if(s)b.setState({...s,setupDone:true});setup()?.classList.add('hidden');window.FlytSync?.queueSave?.()}
+function adoptOpenSetup(){if(!isOpen())return;currentStep=detectStep();const a=api();if(a?.openSetup)a.openSetup(currentStep);ensureControls();syncControls();styleOverlay()}
+function install(){if(installed)return;installed=true;const wait=setInterval(()=>{if(api()?.openSetup&&setup()&&foot()){clearInterval(wait);adoptOpenSetup();ensureControls()}},50);setTimeout(()=>clearInterval(wait),5000);const s=setup();if(s)new MutationObserver(()=>{if(isOpen())setTimeout(adoptOpenSetup,0)}).observe(s,{attributes:true,attributeFilter:['class']});document.addEventListener('click',e=>{const open=e.target.closest?.('#setupBtn,[data-open-setup],[data-open-new-setup]');if(!open)return;setTimeout(()=>{if(isOpen()){currentStep=open.id==='setupBtn'?0:1;showStep(currentStep)}},0)},false);window.addEventListener('pageshow',()=>{if(isOpen())adoptOpenSetup()})}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
+window.FlytSetupNavGuard={openSetup:showStep,go:dir=>showStep(currentStep+(dir<0?-1:1)),version:'20260825-1318'};
 })();
