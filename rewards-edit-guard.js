@@ -9,11 +9,11 @@ async function openReward(){if(window.FlytDialog?.openReward){window.FlytDialog.
 document.addEventListener('click',e=>{const b=e.target.closest?.('#addReward');if(!b)return;e.preventDefault();e.stopImmediatePropagation();openReward()},true);
 document.addEventListener('focusin',e=>{if(e.target.matches?.('[data-rcost]'))saveDraft(e.target)},true);
 document.addEventListener('input',e=>{if(e.target.matches?.('[data-rcost]'))saveDraft(e.target)},true);
-document.addEventListener('change',e=>{if(!e.target.matches?.('[data-rcost]'))return;saveDraft(e.target);const s=state(),r=(s?.rewards||[]).find(x=>String(x.id)===String(e.target.dataset.rcost));if(!s||!r)return;r.cost=Math.max(0,Number(e.target.value)||0);window.FlytBridge.setState({...s,rewards:[...(s.rewards||[])]});window.FlytSync?.queueSave?.();draft=null},true);
+document.addEventListener('change',e=>{if(!e.target.matches?.('[data-rcost]'))return;saveDraft(e.target);const s=state(),r=(s?.rewards||[]).find(x=>String(x.id)===String(e.target.dataset.rcost));if(!s||!r)return;r.cost=r.requiresPoints?Math.max(1,Number(e.target.value)||1):0;e.target.value=String(r.cost);window.FlytBridge.setState({...s,rewards:[...(s.rewards||[])]});window.FlytSync?.queueSave?.();draft=null},true);
 document.addEventListener('focusout',e=>{if(!e.target.matches?.('[data-rcost]'))return;setTimeout(()=>{if(document.activeElement?.matches?.('[data-rcost]'))return;const live=document.querySelector(`[data-rcost="${CSS.escape(String(e.target.dataset.rcost))}"]`);if(live&&live!==e.target)return;draft=null},150)},true);
 const obs=new MutationObserver(()=>{if(draft)restore()});
 function init(){ensureSeenUi();const c=document.querySelector('#content');if(c)obs.observe(c,{childList:true,subtree:true})}
 if(document.readyState==='loading')window.addEventListener('DOMContentLoaded',init,{once:true});else init();
 let tries=0;const timer=setInterval(()=>{const c=document.querySelector('#content');if(c){obs.observe(c,{childList:true,subtree:true});clearInterval(timer)}else if(++tries>60)clearInterval(timer)},100);
-window.FlytRewardsEditGuard={restore,openReward,ensureSeenUi,version:'20260825-2034'};
+window.FlytRewardsEditGuard={restore,openReward,ensureSeenUi,version:'20260825-2102'};
 })();
