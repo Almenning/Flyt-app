@@ -21,16 +21,17 @@ function restoreOwnedView(view){if(view==='home'&&window.FlytHomeUI?.render){que
 function installRenderGuard(){const b=window.FlytBridge;if(!b||b.__stabilityWrapped)return false;const original=b.setState?.bind(b);if(!original)return false;b.setState=next=>{original(next);restoreOwnedView(next?.view)};b.__stabilityWrapped=true;restoreOwnedView(b.getState?.()?.view);return true}
 function keepGuardAlive(){if(installRenderGuard())return;let tries=0;const timer=setInterval(()=>{tries++;if(installRenderGuard()||tries>40)clearInterval(timer)},100)}
 function loadScript(src,key){if(document.querySelector(`script[data-${key}]`))return;const s=document.createElement('script');s.src=src;s.defer=true;s.setAttribute(`data-${key}`,'1');document.head.appendChild(s)}
-function loadBuyerPolish(){if(window.FlytBuyerPolish)return;loadScript('./buyer-polish-ui.js?v=20260825-1942','flyt-buyer-polish')}
-function loadPlanned(){if(window.FlytPlannedUI)return;loadScript('./planned-ui.js?v=20260825-0636','flyt-planned')}
+function loadBuyerPolish(){if(window.FlytBuyerPolish)return;loadScript('./buyer-polish-ui.js?v=20260825-2026','flyt-buyer-polish')}
+function loadPlanned(){if(window.FlytPlannedUI)return;loadScript('./planned-ui.js?v=20260825-0910','flyt-planned')}
 function loadDayCompleted(){if(window.FlytTasksDayCompleted)return;loadScript('./tasks-day-completed-ui.js?v=20260824-1350','flyt-day-completed')}
 function loadModal(){if(window.FlytModal)return;loadScript('./modal-ui.js?v=20260825-1933','flyt-modal')}
 function loadCustomCategories(){if(window.FlytCustomCategories)return;loadScript('./custom-categories-ui.js?v=20260825-1642','flyt-custom-categories')}
 function loadRecurrence(){if(window.FlytRecurrenceUI)return;loadScript('./recurrence-ui.js?v=20260825-0910','flyt-recurrence')}
 function loadBeta(){if(window.FlytBetaUI)return;loadScript('./beta-ui.js?v=20260824-1628','flyt-beta')}
 function loadResponsive(){if(document.querySelector('#flytResponsiveUi'))return;loadScript('./responsive-ui.js?v=20260825-0648','flyt-responsive')}
-function loadRewardsEditGuard(){if(window.FlytRewardsEditGuard)return;loadScript('./rewards-edit-guard.js?v=20260825-0708','flyt-rewards-edit')}
-function loadRewardsSummary(){if(window.FlytRewardsSummaryUI)return;loadScript('./rewards-summary-ui.js?v=20260825-0926','flyt-rewards-summary')}
+function loadSeen(){if(window.FlytSeenUI)return;loadScript('./seen-ui.js?v=20260825-0702','flyt-seen-core')}
+function loadRewardsEditGuard(){if(window.FlytRewardsEditGuard)return;loadScript('./rewards-edit-guard.js?v=20260825-2034','flyt-rewards-edit')}
+function loadRewardsSummary(){if(window.FlytRewardsSummaryUI)return;loadScript('./rewards-summary-ui.js?v=20260825-1035','flyt-rewards-summary')}
 function loadRewardsUI(){if(window.FlytRewardsUI)return;loadScript('./rewards-ui.js?v=20260825-1955','flyt-rewards-ui')}
 function loadQuickTemptation(){if(window.FlytQuickTemptationUI)return;loadScript('./quick-temptation-ui.js?v=20260825-1238','flyt-quick-temptation')}
 function loadSetupV2(){if(window.FlytSetupV2)return;loadScript('./setup-v2.js?v=20260825-1802','flyt-setup-v2')}
@@ -57,7 +58,7 @@ document.addEventListener('click',async e=>{
  const deleteReward=e.target.closest('[data-delete-reward]');
  if(deleteReward){e.preventDefault();e.stopImmediatePropagation();const b=bridge(),s=b?.getState?.(),rewards=[...(s?.rewards||[])],i=rewards.findIndex(x=>String(x.id)===String(deleteReward.dataset.deleteReward)&&x.by===s.user);if(!s||i<0)return;const yes=await askConfirm({ey:'Fristelser',title:'Slette fristelsen?',text:'Fristelsen fjernes permanent.',ok:'Slett'});if(!yes)return;rewards.splice(i,1);saveState({...s,rewards});b.toast?.('Fristelsen er slettet');return}
 },true);
-window.addEventListener('DOMContentLoaded',()=>{loadBuyerPolish();loadResponsive();loadHome();loadModal();loadPlanned();loadDayCompleted();loadCustomCategories();loadRecurrence();loadBeta();loadRewardsEditGuard();loadRewardsSummary();loadRewardsUI();loadQuickTemptation();loadSetupV2();loadSetupBack();keepGuardAlive();setTimeout(rescue,5000)});
+window.addEventListener('DOMContentLoaded',()=>{loadBuyerPolish();loadResponsive();loadHome();loadModal();loadSeen();loadRewardsEditGuard();loadPlanned();loadDayCompleted();loadCustomCategories();loadRecurrence();loadBeta();loadRewardsSummary();loadRewardsUI();loadQuickTemptation();loadSetupV2();loadSetupBack();keepGuardAlive();setTimeout(rescue,5000)});
 window.addEventListener('error',()=>setTimeout(rescue,50));
 window.addEventListener('unhandledrejection',()=>setTimeout(rescue,50));
 })();
