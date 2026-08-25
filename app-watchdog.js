@@ -32,7 +32,7 @@ function loadRewardsEditGuard(){if(window.FlytRewardsEditGuard)return;loadScript
 function loadRewardsSummary(){if(window.FlytRewardsSummaryUI)return;loadScript('./rewards-summary-ui.js?v=20260825-0926','flyt-rewards-summary')}
 function loadRewardsUI(){if(window.FlytRewardsUI)return;loadScript('./rewards-ui.js?v=20260825-1228','flyt-rewards-ui')}
 function loadQuickTemptation(){if(window.FlytQuickTemptationUI)return;loadScript('./quick-temptation-ui.js?v=20260825-1238','flyt-quick-temptation')}
-function loadSetupV2(){if(window.FlytSetupV2)return;loadScript('./setup-v2.js?v=20260825-1628','flyt-setup-v2')}
+function loadSetupV2(){if(window.FlytSetupV2)return;loadScript('./setup-v2.js?v=20260825-1802','flyt-setup-v2')}
 function loadHome(){if(window.FlytHomeUI)return;loadScript('./home-ui.js?v=20260824-1945','flyt-home-current')}
 async function modal(){if(window.FlytModal)return window.FlytModal;loadModal();for(let i=0;i<40;i++){await new Promise(r=>setTimeout(r,50));if(window.FlytModal)return window.FlytModal}return null}
 function snapshot(s,label){return{id:Date.now()+'_'+Math.random().toString(36).slice(2,6),savedAt:new Date().toISOString(),label,tasks:structuredClone(s.tasks||[]),custom:structuredClone(s.custom||[]),areas:structuredClone(s.areas||{}),trainingFor:structuredClone(s.trainingFor||{}),categoryRelevant:structuredClone(s.categoryRelevant||{})}}
