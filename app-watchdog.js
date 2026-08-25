@@ -21,7 +21,7 @@ function restoreOwnedView(view){if(view==='home'&&window.FlytHomeUI?.render){que
 function installRenderGuard(){const b=window.FlytBridge;if(!b||b.__stabilityWrapped)return false;const original=b.setState?.bind(b);if(!original)return false;b.setState=next=>{original(next);restoreOwnedView(next?.view)};b.__stabilityWrapped=true;restoreOwnedView(b.getState?.()?.view);return true}
 function keepGuardAlive(){if(installRenderGuard())return;let tries=0;const timer=setInterval(()=>{tries++;if(installRenderGuard()||tries>40)clearInterval(timer)},100)}
 function loadScript(src,key){if(document.querySelector(`script[data-${key}]`))return;const s=document.createElement('script');s.src=src;s.defer=true;s.setAttribute(`data-${key}`,'1');document.head.appendChild(s)}
-function loadPlanned(){if(window.FlytPlannedUI)return;loadScript('./planned-ui.js?v=20260825-0012','flyt-planned')}
+function loadPlanned(){if(window.FlytPlannedUI)return;loadScript('./planned-ui.js?v=20260825-0636','flyt-planned')}
 function loadDayCompleted(){if(window.FlytTasksDayCompleted)return;loadScript('./tasks-day-completed-ui.js?v=20260824-1350','flyt-day-completed')}
 function loadModal(){if(window.FlytModal)return;loadScript('./modal-ui.js?v=20260824-1414','flyt-modal')}
 function loadCustomCategories(){if(window.FlytCustomCategories)return;loadScript('./custom-categories-ui.js?v=20260824-1548','flyt-custom-categories')}
@@ -31,6 +31,7 @@ function loadResponsive(){if(document.querySelector('#flytResponsiveUi'))return;
 function loadRewardsEditGuard(){if(window.FlytRewardsEditGuard)return;loadScript('./rewards-edit-guard.js?v=20260825-0708','flyt-rewards-edit')}
 function loadSetupNavGuard(){if(window.FlytSetupNavGuard)return;loadScript('./setup-nav-guard.js?v=20260825-0832','flyt-setup-nav')}
 function loadLegacyCleanup(){if(window.FlytLegacyCleanup)return;loadScript('./legacy-cleanup.js?v=20260825-0838','flyt-legacy-cleanup')}
+function loadTaskActionsGuard(){if(window.FlytTaskActionsGuard)return;loadScript('./task-actions-guard.js?v=20260825-0848','flyt-task-actions')}
 function loadHome(){if(window.FlytHomeUI)return;loadScript('./home-ui.js?v=20260824-1945','flyt-home-current')}
 async function modal(){if(window.FlytModal)return window.FlytModal;loadModal();for(let i=0;i<40;i++){await new Promise(r=>setTimeout(r,50));if(window.FlytModal)return window.FlytModal}return null}
 function snapshot(s,label){return{id:Date.now()+'_'+Math.random().toString(36).slice(2,6),savedAt:new Date().toISOString(),label,tasks:structuredClone(s.tasks||[]),custom:structuredClone(s.custom||[]),areas:structuredClone(s.areas||{}),trainingFor:structuredClone(s.trainingFor||{}),categoryRelevant:structuredClone(s.categoryRelevant||{})}}
@@ -53,7 +54,7 @@ document.addEventListener('click',async e=>{
  const deleteReward=e.target.closest('[data-delete-reward]');
  if(deleteReward){e.preventDefault();e.stopImmediatePropagation();const b=bridge(),s=b?.getState?.(),rewards=[...(s?.rewards||[])],i=rewards.findIndex(x=>String(x.id)===String(deleteReward.dataset.deleteReward)&&x.by===s.user);if(!s||i<0)return;const yes=await askConfirm({ey:'Fristelser',title:'Slette fristelsen?',text:'Fristelsen fjernes permanent.',ok:'Slett'});if(!yes)return;rewards.splice(i,1);saveState({...s,rewards});b.toast?.('Fristelsen er slettet');return}
 },true);
-window.addEventListener('DOMContentLoaded',()=>{loadLegacyCleanup();loadResponsive();loadHome();loadModal();loadPlanned();loadDayCompleted();loadCustomCategories();loadRecurrence();loadBeta();loadRewardsEditGuard();loadSetupNavGuard();keepGuardAlive();setTimeout(rescue,5000)});
+window.addEventListener('DOMContentLoaded',()=>{loadLegacyCleanup();loadResponsive();loadHome();loadModal();loadPlanned();loadDayCompleted();loadCustomCategories();loadRecurrence();loadBeta();loadRewardsEditGuard();loadSetupNavGuard();loadTaskActionsGuard();keepGuardAlive();setTimeout(rescue,5000)});
 window.addEventListener('error',()=>setTimeout(rescue,50));
 window.addEventListener('unhandledrejection',()=>setTimeout(rescue,50));
 })();
