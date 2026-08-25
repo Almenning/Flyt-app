@@ -25,8 +25,8 @@ function loadBuyerPolish(){if(window.FlytBuyerPolish)return;loadScript('./buyer-
 function loadPlanned(){if(window.FlytPlannedUI)return;loadScript('./planned-ui.js?v=20260825-0910','flyt-planned')}
 function loadDayCompleted(){if(window.FlytTasksDayCompleted)return;loadScript('./tasks-day-completed-ui.js?v=20260824-1350','flyt-day-completed')}
 function loadModal(){if(window.FlytModal)return;loadScript('./modal-ui.js?v=20260825-1933','flyt-modal')}
-function loadCustomCategories(){if(window.FlytCustomCategories)return;loadScript('./custom-categories-ui.js?v=20260825-1642','flyt-custom-categories')}
-function loadRecurrence(){if(window.FlytRecurrenceUI)return;loadScript('./recurrence-ui.js?v=20260825-0910','flyt-recurrence')}
+function loadCustomCategories(){if(window.FlytCustomCategories)return;loadScript('./custom-categories-ui.js?v=20260825-2338','flyt-custom-categories')}
+function loadRecurrence(){if(window.FlytRecurrenceUI)return;loadScript('./recurrence-ui.js?v=20260825-2344','flyt-recurrence')}
 function loadBeta(){if(window.FlytBetaUI)return;loadScript('./beta-ui.js?v=20260824-1628','flyt-beta')}
 function loadResponsive(){if(document.querySelector('#flytResponsiveUi'))return;loadScript('./responsive-ui.js?v=20260825-0648','flyt-responsive')}
 function loadSeen(){if(window.FlytSeenUI)return;loadScript('./seen-ui.js?v=20260825-0702','flyt-seen-core')}
@@ -36,7 +36,8 @@ function loadRewardsUI(){if(window.FlytRewardsUI)return;loadScript('./rewards-ui
 function loadQuickTemptation(){if(window.FlytQuickTemptationUI)return;loadScript('./quick-temptation-ui.js?v=20260825-2210','flyt-quick-temptation')}
 function loadSetupV2(){if(window.FlytSetupV2)return;loadScript('./setup-v2.js?v=20260825-1802','flyt-setup-v2')}
 function loadSetupBack(){if(window.FlytSetupBackUI)return;loadScript('./setup-back-ui.js?v=20260825-2058','flyt-setup-back')}
-function loadHome(){if(window.FlytHomeUI)return;loadScript('./home-ui.js?v=20260825-2042','flyt-home-current')}
+function loadDailyFrequency(){if(window.FlytDailyFrequencyUI)return;loadScript('./daily-frequency-ui.js?v=20260825-2352','flyt-daily-frequency')}
+function loadHome(){if(window.FlytHomeUI)return;loadScript('./home-ui.js?v=20260825-2342','flyt-home-current')}
 async function modal(){if(window.FlytModal)return window.FlytModal;loadModal();for(let i=0;i<40;i++){await new Promise(r=>setTimeout(r,50));if(window.FlytModal)return window.FlytModal}return null}
 function snapshot(s,label){return{id:Date.now()+'_'+Math.random().toString(36).slice(2,6),savedAt:new Date().toISOString(),label,tasks:structuredClone(s.tasks||[]),custom:structuredClone(s.custom||[]),areas:structuredClone(s.areas||{}),trainingFor:structuredClone(s.trainingFor||{}),categoryRelevant:structuredClone(s.categoryRelevant||{})}}
 function archive(s,label){const hist=Array.isArray(s.setupHistory)?[...s.setupHistory]:[],snap=snapshot(s,label);hist.unshift(snap);return hist.slice(0,5)}
@@ -58,7 +59,7 @@ document.addEventListener('click',async e=>{
  const deleteReward=e.target.closest('[data-delete-reward]');
  if(deleteReward){e.preventDefault();e.stopImmediatePropagation();const b=bridge(),s=b?.getState?.(),rewards=[...(s?.rewards||[])],i=rewards.findIndex(x=>String(x.id)===String(deleteReward.dataset.deleteReward)&&x.by===s.user);if(!s||i<0)return;const yes=await askConfirm({ey:'Fristelser',title:'Slette fristelsen?',text:'Fristelsen fjernes permanent.',ok:'Slett'});if(!yes)return;rewards.splice(i,1);saveState({...s,rewards});b.toast?.('Fristelsen er slettet');return}
 },true);
-window.addEventListener('DOMContentLoaded',()=>{loadBuyerPolish();loadResponsive();loadHome();loadModal();loadSeen();loadRewardsEditGuard();loadPlanned();loadDayCompleted();loadCustomCategories();loadRecurrence();loadBeta();loadRewardsSummary();loadRewardsUI();loadQuickTemptation();loadSetupV2();loadSetupBack();keepGuardAlive();setTimeout(rescue,5000)});
+window.addEventListener('DOMContentLoaded',()=>{loadBuyerPolish();loadResponsive();loadHome();loadModal();loadSeen();loadRewardsEditGuard();loadPlanned();loadDayCompleted();loadCustomCategories();loadRecurrence();loadBeta();loadRewardsSummary();loadRewardsUI();loadQuickTemptation();loadSetupV2();loadSetupBack();loadDailyFrequency();keepGuardAlive();setTimeout(rescue,5000)});
 window.addEventListener('error',()=>setTimeout(rescue,50));
 window.addEventListener('unhandledrejection',()=>setTimeout(rescue,50));
 })();
