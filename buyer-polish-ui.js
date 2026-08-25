@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const RELEASE='20260825-2112';
+const RELEASE='20260825-2130';
 let installed=false;
 function css(){if(document.querySelector('#flytBuyerPolish'))return;const s=document.createElement('style');s.id='flytBuyerPolish';s.textContent=`
 #flytGlobalModal{z-index:300!important}
@@ -31,6 +31,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
  #flytMoreBtn{display:inline-flex!important;align-items:center;justify-content:center;width:44px;min-width:44px;min-height:40px!important;padding:7px!important;font-size:20px!important;line-height:1}
  .content{padding-bottom:42px!important}
  .card{box-shadow:0 8px 22px #65351d0d}
+ #content[data-flyt-owner="home"]>p.sub:first-of-type{min-height:4.35em}
 }
 @media(min-width:601px){#flytMoreBtn{display:none!important}#flytAppMenu{align-items:center}#flytAppMenu .flytMenuSheet{width:390px;border-radius:26px;max-height:760px}}
 @media(prefers-reduced-motion:reduce){button:active{transform:none}.nav button{transition:none}}
