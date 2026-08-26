@@ -21,7 +21,7 @@ const STARTER_TASKS=[
 ];
 if(!window.supabase){console.error('Flyt: Supabase-biblioteket mangler');return}
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
-let ctx=null,pollTimer=null,saveTimer=null,applying=false,dirty=false,saving=false,hydrated=false,authName='',saveSeq=0;
+let ctx=null,pollTimer=null,saveTimer=null,applying=false,dirty=false,saving=false,hydrated=false,authName='';
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const bridge=()=>window.FlytBridge;
@@ -59,8 +59,8 @@ function connectionSheet(){ensureSheet();const p=partnerMember();$('#syncBody').
 function restoreActiveModule(view){if(view==='home'&&window.FlytHomeUI?.render){window.FlytHomeUI.render();return}if(view==='us'&&window.FlytOss?.render){window.FlytOss.render({refresh:false});return}if(view==='tasks'&&window.FlytTasksUI?.render){window.FlytTasksUI.render()}}
 function applyRemote(){if(!ctx?.state||!Object.keys(ctx.state).length||!bridge())return false;const local=bridge().getState(),view=local.view||'home';if(sameShared(ctx.state,sharedState()))return true;applying=true;try{bridge().setState({...local,...ctx.state,user:myName(),view});setTimeout(()=>restoreActiveModule(view),0);return true}catch(e){console.error('Flyt remote state ignored:',e);return false}finally{applying=false}}
 async function pull(force=false){if(!ctx?.household||!hydrated)return;if((dirty||saving)&&!force)return;if(!force&&isEditing())return;try{await loadContext();applyRemote();updateChrome()}catch(e){}}
-async function push(){if(applying||!ctx?.household||!hydrated||saving)return;const seq=saveSeq;saving=true;try{const {error}=await sb.rpc('save_my_flyt_state',{p_data:sharedState()});if(error)throw error;if(saveSeq===seq)dirty=false;await loadContext()}catch(e){console.error('Flyt save failed:',e);dirty=true}finally{saving=false;if(dirty&&saveSeq!==seq){clearTimeout(saveTimer);saveTimer=setTimeout(push,50)}}}
-function queueSave(){if(applying||!ctx?.household||!hydrated)return;dirty=true;saveSeq++;clearTimeout(saveTimer);saveTimer=setTimeout(push,650)}
+async function push(){if(applying||!ctx?.household||!hydrated||saving)return;saving=true;try{const {error}=await sb.rpc('save_my_flyt_state',{p_data:sharedState()});if(error)throw error;dirty=false;await loadContext()}catch(e){console.error('Flyt save failed:',e);dirty=true}finally{saving=false}}
+function queueSave(){if(applying||!ctx?.household||!hydrated)return;dirty=true;clearTimeout(saveTimer);saveTimer=setTimeout(push,650)}
 function startPolling(){clearInterval(pollTimer);pollTimer=setInterval(()=>pull(false),5000)}
 async function bootstrap(){hydrated=false;clearTimeout(saveTimer);dirty=false;ensureBetaUi();let session=null;try{const r=await sb.auth.getSession();session=r.data.session;authName=String(session?.user?.user_metadata?.display_name||session?.user?.user_metadata?.name||authName||'').trim()}catch(e){authChoice();return}if(!session){authChoice();return}try{await loadContext()}catch(e){loginScreen('Kunne ikke hente kontoen. Logg inn på nytt.');return}if(!ctx?.household){householdScreen();return}try{applyRemote()}catch(e){console.error('Flyt startup sync ignored:',e)}hydrated=true;showApp();startPolling()}
 window.FlytSync={queueSave,pull,bootstrap,myName,rpc:(name,args)=>sb.rpc(name,args),getContext:()=>ctx,isReady:()=>hydrated};window.addEventListener('DOMContentLoaded',bootstrap);
