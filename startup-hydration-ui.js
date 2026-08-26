@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-let installed=false,hydrated=false,hydrating=false,originalQueue=null,watcher=null;
+let installed=false,hydrated=false,hydrating=false,originalQueue=null,watcher=null,pendingSave=false,retryTimer=null,attempted=false;
 const standalone=()=>window.matchMedia?.('(display-mode: standalone)')?.matches||window.navigator.standalone===true;
 const bridge=()=>window.FlytBridge;
 const sync=()=>window.FlytSync;
@@ -9,10 +9,12 @@ function overlay(){let el=document.querySelector('#flytHydrationGuard');if(el)re
 function removeOverlay(){document.querySelector('#flytHydrationGuard')?.remove()}
 function remoteState(){const c=sync()?.getContext?.();return c?.household&&c?.state&&Object.keys(c.state).length?c.state:null}
 function applyRemoteDirect(){const remote=remoteState(),b=bridge();if(!remote||!b?.getState||!b?.setState)return false;const local=b.getState()||{},name=sync()?.myName?.()||local.user||'Meg',view=local.view||'home';b.setState({...local,...structuredClone(remote),user:name,view});return true}
-async function hydrate(){if(hydrating||hydrated||!appVisible())return false;hydrating=true;if(standalone())overlay();try{for(let i=0;i<40;i++){if(!appVisible())return false;const s=sync(),ctx=s?.getContext?.();if(ctx?.household){try{await s.pull?.(true)}catch(e){}if(applyRemoteDirect()){hydrated=true;return true}}await new Promise(r=>setTimeout(r,125))}return false}finally{hydrating=false;if(hydrated||!appVisible())removeOverlay()}}
-function protectQueue(){const s=sync();if(!s?.queueSave||s.__hydrationProtected)return;originalQueue=s.queueSave.bind(s);s.queueSave=(...args)=>{if(!hydrated)return;return originalQueue(...args)};s.__hydrationProtected=true}
-function inspect(){protectQueue();if(appVisible()&&!hydrated)hydrate();if(!appVisible()){hydrated=false;removeOverlay()}}
-function install(){if(installed)return;installed=true;protectQueue();inspect();watcher=new MutationObserver(()=>queueMicrotask(inspect));watcher.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});window.addEventListener('pageshow',()=>{hydrated=false;setTimeout(inspect,0)});document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')setTimeout(inspect,0)})}
+function flushPendingSave(){if(!hydrated||!pendingSave||!originalQueue)return;pendingSave=false;queueMicrotask(()=>originalQueue())}
+function scheduleRetry(){if(hydrated||!appVisible()||retryTimer)return;retryTimer=setTimeout(()=>{retryTimer=null;if(appVisible()&&!hydrated)hydrate(false)},5000)}
+async function hydrate(showGuard=true){if(hydrating||hydrated||!appVisible())return false;hydrating=true;attempted=true;if(showGuard&&standalone())overlay();try{for(let i=0;i<40;i++){if(!appVisible())return false;const s=sync(),ctx=s?.getContext?.();if(ctx?.household){try{await s.pull?.(true)}catch(e){}if(applyRemoteDirect()){hydrated=true;flushPendingSave();return true}}await new Promise(r=>setTimeout(r,125))}console.warn('Flyt hydration timed out; retrying in background');return false}finally{hydrating=false;removeOverlay();if(!hydrated) scheduleRetry()}}
+function protectQueue(){const s=sync();if(!s?.queueSave||s.__hydrationProtected)return;originalQueue=s.queueSave.bind(s);s.queueSave=(...args)=>{if(!hydrated){pendingSave=true;return}return originalQueue(...args)};s.__hydrationProtected=true}
+function inspect(){protectQueue();if(appVisible()&&!hydrated&&!hydrating)hydrate(!attempted);if(!appVisible()){hydrated=false;attempted=false;pendingSave=false;clearTimeout(retryTimer);retryTimer=null;removeOverlay()}}
+function install(){if(installed)return;installed=true;protectQueue();inspect();watcher=new MutationObserver(()=>queueMicrotask(inspect));watcher.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});window.addEventListener('pageshow',()=>{hydrated=false;attempted=false;clearTimeout(retryTimer);retryTimer=null;setTimeout(inspect,0)});document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')setTimeout(inspect,0)})}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
-window.FlytStartupHydration={hydrate,version:'20260826-0746'};
+window.FlytStartupHydration={hydrate,version:'20260826-0940'};
 })();
