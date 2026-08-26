@@ -2,6 +2,7 @@
 
 const test=require('node:test');
 const assert=require('node:assert/strict');
+const fs=require('node:fs');
 const {dateKey,mondayKey,currentWeek,olderWeeks,events}=require('./history-ui.js');
 
 function fixture(){
@@ -79,4 +80,9 @@ test('fjernede oppgaver beholdes som en nøytral historikkpost',()=>{
 test('ukegrensene bruker lokal mandag og avviser ugyldige datoer',()=>{
   assert.equal(mondayKey('2026-10-25'),'2026-10-19');
   assert.equal(dateKey('2026-02-30'),null);
+});
+
+test('DOM-observatøren endrer ikke Innstillinger-knappen på nytt når teksten allerede er riktig',()=>{
+  const source=fs.readFileSync(require.resolve('./history-ui.js'),'utf8');
+  assert.match(source,/if\(button\.textContent!==['"]Innstillinger['"]\)button\.textContent=['"]Innstillinger['"]/);
 });

@@ -173,8 +173,8 @@ function augmentMenu(){
 function augmentTopButton(){
   const button=$('#setupBtnV2,#setupBtn');
   if(!button)return;
-  button.textContent='Innstillinger';
-  button.setAttribute('aria-label','Innstillinger');
+  if(button.textContent!=='Innstillinger')button.textContent='Innstillinger';
+  if(button.getAttribute('aria-label')!=='Innstillinger')button.setAttribute('aria-label','Innstillinger');
 }
 function augmentWeek(){
   const state=bridge()?.getState?.(),content=$('#content');
