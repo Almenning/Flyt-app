@@ -35,6 +35,15 @@ jobs:
               raise SystemExit('Missing local scripts: ' + ', '.join(missing))
           print('Referenced local scripts:', ', '.join(refs))
           PY
+      - name: Enforce one Supabase auth client in the main app
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t clients < <(grep -l 'supabase\.createClient' ./*.js 2>/dev/null || true)
+          if [ "${#clients[@]}" -ne 1 ] || [ "${clients[0]:-}" != "./sync.js" ]; then
+            printf 'Expected only ./sync.js to create the main Supabase client. Found: %s\n' "${clients[*]:-none}"
+            exit 1
+          fi
       - name: Reject unresolved merge markers
         shell: bash
         run: |
