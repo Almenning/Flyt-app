@@ -31,6 +31,7 @@ function loadRecurrence(){if(window.FlytRecurrenceUI?.version==='20260825-2344')
 function loadBeta(){if(window.FlytBetaUI)return;loadScript('./beta-ui.js?v=20260824-1628','flyt-beta')}
 function loadResponsive(){if(document.querySelector('#flytResponsiveUi'))return;loadScript('./responsive-ui.js?v=20260825-0648','flyt-responsive')}
 function loadSeen(){if(window.FlytSeenUI)return;loadScript('./seen-ui.js?v=20260825-0702','flyt-seen-core')}
+function loadSeenRequestAlert(){if(window.FlytSeenRequestAlert?.version==='20260826-1408')return;loadScript('./seen-request-alert-ui.js?v=20260826-1408','flyt-seen-request-alert-1408')}
 function loadRewardsEditGuard(){if(window.FlytRewardsEditGuard)return;loadScript('./rewards-edit-guard.js?v=20260825-2102','flyt-rewards-edit')}
 function loadRewardsSummary(){if(window.FlytRewardsSummaryUI)return;loadScript('./rewards-summary-ui.js?v=20260825-1035','flyt-rewards-summary')}
 function loadRewardsUI(){if(window.FlytRewardsUI)return;loadScript('./rewards-ui.js?v=20260825-2056','flyt-rewards-ui')}
@@ -58,7 +59,7 @@ document.addEventListener('click',async e=>{
  const deleteReward=e.target.closest('[data-delete-reward]');
  if(deleteReward){e.preventDefault();e.stopImmediatePropagation();const b=bridge(),s=b?.getState?.(),rewards=[...(s?.rewards||[])],i=rewards.findIndex(x=>String(x.id)===String(deleteReward.dataset.deleteReward)&&x.by===s.user);if(!s||i<0)return;const yes=await askConfirm({ey:'Fristelser',title:'Slette fristelsen?',text:'Fristelsen fjernes permanent.',ok:'Slett'});if(!yes)return;rewards.splice(i,1);saveState({...s,rewards});b.toast?.('Fristelsen er slettet');return}
 },true);
-window.addEventListener('DOMContentLoaded',()=>{loadStartupHydration();loadBuyerPolish();loadResponsive();loadHome();loadModal();loadSeen();loadRewardsEditGuard();loadPlanned();loadDayCompleted();loadCustomCategories();loadRecurrence();loadBeta();loadRewardsSummary();loadRewardsUI();loadQuickTemptation();loadSetupV2();keepGuardAlive();setTimeout(rescue,5000)});
+window.addEventListener('DOMContentLoaded',()=>{loadStartupHydration();loadBuyerPolish();loadResponsive();loadHome();loadModal();loadSeen();loadSeenRequestAlert();loadRewardsEditGuard();loadPlanned();loadDayCompleted();loadCustomCategories();loadRecurrence();loadBeta();loadRewardsSummary();loadRewardsUI();loadQuickTemptation();loadSetupV2();keepGuardAlive();setTimeout(rescue,5000)});
 window.addEventListener('error',()=>setTimeout(rescue,50));
 window.addEventListener('unhandledrejection',()=>setTimeout(rescue,50));
 })();
