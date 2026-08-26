@@ -213,5 +213,5 @@ function install(){
 }
 
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
-root.FlytHistoryUI={openSettings,openHistory,close:closeSettings,augmentWeek,core,version:'20260826-1740'};
+root.FlytHistoryUI={openSettings,openHistory,close:closeSettings,augmentWeek,core,version:'20260827-0108'};
 })(typeof window!=='undefined'?window:null);
