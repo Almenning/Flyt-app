@@ -5,14 +5,14 @@ const SUPABASE_KEY='sb_publishable_uK6xd8TJhN2MY10qHSQ2GQ_7hSIr2gv';
 const APP_URL='https://almenning.github.io/Flyt-app/';
 const RESET_URL='https://almenning.github.io/Flyt-app/reset.html';
 const STARTER_TASKS=[
-{id:'dish_empty',cat:'Kjøkken',name:'Tømme oppvaskmaskin',freq:1,pts:20,type:'daily',kind:'house'},
-{id:'dish_fill',cat:'Kjøkken',name:'Fylle oppvaskmaskin',freq:1,pts:20,type:'daily',kind:'house'},
-{id:'kitchen',cat:'Kjøkken',name:'Rydde kjøkken',freq:1,pts:25,type:'daily',kind:'house'},
-{id:'counter',cat:'Kjøkken',name:'Vaske kjøkkenbenken',freq:1,pts:15,type:'daily',kind:'house'},
-{id:'dinner',cat:'Kjøkken',name:'Lage middag',freq:1,pts:40,type:'daily',kind:'house'},
-{id:'lunch',cat:'Barn',name:'Lage matpakker',freq:1,pts:25,type:'daily',kind:'house'},
-{id:'bag',cat:'Barn',name:'Pakke sekk til barna',freq:1,pts:15,type:'daily',kind:'house'},
-{id:'bedkids',cat:'Barn',name:'Legging',freq:1,pts:35,type:'daily',kind:'house'},
+{id:'dish_empty',cat:'Kjøkken',name:'Tømme oppvaskmaskin',freq:7,pts:20,type:'daily',kind:'house'},
+{id:'dish_fill',cat:'Kjøkken',name:'Fylle oppvaskmaskin',freq:7,pts:20,type:'daily',kind:'house'},
+{id:'kitchen',cat:'Kjøkken',name:'Rydde kjøkken',freq:7,pts:25,type:'daily',kind:'house'},
+{id:'counter',cat:'Kjøkken',name:'Vaske kjøkkenbenken',freq:7,pts:15,type:'daily',kind:'house'},
+{id:'dinner',cat:'Kjøkken',name:'Lage middag',freq:5,pts:40,type:'daily',kind:'house'},
+{id:'lunch',cat:'Barn',name:'Lage matpakker',freq:5,pts:25,type:'daily',kind:'house'},
+{id:'bag',cat:'Barn',name:'Pakke sekk til barna',freq:5,pts:15,type:'daily',kind:'house'},
+{id:'bedkids',cat:'Barn',name:'Legging',freq:7,pts:35,type:'daily',kind:'house'},
 {id:'bath',cat:'Bad',name:'Vaske bad',freq:1,pts:70,type:'flex',kind:'house'},
 {id:'living',cat:'Stue',name:'Rydde stuen',freq:3,pts:25,type:'flex',kind:'house'},
 {id:'laundry',cat:'Vask & klær',name:'Vaske/brette klær',freq:3,pts:45,type:'flex',kind:'house'},

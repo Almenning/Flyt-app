@@ -16,9 +16,9 @@ function tuneSetup(){
       const id=String(sel.dataset.v2Type||''),task=(s.tasks||[]).find(t=>String(t.id)===id),input=body.querySelector(`input[data-v2-freq="${safeId(id)}"]`);
       if(!task||!input)continue;
       const label=input.closest('label')?.querySelector('.label');
-      const wantedLabel=sel.value==='daily'?'Antall per dag':sel.value==='period'?'Antall per måned':'Antall per uke';
-      const wantedMax=sel.value==='daily'?'20':'31';
-      const wantedValue=String(Math.max(1,Number(task.freq)||1));
+      const wantedLabel=sel.value==='daily'?'Dager per uke':sel.value==='period'?'Antall per måned':'Antall per uke';
+      const wantedMax=sel.value==='daily'?'7':'31';
+      const wantedValue=String(Math.min(Number(wantedMax),Math.max(1,Number(task.freq)||1)));
       if(input.disabled)input.disabled=false;
       if(input.min!=='1')input.min='1';
       if(input.max!==wantedMax)input.max=wantedMax;
