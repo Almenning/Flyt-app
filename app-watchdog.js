@@ -22,12 +22,12 @@ function installRenderGuard(){const b=window.FlytBridge;if(!b||b.__stabilityWrap
 function keepGuardAlive(){if(installRenderGuard())return;let tries=0;const timer=setInterval(()=>{tries++;if(installRenderGuard()||tries>40)clearInterval(timer)},100)}
 function loadScript(src,key){if(document.querySelector(`script[data-${key}]`))return;const s=document.createElement('script');s.src=src;s.defer=true;s.setAttribute(`data-${key}`,'1');document.head.appendChild(s)}
 function loadStartupHydration(){if(window.FlytStartupHydration?.version==='20260826-0940')return;loadScript('./startup-hydration-ui.js?v=20260826-0940','flyt-startup-hydration-0940')}
-function loadBuyerPolish(){if(window.FlytBuyerPolish?.version==='20260826-0835')return;loadScript('./buyer-polish-ui.js?v=20260826-0835','flyt-buyer-polish-0835')}
+function loadBuyerPolish(){if(window.FlytBuyerPolish?.version==='20260826-0955')return;loadScript('./buyer-polish-ui.js?v=20260826-0955','flyt-buyer-polish-0955')}
 function loadPlanned(){if(window.FlytPlannedUI)return;loadScript('./planned-ui.js?v=20260825-0910','flyt-planned')}
 function loadDayCompleted(){if(window.FlytTasksDayCompleted)return;loadScript('./tasks-day-completed-ui.js?v=20260824-1350','flyt-day-completed')}
 function loadModal(){if(window.FlytModal)return;loadScript('./modal-ui.js?v=20260825-1933','flyt-modal')}
 function loadCustomCategories(){if(window.FlytCustomCategories?.version==='20260825-2338')return;loadScript('./custom-categories-ui.js?v=20260825-2338','flyt-custom-categories-2338')}
-function loadRecurrence(){if(window.FlytRecurrenceUI?.version==='20260825-2344')return;loadScript('./recurrence-ui.js?v=20260825-2344','flyt-recurrence-2344')}
+function loadRecurrence(){if(window.FlytRecurrenceUI?.version==='20260826-0955')return;loadScript('./recurrence-ui.js?v=20260826-0955','flyt-recurrence-0955')}
 function loadBeta(){if(window.FlytBetaUI)return;loadScript('./beta-ui.js?v=20260824-1628','flyt-beta')}
 function loadResponsive(){if(document.querySelector('#flytResponsiveUi'))return;loadScript('./responsive-ui.js?v=20260825-0648','flyt-responsive')}
 function loadSeen(){if(window.FlytSeenUI)return;loadScript('./seen-ui.js?v=20260825-0702','flyt-seen-core')}
@@ -38,7 +38,7 @@ function loadQuickTemptation(){if(window.FlytQuickTemptationUI)return;loadScript
 function loadSetupV2(){if(window.FlytSetupV2)return;loadScript('./setup-v2.js?v=20260825-1802','flyt-setup-v2')}
 function loadSetupBack(){if(window.FlytSetupBackUI)return;loadScript('./setup-back-ui.js?v=20260825-2058','flyt-setup-back')}
 function loadDailyFrequency(){if(window.FlytDailyFrequencyUI?.version==='20260826-0735')return;loadScript('./daily-frequency-ui.js?v=20260826-0735','flyt-daily-frequency-0735')}
-function loadHome(){if(window.FlytHomeUI?.version==='20260825-2342')return;loadScript('./home-ui.js?v=20260825-2342','flyt-home-current-2342')}
+function loadHome(){if(window.FlytHomeUI?.version==='20260826-0955')return;loadScript('./home-ui.js?v=20260826-0955','flyt-home-current-0955')}
 async function modal(){if(window.FlytModal)return window.FlytModal;loadModal();for(let i=0;i<40;i++){await new Promise(r=>setTimeout(r,50));if(window.FlytModal)return window.FlytModal}return null}
 function snapshot(s,label){return{id:Date.now()+'_'+Math.random().toString(36).slice(2,6),savedAt:new Date().toISOString(),label,tasks:structuredClone(s.tasks||[]),custom:structuredClone(s.custom||[]),areas:structuredClone(s.areas||{}),trainingFor:structuredClone(s.trainingFor||{}),categoryRelevant:structuredClone(s.categoryRelevant||{})}}
 function archive(s,label){const hist=Array.isArray(s.setupHistory)?[...s.setupHistory]:[],snap=snapshot(s,label);hist.unshift(snap);return hist.slice(0,5)}
