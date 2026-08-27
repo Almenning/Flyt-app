@@ -36,7 +36,7 @@ function loadRewardsEditGuard(){if(window.FlytRewardsEditGuard)return;loadScript
 function loadRewardsSummary(){if(window.FlytRewardsSummaryUI)return;loadScript('./rewards-summary-ui.js?v=20260825-1035','flyt-rewards-summary')}
 function loadRewardsUI(){if(window.FlytRewardsUI)return;loadScript('./rewards-ui.js?v=20260825-2056','flyt-rewards-ui')}
 function loadQuickTemptation(){if(window.FlytQuickTemptationUI)return;loadScript('./quick-temptation-ui.js?v=20260825-2210','flyt-quick-temptation')}
-function loadSetupV2(){if(window.FlytSetupV2?.version==='20260827-0935')return;loadScript('./setup-v2.js?v=20260827-0935','flyt-setup-v2-0935')}
+function loadSetupV2(){if(window.FlytSetupV2?.version==='20260827-1412')return;loadScript('./setup-v2.js?v=20260827-1412','flyt-setup-v2-1412')}
 function loadHome(){if(window.FlytHomeUI?.version==='20260827-0942')return;loadScript('./home-ui.js?v=20260827-0942','flyt-home-current-0942')}
 function loadHistory(){if(window.FlytHistoryUI?.version==='20260827-0108')return;loadScript('./history-ui.js?v=20260827-0108','flyt-history-0108')}
 async function modal(){if(window.FlytModal)return window.FlytModal;loadModal();for(let i=0;i<40;i++){await new Promise(r=>setTimeout(r,50));if(window.FlytModal)return window.FlytModal}return null}
