@@ -33,7 +33,7 @@ function loadCustomCategories(){if(window.FlytCustomCategories?.version==='20260
 function loadRecurrence(){if(window.FlytRecurrenceUI?.version==='20260827-1648')return;loadScript('./recurrence-ui.js?v=20260827-1648','flyt-recurrence-1648')}
 function loadBeta(){if(window.FlytBetaUI)return;loadScript('./beta-ui.js?v=20260824-1628','flyt-beta')}
 function loadResponsive(){if(document.querySelector('#flytResponsiveUi'))return;loadScript('./responsive-ui.js?v=20260825-0648','flyt-responsive')}
-function loadSeen(){if(window.FlytSeenUI)return;loadScript('./seen-ui.js?v=20260825-0702','flyt-seen-core')}
+function loadSeen(){if(window.FlytSeenUI?.version==='20260827-2054')return;loadScript('./seen-ui.js?v=20260827-2054','flyt-seen-current-2054')}
 function loadSeenRequestAlert(){if(window.FlytSeenRequestAlert?.version==='20260826-1408')return;loadScript('./seen-request-alert-ui.js?v=20260826-1408','flyt-seen-request-alert-1408')}
 function loadRewardsEditGuard(){if(window.FlytRewardsEditGuard)return;loadScript('./rewards-edit-guard.js?v=20260825-2102','flyt-rewards-edit')}
 function loadRewardsSummary(){if(window.FlytRewardsSummaryUI)return;loadScript('./rewards-summary-ui.js?v=20260825-1035','flyt-rewards-summary')}
