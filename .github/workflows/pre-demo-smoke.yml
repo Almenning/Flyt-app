@@ -31,3 +31,5 @@ jobs:
         run: node tests/static-smoke.mjs
       - name: Guard modern Home startup
         run: node tests/home-startup.test.mjs
+      - name: Guard Sett active inbox and archive
+        run: node tests/seen-archive.test.mjs
