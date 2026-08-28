@@ -26,7 +26,7 @@ function guardHomeStartup(){[0,60,180,450,900,1600,3000].forEach(ms=>setTimeout(
 function loadScript(src,key,onload){const existing=document.querySelector(`script[data-${key}]`);if(existing){if(onload)existing.addEventListener('load',onload,{once:true});return}const s=document.createElement('script');s.src=src;s.defer=true;s.setAttribute(`data-${key}`,'1');if(onload)s.addEventListener('load',onload,{once:true});document.head.appendChild(s)}
 function loadStartupHydration(){if(window.FlytStartupHydration?.version==='20260826-0746')return;loadScript('./startup-hydration-ui.js?v=20260826-0746','flyt-startup-hydration-0746')}
 function loadBuyerPolish(){if(window.FlytBuyerPolish?.version==='20260827-2358')return;loadScript('./buyer-polish-ui.js?v=20260827-2358','flyt-buyer-polish-2358')}
-function loadAccount(){if(window.FlytAccountUI?.version==='20260827-2356')return;loadScript('./account-ui.js?v=20260827-2356','flyt-account-2356')}
+function loadAccount(){if(window.FlytAccountUI?.version==='20260828-0228')return;loadScript('./account-ui.js?v=20260828-0228','flyt-account-0228')}
 function loadPlanned(){if(window.FlytPlannedUI?.version==='20260827-0240')return;loadScript('./planned-ui.js?v=20260827-0240','flyt-planned-0240')}
 function loadDayCompleted(){if(window.FlytTasksDayCompleted)return;loadScript('./tasks-day-completed-ui.js?v=20260824-1350','flyt-day-completed')}
 function loadModal(){if(window.FlytModal)return;loadScript('./modal-ui.js?v=20260825-1933','flyt-modal')}
