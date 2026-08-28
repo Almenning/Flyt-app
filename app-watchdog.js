@@ -31,7 +31,7 @@ function loadPlanned(){if(window.FlytPlannedUI?.version==='20260827-0240')return
 function loadDayCompleted(){if(window.FlytTasksDayCompleted)return;loadScript('./tasks-day-completed-ui.js?v=20260824-1350','flyt-day-completed')}
 function loadModal(){if(window.FlytModal)return;loadScript('./modal-ui.js?v=20260825-1933','flyt-modal')}
 function loadCustomCategories(){if(window.FlytCustomCategories?.version==='20260827-0918')return;loadScript('./custom-categories-ui.js?v=20260827-0918','flyt-custom-categories-0918')}
-function loadRecurrence(){if(window.FlytRecurrenceUI?.version==='20260827-2256')return;loadScript('./recurrence-ui.js?v=20260827-2256','flyt-recurrence-2256')}
+function loadRecurrence(){if(window.FlytRecurrenceUI?.version==='20260828-0420')return;loadScript('./recurrence-ui.js?v=20260828-0420','flyt-recurrence-0420')}
 function loadBeta(){if(window.FlytBetaUI)return;loadScript('./beta-ui.js?v=20260824-1628','flyt-beta')}
 function loadResponsive(){if(document.querySelector('#flytResponsiveUi'))return;loadScript('./responsive-ui.js?v=20260825-0648','flyt-responsive')}
 function loadSeen(){if(window.FlytSeenUI?.version==='20260827-2054')return;loadScript('./seen-ui.js?v=20260827-2054','flyt-seen-current-2054')}
