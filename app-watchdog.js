@@ -39,7 +39,7 @@ function loadSeenRequestAlert(){if(window.FlytSeenRequestAlert?.version==='20260
 function loadRewardsEditGuard(){if(window.FlytRewardsEditGuard)return;loadScript('./rewards-edit-guard.js?v=20260825-2102','flyt-rewards-edit')}
 function loadRewardsSummary(){if(window.FlytRewardsSummaryUI)return;loadScript('./rewards-summary-ui.js?v=20260825-1035','flyt-rewards-summary')}
 function loadRewardsUI(){if(window.FlytRewardsUI)return;loadScript('./rewards-ui.js?v=20260825-2056','flyt-rewards-ui')}
-function loadQuickTemptation(){if(window.FlytQuickTemptationUI)return;loadScript('./quick-temptation-ui.js?v=20260825-2210','flyt-quick-temptation')}
+function loadQuickTemptation(){if(window.FlytQuickTemptationUI?.version==='20260828-1948')return;loadScript('./quick-temptation-ui.js?v=20260828-1948','flyt-quick-temptation-1948')}
 function loadSetupV2(){if(window.FlytSetupV2?.version==='20260827-1412')return;loadScript('./setup-v2.js?v=20260827-1412','flyt-setup-v2-1412')}
 function loadHome(){if(window.FlytHomeUI?.version==='20260827-2005'){ensureHomeOwnership();return}loadScript('./home-ui.js?v=20260827-2005','flyt-home-current-2005',()=>queueMicrotask(ensureHomeOwnership))}
 function loadHistory(){if(window.FlytHistoryUI?.version==='20260827-0108')return;loadScript('./history-ui.js?v=20260827-0108','flyt-history-0108')}
