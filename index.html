@@ -8,9 +8,9 @@
 <meta name="apple-mobile-web-app-title" content="Flyt">
 <link rel="manifest" href="./manifest.webmanifest">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./sync.js?v=20260823-2218" defer></script>
+<script src="./sync.js?v=20260828-2118" defer></script>
 <script src="./oss.js?v=20260824-1318" defer></script>
-<script src="./app-watchdog.js?v=20260827-0108" defer></script>
+<script src="./app-watchdog.js?v=20260828-2118" defer></script>
 <script src="./tasks-ui.js?v=20260824-1120" defer></script>
 <script src="./planned-ui.js?v=20260824-1302" defer></script>
 <script src="./home-ui.js?v=20260823-2218" defer></script>
@@ -20,8 +20,8 @@
 </style>
 </head>
 <body>
-<div id="login" class="login hidden" aria-hidden="true"></div>
-<div class="app"><header class="top"><button id="switchUser" class="pill">Du + Partner ▾</button><div style="display:flex;gap:7px"><button id="syncBtn" class="pill">Koble</button><button id="setupBtn" class="pill">Oppsett</button><button id="lock" class="pill">Lås</button></div></header><main id="content" class="content"></main><nav id="nav" class="nav"><button data-view="home" class="on"><b>⌂</b>Hjem</button><button data-view="tasks"><b>✓</b>Gjøre</button><button data-view="seen"><b>◉</b>Sett</button><button data-view="rewards"><b>♡</b>Fristelser</button><button data-view="us"><b>☺</b>Oss</button></nav></div>
+<div id="login" class="login" aria-hidden="false"><div class="loginbox"><div class="logo">fl<b>y</b>t</div><div class="ey">Privat beta</div><h1 style="font:500 30px Georgia;margin:12px 0 6px">Flyt for to</h1><p class="sub">Henter innlogging…</p></div></div>
+<div class="app hidden"><header class="top"><button id="switchUser" class="pill">Du + Partner ▾</button><div style="display:flex;gap:7px"><button id="syncBtn" class="pill">Koble</button><button id="setupBtn" class="pill">Oppsett</button><button id="lock" class="pill">Lås</button></div></header><main id="content" class="content"></main><nav id="nav" class="nav"><button data-view="home" class="on"><b>⌂</b>Hjem</button><button data-view="tasks"><b>✓</b>Gjøre</button><button data-view="seen"><b>◉</b>Sett</button><button data-view="rewards"><b>♡</b>Fristelser</button><button data-view="us"><b>☺</b>Oss</button></nav></div>
 <div id="setup" class="setup hidden"><div class="setupHead"><div class="ey">Husholdningsoppsett</div><strong id="setupTitle">Oppsett</strong></div><div id="setupBody" class="setupBody"></div><div class="setupFoot"><button id="setupBack" class="secondary grow">Tilbake</button><button id="setupNext" class="primary grow">Neste</button></div></div><div id="toast" class="toast hidden"></div>
 <script>
 (()=>{
