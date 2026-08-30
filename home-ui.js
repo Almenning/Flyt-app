@@ -5,8 +5,8 @@ const bridge=()=>window.FlytBridge;
 const VERSION='20260830-1530';
 let mode='day',partnerCtx=null,loadingPartner=false;
 const LABEL={low:'Lav',med:'Middels',high:'Høy'};
-const NEED_LABEL={relief:'Avlastning',closeness:'Nærhet',sex:'Sex',initiative:'Initiativ',alone:'Alenetid',quiet:'Ro'};
-const FIELD_LABEL={energy:'Energi',capacity:'Overskudd',closeness:'Nærhet',desire:'Sexlyst',stress:'Stress'};
+const NEED_LABEL={relief:'Avlastning',closeness:'Nærhet',sex:'Intimitet',initiative:'Initiativ',alone:'Alenetid',quiet:'Ro'};
+const FIELD_LABEL={energy:'Energi',capacity:'Overskudd',closeness:'Nærhet',desire:'Lyst',stress:'Stress'};
 const QUICK_META={need:{label:'Behov',icon:'♡',tone:'#80558f',bg:'#f3edf7'},wish:{label:'Ønske',icon:'☆',tone:'#c85d35',bg:'#fff0e8'},practical:{label:'Praktisk',icon:'✓',tone:'#4d8464',bg:'#edf5ef'},reward:{label:'Fristelse',icon:'♥',tone:'#c84457',bg:'#faecef'}};
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]))}
 function monday(){const d=new Date(),x=new Date(d),day=(x.getDay()+6)%7;x.setHours(0,0,0,0);x.setDate(x.getDate()-day);return x}
