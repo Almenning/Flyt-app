@@ -1,12 +1,12 @@
 (()=>{
 'use strict';
-const VERSION='20260830-1600';
+const VERSION='20260830-1946';
 const $=s=>document.querySelector(s);
 const bridge=()=>window.FlytBridge;
 const DAY_MS=86400000;
 const ARCHIVE_MS=90*DAY_MS;
 const CONTRIBUTION_GRACE_MS=DAY_MS;
-if(!window.FlytStatusAlert&&!document.querySelector('script[data-flyt-status-alert]')){const sc=document.createElement('script');sc.src='./status-alert-ui.js?v=20260824-1212';sc.defer=true;sc.dataset.flytStatusAlert='1';document.head.appendChild(sc)}
+if(!window.FlytStatusAlert?.version?.startsWith?.('20260830-1945')&&!document.querySelector('script[data-flyt-status-alert-1945]')){const sc=document.createElement('script');sc.src='./status-alert-ui.js?v=20260830-1945';sc.defer=true;sc.dataset.flytStatusAlert1945='1';document.head.appendChild(sc)}
 let painting=false,requestModalOpen=false,actionMenuOpen=false,archiveOpen=false,pruneQueued=false;
 function state(){return bridge()?.getState?.()||null}
 function save(next){bridge()?.setState?.(next);window.FlytSync?.queueSave?.()}
