@@ -144,7 +144,12 @@ function openSettings(){
     previousFocus=active?.closest?.('#flytAppMenu')?$('#flytMoreBtn'):active;
   }
   root.FlytBuyerPolish?.closeMenu?.();
-  shell('Innstillinger',`<div class="ey">Flyt</div><h1 class="title">Innstillinger</h1><p class="sub">Oppsett og tidligere aktivitet ligger samlet her.</p><button type="button" class="secondary flytSettingsAction" data-settings-setup="1"><span style="font-size:20px">⚙</span><span><strong>Rediger oppsett</strong><span class="taskmeta" style="display:block">Gjøremål, rytme, poeng og ansvar</span></span></button><button type="button" class="secondary flytSettingsAction" data-settings-history="1"><span style="font-size:20px">↶</span><span><strong>Historikk</strong><span class="taskmeta" style="display:block">Se hva som er gjort i tidligere uker</span></span></button>`);
+  shell('Innstillinger',`<div class="ey">Flyt</div><h1 class="title">Innstillinger</h1><p class="sub">Tilpass oppsett, forslag og tidligere aktivitet.</p><button type="button" class="secondary flytSettingsAction" data-settings-setup="1"><span style="font-size:20px">⚙</span><span><strong>Rediger oppsett</strong><span class="taskmeta" style="display:block">Gjøremål, rytme, poeng og ansvar</span></span></button><button type="button" class="secondary flytSettingsAction" data-settings-nudges="1"><span style="font-size:20px">✨</span><span><strong>Nudges og forslag</strong><span class="taskmeta" style="display:block">Typer, tone og hvor ofte</span></span></button><button type="button" class="secondary flytSettingsAction" data-settings-history="1"><span style="font-size:20px">↶</span><span><strong>Historikk</strong><span class="taskmeta" style="display:block">Se hva som er gjort i tidligere uker</span></span></button>`);
+}
+function openNudges(){
+  const body=root.FlytNudgeUI?.settingsMarkup?.();
+  if(!body){bridge()?.toast?.('Nudge-innstillingene lastes. Prøv igjen om et øyeblikk.');return}
+  shell('Nudges og forslag',body,true);
 }
 function openHistory(){
   const state=bridge()?.getState?.();
@@ -166,7 +171,7 @@ function augmentMenu(){
   button.type='button';
   button.className='secondary flytMenuAction';
   button.dataset.flytHistorySettings='1';
-  button.innerHTML='<span class="flytMenuIcon">⚙</span><span><strong>Innstillinger</strong><span class="taskmeta" style="display:block">Oppsett og historikk</span></span>';
+  button.innerHTML='<span class="flytMenuIcon">⚙</span><span><strong>Innstillinger</strong><span class="taskmeta" style="display:block">Oppsett, nudges og historikk</span></span>';
   button.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();openSettings()});
   before?.parentNode?.insertBefore(button,before);
 }
@@ -199,7 +204,9 @@ function handleClick(e){
   const back=e.target.closest?.('[data-history-back]');
   if(back){e.preventDefault();back.dataset.historyBack==='settings'?openSettings():closeSettings();return}
   if(e.target.closest?.('[data-settings-history]')){e.preventDefault();historyScope='mine';openHistory();return}
+  if(e.target.closest?.('[data-settings-nudges]')){e.preventDefault();openNudges();return}
   if(e.target.closest?.('[data-settings-setup]')){e.preventDefault();openSetup();return}
+  if(root.FlytNudgeUI?.handleSettingsAction?.(e.target)){e.preventDefault();openNudges();return}
   const scope=e.target.closest?.('[data-history-scope]');
   if(scope){e.preventDefault();historyScope=scope.dataset.historyScope==='together'?'together':'mine';openHistory()}
 }
@@ -213,5 +220,5 @@ function install(){
 }
 
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
-root.FlytHistoryUI={openSettings,openHistory,close:closeSettings,augmentWeek,core,version:'20260827-0108'};
+root.FlytHistoryUI={openSettings,openHistory,openNudges,close:closeSettings,augmentWeek,core,version:'20260830-1530'};
 })(typeof window!=='undefined'?window:null);

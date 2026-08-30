@@ -1,0 +1,116 @@
+const assert=require('node:assert/strict');
+const {
+  buildCandidates,
+  freshStatus,
+  makeRequest,
+  normalizePreferences,
+  remainingTasks,
+  requestMessage
+}=require('../nudge-ui.js');
+
+const now=new Date('2026-08-30T12:00:00Z');
+const fresh={user_id:'me',energy:'low',capacity:'med',stress:'med',needs:[],updated_at:'2026-08-30T11:00:00Z'};
+const base={
+  user:'Tore',
+  tasks:[
+    {id:'laundry',name:'Vaske/brette klær',kind:'house',type:'daily',freq:7,pts:45,owner:'Begge'},
+    {id:'bath',name:'Vaske bad',kind:'house',type:'flex',freq:1,pts:70,owner:'Begge'},
+    {id:'train',name:'Trening',kind:'personal',type:'flex',freq:3,pts:40,owner:'Tore'}
+  ],
+  completions:[],
+  seenRequests:[]
+};
+
+assert.equal(freshStatus(fresh,now.getTime()),true,'status from the last 24 hours should be eligible');
+assert.equal(freshStatus({...fresh,updated_at:'2026-08-28T11:00:00Z'},now.getTime()),false,'stale status must not drive nudges');
+
+const remaining=remainingTasks(base,now);
+assert.deepEqual(remaining.map(task=>task.id),['laundry','bath'],'only unfinished household tasks should be suggested');
+
+const ask=buildCandidates({
+  state:base,
+  preferences:normalizePreferences({frequency:'balanced'}),
+  myStatus:fresh,
+  partnerStatus:null,
+  partnerName:'Jannicke',
+  now
+});
+assert.equal(ask[0]?.kind,'askHelp','own low capacity should prioritize asking for concrete help');
+assert.equal(ask[0]?.task.id,'laundry');
+assert.match(ask[0]?.actionLabel||'',/Jannicke/);
+
+const bothLow=buildCandidates({
+  state:base,
+  preferences:normalizePreferences({frequency:'balanced'}),
+  myStatus:fresh,
+  partnerStatus:{...fresh,user_id:'partner',capacity:'low'},
+  partnerName:'Jannicke',
+  now
+});
+assert.equal(bothLow[0]?.id,'balance:both-low','when both have low capacity, good-enough guidance should outrank asking more of either person');
+
+const initiative=buildCandidates({
+  state:base,
+  preferences:normalizePreferences({askHelp:false,frequency:'balanced'}),
+  myStatus:null,
+  partnerStatus:{...fresh,user_id:'partner',capacity:'low'},
+  partnerName:'Jannicke',
+  now
+});
+assert.equal(initiative[0]?.kind,'initiative','partner low capacity should trigger an initiative nudge');
+assert.match(initiative[0]?.body||'',/Jannicke/);
+
+const explicitRelief=buildCandidates({
+  state:base,
+  preferences:normalizePreferences({frequency:'balanced'}),
+  myStatus:{...fresh,energy:'med',needs:['relief']},
+  partnerStatus:null,
+  partnerName:'Jannicke',
+  now
+});
+assert.equal(explicitRelief[0]?.kind,'askHelp','an explicit need for relief should be actionable even when energy is medium');
+assert.match(explicitRelief[0]?.body||'',/behov for avlastning/);
+
+const completed={...base,completions:[{taskId:'laundry',date:'2026-08-30',kind:'house',by:'Tore'}]};
+const relationship=buildCandidates({
+  state:completed,
+  preferences:normalizePreferences({initiative:false,askHelp:false,recognition:false,frequency:'balanced'}),
+  myStatus:null,
+  partnerStatus:{...fresh,user_id:'partner',energy:'med',needs:['closeness']},
+  partnerName:'Jannicke',
+  now
+});
+assert.equal(relationship[0]?.kind,'relationship','fresh closeness need and completed daily rhythm should offer an invitation');
+assert.equal(relationship[0]?.action,'invitation');
+
+const stale=buildCandidates({
+  state:base,
+  preferences:normalizePreferences({frequency:'balanced'}),
+  myStatus:{...fresh,updated_at:'2026-08-28T11:00:00Z'},
+  partnerStatus:null,
+  partnerName:'Jannicke',
+  now
+});
+assert.equal(stale.length,0,'balanced mode should not invent status-based advice from stale data');
+
+const dismissed=buildCandidates({
+  state:base,
+  preferences:normalizePreferences({frequency:'balanced',dismissedDate:'2026-08-30',dismissedIds:['ask-help:laundry']},now),
+  myStatus:fresh,
+  partnerStatus:null,
+  partnerName:'Jannicke',
+  now
+});
+assert.equal(dismissed.some(candidate=>candidate.id==='ask-help:laundry'),false,'a nudge hidden today must stay hidden today');
+
+const message=requestMessage({task:base.tasks[0],partnerName:'Jannicke',tone:'warm',status:fresh});
+assert.match(message,/Vaske\/brette klær/i);
+assert.match(message,/overskudd til oss/);
+
+const made=makeRequest({state:base,task:base.tasks[0],text:message,rewardTitle:'Litt tid sammen i kveld',now:1234});
+assert.equal(made.request.type,'practical');
+assert.equal(made.request.source,'nudge');
+assert.equal(made.reward.requiresPoints,false,'an optional invitation must be separate and open, not payment for a chore');
+assert.equal(made.reward.linkedRequestId,made.request.id);
+
+console.log('ok - contextual nudges, freshness, preferences and request flow');
