@@ -33,5 +33,9 @@ jobs:
         run: node tests/home-startup.test.mjs
       - name: Guard contextual nudges and communication flow
         run: node tests/nudge-ui.test.cjs
+      - name: Guard practical couple communication lifecycle
+        run: node tests/couple-core.test.cjs
+      - name: Guard time-together invitations
+        run: node tests/couple-invitation-ui.test.mjs
       - name: Guard Sett active inbox and archive
         run: node tests/seen-archive.test.mjs

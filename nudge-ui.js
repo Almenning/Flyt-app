@@ -1,8 +1,9 @@
 ((root)=>{
 'use strict';
 
-const VERSION='20260830-1530';
+const VERSION='20260831-1200';
 const DAY_MS=86400000;
+const coupleCore=typeof module==='object'&&module.exports?require('./couple-core.js'):root?.FlytCoupleCore;
 const DEFAULT_PREFERENCES=Object.freeze({
   enabled:true,
   initiative:true,
@@ -52,7 +53,7 @@ function weekCompletions(state,now=new Date()){
   return (state?.completions||[]).filter(c=>stamp(`${c?.date||''}T12:00:00`)>=start.getTime());
 }
 function activeNudgeTaskIds(state){
-  return new Set((state?.seenRequests||[]).filter(r=>r?.source==='nudge'&&r.taskId!=null&&!r.done&&!r.deleted).map(r=>String(r.taskId)));
+  return new Set((state?.seenRequests||[]).filter(r=>(r?.source==='nudge'||r?.source==='initiative')&&r.taskId!=null&&!r.done&&!r.deleted&&!r.declinedAt).map(r=>String(r.taskId)));
 }
 function remainingTasks(state,now=new Date()){
   const today=dateKey(now),doneToday=new Set((state?.completions||[]).filter(c=>c?.date===today&&c?.kind==='house').map(c=>String(c.taskId))),week=weekCompletions(state,now),requested=activeNudgeTaskIds(state),out=[];
@@ -118,7 +119,7 @@ function buildCandidates({state,preferences,myStatus,partnerStatus,partnerName='
     candidates.push({
       id:`ask-help:${task.id}`,kind:'askHelp',priority:100,icon:'♡',task,
       title:toneText(prefs.tone,{warm:'Litt hjelp kan gjøre dagen lettere',direct:'Be om avlastning nå',gentle:'Kanskje du kan slippe én ting'}),
-      body:toneText(prefs.tone,{warm:`Du har markert ${myReason}, og ${task.name.toLowerCase()} står igjen. Flyt kan hjelpe deg å spørre konkret og vennlig.`,direct:`Du har markert ${myReason}. Be ${partnerName} ta ${task.name.toLowerCase()}.`,gentle:`Du har markert ${myReason}. Hvis det passer, kan du be ${partnerName} ta ${task.name.toLowerCase()}.`}),
+      body:toneText(prefs.tone,{warm:`Du har valgt ${myReason}, og ${task.name.toLowerCase()} står igjen. Flyt kan hjelpe deg å spørre konkret og vennlig.`,direct:`Du har valgt ${myReason}. Be ${partnerName} ta ${task.name.toLowerCase()}.`,gentle:`Du har valgt ${myReason}. Hvis det passer, kan du be ${partnerName} ta ${task.name.toLowerCase()}.`}),
       action:'askHelp',actionLabel:`Be ${partnerName} ta den`
     });
   }
@@ -129,7 +130,7 @@ function buildCandidates({state,preferences,myStatus,partnerStatus,partnerName='
       id:`initiative:${task.id}`,kind:'initiative',priority:95,icon:'↗',task,
       title:toneText(prefs.tone,{warm:`Gjør dagen litt lettere for ${partnerName}`,direct:'Ta én oppgave før det blir spurt',gentle:'Et lite initiativ kan hjelpe'}),
       body:toneText(prefs.tone,{warm:`${partnerName} har markert ${partnerReason}. ${left} Kanskje ta ${task.name.toLowerCase()} på eget initiativ?`,direct:`${partnerName} har markert ${partnerReason}. ${left} Ta ${task.name.toLowerCase()}.`,gentle:`${partnerName} har markert ${partnerReason}. ${left} Hvis du har kapasitet, kan ${task.name.toLowerCase()} være et godt sted å begynne.`}),
-      action:'openTasks',actionLabel:'Se gjøremålene'
+      action:'takeInitiative',actionLabel:`Jeg tar ${task.name.toLowerCase()}`
     });
   }
 
@@ -138,7 +139,7 @@ function buildCandidates({state,preferences,myStatus,partnerStatus,partnerName='
       id:`quiet:${task.id}`,kind:'initiative',priority:92,icon:'☾',task,
       title:toneText(prefs.tone,{warm:'Litt mindre rundt dere',direct:'Skap ro nå',gentle:'Kanskje rydde plass til ro'}),
       body:`${partnerName} har markert behov for ro. ${progress.remaining?`Bare ${dailyWord} står igjen i dagens rytme.`:`${task.name} står igjen.`} Et stille initiativ kan gjøre mer enn en lang samtale akkurat nå.`,
-      action:'openTasks',actionLabel:'Se hva som gjenstår'
+      action:'takeInitiative',actionLabel:`Jeg tar ${task.name.toLowerCase()}`
     });
   }
 
@@ -185,15 +186,14 @@ function buildCandidates({state,preferences,myStatus,partnerStatus,partnerName='
 function requestMessage({task,partnerName,tone='warm',status}){
   const name=String(task?.name||'denne oppgaven').trim(),lower=name.charAt(0).toLowerCase()+name.slice(1),needs=status?.needs||[],strain=needs.some(n=>n==='relief'||n==='initiative')?'behov for litt avlastning':strainText(status);
   return toneText(tone,{
-    warm:`Jeg har ${strain} i dag. Hadde satt stor pris på om du tok ${lower}. Det hadde gitt meg litt mer ro og overskudd til oss ❤️`,
+    warm:`Jeg har ${strain} i dag. Hadde satt stor pris på om du tok ${lower}. Det ville gjort dagen litt lettere for meg ❤️`,
     direct:`Jeg har ${strain} i dag. Kan du ta ${lower}? Det ville hjulpet meg mye.`,
-    gentle:`Jeg kjenner at jeg har ${strain} i dag. Hvis du har mulighet, hadde jeg satt pris på om du tok ${lower}.`
+    gentle:`Jeg har ${strain} i dag. Hvis du har mulighet, hadde jeg satt pris på om du tok ${lower}.`
   });
 }
-function makeRequest({state,task,text,rewardTitle='',now=Date.now()}){
-  const request={id:`req_${now}`,type:'practical',text:String(text||'').trim(),by:state.user,createdAt:now,seen:false,seenBy:null,seenAt:null,done:false,doneBy:null,doneAt:null,deleted:false,deletedAt:null,source:'nudge',taskId:task?.id??null,taskName:task?.name||''};
-  const reward=String(rewardTitle||'').trim()?{id:now+1,title:String(rewardTitle).trim(),by:state.user,requiresPoints:false,cost:0,createdAt:now+1,source:'nudge',linkedRequestId:request.id}:null;
-  return {request,reward};
+function makeRequest({state,task,text,now=Date.now()}){
+  const request=coupleCore?.makeSupportRequest?.({state,task,text,now})||{id:`req_${now}`,kind:'support',type:'practical',text:String(text||'').trim(),by:state.user,createdAt:now,responseState:'pending',seen:false,done:false,deleted:false,source:'nudge',taskId:task?.id??null,taskName:task?.name||''};
+  return {request};
 }
 
 const core={DEFAULT_PREFERENCES,dateKey,freshStatus,remainingTasks,todayProgress,normalizePreferences,buildCandidates,requestMessage,makeRequest};
@@ -307,26 +307,22 @@ function openHelp(candidate){
   closeModal();
   const prefs=preferences(s),rows=statuses(),partner=partnerName(s),message=requestMessage({task:candidate.task,partnerName:partner,tone:prefs.tone,status:rows.myStatus}),el=document.createElement('div');
   el.id='flytNudgeModal';
-  el.innerHTML=`<div class="flytNudgeDialog" role="dialog" aria-modal="true" aria-labelledby="flytNudgeTitle"><div class="ey">Be om hjelp</div><h2 id="flytNudgeTitle" style="font:500 28px/1.12 Georgia;margin:9px 0 7px">Gjør behovet konkret</h2><p class="sub" style="margin-top:0">Meldingen sendes til ${esc(partner)} under Sett. Du kan endre teksten før du sender.</p><div class="card" style="box-shadow:none"><div class="ey">Gjøremål</div><strong style="display:block;margin-top:5px">${esc(candidate.task.name)}</strong></div><label class="label" for="flytNudgeMessage">Melding</label><textarea id="flytNudgeMessage" rows="5" style="width:100%;resize:vertical;min-height:125px;border:1px solid var(--line);border-radius:15px;background:#fff;padding:12px 14px;font:inherit;color:inherit;outline:none;margin-top:6px">${esc(message)}</textarea><label style="display:flex;align-items:flex-start;gap:11px;margin:15px 0 0;padding:13px 14px;border:1px solid var(--line);border-radius:16px;background:#fff"><input id="flytNudgeAddReward" type="checkbox" style="margin-top:3px;transform:scale(1.15);accent-color:var(--accent)"><span><strong style="display:block">Legg også til en fristelse</strong><span class="taskmeta">Fristelsen deles separat. Den er ikke betaling for gjøremålet.</span></span></label><div id="flytNudgeRewardWrap" class="hidden" style="margin-top:13px"><label class="label" for="flytNudgeReward">Hva vil du invitere til?</label><input id="flytNudgeReward" class="field" autocomplete="off" placeholder="F.eks. Ligge tett sammen i kveld"></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px"><button type="button" class="secondary" data-nudge-modal-cancel="1">Avbryt</button><button type="button" class="primary" data-nudge-send-help="${esc(candidate.id)}">Send til ${esc(partner)}</button></div></div>`;
+  el.innerHTML=`<div class="flytNudgeDialog" role="dialog" aria-modal="true" aria-labelledby="flytNudgeTitle"><div class="ey">Be om hjelp</div><h2 id="flytNudgeTitle" style="font:500 28px/1.12 Georgia;margin:9px 0 7px">Gjør behovet konkret</h2><p class="sub" style="margin-top:0">Meldingen sendes til ${esc(partner)} under Sett. Du kan endre teksten før du sender.</p><div class="card" style="box-shadow:none"><div class="ey">Gjøremål</div><strong style="display:block;margin-top:5px">${esc(candidate.task.name)}</strong></div><label class="label" for="flytNudgeMessage">Melding</label><textarea id="flytNudgeMessage" rows="5" maxlength="600" style="width:100%;resize:vertical;min-height:125px;border:1px solid var(--line);border-radius:15px;background:#fff;padding:12px 14px;font:inherit;color:inherit;outline:none;margin-top:6px">${esc(message)}</textarea><div class="card" style="box-shadow:none;margin-top:14px;background:#fff9f5"><strong>Konkret forespørsel, fritt svar</strong><p class="sub" style="margin-bottom:0">${esc(partner)} kan ta oppgaven, foreslå en annen, si at det ikke passer eller skrive et kort svar.</p></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px"><button type="button" class="secondary" data-nudge-modal-cancel="1">Avbryt</button><button type="button" class="primary" data-nudge-send-help="${esc(candidate.id)}">Send til ${esc(partner)}</button></div></div>`;
   document.body.appendChild(el);
-  const toggle=$('#flytNudgeAddReward'),wrap=$('#flytNudgeRewardWrap');
-  toggle.onchange=()=>{wrap.classList.toggle('hidden',!toggle.checked);if(toggle.checked)setTimeout(()=>$('#flytNudgeReward')?.focus(),30)};
   el.addEventListener('click',event=>{if(event.target===el)closeModal()});
   setTimeout(()=>$('#flytNudgeMessage')?.focus(),40);
 }
 function sendHelp(id){
-  const s=state(),candidate=currentCandidates.find(c=>c.id===id)||currentCandidates[0],text=$('#flytNudgeMessage')?.value.trim(),addReward=!!$('#flytNudgeAddReward')?.checked,rewardTitle=addReward?$('#flytNudgeReward')?.value.trim():'';
+  const s=state(),candidate=currentCandidates.find(c=>c.id===id)||currentCandidates[0],text=$('#flytNudgeMessage')?.value.trim();
   if(!s||!candidate?.task)return;
   if(!text){$('#flytNudgeMessage')?.focus();return}
-  if(addReward&&!rewardTitle){$('#flytNudgeReward')?.focus();return}
-  const made=makeRequest({state:s,task:candidate.task,text,rewardTitle}),prefs=preferences(s),dismissed=new Set(currentDismissals(prefs));
+  const made=makeRequest({state:s,task:candidate.task,text}),prefs=preferences(s),dismissed=new Set(currentDismissals(prefs));
   dismissed.add(candidate.id);
   let next={...s,seenRequests:[made.request,...(s.seenRequests||[])]};
-  if(made.reward)next={...next,rewards:[made.reward,...(s.rewards||[])]};
   next=withPreferences(next,{...prefs,dismissedDate:dateKey(),dismissedIds:[...dismissed]});
   save(next);
   closeModal();
-  bridge()?.toast?.(made.reward?'Forespørselen er sendt og fristelsen lagt til':'Forespørselen er sendt');
+  bridge()?.toast?.('Forespørselen er sendt');
   root.FlytSeenRequestAlert?.checkAlerts?.();
 }
 function openInvitation(candidate){
@@ -335,7 +331,7 @@ function openInvitation(candidate){
   closeModal();
   const partner=partnerName(s),el=document.createElement('div');
   el.id='flytNudgeModal';
-  el.innerHTML=`<div class="flytNudgeDialog" role="dialog" aria-modal="true" aria-labelledby="flytNudgeTitle"><div class="ey">Tid for oss</div><h2 id="flytNudgeTitle" style="font:500 28px/1.12 Georgia;margin:9px 0 7px">Send en liten invitasjon</h2><p class="sub" style="margin-top:0">Dette blir en åpen fristelse til ${esc(partner)}. Skriv noe som føles naturlig for dere.</p><label class="label" for="flytNudgeInvitation">Invitasjon</label><input id="flytNudgeInvitation" class="field" autocomplete="off" value="Litt tid sammen i kveld" placeholder="F.eks. Ligge tett sammen etter legging"><div class="card" style="box-shadow:none;margin-top:14px"><strong>En invitasjon, ikke en avtale</strong><p class="sub" style="margin-bottom:0">Fristelsen uttrykker et ønske om tid sammen. Den kobles ikke til poeng eller krav om å utføre et gjøremål.</p></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px"><button type="button" class="secondary" data-nudge-modal-cancel="1">Avbryt</button><button type="button" class="primary" data-nudge-send-invitation="${esc(candidate?.id||'relationship')}">Send invitasjon</button></div></div>`;
+  el.innerHTML=`<div class="flytNudgeDialog" role="dialog" aria-modal="true" aria-labelledby="flytNudgeTitle"><div class="ey">♥ Tid for oss</div><h2 id="flytNudgeTitle" style="font:500 28px/1.12 Georgia;margin:9px 0 7px">Send en liten invitasjon</h2><p class="sub" style="margin-top:0">Et konkret forslag til ${esc(partner)} – uten poeng, plikt eller skjult kontrakt.</p><div style="display:flex;gap:7px;flex-wrap:wrap;margin:14px 0"><button type="button" class="small" data-nudge-invite-preset="Sofa og noe godt i kveld?">🛋 Sofa og noe godt</button><button type="button" class="small" data-nudge-invite-preset="En liten tur sammen senere?">🌿 En liten tur</button><button type="button" class="small" data-nudge-invite-preset="Litt tid tett sammen i kveld?">♥ Tid tett sammen</button></div><label class="label" for="flytNudgeInvitation">Invitasjon</label><input id="flytNudgeInvitation" class="field" maxlength="240" autocomplete="off" value="Litt tid sammen i kveld?" placeholder="F.eks. Skal vi ta en liten tur etter legging?"><div class="card" style="box-shadow:none;margin-top:14px"><strong>En invitasjon, ikke en analyse</strong><p class="sub" style="margin-bottom:0">${esc(partner)} kan svare «Gjerne», «Litt senere», foreslå noe annet eller si «Ikke i kveld».</p></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px"><button type="button" class="secondary" data-nudge-modal-cancel="1">Avbryt</button><button type="button" class="primary" data-nudge-send-invitation="${esc(candidate?.id||'relationship')}">Send invitasjon</button></div></div>`;
   document.body.appendChild(el);
   el.addEventListener('click',event=>{if(event.target===el)closeModal()});
   setTimeout(()=>$('#flytNudgeInvitation')?.select(),40);
@@ -343,12 +339,22 @@ function openInvitation(candidate){
 function sendInvitation(id){
   const s=state(),title=$('#flytNudgeInvitation')?.value.trim();
   if(!s||!title){$('#flytNudgeInvitation')?.focus();return}
-  const now=Date.now(),reward={id:now,title,by:s.user,requiresPoints:false,cost:0,createdAt:now,source:'nudge'},prefs=preferences(s),dismissed=new Set(currentDismissals(prefs));
+  const now=Date.now(),invitation=coupleCore?.makeInvitation?.({state:s,text:title,notifyPartner:true,now})||{id:`invite_${now}`,text:title,by:s.user,createdAt:now,notifyPartner:true,seenBy:[s.user],response:null,deleted:false},prefs=preferences(s),dismissed=new Set(currentDismissals(prefs));
   dismissed.add(id);
-  const next=withPreferences({...s,rewards:[reward,...(s.rewards||[])]},{...prefs,dismissedDate:dateKey(),dismissedIds:[...dismissed]});
+  const next=withPreferences({...s,coupleInvitations:[invitation,...(s.coupleInvitations||[])]},{...prefs,dismissedDate:dateKey(),dismissedIds:[...dismissed]});
   save(next);
   closeModal();
   bridge()?.toast?.(`Invitasjonen er sendt til ${partnerName(s)}`);
+  root.FlytCoupleInvitations?.checkAlerts?.();
+}
+function takeInitiative(candidate){
+  const s=state();
+  if(!s||!candidate?.task)return;
+  const prefs=preferences(s),dismissed=new Set(currentDismissals(prefs)),item=coupleCore?.makeInitiative?.({state:s,task:candidate.task,partnerName:partnerName(s)})||{id:`initiative_${Date.now()}`,kind:'initiative',source:'initiative',type:'practical',text:`Jeg tar ${candidate.task.name.toLowerCase()} i dag.`,by:s.user,for:partnerName(s),createdAt:Date.now(),responseState:'accepted',taskId:candidate.task.id,taskName:candidate.task.name,acceptedBy:s.user,acceptedAt:new Date().toISOString(),seen:false,done:false,deleted:false};
+  dismissed.add(candidate.id);
+  save(withPreferences({...s,seenRequests:[item,...(s.seenRequests||[])]},{...prefs,dismissedDate:dateKey(),dismissedIds:[...dismissed]}));
+  bridge()?.toast?.(`${candidate.task.name} er ditt initiativ`);
+  root.FlytSeenRequestAlert?.checkAlerts?.();
 }
 function openTasks(){
   const s=state();
@@ -385,8 +391,10 @@ document.addEventListener('click',event=>{
   if(dismiss){event.preventDefault();dismissCurrent();return}
   const next=event.target.closest?.('[data-nudge-next]');
   if(next){event.preventDefault();nextCandidate();return}
+  const preset=event.target.closest?.('[data-nudge-invite-preset]');
+  if(preset){event.preventDefault();const input=$('#flytNudgeInvitation');if(input){input.value=preset.dataset.nudgeInvitePreset;input.focus()}return}
   const action=event.target.closest?.('[data-nudge-action]');
-  if(action){event.preventDefault();const candidate=currentCandidates.find(c=>c.id===action.dataset.nudgeId)||currentCandidates[0];if(action.dataset.nudgeAction==='askHelp')openHelp(candidate);else if(action.dataset.nudgeAction==='invitation')openInvitation(candidate);else if(action.dataset.nudgeAction==='openTasks')openTasks();return}
+  if(action){event.preventDefault();const candidate=currentCandidates.find(c=>c.id===action.dataset.nudgeId)||currentCandidates[0];if(action.dataset.nudgeAction==='askHelp')openHelp(candidate);else if(action.dataset.nudgeAction==='invitation')openInvitation(candidate);else if(action.dataset.nudgeAction==='takeInitiative')takeInitiative(candidate);else if(action.dataset.nudgeAction==='openTasks')openTasks();return}
   const sendHelpButton=event.target.closest?.('[data-nudge-send-help]');
   if(sendHelpButton){event.preventDefault();sendHelp(sendHelpButton.dataset.nudgeSendHelp);return}
   const sendInvitationButton=event.target.closest?.('[data-nudge-send-invitation]');
@@ -401,5 +409,5 @@ function install(){
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
 root.addEventListener('pageshow',()=>{statusContext=null;statusLoadedAt=0;augment()});
-root.FlytNudgeUI={augment,refreshStatus,settingsMarkup,updatePreference,handleSettingsAction,openHelp,openInvitation,core,version:VERSION};
+root.FlytNudgeUI={augment,refreshStatus,settingsMarkup,updatePreference,handleSettingsAction,openHelp,openInvitation,takeInitiative,core,version:VERSION};
 })(typeof window!=='undefined'?window:null);

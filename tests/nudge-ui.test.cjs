@@ -59,6 +59,7 @@ const initiative=buildCandidates({
 });
 assert.equal(initiative[0]?.kind,'initiative','partner low capacity should trigger an initiative nudge');
 assert.match(initiative[0]?.body||'',/Jannicke/);
+assert.equal(initiative[0]?.action,'takeInitiative','initiative nudges should create a visible commitment, not only open the task list');
 
 const explicitRelief=buildCandidates({
   state:base,
@@ -105,12 +106,13 @@ assert.equal(dismissed.some(candidate=>candidate.id==='ask-help:laundry'),false,
 
 const message=requestMessage({task:base.tasks[0],partnerName:'Jannicke',tone:'warm',status:fresh});
 assert.match(message,/Vaske\/brette klær/i);
-assert.match(message,/overskudd til oss/);
+assert.match(message,/dagen litt lettere/);
+assert.doesNotMatch(message,/overskudd til oss|betaling|belønning/i,'help copy must not turn closeness into payment for chores');
 
-const made=makeRequest({state:base,task:base.tasks[0],text:message,rewardTitle:'Litt tid sammen i kveld',now:1234});
+const made=makeRequest({state:base,task:base.tasks[0],text:message,now:1234});
 assert.equal(made.request.type,'practical');
 assert.equal(made.request.source,'nudge');
-assert.equal(made.reward.requiresPoints,false,'an optional invitation must be separate and open, not payment for a chore');
-assert.equal(made.reward.linkedRequestId,made.request.id);
+assert.equal(made.request.responseState,'pending');
+assert.equal(made.reward,undefined,'an invitation must never be bundled into a help request');
 
 console.log('ok - contextual nudges, freshness, preferences and request flow');

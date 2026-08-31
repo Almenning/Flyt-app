@@ -16,7 +16,7 @@ assert.match(watchdog, /data-homeui-mode/, 'Watchdog must require a marker from 
 assert.match(watchdog, /Husholdningsmotor\|Ukebanken/, 'Watchdog must reject legacy Home markup');
 assert.match(watchdog, /FlytHomeUI\?\.version!=='20260830-1530'/, 'Watchdog must target the current Home version');
 assert.match(watchdog, /home-ui\.js\?v=20260830-1530/, 'Watchdog must cache-bust the current Home module');
-assert.match(watchdog, /nudge-ui\.js\?v=20260830-1530/, 'Watchdog must load the contextual nudge module');
+assert.match(watchdog, /nudge-ui\.js\?v=20260831-1200/, 'Watchdog must load the contextual nudge module');
 assert.match(watchdog, /function guardHomeStartup\(\)/, 'Watchdog must retry ownership across startup races');
 for (const delay of ['60','180','450','900','1600','3000']) assert.match(watchdog, new RegExp(delay), `Watchdog must include the ${delay} ms recovery checkpoint`);
 assert.match(watchdog, /window\.addEventListener\('pageshow',[^\n]+guardHomeStartup/, 'Watchdog must repeat recovery after Safari pageshow');
