@@ -9,17 +9,18 @@
 <link rel="manifest" href="./manifest.webmanifest">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./task-language.js?v=20260901-2200" defer></script>
+<script src="./day-plan.js?v=20260901-2300" defer></script>
 <script src="./couple-core.js?v=20260901-1700" defer></script>
 <script src="./couple-insights.js?v=20260901-1200" defer></script>
-<script src="./sync.js?v=20260901-2200" defer></script>
+<script src="./sync.js?v=20260901-2300" defer></script>
 <script src="./oss.js?v=20260901-1200" defer></script>
 <script src="./nav-scroll-top-ui.js?v=20260829-0815" defer></script>
-<script src="./app-watchdog.js?v=20260901-2200" defer></script>
+<script src="./app-watchdog.js?v=20260901-2300" defer></script>
 <script src="./tasks-ui.js?v=20260901-2200" defer></script>
-<script src="./recurrence-ui.js?v=20260901-1500" defer></script>
+<script src="./recurrence-ui.js?v=20260901-2300" defer></script>
 <script src="./tasks-view-guard.js?v=20260828-2205" defer></script>
 <script src="./planned-ui.js?v=20260824-1302" defer></script>
-<script src="./home-ui.js?v=20260901-1700" defer></script>
+<script src="./home-ui.js?v=20260901-2300" defer></script>
 <script src="./nudge-ui.js?v=20260901-1700" defer></script>
 <title>Flyt for to</title>
 <style>
@@ -59,7 +60,7 @@ const LIB=window.FlytTaskLanguage?.catalog||[
 {id:'train',cat:'Personlig investering',name:'Trening',freq:3,pts:10,type:'flex',kind:'personal'}
 ];
 const DEFAULT_IDS=['dish_fill','dish_empty','kitchen','counter','dinner','kids_wakeup','kids_get_ready','lunch','bag','bedkids','bath_toilet','bath_sink','bath_shower','bath_floor','bath_tidy','living','laundry_start','laundry_hang','laundry_fold','trash','train'];
-function fresh(){return{version:5,taskCatalogVersion:window.FlytTaskLanguage?.CATALOG_VERSION||0,user:'Du',view:'home',setupDone:false,areas:{home:true,children:true,mental:true,training:true,closeness:true,sex:true},trainingFor:{Du:true,Partner:true},tasks:LIB.filter(x=>DEFAULT_IDS.includes(x.id)).map(x=>({...x,owner:'Begge'})),custom:[],completions:[],points:{Du:0,Partner:0},status:{Du:{energy:'med',capacity:'med',closeness:'med',desire:'med',stress:'med',needs:[]},Partner:{energy:'med',capacity:'med',closeness:'med',desire:'med',stress:'med',needs:[]}},work:[],seenRequests:[],rewards:[{id:1,title:'20 min massasje',by:'Partner',requiresPoints:true,cost:250},{id:2,title:'Sovemorgen',by:'Du',requiresPoints:true,cost:350}],rewardRedemptions:[],quickTemptations:[],coupleInvitations:[],coupleJourney:{firstWinStartedAt:null,firstWinSeenBy:[]},nudgePreferences:{}}}
+function fresh(){return{version:5,taskCatalogVersion:window.FlytTaskLanguage?.CATALOG_VERSION||0,user:'Du',view:'home',setupDone:false,areas:{home:true,children:true,mental:true,training:true,closeness:true,sex:true},trainingFor:{Du:true,Partner:true},tasks:LIB.filter(x=>DEFAULT_IDS.includes(x.id)).map(x=>({...x,owner:'Begge'})),custom:[],completions:[],dayPlans:{},points:{Du:0,Partner:0},status:{Du:{energy:'med',capacity:'med',closeness:'med',desire:'med',stress:'med',needs:[]},Partner:{energy:'med',capacity:'med',closeness:'med',desire:'med',stress:'med',needs:[]}},work:[],seenRequests:[],rewards:[{id:1,title:'20 min massasje',by:'Partner',requiresPoints:true,cost:250},{id:2,title:'Sovemorgen',by:'Du',requiresPoints:true,cost:350}],rewardRedemptions:[],quickTemptations:[],coupleInvitations:[],coupleJourney:{firstWinStartedAt:null,firstWinSeenBy:[]},nudgePreferences:{}}}
 let state=fresh();try{const raw=localStorage.getItem(KEY);if(raw)state={...state,...JSON.parse(raw)}}catch(e){}state=window.FlytTaskLanguage?.normalizeState?.(state)||state;
 function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}if(window.FlytSync)window.FlytSync.queueSave()}
 function people(){const names=Object.keys(state.status||{});if(state.user&&!names.includes(state.user))names.unshift(state.user);if(names.length<2)names.push(state.user==='Du'?'Partner':'Du');return [...new Set(names)]}

@@ -81,6 +81,7 @@ function loadRecurrence(initialState) {
     },
     window,
   });
+  vm.runInContext(fs.readFileSync(path.join(root, 'day-plan.js'), 'utf8'), context);
   vm.runInContext(fs.readFileSync(path.join(root, 'recurrence-ui.js'), 'utf8'), context);
   intervalCallback?.();
 
@@ -183,7 +184,8 @@ test('Dag viser én forekomst, mens Uke teller unike Oslo-datoer', () => {
     view: 'tasks',
   });
 
-  assert.match(harness.content.innerHTML, /Fullført · 1\/1/);
+  assert.match(harness.content.innerHTML, /1 av 1 fullført/);
+  assert.match(harness.content.innerHTML, /Dagens plan er fullført/);
   assert.doesNotMatch(harness.content.innerHTML, /1\/7/);
   assert.match(harness.content.innerHTML, /\+20 poeng/);
   assert.deepEqual(
@@ -255,6 +257,37 @@ test('Angre fjerner dagens egne registreringer uten å påvirke ukegrensen', () 
   assert.equal(harness.getState().completions.length, 0);
   assert.equal(harness.getState().points['Person A'], 0);
   assert.equal(harness.api.progress(harness.getState(), dailyTask, 'day').count, 0);
+});
+
+test('Andre gjøremål er foldet per kategori og kan legges i eller flyttes fra dagsplanen', () => {
+  const flexibleTask = { ...dailyTask, id: 'laundry_fold', name: 'Brette klær', type: 'flex', cat: 'Vask & klær', pts: 40 };
+  const harness = loadRecurrence({
+    completions: [],
+    custom: [flexibleTask],
+    dayPlans: {},
+    points: { 'Person A': 0 },
+    tasks: [dailyTask],
+    user: 'Person A',
+    view: 'tasks',
+  });
+
+  assert.match(harness.content.innerHTML, /Andre gjøremål/);
+  assert.doesNotMatch(harness.content.innerHTML, /Brette klær/);
+
+  harness.click({ '[data-period-other]': {} });
+  assert.match(harness.content.innerHTML, /Vask &amp; klær/);
+  assert.doesNotMatch(harness.content.innerHTML, /Brette klær/);
+
+  harness.click({ '[data-library-category]': { dataset: { libraryCategory: 'Vask & klær' } } });
+  assert.match(harness.content.innerHTML, /Brette klær/);
+
+  harness.click({ '[data-day-plan-add]': { dataset: { dayPlanAdd: flexibleTask.id } } });
+  assert.deepEqual(Array.from(harness.getState().dayPlans['2026-08-26'].addedTaskIds), [flexibleTask.id]);
+  assert.match(harness.content.innerHTML, /0 av 2 fullført/);
+
+  harness.click({ '[data-day-plan-tomorrow]': { dataset: { dayPlanTomorrow: flexibleTask.id } } });
+  assert.deepEqual(Array.from(harness.getState().dayPlans['2026-08-27'].addedTaskIds), [flexibleTask.id]);
+  assert.doesNotMatch(harness.content.innerHTML, /0 av 2 fullført/);
 });
 
 test('oppsettet beskriver daily-frekvens som dager per uke og begrenser til syv', () => {

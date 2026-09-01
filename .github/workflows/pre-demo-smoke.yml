@@ -31,6 +31,8 @@ jobs:
         run: node tests/static-smoke.mjs
       - name: Guard modern Home startup
         run: node tests/home-startup.test.mjs
+      - name: Guard flexible daily plans
+        run: node --test tests/day-plan.test.cjs tests/recurrence-day-week.test.js
       - name: Guard contextual nudges and communication flow
         run: node tests/nudge-ui.test.cjs
       - name: Guard practical couple communication lifecycle
