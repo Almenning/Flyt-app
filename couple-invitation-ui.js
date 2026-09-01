@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION='20260831-1200';
+const VERSION='20260901-1200';
 const RECENT_MS=14*86400000;
 const $=selector=>document.querySelector(selector);
 const bridge=()=>window.FlytBridge;
@@ -54,7 +54,7 @@ function cardMarkup(s,item){
 }
 function sectionMarkup(s){
   const list=visibleItems(s);
-  return `<section id="coupleInvitationSection" class="section" style="margin:14px 0 22px;padding:16px;border:1px solid #e7cfc4;border-radius:22px;background:linear-gradient(145deg,#fffaf6,#ffede4)"><div class="row" style="align-items:flex-start"><div class="grow"><div class="ey">♥ Tid for oss</div><h2 style="font:500 24px/1.15 Georgia;margin:5px 0 4px">Små invitasjoner</h2><p class="sub" style="font-size:13px;margin:0">Et konkret forslag. Ingen poeng, ingen plikt, ingen analyse.</p></div><button type="button" class="small" id="coupleInvitationOpen">+ Inviter</button></div>${list.length?`<div style="margin-top:13px">${list.map(item=>cardMarkup(s,item)).join('')}</div>`:'<div class="card" style="box-shadow:none;margin-bottom:0"><strong>Hva kunne vært hyggelig?</strong><p class="sub" style="margin-bottom:0">En sofa, en tur, litt tid tett sammen – små forslag er hele poenget.</p></div>'}</section>`;
+  return `<section id="coupleInvitationSection" class="section" style="margin:14px 0 22px;padding:16px;border:1px solid #e7cfc4;border-radius:22px;background:linear-gradient(145deg,#fffaf6,#ffede4)"><div class="row" style="align-items:flex-start"><div class="grow"><div class="ey">♥ Kjæresteinvitasjoner</div><h2 style="font:500 24px/1.15 Georgia;margin:5px 0 4px">Tid for oss</h2><p class="sub" style="font-size:13px;margin:0">Et konkret forslag mellom dere. Aldri poeng, betaling eller plikt.</p></div><button type="button" class="small" id="coupleInvitationOpen">+ Inviter</button></div>${list.length?`<div style="margin-top:13px">${list.map(item=>cardMarkup(s,item)).join('')}</div>`:'<div class="card" style="box-shadow:none;margin-bottom:0"><strong>Hva kunne vært hyggelig?</strong><p class="sub" style="margin-bottom:0">En sofa, en tur, litt tid tett sammen – små forslag er hele poenget.</p></div>'}</section>`;
 }
 function ensureStyles(){
   if($('#coupleInvitationStyles'))return;
@@ -62,11 +62,11 @@ function ensureStyles(){
 }
 function augment(){
   if(painting)return;
-  const s=state(),content=$('#content');if(!s||!content||s.view!=='rewards')return;
+  const s=state(),mount=$('#ossInvitationMount');if(!s||!mount||s.view!=='us')return;
   ensureStyles();painting=true;
   try{
-    const current=$('#coupleInvitationSection'),html=sectionMarkup(s);
-    if(current)current.outerHTML=html;else content.querySelector('h1.title')?.insertAdjacentHTML('afterend',html);
+    const html=sectionMarkup(s);
+    if(mount.innerHTML!==html)mount.innerHTML=html;
     updateBadge();
   }finally{painting=false}
 }
@@ -104,7 +104,7 @@ async function withdraw(id){
 }
 function unread(s,item){return item.by!==s.user&&status(item)==='pending'&&item.notifyPartner!==false&&!(item.seenBy||[]).includes(s.user)}
 function updateBadge(){
-  const s=state(),nav=document.querySelector('#nav button[data-view="rewards"]');if(!s||!nav)return;
+  const s=state(),nav=document.querySelector('#nav button[data-view="us"]');if(!s||!nav)return;
   const count=items(s).filter(item=>unread(s,item)).length;nav.style.position='relative';let badge=nav.querySelector('[data-couple-invite-badge]');if(!count){badge?.remove();return}if(!badge){badge=document.createElement('span');badge.dataset.coupleInviteBadge='1';badge.style.cssText='position:absolute;top:5px;right:calc(50% - 22px);min-width:17px;height:17px;padding:0 4px;border-radius:999px;background:#c85745;color:white;font-size:10px;font-weight:900;line-height:17px;text-align:center;box-shadow:0 0 0 2px #fffaf7';nav.appendChild(badge)}badge.textContent=count>9?'9+':String(count);
 }
 function modalBlocked(){return !!document.querySelector('#coupleInvitationAlert,#coupleInvitationModal,#seenRequestAlertModal,#seenThanksAlertModal,#quickAlertModal,#statusAlertModal,#flytGlobalModal,#seenFlowModal,#quickTemptationModal,#flytAppMenu')}

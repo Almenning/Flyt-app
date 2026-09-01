@@ -1,7 +1,7 @@
 ((root)=>{
 'use strict';
 
-const VERSION='20260831-1200';
+const VERSION='20260901-1200';
 const DAY_MS=86400000;
 const coupleCore=typeof module==='object'&&module.exports?require('./couple-core.js'):root?.FlytCoupleCore;
 const DEFAULT_PREFERENCES=Object.freeze({
@@ -271,15 +271,25 @@ function ensureStyles(){
 function cardMarkup(candidate,count){
   return `<section class="flytNudgeCard" data-flyt-nudge-card="${esc(candidate.id)}" aria-label="Et lite dytt"><div class="row" style="align-items:flex-start;position:relative"><div class="flytNudgeIcon" aria-hidden="true">${esc(candidate.icon||'✨')}</div><div class="grow"><div class="ey">Et lite dytt</div><strong style="display:block;font:600 21px/1.15 Georgia,serif;margin-top:5px">${esc(candidate.title)}</strong></div></div><p style="line-height:1.5;margin:13px 0 0">${esc(candidate.body)}</p><div class="flytNudgeActions">${candidate.action?`<button type="button" class="primary" data-nudge-action="${esc(candidate.action)}" data-nudge-id="${esc(candidate.id)}">${esc(candidate.actionLabel)}</button>`:''}${count>1?'<button type="button" class="small" data-nudge-next="1">Vis et annet</button>':''}<button type="button" class="small" data-nudge-dismiss="1">Skjul i dag</button></div></section>`;
 }
+function fallbackCandidate(s){
+  const prefs=preferences(s);
+  if(!prefs.enabled)return null;
+  const task=remainingTasks(s)[0];
+  if(task)return{id:`next-step:${task.id}`,kind:'initiative',priority:1,icon:'→',task,title:'Ett konkret neste steg',body:`${task.name} er et lite sted å begynne. Åpne Gjøre når det passer – Flyt gir retning, ikke dårlig samvittighet.`,action:'openTasks',actionLabel:'Åpne Gjøre'};
+  if(prefs.relationship)return{id:'next-step:invitation',kind:'relationship',priority:1,icon:'♥',title:'Dagens rytme har litt plass',body:'Når det praktiske ikke krever neste ord, kan dere bruke Flyt til en liten invitasjon i stedet.',action:'invitation',actionLabel:'Send en liten invitasjon'};
+  return null;
+}
 function augment(){
   if(painting)return;
   const s=state(),mount=$('#homeNudgeMount');
   if(!s||s.view!=='home'||!mount)return;
+  if(mount.dataset.firstWinActive==='1')return;
   ensureStyles();
   if(!statusContext&&!statusLoading){refreshStatus();return}
   painting=true;
   try{
     currentCandidates=candidates(s);
+    if(!currentCandidates.length){const fallback=fallbackCandidate(s);if(fallback)currentCandidates=[fallback]}
     const first=currentCandidates[0];
     const html=first?cardMarkup(first,currentCandidates.length):'';
     if(mount.innerHTML!==html)mount.innerHTML=html;

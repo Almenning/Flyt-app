@@ -35,6 +35,8 @@ jobs:
         run: node tests/nudge-ui.test.cjs
       - name: Guard practical couple communication lifecycle
         run: node tests/couple-core.test.cjs
+      - name: Guard weekly mirror and first shared win
+        run: node tests/couple-insights.test.cjs
       - name: Guard time-together invitations
         run: node tests/couple-invitation-ui.test.mjs
       - name: Guard Sett active inbox and archive
