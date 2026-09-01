@@ -1,7 +1,7 @@
 ((root)=>{
 'use strict';
 
-const VERSION='20260901-1200';
+const VERSION='20260901-1700';
 const DAY_MS=86400000;
 const coupleCore=typeof module==='object'&&module.exports?require('./couple-core.js'):root?.FlytCoupleCore;
 const DEFAULT_PREFERENCES=Object.freeze({
@@ -16,6 +16,9 @@ const DEFAULT_PREFERENCES=Object.freeze({
   dismissedIds:[]
 });
 const NEED_LABEL={relief:'avlastning',closeness:'nærhet',sex:'nærhet',initiative:'initiativ',alone:'alenetid',quiet:'ro'};
+const taskLanguage=typeof module==='object'&&module.exports?require('./task-language.js'):root?.FlytTaskLanguage;
+const taskName=task=>taskLanguage?.canonicalName?.(task)||String(task?.name||task||'denne oppgaven').trim();
+const taskReference=task=>taskLanguage?.taskReference?.(task)||`oppgaven «${taskName(task)}»`;
 
 function dateKey(value=new Date()){
   const d=value instanceof Date?new Date(value):new Date(value);
@@ -119,18 +122,18 @@ function buildCandidates({state,preferences,myStatus,partnerStatus,partnerName='
     candidates.push({
       id:`ask-help:${task.id}`,kind:'askHelp',priority:100,icon:'♡',task,
       title:toneText(prefs.tone,{warm:'Litt hjelp kan gjøre dagen lettere',direct:'Be om avlastning nå',gentle:'Kanskje du kan slippe én ting'}),
-      body:toneText(prefs.tone,{warm:`Du har valgt ${myReason}, og ${task.name.toLowerCase()} står igjen. Flyt kan hjelpe deg å spørre konkret og vennlig.`,direct:`Du har valgt ${myReason}. Be ${partnerName} ta ${task.name.toLowerCase()}.`,gentle:`Du har valgt ${myReason}. Hvis det passer, kan du be ${partnerName} ta ${task.name.toLowerCase()}.`}),
+      body:toneText(prefs.tone,{warm:`Du har valgt ${myReason}, og ${taskReference(task)} står igjen. Flyt kan hjelpe deg å spørre konkret og vennlig.`,direct:`Du har valgt ${myReason}. Be ${partnerName} ta seg av ${taskReference(task)}.`,gentle:`Du har valgt ${myReason}. Hvis det passer, kan du be ${partnerName} ta seg av ${taskReference(task)}.`}),
       action:'askHelp',actionLabel:`Be ${partnerName} ta den`
     });
   }
 
   if(prefs.initiative&&partnerFresh&&(low(partnerStatus)||partnerRelief)&&task){
-    const left=progress.remaining?`Det står igjen ${dailyWord} i dagens rytme.`:`${task.name} står fortsatt igjen denne uken.`;
+    const left=progress.remaining?`Det står igjen ${dailyWord} i dagens rytme.`:`${taskReference(task)} står fortsatt igjen denne uken.`;
     candidates.push({
       id:`initiative:${task.id}`,kind:'initiative',priority:95,icon:'↗',task,
       title:toneText(prefs.tone,{warm:`Gjør dagen litt lettere for ${partnerName}`,direct:'Ta én oppgave før det blir spurt',gentle:'Et lite initiativ kan hjelpe'}),
-      body:toneText(prefs.tone,{warm:`${partnerName} har markert ${partnerReason}. ${left} Kanskje ta ${task.name.toLowerCase()} på eget initiativ?`,direct:`${partnerName} har markert ${partnerReason}. ${left} Ta ${task.name.toLowerCase()}.`,gentle:`${partnerName} har markert ${partnerReason}. ${left} Hvis du har kapasitet, kan ${task.name.toLowerCase()} være et godt sted å begynne.`}),
-      action:'takeInitiative',actionLabel:`Jeg tar ${task.name.toLowerCase()}`
+      body:toneText(prefs.tone,{warm:`${partnerName} har markert ${partnerReason}. ${left} Kanskje du kan ta ansvar for ${taskReference(task)} på eget initiativ?`,direct:`${partnerName} har markert ${partnerReason}. ${left} Ta ansvar for ${taskReference(task)}.`,gentle:`${partnerName} har markert ${partnerReason}. ${left} Hvis du har kapasitet, kan du begynne med ${taskReference(task)}.`}),
+      action:'takeInitiative',actionLabel:'Jeg tar ansvar'
     });
   }
 
@@ -138,8 +141,8 @@ function buildCandidates({state,preferences,myStatus,partnerStatus,partnerName='
     candidates.push({
       id:`quiet:${task.id}`,kind:'initiative',priority:92,icon:'☾',task,
       title:toneText(prefs.tone,{warm:'Litt mindre rundt dere',direct:'Skap ro nå',gentle:'Kanskje rydde plass til ro'}),
-      body:`${partnerName} har markert behov for ro. ${progress.remaining?`Bare ${dailyWord} står igjen i dagens rytme.`:`${task.name} står igjen.`} Et stille initiativ kan gjøre mer enn en lang samtale akkurat nå.`,
-      action:'takeInitiative',actionLabel:`Jeg tar ${task.name.toLowerCase()}`
+      body:`${partnerName} har markert behov for ro. ${progress.remaining?`Bare ${dailyWord} står igjen i dagens rytme.`:`${taskReference(task)} står igjen.`} Et stille initiativ kan gjøre mer enn en lang samtale akkurat nå.`,
+      action:'takeInitiative',actionLabel:'Jeg tar ansvar'
     });
   }
 
@@ -175,7 +178,7 @@ function buildCandidates({state,preferences,myStatus,partnerStatus,partnerName='
     candidates.push({
       id:`task:${task.id}`,kind:'initiative',priority:30,icon:'→',task,
       title:'Ett lite steg gir mer flyt',
-      body:progress.remaining?`${dailyWord[0].toUpperCase()+dailyWord.slice(1)} står igjen i dagens rytme. ${task.name} er ett konkret sted å begynne.`:`${task.name} står igjen denne uken. Kanskje få den unna mens den fortsatt er liten?`,
+      body:progress.remaining?`${dailyWord[0].toUpperCase()+dailyWord.slice(1)} står igjen i dagens rytme. Begynn gjerne med ${taskReference(task)}.`:`${taskReference(task)} står igjen denne uken. Kanskje få den unna mens den fortsatt er liten?`,
       action:'openTasks',actionLabel:'Åpne Gjøre'
     });
   }
@@ -184,11 +187,11 @@ function buildCandidates({state,preferences,myStatus,partnerStatus,partnerName='
   return candidates.filter(c=>c.priority>=preferenceThreshold(prefs.frequency)&&!dismissed.has(c.id)).sort((a,b)=>b.priority-a.priority||a.id.localeCompare(b.id));
 }
 function requestMessage({task,partnerName,tone='warm',status}){
-  const name=String(task?.name||'denne oppgaven').trim(),lower=name.charAt(0).toLowerCase()+name.slice(1),needs=status?.needs||[],strain=needs.some(n=>n==='relief'||n==='initiative')?'behov for litt avlastning':strainText(status);
+  const ref=taskReference(task),needs=status?.needs||[],strain=needs.some(n=>n==='relief'||n==='initiative')?'behov for litt avlastning':strainText(status);
   return toneText(tone,{
-    warm:`Jeg har ${strain} i dag. Hadde satt stor pris på om du tok ${lower}. Det ville gjort dagen litt lettere for meg ❤️`,
-    direct:`Jeg har ${strain} i dag. Kan du ta ${lower}? Det ville hjulpet meg mye.`,
-    gentle:`Jeg har ${strain} i dag. Hvis du har mulighet, hadde jeg satt pris på om du tok ${lower}.`
+    warm:`Jeg har ${strain} i dag. Jeg hadde satt stor pris på om du kunne ta deg av ${ref}. Det ville gjort dagen litt lettere for meg ❤️`,
+    direct:`Jeg har ${strain} i dag. Kan du ta deg av ${ref}? Det ville hjulpet meg mye.`,
+    gentle:`Jeg har ${strain} i dag. Hvis du har mulighet, hadde jeg satt pris på om du kunne ta deg av ${ref}.`
   });
 }
 function makeRequest({state,task,text,now=Date.now()}){
@@ -275,7 +278,7 @@ function fallbackCandidate(s){
   const prefs=preferences(s);
   if(!prefs.enabled)return null;
   const task=remainingTasks(s)[0];
-  if(task)return{id:`next-step:${task.id}`,kind:'initiative',priority:1,icon:'→',task,title:'Ett konkret neste steg',body:`${task.name} er et lite sted å begynne. Åpne Gjøre når det passer – Flyt gir retning, ikke dårlig samvittighet.`,action:'openTasks',actionLabel:'Åpne Gjøre'};
+  if(task)return{id:`next-step:${task.id}`,kind:'initiative',priority:1,icon:'→',task,title:'Ett konkret neste steg',body:`Begynn gjerne med ${taskReference(task)}. Åpne Gjøre når det passer – Flyt gir retning, ikke dårlig samvittighet.`,action:'openTasks',actionLabel:'Åpne Gjøre'};
   if(prefs.relationship)return{id:'next-step:invitation',kind:'relationship',priority:1,icon:'♥',title:'Dagens rytme har litt plass',body:'Når det praktiske ikke krever neste ord, kan dere bruke Flyt til en liten invitasjon i stedet.',action:'invitation',actionLabel:'Send en liten invitasjon'};
   return null;
 }
@@ -360,10 +363,10 @@ function sendInvitation(id){
 function takeInitiative(candidate){
   const s=state();
   if(!s||!candidate?.task)return;
-  const prefs=preferences(s),dismissed=new Set(currentDismissals(prefs)),item=coupleCore?.makeInitiative?.({state:s,task:candidate.task,partnerName:partnerName(s)})||{id:`initiative_${Date.now()}`,kind:'initiative',source:'initiative',type:'practical',text:`Jeg tar ${candidate.task.name.toLowerCase()} i dag.`,by:s.user,for:partnerName(s),createdAt:Date.now(),responseState:'accepted',taskId:candidate.task.id,taskName:candidate.task.name,acceptedBy:s.user,acceptedAt:new Date().toISOString(),seen:false,done:false,deleted:false};
+  const prefs=preferences(s),dismissed=new Set(currentDismissals(prefs)),item=coupleCore?.makeInitiative?.({state:s,task:candidate.task,partnerName:partnerName(s)})||{id:`initiative_${Date.now()}`,kind:'initiative',source:'initiative',type:'practical',text:taskLanguage?.initiativeText?.(candidate.task)||`Jeg tar ansvar for ${taskReference(candidate.task)} i dag.`,by:s.user,for:partnerName(s),createdAt:Date.now(),responseState:'accepted',taskId:candidate.task.id,taskName:taskName(candidate.task),acceptedBy:s.user,acceptedAt:new Date().toISOString(),seen:false,done:false,deleted:false};
   dismissed.add(candidate.id);
   save(withPreferences({...s,seenRequests:[item,...(s.seenRequests||[])]},{...prefs,dismissedDate:dateKey(),dismissedIds:[...dismissed]}));
-  bridge()?.toast?.(`${candidate.task.name} er ditt initiativ`);
+  bridge()?.toast?.(`Initiativet er registrert: ${taskReference(candidate.task)}`);
   root.FlytSeenRequestAlert?.checkAlerts?.();
 }
 function openTasks(){

@@ -1,9 +1,10 @@
 ((root)=>{
 'use strict';
 
-const VERSION='20260831-1200';
+const VERSION='20260901-1700';
 const MAX_REPLY_LENGTH=220;
 const INVITATION_RESPONSES=new Set(['yes','later','counter','no']);
+const taskLanguage=typeof module==='object'&&module.exports?require('./task-language.js'):root?.FlytTaskLanguage;
 
 function iso(now=Date.now()){
   const value=typeof now==='number'?now:new Date(now).getTime();
@@ -56,13 +57,13 @@ function makeSupportRequest({state,task,text,now=Date.now()}){
   };
 }
 function makeInitiative({state,task,partnerName='partneren din',now=Date.now()}){
-  const taskName=String(task?.name||'gjøremålet').trim();
+  const taskName=taskLanguage?.canonicalName?.(task)||String(task?.name||'gjøremålet').trim();
   return {
     id:`initiative_${now}`,
     kind:'initiative',
     type:'practical',
     source:'initiative',
-    text:`Jeg tar ${taskName.charAt(0).toLowerCase()+taskName.slice(1)} i dag.`,
+    text:taskLanguage?.initiativeText?.(taskName)||`Jeg tar ansvar for oppgaven «${taskName}» i dag.`,
     by:state?.user||'',
     for:partnerName,
     createdAt:now,

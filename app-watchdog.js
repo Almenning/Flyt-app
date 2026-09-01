@@ -1,27 +1,14 @@
 (()=>{
 'use strict';
-const DEFAULT_TASKS=[
-{id:'dish_empty',cat:'Kjøkken',name:'Tømme oppvaskmaskin',freq:7,pts:20,type:'daily',kind:'house'},
-{id:'dish_fill',cat:'Kjøkken',name:'Fylle oppvaskmaskin',freq:7,pts:20,type:'daily',kind:'house'},
-{id:'kitchen',cat:'Kjøkken',name:'Rydde kjøkken',freq:7,pts:25,type:'daily',kind:'house'},
-{id:'counter',cat:'Kjøkken',name:'Vaske kjøkkenbenken',freq:7,pts:15,type:'daily',kind:'house'},
-{id:'dinner',cat:'Kjøkken',name:'Lage middag',freq:5,pts:40,type:'daily',kind:'house'},
-{id:'lunch',cat:'Barn',name:'Lage matpakker',freq:5,pts:25,type:'daily',kind:'house'},
-{id:'bag',cat:'Barn',name:'Pakke sekk til barna',freq:5,pts:15,type:'daily',kind:'house'},
-{id:'bedkids',cat:'Barn',name:'Legging',freq:7,pts:35,type:'daily',kind:'house'},
-{id:'bath',cat:'Bad',name:'Vaske bad',freq:1,pts:70,type:'flex',kind:'house'},
-{id:'living',cat:'Stue',name:'Rydde stuen',freq:3,pts:25,type:'flex',kind:'house'},
-{id:'laundry',cat:'Vask & klær',name:'Vaske/brette klær',freq:3,pts:45,type:'flex',kind:'house'},
-{id:'trash',cat:'Vedlikehold',name:'Søppel/pant',freq:2,pts:25,type:'flex',kind:'house'},
-{id:'train',cat:'Personlig investering',name:'Trening',freq:3,pts:40,type:'flex',kind:'personal'}
-];
+const DEFAULT_TASK_IDS=['dish_fill','dish_empty','kitchen','counter','dinner','kids_wakeup','kids_get_ready','lunch','bag','bedkids','bath_toilet','bath_sink','bath_shower','bath_floor','bath_tidy','living','laundry_start','laundry_hang','laundry_fold','trash','train'];
+const DEFAULT_TASKS=(window.FlytTaskLanguage?.catalog||[]).filter(task=>DEFAULT_TASK_IDS.includes(task.id));
 function visible(el){return !!el&&!el.classList.contains('hidden')&&getComputedStyle(el).display!=='none'}
 function rescue(){const app=document.querySelector('.app'),gate=document.querySelector('#betaGate'),legacy=document.querySelector('#login');if(visible(app)||visible(gate)||visible(legacy))return;const box=document.createElement('div');box.id='flytRescue';box.className='login';box.innerHTML='<div class="loginbox"><div class="logo">fl<b>y</b>t</div><div class="ey">Oppstart</div><h1 style="font:500 30px Georgia">Flyt fikk ikke startet</h1><p class="sub">Ingen data er slettet. Last siden på nytt for å prøve igjen.</p><button id="flytReload" class="primary full">Last inn Flyt på nytt</button></div>';document.body.appendChild(box);document.querySelector('#flytReload').onclick=()=>location.reload()}
 function restoreOwnedView(view){if(view==='home'&&window.FlytHomeUI?.render){queueMicrotask(()=>{window.FlytHomeUI.render({resetScroll:false});setTimeout(()=>window.FlytNudgeUI?.augment?.(),0)});return}if(view==='tasks'&&window.FlytTasksUI?.render){queueMicrotask(()=>{window.FlytTasksUI.render({resetScroll:false});setTimeout(()=>window.FlytPlannedUI?.paint?.(),0)});return}if(view==='us'&&window.FlytOss?.render){queueMicrotask(()=>{window.FlytOss.render({refresh:false});setTimeout(()=>window.FlytCoupleInvitations?.augment?.(),0)});return}if(view==='seen'&&window.FlytSeenUI?.render){queueMicrotask(()=>window.FlytSeenUI.render());return}if(view==='rewards'&&window.FlytRewardsUI?.render){queueMicrotask(()=>{window.FlytRewardsUI.render();setTimeout(()=>window.FlytQuickTemptationUI?.augment?.(),0)});return}if(view==='rewards'&&window.FlytRewardsSummaryUI?.paint){queueMicrotask(()=>window.FlytRewardsSummaryUI.paint())}}
 function installRenderGuard(){const b=window.FlytBridge;if(!b||b.__stabilityWrapped)return false;const original=b.setState?.bind(b);if(!original)return false;b.setState=next=>{original(next);restoreOwnedView(next?.view)};b.__stabilityWrapped=true;restoreOwnedView(b.getState?.()?.view);return true}
 function keepGuardAlive(){if(installRenderGuard())return;let tries=0;const timer=setInterval(()=>{tries++;if(installRenderGuard()||tries>40)clearInterval(timer)},100)}
 function homeMarkupIsModern(c){if(!c)return false;const text=c.textContent||'';return c.dataset.flytOwner==='home'&&!!c.querySelector('[data-homeui-mode]')&&!!c.querySelector('#homeNudgeMount')&&!/Husholdningsmotor|Ukebanken/.test(text)}
-function ensureHomeOwnership(){const b=window.FlytBridge,c=document.querySelector('#content');if(b?.getState?.()?.view!=='home')return true;if(window.FlytHomeUI?.version!=='20260901-1200'){loadHome();return false}if(homeMarkupIsModern(c)){window.FlytNudgeUI?.augment?.();return true}window.FlytHomeUI.render?.({resetScroll:false});window.FlytNudgeUI?.augment?.();return homeMarkupIsModern(c)}
+function ensureHomeOwnership(){const b=window.FlytBridge,c=document.querySelector('#content');if(b?.getState?.()?.view!=='home')return true;if(window.FlytHomeUI?.version!=='20260901-1700'){loadHome();return false}if(homeMarkupIsModern(c)){window.FlytNudgeUI?.augment?.();return true}window.FlytHomeUI.render?.({resetScroll:false});window.FlytNudgeUI?.augment?.();return homeMarkupIsModern(c)}
 function guardHomeStartup(){[0,60,180,450,900,1600,3000].forEach(ms=>setTimeout(()=>ensureHomeOwnership(),ms))}
 function loadScript(src,key,onload){const existing=document.querySelector(`script[data-${key}]`);if(existing){if(onload)existing.addEventListener('load',onload,{once:true});return}const s=document.createElement('script');s.src=src;s.defer=true;s.setAttribute(`data-${key}`,'1');if(onload)s.addEventListener('load',onload,{once:true});document.head.appendChild(s)}
 function loadStartupHydration(){if(window.FlytStartupHydration?.version==='20260826-0746')return;loadScript('./startup-hydration-ui.js?v=20260826-0746','flyt-startup-hydration-0746')}
@@ -30,22 +17,22 @@ function loadAccount(){if(window.FlytAccountUI?.version==='20260828-0228')return
 function loadPlanned(){if(window.FlytPlannedUI?.version==='20260827-0240')return;loadScript('./planned-ui.js?v=20260827-0240','flyt-planned-0240')}
 function loadDayCompleted(){if(window.FlytTasksDayCompleted)return;loadScript('./tasks-day-completed-ui.js?v=20260901-1500','flyt-day-completed-1500')}
 function loadModal(){if(window.FlytModal)return;loadScript('./modal-ui.js?v=20260825-1933','flyt-modal')}
-function loadCustomCategories(){if(window.FlytCustomCategories?.version==='20260827-0918')return;loadScript('./custom-categories-ui.js?v=20260827-0918','flyt-custom-categories-0918')}
+function loadCustomCategories(){if(window.FlytCustomCategories?.version==='20260901-2200')return;loadScript('./custom-categories-ui.js?v=20260901-2200','flyt-custom-categories-2200')}
 function loadRecurrence(){if(window.FlytRecurrenceUI?.version==='20260901-1500')return;loadScript('./recurrence-ui.js?v=20260901-1500','flyt-recurrence-1500')}
 function loadBeta(){if(window.FlytBetaUI)return;loadScript('./beta-ui.js?v=20260824-1628','flyt-beta')}
 function loadResponsive(){if(document.querySelector('#flytResponsiveUi'))return;loadScript('./responsive-ui.js?v=20260825-0648','flyt-responsive')}
-function loadCoupleCore(){if(window.FlytCoupleCore?.VERSION==='20260831-1200')return;loadScript('./couple-core.js?v=20260831-1200','flyt-couple-core-1200')}
+function loadCoupleCore(){if(window.FlytCoupleCore?.VERSION==='20260901-1700')return;loadScript('./couple-core.js?v=20260901-1700','flyt-couple-core-1700')}
 function loadCoupleInsights(){if(window.FlytCoupleInsights?.VERSION==='20260901-1200')return;loadScript('./couple-insights.js?v=20260901-1200','flyt-couple-insights-1200')}
-function loadSeen(){if(window.FlytSeenUI?.version==='20260831-1200')return;loadScript('./seen-ui.js?v=20260831-1200','flyt-seen-current-1200')}
-function loadSeenRequestAlert(){if(window.FlytSeenRequestAlert?.version==='20260831-1200')return;loadScript('./seen-request-alert-ui.js?v=20260831-1200','flyt-seen-request-alert-1200')}
+function loadSeen(){if(window.FlytSeenUI?.version==='20260901-1700')return;loadScript('./seen-ui.js?v=20260901-1700','flyt-seen-current-1700')}
+function loadSeenRequestAlert(){if(window.FlytSeenRequestAlert?.version==='20260901-1700')return;loadScript('./seen-request-alert-ui.js?v=20260901-1700','flyt-seen-request-alert-1700')}
 function loadRewardsEditGuard(){if(window.FlytRewardsEditGuard)return;loadScript('./rewards-edit-guard.js?v=20260825-2102','flyt-rewards-edit')}
 function loadRewardsSummary(){if(window.FlytRewardsSummaryUI?.version==='20260901-1500')return;loadScript('./rewards-summary-ui.js?v=20260901-1500','flyt-rewards-summary-1500')}
 function loadRewardsUI(){if(window.FlytRewardsUI?.version==='20260901-1500')return;loadScript('./rewards-ui.js?v=20260901-1500','flyt-rewards-ui-1500')}
 function loadQuickTemptation(){if(window.FlytQuickTemptationUI?.version==='20260901-1500')return;loadScript('./quick-temptation-ui.js?v=20260901-1500','flyt-quick-temptation-1500')}
 function loadCoupleInvitations(){if(window.FlytCoupleInvitations?.version==='20260901-1200')return;loadScript('./couple-invitation-ui.js?v=20260901-1200','flyt-couple-invitations-1200')}
-function loadSetupV2(){if(window.FlytSetupV2?.version==='20260901-1200')return;loadScript('./setup-v2.js?v=20260901-1200','flyt-setup-v2-1200')}
-function loadHome(){if(window.FlytHomeUI?.version==='20260901-1200'){ensureHomeOwnership();return}loadScript('./home-ui.js?v=20260901-1200','flyt-home-current-1200',()=>queueMicrotask(ensureHomeOwnership))}
-function loadNudge(){if(window.FlytNudgeUI?.version==='20260901-1200'){window.FlytNudgeUI.augment?.();return}loadScript('./nudge-ui.js?v=20260901-1200','flyt-nudge-1200',()=>queueMicrotask(()=>window.FlytNudgeUI?.augment?.()))}
+function loadSetupV2(){if(window.FlytSetupV2?.version==='20260901-2200')return;loadScript('./setup-v2.js?v=20260901-2200','flyt-setup-v2-2200')}
+function loadHome(){if(window.FlytHomeUI?.version==='20260901-1700'){ensureHomeOwnership();return}loadScript('./home-ui.js?v=20260901-1700','flyt-home-current-1700',()=>queueMicrotask(ensureHomeOwnership))}
+function loadNudge(){if(window.FlytNudgeUI?.version==='20260901-1700'){window.FlytNudgeUI.augment?.();return}loadScript('./nudge-ui.js?v=20260901-1700','flyt-nudge-1700',()=>queueMicrotask(()=>window.FlytNudgeUI?.augment?.()))}
 function loadHistory(){if(window.FlytHistoryUI?.version==='20260830-1530')return;loadScript('./history-ui.js?v=20260830-1530','flyt-history-1530')}
 async function modal(){if(window.FlytModal)return window.FlytModal;loadModal();for(let i=0;i<40;i++){await new Promise(r=>setTimeout(r,50));if(window.FlytModal)return window.FlytModal}return null}
 function snapshot(s,label){return{id:Date.now()+'_'+Math.random().toString(36).slice(2,6),savedAt:new Date().toISOString(),label,tasks:structuredClone(s.tasks||[]),custom:structuredClone(s.custom||[]),areas:structuredClone(s.areas||{}),trainingFor:structuredClone(s.trainingFor||{}),categoryRelevant:structuredClone(s.categoryRelevant||{})}}

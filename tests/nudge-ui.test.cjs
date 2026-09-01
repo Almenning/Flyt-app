@@ -105,9 +105,19 @@ const dismissed=buildCandidates({
 assert.equal(dismissed.some(candidate=>candidate.id==='ask-help:laundry'),false,'a nudge hidden today must stay hidden today');
 
 const message=requestMessage({task:base.tasks[0],partnerName:'Jannicke',tone:'warm',status:fresh});
-assert.match(message,/Vaske\/brette klær/i);
+assert.match(message,/oppgaven «Klesvask \(tidligere samlet\)»/);
+assert.match(message,/Jeg hadde satt stor pris på/);
+assert.doesNotMatch(message,/du tok vaske|\. Hadde satt/i);
 assert.match(message,/dagen litt lettere/);
 assert.doesNotMatch(message,/overskudd til oss|betaling|belønning/i,'help copy must not turn closeness into payment for chores');
+
+for(const tone of ['warm','direct','gentle']){
+  for(const task of [{id:'bath_shower',name:'Vaske badekar eller dusj'},{id:'dinner',name:'Lage middag'},{id:'dish_fill',name:'Sette inn i oppvaskmaskinen'}]){
+    const generated=requestMessage({task,partnerName:'Jannicke',tone,status:fresh});
+    assert.match(generated,new RegExp(`oppgaven «${task.name}»`));
+    assert.doesNotMatch(generated,/du tok (vaske|lage|fylle|tømme)|Kan du ta (vaske|lage|fylle|tømme)/i);
+  }
+}
 
 const made=makeRequest({state:base,task:base.tasks[0],text:message,now:1234});
 assert.equal(made.request.type,'practical');

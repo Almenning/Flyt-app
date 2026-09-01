@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION='20260831-1200';
+const VERSION='20260901-1700';
 const NOTIFY_SINCE=new Date('2026-08-26T11:45:00Z').getTime();
 const TYPE_LABEL={need:'Behov',wish:'Ønske',practical:'Praktisk'};
 const TYPE_TITLE={need:'har delt et behov',wish:'har delt et ønske',practical:'har delt noe praktisk'};
@@ -10,6 +10,7 @@ const bridge=()=>window.FlytBridge;
 function state(){return bridge()?.getState?.()||null}
 function save(s){bridge()?.setState?.(s);window.FlytSync?.queueSave?.()}
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function taskReference(value){return window.FlytTaskLanguage?.taskReference?.(value)||`oppgaven «${String(value||'gjøremålet').trim()}»`}
 function requests(s){return Array.isArray(s?.seenRequests)?s.seenRequests:[]}
 function incoming(s,r){return !!r&&!r.deleted&&!r.done&&r.by&&r.by!==s?.user}
 function unread(s,r){return incoming(s,r)&&!r.seen}
@@ -33,12 +34,12 @@ function modalBlocked(){return !!document.querySelector('#seenRequestAlertModal,
 function systemNotice(r){if(!('Notification'in window)||Notification.permission!=='granted')return;const label=TYPE_LABEL[r.type]||'Behov';try{new Notification(`${label} fra ${r.by}`,{body:String(r.text||''),tag:`flyt-seen-${r.id}`})}catch(e){}}
 function showAlert(r){const s=state();if(!s||!eligible(s,r)||modalBlocked())return false;lastShown.add(String(r.id));systemNotice(r);const initiative=r.source==='initiative',linked=r.taskId!=null,label=initiative?'Initiativ':linked?'Forespørsel':TYPE_LABEL[r.type]||'Behov',title=initiative?'tar et gjøremål på eget initiativ':linked?'ber om litt hjelp':TYPE_TITLE[r.type]||'har delt noe med deg',explain=initiative?'Initiativet ligger under Sett til oppgaven er utført eller tydelig avsluttet.':linked?'Under Sett kan du ta oppgaven, foreslå en annen, si at det ikke passer eller svare kort.':'Meldingen ligger under Sett til den er ordnet eller tydelig avsluttet.';const el=document.createElement('div');el.id='seenRequestAlertModal';el.style.cssText='position:fixed;inset:0;z-index:335;background:#3a211b99;display:flex;align-items:center;justify-content:center;padding:22px';el.innerHTML=`<div role="dialog" aria-modal="true" aria-labelledby="seenAlertTitle" style="width:min(390px,100%);background:#fffaf7;border:1px solid #ead8d0;border-radius:26px;padding:22px;box-shadow:0 24px 70px #3b211b55"><div class="ey">Sett · ${esc(label)}</div><h2 id="seenAlertTitle" style="font:500 28px/1.12 Georgia;margin:10px 0 8px">${esc(r.by)} ${title}</h2><div class="card hero" style="margin:16px 0"><div style="font-size:18px;line-height:1.48">${esc(r.text)}</div></div><p class="sub" style="margin:0">${esc(explain)}</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px"><button type="button" id="seenAlertLater" class="secondary">Senere</button><button type="button" id="seenAlertOpen" class="primary">Åpne Sett</button></div></div>`;document.body.appendChild(el);$('#seenAlertLater').onclick=()=>dismiss(r);$('#seenAlertOpen').onclick=()=>openSeen(r);return true}
 function updateSummary(r,update){
-  if(update.kind==='completion')return{ey:'Utført',title:`${r.doneBy} har utført ${r.taskName||'det dere avtalte'}`,body:'Oppgaven er registrert. Du kan sende et lite takk hvis du vil.'};
+  if(update.kind==='completion')return{ey:'Utført',title:`${r.doneBy} har fullført ${r.taskName?taskReference(r.taskName):'det dere avtalte'}`,body:'Oppgaven er registrert. Du kan sende et lite takk hvis du vil.'};
   if(update.kind==='reply'){const reply=(r.replies||[]).slice(-1)[0];return{ey:'Kort svar',title:`Svar fra ${reply?.by||'partneren'}`,body:reply?.text||''}}
-  if(update.kind==='decision')return r.counter?.status==='accepted'?{ey:'Avtalt',title:`${r.by} godtok byttet`,body:`${r.taskName} er nå den avtalte oppgaven.`}:{ey:'Forespørsel',title:`${r.by} beholdt den opprinnelige oppgaven`,body:r.taskName||r.text};
+  if(update.kind==='decision')return r.counter?.status==='accepted'?{ey:'Avtalt',title:`${r.by} godtok byttet`,body:`Dere har nå avtalt ${taskReference(r.taskName)}.`}:{ey:'Forespørsel',title:`${r.by} beholdt den opprinnelige oppgaven`,body:r.taskName||r.text};
   if(r.counter?.status==='pending')return{ey:'Motforslag',title:`${r.counter.by} foreslår noe annet`,body:`${r.counter.taskName}${r.counter.text?` · ${r.counter.text}`:''}`};
   if(r.declinedAt)return{ey:'Svar',title:`${r.declinedBy} sier at det ikke passer`,body:'Forespørselen er avsluttet uten flere påminnelser.'};
-  return{ey:'Avtalt',title:`${r.acceptedBy} tar ${r.taskName||'oppgaven'}`,body:'Oppgaven er nå synlig som en liten avtale under Sett.'};
+  return{ey:'Avtalt',title:`${r.acceptedBy} tar ansvar for ${taskReference(r.taskName||'gjøremålet')}`,body:'Oppgaven er nå synlig som en liten avtale under Sett.'};
 }
 function openUpdate(r){mutateRequest(r.id,(item,s)=>{const core=window.FlytCoupleCore;return Object.assign(item,core?.markRequestUpdatesSeen?.(item,s.user)||item)});$('#seenUpdateAlertModal')?.remove();const s=state();if(s)save({...s,view:'seen'});setTimeout(()=>window.FlytSeenUI?.render?.(),0);updateBadge()}
 function showUpdate(r){const s=state(),update=s&&requestUpdate(s,r);if(!s||!update||modalBlocked())return false;const key=`${r.id}:${update.kind}:${update.at}`;if(lastUpdateShown.has(key))return false;lastUpdateShown.add(key);const copy=updateSummary(r,update),el=document.createElement('div');el.id='seenUpdateAlertModal';el.style.cssText='position:fixed;inset:0;z-index:335;background:#3a211b99;display:flex;align-items:center;justify-content:center;padding:22px';el.innerHTML=`<div role="dialog" aria-modal="true" style="width:min(390px,100%);background:#fffaf7;border:1px solid #ead8d0;border-radius:26px;padding:22px;box-shadow:0 24px 70px #3b211b55"><div class="ey">Sett · ${esc(copy.ey)}</div><h2 style="font:500 28px/1.12 Georgia;margin:10px 0 8px">${esc(copy.title)}</h2><div class="card hero" style="margin:16px 0"><div style="font-size:17px;line-height:1.48">${esc(copy.body)}</div></div><button type="button" id="seenUpdateOpen" class="primary full">Åpne Sett</button></div>`;document.body.appendChild(el);$('#seenUpdateOpen').onclick=()=>openUpdate(r);return true}

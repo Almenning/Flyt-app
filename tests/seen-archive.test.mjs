@@ -5,7 +5,7 @@ const seen = readFileSync(new URL('../seen-ui.js', import.meta.url), 'utf8');
 const watchdog = readFileSync(new URL('../app-watchdog.js', import.meta.url), 'utf8');
 const alert = readFileSync(new URL('../seen-request-alert-ui.js', import.meta.url), 'utf8');
 
-assert.match(seen, /const VERSION='20260831-1200'/, 'Sett must expose the current communication version');
+assert.match(seen, /const VERSION='20260901-1700'/, 'Sett must expose the current communication version');
 assert.match(seen, /status-alert-ui\.js\?v=20260830-1945/, 'Sett must retain the grouped status alert UI');
 assert.match(seen, /const ARCHIVE_MS=90\*DAY_MS/, 'Sett archive must retain details for 90 days');
 assert.match(seen, /const CONTRIBUTION_GRACE_MS=DAY_MS/, 'Seen contributions must remain visible for one day');
@@ -23,8 +23,8 @@ assert.match(seen, /function finishRequest\(/, 'Finishing a request must use the
 assert.match(seen, /completionId/, 'A finished linked request must record the chore completion');
 assert.match(seen, /Send et lite takk\?/, 'Completed support must offer a voluntary thank-you');
 assert.match(seen, /kan ikke forsvinne stille/, 'Answered agreements must not disappear silently');
-assert.match(watchdog, /seen-ui\.js\?v=20260831-1200/, 'Watchdog must cache-bust the current Sett UI');
-assert.match(watchdog, /seen-request-alert-ui\.js\?v=20260831-1200/, 'Watchdog must cache-bust the current Sett alert UI');
+assert.match(watchdog, /seen-ui\.js\?v=20260901-1700/, 'Watchdog must cache-bust the current Sett UI');
+assert.match(watchdog, /seen-request-alert-ui\.js\?v=20260901-1700/, 'Watchdog must cache-bust the current Sett alert UI');
 assert.match(alert, /ta oppgaven, foreslå en annen, si at det ikke passer eller svare kort/, 'Alerts must explain the complete practical response loop');
 
 console.log('ok - Sett uses active inbox, archive, creator deletion and 90-day retention');

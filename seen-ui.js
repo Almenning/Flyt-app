@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION='20260831-1200';
+const VERSION='20260901-1700';
 const DAY_MS=86400000;
 const ARCHIVE_MS=90*DAY_MS;
 const RECENT_MS=3*DAY_MS;
@@ -10,6 +10,7 @@ const TYPE_LABEL={need:'Behov',wish:'Ønske',practical:'Praktisk'};
 const $=selector=>document.querySelector(selector);
 const bridge=()=>window.FlytBridge;
 const couple=()=>window.FlytCoupleCore;
+const taskReference=value=>window.FlytTaskLanguage?.taskReference?.(value)||`oppgaven «${String(value||'gjøremålet').trim()}»`;
 let painting=false,requestModalOpen=false,actionMenuOpen=false,archiveOpen=false,flowModalOpen=false,pruneQueued=false;
 
 if(!window.FlytStatusAlert?.version?.startsWith?.('20260830-1945')&&!document.querySelector('script[data-flyt-status-alert-1945]')){
@@ -119,7 +120,7 @@ function requestActions(s,request,{archived=false}={}){
   return buttons.length?`<div class="row" style="margin-top:12px;flex-wrap:wrap">${buttons.join('')}</div>`:'';
 }
 function requestCard(s,request,{archived=false}={}){
-  const mine=request.by===s.user,initiative=request.source==='initiative',menu=mine?`<button type="button" class="small" data-item-menu="request|${esc(request.id)}" aria-label="Flere valg">•••</button>`:'',headline=initiative?`${request.by} tar ${request.taskName||request.text}`:request.text;
+  const mine=request.by===s.user,initiative=request.source==='initiative',menu=mine?`<button type="button" class="small" data-item-menu="request|${esc(request.id)}" aria-label="Flere valg">•••</button>`:'',headline=initiative?`${request.by} tar ansvar for ${taskReference(request.taskName||'gjøremålet')}`:request.text;
   return `<div class="card" data-seen-request-card="${esc(request.id)}" style="${initiative?'border-color:#e0dac6;background:linear-gradient(145deg,#fffef9,#f8f5e9)':''}"><div class="row" style="align-items:flex-start"><div class="grow"><div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap"><span class="tag">${esc(requestTag(request))}</span><span class="tag" style="${requestState(request)==='completed'?'background:#edf1e5;color:#607644':''}">${esc(statusLabel(request,s))}</span></div><strong style="display:block;margin-top:9px;font-size:17px;line-height:1.38">${esc(headline)}</strong>${request.taskName&&!initiative?`<div class="taskmeta" style="margin-top:6px">Knyttet til: ${esc(request.taskName)}</div>`:''}<div class="taskmeta" style="margin-top:5px">${initiative?`Synlig initiativ fra ${esc(request.by)}`:`Fra ${esc(request.by||'')}`}</div></div>${menu}</div>${counterMarkup(request)}${replyMarkup(request)}${requestActions(s,request,{archived})}${appreciationMarkup(s,request)}</div>`;
 }
 function contributionCard(s,work,{archived=false}={}){
@@ -200,7 +201,7 @@ function updateRequest(id,mutator){
   requests[index]=next;save({...s,seenRequests:requests});queueMicrotask(render);return next;
 }
 function markRequestSeen(id){updateRequest(id,(request,s)=>request.by===s.user||!requestActive(request)?request:(couple()?.markSeen?.(request,s.user)||{...request,seen:true,seenBy:s.user,seenAt:request.seenAt||new Date().toISOString()}))}
-function acceptRequest(id){const result=updateRequest(id,(request,s)=>couple()?.acceptRequest?.(request,s.user)||request);if(result&&requestState(result)==='accepted')bridge()?.toast?.(`${result.taskName||'Gjøremålet'} er ditt`)}
+function acceptRequest(id){const result=updateRequest(id,(request,s)=>couple()?.acceptRequest?.(request,s.user)||request);if(result&&requestState(result)==='accepted')bridge()?.toast?.(`Du har tatt ansvar for ${taskReference(result.taskName||'gjøremålet')}`)}
 async function declineRequest(id){
   const s=state(),request=allRequests(s).find(item=>String(item.id)===String(id));if(!s||!request||request.by===s.user)return;
   const yes=window.FlytModal?.confirm?await window.FlytModal.confirm({ey:'Svar på forespørsel',title:'Passer det ikke denne gangen?',text:'Forespørselen avsluttes tydelig for dere begge. Ingen nye påminnelser sendes.',ok:'Det passer ikke'}):false;
@@ -216,7 +217,7 @@ function sendCounter(id){
   const result=updateRequest(id,(request,current)=>couple()?.counterRequest?.(request,current.user,task,text)||request);
   if(result&&requestState(result)==='countered'){closeFlowModal();bridge()?.toast?.('Motforslaget er sendt')}
 }
-function acceptCounter(id){const result=updateRequest(id,(request,s)=>couple()?.acceptCounter?.(request,s.user)||request);if(result&&requestState(result)==='accepted')bridge()?.toast?.(`${result.taskName} er avtalt`)}
+function acceptCounter(id){const result=updateRequest(id,(request,s)=>couple()?.acceptCounter?.(request,s.user)||request);if(result&&requestState(result)==='accepted')bridge()?.toast?.(`Avtalen gjelder nå ${taskReference(result.taskName)}`)}
 function keepOriginal(id){const result=updateRequest(id,(request,s)=>couple()?.keepOriginalRequest?.(request,s.user)||request);if(result&&requestState(result)==='pending')bridge()?.toast?.('Den opprinnelige forespørselen står')}
 function localDate(){const date=new Date();return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`}
 function finishRequest(id){
@@ -231,7 +232,7 @@ function finishRequest(id){
       points[s.user]=(points[s.user]||0)+personalPoints;requests[index]={...after,completionId:now};next={...next,seenRequests:requests,points,completions:[...(s.completions||[]),completion]};registered=true;
     }
   }
-  save(next);queueMicrotask(render);bridge()?.toast?.(registered?`${task.name} registrert · +${task.pts||0} poeng`:'Flyttet til nylig');
+  save(next);queueMicrotask(render);bridge()?.toast?.(registered?`${taskReference(task.name)} er registrert · +${task.pts||0} poeng`:'Flyttet til nylig');
 }
 function sendThanks(id,text){const result=updateRequest(id,(request,s)=>couple()?.addThanks?.(request,s.user,text)||request);if(result?.appreciationText){bridge()?.toast?.('Takket er sendt');window.FlytSeenRequestAlert?.checkAlerts?.()}}
 async function sendCustomThanks(id){const text=window.FlytModal?.prompt?await window.FlytModal.prompt({ey:'Et lite takk',title:'Hva vil du si?',text:'Kort og ekte er mer enn nok.',label:'Takk',placeholder:'F.eks. Takk, det ga meg litt pusterom ❤️',ok:'Send'}):null;if(text?.trim())sendThanks(id,text)}

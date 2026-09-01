@@ -5,21 +5,8 @@ const SUPABASE_KEY='sb_publishable_uK6xd8TJhN2MY10qHSQ2GQ_7hSIr2gv';
 const APP_URL='https://almenning.github.io/Flyt-app/';
 const RESET_URL='https://almenning.github.io/Flyt-app/reset.html';
 const LOCAL_MODE_KEY='flyt_local_mode_v1';
-const STARTER_TASKS=[
-{id:'dish_empty',cat:'Kjøkken',name:'Tømme oppvaskmaskin',freq:7,pts:20,type:'daily',kind:'house'},
-{id:'dish_fill',cat:'Kjøkken',name:'Fylle oppvaskmaskin',freq:7,pts:20,type:'daily',kind:'house'},
-{id:'kitchen',cat:'Kjøkken',name:'Rydde kjøkken',freq:7,pts:25,type:'daily',kind:'house'},
-{id:'counter',cat:'Kjøkken',name:'Vaske kjøkkenbenken',freq:7,pts:15,type:'daily',kind:'house'},
-{id:'dinner',cat:'Kjøkken',name:'Lage middag',freq:5,pts:40,type:'daily',kind:'house'},
-{id:'lunch',cat:'Barn',name:'Lage matpakker',freq:5,pts:25,type:'daily',kind:'house'},
-{id:'bag',cat:'Barn',name:'Pakke sekk til barna',freq:5,pts:15,type:'daily',kind:'house'},
-{id:'bedkids',cat:'Barn',name:'Legging',freq:7,pts:35,type:'daily',kind:'house'},
-{id:'bath',cat:'Bad',name:'Vaske bad',freq:1,pts:70,type:'flex',kind:'house'},
-{id:'living',cat:'Stue',name:'Rydde stuen',freq:3,pts:25,type:'flex',kind:'house'},
-{id:'laundry',cat:'Vask & klær',name:'Vaske/brette klær',freq:3,pts:45,type:'flex',kind:'house'},
-{id:'trash',cat:'Vedlikehold',name:'Søppel/pant',freq:2,pts:25,type:'flex',kind:'house'},
-{id:'train',cat:'Personlig investering',name:'Trening',freq:3,pts:40,type:'flex',kind:'personal'}
-];
+const STARTER_TASK_IDS=['dish_fill','dish_empty','kitchen','counter','dinner','kids_wakeup','kids_get_ready','lunch','bag','bedkids','bath_toilet','bath_sink','bath_shower','bath_floor','bath_tidy','living','laundry_start','laundry_hang','laundry_fold','trash','train'];
+const STARTER_TASKS=(window.FlytTaskLanguage?.catalog||[]).filter(task=>STARTER_TASK_IDS.includes(task.id));
 if(!window.supabase){
   const fail=()=>{
     document.querySelector('.app')?.classList.add('hidden');
@@ -38,7 +25,7 @@ const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const bridge=()=>window.FlytBridge;
 function sharedState(){const s=structuredClone(bridge()?.getState?.()||{});delete s.user;delete s.view;return s}
-function cleanStarterState(name){const who=String(name||'Meg').trim()||'Meg';return{version:5,user:who,view:'home',setupDone:false,areas:{home:true,children:true,mental:true,training:true,closeness:true,sex:true},trainingFor:{[who]:true},categoryRelevant:{},tasks:STARTER_TASKS.map(t=>({...t,owner:'Begge'})),custom:[],completions:[],plannedTasks:[],points:{[who]:0},status:{[who]:{energy:'med',capacity:'med',closeness:'med',desire:'med',stress:'med',needs:[]}},work:[],seenRequests:[],rewards:[],rewardRedemptions:[],quickTemptations:[],coupleInvitations:[],coupleJourney:{firstWinStartedAt:null,firstWinSeenBy:[]},nudgePreferences:{},setupHistory:[]}}
+function cleanStarterState(name){const who=String(name||'Meg').trim()||'Meg';return{version:5,taskCatalogVersion:window.FlytTaskLanguage?.CATALOG_VERSION||0,user:who,view:'home',setupDone:false,areas:{home:true,children:true,mental:true,training:true,closeness:true,sex:true},trainingFor:{[who]:true},categoryRelevant:{},tasks:STARTER_TASKS.map(t=>({...t,owner:'Begge'})),custom:[],completions:[],plannedTasks:[],points:{[who]:0},status:{[who]:{energy:'med',capacity:'med',closeness:'med',desire:'med',stress:'med',needs:[]}},work:[],seenRequests:[],rewards:[],rewardRedemptions:[],quickTemptations:[],coupleInvitations:[],coupleJourney:{firstWinStartedAt:null,firstWinSeenBy:[]},nudgePreferences:{},setupHistory:[]}}
 function stableValue(v){if(Array.isArray(v))return v.map(stableValue);if(v&&typeof v==='object'){const out={};for(const k of Object.keys(v).sort())if(v[k]!==undefined)out[k]=stableValue(v[k]);return out}return v}
 function sameShared(a,b){try{return JSON.stringify(stableValue(a||{}))===JSON.stringify(stableValue(b||{}))}catch(e){return false}}
 function isEditing(){const a=document.activeElement;if(!a)return false;return !!a.matches?.('input,textarea,select,[contenteditable="true"]')&&!a.disabled}
@@ -74,7 +61,7 @@ function updateChrome(){const me=myMember(),p=partnerMember(),sw=$('#switchUser'
 function ensureSheet(){if($('#syncModal'))return;const el=document.createElement('div');el.id='syncModal';el.className='syncModal hidden';el.style.zIndex='280';el.innerHTML='<div class="syncSheet"><div class="row"><div class="grow"><div class="ey">Par-kobling</div><h2 style="margin:4px 0">Flyt sammen</h2></div><button id="syncClose" class="pill">Lukk</button></div><div id="syncBody" style="margin-top:16px"></div></div>';document.body.appendChild(el);$('#syncClose').onclick=()=>el.classList.add('hidden')}
 function connectionSheet(){ensureSheet();const p=partnerMember();$('#syncBody').innerHTML=`<div class="card hero"><strong>Dere er koblet</strong><p class="sub">${esc(myName())} og ${esc(p?.display_name||'partner')} deler ${esc(ctx?.household?.name||'samme husholdning')}.</p></div><div class="card"><div class="ey">Synkronisering</div><p class="sub" style="margin-bottom:0">Oppsett, gjennomføringer, poeng, behov, belønninger og invitasjoner deles mellom dere.</p></div><button id="syncNow" class="secondary full">Synkroniser nå</button>`;$('#syncNow').onclick=async()=>{await pull(true);bridge()?.toast?.('Flyt er oppdatert')};$('#syncModal').classList.remove('hidden')}
 function restoreActiveModule(view){if(view==='home'&&window.FlytHomeUI?.render){window.FlytHomeUI.render();return}if(view==='us'&&window.FlytOss?.render){window.FlytOss.render({refresh:false});return}if(view==='tasks'&&window.FlytTasksUI?.render){window.FlytTasksUI.render()}}
-function applyRemote(){if(!ctx?.state||!Object.keys(ctx.state).length||!bridge())return false;const local=bridge().getState(),view=local.view||'home';if(sameShared(ctx.state,sharedState()))return true;applying=true;try{bridge().setState({...local,...ctx.state,user:myName(),view});setTimeout(()=>restoreActiveModule(view),0);return true}catch(e){console.error('Flyt remote state ignored:',e);return false}finally{applying=false}}
+function applyRemote(){if(!ctx?.state||!Object.keys(ctx.state).length||!bridge())return false;const local=bridge().getState(),view=local.view||'home';if(sameShared(ctx.state,sharedState()))return true;const merged={...local,...ctx.state,user:myName(),view},normalized=window.FlytTaskLanguage?.normalizeState?.(merged)||merged,normalizedShared=structuredClone(normalized);delete normalizedShared.user;delete normalizedShared.view;const migrated=!sameShared(ctx.state,normalizedShared);applying=true;try{bridge().setState(normalized);setTimeout(()=>restoreActiveModule(view),0);if(migrated)setTimeout(queueSave,0);return true}catch(e){console.error('Flyt remote state ignored:',e);return false}finally{applying=false}}
 async function pull(force=false){if(!ctx?.household||!hydrated)return;if((dirty||saving)&&!force)return;if(!force&&isEditing())return;try{await loadContext();applyRemote();updateChrome()}catch(e){}}
 async function push(){if(applying||!ctx?.household||!hydrated||saving)return;saving=true;try{const {error}=await sb.rpc('save_my_flyt_state',{p_data:sharedState()});if(error)throw error;dirty=false;await loadContext()}catch(e){console.error('Flyt save failed:',e);dirty=true}finally{saving=false}}
 function queueSave(){if(applying||!ctx?.household||!hydrated)return;dirty=true;clearTimeout(saveTimer);saveTimer=setTimeout(push,650)}

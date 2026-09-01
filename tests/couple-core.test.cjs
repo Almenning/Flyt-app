@@ -36,6 +36,8 @@ assert.equal(core.canThank(thanked,'Tore'),false,'one completion gets one delibe
 
 const initiative=core.makeInitiative({state,task:laundry,partnerName:'Jannicke',now:6000});
 assert.equal(core.requestState(initiative),'accepted');
+assert.equal(initiative.taskName,'Klesvask (tidligere samlet)');
+assert.equal(initiative.text,'Jeg tar ansvar for oppgaven «Klesvask (tidligere samlet)» i dag.');
 assert.equal(core.canWithdrawRequest(initiative,'Tore'),false,'a visible initiative is a commitment, not a silent draft');
 const initiativeDone=core.completeRequest(initiative,'Tore',7000);
 assert.equal(core.canThank(initiativeDone,'Jannicke'),true,'the partner can thank an initiative after completion');
