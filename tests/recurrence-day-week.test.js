@@ -185,6 +185,7 @@ test('Dag viser én forekomst, mens Uke teller unike Oslo-datoer', () => {
 
   assert.match(harness.content.innerHTML, /Fullført · 1\/1/);
   assert.doesNotMatch(harness.content.innerHTML, /1\/7/);
+  assert.match(harness.content.innerHTML, /\+20 poeng/);
   assert.deepEqual(
     { ...harness.api.progress(harness.getState(), dailyTask, 'day') },
     { count: 1, done: true, goal: 1 },
@@ -197,9 +198,9 @@ test('Dag viser én forekomst, mens Uke teller unike Oslo-datoer', () => {
     },
   });
 
-  assert.match(harness.content.innerHTML, /3\/7 denne uken/);
+  assert.match(harness.content.innerHTML, /3\/7 i valgt uke/);
   assert.match(harness.content.innerHTML, /Du 2 · Person B 1/);
-  assert.match(harness.content.innerHTML, /2\/3 denne uken/);
+  assert.match(harness.content.innerHTML, /2\/3 i valgt uke/);
   assert.doesNotMatch(harness.content.innerHTML, /Vaske vinduer/);
 });
 
@@ -263,5 +264,5 @@ test('oppsettet beskriver daily-frekvens som dager per uke og begrenser til syv'
   assert.match(setup, /Dager per uke/);
   assert.match(setup, /type==='daily'\?7:31/);
   assert.match(custom, /Dager per uke/);
-  assert.match(custom, /type\.value==='daily'\?'7':'31'/);
+  assert.match(custom, /freq\.max=daily\?'7':'31'/);
 });

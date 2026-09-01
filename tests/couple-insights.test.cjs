@@ -33,6 +33,9 @@ assert.equal(mirror.invitationsAnswered,1);
 assert.equal(mirror.invitationsAccepted,1);
 assert.equal(mirror.sharedMoments,3);
 
+const mirrorAfterPointsAreSpent=insights.weeklyMirror({...state,points:{Jannicke:900,Tore:0},rewardRedemptions:[{claimedBy:'Tore',cost:420}]},now);
+assert.deepEqual(mirrorAfterPointsAreSpent,mirror);
+
 const first=insights.firstSharedWin(state);
 assert.equal(first.stage,'completed');
 assert.equal(first.taskName,'Vaske klær');
