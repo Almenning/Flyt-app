@@ -8,7 +8,7 @@ function restoreOwnedView(view){if(view==='home'&&window.FlytHomeUI?.render){que
 function installRenderGuard(){const b=window.FlytBridge;if(!b||b.__stabilityWrapped)return false;const original=b.setState?.bind(b);if(!original)return false;b.setState=next=>{original(next);restoreOwnedView(next?.view)};b.__stabilityWrapped=true;restoreOwnedView(b.getState?.()?.view);return true}
 function keepGuardAlive(){if(installRenderGuard())return;let tries=0;const timer=setInterval(()=>{tries++;if(installRenderGuard()||tries>40)clearInterval(timer)},100)}
 function homeMarkupIsModern(c){if(!c)return false;const text=c.textContent||'';return c.dataset.flytOwner==='home'&&!!c.querySelector('[data-homeui-mode]')&&!!c.querySelector('[data-home-status-card]')&&!!c.querySelector('#homeNudgeMount')&&!/Husholdningsmotor|Ukebanken/.test(text)}
-function ensureHomeOwnership(){const b=window.FlytBridge,c=document.querySelector('#content');if(b?.getState?.()?.view!=='home')return true;if(window.FlytHomeUI?.version!=='20260902-1500'){loadHome();return false}if(homeMarkupIsModern(c)){window.FlytNudgeUI?.augment?.();return true}window.FlytHomeUI.render?.({resetScroll:false});window.FlytNudgeUI?.augment?.();return homeMarkupIsModern(c)}
+function ensureHomeOwnership(){const b=window.FlytBridge,c=document.querySelector('#content');if(b?.getState?.()?.view!=='home')return true;if(window.FlytHomeUI?.version!=='20260902-1600'){loadHome();return false}if(homeMarkupIsModern(c)){window.FlytNudgeUI?.augment?.();return true}window.FlytHomeUI.render?.({resetScroll:false});window.FlytNudgeUI?.augment?.();return homeMarkupIsModern(c)}
 function guardHomeStartup(){[0,60,180,450,900,1600,3000].forEach(ms=>setTimeout(()=>ensureHomeOwnership(),ms))}
 function loadScript(src,key,onload){const existing=document.querySelector(`script[data-${key}]`);if(existing){if(onload)existing.addEventListener('load',onload,{once:true});return}const s=document.createElement('script');s.src=src;s.defer=true;s.setAttribute(`data-${key}`,'1');if(onload)s.addEventListener('load',onload,{once:true});document.head.appendChild(s)}
 function loadStartupHydration(){if(window.FlytStartupHydration?.version==='20260826-0746')return;loadScript('./startup-hydration-ui.js?v=20260826-0746','flyt-startup-hydration-0746')}
@@ -19,7 +19,7 @@ function loadDayCompleted(){if(window.FlytTasksDayCompleted)return;loadScript('.
 function loadModal(){if(window.FlytModal)return;loadScript('./modal-ui.js?v=20260825-1933','flyt-modal')}
 function loadCustomCategories(){if(window.FlytCustomCategories?.version==='20260901-2200')return;loadScript('./custom-categories-ui.js?v=20260901-2200','flyt-custom-categories-2200')}
 function loadDayPlan(){if(window.FlytDayPlan?.VERSION==='20260902-0100')return;loadScript('./day-plan.js?v=20260902-0100','flyt-day-plan-0100')}
-function loadRecurrence(){if(window.FlytRecurrenceUI?.version==='20260902-1400')return;loadScript('./recurrence-ui.js?v=20260902-1400','flyt-recurrence-1400')}
+function loadRecurrence(){if(window.FlytRecurrenceUI?.version==='20260902-1600')return;loadScript('./recurrence-ui.js?v=20260902-1600','flyt-recurrence-1600')}
 function loadBeta(){if(window.FlytBetaUI)return;loadScript('./beta-ui.js?v=20260824-1628','flyt-beta')}
 function loadResponsive(){if(document.querySelector('#flytResponsiveUi'))return;loadScript('./responsive-ui.js?v=20260825-0648','flyt-responsive')}
 function loadCoupleCore(){if(window.FlytCoupleCore?.VERSION==='20260901-1700')return;loadScript('./couple-core.js?v=20260901-1700','flyt-couple-core-1700')}
@@ -32,7 +32,7 @@ function loadRewardsUI(){if(window.FlytRewardsUI?.version==='20260901-1500')retu
 function loadQuickTemptation(){if(window.FlytQuickTemptationUI?.version==='20260901-1500')return;loadScript('./quick-temptation-ui.js?v=20260901-1500','flyt-quick-temptation-1500')}
 function loadCoupleInvitations(){if(window.FlytCoupleInvitations?.version==='20260902-1300')return;loadScript('./couple-invitation-ui.js?v=20260902-1300','flyt-couple-invitations-1300')}
 function loadSetupV2(){if(window.FlytSetupV2?.version==='20260901-2200')return;loadScript('./setup-v2.js?v=20260901-2200','flyt-setup-v2-2200')}
-function loadHome(){if(window.FlytHomeUI?.version==='20260902-1500'){ensureHomeOwnership();return}loadScript('./home-ui.js?v=20260902-1500','flyt-home-current-1500',()=>queueMicrotask(ensureHomeOwnership))}
+function loadHome(){if(window.FlytHomeUI?.version==='20260902-1600'){ensureHomeOwnership();return}loadScript('./home-ui.js?v=20260902-1600','flyt-home-current-1600',()=>queueMicrotask(ensureHomeOwnership))}
 function loadNudge(){if(window.FlytNudgeUI?.version==='20260902-1300'){window.FlytNudgeUI.augment?.();return}loadScript('./nudge-ui.js?v=20260902-1300','flyt-nudge-1300',()=>queueMicrotask(()=>window.FlytNudgeUI?.augment?.()))}
 function loadHistory(){if(window.FlytHistoryUI?.version==='20260830-1530')return;loadScript('./history-ui.js?v=20260830-1530','flyt-history-1530')}
 async function modal(){if(window.FlytModal)return window.FlytModal;loadModal();for(let i=0;i<40;i++){await new Promise(r=>setTimeout(r,50));if(window.FlytModal)return window.FlytModal}return null}
