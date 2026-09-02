@@ -35,6 +35,8 @@ jobs:
         run: node --test tests/day-plan.test.cjs tests/recurrence-day-week.test.js
       - name: Guard contextual nudges and communication flow
         run: node tests/nudge-ui.test.cjs
+      - name: Guard daily status freshness and separation
+        run: node tests/daily-status.test.cjs
       - name: Guard practical couple communication lifecycle
         run: node tests/couple-core.test.cjs
       - name: Guard weekly mirror and first shared win

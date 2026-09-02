@@ -13,7 +13,7 @@ const {
 const nudgeSource=fs.readFileSync(path.join(__dirname,'..','nudge-ui.js'),'utf8');
 
 const now=new Date('2026-08-30T12:00:00Z');
-const fresh={user_id:'me',energy:'low',capacity:'med',stress:'med',needs:[],updated_at:'2026-08-30T11:00:00Z'};
+const fresh={user_id:'me',energy:'med',capacity:'low',stress:'med',needs:[],daily_updated_at:'2026-08-30T11:00:00Z',updated_at:'2026-08-30T11:00:00Z'};
 const base={
   user:'Tore',
   tasks:[
@@ -26,8 +26,8 @@ const base={
 };
 
 assert.equal(freshStatus(fresh,now.getTime()),true,'a recent status from the same day should be eligible');
-assert.equal(freshStatus({...fresh,updated_at:'2026-08-28T11:00:00Z'},now.getTime()),false,'stale status must not drive nudges');
-assert.equal(freshStatus({...fresh,updated_at:'2026-08-29T23:30:00'},now.getTime()),false,'a status from the previous calendar day must not drive a new day');
+assert.equal(freshStatus({...fresh,daily_updated_at:'2026-08-28T11:00:00Z',updated_at:'2026-08-30T11:00:00Z'},now.getTime()),false,'a newer relationship update must not refresh stale daily capacity');
+assert.equal(freshStatus({...fresh,daily_updated_at:'2026-08-29T23:30:00'},now.getTime()),false,'a status from the previous calendar day must not drive a new day');
 
 const remaining=remainingTasks(base,now);
 assert.deepEqual(remaining.map(task=>task.id),['laundry','bath'],'only unfinished household tasks should be suggested');
@@ -94,7 +94,7 @@ assert.equal(relationship[0]?.action,'invitation');
 const stale=buildCandidates({
   state:base,
   preferences:normalizePreferences({frequency:'balanced'}),
-  myStatus:{...fresh,updated_at:'2026-08-28T11:00:00Z'},
+  myStatus:{...fresh,daily_updated_at:'2026-08-28T11:00:00Z'},
   partnerStatus:null,
   partnerName:'Jannicke',
   now
@@ -116,7 +116,7 @@ assert.equal(quietHours(night),true,'nighttime must be treated as quiet hours');
 const nighttime=buildCandidates({
   state:base,
   preferences:normalizePreferences({frequency:'active'},night),
-  myStatus:{...fresh,updated_at:'2026-08-29T23:30:00'},
+  myStatus:{...fresh,daily_updated_at:'2026-08-29T23:30:00'},
   partnerStatus:null,
   partnerName:'Jannicke',
   now:night

@@ -6,7 +6,7 @@ const watchdog = readFileSync(new URL('../app-watchdog.js', import.meta.url), 'u
 const alert = readFileSync(new URL('../seen-request-alert-ui.js', import.meta.url), 'utf8');
 
 assert.match(seen, /const VERSION='20260901-1700'/, 'Sett must expose the current communication version');
-assert.match(seen, /status-alert-ui\.js\?v=20260830-1945/, 'Sett must retain the grouped status alert UI');
+assert.match(seen, /status-alert-ui\.js\?v=20260902-1200/, 'Sett must retain the grouped non-blocking status alert UI');
 assert.match(seen, /const ARCHIVE_MS=90\*DAY_MS/, 'Sett archive must retain details for 90 days');
 assert.match(seen, /const CONTRIBUTION_GRACE_MS=DAY_MS/, 'Seen contributions must remain visible for one day');
 assert.match(seen, /function requestActive\(request\).*?pending.*?countered.*?accepted/s, 'Only pending, countered or accepted requests may stay active');

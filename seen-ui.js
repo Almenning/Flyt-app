@@ -13,11 +13,11 @@ const couple=()=>window.FlytCoupleCore;
 const taskReference=value=>window.FlytTaskLanguage?.taskReference?.(value)||`oppgaven «${String(value||'gjøremålet').trim()}»`;
 let painting=false,requestModalOpen=false,actionMenuOpen=false,archiveOpen=false,flowModalOpen=false,pruneQueued=false;
 
-if(!window.FlytStatusAlert?.version?.startsWith?.('20260830-1945')&&!document.querySelector('script[data-flyt-status-alert-1945]')){
+if(window.FlytStatusAlert?.version!=='20260902-1200'&&!document.querySelector('script[data-flyt-status-alert-1200]')){
   const script=document.createElement('script');
-  script.src='./status-alert-ui.js?v=20260830-1945';
+  script.src='./status-alert-ui.js?v=20260902-1200';
   script.defer=true;
-  script.dataset.flytStatusAlert1945='1';
+  script.dataset.flytStatusAlert1200='1';
   document.head.appendChild(script);
 }
 function state(){return bridge()?.getState?.()||null}

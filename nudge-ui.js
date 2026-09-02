@@ -1,7 +1,7 @@
 ((root)=>{
 'use strict';
 
-const VERSION='20260902-0100';
+const VERSION='20260902-1200';
 const DAY_MS=86400000;
 const coupleCore=typeof module==='object'&&module.exports?require('./couple-core.js'):root?.FlytCoupleCore;
 const DEFAULT_PREFERENCES=Object.freeze({
@@ -41,7 +41,7 @@ function stamp(value){
   return Number.isFinite(n)?n:0;
 }
 function freshStatus(status,now=Date.now()){
-  const at=stamp(status?.updated_at);
+  const at=stamp(status?.daily_updated_at||status?.updated_at);
   return !!at&&at<=now+5*60000&&now-at<12*60*60*1000&&dateKey(new Date(at))===dateKey(new Date(now));
 }
 function quietHours(now=new Date()){
@@ -87,13 +87,9 @@ function todayMine(state,now=new Date()){
   const today=dateKey(now);
   return (state?.completions||[]).filter(c=>c?.date===today&&c?.kind==='house'&&c?.by===state?.user).length;
 }
-function low(status){return status?.energy==='low'||status?.capacity==='low'||status?.stress==='high'}
+function low(status){return status?.capacity==='low'}
 function strainText(status){
-  const parts=[];
-  if(status?.energy==='low')parts.push('lav energi');
-  if(status?.capacity==='low')parts.push('lite overskudd');
-  if(status?.stress==='high')parts.push('høyt stress');
-  return parts.slice(0,2).join(' og ')||'lite å gå på';
+  return status?.capacity==='low'?'lite å gå på':'begrenset kapasitet';
 }
 function currentDismissals(preferences,now=new Date()){
   return preferences?.dismissedDate===dateKey(now)&&Array.isArray(preferences.dismissedIds)?preferences.dismissedIds.map(String):[];
