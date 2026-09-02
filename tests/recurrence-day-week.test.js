@@ -260,7 +260,7 @@ test('Angre fjerner dagens egne registreringer uten å påvirke ukegrensen', () 
 });
 
 test('Andre gjøremål er foldet per kategori og kan legges i eller flyttes fra dagsplanen', () => {
-  const flexibleTask = { ...dailyTask, id: 'laundry_fold', name: 'Brette klær', type: 'flex', cat: 'Vask & klær', pts: 40 };
+  const flexibleTask = { ...dailyTask, id: 'laundry_fold', name: 'Brette og legge på plass klær', type: 'flex', cat: 'Klesvask', pts: 40 };
   const harness = loadRecurrence({
     completions: [],
     custom: [flexibleTask],
@@ -277,11 +277,11 @@ test('Andre gjøremål er foldet per kategori og kan legges i eller flyttes fra 
 
   harness.click({ '[data-day-plan-open]': {} });
   assert.match(harness.content.innerHTML, /Finn raskt et gjøremål/);
-  assert.match(harness.content.innerHTML, /Vask &amp; klær/);
+  assert.match(harness.content.innerHTML, /Klesvask/);
   assert.doesNotMatch(harness.content.innerHTML, /Brette klær/);
 
-  harness.click({ '[data-library-category]': { dataset: { libraryCategory: 'Vask & klær' } } });
-  assert.match(harness.content.innerHTML, /Brette klær/);
+  harness.click({ '[data-library-category]': { dataset: { libraryCategory: 'Klesvask' } } });
+  assert.match(harness.content.innerHTML, /Brette og legge på plass klær/);
 
   harness.click({ '[data-day-plan-add]': { dataset: { dayPlanAdd: flexibleTask.id } } });
   assert.deepEqual(Array.from(harness.getState().dayPlans['2026-08-26'].addedTaskIds), [flexibleTask.id]);

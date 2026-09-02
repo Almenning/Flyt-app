@@ -6,6 +6,8 @@ const dayPlan = require('../day-plan.js');
 
 const monday = '2026-08-31';
 const tuesday = '2026-09-01';
+const friday = '2026-09-04';
+const saturday = '2026-09-05';
 const dailyMonday = { id: 'daily_monday', cat: 'Kjøkken', name: 'Mandagsoppgave', type: 'daily', kind: 'house', pts: 20, preferredDays: [1] };
 const dailyTuesday = { id: 'daily_tuesday', cat: 'Bad', name: 'Tirsdagsoppgave', type: 'daily', kind: 'house', pts: 30, preferredDays: [2] };
 const flexible = { id: 'flexible', cat: 'Vask & klær', name: 'Fleksibel oppgave', type: 'flex', kind: 'house', pts: 40 };
@@ -24,6 +26,14 @@ test('dager per uke uten valgte ukedager fyller ikke automatisk alle dager', () 
   const current=state({tasks:[dailyMonday,dailyTuesday,flexibleDaily]});
   assert.deepEqual(dayPlan.planTasks(current,monday).map(task=>task.id),['daily_monday']);
   assert.equal(dayPlan.scheduledFor(flexibleDaily,monday),false);
+});
+
+test('matpakker følger hverdager, mens matinnkjøp aldri legges inn som fast dagsoppgave', () => {
+  const lunch=global.FlytTaskLanguage.catalog.find(task=>task.id==='lunch');
+  const shop=global.FlytTaskLanguage.catalog.find(task=>task.id==='shop');
+  const current=state({tasks:[lunch,shop]});
+  assert.deepEqual(dayPlan.planTasks(current,friday).map(task=>task.id),['lunch']);
+  assert.deepEqual(dayPlan.planTasks(current,saturday).map(task=>task.id),[]);
 });
 
 test('en enkelt dag kan tilpasses uten å endre fast oppsett', () => {
