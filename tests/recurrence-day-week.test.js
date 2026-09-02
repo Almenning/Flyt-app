@@ -273,8 +273,10 @@ test('Andre gjøremål er foldet per kategori og kan legges i eller flyttes fra 
 
   assert.match(harness.content.innerHTML, /Andre gjøremål/);
   assert.doesNotMatch(harness.content.innerHTML, /Brette klær/);
+  assert.ok(harness.content.innerHTML.indexOf('Andre gjøremål')<harness.content.innerHTML.indexOf(dailyTask.name),'legg til-valget skal ligge rett under Dagens plan, før dagens oppgaver');
 
-  harness.click({ '[data-period-other]': {} });
+  harness.click({ '[data-day-plan-open]': {} });
+  assert.match(harness.content.innerHTML, /Finn raskt et gjøremål/);
   assert.match(harness.content.innerHTML, /Vask &amp; klær/);
   assert.doesNotMatch(harness.content.innerHTML, /Brette klær/);
 
