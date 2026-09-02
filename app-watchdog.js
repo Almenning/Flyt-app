@@ -30,10 +30,10 @@ function loadRewardsEditGuard(){if(window.FlytRewardsEditGuard)return;loadScript
 function loadRewardsSummary(){if(window.FlytRewardsSummaryUI?.version==='20260901-1500')return;loadScript('./rewards-summary-ui.js?v=20260901-1500','flyt-rewards-summary-1500')}
 function loadRewardsUI(){if(window.FlytRewardsUI?.version==='20260901-1500')return;loadScript('./rewards-ui.js?v=20260901-1500','flyt-rewards-ui-1500')}
 function loadQuickTemptation(){if(window.FlytQuickTemptationUI?.version==='20260901-1500')return;loadScript('./quick-temptation-ui.js?v=20260901-1500','flyt-quick-temptation-1500')}
-function loadCoupleInvitations(){if(window.FlytCoupleInvitations?.version==='20260901-1200')return;loadScript('./couple-invitation-ui.js?v=20260901-1200','flyt-couple-invitations-1200')}
+function loadCoupleInvitations(){if(window.FlytCoupleInvitations?.version==='20260902-1300')return;loadScript('./couple-invitation-ui.js?v=20260902-1300','flyt-couple-invitations-1300')}
 function loadSetupV2(){if(window.FlytSetupV2?.version==='20260901-2200')return;loadScript('./setup-v2.js?v=20260901-2200','flyt-setup-v2-2200')}
 function loadHome(){if(window.FlytHomeUI?.version==='20260902-1200'){ensureHomeOwnership();return}loadScript('./home-ui.js?v=20260902-1200','flyt-home-current-1200',()=>queueMicrotask(ensureHomeOwnership))}
-function loadNudge(){if(window.FlytNudgeUI?.version==='20260902-1200'){window.FlytNudgeUI.augment?.();return}loadScript('./nudge-ui.js?v=20260902-1200','flyt-nudge-1200',()=>queueMicrotask(()=>window.FlytNudgeUI?.augment?.()))}
+function loadNudge(){if(window.FlytNudgeUI?.version==='20260902-1300'){window.FlytNudgeUI.augment?.();return}loadScript('./nudge-ui.js?v=20260902-1300','flyt-nudge-1300',()=>queueMicrotask(()=>window.FlytNudgeUI?.augment?.()))}
 function loadHistory(){if(window.FlytHistoryUI?.version==='20260830-1530')return;loadScript('./history-ui.js?v=20260830-1530','flyt-history-1530')}
 async function modal(){if(window.FlytModal)return window.FlytModal;loadModal();for(let i=0;i<40;i++){await new Promise(r=>setTimeout(r,50));if(window.FlytModal)return window.FlytModal}return null}
 function snapshot(s,label){return{id:Date.now()+'_'+Math.random().toString(36).slice(2,6),savedAt:new Date().toISOString(),label,tasks:structuredClone(s.tasks||[]),custom:structuredClone(s.custom||[]),areas:structuredClone(s.areas||{}),trainingFor:structuredClone(s.trainingFor||{}),categoryRelevant:structuredClone(s.categoryRelevant||{})}}

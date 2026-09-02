@@ -1,8 +1,16 @@
 (()=>{
 'use strict';
 
-const VERSION='20260901-1200';
+const VERSION='20260902-1300';
 const RECENT_MS=14*86400000;
+const INVITATION_PRESETS=[
+  ['🛋','Sofa og noe godt','Sofa og noe godt i kveld?'],
+  ['🌿','En liten tur','En liten tur sammen senere?'],
+  ['♥','Tid tett sammen','Litt tid tett sammen i kveld?'],
+  ['☕','En kaffe sammen','Skal vi ta en kaffe sammen, bare oss to?'],
+  ['🎬','Filmkveld','Skal vi se en film sammen i kveld?'],
+  ['🌙','Etter legging','Litt tid sammen etter legging?']
+];
 const $=selector=>document.querySelector(selector);
 const bridge=()=>window.FlytBridge;
 const core=()=>window.FlytCoupleCore;
@@ -58,8 +66,10 @@ function sectionMarkup(s){
 }
 function ensureStyles(){
   if($('#coupleInvitationStyles'))return;
-  const style=document.createElement('style');style.id='coupleInvitationStyles';style.textContent='#coupleInvitationModal,#coupleInvitationAlert{position:fixed;inset:0;z-index:360;background:#3a211b99;display:flex;align-items:center;justify-content:center;padding:20px} .coupleInvitationDialog{width:min(410px,100%);max-height:90dvh;overflow:auto;background:#fffaf7;border:1px solid var(--line);border-radius:27px;padding:22px;box-shadow:0 28px 80px #3b211b55}';document.head.appendChild(style);
+  const style=document.createElement('style');style.id='coupleInvitationStyles';style.textContent='#coupleInvitationModal,#coupleInvitationAlert{position:fixed;inset:0;z-index:360;background:#3a211b99;display:flex;align-items:center;justify-content:center;padding:20px}.coupleInvitationDialog{width:min(410px,100%);max-height:90dvh;overflow:auto;background:#fffaf7;border:1px solid var(--line);border-radius:27px;padding:22px;box-shadow:0 28px 80px #3b211b55}.invitationPresets{display:flex;gap:7px;flex-wrap:wrap;margin:14px 0}.invitationPreset{border:1px solid transparent;transition:background .16s,border-color .16s,box-shadow .16s,transform .16s}.invitationPreset:active{transform:scale(.97)}.invitationPreset[aria-pressed="true"]{border-color:var(--accent);background:#fff0e8;box-shadow:0 0 0 2px #e8796122}.invitationPreset[aria-pressed="true"]:after{content:" ✓"}';document.head.appendChild(style);
 }
+function presetMarkup(attribute,selected){return `<div class="invitationPresets" aria-label="Forslag til invitasjon">${INVITATION_PRESETS.map(([icon,label,text])=>`<button type="button" class="small invitationPreset" ${attribute}="${esc(text)}" aria-pressed="${text===selected?'true':'false'}">${icon} ${esc(label)}</button>`).join('')}</div>`}
+function syncPresetSelection(scope,selector,value){scope?.querySelectorAll?.(selector).forEach(button=>button.setAttribute('aria-pressed',button.dataset.invitePreset===value?'true':'false'))}
 function augment(){
   if(painting)return;
   const s=state(),mount=$('#ossInvitationMount');if(!s||!mount||s.view!=='us')return;
@@ -71,12 +81,12 @@ function augment(){
   }finally{painting=false}
 }
 function closeComposer(){composerOpen=false;$('#coupleInvitationModal')?.remove()}
-function openComposer({prefill='Litt tid sammen i kveld?'}={}){
+function openComposer({prefill='Sofa og noe godt i kveld?'}={}){
   if(composerOpen)return;
   const s=state();if(!s)return;
   ensureStyles();composerOpen=true;
   const element=document.createElement('div');element.id='coupleInvitationModal';
-  element.innerHTML=`<div class="coupleInvitationDialog" role="dialog" aria-modal="true"><div class="ey">♥ Tid for oss</div><h2 style="font:500 28px/1.12 Georgia;margin:9px 0 7px">Send en liten invitasjon</h2><p class="sub" style="margin-top:0">Foreslå noe konkret til ${esc(partnerName(s))}. Partneren kan svare uten å måtte forklare eller forsvare dagsformen sin.</p><div style="display:flex;gap:7px;flex-wrap:wrap;margin:14px 0"><button type="button" class="small" data-invite-preset="Sofa og noe godt i kveld?">🛋 Sofa og noe godt</button><button type="button" class="small" data-invite-preset="En liten tur sammen senere?">🌿 En liten tur</button><button type="button" class="small" data-invite-preset="Litt tid tett sammen i kveld?">♥ Tid tett sammen</button></div><label class="label" for="coupleInvitationText">Invitasjon</label><input id="coupleInvitationText" class="field" maxlength="240" autocomplete="off" value="${esc(prefill)}"><label style="display:flex;align-items:flex-start;gap:11px;margin:14px 0 0;padding:12px 13px;border:1px solid var(--line);border-radius:15px;background:#fff"><input id="coupleInvitationNotify" type="checkbox" checked style="margin-top:3px;accent-color:var(--accent)"><span><strong style="display:block">Varsle ${esc(partnerName(s))}</strong><span class="taskmeta">Uten varsel ligger invitasjonen fortsatt her.</span></span></label><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px"><button type="button" class="secondary" data-invite-cancel="1">Avbryt</button><button type="button" class="primary" data-invite-send="1">Send</button></div></div>`;
+  element.innerHTML=`<div class="coupleInvitationDialog" role="dialog" aria-modal="true"><div class="ey">♥ Tid for oss</div><h2 style="font:500 28px/1.12 Georgia;margin:9px 0 7px">Send en liten invitasjon</h2><p class="sub" style="margin-top:0">Foreslå noe konkret til ${esc(partnerName(s))}. Velg et forslag eller skriv ditt eget.</p>${presetMarkup('data-invite-preset',prefill)}<label class="label" for="coupleInvitationText">Invitasjon</label><input id="coupleInvitationText" class="field" maxlength="240" autocomplete="off" value="${esc(prefill)}"><label style="display:flex;align-items:flex-start;gap:11px;margin:14px 0 0;padding:12px 13px;border:1px solid var(--line);border-radius:15px;background:#fff"><input id="coupleInvitationNotify" type="checkbox" checked style="margin-top:3px;accent-color:var(--accent)"><span><strong style="display:block">Varsle ${esc(partnerName(s))}</strong><span class="taskmeta">Uten varsel ligger invitasjonen fortsatt her.</span></span></label><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px"><button type="button" class="secondary" data-invite-cancel="1">Avbryt</button><button type="button" class="primary" data-invite-send="1">Send</button></div></div>`;
   document.body.appendChild(element);element.addEventListener('click',event=>{if(event.target===element)closeComposer()});setTimeout(()=>$('#coupleInvitationText')?.select(),40);
 }
 function sendInvitation(){
@@ -118,7 +128,7 @@ document.addEventListener('click',async event=>{
   const target=event.target,match=selector=>target.closest?.(selector),stop=()=>{event.preventDefault();event.stopImmediatePropagation()};
   const open=match('#coupleInvitationOpen');if(open){stop();openComposer();return}
   const cancel=match('[data-invite-cancel]');if(cancel){stop();closeComposer();return}
-  const preset=match('[data-invite-preset]');if(preset){stop();const input=$('#coupleInvitationText');if(input){input.value=preset.dataset.invitePreset;input.focus()}return}
+  const preset=match('[data-invite-preset]');if(preset){stop();const input=$('#coupleInvitationText');if(input){input.value=preset.dataset.invitePreset;syncPresetSelection($('#coupleInvitationModal'),'[data-invite-preset]',input.value);input.focus()}return}
   const send=match('[data-invite-send]');if(send){stop();sendInvitation();return}
   const answer=match('[data-invite-answer]');if(answer){stop();const [id,kind]=String(answer.dataset.inviteAnswer).split('|');answerInvitation(id,kind);return}
   const counter=match('[data-invite-counter]');if(counter){stop();$('#coupleInvitationAlert')?.remove();await counterInvitation(counter.dataset.inviteCounter);return}
@@ -126,6 +136,7 @@ document.addEventListener('click',async event=>{
   const later=match('[data-invite-finish-later]');if(later){stop();finishLater(later.dataset.inviteFinishLater);return}
   const withdrawButton=match('[data-invite-withdraw]');if(withdrawButton){stop();await withdraw(withdrawButton.dataset.inviteWithdraw);return}
 },true);
+document.addEventListener('input',event=>{if(event.target?.id==='coupleInvitationText')syncPresetSelection($('#coupleInvitationModal'),'[data-invite-preset]',event.target.value)});
 
 const observer=new MutationObserver(()=>{if(!painting)queueMicrotask(augment)});
 window.addEventListener('DOMContentLoaded',()=>{const content=$('#content');if(content)observer.observe(content,{childList:true,subtree:true});augment();checkAlerts()});
