@@ -164,6 +164,22 @@ const dailyTask = {
   type: 'daily',
 };
 
+test('innganger fra Hjem åpner dagens gjenstående gjøremål', () => {
+  const harness = loadRecurrence({
+    completions: [],
+    custom: [],
+    dayPlans: {},
+    points: { 'Person A': 0 },
+    tasks: [dailyTask],
+    user: 'Person A',
+    view: 'tasks',
+  });
+
+  harness.api.openToday();
+  assert.equal(harness.api.getTaskFilter(), 'remaining');
+  assert.match(harness.content.innerHTML, /data-task-filter="remaining"[^>]+border:1px solid var\(--accent\)/);
+});
+
 test('Dag viser én forekomst, mens Uke teller unike Oslo-datoer', () => {
   const flexTask = { ...dailyTask, freq: 3, id: 'laundry', name: 'Vaske klær', type: 'flex' };
   const monthlyTask = { ...dailyTask, freq: 1, id: 'windows', name: 'Vaske vinduer', type: 'period' };

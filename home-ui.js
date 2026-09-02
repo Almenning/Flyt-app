@@ -2,7 +2,7 @@
 'use strict';
 const $=s=>document.querySelector(s);
 const bridge=()=>window.FlytBridge;
-const VERSION='20260902-1800';
+const VERSION='20260902-2200';
 let partnerCtx=null,loadingPartner=false,statusEditorOpen=false,statusDraft=null,statusSaving=false,statusError='';
 const LABEL={low:'Lav',med:'Middels',high:'Høy'};
 const NEED_LABEL={relief:'Avlastning',closeness:'Nærhet',sex:'Intimitet',initiative:'Initiativ',alone:'Alenetid',quiet:'Ro'};
@@ -99,7 +99,7 @@ document.addEventListener('click',e=>{
   if(nav){e.preventDefault();e.stopImmediatePropagation();nav.blur?.();const s=bridge()?.getState?.();if(s&&s.view!=='home')bridge().setState({...s,view:'home'});partnerCtx=null;statusEditorOpen=false;statusDraft=null;render({resetScroll:true});window.FlytNudgeUI?.refreshStatus?.(true);return}
   if(bridge()?.getState?.()?.view!=='home')return;
   const dayPlan=e.target.closest('[data-home-day-plan-open]');
-  if(dayPlan){e.preventDefault();e.stopImmediatePropagation();dayPlan.blur?.();const s=bridge().getState();bridge().setState({...s,view:'tasks'});queueMicrotask(()=>window.FlytRecurrenceUI?.openToday?.()||window.FlytTasksUI?.render?.({resetScroll:true}));return}
+  if(dayPlan){e.preventDefault();e.stopImmediatePropagation();dayPlan.blur?.();const s=bridge().getState();bridge().setState({...s,view:'tasks'});queueMicrotask(()=>window.FlytRecurrenceUI?.openToday?.('remaining')||window.FlytTasksUI?.render?.({resetScroll:true}));return}
   const edit=e.target.closest('[data-home-status-edit]');
   if(edit){e.preventDefault();e.stopImmediatePropagation();statusEditorOpen=true;startStatusDraft(bridge().getState());render({resetScroll:false});return}
   const cancel=e.target.closest('[data-home-status-cancel]');

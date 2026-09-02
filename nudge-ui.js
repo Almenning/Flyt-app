@@ -1,7 +1,7 @@
 ((root)=>{
 'use strict';
 
-const VERSION='20260902-1730';
+const VERSION='20260902-2200';
 const INVITATION_PRESETS=[
   ['🛋','Sofa og noe godt','Sofa og noe godt i kveld?'],
   ['🌿','En liten tur','En liten tur sammen senere?'],
@@ -372,7 +372,7 @@ function openTasks(){
   const s=state();
   if(!s)return;
   save({...s,view:'tasks'});
-  queueMicrotask(()=>root.FlytTasksUI?.render?.({resetScroll:true}));
+  queueMicrotask(()=>root.FlytRecurrenceUI?.openToday?.('remaining')||root.FlytTasksUI?.render?.({resetScroll:true}));
 }
 function settingsMarkup(){
   const prefs=preferences(),toggle=(key,title,text)=>`<div class="card row" style="box-shadow:none;align-items:flex-start"><div class="grow"><strong>${esc(title)}</strong><p class="sub" style="margin:4px 0 0;font-size:13px">${esc(text)}</p></div><button type="button" class="flytNudgeSwitch" role="switch" aria-label="${esc(title)}" aria-checked="${prefs[key]?'true':'false'}" data-nudge-setting-toggle="${key}"></button></div>`;

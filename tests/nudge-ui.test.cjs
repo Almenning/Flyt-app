@@ -44,6 +44,7 @@ assert.equal(ask[0]?.kind,'askHelp','own low capacity should prioritize asking f
 assert.equal(ask[0]?.task,undefined,'a status signal must not make Flyt choose a chore');
 assert.equal(ask[0]?.action,'openTasks');
 assert.doesNotMatch(ask[0]?.body||'',/Klesvask|Vaske\/brette/);
+assert.match(nudgeSource,/FlytRecurrenceUI\?\.openToday\?\.\('remaining'\)/,'Se dagens plan must open the remaining filter');
 
 const bothLow=buildCandidates({
   state:base,
