@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION='20260901-1700';
+const VERSION='20260902-1700';
 const NOTIFY_SINCE=new Date('2026-08-26T11:45:00Z').getTime();
 const TYPE_LABEL={need:'Behov',wish:'Ønske',practical:'Praktisk'};
 const TYPE_TITLE={need:'har delt et behov',wish:'har delt et ønske',practical:'har delt noe praktisk'};
@@ -12,7 +12,8 @@ function save(s){bridge()?.setState?.(s);window.FlytSync?.queueSave?.()}
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function taskReference(value){return window.FlytTaskLanguage?.taskReference?.(value)||`oppgaven «${String(value||'gjøremålet').trim()}»`}
 function requests(s){return Array.isArray(s?.seenRequests)?s.seenRequests:[]}
-function incoming(s,r){return !!r&&!r.deleted&&!r.done&&r.by&&r.by!==s?.user}
+function requestState(r){return window.FlytCoupleCore?.requestState?.(r)||(r?.expiredAt||r?.responseState==='expired'?'expired':r?.deleted?'withdrawn':r?.done?'completed':'pending')}
+function incoming(s,r){return !!r&&['pending','countered','accepted'].includes(requestState(r))&&r.by&&r.by!==s?.user}
 function unread(s,r){return incoming(s,r)&&!r.seen}
 function unreadThanks(s,r){return !!r?.appreciationText&&r.appreciationBy!==s?.user&&!(r.appreciationSeenBy||[]).includes(s?.user)}
 function requestUpdate(s,r){

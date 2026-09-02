@@ -1,10 +1,13 @@
 (()=>{
 'use strict';
-const VERSION='20260901-1700';
+const VERSION='20260902-1700';
 const DAY_MS=86400000;
 const ARCHIVE_MS=90*DAY_MS;
 const RECENT_MS=3*DAY_MS;
 const CONTRIBUTION_GRACE_MS=DAY_MS;
+const STALE_REQUEST_MS=14*DAY_MS;
+const STALE_INITIATIVE_MS=7*DAY_MS;
+const STALE_CONTRIBUTION_MS=14*DAY_MS;
 const THANKS=['Takk, det hjalp ❤️','Det gjorde dagen lettere'];
 const TYPE_LABEL={need:'Behov',wish:'Ønske',practical:'Praktisk'};
 const $=selector=>document.querySelector(selector);
@@ -41,24 +44,27 @@ function requestState(request){
   if(couple()?.requestState)return couple().requestState(request);
   if(request?.deleted)return'withdrawn';
   if(request?.done)return'completed';
+  if(request?.expiredAt||request?.responseState==='expired')return'expired';
   if(request?.declinedAt)return'declined';
   if(request?.counter?.status==='pending')return'countered';
   if(request?.acceptedBy)return'accepted';
   return'pending';
 }
-function requestActive(request){return !!request&&['pending','countered','accepted'].includes(requestState(request))}
-function requestArchiveAt(request){return stamp(request?.doneAt||request?.declinedAt||request?.deletedAt||request?.createdAt||request?.id)}
-function contributionArchived(work,now=Date.now()){return !!work?.seen&&now-stamp(work.seenAt||work.createdAt||work.id)>=CONTRIBUTION_GRACE_MS}
+function requestActivityAt(request){const reply=(request?.replies||[]).slice(-1)[0];return Math.max(stamp(request?.createdAt||request?.id),stamp(request?.responseUpdatedAt),stamp(request?.decisionUpdatedAt),stamp(request?.replyUpdatedAt||reply?.createdAt))}
+function requestExpired(request,now=Date.now()){if(!request)return false;if(request.expiredAt||request.responseState==='expired')return true;const status=requestState(request),age=now-requestActivityAt(request);if(status==='pending')return age>=STALE_REQUEST_MS;if(request.source==='initiative'&&status==='accepted')return age>=STALE_INITIATIVE_MS;return false}
+function requestActive(request){return !!request&&['pending','countered','accepted'].includes(requestState(request))&&!requestExpired(request)}
+function requestArchiveAt(request){return stamp(request?.doneAt||request?.declinedAt||request?.deletedAt||request?.expiredAt||request?.createdAt||request?.id)}
+function contributionArchived(work,now=Date.now()){const age=now-stamp(work?.seenAt||work?.createdAt||work?.id);return !!work&&(work.seen?age>=CONTRIBUTION_GRACE_MS:age>=STALE_CONTRIBUTION_MS)}
 function activeRequests(s){return allRequests(s).filter(requestActive).sort((a,b)=>stamp(b.createdAt||b.id)-stamp(a.createdAt||a.id))}
 function activeContributions(s){const now=Date.now();return manualWork(s).filter(item=>!contributionArchived(item,now)).sort((a,b)=>stamp(b.createdAt||b.id)-stamp(a.createdAt||a.id))}
-function recentRequests(s){const cutoff=Date.now()-RECENT_MS;return allRequests(s).filter(request=>requestState(request)==='completed'&&requestArchiveAt(request)>=cutoff).sort((a,b)=>requestArchiveAt(b)-requestArchiveAt(a))}
+function recentRequests(s){const cutoff=Date.now()-RECENT_MS;return allRequests(s).filter(request=>requestState(request)==='completed'&&requestArchiveAt(request)>=cutoff&&(couple()?.canThank?.(request,s.user)||(request.appreciationText&&request.appreciationBy!==s.user&&!(request.appreciationSeenBy||[]).includes(s.user)))).sort((a,b)=>requestArchiveAt(b)-requestArchiveAt(a))}
 function archivedEntries(s,excluded=new Set()){
   const now=Date.now(),requests=allRequests(s).filter(request=>!requestActive(request)&&!excluded.has(String(request.id))).map(item=>({kind:'request',item,at:requestArchiveAt(item)})),work=manualWork(s).filter(item=>contributionArchived(item,now)).map(item=>({kind:'work',item,at:stamp(item.seenAt||item.createdAt||item.id)}));
   return [...requests,...work].sort((a,b)=>b.at-a.at);
 }
 function pruneState(s){
-  const cutoff=Date.now()-ARCHIVE_MS,seenRequests=allRequests(s).filter(request=>requestActive(request)||requestArchiveAt(request)>=cutoff),work=(Array.isArray(s?.work)?s.work:[]).filter(item=>item?.source!=='manual'||!contributionArchived(item)||stamp(item.seenAt||item.createdAt||item.id)>=cutoff);
-  if(seenRequests.length===allRequests(s).length&&work.length===(s.work||[]).length)return null;
+  const now=Date.now(),cutoff=now-ARCHIVE_MS,normalized=allRequests(s).map(request=>requestExpired(request,now)&&!request.expiredAt?{...request,expiredAt:new Date(now).toISOString(),responseState:'expired'}:request),seenRequests=normalized.filter(request=>requestActive(request)||requestArchiveAt(request)>=cutoff),work=(Array.isArray(s?.work)?s.work:[]).filter(item=>item?.source!=='manual'||!contributionArchived(item,now)||stamp(item.seenAt||item.createdAt||item.id)>=cutoff);
+  if(seenRequests.length===allRequests(s).length&&work.length===(s.work||[]).length&&normalized.every((request,index)=>request===allRequests(s)[index]))return null;
   return {...s,seenRequests,work};
 }
 function queuePrune(){if(pruneQueued)return;pruneQueued=true;queueMicrotask(()=>{pruneQueued=false;const current=state(),next=current&&pruneState(current);if(next)save(next)})}
@@ -71,6 +77,7 @@ function statusLabel(request,s){
   if(status==='completed')return'Utført ✓';
   if(status==='declined')return'Passet ikke';
   if(status==='withdrawn')return request.source==='initiative'?'Avsluttet':'Trukket tilbake';
+  if(status==='expired'||requestExpired(request))return'Utløpt';
   return status;
 }
 function requestTag(request){if(request.source==='initiative')return'Initiativ';if(request.taskId!=null)return'Forespørsel';return TYPE_LABEL[request.type]||'Behov'}
@@ -125,25 +132,31 @@ function requestCard(s,request,{archived=false}={}){
 }
 function contributionCard(s,work,{archived=false}={}){
   const mine=work.by===s.user,menu=mine?`<button type="button" class="small" data-item-menu="work|${esc(work.id)}" aria-label="Flere valg">•••</button>`:'';
-  return `<div class="card row"><div class="grow"><strong>${esc(work.title)}</strong><div class="taskmeta">${esc(work.by||'')}${archived?' · Arkivert etter at det ble sett':''}</div></div>${archived?'<span class="tag">Sett ✓</span>':mine?(work.seen?'<span class="tag">Sett ✓</span>':'<span class="taskmeta">Ikke sett ennå</span>'):(work.seen?'<span class="tag">Sett ✓</span>':`<button type="button" class="small" data-seen-ack="${esc(work.id)}">Jeg så det</button>`)}${menu}</div>`;
+  return `<div class="card row"><div class="grow"><strong>${esc(work.title)}</strong><div class="taskmeta">${esc(work.by||'')}${archived?work.seen?' · Sett og arkivert':' · Utløpt og arkivert':''}</div></div>${archived?`<span class="tag">${work.seen?'Sett ✓':'Utløpt'}</span>`:mine?(work.seen?'<span class="tag">Sett ✓</span>':'<span class="taskmeta">Ikke sett ennå</span>'):(work.seen?'<span class="tag">Sett ✓</span>':`<button type="button" class="small" data-seen-ack="${esc(work.id)}">Jeg så det</button>`)}${menu}</div>`;
 }
 function monthKey(at){const date=new Date(at||Date.now());return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}`}
 function monthLabel(key){const [year,month]=key.split('-').map(Number),date=new Date(year,month-1,1);return new Intl.DateTimeFormat('nb-NO',{month:'long',year:'numeric'}).format(date).replace(/^./,char=>char.toUpperCase())}
 function archiveMarkup(s,excluded){
   const entries=archivedEntries(s,excluded);
-  if(!entries.length)return `<div class="section"><button type="button" class="secondary full" data-archive-toggle="1">Arkiv</button></div>`;
+  if(!entries.length)return `<div class="card"><strong>Arkivet er tomt</strong><p class="sub" style="margin-bottom:0">Ferdige og utløpte ting samles her automatisk.</p></div>`;
   const groups=new Map();
   for(const entry of entries){const key=monthKey(entry.at);if(!groups.has(key))groups.set(key,[]);groups.get(key).push(entry)}
   const body=[...groups.entries()].map(([key,list])=>`<div class="section" style="margin-top:16px"><div class="ey">${esc(monthLabel(key))}</div>${list.map(entry=>entry.kind==='request'?requestCard(s,entry.item,{archived:true}):contributionCard(s,entry.item,{archived:true})).join('')}</div>`).join('');
-  return `<div class="section"><button type="button" class="secondary full" data-archive-toggle="1">${archiveOpen?'Skjul':'Vis'} arkiv (${entries.length})</button>${archiveOpen?`<p class="sub" style="margin:10px 2px 0">Ferdige ting ligger her i opptil 90 dager. Deretter slettes detaljene automatisk.</p>${body}`:''}</div>`;
+  return `<p class="sub" style="margin:12px 2px 0">Ferdige og utløpte ting ligger her i opptil 90 dager. Deretter slettes detaljene automatisk.</p>${body}`;
 }
+function seenTabs(archiveCount){return `<div class="segments" data-seen-tabs="1" style="grid-template-columns:1fr 1fr;margin:15px 0 18px"><button type="button" data-seen-mode="now" class="${archiveOpen?'':'on'}">Nå</button><button type="button" data-seen-mode="archive" data-archive-toggle="1" class="${archiveOpen?'on':''}">Arkiv${archiveCount?` · ${archiveCount}`:''}</button></div>`}
 function render(){
   const s=state(),content=$('#content');
   if(!s||!content||s.view!=='seen')return;
   painting=true;
-  const active=activeRequests(s),recent=recentRequests(s),contributions=activeContributions(s),excluded=new Set(recent.map(request=>String(request.id))),partner=partnerName(s);
+  const active=activeRequests(s),waiting=active.filter(request=>requestState(request)!=='accepted'),agreements=active.filter(request=>requestState(request)==='accepted'),recent=recentRequests(s),contributions=activeContributions(s),excluded=new Set(recent.map(request=>String(request.id))),archiveCount=archivedEntries(s,excluded).length;
   content.dataset.flytOwner='seen-active-archive';
-  content.innerHTML=`<div class="ey">Sett</div><h1 class="title">Gjør det enkelt å si og svare</h1><p class="sub">Konkrete forespørsler, tydelige svar og små initiativ – uten at Flyt prøver å analysere forholdet deres.</p>${recent.length?`<div class="section"><div class="ey">Nylig mellom dere</div><p class="sub">Utførte avtaler blir liggende her noen dager, slik at et lite takk ikke forsvinner i farten.</p>${recent.map(request=>requestCard(s,request,{archived:true})).join('')}</div>`:''}<div class="section"><div class="ey">Forespørsler og initiativ</div><p class="sub">${esc(partner)} kan ta oppgaven, foreslå en annen, si at det ikke passer eller svare kort. Når en oppgave er tatt, blir den synlig som en liten avtale.</p>${active.length?active.map(request=>requestCard(s,request)).join(''):'<div class="card"><strong>Ingenting venter på svar</strong><p class="sub">Vær konkret før den andre må gjette. Det er ofte nok.</p></div>'}<button type="button" id="seenAddRequest" class="primary full">+ Legg inn behov eller ønske</button></div><div class="section"><div class="ey">Det som ellers ikke blir sett</div><p class="sub">Planlegging og andre bidrag som lett går ubemerket hen. Dette er anerkjennelse, ikke et regnskap over hvem som er best.</p>${contributions.length?contributions.map(work=>contributionCard(s,work)).join(''):'<div class="card"><strong>Ingenting som venter på anerkjennelse</strong><p class="sub">Legg bare inn noe som faktisk kan være lett å overse.</p></div>'}<button type="button" id="seenAdd" class="secondary full">+ Legg til bidrag</button></div>${archiveMarkup(s,excluded)}`;
+  const tabs=seenTabs(archiveCount),header=`<div class="ey">Sett</div><h1 class="title">Mellom dere</h1><p class="sub">Det som trenger et svar, en handling eller litt anerkjennelse.</p>${tabs}`;
+  if(archiveOpen)content.innerHTML=`${header}${archiveMarkup(s,excluded)}`;
+  else{
+    const empty=!waiting.length&&!agreements.length&&!recent.length&&!contributions.length;
+    content.innerHTML=`${header}<div style="display:grid;grid-template-columns:1.25fr 1fr;gap:9px"><button type="button" id="seenAddRequest" class="primary">+ Ny melding</button><button type="button" id="seenAdd" class="secondary">+ Synliggjør bidrag</button></div>${waiting.length?`<div class="section"><div class="ey">Trenger svar</div>${waiting.map(request=>requestCard(s,request)).join('')}</div>`:''}${agreements.length?`<div class="section"><div class="ey">Avtalt</div><p class="sub" style="margin:7px 0 0">Oppgaver noen har tatt ansvar for.</p>${agreements.map(request=>requestCard(s,request)).join('')}</div>`:''}${recent.length?`<div class="section"><div class="ey">Nylig</div><p class="sub" style="margin:7px 0 0">Ferdige ting vises bare når et lite takk fortsatt gjenstår.</p>${recent.map(request=>requestCard(s,request,{archived:true})).join('')}</div>`:''}${contributions.length?`<div class="section"><div class="ey">Bidrag å se</div>${contributions.map(work=>contributionCard(s,work)).join('')}</div>`:''}${empty?'<div class="card" style="margin-top:18px"><strong>Ingenting venter mellom dere</strong><p class="sub" style="margin-bottom:0">Nye forespørsler, avtaler og bidrag dukker opp her.</p></div>':''}`;
+  }
   document.querySelectorAll('#nav button').forEach(button=>button.classList.toggle('on',button.dataset.view==='seen'));
   painting=false;
   queuePrune();
@@ -275,9 +288,9 @@ document.addEventListener('click',async event=>{
   const target=event.target,match=selector=>target.closest?.(selector),stop=()=>{event.preventDefault();event.stopImmediatePropagation()};
   const flowCancel=match('[data-flow-cancel]');if(flowCancel){stop();closeFlowModal();return}
   const counterSend=match('[data-flow-counter-send]');if(counterSend){stop();sendCounter(counterSend.dataset.flowCounterSend);return}
-  const nav=match('#nav button[data-view="seen"]');if(nav){stop();const s=state();if(s){const requests=allRequests(s).map(request=>couple()?.markRequestUpdatesSeen?.(request,s.user)||request);save({...s,seenRequests:requests,view:'seen'});queueMicrotask(render)}return}
+  const nav=match('#nav button[data-view="seen"]');if(nav){stop();archiveOpen=false;const s=state();if(s){const requests=allRequests(s).map(request=>couple()?.markRequestUpdatesSeen?.(request,s.user)||request);save({...s,seenRequests:requests,view:'seen'});queueMicrotask(render)}return}
   if(state()?.view!=='seen')return;
-  const archive=match('[data-archive-toggle]');if(archive){stop();archiveOpen=!archiveOpen;render();return}
+  const seenMode=match('[data-seen-mode]');if(seenMode){stop();archiveOpen=seenMode.dataset.seenMode==='archive';render();return}
   const menu=match('[data-item-menu]');if(menu){stop();const [kind,id]=String(menu.dataset.itemMenu).split('|');openActionMenu(kind,id);return}
   const addRequest=match('#seenAddRequest');if(addRequest){stop();openRequestModal();return}
   const accept=match('[data-request-accept]');if(accept){stop();acceptRequest(accept.dataset.requestAccept);return}

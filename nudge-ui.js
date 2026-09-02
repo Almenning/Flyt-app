@@ -1,7 +1,7 @@
 ((root)=>{
 'use strict';
 
-const VERSION='20260902-1300';
+const VERSION='20260902-1730';
 const INVITATION_PRESETS=[
   ['🛋','Sofa og noe godt','Sofa og noe godt i kveld?'],
   ['🌿','En liten tur','En liten tur sammen senere?'],
@@ -69,7 +69,7 @@ function weekCompletions(state,now=new Date()){
   return (state?.completions||[]).filter(c=>stamp(`${c?.date||''}T12:00:00`)>=start.getTime());
 }
 function activeNudgeTaskIds(state){
-  return new Set((state?.seenRequests||[]).filter(r=>(r?.source==='nudge'||r?.source==='initiative')&&r.taskId!=null&&!r.done&&!r.deleted&&!r.declinedAt).map(r=>String(r.taskId)));
+  return new Set((state?.seenRequests||[]).filter(r=>(r?.source==='nudge'||r?.source==='initiative')&&r.taskId!=null&&!r.done&&!r.deleted&&!r.declinedAt&&!r.expiredAt&&r.responseState!=='expired').map(r=>String(r.taskId)));
 }
 function remainingTasks(state,now=new Date()){
   const today=dateKey(now),doneToday=new Set((state?.completions||[]).filter(c=>c?.date===today&&c?.kind==='house').map(c=>String(c.taskId))),week=weekCompletions(state,now),requested=activeNudgeTaskIds(state),out=[];

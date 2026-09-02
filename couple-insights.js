@@ -1,7 +1,7 @@
 ((root)=>{
 'use strict';
 
-const VERSION='20260901-1200';
+const VERSION='20260902-1730';
 
 function stamp(value){
   if(typeof value==='number')return Number.isFinite(value)?value:0;
@@ -35,7 +35,7 @@ function invitationAnswer(invitation){
   return invitation?.finalResponse||invitation?.response||null;
 }
 function weeklyMirror(state,now=new Date()){
-  const start=weekStart(now),requests=(state?.seenRequests||[]).filter(item=>item&&!item.deleted),support=requests.filter(item=>item.source==='nudge'||item.kind==='support'),initiatives=requests.filter(item=>item.source==='initiative'),invitations=(state?.coupleInvitations||[]).filter(item=>item&&!item.deleted),completions=(state?.completions||[]).filter(item=>item?.kind==='house'&&completionInWeek(item,start));
+  const start=weekStart(now),requests=(state?.seenRequests||[]).filter(item=>item&&!item.deleted&&!item.expiredAt&&item.responseState!=='expired'),support=requests.filter(item=>item.source==='nudge'||item.kind==='support'),initiatives=requests.filter(item=>item.source==='initiative'),invitations=(state?.coupleInvitations||[]).filter(item=>item&&!item.deleted),completions=(state?.completions||[]).filter(item=>item?.kind==='house'&&completionInWeek(item,start));
   const asked=support.filter(item=>inWeek(item.createdAt,start)).length;
   const answered=support.filter(item=>requestAnswered(item)&&inWeek(item.acceptedAt||item.declinedAt||item.counter?.createdAt||item.responseUpdatedAt||item.doneAt,start)).length;
   const completed=requests.filter(item=>item.done&&inWeek(item.doneAt||item.completionUpdatedAt,start)).length;
@@ -73,7 +73,7 @@ function scheduledToday(task,now=new Date()){
   return !days.length||days.includes(isoDay(now));
 }
 function firstWinTask(state,now=new Date()){
-  const today=dateKey(now),doneToday=new Set((state?.completions||[]).filter(item=>item?.date===today).map(item=>String(item.taskId))),start=weekStart(now),week=(state?.completions||[]).filter(item=>completionInWeek(item,start)),active=new Set((state?.seenRequests||[]).filter(item=>!item?.deleted&&!item?.done&&!item?.declinedAt&&item?.taskId!=null).map(item=>String(item.taskId))),tasks=(state?.tasks||[]).filter(task=>task?.kind==='house'&&!active.has(String(task.id)));
+  const today=dateKey(now),doneToday=new Set((state?.completions||[]).filter(item=>item?.date===today).map(item=>String(item.taskId))),start=weekStart(now),week=(state?.completions||[]).filter(item=>completionInWeek(item,start)),active=new Set((state?.seenRequests||[]).filter(item=>!item?.deleted&&!item?.done&&!item?.declinedAt&&!item?.expiredAt&&item?.responseState!=='expired'&&item?.taskId!=null).map(item=>String(item.taskId))),tasks=(state?.tasks||[]).filter(task=>task?.kind==='house'&&!active.has(String(task.id)));
   const remaining=tasks.filter(task=>{
     if(task.type==='daily')return scheduledToday(task,now)&&!doneToday.has(String(task.id));
     if(task.type==='flex')return week.filter(item=>String(item.taskId)===String(task.id)).length<Math.max(1,Number(task.freq)||1);

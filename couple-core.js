@@ -1,7 +1,7 @@
 ((root)=>{
 'use strict';
 
-const VERSION='20260901-1700';
+const VERSION='20260902-1700';
 const MAX_REPLY_LENGTH=220;
 const INVITATION_RESPONSES=new Set(['yes','later','counter','no']);
 const taskLanguage=typeof module==='object'&&module.exports?require('./task-language.js'):root?.FlytTaskLanguage;
@@ -17,6 +17,7 @@ function requestState(request){
   if(!request)return'missing';
   if(request.deleted)return'withdrawn';
   if(request.done)return'completed';
+  if(request.expiredAt||request.responseState==='expired')return'expired';
   if(request.declinedAt||request.responseState==='declined')return'declined';
   if(request.counter?.status==='pending'||request.responseState==='countered')return'countered';
   if(request.acceptedBy||request.responseState==='accepted')return'accepted';

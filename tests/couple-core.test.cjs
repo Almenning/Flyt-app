@@ -8,6 +8,9 @@ const dishes={id:'dishes',name:'Tømme oppvaskmaskinen'};
 const request=core.makeSupportRequest({state,task:laundry,text:'Kan du ta klesvasken?',now:1000});
 assert.equal(core.requestState(request),'pending');
 assert.equal(core.canWithdrawRequest(request,'Tore'),true);
+const expired={...request,responseState:'expired',expiredAt:'2026-09-02T10:00:00.000Z'};
+assert.equal(core.requestState(expired),'expired');
+assert.equal(core.requestActive(expired),false,'expired requests must not remain actionable or trigger alerts');
 
 const countered=core.counterRequest(request,'Jannicke',dishes,'Jeg kan ta denne i stedet',2000);
 assert.equal(core.requestState(countered),'countered');
