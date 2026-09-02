@@ -6,7 +6,7 @@ if(root)root.FlytDayPlan=api;
 })(typeof window!=='undefined'?window:globalThis,root=>{
 'use strict';
 
-const VERSION='20260902-0100';
+const VERSION='20260902-1800';
 
 function category(task){
   const raw=String(task?.cat||'').trim();
@@ -14,10 +14,12 @@ function category(task){
   if(raw==='Utearbeid')return'Hage & ute';
   if(raw==='Periodisk vedlikehold')return'Vedlikehold';
   if(raw==='Usynlig arbeid')return'Planlegging & admin';
+  if(raw==='Vask & klær')return['laundry_start','laundry_hang','laundry_fold','laundry'].includes(String(task?.id))?'Klesvask':'Renhold';
   if(raw==='Hus'){
     if(['living','hallway'].includes(task?.id))return'Stue';
     if(task?.id==='bed')return'Soverom';
-    if(['laundry','vacuum'].includes(task?.id))return'Vask & klær';
+    if(task?.id==='laundry')return'Klesvask';
+    if(task?.id==='vacuum')return'Renhold';
     if(task?.id==='trash')return'Vedlikehold';
   }
   return raw||'Egendefinert';

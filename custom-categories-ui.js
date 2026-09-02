@@ -1,8 +1,8 @@
 (()=>{
 'use strict';
 
-const VERSION='20260901-2200';
-const BASE_CATEGORIES=['Barn','Kjøkken','Vask & klær','Stue','Bad','Soverom','Dyr','Hage & ute','Bil','Innkjøp','Vedlikehold','Planlegging & admin','Personlig investering'];
+const VERSION='20260902-1800';
+const BASE_CATEGORIES=['Barn','Kjøkken','Klesvask','Renhold','Stue','Bad','Soverom','Dyr','Hage & ute','Bil','Innkjøp','Vedlikehold','Planlegging & admin','Personlig investering'];
 const DAY_LABELS=[['1','Man'],['2','Tir'],['3','Ons'],['4','Tor'],['5','Fre'],['6','Lør'],['7','Søn']];
 const bridge=()=>window.FlytBridge;
 const state=()=>bridge()?.getState?.()||null;
@@ -16,7 +16,8 @@ function pointsForEffort(value){
   return Math.min(5,Math.max(1,Math.round(Number(value)||1)))*10;
 }
 function makeTask(name,cat,type='flex',freq=1,preferredDays=[],effortLevel=3){
-  const days=[...new Set((preferredDays||[]).map(Number).filter(n=>n>=1&&n<=7))].sort((a,b)=>a-b);
+  const selected=[...new Set((preferredDays||[]).map(Number).filter(n=>n>=1&&n<=7))].sort((a,b)=>a-b);
+  const days=type==='daily'&&!selected.length?[1,2,3,4,5,6,7]:selected;
   const max=type==='daily'?7:31;
   const goal=type==='daily'&&days.length?days.length:Math.min(max,Math.max(1,Number(freq)||1));
   const effort=Math.min(5,Math.max(1,Math.round(Number(effortLevel)||1)));
@@ -96,9 +97,9 @@ async function taskForm({cat='Egendefinert',allowCategory=true}={}){
         <input id="flytCustomFreq" class="field" type="number" min="1" max="31" value="1">
       </div>
       <div id="flytCustomDaysWrap" style="display:none;margin-top:10px">
-        <span class="label">Bestemte dager (valgfritt)</span>
+        <span class="label">Faste dager</span>
         <div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;margin-top:6px">${DAY_LABELS.map(([n,l])=>`<label style="text-align:center;font-size:11px"><input type="checkbox" data-custom-day="${n}" style="display:block;margin:0 auto 4px;accent-color:var(--accent)">${l}</label>`).join('')}</div>
-        <div class="taskmeta" style="margin-top:6px">Velg dager hvis oppgaven normalt hører til bestemte ukedager.</div>
+        <div class="taskmeta" style="margin-top:6px">Oppgaven legges automatisk i Dagens plan på dagene du velger.</div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px">
         <button type="button" id="flytCustomCancel" class="secondary">Avbryt</button>
@@ -140,6 +141,7 @@ async function taskForm({cat='Egendefinert',allowCategory=true}={}){
       freqLabel.textContent=daily?'Dager per uke':type.value==='period'?'Ganger per måned':'Ganger per uke';
       freq.max=daily?'7':'31';
       daysWrap.style.display=daily?'block':'none';
+      if(daily&&!selectedDays().length)dayBoxes.forEach(box=>box.checked=true);
       if(!daily)dayBoxes.forEach(box=>box.checked=false);
       freq.value=String(Math.min(Number(freq.max),Math.max(1,Number(freq.value)||1)));
       syncDays();

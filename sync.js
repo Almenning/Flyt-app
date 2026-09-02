@@ -5,7 +5,7 @@ const SUPABASE_KEY='sb_publishable_uK6xd8TJhN2MY10qHSQ2GQ_7hSIr2gv';
 const APP_URL='https://almenning.github.io/Flyt-app/';
 const RESET_URL='https://almenning.github.io/Flyt-app/reset.html';
 const LOCAL_MODE_KEY='flyt_local_mode_v1';
-const STARTER_TASK_IDS=['dish_fill','dish_empty','kitchen','counter','dinner','kids_wakeup','kids_get_ready','lunch','bag','bedkids','bath_toilet','bath_sink','bath_shower','bath_floor','bath_tidy','living','laundry_start','laundry_hang','laundry_fold','trash','train'];
+const STARTER_TASK_IDS=['kids_wakeup','kids_get_ready','lunch','bag','bedkids','dish_empty','kitchen','dinner','bath_tidy','living','laundry_start','laundry_hang','laundry_fold','shop','trash','train'];
 const STARTER_TASKS=(window.FlytTaskLanguage?.catalog||[]).filter(task=>STARTER_TASK_IDS.includes(task.id));
 if(!window.supabase){
   const fail=()=>{
