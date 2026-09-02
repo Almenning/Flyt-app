@@ -1,12 +1,16 @@
 const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
 const {
   buildCandidates,
   freshStatus,
   makeRequest,
   normalizePreferences,
+  quietHours,
   remainingTasks,
   requestMessage
 }=require('../nudge-ui.js');
+const nudgeSource=fs.readFileSync(path.join(__dirname,'..','nudge-ui.js'),'utf8');
 
 const now=new Date('2026-08-30T12:00:00Z');
 const fresh={user_id:'me',energy:'low',capacity:'med',stress:'med',needs:[],updated_at:'2026-08-30T11:00:00Z'};
@@ -21,8 +25,9 @@ const base={
   seenRequests:[]
 };
 
-assert.equal(freshStatus(fresh,now.getTime()),true,'status from the last 24 hours should be eligible');
+assert.equal(freshStatus(fresh,now.getTime()),true,'a recent status from the same day should be eligible');
 assert.equal(freshStatus({...fresh,updated_at:'2026-08-28T11:00:00Z'},now.getTime()),false,'stale status must not drive nudges');
+assert.equal(freshStatus({...fresh,updated_at:'2026-08-29T23:30:00'},now.getTime()),false,'a status from the previous calendar day must not drive a new day');
 
 const remaining=remainingTasks(base,now);
 assert.deepEqual(remaining.map(task=>task.id),['laundry','bath'],'only unfinished household tasks should be suggested');
@@ -36,8 +41,9 @@ const ask=buildCandidates({
   now
 });
 assert.equal(ask[0]?.kind,'askHelp','own low capacity should prioritize asking for concrete help');
-assert.equal(ask[0]?.task.id,'laundry');
-assert.match(ask[0]?.actionLabel||'',/Jannicke/);
+assert.equal(ask[0]?.task,undefined,'a status signal must not make Flyt choose a chore');
+assert.equal(ask[0]?.action,'openTasks');
+assert.doesNotMatch(ask[0]?.body||'',/Klesvask|Vaske\/brette/);
 
 const bothLow=buildCandidates({
   state:base,
@@ -59,7 +65,8 @@ const initiative=buildCandidates({
 });
 assert.equal(initiative[0]?.kind,'initiative','partner low capacity should trigger an initiative nudge');
 assert.match(initiative[0]?.body||'',/Jannicke/);
-assert.equal(initiative[0]?.action,'takeInitiative','initiative nudges should create a visible commitment, not only open the task list');
+assert.equal(initiative[0]?.task,undefined,'Flyt must not choose an initiative task on the user’s behalf');
+assert.equal(initiative[0]?.action,'openTasks','the user must choose any task themselves');
 
 const explicitRelief=buildCandidates({
   state:base,
@@ -94,15 +101,39 @@ const stale=buildCandidates({
 });
 assert.equal(stale.length,0,'balanced mode should not invent status-based advice from stale data');
 
+const activeWithoutSignal=buildCandidates({
+  state:base,
+  preferences:normalizePreferences({frequency:'active'}),
+  myStatus:null,
+  partnerStatus:null,
+  partnerName:'Jannicke',
+  now
+});
+assert.equal(activeWithoutSignal.length,0,'active mode must not invent a generic task recommendation without a concrete signal');
+
+const night=new Date('2026-08-30T00:17:00');
+assert.equal(quietHours(night),true,'nighttime must be treated as quiet hours');
+const nighttime=buildCandidates({
+  state:base,
+  preferences:normalizePreferences({frequency:'active'},night),
+  myStatus:{...fresh,updated_at:'2026-08-29T23:30:00'},
+  partnerStatus:null,
+  partnerName:'Jannicke',
+  now:night
+});
+assert.equal(nighttime.length,0,'Flyt must not suggest chores between 23 and 06');
+
 const dismissed=buildCandidates({
   state:base,
-  preferences:normalizePreferences({frequency:'balanced',dismissedDate:'2026-08-30',dismissedIds:['ask-help:laundry']},now),
+  preferences:normalizePreferences({frequency:'balanced',dismissedDate:'2026-08-30',dismissedIds:['ask-help:status:2026-08-30']},now),
   myStatus:fresh,
   partnerStatus:null,
   partnerName:'Jannicke',
   now
 });
-assert.equal(dismissed.some(candidate=>candidate.id==='ask-help:laundry'),false,'a nudge hidden today must stay hidden today');
+assert.equal(dismissed.some(candidate=>candidate.id==='ask-help:status:2026-08-30'),false,'a nudge hidden today must stay hidden today');
+
+assert.doesNotMatch(nudgeSource,/function fallbackCandidate|Ett konkret neste steg|Begynn gjerne med/,'Home must not contain a generic task fallback');
 
 const message=requestMessage({task:base.tasks[0],partnerName:'Jannicke',tone:'warm',status:fresh});
 assert.match(message,/oppgaven «Klesvask \(tidligere samlet\)»/);

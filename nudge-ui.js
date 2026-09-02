@@ -1,7 +1,7 @@
 ((root)=>{
 'use strict';
 
-const VERSION='20260901-1700';
+const VERSION='20260902-0100';
 const DAY_MS=86400000;
 const coupleCore=typeof module==='object'&&module.exports?require('./couple-core.js'):root?.FlytCoupleCore;
 const DEFAULT_PREFERENCES=Object.freeze({
@@ -42,14 +42,19 @@ function stamp(value){
 }
 function freshStatus(status,now=Date.now()){
   const at=stamp(status?.updated_at);
-  return !!at&&at<=now+5*60000&&now-at<DAY_MS;
+  return !!at&&at<=now+5*60000&&now-at<12*60*60*1000&&dateKey(new Date(at))===dateKey(new Date(now));
+}
+function quietHours(now=new Date()){
+  const hour=(now instanceof Date?now:new Date(now)).getHours();
+  return hour<6||hour>=23;
 }
 function preferredDays(task){
   return [...new Set((Array.isArray(task?.preferredDays)?task.preferredDays:[]).map(Number).filter(n=>n>=1&&n<=7))];
 }
 function scheduledToday(task,now=new Date()){
   const days=preferredDays(task);
-  return !days.length||days.includes(isoDay(now));
+  if(days.length)return days.includes(isoDay(now));
+  return task?.type==='daily'&&Number(task?.freq||0)>=7;
 }
 function weekCompletions(state,now=new Date()){
   const start=monday(now);
@@ -106,43 +111,43 @@ function normalizePreferences(value,now=new Date()){
 }
 function buildCandidates({state,preferences,myStatus,partnerStatus,partnerName='partneren din',now=new Date()}){
   const prefs=normalizePreferences(preferences,now),remaining=remainingTasks(state,now),progress=todayProgress(state,now),mine=todayMine(state,now),myFresh=freshStatus(myStatus,now.getTime()),partnerFresh=freshStatus(partnerStatus,now.getTime()),candidates=[];
-  if(!prefs.enabled)return candidates;
-  const task=remaining[0],dailyWord=progress.remaining===1?'ett gjøremål':`${progress.remaining} gjøremål`,myNeeds=myFresh?myStatus?.needs||[]:[],partnerNeeds=partnerFresh?partnerStatus?.needs||[]:[],myRelief=myNeeds.some(n=>n==='relief'||n==='initiative'),partnerRelief=partnerNeeds.some(n=>n==='relief'||n==='initiative'),myReason=myRelief?'behov for avlastning':strainText(myStatus),partnerReason=partnerRelief?'behov for avlastning':strainText(partnerStatus);
+  if(!prefs.enabled||quietHours(now))return candidates;
+  const hasRemaining=remaining.length>0,dailyWord=progress.remaining===1?'ett gjøremål':`${progress.remaining} gjøremål`,myNeeds=myFresh?myStatus?.needs||[]:[],partnerNeeds=partnerFresh?partnerStatus?.needs||[]:[],myRelief=myNeeds.some(n=>n==='relief'||n==='initiative'),partnerRelief=partnerNeeds.some(n=>n==='relief'||n==='initiative'),myReason=myRelief?'behov for avlastning':strainText(myStatus),partnerReason=partnerRelief?'behov for avlastning':strainText(partnerStatus);
 
   if(prefs.askHelp&&myFresh&&partnerFresh&&low(myStatus)&&low(partnerStatus)){
     candidates.push({
       id:'balance:both-low',kind:'askHelp',priority:105,icon:'≈',
       title:toneText(prefs.tone,{warm:'I dag kan godt nok være målet',direct:'Begge har lite kapasitet',gentle:'Kanskje dette er en roligere dag'}),
       body:toneText(prefs.tone,{warm:`Både du og ${partnerName} har markert lite å gå på. Velg det viktigste, og la resten få vente uten dårlig samvittighet.`,direct:`Begge har lite kapasitet. Prioriter det viktigste og utsett resten.`,gentle:`Både du og ${partnerName} har markert lite overskudd. Kanskje dere kan bli enige om hva som faktisk må gjøres i dag.`}),
-      action:task?'openTasks':null,actionLabel:task?'Se hva som gjenstår':''
+      action:hasRemaining?'openTasks':null,actionLabel:hasRemaining?'Se dagens plan':''
     });
   }
 
-  if(prefs.askHelp&&myFresh&&(low(myStatus)||myRelief)&&task){
+  if(prefs.askHelp&&myFresh&&(low(myStatus)||myRelief)&&hasRemaining){
     candidates.push({
-      id:`ask-help:${task.id}`,kind:'askHelp',priority:100,icon:'♡',task,
+      id:`ask-help:status:${dateKey(now)}`,kind:'askHelp',priority:100,icon:'♡',
       title:toneText(prefs.tone,{warm:'Litt hjelp kan gjøre dagen lettere',direct:'Be om avlastning nå',gentle:'Kanskje du kan slippe én ting'}),
-      body:toneText(prefs.tone,{warm:`Du har valgt ${myReason}, og ${taskReference(task)} står igjen. Flyt kan hjelpe deg å spørre konkret og vennlig.`,direct:`Du har valgt ${myReason}. Be ${partnerName} ta seg av ${taskReference(task)}.`,gentle:`Du har valgt ${myReason}. Hvis det passer, kan du be ${partnerName} ta seg av ${taskReference(task)}.`}),
-      action:'askHelp',actionLabel:`Be ${partnerName} ta den`
+      body:toneText(prefs.tone,{warm:`Du har valgt ${myReason}. Se dagens plan og velg selv hva det vil hjelpe å få avlastning med.`,direct:`Du har valgt ${myReason}. Velg selv hva du vil be ${partnerName} om hjelp med.`,gentle:`Du har valgt ${myReason}. Hvis det passer, kan du se om noe i planen kan deles eller vente.`}),
+      action:'openTasks',actionLabel:'Se dagens plan'
     });
   }
 
-  if(prefs.initiative&&partnerFresh&&(low(partnerStatus)||partnerRelief)&&task){
-    const left=progress.remaining?`Det står igjen ${dailyWord} i dagens rytme.`:`${taskReference(task)} står fortsatt igjen denne uken.`;
+  if(prefs.initiative&&partnerFresh&&(low(partnerStatus)||partnerRelief)&&hasRemaining){
+    const left=progress.remaining?`Det står igjen ${dailyWord} i dagens plan.`:'Det står fortsatt gjøremål igjen denne uken.';
     candidates.push({
-      id:`initiative:${task.id}`,kind:'initiative',priority:95,icon:'↗',task,
+      id:`initiative:status:${dateKey(now)}`,kind:'initiative',priority:95,icon:'↗',
       title:toneText(prefs.tone,{warm:`Gjør dagen litt lettere for ${partnerName}`,direct:'Ta én oppgave før det blir spurt',gentle:'Et lite initiativ kan hjelpe'}),
-      body:toneText(prefs.tone,{warm:`${partnerName} har markert ${partnerReason}. ${left} Kanskje du kan ta ansvar for ${taskReference(task)} på eget initiativ?`,direct:`${partnerName} har markert ${partnerReason}. ${left} Ta ansvar for ${taskReference(task)}.`,gentle:`${partnerName} har markert ${partnerReason}. ${left} Hvis du har kapasitet, kan du begynne med ${taskReference(task)}.`}),
-      action:'takeInitiative',actionLabel:'Jeg tar ansvar'
+      body:toneText(prefs.tone,{warm:`${partnerName} har markert ${partnerReason}. ${left} Se planen og velg selv om det er noe du vil ta.`,direct:`${partnerName} har markert ${partnerReason}. ${left} Velg selv om du vil ta noe.`,gentle:`${partnerName} har markert ${partnerReason}. ${left} Hvis du har kapasitet, kan du se om noe passer å ta.`}),
+      action:'openTasks',actionLabel:'Se dagens plan'
     });
   }
 
-  if(prefs.initiative&&partnerFresh&&(partnerStatus?.needs||[]).includes('quiet')&&task&&progress.remaining<=2){
+  if(prefs.initiative&&partnerFresh&&(partnerStatus?.needs||[]).includes('quiet')&&hasRemaining&&progress.remaining<=2){
     candidates.push({
-      id:`quiet:${task.id}`,kind:'initiative',priority:92,icon:'☾',task,
+      id:`quiet:status:${dateKey(now)}`,kind:'initiative',priority:92,icon:'☾',
       title:toneText(prefs.tone,{warm:'Litt mindre rundt dere',direct:'Skap ro nå',gentle:'Kanskje rydde plass til ro'}),
-      body:`${partnerName} har markert behov for ro. ${progress.remaining?`Bare ${dailyWord} står igjen i dagens rytme.`:`${taskReference(task)} står igjen.`} Et stille initiativ kan gjøre mer enn en lang samtale akkurat nå.`,
-      action:'takeInitiative',actionLabel:'Jeg tar ansvar'
+      body:`${partnerName} har markert behov for ro. ${progress.remaining?`Bare ${dailyWord} står igjen i dagens plan.`:'Det står fortsatt noe igjen.'} Se selv om noe kan tas, deles eller vente.`,
+      action:'openTasks',actionLabel:'Se dagens plan'
     });
   }
 
@@ -174,15 +179,6 @@ function buildCandidates({state,preferences,myStatus,partnerStatus,partnerName='
     });
   }
 
-  if(prefs.frequency==='active'&&task){
-    candidates.push({
-      id:`task:${task.id}`,kind:'initiative',priority:30,icon:'→',task,
-      title:'Ett lite steg gir mer flyt',
-      body:progress.remaining?`${dailyWord[0].toUpperCase()+dailyWord.slice(1)} står igjen i dagens rytme. Begynn gjerne med ${taskReference(task)}.`:`${taskReference(task)} står igjen denne uken. Kanskje få den unna mens den fortsatt er liten?`,
-      action:'openTasks',actionLabel:'Åpne Gjøre'
-    });
-  }
-
   const dismissed=new Set(currentDismissals(prefs,now));
   return candidates.filter(c=>c.priority>=preferenceThreshold(prefs.frequency)&&!dismissed.has(c.id)).sort((a,b)=>b.priority-a.priority||a.id.localeCompare(b.id));
 }
@@ -199,7 +195,7 @@ function makeRequest({state,task,text,now=Date.now()}){
   return {request};
 }
 
-const core={DEFAULT_PREFERENCES,dateKey,freshStatus,remainingTasks,todayProgress,normalizePreferences,buildCandidates,requestMessage,makeRequest};
+const core={DEFAULT_PREFERENCES,dateKey,freshStatus,quietHours,remainingTasks,todayProgress,normalizePreferences,buildCandidates,requestMessage,makeRequest};
 if(typeof module==='object'&&module.exports)module.exports=core;
 if(!root?.document)return;
 
@@ -274,14 +270,6 @@ function ensureStyles(){
 function cardMarkup(candidate,count){
   return `<section class="flytNudgeCard" data-flyt-nudge-card="${esc(candidate.id)}" aria-label="Et lite dytt"><div class="row" style="align-items:flex-start;position:relative"><div class="flytNudgeIcon" aria-hidden="true">${esc(candidate.icon||'✨')}</div><div class="grow"><div class="ey">Et lite dytt</div><strong style="display:block;font:600 21px/1.15 Georgia,serif;margin-top:5px">${esc(candidate.title)}</strong></div></div><p style="line-height:1.5;margin:13px 0 0">${esc(candidate.body)}</p><div class="flytNudgeActions">${candidate.action?`<button type="button" class="primary" data-nudge-action="${esc(candidate.action)}" data-nudge-id="${esc(candidate.id)}">${esc(candidate.actionLabel)}</button>`:''}${count>1?'<button type="button" class="small" data-nudge-next="1">Vis et annet</button>':''}<button type="button" class="small" data-nudge-dismiss="1">Skjul i dag</button></div></section>`;
 }
-function fallbackCandidate(s){
-  const prefs=preferences(s);
-  if(!prefs.enabled)return null;
-  const task=remainingTasks(s)[0];
-  if(task)return{id:`next-step:${task.id}`,kind:'initiative',priority:1,icon:'→',task,title:'Ett konkret neste steg',body:`Begynn gjerne med ${taskReference(task)}. Åpne Gjøre når det passer – Flyt gir retning, ikke dårlig samvittighet.`,action:'openTasks',actionLabel:'Åpne Gjøre'};
-  if(prefs.relationship)return{id:'next-step:invitation',kind:'relationship',priority:1,icon:'♥',title:'Dagens rytme har litt plass',body:'Når det praktiske ikke krever neste ord, kan dere bruke Flyt til en liten invitasjon i stedet.',action:'invitation',actionLabel:'Send en liten invitasjon'};
-  return null;
-}
 function augment(){
   if(painting)return;
   const s=state(),mount=$('#homeNudgeMount');
@@ -292,7 +280,6 @@ function augment(){
   painting=true;
   try{
     currentCandidates=candidates(s);
-    if(!currentCandidates.length){const fallback=fallbackCandidate(s);if(fallback)currentCandidates=[fallback]}
     const first=currentCandidates[0];
     const html=first?cardMarkup(first,currentCandidates.length):'';
     if(mount.innerHTML!==html)mount.innerHTML=html;
@@ -377,7 +364,7 @@ function openTasks(){
 }
 function settingsMarkup(){
   const prefs=preferences(),toggle=(key,title,text)=>`<div class="card row" style="box-shadow:none;align-items:flex-start"><div class="grow"><strong>${esc(title)}</strong><p class="sub" style="margin:4px 0 0;font-size:13px">${esc(text)}</p></div><button type="button" class="flytNudgeSwitch" role="switch" aria-label="${esc(title)}" aria-checked="${prefs[key]?'true':'false'}" data-nudge-setting-toggle="${key}"></button></div>`;
-  return `<div class="ey">Personlig tilpasning</div><h1 class="title">Nudges og forslag</h1><p class="sub">Velg hva Flyt skal hjelpe deg med. Valgene gjelder bare din visning; partneren kan velge annerledes.</p>${toggle('enabled','Vis nudges på Hjem','Flyt viser maksimalt ett relevant forslag om gangen.')}<div style="${prefs.enabled?'':'opacity:.48;pointer-events:none'}"><div class="section"><strong>Hva skal Flyt foreslå?</strong>${toggle('initiative','Ta initiativ','Forslag basert på partnerens ferske dagsform og gjøremål som gjenstår.')}${toggle('askHelp','Be om hjelp','Hjelp til å formulere en konkret forespørsel når du har lite kapasitet.')}${toggle('relationship','Tid for oss','Små invitasjoner når dagsrytmen og behovene gir rom for det.')}${toggle('recognition','Anerkjennelse og balanse','Vis også hva du allerede har gjort – ikke bare neste oppgave.')}</div><div class="section"><strong>Hvor ofte?</strong><div class="segments" style="grid-template-columns:repeat(3,1fr);margin-top:9px"><button type="button" data-nudge-frequency="quiet" class="${prefs.frequency==='quiet'?'on':''}">Rolig</button><button type="button" data-nudge-frequency="balanced" class="${prefs.frequency==='balanced'?'on':''}">Balansert</button><button type="button" data-nudge-frequency="active" class="${prefs.frequency==='active'?'on':''}">Aktiv</button></div><p class="sub" style="font-size:13px;margin-top:8px">Rolig viser bare tydelige situasjoner. Aktiv kan også foreslå et enkelt gjøremål uten statusgrunnlag.</p></div><div class="section"><strong>Tone</strong><div class="segments" style="grid-template-columns:repeat(3,1fr);margin-top:9px"><button type="button" data-nudge-tone="warm" class="${prefs.tone==='warm'?'on':''}">Varm</button><button type="button" data-nudge-tone="direct" class="${prefs.tone==='direct'?'on':''}">Direkte</button><button type="button" data-nudge-tone="gentle" class="${prefs.tone==='gentle'?'on':''}">Forsiktig</button></div></div></div><div class="card" style="margin-top:18px;background:#fff9f5;box-shadow:none"><strong>Ferske data, ikke tankelesing</strong><p class="sub" style="margin-bottom:0">Statusbaserte forslag brukes bare når dagsformen er oppdatert de siste 24 timene. Flyt gir forslag – dere bestemmer selv hva som passer.</p></div>`;
+  return `<div class="ey">Personlig tilpasning</div><h1 class="title">Nudges og forslag</h1><p class="sub">Velg hva Flyt skal hjelpe deg med. Valgene gjelder bare din visning; partneren kan velge annerledes.</p>${toggle('enabled','Vis nudges på Hjem','Flyt viser bare forslag som bygger på et konkret, ferskt signal.')}<div style="${prefs.enabled?'':'opacity:.48;pointer-events:none'}"><div class="section"><strong>Hva skal Flyt foreslå?</strong>${toggle('initiative','Ta initiativ','Forslag basert på partnerens ferske dagsform og gjøremål som gjenstår.')}${toggle('askHelp','Be om hjelp','Hjelp til å formulere en konkret forespørsel når du har lite kapasitet.')}${toggle('relationship','Tid for oss','Små invitasjoner når dagsrytmen og behovene gir rom for det.')}${toggle('recognition','Anerkjennelse og balanse','Vis også hva du allerede har gjort – ikke bare neste oppgave.')}</div><div class="section"><strong>Hvor ofte?</strong><div class="segments" style="grid-template-columns:repeat(3,1fr);margin-top:9px"><button type="button" data-nudge-frequency="quiet" class="${prefs.frequency==='quiet'?'on':''}">Rolig</button><button type="button" data-nudge-frequency="balanced" class="${prefs.frequency==='balanced'?'on':''}">Balansert</button><button type="button" data-nudge-frequency="active" class="${prefs.frequency==='active'?'on':''}">Aktiv</button></div><p class="sub" style="font-size:13px;margin-top:8px">Valget styrer hvor tydelig signalet må være. Flyt velger aldri et gjøremål på dine vegne.</p></div><div class="section"><strong>Tone</strong><div class="segments" style="grid-template-columns:repeat(3,1fr);margin-top:9px"><button type="button" data-nudge-tone="warm" class="${prefs.tone==='warm'?'on':''}">Varm</button><button type="button" data-nudge-tone="direct" class="${prefs.tone==='direct'?'on':''}">Direkte</button><button type="button" data-nudge-tone="gentle" class="${prefs.tone==='gentle'?'on':''}">Forsiktig</button></div></div></div><div class="card" style="margin-top:18px;background:#fff9f5;box-shadow:none"><strong>Ferske data, ikke tankelesing</strong><p class="sub" style="margin-bottom:0">Statusbaserte forslag brukes bare samme kalenderdag og i maksimalt 12 timer, og aldri mellom kl. 23 og 06. Når Flyt ikke har et godt grunnlag, vises ingen nudge.</p></div>`;
 }
 function updatePreference(key,value){
   const s=state();

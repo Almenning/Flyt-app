@@ -2,7 +2,7 @@
 'use strict';
 const $=s=>document.querySelector(s);
 const bridge=()=>window.FlytBridge;
-const VERSION='20260901-2300';
+const VERSION='20260902-0100';
 let mode='day',partnerCtx=null,loadingPartner=false;
 const LABEL={low:'Lav',med:'Middels',high:'Høy'};
 const NEED_LABEL={relief:'Avlastning',closeness:'Nærhet',sex:'Intimitet',initiative:'Initiativ',alone:'Alenetid',quiet:'Ro'};
@@ -17,7 +17,7 @@ function isoToday(){const n=new Date().getDay();return n===0?7:n}
 function preferredDays(t){return [...new Set((Array.isArray(t?.preferredDays)?t.preferredDays:[]).map(Number).filter(n=>n>=1&&n<=7))]}
 function scheduledToday(t){const days=preferredDays(t);return !days.length||days.includes(isoToday())}
 function dayName(){return new Intl.DateTimeFormat('nb-NO',{weekday:'long'}).format(new Date()).replace(/^./,c=>c.toUpperCase())}
-function greeting(){const h=new Date().getHours();if(h<10)return 'God morgen';if(h<17)return 'God dag';return 'God kveld'}
+function greeting(){const h=new Date().getHours();if(h<6)return 'Hei';if(h<10)return 'God morgen';if(h<17)return 'God dag';return 'God kveld'}
 function weekComps(s){const m=monday();return (s.completions||[]).filter(c=>new Date(c.date+'T12:00:00')>=m)}
 function monthComps(s){const ym=monthKey();return (s.completions||[]).filter(c=>String(c.date||'').startsWith(ym))}
 function todayComps(s){const d=today();return (s.completions||[]).filter(c=>c.date===d)}
@@ -65,9 +65,7 @@ function firstWinMarkup(s){
     const mine=win.request?.by===s.user,label=win.stage==='accepted'?'Avtalt – nå gjenstår handlingen':mine?`Invitasjonen til samarbeid er sendt`:`${name} har startet deres første felles seier`;
     return `<section class="card" data-first-win-card="active" style="margin:14px 0;border-color:#e7cfc4;background:linear-gradient(145deg,#fffdf9,#fff1e9)"><div class="ey">Første felles seier · ${win.stage==='accepted'?'2 av 3':'1 av 3'}</div><strong style="display:block;font:600 21px/1.2 Georgia;margin-top:6px">${esc(label)}</strong><p class="sub" style="margin:7px 0 0">${esc(win.taskName)} · ${win.stage==='accepted'?'Når den er utført, har dere fullført hele løkken.':'Se og svar i Sett.'}</p><button type="button" class="primary full" data-home-destination="seen" style="margin-top:14px">${win.stage==='accepted'?'Fullfør i Sett':'Åpne Sett'}</button></section>`;
   }
-  const task=window.FlytCoupleInsights.firstWinTask(s);
-  if(!task)return'';
-  return `<section class="card" data-first-win-card="ready" style="margin:14px 0;border-color:#e7cfc4;background:linear-gradient(145deg,#fffdf9,#fff0e8)"><div class="row" style="align-items:flex-start"><div aria-hidden="true" style="width:44px;height:44px;display:grid;place-items:center;border-radius:15px;background:#fff;font-size:23px">↗</div><div class="grow"><div class="ey">Første felles seier · 0 av 3</div><strong style="display:block;font:600 21px/1.2 Georgia;margin-top:5px">Start med noe lite og synlig</strong><p class="sub" style="margin:7px 0 0">Ta initiativ, la ${esc(name)} se det, og marker det utført. Da har dere prøvd hele Flyt-løkken én gang.</p></div></div><button type="button" class="primary full" data-first-win-start="${esc(task.id)}" style="margin-top:14px">Jeg tar ansvar</button></section>`;
+  return'';
 }
 function startFirstWin(taskId){const s=bridge()?.getState?.(),task=(s?.tasks||[]).find(item=>String(item.id)===String(taskId));if(!s||!task)return;const item=window.FlytCoupleCore?.makeInitiative?.({state:s,task,partnerName:partnerName(s)})||null;if(!item)return;bridge().setState({...s,seenRequests:[{...item,journeyKey:'first_shared_win'},...(s.seenRequests||[])],coupleJourney:{...(s.coupleJourney||{}),firstWinStartedAt:s.coupleJourney?.firstWinStartedAt||new Date().toISOString()}});window.FlytSync?.queueSave?.();bridge()?.toast?.(`Første felles seier er startet med ${taskReference(task.name)}`);render({resetScroll:false});window.FlytSeenRequestAlert?.checkAlerts?.()}
 async function loadPartner(){if(loadingPartner||!window.FlytSync?.rpc)return;loadingPartner=true;try{const {data,error}=await window.FlytSync.rpc('get_home_partner_context');if(error)throw error;partnerCtx=data||null;if(bridge()?.getState?.()?.view==='home')render({resetScroll:false});if((partnerCtx?.events||[]).length)window.FlytSync.rpc('mark_status_events_read').catch(()=>{})}catch(e){console.warn('Flyt Hjem partnerstatus kunne ikke hentes',e)}finally{loadingPartner=false}}
@@ -81,8 +79,8 @@ function render({resetScroll=false}={}){
   let intro,hero,stats,tail;
   if(mode==='day'){
     intro='Ett blikk på hva dere trenger – og ett konkret neste steg.';
-    hero=`<div class="card hero"><div class="row"><div class="grow"><strong>Dagens plan</strong><p>${!plan.total?'Dagen er åpen. Legg til det som er viktig i dag.':plan.done>=plan.total?'Alt i dagens plan er gjort.':`${plan.done} av ${plan.total} gjøremål er fullført.`}</p></div><span class="tag">${plan.done}/${plan.total}</span></div><div class="progress"><i style="width:${dayPct}%"></i></div></div>`;
-    stats=`<div class="stat homeStats"><div><b>${plan.done}/${plan.total}</b><span>dagens plan</span></div><div><b>${dayPoints}</b><span>poeng i dag</span></div><div><b>${dayRegistrations}</b><span>registreringer</span></div></div>`;
+    hero=`<div class="card hero"><div class="row"><div class="grow"><strong>Dagens plan</strong><p>${!plan.total?'Dagen er åpen. Legg til det som er viktig i dag.':plan.done>=plan.total?'Alt i dagens plan er gjort.':plan.done?`${plan.done} fullført · ${plan.total-plan.done} gjenstår.`:`${plan.total} gjøremål ligger i planen. Tilpass det som ikke passer i dag.`}</p></div><span class="tag">${plan.done?`${plan.done} gjort`:'Åpen'}</span></div><div class="progress"><i style="width:${dayPct}%"></i></div></div>`;
+    stats=`<div class="stat homeStats"><div><b>${plan.done}</b><span>gjort fra planen</span></div><div><b>${dayPoints}</b><span>poeng i dag</span></div><div><b>${dayRegistrations}</b><span>registreringer</span></div></div>`;
     tail=`<div class="card"><strong>${!plan.total?'Ingen fast lås på dagen.':plan.done>=plan.total?'Dagens plan er tatt.':'Planen kan tilpasses.'}</strong><p class="sub">${!plan.total?'Hele gjøremålsbiblioteket er tilgjengelig under Gjøre.':plan.done>=plan.total?'Ekstra gjøremål kan fortsatt registreres og gir poeng.':'Legg til, fjern eller flytt gjøremål under Gjøre dersom dagen blir annerledes enn oppsettet.'}</p></div>`;
   }else if(mode==='week'){
     intro='Se retningen for uken, uten å gjøre forholdet til et regneark.';

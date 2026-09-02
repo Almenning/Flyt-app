@@ -6,7 +6,7 @@ if(root)root.FlytDayPlan=api;
 })(typeof window!=='undefined'?window:globalThis,root=>{
 'use strict';
 
-const VERSION='20260901-2300';
+const VERSION='20260902-0100';
 
 function category(task){
   const raw=String(task?.cat||'').trim();
@@ -38,7 +38,8 @@ function preferredDays(task){
 
 function scheduledFor(task,dateKey){
   const days=preferredDays(task);
-  return !days.length||days.includes(isoDay(dateKey));
+  if(days.length)return days.includes(isoDay(dateKey));
+  return task?.type==='daily'&&Number(task?.freq||0)>=7;
 }
 
 function uniqueIds(values){

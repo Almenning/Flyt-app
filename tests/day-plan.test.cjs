@@ -9,6 +9,7 @@ const tuesday = '2026-09-01';
 const dailyMonday = { id: 'daily_monday', cat: 'Kjøkken', name: 'Mandagsoppgave', type: 'daily', kind: 'house', pts: 20, preferredDays: [1] };
 const dailyTuesday = { id: 'daily_tuesday', cat: 'Bad', name: 'Tirsdagsoppgave', type: 'daily', kind: 'house', pts: 30, preferredDays: [2] };
 const flexible = { id: 'flexible', cat: 'Vask & klær', name: 'Fleksibel oppgave', type: 'flex', kind: 'house', pts: 40 };
+const flexibleDaily = { id: 'flexible_daily', cat: 'Kjøkken', name: 'Fem valgfrie dager', type: 'daily', kind: 'house', pts: 20, freq: 5 };
 
 function state(overrides = {}) {
   return { completions: [], custom: [flexible], dayPlans: {}, tasks: [dailyMonday, dailyTuesday], ...overrides };
@@ -17,6 +18,12 @@ function state(overrides = {}) {
 test('grunnrytmen lager en plan for riktig ukedag', () => {
   assert.deepEqual(dayPlan.planTasks(state(), monday).map(task => task.id), ['daily_monday']);
   assert.deepEqual(dayPlan.planTasks(state(), tuesday).map(task => task.id), ['daily_tuesday']);
+});
+
+test('dager per uke uten valgte ukedager fyller ikke automatisk alle dager', () => {
+  const current=state({tasks:[dailyMonday,dailyTuesday,flexibleDaily]});
+  assert.deepEqual(dayPlan.planTasks(current,monday).map(task=>task.id),['daily_monday']);
+  assert.equal(dayPlan.scheduledFor(flexibleDaily,monday),false);
 });
 
 test('en enkelt dag kan tilpasses uten å endre fast oppsett', () => {
