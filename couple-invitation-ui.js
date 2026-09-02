@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION='20260902-1300';
+const VERSION='20260902-1800';
 const RECENT_MS=14*86400000;
 const INVITATION_PRESETS=[
   ['🛋','Sofa og noe godt','Sofa og noe godt i kveld?'],
@@ -62,7 +62,7 @@ function cardMarkup(s,item){
 }
 function sectionMarkup(s){
   const list=visibleItems(s);
-  return `<section id="coupleInvitationSection" class="section" style="margin:14px 0 22px;padding:16px;border:1px solid #e7cfc4;border-radius:22px;background:linear-gradient(145deg,#fffaf6,#ffede4)"><div class="row" style="align-items:flex-start"><div class="grow"><div class="ey">♥ Kjæresteinvitasjoner</div><h2 style="font:500 24px/1.15 Georgia;margin:5px 0 4px">Tid for oss</h2><p class="sub" style="font-size:13px;margin:0">Et konkret forslag mellom dere. Aldri poeng, betaling eller plikt.</p></div><button type="button" class="small" id="coupleInvitationOpen">+ Inviter</button></div>${list.length?`<div style="margin-top:13px">${list.map(item=>cardMarkup(s,item)).join('')}</div>`:'<div class="card" style="box-shadow:none;margin-bottom:0"><strong>Hva kunne vært hyggelig?</strong><p class="sub" style="margin-bottom:0">En sofa, en tur, litt tid tett sammen – små forslag er hele poenget.</p></div>'}</section>`;
+  return `<section id="coupleInvitationSection" class="section" style="margin:14px 0 22px;padding:16px;border:1px solid #e7cfc4;border-radius:22px;background:linear-gradient(145deg,#fffaf6,#ffede4)"><div class="row" style="align-items:flex-start"><div class="grow"><div class="ey">Invitasjoner</div><h2 style="font:500 24px/1.15 Georgia;margin:5px 0 4px">Tid sammen</h2></div><button type="button" class="small" id="coupleInvitationOpen">+ Inviter</button></div>${list.length?`<div style="margin-top:13px">${list.map(item=>cardMarkup(s,item)).join('')}</div>`:''}</section>`;
 }
 function ensureStyles(){
   if($('#coupleInvitationStyles'))return;

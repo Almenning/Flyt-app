@@ -42,6 +42,6 @@ assert.match(customSource,/Nivået kan endres senere/);
 assert.match(customSource,/id="flytCustomCategory"/);
 assert.match(setupSource,/data-v2-effort=/);
 assert.match(setupSource,/t\.effortLevel=effort;t\.pts=effort\*10/);
-assert.match(setupSource,/alt kan endres senere under «Rediger oppsett»/);
+assert.match(setupSource,/kan endres på alle oppgaver/);
 
 console.log('ok - oppretting og senere endring av innsatsnivå');

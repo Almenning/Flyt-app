@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const RELEASE='20260901-1200';
+const RELEASE='20260902-1800';
 let installed=false;
 function css(){if(document.querySelector('#flytBuyerPolish'))return;const s=document.createElement('style');s.id='flytBuyerPolish';s.textContent=`
 #flytGlobalModal,#seenRequestModal,#flytDialog,#quickTemptationModal,#ossNotifyModal,#betaPanel{z-index:300!important}
@@ -27,6 +27,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 #flytAppMenu .flytMenuSheet{width:100%;max-height:86dvh;overflow:auto;padding:18px 15px max(18px,env(safe-area-inset-bottom));border-radius:26px 26px 0 0;background:#fffaf7;box-shadow:0 -20px 60px #4d291f33;pointer-events:auto;-webkit-overflow-scrolling:touch}
 #flytAppMenu .flytMenuAction{width:100%;display:flex;align-items:center;gap:12px;text-align:left;margin-top:8px;touch-action:manipulation}
 #flytAppMenu .flytMenuIcon{width:30px;text-align:center;font-size:18px}
+#flytAppMenu [data-flyt-menu="setup"]{display:none!important}
 @media(max-width:600px){
  .top{gap:7px;padding-left:10px;padding-right:10px;align-items:center;overflow:hidden!important}
  .top>#switchUser{min-width:0;max-width:calc(100% - 58px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px!important;padding:8px 11px!important;min-height:40px!important}

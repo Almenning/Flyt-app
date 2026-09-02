@@ -6,36 +6,36 @@ const CATALOG_VERSION=3;
 const ALL_DAYS=Object.freeze([1,2,3,4,5,6,7]);
 const WEEKDAYS=Object.freeze([1,2,3,4,5]);
 const TASK_CATALOG=Object.freeze([
-  {id:'kids_wakeup',cat:'Barn',name:'Morgenansvar med barna',freq:7,preferredDays:ALL_DAYS,pts:20,type:'daily',kind:'house',defaultSelected:true},
-  {id:'kids_get_ready',cat:'Barn',name:'Levering i barnehage eller skole',freq:5,preferredDays:WEEKDAYS,pts:30,type:'daily',kind:'house',defaultSelected:true},
-  {id:'lunch',cat:'Barn',name:'Lage matpakker',freq:5,preferredDays:WEEKDAYS,pts:10,type:'daily',kind:'house',defaultSelected:true},
-  {id:'bag',cat:'Barn',name:'Pakke sekker og utstyr',freq:5,preferredDays:WEEKDAYS,pts:10,type:'daily',kind:'house',defaultSelected:true},
-  {id:'bedkids',cat:'Barn',name:'Kveldsstell og legging',freq:7,preferredDays:ALL_DAYS,pts:20,type:'daily',kind:'house',defaultSelected:true},
+  {id:'kids_wakeup',cat:'Barn',name:'Stå opp med barna',freq:7,preferredDays:ALL_DAYS,pts:20,type:'daily',kind:'house'},
+  {id:'kids_get_ready',cat:'Barn',name:'Gjøre barna klare for barnehage eller skole',freq:5,preferredDays:WEEKDAYS,pts:30,type:'daily',kind:'house'},
+  {id:'lunch',cat:'Barn',name:'Lage matpakker',freq:5,preferredDays:WEEKDAYS,pts:10,type:'daily',kind:'house'},
+  {id:'bag',cat:'Barn',name:'Pakke sekker og utstyr',freq:5,preferredDays:WEEKDAYS,pts:10,type:'daily',kind:'house'},
+  {id:'bedkids',cat:'Barn',name:'Kveldsstell og legging',freq:7,preferredDays:ALL_DAYS,pts:20,type:'daily',kind:'house'},
   {id:'school',cat:'Barn',name:'Skole- og barnehagekommunikasjon',freq:2,pts:10,type:'flex',kind:'house'},
   {id:'homework',cat:'Barn',name:'Lekser',freq:5,pts:10,type:'flex',kind:'house'},
   {id:'kids_clothes_school',cat:'Barn',name:'Skifte klær til barnehage eller skole',freq:2,pts:10,type:'flex',kind:'house'},
   {id:'kids_clothes_buy',cat:'Barn',name:'Kjøpe nye klær til barna',freq:1,pts:20,type:'period',kind:'house'},
   {id:'kids_clothes_sort',cat:'Barn',name:'Sortere klær barna har vokst ut av',freq:1,pts:30,type:'period',kind:'house'},
 
-  {id:'dish_fill',cat:'Kjøkken',name:'Sette inn i oppvaskmaskinen',freq:7,preferredDays:ALL_DAYS,pts:10,type:'daily',kind:'house'},
+  {id:'dish_fill',cat:'Kjøkken',name:'Sette inn i oppvaskmaskinen',freq:7,preferredDays:ALL_DAYS,pts:10,type:'daily',kind:'house',defaultSelected:true},
   {id:'dish_empty',cat:'Kjøkken',name:'Tømme oppvaskmaskinen',freq:7,preferredDays:ALL_DAYS,pts:20,type:'daily',kind:'house',defaultSelected:true},
   {id:'kitchen',cat:'Kjøkken',name:'Rydde kjøkkenet etter middag',freq:7,preferredDays:ALL_DAYS,pts:20,type:'daily',kind:'house',defaultSelected:true},
-  {id:'kitchen_after_meal',cat:'Kjøkken',name:'Rydde spisebordet',freq:4,pts:10,type:'flex',kind:'house'},
-  {id:'counter',cat:'Kjøkken',name:'Tørke kjøkkenbenken',freq:7,preferredDays:ALL_DAYS,pts:10,type:'daily',kind:'house'},
-  {id:'dinner',cat:'Kjøkken',name:'Lage middag',freq:7,preferredDays:ALL_DAYS,pts:30,type:'daily',kind:'house',defaultSelected:true},
-  {id:'meal_other',cat:'Kjøkken',name:'Lage frokost eller kveldsmat',freq:4,pts:20,type:'flex',kind:'house'},
+  {id:'kitchen_after_meal',cat:'Kjøkken',name:'Rydde etter måltid',freq:7,pts:10,type:'flex',kind:'house'},
+  {id:'counter',cat:'Kjøkken',name:'Vaske kjøkkenbenken',freq:7,preferredDays:ALL_DAYS,pts:10,type:'daily',kind:'house'},
+  {id:'dinner',cat:'Kjøkken',name:'Lage middag',freq:5,preferredDays:WEEKDAYS,pts:30,type:'daily',kind:'house',defaultSelected:true},
+  {id:'meal_other',cat:'Kjøkken',name:'Lage frokost, lunsj eller kveldsmat',freq:7,pts:20,type:'flex',kind:'house'},
   {id:'fridge_clean',cat:'Kjøkken',name:'Vaske kjøleskapet',freq:1,pts:40,type:'period',kind:'house'},
   {id:'dishwasher_clean',cat:'Kjøkken',name:'Rense oppvaskmaskinen',freq:1,pts:30,type:'period',kind:'house'},
   {id:'oven_clean',cat:'Kjøkken',name:'Vaske stekeovnen',freq:1,pts:40,type:'period',kind:'house'},
 
   {id:'laundry_start',cat:'Klesvask',name:'Sette på en vaskemaskin',freq:3,pts:20,type:'flex',kind:'house',defaultSelected:true},
   {id:'laundry_hang',cat:'Klesvask',name:'Henge opp klær',freq:3,pts:30,type:'flex',kind:'house',defaultSelected:true},
-  {id:'laundry_fold',cat:'Klesvask',name:'Brette og legge på plass klær',freq:3,pts:40,type:'flex',kind:'house',defaultSelected:true},
+  {id:'laundry_fold',cat:'Klesvask',name:'Brette klær',freq:3,pts:40,type:'flex',kind:'house',defaultSelected:true},
   {id:'vacuum',cat:'Renhold',name:'Støvsuge',freq:2,pts:20,type:'flex',kind:'house'},
   {id:'floors',cat:'Renhold',name:'Vaske gulv',freq:1,pts:40,type:'flex',kind:'house'},
   {id:'dust',cat:'Renhold',name:'Tørke støv',freq:1,pts:20,type:'flex',kind:'house'},
 
-  {id:'living',cat:'Stue',name:'Rydde stue og oppholdsrom',freq:3,pts:10,type:'flex',kind:'house',defaultSelected:true},
+  {id:'living',cat:'Stue',name:'Rydde stue og oppholdsrom',freq:3,pts:10,type:'flex',kind:'house'},
   {id:'hallway',cat:'Stue',name:'Rydde gangen',freq:3,pts:10,type:'flex',kind:'house'},
   {id:'sofa_tidy',cat:'Stue',name:'Rydde sofaområdet',freq:2,pts:10,type:'flex',kind:'house'},
 
@@ -43,7 +43,7 @@ const TASK_CATALOG=Object.freeze([
   {id:'bath_sink',cat:'Bad',name:'Vaske servant og speil',freq:1,pts:30,type:'flex',kind:'house'},
   {id:'bath_shower',cat:'Bad',name:'Vaske badekar eller dusj',freq:1,pts:50,type:'flex',kind:'house'},
   {id:'bath_floor',cat:'Bad',name:'Vaske badegulvet',freq:1,pts:40,type:'flex',kind:'house'},
-  {id:'bath_tidy',cat:'Bad',name:'Rydde badet',freq:3,pts:20,type:'flex',kind:'house',defaultSelected:true},
+  {id:'bath_tidy',cat:'Bad',name:'Rydde badet',freq:3,pts:20,type:'flex',kind:'house'},
   {id:'bath_drain',cat:'Bad',name:'Rense sluk',freq:1,pts:40,type:'period',kind:'house'},
 
   {id:'bed',cat:'Soverom',name:'Bytte sengetøy',freq:1,pts:30,type:'flex',kind:'house'},
@@ -67,7 +67,7 @@ const TASK_CATALOG=Object.freeze([
   {id:'car_service',cat:'Bil',name:'Bestille service eller EU-kontroll',freq:1,pts:20,type:'period',kind:'house'},
   {id:'car_tires',cat:'Bil',name:'Skifte eller følge opp dekk',freq:1,pts:40,type:'period',kind:'house'},
 
-  {id:'shop',cat:'Innkjøp',name:'Handle mat',freq:2,pts:20,type:'flex',kind:'house',defaultSelected:true},
+  {id:'shop',cat:'Innkjøp',name:'Handle mat',freq:2,pts:20,type:'flex',kind:'house'},
   {id:'shopping_household',cat:'Innkjøp',name:'Fylle på husholdningsvarer',freq:1,pts:20,type:'flex',kind:'house'},
   {id:'shopping_returns',cat:'Innkjøp',name:'Returnere varer eller pakker',freq:1,pts:20,type:'flex',kind:'house'},
 
@@ -82,7 +82,7 @@ const TASK_CATALOG=Object.freeze([
   {id:'weekly_menu',cat:'Planlegging & admin',name:'Lage ukemeny',freq:1,pts:20,type:'flex',kind:'house'},
   {id:'weekly_plan',cat:'Planlegging & admin',name:'Planlegge uken',freq:1,pts:20,type:'flex',kind:'house'},
 
-  {id:'train',cat:'Personlig investering',name:'Trening',freq:3,pts:10,type:'flex',kind:'personal',defaultSelected:true}
+  {id:'train',cat:'Personlig investering',name:'Trening',freq:3,pts:10,type:'flex',kind:'personal'}
 ].map(task=>Object.freeze(task)));
 
 const TASK_BY_ID=new Map(TASK_CATALOG.map(task=>[String(task.id),task]));
@@ -104,7 +104,7 @@ const LEGACY_NAME_ALIASES=new Map([
   ['Rydde etter måltid','Rydde spisebordet'],
   ['Vaske kjøkkenbenken','Tørke kjøkkenbenken'],
   ['Lage frokost, lunsj eller kveldsmat','Lage frokost eller kveldsmat'],
-  ['Brette klær','Brette og legge på plass klær'],
+  ['Brette og legge på plass klær','Brette klær'],
   ['Rydde stuen','Rydde stue og oppholdsrom'],
   ['Søppel og pant','Ta ut søppel og sortere avfall'],
   ['Vaske klær','Klesvask (tidligere samlet)'],
@@ -137,19 +137,20 @@ function preferredDays(task){
 function customizedFields(task){
   return [...new Set((Array.isArray(task?.customizedFields)?task.customizedFields:[]).map(String).filter(Boolean))];
 }
-function normalizeKnownTask(task,applyCatalog){
+function normalizeKnownTask(task,applyCatalog,applyPoints=applyCatalog){
   if(!task||typeof task!=='object')return task;
   const base=TASK_BY_ID.get(String(task.id));
   if(!base)return{...task,name:canonicalName(task)};
   const custom=customizedFields(task),isCustom=field=>custom.includes(field);
   const next={...task,id:base.id,kind:base.kind};
-  if(applyCatalog&&!isCustom('name'))next.name=base.name;
+  if(!isCustom('name'))next.name=base.name;
   else next.name=cleanName(next.name||base.name);
-  if(applyCatalog&&!isCustom('cat'))next.cat=base.cat;
+  if(!isCustom('cat'))next.cat=base.cat;
   else next.cat=cleanName(next.cat||base.cat);
-  if(applyCatalog&&!isCustom('pts')&&!isCustom('effortLevel'))next.pts=base.pts;
+  if(applyPoints&&!isCustom('pts')&&!isCustom('effortLevel'))next.pts=base.pts;
   if(!Number.isFinite(Number(next.freq))||Number(next.freq)<1)next.freq=base.freq;
   if(!['daily','flex','period'].includes(next.type))next.type=base.type;
+  if(applyCatalog&&!preferredDays(next).length&&preferredDays(base).length)next.preferredDays=preferredDays(base);
   const days=preferredDays(next);
   if(days.length)next.preferredDays=days;
   else if(next.type==='daily'&&Array.isArray(base.preferredDays)){
@@ -176,7 +177,7 @@ function mergeTask(existing,incoming){
   else delete next.preferredDays;
   return next;
 }
-function normalizeTasks(tasks,{applyCatalog=true,expandLegacy=true}={}){
+function normalizeTasks(tasks,{applyCatalog=true,applyPoints=applyCatalog,expandLegacy=true}={}){
   const out=[];
   const catalogIdByName=new Map();
   for(const base of TASK_CATALOG)catalogIdByName.set(cleanName(base.name).toLocaleLowerCase('nb'),base.id);
@@ -189,7 +190,7 @@ function normalizeTasks(tasks,{applyCatalog=true,expandLegacy=true}={}){
     for(const raw of candidates||[task]){
       const semanticId=expandLegacy&&!TASK_BY_ID.has(String(raw?.id))?catalogIdByName.get(cleanName(raw?.name).toLocaleLowerCase('nb')):null;
       const candidate=semanticId?{...raw,id:semanticId}:raw;
-      const next=normalizeKnownTask(candidate,applyCatalog),index=out.findIndex(item=>String(item?.id)===String(next?.id));
+      const next=normalizeKnownTask(candidate,applyCatalog,applyPoints),index=out.findIndex(item=>String(item?.id)===String(next?.id));
       if(index>=0)out[index]=mergeTask(out[index],next);
       else out.push(next);
     }
@@ -231,7 +232,7 @@ function normalizeTitledItem(item){
 }
 function normalizeState(value){
   if(!value||typeof value!=='object')return value;
-  const next={...value},applyCatalog=Number(value.taskCatalogVersion||0)<CATALOG_VERSION;
+  const next={...value},catalogVersion=Number(value.taskCatalogVersion||0),applyCatalog=catalogVersion<CATALOG_VERSION,applyPoints=catalogVersion<2;
   if(value.categoryRelevant&&typeof value.categoryRelevant==='object'){
     next.categoryRelevant={...value.categoryRelevant};
     if(Object.prototype.hasOwnProperty.call(value.categoryRelevant,'Vask & klær')){
@@ -240,7 +241,7 @@ function normalizeState(value){
       delete next.categoryRelevant['Vask & klær'];
     }
   }
-  if(Array.isArray(value.tasks))next.tasks=normalizeTasks(value.tasks,{applyCatalog,expandLegacy:true});
+  if(Array.isArray(value.tasks))next.tasks=normalizeTasks(value.tasks,{applyCatalog,applyPoints,expandLegacy:true});
   if(Array.isArray(value.custom))next.custom=normalizeTasks(value.custom,{applyCatalog:false,expandLegacy:false});
   if(Array.isArray(value.completions))next.completions=value.completions.map(normalizeCompletion);
   if(Array.isArray(value.seenRequests))next.seenRequests=value.seenRequests.map(normalizeLinkedItem);
@@ -248,7 +249,7 @@ function normalizeState(value){
   if(Array.isArray(value.plannedTasks))next.plannedTasks=value.plannedTasks.map(normalizeTitledItem);
   if(Array.isArray(value.setupHistory))next.setupHistory=value.setupHistory.map(snapshot=>snapshot&&typeof snapshot==='object'?{
     ...snapshot,
-    tasks:normalizeTasks(snapshot.tasks,{applyCatalog:true,expandLegacy:true}),
+    tasks:normalizeTasks(snapshot.tasks,{applyCatalog:true,applyPoints,expandLegacy:true}),
     custom:normalizeTasks(snapshot.custom,{applyCatalog:false,expandLegacy:false})
   }:snapshot);
   next.taskCatalogVersion=CATALOG_VERSION;

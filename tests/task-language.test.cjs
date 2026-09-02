@@ -106,4 +106,11 @@ assert.equal(customized.tasks[0].cat,'Kjøkken');
 assert.equal(customized.tasks[0].pts,45,'egne poengvalg etter migreringen skal beholdes');
 assert.equal(customized.tasks[0].freq,2,'egen rytme skal beholdes');
 
+const upgraded=language.normalizeState({
+  taskCatalogVersion:2,
+  tasks:[{id:'dinner',name:'Lage middag',cat:'Kjøkken',freq:5,pts:50,type:'daily',kind:'house'}]
+});
+assert.equal(upgraded.tasks[0].pts,50,'egne poengvalg skal beholdes ved senere katalogoppgraderinger');
+assert.deepEqual(upgraded.tasks[0].preferredDays,[1,2,3,4,5],'kjente hverdagsoppgaver skal få tydelige ukedager');
+
 console.log('ok - oppgavekatalog, poeng og migrering');

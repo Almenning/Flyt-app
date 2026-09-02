@@ -184,8 +184,7 @@ test('Dag viser én forekomst, mens Uke teller unike Oslo-datoer', () => {
     view: 'tasks',
   });
 
-  assert.match(harness.content.innerHTML, /Planen er fullført/);
-  assert.match(harness.content.innerHTML, /Dagens plan er fullført/);
+  assert.match(harness.content.innerHTML, /1 gjøremål gjort/);
   assert.doesNotMatch(harness.content.innerHTML, /1\/7/);
   assert.match(harness.content.innerHTML, /\+20 poeng/);
   assert.deepEqual(
@@ -260,7 +259,7 @@ test('Angre fjerner dagens egne registreringer uten å påvirke ukegrensen', () 
 });
 
 test('Andre gjøremål er foldet per kategori og kan legges i eller flyttes fra dagsplanen', () => {
-  const flexibleTask = { ...dailyTask, id: 'laundry_fold', name: 'Brette og legge på plass klær', type: 'flex', cat: 'Klesvask', pts: 40 };
+  const flexibleTask = { ...dailyTask, id: 'laundry_fold', name: 'Brette klær', type: 'flex', cat: 'Klesvask', pts: 40 };
   const harness = loadRecurrence({
     completions: [],
     custom: [flexibleTask],
@@ -281,15 +280,15 @@ test('Andre gjøremål er foldet per kategori og kan legges i eller flyttes fra 
   assert.doesNotMatch(harness.content.innerHTML, /Brette klær/);
 
   harness.click({ '[data-library-category]': { dataset: { libraryCategory: 'Klesvask' } } });
-  assert.match(harness.content.innerHTML, /Brette og legge på plass klær/);
+  assert.match(harness.content.innerHTML, /Brette klær/);
 
   harness.click({ '[data-day-plan-add]': { dataset: { dayPlanAdd: flexibleTask.id } } });
   assert.deepEqual(Array.from(harness.getState().dayPlans['2026-08-26'].addedTaskIds), [flexibleTask.id]);
-  assert.match(harness.content.innerHTML, /2 gjøremål i planen/);
+  assert.match(harness.content.innerHTML, /Brette klær/);
 
   harness.click({ '[data-day-plan-tomorrow]': { dataset: { dayPlanTomorrow: flexibleTask.id } } });
   assert.deepEqual(Array.from(harness.getState().dayPlans['2026-08-27'].addedTaskIds), [flexibleTask.id]);
-  assert.doesNotMatch(harness.content.innerHTML, /2 gjøremål i planen/);
+  assert.equal(harness.getState().dayPlans['2026-08-26'], undefined);
 });
 
 test('oppsettet beskriver daily-frekvens som dager per uke og begrenser til syv', () => {

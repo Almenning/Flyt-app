@@ -6,6 +6,8 @@ import vm from 'node:vm';
 import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const watchdogSource = readFileSync(path.join(root, 'app-watchdog.js'), 'utf8');
+assert.doesNotMatch(watchdogSource, /loadQuickTemptation|FlytQuickTemptationUI/, 'hurtigfristelse must not load in the primary product');
 
 function loadScript(file, initialState, { render = true } = {}) {
   let state = structuredClone(initialState);
@@ -75,7 +77,7 @@ test('Belønning viser bare egen saldo og forklarer ett poengsystem', () => {
   assert.doesNotMatch(harness.content.innerHTML, /900/);
   assert.doesNotMatch(harness.content.innerHTML, /Jannicke · 900/);
   assert.match(harness.content.innerHTML, /Gjøremål gir poeng/);
-  assert.match(harness.content.innerHTML, /En åpen belønning krever ingen poeng/);
+  assert.match(harness.content.innerHTML, /Åpne belønninger krever ingen poeng/);
   assert.doesNotMatch(harness.content.innerHTML, /bytteøkonomi/);
 });
 

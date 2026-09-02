@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION='20260902-1700';
+const VERSION='20260902-1800';
 const DAY_MS=86400000;
 const ARCHIVE_MS=90*DAY_MS;
 const RECENT_MS=3*DAY_MS;
@@ -247,7 +247,7 @@ function finishRequest(id){
   }
   save(next);queueMicrotask(render);bridge()?.toast?.(registered?`${taskReference(task.name)} er registrert · +${task.pts||0} poeng`:'Flyttet til nylig');
 }
-function sendThanks(id,text){const result=updateRequest(id,(request,s)=>couple()?.addThanks?.(request,s.user,text)||request);if(result?.appreciationText){bridge()?.toast?.('Takket er sendt');window.FlytSeenRequestAlert?.checkAlerts?.()}}
+function sendThanks(id,text){const result=updateRequest(id,(request,s)=>couple()?.addThanks?.(request,s.user,text)||request);if(result?.appreciationText){bridge()?.toast?.('Takken er sendt');window.FlytSeenRequestAlert?.checkAlerts?.()}}
 async function sendCustomThanks(id){const text=window.FlytModal?.prompt?await window.FlytModal.prompt({ey:'Et lite takk',title:'Hva vil du si?',text:'Kort og ekte er mer enn nok.',label:'Takk',placeholder:'F.eks. Takk, det ga meg litt pusterom ❤️',ok:'Send'}):null;if(text?.trim())sendThanks(id,text)}
 function markThanksSeen(id){updateRequest(id,(request,s)=>couple()?.markThanksSeen?.(request,s.user)||request)}
 
