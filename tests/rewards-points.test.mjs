@@ -14,7 +14,9 @@ function loadScript(file, initialState, { render = true } = {}) {
   let intervalCallback = null;
   const content = { dataset: {}, innerHTML: '' };
   const document = {
+    head: { appendChild() {} },
     addEventListener() {},
+    createElement() { return { id: '', textContent: '' }; },
     querySelector(selector) {
       return render && selector === '#content' ? content : null;
     },
@@ -41,6 +43,7 @@ function loadScript(file, initialState, { render = true } = {}) {
     clearInterval() {},
     document,
     queueMicrotask: (fn) => fn(),
+    requestAnimationFrame: (fn) => fn(),
     setInterval: (fn) => {
       intervalCallback = fn;
       return 1;
@@ -51,6 +54,7 @@ function loadScript(file, initialState, { render = true } = {}) {
     },
     window,
   });
+  if (file === 'rewards-ui.js') vm.runInContext(readFileSync(path.join(root, 'rewards-goals-core.js'), 'utf8'), context);
   vm.runInContext(readFileSync(path.join(root, file), 'utf8'), context);
   intervalCallback?.();
   return { content, getState: () => state, window };
@@ -60,6 +64,7 @@ const baseState = {
   completions: [{ by: 'Tore', date: '2026-09-01', housePts: 70, kind: 'house', taskId: 'bath' }],
   points: { Jannicke: 900, Tore: 420 },
   quickTemptations: [],
+  goals: [],
   rewardRedemptions: [],
   rewards: [
     { by: 'Jannicke', cost: 250, id: 'paid', requiresPoints: true, title: '20 min massasje' },
@@ -69,16 +74,24 @@ const baseState = {
   view: 'rewards',
 };
 
-test('Belønning viser bare egen saldo og forklarer ett poengsystem', () => {
+test('Belønning er erstattet av Mål og belønning uten poengfokus', () => {
   const harness = loadScript('rewards-ui.js', baseState);
 
-  assert.match(harness.content.innerHTML, /Dine poeng/);
-  assert.match(harness.content.innerHTML, /420 poeng/);
-  assert.doesNotMatch(harness.content.innerHTML, /900/);
-  assert.doesNotMatch(harness.content.innerHTML, /Jannicke · 900/);
-  assert.match(harness.content.innerHTML, /Gjøremål gir poeng/);
-  assert.match(harness.content.innerHTML, /Åpne belønninger krever ingen poeng/);
-  assert.doesNotMatch(harness.content.innerHTML, /bytteøkonomi/);
+  assert.match(harness.content.innerHTML, /Mål og belønning/);
+  assert.match(harness.content.innerHTML, /Mitt mål/);
+  assert.match(harness.content.innerHTML, /Vårt mål/);
+  assert.match(harness.content.innerHTML, /Utfordringer/);
+  assert.doesNotMatch(harness.content.innerHTML, /Dine poeng|420 poeng|900 poeng/);
+});
+
+test('Mål og belønning beholder mobilhierarki og bruker varme eksisterende farger', () => {
+  const source = readFileSync(path.join(root, 'rewards-ui.js'), 'utf8');
+  assert.match(source, /grid-template-columns:repeat\(3,1fr\)/);
+  assert.match(source, /max-height:92dvh/);
+  assert.match(source, /align-items:flex-end/);
+  assert.match(source, /var\(--accent\)/);
+  assert.match(source, /var\(--deep\)/);
+  assert.doesNotMatch(source, /#[0-9a-f]{0,2}(?:00f|0080ff|0000ff)/i);
 });
 
 test('Poengbelønning trekker saldo uten å endre registrert innsats', async () => {

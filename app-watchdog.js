@@ -28,9 +28,8 @@ function loadCoupleInsights(){if(window.FlytCoupleInsights?.VERSION==='20260902-
 function loadSeenCore(){if(window.FlytSeenCore?.VERSION==='20260903-2330')return;loadScript('./seen-core.js?v=20260903-2330','flyt-seen-core-20260903-2330')}
 function loadSeen(){loadSeenCore();if(window.FlytSeenUI?.version==='20260903-visual2')return;loadScript('./seen-ui.js?v=20260903-visual2','flyt-seen-current-20260903-visual2')}
 function loadSeenRequestAlert(){if(window.FlytSeenRequestAlert?.version==='20260902-1700')return;loadScript('./seen-request-alert-ui.js?v=20260902-1700','flyt-seen-request-alert-20260902-1700')}
-function loadRewardsEditGuard(){if(window.FlytRewardsEditGuard)return;loadScript('./rewards-edit-guard.js?v=20260825-2102','flyt-rewards-edit')}
-function loadRewardsSummary(){if(window.FlytRewardsSummaryUI?.version==='20260901-1500')return;loadScript('./rewards-summary-ui.js?v=20260901-1500','flyt-rewards-summary-1500')}
-function loadRewardsUI(){if(window.FlytRewardsUI?.version==='20260902-1800')return;loadScript('./rewards-ui.js?v=20260902-1800','flyt-rewards-ui-1800')}
+function loadGoalsCore(onload){if(window.FlytGoalsCore?.VERSION==='20260903-goals1'){onload?.();return}loadScript('./rewards-goals-core.js?v=20260903-goals1','flyt-goals-core-20260903-goals1',onload)}
+function loadRewardsUI(){if(window.FlytRewardsUI?.version==='20260903-goals1')return;if(window.FlytGoalsCore?.VERSION!=='20260903-goals1'){loadGoalsCore(loadRewardsUI);return}loadScript('./rewards-ui.js?v=20260903-goals1','flyt-rewards-ui-goals1')}
 function loadCoupleInvitations(){if(window.FlytCoupleInvitations?.version==='20260902-1800')return;loadScript('./couple-invitation-ui.js?v=20260902-1800','flyt-couple-invitations-1800')}
 function loadSetupV2(){loadCategoryAccordion();if(window.FlytSetupV2?.version==='20260903-master1')return;loadScript('./setup-v2.js?v=20260903-master1','flyt-setup-v2-master1')}
 function loadHome(){if(window.FlytHomeUI?.version==='20260903-1800'){ensureHomeOwnership();return}loadScript('./home-ui.js?v=20260903-1800','flyt-home-current-1800',()=>queueMicrotask(ensureHomeOwnership))}
@@ -57,7 +56,7 @@ document.addEventListener('click',async e=>{
  const deleteReward=e.target.closest('[data-delete-reward]');
  if(deleteReward){e.preventDefault();e.stopImmediatePropagation();const b=bridge(),s=b?.getState?.(),rewards=[...(s?.rewards||[])],i=rewards.findIndex(x=>String(x.id)===String(deleteReward.dataset.deleteReward)&&x.by===s.user);if(!s||i<0)return;const yes=await askConfirm({ey:'Poengbelønning',title:'Slette belønningen?',text:'Belønningen fjernes permanent.',ok:'Slett'});if(!yes)return;rewards.splice(i,1);saveState({...s,rewards});b.toast?.('Belønningen er slettet');return}
 },true);
-window.addEventListener('DOMContentLoaded',()=>{loadStartupHydration();loadBuyerPolish();loadAccount();loadResponsive();loadCoupleCore();loadCoupleInsights();loadSeenCore();loadDayPlan();loadHome();loadNudge();loadModal();loadSeen();loadSeenRequestAlert();loadRewardsEditGuard();loadPlanned();loadDayCompleted();loadCustomCategories();loadRecurrence();loadBeta();loadRewardsSummary();loadRewardsUI();loadCoupleInvitations();loadSetupV2();loadHistory();keepGuardAlive();guardHomeStartup();setTimeout(rescue,5000)});
+window.addEventListener('DOMContentLoaded',()=>{loadStartupHydration();loadBuyerPolish();loadAccount();loadResponsive();loadCoupleCore();loadCoupleInsights();loadSeenCore();loadDayPlan();loadGoalsCore();loadHome();loadNudge();loadModal();loadSeen();loadSeenRequestAlert();loadPlanned();loadDayCompleted();loadCustomCategories();loadRecurrence();loadBeta();loadRewardsUI();loadCoupleInvitations();loadSetupV2();loadHistory();keepGuardAlive();guardHomeStartup();setTimeout(rescue,5000)});
 window.addEventListener('pageshow',()=>{loadBuyerPolish();loadAccount();loadCoupleCore();loadCoupleInsights();loadHome();loadNudge();loadCoupleInvitations();window.FlytAccountUI?.checkConsent?.();guardHomeStartup()});
 window.addEventListener('error',()=>setTimeout(rescue,50));
 window.addEventListener('unhandledrejection',()=>setTimeout(rescue,50));
