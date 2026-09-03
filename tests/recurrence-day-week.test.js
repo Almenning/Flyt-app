@@ -202,6 +202,8 @@ test('Dag viser én forekomst, mens Uke teller unike Oslo-datoer', () => {
   });
 
   assert.match(harness.content.innerHTML, /1 av 1 ferdig/);
+  assert.match(harness.content.innerHTML, /1 av 1 ferdig · 100 %/);
+  assert.doesNotMatch(harness.content.innerHTML, /class="progressRing"/, 'Gjøre must use compact progress instead of the large Home donut');
   assert.doesNotMatch(harness.content.innerHTML, /1\/7/);
   assert.match(harness.content.innerHTML, /Fullført · 1 av 1/);
   assert.deepEqual(
