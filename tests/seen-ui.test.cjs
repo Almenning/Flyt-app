@@ -7,7 +7,7 @@ const seenCore=require('../seen-core.js');
 
 test('Sett rendrer den mobile hovedflyten fra eksisterende fullføringer',()=>{
   const day=seenCore.dateKey(),content={dataset:{},innerHTML:'',scrollTop:0,scrollHeight:900,clientHeight:650},styles=new Map(),navButtons=Array.from({length:5},()=>({dataset:{},classList:{toggle(){}}}));
-  let state={user:'Tore',view:'seen',status:{Tore:{},Maria:{}},tasks:[{id:'one',name:'Ryddet kjøkkenet'}],completions:[{id:1,taskId:'one',date:day,by:'Maria',registeredAt:new Date().toISOString()},{id:2,taskId:'one',date:day,by:'Tore',registeredAt:new Date().toISOString()}],plannedTasks:[],recognitions:[]};
+  let state={user:'Tore',view:'seen',status:{Tore:{},Maria:{}},tasks:[{id:'one',name:'Ryddet kjøkkenet'}],completions:[{id:1,taskId:'one',date:day,by:'Maria',registeredAt:new Date().toISOString()},{id:2,taskId:'one',date:day,by:'Tore',registeredAt:new Date().toISOString()}],plannedTasks:[],recognitions:[{id:'r1',type:'personal',text:'Takk, det hjalp i går ❤️',by:'Tore',to:'Maria',at:new Date().toISOString(),date:day}]};
   const document={
     head:{appendChild(node){if(node.id)styles.set(node.id,node)}},
     body:{appendChild(){}},
@@ -30,4 +30,7 @@ test('Sett rendrer den mobile hovedflyten fra eksisterende fullføringer',()=>{
   assert.equal((content.innerHTML.match(/data-seen-contribution=/g)||[]).length,1,'egen fullføring skal ikke vises');
   assert.match(content.innerHTML,/Noe annet du satte pris på\?/);
   assert.match(content.innerHTML,/Siste anerkjennelse/);
+  const latest=content.innerHTML.match(/<div class="card seenLatest">([\s\S]*?)<\/section>/)?.[1]||'';
+  assert.match(latest,/Takk, det hjalp i går/);
+  assert.equal((latest.match(/[♡♥❤]/g)||[]).length,1,'siste anerkjennelse skal bare vise ett diskret hjerte');
 });
