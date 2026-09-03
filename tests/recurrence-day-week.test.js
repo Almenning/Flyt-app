@@ -82,6 +82,7 @@ function loadRecurrence(initialState) {
     window,
   });
   vm.runInContext(fs.readFileSync(path.join(root, 'day-plan.js'), 'utf8'), context);
+  vm.runInContext(fs.readFileSync(path.join(root, 'daily-loop.js'), 'utf8'), context);
   vm.runInContext(fs.readFileSync(path.join(root, 'recurrence-ui.js'), 'utf8'), context);
   intervalCallback?.();
 
@@ -200,9 +201,9 @@ test('Dag viser én forekomst, mens Uke teller unike Oslo-datoer', () => {
     view: 'tasks',
   });
 
-  assert.match(harness.content.innerHTML, /1 gjøremål gjort/);
+  assert.match(harness.content.innerHTML, /1 av 1 ferdig/);
   assert.doesNotMatch(harness.content.innerHTML, /1\/7/);
-  assert.match(harness.content.innerHTML, /\+20 poeng/);
+  assert.match(harness.content.innerHTML, /Fullført · 1 av 1/);
   assert.deepEqual(
     { ...harness.api.progress(harness.getState(), dailyTask, 'day') },
     { count: 1, done: true, goal: 1 },
@@ -215,9 +216,9 @@ test('Dag viser én forekomst, mens Uke teller unike Oslo-datoer', () => {
     },
   });
 
-  assert.match(harness.content.innerHTML, /3\/7 i valgt uke/);
+  assert.match(harness.content.innerHTML, /3 av 7 denne uka/);
   assert.match(harness.content.innerHTML, /Du 2 · Person B 1/);
-  assert.match(harness.content.innerHTML, /2\/3 i valgt uke/);
+  assert.match(harness.content.innerHTML, /2 av 3 denne uka/);
   assert.doesNotMatch(harness.content.innerHTML, /Vaske vinduer/);
 });
 
@@ -274,6 +275,31 @@ test('Angre fjerner dagens egne registreringer uten å påvirke ukegrensen', () 
   assert.equal(harness.api.progress(harness.getState(), dailyTask, 'day').count, 0);
 });
 
+test('Jeg tar denne flytter dagens ansvar og kan angres', () => {
+  const assigned={...dailyTask,owner:'Person B'};
+  const harness=loadRecurrence({completions:[],custom:[],dayPlans:{},taskClaims:[],points:{'Person A':0},tasks:[assigned],user:'Person A',view:'tasks'});
+
+  assert.match(harness.content.innerHTML,/data-task-claim="dish_empty"[^>]*>Jeg tar denne/);
+  harness.click({'[data-task-claim]':{dataset:{taskClaim:assigned.id}}});
+  assert.equal(harness.getState().taskClaims.at(-1).claimedBy,'Person A');
+  assert.match(harness.content.innerHTML,/Du tok denne/);
+  assert.match(harness.content.innerHTML,/Angre overtakelse/);
+
+  harness.click({'[data-task-release]':{dataset:{taskRelease:assigned.id}}});
+  assert.ok(harness.getState().taskClaims.at(-1).revokedAt);
+  assert.match(harness.content.innerHTML,/Person B/);
+});
+
+test('partnerens fullførte oppgave kan få én enkel takk', () => {
+  const harness=loadRecurrence({completions:[{id:77,taskId:dailyTask.id,date:'2026-08-26',kind:'house',by:'Person B'}],custom:[],dayPlans:{},taskClaims:[],points:{'Person A':0},tasks:[dailyTask],user:'Person A',view:'tasks'});
+
+  assert.match(harness.content.innerHTML,/data-task-thank="77"[^>]*>Takk ❤️/);
+  harness.click({'[data-task-thank]':{dataset:{taskThank:'77'}}});
+  assert.deepEqual(Array.from(harness.getState().completions[0].thanks,entry=>entry.by),['Person A']);
+  assert.match(harness.content.innerHTML,/Takk mottatt ❤️/);
+  assert.doesNotMatch(harness.content.innerHTML,/data-task-thank="77"/);
+});
+
 test('Andre gjøremål er foldet per kategori og kan legges i eller flyttes fra dagsplanen', () => {
   const flexibleTask = { ...dailyTask, id: 'laundry_fold', name: 'Brette klær', type: 'flex', cat: 'Klesvask', pts: 40 };
   const harness = loadRecurrence({
@@ -288,7 +314,7 @@ test('Andre gjøremål er foldet per kategori og kan legges i eller flyttes fra 
 
   assert.match(harness.content.innerHTML, /Andre gjøremål/);
   assert.doesNotMatch(harness.content.innerHTML, /Brette klær/);
-  assert.ok(harness.content.innerHTML.indexOf('Andre gjøremål')<harness.content.innerHTML.indexOf(dailyTask.name),'legg til-valget skal ligge rett under Dagens plan, før dagens oppgaver');
+  assert.ok(harness.content.innerHTML.indexOf('Andre gjøremål')>harness.content.innerHTML.indexOf(dailyTask.name),'dagens gjøremål skal vises før biblioteket');
 
   harness.click({ '[data-day-plan-open]': {} });
   assert.match(harness.content.innerHTML, /Finn raskt et gjøremål/);

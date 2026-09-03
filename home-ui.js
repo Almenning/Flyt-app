@@ -2,7 +2,7 @@
 'use strict';
 const $=s=>document.querySelector(s);
 const bridge=()=>window.FlytBridge;
-const VERSION='20260902-2200';
+const VERSION='20260903-1200';
 let partnerCtx=null,loadingPartner=false,statusEditorOpen=false,statusDraft=null,statusSaving=false,statusError='';
 const LABEL={low:'Lav',med:'Middels',high:'Høy'};
 const NEED_LABEL={relief:'Avlastning',closeness:'Nærhet',sex:'Intimitet',initiative:'Initiativ',alone:'Alenetid',quiet:'Ro'};
@@ -17,7 +17,8 @@ function greeting(){const h=new Date().getHours();if(h<6)return 'Hei';if(h<10)re
 function todayComps(s){const d=today();return (s.completions||[]).filter(c=>c.date===d)}
 function dailyTasks(s){return (s.tasks||[]).filter(t=>t.kind==='house'&&t.type==='daily')}
 function todayTasks(s){return window.FlytDayPlan?.planTasks?.(s,today())||dailyTasks(s).filter(scheduledToday)}
-function dayPlanProgress(s){const fromModule=window.FlytDayPlan?.progress?.(s,today());if(fromModule)return fromModule;const tasks=todayTasks(s),doneIds=new Set(todayComps(s).map(c=>String(c.taskId)));return{done:tasks.filter(t=>doneIds.has(String(t.id))).length,total:tasks.length,tasks}}
+function dayPlanProgress(s){const fromLoop=window.FlytDailyLoop?.dayProgress?.(s,today());if(fromLoop)return fromLoop;const fromModule=window.FlytDayPlan?.progress?.(s,today());if(fromModule)return{...fromModule,remaining:Math.max(0,fromModule.total-fromModule.done),pct:fromModule.total?Math.round(fromModule.done/fromModule.total*100):0};const tasks=todayTasks(s),doneIds=new Set(todayComps(s).map(c=>String(c.taskId))),done=tasks.filter(t=>doneIds.has(String(t.id))).length;return{done,total:tasks.length,remaining:Math.max(0,tasks.length-done),pct:tasks.length?Math.round(done/tasks.length*100):0,tasks}}
+function weekPlanProgress(s){const fromLoop=window.FlytDailyLoop?.weekProgress?.(s,today());if(fromLoop)return fromLoop;return{done:0,total:0,remaining:0,pct:0,rows:[]}}
 function currentName(s){const n=window.FlytSync?.myName?.();return String(n||s.user||'Meg').trim()||'Meg'}
 function partnerName(s){const fromRpc=partnerCtx?.partner?.display_name;if(fromRpc)return fromRpc;const members=window.FlytSync?.getContext?.()?.members||[],p=members.find(m=>m.display_name&&m.display_name!==s?.user);return p?.display_name||Object.keys(s?.points||{}).find(n=>n!==s?.user)||'Partner'}
 function age(ts){if(!ts)return 'Ikke oppdatert ennå';const m=Math.max(0,Math.round((Date.now()-new Date(ts).getTime())/60000));if(m<2)return 'Oppdatert nå';if(m<60)return `Oppdatert for ${m} min siden`;const h=Math.round(m/60);if(h<24)return `Oppdatert for ${h} t siden`;return `Oppdatert for ${Math.round(h/24)} d siden`}
@@ -57,6 +58,28 @@ function firstWinMarkup(s){
   }
   return'';
 }
+function progressRing(pct,label){const value=Math.min(100,Math.max(0,Number(pct)||0));return `<div class="progressRing" style="--progress:${value}" role="img" aria-label="${esc(label||`${value} prosent fullført`)}"><span>${value} %</span></div>`}
+function dailyGoalMarkup(plan){
+  const detail=!plan.total?'Ingen oppgaver er planlagt i dag.':plan.remaining===0?'<span class="goalReached">Dagens mål nådd ✓</span>':`<p>${plan.remaining} ${plan.remaining===1?'igjen':'igjen'}</p>`;
+  return `<section class="card goalCard" data-home-daily-goal><div class="row"><div class="ey grow">Dagens mål</div><button type="button" class="small" data-home-day-plan-open="1" data-home-destination="tasks">Se dagen</button></div><div class="goalGrid">${progressRing(plan.pct)}<div class="goalNumbers"><strong>${plan.done} av ${plan.total} ferdig</strong>${detail}</div></div></section>`;
+}
+function ownerInfo(s,task){
+  const claim=window.FlytDailyLoop?.activeClaim?.(s,task.id,today())||null,owner=window.FlytDailyLoop?.effectiveOwner?.(s,task,today())||task.owner||'Begge',mine=currentName(s);
+  if(claim)return{claim,owner,label:owner===mine?'Du tok denne':`${owner} tok denne`};
+  return{claim:null,owner,label:owner===mine?'Du':owner};
+}
+function nextMarkup(s,plan){
+  const doneIds=new Set(todayComps(s).map(item=>String(item.taskId))),mine=currentName(s),remaining=(plan.tasks||[]).filter(task=>!doneIds.has(String(task.id))).sort((a,b)=>{const ao=ownerInfo(s,a).owner,bo=ownerInfo(s,b).owner,rank=owner=>owner===mine?0:owner==='Begge'||owner==='Ingen fast'?1:2;return rank(ao)-rank(bo)||String(a.name||'').localeCompare(String(b.name||''),'nb')}).slice(0,3);
+  const rows=remaining.map(task=>{const info=ownerInfo(s,task),canTake=info.owner!==mine&&info.owner!=='Begge'&&info.owner!=='Ingen fast';return `<div class="nextRow"><strong>${esc(task.name)}</strong><div class="taskmeta">${esc(window.FlytDayPlan?.category?.(task)||task.cat||'Gjøremål')} · ${esc(info.label)}</div><div class="nextActions"><button type="button" class="small" data-home-complete="${esc(task.id)}">Fullfør</button>${canTake?`<button type="button" class="small" data-home-claim="${esc(task.id)}">Jeg tar denne</button>`:''}</div></div>`}).join('');
+  return `<section class="homeSection" data-home-next><div class="homeSectionHead"><div class="ey">Neste</div><button type="button" class="small" data-home-day-plan-open="1">Se alle</button></div>${rows?`<div class="nextList">${rows}</div>`:`<div class="card" style="box-shadow:none"><strong>${plan.total?'Alt for i dag er gjort.':'Dagen er åpen.'}</strong><p class="sub" style="margin:5px 0 0">${plan.total?'Dere kan la resten av dagen være nettopp det – resten av dagen.':'Legg til noe bare hvis det faktisk trengs.'}</p></div>`}</section>`;
+}
+function weekMarkup(s,week){
+  const effort=window.FlytDailyLoop?.contributionSummary?.(s,today())||{weekDone:week.done,bothContributedToday:false},copy=week.total?`${week.done} av ${week.total} ferdig`:'Ingen ukesmål er satt opp.';
+  return `<section class="homeSection" data-home-week><div class="ey">Denne uka</div><div class="card weekCard"><div class="row"><div class="grow"><strong>${copy}</strong><div class="taskmeta" style="margin-top:5px">${effort.bothContributedToday?'Begge har bidratt i dag.':`Dere har gjennomført ${effort.weekDone} ${effort.weekDone===1?'ting':'ting'} sammen denne uka.`}</div></div><span class="weekPercent">${week.pct} %</span></div><div class="progress" aria-label="${week.pct} prosent av ukesmålet fullført"><i style="width:${Math.min(100,week.pct)}%"></i></div></div></section>`;
+}
+function taskById(s,id){return window.FlytDayPlan?.resolveTask?.(s,id)||(s.tasks||[]).find(task=>String(task.id)===String(id))}
+function completeFromHome(id){const s=bridge()?.getState?.(),task=taskById(s,id),api=window.FlytDailyLoop;if(!s||!task||!api?.recordCompletion)return;const result=api.recordCompletion(s,{task,date:today(),user:currentName(s)});if(!result.created){bridge()?.toast?.(`${task.name} er allerede fullført i dag`);return}bridge().setState({...result.state,view:'home'});window.FlytSync?.queueSave?.();bridge()?.toast?.(`${task.name} er fullført`)}
+function claimFromHome(id){const s=bridge()?.getState?.(),task=taskById(s,id),api=window.FlytDailyLoop;if(!s||!task||!api?.claimTask)return;bridge().setState({...api.claimTask(s,{task,date:today(),user:currentName(s)}),view:'home'});window.FlytSync?.queueSave?.();bridge()?.toast?.(`Du tar ${taskReference(task.name)}`)}
 function startFirstWin(taskId){const s=bridge()?.getState?.(),task=(s?.tasks||[]).find(item=>String(item.id)===String(taskId));if(!s||!task)return;const item=window.FlytCoupleCore?.makeInitiative?.({state:s,task,partnerName:partnerName(s)})||null;if(!item)return;bridge().setState({...s,seenRequests:[{...item,journeyKey:'first_shared_win'},...(s.seenRequests||[])],coupleJourney:{...(s.coupleJourney||{}),firstWinStartedAt:s.coupleJourney?.firstWinStartedAt||new Date().toISOString()}});window.FlytSync?.queueSave?.();bridge()?.toast?.(`Første felles seier er startet med ${taskReference(task.name)}`);render({resetScroll:false});window.FlytSeenRequestAlert?.checkAlerts?.()}
 async function loadPartner(force=false){if((loadingPartner&&!force)||!window.FlytSync?.rpc||!window.FlytSync?.getContext?.()?.user_id)return;loadingPartner=true;try{const {data,error}=await window.FlytSync.rpc('get_home_partner_context');if(error)throw error;let next=data||null;if(next&&!next.me){const detail=await window.FlytSync.rpc('get_oss_context');if(!detail.error){const userId=detail.data?.user_id,status=(detail.data?.statuses||[]).find(item=>String(item.user_id)===String(userId))||null,member=(detail.data?.members||[]).find(item=>String(item.id)===String(userId))||null;next={...next,me:{user_id:userId,display_name:member?.display_name||currentName(bridge()?.getState?.()),status}}}}partnerCtx=next;if(bridge()?.getState?.()?.view==='home')render({resetScroll:false})}catch(e){console.warn('Flyt Hjem-status kunne ikke hentes',e)}finally{loadingPartner=false}}
 async function saveHomeStatus(){
@@ -83,11 +106,10 @@ function settleScroll(c,pos,forceTop){const target=forceTop?0:Math.max(0,pos||0)
 function render({resetScroll=false}={}){
   const s=bridge()?.getState?.(),c=$('#content');
   if(!s||!c||s.view!=='home')return;
-  const pos=resetScroll?0:c.scrollTop,name=currentName(s),plan=dayPlanProgress(s);
+  const pos=resetScroll?0:c.scrollTop,name=currentName(s),plan=dayPlanProgress(s),week=weekPlanProgress(s);
   c.dataset.flytOwner='home';
   const first=firstWinMarkup(s);
-  const planText=!plan.total?'Ingen faste gjøremål i dag.':plan.done?`${plan.done} gjort i dag.`:'Tilpass dagen etter behov.';
-  c.innerHTML=`<div class="ey">Hjem</div><h1 class="title">Dere i dag</h1><p class="sub">${greeting()}, ${esc(name)}.</p>${dailyStatusMarkup(s)}<div id="homeNudgeMount" ${first?'data-first-win-active="1"':''} aria-live="polite">${first}</div>${partnerCard(s)}<button type="button" class="card hero" data-home-day-plan-open="1" data-home-destination="tasks" style="display:block;width:100%;text-align:left;color:inherit;font:inherit;cursor:pointer"><div class="row"><div class="grow"><strong>Gjøremål</strong><p>${planText}</p></div><span class="tag">Åpne</span></div></button>`;
+  c.innerHTML=`<div class="ey">Hjem</div><h1 class="title">Dere i dag</h1><p class="sub">${greeting()}, ${esc(name)}.</p>${dailyGoalMarkup(plan)}${nextMarkup(s,plan)}${weekMarkup(s,week)}<div id="homeNudgeMount" ${first?'data-first-win-active="1"':''} aria-live="polite">${first}</div>${dailyStatusMarkup(s)}${partnerCard(s)}`;
   document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.view==='home'));
   settleScroll(c,pos,resetScroll);
   if(!partnerCtx&&!loadingPartner)loadPartner();
@@ -100,6 +122,10 @@ document.addEventListener('click',e=>{
   if(bridge()?.getState?.()?.view!=='home')return;
   const dayPlan=e.target.closest('[data-home-day-plan-open]');
   if(dayPlan){e.preventDefault();e.stopImmediatePropagation();dayPlan.blur?.();const s=bridge().getState();bridge().setState({...s,view:'tasks'});queueMicrotask(()=>window.FlytRecurrenceUI?.openToday?.('remaining')||window.FlytTasksUI?.render?.({resetScroll:true}));return}
+  const complete=e.target.closest('[data-home-complete]');
+  if(complete){e.preventDefault();e.stopImmediatePropagation();completeFromHome(complete.dataset.homeComplete);return}
+  const take=e.target.closest('[data-home-claim]');
+  if(take){e.preventDefault();e.stopImmediatePropagation();claimFromHome(take.dataset.homeClaim);return}
   const edit=e.target.closest('[data-home-status-edit]');
   if(edit){e.preventDefault();e.stopImmediatePropagation();statusEditorOpen=true;startStatusDraft(bridge().getState());render({resetScroll:false});return}
   const cancel=e.target.closest('[data-home-status-cancel]');

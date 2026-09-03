@@ -1,7 +1,7 @@
 ((root)=>{
 'use strict';
 
-const VERSION='20260902-2200';
+const VERSION='20260903-1200';
 const INVITATION_PRESETS=[
   ['🛋','Sofa og noe godt','Sofa og noe godt i kveld?'],
   ['🌿','En liten tur','En liten tur sammen senere?'],
@@ -12,6 +12,7 @@ const INVITATION_PRESETS=[
 ];
 const DAY_MS=86400000;
 const coupleCore=typeof module==='object'&&module.exports?require('./couple-core.js'):root?.FlytCoupleCore;
+const dailyLoop=typeof module==='object'&&module.exports?require('./daily-loop.js'):root?.FlytDailyLoop;
 const DEFAULT_PREFERENCES=Object.freeze({
   enabled:true,
   initiative:true,
@@ -72,13 +73,11 @@ function activeNudgeTaskIds(state){
   return new Set((state?.seenRequests||[]).filter(r=>(r?.source==='nudge'||r?.source==='initiative')&&r.taskId!=null&&!r.done&&!r.deleted&&!r.declinedAt&&!r.expiredAt&&r.responseState!=='expired').map(r=>String(r.taskId)));
 }
 function remainingTasks(state,now=new Date()){
-  const today=dateKey(now),doneToday=new Set((state?.completions||[]).filter(c=>c?.date===today&&c?.kind==='house').map(c=>String(c.taskId))),week=weekCompletions(state,now),requested=activeNudgeTaskIds(state),out=[];
+  const today=dateKey(now),doneToday=new Set((state?.completions||[]).filter(c=>c?.date===today&&c?.kind==='house').map(c=>String(c.taskId))),week=weekCompletions(state,now),requested=activeNudgeTaskIds(state),out=[],planned=dailyLoop?.tasksForDay?.(state,today)||(state?.tasks||[]).filter(task=>task?.type==='daily'&&scheduledToday(task,now));
+  for(const task of planned)if(task&&!requested.has(String(task.id))&&!doneToday.has(String(task.id)))out.push({...task,nudgePeriod:'today',remainingCount:1});
+  const plannedIds=new Set(planned.map(task=>String(task.id)));
   for(const task of state?.tasks||[]){
-    if(!task||task.kind!=='house'||requested.has(String(task.id)))continue;
-    if(task.type==='daily'){
-      if(scheduledToday(task,now)&&!doneToday.has(String(task.id)))out.push({...task,nudgePeriod:'today',remainingCount:1});
-      continue;
-    }
+    if(!task||task.kind!=='house'||requested.has(String(task.id))||plannedIds.has(String(task.id)))continue;
     if(task.type==='flex'){
       const count=week.filter(c=>c?.kind==='house'&&String(c.taskId)===String(task.id)).length,goal=Math.max(1,Number(task.freq)||1);
       if(count<goal)out.push({...task,nudgePeriod:'week',remainingCount:goal-count});
@@ -88,6 +87,8 @@ function remainingTasks(state,now=new Date()){
   return out.sort((a,b)=>(a.nudgePeriod==='today'?0:1)-(b.nudgePeriod==='today'?0:1)||ownerRank(a)-ownerRank(b)||Number(b.pts||0)-Number(a.pts||0)||String(a.name||'').localeCompare(String(b.name||''),'nb'));
 }
 function todayProgress(state,now=new Date()){
+  const metric=dailyLoop?.dayProgress?.(state,dateKey(now));
+  if(metric)return metric;
   const tasks=(state?.tasks||[]).filter(t=>t?.kind==='house'&&t.type==='daily'&&scheduledToday(t,now)),today=dateKey(now),done=new Set((state?.completions||[]).filter(c=>c?.date===today&&c?.kind==='house').map(c=>String(c.taskId))),completed=tasks.filter(t=>done.has(String(t.id))).length;
   return {total:tasks.length,done:completed,remaining:Math.max(0,tasks.length-completed),pct:tasks.length?Math.round(completed/tasks.length*100):0};
 }
@@ -114,9 +115,16 @@ function normalizePreferences(value,now=new Date()){
   return next;
 }
 function buildCandidates({state,preferences,myStatus,partnerStatus,partnerName='partneren din',now=new Date()}){
-  const prefs=normalizePreferences(preferences,now),remaining=remainingTasks(state,now),progress=todayProgress(state,now),mine=todayMine(state,now),myFresh=freshStatus(myStatus,now.getTime()),partnerFresh=freshStatus(partnerStatus,now.getTime()),candidates=[];
+  const prefs=normalizePreferences(preferences,now),remaining=remainingTasks(state,now),progress=todayProgress(state,now),week=dailyLoop?.weekProgress?.(state,dateKey(now))||{total:0,done:0,remaining:0,pct:0},mine=todayMine(state,now),myFresh=freshStatus(myStatus,now.getTime()),partnerFresh=freshStatus(partnerStatus,now.getTime()),candidates=[];
   if(!prefs.enabled||quietHours(now))return candidates;
   const hasRemaining=remaining.length>0,dailyWord=progress.remaining===1?'ett gjøremål':`${progress.remaining} gjøremål`,myNeeds=myFresh?myStatus?.needs||[]:[],partnerNeeds=partnerFresh?partnerStatus?.needs||[]:[],myRelief=myNeeds.includes('relief'),partnerRelief=partnerNeeds.includes('relief'),partnerInitiative=partnerNeeds.includes('initiative'),myReason=myRelief?'behov for avlastning':strainText(myStatus),partnerReason=partnerRelief?'behov for avlastning':partnerInitiative?'behov for initiativ':strainText(partnerStatus);
+
+  if(progress.total&&progress.remaining===0)candidates.push({id:`progress:day-complete:${dateKey(now)}`,kind:'progress',priority:93,icon:'✓',title:'Alt for i dag er gjort',body:'Dagens mål er nådd. Det er lov å la resten av dagen være fri.',action:null,actionLabel:''});
+  else if(progress.total&&progress.pct>=70&&progress.remaining<=2)candidates.push({id:`progress:day-nearly:${dateKey(now)}`,kind:'progress',priority:86,icon:'○',title:'Dere er nesten i mål for dagen',body:`Bare ${dailyWord} gjenstår i dagens plan.`,action:'openTasks',actionLabel:'Se det som gjenstår'});
+  else if(progress.remaining>0)candidates.push({id:`progress:day-remaining:${dateKey(now)}:${progress.remaining}`,kind:'progress',priority:52,icon:'○',title:`${progress.remaining===1?'Én ting':`${progress.remaining} ting`} gjenstår i dag`,body:'Se dagens plan og velg det som passer nå.',action:'openTasks',actionLabel:'Se dagens plan'});
+  if(week.total&&week.pct>=80&&week.pct<100)candidates.push({id:`progress:week-nearly:${week.range?.start||dateKey(now)}`,kind:'progress',priority:78,icon:'↗',title:'Dere er nesten i mål for uka',body:`${week.done} av ${week.total} oppgaver er ferdige.`,action:'openTasks',actionLabel:'Se ukerytmen'});
+  const partnerRemaining=remaining.filter(task=>task.nudgePeriod==='today'&&(dailyLoop?.effectiveOwner?.(state,task,dateKey(now))||task.owner)===partnerName).length;
+  if(prefs.initiative&&partnerRemaining>=2)candidates.push({id:`progress:partner-room:${dateKey(now)}`,kind:'initiative',priority:82,icon:'♡',title:'Kanskje du kan gjøre dagen litt lettere',body:`${partnerName} har flere oppgaver igjen i dagens plan. Se om det er én du selv ønsker å ta.`,action:'openTasks',actionLabel:'Se dagens plan'});
 
   if(prefs.askHelp&&myFresh&&partnerFresh&&low(myStatus)&&low(partnerStatus)){
     candidates.push({

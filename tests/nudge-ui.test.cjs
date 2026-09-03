@@ -112,8 +112,8 @@ const relationship=buildCandidates({
   partnerName:'Sam',
   now
 });
-assert.equal(relationship[0]?.kind,'relationship','fresh closeness need and completed daily rhythm should offer an invitation');
-assert.equal(relationship[0]?.action,'invitation');
+assert.equal(relationship.some(candidate=>candidate.kind==='relationship'),true,'fresh closeness need and completed daily rhythm should offer an invitation');
+assert.equal(relationship.find(candidate=>candidate.kind==='relationship')?.action,'invitation');
 
 const stale=buildCandidates({
   state:base,
@@ -123,7 +123,8 @@ const stale=buildCandidates({
   partnerName:'Sam',
   now
 });
-assert.equal(stale.length,0,'balanced mode should not invent status-based advice from stale data');
+assert.equal(stale.some(candidate=>candidate.kind==='askHelp'),false,'balanced mode should not invent status-based advice from stale data');
+assert.equal(stale.some(candidate=>candidate.kind==='progress'),true,'balanced mode may still show a factual progress nudge');
 
 const activeWithoutSignal=buildCandidates({
   state:base,
@@ -133,7 +134,7 @@ const activeWithoutSignal=buildCandidates({
   partnerName:'Sam',
   now
 });
-assert.equal(activeWithoutSignal.length,0,'active mode must not invent a generic task recommendation without a concrete signal');
+assert.equal(activeWithoutSignal[0]?.kind,'progress','active mode may show a factual progress nudge without reading intent into the couple');
 
 const night=new Date('2026-08-30T00:17:00');
 assert.equal(quietHours(night),true,'nighttime must be treated as quiet hours');
@@ -157,7 +158,7 @@ const dismissed=buildCandidates({
 });
 assert.equal(dismissed.some(candidate=>candidate.id==='ask-help:status:2026-08-30'),false,'a nudge hidden today must stay hidden today');
 
-assert.doesNotMatch(nudgeSource,/function fallbackCandidate|Ett konkret neste steg|Begynn gjerne med/,'Home must not contain a generic task fallback');
+assert.doesNotMatch(nudgeSource,/function fallbackCandidate|Ett konkret neste steg|Begynn gjerne med/,'Home must not choose a specific task as a generic fallback');
 
 const message=requestMessage({task:base.tasks[0],partnerName:'Sam',tone:'warm',status:fresh});
 assert.match(message,/oppgaven «Klesvask \(tidligere samlet\)»/);
