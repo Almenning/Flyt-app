@@ -26,7 +26,7 @@ function loadResponsive(){if(document.querySelector('#flytResponsiveUi'))return;
 function loadCoupleCore(){if(window.FlytCoupleCore?.VERSION==='20260902-1700')return;loadScript('./couple-core.js?v=20260902-1700','flyt-couple-core-20260902-1700')}
 function loadCoupleInsights(){if(window.FlytCoupleInsights?.VERSION==='20260902-1730')return;loadScript('./couple-insights.js?v=20260902-1730','flyt-couple-insights-1730')}
 function loadSeenCore(){if(window.FlytSeenCore?.VERSION==='20260903-2330')return;loadScript('./seen-core.js?v=20260903-2330','flyt-seen-core-20260903-2330')}
-function loadSeen(){loadSeenCore();if(window.FlytSeenUI?.version==='20260903-2330')return;loadScript('./seen-ui.js?v=20260903-2330','flyt-seen-current-20260903-2330')}
+function loadSeen(){loadSeenCore();if(window.FlytSeenUI?.version==='20260903-visual1')return;loadScript('./seen-ui.js?v=20260903-visual1','flyt-seen-current-20260903-visual1')}
 function loadSeenRequestAlert(){if(window.FlytSeenRequestAlert?.version==='20260902-1700')return;loadScript('./seen-request-alert-ui.js?v=20260902-1700','flyt-seen-request-alert-20260902-1700')}
 function loadRewardsEditGuard(){if(window.FlytRewardsEditGuard)return;loadScript('./rewards-edit-guard.js?v=20260825-2102','flyt-rewards-edit')}
 function loadRewardsSummary(){if(window.FlytRewardsSummaryUI?.version==='20260901-1500')return;loadScript('./rewards-summary-ui.js?v=20260901-1500','flyt-rewards-summary-1500')}

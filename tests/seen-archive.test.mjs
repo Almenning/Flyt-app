@@ -7,7 +7,7 @@ const history=readFileSync(new URL('../history-ui.js',import.meta.url),'utf8');
 const watchdog=readFileSync(new URL('../app-watchdog.js',import.meta.url),'utf8');
 const alerts=readFileSync(new URL('../seen-request-alert-ui.js',import.meta.url),'utf8');
 
-assert.match(seen,/const VERSION='20260903-2330'/,'Sett exposes the current recognition UI version');
+assert.match(seen,/const VERSION='20260903-visual1'/,'Sett exposes the current recognition UI version');
 assert.match(core,/const VERSION='20260903-2330'/,'Sett core exposes the current version');
 assert.match(seen,/Se og anerkjenn det partneren din faktisk bidrar med/,'Sett states its recognition purpose');
 assert.match(seen,/data-seen-day="-1"/,'past days are available');
@@ -28,7 +28,7 @@ assert.match(history,/data-seen-suggestion-edit/,'suggestions can be edited');
 assert.match(history,/data-seen-suggestion-delete/,'suggestions can be deleted');
 assert.match(history,/data-seen-suggestion-reset/,'suggestions can be reset');
 assert.match(watchdog,/seen-core\.js\?v=20260903-2330/,'watchdog loads the Sett core');
-assert.match(watchdog,/seen-ui\.js\?v=20260903-2330/,'watchdog cache-busts the current Sett UI');
+assert.match(watchdog,/seen-ui\.js\?v=20260903-visual1/,'watchdog cache-busts the current Sett UI');
 assert.doesNotMatch(alerts,/new Notification/,'Sett does not issue browser push notifications');
 
 console.log('ok - Sett is a focused recognition flow with day navigation and history');
