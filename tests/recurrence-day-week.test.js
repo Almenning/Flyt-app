@@ -205,6 +205,8 @@ test('Dag viser én forekomst, mens Uke teller unike Oslo-datoer', () => {
   assert.match(harness.content.innerHTML, /1 av 1 ferdig · 100 %/);
   assert.doesNotMatch(harness.content.innerHTML, /class="progressRing"/, 'Gjøre must use compact progress instead of the large Home donut');
   assert.doesNotMatch(harness.content.innerHTML, /1\/7/);
+  assert.doesNotMatch(harness.content.innerHTML, /Fullført · 1 av 1/, 'lukket kategori skjuler oppgaven');
+  harness.click({ '[data-task-category]': { dataset: { taskCategory: encodeURIComponent('Kjøkken') } } });
   assert.match(harness.content.innerHTML, /Fullført · 1 av 1/);
   assert.deepEqual(
     { ...harness.api.progress(harness.getState(), dailyTask, 'day') },
@@ -315,6 +317,7 @@ test('Jeg tar denne flytter dagens ansvar og kan angres', () => {
   const assigned={...dailyTask,owner:'Person B'};
   const harness=loadRecurrence({completions:[],custom:[],dayPlans:{},taskClaims:[],points:{'Person A':0},tasks:[assigned],user:'Person A',view:'tasks'});
 
+  harness.click({'[data-task-category]':{dataset:{taskCategory:encodeURIComponent('Kjøkken')}}});
   assert.match(harness.content.innerHTML,/data-task-claim="dish_empty"[^>]*>Jeg tar denne/);
   harness.click({'[data-task-claim]':{dataset:{taskClaim:assigned.id}}});
   assert.equal(harness.getState().taskClaims.at(-1).claimedBy,'Person A');
@@ -329,6 +332,7 @@ test('Jeg tar denne flytter dagens ansvar og kan angres', () => {
 test('partnerens fullførte oppgave kan få én enkel takk', () => {
   const harness=loadRecurrence({completions:[{id:77,taskId:dailyTask.id,date:'2026-08-26',kind:'house',by:'Person B'}],custom:[],dayPlans:{},taskClaims:[],points:{'Person A':0},tasks:[dailyTask],user:'Person A',view:'tasks'});
 
+  harness.click({'[data-task-category]':{dataset:{taskCategory:encodeURIComponent('Kjøkken')}}});
   assert.match(harness.content.innerHTML,/data-task-thank="77"[^>]*>Takk ❤️/);
   harness.click({'[data-task-thank]':{dataset:{taskThank:'77'}}});
   assert.deepEqual(Array.from(harness.getState().completions[0].thanks,entry=>entry.by),['Person A']);
@@ -350,7 +354,7 @@ test('Andre gjøremål er foldet per kategori og kan legges i eller flyttes fra 
 
   assert.match(harness.content.innerHTML, /Andre gjøremål/);
   assert.doesNotMatch(harness.content.innerHTML, /Brette klær/);
-  assert.ok(harness.content.innerHTML.indexOf('Andre gjøremål')>harness.content.innerHTML.indexOf(dailyTask.name),'dagens gjøremål skal vises før biblioteket');
+  assert.ok(harness.content.innerHTML.indexOf('Andre gjøremål')>harness.content.innerHTML.indexOf('data-task-category="Kj%C3%B8kken"'),'dagens kategorier skal vises før biblioteket');
 
   harness.click({ '[data-day-plan-open]': {} });
   assert.match(harness.content.innerHTML, /Finn raskt et gjøremål/);
@@ -362,6 +366,8 @@ test('Andre gjøremål er foldet per kategori og kan legges i eller flyttes fra 
 
   harness.click({ '[data-day-plan-add]': { dataset: { dayPlanAdd: flexibleTask.id } } });
   assert.deepEqual(Array.from(harness.getState().dayPlans['2026-08-26'].addedTaskIds), [flexibleTask.id]);
+  assert.doesNotMatch(harness.content.innerHTML, /Brette klær/, 'ny kategori er lukket til brukeren åpner den');
+  harness.click({ '[data-task-category]': { dataset: { taskCategory: 'Klesvask' } } });
   assert.match(harness.content.innerHTML, /Brette klær/);
 
   harness.click({ '[data-day-plan-tomorrow]': { dataset: { dayPlanTomorrow: flexibleTask.id } } });
