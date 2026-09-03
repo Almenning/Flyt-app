@@ -19,21 +19,23 @@ function loadDayCompleted(){if(window.FlytTasksDayCompleted?.version==='20260902
 function loadModal(){if(window.FlytModal)return;loadScript('./modal-ui.js?v=20260825-1933','flyt-modal')}
 function loadCustomCategories(){if(window.FlytCustomCategories?.version==='20260902-1800')return;loadScript('./custom-categories-ui.js?v=20260902-1800','flyt-custom-categories-1800')}
 function loadDayPlan(){if(window.FlytDayPlan?.VERSION==='20260902-1800')return;loadScript('./day-plan.js?v=20260902-1800','flyt-day-plan-1800')}
-function loadRecurrence(){if(window.FlytRecurrenceUI?.version==='20260903-1800')return;loadScript('./recurrence-ui.js?v=20260903-1800','flyt-recurrence-1800')}
+function loadCategoryAccordion(){if(window.FlytCategoryAccordion?.VERSION==='20260903-2200')return;loadScript('./category-accordion.js?v=20260903-2200','flyt-category-accordion-2200')}
+function loadRecurrence(){loadCategoryAccordion();if(window.FlytRecurrenceUI?.version==='20260903-2200')return;loadScript('./recurrence-ui.js?v=20260903-2200','flyt-recurrence-2200')}
 function loadBeta(){if(window.FlytBetaUI)return;loadScript('./beta-ui.js?v=20260824-1628','flyt-beta')}
 function loadResponsive(){if(document.querySelector('#flytResponsiveUi'))return;loadScript('./responsive-ui.js?v=20260825-0648','flyt-responsive')}
 function loadCoupleCore(){if(window.FlytCoupleCore?.VERSION==='20260902-1700')return;loadScript('./couple-core.js?v=20260902-1700','flyt-couple-core-20260902-1700')}
 function loadCoupleInsights(){if(window.FlytCoupleInsights?.VERSION==='20260902-1730')return;loadScript('./couple-insights.js?v=20260902-1730','flyt-couple-insights-1730')}
-function loadSeen(){if(window.FlytSeenUI?.version==='20260902-1800')return;loadScript('./seen-ui.js?v=20260902-1800','flyt-seen-current-20260902-1800')}
+function loadSeenCore(){if(window.FlytSeenCore?.VERSION==='20260903-2330')return;loadScript('./seen-core.js?v=20260903-2330','flyt-seen-core-20260903-2330')}
+function loadSeen(){loadSeenCore();if(window.FlytSeenUI?.version==='20260903-2330')return;loadScript('./seen-ui.js?v=20260903-2330','flyt-seen-current-20260903-2330')}
 function loadSeenRequestAlert(){if(window.FlytSeenRequestAlert?.version==='20260902-1700')return;loadScript('./seen-request-alert-ui.js?v=20260902-1700','flyt-seen-request-alert-20260902-1700')}
 function loadRewardsEditGuard(){if(window.FlytRewardsEditGuard)return;loadScript('./rewards-edit-guard.js?v=20260825-2102','flyt-rewards-edit')}
 function loadRewardsSummary(){if(window.FlytRewardsSummaryUI?.version==='20260901-1500')return;loadScript('./rewards-summary-ui.js?v=20260901-1500','flyt-rewards-summary-1500')}
 function loadRewardsUI(){if(window.FlytRewardsUI?.version==='20260902-1800')return;loadScript('./rewards-ui.js?v=20260902-1800','flyt-rewards-ui-1800')}
 function loadCoupleInvitations(){if(window.FlytCoupleInvitations?.version==='20260902-1800')return;loadScript('./couple-invitation-ui.js?v=20260902-1800','flyt-couple-invitations-1800')}
-function loadSetupV2(){if(window.FlytSetupV2?.version==='20260902-1800')return;loadScript('./setup-v2.js?v=20260902-1800','flyt-setup-v2-1800')}
+function loadSetupV2(){loadCategoryAccordion();if(window.FlytSetupV2?.version==='20260903-2200')return;loadScript('./setup-v2.js?v=20260903-2200','flyt-setup-v2-2200')}
 function loadHome(){if(window.FlytHomeUI?.version==='20260903-1800'){ensureHomeOwnership();return}loadScript('./home-ui.js?v=20260903-1800','flyt-home-current-1800',()=>queueMicrotask(ensureHomeOwnership))}
 function loadNudge(){if(window.FlytNudgeUI?.version==='20260903-1200'){window.FlytNudgeUI.augment?.();return}loadScript('./nudge-ui.js?v=20260903-1200','flyt-nudge-1200',()=>queueMicrotask(()=>window.FlytNudgeUI?.augment?.()))}
-function loadHistory(){if(window.FlytHistoryUI?.version==='20260830-1530')return;loadScript('./history-ui.js?v=20260830-1530','flyt-history-1530')}
+function loadHistory(){loadSeenCore();if(window.FlytHistoryUI?.version==='20260903-2330')return;loadScript('./history-ui.js?v=20260903-2330','flyt-history-20260903-2330')}
 async function modal(){if(window.FlytModal)return window.FlytModal;loadModal();for(let i=0;i<40;i++){await new Promise(r=>setTimeout(r,50));if(window.FlytModal)return window.FlytModal}return null}
 function snapshot(s,label){return{id:Date.now()+'_'+Math.random().toString(36).slice(2,6),savedAt:new Date().toISOString(),label,tasks:structuredClone(s.tasks||[]),custom:structuredClone(s.custom||[]),taskOverrides:structuredClone(s.taskOverrides||{}),areas:structuredClone(s.areas||{}),trainingFor:structuredClone(s.trainingFor||{}),categoryRelevant:structuredClone(s.categoryRelevant||{})}}
 function archive(s,label){const hist=Array.isArray(s.setupHistory)?[...s.setupHistory]:[],snap=snapshot(s,label);hist.unshift(snap);return hist.slice(0,5)}
@@ -55,7 +57,7 @@ document.addEventListener('click',async e=>{
  const deleteReward=e.target.closest('[data-delete-reward]');
  if(deleteReward){e.preventDefault();e.stopImmediatePropagation();const b=bridge(),s=b?.getState?.(),rewards=[...(s?.rewards||[])],i=rewards.findIndex(x=>String(x.id)===String(deleteReward.dataset.deleteReward)&&x.by===s.user);if(!s||i<0)return;const yes=await askConfirm({ey:'Poengbelønning',title:'Slette belønningen?',text:'Belønningen fjernes permanent.',ok:'Slett'});if(!yes)return;rewards.splice(i,1);saveState({...s,rewards});b.toast?.('Belønningen er slettet');return}
 },true);
-window.addEventListener('DOMContentLoaded',()=>{loadStartupHydration();loadBuyerPolish();loadAccount();loadResponsive();loadCoupleCore();loadCoupleInsights();loadDayPlan();loadHome();loadNudge();loadModal();loadSeen();loadSeenRequestAlert();loadRewardsEditGuard();loadPlanned();loadDayCompleted();loadCustomCategories();loadRecurrence();loadBeta();loadRewardsSummary();loadRewardsUI();loadCoupleInvitations();loadSetupV2();loadHistory();keepGuardAlive();guardHomeStartup();setTimeout(rescue,5000)});
+window.addEventListener('DOMContentLoaded',()=>{loadStartupHydration();loadBuyerPolish();loadAccount();loadResponsive();loadCoupleCore();loadCoupleInsights();loadSeenCore();loadDayPlan();loadHome();loadNudge();loadModal();loadSeen();loadSeenRequestAlert();loadRewardsEditGuard();loadPlanned();loadDayCompleted();loadCustomCategories();loadRecurrence();loadBeta();loadRewardsSummary();loadRewardsUI();loadCoupleInvitations();loadSetupV2();loadHistory();keepGuardAlive();guardHomeStartup();setTimeout(rescue,5000)});
 window.addEventListener('pageshow',()=>{loadBuyerPolish();loadAccount();loadCoupleCore();loadCoupleInsights();loadHome();loadNudge();loadCoupleInvitations();window.FlytAccountUI?.checkConsent?.();guardHomeStartup()});
 window.addEventListener('error',()=>setTimeout(rescue,50));
 window.addEventListener('unhandledrejection',()=>setTimeout(rescue,50));

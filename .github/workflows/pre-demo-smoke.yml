@@ -33,6 +33,8 @@ jobs:
         run: node tests/home-startup.test.mjs
       - name: Guard flexible daily plans
         run: node --test tests/day-plan.test.cjs tests/recurrence-day-week.test.js
+      - name: Guard category accordions
+        run: node --test tests/category-accordion.test.cjs
       - name: Guard contextual nudges and communication flow
         run: node tests/nudge-ui.test.cjs
       - name: Guard daily status freshness and separation
@@ -43,5 +45,5 @@ jobs:
         run: node tests/couple-insights.test.cjs
       - name: Guard time-together invitations
         run: node tests/couple-invitation-ui.test.mjs
-      - name: Guard Sett active inbox and archive
-        run: node tests/seen-archive.test.mjs
+      - name: Guard Sett recognition flow and history
+        run: node --test tests/seen-core.test.cjs tests/seen-ui.test.cjs && node tests/seen-archive.test.mjs

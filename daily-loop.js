@@ -6,7 +6,7 @@ if(root)root.FlytDailyLoop=api;
 })(typeof window!=='undefined'?window:globalThis,root=>{
 'use strict';
 
-const VERSION='20260903-1200';
+const VERSION='20260903-2330';
 const OSLO_TIME_ZONE='Europe/Oslo';
 const dayPlan=typeof module==='object'&&module.exports?require('./day-plan.js'):root?.FlytDayPlan;
 
@@ -79,7 +79,7 @@ function recordCompletion(state,{task,date=dateKey(),user=state?.user,now=Date.n
   const completion={id:now,taskId:task.id,taskName:task.name||'',date,by:user,kind,housePts:kind==='house'?value:Math.round(value*.2),registeredAt:new Date(now).toISOString(),backdated:date!==dateKey(),taskSnapshot:{name:task.name||'',cat:task.cat||'',pts:value,type:task.type||'flex',kind}};
   return{state:{...state,points,completions:[...(state.completions||[]),completion]},completion,created:true};
 }
-function thanks(completion){return Array.isArray(completion?.thanks)?completion.thanks:[]}
+function thanks(completion){const all=[...(Array.isArray(completion?.acknowledgements)?completion.acknowledgements:[]),...(Array.isArray(completion?.thanks)?completion.thanks:[])],seen=new Set();return all.filter(item=>{const key=String(item?.by||'');if(!key||seen.has(key))return false;seen.add(key);return true})}
 function canThank(completion,user){return !!completion?.by&&completion.by!==user&&!thanks(completion).length}
 function thankCompletion(state,{completionId,user=state?.user,now=Date.now()}={}){
   let changed=false;

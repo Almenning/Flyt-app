@@ -83,6 +83,7 @@ function loadRecurrence(initialState) {
   });
   vm.runInContext(fs.readFileSync(path.join(root, 'day-plan.js'), 'utf8'), context);
   vm.runInContext(fs.readFileSync(path.join(root, 'daily-loop.js'), 'utf8'), context);
+  vm.runInContext(fs.readFileSync(path.join(root, 'category-accordion.js'), 'utf8'), context);
   vm.runInContext(fs.readFileSync(path.join(root, 'recurrence-ui.js'), 'utf8'), context);
   intervalCallback?.();
 
@@ -175,7 +176,6 @@ test('innganger fra Hjem åpner dagens gjenstående gjøremål', () => {
     user: 'Person A',
     view: 'tasks',
   });
-
   harness.api.openToday();
   assert.equal(harness.api.getTaskFilter(), 'remaining');
   assert.match(harness.content.innerHTML, /data-task-filter="remaining"[^>]+border:1px solid var\(--accent\)/);
@@ -218,10 +218,44 @@ test('Dag viser én forekomst, mens Uke teller unike Oslo-datoer', () => {
     },
   });
 
+  assert.doesNotMatch(harness.content.innerHTML, /3 av 7 denne uka/);
+  harness.click({ '[data-task-category]': { dataset: { taskCategory: encodeURIComponent('Kjøkken') } } });
   assert.match(harness.content.innerHTML, /3 av 7 denne uka/);
   assert.match(harness.content.innerHTML, /Du 2 · Person B 1/);
   assert.match(harness.content.innerHTML, /2 av 3 denne uka/);
   assert.doesNotMatch(harness.content.innerHTML, /Vaske vinduer/);
+});
+
+test('Gjøre holder bare én kategori åpen og lar den lukkes igjen', () => {
+  const petTask = { ...dailyTask, cat: 'Dyr', id: 'feed_pet', name: 'Mate dyret', type: 'flex' };
+  const harness = loadRecurrence({
+    completions: [],
+    custom: [],
+    points: { 'Person A': 0 },
+    tasks: [dailyTask, petTask],
+    user: 'Person A',
+    view: 'tasks',
+  });
+  const originalState = structuredClone(harness.getState());
+
+  harness.click({ '[data-period-mode]': { blur() {}, dataset: { periodMode: 'week' } } });
+  assert.match(harness.content.innerHTML, /data-task-category="Kj%C3%B8kken"[^>]+aria-expanded="false"/);
+  assert.match(harness.content.innerHTML, /data-task-category="Dyr"[^>]+aria-expanded="false"/);
+  assert.doesNotMatch(harness.content.innerHTML, /Tømme oppvaskmaskin/);
+  assert.doesNotMatch(harness.content.innerHTML, /Mate dyret/);
+
+  harness.click({ '[data-task-category]': { dataset: { taskCategory: encodeURIComponent('Kjøkken') } } });
+  assert.match(harness.content.innerHTML, /Tømme oppvaskmaskin/);
+  assert.doesNotMatch(harness.content.innerHTML, /Mate dyret/);
+
+  harness.click({ '[data-task-category]': { dataset: { taskCategory: 'Dyr' } } });
+  assert.doesNotMatch(harness.content.innerHTML, /Tømme oppvaskmaskin/);
+  assert.match(harness.content.innerHTML, /Mate dyret/);
+  assert.match(harness.content.innerHTML, /data-task-category="Dyr"[^>]+aria-expanded="true"/);
+
+  harness.click({ '[data-task-category]': { dataset: { taskCategory: 'Dyr' } } });
+  assert.doesNotMatch(harness.content.innerHTML, /Tømme oppvaskmaskin|Mate dyret/);
+  assert.deepEqual(harness.getState(), originalState, 'accordion navigation must not change task data');
 });
 
 test('Oslo-dato og uke følger lokal midnatt og mandag–søndag', () => {

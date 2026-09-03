@@ -1,316 +1,50 @@
 (()=>{
 'use strict';
-const VERSION='20260902-1800';
-const DAY_MS=86400000;
-const ARCHIVE_MS=90*DAY_MS;
-const RECENT_MS=3*DAY_MS;
-const CONTRIBUTION_GRACE_MS=DAY_MS;
-const STALE_REQUEST_MS=14*DAY_MS;
-const STALE_INITIATIVE_MS=7*DAY_MS;
-const STALE_CONTRIBUTION_MS=14*DAY_MS;
-const THANKS=['Takk, det hjalp ❤️','Det gjorde dagen lettere'];
-const TYPE_LABEL={need:'Behov',wish:'Ønske',practical:'Praktisk'};
+const VERSION='20260903-2330';
 const $=selector=>document.querySelector(selector);
 const bridge=()=>window.FlytBridge;
-const couple=()=>window.FlytCoupleCore;
-const taskReference=value=>window.FlytTaskLanguage?.taskReference?.(value)||`oppgaven «${String(value||'gjøremålet').trim()}»`;
-let painting=false,requestModalOpen=false,actionMenuOpen=false,archiveOpen=false,flowModalOpen=false,pruneQueued=false;
+const core=()=>window.FlytSeenCore;
+let page='main',selectedDate='',painting=false,spaceOpen=false;
 
-if(window.FlytStatusAlert?.version!=='20260902-1200'&&!document.querySelector('script[data-flyt-status-alert-1200]')){
-  const script=document.createElement('script');
-  script.src='./status-alert-ui.js?v=20260902-1200';
-  script.defer=true;
-  script.dataset.flytStatusAlert1200='1';
-  document.head.appendChild(script);
-}
 function state(){return bridge()?.getState?.()||null}
 function save(next){bridge()?.setState?.(next);window.FlytSync?.queueSave?.()}
 function esc(value){return String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]))}
-function stamp(value){
-  if(value==null)return 0;
-  if(typeof value==='number')return value;
-  const number=Number(value);
-  if(Number.isFinite(number)&&number>0)return number;
-  const date=new Date(value).getTime();
-  return Number.isFinite(date)?date:0;
+function profileKey(s){return String(window.FlytSync?.getContext?.()?.user_id||s?.user||'')}
+function partnerName(s){const context=window.FlytSync?.getContext?.(),member=context?.members?.find(item=>String(item.id)!==String(context?.user_id));return member?.display_name||Object.keys(s?.status||{}).find(name=>name!==s?.user)||Object.keys(s?.points||{}).find(name=>name!==s?.user)||'partneren din'}
+function today(){return core()?.dateKey?.()||new Date().toISOString().slice(0,10)}
+function addDays(key,amount){return core()?.addDays?.(key,amount)||key}
+function dayLabel(key){const d=new Date(`${key}T12:00:00Z`),now=today();if(key===now)return'I dag';if(key===addDays(now,-1))return'I går';return new Intl.DateTimeFormat('nb-NO',{timeZone:'UTC',weekday:'short',day:'numeric',month:'short'}).format(d).replace(/^./,c=>c.toUpperCase())}
+function longDayLabel(key){const d=new Date(`${key}T12:00:00Z`);return new Intl.DateTimeFormat('nb-NO',{timeZone:'UTC',weekday:'long',day:'numeric',month:'long'}).format(d).replace(/^./,c=>c.toUpperCase())}
+function timeLabel(at){if(!at)return'';const d=new Date(at);if(Number.isNaN(d.getTime()))return'';return new Intl.DateTimeFormat('nb-NO',{timeZone:'Europe/Oslo',hour:'2-digit',minute:'2-digit'}).format(d)}
+function ensureStyles(){
+  if($('#flytSeenStyles'))return;
+  const style=document.createElement('style');style.id='flytSeenStyles';style.textContent=`
+  .seenPage{max-width:520px;margin:0 auto;padding-bottom:4px}.seenIntro{text-align:center;padding:2px 9px 0}.seenTitle{font:500 44px/.98 Georgia,serif;color:#174b37;margin:4px 0 7px}.seenSubtitle{max-width:330px;margin:0 auto;color:#40564d;line-height:1.4}.seenDayNav{display:grid;grid-template-columns:48px minmax(0,1fr) 48px;align-items:center;gap:10px;margin:15px 0 10px}.seenDayNav button{min-height:46px}.seenDayNav .seenDateButton{display:flex;align-items:center;justify-content:center;gap:8px;font-weight:850}.seenDayNav button:disabled{opacity:.35}.seenSectionTitle{font:600 20px/1.2 Georgia,serif;color:#214a39;margin:15px 4px 9px}.seenContributionList{max-height:min(42dvh,380px);overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;border:1px solid var(--line);border-radius:19px;background:#fffdfb;box-shadow:0 9px 25px #65351d0c}.seenContributionRow{display:grid;grid-template-columns:36px minmax(0,1fr) auto;align-items:center;gap:10px;min-height:67px;padding:10px 11px;border-bottom:1px solid #eee1db}.seenContributionRow:last-child{border-bottom:0}.seenContributionIcon{width:34px;height:34px;display:grid;place-items:center;border-radius:12px;background:#f6eee8;color:#315746;font-size:17px}.seenContributionCopy{min-width:0}.seenContributionCopy strong{display:block;font-size:14px;line-height:1.25}.seenContributionCopy span{display:block;margin-top:3px;color:var(--muted);font-size:12px}.seenAck{min-width:72px;border:0;border-radius:999px;background:#f8d4c0;color:#214b39;font-weight:850;padding:9px 11px}.seenAck[aria-pressed="true"]{background:#efb28f}.seenEmpty{padding:22px 16px;text-align:center;color:var(--muted)}.seenActionGrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.seenLatest{padding:12px 13px;box-shadow:none}.seenLatestHeart{color:#e59670;font-size:25px}.seenTextButton{border:0;background:none;color:#174b37;font-weight:850;text-decoration:underline;text-underline-offset:4px;padding:9px 2px}.seenSubpageHead{display:flex;align-items:center;gap:10px;margin-bottom:22px}.seenSubpageTitle{font:500 38px/1.02 Georgia,serif;color:#174b37;margin:12px 0 9px}.seenTextarea{width:100%;min-height:148px;resize:vertical;border:1px solid var(--line);border-radius:18px;background:#fffdfb;padding:15px;font:inherit;line-height:1.5;color:var(--ink);outline:none}.seenTextarea:focus{border-color:#ca8065;box-shadow:0 0 0 3px #e8796120}.seenCounter{text-align:right;color:var(--muted);font-size:12px;margin:6px 4px 0}.seenSuggestions{display:grid;grid-template-columns:1fr 1fr;gap:9px}.seenSuggestion{min-height:45px;border:1px solid #cfd4c7;border-radius:15px;background:#f5f5ed;color:#244a3a;padding:9px;font-weight:750}.seenPrimary{background:linear-gradient(135deg,#194f38,#0f3c2c)}.seenHistoryGroup{margin-top:24px}.seenHistoryCard{display:grid;grid-template-columns:34px minmax(0,1fr);gap:10px;padding:13px 14px;margin:9px 0;box-shadow:none}.seenHistoryCard .seenHistoryHeart{color:#e59670;font-size:27px}.seenHistoryCard p{margin:0;line-height:1.38}.seenHistoryCard .taskmeta{margin-top:6px}.seenSpaceModal{position:fixed;inset:0;z-index:360;background:#3a211b88;display:flex;align-items:flex-end;justify-content:center;padding:14px}.seenSpaceSheet{width:min(420px,100%);max-height:88dvh;overflow:auto;background:#fffaf7;border:1px solid var(--line);border-radius:25px;padding:20px;box-shadow:0 25px 70px #3b211b55}.seenHistoryEmpty{padding:28px 18px;text-align:center}@media(max-width:360px){.seenTitle{font-size:39px}.seenContributionRow{grid-template-columns:32px minmax(0,1fr) auto;padding:9px 8px;gap:8px}.seenAck{min-width:66px;padding:8px 9px}.seenActionGrid{grid-template-columns:1fr}.seenSuggestions{grid-template-columns:1fr 1fr}}
+  @media(min-width:700px){.seenSpaceModal{align-items:center}}
+  `;document.head.appendChild(style);
 }
-function partnerName(s){
-  const context=window.FlytSync?.getContext?.(),member=context?.members?.find(item=>String(item.id)!==String(context?.user_id));
-  return member?.display_name||Object.keys(s?.points||{}).find(name=>name!==s?.user)||'partneren din';
-}
-function allRequests(s){return Array.isArray(s?.seenRequests)?s.seenRequests:[]}
-function manualWork(s){return (Array.isArray(s?.work)?s.work:[]).filter(item=>item?.source==='manual')}
-function requestState(request){
-  if(couple()?.requestState)return couple().requestState(request);
-  if(request?.deleted)return'withdrawn';
-  if(request?.done)return'completed';
-  if(request?.expiredAt||request?.responseState==='expired')return'expired';
-  if(request?.declinedAt)return'declined';
-  if(request?.counter?.status==='pending')return'countered';
-  if(request?.acceptedBy)return'accepted';
-  return'pending';
-}
-function requestActivityAt(request){const reply=(request?.replies||[]).slice(-1)[0];return Math.max(stamp(request?.createdAt||request?.id),stamp(request?.responseUpdatedAt),stamp(request?.decisionUpdatedAt),stamp(request?.replyUpdatedAt||reply?.createdAt))}
-function requestExpired(request,now=Date.now()){if(!request)return false;if(request.expiredAt||request.responseState==='expired')return true;const status=requestState(request),age=now-requestActivityAt(request);if(status==='pending')return age>=STALE_REQUEST_MS;if(request.source==='initiative'&&status==='accepted')return age>=STALE_INITIATIVE_MS;return false}
-function requestActive(request){return !!request&&['pending','countered','accepted'].includes(requestState(request))&&!requestExpired(request)}
-function requestArchiveAt(request){return stamp(request?.doneAt||request?.declinedAt||request?.deletedAt||request?.expiredAt||request?.createdAt||request?.id)}
-function contributionArchived(work,now=Date.now()){const age=now-stamp(work?.seenAt||work?.createdAt||work?.id);return !!work&&(work.seen?age>=CONTRIBUTION_GRACE_MS:age>=STALE_CONTRIBUTION_MS)}
-function activeRequests(s){return allRequests(s).filter(requestActive).sort((a,b)=>stamp(b.createdAt||b.id)-stamp(a.createdAt||a.id))}
-function activeContributions(s){const now=Date.now();return manualWork(s).filter(item=>!contributionArchived(item,now)).sort((a,b)=>stamp(b.createdAt||b.id)-stamp(a.createdAt||a.id))}
-function recentRequests(s){const cutoff=Date.now()-RECENT_MS;return allRequests(s).filter(request=>requestState(request)==='completed'&&requestArchiveAt(request)>=cutoff&&(couple()?.canThank?.(request,s.user)||(request.appreciationText&&request.appreciationBy!==s.user&&!(request.appreciationSeenBy||[]).includes(s.user)))).sort((a,b)=>requestArchiveAt(b)-requestArchiveAt(a))}
-function archivedEntries(s,excluded=new Set()){
-  const now=Date.now(),requests=allRequests(s).filter(request=>!requestActive(request)&&!excluded.has(String(request.id))).map(item=>({kind:'request',item,at:requestArchiveAt(item)})),work=manualWork(s).filter(item=>contributionArchived(item,now)).map(item=>({kind:'work',item,at:stamp(item.seenAt||item.createdAt||item.id)}));
-  return [...requests,...work].sort((a,b)=>b.at-a.at);
-}
-function pruneState(s){
-  const now=Date.now(),cutoff=now-ARCHIVE_MS,normalized=allRequests(s).map(request=>requestExpired(request,now)&&!request.expiredAt?{...request,expiredAt:new Date(now).toISOString(),responseState:'expired'}:request),seenRequests=normalized.filter(request=>requestActive(request)||requestArchiveAt(request)>=cutoff),work=(Array.isArray(s?.work)?s.work:[]).filter(item=>item?.source!=='manual'||!contributionArchived(item,now)||stamp(item.seenAt||item.createdAt||item.id)>=cutoff);
-  if(seenRequests.length===allRequests(s).length&&work.length===(s.work||[]).length&&normalized.every((request,index)=>request===allRequests(s)[index]))return null;
-  return {...s,seenRequests,work};
-}
-function queuePrune(){if(pruneQueued)return;pruneQueued=true;queueMicrotask(()=>{pruneQueued=false;const current=state(),next=current&&pruneState(current);if(next)save(next)})}
+function iconFor(title){const text=String(title||'').toLowerCase();if(/barn|legging|barnehage|skole|lekser/.test(text))return'♙';if(/hund|katt|dyr/.test(text))return'♧';if(/mat|middag|kjøkken|oppvask/.test(text))return'♨';if(/vask|klær/.test(text))return'▣';if(/handle|butikk/.test(text))return'⌑';return'✓'}
+function contributionMarkup(s,row){const active=!!row.acknowledgement,at=timeLabel(row.at),meta=`${row.by}${at?` · ${at}`:''}`;return `<div class="seenContributionRow" data-seen-contribution="${esc(row.kind)}:${esc(row.id)}"><span class="seenContributionIcon" aria-hidden="true">${iconFor(row.title)}</span><div class="seenContributionCopy"><strong>${esc(row.title)}</strong><span>${esc(meta)}</span></div><button type="button" class="seenAck" data-seen-toggle="${esc(row.kind)}|${esc(row.id)}" aria-pressed="${active?'true':'false'}" aria-label="${active?'Fjern anerkjennelse':'Anerkjenn'} for ${esc(row.title)}">Sett ${active?'♥':'♡'}</button></div>`}
+function eventCopy(event){return event.text||event.title}
+function latestMarkup(s){const latest=(core()?.recognitionEvents?.(s)||[])[0];if(!latest)return `<div class="card seenLatest"><strong>Siste anerkjennelse</strong><p class="sub" style="margin:7px 0 0">Ingen anerkjennelser registrert ennå.</p></div>`;const at=latest.at?dayLabel(core().dateKey(new Date(latest.at))):'',meta=`Av ${latest.by} til ${latest.to}${at?` · ${at}`:''}`;return `<div class="card seenLatest"><strong>Siste anerkjennelse</strong><div class="row" style="align-items:flex-start;margin-top:9px"><span class="seenLatestHeart" aria-hidden="true">♡</span><div class="grow"><div>${esc(eventCopy(latest))}</div><div class="taskmeta">${esc(meta)}</div></div></div><button type="button" class="seenTextButton" data-seen-history="1">Se historikk →</button></div>`}
+function renderMain(s){const rows=core()?.contributions?.(s,{user:s.user,date:selectedDate})||[],todayKey=today(),canNext=selectedDate<todayKey;return `<div class="seenPage"><header class="seenIntro"><div class="ey">Sett</div><h1 class="seenTitle">Sett</h1><p class="seenSubtitle">Se og anerkjenn det partneren din faktisk bidrar med</p></header><div class="seenDayNav"><button type="button" class="pill" data-seen-day="-1" aria-label="Forrige dag">←</button><button type="button" class="pill seenDateButton" data-seen-today="1"><span aria-hidden="true">▣</span>${esc(dayLabel(selectedDate))}</button><button type="button" class="pill" data-seen-day="1" aria-label="Neste dag" ${canNext?'':'disabled'}>→</button></div><h2 class="seenSectionTitle">${esc(longDayLabel(selectedDate))}</h2><div class="seenContributionList" tabindex="0" aria-label="Fullførte bidrag fra ${esc(partnerName(s))}">${rows.length?rows.map(row=>contributionMarkup(s,row)).join(''):`<div class="seenEmpty">Ingen registrerte bidrag ennå ${selectedDate===todayKey?'i dag':'denne dagen'}.</div>`}</div><section class="section"><h2 class="seenSectionTitle">Noe annet du satte pris på?</h2><div class="seenActionGrid"><button type="button" class="secondary" data-seen-compose="1">＋ Gi anerkjennelse</button><button type="button" class="secondary" data-seen-space="1">♡ Gi litt rom i dag</button></div></section><section class="section">${latestMarkup(s)}</section></div>`}
+function suggestionSentence(value){const text=String(value||'').trim();if(!text)return'';return `Jeg satte pris på at du ${text.charAt(0).toLowerCase()}${text.slice(1)}.`}
+function renderCompose(s){const suggestions=core()?.suggestions?.(s,profileKey(s))||[];return `<div class="seenPage"><div class="seenSubpageHead"><button type="button" class="pill" data-seen-back="1" aria-label="Tilbake">←</button><strong>Gi anerkjennelse</strong></div><h1 class="seenSubpageTitle">Hva satte du pris på?</h1><p class="sub">Det kan være noe partneren gjorde, tok initiativ til eller måten partneren var på.</p><textarea id="seenRecognitionText" class="seenTextarea" maxlength="250" placeholder="Jeg satte pris på at du …"></textarea><div class="seenCounter"><span id="seenRecognitionCount">0</span>/250</div><div class="ey" style="margin:18px 0 9px">Forslag</div><div class="seenSuggestions">${suggestions.map(value=>`<button type="button" class="seenSuggestion" data-seen-suggestion="${esc(value)}">${esc(value)}</button>`).join('')}</div><button type="button" class="primary full seenPrimary" data-seen-send="1" style="margin-top:22px">Send anerkjennelse</button><button type="button" class="seenTextButton full" data-seen-back="1">Avbryt</button></div>`}
+function mondayKey(key){const d=new Date(`${key}T12:00:00Z`),day=(d.getUTCDay()+6)%7;d.setUTCDate(d.getUTCDate()-day);return d.toISOString().slice(0,10)}
+function historyGroup(event){const key=core().dateKey(new Date(event.at)),now=today(),thisMonday=mondayKey(now),lastMonday=addDays(thisMonday,-7);if(key===now)return'I dag';if(key===addDays(now,-1))return'I går';if(key>=thisMonday)return'Tidligere denne uken';if(key>=lastMonday)return'Forrige uke';const d=new Date(`${key}T12:00:00Z`);return new Intl.DateTimeFormat('nb-NO',{timeZone:'UTC',month:'long',year:'numeric'}).format(d).replace(/^./,c=>c.toUpperCase())}
+function historyCard(event){const date=event.at?new Intl.DateTimeFormat('nb-NO',{timeZone:'Europe/Oslo',weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}).format(new Date(event.at)):dayLabel(event.date),meta=`Av ${event.by} til ${event.to} · ${date}`;return `<article class="card seenHistoryCard"><span class="seenHistoryHeart" aria-hidden="true">♡</span><div><p>${esc(eventCopy(event))}</p><div class="taskmeta">${esc(meta)}</div></div></article>`}
+function renderHistory(s){const events=core()?.recognitionEvents?.(s)||[],groups=new Map();for(const event of events){const label=historyGroup(event);if(!groups.has(label))groups.set(label,[]);groups.get(label).push(event)}return `<div class="seenPage"><div class="seenSubpageHead"><button type="button" class="pill" data-seen-back="1" aria-label="Tilbake">←</button></div><h1 class="seenSubpageTitle">Historikk</h1><p class="sub">Dette har dere sett hos hverandre</p>${events.length?[...groups.entries()].map(([label,list])=>`<section class="seenHistoryGroup"><h2 class="seenSectionTitle">${esc(label)}</h2>${list.map(historyCard).join('')}</section>`).join(''):`<div class="card seenHistoryEmpty"><strong>Ingen anerkjennelser ennå</strong><p class="sub" style="margin-bottom:0">Når dere ser noe hos hverandre, samles det her.</p></div>`}</div>`}
+function render({resetScroll=false}={}){const s=state(),content=$('#content');if(!s||!content||s.view!=='seen')return;if(!selectedDate)selectedDate=today();painting=true;const scroll=resetScroll?0:content.scrollTop;content.dataset.flytOwner='seen-recognition';content.innerHTML=page==='compose'?renderCompose(s):page==='history'?renderHistory(s):renderMain(s);document.querySelectorAll('#nav button').forEach(button=>button.classList.toggle('on',button.dataset.view==='seen'));painting=false;content.scrollTop=resetScroll?0:Math.min(scroll,Math.max(0,content.scrollHeight-content.clientHeight));if(page==='compose')setTimeout(()=>$('#seenRecognitionText')?.focus(),30)}
+async function toggle(kind,id){const s=state(),row=(core()?.contributions?.(s,{user:s.user,date:selectedDate})||[]).find(item=>item.kind===kind&&String(item.id)===String(id));if(!s||!row)return;let result=core().toggleAcknowledgement(s,{kind,id,user:s.user});if(result.requiresConfirmation){const yes=window.FlytModal?.confirm?await window.FlytModal.confirm({ey:'Sett',title:'Fjerne anerkjennelsen?',text:'Den personlige teksten knyttet til anerkjennelsen blir også slettet.',ok:'Fjern'}):false;if(!yes)return;result=core().toggleAcknowledgement(s,{kind,id,user:s.user,allowTextRemoval:true})}if(!result.changed)return;save({...result.state,view:'seen'});render();bridge()?.toast?.(result.action==='added'?'Sett ♥':'Anerkjennelsen er fjernet')}
+function sendRecognition(){const s=state(),text=$('#seenRecognitionText')?.value.trim(),partner=s&&partnerName(s);if(!s||!text){$('#seenRecognitionText')?.focus();return}const next=core()?.addRecognition?.(s,{type:'personal',text,user:s.user,to:partner});if(next===s)return;page='main';save({...next,view:'seen'});render({resetScroll:true});bridge()?.toast?.('Anerkjennelse sendt ❤️')}
+function closeSpace(){spaceOpen=false;$('#seenSpaceModal')?.remove()}
+function openSpace(){if(spaceOpen)return;const s=state();if(!s)return;spaceOpen=true;const element=document.createElement('div');element.id='seenSpaceModal';element.className='seenSpaceModal';element.innerHTML=`<div class="seenSpaceSheet" role="dialog" aria-modal="true" aria-labelledby="seenSpaceTitle"><div class="ey">Gi litt rom i dag</div><h2 id="seenSpaceTitle" class="seenSubpageTitle" style="font-size:30px">En rolig beskjed</h2><p class="sub">Dette endrer ingen gjøremål eller ansvar.</p><button type="button" class="secondary full" data-seen-space-default="1">Du trenger ikke prestere noe i dag ❤️</button><label class="label" for="seenSpaceText" style="display:block;margin-top:17px">Egen kort beskjed</label><textarea id="seenSpaceText" class="seenTextarea" maxlength="250" style="min-height:105px" placeholder="Skriv noe varmt og enkelt"></textarea><button type="button" class="primary full seenPrimary" data-seen-space-send="1" style="margin-top:12px">Send beskjed</button><button type="button" class="seenTextButton full" data-seen-space-close="1">Avbryt</button></div>`;element.addEventListener('click',event=>{if(event.target===element)closeSpace()});document.body.appendChild(element)}
+function sendSpace(text){const s=state(),partner=s&&partnerName(s),next=s&&core()?.addRecognition?.(s,{type:'space',text,user:s.user,to:partner});if(!s||next===s)return;closeSpace();save({...next,view:'seen'});render();bridge()?.toast?.('Beskjeden er sendt ❤️')}
+function openMain(){page='main';render({resetScroll:true})}
 
-function statusLabel(request,s){
-  const status=requestState(request),mine=request.by===s.user;
-  if(status==='pending')return mine?'Venter på svar':'Ny';
-  if(status==='countered')return mine?'Motforslag mottatt':'Motforslag sendt';
-  if(status==='accepted')return request.source==='initiative'?`${request.acceptedBy||request.by} tar den`:`Tatt av ${request.acceptedBy||partnerName(s)}`;
-  if(status==='completed')return'Utført ✓';
-  if(status==='declined')return'Passet ikke';
-  if(status==='withdrawn')return request.source==='initiative'?'Avsluttet':'Trukket tilbake';
-  if(status==='expired'||requestExpired(request))return'Utløpt';
-  return status;
-}
-function requestTag(request){if(request.source==='initiative')return'Initiativ';if(request.taskId!=null)return'Forespørsel';return TYPE_LABEL[request.type]||'Behov'}
-function replyMarkup(request){
-  const replies=Array.isArray(request.replies)?request.replies.slice(-3):[];
-  if(!replies.length)return'';
-  return `<div style="margin-top:11px;display:grid;gap:7px">${replies.map(reply=>`<div style="padding:9px 11px;border-radius:13px;background:#fff7f2;border:1px solid #f0ddd3"><div class="taskmeta" style="margin:0 0 3px">${esc(reply.by)}</div><div style="line-height:1.4">${esc(reply.text)}</div></div>`).join('')}</div>`;
-}
-function counterMarkup(request){
-  if(!request.counter||request.counter.status!=='pending')return'';
-  return `<div style="margin-top:12px;padding:12px 13px;border-radius:15px;background:#fff4ec;border:1px solid #efcfc2"><div class="ey">Motforslag fra ${esc(request.counter.by)}</div><strong style="display:block;margin-top:5px">${esc(request.counter.taskName)}</strong>${request.counter.text?`<p style="margin:7px 0 0;line-height:1.4">${esc(request.counter.text)}</p>`:''}</div>`;
-}
-function appreciationMarkup(s,request){
-  if(request.appreciationText){
-    const unseen=request.appreciationBy!==s.user&&!(request.appreciationSeenBy||[]).includes(s.user);
-    return `<div style="margin-top:12px;padding:12px 13px;border-radius:15px;background:#f8eee9;border:1px solid #ecd4ca"><div class="ey">Et lite takk fra ${esc(request.appreciationBy||'partneren')}</div><strong style="display:block;margin-top:5px;font-size:16px">${esc(request.appreciationText)}</strong>${unseen?`<button type="button" class="small" data-thanks-seen="${esc(request.id)}" style="margin-top:9px">Takk mottatt</button>`:''}</div>`;
-  }
-  if(!couple()?.canThank?.(request,s.user))return'';
-  return `<div style="margin-top:12px;padding:12px 13px;border-radius:15px;background:#fff7f2;border:1px solid #efddd4"><strong>Send et lite takk?</strong><p class="sub" style="font-size:13px;margin:4px 0 10px">Frivillig og kort. Ingen vurdering, bare anerkjennelse.</p><div style="display:flex;gap:7px;flex-wrap:wrap"><button type="button" class="small" data-request-thanks="${esc(request.id)}|0">${THANKS[0]}</button><button type="button" class="small" data-request-thanks="${esc(request.id)}|1">${THANKS[1]}</button><button type="button" class="small" data-request-thanks-custom="${esc(request.id)}">Skriv selv</button></div></div>`;
-}
-function requestActions(s,request,{archived=false}={}){
-  if(archived)return'';
-  const mine=request.by===s.user,status=requestState(request),initiative=request.source==='initiative',linked=request.taskId!=null,buttons=[];
-  if(initiative){
-    if(mine&&status==='accepted')buttons.push(`<button type="button" class="primary grow" data-request-done="${esc(request.id)}">Utført</button>`);
-    if(!mine&&!request.seen)buttons.push(`<button type="button" class="secondary grow" data-request-seen="${esc(request.id)}">Jeg så det</button>`);
-  }else if(linked){
-    if(mine&&status==='countered'){
-      buttons.push(`<button type="button" class="primary grow" data-counter-accept="${esc(request.id)}">Godta byttet</button>`);
-      buttons.push(`<button type="button" class="secondary grow" data-counter-keep="${esc(request.id)}">Behold opprinnelig</button>`);
-    }else if(!mine&&status==='pending'){
-      buttons.push(`<button type="button" class="primary grow" data-request-accept="${esc(request.id)}">Jeg tar den</button>`);
-      buttons.push(`<button type="button" class="secondary" data-request-counter="${esc(request.id)}">Foreslå annet</button>`);
-      buttons.push(`<button type="button" class="small" data-request-decline="${esc(request.id)}">Passer ikke</button>`);
-      buttons.push(`<button type="button" class="small" data-request-reply="${esc(request.id)}">Svar</button>`);
-    }else if(!mine&&status==='accepted'&&request.acceptedBy===s.user){
-      buttons.push(`<button type="button" class="primary grow" data-request-done="${esc(request.id)}">Utført</button>`);
-      buttons.push(`<button type="button" class="small" data-request-reply="${esc(request.id)}">Svar</button>`);
-    }else if(requestActive(request)&&Array.isArray(request.replies)&&request.replies.length){
-      buttons.push(`<button type="button" class="small" data-request-reply="${esc(request.id)}">Svar kort</button>`);
-    }
-  }else if(!mine){
-    if(!request.seen)buttons.push(`<button type="button" class="small" data-request-seen="${esc(request.id)}">Sett</button>`);
-    buttons.push(`<button type="button" class="secondary grow" data-request-reply="${esc(request.id)}">Svar</button>`);
-    buttons.push(`<button type="button" class="primary grow" data-request-done="${esc(request.id)}">Ordnet</button>`);
-  }
-  return buttons.length?`<div class="row" style="margin-top:12px;flex-wrap:wrap">${buttons.join('')}</div>`:'';
-}
-function requestCard(s,request,{archived=false}={}){
-  const mine=request.by===s.user,initiative=request.source==='initiative',menu=mine?`<button type="button" class="small" data-item-menu="request|${esc(request.id)}" aria-label="Flere valg">•••</button>`:'',headline=initiative?`${request.by} tar ansvar for ${taskReference(request.taskName||'gjøremålet')}`:request.text;
-  return `<div class="card" data-seen-request-card="${esc(request.id)}" style="${initiative?'border-color:#e0dac6;background:linear-gradient(145deg,#fffef9,#f8f5e9)':''}"><div class="row" style="align-items:flex-start"><div class="grow"><div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap"><span class="tag">${esc(requestTag(request))}</span><span class="tag" style="${requestState(request)==='completed'?'background:#edf1e5;color:#607644':''}">${esc(statusLabel(request,s))}</span></div><strong style="display:block;margin-top:9px;font-size:17px;line-height:1.38">${esc(headline)}</strong>${request.taskName&&!initiative?`<div class="taskmeta" style="margin-top:6px">Knyttet til: ${esc(request.taskName)}</div>`:''}<div class="taskmeta" style="margin-top:5px">${initiative?`Synlig initiativ fra ${esc(request.by)}`:`Fra ${esc(request.by||'')}`}</div></div>${menu}</div>${counterMarkup(request)}${replyMarkup(request)}${requestActions(s,request,{archived})}${appreciationMarkup(s,request)}</div>`;
-}
-function contributionCard(s,work,{archived=false}={}){
-  const mine=work.by===s.user,menu=mine?`<button type="button" class="small" data-item-menu="work|${esc(work.id)}" aria-label="Flere valg">•••</button>`:'';
-  return `<div class="card row"><div class="grow"><strong>${esc(work.title)}</strong><div class="taskmeta">${esc(work.by||'')}${archived?work.seen?' · Sett og arkivert':' · Utløpt og arkivert':''}</div></div>${archived?`<span class="tag">${work.seen?'Sett ✓':'Utløpt'}</span>`:mine?(work.seen?'<span class="tag">Sett ✓</span>':'<span class="taskmeta">Ikke sett ennå</span>'):(work.seen?'<span class="tag">Sett ✓</span>':`<button type="button" class="small" data-seen-ack="${esc(work.id)}">Jeg så det</button>`)}${menu}</div>`;
-}
-function monthKey(at){const date=new Date(at||Date.now());return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}`}
-function monthLabel(key){const [year,month]=key.split('-').map(Number),date=new Date(year,month-1,1);return new Intl.DateTimeFormat('nb-NO',{month:'long',year:'numeric'}).format(date).replace(/^./,char=>char.toUpperCase())}
-function archiveMarkup(s,excluded){
-  const entries=archivedEntries(s,excluded);
-  if(!entries.length)return `<div class="card"><strong>Arkivet er tomt</strong><p class="sub" style="margin-bottom:0">Ferdige og utløpte ting samles her automatisk.</p></div>`;
-  const groups=new Map();
-  for(const entry of entries){const key=monthKey(entry.at);if(!groups.has(key))groups.set(key,[]);groups.get(key).push(entry)}
-  const body=[...groups.entries()].map(([key,list])=>`<div class="section" style="margin-top:16px"><div class="ey">${esc(monthLabel(key))}</div>${list.map(entry=>entry.kind==='request'?requestCard(s,entry.item,{archived:true}):contributionCard(s,entry.item,{archived:true})).join('')}</div>`).join('');
-  return `<p class="sub" style="margin:12px 2px 0">Ferdige og utløpte ting ligger her i opptil 90 dager. Deretter slettes detaljene automatisk.</p>${body}`;
-}
-function seenTabs(archiveCount){return `<div class="segments" data-seen-tabs="1" style="grid-template-columns:1fr 1fr;margin:15px 0 18px"><button type="button" data-seen-mode="now" class="${archiveOpen?'':'on'}">Nå</button><button type="button" data-seen-mode="archive" data-archive-toggle="1" class="${archiveOpen?'on':''}">Arkiv${archiveCount?` · ${archiveCount}`:''}</button></div>`}
-function render(){
-  const s=state(),content=$('#content');
-  if(!s||!content||s.view!=='seen')return;
-  painting=true;
-  const active=activeRequests(s),waiting=active.filter(request=>requestState(request)!=='accepted'),agreements=active.filter(request=>requestState(request)==='accepted'),recent=recentRequests(s),contributions=activeContributions(s),excluded=new Set(recent.map(request=>String(request.id))),archiveCount=archivedEntries(s,excluded).length;
-  content.dataset.flytOwner='seen-active-archive';
-  const tabs=seenTabs(archiveCount),header=`<div class="ey">Sett</div><h1 class="title">Mellom dere</h1><p class="sub">Det som trenger et svar, en handling eller litt anerkjennelse.</p>${tabs}`;
-  if(archiveOpen)content.innerHTML=`${header}${archiveMarkup(s,excluded)}`;
-  else{
-    const empty=!waiting.length&&!agreements.length&&!recent.length&&!contributions.length;
-    content.innerHTML=`${header}<div style="display:grid;grid-template-columns:1.25fr 1fr;gap:9px"><button type="button" id="seenAddRequest" class="primary">+ Ny melding</button><button type="button" id="seenAdd" class="secondary">+ Synliggjør bidrag</button></div>${waiting.length?`<div class="section"><div class="ey">Trenger svar</div>${waiting.map(request=>requestCard(s,request)).join('')}</div>`:''}${agreements.length?`<div class="section"><div class="ey">Avtalt</div><p class="sub" style="margin:7px 0 0">Oppgaver noen har tatt ansvar for.</p>${agreements.map(request=>requestCard(s,request)).join('')}</div>`:''}${recent.length?`<div class="section"><div class="ey">Nylig</div><p class="sub" style="margin:7px 0 0">Ferdige ting vises bare når et lite takk fortsatt gjenstår.</p>${recent.map(request=>requestCard(s,request,{archived:true})).join('')}</div>`:''}${contributions.length?`<div class="section"><div class="ey">Bidrag å se</div>${contributions.map(work=>contributionCard(s,work)).join('')}</div>`:''}${empty?'<div class="card" style="margin-top:18px"><strong>Ingenting venter mellom dere</strong><p class="sub" style="margin-bottom:0">Nye forespørsler, avtaler og bidrag dukker opp her.</p></div>':''}`;
-  }
-  document.querySelectorAll('#nav button').forEach(button=>button.classList.toggle('on',button.dataset.view==='seen'));
-  painting=false;
-  queuePrune();
-  window.FlytSeenRequestAlert?.updateBadge?.();
-}
+document.addEventListener('input',event=>{if(event.target?.id==='seenRecognitionText'){$('#seenRecognitionCount').textContent=String(event.target.value.length)}},true);
+document.addEventListener('click',async event=>{const match=selector=>event.target.closest?.(selector),stop=()=>{event.preventDefault();event.stopImmediatePropagation()};const nav=match('#nav button[data-view="seen"]');if(nav){stop();const s=state();if(s){page='main';selectedDate=today();save({...s,view:'seen'});queueMicrotask(()=>render({resetScroll:true}))}return}if(state()?.view!=='seen')return;const back=match('[data-seen-back]');if(back){stop();openMain();return}const day=match('[data-seen-day]');if(day){stop();const next=addDays(selectedDate,Number(day.dataset.seenDay));if(next<=today()){selectedDate=next;render({resetScroll:true})}return}if(match('[data-seen-today]')){stop();selectedDate=today();render({resetScroll:true});return}const toggleButton=match('[data-seen-toggle]');if(toggleButton){stop();const [kind,id]=String(toggleButton.dataset.seenToggle).split('|');await toggle(kind,id);return}if(match('[data-seen-compose]')){stop();page='compose';render({resetScroll:true});return}if(match('[data-seen-history]')){stop();page='history';render({resetScroll:true});return}if(match('[data-seen-space]')){stop();openSpace();return}const suggestion=match('[data-seen-suggestion]');if(suggestion){stop();const textarea=$('#seenRecognitionText');if(textarea){textarea.value=suggestionSentence(suggestion.dataset.seenSuggestion);textarea.dispatchEvent(new Event('input',{bubbles:true}));textarea.focus()}return}if(match('[data-seen-send]')){stop();sendRecognition();return}if(match('[data-seen-space-close]')){stop();closeSpace();return}if(match('[data-seen-space-default]')){stop();sendSpace('Du trenger ikke prestere noe i dag ❤️');return}if(match('[data-seen-space-send]')){stop();const value=$('#seenSpaceText')?.value.trim();if(value)sendSpace(value);else $('#seenSpaceText')?.focus();return}},true);
 
-function closeRequestModal(){requestModalOpen=false;$('#seenRequestModal')?.remove()}
-function openRequestModal(){
-  if(requestModalOpen)return;
-  const s=state();if(!s)return;
-  requestModalOpen=true;
-  let type='need';
-  const element=document.createElement('div');
-  element.id='seenRequestModal';
-  element.style.cssText='position:fixed;inset:0;z-index:170;background:#3a211b88;display:flex;align-items:center;justify-content:center;padding:22px';
-  element.innerHTML=`<div role="dialog" aria-modal="true" style="width:min(390px,100%);background:#fffaf7;border:1px solid #ead8d0;border-radius:26px;padding:22px;box-shadow:0 24px 70px #3b211b55"><div class="ey">Sett</div><h2 style="font:500 28px/1.12 Georgia;margin:10px 0 8px">Hva vil du gjøre tydelig?</h2><p class="sub" style="margin-top:0">Skriv et konkret behov eller ønske, ikke en test den andre må bestå.</p><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0"><button type="button" class="primary" data-request-type="need">Behov</button><button type="button" class="secondary" data-request-type="wish">Ønske</button><button type="button" class="secondary" data-request-type="practical">Praktisk</button></div><label class="label" for="seenRequestText">Hva trenger eller ønsker du?</label><textarea id="seenRequestText" rows="4" maxlength="600" placeholder="F.eks. Jeg trenger at du tar leggingen i kveld" style="width:100%;resize:vertical;min-height:110px;border:1px solid #ead8d0;border-radius:15px;background:#fff;padding:12px 14px;font:inherit;color:inherit;outline:none;margin-top:6px"></textarea><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px"><button type="button" id="seenRequestCancel" class="secondary">Avbryt</button><button type="button" id="seenRequestSave" class="primary">Legg inn</button></div></div>`;
-  document.body.appendChild(element);
-  const buttons=[...element.querySelectorAll('[data-request-type]')],text=element.querySelector('#seenRequestText'),paintTypes=()=>buttons.forEach(button=>button.className=button.dataset.requestType===type?'primary':'secondary');
-  buttons.forEach(button=>button.onclick=()=>{type=button.dataset.requestType;paintTypes()});
-  element.querySelector('#seenRequestCancel').onclick=closeRequestModal;
-  element.addEventListener('click',event=>{if(event.target===element)closeRequestModal()});
-  element.querySelector('#seenRequestSave').onclick=()=>{
-    const value=text.value.trim(),fresh=state();
-    if(!value){text.focus();text.style.borderColor='#e87961';return}
-    if(!fresh)return;
-    const now=Date.now(),item={id:`req_${now}`,kind:'message',type,text:value,by:fresh.user,createdAt:now,responseState:'pending',seen:false,seenBy:null,seenAt:null,done:false,doneBy:null,doneAt:null,deleted:false,deletedAt:null,replies:[]};
-    save({...fresh,seenRequests:[item,...allRequests(fresh)]});
-    closeRequestModal();queueMicrotask(render);bridge()?.toast?.(`${TYPE_LABEL[type]||'Behov'} delt`);
-  };
-  setTimeout(()=>text.focus(),40);
-}
-
-function closeFlowModal(){flowModalOpen=false;$('#seenFlowModal')?.remove()}
-function openCounterModal(id){
-  if(flowModalOpen)return;
-  const s=state(),request=allRequests(s).find(item=>String(item.id)===String(id));
-  if(!s||!request||request.by===s.user||requestState(request)!=='pending')return;
-  const fromNudges=window.FlytNudgeUI?.core?.remainingTasks?.(s,new Date())||[],fallback=(s.tasks||[]).filter(task=>task?.kind==='house'),tasks=(fromNudges.length?fromNudges:fallback).filter(task=>String(task.id)!==String(request.taskId));
-  if(!tasks.length){bridge()?.toast?.('Ingen andre åpne gjøremål å foreslå');return}
-  flowModalOpen=true;
-  const element=document.createElement('div');
-  element.id='seenFlowModal';
-  element.style.cssText='position:fixed;inset:0;z-index:345;background:#3a211b99;display:flex;align-items:center;justify-content:center;padding:20px';
-  element.innerHTML=`<div role="dialog" aria-modal="true" style="width:min(410px,100%);background:#fffaf7;border:1px solid var(--line);border-radius:27px;padding:22px;box-shadow:0 28px 80px #3b211b55"><div class="ey">Motforslag</div><h2 style="font:500 28px/1.12 Georgia;margin:9px 0 7px">Kan du ta noe annet?</h2><p class="sub" style="margin-top:0">Foreslå ett konkret gjøremål. Den opprinnelige forespørselen blir stående til ${esc(request.by)} svarer.</p><label class="label" for="seenCounterTask">Annet gjøremål</label><select id="seenCounterTask" class="field">${tasks.map(task=>`<option value="${esc(task.id)}">${esc(task.name)}</option>`).join('')}</select><label class="label" for="seenCounterText">Kort beskjed (valgfritt)</label><input id="seenCounterText" class="field" maxlength="220" placeholder="F.eks. Jeg rekker denne bedre i dag"><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px"><button type="button" class="secondary" data-flow-cancel="1">Avbryt</button><button type="button" class="primary" data-flow-counter-send="${esc(id)}">Send motforslag</button></div></div>`;
-  document.body.appendChild(element);
-  element.addEventListener('click',event=>{if(event.target===element)closeFlowModal()});
-}
-
-function updateRequest(id,mutator){
-  const s=state();if(!s)return null;
-  const requests=allRequests(s).map(item=>({...item})),index=requests.findIndex(item=>String(item.id)===String(id));
-  if(index<0)return null;
-  const before=requests[index],next=mutator(before,s);
-  if(!next||next===before)return null;
-  requests[index]=next;save({...s,seenRequests:requests});queueMicrotask(render);return next;
-}
-function markRequestSeen(id){updateRequest(id,(request,s)=>request.by===s.user||!requestActive(request)?request:(couple()?.markSeen?.(request,s.user)||{...request,seen:true,seenBy:s.user,seenAt:request.seenAt||new Date().toISOString()}))}
-function acceptRequest(id){const result=updateRequest(id,(request,s)=>couple()?.acceptRequest?.(request,s.user)||request);if(result&&requestState(result)==='accepted')bridge()?.toast?.(`Du har tatt ansvar for ${taskReference(result.taskName||'gjøremålet')}`)}
-async function declineRequest(id){
-  const s=state(),request=allRequests(s).find(item=>String(item.id)===String(id));if(!s||!request||request.by===s.user)return;
-  const yes=window.FlytModal?.confirm?await window.FlytModal.confirm({ey:'Svar på forespørsel',title:'Passer det ikke denne gangen?',text:'Forespørselen avsluttes tydelig for dere begge. Ingen nye påminnelser sendes.',ok:'Det passer ikke'}):false;
-  if(!yes)return;updateRequest(id,(item,current)=>couple()?.declineRequest?.(item,current.user)||item);bridge()?.toast?.('Svaret er sendt');
-}
-async function replyToRequest(id){
-  const s=state(),request=allRequests(s).find(item=>String(item.id)===String(id));if(!s||!request||!requestActive(request))return;
-  const text=window.FlytModal?.prompt?await window.FlytModal.prompt({ey:'Kort svar',title:'Svar i samme kontekst',text:'Hold det kort og konkret. Flyt er ikke ment som en generell chat.',label:'Svar',placeholder:'F.eks. Jeg rekker det etter middag',ok:'Send svar'}):null;
-  if(!text?.trim())return;updateRequest(id,(item,current)=>couple()?.replyToRequest?.(item,current.user,text)||item);bridge()?.toast?.('Svaret er sendt');
-}
-function sendCounter(id){
-  const taskId=$('#seenCounterTask')?.value,text=$('#seenCounterText')?.value.trim(),s=state(),task=(s?.tasks||[]).find(item=>String(item.id)===String(taskId));if(!s||!task)return;
-  const result=updateRequest(id,(request,current)=>couple()?.counterRequest?.(request,current.user,task,text)||request);
-  if(result&&requestState(result)==='countered'){closeFlowModal();bridge()?.toast?.('Motforslaget er sendt')}
-}
-function acceptCounter(id){const result=updateRequest(id,(request,s)=>couple()?.acceptCounter?.(request,s.user)||request);if(result&&requestState(result)==='accepted')bridge()?.toast?.(`Avtalen gjelder nå ${taskReference(result.taskName)}`)}
-function keepOriginal(id){const result=updateRequest(id,(request,s)=>couple()?.keepOriginalRequest?.(request,s.user)||request);if(result&&requestState(result)==='pending')bridge()?.toast?.('Den opprinnelige forespørselen står')}
-function localDate(){const date=new Date();return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`}
-function finishRequest(id){
-  const s=state(),requests=allRequests(s).map(item=>({...item})),index=requests.findIndex(item=>String(item.id)===String(id));if(!s||index<0)return;
-  const before=requests[index],after=couple()?.completeRequest?.(before,s.user)||before;if(after===before||requestState(after)!=='completed')return;
-  requests[index]=after;
-  let next={...s,seenRequests:requests},registered=false,task=(s.tasks||[]).find(item=>String(item.id)===String(after.taskId));
-  if(task){
-    const day=localDate(),already=task.type==='daily'&&(s.completions||[]).some(completion=>completion.date===day&&String(completion.taskId)===String(task.id));
-    if(!already){
-      const now=Date.now(),points={...(s.points||{})},personalPoints=Number(task.pts||0),housePoints=task.kind==='house'?personalPoints:Math.round(personalPoints*.2),completion={id:now,taskId:task.id,date:day,by:s.user,kind:task.kind,housePts:housePoints,registeredAt:after.doneAt,taskSnapshot:{name:task.name,cat:task.cat,pts:task.pts,type:task.type,kind:task.kind}};
-      points[s.user]=(points[s.user]||0)+personalPoints;requests[index]={...after,completionId:now};next={...next,seenRequests:requests,points,completions:[...(s.completions||[]),completion]};registered=true;
-    }
-  }
-  save(next);queueMicrotask(render);bridge()?.toast?.(registered?`${taskReference(task.name)} er registrert · +${task.pts||0} poeng`:'Flyttet til nylig');
-}
-function sendThanks(id,text){const result=updateRequest(id,(request,s)=>couple()?.addThanks?.(request,s.user,text)||request);if(result?.appreciationText){bridge()?.toast?.('Takken er sendt');window.FlytSeenRequestAlert?.checkAlerts?.()}}
-async function sendCustomThanks(id){const text=window.FlytModal?.prompt?await window.FlytModal.prompt({ey:'Et lite takk',title:'Hva vil du si?',text:'Kort og ekte er mer enn nok.',label:'Takk',placeholder:'F.eks. Takk, det ga meg litt pusterom ❤️',ok:'Send'}):null;if(text?.trim())sendThanks(id,text)}
-function markThanksSeen(id){updateRequest(id,(request,s)=>couple()?.markThanksSeen?.(request,s.user)||request)}
-
-function closeActionMenu(){actionMenuOpen=false;$('#seenItemMenu')?.remove()}
-function openActionMenu(kind,id){
-  if(actionMenuOpen)closeActionMenu();
-  const s=state();if(!s)return;
-  const item=kind==='request'?allRequests(s).find(entry=>String(entry.id)===String(id)):manualWork(s).find(entry=>String(entry.id)===String(id));if(!item||item.by!==s.user)return;
-  const request=kind==='request',active=request&&requestActive(item),canWithdraw=request&&(couple()?.canWithdrawRequest?.(item,s.user)??(active&&!item.acceptedBy)),initiative=request&&item.source==='initiative'&&active,canDelete=!request||(couple()?.canDeleteRequest?.(item,s.user)??!active);
-  actionMenuOpen=true;
-  const element=document.createElement('div');element.id='seenItemMenu';element.style.cssText='position:fixed;inset:0;z-index:350;background:#3a211b66;display:flex;align-items:flex-end;justify-content:center;padding:14px';
-  const locked=request&&active&&!canWithdraw&&!initiative;
-  element.innerHTML=`<div role="dialog" aria-modal="true" style="width:min(420px,100%);background:#fffaf7;border:1px solid var(--line);border-radius:24px;padding:12px;box-shadow:0 24px 70px #3b211b44">${canWithdraw?'<button type="button" class="secondary full" data-menu-withdraw="1" style="margin-bottom:8px">Trekk tilbake</button>':''}${initiative?'<button type="button" class="secondary full" data-menu-cancel-initiative="1" style="margin-bottom:8px">Avslutt initiativ</button>':''}${locked?'<p class="sub" style="margin:8px 10px 14px">Forespørselen kan ikke forsvinne stille etter et svar eller motforslag.</p>':''}${canDelete?'<button type="button" class="secondary full" data-menu-delete="1" style="color:#a43c32">Slett permanent</button>':''}<button type="button" class="small full" data-menu-close="1" style="margin-top:10px;min-height:42px">Lukk</button></div>`;
-  document.body.appendChild(element);
-  element.addEventListener('click',async event=>{if(event.target===element||event.target.closest('[data-menu-close]')){closeActionMenu();return}if(event.target.closest('[data-menu-withdraw]')){closeActionMenu();await withdrawRequest(id);return}if(event.target.closest('[data-menu-cancel-initiative]')){closeActionMenu();await cancelInitiative(id);return}if(event.target.closest('[data-menu-delete]')){closeActionMenu();await deleteItem(kind,id)}});
-}
-async function withdrawRequest(id){
-  const s=state(),request=allRequests(s).find(item=>String(item.id)===String(id));
-  if(!s||!request||!(couple()?.canWithdrawRequest?.(request,s.user)??(request.by===s.user&&requestActive(request)&&!request.acceptedBy))){bridge()?.toast?.('Forespørselen har fått svar og kan ikke trekkes stille tilbake');return}
-  const yes=window.FlytModal?.confirm?await window.FlytModal.confirm({ey:'Sett',title:'Trekke tilbake?',text:'Partneren vil se at forespørselen ble trukket tilbake.',ok:'Trekk tilbake'}):false;if(!yes)return;
-  updateRequest(id,item=>({...item,deleted:true,deletedAt:new Date().toISOString(),deletedBy:s.user,responseState:'withdrawn'}));bridge()?.toast?.('Flyttet til arkiv');
-}
-async function cancelInitiative(id){
-  const s=state(),request=allRequests(s).find(item=>String(item.id)===String(id));if(!s||!request||request.by!==s.user||request.source!=='initiative'||!requestActive(request))return;
-  const yes=window.FlytModal?.confirm?await window.FlytModal.confirm({ey:'Initiativ',title:'Avslutte initiativet?',text:'Det forsvinner ikke stille. Partneren vil se at initiativet ble avsluttet.',ok:'Avslutt'}):false;if(!yes)return;
-  updateRequest(id,item=>({...item,deleted:true,deletedAt:new Date().toISOString(),deletedBy:s.user,responseState:'withdrawn'}));bridge()?.toast?.('Initiativet er avsluttet');
-}
-async function deleteItem(kind,id){
-  const s=state();if(!s)return;
-  const item=kind==='request'?allRequests(s).find(entry=>String(entry.id)===String(id)):manualWork(s).find(entry=>String(entry.id)===String(id));if(!item||item.by!==s.user)return;
-  if(kind==='request'&&!(couple()?.canDeleteRequest?.(item,s.user)??!requestActive(item))){bridge()?.toast?.('Aktive avtaler kan ikke slettes permanent');return}
-  const yes=window.FlytModal?.confirm?await window.FlytModal.confirm({ey:'Sett',title:'Slette permanent?',text:'Dette fjernes for begge og kan ikke angres.',ok:'Slett'}):false;if(!yes)return;
-  if(kind==='request')save({...s,seenRequests:allRequests(s).filter(entry=>String(entry.id)!==String(id))});else save({...s,work:(s.work||[]).filter(entry=>String(entry.id)!==String(id))});
-  queueMicrotask(render);bridge()?.toast?.('Slettet');
-}
-
-document.addEventListener('click',async event=>{
-  const target=event.target,match=selector=>target.closest?.(selector),stop=()=>{event.preventDefault();event.stopImmediatePropagation()};
-  const flowCancel=match('[data-flow-cancel]');if(flowCancel){stop();closeFlowModal();return}
-  const counterSend=match('[data-flow-counter-send]');if(counterSend){stop();sendCounter(counterSend.dataset.flowCounterSend);return}
-  const nav=match('#nav button[data-view="seen"]');if(nav){stop();archiveOpen=false;const s=state();if(s){const requests=allRequests(s).map(request=>couple()?.markRequestUpdatesSeen?.(request,s.user)||request);save({...s,seenRequests:requests,view:'seen'});queueMicrotask(render)}return}
-  if(state()?.view!=='seen')return;
-  const seenMode=match('[data-seen-mode]');if(seenMode){stop();archiveOpen=seenMode.dataset.seenMode==='archive';render();return}
-  const menu=match('[data-item-menu]');if(menu){stop();const [kind,id]=String(menu.dataset.itemMenu).split('|');openActionMenu(kind,id);return}
-  const addRequest=match('#seenAddRequest');if(addRequest){stop();openRequestModal();return}
-  const accept=match('[data-request-accept]');if(accept){stop();acceptRequest(accept.dataset.requestAccept);return}
-  const done=match('[data-request-done]');if(done){stop();finishRequest(done.dataset.requestDone);return}
-  const seen=match('[data-request-seen]');if(seen){stop();markRequestSeen(seen.dataset.requestSeen);return}
-  const counter=match('[data-request-counter]');if(counter){stop();openCounterModal(counter.dataset.requestCounter);return}
-  const decline=match('[data-request-decline]');if(decline){stop();await declineRequest(decline.dataset.requestDecline);return}
-  const reply=match('[data-request-reply]');if(reply){stop();await replyToRequest(reply.dataset.requestReply);return}
-  const acceptSwap=match('[data-counter-accept]');if(acceptSwap){stop();acceptCounter(acceptSwap.dataset.counterAccept);return}
-  const keep=match('[data-counter-keep]');if(keep){stop();keepOriginal(keep.dataset.counterKeep);return}
-  const thank=match('[data-request-thanks]');if(thank){stop();const [id,index]=String(thank.dataset.requestThanks).split('|');sendThanks(id,THANKS[Number(index)]||THANKS[0]);return}
-  const customThank=match('[data-request-thanks-custom]');if(customThank){stop();await sendCustomThanks(customThank.dataset.requestThanksCustom);return}
-  const thanksSeen=match('[data-thanks-seen]');if(thanksSeen){stop();markThanksSeen(thanksSeen.dataset.thanksSeen);return}
-  const acknowledgement=match('[data-seen-ack]');if(acknowledgement){stop();const s=state(),work=(s.work||[]).map(item=>({...item})),item=work.find(entry=>String(entry.id)===String(acknowledgement.dataset.seenAck)&&entry.source==='manual');if(item&&item.by!==s.user){item.seen=true;item.seenAt=item.seenAt||new Date().toISOString();save({...s,work});queueMicrotask(render)}return}
-  const add=match('#seenAdd');if(add){stop();const title=window.FlytModal?await window.FlytModal.prompt({ey:'Sett',title:'Legg til bidrag',text:'Registrer noe som ellers lett kunne gått ubemerket hen.',label:'Hva gjorde du?',placeholder:'F.eks. ordnet avtalen med tannlegen',ok:'Legg til'}):null;if(!title?.trim())return;const s=state(),now=Date.now(),work=[{id:now,title:title.trim(),by:s.user,seen:false,source:'manual',createdAt:now},...(s.work||[])];save({...s,work});queueMicrotask(render);bridge()?.toast?.('Bidraget er lagt i Sett')}
-},true);
-
-const observer=new MutationObserver(()=>{if(painting||requestModalOpen||actionMenuOpen||flowModalOpen)return;const s=state(),content=$('#content');if(s?.view==='seen'&&content?.dataset.flytOwner!=='seen-active-archive')queueMicrotask(render)});
-let observed=false,tries=0;
-const timer=setInterval(()=>{const content=$('#content');if(content&&!observed){observer.observe(content,{childList:true,subtree:true});observed=true}const s=state();if(s?.view==='seen'&&content?.dataset.flytOwner!=='seen-active-archive')render();if(observed&&++tries>80)clearInterval(timer)},100);
-
-window.FlytSeenUI={render,openRequestModal,requestActive,version:VERSION};
+const observer=new MutationObserver(()=>{if(painting||spaceOpen)return;const s=state(),content=$('#content');if(s?.view==='seen'&&content?.dataset.flytOwner!=='seen-recognition')queueMicrotask(render)});let observed=false,tries=0;const timer=setInterval(()=>{const content=$('#content');if(content&&!observed){observer.observe(content,{childList:true,subtree:true});observed=true}const s=state();if(s?.view==='seen'&&content?.dataset.flytOwner!=='seen-recognition')render();if(observed&&++tries>80)clearInterval(timer)},100);
+ensureStyles();window.FlytSeenUI={render,openMain,version:VERSION};
 })();
