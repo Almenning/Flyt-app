@@ -8,8 +8,8 @@
 <meta name="apple-mobile-web-app-title" content="Flyt">
 <link rel="manifest" href="./manifest.webmanifest">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./task-language.js?v=20260902-1800" defer></script>
-<script src="./day-plan.js?v=20260902-1800" defer></script>
+<script src="./task-language.js?v=20260903-master1" defer></script>
+<script src="./day-plan.js?v=20260903-master1" defer></script>
 <script src="./daily-loop.js?v=20260903-2330" defer></script>
 <script src="./couple-core.js?v=20260902-1700" defer></script>
 <script src="./couple-insights.js?v=20260902-1730" defer></script>
@@ -21,7 +21,7 @@
 <script src="./app-watchdog.js?v=20260903-2330" defer></script>
 <script src="./tasks-ui.js?v=20260902-1800" defer></script>
 <script src="./category-accordion.js?v=20260903-2200" defer></script>
-<script src="./recurrence-ui.js?v=20260903-accordion2" defer></script>
+<script src="./recurrence-ui.js?v=20260903-master1" defer></script>
 <script src="./tasks-view-guard.js?v=20260828-2205" defer></script>
 <script src="./planned-ui.js?v=20260902-1800" defer></script>
 <script src="./home-ui.js?v=20260903-1800" defer></script>
@@ -43,30 +43,7 @@
 'use strict';
 const KEY='flyt_state_v5';
 const $=s=>document.querySelector(s);
-const LIB=window.FlytTaskLanguage?.catalog||[
-{id:'kids_wakeup',cat:'Barn',name:'Morgenansvar med barna',freq:7,preferredDays:[1,2,3,4,5,6,7],pts:20,type:'daily',kind:'house'},
-{id:'kids_get_ready',cat:'Barn',name:'Levering i barnehage eller skole',freq:5,preferredDays:[1,2,3,4,5],pts:30,type:'daily',kind:'house'},
-{id:'dish_fill',cat:'Kjøkken',name:'Sette inn i oppvaskmaskinen',freq:7,preferredDays:[1,2,3,4,5,6,7],pts:10,type:'daily',kind:'house'},
-{id:'dish_empty',cat:'Kjøkken',name:'Tømme oppvaskmaskinen',freq:7,preferredDays:[1,2,3,4,5,6,7],pts:20,type:'daily',kind:'house'},
-{id:'kitchen',cat:'Kjøkken',name:'Rydde kjøkkenet etter middag',freq:7,preferredDays:[1,2,3,4,5,6,7],pts:20,type:'daily',kind:'house'},
-{id:'counter',cat:'Kjøkken',name:'Tørke kjøkkenbenken',freq:7,preferredDays:[1,2,3,4,5,6,7],pts:10,type:'daily',kind:'house'},
-{id:'dinner',cat:'Kjøkken',name:'Lage middag',freq:7,preferredDays:[1,2,3,4,5,6,7],pts:30,type:'daily',kind:'house'},
-{id:'lunch',cat:'Barn',name:'Lage matpakker',freq:5,preferredDays:[1,2,3,4,5],pts:10,type:'daily',kind:'house'},
-{id:'bag',cat:'Barn',name:'Pakke sekker og utstyr',freq:5,preferredDays:[1,2,3,4,5],pts:10,type:'daily',kind:'house'},
-{id:'bedkids',cat:'Barn',name:'Kveldsstell og legging',freq:7,preferredDays:[1,2,3,4,5,6,7],pts:20,type:'daily',kind:'house'},
-{id:'bath_toilet',cat:'Bad',name:'Vaske toalettet',freq:1,pts:40,type:'flex',kind:'house'},
-{id:'bath_sink',cat:'Bad',name:'Vaske servant og speil',freq:1,pts:30,type:'flex',kind:'house'},
-{id:'bath_shower',cat:'Bad',name:'Vaske badekar eller dusj',freq:1,pts:50,type:'flex',kind:'house'},
-{id:'bath_floor',cat:'Bad',name:'Vaske badegulvet',freq:1,pts:40,type:'flex',kind:'house'},
-{id:'bath_tidy',cat:'Bad',name:'Rydde badet',freq:3,pts:20,type:'flex',kind:'house'},
-{id:'living',cat:'Stue',name:'Rydde stue og oppholdsrom',freq:3,pts:10,type:'flex',kind:'house'},
-{id:'laundry_start',cat:'Klesvask',name:'Sette på en vaskemaskin',freq:3,pts:20,type:'flex',kind:'house'},
-{id:'laundry_hang',cat:'Klesvask',name:'Henge opp klær',freq:3,pts:30,type:'flex',kind:'house'},
-{id:'laundry_fold',cat:'Klesvask',name:'Brette klær',freq:3,pts:40,type:'flex',kind:'house'},
-{id:'shop',cat:'Innkjøp',name:'Handle mat',freq:2,pts:20,type:'flex',kind:'house'},
-{id:'trash',cat:'Vedlikehold',name:'Ta ut søppel og sortere avfall',freq:2,pts:10,type:'flex',kind:'house'},
-{id:'train',cat:'Personlig investering',name:'Trening',freq:3,pts:10,type:'flex',kind:'personal'}
-];
+const LIB=window.FlytTaskLanguage?.catalog||[];
 const DEFAULT_IDS=['dish_fill','dish_empty','kitchen','dinner','laundry_start','laundry_hang','laundry_fold','trash'];
 function fresh(){return{version:5,taskCatalogVersion:window.FlytTaskLanguage?.CATALOG_VERSION||0,user:'Du',view:'home',setupDone:false,areas:{home:true,children:true,mental:true,training:true,closeness:true,sex:true},trainingFor:{Du:true,Partner:true},tasks:LIB.filter(x=>DEFAULT_IDS.includes(x.id)).map(x=>({...x,owner:'Begge'})),custom:[],completions:[],dayPlans:{},taskClaims:[],points:{Du:0,Partner:0},status:{Du:{energy:'med',capacity:'med',closeness:'med',desire:'med',stress:'med',needs:[]},Partner:{energy:'med',capacity:'med',closeness:'med',desire:'med',stress:'med',needs:[]}},work:[],seenRequests:[],recognitions:[],seenSuggestionPreferences:{},rewards:[{id:1,title:'20 min massasje',by:'Partner',requiresPoints:true,cost:250},{id:2,title:'Sovemorgen',by:'Du',requiresPoints:true,cost:350}],rewardRedemptions:[],quickTemptations:[],coupleInvitations:[],coupleJourney:{firstWinStartedAt:null,firstWinSeenBy:[]},nudgePreferences:{}}}
 let state=fresh();try{const raw=localStorage.getItem(KEY);if(raw)state={...state,...JSON.parse(raw)}}catch(e){}state=window.FlytTaskLanguage?.normalizeState?.(state)||state;

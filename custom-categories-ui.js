@@ -1,8 +1,8 @@
 (()=>{
 'use strict';
 
-const VERSION='20260902-1800';
-const BASE_CATEGORIES=['Barn','Kjøkken','Klesvask','Renhold','Stue','Bad','Soverom','Dyr','Hage & ute','Bil','Innkjøp','Vedlikehold','Planlegging & admin','Personlig investering'];
+const VERSION='20260903-master1';
+const BASE_CATEGORIES=['Barn','Kjøkken','Klesvask','Renhold','Stue & fellesområder','Bad','Soverom','Dyr','Hage & ute','Bil','Planlegging & admin'];
 const DAY_LABELS=[['1','Man'],['2','Tir'],['3','Ons'],['4','Tor'],['5','Fre'],['6','Lør'],['7','Søn']];
 const bridge=()=>window.FlytBridge;
 const state=()=>bridge()?.getState?.()||null;
@@ -206,7 +206,7 @@ function addButton(section,cat){
   btn.className='secondary full';
   btn.dataset.addTaskCategory=cat;
   btn.style.marginTop='8px';
-  btn.textContent='+ Legg til gjøremål';
+  btn.textContent='+ Legg til eget gjøremål';
   section.appendChild(btn);
 }
 function augment(){
@@ -240,7 +240,7 @@ function augment(){
   }
   if(generic){
     const old=generic.querySelector('#addCustomTask');
-    if(old)old.textContent='+ Legg til gjøremål eller kategori';
+    if(old)old.textContent='+ Legg til eget gjøremål';
   }
 }
 

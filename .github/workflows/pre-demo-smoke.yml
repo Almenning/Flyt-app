@@ -35,6 +35,8 @@ jobs:
         run: node --test tests/day-plan.test.cjs tests/recurrence-day-week.test.js
       - name: Guard category accordions
         run: node --test tests/category-accordion.test.cjs
+      - name: Guard locked task catalog and custom task setup
+        run: node --test tests/task-language.test.cjs tests/custom-task-setup.test.cjs
       - name: Guard contextual nudges and communication flow
         run: node tests/nudge-ui.test.cjs
       - name: Guard daily status freshness and separation

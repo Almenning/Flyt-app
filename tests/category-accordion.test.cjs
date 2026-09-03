@@ -173,6 +173,8 @@ test('Oppsett og Gjøre bruker den delte sticky accordion-komponenten', () => {
   assert.match(tasks, /openTaskCategory=null/);
   assert.match(tasks, /data-task-category/);
   assert.match(tasks, /data-library-category/);
+  assert.match(tasks, /data-add-library-category/);
+  assert.match(tasks, /\+ Legg til eget gjøremål/);
   assert.match(tasks, /mainMarkup=groupCards\(main,s,\{planned:mode==='day'\}\)/);
   assert.match(tasks, /mode==='day'\?\[\.\.\.tasks\]\.sort/);
   assert.match(html, /\.categoryAccordionHeader\{position:sticky;top:0/);

@@ -36,12 +36,16 @@ assert.equal(task.effortLevel,4);
 assert.equal(task.pts,40);
 assert.equal(task.freq,2);
 
-assert.match(customSource,/Legg til gjøremål/);
+assert.match(customSource,/Legg til eget gjøremål/);
+assert.match(setupSource,/Legg til eget gjøremål/);
+assert.doesNotMatch(customSource,/BASE_CATEGORIES=.*(?:Innkjøp|Vedlikehold|Personlig investering)/);
+assert.match(customSource,/Stue & fellesområder/);
 assert.match(customSource,/Innsatsnivå 1–5/);
 assert.match(customSource,/Nivået kan endres senere/);
 assert.match(customSource,/id="flytCustomCategory"/);
 assert.match(setupSource,/data-v2-effort=/);
 assert.match(setupSource,/t\.effortLevel=effort;t\.pts=effort\*10/);
 assert.match(setupSource,/kan endres på alle oppgaver/);
+assert.match(setupSource,/CONDITIONAL_CATEGORIES=new Set\(\['Barn','Dyr','Hage & ute','Bil'\]\)/);
 
 console.log('ok - oppretting og senere endring av innsatsnivå');

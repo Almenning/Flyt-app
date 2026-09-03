@@ -17,10 +17,10 @@ function loadAccount(){if(window.FlytAccountUI?.version==='20260828-0228')return
 function loadPlanned(){if(window.FlytPlannedUI?.version==='20260902-1800')return;loadScript('./planned-ui.js?v=20260902-1800','flyt-planned-1800')}
 function loadDayCompleted(){if(window.FlytTasksDayCompleted?.version==='20260902-1800')return;loadScript('./tasks-day-completed-ui.js?v=20260902-1800','flyt-day-completed-1800')}
 function loadModal(){if(window.FlytModal)return;loadScript('./modal-ui.js?v=20260825-1933','flyt-modal')}
-function loadCustomCategories(){if(window.FlytCustomCategories?.version==='20260902-1800')return;loadScript('./custom-categories-ui.js?v=20260902-1800','flyt-custom-categories-1800')}
-function loadDayPlan(){if(window.FlytDayPlan?.VERSION==='20260902-1800')return;loadScript('./day-plan.js?v=20260902-1800','flyt-day-plan-1800')}
+function loadCustomCategories(){if(window.FlytCustomCategories?.version==='20260903-master1')return;loadScript('./custom-categories-ui.js?v=20260903-master1','flyt-custom-categories-master1')}
+function loadDayPlan(){if(window.FlytDayPlan?.VERSION==='20260903-master1')return;loadScript('./day-plan.js?v=20260903-master1','flyt-day-plan-master1')}
 function loadCategoryAccordion(){if(window.FlytCategoryAccordion?.VERSION==='20260903-2200')return;loadScript('./category-accordion.js?v=20260903-2200','flyt-category-accordion-2200')}
-function loadRecurrence(){loadCategoryAccordion();if(window.FlytRecurrenceUI?.version==='20260903-accordion2')return;loadScript('./recurrence-ui.js?v=20260903-accordion2','flyt-recurrence-accordion2')}
+function loadRecurrence(){loadCategoryAccordion();if(window.FlytRecurrenceUI?.version==='20260903-master1')return;loadScript('./recurrence-ui.js?v=20260903-master1','flyt-recurrence-master1')}
 function loadBeta(){if(window.FlytBetaUI)return;loadScript('./beta-ui.js?v=20260824-1628','flyt-beta')}
 function loadResponsive(){if(document.querySelector('#flytResponsiveUi'))return;loadScript('./responsive-ui.js?v=20260825-0648','flyt-responsive')}
 function loadCoupleCore(){if(window.FlytCoupleCore?.VERSION==='20260902-1700')return;loadScript('./couple-core.js?v=20260902-1700','flyt-couple-core-20260902-1700')}
@@ -32,7 +32,7 @@ function loadRewardsEditGuard(){if(window.FlytRewardsEditGuard)return;loadScript
 function loadRewardsSummary(){if(window.FlytRewardsSummaryUI?.version==='20260901-1500')return;loadScript('./rewards-summary-ui.js?v=20260901-1500','flyt-rewards-summary-1500')}
 function loadRewardsUI(){if(window.FlytRewardsUI?.version==='20260902-1800')return;loadScript('./rewards-ui.js?v=20260902-1800','flyt-rewards-ui-1800')}
 function loadCoupleInvitations(){if(window.FlytCoupleInvitations?.version==='20260902-1800')return;loadScript('./couple-invitation-ui.js?v=20260902-1800','flyt-couple-invitations-1800')}
-function loadSetupV2(){loadCategoryAccordion();if(window.FlytSetupV2?.version==='20260903-2200')return;loadScript('./setup-v2.js?v=20260903-2200','flyt-setup-v2-2200')}
+function loadSetupV2(){loadCategoryAccordion();if(window.FlytSetupV2?.version==='20260903-master1')return;loadScript('./setup-v2.js?v=20260903-master1','flyt-setup-v2-master1')}
 function loadHome(){if(window.FlytHomeUI?.version==='20260903-1800'){ensureHomeOwnership();return}loadScript('./home-ui.js?v=20260903-1800','flyt-home-current-1800',()=>queueMicrotask(ensureHomeOwnership))}
 function loadNudge(){if(window.FlytNudgeUI?.version==='20260903-1200'){window.FlytNudgeUI.augment?.();return}loadScript('./nudge-ui.js?v=20260903-1200','flyt-nudge-1200',()=>queueMicrotask(()=>window.FlytNudgeUI?.augment?.()))}
 function loadHistory(){loadSeenCore();if(window.FlytHistoryUI?.version==='20260903-2330')return;loadScript('./history-ui.js?v=20260903-2330','flyt-history-20260903-2330')}

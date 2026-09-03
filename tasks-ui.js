@@ -2,7 +2,7 @@
 'use strict';
 const $=s=>document.querySelector(s);
 const bridge=()=>window.FlytBridge;
-const ORDER=['Barn','Kjøkken','Klesvask','Renhold','Stue','Bad','Soverom','Dyr','Hage & ute','Bil','Innkjøp','Vedlikehold','Planlegging & admin','Personlig investering','Egendefinert'];
+const ORDER=['Barn','Kjøkken','Klesvask','Renhold','Stue & fellesområder','Bad','Soverom','Dyr','Hage & ute','Bil','Planlegging & admin','Egendefinert'];
 const LIB=window.FlytTaskLanguage?.catalog||[];
 const DEFAULT_IDS=LIB.filter(task=>task.defaultSelected).map(task=>task.id);
 const OSLO_TIME_ZONE='Europe/Oslo';
@@ -17,7 +17,7 @@ function todayComps(s){return (s.completions||[]).filter(c=>c.date===localDate()
 function dayIndex(){const [y,m,d]=localDate().split('-').map(Number);return ((new Date(Date.UTC(y,m-1,d)).getUTCDay()+6)%7)+1}
 function dayName(){return new Intl.DateTimeFormat('nb-NO',{timeZone:OSLO_TIME_ZONE,weekday:'long'}).format(new Date()).replace(/^./,c=>c.toUpperCase())}
 function dueToday(t){return t.type==='daily'&&dayIndex()<=Math.min(7,Math.max(0,Number(t.freq||0)))}
-function category(t){const raw=(t.cat||'').trim();if(raw==='Husdyr')return 'Dyr';if(raw==='Utearbeid')return 'Hage & ute';if(raw==='Periodisk vedlikehold')return 'Vedlikehold';if(raw==='Usynlig arbeid')return 'Planlegging & admin';if(raw==='Vask & klær')return ['laundry_start','laundry_hang','laundry_fold','laundry'].includes(String(t?.id))?'Klesvask':'Renhold';if(raw==='Hus'){if(['living','hallway'].includes(t.id))return 'Stue';if(t.id==='bed')return 'Soverom';if(t.id==='laundry')return 'Klesvask';if(t.id==='vacuum')return 'Renhold';if(t.id==='trash')return 'Vedlikehold'}return raw||'Hus'}
+function category(t){const raw=(t.cat||'').trim();if(raw==='Husdyr')return 'Dyr';if(raw==='Utearbeid')return 'Hage & ute';if(raw==='Usynlig arbeid')return 'Planlegging & admin';if(raw==='Stue')return 'Stue & fellesområder';if(raw==='Vask & klær')return ['laundry_start','laundry_hang','laundry_fold','laundry'].includes(String(t?.id))?'Klesvask':'Renhold';if(raw==='Hus'){if(['living','hallway'].includes(t.id))return 'Stue & fellesområder';if(t.id==='bed')return 'Soverom';if(t.id==='laundry')return 'Klesvask';if(t.id==='vacuum')return 'Renhold';if(t.id==='trash')return 'Kjøkken'}if(raw==='Innkjøp'||raw==='Vedlikehold'||raw==='Personlig investering')return'Egendefinert';return raw||'Egendefinert'}
 function relevantMap(s){const map={};for(const c of ORDER)map[c]=s.categoryRelevant?.[c]!==false;return map}
 function count(s,t,day=false){const list=(day?todayComps(s):weekComps(s)).filter(c=>String(c.taskId)===String(t.id));return t.type==='daily'?new Set(list.map(c=>c.date)).size:list.length}
 function ownCount(s,id,day=false){const list=day?todayComps(s):weekComps(s);return list.filter(c=>c.taskId===id&&c.by===s.user).length}

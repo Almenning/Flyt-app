@@ -168,7 +168,7 @@ assert.match(message,/dagen litt lettere/);
 assert.doesNotMatch(message,/overskudd til oss|betaling|belønning/i,'help copy must not turn closeness into payment for chores');
 
 for(const tone of ['warm','direct','gentle']){
-  for(const task of [{id:'bath_shower',name:'Vaske badekar eller dusj'},{id:'dinner',name:'Lage middag'},{id:'dish_fill',name:'Sette inn i oppvaskmaskinen'}]){
+  for(const task of [{id:'bath_shower',name:'Vaske dusj/badekar'},{id:'dinner',name:'Lage middag'},{id:'dish_fill',name:'Sette inn i oppvaskmaskinen'}]){
     const generated=requestMessage({task,partnerName:'Sam',tone,status:fresh});
     assert.match(generated,new RegExp(`oppgaven «${task.name}»`));
     assert.doesNotMatch(generated,/du tok (vaske|lage|fylle|tømme)|Kan du ta (vaske|lage|fylle|tømme)/i);
