@@ -109,9 +109,10 @@ test('utløpt utfordring gir ingen belønning og flyttes til ikke fullført',()=
 
 test('belønningsbiblioteket er voksent uten vanlig hverdagsomsorg som valuta',()=>{
   assert.deepEqual(Object.keys(core.REWARD_LIBRARY),['Tid og frihet','Opplevelser','Fristelse ❤️']);
+  assert.deepEqual(core.REWARD_LIBRARY['Tid og frihet'],['Sovemorgen','Kveld ute med venner','En kveld helt fri','Hobby-/gamingkveld','En halv dag for deg selv','Fri fra hjemmeoppgaver']);
+  assert.deepEqual(core.REWARD_LIBRARY.Opplevelser,['Restaurant','Date','Aktivitet på eget valg','Gave','Hotell','Helgetur','Overraskelse']);
+  assert.deepEqual(core.REWARD_LIBRARY['Fristelse ❤️'],['Massasje','Sexy undertøy','En intim kveld','30 minutter bare for deg','Du velger ❤️','Ditt intime ønske','En erotisk overraskelse','Eget forslag']);
   const all=Object.values(core.REWARD_LIBRARY).flat();
-  assert.ok(all.includes('Sovemorgen'));
-  assert.ok(all.includes('Du velger ❤️'));
   assert.ok(!all.includes('Kaffe på senga'));
   assert.ok(!all.includes('Klem'));
 });

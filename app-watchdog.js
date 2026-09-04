@@ -28,8 +28,8 @@ function loadCoupleInsights(){if(window.FlytCoupleInsights?.VERSION==='20260902-
 function loadSeenCore(){if(window.FlytSeenCore?.VERSION==='20260904-priority1')return;loadScript('./seen-core.js?v=20260904-priority1','flyt-seen-core-20260904-priority1')}
 function loadSeen(){loadSeenCore();if(window.FlytSeenUI?.version==='20260904-focus1')return;loadScript('./seen-ui.js?v=20260904-focus1','flyt-seen-current-20260904-focus1')}
 function loadSeenRequestAlert(){if(window.FlytSeenRequestAlert?.version==='20260902-1700')return;loadScript('./seen-request-alert-ui.js?v=20260902-1700','flyt-seen-request-alert-20260902-1700')}
-function loadGoalsCore(onload){if(window.FlytGoalsCore?.VERSION==='20260903-points1'){onload?.();return}loadScript('./rewards-goals-core.js?v=20260903-points1','flyt-goals-core-20260903-points1',onload)}
-function loadRewardsUI(){if(window.FlytRewardsUI?.version==='20260903-points1')return;if(window.FlytGoalsCore?.VERSION!=='20260903-points1'){loadGoalsCore(loadRewardsUI);return}loadScript('./rewards-ui.js?v=20260903-points1','flyt-rewards-ui-points1')}
+function loadGoalsCore(onload){if(window.FlytGoalsCore?.VERSION==='20260904-simple1'){onload?.();return}loadScript('./rewards-goals-core.js?v=20260904-simple1','flyt-goals-core-20260904-simple1',onload)}
+function loadRewardsUI(){if(window.FlytRewardsUI?.version==='20260904-simple1')return;if(window.FlytGoalsCore?.VERSION!=='20260904-simple1'){loadGoalsCore(loadRewardsUI);return}loadScript('./rewards-ui.js?v=20260904-simple1','flyt-rewards-ui-simple1')}
 function loadCoupleInvitations(){if(window.FlytCoupleInvitations?.version==='20260902-1800')return;loadScript('./couple-invitation-ui.js?v=20260902-1800','flyt-couple-invitations-1800')}
 function loadSetupV2(){loadCategoryAccordion();if(window.FlytSetupV2?.version==='20260904-accordion1')return;loadScript('./setup-v2.js?v=20260904-accordion1','flyt-setup-v2-accordion1')}
 function loadHome(){if(window.FlytHomeUI?.version==='20260903-1800'){ensureHomeOwnership();return}loadScript('./home-ui.js?v=20260903-1800','flyt-home-current-1800',()=>queueMicrotask(ensureHomeOwnership))}

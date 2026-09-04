@@ -6,18 +6,20 @@ if(root)root.FlytGoalsCore=api;
 })(typeof window!=='undefined'?window:globalThis,root=>{
 'use strict';
 
-const VERSION='20260903-points1';
+const VERSION='20260904-simple1';
 const OSLO_TIME_ZONE='Europe/Oslo';
 const REWARD_LIBRARY=Object.freeze({
-  'Tid og frihet':Object.freeze(['Sovemorgen','Kveld ute med venner','En kveld helt fri','En halv dag for deg selv','Hobby-/gamingkveld','Jeg tar barna alene en kveld','Jeg tar morgenen','Fri fra hjemmeoppgaver en dag']),
-  'Opplevelser':Object.freeze(['Date på ditt valg','Restaurant på ditt valg','Aktivitet på ditt valg','En liten gave','Hotellovernatting','Helgetur','Du bestemmer kveldens program','Overraskelse']),
-  'Fristelse ❤️':Object.freeze(['Massasje','Sexy undertøy','En intim kveld','30 minutter bare for deg','Du velger ❤️','Ditt intime ønske','En erotisk overraskelse'])
+  'Tid og frihet':Object.freeze(['Sovemorgen','Kveld ute med venner','En kveld helt fri','Hobby-/gamingkveld','En halv dag for deg selv','Fri fra hjemmeoppgaver']),
+  'Opplevelser':Object.freeze(['Restaurant','Date','Aktivitet på eget valg','Gave','Hotell','Helgetur','Overraskelse']),
+  'Fristelse ❤️':Object.freeze(['Massasje','Sexy undertøy','En intim kveld','30 minutter bare for deg','Du velger ❤️','Ditt intime ønske','En erotisk overraskelse','Eget forslag'])
 });
 const REWARD_PRICES=Object.freeze({
   'Sovemorgen':60,'Hobby-/gamingkveld':50,'Kveld ute med venner':80,'Massasje':70,'Hemmelig fristelse':100,
-  'En kveld helt fri':60,'En halv dag for deg selv':90,'Jeg tar barna alene en kveld':70,'Jeg tar morgenen':50,'Fri fra hjemmeoppgaver en dag':90,
-  'Date på ditt valg':100,'Restaurant på ditt valg':120,'Aktivitet på ditt valg':90,'En liten gave':70,'Hotellovernatting':180,'Helgetur':220,'Du bestemmer kveldens program':60,'Overraskelse':100,
-  'Sexy undertøy':90,'En intim kveld':80,'30 minutter bare for deg':60,'Du velger ❤️':100,'Ditt intime ønske':110,'En erotisk overraskelse':120
+  'En kveld helt fri':60,'En halv dag for deg selv':90,'Fri fra hjemmeoppgaver':90,
+  'Restaurant':120,'Date':100,'Aktivitet på eget valg':90,'Gave':70,'Hotell':180,'Helgetur':220,'Overraskelse':100,
+  'Sexy undertøy':90,'En intim kveld':80,'30 minutter bare for deg':60,'Du velger ❤️':100,'Ditt intime ønske':110,'En erotisk overraskelse':120,'Eget forslag':60,
+  /* Behold priser for eldre lagrede mål. */
+  'Fri fra hjemmeoppgaver en dag':90,'Date på ditt valg':100,'Restaurant på ditt valg':120,'Aktivitet på ditt valg':90,'En liten gave':70,'Hotellovernatting':180,'Du bestemmer kveldens program':60
 });
 const METRICS=Object.freeze([
   {type:'points_week',label:'Tjen X poeng denne uka'},

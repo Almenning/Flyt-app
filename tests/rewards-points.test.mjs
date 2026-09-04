@@ -100,6 +100,26 @@ test('Mål og belønning beholder mobilhierarki og bruker varme eksisterende far
   assert.doesNotMatch(source, /#[0-9a-f]{0,2}(?:00f|0080ff|0000ff)/i);
 });
 
+test('enkle poengskjema bruker fempoengssteg, direkte inntasting og progressiv visning', () => {
+  const source = readFileSync(path.join(root, 'rewards-ui.js'), 'utf8');
+  assert.match(source, /inputmode="numeric"/);
+  assert.match(source, /step="5"/);
+  assert.match(source, /data-point-adjust="-1"/);
+  assert.match(source, /data-point-adjust="1"/);
+  assert.match(source, /data-goal-advanced-toggle/);
+  assert.match(source, /Annet mål/);
+  assert.match(source, /Forhåndsvisning/);
+});
+
+test('belønningsbiblioteket har varme kategorifaner og aktiv innløsning', () => {
+  const harness = loadScript('rewards-ui.js', baseState);
+  assert.match(harness.content.innerHTML, /Tid og frihet/);
+  assert.match(harness.content.innerHTML, /Opplevelser/);
+  assert.match(harness.content.innerHTML, /Fristelse ❤️/);
+  assert.match(harness.content.innerHTML, /data-catalog-redeem="Sovemorgen"/);
+  assert.match(harness.content.innerHTML, /Poeng trekkes først når du velger å bruke dem/);
+});
+
 test('Poengbelønning trekker saldo uten å endre registrert innsats', async () => {
   const harness = loadScript('rewards-ui.js', baseState);
   const before = structuredClone(harness.getState().completions);
