@@ -6,7 +6,7 @@ if(root)root.FlytSeenCore=api;
 })(typeof window!=='undefined'?window:globalThis,()=>{
 'use strict';
 
-const VERSION='20260903-2330';
+const VERSION='20260904-priority1';
 const OSLO_TIME_ZONE='Europe/Oslo';
 const DEFAULT_SUGGESTIONS=['Tok initiativ','Var tålmodig','Ordnet noe praktisk','Ga meg rom','Støttet meg','Gjorde dagen lettere'];
 
@@ -36,6 +36,15 @@ function taskName(state,item){
   const task=[...(state?.tasks||[]),...(state?.custom||[])].find(entry=>String(entry?.id)===String(item?.taskId));
   return String(task?.name||'Gjennomført gjøremål').trim();
 }
+function taskPoints(state,item){
+  const snapshot=Number(item?.taskSnapshot?.pts);
+  if(Number.isFinite(snapshot)&&snapshot>=0)return snapshot;
+  const task=[...(state?.tasks||[]),...(state?.custom||[])].find(entry=>String(entry?.id)===String(item?.taskId));
+  const configured=Number(task?.pts);
+  if(Number.isFinite(configured)&&configured>=0)return configured;
+  const recorded=Number(item?.housePts);
+  return Number.isFinite(recorded)&&recorded>=0?recorded:0;
+}
 function acknowledgements(item){
   const list=[];
   for(const entry of [...(Array.isArray(item?.acknowledgements)?item.acknowledgements:[]),...(Array.isArray(item?.thanks)?item.thanks:[])]){
@@ -51,13 +60,13 @@ function contributions(state,{user=state?.user,date=dateKey()}={}){
   const rows=[];
   for(const completion of state?.completions||[]){
     if(completion?.date!==date||!completion.by||completion.by===user)continue;
-    rows.push({kind:'completion',id:String(completion.id),source:completion,title:taskName(state,completion),by:completion.by,date,at:stamp(completion.registeredAt)||stamp(completion.id),acknowledgement:acknowledgementBy(completion,user)});
+    rows.push({kind:'completion',id:String(completion.id),source:completion,title:taskName(state,completion),by:completion.by,date,at:stamp(completion.registeredAt)||stamp(completion.id),points:taskPoints(state,completion),acknowledgement:acknowledgementBy(completion,user)});
   }
   for(const planned of state?.plannedTasks||[]){
     if(!planned?.done||planned.date!==date||!planned.doneBy||planned.doneBy===user)continue;
-    rows.push({kind:'planned',id:String(planned.id),source:planned,title:String(planned.title||'Ekstraoppgave').trim(),by:planned.doneBy,date,at:stamp(planned.doneAt)||stamp(planned.createdAt),acknowledgement:acknowledgementBy(planned,user)});
+    rows.push({kind:'planned',id:String(planned.id),source:planned,title:String(planned.title||'Ekstraoppgave').trim(),by:planned.doneBy,date,at:stamp(planned.doneAt)||stamp(planned.createdAt),points:Math.max(0,Number(planned.points)||0),acknowledgement:acknowledgementBy(planned,user)});
   }
-  return rows.sort((a,b)=>(a.at||0)-(b.at||0)||a.title.localeCompare(b.title,'nb'));
+  return rows.sort((a,b)=>(b.points||0)-(a.points||0)||(b.at||0)-(a.at||0)||a.title.localeCompare(b.title,'nb'));
 }
 function toggleAcknowledgement(state,{kind='completion',id,user=state?.user,text='',now=Date.now(),allowTextRemoval=false}={}){
   if(!state||!user)return{state,changed:false};

@@ -5,14 +5,14 @@ const core=require('../seen-core.js');
 const state={
   user:'Tore',
   status:{Tore:{},Maria:{}},
-  tasks:[{id:'kitchen',name:'Rydde kjøkkenet'}],
+  tasks:[{id:'kitchen',name:'Rydde kjøkkenet',pts:20}],
   completions:[
     {id:1,taskId:'kitchen',date:'2026-09-03',by:'Maria',registeredAt:'2026-09-03T14:25:00Z'},
     {id:2,taskId:'kitchen',date:'2026-09-03',by:'Tore',registeredAt:'2026-09-03T15:00:00Z'},
     {id:3,taskId:'kitchen',date:'2026-09-02',by:'Maria',registeredAt:'2026-09-02T11:00:00Z'}
   ],
   plannedTasks:[
-    {id:'extra_done',title:'Bestille tannlegetime',date:'2026-09-03',done:true,doneBy:'Maria',doneAt:'2026-09-03T16:40:00Z'},
+    {id:'extra_done',title:'Bestille tannlegetime',date:'2026-09-03',done:true,doneBy:'Maria',doneAt:'2026-09-03T16:40:00Z',points:10},
     {id:'extra_open',title:'Handle maling',date:'2026-09-03',done:false,doneBy:null}
   ],
   recognitions:[]
@@ -23,6 +23,24 @@ test('dagslisten viser bare partnerens fullførte bidrag på valgt dato',()=>{
   assert.deepEqual(rows.map(row=>row.title),['Rydde kjøkkenet','Bestille tannlegetime']);
   assert.ok(rows.every(row=>row.by==='Maria'));
   assert.ok(!rows.some(row=>row.id==='extra_open'));
+});
+
+test('dagslisten prioriterer høyest poengverdi og deretter siste fullføring',()=>{
+  const sorted=core.contributions({
+    user:'Tore',
+    tasks:[
+      {id:'high_early',name:'Stor tidlig',pts:50},
+      {id:'high_late',name:'Stor sen',pts:50},
+      {id:'low_latest',name:'Liten senest',pts:10}
+    ],
+    completions:[
+      {id:11,taskId:'high_early',date:'2026-09-03',by:'Maria',registeredAt:'2026-09-03T12:00:00Z'},
+      {id:12,taskId:'high_late',date:'2026-09-03',by:'Maria',registeredAt:'2026-09-03T14:00:00Z'},
+      {id:13,taskId:'low_latest',date:'2026-09-03',by:'Maria',registeredAt:'2026-09-03T16:00:00Z'}
+    ]
+  },{user:'Tore',date:'2026-09-03'});
+  assert.deepEqual(sorted.map(row=>row.title),['Stor sen','Stor tidlig','Liten senest']);
+  assert.deepEqual(sorted.map(row=>row.points),[50,50,10]);
 });
 
 test('Sett kan slås på og av uten å endre selve fullføringen',()=>{

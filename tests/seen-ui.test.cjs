@@ -25,6 +25,9 @@ test('Sett rendrer den mobile hovedflyten fra eksisterende fullføringer',()=>{
   context.FlytSeenUI.render({resetScroll:true});
   assert.equal(content.dataset.flytOwner,'seen-recognition');
   assert.match(content.innerHTML,/Se og anerkjenn det partneren din faktisk bidrar med/);
+  assert.match(content.innerHTML,/<div class="ey">Sett<\/div><h1 class="seenTitle">Se hverandre<\/h1>/);
+  assert.match(content.innerHTML,/class="pill seenDateButton"[^>]*>I dag<\/button>/);
+  assert.doesNotMatch(content.innerHTML,/seenDateButton[^>]*><span/);
   assert.match(content.innerHTML,/Ryddet kjøkkenet/);
   assert.match(content.innerHTML,/Sett ♡/);
   assert.equal((content.innerHTML.match(/data-seen-contribution=/g)||[]).length,1,'egen fullføring skal ikke vises');

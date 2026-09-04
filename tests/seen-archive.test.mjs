@@ -7,13 +7,18 @@ const history=readFileSync(new URL('../history-ui.js',import.meta.url),'utf8');
 const watchdog=readFileSync(new URL('../app-watchdog.js',import.meta.url),'utf8');
 const alerts=readFileSync(new URL('../seen-request-alert-ui.js',import.meta.url),'utf8');
 
-assert.match(seen,/const VERSION='20260904-warm1'/,'Sett exposes the current recognition UI version');
-assert.match(core,/const VERSION='20260903-2330'/,'Sett core exposes the current version');
+assert.match(seen,/const VERSION='20260904-focus1'/,'Sett exposes the current recognition UI version');
+assert.match(core,/const VERSION='20260904-priority1'/,'Sett core exposes the current version');
 assert.match(seen,/Se og anerkjenn det partneren din faktisk bidrar med/,'Sett states its recognition purpose');
 assert.match(seen,/data-seen-day="-1"/,'past days are available');
 assert.match(seen,/seenContributionList\{max-height:.*overflow-y:auto/s,'long contribution lists scroll independently');
+assert.match(seen,/\.seenContributionList\{max-height:158px\}/,'the contribution viewport is capped at three compact rows');
+assert.match(seen,/\.seenContributionRow\{height:52px;min-height:52px\}/,'three contribution rows have a predictable compact height');
 assert.match(seen,/Sett \$\{active\?'♥':'♡'\}/,'task recognition has a reversible visual state');
 assert.match(seen,/Noe annet du satte pris på\?/,'the two relational actions follow the contribution list');
+assert.match(seen,/<h1 class="seenTitle">Se hverandre<\/h1>/,'Sett uses the shared left-aligned page hierarchy');
+assert.match(seen,/<div class="ey">Sett<\/div>/,'Sett keeps the small warm eyebrow label');
+assert.doesNotMatch(seen,/seenDateButton[^>]*><span/,'the today selector contains text only');
 assert.match(seen,/Hva satte du pris på\?/,'personal recognition has a dedicated writing view');
 assert.match(seen,/Jeg satte pris på at du …/,'the writing view has the requested placeholder');
 assert.match(seen,/Anerkjennelse sendt ❤️/,'sending gives calm immediate feedback');
@@ -35,8 +40,8 @@ assert.match(history,/data-seen-suggestion-move/,'suggestions can be reordered')
 assert.match(history,/data-seen-suggestion-edit/,'suggestions can be edited');
 assert.match(history,/data-seen-suggestion-delete/,'suggestions can be deleted');
 assert.match(history,/data-seen-suggestion-reset/,'suggestions can be reset');
-assert.match(watchdog,/seen-core\.js\?v=20260903-2330/,'watchdog loads the Sett core');
-assert.match(watchdog,/seen-ui\.js\?v=20260904-warm1/,'watchdog cache-busts the current Sett UI');
+assert.match(watchdog,/seen-core\.js\?v=20260904-priority1/,'watchdog loads the Sett core');
+assert.match(watchdog,/seen-ui\.js\?v=20260904-focus1/,'watchdog cache-busts the current Sett UI');
 assert.doesNotMatch(alerts,/new Notification/,'Sett does not issue browser push notifications');
 
 console.log('ok - Sett is a focused recognition flow with day navigation and history');
