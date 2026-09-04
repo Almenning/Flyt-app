@@ -136,6 +136,40 @@ test('scrollankring holder den valgte kategorioverskriften på samme sted', () =
   assert.equal(container.scrollTop, 200);
 });
 
+test('raskt kategoribytte bruker bare siste anker og korrigerer scroll én gang', () => {
+  const window = {};
+  const frames = [];
+  const context = vm.createContext({
+    encodeURIComponent,
+    requestAnimationFrame: fn => { frames.push(fn); return frames.length; },
+    window,
+  });
+  vm.runInContext(fs.readFileSync(path.join(root, 'category-accordion.js'), 'utf8'), context);
+  const api = window.FlytCategoryAccordion;
+  let scrollTop = 240;
+  let writes = 0;
+  const tops = { Barn: 80, Dyr: 145 };
+  const container = {
+    dataset: {},
+    style: {},
+    get scrollTop() { return scrollTop; },
+    set scrollTop(value) { writes++; scrollTop = value; },
+    querySelector(selector) {
+      const key = selector.includes('Barn') ? 'Barn' : 'Dyr';
+      return { getBoundingClientRect: () => ({ top: tops[key] }) };
+    },
+  };
+
+  api.restore(container, '[data-task-category="Barn"]', 70);
+  api.restore(container, '[data-task-category="Dyr"]', 125);
+  frames.splice(0).forEach(frame => frame());
+
+  assert.equal(writes, 1);
+  assert.equal(scrollTop, 260);
+  assert.equal(container.style.overflowAnchor, '');
+  assert.equal(container.dataset.flytAccordionAnchor, undefined);
+});
+
 test('Oppsett starter lukket, bytter kategori uten å endre valgte oppgaver og kan lukkes', async () => {
   const harness = loadSetup();
   const originalState = structuredClone(harness.getState());
@@ -164,6 +198,8 @@ test('Oppsett starter lukket, bytter kategori uten å endre valgte oppgaver og k
 test('Oppsett og Gjøre bruker den delte sticky accordion-komponenten', () => {
   const setup = fs.readFileSync(path.join(root, 'setup-v2.js'), 'utf8');
   const tasks = fs.readFileSync(path.join(root, 'recurrence-ui.js'), 'utf8');
+  const planned = fs.readFileSync(path.join(root, 'planned-ui.js'), 'utf8');
+  const accordion = fs.readFileSync(path.join(root, 'category-accordion.js'), 'utf8');
   const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 
   assert.match(setup, /openCategory=null/);
@@ -179,6 +215,12 @@ test('Oppsett og Gjøre bruker den delte sticky accordion-komponenten', () => {
   assert.match(tasks, /mode==='day'\?\[\.\.\.tasks\]\.sort/);
   assert.match(html, /\.categoryAccordionHeader\{position:sticky;top:0/);
   assert.match(html, /\.categoryAccordionHeader\{[^}]*min-height:52px/);
+  assert.match(html, /\.content\[data-flyt-owner="recurrence"\]\{padding-top:0\}/);
+  assert.match(html, /\.taskViewContent,\.setupV2Content\{padding-top:18px\}/);
+  assert.match(tasks, /flytAccordionAnchor='1'/);
+  assert.match(planned, /flytAccordionAnchor==='1'/);
+  assert.doesNotMatch(accordion, /setTimeout/);
+  assert.equal((accordion.match(/requestAnimationFrame/g) || []).length, 1);
   assert.match(html, /@media\(max-width:350px\)[^{]*\{[^}]*\.goalGrid/);
   assert.ok(html.indexOf('category-accordion.js') < html.indexOf('recurrence-ui.js'));
 });

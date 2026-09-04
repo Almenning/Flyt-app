@@ -74,14 +74,19 @@ const baseState = {
   view: 'rewards',
 };
 
-test('Belønning er erstattet av Mål og belønning uten poengfokus', () => {
+test('Mål og belønning viser disponibel poengsaldo og poengoversikt', () => {
   const harness = loadScript('rewards-ui.js', baseState);
 
   assert.match(harness.content.innerHTML, /Mål og belønning/);
   assert.match(harness.content.innerHTML, /Mitt mål/);
   assert.match(harness.content.innerHTML, /Vårt mål/);
   assert.match(harness.content.innerHTML, /Utfordringer/);
-  assert.doesNotMatch(harness.content.innerHTML, /Dine poeng|420 poeng|900 poeng/);
+  assert.match(harness.content.innerHTML, /420/);
+  assert.match(harness.content.innerHTML, /poeng tilgjengelig/);
+  assert.match(harness.content.innerHTML, /poeng opptjent denne uka/);
+  assert.match(harness.content.innerHTML, /Totalt opptjent/);
+  assert.match(harness.content.innerHTML, /Brukte poeng/);
+  assert.match(harness.content.innerHTML, /Hva har du lyst på/);
 });
 
 test('Mål og belønning beholder mobilhierarki og bruker varme eksisterende farger', () => {
@@ -91,6 +96,7 @@ test('Mål og belønning beholder mobilhierarki og bruker varme eksisterende far
   assert.match(source, /align-items:flex-end/);
   assert.match(source, /var\(--accent\)/);
   assert.match(source, /var\(--deep\)/);
+  assert.match(source, /Poengene trekkes først når du bekrefter/);
   assert.doesNotMatch(source, /#[0-9a-f]{0,2}(?:00f|0080ff|0000ff)/i);
 });
 
