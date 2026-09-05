@@ -26,7 +26,7 @@ function loadResponsive(){if(document.querySelector('#flytResponsiveUi'))return;
 function loadCoupleCore(){if(window.FlytCoupleCore?.VERSION==='20260902-1700')return;loadScript('./couple-core.js?v=20260902-1700','flyt-couple-core-20260902-1700')}
 function loadCoupleInsights(){if(window.FlytCoupleInsights?.VERSION==='20260902-1730')return;loadScript('./couple-insights.js?v=20260902-1730','flyt-couple-insights-1730')}
 function loadSeenCore(){if(window.FlytSeenCore?.VERSION==='20260904-priority1')return;loadScript('./seen-core.js?v=20260904-priority1','flyt-seen-core-20260904-priority1')}
-function loadSeen(){loadSeenCore();if(window.FlytSeenUI?.version==='20260904-focus1')return;loadScript('./seen-ui.js?v=20260904-focus1','flyt-seen-current-20260904-focus1')}
+function loadSeen(){loadSeenCore();if(window.FlytSeenUI?.version==='20260905-space1')return;loadScript('./seen-ui.js?v=20260905-space1','flyt-seen-current-20260905-space1')}
 function loadSeenRequestAlert(){if(window.FlytSeenRequestAlert?.version==='20260902-1700')return;loadScript('./seen-request-alert-ui.js?v=20260902-1700','flyt-seen-request-alert-20260902-1700')}
 function loadGoalsCore(onload){if(window.FlytGoalsCore?.VERSION==='20260904-simple1'){onload?.();return}loadScript('./rewards-goals-core.js?v=20260904-simple1','flyt-goals-core-20260904-simple1',onload)}
 function loadRewardsUI(){if(window.FlytRewardsUI?.version==='20260904-simple1')return;if(window.FlytGoalsCore?.VERSION!=='20260904-simple1'){loadGoalsCore(loadRewardsUI);return}loadScript('./rewards-ui.js?v=20260904-simple1','flyt-rewards-ui-simple1')}

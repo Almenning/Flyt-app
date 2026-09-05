@@ -7,7 +7,7 @@ const history=readFileSync(new URL('../history-ui.js',import.meta.url),'utf8');
 const watchdog=readFileSync(new URL('../app-watchdog.js',import.meta.url),'utf8');
 const alerts=readFileSync(new URL('../seen-request-alert-ui.js',import.meta.url),'utf8');
 
-assert.match(seen,/const VERSION='20260904-focus1'/,'Sett exposes the current recognition UI version');
+assert.match(seen,/const VERSION='20260905-space1'/,'Sett exposes the current recognition UI version');
 assert.match(core,/const VERSION='20260904-priority1'/,'Sett core exposes the current version');
 assert.match(seen,/Se og anerkjenn det partneren din faktisk bidrar med/,'Sett states its recognition purpose');
 assert.match(seen,/data-seen-day="-1"/,'past days are available');
@@ -23,6 +23,8 @@ assert.match(seen,/Hva satte du pris på\?/,'personal recognition has a dedicate
 assert.match(seen,/Jeg satte pris på at du …/,'the writing view has the requested placeholder');
 assert.match(seen,/Anerkjennelse sendt ❤️/,'sending gives calm immediate feedback');
 assert.match(seen,/Du trenger ikke prestere noe i dag ❤️/,'the room message is available');
+assert.match(seen,/value=\$\('#seenSpaceText'\)\?\.value\.trim\(\)\|\|'Du trenger ikke prestere noe i dag ❤️'/,'empty custom space text falls back to the standard message');
+assert.match(seen,/Egen kort beskjed <span class="taskmeta">· valgfritt<\/span>/,'the custom room message is clearly optional');
 assert.match(seen,/Siste anerkjennelse/,'main view shows one latest recognition');
 assert.match(seen,/Ingen registrerte bidrag ennå \$\{selectedDate===todayKey\?'i dag':'denne dagen'\}\./,'the requested empty copy is preserved');
 assert.match(seen,/seenDateHeading\{font:500 15px/,'the date heading stays subordinate to Sett');
@@ -41,7 +43,7 @@ assert.match(history,/data-seen-suggestion-edit/,'suggestions can be edited');
 assert.match(history,/data-seen-suggestion-delete/,'suggestions can be deleted');
 assert.match(history,/data-seen-suggestion-reset/,'suggestions can be reset');
 assert.match(watchdog,/seen-core\.js\?v=20260904-priority1/,'watchdog loads the Sett core');
-assert.match(watchdog,/seen-ui\.js\?v=20260904-focus1/,'watchdog cache-busts the current Sett UI');
+assert.match(watchdog,/seen-ui\.js\?v=20260905-space1/,'watchdog cache-busts the current Sett UI');
 assert.doesNotMatch(alerts,/new Notification/,'Sett does not issue browser push notifications');
 
 console.log('ok - Sett is a focused recognition flow with day navigation and history');
