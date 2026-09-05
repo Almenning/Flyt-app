@@ -42,7 +42,8 @@ const ask=buildCandidates({
 });
 assert.equal(ask[0]?.kind,'askHelp','own low capacity should prioritize asking for concrete help');
 assert.equal(ask[0]?.task,undefined,'a status signal must not make Flyt choose a chore');
-assert.equal(ask[0]?.action,'openTasks');
+assert.equal(ask[0]?.action,'askHelp');
+assert.equal(ask[0]?.actionLabel,'Be om hjelp');
 assert.doesNotMatch(ask[0]?.body||'',/Klesvask|Vaske\/brette/);
 assert.match(nudgeSource,/FlytRecurrenceUI\?\.openToday\?\.\('remaining'\)/,'Se dagens plan must open the remaining filter');
 
@@ -59,7 +60,7 @@ assert.equal(bothLow[0]?.id,'balance:both-low','when both have low capacity, goo
 const initiative=buildCandidates({
   state:base,
   preferences:normalizePreferences({askHelp:false,frequency:'balanced'}),
-  myStatus:null,
+  myStatus:{...fresh,capacity:'med'},
   partnerStatus:{...fresh,user_id:'partner',capacity:'low'},
   partnerName:'Sam',
   now
@@ -94,7 +95,7 @@ assert.equal(ownInitiative.some(candidate=>/avlastning/.test(candidate.body||'')
 const partnerWantsInitiative=buildCandidates({
   state:base,
   preferences:normalizePreferences({askHelp:false,frequency:'balanced'}),
-  myStatus:null,
+  myStatus:{...fresh,capacity:'med'},
   partnerStatus:{...fresh,user_id:'partner',energy:'high',capacity:'high',needs:['initiative']},
   partnerName:'Sam',
   now
@@ -134,7 +135,8 @@ const activeWithoutSignal=buildCandidates({
   partnerName:'Sam',
   now
 });
-assert.equal(activeWithoutSignal[0]?.kind,'progress','active mode may show a factual progress nudge without reading intent into the couple');
+assert.equal(activeWithoutSignal[0]?.kind,'status','missing daily status should prompt a simple check-in');
+assert.equal(activeWithoutSignal[0]?.action,'checkIn');
 
 const night=new Date('2026-08-30T00:17:00');
 assert.equal(quietHours(night),true,'nighttime must be treated as quiet hours');
@@ -180,5 +182,9 @@ assert.equal(made.request.type,'practical');
 assert.equal(made.request.source,'nudge');
 assert.equal(made.request.responseState,'pending');
 assert.equal(made.reward,undefined,'an invitation must never be bundled into a help request');
+
+const rewarded=makeRequest({state:base,task:base.tasks[0],text:message,reward:'Du velger film',now:1235});
+assert.deepEqual(rewarded.request.supportReward,{title:'Du velger film',kind:'gesture',requiresPoints:false});
+assert.match(rewarded.request.text,/Noe hyggelig vedlagt: Du velger film/);
 
 console.log('ok - contextual nudges, freshness, preferences and request flow');

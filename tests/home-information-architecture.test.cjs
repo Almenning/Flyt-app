@@ -83,12 +83,16 @@ test('Hjem viser oss i dag uten å duplisere arbeidsflaten', () => {
 
   assert.match(html, /data-home-status-card/);
   assert.match(html, /data-home-daily-goal/);
-  assert.match(html, /50 %/);
-  assert.match(html, /1 av 2 ferdig/);
-  assert.match(html, /1 igjen/);
-  assert.match(html, />Se dagens gjøremål<\//);
+  assert.match(html, /God dag, Tore/);
+  assert.match(html, /Et raskt overblikk over dagen deres/);
+  assert.match(html, /1 av 2/);
+  assert.match(html, />Fullført<\/span><strong>1/);
+  assert.match(html, />Gjenstår<\/span><strong>1/);
+  assert.match(html, /Se dagens gjøremål/);
+  assert.match(html, /Hvordan har dere det i dag\?/);
+  assert.equal((html.match(/homeMoodDots/g)||[]).length >= 2, true);
   assert.doesNotMatch(html, /data-home-next|data-home-week|>Neste<|>Denne uka</);
-  assert.ok(html.indexOf('data-home-status-card') < html.indexOf('data-home-daily-goal'));
+  assert.ok(html.indexOf('data-home-daily-goal') < html.indexOf('data-home-status-card'));
   assert.ok(html.indexOf('data-home-daily-goal') < html.indexOf('homeNudgeMount'));
 });
 

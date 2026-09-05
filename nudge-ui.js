@@ -1,7 +1,7 @@
 ((root)=>{
 'use strict';
 
-const VERSION='20260903-1200';
+const VERSION='20260904-home1';
 const INVITATION_PRESETS=[
   ['🛋','Sofa og noe godt','Sofa og noe godt i kveld?'],
   ['🌿','En liten tur','En liten tur sammen senere?'],
@@ -119,17 +119,19 @@ function buildCandidates({state,preferences,myStatus,partnerStatus,partnerName='
   if(!prefs.enabled||quietHours(now))return candidates;
   const hasRemaining=remaining.length>0,dailyWord=progress.remaining===1?'ett gjøremål':`${progress.remaining} gjøremål`,myNeeds=myFresh?myStatus?.needs||[]:[],partnerNeeds=partnerFresh?partnerStatus?.needs||[]:[],myRelief=myNeeds.includes('relief'),partnerRelief=partnerNeeds.includes('relief'),partnerInitiative=partnerNeeds.includes('initiative'),myReason=myRelief?'behov for avlastning':strainText(myStatus),partnerReason=partnerRelief?'behov for avlastning':partnerInitiative?'behov for initiativ':strainText(partnerStatus);
 
+  if(!myFresh)candidates.push({id:`status:check-in:${dateKey(now)}`,kind:'status',priority:99,icon:'☺',title:'Hvordan har du det i dag?',body:'En rask innsjekk gjør dagens forslag mer relevante for dere.',action:'checkIn',actionLabel:'Registrer dagsform'});
+
   if(progress.total&&progress.remaining===0)candidates.push({id:`progress:day-complete:${dateKey(now)}`,kind:'progress',priority:93,icon:'✓',title:'Alt for i dag er gjort',body:'Dagens mål er nådd. Det er lov å la resten av dagen være fri.',action:null,actionLabel:''});
   else if(progress.total&&progress.pct>=70&&progress.remaining<=2)candidates.push({id:`progress:day-nearly:${dateKey(now)}`,kind:'progress',priority:86,icon:'○',title:'Dere er nesten i mål for dagen',body:`Bare ${dailyWord} gjenstår i dagens plan.`,action:'openTasks',actionLabel:'Se det som gjenstår'});
   else if(progress.remaining>0)candidates.push({id:`progress:day-remaining:${dateKey(now)}:${progress.remaining}`,kind:'progress',priority:52,icon:'○',title:`${progress.remaining===1?'Én ting':`${progress.remaining} ting`} gjenstår i dag`,body:'Se dagens plan og velg det som passer nå.',action:'openTasks',actionLabel:'Se dagens plan'});
   if(week.total&&week.pct>=80&&week.pct<100)candidates.push({id:`progress:week-nearly:${week.range?.start||dateKey(now)}`,kind:'progress',priority:78,icon:'↗',title:'Dere er nesten i mål for uka',body:`${week.done} av ${week.total} oppgaver er ferdige.`,action:'openTasks',actionLabel:'Se ukerytmen'});
   const partnerRemaining=remaining.filter(task=>task.nudgePeriod==='today'&&(dailyLoop?.effectiveOwner?.(state,task,dateKey(now))||task.owner)===partnerName).length;
-  if(prefs.initiative&&partnerRemaining>=2)candidates.push({id:`progress:partner-room:${dateKey(now)}`,kind:'initiative',priority:82,icon:'♡',title:'Kanskje du kan gjøre dagen litt lettere',body:`${partnerName} har flere oppgaver igjen i dagens plan. Se om det er én du selv ønsker å ta.`,action:'openTasks',actionLabel:'Se dagens plan'});
+  if(prefs.initiative&&partnerRemaining>=2)candidates.push({id:`progress:partner-room:${dateKey(now)}`,kind:'initiative',priority:82,icon:'♡',title:'Kanskje du kan gjøre dagen litt lettere',body:`Dere har fortsatt ${dailyWord} igjen i dag. Se om det er én du selv ønsker å ta.`,action:'openTasks',actionLabel:'Ta et gjøremål'});
 
   if(prefs.askHelp&&myFresh&&partnerFresh&&low(myStatus)&&low(partnerStatus)){
     candidates.push({
       id:'balance:both-low',kind:'askHelp',priority:105,icon:'≈',
-      title:toneText(prefs.tone,{warm:'I dag kan godt nok være målet',direct:'Begge har lite kapasitet',gentle:'Kanskje dette er en roligere dag'}),
+      title:toneText(prefs.tone,{warm:'Ta det litt med ro i dag',direct:'Begge har lite kapasitet',gentle:'Kanskje dette er en roligere dag'}),
       body:toneText(prefs.tone,{warm:`Både du og ${partnerName} har markert lite å gå på. Velg det viktigste, og la resten få vente uten dårlig samvittighet.`,direct:`Begge har lite kapasitet. Prioriter det viktigste og utsett resten.`,gentle:`Både du og ${partnerName} har markert lite overskudd. Kanskje dere kan bli enige om hva som faktisk må gjøres i dag.`}),
       action:hasRemaining?'openTasks':null,actionLabel:hasRemaining?'Se dagens plan':''
     });
@@ -138,9 +140,9 @@ function buildCandidates({state,preferences,myStatus,partnerStatus,partnerName='
   if(prefs.askHelp&&myFresh&&(low(myStatus)||myRelief)&&hasRemaining){
     candidates.push({
       id:`ask-help:status:${dateKey(now)}`,kind:'askHelp',priority:100,icon:'♡',
-      title:toneText(prefs.tone,{warm:'Litt hjelp kan gjøre dagen lettere',direct:'Be om avlastning nå',gentle:'Kanskje du kan slippe én ting'}),
-      body:toneText(prefs.tone,{warm:`Du har valgt ${myReason}. Se dagens plan og velg selv hva det vil hjelpe å få avlastning med.`,direct:`Du har valgt ${myReason}. Velg selv hva du vil be ${partnerName} om hjelp med.`,gentle:`Du har valgt ${myReason}. Hvis det passer, kan du se om noe i planen kan deles eller vente.`}),
-      action:'openTasks',actionLabel:'Se dagens plan'
+      title:toneText(prefs.tone,{warm:'Lite å gå på i dag?',direct:'Be om avlastning nå',gentle:'Kanskje du kan slippe én ting'}),
+      body:toneText(prefs.tone,{warm:`Du har valgt ${myReason}. Du kan be ${partnerName} om litt avlastning med ett av de felles gjøremålene.`,direct:`Du har valgt ${myReason}. Velg hva du vil be ${partnerName} om hjelp med.`,gentle:`Du har valgt ${myReason}. Hvis det passer, kan dere dele eller utsette noe.`}),
+      action:'askHelp',actionLabel:'Be om hjelp',secondaryActions:[{action:'openTasks',label:'Se dagens gjøremål'}]
     });
   }
 
@@ -148,9 +150,9 @@ function buildCandidates({state,preferences,myStatus,partnerStatus,partnerName='
     const left=progress.remaining?`Det står igjen ${dailyWord} i dagens plan.`:'Det står fortsatt gjøremål igjen denne uken.';
     candidates.push({
       id:`initiative:status:${dateKey(now)}`,kind:'initiative',priority:95,icon:'↗',
-      title:toneText(prefs.tone,{warm:`Gjør dagen litt lettere for ${partnerName}`,direct:'Ta én oppgave før det blir spurt',gentle:'Et lite initiativ kan hjelpe'}),
-      body:toneText(prefs.tone,{warm:`${partnerName} har markert ${partnerReason}. ${left} Se planen og velg selv om det er noe du vil ta.`,direct:`${partnerName} har markert ${partnerReason}. ${left} Velg selv om du vil ta noe.`,gentle:`${partnerName} har markert ${partnerReason}. ${left} Hvis du har kapasitet, kan du se om noe passer å ta.`}),
-      action:'openTasks',actionLabel:'Se dagens plan'
+      title:toneText(prefs.tone,{warm:`${partnerName} har lite å gå på i dag`,direct:`${partnerName} trenger avlastning`,gentle:`Litt ekstra initiativ kan hjelpe ${partnerName}`}),
+      body:toneText(prefs.tone,{warm:`${partnerName} har registrert ${partnerReason}. ${left} Litt ekstra initiativ fra deg kan gjøre dagen lettere.`,direct:`${partnerName} har markert ${partnerReason}. ${left}`,gentle:`${partnerName} har markert ${partnerReason}. ${left} Hvis du har kapasitet, kan du velge noe som passer.`}),
+      action:'openTasks',actionLabel:'Ta et gjøremål',secondaryActions:[{action:'invitation',label:'Send en oppmuntring'},{action:'openTasks',label:'Se dagens gjøremål'}]
     });
   }
 
@@ -191,6 +193,15 @@ function buildCandidates({state,preferences,myStatus,partnerStatus,partnerName='
     });
   }
 
+  if(prefs.relationship&&myFresh&&partnerFresh&&!low(myStatus)&&!low(partnerStatus)&&!myRelief&&!partnerRelief){
+    const variants=[
+      ['En liten gnist i dag?','Hva med ti minutter sammen i kveld?','Send en liten invitasjon'],
+      ['Et lite smil på veien','Send partneren din noe som får dem til å smile.','Send en søt melding'],
+      ['Litt tid bare til dere?','En liten pause sammen kan gjøre en vanlig dag ekstra fin.','Velg noe koselig']
+    ],variant=variants[(now.getDate()+now.getMonth())%variants.length];
+    candidates.push({id:`relationship:daily:${dateKey(now)}`,kind:'relationship',priority:88,icon:'♡',title:variant[0],body:variant[1],action:'invitation',actionLabel:variant[2]});
+  }
+
   const dismissed=new Set(currentDismissals(prefs,now));
   return candidates.filter(c=>c.priority>=preferenceThreshold(prefs.frequency)&&!dismissed.has(c.id)).sort((a,b)=>b.priority-a.priority||a.id.localeCompare(b.id));
 }
@@ -202,8 +213,10 @@ function requestMessage({task,partnerName,tone='warm',status}){
     gentle:`Jeg har ${strain} i dag. Hvis du har mulighet, hadde jeg satt pris på om du kunne ta deg av ${ref}.`
   });
 }
-function makeRequest({state,task,text,now=Date.now()}){
-  const request=coupleCore?.makeSupportRequest?.({state,task,text,now})||{id:`req_${now}`,kind:'support',type:'practical',text:String(text||'').trim(),by:state.user,createdAt:now,responseState:'pending',seen:false,done:false,deleted:false,source:'nudge',taskId:task?.id??null,taskName:task?.name||''};
+function makeRequest({state,task,text,reward='',now=Date.now()}){
+  const title=String(reward||'').trim().slice(0,120),message=title?`${String(text||'').trim()}\n\nNoe hyggelig vedlagt: ${title}`:text;
+  const request=coupleCore?.makeSupportRequest?.({state,task,text:message,now})||{id:`req_${now}`,kind:'support',type:'practical',text:String(message||'').trim(),by:state.user,createdAt:now,responseState:'pending',seen:false,done:false,deleted:false,source:'nudge',taskId:task?.id??null,taskName:task?.name||''};
+  if(title)request.supportReward={title,kind:'gesture',requiresPoints:false};
   return {request};
 }
 
@@ -271,6 +284,9 @@ function ensureStyles(){
   .flytNudgeIcon{width:42px;height:42px;flex:0 0 42px;border-radius:14px;display:grid;place-items:center;background:#fff;color:var(--deep);font-size:22px;box-shadow:0 5px 14px #79463012}
   .flytNudgeActions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:14px}
   .flytNudgeActions .primary{flex:1;min-width:180px;min-height:46px}
+  .flytNudgeActions .flytNudgeSecondary{border:0;background:transparent;color:#a7543d;padding:7px 3px;font-weight:750;text-decoration:underline;text-underline-offset:4px}
+  .flytNudgeTaskChoices{display:grid;gap:7px;margin-top:14px}.flytNudgeTaskChoice{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:11px 12px;border:1px solid #eadbd2;border-radius:14px;background:#fffdfb;color:#4a332c;text-align:left;font:inherit}.flytNudgeTaskChoice span:last-child{color:#b45d43;font-weight:800}
+  .flytNudgeReward{margin-top:14px;padding:12px;border:1px solid #ecdcd3;border-radius:15px;background:#fff8f3}.flytNudgeReward .field{margin-top:7px}.flytNudgeReward small{display:block;margin-top:5px;color:#8a746a;line-height:1.35}
   .flytNudgeSwitch{width:48px;height:28px;border:0;border-radius:999px;background:#d8cbc5;padding:3px;display:flex;justify-content:flex-start;flex:0 0 auto}
   .flytNudgeSwitch:after{content:'';width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 2px 7px #49302b33}
   .flytNudgeSwitch[aria-checked="true"]{background:var(--accent);justify-content:flex-end}
@@ -287,7 +303,8 @@ function ensureStyles(){
 function invitationPresetMarkup(selected){return `<div class="invitationPresets" aria-label="Forslag til invitasjon">${INVITATION_PRESETS.map(([icon,label,text])=>`<button type="button" class="small invitationPreset" data-nudge-invite-preset="${esc(text)}" aria-pressed="${text===selected?'true':'false'}">${icon} ${esc(label)}</button>`).join('')}</div>`}
 function syncInvitationPreset(value){$('#flytNudgeModal')?.querySelectorAll?.('[data-nudge-invite-preset]').forEach(button=>button.setAttribute('aria-pressed',button.dataset.nudgeInvitePreset===value?'true':'false'))}
 function cardMarkup(candidate,count){
-  return `<section class="flytNudgeCard" data-flyt-nudge-card="${esc(candidate.id)}" aria-label="Et lite dytt"><div class="row" style="align-items:flex-start;position:relative"><div class="flytNudgeIcon" aria-hidden="true">${esc(candidate.icon||'✨')}</div><div class="grow"><div class="ey">Et lite dytt</div><strong style="display:block;font:600 21px/1.15 Georgia,serif;margin-top:5px">${esc(candidate.title)}</strong></div></div><p style="line-height:1.5;margin:13px 0 0">${esc(candidate.body)}</p><div class="flytNudgeActions">${candidate.action?`<button type="button" class="primary" data-nudge-action="${esc(candidate.action)}" data-nudge-id="${esc(candidate.id)}">${esc(candidate.actionLabel)}</button>`:''}${count>1?'<button type="button" class="small" data-nudge-next="1">Vis et annet</button>':''}<button type="button" class="small" data-nudge-dismiss="1">Skjul i dag</button></div></section>`;
+  const secondary=(candidate.secondaryActions||[]).map(item=>`<button type="button" class="flytNudgeSecondary" data-nudge-action="${esc(item.action)}" data-nudge-id="${esc(candidate.id)}">${esc(item.label)}</button>`).join('');
+  return `<section class="flytNudgeCard" data-flyt-nudge-card="${esc(candidate.id)}" aria-label="Et lite dytt"><div class="row" style="align-items:flex-start;position:relative"><div class="flytNudgeIcon" aria-hidden="true">${esc(candidate.icon||'♡')}</div><div class="grow"><div class="ey">Et lite dytt</div><strong style="display:block;font:600 21px/1.15 Georgia,serif;margin-top:5px">${esc(candidate.title)}</strong></div></div><p style="line-height:1.5;margin:13px 0 0">${esc(candidate.body)}</p><div class="flytNudgeActions">${candidate.action?`<button type="button" class="primary" data-nudge-action="${esc(candidate.action)}" data-nudge-id="${esc(candidate.id)}">${esc(candidate.actionLabel)}</button>`:''}${secondary}${count>1?'<button type="button" class="small" data-nudge-next="1">Vis et annet</button>':''}<button type="button" class="small" data-nudge-dismiss="1">Skjul i dag</button></div></section>`;
 }
 function augment(){
   if(painting)return;
@@ -320,22 +337,31 @@ function nextCandidate(){
   augment();
 }
 function closeModal(){$('#flytNudgeModal')?.remove()}
+function openHelpPicker(candidate){
+  const s=state(),choices=remainingTasks(s,new Date()).filter(task=>task.nudgePeriod==='today').slice(0,8);
+  if(!s)return;
+  if(!choices.length){openTasks();return}
+  closeModal();
+  const el=document.createElement('div');el.id='flytNudgeModal';
+  el.innerHTML=`<div class="flytNudgeDialog" role="dialog" aria-modal="true" aria-labelledby="flytNudgeTitle"><div class="ey">Be om hjelp</div><h2 id="flytNudgeTitle" style="font:500 28px/1.12 Georgia;margin:9px 0 7px">Hva vil du be om hjelp med?</h2><p class="sub" style="margin-top:0">Velg ett av de felles gjøremålene. Partneren kan svare fritt.</p><div class="flytNudgeTaskChoices">${choices.map(task=>`<button type="button" class="flytNudgeTaskChoice" data-nudge-pick-help="${esc(task.id)}" data-nudge-parent="${esc(candidate?.id||'ask-help')}"><span>${esc(taskName(task))}</span><span aria-hidden="true">›</span></button>`).join('')}</div><button type="button" class="secondary full" data-nudge-modal-cancel="1" style="margin-top:14px">Avbryt</button></div>`;
+  document.body.appendChild(el);el.addEventListener('click',event=>{if(event.target===el)closeModal()});
+}
 function openHelp(candidate){
   const s=state();
   if(!s||!candidate?.task)return;
   closeModal();
   const prefs=preferences(s),rows=statuses(),partner=partnerName(s),message=requestMessage({task:candidate.task,partnerName:partner,tone:prefs.tone,status:rows.myStatus}),el=document.createElement('div');
   el.id='flytNudgeModal';
-  el.innerHTML=`<div class="flytNudgeDialog" role="dialog" aria-modal="true" aria-labelledby="flytNudgeTitle"><div class="ey">Be om hjelp</div><h2 id="flytNudgeTitle" style="font:500 28px/1.12 Georgia;margin:9px 0 7px">Gjør behovet konkret</h2><p class="sub" style="margin-top:0">Meldingen sendes til ${esc(partner)} under Sett. Du kan endre teksten før du sender.</p><div class="card" style="box-shadow:none"><div class="ey">Gjøremål</div><strong style="display:block;margin-top:5px">${esc(candidate.task.name)}</strong></div><label class="label" for="flytNudgeMessage">Melding</label><textarea id="flytNudgeMessage" rows="5" maxlength="600" style="width:100%;resize:vertical;min-height:125px;border:1px solid var(--line);border-radius:15px;background:#fff;padding:12px 14px;font:inherit;color:inherit;outline:none;margin-top:6px">${esc(message)}</textarea><div class="card" style="box-shadow:none;margin-top:14px;background:#fff9f5"><strong>Konkret forespørsel, fritt svar</strong><p class="sub" style="margin-bottom:0">${esc(partner)} kan ta oppgaven, foreslå en annen, si at det ikke passer eller skrive et kort svar.</p></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px"><button type="button" class="secondary" data-nudge-modal-cancel="1">Avbryt</button><button type="button" class="primary" data-nudge-send-help="${esc(candidate.id)}">Send til ${esc(partner)}</button></div></div>`;
+  el.innerHTML=`<div class="flytNudgeDialog" role="dialog" aria-modal="true" aria-labelledby="flytNudgeTitle"><div class="ey">Be om hjelp</div><h2 id="flytNudgeTitle" style="font:500 28px/1.12 Georgia;margin:9px 0 7px">Gjør behovet konkret</h2><p class="sub" style="margin-top:0">Meldingen sendes til ${esc(partner)} under Sett. Du kan endre teksten før du sender.</p><div class="card" style="box-shadow:none"><div class="ey">Gjøremål</div><strong style="display:block;margin-top:5px">${esc(candidate.task.name)}</strong></div><label class="label" for="flytNudgeMessage">Melding</label><textarea id="flytNudgeMessage" rows="5" maxlength="600" style="width:100%;resize:vertical;min-height:125px;border:1px solid var(--line);border-radius:15px;background:#fff;padding:12px 14px;font:inherit;color:inherit;outline:none;margin-top:6px">${esc(message)}</textarea><div class="flytNudgeReward"><label class="label" for="flytNudgeReward">Legg ved noe hyggelig? <span class="taskmeta">Valgfritt</span></label><input id="flytNudgeReward" class="field" maxlength="120" placeholder="F.eks. du velger film i kveld"><small>Dette er en frivillig gest, helt separat fra poeng. Den som gjør gjøremålet får bare de ordinære poengene.</small></div><div class="card" style="box-shadow:none;margin-top:14px;background:#fff9f5"><strong>Konkret forespørsel, fritt svar</strong><p class="sub" style="margin-bottom:0">${esc(partner)} kan ta oppgaven, foreslå en annen, si at det ikke passer eller skrive et kort svar.</p></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:18px"><button type="button" class="secondary" data-nudge-modal-cancel="1">Avbryt</button><button type="button" class="primary" data-nudge-send-help="${esc(candidate.id)}">Send til ${esc(partner)}</button></div></div>`;
   document.body.appendChild(el);
   el.addEventListener('click',event=>{if(event.target===el)closeModal()});
   setTimeout(()=>$('#flytNudgeMessage')?.focus(),40);
 }
 function sendHelp(id){
-  const s=state(),candidate=currentCandidates.find(c=>c.id===id)||currentCandidates[0],text=$('#flytNudgeMessage')?.value.trim();
+  const s=state(),candidate=currentCandidates.find(c=>c.id===id)||currentCandidates[0],text=$('#flytNudgeMessage')?.value.trim(),reward=$('#flytNudgeReward')?.value.trim()||'';
   if(!s||!candidate?.task)return;
   if(!text){$('#flytNudgeMessage')?.focus();return}
-  const made=makeRequest({state:s,task:candidate.task,text}),prefs=preferences(s),dismissed=new Set(currentDismissals(prefs));
+  const made=makeRequest({state:s,task:candidate.task,text,reward}),prefs=preferences(s),dismissed=new Set(currentDismissals(prefs));
   dismissed.add(candidate.id);
   let next={...s,seenRequests:[made.request,...(s.seenRequests||[])]};
   next=withPreferences(next,{...prefs,dismissedDate:dateKey(),dismissedIds:[...dismissed]});
@@ -414,7 +440,9 @@ document.addEventListener('click',event=>{
   const preset=event.target.closest?.('[data-nudge-invite-preset]');
   if(preset){event.preventDefault();const input=$('#flytNudgeInvitation');if(input){input.value=preset.dataset.nudgeInvitePreset;syncInvitationPreset(input.value);input.focus()}return}
   const action=event.target.closest?.('[data-nudge-action]');
-  if(action){event.preventDefault();const candidate=currentCandidates.find(c=>c.id===action.dataset.nudgeId)||currentCandidates[0];if(action.dataset.nudgeAction==='askHelp')openHelp(candidate);else if(action.dataset.nudgeAction==='invitation')openInvitation(candidate);else if(action.dataset.nudgeAction==='takeInitiative')takeInitiative(candidate);else if(action.dataset.nudgeAction==='openTasks')openTasks();return}
+  if(action){event.preventDefault();const candidate=currentCandidates.find(c=>c.id===action.dataset.nudgeId)||currentCandidates[0];if(action.dataset.nudgeAction==='askHelp')(candidate?.task?openHelp(candidate):openHelpPicker(candidate));else if(action.dataset.nudgeAction==='invitation')openInvitation(candidate);else if(action.dataset.nudgeAction==='takeInitiative')takeInitiative(candidate);else if(action.dataset.nudgeAction==='openTasks')openTasks();else if(action.dataset.nudgeAction==='checkIn')root.FlytHomeUI?.openStatusEditor?.();return}
+  const pickHelp=event.target.closest?.('[data-nudge-pick-help]');
+  if(pickHelp){event.preventDefault();const s=state(),task=(s?.tasks||[]).find(item=>String(item.id)===String(pickHelp.dataset.nudgePickHelp)),base=currentCandidates.find(item=>item.id===pickHelp.dataset.nudgeParent)||currentCandidates[0];if(task){const candidate={...(base||{}),id:base?.id||'ask-help',task};currentCandidates=[candidate,...currentCandidates.filter(item=>item.id!==candidate.id)];openHelp(candidate)}return}
   const sendHelpButton=event.target.closest?.('[data-nudge-send-help]');
   if(sendHelpButton){event.preventDefault();sendHelp(sendHelpButton.dataset.nudgeSendHelp);return}
   const sendInvitationButton=event.target.closest?.('[data-nudge-send-invitation]');
