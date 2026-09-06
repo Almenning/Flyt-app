@@ -111,7 +111,13 @@ test('enkle skjema bruker fempoengssteg, én frist og progressive valg', () => {
   assert.match(source, /data-point-adjust="1"/);
   assert.match(source, /data-goal-advanced-toggle/);
   assert.match(source, /Annet mål/);
-  assert.match(source, /type="datetime-local"/);
+  assert.match(source, /data-deadline-open/);
+  assert.match(source, /Velg frist/);
+  assert.match(source, /I kveld/);
+  assert.match(source, /Velg annen dato/);
+  assert.match(source, /Velg tid/);
+  assert.match(source, /data-deadline-finish/);
+  assert.doesNotMatch(source, /name="deadline" type="datetime-local"/);
   assert.match(source, /<option value="points">Poeng<\/option>/);
   assert.match(source, /<option value="task">Gjøremål<\/option>/);
   assert.match(source, /<option value="own">Egen<\/option>/);
