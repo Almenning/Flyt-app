@@ -168,7 +168,7 @@ check('the main shell keeps one complete navigation and boot bridge', () => {
   const staticMarkup = html.replace(/<script\b[^>]*>[\s\S]*?<\/script\s*>/gi, '');
   for (const id of ['login', 'content', 'nav']) assert.match(staticMarkup, new RegExp(`\\bid=["']${id}["']`), `index.html is missing #${id}`);
   const views = [...staticMarkup.matchAll(/\bdata-view\s*=\s*(["'])(.*?)\1/gi)].map(match => match[2]);
-  assert.deepEqual(views, ['home', 'tasks', 'seen', 'rewards', 'us'], 'main navigation changed, is duplicated, or is incomplete');
+  assert.deepEqual(views, ['home', 'tasks', 'seen', 'rewards'], 'main navigation changed, is duplicated, or is incomplete');
   assert.match(html, /window\.FlytBridge\s*=/, 'index.html does not publish window.FlytBridge');
 });
 
