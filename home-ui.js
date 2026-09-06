@@ -2,7 +2,7 @@
 'use strict';
 const $=s=>document.querySelector(s);
 const bridge=()=>window.FlytBridge;
-const VERSION='20260904-home1';
+const VERSION='20260906-homecompact1';
 let partnerCtx=null,loadingPartner=false,statusEditorOpen=false,statusDraft=null,statusSaving=false,statusError='';
 const LABEL={low:'Lav',med:'Middels',high:'Høy'};
 const NEED_LABEL={relief:'Avlastning',closeness:'Nærhet',sex:'Intimitet',initiative:'Initiativ',alone:'Alenetid',quiet:'Ro'};
@@ -82,10 +82,29 @@ function ensureStyles(){if($('#flytHomeStyles')||typeof document.createElement!=
   .homeJourneyCard{background:linear-gradient(145deg,#fffdf9,#fff1e9)}.homeJourneyCard>strong,.homeJourneyCard .grow>strong{display:block;font:600 21px/1.2 Georgia,serif;margin-top:6px}.homeJourneyCard .sub{margin:7px 0 0}.homeJourneyCard button{margin-top:13px}
   @media(max-width:390px){.homeSurface{padding:15px}.homeGoalGrid{grid-template-columns:136px 1fr;gap:9px}.homeProgressRing{width:136px}.homeProgressRing:after{inset:13px}.homeMoodPerson{padding:9px 7px;gap:6px}.homeMoodAvatar{width:32px;height:32px;flex-basis:32px;font-size:17px}.homeMoodCopy strong{font-size:16px}.homeMoodDots{gap:3px}.homeMoodDots span{width:7px;height:7px}.homeMoodEdit{display:none}}
 `;document.head.appendChild(style)}
+function ensureGoalCompactStyles(){if($('#flytHomeGoalCompactStyles')||typeof document.createElement!=='function')return;const style=document.createElement('style');style.id='flytHomeGoalCompactStyles';style.textContent=`
+.homeGoalCard{padding:13px 15px 10px}
+.homeGoalHead{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.homeGoalHead .homeSectionTitle{gap:8px;min-width:0}
+.homeGoalHead .homeSectionIcon{width:28px;height:28px;flex:0 0 28px;font-size:16px}
+.homeGoalHead h2{font-size:20px}
+.homeGoalCard .homeGoalEncouragement{margin:0;justify-content:flex-end;white-space:nowrap;font-size:13px;line-height:1.2}
+.homeGoalCard .homeGoalEncouragement span{font-size:17px}
+.homeGoalCard .homeGoalGrid{grid-template-columns:minmax(104px,.9fr) minmax(124px,1.1fr);gap:12px;margin-top:9px}
+.homeGoalCard .homeProgressRing{width:min(29vw,118px)}
+.homeGoalCard .homeProgressRing:after{inset:11px}
+.homeGoalCard .homeProgressRing strong{font-size:21px}
+.homeGoalCard .homeProgressRing small{margin-top:2px;font-size:11px}
+.homeGoalCard .homeGoalStats>div{min-height:31px;gap:7px;font-size:13px}
+.homeGoalCard .homeGoalStats strong{font-size:18px}
+.homeGoalCard .homeGoalStats .isDone,.homeGoalCard .homeGoalStats .isLeft{width:9px;height:9px}
+.homeGoalCard .homeTextAction{margin:1px 0 0 auto;padding:2px 4px;font-size:12px}
+@media (max-width:390px){.homeGoalCard{padding:12px 13px 9px}.homeGoalHead h2{font-size:19px}.homeGoalCard .homeGoalEncouragement{font-size:12px}.homeGoalCard .homeGoalGrid{grid-template-columns:minmax(96px,.85fr) minmax(118px,1.15fr);gap:9px}.homeGoalCard .homeProgressRing{width:106px}.homeGoalCard .homeProgressRing strong{font-size:19px}.homeGoalCard .homeGoalStats>div{font-size:12px}}
+`;document.head.appendChild(style)}
 function progressRing(plan){const value=Math.min(100,Math.max(0,Number(plan?.pct)||0));return `<div class="homeProgressRing" style="--progress:${value}" role="img" aria-label="${value} prosent fullført, ${plan.done} av ${plan.total} gjøremål"><span><strong>${plan.done} av ${plan.total}</strong><small>gjøremål</small></span></div>`}
 function goalEncouragement(plan){if(!plan.total)return'En rolig dag i planen';if(!plan.remaining)return'Dagens mål er nådd';if(plan.pct>=70)return'Dere er nesten i mål';if(plan.pct>=40)return'Dere er godt i rute';if(plan.done)return'God start på dagen';return'Små ting. Stor forskjell.'}
 function dailyGoalMarkup(plan){
-  return `<section class="homeSurface homeGoalCard" data-home-daily-goal><div class="homeSectionTitle"><span class="homeSectionIcon" aria-hidden="true">◎</span><h2>Dagens mål</h2></div><div class="homeGoalGrid">${progressRing(plan)}<div class="homeGoalStats"><div><span class="isDone" aria-hidden="true"></span><span>Fullført</span><strong>${plan.done}</strong></div><div><span class="isLeft" aria-hidden="true"></span><span>Gjenstår</span><strong>${plan.remaining}</strong></div></div></div><p class="homeGoalEncouragement"><span aria-hidden="true">♡</span>${esc(goalEncouragement(plan))}</p><button type="button" class="homeTextAction" data-home-day-plan-open="1" data-home-destination="tasks">Se dagens gjøremål <span aria-hidden="true">→</span></button></section>`;
+  return `<section class="homeSurface homeGoalCard" data-home-daily-goal><div class="homeGoalHead"><div class="homeSectionTitle"><span class="homeSectionIcon" aria-hidden="true">◎</span><h2>Dagens mål</h2></div><p class="homeGoalEncouragement"><span aria-hidden="true">♡</span>${esc(goalEncouragement(plan))}</p></div><div class="homeGoalGrid">${progressRing(plan)}<div class="homeGoalStats"><div><span class="isDone" aria-hidden="true"></span><span>Fullført</span><strong>${plan.done}</strong></div><div><span class="isLeft" aria-hidden="true"></span><span>Gjenstår</span><strong>${plan.remaining}</strong></div></div></div><button type="button" class="homeTextAction" data-home-day-plan-open="1" data-home-destination="tasks">Se dagens gjøremål <span aria-hidden="true">→</span></button></section>`;
 }
 function startFirstWin(taskId){const s=bridge()?.getState?.(),task=(s?.tasks||[]).find(item=>String(item.id)===String(taskId));if(!s||!task)return;const item=window.FlytCoupleCore?.makeInitiative?.({state:s,task,partnerName:partnerName(s)})||null;if(!item)return;bridge().setState({...s,seenRequests:[{...item,journeyKey:'first_shared_win'},...(s.seenRequests||[])],coupleJourney:{...(s.coupleJourney||{}),firstWinStartedAt:s.coupleJourney?.firstWinStartedAt||new Date().toISOString()}});window.FlytSync?.queueSave?.();bridge()?.toast?.(`Første felles seier er startet med ${taskReference(task.name)}`);render({resetScroll:false});window.FlytSeenRequestAlert?.checkAlerts?.()}
 async function loadPartner(force=false){if((loadingPartner&&!force)||!window.FlytSync?.rpc||!window.FlytSync?.getContext?.()?.user_id)return;loadingPartner=true;try{const {data,error}=await window.FlytSync.rpc('get_home_partner_context');if(error)throw error;let next=data||null;if(next&&!next.me){const detail=await window.FlytSync.rpc('get_oss_context');if(!detail.error){const userId=detail.data?.user_id,status=(detail.data?.statuses||[]).find(item=>String(item.user_id)===String(userId))||null,member=(detail.data?.members||[]).find(item=>String(item.id)===String(userId))||null;next={...next,me:{user_id:userId,display_name:member?.display_name||currentName(bridge()?.getState?.()),status}}}}partnerCtx=next;if(bridge()?.getState?.()?.view==='home')render({resetScroll:false})}catch(e){console.warn('Flyt Hjem-status kunne ikke hentes',e)}finally{loadingPartner=false}}
@@ -117,6 +136,7 @@ function render({resetScroll=false}={}){
   if(!s||!c||s.view!=='home')return;
   const pos=resetScroll?0:c.scrollTop,name=currentName(s),plan=dayPlanProgress(s);
   ensureStyles();
+  ensureGoalCompactStyles();
   c.dataset.flytOwner='home';
   const first=firstWinMarkup(s);
   c.innerHTML=`<header class="homeHeader"><div class="ey">Hjem</div><h1 class="title">${greeting()}, ${esc(name)}</h1><p class="sub">Et raskt overblikk over dagen deres</p></header>${dailyGoalMarkup(plan)}${dailyStatusMarkup(s)}<div id="homeNudgeMount" ${first?'data-first-win-active="1"':''} aria-live="polite">${first}</div>`;
