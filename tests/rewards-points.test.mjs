@@ -104,6 +104,9 @@ test('enkle skjema bruker fempoengssteg, én frist og progressive valg', () => {
   const source = readFileSync(path.join(root, 'rewards-ui.js'), 'utf8');
   assert.match(source, /inputmode="numeric"/);
   assert.match(source, /step="5"/);
+  assert.match(source, /min="5"/);
+  assert.match(source, /goalFormRow\[hidden\]/);
+  assert.match(source, /control\.disabled=!show/);
   assert.match(source, /data-point-adjust="-1"/);
   assert.match(source, /data-point-adjust="1"/);
   assert.match(source, /data-goal-advanced-toggle/);
