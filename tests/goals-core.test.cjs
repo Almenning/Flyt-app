@@ -186,3 +186,16 @@ test('poengoversikt skiller tilgjengelig, ukentlig, historisk og brukt',()=>{
   ],rewardPurchases:[{paidBy:{Tore:25}}],rewardRedemptions:[{claimedBy:'Tore',cost:5}]};
   assert.deepEqual(core.pointSummary(state,'Tore',NOW),{available:10,earnedWeek:15,totalEarned:35,used:30});
 });
+
+test('direkte utfordring kan fullføres uten å trekke poeng',()=>{
+  let state=core.createGoal(base(),{kind:'challenge',targetUser:'Jannicke',metric:{type:'manual'},title:'Tar du leggingen i kveld?',deadline:'2026-09-04T20:00:00Z',reward:{title:'Jeg venter på sofaen ❤️',type:'challenge',direct:true,cost:0}},NOW);
+  const id=state.goals[0].id;
+  state=core.acceptGoal({...state,user:'Jannicke'},id,'Jannicke',NOW+1);
+  state=core.markManualDone({...state,user:'Jannicke'},id,'Jannicke',NOW+2);
+  const result=core.redeemGoalReward(state,id,'Jannicke',NOW+3);
+  assert.equal(result.ok,true);
+  assert.deepEqual(result.state.points,state.points);
+  assert.equal(result.state.goals[0].reward.status,'redeemed');
+  state=core.markRewardUsed(result.state,id,'Jannicke',NOW+4);
+  assert.equal(state.goals[0].reward.status,'used');
+});
