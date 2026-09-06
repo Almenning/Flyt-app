@@ -111,13 +111,15 @@ test('enkle poengskjema bruker fempoengssteg, direkte inntasting og progressiv v
   assert.match(source, /Forhåndsvisning/);
 });
 
-test('belønningsbiblioteket har varme kategorifaner og aktiv innløsning', () => {
+test('belønningsbiblioteket har varme kategorifaner og viser bare forslag', () => {
   const harness = loadScript('rewards-ui.js', baseState);
   assert.match(harness.content.innerHTML, /Tid og frihet/);
   assert.match(harness.content.innerHTML, /Opplevelser/);
   assert.match(harness.content.innerHTML, /Fristelse ❤️/);
-  assert.match(harness.content.innerHTML, /data-catalog-redeem="Sovemorgen"/);
-  assert.match(harness.content.innerHTML, /Poeng trekkes først når du velger å bruke dem/);
+  assert.match(harness.content.innerHTML, /data-library-reward="Sovemorgen"/);
+  assert.match(harness.content.innerHTML, /Tilgjengelig for deg/);
+  assert.match(harness.content.innerHTML, /Ingen belønninger klare akkurat nå/);
+  assert.match(harness.content.innerHTML, /Biblioteket er forslag/);
 });
 
 test('Poengbelønning trekker saldo uten å endre registrert innsats', async () => {
