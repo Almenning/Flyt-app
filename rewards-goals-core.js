@@ -6,7 +6,7 @@ if(root)root.FlytGoalsCore=api;
 })(typeof window!=='undefined'?window:globalThis,root=>{
 'use strict';
 
-const VERSION='20260906-rewards1';
+const VERSION='20260906-approval1';
 const OSLO_TIME_ZONE='Europe/Oslo';
 const REWARD_LIBRARY=Object.freeze({
   'Tid og frihet':Object.freeze(['Sovemorgen','Kveld ute med venner','En kveld helt fri','Hobby-/gamingkveld','En halv dag for deg selv','Fri fra hjemmeoppgaver']),
@@ -21,6 +21,7 @@ const REWARD_PRICES=Object.freeze({
   /* Behold priser for eldre lagrede mål. */
   'Fri fra hjemmeoppgaver en dag':90,'Date på ditt valg':100,'Restaurant på ditt valg':120,'Aktivitet på ditt valg':90,'En liten gave':70,'Hotellovernatting':180,'Du bestemmer kveldens program':60
 });
+const PARTNER_DEPENDENT_REWARDS=new Set([...REWARD_LIBRARY['Fristelse ❤️'],'Sovemorgen','Du velger ❤️']);
 const METRICS=Object.freeze([
   {type:'points_week',label:'Tjen X poeng denne uka'},
   {type:'points_shared',label:'Samle X poeng sammen'},
@@ -53,6 +54,7 @@ function partnerName(state,user=state?.user){return people(state).find(name=>nam
 function taskById(state,taskId){return (state?.tasks||[]).find(task=>String(task.id)===String(taskId))||root?.FlytDayPlan?.resolveTask?.(state,taskId)||null}
 function metricLabel(metric={}){return METRICS.find(item=>item.type===metric.type)?.label||'Eget mål'}
 function rewardCost(title){return Math.max(1,Number(REWARD_PRICES[title])||60)}
+function requiresPartner(title,category=''){return category==='Fristelse ❤️'||PARTNER_DEPENDENT_REWARDS.has(String(title||''))}
 function goalTitle(state,metric={},customTitle=''){
   if(String(customTitle||'').trim())return String(customTitle).trim();
   const amount=Math.max(1,Number(metric.target)||1),task=taskById(state,metric.taskId)?.name||'valgt gjøremål';
@@ -190,8 +192,16 @@ function redeemGoalReward(state,goalId,user=state?.user,now=Date.now()){
   const result=purchaseReward(state,{title:goal.reward.title,cost:goal.reward.cost,shared:goal.kind==='shared',source:'goal',goalId:goal.id},user,now);if(!result.ok)return result;
   result.state=replaceGoal(result.state,{...goal,reward:{...goal.reward,status:'redeemed',redeemedAt:new Date(now).toISOString(),redeemedBy:user,purchaseId:result.purchase.id}});return result;
 }
-function redeemCatalogReward(state,item,user=state?.user,now=Date.now()){return purchaseReward(state,{title:item?.title,cost:item?.cost||rewardCost(item?.title),shared:!!item?.shared,source:item?.offerId?'offer':'library',offerId:item?.offerId||null},user,now)}
-function addRewardOffer(state,input={},user=state?.user,now=Date.now()){const title=String(input.title||'').trim(),cost=Math.max(1,Number(input.cost)||60);if(!title)return state;const offer={id:id('offer'),title,cost,secret:!!input.secret,offeredBy:user,offeredTo:input.offeredTo||partnerName(state,user),createdAt:new Date(now).toISOString(),status:'active'};return{...state,rewardOffers:[offer,...(state?.rewardOffers||[])]}}
+function redeemCatalogReward(state,item,user=state?.user,now=Date.now()){
+  const offerId=item?.offerId||null,offer=offerId?(state?.rewardOffers||[]).find(x=>String(x.id)===String(offerId)):null;
+  if(offerId&&(!offer||offer.status!=='active'||offer.offeredTo!==user))return{state,ok:false,reason:'unavailable'};
+  if(!offer&&requiresPartner(item?.title,item?.category))return{state,ok:false,reason:'approval_required'};
+  const title=offer?.title||item?.title,cost=offer?.cost??item?.cost??rewardCost(title);
+  return purchaseReward(state,{title,cost,shared:!!item?.shared,source:offer?'offer':'library',offerId:offer?.id||null},user,now)
+}
+function addRewardOffer(state,input={},user=state?.user,now=Date.now()){const title=String(input.title||'').trim(),cost=Math.max(1,Number(input.cost)||60);if(!title)return state;const offer={id:id('offer'),title,cost,secret:!!input.secret,offeredBy:user,offeredTo:input.offeredTo||partnerName(state,user),createdAt:new Date(now).toISOString(),status:'active',requiresPartner:!!input.requiresPartner};return{...state,rewardOffers:[offer,...(state?.rewardOffers||[])]}}
+function requestRewardOffer(state,input={},user=state?.user,now=Date.now()){const title=String(input.title||'').trim(),cost=Math.max(1,Number(input.cost)||rewardCost(title));if(!title)return state;const offer={id:id('wish'),title,cost,secret:false,requestedBy:user,approvalFrom:input.approvalFrom||partnerName(state,user),offeredBy:null,offeredTo:user,category:String(input.category||''),createdAt:new Date(now).toISOString(),status:'pending',requiresPartner:true};return{...state,rewardOffers:[offer,...(state?.rewardOffers||[])]}}
+function respondToRewardOffer(state,offerId,user=state?.user,approve=true,now=Date.now()){const offer=(state?.rewardOffers||[]).find(x=>String(x.id)===String(offerId));if(!offer||offer.status!=='pending'||(offer.approvalFrom||offer.offeredTo)!==user)return state;return{...state,rewardOffers:(state.rewardOffers||[]).map(x=>String(x.id)===String(offerId)?{...x,status:approve?'active':'declined',offeredBy:approve?user:null,respondedAt:new Date(now).toISOString(),respondedBy:user}:x)}}
 function markPurchaseUsed(state,purchaseId,user=state?.user,now=Date.now()){
   const purchase=(state?.rewardPurchases||[]).find(item=>String(item.id)===String(purchaseId));if(!purchase||purchase.status!=='redeemed'||(!purchase.shared&&purchase.buyer!==user))return state;
   const purchases=(state.rewardPurchases||[]).map(item=>String(item.id)===String(purchaseId)?{...item,status:'used',usedAt:new Date(now).toISOString(),usedBy:user}:item),nextGoals=goals(state).map(goal=>String(goal.id)===String(purchase.goalId)?{...goal,reward:{...goal.reward,status:'used',usedAt:new Date(now).toISOString(),usedBy:user}}:goal);
@@ -200,5 +210,5 @@ function markPurchaseUsed(state,purchaseId,user=state?.user,now=Date.now()){
 function markRewardUsed(state,goalId,user=state?.user,now=Date.now()){const goal=goals(state).find(item=>String(item.id)===String(goalId));if(goal?.reward?.purchaseId)return markPurchaseUsed(state,goal.reward.purchaseId,user,now);if(goal?.reward?.direct&&goal.reward.status==='redeemed')return replaceGoal(state,{...goal,reward:{...goal.reward,status:'used',usedAt:new Date(now).toISOString(),usedBy:user}});return state}
 function statusLabel(goal){if(goal?.reward?.status==='redeemed')return'Klar til bruk';if(goal?.reward?.status==='used')return'Brukt / gjennomført';return({pending:'Venter på svar',active:'Aktiv',reached:'Mål nådd',not_completed:'Ikke fullført',declined:'Avslått',cancelled:'Avsluttet'})[goal?.status]||'Aktiv'}
 
-return{VERSION,METRICS,REWARD_LIBRARY,REWARD_PRICES,acceptGoal,addPartnerReward,addRewardOffer,approveReward,completionPoints,createGoal,dateKey,declineGoal,editPendingGoal,endOfWeek,goalTitle,goals,markManualDone,markPurchaseUsed,markRewardUsed,metricLabel,partnerName,pointSummary,pointsEarned,progress,proposeChange,redeemCatalogReward,redeemGoalReward,refreshState,respondToChange,rewardCost,statusLabel,weekRange};
+return{VERSION,METRICS,REWARD_LIBRARY,REWARD_PRICES,acceptGoal,addPartnerReward,addRewardOffer,approveReward,completionPoints,createGoal,dateKey,declineGoal,editPendingGoal,endOfWeek,goalTitle,goals,markManualDone,markPurchaseUsed,markRewardUsed,metricLabel,partnerName,pointSummary,pointsEarned,progress,proposeChange,redeemCatalogReward,redeemGoalReward,refreshState,requestRewardOffer,requiresPartner,respondToChange,respondToRewardOffer,rewardCost,statusLabel,weekRange};
 });
