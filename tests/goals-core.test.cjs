@@ -159,13 +159,31 @@ test('bare mottakeren kan innløse belønningen fra en utfordring',()=>{
 test('brukeren kan bruke poeng på en annen belønning og utfordringsbelønningen består',()=>{
   let state=core.createGoal(base(),{kind:'personal',metric:{type:'manual'},reward:{title:'Sovemorgen',cost:60,type:'self'}},NOW);
   state=core.markManualDone(state,state.goals[0].id,'Tore',NOW+1);
-  const goalId=state.goals[0].id,result=core.redeemCatalogReward(state,{title:'Massasje',cost:70},'Tore',NOW+2);
+  const goalId=state.goals[0].id,result=core.redeemCatalogReward(state,{title:'En egen bok',cost:70},'Tore',NOW+2);
   assert.equal(result.ok,true);
   assert.equal(result.state.points.Tore,10);
   assert.equal(result.state.goals[0].id,goalId);
   assert.equal(result.state.goals[0].status,'reached');
   assert.equal(result.state.goals[0].reward.status,'available');
-  assert.equal(core.redeemCatalogReward(result.state,{title:'Massasje',cost:70},'Tore',NOW+3).ok,false);
+  assert.equal(core.redeemCatalogReward(result.state,{title:'En egen bok',cost:70},'Tore',NOW+3).ok,false);
+});
+
+test('partneravhengig biblioteksbelønning må godkjennes før innløsning',()=>{
+  let state=base();
+  assert.equal(core.redeemCatalogReward(state,{title:'Massasje',cost:70},'Tore',NOW).reason,'approval_required');
+  state=core.requestRewardOffer(state,{title:'Massasje',cost:70,category:'Fristelse ❤️'},'Tore',NOW+1);
+  assert.equal(state.rewardOffers[0].status,'pending');
+  assert.deepEqual(state.points,{Tore:80,Jannicke:45});
+  state=core.respondToRewardOffer({...state,user:'Jannicke'},state.rewardOffers[0].id,'Jannicke',true,NOW+2);
+  const result=core.redeemCatalogReward({...state,user:'Tore'},{title:'Massasje',offerId:state.rewardOffers[0].id},'Tore',NOW+3);
+  assert.equal(result.ok,true);
+  assert.equal(result.state.points.Tore,10);
+});
+
+test('avslått belønningsønske blir ikke tilgjengelig',()=>{
+  let state=core.requestRewardOffer(base(),{title:'Massasje',cost:70,category:'Fristelse ❤️'},'Tore',NOW);
+  state=core.respondToRewardOffer({...state,user:'Jannicke'},state.rewardOffers[0].id,'Jannicke',false,NOW+1);
+  assert.equal(core.redeemCatalogReward({...state,user:'Tore'},{title:'Massasje',offerId:state.rewardOffers[0].id},'Tore',NOW+2).ok,false);
 });
 
 test('felles innløsning trekker fra faktisk saldo og kan ikke dobbeltbrukes',()=>{
