@@ -114,6 +114,9 @@ test('enkle skjema bruker fempoengssteg, én frist og progressive valg', () => {
   assert.match(source, /data-deadline-open/);
   assert.match(source, /Velg frist/);
   assert.match(source, /I kveld/);
+  assert.match(source, /deadlineDayOptions/);
+  assert.match(source, /length:21/);
+  assert.match(source, /overflow-x:auto/);
   assert.match(source, /Velg annen dato/);
   assert.match(source, /Velg tid/);
   assert.match(source, /data-deadline-finish/);
