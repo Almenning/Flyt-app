@@ -106,6 +106,7 @@ test('enkle skjema bruker fempoengssteg, én frist og progressive valg', () => {
   assert.match(source, /data-point-open/);
   assert.match(source, /openPointPicker/);
   assert.match(source, /pointWheel/);
+  assert.match(source, /syncPointWheel/);
   assert.match(source, /data-point-manual/);
   assert.match(source, /step="1"/);
   assert.match(source, /goalFormRow\[hidden\]/);
