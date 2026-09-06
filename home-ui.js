@@ -145,9 +145,9 @@ document.addEventListener('click',e=>{
   const start=e.target.closest('[data-first-win-start]');
   if(start){e.preventDefault();e.stopImmediatePropagation();startFirstWin(start.dataset.firstWinStart);return}
   const finish=e.target.closest('[data-first-win-finish]');
-  if(finish){e.preventDefault();e.stopImmediatePropagation();const s=bridge().getState();markFirstWinSeen(s);bridge().setState({...bridge().getState(),view:'us'});queueMicrotask(()=>window.FlytOss?.render?.({refresh:true,resetScroll:true}));return}
+  if(finish){e.preventDefault();e.stopImmediatePropagation();const s=bridge().getState();markFirstWinSeen(s);bridge().setState({...bridge().getState(),view:'seen'});queueMicrotask(()=>window.FlytSeenUI?.render?.({resetScroll:true}));return}
   const destination=e.target.closest('[data-home-destination]');
-  if(destination){e.preventDefault();e.stopImmediatePropagation();const next=destination.dataset.homeDestination,s=bridge().getState();if(!['seen','rewards','us','tasks'].includes(next)||!s)return;bridge().setState({...s,view:next});queueMicrotask(()=>next==='seen'?window.FlytSeenUI?.render?.():next==='rewards'?window.FlytRewardsUI?.render?.():next==='tasks'?window.FlytRecurrenceUI?.render?.({resetScroll:true}):window.FlytOss?.render?.({refresh:true,resetScroll:true}));return}
+  if(destination){e.preventDefault();e.stopImmediatePropagation();const requested=destination.dataset.homeDestination,next=requested==='us'?'seen':requested,s=bridge().getState();if(!['seen','rewards','tasks'].includes(next)||!s)return;bridge().setState({...s,view:next});queueMicrotask(()=>next==='seen'?window.FlytSeenUI?.render?.():next==='rewards'?window.FlytRewardsUI?.render?.():window.FlytRecurrenceUI?.render?.({resetScroll:true}));return}
 },true);
 document.addEventListener('change',e=>{if(e.target?.id==='homeStatusNotify'&&statusDraft){statusDraft.notify=!!e.target.checked}},true);
 document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target?.matches?.('[data-home-status-edit]')){e.preventDefault();statusEditorOpen=true;startStatusDraft(bridge()?.getState?.());render({resetScroll:false})}},true);
