@@ -100,7 +100,7 @@ test('Mål og belønning beholder mobilhierarki og bruker varme eksisterende far
   assert.doesNotMatch(source, /#[0-9a-f]{0,2}(?:00f|0080ff|0000ff)/i);
 });
 
-test('enkle poengskjema bruker fempoengssteg, direkte inntasting og progressiv visning', () => {
+test('enkle skjema bruker fempoengssteg, én frist og progressive valg', () => {
   const source = readFileSync(path.join(root, 'rewards-ui.js'), 'utf8');
   assert.match(source, /inputmode="numeric"/);
   assert.match(source, /step="5"/);
@@ -108,7 +108,12 @@ test('enkle poengskjema bruker fempoengssteg, direkte inntasting og progressiv v
   assert.match(source, /data-point-adjust="1"/);
   assert.match(source, /data-goal-advanced-toggle/);
   assert.match(source, /Annet mål/);
-  assert.match(source, /Forhåndsvisning/);
+  assert.match(source, /type="datetime-local"/);
+  assert.match(source, /<option value="points">Poeng<\/option>/);
+  assert.match(source, /<option value="task">Gjøremål<\/option>/);
+  assert.match(source, /<option value="own">Egen<\/option>/);
+  assert.doesNotMatch(source, /Direkte avtale uten poeng/);
+  assert.doesNotMatch(source, /Forhåndsvisning/);
 });
 
 test('belønningsbiblioteket har varme kategorifaner og viser bare forslag', () => {
