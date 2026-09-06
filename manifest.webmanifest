@@ -1,7 +1,7 @@
 {
-  "name": "Flyt for to",
-  "short_name": "Flyt",
-  "description": "Mer initiativ. Mindre masing. Mer flyt.",
+  "name": "HverdagsOss",
+  "short_name": "HverdagsOss",
+  "description": "Mer initiativ. Mindre masing. En bedre hverdag sammen.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
