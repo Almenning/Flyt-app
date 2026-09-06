@@ -6,9 +6,10 @@ if(root)root.FlytSeenCore=api;
 })(typeof window!=='undefined'?window:globalThis,()=>{
 'use strict';
 
-const VERSION='20260904-priority1';
+const VERSION='20260906-actions1';
 const OSLO_TIME_ZONE='Europe/Oslo';
 const DEFAULT_SUGGESTIONS=['Tok initiativ','Var tålmodig','Ordnet noe praktisk','Ga meg rom','Støttet meg','Gjorde dagen lettere'];
+const NUDGE_CATEGORIES=['nice','flirt','recognition','space'];
 
 function dateKey(value=new Date()){
   if(typeof value==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(value))return value;
@@ -92,8 +93,19 @@ function toggleAcknowledgement(state,{kind='completion',id,user=state?.user,text
 function addRecognition(state,{type='personal',text,user=state?.user,to='',now=Date.now()}={}){
   const value=String(text||'').trim().replace(/\s+/g,' ').slice(0,250);
   if(!state||!user||!to||user===to||!value)return state;
-  const item={id:`recognition_${now}`,type:type==='space'?'space':'personal',text:value,by:user,to,at:new Date(now).toISOString(),date:dateKey(new Date(now)),seenBy:[user]};
+  const allowed=new Set(['nice','flirt','recognition','space','action','temptation','personal']);
+  const item={id:`recognition_${now}`,type:allowed.has(type)?type:'personal',text:value,by:user,to,at:new Date(now).toISOString(),date:dateKey(new Date(now)),seenBy:[user]};
   return{...state,recognitions:[...(Array.isArray(state.recognitions)?state.recognitions:[]),item]};
+}
+function personalNudges(state,user=state?.user){
+  const list=state?.seenPersonalNudges?.[user];
+  if(!Array.isArray(list))return[];
+  return list.map((item,index)=>({id:String(item?.id||`personal_${index}`),category:NUDGE_CATEGORIES.includes(item?.category)?item.category:'nice',text:String(item?.text||'').trim().replace(/\s+/g,' ').slice(0,250)})).filter(item=>item.text);
+}
+function setPersonalNudges(state,user,values){
+  if(!state||!user)return state;
+  const clean=(Array.isArray(values)?values:[]).map((item,index)=>({id:String(item?.id||`personal_${Date.now()}_${index}`),category:NUDGE_CATEGORIES.includes(item?.category)?item.category:'nice',text:String(item?.text||'').trim().replace(/\s+/g,' ').slice(0,250)})).filter(item=>item.text).slice(0,40);
+  return{...state,seenPersonalNudges:{...(state.seenPersonalNudges||{}),[user]:clean}};
 }
 function recognitionEvents(state){
   const events=[];
@@ -105,7 +117,7 @@ function recognitionEvents(state){
   }
   for(const item of state?.recognitions||[]){
     if(!item?.text||!item.by||!item.to)continue;
-    events.push({id:String(item.id),type:item.type==='space'?'space':'personal',text:String(item.text),title:String(item.text),by:item.by,to:item.to,at:stamp(item.at||item.createdAt||item.id),date:item.date||dateKey(item.at||item.createdAt),seenBy:item.seenBy||[]});
+    events.push({id:String(item.id),type:NUDGE_CATEGORIES.includes(item.type)||['action','temptation'].includes(item.type)?item.type:'personal',text:String(item.text),title:String(item.text),by:item.by,to:item.to,at:stamp(item.at||item.createdAt||item.id),date:item.date||dateKey(item.at||item.createdAt),seenBy:item.seenBy||[]});
   }
   return events.sort((a,b)=>b.at-a.at);
 }
@@ -126,5 +138,5 @@ function resetSuggestions(state,user){
   return{...state,seenSuggestionPreferences:preferences};
 }
 
-return{VERSION,DEFAULT_SUGGESTIONS,dateKey,addDays,stamp,acknowledgements,acknowledgementBy,contributions,toggleAcknowledgement,addRecognition,recognitionEvents,suggestions,setSuggestions,resetSuggestions};
+return{VERSION,DEFAULT_SUGGESTIONS,NUDGE_CATEGORIES,dateKey,addDays,stamp,acknowledgements,acknowledgementBy,contributions,toggleAcknowledgement,addRecognition,recognitionEvents,suggestions,setSuggestions,resetSuggestions,personalNudges,setPersonalNudges};
 });
