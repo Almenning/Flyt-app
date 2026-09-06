@@ -80,7 +80,8 @@ test('Mål og belønning viser disponibel poengsaldo og poengoversikt', () => {
   assert.match(harness.content.innerHTML, /Mål og belønning/);
   assert.match(harness.content.innerHTML, /På gang/);
   assert.match(harness.content.innerHTML, /Sett et mål/);
-  assert.match(harness.content.innerHTML, /Utfordre/);
+  assert.match(harness.content.innerHTML, /Send en utfordring ❤️/);
+  assert.match(harness.content.innerHTML, /rewardChallenge/);
   assert.match(harness.content.innerHTML, /420/);
   assert.match(harness.content.innerHTML, /poeng tilgjengelig/);
   assert.match(harness.content.innerHTML, /poeng opptjent denne uka/);
