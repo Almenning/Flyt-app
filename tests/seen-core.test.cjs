@@ -81,3 +81,21 @@ test('hurtigforslag er individuelle, kan sorteres og tilbakestilles',()=>{
   assert.deepEqual(core.suggestions(reset,'Tore'),core.DEFAULT_SUGGESTIONS);
   assert.deepEqual(core.suggestions(reset,'Maria'),['Så meg','Tok initiativ']);
 });
+
+test('personlige nudges lagres per bruker og kategori',()=>{
+  const next=core.setPersonalNudges(state,'Tore',[
+    {id:'a',category:'flirt',text:'Du er skikkelig fin'},
+    {id:'b',category:'space',text:'Ta den tiden du trenger'}
+  ]);
+  assert.deepEqual(core.personalNudges(next,'Tore'),[
+    {id:'a',category:'flirt',text:'Du er skikkelig fin'},
+    {id:'b',category:'space',text:'Ta den tiden du trenger'}
+  ]);
+  assert.deepEqual(core.personalNudges(next,'Maria'),[]);
+});
+
+test('handlingstyper i nye Sett beholdes uten å påvirke poeng',()=>{
+  const next=core.addRecognition({...state,points:{Tore:40,Maria:20}},{type:'flirt',text:'Du er fin',user:'Tore',to:'Maria',now:4000});
+  assert.equal(next.recognitions.at(-1).type,'flirt');
+  assert.deepEqual(next.points,{Tore:40,Maria:20});
+});
