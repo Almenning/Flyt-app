@@ -83,7 +83,7 @@ if(!root?.document)return;
 
 const document=root.document,$=s=>document.querySelector(s),bridge=()=>root.FlytBridge;
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const VERSION='20260903-2330';
+const VERSION='20260906-actions1';
 let historyScope='mine',previousFocus=null,scheduled=false;
 
 function actorSummary(row,state){
@@ -110,6 +110,7 @@ function ensureStyles(){
   #flytSettingsRoot .flytSettingsHead{padding:max(14px,env(safe-area-inset-top)) 16px 12px;border-bottom:1px solid var(--line);background:#fff;display:flex;align-items:center;gap:10px}
   #flytSettingsRoot .flytSettingsBody{overflow-y:auto;-webkit-overflow-scrolling:touch;padding:18px 15px max(28px,env(safe-area-inset-bottom))}
   #flytSettingsRoot .flytSettingsAction{width:100%;display:flex;align-items:center;gap:12px;text-align:left;margin-top:9px}
+  .seenPersonalGroup{margin-top:20px}.seenPersonalGroup h2{font:600 19px/1.2 Georgia,serif;margin:0 2px 8px}.seenPersonalRow{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:6px;align-items:center;padding:11px 12px;margin:7px 0;border:1px solid #eadbd2;border-radius:15px;background:#fffdf9}.seenPersonalRow p{margin:0;line-height:1.35}.seenPersonalEditor{padding:14px;border:1px solid #eadbd2;border-radius:18px;background:#fffaf7}.seenPersonalEditor textarea{min-height:112px;resize:vertical}
   @media(min-width:700px){#flytSettingsRoot{width:420px;height:min(880px,calc(100dvh - 40px));inset:auto;border:7px solid #211816;border-radius:38px;overflow:hidden}}
   `;
   document.head.appendChild(style);
@@ -134,7 +135,7 @@ function closeSettings(){
 }
 function shell(title,body,back=false){
   const el=ensureRoot();
-  el.innerHTML=`<div class="flytSettingsHead"><button type="button" class="pill" data-history-back="${back?'settings':'close'}">${back?'Tilbake':'Lukk'}</button><div class="grow"><div class="ey">Innstillinger</div><strong>${esc(title)}</strong></div><button type="button" class="pill" data-history-close="1" aria-label="Lukk">×</button></div><div class="flytSettingsBody">${body}</div>`;
+  el.innerHTML=`<div class="flytSettingsHead"><button type="button" class="pill" data-history-back="${back==='seenSuggestions'?'seenSuggestions':back?'settings':'close'}">${back?'Tilbake':'Lukk'}</button><div class="grow"><div class="ey">Innstillinger</div><strong>${esc(title)}</strong></div><button type="button" class="pill" data-history-close="1" aria-label="Lukk">×</button></div><div class="flytSettingsBody">${body}</div>`;
   el.classList.remove('hidden');
   el.setAttribute('aria-hidden','false');
   requestAnimationFrame(()=>el.querySelector('[data-history-back]')?.focus());
@@ -145,7 +146,7 @@ function openSettings(){
     previousFocus=active?.closest?.('#flytAppMenu')?$('#flytMoreBtn'):active;
   }
   root.FlytBuyerPolish?.closeMenu?.();
-  shell('Innstillinger',`<div class="ey">Flyt</div><h1 class="title">Innstillinger</h1><p class="sub">Tilpass oppsett, forslag og tidligere aktivitet.</p><button type="button" class="secondary flytSettingsAction" data-settings-setup="1"><span style="font-size:20px">⚙</span><span><strong>Rediger oppsett</strong><span class="taskmeta" style="display:block">Gjøremål, rytme, poeng og ansvar</span></span></button><button type="button" class="secondary flytSettingsAction" data-settings-seen-suggestions="1"><span style="font-size:20px">♡</span><span><strong>Forslag i Sett</strong><span class="taskmeta" style="display:block">Dine personlige hurtigforslag</span></span></button><button type="button" class="secondary flytSettingsAction" data-settings-nudges="1"><span style="font-size:20px">✨</span><span><strong>Nudges og forslag</strong><span class="taskmeta" style="display:block">Typer, tone og hvor ofte</span></span></button><button type="button" class="secondary flytSettingsAction" data-settings-history="1"><span style="font-size:20px">↶</span><span><strong>Historikk</strong><span class="taskmeta" style="display:block">Se hva som er gjort i tidligere uker</span></span></button>`);
+  shell('Innstillinger',`<div class="ey">Flyt</div><h1 class="title">Innstillinger</h1><p class="sub">Tilpass oppsett, forslag og tidligere aktivitet.</p><button type="button" class="secondary flytSettingsAction" data-settings-setup="1"><span style="font-size:20px">⚙</span><span><strong>Rediger oppsett</strong><span class="taskmeta" style="display:block">Gjøremål, rytme, poeng og ansvar</span></span></button><button type="button" class="secondary flytSettingsAction" data-settings-seen-suggestions="1"><span style="font-size:20px">♡</span><span><strong>Personlige forslag i Sett</strong><span class="taskmeta" style="display:block">Opprett, rediger og slett egne nudges</span></span></button><button type="button" class="secondary flytSettingsAction" data-settings-nudges="1"><span style="font-size:20px">✨</span><span><strong>Nudges og forslag</strong><span class="taskmeta" style="display:block">Typer, tone og hvor ofte</span></span></button><button type="button" class="secondary flytSettingsAction" data-settings-history="1"><span style="font-size:20px">↶</span><span><strong>Historikk</strong><span class="taskmeta" style="display:block">Se hva som er gjort i tidligere uker</span></span></button>`);
 }
 function openNudges(){
   const body=root.FlytNudgeUI?.settingsMarkup?.();
@@ -153,13 +154,15 @@ function openNudges(){
   shell('Nudges og forslag',body,true);
 }
 function seenProfileKey(state){return String(root.FlytSync?.getContext?.()?.user_id||state?.user||'')}
-function seenSuggestions(){const state=bridge()?.getState?.();return root.FlytSeenCore?.suggestions?.(state,seenProfileKey(state))||[]}
-function saveSeenSuggestions(values){const state=bridge()?.getState?.(),next=state&&root.FlytSeenCore?.setSuggestions?.(state,seenProfileKey(state),values);if(!state||!next)return;bridge().setState(next);root.FlytSync?.queueSave?.()}
+const seenCategoryLabels={nice:'Noe fint',flirt:'Flørt',recognition:'Anerkjenn',space:'Gi litt rom'};
+function seenSuggestions(){const state=bridge()?.getState?.();return root.FlytSeenCore?.personalNudges?.(state,seenProfileKey(state))||[]}
+function saveSeenSuggestions(values){const state=bridge()?.getState?.(),next=state&&root.FlytSeenCore?.setPersonalNudges?.(state,seenProfileKey(state),values);if(!state||!next)return;bridge().setState(next);root.FlytSync?.queueSave?.()}
 function openSeenSuggestions(){
   const values=seenSuggestions();
-  const rows=values.map((value,index)=>`<div class="card row" style="margin:8px 0;padding:11px 12px"><strong class="grow">${esc(value)}</strong><button type="button" class="small" data-seen-suggestion-move="${index}|-1" aria-label="Flytt ${esc(value)} opp" ${index===0?'disabled':''}>↑</button><button type="button" class="small" data-seen-suggestion-move="${index}|1" aria-label="Flytt ${esc(value)} ned" ${index===values.length-1?'disabled':''}>↓</button><button type="button" class="small" data-seen-suggestion-edit="${index}">Rediger</button><button type="button" class="small" data-seen-suggestion-delete="${index}" aria-label="Slett ${esc(value)}">×</button></div>`).join('');
-  shell('Forslag i Sett',`<div class="ey">Sett</div><h1 class="title">Dine hurtigforslag</h1><p class="sub">Forslagene vises bare når du skriver en anerkjennelse. Endringene påvirker ikke partnerens liste.</p>${rows}<button type="button" class="secondary full" data-seen-suggestion-add="1" style="margin-top:12px">+ Legg til forslag</button><button type="button" class="secondary full" data-seen-suggestion-reset="1" style="margin-top:8px">Tilbakestill standardforslag</button>`,true);
+  const groups=Object.entries(seenCategoryLabels).map(([key,label])=>{const rows=values.map((item,index)=>({item,index})).filter(row=>row.item.category===key).map(({item,index})=>`<div class="seenPersonalRow"><p>${esc(item.text)}</p><button type="button" class="small" data-seen-suggestion-edit="${index}">Rediger</button><button type="button" class="small" data-seen-suggestion-delete="${index}" aria-label="Slett ${esc(item.text)}">×</button></div>`).join('');return rows?`<section class="seenPersonalGroup"><h2>${label}</h2>${rows}</section>`:''}).join('');
+  shell('Forslag i Sett',`<div class="ey">Sett</div><h1 class="title">Personlige nudges</h1><p class="sub">Dine egne forslag kan dukke opp som alternativer. Appens beste kontekstbaserte forslag vises fortsatt først.</p>${groups||'<div class="card"><strong>Ingen personlige forslag ennå</strong><p class="sub" style="margin-bottom:0">Legg til noe som passer akkurat dere.</p></div>'}<button type="button" class="secondary full" data-seen-suggestion-add="1" style="margin-top:14px">+ Opprett egen nudge</button>`,true);
 }
+function openSeenSuggestionEditor(index=-1){const values=seenSuggestions(),item=index>=0?values[index]:null;const options=Object.entries(seenCategoryLabels).map(([key,label])=>`<option value="${key}" ${item?.category===key?'selected':''}>${label}</option>`).join('');shell('Personlig nudge',`<div class="ey">Sett</div><h1 class="title">${item?'Rediger nudge':'Ny personlig nudge'}</h1><div class="seenPersonalEditor"><label class="label" for="seenPersonalCategory">Kategori</label><select id="seenPersonalCategory" class="field">${options}</select><label class="label" for="seenPersonalText" style="display:block;margin-top:12px">Melding</label><textarea id="seenPersonalText" class="field" maxlength="250" placeholder="Skriv en kort melding som passer dere">${esc(item?.text||'')}</textarea><button type="button" class="primary full" data-seen-suggestion-save="${index}" style="margin-top:12px">Lagre nudge</button></div>`,'seenSuggestions')}
 function openHistory(){
   const state=bridge()?.getState?.();
   if(!state)return;
@@ -211,22 +214,20 @@ async function handleClick(e){
   if(top&&bridge()?.getState?.()?.setupDone!==false){e.preventDefault();e.stopImmediatePropagation();openSettings();return}
   if(e.target.closest?.('[data-history-close]')){e.preventDefault();closeSettings();return}
   const back=e.target.closest?.('[data-history-back]');
-  if(back){e.preventDefault();back.dataset.historyBack==='settings'?openSettings():closeSettings();return}
+  if(back){e.preventDefault();back.dataset.historyBack==='seenSuggestions'?openSeenSuggestions():back.dataset.historyBack==='settings'?openSettings():closeSettings();return}
   if(e.target.closest?.('[data-settings-history]')){e.preventDefault();historyScope='mine';openHistory();return}
   if(e.target.closest?.('[data-settings-seen-suggestions]')){e.preventDefault();openSeenSuggestions();return}
   if(e.target.closest?.('[data-settings-nudges]')){e.preventDefault();openNudges();return}
   if(e.target.closest?.('[data-settings-setup]')){e.preventDefault();openSetup();return}
   if(root.FlytNudgeUI?.handleSettingsAction?.(e.target)){e.preventDefault();openNudges();return}
   const addSuggestion=e.target.closest?.('[data-seen-suggestion-add]');
-  if(addSuggestion){e.preventDefault();const value=root.FlytModal?.prompt?await root.FlytModal.prompt({ey:'Sett',title:'Nytt hurtigforslag',label:'Forslag',placeholder:'F.eks. Fikk meg til å le',ok:'Legg til'}):null;if(value?.trim()){saveSeenSuggestions([...seenSuggestions(),value]);openSeenSuggestions()}return}
+  if(addSuggestion){e.preventDefault();openSeenSuggestionEditor();return}
   const editSuggestion=e.target.closest?.('[data-seen-suggestion-edit]');
-  if(editSuggestion){e.preventDefault();const values=seenSuggestions(),index=Number(editSuggestion.dataset.seenSuggestionEdit),current=values[index];if(current==null)return;const value=root.FlytModal?.prompt?await root.FlytModal.prompt({ey:'Sett',title:'Rediger hurtigforslag',label:'Forslag',value:current,placeholder:current,ok:'Lagre'}):null;if(value?.trim()){values[index]=value;saveSeenSuggestions(values);openSeenSuggestions()}return}
+  if(editSuggestion){e.preventDefault();openSeenSuggestionEditor(Number(editSuggestion.dataset.seenSuggestionEdit));return}
+  const saveSuggestion=e.target.closest?.('[data-seen-suggestion-save]');
+  if(saveSuggestion){e.preventDefault();const text=$('#seenPersonalText')?.value.trim(),category=$('#seenPersonalCategory')?.value,index=Number(saveSuggestion.dataset.seenSuggestionSave),values=seenSuggestions();if(!text){$('#seenPersonalText')?.focus();return}const item={id:index>=0&&values[index]?.id?values[index].id:`personal_${Date.now()}`,category,text};if(index>=0&&values[index])values[index]=item;else values.push(item);saveSeenSuggestions(values);openSeenSuggestions();bridge()?.toast?.('Nudgen er lagret');return}
   const deleteSuggestion=e.target.closest?.('[data-seen-suggestion-delete]');
-  if(deleteSuggestion){e.preventDefault();const values=seenSuggestions(),index=Number(deleteSuggestion.dataset.seenSuggestionDelete);if(values.length<=1){bridge()?.toast?.('Behold minst ett hurtigforslag');return}values.splice(index,1);saveSeenSuggestions(values);openSeenSuggestions();return}
-  const moveSuggestion=e.target.closest?.('[data-seen-suggestion-move]');
-  if(moveSuggestion){e.preventDefault();const [from,offset]=String(moveSuggestion.dataset.seenSuggestionMove).split('|').map(Number),values=seenSuggestions(),to=from+offset;if(from<0||to<0||from>=values.length||to>=values.length)return;[values[from],values[to]]=[values[to],values[from]];saveSeenSuggestions(values);openSeenSuggestions();return}
-  const resetSuggestion=e.target.closest?.('[data-seen-suggestion-reset]');
-  if(resetSuggestion){e.preventDefault();const yes=root.FlytModal?.confirm?await root.FlytModal.confirm({ey:'Sett',title:'Tilbakestille forslagene?',text:'Dine egne forslag erstattes med standardlisten. Partnerens forslag endres ikke.',ok:'Tilbakestill'}):false;if(!yes)return;const state=bridge()?.getState?.(),next=state&&root.FlytSeenCore?.resetSuggestions?.(state,seenProfileKey(state));if(next){bridge().setState(next);root.FlytSync?.queueSave?.();openSeenSuggestions()}return}
+  if(deleteSuggestion){e.preventDefault();const values=seenSuggestions(),index=Number(deleteSuggestion.dataset.seenSuggestionDelete),item=values[index];if(!item)return;const yes=root.FlytModal?.confirm?await root.FlytModal.confirm({ey:'Sett',title:'Slette nudgen?',text:'Forslaget fjernes bare fra din personlige liste.',ok:'Slett'}):true;if(!yes)return;values.splice(index,1);saveSeenSuggestions(values);openSeenSuggestions();return}
   const scope=e.target.closest?.('[data-history-scope]');
   if(scope){e.preventDefault();historyScope=scope.dataset.historyScope==='together'?'together':'mine';openHistory()}
 }
