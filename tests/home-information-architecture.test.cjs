@@ -83,6 +83,7 @@ test('Hjem viser oss i dag uten å duplisere arbeidsflaten', () => {
 
   assert.match(html, /data-home-status-card/);
   assert.match(html, /data-home-daily-goal/);
+  assert.match(html, /homeGoalHead/);
   assert.match(html, /God dag, Tore/);
   assert.match(html, /Et raskt overblikk over dagen deres/);
   assert.match(html, /1 av 2/);
