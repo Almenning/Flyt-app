@@ -20,8 +20,8 @@ function stamp(value){
 function dateKey(value=new Date()){
   const date=value instanceof Date?new Date(value):new Date(value);
   if(Number.isNaN(date.getTime()))return'';
-  const year=date.getFullYear(),month=String(date.getMonth()+1).padStart(2,'0'),day=String(date.getDate()).padStart(2,'0');
-  return `${year}-${month}-${day}`;
+  const parts=Object.fromEntries(new Intl.DateTimeFormat('nb-NO',{timeZone:'Europe/Oslo',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(date).filter(part=>part.type!=='literal').map(part=>[part.type,part.value]));
+  return `${parts.year}-${parts.month}-${parts.day}`;
 }
 function updatedAt(status,kind='daily'){
   if(!status)return null;
