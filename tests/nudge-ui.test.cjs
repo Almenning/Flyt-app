@@ -70,6 +70,16 @@ assert.match(initiative[0]?.body||'',/Sam/);
 assert.equal(initiative[0]?.task,undefined,'Flyt must not choose an initiative task on the user’s behalf');
 assert.equal(initiative[0]?.action,'openTasks','the user must choose any task themselves');
 
+const initiativeWithoutMyStatus=buildCandidates({
+  state:base,
+  preferences:normalizePreferences({askHelp:false,frequency:'balanced'}),
+  myStatus:null,
+  partnerStatus:{...fresh,user_id:'partner',capacity:'low'},
+  partnerName:'Sam',
+  now
+});
+assert.equal(initiativeWithoutMyStatus[0]?.kind,'initiative','partner status must still drive a useful nudge when only one person has checked in');
+
 const explicitRelief=buildCandidates({
   state:base,
   preferences:normalizePreferences({frequency:'balanced'}),
