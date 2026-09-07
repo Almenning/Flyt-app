@@ -375,6 +375,25 @@ test('Andre gjøremål er foldet per kategori og kan legges i eller flyttes fra 
   assert.equal(harness.getState().dayPlans['2026-08-26'], undefined);
 });
 
+test('lagret rekkefølge brukes for gjøremål i samme kategori', () => {
+  const morning = { ...dailyTask, id: 'morning_care', name: 'Morgenstell barn', cat: 'Barn' };
+  const bedtime = { ...dailyTask, id: 'bedtime_care', name: 'Legging barn', cat: 'Barn' };
+  const harness = loadRecurrence({
+    completions: [],
+    custom: [],
+    dayPlans: {},
+    points: { 'Person A': 0 },
+    taskOrder: { Barn: ['morning_care', 'bedtime_care'] },
+    tasks: [bedtime, morning],
+    user: 'Person A',
+    view: 'tasks',
+  });
+
+  harness.click({ '[data-task-category]': { dataset: { taskCategory: encodeURIComponent('Barn') } } });
+  assert.ok(harness.content.innerHTML.indexOf('Morgenstell barn') < harness.content.innerHTML.indexOf('Legging barn'));
+  assert.match(harness.content.innerHTML, /data-task-reorder-handle="morning_care"/);
+});
+
 test('oppsettet beskriver daily-frekvens som dager per uke og begrenser til syv', () => {
   const setup = fs.readFileSync(path.join(root, 'setup-v2.js'), 'utf8');
   const custom = fs.readFileSync(path.join(root, 'custom-categories-ui.js'), 'utf8');
