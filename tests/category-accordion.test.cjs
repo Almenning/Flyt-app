@@ -213,6 +213,9 @@ test('Oppsett og Gjøre bruker den delte sticky accordion-komponenten', () => {
   assert.match(tasks, /\+ Legg til eget gjøremål/);
   assert.match(tasks, /mainMarkup=groupCards\(main,s,\{planned:mode==='day'\}\)/);
   assert.match(tasks, /orderedCategoryTasks\(s,key,tasks\)/);
+  assert.match(tasks, /requestAnimationFrame\(runAutoScroll\)/);
+  assert.match(tasks, /root\.scrollTop=Math\.max/);
+  assert.match(tasks, /document\.elementsFromPoint/);
   assert.match(html, /\.categoryAccordionHeader\{position:sticky;top:0/);
   assert.match(html, /\.categoryAccordionHeader\{[^}]*min-height:52px/);
   assert.match(html, /\.content\[data-flyt-owner="recurrence"\]\{padding-top:0\}/);
