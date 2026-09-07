@@ -280,11 +280,11 @@ function ensureStyles(){
   const style=document.createElement('style');
   style.id='flytNudgeStyles';
   style.textContent=`
-  .flytNudgeCard{position:relative;margin:14px 0;padding:16px;border:1px solid #e9cfbf;border-radius:21px;background:linear-gradient(145deg,#fffdf9,#fff0e8);box-shadow:0 11px 28px #79463012;overflow:hidden}
+  .flytNudgeCard{position:relative;margin:10px 0;padding:13px 14px;border:1px solid #e9cfbf;border-radius:21px;background:linear-gradient(145deg,#fffdf9,#fff0e8);box-shadow:0 8px 21px #79463010;overflow:hidden}
   .flytNudgeCard:before{content:'';position:absolute;width:110px;height:110px;border-radius:50%;right:-46px;top:-55px;background:#f8d3c177;pointer-events:none}
-  .flytNudgeIcon{width:42px;height:42px;flex:0 0 42px;border-radius:14px;display:grid;place-items:center;background:#fff;color:var(--deep);font-size:22px;box-shadow:0 5px 14px #79463012}
-  .flytNudgeActions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:14px}
-  .flytNudgeActions .primary{flex:1;min-width:180px;min-height:46px}
+  .flytNudgeIcon{width:38px;height:38px;flex:0 0 38px;border-radius:13px;display:grid;place-items:center;background:#fff;color:var(--deep);font-size:20px;box-shadow:0 4px 11px #79463010}
+  .flytNudgeActions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:11px}
+  .flytNudgeActions .primary{flex:1;min-width:180px;min-height:42px}
   .flytNudgeActions .flytNudgeSecondary{border:0;background:transparent;color:#a7543d;padding:7px 3px;font-weight:750;text-decoration:underline;text-underline-offset:4px}
   .flytNudgeTaskChoices{display:grid;gap:7px;margin-top:14px}.flytNudgeTaskChoice{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:11px 12px;border:1px solid #eadbd2;border-radius:14px;background:#fffdfb;color:#4a332c;text-align:left;font:inherit}.flytNudgeTaskChoice span:last-child{color:#b45d43;font-weight:800}
   .flytNudgeReward{margin-top:14px;padding:12px;border:1px solid #ecdcd3;border-radius:15px;background:#fff8f3}.flytNudgeReward .field{margin-top:7px}.flytNudgeReward small{display:block;margin-top:5px;color:#8a746a;line-height:1.35}
@@ -305,7 +305,7 @@ function invitationPresetMarkup(selected){return `<div class="invitationPresets"
 function syncInvitationPreset(value){$('#flytNudgeModal')?.querySelectorAll?.('[data-nudge-invite-preset]').forEach(button=>button.setAttribute('aria-pressed',button.dataset.nudgeInvitePreset===value?'true':'false'))}
 function cardMarkup(candidate,count){
   const secondary=(candidate.secondaryActions||[]).map(item=>`<button type="button" class="flytNudgeSecondary" data-nudge-action="${esc(item.action)}" data-nudge-id="${esc(candidate.id)}">${esc(item.label)}</button>`).join('');
-  return `<section class="flytNudgeCard" data-flyt-nudge-card="${esc(candidate.id)}" aria-label="Et lite dytt"><div class="row" style="align-items:flex-start;position:relative"><div class="flytNudgeIcon" aria-hidden="true">${esc(candidate.icon||'♡')}</div><div class="grow"><div class="ey">Et lite dytt</div><strong style="display:block;font:600 21px/1.15 Georgia,serif;margin-top:5px">${esc(candidate.title)}</strong></div></div><p style="line-height:1.5;margin:13px 0 0">${esc(candidate.body)}</p><div class="flytNudgeActions">${candidate.action?`<button type="button" class="primary" data-nudge-action="${esc(candidate.action)}" data-nudge-id="${esc(candidate.id)}">${esc(candidate.actionLabel)}</button>`:''}${secondary}${count>1?'<button type="button" class="small" data-nudge-next="1">Vis et annet</button>':''}<button type="button" class="small" data-nudge-dismiss="1">Skjul i dag</button></div></section>`;
+  return `<section class="flytNudgeCard" data-flyt-nudge-card="${esc(candidate.id)}" aria-label="Et lite dytt"><div class="row" style="align-items:flex-start;position:relative"><div class="flytNudgeIcon" aria-hidden="true">${esc(candidate.icon||'♡')}</div><div class="grow"><div class="ey">Et lite dytt</div><strong style="display:block;font:600 19px/1.15 Georgia,serif;margin-top:4px">${esc(candidate.title)}</strong></div></div><p style="line-height:1.42;margin:10px 0 0">${esc(candidate.body)}</p><div class="flytNudgeActions">${candidate.action?`<button type="button" class="primary" data-nudge-action="${esc(candidate.action)}" data-nudge-id="${esc(candidate.id)}">${esc(candidate.actionLabel)}</button>`:''}${secondary}${count>1?'<button type="button" class="small" data-nudge-next="1">Vis et annet</button>':''}<button type="button" class="small" data-nudge-dismiss="1">Skjul i dag</button></div></section>`;
 }
 function augment(){
   if(painting)return;
