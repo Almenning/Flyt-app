@@ -119,7 +119,8 @@ function buildCandidates({state,preferences,myStatus,partnerStatus,partnerName='
   if(!prefs.enabled||quietHours(now))return candidates;
   const hasRemaining=remaining.length>0,dailyWord=progress.remaining===1?'ett gjøremål':`${progress.remaining} gjøremål`,myNeeds=myFresh?myStatus?.needs||[]:[],partnerNeeds=partnerFresh?partnerStatus?.needs||[]:[],myRelief=myNeeds.includes('relief'),partnerRelief=partnerNeeds.includes('relief'),partnerInitiative=partnerNeeds.includes('initiative'),myReason=myRelief?'behov for avlastning':strainText(myStatus),partnerReason=partnerRelief?'behov for avlastning':partnerInitiative?'behov for initiativ':strainText(partnerStatus);
 
-  if(!myFresh)candidates.push({id:`status:check-in:${dateKey(now)}`,kind:'status',priority:99,icon:'☺',title:'Hvordan har du det i dag?',body:'En rask innsjekk gjør dagens forslag mer relevante for dere.',action:'checkIn',actionLabel:'Registrer dagsform'});
+  const partnerSignal=partnerFresh&&(low(partnerStatus)||partnerNeeds.includes('relief')||partnerNeeds.includes('initiative'));
+  if(!myFresh)candidates.push({id:`status:check-in:${dateKey(now)}`,kind:'status',priority:partnerSignal?90:99,icon:'☺',title:'Hvordan har du det i dag?',body:'En rask innsjekk gjør dagens forslag mer relevante for dere.',action:'checkIn',actionLabel:'Registrer dagsform'});
 
   if(progress.total&&progress.remaining===0)candidates.push({id:`progress:day-complete:${dateKey(now)}`,kind:'progress',priority:93,icon:'✓',title:'Alt for i dag er gjort',body:'Dagens mål er nådd. Det er lov å la resten av dagen være fri.',action:null,actionLabel:''});
   else if(progress.total&&progress.pct>=70&&progress.remaining<=2)candidates.push({id:`progress:day-nearly:${dateKey(now)}`,kind:'progress',priority:86,icon:'○',title:'Dere er nesten i mål for dagen',body:`Bare ${dailyWord} gjenstår i dagens plan.`,action:'openTasks',actionLabel:'Se det som gjenstår'});
