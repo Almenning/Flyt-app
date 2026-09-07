@@ -130,6 +130,20 @@ test('enkle skjema bruker fempoengssteg, én frist og progressive valg', () => {
   assert.doesNotMatch(source, /Forhåndsvisning/);
 });
 
+test('gjøremålsvelgeren i utfordringer beholder hurtigvalg og åpner hele listen samlet', () => {
+  const source = readFileSync(path.join(root, 'rewards-ui.js'), 'utf8');
+  assert.match(source, /function challengeTaskPicker/);
+  assert.match(source, /data-task-quick/);
+  assert.match(source, /Se alle gjøremål/);
+  assert.match(source, /function taskGroups/);
+  assert.match(source, /challengeTasks\(s\)/);
+  assert.match(source, /taskPickerLayer/);
+  assert.match(source, /taskPickerList/);
+  assert.match(source, /data-task-picker-select/);
+  assert.match(source, /setChallengeTask\(form,selected\.dataset\.taskPickerSelect\)/);
+  assert.match(source, /backdrop-filter:blur\(5px\)/);
+});
+
 test('belønningsbiblioteket har varme kategorifaner og viser bare forslag', () => {
   const harness = loadScript('rewards-ui.js', baseState);
   assert.match(harness.content.innerHTML, /Tid og frihet/);
