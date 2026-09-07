@@ -18,12 +18,21 @@ function restore(container,selector,top){
   const token=(Number(container.__flytAccordionRestore)||0)+1;
   container.__flytAccordionRestore=token;
   if(container.style)container.style.overflowAnchor='none';
+  const align=()=>{
+    const header=container.querySelector?.(selector),current=header?.getBoundingClientRect?.().top;
+    if(!Number.isFinite(current))return;
+    const next=Math.max(0,(Number(container.scrollTop)||0)+current-top);
+    if(Math.abs(next-(Number(container.scrollTop)||0))>.5)container.scrollTop=next;
+  };
   requestAnimationFrame(()=>{
     if(container.__flytAccordionRestore!==token)return;
-    const header=container.querySelector?.(selector),current=header?.getBoundingClientRect?.().top;
-    if(Number.isFinite(current))container.scrollTop=Math.max(0,(Number(container.scrollTop)||0)+current-top);
-    if(container.style)container.style.overflowAnchor='';
-    if(container.dataset)delete container.dataset.flytAccordionAnchor;
+    align();
+    requestAnimationFrame(()=>{
+      if(container.__flytAccordionRestore!==token)return;
+      align();
+      if(container.style)container.style.overflowAnchor='';
+      if(container.dataset)delete container.dataset.flytAccordionAnchor;
+    });
   });
 }
 window.FlytCategoryAccordion={VERSION,nextOpen,item,capture,restore};
