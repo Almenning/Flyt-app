@@ -4,12 +4,14 @@ import { readFileSync } from 'node:fs';
 const home = readFileSync(new URL('../home-ui.js', import.meta.url), 'utf8');
 const watchdog = readFileSync(new URL('../app-watchdog.js', import.meta.url), 'utf8');
 
-assert.match(home, /const VERSION='20260906-homecompact1'/, 'Home must expose the current startup version');
+assert.match(home, /const VERSION='20260907-homefinal1'/, 'Home must expose the current startup version');
 assert.match(home, /if\(h<6\)return 'Hei'/, 'Home must not call the hours after midnight morning');
 assert.match(home, /dayPlanProgress/, 'Home must use the flexible daily plan');
 assert.doesNotMatch(home, /poeng i dag|registreringer/, 'Home must not duplicate Gjøre statistics');
 assert.match(home, /Dagens mål/, 'Home must lead with the automatic daily goal');
 assert.match(home, /progressRing/, 'Home must render the daily progress ring');
+assert.match(home, /\$\{value\} %/, 'Home must show percentage in the progress ring');
+assert.doesNotMatch(home, /<span>Fullført<\/span>|<span>Gjenstår<\/span>/, 'Home must not duplicate daily progress details');
 assert.doesNotMatch(home, /data-home-next|nextMarkup/, 'Home must not duplicate the daily task list');
 assert.doesNotMatch(home, /data-home-week|weekMarkup|weekPlanProgress/, 'Home must not duplicate weekly progress');
 assert.match(home, /id="homeNudgeMount"/, 'Home must expose a stable mount for one contextual nudge');
@@ -26,6 +28,8 @@ assert.doesNotMatch(home, /Energi <strong>|Stress <strong>/, 'Home must not pres
 assert.match(home, /<h1 class="title">\$\{greeting\(\)\}, \$\{esc\(name\)\}<\/h1>/, 'Home must lead with a personal greeting');
 assert.match(home, /Et raskt overblikk over dagen deres/, 'Home must explain its compact purpose');
 for (const level of ['Tung','Lite overskudd','Rolig','God','Mye overskudd']) assert.match(home, new RegExp(level), `Home must include the ${level} status level`);
+assert.match(home, /data-home-status-quick/, 'Missing daily status must offer all five levels directly');
+assert.match(home, /Samme i dag|data-home-status-same/, 'Yesterday status must be an explicit shortcut, not an automatic carry-over');
 assert.doesNotMatch(home, /partnerCard\(s\)/, 'Home must end after its single contextual nudge');
 assert.match(home, /firstSharedWin/, 'Home must use the shared journey state rather than a decorative onboarding card');
 assert.match(home, /function claim\(/, 'Home must expose an explicit claim path');
@@ -36,8 +40,8 @@ assert.match(watchdog, /function ensureHomeOwnership\(/, 'Watchdog must verify H
 assert.match(watchdog, /function homeMarkupIsModern\(/, 'Watchdog must verify the actual Home markup, not only a stale owner flag');
 assert.match(watchdog, /data-home-destination=\"tasks\"/, 'Watchdog must require the primary Gjøre action from the modern Home UI');
 assert.match(watchdog, /Husholdningsmotor\|Ukebanken/, 'Watchdog must reject legacy Home markup');
-assert.match(watchdog, /FlytHomeUI\?\.version!=='20260906-homecompact1'/, 'Watchdog must target the current Home version');
-assert.match(watchdog, /home-ui\.js\?v=20260906-homecompact1/, 'Watchdog must cache-bust the current Home module');
+assert.match(watchdog, /FlytHomeUI\?\.version!=='20260907-homefinal1'/, 'Watchdog must target the current Home version');
+assert.match(watchdog, /home-ui\.js\?v=20260907-homefinal1/, 'Watchdog must cache-bust the current Home module');
 assert.match(watchdog, /nudge-ui\.js\?v=20260904-home1/, 'Watchdog must load the contextual nudge module');
 assert.match(watchdog, /function guardHomeStartup\(\)/, 'Watchdog must retry ownership across startup races');
 for (const delay of ['60','180','450','900','1600','3000']) assert.match(watchdog, new RegExp(delay), `Watchdog must include the ${delay} ms recovery checkpoint`);
