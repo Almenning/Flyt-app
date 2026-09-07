@@ -394,6 +394,20 @@ test('lagret rekkefølge brukes for gjøremål i samme kategori', () => {
   assert.match(harness.content.innerHTML, /data-task-reorder-handle="morning_care"/);
 });
 
+test('dra-og-slipp i Gjøre bruker mobilvennlig håndtak, løpende plassering og auto-scroll', () => {
+  const source = fs.readFileSync(path.join(root, 'recurrence-ui.js'), 'utf8');
+  assert.match(source, /taskReorderHandle:before/);
+  assert.match(source, /touch-action:none/);
+  assert.match(source, /-webkit-touch-callout:none/);
+  assert.match(source, /addEventListener\('contextmenu'/);
+  assert.match(source, /animateReflow/);
+  assert.match(source, /insertBefore\(drag\.row/);
+  assert.match(source, /transition='transform 150ms ease'/);
+  assert.match(source, /runAutoScroll/);
+  assert.match(source, /updateDropTarget\(drag\.pointer\.x,drag\.pointer\.y\)/);
+  assert.match(source, /root\.classList\.add\('isTaskReordering'\)/);
+});
+
 test('oppsettet beskriver daily-frekvens som dager per uke og begrenser til syv', () => {
   const setup = fs.readFileSync(path.join(root, 'setup-v2.js'), 'utf8');
   const custom = fs.readFileSync(path.join(root, 'custom-categories-ui.js'), 'utf8');
