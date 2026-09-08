@@ -71,16 +71,18 @@ function releaseClaim(state,{taskId,date=dateKey(),user=state?.user,now=Date.now
   if(!current||current.claimedBy!==user)return state;
   return{...state,taskClaims:(state.taskClaims||[]).map(item=>item?.id===current.id?{...item,revokedAt:new Date(now).toISOString(),revokedBy:user}:item)};
 }
-function recordCompletion(state,{task,date=dateKey(),user=state?.user,now=Date.now()}={}){
+function recordCompletion(state,{task,date=dateKey(),user=state?.user,registeredBy=user,partner='',together=false,now=Date.now()}={}){
   if(!state||!task||!user)return{state,completion:null,created:false};
   if(task.type==='daily'&&completionForTask(state,task.id,date))return{state,completion:completionForTask(state,task.id,date),created:false};
   const points={...(state.points||{})},value=Number(task.pts||0),kind=task.kind||'house';
-  points[user]=(points[user]||0)+value;
-  const completion={id:now,taskId:task.id,taskName:task.name||'',date,by:user,kind,housePts:kind==='house'?value:Math.round(value*.2),registeredAt:new Date(now).toISOString(),backdated:date!==dateKey(),taskSnapshot:{name:task.name||'',cat:task.cat||'',pts:value,type:task.type||'flex',kind}};
+  const shared=!!together&&!!partner&&partner!==user;
+  const pointAwards=shared?{[user]:Math.ceil(value/2),[partner]:Math.floor(value/2)}:{[user]:value};
+  Object.entries(pointAwards).forEach(([name,amount])=>{points[name]=(points[name]||0)+amount});
+  const completion={id:now,taskId:task.id,taskName:task.name||'',date,by:shared?'Sammen':user,contributors:shared?[user,partner]:[user],registeredBy,pointAwards,kind,housePts:kind==='house'?value:Math.round(value*.2),registeredAt:new Date(now).toISOString(),backdated:date!==dateKey(),taskSnapshot:{name:task.name||'',cat:task.cat||'',pts:value,type:task.type||'flex',kind}};
   return{state:{...state,points,completions:[...(state.completions||[]),completion]},completion,created:true};
 }
 function thanks(completion){const all=[...(Array.isArray(completion?.acknowledgements)?completion.acknowledgements:[]),...(Array.isArray(completion?.thanks)?completion.thanks:[])],seen=new Set();return all.filter(item=>{const key=String(item?.by||'');if(!key||seen.has(key))return false;seen.add(key);return true})}
-function canThank(completion,user){return !!completion?.by&&completion.by!==user&&!thanks(completion).length}
+function canThank(completion,user){return !!completion?.by&&completion.by!=='Sammen'&&completion.by!==user&&!thanks(completion).length}
 function thankCompletion(state,{completionId,user=state?.user,now=Date.now()}={}){
   let changed=false;
   const completions=(state?.completions||[]).map(item=>{
@@ -91,9 +93,9 @@ function thankCompletion(state,{completionId,user=state?.user,now=Date.now()}={}
   return changed?{...state,completions}:state;
 }
 function contributionSummary(state,key=dateKey()){
-  const day=completionsForDay(state,key),week=weekProgress(state,key),contributors=new Set(day.map(item=>item.by).filter(Boolean));
+  const day=completionsForDay(state,key),week=weekProgress(state,key),contributors=new Set(day.flatMap(item=>Array.isArray(item.contributors)&&item.contributors.length?item.contributors:[item.by]).filter(Boolean));
   const houseIds=new Set((state?.tasks||[]).filter(task=>task?.kind==='house').map(task=>String(task.id)));
-  return{weekDone:week.done,bothContributedToday:contributors.size>=2,myWeek:(state?.completions||[]).filter(item=>houseIds.has(String(item?.taskId))&&item.by===state?.user&&validDateKey(item.date)&&item.date>=week.range.start&&item.date<=week.range.end).length};
+  return{weekDone:week.done,bothContributedToday:contributors.size>=2,myWeek:(state?.completions||[]).filter(item=>houseIds.has(String(item?.taskId))&&(item.by===state?.user||item.contributors?.includes(state?.user))&&validDateKey(item.date)&&item.date>=week.range.start&&item.date<=week.range.end).length};
 }
 
 return{VERSION,activeClaim,addDays,canThank,claimTask,completionForTask,contributionSummary,dateKey,dayProgress,effectiveOwner,releaseClaim,recordCompletion,taskWeekCount,tasksForDay,thankCompletion,thanks,weekProgress,weekRangeForKey,weeklyGoal};

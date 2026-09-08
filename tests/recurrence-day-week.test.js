@@ -408,6 +408,18 @@ test('dra-og-slipp i Gjøre bruker mobilvennlig håndtak, løpende plassering og
   assert.match(source, /root\.classList\.add\('isTaskReordering'\)/);
 });
 
+test('oppgavekort har separate kompakte menyer for utfører og dagsplan', () => {
+  const source = fs.readFileSync(path.join(root, 'recurrence-ui.js'), 'utf8');
+  assert.match(source, /Hvem gjorde den\?/);
+  assert.match(source, /Partner gjorde den/);
+  assert.match(source, /Vi gjorde den sammen/);
+  assert.match(source, /Flytt til i morgen/);
+  assert.match(source, /Fjern fra i dag/);
+  assert.match(source, /data-task-popup-toggle/);
+  assert.match(source, /taskActionPopup/);
+  assert.match(source, /data-task-reorder-handle/);
+});
+
 test('oppsettet beskriver daily-frekvens som dager per uke og begrenser til syv', () => {
   const setup = fs.readFileSync(path.join(root, 'setup-v2.js'), 'utf8');
   const custom = fs.readFileSync(path.join(root, 'custom-categories-ui.js'), 'utf8');

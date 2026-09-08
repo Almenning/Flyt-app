@@ -52,3 +52,15 @@ test('fullføring oppdaterer fremdrift og saldo i samme state-endring',()=>{
   assert.equal(duplicate.created,false);
   assert.equal(duplicate.state.completions.length,1);
 });
+
+test('partner eller begge kan registreres uten bonuspoeng',()=>{
+  const empty={...base,completions:[],points:{Alex:0,Sam:0}};
+  const partner=loop.recordCompletion(empty,{task:seven,date:'2026-08-26',user:'Sam',now:7000});
+  assert.equal(partner.completion.by,'Sam');
+  assert.equal(partner.state.points.Sam,20);
+  const together=loop.recordCompletion(empty,{task:seven,date:'2026-08-26',user:'Alex',partner:'Sam',together:true,now:8000});
+  assert.equal(together.completion.by,'Sammen');
+  assert.deepEqual(together.completion.contributors,['Alex','Sam']);
+  assert.deepEqual(together.state.points,{Alex:10,Sam:10});
+  assert.equal(loop.canThank(together.completion,'Alex'),false);
+});
