@@ -406,6 +406,9 @@ test('dra-og-slipp i Gjøre bruker mobilvennlig håndtak, løpende plassering og
   assert.match(source, /runAutoScroll/);
   assert.match(source, /updateDropTarget\(drag\.pointer\.x,drag\.pointer\.y\)/);
   assert.match(source, /root\.classList\.add\('isTaskReordering'\)/);
+  assert.match(source, /preserveTaskSortScroll\(scrollTop\)/);
+  assert.match(source, /function preserveTaskSortScroll\(scrollTop\)/);
+  assert.match(source, /content\.scrollTop=Math\.max\(0,Math\.min\(Number\(scrollTop\)\|\|0/);
 });
 
 test('sortering åpnes per kategori og skjuler drag-håndtaket i normalvisning', () => {
