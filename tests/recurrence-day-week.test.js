@@ -417,6 +417,8 @@ test('sortering åpnes per kategori og skjuler drag-håndtaket i normalvisning',
   assert.match(source, /\.taskReorderHandle\{display:none!important\}/);
   assert.match(source, /\.content\.isTaskSortMode \.taskReorderHandle\{display:grid!important\}/);
   assert.match(source, /isTaskSortMode \[data-task-reorder-row\]>.row:nth-child\(2\)/);
+  assert.match(source, /taskSortMode/);
+  assert.match(source, /showTaskActions=.*!sorting/);
 });
 
 test('oppgavekort har separate kompakte menyer for utfører og dagsplan', () => {
@@ -429,6 +431,9 @@ test('oppgavekort har separate kompakte menyer for utfører og dagsplan', () => 
   assert.match(source, /data-task-popup-toggle/);
   assert.match(source, /taskActionPopup/);
   assert.match(source, /data-task-reorder-handle/);
+  assert.match(source, /taskPopupOpen/);
+  assert.match(source, /\.categoryAccordion,.categoryAccordionBody,.card\[data-task-reorder-row\]\{overflow:visible\}/);
+  assert.match(source, /max-width:calc\(100vw - 44px\)/);
 });
 
 test('oppsettet beskriver daily-frekvens som dager per uke og begrenser til syv', () => {
