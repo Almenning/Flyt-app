@@ -408,6 +408,17 @@ test('dra-og-slipp i Gjøre bruker mobilvennlig håndtak, løpende plassering og
   assert.match(source, /root\.classList\.add\('isTaskReordering'\)/);
 });
 
+test('sortering åpnes per kategori og skjuler drag-håndtaket i normalvisning', () => {
+  const source = fs.readFileSync(path.join(root, 'recurrence-ui.js'), 'utf8');
+  assert.match(source, /Endre rekkefølge/);
+  assert.match(source, /data-task-reorder-start/);
+  assert.match(source, /data-task-reorder-done/);
+  assert.match(source, /Sortering er ferdig/);
+  assert.match(source, /\.taskReorderHandle\{display:none!important\}/);
+  assert.match(source, /\.content\.isTaskSortMode \.taskReorderHandle\{display:grid!important\}/);
+  assert.match(source, /isTaskSortMode \[data-task-reorder-row\]>.row:nth-child\(2\)/);
+});
+
 test('oppgavekort har separate kompakte menyer for utfører og dagsplan', () => {
   const source = fs.readFileSync(path.join(root, 'recurrence-ui.js'), 'utf8');
   assert.match(source, /Hvem gjorde den\?/);
