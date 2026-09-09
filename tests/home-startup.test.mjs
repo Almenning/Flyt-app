@@ -21,7 +21,8 @@ assert.match(home, /data-home-partner-status/, 'Home must make partner status av
 assert.match(home, /data-home-day-plan-open="1" data-home-destination="tasks"/, 'the daily goal must open the day view');
 assert.match(home, /Se dagens gjøremål/, 'the daily goal must name its destination clearly');
 assert.match(home, /FlytRecurrenceUI\?\.openToday\?\.\('remaining'\)/, 'opening the daily plan must show unfinished chores for today');
-assert.match(home, /\$\{dailyGoalMarkup\(plan\)\}\$\{dailyStatusMarkup\(s\)\}<div id="homeNudgeMount"/, 'Home must show daily goal, daily status, then at most one contextual nudge');
+assert.match(home, /\$\{dailyGoalMarkup\(plan\)\}\$\{dailyStatusMarkup\(s\)\}\$\{homeChallengeMarkup\(s\)\}<div id="homeNudgeMount"/, 'Home must show daily goal, daily status, challenge, then at most one contextual nudge');
+assert.match(home, /data-home-challenge-card/, 'Home must keep the locked challenge position between daily status and nudge');
 assert.match(home, /save_my_daily_status/, 'Home must save the compact daily status in one operation');
 assert.match(home, /Ikke registrert/, 'Home must treat an old partner status as unknown today');
 assert.doesNotMatch(home, /Energi <strong>|Stress <strong>/, 'Home must not present overlapping status scales');
