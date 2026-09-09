@@ -420,7 +420,8 @@ test('sortering åpnes per kategori og skjuler drag-håndtaket i normalvisning',
   assert.match(source, /taskSortMode/);
   assert.match(source, /showTaskActions=.*!sorting/);
   assert.match(source, /data-task-reorder-start="\$\{encodeURIComponent\(category\(t\)\)\}"/);
-  assert.doesNotMatch(source.match(/function groupCards[\s\S]*?function dayCards/)?.[0] || '', /taskSortHeaderAction/);
+  assert.match(source.match(/function groupCards[\s\S]*?function dayCards/)?.[0] || '', /headerAction=sorting/);
+  assert.match(source.match(/function groupCards[\s\S]*?function dayCards/)?.[0] || '', /taskSortHeaderAction isSorting/);
 });
 
 test('oppgavekort har separate kompakte menyer for utfører og dagsplan', () => {
