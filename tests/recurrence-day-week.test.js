@@ -422,6 +422,9 @@ test('dra-og-slipp i Gjøre bruker den enkle, aktive splice-motoren', () => {
   assert.match(source, /saveWorkingTaskOrder\(current\.category,current\.workingOrder\)/);
   assert.match(source, /flytReorderActive/);
   assert.match(source, /flytSkipScrollRestore/);
+  assert.match(source, /function removeLegacyTaskReorderListeners/);
+  assert.match(source, /root\.cloneNode/);
+  assert.match(source, /root\.replaceWith/);
   assert.doesNotMatch(source, /initTaskReordering=initStableTaskReordering/);
 });
 

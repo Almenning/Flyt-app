@@ -6,7 +6,7 @@ const ORDER=['Barn','Kjøkken','Klesvask','Renhold','Stue & fellesområder','Bad
 const CONDITIONAL_CATEGORIES=new Set(['Barn','Dyr','Hage & ute','Bil']);
 const OSLO_TIME_ZONE='Europe/Oslo';
 const BACKDATE_DAYS=7;
-const VERSION='20260911-reorderstable5';
+const VERSION='20260911-reorderstable6';
 const DAY_SHORT=['Man','Tir','Ons','Tor','Fre','Lør','Søn'];
 let mode='day',installed=false,painting=false,pickerOpen=false,suppressPickerClickUntil=0,otherOpen=false,openTaskCategory=null,openLibraryCategory=null,openTaskPopup=null,planMenuTaskId=null,taskFilter='all',reorderCategory=null;
 function state(){return bridge()?.getState?.()||null}
@@ -347,6 +347,8 @@ const taskSortModeStyle=document.createElement?.('style');if(taskSortModeStyle){
 document.addEventListener('click',e=>{const start=e.target.closest?.('[data-task-reorder-start]');if(start){e.preventDefault();e.stopImmediatePropagation();reorderCategory=decodeURIComponent(start.dataset.taskReorderStart||'');if(!reorderCategory)return;openTaskPopup=null;openTaskCategory=reorderCategory;document.querySelector('#content')?.classList.add('isTaskSortMode');render({resetScroll:false});return}const done=e.target.closest?.('[data-task-reorder-done]');if(done){e.preventDefault();e.stopImmediatePropagation();reorderCategory=null;document.querySelector('#content')?.classList.remove('isTaskSortMode');render({resetScroll:false});bridge()?.toast?.('Sortering er ferdig');return}},true);
 const taskSortActionsStyle=document.createElement?.('style');if(taskSortActionsStyle){taskSortActionsStyle.textContent='.content.isTaskSortMode [data-task-reorder-row]>.row:nth-child(2),.content.isTaskSortMode [data-task-reorder-row] .taskMoreButton,.content.isTaskSortMode [data-task-reorder-row] .taskActionPopup{display:none!important}';document.head?.appendChild(taskSortActionsStyle)}
 const simpleTaskReorderStyle=document.createElement?.('style');if(simpleTaskReorderStyle){simpleTaskReorderStyle.textContent='.content.isTaskReordering .card[data-task-reorder-row]{transition:none!important;will-change:auto!important}.content.isTaskReordering .card.isTaskDragging{transform:none!important;transition:none!important;border:2px solid #bc6042!important;background:#fff8f2!important;box-shadow:0 8px 18px #65351d24!important}';document.head?.appendChild(simpleTaskReorderStyle)}
+function removeLegacyTaskReorderListeners(){const root=$('#content'),previousVersion=window.FlytRecurrenceUI?.version;if(!root||!previousVersion||previousVersion===VERSION)return;if(!root.__flytTaskReorder&&!root.__flytTaskReorderV2&&!root.__flytTaskReorderStable&&!root.__flytSimpleTaskReorder)return;const replacement=root.cloneNode?.(true);if(!replacement||typeof root.replaceWith!=='function')return;const top=root.scrollTop,left=root.scrollLeft;root.replaceWith(replacement);replacement.scrollTop=top;replacement.scrollLeft=left}
+removeLegacyTaskReorderListeners();
 const observer=new MutationObserver(()=>{if(!painting)tuneSetup()});window.addEventListener('DOMContentLoaded',()=>{const body=$('#setupBody');if(body)observer.observe(body,{childList:true,subtree:true})});let tries=0;const timer=setInterval(()=>{if(install()||++tries>80)clearInterval(timer)},100);
 window.FlytRecurrenceUI={render,openToday,tuneSetup,getMode:()=>mode,dateKey:localDate,weekRange,progress,getSelectedDate:()=>selectedDay,getSelectedWeekRange:selectedWeekRange,getSelectedMonth:()=>selectedMonth,isPickerOpen:()=>pickerOpen,getTaskFilter:()=>taskFilter,reorderIds:orderWithTaskAt,bindReorder:initSimpleTaskReordering,version:VERSION};
 })();
