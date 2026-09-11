@@ -500,7 +500,8 @@ test('pointer-drag bruker én workingOrder, lagrer den og beholder den etter ny 
     preventDefault() {}, stopPropagation() {}, target: { closest: () => handleFor(row) },
   });
   let hit = null;
-  harness.setElementsAt(() => hit ? [hit] : []);
+  let captured = null;
+  harness.setElementsAt(() => captured ? [captured] : hit ? [hit] : []);
 
   harness.api.bindReorder(rootElement);
   rootListeners.pointerdown[0](event(7, 135, rows[0]));
@@ -516,7 +517,8 @@ test('pointer-drag bruker én workingOrder, lagrer den og beholder den etter ny 
   assert.deepEqual(Array.from(harness.getState().taskOrder.Barn), ['b', 'c', 'd', 'a', 'e']);
 
   rootListeners.pointerdown[0](event(8, 375, rows[3]));
-  hit = rows[2];
+  hit = null;
+  captured = rows[3];
   rootListeners.pointermove[0](event(8, 295, rows[3]));
   rootListeners.pointerup[0](event(8, 295, rows[3]));
 

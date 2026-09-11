@@ -6,7 +6,7 @@ const ORDER=['Barn','Kjøkken','Klesvask','Renhold','Stue & fellesområder','Bad
 const CONDITIONAL_CATEGORIES=new Set(['Barn','Dyr','Hage & ute','Bil']);
 const OSLO_TIME_ZONE='Europe/Oslo';
 const BACKDATE_DAYS=7;
-const VERSION='20260911-reorderstable4';
+const VERSION='20260911-reorderstable5';
 const DAY_SHORT=['Man','Tir','Ons','Tor','Fre','Lør','Søn'];
 let mode='day',installed=false,painting=false,pickerOpen=false,suppressPickerClickUntil=0,otherOpen=false,openTaskCategory=null,openLibraryCategory=null,openTaskPopup=null,planMenuTaskId=null,taskFilter='all',reorderCategory=null;
 function state(){return bridge()?.getState?.()||null}
@@ -107,10 +107,18 @@ function initSimpleTaskReordering(root){
  const rows=()=>[...root.querySelectorAll('[data-task-reorder-row]')];
  const categoryRows=key=>rows().filter(row=>String(row.dataset.taskReorderCategory)===String(key));
  const orderFor=key=>categoryRows(key).map(row=>String(row.dataset.taskReorderRow));
+ const fallbackRow=(x,y)=>{
+   const candidates=categoryRows(drag?.category).filter(row=>row!==drag?.row);
+   const box=row=>{const rect=row.getBoundingClientRect?.();if(!rect)return null;return{left:Number(rect.left)||0,right:Number(rect.right??((Number(rect.left)||0)+(Number(rect.width)||0))),top:Number(rect.top)||0,bottom:Number(rect.bottom??((Number(rect.top)||0)+(Number(rect.height)||0)))}};
+   const contains=candidates.find(row=>{const rect=box(row);return rect&&x>=rect.left&&x<=rect.right&&y>=rect.top&&y<=rect.bottom});
+   if(contains)return contains;
+   const distance=rect=>y<rect.top?rect.top-y:y>rect.bottom?y-rect.bottom:0;
+   return candidates.map(row=>({row,rect:box(row)})).filter(item=>item.rect).sort((a,b)=>distance(a.rect)-distance(b.rect))[0]?.row||null;
+ };
  const rowAt=(x,y)=>{
    if(!drag)return null;
    const elements=document.elementsFromPoint?.(x,y)||[document.elementFromPoint?.(x,y)].filter(Boolean);
-   return elements.map(element=>element?.closest?.('[data-task-reorder-row]')).find(row=>row&&row!==drag.row&&String(row.dataset.taskReorderCategory)===String(drag.category))||null;
+   return elements.map(element=>element?.closest?.('[data-task-reorder-row]')).find(row=>row&&row!==drag.row&&String(row.dataset.taskReorderCategory)===String(drag.category))||fallbackRow(x,y);
  };
  const moveTo=(x,y)=>{
    const target=rowAt(x,y);
