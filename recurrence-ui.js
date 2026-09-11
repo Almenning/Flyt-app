@@ -6,7 +6,7 @@ const ORDER=['Barn','Kjøkken','Klesvask','Renhold','Stue & fellesområder','Bad
 const CONDITIONAL_CATEGORIES=new Set(['Barn','Dyr','Hage & ute','Bil']);
 const OSLO_TIME_ZONE='Europe/Oslo';
 const BACKDATE_DAYS=7;
-const VERSION='20260911-reorderstable8';
+const VERSION='20260911-reorderstable9';
 const DAY_SHORT=['Man','Tir','Ons','Tor','Fre','Lør','Søn'];
 let mode='day',installed=false,painting=false,pickerOpen=false,suppressPickerClickUntil=0,otherOpen=false,openTaskCategory=null,openLibraryCategory=null,openTaskPopup=null,planMenuTaskId=null,taskFilter='all',reorderCategory=null;
 function state(){return bridge()?.getState?.()||null}
@@ -180,7 +180,8 @@ function initSimpleTaskReordering(root){
  };
  const finish=event=>{
    if(!drag||drag.pointerId!==event.pointerId)return;
-   moveTo(event.clientX,event.clientY);
+   // The last pointermove has already committed the intended slot. Re-evaluating
+   // the hit target after the DOM has moved can select a different row and undo it.
    const current=drag,changed=!sameTaskOrder(current.startOrder,current.workingOrder);traceReorder('before-save',current.category,current.workingOrder);const result=changed?saveWorkingTaskOrder(current.category,current.workingOrder):{saved:true,order:current.workingOrder};
    root.dataset.flytSkipScrollRestore='1';
    clear();

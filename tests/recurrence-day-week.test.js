@@ -474,6 +474,9 @@ test('reorder sporer den kanoniske rekkefølgen fra drag til ny lasting', () => 
   harness.api.bindReorder(rootElement);
   rootListeners.pointerdown[0](event('pointerdown', rows[2], 295));
   rootListeners.pointermove[0](event('pointermove', rows[2], 135));
+  // After C has been inserted before A, the same physical finger position can
+  // be above B. Pointerup must save the working order, not calculate a new slot.
+  harness.setElementsAt(() => [rows[1]]);
   rootListeners.pointerup[0](event('pointerup', rows[2], 135));
   const trace = harness.reorderTrace();
   assert.deepEqual(trace.map(item => [item.phase, ...item.order]), [
