@@ -6,7 +6,7 @@ const ORDER=['Barn','Kjøkken','Klesvask','Renhold','Stue & fellesområder','Bad
 const CONDITIONAL_CATEGORIES=new Set(['Barn','Dyr','Hage & ute','Bil']);
 const OSLO_TIME_ZONE='Europe/Oslo';
 const BACKDATE_DAYS=7;
-const VERSION='20260911-reorderstable7';
+const VERSION='20260911-reorderstable8';
 const DAY_SHORT=['Man','Tir','Ons','Tor','Fre','Lør','Søn'];
 let mode='day',installed=false,painting=false,pickerOpen=false,suppressPickerClickUntil=0,otherOpen=false,openTaskCategory=null,openLibraryCategory=null,openTaskPopup=null,planMenuTaskId=null,taskFilter='all',reorderCategory=null;
 function state(){return bridge()?.getState?.()||null}
@@ -99,7 +99,8 @@ function initImprovedTaskReordering(root){if(!root||typeof root.addEventListener
 function orderWithTaskAt(ids,sourceId,index){const source=String(sourceId),next=ids.map(String).filter(id=>id!==source),slot=Math.max(0,Math.min(Number(index)||0,next.length));next.splice(slot,0,source);return next}
 function sameTaskOrder(a,b){return a.length===b.length&&a.every((id,index)=>String(id)===String(b[index]))}
 function categoryOrderForSave(s,key,workingOrder){const categoryTasks=(s?.tasks||[]).filter(task=>category(task)===key),current=orderedCategoryTasks(s,key,categoryTasks).map(task=>String(task.id)),known=new Set(current),requested=[...new Set((workingOrder||[]).map(String).filter(id=>known.has(id)))];return [...requested,...current.filter(id=>!requested.includes(id))]}
-function saveWorkingTaskOrder(key,workingOrder){const current=state();if(!current)return{saved:false,order:[]};const order=categoryOrderForSave(current,key,workingOrder),next={...current,taskOrder:{...(current.taskOrder||{}),[key]:order},view:'tasks'};try{bridge()?.setState?.(next)}catch(error){return{saved:false,order:[]}}const readBack=(bridge()?.getState?.()?.taskOrder?.[key]||[]).map(String),saved=sameTaskOrder(readBack,order);if(saved)window.FlytSync?.queueSave?.();return{saved,order:readBack}}
+function traceReorder(phase,key,order){if(Array.isArray(window.__flytReorderTrace))window.__flytReorderTrace.push({phase,category:String(key),order:(order||[]).map(String)})}
+function saveWorkingTaskOrder(key,workingOrder){const current=state();if(!current)return{saved:false,order:[]};const order=categoryOrderForSave(current,key,workingOrder),next={...current,taskOrder:{...(current.taskOrder||{}),[key]:order},view:'tasks'};try{bridge()?.setState?.(next)}catch(error){return{saved:false,order:[]}}const readBack=(bridge()?.getState?.()?.taskOrder?.[key]||[]).map(String),saved=sameTaskOrder(readBack,order);traceReorder('after-save',key,readBack);if(saved)window.FlytSync?.queueSave?.();return{saved,order:readBack}}
 function initSimpleTaskReordering(root){
  if(!root||typeof root.addEventListener!=='function'||root.__flytSimpleTaskReorder)return;
  root.__flytSimpleTaskReorder=true;
@@ -137,6 +138,7 @@ function initSimpleTaskReordering(root){
    drag.workingOrder.splice(to,0,drag.sourceId);
    if(from<to)target.parentNode?.insertBefore(drag.row,target.nextSibling);else target.parentNode?.insertBefore(drag.row,target);
    drag.lastTargetId=targetId;
+   traceReorder('after-move',drag.category,drag.workingOrder);
  };
  const autoScroll=(y)=>{
    if(!drag||!root.getBoundingClientRect)return;
@@ -160,39 +162,43 @@ function initSimpleTaskReordering(root){
    const workingOrder=orderFor(categoryKey);
    if(!workingOrder.includes(String(row.dataset.taskReorderRow)))return;
    drag={pointerId:event.pointerId,handle,row,category:categoryKey,sourceId:String(row.dataset.taskReorderRow),workingOrder,startOrder:[...workingOrder],lastTargetId:null};
+   traceReorder('drag-start',categoryKey,workingOrder);
    root.dataset.flytReorderActive='1';
    root.style.overflowAnchor='none';
    root.classList?.add('isTaskReordering');
    row.classList?.add('isTaskDragging');
    try{handle.setPointerCapture?.(event.pointerId)}catch(error){}
    event.preventDefault?.();
-   event.stopPropagation?.();
+   event.stopImmediatePropagation?.();
  };
  const move=event=>{
    if(!drag||drag.pointerId!==event.pointerId)return;
    moveTo(event.clientX,event.clientY);
    autoScroll(event.clientY);
    event.preventDefault?.();
+   event.stopImmediatePropagation?.();
  };
  const finish=event=>{
    if(!drag||drag.pointerId!==event.pointerId)return;
    moveTo(event.clientX,event.clientY);
-   const current=drag,changed=!sameTaskOrder(current.startOrder,current.workingOrder),result=changed?saveWorkingTaskOrder(current.category,current.workingOrder):{saved:true,order:current.workingOrder};
+   const current=drag,changed=!sameTaskOrder(current.startOrder,current.workingOrder);traceReorder('before-save',current.category,current.workingOrder);const result=changed?saveWorkingTaskOrder(current.category,current.workingOrder):{saved:true,order:current.workingOrder};
    root.dataset.flytSkipScrollRestore='1';
    clear();
    render({resetScroll:false});
+   traceReorder('after-render',current.category,bridge()?.getState?.()?.taskOrder?.[current.category]||current.workingOrder);
    if(changed)bridge()?.toast?.(result.saved?'Rekkefølgen er lagret':'Kunne ikke verifisere den nye rekkefølgen');
    event.preventDefault?.();
+   event.stopImmediatePropagation?.();
  };
- const cancel=event=>{if(drag&&drag.pointerId===event.pointerId)clear()};
+ const cancel=event=>{if(drag&&drag.pointerId===event.pointerId){clear();event.stopImmediatePropagation?.()}};
  root.addEventListener('touchstart',blockLegacyTouch,{capture:true,passive:false});
  root.addEventListener('touchmove',blockLegacyTouch,{capture:true,passive:false});
  root.addEventListener('touchend',blockLegacyTouch,{capture:true,passive:false});
  root.addEventListener('touchcancel',blockLegacyTouch,{capture:true,passive:false});
- root.addEventListener('pointerdown',begin,{passive:false});
- root.addEventListener('pointermove',move,{passive:false});
- root.addEventListener('pointerup',finish,{passive:false});
- root.addEventListener('pointercancel',cancel,{passive:true});
+ root.addEventListener('pointerdown',begin,{capture:true,passive:false});
+ root.addEventListener('pointermove',move,{capture:true,passive:false});
+ root.addEventListener('pointerup',finish,{capture:true,passive:false});
+ root.addEventListener('pointercancel',cancel,{capture:true,passive:true});
 }
 function initStableTaskReordering(root){
  if(!root||typeof root.addEventListener!=='function'||root.__flytTaskReorderStable)return;

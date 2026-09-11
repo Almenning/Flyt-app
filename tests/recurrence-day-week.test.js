@@ -58,6 +58,7 @@ function loadRecurrence(initialState) {
     },
   };
   const window = {
+    __flytReorderTrace: [],
     FlytBridge: {
       getState: () => state,
       setState: (next) => {
@@ -103,6 +104,7 @@ function loadRecurrence(initialState) {
       for (const handler of listeners.click || []) handler(event);
     },
     content,
+    reorderTrace: () => window.__flytReorderTrace,
     dispatchDocument(type, event) {
       for (const handler of listeners[type] || []) handler(event);
     },
@@ -416,6 +418,9 @@ test('dra-og-slipp i Gjøre bruker den enkle, aktive splice-motoren', () => {
   assert.match(source, /root\.addEventListener\('pointerdown',begin/);
   assert.match(source, /root\.addEventListener\('pointermove',move/);
   assert.match(source, /root\.addEventListener\('pointerup',finish/);
+  assert.match(source, /root\.addEventListener\('pointerdown',begin,\{capture:true,passive:false\}\)/);
+  assert.match(source, /root\.addEventListener\('pointermove',move,\{capture:true,passive:false\}\)/);
+  assert.match(source, /root\.addEventListener\('pointerup',finish,\{capture:true,passive:false\}\)/);
   assert.match(source, /drag\.workingOrder\.splice\(from,1\)/);
   assert.match(source, /drag\.workingOrder\.splice\(to,0,drag\.sourceId\)/);
   assert.match(source, /parent\?\.insertBefore\(drag\.row/);
@@ -446,6 +451,65 @@ test('workingOrder flytter sikkert én eller flere plasser og til topp eller bun
   assert.deepEqual(Array.from(reorder(ids, 'c', 1)), ['a', 'c', 'b', 'd']);
   assert.deepEqual(Array.from(reorder(ids, 'd', 0)), ['d', 'a', 'b', 'c']);
   assert.deepEqual(Array.from(reorder(ids, 'a', 3)), ['b', 'c', 'd', 'a']);
+});
+
+test('reorder sporer den kanoniske rekkefølgen fra drag til ny lasting', () => {
+  const makeTask = (id) => ({ ...dailyTask, id, name: id, cat: 'Barn' });
+  const harness = loadRecurrence({
+    completions: [], custom: [], dayPlans: {}, points: { 'Person A': 0 },
+    tasks: ['a', 'b', 'c', 'd'].map(makeTask), user: 'Person A', view: 'tasks',
+  });
+  const rootListeners = {};
+  const classList = () => ({ add() {}, remove() {} });
+  const parent = { children: [], insertBefore(node, before) { const old = this.children.indexOf(node); if (old >= 0) this.children.splice(old, 1); const at = before ? this.children.indexOf(before) : this.children.length; this.children.splice(at < 0 ? this.children.length : at, 0, node); } };
+  const rows = ['a', 'b', 'c', 'd'].map((id) => {
+    const row = { classList: classList(), dataset: { taskReorderCategory: 'Barn', taskReorderRow: id }, parentNode: parent, closest: (selector) => selector === '[data-task-reorder-row]' ? row : null, getBoundingClientRect: () => ({ left: 10, top: 100 + parent.children.indexOf(row) * 80, width: 300, height: 70 }) };
+    Object.defineProperty(row, 'nextSibling', { get: () => parent.children[parent.children.indexOf(row) + 1] || null });
+    return row;
+  });
+  parent.children.push(...rows);
+  const rootElement = { classList: classList(), clientHeight: 600, scrollHeight: 1200, scrollTop: 83, style: {}, dataset: {}, addEventListener(type, handler) { (rootListeners[type] ||= []).push(handler); }, getBoundingClientRect: () => ({ top: 0, bottom: 600 }), querySelectorAll: () => parent.children };
+  const event = (type, row, y) => ({ pointerId: 42, pointerType: 'touch', button: 0, clientX: 250, clientY: y, preventDefault() {}, stopImmediatePropagation() {}, target: { closest: () => ({ closest: (selector) => selector === '[data-task-reorder-row]' ? row : null, setPointerCapture() {} }) } });
+  harness.setElementsAt(() => [rows[0]]);
+  harness.api.bindReorder(rootElement);
+  rootListeners.pointerdown[0](event('pointerdown', rows[2], 295));
+  rootListeners.pointermove[0](event('pointermove', rows[2], 135));
+  rootListeners.pointerup[0](event('pointerup', rows[2], 135));
+  const trace = harness.reorderTrace();
+  assert.deepEqual(trace.map(item => [item.phase, ...item.order]), [
+    ['drag-start', 'a', 'b', 'c', 'd'],
+    ['after-move', 'c', 'a', 'b', 'd'],
+    ['before-save', 'c', 'a', 'b', 'd'],
+    ['after-save', 'c', 'a', 'b', 'd'],
+    ['after-render', 'c', 'a', 'b', 'd'],
+  ]);
+  assert.deepEqual(Array.from(harness.getState().taskOrder.Barn), ['c', 'a', 'b', 'd']);
+  assert.deepEqual(Array.from(loadRecurrence(harness.getState()).getState().taskOrder.Barn), ['c', 'a', 'b', 'd']);
+  assert.equal(rootElement.scrollTop, 83);
+});
+
+test('den aktive dragmotoren stopper en eldre pointer-lytter før den kan starte', () => {
+  const harness = loadRecurrence({
+    completions: [], custom: [], dayPlans: {}, points: { 'Person A': 0 },
+    tasks: [{ ...dailyTask, id: 'a', cat: 'Barn' }, { ...dailyTask, id: 'b', cat: 'Barn' }], user: 'Person A', view: 'tasks',
+  });
+  const listeners = { capture: {}, bubble: {} };
+  const classList = () => ({ add() {}, remove() {} });
+  const parent = { children: [], insertBefore() {} };
+  const row = { classList: classList(), dataset: { taskReorderCategory: 'Barn', taskReorderRow: 'a' }, parentNode: parent, closest: (selector) => selector === '[data-task-reorder-row]' ? row : null, getBoundingClientRect: () => ({ left: 0, top: 0, width: 300, height: 70 }) };
+  parent.children.push(row);
+  const root = {
+    classList: classList(), clientHeight: 600, scrollHeight: 600, scrollTop: 0, style: {}, dataset: {},
+    addEventListener(type, handler, options = {}) { const phase = options.capture ? 'capture' : 'bubble'; (listeners[phase][type] ||= []).push(handler); },
+    getBoundingClientRect: () => ({ top: 0, bottom: 600 }), querySelectorAll: () => parent.children,
+  };
+  let legacyCalls = 0;
+  root.addEventListener('pointerdown', () => { legacyCalls++; }, { passive: false });
+  harness.api.bindReorder(root);
+  const event = { button: 0, clientX: 40, clientY: 35, pointerId: 9, pointerType: 'touch', stopped: false, preventDefault() {}, stopImmediatePropagation() { this.stopped = true; }, target: { closest: () => ({ closest: () => row, setPointerCapture() {} }) } };
+  for (const handler of listeners.capture.pointerdown || []) handler(event);
+  if (!event.stopped) for (const handler of listeners.bubble.pointerdown || []) handler(event);
+  assert.equal(legacyCalls, 0);
 });
 
 test('pointer-drag bruker én workingOrder, lagrer den og beholder den etter ny lasting', () => {
