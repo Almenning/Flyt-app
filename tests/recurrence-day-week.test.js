@@ -400,15 +400,46 @@ test('dra-og-slipp i Gjøre bruker mobilvennlig håndtak, løpende plassering og
   assert.match(source, /touch-action:none/);
   assert.match(source, /-webkit-touch-callout:none/);
   assert.match(source, /addEventListener\('contextmenu'/);
-  assert.match(source, /animateReflow/);
-  assert.match(source, /insertBefore\(drag\.row/);
-  assert.match(source, /transition='transform 150ms ease'/);
+  assert.match(source, /function initStableTaskReordering/);
+  assert.match(source, /initTaskReordering=initStableTaskReordering/);
+  assert.match(source, /root\.setPointerCapture/);
+  assert.match(source, /parent\?\.insertBefore\(drag\.row/);
+  assert.match(source, /workingOrder:\[\.\.\.startOrder\]/);
+  assert.match(source, /addEventListener\('pointercancel',finish/);
   assert.match(source, /runAutoScroll/);
-  assert.match(source, /updateDropTarget\(drag\.pointer\.x,drag\.pointer\.y\)/);
+  assert.match(source, /placeForPointer\(y\)/);
   assert.match(source, /root\.classList\.add\('isTaskReordering'\)/);
   assert.match(source, /preserveTaskSortScroll\(scrollTop\)/);
   assert.match(source, /function preserveTaskSortScroll\(scrollTop\)/);
   assert.match(source, /content\.scrollTop=Math\.max\(0,Math\.min\(Number\(scrollTop\)\|\|0/);
+});
+
+test('workingOrder flytter sikkert én eller flere plasser og til topp eller bunn', () => {
+  const harness = loadRecurrence({
+    completions: [],
+    custom: [],
+    dayPlans: {},
+    points: { 'Person A': 0 },
+    tasks: [],
+    user: 'Person A',
+    view: 'tasks',
+  });
+  const reorder = harness.api.reorderIds;
+  const ids = ['a', 'b', 'c', 'd'];
+  assert.deepEqual(Array.from(reorder(ids, 'b', 2)), ['a', 'c', 'b', 'd']);
+  assert.deepEqual(Array.from(reorder(ids, 'c', 1)), ['a', 'c', 'b', 'd']);
+  assert.deepEqual(Array.from(reorder(ids, 'd', 0)), ['d', 'a', 'b', 'c']);
+  assert.deepEqual(Array.from(reorder(ids, 'a', 3)), ['b', 'c', 'd', 'a']);
+});
+
+test('Gjøre eies av recurrence-rendereren etter state-endring og synk', () => {
+  const index = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+  const watchdog = fs.readFileSync(path.join(root, 'app-watchdog.js'), 'utf8');
+  const sync = fs.readFileSync(path.join(root, 'sync.js'), 'utf8');
+  assert.match(index, /state\.view==='tasks'&&window\.FlytRecurrenceUI\?\.render/);
+  assert.match(watchdog, /content\?\.dataset\.flytOwner!=='recurrence'/);
+  assert.match(watchdog, /window\.FlytRecurrenceUI\?\.render/);
+  assert.match(sync, /view==='tasks'&&window\.FlytRecurrenceUI\?\.render/);
 });
 
 test('sortering åpnes per kategori og skjuler drag-håndtaket i normalvisning', () => {
