@@ -6,7 +6,7 @@ const ORDER=['Barn','Kjøkken','Klesvask','Renhold','Stue & fellesområder','Bad
 const CONDITIONAL_CATEGORIES=new Set(['Barn','Dyr','Hage & ute','Bil']);
 const OSLO_TIME_ZONE='Europe/Oslo';
 const BACKDATE_DAYS=7;
-const VERSION='20260911-reorderstable6';
+const VERSION='20260911-reorderstable7';
 const DAY_SHORT=['Man','Tir','Ons','Tor','Fre','Lør','Søn'];
 let mode='day',installed=false,painting=false,pickerOpen=false,suppressPickerClickUntil=0,otherOpen=false,openTaskCategory=null,openLibraryCategory=null,openTaskPopup=null,planMenuTaskId=null,taskFilter='all',reorderCategory=null;
 function state(){return bridge()?.getState?.()||null}
@@ -104,6 +104,12 @@ function initSimpleTaskReordering(root){
  if(!root||typeof root.addEventListener!=='function'||root.__flytSimpleTaskReorder)return;
  root.__flytSimpleTaskReorder=true;
  let drag=null;
+ const blockLegacyTouch=event=>{
+   const startsOnHandle=!!event.target?.closest?.('[data-task-reorder-handle]');
+   if(!startsOnHandle&&!drag)return;
+   event.preventDefault?.();
+   event.stopImmediatePropagation?.();
+ };
  const rows=()=>[...root.querySelectorAll('[data-task-reorder-row]')];
  const categoryRows=key=>rows().filter(row=>String(row.dataset.taskReorderCategory)===String(key));
  const orderFor=key=>categoryRows(key).map(row=>String(row.dataset.taskReorderRow));
@@ -179,6 +185,10 @@ function initSimpleTaskReordering(root){
    event.preventDefault?.();
  };
  const cancel=event=>{if(drag&&drag.pointerId===event.pointerId)clear()};
+ root.addEventListener('touchstart',blockLegacyTouch,{capture:true,passive:false});
+ root.addEventListener('touchmove',blockLegacyTouch,{capture:true,passive:false});
+ root.addEventListener('touchend',blockLegacyTouch,{capture:true,passive:false});
+ root.addEventListener('touchcancel',blockLegacyTouch,{capture:true,passive:false});
  root.addEventListener('pointerdown',begin,{passive:false});
  root.addEventListener('pointermove',move,{passive:false});
  root.addEventListener('pointerup',finish,{passive:false});

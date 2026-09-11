@@ -425,6 +425,8 @@ test('dra-og-slipp i Gjøre bruker den enkle, aktive splice-motoren', () => {
   assert.match(source, /function removeLegacyTaskReorderListeners/);
   assert.match(source, /root\.cloneNode/);
   assert.match(source, /root\.replaceWith/);
+  assert.match(source, /const blockLegacyTouch/);
+  assert.match(source, /root\.addEventListener\('touchstart',blockLegacyTouch,\{capture:true,passive:false\}\)/);
   assert.doesNotMatch(source, /initTaskReordering=initStableTaskReordering/);
 });
 
