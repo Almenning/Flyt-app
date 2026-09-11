@@ -33,6 +33,7 @@ function loadRecurrence(initialState) {
   let state = structuredClone(initialState);
   let intervalCallback = null;
   const listeners = {};
+  let hitTest = () => [];
   const content = {
     clientHeight: 800,
     dataset: {},
@@ -45,6 +46,9 @@ function loadRecurrence(initialState) {
     body: { appendChild() {} },
     addEventListener(type, handler) {
       (listeners[type] ||= []).push(handler);
+    },
+    elementsFromPoint(x, y) {
+      return hitTest(x, y);
     },
     querySelector(selector) {
       return selector === '#content' ? content : null;
@@ -101,6 +105,9 @@ function loadRecurrence(initialState) {
     content,
     dispatchDocument(type, event) {
       for (const handler of listeners[type] || []) handler(event);
+    },
+    setElementsAt(fn) {
+      hitTest = fn;
     },
     getState: () => state,
   };
@@ -398,31 +405,24 @@ test('lagret rekkefølge brukes for gjøremål i samme kategori', () => {
   assert.match(harness.content.innerHTML, /data-task-reorder-handle="morning_care"/);
 });
 
-test('dra-og-slipp i Gjøre bruker mobilvennlig håndtak, løpende plassering og auto-scroll', () => {
+test('dra-og-slipp i Gjøre bruker den enkle, aktive splice-motoren', () => {
   const source = fs.readFileSync(path.join(root, 'recurrence-ui.js'), 'utf8');
   assert.match(source, /taskReorderHandle:before/);
   assert.match(source, /touch-action:none/);
   assert.match(source, /-webkit-touch-callout:none/);
-  assert.match(source, /addEventListener\('contextmenu'/);
-  assert.match(source, /function initStableTaskReordering/);
-  assert.match(source, /initTaskReordering=initStableTaskReordering/);
+  assert.match(source, /function initSimpleTaskReordering/);
+  assert.match(source, /initTaskReordering=initSimpleTaskReordering/);
   assert.match(source, /handle\.setPointerCapture/);
-  assert.match(source, /event\.pointerType==='touch'.*ontouchstart/);
-  assert.match(source, /document\.addEventListener\('pointermove'/);
-  assert.match(source, /root\.addEventListener\('touchstart'/);
-  assert.match(source, /document\.addEventListener\('touchmove'/);
-  assert.match(source, /document\.addEventListener\('touchend'/);
-  assert.match(source, /document\.addEventListener\('touchcancel'/);
-  assert.match(source, /touchById\(event\.changedTouches,drag\.id\)/);
+  assert.match(source, /root\.addEventListener\('pointerdown',begin/);
+  assert.match(source, /root\.addEventListener\('pointermove',move/);
+  assert.match(source, /root\.addEventListener\('pointerup',finish/);
+  assert.match(source, /drag\.workingOrder\.splice\(from,1\)/);
+  assert.match(source, /drag\.workingOrder\.splice\(to,0,drag\.sourceId\)/);
   assert.match(source, /parent\?\.insertBefore\(drag\.row/);
-  assert.match(source, /workingOrder:\[\.\.\.startOrder\]/);
-  assert.match(source, /document\.addEventListener\('pointercancel'/);
-  assert.match(source, /runAutoScroll/);
-  assert.match(source, /placeForPointer\(y\)/);
-  assert.match(source, /root\.classList\.add\('isTaskReordering'\)/);
-  assert.match(source, /preserveTaskSortScroll\(scrollTop\)/);
-  assert.match(source, /function preserveTaskSortScroll\(scrollTop\)/);
-  assert.match(source, /content\.scrollTop=Math\.max\(0,Math\.min\(Number\(scrollTop\)\|\|0/);
+  assert.match(source, /saveWorkingTaskOrder\(current\.category,current\.workingOrder\)/);
+  assert.match(source, /flytReorderActive/);
+  assert.match(source, /flytSkipScrollRestore/);
+  assert.doesNotMatch(source, /initTaskReordering=initStableTaskReordering/);
 });
 
 test('workingOrder flytter sikkert én eller flere plasser og til topp eller bunn', () => {
@@ -443,11 +443,11 @@ test('workingOrder flytter sikkert én eller flere plasser og til topp eller bun
   assert.deepEqual(Array.from(reorder(ids, 'a', 3)), ['b', 'c', 'd', 'a']);
 });
 
-test('touch-drag på iPhone oppdaterer og lagrer workingOrder ved slipp', () => {
+test('pointer-drag bruker én workingOrder, lagrer den og beholder den etter ny lasting', () => {
   const makeTask = (id) => ({ ...dailyTask, id, name: id, cat: 'Barn' });
   const harness = loadRecurrence({
     completions: [], custom: [], dayPlans: {}, points: { 'Person A': 0 },
-    tasks: ['a', 'b', 'c'].map(makeTask), user: 'Person A', view: 'tasks',
+    tasks: ['a', 'b', 'c', 'd', 'e'].map(makeTask), user: 'Person A', view: 'tasks',
   });
   const rootListeners = {};
   const classList = () => {
@@ -467,7 +467,7 @@ test('touch-drag på iPhone oppdaterer og lagrer workingOrder ved slipp', () => 
       this.children.splice(nextIndex < 0 ? this.children.length : nextIndex, 0, node);
     },
   };
-  const rows = ['a', 'b', 'c'].map((id) => {
+  const rows = ['a', 'b', 'c', 'd', 'e'].map((id) => {
     const row = {
       classList: classList(),
       dataset: { taskReorderCategory: 'Barn', taskReorderRow: id },
@@ -475,8 +475,8 @@ test('touch-drag på iPhone oppdaterer og lagrer workingOrder ved slipp', () => 
       getBoundingClientRect() {
         return { height: 70, left: 10, top: 100 + parent.children.indexOf(row) * 80, width: 300 };
       },
-      cloneNode() {
-        return { classList: classList(), remove() {}, removeAttribute() {}, style: {} };
+      closest(selector) {
+        return selector === '[data-task-reorder-row]' ? row : null;
       },
     };
     Object.defineProperty(row, 'nextSibling', {
@@ -486,24 +486,48 @@ test('touch-drag på iPhone oppdaterer og lagrer workingOrder ved slipp', () => 
   });
   parent.children.push(...rows);
   const rootElement = {
-    classList: classList(), clientHeight: 600, scrollHeight: 600, scrollTop: 0, style: {},
+    classList: classList(), clientHeight: 600, scrollHeight: 1600, scrollTop: 137, style: {}, dataset: {},
     addEventListener(type, handler) { (rootListeners[type] ||= []).push(handler); },
     getBoundingClientRect: () => ({ bottom: 600, top: 0 }),
     querySelectorAll: () => parent.children,
   };
-  const handle = { closest: (selector) => selector === '[data-task-reorder-row]' ? rows[1] : null };
-  const event = (touches) => ({
-    cancelable: true, changedTouches: touches, touches,
-    preventDefault() {}, stopPropagation() {}, target: { closest: () => handle },
+  const handleFor = (row) => ({
+    closest: (selector) => selector === '[data-task-reorder-row]' ? row : null,
+    setPointerCapture() {},
   });
+  const event = (pointerId, y, row) => ({
+    button: 0, clientX: 280, clientY: y, pointerId, pointerType: 'touch',
+    preventDefault() {}, stopPropagation() {}, target: { closest: () => handleFor(row) },
+  });
+  let hit = null;
+  harness.setElementsAt(() => hit ? [hit] : []);
 
   harness.api.bindReorder(rootElement);
-  rootListeners.touchstart[0](event([{ identifier: 7, clientX: 280, clientY: 215 }]));
-  harness.dispatchDocument('touchmove', event([{ identifier: 7, clientX: 280, clientY: 310 }]));
-  harness.dispatchDocument('touchend', event([{ identifier: 7, clientX: 280, clientY: 310 }]));
+  rootListeners.pointerdown[0](event(7, 135, rows[0]));
+  hit = rows[1];
+  rootListeners.pointermove[0](event(7, 215, rows[0]));
+  hit = rows[2];
+  rootListeners.pointermove[0](event(7, 295, rows[0]));
+  hit = rows[3];
+  rootListeners.pointermove[0](event(7, 375, rows[0]));
+  rootListeners.pointerup[0](event(7, 375, rows[0]));
 
-  assert.deepEqual(parent.children.map((row) => row.dataset.taskReorderRow), ['a', 'c', 'b']);
-  assert.deepEqual(Array.from(harness.getState().taskOrder.Barn), ['a', 'c', 'b']);
+  assert.deepEqual(parent.children.map((row) => row.dataset.taskReorderRow), ['b', 'c', 'd', 'a', 'e']);
+  assert.deepEqual(Array.from(harness.getState().taskOrder.Barn), ['b', 'c', 'd', 'a', 'e']);
+
+  rootListeners.pointerdown[0](event(8, 375, rows[3]));
+  hit = rows[2];
+  rootListeners.pointermove[0](event(8, 295, rows[3]));
+  rootListeners.pointerup[0](event(8, 295, rows[3]));
+
+  assert.deepEqual(parent.children.map((row) => row.dataset.taskReorderRow), ['b', 'd', 'c', 'a', 'e']);
+  assert.deepEqual(Array.from(harness.getState().taskOrder.Barn), ['b', 'd', 'c', 'a', 'e']);
+  assert.equal(rootElement.scrollTop, 137);
+  for (const periodMode of ['week', 'month', 'day']) {
+    harness.click({ '[data-period-mode]': { dataset: { periodMode }, blur() {} } });
+    assert.deepEqual(Array.from(harness.getState().taskOrder.Barn), ['b', 'd', 'c', 'a', 'e']);
+  }
+  assert.deepEqual(Array.from(loadRecurrence(harness.getState()).getState().taskOrder.Barn), ['b', 'd', 'c', 'a', 'e']);
 });
 
 test('Gjøre eies av recurrence-rendereren etter state-endring og synk', () => {
