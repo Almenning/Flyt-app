@@ -6,7 +6,7 @@ const ORDER=['Barn','Kjøkken','Klesvask','Renhold','Stue & fellesområder','Bad
 const CONDITIONAL_CATEGORIES=new Set(['Barn','Dyr','Hage & ute','Bil']);
 const OSLO_TIME_ZONE='Europe/Oslo';
 const BACKDATE_DAYS=7;
-const VERSION='20260911-reorderstable2';
+const VERSION='20260911-reorderstable3';
 const DAY_SHORT=['Man','Tir','Ons','Tor','Fre','Lør','Søn'];
 let mode='day',installed=false,painting=false,pickerOpen=false,suppressPickerClickUntil=0,otherOpen=false,openTaskCategory=null,openLibraryCategory=null,openTaskPopup=null,planMenuTaskId=null,taskFilter='all',reorderCategory=null;
 function state(){return bridge()?.getState?.()||null}
@@ -144,7 +144,7 @@ function initStableTaskReordering(root){
  const clear=()=>{
   stopAutoScroll();
   if(!drag)return;
-  try{if(root.hasPointerCapture?.(drag.id))root.releasePointerCapture(drag.id)}catch(error){}
+  try{if(drag.capture?.hasPointerCapture?.(drag.id))drag.capture.releasePointerCapture(drag.id)}catch(error){}
   drag.row.classList.remove('isTaskDragSlot');
   drag.ghost?.remove();
   root.classList.remove('isTaskReordering');
@@ -152,44 +152,75 @@ function initStableTaskReordering(root){
   drag=null;
  };
  const finish=event=>{
-  if(!drag||drag.id!==event.pointerId)return;
+  if(!drag)return;
   const current=drag,workingOrder=[...current.workingOrder],scrollTop=Math.max(0,Number(root.scrollTop)||0),moved=current.moved;
   clear();
   if(moved)saveTaskOrderByIds(current.category,workingOrder,scrollTop);
-  if(event.cancelable)event.preventDefault();
+  if(event?.cancelable)event.preventDefault();
  };
- root.addEventListener('contextmenu',event=>{if(drag||event.target.closest?.('[data-task-reorder-handle]'))event.preventDefault()},{passive:false});
- root.addEventListener('pointerdown',event=>{
-  if(drag)return;
-  const handle=event.target.closest?.('[data-task-reorder-handle]');
-  if(!handle||(event.pointerType==='mouse'&&event.button!==0))return;
-  const row=handle.closest('[data-task-reorder-row]');
-  if(!row||!row.parentNode)return;
+ const begin=(id,x,y,handle,input)=>{
+  if(drag)return false;
+  const row=handle?.closest?.('[data-task-reorder-row]');
+  if(!row||!row.parentNode)return false;
   const rect=row.getBoundingClientRect(),ghost=row.cloneNode(true),startOrder=orderFor(row.dataset.taskReorderCategory);
   ghost.classList.add('taskDragGhost');
   ghost.classList.remove('isTaskDragSlot');
   ghost.removeAttribute('id');
   ghost.style.width=Math.round(rect.width)+'px';
   document.body.appendChild(ghost);
-  drag={id:event.pointerId,row,sourceId:String(row.dataset.taskReorderRow),category:row.dataset.taskReorderCategory,startOrder,workingOrder:[...startOrder],moved:false,ghost,offsetX:event.clientX-rect.left,offsetY:event.clientY-rect.top,pointer:{x:event.clientX,y:event.clientY}};
+  drag={id,input,capture:handle,row,sourceId:String(row.dataset.taskReorderRow),category:row.dataset.taskReorderCategory,startOrder,workingOrder:[...startOrder],moved:false,ghost,offsetX:x-rect.left,offsetY:y-rect.top,pointer:{x,y}};
   row.classList.add('isTaskDragSlot');
   root.classList.add('isTaskReordering');
   root.style.overflowAnchor='none';
-  moveGhost(event.clientX,event.clientY);
-  try{root.setPointerCapture?.(event.pointerId)}catch(error){}
+  moveGhost(x,y);
+  return true;
+ };
+ const move=(x,y)=>{
+  if(!drag)return;
+  drag.pointer={x,y};
+  moveGhost(x,y);
+  placeForPointer(y);
+  updateAutoScroll();
+ };
+ const touchById=(list,id)=>[...(list||[])].find(touch=>touch.identifier===id)||null;
+ root.addEventListener('contextmenu',event=>{if(drag||event.target.closest?.('[data-task-reorder-handle]'))event.preventDefault()},{passive:false});
+ root.addEventListener('pointerdown',event=>{
+  if(drag)return;
+  if(event.pointerType==='touch'&&('ontouchstart' in window||Number(window.navigator?.maxTouchPoints)>0))return;
+  const handle=event.target.closest?.('[data-task-reorder-handle]');
+  if(!handle||(event.pointerType==='mouse'&&event.button!==0))return;
+  if(!begin(event.pointerId,event.clientX,event.clientY,handle,'pointer'))return;
+  try{handle.setPointerCapture?.(event.pointerId)}catch(error){}
   event.preventDefault();
   event.stopPropagation();
  },{passive:false});
- root.addEventListener('pointermove',event=>{
-  if(!drag||drag.id!==event.pointerId)return;
-  drag.pointer={x:event.clientX,y:event.clientY};
-  moveGhost(event.clientX,event.clientY);
-  placeForPointer(event.clientY);
-  updateAutoScroll();
+ document.addEventListener('pointermove',event=>{
+  if(!drag||drag.input!=='pointer'||drag.id!==event.pointerId)return;
+  move(event.clientX,event.clientY);
   event.preventDefault();
  },{passive:false});
- root.addEventListener('pointerup',finish,{passive:false});
- root.addEventListener('pointercancel',finish,{passive:false});
+ document.addEventListener('pointerup',event=>{if(drag?.input==='pointer'&&drag.id===event.pointerId)finish(event)},{passive:false});
+ document.addEventListener('pointercancel',event=>{if(drag?.input==='pointer'&&drag.id===event.pointerId)finish(event)},{passive:false});
+ root.addEventListener('touchstart',event=>{
+  if(drag)return;
+  const handle=event.target.closest?.('[data-task-reorder-handle]'),touch=event.changedTouches?.[0];
+  if(!handle||!touch||!begin(touch.identifier,touch.clientX,touch.clientY,handle,'touch'))return;
+  event.preventDefault();
+  event.stopPropagation();
+ },{passive:false});
+ document.addEventListener('touchmove',event=>{
+  if(!drag||drag.input!=='touch')return;
+  const touch=touchById(event.touches,drag.id);
+  if(!touch)return;
+  move(touch.clientX,touch.clientY);
+  event.preventDefault();
+ },{passive:false});
+ const finishTouch=event=>{
+  if(!drag||drag.input!=='touch'||!touchById(event.changedTouches,drag.id))return;
+  finish(event);
+ };
+ document.addEventListener('touchend',finishTouch,{passive:false});
+ document.addEventListener('touchcancel',finishTouch,{passive:false});
 }
 function shiftPager(kind,step){if(!step)return false;if(kind==='day'){let next=addDays(selectedDay,step*7);if(next>todayKey())next=todayKey();if(next===selectedDay)return false;selectedDay=next;return true}if(kind==='week'){selectedWeekStart=addDays(selectedWeekStart,step*7);return true}if(kind==='month'){selectedMonth=addMonths(selectedMonth,step);return true}return false}
 function initPeriodPagers(){document.querySelectorAll('[data-period-pager]').forEach(view=>{if(view.__flytPager)return;view.__flytPager=true;const track=view.querySelector('[data-period-track]');if(!track)return;let drag=null,animating=false,finishTimer=null;const width=()=>Math.max(1,view.getBoundingClientRect().width||view.clientWidth||1),center=()=>-width(),canStep=step=>step<0?view.dataset.canPrev==='1':view.dataset.canNext==='1';const place=(x,animate=false)=>{track.style.transition=animate?'transform 225ms cubic-bezier(.22,.61,.36,1)':'none';track.style.transform=`translate3d(${x}px,0,0)`};const clearAnimation=()=>{animating=false;clearTimeout(finishTimer);finishTimer=null};const animateBack=()=>{if(Math.abs((drag?.dx)||0)<1){place(center(),false);return}animating=true;place(center(),true);finishTimer=setTimeout(clearAnimation,260);const done=e=>{if(e.target!==track||e.propertyName!=='transform')return;track.removeEventListener('transitionend',done);clearAnimation()};track.addEventListener('transitionend',done)};const commit=step=>{if(!canStep(step)){animateBack();return}animating=true;const w=width(),target=-(1+step)*w;place(target,true);let finished=false;const finish=()=>{if(finished)return;finished=true;clearTimeout(finishTimer);track.removeEventListener('transitionend',done);if(shiftPager(view.dataset.periodPager,step)){pickerOpen=true;otherOpen=false;render({resetScroll:false})}else{animating=false;place(center(),false)}};const done=e=>{if(e.target===track&&e.propertyName==='transform')finish()};track.addEventListener('transitionend',done);finishTimer=setTimeout(finish,290)};view.addEventListener('pointerdown',e=>{if(animating)return;if(e.pointerType==='mouse'&&e.button!==0)return;const now=performance.now();drag={id:e.pointerId,x0:e.clientX,y0:e.clientY,dx:0,dy:0,axis:null,t0:now,lastX:e.clientX,lastT:now,vx:0};track.style.transition='none';try{view.setPointerCapture?.(e.pointerId)}catch(err){}},{passive:true});view.addEventListener('pointermove',e=>{if(!drag||drag.id!==e.pointerId||animating)return;drag.dx=e.clientX-drag.x0;drag.dy=e.clientY-drag.y0;const ax=Math.abs(drag.dx),ay=Math.abs(drag.dy);if(!drag.axis){if(ax<7&&ay<7)return;if(ay>ax*1.12){drag.axis='y';return}if(ax>ay*1.08)drag.axis='x';else return}if(drag.axis!=='x')return;e.preventDefault();const now=performance.now(),dt=now-drag.lastT;if(dt>=24){drag.vx=(e.clientX-drag.lastX)/dt;drag.lastX=e.clientX;drag.lastT=now}const step=drag.dx<0?1:-1,visual=canStep(step)?drag.dx:0;place(center()+visual,false)},{passive:false});const end=e=>{if(!drag||drag.id!==e.pointerId)return;const d=drag;drag=null;if(d.axis!=='x'){place(center(),false);return}suppressPickerClickUntil=Date.now()+360;const w=width(),elapsed=Math.max(1,performance.now()-d.t0),velocity=Math.abs(d.vx||d.dx/elapsed),step=d.dx<0?1:-1,far=Math.abs(d.dx)>w*.20,fast=velocity>.48&&Math.abs(d.dx)>24;if(canStep(step)&&(far||fast))commit(step);else{drag=d;animateBack();drag=null}};view.addEventListener('pointerup',end,{passive:true});view.addEventListener('pointercancel',e=>{if(!drag||drag.id!==e.pointerId)return;const d=drag;drag=null;if(d.axis==='x'){drag=d;animateBack();drag=null}else place(center(),false)},{passive:true})})}
@@ -219,5 +250,5 @@ const taskSortModeStyle=document.createElement?.('style');if(taskSortModeStyle){
 document.addEventListener('click',e=>{const start=e.target.closest?.('[data-task-reorder-start]');if(start){e.preventDefault();e.stopImmediatePropagation();reorderCategory=decodeURIComponent(start.dataset.taskReorderStart||'');if(!reorderCategory)return;openTaskPopup=null;openTaskCategory=reorderCategory;document.querySelector('#content')?.classList.add('isTaskSortMode');render({resetScroll:false});return}const done=e.target.closest?.('[data-task-reorder-done]');if(done){e.preventDefault();e.stopImmediatePropagation();reorderCategory=null;document.querySelector('#content')?.classList.remove('isTaskSortMode');render({resetScroll:false});bridge()?.toast?.('Sortering er ferdig');return}},true);
 const taskSortActionsStyle=document.createElement?.('style');if(taskSortActionsStyle){taskSortActionsStyle.textContent='.content.isTaskSortMode [data-task-reorder-row]>.row:nth-child(2),.content.isTaskSortMode [data-task-reorder-row] .taskMoreButton,.content.isTaskSortMode [data-task-reorder-row] .taskActionPopup{display:none!important}';document.head?.appendChild(taskSortActionsStyle)}
 const observer=new MutationObserver(()=>{if(!painting)tuneSetup()});window.addEventListener('DOMContentLoaded',()=>{const body=$('#setupBody');if(body)observer.observe(body,{childList:true,subtree:true})});let tries=0;const timer=setInterval(()=>{if(install()||++tries>80)clearInterval(timer)},100);
-window.FlytRecurrenceUI={render,openToday,tuneSetup,getMode:()=>mode,dateKey:localDate,weekRange,progress,getSelectedDate:()=>selectedDay,getSelectedWeekRange:selectedWeekRange,getSelectedMonth:()=>selectedMonth,isPickerOpen:()=>pickerOpen,getTaskFilter:()=>taskFilter,reorderIds:orderWithTaskAt,version:VERSION};
+window.FlytRecurrenceUI={render,openToday,tuneSetup,getMode:()=>mode,dateKey:localDate,weekRange,progress,getSelectedDate:()=>selectedDay,getSelectedWeekRange:selectedWeekRange,getSelectedMonth:()=>selectedMonth,isPickerOpen:()=>pickerOpen,getTaskFilter:()=>taskFilter,reorderIds:orderWithTaskAt,bindReorder:initStableTaskReordering,version:VERSION};
 })();
