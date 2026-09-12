@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION='20260912-seenalerts1';
+const VERSION='20260912-seenalerts2';
 const $=selector=>document.querySelector(selector);
 const bridge=()=>window.FlytBridge;
 const core=()=>window.FlytSeenCore;
