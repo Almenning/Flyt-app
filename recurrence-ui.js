@@ -7,9 +7,7 @@ const CONDITIONAL_CATEGORIES=new Set(['Barn','Dyr','Hage & ute','Bil']);
 const OSLO_TIME_ZONE='Europe/Oslo';
 const BACKDATE_DAYS=7;
 const VERSION='20260912-reorderfullrollback12';
-const REORDER_DIAGNOSTIC_BASELINE='73ff4ab54d2c5cf686b6018e5b0d2923c3a6abd2';
-const REORDER_DIAGNOSTIC_MARKER_ORIGIN='b7b6f3ff6077c764c32fa4e0084f8350b286f16e';
-console.info('[Flyt Gjøre – diagnose]',{version:VERSION,diagnosticMarkerOrigin:REORDER_DIAGNOSTIC_MARKER_ORIGIN,reorderBaseline:REORDER_DIAGNOSTIC_BASELINE,source:'recurrence-ui.js'});
+
 const DAY_SHORT=['Man','Tir','Ons','Tor','Fre','Lør','Søn'];
 let mode='day',installed=false,painting=false,pickerOpen=false,suppressPickerClickUntil=0,otherOpen=false,openTaskCategory=null,openLibraryCategory=null,openTaskPopup=null,planMenuTaskId=null,taskFilter='all',reorderCategory=null;
 function state(){return bridge()?.getState?.()||null}
