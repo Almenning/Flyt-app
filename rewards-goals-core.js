@@ -6,15 +6,17 @@ if(root)root.FlytGoalsCore=api;
 })(typeof window!=='undefined'?window:globalThis,root=>{
 'use strict';
 
-const VERSION='20260906-approval1';
+const VERSION='20260912-rewards1';
 const OSLO_TIME_ZONE='Europe/Oslo';
 const REWARD_LIBRARY=Object.freeze({
-  'Tid og frihet':Object.freeze(['Sovemorgen','Kveld ute med venner','En kveld helt fri','Hobby-/gamingkveld','En halv dag for deg selv','Fri fra hjemmeoppgaver']),
-  'Opplevelser':Object.freeze(['Restaurant','Date','Aktivitet på eget valg','Gave','Hotell','Helgetur','Overraskelse']),
-  'Fristelse ❤️':Object.freeze(['Massasje','Sexy undertøy','En intim kveld','30 minutter bare for deg','Du velger ❤️','Ditt intime ønske','En erotisk overraskelse','Eget forslag'])
+  'Tid og frihet':Object.freeze(['Sovemorgen','Egentid','Kveld ute med venner','Hobby-/gamingtid','Fri fra hjemmeoppgaver']),
+  'Opplevelser':Object.freeze(['Takeaway','Datekveld','Restaurant','Aktivitet på eget valg','Hotell / helgetur']),
+  'Fristelse ❤️':Object.freeze(['Massasje','Sexy undertøy','En intim kveld','30 minutter bare for deg','Du velger ❤️'])
 });
 const REWARD_PRICES=Object.freeze({
-  'Sovemorgen':60,'Hobby-/gamingkveld':50,'Kveld ute med venner':80,'Massasje':70,'Hemmelig fristelse':100,
+  'Sovemorgen':60,'Egentid':60,'Kveld ute med venner':80,'Hobby-/gamingtid':50,'Fri fra hjemmeoppgaver':90,
+  'Takeaway':70,'Datekveld':100,'Restaurant':120,'Aktivitet på eget valg':90,'Hotell / helgetur':220,
+  'Massasje':70,'Sexy undertøy':90,'En intim kveld':80,'30 minutter bare for deg':60,'Du velger ❤️':100,'Hemmelig fristelse':100,
   'En kveld helt fri':60,'En halv dag for deg selv':90,'Fri fra hjemmeoppgaver':90,
   'Restaurant':120,'Date':100,'Aktivitet på eget valg':90,'Gave':70,'Hotell':180,'Helgetur':220,'Overraskelse':100,
   'Sexy undertøy':90,'En intim kveld':80,'30 minutter bare for deg':60,'Du velger ❤️':100,'Ditt intime ønske':110,'En erotisk overraskelse':120,'Eget forslag':60,
