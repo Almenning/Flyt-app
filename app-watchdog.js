@@ -12,7 +12,7 @@ function ensureHomeOwnership(){const b=window.FlytBridge,c=document.querySelecto
 function guardHomeStartup(){[0,60,180,450,900,1600,3000].forEach(ms=>setTimeout(()=>ensureHomeOwnership(),ms))}
 function loadScript(src,key,onload){const existing=document.querySelector(`script[data-${key}]`);if(existing){if(onload)existing.addEventListener('load',onload,{once:true});return}const s=document.createElement('script');s.src=src;s.defer=true;s.setAttribute(`data-${key}`,'1');if(onload)s.addEventListener('load',onload,{once:true});document.head.appendChild(s)}
 function loadStartupHydration(){if(window.FlytStartupHydration?.version==='20260826-0746')return;loadScript('./startup-hydration-ui.js?v=20260826-0746','flyt-startup-hydration-0746')}
-function loadBuyerPolish(){if(window.FlytBuyerPolish?.version==='20260902-1800')return;loadScript('./buyer-polish-ui.js?v=20260902-1800','flyt-buyer-polish-1800')}
+function loadBuyerPolish(){if(window.FlytBuyerPolish?.version==='20260912-reorderstable10')return;loadScript('./buyer-polish-ui.js?v=20260912-reorderstable10','flyt-buyer-polish-1800')}
 function loadAccount(){if(window.FlytAccountUI?.version==='20260828-0228')return;loadScript('./account-ui.js?v=20260828-0228','flyt-account-0228')}
 function loadPlanned(){if(window.FlytPlannedUI?.version==='20260904-accordion1')return;loadScript('./planned-ui.js?v=20260904-accordion1','flyt-planned-accordion1')}
 function loadDayCompleted(){if(window.FlytTasksDayCompleted?.version==='20260902-1800')return;loadScript('./tasks-day-completed-ui.js?v=20260902-1800','flyt-day-completed-1800')}
@@ -20,7 +20,7 @@ function loadModal(){if(window.FlytModal)return;loadScript('./modal-ui.js?v=2026
 function loadCustomCategories(){if(window.FlytCustomCategories?.version==='20260903-master1')return;loadScript('./custom-categories-ui.js?v=20260903-master1','flyt-custom-categories-master1')}
 function loadDayPlan(){if(window.FlytDayPlan?.VERSION==='20260903-master1')return;loadScript('./day-plan.js?v=20260903-master1','flyt-day-plan-master1')}
 function loadCategoryAccordion(){if(window.FlytCategoryAccordion?.VERSION==='20260904-polish1')return;loadScript('./category-accordion.js?v=20260904-polish1','flyt-category-accordion-polish1')}
-function loadRecurrence(){loadCategoryAccordion();if(window.FlytRecurrenceUI?.version==='20260911-reorderstable9')return;loadScript('./recurrence-ui.js?v=20260911-reorderstable9','flyt-recurrence-accordion1')}
+function loadRecurrence(){loadCategoryAccordion();if(window.FlytRecurrenceUI?.version==='20260912-reorderstable10')return;loadScript('./recurrence-ui.js?v=20260912-reorderstable10','flyt-recurrence-accordion1')}
 function loadBeta(){if(window.FlytBetaUI)return;loadScript('./beta-ui.js?v=20260824-1628','flyt-beta')}
 function loadResponsive(){if(document.querySelector('#flytResponsiveUi'))return;loadScript('./responsive-ui.js?v=20260825-0648','flyt-responsive')}
 function loadCoupleCore(){if(window.FlytCoupleCore?.VERSION==='20260902-1700')return;loadScript('./couple-core.js?v=20260902-1700','flyt-couple-core-20260902-1700')}
