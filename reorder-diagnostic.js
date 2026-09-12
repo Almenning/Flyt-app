@@ -44,5 +44,6 @@ function install(){
   emit('installed');
   return true;
 }
+window.FlytReorderDiagnostic={start:category=>{activeCategory=String(category||'');panelLines=[];emit('drag-start')},emit};
 if(!install()){let tries=0;const timer=setInterval(()=>{if(install()||++tries>80)clearInterval(timer)},100)}
 })();
