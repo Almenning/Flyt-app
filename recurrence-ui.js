@@ -6,7 +6,7 @@ const ORDER=['Barn','Kjøkken','Klesvask','Renhold','Stue & fellesområder','Bad
 const CONDITIONAL_CATEGORIES=new Set(['Barn','Dyr','Hage & ute','Bil']);
 const OSLO_TIME_ZONE='Europe/Oslo';
 const BACKDATE_DAYS=7;
-const VERSION='20260911-reorderstable9';
+const VERSION='20260912-reorderstable10';
 const DAY_SHORT=['Man','Tir','Ons','Tor','Fre','Lør','Søn'];
 let mode='day',installed=false,painting=false,pickerOpen=false,suppressPickerClickUntil=0,otherOpen=false,openTaskCategory=null,openLibraryCategory=null,openTaskPopup=null,planMenuTaskId=null,taskFilter='all',reorderCategory=null;
 function state(){return bridge()?.getState?.()||null}
