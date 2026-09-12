@@ -1,9 +1,13 @@
 (()=>{
 'use strict';
 const PREFIX='[Flyt reorder trace]';
+const SHOW_PANEL=new URLSearchParams(location.search).has('reorderTrace');
 const order=value=>{try{return structuredClone(value?.taskOrder||{})}catch(error){return value?.taskOrder||{}}};
 const now=()=>new Date().toISOString();
-const emit=(phase,extra={})=>console.info(PREFIX,{phase,at:now(),currentOrder:order(window.FlytBridge?.getState?.()),...extra});
+let panel=null,panelLines=[];
+function compact(value){try{return JSON.stringify(value)}catch(error){return String(value)}}
+function drawPanel(){if(!SHOW_PANEL)return;if(!panel){panel=document.createElement('pre');panel.id='flytReorderTracePanel';panel.style.cssText='position:fixed;left:8px;right:8px;bottom:8px;z-index:5000;max-height:42dvh;overflow:auto;margin:0;padding:10px;border:2px solid #b95639;border-radius:12px;background:#fffdfbf5;color:#452f29;font:11px/1.35 ui-monospace,SFMono-Regular,Menlo,monospace;white-space:pre-wrap;box-shadow:0 12px 30px #48221444';document.body.appendChild(panel)}panel.textContent=['REORDER TESTTRACE',...panelLines].join('\n')}
+const emit=(phase,extra={})=>{const event={phase,at:now(),currentOrder:order(window.FlytBridge?.getState?.()),...extra};console.info(PREFIX,event);if(SHOW_PANEL){panelLines.push(phase+'  '+compact(event.currentOrder));panelLines=panelLines.slice(-10);drawPanel()}};
 let installed=false,last='',dragging=false;
 function snapshot(){try{return JSON.stringify(order(window.FlytBridge?.getState?.()))}catch(error){return ''}}
 function install(){
