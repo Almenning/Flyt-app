@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const RELEASE='20260911-reorderstable8';
+const RELEASE='20260912-reorderstable10';
 let installed=false;
 function css(){if(document.querySelector('#flytBuyerPolish'))return;const s=document.createElement('style');s.id='flytBuyerPolish';s.textContent=`
 #flytGlobalModal,#seenRequestModal,#flytDialog,#quickTemptationModal,#ossNotifyModal,#betaPanel{z-index:300!important}
@@ -43,7 +43,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 `;document.head.appendChild(s)}
 function normalizeOverlays(root=document){const map=[['#flytGlobalModal','300'],['#seenRequestModal','300'],['#flytDialog','300'],['#quickTemptationModal','300'],['#ossNotifyModal','300'],['#betaPanel','300'],['#syncModal','280'],['#statusAlertModal','320'],['#quickAlertModal','330'],['#flytAccountPanel','410'],['#flytConsentGate','520']];for(const [sel,z] of map){if(root.matches?.(sel))root.style.zIndex=z;root.querySelectorAll?.(sel).forEach(el=>el.style.zIndex=z)}document.querySelectorAll('.toast').forEach(el=>el.style.zIndex='350')}
 function polishCopy(){document.querySelectorAll('#betaGate .ey').forEach(el=>{if(el.textContent.trim()==='Gratis privat beta')el.textContent='Privat beta'});document.querySelectorAll('#betaGate .sub').forEach(el=>{if(el.textContent.includes('antall ganger per uke, poeng, hvem som vanligvis gjør dem, timing'))el.textContent='Oppgaver, daglig/ukentlig/månedlig rytme, poeng, hvem som vanligvis gjør dem og hva som er viktig for dere.'});document.querySelectorAll('#content .sub').forEach(el=>{if(el.textContent.includes('hint, masing eller ren tankelesing'))el.textContent='Her kan dere gjøre behov, ønsker og usynlige bidrag tydelige før de blir til hint, misforståelser eller masing.'});const p=document.querySelector('#betaPassword[autocomplete="new-password"]');if(p){p.minLength=10;p.placeholder='Passord, minst 10 tegn'}}
-function registerSW(){if(!('serviceWorker'in navigator))return;navigator.serviceWorker.register(`./sw.js?v=${RELEASE}`).catch(()=>{})}
+function registerSW(){if(!('serviceWorker'in navigator))return;navigator.serviceWorker.register(`./sw.js?v=${RELEASE}`,{updateViaCache:'none'}).catch(()=>{})}
 function labelNav(){const labels={home:'Hjem',tasks:'Gjøre',seen:'Sett',rewards:'Belønning'};document.querySelectorAll('#nav button[data-view]').forEach(b=>{b.setAttribute('aria-label',labels[b.dataset.view]||b.dataset.view);if(b.classList.contains('on'))b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')})}
 function ensureMoreButton(){const actions=document.querySelector('.top > div');if(!actions||document.querySelector('#flytMoreBtn'))return;const b=document.createElement('button');b.id='flytMoreBtn';b.type='button';b.className='pill';b.textContent='•••';b.setAttribute('aria-label','Mer');b.setAttribute('aria-haspopup','dialog');b.setAttribute('aria-expanded','false');actions.appendChild(b)}
 function closeMenu(){document.querySelector('#flytAppMenu')?.remove();const b=document.querySelector('#flytMoreBtn');if(b)b.setAttribute('aria-expanded','false')}
