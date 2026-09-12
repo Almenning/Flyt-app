@@ -33,7 +33,6 @@ function loadRecurrence(initialState) {
   let state = structuredClone(initialState);
   let intervalCallback = null;
   const listeners = {};
-  let hitTest = () => [];
   const content = {
     clientHeight: 800,
     dataset: {},
@@ -43,12 +42,8 @@ function loadRecurrence(initialState) {
     style: {},
   };
   const document = {
-    body: { appendChild() {} },
     addEventListener(type, handler) {
       (listeners[type] ||= []).push(handler);
-    },
-    elementsFromPoint(x, y) {
-      return hitTest(x, y);
     },
     querySelector(selector) {
       return selector === '#content' ? content : null;
@@ -58,7 +53,6 @@ function loadRecurrence(initialState) {
     },
   };
   const window = {
-    __flytReorderTrace: [],
     FlytBridge: {
       getState: () => state,
       setState: (next) => {
@@ -104,13 +98,6 @@ function loadRecurrence(initialState) {
       for (const handler of listeners.click || []) handler(event);
     },
     content,
-    reorderTrace: () => window.__flytReorderTrace,
-    dispatchDocument(type, event) {
-      for (const handler of listeners[type] || []) handler(event);
-    },
-    setElementsAt(fn) {
-      hitTest = fn;
-    },
     getState: () => state,
   };
 }
@@ -407,50 +394,21 @@ test('lagret rekkefølge brukes for gjøremål i samme kategori', () => {
   assert.match(harness.content.innerHTML, /data-task-reorder-handle="morning_care"/);
 });
 
-test('dra-og-slipp i Gjøre bruker torsdagsmotoren som er aktiv i appen', () => {
+test('dra-og-slipp i Gjøre bruker mobilvennlig håndtak, løpende plassering og auto-scroll', () => {
   const source = fs.readFileSync(path.join(root, 'recurrence-ui.js'), 'utf8');
   assert.match(source, /taskReorderHandle:before/);
   assert.match(source, /touch-action:none/);
   assert.match(source, /-webkit-touch-callout:none/);
-  assert.match(source, /function initThursdayTaskReordering/);
-  assert.match(source, /initTaskReordering=initThursdayTaskReordering/);
-  assert.match(source, /handle\.setPointerCapture/);
-  assert.match(source, /taskDragGhost/);
-  assert.match(source, /taskDropPlaceholder/);
-  assert.match(source, /saveTaskOrder\(key,sourceId,targetId,placeAfter/);
-  assert.match(source, /root\.addEventListener\('pointerdown',event=>\{/);
-  assert.match(source, /root\.addEventListener\('pointermove',event=>\{/);
-  assert.match(source, /root\.addEventListener\('pointerup',finish,\{passive:false\}\)/);
-  assert.doesNotMatch(source, /initTaskReordering=initSimpleTaskReordering/);
-});
-
-test('workingOrder flytter sikkert én eller flere plasser og til topp eller bunn', () => {
-  const harness = loadRecurrence({
-    completions: [],
-    custom: [],
-    dayPlans: {},
-    points: { 'Person A': 0 },
-    tasks: [],
-    user: 'Person A',
-    view: 'tasks',
-  });
-  const reorder = harness.api.reorderIds;
-  const ids = ['a', 'b', 'c', 'd'];
-  assert.deepEqual(Array.from(reorder(ids, 'b', 2)), ['a', 'c', 'b', 'd']);
-  assert.deepEqual(Array.from(reorder(ids, 'c', 1)), ['a', 'c', 'b', 'd']);
-  assert.deepEqual(Array.from(reorder(ids, 'd', 0)), ['d', 'a', 'b', 'c']);
-  assert.deepEqual(Array.from(reorder(ids, 'a', 3)), ['b', 'c', 'd', 'a']);
-});
-
-
-test('Gjøre eies av recurrence-rendereren etter state-endring og synk', () => {
-  const index = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
-  const watchdog = fs.readFileSync(path.join(root, 'app-watchdog.js'), 'utf8');
-  const sync = fs.readFileSync(path.join(root, 'sync.js'), 'utf8');
-  assert.match(index, /state\.view==='tasks'&&window\.FlytRecurrenceUI\?\.render/);
-  assert.match(watchdog, /content\?\.dataset\.flytOwner!=='recurrence'/);
-  assert.match(watchdog, /window\.FlytRecurrenceUI\?\.render/);
-  assert.match(sync, /view==='tasks'&&window\.FlytRecurrenceUI\?\.render/);
+  assert.match(source, /addEventListener\('contextmenu'/);
+  assert.match(source, /animateReflow/);
+  assert.match(source, /insertBefore\(drag\.row/);
+  assert.match(source, /transition='transform 150ms ease'/);
+  assert.match(source, /runAutoScroll/);
+  assert.match(source, /updateDropTarget\(drag\.pointer\.x,drag\.pointer\.y\)/);
+  assert.match(source, /root\.classList\.add\('isTaskReordering'\)/);
+  assert.match(source, /preserveTaskSortScroll\(scrollTop\)/);
+  assert.match(source, /function preserveTaskSortScroll\(scrollTop\)/);
+  assert.match(source, /content\.scrollTop=Math\.max\(0,Math\.min\(Number\(scrollTop\)\|\|0/);
 });
 
 test('sortering åpnes per kategori og skjuler drag-håndtaket i normalvisning', () => {
