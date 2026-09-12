@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const RELEASE='20260912-reorderstable10';
+const RELEASE='20260912-reorderrollback11';
 let installed=false;
 function css(){if(document.querySelector('#flytBuyerPolish'))return;const s=document.createElement('style');s.id='flytBuyerPolish';s.textContent=`
 #flytGlobalModal,#seenRequestModal,#flytDialog,#quickTemptationModal,#ossNotifyModal,#betaPanel{z-index:300!important}
