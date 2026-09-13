@@ -6,7 +6,7 @@ const ORDER=['Barn','Kjøkken','Klesvask','Renhold','Stue & fellesområder','Bad
 const CONDITIONAL_CATEGORIES=new Set(['Barn','Dyr','Hage & ute','Bil']);
 const OSLO_TIME_ZONE='Europe/Oslo';
 const BACKDATE_DAYS=7;
-const VERSION='20260913-taskclaim1';
+const VERSION='20260913-taskclaimscroll1';
 
 const DAY_SHORT=['Man','Tir','Ons','Tor','Fre','Lør','Søn'];
 let mode='day',installed=false,painting=false,pickerOpen=false,suppressPickerClickUntil=0,otherOpen=false,openTaskCategory=null,openLibraryCategory=null,openTaskPopup=null,planMenuTaskId=null,taskFilter='all',reorderCategory=null;
@@ -106,9 +106,9 @@ document.addEventListener('click',e=>{
   const addLibrary=e.target.closest?.('[data-add-library-category]');
   if(addLibrary){e.preventDefault();e.stopImmediatePropagation();window.FlytCustomCategories?.addToCategory?.(decodeURIComponent(addLibrary.dataset.addLibraryCategory));return}
   const claim=e.target.closest?.('[data-task-claim]');
-  if(claim){e.preventDefault();e.stopImmediatePropagation();const s=state(),task=resolveTask(s,claim.dataset.taskClaim),api=loop();if(!s||!task||!api?.claimTask)return;save({...api.claimTask(s,{task,date:selectedDay,user:s.user}),view:'tasks'});render({resetScroll:false});bridge()?.toast?.(`Du tar ${task.name}`);return}
+  if(claim){e.preventDefault();e.stopImmediatePropagation();const s=state(),task=resolveTask(s,claim.dataset.taskClaim),api=loop(),scrollTop=Math.max(0,Number($('#content')?.scrollTop)||0);if(!s||!task||!api?.claimTask)return;openTaskPopup=null;save({...api.claimTask(s,{task,date:selectedDay,user:s.user}),view:'tasks'});preserveTaskSortScroll(scrollTop);bridge()?.toast?.(`Du tar ${task.name}`);return}
   const release=e.target.closest?.('[data-task-release]');
-  if(release){e.preventDefault();e.stopImmediatePropagation();const s=state(),task=resolveTask(s,release.dataset.taskRelease),api=loop();if(!s||!task||!api?.releaseClaim)return;save({...api.releaseClaim(s,{taskId:task.id,date:selectedDay,user:s.user}),view:'tasks'});render({resetScroll:false});bridge()?.toast?.('Overtakelsen er angret');return}
+  if(release){e.preventDefault();e.stopImmediatePropagation();const s=state(),task=resolveTask(s,release.dataset.taskRelease),api=loop(),scrollTop=Math.max(0,Number($('#content')?.scrollTop)||0);if(!s||!task||!api?.releaseClaim)return;openTaskPopup=null;save({...api.releaseClaim(s,{taskId:task.id,date:selectedDay,user:s.user}),view:'tasks'});preserveTaskSortScroll(scrollTop);bridge()?.toast?.('Oppgaven er sluppet');return}
   const thank=e.target.closest?.('[data-task-thank]');
   if(thank){e.preventDefault();e.stopImmediatePropagation();const s=state(),api=loop();if(!s||!api?.thankCompletion)return;const next=api.thankCompletion(s,{completionId:thank.dataset.taskThank,user:s.user});if(next===s)return;save({...next,view:'tasks'});render({resetScroll:false});bridge()?.toast?.('Takk sendt ❤️');return}
 },true);
