@@ -141,12 +141,10 @@ function shell(title,body,back=false){
   requestAnimationFrame(()=>el.querySelector('[data-history-back]')?.focus());
 }
 function openSettings(){
-  if(ensureRoot().classList.contains('hidden')){
-    const active=document.activeElement;
-    previousFocus=active?.closest?.('#flytAppMenu')?$('#flytMoreBtn'):active;
-  }
-  root.FlytBuyerPolish?.closeMenu?.();
-  shell('Innstillinger',`<div class="ey">Flyt</div><h1 class="title">Innstillinger</h1><p class="sub">Tilpass oppsett, forslag og tidligere aktivitet.</p><button type="button" class="secondary flytSettingsAction" data-settings-setup="1"><span style="font-size:20px">⚙</span><span><strong>Rediger oppsett</strong><span class="taskmeta" style="display:block">Gjøremål, rytme, poeng og ansvar</span></span></button><button type="button" class="secondary flytSettingsAction" data-settings-seen-suggestions="1"><span style="font-size:20px">♡</span><span><strong>Personlige forslag i Sett</strong><span class="taskmeta" style="display:block">Opprett, rediger og slett egne nudges</span></span></button><button type="button" class="secondary flytSettingsAction" data-settings-nudges="1"><span style="font-size:20px">✨</span><span><strong>Nudges og forslag</strong><span class="taskmeta" style="display:block">Typer, tone og hvor ofte</span></span></button><button type="button" class="secondary flytSettingsAction" data-settings-history="1"><span style="font-size:20px">↶</span><span><strong>Historikk</strong><span class="taskmeta" style="display:block">Se hva som er gjort i tidligere uker</span></span></button>`);
+  const settings=root.FlytSettingsUI;
+  if(!settings){bridge()?.toast?.('Innstillinger lastes. Prøv igjen om et øyeblikk.');return}
+  closeSettings();
+  if(!settings.resumeFromSubpage?.())settings.open?.();
 }
 function openNudges(){
   const body=root.FlytNudgeUI?.settingsMarkup?.();
