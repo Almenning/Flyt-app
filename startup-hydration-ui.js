@@ -9,10 +9,10 @@ function overlay(){let el=document.querySelector('#flytHydrationGuard');if(el)re
 function removeOverlay(){document.querySelector('#flytHydrationGuard')?.remove()}
 function remoteState(){const c=sync()?.getContext?.();return c?.household&&c?.state&&Object.keys(c.state).length?c.state:null}
 function applyRemoteDirect(){const remote=remoteState(),b=bridge();if(!remote||!b?.getState||!b?.setState)return false;const local=b.getState()||{},name=sync()?.myName?.()||local.user||'Meg',view=local.view||'home';b.setState({...local,...structuredClone(remote),user:name,view});return true}
-async function hydrate(){if(hydrating||hydrated||!appVisible())return false;hydrating=true;if(standalone())overlay();try{for(let i=0;i<40;i++){if(!appVisible())return false;const s=sync(),ctx=s?.getContext?.();if(ctx?.household){try{await s.pull?.(true)}catch(e){}if(applyRemoteDirect()){hydrated=true;return true}}await new Promise(r=>setTimeout(r,125))}return false}finally{hydrating=false;if(hydrated||!appVisible())removeOverlay()}}
+async function hydrate(){if(hydrating||hydrated||!appVisible())return false;hydrating=true;if(standalone())overlay();try{for(let i=0;i<40;i++){if(!appVisible())return false;const s=sync(),ctx=s?.getContext?.();if(ctx?.household){try{await s.pull?.(true)}catch(e){}if(applyRemoteDirect()){hydrated=true;window.dispatchEvent(new Event('flyt:hydrated'));return true}}await new Promise(r=>setTimeout(r,125))}return false}finally{hydrating=false;if(hydrated||!appVisible())removeOverlay()}}
 function protectQueue(){const s=sync();if(!s?.queueSave||s.__hydrationProtected)return;originalQueue=s.queueSave.bind(s);s.queueSave=(...args)=>{if(!hydrated)return;return originalQueue(...args)};s.__hydrationProtected=true}
 function inspect(){protectQueue();if(appVisible()&&!hydrated)hydrate();if(!appVisible()){hydrated=false;removeOverlay()}}
 function install(){if(installed)return;installed=true;protectQueue();inspect();watcher=new MutationObserver(()=>queueMicrotask(inspect));watcher.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['class']});window.addEventListener('pageshow',()=>{hydrated=false;setTimeout(inspect,0)});document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')setTimeout(inspect,0)})}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
-window.FlytStartupHydration={hydrate,version:'20260826-0746'};
+window.FlytStartupHydration={hydrate,isHydrated:()=>hydrated,version:'20260913-1'};
 })();
