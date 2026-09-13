@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION='20260913-dailycheckin1';
+const VERSION='20260913-dailycheckin2';
 const LEVELS=[
   {key:'heavy',label:'Tung',capacity:'low'},
   {key:'low',label:'Lav',capacity:'low'},
@@ -8,7 +8,7 @@ const LEVELS=[
   {key:'good',label:'God',capacity:'high'},
   {key:'full',label:'Mye overskudd',capacity:'high'}
 ];
-let open=false,saving=false;
+let open=false,saving=false,retryTimer=null;
 const $=s=>document.querySelector(s);
 const bridge=()=>window.FlytBridge;
 function dateKey(){return window.FlytDailyStatus?.dateKey?.(new Date())||new Date().toISOString().slice(0,10)}
@@ -19,46 +19,19 @@ function isSkipped(s){try{return localStorage.getItem(skipKey(s))==='1'}catch(_)
 function skip(s){try{localStorage.setItem(skipKey(s),'1')}catch(_){}}
 function myStatus(s){return s?.status?.[name(s)]||null}
 function isRegistered(s){return !!window.FlytDailyStatus?.current?.(myStatus(s),{kind:'daily'})}
-function eligible(s){return !!(window.FlytSettingsUI?.enabled?.('popups.dailyCheckin',true)!==false&&s?.setupDone&&s?.user&&!isRegistered(s)&&!isSkipped(s))}
-function remove(){const el=$('#dailyCheckinPopup');el?.remove();open=false;saving=false}
-function markup(){return `<div id="dailyCheckinPopup" class="dailyCheckinLayer" role="presentation"><section class="dailyCheckinPopup" role="dialog" aria-modal="true" aria-labelledby="dailyCheckinTitle"><div class="dailyCheckinEy">DAGSFORM I DAG</div><h2 id="dailyCheckinTitle">Hvordan har du det i dag?</h2><p>Velg det som passer best akkurat nå.</p><div class="dailyCheckinChoices">${LEVELS.map(level=>`<button type="button" data-daily-checkin-level="${level.key}"><span aria-hidden="true"></span>${level.label}</button>`).join('')}</div><button type="button" class="dailyCheckinSkip" data-daily-checkin-skip="1">Ikke nå</button><p class="dailyCheckinError" role="alert" hidden></p></section></div>`}
-function show(){const s=bridge()?.getState?.();if(open||!eligible(s)||$('#dailyCheckinPopup'))return false;document.body.insertAdjacentHTML('beforeend',markup());open=true;return true}
+function hydrationReady(){const hydrator=window.FlytStartupHydration;if(!hydrator)return !document.querySelector('#flytHydrationGuard');if(typeof hydrator.isHydrated==='function')return hydrator.isHydrated();return false}
+function eligible(s){return !!(hydrationReady()&&window.FlytSettingsUI?.enabled?.('popups.dailyCheckin',true)!==false&&s?.setupDone&&s?.user&&s.view==='home'&&!isRegistered(s)&&!isSkipped(s))}
+function ensureStyles(){if($('#dailyCheckinStyles'))return;const style=document.createElement('style');style.id='dailyCheckinStyles';style.textContent='.dailyCheckinLayer{position:fixed;inset:0;z-index:2600;display:grid;place-items:center;padding:max(20px,env(safe-area-inset-top)) 18px max(20px,env(safe-area-inset-bottom));background:rgb(61 38 31 / .52);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}.dailyCheckinPopup{width:min(100%,370px);max-height:calc(100dvh - 40px);overflow:auto;padding:24px 20px 17px;border:1px solid #f1dbcf;border-radius:25px;background:#fffaf7;color:#452f29;box-shadow:0 22px 65px #32191366;text-align:center;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y}.dailyCheckinEy{margin-bottom:7px;color:#ba6049;font-size:11px;font-weight:900;letter-spacing:.15em}.dailyCheckinPopup h2{margin:0;font:600 29px/1.12 Georgia,serif}.dailyCheckinPopup>p:not(.dailyCheckinError){margin:8px 0 17px;color:#806b61;font-size:14px;line-height:1.4}.dailyCheckinChoices{display:grid;grid-template-columns:1fr;gap:8px}.dailyCheckinChoices button{min-height:45px;border:1px solid #ebd8cf;border-radius:14px;background:#fffdfb;color:#50352d;font-weight:800;font-size:15px}.dailyCheckinChoices button:active{transform:scale(.985);background:#fff0e8;border-color:#d77b52}.dailyCheckinChoices button:disabled,.dailyCheckinSkip:disabled{opacity:.55}.dailyCheckinSkip{margin-top:12px;padding:9px 16px;border:0;background:transparent;color:#a7543f;font-weight:800;font-size:14px}.dailyCheckinError{margin:4px 0 0!important;color:#aa4b35!important;font-size:13px!important}@media(max-height:620px){.dailyCheckinPopup{padding:17px 18px 12px}.dailyCheckinPopup h2{font-size:25px}.dailyCheckinChoices{gap:5px}.dailyCheckinChoices button{min-height:39px}}';document.head.appendChild(style)}
+function remove(){const el=$('#dailyCheckinPopup');el?.remove();open=false;saving=false;window.FlytModalScrollLock?.sync?.()}
+function markup(){return '<div id="dailyCheckinPopup" class="dailyCheckinLayer" role="presentation"><section class="dailyCheckinPopup" role="dialog" aria-modal="true" aria-labelledby="dailyCheckinTitle"><div class="dailyCheckinEy">DAGSFORM I DAG</div><h2 id="dailyCheckinTitle">Hvordan har du det i dag?</h2><p>Velg det som passer best akkurat nå.</p><div class="dailyCheckinChoices">'+LEVELS.map(level=>'<button type="button" data-daily-checkin-level="'+level.key+'">'+level.label+'</button>').join('')+'</div><button type="button" class="dailyCheckinSkip" data-daily-checkin-skip="1">Ikke nå</button><p class="dailyCheckinError" role="alert" hidden></p></section></div>'}
+function show(){const s=bridge()?.getState?.();if(open||!eligible(s)||$('#dailyCheckinPopup'))return false;ensureStyles();document.body.insertAdjacentHTML('beforeend',markup());open=true;window.FlytModalScrollLock?.sync?.();return true}
 function setError(message){const el=$('.dailyCheckinError');if(!el)return;el.textContent=message;el.hidden=false}
-async function saveLevel(key){
- const s=bridge()?.getState?.(),level=LEVELS.find(item=>item.key===key);
- if(!s||!level||saving)return;
- saving=true;
- document.querySelectorAll('[data-daily-checkin-level], [data-daily-checkin-skip]').forEach(button=>button.disabled=true);
- const previous=myStatus(s),now=new Date().toISOString(),who=name(s),nextStatus={...(previous||{}),capacity:level.capacity,capacity_level:level.key,needs:[],daily_updated_at:now,updated_at:now};
- try{
-   const context=window.FlytSync?.getContext?.();
-   if(context?.user_id&&window.FlytSync?.rpc){
-     const {error}=await window.FlytSync.rpc('save_my_daily_status',{p_capacity:level.capacity,p_needs:[],p_notify:false});
-     if(error)throw error;
-   }else{
-     Object.assign(nextStatus,window.FlytDailyStatus?.fallbackLegacyFields?.(previous,level.capacity)||{});
-     nextStatus.capacity=level.capacity;nextStatus.capacity_level=level.key;nextStatus.needs=[];nextStatus.daily_updated_at=now;nextStatus.updated_at=now;
-   }
-   bridge()?.setState?.({...s,status:{...(s.status||{}),[who]:nextStatus}});
-   window.FlytSync?.queueSave?.();
-   window.FlytNudgeUI?.refreshStatus?.(true);
-   remove();
- }catch(error){
-   console.warn('Flyt dagsform kunne ikke lagres',error);
-   saving=false;
-   document.querySelectorAll('[data-daily-checkin-level], [data-daily-checkin-skip]').forEach(button=>button.disabled=false);
-   setError('Kunne ikke lagre dagsformen akkurat nå. Prøv igjen.');
- }
-}
-function check(){const s=bridge()?.getState?.();if(!s?.setupDone)return;show()}
-document.addEventListener('click',event=>{
- const level=event.target.closest?.('[data-daily-checkin-level]');
- if(level){event.preventDefault();event.stopImmediatePropagation();saveLevel(level.dataset.dailyCheckinLevel);return}
- const later=event.target.closest?.('[data-daily-checkin-skip]');
- if(later){event.preventDefault();event.stopImmediatePropagation();const s=bridge()?.getState?.();if(s)skip(s);remove()}
-},true);
-const schedule=()=>[0,120,500,1200,2500].forEach(wait=>setTimeout(check,wait));
+async function saveLevel(key){const s=bridge()?.getState?.(),level=LEVELS.find(item=>item.key===key);if(!s||!level||saving)return;saving=true;document.querySelectorAll('[data-daily-checkin-level],[data-daily-checkin-skip]').forEach(button=>button.disabled=true);const previous=myStatus(s),now=new Date().toISOString(),who=name(s),nextStatus={...(previous||{}),capacity:level.capacity,capacity_level:level.key,needs:[],daily_updated_at:now,updated_at:now};try{const context=window.FlytSync?.getContext?.();if(context?.user_id&&window.FlytSync?.rpc){const {error}=await window.FlytSync.rpc('save_my_daily_status',{p_capacity:level.capacity,p_needs:[],p_notify:false});if(error)throw error}else{Object.assign(nextStatus,window.FlytDailyStatus?.fallbackLegacyFields?.(previous,level.capacity)||{});nextStatus.capacity=level.capacity;nextStatus.capacity_level=level.key;nextStatus.needs=[];nextStatus.daily_updated_at=now;nextStatus.updated_at=now}bridge()?.setState?.({...s,status:{...(s.status||{}),[who]:nextStatus}});window.FlytSync?.queueSave?.();window.FlytNudgeUI?.refreshStatus?.(true);remove()}catch(error){console.warn('Flyt dagsform kunne ikke lagres',error);saving=false;document.querySelectorAll('[data-daily-checkin-level],[data-daily-checkin-skip]').forEach(button=>button.disabled=false);setError('Kunne ikke lagre dagsformen akkurat nå. Prøv igjen.')}}
+function defer(){if(retryTimer||open)return;retryTimer=setTimeout(()=>{retryTimer=null;check()},180)}
+function check(){const s=bridge()?.getState?.();if(!s?.setupDone||!s?.user)return false;if(!hydrationReady()){defer();return false}return show()}
+document.addEventListener('click',event=>{const level=event.target.closest?.('[data-daily-checkin-level]');if(level){event.preventDefault();event.stopImmediatePropagation();saveLevel(level.dataset.dailyCheckinLevel);return}const later=event.target.closest?.('[data-daily-checkin-skip]');if(later){event.preventDefault();event.stopImmediatePropagation();const s=bridge()?.getState?.();if(s)skip(s);remove()}},true);
+const schedule=()=>[0,120,500,1200].forEach(wait=>setTimeout(check,wait));
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',schedule,{once:true});else schedule();
-window.addEventListener('pageshow',schedule);
+window.addEventListener('pageshow',schedule);window.addEventListener('flyt:hydrated',check);
 window.FlytDailyCheckin={version:VERSION,check};
 })();
