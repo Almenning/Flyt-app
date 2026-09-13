@@ -33,11 +33,8 @@ ${section('Mål og belønning',`${pointsToggle(s)}${toggle('rewards.showChalleng
 ${section('Historikk og data',`<button type="button" class="flytSettingsLink" data-settings-history>Se historikk og egne forslag <b>›</b></button><p class="flytSettingsHint">Innstillingene endrer ikke oppgaver, poeng, meldinger eller historikk.</p>`)}
 ${section('Om HverdagsOss',`<p class="flytSettingsHint">HverdagsOss skal gjøre det enklere å se, fordele og verdsette hverdagen sammen.</p><div class="flytSettingsVersion">Versjon ${VERSION}</div>`)}<div class="flytSettingsLogout"><button type="button" data-settings-logout>Logg ut</button></div>
 </div></section></div>`}
-let activeView='root',rootSnapshot=null,setupReturnPending=false,subpageReturnPending=false;
-function snapshotRoot(){const panel=$('#flytSettings');if(!panel)return null;return{scrollTop:panel.querySelector('.flytSettingsScroll')?.scrollTop||0,open:[...panel.querySelectorAll('.flytSettingsSection')].map((section,index)=>section.open?index:null).filter(index=>index!==null)}}
-function restoreRoot(snapshot){const panel=$('#flytSettings');if(!panel||!snapshot)return;panel.querySelectorAll('.flytSettingsSection').forEach((section,index)=>section.open=snapshot.open.includes(index));const scroll=panel.querySelector('.flytSettingsScroll');if(scroll){scroll.scrollTop=snapshot.scrollTop;requestAnimationFrame(()=>scroll.scrollTop=snapshot.scrollTop)}}
-function open(){const existing=$('#flytSettings');if(existing){existing.classList.remove('hidden');existing.setAttribute('aria-hidden','false');return}activeView='root';rootSnapshot=null;setupReturnPending=false;subpageReturnPending=false;$('#flytAppMenu')?.remove();document.body.insertAdjacentHTML('beforeend',markup())}
-function openTasks(){if(activeView==='root')rootSnapshot=snapshotRoot();renderTasks()}
+let setupReturnPending=false,subpageReturnPending=false;
+function open(){const existing=$('#flytSettings');if(existing){existing.classList.remove('hidden');existing.setAttribute('aria-hidden','false');return}setupReturnPending=false;subpageReturnPending=false;$('#flytAppMenu')?.remove();document.body.insertAdjacentHTML('beforeend',markup())}
 function back(){close()}
 function suspendForSetup(){const panel=$('#flytSettings');if(!panel)return;setupReturnPending=true;panel.classList.add('hidden');panel.setAttribute('aria-hidden','true')}
 function resumeFromSetup(){if(!setupReturnPending)return false;const panel=$('#flytSettings');if(!panel)return false;setupReturnPending=false;panel.classList.remove('hidden');panel.setAttribute('aria-hidden','false');return true}
