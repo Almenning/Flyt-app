@@ -19,7 +19,7 @@ function isSkipped(s){try{return localStorage.getItem(skipKey(s))==='1'}catch(_)
 function skip(s){try{localStorage.setItem(skipKey(s),'1')}catch(_){}}
 function myStatus(s){return s?.status?.[name(s)]||null}
 function isRegistered(s){return !!window.FlytDailyStatus?.current?.(myStatus(s),{kind:'daily'})}
-function eligible(s){return !!(s?.setupDone&&s?.user&&!isRegistered(s)&&!isSkipped(s))}
+function eligible(s){return !!(window.FlytSettingsUI?.enabled?.('popups.dailyCheckin',true)!==false&&s?.setupDone&&s?.user&&!isRegistered(s)&&!isSkipped(s))}
 function remove(){const el=$('#dailyCheckinPopup');el?.remove();open=false;saving=false}
 function markup(){return `<div id="dailyCheckinPopup" class="dailyCheckinLayer" role="presentation"><section class="dailyCheckinPopup" role="dialog" aria-modal="true" aria-labelledby="dailyCheckinTitle"><div class="dailyCheckinEy">DAGSFORM I DAG</div><h2 id="dailyCheckinTitle">Hvordan har du det i dag?</h2><p>Velg det som passer best akkurat nå.</p><div class="dailyCheckinChoices">${LEVELS.map(level=>`<button type="button" data-daily-checkin-level="${level.key}"><span aria-hidden="true"></span>${level.label}</button>`).join('')}</div><button type="button" class="dailyCheckinSkip" data-daily-checkin-skip="1">Ikke nå</button><p class="dailyCheckinError" role="alert" hidden></p></section></div>`}
 function show(){const s=bridge()?.getState?.();if(open||!eligible(s)||$('#dailyCheckinPopup'))return false;document.body.insertAdjacentHTML('beforeend',markup());open=true;return true}
