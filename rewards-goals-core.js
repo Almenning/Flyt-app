@@ -102,7 +102,10 @@ function createGoal(state,input={},now=Date.now()){
   const source=input.metric||defaultMetric(kind),metric={type:source.type||defaultMetric(kind).type,target:Math.max(1,Number(source.target)||defaultMetric(kind).target),taskId:source.taskId||null};
   if(metric.type==='today_goal'||metric.type==='week_goal'||metric.type==='task_once')metric.target=metric.type==='task_once'?1:100;
   if(metric.type==='week_percent')metric.target=Math.min(100,metric.target);
-  const reward=rewardInput(input.reward,kind,createdBy,metric),requiresApproval=kind==='shared'||kind==='challenge';
+  let reward=rewardInput(input.reward,kind,createdBy,metric),requiresApproval=kind==='shared'||kind==='challenge';
+  if(kind==='personal'&&reward.status!=='none'&&requiresPartner(reward.title,reward.category)){
+    reward={...reward,type:'partner_request',status:'pending',requestedFrom:partnerName(state,createdBy)};
+  }
   const item={id:id(kind==='challenge'?'challenge':'goal'),kind,title:goalTitle(state,metric,input.title),metric,owner,targetUser,createdBy,createdAt:new Date(now).toISOString(),deadline:input.deadline||endOfWeek(dateKey(new Date(now))),note:String(input.note||'').trim(),status:requiresApproval?'pending':'active',acceptedBy:[],acceptedAt:null,lockedSnapshot:null,reward,manualCompletedAt:null,changeProposal:null};
   return{...state,goals:[item,...goals(state)]};
 }
@@ -125,7 +128,7 @@ function acceptGoal(state,goalId,user=state?.user,now=Date.now()){
   return replaceGoal(state,next);
 }
 function declineGoal(state,goalId,user=state?.user,now=Date.now()){const goal=goals(state).find(item=>String(item.id)===String(goalId));if(!goal||goal.status!=='pending'||goal.createdBy===user)return state;return replaceGoal(state,{...goal,status:'declined',declinedBy:user,declinedAt:new Date(now).toISOString()})}
-function approveReward(state,goalId,user=state?.user,approve=true,now=Date.now()){const goal=goals(state).find(item=>String(item.id)===String(goalId));if(!goal||goal.reward?.status!=='pending'||goal.reward.requestedFrom!==user)return state;return replaceGoal(state,{...goal,reward:{...goal.reward,status:approve?'active':'declined',respondedBy:user,respondedAt:new Date(now).toISOString()}})}
+function approveReward(state,goalId,user=state?.user,approve=true,now=Date.now()){const goal=goals(state).find(item=>String(item.id)===String(goalId));if(!goal||goal.reward?.status!=='pending'||goal.reward.requestedFrom!==user)return state;const respondedAt=new Date(now).toISOString(),status=approve?(goal.status==='reached'?'available':'active'):'declined';return replaceGoal(state,{...goal,reward:{...goal.reward,status,respondedBy:user,respondedAt,...(status==='available'?{availableAt:respondedAt}:{})}})}
 function addPartnerReward(state,goalId,input={},user=state?.user,now=Date.now()){const goal=goals(state).find(item=>String(item.id)===String(goalId));if(!goal||goal.kind!=='personal'||goal.owner===user||!['active','pending'].includes(goal.status)||goal.reward?.status!=='none')return state;const reward=rewardInput({...input,type:'partner_added',offeredBy:user},goal.kind,user,goal.metric);if(reward.status==='none')return state;return replaceGoal(state,{...goal,reward:{...reward,addedAt:new Date(now).toISOString()}})}
 function proposeChange(state,goalId,patch={},user=state?.user,now=Date.now()){const goal=goals(state).find(item=>String(item.id)===String(goalId)),participants=goal?.kind==='challenge'?[goal.createdBy,goal.targetUser]:goal?.kind==='shared'?[goal.createdBy,...people(state).filter(name=>name!==goal.createdBy)]:[];if(!goal||!['challenge','shared'].includes(goal.kind)||!['pending','active'].includes(goal.status)||!participants.includes(user)||goal.changeProposal?.status==='pending')return state;const proposal={id:id('change'),proposedBy:user,createdAt:new Date(now).toISOString(),status:'pending',type:patch.cancel?'cancel':'change',patch:patch.cancel?{}:copy(patch)};return replaceGoal(state,{...goal,changeProposal:proposal})}
 function respondToChange(state,goalId,user=state?.user,accept=true,now=Date.now()){
@@ -182,7 +185,7 @@ function progress(state,goal,now=Date.now()){
 function markManualDone(state,goalId,user=state?.user,now=Date.now()){const goal=goals(state).find(item=>String(item.id)===String(goalId)),allowed=goal?.kind==='shared'||goal?.owner===user||goal?.targetUser===user;if(!goal||goal.metric?.type!=='manual'||goal.status!=='active'||!allowed)return state;return refreshState(replaceGoal(state,{...goal,manualCompletedAt:new Date(now).toISOString()}),now)}
 function refreshState(state,now=Date.now()){
   let changed=false;const next=goals(state).map(goal=>{
-    if(goal.reward?.status!=='none'&&!Number(goal.reward?.cost)){changed=true;goal={...goal,reward:{...goal.reward,cost:['points_week','points_shared','points_new'].includes(goal.metric?.type)?Math.max(1,Number(goal.metric?.target)||1):rewardCost(goal.reward?.title)}}}
+    if(goal.reward?.status!=='none'&&!goal.reward?.direct&&!Number(goal.reward?.cost)){changed=true;goal={...goal,reward:{...goal.reward,cost:['points_week','points_shared','points_new'].includes(goal.metric?.type)?Math.max(1,Number(goal.metric?.target)||1):rewardCost(goal.reward?.title)}}}
     if(goal.reward?.status==='unlocked'){changed=true;goal={...goal,reward:{...goal.reward,status:'available',availableAt:goal.reward.unlockedAt||new Date(now).toISOString()}}}
     if(!['active','pending'].includes(goal.status))return goal;
     const p=goal.status==='active'?progress(state,goal,now):{pct:0};
