@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION='20260913-settings10';
+const VERSION='20260914-settings11';
 const DEFAULTS=Object.freeze({
   popups:{dailyCheckin:true,recognitions:true,challenges:true,tips:true},
   home:{dailyStatus:true,challenges:true,overview:true},
@@ -36,7 +36,7 @@ ${section('Om HverdagsOss',`<p class="flytSettingsHint">HverdagsOss skal gjøre 
 let setupReturnPending=false,subpageReturnPending=false;
 function open(){const existing=$('#flytSettings');if(existing){existing.classList.remove('hidden');existing.setAttribute('aria-hidden','false');return}setupReturnPending=false;subpageReturnPending=false;$('#flytAppMenu')?.remove();document.body.insertAdjacentHTML('beforeend',markup())}
 function back(){close()}
-function suspendForSetup(){const panel=$('#flytSettings');if(!panel)return;setupReturnPending=true;panel.classList.add('hidden');panel.setAttribute('aria-hidden','true')}
+function suspendForSetup(){const panel=$('#flytSettings');if(!panel)return false;setupReturnPending=true;panel.classList.add('hidden');panel.setAttribute('aria-hidden','true');return true}
 function resumeFromSetup(){if(!setupReturnPending)return false;const panel=$('#flytSettings');if(!panel)return false;setupReturnPending=false;panel.classList.remove('hidden');panel.setAttribute('aria-hidden','false');return true}
 function suspendForSubpage(){const panel=$('#flytSettings');if(!panel)return false;subpageReturnPending=true;panel.classList.add('hidden');panel.setAttribute('aria-hidden','true');return true}
 function resumeFromSubpage(){if(!subpageReturnPending)return false;const panel=$('#flytSettings');if(!panel)return false;subpageReturnPending=false;panel.classList.remove('hidden');panel.setAttribute('aria-hidden','false');return true}
