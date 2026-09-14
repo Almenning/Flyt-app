@@ -6,7 +6,7 @@ if(root)root.FlytDailyLoop=api;
 })(typeof window!=='undefined'?window:globalThis,root=>{
 'use strict';
 
-const VERSION='20260903-2330';
+const VERSION='20260914-taskhelp1';
 const OSLO_TIME_ZONE='Europe/Oslo';
 const dayPlan=typeof module==='object'&&module.exports?require('./day-plan.js'):root?.FlytDayPlan;
 
@@ -57,6 +57,42 @@ function weekProgress(state,key=dateKey()){
 function activeClaim(state,taskId,key=dateKey()){
   return [...(state?.taskClaims||[])].reverse().find(item=>item&&String(item.taskId)===String(taskId)&&item.date===key&&!item.revokedAt)||null;
 }
+function activeHelpRequest(state,taskId,key=dateKey()){
+  return [...(state?.taskHelpRequests||[])].reverse().find(item=>item&&String(item.taskId)===String(taskId)&&item.date===key&&item.status==='pending')||null;
+}
+function requestTaskHelp(state,{task,date=dateKey(),user=state?.user,target='',now=Date.now()}={}){
+  if(!state||!task||!user||!target||user===target||completionForTask(state,task.id,date))return state;
+  if(activeHelpRequest(state,task.id,date))return state;
+  const request={id:`help_${now}_${String(task.id)}`,taskId:task.id,taskName:task.name||'',date,requestedBy:user,requestedTo:target,status:'pending',createdAt:new Date(now).toISOString()};
+  return{...state,taskHelpRequests:[...(state.taskHelpRequests||[]),request]};
+}
+function closeTaskHelpRequests(state,{taskId,date=dateKey(),reason='closed',user=state?.user,now=Date.now()}={}){
+  let changed=false;
+  const taskHelpRequests=(state?.taskHelpRequests||[]).map(item=>{
+    if(!item||String(item.taskId)!==String(taskId)||item.date!==date||item.status!=='pending')return item;
+    changed=true;
+    return{...item,status:'closed',closedReason:reason,resolvedAt:new Date(now).toISOString(),resolvedBy:user||''};
+  });
+  return changed?{...state,taskHelpRequests}:state;
+}
+function respondTaskHelp(state,{requestId,user=state?.user,accepted=false,task=null,now=Date.now()}={}){
+  const request=(state?.taskHelpRequests||[]).find(item=>item&&String(item.id)===String(requestId));
+  if(!request||request.status!=='pending'||request.requestedTo!==user)return state;
+  const invalid=!task||String(task.id)!==String(request.taskId)||!!completionForTask(state,request.taskId,request.date);
+  const status=invalid?'closed':accepted?'accepted':'not_now';
+  const taskHelpRequests=(state.taskHelpRequests||[]).map(item=>String(item?.id)===String(request.id)?{...item,status,closedReason:invalid?'unavailable':undefined,respondedAt:new Date(now).toISOString(),respondedBy:user}:item);
+  const next={...state,taskHelpRequests};
+  return status==='accepted'?claimTask(next,{task,date:request.date,user,now}):next;
+}
+function closeExpiredTaskHelpRequests(state,key=dateKey(),now=Date.now()){
+  let changed=false;
+  const taskHelpRequests=(state?.taskHelpRequests||[]).map(item=>{
+    if(!item||item.status!=='pending'||!validDateKey(item.date)||item.date>=key)return item;
+    changed=true;
+    return{...item,status:'closed',closedReason:'expired',resolvedAt:new Date(now).toISOString(),resolvedBy:'system'};
+  });
+  return changed?{...state,taskHelpRequests}:state;
+}
 function effectiveOwner(state,task,key=dateKey()){return activeClaim(state,task?.id,key)?.claimedBy||task?.owner||'Begge'}
 function claimTask(state,{task,date=dateKey(),user=state?.user,now=Date.now()}={}){
   if(!state||!task||!user)return state;
@@ -98,5 +134,5 @@ function contributionSummary(state,key=dateKey()){
   return{weekDone:week.done,bothContributedToday:contributors.size>=2,myWeek:(state?.completions||[]).filter(item=>houseIds.has(String(item?.taskId))&&(item.by===state?.user||item.contributors?.includes(state?.user))&&validDateKey(item.date)&&item.date>=week.range.start&&item.date<=week.range.end).length};
 }
 
-return{VERSION,activeClaim,addDays,canThank,claimTask,completionForTask,contributionSummary,dateKey,dayProgress,effectiveOwner,releaseClaim,recordCompletion,taskWeekCount,tasksForDay,thankCompletion,thanks,weekProgress,weekRangeForKey,weeklyGoal};
+return{VERSION,activeClaim,activeHelpRequest,addDays,canThank,claimTask,closeExpiredTaskHelpRequests,closeTaskHelpRequests,completionForTask,contributionSummary,dateKey,dayProgress,effectiveOwner,releaseClaim,requestTaskHelp,respondTaskHelp,recordCompletion,taskWeekCount,tasksForDay,thankCompletion,thanks,weekProgress,weekRangeForKey,weeklyGoal};
 });
