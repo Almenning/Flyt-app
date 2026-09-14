@@ -27,26 +27,38 @@ function mondayKey(value=new Date()){
   d.setDate(d.getDate()-((d.getDay()+6)%7));
   return dateKey(d);
 }
-function taskNameMap(state){
+function taskInfoMap(state){
   const map=new Map();
-  for(const t of [...(state?.tasks||[]),...(state?.custom||[])]){
-    if(t?.id!=null&&t?.name)map.set(String(t.id),String(t.name));
+  for(const task of [...(state?.tasks||[]),...(state?.custom||[])]){
+    if(task?.id==null)continue;
+    map.set(String(task.id),{name:String(task.name||'').trim(),category:String(task.category||task.cat||'Egendefinert').trim()||'Egendefinert',points:Math.max(0,Number(task.pts)||0)});
   }
   return map;
 }
+function taskNameMap(state){return new Map([...taskInfoMap(state)].map(([id,info])=>[id,info.name]))}
+function awardsFor(completion,info){
+  const awards=completion?.pointAwards;
+  if(awards&&typeof awards==='object'&&!Array.isArray(awards))return Object.fromEntries(Object.entries(awards).filter(([name,value])=>name&&Number.isFinite(Number(value))).map(([name,value])=>[String(name),Number(value)]));
+  const contributors=Array.isArray(completion?.contributors)&&completion.contributors.length?completion.contributors.map(String).filter(Boolean):[];
+  const by=String(completion?.by||'');
+  const names=contributors.length?contributors:(by&&by!=='Sammen'?[by]:[]);
+  if(!names.length||!info?.points)return {};
+  const share=info.points/names.length;
+  return Object.fromEntries(names.map(name=>[name,share]));
+}
 function events(state){
-  const names=taskNameMap(state),out=[];
+  const info=taskInfoMap(state),out=[];
   for(const completion of state?.completions||[]){
     const day=dateKey(completion?.date),id=completion?.taskId;
     if(!day||id==null)continue;
-    const known=String(completion.taskName||names.get(String(id))||'').trim();
-    out.push({key:known?`task:${id}`:'task:unknown',name:known||'Tidligere gjøremål',date:day,by:String(completion.by||'')});
+    const task=info.get(String(id)),known=String(completion.taskName||task?.name||'').trim();
+    out.push({key:known?`task:${id}`:'task:unknown',name:known||'Tidligere gjøremål',category:task?.category||'Tidligere gjøremål',date:day,by:String(completion.by||''),contributors:Array.isArray(completion?.contributors)?completion.contributors.map(String).filter(Boolean):[],awards:awardsFor(completion,task)});
   }
   for(const task of state?.plannedTasks||[]){
     if(!task?.done)continue;
     const day=dateKey(task.doneAt||task.date),name=String(task.title||'Ekstraoppgave').trim()||'Ekstraoppgave';
     if(!day)continue;
-    out.push({key:`planned:${task.id??name}`,name,date:day,by:String(task.doneBy||'')});
+    out.push({key:`planned:${task.id??name}`,name,category:'Ekstraoppgaver',date:day,by:String(task.doneBy||''),contributors:[],awards:{}});
   }
   return out;
 }
@@ -76,15 +88,30 @@ function olderWeeks(state,now=new Date(),mineOnly=false){
   }
   return [...groups.entries()].sort(([a],[b])=>b.localeCompare(a)).map(([start,list])=>({start,end:addDays(start,6),total:list.length,rows:aggregate(list)}));
 }
+function periodStart(period,now=new Date()){const end=dateKey(now)||dateKey(new Date());const days=period==='quarter'?90:period==='month'?30:7;return addDays(end,-(days-1))}
+function isTogether(event){return event?.by==='Sammen'||new Set(event?.contributors||[]).size>1}
+function people(state,list){const names=new Set([String(state?.user||'').trim(),...Object.keys(state?.points||{}),...Object.keys(state?.status||{})]);for(const event of list||[]){if(event.by&&event.by!=='Sammen')names.add(event.by);for(const name of event.contributors||[])names.add(name);for(const name of Object.keys(event.awards||{}))names.add(name)}return [...names].filter(Boolean)}
+function groupedWeeks(list){const groups=new Map();for(const event of list){const start=mondayKey(event.date);if(!start)continue;if(!groups.has(start))groups.set(start,[]);groups.get(start).push(event)}return [...groups.entries()].sort(([a],[b])=>b.localeCompare(a)).map(([start,items])=>({start,end:addDays(start,6),total:items.length,rows:aggregate(items)}))}
+function insights(state,period='week',now=new Date()){
+  const end=dateKey(now)||dateKey(new Date()),start=periodStart(period,now),list=events(state).filter(event=>event.date>=start&&event.date<=end),names=people(state,list),counts=Object.fromEntries(names.map(name=>[name,0])),points=Object.fromEntries(names.map(name=>[name,0]));
+  let together=0;const categories=new Map();
+  for(const event of list){
+    if(isTogether(event))together++;else if(event.by)counts[event.by]=(counts[event.by]||0)+1;
+    for(const [name,value] of Object.entries(event.awards||{}))points[name]=(points[name]||0)+Number(value||0);
+    const key=event.category||'Andre';let row=categories.get(key);if(!row){row={name:key,total:0,by:Object.fromEntries(names.map(name=>[name,0])),together:0};categories.set(key,row)}row.total++;if(isTogether(event))row.together++;else if(event.by)row.by[event.by]=(row.by[event.by]||0)+1;
+  }
+  const trendStart=mondayKey(start),trendEnd=mondayKey(end),trend=[];for(let key=trendStart;key&&key<=trendEnd;key=addDays(key,7)){trend.push({start:key,end:addDays(key,6),total:list.filter(event=>mondayKey(event.date)===key).length})}
+  return {period,start,end,list,total:list.length,names,counts,points,together,categories:[...categories.values()].sort((a,b)=>b.total-a.total||a.name.localeCompare(b.name,'nb')),trend,weeks:groupedWeeks(list)};
+}
 
-const core={dateKey,mondayKey,events,aggregate,currentWeek,olderWeeks};
+const core={dateKey,mondayKey,events,aggregate,currentWeek,olderWeeks,periodStart,insights,groupedWeeks};
 if(typeof module==='object'&&module.exports)module.exports=core;
 if(!root?.document)return;
 
 const document=root.document,$=s=>document.querySelector(s),bridge=()=>root.FlytBridge;
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const VERSION='20260906-actions1';
-let historyScope='mine',previousFocus=null,scheduled=false;
+const VERSION='20260914-insights1';
+let historyPeriod='week',previousFocus=null,scheduled=false;
 
 function actorSummary(row,state){
   const me=String(state?.user||''),parts=Object.entries(row.by||{}).filter(([,n])=>n>0).sort(([a],[b])=>a===b?0:a===me?-1:b===me?1:a.localeCompare(b,'nb'));
@@ -111,6 +138,7 @@ function ensureStyles(){
   #flytSettingsRoot .flytSettingsBody{overflow-y:auto;-webkit-overflow-scrolling:touch;padding:18px 15px max(28px,env(safe-area-inset-bottom))}
   #flytSettingsRoot .flytSettingsAction{width:100%;display:flex;align-items:center;gap:12px;text-align:left;margin-top:9px}
   .seenPersonalGroup{margin-top:20px}.seenPersonalGroup h2{font:600 19px/1.2 Georgia,serif;margin:0 2px 8px}.seenPersonalRow{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:6px;align-items:center;padding:11px 12px;margin:7px 0;border:1px solid #eadbd2;border-radius:15px;background:#fffdf9}.seenPersonalRow p{margin:0;line-height:1.35}.seenPersonalEditor{padding:14px;border:1px solid #eadbd2;border-radius:18px;background:#fffaf7}.seenPersonalEditor textarea{min-height:112px;resize:vertical}
+  .historyInsightCard{margin:12px 0;padding:15px;border:1px solid #eadbd2;border-radius:18px;background:#fffdf9}.historyInsightCard h2{font:600 19px/1.2 Georgia,serif;margin:0 0 10px}.historyMetric{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-top:1px solid #f0e1da}.historyMetric:first-of-type{border-top:0}.historyMetric span{color:var(--muted);font-size:13px}.historyMetric strong{white-space:nowrap}.historyTrend{display:grid;grid-template-columns:repeat(var(--history-weeks),minmax(0,1fr));align-items:end;gap:6px;height:104px;margin-top:14px}.historyTrendItem{min-width:0;display:grid;grid-template-rows:1fr auto;gap:5px;text-align:center;color:var(--muted);font-size:10px}.historyTrendBar{min-height:4px;border-radius:8px 8px 3px 3px;background:linear-gradient(180deg,#eea489,#c76045)}.historyTrendItem strong{color:var(--ink);font-size:11px}.historyCategoryMeta{font-size:12px;color:var(--muted);line-height:1.45}.historyDetailTitle{margin:25px 2px 8px;font:600 21px/1.2 Georgia,serif}
   @media(min-width:700px){#flytSettingsRoot{width:420px;height:min(880px,calc(100dvh - 40px));inset:auto;border:7px solid #211816;border-radius:38px;overflow:hidden}}
   `;
   document.head.appendChild(style);
@@ -161,12 +189,21 @@ function openSeenSuggestions(){
   shell('Forslag i Sett',`<div class="ey">Sett</div><h1 class="title">Personlige nudges</h1><p class="sub">Dine egne forslag kan dukke opp som alternativer. Appens beste kontekstbaserte forslag vises fortsatt først.</p>${groups||'<div class="card"><strong>Ingen personlige forslag ennå</strong><p class="sub" style="margin-bottom:0">Legg til noe som passer akkurat dere.</p></div>'}<button type="button" class="secondary full" data-seen-suggestion-add="1" style="margin-top:14px">+ Opprett egen nudge</button>`,true);
 }
 function openSeenSuggestionEditor(index=-1){const values=seenSuggestions(),item=index>=0?values[index]:null;const options=Object.entries(seenCategoryLabels).map(([key,label])=>`<option value="${key}" ${item?.category===key?'selected':''}>${label}</option>`).join('');shell('Personlig nudge',`<div class="ey">Sett</div><h1 class="title">${item?'Rediger nudge':'Ny personlig nudge'}</h1><div class="seenPersonalEditor"><label class="label" for="seenPersonalCategory">Kategori</label><select id="seenPersonalCategory" class="field">${options}</select><label class="label" for="seenPersonalText" style="display:block;margin-top:12px">Melding</label><textarea id="seenPersonalText" class="field" maxlength="250" placeholder="Skriv en kort melding som passer dere">${esc(item?.text||'')}</textarea><button type="button" class="primary full" data-seen-suggestion-save="${index}" style="margin-top:12px">Lagre nudge</button></div>`,'seenSuggestions')}
+function pct(value,total){return total?Math.round(Number(value||0)/total*100):0}
+function nameLabel(name,state){return String(name)===String(state?.user||'')?'Du':esc(name)}
+function amount(value){const n=Number(value||0);return Number.isInteger(n)?String(n):n.toFixed(1).replace('.',',')}
+function metricRows(summary,state,total,unit){return summary.names.map(name=>`<div class="historyMetric"><span>${nameLabel(name,state)}</span><strong>${amount(summary.counts?.[name])} ${unit} · ${pct(summary.counts?.[name],total)} %</strong></div>`).join('')}
+function pointRows(summary,state,total){return summary.names.map(name=>`<div class="historyMetric"><span>${nameLabel(name,state)}</span><strong>${amount(summary.points?.[name])} poeng · ${pct(summary.points?.[name],total)} %</strong></div>`).join('')}
+function categoryRows(summary,state){return summary.categories.map(row=>{const parts=summary.names.map(name=>`${nameLabel(name,state)} ${row.by?.[name]||0} (${pct(row.by?.[name],row.total)} %)`).concat(row.together?`Sammen ${row.together} (${pct(row.together,row.total)} %)`:[]);return `<div class="historyMetric"><span><strong>${esc(row.name)}</strong><small class="historyCategoryMeta">${parts.join(' · ')}</small></span><strong>${row.total} · 100 %</strong></div>`}).join('')}
+function trendHtml(summary){const max=Math.max(1,...summary.trend.map(item=>item.total));return `<div class="historyTrend" style="--history-weeks:${Math.max(1,summary.trend.length)}">${summary.trend.map(item=>`<div class="historyTrendItem"><div class="historyTrendBar" style="height:${Math.max(4,Math.round(item.total/max*72))}px" title="${esc(weekLabel(item))}: ${item.total}"></div><strong>${item.total}</strong><span>${esc(weekLabel(item).split('–')[0])}</span></div>`).join('')}</div>`}
 function openHistory(){
   const state=bridge()?.getState?.();
   if(!state)return;
-  const weeks=olderWeeks(state,new Date(),historyScope==='mine');
-  const body=`<div class="ey">Gjøremål</div><h1 class="title">Historikk</h1><p class="sub">Gjennomførte gjøremål, uke for uke. Innhold fra Sett, Oss og Fristelser vises ikke her.</p><div class="segments" style="grid-template-columns:repeat(2,1fr);margin:14px 0 18px"><button type="button" data-history-scope="mine" class="${historyScope==='mine'?'on':''}">Mine</button><button type="button" data-history-scope="together" class="${historyScope==='together'?'on':''}">Sammen</button></div>${weeks.length?weeks.map(week=>`<section class="section"><div class="row"><strong class="grow">${esc(weekLabel(week))}</strong><span class="tag">${week.total} gjort</span></div>${week.rows.map(row=>rowHtml(row,state)).join('')}</section>`).join(''):'<div class="card"><strong>Ingen eldre historikk ennå</strong><p class="sub" style="margin-bottom:0">Gjennomføringer dukker opp her når en uke er avsluttet.</p></div>'}`;
-  shell('Historikk',body,true);
+  const summary=insights(state,historyPeriod,new Date()),pointTotal=Object.values(summary.points).reduce((sum,value)=>sum+Number(value||0),0);
+  const periodLabels={week:'Uke',month:'Måned',quarter:'3 måneder'};
+  const detail=summary.weeks.length?summary.weeks.map(week=>`<section class="section"><div class="row"><strong class="grow">${esc(weekLabel(week))}</strong><span class="tag">${week.total} gjort</span></div>${week.rows.map(row=>rowHtml(row,state)).join('')}</section>`).join(''):'<div class="card"><strong>Ingen gjennomføringer i perioden ennå</strong><p class="sub" style="margin-bottom:0">Gjøremål dukker opp her når de blir registrert.</p></div>';
+  const body=`<div class="ey">Gjøremål</div><h1 class="title">Historikk og innsikt</h1><p class="sub">En nøytral oversikt over det dere har fått gjort. Innhold fra Sett, Oss og belønninger vises ikke her.</p><div class="segments" style="grid-template-columns:repeat(3,1fr);margin:14px 0 18px"><button type="button" data-history-period="week" class="${historyPeriod==='week'?'on':''}">Uke</button><button type="button" data-history-period="month" class="${historyPeriod==='month'?'on':''}">Måned</button><button type="button" data-history-period="quarter" class="${historyPeriod==='quarter'?'on':''}">3 mnd.</button></div><section class="historyInsightCard"><h2>${periodLabels[historyPeriod]}</h2><div class="historyMetric"><span>Gjennomførte gjøremål</span><strong>${summary.total}</strong></div><div class="historyMetric"><span>Gjort sammen</span><strong>${summary.together} · ${pct(summary.together,summary.total)} %</strong></div></section><section class="historyInsightCard"><h2>Fordeling av gjennomføringer</h2>${metricRows(summary,state,summary.total,'oppgaver')||'<p class="sub">Ingen registreringer ennå.</p>'}</section><section class="historyInsightCard"><h2>Poengfordeling</h2>${pointRows(summary,state,pointTotal)||'<p class="sub">Ingen poeng registrert ennå.</p>'}</section><section class="historyInsightCard"><h2>Per kategori</h2>${categoryRows(summary,state)||'<p class="sub">Ingen kategorier i perioden ennå.</p>'}</section><section class="historyInsightCard"><h2>Uke for uke</h2><p class="sub" style="margin:0">Antall gjennomførte gjøremål per uke.</p>${trendHtml(summary)}</section><h2 class="historyDetailTitle">Detaljert historikk</h2>${detail}`;
+  shell('Historikk og innsikt',body,true);
 }
 function openSetup(){
   closeSettings();
@@ -213,7 +250,7 @@ async function handleClick(e){
   if(e.target.closest?.('[data-history-close]')){e.preventDefault();closeSettings();return}
   const back=e.target.closest?.('[data-history-back]');
   if(back){e.preventDefault();back.dataset.historyBack==='seenSuggestions'?openSeenSuggestions():back.dataset.historyBack==='settings'?openSettings():closeSettings();return}
-  if(e.target.closest?.('[data-settings-history]')){e.preventDefault();historyScope='mine';openHistory();return}
+  if(e.target.closest?.('[data-settings-history]')){e.preventDefault();historyPeriod='week';openHistory();return}
   if(e.target.closest?.('[data-settings-seen-suggestions]')){e.preventDefault();openSeenSuggestions();return}
   if(e.target.closest?.('[data-settings-nudges]')){e.preventDefault();openNudges();return}
   if(e.target.closest?.('[data-settings-setup]')){e.preventDefault();openSetup();return}
@@ -226,8 +263,8 @@ async function handleClick(e){
   if(saveSuggestion){e.preventDefault();const text=$('#seenPersonalText')?.value.trim(),category=$('#seenPersonalCategory')?.value,index=Number(saveSuggestion.dataset.seenSuggestionSave),values=seenSuggestions();if(!text){$('#seenPersonalText')?.focus();return}const item={id:index>=0&&values[index]?.id?values[index].id:`personal_${Date.now()}`,category,text};if(index>=0&&values[index])values[index]=item;else values.push(item);saveSeenSuggestions(values);openSeenSuggestions();bridge()?.toast?.('Nudgen er lagret');return}
   const deleteSuggestion=e.target.closest?.('[data-seen-suggestion-delete]');
   if(deleteSuggestion){e.preventDefault();const values=seenSuggestions(),index=Number(deleteSuggestion.dataset.seenSuggestionDelete),item=values[index];if(!item)return;const yes=root.FlytModal?.confirm?await root.FlytModal.confirm({ey:'Sett',title:'Slette nudgen?',text:'Forslaget fjernes bare fra din personlige liste.',ok:'Slett'}):true;if(!yes)return;values.splice(index,1);saveSeenSuggestions(values);openSeenSuggestions();return}
-  const scope=e.target.closest?.('[data-history-scope]');
-  if(scope){e.preventDefault();historyScope=scope.dataset.historyScope==='together'?'together':'mine';openHistory()}
+  const period=e.target.closest?.('[data-history-period]');
+  if(period){e.preventDefault();historyPeriod=['week','month','quarter'].includes(period.dataset.historyPeriod)?period.dataset.historyPeriod:'week';openHistory()}
 }
 function install(){
   ensureStyles();
