@@ -119,7 +119,7 @@ function dailyGoalMarkup(plan){
   const remaining=plan.remaining||0,remainingLabel=remaining===1?'1 igjen':`${remaining} igjen`;
   return `<section class="homeSurface homeGoalCard" data-home-daily-goal><div class="homeGoalHead"><div class="homeSectionTitle"><span class="homeSectionIcon" aria-hidden="true">◎</span><h2>Dagens mål</h2></div></div><div class="homeGoalGrid">${progressRing(plan)}<div class="homeGoalSummary"><strong>${esc(!plan.total?'Rolig dag':!remaining?'Ferdig i dag':remainingLabel)}</strong><span>${esc(goalEncouragement(plan))}</span><button type="button" class="homeTextAction" data-home-day-plan-open="1" data-home-destination="tasks">Se dagens gjøremål <span aria-hidden="true">→</span></button></div></div></section>`;
 }
-function activeChallenge(s){const goals=window.FlytGoalsCore?.goals?.(s)||[];return goals.find(goal=>goal?.kind==='challenge'&&['pending','active','reached'].includes(goal.status)&&((goal.createdBy===s.user)||(goal.targetUser===s.user)))||null}
+function activeChallenge(s){const core=window.FlytGoalsCore,goals=core?.goals?.(s)||[];return goals.find(goal=>goal?.kind==='challenge'&&['pending','active','reached'].includes(goal.status)&&!(['pending','active'].includes(goal.status)&&core?.deadlinePassed?.(goal.deadline))&&((goal.createdBy===s.user)||(goal.targetUser===s.user)))||null}
 function challengeRewardMarkup(challenge,s){const reward=challenge?.reward;if(!reward||['none','declined','used'].includes(reward.status))return'';const title=reward.secret&&reward.offeredBy!==s.user&&!['available','redeemed'].includes(reward.status)?'Hemmelig belønning 🔒':reward.title;return title?`<span class="homeChallengeReward">♡ ${esc(title)}</span>`:''}
 function homeChallengeMarkup(s){
   const challenge=activeChallenge(s);
