@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION='20260914-targetbinding1';
+const VERSION='20260914-othergoals1';
 let painting=false,activeTab='personal',rewardCategory='Tid og frihet';
 const $=s=>document.querySelector(s),core=()=>window.FlytGoalsCore,bridge=()=>window.FlytBridge;
 const state=()=>bridge()?.getState?.()||null;
