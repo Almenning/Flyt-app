@@ -110,7 +110,7 @@ if(!root?.document)return;
 
 const document=root.document,$=s=>document.querySelector(s),bridge=()=>root.FlytBridge;
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const VERSION='20260914-insights1';
+const VERSION='20260914-insights2';
 let historyPeriod='week',historyWeekStart=null,previousFocus=null,scheduled=false;
 
 function actorSummary(row,state){
