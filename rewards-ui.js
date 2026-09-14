@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION='20260906-simple8';
+const VERSION='20260914-rewardshome1';
 let painting=false,activeTab='personal',rewardCategory='Tid og frihet';
 const $=s=>document.querySelector(s),core=()=>window.FlytGoalsCore,bridge=()=>window.FlytBridge;
 const state=()=>bridge()?.getState?.()||null;
@@ -28,7 +28,7 @@ function mainView(s){
   const current=list(s).filter(g=>isCurrent(g)),offers=(s.rewardOffers||[]).filter(o=>o.status==='active'&&o.offeredTo===s.user),requests=(s.rewardOffers||[]).filter(o=>o.status==='pending'&&(o.approvalFrom||o.offeredTo)===s.user);
   const available=offers.length?`<div class="rewardChoices">${offers.map(o=>`<button type="button" data-catalog-redeem="${esc(o.title)}" data-catalog-cost="${o.cost}" data-offer-id="${esc(o.id)}"><span class="rewardChoiceIcon" aria-hidden="true">♡</span><span><strong>${esc(o.secret?'Hemmelig belønning 🔒':o.title)}</strong><small>Fra ${esc(o.offeredBy)} ❤️</small></span><b>${o.cost} poeng</b></button>`).join('')}</div>`:'<p class="goalEmpty">Ingen belønninger klare akkurat nå.</p>';
   const wishes=requests.length?`<section class="goalSection"><h2>Ønsker fra ${esc(partner(s))}</h2><div class="goalList">${requests.map(o=>`<div class="goalItem"><span class="goalItemCopy"><strong>${esc(o.title)}</strong><span class="goalMeta">${o.cost} poeng · ønsker seg denne</span></span><span class="goalChevron">›</span><div class="goalActions"><button class="goalPrimary" data-offer-approve="${esc(o.id)}">Godta</button><button class="goalTextAction" data-offer-decline="${esc(o.id)}">Avslå</button></div></div>`).join('')}</div></section>`:'';
-  return `<div class="rewardActions"><button class="goalPrimary rewardChallenge" data-goal-create="challenge">Send en utfordring ❤️</button><button class="goalSecondary rewardGoal" data-goal-choice>+ Sett et mål</button></div>${section('På gang',current,s,'Ingen mål eller utfordringer på gang akkurat nå.')}<section class="rewardShelf"><div class="rewardShelfHead"><div><span class="ey">Avtalt</span><h2>Tilgjengelig for deg</h2></div></div>${available}</section>${wishes}${rewardLibrary(s)}${readyPurchases(s,false)}`;
+  return `<div class="rewardActions"><button class="goalPrimary rewardChallenge" data-goal-create="challenge">Send en utfordring ❤️</button><button class="goalSecondary rewardGoal" data-goal-choice>+ Sett et mål</button></div>${section('På gang',current,s,'Ingen mål eller utfordringer på gang akkurat nå.')}<section class="rewardShelf"><div class="rewardShelfHead"><div><span class="ey">Avtalt</span><h2>Tilgjengelig for deg</h2></div></div>${available}</section>${wishes}${readyPurchases(s,false)}`;
 }
 function pointSummary(s){const p=core().pointSummary(s,s.user);return `<details class="pointWallet" aria-label="Poengoversikt"><summary><span class="pointStar" aria-hidden="true">☆</span><span><strong>${p.available} poeng tilgjengelig</strong><small>${p.earnedWeek} poeng opptjent denne uka</small></span><i aria-hidden="true">›</i></summary><div class="pointWalletFacts"><span>Totalt opptjent <b>${p.totalEarned}</b></span><span>Brukte poeng <b>${p.used}</b></span><p>Poeng trekkes først når du velger å bruke dem.</p></div></details>`}
 function rewardLibrary(s){
