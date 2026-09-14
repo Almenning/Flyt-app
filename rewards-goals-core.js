@@ -6,7 +6,7 @@ if(root)root.FlytGoalsCore=api;
 })(typeof window!=='undefined'?window:globalThis,root=>{
 'use strict';
 
-const VERSION='20260912-rewards1';
+const VERSION='20260914-expiry1';
 const OSLO_TIME_ZONE='Europe/Oslo';
 const REWARD_LIBRARY=Object.freeze({
   'Tid og frihet':Object.freeze(['Sovemorgen','Egentid','Kveld ute med venner','Hobby-/gamingtid','Fri fra hjemmeoppgaver']),
@@ -50,6 +50,20 @@ function dateKey(value=new Date()){
 function addDays(key,amount){const [y,m,d]=String(key).split('-').map(Number);return new Date(Date.UTC(y,m-1,d+amount,12)).toISOString().slice(0,10)}
 function weekRange(key=dateKey()){const date=new Date(`${key}T12:00:00Z`),weekday=date.getUTCDay(),start=addDays(key,-((weekday+6)%7));return{start,end:addDays(start,6)}}
 function endOfWeek(key=dateKey()){return `${weekRange(key).end}T23:59:59.999Z`}
+/* Dato-frister varer ut kalenderdagen i Oslo. Frister med klokkeslett er eksakte. */
+function deadlineHasTime(value){return /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(String(value||''))}
+function deadlinePassed(value,now=Date.now()){
+  const raw=String(value||'').trim();if(!raw)return false;
+  if(!deadlineHasTime(raw))return dateKey(new Date(now))>raw.slice(0,10);
+  const limit=stamp(raw);return !!limit&&Number(now)>limit;
+}
+function completedBeforeDeadline(item,deadline){
+  const raw=String(deadline||'').trim();if(!raw)return true;
+  const itemDay=String(item?.date||'').slice(0,10),deadlineDay=raw.slice(0,10);
+  if(!deadlineHasTime(raw))return !itemDay||itemDay<=deadlineDay;
+  const completed=completionTime(item),limit=stamp(raw);
+  return completed?completed<=limit:(!itemDay||itemDay<=deadlineDay);
+}
 function goals(state){return Array.isArray(state?.goals)?state.goals:[]}
 function people(state){const names=Object.keys(state?.status||{});if(state?.user&&!names.includes(state.user))names.unshift(state.user);if(names.length<2)names.push(state?.user==='Du'?'Partner':'Du');return [...new Set(names)]}
 function partnerName(state,user=state?.user){return people(state).find(name=>name!==user)||(user==='Du'?'Partner':'Du')}
@@ -124,16 +138,18 @@ function respondToChange(state,goalId,user=state?.user,accept=true,now=Date.now(
 }
 function completionPoints(state,item){const task=taskById(state,item?.taskId);return Math.max(0,Number(item?.taskSnapshot?.pts??item?.housePts??item?.points??task?.pts??0)||0)}
 function completionTime(item){const direct=stamp(item?.registeredAt||item?.completedAt||item?.createdAt);if(direct)return direct;const raw=String(item?.id||'').match(/\d{12,}/)?.[0];if(raw)return Number(raw);return 0}
-function pointsEarned(state,{user=null,start=null,end=null,after=null}={}){
-  const startKey=start?String(start).slice(0,10):'',endKey=end?String(end).slice(0,10):'',afterMs=stamp(after);
+function pointsEarned(state,{user=null,start=null,end=null,after=null,before=null}={}){
+  const startKey=start?String(start).slice(0,10):'',endKey=end?String(end).slice(0,10):'',afterMs=stamp(after),beforeMs=stamp(before),beforeDay=beforeMs?dateKey(new Date(beforeMs)):'';
   const taskPoints=(state?.completions||[]).reduce((sum,item)=>{
     if(!item||user&&item.by!==user||startKey&&item.date<startKey||endKey&&item.date>endKey)return sum;
-    if(afterMs){const itemMs=completionTime(item);if(itemMs?itemMs<=afterMs:item.date<=dateKey(new Date(afterMs)))return sum}
+    const itemMs=completionTime(item);if(afterMs&&(itemMs?itemMs<=afterMs:item.date<=dateKey(new Date(afterMs))))return sum;
+    if(beforeMs&&(itemMs?itemMs>beforeMs:item.date>beforeDay))return sum;
     return sum+completionPoints(state,item);
   },0);
   const extraPoints=(state?.plannedTasks||[]).reduce((sum,item)=>{
     if(!item?.done||user&&item.doneBy!==user||startKey&&item.date<startKey||endKey&&item.date>endKey)return sum;
-    if(afterMs){const itemMs=stamp(item.doneAt);if(itemMs?itemMs<=afterMs:item.date<=dateKey(new Date(afterMs)))return sum}
+    const itemMs=stamp(item.doneAt);if(afterMs&&(itemMs?itemMs<=afterMs:item.date<=dateKey(new Date(afterMs))))return sum;
+    if(beforeMs&&(itemMs?itemMs>beforeMs:item.date>beforeDay))return sum;
     return sum+Math.max(0,Number(item.points)||0);
   },0);
   return taskPoints+extraPoints;
@@ -143,7 +159,7 @@ function pointSummary(state,user=state?.user,now=Date.now()){
   const used=purchases.reduce((sum,p)=>sum+Number(p?.paidBy?.[user]||0),0)+legacy.filter(r=>r?.claimedBy===user).reduce((sum,r)=>sum+Math.max(0,Number(r.cost)||0),0);
   return{available:Math.max(0,Number(state?.points?.[user])||0),earnedWeek:pointsEarned(state,{user,start:range.start,end:range.end}),totalEarned:pointsEarned(state,{user}),used};
 }
-function filteredCompletions(state,goal,range){const actor=goal.kind==='shared'?null:(goal.kind==='challenge'?goal.targetUser:goal.owner);return (state?.completions||[]).filter(item=>item&&item.date>=range.start&&item.date<=range.end&&(!actor||item.by===actor))}
+function filteredCompletions(state,goal,range){const actor=goal.kind==='shared'?null:(goal.kind==='challenge'?goal.targetUser:goal.owner);return (state?.completions||[]).filter(item=>item&&item.date>=range.start&&item.date<=range.end&&(!actor||item.by===actor)&&completedBeforeDeadline(item,goal.deadline))}
 function weekProgress(state,key){if(root?.FlytDailyLoop?.weekProgress)return root.FlytDailyLoop.weekProgress(state,key);const range=weekRange(key),tasks=(state?.tasks||[]).filter(task=>task.kind==='house'&&task.type!=='period'),total=tasks.reduce((sum,task)=>sum+Math.max(1,Number(task.freq)||1),0),done=Math.min(total,(state?.completions||[]).filter(item=>item.date>=range.start&&item.date<=range.end&&item.kind==='house').length);return{done,total,pct:total?Math.round(done/total*100):0,range}}
 function dayProgress(state,key){if(root?.FlytDailyLoop?.dayProgress)return root.FlytDailyLoop.dayProgress(state,key);const all=(state?.tasks||[]).filter(task=>task.kind==='house'&&task.type==='daily'),doneIds=new Set((state?.completions||[]).filter(item=>item.date===key).map(item=>String(item.taskId))),done=all.filter(task=>doneIds.has(String(task.id))).length;return{done,total:all.length,pct:all.length?Math.round(done/all.length*100):0}}
 function streakProgress(state,goal,key){const target=Math.max(1,Number(goal.metric?.target)||1);let count=0,cursor=weekRange(key).start;for(let i=0;i<target;i++){const p=weekProgress(state,cursor);if(p.total&&p.pct>=100)count++;else break;cursor=addDays(cursor,-7)}return{value:count,target,pct:Math.min(100,Math.round(count/target*100)),label:`${count} av ${target} uker`}}
@@ -152,12 +168,12 @@ function progress(state,goal,now=Date.now()){
   const key=dateKey(new Date(now)),metric=goal?.metric||{},target=Math.max(1,Number(metric.target)||1),range=weekRange(key);
   if(metric.type==='points_week'){const value=pointsEarned(state,{user:goal.owner,start:range.start,end:range.end});return{value,target,pct:Math.min(100,Math.round(value/target*100)),label:`${value} av ${target} poeng`,remaining:Math.max(0,target-value)}}
   if(metric.type==='points_shared'){const contributions=sharedContributions(state,range),value=Object.values(contributions).reduce((a,b)=>a+b,0);return{value,target,pct:Math.min(100,Math.round(value/target*100)),label:`${value} av ${target} poeng sammen`,remaining:Math.max(0,target-value),contributions}}
-  if(metric.type==='points_new'){const value=goal.acceptedAt?pointsEarned(state,{user:goal.targetUser,after:goal.acceptedAt,end:String(goal.deadline||'').slice(0,10)}):0;return{value,target,pct:Math.min(100,Math.round(value/target*100)),label:`${value} av ${target} nye poeng`,remaining:Math.max(0,target-value)}}
+  if(metric.type==='points_new'){const value=goal.acceptedAt?pointsEarned(state,{user:goal.targetUser,after:goal.acceptedAt,end:String(goal.deadline||'').slice(0,10),before:deadlineHasTime(goal.deadline)?goal.deadline:null}):0;return{value,target,pct:Math.min(100,Math.round(value/target*100)),label:`${value} av ${target} nye poeng`,remaining:Math.max(0,target-value)}}
   if(metric.type==='today_goal'){const p=dayProgress(state,key);return{value:p.pct,target:100,pct:p.pct,label:`${p.done} av ${p.total} gjøremål i dag`}}
   if(metric.type==='week_goal'){const p=weekProgress(state,key);return{value:p.pct,target:100,pct:p.pct,label:`${p.done} av ${p.total} denne uka`}}
   if(metric.type==='week_percent'){const p=weekProgress(state,key);return{value:p.pct,target,pct:Math.min(100,Math.round(p.pct/target*100)),label:`${p.pct} av ${target} %`}}
   if(metric.type==='streak')return streakProgress(state,goal,key);
-  if(metric.type==='manual'){const value=goal.manualCompletedAt?1:0;return{value,target:1,pct:value?100:0,label:value?'Markert som fullført':'Markeres manuelt'}}
+  if(metric.type==='manual'){const value=goal.manualCompletedAt&&completedBeforeDeadline({registeredAt:goal.manualCompletedAt,date:String(goal.manualCompletedAt).slice(0,10)},goal.deadline)?1:0;return{value,target:1,pct:value?100:0,label:value?'Markert som fullført':'Markeres manuelt'}}
   const items=filteredCompletions(state,goal,range);
   if(metric.type==='task_count'){const value=items.length;return{value,target,pct:Math.min(100,Math.round(value/target*100)),label:`${value} av ${target} gjøremål`}}
   if(metric.type==='task_specific'||metric.type==='task_once'){const value=items.filter(item=>String(item.taskId)===String(metric.taskId)).length,needed=metric.type==='task_once'?1:target;return{value,target:needed,pct:Math.min(100,Math.round(value/needed*100)),label:`${value} av ${needed} fullført`}}
@@ -168,10 +184,10 @@ function refreshState(state,now=Date.now()){
   let changed=false;const next=goals(state).map(goal=>{
     if(goal.reward?.status!=='none'&&!Number(goal.reward?.cost)){changed=true;goal={...goal,reward:{...goal.reward,cost:['points_week','points_shared','points_new'].includes(goal.metric?.type)?Math.max(1,Number(goal.metric?.target)||1):rewardCost(goal.reward?.title)}}}
     if(goal.reward?.status==='unlocked'){changed=true;goal={...goal,reward:{...goal.reward,status:'available',availableAt:goal.reward.unlockedAt||new Date(now).toISOString()}}}
-    if(goal.status!=='active')return goal;
-    const p=progress(state,goal,now);
-    if(p.pct>=100){changed=true;const reward=goal.reward?.status==='active'?{...goal.reward,status:'available',availableAt:new Date(now).toISOString()}:goal.reward;return{...goal,status:'reached',reachedAt:new Date(now).toISOString(),reward}}
-    const deadlineKey=String(goal.deadline||'').slice(0,10);if(deadlineKey&&deadlineKey<dateKey(new Date(now))){changed=true;return{...goal,status:'not_completed',endedAt:new Date(now).toISOString()}}return goal;
+    if(!['active','pending'].includes(goal.status))return goal;
+    const p=goal.status==='active'?progress(state,goal,now):{pct:0};
+    if(goal.status==='active'&&p.pct>=100){changed=true;const reward=goal.reward?.status==='active'?{...goal.reward,status:'available',availableAt:new Date(now).toISOString()}:goal.reward;return{...goal,status:'reached',reachedAt:new Date(now).toISOString(),reward}}
+    if(deadlinePassed(goal.deadline,now)){changed=true;const reward=['active','pending','unlocked'].includes(goal.reward?.status)?{...goal.reward,status:'expired',expiredAt:new Date(now).toISOString()}:goal.reward;return{...goal,status:'not_completed',endedAt:new Date(now).toISOString(),reward}}return goal;
   });return changed?{...state,goals:next}:state;
 }
 function spend(state,cost,users,preferred){
@@ -212,5 +228,5 @@ function markPurchaseUsed(state,purchaseId,user=state?.user,now=Date.now()){
 function markRewardUsed(state,goalId,user=state?.user,now=Date.now()){const goal=goals(state).find(item=>String(item.id)===String(goalId));if(goal?.reward?.purchaseId)return markPurchaseUsed(state,goal.reward.purchaseId,user,now);if(goal?.reward?.direct&&goal.reward.status==='redeemed')return replaceGoal(state,{...goal,reward:{...goal.reward,status:'used',usedAt:new Date(now).toISOString(),usedBy:user}});return state}
 function statusLabel(goal){if(goal?.reward?.status==='redeemed')return'Klar til bruk';if(goal?.reward?.status==='used')return'Brukt / gjennomført';return({pending:'Venter på svar',active:'Aktiv',reached:'Mål nådd',not_completed:'Ikke fullført',declined:'Avslått',cancelled:'Avsluttet'})[goal?.status]||'Aktiv'}
 
-return{VERSION,METRICS,REWARD_LIBRARY,REWARD_PRICES,acceptGoal,addPartnerReward,addRewardOffer,approveReward,completionPoints,createGoal,dateKey,declineGoal,editPendingGoal,endOfWeek,goalTitle,goals,markManualDone,markPurchaseUsed,markRewardUsed,metricLabel,partnerName,pointSummary,pointsEarned,progress,proposeChange,redeemCatalogReward,redeemGoalReward,refreshState,requestRewardOffer,requiresPartner,respondToChange,respondToRewardOffer,rewardCost,statusLabel,weekRange};
+return{VERSION,METRICS,REWARD_LIBRARY,REWARD_PRICES,acceptGoal,addPartnerReward,addRewardOffer,approveReward,completionPoints,createGoal,dateKey,deadlinePassed,declineGoal,editPendingGoal,endOfWeek,goalTitle,goals,markManualDone,markPurchaseUsed,markRewardUsed,metricLabel,partnerName,pointSummary,pointsEarned,progress,proposeChange,redeemCatalogReward,redeemGoalReward,refreshState,requestRewardOffer,requiresPartner,respondToChange,respondToRewardOffer,rewardCost,statusLabel,weekRange};
 });
