@@ -27,6 +27,33 @@ function mondayKey(value=new Date()){
   d.setDate(d.getDate()-((d.getDay()+6)%7));
   return dateKey(d);
 }
+const LEGACY_ACTOR_ALIASES=new Set(['meg','du','partner','partneren','bruker','user']);
+function uniqueNames(values){return [...new Set(values.map(value=>String(value||'').trim()).filter(Boolean))]}
+function householdPeople(state){
+  const synced=root?.FlytSync?.getContext?.(),members=uniqueNames((synced?.members||[]).map(member=>member?.display_name));
+  if(members.length)return members;
+  const fallback=[state?.user,...Object.keys(state?.status||{}),...Object.keys(state?.points||{}),...(state?.completions||[]).map(item=>item?.by),...(state?.plannedTasks||[]).map(item=>item?.doneBy)].map(value=>String(value||'').trim()).filter(value=>value&&!LEGACY_ACTOR_ALIASES.has(value.toLocaleLowerCase('nb-NO')));
+  return uniqueNames(fallback);
+}
+function canonicalActor(value,state,names=householdPeople(state)){
+  const raw=String(value||'').trim(),lower=raw.toLocaleLowerCase('nb-NO');
+  if(!raw)return '';
+  const exact=names.find(name=>name===raw||name.toLocaleLowerCase('nb-NO')===lower);
+  if(exact)return exact;
+  const me=names.find(name=>name===String(state?.user||'').trim())||names[0]||'';
+  const partner=names.find(name=>name!==me)||'';
+  if(lower==='meg'||lower==='du'||lower==='bruker'||lower==='user')return me;
+  if(lower==='partner'||lower==='partneren')return partner;
+  return '';
+}
+function canonicalAwards(value,state,names){
+  const out={};
+  for(const [name,amount] of Object.entries(value&&typeof value==='object'&&!Array.isArray(value)?value:{})){
+    const actor=canonicalActor(name,state,names),points=Number(amount);
+    if(actor&&Number.isFinite(points))out[actor]=(out[actor]||0)+points;
+  }
+  return out;
+}
 function taskInfoMap(state){
   const map=new Map();
   for(const task of [...(state?.tasks||[]),...(state?.custom||[])]){
@@ -36,29 +63,30 @@ function taskInfoMap(state){
   return map;
 }
 function taskNameMap(state){return new Map([...taskInfoMap(state)].map(([id,info])=>[id,info.name]))}
-function awardsFor(completion,info){
-  const awards=completion?.pointAwards;
-  if(awards&&typeof awards==='object'&&!Array.isArray(awards))return Object.fromEntries(Object.entries(awards).filter(([name,value])=>name&&Number.isFinite(Number(value))).map(([name,value])=>[String(name),Number(value)]));
-  const contributors=Array.isArray(completion?.contributors)&&completion.contributors.length?completion.contributors.map(String).filter(Boolean):[];
-  const by=String(completion?.by||'');
-  const names=contributors.length?contributors:(by&&by!=='Sammen'?[by]:[]);
-  if(!names.length||!info?.points)return {};
-  const share=info.points/names.length;
-  return Object.fromEntries(names.map(name=>[name,share]));
+function awardsFor(completion,info,state,names){
+  const direct=canonicalAwards(completion?.pointAwards,state,names);
+  if(Object.keys(direct).length)return direct;
+  const contributors=uniqueNames((completion?.contributors||[]).map(name=>canonicalActor(name,state,names)).filter(Boolean));
+  const by=canonicalActor(completion?.by,state,names),actors=contributors.length?contributors:(by?[by]:[]);
+  if(!actors.length||!info?.points)return {};
+  const share=info.points/actors.length;
+  return Object.fromEntries(actors.map(name=>[name,share]));
 }
 function events(state){
-  const info=taskInfoMap(state),out=[];
+  const info=taskInfoMap(state),names=householdPeople(state),out=[];
   for(const completion of state?.completions||[]){
     const day=dateKey(completion?.date),id=completion?.taskId;
     if(!day||id==null)continue;
-    const task=info.get(String(id)),known=String(completion.taskName||task?.name||'').trim();
-    out.push({key:known?`task:${id}`:'task:unknown',name:known||'Tidligere gjøremål',category:task?.category||'Tidligere gjøremål',date:day,by:String(completion.by||''),contributors:Array.isArray(completion?.contributors)?completion.contributors.map(String).filter(Boolean):[],awards:awardsFor(completion,task)});
+    const task=info.get(String(id)),known=String(completion.taskName||task?.name||'').trim(),contributors=uniqueNames((completion?.contributors||[]).map(name=>canonicalActor(name,state,names)).filter(Boolean));
+    let by=String(completion?.by||'')==='Sammen'||contributors.length>1?'Sammen':canonicalActor(completion?.by,state,names);
+    if(!by&&contributors.length===1)by=contributors[0];
+    out.push({key:known?`task:${id}`:'task:unknown',name:known||'Tidligere gjøremål',category:task?.category||'Tidligere gjøremål',date:day,by,contributors,awards:awardsFor(completion,task,state,names),actorValid:by==='Sammen'||names.includes(by)});
   }
   for(const task of state?.plannedTasks||[]){
     if(!task?.done)continue;
-    const day=dateKey(task.doneAt||task.date),name=String(task.title||'Ekstraoppgave').trim()||'Ekstraoppgave';
+    const day=dateKey(task.doneAt||task.date),name=String(task.title||'Ekstraoppgave').trim()||'Ekstraoppgave',by=canonicalActor(task.doneBy,state,names);
     if(!day)continue;
-    out.push({key:`planned:${task.id??name}`,name,category:'Ekstraoppgaver',date:day,by:String(task.doneBy||''),contributors:[],awards:{}});
+    out.push({key:`planned:${task.id??name}`,name,category:'Ekstraoppgaver',date:day,by,contributors:[],awards:{},actorValid:names.includes(by)});
   }
   return out;
 }
@@ -90,10 +118,10 @@ function olderWeeks(state,now=new Date(),mineOnly=false){
 }
 function periodStart(period,now=new Date()){const end=dateKey(now)||dateKey(new Date());const days=period==='quarter'?90:period==='month'?30:7;return addDays(end,-(days-1))}
 function isTogether(event){return event?.by==='Sammen'||new Set(event?.contributors||[]).size>1}
-function people(state,list){const names=new Set([String(state?.user||'').trim(),...Object.keys(state?.points||{}),...Object.keys(state?.status||{})]);for(const event of list||[]){if(event.by&&event.by!=='Sammen')names.add(event.by);for(const name of event.contributors||[])names.add(name);for(const name of Object.keys(event.awards||{}))names.add(name)}return [...names].filter(Boolean)}
+function people(state,list){return householdPeople(state)}
 function groupedWeeks(list){const groups=new Map();for(const event of list){const start=mondayKey(event.date);if(!start)continue;if(!groups.has(start))groups.set(start,[]);groups.get(start).push(event)}return [...groups.entries()].sort(([a],[b])=>b.localeCompare(a)).map(([start,items])=>({start,end:addDays(start,6),total:items.length,rows:aggregate(items)}))}
 function insights(state,period='week',now=new Date()){
-  const end=dateKey(now)||dateKey(new Date()),start=periodStart(period,now),list=events(state).filter(event=>event.date>=start&&event.date<=end),names=people(state,list),counts=Object.fromEntries(names.map(name=>[name,0])),points=Object.fromEntries(names.map(name=>[name,0]));
+  const end=dateKey(now)||dateKey(new Date()),start=periodStart(period,now),list=events(state).filter(event=>event.actorValid&&event.date>=start&&event.date<=end),names=people(state,list),counts=Object.fromEntries(names.map(name=>[name,0])),points=Object.fromEntries(names.map(name=>[name,0]));
   let together=0;const categories=new Map();
   for(const event of list){
     if(isTogether(event))together++;else if(event.by)counts[event.by]=(counts[event.by]||0)+1;
@@ -110,7 +138,7 @@ if(!root?.document)return;
 
 const document=root.document,$=s=>document.querySelector(s),bridge=()=>root.FlytBridge;
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const VERSION='20260914-insights2';
+const VERSION='20260914-insights3';
 let historyPeriod='week',historyWeekStart=null,previousFocus=null,scheduled=false;
 
 function actorSummary(row,state){
