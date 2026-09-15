@@ -43,3 +43,20 @@ test('old pending requests expire on the next date',()=>{
   assert.equal(loop.activeHelpRequest(state,task.id,'2026-09-14'),null);
   assert.equal(state.taskHelpRequests[0].closedReason,'expired');
 });
+
+
+test('optional warm message is stored with an 80 character limit',()=>{
+  const state=loop.requestTaskHelp(base(),{task,date:'2026-09-15',user:'Tore',target:'Jannicke',message:'Jeg er litt tom i dag ❤️',now:1000});
+  assert.equal(state.taskHelpRequests[0].message,'Jeg er litt tom i dag ❤️');
+  const clipped=loop.requestTaskHelp(base(),{task,date:'2026-09-15',user:'Tore',target:'Jannicke',message:'x'.repeat(90),now:1000});
+  assert.equal(clipped.taskHelpRequests[0].message.length,80);
+});
+
+test('not now temporarily prevents another request for the same task',()=>{
+  let state=loop.requestTaskHelp(base(),{task,date:'2026-09-15',user:'Tore',target:'Jannicke',now:1000});
+  state=loop.respondTaskHelp(state,{requestId:state.taskHelpRequests[0].id,user:'Jannicke',accepted:false,task,now:2000});
+  const blocked=loop.requestTaskHelp(state,{task,date:'2026-09-15',user:'Tore',target:'Jannicke',now:3000});
+  assert.equal(blocked.taskHelpRequests.length,1);
+  const retry=loop.requestTaskHelp(state,{task,date:'2026-09-15',user:'Tore',target:'Jannicke',now:4*60*60*1000+2001});
+  assert.equal(retry.taskHelpRequests.length,2);
+});
