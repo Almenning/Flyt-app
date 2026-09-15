@@ -6,7 +6,7 @@ if(root)root.FlytDailyLoop=api;
 })(typeof window!=='undefined'?window:globalThis,root=>{
 'use strict';
 
-const VERSION='20260914-taskhelp1';
+const VERSION='20260915-taskhelpwarm1';
 const OSLO_TIME_ZONE='Europe/Oslo';
 const dayPlan=typeof module==='object'&&module.exports?require('./day-plan.js'):root?.FlytDayPlan;
 
@@ -60,10 +60,18 @@ function activeClaim(state,taskId,key=dateKey()){
 function activeHelpRequest(state,taskId,key=dateKey()){
   return [...(state?.taskHelpRequests||[])].reverse().find(item=>item&&String(item.taskId)===String(taskId)&&item.date===key&&item.status==='pending')||null;
 }
-function requestTaskHelp(state,{task,date=dateKey(),user=state?.user,target='',now=Date.now()}={}){
+function helpRequestCooldownActive(state,taskId,key=dateKey(),now=Date.now(),cooldownMs=4*60*60*1000){
+  return [...(state?.taskHelpRequests||[])].reverse().some(item=>{
+    if(!item||String(item.taskId)!==String(taskId)||item.date!==key||item.status!=='not_now')return false;
+    const responded=Date.parse(item.respondedAt||item.resolvedAt||'')||0;
+    return responded>0&&now-responded<cooldownMs;
+  });
+}
+function requestTaskHelp(state,{task,date=dateKey(),user=state?.user,target='',message='',now=Date.now()}={}){
   if(!state||!task||!user||!target||user===target||completionForTask(state,task.id,date))return state;
-  if(activeHelpRequest(state,task.id,date))return state;
-  const request={id:`help_${now}_${String(task.id)}`,taskId:task.id,taskName:task.name||'',date,requestedBy:user,requestedTo:target,status:'pending',createdAt:new Date(now).toISOString()};
+  if(activeHelpRequest(state,task.id,date)||helpRequestCooldownActive(state,task.id,date,now))return state;
+  const note=String(message||'').trim().slice(0,80);
+  const request={id:`help_${now}_${String(task.id)}`,taskId:task.id,taskName:task.name||'',date,requestedBy:user,requestedTo:target,message:note,status:'pending',createdAt:new Date(now).toISOString()};
   return{...state,taskHelpRequests:[...(state.taskHelpRequests||[]),request]};
 }
 function closeTaskHelpRequests(state,{taskId,date=dateKey(),reason='closed',user=state?.user,now=Date.now()}={}){
@@ -134,5 +142,5 @@ function contributionSummary(state,key=dateKey()){
   return{weekDone:week.done,bothContributedToday:contributors.size>=2,myWeek:(state?.completions||[]).filter(item=>houseIds.has(String(item?.taskId))&&(item.by===state?.user||item.contributors?.includes(state?.user))&&validDateKey(item.date)&&item.date>=week.range.start&&item.date<=week.range.end).length};
 }
 
-return{VERSION,activeClaim,activeHelpRequest,addDays,canThank,claimTask,closeExpiredTaskHelpRequests,closeTaskHelpRequests,completionForTask,contributionSummary,dateKey,dayProgress,effectiveOwner,releaseClaim,requestTaskHelp,respondTaskHelp,recordCompletion,taskWeekCount,tasksForDay,thankCompletion,thanks,weekProgress,weekRangeForKey,weeklyGoal};
+return{VERSION,activeClaim,activeHelpRequest,addDays,canThank,claimTask,closeExpiredTaskHelpRequests,closeTaskHelpRequests,completionForTask,contributionSummary,dateKey,dayProgress,effectiveOwner,helpRequestCooldownActive,releaseClaim,requestTaskHelp,respondTaskHelp,recordCompletion,taskWeekCount,tasksForDay,thankCompletion,thanks,weekProgress,weekRangeForKey,weeklyGoal};
 });
