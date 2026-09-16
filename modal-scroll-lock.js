@@ -1,11 +1,11 @@
 (()=>{
 'use strict';
-const VERSION='20260916-modalscrolllock5';
+const VERSION='20260916-modalscrolllock6';
 let locked=false,lockedScrollTop=0,scheduled=false,touchStartY=0;
 const $=s=>document.querySelector(s);
 function content(){return $('#content')}
 function visible(element){if(!element||element.hidden||element.classList.contains('hidden'))return false;const style=getComputedStyle(element);return style.display!=='none'&&style.visibility!=='hidden'&&element.getClientRects().length>0}
-function modal(){return [...document.querySelectorAll('[role="dialog"][aria-modal="true"]')].find(visible)||null}
+function modal(){const dialogs=[...document.querySelectorAll('[role="dialog"][aria-modal="true"]')].filter(visible);return dialogs[dialogs.length-1]||null}
 function lock(){if(locked)return;const c=content();if(!c)return;lockedScrollTop=c.scrollTop;locked=true;c.classList.add('flytModalScrollLockedContent');c.style.overflow='hidden';c.style.overscrollBehavior='none';document.documentElement.classList.add('flytModalPageLocked')}
 function unlock(){if(!locked)return;const c=content();locked=false;document.documentElement.classList.remove('flytModalPageLocked');if(!c)return;c.classList.remove('flytModalScrollLockedContent');c.style.overflow='';c.style.overscrollBehavior='';const restore=()=>{if(!modal())c.scrollTop=lockedScrollTop};restore();requestAnimationFrame(()=>{restore();requestAnimationFrame(restore)})}
 function sync(){scheduled=false;modal()?lock():unlock()}
