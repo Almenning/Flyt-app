@@ -1,10 +1,11 @@
 (()=>{
 'use strict';
-const VERSION='20260914-settings11';
+const VERSION='20260917-summaries1';
 const DEFAULTS=Object.freeze({
   popups:{dailyCheckin:true,recognitions:true,challenges:true,tips:true},
   home:{dailyStatus:true,challenges:true,overview:true},
   seen:{suggestions:true},
+  summaries:{daily:false,weekly:true},
   rewards:{showChallenges:true}
 });
 const $=s=>document.querySelector(s);
@@ -28,6 +29,7 @@ ${section('Konto og partner',`<div class="flytSettingsInfo"><strong>${who}</stro
 ${section('Popup og påminnelser',`${toggle('popups.dailyCheckin','Daglig dagsform-popup','Spør én gang om dagen når dagsform ikke er registrert.')} ${toggle('popups.recognitions','Nye anerkjennelser','Vis uleste meldinger fra Sett ved åpning.')} ${toggle('popups.challenges','Nye utfordringer','Vis varsling når en partnerutfordring er klar.')} ${toggle('popups.tips','Tips og påminnelser','Vis relevante, forsiktige nudger på Hjem.')}<button type="button" class="flytSettingsRestore" data-settings-restore>Gjenopprett anbefalte innstillinger</button>`)}
 ${section('Hjem',`${toggle('home.dailyStatus','Dagsform','Vis dagsformkortet på Hjem.')} ${toggle('home.challenges','Utfordringer','Vis utfordringer på Hjem.')} ${toggle('home.overview','Dagens oversikt','Vis fremdrift og oversikt over dagens gjøremål.')}`)}
 ${section('Gjøre',`<p class="flytSettingsHint">Oppgaver, kategorier, rytme, poeng og rekkefølge styres samlet for husholdningen.</p><button type="button" class="flytSettingsLink" data-settings-task-setup><span><strong>Rediger oppsett</strong><small>Aktive kategorier, gjøremål, frekvens, dager, poeng og standardrekkefølge.</small></span><b>›</b></button>`)}
+${section('Oppsummeringer',`${toggle('summaries.daily','Dagsoppsummering','Vis en kort oppsummering av gårsdagen ved neste åpning.')} ${toggle('summaries.weekly','Ukesoppsummering','Vis en varm oppsummering når forrige uke er avsluttet.')}`)}
 ${section('Sett',`${toggle('seen.suggestions','Forslag til anerkjennelse','Vis forslag når du vil sende noe fint.')}<button type="button" class="flytSettingsLink" data-settings-seen-suggestions>Mine personlige forslag <b>›</b></button><button type="button" class="flytSettingsLink" data-settings-history>Historikk i Sett <b>›</b></button>`)}
 ${section('Mål og belønning',`${pointsToggle(s)}${toggle('rewards.showChallenges','Vis utfordringer på Hjem','La utfordringer være en del av dagens oversikt.')}<button type="button" class="flytSettingsLink" data-settings-rewards>Administrer egne belønninger <b>›</b></button><p class="flytSettingsHint">Poengsystemet er felles for husholdningen. Dine popup- og Hjem-valg er personlige.</p>`)}
 ${section('Historikk og data',`<button type="button" class="flytSettingsLink" data-settings-history>Se historikk og egne forslag <b>›</b></button><p class="flytSettingsHint">Innstillingene endrer ikke oppgaver, poeng, meldinger eller historikk.</p>`)}
