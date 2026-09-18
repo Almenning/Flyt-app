@@ -21,7 +21,7 @@ function loadCustomCategories(){if(window.FlytCustomCategories?.version==='20260
 function loadDayPlan(){if(window.FlytDayPlan?.VERSION==='20260903-master1')return;loadScript('./day-plan.js?v=20260903-master1','flyt-day-plan-master1')}
 function loadSummary(){if(window.FlytSummaryUI?.version==='20260917-summaryhistory1')return;if(window.FlytSummaryCore?.VERSION!=='20260917-summaryhistory1'){loadScript('./summary-core.js?v=20260917-summaryhistory1','flyt-summary-core-20260917-summaryhistory1',loadSummary);return}loadScript('./summary-ui.js?v=20260917-summaryhistory1','flyt-summary-ui-20260917-summaryhistory1')}
 function loadCategoryAccordion(){if(window.FlytCategoryAccordion?.VERSION==='20260904-polish1')return;loadScript('./category-accordion.js?v=20260904-polish1','flyt-category-accordion-polish1')}
-function loadRecurrence(){loadCategoryAccordion();if(window.FlytRecurrenceUI?.version==='20260915-taskhelpwarm1')return;loadScript('./recurrence-ui.js?v=20260915-taskhelpwarm1','flyt-recurrence-taskhelpwarm1')}
+function loadRecurrence(){loadCategoryAccordion();if(window.FlytRecurrenceUI?.version==='20260918-backdateactors1')return;loadScript('./recurrence-ui.js?v=20260918-backdateactors1','flyt-recurrence-backdateactors1')}
 function loadPrivateTasks(){if(window.FlytPrivateTasks?.version==='20260917-minlistmenu1')return;loadScript('./personal-tasks-ui.js?v=20260917-minlistmenu1','flyt-personal-tasks-20260917-minlistmenu1')}
 function loadBeta(){if(window.FlytBetaUI)return;loadScript('./beta-ui.js?v=20260914-feedback2','flyt-beta-feedback2')}
 function loadResponsive(){if(document.querySelector('#flytResponsiveUi'))return;loadScript('./responsive-ui.js?v=20260825-0648','flyt-responsive')}
