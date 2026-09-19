@@ -138,7 +138,7 @@ if(!root?.document)return;
 
 const document=root.document,$=s=>document.querySelector(s),bridge=()=>root.FlytBridge;
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const VERSION='20260914-insights3';
+const VERSION='20260919-edgeswipe1';
 let historyPeriod='week',historyWeekStart=null,previousFocus=null,scheduled=false;
 
 function actorSummary(row,state){
@@ -184,16 +184,22 @@ function ensureRoot(){
 }
 function closeSettings(){
   const el=ensureRoot();
+  root.FlytEdgeSwipeBack?.unbind(el);
   el.classList.add('hidden');
   el.setAttribute('aria-hidden','true');
   previousFocus?.focus?.();
   previousFocus=null;
+}
+function returnFromShell(){
+  const back=ensureRoot().querySelector('[data-history-back]')?.dataset.historyBack;
+  if(back==='seenSuggestions')openSeenSuggestions();else if(back==='settings')openSettings();else closeSettings();
 }
 function shell(title,body,back=false){
   const el=ensureRoot();
   el.innerHTML=`<div class="flytSettingsHead"><button type="button" class="pill" data-history-back="${back==='seenSuggestions'?'seenSuggestions':back?'settings':'close'}">${back?'Tilbake':'Lukk'}</button><div class="grow"><div class="ey">Innstillinger</div><strong>${esc(title)}</strong></div><button type="button" class="pill" data-history-close="1" aria-label="Lukk">×</button></div><div class="flytSettingsBody">${body}</div>`;
   el.classList.remove('hidden');
   el.setAttribute('aria-hidden','false');
+  if(back)root.FlytEdgeSwipeBack?.bind(el,{canGoBack:()=>!el.classList.contains('hidden'),onBack:returnFromShell});else root.FlytEdgeSwipeBack?.unbind(el);
   requestAnimationFrame(()=>el.querySelector('[data-history-back]')?.focus());
 }
 function openSettings(){
@@ -281,7 +287,7 @@ async function handleClick(e){
   if(top&&bridge()?.getState?.()?.setupDone!==false){e.preventDefault();e.stopImmediatePropagation();openSettings();return}
   if(e.target.closest?.('[data-history-close]')){e.preventDefault();closeSettings();return}
   const back=e.target.closest?.('[data-history-back]');
-  if(back){e.preventDefault();back.dataset.historyBack==='seenSuggestions'?openSeenSuggestions():back.dataset.historyBack==='settings'?openSettings():closeSettings();return}
+  if(back){e.preventDefault();returnFromShell();return}
   if(e.target.closest?.('[data-settings-history]')){e.preventDefault();historyPeriod='week';historyWeekStart=mondayKey(new Date());openHistory();return}
   if(e.target.closest?.('[data-settings-seen-suggestions]')){e.preventDefault();openSeenSuggestions();return}
   if(e.target.closest?.('[data-settings-nudges]')){e.preventDefault();openNudges();return}
