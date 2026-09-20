@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION='20260902-1800';
+const VERSION='20260920-brand1';
 const RECENT_MS=14*86400000;
 const INVITATION_PRESETS=[
   ['🛋','Sofa og noe godt','Sofa og noe godt i kveld?'],

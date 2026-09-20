@@ -74,20 +74,20 @@ const baseState = {
   view: 'rewards',
 };
 
-test('Mål og belønning viser disponibel poengsaldo og poengoversikt', () => {
+test('Mål og belønning viser disponibel poengsaldo, oversikt og de to hovedflytene', () => {
   const harness = loadScript('rewards-ui.js', baseState);
 
   assert.match(harness.content.innerHTML, /Mål og belønning/);
   assert.match(harness.content.innerHTML, /På gang/);
   assert.match(harness.content.innerHTML, /Sett et mål/);
-  assert.match(harness.content.innerHTML, /Send en utfordring ❤️/);
+  assert.match(harness.content.innerHTML, /Send en fristelse ❤️/);
   assert.match(harness.content.innerHTML, /rewardChallenge/);
   assert.match(harness.content.innerHTML, /420/);
   assert.match(harness.content.innerHTML, /poeng tilgjengelig/);
-  assert.match(harness.content.innerHTML, /poeng opptjent denne uka/);
+  assert.match(harness.content.innerHTML, /denne uka/);
   assert.match(harness.content.innerHTML, /Totalt opptjent/);
   assert.match(harness.content.innerHTML, /Brukte poeng/);
-  assert.match(harness.content.innerHTML, /Hva har du lyst på/);
+  assert.doesNotMatch(harness.content.innerHTML, /Hva har du lyst på/);
 });
 
 test('Mål og belønning beholder mobilhierarki og bruker varme eksisterende farger', () => {
@@ -130,29 +130,27 @@ test('enkle skjema bruker fempoengssteg, én frist og progressive valg', () => {
   assert.doesNotMatch(source, /Forhåndsvisning/);
 });
 
-test('gjøremålsvelgeren i utfordringer beholder hurtigvalg og åpner hele listen samlet', () => {
+test('gjøremålsvelgeren i Fristelse beholder hurtigvalg og åpner hele listen samlet', () => {
   const source = readFileSync(path.join(root, 'rewards-ui.js'), 'utf8');
-  assert.match(source, /function challengeTaskPicker/);
-  assert.match(source, /data-task-quick/);
+  assert.match(source, /function temptationTasks/);
+  assert.match(source, /data-temptation-task=/);
   assert.match(source, /Se alle gjøremål/);
   assert.match(source, /function taskGroups/);
-  assert.match(source, /challengeTasks\(s\)/);
-  assert.match(source, /taskPickerLayer/);
-  assert.match(source, /taskPickerList/);
-  assert.match(source, /data-task-picker-select/);
-  assert.match(source, /setChallengeTask\(form,selected\.dataset\.taskPickerSelect\)/);
-  assert.match(source, /backdrop-filter:blur\(5px\)/);
+  assert.match(source, /data-temptation-task-catalog/);
+  assert.match(source, /fristelseTaskCatalogLayer/);
+  assert.match(source, /fristelseCatalogScroll/);
+  assert.match(source, /data-temptation-catalog-task/);
+  assert.match(source, /backdrop-filter:blur\(8px\)/);
 });
 
-test('belønningsbiblioteket har varme kategorifaner og viser bare forslag', () => {
+test('belønningsbiblioteket brukes i relevante flyter, ikke på belønningshovedsiden', () => {
   const harness = loadScript('rewards-ui.js', baseState);
-  assert.match(harness.content.innerHTML, /Tid og frihet/);
-  assert.match(harness.content.innerHTML, /Opplevelser/);
-  assert.match(harness.content.innerHTML, /Fristelse ❤️/);
-  assert.match(harness.content.innerHTML, /data-library-reward="Sovemorgen"/);
-  assert.match(harness.content.innerHTML, /Tilgjengelig for deg/);
+  const source = readFileSync(path.join(root, 'rewards-ui.js'), 'utf8');
+  assert.doesNotMatch(harness.content.innerHTML, /Hva har du lyst på/);
+  assert.doesNotMatch(harness.content.innerHTML, /Tid og frihet/);
   assert.match(harness.content.innerHTML, /Ingen belønninger klare akkurat nå/);
-  assert.match(harness.content.innerHTML, /Biblioteket er forslag/);
+  assert.match(source, /Object\.entries\(core\(\)\.REWARD_LIBRARY\)/);
+  assert.match(source, /data-temptation-catalog-reward/);
 });
 
 test('Poengbelønning trekker saldo uten å endre registrert innsats', async () => {

@@ -18,7 +18,7 @@ vm.runInContext(source, context);
 const api = window.FlytTaskReorderStability;
 
 assert.ok(api, 'stability API must be exported');
-assert.equal(api.VERSION, '20260909-beta1');
+assert.equal(api.VERSION, '20260914-drag2');
 
 const task = (id, cat='Kjøkken') => ({ id, cat });
 const state = {

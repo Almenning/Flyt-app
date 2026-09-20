@@ -16,7 +16,7 @@ test('Sett rendrer handlingsflaten med prioritert kontekst og fire innganger',()
     querySelectorAll(selector){return selector==='#nav button'?navButtons:[]},
     addEventListener(){}
   };
-  const context={console,Date,Intl,Map,Set,Event:class{},document,MutationObserver:class{observe(){}},setInterval(){return 1},clearInterval(){},setTimeout(fn){fn();return 1},clearTimeout(){},requestAnimationFrame(fn){fn()},queueMicrotask(fn){fn()},window:null};
+  const context={console,Date,Intl,Map,Set,Event:class{},document,MutationObserver:class{observe(){}},setInterval(){return 1},clearInterval(){},setTimeout(fn){fn();return 1},clearTimeout(){},requestAnimationFrame(fn){fn()},queueMicrotask(fn){fn()},window:null,addEventListener(){}};
   context.window=context;
   context.FlytSeenCore=seenCore;
   context.FlytBridge={getState:()=>state,setState:next=>{state=next},toast(){}};

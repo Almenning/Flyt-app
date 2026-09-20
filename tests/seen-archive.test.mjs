@@ -7,7 +7,7 @@ const history=readFileSync(new URL('../history-ui.js',import.meta.url),'utf8');
 const watchdog=readFileSync(new URL('../app-watchdog.js',import.meta.url),'utf8');
 const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
 
-assert.match(seen,/const VERSION='20260906-actions1'/);
+assert.match(seen,/const VERSION='20260919-edgeswipe1'/);
 assert.match(core,/const VERSION='20260906-actions1'/);
 assert.match(seen,/Forslag akkurat nå/);
 assert.match(seen,/Hva vil du gjøre\?/);
@@ -30,7 +30,7 @@ assert.match(history,/data-seen-suggestion-edit/);
 assert.match(history,/data-seen-suggestion-delete/);
 assert.match(history,/seenPersonalCategory/,'personal nudges can choose a category');
 assert.match(watchdog,/seen-core\.js\?v=20260906-actions1/);
-assert.match(watchdog,/seen-ui\.js\?v=20260906-actions1/);
+assert.match(watchdog,/seen-ui\.js\?v=20260919-edgeswipe1/);
 assert.doesNotMatch(html,/<button data-view="us"/,'Oss is removed from the main navigation');
 assert.match(html,/grid-template-columns:repeat\(4,1fr\)/,'the bottom navigation has four equal destinations');
 

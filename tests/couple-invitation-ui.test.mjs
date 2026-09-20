@@ -8,7 +8,7 @@ const watchdog=readFileSync(new URL('../app-watchdog.js',import.meta.url),'utf8'
 const oss=readFileSync(new URL('../oss.js',import.meta.url),'utf8');
 const rewards=readFileSync(new URL('../rewards-ui.js',import.meta.url),'utf8');
 
-assert.match(ui,/const VERSION='20260902-1800'/);
+assert.match(ui,/const VERSION='20260920-brand1'/);
 for(const preset of ['Sofa og noe godt','En liten tur','Tid tett sammen','En kaffe sammen','Filmkveld','Etter legging'])assert.match(ui,new RegExp(preset),`missing invitation preset: ${preset}`);
 assert.match(ui,/aria-pressed=/,'invitation presets must expose their selected state');
 assert.match(ui,/syncPresetSelection/,'invitation presets must visibly track the selected text');
@@ -24,6 +24,6 @@ assert.doesNotMatch(ui,/rewardRedemptions|requiresPoints|data-reward-activate/,'
 assert.match(nudge,/coupleInvitations:\[invitation/,'relationship nudges must create a dedicated invitation');
 assert.doesNotMatch(nudge,/linkedRequestId/,'help requests and invitations must not be transactionally linked');
 assert.match(sync,/coupleInvitations:\[\]/,'new households must start with an invitation collection');
-assert.match(watchdog,/couple-invitation-ui\.js\?v=20260902-1800/,'watchdog must load the current invitation UI');
+assert.match(watchdog,/couple-invitation-ui\.js\?v=20260920-brand1/,'watchdog must load the current invitation UI');
 
 console.log('ok - time-together invitations stay separate from chores and points');

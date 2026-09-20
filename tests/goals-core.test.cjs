@@ -103,15 +103,15 @@ test('utløpt utfordring gir ingen belønning og flyttes til ikke fullført',()=
   state=core.acceptGoal({...state,user:'Jannicke'},state.goals[0].id,'Jannicke',Date.parse('2026-08-31T13:00:00Z'));
   state=core.refreshState(state,NOW);
   assert.equal(state.goals[0].status,'not_completed');
-  assert.equal(state.goals[0].reward.status,'active');
+  assert.equal(state.goals[0].reward.status,'expired');
   assert.notEqual(state.goals[0].reward.status,'available');
 });
 
 test('belønningsbiblioteket er voksent uten vanlig hverdagsomsorg som valuta',()=>{
   assert.deepEqual(Object.keys(core.REWARD_LIBRARY),['Tid og frihet','Opplevelser','Fristelse ❤️']);
-  assert.deepEqual(core.REWARD_LIBRARY['Tid og frihet'],['Sovemorgen','Kveld ute med venner','En kveld helt fri','Hobby-/gamingkveld','En halv dag for deg selv','Fri fra hjemmeoppgaver']);
-  assert.deepEqual(core.REWARD_LIBRARY.Opplevelser,['Restaurant','Date','Aktivitet på eget valg','Gave','Hotell','Helgetur','Overraskelse']);
-  assert.deepEqual(core.REWARD_LIBRARY['Fristelse ❤️'],['Massasje','Sexy undertøy','En intim kveld','30 minutter bare for deg','Du velger ❤️','Ditt intime ønske','En erotisk overraskelse','Eget forslag']);
+  assert.deepEqual(core.REWARD_LIBRARY['Tid og frihet'],['Sovemorgen','Egentid','Kveld ute med venner','Hobby-/gamingtid','Fri fra hjemmeoppgaver']);
+  assert.deepEqual(core.REWARD_LIBRARY.Opplevelser,['Takeaway','Datekveld','Restaurant','Aktivitet på eget valg','Hotell / helgetur']);
+  assert.deepEqual(core.REWARD_LIBRARY['Fristelse ❤️'],['Massasje','Sexy undertøy','En intim kveld','30 minutter bare for deg','Du velger ❤️']);
   const all=Object.values(core.REWARD_LIBRARY).flat();
   assert.ok(!all.includes('Kaffe på senga'));
   assert.ok(!all.includes('Klem'));
@@ -156,8 +156,8 @@ test('bare mottakeren kan innløse belønningen fra en utfordring',()=>{
   assert.equal(core.redeemGoalReward({...state,user:'Jannicke'},state.goals[0].id,'Jannicke',NOW+3).ok,true);
 });
 
-test('brukeren kan bruke poeng på en annen belønning og utfordringsbelønningen består',()=>{
-  let state=core.createGoal(base(),{kind:'personal',metric:{type:'manual'},reward:{title:'Sovemorgen',cost:60,type:'self'}},NOW);
+test('brukeren kan bruke poeng på en annen belønning og egen målbelønning består',()=>{
+  let state=core.createGoal(base(),{kind:'personal',metric:{type:'manual'},reward:{title:'Egentid',cost:60,type:'self'}},NOW);
   state=core.markManualDone(state,state.goals[0].id,'Tore',NOW+1);
   const goalId=state.goals[0].id,result=core.redeemCatalogReward(state,{title:'En egen bok',cost:70},'Tore',NOW+2);
   assert.equal(result.ok,true);
