@@ -18,7 +18,7 @@ vm.runInContext(source, context);
 const api = window.FlytTaskReorderStability;
 
 assert.ok(api, 'stability API must be exported');
-assert.equal(api.VERSION, '20260914-drag2');
+assert.equal(api.VERSION, '20260920-accessibility1');
 
 const task = (id, cat='Kjøkken') => ({ id, cat });
 const state = {
@@ -54,5 +54,6 @@ assert.match(source, /flytTaskSortAnchor/, 'drag completion should use a stable 
 assert.match(source, /requestNativeSortDone/, 'sort mode should have a forced exit path');
 assert.match(source, /requestAnimationFrame/, 'pointer work should be frame-coalesced');
 assert.match(source, /will-change:auto!important/, 'inactive task cards must not keep permanent compositor hints');
+assert.match(source, /data-task-reorder-move/, 'sort mode must expose keyboard-accessible move controls');
 
 console.log('ok - task reorder stability preserves global order and mobile safeguards');
