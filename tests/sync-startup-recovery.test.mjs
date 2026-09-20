@@ -1,9 +1,10 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 
 const sync = readFileSync(new URL('../sync.js', import.meta.url), 'utf8');
 const index = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 const watchdog = readFileSync(new URL('../app-watchdog.js', import.meta.url), 'utf8');
+const serviceWorker = readFileSync(new URL('../sw.js', import.meta.url), 'utf8');
 
 assert.match(sync, /const AUTH_BOOTSTRAP_TIMEOUT_MS=10000/, 'Sesjonssjekken må ha en tydelig tidsgrense');
 assert.match(sync, /function getSessionWithTimeout\(\)/, 'Sesjonssjekken må være pakket i en recovery-funksjon');
@@ -16,5 +17,10 @@ assert.match(watchdog, /window\.FlytSync\?\.showLogin/, 'En synlig lasteskjerm m
 assert.match(watchdog, /setTimeout\(rescue,3000\)/, 'Fastlåst lasting må få recovery raskt');
 assert.match(index, /sync\.js\?v=20260920-startupfailsafe2/, 'Nettleseren må hente den nye synk-rettingen');
 assert.match(index, /app-watchdog\.js\?v=20260920-startupfailsafe2/, 'Nettleseren må hente den nye oppstartsvakten');
+assert.doesNotMatch(index, /cdn\.jsdelivr\.net\/npm\/@supabase/, 'Oppstarten må ikke blokkeres av en ekstern Supabase-CDN');
+assert.match(index, /vendor\/supabase-2\.116\.0\.js\?v=20260920-local1" defer/, 'Supabase-klienten må lastes lokalt uten å blokkere HTML-tegning');
+assert.ok(existsSync(new URL('../vendor/supabase-2.116.0.js', import.meta.url)), 'Den versjonslåste Supabase-klienten må følge appen');
+assert.match(serviceWorker, /const CACHE='flyt-v65'/, 'Offline-cachen må fornyes når oppstartsavhengigheten endres');
+assert.match(serviceWorker, /\.\/vendor\/supabase-2\.116\.0\.js/, 'Den lokale Supabase-klienten må være tilgjengelig offline');
 
 console.log('ok - fastlåst sesjonssjekk åpner innlogging med nytt forsøk');
