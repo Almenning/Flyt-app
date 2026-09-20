@@ -75,7 +75,7 @@ function startPolling(){clearInterval(pollTimer);pollTimer=setInterval(()=>pull(
 const AUTH_BOOTSTRAP_TIMEOUT_MS=10000;
 async function getSessionWithTimeout(){let timeoutId;try{return await Promise.race([sb.auth.getSession(),new Promise((_,reject)=>{timeoutId=setTimeout(()=>reject(new Error('AUTH_BOOTSTRAP_TIMEOUT')),AUTH_BOOTSTRAP_TIMEOUT_MS)})])}finally{clearTimeout(timeoutId)}}
 async function bootstrap(){hydrated=false;clearTimeout(saveTimer);dirty=false;ensureBetaUi();let session=null;try{const r=await getSessionWithTimeout();session=r.data.session;authName=String(session?.user?.user_metadata?.display_name||session?.user?.user_metadata?.name||authName||'').trim()}catch(e){if(localModeEnabled())showLocalApp();else authChoice(e?.message==='AUTH_BOOTSTRAP_TIMEOUT'?'Innloggingen tok for lang tid. Prøv igjen.':'Kunne ikke hente innloggingen. Prøv igjen.');return}if(!session){if(localModeEnabled())showLocalApp();else authChoice();return}setLocalMode(false);try{await loadContext()}catch(e){loginScreen('Kunne ikke hente kontoen. Logg inn på nytt.');return}if(!ctx?.household){householdScreen();return}try{applyRemote()}catch(e){console.error('Flyt startup sync ignored:',e)}hydrated=true;showApp();startPolling()}
-window.FlytSync={queueSave,pull,retrySave,bootstrap,myName,rpc:(name,args)=>sb.rpc(name,args),getContext:()=>ctx,isReady:()=>hydrated,isSummaryReady};
+window.FlytSync={queueSave,pull,retrySave,bootstrap,showLogin:(message='')=>authChoice(message),myName,rpc:(name,args)=>sb.rpc(name,args),getContext:()=>ctx,isReady:()=>hydrated,isSummaryReady};
 ensureBetaUi();
 window.addEventListener('DOMContentLoaded',bootstrap);
 window.addEventListener('offline',updateChrome);
