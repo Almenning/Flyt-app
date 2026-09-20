@@ -38,6 +38,7 @@ function ensureBetaUi(){
 }
 function showGate(html){hydrated=false;ensureBetaUi();$('#betaGateBox').innerHTML=html;$('#betaGate').classList.remove('hidden');document.querySelector('.app')?.classList.add('hidden')}
 function showApp(){ensureBetaUi();$('#betaGate').classList.add('hidden');document.querySelector('.app')?.classList.remove('hidden');updateChrome();const s=bridge()?.getState?.();if(s&&hydrated){applying=true;try{bridge().setState({...s,user:myName(),view:s.view||'home'})}finally{applying=false}}}
+function isSummaryReady(){const app=document.querySelector('.app'),gate=$('#betaGate');return hydrated===true&&!!ctx?.user_id&&!!ctx?.household?.id&&!!app&&!app.classList.contains('hidden')&&(!gate||gate.classList.contains('hidden'))}
 function status(msg,bad=false){const e=$('#betaStatus');if(e){e.textContent=msg||'';e.style.color=bad?'#a63c31':'var(--muted)'}}
 function shell(inner){return `<div class="logo">HverdagsOss</div><div class="ey">Privat beta</div><h1 style="font:500 30px Georgia;margin:12px 0 6px">HverdagsOss</h1>${inner}`}
 function localModeEnabled(){try{return localStorage.getItem(LOCAL_MODE_KEY)==='1'}catch(e){return false}}
@@ -72,7 +73,7 @@ async function retrySave(){clearTimeout(saveTimer);if(!dirty){syncError=false;up
 function queueSave(){if(applying||!ctx?.household||!hydrated)return;dirty=true;syncError=false;updateChrome();clearTimeout(saveTimer);saveTimer=setTimeout(push,650)}
 function startPolling(){clearInterval(pollTimer);pollTimer=setInterval(()=>pull(false),5000)}
 async function bootstrap(){hydrated=false;clearTimeout(saveTimer);dirty=false;ensureBetaUi();let session=null;try{const r=await sb.auth.getSession();session=r.data.session;authName=String(session?.user?.user_metadata?.display_name||session?.user?.user_metadata?.name||authName||'').trim()}catch(e){if(localModeEnabled())showLocalApp();else authChoice();return}if(!session){if(localModeEnabled())showLocalApp();else authChoice();return}setLocalMode(false);try{await loadContext()}catch(e){loginScreen('Kunne ikke hente kontoen. Logg inn på nytt.');return}if(!ctx?.household){householdScreen();return}try{applyRemote()}catch(e){console.error('Flyt startup sync ignored:',e)}hydrated=true;showApp();startPolling()}
-window.FlytSync={queueSave,pull,retrySave,bootstrap,myName,rpc:(name,args)=>sb.rpc(name,args),getContext:()=>ctx,isReady:()=>hydrated};
+window.FlytSync={queueSave,pull,retrySave,bootstrap,myName,rpc:(name,args)=>sb.rpc(name,args),getContext:()=>ctx,isReady:()=>hydrated,isSummaryReady};
 ensureBetaUi();
 window.addEventListener('DOMContentLoaded',bootstrap);
 window.addEventListener('offline',updateChrome);

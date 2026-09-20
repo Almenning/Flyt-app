@@ -1,7 +1,7 @@
 ((root)=>{
 'use strict';
 
-const VERSION='20260904-home1';
+const VERSION='20260920-brand1';
 const INVITATION_PRESETS=[
   ['🛋','Sofa og noe godt','Sofa og noe godt i kveld?'],
   ['🌿','En liten tur','En liten tur sammen senere?'],
@@ -180,7 +180,7 @@ function buildCandidates({state,preferences,myStatus,partnerStatus,partnerName='
     candidates.push({
       id:'relationship:my-needs-closeness',kind:'relationship',priority:79,icon:'♥',
       title:toneText(prefs.tone,{warm:'Gjør ønsket ditt tydelig',direct:'Si at du ønsker tid sammen',gentle:'Kanskje dele et lite ønske'}),
-      body:`Du har markert behov for nærhet${progress.total?`, og dere er ${progress.pct} % gjennom dagens gjøremål`:''}. Flyt kan hjelpe deg å sende en enkel invitasjon uten å gjøre det større enn det er.`,
+      body:`Du har markert behov for nærhet${progress.total?`, og dere er ${progress.pct} % gjennom dagens gjøremål`:''}. HverdagsOss kan hjelpe deg å sende en enkel invitasjon uten å gjøre det større enn det er.`,
       action:'invitation',actionLabel:`Inviter ${partnerName}`
     });
   }
@@ -189,7 +189,7 @@ function buildCandidates({state,preferences,myStatus,partnerStatus,partnerName='
     candidates.push({
       id:`recognition:${dateKey(now)}:${Math.min(mine,4)}`,kind:'recognition',priority:mine>=4?70:56,icon:'✓',
       title:toneText(prefs.tone,{warm:'Det du gjør teller',direct:'Bra levert',gentle:'Legg merke til det du allerede har gjort'}),
-      body:remaining.length?`Du har allerede tatt ${mine} gjøremål i dag. Det står fortsatt noe igjen, men Flyt skal også vise innsatsen – ikke bare neste oppgave.`:`Du har tatt ${mine} gjøremål i dag, og dagens rytme er i mål. Bra levert.`,
+      body:remaining.length?`Du har allerede tatt ${mine} gjøremål i dag. Det står fortsatt noe igjen, men HverdagsOss skal også vise innsatsen – ikke bare neste oppgave.`:`Du har tatt ${mine} gjøremål i dag, og dagens rytme er i mål. Bra levert.`,
       action:null,actionLabel:''
     });
   }
@@ -459,5 +459,6 @@ function install(){
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
 root.addEventListener('pageshow',()=>{statusContext=null;statusLoadedAt=0;augment()});
+function settingsMarkup(){const prefs=preferences(),toggle=(key,title,text)=>`<div class="card row" style="box-shadow:none;align-items:flex-start"><div class="grow"><strong>${esc(title)}</strong><p class="sub" style="margin:4px 0 0;font-size:13px">${esc(text)}</p></div><button type="button" class="flytNudgeSwitch" role="switch" aria-label="${esc(title)}" aria-checked="${prefs[key]?'true':'false'}" data-nudge-setting-toggle="${key}"></button></div>`;return `<div class="ey">Personlig tilpasning</div><h1 class="title">Nudges og forslag</h1><p class="sub">Velg hva HverdagsOss skal hjelpe deg med. Valgene gjelder bare din visning; partneren kan velge annerledes.</p>${toggle('enabled','Vis nudges på Hjem','HverdagsOss viser bare forslag som bygger på et konkret, ferskt signal.')}<div style="${prefs.enabled?'':'opacity:.48;pointer-events:none'}"><div class="section"><strong>Hva skal HverdagsOss foreslå?</strong>${toggle('initiative','Ta initiativ','Forslag basert på partnerens ferske dagsform og gjøremål som gjenstår.')}${toggle('askHelp','Be om hjelp','Hjelp til å formulere en konkret forespørsel når du har lite kapasitet.')}${toggle('relationship','Tid for oss','Små invitasjoner når dagsrytmen og behovene gir rom for det.')}${toggle('recognition','Anerkjennelse og balanse','Vis også hva du allerede har gjort – ikke bare neste oppgave.')}</div><div class="section"><strong>Hvor ofte?</strong><div class="segments" style="grid-template-columns:repeat(3,1fr);margin-top:9px"><button type="button" data-nudge-frequency="quiet" class="${prefs.frequency==='quiet'?'on':''}">Rolig</button><button type="button" data-nudge-frequency="balanced" class="${prefs.frequency==='balanced'?'on':''}">Balansert</button><button type="button" data-nudge-frequency="active" class="${prefs.frequency==='active'?'on':''}">Aktiv</button></div><p class="sub" style="font-size:13px;margin-top:8px">Valget styrer hvor tydelig signalet må være. HverdagsOss velger aldri et gjøremål på dine vegne.</p></div><div class="section"><strong>Tone</strong><div class="segments" style="grid-template-columns:repeat(3,1fr);margin-top:9px"><button type="button" data-nudge-tone="warm" class="${prefs.tone==='warm'?'on':''}">Varm</button><button type="button" data-nudge-tone="direct" class="${prefs.tone==='direct'?'on':''}">Direkte</button><button type="button" data-nudge-tone="gentle" class="${prefs.tone==='gentle'?'on':''}">Forsiktig</button></div></div></div><div class="card" style="margin-top:18px;background:#fff9f5;box-shadow:none"><strong>Ferske data, ikke tankelesing</strong><p class="sub" style="margin-bottom:0">Statusbaserte forslag brukes bare samme kalenderdag og i maksimalt 12 timer, og aldri mellom kl. 23 og 06. Når HverdagsOss ikke har et godt grunnlag, vises ingen nudge.</p></div>`}
 root.FlytNudgeUI={augment,refreshStatus,settingsMarkup,updatePreference,handleSettingsAction,openHelp,openInvitation,takeInitiative,core,version:VERSION};
 })(typeof window!=='undefined'?window:null);
