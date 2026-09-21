@@ -31,7 +31,7 @@ async function setup(page,user,userId,shared={}){
     assert.ok(shared.appPreferences.personal['tore-id'].summarySeen.weekly);
     await page.locator('[data-summary-history-open]').click();
     await page.locator('#flytSummaryHistory').waitFor();
-    await page.locator('[data-summary-week]').first().click();
+    await page.locator('[data-summary-week]').nth(1).click();
     assert.match(await page.locator('[data-summary-history-body]').innerText(),/Overblikk/);
     await page.locator('[data-summary-task]').first().click();
     assert.match(await page.locator('[data-summary-history-body]').innerText(),/registrerte fullføringer/);
