@@ -12,6 +12,9 @@ assert.match(modal,/function muteBackground/,'modal background must be made iner
 assert.match(modal,/setAttribute\('inert',''\)/,'background must not remain keyboard-accessible');
 assert.match(modal,/focusOrigins/,'focus must be returned after closing a dialog');
 assert.match(modal,/aria-pressed/,'selected controls must expose a non-colour state to assistive technology');
+assert.match(modal,/function setAttributeIfChanged\(element,name,value\)\{if\(element\.getAttribute\(name\)===value\)return false;/,'modal annotations must not rewrite unchanged observed attributes');
+assert.match(modal,/setAttributeIfChanged\(toast,'role','status'\)/,'the observed toast role must use the idempotent attribute helper');
+assert.doesNotMatch(modal,/toast\.setAttribute\('role','status'\)/,'the modal observer must not retrigger itself by rewriting the toast role');
 assert.match(recurrence,/data-task-reorder-move="up"/,'sorting must offer moving an item up without drag and drop');
 assert.match(recurrence,/data-task-reorder-move="down"/,'sorting must offer moving an item down without drag and drop');
 
