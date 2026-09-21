@@ -172,6 +172,20 @@ check('the main shell keeps one complete navigation and boot bridge', () => {
   assert.match(html, /window\.FlytBridge\s*=/, 'index.html does not publish window.FlytBridge');
 });
 
+check('active user-facing copy uses the HverdagsOss brand', () => {
+  const forbidden = new Map([
+    ['index.html', /Start Flyt|Hva skal Flyt hjelpe med\?|Slik blir Flyt|Flyt gjør samlet/],
+    ['tasks-ui.js', /Hva skal Flyt hjelpe med\?|Slik blir Flyt/],
+    ['nudge-ui.js', /Velg hva Flyt skal|Flyt viser bare|Hva skal Flyt foreslå|Flyt velger aldri|Når Flyt ikke/],
+    ['modal-ui.js', /\bey='Flyt'/],
+    ['account-ui.js', /Slette Flyt-kontoen|Flyt-data|skyversjonen av Flyt|fl<b>y<\/b>t/],
+    ['quick-temptation-ui.js', /varsel i Flyt/],
+  ]);
+  for (const [name, pattern] of forbidden) {
+    assert.doesNotMatch(read(path.join(ROOT, name)), pattern, `${name} contains legacy user-facing Flyt copy`);
+  }
+});
+
 check('static and dynamically loaded local scripts exist without duplicate loader keys', () => {
   const { visited, dynamicKeys, dynamicTargets } = inspectScriptGraph();
 

@@ -14,12 +14,17 @@ concurrency:
 jobs:
   smoke:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
+      - name: Install pinned test dependencies
+        run: npm ci
+      - name: Install Chromium for browser tests
+        run: npx playwright install --with-deps chromium
       - name: Check JavaScript syntax
         shell: bash
         run: |
@@ -27,27 +32,7 @@ jobs:
           while IFS= read -r -d '' file; do
             node --check "$file"
           done < <(find . -maxdepth 2 -type f \( -name '*.js' -o -name '*.mjs' \) -not -path './.git/*' -print0)
-      - name: Run static application smoke checks
-        run: node tests/static-smoke.mjs
-      - name: Guard modern Home startup
-        run: node tests/home-startup.test.mjs
-      - name: Guard mobile task sorting
-        run: node --test tests/task-reorder-stability.test.mjs
-      - name: Guard flexible daily plans
-        run: node --test tests/day-plan.test.cjs tests/recurrence-day-week.test.js
-      - name: Guard category accordions
-        run: node --test tests/category-accordion.test.cjs
-      - name: Guard locked task catalog and custom task setup
-        run: node --test tests/task-language.test.cjs tests/custom-task-setup.test.cjs
-      - name: Guard contextual nudges and communication flow
-        run: node tests/nudge-ui.test.cjs
-      - name: Guard daily status freshness and separation
-        run: node tests/daily-status.test.cjs
-      - name: Guard practical couple communication lifecycle
-        run: node tests/couple-core.test.cjs
-      - name: Guard weekly mirror and first shared win
-        run: node tests/couple-insights.test.cjs
-      - name: Guard time-together invitations
-        run: node tests/couple-invitation-ui.test.mjs
-      - name: Guard Sett recognition flow and history
-        run: node --test tests/seen-core.test.cjs tests/seen-ui.test.cjs && node tests/seen-archive.test.mjs
+      - name: Run complete Node test suite
+        run: npm run test:node
+      - name: Run summary UI browser test
+        run: npm run test:browser

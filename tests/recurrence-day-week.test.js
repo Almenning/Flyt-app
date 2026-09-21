@@ -316,16 +316,21 @@ test('Angre fjerner dagens egne registreringer uten å påvirke ukegrensen', () 
 test('Jeg tar denne flytter dagens ansvar og kan angres', () => {
   const assigned={...dailyTask,owner:'Person B'};
   const harness=loadRecurrence({completions:[],custom:[],dayPlans:{},taskClaims:[],points:{'Person A':0},tasks:[assigned],user:'Person A',view:'tasks'});
+  const openMore=()=>harness.click({'[data-task-popup-toggle]':{dataset:{taskPopupToggle:'more:dish_empty'},getBoundingClientRect:()=>({bottom:160,left:20,right:120,top:120})}});
 
   harness.click({'[data-task-category]':{dataset:{taskCategory:encodeURIComponent('Kjøkken')}}});
+  openMore();
   assert.match(harness.content.innerHTML,/data-task-claim="dish_empty"[^>]*>Jeg tar denne/);
   harness.click({'[data-task-claim]':{dataset:{taskClaim:assigned.id}}});
   assert.equal(harness.getState().taskClaims.at(-1).claimedBy,'Person A');
-  assert.match(harness.content.innerHTML,/Du tok denne/);
-  assert.match(harness.content.innerHTML,/Angre overtakelse/);
+  harness.api.render({resetScroll:false});
+  assert.match(harness.content.innerHTML,/Du tar denne/);
+  openMore();
+  assert.match(harness.content.innerHTML,/data-task-release="dish_empty"[^>]*>Slipp oppgaven/);
 
   harness.click({'[data-task-release]':{dataset:{taskRelease:assigned.id}}});
   assert.ok(harness.getState().taskClaims.at(-1).revokedAt);
+  harness.api.render({resetScroll:false});
   assert.match(harness.content.innerHTML,/Person B/);
 });
 
@@ -338,6 +343,44 @@ test('partnerens fullførte oppgave kan få én enkel takk', () => {
   assert.deepEqual(Array.from(harness.getState().completions[0].thanks,entry=>entry.by),['Person A']);
   assert.match(harness.content.innerHTML,/Takk mottatt ❤️/);
   assert.doesNotMatch(harness.content.innerHTML,/data-task-thank="77"/);
+});
+
+test('tidligere dag kan etterregistreres på partner eller sammen', () => {
+  const makeHarness = () => loadRecurrence({
+    completions: [],
+    custom: [],
+    dayPlans: {},
+    points: { 'Person A': 0, 'Person B': 0 },
+    status: { 'Person A': {}, 'Person B': {} },
+    tasks: [dailyTask],
+    user: 'Person A',
+    view: 'tasks',
+  });
+  const openPastWhoMenu = (harness) => {
+    harness.click({ '[data-period-day]': { dataset: { periodDay: '2026-08-25' } } });
+    harness.click({ '[data-task-category]': { dataset: { taskCategory: encodeURIComponent('Kjøkken') } } });
+    assert.match(harness.content.innerHTML, /data-task-popup-toggle="who:dish_empty"[^>]*>Hvem gjorde den\?/);
+    harness.click({
+      '[data-task-popup-toggle]': {
+        dataset: { taskPopupToggle: 'who:dish_empty' },
+        getBoundingClientRect: () => ({ bottom: 160, left: 20, right: 120, top: 120 }),
+      },
+    });
+  };
+
+  const partnerHarness = makeHarness();
+  openPastWhoMenu(partnerHarness);
+  assert.match(partnerHarness.content.innerHTML, /Partner gjorde den/);
+  partnerHarness.click({ '[data-task-complete-partner]': { dataset: { taskCompletePartner: dailyTask.id } } });
+  assert.equal(partnerHarness.getState().completions[0].date, '2026-08-25');
+  assert.equal(partnerHarness.getState().completions[0].by, 'Person B');
+
+  const togetherHarness = makeHarness();
+  openPastWhoMenu(togetherHarness);
+  togetherHarness.click({ '[data-task-complete-together]': { dataset: { taskCompleteTogether: dailyTask.id } } });
+  assert.equal(togetherHarness.getState().completions[0].date, '2026-08-25');
+  assert.equal(togetherHarness.getState().completions[0].by, 'Sammen');
+  assert.deepEqual(Array.from(togetherHarness.getState().completions[0].contributors), ['Person A', 'Person B']);
 });
 
 test('Andre gjøremål er foldet per kategori og kan legges i eller flyttes fra dagsplanen', () => {
@@ -421,7 +464,8 @@ test('sortering åpnes per kategori og skjuler drag-håndtaket i normalvisning',
   assert.match(source, /\.content\.isTaskSortMode \.taskReorderHandle\{display:grid!important\}/);
   assert.match(source, /isTaskSortMode \[data-task-reorder-row\]>.row:nth-child\(2\)/);
   assert.match(source, /taskSortMode/);
-  assert.match(source, /showTaskActions=.*!sorting/);
+  assert.match(source, /showWhoActions=.*!sorting/);
+  assert.match(source, /showTodayActions=showWhoActions&&isTodaySelected\(\)/);
   assert.match(source, /data-task-reorder-start="\$\{encodeURIComponent\(category\(t\)\)\}"/);
   assert.match(source.match(/function groupCards[\s\S]*?function dayCards/)?.[0] || '', /headerAction=sorting/);
   assert.match(source.match(/function groupCards[\s\S]*?function dayCards/)?.[0] || '', /taskSortHeaderAction isSorting/);
