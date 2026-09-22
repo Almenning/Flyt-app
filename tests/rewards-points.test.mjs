@@ -74,7 +74,7 @@ const baseState = {
   view: 'rewards',
 };
 
-test('Mål og belønning viser disponibel poengsaldo, oversikt og de to hovedflytene', () => {
+test('Mål og belønning viser opptjente poeng, oversikt og de to hovedflytene', () => {
   const harness = loadScript('rewards-ui.js', baseState);
 
   assert.match(harness.content.innerHTML, /Mål og belønning/);
@@ -83,10 +83,11 @@ test('Mål og belønning viser disponibel poengsaldo, oversikt og de to hovedfly
   assert.match(harness.content.innerHTML, /Send en fristelse ❤️/);
   assert.match(harness.content.innerHTML, /rewardChallenge/);
   assert.match(harness.content.innerHTML, /420/);
-  assert.match(harness.content.innerHTML, /poeng tilgjengelig/);
+  assert.match(harness.content.innerHTML, /poeng opptjent/);
   assert.match(harness.content.innerHTML, /denne uka/);
-  assert.match(harness.content.innerHTML, /Totalt opptjent/);
-  assert.match(harness.content.innerHTML, /Brukte poeng/);
+  assert.match(harness.content.innerHTML, /Registrert innsats/);
+  assert.match(harness.content.innerHTML, /De brukes ikke opp/);
+  assert.doesNotMatch(harness.content.innerHTML, /Brukte poeng|poeng tilgjengelig/);
   assert.doesNotMatch(harness.content.innerHTML, /Hva har du lyst på/);
 });
 
@@ -97,7 +98,8 @@ test('Mål og belønning beholder mobilhierarki og bruker varme eksisterende far
   assert.match(source, /align-items:flex-end/);
   assert.match(source, /var\(--accent\)/);
   assert.match(source, /var\(--deep\)/);
-  assert.match(source, /Poengene trekkes først når du bekrefter/);
+  assert.match(source, /Poeng viser innsats og fremdrift\. De brukes ikke opp/);
+  assert.doesNotMatch(source, /Poengene trekkes først når du bekrefter|data-reward-redeem|data-catalog-redeem/);
   assert.doesNotMatch(source, /#[0-9a-f]{0,2}(?:00f|0080ff|0000ff)/i);
 });
 
@@ -153,15 +155,23 @@ test('belønningsbiblioteket brukes i relevante flyter, ikke på belønningshove
   assert.match(source, /data-temptation-catalog-reward/);
 });
 
-test('Poengbelønning trekker saldo uten å endre registrert innsats', async () => {
+test('gammel poengbelønning kan ikke opprette et nytt kjøp eller trekke saldo', async () => {
   const harness = loadScript('rewards-ui.js', baseState);
   const before = structuredClone(harness.getState().completions);
 
   await harness.window.FlytRewardsUI.activate('paid');
 
-  assert.equal(harness.getState().points.Tore, 170);
+  assert.equal(harness.getState().points.Tore, 420);
   assert.deepEqual(harness.getState().completions, before);
-  assert.equal(harness.getState().rewardRedemptions[0].cost, 250);
+  assert.equal(harness.getState().rewardRedemptions.length, 0);
+});
+
+test('ny mål-flyt tilbyr bare poeng, bestemt gjøremål og eget mål', () => {
+  const source = readFileSync(path.join(root, 'rewards-ui.js'), 'utf8');
+  assert.match(source, /\['points_new','task_specific','manual'\]/);
+  assert.match(source, /data-goalflow-type/);
+  assert.match(source, /allowPartner:d\.kind!=='personal'/);
+  assert.doesNotMatch(source, /goalTypes\(\).*points_week/);
 });
 
 test('Åpen belønning og hurtigfristelse lar poengsaldoen stå urørt', async () => {

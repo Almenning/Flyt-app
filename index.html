@@ -10,7 +10,7 @@
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png">
 <script>
-(()=>{const key='hverdagsoss_sw_reset_v66';if(!('serviceWorker'in navigator))return;try{if(localStorage.getItem(key)==='1')return;localStorage.setItem(key,'1')}catch(e){}navigator.serviceWorker.getRegistrations().then(registrations=>{if(!registrations.length)return;return Promise.all(registrations.map(registration=>registration.unregister())).then(()=>location.reload())}).catch(()=>{})})();
+(()=>{const key='hverdagsoss_sw_reset_v67';if(!('serviceWorker'in navigator))return;try{if(localStorage.getItem(key)==='1')return;localStorage.setItem(key,'1')}catch(e){}navigator.serviceWorker.getRegistrations().then(registrations=>{if(!registrations.length)return;return Promise.all(registrations.map(registration=>registration.unregister())).then(()=>location.reload())}).catch(()=>{})})();
 </script>
 <script src="./vendor/supabase-2.116.0.js?v=20260920-local1" defer></script>
 <script src="./task-language.js?v=20260903-master1" defer></script>
@@ -20,13 +20,13 @@
 <script src="./couple-insights.js?v=20260902-1730" defer></script>
 <script src="./seen-core.js?v=20260906-actions1" defer></script>
 <script src="./seen-ui.js?v=20260919-edgeswipe1" defer></script>
-<script src="./rewards-goals-core.js?v=20260914-expiry1" defer></script>
+<script src="./rewards-goals-core.js?v=20260921-earned-rewards1" defer></script>
 <script src="./sync.js?v=20260920-startupfailsafe2" defer></script>
 <script src="./daily-status.js?v=20260902-1200" defer></script>
 <script src="./oss.js?v=20260902-1800" defer></script>
 <script src="./nav-scroll-top-ui.js?v=20260914-drag2" defer></script>
 <script src="./edge-swipe-back.js?v=20260919-edgeswipe2" defer></script>
-<script src="./app-watchdog.js?v=20260921-quality1" defer></script>
+<script src="./app-watchdog.js?v=20260921-earned-rewards1" defer></script>
 <script src="./tasks-ui.js?v=20260921-quality1" defer></script>
 <script src="./category-accordion.js?v=20260904-polish1" defer></script>
 <script src="./recurrence-ui.js?v=20260918-backdateactors1" defer></script>
@@ -34,7 +34,7 @@
 <script src="./planned-ui.js?v=20260904-accordion1" defer></script>
 <script src="./home-ui.js?v=20260914-expiry1" defer></script>
 <script src="./daily-checkin-popup.js?v=20260913-dailycheckin3" defer></script>
-<script src="./settings-ui.js?v=20260917-summaryhistory1" defer></script>
+<script src="./settings-ui.js?v=20260921-earned-rewards1" defer></script>
 <script src="./modal-scroll-lock.js?v=20260921-accessibility2" defer></script>
 <script src="./nudge-ui.js?v=20260921-quality1" defer></script>
 <title>HverdagsOss</title>
@@ -56,7 +56,7 @@ const KEY='flyt_state_v5';
 const $=s=>document.querySelector(s);
 const LIB=window.FlytTaskLanguage?.catalog||[];
 const DEFAULT_IDS=['dish_fill','dish_empty','kitchen','dinner','laundry_start','laundry_hang','laundry_fold','trash'];
-function fresh(){return{version:5,taskCatalogVersion:window.FlytTaskLanguage?.CATALOG_VERSION||0,user:'Du',view:'home',setupDone:false,areas:{home:true,children:true,mental:true,training:true,closeness:true,sex:true},trainingFor:{Du:true,Partner:true},tasks:LIB.filter(x=>DEFAULT_IDS.includes(x.id)).map(x=>({...x,owner:'Begge'})),custom:[],completions:[],dayPlans:{},taskClaims:[],points:{Du:0,Partner:0},status:{Du:{energy:'med',capacity:'med',closeness:'med',desire:'med',stress:'med',needs:[]},Partner:{energy:'med',capacity:'med',closeness:'med',desire:'med',stress:'med',needs:[]}},work:[],seenRequests:[],recognitions:[],seenSuggestionPreferences:{},seenPersonalNudges:{},goals:[],rewardOffers:[],rewardPurchases:[],rewards:[{id:1,title:'20 min massasje',by:'Partner',requiresPoints:true,cost:250},{id:2,title:'Sovemorgen',by:'Du',requiresPoints:true,cost:350}],rewardRedemptions:[],quickTemptations:[],coupleInvitations:[],coupleJourney:{firstWinStartedAt:null,firstWinSeenBy:[]},nudgePreferences:{}}}
+function fresh(){return{version:5,taskCatalogVersion:window.FlytTaskLanguage?.CATALOG_VERSION||0,user:'Du',view:'home',setupDone:false,areas:{home:true,children:true,mental:true,training:true,closeness:true,sex:true},trainingFor:{Du:true,Partner:true},tasks:LIB.filter(x=>DEFAULT_IDS.includes(x.id)).map(x=>({...x,owner:'Begge'})),custom:[],completions:[],dayPlans:{},taskClaims:[],points:{Du:0,Partner:0},status:{Du:{energy:'med',capacity:'med',closeness:'med',desire:'med',stress:'med',needs:[]},Partner:{energy:'med',capacity:'med',closeness:'med',desire:'med',stress:'med',needs:[]}},work:[],seenRequests:[],recognitions:[],seenSuggestionPreferences:{},seenPersonalNudges:{},goals:[],rewardOffers:[],rewardPurchases:[],rewards:[],rewardRedemptions:[],quickTemptations:[],coupleInvitations:[],coupleJourney:{firstWinStartedAt:null,firstWinSeenBy:[]},nudgePreferences:{}}}
 let state=fresh();try{const raw=localStorage.getItem(KEY);if(raw)state={...state,...JSON.parse(raw)}}catch(e){}state={...state,view:'home'};state=window.FlytTaskLanguage?.normalizeState?.(state)||state;if(state.view==='us')state={...state,view:'seen'};
 function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}if(window.FlytSync)window.FlytSync.queueSave()}
 function people(){const names=Object.keys(state.status||{});if(state.user&&!names.includes(state.user))names.unshift(state.user);if(names.length<2)names.push(state.user==='Du'?'Partner':'Du');return [...new Set(names)]}
