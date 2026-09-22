@@ -36,11 +36,18 @@ test('Sett prioriterer partnerens faktiske bidrag og toner ned øvrige handlinge
   assert.doesNotMatch(content.innerHTML,/Forslag akkurat nå|Hva vil du gjøre\?|Noe annet du satte pris på\?|Noe fint|Flørt|Gi litt rom|Lag en kaffe|Ta oppvasken|En liten fristelse|Siste anerkjennelse/);
   assert.doesNotMatch(content.innerHTML,/poeng|rangering|prosent/i);
   context.FlytSeenUI.openCategory('recognition');
-  const manual=content.innerHTML.slice(content.innerHTML.indexOf('<section class="seenSheet seenManualSheet"'));
-  assert.match(manual,/seenManualSheet/);
-  assert.equal((manual.match(/seenManualChoice/g)||[]).length,4,'manual-sheeten har nøyaktig fire forslag');
+  const manual=content.innerHTML.slice(content.innerHTML.indexOf('<section class="seenSheet seenMessageSheet"'));
+  assert.match(manual,/seenMessageSheet/);
+  assert.equal((manual.match(/seenMessageChoice/g)||[]).length,4,'manual-sheeten har nøyaktig fire forslag');
   for(const text of ['Tok initiativ','Var tålmodig','Ordnet noe praktisk','Støttet meg'])assert.match(manual,new RegExp(text));
   assert.match(manual,/maxlength="200"/);
   assert.match(manual,/data-seen-send="recognition" disabled/);
   for(const forbidden of ['<div class="ey">Sett</div>','Ga meg rom','Gjorde dagen lettere','Jeg satte pris på at du …','Det kan være noe partneren gjorde'])assert.doesNotMatch(manual,new RegExp(forbidden));
+  for(const [kind,choices] of Object.entries({nice:['Tenkte bare på deg ❤️','Du gjør hverdagen finere','Jeg er glad for oss','Ville bare sende noe fint'],flirt:['Du er skikkelig fin','Gleder meg til senere 😏','Tenker på deg','Du er litt uimotståelig'],space:['Jeg tar litt mer i dag','Du kan slappe av litt','Jeg ordner det praktiske','Du trenger ikke prestere noe i dag ❤️']})){
+    context.FlytSeenUI.openCategory(kind);
+    const message=content.innerHTML.slice(content.innerHTML.indexOf('<section class="seenSheet seenMessageSheet"'));
+    assert.equal((message.match(/seenMessageChoice/g)||[]).length,4,`${kind} har nøyaktig fire forslag`);
+    assert.match(message,/maxlength="200"/);assert.match(message,/data-seen-send="[^"]+" disabled/);
+    for(const choice of choices)assert.match(message,new RegExp(choice.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')));
+  }
 });

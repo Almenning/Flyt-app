@@ -67,13 +67,17 @@ const root=path.resolve(__dirname,'..');
 
     await page.getByRole('button',{name:/Send noe til Jannicke/}).click();
     await page.getByRole('button',{name:/Gi litt rom/}).click();
+    assert.equal(await page.getByRole('button',{name:'Send',exact:true}).isDisabled(),true);
+    await page.getByRole('button',{name:'Du trenger ikke prestere noe i dag ❤️'}).click();
     await page.getByRole('button',{name:'Send',exact:true}).click();
     await page.getByRole('button',{name:/Send noe til Jannicke/}).click();
     await page.getByRole('button',{name:/Noe fint/}).click();
-    assert.match(await page.locator('.seenSheet').innerText(),/Du er favorittmennesket mitt/);
+    assert.match(await page.locator('.seenSheet').innerText(),/Tenkte bare på deg/);
+    await page.getByRole('button',{name:'Jeg er glad for oss'}).click();
     await page.getByRole('button',{name:'Send',exact:true}).click();
     await page.getByRole('button',{name:/Send noe til Jannicke/}).click();
     await page.getByRole('button',{name:/Flørt/}).click();
+    await page.getByRole('button',{name:'Du er litt uimotståelig'}).click();
     await page.getByRole('button',{name:'Send',exact:true}).click();
     snapshot=await page.evaluate(()=>structuredClone(window.__state));
     assert.deepEqual(snapshot.recognitions.map(item=>item.type),['recognition','space','nice','flirt']);
