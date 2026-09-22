@@ -6,7 +6,7 @@ const path=require('node:path');
 const seenCore=require('../seen-core.js');
 
 test('Sett prioriterer partnerens faktiske bidrag og toner ned øvrige handlinger',()=>{
-  const day=seenCore.dateKey(),content={dataset:{},innerHTML:'',scrollTop:0,scrollHeight:900,clientHeight:650},styles=new Map(),navButtons=Array.from({length:4},()=>({dataset:{},classList:{toggle(){}}}));
+  const day=seenCore.dateKey(),content={dataset:{},style:{},innerHTML:'',scrollTop:0,scrollHeight:900,clientHeight:650},styles=new Map(),navButtons=Array.from({length:4},()=>({dataset:{},classList:{toggle(){}}}));
   let state={user:'Tore',view:'seen',status:{Tore:{},Maria:{}},tasks:[{id:'one',name:'Rydde kjøkkenet',pts:30}],completions:[{id:1,taskId:'one',date:day,by:'Maria',registeredAt:new Date().toISOString()}],plannedTasks:[],recognitions:[],seenPersonalNudges:{}};
   const document={
     head:{appendChild(node){if(node.id)styles.set(node.id,node)}},
@@ -29,11 +29,18 @@ test('Sett prioriterer partnerens faktiske bidrag og toner ned øvrige handlinge
   assert.match(content.innerHTML,/Rydde kjøkkenet/);
   assert.match(content.innerHTML,/data-seen-ack="completion\|1"/);
   assert.match(content.innerHTML,/Sett ♡/);
-  assert.match(content.innerHTML,/Noe annet du satte pris på\?/);
-  assert.match(content.innerHTML,/\+ Gi anerkjennelse/);
-  for(const label of ['Noe fint','Flørt','Gi litt rom'])assert.match(content.innerHTML,new RegExp(label));
+  assert.match(content.innerHTML,/Gi anerkjennelse/);
+  assert.match(content.innerHTML,/Send noe til Maria →/);
   assert.match(content.innerHTML,/Se historikk →/,'den enkle eksisterende historikken er fortsatt tilgjengelig');
   assert.match(content.innerHTML,/seenContributionList/);
-  assert.doesNotMatch(content.innerHTML,/Forslag akkurat nå|Hva vil du gjøre\?|Lag en kaffe|Ta oppvasken|En liten fristelse/);
+  assert.doesNotMatch(content.innerHTML,/Forslag akkurat nå|Hva vil du gjøre\?|Noe annet du satte pris på\?|Noe fint|Flørt|Gi litt rom|Lag en kaffe|Ta oppvasken|En liten fristelse|Siste anerkjennelse/);
   assert.doesNotMatch(content.innerHTML,/poeng|rangering|prosent/i);
+  context.FlytSeenUI.openCategory('recognition');
+  const manual=content.innerHTML.slice(content.innerHTML.indexOf('<section class="seenSheet seenManualSheet"'));
+  assert.match(manual,/seenManualSheet/);
+  assert.equal((manual.match(/seenManualChoice/g)||[]).length,4,'manual-sheeten har nøyaktig fire forslag');
+  for(const text of ['Tok initiativ','Var tålmodig','Ordnet noe praktisk','Støttet meg'])assert.match(manual,new RegExp(text));
+  assert.match(manual,/maxlength="200"/);
+  assert.match(manual,/data-seen-send="recognition" disabled/);
+  for(const forbidden of ['<div class="ey">Sett</div>','Ga meg rom','Gjorde dagen lettere','Jeg satte pris på at du …','Det kan være noe partneren gjorde'])assert.doesNotMatch(manual,new RegExp(forbidden));
 });

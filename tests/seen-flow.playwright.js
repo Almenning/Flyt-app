@@ -53,18 +53,26 @@ const root=path.resolve(__dirname,'..');
     snapshot=await page.evaluate(()=>structuredClone(window.__state));
     assert.equal(snapshot.completions.find(item=>item.id==='bed-1').acknowledgements[0].text,'Takk for at du tok leggingen. Jeg trengte pausen ❤️');
 
-    await page.getByRole('button',{name:'+ Gi anerkjennelse'}).click();
+    await page.getByRole('button',{name:/Gi anerkjennelse/}).click();
     assert.match(await page.locator('.seenSheet').innerText(),/Tok initiativ/);
+    assert.equal(await page.getByRole('button',{name:'Send anerkjennelse'}).isDisabled(),true);
+    await page.getByRole('button',{name:'Tok initiativ'}).click();
+    assert.equal(await page.locator('#seenText').inputValue(),'Takk for at du tok initiativ. Jeg satte skikkelig pris på det ❤️');
+    await page.getByRole('button',{name:'Støttet meg'}).click();
+    assert.equal(await page.locator('#seenText').inputValue(),'Takk for at du støttet meg. Jeg satte veldig pris på det ❤️');
     await page.locator('#seenText').fill('Jeg satte pris på at du ordnet alt i morges.');
     await page.getByRole('button',{name:'Send anerkjennelse'}).click();
     assert.equal(await page.locator('.seenSheet').count(),0);
     assert.match((await page.evaluate(()=>window.__toasts.at(-1))),/Anerkjennelse sendt/);
 
+    await page.getByRole('button',{name:/Send noe til Jannicke/}).click();
     await page.getByRole('button',{name:/Gi litt rom/}).click();
     await page.getByRole('button',{name:'Send',exact:true}).click();
+    await page.getByRole('button',{name:/Send noe til Jannicke/}).click();
     await page.getByRole('button',{name:/Noe fint/}).click();
     assert.match(await page.locator('.seenSheet').innerText(),/Du er favorittmennesket mitt/);
     await page.getByRole('button',{name:'Send',exact:true}).click();
+    await page.getByRole('button',{name:/Send noe til Jannicke/}).click();
     await page.getByRole('button',{name:/Flørt/}).click();
     await page.getByRole('button',{name:'Send',exact:true}).click();
     snapshot=await page.evaluate(()=>structuredClone(window.__state));
