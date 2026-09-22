@@ -4,7 +4,7 @@
   "scripts": {
     "test": "npm run test:node && npm run test:browser",
     "test:node": "node --test tests/*.cjs tests/*.mjs tests/recurrence-day-week.test.js tests/summary-core.test.js",
-    "test:browser": "node tests/summary-ui.playwright.js && node tests/rewards-earned.playwright.js"
+    "test:browser": "node tests/summary-ui.playwright.js && node tests/rewards-earned.playwright.js && node tests/seen-flow.playwright.js"
   },
   "engines": {
     "node": ">=22"

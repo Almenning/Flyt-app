@@ -6,7 +6,7 @@ if(root)root.FlytSeenCore=api;
 })(typeof window!=='undefined'?window:globalThis,()=>{
 'use strict';
 
-const VERSION='20260906-actions1';
+const VERSION='20260922-contributions1';
 const OSLO_TIME_ZONE='Europe/Oslo';
 const DEFAULT_SUGGESTIONS=['Tok initiativ','Var tålmodig','Ordnet noe praktisk','Ga meg rom','Støttet meg','Gjorde dagen lettere'];
 const NUDGE_CATEGORIES=['nice','flirt','recognition','space'];
@@ -67,7 +67,7 @@ function contributions(state,{user=state?.user,date=dateKey()}={}){
     if(!planned?.done||planned.date!==date||!planned.doneBy||planned.doneBy===user)continue;
     rows.push({kind:'planned',id:String(planned.id),source:planned,title:String(planned.title||'Ekstraoppgave').trim(),by:planned.doneBy,date,at:stamp(planned.doneAt)||stamp(planned.createdAt),points:Math.max(0,Number(planned.points)||0),acknowledgement:acknowledgementBy(planned,user)});
   }
-  return rows.sort((a,b)=>(b.points||0)-(a.points||0)||(b.at||0)-(a.at||0)||a.title.localeCompare(b.title,'nb'));
+  return rows.sort((a,b)=>(b.at||0)-(a.at||0)||a.title.localeCompare(b.title,'nb'));
 }
 function toggleAcknowledgement(state,{kind='completion',id,user=state?.user,text='',now=Date.now(),allowTextRemoval=false}={}){
   if(!state||!user)return{state,changed:false};
@@ -83,19 +83,33 @@ function toggleAcknowledgement(state,{kind='completion',id,user=state?.user,text
   let action='removed';
   if(!existing){
     action='added';
-    const acknowledgement={id:`seen_${now}_${String(id)}`,type:'task',by:user,to:recipient,at:new Date(now).toISOString()};
+    const acknowledgement={id:`seen_${now}_${String(id)}`,type:'task',by:user,to:recipient,at:new Date(now).toISOString(),seenBy:[user]};
     const cleaned=String(text||'').trim().slice(0,250);if(cleaned)acknowledgement.text=cleaned;
     nextItem.acknowledgements.push(acknowledgement);
   }
   const nextItems=items.slice();nextItems[index]=nextItem;
   return{state:{...state,[field]:nextItems},changed:true,action};
 }
+function setAcknowledgementText(state,{kind='completion',id,user=state?.user,text='',now=Date.now()}={}){
+  if(!state||!user)return{state,changed:false};
+  const field=kind==='planned'?'plannedTasks':'completions',items=Array.isArray(state[field])?state[field]:[],index=items.findIndex(item=>String(item?.id)===String(id));
+  if(index<0)return{state,changed:false};
+  const item=items[index],existing=acknowledgementBy(item,user),value=String(text||'').trim().replace(/\s+/g,' ').slice(0,250);
+  if(!existing||!value||existing.text===value)return{state,changed:false};
+  const current=(Array.isArray(item.acknowledgements)?item.acknowledgements:[]).filter(entry=>String(entry?.by)!==String(user));
+  const updated={...existing,text:value,editedAt:new Date(now).toISOString()};
+  const nextItem={...item,acknowledgements:[...current,updated],thanks:(Array.isArray(item.thanks)?item.thanks:[]).filter(entry=>String(entry?.by)!==String(user))};
+  const nextItems=items.slice();nextItems[index]=nextItem;
+  return{state:{...state,[field]:nextItems},changed:true};
+}
 function addRecognition(state,{type='personal',text,user=state?.user,to='',now=Date.now()}={}){
   const value=String(text||'').trim().replace(/\s+/g,' ').slice(0,250);
   if(!state||!user||!to||user===to||!value)return state;
   const allowed=new Set(['nice','flirt','recognition','space','action','temptation','personal']);
-  const item={id:`recognition_${now}`,type:allowed.has(type)?type:'personal',text:value,by:user,to,at:new Date(now).toISOString(),date:dateKey(new Date(now)),seenBy:[user]};
-  return{...state,recognitions:[...(Array.isArray(state.recognitions)?state.recognitions:[]),item]};
+  const id=`recognition_${now}_${String(user).replace(/\W+/g,'_')}`,items=Array.isArray(state.recognitions)?state.recognitions:[];
+  if(items.some(item=>String(item?.id)===id))return state;
+  const item={id,type:allowed.has(type)?type:'personal',text:value,by:user,to,at:new Date(now).toISOString(),date:dateKey(new Date(now)),seenBy:[user]};
+  return{...state,recognitions:[...items,item]};
 }
 function personalNudges(state,user=state?.user){
   const list=state?.seenPersonalNudges?.[user];
@@ -121,6 +135,30 @@ function recognitionEvents(state){
   }
   return events.sort((a,b)=>b.at-a.at);
 }
+function pendingRecognitionEvents(state,user=state?.user){return recognitionEvents(state).filter(item=>item?.to===user&&!(item.seenBy||[]).includes(user)).sort((a,b)=>a.at-b.at)}
+function markRecognitionEventSeen(state,eventId,user=state?.user){
+  if(!state||!user||!eventId)return state;
+  let changed=false;
+  const markEntries=(item,kind)=>{
+    let itemChanged=false;
+    const markList=list=>(Array.isArray(list)?list:[]).map(entry=>{
+      const id=String(entry?.id||`${kind}_${item?.id}_${entry?.by}`);if(id!==String(eventId)||(entry.to||item?.by||item?.doneBy)!==user||(entry.seenBy||[]).includes(user))return entry;
+      changed=true;itemChanged=true;return{...entry,seenBy:[...new Set([...(entry.seenBy||[]),user])]};
+    });
+    const acknowledgementsList=markList(item?.acknowledgements),thanks=markList(item?.thanks);
+    return itemChanged?{...item,acknowledgements:acknowledgementsList,...(Array.isArray(item?.thanks)?{thanks}: {})}:item;
+  };
+  const completions=(state.completions||[]).map(item=>markEntries(item,'completion')),changedAfterCompletions=changed;
+  const plannedTasks=(state.plannedTasks||[]).map(item=>{
+    const before=changed,next=markEntries(item,'planned');return changed!==before?next:item;
+  });
+  const recognitions=(state.recognitions||[]).map(item=>{
+    if(String(item?.id)!==String(eventId)||item.to!==user||(item.seenBy||[]).includes(user))return item;
+    changed=true;return{...item,seenBy:[...new Set([...(item.seenBy||[]),user])]};
+  });
+  if(!changed)return state;
+  return{...state,completions:changedAfterCompletions?completions:state.completions,plannedTasks,recognitions};
+}
 function suggestions(state,user=state?.user){
   const saved=state?.seenSuggestionPreferences?.[user];
   if(!Array.isArray(saved))return DEFAULT_SUGGESTIONS.slice();
@@ -138,5 +176,5 @@ function resetSuggestions(state,user){
   return{...state,seenSuggestionPreferences:preferences};
 }
 
-return{VERSION,DEFAULT_SUGGESTIONS,NUDGE_CATEGORIES,dateKey,addDays,stamp,acknowledgements,acknowledgementBy,contributions,toggleAcknowledgement,addRecognition,recognitionEvents,suggestions,setSuggestions,resetSuggestions,personalNudges,setPersonalNudges};
+return{VERSION,DEFAULT_SUGGESTIONS,NUDGE_CATEGORIES,dateKey,addDays,stamp,acknowledgements,acknowledgementBy,contributions,toggleAcknowledgement,setAcknowledgementText,addRecognition,recognitionEvents,pendingRecognitionEvents,markRecognitionEventSeen,suggestions,setSuggestions,resetSuggestions,personalNudges,setPersonalNudges};
 });
