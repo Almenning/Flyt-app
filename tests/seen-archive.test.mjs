@@ -7,7 +7,7 @@ const history=readFileSync(new URL('../history-ui.js',import.meta.url),'utf8');
 const watchdog=readFileSync(new URL('../app-watchdog.js',import.meta.url),'utf8');
 const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
 
-assert.match(seen,/const VERSION='20260922-investor-polish1'/);
+assert.match(seen,/const VERSION='20260923-safari-input1'/);
 assert.match(core,/const VERSION='20260922-contributions1'/);
 assert.match(seen,/Se hverandre/);
 assert.match(seen,/har bidratt i dag/);
@@ -22,7 +22,7 @@ assert.match(seen,/maxlength="200"/);
 assert.match(seen,/data-seen-send="\$\{esc\(kind\)\}" disabled/);
 assert.match(seen,/function messageSheet\(/,'the four message flows share one renderer');
 assert.match(seen,/seenMessageGrid/);
-assert.match(seen,/\.seenMessageSheet \.seenTextarea:focus-visible\{border-color:#dfd0c8;outline:0;box-shadow:0 0 0 2px #d67a5a80\}/,'all message textareas replace the global outline with one focus ring');
+assert.match(seen,/\.seenTextarea:focus,.seenTextarea:focus-visible\{border-color:#dfd0c8;outline:0;box-shadow:0 0 0 2px #d67a5a80\}/,'all Sett textareas replace the global outline with one focus ring');
 assert.match(seen,/Send noe til \$\{esc\(partner\)\} →/);
 for(const key of ['nice','flirt','space'])assert.match(seen,new RegExp(`${key}:\\{title:`));
 assert.match(seen,/Du trenger ikke prestere noe i dag ❤️/);
@@ -40,7 +40,7 @@ assert.match(history,/data-seen-suggestion-edit/);
 assert.match(history,/data-seen-suggestion-delete/);
 assert.match(history,/seenPersonalCategory/,'personal nudges can choose a category');
 assert.match(watchdog,/seen-core\.js\?v=20260922-contributions1/);
-assert.match(watchdog,/seen-ui\.js\?v=20260922-investor-polish1/);
+assert.match(watchdog,/seen-ui\.js\?v=20260923-safari-input1/);
 assert.doesNotMatch(html,/<button data-view="us"/,'Oss is removed from the main navigation');
 assert.match(html,/grid-template-columns:repeat\(4,1fr\)/,'the bottom navigation has four equal destinations');
 

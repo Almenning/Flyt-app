@@ -55,6 +55,14 @@ const root=path.resolve(__dirname,'..');
 
     await page.getByRole('button',{name:/Gi anerkjennelse/}).click();
     assert.match(await page.locator('.seenSheet').innerText(),/Tok initiativ/);
+    await page.locator('#seenText').focus();
+    assert.equal(await page.locator('#seenText').evaluate(el=>getComputedStyle(el).fontSize),'16px','mobile text fields must not trigger Safari zoom');
+    assert.match(await page.locator('.seenSheetLayer').evaluate(el=>getComputedStyle(el).height),/px$/,'the sheet tracks a concrete visual viewport height');
+    await page.locator('.seenSheetClose').click();
+    assert.equal(await page.locator('.seenSheet').count(),0,'closing a focused sheet returns to the normal page');
+    assert.equal(await page.locator('#content').evaluate(el=>el.style.overflow),'','closing restores app scrolling');
+
+    await page.getByRole('button',{name:/Gi anerkjennelse/}).click();
     assert.equal(await page.getByRole('button',{name:'Send anerkjennelse'}).isDisabled(),true);
     await page.getByRole('button',{name:'Tok initiativ'}).click();
     assert.equal(await page.locator('#seenText').inputValue(),'Takk for at du tok initiativ. Jeg satte skikkelig pris på det ❤️');
@@ -65,6 +73,11 @@ const root=path.resolve(__dirname,'..');
     assert.equal(await page.locator('.seenSheet').count(),0);
     assert.match((await page.evaluate(()=>window.__toasts.at(-1))),/Anerkjennelse sendt/);
 
+    await page.getByRole('button',{name:/Send noe til Jannicke/}).click();
+    await page.getByRole('button',{name:/Gi litt rom/}).click();
+    await page.locator('#seenText').focus();
+    await page.locator('[data-seen-sheet-layer]').click({position:{x:4,y:4}});
+    assert.equal(await page.locator('.seenSheet').count(),0,'backdrop close also releases a focused message field');
     await page.getByRole('button',{name:/Send noe til Jannicke/}).click();
     await page.getByRole('button',{name:/Gi litt rom/}).click();
     assert.equal(await page.getByRole('button',{name:'Send',exact:true}).isDisabled(),true);
