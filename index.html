@@ -10,7 +10,7 @@
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png">
 <script>
-(()=>{const key='hverdagsoss_sw_reset_v75';if(!('serviceWorker'in navigator))return;try{if(localStorage.getItem(key)==='1')return;localStorage.setItem(key,'1')}catch(e){}navigator.serviceWorker.getRegistrations().then(registrations=>{if(!registrations.length)return;return Promise.all(registrations.map(registration=>registration.unregister())).then(()=>location.reload())}).catch(()=>{})})();
+(()=>{const key='hverdagsoss_sw_reset_v77';if(!('serviceWorker'in navigator))return;try{if(localStorage.getItem(key)==='1')return;localStorage.setItem(key,'1')}catch(e){}navigator.serviceWorker.getRegistrations().then(registrations=>{if(!registrations.length)return;return Promise.all(registrations.map(registration=>registration.unregister())).then(()=>location.reload())}).catch(()=>{})})();
 </script>
 <script src="./vendor/supabase-2.116.0.js?v=20260920-local1" defer></script>
 <script src="./task-language.js?v=20260903-master1" defer></script>
@@ -21,7 +21,8 @@
 <script src="./seen-core.js?v=20260922-contributions1" defer></script>
 <script src="./seen-ui.js?v=20260923-safari-input1" defer></script>
 <script src="./rewards-goals-core.js?v=20260921-earned-rewards1" defer></script>
-<script src="./sync.js?v=20260922-investor-polish1" defer></script>
+<script src="./sync-merge.js?v=20260923-revision-sync1" defer></script>
+<script src="./sync.js?v=20260923-revision-sync1" defer></script>
 <script src="./daily-status.js?v=20260902-1200" defer></script>
 <script src="./oss.js?v=20260902-1800" defer></script>
 <script src="./nav-scroll-top-ui.js?v=20260914-drag2" defer></script>

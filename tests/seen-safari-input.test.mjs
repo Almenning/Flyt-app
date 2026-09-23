@@ -20,6 +20,6 @@ assert.match(lock,/\.seenSheet\{touch-action:pan-y!important;overscroll-behavior
 assert.match(index,/seen-ui\.js\?v=20260923-safari-input1/);
 assert.match(index,/modal-scroll-lock\.js\?v=20260923-safari-input1/);
 assert.match(index,/app-watchdog\.js\?v=20260923-safariinput1/);
-assert.match(serviceWorker,/const CACHE='flyt-v76'/);
+assert.match(serviceWorker,/const CACHE='flyt-v77'/);
 
 console.log('ok - Sett tekstfelt håndterer iPhone-tastatur og fokus uten zoom/låsing');

@@ -9,6 +9,10 @@ for (const label of ['Lagrer…', 'Lagret', 'Venter på nett', 'Ikke lagret']) {
 }
 assert.match(sync, /id="syncRetry"/, 'Feilet lagring må kunne prøves på nytt');
 assert.match(sync, /window\.addEventListener\('online'/, 'Appen må forsøke igjen når nettet kommer tilbake');
+assert.match(sync, /save_my_flyt_state_v2/, 'All ordinær lagring må bruke revisjonskontroll');
+assert.doesNotMatch(sync, /save_my_flyt_state'\s*,/, 'Synklaget må ikke bruke ubeskyttet lagring');
+assert.match(sync, /p_expected_revision/, 'Klienten må sende siste kjente server-revisjon');
+assert.match(sync, /uiBusy\(\)/, 'Synk må beskytte åpne tekstfelt og sorteringsmodus');
 assert.match(sync, /HverdagsOss/, 'Synklaget må bruke nytt appnavn i synlige flater');
 
 console.log('ok - synkstatus forklarer lagring, nettutfall og nytt forsøk');
