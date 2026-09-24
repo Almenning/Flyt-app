@@ -8,7 +8,7 @@ let menuId=null,editingId=null;
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&#39;'}[c]));
 function today(){const p=Object.fromEntries(new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Oslo',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date()).filter(x=>x.type!=='literal').map(x=>[x.type,x.value]));return p.year+'-'+p.month+'-'+p.day}
 function addDays(key,n){const d=new Date(key+'T12:00:00');d.setDate(d.getDate()+n);return d.toISOString().slice(0,10)}
-function userKey(){const s=state(),ctx=window.FlytSync?.getContext?.();return 'hverdagsoss:private-tasks:v1:'+(ctx?.user_id||s?.user||'anonymous')}
+function userKey(){const ctx=window.FlytSync?.getContext?.();return 'hverdagsoss:private-tasks:v1:'+(ctx?.user_id||'anonymous')}
 function read(){try{const list=JSON.parse(localStorage.getItem(userKey())||'[]');return Array.isArray(list)?list:[]}catch{return[]}}
 function write(tasks){try{localStorage.setItem(userKey(),JSON.stringify(tasks))}catch{}}
 function pending(tasks=read()){return tasks.filter(t=>!t.done).length}

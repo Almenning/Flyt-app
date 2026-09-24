@@ -6,12 +6,12 @@ if(root)root.FlytGoalsCore=api;
 })(typeof window!=='undefined'?window:globalThis,root=>{
 'use strict';
 
-const VERSION='20260921-earned-rewards1';
+const VERSION='20260923-privacy-safe1';
 const OSLO_TIME_ZONE='Europe/Oslo';
 const REWARD_LIBRARY=Object.freeze({
   'Tid og frihet':Object.freeze(['Sovemorgen','Egentid','Kveld ute med venner','Hobby-/gamingtid','Fri fra hjemmeoppgaver']),
   'Opplevelser':Object.freeze(['Takeaway','Datekveld','Restaurant','Aktivitet på eget valg','Hotell / helgetur']),
-  'Fristelse ❤️':Object.freeze(['Massasje','Sexy undertøy','En intim kveld','30 minutter bare for deg','Du velger ❤️'])
+  'Fristelse ❤️':Object.freeze(['Massasje','En kveld sammen','30 minutter bare for deg','Du velger ❤️'])
 });
 const REWARD_PRICES=Object.freeze({
   'Sovemorgen':60,'Egentid':60,'Kveld ute med venner':80,'Hobby-/gamingtid':50,'Fri fra hjemmeoppgaver':90,

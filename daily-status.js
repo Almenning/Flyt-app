@@ -1,7 +1,7 @@
 ((root)=>{
 'use strict';
 
-const VERSION='20260902-1200';
+const VERSION='20260923-granular-consent1';
 const LEVEL_LABEL={low:'Lite å gå på',med:'Som vanlig',high:'Godt med overskudd'};
 const SHORT_LEVEL_LABEL={low:'Lite',med:'Som vanlig',high:'Godt'};
 const NEEDS=[
@@ -9,8 +9,7 @@ const NEEDS=[
   ['initiative','Initiativ'],
   ['quiet','Ro'],
   ['alone','Alenetid'],
-  ['closeness','Nærhet'],
-  ['sex','Intimitet']
+  ['closeness','Nærhet']
 ];
 
 function stamp(value){
@@ -45,8 +44,6 @@ function fallbackLegacyFields(status,capacity){
   return {
     energy:status?.energy||value,
     capacity:value,
-    closeness:status?.closeness||'med',
-    desire:status?.desire||'med',
     stress:status?.stress||(value==='low'?'high':value==='high'?'low':'med')
   };
 }

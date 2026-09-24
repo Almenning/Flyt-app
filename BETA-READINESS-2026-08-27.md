@@ -15,8 +15,8 @@ Denne gjennomgangen gjelder teknisk stabilitet, konto/innlogging, datatilgang, p
 | Par-kobling | 🟢 | Husholdning opprettes av én bruker og partner kobles på med invitasjonskode. Maks to medlemmer håndheves. |
 | Isolasjon mellom husholdninger | 🟢 / 🟡 | RLS og RPC-ene er gjennomgått og avgrenser data etter innlogget bruker/husholdning. En separat dynamisk test med to disponible husholdninger bør gjøres før betaen utvides. |
 | Direkte anonym tilgang | 🟢 | Anon har ikke direkte tilgang til husholdnings-, profil- eller statusdata. Unødvendige tabellprivilegier er fjernet. |
-| Sensitive samlivsdata | 🟢 | Eksplisitt samtykke kreves før skybasert husholdningsdata kan brukes. Partnerstatus og andre delte kontekster returnerer ikke data uten gjeldende samtykke. |
-| Trekke tilbake samtykke | 🟢 | Selvbetjent funksjon finnes. Egen status, egne behov og egne registreringer i de mest sensitive samlivsfunksjonene fjernes, og skyfunksjonen låses frem til eventuelt nytt samtykke. |
+| Sensitive samlivsdata | 🟢 | Kjerneproduktet bruker generell personvernaksept. Den private innsjekken om lyst og intimitet er av som standard og krever et separat, uttrykkelig samtykke. |
+| Trekke tilbake samtykke | 🟢 | Sensitivt samtykke kan trekkes separat. Egne intime data fjernes, mens konto, husholdning, vanlig dagsform, gjøremål, Sett og ordinær historikk beholdes. |
 | Slette konto | 🟢 / 🟡 | Selvbetjent permanent sletting finnes. Egen konto og egne data fjernes; hvis partneren blir igjen, overføres husholdningen og gjenværende navnehenvisninger anonymiseres. Bør destruktivt ende-til-ende-testes med disponible testkontoer. |
 | Personverninformasjon | 🟢 | `privacy.html` forklarer data, formål, deling, samtykke, EU-lagring, sletting og rettigheter, og har nå identitet og kontaktinformasjon for behandlingsansvarlig i betaen. |
 | Beta-tilbakemelding | 🟢 | Tilbakemeldingsfunksjon finnes i appmenyen og lagrer melding med begrenset teknisk kontekst. |
@@ -31,8 +31,8 @@ Denne gjennomgangen gjelder teknisk stabilitet, konto/innlogging, datatilgang, p
 
 ## Endringer gjort før beta
 
-- Innført versjonert beta-samtykke og separat uttrykkelig samtykke for sensitive samlivsopplysninger.
-- Skybaserte husholdningsfunksjoner krever gjeldende samtykke.
+- Innført versjonert personvernaksept og separat uttrykkelig samtykke for sensitive samlivsopplysninger.
+- Skybaserte kjernefunksjoner krever generell personvernaksept, ikke sensitivt samtykke.
 - Lagt til `Konto og personvern` i appmenyen.
 - Lagt til selvbetjent tilbaketrekking av samtykke.
 - Lagt til selvbetjent permanent kontosletting.

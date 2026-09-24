@@ -108,7 +108,7 @@ test('belønningsbiblioteket er voksent uten vanlig hverdagsomsorg som valuta',(
   assert.deepEqual(Object.keys(core.REWARD_LIBRARY),['Tid og frihet','Opplevelser','Fristelse ❤️']);
   assert.deepEqual(core.REWARD_LIBRARY['Tid og frihet'],['Sovemorgen','Egentid','Kveld ute med venner','Hobby-/gamingtid','Fri fra hjemmeoppgaver']);
   assert.deepEqual(core.REWARD_LIBRARY.Opplevelser,['Takeaway','Datekveld','Restaurant','Aktivitet på eget valg','Hotell / helgetur']);
-  assert.deepEqual(core.REWARD_LIBRARY['Fristelse ❤️'],['Massasje','Sexy undertøy','En intim kveld','30 minutter bare for deg','Du velger ❤️']);
+  assert.deepEqual(core.REWARD_LIBRARY['Fristelse ❤️'],['Massasje','En kveld sammen','30 minutter bare for deg','Du velger ❤️']);
   const all=Object.values(core.REWARD_LIBRARY).flat();
   assert.ok(!all.includes('Kaffe på senga'));
   assert.ok(!all.includes('Klem'));

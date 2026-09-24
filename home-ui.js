@@ -2,10 +2,10 @@
 'use strict';
 const $=s=>document.querySelector(s);
 const bridge=()=>window.FlytBridge;
-const VERSION='20260907-homecompact1';
+const VERSION='20260923-granular-consent1';
 let partnerCtx=null,loadingPartner=false,statusEditorOpen=false,statusDraft=null,statusSaving=false,statusError='';
 const LABEL={low:'Lav',med:'Middels',high:'Høy'};
-const NEED_LABEL={relief:'Avlastning',closeness:'Nærhet',sex:'Intimitet',initiative:'Initiativ',alone:'Alenetid',quiet:'Ro'};
+const NEED_LABEL={relief:'Avlastning',closeness:'Nærhet',initiative:'Initiativ',alone:'Alenetid',quiet:'Ro'};
 const STATUS_LEVELS=[
   {key:'heavy',label:'Tung',capacity:'low',rank:1},
   {key:'low',label:'Lite overskudd',capacity:'low',rank:2},
@@ -143,7 +143,7 @@ async function saveHomeStatus(){
       bridge().setState({...s,status:{...(s.status||{}),[currentName(s)]:{...(previous||{}),capacity:next.capacity,capacity_level:next.capacity_level,needs:next.needs,daily_updated_at:now,updated_at:now}}});
       window.FlytSync?.queueSave?.();
     }else{
-      const legacy=dailyApi()?.fallbackLegacyFields?.(previous,next.capacity)||{energy:next.capacity,capacity:next.capacity,closeness:'med',desire:'med',stress:'med'};
+      const legacy=dailyApi()?.fallbackLegacyFields?.(previous,next.capacity)||{energy:next.capacity,capacity:next.capacity,stress:'med'};
       bridge().setState({...s,status:{...(s.status||{}),[currentName(s)]:{...(previous||{}),...legacy,capacity_level:next.capacity_level,needs:next.needs,daily_updated_at:now,updated_at:now}}});
     }
     statusEditorOpen=false;statusDraft=null;bridge()?.toast?.('Dagsformen er oppdatert');

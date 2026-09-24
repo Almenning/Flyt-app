@@ -9,6 +9,7 @@ assert.equal(daily.capacityLabel('low'),'Lite å gå på');
 assert.equal(daily.capacityLabel('med'),'Som vanlig');
 assert.equal(daily.capacityLabel('high'),'Godt med overskudd');
 assert.deepEqual(daily.cleanNeeds(['relief','relief','invalid','quiet']),['relief','quiet']);
+assert.deepEqual(daily.cleanNeeds(['closeness','sex']),['closeness'],'ordinary closeness stays available while intimacy is not part of daily status');
 
 const yesterday={...today,daily_updated_at:'2026-09-01T23:50:00+02:00'};
 assert.equal(daily.isFresh(yesterday,{now:now.getTime()}),false,'yesterday’s daily check-in must never be shown as current');
