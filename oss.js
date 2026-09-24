@@ -1,7 +1,7 @@
 (()=>{
 'use strict';
 
-const VERSION='20260923-granular-consent1';
+const VERSION='20260924-rpc-surface1';
 const $=selector=>document.querySelector(selector);
 const bridge=()=>window.FlytBridge;
 const LEVELS=['low','med','high'];
@@ -12,8 +12,7 @@ let ctx=null,rows=[],rendering=false,mode='week',dailyDraft=null,relationshipDra
 const esc=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 async function rpc(name,args){const fn=window.FlytSync?.rpc;if(!fn)throw new Error('Flyt-synkronisering er ikke klar');return await fn(name,args)}
 async function fastContext(){const {data,error}=await rpc('get_oss_context');if(error)throw error;ctx={user_id:data?.user_id,members:Array.isArray(data?.members)?data.members:[],sensitive_consent:data?.sensitive_consent===true};rows=Array.isArray(data?.statuses)?data.statuses:[];return data}
-async function legacyContext(){const account=await rpc('get_my_flyt_context');if(account.error)throw account.error;const status=await rpc('get_household_status');if(status.error)throw status.error;ctx={user_id:account.data?.user_id,members:Array.isArray(account.data?.members)?account.data.members:[]};rows=Array.isArray(status.data)?status.data:[];return{user_id:ctx.user_id,members:ctx.members,statuses:rows}}
-async function refreshContext(){try{return await fastContext()}catch(error){console.warn('Flyt Oss fast context failed, using fallback',error);return await legacyContext()}}
+async function refreshContext(){return await fastContext()}
 function fallback(){return{user_id:ctx?.user_id,energy:'med',capacity:'med',stress:'med',needs:[],updated_at:null}}
 function sensitiveEnabled(){return ctx?.sensitive_consent===true&&window.FlytAccountUI?.hasSensitiveConsent?.()===true}
 function mine(){return rows.find(item=>String(item.user_id)===String(ctx?.user_id))||fallback()}

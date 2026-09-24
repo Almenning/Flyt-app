@@ -21,9 +21,9 @@ assert.match(index, /app-watchdog\.js\?v=20260924-local-sanitization1/, 'Nettles
 assert.doesNotMatch(index, /cdn\.jsdelivr\.net\/npm\/@supabase/, 'Oppstarten må ikke blokkeres av en ekstern Supabase-CDN');
 assert.match(index, /vendor\/supabase-2\.116\.0\.js\?v=20260920-local1" defer/, 'Supabase-klienten må lastes lokalt uten å blokkere HTML-tegning');
 assert.ok(existsSync(new URL('../vendor/supabase-2.116.0.js', import.meta.url)), 'Den versjonslåste Supabase-klienten må følge appen');
-assert.match(index, /hverdagsoss_sw_reset_v80/, 'Gamle service workers må avregistreres én gang før appskriptene lastes');
+assert.match(index, /hverdagsoss_sw_reset_v81/, 'Gamle service workers må avregistreres én gang før appskriptene lastes');
 assert.match(index, /registration=>registration\.unregister\(\)/, 'Den fastlåste service workeren må faktisk avregistreres');
-assert.match(serviceWorker, /const CACHE='flyt-v80'/, 'Offline-cachen må fornyes når produktlogikken endres');
+assert.match(serviceWorker, /const CACHE='flyt-v81'/, 'Offline-cachen må fornyes når produktlogikken endres');
 assert.match(serviceWorker, /const NETWORK_TIMEOUT_MS=5000/, 'Service workeren må ha tidsgrense for nettverkskall');
 assert.match(serviceWorker, /caches\.match\(req,\{ignoreSearch:true\}\)/, 'Versjonerte statiske filer må kunne hentes fra cache');
 assert.match(serviceWorker, /\.\/vendor\/supabase-2\.116\.0\.js/, 'Den lokale Supabase-klienten må være tilgjengelig offline');
