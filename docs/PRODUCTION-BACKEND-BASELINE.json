@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "purpose": "Fase 5C-2 produksjonsgrunnlag; avgrenset til aktive HverdagsOss-objekter og bekreftet historikk.",
+  "active_database_tables": [
+    "private.beta_consents",
+    "public.profiles",
+    "public.households",
+    "public.household_members",
+    "public.household_state",
+    "public.member_status",
+    "public.status_events",
+    "public.beta_feedback"
+  ],
+  "active_client_rpcs": [
+    "accept_privacy_terms",
+    "accept_sensitive_consent",
+    "withdraw_sensitive_consent",
+    "get_my_beta_consent",
+    "get_my_flyt_context",
+    "get_oss_context",
+    "create_household",
+    "join_household_v2",
+    "rotate_household_invite",
+    "disconnect_partner",
+    "save_my_flyt_state_v2",
+    "save_my_daily_status",
+    "save_my_relationship_status",
+    "set_my_display_name",
+    "submit_beta_feedback",
+    "delete_my_account",
+    "mark_status_event_read",
+    "get_home_partner_context"
+  ],
+  "legacy_tables_retained_without_client_grants": {
+    "public.user_plans": "historiske data; delete_my_account rydder egne rader",
+    "public.workout_sessions": "historiske data; delete_my_account rydder egne rader",
+    "public.daily_status": "historiske data; delete_my_account rydder egne rader",
+    "public.relationships": "historiske data og private relasjonshjelpere; delete_my_account rydder",
+    "public.relationship_members": "historiske data og private relasjonshjelpere; delete_my_account rydder",
+    "public.relationship_invites": "historiske data og private relasjonshjelpere; delete_my_account rydder",
+    "public.nudge_events": "historiske data; delete_my_account rydder egne rader",
+    "public.profile_cards": "historiske data; delete_my_account rydder egne rader",
+    "public.custom_nudges": "historiske data; delete_my_account rydder egne rader",
+    "public.partner_training_windows": "historiske data; delete_my_account rydder egne rader",
+    "public.partner_signals": "historiske data; delete_my_account rydder egne rader",
+    "public.app_bundles": "historisk bundle-lager; allerede uten klientgrants",
+    "public.app_bundle_chunks": "historisk bundle-lager; allerede uten klientgrants"
+  },
+  "edge_functions": {
+    "production_required": [],
+    "legacy_candidates": [
+      "tyvstart-beta",
+      "flyt-pilot",
+      "vercel-import-probe",
+      "xhtml-probe",
+      "flyt-sync"
+    ],
+    "note": "Ingen av disse er referert av dagens klient eller aktive RPC-er. De beholdes foreløpig fordi eksterne kall ikke kan utelukkes fra repo-/databaseinspeksjon alene."
+  }
+}
