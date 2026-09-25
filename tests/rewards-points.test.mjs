@@ -99,6 +99,10 @@ test('Mål og belønning beholder mobilhierarki og bruker varme eksisterende far
   assert.match(source, /var\(--accent\)/);
   assert.match(source, /var\(--deep\)/);
   assert.match(source, /Poeng viser innsats og fremdrift\. De brukes ikke opp/);
+  assert.match(source, /Avtalt belønning/,'legacy reward rows do not present a point price');
+  assert.doesNotMatch(source,/\$\{p\.cost\} poeng/,'legacy reward rows do not imply a checkout');
+  assert.match(source,/goalField input,.goalField select,.goalField textarea,.deadlineNative,.pointManual\{font-size:16px\}/,'goal inputs avoid iPhone focus zoom');
+  assert.ok(source.indexOf("return `${ongoingSection") < source.indexOf('class="rewardActions"'),'progress and ready rewards precede secondary actions');
   assert.doesNotMatch(source, /Poengene trekkes først når du bekrefter|data-reward-redeem|data-catalog-redeem/);
   assert.doesNotMatch(source, /#[0-9a-f]{0,2}(?:00f|0080ff|0000ff)/i);
 });
