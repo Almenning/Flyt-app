@@ -3,6 +3,7 @@ const fs=require('node:fs');
 const index=fs.readFileSync(require('node:path').join(__dirname,'..','index.html'),'utf8');
 const modal=fs.readFileSync(require('node:path').join(__dirname,'..','modal-scroll-lock.js'),'utf8');
 const recurrence=fs.readFileSync(require('node:path').join(__dirname,'..','recurrence-ui.js'),'utf8');
+const sync=fs.readFileSync(require('node:path').join(__dirname,'..','sync.js'),'utf8');
 
 assert.match(index,/role="status" aria-live="polite" aria-atomic="true"/,'the global toast must announce status changes');
 assert.match(index,/<nav id="nav" class="nav" aria-label="Hovednavigasjon">/,'the primary navigation needs an accessible name');
@@ -11,11 +12,17 @@ assert.match(modal,/function trapFocus/,'modal focus must be trapped');
 assert.match(modal,/function muteBackground/,'modal background must be made inert');
 assert.match(modal,/setAttribute\('inert',''\)/,'background must not remain keyboard-accessible');
 assert.match(modal,/focusOrigins/,'focus must be returned after closing a dialog');
+assert.match(modal,/function dismissOnEscape/,'Escape must close a dialog when it has a close control');
+assert.match(modal,/aria-labelledby/,'dialogs without a supplied label must receive a title relationship');
+assert.match(modal,/prefers-reduced-motion:reduce/,'non-essential motion must respect the user preference');
 assert.match(modal,/aria-pressed/,'selected controls must expose a non-colour state to assistive technology');
 assert.match(modal,/function setAttributeIfChanged\(element,name,value\)\{if\(element\.getAttribute\(name\)===value\)return false;/,'modal annotations must not rewrite unchanged observed attributes');
 assert.match(modal,/setAttributeIfChanged\(toast,'role','status'\)/,'the observed toast role must use the idempotent attribute helper');
 assert.doesNotMatch(modal,/toast\.setAttribute\('role','status'\)/,'the modal observer must not retrigger itself by rewriting the toast role');
 assert.match(recurrence,/data-task-reorder-move="up"/,'sorting must offer moving an item up without drag and drop');
 assert.match(recurrence,/data-task-reorder-move="down"/,'sorting must offer moving an item down without drag and drop');
+assert.match(recurrence,/data-task-popup-toggle/,'task menus must retain an accessible trigger');
+assert.match(index,/\.login \.field\{font-size:16px\}/,'auth fields must avoid Safari focus zoom');
+assert.match(sync,/betaName:'Fornavn',betaEmail:'E-post',betaPassword:'Passord'/,'auth inputs must have programmatic labels');
 
 console.log('ok - central accessibility safeguards are present');

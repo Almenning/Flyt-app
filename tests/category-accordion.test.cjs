@@ -119,6 +119,7 @@ test('lukket kategori skjuler innhold og hele overskriften er en knapp', () => {
   const opened = api.item({ key: 'Barn', label: 'Barn', count: 25, open: true, attribute: 'data-v2-category-toggle', body: '<p>Synlig</p>' });
 
   assert.match(closed, /<button[^>]+class="categoryAccordionHeader"[^>]+aria-expanded="false"/);
+  assert.match(closed, /aria-controls="category-panel-/,'accordion buttons must identify their controlled region');
   assert.doesNotMatch(closed, /Skjult/);
   assert.match(opened, /aria-expanded="true"/);
   assert.match(opened, /<p>Synlig<\/p>/);

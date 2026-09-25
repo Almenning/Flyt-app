@@ -18,7 +18,7 @@ assert.match(seen,/overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-
 assert.match(seen,/\.seenTextarea:focus,.seenTextarea:focus-visible\{border-color:#dfd0c8;outline:0;box-shadow:0 0 0 2px #d67a5a80\}/,'feltet skal ha én kontrollert focus-ring');
 assert.match(lock,/\.seenSheet\{touch-action:pan-y!important;overscroll-behavior:contain!important;-webkit-overflow-scrolling:touch!important\}/,'felles modal-lås må la Sett-sheeten scrolles');
 assert.match(index,/seen-ui\.js\?v=20260925-seen-polish1/);
-assert.match(index,/modal-scroll-lock\.js\?v=20260923-safari-input1/);
+assert.match(index,/modal-scroll-lock\.js\?v=20260925-accessibility1/);
 assert.match(index,/app-watchdog\.js\?v=20260924-local-sanitization1/);
 assert.match(serviceWorker,/const CACHE='flyt-v81'/);
 
