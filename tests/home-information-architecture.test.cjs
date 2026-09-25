@@ -85,13 +85,16 @@ test('Hjem viser oss i dag uten å duplisere arbeidsflaten', () => {
   assert.match(html, /data-home-daily-goal/);
   assert.match(html, /homeGoalHead/);
   assert.match(html, /(?:Hei|God morgen|God dag|God kveld), Tore/);
-  assert.match(html, /Et raskt overblikk over dagen deres/);
+  assert.doesNotMatch(html, /Et raskt overblikk over dagen deres/);
   assert.match(html, /50 %/);
   assert.match(html, /1 igjen/);
-  assert.match(html, /Dere er godt i rute/);
+  assert.match(html, /Godt i rute/);
   assert.doesNotMatch(html, />Fullført<\/span><strong>|>Gjenstår<\/span><strong>/);
   assert.match(html, /Se dagens gjøremål/);
   assert.match(html, /Hvordan har dere det i dag\?/);
+  assert.match(html, /Ingen aktiv/);
+  assert.match(html, /Gi utfordring/);
+  assert.match(html, /Be om en/);
   assert.equal((html.match(/homeMoodDots/g)||[]).length >= 2, true);
   assert.doesNotMatch(html, /data-home-next|data-home-week|>Neste<|>Denne uka</);
   assert.ok(html.indexOf('data-home-daily-goal') < html.indexOf('data-home-status-card'));
