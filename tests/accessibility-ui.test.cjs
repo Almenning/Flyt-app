@@ -24,5 +24,8 @@ assert.match(recurrence,/data-task-reorder-move="down"/,'sorting must offer movi
 assert.match(recurrence,/data-task-popup-toggle/,'task menus must retain an accessible trigger');
 assert.match(index,/\.login \.field\{font-size:16px\}/,'auth fields must avoid Safari focus zoom');
 assert.match(sync,/betaName:'Fornavn',betaEmail:'E-post',betaPassword:'Passord'/,'auth inputs must have programmatic labels');
+assert.match(sync,/class="syncSheet" role="dialog" aria-modal="true" aria-labelledby="syncTitle"/,'partner connection sheet must be a labelled modal dialog');
+const rewards=fs.readFileSync(require('node:path').join(__dirname,'..','rewards-ui.js'),'utf8');
+assert.match(rewards,/data-goalflow-close aria-label="Lukk måloppsett"/,'goal flow close controls must have accessible names');
 
 console.log('ok - central accessibility safeguards are present');
