@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const VERSION = '20260926-native-deeplink1';
+  const VERSION = '20260926-session-safety1';
   const LEGACY_SUPABASE_PREFIX = 'sb-uopzveejnztbovncqbpq-';
   const capacitor = window.Capacitor;
   const isNative = !!(capacitor && (
@@ -11,6 +11,29 @@
   const platform = isNative ? capacitor.getPlatform?.() || 'native' : 'web';
   let appPlugin = null;
   let secureStoragePlugin = null;
+  const AUTH_BLOCK_KEY = 'hverdagsoss:auth-blocked:v1';
+  let storageEpoch = 0;
+  let storageQueue = Promise.resolve();
+  let authLocked = false;
+  try { authLocked = localStorage.getItem(AUTH_BLOCK_KEY) === '1'; } catch (_) { authLocked = true; }
+  function serializeStorage(action) {
+    const work = storageQueue.then(action);
+    storageQueue = work.catch(() => {});
+    return work;
+  }
+  function assertStorageEpoch(epoch) {
+    if (authLocked || epoch !== storageEpoch) throw new Error('AUTH_STORAGE_LOCKED');
+  }
+  function lockAuthStorage() {
+    authLocked = true;
+    storageEpoch++;
+    localStorage.setItem(AUTH_BLOCK_KEY, '1');
+  }
+  function unlockAuthStorage() {
+    localStorage.removeItem(AUTH_BLOCK_KEY);
+    storageEpoch++;
+    authLocked = false;
+  }
 
   function getAppPlugin() {
     if (!isNative || typeof capacitor?.registerPlugin !== 'function') return null;
@@ -48,40 +71,56 @@
 
   const secureAuthStorage = isNative ? Object.freeze({
     async getItem(key) {
-      const plugin = getSecureStoragePlugin();
-      if (!plugin) throw new Error('NATIVE_SECURE_STORAGE_UNAVAILABLE');
-      const result = await plugin.get({ key });
-      if (typeof result?.value === 'string') {
+      const epoch = storageEpoch;
+      if (authLocked) return null;
+      return serializeStorage(async () => {
+        assertStorageEpoch(epoch);
+        const plugin = getSecureStoragePlugin();
+        if (!plugin) throw new Error('NATIVE_SECURE_STORAGE_UNAVAILABLE');
+        const result = await plugin.get({ key });
+        assertStorageEpoch(epoch);
+        if (typeof result?.value === 'string') {
+          removeLegacyValue(key);
+          return result.value;
+        }
+        const legacy = legacyValue(key);
+        if (legacy === null) return null;
+        await plugin.set({ key, value: legacy });
+        assertStorageEpoch(epoch);
         removeLegacyValue(key);
-        return result.value;
-      }
-
-      const legacy = legacyValue(key);
-      if (legacy === null) return null;
-      await plugin.set({ key, value: legacy });
-      removeLegacyValue(key);
-      return legacy;
+        return legacy;
+      });
     },
     async setItem(key, value) {
-      const plugin = getSecureStoragePlugin();
-      if (!plugin) throw new Error('NATIVE_SECURE_STORAGE_UNAVAILABLE');
-      await plugin.set({ key, value: String(value) });
-      removeLegacyValue(key);
+      const epoch = storageEpoch;
+      return serializeStorage(async () => {
+        assertStorageEpoch(epoch);
+        const plugin = getSecureStoragePlugin();
+        if (!plugin) throw new Error('NATIVE_SECURE_STORAGE_UNAVAILABLE');
+        await plugin.set({ key, value: String(value) });
+        assertStorageEpoch(epoch);
+        removeLegacyValue(key);
+      });
     },
     async removeItem(key) {
-      const plugin = getSecureStoragePlugin();
-      if (!plugin) throw new Error('NATIVE_SECURE_STORAGE_UNAVAILABLE');
-      await plugin.remove({ key });
-      removeLegacyValue(key);
+      return serializeStorage(async () => {
+        const plugin = getSecureStoragePlugin();
+        if (!plugin) throw new Error('NATIVE_SECURE_STORAGE_UNAVAILABLE');
+        await plugin.remove({ key });
+        removeLegacyValue(key);
+      });
     },
   }) : null;
 
   async function clearSecureAuthStorage() {
     if (!isNative) return;
-    const plugin = getSecureStoragePlugin();
-    if (!plugin) throw new Error('NATIVE_SECURE_STORAGE_UNAVAILABLE');
-    await plugin.clear();
-    clearLegacyAuthStorage();
+    // A clear is ordered after any already-running Keychain write.
+    return serializeStorage(async () => {
+      const plugin = getSecureStoragePlugin();
+      if (!plugin) throw new Error('NATIVE_SECURE_STORAGE_UNAVAILABLE');
+      await plugin.clear();
+      clearLegacyAuthStorage();
+    });
   }
 
   async function addAppStateListener(listener) {
@@ -109,12 +148,21 @@
     return result?.url || null;
   }
 
+  const webAuthStorage = isNative ? null : Object.freeze({
+    getItem(key) { return authLocked ? null : localStorage.getItem(key); },
+    setItem(key, value) { assertStorageEpoch(storageEpoch); localStorage.setItem(key, String(value)); },
+    removeItem(key) { localStorage.removeItem(key); },
+  });
+
   window.FlytPlatform = Object.freeze({
     version: VERSION,
     isNative,
     platform,
     secureAuthStorage,
+    webAuthStorage,
     clearSecureAuthStorage,
+    lockAuthStorage,
+    unlockAuthStorage,
     addAppStateListener,
     getAppState,
     addUrlOpenListener,

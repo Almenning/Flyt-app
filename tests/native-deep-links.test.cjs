@@ -32,14 +32,14 @@ assert.match(sync,/data|Bli med i husholdning/);
 assert.match(sync,/function shareInviteLink\(code\)/);
 assert.match(sync,/navigator\.share/);
 assert.match(sync,/invitationWebUrl\(code\)/);
-assert.match(sync,/pendingInviteCode='';await loadContext\(\)/,'successful join must clear the pending invite');
+assert.match(sync,/pendingInviteCode='';await loadContext\(scope\)/,'successful join must clear the pending invite');
 assert.doesNotMatch(sync,/handleIncomingInviteUrl[^\n]*joinHouse\(/,'opening a link must never auto-accept a household');
 
 assert.match(invite,/hverdagsoss:\/\/invite\//);
 assert.match(invite,/\.\/\?invite=/);
 assert.match(invite,/Ingenting kobles sammen før du selv trykker/);
 assert.match(copy,/staticExtensions/,'root html files including invite.html must be copied into native web assets');
-assert.match(index,/native-platform\.js\?v=20260926-native-deeplink1/);
-assert.match(index,/sync\.js\?v=20260926-native-deeplink1/);
+assert.match(index,/native-platform\.js\?v=20260926-session-safety1/);
+assert.match(index,/sync\.js\?v=20260926-session-safety1/);
 
 console.log('ok - partner invite links open native or web and still require explicit acceptance');

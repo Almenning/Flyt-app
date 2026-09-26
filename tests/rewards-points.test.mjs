@@ -80,7 +80,7 @@ test('Belønning viser poengoversikt og de to hovedflytene uten tomme seksjoner'
   assert.match(harness.content.innerHTML, /Belønning/);
   assert.doesNotMatch(harness.content.innerHTML, /På gang/);
   assert.match(harness.content.innerHTML, /Sett et mål/);
-  assert.match(harness.content.innerHTML, /Send en fristelse ❤️/);
+  assert.match(harness.content.innerHTML, /data-goal-create="challenge"[\s\S]*?Send en fristelse/);
   assert.match(harness.content.innerHTML, /rewardChallenge/);
   assert.match(harness.content.innerHTML, /420/);
   assert.match(harness.content.innerHTML, /Poengoversikt/);

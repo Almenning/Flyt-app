@@ -18,11 +18,11 @@ const legacy=[
 
 test('production client does not call revoked legacy RPCs',()=>{
   for(const name of legacy){
-    const call=new RegExp(`(?:rpc|\\.rpc)\\(\\s*['\"]${name}['\"]`);
+    const call=new RegExp(`(?:rpc|guardedRpc|rpcAt)\\(\\s*['\"]${name}['\"]`);
     assert.doesNotMatch(client,call,`${name} must not be called by the production client`);
   }
-  assert.match(client,/rpc\(['"]join_household_v2['"]/);
-  assert.match(client,/rpc\(['"]save_my_flyt_state_v2['"]/);
+  assert.match(client,/guardedRpc\(['"]join_household_v2['"]/);
+  assert.match(client,/rpcAt\(scope,['"]save_my_flyt_state_v2['"]/);
   assert.match(client,/rpc\(['"]get_oss_context['"]/);
 });
 

@@ -33,12 +33,12 @@ assert.match(platform,/clearSecureAuthStorage/);
 assert.match(sync,/const nativeRuntime=/);
 assert.match(sync,/authOptions\.storage=window\.FlytPlatform\.secureAuthStorage/);
 assert.match(sync,/if\(!window\.FlytPlatform\?\.secureAuthStorage\)/);
-assert.match(sync,/await window\.FlytPlatform\.clearSecureAuthStorage\?\.\(\)/);
+assert.match(sync,/await window\.FlytPlatform\.clearSecureAuthStorage\(\)/);
 assert.match(sync,/version:SYNC_VERSION/);
-assert.match(index,/native-platform\.js\?v=20260926-native-deeplink1/);
-assert.match(index,/sync\.js\?v=20260926-native-deeplink1/);
+assert.match(index,/native-platform\.js\?v=20260926-session-safety1/);
+assert.match(index,/sync\.js\?v=20260926-session-safety1/);
 
-assert.doesNotMatch(platform,/localStorage\.setItem\(key, String\(value\)\)/,'new native auth writes must not fall back to WebView localStorage');
+assert.doesNotMatch(platform.slice(platform.indexOf('const secureAuthStorage'),platform.indexOf('async function addAppStateListener')),/localStorage\.setItem\(key, String\(value\)\)/,'new native auth writes must not fall back to WebView localStorage');
 assert.doesNotMatch(sync,/storage:localStorage/,'Supabase native auth must not be configured with WebView localStorage');
 
 console.log('ok - native Supabase auth uses iOS Keychain with one-time legacy migration');
