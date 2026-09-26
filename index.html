@@ -9,9 +9,9 @@
 <meta name="apple-mobile-web-app-title" content="HverdagsOss">
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png">
-<script src="./native-platform.js?v=20260926-native-deeplink1" defer></script>
+<script src="./native-platform.js?v=20260926-session-safety1" defer></script>
 <script>
-(()=>{const capacitor=window.Capacitor,isNative=!!(capacitor&&(typeof capacitor.isNativePlatform==='function'?capacitor.isNativePlatform():capacitor.getPlatform?.()!=='web'));if(isNative||!('serviceWorker'in navigator))return;const key='hverdagsoss_sw_reset_v88';try{if(localStorage.getItem(key)==='1')return;localStorage.setItem(key,'1')}catch(e){}navigator.serviceWorker.getRegistrations().then(registrations=>{if(!registrations.length)return;return Promise.all(registrations.map(registration=>registration.unregister())).then(()=>location.reload())}).catch(()=>{})})();
+(()=>{const capacitor=window.Capacitor,isNative=!!(capacitor&&(typeof capacitor.isNativePlatform==='function'?capacitor.isNativePlatform():capacitor.getPlatform?.()!=='web'));if(isNative||!('serviceWorker'in navigator))return;const key='hverdagsoss_sw_reset_v89';try{if(localStorage.getItem(key)==='1')return;localStorage.setItem(key,'1')}catch(e){}navigator.serviceWorker.getRegistrations().then(registrations=>{if(!registrations.length)return;return Promise.all(registrations.map(registration=>registration.unregister())).then(()=>location.reload())}).catch(()=>{})})();
 </script>
 <script src="./vendor/supabase-2.116.0.js?v=20260920-local1" defer></script>
 <script src="./task-language.js?v=20260926-due-soon-eligibility1" defer></script>
@@ -23,13 +23,14 @@
 <script src="./seen-ui.js?v=20260926-seen-premium1" defer></script>
 <script src="./rewards-goals-core.js?v=20260923-privacy-safe1" defer></script>
 <script src="./rewards-ui.js?v=20260926-rewards-header-consistency1" defer></script>
-<script src="./sync-merge.js?v=20260923-revision-sync1" defer></script>
-<script src="./sync.js?v=20260926-native-deeplink1" defer></script>
+<script src="./sync-merge.js?v=20260926-receipt-sync1" defer></script>
+<script src="./sync-journal.js?v=20260926-session-safety1" defer></script>
+<script src="./sync.js?v=20260926-session-safety1" defer></script>
 <script src="./daily-status.js?v=20260923-granular-consent1" defer></script>
 <script src="./oss.js?v=20260924-rpc-surface1" defer></script>
 <script src="./nav-scroll-top-ui.js?v=20260914-drag2" defer></script>
 <script src="./edge-swipe-back.js?v=20260919-edgeswipe2" defer></script>
-<script src="./app-watchdog.js?v=20260926-rewards-header-consistency1" defer></script>
+<script src="./app-watchdog.js?v=20260926-session-safety1" defer></script>
 <script src="./tasks-ui.js?v=20260923-granular-consent1" defer></script>
 <script src="./category-accordion.js?v=20260904-polish1" defer></script>
 <script src="./recurrence-ui.js?v=20260926-due-soon-collapsed1" defer></script>
@@ -104,7 +105,7 @@ function bindSetup(){document.querySelectorAll('[data-expand-cat]').forEach(el=>
 $('#setupBody').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.area){state.areas[b.dataset.area]=!state.areas[b.dataset.area];save();renderSetup()}if(b.dataset.train){state.trainingFor[b.dataset.train]=!state.trainingFor[b.dataset.train];save();renderSetup()}};
 $('#setupBack').onclick=()=>{if(step>0){step--;renderSetup()}};
 $('#setupNext').onclick=()=>{if(step<2){step++;renderSetup()}else closeSetup()};
-window.FlytBridge={getState:()=>state,setState:(next)=>{const safe=next?.view==='us'?{...next,view:'seen'}:next;state=window.FlytTaskLanguage?.normalizeState?.(safe)||safe;persistPrivateState();render()},toast};
+window.FlytBridge={getState:()=>state,setState:(next,options={})=>{const safe=next?.view==='us'?{...next,view:'seen'}:next;state=window.FlytTaskLanguage?.normalizeState?.(safe)||safe;persistPrivateState();if(options.render!==false)render()},toast};
 render();
 })();
 </script>

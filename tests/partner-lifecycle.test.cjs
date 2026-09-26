@@ -24,8 +24,8 @@ test('invite flow uses expiring rotatable codes and the rate-limited server endp
   assert.match(sync,/maxlength="12"/);
   assert.match(sync,/utløper automatisk etter sju dager/);
   assert.match(sync,/Lag ny invitasjonskode/);
-  assert.match(sync,/rpc\('rotate_household_invite'/);
-  assert.match(sync,/rpc\('join_household_v2'/);
+  assert.match(sync,/guardedRpc\('rotate_household_invite'/);
+  assert.match(sync,/guardedRpc\('join_household_v2'/);
   assert.match(sync,/For mange forsøk\. Vent litt/);
   assert.match(sync,/Koden er ugyldig eller har utløpt/);
   assert.match(sync,/handleDisconnected/);

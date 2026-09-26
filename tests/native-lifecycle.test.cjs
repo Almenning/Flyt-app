@@ -22,12 +22,12 @@ assert.match(sync,/async function resumeAfterForeground\(\)/);
 assert.match(sync,/async function handleNativeAppStateChange\(state\)/);
 assert.match(sync,/sb\.auth\.stopAutoRefresh\?\.\(\)/);
 assert.match(sync,/sb\.auth\.startAutoRefresh\?\.\(\)/);
-assert.match(sync,/if\(dirty\)\{const saved=await retrySave\(\)/);
-assert.match(sync,/await loadContext\(\)/);
+assert.match(sync,/if\(dirty\|\|pendingWrite\|\|saving\)\{const saved=await retrySave\(\)/);
+assert.match(sync,/await loadContext\(scope\)/);
 assert.match(sync,/if\(!session\).*handleSessionLost/s);
 assert.match(sync,/if\(bootstrapPromise\)return bootstrapPromise/);
 assert.match(sync,/if\(foregroundSyncPromise\)return foregroundSyncPromise/);
-assert.match(index,/native-platform\.js\?v=20260926-native-deeplink1/);
-assert.match(index,/sync\.js\?v=20260926-native-deeplink1/);
+assert.match(index,/native-platform\.js\?v=20260926-session-safety1/);
+assert.match(index,/sync\.js\?v=20260926-session-safety1/);
 
 console.log('ok - native lifecycle resumes auth and sync without duplicate refresh work');

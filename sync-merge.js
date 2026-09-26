@@ -154,7 +154,7 @@ async function saveWithRevision({base={},state={},revision=0,save,maxAttempts=5}
   for(let attempt=1;attempt<=maxAttempts;attempt++){
     const response=await save(candidate,expected);
     if(response?.ok){
-      return{ok:true,state:candidate,revision:Number(response.revision),attempts:attempt,conflicted};
+      return{ok:true,state:clone(response.state||candidate),revision:Number(response.revision),attempts:attempt,conflicted};
     }
     if(!response?.conflict)throw new Error(response?.message||'STATE_SAVE_FAILED');
     conflicted=true;
