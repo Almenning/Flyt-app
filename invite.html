@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#e87961">
+<title>Invitasjon til HverdagsOss</title>
+<style>
+*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#452f29;background:linear-gradient(145deg,#efb99d,#fff1e8 60%,#e9aa87)}main{width:min(100%,420px);padding:28px 22px;border-radius:28px;background:#fffaf6f5;box-shadow:0 25px 70px #5d2e1f33;text-align:center}.logo{font:700 38px Georgia,serif}.logo b{color:#e87961}.sub{color:#806d65;line-height:1.45}.code{margin:18px 0;padding:16px;border:1px solid #ead8d0;border-radius:18px;background:#fff;font-size:28px;font-weight:900;letter-spacing:.12em;overflow-wrap:anywhere}.button{display:block;width:100%;min-height:50px;margin-top:10px;padding:14px 16px;border-radius:15px;text-decoration:none;font-weight:900}.primary{background:linear-gradient(135deg,#e87961,#ad4a3c);color:#fff}.secondary{border:1px solid #ead8d0;background:#fff;color:#452f29}.hidden{display:none}
+</style>
+</head>
+<body>
+<main>
+<div class="logo">Hverdags<b>Oss</b></div>
+<div id="valid" class="hidden">
+<h1>Du er invitert</h1>
+<p class="sub">Åpne HverdagsOss og bekreft invitasjonen. Ingenting kobles sammen før du selv trykker «Bli med i husholdning».</p>
+<div id="code" class="code"></div>
+<a id="openApp" class="button primary" href="#">Åpne HverdagsOss</a>
+<a id="continueWeb" class="button secondary" href="#">Fortsett i nettleseren</a>
+</div>
+<div id="invalid">
+<h1>Invitasjonen mangler</h1>
+<p class="sub">Be partneren sende en ny invitasjonslenke eller invitasjonskode fra HverdagsOss.</p>
+<a class="button secondary" href="./">Åpne HverdagsOss på nett</a>
+</div>
+</main>
+<script>
+(()=>{
+  const raw=new URL(location.href).searchParams.get('code')||'';
+  const code=String(raw).trim().toUpperCase().replace(/[^A-F0-9]/g,'');
+  if(!/^[A-F0-9]{8,12}$/.test(code))return;
+  document.querySelector('#invalid').classList.add('hidden');
+  document.querySelector('#valid').classList.remove('hidden');
+  document.querySelector('#code').textContent=code;
+  document.querySelector('#openApp').href='hverdagsoss://invite/'+encodeURIComponent(code);
+  document.querySelector('#continueWeb').href='./?invite='+encodeURIComponent(code);
+})();
+</script>
+</body>
+</html>

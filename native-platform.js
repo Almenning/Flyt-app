@@ -1,6 +1,6 @@
 (() => {
   'use strict';
-  const VERSION = '20260926-native-keychain1';
+  const VERSION = '20260926-native-deeplink1';
   const LEGACY_SUPABASE_PREFIX = 'sb-uopzveejnztbovncqbpq-';
   const capacitor = window.Capacitor;
   const isNative = !!(capacitor && (
@@ -96,6 +96,19 @@
     return plugin.getState();
   }
 
+  async function addUrlOpenListener(listener) {
+    const plugin = getAppPlugin();
+    if (!plugin?.addListener || typeof listener !== 'function') return null;
+    return plugin.addListener('appUrlOpen', listener);
+  }
+
+  async function getLaunchUrl() {
+    const plugin = getAppPlugin();
+    if (!plugin?.getLaunchUrl) return null;
+    const result = await plugin.getLaunchUrl();
+    return result?.url || null;
+  }
+
   window.FlytPlatform = Object.freeze({
     version: VERSION,
     isNative,
@@ -104,5 +117,7 @@
     clearSecureAuthStorage,
     addAppStateListener,
     getAppState,
+    addUrlOpenListener,
+    getLaunchUrl,
   });
 })();

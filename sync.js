@@ -4,8 +4,10 @@ const SUPABASE_URL='https://uopzveejnztbovncqbpq.supabase.co';
 const SUPABASE_KEY='sb_publishable_uK6xd8TJhN2MY10qHSQ2GQ_7hSIr2gv';
 const APP_URL='https://almenning.github.io/Flyt-app/';
 const RESET_URL='https://almenning.github.io/Flyt-app/reset.html';
+const INVITE_WEB_URL='https://almenning.github.io/Flyt-app/invite.html';
+const INVITE_SCHEME='hverdagsoss:';
 const LOCAL_MODE_KEY='flyt_local_mode_v1';
-const SYNC_VERSION='20260926-native-keychain1';
+const SYNC_VERSION='20260926-native-deeplink1';
 const STARTER_TASK_IDS=['dish_fill','dish_empty','kitchen','dinner','laundry_start','laundry_hang','laundry_fold','trash'];
 const STARTER_TASKS=(window.FlytTaskLanguage?.catalog||[]).filter(task=>STARTER_TASK_IDS.includes(task.id));
 if(!window.supabase){
@@ -33,7 +35,7 @@ if(nativeRuntime){
   authOptions.storage=window.FlytPlatform.secureAuthStorage;
 }
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:authOptions});
-let ctx=null,pollTimer=null,saveTimer=null,applying=false,dirty=false,saving=false,hydrated=false,authName='',syncError=false,lastSavedAt=0,nativeLifecycleInstalled=false,appActive=true,bootstrapPromise=null,foregroundSyncPromise=null;
+let ctx=null,pollTimer=null,saveTimer=null,applying=false,dirty=false,saving=false,hydrated=false,authName='',syncError=false,lastSavedAt=0,nativeLifecycleInstalled=false,nativeDeepLinksInstalled=false,appActive=true,bootstrapPromise=null,foregroundSyncPromise=null,pendingInviteCode='';
 let serverRevision=0,serverState={},clientBaseState=null;
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -93,12 +95,68 @@ function signupScreen(message=''){showGate(shell(`<h1 style="font:500 30px Georg
 async function forgotPassword(){const email=$('#betaEmail').value.trim();if(!email){status('Skriv inn e-postadressen din først.',true);return}status('Sender lenke for nytt passord…');const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:RESET_URL});if(error){status(error.message,true);return}status('Vi har sendt en lenke for å lage nytt passord. Sjekk innboksen og søppelpost.')}
 async function signup(){const name=$('#betaName').value.trim(),email=$('#betaEmail').value.trim(),password=$('#betaPassword').value;if(!name){status('Skriv inn fornavnet ditt.',true);return}if(!email||password.length<10){status('Skriv inn gyldig e-post og minst 10 tegn i passordet.',true);return}status('Oppretter konto…');authName=name;const {data,error}=await sb.auth.signUp({email,password,options:{data:{display_name:name},emailRedirectTo:APP_URL}});if(error){status(error.message,true);return}if(data.session){await sb.rpc('set_my_display_name',{p_name:name});await bootstrap();return}signupScreen('Kontoen er opprettet. Bekreft e-posten, gå tilbake hit og logg inn.')}
 async function signin(){const email=$('#betaEmail').value.trim(),password=$('#betaPassword').value;if(!email||!password){status('Skriv inn e-post og passord.',true);return}status('Logger inn…');const {data,error}=await sb.auth.signInWithPassword({email,password});if(error){status(error.message,true);return}authName=String(data?.user?.user_metadata?.display_name||data?.user?.user_metadata?.name||'').trim();await bootstrap()}
-function householdScreen(message=''){showGate(shell(`<div class="ey" style="margin-top:16px">Husholdning</div><h2 style="margin:8px 0">Hvordan vil du starte?</h2><p class="sub">Opprett en husholdning hvis du er først ute, eller bruk partnerens kode.</p><div class="card hero"><strong>Jeg starter en husholdning</strong><p class="sub">Du får en kode som partneren kan bruke når det passer.</p><input id="houseName" class="field" placeholder="Navn på husholdningen, f.eks. Hjemme hos oss"><button id="createHouse" class="primary full">Opprett husholdning</button></div><div class="card"><strong>Jeg har en invitasjonskode</strong><p class="sub">Skriv inn koden fra partneren din.</p><input id="joinCode" class="field" maxlength="12" autocapitalize="characters" autocomplete="off" placeholder="Invitasjonskode"><button id="joinHouse" class="secondary full">Bli med i husholdning</button></div><button id="betaSignout" class="secondary full">Logg ut</button><p id="betaStatus" class="sub">${esc(message)}</p>`));$('#createHouse').onclick=createHouse;$('#joinHouse').onclick=joinHouse;$('#betaSignout').onclick=()=>logout()}
+function householdScreen(message=''){
+  const invited=!!pendingInviteCode;
+  showGate(shell(`<div class="ey" style="margin-top:16px">Husholdning</div><h2 style="margin:8px 0">${invited?'Du er invitert':'Hvordan vil du starte?'}</h2><p class="sub">${invited?'Invitasjonskoden er fylt ut. Bekreft for å koble dere sammen.':'Opprett en husholdning hvis du er først ute, eller bruk partnerens kode.'}</p><div class="card ${invited?'':'hero'}"><strong>Jeg starter en husholdning</strong><p class="sub">Du får en kode som partneren kan bruke når det passer.</p><input id="houseName" class="field" placeholder="Navn på husholdningen, f.eks. Hjemme hos oss"><button id="createHouse" class="${invited?'secondary':'primary'} full">Opprett husholdning</button></div><div class="card ${invited?'hero':''}"><strong>Jeg har en invitasjonskode</strong><p class="sub">Skriv inn koden fra partneren din.</p><input id="joinCode" class="field" maxlength="12" autocapitalize="characters" autocomplete="off" placeholder="Invitasjonskode"><button id="joinHouse" class="${invited?'primary':'secondary'} full">Bli med i husholdning</button></div><button id="betaSignout" class="secondary full">Logg ut</button><p id="betaStatus" class="sub">${esc(message)}</p>`));
+  const join=$('#joinCode');if(join&&pendingInviteCode)join.value=pendingInviteCode;
+  $('#createHouse').onclick=createHouse;$('#joinHouse').onclick=joinHouse;$('#betaSignout').onclick=()=>logout()
+}
 async function createHouse(){status('Oppretter husholdning…');hydrated=false;const {data,error}=await sb.rpc('create_household',{p_name:$('#houseName').value.trim()||'Vårt hjem'});if(error){status(error.message,true);return}await loadContext();const starter=cleanStarterState(myName());applying=true;try{bridge()?.setState?.(starter)}finally{applying=false}try{const saved=await persistRevisionState(sharedState(),serverState,serverRevision);serverState=cloneShared(saved.state);serverRevision=saved.revision;clientBaseState=cloneShared(saved.state);ctx={...ctx,state:cloneShared(saved.state),revision:saved.revision}}catch(saveError){console.error('HverdagsOss initial save failed:',saveError);status('Husholdningen ble opprettet, men startoppsettet kunne ikke lagres. Prøv igjen.',true);return}hydrated=true;inviteScreen(ctx?.household?.invite_code||data?.[0]?.invite_code||'',ctx?.household?.invite_expires_at,'setup')}
 function formatInviteExpiry(value){const date=new Date(value||0);if(!Number.isFinite(date.getTime()))return'';return new Intl.DateTimeFormat('nb-NO',{dateStyle:'medium',timeStyle:'short'}).format(date)}
-function inviteScreen(code,expiresAt=ctx?.household?.invite_expires_at,after='app'){const expiry=formatInviteExpiry(expiresAt),expired=expiresAt&&new Date(expiresAt).getTime()<=Date.now(),shown=expired?'Utløpt':code||'Ingen aktiv kode';showGate(shell(`<div class="ey" style="margin-top:16px">Inviter partner</div><h2 style="margin:8px 0">Del koden når det passer</h2><p class="sub">Partneren bruker koden for å bli med. Du kan starte alene nå.</p><div class="card hero" style="text-align:center"><div class="ey">Invitasjonskode</div><div style="font-size:30px;font-weight:900;letter-spacing:.1em;margin:10px 0;overflow-wrap:anywhere">${esc(shown)}</div>${expiry?`<div class="taskmeta">${expired?'Utløpt':'Gyldig til'} ${esc(expiry)}</div>`:''}</div><button id="rotateInvite" class="secondary full">Lag ny invitasjonskode</button><button id="continueSetup" class="primary full" style="margin-top:10px">Fortsett uten partner</button><p id="betaStatus" class="sub">Koden kan brukes én gang og utløper automatisk etter sju dager.</p>`));$('#rotateInvite').onclick=()=>rotateInviteCode(after);$('#continueSetup').onclick=()=>{hydrated=true;if(after==='setup')openHouseSetup(false);else showApp()}}
+function normalizeInviteCode(value){const code=String(value||'').trim().toUpperCase().replace(/[^A-F0-9]/g,'');return /^[A-F0-9]{8,12}$/.test(code)?code:''}
+function invitationWebUrl(code){const normalized=normalizeInviteCode(code);return normalized?`${INVITE_WEB_URL}?code=${encodeURIComponent(normalized)}`:''}
+function inviteCodeFromUrl(rawUrl){
+  try{
+    const url=new URL(String(rawUrl||''),APP_URL);
+    if(url.protocol===INVITE_SCHEME&&url.hostname==='invite')return normalizeInviteCode(url.pathname.split('/').filter(Boolean)[0]||url.searchParams.get('code'));
+    if((url.protocol==='https:'||url.protocol==='http:')&&url.hostname==='almenning.github.io'&&url.pathname.startsWith('/Flyt-app/'))return normalizeInviteCode(url.searchParams.get('invite')||url.searchParams.get('code'));
+  }catch(e){}
+  return''
+}
+function stripInviteFromBrowserUrl(){
+  if(window.FlytPlatform?.isNative)return;
+  try{const url=new URL(location.href);if(!url.searchParams.has('invite')&&!url.searchParams.has('code'))return;url.searchParams.delete('invite');url.searchParams.delete('code');history.replaceState(history.state,'',url.pathname+(url.search||'')+(url.hash||''))}catch(e){}
+}
+function routePendingInvite(message=''){
+  if(!pendingInviteCode)return false;
+  if(ctx?.household){pendingInviteCode='';bridge()?.toast?.('Denne kontoen er allerede koblet til en husholdning');return true}
+  if(ctx?.user_id){householdScreen(message||'Invitasjonskoden er fylt ut.');return true}
+  authChoice(message||'Invitasjonen er klar. Logg inn eller opprett konto for å fortsette.');return true
+}
+function handleIncomingInviteUrl(rawUrl,{stripBrowser=false}={}){
+  const code=inviteCodeFromUrl(rawUrl);if(!code)return false;
+  pendingInviteCode=code;
+  if(stripBrowser)stripInviteFromBrowserUrl();
+  if(document.readyState!=='loading')routePendingInvite();
+  return true
+}
+async function installNativeDeepLinks(){
+  if(nativeDeepLinksInstalled||!window.FlytPlatform?.isNative)return false;
+  nativeDeepLinksInstalled=true;
+  try{
+    await window.FlytPlatform.addUrlOpenListener?.(event=>handleIncomingInviteUrl(event?.url));
+    const launchUrl=await window.FlytPlatform.getLaunchUrl?.();
+    if(launchUrl)handleIncomingInviteUrl(launchUrl);
+    return true
+  }catch(e){console.warn('HverdagsOss native deep link unavailable:',e);return false}
+}
+async function copyInviteText(value){if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(value);return true}const area=document.createElement('textarea');area.value=value;area.setAttribute('readonly','');area.style.position='fixed';area.style.opacity='0';document.body.appendChild(area);area.select();const ok=document.execCommand?.('copy')===true;area.remove();return ok}
+async function shareInviteLink(code){
+  const link=invitationWebUrl(code);if(!link)return false;
+  try{
+    if(navigator.share){await navigator.share({title:'HverdagsOss',text:'Bli med meg i HverdagsOss.',url:link});return true}
+  }catch(e){if(e?.name==='AbortError')return false}
+  try{if(await copyInviteText(link)){status('Invitasjonslenken er kopiert.');return true}}catch(e){}
+  status('Kunne ikke dele lenken. Kopier invitasjonskoden i stedet.',true);return false
+}
+function inviteScreen(code,expiresAt=ctx?.household?.invite_expires_at,after='app'){
+  const expiry=formatInviteExpiry(expiresAt),expired=expiresAt&&new Date(expiresAt).getTime()<=Date.now(),normalized=normalizeInviteCode(code),shown=expired?'Utløpt':normalized||'Ingen aktiv kode',shareAction=!expired&&normalized?'<button id="shareInvite" class="secondary full">Del invitasjonslenke</button>':'';
+  showGate(shell(`<div class="ey" style="margin-top:16px">Inviter partner</div><h2 style="margin:8px 0">Del lenken når det passer</h2><p class="sub">Partneren åpner lenken eller bruker koden for å bli med. Du kan starte alene nå.</p><div class="card hero" style="text-align:center"><div class="ey">Invitasjonskode</div><div style="font-size:30px;font-weight:900;letter-spacing:.1em;margin:10px 0;overflow-wrap:anywhere">${esc(shown)}</div>${expiry?`<div class="taskmeta">${expired?'Utløpt':'Gyldig til'} ${esc(expiry)}</div>`:''}</div>${shareAction}<button id="rotateInvite" class="secondary full" style="margin-top:10px">Lag ny invitasjonskode</button><button id="continueSetup" class="primary full" style="margin-top:10px">Fortsett uten partner</button><p id="betaStatus" class="sub">Lenken og koden kan brukes én gang og utløper automatisk etter sju dager.</p>`));
+  $('#shareInvite')?.addEventListener('click',()=>shareInviteLink(normalized));
+  $('#rotateInvite').onclick=()=>rotateInviteCode(after);$('#continueSetup').onclick=()=>{hydrated=true;if(after==='setup')openHouseSetup(false);else showApp()}
+}
 async function rotateInviteCode(after='app'){const button=$('#rotateInvite');if(button)button.disabled=true;status('Lager ny kode…');const {data,error}=await sb.rpc('rotate_household_invite',{});if(error){status('Kunne ikke lage ny kode akkurat nå.',true);bridge()?.toast?.('Kunne ikke lage ny kode akkurat nå');if(button)button.disabled=false;return null}await loadContext();const result=Array.isArray(data)?data[0]:data,code=result?.invite_code||ctx?.household?.invite_code,expires=result?.expires_at||ctx?.household?.invite_expires_at;inviteScreen(code,expires,after);return{invite_code:code,expires_at:expires}}
-async function joinHouse(){const code=$('#joinCode').value.trim().toUpperCase().replace(/[^A-F0-9]/g,'');if(code.length<8){status('Skriv inn invitasjonskoden.',true);return}status('Kobler til…');hydrated=false;const {data,error}=await sb.rpc('join_household_v2',{p_code:code});if(error){status('Kunne ikke koble til akkurat nå.',true);return}if(!data?.ok){hydrated=false;const message=data?.error==='rate_limited'?'For mange forsøk. Vent litt før du prøver igjen.':data?.error==='already_member'?'Kontoen er allerede koblet til en husholdning.':'Koden er ugyldig eller har utløpt.';status(message,true);return}await loadContext();applyRemote();hydrated=true;reviewPartnerSetup()}
+async function joinHouse(){const code=normalizeInviteCode($('#joinCode').value);if(!code){status('Skriv inn invitasjonskoden.',true);return}status('Kobler til…');hydrated=false;const {data,error}=await sb.rpc('join_household_v2',{p_code:code});if(error){status('Kunne ikke koble til akkurat nå.',true);return}if(!data?.ok){hydrated=false;const message=data?.error==='rate_limited'?'For mange forsøk. Vent litt før du prøver igjen.':data?.error==='already_member'?'Kontoen er allerede koblet til en husholdning.':'Koden er ugyldig eller har utløpt.';status(message,true);return}pendingInviteCode='';await loadContext();applyRemote();hydrated=true;reviewPartnerSetup()}
 function reviewPartnerSetup(){const p=partnerMember();const s=ctx?.state||{};const tasks=Array.isArray(s.tasks)?s.tasks:[];showGate(shell(`<div class="ey" style="margin-top:16px">Dere er koblet</div><h2 style="margin:8px 0">Klart til å starte sammen</h2><p class="sub">${esc(p?.display_name||'Partneren din')} har satt opp husholdningen. Se raskt gjennom det som er valgt.</p><div class="card hero"><strong>${esc(ctx?.household?.name||'Vårt hjem')}</strong><p class="sub">${tasks.length} valgte gjøremål</p></div><p class="sub">Dere kan endre gjøremål og områder senere.</p><button id="reviewSetup" class="primary full">Se oppsett og start</button>`));$('#reviewSetup').onclick=()=>{hydrated=true;openHouseSetup(true)}}
 function openHouseSetup(joiner){showApp();let tries=0;const open=()=>{if(window.FlytSetupV2?.open){window.FlytSetupV2.open(1);if(joiner)bridge()?.toast?.('Se gjennom og juster oppsettet før dere starter');return true}const b=$('#setupBtnV2,#setupBtn');if(b){b.click();if(joiner)bridge()?.toast?.('Se gjennom og juster oppsettet før dere starter');return true}return false};if(open())return;const timer=setInterval(()=>{if(open()||++tries>40)clearInterval(timer)},50)}
 function rememberServerContext(){serverRevision=Math.max(0,Number(ctx?.revision)||0);serverState=cloneShared(ctx?.state||{})}
@@ -168,11 +226,12 @@ async function bootstrap(){
     hydrated=false;clearTimeout(saveTimer);dirty=false;resetRevisionState();ensureBetaUi();let session=null;
     try{const r=await getSessionWithTimeout();session=r.data.session;authName=sessionDisplayName(session)}
     catch(e){if(localModeEnabled())showLocalApp();else authChoice(e?.message==='AUTH_BOOTSTRAP_TIMEOUT'?'Innloggingen tok for lang tid. Prøv igjen.':'Kunne ikke hente kontoen. Prøv igjen.');return false}
-    if(!session){if(localModeEnabled())showLocalApp();else authChoice();return false}
+    if(!session){if(localModeEnabled())showLocalApp();else authChoice(pendingInviteCode?'Invitasjonen er klar. Logg inn eller opprett konto for å fortsette.':'');return false}
     setLocalMode(false);
     try{await loadContext()}catch(e){loginScreen('Kunne ikke hente kontoen. Logg inn på nytt.');return false}
     if(ctx?.requires_consent){window.FlytAccountUI?.checkConsent?.();return true}
-    if(!ctx?.household){householdScreen();return true}
+    if(!ctx?.household){householdScreen(pendingInviteCode?'Invitasjonskoden er fylt ut.':'');return true}
+    if(pendingInviteCode){pendingInviteCode='';bridge()?.toast?.('Denne kontoen er allerede koblet til en husholdning')}
     try{applyRemote()}catch(e){console.error('Flyt startup sync ignored:',e)}
     hydrated=true;showApp();startPolling();window.FlytAccountUI?.checkConsent?.();return true
   })();
@@ -215,7 +274,9 @@ async function installNativeLifecycle(){
 }
 window.FlytSync={version:SYNC_VERSION,queueSave,pull,retrySave,bootstrap,resumeAfterForeground,logout,clearPrivateLocalData,showLogin:(message='')=>authChoice(message),myName,rpc:(name,args)=>sb.rpc(name,args),getContext:()=>ctx,isReady:()=>hydrated,isSummaryReady,openConnection:connectionSheet,rotateInviteCode,handleDisconnected};
 ensureBetaUi();
+handleIncomingInviteUrl(location.href,{stripBrowser:true});
 installNativeLifecycle();
+installNativeDeepLinks();
 window.addEventListener('DOMContentLoaded',bootstrap);
 window.addEventListener('offline',updateChrome);
 window.addEventListener('online',async()=>{if(window.FlytPlatform?.isNative){if(appActive)await resumeAfterForeground();updateChrome();return}if(dirty)await retrySave();if(!dirty)await pull(true);updateChrome()});

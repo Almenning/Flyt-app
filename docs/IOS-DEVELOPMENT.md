@@ -26,3 +26,13 @@ Ved første oppstart etter denne endringen migreres en eksisterende Supabase-ses
 Ved eksplisitt utlogging og ved påvist utløpt native sesjon tømmes Keychain-lageret for HverdagsOss-auth samt eventuelle gamle Supabase-authnøkler i WebView-lagringen.
 
 Dette må fortsatt bygges og verifiseres i Xcode på Mac før TestFlight, fordi Linux-CI ikke kompilerer den native Swift-koden.
+
+## Invitasjonslenker og deep links
+
+iOS registrerer nå URL-skjemaet `hverdagsoss://`. Partnerinvitasjoner bruker formatet `hverdagsoss://invite/<kode>`.
+
+Selve lenken som deles til partneren er en vanlig HTTPS-lenke til `https://almenning.github.io/Flyt-app/invite.html?code=<kode>`. Landingssiden lar brukeren åpne den installerte appen via custom scheme eller fortsette i webappen. Dette gir en fungerende fallback før HverdagsOss har eget domene og Associated Domains/Universal Links.
+
+Ved kaldstart leser klienten `App.getLaunchUrl()`; mens appen kjører lyttes det på `appUrlOpen`. Invitasjonskoden valideres og fylles ut, men medlemskap opprettes aldri automatisk. Brukeren må fortsatt trykke «Bli med i husholdning».
+
+Når eget produksjonsdomene er klart kan dette oppgraderes til Universal Links med Associated Domains og en korrekt `apple-app-site-association` på domenet. GitHub Pages-prosjektstien brukes ikke som falsk Universal Link-konfigurasjon.
