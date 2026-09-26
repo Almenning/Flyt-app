@@ -442,6 +442,7 @@ test('Dag viser maksimalt tre uferdige faste gjøremål som snart bør tas', () 
   const bedding = { ...dailyTask, id: 'bedding', name: 'Bytte sengetøy', type: 'flex', freq: 1, cat: 'Soverom' };
   const vacuum = { ...dailyTask, id: 'vacuum', name: 'Støvsuge', type: 'flex', freq: 2, cat: 'Renhold' };
   const windows = { ...dailyTask, id: 'windows', name: 'Vaske vinduer', type: 'period', freq: 1, cat: 'Renhold' };
+  const dust = { ...dailyTask, id: 'dust', name: 'Tørke støv', type: 'flex', freq: 1, cat: 'Renhold' };
   const followedUp = { ...dailyTask, id: 'trash', name: 'Tømme søppel', type: 'flex', freq: 2, cat: 'Kjøkken' };
   const harness = loadRecurrence({
     completions: [
@@ -452,7 +453,7 @@ test('Dag viser maksimalt tre uferdige faste gjøremål som snart bør tas', () 
     custom: [],
     dayPlans: {},
     points: { 'Person A': 0 },
-    tasks: [laundry, bedding, vacuum, windows, followedUp],
+    tasks: [laundry, bedding, vacuum, windows, dust, followedUp],
     user: 'Person A',
     view: 'tasks',
   });
@@ -465,9 +466,23 @@ test('Dag viser maksimalt tre uferdige faste gjøremål som snart bør tas', () 
   assert.doesNotMatch(harness.content.innerHTML, /Tømme søppel/);
   assert.equal((harness.content.innerHTML.match(/taskDueSoon /g) || []).length, 3);
 
-  harness.click({ '[data-period-complete]': { dataset: { periodComplete: laundry.id } } });
-  harness.click({ '[data-period-complete]': { dataset: { periodComplete: laundry.id } } });
-  assert.equal(harness.getState().completions.filter(item => item.taskId === laundry.id && item.date === '2026-08-26').length, 1, 'Fullfør fra På tide must use the existing completion record');
+  harness.click({ '[data-task-popup-toggle]': { dataset: { taskPopupToggle: 'more:laundry' }, getBoundingClientRect: () => ({ bottom: 160, left: 20, right: 120, top: 120 }) } });
+  assert.match(harness.content.innerHTML, /data-due-soon-swap="laundry"[^>]*>Bytt forslag/);
+  harness.click({ '[data-due-soon-swap]': { dataset: { dueSoonSwap: laundry.id } } });
+  assert.doesNotMatch(harness.content.innerHTML, /Klesvask/);
+  assert.match(harness.content.innerHTML, /Bytte sengetøy/);
+
+  harness.click({ '[data-task-due-soon]': { dataset: { taskDueSoon: 'due-soon' } } });
+  assert.match(harness.content.innerHTML, /data-task-due-soon="due-soon"[^>]*aria-expanded="false"/);
+  assert.doesNotMatch(harness.content.innerHTML, /Støvsuge/);
+  harness.click({ '[data-task-due-soon]': { dataset: { taskDueSoon: 'due-soon' } } });
+  assert.match(harness.content.innerHTML, /data-task-due-soon="due-soon"[^>]*aria-expanded="true"/);
+
+  harness.click({ '[data-period-complete]': { dataset: { periodComplete: vacuum.id } } });
+  harness.click({ '[data-period-complete]': { dataset: { periodComplete: vacuum.id } } });
+  assert.equal(harness.getState().completions.filter(item => item.taskId === vacuum.id && item.date === '2026-08-26').length, 1, 'Fullfør fra På tide must use the existing completion record');
+  harness.api.render({ resetScroll: false });
+  assert.match(harness.content.innerHTML, /Tørke støv/, 'a completed suggestion is replaced with the next eligible task');
 });
 
 test('dra-og-slipp i Gjøre bruker mobilvennlig håndtak, løpende plassering og auto-scroll', () => {
