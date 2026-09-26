@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION='20260926-fristelse-step2-segmented1';
+const VERSION='20260926-fristelse-step2-segmented2';
 let painting=false,activeTab='personal',rewardCategory='Tid og frihet';
 const $=s=>document.querySelector(s),core=()=>window.FlytGoalsCore,bridge=()=>window.FlytBridge;
 const state=()=>bridge()?.getState?.()||null;
