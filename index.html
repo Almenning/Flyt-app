@@ -14,7 +14,7 @@
 (()=>{const capacitor=window.Capacitor,isNative=!!(capacitor&&(typeof capacitor.isNativePlatform==='function'?capacitor.isNativePlatform():capacitor.getPlatform?.()!=='web'));if(isNative||!('serviceWorker'in navigator))return;const key='hverdagsoss_sw_reset_v81';try{if(localStorage.getItem(key)==='1')return;localStorage.setItem(key,'1')}catch(e){}navigator.serviceWorker.getRegistrations().then(registrations=>{if(!registrations.length)return;return Promise.all(registrations.map(registration=>registration.unregister())).then(()=>location.reload())}).catch(()=>{})})();
 </script>
 <script src="./vendor/supabase-2.116.0.js?v=20260920-local1" defer></script>
-<script src="./task-language.js?v=20260903-master1" defer></script>
+<script src="./task-language.js?v=20260926-due-soon-eligibility1" defer></script>
 <script src="./day-plan.js?v=20260903-master1" defer></script>
 <script src="./daily-loop.js?v=20260915-taskhelpwarm1" defer></script>
 <script src="./couple-core.js?v=20260902-1700" defer></script>
@@ -31,7 +31,7 @@
 <script src="./app-watchdog.js?v=20260924-local-sanitization1" defer></script>
 <script src="./tasks-ui.js?v=20260923-granular-consent1" defer></script>
 <script src="./category-accordion.js?v=20260904-polish1" defer></script>
-<script src="./recurrence-ui.js?v=20260926-due-soon2" defer></script>
+<script src="./recurrence-ui.js?v=20260926-due-soon3" defer></script>
 <script src="./tasks-view-guard.js?v=20260828-2205" defer></script>
 <script src="./planned-ui.js?v=20260904-accordion1" defer></script>
 <script src="./home-ui.js?v=20260925-home-polish1" defer></script>

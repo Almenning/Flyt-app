@@ -438,12 +438,15 @@ test('lagret rekkefølge brukes for gjøremål i samme kategori', () => {
 });
 
 test('Dag viser maksimalt tre uferdige faste gjøremål som snart bør tas', () => {
-  const laundry = { ...dailyTask, id: 'laundry', name: 'Klesvask', type: 'flex', freq: 3, cat: 'Klesvask' };
-  const bedding = { ...dailyTask, id: 'bedding', name: 'Bytte sengetøy', type: 'flex', freq: 1, cat: 'Soverom' };
-  const vacuum = { ...dailyTask, id: 'vacuum', name: 'Støvsuge', type: 'flex', freq: 2, cat: 'Renhold' };
-  const windows = { ...dailyTask, id: 'windows', name: 'Vaske vinduer', type: 'period', freq: 1, cat: 'Renhold' };
-  const dust = { ...dailyTask, id: 'dust', name: 'Tørke støv', type: 'flex', freq: 1, cat: 'Renhold' };
+  const laundry = { ...dailyTask, id: 'laundry', name: 'Klesvask', type: 'flex', freq: 3, cat: 'Klesvask', showInDueSoon: true };
+  const bedding = { ...dailyTask, id: 'bedding', name: 'Bytte sengetøy', type: 'flex', freq: 1, cat: 'Soverom', showInDueSoon: true };
+  const vacuum = { ...dailyTask, id: 'vacuum', name: 'Støvsuge', type: 'flex', freq: 2, cat: 'Renhold', showInDueSoon: true };
+  const windows = { ...dailyTask, id: 'windows', name: 'Vaske vinduer', type: 'period', freq: 1, cat: 'Renhold', showInDueSoon: true };
+  const dust = { ...dailyTask, id: 'dust', name: 'Tørke støv', type: 'flex', freq: 1, cat: 'Renhold', showInDueSoon: true };
   const followedUp = { ...dailyTask, id: 'trash', name: 'Tømme søppel', type: 'flex', freq: 2, cat: 'Kjøkken' };
+  const routineKitchen = { ...dailyTask, id: 'kitchen', name: 'Rydde kjøkkenet etter måltid', type: 'flex', freq: 7, cat: 'Kjøkken' };
+  const routineMeal = { ...dailyTask, id: 'meal_other', name: 'Lage frokost eller kveldsmat', type: 'flex', freq: 7, cat: 'Kjøkken' };
+  const routineLiving = { ...dailyTask, id: 'living', name: 'Rydde stue og oppholdsrom', type: 'flex', freq: 3, cat: 'Stue & fellesområder' };
   const harness = loadRecurrence({
     completions: [
       { taskId: laundry.id, date: '2026-08-24' },
@@ -453,7 +456,7 @@ test('Dag viser maksimalt tre uferdige faste gjøremål som snart bør tas', () 
     custom: [],
     dayPlans: {},
     points: { 'Person A': 0 },
-    tasks: [laundry, bedding, vacuum, windows, dust, followedUp],
+    tasks: [laundry, bedding, vacuum, windows, dust, followedUp, routineKitchen, routineMeal, routineLiving],
     user: 'Person A',
     view: 'tasks',
   });
@@ -464,6 +467,9 @@ test('Dag viser maksimalt tre uferdige faste gjøremål som snart bør tas', () 
   assert.match(harness.content.innerHTML, /Fullfør/);
   assert.match(harness.content.innerHTML, /aria-label="Flere valg for Klesvask"/);
   assert.doesNotMatch(harness.content.innerHTML, /Tømme søppel/);
+  assert.doesNotMatch(harness.content.innerHTML, /Rydde kjøkkenet etter måltid/);
+  assert.doesNotMatch(harness.content.innerHTML, /Lage frokost eller kveldsmat/);
+  assert.doesNotMatch(harness.content.innerHTML, /Rydde stue og oppholdsrom/);
   assert.equal((harness.content.innerHTML.match(/taskDueSoon /g) || []).length, 3);
 
   harness.click({ '[data-task-popup-toggle]': { dataset: { taskPopupToggle: 'more:laundry' }, getBoundingClientRect: () => ({ bottom: 160, left: 20, right: 120, top: 120 }) } });
@@ -483,6 +489,18 @@ test('Dag viser maksimalt tre uferdige faste gjøremål som snart bør tas', () 
   assert.equal(harness.getState().completions.filter(item => item.taskId === vacuum.id && item.date === '2026-08-26').length, 1, 'Fullfør fra På tide must use the existing completion record');
   harness.api.render({ resetScroll: false });
   assert.match(harness.content.innerHTML, /Tørke støv/, 'a completed suggestion is replaced with the next eligible task');
+});
+
+
+test('På tide bruker eksplisitt katalogmerking for oppgaver med reell påminnelsesverdi', () => {
+  const language = require('../task-language.js');
+  const eligible = new Set(language.catalog.filter(task => task.showInDueSoon === true).map(task => String(task.id)));
+  for (const id of ['laundry_whole','laundry_start','vacuum','floors','bath_shower','bath_drain','bed','kids_bedding','fridge_clean','oven_clean']) {
+    assert.equal(eligible.has(id), true, `${id} skal kunne foreslås under På tide`);
+  }
+  for (const id of ['kitchen','meal_other','living','dish_fill','dish_empty','dinner','trash','kids_wakeup','kids_pickup','bedkids']) {
+    assert.equal(eligible.has(id), false, `${id} skal ikke foreslås under På tide`);
+  }
 });
 
 test('dra-og-slipp i Gjøre bruker mobilvennlig håndtak, løpende plassering og auto-scroll', () => {

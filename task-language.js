@@ -1,7 +1,7 @@
 ((root)=>{
 'use strict';
 
-const VERSION='20260903-master1';
+const VERSION='20260926-due-soon-eligibility1';
 const CATALOG_VERSION=4;
 const ALL_DAYS=Object.freeze([1,2,3,4,5,6,7]);
 const WEEKDAYS=Object.freeze([1,2,3,4,5]);
@@ -13,10 +13,10 @@ const TASK_CATALOG=Object.freeze([
   {id:'kids_dropoff',cat:'Barn',name:'Levere i barnehage/skole',freq:5,preferredDays:WEEKDAYS,pts:20,type:'daily',kind:'house'},
   {id:'kids_pickup',cat:'Barn',name:'Hente i barnehage/skole',freq:5,preferredDays:WEEKDAYS,pts:20,type:'daily',kind:'house'},
   {id:'bedkids',cat:'Barn',name:'Kveldsstell og legging',freq:7,preferredDays:ALL_DAYS,pts:20,type:'daily',kind:'house'},
-  {id:'kids_bath',cat:'Barn',name:'Bading/dusjing av barna',freq:2,pts:20,type:'flex',kind:'house'},
-  {id:'school',cat:'Barn',name:'Følge opp barnehage/skole',freq:2,pts:10,type:'flex',kind:'house'},
+  {id:'kids_bath',cat:'Barn',name:'Bading/dusjing av barna',freq:2,pts:20,type:'flex',kind:'house',showInDueSoon:true},
+  {id:'school',cat:'Barn',name:'Følge opp barnehage/skole',freq:2,pts:10,type:'flex',kind:'house',showInDueSoon:true},
   {id:'homework',cat:'Barn',name:'Følge opp lekser/skolearbeid',freq:5,pts:10,type:'flex',kind:'house'},
-  {id:'kids_clothes_school',cat:'Barn',name:'Følge opp skiftetøy og klær i barnehage/skole',freq:2,pts:10,type:'flex',kind:'house'},
+  {id:'kids_clothes_school',cat:'Barn',name:'Følge opp skiftetøy og klær i barnehage/skole',freq:2,pts:10,type:'flex',kind:'house',showInDueSoon:true},
   {id:'kids_activity_dropoff',cat:'Barn',name:'Kjøre til fritidsaktiviteter',freq:1,pts:20,type:'flex',kind:'house'},
   {id:'kids_activity_pickup',cat:'Barn',name:'Hente fra fritidsaktiviteter',freq:1,pts:20,type:'flex',kind:'house'},
   {id:'kids_dates',cat:'Barn',name:'Holde oversikt over barnas bursdager og avtaler',freq:1,pts:10,type:'flex',kind:'house'},
@@ -30,32 +30,32 @@ const TASK_CATALOG=Object.freeze([
   {id:'meal_other',cat:'Kjøkken',name:'Lage frokost eller kveldsmat',freq:7,pts:20,type:'flex',kind:'house'},
   {id:'shop',cat:'Kjøkken',name:'Handle mat',freq:2,pts:20,type:'flex',kind:'house'},
   {id:'trash',cat:'Kjøkken',name:'Ta ut søppel og sortere avfall',freq:2,pts:10,type:'flex',kind:'house',defaultSelected:true},
-  {id:'fridge_clear',cat:'Kjøkken',name:'Rydde og kaste gammel mat i kjøleskapet',freq:1,pts:20,type:'flex',kind:'house'},
-  {id:'fridge_clean',cat:'Kjøkken',name:'Rengjøre kjøleskapet',freq:1,pts:40,type:'period',kind:'house'},
-  {id:'hob_clean',cat:'Kjøkken',name:'Rengjøre platetopp/komfyr',freq:1,pts:20,type:'flex',kind:'house'},
-  {id:'oven_clean',cat:'Kjøkken',name:'Rengjøre stekeovnen',freq:1,pts:40,type:'period',kind:'house'},
-  {id:'microwave_clean',cat:'Kjøkken',name:'Rengjøre mikrobølgeovn',freq:1,pts:20,type:'flex',kind:'house'},
-  {id:'dishwasher_clean',cat:'Kjøkken',name:'Rense oppvaskmaskinen',freq:1,pts:30,type:'period',kind:'house'},
+  {id:'fridge_clear',cat:'Kjøkken',name:'Rydde og kaste gammel mat i kjøleskapet',freq:1,pts:20,type:'flex',kind:'house',showInDueSoon:true},
+  {id:'fridge_clean',cat:'Kjøkken',name:'Rengjøre kjøleskapet',freq:1,pts:40,type:'period',kind:'house',showInDueSoon:true},
+  {id:'hob_clean',cat:'Kjøkken',name:'Rengjøre platetopp/komfyr',freq:1,pts:20,type:'flex',kind:'house',showInDueSoon:true},
+  {id:'oven_clean',cat:'Kjøkken',name:'Rengjøre stekeovnen',freq:1,pts:40,type:'period',kind:'house',showInDueSoon:true},
+  {id:'microwave_clean',cat:'Kjøkken',name:'Rengjøre mikrobølgeovn',freq:1,pts:20,type:'flex',kind:'house',showInDueSoon:true},
+  {id:'dishwasher_clean',cat:'Kjøkken',name:'Rense oppvaskmaskinen',freq:1,pts:30,type:'period',kind:'house',showInDueSoon:true},
 
-  {id:'laundry_whole',cat:'Klesvask',name:'Klesvask, hele løpet',freq:3,pts:40,type:'flex',kind:'house'},
-  {id:'laundry_sort',cat:'Klesvask',name:'Sortere klesvask',freq:3,pts:10,type:'flex',kind:'house'},
-  {id:'laundry_start',cat:'Klesvask',name:'Sette på vaskemaskinen',freq:3,pts:20,type:'flex',kind:'house',defaultSelected:true},
-  {id:'laundry_hang',cat:'Klesvask',name:'Henge opp klær',freq:3,pts:30,type:'flex',kind:'house',defaultSelected:true},
-  {id:'laundry_dryer',cat:'Klesvask',name:'Tørke klær i tørketrommel',freq:3,pts:20,type:'flex',kind:'house'},
-  {id:'laundry_fold',cat:'Klesvask',name:'Brette klær',freq:3,pts:40,type:'flex',kind:'house',defaultSelected:true},
-  {id:'laundry_put_away',cat:'Klesvask',name:'Legge klær på plass',freq:3,pts:20,type:'flex',kind:'house'},
+  {id:'laundry_whole',cat:'Klesvask',name:'Klesvask, hele løpet',freq:3,pts:40,type:'flex',kind:'house',showInDueSoon:true},
+  {id:'laundry_sort',cat:'Klesvask',name:'Sortere klesvask',freq:3,pts:10,type:'flex',kind:'house',showInDueSoon:true},
+  {id:'laundry_start',cat:'Klesvask',name:'Sette på vaskemaskinen',freq:3,pts:20,type:'flex',kind:'house',defaultSelected:true,showInDueSoon:true},
+  {id:'laundry_hang',cat:'Klesvask',name:'Henge opp klær',freq:3,pts:30,type:'flex',kind:'house',defaultSelected:true,showInDueSoon:true},
+  {id:'laundry_dryer',cat:'Klesvask',name:'Tørke klær i tørketrommel',freq:3,pts:20,type:'flex',kind:'house',showInDueSoon:true},
+  {id:'laundry_fold',cat:'Klesvask',name:'Brette klær',freq:3,pts:40,type:'flex',kind:'house',defaultSelected:true,showInDueSoon:true},
+  {id:'laundry_put_away',cat:'Klesvask',name:'Legge klær på plass',freq:3,pts:20,type:'flex',kind:'house',showInDueSoon:true},
   {id:'laundry_stain',cat:'Klesvask',name:'Flekkbehandle klær',freq:1,pts:10,type:'flex',kind:'house'},
   {id:'laundry_iron',cat:'Klesvask',name:'Stryke eller dampe klær',freq:1,pts:20,type:'flex',kind:'house'},
 
-  {id:'vacuum',cat:'Renhold',name:'Støvsuge',freq:2,pts:20,type:'flex',kind:'house'},
-  {id:'floors',cat:'Renhold',name:'Vaske gulv',freq:1,pts:40,type:'flex',kind:'house'},
-  {id:'dust',cat:'Renhold',name:'Tørke støv',freq:1,pts:20,type:'flex',kind:'house'},
-  {id:'clean_doors_trim',cat:'Renhold',name:'Vaske dører, karmer og lister',freq:1,pts:30,type:'period',kind:'house'},
-  {id:'clean_window_sills',cat:'Renhold',name:'Vaske vinduskarmer',freq:1,pts:20,type:'period',kind:'house'},
-  {id:'vacuum_furniture',cat:'Renhold',name:'Støvsuge sofa og møbler',freq:1,pts:20,type:'flex',kind:'house'},
-  {id:'clean_stairs',cat:'Renhold',name:'Rengjøre trapper',freq:1,pts:30,type:'flex',kind:'house'},
-  {id:'clean_entry',cat:'Renhold',name:'Rengjøre entré/gang',freq:1,pts:30,type:'flex',kind:'house'},
-  {id:'deep_clean',cat:'Renhold',name:'Hovedrengjøring',freq:1,pts:50,type:'period',kind:'house'},
+  {id:'vacuum',cat:'Renhold',name:'Støvsuge',freq:2,pts:20,type:'flex',kind:'house',showInDueSoon:true},
+  {id:'floors',cat:'Renhold',name:'Vaske gulv',freq:1,pts:40,type:'flex',kind:'house',showInDueSoon:true},
+  {id:'dust',cat:'Renhold',name:'Tørke støv',freq:1,pts:20,type:'flex',kind:'house',showInDueSoon:true},
+  {id:'clean_doors_trim',cat:'Renhold',name:'Vaske dører, karmer og lister',freq:1,pts:30,type:'period',kind:'house',showInDueSoon:true},
+  {id:'clean_window_sills',cat:'Renhold',name:'Vaske vinduskarmer',freq:1,pts:20,type:'period',kind:'house',showInDueSoon:true},
+  {id:'vacuum_furniture',cat:'Renhold',name:'Støvsuge sofa og møbler',freq:1,pts:20,type:'flex',kind:'house',showInDueSoon:true},
+  {id:'clean_stairs',cat:'Renhold',name:'Rengjøre trapper',freq:1,pts:30,type:'flex',kind:'house',showInDueSoon:true},
+  {id:'clean_entry',cat:'Renhold',name:'Rengjøre entré/gang',freq:1,pts:30,type:'flex',kind:'house',showInDueSoon:true},
+  {id:'deep_clean',cat:'Renhold',name:'Hovedrengjøring',freq:1,pts:50,type:'period',kind:'house',showInDueSoon:true},
 
   {id:'living',cat:'Stue & fellesområder',name:'Rydde stue og oppholdsrom',freq:3,pts:10,type:'flex',kind:'house'},
   {id:'hallway',cat:'Stue & fellesområder',name:'Rydde gang/entré',freq:3,pts:10,type:'flex',kind:'house'},
@@ -63,27 +63,27 @@ const TASK_CATALOG=Object.freeze([
   {id:'outerwear_tidy',cat:'Stue & fellesområder',name:'Holde orden på sko og yttertøy',freq:3,pts:10,type:'flex',kind:'house'},
   {id:'dining_area_tidy',cat:'Stue & fellesområder',name:'Rydde spiseplass/spisebord',freq:3,pts:10,type:'flex',kind:'house'},
 
-  {id:'bath_toilet',cat:'Bad',name:'Vaske toalettet',freq:1,pts:40,type:'flex',kind:'house'},
-  {id:'bath_sink',cat:'Bad',name:'Vaske servant og speil',freq:1,pts:30,type:'flex',kind:'house'},
-  {id:'bath_shower',cat:'Bad',name:'Vaske dusj/badekar',freq:1,pts:50,type:'flex',kind:'house'},
-  {id:'bath_floor',cat:'Bad',name:'Vaske badegulvet',freq:1,pts:40,type:'flex',kind:'house'},
+  {id:'bath_toilet',cat:'Bad',name:'Vaske toalettet',freq:1,pts:40,type:'flex',kind:'house',showInDueSoon:true},
+  {id:'bath_sink',cat:'Bad',name:'Vaske servant og speil',freq:1,pts:30,type:'flex',kind:'house',showInDueSoon:true},
+  {id:'bath_shower',cat:'Bad',name:'Vaske dusj/badekar',freq:1,pts:50,type:'flex',kind:'house',showInDueSoon:true},
+  {id:'bath_floor',cat:'Bad',name:'Vaske badegulvet',freq:1,pts:40,type:'flex',kind:'house',showInDueSoon:true},
   {id:'bath_tidy',cat:'Bad',name:'Rydde badet',freq:3,pts:20,type:'flex',kind:'house'},
-  {id:'bath_towels',cat:'Bad',name:'Skifte håndklær',freq:1,pts:10,type:'flex',kind:'house'},
+  {id:'bath_towels',cat:'Bad',name:'Skifte håndklær',freq:1,pts:10,type:'flex',kind:'house',showInDueSoon:true},
   {id:'bath_supplies',cat:'Bad',name:'Fylle på toalettpapir og hygieneartikler',freq:1,pts:10,type:'flex',kind:'house'},
-  {id:'bath_drain',cat:'Bad',name:'Rense sluk',freq:1,pts:40,type:'period',kind:'house'},
+  {id:'bath_drain',cat:'Bad',name:'Rense sluk',freq:1,pts:40,type:'period',kind:'house',showInDueSoon:true},
 
   {id:'bed_make',cat:'Soverom',name:'Re opp sengen',freq:7,preferredDays:ALL_DAYS,pts:10,type:'daily',kind:'house'},
   {id:'bedroom_tidy',cat:'Soverom',name:'Rydde soverommet',freq:1,pts:20,type:'flex',kind:'house'},
-  {id:'bed',cat:'Soverom',name:'Bytte sengetøy',freq:1,pts:30,type:'flex',kind:'house'},
-  {id:'kids_bedding',cat:'Soverom',name:'Bytte sengetøy på barnas senger',freq:1,pts:30,type:'flex',kind:'house'},
+  {id:'bed',cat:'Soverom',name:'Bytte sengetøy',freq:1,pts:30,type:'flex',kind:'house',showInDueSoon:true},
+  {id:'kids_bedding',cat:'Soverom',name:'Bytte sengetøy på barnas senger',freq:1,pts:30,type:'flex',kind:'house',showInDueSoon:true},
 
   {id:'pet_food',cat:'Dyr',name:'Gi mat og friskt vann',freq:7,preferredDays:ALL_DAYS,pts:10,type:'daily',kind:'house'},
   {id:'pet_walk',cat:'Dyr',name:'Lufte hund',freq:7,preferredDays:ALL_DAYS,pts:30,type:'daily',kind:'house'},
   {id:'pet_litter',cat:'Dyr',name:'Rense kattekasse',freq:7,preferredDays:ALL_DAYS,pts:30,type:'daily',kind:'house'},
-  {id:'pet_groom',cat:'Dyr',name:'Stell og børsting',freq:2,pts:30,type:'flex',kind:'house'},
-  {id:'pet_nails',cat:'Dyr',name:'Klippe klør',freq:1,pts:20,type:'period',kind:'house'},
-  {id:'pet_bath',cat:'Dyr',name:'Bade/vaske dyret',freq:1,pts:30,type:'period',kind:'house'},
-  {id:'pet_home_clean',cat:'Dyr',name:'Rengjøre bur, akvarium eller dyreområde',freq:1,pts:30,type:'flex',kind:'house'},
+  {id:'pet_groom',cat:'Dyr',name:'Stell og børsting',freq:2,pts:30,type:'flex',kind:'house',showInDueSoon:true},
+  {id:'pet_nails',cat:'Dyr',name:'Klippe klør',freq:1,pts:20,type:'period',kind:'house',showInDueSoon:true},
+  {id:'pet_bath',cat:'Dyr',name:'Bade/vaske dyret',freq:1,pts:30,type:'period',kind:'house',showInDueSoon:true},
+  {id:'pet_home_clean',cat:'Dyr',name:'Rengjøre bur, akvarium eller dyreområde',freq:1,pts:30,type:'flex',kind:'house',showInDueSoon:true},
   {id:'pet_supplies',cat:'Dyr',name:'Kjøpe dyremat og utstyr',freq:1,pts:20,type:'flex',kind:'house'},
 
   {id:'garden_mow',cat:'Hage & ute',name:'Klippe plen',freq:1,pts:20,type:'flex',kind:'house'},
@@ -95,14 +95,14 @@ const TASK_CATALOG=Object.freeze([
   {id:'garden_patio',cat:'Hage & ute',name:'Rengjøre terrasse/uteplass',freq:1,pts:30,type:'period',kind:'house'},
 
   {id:'car_fuel',cat:'Bil',name:'Fylle drivstoff / lade',freq:1,pts:20,type:'flex',kind:'house'},
-  {id:'car_wash',cat:'Bil',name:'Vaske bilen utvendig',freq:1,pts:40,type:'flex',kind:'house'},
-  {id:'car_interior',cat:'Bil',name:'Rydde og rengjøre bilen innvendig',freq:1,pts:30,type:'flex',kind:'house'},
+  {id:'car_wash',cat:'Bil',name:'Vaske bilen utvendig',freq:1,pts:40,type:'flex',kind:'house',showInDueSoon:true},
+  {id:'car_interior',cat:'Bil',name:'Rydde og rengjøre bilen innvendig',freq:1,pts:30,type:'flex',kind:'house',showInDueSoon:true},
 
-  {id:'weekly_plan',cat:'Planlegging & admin',name:'Planlegge uken',freq:1,pts:20,type:'flex',kind:'house'},
-  {id:'weekly_menu',cat:'Planlegging & admin',name:'Lage ukemeny',freq:1,pts:20,type:'flex',kind:'house'},
-  {id:'family_calendar',cat:'Planlegging & admin',name:'Holde familiekalenderen oppdatert',freq:1,pts:20,type:'flex',kind:'house'},
+  {id:'weekly_plan',cat:'Planlegging & admin',name:'Planlegge uken',freq:1,pts:20,type:'flex',kind:'house',showInDueSoon:true},
+  {id:'weekly_menu',cat:'Planlegging & admin',name:'Lage ukemeny',freq:1,pts:20,type:'flex',kind:'house',showInDueSoon:true},
+  {id:'family_calendar',cat:'Planlegging & admin',name:'Holde familiekalenderen oppdatert',freq:1,pts:20,type:'flex',kind:'house',showInDueSoon:true},
   {id:'gifts',cat:'Planlegging & admin',name:'Gaver og bursdager',freq:1,pts:30,type:'period',kind:'house'},
-  {id:'bills',cat:'Planlegging & admin',name:'Betale regninger',freq:1,pts:20,type:'period',kind:'house'}
+  {id:'bills',cat:'Planlegging & admin',name:'Betale regninger',freq:1,pts:20,type:'period',kind:'house',showInDueSoon:true}
 ].map(task=>Object.freeze(task)));
 
 const TASK_BY_ID=new Map(TASK_CATALOG.map(task=>[String(task.id),task]));
