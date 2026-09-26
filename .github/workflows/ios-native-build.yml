@@ -1,0 +1,49 @@
+name: iOS native build
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'ios/**'
+      - 'capacitor.config.json'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'native-platform.js'
+      - 'sync.js'
+      - 'invite.html'
+      - 'scripts/copy-capacitor-web-assets.mjs'
+      - '.github/workflows/ios-native-build.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ios-native-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: macos-26
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Sync Capacitor iOS project
+        run: npm run cap:sync
+      - name: Show Xcode version
+        run: xcodebuild -version
+      - name: Build iOS simulator target
+        run: >
+          xcodebuild
+          -project ios/App/App.xcodeproj
+          -scheme App
+          -configuration Debug
+          -destination 'generic/platform=iOS Simulator'
+          CODE_SIGNING_ALLOWED=NO
+          build
