@@ -89,13 +89,13 @@ document.addEventListener('click',async event=>{
   const close=match('[data-seen-sheet-close]');if(close){stop();closeSheet();return}
   const layer=match('[data-seen-sheet-layer]');if(layer&&event.target===layer){stop();closeSheet();return}
   const suggestion=match('[data-seen-suggestion]');if(suggestion){stop();const input=$('#seenText'),raw=suggestion.dataset.seenSuggestion||suggestion.textContent||'',templates=sheet?.kind==='manual'?MANUAL_TEMPLATES:CATEGORY[sheet?.kind]?.templates;if(input){input.value=templates?.[raw]||raw;document.querySelectorAll('.seenMessageChoice').forEach(choice=>choice.classList.toggle('on',choice===suggestion));updateMessageSendState()}return}
-  const taskMessage=match('[data-seen-task-message-save]');if(taskMessage){stop();const s=state(),value=$('#seenText')?.value||'',target={kind:sheet?.sourceKind||'completion',id:sheet?.id},result=core()?.setAcknowledgementText?.(s,{...target,user:s.user,text:value});if(result?.changed){blurSheetInput();sheet=null;save(result.state);render({resetScroll:false});toast('Meldingen er lagt til ❤️')}return}
+  const taskMessage=match('[data-seen-task-message-save]');if(taskMessage){stop();const s=state(),value=$('#seenText')?.value||'',target={kind:sheet?.sourceKind||'completion',id:sheet?.id},result=core()?.setAcknowledgementText?.(s,{...target,user:s.user,text:value});blurSheetInput();sheet=null;if(result?.changed){save(result.state);render({resetScroll:false});toast('Meldingen er lagret ❤️')}else render({resetScroll:false});return}
   const send=match('[data-seen-send]');if(send){stop();const kind=send.dataset.seenSend,value=$('#seenText')?.value.trim()||'';sendMessage(kind,value);return}
   const history=match('[data-seen-history]');if(history){stop();page='history';sheet=null;render({resetScroll:true});return}
   const back=match('[data-seen-back]');if(back){stop();openMain();return}
 },true);
 
-function updateMessageSendState(){if(!sheet||!['manual','nice','flirt','space'].includes(sheet.kind))return;const input=$('#seenText'),button=$('[data-seen-send]'),count=$('[data-seen-count]');if(!input||!button)return;const length=input.value.length;button.disabled=!input.value.trim();if(count){count.textContent=`${length}/200`;count.classList.toggle('show',length>0)}}
+function updateMessageSendState(){if(!sheet||!['manual','nice','flirt','space','task'].includes(sheet.kind))return;const input=$('#seenText'),button=sheet.kind==='task'?$('[data-seen-task-message-save]'):$('[data-seen-send]'),count=$('[data-seen-count]');if(!input||!button)return;const length=input.value.length;button.disabled=!input.value.trim();if(count){count.textContent=`${length}/200`;count.classList.toggle('show',length>0)}}
 document.addEventListener('input',event=>{if(event.target?.id==='seenText'){document.querySelectorAll('.seenMessageChoice').forEach(choice=>choice.classList.remove('on'));updateMessageSendState()}},true);
 document.addEventListener('focusin',event=>{if(!event.target?.matches?.('.seenTextarea'))return;syncSheetViewport();requestAnimationFrame(()=>{event.target.scrollIntoView?.({block:'nearest',inline:'nearest'});syncSheetViewport()})},true);
 
