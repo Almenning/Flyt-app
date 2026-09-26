@@ -48,6 +48,8 @@ const root=path.resolve(__dirname,'..');
     assert.equal(await page.getByText(/Sendt til .*Ferdig/).count(),0);
 
     await first.getByRole('button',{name:'+ Legg til en melding'}).click();
+    assert.match(await page.locator('.seenSheet').innerText(),/Legg til melding/);
+    assert.equal(await page.locator('#seenText').getAttribute('maxlength'),'200');
     await page.locator('#seenText').fill('Takk for at du tok leggingen. Jeg trengte pausen ❤️');
     await page.getByRole('button',{name:'Lagre melding'}).click();
     snapshot=await page.evaluate(()=>structuredClone(window.__state));
@@ -100,7 +102,7 @@ const root=path.resolve(__dirname,'..');
     await page.evaluate(()=>{window.__state={...window.__state,user:'Jannicke',view:'home'};window.FlytSeenRecognitionAlert.check()});
     await page.locator('#seenRecognitionAlert').waitFor();
     const popup=await page.locator('#seenRecognitionAlert').innerText();
-    assert.match(popup,/Nytt i Sett/);assert.match(popup,/Fra Tore/);assert.match(popup,/Takk for at du tok leggingen/);assert.match(popup,/1 av 5/);
+    assert.match(popup,/Nytt i Sett/);assert.match(popup,/Sett av Tore/);assert.match(popup,/Takk for at du tok leggingen/);assert.match(popup,/1 av 5/);
     await page.locator('[data-recognition-alert-next]').click();
     snapshot=await page.evaluate(()=>structuredClone(window.__state));
     assert.equal(windowSafe(snapshot.completions.find(item=>item.id==='bed-1').acknowledgements[0].seenBy).includes('Jannicke'),true);
