@@ -20,7 +20,7 @@ if(!window.supabase){
   return
 }
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
-let ctx=null,pollTimer=null,saveTimer=null,applying=false,dirty=false,saving=false,hydrated=false,authName='',syncError=false,lastSavedAt=0;
+let ctx=null,pollTimer=null,saveTimer=null,applying=false,dirty=false,saving=false,hydrated=false,authName='',syncError=false,lastSavedAt=0,nativeLifecycleInstalled=false,appActive=true,bootstrapPromise=null,foregroundSyncPromise=null;
 let serverRevision=0,serverState={},clientBaseState=null;
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -141,16 +141,70 @@ async function push(){
 }
 async function retrySave(){clearTimeout(saveTimer);if(!dirty){syncError=false;updateChrome();return true}return push()}
 function queueSave(){if(applying||!ctx?.household||!hydrated)return;dirty=true;syncError=false;updateChrome();clearTimeout(saveTimer);saveTimer=setTimeout(push,650)}
-function startPolling(){clearInterval(pollTimer);pollTimer=setInterval(()=>pull(false),5000)}
+function stopPolling(){clearInterval(pollTimer);pollTimer=null}
+function startPolling(){stopPolling();if(window.FlytPlatform?.isNative&&appActive===false)return;pollTimer=setInterval(()=>pull(false),5000)}
 function reconcileWhenSafe(){if(hydrated&&!dirty&&!saving&&!uiBusy())applyRemote()}
 const AUTH_BOOTSTRAP_TIMEOUT_MS=10000;
-async function getSessionWithTimeout(){let timeoutId;try{return await Promise.race([sb.auth.getSession(),new Promise((_,reject)=>{timeoutId=setTimeout(()=>reject(new Error('AUTH_BOOTSTRAP_TIMEOUT')),AUTH_BOOTSTRAP_TIMEOUT_MS)})])}finally{clearTimeout(timeoutId)}}
-async function bootstrap(){hydrated=false;clearTimeout(saveTimer);dirty=false;resetRevisionState();ensureBetaUi();let session=null;try{const r=await getSessionWithTimeout();session=r.data.session;authName=String(session?.user?.user_metadata?.display_name||session?.user?.user_metadata?.name||authName||'').trim()}catch(e){if(localModeEnabled())showLocalApp();else authChoice(e?.message==='AUTH_BOOTSTRAP_TIMEOUT'?'Innloggingen tok for lang tid. Prøv igjen.':'Kunne ikke hente kontoen. Prøv igjen.');return}if(!session){if(localModeEnabled())showLocalApp();else authChoice();return}setLocalMode(false);try{await loadContext()}catch(e){loginScreen('Kunne ikke hente kontoen. Logg inn på nytt.');return}if(ctx?.requires_consent){window.FlytAccountUI?.checkConsent?.();return}if(!ctx?.household){householdScreen();return}try{applyRemote()}catch(e){console.error('Flyt startup sync ignored:',e)}hydrated=true;showApp();startPolling();window.FlytAccountUI?.checkConsent?.()}
-window.FlytSync={queueSave,pull,retrySave,bootstrap,logout,clearPrivateLocalData,showLogin:(message='')=>authChoice(message),myName,rpc:(name,args)=>sb.rpc(name,args),getContext:()=>ctx,isReady:()=>hydrated,isSummaryReady,openConnection:connectionSheet,rotateInviteCode,handleDisconnected};
+async function getSessionWithTimeout(){let timeoutId;try{const result=await Promise.race([sb.auth.getSession(),new Promise((_,reject)=>{timeoutId=setTimeout(()=>reject(new Error('AUTH_BOOTSTRAP_TIMEOUT')),AUTH_BOOTSTRAP_TIMEOUT_MS)})]);if(result?.error)throw result.error;return result}finally{clearTimeout(timeoutId)}}
+function sessionDisplayName(session){return String(session?.user?.user_metadata?.display_name||session?.user?.user_metadata?.name||authName||'').trim()}
+function handleSessionLost(message='Økten er utløpt. Logg inn på nytt.'){clearTimeout(saveTimer);stopPolling();clearPrivateLocalData();ctx=null;authName='';dirty=false;saving=false;syncError=false;hydrated=false;resetRevisionState();applying=true;try{bridge()?.setState?.(cleanStarterState('Meg'))}finally{applying=false}authChoice(message)}
+async function bootstrap(){
+  if(bootstrapPromise)return bootstrapPromise;
+  bootstrapPromise=(async()=>{
+    hydrated=false;clearTimeout(saveTimer);dirty=false;resetRevisionState();ensureBetaUi();let session=null;
+    try{const r=await getSessionWithTimeout();session=r.data.session;authName=sessionDisplayName(session)}
+    catch(e){if(localModeEnabled())showLocalApp();else authChoice(e?.message==='AUTH_BOOTSTRAP_TIMEOUT'?'Innloggingen tok for lang tid. Prøv igjen.':'Kunne ikke hente kontoen. Prøv igjen.');return false}
+    if(!session){if(localModeEnabled())showLocalApp();else authChoice();return false}
+    setLocalMode(false);
+    try{await loadContext()}catch(e){loginScreen('Kunne ikke hente kontoen. Logg inn på nytt.');return false}
+    if(ctx?.requires_consent){window.FlytAccountUI?.checkConsent?.();return true}
+    if(!ctx?.household){householdScreen();return true}
+    try{applyRemote()}catch(e){console.error('Flyt startup sync ignored:',e)}
+    hydrated=true;showApp();startPolling();window.FlytAccountUI?.checkConsent?.();return true
+  })();
+  try{return await bootstrapPromise}finally{bootstrapPromise=null}
+}
+async function resumeAfterForeground(){
+  if(foregroundSyncPromise)return foregroundSyncPromise;
+  foregroundSyncPromise=(async()=>{
+    sb.auth.startAutoRefresh?.();
+    let session=null;
+    try{const r=await getSessionWithTimeout();session=r?.data?.session||null}
+    catch(e){syncError=true;updateChrome();startPolling();return false}
+    if(!session){if(localModeEnabled()){showLocalApp();return true}handleSessionLost();return false}
+    authName=sessionDisplayName(session);
+    if(!hydrated||!ctx?.household)return bootstrap();
+    if(dirty){const saved=await retrySave();if(!saved){startPolling();return false}}
+    const previousHouseholdId=ctx?.household?.id;
+    try{await loadContext()}catch(e){syncError=true;updateChrome();startPolling();return false}
+    if(previousHouseholdId&&!ctx?.household){handleDisconnected();return true}
+    try{applyRemote()}catch(e){console.error('Flyt foreground sync ignored:',e)}
+    syncError=false;updateChrome();startPolling();return true
+  })();
+  try{return await foregroundSyncPromise}finally{foregroundSyncPromise=null}
+}
+async function handleNativeAppStateChange(state){
+  appActive=state?.isActive!==false;
+  if(!appActive){stopPolling();sb.auth.stopAutoRefresh?.();if(dirty&&!saving&&navigator.onLine!==false)void retrySave();return}
+  await resumeAfterForeground();
+}
+async function installNativeLifecycle(){
+  if(nativeLifecycleInstalled||!window.FlytPlatform?.isNative)return false;
+  nativeLifecycleInstalled=true;
+  try{
+    const initial=await window.FlytPlatform.getAppState?.();
+    appActive=initial?.isActive!==false;
+    if(appActive)sb.auth.startAutoRefresh?.();else sb.auth.stopAutoRefresh?.();
+    await window.FlytPlatform.addAppStateListener?.(handleNativeAppStateChange);
+    return true
+  }catch(e){console.warn('HverdagsOss native lifecycle unavailable:',e);appActive=true;return false}
+}
+window.FlytSync={queueSave,pull,retrySave,bootstrap,resumeAfterForeground,logout,clearPrivateLocalData,showLogin:(message='')=>authChoice(message),myName,rpc:(name,args)=>sb.rpc(name,args),getContext:()=>ctx,isReady:()=>hydrated,isSummaryReady,openConnection:connectionSheet,rotateInviteCode,handleDisconnected};
 ensureBetaUi();
+installNativeLifecycle();
 window.addEventListener('DOMContentLoaded',bootstrap);
 window.addEventListener('offline',updateChrome);
-window.addEventListener('online',async()=>{if(dirty)await retrySave();if(!dirty)await pull(true);updateChrome()});
+window.addEventListener('online',async()=>{if(window.FlytPlatform?.isNative){if(appActive)await resumeAfterForeground();updateChrome();return}if(dirty)await retrySave();if(!dirty)await pull(true);updateChrome()});
 document.addEventListener('focusout',()=>setTimeout(reconcileWhenSafe,0),true);
 document.addEventListener('pointerup',()=>setTimeout(reconcileWhenSafe,0),true);
 })();

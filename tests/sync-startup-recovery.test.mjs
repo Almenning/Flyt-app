@@ -16,7 +16,7 @@ assert.match(watchdog, /function isLoadingGate\(el\)/, 'Oppstartsvakten må gjen
 assert.match(watchdog, /window\.FlytSync\?\.showLogin/, 'En synlig lasteskjerm må kunne gå direkte til innlogging');
 assert.match(watchdog, /setTimeout\(rescue,3000\)/, 'Fastlåst lasting må få recovery raskt');
 assert.match(index, /sync-merge\.js\?v=20260923-revision-sync1/, 'Merge-motoren må lastes før synklaget');
-assert.match(index, /sync\.js\?v=20260924-local-sanitization1/, 'Nettleseren må hente den personvernsikre synk- og logout-rettingen');
+assert.match(index, /sync\.js\?v=20260926-native-lifecycle1/, 'Nettleseren må hente synklaget med native lifecycle og eksisterende personvernrettinger');
 assert.match(index, /app-watchdog\.js\?v=[^"']+/, 'Nettleseren må hente den aktive oppstartsvakten');
 assert.doesNotMatch(index, /cdn\.jsdelivr\.net\/npm\/@supabase/, 'Oppstarten må ikke blokkeres av en ekstern Supabase-CDN');
 assert.match(index, /vendor\/supabase-2\.116\.0\.js\?v=20260920-local1" defer/, 'Supabase-klienten må lastes lokalt uten å blokkere HTML-tegning');
