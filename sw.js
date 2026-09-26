@@ -1,4 +1,4 @@
-const CACHE='flyt-v84';
+const CACHE='flyt-v85';
 const NETWORK_TIMEOUT_MS=5000;
 self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(['./index.html','./manifest.webmanifest','./vendor/supabase-2.116.0.js','./sync-merge.js','./sync.js'])).catch(()=>{}));});
 self.addEventListener('activate',e=>{e.waitUntil((async()=>{const keys=await caches.keys();await Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)));await self.clients.claim();})());});
@@ -12,7 +12,7 @@ self.addEventListener('fetch',e=>{
     return;
   }
   if(url.origin===self.location.origin&&(url.pathname.endsWith('.js')||url.pathname.endsWith('.html')||url.pathname.endsWith('.webmanifest'))){
-    e.respondWith(caches.match(req,{ignoreSearch:true}).then(cached=>cached||network().then(response=>{if(response?.ok)caches.open(CACHE).then(cache=>cache.put(req,response.clone()));return response})).catch(()=>caches.match(req,{ignoreSearch:true})).then(response=>response||Response.error()));
+    e.respondWith(network().then(response=>{if(response?.ok)caches.open(CACHE).then(cache=>cache.put(req,response.clone()));return response}).catch(async()=>{const exact=await caches.match(req);if(exact)return exact;const fallback=await caches.match(req,{ignoreSearch:true});return fallback||Response.error()}));
     return;
   }
   e.respondWith(fetch(req).catch(()=>caches.match(req)));
