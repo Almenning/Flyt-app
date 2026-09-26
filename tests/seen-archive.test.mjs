@@ -18,7 +18,7 @@ assert.match(seen,/max-height:222px/,'more than three contributions scroll insid
 assert.match(seen,/Hva satte du pris på\?/);
 assert.match(seen,/Velg et forslag eller skriv kort med egne ord\./);
 assert.match(seen,/const MANUAL_TEMPLATES=/);
-assert.match(seen,/maxlength="200"/);
+assert.match(seen,/maxlength=['\"]200['\"]/);
 assert.match(seen,/data-seen-send='\$\{esc\(kind\)\}'/);
 assert.match(seen,/function messageSheet\(/,'the four message flows share one renderer');
 assert.match(seen,/seenMessageGrid/);
@@ -35,6 +35,7 @@ assert.doesNotMatch(seen,/Lag en kaffe til partneren|En liten fristelse|Ta oppva
 assert.doesNotMatch(seen,/seenSecondaryActions|seenLast|Siste anerkjennelse/);
 assert.doesNotMatch(seen,/data-seen-quick-send="temptation"|addRecognition\?\.\(.*temptation/);
 assert.match(seen,/visibilitychange/,'recipient popup checks when returning from background');
+assert.match(seen,/if\(!item\)return false;ensureStyles\(\);recognitionAlertOpen=true/,'recipient popup installs premium styles even before Sett has been opened');
 assert.doesNotMatch(seen,/setInterval\(checkRecognitionAlert/,'recipient popup must not poll during active use');
 assert.doesNotMatch(seen,/forholdsscore|relasjonspoeng|streak|quiz/i);
 assert.match(history,/Personlige nudges/);
