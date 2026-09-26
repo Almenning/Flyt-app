@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION='20260926-due-soon-label1';
+const VERSION='20260926-seen-premium1';
 const DEFAULTS=Object.freeze({
   popups:{dailyCheckin:true,recognitions:true,challenges:true,tips:true},
   home:{dailyStatus:true,challenges:true,overview:true},
@@ -42,7 +42,6 @@ ${section('Popup og påminnelser',`${toggle('popups.dailyCheckin','Daglig dagsfo
 ${section('Hjem',`${toggle('home.dailyStatus','Dagsform','Vis dagsformkortet på Hjem.')} ${toggle('home.challenges','Utfordringer','Vis utfordringer på Hjem.')} ${toggle('home.overview','Dagens oversikt','Vis fremdrift og oversikt over dagens gjøremål.')}`)}
 ${section('Gjøre',`<p class="flytSettingsHint">Styr felles gjøremål og forslag.</p><button type="button" class="flytSettingsLink" data-settings-task-setup><span><strong>Rediger oppsett</strong><small>Gjøremål, rytme og poeng.</small></span><b>›</b></button><button type="button" class="flytSettingsToggle flytSettingsDueSoonMaster" data-settings-due-soon-master aria-pressed="${dueSoonPrefs(s).enabled}"><span><strong>På tide</strong><small>Vis forslag i Dag-visningen.</small></span><i class="${dueSoonPrefs(s).enabled?'on':''}" aria-hidden="true"><b></b></i></button><button type="button" class="flytSettingsLink flytSettingsDueSoonConfigure ${dueSoonPrefs(s).enabled?'':'isMuted'}" data-settings-due-soon><span><strong>Gjøremål i På tide</strong><small>Velg hvilke gjøremål som kan foreslås.</small></span><b>›</b></button>`)}
 ${section('Oppsummeringer',`${toggle('summaries.weekly','Ukesoppsummering','Vis én popup første gang du åpner appen etter at uka er avsluttet.')} ${toggle('summaries.daily','Dagsoppsummering som popup','Vis gårsdagens oppsummering automatisk ved neste åpning.')}`)}
-${section('Sett',`${toggle('seen.suggestions','Forslag til anerkjennelse','Vis forslag når du vil sende noe fint.')}<button type="button" class="flytSettingsLink" data-settings-seen-suggestions>Mine personlige forslag <b>›</b></button><button type="button" class="flytSettingsLink" data-settings-history>Historikk i Sett <b>›</b></button>`)}
 ${section('Mål og belønning',`${pointsToggle(s)}${toggle('rewards.showChallenges','Vis utfordringer på Hjem','La utfordringer være en del av dagens oversikt.')}<button type="button" class="flytSettingsLink" data-settings-rewards>Administrer egne belønninger <b>›</b></button><p class="flytSettingsHint">Poeng viser innsats og fremdrift. De brukes ikke opp. Dine popup- og Hjem-valg er personlige.</p>`)}
 ${section('Historikk og data',`<button type="button" class="flytSettingsLink" data-settings-history>Se historikk og egne forslag <b>›</b></button><p class="flytSettingsHint">Innstillingene endrer ikke oppgaver, poeng, meldinger eller historikk.</p>`)}
 ${section('Om HverdagsOss',`<p class="flytSettingsHint">HverdagsOss skal gjøre det enklere å se, fordele og verdsette hverdagen sammen.</p><div class="flytSettingsVersion">Versjon ${VERSION}</div>`)}<div class="flytSettingsLogout"><button type="button" data-settings-logout>Logg ut</button></div>
