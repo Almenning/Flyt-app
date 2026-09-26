@@ -24,7 +24,7 @@ test('Sett prioriterer partnerens faktiske bidrag og toner ned øvrige handlinge
   vm.runInNewContext(fs.readFileSync(path.join(__dirname,'..','seen-ui.js'),'utf8'),context,{filename:'seen-ui.js'});
   context.FlytSeenUI.render({resetScroll:true});
   assert.equal(content.dataset.flytOwner,'seen-actions');
-  assert.match(content.innerHTML,/<h1 class="seenTitle">Se hverandre<\/h1>/);
+  assert.match(content.innerHTML,/<h1 class=['\"]seenTitle['\"]>Se hverandre<\/h1>/);
   assert.match(content.innerHTML,/Maria har bidratt i dag/);
   assert.match(content.innerHTML,/Rydde kjøkkenet/);
   assert.match(content.innerHTML,/data-seen-ack="completion\|1"/);
