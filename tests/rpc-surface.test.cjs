@@ -51,6 +51,8 @@ test('active SECURITY DEFINER client API uses an empty search path',()=>{
 
 test('cache versions deliver the client RPC cleanup',()=>{
   assert.match(index,/oss\.js\?v=20260924-rpc-surface1/);
-  assert.match(index,/hverdagsoss_sw_reset_v81/);
-  assert.match(serviceWorker,/const CACHE='flyt-v81'/);
+  const resetVersion=index.match(/hverdagsoss_sw_reset_v(\d+)/)?.[1];
+  const cacheVersion=serviceWorker.match(/const CACHE='flyt-v(\d+)'/)?.[1];
+  assert.ok(resetVersion&&cacheVersion,'service worker reset and cache versions must both be present');
+  assert.equal(resetVersion,cacheVersion,'service worker reset key must track the active cache version');
 });

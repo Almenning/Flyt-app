@@ -13,7 +13,7 @@ test('På tide kan slås av direkte i Innstillinger > Gjøre', () => {
 });
 
 test('valg av På tide-gjøremål er fortsatt tilgjengelig separat', () => {
-  assert.match(source, /Velg forslag/);
+  assert.match(source, /Gjøremål i På tide/);
   assert.match(source, /data-settings-due-soon/);
   assert.match(source, /Velg hvilke gjøremål som kan foreslås/);
 });

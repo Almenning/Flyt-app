@@ -462,6 +462,7 @@ test('Dag viser maksimalt tre uferdige faste gjøremål som snart bør tas', () 
   });
 
   assert.match(harness.content.innerHTML, /På tide/);
+  harness.click({ '[data-task-due-soon]': { dataset: { taskDueSoon: 'due-soon' } } });
   assert.match(harness.content.innerHTML, /Klesvask/);
   assert.match(harness.content.innerHTML, /1 av 3 denne uka/);
   assert.match(harness.content.innerHTML, /Fullfør/);
@@ -517,6 +518,7 @@ test('På tide kan slås av og oppgavevalg kan overstyres for husholdningen', ()
     user: 'Person A',
     view: 'tasks',
   });
+  enabledHarness.click({ '[data-task-due-soon]': { dataset: { taskDueSoon: 'due-soon' } } });
   assert.doesNotMatch(enabledHarness.content.innerHTML, /Støvsuge/);
   assert.match(enabledHarness.content.innerHTML, /Rydde kjøkkenet etter måltid/);
 
@@ -566,7 +568,7 @@ test('sortering åpnes per kategori og skjuler drag-håndtaket i normalvisning',
   assert.match(source.match(/function groupCards[\s\S]*?function dayCards/)?.[0] || '', /headerAction=sorting/);
   assert.match(source.match(/function groupCards[\s\S]*?function dayCards/)?.[0] || '', /taskSortHeaderAction isSorting/);
   assert.match(source, /function sortableCategoryTasks\(s,key\)/);
-  assert.match(source, /mode==='day'\)return plannedTasks\(s,selectedDay\)/);
+  assert.match(source, /if\(mode==='day'\)return reorderAllTasks\?all:plannedTasks\(s,selectedDay\)\.filter/);
   assert.match(source, /installReorderMenus\(root\)/);
   assert.match(source, /mode==='week'/);
   assert.match(source, /t\.type==='period'/);
@@ -585,7 +587,7 @@ test('oppgavekort har separate kompakte menyer for utfører og dagsplan', () => 
   assert.match(source, /taskPopupOpen/);
   assert.match(source, /\.categoryAccordion,.categoryAccordionBody,.card\[data-task-reorder-row\]\{overflow:visible\}/);
   assert.match(source, /max-width:calc\(100vw - 44px\)/);
-  assert.match(source, /popupPosition\(trigger,type\)/);
+  assert.match(source, /popupPosition\(trigger,type,\{dueSoon=false\}=\{\}\)/);
   assert.match(source, /data-popup-placement/);
   assert.match(source, /\[data-popup-placement="below"\]/);
   assert.match(source, /\[data-popup-placement="above"\]/);

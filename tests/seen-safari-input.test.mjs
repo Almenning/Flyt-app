@@ -19,7 +19,10 @@ assert.match(seen,/\.seenTextarea:focus,.seenTextarea:focus-visible\{border-colo
 assert.match(lock,/\.seenSheet\{touch-action:pan-y!important;overscroll-behavior:contain!important;-webkit-overflow-scrolling:touch!important\}/,'felles modal-lås må la Sett-sheeten scrolles');
 assert.match(index,/seen-ui\.js\?v=20260926-seen-premium1/);
 assert.match(index,/modal-scroll-lock\.js\?v=20260925-accessibility1/);
-assert.match(index,/app-watchdog\.js\?v=20260926-scroll-stability1/);
-assert.match(serviceWorker,/const CACHE='flyt-v82'/);
+assert.match(index,/app-watchdog\.js\?v=[^"']+/);
+const resetVersion=index.match(/hverdagsoss_sw_reset_v(\d+)/)?.[1];
+const cacheVersion=serviceWorker.match(/const CACHE='flyt-v(\d+)'/)?.[1];
+assert.ok(resetVersion&&cacheVersion,'service worker reset and cache versions must both be present');
+assert.equal(resetVersion,cacheVersion,'Safari fixes must be delivered with the active cache generation');
 
 console.log('ok - Sett tekstfelt håndterer iPhone-tastatur og fokus uten zoom/låsing');

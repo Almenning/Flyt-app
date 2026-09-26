@@ -212,7 +212,7 @@ test('Oppsett og Gjøre bruker den delte sticky accordion-komponenten', () => {
   assert.match(tasks, /data-library-category/);
   assert.match(tasks, /data-add-library-category/);
   assert.match(tasks, /\+ Legg til eget gjøremål/);
-  assert.match(tasks, /mainMarkup=groupCards\(main,s,\{planned:mode==='day'\}\)/);
+  assert.match(tasks, /mainMarkup=groupCards\(mainForRender,s,\{planned:mode==='day'\}\)/);
   assert.match(tasks, /orderedCategoryTasks\(s,key,tasks\)/);
   assert.match(tasks, /requestAnimationFrame\(runAutoScroll\)/);
   assert.match(tasks, /root\.scrollTop=Math\.max/);

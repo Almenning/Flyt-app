@@ -74,18 +74,18 @@ const baseState = {
   view: 'rewards',
 };
 
-test('Mål og belønning viser opptjente poeng, oversikt og de to hovedflytene', () => {
+test('Belønning viser poengoversikt og de to hovedflytene uten tomme seksjoner', () => {
   const harness = loadScript('rewards-ui.js', baseState);
 
-  assert.match(harness.content.innerHTML, /Mål og belønning/);
-  assert.match(harness.content.innerHTML, /På gang/);
+  assert.match(harness.content.innerHTML, /Belønning/);
+  assert.doesNotMatch(harness.content.innerHTML, /På gang/);
   assert.match(harness.content.innerHTML, /Sett et mål/);
   assert.match(harness.content.innerHTML, /Send en fristelse ❤️/);
   assert.match(harness.content.innerHTML, /rewardChallenge/);
   assert.match(harness.content.innerHTML, /420/);
-  assert.match(harness.content.innerHTML, /poeng opptjent/);
+  assert.match(harness.content.innerHTML, /Poengoversikt/);
   assert.match(harness.content.innerHTML, /denne uka/);
-  assert.match(harness.content.innerHTML, /Registrert innsats/);
+  assert.match(harness.content.innerHTML, /Totalt registrert innsats/);
   assert.match(harness.content.innerHTML, /De brukes ikke opp/);
   assert.doesNotMatch(harness.content.innerHTML, /Brukte poeng|poeng tilgjengelig/);
   assert.doesNotMatch(harness.content.innerHTML, /Hva har du lyst på/);
@@ -102,7 +102,7 @@ test('Mål og belønning beholder mobilhierarki og bruker varme eksisterende far
   assert.match(source, /Avtalt belønning/,'legacy reward rows do not present a point price');
   assert.doesNotMatch(source,/\$\{p\.cost\} poeng/,'legacy reward rows do not imply a checkout');
   assert.match(source,/goalField input,.goalField select,.goalField textarea,.deadlineNative,.pointManual\{font-size:16px\}/,'goal inputs avoid iPhone focus zoom');
-  assert.ok(source.indexOf("return `${ongoingSection") < source.indexOf('class="rewardActions"'),'progress and ready rewards precede secondary actions');
+  assert.match(source, /\$\{ongoingMarkup\}\$\{readyMarkup\}\$\{goalAction\}/, 'progress and ready rewards precede the secondary goal action');
   assert.doesNotMatch(source, /Poengene trekkes først når du bekrefter|data-reward-redeem|data-catalog-redeem/);
   assert.doesNotMatch(source, /#[0-9a-f]{0,2}(?:00f|0080ff|0000ff)/i);
 });
@@ -154,7 +154,7 @@ test('belønningsbiblioteket brukes i relevante flyter, ikke på belønningshove
   const source = readFileSync(path.join(root, 'rewards-ui.js'), 'utf8');
   assert.doesNotMatch(harness.content.innerHTML, /Hva har du lyst på/);
   assert.doesNotMatch(harness.content.innerHTML, /Tid og frihet/);
-  assert.match(harness.content.innerHTML, /Ingen belønninger klare akkurat nå/);
+  assert.doesNotMatch(harness.content.innerHTML, /Ingen belønninger klare akkurat nå/);
   assert.match(source, /Object\.entries\(core\(\)\.REWARD_LIBRARY\)/);
   assert.match(source, /data-temptation-catalog-reward/);
 });

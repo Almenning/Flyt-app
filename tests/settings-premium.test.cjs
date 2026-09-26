@@ -13,7 +13,7 @@ test('Innstillinger har tydelig premium-hierarki for handlingsrader', () => {
   assert.match(source, /\.flytSettingsLink strong\{display:block/);
   assert.match(source, /\.flytSettingsLink\{min-height:64px/);
   assert.match(source, /Gjøremål, rytme og poeng\./);
-  assert.match(source, /Velg hva som kan foreslås\./);
+  assert.match(source, /Velg hvilke gjøremål som kan foreslås\./);
   assert.doesNotMatch(source, /Forslag til anerkjennelse|Mine personlige forslag|Historikk i Sett/, 'Sett-innstillingene skal ikke love gamle eller dupliserte funksjoner');
 });
 
