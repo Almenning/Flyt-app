@@ -503,6 +503,36 @@ test('På tide bruker eksplisitt katalogmerking for oppgaver med reell påminnel
   }
 });
 
+
+test('På tide kan slås av og oppgavevalg kan overstyres for husholdningen', () => {
+  const vacuum = { ...dailyTask, id: 'vacuum_pref', name: 'Støvsuge', type: 'flex', freq: 2, cat: 'Renhold', showInDueSoon: true };
+  const kitchen = { ...dailyTask, id: 'kitchen_pref', name: 'Rydde kjøkkenet etter måltid', type: 'flex', freq: 7, cat: 'Kjøkken' };
+  const enabledHarness = loadRecurrence({
+    appPreferences: { household: { dueSoon: { enabled: true, taskOverrides: { vacuum_pref: false, kitchen_pref: true } } } },
+    completions: [],
+    custom: [],
+    dayPlans: {},
+    points: { 'Person A': 0 },
+    tasks: [vacuum, kitchen],
+    user: 'Person A',
+    view: 'tasks',
+  });
+  assert.doesNotMatch(enabledHarness.content.innerHTML, /Støvsuge/);
+  assert.match(enabledHarness.content.innerHTML, /Rydde kjøkkenet etter måltid/);
+
+  const disabledHarness = loadRecurrence({
+    appPreferences: { household: { dueSoon: { enabled: false, taskOverrides: { kitchen_pref: true } } } },
+    completions: [],
+    custom: [],
+    dayPlans: {},
+    points: { 'Person A': 0 },
+    tasks: [vacuum, kitchen],
+    user: 'Person A',
+    view: 'tasks',
+  });
+  assert.doesNotMatch(disabledHarness.content.innerHTML, /På tide/);
+});
+
 test('dra-og-slipp i Gjøre bruker mobilvennlig håndtak, løpende plassering og auto-scroll', () => {
   const source = fs.readFileSync(path.join(root, 'recurrence-ui.js'), 'utf8');
   assert.match(source, /taskReorderHandle:before/);
