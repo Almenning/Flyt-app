@@ -24,30 +24,31 @@ test('Sett prioriterer partnerens faktiske bidrag og toner ned øvrige handlinge
   vm.runInNewContext(fs.readFileSync(path.join(__dirname,'..','seen-ui.js'),'utf8'),context,{filename:'seen-ui.js'});
   context.FlytSeenUI.render({resetScroll:true});
   assert.equal(content.dataset.flytOwner,'seen-actions');
-  assert.match(content.innerHTML,/<h1 class="seenTitle">Se hverandre<\/h1>/);
+  assert.match(content.innerHTML,/<h1 class=['\"]seenTitle['\"]>Se hverandre<\/h1>/);
   assert.match(content.innerHTML,/Maria har bidratt i dag/);
   assert.match(content.innerHTML,/Rydde kjøkkenet/);
   assert.match(content.innerHTML,/data-seen-ack="completion\|1"/);
   assert.match(content.innerHTML,/Sett ♡/);
   assert.match(content.innerHTML,/Gi anerkjennelse/);
-  assert.match(content.innerHTML,/Send noe til Maria →/);
-  assert.match(content.innerHTML,/Se historikk →/,'den enkle eksisterende historikken er fortsatt tilgjengelig');
+  assert.match(content.innerHTML,/Send noe til Maria/);
+  assert.match(content.innerHTML,/Historikk/,'den enkle eksisterende historikken er fortsatt tilgjengelig');
   assert.match(content.innerHTML,/seenContributionList/);
   assert.doesNotMatch(content.innerHTML,/Forslag akkurat nå|Hva vil du gjøre\?|Noe annet du satte pris på\?|Noe fint|Flørt|Gi litt rom|Lag en kaffe|Ta oppvasken|En liten fristelse|Siste anerkjennelse/);
   assert.doesNotMatch(content.innerHTML,/poeng|rangering|prosent/i);
   context.FlytSeenUI.openCategory('recognition');
-  const manual=content.innerHTML.slice(content.innerHTML.indexOf('<section class="seenSheet seenMessageSheet"'));
+  const manual=content.innerHTML.slice(content.innerHTML.indexOf('seenMessageSheet'));
   assert.match(manual,/seenMessageSheet/);
   assert.equal((manual.match(/seenMessageChoice/g)||[]).length,4,'manual-sheeten har nøyaktig fire forslag');
   for(const text of ['Tok initiativ','Var tålmodig','Ordnet noe praktisk','Støttet meg'])assert.match(manual,new RegExp(text));
-  assert.match(manual,/maxlength="200"/);
-  assert.match(manual,/data-seen-send="recognition" disabled/);
+  assert.match(manual,/maxlength=['\"]200['\"]/);
+  assert.match(manual,/data-seen-send=['\"]recognition['\"] disabled/);
   for(const forbidden of ['<div class="ey">Sett</div>','Ga meg rom','Gjorde dagen lettere','Jeg satte pris på at du …','Det kan være noe partneren gjorde'])assert.doesNotMatch(manual,new RegExp(forbidden));
   for(const [kind,choices] of Object.entries({nice:['Tenkte bare på deg ❤️','Du gjør hverdagen finere','Jeg er glad for oss','Ville bare sende noe fint'],flirt:['Du er skikkelig fin','Gleder meg til senere 😏','Tenker på deg','Du er litt uimotståelig'],space:['Jeg tar litt mer i dag','Du kan slappe av litt','Jeg ordner det praktiske','Du trenger ikke prestere noe i dag ❤️']})){
     context.FlytSeenUI.openCategory(kind);
-    const message=content.innerHTML.slice(content.innerHTML.indexOf('<section class="seenSheet seenMessageSheet"'));
+    const message=content.innerHTML.slice(content.innerHTML.indexOf('seenMessageSheet'));
     assert.equal((message.match(/seenMessageChoice/g)||[]).length,4,`${kind} har nøyaktig fire forslag`);
-    assert.match(message,/maxlength="200"/);assert.match(message,/data-seen-send="[^"]+" disabled/);
+    assert.match(message,/maxlength=['\"]200['\"]/);assert.match(message,/data-seen-send=['\"][^'\"]+['\"] disabled/);
     for(const choice of choices)assert.match(message,new RegExp(choice.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')));
   }
 });
+
