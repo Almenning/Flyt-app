@@ -23,3 +23,10 @@ test('På tide-valg lagres som husholdningspreferanser', () => {
   assert.match(source, /taskOverrides/);
   assert.match(source, /window\.FlytSync\?\.queueSave/);
 });
+
+test('På tide-avhuking oppdaterer bryteren uten å bygge innstillingssiden på nytt', () => {
+  const source = fs.readFileSync(path.join(root, 'settings-ui.js'), 'utf8');
+  assert.doesNotMatch(source, /outerHTML=dueSoonSettingsMarkup\(\)/);
+  assert.match(source, /paintToggle\(target,on\)/);
+  assert.match(source, /function refreshDueSoonToggleValues/);
+});
