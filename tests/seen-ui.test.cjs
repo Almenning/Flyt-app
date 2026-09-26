@@ -40,7 +40,7 @@ test('Sett prioriterer partnerens faktiske bidrag og toner ned øvrige handlinge
   assert.match(manual,/seenMessageSheet/);
   assert.equal((manual.match(/seenMessageChoice/g)||[]).length,4,'manual-sheeten har nøyaktig fire forslag');
   for(const text of ['Tok initiativ','Var tålmodig','Ordnet noe praktisk','Støttet meg'])assert.match(manual,new RegExp(text));
-  assert.match(manual,/maxlength="200"/);
+  assert.match(manual,/maxlength=['\"]200['\"]/);
   assert.match(manual,/data-seen-send=['\"]recognition['\"] disabled/);
   for(const forbidden of ['<div class="ey">Sett</div>','Ga meg rom','Gjorde dagen lettere','Jeg satte pris på at du …','Det kan være noe partneren gjorde'])assert.doesNotMatch(manual,new RegExp(forbidden));
   for(const [kind,choices] of Object.entries({nice:['Tenkte bare på deg ❤️','Du gjør hverdagen finere','Jeg er glad for oss','Ville bare sende noe fint'],flirt:['Du er skikkelig fin','Gleder meg til senere 😏','Tenker på deg','Du er litt uimotståelig'],space:['Jeg tar litt mer i dag','Du kan slappe av litt','Jeg ordner det praktiske','Du trenger ikke prestere noe i dag ❤️']})){
