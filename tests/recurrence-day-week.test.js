@@ -437,6 +437,39 @@ test('lagret rekkefølge brukes for gjøremål i samme kategori', () => {
   assert.match(harness.content.innerHTML, /data-task-reorder-handle="morning_care"/);
 });
 
+test('Dag viser maksimalt tre uferdige faste gjøremål som snart bør tas', () => {
+  const laundry = { ...dailyTask, id: 'laundry', name: 'Klesvask', type: 'flex', freq: 3, cat: 'Klesvask' };
+  const bedding = { ...dailyTask, id: 'bedding', name: 'Bytte sengetøy', type: 'flex', freq: 1, cat: 'Soverom' };
+  const vacuum = { ...dailyTask, id: 'vacuum', name: 'Støvsuge', type: 'flex', freq: 2, cat: 'Renhold' };
+  const windows = { ...dailyTask, id: 'windows', name: 'Vaske vinduer', type: 'period', freq: 1, cat: 'Renhold' };
+  const followedUp = { ...dailyTask, id: 'trash', name: 'Tømme søppel', type: 'flex', freq: 2, cat: 'Kjøkken' };
+  const harness = loadRecurrence({
+    completions: [
+      { taskId: laundry.id, date: '2026-08-24' },
+      { taskId: followedUp.id, date: '2026-08-24' },
+      { taskId: followedUp.id, date: '2026-08-25' },
+    ],
+    custom: [],
+    dayPlans: {},
+    points: { 'Person A': 0 },
+    tasks: [laundry, bedding, vacuum, windows, followedUp],
+    user: 'Person A',
+    view: 'tasks',
+  });
+
+  assert.match(harness.content.innerHTML, /På tide/);
+  assert.match(harness.content.innerHTML, /Klesvask/);
+  assert.match(harness.content.innerHTML, /1 av 3 denne uka/);
+  assert.match(harness.content.innerHTML, /Fullfør/);
+  assert.match(harness.content.innerHTML, /aria-label="Flere valg for Klesvask"/);
+  assert.doesNotMatch(harness.content.innerHTML, /Tømme søppel/);
+  assert.equal((harness.content.innerHTML.match(/taskDueSoon /g) || []).length, 3);
+
+  harness.click({ '[data-period-complete]': { dataset: { periodComplete: laundry.id } } });
+  harness.click({ '[data-period-complete]': { dataset: { periodComplete: laundry.id } } });
+  assert.equal(harness.getState().completions.filter(item => item.taskId === laundry.id && item.date === '2026-08-26').length, 1, 'Fullfør fra På tide must use the existing completion record');
+});
+
 test('dra-og-slipp i Gjøre bruker mobilvennlig håndtak, løpende plassering og auto-scroll', () => {
   const source = fs.readFileSync(path.join(root, 'recurrence-ui.js'), 'utf8');
   assert.match(source, /taskReorderHandle:before/);
