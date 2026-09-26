@@ -5,6 +5,7 @@ const SUPABASE_KEY='sb_publishable_uK6xd8TJhN2MY10qHSQ2GQ_7hSIr2gv';
 const APP_URL='https://almenning.github.io/Flyt-app/';
 const RESET_URL='https://almenning.github.io/Flyt-app/reset.html';
 const LOCAL_MODE_KEY='flyt_local_mode_v1';
+const SYNC_VERSION='20260926-native-keychain1';
 const STARTER_TASK_IDS=['dish_fill','dish_empty','kitchen','dinner','laundry_start','laundry_hang','laundry_fold','trash'];
 const STARTER_TASKS=(window.FlytTaskLanguage?.catalog||[]).filter(task=>STARTER_TASK_IDS.includes(task.id));
 if(!window.supabase){
@@ -19,7 +20,19 @@ if(!window.supabase){
   console.error('Flyt: Supabase-biblioteket mangler');
   return
 }
-const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+const capacitor=window.Capacitor;
+const nativeRuntime=window.FlytPlatform?.isNative===true||!!(capacitor&&(typeof capacitor.isNativePlatform==='function'?capacitor.isNativePlatform():capacitor.getPlatform?.()!=='web'));
+const authOptions={persistSession:true,autoRefreshToken:true,detectSessionInUrl:true};
+if(nativeRuntime){
+  if(!window.FlytPlatform?.secureAuthStorage){
+    const fail=()=>{document.querySelector('.app')?.classList.add('hidden');const login=document.querySelector('#login');if(login){login.classList.remove('hidden');login.setAttribute('aria-hidden','false');login.innerHTML='<div class="loginbox"><div class="logo">HverdagsOss</div><h1 style="font:500 30px Georgia;margin:18px 0 6px">Sikker innlogging kunne ikke startes</h1><p class="sub">Lukk appen og prøv igjen. Ingen data er slettet.</p></div>'}};
+    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',fail,{once:true});else fail();
+    console.error('HverdagsOss: native secure auth storage unavailable');
+    return
+  }
+  authOptions.storage=window.FlytPlatform.secureAuthStorage;
+}
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:authOptions});
 let ctx=null,pollTimer=null,saveTimer=null,applying=false,dirty=false,saving=false,hydrated=false,authName='',syncError=false,lastSavedAt=0,nativeLifecycleInstalled=false,appActive=true,bootstrapPromise=null,foregroundSyncPromise=null;
 let serverRevision=0,serverState={},clientBaseState=null;
 const $=s=>document.querySelector(s);
@@ -68,6 +81,7 @@ async function logout(message=''){
   ctx=null;authName='';dirty=false;saving=false;syncError=false;hydrated=false;resetRevisionState();
   applying=true;try{bridge()?.setState?.(cleanStarterState('Meg'))}finally{applying=false}
   const {error}=await sb.auth.signOut({scope:'local'});
+  if(window.FlytPlatform?.isNative){try{await window.FlytPlatform.clearSecureAuthStorage?.()}catch(e){console.error('HverdagsOss secure logout cleanup failed:',e)}}
   authChoice(error?'Du er logget ut på denne enheten.':'Du er logget ut på denne enheten.');
   if(hadUnsaved)$('#betaStatus')&&( $('#betaStatus').textContent='Lokale endringer som ikke var synkronisert ble fjernet for å beskytte personvernet.');
   return !error;
@@ -171,7 +185,7 @@ async function resumeAfterForeground(){
     let session=null;
     try{const r=await getSessionWithTimeout();session=r?.data?.session||null}
     catch(e){syncError=true;updateChrome();startPolling();return false}
-    if(!session){if(localModeEnabled()){showLocalApp();return true}handleSessionLost();return false}
+    if(!session){if(localModeEnabled()){showLocalApp();return true}if(window.FlytPlatform?.isNative){try{await window.FlytPlatform.clearSecureAuthStorage?.()}catch(e){console.error('HverdagsOss secure session cleanup failed:',e)}}handleSessionLost();return false}
     authName=sessionDisplayName(session);
     if(!hydrated||!ctx?.household)return bootstrap();
     if(dirty){const saved=await retrySave();if(!saved){startPolling();return false}}
@@ -199,7 +213,7 @@ async function installNativeLifecycle(){
     return true
   }catch(e){console.warn('HverdagsOss native lifecycle unavailable:',e);appActive=true;return false}
 }
-window.FlytSync={queueSave,pull,retrySave,bootstrap,resumeAfterForeground,logout,clearPrivateLocalData,showLogin:(message='')=>authChoice(message),myName,rpc:(name,args)=>sb.rpc(name,args),getContext:()=>ctx,isReady:()=>hydrated,isSummaryReady,openConnection:connectionSheet,rotateInviteCode,handleDisconnected};
+window.FlytSync={version:SYNC_VERSION,queueSave,pull,retrySave,bootstrap,resumeAfterForeground,logout,clearPrivateLocalData,showLogin:(message='')=>authChoice(message),myName,rpc:(name,args)=>sb.rpc(name,args),getContext:()=>ctx,isReady:()=>hydrated,isSummaryReady,openConnection:connectionSheet,rotateInviteCode,handleDisconnected};
 ensureBetaUi();
 installNativeLifecycle();
 window.addEventListener('DOMContentLoaded',bootstrap);

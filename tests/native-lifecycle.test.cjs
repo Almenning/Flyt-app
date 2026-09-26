@@ -27,7 +27,7 @@ assert.match(sync,/await loadContext\(\)/);
 assert.match(sync,/if\(!session\).*handleSessionLost/s);
 assert.match(sync,/if\(bootstrapPromise\)return bootstrapPromise/);
 assert.match(sync,/if\(foregroundSyncPromise\)return foregroundSyncPromise/);
-assert.match(index,/native-platform\.js\?v=20260926-native-lifecycle1/);
-assert.match(index,/sync\.js\?v=20260926-native-lifecycle1/);
+assert.match(index,/native-platform\.js\?v=20260926-native-keychain1/);
+assert.match(index,/sync\.js\?v=20260926-native-keychain1/);
 
 console.log('ok - native lifecycle resumes auth and sync without duplicate refresh work');

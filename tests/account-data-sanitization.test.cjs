@@ -14,6 +14,7 @@ test('logout uses a local Supabase signout and removes every private browser nam
   assert.match(sync,/key\.startsWith\('flyt:daily-checkin-'\)/);
   assert.match(sync,/sb\.auth\.signOut\(\{scope:'local'\}\)/);
   assert.match(sync,/clearPrivateLocalData\(\);/);
+  assert.match(sync,/clearSecureAuthStorage/,'native logout must also clear Keychain-backed auth');
 });
 
 test('authenticated state is never read from a device-wide legacy cache before identity is known',()=>{
