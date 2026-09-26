@@ -4,12 +4,20 @@
   "scripts": {
     "test": "npm run test:node && npm run test:browser",
     "test:node": "node --test tests/*.cjs tests/*.mjs tests/recurrence-day-week.test.js tests/summary-core.test.js",
-    "test:browser": "node tests/summary-ui.playwright.js && node tests/rewards-earned.playwright.js && node tests/seen-flow.playwright.js"
+    "test:browser": "node tests/summary-ui.playwright.js && node tests/rewards-earned.playwright.js && node tests/seen-flow.playwright.js",
+    "cap:copy": "node scripts/copy-capacitor-web-assets.mjs",
+    "cap:sync": "npm run cap:copy && cap sync ios",
+    "cap:open:ios": "cap open ios"
   },
   "engines": {
     "node": ">=22"
   },
   "devDependencies": {
+    "@capacitor/cli": "^8.5.2",
     "playwright": "1.62.1"
+  },
+  "dependencies": {
+    "@capacitor/core": "^8.5.2",
+    "@capacitor/ios": "^8.5.2"
   }
 }
