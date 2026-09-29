@@ -11,7 +11,7 @@
 <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png">
 <script src="./native-platform.js?v=20260926-session-safety1" defer></script>
 <script>
-(()=>{const capacitor=window.Capacitor,isNative=!!(capacitor&&(typeof capacitor.isNativePlatform==='function'?capacitor.isNativePlatform():capacitor.getPlatform?.()!=='web'));if(isNative||!('serviceWorker'in navigator))return;const key='hverdagsoss_sw_reset_v91';try{if(localStorage.getItem(key)==='1')return;localStorage.setItem(key,'1')}catch(e){}navigator.serviceWorker.getRegistrations().then(registrations=>{if(!registrations.length)return;return Promise.all(registrations.map(registration=>registration.unregister())).then(()=>location.reload())}).catch(()=>{})})();
+(()=>{const capacitor=window.Capacitor,isNative=!!(capacitor&&(typeof capacitor.isNativePlatform==='function'?capacitor.isNativePlatform():capacitor.getPlatform?.()!=='web'));if(isNative||!('serviceWorker'in navigator))return;const key='hverdagsoss_sw_reset_v92';try{if(localStorage.getItem(key)==='1')return;localStorage.setItem(key,'1')}catch(e){}navigator.serviceWorker.getRegistrations().then(registrations=>{if(!registrations.length)return;return Promise.all(registrations.map(registration=>registration.unregister())).then(()=>location.reload())}).catch(()=>{})})();
 </script>
 <script src="./vendor/supabase-2.116.0.js?v=20260920-local1" defer></script>
 <script src="./task-language.js?v=20260926-due-soon-eligibility1" defer></script>
@@ -22,7 +22,7 @@
 <script src="./seen-core.js?v=20260922-contributions1" defer></script>
 <script src="./seen-ui.js?v=20260926-seen-premium1" defer></script>
 <script src="./rewards-goals-core.js?v=20260923-privacy-safe1" defer></script>
-<script src="./rewards-ui.js?v=20260929-fristelse-point-wheel-polish1" defer></script>
+<script src="./rewards-ui.js?v=20260929-fristelse-premium-wheel-card1" defer></script>
 <script src="./sync-merge.js?v=20260926-receipt-sync1" defer></script>
 <script src="./sync-journal.js?v=20260926-session-safety1" defer></script>
 <script src="./sync.js?v=20260926-session-safety1" defer></script>
