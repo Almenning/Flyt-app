@@ -36,12 +36,14 @@ import subprocess, sys
 subprocess.run(['xcrun', 'simctl', 'bootstatus', sys.argv[1], '-b'], check=True, timeout=240)
 PY
 RESULT="$OUTPUT/NativeQA-${GITHUB_RUN_ATTEMPT:-1}-$(date +%s).xcresult"
-# CI has already resolved the exact App dependencies in this same DerivedData.
-# Reuse them rather than cloning the same framework into a second package graph.
+# Reuse the exact App dependencies already resolved in this DerivedData.
 RESOLUTION_ARGS=()
 if [ -f ios/App/App.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved ]; then
   RESOLUTION_ARGS=(-disableAutomaticPackageResolution)
 fi
+# The simulator requires application-identifier entitlements for real Keychain
+# access. Local ad-hoc signing supplies them without a team, certificate or account.
+# This is not device provisioning or App Store signing.
 set +e
 xcodebuild test \
   -project ios/App/App.xcodeproj \
@@ -56,7 +58,8 @@ xcodebuild test \
   -test-timeouts-enabled YES \
   -default-test-execution-time-allowance 90 \
   -maximum-test-execution-time-allowance 120 \
-  CODE_SIGNING_ALLOWED=NO 2>&1 | tee "$OUTPUT/xcode-test.log"
+  CODE_SIGNING_ALLOWED=YES CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM= \
+  2>&1 | tee "$OUTPUT/xcode-test.log"
 STATUS=${PIPESTATUS[0]}
 set -e
 if [ "$STATUS" -ne 0 ]; then
