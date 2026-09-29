@@ -171,7 +171,7 @@ function wireTemptationInlinePoints(form){
   const wheel=form?.querySelector('[data-temptation-point-wheel]');if(!wheel)return;
   const draft=temptationDraft,options=[...wheel.querySelectorAll('[data-inline-point]')];
   let selected=options.findIndex(option=>Number(option.dataset.inlinePoint)===(temptationPointNumber(draft.points)??draft.lastPointValue??60));if(selected<0)selected=0;
-  let frame=0,lastScrollAt=-Infinity,gesture=null,advancing=false;
+  let frame=0,lastScrollAt=-Infinity,programmaticScrollUntil=0,gesture=null,advancing=false;
   const row=()=>options[0]?.offsetHeight||44;
   const alive=()=>wheel.isConnected&&temptationDraft===draft&&draft.step===2&&draft.conditionType==='points';
   const paint=index=>{
@@ -184,7 +184,8 @@ function wireTemptationInlinePoints(form){
     const current=options[selected];current.classList.add('on');current.setAttribute('aria-selected','true');wheel.setAttribute('aria-activedescendant',current.id);setTemptationPointValue(form,current.dataset.inlinePoint);
   };
   const read=()=>paint(Math.round(wheel.scrollTop/row()));
-  const choose=index=>{index=Math.max(0,Math.min(options.length-1,index));wheel.scrollTop=index*row();paint(index)};
+  const scrollTo=index=>{programmaticScrollUntil=performance.now()+140;wheel.scrollTop=index*row()};
+  const choose=index=>{index=Math.max(0,Math.min(options.length-1,index));scrollTo(index);paint(index)};
   const advance=()=>{
     if(advancing||!alive())return;
     wheel._commitInlinePoints?.();
@@ -193,9 +194,13 @@ function wireTemptationInlinePoints(form){
     advancing=true;
     next.click();
   };
-  wheel._commitInlinePoints=()=>{if(frame)cancelAnimationFrame(frame);frame=0;read();wheel.scrollTop=selected*row()};
-  requestAnimationFrame(()=>{if(!alive())return;wheel.scrollTop=selected*row();paint(selected)});
-  wheel.addEventListener('scroll',()=>{lastScrollAt=performance.now();if(gesture?.active&&Math.abs(wheel.scrollTop-gesture.scroll)>2)gesture.moved=true;if(frame)return;frame=requestAnimationFrame(()=>{frame=0;read()})},{passive:true});
+  wheel._commitInlinePoints=()=>{if(frame)cancelAnimationFrame(frame);frame=0;read();scrollTo(selected)};
+  requestAnimationFrame(()=>{if(!alive())return;scrollTo(selected);paint(selected)});
+  wheel.addEventListener('scroll',()=>{
+    if(performance.now()>programmaticScrollUntil)lastScrollAt=performance.now();
+    if(gesture?.active&&Math.abs(wheel.scrollTop-gesture.scroll)>2)gesture.moved=true;
+    if(frame)return;frame=requestAnimationFrame(()=>{frame=0;read()});
+  },{passive:true});
   const startGesture=point=>{gesture={active:true,moved:false,cancelled:false,wasMoving:performance.now()-lastScrollAt<160,x:point.clientX,y:point.clientY,scroll:wheel.scrollTop}};
   const moveGesture=point=>{if(!gesture?.active)return;if(Math.hypot(point.clientX-gesture.x,point.clientY-gesture.y)>8||Math.abs(wheel.scrollTop-gesture.scroll)>2)gesture.moved=true};
   const endGesture=point=>{moveGesture(point);if(gesture)gesture.active=false};
