@@ -174,7 +174,15 @@ function wireTemptationInlinePoints(form){
   let frame=0;
   const row=()=>options[0]?.offsetHeight||44;
   const alive=()=>wheel.isConnected&&temptationDraft===draft&&draft.step===2&&draft.conditionType==='points';
-  const paint=index=>{if(!alive())return;index=Math.max(0,Math.min(options.length-1,index));options.forEach((option,i)=>{const on=i===index;option.classList.toggle('on',on);option.setAttribute('aria-selected',String(on))});selected=index;wheel.setAttribute('aria-activedescendant',options[index].id);setTemptationPointValue(form,options[index].dataset.inlinePoint)};
+  const paint=index=>{
+    if(!alive())return;
+    index=Math.max(0,Math.min(options.length-1,index));
+    if(index!==selected){
+      const previous=options[selected];if(previous){previous.classList.remove('on');previous.setAttribute('aria-selected','false')}
+      selected=index;
+    }
+    const current=options[selected];current.classList.add('on');current.setAttribute('aria-selected','true');wheel.setAttribute('aria-activedescendant',current.id);setTemptationPointValue(form,current.dataset.inlinePoint);
+  };
   const read=()=>paint(Math.round(wheel.scrollTop/row()));
   const choose=index=>{index=Math.max(0,Math.min(options.length-1,index));wheel.scrollTop=index*row();paint(index)};
   wheel._commitInlinePoints=()=>{if(frame)cancelAnimationFrame(frame);frame=0;read();wheel.scrollTop=selected*row()};
