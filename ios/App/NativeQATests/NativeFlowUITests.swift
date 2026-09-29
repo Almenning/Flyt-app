@@ -29,8 +29,17 @@ final class NativeFlowUITests: XCTestCase {
         XCTAssertTrue(app.textFields["E-post"].exists)
         XCTAssertTrue(app.secureTextFields["Passord"].exists)
         app.buttons["Opprett konto"].firstMatch.tap()
+        // The existing capture-phase signup guard checks password length first.
+        XCTAssertTrue(app.staticTexts["Velg et passord med minst 10 tegn."].waitForExistence(timeout: 5))
+        attachScreen(app, "native-signup-password-guard")
+        let password = app.secureTextFields["Passord"]
+        password.tap()
+        password.typeText("synthetic-test-password")
+        app.buttons["Opprett konto"].firstMatch.tap()
+        // With the password guard satisfied, the still-empty name blocks signup.
+        // No email is entered and no account-creation request should be sent.
+        attachScreen(app, "native-signup-name-guard")
         XCTAssertTrue(app.staticTexts["Skriv inn fornavnet ditt."].waitForExistence(timeout: 5))
-        attachScreen(app, "native-signup-validation")
     }
 
     func testColdAndWarmInviteLinksRequireLoginAndExplicitAcceptance() throws {
