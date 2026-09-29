@@ -11,7 +11,11 @@ on:
       - 'package-lock.json'
       - '*.js'
       - '*.html'
+      - 'vendor/**'
+      - 'icons/**'
       - 'scripts/copy-capacitor-web-assets.mjs'
+      - 'scripts/prepare-ios-native-qa.py'
+      - 'scripts/run-ios-native-qa.sh'
       - '.github/workflows/ios-native-build.yml'
   pull_request:
     paths:
@@ -19,6 +23,12 @@ on:
       - '*.js'
       - '*.html'
       - 'package*.json'
+      - 'capacitor.config.json'
+      - 'vendor/**'
+      - 'icons/**'
+      - 'scripts/copy-capacitor-web-assets.mjs'
+      - 'scripts/prepare-ios-native-qa.py'
+      - 'scripts/run-ios-native-qa.sh'
       - '.github/workflows/ios-native-build.yml'
 
 permissions:
@@ -31,7 +41,7 @@ concurrency:
 jobs:
   build:
     runs-on: macos-26
-    timeout-minutes: 20
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -53,3 +63,16 @@ jobs:
           -destination 'generic/platform=iOS Simulator'
           CODE_SIGNING_ALLOWED=NO
           build
+      - name: Run actual native startup, Keychain and URL tests
+        run: bash scripts/run-ios-native-qa.sh
+      - name: Preserve native test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-qa-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/hverdagsoss-native-qa/*.xcresult
+            ${{ runner.temp }}/hverdagsoss-native-qa/xcode-test.log
+            ${{ runner.temp }}/hverdagsoss-native-qa/failure.png
+          if-no-files-found: warn
+          retention-days: 7
