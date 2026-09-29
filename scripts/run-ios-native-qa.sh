@@ -8,12 +8,12 @@ mkdir -p "$OUTPUT"
 python3 scripts/prepare-ios-native-qa.py
 SELECTION="$(python3 - <<'PY'
 import json, subprocess
-runtime_data = json.loads(subprocess.check_output(['xcrun','simctl','list','runtimes','-j']))
+runtime_data = json.loads(subprocess.check_output(['xcrun','simctl','list','runtimes','-j'], timeout=30))
 runtimes = [r for r in runtime_data['runtimes'] if r.get('isAvailable') and '.iOS-' in r['identifier']]
 if not runtimes:
     raise SystemExit('No installed iOS Simulator runtime; do not mark native QA as passed.')
 runtime = max(runtimes, key=lambda r: tuple(int(x) for x in r['version'].split('.')))
-types = json.loads(subprocess.check_output(['xcrun','simctl','list','devicetypes','-j']))['devicetypes']
+types = json.loads(subprocess.check_output(['xcrun','simctl','list','devicetypes','-j'], timeout=30))['devicetypes']
 by_name = {t['name']: t['identifier'] for t in types}
 for name in ('iPhone 17', 'iPhone 16', 'iPhone 15'):
     if name in by_name:
@@ -31,7 +31,10 @@ cleanup() {
 }
 trap cleanup EXIT
 xcrun simctl boot "$SIMULATOR"
-xcrun simctl bootstatus "$SIMULATOR" -b
+python3 - "$SIMULATOR" <<'PY'
+import subprocess, sys
+subprocess.run(['xcrun', 'simctl', 'bootstatus', sys.argv[1], '-b'], check=True, timeout=240)
+PY
 RESULT="$OUTPUT/NativeQA-${GITHUB_RUN_ATTEMPT:-1}-$(date +%s).xcresult"
 set +e
 xcodebuild test \
@@ -43,6 +46,9 @@ xcodebuild test \
   -resultBundlePath "$RESULT" \
   -parallel-testing-enabled NO \
   -maximum-concurrent-test-simulator-destinations 1 \
+  -test-timeouts-enabled YES \
+  -default-test-execution-time-allowance 90 \
+  -maximum-test-execution-time-allowance 120 \
   CODE_SIGNING_ALLOWED=NO 2>&1 | tee "$OUTPUT/xcode-test.log"
 STATUS=${PIPESTATUS[0]}
 set -e

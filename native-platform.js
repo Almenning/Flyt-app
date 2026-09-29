@@ -36,17 +36,25 @@
   }
 
   function getAppPlugin() {
-    if (!isNative || typeof capacitor?.registerPlugin !== 'function') return null;
-    if (!appPlugin) appPlugin = capacitor.registerPlugin('App');
+    if (!isNative) return null;
+    // The unbundled iOS app receives Plugins from Capacitor's injected bridge.
+    // registerPlugin is also supported when the JavaScript core runtime is present.
+    if (!appPlugin) appPlugin = capacitor.Plugins?.App || (
+      typeof capacitor.registerPlugin === 'function' ? capacitor.registerPlugin('App') : null
+    );
+    if (!appPlugin) throw new Error('NATIVE_APP_PLUGIN_UNAVAILABLE');
     return appPlugin;
   }
 
   function getSecureStoragePlugin() {
-    if (!isNative || typeof capacitor?.registerPlugin !== 'function') return null;
+    if (!isNative) return null;
     if (typeof capacitor.isPluginAvailable === 'function' && !capacitor.isPluginAvailable('HverdagsOssSecureStorage')) {
       throw new Error('NATIVE_SECURE_STORAGE_UNAVAILABLE');
     }
-    if (!secureStoragePlugin) secureStoragePlugin = capacitor.registerPlugin('HverdagsOssSecureStorage');
+    if (!secureStoragePlugin) secureStoragePlugin = capacitor.Plugins?.HverdagsOssSecureStorage || (
+      typeof capacitor.registerPlugin === 'function' ? capacitor.registerPlugin('HverdagsOssSecureStorage') : null
+    );
+    if (!secureStoragePlugin) throw new Error('NATIVE_SECURE_STORAGE_UNAVAILABLE');
     return secureStoragePlugin;
   }
 

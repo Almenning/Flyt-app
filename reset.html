@@ -4,23 +4,104 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#e87961">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex,nofollow">
 <title>Nytt passord · HverdagsOss</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./vendor/supabase-2.116.0.js?v=20260920-local1" defer></script>
 <style>
-:root{--ink:#452f29;--muted:#806d65;--line:#ead8d0;--accent:#e87961;--deep:#ad4a3c}*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink);background:linear-gradient(145deg,#efb99d,#fff1e8 60%,#e9aa87)}body{min-height:100vh;display:grid;place-items:center;padding:24px}.box{width:min(100%,390px);padding:30px 24px;border-radius:28px;background:#fffaf6f5;box-shadow:0 25px 70px #5d2e1f44;text-align:center}.logo{font:700 44px Georgia}.logo b{color:var(--accent)}.ey{font-size:11px;color:var(--deep);font-weight:900;letter-spacing:.12em;text-transform:uppercase}.sub{color:var(--muted);line-height:1.45}.field{width:100%;min-height:50px;border:1px solid var(--line);border-radius:14px;background:#fff;padding:11px 12px;margin:8px 0;font:inherit}.primary{width:100%;border:0;border-radius:15px;background:linear-gradient(135deg,var(--accent),var(--deep));color:#fff;font-weight:900;min-height:50px;padding:12px 16px;margin-top:8px}.secondary{width:100%;border:1px solid var(--line);border-radius:15px;background:#fff;font-weight:800;min-height:46px;padding:10px 14px;margin-top:10px}.status{min-height:44px;color:var(--muted);line-height:1.4}
+:root{--ink:#452f29;--muted:#806d65;--line:#ead8d0;--accent:#e87961;--deep:#ad4a3c}*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink);background:linear-gradient(145deg,#efb99d,#fff1e8 60%,#e9aa87)}body{min-height:100vh;display:grid;place-items:center;padding:max(24px,env(safe-area-inset-top)) 24px max(24px,env(safe-area-inset-bottom))}.box{width:min(100%,390px);padding:30px 24px;border-radius:28px;background:#fffaf6f5;box-shadow:0 25px 70px #5d2e1f44;text-align:center}.logo{font:700 38px Georgia}.ey{font-size:12px;color:var(--deep);font-weight:900;letter-spacing:.12em;text-transform:uppercase}.sub{color:var(--muted);line-height:1.45}label{display:block;text-align:left;font-weight:700;margin-top:14px}.field{width:100%;min-height:50px;border:1px solid var(--line);border-radius:14px;background:#fff;padding:11px 12px;margin:6px 0;font:inherit;font-size:16px;color:var(--ink)}.primary,.secondary{display:block;width:100%;border-radius:15px;font:inherit;font-weight:800;min-height:48px;padding:12px 16px;margin-top:10px}.primary{border:0;background:linear-gradient(135deg,var(--accent),var(--deep));color:#fff}.primary:disabled{opacity:.6;cursor:not-allowed}.secondary{border:1px solid var(--line);background:#fff;color:var(--ink);text-decoration:none}.status{min-height:44px;color:var(--muted);line-height:1.45}.field:focus-visible,button:focus-visible,a:focus-visible{outline:3px solid var(--deep);outline-offset:3px}.hidden{display:none}
 </style>
 </head>
 <body>
-<div class="box"><div class="logo">HverdagsOss</div><div class="ey">Nytt passord</div><h1 style="font:500 30px Georgia;margin:12px 0 6px">Lag nytt passord</h1><p class="sub">Velg et nytt passord for HverdagsOss-kontoen din.</p><input id="pw" class="field" type="password" minlength="6" autocomplete="new-password" placeholder="Nytt passord, minst 6 tegn"><button id="save" class="primary">Lagre nytt passord</button><button id="back" class="secondary">Tilbake til HverdagsOss</button><p id="status" class="status">Kontrollerer reset-lenken…</p></div>
+<main class="box">
+<div class="logo">HverdagsOss</div><div class="ey">Nytt passord</div>
+<h1 style="font:500 30px Georgia;margin:12px 0 6px">Lag nytt passord</h1>
+<p id="passwordHelp" class="sub">Velg et nytt passord med minst 10 tegn.</p>
+<form id="resetForm" novalidate>
+<label for="pw">Nytt passord</label><input id="pw" class="field" type="password" minlength="10" autocomplete="new-password" aria-describedby="passwordHelp status" disabled>
+<label for="pwAgain">Gjenta nytt passord</label><input id="pwAgain" class="field" type="password" minlength="10" autocomplete="new-password" aria-describedby="status" disabled>
+<button id="save" type="submit" class="primary" disabled>Lagre nytt passord</button>
+</form>
+<a id="back" class="secondary" href="./">Tilbake til HverdagsOss</a>
+<p id="status" class="status" role="status" aria-live="polite">Kontrollerer lenken…</p>
+<noscript><p>Du må tillate JavaScript for å endre passordet.</p></noscript>
+</main>
 <script>
-const sb=window.supabase.createClient('https://uopzveejnztbovncqbpq.supabase.co','sb_publishable_uK6xd8TJhN2MY10qHSQ2GQ_7hSIr2gv');
-const status=document.getElementById('status');
-let ready=false;
-function msg(t,bad=false){status.textContent=t;status.style.color=bad?'#a63c31':'var(--muted)'}
-sb.auth.onAuthStateChange((event,session)=>{if(event==='PASSWORD_RECOVERY'||session){ready=true;msg('Lenken er godkjent. Skriv inn nytt passord.')}});
-(async()=>{const {data:{session},error}=await sb.auth.getSession();if(error){msg('Kunne ikke lese reset-lenken.',true);return}if(session){ready=true;msg('Lenken er godkjent. Skriv inn nytt passord.')}else setTimeout(()=>{if(!ready)msg('Reset-lenken er ugyldig eller utløpt. Be om en ny fra HverdagsOss.',true)},1200)})();
-document.getElementById('save').onclick=async()=>{const pw=document.getElementById('pw').value;if(pw.length<6){msg('Passordet må ha minst 6 tegn.',true);return}if(!ready){msg('Reset-lenken er ikke godkjent. Be om en ny fra HverdagsOss.',true);return}msg('Lagrer…');const {error}=await sb.auth.updateUser({password:pw});if(error){msg(error.message,true);return}await sb.auth.signOut();msg('Passordet er endret. Du kan nå logge inn i HverdagsOss.');};
-document.getElementById('back').onclick=()=>location.href='./';
+(() => {
+  'use strict';
+  function start() {
+    const status = document.getElementById('status');
+    const form = document.getElementById('resetForm');
+    const password = document.getElementById('pw');
+    const confirmation = document.getElementById('pwAgain');
+    const save = document.getElementById('save');
+    const fragment = new URLSearchParams(location.hash.slice(1));
+    const recoveryLink = fragment.get('type') === 'recovery';
+    let phase = 'checking';
+    let client = null;
+    function message(text, bad = false) { status.textContent = text; status.style.color = bad ? '#a63c31' : 'var(--muted)'; }
+    function controls() { const disabled = phase !== 'ready'; password.disabled = disabled; confirmation.disabled = disabled; save.disabled = disabled; }
+    function stripSecrets() { try { history.replaceState(history.state, '', location.pathname); } catch (_) {} }
+    function invalid(text) { phase = 'invalid'; controls(); stripSecrets(); message(text, true); }
+    function ready() { if (phase !== 'checking') return; phase = 'ready'; controls(); stripSecrets(); message('Lenken er godkjent. Skriv inn nytt passord.'); }
+    async function deadline(work, milliseconds = 10000) {
+      let timer;
+      try { return await Promise.race([work, new Promise((_, reject) => { timer = setTimeout(() => reject(new Error('RECOVERY_TIMEOUT')), milliseconds); })]); }
+      finally { clearTimeout(timer); }
+    }
+    if (!window.supabase?.createClient) { invalid('Innloggingstjenesten kunne ikke lastes. Last siden på nytt eller be om en ny lenke.'); return; }
+    try {
+      // A recovery page must not borrow an unrelated account's saved session.
+      // Tokens stay in memory and never enter localStorage or the native Keychain.
+      client = window.supabase.createClient('https://uopzveejnztbovncqbpq.supabase.co', 'sb_publishable_uK6xd8TJhN2MY10qHSQ2GQ_7hSIr2gv', {
+        auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: true }
+      });
+      client.auth.onAuthStateChange((event, session) => {
+        if (event === 'PASSWORD_RECOVERY' && session) ready();
+      });
+    } catch (_) { invalid('Innloggingstjenesten kunne ikke startes. Be om en ny lenke.'); return; }
+    (async () => {
+      try {
+        const result = await deadline(client.auth.getSession());
+        if (phase !== 'checking') return;
+        if (result?.error) throw result.error;
+        if (result?.data?.session && recoveryLink) ready();
+        else invalid('Lenken er ugyldig eller utløpt. Be om en ny via «Glemt passord?» i HverdagsOss.');
+      } catch (_) {
+        if (phase === 'checking') invalid('Kunne ikke kontrollere lenken. Sjekk nettet og be om en ny lenke.');
+      }
+    })();
+    form.addEventListener('submit', async event => {
+      event.preventDefault();
+      if (phase !== 'ready') return;
+      password.removeAttribute('aria-invalid'); confirmation.removeAttribute('aria-invalid');
+      if (password.value.length < 10) { password.setAttribute('aria-invalid', 'true'); message('Passordet må ha minst 10 tegn.', true); password.focus(); return; }
+      if (password.value !== confirmation.value) { confirmation.setAttribute('aria-invalid', 'true'); message('Passordene er ikke like.', true); confirmation.focus(); return; }
+      phase = 'saving'; controls(); message('Lagrer nytt passord…');
+      try {
+        const result = await deadline(client.auth.updateUser({ password: password.value }));
+        if (result?.error) throw result.error;
+        phase = 'done'; password.value = ''; confirmation.value = ''; controls(); stripSecrets();
+        message('Passordet er endret. Gå tilbake til HverdagsOss og logg inn med det nye passordet.');
+        // Failure to revoke this ephemeral recovery session must not hide a confirmed password change.
+        try { await deadline(client.auth.signOut({ scope: 'local' }), 5000); } catch (_) {}
+      } catch (error) {
+        if (error?.message === 'RECOVERY_TIMEOUT') {
+          phase = 'uncertain'; password.value = ''; confirmation.value = ''; controls(); stripSecrets();
+          message('Vi fikk ikke bekreftet svaret. Passordet kan ha blitt endret. Prøv å logge inn med det nye passordet, eller be om en ny lenke.', true);
+          return;
+        }
+        const code = String(error?.code || '');
+        if (['session_not_found', 'refresh_token_not_found', 'refresh_token_already_used', 'bad_jwt'].includes(code) || error?.status === 401) {
+          password.value = ''; confirmation.value = ''; invalid('Lenken er utløpt eller brukt. Be om en ny via «Glemt passord?».'); return;
+        }
+        phase = 'ready'; controls();
+        message(code === 'weak_password' ? 'Passordet er for svakt. Velg et lengre, unikt passord.' : code === 'same_password' ? 'Velg et annet passord enn det du allerede bruker.' : 'Kunne ikke lagre passordet. Sjekk nettet og prøv igjen.', true);
+      }
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start, { once: true }); else start();
+})();
 </script>
 </body>
 </html>
