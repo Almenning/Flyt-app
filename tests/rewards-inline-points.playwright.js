@@ -44,11 +44,34 @@ async function setup(page){
       assert.equal(await page.locator('[name="temptationPoints"]').inputValue(),'60');
 
       const layout=await page.evaluate(()=>{
-        const progress=document.querySelector('.temptationProgress'),mini=document.querySelector('.temptationStepTwo>.temptationMini'),body=document.querySelector('.temptationBody');
-        return {gap:mini.getBoundingClientRect().top-progress.getBoundingClientRect().bottom,overflow:body.scrollWidth>body.clientWidth};
+        const progress=document.querySelector('.temptationProgress'),mini=document.querySelector('.temptationStepTwo>.temptationMini'),body=document.querySelector('.temptationBody'),focus=document.querySelector('.temptationPointFocus'),rail=document.querySelector('.temptationPointRail');
+        return {gap:mini.getBoundingClientRect().top-progress.getBoundingClientRect().bottom,overflow:body.scrollWidth>body.clientWidth,focusWidth:focus.getBoundingClientRect().width,railWidth:rail.getBoundingClientRect().width};
       });
       assert(layout.gap>=0&&layout.gap<=50,JSON.stringify(layout));
       assert.equal(layout.overflow,false);
+      assert(layout.focusWidth>180&&layout.focusWidth<=layout.railWidth,JSON.stringify(layout));
+      assert.match(await page.locator('.temptationPointGestureHint').innerText(),/Trykk på valgt tall/);
+
+      // A neighbour tap centers only. Tapping that now-centered value confirms and advances.
+      await page.locator('[data-inline-point="70"]').click();
+      assert.equal(await page.locator('.temptationShell').getAttribute('data-flow-step'),'2');
+      assert.equal(await page.locator('[name="temptationPoints"]').inputValue(),'70');
+      await page.locator('[data-inline-point="70"]').click();
+      await page.waitForFunction(()=>document.querySelector('.temptationShell').dataset.flowStep==='3');
+      assert.match(await page.locator('.temptationMini').innerText(),/70/);
+      await page.locator('[data-temptation-back]').click();
+      assert.equal(await page.locator('[name="temptationPoints"]').inputValue(),'70');
+
+      // A drag's compatibility click must never confirm the value.
+      await page.locator('[data-temptation-point-wheel]').evaluate(el=>{
+        const selected=el.querySelector('[aria-selected="true"]');
+        const init={bubbles:true,pointerId:1,isPrimary:true,button:0,clientX:120,clientY:90};
+        el.dispatchEvent(new PointerEvent('pointerdown',init));
+        el.dispatchEvent(new PointerEvent('pointermove',{...init,clientY:120}));
+        el.dispatchEvent(new PointerEvent('pointerup',{...init,clientY:120}));
+        selected.dispatchEvent(new MouseEvent('click',{bubbles:true}));
+      });
+      assert.equal(await page.locator('.temptationShell').getAttribute('data-flow-step'),'2');
 
       // Next must commit the currently centered value even if scroll just changed.
       await wheel.evaluate(el=>{el.scrollTop=13*44;document.querySelector('[data-temptation-next]').click()});
