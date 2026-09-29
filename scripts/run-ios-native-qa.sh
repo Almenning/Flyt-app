@@ -36,6 +36,12 @@ import subprocess, sys
 subprocess.run(['xcrun', 'simctl', 'bootstatus', sys.argv[1], '-b'], check=True, timeout=240)
 PY
 RESULT="$OUTPUT/NativeQA-${GITHUB_RUN_ATTEMPT:-1}-$(date +%s).xcresult"
+# CI has already resolved the exact App dependencies in this same DerivedData.
+# Reuse them rather than cloning the same framework into a second package graph.
+RESOLUTION_ARGS=()
+if [ -f ios/App/App.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved ]; then
+  RESOLUTION_ARGS=(-disableAutomaticPackageResolution)
+fi
 set +e
 xcodebuild test \
   -project ios/App/App.xcodeproj \
@@ -44,6 +50,7 @@ xcodebuild test \
   -destination "platform=iOS Simulator,id=$SIMULATOR" \
   -derivedDataPath "$OUTPUT/DerivedData" \
   -resultBundlePath "$RESULT" \
+  "${RESOLUTION_ARGS[@]}" \
   -parallel-testing-enabled NO \
   -maximum-concurrent-test-simulator-destinations 1 \
   -test-timeouts-enabled YES \

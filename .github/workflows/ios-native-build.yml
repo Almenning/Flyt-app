@@ -61,6 +61,7 @@ jobs:
           -scheme App
           -configuration Debug
           -destination 'generic/platform=iOS Simulator'
+          -derivedDataPath "${{ runner.temp }}/hverdagsoss-native-qa/DerivedData"
           CODE_SIGNING_ALLOWED=NO
           build
       - name: Run actual native startup, Keychain and URL tests
