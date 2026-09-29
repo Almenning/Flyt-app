@@ -17,7 +17,8 @@ assert.match(scene,/SecItemCopyMatching/);
 assert.match(scene,/SecItemUpdate/);
 assert.match(scene,/SecItemAdd/);
 assert.match(scene,/SecItemDelete/);
-assert.match(scene,/bridge\?\.registerPluginType\(HverdagsOssSecureStoragePlugin\.self\)/);
+assert.match(scene,/bridge\?\.registerPluginInstance\(HverdagsOssSecureStoragePlugin\(\)\)/,'app-local plugin must be registered even with Capacitor auto-registration enabled');
+assert.doesNotMatch(scene,/registerPluginType\(HverdagsOssSecureStoragePlugin/,'registerPluginType is a no-op with automatic plugin registration');
 assert.match(scene,/rootViewController = HverdagsOssBridgeViewController\(\)/);
 
 assert.match(platform,/const LEGACY_SUPABASE_PREFIX = 'sb-uopzveejnztbovncqbpq-'/);

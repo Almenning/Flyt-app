@@ -107,7 +107,9 @@ public final class HverdagsOssSecureStoragePlugin: CAPPlugin, CAPBridgedPlugin {
 
 public final class HverdagsOssBridgeViewController: CAPBridgeViewController {
     override public func capacitorDidLoad() {
-        bridge?.registerPluginType(HverdagsOssSecureStoragePlugin.self)
+        super.capacitorDidLoad()
+        // App-local plugins must register an instance when auto-registration is enabled.
+        bridge?.registerPluginInstance(HverdagsOssSecureStoragePlugin())
     }
 }
 
