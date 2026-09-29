@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION='20260929-fristelse-inline-points1';
+const VERSION='20260929-fristelse-point-wheel-polish1';
 let painting=false,activeTab='personal',rewardCategory='Tid og frihet';
 const $=s=>document.querySelector(s),core=()=>window.FlytGoalsCore,bridge=()=>window.FlytBridge;
 const state=()=>bridge()?.getState?.()||null;
@@ -153,7 +153,7 @@ function temptationPointMarkup(){
   if(!values.includes(selected))values.push(selected);
   values.sort((a,b)=>a-b);
   if(manual)return `<section class="temptationConditionBody temptationInlinePoints" aria-labelledby="temptationPointsHeading"><h3 id="temptationPointsHeading">Hvor mange nye poeng?</h3><input class="temptationPointInput" name="temptationPoints" data-temptation-point-input type="text" inputmode="numeric" autocomplete="off" value="${esc(raw)}" aria-describedby="temptationPointsHint temptationPointsError" aria-invalid="${current===null}"><p class="temptationPointError" id="temptationPointsError" role="status" ${current===null?'':'hidden'}>Skriv et positivt heltall.</p><button type="button" class="temptationPointMode" data-temptation-points-mode="wheel">Velg med hjulet</button><p class="temptationHint" id="temptationPointsHint">Kun poeng opptjent etter aksept teller.</p></section>`;
-  return `<section class="temptationConditionBody temptationInlinePoints" aria-labelledby="temptationPointsHeading"><h3 id="temptationPointsHeading">Hvor mange nye poeng?</h3><div class="temptationPointWheel" data-temptation-point-wheel role="listbox" tabindex="0" aria-labelledby="temptationPointsHeading" aria-describedby="temptationPointsHint" aria-activedescendant="temptation-point-option-${selected}">${values.map(value=>`<div class="temptationPointOption ${value===selected?'on':''}" id="temptation-point-option-${value}" role="option" aria-selected="${value===selected}" data-inline-point="${value}"><span>${value}<small> poeng</small></span></div>`).join('')}</div><input name="temptationPoints" type="hidden" value="${selected}"><button type="button" class="temptationPointMode" data-temptation-points-mode="manual">Skriv inn et tall</button><p class="temptationHint" id="temptationPointsHint">Kun poeng opptjent etter aksept teller.</p></section>`;
+  return `<section class="temptationConditionBody temptationInlinePoints" aria-labelledby="temptationPointsHeading"><h3 id="temptationPointsHeading">Hvor mange nye poeng?</h3><div class="temptationPointRail"><span class="temptationPointFocus" aria-hidden="true"><i>›</i></span><div class="temptationPointWheel" data-temptation-point-wheel role="listbox" tabindex="0" aria-labelledby="temptationPointsHeading" aria-describedby="temptationPointGestureHint temptationPointsHint" aria-activedescendant="temptation-point-option-${selected}">${values.map(value=>`<div class="temptationPointOption ${value===selected?'on':''}" id="temptation-point-option-${value}" role="option" aria-selected="${value===selected}" data-inline-point="${value}"><span>${value}<small> poeng</small></span></div>`).join('')}</div></div><input name="temptationPoints" type="hidden" value="${selected}"><p class="temptationPointGestureHint" id="temptationPointGestureHint">Dra for å velge · Trykk på valgt tall for å fortsette</p><button type="button" class="temptationPointMode" data-temptation-points-mode="manual">Skriv inn et tall</button><p class="temptationHint" id="temptationPointsHint">Kun poeng opptjent etter aksept teller.</p></section>`;
 }
 function setTemptationPointValue(form,raw){
   if(!temptationDraft||!form)return;
@@ -171,7 +171,7 @@ function wireTemptationInlinePoints(form){
   const wheel=form?.querySelector('[data-temptation-point-wheel]');if(!wheel)return;
   const draft=temptationDraft,options=[...wheel.querySelectorAll('[data-inline-point]')];
   let selected=options.findIndex(option=>Number(option.dataset.inlinePoint)===(temptationPointNumber(draft.points)??draft.lastPointValue??60));if(selected<0)selected=0;
-  let frame=0;
+  let frame=0,lastScrollAt=-Infinity,gesture=null,advancing=false;
   const row=()=>options[0]?.offsetHeight||44;
   const alive=()=>wheel.isConnected&&temptationDraft===draft&&draft.step===2&&draft.conditionType==='points';
   const paint=index=>{
@@ -185,11 +185,47 @@ function wireTemptationInlinePoints(form){
   };
   const read=()=>paint(Math.round(wheel.scrollTop/row()));
   const choose=index=>{index=Math.max(0,Math.min(options.length-1,index));wheel.scrollTop=index*row();paint(index)};
+  const advance=()=>{
+    if(advancing||!alive())return;
+    wheel._commitInlinePoints?.();
+    const next=form.querySelector('[data-temptation-next]');
+    if(!next||next.disabled)return;
+    advancing=true;
+    next.click();
+  };
   wheel._commitInlinePoints=()=>{if(frame)cancelAnimationFrame(frame);frame=0;read();wheel.scrollTop=selected*row()};
   requestAnimationFrame(()=>{if(!alive())return;wheel.scrollTop=selected*row();paint(selected)});
-  wheel.addEventListener('scroll',()=>{if(frame)return;frame=requestAnimationFrame(()=>{frame=0;read()})},{passive:true});
-  wheel.addEventListener('click',event=>{const option=event.target.closest('[data-inline-point]');if(option)choose(options.indexOf(option))});
-  wheel.addEventListener('keydown',event=>{const move={ArrowDown:1,ArrowUp:-1,PageDown:10,PageUp:-10}[event.key];if(move){event.preventDefault();choose(selected+move)}else if(event.key==='Home'){event.preventDefault();choose(0)}else if(event.key==='End'){event.preventDefault();choose(options.length-1)}});
+  wheel.addEventListener('scroll',()=>{lastScrollAt=performance.now();if(gesture?.active&&Math.abs(wheel.scrollTop-gesture.scroll)>2)gesture.moved=true;if(frame)return;frame=requestAnimationFrame(()=>{frame=0;read()})},{passive:true});
+  const startGesture=point=>{gesture={active:true,moved:false,cancelled:false,wasMoving:performance.now()-lastScrollAt<160,x:point.clientX,y:point.clientY,scroll:wheel.scrollTop}};
+  const moveGesture=point=>{if(!gesture?.active)return;if(Math.hypot(point.clientX-gesture.x,point.clientY-gesture.y)>8||Math.abs(wheel.scrollTop-gesture.scroll)>2)gesture.moved=true};
+  const endGesture=point=>{moveGesture(point);if(gesture)gesture.active=false};
+  const cancelGesture=()=>{if(gesture){gesture.cancelled=true;gesture.active=false}};
+  if('PointerEvent'in window){
+    wheel.addEventListener('pointerdown',event=>{if(event.isPrimary===false||event.button!==0){cancelGesture();return}startGesture(event)},{passive:true});
+    wheel.addEventListener('pointermove',moveGesture,{passive:true});
+    wheel.addEventListener('pointerup',endGesture,{passive:true});
+    wheel.addEventListener('pointercancel',cancelGesture,{passive:true});
+  }else{
+    wheel.addEventListener('touchstart',event=>{if(event.touches.length!==1){cancelGesture();return}startGesture(event.touches[0])},{passive:true});
+    wheel.addEventListener('touchmove',event=>{if(event.touches.length===1)moveGesture(event.touches[0]);else cancelGesture()},{passive:true});
+    wheel.addEventListener('touchend',event=>{if(event.changedTouches[0])endGesture(event.changedTouches[0])},{passive:true});
+    wheel.addEventListener('touchcancel',cancelGesture,{passive:true});
+  }
+  wheel.addEventListener('click',event=>{
+    const option=event.target.closest('[data-inline-point]');if(!option)return;
+    if(gesture&&(gesture.moved||gesture.cancelled||gesture.wasMoving)){event.preventDefault();return}
+    read();
+    const index=options.indexOf(option);
+    if(index===selected){event.preventDefault();advance();return}
+    choose(index);
+  });
+  wheel.addEventListener('keydown',event=>{
+    const move={ArrowDown:1,ArrowUp:-1,PageDown:10,PageUp:-10}[event.key];
+    if(move){event.preventDefault();choose(selected+move)}
+    else if(event.key==='Home'){event.preventDefault();choose(0)}
+    else if(event.key==='End'){event.preventDefault();choose(options.length-1)}
+    else if((event.key==='Enter'||event.key===' ')&&!event.repeat){event.preventDefault();advance()}
+  });
 }
 function temptationStepTwo(s){
   const d=temptationDraft;
@@ -370,7 +406,7 @@ const temptationStyle=document.createElement('style');temptationStyle.textConten
 .temptationSecret{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:13px;padding:13px 15px;border:1px solid #eadbd5;border-radius:17px;background:#fffaf7}.temptationSecret strong,.temptationSecret small{display:block}.temptationSecret small{margin-top:3px;color:var(--muted);font-size:11px;font-weight:500}.temptationSecret input{width:22px;height:22px;accent-color:var(--accent)}.temptationPreview{margin:13px 0 0;padding:14px;border:1px solid #efd7cd;border-radius:17px;background:#fff0e9;color:var(--deep);font:600 16px/1.4 Georgia,serif}
 .temptationFooter{padding:12px 18px max(14px,env(safe-area-inset-bottom));border-top:1px solid #eadbd5;background:#fff9f5eF;backdrop-filter:blur(12px)}.temptationFooter .goalPrimary{margin:0;min-height:50px}.temptationFooter .goalPrimary:disabled{opacity:.42}@keyframes temptationIn{from{opacity:.55;transform:translateX(7px)}to{opacity:1;transform:none}}@media(min-width:600px){.temptationFlowLayer{align-items:center;padding:24px}.temptationShell{height:min(86dvh,780px);border-radius:28px}}
 .goalFlowTypeList{display:grid;gap:8px}.goalFlowInlineFields{display:grid;gap:12px;margin:0 4px 8px;padding:12px;border:1px solid #efd8ce;border-top:0;border-radius:0 0 16px 16px;background:#fff8f3}.goalFlowInlineFields .temptationQuestion{margin:0}.goalFlowInlineFields .temptationText{margin:0}.goalFlowFields{display:grid;gap:12px;margin:0}.goalFlowField{display:grid;gap:7px;padding:14px;border:1px solid #eadbd5;border-radius:17px;background:#fffdfb;font-weight:800}.goalFlowField span,.goalFlowReward>span{font-size:12px}.goalFlowField select,.goalFlowReward select,.goalFlowReward input{width:100%;min-height:44px;padding:9px 10px;border:1px solid #eadbd5;border-radius:12px;background:#fffdfb;color:var(--ink);font:inherit}.goalFlowReward{display:grid;gap:7px;margin-top:13px;padding:13px;border:1px solid #eadbd5;border-radius:16px;background:#fffaf7;font-weight:800}.goalFlowReward em{color:var(--muted);font-style:normal;font-weight:500}
-`;temptationStyle.textContent+="\n.temptationStepTwo>.temptationMini{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 8px;margin:0 0 14px;padding:0;border:0;border-radius:0;background:transparent}\n.temptationInlinePoints{gap:0}\n.temptationInlinePoints h3{margin:0 0 8px;color:var(--ink);font:600 17px/1.3 system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}\n.temptationPointWheel{height:132px;box-sizing:border-box;padding:44px 0;overflow-x:hidden;overflow-y:auto;overscroll-behavior-y:contain;touch-action:pan-y;scroll-snap-type:y mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch;mask-image:linear-gradient(transparent,#000 30%,#000 70%,transparent);-webkit-mask-image:linear-gradient(transparent,#000 30%,#000 70%,transparent)}\n.temptationPointWheel::-webkit-scrollbar{display:none}\n.temptationPointOption{height:44px;min-height:44px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;scroll-snap-align:center;color:var(--muted);font:600 23px/1 Georgia,serif;cursor:pointer}\n.temptationPointOption>span{display:inline-block;transform:scale(.84);transition:transform .12s ease,color .12s ease;text-align:center}\n.temptationPointOption small{font:700 11px/1 Arial,sans-serif;opacity:0}\n.temptationPointOption.on{color:var(--deep)}\n.temptationPointOption.on>span{transform:scale(1)}\n.temptationPointOption.on small{opacity:1}\n.temptationPointMode{display:block;justify-self:center;min-height:44px;margin:3px 0 0;padding:10px 12px;border:0;background:transparent;color:var(--deep);font:800 14px/1.3 system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;text-decoration:underline;text-underline-offset:3px}\n.temptationInlinePoints .temptationHint{margin:2px 0 0;text-align:center}\n.temptationPointInput{width:100%;min-height:52px;padding:12px;border:1px solid var(--line);border-radius:14px;background:#fffdfb;color:var(--ink);-webkit-text-fill-color:var(--ink);caret-color:var(--deep);font:600 18px/1.4 system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;box-sizing:border-box}\n.temptationPointInput[aria-invalid=\"true\"]{border-color:var(--deep)}\n.temptationPointError{margin:8px 0 0;color:var(--deep);font-size:13px}\n.temptationInlinePoints [hidden]{display:none!important}\n@media(prefers-reduced-motion:reduce){.temptationPointOption>span{transition:none}}\n";document.head.appendChild(temptationStyle);
+`;temptationStyle.textContent+="\n.temptationStepTwo>.temptationMini{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 8px;margin:0 0 14px;padding:0;border:0;border-radius:0;background:transparent}\n.temptationInlinePoints{gap:0}\n.temptationInlinePoints h3{margin:0 0 8px;color:var(--ink);font:600 17px/1.3 system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}\n.temptationPointRail{position:relative;margin:4px 0 0;isolation:isolate}\n.temptationPointFocus{position:absolute;z-index:0;left:50%;top:50%;width:min(280px,calc(100% - 18px));height:46px;transform:translate(-50%,-50%);border:1px solid #edc8b8;border-radius:15px;background:linear-gradient(145deg,#fff5ef,#ffebe2);box-shadow:0 5px 14px #8f4e3510;pointer-events:none}\n.temptationPointFocus i{position:absolute;right:15px;top:50%;transform:translateY(-50%);color:var(--deep);font:400 23px/1 Georgia,serif;font-style:normal}\n.temptationPointWheel{position:relative;z-index:1;height:156px;box-sizing:border-box;padding:56px 0;overflow-x:hidden;overflow-y:auto;overscroll-behavior-y:contain;touch-action:pan-y;scroll-snap-type:y mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch;mask-image:linear-gradient(transparent,#000 10%,#000 90%,transparent);-webkit-mask-image:linear-gradient(transparent,#000 10%,#000 90%,transparent)}\n.temptationPointWheel::-webkit-scrollbar{display:none}\n.temptationPointOption{height:44px;min-height:44px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;scroll-snap-align:center;color:#8d7a72;font:600 22px/1 Georgia,serif;cursor:pointer}\n.temptationPointOption>span{display:inline-block;transition:color .12s ease,font-size .12s ease;text-align:center}\n.temptationPointOption small{font:700 11px/1 Arial,sans-serif;opacity:0}\n.temptationPointOption.on{color:var(--deep);font-size:29px}\n.temptationPointOption.on small{opacity:1}\n.temptationPointGestureHint{margin:5px 0 1px;color:var(--muted);font-size:11px;line-height:1.35;text-align:center}\n.temptationPointMode{display:block;justify-self:center;min-height:44px;margin:0;padding:10px 12px;border:0;background:transparent;color:var(--deep);font:700 13px/1.3 system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}\n.temptationInlinePoints .temptationHint{margin:0;text-align:center}\n.temptationPointInput{width:100%;min-height:52px;padding:12px;border:1px solid var(--line);border-radius:14px;background:#fffdfb;color:var(--ink);-webkit-text-fill-color:var(--ink);caret-color:var(--deep);font:600 18px/1.4 system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;box-sizing:border-box}\n.temptationPointInput[aria-invalid=\"true\"]{border-color:var(--deep)}\n.temptationPointError{margin:8px 0 0;color:var(--deep);font-size:13px}\n.temptationInlinePoints [hidden]{display:none!important}\n@media(prefers-reduced-motion:reduce){.temptationPointOption>span{transition:none}}\n";document.head.appendChild(temptationStyle);
 const observer=new MutationObserver(()=>{if(painting)return;const s=state(),c=$('#content');if(s?.view==='rewards'&&c?.dataset.flytOwner!=='rewards-ui')queueMicrotask(render)});
 window.addEventListener('DOMContentLoaded',()=>{styles();const c=$('#content');if(c)observer.observe(c,{childList:true,subtree:true});render()});let tries=0;const timer=setInterval(()=>{styles();const c=$('#content');if(c){observer.observe(c,{childList:true,subtree:true});render();clearInterval(timer)}else if(++tries>60)clearInterval(timer)},100);
 window.FlytRewardsUI={activate:activateLegacy,render,rewardStatus:legacyRewardStatus,openChallenge(id=''){const s=state();if(!s)return;if(s.view!=='rewards')save({...s,view:'rewards'});if(id){render({resetScroll:true});queueMicrotask(()=>openDetail(id));return}openFristelse()},version:VERSION};
