@@ -5,8 +5,42 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 OUTPUT="${RUNNER_TEMP:-${TMPDIR:-/tmp}}/hverdagsoss-native-qa"
 mkdir -p "$OUTPUT"
-python3 scripts/prepare-ios-native-qa.py
-SELECTION="$(python3 - <<'PY'
+# Preserve setup/boot failures too, including failures before an xcresult exists.
+exec > >(tee "$OUTPUT/runner.log") 2>&1
+bounded() {
+  python3 -S - "$@" <<'PY'
+import subprocess, sys
+seconds = int(sys.argv[1])
+if not 0 < seconds <= 900:
+    raise SystemExit('Command timeout must be between 1 and 900 seconds')
+try:
+    result = subprocess.run(sys.argv[2:], timeout=seconds)
+except subprocess.TimeoutExpired:
+    print(f'Native QA command timed out after {seconds}s: {sys.argv[2:]}', file=sys.stderr, flush=True)
+    raise SystemExit(124)
+raise SystemExit(result.returncode if result.returncode >= 0 else 128 - result.returncode)
+PY
+}
+SIMULATOR=""
+cleanup() {
+  local status=$?
+  trap - EXIT
+  set +e
+  if [ -n "$SIMULATOR" ]; then
+    if [ "$status" -ne 0 ]; then
+      bounded 20 xcrun simctl list devices -j > "$OUTPUT/simulator-state.json" 2> "$OUTPUT/simulator-state.log"
+      bounded 20 xcrun simctl io "$SIMULATOR" screenshot "$OUTPUT/failure.png"
+    fi
+    # Only touch this run's disposable simulator; preserve the original failure.
+    bounded 30 xcrun simctl shutdown "$SIMULATOR"
+    bounded 30 xcrun simctl delete "$SIMULATOR"
+  fi
+  echo "Native QA finished with exit status $status"
+  exit "$status"
+}
+trap cleanup EXIT
+python3 -S scripts/prepare-ios-native-qa.py
+SELECTION="$(python3 -S - <<'PY'
 import json, subprocess
 runtime_data = json.loads(subprocess.check_output(['xcrun','simctl','list','runtimes','-j'], timeout=30))
 runtimes = [r for r in runtime_data['runtimes'] if r.get('isAvailable') and '.iOS-' in r['identifier']]
@@ -24,17 +58,12 @@ else:
 PY
 )"
 read -r DEVICE_TYPE RUNTIME <<< "$SELECTION"
-SIMULATOR="$(xcrun simctl create "HverdagsOss-QA-${GITHUB_RUN_ID:-local}" "$DEVICE_TYPE" "$RUNTIME")"
-cleanup() {
-  xcrun simctl shutdown "$SIMULATOR" >/dev/null 2>&1 || true
-  xcrun simctl delete "$SIMULATOR" >/dev/null 2>&1 || true
-}
-trap cleanup EXIT
-xcrun simctl boot "$SIMULATOR"
-python3 - "$SIMULATOR" <<'PY'
-import subprocess, sys
-subprocess.run(['xcrun', 'simctl', 'bootstatus', sys.argv[1], '-b'], check=True, timeout=240)
-PY
+echo "Native QA device: $DEVICE_TYPE; runtime: $RUNTIME"
+SIMULATOR="$(bounded 30 xcrun simctl create "HverdagsOss-QA-${GITHUB_RUN_ID:-local}" "$DEVICE_TYPE" "$RUNTIME")"
+bounded 60 xcrun simctl boot "$SIMULATOR"
+# A new iOS runtime may spend more than four minutes on first-boot migration.
+# Keep a finite setup deadline; do not retry or relax the actual app assertions.
+bounded "${NATIVE_QA_BOOT_TIMEOUT_SECONDS:-600}" xcrun simctl bootstatus "$SIMULATOR" -b
 RESULT="$OUTPUT/NativeQA-${GITHUB_RUN_ATTEMPT:-1}-$(date +%s).xcresult"
 # Reuse the exact App dependencies already resolved in this DerivedData.
 RESOLUTION_ARGS=()
@@ -60,9 +89,8 @@ xcodebuild test \
   -maximum-test-execution-time-allowance 120 \
   CODE_SIGNING_ALLOWED=YES CODE_SIGN_IDENTITY=- DEVELOPMENT_TEAM= \
   2>&1 | tee "$OUTPUT/xcode-test.log"
-STATUS=${PIPESTATUS[0]}
+STATUSES=("${PIPESTATUS[@]}")
+STATUS=${STATUSES[0]}
+if [ "$STATUS" -eq 0 ] && [ "${STATUSES[1]}" -ne 0 ]; then STATUS=${STATUSES[1]}; fi
 set -e
-if [ "$STATUS" -ne 0 ]; then
-  xcrun simctl io "$SIMULATOR" screenshot "$OUTPUT/failure.png" >/dev/null 2>&1 || true
-fi
 exit "$STATUS"

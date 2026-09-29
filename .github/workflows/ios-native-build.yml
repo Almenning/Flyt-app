@@ -73,7 +73,8 @@ jobs:
           name: native-qa-${{ github.sha }}
           path: |
             ${{ runner.temp }}/hverdagsoss-native-qa/*.xcresult
-            ${{ runner.temp }}/hverdagsoss-native-qa/xcode-test.log
+            ${{ runner.temp }}/hverdagsoss-native-qa/*.log
+            ${{ runner.temp }}/hverdagsoss-native-qa/simulator-state.json
             ${{ runner.temp }}/hverdagsoss-native-qa/failure.png
           if-no-files-found: warn
           retention-days: 7
