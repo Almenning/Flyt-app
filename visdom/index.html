@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="nb">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#15120f" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Fremover" />
+  <meta name="description" content="Visdom, refleksjon og driv for å møte dagen bedre." />
+  <style>:root{
+  --bg:#f1ece3; --paper:#fbf7ef; --ink:#181411; --muted:#756c62; --line:#d8cdbf;
+  --accent:#9a4f36; --accent2:#c98d63; --dark:#15120f; --sage:#7b846e; --gold:#b88b4a;
+}
+*{box-sizing:border-box} html{background:var(--dark)} body{margin:0;font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
+button,textarea{font:inherit}.app-shell{max-width:620px;margin:0 auto;min-height:100vh;padding:calc(18px + env(safe-area-inset-top)) 18px calc(96px + env(safe-area-inset-bottom));background:linear-gradient(180deg,#eee7dc 0%,#f7f2e9 100%)}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin:4px 2px 18px}.eyebrow{font-size:11px;letter-spacing:.24em;font-weight:800;color:var(--accent)}h1{font-family:Georgia,"Times New Roman",serif;font-size:34px;line-height:1;margin:7px 0 0;font-weight:500}.icon-btn{width:38px;height:38px;border:1px solid var(--line);background:#fff8ee;border-radius:50%;font-weight:700;color:var(--muted)}
+.mission-card{background:var(--dark);color:#f8efe5;border-radius:20px;padding:18px 19px;margin-bottom:14px;box-shadow:0 12px 30px #3c2b1b13}.mission-label{font-size:10px;letter-spacing:.22em;color:#d9a27c;font-weight:800}.mission-card p{margin:8px 0 0;font-family:Georgia,serif;font-size:17px;line-height:1.45}
+.hero-card,.prompt-card,.learn-card{background:rgba(255,251,244,.88);border:1px solid #dfd5c8;border-radius:24px;overflow:hidden;box-shadow:0 12px 32px #5f4b3710;margin-bottom:14px}.hero-art{height:168px;display:flex;align-items:flex-end;padding:17px;background:radial-gradient(circle at 72% 28%,#f1c6a5 0,transparent 26%),linear-gradient(135deg,#593627,#ae704e 45%,#1f2a29);position:relative;overflow:hidden}.hero-art:after{content:"";position:absolute;right:-26px;bottom:-45px;width:190px;height:190px;border-radius:48% 52% 50% 50%;background:linear-gradient(145deg,#ded4c8,#8c7566);opacity:.72;box-shadow:-55px -18px 0 -42px #f0e8db}.hero-art span{font-family:Georgia,serif;font-size:52px;color:#fff5e9;letter-spacing:-.06em;z-index:2;text-shadow:0 2px 18px #0005}.hero-content{padding:18px}.meta-row{display:flex;justify-content:space-between;gap:10px;align-items:center}.pill{font-size:11px;font-weight:750;padding:6px 9px;border-radius:999px;background:#ead8c9;color:#713b2a}.source-state{font-size:11px;color:var(--sage);font-weight:700}blockquote{font-family:Georgia,"Times New Roman",serif;font-size:28px;line-height:1.16;margin:18px 0 13px;letter-spacing:-.02em}.author{font-weight:800;font-size:12px;letter-spacing:.13em;text-transform:uppercase}.source{font-size:12px;color:var(--muted);margin-top:5px}.reflection{border-top:1px solid var(--line);margin-top:16px;padding-top:14px;color:#443c34;line-height:1.52;font-size:14px}.hero-actions{display:grid;grid-template-columns:1fr 1.35fr;gap:9px;margin-top:17px}.hero-actions button,.prompt-footer button{border:0;border-radius:14px;padding:13px 14px;font-weight:800}.primary{background:var(--accent);color:white}.secondary{background:#eee5d8;color:#47392e}
+.prompt-card,.learn-card{padding:19px}.section-title{font-family:Georgia,serif;font-size:20px;font-weight:600}.prompt-card>p,.learn-head p{margin:5px 0 14px;color:var(--muted);font-size:13px;line-height:1.45}textarea{width:100%;min-height:112px;resize:vertical;border:1px solid var(--line);border-radius:15px;background:#fffaf2;padding:13px;color:var(--ink);font-size:16px;outline:none}textarea:focus{border-color:#b98264;box-shadow:0 0 0 3px #b9826418}.prompt-footer{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:9px}.prompt-footer span{font-size:10px;color:var(--muted)}.prompt-footer button{padding:10px 12px;background:#2e3228;color:#fff;font-size:12px}
+.learn-head{display:flex;justify-content:space-between;align-items:flex-start}.book-mark{width:38px;height:45px;background:#d4b17a;display:grid;place-items:center;font-family:Georgia,serif;font-size:15px;border-radius:5px 5px 10px 10px;color:#3b2d20}.learn-card h2{font-family:Georgia,serif;font-size:24px;margin:8px 0 8px}.learn-card>p{line-height:1.6;color:#3e372f;font-size:14px}.learn-footer{font-size:11px;color:var(--muted);border-top:1px solid var(--line);padding-top:12px;margin-top:13px}
+.explore-section{padding:9px 1px 16px}.chips{display:flex;gap:8px;overflow:auto;padding:10px 0 14px;scrollbar-width:none}.chips::-webkit-scrollbar{display:none}.chip{white-space:nowrap;border:1px solid var(--line);background:#faf4ea;border-radius:999px;padding:9px 12px;color:#584c42;font-size:12px;font-weight:700}.chip.active{background:var(--dark);color:#fff;border-color:var(--dark)}.mini-list{display:grid;gap:8px}.mini-item{display:grid;grid-template-columns:44px 1fr auto;gap:11px;align-items:center;background:#f9f4eb;border:1px solid #e1d7ca;padding:10px;border-radius:16px}.mini-avatar{width:44px;height:44px;border-radius:13px;background:linear-gradient(145deg,#b66f4b,#362721);display:grid;place-items:center;color:white;font-family:Georgia,serif;font-weight:700}.mini-main strong{display:block;font-family:Georgia,serif;font-size:15px}.mini-main small{color:var(--muted);font-size:11px}.mini-item button{border:0;background:none;font-size:20px;color:var(--muted)}
+.bottom-nav{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(620px,100%);display:grid;grid-template-columns:repeat(4,1fr);background:#171411f5;border-top:1px solid #ffffff13;padding:9px 9px calc(9px + env(safe-area-inset-bottom));backdrop-filter:blur(16px);z-index:20}.nav-item{border:0;background:none;color:#a79c90;display:grid;gap:3px;place-items:center;padding:5px}.nav-item span{font-size:19px}.nav-item small{font-size:10px}.nav-item.active{color:#f0c096}
+dialog{width:min(560px,calc(100% - 24px));border:0;border-radius:24px;padding:0;background:#f9f3e9;color:var(--ink);box-shadow:0 25px 80px #0007}dialog::backdrop{background:#1c1814b8;backdrop-filter:blur(4px)}.modal-inner{padding:24px;position:relative}.modal-close{position:absolute;right:14px;top:14px;width:34px;height:34px;border:0;border-radius:50%;background:#e9dfd2;font-size:23px}.modal-inner h2{font-family:Georgia,serif;font-size:28px;margin:3px 36px 12px 0}.modal-inner p{line-height:1.58;color:#4d443c}.quote-list{display:grid;gap:9px;margin-top:15px}.quote-row{border:1px solid var(--line);border-radius:14px;padding:12px;background:#fffaf2}.quote-row strong{display:block;margin-top:7px;font-size:11px;letter-spacing:.08em;text-transform:uppercase}.quote-row small{color:var(--muted)}
+@media (min-width:700px){body{padding:24px 0}.app-shell{border-radius:28px;min-height:calc(100vh - 48px);box-shadow:0 25px 80px #0002}.bottom-nav{bottom:24px;border-radius:0 0 28px 28px}}
+</style>
+  <title>Fremover</title>
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">FREMOVER</div>
+        <h1 id="greeting">God morgen</h1>
+      </div>
+      <button class="icon-btn" id="aboutBtn" aria-label="Om appen">?</button>
+    </header>
+
+    <section class="mission-card">
+      <span class="mission-label">FORMÅL</span>
+      <p>Stå opp med lyst til å angripe fremtiden. Bli sterkere, klokere, mer belest og mer verdifull for menneskene rundt deg.</p>
+    </section>
+
+    <section class="hero-card" id="heroCard">
+      <div class="hero-art" id="heroArt" aria-hidden="true"><span id="heroInitials">MA</span></div>
+      <div class="hero-content">
+        <div class="meta-row">
+          <span class="pill" id="heroTheme">Karakter</span>
+          <span class="source-state" id="heroState">Kildebelagt</span>
+        </div>
+        <blockquote id="heroQuote"></blockquote>
+        <div class="author" id="heroAuthor"></div>
+        <div class="source" id="heroSource"></div>
+        <div class="reflection" id="heroReflection"></div>
+        <div class="hero-actions">
+          <button id="saveBtn" class="secondary">☆ Lagre</button>
+          <button id="nextBtn" class="primary">Neste tanke</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="prompt-card">
+      <div class="section-title">Dagens refleksjon</div>
+      <p id="promptText">Hva kan du gjøre i dag som gjør livet litt bedre for familien din om ett år?</p>
+      <textarea id="reflectionInput" maxlength="500" placeholder="Skriv 1–3 setninger. Tenk før du scroller videre."></textarea>
+      <div class="prompt-footer">
+        <span id="savedStatus">Lagres bare på denne enheten</span>
+        <button id="saveReflectionBtn">Lagre refleksjon</button>
+      </div>
+    </section>
+
+    <section class="learn-card">
+      <div class="learn-head">
+        <div>
+          <div class="section-title">Bli litt mer belest</div>
+          <p>Én idé om dagen. Kort nok til å lese, god nok til å huske.</p>
+        </div>
+        <span class="book-mark">01</span>
+      </div>
+      <h2 id="learnTitle"></h2>
+      <p id="learnText"></p>
+      <div class="learn-footer" id="learnSource"></div>
+    </section>
+
+    <section class="explore-section">
+      <div class="section-title">Utforsk etter retning</div>
+      <div class="chips" id="chips"></div>
+      <div class="mini-list" id="miniList"></div>
+    </section>
+
+    <nav class="bottom-nav" aria-label="Hovednavigasjon">
+      <button class="nav-item active" data-view="today"><span>◉</span><small>I dag</small></button>
+      <button class="nav-item" data-view="wisdom"><span>⌁</span><small>Visdom</small></button>
+      <button class="nav-item" data-view="saved"><span>☆</span><small>Lagret</small></button>
+      <button class="nav-item" data-view="journal"><span>✎</span><small>Journal</small></button>
+    </nav>
+  </main>
+
+  <dialog id="modal">
+    <div class="modal-inner">
+      <button class="modal-close" id="closeModal" aria-label="Lukk">×</button>
+      <div id="modalContent"></div>
+    </div>
+  </dialog>
+
+  <script>const quotes = [
+  {author:'Marcus Aurelius', initials:'MA', theme:'Karakter', state:'Primærkilde', quote:'Menneskets liv får sin farge av tankene det stadig vender tilbake til.', source:'Meditations, bok V · norsk meningsoversettelse', reflection:'Poenget er ikke positiv tenkning. Det er mental hygiene: det du øver oppmerksomheten på, former hvordan du handler.'},
+  {author:'Marcus Aurelius', initials:'MA', theme:'Ansvar', state:'Primærkilde', quote:'Slutt å diskutere hvordan et godt menneske skal være. Vær et.', source:'Meditations, bok X · norsk meningsoversettelse', reflection:'Karakter blir først virkelig når den flyttes fra mening til handling. Én konkret handling i dag teller mer enn ti riktige meninger.'},
+  {author:'Aristoteles', initials:'AR', theme:'Karakter', state:'Faglig parafrase', quote:'Vi blir rettferdige ved å gjøre rettferdige handlinger, modige ved å gjøre modige handlinger.', source:'Den nikomakiske etikk, bok II · parafrase', reflection:'Dyd er ikke en identitet du erklærer. Den er en vane du trener.'},
+  {author:'Epiktet', initials:'EP', theme:'Selvkontroll', state:'Primærkilde', quote:'Noe er opp til oss. Annet er ikke opp til oss.', source:'Enchiridion, §1 · norsk meningsoversettelse', reflection:'Skill mellom påvirkning og støy. Bruk kreftene på dømmekraft, valg og handling.'},
+  {author:'Seneca', initials:'SE', theme:'Tid', state:'Primærkilde', quote:'Det er ikke slik at vi har lite tid. Vi sløser bort mye av den.', source:'Om livets korthet · norsk meningsoversettelse', reflection:'Tidsmangel er ofte et prioriteringsproblem forklart med et penere ord.'},
+  {author:'Henrik Ibsen', initials:'HI', theme:'Selvstendighet', state:'Klassisk verk', quote:'Den sterkeste mann i verden, det er han som står mest alene.', source:'En folkefiende (1882)', reflection:'Ikke en oppfordring til isolasjon, men en påminnelse om at integritet noen ganger krever at du tåler å stå uten flertallet.'},
+  {author:'William Shakespeare', initials:'WS', theme:'Karakter', state:'Klassisk verk', quote:'This above all: to thine own self be true.', source:'Hamlet, akt I, scene 3', reflection:'Setningen er berømt, men konteksten er ironisk komplisert. Bruk den som spørsmål: Er du tro mot prinsippene dine også når det koster?'},
+  {author:'Theodore Roosevelt', initials:'TR', theme:'Mot', state:'Dokumentert tale', quote:'Det er den som faktisk går inn i arenaen og forsøker, som fortjener æren.', source:'Citizenship in a Republic, Sorbonne, 23. april 1910 · parafrase', reflection:'Kritikk fra sidelinjen er billig. Verdiskaping krever risiko, feil og ny innsats.'},
+  {author:'John F. Kennedy', initials:'JFK', theme:'Samfunn', state:'Dokumentert tale', quote:'Spør ikke bare hva fellesskapet kan gjøre for deg. Spør hva du kan bidra med.', source:'Inaugural Address, 20. januar 1961 · parafrase', reflection:'Et godt samfunn er ikke bare en tjeneste du mottar. Det er også noe du er med på å bygge.'},
+  {author:'Jordan Peterson', initials:'JP', theme:'Ansvar', state:'Inspirert parafrase', quote:'Begynn med det du faktisk kan sette i orden, før du krever at verden skal ordne seg.', source:'Inspirert av Petersons arbeid om ansvar · ikke direkte sitat', reflection:'Budskapet er nyttig når det brukes uten heltedyrkelse: egen handlekraft først, store forklaringer etterpå.'},
+  {author:'Greg Plitt', initials:'GP', theme:'Trening', state:'Inspirert parafrase', quote:'Det du gjør når ingen ser, bygger den personen andre senere møter.', source:'Inspirert av Greg Plitts treningsfilosofi · ikke direkte sitat', reflection:'Trening er interessant nettopp fordi den avslører forholdet ditt til ubehag, rutine og langsiktig innsats.'},
+  {author:'Rocky Balboa / Sylvester Stallone', initials:'RB', theme:'Motstand', state:'Inspirert parafrase', quote:'Fremgang er ikke å unngå slag. Det er å fortsette fremover etter at livet har truffet.', source:'Inspirert av Rocky Balboa · ikke direkte filmsitat', reflection:'Motstand er ikke automatisk meningsfull. Men hvordan du responderer på den kan være det.'},
+  {author:'Søren Kierkegaard', initials:'SK', theme:'Refleksjon', state:'Klassisk verk', quote:'Livet forstås baklengs, men må leves forlengs.', source:'Dagbokformulering, vanlig norsk gjengivelse', reflection:'Refleksjon er nyttig fordi du kan lære av fortiden. Den blir skadelig når den erstatter handling i nåtiden.'},
+  {author:'Viktor Frankl', initials:'VF', theme:'Mening', state:'Moderne verk', quote:'Mening finnes ikke bare i det behagelige. Den kan også finnes i ansvar, arbeid og måten lidelse bæres på.', source:'Parafrase av sentrale ideer i Man’s Search for Meaning', reflection:'Ikke romantiser lidelse. Men når den ikke kan unngås, gjenstår fortsatt spørsmålet om hvordan du møter den.'}
+];
+
+const lessons = [
+ {title:'Aristoteles: karakter er trening', text:'Aristoteles beskriver dyder som disposisjoner som formes gjennom gjentatt handling. Du blir ikke modig av å like ideen om mot. Du trener mot ved å handle riktig når du faktisk er redd.', source:'Les videre: Den nikomakiske etikk, særlig bok II.'},
+ {title:'Stoisk kontroll: to bunker', text:'Epiktet starter med et brutalt nyttig skille: noe avhenger av deg, annet gjør det ikke. En praktisk øvelse er å dele dagens bekymringer i de to bunkene og slutte å forhandle med den andre.', source:'Les videre: Epiktet, Enchiridion §1.'},
+ {title:'Ibsen og den ubehagelige minoriteten', text:'I En folkefiende setter Ibsen sannhet, sosialt press, makt og selvbedrag mot hverandre. Stykket er bedre enn slagordene det har gitt oss, nettopp fordi ingen av figurene får være helt komfortable.', source:'Les videre: Henrik Ibsen, En folkefiende (1882).'},
+ {title:'Roosevelt: borgerskap som plikt', text:'I Sorbonne-talen fra 1910 kobler Roosevelt personlig karakter til samfunnsborgerskap. Poenget er ikke partipolitisk: et demokrati er avhengig av at vanlige mennesker faktisk gjør pliktene sine godt.', source:'Les videre: Theodore Roosevelt, Citizenship in a Republic.'},
+ {title:'Shakespeare: les mer enn sitatet', text:'Hamlet er et godt eksempel på hvorfor sitatapper kan gjøre deg dummere. Linjer løsrevet fra dramaet mister ironi, karakter og konflikt. Målet her er derfor å bruke sitatet som inngang til verket, ikke erstatning for det.', source:'Les videre: Shakespeare, Hamlet, akt I.'}
+];
+
+const prompts = [
+ 'Hva kan du gjøre i dag som gjør livet litt bedre for familien din om ett år?',
+ 'Hvilken plikt har du utsatt fordi ingen tvinger deg til å gjøre den?',
+ 'Hva mener du i dag som du ærlig talt ikke har undersøkt godt nok?',
+ 'Hva kan du lære på 20 minutter i dag som gjør deg litt vanskeligere å lure?',
+ 'Hva trenger barna dine mest fra deg denne uken: tid, ro, grenser, lek eller oppmerksomhet?',
+ 'Hva ville en bedre ektefelle gjort i kveld, helt konkret?',
+ 'Hvilket ubehag unngår du som sannsynligvis ville gjort deg sterkere?'
+];
+
+let index = Number(localStorage.getItem('fremover:index') || 0) % quotes.length;
+let filter = 'Alle';
+const $ = (id)=>document.getElementById(id);
+
+function dayIndex(arr){ const d=new Date(); const key=Math.floor(new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime()/86400000); return arr[key%arr.length]; }
+function renderHero(){
+  const q=quotes[index];
+  $('heroInitials').textContent=q.initials; $('heroTheme').textContent=q.theme; $('heroState').textContent=q.state;
+  $('heroQuote').textContent='“'+q.quote+'”'; $('heroAuthor').textContent=q.author; $('heroSource').textContent=q.source; $('heroReflection').textContent=q.reflection;
+  const saved=getSaved().includes(index); $('saveBtn').textContent=saved?'★ Lagret':'☆ Lagre';
+  localStorage.setItem('fremover:index',index);
+}
+function getSaved(){ try{return JSON.parse(localStorage.getItem('fremover:saved')||'[]')}catch{return []} }
+function setSaved(v){localStorage.setItem('fremover:saved',JSON.stringify(v))}
+function toggleSave(){let s=getSaved(); s=s.includes(index)?s.filter(x=>x!==index):[...s,index]; setSaved(s);renderHero();renderMini();}
+function renderLearn(){const l=dayIndex(lessons);$('learnTitle').textContent=l.title;$('learnText').textContent=l.text;$('learnSource').textContent=l.source;}
+function renderPrompt(){const key='fremover:journal:'+new Date().toISOString().slice(0,10);$('promptText').textContent=dayIndex(prompts);$('reflectionInput').value=localStorage.getItem(key)||'';$('saveReflectionBtn').onclick=()=>{localStorage.setItem(key,$('reflectionInput').value.trim());$('savedStatus').textContent='Lagret ✓';setTimeout(()=>$('savedStatus').textContent='Lagres bare på denne enheten',1600)}}
+function renderChips(){const themes=['Alle',...new Set(quotes.map(q=>q.theme))];$('chips').innerHTML=themes.map(t=>`<button class="chip ${t===filter?'active':''}" data-theme="${t}">${t}</button>`).join('');document.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{filter=b.dataset.theme;renderChips();renderMini()})}
+function renderMini(mode='all'){
+ let items=quotes.map((q,i)=>({...q,i})); if(filter!=='Alle')items=items.filter(q=>q.theme===filter); if(mode==='saved')items=items.filter(q=>getSaved().includes(q.i));
+ $('miniList').innerHTML=items.slice(0,8).map(q=>`<div class="mini-item"><div class="mini-avatar">${q.initials}</div><div class="mini-main"><strong>${q.author}</strong><small>${q.theme} · ${q.state}</small></div><button data-open="${q.i}" aria-label="Åpne">›</button></div>`).join('') || '<p style="color:var(--muted);font-size:13px">Ingen lagrede tanker ennå.</p>';
+ document.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>{index=Number(b.dataset.open);renderHero();window.scrollTo({top:150,behavior:'smooth'})})
+}
+function showModal(title,html){$('modalContent').innerHTML=`<h2>${title}</h2>${html}`;$('modal').showModal()}
+
+$('nextBtn').onclick=()=>{index=(index+1)%quotes.length;renderHero()};$('saveBtn').onclick=toggleSave;
+$('aboutBtn').onclick=()=>showModal('Om Fremover','<p><strong>Fremover</strong> er ikke ment som en strøm av pene ord. Den skal gjøre tre ting: få deg til å handle, få deg til å tenke og få deg til å lese mer.</p><p>Moderne personer og filmfigurer brukes forsiktig. Når teksten ikke er et dokumentert direkte sitat, står det tydelig at den er en parafrase eller inspirasjon. Det er med vilje.</p><p><strong>Prinsipp:</strong> Ingen guru er fasit. Gode ideer beholdes. Dårlige ideer forkastes.</p>');
+$('closeModal').onclick=()=>$('modal').close();
+
+document.querySelectorAll('.nav-item').forEach(btn=>btn.onclick=()=>{
+ document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));btn.classList.add('active');const v=btn.dataset.view;
+ if(v==='today'){filter='Alle';renderChips();renderMini();window.scrollTo({top:0,behavior:'smooth'})}
+ if(v==='wisdom'){filter='Alle';renderChips();renderMini();document.querySelector('.explore-section').scrollIntoView({behavior:'smooth'})}
+ if(v==='saved'){filter='Alle';renderChips();renderMini('saved');document.querySelector('.explore-section').scrollIntoView({behavior:'smooth'})}
+ if(v==='journal'){const entries=Object.keys(localStorage).filter(k=>k.startsWith('fremover:journal:')).sort().reverse().map(k=>({date:k.split(':').pop(),text:localStorage.getItem(k)}));showModal('Journal', entries.length?'<div class="quote-list">'+entries.map(e=>`<div class="quote-row">${e.text||'<em>Tom refleksjon</em>'}<strong>${e.date}</strong></div>`).join('')+'</div>':'<p>Du har ikke skrevet noe ennå. Det er også informasjon.</p>')}
+});
+
+const hour=new Date().getHours();$('greeting').textContent=hour<11?'God morgen':hour<17?'God dag':'God kveld';
+renderHero();renderLearn();renderPrompt();renderChips();renderMini();
+
+</script>
+</body>
+</html>
