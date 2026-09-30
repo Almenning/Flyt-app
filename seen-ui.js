@@ -70,12 +70,12 @@ function blurSheetInput(){const layer=sheetLayer(),active=document.activeElement
 function bindSeenSheetDrag(){const layer=sheetLayer(),panel=layer?.querySelector('.seenSheet'),handle=panel?.querySelector('.seenSheetHandle');if(panel&&handle)window.FlytSheetDragDismiss?.bind(panel,{handle,layer,onDismiss:closeSheet})}
 function render({resetScroll=false}={}){
   const s=state(),content=$('#content');if(!s||!content||s.view!=='seen')return;
-  const previousSheet=content.querySelector('.seenSheet');if(previousSheet)window.FlytSheetDragDismiss?.unbind(previousSheet);
+  const previousSheet=content.querySelector?.('.seenSheet')||document.querySelector?.('.seenSheet');if(previousSheet)window.FlytSheetDragDismiss?.unbind(previousSheet);
   ensureStyles();bindSheetViewport();painting=true;const scroll=resetScroll?0:content.scrollTop;content.dataset.flytOwner='seen-actions';content.style.overflow=sheet?'hidden':'';content.innerHTML=page==='history'?renderHistory(s):renderMain(s);document.querySelectorAll('#nav button').forEach(button=>button.classList.toggle('on',button.dataset.view==='seen'));painting=false;content.scrollTop=resetScroll?0:Math.min(scroll,Math.max(0,content.scrollHeight-content.clientHeight));syncSheetViewport();window.FlytModalScrollLock?.sync?.();bindSeenSheetDrag();if(page==='main')window.FlytEdgeSwipeBack?.unbind(content);else window.FlytEdgeSwipeBack?.bind(content,{canGoBack:()=>page!=='main',onBack:openMain})
 }
 function openMain(){blurSheetInput();page='main';sheet=null;render({resetScroll:true})}
 function openSheet(kind,data={}){sheet={...data,kind};render({resetScroll:false})}
-function closeSheet(){const panel=sheetLayer()?.querySelector('.seenSheet');if(panel)window.FlytSheetDragDismiss?.unbind(panel);blurSheetInput();sheet=null;render({resetScroll:false})}
+function closeSheet(){blurSheetInput();sheet=null;render({resetScroll:false})}
 function sendMessage(type,text){const s=state(),to=s&&partnerName(s),value=String(text||'').trim();if(!s||!value)return false;const next=core()?.addRecognition?.(s,{type,text:value,user:s.user,to});if(!next||next===s)return false;blurSheetInput();sheet=null;save({...next,view:'seen'});render({resetScroll:false});toast(type==='recognition'||type==='personal'?'Anerkjennelse sendt ❤️':`Sendt til ${to} ❤️`);return true}
 function pendingRecognitions(s){return core()?.pendingRecognitionEvents?.(s,s?.user)||[]}
 function closeRecognitionAlert({pause=false}={}){document.querySelector('#seenRecognitionAlert')?.remove();recognitionAlertOpen=false;if(pause)recognitionAlertPaused=true}
