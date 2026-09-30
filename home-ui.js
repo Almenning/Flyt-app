@@ -2,7 +2,7 @@
 'use strict';
 const $=s=>document.querySelector(s);
 const bridge=()=>window.FlytBridge;
-const VERSION='20260930-status-sync1';
+const VERSION='20260930-home-sheet-drag1';
 let partnerCtx=null,loadingPartner=false,statusEditorOpen=false,statusDraft=null,statusSaving=false,statusError='';
 const LABEL={low:'Lav',med:'Middels',high:'Høy'};
 const NEED_LABEL={relief:'Avlastning',closeness:'Nærhet',initiative:'Initiativ',alone:'Alenetid',quiet:'Ro'};
@@ -152,10 +152,13 @@ async function saveHomeStatus(){
   }catch(error){console.warn('Flyt dagsform kunne ikke lagres',error);statusError='Kunne ikke lagre dagsformen akkurat nå. Prøv igjen.'}
   finally{statusSaving=false;render({resetScroll:false})}
 }
+function closeStatusEditor(){const panel=document.querySelector('.homeStatusSheet');if(panel)window.FlytSheetDragDismiss?.unbind(panel);statusEditorOpen=false;statusDraft=null;statusError='';render({resetScroll:false})}
+function bindHomeSheetDrag(){const layer=document.querySelector('.homeStatusSheetLayer'),panel=layer?.querySelector('.homeStatusSheet'),handle=panel?.querySelector('.homeStatusSheetHandle');if(panel&&handle)window.FlytSheetDragDismiss?.bind(panel,{handle,layer,canDismiss:()=>!statusSaving,onDismiss:closeStatusEditor})}
 function settleScroll(c,pos,forceTop){const target=forceTop?0:Math.max(0,pos||0);c.style.overflowAnchor='none';const apply=()=>{c.scrollTop=target};apply();requestAnimationFrame(()=>{apply();requestAnimationFrame(apply)});setTimeout(()=>{apply();c.style.overflowAnchor=''},90)}
 function render({resetScroll=false}={}){
   const s=bridge()?.getState?.(),c=$('#content');
   if(!s||!c||s.view!=='home')return;
+  const oldSheet=c.querySelector('.homeStatusSheet');if(oldSheet)window.FlytSheetDragDismiss?.unbind(oldSheet);
   const pos=resetScroll?0:c.scrollTop,name=currentName(s),plan=dayPlanProgress(s);
   ensureStyles();
   ensureGoalCompactStyles();
@@ -164,6 +167,7 @@ function render({resetScroll=false}={}){
   c.innerHTML=`<header class="homeHeader"><div class="ey">Hjem</div><h1 class="title">${greeting()}, ${esc(name)}</h1></header>${dailyGoalMarkup(plan)}${dailyStatusMarkup(s)}${homeChallengeMarkup(s)}<div id="homeNudgeMount" ${first?'data-first-win-active="1"':''} aria-live="polite">${first}</div>${statusSheetMarkup(s)}`;
   document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.view==='home'));
   settleScroll(c,pos,resetScroll);
+  bindHomeSheetDrag();
   if(!partnerCtx&&!loadingPartner)loadPartner();
   queueMicrotask(()=>window.FlytNudgeUI?.augment?.());
 }
@@ -187,7 +191,7 @@ document.addEventListener('click',e=>{
   const edit=e.target.closest('[data-home-status-edit]');
   if(edit){e.preventDefault();e.stopImmediatePropagation();statusEditorOpen=true;startStatusDraft(bridge().getState());render({resetScroll:false});return}
   const cancel=e.target.closest('[data-home-status-cancel]');
-  if(cancel){e.preventDefault();e.stopImmediatePropagation();statusEditorOpen=false;statusDraft=null;statusError='';render({resetScroll:false});return}
+  if(cancel){e.preventDefault();e.stopImmediatePropagation();closeStatusEditor();return}
   const level=e.target.closest('[data-home-status-level]');
   if(level){e.preventDefault();e.stopImmediatePropagation();if(!statusDraft)startStatusDraft(bridge().getState());const info=levelInfo(level.dataset.homeStatusLevel);statusDraft.level=info?.key||'';statusDraft.capacity=info?.capacity||'';statusError='';render({resetScroll:false});return}
   const need=e.target.closest('[data-home-status-need]');
