@@ -2,7 +2,7 @@
 'use strict';
 const $=s=>document.querySelector(s);
 const bridge=()=>window.FlytBridge;
-const VERSION='20260925-home-polish1';
+const VERSION='20260930-status-sync1';
 let partnerCtx=null,loadingPartner=false,statusEditorOpen=false,statusDraft=null,statusSaving=false,statusError='';
 const LABEL={low:'Lav',med:'Middels',high:'Høy'};
 const NEED_LABEL={relief:'Avlastning',closeness:'Nærhet',initiative:'Initiativ',alone:'Alenetid',quiet:'Ro'};
@@ -29,7 +29,7 @@ function partnerName(s){const fromRpc=partnerCtx?.partner?.display_name;if(fromR
 function age(ts){if(!ts)return 'Ikke oppdatert ennå';const m=Math.max(0,Math.round((Date.now()-new Date(ts).getTime())/60000));if(m<2)return 'Oppdatert nå';if(m<60)return `Oppdatert for ${m} min siden`;const h=Math.round(m/60);if(h<24)return `Oppdatert for ${h} t siden`;return `Oppdatert for ${Math.round(h/24)} d siden`}
 function dailyApi(){return window.FlytDailyStatus}
 function localStatus(s){return s?.status?.[currentName(s)]||null}
-function myStatus(s){return partnerCtx?.me?.status||localStatus(s)}
+function myStatus(s){const local=localStatus(s),remote=partnerCtx?.me?.status||null;if(!remote)return local;if(!local)return remote;const localAt=new Date(dailyApi()?.updatedAt?.(local,'daily')||local.updated_at||0).getTime(),remoteAt=new Date(dailyApi()?.updatedAt?.(remote,'daily')||remote.updated_at||0).getTime();return (Number.isFinite(localAt)?localAt:0)>=(Number.isFinite(remoteAt)?remoteAt:0)?local:remote}
 function partnerDailyStatus(s){const remote=partnerCtx?.partner?.status||null,shared=s?.status?.[partnerName(s)]||null,sharedFresh=freshDaily(shared);if(!remote)return shared;return sharedFresh&&sharedFresh.capacity===remote.capacity?{...sharedFresh,...remote,capacity_level:sharedFresh.capacity_level||remote.capacity_level}:{...remote}}
 function freshDaily(status){return dailyApi()?.current?.(status,{kind:'daily'})||null}
 function previousDaily(status){const stamp=dailyStamp(status);if(!status||!stamp||freshDaily(status))return null;const then=new Date(stamp),now=new Date(),todayStart=new Date(now.getFullYear(),now.getMonth(),now.getDate()),previousStart=new Date(todayStart);previousStart.setDate(previousStart.getDate()-1);return then>=previousStart&&then<todayStart?status:null}
