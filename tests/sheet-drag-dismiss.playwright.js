@@ -5,15 +5,15 @@ const {chromium}=require('playwright');
 
 const root=path.resolve(__dirname,'..');
 
-async function touchDrag(page,selector,dy){
-  await page.locator(selector).evaluate((handle,delta)=>{
-    const r=handle.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2,id=41;
+async function touchDrag(page,selector,dy,xRatio=0.5){
+  await page.locator(selector).evaluate((handle,{delta,xRatio})=>{
+    const r=handle.getBoundingClientRect(),x=r.left+r.width*xRatio,y=r.top+r.height/2,id=41;
     const makeTouch=clientY=>new Touch({identifier:id,target:handle,clientX:x,clientY,pageX:x,pageY:clientY,screenX:x,screenY:clientY,radiusX:2,radiusY:2,rotationAngle:0,force:1});
     const start=makeTouch(y),move=makeTouch(y+delta);
     handle.dispatchEvent(new TouchEvent('touchstart',{bubbles:true,cancelable:true,touches:[start],targetTouches:[start],changedTouches:[start]}));
     handle.dispatchEvent(new TouchEvent('touchmove',{bubbles:true,cancelable:true,touches:[move],targetTouches:[move],changedTouches:[move]}));
     handle.dispatchEvent(new TouchEvent('touchend',{bubbles:true,cancelable:true,touches:[],targetTouches:[],changedTouches:[move]}));
-  },dy);
+  },{delta:dy,xRatio});
 }
 
 async function basePage(browser){
@@ -38,11 +38,13 @@ async function basePage(browser){
         window.__dismissed=0;
         FlytSheetUI.bind(layer.querySelector('#testSheet'),{layer,onDismiss:()=>{window.__dismissed++;layer.remove()}});
       });
-      await touchDrag(page,'#testHandle',34);
+      const grip=await page.locator('#testHandle').evaluate(el=>({handle:el.getBoundingClientRect().width,sheet:el.parentElement.getBoundingClientRect().width}));
+      assert.ok(grip.handle>=grip.sheet*.95,'grip zone must span almost the full sheet width');
+      await touchDrag(page,'#testHandle',14,0.12);
       await page.waitForTimeout(230);
       assert.equal(await page.evaluate(()=>window.__dismissed),0,'short drag must snap back');
       assert.equal(await page.locator('#testSheet').count(),1);
-      await touchDrag(page,'#testHandle',110);
+      await touchDrag(page,'#testHandle',55,0.12);
       await page.waitForFunction(()=>window.__dismissed===1);
       assert.equal(await page.locator('#testLayer').count(),0,'long drag must dismiss');
       await context.close();
@@ -70,10 +72,10 @@ async function basePage(browser){
       assert.equal(await page.locator('.seenSheetHandle').evaluate(el=>el.classList.contains('flytSheetHandle')),true);
       assert.equal(await page.locator('.seenSheetBody').evaluate(el=>el.classList.contains('flytSheetScroll')),true);
       settGeometry=await sheet.evaluate(el=>{const s=getComputedStyle(el);return{width:s.width,borderRadius:s.borderTopLeftRadius}});
-      await touchDrag(page,'.seenSheetHandle',32);
+      await touchDrag(page,'.seenSheetHandle',14,0.15);
       await page.waitForTimeout(230);
       assert.equal(await sheet.count(),1,'short Sett drag must stay open');
-      await touchDrag(page,'.seenSheetHandle',105);
+      await touchDrag(page,'.seenSheetHandle',80,0.15);
       await page.waitForFunction(()=>!document.querySelector('.seenSheet'));
       assert.equal(await page.locator('.seenSheet').count(),0,'Sett drag must close the sheet');
       await context.close();
@@ -108,11 +110,11 @@ async function basePage(browser){
       const catalog=page.locator('#fristelseCatalogLayer .fristelseCatalog');
       assert.equal(await catalog.evaluate(el=>el.classList.contains('flytSheet')),true);
       assert.equal(await page.locator('#fristelseCatalogLayer').evaluate(el=>el.classList.contains('flytSheetLayer')),true);
-      await touchDrag(page,'#fristelseCatalogLayer .flytSheetHandle',105);
+      await touchDrag(page,'#fristelseCatalogLayer .flytSheetHandle',80,0.15);
       await page.waitForFunction(()=>!document.querySelector('#fristelseCatalogLayer'));
       assert.equal(await sheet.count(),1,'closing nested picker must keep Fristelse open');
 
-      await touchDrag(page,'.temptationDragHandle',105);
+      await touchDrag(page,'.temptationDragHandle',80,0.15);
       await page.waitForFunction(()=>!document.querySelector('#goalSheetLayer'));
       assert.equal(await page.locator('.temptationShell').count(),0,'Belønning drag must close the sheet');
       await context.close();
