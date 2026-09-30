@@ -4,7 +4,7 @@
   "scripts": {
     "test": "npm run test:node && npm run test:browser",
     "test:node": "node --test tests/*.cjs tests/*.mjs tests/recurrence-day-week.test.js tests/summary-core.test.js",
-    "test:browser": "node tests/summary-ui.playwright.js && node tests/rewards-earned.playwright.js && node tests/seen-flow.playwright.js && node tests/rewards-inline-points.playwright.js && node tests/rewards-edge-swipe.playwright.js && node tests/sheet-drag-dismiss.playwright.js",
+    "test:browser": "node tests/summary-ui.playwright.js && node tests/rewards-earned.playwright.js && node tests/seen-flow.playwright.js && node tests/rewards-inline-points.playwright.js && node tests/rewards-edge-swipe.playwright.js && node tests/sheet-drag-dismiss.playwright.js && node tests/shared-sheet-rest.playwright.js",
     "cap:copy": "node scripts/copy-capacitor-web-assets.mjs",
     "cap:sync": "npm run cap:copy && cap sync ios",
     "cap:open:ios": "cap open ios"
