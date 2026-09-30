@@ -11,7 +11,7 @@
 <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png">
 <script src="./native-platform.js?v=20260926-session-safety1" defer></script>
 <script>
-(()=>{const capacitor=window.Capacitor,isNative=!!(capacitor&&(typeof capacitor.isNativePlatform==='function'?capacitor.isNativePlatform():capacitor.getPlatform?.()!=='web'));if(isNative||!('serviceWorker'in navigator))return;const key='hverdagsoss_sw_reset_v93';try{if(localStorage.getItem(key)==='1')return;localStorage.setItem(key,'1')}catch(e){}navigator.serviceWorker.getRegistrations().then(registrations=>{if(!registrations.length)return;return Promise.all(registrations.map(registration=>registration.unregister())).then(()=>location.reload())}).catch(()=>{})})();
+(()=>{const capacitor=window.Capacitor,isNative=!!(capacitor&&(typeof capacitor.isNativePlatform==='function'?capacitor.isNativePlatform():capacitor.getPlatform?.()!=='web'));if(isNative||!('serviceWorker'in navigator))return;const key='hverdagsoss_sw_reset_v94';try{if(localStorage.getItem(key)==='1')return;localStorage.setItem(key,'1')}catch(e){}navigator.serviceWorker.getRegistrations().then(registrations=>{if(!registrations.length)return;return Promise.all(registrations.map(registration=>registration.unregister())).then(()=>location.reload())}).catch(()=>{})})();
 </script>
 <script src="./vendor/supabase-2.116.0.js?v=20260920-local1" defer></script>
 <script src="./task-language.js?v=20260926-due-soon-eligibility1" defer></script>
@@ -20,23 +20,23 @@
 <script src="./couple-core.js?v=20260902-1700" defer></script>
 <script src="./couple-insights.js?v=20260902-1730" defer></script>
 <script src="./seen-core.js?v=20260922-contributions1" defer></script>
-<script src="./seen-ui.js?v=20260926-seen-premium1" defer></script>
+<script src="./seen-ui.js?v=20260930-seen-sheet-drag1" defer></script>
 <script src="./rewards-goals-core.js?v=20260923-privacy-safe1" defer></script>
-<script src="./rewards-ui.js?v=20260930-rewards-edge-swipe1" defer></script>
+<script src="./rewards-ui.js?v=20260930-rewards-sheet-drag1" defer></script>
 <script src="./sync-merge.js?v=20260926-receipt-sync1" defer></script>
 <script src="./sync-journal.js?v=20260926-session-safety1" defer></script>
 <script src="./sync.js?v=20260926-session-safety1" defer></script>
 <script src="./daily-status.js?v=20260923-granular-consent1" defer></script>
 <script src="./oss.js?v=20260924-rpc-surface1" defer></script>
 <script src="./nav-scroll-top-ui.js?v=20260914-drag2" defer></script>
-<script src="./edge-swipe-back.js?v=20260919-edgeswipe2" defer></script>
-<script src="./app-watchdog.js?v=20260930-status-sync1" defer></script>
+<script src="./edge-swipe-back.js?v=20260930-edgeswipe-sheetdrag1" defer></script>
+<script src="./app-watchdog.js?v=20260930-sheet-drag1" defer></script>
 <script src="./tasks-ui.js?v=20260923-granular-consent1" defer></script>
 <script src="./category-accordion.js?v=20260904-polish1" defer></script>
 <script src="./recurrence-ui.js?v=20260926-due-soon-collapsed1" defer></script>
 <script src="./tasks-view-guard.js?v=20260828-2205" defer></script>
 <script src="./planned-ui.js?v=20260904-accordion1" defer></script>
-<script src="./home-ui.js?v=20260930-status-sync1" defer></script>
+<script src="./home-ui.js?v=20260930-home-sheet-drag1" defer></script>
 <script src="./daily-checkin-popup.js?v=20260930-dailycheckin4" defer></script>
 <script src="./settings-ui.js?v=20260926-seen-premium1" defer></script>
 <script src="./modal-scroll-lock.js?v=20260925-accessibility1" defer></script>
