@@ -5,7 +5,7 @@ const home = readFileSync(new URL('../home-ui.js', import.meta.url), 'utf8');
 const watchdog = readFileSync(new URL('../app-watchdog.js', import.meta.url), 'utf8');
 const dailyCheckin = readFileSync(new URL('../daily-checkin-popup.js', import.meta.url), 'utf8');
 
-assert.match(home, /const VERSION='20260930-status-sync1'/, 'Home must expose the current startup version');
+assert.match(home, /const VERSION='20260930-home-sheet-drag1'/, 'Home must expose the current startup version');
 assert.match(home, /localAt>=remoteAt\?local:remote/, 'Home must prefer the freshest local daily status over stale partner context');
 assert.match(dailyCheckin, /FlytHomeUI\?\.render\?\./, 'Daily check-in must refresh Home immediately after saving');
 assert.match(home, /if\(h<6\)return 'Hei'/, 'Home must not call the hours after midnight morning');
