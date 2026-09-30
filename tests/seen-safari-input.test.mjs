@@ -17,7 +17,7 @@ assert.match(seen,/--seen-viewport-height/,'sheeten må begrenses av faktisk vis
 assert.match(seen,/overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y/,'sheeten må kunne scrolle internt mens bakgrunnen er låst');
 assert.match(seen,/\.seenTextarea:focus,.seenTextarea:focus-visible\{border-color:#dfd0c8;outline:0;box-shadow:0 0 0 2px #d67a5a80\}/,'feltet skal ha én kontrollert focus-ring');
 assert.match(lock,/\.seenSheet\{touch-action:pan-y!important;overscroll-behavior:contain!important;-webkit-overflow-scrolling:touch!important\}/,'felles modal-lås må la Sett-sheeten scrolles');
-assert.match(index,/seen-ui\.js\?v=20260926-seen-premium1/);
+assert.match(index,/seen-ui\.js\?v=20260930-seen-sheet-drag1/);
 assert.match(index,/modal-scroll-lock\.js\?v=20260925-accessibility1/);
 assert.match(index,/app-watchdog\.js\?v=[^"']+/);
 const resetVersion=index.match(/hverdagsoss_sw_reset_v(\d+)/)?.[1];
