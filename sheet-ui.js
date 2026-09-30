@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION='20260930-shared-sheet1';
+const VERSION='20260930-shared-sheet2';
 const bindings=new WeakMap();
 function ensureStyles(){
   if(document.querySelector('#flytSharedSheetStyles'))return;
@@ -10,8 +10,8 @@ function ensureStyles(){
   .flytSheetLayer.flytSheetLayer{position:fixed;inset:0;display:flex;align-items:flex-end;justify-content:center;overflow:hidden;overscroll-behavior:none;background:#2f1e1a8c;backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px)}
   .flytSheet.flytSheet{box-sizing:border-box;width:min(100%,470px);max-height:calc(100dvh - max(8px,env(safe-area-inset-top)));border-radius:28px 28px 0 0;background:linear-gradient(180deg,#fffaf6,#fff5ee);box-shadow:0 -20px 64px #35201a36;color:var(--ink);overflow:hidden}
   .flytSheet.flytSheet.flytSheetDark{background:#3b2824;color:#fff7f2}
-  .flytSheetHandle.flytSheetHandle{position:relative;display:block;flex:0 0 28px;width:72px;height:28px;min-height:28px;margin:0 auto;border:0;border-radius:0;background:transparent;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}
-  .flytSheetHandle.flytSheetHandle::before{content:"";position:absolute;left:50%;top:9px;width:38px;height:5px;transform:translateX(-50%);border-radius:999px;background:#d9bcb0}
+  .flytSheetHandle.flytSheetHandle{position:relative;display:block;flex:0 0 42px;width:100%;height:42px;min-height:42px;margin:0;border:0;border-radius:0;background:transparent;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}
+  .flytSheetHandle.flytSheetHandle::before{content:"";position:absolute;left:50%;top:12px;width:38px;height:5px;transform:translateX(-50%);border-radius:999px;background:#d9bcb0}
   .flytSheetDark .flytSheetHandle::before{background:#9d7d73}
   .flytSheetScroll{min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;touch-action:pan-y;-webkit-overflow-scrolling:touch}
   .flytSheet[data-flyt-sheet-dragging="1"]{will-change:transform;cursor:grabbing}
@@ -80,8 +80,8 @@ function bind(sheet,{layer=null,handle=null,onDismiss=null,canDismiss=null}={}){
     const a=entry.active;if(!a||a.source!==source||a.id!==id)return;
     const rawDy=y-a.startY,dx=x-a.startX;
     if(!a.locked){
-      if(Math.abs(rawDy)<6&&Math.abs(dx)<6)return;
-      if(Math.abs(dx)>Math.abs(rawDy)*1.15){entry.active=null;restoreVisual(sheet,entry,true);return}
+      if(Math.abs(rawDy)<4&&Math.abs(dx)<4)return;
+      if(Math.abs(dx)>Math.abs(rawDy)*1.35){entry.active=null;restoreVisual(sheet,entry,true);return}
       a.locked=true;
       sheet.setAttribute('data-flyt-sheet-dragging','1');
       sheet.style.transition='none';
@@ -99,8 +99,8 @@ function bind(sheet,{layer=null,handle=null,onDismiss=null,canDismiss=null}={}){
     const a=entry.active;if(!a||a.source!==source||a.id!==id)return;
     entry.active=null;
     if(!a.locked){restoreVisual(sheet,entry,false);return}
-    const threshold=Math.min(120,Math.max(64,sheet.getBoundingClientRect().height*.12));
-    if(a.dy>=threshold||(a.dy>=28&&a.velocity>.38))finishDismiss(sheet,entry);
+    const threshold=Math.min(96,Math.max(48,sheet.getBoundingClientRect().height*.085));
+    if(a.dy>=threshold||(a.dy>=20&&a.velocity>.28))finishDismiss(sheet,entry);
     else restoreVisual(sheet,entry,true);
   };
   const cancel=(source,id)=>{
