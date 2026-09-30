@@ -22,6 +22,7 @@ async function setup(page){
     window.FlytSync={queueSave:()=>{}};
   });
   await page.addScriptTag({path:path.join(root,'rewards-goals-core.js')});
+  await page.addScriptTag({path:path.join(root,'sheet-ui.js')});
   await page.addScriptTag({path:path.join(root,'rewards-ui.js')});
   await page.addScriptTag({path:path.join(root,'edge-swipe-back.js')});
   await page.evaluate(()=>window.FlytRewardsUI.render());
