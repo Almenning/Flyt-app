@@ -158,7 +158,7 @@ function settleScroll(c,pos,forceTop){const target=forceTop?0:Math.max(0,pos||0)
 function render({resetScroll=false}={}){
   const s=bridge()?.getState?.(),c=$('#content');
   if(!s||!c||s.view!=='home')return;
-  const oldSheet=c.querySelector('.homeStatusSheet');if(oldSheet)window.FlytSheetDragDismiss?.unbind(oldSheet);
+  const oldSheet=c.querySelector?.('.homeStatusSheet')||document.querySelector?.('.homeStatusSheet');if(oldSheet)window.FlytSheetDragDismiss?.unbind(oldSheet);
   const pos=resetScroll?0:c.scrollTop,name=currentName(s),plan=dayPlanProgress(s);
   ensureStyles();
   ensureGoalCompactStyles();
