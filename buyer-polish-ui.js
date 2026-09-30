@@ -23,7 +23,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .nav button{border-radius:13px;transition:background .16s ease,color .16s ease,transform .12s ease}
 .nav button.on{background:#fff0e8}
 .nav b{line-height:1.05}
-#flytAppMenu{position:fixed;inset:0;z-index:285;background:#3a211b77;display:flex;align-items:flex-end;justify-content:center;touch-action:manipulation}
+#flytAppMenu{z-index:285;touch-action:manipulation}
 #flytAppMenu .flytMenuSheet{width:100%;max-height:86dvh;display:flex;flex-direction:column;overflow:hidden;padding:0 15px max(18px,env(safe-area-inset-bottom));background:#fffaf7;pointer-events:auto}#flytAppMenu .flytMenuBody{min-height:0;padding-top:0}
 #flytAppMenu .flytMenuAction{width:100%;display:flex;align-items:center;gap:12px;text-align:left;margin-top:8px;touch-action:manipulation}
 #flytAppMenu .flytMenuIcon{width:30px;text-align:center;font-size:18px}
@@ -38,7 +38,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
  .card{box-shadow:0 8px 22px #65351d0d}
  #content[data-flyt-owner="home"]>p.sub:first-of-type{min-height:4.35em}
 }
-@media(min-width:601px){#flytMoreBtn{display:none!important}#flytAppMenu{align-items:center}#flytAppMenu .flytMenuSheet{width:390px;border-radius:26px;max-height:760px}}
+@media(min-width:601px){#flytMoreBtn{display:none!important}#flytAppMenu .flytMenuSheet{width:390px;max-height:760px}}
 @media(prefers-reduced-motion:reduce){button:active{transform:none}.nav button{transition:none}}
 `;document.head.appendChild(s)}
 function normalizeOverlays(root=document){const map=[['#flytGlobalModal','300'],['#seenRequestModal','300'],['#flytDialog','300'],['#quickTemptationModal','300'],['#ossNotifyModal','300'],['#betaPanel','300'],['#syncModal','280'],['#statusAlertModal','320'],['#quickAlertModal','330'],['#flytAccountPanel','410'],['#flytConsentGate','520']];for(const [sel,z] of map){if(root.matches?.(sel))root.style.zIndex=z;root.querySelectorAll?.(sel).forEach(el=>el.style.zIndex=z)}document.querySelectorAll('.toast').forEach(el=>el.style.zIndex='350')}
