@@ -24,6 +24,8 @@ async function setup(page){
   await page.addScriptTag({path:path.join(root,'rewards-goals-core.js')});
   await page.addScriptTag({path:path.join(root,'rewards-ui.js')});
   await page.addScriptTag({path:path.join(root,'edge-swipe-back.js')});
+  await page.evaluate(()=>window.FlytRewardsUI.render());
+  await page.locator('[data-goal-create="challenge"]').waitFor();
 }
 async function swipeBack(page,selector){
   await page.locator(selector).evaluate(el=>{
