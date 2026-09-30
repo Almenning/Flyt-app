@@ -3,96 +3,418 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#15120f" />
+  <meta name="theme-color" content="#f4f1eb" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="Fremover" />
-  <meta name="description" content="Visdom, refleksjon og driv for å møte dagen bedre." />
-  <style>:root{
-  --bg:#f1ece3; --paper:#fbf7ef; --ink:#181411; --muted:#756c62; --line:#d8cdbf;
-  --accent:#9a4f36; --accent2:#c98d63; --dark:#15120f; --sage:#7b846e; --gold:#b88b4a;
-}
-*{box-sizing:border-box} html{background:var(--dark)} body{margin:0;font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
-button,textarea{font:inherit}.app-shell{max-width:620px;margin:0 auto;min-height:100vh;padding:calc(18px + env(safe-area-inset-top)) 18px calc(96px + env(safe-area-inset-bottom));background:linear-gradient(180deg,#eee7dc 0%,#f7f2e9 100%)}
-.topbar{display:flex;justify-content:space-between;align-items:center;margin:4px 2px 18px}.eyebrow{font-size:11px;letter-spacing:.24em;font-weight:800;color:var(--accent)}h1{font-family:Georgia,"Times New Roman",serif;font-size:34px;line-height:1;margin:7px 0 0;font-weight:500}.icon-btn{width:38px;height:38px;border:1px solid var(--line);background:#fff8ee;border-radius:50%;font-weight:700;color:var(--muted)}
-.mission-card{background:var(--dark);color:#f8efe5;border-radius:20px;padding:18px 19px;margin-bottom:14px;box-shadow:0 12px 30px #3c2b1b13}.mission-label{font-size:10px;letter-spacing:.22em;color:#d9a27c;font-weight:800}.mission-card p{margin:8px 0 0;font-family:Georgia,serif;font-size:17px;line-height:1.45}
-.hero-card,.prompt-card,.learn-card{background:rgba(255,251,244,.88);border:1px solid #dfd5c8;border-radius:24px;overflow:hidden;box-shadow:0 12px 32px #5f4b3710;margin-bottom:14px}.hero-art{height:168px;display:flex;align-items:flex-end;padding:17px;background:radial-gradient(circle at 72% 28%,#f1c6a5 0,transparent 26%),linear-gradient(135deg,#593627,#ae704e 45%,#1f2a29);position:relative;overflow:hidden}.hero-art:after{content:"";position:absolute;right:-26px;bottom:-45px;width:190px;height:190px;border-radius:48% 52% 50% 50%;background:linear-gradient(145deg,#ded4c8,#8c7566);opacity:.72;box-shadow:-55px -18px 0 -42px #f0e8db}.hero-art span{font-family:Georgia,serif;font-size:52px;color:#fff5e9;letter-spacing:-.06em;z-index:2;text-shadow:0 2px 18px #0005}.hero-content{padding:18px}.meta-row{display:flex;justify-content:space-between;gap:10px;align-items:center}.pill{font-size:11px;font-weight:750;padding:6px 9px;border-radius:999px;background:#ead8c9;color:#713b2a}.source-state{font-size:11px;color:var(--sage);font-weight:700}blockquote{font-family:Georgia,"Times New Roman",serif;font-size:28px;line-height:1.16;margin:18px 0 13px;letter-spacing:-.02em}.author{font-weight:800;font-size:12px;letter-spacing:.13em;text-transform:uppercase}.source{font-size:12px;color:var(--muted);margin-top:5px}.reflection{border-top:1px solid var(--line);margin-top:16px;padding-top:14px;color:#443c34;line-height:1.52;font-size:14px}.hero-actions{display:grid;grid-template-columns:1fr 1.35fr;gap:9px;margin-top:17px}.hero-actions button,.prompt-footer button{border:0;border-radius:14px;padding:13px 14px;font-weight:800}.primary{background:var(--accent);color:white}.secondary{background:#eee5d8;color:#47392e}
-.prompt-card,.learn-card{padding:19px}.section-title{font-family:Georgia,serif;font-size:20px;font-weight:600}.prompt-card>p,.learn-head p{margin:5px 0 14px;color:var(--muted);font-size:13px;line-height:1.45}textarea{width:100%;min-height:112px;resize:vertical;border:1px solid var(--line);border-radius:15px;background:#fffaf2;padding:13px;color:var(--ink);font-size:16px;outline:none}textarea:focus{border-color:#b98264;box-shadow:0 0 0 3px #b9826418}.prompt-footer{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:9px}.prompt-footer span{font-size:10px;color:var(--muted)}.prompt-footer button{padding:10px 12px;background:#2e3228;color:#fff;font-size:12px}
-.learn-head{display:flex;justify-content:space-between;align-items:flex-start}.book-mark{width:38px;height:45px;background:#d4b17a;display:grid;place-items:center;font-family:Georgia,serif;font-size:15px;border-radius:5px 5px 10px 10px;color:#3b2d20}.learn-card h2{font-family:Georgia,serif;font-size:24px;margin:8px 0 8px}.learn-card>p{line-height:1.6;color:#3e372f;font-size:14px}.learn-footer{font-size:11px;color:var(--muted);border-top:1px solid var(--line);padding-top:12px;margin-top:13px}
-.explore-section{padding:9px 1px 16px}.chips{display:flex;gap:8px;overflow:auto;padding:10px 0 14px;scrollbar-width:none}.chips::-webkit-scrollbar{display:none}.chip{white-space:nowrap;border:1px solid var(--line);background:#faf4ea;border-radius:999px;padding:9px 12px;color:#584c42;font-size:12px;font-weight:700}.chip.active{background:var(--dark);color:#fff;border-color:var(--dark)}.mini-list{display:grid;gap:8px}.mini-item{display:grid;grid-template-columns:44px 1fr auto;gap:11px;align-items:center;background:#f9f4eb;border:1px solid #e1d7ca;padding:10px;border-radius:16px}.mini-avatar{width:44px;height:44px;border-radius:13px;background:linear-gradient(145deg,#b66f4b,#362721);display:grid;place-items:center;color:white;font-family:Georgia,serif;font-weight:700}.mini-main strong{display:block;font-family:Georgia,serif;font-size:15px}.mini-main small{color:var(--muted);font-size:11px}.mini-item button{border:0;background:none;font-size:20px;color:var(--muted)}
-.bottom-nav{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(620px,100%);display:grid;grid-template-columns:repeat(4,1fr);background:#171411f5;border-top:1px solid #ffffff13;padding:9px 9px calc(9px + env(safe-area-inset-bottom));backdrop-filter:blur(16px);z-index:20}.nav-item{border:0;background:none;color:#a79c90;display:grid;gap:3px;place-items:center;padding:5px}.nav-item span{font-size:19px}.nav-item small{font-size:10px}.nav-item.active{color:#f0c096}
-dialog{width:min(560px,calc(100% - 24px));border:0;border-radius:24px;padding:0;background:#f9f3e9;color:var(--ink);box-shadow:0 25px 80px #0007}dialog::backdrop{background:#1c1814b8;backdrop-filter:blur(4px)}.modal-inner{padding:24px;position:relative}.modal-close{position:absolute;right:14px;top:14px;width:34px;height:34px;border:0;border-radius:50%;background:#e9dfd2;font-size:23px}.modal-inner h2{font-family:Georgia,serif;font-size:28px;margin:3px 36px 12px 0}.modal-inner p{line-height:1.58;color:#4d443c}.quote-list{display:grid;gap:9px;margin-top:15px}.quote-row{border:1px solid var(--line);border-radius:14px;padding:12px;background:#fffaf2}.quote-row strong{display:block;margin-top:7px;font-size:11px;letter-spacing:.08em;text-transform:uppercase}.quote-row small{color:var(--muted)}
-@media (min-width:700px){body{padding:24px 0}.app-shell{border-radius:28px;min-height:calc(100vh - 48px);box-shadow:0 25px 80px #0002}.bottom-nav{bottom:24px;border-radius:0 0 28px 28px}}
-</style>
+  <meta name="description" content="Visdom, refleksjon og lesing for å møte dagen bedre." />
   <title>Fremover</title>
+  <style>
+    :root{
+      --bg:#f4f1eb;
+      --paper:#fffdf9;
+      --ink:#181715;
+      --muted:#76716a;
+      --line:#e5dfd6;
+      --accent:#8b4a37;
+      --accent-soft:#f2e5df;
+      --soft:#ece8e1;
+      --shadow:0 12px 34px rgba(49,39,29,.07);
+    }
+    *{box-sizing:border-box}
+    html{background:var(--bg)}
+    body{
+      margin:0;
+      min-height:100vh;
+      background:var(--bg);
+      color:var(--ink);
+      font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      -webkit-font-smoothing:antialiased;
+    }
+    button,textarea{font:inherit}
+    button{cursor:pointer}
+    .app-shell{
+      width:min(100%,560px);
+      margin:0 auto;
+      min-height:100vh;
+      padding:calc(22px + env(safe-area-inset-top)) 20px calc(92px + env(safe-area-inset-bottom));
+    }
+    .topbar{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:18px;
+      margin-bottom:34px;
+    }
+    .brand{font-family:Georgia,"Times New Roman",serif;font-size:30px;line-height:1;font-weight:500;letter-spacing:-.025em;margin:0}
+    .tagline{margin:8px 0 0;color:var(--muted);font-size:13px;line-height:1.4}
+    .info-btn{
+      width:36px;height:36px;border:1px solid var(--line);border-radius:50%;
+      background:transparent;color:var(--muted);font-size:16px;
+    }
+    .date-line{
+      margin:0 0 18px;
+      font-size:11px;
+      letter-spacing:.14em;
+      text-transform:uppercase;
+      color:var(--muted);
+      font-weight:700;
+    }
+    .view[hidden]{display:none!important}
+    .quote-card{
+      background:var(--paper);
+      border:1px solid var(--line);
+      border-radius:26px;
+      padding:24px 22px 20px;
+      box-shadow:var(--shadow);
+    }
+    .quote-meta{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      color:var(--muted);
+      font-size:11px;
+      font-weight:700;
+      letter-spacing:.04em;
+    }
+    .theme{
+      display:inline-flex;
+      align-items:center;
+      min-height:28px;
+      padding:0 10px;
+      border-radius:999px;
+      background:var(--accent-soft);
+      color:#73402f;
+    }
+    blockquote{
+      margin:26px 0 22px;
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:31px;
+      line-height:1.17;
+      letter-spacing:-.03em;
+    }
+    .author{font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+    .source{margin-top:6px;color:var(--muted);font-size:12px;line-height:1.45}
+    details{
+      margin-top:19px;
+      padding-top:16px;
+      border-top:1px solid var(--line);
+    }
+    summary{
+      list-style:none;
+      color:#554f48;
+      font-size:13px;
+      font-weight:700;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+    summary::-webkit-details-marker{display:none}
+    summary:after{content:"+";font-size:18px;font-weight:400;color:var(--muted)}
+    details[open] summary:after{content:"−"}
+    details p{margin:12px 0 0;color:#4b4640;font-size:14px;line-height:1.58}
+    .quote-actions{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-top:20px;
+    }
+    .btn{
+      min-height:46px;
+      border:0;
+      border-radius:14px;
+      padding:0 16px;
+      font-weight:750;
+      font-size:13px;
+    }
+    .btn-primary{background:var(--ink);color:#fff}
+    .btn-secondary{background:var(--soft);color:#3f3a35}
+    .section{
+      margin-top:34px;
+    }
+    .section-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:end;
+      gap:16px;
+      margin-bottom:12px;
+    }
+    .section-kicker{
+      font-size:10px;
+      letter-spacing:.16em;
+      text-transform:uppercase;
+      font-weight:800;
+      color:var(--accent);
+      margin-bottom:6px;
+    }
+    .section h2{
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:22px;
+      line-height:1.15;
+      margin:0;
+      font-weight:500;
+      letter-spacing:-.015em;
+    }
+    .time-badge{font-size:11px;color:var(--muted)}
+    .prompt{
+      color:#3d3934;
+      font-size:16px;
+      line-height:1.55;
+      margin:0 0 13px;
+    }
+    textarea{
+      width:100%;
+      min-height:104px;
+      resize:vertical;
+      border:1px solid var(--line);
+      border-radius:17px;
+      background:rgba(255,253,249,.78);
+      color:var(--ink);
+      padding:14px 15px;
+      font-size:16px;
+      line-height:1.45;
+      outline:none;
+    }
+    textarea:focus{border-color:#b58b79;box-shadow:0 0 0 3px rgba(139,74,55,.08)}
+    .prompt-foot{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-top:9px;
+    }
+    .save-status{font-size:10px;color:var(--muted)}
+    .text-btn{
+      border:0;
+      background:transparent;
+      color:var(--accent);
+      font-size:12px;
+      font-weight:800;
+      padding:8px 0;
+    }
+    .learn-card{
+      border-top:1px solid var(--line);
+      padding:18px 0 0;
+    }
+    .learn-title{
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:22px;
+      margin:0 0 9px;
+      font-weight:500;
+      letter-spacing:-.015em;
+    }
+    .learn-copy{margin:0;color:#45403a;font-size:14px;line-height:1.65}
+    .learn-source{margin-top:11px;color:var(--muted);font-size:11px;line-height:1.5}
+    .purpose-line{
+      margin:36px 0 0;
+      padding-top:20px;
+      border-top:1px solid var(--line);
+      color:#8a847c;
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:14px;
+      font-style:italic;
+      line-height:1.5;
+      text-align:center;
+    }
+
+    .library-top,.journal-top{margin-bottom:22px}
+    .view-title{
+      margin:0;
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:30px;
+      font-weight:500;
+      letter-spacing:-.025em;
+    }
+    .view-subtitle{margin:7px 0 0;color:var(--muted);font-size:13px;line-height:1.45}
+    .chips{display:flex;gap:8px;overflow:auto;padding:2px 0 18px;scrollbar-width:none}
+    .chips::-webkit-scrollbar{display:none}
+    .chip{
+      white-space:nowrap;
+      border:1px solid var(--line);
+      background:transparent;
+      color:#57514a;
+      border-radius:999px;
+      padding:8px 11px;
+      font-size:12px;
+      font-weight:700;
+    }
+    .chip.active{background:var(--ink);border-color:var(--ink);color:#fff}
+    .library-list,.journal-list{display:grid;gap:9px}
+    .library-item,.journal-item{
+      width:100%;
+      border:1px solid var(--line);
+      background:rgba(255,253,249,.72);
+      border-radius:18px;
+      padding:15px 16px;
+      text-align:left;
+      color:var(--ink);
+    }
+    .library-item{
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:14px;
+      align-items:center;
+    }
+    .library-item strong{display:block;font-family:Georgia,"Times New Roman",serif;font-size:16px;font-weight:500}
+    .library-item small{display:block;color:var(--muted);font-size:11px;margin-top:5px}
+    .library-item .arrow{color:#aaa39b;font-size:20px}
+    .journal-item p{margin:0;font-size:14px;line-height:1.55;color:#3f3b36}
+    .journal-item time{display:block;margin-top:9px;color:var(--muted);font-size:10px;font-weight:700;letter-spacing:.08em}
+    .empty{
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.6;
+      padding:18px 2px;
+    }
+
+    .bottom-nav{
+      position:fixed;
+      left:50%;
+      bottom:0;
+      transform:translateX(-50%);
+      width:min(560px,100%);
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      background:rgba(244,241,235,.94);
+      border-top:1px solid rgba(214,207,198,.9);
+      padding:9px 14px calc(9px + env(safe-area-inset-bottom));
+      backdrop-filter:blur(18px);
+      -webkit-backdrop-filter:blur(18px);
+      z-index:20;
+    }
+    .nav-item{
+      border:0;
+      background:transparent;
+      color:#9a948d;
+      min-height:42px;
+      font-size:11px;
+      font-weight:750;
+      position:relative;
+    }
+    .nav-item.active{color:var(--ink)}
+    .nav-item.active:after{
+      content:"";
+      position:absolute;
+      left:50%;
+      bottom:1px;
+      width:4px;height:4px;
+      border-radius:50%;
+      transform:translateX(-50%);
+      background:var(--accent);
+    }
+
+    dialog{
+      width:min(520px,calc(100% - 28px));
+      border:0;
+      border-radius:24px;
+      padding:0;
+      background:var(--paper);
+      color:var(--ink);
+      box-shadow:0 30px 90px rgba(0,0,0,.24);
+    }
+    dialog::backdrop{background:rgba(28,24,20,.42);backdrop-filter:blur(5px)}
+    .modal-inner{padding:26px;position:relative}
+    .modal-close{
+      position:absolute;right:14px;top:14px;width:34px;height:34px;border:0;border-radius:50%;
+      background:var(--soft);color:#5f5952;font-size:22px;
+    }
+    .modal-inner h2{font-family:Georgia,"Times New Roman",serif;font-size:28px;font-weight:500;margin:2px 38px 15px 0}
+    .modal-inner p{font-size:14px;line-height:1.65;color:#4b4640}
+    @media (min-width:700px){
+      body{padding:24px 0}
+      .app-shell{min-height:calc(100vh - 48px)}
+      .bottom-nav{bottom:24px;border:1px solid var(--line);border-radius:18px;width:520px}
+    }
+  </style>
 </head>
 <body>
   <main class="app-shell">
     <header class="topbar">
       <div>
-        <div class="eyebrow">FREMOVER</div>
-        <h1 id="greeting">God morgen</h1>
+        <h1 class="brand">Fremover</h1>
+        <p class="tagline">Tenk klarere. Lev bedre.</p>
       </div>
-      <button class="icon-btn" id="aboutBtn" aria-label="Om appen">?</button>
+      <button class="info-btn" id="aboutBtn" aria-label="Om Fremover">i</button>
     </header>
 
-    <section class="mission-card">
-      <span class="mission-label">FORMÅL</span>
-      <p>Stå opp med lyst til å angripe fremtiden. Bli sterkere, klokere, mer belest og mer verdifull for menneskene rundt deg.</p>
-    </section>
+    <section class="view" id="todayView">
+      <p class="date-line" id="dateLine"></p>
 
-    <section class="hero-card" id="heroCard">
-      <div class="hero-art" id="heroArt" aria-hidden="true"><span id="heroInitials">MA</span></div>
-      <div class="hero-content">
-        <div class="meta-row">
-          <span class="pill" id="heroTheme">Karakter</span>
-          <span class="source-state" id="heroState">Kildebelagt</span>
+      <article class="quote-card">
+        <div class="quote-meta">
+          <span class="theme" id="heroTheme">Karakter</span>
+          <span id="heroState">Kildebelagt</span>
         </div>
         <blockquote id="heroQuote"></blockquote>
         <div class="author" id="heroAuthor"></div>
         <div class="source" id="heroSource"></div>
-        <div class="reflection" id="heroReflection"></div>
-        <div class="hero-actions">
-          <button id="saveBtn" class="secondary">☆ Lagre</button>
-          <button id="nextBtn" class="primary">Neste tanke</button>
+
+        <details>
+          <summary>Kort refleksjon</summary>
+          <p id="heroReflection"></p>
+        </details>
+
+        <div class="quote-actions">
+          <button id="saveBtn" class="btn btn-secondary">☆ Lagre</button>
+          <button id="nextBtn" class="btn btn-primary">Neste</button>
         </div>
-      </div>
-    </section>
+      </article>
 
-    <section class="prompt-card">
-      <div class="section-title">Dagens refleksjon</div>
-      <p id="promptText">Hva kan du gjøre i dag som gjør livet litt bedre for familien din om ett år?</p>
-      <textarea id="reflectionInput" maxlength="500" placeholder="Skriv 1–3 setninger. Tenk før du scroller videre."></textarea>
-      <div class="prompt-footer">
-        <span id="savedStatus">Lagres bare på denne enheten</span>
-        <button id="saveReflectionBtn">Lagre refleksjon</button>
-      </div>
-    </section>
-
-    <section class="learn-card">
-      <div class="learn-head">
-        <div>
-          <div class="section-title">Bli litt mer belest</div>
-          <p>Én idé om dagen. Kort nok til å lese, god nok til å huske.</p>
+      <section class="section">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">Reflekter</div>
+            <h2>Ett spørsmål i dag</h2>
+          </div>
         </div>
-        <span class="book-mark">01</span>
-      </div>
-      <h2 id="learnTitle"></h2>
-      <p id="learnText"></p>
-      <div class="learn-footer" id="learnSource"></div>
+        <p class="prompt" id="promptText"></p>
+        <textarea id="reflectionInput" maxlength="500" placeholder="Skriv kort. Det viktige er at du faktisk tenker."></textarea>
+        <div class="prompt-foot">
+          <span class="save-status" id="savedStatus">Lagres på denne enheten</span>
+          <button id="saveReflectionBtn" class="text-btn">Lagre</button>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">Les</div>
+            <h2>Bli litt mer belest</h2>
+          </div>
+          <span class="time-badge">3 min</span>
+        </div>
+        <div class="learn-card">
+          <h3 class="learn-title" id="learnTitle"></h3>
+          <p class="learn-copy" id="learnText"></p>
+          <div class="learn-source" id="learnSource"></div>
+        </div>
+      </section>
+
+      <p class="purpose-line">Stå opp med lyst til å angripe fremtiden, og bli litt klokere på veien.</p>
     </section>
 
-    <section class="explore-section">
-      <div class="section-title">Utforsk etter retning</div>
+    <section class="view" id="libraryView" hidden>
+      <div class="library-top">
+        <h2 class="view-title">Bibliotek</h2>
+        <p class="view-subtitle">Tanker om karakter, ansvar, familie, læring og motstand.</p>
+      </div>
       <div class="chips" id="chips"></div>
-      <div class="mini-list" id="miniList"></div>
+      <div class="library-list" id="libraryList"></div>
+    </section>
+
+    <section class="view" id="journalView" hidden>
+      <div class="journal-top">
+        <h2 class="view-title">Journal</h2>
+        <p class="view-subtitle">Det du har tenkt selv er mer verdifullt enn hundre sitater du bare scrollet forbi.</p>
+      </div>
+      <div class="journal-list" id="journalList"></div>
     </section>
 
     <nav class="bottom-nav" aria-label="Hovednavigasjon">
-      <button class="nav-item active" data-view="today"><span>◉</span><small>I dag</small></button>
-      <button class="nav-item" data-view="wisdom"><span>⌁</span><small>Visdom</small></button>
-      <button class="nav-item" data-view="saved"><span>☆</span><small>Lagret</small></button>
-      <button class="nav-item" data-view="journal"><span>✎</span><small>Journal</small></button>
+      <button class="nav-item active" data-view="today">I dag</button>
+      <button class="nav-item" data-view="library">Bibliotek</button>
+      <button class="nav-item" data-view="journal">Journal</button>
     </nav>
   </main>
 
@@ -103,81 +425,183 @@ dialog{width:min(560px,calc(100% - 24px));border:0;border-radius:24px;padding:0;
     </div>
   </dialog>
 
-  <script>const quotes = [
-  {author:'Marcus Aurelius', initials:'MA', theme:'Karakter', state:'Primærkilde', quote:'Menneskets liv får sin farge av tankene det stadig vender tilbake til.', source:'Meditations, bok V · norsk meningsoversettelse', reflection:'Poenget er ikke positiv tenkning. Det er mental hygiene: det du øver oppmerksomheten på, former hvordan du handler.'},
-  {author:'Marcus Aurelius', initials:'MA', theme:'Ansvar', state:'Primærkilde', quote:'Slutt å diskutere hvordan et godt menneske skal være. Vær et.', source:'Meditations, bok X · norsk meningsoversettelse', reflection:'Karakter blir først virkelig når den flyttes fra mening til handling. Én konkret handling i dag teller mer enn ti riktige meninger.'},
-  {author:'Aristoteles', initials:'AR', theme:'Karakter', state:'Faglig parafrase', quote:'Vi blir rettferdige ved å gjøre rettferdige handlinger, modige ved å gjøre modige handlinger.', source:'Den nikomakiske etikk, bok II · parafrase', reflection:'Dyd er ikke en identitet du erklærer. Den er en vane du trener.'},
-  {author:'Epiktet', initials:'EP', theme:'Selvkontroll', state:'Primærkilde', quote:'Noe er opp til oss. Annet er ikke opp til oss.', source:'Enchiridion, §1 · norsk meningsoversettelse', reflection:'Skill mellom påvirkning og støy. Bruk kreftene på dømmekraft, valg og handling.'},
-  {author:'Seneca', initials:'SE', theme:'Tid', state:'Primærkilde', quote:'Det er ikke slik at vi har lite tid. Vi sløser bort mye av den.', source:'Om livets korthet · norsk meningsoversettelse', reflection:'Tidsmangel er ofte et prioriteringsproblem forklart med et penere ord.'},
-  {author:'Henrik Ibsen', initials:'HI', theme:'Selvstendighet', state:'Klassisk verk', quote:'Den sterkeste mann i verden, det er han som står mest alene.', source:'En folkefiende (1882)', reflection:'Ikke en oppfordring til isolasjon, men en påminnelse om at integritet noen ganger krever at du tåler å stå uten flertallet.'},
-  {author:'William Shakespeare', initials:'WS', theme:'Karakter', state:'Klassisk verk', quote:'This above all: to thine own self be true.', source:'Hamlet, akt I, scene 3', reflection:'Setningen er berømt, men konteksten er ironisk komplisert. Bruk den som spørsmål: Er du tro mot prinsippene dine også når det koster?'},
-  {author:'Theodore Roosevelt', initials:'TR', theme:'Mot', state:'Dokumentert tale', quote:'Det er den som faktisk går inn i arenaen og forsøker, som fortjener æren.', source:'Citizenship in a Republic, Sorbonne, 23. april 1910 · parafrase', reflection:'Kritikk fra sidelinjen er billig. Verdiskaping krever risiko, feil og ny innsats.'},
-  {author:'John F. Kennedy', initials:'JFK', theme:'Samfunn', state:'Dokumentert tale', quote:'Spør ikke bare hva fellesskapet kan gjøre for deg. Spør hva du kan bidra med.', source:'Inaugural Address, 20. januar 1961 · parafrase', reflection:'Et godt samfunn er ikke bare en tjeneste du mottar. Det er også noe du er med på å bygge.'},
-  {author:'Jordan Peterson', initials:'JP', theme:'Ansvar', state:'Inspirert parafrase', quote:'Begynn med det du faktisk kan sette i orden, før du krever at verden skal ordne seg.', source:'Inspirert av Petersons arbeid om ansvar · ikke direkte sitat', reflection:'Budskapet er nyttig når det brukes uten heltedyrkelse: egen handlekraft først, store forklaringer etterpå.'},
-  {author:'Greg Plitt', initials:'GP', theme:'Trening', state:'Inspirert parafrase', quote:'Det du gjør når ingen ser, bygger den personen andre senere møter.', source:'Inspirert av Greg Plitts treningsfilosofi · ikke direkte sitat', reflection:'Trening er interessant nettopp fordi den avslører forholdet ditt til ubehag, rutine og langsiktig innsats.'},
-  {author:'Rocky Balboa / Sylvester Stallone', initials:'RB', theme:'Motstand', state:'Inspirert parafrase', quote:'Fremgang er ikke å unngå slag. Det er å fortsette fremover etter at livet har truffet.', source:'Inspirert av Rocky Balboa · ikke direkte filmsitat', reflection:'Motstand er ikke automatisk meningsfull. Men hvordan du responderer på den kan være det.'},
-  {author:'Søren Kierkegaard', initials:'SK', theme:'Refleksjon', state:'Klassisk verk', quote:'Livet forstås baklengs, men må leves forlengs.', source:'Dagbokformulering, vanlig norsk gjengivelse', reflection:'Refleksjon er nyttig fordi du kan lære av fortiden. Den blir skadelig når den erstatter handling i nåtiden.'},
-  {author:'Viktor Frankl', initials:'VF', theme:'Mening', state:'Moderne verk', quote:'Mening finnes ikke bare i det behagelige. Den kan også finnes i ansvar, arbeid og måten lidelse bæres på.', source:'Parafrase av sentrale ideer i Man’s Search for Meaning', reflection:'Ikke romantiser lidelse. Men når den ikke kan unngås, gjenstår fortsatt spørsmålet om hvordan du møter den.'}
+  <script>
+const quotes = [
+  {author:'Marcus Aurelius', theme:'Karakter', state:'Primærkilde', quote:'Menneskets liv får sin farge av tankene det stadig vender tilbake til.', source:'Meditations, bok V · norsk meningsoversettelse', reflection:'Poenget er ikke positiv tenkning. Det er mental hygiene: det du øver oppmerksomheten på, former hvordan du handler.'},
+  {author:'Marcus Aurelius', theme:'Ansvar', state:'Primærkilde', quote:'Slutt å diskutere hvordan et godt menneske skal være. Vær et.', source:'Meditations, bok X · norsk meningsoversettelse', reflection:'Karakter blir først virkelig når den flyttes fra mening til handling. Én konkret handling i dag teller mer enn ti riktige meninger.'},
+  {author:'Aristoteles', theme:'Karakter', state:'Faglig parafrase', quote:'Vi blir rettferdige ved å gjøre rettferdige handlinger, modige ved å gjøre modige handlinger.', source:'Den nikomakiske etikk, bok II · parafrase', reflection:'Dyd er ikke en identitet du erklærer. Den er en vane du trener.'},
+  {author:'Epiktet', theme:'Selvkontroll', state:'Primærkilde', quote:'Noe er opp til oss. Annet er ikke opp til oss.', source:'Enchiridion, §1 · norsk meningsoversettelse', reflection:'Skill mellom påvirkning og støy. Bruk kreftene på dømmekraft, valg og handling.'},
+  {author:'Seneca', theme:'Tid', state:'Primærkilde', quote:'Det er ikke slik at vi har lite tid. Vi sløser bort mye av den.', source:'Om livets korthet · norsk meningsoversettelse', reflection:'Tidsmangel er ofte et prioriteringsproblem forklart med et penere ord.'},
+  {author:'Henrik Ibsen', theme:'Selvstendighet', state:'Klassisk verk', quote:'Den sterkeste mann i verden, det er han som står mest alene.', source:'En folkefiende (1882)', reflection:'Ikke en oppfordring til isolasjon, men en påminnelse om at integritet noen ganger krever at du tåler å stå uten flertallet.'},
+  {author:'William Shakespeare', theme:'Karakter', state:'Klassisk verk', quote:'This above all: to thine own self be true.', source:'Hamlet, akt I, scene 3', reflection:'Setningen er berømt, men konteksten er ironisk komplisert. Bruk den som spørsmål: Er du tro mot prinsippene dine også når det koster?'},
+  {author:'Theodore Roosevelt', theme:'Mot', state:'Dokumentert tale', quote:'Det er den som faktisk går inn i arenaen og forsøker, som fortjener æren.', source:'Citizenship in a Republic, Sorbonne, 23. april 1910 · parafrase', reflection:'Kritikk fra sidelinjen er billig. Verdiskaping krever risiko, feil og ny innsats.'},
+  {author:'John F. Kennedy', theme:'Samfunn', state:'Dokumentert tale', quote:'Spør ikke bare hva fellesskapet kan gjøre for deg. Spør hva du kan bidra med.', source:'Inaugural Address, 20. januar 1961 · parafrase', reflection:'Et godt samfunn er ikke bare en tjeneste du mottar. Det er også noe du er med på å bygge.'},
+  {author:'Jordan Peterson', theme:'Ansvar', state:'Inspirert parafrase', quote:'Begynn med det du faktisk kan sette i orden, før du krever at verden skal ordne seg.', source:'Inspirert av Petersons arbeid om ansvar · ikke direkte sitat', reflection:'Budskapet er nyttig når det brukes uten heltedyrkelse: egen handlekraft først, store forklaringer etterpå.'},
+  {author:'Greg Plitt', theme:'Trening', state:'Inspirert parafrase', quote:'Det du gjør når ingen ser, bygger den personen andre senere møter.', source:'Inspirert av Greg Plitts treningsfilosofi · ikke direkte sitat', reflection:'Trening er interessant nettopp fordi den avslører forholdet ditt til ubehag, rutine og langsiktig innsats.'},
+  {author:'Rocky Balboa / Sylvester Stallone', theme:'Motstand', state:'Inspirert parafrase', quote:'Fremgang er ikke å unngå slag. Det er å fortsette fremover etter at livet har truffet.', source:'Inspirert av Rocky Balboa · ikke direkte filmsitat', reflection:'Motstand er ikke automatisk meningsfull. Men hvordan du responderer på den kan være det.'},
+  {author:'Søren Kierkegaard', theme:'Refleksjon', state:'Klassisk verk', quote:'Livet forstås baklengs, men må leves forlengs.', source:'Dagbokformulering, vanlig norsk gjengivelse', reflection:'Refleksjon er nyttig fordi du kan lære av fortiden. Den blir skadelig når den erstatter handling i nåtiden.'},
+  {author:'Viktor Frankl', theme:'Mening', state:'Moderne verk', quote:'Mening finnes ikke bare i det behagelige. Den kan også finnes i ansvar, arbeid og måten lidelse bæres på.', source:'Parafrase av sentrale ideer i Man’s Search for Meaning', reflection:'Ikke romantiser lidelse. Men når den ikke kan unngås, gjenstår fortsatt spørsmålet om hvordan du møter den.'}
 ];
 
 const lessons = [
- {title:'Aristoteles: karakter er trening', text:'Aristoteles beskriver dyder som disposisjoner som formes gjennom gjentatt handling. Du blir ikke modig av å like ideen om mot. Du trener mot ved å handle riktig når du faktisk er redd.', source:'Les videre: Den nikomakiske etikk, særlig bok II.'},
- {title:'Stoisk kontroll: to bunker', text:'Epiktet starter med et brutalt nyttig skille: noe avhenger av deg, annet gjør det ikke. En praktisk øvelse er å dele dagens bekymringer i de to bunkene og slutte å forhandle med den andre.', source:'Les videre: Epiktet, Enchiridion §1.'},
- {title:'Ibsen og den ubehagelige minoriteten', text:'I En folkefiende setter Ibsen sannhet, sosialt press, makt og selvbedrag mot hverandre. Stykket er bedre enn slagordene det har gitt oss, nettopp fordi ingen av figurene får være helt komfortable.', source:'Les videre: Henrik Ibsen, En folkefiende (1882).'},
- {title:'Roosevelt: borgerskap som plikt', text:'I Sorbonne-talen fra 1910 kobler Roosevelt personlig karakter til samfunnsborgerskap. Poenget er ikke partipolitisk: et demokrati er avhengig av at vanlige mennesker faktisk gjør pliktene sine godt.', source:'Les videre: Theodore Roosevelt, Citizenship in a Republic.'},
- {title:'Shakespeare: les mer enn sitatet', text:'Hamlet er et godt eksempel på hvorfor sitatapper kan gjøre deg dummere. Linjer løsrevet fra dramaet mister ironi, karakter og konflikt. Målet her er derfor å bruke sitatet som inngang til verket, ikke erstatning for det.', source:'Les videre: Shakespeare, Hamlet, akt I.'}
+  {title:'Aristoteles: karakter er trening', text:'Aristoteles beskriver dyder som disposisjoner som formes gjennom gjentatt handling. Du blir ikke modig av å like ideen om mot. Du trener mot ved å handle riktig når du faktisk er redd.', source:'Les videre: Den nikomakiske etikk, særlig bok II.'},
+  {title:'Stoisk kontroll: to bunker', text:'Epiktet starter med et brutalt nyttig skille: noe avhenger av deg, annet gjør det ikke. En praktisk øvelse er å dele dagens bekymringer i de to bunkene og slutte å forhandle med den andre.', source:'Les videre: Epiktet, Enchiridion §1.'},
+  {title:'Ibsen og den ubehagelige minoriteten', text:'I En folkefiende setter Ibsen sannhet, sosialt press, makt og selvbedrag mot hverandre. Stykket er bedre enn slagordene det har gitt oss, nettopp fordi ingen av figurene får være helt komfortable.', source:'Les videre: Henrik Ibsen, En folkefiende (1882).'},
+  {title:'Roosevelt: borgerskap som plikt', text:'I Sorbonne-talen fra 1910 kobler Roosevelt personlig karakter til samfunnsborgerskap. Poenget er ikke partipolitisk: et demokrati er avhengig av at vanlige mennesker faktisk gjør pliktene sine godt.', source:'Les videre: Theodore Roosevelt, Citizenship in a Republic.'},
+  {title:'Shakespeare: les mer enn sitatet', text:'Hamlet er et godt eksempel på hvorfor sitatapper kan gjøre deg dummere. Linjer løsrevet fra dramaet mister ironi, karakter og konflikt. Målet her er derfor å bruke sitatet som inngang til verket, ikke erstatning for det.', source:'Les videre: Shakespeare, Hamlet, akt I.'}
 ];
 
 const prompts = [
- 'Hva kan du gjøre i dag som gjør livet litt bedre for familien din om ett år?',
- 'Hvilken plikt har du utsatt fordi ingen tvinger deg til å gjøre den?',
- 'Hva mener du i dag som du ærlig talt ikke har undersøkt godt nok?',
- 'Hva kan du lære på 20 minutter i dag som gjør deg litt vanskeligere å lure?',
- 'Hva trenger barna dine mest fra deg denne uken: tid, ro, grenser, lek eller oppmerksomhet?',
- 'Hva ville en bedre ektefelle gjort i kveld, helt konkret?',
- 'Hvilket ubehag unngår du som sannsynligvis ville gjort deg sterkere?'
+  'Hva kan du gjøre i dag som gjør livet litt bedre for familien din om ett år?',
+  'Hvilken plikt har du utsatt fordi ingen tvinger deg til å gjøre den?',
+  'Hva mener du i dag som du ærlig talt ikke har undersøkt godt nok?',
+  'Hva kan du lære på 20 minutter i dag som gjør deg litt vanskeligere å lure?',
+  'Hva trenger barna dine mest fra deg denne uken: tid, ro, grenser, lek eller oppmerksomhet?',
+  'Hva ville en bedre ektefelle gjort i kveld, helt konkret?',
+  'Hvilket ubehag unngår du som sannsynligvis ville gjort deg sterkere?'
 ];
 
 let index = Number(localStorage.getItem('fremover:index') || 0) % quotes.length;
 let filter = 'Alle';
-const $ = (id)=>document.getElementById(id);
+const $ = id => document.getElementById(id);
 
-function dayIndex(arr){ const d=new Date(); const key=Math.floor(new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime()/86400000); return arr[key%arr.length]; }
+function dayIndex(arr){
+  const d = new Date();
+  const key = Math.floor(new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime()/86400000);
+  return arr[key % arr.length];
+}
+function getSaved(){
+  try{return JSON.parse(localStorage.getItem('fremover:saved') || '[]')}catch{return []}
+}
+function setSaved(value){
+  localStorage.setItem('fremover:saved',JSON.stringify(value));
+}
 function renderHero(){
-  const q=quotes[index];
-  $('heroInitials').textContent=q.initials; $('heroTheme').textContent=q.theme; $('heroState').textContent=q.state;
-  $('heroQuote').textContent='“'+q.quote+'”'; $('heroAuthor').textContent=q.author; $('heroSource').textContent=q.source; $('heroReflection').textContent=q.reflection;
-  const saved=getSaved().includes(index); $('saveBtn').textContent=saved?'★ Lagret':'☆ Lagre';
+  const q = quotes[index];
+  $('heroTheme').textContent = q.theme;
+  $('heroState').textContent = q.state;
+  $('heroQuote').textContent = '“' + q.quote + '”';
+  $('heroAuthor').textContent = q.author;
+  $('heroSource').textContent = q.source;
+  $('heroReflection').textContent = q.reflection;
+  $('saveBtn').textContent = getSaved().includes(index) ? '★ Lagret' : '☆ Lagre';
   localStorage.setItem('fremover:index',index);
 }
-function getSaved(){ try{return JSON.parse(localStorage.getItem('fremover:saved')||'[]')}catch{return []} }
-function setSaved(v){localStorage.setItem('fremover:saved',JSON.stringify(v))}
-function toggleSave(){let s=getSaved(); s=s.includes(index)?s.filter(x=>x!==index):[...s,index]; setSaved(s);renderHero();renderMini();}
-function renderLearn(){const l=dayIndex(lessons);$('learnTitle').textContent=l.title;$('learnText').textContent=l.text;$('learnSource').textContent=l.source;}
-function renderPrompt(){const key='fremover:journal:'+new Date().toISOString().slice(0,10);$('promptText').textContent=dayIndex(prompts);$('reflectionInput').value=localStorage.getItem(key)||'';$('saveReflectionBtn').onclick=()=>{localStorage.setItem(key,$('reflectionInput').value.trim());$('savedStatus').textContent='Lagret ✓';setTimeout(()=>$('savedStatus').textContent='Lagres bare på denne enheten',1600)}}
-function renderChips(){const themes=['Alle',...new Set(quotes.map(q=>q.theme))];$('chips').innerHTML=themes.map(t=>`<button class="chip ${t===filter?'active':''}" data-theme="${t}">${t}</button>`).join('');document.querySelectorAll('.chip').forEach(b=>b.onclick=()=>{filter=b.dataset.theme;renderChips();renderMini()})}
-function renderMini(mode='all'){
- let items=quotes.map((q,i)=>({...q,i})); if(filter!=='Alle')items=items.filter(q=>q.theme===filter); if(mode==='saved')items=items.filter(q=>getSaved().includes(q.i));
- $('miniList').innerHTML=items.slice(0,8).map(q=>`<div class="mini-item"><div class="mini-avatar">${q.initials}</div><div class="mini-main"><strong>${q.author}</strong><small>${q.theme} · ${q.state}</small></div><button data-open="${q.i}" aria-label="Åpne">›</button></div>`).join('') || '<p style="color:var(--muted);font-size:13px">Ingen lagrede tanker ennå.</p>';
- document.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>{index=Number(b.dataset.open);renderHero();window.scrollTo({top:150,behavior:'smooth'})})
+function toggleSave(){
+  let saved = getSaved();
+  saved = saved.includes(index) ? saved.filter(i => i !== index) : [...saved,index];
+  setSaved(saved);
+  renderHero();
+  renderLibrary();
 }
-function showModal(title,html){$('modalContent').innerHTML=`<h2>${title}</h2>${html}`;$('modal').showModal()}
+function renderPrompt(){
+  const key = 'fremover:journal:' + new Date().toISOString().slice(0,10);
+  $('promptText').textContent = dayIndex(prompts);
+  $('reflectionInput').value = localStorage.getItem(key) || '';
+  $('saveReflectionBtn').onclick = () => {
+    localStorage.setItem(key,$('reflectionInput').value.trim());
+    $('savedStatus').textContent = 'Lagret ✓';
+    setTimeout(() => $('savedStatus').textContent = 'Lagres på denne enheten',1400);
+    renderJournal();
+  };
+}
+function renderLearn(){
+  const lesson = dayIndex(lessons);
+  $('learnTitle').textContent = lesson.title;
+  $('learnText').textContent = lesson.text;
+  $('learnSource').textContent = lesson.source;
+}
+function renderChips(){
+  const themes = ['Alle','Lagret',...new Set(quotes.map(q => q.theme))];
+  $('chips').innerHTML = themes.map(t => `<button class="chip ${t===filter?'active':''}" data-theme="${t}">${t}</button>`).join('');
+  document.querySelectorAll('.chip').forEach(button => {
+    button.onclick = () => {
+      filter = button.dataset.theme;
+      renderChips();
+      renderLibrary();
+    };
+  });
+}
+function renderLibrary(){
+  let items = quotes.map((q,i) => ({...q,i}));
+  if(filter === 'Lagret') items = items.filter(q => getSaved().includes(q.i));
+  else if(filter !== 'Alle') items = items.filter(q => q.theme === filter);
 
-$('nextBtn').onclick=()=>{index=(index+1)%quotes.length;renderHero()};$('saveBtn').onclick=toggleSave;
-$('aboutBtn').onclick=()=>showModal('Om Fremover','<p><strong>Fremover</strong> er ikke ment som en strøm av pene ord. Den skal gjøre tre ting: få deg til å handle, få deg til å tenke og få deg til å lese mer.</p><p>Moderne personer og filmfigurer brukes forsiktig. Når teksten ikke er et dokumentert direkte sitat, står det tydelig at den er en parafrase eller inspirasjon. Det er med vilje.</p><p><strong>Prinsipp:</strong> Ingen guru er fasit. Gode ideer beholdes. Dårlige ideer forkastes.</p>');
-$('closeModal').onclick=()=>$('modal').close();
+  $('libraryList').innerHTML = items.length ? items.map(q => `
+    <button class="library-item" data-open="${q.i}">
+      <span>
+        <strong>${q.author}</strong>
+        <small>${q.theme} · ${q.state}</small>
+      </span>
+      <span class="arrow">›</span>
+    </button>
+  `).join('') : '<div class="empty">Ingen lagrede tanker ennå.</div>';
 
-document.querySelectorAll('.nav-item').forEach(btn=>btn.onclick=()=>{
- document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));btn.classList.add('active');const v=btn.dataset.view;
- if(v==='today'){filter='Alle';renderChips();renderMini();window.scrollTo({top:0,behavior:'smooth'})}
- if(v==='wisdom'){filter='Alle';renderChips();renderMini();document.querySelector('.explore-section').scrollIntoView({behavior:'smooth'})}
- if(v==='saved'){filter='Alle';renderChips();renderMini('saved');document.querySelector('.explore-section').scrollIntoView({behavior:'smooth'})}
- if(v==='journal'){const entries=Object.keys(localStorage).filter(k=>k.startsWith('fremover:journal:')).sort().reverse().map(k=>({date:k.split(':').pop(),text:localStorage.getItem(k)}));showModal('Journal', entries.length?'<div class="quote-list">'+entries.map(e=>`<div class="quote-row">${e.text||'<em>Tom refleksjon</em>'}<strong>${e.date}</strong></div>`).join('')+'</div>':'<p>Du har ikke skrevet noe ennå. Det er også informasjon.</p>')}
+  document.querySelectorAll('[data-open]').forEach(button => {
+    button.onclick = () => {
+      index = Number(button.dataset.open);
+      renderHero();
+      switchView('today');
+      window.scrollTo({top:0,behavior:'smooth'});
+    };
+  });
+}
+function renderJournal(){
+  const entries = Object.keys(localStorage)
+    .filter(k => k.startsWith('fremover:journal:'))
+    .sort()
+    .reverse()
+    .map(k => ({date:k.split(':').pop(),text:localStorage.getItem(k)}))
+    .filter(e => e.text);
+
+  $('journalList').innerHTML = entries.length ? entries.map(e => `
+    <article class="journal-item">
+      <p>${e.text}</p>
+      <time>${e.date}</time>
+    </article>
+  `).join('') : '<div class="empty">Ingen refleksjoner ennå. Det er her dine egne tanker etter hvert skal bli viktigere enn appens.</div>';
+}
+function switchView(view){
+  $('todayView').hidden = view !== 'today';
+  $('libraryView').hidden = view !== 'library';
+  $('journalView').hidden = view !== 'journal';
+  document.querySelectorAll('.nav-item').forEach(button => {
+    button.classList.toggle('active',button.dataset.view === view);
+  });
+  if(view === 'library'){renderChips();renderLibrary()}
+  if(view === 'journal') renderJournal();
+}
+function showAbout(){
+  $('modalContent').innerHTML = `
+    <h2>Hvorfor Fremover?</h2>
+    <p>Fremover skal få deg til å ønske å stå opp om morgenen og angripe fremtiden, samtidig som du blir mer reflektert, smartere og mer belest.</p>
+    <p>Den skal hjelpe deg å utvikle karakter, ta ansvar, være mer til stede for familie og samfunn, trene kroppen og bruke hodet.</p>
+    <p><strong>Ingen guru er fasit.</strong> Gode ideer beholdes. Dårlige ideer forkastes. Parafraser merkes som parafraser.</p>
+  `;
+  $('modal').showModal();
+}
+
+$('nextBtn').onclick = () => {
+  index = (index + 1) % quotes.length;
+  renderHero();
+};
+$('saveBtn').onclick = toggleSave;
+$('aboutBtn').onclick = showAbout;
+$('closeModal').onclick = () => $('modal').close();
+document.querySelectorAll('.nav-item').forEach(button => {
+  button.onclick = () => switchView(button.dataset.view);
 });
 
-const hour=new Date().getHours();$('greeting').textContent=hour<11?'God morgen':hour<17?'God dag':'God kveld';
-renderHero();renderLearn();renderPrompt();renderChips();renderMini();
+$('dateLine').textContent = new Intl.DateTimeFormat('nb-NO',{
+  weekday:'long',day:'numeric',month:'long'
+}).format(new Date());
 
-</script>
+renderHero();
+renderPrompt();
+renderLearn();
+renderChips();
+renderLibrary();
+renderJournal();
+  </script>
 </body>
 </html>
