@@ -11,6 +11,7 @@ const root=path.resolve(__dirname,'..');
     const page=await browser.newPage({viewport:{width:390,height:844}});
     await page.setContent('<html lang="nb"><head><style>:root{--ink:#452f29;--muted:#806b61;--accent:#e87961;--deep:#ad4a3c;--line:#ead8d0}.hidden{display:none}.primary{min-height:44px}.card{padding:12px}.taskmeta{font-size:12px}</style></head><body><main id="content"></main><nav id="nav"><button data-view="seen">Sett</button></nav><div id="toast" class="hidden"></div></body></html>');
     await page.addScriptTag({path:path.join(root,'seen-core.js')});
+    await page.addScriptTag({path:path.join(root,'sheet-ui.js')});
     await page.evaluate(()=>{
       const day=window.FlytSeenCore.dateKey(),stamp=(hour)=>new Date(`${day}T${hour}:00+02:00`).toISOString();
       window.__state={
