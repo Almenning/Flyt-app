@@ -20,7 +20,7 @@ assert.match(sheetUi,/\.flytSheetScroll\{[^}]*overflow-y:auto;[^}]*touch-action:
 assert.match(seen,/\.seenTextarea:focus,.seenTextarea:focus-visible\{border-color:#dfd0c8;outline:0;box-shadow:0 0 0 2px #d67a5a80\}/,'feltet skal ha én kontrollert focus-ring');
 assert.match(lock,/\[role=dialog\]\[aria-modal=true\]\{overscroll-behavior:contain\}/,'modal-låsen må fortsatt isolere dialogscroll');
 assert.match(index,/sheet-ui\.js\?v=20260930-shared-sheet3/);
-assert.match(index,/seen-ui\.js\?v=20260930-seen-shared-sheet1/);
+assert.match(index,/seen-ui\.js\?v=20260930-seen-history-edge1/);
 assert.match(index,/modal-scroll-lock\.js\?v=20260925-accessibility1/);
 assert.match(index,/app-watchdog\.js\?v=[^"']+/);
 const resetVersion=index.match(/hverdagsoss_sw_reset_v(\d+)/)?.[1];
