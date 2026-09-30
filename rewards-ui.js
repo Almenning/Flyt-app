@@ -341,6 +341,7 @@ function openTemptationTaskCatalog(){
   layer.onclick=e=>{e.stopPropagation();if(e.target===layer||e.target.closest('[data-temptation-task-catalog-close]')){close();return}const task=e.target.closest('[data-temptation-catalog-task]');if(task){temptationDraft.taskId=task.dataset.temptationCatalogTask;close();renderTemptation()}};
   document.body.appendChild(layer);bindNestedBackLayer(layer,flow);
 }
+let goalDraft=null;
 function goalTypes(){return core().METRICS.filter(item=>['points_new','task_specific','manual'].includes(item.type))}
 function goalMetric(){return goalDraft?.metric||{type:'',target:0,taskId:''}}
 function goalTitleDraft(s){const m=goalMetric();if(m.type==='points_new')return goalDraft?.kind==='shared'?`Tjen ${Math.max(1,Number(m.target)||1)} poeng sammen`:`Tjen ${Math.max(1,Number(m.target)||1)} poeng`;return core().goalTitle(s,m,goalDraft?.title||'')}
