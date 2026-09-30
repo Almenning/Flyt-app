@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION='20260926-seen-premium1';
+const VERSION='20260930-seen-sheet-drag1';
 const $=selector=>document.querySelector(selector);
 const bridge=()=>window.FlytBridge;
 const core=()=>window.FlytSeenCore;
@@ -67,7 +67,12 @@ function sheetLayer(){return document.querySelector('[data-seen-sheet-layer]')}
 function syncSheetViewport(){const layer=sheetLayer(),viewport=window.visualViewport;if(!layer)return;const height=Math.round(viewport?.height||window.innerHeight||0);if(height>0)layer.style.setProperty('--seen-viewport-height',`${height}px`)}
 function bindSheetViewport(){if(viewportBound)return;viewportBound=true;const sync=()=>syncSheetViewport();window.visualViewport?.addEventListener('resize',sync);window.visualViewport?.addEventListener('scroll',sync);window.addEventListener('resize',sync)}
 function blurSheetInput(){const layer=sheetLayer(),active=document.activeElement;if(layer&&active&&layer.contains(active)&&active.matches?.('textarea,input,select,[contenteditable="true"]'))active.blur()}
-function render({resetScroll=false}={}){const s=state(),content=$('#content');if(!s||!content||s.view!=='seen')return;ensureStyles();bindSheetViewport();painting=true;const scroll=resetScroll?0:content.scrollTop;content.dataset.flytOwner='seen-actions';content.style.overflow=sheet?'hidden':'';content.innerHTML=page==='history'?renderHistory(s):renderMain(s);document.querySelectorAll('#nav button').forEach(button=>button.classList.toggle('on',button.dataset.view==='seen'));painting=false;content.scrollTop=resetScroll?0:Math.min(scroll,Math.max(0,content.scrollHeight-content.clientHeight));syncSheetViewport();window.FlytModalScrollLock?.sync?.();if(page==='main')window.FlytEdgeSwipeBack?.unbind(content);else window.FlytEdgeSwipeBack?.bind(content,{canGoBack:()=>page!=='main',onBack:openMain})}
+function bindSeenSheetDrag(){const layer=sheetLayer(),panel=layer?.querySelector('.seenSheet'),handle=panel?.querySelector('.seenSheetHandle');if(panel&&handle)window.FlytSheetDragDismiss?.bind(panel,{handle,layer,onDismiss:closeSheet})}
+function render({resetScroll=false}={}){
+  const s=state(),content=$('#content');if(!s||!content||s.view!=='seen')return;
+  const previousSheet=content.querySelector?.('.seenSheet')||document.querySelector?.('.seenSheet');if(previousSheet)window.FlytSheetDragDismiss?.unbind(previousSheet);
+  ensureStyles();bindSheetViewport();painting=true;const scroll=resetScroll?0:content.scrollTop;content.dataset.flytOwner='seen-actions';content.style.overflow=sheet?'hidden':'';content.innerHTML=page==='history'?renderHistory(s):renderMain(s);document.querySelectorAll('#nav button').forEach(button=>button.classList.toggle('on',button.dataset.view==='seen'));painting=false;content.scrollTop=resetScroll?0:Math.min(scroll,Math.max(0,content.scrollHeight-content.clientHeight));syncSheetViewport();window.FlytModalScrollLock?.sync?.();bindSeenSheetDrag();if(page==='main')window.FlytEdgeSwipeBack?.unbind(content);else window.FlytEdgeSwipeBack?.bind(content,{canGoBack:()=>page!=='main',onBack:openMain})
+}
 function openMain(){blurSheetInput();page='main';sheet=null;render({resetScroll:true})}
 function openSheet(kind,data={}){sheet={...data,kind};render({resetScroll:false})}
 function closeSheet(){blurSheetInput();sheet=null;render({resetScroll:false})}
