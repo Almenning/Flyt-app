@@ -18,6 +18,7 @@
       --line:#e3ddd3;
       --accent:#8a4d39;
       --good:#566a52;
+      --soft:#ebe6dd;
       --shadow:0 18px 50px rgba(45,38,30,.07);
     }
     *{box-sizing:border-box}
@@ -35,7 +36,7 @@
       width:min(100%,560px);
       min-height:100vh;
       margin:0 auto;
-      padding:calc(22px + env(safe-area-inset-top)) 20px calc(30px + env(safe-area-inset-bottom));
+      padding:calc(22px + env(safe-area-inset-top)) 20px calc(92px + env(safe-area-inset-bottom));
       display:flex;
       flex-direction:column;
     }
@@ -45,19 +46,21 @@
       justify-content:space-between;
       gap:16px;
     }
-    .brand{
+    .brand,.view-title{
       margin:0;
       font-family:Georgia,"Times New Roman",serif;
-      font-size:28px;
       font-weight:500;
       letter-spacing:-.025em;
     }
+    .brand{font-size:28px}
+    .view-title{font-size:30px}
     .about{
       width:36px;height:36px;border-radius:50%;
       border:1px solid var(--line);
       background:transparent;color:var(--muted);
       font-weight:700;
     }
+    .view[hidden]{display:none!important}
     .quote-wrap{
       flex:1;
       display:flex;
@@ -125,11 +128,6 @@
       background:transparent;
       color:#514b44;
     }
-    .action.primary{
-      border:0;
-      background:var(--ink);
-      color:white;
-    }
     .source-btn{
       width:100%;
       margin-top:10px;
@@ -158,6 +156,155 @@
       font-size:10px;
       line-height:1.5;
     }
+    .saved-note{
+      color:var(--good);
+      font-size:11px;
+      min-height:16px;
+      margin-top:8px;
+      text-align:center;
+    }
+
+    .library-head{margin-top:34px}
+    .library-subtitle{
+      margin:8px 0 20px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.55;
+    }
+    .segments{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:4px;
+      background:#e9e4dc;
+      padding:4px;
+      border-radius:15px;
+      margin-bottom:22px;
+    }
+    .segment{
+      min-height:40px;
+      border:0;
+      border-radius:11px;
+      background:transparent;
+      color:#6c665f;
+      font-size:12px;
+      font-weight:800;
+    }
+    .segment.active{
+      background:var(--paper);
+      color:var(--ink);
+      box-shadow:0 3px 12px rgba(49,42,34,.07);
+    }
+    .library-list{display:grid;gap:10px}
+    .library-row{
+      width:100%;
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:rgba(255,253,248,.78);
+      padding:16px;
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:14px;
+      align-items:center;
+      text-align:left;
+      color:var(--ink);
+    }
+    .library-row strong{
+      display:block;
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:17px;
+      font-weight:500;
+      line-height:1.25;
+    }
+    .library-row small{
+      display:block;
+      margin-top:5px;
+      color:var(--muted);
+      font-size:11px;
+      line-height:1.4;
+    }
+    .chevron{font-size:20px;color:#aaa39b}
+    .back-btn{
+      border:0;
+      background:transparent;
+      color:var(--accent);
+      padding:0;
+      font-size:12px;
+      font-weight:800;
+      margin:1px 0 18px;
+    }
+    .collection-head{margin-top:30px;margin-bottom:18px}
+    .collection-label{
+      color:var(--muted);
+      font-size:10px;
+      letter-spacing:.12em;
+      font-weight:850;
+      text-transform:uppercase;
+      margin-bottom:7px;
+    }
+    .collection-title{
+      margin:0;
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:29px;
+      line-height:1.05;
+      font-weight:500;
+    }
+    .quote-row{
+      width:100%;
+      border:1px solid var(--line);
+      border-radius:19px;
+      background:var(--paper);
+      padding:17px 16px;
+      text-align:left;
+      color:var(--ink);
+    }
+    .quote-row q{
+      display:block;
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:18px;
+      line-height:1.38;
+      quotes:"“" "”";
+    }
+    .quote-row-meta{
+      margin-top:11px;
+      color:var(--muted);
+      font-size:10px;
+      line-height:1.45;
+    }
+    .empty{color:var(--muted);font-size:13px;padding:18px 0}
+
+    .bottom-nav{
+      position:fixed;
+      left:50%;
+      bottom:0;
+      transform:translateX(-50%);
+      width:min(560px,100%);
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      background:rgba(243,240,233,.95);
+      border-top:1px solid rgba(214,207,198,.9);
+      padding:9px 18px calc(9px + env(safe-area-inset-bottom));
+      backdrop-filter:blur(18px);
+      -webkit-backdrop-filter:blur(18px);
+      z-index:20;
+    }
+    .nav-item{
+      min-height:42px;
+      border:0;
+      background:transparent;
+      color:#9a948c;
+      font-size:11px;
+      font-weight:800;
+      position:relative;
+    }
+    .nav-item.active{color:var(--ink)}
+    .nav-item.active:after{
+      content:"";
+      position:absolute;
+      width:4px;height:4px;border-radius:50%;
+      background:var(--accent);
+      left:50%;bottom:2px;transform:translateX(-50%);
+    }
+
     dialog{
       width:min(520px,calc(100% - 28px));
       border:0;
@@ -168,10 +315,7 @@
       box-shadow:0 30px 90px rgba(0,0,0,.24);
     }
     dialog::backdrop{background:rgba(25,22,19,.48);backdrop-filter:blur(5px)}
-    .modal{
-      padding:26px;
-      position:relative;
-    }
+    .modal{padding:26px;position:relative}
     .close{
       position:absolute;right:14px;top:14px;
       width:34px;height:34px;border:0;border-radius:50%;
@@ -183,52 +327,22 @@
       font-size:27px;
       font-weight:500;
     }
-    .meta{
-      display:grid;
-      gap:13px;
-      margin-top:18px;
-    }
-    .meta-row{
-      padding-top:13px;
-      border-top:1px solid var(--line);
-    }
+    .meta{display:grid;gap:13px;margin-top:18px}
+    .meta-row{padding-top:13px;border-top:1px solid var(--line)}
     .meta-label{
-      display:block;
-      color:var(--muted);
-      font-size:9px;
-      font-weight:850;
-      letter-spacing:.12em;
-      text-transform:uppercase;
-      margin-bottom:5px;
+      display:block;color:var(--muted);font-size:9px;font-weight:850;
+      letter-spacing:.12em;text-transform:uppercase;margin-bottom:5px;
     }
-    .meta-value{
-      font-size:13px;
-      line-height:1.55;
-      color:#403c37;
-    }
-    .original{
-      font-family:Georgia,"Times New Roman",serif;
-      font-size:18px;
-      line-height:1.5;
-    }
+    .meta-value{font-size:13px;line-height:1.55;color:#403c37}
+    .original{font-family:Georgia,"Times New Roman",serif;font-size:18px;line-height:1.5}
     .source-link{
-      display:inline-block;
-      margin-top:5px;
-      color:var(--accent);
-      font-size:12px;
-      font-weight:800;
-      text-decoration:none;
-    }
-    .saved-note{
-      color:var(--good);
-      font-size:11px;
-      min-height:16px;
-      margin-top:8px;
-      text-align:center;
+      display:inline-block;margin-top:5px;color:var(--accent);
+      font-size:12px;font-weight:800;text-decoration:none;
     }
     @media (min-width:700px){
       body{padding:24px 0}
       .app{min-height:calc(100vh - 48px)}
+      .bottom-nav{bottom:24px;border:1px solid var(--line);border-radius:18px;width:520px}
     }
   </style>
 </head>
@@ -239,25 +353,56 @@
       <button class="about" id="aboutBtn" aria-label="Om appen">i</button>
     </header>
 
-    <section class="quote-wrap">
-      <article class="quote-card">
-        <div class="verified" id="status">Verifisert</div>
-        <blockquote id="quote"></blockquote>
-        <div class="author" id="author"></div>
-        <div class="source" id="source"></div>
+    <section class="view" id="todayView">
+      <section class="quote-wrap">
+        <article class="quote-card">
+          <div class="verified">Verifisert</div>
+          <blockquote id="quote"></blockquote>
+          <div class="author" id="author"></div>
+          <div class="source" id="source"></div>
 
-        <div class="quote-actions">
-          <button class="action secondary" id="speakBtn">Hør</button>
-          <button class="action secondary" id="saveBtn">☆ Lagre</button>
-        </div>
+          <div class="quote-actions">
+            <button class="action secondary" id="speakBtn">Hør</button>
+            <button class="action secondary" id="saveBtn">☆ Lagre</button>
+          </div>
 
-        <button class="source-btn" id="sourceBtn">Kilde og originaltekst</button>
-      </article>
+          <button class="source-btn" id="sourceBtn">Kilde og originaltekst</button>
+        </article>
+      </section>
+
+      <button class="next" id="nextBtn">Neste sitat</button>
+      <div class="saved-note" id="savedNote"></div>
+      <p class="trust-line">Ingen anonyme internett-sitater. Hvert sitat skal kunne spores tilbake til en konkret kilde.</p>
     </section>
 
-    <button class="next" id="nextBtn">Neste sitat</button>
-    <div class="saved-note" id="savedNote"></div>
-    <p class="trust-line">Ingen anonyme internett-sitater. Hvert sitat skal kunne spores tilbake til en konkret kilde.</p>
+    <section class="view" id="libraryView" hidden>
+      <div class="library-head" id="libraryHead">
+        <h2 class="view-title">Bibliotek</h2>
+        <p class="library-subtitle">Finn sitater etter hva de handler om, eller hvem de kommer fra.</p>
+        <div class="segments">
+          <button class="segment active" data-mode="themes">Temaer</button>
+          <button class="segment" data-mode="people">Personer</button>
+        </div>
+      </div>
+
+      <div id="libraryRoot">
+        <div class="library-list" id="libraryList"></div>
+      </div>
+
+      <div id="collectionView" hidden>
+        <div class="collection-head">
+          <button class="back-btn" id="backBtn">← Bibliotek</button>
+          <div class="collection-label" id="collectionLabel"></div>
+          <h2 class="collection-title" id="collectionTitle"></h2>
+        </div>
+        <div class="library-list" id="collectionList"></div>
+      </div>
+    </section>
+
+    <nav class="bottom-nav" aria-label="Hovednavigasjon">
+      <button class="nav-item active" data-view="today">I dag</button>
+      <button class="nav-item" data-view="library">Bibliotek</button>
+    </nav>
   </main>
 
   <dialog id="dialog">
@@ -274,6 +419,7 @@ const quotes = [
     original:'No longer talk at all about the kind of man that a good man ought to be, but be such.',
     author:'Marcus Aurelius',
     work:'Meditations, bok X, §16',
+    themes:['Karakter','Ansvar'],
     type:'Norsk gjengivelse basert på George Longs engelske oversettelse fra 1862.',
     verification:'Tekststed og ordlyd kontrollert mot den offentlige George Long-utgaven på Wikisource.',
     url:'https://en.wikisource.org/wiki/The_Thoughts_of_the_Emperor_Marcus_Aurelius_Antoninus/Book_X'
@@ -283,6 +429,7 @@ const quotes = [
     original:'Of things some are in our power, and others are not.',
     author:'Epiktet',
     work:'Enchiridion, §1',
+    themes:['Selvkontroll'],
     type:'Norsk gjengivelse basert på George Longs engelske oversettelse.',
     verification:'Første setning er kontrollert mot George Long-utgaven hos Project Gutenberg og Wikisource.',
     url:'https://www.gutenberg.org/files/10661/10661-h/10661-h.htm'
@@ -292,6 +439,7 @@ const quotes = [
     original:'This above all: to thine own self be true,',
     author:'William Shakespeare',
     work:'Hamlet, akt 1, scene 3, linje 84',
+    themes:['Karakter','Integritet'],
     type:'Norsk gjengivelse. Originalteksten vises under.',
     verification:'Ordlyd og plassering kontrollert mot Folger Shakespeare Librarys tekstutgave.',
     url:'https://www.folger.edu/explore/shakespeares-works/Hamlet/read/'
@@ -301,6 +449,7 @@ const quotes = [
     original:'The credit belongs to the man who is actually in the arena.',
     author:'Theodore Roosevelt',
     work:'Citizenship in a Republic, Sorbonne, 23. april 1910',
+    themes:['Mot','Handling'],
     type:'Norsk gjengivelse av et kort utdrag fra talen.',
     verification:'Kontrollert mot den transkriberte talen hos Theodore Roosevelt Center.',
     url:'https://www.theodorerooseveltcenter.org/encyclopedia/culture-and-society/man-in-the-arena/'
@@ -310,6 +459,7 @@ const quotes = [
     original:'Ask not what your country can do for you—ask what you can do for your country.',
     author:'John F. Kennedy',
     work:'Tiltredelsestalen, 20. januar 1961',
+    themes:['Samfunn','Ansvar'],
     type:'Norsk gjengivelse. Originalteksten vises under.',
     verification:'Kontrollert mot materiale fra John F. Kennedy Presidential Library and Museum.',
     url:'https://www.jfklibrary.org/sites/default/files/2018-06/Interpreting_JFKs_Inaugural_Address.pdf'
@@ -317,6 +467,7 @@ const quotes = [
 ];
 
 let index = Number(localStorage.getItem('fremover:simple:index') || 0) % quotes.length;
+let libraryMode = 'themes';
 const $ = id => document.getElementById(id);
 
 function saved(){
@@ -365,8 +516,7 @@ function speak(){
   utterance.onerror = () => $('speakBtn').textContent='Hør';
   window.speechSynthesis.speak(utterance);
 }
-function showSource(){
-  const q = quotes[index];
+function showSource(q = quotes[index]){
   $('dialogContent').innerHTML = `
     <h2>${q.author}</h2>
     <div class="meta">
@@ -403,16 +553,92 @@ function showAbout(){
         <div class="meta-value">Fremover skal være en app du kan stole på. Derfor publiseres ikke et sitat før vi kan oppgi hvem som sa eller skrev det, hvor det finnes, og om teksten er original, oversatt eller parafrasert.</div>
       </div>
       <div class="meta-row">
-        <span class="meta-label">Verifisert</span>
-        <div class="meta-value">Ordlyd eller tekststed er kontrollert mot en identifiserbar kilde.</div>
-      </div>
-      <div class="meta-row">
-        <span class="meta-label">Ikke godt nok dokumentert</span>
-        <div class="meta-value">Kommer ikke inn i hovedsamlingen før kilden er ryddet.</div>
+        <span class="meta-label">Bibliotek</span>
+        <div class="meta-value">Du kan finne sitater etter tema eller person. Den egentlige kilden følger alltid sitatet som verk, tale eller tekststed.</div>
       </div>
     </div>
   `;
   $('dialog').showModal();
+}
+function switchView(view){
+  $('todayView').hidden = view !== 'today';
+  $('libraryView').hidden = view !== 'library';
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active',b.dataset.view===view));
+  if(view==='library') showLibraryRoot();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function themeMap(){
+  const map = new Map();
+  quotes.forEach((q,i) => q.themes.forEach(theme => {
+    if(!map.has(theme)) map.set(theme,[]);
+    map.get(theme).push(i);
+  }));
+  return map;
+}
+function peopleMap(){
+  const map = new Map();
+  quotes.forEach((q,i) => {
+    if(!map.has(q.author)) map.set(q.author,[]);
+    map.get(q.author).push(i);
+  });
+  return map;
+}
+function renderLibrary(){
+  const map = libraryMode==='themes' ? themeMap() : peopleMap();
+  const rows = [...map.entries()].sort((a,b)=>a[0].localeCompare(b[0],'nb'));
+  $('libraryList').innerHTML = rows.map(([name,ids]) => {
+    const subtitle = libraryMode==='themes'
+      ? ids.length + (ids.length===1?' sitat':' sitater')
+      : [...new Set(ids.map(i=>quotes[i].work.split(',')[0]))].join(' · ');
+    return `
+      <button class="library-row" data-group="${encodeURIComponent(name)}">
+        <span>
+          <strong>${name}</strong>
+          <small>${subtitle}</small>
+        </span>
+        <span class="chevron">›</span>
+      </button>
+    `;
+  }).join('');
+  document.querySelectorAll('[data-group]').forEach(button=>{
+    button.onclick=()=>openCollection(decodeURIComponent(button.dataset.group));
+  });
+}
+function showLibraryRoot(){
+  $('libraryRoot').hidden=false;
+  $('collectionView').hidden=true;
+  $('libraryHead').hidden=false;
+  renderLibrary();
+}
+function openCollection(name){
+  const map = libraryMode==='themes' ? themeMap() : peopleMap();
+  const ids = map.get(name) || [];
+  $('libraryHead').hidden=true;
+  $('libraryRoot').hidden=true;
+  $('collectionView').hidden=false;
+  $('collectionLabel').textContent=libraryMode==='themes'?'Tema':'Person';
+  $('collectionTitle').textContent=name;
+  $('collectionList').innerHTML=ids.map(i=>{
+    const q=quotes[i];
+    return `
+      <button class="quote-row" data-quote="${i}">
+        <q>${q.text}</q>
+        <div class="quote-row-meta">${q.author} · ${q.work}</div>
+      </button>
+    `;
+  }).join('');
+  document.querySelectorAll('[data-quote]').forEach(button=>{
+    button.onclick=()=>{
+      index=Number(button.dataset.quote);
+      render();
+      switchView('today');
+    };
+  });
+}
+function setLibraryMode(mode){
+  libraryMode=mode;
+  document.querySelectorAll('.segment').forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));
+  showLibraryRoot();
 }
 
 $('nextBtn').onclick = () => {
@@ -421,11 +647,15 @@ $('nextBtn').onclick = () => {
 };
 $('saveBtn').onclick = toggleSave;
 $('speakBtn').onclick = speak;
-$('sourceBtn').onclick = showSource;
+$('sourceBtn').onclick = () => showSource();
 $('aboutBtn').onclick = showAbout;
 $('closeBtn').onclick = () => $('dialog').close();
+$('backBtn').onclick = showLibraryRoot;
+document.querySelectorAll('.segment').forEach(button=>button.onclick=()=>setLibraryMode(button.dataset.mode));
+document.querySelectorAll('.nav-item').forEach(button=>button.onclick=()=>switchView(button.dataset.view));
 
 render();
+renderLibrary();
   </script>
 </body>
 </html>
