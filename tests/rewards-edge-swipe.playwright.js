@@ -6,7 +6,7 @@ const {chromium}=require('playwright');
 const root=path.resolve(__dirname,'..');
 
 async function setup(page){
-  await page.setContent('<!doctype html><html lang="nb"><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>:root{--ink:#452f29;--muted:#806b61;--accent:#e56c50;--deep:#5a3329;--line:#ead8d0}*{box-sizing:border-box}body{margin:0;background:#fff7f1;color:var(--ink);font-family:system-ui}button,input{font:inherit}#content{height:100dvh;overflow:auto;padding:18px}.ey{font-size:12px;font-weight:900}.title{font:500 34px Georgia}</style></head><body><main id="content"></main><nav id="nav"><button data-view="rewards"></button></nav></body></html>');
+  await page.setContent('<!doctype html><html lang="nb"><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>:root{--ink:#452f29;--muted:#806b61;--accent:#e56c50;--deep:#5a3329;--line:#ead8d0}*{box-sizing:border-box}body{margin:0;background:#fff7f1;color:var(--ink);font-family:system-ui}button,input{font:inherit}#content{height:100dvh;overflow:auto;padding:18px}.ey{font-size:12px;font-weight:900}.title{font:500 34px Georgia}</style></head><body><main id="content"></main><nav id="nav"></nav></body></html>');
   await page.evaluate(()=>{
     window.__state={
       user:'Tore',view:'rewards',
@@ -21,9 +21,9 @@ async function setup(page){
     window.FlytBridge={getState:()=>window.__state,setState:next=>{window.__state=next},toast:()=>{}};
     window.FlytSync={queueSave:()=>{}};
   });
-  await page.addScriptTag({path:path.join(root,'edge-swipe-back.js')});
   await page.addScriptTag({path:path.join(root,'rewards-goals-core.js')});
   await page.addScriptTag({path:path.join(root,'rewards-ui.js')});
+  await page.addScriptTag({path:path.join(root,'edge-swipe-back.js')});
 }
 async function swipeBack(page,selector){
   await page.locator(selector).evaluate(el=>{
@@ -42,7 +42,8 @@ async function swipeBack(page,selector){
     await setup(page);
 
     // Fristelse: step 1 has one close control, no fake left close, and edge swipe closes to Belønning.
-    await page.locator('[data-goal-create="challenge"]').click();
+    await page.evaluate(()=>window.FlytRewardsUI.openChallenge());
+    await page.locator('.temptationShell').waitFor();
     assert.equal(await page.locator('.temptationShell').getAttribute('data-flow-step'),'1');
     assert.equal(await page.locator('.temptationBackPlaceholder').count(),1);
     assert.equal(await page.locator('button.temptationBack').count(),0);
@@ -54,7 +55,8 @@ async function swipeBack(page,selector){
     await page.waitForTimeout(500);
 
     // Fristelse: later steps edge-swipe one step back.
-    await page.locator('[data-goal-create="challenge"]').click();
+    await page.evaluate(()=>window.FlytRewardsUI.openChallenge());
+    await page.locator('.temptationShell').waitFor();
     await page.locator('[data-temptation-reward="Massasje"]').click();
     await page.locator('[data-temptation-next]').click();
     assert.equal(await page.locator('.temptationShell').getAttribute('data-flow-step'),'2');
