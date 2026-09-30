@@ -23,6 +23,7 @@ async function setup(page){
     window.FlytSync={queueSave:()=>{window.__saves+=1}};
   });
   await page.addScriptTag({path:path.join(root,'rewards-goals-core.js')});
+  await page.addScriptTag({path:path.join(root,'sheet-ui.js')});
   await page.addScriptTag({path:path.join(root,'rewards-ui.js')});
   await page.locator('[data-goal-create="challenge"]').click();
   await page.locator('[data-temptation-reward="Massasje"]').click();
