@@ -9,10 +9,14 @@ async function touchDrag(page,selector,dy,xRatio=0.5){
   await page.locator(selector).evaluate((handle,{delta,xRatio})=>{
     const r=handle.getBoundingClientRect(),x=r.left+r.width*xRatio,y=r.top+r.height/2,id=41;
     const makeTouch=clientY=>new Touch({identifier:id,target:handle,clientX:x,clientY,pageX:x,pageY:clientY,screenX:x,screenY:clientY,radiusX:2,radiusY:2,rotationAngle:0,force:1});
-    const start=makeTouch(y),move=makeTouch(y+delta);
+    const start=makeTouch(y),offsets=Array.isArray(delta)?delta:[delta];
     handle.dispatchEvent(new TouchEvent('touchstart',{bubbles:true,cancelable:true,touches:[start],targetTouches:[start],changedTouches:[start]}));
-    handle.dispatchEvent(new TouchEvent('touchmove',{bubbles:true,cancelable:true,touches:[move],targetTouches:[move],changedTouches:[move]}));
-    handle.dispatchEvent(new TouchEvent('touchend',{bubbles:true,cancelable:true,touches:[],targetTouches:[],changedTouches:[move]}));
+    let last=start;
+    for(const offset of offsets){
+      last=makeTouch(y+offset);
+      handle.dispatchEvent(new TouchEvent('touchmove',{bubbles:true,cancelable:true,touches:[last],targetTouches:[last],changedTouches:[last]}));
+    }
+    handle.dispatchEvent(new TouchEvent('touchend',{bubbles:true,cancelable:true,touches:[],targetTouches:[],changedTouches:[last]}));
   },{delta:dy,xRatio});
 }
 
@@ -44,7 +48,11 @@ async function basePage(browser){
       await page.waitForTimeout(230);
       assert.equal(await page.evaluate(()=>window.__dismissed),0,'short drag must snap back');
       assert.equal(await page.locator('#testSheet').count(),1);
-      await touchDrag(page,'#testHandle',55,0.12);
+      await touchDrag(page,'#testHandle',[80,55],0.12);
+      await page.waitForTimeout(230);
+      assert.equal(await page.evaluate(()=>window.__dismissed),0,'dragging back upward before release must cancel dismissal even above threshold');
+      assert.equal(await page.locator('#testSheet').count(),1);
+      await touchDrag(page,'#testHandle',46,0.12);
       await page.waitForFunction(()=>window.__dismissed===1);
       assert.equal(await page.locator('#testLayer').count(),0,'long drag must dismiss');
       await context.close();

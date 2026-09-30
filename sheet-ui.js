@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION='20260930-shared-sheet2';
+const VERSION='20260930-shared-sheet3';
 const bindings=new WeakMap();
 function ensureStyles(){
   if(document.querySelector('#flytSharedSheetStyles'))return;
@@ -73,7 +73,7 @@ function bind(sheet,{layer=null,handle=null,onDismiss=null,canDismiss=null}={}){
   const start=(source,id,x,y,time)=>{
     if(entry.active||entry.dismissing||entry.canDismiss()===false)return false;
     clearTimeout(entry.resetTimer);
-    entry.active={source,id,startX:x,startY:y,lastY:y,lastTime:time,dy:0,velocity:0,locked:false};
+    entry.active={source,id,startX:x,startY:y,lastY:y,lastTime:time,dy:0,velocity:0,lastDirection:'none',locked:false};
     return true;
   };
   const move=(source,id,x,y,time,event)=>{
@@ -90,8 +90,11 @@ function bind(sheet,{layer=null,handle=null,onDismiss=null,canDismiss=null}={}){
     }
     if(event?.cancelable)event.preventDefault();
     const dy=rawDy<0?rawDy*.16:rawDy;
+    const stepDy=y-a.lastY;
     const dt=Math.max(1,time-a.lastTime);
-    a.velocity=(y-a.lastY)/dt;
+    a.velocity=stepDy/dt;
+    if(stepDy>2)a.lastDirection='down';
+    else if(stepDy<-2)a.lastDirection='up';
     a.lastY=y;a.lastTime=time;a.dy=Math.max(0,rawDy);
     sheet.style.transform=`translate3d(0,${dy}px,0)`;
   };
@@ -99,8 +102,9 @@ function bind(sheet,{layer=null,handle=null,onDismiss=null,canDismiss=null}={}){
     const a=entry.active;if(!a||a.source!==source||a.id!==id)return;
     entry.active=null;
     if(!a.locked){restoreVisual(sheet,entry,false);return}
-    const threshold=Math.min(96,Math.max(48,sheet.getBoundingClientRect().height*.085));
-    if(a.dy>=threshold||(a.dy>=20&&a.velocity>.28))finishDismiss(sheet,entry);
+    if(a.lastDirection==='up'){restoreVisual(sheet,entry,true);return}
+    const threshold=Math.min(90,Math.max(44,sheet.getBoundingClientRect().height*.078));
+    if(a.dy>=threshold||(a.dy>=18&&a.velocity>.25))finishDismiss(sheet,entry);
     else restoreVisual(sheet,entry,true);
   };
   const cancel=(source,id)=>{
