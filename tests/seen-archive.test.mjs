@@ -7,7 +7,7 @@ const history=readFileSync(new URL('../history-ui.js',import.meta.url),'utf8');
 const watchdog=readFileSync(new URL('../app-watchdog.js',import.meta.url),'utf8');
 const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
 
-assert.match(seen,/const VERSION='20260926-seen-premium1'/);
+assert.match(seen,/const VERSION='20260930-seen-sheet-drag1'/);
 assert.match(core,/const VERSION='20260922-contributions1'/);
 assert.match(seen,/Se hverandre/);
 assert.match(seen,/har bidratt i dag/);
