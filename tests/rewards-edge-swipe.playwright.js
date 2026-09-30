@@ -83,6 +83,10 @@ async function swipeBack(page,selector){
 
     // Mål follows the same stack semantics.
     await page.locator('[data-goal-choice]').click();
+    await page.locator('.goalFlowShell').waitFor({timeout:5000}).catch(async error=>{
+      console.error('Goal flow did not open',await page.evaluate(()=>({goalLayer:!!document.querySelector('#goalSheetLayer'),bodyDialogs:[...document.querySelectorAll('[role="dialog"]')].map(el=>({className:el.className,ariaModal:el.getAttribute('aria-modal')}))})),errors);
+      throw error;
+    });
     assert.equal(await page.locator('.goalFlowShell').getAttribute('data-flow-step'),'1');
     assert.equal(await page.locator('.goalFlowShell .temptationBackPlaceholder').count(),1);
     assert.equal(await page.locator('.goalFlowShell button.temptationBack').count(),0);
