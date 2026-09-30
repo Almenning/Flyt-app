@@ -79,8 +79,11 @@ async function assertShared(page,{layer,sheet,handle,scroll}){
     {
       const {page,context}=await pageFor(browser,'home');
       await page.addScriptTag({path:path.join(root,'buyer-polish-ui.js')});
+      await page.addScriptTag({path:path.join(root,'settings-ui.js')});
       await page.evaluate(()=>window.FlytBuyerPolish.openMenu());
       await page.locator('#flytAppMenu .flytMenuSheet').waitFor();
+      await page.locator('#flytAppMenu [data-settings-open]').waitFor({timeout:3000});
+      assert.equal(await page.locator('#flytAppMenu [data-settings-open]').count(),1,'Innstillinger must remain available in the shared menu sheet');
       await assertShared(page,{layer:'#flytAppMenu',sheet:'#flytAppMenu .flytMenuSheet',handle:'#flytAppMenu .flytMenuHandle',scroll:'#flytAppMenu .flytMenuBody'});
       await dragDown(page,'#flytAppMenu .flytMenuHandle');
       await page.waitForFunction(()=>!document.querySelector('#flytAppMenu'));
