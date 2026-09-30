@@ -66,7 +66,12 @@ async function basePage(browser){
       await page.evaluate(()=>window.FlytRewardsUI.openChallenge());
       await page.locator('.temptationShell').waitFor();
       assert.equal(await page.locator('.temptationDragHandle').getAttribute('data-flyt-sheet-drag-handle'),'1');
-      await drag(page,'.temptationDragHandle',170);
+      await page.locator('.temptationDragHandle').evaluate(handle=>{
+        const box=handle.getBoundingClientRect(),base={bubbles:true,pointerId:91,pointerType:'touch',isPrimary:true,button:0,clientX:box.left+box.width/2};
+        handle.dispatchEvent(new PointerEvent('pointerdown',{...base,clientY:box.top+box.height/2}));
+        handle.dispatchEvent(new PointerEvent('pointermove',{...base,clientY:box.top+box.height/2+170}));
+        handle.dispatchEvent(new PointerEvent('pointerup',{...base,clientY:box.top+box.height/2+170}));
+      });
       await page.waitForFunction(()=>!document.querySelector('#goalSheetLayer'));
       assert.equal(await page.locator('.temptationShell').count(),0);
       await page.close();
