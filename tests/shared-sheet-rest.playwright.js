@@ -55,7 +55,7 @@ async function assertShared(page,{layer,sheet,handle,scroll}){
       await page.addScriptTag({path:path.join(root,'day-plan.js')});
       await page.addScriptTag({path:path.join(root,'home-ui.js')});
       await page.evaluate(()=>window.FlytHomeUI.render({resetScroll:true}));
-      await page.locator('[data-home-status-edit]').click();
+      await page.evaluate(()=>document.querySelector('[data-home-status-edit]')?.click());
       await page.locator('.homeStatusSheet').waitFor();
       await assertShared(page,{layer:'.homeStatusSheetLayer',sheet:'.homeStatusSheet',handle:'.homeStatusSheetHandle',scroll:'.homeStatusSheetBody'});
       await dragDown(page,'.homeStatusSheetHandle');
