@@ -2,7 +2,7 @@
 'use strict';
 const $=s=>document.querySelector(s);
 const bridge=()=>window.FlytBridge;
-const VERSION='20260930-home-shared-sheet1';
+const VERSION='20260930-home-challenge-return1';
 let partnerCtx=null,loadingPartner=false,statusEditorOpen=false,statusDraft=null,statusSaving=false,statusError='';
 const LABEL={low:'Lav',med:'Middels',high:'Høy'};
 const NEED_LABEL={relief:'Avlastning',closeness:'Nærhet',initiative:'Initiativ',alone:'Alenetid',quiet:'Ro'};
@@ -181,7 +181,7 @@ document.addEventListener('click',e=>{
   const challengeCreate=e.target.closest('[data-home-challenge-create]');
   if(challengeCreate){e.preventDefault();e.stopImmediatePropagation();const s=bridge().getState();bridge().setState({...s,view:'rewards'});queueMicrotask(()=>window.FlytRewardsUI?.openChallenge?.());return}
   const challengeOpen=e.target.closest('[data-home-challenge-open]');
-  if(challengeOpen){e.preventDefault();e.stopImmediatePropagation();const s=bridge().getState();bridge().setState({...s,view:'rewards'});queueMicrotask(()=>window.FlytRewardsUI?.openChallenge?.(challengeOpen.dataset.homeChallengeOpen));return}
+  if(challengeOpen){e.preventDefault();e.stopImmediatePropagation();queueMicrotask(()=>window.FlytRewardsUI?.openChallenge?.(challengeOpen.dataset.homeChallengeOpen,{preserveView:true}));return}
   const challengeRequest=e.target.closest('[data-home-challenge-request]');
   if(challengeRequest){e.preventDefault();e.stopImmediatePropagation();requestChallenge();return}
   const quick=e.target.closest('[data-home-status-quick]');
