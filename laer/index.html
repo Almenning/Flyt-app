@@ -181,8 +181,8 @@
     .continent-card .tinybar{height:6px;background:rgba(255,255,255,.7);border-radius:8px;margin-top:12px;overflow:hidden}.continent-card .tinybar i{display:block;height:100%;background:#6B7FE6;border-radius:8px}
     .searchbox{position:relative;margin:16px 0 12px}.searchbox input{width:100%;border:2px solid #E5E3EF;border-radius:18px;background:#fff;color:var(--ink);font:inherit;font-size:16px;padding:14px 15px 14px 43px;outline:none;box-shadow:0 5px 0 rgba(70,72,115,.04)}.searchbox:before{content:"🔎";position:absolute;left:14px;top:12px;font-size:20px;z-index:1}
     .continent-head{padding:18px;margin:8px 0 16px;display:flex;gap:14px;align-items:center}.continent-head .bigemoji{font-size:48px}.continent-head p{font-size:13px}
-    .globe-wrap{margin:16px 0 14px;padding:12px;border-radius:32px;background:linear-gradient(180deg,#DDF4FA,#EAF7F4);border:3px solid #fff;box-shadow:0 9px 0 #DDE7ED,0 18px 34px rgba(64,80,115,.10);position:relative;overflow:hidden;touch-action:none;overscroll-behavior:contain;isolation:isolate}
-    #globe-canvas{display:block;width:100%;aspect-ratio:1/1;touch-action:none;overscroll-behavior:contain;cursor:grab;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}#globe-canvas:active{cursor:grabbing}
+    .globe-wrap{margin:16px 0 14px;padding:10px;border-radius:32px;background:linear-gradient(180deg,#DDF4FA,#EAF7F4);border:3px solid #fff;box-shadow:0 9px 0 #DDE7ED,0 18px 34px rgba(64,80,115,.10);position:relative;overflow:hidden;touch-action:none;overscroll-behavior:none;isolation:isolate;-webkit-overflow-scrolling:auto}
+    #globe-canvas{display:block;width:100%;aspect-ratio:1/1;touch-action:none;overscroll-behavior:none;cursor:grab;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;-webkit-user-drag:none}#globe-canvas:active{cursor:grabbing} body.globe-gesture-lock{overscroll-behavior:none}
     .globe-hint{position:absolute;left:50%;bottom:15px;transform:translateX(-50%);background:rgba(255,255,255,.9);padding:8px 12px;border-radius:999px;font-size:12px;font-weight:900;color:#5B6680;box-shadow:0 4px 14px rgba(50,60,100,.08);white-space:nowrap;pointer-events:none}
     .globe-zoom{position:absolute;right:14px;top:14px;display:grid;gap:8px;z-index:5}
     .globe-zoom button{width:46px;height:46px;border:2px solid #fff;border-radius:16px;background:rgba(255,255,255,.96);color:#4E5C80;font:950 24px/1 system-ui,-apple-system,sans-serif;box-shadow:0 4px 0 rgba(62,72,111,.10);cursor:pointer;padding:0}
@@ -542,7 +542,7 @@ let currentCollectionLabel='Norden';
 let currentCollectionEmoji='❄️';
 let sessionScope={type:'norden',label:'Norden',ids:NORDIC_IDS,includeMap:true};
 let globeLon=15,globeLat=18,globeZoom=1,globeSelected=null,globeDrag=null,globeMove=0,globeTouchGesture=null;
-const GLOBE_ZOOM_MIN=1,GLOBE_ZOOM_MAX=5;
+const GLOBE_ZOOM_MIN=1,GLOBE_ZOOM_MAX=7;
 
 function showScreen(name){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
@@ -704,6 +704,8 @@ function touchXY(t){return {x:t.clientX,y:t.clientY}}
 function touchDistance(a,b){return Math.hypot(a.x-b.x,a.y-b.y)}
 function touchMidpoint(a,b){return {x:(a.x+b.x)/2,y:(a.y+b.y)/2}}
 function clampGlobeZoom(z){return Math.max(GLOBE_ZOOM_MIN,Math.min(GLOBE_ZOOM_MAX,z))}
+function lockGlobePageGesture(){document.body.classList.add('globe-gesture-lock')}
+function unlockGlobePageGesture(){document.body.classList.remove('globe-gesture-lock')}
 function updateGlobeZoomControls(){
   const zin=document.getElementById('globe-zoom-in'),zout=document.getElementById('globe-zoom-out');
   if(zin)zin.disabled=globeZoom>=GLOBE_ZOOM_MAX-.01;
@@ -715,6 +717,7 @@ function initGlobe(){
 
   // iPhone/iPad: native-feeling one-finger rotate + two-finger pinch zoom.
   canvas.addEventListener('touchstart',e=>{
+    lockGlobePageGesture();
     if(e.cancelable)e.preventDefault();
     if(e.touches.length>=2){
       const a=touchXY(e.touches[0]),b=touchXY(e.touches[1]),mid=touchMidpoint(a,b);
@@ -743,7 +746,7 @@ function initGlobe(){
       if(!globeTouchGesture||globeTouchGesture.mode!=='drag')globeTouchGesture={mode:'drag',start:p,startLon:globeLon,startLat:globeLat,moved:false,maxMove:0};
       const g=globeTouchGesture,dx=p.x-g.start.x,dy=p.y-g.start.y;
       g.maxMove=Math.max(g.maxMove||0,Math.hypot(dx,dy));g.moved=g.maxMove>5;
-      const sensLon=.42/globeZoom,sensLat=.28/globeZoom;
+      const sensLon=.38/Math.sqrt(globeZoom),sensLat=.24/Math.sqrt(globeZoom);
       globeLon=((g.startLon-dx*sensLon+540)%360)-180;
       globeLat=Math.max(-70,Math.min(75,g.startLat+dy*sensLat));
       drawGlobe();
@@ -762,10 +765,10 @@ function initGlobe(){
       if(previous&&previous.mode==='drag'&&!previous.moved&&e.changedTouches.length){
         const t=e.changedTouches[0];pickGlobeCountry({clientX:t.clientX,clientY:t.clientY});
       }
-      globeTouchGesture=null;
+      globeTouchGesture=null;unlockGlobePageGesture();
     }
   },{passive:false});
-  canvas.addEventListener('touchcancel',e=>{if(e.cancelable)e.preventDefault();globeTouchGesture=null},{passive:false});
+  canvas.addEventListener('touchcancel',e=>{if(e.cancelable)e.preventDefault();globeTouchGesture=null;unlockGlobePageGesture()},{passive:false});
 
   // Mouse/trackpad/pen. Touch input is handled above to avoid gesture conflicts on iOS.
   canvas.addEventListener('pointerdown',e=>{
@@ -776,13 +779,19 @@ function initGlobe(){
   canvas.addEventListener('pointermove',e=>{
     if(e.pointerType==='touch'||!globeDrag)return;e.preventDefault();
     const dx=e.clientX-globeDrag.x,dy=e.clientY-globeDrag.y;globeMove=Math.max(globeMove,Math.hypot(dx,dy));
-    globeLon=((globeDrag.lon-dx*(.42/globeZoom)+540)%360)-180;
-    globeLat=Math.max(-70,Math.min(75,globeDrag.lat+dy*(.28/globeZoom)));drawGlobe();
+    globeLon=((globeDrag.lon-dx*(.38/Math.sqrt(globeZoom))+540)%360)-180;
+    globeLat=Math.max(-70,Math.min(75,globeDrag.lat+dy*(.24/Math.sqrt(globeZoom))));drawGlobe();
   });
   canvas.addEventListener('pointerup',e=>{if(e.pointerType==='touch')return;if(globeDrag&&globeMove<8)pickGlobeCountry(e);globeDrag=null});
   canvas.addEventListener('pointercancel',e=>{if(e.pointerType!=='touch')globeDrag=null});
   canvas.addEventListener('wheel',e=>{e.preventDefault();setGlobeZoom(globeZoom*Math.exp(-e.deltaY*.0018))},{passive:false});
-  canvas.addEventListener('dblclick',e=>{e.preventDefault();setGlobeZoom(globeZoom+.55)});
+  canvas.addEventListener('dblclick',e=>{e.preventDefault();setGlobeZoom(globeZoom+.7)});
+
+  const wrap=canvas.closest('.globe-wrap');
+  if(wrap){
+    wrap.addEventListener('touchmove',e=>{if(globeTouchGesture&&e.cancelable)e.preventDefault()},{passive:false});
+    wrap.addEventListener('touchend',()=>{if(!globeTouchGesture)unlockGlobePageGesture()},{passive:true});
+  }
 
   window.addEventListener('resize',()=>{if(document.getElementById('world-screen').classList.contains('active')){resizeGlobe();drawGlobe()}});
 }
@@ -806,8 +815,8 @@ function pickGlobeCountry(e){const canvas=document.getElementById('globe-canvas'
 }
 function selectGlobeCountry(id){const c=countries[id];if(!c)return;globeSelected=id;drawGlobe();const box=document.getElementById('globe-status');box.innerHTML=`<div class="flag">${c.flag}</div><div><strong>${c.name}</strong><span>${c.continent}${c.capital?' · '+c.capital:''} · trykk for å lære mer</span></div>`;box.style.cursor='pointer';box.onclick=()=>openDetail(id,'world')}
 function focusCountry(id){const c=countries[id];if(!c)return;if(Number.isFinite(c.lon))globeLon=c.lon;if(Number.isFinite(c.lat))globeLat=Math.max(-60,Math.min(65,c.lat));selectGlobeCountry(id)}
-document.getElementById('globe-zoom-in').onclick=()=>setGlobeZoom(globeZoom+0.5);
-document.getElementById('globe-zoom-out').onclick=()=>setGlobeZoom(globeZoom-0.5);
+document.getElementById('globe-zoom-in').onclick=()=>setGlobeZoom(globeZoom+0.6);
+document.getElementById('globe-zoom-out').onclick=()=>setGlobeZoom(globeZoom-0.6);
 document.getElementById('random-country').onclick=()=>focusCountry(WORLD_COUNTRIES[Math.floor(Math.random()*WORLD_COUNTRIES.length)].id);
 document.getElementById('reset-globe').onclick=()=>{globeLon=15;globeLat=18;globeSelected=null;document.getElementById('globe-status').innerHTML='<div class="flag">🧭</div><div><strong>Finn et land</strong><span>Kloden kan snurres i alle retninger.</span></div>';setGlobeZoom(1)};
 function renderWorldSearch(){const q=document.getElementById('world-search').value.trim().toLocaleLowerCase('nb'),out=document.getElementById('world-search-results');out.innerHTML='';if(!q)return;WORLD_COUNTRIES.filter(c=>c.name.toLocaleLowerCase('nb').includes(q)).slice(0,8).forEach(c=>{const el=document.createElement('button');el.type='button';el.className='country';el.innerHTML=`<div class="flag">${c.flag}</div><div class="namewrap"><span class="name">${c.name}</span><span class="sub">${c.continent}${c.capital?' · '+c.capital:''}</span></div><div>›</div>`;el.onclick=()=>{document.getElementById('world-search').value='';out.innerHTML='';focusCountry(c.id)};out.appendChild(el)})}
@@ -944,6 +953,6 @@ renderAll();updateOnboarding();
 if(!state.profile.onboarded){document.getElementById('onboarding').classList.add('show')}
 else if(loadActiveSession()){showScreen('session');renderQuestion()}
 </script>
-<!-- build: v5-ios-pinch-2026-10-01 -->
+<!-- build: v6-ios-map-gesture-lock-2026-10-01 -->
 </body>
 </html>
