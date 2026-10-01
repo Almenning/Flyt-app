@@ -652,7 +652,7 @@ function openDetail(k,source=null){
   const capitalValue=c.capitalDisplay||c.capital||'–';
   const capitalHtml=`<div class="fact"><span>Hovedstad</span><strong>${capitalValue}</strong></div>`;
   const notes=[c.capitalNote,c.note].filter(Boolean).map(x=>`<div class="small-note">${x}</div>`).join('');
-  document.getElementById('detail-content').innerHTML=`<div class="eyebrow">${label}</div><div class="detail-flag">${c.flag}</div><h1>${c.name}</h1><div class="fact-grid">${capitalHtml}<div class="fact"><span>Verdensdel</span><strong>${c.continent}</strong></div><div class="fact"><span>Innbyggere (${c.populationYear||'år ukjent'})</span><strong>ca. ${formatPopulation(c.population)}</strong></div></div>${notes}<button class="primary" onclick="startCountryPractice('${k}')">Øv på ${c.name}</button><div class="small-note">Befolkningstall er fra 2024. Landnavn følger Språkrådet/UD. Befolkningstall er Verdensbanken 2024; Vatikanstaten bruker offisiell statistikk per 31.12.2024.</div>`;
+  document.getElementById('detail-content').innerHTML=`<div class="eyebrow">${label}</div><div class="detail-flag">${c.flag}</div><h1>${c.name}</h1><div class="fact-grid">${capitalHtml}<div class="fact"><span>Verdensdel</span><strong>${c.continent}</strong></div><div class="fact"><span>Innbyggere (${c.populationYear||'år ukjent'})</span><strong>ca. ${formatPopulation(c.population)}</strong></div></div>${notes}<button class="primary" onclick="startCountryPractice('${k}')">Øv på ${c.name}</button><div class="small-note">Kilder: landnavn og hovedsteder følger Språkrådet/UD. Befolkning: Verdensbanken (2024), med offisiell Vatikanstatistikk per 31.12.2024. Kart: Natural Earth 1:50m.</div>`;
   showScreen('detail');
 }
 document.getElementById('detail-back').onclick=()=>{if(['home','learn','progress'].includes(returnScreen))setTab(returnScreen);else showScreen(returnScreen)};
@@ -1125,6 +1125,6 @@ renderAll();updateOnboarding();
 if(!state.profile.onboarded){document.getElementById('onboarding').classList.add('show')}
 else if(loadActiveSession()){showScreen('session');renderQuestion()}
 </script>
-<!-- build: v14-country-facts-and-map-focus-audit-2026-10-02 -->
+<!-- build: v15-vetted-geography-source-note-2026-10-02 -->
 </body>
 </html>
