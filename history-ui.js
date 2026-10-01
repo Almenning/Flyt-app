@@ -138,7 +138,7 @@ if(!root?.document)return;
 
 const document=root.document,$=s=>document.querySelector(s),bridge=()=>root.FlytBridge;
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const VERSION='20260919-edgeswipe1';
+const VERSION='20261001-history-hub1';
 let historyPeriod='week',historyWeekStart=null,previousFocus=null,scheduled=false;
 
 function actorSummary(row,state){
@@ -192,11 +192,11 @@ function closeSettings(){
 }
 function returnFromShell(){
   const back=ensureRoot().querySelector('[data-history-back]')?.dataset.historyBack;
-  if(back==='seenSuggestions')openSeenSuggestions();else if(back==='settings')openSettings();else closeSettings();
+  if(back==='seenSuggestions')openSeenSuggestions();else if(back==='hub')openHistoryHub();else if(back==='settings')openSettings();else closeSettings();
 }
 function shell(title,body,back=false){
   const el=ensureRoot();
-  el.innerHTML=`<div class="flytSettingsHead"><button type="button" class="pill" data-history-back="${back==='seenSuggestions'?'seenSuggestions':back?'settings':'close'}">${back?'Tilbake':'Lukk'}</button><div class="grow"><div class="ey">Innstillinger</div><strong>${esc(title)}</strong></div><button type="button" class="pill" data-history-close="1" aria-label="Lukk">×</button></div><div class="flytSettingsBody">${body}</div>`;
+  el.innerHTML=`<div class="flytSettingsHead"><button type="button" class="pill" data-history-back="${back==='seenSuggestions'?'seenSuggestions':back==='hub'?'hub':back?'settings':'close'}">${back?'Tilbake':'Lukk'}</button><div class="grow"><div class="ey">Innstillinger</div><strong>${esc(title)}</strong></div><button type="button" class="pill" data-history-close="1" aria-label="Lukk">×</button></div><div class="flytSettingsBody">${body}</div>`;
   el.classList.remove('hidden');
   el.setAttribute('aria-hidden','false');
   if(back)root.FlytEdgeSwipeBack?.bind(el,{canGoBack:()=>!el.classList.contains('hidden'),onBack:returnFromShell});else root.FlytEdgeSwipeBack?.unbind(el);
@@ -233,6 +233,20 @@ function trendHtml(summary){const max=Math.max(1,...summary.trend.map(item=>item
 function periodLabel(summary){if(summary.period==='week')return weekLabel(summary);const start=keyDate(summary.start),end=keyDate(summary.end);return start&&end?`${start.toLocaleDateString('nb-NO',{day:'numeric',month:'long'})}–${end.toLocaleDateString('nb-NO',{day:'numeric',month:'long',year:'numeric'})}`:''}
 function currentHistoryWeek(){return historyWeekStart&&keyDate(historyWeekStart)?historyWeekStart:mondayKey(new Date())}
 function historySummary(state){if(historyPeriod!=='week')return insights(state,historyPeriod,new Date());const start=currentHistoryWeek(),end=addDays(start,6);return insights(state,'week',keyDate(end))}
+function openHistoryHub(){
+  const body=`<div class="ey">Historikk</div><h1 class="title">Historikk</h1><p class="sub">Historikken er alltid tilgjengelig her. Velg området du vil se.</p><div class="section"><button type="button" class="secondary full" data-history-hub="tasks"><span><strong>Gjøre</strong><small class="taskmeta" style="display:block">Gjennomføringer, fordeling og utvikling.</small></span><b aria-hidden="true">›</b></button><button type="button" class="secondary full" data-history-hub="seen"><span><strong>Sett</strong><small class="taskmeta" style="display:block">Anerkjennelser og meldinger dere har sendt.</small></span><b aria-hidden="true">›</b></button><button type="button" class="secondary full" data-history-hub="rewards"><span><strong>Mål og belønning</strong><small class="taskmeta" style="display:block">Mål, avtaler og brukte belønninger.</small></span><b aria-hidden="true">›</b></button></div>`;
+  shell('Historikk',body,true);
+}
+function openSeenHistoryFromHub(){
+  const body=root.FlytSeenUI?.settingsHistoryMarkup?.();
+  if(!body){bridge()?.toast?.('Sett-historikken lastes. Prøv igjen om et øyeblikk.');return}
+  shell('Sett',body,'hub');
+}
+function openRewardsHistoryFromHub(){
+  const body=root.FlytRewardsUI?.settingsHistoryMarkup?.();
+  if(!body){bridge()?.toast?.('Belønningshistorikken lastes. Prøv igjen om et øyeblikk.');return}
+  shell('Mål og belønning',body,'hub');
+}
 function openHistory(){
   const state=bridge()?.getState?.();
   if(!state)return;
@@ -288,7 +302,9 @@ async function handleClick(e){
   if(e.target.closest?.('[data-history-close]')){e.preventDefault();closeSettings();return}
   const back=e.target.closest?.('[data-history-back]');
   if(back){e.preventDefault();returnFromShell();return}
-  if(e.target.closest?.('[data-settings-history]')){e.preventDefault();historyPeriod='week';historyWeekStart=mondayKey(new Date());openHistory();return}
+  if(e.target.closest?.('[data-settings-history]')){e.preventDefault();openHistoryHub();return}
+  const historyHub=e.target.closest?.('[data-history-hub]');
+  if(historyHub){e.preventDefault();const target=historyHub.dataset.historyHub;if(target==='tasks'){historyPeriod='week';historyWeekStart=mondayKey(new Date());openHistory();return}if(target==='seen'){openSeenHistoryFromHub();return}if(target==='rewards'){openRewardsHistoryFromHub();return}}
   if(e.target.closest?.('[data-settings-seen-suggestions]')){e.preventDefault();openSeenSuggestions();return}
   if(e.target.closest?.('[data-settings-nudges]')){e.preventDefault();openNudges();return}
   if(e.target.closest?.('[data-settings-setup]')){e.preventDefault();openSetup();return}
@@ -316,5 +332,5 @@ function install(){
 }
 
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
-root.FlytHistoryUI={openSettings,openHistory,openNudges,openSeenSuggestions,close:closeSettings,augmentWeek,core,version:VERSION};
+root.FlytHistoryUI={openSettings,openHistoryHub,openHistory,openNudges,openSeenSuggestions,close:closeSettings,augmentWeek,core,version:VERSION};
 })(typeof window!=='undefined'?window:null);
