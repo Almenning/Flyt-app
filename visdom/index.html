@@ -3,26 +3,28 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#f3f0e9" />
+  <meta name="theme-color" content="#efece5" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <meta name="apple-mobile-web-app-title" content="Fremover" />
-  <meta name="description" content="Verifiserte sitater og visdomsord med tydelig kilde." />
-  <title>Fremover</title>
+  <meta name="apple-mobile-web-app-title" content="Stoa" />
+  <meta name="description" content="Sitat og visdomsord med tydelig person, kilde og originaltekst." />
+  <title>Stoa</title>
   <style>
     :root{
-      --bg:#f3f0e9;
-      --paper:#fffdf8;
-      --ink:#1a1917;
+      --bg:#efece5;
+      --paper:#fffdf9;
+      --ink:#191816;
       --muted:#777169;
-      --line:#e3ddd3;
-      --accent:#8a4d39;
-      --good:#566a52;
-      --soft:#ebe6dd;
-      --shadow:0 18px 50px rgba(45,38,30,.07);
+      --line:#dfd9cf;
+      --accent:#7b4c3a;
+      --accent-soft:#efe2db;
+      --good:#597052;
+      --soft:#e9e5de;
+      --danger:#77544b;
+      --shadow:0 18px 54px rgba(47,39,31,.09);
     }
     *{box-sizing:border-box}
-    html{background:var(--bg)}
+    html{background:var(--bg);overscroll-behavior:none}
     body{
       margin:0;
       min-height:100vh;
@@ -31,383 +33,487 @@
       font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
       -webkit-font-smoothing:antialiased;
     }
-    button{font:inherit;cursor:pointer}
+    button,input{font:inherit}
+    button{cursor:pointer}
     .app{
-      width:min(100%,560px);
+      width:min(100%,580px);
       min-height:100vh;
       margin:0 auto;
-      padding:calc(22px + env(safe-area-inset-top)) 20px calc(92px + env(safe-area-inset-bottom));
-      display:flex;
-      flex-direction:column;
+      padding:calc(20px + env(safe-area-inset-top)) 18px calc(94px + env(safe-area-inset-bottom));
+      position:relative;
     }
-    header{
+    .topbar{
       display:flex;
       align-items:center;
       justify-content:space-between;
       gap:16px;
+      min-height:42px;
     }
-    .brand,.view-title{
+    .brand-wrap{display:flex;align-items:baseline;gap:9px}
+    .brand{
       margin:0;
       font-family:Georgia,"Times New Roman",serif;
+      font-size:30px;
       font-weight:500;
-      letter-spacing:-.025em;
+      letter-spacing:-.035em;
     }
-    .brand{font-size:28px}
-    .view-title{font-size:30px}
-    .about{
-      width:36px;height:36px;border-radius:50%;
+    .brand-sub{
+      color:var(--muted);
+      font-size:9px;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      font-weight:800;
+    }
+    .icon-btn{
+      width:38px;height:38px;border-radius:50%;
       border:1px solid var(--line);
-      background:transparent;color:var(--muted);
-      font-weight:700;
+      background:rgba(255,253,249,.55);
+      color:var(--muted);
+      display:grid;place-items:center;
+      font-weight:800;
     }
     .view[hidden]{display:none!important}
-    .quote-wrap{
-      flex:1;
+
+    .reader{
+      min-height:calc(100vh - 180px);
       display:flex;
-      align-items:center;
-      padding:34px 0 26px;
+      flex-direction:column;
+      justify-content:center;
+      padding:20px 0 8px;
+    }
+    .deck{
+      position:relative;
+      min-height:470px;
+    }
+    .deck:before{
+      content:"";
+      position:absolute;
+      left:12px;right:12px;top:12px;bottom:-9px;
+      background:#e4dfd7;
+      border:1px solid #d9d3c9;
+      border-radius:29px;
+      transform:scale(.985);
+      z-index:0;
     }
     .quote-card{
-      width:100%;
+      position:relative;
+      z-index:2;
+      min-height:470px;
       background:var(--paper);
       border:1px solid var(--line);
-      border-radius:28px;
-      padding:24px 22px 21px;
+      border-radius:29px;
+      padding:23px 21px 20px;
       box-shadow:var(--shadow);
+      display:flex;
+      flex-direction:column;
+      touch-action:pan-y;
+      user-select:none;
+      will-change:transform,opacity;
+      transition:transform .22s ease,opacity .22s ease,box-shadow .22s ease;
+    }
+    .quote-card.dragging{transition:none;box-shadow:0 24px 70px rgba(47,39,31,.14)}
+    .card-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
     }
     .verified{
       display:inline-flex;
       align-items:center;
       gap:7px;
-      font-size:10px;
-      letter-spacing:.08em;
-      text-transform:uppercase;
-      font-weight:800;
       color:var(--good);
+      font-size:10px;
+      text-transform:uppercase;
+      letter-spacing:.09em;
+      font-weight:850;
     }
     .verified:before{
       content:"";
       width:7px;height:7px;border-radius:50%;
       background:#78906f;
     }
+    .theme-chip{
+      padding:6px 9px;
+      background:#f0ece5;
+      border-radius:999px;
+      color:#665f57;
+      font-size:10px;
+      font-weight:750;
+    }
     blockquote{
-      margin:25px 0 22px;
+      margin:32px 0 24px;
       font-family:Georgia,"Times New Roman",serif;
       font-size:34px;
-      line-height:1.17;
-      letter-spacing:-.035em;
+      line-height:1.16;
+      letter-spacing:-.038em;
+      flex:1;
+      display:flex;
+      align-items:center;
     }
-    .author{
+    .person{
       font-size:12px;
       font-weight:850;
       letter-spacing:.12em;
       text-transform:uppercase;
     }
-    .source{
-      margin-top:7px;
+    .work{
+      margin-top:6px;
       color:var(--muted);
-      font-size:12px;
-      line-height:1.5;
+      font-size:11px;
+      line-height:1.45;
     }
-    .quote-actions{
+    .card-divider{height:1px;background:var(--line);margin:19px 0 14px}
+    .card-actions{
       display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:10px;
-      margin-top:22px;
-      padding-top:18px;
-      border-top:1px solid var(--line);
+      grid-template-columns:repeat(3,1fr);
+      gap:8px;
     }
-    .action{
-      min-height:46px;
-      border-radius:14px;
-      font-size:12px;
-      font-weight:800;
-    }
-    .action.secondary{
+    .card-action{
+      min-height:44px;
+      border-radius:13px;
       border:1px solid var(--line);
       background:transparent;
-      color:#514b44;
-    }
-    .source-btn{
-      width:100%;
-      margin-top:10px;
-      min-height:40px;
-      border:0;
-      background:transparent;
-      color:var(--accent);
+      color:#554f48;
       font-size:11px;
       font-weight:800;
     }
-    .next{
-      width:100%;
-      min-height:52px;
-      border:0;
-      border-radius:16px;
-      background:var(--accent);
-      color:white;
-      font-size:13px;
-      font-weight:850;
-      box-shadow:0 10px 28px rgba(138,77,57,.16);
+    .card-action.saved{
+      background:var(--accent-soft);
+      border-color:#dfc9be;
+      color:var(--accent);
     }
-    .trust-line{
-      margin:14px 0 0;
+    .swipe-overlay{
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:0 24px;
+      z-index:3;
+      opacity:0;
+    }
+    .swipe-stamp{
+      padding:8px 10px;
+      border:2px solid;
+      border-radius:9px;
+      font-size:11px;
+      font-weight:900;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      transform:rotate(-8deg);
+      background:rgba(255,253,249,.9);
+    }
+    .swipe-stamp.next{color:var(--danger)}
+    .swipe-stamp.save{color:var(--good);transform:rotate(8deg)}
+    .swipe-hint{
+      margin:16px 0 0;
       text-align:center;
-      color:#938d84;
+      color:#989188;
       font-size:10px;
       line-height:1.5;
     }
-    .saved-note{
-      color:var(--good);
-      font-size:11px;
-      min-height:16px;
-      margin-top:8px;
-      text-align:center;
+    .reader-buttons{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-top:16px;
+    }
+    .reader-btn{
+      min-height:50px;
+      border-radius:15px;
+      font-size:12px;
+      font-weight:850;
+    }
+    .reader-btn.skip{
+      border:1px solid var(--line);
+      background:rgba(255,253,249,.55);
+      color:#5d5750;
+    }
+    .reader-btn.keep{
+      border:0;
+      background:var(--accent);
+      color:#fff;
+      box-shadow:0 9px 24px rgba(123,76,58,.15);
     }
 
-    .library-head{margin-top:34px}
-    .library-subtitle{
-      margin:8px 0 20px;
-      color:var(--muted);
-      font-size:13px;
-      line-height:1.55;
+    .section-head{margin-top:32px;margin-bottom:20px}
+    .view-title{
+      margin:0;
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:30px;
+      font-weight:500;
+      letter-spacing:-.025em;
     }
+    .view-copy{
+      margin:8px 0 0;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.5;
+    }
+    .search{
+      width:100%;
+      min-height:46px;
+      border:1px solid var(--line);
+      border-radius:15px;
+      background:rgba(255,253,249,.74);
+      color:var(--ink);
+      padding:0 14px;
+      font-size:15px;
+      outline:none;
+      margin-bottom:13px;
+    }
+    .search:focus{border-color:#b59788;box-shadow:0 0 0 3px rgba(123,76,58,.07)}
     .segments{
       display:grid;
       grid-template-columns:1fr 1fr;
       gap:4px;
-      background:#e9e4dc;
+      background:#e5e0d8;
       padding:4px;
-      border-radius:15px;
-      margin-bottom:22px;
+      border-radius:14px;
+      margin-bottom:18px;
     }
     .segment{
-      min-height:40px;
-      border:0;
-      border-radius:11px;
-      background:transparent;
-      color:#6c665f;
-      font-size:12px;
-      font-weight:800;
+      min-height:39px;
+      border:0;border-radius:10px;
+      background:transparent;color:#6c665e;
+      font-size:11px;font-weight:800;
     }
     .segment.active{
       background:var(--paper);
       color:var(--ink);
-      box-shadow:0 3px 12px rgba(49,42,34,.07);
+      box-shadow:0 3px 12px rgba(47,39,31,.07);
     }
-    .library-list{display:grid;gap:10px}
-    .library-row{
+    .list{display:grid;gap:9px}
+    .library-row,.quote-row{
       width:100%;
       border:1px solid var(--line);
       border-radius:18px;
-      background:rgba(255,253,248,.78);
-      padding:16px;
+      background:rgba(255,253,249,.78);
+      color:var(--ink);
+      text-align:left;
+      padding:15px 16px;
+    }
+    .library-row{
       display:grid;
       grid-template-columns:1fr auto;
       gap:14px;
       align-items:center;
-      text-align:left;
-      color:var(--ink);
     }
     .library-row strong{
       display:block;
       font-family:Georgia,"Times New Roman",serif;
       font-size:17px;
       font-weight:500;
-      line-height:1.25;
     }
     .library-row small{
       display:block;
       margin-top:5px;
       color:var(--muted);
-      font-size:11px;
+      font-size:10px;
       line-height:1.4;
     }
-    .chevron{font-size:20px;color:#aaa39b}
+    .chevron{font-size:20px;color:#a59e95}
     .back-btn{
-      border:0;
-      background:transparent;
-      color:var(--accent);
-      padding:0;
-      font-size:12px;
-      font-weight:800;
-      margin:1px 0 18px;
+      border:0;background:transparent;color:var(--accent);
+      padding:0;margin:0 0 18px;
+      font-size:12px;font-weight:850;
     }
-    .collection-head{margin-top:30px;margin-bottom:18px}
     .collection-label{
       color:var(--muted);
-      font-size:10px;
-      letter-spacing:.12em;
-      font-weight:850;
+      font-size:9px;
+      letter-spacing:.13em;
       text-transform:uppercase;
-      margin-bottom:7px;
+      font-weight:850;
+      margin-bottom:6px;
     }
     .collection-title{
-      margin:0;
+      margin:0 0 18px;
       font-family:Georgia,"Times New Roman",serif;
       font-size:29px;
-      line-height:1.05;
       font-weight:500;
-    }
-    .quote-row{
-      width:100%;
-      border:1px solid var(--line);
-      border-radius:19px;
-      background:var(--paper);
-      padding:17px 16px;
-      text-align:left;
-      color:var(--ink);
+      letter-spacing:-.02em;
     }
     .quote-row q{
       display:block;
       font-family:Georgia,"Times New Roman",serif;
       font-size:18px;
-      line-height:1.38;
+      line-height:1.4;
       quotes:"“" "”";
     }
     .quote-row-meta{
-      margin-top:11px;
+      margin-top:10px;
       color:var(--muted);
       font-size:10px;
       line-height:1.45;
     }
-    .empty{color:var(--muted);font-size:13px;padding:18px 0}
+    .quote-row.saved-row{border-color:#dbc7bc;background:#faf3ef}
+    .empty{
+      padding:24px 3px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.6;
+    }
 
     .bottom-nav{
       position:fixed;
-      left:50%;
-      bottom:0;
+      left:50%;bottom:0;
       transform:translateX(-50%);
-      width:min(560px,100%);
+      width:min(580px,100%);
       display:grid;
-      grid-template-columns:1fr 1fr;
-      background:rgba(243,240,233,.95);
-      border-top:1px solid rgba(214,207,198,.9);
-      padding:9px 18px calc(9px + env(safe-area-inset-bottom));
+      grid-template-columns:repeat(3,1fr);
+      background:rgba(239,236,229,.95);
+      border-top:1px solid rgba(214,207,198,.92);
+      padding:9px 14px calc(9px + env(safe-area-inset-bottom));
       backdrop-filter:blur(18px);
       -webkit-backdrop-filter:blur(18px);
-      z-index:20;
+      z-index:30;
     }
     .nav-item{
-      min-height:42px;
-      border:0;
-      background:transparent;
-      color:#9a948c;
-      font-size:11px;
-      font-weight:800;
+      min-height:43px;
+      border:0;background:transparent;color:#989188;
+      font-size:11px;font-weight:800;
       position:relative;
     }
     .nav-item.active{color:var(--ink)}
     .nav-item.active:after{
       content:"";
-      position:absolute;
+      position:absolute;left:50%;bottom:1px;
       width:4px;height:4px;border-radius:50%;
+      transform:translateX(-50%);
       background:var(--accent);
-      left:50%;bottom:2px;transform:translateX(-50%);
     }
 
     dialog{
       width:min(520px,calc(100% - 28px));
-      border:0;
-      border-radius:24px;
-      padding:0;
-      background:var(--paper);
-      color:var(--ink);
-      box-shadow:0 30px 90px rgba(0,0,0,.24);
+      border:0;border-radius:24px;padding:0;
+      background:var(--paper);color:var(--ink);
+      box-shadow:0 30px 90px rgba(0,0,0,.25);
     }
-    dialog::backdrop{background:rgba(25,22,19,.48);backdrop-filter:blur(5px)}
+    dialog::backdrop{background:rgba(26,23,20,.5);backdrop-filter:blur(5px)}
     .modal{padding:26px;position:relative}
-    .close{
+    .modal-close{
       position:absolute;right:14px;top:14px;
       width:34px;height:34px;border:0;border-radius:50%;
-      background:#eee9e1;color:#5e5851;font-size:22px;
+      background:#eee9e1;color:#5d5750;font-size:22px;
     }
     .modal h2{
-      font-family:Georgia,"Times New Roman",serif;
       margin:1px 40px 15px 0;
-      font-size:27px;
-      font-weight:500;
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:27px;font-weight:500;
     }
     .meta{display:grid;gap:13px;margin-top:18px}
     .meta-row{padding-top:13px;border-top:1px solid var(--line)}
     .meta-label{
-      display:block;color:var(--muted);font-size:9px;font-weight:850;
-      letter-spacing:.12em;text-transform:uppercase;margin-bottom:5px;
+      display:block;
+      margin-bottom:5px;
+      color:var(--muted);
+      font-size:9px;font-weight:850;
+      letter-spacing:.12em;text-transform:uppercase;
     }
-    .meta-value{font-size:13px;line-height:1.55;color:#403c37}
-    .original{font-family:Georgia,"Times New Roman",serif;font-size:18px;line-height:1.5}
+    .meta-value{color:#403b35;font-size:13px;line-height:1.58}
+    .original{
+      font-family:Georgia,"Times New Roman",serif;
+      font-size:18px;line-height:1.5;
+    }
     .source-link{
-      display:inline-block;margin-top:5px;color:var(--accent);
-      font-size:12px;font-weight:800;text-decoration:none;
+      display:inline-block;margin-top:7px;
+      color:var(--accent);font-size:12px;font-weight:850;
+      text-decoration:none;
     }
     @media (min-width:700px){
       body{padding:24px 0}
       .app{min-height:calc(100vh - 48px)}
-      .bottom-nav{bottom:24px;border:1px solid var(--line);border-radius:18px;width:520px}
+      .bottom-nav{bottom:24px;border:1px solid var(--line);border-radius:18px;width:540px}
     }
   </style>
 </head>
 <body>
   <main class="app">
-    <header>
-      <h1 class="brand">Fremover</h1>
-      <button class="about" id="aboutBtn" aria-label="Om appen">i</button>
+    <header class="topbar">
+      <div class="brand-wrap">
+        <h1 class="brand">Stoa</h1>
+        <span class="brand-sub">arbeidstittel</span>
+      </div>
+      <button class="icon-btn" id="aboutBtn" aria-label="Om Stoa">i</button>
     </header>
 
-    <section class="view" id="todayView">
-      <section class="quote-wrap">
-        <article class="quote-card">
-          <div class="verified">Verifisert</div>
-          <blockquote id="quote"></blockquote>
-          <div class="author" id="author"></div>
-          <div class="source" id="source"></div>
+    <section class="view" id="readerView">
+      <div class="reader">
+        <div class="deck">
+          <article class="quote-card" id="quoteCard">
+            <div class="swipe-overlay" id="swipeOverlay">
+              <span class="swipe-stamp next">Neste</span>
+              <span class="swipe-stamp save">Lagre</span>
+            </div>
+            <div class="card-head">
+              <span class="verified" id="verifiedLabel">Verifisert</span>
+              <span class="theme-chip" id="primaryTheme"></span>
+            </div>
+            <blockquote id="quoteText"></blockquote>
+            <div class="person" id="quoteAuthor"></div>
+            <div class="work" id="quoteWork"></div>
+            <div class="card-divider"></div>
+            <div class="card-actions">
+              <button class="card-action" id="speakBtn">Hør</button>
+              <button class="card-action" id="sourceBtn">Kilde</button>
+              <button class="card-action" id="saveBtn">♡ Lagre</button>
+            </div>
+          </article>
+        </div>
 
-          <div class="quote-actions">
-            <button class="action secondary" id="speakBtn">Hør</button>
-            <button class="action secondary" id="saveBtn">☆ Lagre</button>
-          </div>
+        <p class="swipe-hint">Sveip venstre for neste · sveip høyre for å lagre og gå videre</p>
 
-          <button class="source-btn" id="sourceBtn">Kilde og originaltekst</button>
-        </article>
-      </section>
-
-      <button class="next" id="nextBtn">Neste sitat</button>
-      <div class="saved-note" id="savedNote"></div>
-      <p class="trust-line">Ingen anonyme internett-sitater. Hvert sitat skal kunne spores tilbake til en konkret kilde.</p>
+        <div class="reader-buttons">
+          <button class="reader-btn skip" id="nextBtn">Neste</button>
+          <button class="reader-btn keep" id="keepBtn">Lagre</button>
+        </div>
+      </div>
     </section>
 
     <section class="view" id="libraryView" hidden>
-      <div class="library-head" id="libraryHead">
-        <h2 class="view-title">Bibliotek</h2>
-        <p class="library-subtitle">Finn sitater etter hva de handler om, eller hvem de kommer fra.</p>
+      <div id="libraryRoot">
+        <div class="section-head">
+          <h2 class="view-title">Bibliotek</h2>
+          <p class="view-copy">Finn sitater etter tema eller personen de kommer fra.</p>
+        </div>
+        <input class="search" id="librarySearch" type="search" placeholder="Søk i sitater, personer og temaer" autocomplete="off" />
         <div class="segments">
           <button class="segment active" data-mode="themes">Temaer</button>
           <button class="segment" data-mode="people">Personer</button>
         </div>
-      </div>
-
-      <div id="libraryRoot">
-        <div class="library-list" id="libraryList"></div>
+        <div class="list" id="libraryList"></div>
       </div>
 
       <div id="collectionView" hidden>
-        <div class="collection-head">
+        <div class="section-head">
           <button class="back-btn" id="backBtn">← Bibliotek</button>
           <div class="collection-label" id="collectionLabel"></div>
           <h2 class="collection-title" id="collectionTitle"></h2>
         </div>
-        <div class="library-list" id="collectionList"></div>
+        <div class="list" id="collectionList"></div>
       </div>
     </section>
 
+    <section class="view" id="savedView" hidden>
+      <div class="section-head">
+        <h2 class="view-title">Lagret</h2>
+        <p class="view-copy">Visdomsord du vil beholde og komme tilbake til.</p>
+      </div>
+      <div class="list" id="savedList"></div>
+    </section>
+
     <nav class="bottom-nav" aria-label="Hovednavigasjon">
-      <button class="nav-item active" data-view="today">I dag</button>
+      <button class="nav-item active" data-view="reader">Les</button>
       <button class="nav-item" data-view="library">Bibliotek</button>
+      <button class="nav-item" data-view="saved">Lagret</button>
     </nav>
   </main>
 
   <dialog id="dialog">
     <div class="modal">
-      <button class="close" id="closeBtn" aria-label="Lukk">×</button>
+      <button class="modal-close" id="closeDialog" aria-label="Lukk">×</button>
       <div id="dialogContent"></div>
     </div>
   </dialog>
@@ -415,86 +521,132 @@
   <script>
 const quotes = [
   {
+    id:'ma-x-16',
     text:'Snakk ikke lenger om hvordan et godt menneske bør være. Vær et.',
     original:'No longer talk at all about the kind of man that a good man ought to be, but be such.',
     author:'Marcus Aurelius',
     work:'Meditations, bok X, §16',
-    themes:['Karakter','Ansvar'],
+    themes:['Stoisisme','Karakter','Ansvar'],
+    status:'Verifisert',
     type:'Norsk gjengivelse basert på George Longs engelske oversettelse fra 1862.',
     verification:'Tekststed og ordlyd kontrollert mot den offentlige George Long-utgaven på Wikisource.',
     url:'https://en.wikisource.org/wiki/The_Thoughts_of_the_Emperor_Marcus_Aurelius_Antoninus/Book_X'
   },
   {
+    id:'epictetus-1',
     text:'Av ting er noen i vår makt, og andre er ikke i vår makt.',
     original:'Of things some are in our power, and others are not.',
     author:'Epiktet',
     work:'Enchiridion, §1',
-    themes:['Selvkontroll'],
+    themes:['Stoisisme','Selvkontroll'],
+    status:'Verifisert',
     type:'Norsk gjengivelse basert på George Longs engelske oversettelse.',
     verification:'Første setning er kontrollert mot George Long-utgaven hos Project Gutenberg og Wikisource.',
     url:'https://www.gutenberg.org/files/10661/10661-h/10661-h.htm'
   },
   {
+    id:'shakespeare-hamlet-1-3',
     text:'Fremfor alt: vær tro mot deg selv.',
     original:'This above all: to thine own self be true,',
     author:'William Shakespeare',
     work:'Hamlet, akt 1, scene 3, linje 84',
     themes:['Karakter','Integritet'],
+    status:'Verifisert',
     type:'Norsk gjengivelse. Originalteksten vises under.',
     verification:'Ordlyd og plassering kontrollert mot Folger Shakespeare Librarys tekstutgave.',
     url:'https://www.folger.edu/explore/shakespeares-works/Hamlet/read/'
   },
   {
+    id:'roosevelt-arena',
     text:'Æren tilhører den som faktisk er i arenaen.',
     original:'The credit belongs to the man who is actually in the arena.',
     author:'Theodore Roosevelt',
     work:'Citizenship in a Republic, Sorbonne, 23. april 1910',
-    themes:['Mot','Handling'],
+    themes:['Mot','Handling','Samfunn'],
+    status:'Verifisert',
     type:'Norsk gjengivelse av et kort utdrag fra talen.',
     verification:'Kontrollert mot den transkriberte talen hos Theodore Roosevelt Center.',
     url:'https://www.theodorerooseveltcenter.org/encyclopedia/culture-and-society/man-in-the-arena/'
   },
   {
+    id:'jfk-inaugural',
     text:'Spør ikke hva landet ditt kan gjøre for deg. Spør hva du kan gjøre for landet ditt.',
     original:'Ask not what your country can do for you—ask what you can do for your country.',
     author:'John F. Kennedy',
     work:'Tiltredelsestalen, 20. januar 1961',
     themes:['Samfunn','Ansvar'],
+    status:'Verifisert',
     type:'Norsk gjengivelse. Originalteksten vises under.',
     verification:'Kontrollert mot materiale fra John F. Kennedy Presidential Library and Museum.',
     url:'https://www.jfklibrary.org/sites/default/files/2018-06/Interpreting_JFKs_Inaugural_Address.pdf'
   }
 ];
 
-let index = Number(localStorage.getItem('fremover:simple:index') || 0) % quotes.length;
-let libraryMode = 'themes';
 const $ = id => document.getElementById(id);
+let index = Math.max(0, Math.min(quotes.length - 1, Number(localStorage.getItem('stoa:index') || 0)));
+let libraryMode = 'themes';
+let searchTerm = '';
+let startX = 0;
+let startY = 0;
+let dragX = 0;
+let dragging = false;
 
-function saved(){
-  try{return JSON.parse(localStorage.getItem('fremover:simple:saved') || '[]')}catch{return []}
+function savedIds(){
+  try{
+    const modern = JSON.parse(localStorage.getItem('stoa:saved') || '[]');
+    if(Array.isArray(modern) && modern.length) return modern;
+    const legacy = JSON.parse(localStorage.getItem('fremover:simple:saved') || '[]');
+    if(Array.isArray(legacy) && legacy.length){
+      const migrated = legacy.map(i => quotes[Number(i)]?.id).filter(Boolean);
+      localStorage.setItem('stoa:saved',JSON.stringify(migrated));
+      return migrated;
+    }
+  }catch{}
+  return [];
 }
-function setSaved(value){
-  localStorage.setItem('fremover:simple:saved',JSON.stringify(value));
+function setSavedIds(ids){localStorage.setItem('stoa:saved',JSON.stringify([...new Set(ids)]))}
+function isSaved(id){return savedIds().includes(id)}
+function current(){return quotes[index]}
+function renderCard(){
+  const q=current();
+  $('quoteText').textContent='“'+q.text+'”';
+  $('quoteAuthor').textContent=q.author;
+  $('quoteWork').textContent=q.work;
+  $('verifiedLabel').textContent=q.status;
+  $('primaryTheme').textContent=q.themes[0];
+  const saved=isSaved(q.id);
+  $('saveBtn').textContent=saved?'♥ Lagret':'♡ Lagre';
+  $('saveBtn').classList.toggle('saved',saved);
+  $('keepBtn').textContent=saved?'Lagret':'Lagre';
+  localStorage.setItem('stoa:index',String(index));
 }
-function render(){
-  const q = quotes[index];
-  $('quote').textContent = '“' + q.text + '”';
-  $('author').textContent = q.author;
-  $('source').textContent = q.work;
-  $('saveBtn').textContent = saved().includes(index) ? '★ Lagret' : '☆ Lagre';
-  $('savedNote').textContent = '';
-  localStorage.setItem('fremover:simple:index',index);
+function stepNext(){
+  index=(index+1)%quotes.length;
+  renderCard();
 }
-function toggleSave(){
-  let list = saved();
-  if(list.includes(index)) list = list.filter(i => i !== index);
-  else list.push(index);
-  setSaved(list);
-  render();
-  $('savedNote').textContent = list.includes(index) ? 'Lagret' : 'Fjernet fra lagrede';
-  setTimeout(() => $('savedNote').textContent = '',1200);
+function saveCurrent(advance=false){
+  const q=current();
+  let ids=savedIds();
+  if(!ids.includes(q.id)) ids.push(q.id);
+  setSavedIds(ids);
+  renderCard();
+  renderSaved();
+  if(advance) setTimeout(stepNext,120);
 }
-function speak(){
+function toggleCurrentSave(){
+  const q=current();
+  let ids=savedIds();
+  ids=ids.includes(q.id)?ids.filter(id=>id!==q.id):ids.concat(q.id);
+  setSavedIds(ids);
+  renderCard();
+  renderSaved();
+}
+function openQuote(i){
+  index=Number(i);
+  renderCard();
+  switchView('reader');
+}
+function speakCurrent(){
   if(!('speechSynthesis' in window)){
     alert('Opplesning støttes ikke i denne nettleseren.');
     return;
@@ -504,158 +656,191 @@ function speak(){
     $('speakBtn').textContent='Hør';
     return;
   }
-  const q = quotes[index];
-  const utterance = new SpeechSynthesisUtterance(q.text + '. ' + q.author + '.');
-  utterance.lang = 'nb-NO';
-  utterance.rate = .92;
-  const voices = window.speechSynthesis.getVoices();
-  const voice = voices.find(v => /^nb|^no/i.test(v.lang));
-  if(voice) utterance.voice = voice;
-  $('speakBtn').textContent = 'Stopp';
-  utterance.onend = () => $('speakBtn').textContent='Hør';
-  utterance.onerror = () => $('speakBtn').textContent='Hør';
+  const q=current();
+  const utterance=new SpeechSynthesisUtterance(q.text+'. '+q.author+'.');
+  utterance.lang='nb-NO';
+  utterance.rate=.92;
+  const voice=window.speechSynthesis.getVoices().find(v=>/^nb|^no/i.test(v.lang));
+  if(voice) utterance.voice=voice;
+  $('speakBtn').textContent='Stopp';
+  utterance.onend=()=>{$('speakBtn').textContent='Hør'};
+  utterance.onerror=()=>{$('speakBtn').textContent='Hør'};
   window.speechSynthesis.speak(utterance);
 }
-function showSource(q = quotes[index]){
-  $('dialogContent').innerHTML = `
+function showSource(q=current()){
+  $('dialogContent').innerHTML=`
     <h2>${q.author}</h2>
     <div class="meta">
-      <div class="meta-row">
-        <span class="meta-label">Status</span>
-        <div class="meta-value">✓ Verifisert</div>
-      </div>
-      <div class="meta-row">
-        <span class="meta-label">Kilde</span>
-        <div class="meta-value">${q.work}</div>
-      </div>
-      <div class="meta-row">
-        <span class="meta-label">Originaltekst</span>
-        <div class="meta-value original">“${q.original}”</div>
-      </div>
-      <div class="meta-row">
-        <span class="meta-label">Oversettelse</span>
-        <div class="meta-value">${q.type}</div>
-      </div>
-      <div class="meta-row">
-        <span class="meta-label">Kontroll</span>
-        <div class="meta-value">${q.verification}</div>
-        <a class="source-link" href="${q.url}" target="_blank" rel="noopener">Åpne kilden ↗</a>
-      </div>
+      <div class="meta-row"><span class="meta-label">Status</span><div class="meta-value">✓ ${q.status}</div></div>
+      <div class="meta-row"><span class="meta-label">Kilde</span><div class="meta-value">${q.work}</div></div>
+      <div class="meta-row"><span class="meta-label">Originaltekst</span><div class="meta-value original">“${q.original}”</div></div>
+      <div class="meta-row"><span class="meta-label">Norsk tekst</span><div class="meta-value">${q.type}</div></div>
+      <div class="meta-row"><span class="meta-label">Kontroll</span><div class="meta-value">${q.verification}</div><a class="source-link" href="${q.url}" target="_blank" rel="noopener">Åpne kilden ↗</a></div>
     </div>
   `;
   $('dialog').showModal();
 }
 function showAbout(){
-  $('dialogContent').innerHTML = `
-    <h2>En enkel regel</h2>
+  $('dialogContent').innerHTML=`
+    <h2>Stoa</h2>
     <div class="meta">
-      <div class="meta-row">
-        <div class="meta-value">Fremover skal være en app du kan stole på. Derfor publiseres ikke et sitat før vi kan oppgi hvem som sa eller skrev det, hvor det finnes, og om teksten er original, oversatt eller parafrasert.</div>
-      </div>
-      <div class="meta-row">
-        <span class="meta-label">Bibliotek</span>
-        <div class="meta-value">Du kan finne sitater etter tema eller person. Den egentlige kilden følger alltid sitatet som verk, tale eller tekststed.</div>
-      </div>
+      <div class="meta-row"><div class="meta-value"><strong>En enkel sitatleser med høy terskel for innhold.</strong> Sveip videre, lagre det som treffer, og bruk biblioteket når du vil lese etter tema eller person.</div></div>
+      <div class="meta-row"><span class="meta-label">Kvalitetsregel</span><div class="meta-value">Et sitat skal ikke merkes som verifisert før vi kan vise hvem det kommer fra, konkret verk eller tale, originaltekst og hva den norske teksten bygger på.</div></div>
+      <div class="meta-row"><span class="meta-label">Arbeidstittel</span><div class="meta-value">Stoa viser til den stoiske tradisjonen, men biblioteket er bredere enn stoisisme.</div></div>
     </div>
   `;
   $('dialog').showModal();
 }
-function switchView(view){
-  $('todayView').hidden = view !== 'today';
-  $('libraryView').hidden = view !== 'library';
-  document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active',b.dataset.view===view));
-  if(view==='library') showLibraryRoot();
-  window.scrollTo({top:0,behavior:'smooth'});
-}
 function themeMap(){
-  const map = new Map();
-  quotes.forEach((q,i) => q.themes.forEach(theme => {
-    if(!map.has(theme)) map.set(theme,[]);
-    map.get(theme).push(i);
+  const map=new Map();
+  quotes.forEach((q,i)=>q.themes.forEach(t=>{
+    if(!map.has(t)) map.set(t,[]);
+    map.get(t).push(i);
   }));
   return map;
 }
 function peopleMap(){
-  const map = new Map();
-  quotes.forEach((q,i) => {
+  const map=new Map();
+  quotes.forEach((q,i)=>{
     if(!map.has(q.author)) map.set(q.author,[]);
     map.get(q.author).push(i);
   });
   return map;
 }
-function renderLibrary(){
-  const map = libraryMode==='themes' ? themeMap() : peopleMap();
-  const rows = [...map.entries()].sort((a,b)=>a[0].localeCompare(b[0],'nb'));
-  $('libraryList').innerHTML = rows.map(([name,ids]) => {
-    const subtitle = libraryMode==='themes'
-      ? ids.length + (ids.length===1?' sitat':' sitater')
-      : [...new Set(ids.map(i=>quotes[i].work.split(',')[0]))].join(' · ');
-    return `
-      <button class="library-row" data-group="${encodeURIComponent(name)}">
-        <span>
-          <strong>${name}</strong>
-          <small>${subtitle}</small>
-        </span>
-        <span class="chevron">›</span>
-      </button>
-    `;
-  }).join('');
-  document.querySelectorAll('[data-group]').forEach(button=>{
-    button.onclick=()=>openCollection(decodeURIComponent(button.dataset.group));
-  });
+function normalize(value){
+  return value.toLocaleLowerCase('nb-NO');
 }
-function showLibraryRoot(){
-  $('libraryRoot').hidden=false;
-  $('collectionView').hidden=true;
-  $('libraryHead').hidden=false;
-  renderLibrary();
+function matchesQuote(q,term){
+  if(!term) return true;
+  const hay=[q.text,q.author,q.work,...q.themes].join(' ');
+  return normalize(hay).includes(normalize(term));
+}
+function renderLibrary(){
+  const term=searchTerm.trim();
+  if(term){
+    const matches=quotes.map((q,i)=>({q,i})).filter(x=>matchesQuote(x.q,term));
+    $('libraryList').innerHTML=matches.length?matches.map(({q,i})=>quoteRowHtml(q,i)).join(''):'<div class="empty">Ingen treff. Biblioteket er fortsatt lite, som er en langt hyggeligere måte å si at vi ikke har fylt det med søppel ennå.</div>';
+    bindQuoteRows();
+    return;
+  }
+  const map=libraryMode==='themes'?themeMap():peopleMap();
+  const rows=[...map.entries()].sort((a,b)=>a[0].localeCompare(b[0],'nb'));
+  $('libraryList').innerHTML=rows.map(([name,ids])=>{
+    const subtitle=libraryMode==='themes'
+      ? ids.length+(ids.length===1?' sitat':' sitater')
+      : ids.length+(ids.length===1?' verifisert sitat':' verifiserte sitater');
+    return `<button class="library-row" data-group="${encodeURIComponent(name)}"><span><strong>${name}</strong><small>${subtitle}</small></span><span class="chevron">›</span></button>`;
+  }).join('');
+  document.querySelectorAll('[data-group]').forEach(btn=>btn.onclick=()=>openCollection(decodeURIComponent(btn.dataset.group)));
+}
+function quoteRowHtml(q,i){
+  return `<button class="quote-row ${isSaved(q.id)?'saved-row':''}" data-quote="${i}"><q>${q.text}</q><div class="quote-row-meta">${q.author} · ${q.work}</div></button>`;
+}
+function bindQuoteRows(){
+  document.querySelectorAll('[data-quote]').forEach(btn=>btn.onclick=()=>openQuote(Number(btn.dataset.quote)));
 }
 function openCollection(name){
-  const map = libraryMode==='themes' ? themeMap() : peopleMap();
-  const ids = map.get(name) || [];
-  $('libraryHead').hidden=true;
+  const map=libraryMode==='themes'?themeMap():peopleMap();
+  const ids=map.get(name)||[];
   $('libraryRoot').hidden=true;
   $('collectionView').hidden=false;
   $('collectionLabel').textContent=libraryMode==='themes'?'Tema':'Person';
   $('collectionTitle').textContent=name;
-  $('collectionList').innerHTML=ids.map(i=>{
-    const q=quotes[i];
-    return `
-      <button class="quote-row" data-quote="${i}">
-        <q>${q.text}</q>
-        <div class="quote-row-meta">${q.author} · ${q.work}</div>
-      </button>
-    `;
-  }).join('');
-  document.querySelectorAll('[data-quote]').forEach(button=>{
-    button.onclick=()=>{
-      index=Number(button.dataset.quote);
-      render();
-      switchView('today');
-    };
-  });
+  $('collectionList').innerHTML=ids.map(i=>quoteRowHtml(quotes[i],i)).join('');
+  bindQuoteRows();
+}
+function showLibraryRoot(){
+  $('libraryRoot').hidden=false;
+  $('collectionView').hidden=true;
+  renderLibrary();
+}
+function renderSaved(){
+  const ids=savedIds();
+  const rows=ids.map(id=>{
+    const i=quotes.findIndex(q=>q.id===id);
+    return i>=0?quoteRowHtml(quotes[i],i):'';
+  }).filter(Boolean);
+  $('savedList').innerHTML=rows.length?rows.join(''):'<div class="empty">Ingen lagrede sitater ennå. Sveip høyre eller trykk «Lagre» når du finner et du vil beholde.</div>';
+  bindQuoteRows();
+}
+function switchView(view){
+  $('readerView').hidden=view!=='reader';
+  $('libraryView').hidden=view!=='library';
+  $('savedView').hidden=view!=='saved';
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.view===view));
+  if(view==='library') showLibraryRoot();
+  if(view==='saved') renderSaved();
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 function setLibraryMode(mode){
   libraryMode=mode;
   document.querySelectorAll('.segment').forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));
-  showLibraryRoot();
+  renderLibrary();
 }
 
-$('nextBtn').onclick = () => {
-  index = (index + 1) % quotes.length;
-  render();
-};
-$('saveBtn').onclick = toggleSave;
-$('speakBtn').onclick = speak;
-$('sourceBtn').onclick = () => showSource();
-$('aboutBtn').onclick = showAbout;
-$('closeBtn').onclick = () => $('dialog').close();
-$('backBtn').onclick = showLibraryRoot;
-document.querySelectorAll('.segment').forEach(button=>button.onclick=()=>setLibraryMode(button.dataset.mode));
-document.querySelectorAll('.nav-item').forEach(button=>button.onclick=()=>switchView(button.dataset.view));
+const card=$('quoteCard');
+card.addEventListener('pointerdown',e=>{
+  if(e.target.closest('button')) return;
+  dragging=true;
+  startX=e.clientX;startY=e.clientY;dragX=0;
+  card.setPointerCapture(e.pointerId);
+  card.classList.add('dragging');
+});
+card.addEventListener('pointermove',e=>{
+  if(!dragging) return;
+  const dx=e.clientX-startX;
+  const dy=e.clientY-startY;
+  if(Math.abs(dy)>Math.abs(dx) && Math.abs(dy)>18) return;
+  dragX=dx;
+  const rotate=dx/24;
+  card.style.transform=`translateX(${dx}px) rotate(${rotate}deg)`;
+  $('swipeOverlay').style.opacity=String(Math.min(.9,Math.abs(dx)/130));
+  const stamps=$('swipeOverlay').children;
+  stamps[0].style.opacity=dx<0?'1':'0';
+  stamps[1].style.opacity=dx>0?'1':'0';
+});
+function endDrag(){
+  if(!dragging) return;
+  dragging=false;
+  card.classList.remove('dragging');
+  const threshold=95;
+  if(Math.abs(dragX)>=threshold){
+    const save=dragX>0;
+    card.style.transition='transform .2s ease,opacity .2s ease';
+    card.style.transform=`translateX(${save?'115%':'-115%'}) rotate(${save?12:-12}deg)`;
+    card.style.opacity='0';
+    if(save) saveCurrent(false);
+    setTimeout(()=>{
+      stepNext();
+      card.style.transition='none';
+      card.style.transform='translateX(0) rotate(0)';
+      card.style.opacity='1';
+      $('swipeOverlay').style.opacity='0';
+      requestAnimationFrame(()=>card.style.transition='transform .22s ease,opacity .22s ease,box-shadow .22s ease');
+    },180);
+  }else{
+    card.style.transform='translateX(0) rotate(0)';
+    $('swipeOverlay').style.opacity='0';
+  }
+}
+card.addEventListener('pointerup',endDrag);
+card.addEventListener('pointercancel',endDrag);
 
-render();
+$('nextBtn').onclick=stepNext;
+$('keepBtn').onclick=()=>saveCurrent(false);
+$('saveBtn').onclick=toggleCurrentSave;
+$('speakBtn').onclick=speakCurrent;
+$('sourceBtn').onclick=()=>showSource();
+$('aboutBtn').onclick=showAbout;
+$('closeDialog').onclick=()=>$('dialog').close();
+$('backBtn').onclick=showLibraryRoot;
+$('librarySearch').addEventListener('input',e=>{searchTerm=e.target.value;renderLibrary()});
+document.querySelectorAll('.segment').forEach(btn=>btn.onclick=()=>setLibraryMode(btn.dataset.mode));
+document.querySelectorAll('.nav-item').forEach(btn=>btn.onclick=()=>switchView(btn.dataset.view));
+
+renderCard();
 renderLibrary();
+renderSaved();
   </script>
 </body>
 </html>
