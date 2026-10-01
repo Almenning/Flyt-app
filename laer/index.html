@@ -527,8 +527,8 @@ function bump(key,correct){
 }
 function typeMastered(k,type){return mastery(masteryKey(k,type))>=2}
 function learningTypes(k){
-  const types=['country','flag','continent'];
-  if(countries[k]?.capital&&countries[k]?.capitalQuiz!==false) types.splice(1,0,'capital');
+  const types=['flag','continent'];
+  if(countries[k]?.capital&&countries[k]?.capitalQuiz!==false) types.unshift('country','capital');
   if(NORDIC_IDS.includes(k)) types.push('map');
   return types;
 }
@@ -651,7 +651,7 @@ document.getElementById('detail-back').onclick=()=>{if(['home','learn','progress
 function questionPool(ids,includeMap=false){
   const pool=[];
   ids.forEach(k=>{
-    const types=['country','flag','continent'];if(countries[k]?.capital&&countries[k]?.capitalQuiz!==false)types.push('capital');if(includeMap&&NORDIC_IDS.includes(k))types.push('map');
+    const types=['flag','continent'];if(countries[k]?.capital&&countries[k]?.capitalQuiz!==false)types.unshift('country','capital');if(includeMap&&NORDIC_IDS.includes(k))types.push('map');
     types.forEach(type=>{const key=masteryKey(k,type),mistakes=Number(state.mistakes[key]||0);pool.push({k,type,score:mastery(key)-Math.min(.7,mistakes*.12)+Math.random()*.18})});
   });
   return pool.sort((a,b)=>a.score-b.score);
@@ -1120,6 +1120,6 @@ renderAll();updateOnboarding();
 if(!state.profile.onboarded){document.getElementById('onboarding').classList.add('show')}
 else if(loadActiveSession()){showScreen('session');renderQuestion()}
 </script>
-<!-- build: v11-norsk-fakta-og-kart-audit-2026-10-01 -->
+<!-- build: v11b-norsk-fakta-og-kart-audit-2026-10-01 -->
 </body>
 </html>
