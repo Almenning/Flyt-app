@@ -521,64 +521,560 @@
   <script>
 const quotes = [
   {
-    id:'ma-x-16',
-    text:'Snakk ikke lenger om hvordan et godt menneske bør være. Vær et.',
-    original:'No longer talk at all about the kind of man that a good man ought to be, but be such.',
-    author:'Marcus Aurelius',
-    work:'Meditations, bok X, §16',
-    themes:['Stoisisme','Karakter','Ansvar'],
-    status:'Verifisert',
-    type:'Norsk gjengivelse basert på George Longs engelske oversettelse fra 1862.',
-    verification:'Tekststed og ordlyd kontrollert mot den offentlige George Long-utgaven på Wikisource.',
-    url:'https://en.wikisource.org/wiki/The_Thoughts_of_the_Emperor_Marcus_Aurelius_Antoninus/Book_X'
+    "id": "ma-x-16",
+    "text": "Snakk ikke lenger om hvordan et godt menneske bør være. Vær et.",
+    "original": "No longer talk at all about the kind of man that a good man ought to be, but be such.",
+    "author": "Marcus Aurelius",
+    "work": "Meditations, bok X, §16",
+    "themes": [
+      "Stoisisme",
+      "Karakter",
+      "Ansvar"
+    ],
+    "status": "Verifisert",
+    "type": "Norsk gjengivelse basert på George Longs engelske oversettelse fra 1862.",
+    "verification": "Tekststed og ordlyd kontrollert mot den offentlige George Long-utgaven på Wikisource.",
+    "url": "https://en.wikisource.org/wiki/The_Thoughts_of_the_Emperor_Marcus_Aurelius_Antoninus/Book_X"
   },
   {
-    id:'epictetus-1',
-    text:'Av ting er noen i vår makt, og andre er ikke i vår makt.',
-    original:'Of things some are in our power, and others are not.',
-    author:'Epiktet',
-    work:'Enchiridion, §1',
-    themes:['Stoisisme','Selvkontroll'],
-    status:'Verifisert',
-    type:'Norsk gjengivelse basert på George Longs engelske oversettelse.',
-    verification:'Første setning er kontrollert mot George Long-utgaven hos Project Gutenberg og Wikisource.',
-    url:'https://www.gutenberg.org/files/10661/10661-h/10661-h.htm'
+    "id": "epictetus-1",
+    "text": "Av ting er noen i vår makt, og andre er ikke i vår makt.",
+    "original": "Of things some are in our power, and others are not.",
+    "author": "Epiktet",
+    "work": "Enchiridion, §1",
+    "themes": [
+      "Stoisisme",
+      "Selvkontroll"
+    ],
+    "status": "Verifisert",
+    "type": "Norsk gjengivelse basert på George Longs engelske oversettelse.",
+    "verification": "Første setning er kontrollert mot George Long-utgaven hos Project Gutenberg.",
+    "url": "https://www.gutenberg.org/files/10661/10661-h/10661-h.htm"
   },
   {
-    id:'shakespeare-hamlet-1-3',
-    text:'Fremfor alt: vær tro mot deg selv.',
-    original:'This above all: to thine own self be true,',
-    author:'William Shakespeare',
-    work:'Hamlet, akt 1, scene 3, linje 84',
-    themes:['Karakter','Integritet'],
-    status:'Verifisert',
-    type:'Norsk gjengivelse. Originalteksten vises under.',
-    verification:'Ordlyd og plassering kontrollert mot Folger Shakespeare Librarys tekstutgave.',
-    url:'https://www.folger.edu/explore/shakespeares-works/Hamlet/read/'
+    "id": "shakespeare-hamlet-1-3",
+    "text": "Fremfor alt: vær tro mot deg selv.",
+    "original": "This above all: to thine own self be true,",
+    "author": "William Shakespeare",
+    "work": "Hamlet, akt 1, scene 3",
+    "themes": [
+      "Karakter",
+      "Integritet"
+    ],
+    "status": "Verifisert",
+    "type": "Norsk gjengivelse. Originalteksten vises under.",
+    "verification": "Ordlyd og plassering kontrollert mot Folger Shakespeare Librarys tekstutgave.",
+    "url": "https://www.folger.edu/explore/shakespeares-works/hamlet/read/"
   },
   {
-    id:'roosevelt-arena',
-    text:'Æren tilhører den som faktisk er i arenaen.',
-    original:'The credit belongs to the man who is actually in the arena.',
-    author:'Theodore Roosevelt',
-    work:'Citizenship in a Republic, Sorbonne, 23. april 1910',
-    themes:['Mot','Handling','Samfunn'],
-    status:'Verifisert',
-    type:'Norsk gjengivelse av et kort utdrag fra talen.',
-    verification:'Kontrollert mot den transkriberte talen hos Theodore Roosevelt Center.',
-    url:'https://www.theodorerooseveltcenter.org/encyclopedia/culture-and-society/man-in-the-arena/'
+    "id": "roosevelt-arena",
+    "text": "Æren tilhører den som faktisk er i arenaen.",
+    "original": "The credit belongs to the man who is actually in the arena.",
+    "author": "Theodore Roosevelt",
+    "work": "Citizenship in a Republic, Sorbonne, 23. april 1910",
+    "themes": [
+      "Mot",
+      "Handling",
+      "Samfunn"
+    ],
+    "status": "Verifisert",
+    "type": "Norsk gjengivelse av et kort utdrag fra talen.",
+    "verification": "Kontrollert mot transkripsjonen av Citizenship in a Republic.",
+    "url": "https://www.presidency.ucsb.edu/documents/address-the-sorbonne-paris-france-citizenship-republic"
   },
   {
-    id:'jfk-inaugural',
-    text:'Spør ikke hva landet ditt kan gjøre for deg. Spør hva du kan gjøre for landet ditt.',
-    original:'Ask not what your country can do for you—ask what you can do for your country.',
-    author:'John F. Kennedy',
-    work:'Tiltredelsestalen, 20. januar 1961',
-    themes:['Samfunn','Ansvar'],
-    status:'Verifisert',
-    type:'Norsk gjengivelse. Originalteksten vises under.',
-    verification:'Kontrollert mot materiale fra John F. Kennedy Presidential Library and Museum.',
-    url:'https://www.jfklibrary.org/sites/default/files/2018-06/Interpreting_JFKs_Inaugural_Address.pdf'
+    "id": "jfk-inaugural",
+    "text": "Spør ikke hva landet ditt kan gjøre for deg. Spør hva du kan gjøre for landet ditt.",
+    "original": "Ask not what your country can do for you—ask what you can do for your country.",
+    "author": "John F. Kennedy",
+    "work": "Tiltredelsestalen, 20. januar 1961",
+    "themes": [
+      "Samfunn",
+      "Ansvar"
+    ],
+    "status": "Verifisert",
+    "type": "Norsk gjengivelse. Originalteksten vises under.",
+    "verification": "Kontrollert mot materiale fra John F. Kennedy Presidential Library and Museum.",
+    "url": "https://www.jfklibrary.org/sites/default/files/2018-06/Interpreting_JFKs_Inaugural_Address.pdf"
+  },
+  {
+    "id": "ma-ii-5",
+    "text": "Gjør hver handling i livet som om den var den siste.",
+    "original": "Do every act of thy life as if it were the last.",
+    "author": "Marcus Aurelius",
+    "work": "Meditations, bok II, §5",
+    "themes": [
+      "Stoisisme",
+      "Handling",
+      "Dødelighet"
+    ],
+    "status": "Verifisert",
+    "type": "Norsk gjengivelse basert på George Longs engelske oversettelse.",
+    "verification": "Ordlyd og tekststed kontrollert mot George Long-utgaven på Wikisource.",
+    "url": "https://en.wikisource.org/wiki/The_Thoughts_of_the_Emperor_Marcus_Aurelius_Antoninus/Book_II"
+  },
+  {
+    "id": "epictetus-5",
+    "text": "Mennesker forstyrres ikke av tingene, men av oppfatningene de har om dem.",
+    "original": "Men are disturbed not by the things which happen, but by the opinions about the things.",
+    "author": "Epiktet",
+    "work": "Enchiridion, §5",
+    "themes": [
+      "Stoisisme",
+      "Perspektiv",
+      "Selvkontroll"
+    ],
+    "status": "Verifisert",
+    "type": "Norsk gjengivelse basert på George Longs engelske oversettelse.",
+    "verification": "Ordlyd og tekststed kontrollert mot George Long-utgaven hos Project Gutenberg.",
+    "url": "https://www.gutenberg.org/files/10661/10661-h/10661-h.htm"
+  },
+  {
+    "id": "shakespeare-hamlet-2-2",
+    "text": "Det finnes ingenting som i seg selv er godt eller ondt; tanken gjør det slik.",
+    "original": "There is nothing either good or bad but thinking makes it so.",
+    "author": "William Shakespeare",
+    "work": "Hamlet, akt 2, scene 2",
+    "themes": [
+      "Perspektiv",
+      "Tanker",
+      "Selvinnsikt"
+    ],
+    "status": "Verifisert",
+    "type": "Egen norsk gjengivelse av originalteksten.",
+    "verification": "Ordlyd og plassering kontrollert mot Folger Shakespeare Librarys Hamlet-utgave.",
+    "url": "https://www.folger.edu/explore/shakespeares-works/hamlet/read/"
+  },
+  {
+    "id": "roosevelt-work-worth-doing",
+    "text": "Den største belønningen livet byr på, er muligheten til å arbeide hardt med arbeid som er verdt å gjøre.",
+    "original": "Far and away the best prize that life offers is the chance to work hard at work worth doing.",
+    "author": "Theodore Roosevelt",
+    "work": "Tale til New York State Agricultural Association, 7. september 1903",
+    "themes": [
+      "Arbeid",
+      "Mening",
+      "Ansvar"
+    ],
+    "status": "Verifisert",
+    "type": "Egen norsk gjengivelse av originalteksten.",
+    "verification": "Kontrollert mot transkripsjonen hos The American Presidency Project.",
+    "url": "https://www.presidency.ucsb.edu/documents/address-the-new-york-state-agricultural-association-syracuse-ny"
+  },
+  {
+    "id": "jfk-moon",
+    "text": "Vi velger å dra til månen, ikke fordi det er lett, men fordi det er vanskelig.",
+    "original": "We choose to go to the moon in this decade and do the other things, not because they are easy, but because they are hard.",
+    "author": "John F. Kennedy",
+    "work": "Tale ved Rice University, 12. september 1962",
+    "themes": [
+      "Mål",
+      "Mot",
+      "Utforskning"
+    ],
+    "status": "Verifisert",
+    "type": "Egen norsk gjengivelse av et kort utdrag fra talen.",
+    "verification": "Kontrollert mot transkripsjonen av talen om USAs romprogram.",
+    "url": "https://www.presidency.ucsb.edu/documents/address-rice-university-houston-the-nations-space-effort"
+  },
+  {
+    "id": "ma-iv-3",
+    "text": "Universet er forandring; livet er oppfatning.",
+    "original": "The universe is transformation: life is opinion.",
+    "author": "Marcus Aurelius",
+    "work": "Meditations, bok IV, §3",
+    "themes": [
+      "Stoisisme",
+      "Perspektiv",
+      "Forandring"
+    ],
+    "status": "Verifisert",
+    "type": "Egen norsk gjengivelse basert på George Longs engelske oversettelse.",
+    "verification": "Ordlyd og tekststed kontrollert mot George Long-utgaven på Wikisource.",
+    "url": "https://en.wikisource.org/wiki/The_Thoughts_of_the_Emperor_Marcus_Aurelius_Antoninus/Book_IV"
+  },
+  {
+    "id": "epictetus-8",
+    "text": "Ønsk ikke at det som skjer skal skje slik du vil. Ønsk at det skjer slik det faktisk skjer.",
+    "original": "Seek not that the things which happen should happen as you wish; but wish the things which happen to be as they are.",
+    "author": "Epiktet",
+    "work": "Enchiridion, §8",
+    "themes": [
+      "Stoisisme",
+      "Aksept",
+      "Perspektiv"
+    ],
+    "status": "Verifisert",
+    "type": "Egen norsk gjengivelse basert på George Longs engelske oversettelse.",
+    "verification": "Ordlyd og tekststed kontrollert mot George Long-utgaven hos Project Gutenberg.",
+    "url": "https://www.gutenberg.org/files/10661/10661-h/10661-h.htm"
+  },
+  {
+    "id": "shakespeare-measure-1-4",
+    "text": "Tvilen vår er forrædersk og får oss til å miste det gode vi kunne vunnet, fordi vi frykter å forsøke.",
+    "original": "Our doubts are traitors and makes us lose the good we oft might win by fearing to attempt.",
+    "author": "William Shakespeare",
+    "work": "Measure for Measure, akt 1, scene 4",
+    "themes": [
+      "Mot",
+      "Handling",
+      "Tvil"
+    ],
+    "status": "Verifisert",
+    "type": "Egen norsk gjengivelse av originalteksten.",
+    "verification": "Ordlyd og plassering kontrollert mot Folger Shakespeare Librarys tekstutgave.",
+    "url": "https://www.folger.edu/explore/shakespeares-works/measure-for-measure/read/1/4/"
+  },
+  {
+    "id": "roosevelt-duty",
+    "text": "Livet får ikke virkelig mening hvis ikke hovedmålet er å gjøre sin plikt og oppnå resultater som er verdt å oppnå.",
+    "original": "Life can mean nothing worth meaning, unless its prime aim is the doing of duty, the achievement of results worth achieving.",
+    "author": "Theodore Roosevelt",
+    "work": "Tale til New York State Agricultural Association, 7. september 1903",
+    "themes": [
+      "Plikt",
+      "Handling",
+      "Mening"
+    ],
+    "status": "Verifisert",
+    "type": "Egen norsk gjengivelse av originalteksten.",
+    "verification": "Kontrollert mot transkripsjonen hos The American Presidency Project.",
+    "url": "https://www.presidency.ucsb.edu/documents/address-the-new-york-state-agricultural-association-syracuse-ny"
+  },
+  {
+    "id": "jfk-war",
+    "text": "Menneskeheten må gjøre slutt på krigen, ellers vil krigen gjøre slutt på menneskeheten.",
+    "original": "Mankind must put an end to war—or war will put an end to mankind.",
+    "author": "John F. Kennedy",
+    "work": "Tale til FNs generalforsamling, 25. september 1961",
+    "themes": [
+      "Fred",
+      "Samfunn",
+      "Ansvar"
+    ],
+    "status": "Verifisert",
+    "type": "Egen norsk gjengivelse av originalteksten.",
+    "verification": "Kontrollert mot transkripsjonen av Kennedys tale til FNs generalforsamling.",
+    "url": "https://www.presidency.ucsb.edu/documents/address-new-york-city-before-the-general-assembly-the-united-nations"
+  },
+  {
+    "id": "ma-vi-6",
+    "text": "Den beste måten å hevne seg på er å ikke bli lik den som gjorde urett.",
+    "original": "The best way of avenging thyself is not to become like the wrong-doer.",
+    "author": "Marcus Aurelius",
+    "work": "Meditations, bok VI, §6",
+    "themes": [
+      "Stoisisme",
+      "Karakter",
+      "Selvkontroll"
+    ],
+    "status": "Verifisert",
+    "type": "Egen norsk gjengivelse basert på George Longs engelske oversettelse.",
+    "verification": "Ordlyd og tekststed kontrollert mot George Long-utgaven på Wikisource.",
+    "url": "https://en.wikisource.org/wiki/The_Thoughts_of_the_Emperor_Marcus_Aurelius_Antoninus/Book_VI"
+  },
+  {
+    "id": "epictetus-10",
+    "text": "Ved hver hendelse: vend deg mot deg selv og spør hvilken evne du har til å bruke den godt.",
+    "original": "On the occasion of every accident that befalls you, remember to turn to yourself and inquire what power you have for turning it to use.",
+    "author": "Epiktet",
+    "work": "Enchiridion, §10",
+    "themes": [
+      "Stoisisme",
+      "Motstand",
+      "Selvkontroll"
+    ],
+    "status": "Verifisert",
+    "type": "Egen norsk gjengivelse basert på George Longs engelske oversettelse.",
+    "verification": "Ordlyd og tekststed kontrollert mot George Long-utgaven hos Project Gutenberg.",
+    "url": "https://www.gutenberg.org/files/10661/10661-h/10661-h.htm"
+  },
+  {
+    "id": "shakespeare-caesar-2-2",
+    "text": "Feige dør mange ganger før sin død; den modige smaker døden bare én gang.",
+    "original": "Cowards die many times before their deaths; The valiant never taste of death but once.",
+    "author": "William Shakespeare",
+    "work": "Julius Caesar, akt 2, scene 2",
+    "themes": [
+      "Mot",
+      "Dødelighet"
+    ],
+    "status": "Verifisert",
+    "type": "Egen norsk gjengivelse av originalteksten.",
+    "verification": "Ordlyd og plassering kontrollert mot Folger Shakespeare Librarys tekstutgave.",
+    "url": "https://www.folger.edu/explore/shakespeares-works/julius-caesar/act-2-scene-2/"
+  },
+  {
+    "id": "roosevelt-burdens",
+    "text": "Livsgleden vinnes i sin dypeste og sanneste forstand bare av dem som ikke har veket unna livets byrder.",
+    "original": "The joy of life is won in its deepest and truest sense only by those who have not shirked life's burdens.",
+    "author": "Theodore Roosevelt",
+    "work": "Tale til New York State Agricultural Association, 7. september 1903",
+    "themes": [
+      "Motstand",
+      "Ansvar",
+      "Livsglede"
+    ],
+    "status": "Verifisert",
+    "type": "Egen norsk gjengivelse av originalteksten.",
+    "verification": "Kontrollert mot transkripsjonen hos The American Presidency Project.",
+    "url": "https://www.presidency.ucsb.edu/documents/address-the-new-york-state-agricultural-association-syracuse-ny"
+  },
+  {
+    "id": "jfk-conformity",
+    "text": "Konformitet er frihetens fangevokter og vekstens fiende.",
+    "original": "Conformity is the jailer of freedom, and the enemy of growth.",
+    "author": "John F. Kennedy",
+    "work": "Tale til FNs generalforsamling, 25. september 1961",
+    "themes": [
+      "Frihet",
+      "Vekst",
+      "Selvstendighet"
+    ],
+    "status": "Verifisert",
+    "type": "Egen norsk gjengivelse av originalteksten.",
+    "verification": "Kontrollert mot transkripsjonen av Kennedys tale til FNs generalforsamling.",
+    "url": "https://www.presidency.ucsb.edu/documents/address-new-york-city-before-the-general-assembly-the-united-nations"
+  },
+  {
+    "id": "ma-vii-59",
+    "text": "Se innover. Der finnes kilden til det gode, og den vil alltid strømme hvis du fortsetter å grave.",
+    "original": "Look within. Within is the fountain of good, and it will ever bubble up, if thou wilt ever dig.",
+    "author": "Marcus Aurelius",
+    "work": "Meditations, bok VII, §59",
+    "themes": [
+      "Stoisisme",
+      "Selvinnsikt",
+      "Karakter"
+    ],
+    "status": "Verifisert",
+    "type": "Egen norsk gjengivelse basert på George Longs engelske oversettelse.",
+    "verification": "Ordlyd og tekststed kontrollert mot George Long-utgaven på Wikisource.",
+    "url": "https://en.wikisource.org/wiki/The_Thoughts_of_the_Emperor_Marcus_Aurelius_Antoninus/Book_VII"
+  },
+  {
+    "id": "epictetus-15",
+    "text": "Husk at du i livet bør oppføre deg som ved et gjestebud.",
+    "original": "Remember that in life you ought to behave as at a banquet.",
+    "author": "Epiktet",
+    "work": "Enchiridion, §15",
+    "themes": [
+      "Stoisisme",
+      "Måtehold",
+      "Tålmodighet"
+    ],
+    "status": "Verifisert",
+    "type": "Egen norsk gjengivelse basert på George Longs engelske oversettelse.",
+    "verification": "Ordlyd og tekststed kontrollert mot George Long-utgaven hos Project Gutenberg.",
+    "url": "https://www.gutenberg.org/files/10661/10661-h/10661-h.htm"
+  },
+  {
+    "id": "shakespeare-hamlet-5-2",
+    "text": "Å være rede er alt.",
+    "original": "The readiness is all.",
+    "author": "William Shakespeare",
+    "work": "Hamlet, akt 5, scene 2",
+    "themes": [
+      "Beredskap",
+      "Aksept",
+      "Dødelighet"
+    ],
+    "status": "Verifisert",
+    "type": "Egen norsk gjengivelse av originalteksten.",
+    "verification": "Ordlyd og plassering kontrollert mot Folger Shakespeare Librarys Hamlet-utgave.",
+    "url": "https://www.folger.edu/explore/shakespeares-works/hamlet/read/"
+  },
+  {
+    "id": "roosevelt-shenandoah-doer",
+    "text": "Den som teller i livet, er den som går ut og forsøker å gjøre det som må gjøres.",
+    "original": "The man that counts in life is the man that goes out and tries to do the thing.",
+    "author": "Theodore Roosevelt",
+    "work": "Bemerkninger i Shenandoah, Iowa, 28. april 1903",
+    "themes": [
+      "Handling",
+      "Mot",
+      "Arbeid"
+    ],
+    "status": "Verifisert",
+    "type": "Egen norsk gjengivelse av originalteksten.",
+    "verification": "Kontrollert mot transkripsjonen hos The American Presidency Project.",
+    "url": "https://www.presidency.ucsb.edu/documents/remarks-shenandoah-iowa"
+  },
+  {
+    "id": "jfk-roof",
+    "text": "Tiden for å reparere taket er når solen skinner.",
+    "original": "The time to repair the roof is when the sun is shining.",
+    "author": "John F. Kennedy",
+    "work": "State of the Union, 11. januar 1962",
+    "themes": [
+      "Beredskap",
+      "Ansvar",
+      "Handling"
+    ],
+    "status": "Verifisert",
+    "type": "Egen norsk gjengivelse av originalteksten.",
+    "verification": "Kontrollert mot den publiserte State of the Union-talen fra 1962.",
+    "url": "https://www.presidency.ucsb.edu/documents/annual-message-the-congress-the-state-the-union-4"
+  },
+  {
+    "id": "ma-viii-47",
+    "text": "Hvis noe ytre plager deg, er det ikke tingen som forstyrrer deg, men din egen vurdering av den.",
+    "original": "If thou art pained by any external thing, it is not this thing that disturbs thee, but thy own judgment about it.",
+    "author": "Marcus Aurelius",
+    "work": "Meditations, bok VIII, §47",
+    "themes": [
+      "Stoisisme",
+      "Perspektiv",
+      "Selvkontroll"
+    ],
+    "status": "Verifisert",
+    "type": "Egen norsk gjengivelse basert på George Longs engelske oversettelse.",
+    "verification": "Ordlyd og tekststed kontrollert mot George Long-utgaven på Wikisource.",
+    "url": "https://en.wikisource.org/wiki/The_Thoughts_of_the_Emperor_Marcus_Aurelius_Antoninus/Book_VIII"
+  },
+  {
+    "id": "epictetus-fragment-114",
+    "text": "Ingen er fri som ikke er herre over seg selv.",
+    "original": "No man is free who is not master of himself.",
+    "author": "Epiktet",
+    "work": "Fragment CXIV",
+    "themes": [
+      "Stoisisme",
+      "Frihet",
+      "Selvkontroll"
+    ],
+    "status": "Verifisert",
+    "type": "Egen norsk gjengivelse av George Longs engelske tekst.",
+    "verification": "Kontrollert mot fragmentsamlingen i Wikisource-utgaven av Epiktet.",
+    "url": "https://en.wikisource.org/wiki/The_Discourses_of_Epictetus%3B_with_the_Encheiridion_and_Fragments/Fragments"
+  },
+  {
+    "id": "shakespeare-hamlet-4-5",
+    "text": "Vi vet hva vi er, men ikke hva vi kan bli.",
+    "original": "We know what we are but know not what we may be.",
+    "author": "William Shakespeare",
+    "work": "Hamlet, akt 4, scene 5",
+    "themes": [
+      "Mulighet",
+      "Selvinnsikt",
+      "Forandring"
+    ],
+    "status": "Verifisert",
+    "type": "Egen norsk gjengivelse av originalteksten.",
+    "verification": "Ordlyd og plassering kontrollert mot Folger Shakespeare Librarys Hamlet-utgave.",
+    "url": "https://www.folger.edu/explore/shakespeares-works/hamlet/read/4/5/"
+  },
+  {
+    "id": "roosevelt-common-sense",
+    "text": "Vi trenger mot, anstendighet og den reddende nådegaven: sunn fornuft.",
+    "original": "We need courage, we need decency, and we need the saving grace of common sense.",
+    "author": "Theodore Roosevelt",
+    "work": "Bemerkninger i Shenandoah, Iowa, 28. april 1903",
+    "themes": [
+      "Karakter",
+      "Mot",
+      "Dømmekraft"
+    ],
+    "status": "Verifisert",
+    "type": "Egen norsk gjengivelse av originalteksten.",
+    "verification": "Kontrollert mot transkripsjonen hos The American Presidency Project.",
+    "url": "https://www.presidency.ucsb.edu/documents/remarks-shenandoah-iowa"
+  },
+  {
+    "id": "jfk-leadership-learning",
+    "text": "Lederskap og læring er uunnværlige for hverandre.",
+    "original": "Leadership and learning are indispensable to each other.",
+    "author": "John F. Kennedy",
+    "work": "Tale forberedt for Trade Mart i Dallas, 22. november 1963",
+    "themes": [
+      "Lederskap",
+      "Læring",
+      "Kunnskap"
+    ],
+    "status": "Verifisert",
+    "type": "Egen norsk gjengivelse av originalteksten.",
+    "verification": "Kontrollert mot den publiserte teksten til talen som var forberedt for Dallas.",
+    "url": "https://www.presidency.ucsb.edu/documents/remarks-prepared-for-delivery-the-trade-mart-dallas"
+  },
+  {
+    "id": "ma-vii-61",
+    "text": "Kunsten å leve ligner mer på bryting enn på dans.",
+    "original": "The business of life is more akin to wrestling than dancing.",
+    "author": "Marcus Aurelius",
+    "work": "Meditations, bok VII, §61",
+    "themes": [
+      "Stoisisme",
+      "Motstand",
+      "Beredskap"
+    ],
+    "status": "Verifisert",
+    "type": "Egen norsk gjengivelse basert på C. R. Haines' engelske oversettelse.",
+    "verification": "Ordlyd og tekststed kontrollert mot Haines-utgaven på Wikisource.",
+    "url": "https://en.wikisource.org/wiki/Marcus_Aurelius_%28Haines_1916%29/Book_7"
+  },
+  {
+    "id": "epictetus-33-report",
+    "text": "Hvis noen forteller at en annen snakker stygt om deg, svar: Han kjente tydeligvis ikke til resten av feilene mine.",
+    "original": "The man did not know the rest of my faults, for he would not have mentioned these only.",
+    "author": "Epiktet",
+    "work": "Enchiridion, §33",
+    "themes": [
+      "Stoisisme",
+      "Selvinnsikt",
+      "Humor"
+    ],
+    "status": "Verifisert",
+    "type": "Egen norsk gjengivelse av poenget i George Longs engelske oversettelse.",
+    "verification": "Ordlyd og tekststed kontrollert mot George Long-utgaven på Wikisource.",
+    "url": "https://en.wikisource.org/wiki/The_Discourses_of_Epictetus/The_Encheiridion%2C_or_Manual"
+  },
+  {
+    "id": "shakespeare-doubts-alt",
+    "text": "Frykten for å forsøke kan koste oss det gode vi ellers kunne vunnet.",
+    "original": "And makes us lose the good we oft might win by fearing to attempt.",
+    "author": "William Shakespeare",
+    "work": "Measure for Measure, akt 1, scene 4",
+    "themes": [
+      "Mot",
+      "Handling",
+      "Tvil"
+    ],
+    "status": "Verifisert",
+    "type": "Egen norsk gjengivelse av den avsluttende delen av Lucios replikk.",
+    "verification": "Ordlyd og plassering kontrollert mot Folger Shakespeare Librarys tekstutgave.",
+    "url": "https://www.folger.edu/explore/shakespeares-works/measure-for-measure/read/1/4/"
+  },
+  {
+    "id": "roosevelt-work-soul",
+    "text": "Den som gjør arbeid verdt å gjøre, lever og ånder for arbeidet og finner belønning i å ha gjort det godt.",
+    "original": "The man or woman who does work worth doing is the man or woman who lives, who breathes that work.",
+    "author": "Theodore Roosevelt",
+    "work": "Tale ved Central High School, Philadelphia, 22. november 1902",
+    "themes": [
+      "Arbeid",
+      "Mening",
+      "Mestring"
+    ],
+    "status": "Verifisert",
+    "type": "Egen norsk gjengivelse av et kort utdrag fra talen.",
+    "verification": "Kontrollert mot transkripsjonen hos The American Presidency Project.",
+    "url": "https://www.presidency.ucsb.edu/documents/remarks-the-dedicatory-exercises-the-new-high-school-building-philadelphia-pennsylvania"
+  },
+  {
+    "id": "jfk-ideas-live",
+    "text": "Et menneske kan dø, nasjoner kan reise seg og falle, men en idé lever videre.",
+    "original": "A man may die, nations may rise and fall, but an idea lives on.",
+    "author": "John F. Kennedy",
+    "work": "Innspilte bemerkninger for USIA-senderen i Greenville, 8. februar 1963",
+    "themes": [
+      "Ideer",
+      "Ettermæle",
+      "Samfunn"
+    ],
+    "status": "Verifisert",
+    "type": "Egen norsk gjengivelse av originalteksten.",
+    "verification": "Kontrollert mot den publiserte transkripsjonen av Kennedys innspilte bemerkninger.",
+    "url": "https://www.presidency.ucsb.edu/documents/remarks-recorded-for-the-opening-usia-transmitter-greenville-north-carolina"
   }
 ];
 
