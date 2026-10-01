@@ -846,8 +846,9 @@ function drawGlobe(){
       if(!Number.isFinite(c.lon)||!Number.isFinite(c.lat))continue;
       const tiny=!c.geometry||countryGeoSpan(c)<1.45;if(!tiny)continue;
       const p=globeProject(c.lon,c.lat);if(!p)continue;
-      const rr=c.id===globeSelected?7:Math.min(5.5,3.2+globeZoom*.35);
-      ctx.beginPath();ctx.arc(p[0],p[1],rr,0,Math.PI*2);ctx.fillStyle=c.id===globeSelected?'#FFD869':'rgba(255,255,255,.92)';ctx.fill();ctx.strokeStyle='rgba(66,78,112,.35)';ctx.lineWidth=1;ctx.stroke();
+      const rr=c.id===globeSelected?8:Math.min(6.5,4+globeZoom*.4);
+      if(globeZoom>=2.6){ctx.beginPath();ctx.arc(p[0],p[1],rr+5,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,.20)';ctx.fill()}
+      ctx.beginPath();ctx.arc(p[0],p[1],rr,0,Math.PI*2);ctx.fillStyle=c.id===globeSelected?'#FFD869':'rgba(255,255,255,.96)';ctx.fill();ctx.strokeStyle='rgba(66,78,112,.38)';ctx.lineWidth=1.2;ctx.stroke();
     }
   }
   ctx.restore();
@@ -861,7 +862,21 @@ function globeInverse(x,y){
 }
 function pickGlobeCountry(e){
   const canvas=document.getElementById('globe-canvas'),rect=canvas.getBoundingClientRect(),x=e.clientX-rect.left,y=e.clientY-rect.top,ll=globeInverse(x,y);if(!ll)return;
-  let picked=WORLD_COUNTRIES.find(c=>c.geometry&&pointInCountry(c,ll.lon,ll.lat));
+
+  // Small countries get a screen-space target far larger than their actual polygon.
+  // At useful zoom levels this behaves like a minimum ~44pt mobile hit target.
+  let tinyBest=null,tinyDist=Infinity;
+  for(const c of WORLD_COUNTRIES){
+    if(!Number.isFinite(c.lon)||!Number.isFinite(c.lat))continue;
+    const tiny=!c.geometry||countryGeoSpan(c)<1.55;if(!tiny)continue;
+    const p=globeProject(c.lon,c.lat);if(!p)continue;
+    const d=Math.hypot(p[0]-x,p[1]-y);if(d<tinyDist){tinyDist=d;tinyBest=c}
+  }
+  const tinyHitRadius=globeZoom>=2?Math.min(34,22+globeZoom*2):15;
+  let picked=tinyBest&&tinyDist<=tinyHitRadius?tinyBest:null;
+
+  if(!picked)picked=WORLD_COUNTRIES.find(c=>c.geometry&&pointInCountry(c,ll.lon,ll.lat));
+
   if(!picked){
     let best=null,dist=Infinity;
     for(const c of WORLD_COUNTRIES){
@@ -1019,6 +1034,6 @@ renderAll();updateOnboarding();
 if(!state.profile.onboarded){document.getElementById('onboarding').classList.add('show')}
 else if(loadActiveSession()){showScreen('session');renderQuestion()}
 </script>
-<!-- build: v7-fullscreen-globe-large-hit-targets-2026-10-01 -->
+<!-- build: v8-fullscreen-globe-magnetic-small-countries-2026-10-01 -->
 </body>
 </html>
