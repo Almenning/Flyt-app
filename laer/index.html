@@ -568,7 +568,7 @@ function showScreen(name){
   document.getElementById('bottom-nav').style.display=special?'none':'grid';
   document.getElementById('topbar').style.display=special?'none':'flex';
   if(name!=='world')window.scrollTo(0,0);
-  if(name==='world')requestAnimationFrame(()=>{initGlobe();resizeGlobe();updateGlobeZoomControls();drawGlobe()});
+  if(name==='world')requestAnimationFrame(()=>{initGlobe();resizeGlobe();updateGlobeZoomControls();drawGlobe();loadDetailedWorldGeometry()});
 }
 function setTab(tab){activeTab=tab;showScreen(tab);document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));renderAll()}
 document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
@@ -713,6 +713,57 @@ function pointInRing(lon,lat,ring){let inside=false;for(let i=0,j=ring.length-1;
 }return inside}
 function pointInCountry(c,lon,lat){for(const poly of geometryPolygons(c.geometry)){if(poly[0]&&pointInRing(lon,lat,poly[0]))return true}return false}
 
+let detailedWorldGeometryState='idle';
+let detailedWorldGeometryPromise=null;
+function setGlobeHint(text){
+  const el=document.querySelector('.globe-hint');if(el)el.textContent=text;
+}
+function featureA3(props={}){
+  const candidates=[props.ADM0_A3,props.ISO_A3,props.SOV_A3,props.WB_A3,props.BRK_A3,props.GU_A3];
+  return String(candidates.find(v=>v&&v!=='-99')||'').toUpperCase();
+}
+async function loadDetailedWorldGeometry(){
+  if(detailedWorldGeometryState==='ready')return true;
+  if(detailedWorldGeometryPromise)return detailedWorldGeometryPromise;
+  detailedWorldGeometryState='loading';
+  setGlobeHint('Henter mer kartdetalj …');
+  detailedWorldGeometryPromise=(async()=>{
+    const sources=[
+      'https://cdn.jsdelivr.net/gh/nvkelso/natural-earth-vector@master/geojson/ne_50m_admin_0_countries.geojson',
+      'https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_50m_admin_0_countries.geojson'
+    ];
+    let data=null,lastError=null;
+    for(const url of sources){
+      try{
+        const res=await fetch(url,{cache:'force-cache',mode:'cors'});
+        if(!res.ok)throw new Error('HTTP '+res.status);
+        data=await res.json();break;
+      }catch(err){lastError=err}
+    }
+    try{
+      if(!data||!Array.isArray(data.features))throw lastError||new Error('Kartdata mangler');
+      const byA3=Object.fromEntries(WORLD_COUNTRIES.map(country=>[String(country.a3||'').toUpperCase(),country]));
+      let upgraded=0;
+      for(const feature of data.features){
+        const a3=featureA3(feature.properties||{}),country=byA3[a3];
+        if(!country||!feature.geometry)continue;
+        country.geometry=feature.geometry;delete country._geoSpan;upgraded++;
+      }
+      if(upgraded<150)throw new Error('Kun '+upgraded+' land fikk detaljert geometri');
+      detailedWorldGeometryState='ready';
+      setGlobeHint('Klyp for å zoome · trykk for å velge land');
+      drawGlobe();
+      return true;
+    }catch(err){
+      detailedWorldGeometryState='failed';
+      setGlobeHint('Klyp for å zoome · trykk for å velge land');
+      console.warn('Detaljert kart kunne ikke lastes. Beholder innebygd grunnkart.',err);
+      return false;
+    }
+  })();
+  return detailedWorldGeometryPromise;
+}
+
 // --- Interactive globe ---
 const CONTINENT_COLORS={'Europa':'#A9C8F5','Asia':'#E8C88C','Afrika':'#E5A58D','Nord-Amerika':'#9DD5A5','Sør-Amerika':'#82C7A4','Oseania':'#C2ACEB'};
 function setGlobeZoom(next){globeZoom=clampGlobeZoom(next);updateGlobeZoomControls();drawGlobe()}
@@ -751,9 +802,9 @@ function initGlobe(){
       if(!globeTouchGesture||globeTouchGesture.mode!=='pinch'){
         globeTouchGesture={mode:'pinch',startDistance:Math.max(1,touchDistance(a,b)),startZoom:globeZoom,startMid:mid,startLon:globeLon,startLat:globeLat,moved:true};
       }
-      const g=globeTouchGesture,ratio=touchDistance(a,b)/g.startDistance;
+      const g=globeTouchGesture,ratio=Math.pow(touchDistance(a,b)/g.startDistance,.72);
       globeZoom=clampGlobeZoom(g.startZoom*ratio);
-      const dx=mid.x-g.startMid.x,dy=mid.y-g.startMid.y,sensLon=.32/globeZoom,sensLat=.22/globeZoom;
+      const dx=mid.x-g.startMid.x,dy=mid.y-g.startMid.y,sensLon=.20/Math.sqrt(globeZoom),sensLat=.13/Math.sqrt(globeZoom);
       globeLon=((g.startLon-dx*sensLon+540)%360)-180;
       globeLat=Math.max(-70,Math.min(75,g.startLat+dy*sensLat));
       updateGlobeZoomControls();drawGlobe();
@@ -762,7 +813,7 @@ function initGlobe(){
       if(!globeTouchGesture||globeTouchGesture.mode!=='drag')globeTouchGesture={mode:'drag',start:p,startLon:globeLon,startLat:globeLat,moved:false,maxMove:0};
       const g=globeTouchGesture,dx=p.x-g.start.x,dy=p.y-g.start.y;
       g.maxMove=Math.max(g.maxMove||0,Math.hypot(dx,dy));g.moved=g.maxMove>5;
-      const sensLon=.38/Math.sqrt(globeZoom),sensLat=.24/Math.sqrt(globeZoom);
+      const sensLon=.25/Math.sqrt(globeZoom),sensLat=.16/Math.sqrt(globeZoom);
       globeLon=((g.startLon-dx*sensLon+540)%360)-180;
       globeLat=Math.max(-70,Math.min(75,g.startLat+dy*sensLat));
       drawGlobe();
@@ -795,12 +846,12 @@ function initGlobe(){
   canvas.addEventListener('pointermove',e=>{
     if(e.pointerType==='touch'||!globeDrag)return;e.preventDefault();
     const dx=e.clientX-globeDrag.x,dy=e.clientY-globeDrag.y;globeMove=Math.max(globeMove,Math.hypot(dx,dy));
-    globeLon=((globeDrag.lon-dx*(.38/Math.sqrt(globeZoom))+540)%360)-180;
-    globeLat=Math.max(-70,Math.min(75,globeDrag.lat+dy*(.24/Math.sqrt(globeZoom))));drawGlobe();
+    globeLon=((globeDrag.lon-dx*(.25/Math.sqrt(globeZoom))+540)%360)-180;
+    globeLat=Math.max(-70,Math.min(75,globeDrag.lat+dy*(.16/Math.sqrt(globeZoom))));drawGlobe();
   });
   canvas.addEventListener('pointerup',e=>{if(e.pointerType==='touch')return;if(globeDrag&&globeMove<8)pickGlobeCountry(e);globeDrag=null});
   canvas.addEventListener('pointercancel',e=>{if(e.pointerType!=='touch')globeDrag=null});
-  canvas.addEventListener('wheel',e=>{e.preventDefault();setGlobeZoom(globeZoom*Math.exp(-e.deltaY*.0018))},{passive:false});
+  canvas.addEventListener('wheel',e=>{e.preventDefault();setGlobeZoom(globeZoom*Math.exp(-e.deltaY*.00115))},{passive:false});
   canvas.addEventListener('dblclick',e=>{e.preventDefault();const rect=canvas.getBoundingClientRect(),ll=globeInverse(e.clientX-rect.left,e.clientY-rect.top);if(ll){globeLon=ll.lon;globeLat=Math.max(-70,Math.min(75,ll.lat))}setGlobeZoom(globeZoom+.9)});
 
   const wrap=canvas.closest('.globe-wrap');
@@ -813,7 +864,7 @@ function initGlobe(){
 }
 function resizeGlobe(){
   const canvas=document.getElementById('globe-canvas');if(!canvas)return;
-  const rect=canvas.getBoundingClientRect(),w=Math.max(280,rect.width||window.innerWidth||390),h=Math.max(360,rect.height||window.innerHeight||700),dpr=Math.min(2,window.devicePixelRatio||1);
+  const rect=canvas.getBoundingClientRect(),w=Math.max(280,rect.width||window.innerWidth||390),h=Math.max(360,rect.height||window.innerHeight||700),dpr=Math.min(3,window.devicePixelRatio||1);
   canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);canvas._cssWidth=w;canvas._cssHeight=h;canvas._dpr=dpr;
 }
 function globeMetrics(){
@@ -835,12 +886,12 @@ function countryGeoSpan(c){
 function drawGlobe(){
   const canvas=document.getElementById('globe-canvas');if(!canvas||!canvas._cssWidth)return;
   const {w,h,cx,cy,baseR,r}=globeMetrics(),dpr=canvas._dpr,ctx=canvas.getContext('2d');
-  ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);ctx.save();ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.clip();
+  ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);ctx.lineJoin='round';ctx.lineCap='round';ctx.save();ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.clip();
   const grad=ctx.createRadialGradient(cx-r*.28,cy-r*.30,r*.05,cx,cy,r);grad.addColorStop(0,'#BCECF5');grad.addColorStop(1,'#69BDD6');ctx.fillStyle=grad;ctx.fillRect(0,0,w,h);
   ctx.strokeStyle='rgba(255,255,255,.22)';ctx.lineWidth=1;
   for(const lat of [-60,-30,0,30,60]){ctx.beginPath();const pts=[];for(let lon=-180;lon<=180;lon+=4)pts.push([lon,lat]);drawProjectedLine(ctx,pts);ctx.stroke()}
   for(let lon=-180;lon<180;lon+=30){ctx.beginPath();const pts=[];for(let lat=-85;lat<=85;lat+=4)pts.push([lon,lat]);drawProjectedLine(ctx,pts);ctx.stroke()}
-  for(const c of WORLD_COUNTRIES){if(!c.geometry)continue;ctx.beginPath();for(const poly of geometryPolygons(c.geometry)){for(const ring of poly){drawProjectedLine(ctx,ring)}}ctx.fillStyle=c.id===globeSelected?'#FFD869':(CONTINENT_COLORS[c.continent]||'#BFD7A2');ctx.strokeStyle='rgba(255,255,255,.78)';ctx.lineWidth=Math.max(.65,1.05/Math.sqrt(globeZoom));ctx.fill();ctx.stroke()}
+  for(const c of WORLD_COUNTRIES){if(!c.geometry)continue;ctx.beginPath();for(const poly of geometryPolygons(c.geometry)){for(const ring of poly){drawProjectedLine(ctx,ring)}}ctx.fillStyle=c.id===globeSelected?'#FFD869':(CONTINENT_COLORS[c.continent]||'#BFD7A2');ctx.strokeStyle=globeZoom>=2.5?'rgba(255,255,255,.88)':'rgba(255,255,255,.78)';ctx.lineWidth=Math.max(.45,1.0/Math.sqrt(globeZoom));ctx.fill();ctx.stroke()}
   if(globeZoom>=2){
     for(const c of WORLD_COUNTRIES){
       if(!Number.isFinite(c.lon)||!Number.isFinite(c.lat))continue;
@@ -1034,6 +1085,6 @@ renderAll();updateOnboarding();
 if(!state.profile.onboarded){document.getElementById('onboarding').classList.add('show')}
 else if(loadActiveSession()){showScreen('session');renderQuestion()}
 </script>
-<!-- build: v8-fullscreen-globe-magnetic-small-countries-2026-10-01 -->
+<!-- build: v9-natural-earth-50m-lower-sensitivity-2026-10-01 -->
 </body>
 </html>
