@@ -1,6 +1,6 @@
 (()=>{
 'use strict';
-const VERSION='20260930-seen-history-edge1';
+const VERSION='20261001-settings-history1';
 const $=selector=>document.querySelector(selector);
 const bridge=()=>window.FlytBridge;
 const core=()=>window.FlytSeenCore;
@@ -62,6 +62,12 @@ function renderSheet(s){
   return messageSheet({kind:sheet.kind,title:info.title,subtitle:info.subtitle,templates:info.templates,placeholder:info.placeholder,cta:'Send'});
 }
 function dateHeading(key){if(key===today())return'I dag';const yesterday=core()?.addDays?.(today(),-1);if(key===yesterday)return'I går';const date=new Date(`${key}T12:00:00Z`);return Number.isNaN(date.getTime())?key:new Intl.DateTimeFormat('nb-NO',{timeZone:'Europe/Oslo',day:'numeric',month:'long'}).format(date)}
+function settingsHistoryMarkup(){
+  const s=state();if(!s)return'<p class="sub">Historikken kunne ikke lastes.</p>';
+  const events=(core()?.recognitionEvents?.(s)||[]).slice(0,60),groups=[];
+  for(const item of events){let group=groups.find(entry=>entry.date===item.date);if(!group){group={date:item.date,items:[]};groups.push(group)}group.items.push(item)}
+  return `<div class='ey'>Sett</div><h1 class='title'>Historikk</h1><p class='sub'>Små øyeblikk dere har sett og sendt til hverandre.</p>${groups.length?groups.map(group=>`<section class='seenHistoryGroup'><h2 class='seenHistoryDate'>${esc(dateHeading(group.date))}</h2><div class='seenHistoryList'>${group.items.map(item=>`<article class='seenHistoryItem'><span class='seenHistoryIcon' aria-hidden='true'>${historyIcon(item.type)}</span><div><span class='seenHistoryType'>${esc(historyLabel(item.type))}</span><p>${esc(item.type==='task'?item.title:item.text)}</p>${item.type==='task'&&item.text!==item.title?`<p>«${esc(item.text)}»</p>`:''}<small>${item.type==='task'?`Sett av ${esc(item.by)}`:`Fra ${esc(item.by)} til ${esc(item.to)}`} · ${timeLabel(item.at)}</small></div></article>`).join('')}</div></section>`).join(''):`<div class='seenEmptyPremium'><strong>Ingen øyeblikk her ennå.</strong><span>Når dere ser eller sender noe til hverandre, samles det her.</span></div>`}</div>`;
+}
 function renderHistory(s){const events=(core()?.recognitionEvents?.(s)||[]).slice(0,60),groups=[];for(const item of events){let group=groups.find(entry=>entry.date===item.date);if(!group){group={date:item.date,items:[]};groups.push(group)}group.items.push(item)}return `<div class='seenPage' data-seen-history-page><div class='seenSubHead'><button type='button' class='seenBack' data-seen-back='1' aria-label='Tilbake'>←</button><span class='ey'>Sett</span></div><header class='seenHeader'><h1 class='seenTitle'>Historikk</h1><p class='seenSubtitle'>Små øyeblikk dere har sett og sendt til hverandre.</p></header>${groups.length?groups.map(group=>`<section class='seenHistoryGroup'><h2 class='seenHistoryDate'>${esc(dateHeading(group.date))}</h2><div class='seenHistoryList'>${group.items.map(item=>`<article class='seenHistoryItem'><span class='seenHistoryIcon' aria-hidden='true'>${historyIcon(item.type)}</span><div><span class='seenHistoryType'>${esc(historyLabel(item.type))}</span><p>${esc(item.type==='task'?item.title:item.text)}</p>${item.type==='task'&&item.text!==item.title?`<p>«${esc(item.text)}»</p>`:''}<small>${item.type==='task'?`Sett av ${esc(item.by)}`:`Fra ${esc(item.by)} til ${esc(item.to)}`} · ${timeLabel(item.at)}</small></div></article>`).join('')}</div></section>`).join(''):`<div class='seenEmptyPremium'><strong>Ingen øyeblikk her ennå.</strong><span>Når dere ser eller sender noe til hverandre, samles det her.</span></div>`}</div>`}
 function sheetLayer(){return document.querySelector('[data-seen-sheet-layer]')}
 function syncSheetViewport(){const layer=sheetLayer(),viewport=window.visualViewport;if(!layer)return;const height=Math.round(viewport?.height||window.innerHeight||0);if(height>0)layer.style.setProperty('--seen-viewport-height',`${height}px`)}
@@ -121,5 +127,5 @@ window.addEventListener('focus',()=>{recognitionAlertPaused=false;setTimeout(che
 setTimeout(checkRecognitionAlert,700);setTimeout(checkRecognitionAlert,1800);
 const observer=new MutationObserver(()=>{if(painting)return;const s=state(),content=$('#content');if(s?.view==='seen'&&content?.dataset.flytOwner!=='seen-actions')queueMicrotask(render)});let observed=false,tries=0;const timer=setInterval(()=>{const content=$('#content');if(content&&!observed){observer.observe(content,{childList:true,subtree:true});observed=true}const s=state();if(s?.view==='seen'&&content?.dataset.flytOwner!=='seen-actions')render();if(observed&&++tries>80)clearInterval(timer)},100);
 window.FlytSeenRecognitionAlert={check:checkRecognitionAlert};
-window.FlytSeenUI={render,openCategory(category){if(category==='recognition')openSheet('manual');else if(CATEGORY[category])openSheet(category)},version:VERSION};
+window.FlytSeenUI={render,settingsHistoryMarkup,openCategory(category){if(category==='recognition')openSheet('manual');else if(CATEGORY[category])openSheet(category)},version:VERSION};
 })();
