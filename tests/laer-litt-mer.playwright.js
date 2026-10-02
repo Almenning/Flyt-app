@@ -97,7 +97,7 @@ async function finishSession(page){
 
     await onboard(page,2);
 
-    // Word builder must support free placement, removal and last-letter-first input.
+    // Word builder must support free placement, return-to-bank, editing and last-letter-first input.
     await page.evaluate(()=>{
       sessionScope={type:'subject',subject:'norwegian',module:'spelling',label:'Norsk · Ord og staving',grade:2};
       sessionQuestions=[makeBuildWord('MUS','🐭','letter-sound')];
@@ -108,21 +108,26 @@ async function finishSession(page){
     const mTile=page.locator('.letter-tile').filter({hasText:'M'});
     const uTile=page.locator('.letter-tile').filter({hasText:'U'});
 
-    // Last letter first: choose the third slot before either of the first two.
+    // Last letter first: the third slot works before either of the first two.
     await page.locator('.letter-slot').nth(2).click();
     await sTile.click();
     assert.equal((await page.locator('.letter-slot').nth(2).textContent()).trim(),'S');
     assert.equal((await page.locator('.letter-slot').nth(0).textContent()).trim(),'');
     assert.equal((await page.locator('.letter-slot').nth(1).textContent()).trim(),'');
 
-    // A placed letter can be removed immediately and returned to the bank.
+    // A placed letter can be dragged all the way back out of the word and into the bank.
+    await page.locator('.letter-slot').nth(2).dragTo(page.locator('.letter-bank'));
+    assert.equal((await page.locator('.letter-slot').nth(2).textContent()).trim(),'');
+    assert.equal(await sTile.evaluate(el=>!el.classList.contains('used')),true);
+
+    // Tap removal also returns the letter to the bank.
+    await sTile.click();
+    await page.locator('.letter-slot').nth(2).click();
     await page.locator('.letter-slot').nth(2).click();
     assert.equal((await page.locator('.letter-slot').nth(2).textContent()).trim(),'');
     assert.equal(await sTile.evaluate(el=>!el.classList.contains('used')),true);
 
-    // Either interaction order works: slot -> letter and letter -> slot.
-    // Removing a letter leaves that slot selected, so deselect it before testing letter -> slot.
-    await page.locator('.letter-slot').nth(2).click();
+    // Both interaction orders work: letter -> slot and slot -> letter.
     await sTile.click();
     await page.locator('.letter-slot').nth(2).click();
     await page.locator('.letter-slot').nth(0).click();
@@ -134,9 +139,10 @@ async function finishSession(page){
     // Build a wrong order, check it, then edit the same word instead of being locked.
     await page.locator('.letter-slot').nth(1).click();
     await page.locator('.letter-slot').nth(2).click();
-    await uTile.click();
-    await page.locator('.letter-slot').nth(1).click();
     await sTile.click();
+    await page.locator('.letter-slot').nth(1).click();
+    await uTile.click();
+    await page.locator('.letter-slot').nth(2).click();
     assert.equal(await page.locator('.letter-slot').allTextContents().then(x=>x.map(v=>v.trim()).join('')),'MSU');
     await page.locator('#check-build').click();
     assert.equal(await page.locator('#next-question').isVisible(),false);
@@ -145,9 +151,10 @@ async function finishSession(page){
     // Correct the word after the failed attempt.
     await page.locator('.letter-slot').nth(1).click();
     await page.locator('.letter-slot').nth(2).click();
-    await sTile.click();
-    await page.locator('.letter-slot').nth(1).click();
     await uTile.click();
+    await page.locator('.letter-slot').nth(1).click();
+    await sTile.click();
+    await page.locator('.letter-slot').nth(2).click();
     assert.equal(await page.locator('.letter-slot').allTextContents().then(x=>x.map(v=>v.trim()).join('')),'MUS');
     assert.equal(await page.locator('#check-build').isEnabled(),true);
     await page.locator('#check-build').click();
