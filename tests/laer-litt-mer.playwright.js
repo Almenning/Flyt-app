@@ -121,6 +121,8 @@ async function finishSession(page){
     assert.equal(await sTile.evaluate(el=>!el.classList.contains('used')),true);
 
     // Either interaction order works: slot -> letter and letter -> slot.
+    // Removing a letter leaves that slot selected, so deselect it before testing letter -> slot.
+    await page.locator('.letter-slot').nth(2).click();
     await sTile.click();
     await page.locator('.letter-slot').nth(2).click();
     await page.locator('.letter-slot').nth(0).click();
