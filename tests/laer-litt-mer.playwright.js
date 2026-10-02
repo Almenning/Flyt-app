@@ -30,8 +30,8 @@ function startServer(){
 async function onboard(page,grade){
   await page.goto(page.__base,{waitUntil:'domcontentloaded'});
   await page.locator('#onboarding.show').waitFor();
-  await page.locator('.onboard-next').click();
-  await page.locator('.onboard-next').click();
+  await page.locator('.onboard-step.active .onboard-next').click();
+  await page.locator('.onboard-step.active .onboard-next').click();
   await page.locator(`.grade-btn[data-grade="${grade}"]`).click();
   await page.locator('#finish-onboarding').click();
   await page.locator('#home-screen.active').waitFor();
