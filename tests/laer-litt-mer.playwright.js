@@ -107,10 +107,14 @@ async function finishSession(page){
     const sTile=page.locator('.letter-tile').filter({hasText:'S'});
     const sBox=await sTile.boundingBox(),lastBox=await page.locator('.letter-slot').nth(2).boundingBox();
     assert.ok(sBox&&lastBox,'missing word-builder drag geometry');
-    await page.mouse.move(sBox.x+sBox.width/2,sBox.y+sBox.height/2);
-    await page.mouse.down();
-    await page.mouse.move(lastBox.x+lastBox.width/2,lastBox.y+lastBox.height/2,{steps:6});
-    await page.mouse.up();
+    const cdp=await context.newCDPSession(page);
+    const sx=sBox.x+sBox.width/2,sy=sBox.y+sBox.height/2,tx=lastBox.x+lastBox.width/2,ty=lastBox.y+lastBox.height/2;
+    await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:sx,y:sy,id:91,radiusX:2,radiusY:2,force:1}]});
+    for(let step=1;step<=6;step++){
+      const p=step/6;
+      await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:sx+(tx-sx)*p,y:sy+(ty-sy)*p,id:91,radiusX:2,radiusY:2,force:1}]});
+    }
+    await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
     assert.equal((await page.locator('.letter-slot').nth(2).textContent()).trim(),'S');
     assert.equal((await page.locator('.letter-slot').nth(0).textContent()).trim(),'');
     assert.equal((await page.locator('.letter-slot').nth(1).textContent()).trim(),'');
