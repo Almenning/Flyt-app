@@ -822,6 +822,32 @@ function loadState(){
   }catch(e){return cloneDefault()}
 }
 function saveState(){safeStorageSet(STORAGE_KEY,JSON.stringify(state))}
+
+// Exact questions solved correctly get a long cooldown so a new session actually feels new.
+// Wrong answers may return sooner because spaced retry is useful when the child is still learning.
+const CORRECT_QUESTION_COOLDOWN_MS=6*60*60*1000;
+const WRONG_QUESTION_COOLDOWN_MS=5*60*1000;
+function questionIdentity(q){
+  if(!q)return '';
+  if(q.subject)return ['learn',q.subject,q.type||'',q.skill||'',String(q.prompt||''),String(q.answer??'')].join('|');
+  if(q.k)return ['geo',q.k,q.type||''].join('|');
+  return ['generic',q.type||'',q.skill||'',String(q.prompt||''),String(q.answer??'')].join('|');
+}
+function latestQuestionAttempt(q){
+  const key=questionIdentity(q);
+  for(let i=state.answerLog.length-1;i>=0;i--){
+    const a=state.answerLog[i];
+    if(a.questionKey===key)return a;
+    // Geography logs from older app versions can still be recognized.
+    if(!a.questionKey&&q?.k&&a.country===q.k&&a.type===q.type)return a;
+  }
+  return null;
+}
+function questionOnCooldown(q,now=Date.now()){
+  const a=latestQuestionAttempt(q);if(!a||!a.at)return false;
+  const age=now-Number(a.at);
+  return age<(a.correct?CORRECT_QUESTION_COOLDOWN_MS:WRONG_QUESTION_COOLDOWN_MS);
+}
 function mastery(key){return Number(state.mastery[key]||0)}
 function masteryKey(k,type){return `${k}:${type}`}
 function bump(key,correct){
@@ -1023,6 +1049,7 @@ function questionPool(ids,includeMap=false){
   const pool=[];
   ids.filter(id=>countries[id]).forEach(k=>{
     questionTypesForCountry(k,includeMap).forEach(type=>{
+      if(questionOnCooldown({k,type}))return;
       const key=masteryKey(k,type),mistakes=Number(state.mistakes[key]||0);
       pool.push({k,type,score:mastery(key)-Math.min(.7,mistakes*.12)+Math.random()*.18});
     });
@@ -1045,7 +1072,7 @@ function warmupSpecs(){
 function buildGradeMissionQuestions(){
   const ids=gradeScopeIds(),chosen=[],used=new Set();
   for(const [k,type] of warmupSpecs()){
-    if(!countries[k]||!questionTypesForCountry(k,true).includes(type))continue;
+    if(!countries[k]||!questionTypesForCountry(k,true).includes(type)||questionOnCooldown({k,type}))continue;
     chosen.push(makeQuestion(k,type,ids));used.add(`${k}:${type}`);
   }
   for(const item of questionPool(ids,true)){
@@ -1059,8 +1086,12 @@ function buildGradeMissionQuestions(){
 function buildCountryQuestions(k){
   const ids=[k,...WORLD_COUNTRIES.filter(c=>c.continent===countries[k].continent&&c.id!==k).map(c=>c.id)];
   let types=questionTypesForCountry(k,true);if(!types.length)types=['flag'];
-  const out=[];while(out.length<5){for(const t of types){out.push(makeQuestion(k,t,ids));if(out.length>=5)break}}
-  return out;
+  const out=[];
+  for(const type of types){
+    if(questionOnCooldown({k,type}))continue;
+    out.push(makeQuestion(k,type,ids));
+  }
+  return out.slice(0,5);
 }
 function makeQuestion(k,type,poolIds=Object.keys(countries)){
   const c=countries[k],count=optionCount();let ids=poolIds.filter(x=>x!==k&&countries[x]);
@@ -1091,6 +1122,7 @@ function startSession(customCountry=null,scope=null){
   if(customCountry){sessionScope={type:'country',label:countries[customCountry].name,ids:[customCountry],includeMap:isMapSuitableForGrade(countries[customCountry])};sessionQuestions=buildCountryQuestions(customCountry);state.lastActivity={kind:'geography-country',country:customCountry,label:countries[customCountry].name}}
   else if(scope){sessionScope=scope;sessionQuestions=buildQuestionsForIds(sessionScope.ids,!!sessionScope.includeMap);state.lastActivity={kind:'geography-scope',scope:JSON.parse(JSON.stringify(scope)),label:scope.label||'Geografi'}}
   else{sessionScope={type:'grade',label:missionLabel(),ids:gradeScopeIds(),includeMap:true,grade:currentGrade()};sessionQuestions=buildGradeMissionQuestions();state.lastActivity={kind:'geography-scope',scope:JSON.parse(JSON.stringify(sessionScope)),label:sessionScope.label}}
+  if(!sessionQuestions.length){toast('Du har nettopp klart oppgavene her. Utforsk noe annet litt først.');return}
   qIndex=0;sessionCorrect=0;sessionStrengthened=new Set();currentAnswered=null;state.activeSession={startedAt:Date.now()};persistActiveSession();showScreen('session');renderQuestion();
 }
 window.startCountryPractice=(k)=>startSession(k);
@@ -1132,9 +1164,11 @@ const SUBJECT_MODULES={
   ]
 };
 const NORWAY_REGIONS=[
-  {region:'Østlandet',place:'Oslo'},{region:'Østlandet',place:'Lillehammer'},{region:'Sørlandet',place:'Kristiansand'},
-  {region:'Vestlandet',place:'Bergen'},{region:'Vestlandet',place:'Stavanger'},{region:'Trøndelag',place:'Trondheim'},
-  {region:'Nord-Norge',place:'Bodø'},{region:'Nord-Norge',place:'Tromsø'}
+  {region:'Østlandet',place:'Oslo'},{region:'Østlandet',place:'Lillehammer'},{region:'Østlandet',place:'Hamar'},{region:'Østlandet',place:'Drammen'},{region:'Østlandet',place:'Fredrikstad'},{region:'Østlandet',place:'Skien'},
+  {region:'Sørlandet',place:'Kristiansand'},{region:'Sørlandet',place:'Arendal'},
+  {region:'Vestlandet',place:'Bergen'},{region:'Vestlandet',place:'Stavanger'},{region:'Vestlandet',place:'Haugesund'},{region:'Vestlandet',place:'Ålesund'},{region:'Vestlandet',place:'Molde'},
+  {region:'Trøndelag',place:'Trondheim'},{region:'Trøndelag',place:'Steinkjer'},{region:'Trøndelag',place:'Stjørdal'},
+  {region:'Nord-Norge',place:'Bodø'},{region:'Nord-Norge',place:'Tromsø'},{region:'Nord-Norge',place:'Harstad'},{region:'Nord-Norge',place:'Alta'},{region:'Nord-Norge',place:'Kirkenes'}
 ];
 let activeSubject='norwegian',activeModule=null,geoTheme='country';
 function ensureLearningState(){
@@ -1386,30 +1420,33 @@ function buildLearningQuestions(subject,module){
   const mixed=getPool(null).filter(validLearningQuestion);
   const seen=new Set(),pool=[];
   for(const q of [...focused,...mixed]){
-    const sig=q.type+'|'+q.skill+'|'+q.prompt+'|'+q.answer;
-    if(seen.has(sig))continue;seen.add(sig);q._focused=focused.includes(q);pool.push(q);
+    const sig=questionIdentity(q);
+    if(seen.has(sig)||questionOnCooldown(q))continue;
+    seen.add(sig);q._focused=focused.includes(q);pool.push(q);
   }
-  if(!pool.length)throw new Error('Ingen gyldige oppgaver for '+subject+' på '+currentGrade()+'. trinn');
+  if(!pool.length)return [];
   ensureLearningState();
   const ranked=pool.map((q,i)=>{
     const key=learningMasteryKey(q.subject,q.skill),mist=Number(state.skillMistakes[key]||0),last=Number(state.skillLastSeen[key]||0);
     const focusBonus=q._focused?-.55:0,novelty=last?0:.22;
     return {q,score:skillLevel(key)-Math.min(.8,mist*.14)+focusBonus+novelty+i*.001+Math.random()*.08};
   }).sort((a,b)=>a.score-b.score).map(x=>x.q);
-  const out=ranked.slice(0,5);
-  while(out.length<5&&ranked.length)out.push({...ranked[out.length%ranked.length]});
-  return out;
+  return ranked.slice(0,5);
 }
 function startLearningSession(subject,module,label){
   sessionScope={type:'subject',subject,module:module||null,label:(SUBJECTS[subject]?.title||subject)+' · '+(label||'Blandet'),grade:currentGrade()};
   state.lastActivity={kind:'subject',subject,module:module||null,label:label||SUBJECTS[subject]?.mission||'Blandet'};
-  sessionQuestions=buildLearningQuestions(subject,module);qIndex=0;sessionCorrect=0;sessionStrengthened=new Set();currentAnswered=null;
+  sessionQuestions=buildLearningQuestions(subject,module);
+  if(!sessionQuestions.length){toast('Du har nettopp klart oppgavene her. Prøv et annet område litt først.');return}
+  qIndex=0;sessionCorrect=0;sessionStrengthened=new Set();currentAnswered=null;
   state.activeSession={startedAt:Date.now()};persistActiveSession();showScreen('session');renderQuestion();
 }
 function startNorwayRegions(){
   const regions=[...new Set(NORWAY_REGIONS.map(x=>x.region))];
+  const candidates=shuffle(NORWAY_REGIONS).map(x=>choiceQuestion('geography','norway-regions','Hvilken landsdel ligger '+x.place+' i?',x.region,[x.region,...shuffle(regions.filter(r=>r!==x.region)).slice(0,currentGrade()<=2?1:3)],{curriculum:null})).filter(q=>!questionOnCooldown(q));
+  sessionQuestions=candidates.slice(0,5);
+  if(!sessionQuestions.length){toast('Du har nettopp klart disse oppgavene. Prøv et annet geografitema litt først.');return}
   sessionScope={type:'subject',subject:'geography',label:'Geografi · Norges landsdeler',grade:currentGrade()};state.lastActivity={kind:'geography-theme',theme:'regions',label:'Norges landsdeler'};
-  sessionQuestions=shuffle(NORWAY_REGIONS).slice(0,5).map((x,i)=>choiceQuestion('geography','norway-regions','Hvilken landsdel ligger '+x.place+' i?',x.region,[x.region,...shuffle(regions.filter(r=>r!==x.region)).slice(0,currentGrade()<=2?1:3)],{curriculum:null}));
   qIndex=0;sessionCorrect=0;sessionStrengthened=new Set();currentAnswered=null;state.activeSession={startedAt:Date.now()};persistActiveSession();showScreen('session');renderQuestion();
 }
 function startGeographyTheme(){
@@ -1422,8 +1459,7 @@ function startGeographyTheme(){
   else if(geoTheme==='map')types=['map'];
   else types=[geoTheme];
   const qs=[];for(const item of questionPool(ids,true)){if(qs.length>=5)break;if(!types.includes(item.type))continue;qs.push(makeQuestion(item.k,item.type,ids))}
-  if(!qs.length){toast('Prøv et annet tema på dette nivået.');return}
-  while(qs.length<5)qs.push(qs[qs.length%Math.max(1,qs.length)]);
+  if(!qs.length){toast('Du har nettopp klart oppgavene her. Prøv et annet geografitema litt først.');return}
   sessionScope={type:'geography-theme',label:'Geografi · '+({country:'Land',capital:'Hovedsteder',flag:'Flagg',continent:'Verdensdeler',map:'Kart'}[geoTheme]||'Geografi'),ids,includeMap:geoTheme==='map'};
   state.lastActivity={kind:'geography-theme',theme:geoTheme,label:({country:'Land',capital:'Hovedsteder',flag:'Flagg',continent:'Verdensdeler',regions:'Norges landsdeler',map:'Kart'}[geoTheme]||'Geografi')};
   sessionQuestions=qs;qIndex=0;sessionCorrect=0;sessionStrengthened=new Set();currentAnswered=null;state.activeSession={startedAt:Date.now()};persistActiveSession();showScreen('session');renderQuestion();
@@ -1504,7 +1540,7 @@ function recordLearningAnswer(q,correct,selected){
   if(currentAnswered)return;
   if(correct)sessionCorrect++;
   const result=bumpSkill(q.subject,q.skill,correct);
-  state.answerLog.push({at:Date.now(),subject:q.subject,skill:q.skill,type:q.type,correct,newlyMastered:result.newlyMastered,curriculum:q.curriculum||null});
+  state.answerLog.push({at:Date.now(),subject:q.subject,skill:q.skill,type:q.type,questionKey:questionIdentity(q),correct,newlyMastered:result.newlyMastered,curriculum:q.curriculum||null});
   currentAnswered={selected,correct};persistActiveSession();
 }
 function learningFeedbackText(q,correct){
@@ -1713,6 +1749,7 @@ function renderBuildWord(q,wrap){
       if(!mistakeRecorded)recordLearningAnswer(q,true,answer);
       else{
         bumpSkill(q.subject,q.skill,true);
+        state.answerLog.push({at:Date.now(),subject:q.subject,skill:q.skill,type:q.type,questionKey:questionIdentity(q),correct:true,corrected:true,newlyMastered:false,curriculum:q.curriculum||null});
         currentAnswered={selected:answer,correct:true,corrected:true};
         persistActiveSession();
       }
@@ -1723,7 +1760,7 @@ function renderBuildWord(q,wrap){
     }
     if(!mistakeRecorded){
       const result=bumpSkill(q.subject,q.skill,false);
-      state.answerLog.push({at:Date.now(),subject:q.subject,skill:q.skill,type:q.type,correct:false,newlyMastered:result.newlyMastered,curriculum:q.curriculum||null});
+      state.answerLog.push({at:Date.now(),subject:q.subject,skill:q.skill,type:q.type,questionKey:questionIdentity(q),correct:false,newlyMastered:result.newlyMastered,curriculum:q.curriculum||null});
       mistakeRecorded=true;saveState();
     }
     wrongAttempt=true;paint();
@@ -1924,7 +1961,7 @@ function recordAnswer(q,correct,selected){
   if(currentAnswered)return;
   if(correct)sessionCorrect++;else state.mistakes[masteryKey(q.k,q.type)]=(state.mistakes[masteryKey(q.k,q.type)]||0)+1;
   const result=bump(masteryKey(q.k,q.type),correct);
-  state.answerLog.push({at:Date.now(),country:q.k,type:q.type,key:masteryKey(q.k,q.type),correct,newlyMastered:result.newlyMastered});
+  state.answerLog.push({at:Date.now(),country:q.k,type:q.type,key:masteryKey(q.k,q.type),questionKey:questionIdentity(q),correct,newlyMastered:result.newlyMastered});
   currentAnswered={selected,correct};persistActiveSession();
 }
 function applyAnsweredState(q,answered){
