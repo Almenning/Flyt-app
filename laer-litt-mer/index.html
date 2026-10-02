@@ -282,7 +282,7 @@
     .letter-helper{min-height:20px;margin:-7px 0 4px;text-align:center;font-size:12px;font-weight:800;color:#777D96}
     .letter-bank,.word-bank{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin:16px 0}
     .letter-tile,.word-tile{border:0;border-radius:15px;background:#EEF1FF;color:#3E4E9E;min-width:48px;min-height:48px;padding:10px 13px;font-size:21px;font-weight:950;box-shadow:0 4px 0 #D7DCF5;cursor:grab;touch-action:manipulation;transition:.12s transform,.12s box-shadow,.12s opacity}.letter-tile{touch-action:none}
-    .letter-tile.selected{box-shadow:0 0 0 4px rgba(90,125,242,.17),0 5px 0 #C9D0F3;transform:translateY(-2px)}
+    .letter-tile.selected{box-shadow:0 0 0 4px rgba(90,125,242,.17),0 5px 0 #C9D0F3;transform:translateY(-2px)}.letter-tile.dragging,.letter-slot.dragging{opacity:.72;transform:scale(1.06);z-index:2}
     .word-tile{font-size:16px;min-width:auto}.letter-tile.used,.word-tile.used{opacity:.25;box-shadow:none;pointer-events:none}
     .sentence-target{min-height:62px;border:2px dashed #CCD1E2;border-radius:18px;background:#fff;padding:10px;display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;margin:14px 0}
     .sentence-target button{border:0;background:#EAF7EF;color:#34745A;border-radius:12px;padding:9px 11px;font-weight:900}
@@ -1536,7 +1536,7 @@ function renderBuildWord(q,wrap){
     const candidates=[...slotBox.querySelectorAll('.letter-slot')];
     let best=null,bestDistance=Infinity;
     for(const slot of candidates){
-      const r=slot.getBoundingClientRect(),pad=10;
+      const r=slot.getBoundingClientRect(),pad=12;
       if(x>=r.left-pad&&x<=r.right+pad&&y>=r.top-pad&&y<=r.bottom+pad){
         const cx=r.left+r.width/2,cy=r.top+r.height/2,d=Math.hypot(x-cx,y-cy);
         if(d<bestDistance){best=slot;bestDistance=d}
@@ -1579,16 +1579,16 @@ function renderBuildWord(q,wrap){
     slots[to]=moving;slots[from]=target||null;
     selectedLetterIdx=null;selectedSlotIdx=null;paint();
   }
-  function bindTouchDrag(el,sourceType,sourceIndex){
+  function bindPointerDrag(el,sourceType,sourceIndex){
     el.addEventListener('pointerdown',down=>{
-      if(down.pointerType!=='touch'||currentAnswered)return;
+      if(currentAnswered||(down.pointerType==='mouse'&&down.button!==0))return;
       const pointerId=down.pointerId,startX=down.clientX,startY=down.clientY;
       let active=false,targetSlot=null;
       try{el.setPointerCapture(pointerId)}catch(_){}
       const move=event=>{
         if(event.pointerId!==pointerId)return;
         const dx=event.clientX-startX,dy=event.clientY-startY;
-        if(!active&&Math.hypot(dx,dy)>=8)active=true;
+        if(!active&&Math.hypot(dx,dy)>=7){active=true;el.classList.add('dragging')}
         if(!active)return;
         event.preventDefault();
         const hit=slotAtPoint(event.clientX,event.clientY);
@@ -1597,22 +1597,23 @@ function renderBuildWord(q,wrap){
           if(targetSlot)targetSlot.classList.add('drag-over');
         }
       };
-      const finish=event=>{
-        if(event.pointerId!==pointerId)return;
+      const cleanup=()=>{
+        el.classList.remove('dragging');clearDragHighlights();
         el.removeEventListener('pointermove',move);el.removeEventListener('pointerup',finish);el.removeEventListener('pointercancel',cancel);
-        clearDragHighlights();
-        if(active&&targetSlot){
-          suppressTapUntil=Date.now()+350;
-          const to=Number(targetSlot.dataset.slot);
-          if(sourceType==='letter')placeLetter(sourceIndex,to);else moveSlot(sourceIndex,to);
-        }
         try{el.releasePointerCapture(pointerId)}catch(_){}
       };
-      const cancel=event=>{
+      const finish=event=>{
         if(event.pointerId!==pointerId)return;
-        el.removeEventListener('pointermove',move);el.removeEventListener('pointerup',finish);el.removeEventListener('pointercancel',cancel);
-        clearDragHighlights();
+        const target=targetSlot,wasActive=active;cleanup();
+        if(wasActive){
+          suppressTapUntil=Date.now()+250;
+          if(target){
+            const to=Number(target.dataset.slot);
+            if(sourceType==='letter')placeLetter(sourceIndex,to);else moveSlot(sourceIndex,to);
+          }
+        }
       };
+      const cancel=event=>{if(event.pointerId===pointerId)cleanup()};
       el.addEventListener('pointermove',move);el.addEventListener('pointerup',finish);el.addEventListener('pointercancel',cancel);
     });
   }
@@ -1625,7 +1626,7 @@ function renderBuildWord(q,wrap){
     slotBox.innerHTML=slots.map((item,i)=>{
       const classes=['letter-slot'];if(item)classes.push('filled');if(selectedSlotIdx===i)classes.push('selected');if(wrongAttempt&&item&&item.l!==q.answer[i])classes.push('wrong-letter');
       const label=item?'Rute '+(i+1)+' av '+slots.length+': '+item.l+'. Trykk for å ta bort bokstaven.':'Rute '+(i+1)+' av '+slots.length+', tom. Trykk for å velge denne ruten.';
-      return '<button class="'+classes.join(' ')+'" type="button" data-slot="'+i+'" '+(item?'data-letter-idx="'+item.idx+'" draggable="true"':'')+' aria-label="'+label+'">'+(item?.l||'')+'</button>';
+      return '<button class="'+classes.join(' ')+'" type="button" data-slot="'+i+'" '+(item?'data-letter-idx="'+item.idx+'"':'')+' aria-label="'+label+'">'+(item?.l||'')+'</button>';
     }).join('');
     wrap.querySelectorAll('.letter-tile').forEach(b=>{
       const idx=Number(b.dataset.idx),used=usedLetter(idx);
@@ -1642,19 +1643,7 @@ function renderBuildWord(q,wrap){
         if(selectedLetterIdx!==null){placeLetter(selectedLetterIdx,slotIdx);return}
         selectedSlotIdx=selectedSlotIdx===slotIdx?null:slotIdx;paint();
       };
-      slot.addEventListener('dragstart',e=>{
-        if(!slots[slotIdx])return;
-        e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain','slot:'+slotIdx);
-      });
-      slot.addEventListener('dragover',e=>{e.preventDefault();e.dataTransfer.dropEffect='move';slot.classList.add('drag-over')});
-      slot.addEventListener('dragleave',()=>slot.classList.remove('drag-over'));
-      slot.addEventListener('drop',e=>{
-        e.preventDefault();slot.classList.remove('drag-over');
-        const data=e.dataTransfer.getData('text/plain');
-        if(data.startsWith('letter:'))placeLetter(Number(data.slice(7)),slotIdx);
-        else if(data.startsWith('slot:'))moveSlot(Number(data.slice(5)),slotIdx);
-      });
-      if(slots[slotIdx])bindTouchDrag(slot,'slot',slotIdx);
+      if(slots[slotIdx])bindPointerDrag(slot,'slot',slotIdx);
     });
   }
 
@@ -1665,9 +1654,7 @@ function renderBuildWord(q,wrap){
       if(selectedSlotIdx!==null){placeLetter(idx,selectedSlotIdx);return}
       selectedLetterIdx=selectedLetterIdx===idx?null:idx;paint();
     };
-    b.draggable=true;
-    b.addEventListener('dragstart',e=>{e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain','letter:'+idx)});
-    bindTouchDrag(b,'letter',idx);
+    bindPointerDrag(b,'letter',idx);
   });
 
   check.onclick=()=>{
