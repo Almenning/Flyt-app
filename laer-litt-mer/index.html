@@ -243,6 +243,10 @@
     .world-quiz{margin-top:12px}
     .map-region{display:inline-flex;align-items:center;gap:6px;margin:0 auto 10px;padding:6px 10px;border-radius:999px;background:#EEF2FF;color:#5E6C9C;font-size:12px;font-weight:900}
 
+    .swipe-back-edge{position:fixed;z-index:95;left:0;top:0;width:24px;height:100dvh;touch-action:none;pointer-events:auto}
+    .swipe-back-edge.hidden{display:none}
+    .swipe-back-indicator{position:fixed;z-index:96;left:max(10px,env(safe-area-inset-left));top:50%;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.94);color:#5265CC;font-size:25px;font-weight:950;box-shadow:0 8px 24px rgba(49,55,96,.18);transform:translate(-58px,-50%) scale(.86);opacity:0;pointer-events:none;transition:transform .13s ease,opacity .13s ease}
+    .swipe-back-indicator.show{opacity:1;transform:translate(0,-50%) scale(1)}
     .topic-card.norwegian{background:linear-gradient(145deg,#FFF0F3,#FFF7F5)}
     .topic-card:not([aria-disabled="true"]):focus-visible,.subject-module:focus-visible,.geo-theme:focus-visible,.letter-tile:focus-visible,.word-tile:focus-visible{outline:4px solid rgba(90,125,242,.28);outline-offset:3px}
     .subject-hero{padding:20px;margin:14px 0;background:linear-gradient(145deg,#fff,#F8F7FF)}
@@ -589,6 +593,9 @@
     </div>
   </div>
 
+  <div class="swipe-back-edge hidden" id="swipe-back-edge" aria-hidden="true"></div>
+  <div class="swipe-back-indicator" id="swipe-back-indicator" aria-hidden="true">‹</div>
+
   <nav class="nav" id="bottom-nav">
     <button data-tab="home" class="active"><span>⌂</span>Hjem</button>
     <button data-tab="learn"><span>🌍</span>Lær</button>
@@ -761,10 +768,67 @@ function showScreen(name){
   document.getElementById('bottom-nav').style.display=special?'none':'grid';
   document.getElementById('topbar').style.display=special?'none':'flex';
   window.scrollTo(0,0);
+  syncSwipeBackEdge(name);
   if(name==='world')requestAnimationFrame(()=>{initGlobe();setGlobeZoom(globeZoom)});
 }
 function setTab(tab){activeTab=tab;showScreen(tab);document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));renderAll()}
 document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
+
+// Native-feeling left-edge swipe. Kept to a narrow edge so it does not hijack maps,
+// drag-and-drop exercises or ordinary horizontal movement inside the app.
+const SWIPE_BACK_SCREENS=new Set(['subject','geography','continent','world','detail','adult','feedback','session','complete']);
+const swipeBackEdge=document.getElementById('swipe-back-edge');
+const swipeBackIndicator=document.getElementById('swipe-back-indicator');
+let swipeBackGesture=null;
+function activeScreenName(){return document.querySelector('.screen.active')?.id?.replace('-screen','')||'home'}
+function syncSwipeBackEdge(name=activeScreenName()){
+  if(!swipeBackEdge)return;
+  swipeBackEdge.classList.toggle('hidden',!SWIPE_BACK_SCREENS.has(name));
+}
+function appBack(){
+  const current=activeScreenName();
+  if(current==='subject'||current==='geography'){setTab('learn');return true}
+  if(current==='continent'||current==='world'){showScreen('geography');return true}
+  if(current==='detail'){
+    if(['home','learn','progress'].includes(returnScreen))setTab(returnScreen);else showScreen(returnScreen||'learn');
+    return true;
+  }
+  if(current==='feedback'){showScreen('adult');return true}
+  if(current==='adult'){setTab('home');return true}
+  if(current==='session'){persistActiveSession();setTab('home');return true}
+  if(current==='complete'){setTab('home');return true}
+  return false;
+}
+if(swipeBackEdge){
+  swipeBackEdge.addEventListener('pointerdown',e=>{
+    if(e.pointerType==='mouse'&&e.button!==0)return;
+    swipeBackGesture={id:e.pointerId,startX:e.clientX,startY:e.clientY,lastX:e.clientX,lastY:e.clientY,active:false};
+    try{swipeBackEdge.setPointerCapture(e.pointerId)}catch(_){}
+  });
+  swipeBackEdge.addEventListener('pointermove',e=>{
+    const g=swipeBackGesture;if(!g||g.id!==e.pointerId)return;
+    g.lastX=e.clientX;g.lastY=e.clientY;
+    const dx=e.clientX-g.startX,dy=e.clientY-g.startY;
+    if(dx>14&&Math.abs(dx)>Math.abs(dy)*1.15){
+      g.active=true;
+      swipeBackIndicator.classList.add('show');
+      e.preventDefault();
+    }else if(Math.abs(dy)>Math.max(18,Math.abs(dx))){
+      g.active=false;
+      swipeBackIndicator.classList.remove('show');
+    }
+  });
+  const finishSwipeBack=e=>{
+    const g=swipeBackGesture;if(!g||g.id!==e.pointerId)return;
+    const dx=(e.clientX??g.lastX)-g.startX,dy=(e.clientY??g.lastY)-g.startY;
+    swipeBackIndicator.classList.remove('show');
+    swipeBackGesture=null;
+    if(g.active&&dx>=64&&Math.abs(dx)>Math.abs(dy)*1.2)appBack();
+  };
+  swipeBackEdge.addEventListener('pointerup',finishSwipeBack);
+  swipeBackEdge.addEventListener('pointercancel',e=>{swipeBackIndicator.classList.remove('show');swipeBackGesture=null});
+}
+syncSwipeBackEdge();
 
 function renderAll(){
   const known=knownCountryCount(),nordicKnown=knownCountryCount(NORDIC_IDS),nordicPct=pctFor(NORDIC_IDS);
@@ -1531,6 +1595,6 @@ renderAll();updateOnboarding();loadQualityData();
 if(!state.profile.onboarded||!state.profile.grade){onboardingStep=2;selectedGrade=Number(state.profile.grade)||null;renderGradeChoice();updateOnboarding();document.getElementById('onboarding').classList.add('show')}
 else if(loadActiveSession()){showScreen('session');renderQuestion()}
 </script>
-<!-- build: fullscale-learning-1-10-pwa-2026-10-02 -->
+<!-- build: fullscale-learning-swipe-back-2026-10-02 -->
 </body>
 </html>
