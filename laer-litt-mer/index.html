@@ -1580,8 +1580,44 @@ function renderBuildWord(q,wrap){
     selectedLetterIdx=null;selectedSlotIdx=null;paint();
   }
   function bindPointerDrag(el,sourceType,sourceIndex){
+    // Direct touch events are the primary path on iPhone/iPad.
+    let touchState=null;
+    const finishTouch=event=>{
+      if(!touchState)return;
+      const {active,targetSlot}=touchState;
+      touchState=null;
+      el.classList.remove('dragging');clearDragHighlights();
+      if(active){
+        suppressTapUntil=Date.now()+300;
+        if(targetSlot){
+          const to=Number(targetSlot.dataset.slot);
+          if(sourceType==='letter')placeLetter(sourceIndex,to);else moveSlot(sourceIndex,to);
+        }
+      }
+    };
+    el.addEventListener('touchstart',event=>{
+      if(currentAnswered||event.touches.length!==1)return;
+      const t=event.touches[0];
+      touchState={startX:t.clientX,startY:t.clientY,active:false,targetSlot:null};
+    },{passive:true});
+    el.addEventListener('touchmove',event=>{
+      if(!touchState||event.touches.length!==1)return;
+      const t=event.touches[0],dx=t.clientX-touchState.startX,dy=t.clientY-touchState.startY;
+      if(!touchState.active&&Math.hypot(dx,dy)>=7){touchState.active=true;el.classList.add('dragging')}
+      if(!touchState.active)return;
+      event.preventDefault();
+      const hit=slotAtPoint(t.clientX,t.clientY);
+      if(hit!==touchState.targetSlot){
+        clearDragHighlights();touchState.targetSlot=hit;
+        if(hit)hit.classList.add('drag-over');
+      }
+    },{passive:false});
+    el.addEventListener('touchend',finishTouch,{passive:true});
+    el.addEventListener('touchcancel',event=>{touchState=null;el.classList.remove('dragging');clearDragHighlights()},{passive:true});
+
+    // Pointer drag covers mouse/pen and acts as an additional fallback outside touch devices.
     el.addEventListener('pointerdown',down=>{
-      if(currentAnswered||(down.pointerType==='mouse'&&down.button!==0))return;
+      if(down.pointerType==='touch'||currentAnswered||(down.pointerType==='mouse'&&down.button!==0))return;
       const pointerId=down.pointerId,startX=down.clientX,startY=down.clientY;
       let active=false,targetSlot=null;
       try{el.setPointerCapture(pointerId)}catch(_){}
