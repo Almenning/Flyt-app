@@ -90,8 +90,8 @@ async function finishSession(page){
     page.__base=url;
     page.on('pageerror',e=>errors.push('pageerror: '+e.message));
     page.on('console',m=>{if(m.type()==='error')errors.push('console: '+m.text())});
-    await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
-    await page.route('https://api.worldbank.org/**',r=>r.abort());
+    await page.route('https://raw.githubusercontent.com/**',r=>r.fulfill({status:200,contentType:'application/json',body:'{"type":"FeatureCollection","features":[]}'}));
+    await page.route('https://api.worldbank.org/**',r=>r.fulfill({status:200,contentType:'application/json',body:'[{},[]]'}));
 
     await onboard(page,2);
     assert.equal(await page.locator('.home-subject').count(),4);
@@ -172,7 +172,7 @@ async function finishSession(page){
     // First grade: capitals are intentionally hidden but Land still works.
     const context1=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
     const p1=await context1.newPage();p1.__base=url;
-    await p1.route('https://raw.githubusercontent.com/**',r=>r.abort());await p1.route('https://api.worldbank.org/**',r=>r.abort());
+    await p1.route('https://raw.githubusercontent.com/**',r=>r.fulfill({status:200,contentType:'application/json',body:'{"type":"FeatureCollection","features":[]}'}));await p1.route('https://api.worldbank.org/**',r=>r.fulfill({status:200,contentType:'application/json',body:'[{},[]]'}));
     await onboard(p1,1);
     await p1.locator('#open-geography').click();
     assert.equal(await p1.locator('.geo-theme[data-geo-theme="capital"]').isVisible(),false);
