@@ -260,7 +260,9 @@ async function finishSession(page){
     assert.equal(await p1.evaluate(()=>sessionQuestions.length),5);
     await context1.close();
 
-    // Structural sweep: every visible subject module on every grade can build a five-question session.
+    // Structural sweep: isolate content sufficiency from the deliberate repeat-cooldown history above.
+    await page.evaluate(()=>{state.answerLog=[];state.activeSession=null;saveState()});
+    // Every visible subject module on every grade can build a five-question session when no tasks are cooling down.
     for(let grade=1;grade<=10;grade++){
       await page.evaluate(g=>{state.profile.grade=g;state.activeSession=null;state.lastActivity=null;saveState();setTab('home')},grade);
       for(const subject of ['norwegian','math','english']){
