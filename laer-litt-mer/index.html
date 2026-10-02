@@ -706,7 +706,7 @@ const STORAGE_KEY='laerlittmer-v2';
 const defaultState={
   version:4,
   progressSchemaVersion:1,
-  profile:{name:'',grade:null,onboarded:false},
+  profile:{grade:null,onboarded:false},
   mastery:{},
   mistakes:{},
   skillMastery:{},
@@ -737,13 +737,17 @@ function loadState(){
   try{
     const parsed=JSON.parse(safeStorageGet(STORAGE_KEY)||'null');
     if(!parsed) return cloneDefault();
-    return {
-      ...cloneDefault(),...parsed,
-      profile:{...defaultState.profile,...(parsed.profile||{})},
+    const profile={...defaultState.profile,...(parsed.profile||{})};
+    delete profile.name;
+    const next={
+      ...cloneDefault(),...parsed,profile,
       mastery:parsed.mastery||{}, mistakes:parsed.mistakes||{},
+      skillMastery:parsed.skillMastery||{},skillMistakes:parsed.skillMistakes||{},skillLastSeen:parsed.skillLastSeen||{},
       answerLog:Array.isArray(parsed.answerLog)?parsed.answerLog:[],
       sessionLog:Array.isArray(parsed.sessionLog)?parsed.sessionLog:[]
     };
+    if(parsed.profile&&Object.prototype.hasOwnProperty.call(parsed.profile,'name'))safeStorageSet(STORAGE_KEY,JSON.stringify(next));
+    return next;
   }catch(e){return cloneDefault()}
 }
 function saveState(){safeStorageSet(STORAGE_KEY,JSON.stringify(state))}
@@ -1707,7 +1711,7 @@ function renderGradeChoice(){document.querySelectorAll('.grade-btn').forEach(b=>
 document.querySelectorAll('.grade-btn').forEach(b=>b.onclick=()=>{selectedGrade=Number(b.dataset.grade);renderGradeChoice();document.getElementById('name-error').textContent=''});
 document.getElementById('finish-onboarding').onclick=()=>{
   if(!selectedGrade){document.getElementById('name-error').textContent='Velg hvilket klassetrinn du går i.';return}
-  state.profile={...state.profile,name:'',grade:selectedGrade,onboarded:true};state.activeSession=null;saveState();document.getElementById('onboarding').classList.remove('show');renderAll();
+  state.profile={...state.profile,grade:selectedGrade,onboarded:true};state.activeSession=null;saveState();document.getElementById('onboarding').classList.remove('show');renderAll();
 };
 renderGradeChoice();
 
@@ -1727,7 +1731,7 @@ document.getElementById('reset-progress').onclick=()=>{
 };
 
 const adultGradeSelect=document.getElementById('adult-grade');
-if(adultGradeSelect)adultGradeSelect.addEventListener('change',()=>{state.profile.grade=Number(adultGradeSelect.value);state.activeSession=null;selectedGrade=state.profile.grade;saveState();renderGradeChoice();renderAll();toast(`Nivået er tilpasset ${state.profile.grade}. klasse`)});
+if(adultGradeSelect)adultGradeSelect.addEventListener('change',()=>{state.profile.grade=Number(adultGradeSelect.value);state.activeSession=null;state.lastActivity=null;selectedGrade=state.profile.grade;saveState();renderGradeChoice();renderAll();toast(`Nivået er tilpasset ${state.profile.grade}. klasse`)});
 
 // Feedback stays under the parent's control: use native Share when available, otherwise copy.
 document.getElementById('feedback-form').addEventListener('submit',async e=>{
