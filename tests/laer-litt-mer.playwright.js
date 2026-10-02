@@ -47,11 +47,13 @@ async function answerCurrent(page){
   }else if(q.type==='build-word'){
     await page.evaluate(()=>{
       const q=sessionQuestions[qIndex],used=new Set();
-      for(const ch of q.answer.split('')){
+      q.answer.split('').forEach((ch,slotIdx)=>{
         const idx=q.letters.findIndex((x,i)=>x.l===ch&&!used.has(i));
         if(idx<0)throw new Error('letter missing: '+ch);
-        used.add(idx);document.querySelector(`.letter-tile[data-idx="${idx}"]`).click();
-      }
+        used.add(idx);
+        document.querySelector(`.letter-slot[data-slot="${slotIdx}"]`).click();
+        document.querySelector(`.letter-tile[data-idx="${idx}"]`).click();
+      });
       document.querySelector('#check-build').click();
     });
   }else if(q.type==='sentence-order'){
@@ -94,6 +96,39 @@ async function finishSession(page){
     await page.route('https://api.worldbank.org/**',r=>r.fulfill({status:200,contentType:'application/json',body:'[{},[]]'}));
 
     await onboard(page,2);
+
+    // Word builder must support free placement, removal and last-letter-first input.
+    await page.evaluate(()=>{
+      sessionScope={type:'subject',subject:'norwegian',module:'spelling',label:'Norsk · Ord og staving',grade:2};
+      sessionQuestions=[makeBuildWord('MUS','🐭','letter-sound')];
+      qIndex=0;sessionCorrect=0;sessionStrengthened=new Set();currentAnswered=null;
+      showScreen('session');renderQuestion();
+    });
+    const sTile=page.locator('.letter-tile').filter({hasText:'S'});
+    await sTile.dragTo(page.locator('.letter-slot').nth(2));
+    assert.equal((await page.locator('.letter-slot').nth(2).textContent()).trim(),'S');
+    assert.equal((await page.locator('.letter-slot').nth(0).textContent()).trim(),'');
+    assert.equal((await page.locator('.letter-slot').nth(1).textContent()).trim(),'');
+    await page.locator('.letter-slot').nth(2).click();
+    assert.equal((await page.locator('.letter-slot').nth(2).textContent()).trim(),'');
+    assert.equal(await sTile.isEnabled(),true);
+    await page.locator('.letter-slot').nth(2).click();
+    await sTile.click();
+    assert.equal((await page.locator('.letter-slot').nth(2).textContent()).trim(),'S');
+    await page.evaluate(()=>{
+      const q=sessionQuestions[0],used=new Set();
+      ['M','U'].forEach((ch,slotIdx)=>{
+        const idx=q.letters.findIndex((x,i)=>x.l===ch&&!used.has(i)&&!document.querySelector(`.letter-tile[data-idx="${i}"]`).classList.contains('used'));
+        used.add(idx);
+        document.querySelector(`.letter-slot[data-slot="${slotIdx}"]`).click();
+        document.querySelector(`.letter-tile[data-idx="${idx}"]`).click();
+      });
+    });
+    assert.equal(await page.locator('#check-build').isEnabled(),true);
+    await page.locator('#check-build').click();
+    await page.locator('#next-question').waitFor({state:'visible'});
+    await page.evaluate(()=>{state.activeSession=null;currentAnswered=null;setTab('home')});
+
     assert.equal(await page.locator('.home-subject').count(),4);
     assert.equal(await page.locator('#bottom-nav button').count(),2);
     assert.equal(await page.locator('#learn-screen').count(),0);
