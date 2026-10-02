@@ -324,8 +324,11 @@
     .daily-goal-dots i.done{background:linear-gradient(90deg,#5CC18E,#6BCFB0)}
     .daily-goal-copy{font-size:12px;font-weight:800;color:var(--muted);line-height:1.45}.daily-growth{margin-top:7px;font-size:12px;font-weight:950;color:#34785A}
     .my-world-card .world-hero-copy .eyebrow{margin-bottom:3px}.my-world-card .world-hero-copy strong{font-size:19px}.my-world-card .world-hero-copy p{margin-top:3px}
-    .globe-mastery{display:flex;align-items:center;justify-content:center;gap:7px;padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.92);color:#4C5875;font-size:12px;font-weight:900;box-shadow:0 5px 18px rgba(50,60,100,.10);backdrop-filter:blur(10px)}
-    #world-screen.active .globe-mastery{position:absolute;top:max(19px,env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:29;white-space:nowrap}
+    .globe-mode{display:flex;align-items:center;padding:4px;border-radius:999px;background:rgba(255,255,255,.94);box-shadow:0 5px 18px rgba(50,60,100,.12);backdrop-filter:blur(10px)}
+    .globe-mode button{border:0;background:transparent;color:#67718D;border-radius:999px;padding:9px 13px;font-size:12px;font-weight:950;cursor:pointer;white-space:nowrap}
+    .globe-mode button.active{background:#5368D6;color:#fff;box-shadow:0 3px 8px rgba(64,77,150,.18)}
+    #world-screen.active .globe-mode{position:absolute;top:max(16px,env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:29}
+    .globe-progress-note{font-size:11px;font-weight:900;color:#526178}
     .complete-next{margin:14px 2px 0;padding:15px 16px;border-radius:20px;background:#EEF5FF;color:#4C5F9E;font-size:14px;line-height:1.45;font-weight:900}
     .grade-band-young{--radius:32px}.grade-band-young .home-subject{min-height:184px;border-radius:29px}.grade-band-young .home-subject-icon{width:57px;height:57px;font-size:31px}.grade-band-young .home-subject strong{font-size:19px}.grade-band-young .answer{font-size:18px;padding:19px 17px}.grade-band-young .question{font-size:32px}.grade-band-young .subject-module{padding:18px;border-radius:24px}
     .grade-band-middle{--radius:28px}.grade-band-middle .home-subject{min-height:174px}
@@ -441,7 +444,7 @@
 
       <button class="card world-hero my-world-card" id="open-world" type="button">
         <div class="world-orb" aria-hidden="true"></div>
-        <div class="world-hero-copy"><div class="eyebrow">Min verden</div><strong id="my-world-title">Fyll verden din med kunnskap</strong><p id="my-world-copy">Land får mer farge etter hvert som du lærer dem.</p></div>
+        <div class="world-hero-copy"><div class="eyebrow">Kloden</div><strong id="my-world-title">Utforsk hele verden</strong><p id="my-world-copy">Snurr på kloden, eller åpne Min verden og se hva du har lært.</p></div>
         <div style="font-size:22px;position:relative;z-index:1">›</div>
       </button>
 
@@ -480,7 +483,10 @@
 
     <section class="screen" id="world-screen">
       <button class="detail-back" id="world-back">← Utforsk</button>
-      <div class="globe-mastery" id="globe-mastery">○ nytt · ◐ øver · ● lært</div>
+      <div class="globe-mode" id="globe-mode" aria-label="Visning av kloden">
+        <button type="button" class="active" data-globe-mode="explore">Utforsk</button>
+        <button type="button" data-globe-mode="mine">Min verden</button>
+      </div>
       <div class="eyebrow">Utforsk kloden</div>
       <h1>Snurr på verden 🌍</h1>
       <p class="hero-copy">Dra på kloden. Trykk på et land for å se hva det heter og lære mer.</p>
@@ -917,7 +923,7 @@ let currentCollectionIds=NORDIC_IDS;
 let currentCollectionLabel='Norden';
 let currentCollectionEmoji='❄️';
 let sessionScope={type:'norden',label:'Norden',ids:NORDIC_IDS,includeMap:true};
-let globeLon=15,globeLat=18,globeZoom=1,globeSelected=null,globeDrag=null,globeMove=0;
+let globeLon=15,globeLat=18,globeZoom=1,globeSelected=null,globeDrag=null,globeMove=0,globeMode='explore';
 const globePointers=new Map();let globePinch=null;
 const GLOBE_ZOOM_MIN=1,GLOBE_ZOOM_MAX=5;
 
@@ -1013,10 +1019,9 @@ function renderAll(){
   document.getElementById('daily-goal-copy').textContent=goal.done>=goal.target?'Dagens lille mål er nådd. Resten er bonus.':goal.done===0?'Tre riktige svar er nok til å gjøre dagen til en læringsdag.':'Bare '+(goal.target-goal.done)+' igjen til dagens lille mål.';
   document.getElementById('daily-growth').textContent=todayStrengthened?'Du kan mer i dag enn da du startet: '+todayStrengthened+' ting er styrket.':goal.done>=goal.target?'Bra jobbet. Du trenger ikke gjøre mer i dag.':'Klar for første lille seier?';
   const learning=WORLD_COUNTRIES.filter(x=>countryStatus(x.id)==='learning').length;
-  const worldTitle=document.getElementById('my-world-title'),worldCopy=document.getElementById('my-world-copy'),globeMastery=document.getElementById('globe-mastery');
-  if(worldTitle)worldTitle.textContent=known?known+' land har fått farge':'Fyll verden din med kunnskap';
-  if(worldCopy)worldCopy.textContent=known||learning?known+' lært · '+learning+' på vei. Land får mer farge når du lærer dem.':'Start med noen land. Verden får farge etter hvert som du lærer.';
-  if(globeMastery)globeMastery.textContent=known+' lært · '+learning+' på vei';
+  const worldTitle=document.getElementById('my-world-title'),worldCopy=document.getElementById('my-world-copy');
+  if(worldTitle)worldTitle.textContent=known?'Utforsk verden · '+known+' land lært':'Utforsk hele verden';
+  if(worldCopy)worldCopy.textContent=known||learning?'Min verden: '+known+' lært · '+learning+' på vei.':'Snurr på kloden, eller åpne Min verden og se hva du lærer.';
   const geoGrade=document.getElementById('geography-grade-label');if(geoGrade)geoGrade.textContent=cfg.label+' · Geografi';
   renderHomeContinue();renderContinentCards();renderAdult();renderGeographyContinue();
   if(document.getElementById('world-screen')?.classList.contains('active'))drawGlobe();
@@ -1173,7 +1178,7 @@ document.getElementById('start-continent').onclick=()=>startSession(null,{type:'
 document.getElementById('start-world').onclick=()=>startSession(null,{type:'world',label:'Hele verden',ids:WORLD_COUNTRIES.map(c=>c.id),includeMap:true});
 document.getElementById('start-world-from-globe').onclick=()=>startSession(null,{type:'world',label:'Hele verden',ids:WORLD_COUNTRIES.map(c=>c.id),includeMap:true});
 document.getElementById('continent-back').onclick=()=>showScreen('geography');
-document.getElementById('open-world').onclick=()=>showScreen('world');
+document.getElementById('open-world').onclick=()=>{globeMode='explore';showScreen('world');requestAnimationFrame(()=>setGlobeMode('explore'))};
 document.getElementById('world-back').onclick=()=>showScreen('geography');
 document.getElementById('close-session').onclick=()=>{persistActiveSession();returnToLearningHome()};
 
@@ -1913,8 +1918,20 @@ function geographicHitDistance(c,lon,lat){
 
 // --- Interactive globe ---
 const CONTINENT_COLORS={'Europa':'#78A9EE','Asia':'#E0B35E','Afrika':'#DE866A','Nord-Amerika':'#72C082','Sør-Amerika':'#58B88A','Oseania':'#9B7DDE'};
-const CONTINENT_LEARNING_COLORS={'Europa':'#BFD4EE','Asia':'#E5D2A9','Afrika':'#E0B9AA','Nord-Amerika':'#B9D8BE','Sør-Amerika':'#ACD5C1','Oseania':'#CDBFE3'};
-function globeCountryColor(country){const st=countryStatus(country.id);if(st==='known')return CONTINENT_COLORS[country.continent]||'#7DBD96';if(st==='learning')return CONTINENT_LEARNING_COLORS[country.continent]||'#C3D3C4';return '#D8DED9'}
+function globeCountryColor(country){return CONTINENT_COLORS[country.continent]||'#9DBF95'}
+function drawMasteryMarker(ctx,country,w,h){
+  if(globeMode!=='mine')return;
+  const st=countryStatus(country.id);if(st==='new')return;
+  const p=globeProject(country.lon,country.lat,w,h);if(!p)return;
+  if(st==='known'){
+    const r=globeZoom>=2.2?9:7;
+    ctx.beginPath();ctx.arc(p[0],p[1],r,0,Math.PI*2);ctx.fillStyle='#FFD869';ctx.fill();ctx.strokeStyle='#FFFFFF';ctx.lineWidth=2;ctx.stroke();
+    ctx.fillStyle='#6A531D';ctx.font=`950 ${globeZoom>=2.2?10:8}px system-ui,-apple-system,sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('★',p[0],p[1]+.3);
+  }else{
+    const r=globeZoom>=2.2?6:5;
+    ctx.beginPath();ctx.arc(p[0],p[1],r,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,.92)';ctx.fill();ctx.strokeStyle='#FFD869';ctx.lineWidth=3;ctx.stroke();
+  }
+}
 function setGlobeZoom(next){
   globeZoom=Math.max(GLOBE_ZOOM_MIN,Math.min(GLOBE_ZOOM_MAX,next));
   const zin=document.getElementById('globe-zoom-in'),zout=document.getElementById('globe-zoom-out');
@@ -1943,7 +1960,8 @@ function drawGlobe(){const canvas=document.getElementById('globe-canvas');if(!ca
   for(const lat of [-60,-30,0,30,60]){ctx.beginPath();const pts=[];for(let lon=-180;lon<=180;lon+=4)pts.push([lon,lat]);drawProjectedLine(ctx,pts,w,h);ctx.stroke()}
   for(let lon=-180;lon<180;lon+=30){ctx.beginPath();const pts=[];for(let lat=-85;lat<=85;lat+=4)pts.push([lon,lat]);drawProjectedLine(ctx,pts,w,h);ctx.stroke()}
   for(const country of WORLD_COUNTRIES){if(!country.geometry)continue;ctx.beginPath();for(const poly of geometryPolygons(country.geometry)){for(const ring of poly){drawProjectedLine(ctx,ring,w,h)}}ctx.fillStyle=country.id===globeSelected?'#FFD869':globeCountryColor(country);ctx.strokeStyle='rgba(255,255,255,.82)';ctx.lineWidth=globeZoom>2?1.05:.75;ctx.fill();ctx.stroke()}
-  for(const country of WORLD_COUNTRIES){if(!isTinyCountry(country)&&country.id!==globeSelected)continue;const p=globeProject(country.lon,country.lat,w,h);if(!p)continue;const selected=country.id===globeSelected,st=countryStatus(country.id);ctx.beginPath();ctx.arc(p[0],p[1],selected?6:Math.min(4.2,2.7+globeZoom*.28),0,Math.PI*2);ctx.fillStyle=selected?'#FFD869':st==='known'?(CONTINENT_COLORS[country.continent]||'#7DBD96'):st==='learning'?(CONTINENT_LEARNING_COLORS[country.continent]||'#C3D3C4'):'#E2E6E2';ctx.fill();ctx.strokeStyle='rgba(69,82,105,.35)';ctx.lineWidth=1;ctx.stroke()}
+  for(const country of WORLD_COUNTRIES){if(!isTinyCountry(country)&&country.id!==globeSelected)continue;const p=globeProject(country.lon,country.lat,w,h);if(!p)continue;const selected=country.id===globeSelected;ctx.beginPath();ctx.arc(p[0],p[1],selected?6:Math.min(4.2,2.7+globeZoom*.28),0,Math.PI*2);ctx.fillStyle=selected?'#FFD869':'#FFF7C8';ctx.fill();ctx.strokeStyle='rgba(69,82,105,.35)';ctx.lineWidth=1;ctx.stroke()}
+  for(const country of WORLD_COUNTRIES)drawMasteryMarker(ctx,country,w,h);
   ctx.restore();ctx.beginPath();ctx.arc(w/2,h/2,s*.46,0,Math.PI*2);ctx.strokeStyle='rgba(255,255,255,.95)';ctx.lineWidth=5;ctx.stroke();
 }
 function globeInverse(x,y){const canvas=document.getElementById('globe-canvas'),w=canvas._cssW||canvas._cssSize,h=canvas._cssH||canvas._cssSize,s=Math.min(w,h),r=s*.455*globeZoom,X=(x-w/2)/r,Y=-(y-h/2)/r,rho=Math.hypot(X,Y);if(rho>1)return null;const rad=Math.PI/180,p0=globeLat*rad,l0=globeLon*rad,c=Math.asin(Math.min(1,rho));if(rho<1e-8)return {lon:globeLon,lat:globeLat};const lat=Math.asin(Math.cos(c)*Math.sin(p0)+(Y*Math.sin(c)*Math.cos(p0)/rho));const lon=l0+Math.atan2(X*Math.sin(c),rho*Math.cos(p0)*Math.cos(c)-Y*Math.sin(p0)*Math.sin(c));return {lon:((lon/rad+540)%360)-180,lat:lat/rad}}
@@ -1953,12 +1971,24 @@ function pickGlobeCountry(e){const canvas=document.getElementById('globe-canvas'
   if(!picked){let best=null,dist=Infinity;for(const c of WORLD_COUNTRIES){if(!canMapCountry(c)||(!isTinyCountry(c)&&c.id!==globeSelected))continue;const p=globeProject(c.lon,c.lat,canvas._cssW,canvas._cssH);if(!p)continue;const d=Math.hypot(p[0]-x,p[1]-y);if(d<dist){dist=d;best=c}}if(dist<Math.min(24,15+globeZoom*2.2))picked=best}
   if(picked)selectGlobeCountry(picked.id);
 }
-function selectGlobeCountry(id){const c=countries[id];if(!c)return;globeSelected=id;drawGlobe();const box=document.getElementById('globe-status');box.innerHTML=`<div class="flag">${c.flag}</div><div><strong>${c.name}</strong><span>${c.continent}${c.capitalDisplay?' · '+c.capitalDisplay:''} · trykk for å lære mer</span></div>`;box.style.cursor='pointer';box.onclick=()=>openDetail(id,'world')}
+function globeProgressLabel(id){const st=countryStatus(id);return st==='known'?' · ⭐ Lært':st==='learning'?' · ◐ Du øver':''}
+function selectGlobeCountry(id){const c=countries[id];if(!c)return;globeSelected=id;drawGlobe();const box=document.getElementById('globe-status'),progress=globeMode==='mine'?globeProgressLabel(id):'';box.innerHTML=`<div class="flag">${c.flag}</div><div><strong>${c.name}</strong><span>${c.continent}${c.capitalDisplay?' · '+c.capitalDisplay:''}${progress} · trykk for å lære mer</span></div>`;box.style.cursor='pointer';box.onclick=()=>openDetail(id,'world')}
 function focusCountry(id){const c=countries[id];if(!c)return;if(Number.isFinite(c.lon))globeLon=c.lon;if(Number.isFinite(c.lat))globeLat=Math.max(-78,Math.min(78,c.lat));setGlobeZoom(countryFocusZoom(c));selectGlobeCountry(id)}
+function setGlobeMode(mode){
+  globeMode=mode==='mine'?'mine':'explore';
+  document.querySelectorAll('[data-globe-mode]').forEach(b=>b.classList.toggle('active',b.dataset.globeMode===globeMode));
+  const box=document.getElementById('globe-status'),known=knownCountryCount(),learning=WORLD_COUNTRIES.filter(x=>countryStatus(x.id)==='learning').length;
+  if(globeSelected)selectGlobeCountry(globeSelected);
+  else if(box)box.innerHTML=globeMode==='mine'
+    ?`<div class="flag">⭐</div><div><strong>Min verden</strong><span>${known} land lært · ${learning} på vei</span></div>`
+    :'<div class="flag">🧭</div><div><strong>Utforsk verden</strong><span>Snurr på kloden og trykk på et land.</span></div>';
+  drawGlobe();
+}
+document.querySelectorAll('[data-globe-mode]').forEach(b=>b.onclick=()=>setGlobeMode(b.dataset.globeMode));
 document.getElementById('globe-zoom-in').onclick=()=>setGlobeZoom(globeZoom+.35);
 document.getElementById('globe-zoom-out').onclick=()=>setGlobeZoom(globeZoom-.35);
 document.getElementById('random-country').onclick=()=>focusCountry(WORLD_COUNTRIES[Math.floor(Math.random()*WORLD_COUNTRIES.length)].id);
-document.getElementById('reset-globe').onclick=()=>{globeLon=15;globeLat=18;globeSelected=null;document.getElementById('globe-status').innerHTML='<div class="flag">🧭</div><div><strong>Finn et land</strong><span>Kloden kan snurres i alle retninger.</span></div>';setGlobeZoom(1)};
+document.getElementById('reset-globe').onclick=()=>{globeLon=15;globeLat=18;globeSelected=null;setGlobeMode(globeMode);setGlobeZoom(1)};
 function renderWorldSearch(){const q=document.getElementById('world-search').value.trim().toLocaleLowerCase('nb'),out=document.getElementById('world-search-results');out.innerHTML='';if(!q)return;WORLD_COUNTRIES.filter(c=>c.name.toLocaleLowerCase('nb').includes(q)).slice(0,8).forEach(c=>{const el=document.createElement('button');el.type='button';el.className='country';el.innerHTML=`<div class="flag">${c.flag}</div><div class="namewrap"><span class="name">${c.name}</span><span class="sub">${c.continent}${c.capitalDisplay?' · '+c.capitalDisplay:''}</span></div><div>›</div>`;el.onclick=()=>{document.getElementById('world-search').value='';out.innerHTML='';focusCountry(c.id)};out.appendChild(el)})}
 document.getElementById('world-search').addEventListener('input',renderWorldSearch);
 
@@ -2145,6 +2175,6 @@ if(!state.profile.onboarded||!state.profile.grade){
   renderGradeChoice();updateOnboarding();document.getElementById('onboarding').classList.add('show');
 }else if(loadActiveSession()){showScreen('session');renderQuestion()}
 </script>
-<!-- build: child-mastery-loop-grade-design-2026-10-02 -->
+<!-- build: explore-my-world-globe-2026-10-02 -->
 </body>
 </html>
