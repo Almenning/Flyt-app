@@ -317,6 +317,20 @@
     #subject-screen[data-subject="math"] .subject-hero{background:linear-gradient(145deg,#FFF5D9,#fff)}
     #subject-screen[data-subject="english"] .subject-hero{background:linear-gradient(145deg,#EAF8F0,#fff)}
     .geography-continue{padding:18px;margin:14px 0;background:linear-gradient(145deg,#F2F7FF,#fff)}
+    .daily-goal{padding:17px 18px;margin:15px 0 2px;background:linear-gradient(145deg,#FFFDF4,#F5FBFF)}
+    .daily-goal-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .daily-goal-head strong{font-size:17px;font-weight:950}.daily-goal-head span{font-size:12px;font-weight:900;color:#66708A}
+    .daily-goal-dots{display:flex;gap:8px;margin:12px 0 8px}.daily-goal-dots i{display:block;flex:1;height:10px;border-radius:999px;background:#E6E7EC;box-shadow:inset 0 1px 2px rgba(50,55,80,.07)}
+    .daily-goal-dots i.done{background:linear-gradient(90deg,#5CC18E,#6BCFB0)}
+    .daily-goal-copy{font-size:12px;font-weight:800;color:var(--muted);line-height:1.45}.daily-growth{margin-top:7px;font-size:12px;font-weight:950;color:#34785A}
+    .my-world-card .world-hero-copy .eyebrow{margin-bottom:3px}.my-world-card .world-hero-copy strong{font-size:19px}.my-world-card .world-hero-copy p{margin-top:3px}
+    .globe-mastery{display:flex;align-items:center;justify-content:center;gap:7px;padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.92);color:#4C5875;font-size:12px;font-weight:900;box-shadow:0 5px 18px rgba(50,60,100,.10);backdrop-filter:blur(10px)}
+    #world-screen.active .globe-mastery{position:absolute;top:max(19px,env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:29;white-space:nowrap}
+    .complete-next{margin:14px 2px 0;padding:15px 16px;border-radius:20px;background:#EEF5FF;color:#4C5F9E;font-size:14px;line-height:1.45;font-weight:900}
+    .grade-band-young{--radius:32px}.grade-band-young .home-subject{min-height:184px;border-radius:29px}.grade-band-young .home-subject-icon{width:57px;height:57px;font-size:31px}.grade-band-young .home-subject strong{font-size:19px}.grade-band-young .answer{font-size:18px;padding:19px 17px}.grade-band-young .question{font-size:32px}.grade-band-young .subject-module{padding:18px;border-radius:24px}
+    .grade-band-middle{--radius:28px}.grade-band-middle .home-subject{min-height:174px}
+    .grade-band-older{--radius:24px}.grade-band-older .app:before,.grade-band-older .app:after{opacity:.35}.grade-band-older .home-subject{min-height:157px;border-radius:22px}.grade-band-older .home-subject-icon{width:47px;height:47px;border-radius:15px;font-size:25px}.grade-band-older .question{font-size:28px}.grade-band-older .subject-module{border-radius:19px}
+    .grade-band-teen{--radius:20px}.grade-band-teen:before,.grade-band-teen:after{display:none}.grade-band-teen .brand:after{content:""}.grade-band-teen .avatar{width:43px;height:43px;border-radius:14px;font-size:22px}.grade-band-teen .home-subject{min-height:145px;border-radius:19px}.grade-band-teen .home-subject-icon{width:44px;height:44px;border-radius:13px;font-size:23px}.grade-band-teen .question{font-size:27px}.grade-band-teen .subject-module{border-radius:17px}
     @media (max-width:370px){h1{font-size:30px}.question{font-size:27px}.grade-grid{grid-template-columns:repeat(5,1fr)}.home-subject-grid{gap:9px}.home-subject{padding:15px 13px;min-height:168px}}
 
   </style>
@@ -337,6 +351,13 @@
         <div class="eyebrow" id="home-greeting">Hei 👋</div>
         <h1>Hva vil du lære i dag? ✨</h1>
         <p class="hero-copy">Velg et fag, fortsett der du slapp og se kunnskapen vokse litt etter litt.</p>
+      </div>
+
+      <div class="card daily-goal" id="home-daily-goal">
+        <div class="daily-goal-head"><strong>Dagens lille mål</strong><span id="daily-goal-count">0 av 3</span></div>
+        <div class="daily-goal-dots" id="daily-goal-dots" aria-label="Dagens mål"><i></i><i></i><i></i></div>
+        <div class="daily-goal-copy" id="daily-goal-copy">Tre riktige svar er nok til å gjøre dagen til en læringsdag.</div>
+        <div class="daily-growth" id="daily-growth">Klar for første lille seier?</div>
       </div>
 
       <div class="home-continue-wrap" id="home-continue-wrap" hidden>
@@ -380,7 +401,7 @@
       <div class="home-week">
         <div class="stat"><strong id="home-week-new">0</strong><span>ting styrket</span></div>
         <div class="stat"><strong id="home-week-answers">0</strong><span>oppgaver</span></div>
-        <div class="stat"><strong id="home-week-streak">0</strong><span>dager på rad</span></div>
+        <div class="stat"><strong id="home-week-days">0</strong><span>læringsdager</span></div>
       </div>
 
       <button class="adult-entry" id="adult-entry" aria-label="Hold inne for voksenområdet">🔒 Hold inne for voksne</button>
@@ -418,9 +439,9 @@
         <p class="hero-copy">Utforsk verden, test deg og bygg kunnskapen område for område.</p>
       </div>
 
-      <button class="card world-hero" id="open-world" type="button">
+      <button class="card world-hero my-world-card" id="open-world" type="button">
         <div class="world-orb" aria-hidden="true"></div>
-        <div class="world-hero-copy"><strong>Utforsk kloden</strong><p>Snurr på verden og trykk på land du vil oppdage.</p></div>
+        <div class="world-hero-copy"><div class="eyebrow">Min verden</div><strong id="my-world-title">Fyll verden din med kunnskap</strong><p id="my-world-copy">Land får mer farge etter hvert som du lærer dem.</p></div>
         <div style="font-size:22px;position:relative;z-index:1">›</div>
       </button>
 
@@ -459,6 +480,7 @@
 
     <section class="screen" id="world-screen">
       <button class="detail-back" id="world-back">← Utforsk</button>
+      <div class="globe-mastery" id="globe-mastery">○ nytt · ◐ øver · ● lært</div>
       <div class="eyebrow">Utforsk kloden</div>
       <h1>Snurr på verden 🌍</h1>
       <p class="hero-copy">Dra på kloden. Trykk på et land for å se hva det heter og lære mer.</p>
@@ -527,6 +549,7 @@
           <div class="summary-row"><span>Nye ting styrket</span><span id="complete-learned">0</span></div>
           <div class="summary-row"><span>Område</span><span id="complete-area">Norden</span></div>
         </div>
+        <div class="complete-next" id="complete-next">Neste gang venter en ny liten utfordring.</div>
         <button class="primary" id="complete-home">Ferdig! ⭐</button>
       </div>
     </section>
@@ -882,6 +905,12 @@ function computeStreak(){
 }
 function last7Answers(){const cutoff=Date.now()-7*24*60*60*1000;return state.answerLog.filter(a=>a.at>=cutoff)}
 function last7Sessions(){const cutoff=Date.now()-7*24*60*60*1000;return state.sessionLog.filter(s=>(s.endedAt||0)>=cutoff)}
+function todaysAnswers(){const today=dayKeyOffset(0);return state.answerLog.filter(a=>a.at&&localDay(a.at)===today)}
+function learningDaysLast7(){return new Set(last7Answers().filter(a=>a.at).map(a=>localDay(a.at))).size}
+function dailyGoal(){const correct=todaysAnswers().filter(a=>a.correct).length;return {target:3,done:Math.min(3,correct),correct}}
+function gradeBand(grade=currentGrade()){return grade<=2?'young':grade<=4?'middle':grade<=7?'older':'teen'}
+function applyGradeDesign(){const app=document.querySelector('.app');if(!app)return;app.classList.remove('grade-band-young','grade-band-middle','grade-band-older','grade-band-teen');app.classList.add('grade-band-'+gradeBand())}
+function lastLearningAt(){return state.answerLog.reduce((m,a)=>Math.max(m,Number(a.at||0)),0)}
 function formatPopulation(n){if(!n)return '–';try{return new Intl.NumberFormat('nb-NO',{notation:'compact',maximumFractionDigits:1}).format(n)}catch(e){return String(n)}}
 
 let currentCollectionIds=NORDIC_IDS;
@@ -960,7 +989,9 @@ syncSwipeBackEdge();
 
 function renderAll(){
   const grade=currentGrade(),cfg=gradeConfig(),known=knownCountryCount(),nordicPct=pctFor(NORDIC_IDS);
-  document.getElementById('home-greeting').textContent='Hei 👋';
+  applyGradeDesign();
+  const lastAt=lastLearningAt(),away=lastAt&&Date.now()-lastAt>48*60*60*1000;
+  document.getElementById('home-greeting').textContent=away?'Hyggelig å se deg igjen 👋':'Hei 👋';
   document.getElementById('home-grade-label').textContent=cfg.label;
   const adultGrade=document.getElementById('adult-grade');if(adultGrade)adultGrade.value=String(grade);
   document.getElementById('norden-pct').textContent=nordicPct+' %';
@@ -970,15 +1001,25 @@ function renderAll(){
   document.getElementById('prog-cap').textContent=knownCount('capital');
   document.getElementById('prog-flag').textContent=knownCount('flag');
   document.getElementById('prog-map').textContent=knownCount('map');
-  const a7=last7Answers(),streak=computeStreak();
+  const a7=last7Answers(),today=todaysAnswers(),goal=dailyGoal(),todayStrengthened=today.filter(a=>a.newlyMastered).length;
   document.getElementById('weekly-new').textContent=a7.filter(a=>a.newlyMastered).length;
   document.getElementById('weekly-answers').textContent=a7.length;
   document.getElementById('weekly-accuracy').textContent=a7.length?Math.round(a7.filter(a=>a.correct).length/a7.length*100)+' %':'–';
   document.getElementById('home-week-new').textContent=a7.filter(a=>a.newlyMastered).length;
   document.getElementById('home-week-answers').textContent=a7.length;
-  document.getElementById('home-week-streak').textContent=streak;
+  document.getElementById('home-week-days').textContent=learningDaysLast7();
+  document.getElementById('daily-goal-count').textContent=goal.done+' av '+goal.target;
+  document.querySelectorAll('#daily-goal-dots i').forEach((dot,i)=>dot.classList.toggle('done',i<goal.done));
+  document.getElementById('daily-goal-copy').textContent=goal.done>=goal.target?'Dagens lille mål er nådd. Resten er bonus.':goal.done===0?'Tre riktige svar er nok til å gjøre dagen til en læringsdag.':'Bare '+(goal.target-goal.done)+' igjen til dagens lille mål.';
+  document.getElementById('daily-growth').textContent=todayStrengthened?'Du kan mer i dag enn da du startet: '+todayStrengthened+' ting er styrket.':goal.done>=goal.target?'Bra jobbet. Du trenger ikke gjøre mer i dag.':'Klar for første lille seier?';
+  const learning=WORLD_COUNTRIES.filter(x=>countryStatus(x.id)==='learning').length;
+  const worldTitle=document.getElementById('my-world-title'),worldCopy=document.getElementById('my-world-copy'),globeMastery=document.getElementById('globe-mastery');
+  if(worldTitle)worldTitle.textContent=known?known+' land har fått farge':'Fyll verden din med kunnskap';
+  if(worldCopy)worldCopy.textContent=known||learning?known+' lært · '+learning+' på vei. Land får mer farge når du lærer dem.':'Start med noen land. Verden får farge etter hvert som du lærer.';
+  if(globeMastery)globeMastery.textContent=known+' lært · '+learning+' på vei';
   const geoGrade=document.getElementById('geography-grade-label');if(geoGrade)geoGrade.textContent=cfg.label+' · Geografi';
   renderHomeContinue();renderContinentCards();renderAdult();renderGeographyContinue();
+  if(document.getElementById('world-screen')?.classList.contains('active'))drawGlobe();
 }
 function renderContinentCards(){
   const grid=document.getElementById('continent-grid');if(!grid)return;grid.innerHTML='';
@@ -1431,7 +1472,8 @@ function buildLearningQuestions(subject,module){
     const focusBonus=q._focused?-.55:0,novelty=last?0:.22;
     return {q,score:skillLevel(key)-Math.min(.8,mist*.14)+focusBonus+novelty+i*.001+Math.random()*.08};
   }).sort((a,b)=>a.score-b.score).map(x=>x.q);
-  return ranked.slice(0,5);
+  const warm=ranked.find(q=>q.type==='learning-choice'&&(q.visual||skillLevel(learningMasteryKey(q.subject,q.skill))>0))||ranked.find(q=>q.type==='learning-choice')||ranked[0];
+  return [warm,...ranked.filter(q=>q!==warm)].slice(0,5);
 }
 function startLearningSession(subject,module,label){
   sessionScope={type:'subject',subject,module:module||null,label:(SUBJECTS[subject]?.title||subject)+' · '+(label||'Blandet'),grade:currentGrade()};
@@ -1870,7 +1912,9 @@ function geographicHitDistance(c,lon,lat){
 }
 
 // --- Interactive globe ---
-const CONTINENT_COLORS={'Europa':'#A9C8F5','Asia':'#E8C88C','Afrika':'#E5A58D','Nord-Amerika':'#9DD5A5','Sør-Amerika':'#82C7A4','Oseania':'#C2ACEB'};
+const CONTINENT_COLORS={'Europa':'#78A9EE','Asia':'#E0B35E','Afrika':'#DE866A','Nord-Amerika':'#72C082','Sør-Amerika':'#58B88A','Oseania':'#9B7DDE'};
+const CONTINENT_LEARNING_COLORS={'Europa':'#BFD4EE','Asia':'#E5D2A9','Afrika':'#E0B9AA','Nord-Amerika':'#B9D8BE','Sør-Amerika':'#ACD5C1','Oseania':'#CDBFE3'};
+function globeCountryColor(country){const st=countryStatus(country.id);if(st==='known')return CONTINENT_COLORS[country.continent]||'#7DBD96';if(st==='learning')return CONTINENT_LEARNING_COLORS[country.continent]||'#C3D3C4';return '#D8DED9'}
 function setGlobeZoom(next){
   globeZoom=Math.max(GLOBE_ZOOM_MIN,Math.min(GLOBE_ZOOM_MAX,next));
   const zin=document.getElementById('globe-zoom-in'),zout=document.getElementById('globe-zoom-out');
@@ -1898,8 +1942,8 @@ function drawGlobe(){const canvas=document.getElementById('globe-canvas');if(!ca
   ctx.strokeStyle='rgba(255,255,255,.25)';ctx.lineWidth=1;
   for(const lat of [-60,-30,0,30,60]){ctx.beginPath();const pts=[];for(let lon=-180;lon<=180;lon+=4)pts.push([lon,lat]);drawProjectedLine(ctx,pts,w,h);ctx.stroke()}
   for(let lon=-180;lon<180;lon+=30){ctx.beginPath();const pts=[];for(let lat=-85;lat<=85;lat+=4)pts.push([lon,lat]);drawProjectedLine(ctx,pts,w,h);ctx.stroke()}
-  for(const country of WORLD_COUNTRIES){if(!country.geometry)continue;ctx.beginPath();for(const poly of geometryPolygons(country.geometry)){for(const ring of poly){drawProjectedLine(ctx,ring,w,h)}}ctx.fillStyle=country.id===globeSelected?'#FFD869':(CONTINENT_COLORS[country.continent]||'#BFD7A2');ctx.strokeStyle='rgba(255,255,255,.78)';ctx.lineWidth=globeZoom>2?1.05:.75;ctx.fill();ctx.stroke()}
-  for(const country of WORLD_COUNTRIES){if(!isTinyCountry(country)&&country.id!==globeSelected)continue;const p=globeProject(country.lon,country.lat,w,h);if(!p)continue;const selected=country.id===globeSelected;ctx.beginPath();ctx.arc(p[0],p[1],selected?6:Math.min(4.2,2.7+globeZoom*.28),0,Math.PI*2);ctx.fillStyle=selected?'#FFD869':'#FFF7C8';ctx.fill();ctx.strokeStyle='rgba(69,82,105,.35)';ctx.lineWidth=1;ctx.stroke()}
+  for(const country of WORLD_COUNTRIES){if(!country.geometry)continue;ctx.beginPath();for(const poly of geometryPolygons(country.geometry)){for(const ring of poly){drawProjectedLine(ctx,ring,w,h)}}ctx.fillStyle=country.id===globeSelected?'#FFD869':globeCountryColor(country);ctx.strokeStyle='rgba(255,255,255,.82)';ctx.lineWidth=globeZoom>2?1.05:.75;ctx.fill();ctx.stroke()}
+  for(const country of WORLD_COUNTRIES){if(!isTinyCountry(country)&&country.id!==globeSelected)continue;const p=globeProject(country.lon,country.lat,w,h);if(!p)continue;const selected=country.id===globeSelected,st=countryStatus(country.id);ctx.beginPath();ctx.arc(p[0],p[1],selected?6:Math.min(4.2,2.7+globeZoom*.28),0,Math.PI*2);ctx.fillStyle=selected?'#FFD869':st==='known'?(CONTINENT_COLORS[country.continent]||'#7DBD96'):st==='learning'?(CONTINENT_LEARNING_COLORS[country.continent]||'#C3D3C4'):'#E2E6E2';ctx.fill();ctx.strokeStyle='rgba(69,82,105,.35)';ctx.lineWidth=1;ctx.stroke()}
   ctx.restore();ctx.beginPath();ctx.arc(w/2,h/2,s*.46,0,Math.PI*2);ctx.strokeStyle='rgba(255,255,255,.95)';ctx.lineWidth=5;ctx.stroke();
 }
 function globeInverse(x,y){const canvas=document.getElementById('globe-canvas'),w=canvas._cssW||canvas._cssSize,h=canvas._cssH||canvas._cssSize,s=Math.min(w,h),r=s*.455*globeZoom,X=(x-w/2)/r,Y=-(y-h/2)/r,rho=Math.hypot(X,Y);if(rho>1)return null;const rad=Math.PI/180,p0=globeLat*rad,l0=globeLon*rad,c=Math.asin(Math.min(1,rho));if(rho<1e-8)return {lon:globeLon,lat:globeLat};const lat=Math.asin(Math.cos(c)*Math.sin(p0)+(Y*Math.sin(c)*Math.cos(p0)/rho));const lon=l0+Math.atan2(X*Math.sin(c),rho*Math.cos(p0)*Math.cos(c)-Y*Math.sin(p0)*Math.sin(c));return {lon:((lon/rad+540)%360)-180,lat:lat/rad}}
@@ -1987,12 +2031,27 @@ function nextQuestion(){
   if(qIndex>=sessionQuestions.length){finishSession();return}
   persistActiveSession();renderQuestion();
 }
-function finishSession(){  const result={endedAt:Date.now(),correct:sessionCorrect,total:sessionQuestions.length,strengthened:sessionStrengthened.size,area:sessionScope.label};
+function nextTeaserForScope(){
+  const subject=sessionScope?.subject;
+  if(!subject||subject==='geography'||['country','collection','world','grade'].includes(sessionScope?.type)){
+    const ids=(sessionScope?.ids||gradeScopeIds()).filter(id=>countries[id]);
+    const next=ids.find(id=>countryStatus(id)!=='known');
+    return next?'Neste gang: Klarer du å gi '+countries[next].name+' mer farge på kloden?':'Neste gang: Klarer du full pott på et nytt område?';
+  }
+  if(subject==='math')return 'Neste gang: Klarer du én oppgave mer uten hjelp?';
+  if(subject==='english')return 'Next time: can you beat your own score?';
+  return 'Neste gang: Klarer du å styrke én ny ferdighet?';
+}
+function finishSession(){
+  const previousBest=state.sessionLog.reduce((best,s)=>Math.max(best,Number(s.correct||0)),0),hadPrevious=state.sessionLog.length>0;
+  const result={endedAt:Date.now(),correct:sessionCorrect,total:sessionQuestions.length,strengthened:sessionStrengthened.size,area:sessionScope.label};
+  const newRecord=hadPrevious&&result.correct>previousBest;
   state.sessionLog.push(result);state.activeSession=null;saveState();renderAll();
   document.getElementById('complete-correct').textContent=`${result.correct}/${result.total}`;
   document.getElementById('complete-learned').textContent=result.strengthened;
   document.getElementById('complete-area').textContent=result.area||'Verden';
-  document.getElementById('complete-copy').textContent=result.correct===result.total?'Full pott! Du knuste dagens oppdrag. 🌟':result.correct>=3?'Bra jobbet! Det vanskelige får du møte igjen senere.':'God innsats! Nå vet appen hva du skal øve mer på.';
+  document.getElementById('complete-copy').textContent=newRecord?'Ny personlig rekord: '+result.correct+' riktige! 🌟':result.correct===result.total?'Full pott! Du klarte hele oppdraget. 🌟':result.correct>=3?'Bra jobbet! Det vanskelige får du møte igjen senere.':'God innsats! Nå vet appen hva du skal øve mer på.';
+  document.getElementById('complete-next').textContent=nextTeaserForScope();
   const backLabel=sessionScope?.subject&&sessionScope.subject!=='geography'?(SUBJECTS[sessionScope.subject]?.title||'faget'):'Geografi';
   document.getElementById('complete-home').textContent='Tilbake til '+backLabel+' ⭐';
   showScreen('complete');
@@ -2086,6 +2145,6 @@ if(!state.profile.onboarded||!state.profile.grade){
   renderGradeChoice();updateOnboarding();document.getElementById('onboarding').classList.add('show');
 }else if(loadActiveSession()){showScreen('session');renderQuestion()}
 </script>
-<!-- build: free-position-touch-word-builder-2026-10-02 -->
+<!-- build: child-mastery-loop-grade-design-2026-10-02 -->
 </body>
 </html>
