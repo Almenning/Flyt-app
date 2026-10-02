@@ -236,7 +236,30 @@
     .world-quiz{margin-top:12px}
     .map-region{display:inline-flex;align-items:center;gap:6px;margin:0 auto 10px;padding:6px 10px;border-radius:999px;background:#EEF2FF;color:#5E6C9C;font-size:12px;font-weight:900}
 
-    @media (max-width:370px){h1{font-size:30px}.question{font-size:27px}}
+    .topic-card.norwegian{background:linear-gradient(145deg,#FFF0F3,#FFF7F5)}
+    .topic-card:not([aria-disabled="true"]):focus-visible,.subject-module:focus-visible,.geo-theme:focus-visible,.letter-tile:focus-visible,.word-tile:focus-visible{outline:4px solid rgba(90,125,242,.28);outline-offset:3px}
+    .subject-hero{padding:20px;margin:14px 0;background:linear-gradient(145deg,#fff,#F8F7FF)}
+    .subject-hero .subject-big{font-size:52px;margin-bottom:8px}.subject-hero h2{margin:0 0 5px}
+    .subject-modules{display:grid;gap:11px;margin-top:14px}
+    .subject-module{width:100%;border:0;background:#fff;color:var(--ink);border-radius:22px;padding:16px;text-align:left;display:flex;gap:13px;align-items:center;box-shadow:0 6px 0 rgba(70,72,115,.05);cursor:pointer}
+    .subject-module .module-icon{width:48px;height:48px;border-radius:16px;background:#F2F1FA;display:grid;place-items:center;font-size:25px;flex:0 0 auto}
+    .subject-module strong{display:block;font-size:16px}.subject-module small{display:block;color:var(--muted);margin-top:3px;font-weight:750;line-height:1.35}
+    .subject-progress{margin-top:14px;padding:14px 16px;border-radius:18px;background:rgba(255,255,255,.7);font-size:13px;font-weight:800;color:var(--muted)}
+    .geo-themes{display:flex;gap:8px;overflow-x:auto;padding:3px 2px 8px;margin:10px -2px 4px;scrollbar-width:none}.geo-themes::-webkit-scrollbar{display:none}
+    .geo-theme{flex:0 0 auto;border:2px solid #E5E3EF;background:#fff;color:#5F6682;border-radius:999px;padding:9px 12px;font-weight:900;cursor:pointer}
+    .geo-theme.active{background:#E8EEFF;border-color:#8191E8;color:#4659B9}
+    .learning-passage{background:#fff;border-radius:21px;padding:17px;margin:8px 0 16px;font-size:18px;line-height:1.55;font-weight:750;box-shadow:0 5px 0 rgba(70,72,115,.04)}
+    .letter-slots{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:18px 0}
+    .letter-slot{width:48px;height:55px;border:2px dashed #BBC2DB;border-radius:15px;background:#fff;display:grid;place-items:center;font-size:25px;font-weight:950;color:var(--ink)}
+    .letter-bank,.word-bank{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin:16px 0}
+    .letter-tile,.word-tile{border:0;border-radius:15px;background:#EEF1FF;color:#3E4E9E;min-width:48px;min-height:48px;padding:10px 13px;font-size:21px;font-weight:950;box-shadow:0 4px 0 #D7DCF5;cursor:grab;touch-action:manipulation}
+    .word-tile{font-size:16px;min-width:auto}.letter-tile.used,.word-tile.used{opacity:.28;box-shadow:none;pointer-events:none}
+    .sentence-target{min-height:62px;border:2px dashed #CCD1E2;border-radius:18px;background:#fff;padding:10px;display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;margin:14px 0}
+    .sentence-target button{border:0;background:#EAF7EF;color:#34745A;border-radius:12px;padding:9px 11px;font-weight:900}
+    .subject-progress-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+    .subject-progress-card{background:#fff;border-radius:20px;padding:14px;box-shadow:0 5px 0 rgba(70,72,115,.04)}
+    .subject-progress-card strong{display:block;font-size:14px}.subject-progress-card span{display:block;margin-top:5px;color:var(--muted);font-size:12px;font-weight:750}
+    @media (max-width:370px){h1{font-size:30px}.question{font-size:27px}.grade-grid{grid-template-columns:repeat(5,1fr)}}
   </style>
   <!-- immersive-globe-viewport-2026-10-02 -->
   <!-- globe-hit-test-dateline-fix-2026-10-02 -->
@@ -293,34 +316,43 @@
       <div class="topic-grid" aria-label="Læringstemaer">
         <button class="topic-card geography" id="open-geography" type="button">
           <div class="topic-icon" aria-hidden="true">🌍</div>
-          <div class="topic-copy">
-            <strong>Geografi</strong>
-            <p>Land, flagg, hovedsteder og kart.</p>
-            <div class="topic-meta"><span class="topic-chip ready">Klar til å utforske</span><span class="topic-chip" id="topic-geography-progress">Norden · 0 %</span></div>
-          </div>
+          <div class="topic-copy"><strong>Geografi</strong><p>Land, hovedsteder, flagg, landsdeler og kart.</p><div class="topic-meta"><span class="topic-chip ready">Klar</span><span class="topic-chip" id="topic-geography-progress">Norden · 0 %</span></div></div>
           <div class="topic-arrow" aria-hidden="true">›</div>
         </button>
-
-        <div class="topic-card math" aria-disabled="true">
-          <div class="topic-icon" aria-hidden="true">➕</div>
-          <div class="topic-copy">
-            <strong>Regning</strong>
-            <p>Pluss, minus, gange og små problemløsningsoppgaver.</p>
-            <div class="topic-meta"><span class="topic-chip soon">Kommer snart</span></div>
-          </div>
-        </div>
-
-        <div class="topic-card english" aria-disabled="true">
+        <button class="topic-card norwegian" id="open-norwegian" type="button">
+          <div class="topic-icon" aria-hidden="true">📖</div>
+          <div class="topic-copy"><strong>Norsk</strong><p>Lesing, ord, staving, setninger og leseforståelse.</p><div class="topic-meta"><span class="topic-chip ready">Spill og lesetrening</span><span class="topic-chip" id="topic-norwegian-progress">Start</span></div></div>
+          <div class="topic-arrow" aria-hidden="true">›</div>
+        </button>
+        <button class="topic-card math" id="open-math" type="button">
+          <div class="topic-icon" aria-hidden="true">➗</div>
+          <div class="topic-copy"><strong>Matte</strong><p>Fra tallforståelse til algebra, geometri og prosent.</p><div class="topic-meta"><span class="topic-chip ready">1.–10. trinn</span><span class="topic-chip" id="topic-math-progress">Start</span></div></div>
+          <div class="topic-arrow" aria-hidden="true">›</div>
+        </button>
+        <button class="topic-card english" id="open-english" type="button">
           <div class="topic-icon" aria-hidden="true">🇬🇧</div>
-          <div class="topic-copy">
-            <strong>Engelsk</strong>
-            <p>Ord, uttrykk og enkel forståelse.</p>
-            <div class="topic-meta"><span class="topic-chip soon">Kommer snart</span></div>
-          </div>
-        </div>
+          <div class="topic-copy"><strong>Engelsk</strong><p>Ord, lytting, setninger, grammatikk og forståelse.</p><div class="topic-meta"><span class="topic-chip ready">1.–10. trinn</span><span class="topic-chip" id="topic-english-progress">Start</span></div></div>
+          <div class="topic-arrow" aria-hidden="true">›</div>
+        </button>
       </div>
 
-      <div class="topic-note">Geografi er første komplette læringsløp. Regning og engelsk ligger klare som neste temaer uten å gjøre appen unødvendig stor allerede nå.</div>
+      <div class="topic-note">Oppgavene starter på valgt klassetrinn, men tilpasses etter hva barnet faktisk mestrer. Feil brukes til å finne ut hva som bør øves mer på.</div>
+    </section>
+
+    <section class="screen" id="subject-screen">
+      <button class="detail-back" id="subject-back">← Fag</button>
+      <div class="eyebrow" id="subject-eyebrow">Fag</div>
+      <h1 id="subject-title">Norsk</h1>
+      <p class="hero-copy" id="subject-copy"></p>
+      <div class="card subject-hero">
+        <div class="subject-big" id="subject-icon">📖</div>
+        <h2 id="subject-mission-title">Dagens økt</h2>
+        <p id="subject-mission-copy"></p>
+        <button class="primary" id="start-subject-session" type="button">Start 5 oppgaver 🚀</button>
+      </div>
+      <div class="section-title"><h3>Velg hva du vil øve på</h3><span id="subject-grade-label"></span></div>
+      <div class="subject-modules" id="subject-modules"></div>
+      <div class="subject-progress" id="subject-progress-copy">Fremgangen lagres bare på denne enheten.</div>
     </section>
 
     <section class="screen" id="geography-screen">
@@ -328,7 +360,16 @@
       <div class="geography-head">
         <div class="eyebrow">Geografi</div>
         <h1>Hele verden ligger her 🌍</h1>
-        <p class="hero-copy">Velg en verdensdel, snurr på kloden eller finn et bestemt land.</p>
+        <p class="hero-copy">Velg hva du vil øve på, en verdensdel eller utforsk kloden.</p>
+        <div class="geo-themes" id="geo-themes" aria-label="Velg geografitema">
+          <button class="geo-theme active" data-geo-theme="country" type="button">Land</button>
+          <button class="geo-theme" data-geo-theme="capital" type="button">Hovedsteder</button>
+          <button class="geo-theme" data-geo-theme="flag" type="button">Flagg</button>
+          <button class="geo-theme" data-geo-theme="continent" type="button">Verdensdeler</button>
+          <button class="geo-theme" data-geo-theme="regions" type="button">Norges landsdeler</button>
+          <button class="geo-theme" data-geo-theme="map" type="button">Kart</button>
+        </div>
+        <button class="primary" id="start-geography-theme" type="button">Start Land 🚀</button>
       </div>
 
       <button class="card world-hero" id="open-world" type="button">
@@ -391,6 +432,9 @@
         <div class="stat"><strong id="prog-flag">0</strong><span>flagg</span></div>
         <div class="stat"><strong id="prog-map">0</strong><span>kartplasseringer</span></div>
       </div>
+
+      <div class="section-title"><h3>Fag</h3></div>
+      <div class="subject-progress-grid" id="subject-progress-grid"></div>
 
       <div class="section-title"><h3>Denne uken</h3></div>
       <div class="card knowledge">
@@ -522,16 +566,14 @@
       <div class="onboard-step" data-step="2">
         <div class="onboard-hero">🦊</div>
         <div class="eyebrow">Nesten klar</div>
-        <h1>Hva skal vi kalle deg?</h1>
-        <p>Bruk bare fornavn eller kallenavn. Det lagres kun på denne enheten.</p>
-        <input id="child-name" class="name-input" maxlength="18" autocomplete="off" placeholder="Fornavn eller kallenavn" />
+        <h1>Hvilken klasse går du i?</h1>
+        <p>Vi bruker bare klassetrinn for å finne et godt startnivå. Du kan endre det senere.</p>
         <div class="grade-question">
-          <h3>Hvilken klasse går du i?</h3>
           <div class="grade-grid" id="grade-grid" aria-label="Velg klassetrinn">
-            <button type="button" class="grade-btn" data-grade="1">1.</button><button type="button" class="grade-btn" data-grade="2">2.</button><button type="button" class="grade-btn" data-grade="3">3.</button><button type="button" class="grade-btn" data-grade="4">4.</button>
-            <button type="button" class="grade-btn" data-grade="5">5.</button><button type="button" class="grade-btn" data-grade="6">6.</button><button type="button" class="grade-btn" data-grade="7">7.</button>
+            <button type="button" class="grade-btn" data-grade="1">1.</button><button type="button" class="grade-btn" data-grade="2">2.</button><button type="button" class="grade-btn" data-grade="3">3.</button><button type="button" class="grade-btn" data-grade="4">4.</button><button type="button" class="grade-btn" data-grade="5">5.</button>
+            <button type="button" class="grade-btn" data-grade="6">6.</button><button type="button" class="grade-btn" data-grade="7">7.</button><button type="button" class="grade-btn" data-grade="8">8.</button><button type="button" class="grade-btn" data-grade="9">9.</button><button type="button" class="grade-btn" data-grade="10">10.</button>
           </div>
-          <p>Klassetrinnet bestemmer hvor læringsløpet starter. Hele verden er fortsatt åpen for fri utforskning.</p>
+          <p>Klassetrinnet er startpunktet. Vanskelighetsgraden justeres etter hva du mestrer.</p>
         </div>
         <button class="primary" id="finish-onboarding">Start eventyret 🚀</button>
         <p class="form-error" id="name-error" aria-live="polite"></p>
@@ -587,9 +629,12 @@ const GRADE_CONFIG={
   4:{label:'4. klasse',options:4,types:['flag','continent','map','capital','country'],mission:'Europa',intro:'Europa, kart og hovedsteder'},
   5:{label:'5. klasse',options:4,types:['flag','continent','map','capital','country'],mission:'Europa og verden',intro:'Verdensdeler, store land og kart'},
   6:{label:'6. klasse',options:4,types:['flag','continent','map','capital','country'],mission:'Hele verden',intro:'Land, hovedsteder og geografisk plassering'},
-  7:{label:'7. klasse',options:4,types:['flag','continent','map','capital','country'],mission:'Hele verden',intro:'Bred verdensgeografi med mindre støtte'}
+  7:{label:'7. klasse',options:4,types:['flag','continent','map','capital','country'],mission:'Hele verden',intro:'Bred verdensgeografi med mindre støtte'},
+  8:{label:'8. klasse',options:4,types:['flag','continent','map','capital','country'],mission:'Hele verden',intro:'Global geografi med høyere variasjon'},
+  9:{label:'9. klasse',options:4,types:['flag','continent','map','capital','country'],mission:'Hele verden',intro:'Land, hovedsteder, regioner og kart'},
+  10:{label:'10. klasse',options:4,types:['flag','continent','map','capital','country'],mission:'Hele verden',intro:'Bred global repetisjon og presisjon'}
 };
-function currentGrade(){const g=Number(state?.profile?.grade);return g>=1&&g<=7?g:3}
+function currentGrade(){const g=Number(state?.profile?.grade);return g>=1&&g<=10?g:3}
 function gradeConfig(){return GRADE_CONFIG[currentGrade()]}
 function gradeScopeIds(grade=currentGrade()){
   let ids=[];
@@ -711,8 +756,8 @@ function setTab(tab){activeTab=tab;showScreen(tab);document.querySelectorAll('.n
 document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
 
 function renderAll(){
-  const known=knownCountryCount(),nordicKnown=knownCountryCount(NORDIC_IDS),nordicPct=pctFor(NORDIC_IDS),name=(state.profile.name||'utforsker');
-  document.getElementById('home-greeting').textContent=`Hei, ${name} 👋`;
+  const known=knownCountryCount(),nordicKnown=knownCountryCount(NORDIC_IDS),nordicPct=pctFor(NORDIC_IDS);
+  document.getElementById('home-greeting').textContent='Hei 👋';
   const grade=currentGrade(),cfg=gradeConfig();
   const missionTitle=document.getElementById('mission-title'),missionMeta=document.getElementById('mission-meta');
   if(missionTitle)missionTitle.textContent=cfg.mission;
@@ -890,6 +935,321 @@ document.getElementById('continent-back').onclick=()=>showScreen('geography');
 document.getElementById('open-world').onclick=()=>showScreen('world');
 document.getElementById('world-back').onclick=()=>showScreen('geography');
 document.getElementById('close-session').onclick=()=>{persistActiveSession();setTab('home')};
+
+
+// --- Full-scale subject learning engine ---
+const CURRICULUM={norwegian:'NOR01-08',math:'MAT01-06',english:'ENG01-06'};
+const SUBJECTS={
+  norwegian:{title:'Norsk',icon:'📖',copy:'Les, bygg ord, forstå tekster og bli tryggere på språk.',mission:'Lesetrening og språk'},
+  math:{title:'Matte',icon:'➗',copy:'Tall, regning, geometri, brøk, prosent og algebra – på riktig nivå.',mission:'Mattemestring'},
+  english:{title:'Engelsk',icon:'🇬🇧',copy:'Ord, setninger, grammatikk og forståelse gjennom korte spill.',mission:'English practice'}
+};
+const SUBJECT_MODULES={
+  norwegian:[
+    {id:'reading',icon:'📚',title:'Lesetrening',copy:'Bokstaver, ord, setninger og leseforståelse.'},
+    {id:'spelling',icon:'🔤',title:'Ord og staving',copy:'Bygg ord og finn bokstaver som mangler.'},
+    {id:'language',icon:'✍️',title:'Språk',copy:'Setninger, grammatikk, ordforråd og virkemidler.'}
+  ],
+  math:[
+    {id:'numbers',icon:'🔢',title:'Tall og regning',copy:'Tallforståelse, pluss, minus, gange og divisjon.'},
+    {id:'fractions',icon:'🍕',title:'Brøk, desimal og prosent',copy:'Se sammenhenger og løs praktiske oppgaver.'},
+    {id:'geometry',icon:'📐',title:'Geometri og måling',copy:'Former, areal, omkrets, tid og måling.'},
+    {id:'algebra',icon:'🧩',title:'Algebra og mønstre',copy:'Mønstre, ukjente tall, likninger og funksjoner.'}
+  ],
+  english:[
+    {id:'words',icon:'🖼️',title:'Words',copy:'Vanlige ord, betydning og stavemønstre.'},
+    {id:'sentences',icon:'💬',title:'Sentences',copy:'Bygg og forstå engelske setninger.'},
+    {id:'grammar',icon:'🧠',title:'Grammar',copy:'Verb, pronouns og språkstruktur på riktig nivå.'},
+    {id:'reading',icon:'📘',title:'Reading',copy:'Korte tekster og spørsmål om innholdet.'}
+  ]
+};
+const NORWAY_REGIONS=[
+  {region:'Østlandet',place:'Oslo'},{region:'Østlandet',place:'Lillehammer'},{region:'Sørlandet',place:'Kristiansand'},
+  {region:'Vestlandet',place:'Bergen'},{region:'Vestlandet',place:'Stavanger'},{region:'Trøndelag',place:'Trondheim'},
+  {region:'Nord-Norge',place:'Bodø'},{region:'Nord-Norge',place:'Tromsø'}
+];
+let activeSubject='norwegian',activeModule=null,geoTheme='country';
+function ensureLearningState(){
+  state.skillMastery=state.skillMastery||{};
+  state.skillMistakes=state.skillMistakes||{};
+  state.skillLastSeen=state.skillLastSeen||{};
+}
+ensureLearningState();
+function skillLevel(key){ensureLearningState();return Number(state.skillMastery[key]||0)}
+function learningMasteryKey(subject,skill){return subject+':'+skill}
+function bumpSkill(subject,skill,correct){
+  ensureLearningState();
+  const key=learningMasteryKey(subject,skill),old=skillLevel(key),next=correct?Math.min(3,old+1):Math.max(0,old-1);
+  state.skillMastery[key]=next;
+  state.skillLastSeen[key]=Date.now();
+  if(correct&&next>old)sessionStrengthened.add(key);
+  if(!correct)state.skillMistakes[key]=Number(state.skillMistakes[key]||0)+1;
+  return {old,next,newlyMastered:old<2&&next>=2};
+}
+function subjectAnswered(subject){return state.answerLog.filter(a=>a.subject===subject).length}
+function subjectMasteredSkills(subject){
+  ensureLearningState();return Object.keys(state.skillMastery).filter(k=>k.startsWith(subject+':')&&Number(state.skillMastery[k])>=2).length;
+}
+function renderSubjectProgress(){
+  for(const s of Object.keys(SUBJECTS)){
+    const el=document.getElementById('topic-'+s+'-progress');
+    if(el)el.textContent=subjectAnswered(s)?subjectMasteredSkills(s)+' ferdigheter styrket':'Start';
+  }
+  const grid=document.getElementById('subject-progress-grid');
+  if(grid)grid.innerHTML=[
+    ['🌍','Geografi',knownCountryCount()+' land lært'],
+    ['📖','Norsk',subjectMasteredSkills('norwegian')+' ferdigheter styrket'],
+    ['➗','Matte',subjectMasteredSkills('math')+' ferdigheter styrket'],
+    ['🇬🇧','Engelsk',subjectMasteredSkills('english')+' ferdigheter styrket']
+  ].map(x=>'<div class="subject-progress-card"><strong>'+x[0]+' '+x[1]+'</strong><span>'+x[2]+'</span></div>').join('');
+}
+const baseRenderAll=renderAll;
+renderAll=function(){ensureLearningState();baseRenderAll();renderSubjectProgress()};
+
+function openSubject(subject){
+  activeSubject=subject;activeModule=null;
+  const s=SUBJECTS[subject];if(!s)return;
+  document.getElementById('subject-eyebrow').textContent=GRADE_CONFIG[currentGrade()].label;
+  document.getElementById('subject-title').textContent=s.title;
+  document.getElementById('subject-copy').textContent=s.copy;
+  document.getElementById('subject-icon').textContent=s.icon;
+  document.getElementById('subject-mission-title').textContent=s.mission;
+  document.getElementById('subject-mission-copy').textContent='En kort økt som starter på '+GRADE_CONFIG[currentGrade()].label.toLowerCase()+' og tilpasses underveis.';
+  document.getElementById('subject-grade-label').textContent=GRADE_CONFIG[currentGrade()].label;
+  renderSubjectModules();
+  showScreen('subject');
+}
+function renderSubjectModules(){
+  const box=document.getElementById('subject-modules');box.innerHTML='';
+  (SUBJECT_MODULES[activeSubject]||[]).forEach(m=>{
+    const b=document.createElement('button');b.type='button';b.className='subject-module';
+    b.innerHTML='<div class="module-icon">'+m.icon+'</div><div><strong>'+m.title+'</strong><small>'+m.copy+'</small></div><div class="topic-arrow">›</div>';
+    b.onclick=()=>{activeModule=m.id;startLearningSession(activeSubject,m.id,m.title)};
+    box.appendChild(b);
+  });
+  document.getElementById('subject-progress-copy').textContent=subjectMasteredSkills(activeSubject)+' ferdigheter er styrket. Fremgangen lagres bare på denne enheten.';
+}
+document.getElementById('subject-back').onclick=()=>setTab('learn');
+document.getElementById('open-norwegian').onclick=()=>openSubject('norwegian');
+document.getElementById('open-math').onclick=()=>openSubject('math');
+document.getElementById('open-english').onclick=()=>openSubject('english');
+document.getElementById('start-subject-session').onclick=()=>startLearningSession(activeSubject,null,SUBJECTS[activeSubject].mission);
+
+function choiceQuestion(subject,skill,prompt,answer,options,extra={}){
+  return Object.assign({subject,skill,type:'learning-choice',prompt,answer,options:shuffle([...new Set(options)]),curriculum:CURRICULUM[subject]||null},extra);
+}
+function makeBuildWord(word,emoji='🔤',skill='word-building'){
+  const letters=word.toUpperCase().replace(/[^A-ZÆØÅ]/g,'').split('');
+  return {subject:'norwegian',skill,type:'build-word',prompt:'Bygg ordet',answer:letters.join(''),letters:shuffle(letters.map((l,i)=>({l,id:i}))),visual:emoji,curriculum:CURRICULUM.norwegian};
+}
+function norwegianPool(grade,module){
+  const q=[];
+  if(grade<=2){
+    q.push(makeBuildWord('KATT','🐱','letter-sound'));
+    q.push(makeBuildWord('SOL','☀️','letter-sound'));
+    q.push(choiceQuestion('norwegian','missing-letter','Hvilken bokstav mangler? F _ S K','I',['I','A','O']));
+    q.push(choiceQuestion('norwegian','missing-letter','Hvilken bokstav mangler? S _ L','O',['O','A','I']));
+    q.push(choiceQuestion('norwegian','word-picture','Hvilket ord passer til bildet?','hund',['hund','hus','sol'],{visual:'🐶'}));
+    q.push({subject:'norwegian',skill:'sentence-order',type:'sentence-order',prompt:'Bygg setningen',answer:'Katten spiser fisk.',words:shuffle(['Katten','spiser','fisk.']),curriculum:CURRICULUM.norwegian});
+    q.push(choiceQuestion('norwegian','reading-comprehension','Mia har en rød sykkel. Hun sykler til parken. Hvilken farge har sykkelen?','Rød',['Rød','Blå','Grønn'],{passage:'Mia har en rød sykkel. Hun sykler til parken.'}));
+  }else if(grade<=4){
+    q.push(choiceQuestion('norwegian','spelling','Hvilket ord er skrevet riktig?','kanskje',['kanskje','kansje','kanskjee']));
+    q.push(choiceQuestion('norwegian','compound-words','Hvilket ord er et sammensatt ord?','fotball',['fotball','løper','rask']));
+    q.push(choiceQuestion('norwegian','synonyms','Hvilket ord betyr omtrent det samme som glad?','fornøyd',['fornøyd','sint','trøtt']));
+    q.push({subject:'norwegian',skill:'sentence-order',type:'sentence-order',prompt:'Bygg en riktig setning',answer:'Vi leser en spennende bok.',words:shuffle(['Vi','leser','en','spennende','bok.']),curriculum:CURRICULUM.norwegian});
+    q.push(choiceQuestion('norwegian','reading-comprehension','Hvorfor tok Lea på regnjakke?','Det regnet',['Det regnet','Det var varmt','Hun skulle bade'],{passage:'Det begynte å regne før Lea gikk til skolen. Hun tok på regnjakken før hun gikk ut.'}));
+  }else if(grade<=7){
+    q.push(choiceQuestion('norwegian','grammar','Hvilket ord er et verb?','løper',['løper','rød','skole','rolig']));
+    q.push(choiceQuestion('norwegian','synonyms','Hva er et synonym til «viktig»?','betydningsfull',['betydningsfull','tilfeldig','usynlig','sjelden']));
+    q.push(choiceQuestion('norwegian','reading-inference','Hva kan vi slutte av teksten?','Bussen var forsinket',['Bussen var forsinket','Sara sov hele dagen','Skolen var stengt'],{passage:'Sara kom fem minutter for sent. Hun fortalte læreren at bussen hadde stått lenge i kø.'}));
+    q.push(choiceQuestion('norwegian','nynorsk','Hva er bokmålsordet «ikkje» på bokmål?','ikke',['ikke','også','igjen','ingen']));
+    q.push(choiceQuestion('norwegian','punctuation','Hvilken setning har riktig tegnsetting?','Hvor skal du?',['Hvor skal du?','Hvor skal du.','Hvor skal du!']));
+  }else{
+    q.push(choiceQuestion('norwegian','rhetoric','Hvilket virkemiddel gjentar samme start i flere setninger?','Anafor',['Anafor','Ironi','Kontrast','Metafor']));
+    q.push(choiceQuestion('norwegian','source-criticism','Hva bør du undersøke først når du vurderer en nettkilde?','Hvem som står bak',['Hvem som står bak','Hvor lang teksten er','Om siden har bilder','Om tittelen er kort']));
+    q.push(choiceQuestion('norwegian','literary-devices','«Havet var et speil» er et eksempel på ...','metafor',['metafor','rim','faktaopplysning','replikk']));
+    q.push(choiceQuestion('norwegian','argumentation','Hva er et argument?','En begrunnelse for et standpunkt',['En overskrift','Et tilfeldig eksempel','Et egennavn','Et rim']));
+    q.push(choiceQuestion('norwegian','language','Hvilken setning er mest formell?','Vi ber om at søknaden behandles.',['Vi ber om at søknaden behandles.','Kan dere fikse den greia?','Dette er sykt viktig!','Bare ordn det.']));
+  }
+  return module?q.filter(x=>module==='reading'?['reading-comprehension','reading-inference','letter-sound','word-picture'].includes(x.skill):module==='spelling'?['missing-letter','spelling','word-building','letter-sound','compound-words'].includes(x.skill):true):q;
+}
+function rand(min,max){return Math.floor(Math.random()*(max-min+1))+min}
+function mathPool(grade,module){
+  const q=[];let a,b,ans;
+  const add=(skill,prompt,answer,opts,extra)=>q.push(choiceQuestion('math',skill,prompt,String(answer),opts.map(String),extra));
+  if(grade===1){for(let i=0;i<5;i++){a=rand(1,8);b=rand(1,10-a);ans=a+b;add('addition-10',a+' + '+b+' = ?',ans,[ans,ans+1,Math.max(0,ans-1)])}add('number-order','Hvilket tall er størst?',9,[9,6,4])}
+  else if(grade===2){for(let i=0;i<4;i++){a=rand(10,60);b=rand(2,25);ans=a+b;add('addition-100',a+' + '+b+' = ?',ans,[ans,ans+10,ans-1])}add('place-value','Hva er verdien til 7 i tallet 74?',70,[70,7,4])}
+  else if(grade===3){for(let i=0;i<4;i++){a=rand(2,10);b=rand(2,10);ans=a*b;add('multiplication',a+' × '+b+' = ?',ans,[ans,ans+a,Math.max(1,ans-b)])}add('division','24 ÷ 6 = ?',4,[4,3,6])}
+  else if(grade===4){add('fractions','Hvilken brøk er en halv?', '1/2',['1/2','1/3','2/3','3/4']);for(let i=0;i<4;i++){a=rand(12,99);b=rand(2,9);ans=a*b;add('multiplication',a+' × '+b+' = ?',ans,[ans,ans+b,ans-a])}}
+  else if(grade===5){add('decimals','0,5 + 0,25 = ?','0,75',['0,75','0,30','0,80','0,65']);add('percent','Hva er 25 % av 100?',25,[25,20,50,75]);add('fractions','Hva er 1/2 + 1/4?','3/4',['3/4','2/6','1/6','1/8']);add('area','Et rektangel er 6 cm × 4 cm. Arealet er ...',24,[24,20,10,48]);}
+  else if(grade===6){add('percent','Hva er 20 % av 250?',50,[50,25,75,200]);add('fractions','Hva er 2/3 av 18?',12,[12,9,6,15]);add('ratio','Forholdet 2:3 betyr at 10 tilsvarer ...',15,[15,12,20,30]);add('perimeter','En firkant har sider 5, 5, 8 og 8 cm. Omkrets?',26,[26,21,40,16]);}
+  else if(grade===7){add('negative','−4 + 9 = ?',5,[5,-5,13,4]);add('algebra','x + 7 = 19. Hva er x?',12,[12,26,11,7]);add('percent','En vare koster 400 kr og settes ned 25 %. Ny pris?',300,[300,100,375,325]);add('statistics','Gjennomsnittet av 4, 6 og 8 er ...',6,[6,5,7,18]);}
+  else if(grade===8){add('algebra','3x = 21. Hva er x?',7,[7,18,24,6]);add('linear','Hvis y = 2x + 1 og x = 4, hva er y?',9,[9,8,7,10]);add('geometry','En rett vinkel er ... grader',90,[90,45,180,360]);add('probability','En vanlig terning: sannsynligheten for å få 6 er ...','1/6',['1/6','1/3','1/2','1/12']);}
+  else if(grade===9){add('pythagoras','Katetene er 3 og 4. Hypotenusen er ...',5,[5,6,7,4]);add('algebra','2x + 5 = 17. x = ?',6,[6,11,5,7]);add('functions','f(x)=3x−2. f(5)=?',13,[13,15,17,10]);add('percent-change','Fra 200 til 250 er en økning på ... %',25,[25,20,50,12.5]);}
+  else {add('algebra','4(x−2)=24. x = ?',8,[8,6,10,4]);add('probability','To mynter kastes. Sannsynlighet for to kron?', '1/4',['1/4','1/2','1/3','3/4']);add('functions','y = −2x + 6. Når x=2 er y = ?',2,[2,4,0,10]);add('percent-change','En verdi øker 10 % fra 500. Ny verdi?',550,[550,510,600,450]);add('geometry','Arealet av en sirkel med radius r uttrykkes som ...','πr²',['πr²','2πr','πd','r²/2']);}
+  if(module==='geometry')return q.filter(x=>['area','perimeter','geometry','pythagoras'].includes(x.skill)).concat(q).slice(0,8);
+  if(module==='fractions')return q.filter(x=>['fractions','decimals','percent','percent-change','ratio'].includes(x.skill)).concat(q).slice(0,8);
+  if(module==='algebra')return q.filter(x=>['algebra','linear','functions'].includes(x.skill)).concat(q).slice(0,8);
+  return q;
+}
+function englishPool(grade,module){
+  const q=[];
+  if(grade<=2){
+    q.push(choiceQuestion('english','words','🐱 What is this?','cat',['cat','dog','sun'],{visual:'🐱'}));
+    q.push(choiceQuestion('english','words','What colour is grass?','green',['green','blue','red']));
+    q.push(choiceQuestion('english','phrases','How are you?','I am fine.',['I am fine.','Seven.','Blue.']));
+    q.push(makeEnglishBuild('DOG','🐶'));
+    q.push(choiceQuestion('english','numbers','What is “tre” in English?','three',['three','tree','ten']));
+  }else if(grade<=4){
+    q.push(choiceQuestion('english','verbs','Choose the verb.','run',['run','blue','table','happy']));
+    q.push(choiceQuestion('english','sentence','Choose the correct sentence.','She likes apples.',['She likes apples.','She like apples.','She apples likes.']));
+    q.push(choiceQuestion('english','reading','Where is Ben going?','To school',['To school','To London','To bed'],{passage:'Ben puts on his jacket and walks to school with his sister.'}));
+    q.push(choiceQuestion('english','vocabulary','What does “hungry” mean?','sulten',['sulten','trøtt','glad','rask']));
+  }else if(grade<=7){
+    q.push(choiceQuestion('english','past-tense','Yesterday I ___ to school.','went',['went','go','gone','going']));
+    q.push(choiceQuestion('english','pronouns','Emma and I = ...','we',['we','they','she','it']));
+    q.push(choiceQuestion('english','reading','Why did Maya stay inside?','Because it was raining',['Because it was raining','Because she was hungry','Because it was dark'],{passage:'It rained all afternoon, so Maya stayed inside and finished her book.'}));
+    q.push(choiceQuestion('english','vocabulary','Choose the closest meaning to “difficult”.','hard',['hard','easy','small','quiet']));
+  }else{
+    q.push(choiceQuestion('english','grammar','Choose the correct conditional sentence.','If I had time, I would help.',['If I had time, I would help.','If I have time, I would helped.','If I had time, I will helped.']));
+    q.push(choiceQuestion('english','reading','What is the main point?','Technology can help, but it should be used thoughtfully.',['Technology can help, but it should be used thoughtfully.','All technology is harmful.','Schools should ban computers.'],{passage:'Digital tools can make learning easier, but they can also distract us. The best results come when we use them for a clear purpose.'}));
+    q.push(choiceQuestion('english','vocabulary','What does “reliable” mean?','trustworthy',['trustworthy','temporary','expensive','silent']));
+    q.push(choiceQuestion('english','grammar','Which sentence uses the present perfect?','She has finished her work.',['She has finished her work.','She finished yesterday.','She is finishing now.','She will finish.']));
+  }
+  return module?q.filter(x=>module==='reading'?x.skill==='reading':module==='words'?['words','vocabulary','numbers'].includes(x.skill):module==='grammar'?['grammar','past-tense','pronouns','verbs'].includes(x.skill):true).concat(q).slice(0,8):q;
+}
+function makeEnglishBuild(word,emoji){
+  return {subject:'english',skill:'spelling',type:'build-word',prompt:'Build the word',answer:word,letters:shuffle(word.split('').map((l,i)=>({l,id:i}))),visual:emoji,curriculum:CURRICULUM.english};
+}
+function buildLearningQuestions(subject,module){
+  let pool=subject==='norwegian'?norwegianPool(currentGrade(),module):subject==='math'?mathPool(currentGrade(),module):englishPool(currentGrade(),module);
+  if(!pool.length)pool=subject==='math'?mathPool(currentGrade(),null):subject==='norwegian'?norwegianPool(currentGrade(),null):englishPool(currentGrade(),null);
+  ensureLearningState();
+  pool=pool.map((q,i)=>{
+    const key=learningMasteryKey(q.subject,q.skill),mist=Number(state.skillMistakes[key]||0),seen=Number(state.skillLastSeen[key]||0);
+    return {q,score:skillLevel(key)-Math.min(.8,mist*.14)+(seen?0:.25)+i*.001+Math.random()*.12};
+  }).sort((a,b)=>a.score-b.score).map(x=>x.q);
+  const out=[];for(const q of pool){if(out.length>=5)break;out.push(q)}
+  while(out.length<5&&pool.length)out.push(pool[out.length%pool.length]);
+  return out;
+}
+function startLearningSession(subject,module,label){
+  sessionScope={type:'subject',subject,label:(SUBJECTS[subject]?.title||subject)+' · '+(label||'Blandet'),grade:currentGrade()};
+  sessionQuestions=buildLearningQuestions(subject,module);qIndex=0;sessionCorrect=0;sessionStrengthened=new Set();currentAnswered=null;
+  state.activeSession={startedAt:Date.now()};persistActiveSession();showScreen('session');renderQuestion();
+}
+function startNorwayRegions(){
+  const regions=[...new Set(NORWAY_REGIONS.map(x=>x.region))];
+  sessionScope={type:'subject',subject:'geography',label:'Geografi · Norges landsdeler',grade:currentGrade()};
+  sessionQuestions=shuffle(NORWAY_REGIONS).slice(0,5).map((x,i)=>choiceQuestion('geography','norway-regions','Hvilken landsdel ligger '+x.place+' i?',x.region,[x.region,...shuffle(regions.filter(r=>r!==x.region)).slice(0,currentGrade()<=2?1:3)],{curriculum:null}));
+  qIndex=0;sessionCorrect=0;sessionStrengthened=new Set();currentAnswered=null;state.activeSession={startedAt:Date.now()};persistActiveSession();showScreen('session');renderQuestion();
+}
+function startGeographyTheme(){
+  const ids=gradeScopeIds();
+  if(geoTheme==='regions'){startNorwayRegions();return}
+  const types=geoTheme==='capital'?['capital','country']:geoTheme==='map'?['map']:[geoTheme];
+  const qs=[];for(const item of questionPool(ids,true)){if(qs.length>=5)break;if(!types.includes(item.type))continue;qs.push(makeQuestion(item.k,item.type,ids))}
+  if(!qs.length){toast('Dette temaet trenger litt mer kartdata på dette nivået.');return}
+  while(qs.length<5)qs.push(qs[qs.length%Math.max(1,qs.length)]);
+  sessionScope={type:'geography-theme',label:'Geografi · '+({country:'Land',capital:'Hovedsteder',flag:'Flagg',continent:'Verdensdeler',map:'Kart'}[geoTheme]||'Geografi'),ids,includeMap:geoTheme==='map'};
+  sessionQuestions=qs;qIndex=0;sessionCorrect=0;sessionStrengthened=new Set();currentAnswered=null;state.activeSession={startedAt:Date.now()};persistActiveSession();showScreen('session');renderQuestion();
+}
+document.querySelectorAll('.geo-theme').forEach(b=>b.onclick=()=>{
+  geoTheme=b.dataset.geoTheme;document.querySelectorAll('.geo-theme').forEach(x=>x.classList.toggle('active',x===b));
+  const label={country:'Land',capital:'Hovedsteder',flag:'Flagg',continent:'Verdensdeler',regions:'Norges landsdeler',map:'Kart'}[geoTheme];
+  document.getElementById('start-geography-theme').textContent='Start '+label+' 🚀';
+});
+document.getElementById('start-geography-theme').onclick=startGeographyTheme;
+
+function recordLearningAnswer(q,correct,selected){
+  if(currentAnswered)return;
+  if(correct)sessionCorrect++;
+  const result=bumpSkill(q.subject,q.skill,correct);
+  state.answerLog.push({at:Date.now(),subject:q.subject,skill:q.skill,type:q.type,correct,newlyMastered:result.newlyMastered,curriculum:q.curriculum||null});
+  currentAnswered={selected,correct};persistActiveSession();
+}
+function learningFeedbackText(q,correct){
+  if(correct)return q.subject==='english'?'Nice! You got it.':'Bra! Denne satt.';
+  if(q.type==='build-word')return 'Se på bokstavene og prøv ordet en gang til neste gang det dukker opp.';
+  if(q.subject==='math')return 'Se på tallene på nytt. Feilen brukes til å gi deg en bedre neste oppgave.';
+  return 'Nesten. Oppgaven kommer tilbake senere, med litt mer støtte.';
+}
+function answerLearningChoice(answer){
+  if(currentAnswered)return;const q=sessionQuestions[qIndex],correct=String(answer)===String(q.answer);
+  recordLearningAnswer(q,correct,answer);
+  document.querySelectorAll('.answer').forEach(b=>{b.disabled=true;if(b.dataset.answer===String(q.answer))b.classList.add('correct');else if(b.dataset.answer===String(answer))b.classList.add('wrong')});
+  showLearningFeedback(q,correct);
+}
+function showLearningFeedback(q,correct){
+  const box=document.getElementById('feedback');box.style.display='block';box.classList.toggle('bad',!correct);
+  document.getElementById('feedback-title').textContent=correct?'⭐ Riktig!':'💪 Nesten!';
+  document.getElementById('feedback-copy').textContent=learningFeedbackText(q,correct);
+  document.getElementById('next-question').style.display='block';
+}
+function renderBuildWord(q,wrap){
+  let chosen=[];
+  const letters=q.letters.map((x,i)=>Object.assign({},x,{idx:i}));
+  function paint(){
+    wrap.querySelector('#letter-slots').innerHTML=q.answer.split('').map((_,i)=>'<button class="letter-slot" type="button" data-slot="'+i+'">'+(chosen[i]?.l||'')+'</button>').join('');
+    wrap.querySelectorAll('.letter-tile').forEach(b=>b.classList.toggle('used',chosen.some(x=>x.idx===Number(b.dataset.idx))));
+    wrap.querySelector('#check-build').disabled=chosen.length!==q.answer.length;
+    wrap.querySelectorAll('.letter-slot').forEach(b=>b.onclick=()=>{const i=Number(b.dataset.slot);if(chosen[i]){chosen.splice(i,1);paint()}});
+  }
+  wrap.querySelectorAll('.letter-tile').forEach(b=>{
+    b.onclick=()=>{if(chosen.length>=q.answer.length)return;chosen.push(letters[Number(b.dataset.idx)]);paint()};
+    b.draggable=true;b.addEventListener('dragstart',e=>e.dataTransfer.setData('text/plain',b.dataset.idx));
+  });
+  const slots=wrap.querySelector('#letter-slots');slots.addEventListener('dragover',e=>e.preventDefault());slots.addEventListener('drop',e=>{e.preventDefault();const idx=Number(e.dataTransfer.getData('text/plain'));if(!chosen.some(x=>x.idx===idx)&&chosen.length<q.answer.length){chosen.push(letters[idx]);paint()}});
+  wrap.querySelector('#check-build').onclick=()=>{if(currentAnswered)return;const answer=chosen.map(x=>x.l).join(''),correct=answer===q.answer;recordLearningAnswer(q,correct,answer);wrap.querySelectorAll('.letter-tile,.letter-slot').forEach(b=>b.disabled=true);showLearningFeedback(q,correct)};
+  paint();
+}
+function renderSentenceOrder(q,wrap){
+  let chosen=[];
+  const words=q.words.map((w,i)=>({w,i}));
+  function paint(){
+    wrap.querySelector('#sentence-target').innerHTML=chosen.map((x,i)=>'<button type="button" data-chosen="'+i+'">'+x.w+'</button>').join('')||'<span style="color:#9298AA;font-weight:800">Trykk på ordene i riktig rekkefølge</span>';
+    wrap.querySelectorAll('.word-tile').forEach(b=>b.classList.toggle('used',chosen.some(x=>x.i===Number(b.dataset.idx))));
+    wrap.querySelector('#check-sentence').disabled=chosen.length!==words.length;
+    wrap.querySelectorAll('[data-chosen]').forEach(b=>b.onclick=()=>{chosen.splice(Number(b.dataset.chosen),1);paint()});
+  }
+  wrap.querySelectorAll('.word-tile').forEach(b=>b.onclick=()=>{if(chosen.length<words.length){chosen.push(words[Number(b.dataset.idx)]);paint()}});
+  wrap.querySelector('#check-sentence').onclick=()=>{const answer=chosen.map(x=>x.w).join(' '),correct=answer===q.answer;recordLearningAnswer(q,correct,answer);wrap.querySelectorAll('.word-tile,[data-chosen]').forEach(b=>b.disabled=true);showLearningFeedback(q,correct)};
+  paint();
+}
+function renderLearningQuestion(){
+  const q=sessionQuestions[qIndex];if(!q){finishSession();return}
+  document.getElementById('session-progress-bar').style.width=(qIndex/sessionQuestions.length*100)+'%';
+  document.getElementById('session-count').textContent=(qIndex+1)+'/'+sessionQuestions.length;
+  const wrap=document.getElementById('question-wrap');
+  const label=q.subject==='norwegian'?'Norsk':q.subject==='math'?'Matte':q.subject==='english'?'English':'Geografi';
+  let html='<div class="qtype">'+label+' · '+GRADE_CONFIG[currentGrade()].label+'</div><div class="question">'+q.prompt+'</div>';
+  if(q.passage)html+='<div class="learning-passage">'+q.passage+'</div>';
+  if(q.visual)html+='<div class="big-flag">'+q.visual+'</div>';
+  if(q.type==='build-word'){
+    html+='<div class="letter-slots" id="letter-slots"></div><div class="letter-bank">'+q.letters.map((x,i)=>'<button type="button" class="letter-tile" data-idx="'+i+'" aria-label="Bokstav '+x.l+'">'+x.l+'</button>').join('')+'</div><button class="secondary" id="check-build" type="button">Sjekk ordet</button>';
+  }else if(q.type==='sentence-order'){
+    html+='<div class="sentence-target" id="sentence-target"></div><div class="word-bank">'+q.words.map((w,i)=>'<button type="button" class="word-tile" data-idx="'+i+'">'+w+'</button>').join('')+'</div><button class="secondary" id="check-sentence" type="button">Sjekk setningen</button>';
+  }else{
+    html+='<div class="answers">'+q.options.map(o=>'<button class="answer" data-answer="'+escapeAttr(o)+'">'+o+'</button>').join('')+'</div>';
+  }
+  html+='<div class="feedback" id="feedback"><strong id="feedback-title"></strong><p id="feedback-copy"></p></div><button class="primary next" id="next-question">Neste</button>';
+  wrap.innerHTML=html;
+  if(q.type==='build-word')renderBuildWord(q,wrap);
+  else if(q.type==='sentence-order')renderSentenceOrder(q,wrap);
+  else document.querySelectorAll('.answer').forEach(b=>b.onclick=()=>answerLearningChoice(b.dataset.answer));
+  document.getElementById('next-question').onclick=nextQuestion;
+  if(currentAnswered){
+    if(q.type==='learning-choice')document.querySelectorAll('.answer').forEach(b=>{b.disabled=true;if(b.dataset.answer===String(q.answer))b.classList.add('correct');else if(b.dataset.answer===String(currentAnswered.selected))b.classList.add('wrong')});
+    showLearningFeedback(q,currentAnswered.correct);
+  }
+}
+const geographyRenderQuestion=renderQuestion;
+renderQuestion=function(){
+  const q=sessionQuestions[qIndex];
+  if(q&&q.subject)return renderLearningQuestion();
+  return geographyRenderQuestion();
+};
+
 
 // --- Real map geometry helpers ---
 function geometryPolygons(geom){if(!geom)return[];return geom.type==='Polygon'?[geom.coordinates]:geom.type==='MultiPolygon'?geom.coordinates:[]}
@@ -1080,12 +1440,9 @@ let selectedGrade=Number(state.profile.grade)||null;
 function renderGradeChoice(){document.querySelectorAll('.grade-btn').forEach(b=>b.classList.toggle('selected',Number(b.dataset.grade)===selectedGrade))}
 document.querySelectorAll('.grade-btn').forEach(b=>b.onclick=()=>{selectedGrade=Number(b.dataset.grade);renderGradeChoice();document.getElementById('name-error').textContent=''});
 document.getElementById('finish-onboarding').onclick=()=>{
-  const input=document.getElementById('child-name'),name=input.value.trim().replace(/\s+/g,' ');
-  if(name.length<1){document.getElementById('name-error').textContent='Skriv inn et fornavn eller kallenavn.';input.focus();return}
-  if(!selectedGrade){document.getElementById('name-error').textContent='Velg hvilket klassetrinn barnet går i.';return}
-  state.profile={...state.profile,name:name.slice(0,18),grade:selectedGrade,onboarded:true};state.activeSession=null;saveState();document.getElementById('onboarding').classList.remove('show');renderAll();
+  if(!selectedGrade){document.getElementById('name-error').textContent='Velg hvilket klassetrinn du går i.';return}
+  state.profile={...state.profile,name:'',grade:selectedGrade,onboarded:true};state.activeSession=null;saveState();document.getElementById('onboarding').classList.remove('show');renderAll();
 };
-document.getElementById('child-name').addEventListener('keydown',e=>{if(e.key==='Enter'&&selectedGrade)document.getElementById('finish-onboarding').click()});
 renderGradeChoice();
 
 // Lightweight adult gate: requires a deliberate long press rather than a normal child tap.
@@ -1100,7 +1457,7 @@ document.getElementById('feedback-back').onclick=()=>showScreen('adult');
 
 document.getElementById('reset-progress').onclick=()=>{
   if(!confirm('Nullstille all fremgang, navn og pågående økt på denne enheten?'))return;
-  safeStorageRemove(STORAGE_KEY);safeStorageRemove('laerlittmer-v1');state=cloneDefault();sessionQuestions=[];qIndex=0;sessionCorrect=0;sessionStrengthened=new Set();currentAnswered=null;onboardingStep=0;selectedGrade=null;renderGradeChoice();updateOnboarding();document.getElementById('child-name').value='';document.getElementById('onboarding').classList.add('show');setTab('home');
+  safeStorageRemove(STORAGE_KEY);safeStorageRemove('laerlittmer-v1');state=cloneDefault();sessionQuestions=[];qIndex=0;sessionCorrect=0;sessionStrengthened=new Set();currentAnswered=null;onboardingStep=0;selectedGrade=null;renderGradeChoice();updateOnboarding();document.getElementById('onboarding').classList.add('show');setTab('home');
 };
 
 const adultGradeSelect=document.getElementById('adult-grade');
@@ -1146,9 +1503,9 @@ function loadQualityData(){updateDataStatus();Promise.allSettled([loadDetailedGe
 
 // Initial render / recovery
 renderAll();updateOnboarding();loadQualityData();
-if(!state.profile.onboarded||!state.profile.grade){onboardingStep=2;document.getElementById('child-name').value=state.profile.name||'';selectedGrade=Number(state.profile.grade)||null;renderGradeChoice();updateOnboarding();document.getElementById('onboarding').classList.add('show')}
+if(!state.profile.onboarded||!state.profile.grade){onboardingStep=2;selectedGrade=Number(state.profile.grade)||null;renderGradeChoice();updateOnboarding();document.getElementById('onboarding').classList.add('show')}
 else if(loadActiveSession()){showScreen('session');renderQuestion()}
 </script>
-<!-- build: classroom-levels-globe-restored-2026-10-02 -->
+<!-- build: fullscale-learning-1-10-2026-10-02 -->
 </body>
 </html>
