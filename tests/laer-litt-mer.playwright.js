@@ -105,34 +105,48 @@ async function finishSession(page){
       showScreen('session');renderQuestion();
     });
     const sTile=page.locator('.letter-tile').filter({hasText:'S'});
-    const sBox=await sTile.boundingBox(),lastBox=await page.locator('.letter-slot').nth(2).boundingBox();
-    assert.ok(sBox&&lastBox,'missing word-builder drag geometry');
-    const cdp=await context.newCDPSession(page);
-    const sx=sBox.x+sBox.width/2,sy=sBox.y+sBox.height/2,tx=lastBox.x+lastBox.width/2,ty=lastBox.y+lastBox.height/2;
-    await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:sx,y:sy,id:91,radiusX:2,radiusY:2,force:1}]});
-    for(let step=1;step<=6;step++){
-      const p=step/6;
-      await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:sx+(tx-sx)*p,y:sy+(ty-sy)*p,id:91,radiusX:2,radiusY:2,force:1}]});
-    }
-    await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
-    assert.equal((await page.locator('.letter-slot').nth(2).textContent()).trim(),'S');
-    assert.equal((await page.locator('.letter-slot').nth(0).textContent()).trim(),'');
-    assert.equal((await page.locator('.letter-slot').nth(1).textContent()).trim(),'');
-    await page.locator('.letter-slot').nth(2).click();
-    assert.equal((await page.locator('.letter-slot').nth(2).textContent()).trim(),'');
-    assert.equal(await sTile.isEnabled(),true);
+    const mTile=page.locator('.letter-tile').filter({hasText:'M'});
+    const uTile=page.locator('.letter-tile').filter({hasText:'U'});
+
+    // Last letter first: choose the third slot before either of the first two.
     await page.locator('.letter-slot').nth(2).click();
     await sTile.click();
     assert.equal((await page.locator('.letter-slot').nth(2).textContent()).trim(),'S');
-    await page.evaluate(()=>{
-      const q=sessionQuestions[0],used=new Set();
-      ['M','U'].forEach((ch,slotIdx)=>{
-        const idx=q.letters.findIndex((x,i)=>x.l===ch&&!used.has(i)&&!document.querySelector(`.letter-tile[data-idx="${i}"]`).classList.contains('used'));
-        used.add(idx);
-        document.querySelector(`.letter-slot[data-slot="${slotIdx}"]`).click();
-        document.querySelector(`.letter-tile[data-idx="${idx}"]`).click();
-      });
-    });
+    assert.equal((await page.locator('.letter-slot').nth(0).textContent()).trim(),'');
+    assert.equal((await page.locator('.letter-slot').nth(1).textContent()).trim(),'');
+
+    // A placed letter can be removed immediately and returned to the bank.
+    await page.locator('.letter-slot').nth(2).click();
+    assert.equal((await page.locator('.letter-slot').nth(2).textContent()).trim(),'');
+    assert.equal(await sTile.evaluate(el=>!el.classList.contains('used')),true);
+
+    // Either interaction order works: slot -> letter and letter -> slot.
+    await sTile.click();
+    await page.locator('.letter-slot').nth(2).click();
+    await page.locator('.letter-slot').nth(0).click();
+    await mTile.click();
+    await uTile.click();
+    await page.locator('.letter-slot').nth(1).click();
+    assert.equal(await page.locator('.letter-slot').allTextContents().then(x=>x.map(v=>v.trim()).join('')),'MUS');
+
+    // Build a wrong order, check it, then edit the same word instead of being locked.
+    await page.locator('.letter-slot').nth(1).click();
+    await page.locator('.letter-slot').nth(2).click();
+    await uTile.click();
+    await page.locator('.letter-slot').nth(1).click();
+    await sTile.click();
+    assert.equal(await page.locator('.letter-slot').allTextContents().then(x=>x.map(v=>v.trim()).join('')),'MSU');
+    await page.locator('#check-build').click();
+    assert.equal(await page.locator('#next-question').isVisible(),false);
+    assert.equal(await page.locator('.letter-slot.wrong-letter').count(),2);
+
+    // Correct the word after the failed attempt.
+    await page.locator('.letter-slot').nth(1).click();
+    await page.locator('.letter-slot').nth(2).click();
+    await sTile.click();
+    await page.locator('.letter-slot').nth(1).click();
+    await uTile.click();
+    assert.equal(await page.locator('.letter-slot').allTextContents().then(x=>x.map(v=>v.trim()).join('')),'MUS');
     assert.equal(await page.locator('#check-build').isEnabled(),true);
     await page.locator('#check-build').click();
     await page.locator('#next-question').waitFor({state:'visible'});
