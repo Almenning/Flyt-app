@@ -105,16 +105,12 @@ async function finishSession(page){
       showScreen('session');renderQuestion();
     });
     const sTile=page.locator('.letter-tile').filter({hasText:'S'});
-    await page.evaluate(()=>{
-      const tile=[...document.querySelectorAll('.letter-tile')].find(x=>x.textContent.trim()==='S');
-      const slot=document.querySelector('.letter-slot[data-slot="2"]');
-      if(!tile||!slot)throw new Error('missing touch-drag elements');
-      const a=tile.getBoundingClientRect(),b=slot.getBoundingClientRect(),pointerId=91;
-      const base={bubbles:true,cancelable:true,pointerId,pointerType:'touch',isPrimary:true,button:0,buttons:1};
-      tile.dispatchEvent(new PointerEvent('pointerdown',{...base,clientX:a.left+a.width/2,clientY:a.top+a.height/2}));
-      tile.dispatchEvent(new PointerEvent('pointermove',{...base,clientX:b.left+b.width/2,clientY:b.top+b.height/2}));
-      tile.dispatchEvent(new PointerEvent('pointerup',{...base,buttons:0,clientX:b.left+b.width/2,clientY:b.top+b.height/2}));
-    });
+    const sBox=await sTile.boundingBox(),lastBox=await page.locator('.letter-slot').nth(2).boundingBox();
+    assert.ok(sBox&&lastBox,'missing word-builder drag geometry');
+    await page.mouse.move(sBox.x+sBox.width/2,sBox.y+sBox.height/2);
+    await page.mouse.down();
+    await page.mouse.move(lastBox.x+lastBox.width/2,lastBox.y+lastBox.height/2,{steps:6});
+    await page.mouse.up();
     assert.equal((await page.locator('.letter-slot').nth(2).textContent()).trim(),'S');
     assert.equal((await page.locator('.letter-slot').nth(0).textContent()).trim(),'');
     assert.equal((await page.locator('.letter-slot').nth(1).textContent()).trim(),'');
