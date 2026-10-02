@@ -1778,9 +1778,12 @@ if('serviceWorker' in navigator){
 
 // Initial render / recovery
 renderAll();updateOnboarding();loadQualityData();
-if(!state.profile.onboarded||!state.profile.grade){onboardingStep=2;selectedGrade=Number(state.profile.grade)||null;renderGradeChoice();updateOnboarding();document.getElementById('onboarding').classList.add('show')}
-else if(loadActiveSession()){showScreen('session');renderQuestion()}
+if(!state.profile.onboarded||!state.profile.grade){
+  onboardingStep=state.profile.onboarded?2:0;
+  selectedGrade=Number(state.profile.grade)||null;
+  renderGradeChoice();updateOnboarding();document.getElementById('onboarding').classList.add('show');
+}else if(loadActiveSession()){showScreen('session');renderQuestion()}
 </script>
-<!-- build: daughter-qa-polish-2026-10-02 -->
+<!-- build: daughter-qa-onboarding-fix-2026-10-02 -->
 </body>
 </html>
