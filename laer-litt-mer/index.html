@@ -4,6 +4,13 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#F6F0E7" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Lær litt mer" />
+  <meta name="description" content="Korte, trygge læringsøkter i geografi, norsk, matte og engelsk for 1.–10. trinn." />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://raw.githubusercontent.com https://api.worldbank.org; img-src 'self' data:; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="icon" href="./icon.svg" type="image/svg+xml" />
   <title>Lær litt mer</title>
   <style>
 
@@ -479,7 +486,7 @@
       <p class="hero-copy">Dette er en tidlig test. Vi prøver først og fremst å finne ut om barnet forstår appen, lærer noe og vil bruke den igjen.</p>
 
       <div class="card adult-card">
-        <div class="parent-row"><span>Klassetrinn</span><select class="adult-grade-select" id="adult-grade" aria-label="Klassetrinn"><option value="1">1. klasse</option><option value="2">2. klasse</option><option value="3">3. klasse</option><option value="4">4. klasse</option><option value="5">5. klasse</option><option value="6">6. klasse</option><option value="7">7. klasse</option></select></div>
+        <div class="parent-row"><span>Klassetrinn</span><select class="adult-grade-select" id="adult-grade" aria-label="Klassetrinn"><option value="1">1. klasse</option><option value="2">2. klasse</option><option value="3">3. klasse</option><option value="4">4. klasse</option><option value="5">5. klasse</option><option value="6">6. klasse</option><option value="7">7. klasse</option><option value="8">8. klasse</option><option value="9">9. klasse</option><option value="10">10. klasse</option></select></div>
         <div class="parent-row"><span>Læringsøkter</span><b id="adult-sessions">0</b></div>
         <div class="parent-row"><span>Riktige svar</span><b id="adult-accuracy">–</b></div>
         <div class="parent-row"><span>Sterkest nå</span><b id="adult-strong">Ikke nok data ennå</b></div>
@@ -499,13 +506,13 @@
       <div class="card privacy-note">
         <div class="row" style="align-items:flex-start">
           <div style="font-size:28px">🛡️</div>
-          <div><h3>Personvern i testen</h3><p>Navn, fremgang og svar lagres bare på denne enheten. Ingen konto, e-post, annonser eller sporing.</p></div>
+          <div><h3>Personvern</h3><p>Klassetrinn, fremgang og svar lagres bare på denne enheten. Appen ber ikke om navn, e-post, fødselsdato eller posisjon, og har ingen annonser eller sporing.</p></div>
         </div>
       </div>
 
       <button class="primary" id="open-feedback">Gi tilbakemelding</button>
       <button class="danger-button" id="reset-progress">Nullstill fremgang på denne enheten</button>
-      <div class="small-note">Nullstilling sletter navn, læringsdata og pågående økt fra denne nettleseren.</div>
+      <div class="small-note">Nullstilling sletter klassetrinn, læringsdata og pågående økt fra denne nettleseren.</div>
     </section>
 
     <section class="screen" id="feedback-screen">
@@ -517,7 +524,7 @@
       <form id="feedback-form" class="feedback-form">
         <label>Barnets klassetrinn
           <select id="fb-grade" required>
-            <option value="">Velg</option><option>1. klasse</option><option>2. klasse</option><option>3. klasse</option><option>4. klasse</option><option>5. klasse</option><option>6. klasse</option><option>7. klasse</option>
+            <option value="">Velg</option><option>1. klasse</option><option>2. klasse</option><option>3. klasse</option><option>4. klasse</option><option>5. klasse</option><option>6. klasse</option><option>7. klasse</option><option>8. klasse</option><option>9. klasse</option><option>10. klasse</option>
           </select>
         </label>
         <label>Forstod barnet appen uten hjelp?
@@ -660,10 +667,14 @@ function missionLabel(){return gradeConfig().mission}
 
 const STORAGE_KEY='laerlittmer-v2';
 const defaultState={
-  version:3,
+  version:4,
+  progressSchemaVersion:1,
   profile:{name:'',grade:null,onboarded:false},
   mastery:{},
   mistakes:{},
+  skillMastery:{},
+  skillMistakes:{},
+  skillLastSeen:{},
   answerLog:[],
   sessionLog:[],
   activeSession:null
@@ -1121,9 +1132,18 @@ function englishPool(grade,module){
 function makeEnglishBuild(word,emoji){
   return {subject:'english',skill:'spelling',type:'build-word',prompt:'Build the word',answer:word,letters:shuffle(word.split('').map((l,i)=>({l,id:i}))),visual:emoji,curriculum:CURRICULUM.english};
 }
+function validLearningQuestion(q){
+  if(!q||!q.subject||!q.skill||!q.type||q.answer===undefined||q.answer===null)return false;
+  if(q.type==='learning-choice')return Array.isArray(q.options)&&q.options.length>=2&&q.options.map(String).includes(String(q.answer));
+  if(q.type==='build-word')return Array.isArray(q.letters)&&q.letters.length>0&&String(q.answer).length===q.letters.length;
+  if(q.type==='sentence-order')return Array.isArray(q.words)&&q.words.length>1&&String(q.answer).length>0;
+  return false;
+}
 function buildLearningQuestions(subject,module){
   let pool=subject==='norwegian'?norwegianPool(currentGrade(),module):subject==='math'?mathPool(currentGrade(),module):englishPool(currentGrade(),module);
   if(!pool.length)pool=subject==='math'?mathPool(currentGrade(),null):subject==='norwegian'?norwegianPool(currentGrade(),null):englishPool(currentGrade(),null);
+  pool=pool.filter(validLearningQuestion);
+  if(!pool.length)throw new Error('Ingen gyldige oppgaver for '+subject+' på '+currentGrade()+'. trinn');
   ensureLearningState();
   pool=pool.map((q,i)=>{
     const key=learningMasteryKey(q.subject,q.skill),mist=Number(state.skillMistakes[key]||0),seen=Number(state.skillLastSeen[key]||0);
@@ -1501,11 +1521,16 @@ async function loadDetailedGeometry(){try{const r=await fetch(NE50_URL,{cache:'f
 async function loadPopulation2024(){try{const r=await fetch(WB2024_URL,{cache:'force-cache'});if(!r.ok)throw new Error('population '+r.status);const data=await r.json(),rows=Array.isArray(data)&&Array.isArray(data[1])?data[1]:[];let updated=0;for(const row of rows){if(!row||row.value==null)continue;const code=String(row.countryiso3code||'').toUpperCase(),c=WORLD_COUNTRIES.find(x=>x.a3===code);if(!c)continue;c.population=Number(row.value);c.populationYear=2024;updated++}qualityStatus.population=updated>150;updateDataStatus()}catch(e){updateDataStatus()}}
 function loadQualityData(){updateDataStatus();Promise.allSettled([loadDetailedGeometry(),loadPopulation2024()]).then(()=>{renderAll();if(document.getElementById('world-screen').classList.contains('active'))drawGlobe()})}
 
+// PWA registration: network-first navigation in sw.js prevents stale HTML/JS mixes after deploy.
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).catch(()=>{}));
+}
+
 // Initial render / recovery
 renderAll();updateOnboarding();loadQualityData();
 if(!state.profile.onboarded||!state.profile.grade){onboardingStep=2;selectedGrade=Number(state.profile.grade)||null;renderGradeChoice();updateOnboarding();document.getElementById('onboarding').classList.add('show')}
 else if(loadActiveSession()){showScreen('session');renderQuestion()}
 </script>
-<!-- build: fullscale-learning-1-10-2026-10-02 -->
+<!-- build: fullscale-learning-1-10-pwa-2026-10-02 -->
 </body>
 </html>
