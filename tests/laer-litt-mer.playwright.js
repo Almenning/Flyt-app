@@ -161,6 +161,18 @@ async function finishSession(page){
     await page.locator('#next-question').waitFor({state:'visible'});
     await page.evaluate(()=>{state.activeSession=null;currentAnswered=null;setTab('home')});
 
+    // Solved-question cooldown: an exact task solved now must not reappear five minutes later.
+    await page.evaluate(()=>{
+      state.profile.grade=2;
+      const q=choiceQuestion('norwegian','reading-comprehension','Hva heter katten?','Milo',['Milo','Leo','Luna'],{passage:'Katten heter Milo.'});
+      state.answerLog.push({at:Date.now()-5*60*1000,subject:q.subject,skill:q.skill,type:q.type,questionKey:questionIdentity(q),correct:true});
+      const next=buildLearningQuestions('norwegian','reading');
+      if(next.some(x=>questionIdentity(x)===questionIdentity(q)))throw new Error('Solved learning question repeated inside cooldown');
+      const g=makeQuestion('no','flag',gradeScopeIds());
+      state.answerLog.push({at:Date.now()-5*60*1000,country:g.k,type:g.type,questionKey:questionIdentity(g),correct:true});
+      if(!questionOnCooldown(g))throw new Error('Geography cooldown not active after correct answer');
+    });
+
     assert.equal(await page.locator('.home-subject').count(),4);
     assert.equal(await page.locator('#bottom-nav button').count(),2);
     assert.equal(await page.locator('#learn-screen').count(),0);
