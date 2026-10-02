@@ -1596,12 +1596,13 @@ function renderBuildWord(q,wrap){
       touchState=null;
       el.classList.remove('dragging');clearDragHighlights();
       if(!active)return;
-      suppressTapUntil=Date.now()+300;
       if(sourceType==='slot'&&targetBank){returnLetter(sourceIndex);return}
       if(targetSlot){
         const to=Number(targetSlot.dataset.slot);
         if(sourceType==='letter')placeLetter(sourceIndex,to);else moveSlot(sourceIndex,to);
+        return;
       }
+      suppressTapUntil=Date.now()+180;
     };
     el.addEventListener('touchstart',event=>{
       if(currentAnswered||event.touches.length!==1)return;
@@ -1651,12 +1652,13 @@ function renderBuildWord(q,wrap){
         if(event.pointerId!==pointerId)return;
         const target=targetSlot,returnToBank=targetBank,wasActive=active;cleanup();
         if(!wasActive)return;
-        suppressTapUntil=Date.now()+250;
         if(sourceType==='slot'&&returnToBank){returnLetter(sourceIndex);return}
         if(target){
           const to=Number(target.dataset.slot);
           if(sourceType==='letter')placeLetter(sourceIndex,to);else moveSlot(sourceIndex,to);
+          return;
         }
+        suppressTapUntil=Date.now()+180;
       };
       const cancel=event=>{if(event.pointerId===pointerId)cleanup()};
       el.addEventListener('pointermove',move);el.addEventListener('pointerup',finish);el.addEventListener('pointercancel',cancel);
