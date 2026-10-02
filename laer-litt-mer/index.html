@@ -239,6 +239,7 @@
     @media (max-width:370px){h1{font-size:30px}.question{font-size:27px}}
   </style>
   <!-- immersive-globe-viewport-2026-10-02 -->
+  <!-- globe-hit-test-dateline-fix-2026-10-02 -->
 </head>
 <body>
 <div class="app">
@@ -893,11 +894,52 @@ document.getElementById('close-session').onclick=()=>{persistActiveSession();set
 // --- Real map geometry helpers ---
 function geometryPolygons(geom){if(!geom)return[];return geom.type==='Polygon'?[geom.coordinates]:geom.type==='MultiPolygon'?geom.coordinates:[]}
 function normalizeLon(lon,ref){while(lon-ref>180)lon-=360;while(lon-ref<-180)lon+=360;return lon}
-function pointInRing(lon,lat,ring){let inside=false;for(let i=0,j=ring.length-1;i<ring.length;j=i++){
-  const xi=normalizeLon(ring[i][0],lon),yi=ring[i][1],xj=normalizeLon(ring[j][0],lon),yj=ring[j][1];
-  const hit=((yi>lat)!==(yj>lat))&&(lon<(xj-xi)*(lat-yi)/(yj-yi+1e-12)+xi);if(hit)inside=!inside;
-}return inside}
-function pointInCountry(c,lon,lat){for(const poly of geometryPolygons(c.geometry)){if(poly[0]&&pointInRing(lon,lat,poly[0]))return true}return false}
+function unwrapRing(ring){
+  if(!ring||!ring.length)return[];
+  const out=[[ring[0][0],ring[0][1]]];
+  let prev=ring[0][0];
+  for(let i=1;i<ring.length;i++){
+    let x=ring[i][0];
+    while(x-prev>180)x-=360;
+    while(x-prev<-180)x+=360;
+    out.push([x,ring[i][1]]);
+    prev=x;
+  }
+  return out;
+}
+function pointInRing(lon,lat,ring){
+  const pts=unwrapRing(ring);
+  if(pts.length<3)return false;
+  let minX=Infinity,maxX=-Infinity;
+  for(const p of pts){minX=Math.min(minX,p[0]);maxX=Math.max(maxX,p[0])}
+  const ref=(minX+maxX)/2;
+  let x=lon;
+  while(x-ref>180)x-=360;
+  while(x-ref<-180)x+=360;
+  let inside=false;
+  for(let i=0,j=pts.length-1;i<pts.length;j=i++){
+    const xi=pts[i][0],yi=pts[i][1],xj=pts[j][0],yj=pts[j][1];
+    const hit=((yi>lat)!==(yj>lat))&&(x<(xj-xi)*(lat-yi)/(yj-yi+1e-12)+xi);
+    if(hit)inside=!inside;
+  }
+  return inside;
+}
+function pointInCountry(c,lon,lat){
+  for(const poly of geometryPolygons(c.geometry)){
+    if(!poly[0]||!pointInRing(lon,lat,poly[0]))continue;
+    let inHole=false;
+    for(let i=1;i<poly.length;i++){
+      if(pointInRing(lon,lat,poly[i])){inHole=true;break}
+    }
+    if(!inHole)return true;
+  }
+  return false;
+}
+function geographicHitDistance(c,lon,lat){
+  const clat=Number.isFinite(c.lat)?c.lat:0,clon=Number.isFinite(c.lon)?normalizeLon(c.lon,lon):lon;
+  const dx=(clon-lon)*Math.cos(((clat+lat)/2)*Math.PI/180),dy=clat-lat;
+  return dx*dx+dy*dy;
+}
 
 // --- Interactive globe ---
 const CONTINENT_COLORS={'Europa':'#A9C8F5','Asia':'#E8C88C','Afrika':'#E5A58D','Nord-Amerika':'#9DD5A5','Sør-Amerika':'#82C7A4','Oseania':'#C2ACEB'};
@@ -934,7 +976,8 @@ function drawGlobe(){const canvas=document.getElementById('globe-canvas');if(!ca
 }
 function globeInverse(x,y){const canvas=document.getElementById('globe-canvas'),w=canvas._cssW||canvas._cssSize,h=canvas._cssH||canvas._cssSize,s=Math.min(w,h),r=s*.455*globeZoom,X=(x-w/2)/r,Y=-(y-h/2)/r,rho=Math.hypot(X,Y);if(rho>1)return null;const rad=Math.PI/180,p0=globeLat*rad,l0=globeLon*rad,c=Math.asin(Math.min(1,rho));if(rho<1e-8)return {lon:globeLon,lat:globeLat};const lat=Math.asin(Math.cos(c)*Math.sin(p0)+(Y*Math.sin(c)*Math.cos(p0)/rho));const lon=l0+Math.atan2(X*Math.sin(c),rho*Math.cos(p0)*Math.cos(c)-Y*Math.sin(p0)*Math.sin(c));return {lon:((lon/rad+540)%360)-180,lat:lat/rad}}
 function pickGlobeCountry(e){const canvas=document.getElementById('globe-canvas'),rect=canvas.getBoundingClientRect(),x=e.clientX-rect.left,y=e.clientY-rect.top,ll=globeInverse(x,y);if(!ll)return;
-  let picked=WORLD_COUNTRIES.find(c=>c.geometry&&pointInCountry(c,ll.lon,ll.lat));
+  const hits=WORLD_COUNTRIES.filter(c=>c.geometry&&pointInCountry(c,ll.lon,ll.lat));
+  let picked=hits.length===1?hits[0]:hits.length>1?[...hits].sort((a,b)=>geographicHitDistance(a,ll.lon,ll.lat)-geographicHitDistance(b,ll.lon,ll.lat))[0]:null;
   if(!picked){let best=null,dist=Infinity;for(const c of WORLD_COUNTRIES){if(!canMapCountry(c)||(!isTinyCountry(c)&&c.id!==globeSelected))continue;const p=globeProject(c.lon,c.lat,canvas._cssW,canvas._cssH);if(!p)continue;const d=Math.hypot(p[0]-x,p[1]-y);if(d<dist){dist=d;best=c}}if(dist<Math.min(24,15+globeZoom*2.2))picked=best}
   if(picked)selectGlobeCountry(picked.id);
 }
