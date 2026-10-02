@@ -274,10 +274,16 @@
     .geo-theme.active{background:#E8EEFF;border-color:#8191E8;color:#4659B9}
     .learning-passage{background:#fff;border-radius:21px;padding:17px;margin:8px 0 16px;font-size:18px;line-height:1.55;font-weight:750;box-shadow:0 5px 0 rgba(70,72,115,.04)}
     .letter-slots{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:18px 0}
-    .letter-slot{width:48px;height:55px;border:2px dashed #BBC2DB;border-radius:15px;background:#fff;display:grid;place-items:center;font-size:25px;font-weight:950;color:var(--ink)}
+    .letter-slot{width:52px;height:58px;border:2px dashed #BBC2DB;border-radius:16px;background:#fff;display:grid;place-items:center;font-size:25px;font-weight:950;color:var(--ink);cursor:pointer;touch-action:manipulation;transition:.12s border-color,.12s background,.12s transform,.12s box-shadow}
+    .letter-slot.filled{border-style:solid;border-color:#AEB8E8;background:#F7F8FF;box-shadow:0 4px 0 #E0E3F4}
+    .letter-slot.selected{border-color:#6178EA;background:#EEF1FF;box-shadow:0 0 0 4px rgba(90,125,242,.13),0 4px 0 #D7DCF5;transform:translateY(-1px)}
+    .letter-slot.drag-over{border-color:#45A67A;background:#EAF8F0;box-shadow:0 0 0 4px rgba(69,166,122,.12)}
+    .letter-slot.wrong-letter{border-color:#E79AA2;background:#FFF1F2;color:#9B3F49}
+    .letter-helper{min-height:20px;margin:-7px 0 4px;text-align:center;font-size:12px;font-weight:800;color:#777D96}
     .letter-bank,.word-bank{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin:16px 0}
-    .letter-tile,.word-tile{border:0;border-radius:15px;background:#EEF1FF;color:#3E4E9E;min-width:48px;min-height:48px;padding:10px 13px;font-size:21px;font-weight:950;box-shadow:0 4px 0 #D7DCF5;cursor:grab;touch-action:manipulation}
-    .word-tile{font-size:16px;min-width:auto}.letter-tile.used,.word-tile.used{opacity:.28;box-shadow:none;pointer-events:none}
+    .letter-tile,.word-tile{border:0;border-radius:15px;background:#EEF1FF;color:#3E4E9E;min-width:48px;min-height:48px;padding:10px 13px;font-size:21px;font-weight:950;box-shadow:0 4px 0 #D7DCF5;cursor:grab;touch-action:manipulation;transition:.12s transform,.12s box-shadow,.12s opacity}
+    .letter-tile.selected{box-shadow:0 0 0 4px rgba(90,125,242,.17),0 5px 0 #C9D0F3;transform:translateY(-2px)}
+    .word-tile{font-size:16px;min-width:auto}.letter-tile.used,.word-tile.used{opacity:.25;box-shadow:none;pointer-events:none}
     .sentence-target{min-height:62px;border:2px dashed #CCD1E2;border-radius:18px;background:#fff;padding:10px;display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;margin:14px 0}
     .sentence-target button{border:0;background:#EAF7EF;color:#34745A;border-radius:12px;padding:9px 11px;font-weight:900}
     .subject-progress-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
@@ -1518,20 +1524,126 @@ function showLearningFeedback(q,correct){
   document.getElementById('next-question').style.display='block';
 }
 function renderBuildWord(q,wrap){
-  let chosen=[];
   const letters=q.letters.map((x,i)=>Object.assign({},x,{idx:i}));
-  function paint(){
-    wrap.querySelector('#letter-slots').innerHTML=q.answer.split('').map((_,i)=>'<button class="letter-slot" type="button" data-slot="'+i+'">'+(chosen[i]?.l||'')+'</button>').join('');
-    wrap.querySelectorAll('.letter-tile').forEach(b=>b.classList.toggle('used',chosen.some(x=>x.idx===Number(b.dataset.idx))));
-    wrap.querySelector('#check-build').disabled=chosen.length!==q.answer.length;
-    wrap.querySelectorAll('.letter-slot').forEach(b=>b.onclick=()=>{const i=Number(b.dataset.slot);if(chosen[i]){chosen.splice(i,1);paint()}});
+  const slots=Array(q.answer.length).fill(null);
+  let selectedLetterIdx=null,selectedSlotIdx=null,wrongAttempt=false,mistakeRecorded=false;
+  const slotBox=wrap.querySelector('#letter-slots'),helper=wrap.querySelector('#letter-helper'),check=wrap.querySelector('#check-build');
+
+  const usedLetter=idx=>slots.some(x=>x&&x.idx===idx);
+  const answerString=()=>slots.map(x=>x?.l||'').join('');
+  function hideRetryFeedback(){
+    if(!wrongAttempt)return;
+    wrongAttempt=false;
+    const box=wrap.querySelector('#feedback');if(box)box.style.display='none';
+    const next=wrap.querySelector('#next-question');if(next)next.style.display='none';
   }
+  function placeLetter(letterIdx,slotIdx){
+    if(currentAnswered||letterIdx===null||slotIdx===null)return;
+    hideRetryFeedback();
+    const from=slots.findIndex(x=>x&&x.idx===letterIdx);
+    if(from===slotIdx){selectedLetterIdx=null;selectedSlotIdx=null;paint();return}
+    const target=slots[slotIdx];
+    if(from>=0){
+      slots[from]=target||null;
+      slots[slotIdx]=letters[letterIdx];
+    }else{
+      slots[slotIdx]=letters[letterIdx];
+    }
+    selectedLetterIdx=null;selectedSlotIdx=null;paint();
+  }
+  function removeFromSlot(slotIdx){
+    if(currentAnswered||!slots[slotIdx])return;
+    hideRetryFeedback();
+    slots[slotIdx]=null;
+    selectedLetterIdx=null;
+    selectedSlotIdx=slotIdx;
+    paint();
+  }
+  function moveSlot(from,to){
+    if(currentAnswered||from===to||!slots[from])return;
+    hideRetryFeedback();
+    const moving=slots[from],target=slots[to];
+    slots[to]=moving;slots[from]=target||null;
+    selectedLetterIdx=null;selectedSlotIdx=null;paint();
+  }
+  function helperText(){
+    if(selectedLetterIdx!==null)return 'Velg hvilken rute '+letters[selectedLetterIdx].l+' skal stå i.';
+    if(selectedSlotIdx!==null)return 'Velg bokstaven som skal stå i rute '+(selectedSlotIdx+1)+'.';
+    return 'Trykk på en rute og en bokstav, eller dra bokstaven dit.';
+  }
+  function paint(){
+    slotBox.innerHTML=slots.map((item,i)=>{
+      const classes=['letter-slot'];if(item)classes.push('filled');if(selectedSlotIdx===i)classes.push('selected');if(wrongAttempt&&item&&item.l!==q.answer[i])classes.push('wrong-letter');
+      const label=item?'Rute '+(i+1)+' av '+slots.length+': '+item.l+'. Trykk for å ta bort bokstaven.':'Rute '+(i+1)+' av '+slots.length+', tom. Trykk for å velge denne ruten.';
+      return '<button class="'+classes.join(' ')+'" type="button" data-slot="'+i+'" '+(item?'data-letter-idx="'+item.idx+'" draggable="true"':'')+' aria-label="'+label+'">'+(item?.l||'')+'</button>';
+    }).join('');
+    wrap.querySelectorAll('.letter-tile').forEach(b=>{
+      const idx=Number(b.dataset.idx),used=usedLetter(idx);
+      b.classList.toggle('used',used);b.classList.toggle('selected',selectedLetterIdx===idx);
+      b.setAttribute('aria-pressed',selectedLetterIdx===idx?'true':'false');
+    });
+    check.disabled=!slots.every(Boolean);
+    helper.textContent=helperText();
+
+    wrap.querySelectorAll('.letter-slot').forEach(slot=>{
+      const slotIdx=Number(slot.dataset.slot);
+      slot.onclick=()=>{
+        if(slots[slotIdx]){removeFromSlot(slotIdx);return}
+        if(selectedLetterIdx!==null){placeLetter(selectedLetterIdx,slotIdx);return}
+        selectedSlotIdx=selectedSlotIdx===slotIdx?null:slotIdx;paint();
+      };
+      slot.addEventListener('dragstart',e=>{
+        if(!slots[slotIdx])return;
+        e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain','slot:'+slotIdx);
+      });
+      slot.addEventListener('dragover',e=>{e.preventDefault();e.dataTransfer.dropEffect='move';slot.classList.add('drag-over')});
+      slot.addEventListener('dragleave',()=>slot.classList.remove('drag-over'));
+      slot.addEventListener('drop',e=>{
+        e.preventDefault();slot.classList.remove('drag-over');
+        const data=e.dataTransfer.getData('text/plain');
+        if(data.startsWith('letter:'))placeLetter(Number(data.slice(7)),slotIdx);
+        else if(data.startsWith('slot:'))moveSlot(Number(data.slice(5)),slotIdx);
+      });
+    });
+  }
+
   wrap.querySelectorAll('.letter-tile').forEach(b=>{
-    b.onclick=()=>{if(chosen.length>=q.answer.length)return;chosen.push(letters[Number(b.dataset.idx)]);paint()};
-    b.draggable=true;b.addEventListener('dragstart',e=>e.dataTransfer.setData('text/plain',b.dataset.idx));
+    const idx=Number(b.dataset.idx);
+    b.onclick=()=>{
+      if(currentAnswered||usedLetter(idx))return;
+      if(selectedSlotIdx!==null){placeLetter(idx,selectedSlotIdx);return}
+      selectedLetterIdx=selectedLetterIdx===idx?null:idx;paint();
+    };
+    b.draggable=true;
+    b.addEventListener('dragstart',e=>{e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain','letter:'+idx)});
   });
-  const slots=wrap.querySelector('#letter-slots');slots.addEventListener('dragover',e=>e.preventDefault());slots.addEventListener('drop',e=>{e.preventDefault();const idx=Number(e.dataTransfer.getData('text/plain'));if(!chosen.some(x=>x.idx===idx)&&chosen.length<q.answer.length){chosen.push(letters[idx]);paint()}});
-  wrap.querySelector('#check-build').onclick=()=>{if(currentAnswered)return;const answer=chosen.map(x=>x.l).join(''),correct=answer===q.answer;recordLearningAnswer(q,correct,answer);wrap.querySelectorAll('.letter-tile,.letter-slot').forEach(b=>b.disabled=true);showLearningFeedback(q,correct)};
+
+  check.onclick=()=>{
+    if(currentAnswered||!slots.every(Boolean))return;
+    const answer=answerString(),correct=answer===q.answer;
+    if(correct){
+      if(!mistakeRecorded)recordLearningAnswer(q,true,answer);
+      else{
+        bumpSkill(q.subject,q.skill,true);
+        currentAnswered={selected:answer,correct:true,corrected:true};
+        persistActiveSession();
+      }
+      wrap.querySelectorAll('.letter-tile,.letter-slot').forEach(b=>b.disabled=true);
+      showLearningFeedback(q,true);
+      if(mistakeRecorded)document.getElementById('feedback-copy').textContent='Der satt den! Du rettet ordet selv.';
+      return;
+    }
+    if(!mistakeRecorded){
+      const result=bumpSkill(q.subject,q.skill,false);
+      state.answerLog.push({at:Date.now(),subject:q.subject,skill:q.skill,type:q.type,correct:false,newlyMastered:result.newlyMastered,curriculum:q.curriculum||null});
+      mistakeRecorded=true;saveState();
+    }
+    wrongAttempt=true;paint();
+    const box=wrap.querySelector('#feedback');box.style.display='block';box.classList.add('bad');
+    wrap.querySelector('#feedback-title').textContent='Prøv igjen';
+    wrap.querySelector('#feedback-copy').textContent='Noen bokstaver står feil. Trykk på en bokstav for å ta den bort, eller flytt den til en annen rute.';
+    wrap.querySelector('#next-question').style.display='none';
+  };
   paint();
 }
 function renderSentenceOrder(q,wrap){
@@ -1557,7 +1669,7 @@ function renderLearningQuestion(){
   if(q.passage)html+='<div class="learning-passage">'+q.passage+'</div>';
   if(q.visual)html+='<div class="big-flag">'+q.visual+'</div>';
   if(q.type==='build-word'){
-    html+='<div class="letter-slots" id="letter-slots"></div><div class="letter-bank">'+q.letters.map((x,i)=>'<button type="button" class="letter-tile" data-idx="'+i+'" aria-label="Bokstav '+x.l+'">'+x.l+'</button>').join('')+'</div><button class="secondary" id="check-build" type="button">Sjekk ordet</button>';
+    html+='<div class="letter-slots" id="letter-slots"></div><div class="letter-helper" id="letter-helper" aria-live="polite">Trykk på en rute og en bokstav, eller dra bokstaven dit.</div><div class="letter-bank">'+q.letters.map((x,i)=>'<button type="button" class="letter-tile" data-idx="'+i+'" aria-label="Bokstav '+x.l+'">'+x.l+'</button>').join('')+'</div><button class="secondary" id="check-build" type="button">Sjekk ordet</button>';
   }else if(q.type==='sentence-order'){
     html+='<div class="sentence-target" id="sentence-target"></div><div class="word-bank">'+q.words.map((w,i)=>'<button type="button" class="word-tile" data-idx="'+i+'">'+w+'</button>').join('')+'</div><button class="secondary" id="check-sentence" type="button">Sjekk setningen</button>';
   }else{
@@ -1849,6 +1961,6 @@ if(!state.profile.onboarded||!state.profile.grade){
   renderGradeChoice();updateOnboarding();document.getElementById('onboarding').classList.add('show');
 }else if(loadActiveSession()){showScreen('session');renderQuestion()}
 </script>
-<!-- build: daughter-qa-final-2026-10-02 -->
+<!-- build: free-position-word-builder-2026-10-02 -->
 </body>
 </html>
