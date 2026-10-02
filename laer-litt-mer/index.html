@@ -147,7 +147,7 @@
     .complete h1{margin-top:16px}.summary{margin:24px 0;padding:18px;text-align:left}
     .summary-row{display:flex;justify-content:space-between;padding:11px 0;border-bottom:2px dashed #ECE9F3}.summary-row:last-child{border-bottom:0}.summary-row span:last-child{font-weight:950}
     .parent{margin-top:16px;padding:18px}.parent-row{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:2px dashed #ECE9F3}.parent-row:last-child{border-bottom:0}.parent-row b{text-align:right}
-    .detail-back{margin:5px 0 18px;border:0;background:#EEEAFE;color:#5D55AC;font-weight:900;font-size:14px;cursor:pointer;padding:9px 12px;border-radius:14px}
+    .detail-back{margin:5px 0 18px;border:0;background:#EEEAFE;color:#5D55AC;font-weight:900;font-size:14px;cursor:pointer;padding:9px 12px;border-radius:14px;min-height:44px}
     .detail-flag{font-size:92px;margin:18px 0 8px;filter:drop-shadow(0 8px 7px rgba(65,64,99,.08))}
     .fact-grid{display:grid;gap:11px;margin-top:20px}.fact{padding:17px;border-radius:22px;background:#fff;border:2px solid #fff;box-shadow:0 6px 0 rgba(80,82,126,.05)}
     .fact:nth-child(1){background:#FFF7D9}.fact:nth-child(2){background:#EAF3FF}.fact:nth-child(3){background:#EAF8F0}
@@ -257,7 +257,7 @@
     .subject-module strong{display:block;font-size:16px}.subject-module small{display:block;color:var(--muted);margin-top:3px;font-weight:750;line-height:1.35}
     .subject-progress{margin-top:14px;padding:14px 16px;border-radius:18px;background:rgba(255,255,255,.7);font-size:13px;font-weight:800;color:var(--muted)}
     .geo-themes{display:flex;gap:8px;overflow-x:auto;padding:3px 2px 8px;margin:10px -2px 4px;scrollbar-width:none}.geo-themes::-webkit-scrollbar{display:none}
-    .geo-theme{flex:0 0 auto;border:2px solid #E5E3EF;background:#fff;color:#5F6682;border-radius:999px;padding:9px 12px;font-weight:900;cursor:pointer}
+    .geo-theme{flex:0 0 auto;border:2px solid #E5E3EF;background:#fff;color:#5F6682;border-radius:999px;padding:9px 12px;font-weight:900;cursor:pointer;min-height:44px}
     .geo-theme.active{background:#E8EEFF;border-color:#8191E8;color:#4659B9}
     .learning-passage{background:#fff;border-radius:21px;padding:17px;margin:8px 0 16px;font-size:18px;line-height:1.55;font-weight:750;box-shadow:0 5px 0 rgba(70,72,115,.04)}
     .letter-slots{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:18px 0}
@@ -306,7 +306,7 @@
 <div class="app">
   <header class="top" id="topbar">
     <div class="brand">Lær litt mer</div>
-    <button class="avatar" aria-label="Profil">🦊</button>
+    <div class="avatar" aria-hidden="true">🦊</div>
   </header>
 
   <main>
@@ -592,10 +592,10 @@
   <div class="onboarding" id="onboarding" aria-modal="true" role="dialog">
     <div class="onboarding-card">
       <div class="onboard-step active" data-step="0">
-        <div class="onboard-hero">🌍✨</div>
+        <div class="onboard-hero">🦊✨</div>
         <div class="eyebrow">Hei!</div>
         <h1>Her lærer du litt mer hver dag</h1>
-        <p>Korte oppdrag om land, flagg, hovedsteder og kart.</p>
+        <p>Korte oppdrag i norsk, matte, engelsk og geografi.</p>
         <button class="primary onboard-next">Neste</button>
       </div>
       <div class="onboard-step" data-step="1">
@@ -1040,7 +1040,7 @@ const SUBJECTS={
 const SUBJECT_MODULES={
   norwegian:[
     {id:'reading',icon:'📚',title:'Lesetrening',copy:'Bokstaver, ord, setninger og leseforståelse.'},
-    {id:'spelling',icon:'🔤',title:'Ord og staving',copy:'Bygg ord og finn bokstaver som mangler.'},
+    {id:'spelling',maxGrade:4,icon:'🔤',title:'Ord og staving',copy:'Bygg ord og finn bokstaver som mangler.'},
     {id:'language',icon:'✍️',title:'Språk',copy:'Setninger, grammatikk, ordforråd og virkemidler.'}
   ],
   math:[
@@ -1100,7 +1100,8 @@ const baseRenderAll=renderAll;
 renderAll=function(){ensureLearningState();baseRenderAll();renderSubjectProgress()};
 
 function visibleSubjectModules(subject=activeSubject){
-  return (SUBJECT_MODULES[subject]||[]).filter(m=>!m.minGrade||currentGrade()>=m.minGrade);
+  const g=currentGrade();
+  return (SUBJECT_MODULES[subject]||[]).filter(m=>(!m.minGrade||g>=m.minGrade)&&(!m.maxGrade||g<=m.maxGrade));
 }
 function openSubject(subject){
   activeSubject=subject;activeModule=null;
@@ -1158,80 +1159,141 @@ function makeBuildWord(word,emoji='🔤',skill='word-building'){
 }
 function norwegianPool(grade,module){
   const q=[];
+  const addChoice=(skill,prompt,answer,options,extra={})=>q.push(choiceQuestion('norwegian',skill,prompt,answer,options,extra));
+  const addSentence=(answer,words)=>q.push({subject:'norwegian',skill:'sentence-order',type:'sentence-order',prompt:'Bygg setningen',answer,words:shuffle(words),curriculum:CURRICULUM.norwegian});
   if(grade<=2){
-    q.push(makeBuildWord('KATT','🐱','letter-sound'));
-    q.push(makeBuildWord('SOL','☀️','letter-sound'));
-    q.push(choiceQuestion('norwegian','missing-letter','Hvilken bokstav mangler? F _ S K','I',['I','A','O']));
-    q.push(choiceQuestion('norwegian','missing-letter','Hvilken bokstav mangler? S _ L','O',['O','A','I']));
-    q.push(choiceQuestion('norwegian','word-picture','Hvilket ord passer til bildet?','hund',['hund','hus','sol'],{visual:'🐶'}));
-    q.push({subject:'norwegian',skill:'sentence-order',type:'sentence-order',prompt:'Bygg setningen',answer:'Katten spiser fisk.',words:shuffle(['Katten','spiser','fisk.']),curriculum:CURRICULUM.norwegian});
-    q.push(choiceQuestion('norwegian','reading-comprehension','Mia har en rød sykkel. Hun sykler til parken. Hvilken farge har sykkelen?','Rød',['Rød','Blå','Grønn'],{passage:'Mia har en rød sykkel. Hun sykler til parken.'}));
+    q.push(makeBuildWord('KATT','🐱','letter-sound'),makeBuildWord('SOL','☀️','letter-sound'),makeBuildWord('MUS','🐭','letter-sound'),makeBuildWord('BIL','🚗','letter-sound'));
+    addChoice('missing-letter','Hvilken bokstav mangler? F _ S K','I',['I','A','O']);
+    addChoice('missing-letter','Hvilken bokstav mangler? S _ L','O',['O','A','I']);
+    addChoice('missing-letter','Hvilken bokstav mangler? M _ S','U',['U','A','E']);
+    addChoice('word-picture','Hvilket ord passer til bildet?','hund',['hund','hus','sol'],{visual:'🐶'});
+    addChoice('word-picture','Hvilket ord passer til bildet?','bil',['bil','bok','båt'],{visual:'🚗'});
+    addSentence('Katten spiser fisk.',['Katten','spiser','fisk.']);
+    addSentence('Mia har en ball.',['Mia','har','en','ball.']);
+    addChoice('reading-comprehension','Hvilken farge har sykkelen?','Rød',['Rød','Blå','Grønn'],{passage:'Mia har en rød sykkel. Hun sykler til parken.'});
+    addChoice('reading-comprehension','Hvor er Leo?','På skolen',['På skolen','I butikken','På stranden'],{passage:'Leo tar på sekken og går inn på skolen.'});
+    addChoice('rhyme','Hvilket ord rimer på katt?','hatt',['hatt','hus','sol']);
   }else if(grade<=4){
-    q.push(choiceQuestion('norwegian','spelling','Hvilket ord er skrevet riktig?','kanskje',['kanskje','kansje','kanskjee']));
-    q.push(choiceQuestion('norwegian','compound-words','Hvilket ord er et sammensatt ord?','fotball',['fotball','løper','rask']));
-    q.push(choiceQuestion('norwegian','synonyms','Hvilket ord betyr omtrent det samme som glad?','fornøyd',['fornøyd','sint','trøtt']));
-    q.push({subject:'norwegian',skill:'sentence-order',type:'sentence-order',prompt:'Bygg en riktig setning',answer:'Vi leser en spennende bok.',words:shuffle(['Vi','leser','en','spennende','bok.']),curriculum:CURRICULUM.norwegian});
-    q.push(choiceQuestion('norwegian','reading-comprehension','Hvorfor tok Lea på regnjakke?','Det regnet',['Det regnet','Det var varmt','Hun skulle bade'],{passage:'Det begynte å regne før Lea gikk til skolen. Hun tok på regnjakken før hun gikk ut.'}));
+    ['kanskje','sykkel','kjøkken','venninne','alltid'].forEach((word,i)=>{
+      const wrong=[['kansje','kanskjee'],['sykel','sykkell'],['kjøken','skjøkken'],['venine','veninne'],['alti','alltidd']][i];
+      addChoice('spelling','Hvilket ord er skrevet riktig?',word,[word,...wrong]);
+    });
+    addChoice('compound-words','Hvilket ord er et sammensatt ord?','fotball',['fotball','løper','rask']);
+    addChoice('double-consonant','Hvilket ord har dobbel konsonant?','sommer',['sommer','sol','reise']);
+    addChoice('synonyms','Hvilket ord betyr omtrent det samme som glad?','fornøyd',['fornøyd','sint','trøtt']);
+    addChoice('word-class','Hvilket ord er et verb?','hopper',['hopper','grønn','skole','rolig']);
+    addChoice('punctuation','Hvilken setning har riktig tegnsetting?','Hvor bor du?',['Hvor bor du?','Hvor bor du.','Hvor bor du!']);
+    addSentence('Vi leser en spennende bok.',['Vi','leser','en','spennende','bok.']);
+    addChoice('reading-comprehension','Hvorfor tok Lea på regnjakke?','Det regnet',['Det regnet','Det var varmt','Hun skulle bade'],{passage:'Det begynte å regne før Lea gikk til skolen. Hun tok på regnjakken før hun gikk ut.'});
+    addChoice('reading-comprehension','Hva skulle Amir kjøpe?','Brød',['Brød','Sko','En bok'],{passage:'Amir gikk til butikken fordi familien manglet brød til frokosten.'});
+    addChoice('reading-inference','Hva er mest sannsynlig?','Nora er kald',['Nora er kald','Nora er mett','Nora skal svømme'],{passage:'Nora trekker jakken tett rundt seg og blåser varm luft i hendene.'});
+    addChoice('reading-main-idea','Hva handler teksten mest om?','En tur i skogen',['En tur i skogen','En fotballkamp','En skoledag'],{passage:'Søndag gikk familien mellom høye trær. De fant kongler, så et ekorn og spiste matpakken ved et lite vann.'});
+    addChoice('reading-detail','Hvilket dyr så familien?','Et ekorn',['Et ekorn','En rev','En hest'],{passage:'På skogsturen fant familien kongler og så et ekorn hoppe mellom trærne.'});
   }else if(grade<=7){
-    q.push(choiceQuestion('norwegian','grammar','Hvilket ord er et verb?','løper',['løper','rød','skole','rolig']));
-    q.push(choiceQuestion('norwegian','synonyms','Hva er et synonym til «viktig»?','betydningsfull',['betydningsfull','tilfeldig','usynlig','sjelden']));
-    q.push(choiceQuestion('norwegian','reading-inference','Hva kan vi slutte av teksten?','Bussen var forsinket',['Bussen var forsinket','Sara sov hele dagen','Skolen var stengt'],{passage:'Sara kom fem minutter for sent. Hun fortalte læreren at bussen hadde stått lenge i kø.'}));
-    q.push(choiceQuestion('norwegian','nynorsk','Hva er bokmålsordet «ikkje» på bokmål?','ikke',['ikke','også','igjen','ingen']));
-    q.push(choiceQuestion('norwegian','punctuation','Hvilken setning har riktig tegnsetting?','Hvor skal du?',['Hvor skal du?','Hvor skal du.','Hvor skal du!']));
+    addChoice('grammar','Hvilket ord er et verb?','løper',['løper','rød','skole','rolig']);
+    addChoice('synonyms','Hva er et synonym til «viktig»?','betydningsfull',['betydningsfull','tilfeldig','usynlig','sjelden']);
+    addChoice('nynorsk','Hva er bokmålsordet «ikkje»?','ikke',['ikke','også','igjen','ingen']);
+    addChoice('punctuation','Hvilken setning har riktig tegnsetting?','Hvor skal du?',['Hvor skal du?','Hvor skal du.','Hvor skal du!']);
+    addChoice('word-class','Hvilket ord er et adjektiv?','modig',['modig','løper','vennskap','under']);
+    addChoice('reading-inference','Hva kan vi slutte av teksten?','Bussen var forsinket',['Bussen var forsinket','Sara sov hele dagen','Skolen var stengt'],{passage:'Sara kom fem minutter for sent. Hun fortalte læreren at bussen hadde stått lenge i kø.'});
+    addChoice('reading-main-idea','Hva er hovedpoenget?','Plast i naturen kan skade dyr',['Plast i naturen kan skade dyr','Alle dyr liker plast','Plast forsvinner med en gang'],{passage:'Plast som havner i naturen kan bli liggende lenge. Dyr kan spise den eller sette seg fast i den.'});
+    addChoice('reading-detail','Hvorfor trente laget ekstra?','De skulle spille finale',['De skulle spille finale','De hadde fri','Treneren var syk'],{passage:'Laget hadde nådd finalen. Derfor møttes de til en ekstra trening tirsdag kveld.'});
+    addChoice('reading-inference','Hvordan føler Jonas seg trolig?','Nervøs',['Nervøs','Sint','Sulten'],{passage:'Jonas ser på klokken for tredje gang. Om to minutter skal han gå på scenen foran hele skolen.'});
+    addChoice('reading-source','Hvilken opplysning gjør teksten lettere å kontrollere?','Navn på kilden',['Mange utropstegn','Store bokstaver','Et fargerikt bilde'],{passage:'En faktatekst blir mer etterprøvbar når den viser hvor opplysningene kommer fra.'});
   }else{
-    q.push(choiceQuestion('norwegian','rhetoric','Hvilket virkemiddel gjentar samme start i flere setninger?','Anafor',['Anafor','Ironi','Kontrast','Metafor']));
-    q.push(choiceQuestion('norwegian','source-criticism','Hva bør du undersøke først når du vurderer en nettkilde?','Hvem som står bak',['Hvem som står bak','Hvor lang teksten er','Om siden har bilder','Om tittelen er kort']));
-    q.push(choiceQuestion('norwegian','literary-devices','«Havet var et speil» er et eksempel på ...','metafor',['metafor','rim','faktaopplysning','replikk']));
-    q.push(choiceQuestion('norwegian','argumentation','Hva er et argument?','En begrunnelse for et standpunkt',['En overskrift','Et tilfeldig eksempel','Et egennavn','Et rim']));
-    q.push(choiceQuestion('norwegian','language','Hvilken setning er mest formell?','Vi ber om at søknaden behandles.',['Vi ber om at søknaden behandles.','Kan dere fikse den greia?','Dette er sykt viktig!','Bare ordn det.']));
+    addChoice('rhetoric','Hvilket virkemiddel gjentar samme start i flere setninger?','Anafor',['Anafor','Ironi','Kontrast','Metafor']);
+    addChoice('source-criticism','Hva bør du undersøke først når du vurderer en nettkilde?','Hvem som står bak',['Hvem som står bak','Hvor lang teksten er','Om siden har bilder','Om tittelen er kort']);
+    addChoice('literary-devices','«Havet var et speil» er et eksempel på ...','metafor',['metafor','rim','faktaopplysning','replikk']);
+    addChoice('argumentation','Hva er et argument?','En begrunnelse for et standpunkt',['En overskrift','Et tilfeldig eksempel','Et egennavn','Et rim']);
+    addChoice('language','Hvilken setning er mest formell?','Vi ber om at søknaden behandles.',['Vi ber om at søknaden behandles.','Kan dere fikse den greia?','Dette er sykt viktig!','Bare ordn det.']);
+    addChoice('reading-main-idea','Hva er hovedbudskapet?','Påstander blir sterkere når de begrunnes',['Alle påstander er sanne','Korte tekster er alltid best','Fakta trenger ingen kilde'],{passage:'En påstand alene sier hva noen mener. Når den støttes av relevante grunner og etterprøvbar dokumentasjon, blir argumentasjonen tydeligere og mer overbevisende.'});
+    addChoice('reading-inference','Hva antyder teksten?','Forfatteren er kritisk til raske konklusjoner',['Forfatteren vil forby forskning','Forfatteren mener alle kilder er like','Forfatteren liker korte overskrifter'],{passage:'En dramatisk overskrift kan være fristende å dele, men innholdet bør undersøkes før man trekker en sikker konklusjon.'});
+    addChoice('reading-source','Hva styrker troverdigheten mest?','At kildene kan kontrolleres',['At teksten er populær','At den er lang','At den har sterke meninger']);
+    addChoice('reading-rhetoric','Hva er hensikten med et retorisk spørsmål?','Å få leseren til å tenke',['Å gi et eksakt tall','Å forklare grammatikk','Å oppgi en kilde']);
+    addChoice('reading-structure','Hva gjør et avsnitt lettere å følge?','Ett tydelig hovedpoeng',['Mange tema samtidig','Ingen tegnsetting','Tilfeldig rekkefølge']);
   }
-  return module?q.filter(x=>module==='reading'?['reading-comprehension','reading-inference','letter-sound','word-picture'].includes(x.skill):module==='spelling'?['missing-letter','spelling','word-building','letter-sound','compound-words'].includes(x.skill):true):q;
+  const readingSkills=new Set(['letter-sound','word-picture','reading-comprehension','reading-inference','reading-main-idea','reading-detail','reading-source','reading-rhetoric','reading-structure']);
+  const spellingSkills=new Set(['missing-letter','spelling','compound-words','double-consonant','letter-sound']);
+  const languageSkills=new Set(['sentence-order','rhyme','synonyms','word-class','grammar','nynorsk','punctuation','rhetoric','source-criticism','literary-devices','argumentation','language']);
+  if(module==='reading')return q.filter(x=>readingSkills.has(x.skill));
+  if(module==='spelling')return q.filter(x=>spellingSkills.has(x.skill));
+  if(module==='language')return q.filter(x=>languageSkills.has(x.skill));
+  return q;
 }
 function rand(min,max){return Math.floor(Math.random()*(max-min+1))+min}
 function mathPool(grade,module){
-  const q=[];let a,b,ans;
-  const add=(skill,prompt,answer,opts,extra)=>q.push(choiceQuestion('math',skill,prompt,String(answer),opts.map(String),extra));
-  if(grade===1){for(let i=0;i<5;i++){a=rand(1,8);b=rand(1,10-a);ans=a+b;add('addition-10',a+' + '+b+' = ?',ans,[ans,ans+1,Math.max(0,ans-1)])}add('number-order','Hvilket tall er størst?',9,[9,6,4])}
-  else if(grade===2){for(let i=0;i<4;i++){a=rand(10,60);b=rand(2,25);ans=a+b;add('addition-100',a+' + '+b+' = ?',ans,[ans,ans+10,ans-1])}add('place-value','Hva er verdien til 7 i tallet 74?',70,[70,7,4])}
-  else if(grade===3){for(let i=0;i<4;i++){a=rand(2,10);b=rand(2,10);ans=a*b;add('multiplication',a+' × '+b+' = ?',ans,[ans,ans+a,Math.max(1,ans-b)])}add('division','24 ÷ 6 = ?',4,[4,3,6])}
-  else if(grade===4){add('fractions','Hvilken brøk er en halv?', '1/2',['1/2','1/3','2/3','3/4']);for(let i=0;i<4;i++){a=rand(12,99);b=rand(2,9);ans=a*b;add('multiplication',a+' × '+b+' = ?',ans,[ans,ans+b,ans-a])}}
-  else if(grade===5){add('decimals','0,5 + 0,25 = ?','0,75',['0,75','0,30','0,80','0,65']);add('percent','Hva er 25 % av 100?',25,[25,20,50,75]);add('fractions','Hva er 1/2 + 1/4?','3/4',['3/4','2/6','1/6','1/8']);add('area','Et rektangel er 6 cm × 4 cm. Arealet er ...',24,[24,20,10,48]);}
-  else if(grade===6){add('percent','Hva er 20 % av 250?',50,[50,25,75,200]);add('fractions','Hva er 2/3 av 18?',12,[12,9,6,15]);add('ratio','Forholdet 2:3 betyr at 10 tilsvarer ...',15,[15,12,20,30]);add('perimeter','En firkant har sider 5, 5, 8 og 8 cm. Omkrets?',26,[26,21,40,16]);}
-  else if(grade===7){add('negative','−4 + 9 = ?',5,[5,-5,13,4]);add('algebra','x + 7 = 19. Hva er x?',12,[12,26,11,7]);add('percent','En vare koster 400 kr og settes ned 25 %. Ny pris?',300,[300,100,375,325]);add('statistics','Gjennomsnittet av 4, 6 og 8 er ...',6,[6,5,7,18]);add('geometry','En trekant har vinklene 50° og 60°. Den siste vinkelen er ...',70,[70,80,90,60]);}
-  else if(grade===8){add('algebra','3x = 21. Hva er x?',7,[7,18,24,6]);add('linear','Hvis y = 2x + 1 og x = 4, hva er y?',9,[9,8,7,10]);add('geometry','En rett vinkel er ... grader',90,[90,45,180,360]);add('probability','En vanlig terning: sannsynligheten for å få 6 er ...','1/6',['1/6','1/3','1/2','1/12']);add('percent','Hva er 15 % av 200?',30,[30,15,40,45]);}
-  else if(grade===9){add('pythagoras','Katetene er 3 og 4. Hypotenusen er ...',5,[5,6,7,4]);add('algebra','2x + 5 = 17. x = ?',6,[6,11,5,7]);add('functions','f(x)=3x−2. f(5)=?',13,[13,15,17,10]);add('percent-change','Fra 200 til 250 er en økning på ... %',25,[25,20,50,12.5]);}
-  else {add('algebra','4(x−2)=24. x = ?',8,[8,6,10,4]);add('probability','To mynter kastes. Sannsynlighet for to kron?', '1/4',['1/4','1/2','1/3','3/4']);add('functions','y = −2x + 6. Når x=2 er y = ?',2,[2,4,0,10]);add('percent-change','En verdi øker 10 % fra 500. Ny verdi?',550,[550,510,600,450]);add('geometry','Arealet av en sirkel med radius r uttrykkes som ...','πr²',['πr²','2πr','πd','r²/2']);}
-  if(module==='numbers')return q.filter(x=>['addition-10','addition-100','place-value','multiplication','division','negative','statistics'].includes(x.skill));
-  if(module==='geometry')return q.filter(x=>['area','perimeter','geometry','pythagoras'].includes(x.skill));
-  if(module==='fractions')return q.filter(x=>['fractions','decimals','percent','percent-change','ratio'].includes(x.skill));
-  if(module==='algebra')return q.filter(x=>['algebra','linear','functions'].includes(x.skill));
-  return q;
+  const numbers=[],fractions=[],geometry=[],algebra=[];
+  const add=(arr,skill,prompt,answer,opts,extra={})=>arr.push(choiceQuestion('math',skill,prompt,String(answer),opts.map(String),extra));
+  if(grade===1){
+    for(let i=0;i<6;i++){const a=rand(1,8),b=rand(1,10-a),ans=a+b;add(numbers,'addition-10',a+' + '+b+' = ?',ans,[ans,ans+1,Math.max(0,ans-1)])}
+    add(numbers,'number-order','Hvilket tall er størst?',9,[9,6,4]);
+  }else if(grade===2){
+    for(let i=0;i<4;i++){const a=rand(10,60),b=rand(2,25),ans=a+b;add(numbers,'addition-100',a+' + '+b+' = ?',ans,[ans,ans+10,ans-1])}
+    for(let i=0;i<2;i++){const a=rand(20,80),b=rand(2,Math.min(18,a-1)),ans=a-b;add(numbers,'subtraction-100',a+' − '+b+' = ?',ans,[ans,ans+10,Math.max(0,ans-1)])}
+    add(numbers,'place-value','Hva er verdien til 7 i tallet 74?',70,[70,7,4]);
+  }else if(grade===3){
+    for(let i=0;i<4;i++){const a=rand(2,10),b=rand(2,10),ans=a*b;add(numbers,'multiplication',a+' × '+b+' = ?',ans,[ans,ans+a,Math.max(1,ans-b)])}
+    add(numbers,'division','24 ÷ 6 = ?',4,[4,3,6]);add(numbers,'division','35 ÷ 5 = ?',7,[7,5,6]);
+  }else if(grade===4){
+    for(let i=0;i<4;i++){const a=rand(12,99),b=rand(2,9),ans=a*b;add(numbers,'multiplication',a+' × '+b+' = ?',ans,[ans,ans+b,Math.max(1,ans-a)])}
+    add(numbers,'division','84 ÷ 7 = ?',12,[12,14,7,9]);add(numbers,'large-numbers','1 250 + 750 = ?',2000,[2000,1900,2100,1250]);
+    add(fractions,'fractions','Hvilken brøk er en halv?','1/2',['1/2','1/3','2/3','3/4']);
+    add(fractions,'fractions','Hvilken brøk er størst?','3/4',['3/4','1/2','1/4','2/8']);
+    add(fractions,'fractions','2 av 8 like deler er ...','2/8',['2/8','2/6','8/2','1/8']);
+    add(fractions,'fractions','Hvilken brøk er lik 2/4?','1/2',['1/2','1/4','2/3','3/4']);
+    add(fractions,'fractions','Hva er 1/4 av 20?',5,[5,4,10,15]);
+  }else if(grade===5){
+    add(numbers,'decimals','3,5 + 1,2 = ?','4,7',['4,7','4,2','3,7','5,7']);add(numbers,'large-numbers','4 500 − 1 750 = ?',2750,[2750,2850,2650,3250]);add(numbers,'multiplication','125 × 4 = ?',500,[500,400,625,450]);add(numbers,'division','360 ÷ 6 = ?',60,[60,50,70,6]);add(numbers,'decimals','8,4 − 2,1 = ?','6,3',['6,3','6,5','10,5','5,3']);
+    add(fractions,'decimals','0,5 + 0,25 = ?','0,75',['0,75','0,30','0,80','0,65']);add(fractions,'percent','Hva er 25 % av 100?',25,[25,20,50,75]);add(fractions,'fractions','Hva er 1/2 + 1/4?','3/4',['3/4','2/6','1/6','1/8']);add(fractions,'percent','Hva er 50 % av 60?',30,[30,20,50,10]);add(fractions,'decimals','Hvilket desimaltall er lik 1/4?','0,25',['0,25','0,4','0,5','0,75']);
+    add(geometry,'area','Et rektangel er 6 cm × 4 cm. Arealet er ...',24,[24,20,10,48]);add(geometry,'perimeter','Et rektangel er 6 cm × 4 cm. Omkretsen er ...',20,[20,24,10,12]);add(geometry,'angles','En rett vinkel er ... grader',90,[90,45,180,360]);add(geometry,'units','Hvor mange cm er 2 meter?',200,[200,20,2000,2]);add(geometry,'area','Et kvadrat har side 5 cm. Arealet er ...',25,[25,20,10,15]);
+  }else if(grade===6){
+    add(numbers,'decimals','4,8 × 10 = ?','48',['48','4,8','480','0,48']);add(numbers,'division','1 200 ÷ 6 = ?',200,[200,20,120,600]);add(numbers,'order','6 + 4 × 3 = ?',18,[18,30,24,16]);add(numbers,'decimals','7,2 − 3,85 = ?','3,35',['3,35','4,35','3,45','11,05']);add(numbers,'multiplication','75 × 16 = ?',1200,[1200,1100,900,1250]);
+    add(fractions,'percent','Hva er 20 % av 250?',50,[50,25,75,200]);add(fractions,'fractions','Hva er 2/3 av 18?',12,[12,9,6,15]);add(fractions,'ratio','Forholdet 2:3 betyr at 10 tilsvarer ...',15,[15,12,20,30]);add(fractions,'fractions','Hva er 3/4 av 40?',30,[30,10,20,35]);add(fractions,'percent','10 % av 360 er ...',36,[36,30,60,3.6]);
+    add(geometry,'perimeter','En firkant har sider 5, 5, 8 og 8 cm. Omkrets?',26,[26,21,40,16]);add(geometry,'area','En trekant har grunnlinje 8 og høyde 5. Arealet er ...',20,[20,40,13,26]);add(geometry,'units','1,5 km er ... meter',1500,[1500,150,15000,15]);add(geometry,'angles','Vinklene i en trekant er til sammen ...',180,[180,90,270,360]);add(geometry,'volume','En kube med side 3 har volum ...',27,[27,9,18,6]);
+  }else if(grade===7){
+    add(numbers,'negative','−4 + 9 = ?',5,[5,-5,13,4]);add(numbers,'statistics','Gjennomsnittet av 4, 6 og 8 er ...',6,[6,5,7,18]);add(numbers,'negative','7 − 12 = ?',-5,[-5,5,19,-19]);add(numbers,'powers','2³ = ?',8,[8,6,9,4]);add(numbers,'order','3 + 5 × 2 = ?',13,[13,16,10,8]);
+    add(fractions,'percent','En vare koster 400 kr og settes ned 25 %. Ny pris?',300,[300,100,375,325]);add(fractions,'percent','15 % av 200 er ...',30,[30,15,40,25]);add(fractions,'fractions','3/5 som prosent er ...',60,[60,30,50,80]);add(fractions,'ratio','Forholdet 4:5. Hvis første tall er 20, er det andre ...',25,[25,16,24,30]);add(fractions,'decimals','0,125 som brøk er ...','1/8',['1/8','1/4','1/5','1/10']);
+    add(geometry,'angles','En trekant har vinklene 50° og 60°. Den siste er ...',70,[70,80,90,60]);add(geometry,'area','Arealet av et parallellogram er grunnlinje × ...','høyde',['høyde','omkrets','diameter','radius']);add(geometry,'circle','Diameteren er dobbelt så stor som ...','radius',['radius','areal','omkrets','vinkel']);add(geometry,'scale','På et kart i målestokk 1:100 er 2 cm i virkeligheten ... cm',200,[200,100,20,2]);add(geometry,'volume','Et prisme har grunnflate 12 og høyde 5. Volumet er ...',60,[60,17,24,120]);
+    add(algebra,'algebra','x + 7 = 19. Hva er x?',12,[12,26,11,7]);add(algebra,'algebra','2x = 18. x = ?',9,[9,16,20,8]);add(algebra,'pattern','Følgen 3, 6, 9, 12 ... Neste tall?',15,[15,14,18,13]);add(algebra,'algebra','x − 4 = 11. x = ?',15,[15,7,4,11]);add(algebra,'expression','Hvis x=3, er 2x+5 = ?',11,[11,10,8,13]);
+  }else{
+    const level=Math.min(grade,10);
+    add(numbers,'negative','−7 + 12 = ?',5,[5,-5,19,-19]);add(numbers,'powers','3² + 4 = ?',13,[13,12,16,9]);add(numbers,'order','18 ÷ 3 × 2 = ?',12,[12,3,6,18]);add(numbers,'roots','√81 = ?',9,[9,8,27,3]);add(numbers,'statistics','Medianen av 2, 4, 9, 10, 20 er ...',9,[9,10,4,20]);
+    add(fractions,'percent-change','Fra 200 til 250 er en økning på ... %',25,[25,20,50,12.5]);add(fractions,'percent','35 % av 240 er ...',84,[84,72,96,35]);add(fractions,'fractions','3/4 ÷ 1/2 = ?','3/2',['3/2','3/8','2/3','1/4']);add(fractions,'decimals','0,375 som prosent er ...',37.5,[37.5,3.75,375,30]);add(fractions,'percent-change','500 øker med 10 %. Ny verdi?',550,[550,510,600,450]);
+    add(geometry,'geometry','En rett vinkel er ... grader',90,[90,45,180,360]);add(geometry,'pythagoras','Katetene er 3 og 4. Hypotenusen er ...',5,[5,6,7,4]);add(geometry,'circle','Omkretsen av en sirkel uttrykkes som ...','2πr',['2πr','πr²','πd²','r²']);add(geometry,'area','Arealet av en sirkel uttrykkes som ...','πr²',['πr²','2πr','πd','r²/2']);add(geometry,'scale','Målestokk 1:50. 4 cm på tegningen er ... cm',200,[200,54,100,400]);
+    add(algebra,'algebra','3x = 21. Hva er x?',7,[7,18,24,6]);add(algebra,'linear','Hvis y = 2x + 1 og x = 4, hva er y?',9,[9,8,7,10]);add(algebra,'algebra','2x + 5 = 17. x = ?',6,[6,11,5,7]);add(algebra,'functions','f(x)=3x−2. f(5)=?',13,[13,15,17,10]);add(algebra,'algebra','4(x−2)=24. x = ?',8,[8,6,10,4]);add(algebra,'functions','y = −2x + 6. Når x=2 er y = ?',2,[2,4,0,10]);
+  }
+  if(module==='numbers')return numbers;
+  if(module==='fractions')return fractions;
+  if(module==='geometry')return geometry;
+  if(module==='algebra')return algebra;
+  return [...numbers,...fractions,...geometry,...algebra];
 }
 function englishPool(grade,module){
   const q=[];
+  const add=(skill,prompt,answer,options,extra={})=>q.push(choiceQuestion('english',skill,prompt,answer,options,extra));
+  const sent=(answer,words)=>q.push({subject:'english',skill:'sentence',type:'sentence-order',prompt:'Build the sentence',answer,words:shuffle(words),curriculum:CURRICULUM.english});
   if(grade<=2){
-    q.push(choiceQuestion('english','words','🐱 What is this?','cat',['cat','dog','sun'],{visual:'🐱'}));
-    q.push(choiceQuestion('english','words','What colour is grass?','green',['green','blue','red']));
-    q.push(choiceQuestion('english','phrases','How are you?','I am fine.',['I am fine.','Seven.','Blue.']));
-    q.push(makeEnglishBuild('DOG','🐶'));
-    q.push(choiceQuestion('english','numbers','What is “tre” in English?','three',['three','tree','ten']));
+    add('words','🐱 What is this?','cat',['cat','dog','sun'],{visual:'🐱'});add('words','What colour is grass?','green',['green','blue','red']);add('numbers','What is «tre» in English?','three',['three','tree','ten']);add('words','🍎 What is this?','apple',['apple','chair','fish'],{visual:'🍎'});add('words','🏠 What is this?','house',['house','mouse','horse'],{visual:'🏠'});q.push(makeEnglishBuild('DOG','🐶'));
+    add('phrases','How are you?','I am fine.',['I am fine.','Seven.','Blue.']);add('sentence','Choose the correct sentence.','I have a red ball.',['I have a red ball.','I red have ball.','Have I ball red.']);add('sentence','Choose the correct sentence.','The dog is big.',['The dog is big.','Dog the big is.','The dog big are.']);sent('I like apples.',['I','like','apples.']);sent('She has a book.',['She','has','a','book.']);
+    if(grade>=2){add('reading','Where is Ben going?','To school',['To school','To London','To bed'],{passage:'Ben puts on his jacket and walks to school with his sister.'});add('reading','What colour is the kite?','Yellow',['Yellow','Green','Black'],{passage:'Emma has a yellow kite. She flies it in the park.'});add('reading','Who has a dog?','Sam',['Sam','Mia','Dad'],{passage:'Sam has a small dog. The dog is called Max.'});add('reading','What does Lily eat?','An apple',['An apple','A sandwich','A banana'],{passage:'Lily opens her lunch box and eats an apple.'});add('reading','Where is the cat?','On the chair',['On the chair','Under the bed','In the garden'],{passage:'The cat sleeps on the chair next to Tom.'});}
   }else if(grade<=4){
-    q.push(choiceQuestion('english','verbs','Choose the verb.','run',['run','blue','table','happy']));
-    q.push(choiceQuestion('english','sentence','Choose the correct sentence.','She likes apples.',['She likes apples.','She like apples.','She apples likes.']));
-    q.push(choiceQuestion('english','reading','Where is Ben going?','To school',['To school','To London','To bed'],{passage:'Ben puts on his jacket and walks to school with his sister.'}));
-    q.push(choiceQuestion('english','vocabulary','What does “hungry” mean?','sulten',['sulten','trøtt','glad','rask']));
+    ['hungry','happy','quiet','before','always'].forEach((w,i)=>{const data=[['sulten','trøtt','rask'],['glad','sint','våt'],['stille','høy','varm'],['før','etter','aldri'],['alltid','sjelden','kanskje']][i];add('vocabulary','What does “'+w+'” mean?',data[0],data)});
+    add('verbs','Choose the verb.','run',['run','blue','table','happy']);add('grammar','Choose the correct form.','She likes apples.',['She likes apples.','She like apples.','She liking apples.']);add('pronouns','Tom and Mia = ...','they',['they','he','she','it']);add('grammar','Choose the correct word: I ___ a bike.','have',['have','has','is','are']);add('past-tense','Yesterday I ___ home.','walked',['walked','walk','walking','walks']);
+    sent('We play football.',['We','play','football.']);sent('My sister reads books.',['My','sister','reads','books.']);add('sentence','Choose the correct question.','Where do you live?',['Where do you live?','Where you do live?','Do where live you?']);add('phrases','What can you say when you meet someone?','Nice to meet you.',['Nice to meet you.','Good night yesterday.','I am a table.']);add('sentence','Choose the correct sentence.','There are two cats.',['There are two cats.','There is two cats.','Two cats there is.']);
+    add('reading','Why does Ben take an umbrella?','Because it is raining',['Because it is raining','Because it is hot','Because he is swimming'],{passage:'Rain hits the window. Ben takes his umbrella before he leaves.'});add('reading','What is Ava looking for?','Her keys',['Her keys','Her shoes','Her book'],{passage:'Ava checks her bag and the table. She cannot find her keys.'});add('reading','Where do they eat lunch?','In the park',['In the park','At school','On a bus'],{passage:'The family walks to the park and eats lunch under a tree.'});add('reading','What did Max win?','A race',['A race','A book','A bike'],{passage:'Max ran faster than everyone else and won the school race.'});add('reading','How is the weather?','Cold',['Cold','Hot','Sunny'],{passage:'Snow covers the ground and Ella wears a thick coat.'});
   }else if(grade<=7){
-    q.push(choiceQuestion('english','past-tense','Yesterday I ___ to school.','went',['went','go','gone','going']));
-    q.push(choiceQuestion('english','pronouns','Emma and I = ...','we',['we','they','she','it']));
-    q.push(choiceQuestion('english','reading','Why did Maya stay inside?','Because it was raining',['Because it was raining','Because she was hungry','Because it was dark'],{passage:'It rained all afternoon, so Maya stayed inside and finished her book.'}));
-    q.push(choiceQuestion('english','vocabulary','Choose the closest meaning to “difficult”.','hard',['hard','easy','small','quiet']));
+    ['difficult','careful','improve','journey','environment'].forEach((w,i)=>{const data=[['hard','easy','tiny'],['forsiktig','rask','sulten'],['forbedre','glemme','stanse'],['reise','måltid','regel'],['miljø','lekse','butikk']][i];add('vocabulary','What is the closest meaning of “'+w+'”?',data[0],data)});
+    add('past-tense','Yesterday I ___ to school.','went',['went','go','gone','going']);add('pronouns','Emma and I = ...','we',['we','they','she','it']);add('grammar','Choose the correct sentence.','He has lived here for two years.',['He has lived here for two years.','He live here for two years.','He living here two years.']);add('grammar','Choose the correct comparative.','This book is better.',['This book is better.','This book is gooder.','This book is best than.']);add('verbs','Choose the modal verb.','should',['should','school','slow','show']);
+    sent('We are going to London.',['We','are','going','to','London.']);sent('She finished her homework yesterday.',['She','finished','her','homework','yesterday.']);add('sentence','Choose the best reply: “Could you help me?”','Of course.',['Of course.','Yesterday.','Blue.']);add('sentence','Choose the correct question.','Have you seen this film?',['Have you seen this film?','You have seen this film?','Seen have you this film?']);add('sentence','Choose the correct sentence.','I would like some water.',['I would like some water.','I would likes water.','I like would some water.']);
+    add('reading','Why did Maya stay inside?','Because it was raining',['Because it was raining','Because she was hungry','Because it was dark'],{passage:'It rained all afternoon, so Maya stayed inside and finished her book.'});add('reading','What is the main idea?','Exercise can improve health',['Exercise can improve health','Running is the only sport','Everyone must exercise daily'],{passage:'Regular movement can strengthen the body, improve sleep and help people feel better.'});add('reading','What can we infer about Liam?','He is nervous',['He is nervous','He is asleep','He is angry'],{passage:'Liam checks his notes again and takes a deep breath before his presentation.'});add('reading','Why is the library closed?','It is being renovated',['It is being renovated','It is Sunday','There are no books'],{passage:'The library will reopen next month after workers finish the renovation.'});add('reading','Which detail supports the main point?','Plastic can harm sea animals',['Plastic can harm sea animals','The ocean is blue','Boats are fast'],{passage:'Plastic waste can remain in the ocean for years and can harm animals that eat it.'});
   }else{
-    q.push(choiceQuestion('english','grammar','Choose the correct conditional sentence.','If I had time, I would help.',['If I had time, I would help.','If I have time, I would helped.','If I had time, I will helped.']));
-    q.push(choiceQuestion('english','reading','What is the main point?','Technology can help, but it should be used thoughtfully.',['Technology can help, but it should be used thoughtfully.','All technology is harmful.','Schools should ban computers.'],{passage:'Digital tools can make learning easier, but they can also distract us. The best results come when we use them for a clear purpose.'}));
-    q.push(choiceQuestion('english','vocabulary','What does “reliable” mean?','trustworthy',['trustworthy','temporary','expensive','silent']));
-    q.push(choiceQuestion('english','grammar','Which sentence uses the present perfect?','She has finished her work.',['She has finished her work.','She finished yesterday.','She is finishing now.','She will finish.']));
+    ['reliable','significant','approach','evidence','consequence'].forEach((w,i)=>{const data=[['trustworthy','temporary','silent'],['important','tiny','accidental'],['method','holiday','colour'],['proof','rumour','joke'],['result','question','beginning']][i];add('vocabulary','What is the closest meaning of “'+w+'”?',data[0],data)});
+    add('grammar','Choose the correct conditional sentence.','If I had time, I would help.',['If I had time, I would help.','If I have time, I would helped.','If I had time, I will helped.']);add('grammar','Which sentence uses the present perfect?','She has finished her work.',['She has finished her work.','She finished yesterday.','She is finishing now.','She will finish.']);add('grammar','Choose the correct passive sentence.','The bridge was built in 1990.',['The bridge was built in 1990.','The bridge built in 1990.','The bridge was build in 1990.']);add('grammar','Choose the correct relative pronoun.','The person who called me ...',['who','where','when','what']);add('grammar','Choose the correct form.','I wish I knew the answer.',['I wish I knew the answer.','I wish I know the answer.','I wish I knowing the answer.']);
+    sent('Technology can change how we learn.',['Technology','can','change','how','we','learn.']);sent('She would have called if she had known.',['She','would','have','called','if','she','had','known.']);add('sentence','Choose the most formal sentence.','I would appreciate your response.',['I would appreciate your response.','Text me back, okay?','Answer me now!']);add('sentence','Choose the clearest sentence.','The results suggest that the method worked.',['The results suggest that the method worked.','Results thing method worked maybe.','Worked the method results.']);add('sentence','Choose the correct connector.','However, the results were different.',['However, the results were different.','Because the results were different however.','Results however because different.']);
+    add('reading','What is the main point?','Technology can help, but it should be used thoughtfully.',['Technology can help, but it should be used thoughtfully.','All technology is harmful.','Schools should ban computers.'],{passage:'Digital tools can make learning easier, but they can also distract us. The best results come when we use them for a clear purpose.'});add('reading','What does the writer suggest?','Check evidence before sharing claims',['Share first and check later','Trust every headline','Ignore all online information'],{passage:'A dramatic claim may spread quickly online. Before sharing it, look for evidence and check who published it.'});add('reading','Which statement is supported by the text?','Sleep can affect concentration',['Sleep never matters','Everyone needs exactly eight hours','Only children need sleep'],{passage:'Research links adequate sleep with attention and memory, although individual sleep needs vary.'});add('reading','Why does the author mention both benefits and risks?','To present a balanced view',['To tell a joke','To avoid a topic','To advertise a product'],{passage:'Social media can help people stay connected, but it can also increase distraction and spread misleading information.'});add('reading','What is the tone of the passage?','Cautious',['Celebratory','Angry','Comical'],{passage:'The early results are promising, but more data is needed before firm conclusions can be drawn.'});
   }
-  return module?q.filter(x=>module==='reading'?x.skill==='reading':module==='words'?['words','vocabulary','numbers','spelling'].includes(x.skill):module==='sentences'?['sentence','phrases','past-tense','pronouns'].includes(x.skill):module==='grammar'?['grammar','past-tense','pronouns','verbs'].includes(x.skill):true):q;
+  const filter={words:new Set(['words','numbers','vocabulary','spelling']),sentences:new Set(['sentence','phrases']),reading:new Set(['reading']),grammar:new Set(['grammar','past-tense','pronouns','verbs'])};
+  return module&&filter[module]?q.filter(x=>filter[module].has(x.skill)):q;
 }
 function makeEnglishBuild(word,emoji){
   return {subject:'english',skill:'spelling',type:'build-word',prompt:'Build the word',answer:word,letters:shuffle(word.split('').map((l,i)=>({l,id:i}))),visual:emoji,curriculum:CURRICULUM.english};
@@ -1244,17 +1306,23 @@ function validLearningQuestion(q){
   return false;
 }
 function buildLearningQuestions(subject,module){
-  let pool=subject==='norwegian'?norwegianPool(currentGrade(),module):subject==='math'?mathPool(currentGrade(),module):englishPool(currentGrade(),module);
-  if(!pool.length)pool=subject==='math'?mathPool(currentGrade(),null):subject==='norwegian'?norwegianPool(currentGrade(),null):englishPool(currentGrade(),null);
-  pool=pool.filter(validLearningQuestion);
+  const getPool=(m)=>subject==='norwegian'?norwegianPool(currentGrade(),m):subject==='math'?mathPool(currentGrade(),m):englishPool(currentGrade(),m);
+  const focused=module?getPool(module).filter(validLearningQuestion):[];
+  const mixed=getPool(null).filter(validLearningQuestion);
+  const seen=new Set(),pool=[];
+  for(const q of [...focused,...mixed]){
+    const sig=q.type+'|'+q.skill+'|'+q.prompt+'|'+q.answer;
+    if(seen.has(sig))continue;seen.add(sig);q._focused=focused.includes(q);pool.push(q);
+  }
   if(!pool.length)throw new Error('Ingen gyldige oppgaver for '+subject+' på '+currentGrade()+'. trinn');
   ensureLearningState();
-  pool=pool.map((q,i)=>{
-    const key=learningMasteryKey(q.subject,q.skill),mist=Number(state.skillMistakes[key]||0),seen=Number(state.skillLastSeen[key]||0);
-    return {q,score:skillLevel(key)-Math.min(.8,mist*.14)+(seen?0:.25)+i*.001+Math.random()*.12};
+  const ranked=pool.map((q,i)=>{
+    const key=learningMasteryKey(q.subject,q.skill),mist=Number(state.skillMistakes[key]||0),last=Number(state.skillLastSeen[key]||0);
+    const focusBonus=q._focused?-.55:0,novelty=last?0:.22;
+    return {q,score:skillLevel(key)-Math.min(.8,mist*.14)+focusBonus+novelty+i*.001+Math.random()*.08};
   }).sort((a,b)=>a.score-b.score).map(x=>x.q);
-  const out=[];for(const q of pool){if(out.length>=5)break;out.push(q)}
-  while(out.length<5&&pool.length)out.push(pool[out.length%pool.length]);
+  const out=ranked.slice(0,5);
+  while(out.length<5&&ranked.length)out.push({...ranked[out.length%ranked.length]});
   return out;
 }
 function startLearningSession(subject,module,label){
@@ -1272,9 +1340,14 @@ function startNorwayRegions(){
 function startGeographyTheme(){
   const ids=gradeScopeIds();
   if(geoTheme==='regions'){startNorwayRegions();return}
-  const types=geoTheme==='capital'?['capital','country']:geoTheme==='map'?['map']:[geoTheme];
+  const grade=currentGrade();
+  let types;
+  if(geoTheme==='country')types=grade<=2?['flag','continent','map']:['flag','country','continent','map'];
+  else if(geoTheme==='capital')types=['capital','country'];
+  else if(geoTheme==='map')types=['map'];
+  else types=[geoTheme];
   const qs=[];for(const item of questionPool(ids,true)){if(qs.length>=5)break;if(!types.includes(item.type))continue;qs.push(makeQuestion(item.k,item.type,ids))}
-  if(!qs.length){toast('Dette temaet trenger litt mer kartdata på dette nivået.');return}
+  if(!qs.length){toast('Prøv et annet tema på dette nivået.');return}
   while(qs.length<5)qs.push(qs[qs.length%Math.max(1,qs.length)]);
   sessionScope={type:'geography-theme',label:'Geografi · '+({country:'Land',capital:'Hovedsteder',flag:'Flagg',continent:'Verdensdeler',map:'Kart'}[geoTheme]||'Geografi'),ids,includeMap:geoTheme==='map'};
   state.lastActivity={kind:'geography-theme',theme:geoTheme,label:({country:'Land',capital:'Hovedsteder',flag:'Flagg',continent:'Verdensdeler',regions:'Norges landsdeler',map:'Kart'}[geoTheme]||'Geografi')};
@@ -1329,6 +1402,9 @@ function syncGeoThemeButtons(){
   document.getElementById('start-geography-theme').textContent='Start '+label+' 🚀';
 }
 function renderGeographyContinue(){
+  const capitalTheme=document.querySelector('.geo-theme[data-geo-theme="capital"]');
+  if(capitalTheme)capitalTheme.hidden=currentGrade()===1;
+  if(currentGrade()===1&&geoTheme==='capital'){geoTheme='country';syncGeoThemeButtons()}
   const active=state.activeSession?.scope,last=state.lastActivity;
   const geoActive=!!active&&(active.subject==='geography'||!active.subject);
   const geoLast=last&&String(last.kind||'').startsWith('geography');
@@ -1701,6 +1777,6 @@ renderAll();updateOnboarding();loadQualityData();
 if(!state.profile.onboarded||!state.profile.grade){onboardingStep=2;selectedGrade=Number(state.profile.grade)||null;renderGradeChoice();updateOnboarding();document.getElementById('onboarding').classList.add('show')}
 else if(loadActiveSession()){showScreen('session');renderQuestion()}
 </script>
-<!-- build: global-home-subject-hubs-2026-10-02 -->
+<!-- build: daughter-qa-polish-2026-10-02 -->
 </body>
 </html>
