@@ -923,7 +923,7 @@ function renderAdult(){
 
 function openDetail(k,source=null){
   const active=document.querySelector('.screen.active')?.id?.replace('-screen','');
-  returnScreen=source||active||'learn';const c=countries[k],st=countryStatus(k),label=st==='known'?'Lært':st==='learning'?'Du øver':'Ikke lært ennå';
+  returnScreen=source||active||'home';const c=countries[k],st=countryStatus(k),label=st==='known'?'Lært':st==='learning'?'Du øver':'Ikke lært ennå';
   const capitalHtml=c.capital?`<div class="fact"><span>Hovedstad</span><strong>${c.capital}</strong></div>`:'';
   const note=c.note?`<div class="small-note">${c.note}</div>`:'';
   document.getElementById('detail-content').innerHTML=`<div class="eyebrow">${label}</div><div class="detail-flag">${c.flag}</div><h1>${c.name}</h1><div class="fact-grid">${capitalHtml}<div class="fact"><span>Verdensdel</span><strong>${c.continent}</strong></div><div class="fact"><span>Innbyggere · anslag</span><strong>${formatPopulation(c.population)}</strong></div></div>${note}<button class="primary" onclick="startCountryPractice('${k}')">Øv på ${c.name}</button><div class="small-note">Befolkningstall vises som avrundede anslag. Kart og fakta er forenklet for læring på mobil.</div>`;
@@ -1019,7 +1019,6 @@ function startSession(customCountry=null,scope=null){
   qIndex=0;sessionCorrect=0;sessionStrengthened=new Set();currentAnswered=null;state.activeSession={startedAt:Date.now()};persistActiveSession();showScreen('session');renderQuestion();
 }
 window.startCountryPractice=(k)=>startSession(k);
-document.getElementById('start-session').onclick=()=>startSession();
 document.getElementById('geography-back').onclick=()=>setTab('home');
 document.getElementById('norden-course').onclick=()=>openCollection('Norden','❄️',NORDIC_IDS,'norden');
 document.getElementById('start-continent').onclick=()=>startSession(null,{type:'collection',label:currentCollectionLabel,ids:[...currentCollectionIds],includeMap:true});
@@ -1046,9 +1045,9 @@ const SUBJECT_MODULES={
   ],
   math:[
     {id:'numbers',minGrade:1,icon:'🔢',title:'Tall og regning',copy:'Tallforståelse, pluss, minus, gange og divisjon.'},
-    {id:'geometry',minGrade:1,icon:'📐',title:'Former og måling',copy:'Former, lengde, areal, omkrets, tid og måling.'},
+    {id:'geometry',minGrade:5,icon:'📐',title:'Former og måling',copy:'Former, lengde, areal, omkrets, tid og måling.'},
     {id:'fractions',minGrade:4,icon:'🍕',title:'Brøk, desimal og prosent',copy:'Se sammenhenger og løs praktiske oppgaver.'},
-    {id:'algebra',minGrade:5,icon:'🧩',title:'Mønstre og algebra',copy:'Mønstre, ukjente tall, likninger og funksjoner.'}
+    {id:'algebra',minGrade:7,icon:'🧩',title:'Mønstre og algebra',copy:'Mønstre, ukjente tall, likninger og funksjoner.'}
   ],
   english:[
     {id:'words',minGrade:1,icon:'🖼️',title:'Words',copy:'Vanlige ord, betydning og stavemønstre.'},
@@ -1198,13 +1197,14 @@ function mathPool(grade,module){
   else if(grade===4){add('fractions','Hvilken brøk er en halv?', '1/2',['1/2','1/3','2/3','3/4']);for(let i=0;i<4;i++){a=rand(12,99);b=rand(2,9);ans=a*b;add('multiplication',a+' × '+b+' = ?',ans,[ans,ans+b,ans-a])}}
   else if(grade===5){add('decimals','0,5 + 0,25 = ?','0,75',['0,75','0,30','0,80','0,65']);add('percent','Hva er 25 % av 100?',25,[25,20,50,75]);add('fractions','Hva er 1/2 + 1/4?','3/4',['3/4','2/6','1/6','1/8']);add('area','Et rektangel er 6 cm × 4 cm. Arealet er ...',24,[24,20,10,48]);}
   else if(grade===6){add('percent','Hva er 20 % av 250?',50,[50,25,75,200]);add('fractions','Hva er 2/3 av 18?',12,[12,9,6,15]);add('ratio','Forholdet 2:3 betyr at 10 tilsvarer ...',15,[15,12,20,30]);add('perimeter','En firkant har sider 5, 5, 8 og 8 cm. Omkrets?',26,[26,21,40,16]);}
-  else if(grade===7){add('negative','−4 + 9 = ?',5,[5,-5,13,4]);add('algebra','x + 7 = 19. Hva er x?',12,[12,26,11,7]);add('percent','En vare koster 400 kr og settes ned 25 %. Ny pris?',300,[300,100,375,325]);add('statistics','Gjennomsnittet av 4, 6 og 8 er ...',6,[6,5,7,18]);}
-  else if(grade===8){add('algebra','3x = 21. Hva er x?',7,[7,18,24,6]);add('linear','Hvis y = 2x + 1 og x = 4, hva er y?',9,[9,8,7,10]);add('geometry','En rett vinkel er ... grader',90,[90,45,180,360]);add('probability','En vanlig terning: sannsynligheten for å få 6 er ...','1/6',['1/6','1/3','1/2','1/12']);}
+  else if(grade===7){add('negative','−4 + 9 = ?',5,[5,-5,13,4]);add('algebra','x + 7 = 19. Hva er x?',12,[12,26,11,7]);add('percent','En vare koster 400 kr og settes ned 25 %. Ny pris?',300,[300,100,375,325]);add('statistics','Gjennomsnittet av 4, 6 og 8 er ...',6,[6,5,7,18]);add('geometry','En trekant har vinklene 50° og 60°. Den siste vinkelen er ...',70,[70,80,90,60]);}
+  else if(grade===8){add('algebra','3x = 21. Hva er x?',7,[7,18,24,6]);add('linear','Hvis y = 2x + 1 og x = 4, hva er y?',9,[9,8,7,10]);add('geometry','En rett vinkel er ... grader',90,[90,45,180,360]);add('probability','En vanlig terning: sannsynligheten for å få 6 er ...','1/6',['1/6','1/3','1/2','1/12']);add('percent','Hva er 15 % av 200?',30,[30,15,40,45]);}
   else if(grade===9){add('pythagoras','Katetene er 3 og 4. Hypotenusen er ...',5,[5,6,7,4]);add('algebra','2x + 5 = 17. x = ?',6,[6,11,5,7]);add('functions','f(x)=3x−2. f(5)=?',13,[13,15,17,10]);add('percent-change','Fra 200 til 250 er en økning på ... %',25,[25,20,50,12.5]);}
   else {add('algebra','4(x−2)=24. x = ?',8,[8,6,10,4]);add('probability','To mynter kastes. Sannsynlighet for to kron?', '1/4',['1/4','1/2','1/3','3/4']);add('functions','y = −2x + 6. Når x=2 er y = ?',2,[2,4,0,10]);add('percent-change','En verdi øker 10 % fra 500. Ny verdi?',550,[550,510,600,450]);add('geometry','Arealet av en sirkel med radius r uttrykkes som ...','πr²',['πr²','2πr','πd','r²/2']);}
-  if(module==='geometry')return q.filter(x=>['area','perimeter','geometry','pythagoras'].includes(x.skill)).concat(q).slice(0,8);
-  if(module==='fractions')return q.filter(x=>['fractions','decimals','percent','percent-change','ratio'].includes(x.skill)).concat(q).slice(0,8);
-  if(module==='algebra')return q.filter(x=>['algebra','linear','functions'].includes(x.skill)).concat(q).slice(0,8);
+  if(module==='numbers')return q.filter(x=>['addition-10','addition-100','place-value','multiplication','division','negative','statistics'].includes(x.skill));
+  if(module==='geometry')return q.filter(x=>['area','perimeter','geometry','pythagoras'].includes(x.skill));
+  if(module==='fractions')return q.filter(x=>['fractions','decimals','percent','percent-change','ratio'].includes(x.skill));
+  if(module==='algebra')return q.filter(x=>['algebra','linear','functions'].includes(x.skill));
   return q;
 }
 function englishPool(grade,module){
@@ -1231,7 +1231,7 @@ function englishPool(grade,module){
     q.push(choiceQuestion('english','vocabulary','What does “reliable” mean?','trustworthy',['trustworthy','temporary','expensive','silent']));
     q.push(choiceQuestion('english','grammar','Which sentence uses the present perfect?','She has finished her work.',['She has finished her work.','She finished yesterday.','She is finishing now.','She will finish.']));
   }
-  return module?q.filter(x=>module==='reading'?x.skill==='reading':module==='words'?['words','vocabulary','numbers'].includes(x.skill):module==='grammar'?['grammar','past-tense','pronouns','verbs'].includes(x.skill):true).concat(q).slice(0,8):q;
+  return module?q.filter(x=>module==='reading'?x.skill==='reading':module==='words'?['words','vocabulary','numbers','spelling'].includes(x.skill):module==='sentences'?['sentence','phrases','past-tense','pronouns'].includes(x.skill):module==='grammar'?['grammar','past-tense','pronouns','verbs'].includes(x.skill):true):q;
 }
 function makeEnglishBuild(word,emoji){
   return {subject:'english',skill:'spelling',type:'build-word',prompt:'Build the word',answer:word,letters:shuffle(word.split('').map((l,i)=>({l,id:i}))),visual:emoji,curriculum:CURRICULUM.english};
@@ -1345,7 +1345,7 @@ function renderGeographyContinue(){
 function returnToLearningHome(){
   const s=sessionScope?.subject;
   if(s&&s!=='geography'&&SUBJECTS[s]){openSubject(s);return}
-  if(sessionScope?.type==='subject'&&s==='geography'||String(sessionScope?.type||'').startsWith('geography')||['country','collection','world','grade'].includes(sessionScope?.type)){renderGeographyContinue();showScreen('geography');return}
+  if((sessionScope?.type==='subject'&&s==='geography')||String(sessionScope?.type||'').startsWith('geography')||['country','collection','world','grade'].includes(sessionScope?.type)){renderGeographyContinue();showScreen('geography');return}
   setTab('home');
 }
 
@@ -1613,6 +1613,8 @@ function finishSession(){  const result={endedAt:Date.now(),correct:sessionCorre
   document.getElementById('complete-learned').textContent=result.strengthened;
   document.getElementById('complete-area').textContent=result.area||'Verden';
   document.getElementById('complete-copy').textContent=result.correct===result.total?'Full pott! Du knuste dagens oppdrag. 🌟':result.correct>=3?'Bra jobbet! Det vanskelige får du møte igjen senere.':'God innsats! Nå vet appen hva du skal øve mer på.';
+  const backLabel=sessionScope?.subject&&sessionScope.subject!=='geography'?(SUBJECTS[sessionScope.subject]?.title||'faget'):'Geografi';
+  document.getElementById('complete-home').textContent='Tilbake til '+backLabel+' ⭐';
   showScreen('complete');
 }
 document.getElementById('complete-home').onclick=()=>returnToLearningHome();
