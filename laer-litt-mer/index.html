@@ -281,6 +281,8 @@
     .letter-slot.wrong-letter{border-color:#E79AA2;background:#FFF1F2;color:#9B3F49}
     .letter-helper{min-height:20px;margin:-7px 0 4px;text-align:center;font-size:12px;font-weight:800;color:#777D96}
     .letter-bank,.word-bank{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin:16px 0}
+    .letter-bank{min-height:64px;padding:8px;border:2px dashed transparent;border-radius:18px;transition:.12s border-color,.12s background,.12s box-shadow}
+    .letter-bank.return-target{border-color:#6178EA;background:#F3F5FF;box-shadow:0 0 0 4px rgba(90,125,242,.10)}
     .letter-tile,.word-tile{border:0;border-radius:15px;background:#EEF1FF;color:#3E4E9E;min-width:48px;min-height:48px;padding:10px 13px;font-size:21px;font-weight:950;box-shadow:0 4px 0 #D7DCF5;cursor:grab;touch-action:manipulation;transition:.12s transform,.12s box-shadow,.12s opacity}.letter-tile{touch-action:none}
     .letter-tile.selected{box-shadow:0 0 0 4px rgba(90,125,242,.17),0 5px 0 #C9D0F3;transform:translateY(-2px)}.letter-tile.dragging,.letter-slot.dragging{opacity:.72;transform:scale(1.06);z-index:2}
     .word-tile{font-size:16px;min-width:auto}.letter-tile.used,.word-tile.used{opacity:.25;box-shadow:none;pointer-events:none}
@@ -1527,11 +1529,14 @@ function renderBuildWord(q,wrap){
   const letters=q.letters.map((x,i)=>Object.assign({},x,{idx:i}));
   const slots=Array(q.answer.length).fill(null);
   let selectedLetterIdx=null,selectedSlotIdx=null,wrongAttempt=false,mistakeRecorded=false,suppressTapUntil=0;
-  const slotBox=wrap.querySelector('#letter-slots'),helper=wrap.querySelector('#letter-helper'),check=wrap.querySelector('#check-build');
+  const slotBox=wrap.querySelector('#letter-slots'),bankBox=wrap.querySelector('.letter-bank'),helper=wrap.querySelector('#letter-helper'),check=wrap.querySelector('#check-build');
 
   const usedLetter=idx=>slots.some(x=>x&&x.idx===idx);
   const answerString=()=>slots.map(x=>x?.l||'').join('');
-  const clearDragHighlights=()=>wrap.querySelectorAll('.letter-slot.drag-over').forEach(x=>x.classList.remove('drag-over'));
+  const clearDragHighlights=()=>{
+    wrap.querySelectorAll('.letter-slot.drag-over').forEach(x=>x.classList.remove('drag-over'));
+    bankBox?.classList.remove('return-target');
+  };
   function slotAtPoint(x,y){
     const candidates=[...slotBox.querySelectorAll('.letter-slot')];
     let best=null,bestDistance=Infinity;
@@ -1543,6 +1548,11 @@ function renderBuildWord(q,wrap){
       }
     }
     return best;
+  }
+  function bankAtPoint(x,y){
+    if(!bankBox)return false;
+    const r=bankBox.getBoundingClientRect(),pad=14;
+    return x>=r.left-pad&&x<=r.right+pad&&y>=r.top-pad&&y<=r.bottom+pad;
   }
   function hideRetryFeedback(){
     if(!wrongAttempt)return;
@@ -1564,12 +1574,11 @@ function renderBuildWord(q,wrap){
     }
     selectedLetterIdx=null;selectedSlotIdx=null;paint();
   }
-  function removeFromSlot(slotIdx){
-    if(currentAnswered||!slots[slotIdx])return;
+  function returnLetter(slotIdx){
+    if(currentAnswered||slotIdx===null||Number.isNaN(slotIdx)||!slots[slotIdx])return;
     hideRetryFeedback();
     slots[slotIdx]=null;
-    selectedLetterIdx=null;
-    selectedSlotIdx=slotIdx;
+    selectedLetterIdx=null;selectedSlotIdx=null;
     paint();
   }
   function moveSlot(from,to){
@@ -1580,25 +1589,24 @@ function renderBuildWord(q,wrap){
     selectedLetterIdx=null;selectedSlotIdx=null;paint();
   }
   function bindPointerDrag(el,sourceType,sourceIndex){
-    // Direct touch events are the primary path on iPhone/iPad.
     let touchState=null;
-    const finishTouch=event=>{
+    const finishTouch=()=>{
       if(!touchState)return;
-      const {active,targetSlot}=touchState;
+      const {active,targetSlot,targetBank}=touchState;
       touchState=null;
       el.classList.remove('dragging');clearDragHighlights();
-      if(active){
-        suppressTapUntil=Date.now()+300;
-        if(targetSlot){
-          const to=Number(targetSlot.dataset.slot);
-          if(sourceType==='letter')placeLetter(sourceIndex,to);else moveSlot(sourceIndex,to);
-        }
+      if(!active)return;
+      suppressTapUntil=Date.now()+300;
+      if(sourceType==='slot'&&targetBank){returnLetter(sourceIndex);return}
+      if(targetSlot){
+        const to=Number(targetSlot.dataset.slot);
+        if(sourceType==='letter')placeLetter(sourceIndex,to);else moveSlot(sourceIndex,to);
       }
     };
     el.addEventListener('touchstart',event=>{
       if(currentAnswered||event.touches.length!==1)return;
       const t=event.touches[0];
-      touchState={startX:t.clientX,startY:t.clientY,active:false,targetSlot:null};
+      touchState={startX:t.clientX,startY:t.clientY,active:false,targetSlot:null,targetBank:false};
     },{passive:true});
     el.addEventListener('touchmove',event=>{
       if(!touchState||event.touches.length!==1)return;
@@ -1606,20 +1614,20 @@ function renderBuildWord(q,wrap){
       if(!touchState.active&&Math.hypot(dx,dy)>=7){touchState.active=true;el.classList.add('dragging')}
       if(!touchState.active)return;
       event.preventDefault();
-      const hit=slotAtPoint(t.clientX,t.clientY);
-      if(hit!==touchState.targetSlot){
-        clearDragHighlights();touchState.targetSlot=hit;
-        if(hit)hit.classList.add('drag-over');
+      const hit=slotAtPoint(t.clientX,t.clientY),overBank=sourceType==='slot'&&bankAtPoint(t.clientX,t.clientY);
+      if(hit!==touchState.targetSlot||overBank!==touchState.targetBank){
+        clearDragHighlights();touchState.targetSlot=overBank?null:hit;touchState.targetBank=overBank;
+        if(touchState.targetSlot)touchState.targetSlot.classList.add('drag-over');
+        if(overBank)bankBox.classList.add('return-target');
       }
     },{passive:false});
     el.addEventListener('touchend',finishTouch,{passive:true});
-    el.addEventListener('touchcancel',event=>{touchState=null;el.classList.remove('dragging');clearDragHighlights()},{passive:true});
+    el.addEventListener('touchcancel',()=>{touchState=null;el.classList.remove('dragging');clearDragHighlights()},{passive:true});
 
-    // Pointer drag covers mouse/pen and acts as an additional fallback outside touch devices.
     el.addEventListener('pointerdown',down=>{
       if(down.pointerType==='touch'||currentAnswered||(down.pointerType==='mouse'&&down.button!==0))return;
       const pointerId=down.pointerId,startX=down.clientX,startY=down.clientY;
-      let active=false,targetSlot=null;
+      let active=false,targetSlot=null,targetBank=false;
       try{el.setPointerCapture(pointerId)}catch(_){}
       const move=event=>{
         if(event.pointerId!==pointerId)return;
@@ -1627,10 +1635,11 @@ function renderBuildWord(q,wrap){
         if(!active&&Math.hypot(dx,dy)>=7){active=true;el.classList.add('dragging')}
         if(!active)return;
         event.preventDefault();
-        const hit=slotAtPoint(event.clientX,event.clientY);
-        if(hit!==targetSlot){
-          clearDragHighlights();targetSlot=hit;
+        const hit=slotAtPoint(event.clientX,event.clientY),overBank=sourceType==='slot'&&bankAtPoint(event.clientX,event.clientY);
+        if(hit!==targetSlot||overBank!==targetBank){
+          clearDragHighlights();targetSlot=overBank?null:hit;targetBank=overBank;
           if(targetSlot)targetSlot.classList.add('drag-over');
+          if(overBank)bankBox.classList.add('return-target');
         }
       };
       const cleanup=()=>{
@@ -1640,13 +1649,13 @@ function renderBuildWord(q,wrap){
       };
       const finish=event=>{
         if(event.pointerId!==pointerId)return;
-        const target=targetSlot,wasActive=active;cleanup();
-        if(wasActive){
-          suppressTapUntil=Date.now()+250;
-          if(target){
-            const to=Number(target.dataset.slot);
-            if(sourceType==='letter')placeLetter(sourceIndex,to);else moveSlot(sourceIndex,to);
-          }
+        const target=targetSlot,returnToBank=targetBank,wasActive=active;cleanup();
+        if(!wasActive)return;
+        suppressTapUntil=Date.now()+250;
+        if(sourceType==='slot'&&returnToBank){returnLetter(sourceIndex);return}
+        if(target){
+          const to=Number(target.dataset.slot);
+          if(sourceType==='letter')placeLetter(sourceIndex,to);else moveSlot(sourceIndex,to);
         }
       };
       const cancel=event=>{if(event.pointerId===pointerId)cleanup()};
@@ -1656,12 +1665,13 @@ function renderBuildWord(q,wrap){
   function helperText(){
     if(selectedLetterIdx!==null)return 'Velg hvilken rute '+letters[selectedLetterIdx].l+' skal stå i.';
     if(selectedSlotIdx!==null)return 'Velg bokstaven som skal stå i rute '+(selectedSlotIdx+1)+'.';
+    if(slots.some(Boolean))return 'Du kan flytte bokstavene, eller dra dem tilbake til bokstavene under.';
     return 'Trykk på en rute og en bokstav, eller dra bokstaven dit.';
   }
   function paint(){
     slotBox.innerHTML=slots.map((item,i)=>{
       const classes=['letter-slot'];if(item)classes.push('filled');if(selectedSlotIdx===i)classes.push('selected');if(wrongAttempt&&item&&item.l!==q.answer[i])classes.push('wrong-letter');
-      const label=item?'Rute '+(i+1)+' av '+slots.length+': '+item.l+'. Trykk for å ta bort bokstaven.':'Rute '+(i+1)+' av '+slots.length+', tom. Trykk for å velge denne ruten.';
+      const label=item?'Rute '+(i+1)+' av '+slots.length+': '+item.l+'. Trykk for å sende bokstaven tilbake.':'Rute '+(i+1)+' av '+slots.length+', tom. Trykk for å velge denne ruten.';
       return '<button class="'+classes.join(' ')+'" type="button" data-slot="'+i+'" '+(item?'data-letter-idx="'+item.idx+'"':'')+' aria-label="'+label+'">'+(item?.l||'')+'</button>';
     }).join('');
     wrap.querySelectorAll('.letter-tile').forEach(b=>{
@@ -1675,7 +1685,8 @@ function renderBuildWord(q,wrap){
     wrap.querySelectorAll('.letter-slot').forEach(slot=>{
       const slotIdx=Number(slot.dataset.slot);
       slot.onclick=()=>{
-        if(slots[slotIdx]){removeFromSlot(slotIdx);return}
+        if(Date.now()<suppressTapUntil)return;
+        if(slots[slotIdx]){returnLetter(slotIdx);return}
         if(selectedLetterIdx!==null){placeLetter(selectedLetterIdx,slotIdx);return}
         selectedSlotIdx=selectedSlotIdx===slotIdx?null:slotIdx;paint();
       };
@@ -1716,7 +1727,7 @@ function renderBuildWord(q,wrap){
     wrongAttempt=true;paint();
     const box=wrap.querySelector('#feedback');box.style.display='block';box.classList.add('bad');
     wrap.querySelector('#feedback-title').textContent='Prøv igjen';
-    wrap.querySelector('#feedback-copy').textContent='Noen bokstaver står feil. Trykk på en bokstav for å ta den bort, eller flytt den til en annen rute.';
+    wrap.querySelector('#feedback-copy').textContent='Noen bokstaver står feil. Flytt dem, trykk dem tilbake, eller dra dem ned til bokstavene igjen.';
     wrap.querySelector('#next-question').style.display='none';
   };
   paint();
