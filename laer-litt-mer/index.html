@@ -160,6 +160,19 @@
     .adult-card,.test-info,.privacy-note{padding:19px;margin-top:14px}
     .test-info ul{padding-left:20px;margin:12px 0 0;color:var(--muted);line-height:1.55;font-weight:700}
     .privacy-note h3{margin-bottom:5px}
+    .parent-info-entry{width:100%;margin-top:14px;border:0;border-radius:24px;padding:18px;background:linear-gradient(145deg,#EAF3FF,#F1EEFF);color:var(--ink);display:flex;align-items:center;gap:14px;text-align:left;cursor:pointer;box-shadow:0 7px 0 rgba(70,72,115,.05),0 14px 28px rgba(65,64,104,.07)}
+    .parent-info-entry .icon{width:52px;height:52px;border-radius:18px;background:rgba(255,255,255,.78);display:grid;place-items:center;font-size:27px;flex:0 0 auto}
+    .parent-info-entry .copy{flex:1}.parent-info-entry strong{display:block;font-size:18px;font-weight:950}.parent-info-entry span{display:block;margin-top:4px;color:var(--muted);font-size:12px;font-weight:750;line-height:1.4}
+    .parent-letter{display:grid;gap:14px;margin-top:16px}
+    .parent-letter .card{padding:19px}
+    .parent-letter h3{margin:0 0 8px;font-size:19px}
+    .parent-letter p{margin:0;color:var(--muted);font-size:14px;line-height:1.62;font-weight:680}
+    .parent-letter p+p{margin-top:10px}
+    .parent-letter .lead{background:linear-gradient(145deg,#FFF7D9,#FFFDF2)}
+    .parent-letter .curriculum{background:linear-gradient(145deg,#EAF3FF,#F4F1FF)}
+    .parent-letter .principles{background:linear-gradient(145deg,#EAF8F0,#F4FBF7)}
+    .parent-letter .disclaimer{font-size:12px;color:#73788B;text-align:center;padding:2px 8px 18px;line-height:1.55;font-weight:700}
+    .parent-source-link{display:inline-flex;align-items:center;justify-content:center;width:100%;margin-top:12px;border:2px solid #DFE4F1;border-radius:16px;background:#fff;color:#4D5FAD;text-decoration:none;padding:12px 14px;font-size:13px;font-weight:900}
     .danger-button{width:100%;margin-top:13px;border:2px solid #F3C4C7;background:#FFF4F4;color:#A64C55;border-radius:18px;padding:14px 16px;font-weight:900;cursor:pointer}
     .feedback-form{display:grid;gap:14px}
     .feedback-form label{display:grid;gap:7px;font-weight:900;color:var(--ink)}
@@ -301,6 +314,7 @@
   </style>
   <!-- immersive-globe-viewport-2026-10-02 -->
   <!-- globe-hit-test-dateline-fix-2026-10-02 -->
+  <!-- parent-info-udir-2026-10-02 -->
 </head>
 <body>
 <div class="app">
@@ -545,9 +559,58 @@
         </div>
       </div>
 
+      <button class="parent-info-entry" id="open-parent-info" type="button">
+        <div class="icon" aria-hidden="true">👨‍👩‍👧</div>
+        <div class="copy"><strong>Til foreldre</strong><span>Hvorfor appen finnes, skjermbruk og hvordan vi forholder oss til læreplanen.</span></div>
+        <div aria-hidden="true" style="font-size:24px;font-weight:950;color:#6672A5">›</div>
+      </button>
+
       <button class="primary" id="open-feedback">Gi tilbakemelding</button>
       <button class="danger-button" id="reset-progress">Nullstill fremgang på denne enheten</button>
       <div class="small-note">Nullstilling sletter klassetrinn, læringsdata og pågående økt fra denne nettleseren.</div>
+    </section>
+
+    <section class="screen" id="parent-info-screen">
+      <button class="detail-back" id="parent-info-back">← For voksne</button>
+      <div class="eyebrow">Om appen</div>
+      <h1>Til foreldre</h1>
+      <p class="hero-copy">Hvorfor vi har laget «Lær litt mer», og hva vi ønsker at barna skal få ut av tiden de bruker her.</p>
+
+      <div class="parent-letter">
+        <div class="card lead">
+          <h3>Skjermtid med et formål 🌱</h3>
+          <p>Barn bruker allerede iPad, mobil og PC som en naturlig del av hverdagen. Målet med «Lær litt mer» er ikke at barn skal være mer på skjerm, men at noe av tiden de allerede bruker digitalt kan fylles med nysgjerrighet, kunnskap og mestring.</p>
+          <p>Derfor er appen bygget rundt korte og tydelige læringsøkter, aktiv deltakelse og oppgaver barnet faktisk må tenke på, i stedet for passiv scrolling og endeløs underholdning.</p>
+        </div>
+
+        <div class="card curriculum">
+          <h3>Bygget med skolen som faglig ramme 📚</h3>
+          <p>Innhold og vanskelighetsgrad utvikles med læreplanverket LK20 og Utdanningsdirektoratets kompetansemål som faglig utgangspunkt. Barnets klassetrinn brukes som startpunkt, slik at oppgavene skal passe bedre med det barnet møter på skolen.</p>
+          <p>Geografi er første komplette læringsområde. Her bygger appen blant annet opp under arbeid med kart, geografisk orientering og kunnskap om ulike deler av verden. Når norsk, matematikk og engelsk bygges videre ut, skal også disse fagene knyttes systematisk til relevante kompetansemål.</p>
+          <a class="parent-source-link" href="https://www.udir.no/lk20/" target="_blank" rel="noopener noreferrer">Se læreplanverket hos Udir ↗</a>
+        </div>
+
+        <div class="card principles">
+          <h3>Mestring før vanskelighet ⭐</h3>
+          <p>Et barn skal ikke møte et tilfeldig vanskelig spørsmål og få følelsen av å «ikke kunne». Klassetrinnet bestemmer startnivået, og oppgavene begynner med ting barnet har en realistisk mulighet til å mestre. Deretter introduseres nytt stoff gradvis, og det som er vanskelig kommer tilbake senere.</p>
+          <p>Målet er den enkle følelsen appen er bygget rundt: <strong style="color:var(--ink)">«Jeg kan litt mer i dag enn i går.»</strong></p>
+        </div>
+
+        <div class="card">
+          <h3>Et supplement, ikke en erstatning</h3>
+          <p>Digitale verktøy er bare én del av god læring. «Lær litt mer» skal ikke erstatte læreren, bøker, samtaler, lek, fysisk aktivitet eller utforsking av verden utenfor skjermen. Appen skal være et enkelt supplement som gjør digital tid mer målrettet når skjermen først er i bruk.</p>
+          <p>For de yngste barna er dette særlig viktig. Derfor prioriterer vi korte økter, enkel navigasjon og et tydelig læringsformål fremfor å holde barnet lengst mulig i appen.</p>
+        </div>
+
+        <div class="card privacy-note">
+          <div class="row" style="align-items:flex-start">
+            <div style="font-size:28px">🛡️</div>
+            <div><h3>Rolig også for de voksne</h3><p>Appen har ingen annonser eller sporing. Klassetrinn, svar og fremgang lagres lokalt på enheten. Vi ber ikke om e-post, fødselsdato eller posisjon.</p></div>
+          </div>
+        </div>
+
+        <div class="disclaimer">«Lær litt mer» er et uavhengig produkt. Appen er ikke utviklet, godkjent eller anbefalt av Utdanningsdirektoratet. Udir og LK20 brukes som faglige kilder og rammeverk for utviklingen.</div>
+      </div>
     </section>
 
     <section class="screen" id="feedback-screen">
@@ -799,7 +862,7 @@ function showScreen(name){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   const el=document.getElementById(name+'-screen'); if(!el) return;
   el.classList.add('active');
-  const special=['session','complete','detail','adult','feedback','world','continent','geography','subject'].includes(name);
+  const special=['session','complete','detail','adult','parent-info','feedback','world','continent','geography','subject'].includes(name);
   document.getElementById('bottom-nav').style.display=special?'none':'grid';
   document.getElementById('topbar').style.display=special?'none':'flex';
   window.scrollTo(0,0);
@@ -814,7 +877,7 @@ function setTab(tab){
 document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
 
 // Native-feeling left-edge swipe. Narrow edge avoids stealing map and exercise gestures.
-const SWIPE_BACK_SCREENS=new Set(['subject','geography','continent','world','detail','adult','feedback','session','complete']);
+const SWIPE_BACK_SCREENS=new Set(['subject','geography','continent','world','detail','adult','parent-info','feedback','session','complete']);
 const swipeBackEdge=document.getElementById('swipe-back-edge');
 const swipeBackIndicator=document.getElementById('swipe-back-indicator');
 let swipeBackGesture=null;
@@ -831,7 +894,7 @@ function appBack(){
     if(['home','progress'].includes(returnScreen))setTab(returnScreen);else showScreen(returnScreen||'home');
     return true;
   }
-  if(current==='feedback'){showScreen('adult');return true}
+  if(current==='parent-info'||current==='feedback'){showScreen('adult');return true}
   if(current==='adult'){setTab('home');return true}
   if(current==='session'){persistActiveSession();returnToLearningHome();return true}
   if(current==='complete'){returnToLearningHome();return true}
@@ -1722,6 +1785,8 @@ function cancelAdultHold(){if(holdTimer){clearTimeout(holdTimer);holdTimer=null}
 adultEntry.addEventListener('pointerdown',startAdultHold);adultEntry.addEventListener('pointerup',cancelAdultHold);adultEntry.addEventListener('pointerleave',cancelAdultHold);adultEntry.addEventListener('pointercancel',cancelAdultHold);
 function openAdult(){renderAdult();showScreen('adult')}
 document.getElementById('adult-back').onclick=()=>setTab('home');
+document.getElementById('open-parent-info').onclick=()=>showScreen('parent-info');
+document.getElementById('parent-info-back').onclick=()=>showScreen('adult');
 document.getElementById('open-feedback').onclick=()=>showScreen('feedback');
 document.getElementById('feedback-back').onclick=()=>showScreen('adult');
 
