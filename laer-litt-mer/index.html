@@ -329,7 +329,7 @@
     .complete-next{margin:14px 2px 0;padding:15px 16px;border-radius:20px;background:#EEF5FF;color:#4C5F9E;font-size:14px;line-height:1.45;font-weight:900}
     .grade-band-young{--radius:32px}.grade-band-young .home-subject{min-height:184px;border-radius:29px}.grade-band-young .home-subject-icon{width:57px;height:57px;font-size:31px}.grade-band-young .home-subject strong{font-size:19px}.grade-band-young .answer{font-size:18px;padding:19px 17px}.grade-band-young .question{font-size:32px}.grade-band-young .subject-module{padding:18px;border-radius:24px}
     .grade-band-middle{--radius:28px}.grade-band-middle .home-subject{min-height:174px}
-    .grade-band-older{--radius:24px}.grade-band-older .app:before,.grade-band-older .app:after{opacity:.35}.grade-band-older .home-subject{min-height:157px;border-radius:22px}.grade-band-older .home-subject-icon{width:47px;height:47px;border-radius:15px;font-size:25px}.grade-band-older .question{font-size:28px}.grade-band-older .subject-module{border-radius:19px}
+    .grade-band-older{--radius:24px}.grade-band-older:before,.grade-band-older:after{opacity:.35}.grade-band-older .home-subject{min-height:157px;border-radius:22px}.grade-band-older .home-subject-icon{width:47px;height:47px;border-radius:15px;font-size:25px}.grade-band-older .question{font-size:28px}.grade-band-older .subject-module{border-radius:19px}
     .grade-band-teen{--radius:20px}.grade-band-teen:before,.grade-band-teen:after{display:none}.grade-band-teen .brand:after{content:""}.grade-band-teen .avatar{width:43px;height:43px;border-radius:14px;font-size:22px}.grade-band-teen .home-subject{min-height:145px;border-radius:19px}.grade-band-teen .home-subject-icon{width:44px;height:44px;border-radius:13px;font-size:23px}.grade-band-teen .question{font-size:27px}.grade-band-teen .subject-module{border-radius:17px}
     @media (max-width:370px){h1{font-size:30px}.question{font-size:27px}.grade-grid{grid-template-columns:repeat(5,1fr)}.home-subject-grid{gap:9px}.home-subject{padding:15px 13px;min-height:168px}}
 
@@ -798,7 +798,7 @@ function missionLabel(){return gradeConfig().mission}
 
 const STORAGE_KEY='laerlittmer-v2';
 const defaultState={
-  version:4,
+  version:5,
   progressSchemaVersion:1,
   profile:{grade:null,onboarded:false},
   mastery:{},
@@ -2043,7 +2043,7 @@ function nextTeaserForScope(){
   return 'Neste gang: Klarer du å styrke én ny ferdighet?';
 }
 function finishSession(){
-  const previousBest=state.sessionLog.reduce((best,s)=>Math.max(best,Number(s.correct||0)),0),hadPrevious=state.sessionLog.length>0;
+  const comparable=state.sessionLog.filter(s=>Number(s.total||0)===sessionQuestions.length),previousBest=comparable.reduce((best,s)=>Math.max(best,Number(s.correct||0)),0),hadPrevious=comparable.length>0;
   const result={endedAt:Date.now(),correct:sessionCorrect,total:sessionQuestions.length,strengthened:sessionStrengthened.size,area:sessionScope.label};
   const newRecord=hadPrevious&&result.correct>previousBest;
   state.sessionLog.push(result);state.activeSession=null;saveState();renderAll();
