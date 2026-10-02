@@ -8,7 +8,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="Lær litt mer" />
   <meta name="description" content="Korte, trygge læringsøkter i geografi, norsk, matte og engelsk for 1.–10. trinn." />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://raw.githubusercontent.com https://api.worldbank.org; img-src 'self' data:; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://raw.githubusercontent.com https://api.worldbank.org; img-src 'self' data:; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests" />
   <link rel="manifest" href="./manifest.webmanifest" />
   <link rel="icon" href="./icon.svg" type="image/svg+xml" />
   <title>Lær litt mer</title>
@@ -465,7 +465,7 @@
       <div class="globe-status" id="globe-status"><div class="flag">🧭</div><div><strong>Finn et land</strong><span>Kloden kan snurres i alle retninger.</span></div></div>
       <div class="globe-actions"><button class="secondary" id="random-country">🎲 Tilfeldig land</button><button class="secondary" id="reset-globe">↺ Startposisjon</button></div>
       <button class="primary" id="start-world-from-globe" type="button">Start 5 spørsmål fra hele verden 🚀</button>
-      <div class="searchbox"><input id="world-search" autocomplete="off" placeholder="Søk etter land" /></div>
+      <div class="searchbox"><input id="world-search" autocomplete="off" aria-label="Søk etter land" placeholder="Søk etter land" /></div>
       <div class="country-list" id="world-search-results"></div>
       <div class="data-status" id="data-status">Norske navn og hovedsteder · laster detaljkart og befolkningstall …</div>
     </section>
@@ -1849,6 +1849,6 @@ if(!state.profile.onboarded||!state.profile.grade){
   renderGradeChoice();updateOnboarding();document.getElementById('onboarding').classList.add('show');
 }else if(loadActiveSession()){showScreen('session');renderQuestion()}
 </script>
-<!-- build: daughter-qa-onboarding-fix-2026-10-02 -->
+<!-- build: daughter-qa-final-2026-10-02 -->
 </body>
 </html>
