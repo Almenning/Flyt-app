@@ -102,7 +102,7 @@
     .country .name{flex:1;font-weight:900}
     .status-dot{width:29px;height:29px;border-radius:50%;display:grid;place-items:center;font-weight:950;font-size:13px;border:2px solid rgba(255,255,255,.8)}
     .status-known{background:var(--green);color:#fff}.status-learning{background:var(--yellow);color:#715218}.status-new{background:#ECEAF2;color:#8B8797}
-    .nav{position:fixed;z-index:20;bottom:0;left:50%;transform:translateX(-50%);width:min(100%,480px);padding:9px 14px calc(10px + env(safe-area-inset-bottom));background:rgba(255,255,255,.94);backdrop-filter:blur(18px);border-top:2px solid rgba(230,228,242,.8);display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+    .nav{position:fixed;z-index:20;bottom:0;left:50%;transform:translateX(-50%);width:min(100%,480px);padding:9px 14px calc(10px + env(safe-area-inset-bottom));background:rgba(255,255,255,.94);backdrop-filter:blur(18px);border-top:2px solid rgba(230,228,242,.8);display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
     .nav button{border:0;background:transparent;border-radius:17px;padding:9px 6px;color:#88869A;font-size:11px;font-weight:900;cursor:pointer}
     .nav button span{display:block;font-size:23px;margin-bottom:3px;filter:grayscale(1);opacity:.65}
     .nav button.active{background:#EEF1FF;color:#5568D3;box-shadow:inset 0 0 0 2px #E1E6FF}
@@ -270,7 +270,34 @@
     .subject-progress-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
     .subject-progress-card{background:#fff;border-radius:20px;padding:14px;box-shadow:0 5px 0 rgba(70,72,115,.04)}
     .subject-progress-card strong{display:block;font-size:14px}.subject-progress-card span{display:block;margin-top:5px;color:var(--muted);font-size:12px;font-weight:750}
-    @media (max-width:370px){h1{font-size:30px}.question{font-size:27px}.grade-grid{grid-template-columns:repeat(5,1fr)}}
+    .home-intro{margin-bottom:7px}
+    .home-continue-wrap{margin-top:19px}
+    .home-continue{padding:19px;background:linear-gradient(145deg,#667FF4,#806DEB);color:#fff;border:0;box-shadow:0 9px 0 rgba(73,73,157,.12),0 18px 32px rgba(87,91,181,.19)}
+    .home-continue .eyebrow,.home-continue p{color:rgba(255,255,255,.82)}
+    .home-continue .primary{margin-top:15px;background:#fff;color:#5368D6;box-shadow:0 6px 0 rgba(52,55,133,.18)}
+    .home-subject-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+    .home-subject{border:0;border-radius:26px;padding:17px 15px;text-align:left;color:var(--ink);min-height:174px;display:flex;flex-direction:column;cursor:pointer;box-shadow:0 7px 0 rgba(70,72,115,.05),0 14px 25px rgba(65,64,104,.06);position:relative;overflow:hidden}
+    .home-subject:active{transform:translateY(2px)}
+    .home-subject.geography{background:linear-gradient(145deg,#E7F3FF,#F0F0FF)}
+    .home-subject.norwegian{background:linear-gradient(145deg,#FFF0F3,#FFF7F5)}
+    .home-subject.math{background:linear-gradient(145deg,#FFF2CD,#FFF9E8)}
+    .home-subject.english{background:linear-gradient(145deg,#E7F8EE,#F3FBF6)}
+    .home-subject-icon{width:52px;height:52px;border-radius:18px;background:rgba(255,255,255,.8);display:grid;place-items:center;font-size:28px;box-shadow:inset 0 -4px 0 rgba(60,65,100,.04)}
+    .home-subject strong{font-size:18px;font-weight:950;margin-top:12px}
+    .home-subject p{font-size:12px;line-height:1.35;margin-top:4px;flex:1}
+    .home-subject-progress{font-size:11px;font-weight:900;color:#666E88;margin-top:11px}
+    .home-week{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:12px}
+    .home-week .stat{padding:13px 10px;text-align:center}.home-week .stat strong{font-size:21px}.home-week .stat span{font-size:11px}
+    .hub-continue{padding:18px;margin-top:13px;background:linear-gradient(145deg,#fff,#F7F7FE)}
+    .hub-continue .primary{margin-top:15px}
+    .hub-progress-line{margin-top:16px}
+    .hub-progress-line .progress{margin-top:8px}
+    #subject-screen[data-subject="norwegian"] .subject-hero{background:linear-gradient(145deg,#FFF4F6,#fff)}
+    #subject-screen[data-subject="math"] .subject-hero{background:linear-gradient(145deg,#FFF5D9,#fff)}
+    #subject-screen[data-subject="english"] .subject-hero{background:linear-gradient(145deg,#EAF8F0,#fff)}
+    .geography-continue{padding:18px;margin:14px 0;background:linear-gradient(145deg,#F2F7FF,#fff)}
+    @media (max-width:370px){h1{font-size:30px}.question{font-size:27px}.grade-grid{grid-template-columns:repeat(5,1fr)}.home-subject-grid{gap:9px}.home-subject{padding:15px 13px;min-height:168px}}
+
   </style>
   <!-- immersive-globe-viewport-2026-10-02 -->
   <!-- globe-hit-test-dateline-fix-2026-10-02 -->
@@ -284,111 +311,115 @@
 
   <main>
     <section class="screen active" id="home-screen">
-      <div class="eyebrow" id="home-greeting">Hei 👋</div>
-      <h1>Klar for et lite kunnskapseventyr?</h1>
-      <p class="hero-copy">Fem små oppgaver. Nye ting å kunne. 🚀</p>
+      <div class="home-intro">
+        <div class="eyebrow" id="home-greeting">Hei 👋</div>
+        <h1>Hva vil du lære i dag? ✨</h1>
+        <p class="hero-copy">Velg et fag, fortsett der du slapp og se kunnskapen vokse litt etter litt.</p>
+      </div>
 
-      <div class="card today">
-        <div class="row between">
-          <div class="row">
-            <div class="iconblob">🌍</div>
-            <div>
-              <div class="eyebrow">Dagens oppdrag</div>
-              <h2 id="mission-title" style="margin-top:5px">Norden</h2>
-              <div class="meta" id="mission-meta">5 små oppgaver · ca. 4 min</div>
-            </div>
-          </div>
+      <div class="home-continue-wrap" id="home-continue-wrap" hidden>
+        <div class="card home-continue">
+          <div class="eyebrow">Fortsett der du slapp</div>
+          <h2 id="home-continue-title" style="margin-top:6px">Norsk</h2>
+          <p id="home-continue-copy">Lesetrening</p>
+          <button class="primary" id="home-continue-button" type="button">Fortsett 🚀</button>
         </div>
-        <button class="primary" id="start-session">Start oppdraget 🚀</button>
       </div>
 
-      <div class="streak" id="streak-chip">🔥 <span id="streak-text">Første økt venter</span></div>
-
-      <div class="section-title"><h3>🌍 Din verden</h3><span id="home-knowledge-label">0 av 5 land lært</span></div>
-      <div class="card knowledge">
-        <div class="row between"><div><div class="bigstat" id="home-known">0 land</div><p>du kan sikkert</p></div><div style="font-size:38px">🧭</div></div>
-        <div class="progress"><div class="bar" id="home-progress"></div></div>
+      <div class="section-title"><h3>Fag</h3><span id="home-grade-label">3. klasse</span></div>
+      <div class="home-subject-grid" aria-label="Velg fag">
+        <button class="home-subject geography" id="open-geography" type="button">
+          <div class="home-subject-icon">🌍</div>
+          <strong>Geografi</strong>
+          <p>Land, hovedsteder, flagg og verden.</p>
+          <div class="home-subject-progress" id="topic-geography-progress">Start</div>
+        </button>
+        <button class="home-subject norwegian" id="open-norwegian" type="button">
+          <div class="home-subject-icon">📖</div>
+          <strong>Norsk</strong>
+          <p>Lesing, ord, staving og språk.</p>
+          <div class="home-subject-progress" id="topic-norwegian-progress">Start</div>
+        </button>
+        <button class="home-subject math" id="open-math" type="button">
+          <div class="home-subject-icon">➗</div>
+          <strong>Matte</strong>
+          <p>Tall, regning og problemløsing.</p>
+          <div class="home-subject-progress" id="topic-math-progress">Start</div>
+        </button>
+        <button class="home-subject english" id="open-english" type="button">
+          <div class="home-subject-icon">🇬🇧</div>
+          <strong>Engelsk</strong>
+          <p>Words, sentences and reading.</p>
+          <div class="home-subject-progress" id="topic-english-progress">Start</div>
+        </button>
       </div>
 
-      <div class="section-title"><h3>⭐ Dette kan du nå</h3></div>
-      <div class="stats">
-        <div class="stat"><strong id="stat-capitals">0</strong><span>hovedsteder</span></div>
-        <div class="stat"><strong id="stat-flags">0</strong><span>flagg</span></div>
+      <div class="section-title"><h3>Denne uken</h3><span id="home-week-label">Litt hver dag</span></div>
+      <div class="home-week">
+        <div class="stat"><strong id="home-week-new">0</strong><span>ting styrket</span></div>
+        <div class="stat"><strong id="home-week-answers">0</strong><span>oppgaver</span></div>
+        <div class="stat"><strong id="home-week-streak">0</strong><span>dager på rad</span></div>
       </div>
 
       <button class="adult-entry" id="adult-entry" aria-label="Hold inne for voksenområdet">🔒 Hold inne for voksne</button>
     </section>
 
-    <section class="screen" id="learn-screen">
-      <div class="eyebrow">Lær</div>
-      <h1>Hva vil du lære? ✨</h1>
-      <p class="hero-copy">Velg et tema. Start lite, lær litt mer og se kunnskapen vokse.</p>
-
-      <div class="topic-grid" aria-label="Læringstemaer">
-        <button class="topic-card geography" id="open-geography" type="button">
-          <div class="topic-icon" aria-hidden="true">🌍</div>
-          <div class="topic-copy"><strong>Geografi</strong><p>Land, hovedsteder, flagg, landsdeler og kart.</p><div class="topic-meta"><span class="topic-chip ready">Klar</span><span class="topic-chip" id="topic-geography-progress">Norden · 0 %</span></div></div>
-          <div class="topic-arrow" aria-hidden="true">›</div>
-        </button>
-        <button class="topic-card norwegian" id="open-norwegian" type="button">
-          <div class="topic-icon" aria-hidden="true">📖</div>
-          <div class="topic-copy"><strong>Norsk</strong><p>Lesing, ord, staving, setninger og leseforståelse.</p><div class="topic-meta"><span class="topic-chip ready">Spill og lesetrening</span><span class="topic-chip" id="topic-norwegian-progress">Start</span></div></div>
-          <div class="topic-arrow" aria-hidden="true">›</div>
-        </button>
-        <button class="topic-card math" id="open-math" type="button">
-          <div class="topic-icon" aria-hidden="true">➗</div>
-          <div class="topic-copy"><strong>Matte</strong><p>Fra tallforståelse til algebra, geometri og prosent.</p><div class="topic-meta"><span class="topic-chip ready">1.–10. trinn</span><span class="topic-chip" id="topic-math-progress">Start</span></div></div>
-          <div class="topic-arrow" aria-hidden="true">›</div>
-        </button>
-        <button class="topic-card english" id="open-english" type="button">
-          <div class="topic-icon" aria-hidden="true">🇬🇧</div>
-          <div class="topic-copy"><strong>Engelsk</strong><p>Ord, lytting, setninger, grammatikk og forståelse.</p><div class="topic-meta"><span class="topic-chip ready">1.–10. trinn</span><span class="topic-chip" id="topic-english-progress">Start</span></div></div>
-          <div class="topic-arrow" aria-hidden="true">›</div>
-        </button>
-      </div>
-
-      <div class="topic-note">Oppgavene starter på valgt klassetrinn, men tilpasses etter hva barnet faktisk mestrer. Feil brukes til å finne ut hva som bør øves mer på.</div>
-    </section>
-
-    <section class="screen" id="subject-screen">
-      <button class="detail-back" id="subject-back">← Fag</button>
-      <div class="eyebrow" id="subject-eyebrow">Fag</div>
+    <section class="screen" id="subject-screen" data-subject="norwegian">
+      <button class="detail-back" id="subject-back">← Hjem</button>
+      <div class="eyebrow" id="subject-eyebrow">3. klasse</div>
       <h1 id="subject-title">Norsk</h1>
       <p class="hero-copy" id="subject-copy"></p>
-      <div class="card subject-hero">
+
+      <div class="card subject-hero hub-continue">
         <div class="subject-big" id="subject-icon">📖</div>
-        <h2 id="subject-mission-title">Dagens økt</h2>
+        <div class="eyebrow" id="subject-continue-eyebrow">Anbefalt nå</div>
+        <h2 id="subject-mission-title">Lesetrening og språk</h2>
         <p id="subject-mission-copy"></p>
         <button class="primary" id="start-subject-session" type="button">Start 5 oppgaver 🚀</button>
       </div>
-      <div class="section-title"><h3>Velg hva du vil øve på</h3><span id="subject-grade-label"></span></div>
+
+      <div class="section-title"><h3>Hva vil du øve på?</h3><span id="subject-grade-label"></span></div>
       <div class="subject-modules" id="subject-modules"></div>
-      <div class="subject-progress" id="subject-progress-copy">Fremgangen lagres bare på denne enheten.</div>
+
+      <div class="hub-progress-line">
+        <div class="section-title"><h3>Din fremgang</h3><span id="subject-progress-label">Start</span></div>
+        <div class="progress"><div class="bar" id="subject-progress-bar"></div></div>
+        <div class="subject-progress" id="subject-progress-copy">Fremgangen lagres bare på denne enheten.</div>
+      </div>
     </section>
 
     <section class="screen" id="geography-screen">
-      <button class="detail-back" id="geography-back">← Temaer</button>
+      <button class="detail-back" id="geography-back">← Hjem</button>
       <div class="geography-head">
-        <div class="eyebrow">Geografi</div>
-        <h1>Hele verden ligger her 🌍</h1>
-        <p class="hero-copy">Velg hva du vil øve på, en verdensdel eller utforsk kloden.</p>
-        <div class="geo-themes" id="geo-themes" aria-label="Velg geografitema">
-          <button class="geo-theme active" data-geo-theme="country" type="button">Land</button>
-          <button class="geo-theme" data-geo-theme="capital" type="button">Hovedsteder</button>
-          <button class="geo-theme" data-geo-theme="flag" type="button">Flagg</button>
-          <button class="geo-theme" data-geo-theme="continent" type="button">Verdensdeler</button>
-          <button class="geo-theme" data-geo-theme="regions" type="button">Norges landsdeler</button>
-          <button class="geo-theme" data-geo-theme="map" type="button">Kart</button>
-        </div>
-        <button class="primary" id="start-geography-theme" type="button">Start Land 🚀</button>
+        <div class="eyebrow" id="geography-grade-label">Geografi</div>
+        <h1>Geografi 🌍</h1>
+        <p class="hero-copy">Utforsk verden, test deg og bygg kunnskapen område for område.</p>
       </div>
 
       <button class="card world-hero" id="open-world" type="button">
         <div class="world-orb" aria-hidden="true"></div>
-        <div class="world-hero-copy"><strong>Snurr på kloden</strong><p>Dra rundt verden og trykk på land du vil oppdage.</p></div>
+        <div class="world-hero-copy"><strong>Utforsk kloden</strong><p>Snurr på verden og trykk på land du vil oppdage.</p></div>
         <div style="font-size:22px;position:relative;z-index:1">›</div>
       </button>
-      <button class="primary" id="start-world" type="button">Test deg på hele verden 🌍</button>
+
+      <div class="card geography-continue">
+        <div class="eyebrow" id="geography-continue-eyebrow">Anbefalt nå</div>
+        <h2 id="geography-continue-title" style="margin-top:6px">Land</h2>
+        <p id="geography-continue-copy">Fem korte spørsmål tilpasset nivået ditt.</p>
+        <button class="primary" id="geography-continue-button" type="button">Start 🚀</button>
+      </div>
+
+      <div class="section-title"><h3>Test deg</h3><span>Velg tema</span></div>
+      <div class="geo-themes" id="geo-themes" aria-label="Velg geografitema">
+        <button class="geo-theme active" data-geo-theme="country" type="button">Land</button>
+        <button class="geo-theme" data-geo-theme="capital" type="button">Hovedsteder</button>
+        <button class="geo-theme" data-geo-theme="flag" type="button">Flagg</button>
+        <button class="geo-theme" data-geo-theme="continent" type="button">Verdensdeler</button>
+        <button class="geo-theme" data-geo-theme="regions" type="button">Norges landsdeler</button>
+        <button class="geo-theme" data-geo-theme="map" type="button">Kart</button>
+      </div>
+      <button class="primary" id="start-geography-theme" type="button">Start Land 🚀</button>
+      <button class="secondary" id="start-world" type="button" style="width:100%;margin-top:12px">Blandet fra hele verden 🌍</button>
 
       <div class="section-title"><h3>Verdensdeler</h3><span>Velg et område</span></div>
       <div class="continent-grid" id="continent-grid"></div>
@@ -598,7 +629,6 @@
 
   <nav class="nav" id="bottom-nav">
     <button data-tab="home" class="active"><span>⌂</span>Hjem</button>
-    <button data-tab="learn"><span>🌍</span>Lær</button>
     <button data-tab="progress"><span>↗</span>Fremgang</button>
   </nav>
   <div class="toast" id="toast"></div>
@@ -682,13 +712,14 @@ const defaultState={
   skillMastery:{},
   skillMistakes:{},
   skillLastSeen:{},
+  lastActivity:null,
   answerLog:[],
   sessionLog:[],
   activeSession:null
 };
 let state=loadState();
 let activeTab='home';
-let returnScreen='learn';
+let returnScreen='home';
 let sessionQuestions=[];
 let qIndex=0;
 let sessionCorrect=0;
@@ -764,18 +795,21 @@ function showScreen(name){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   const el=document.getElementById(name+'-screen'); if(!el) return;
   el.classList.add('active');
-  const special=['session','complete','detail','adult','feedback','world','continent','geography'].includes(name);
+  const special=['session','complete','detail','adult','feedback','world','continent','geography','subject'].includes(name);
   document.getElementById('bottom-nav').style.display=special?'none':'grid';
   document.getElementById('topbar').style.display=special?'none':'flex';
   window.scrollTo(0,0);
   syncSwipeBackEdge(name);
   if(name==='world')requestAnimationFrame(()=>{initGlobe();setGlobeZoom(globeZoom)});
 }
-function setTab(tab){activeTab=tab;showScreen(tab);document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));renderAll()}
+function setTab(tab){
+  activeTab=tab;showScreen(tab);
+  document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
+  renderAll();
+}
 document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
 
-// Native-feeling left-edge swipe. Kept to a narrow edge so it does not hijack maps,
-// drag-and-drop exercises or ordinary horizontal movement inside the app.
+// Native-feeling left-edge swipe. Narrow edge avoids stealing map and exercise gestures.
 const SWIPE_BACK_SCREENS=new Set(['subject','geography','continent','world','detail','adult','feedback','session','complete']);
 const swipeBackEdge=document.getElementById('swipe-back-edge');
 const swipeBackIndicator=document.getElementById('swipe-back-indicator');
@@ -787,16 +821,16 @@ function syncSwipeBackEdge(name=activeScreenName()){
 }
 function appBack(){
   const current=activeScreenName();
-  if(current==='subject'||current==='geography'){setTab('learn');return true}
+  if(current==='subject'||current==='geography'){setTab('home');return true}
   if(current==='continent'||current==='world'){showScreen('geography');return true}
   if(current==='detail'){
-    if(['home','learn','progress'].includes(returnScreen))setTab(returnScreen);else showScreen(returnScreen||'learn');
+    if(['home','progress'].includes(returnScreen))setTab(returnScreen);else showScreen(returnScreen||'home');
     return true;
   }
   if(current==='feedback'){showScreen('adult');return true}
   if(current==='adult'){setTab('home');return true}
-  if(current==='session'){persistActiveSession();setTab('home');return true}
-  if(current==='complete'){setTab('home');return true}
+  if(current==='session'){persistActiveSession();returnToLearningHome();return true}
+  if(current==='complete'){returnToLearningHome();return true}
   return false;
 }
 if(swipeBackEdge){
@@ -809,55 +843,41 @@ if(swipeBackEdge){
     const g=swipeBackGesture;if(!g||g.id!==e.pointerId)return;
     g.lastX=e.clientX;g.lastY=e.clientY;
     const dx=e.clientX-g.startX,dy=e.clientY-g.startY;
-    if(dx>14&&Math.abs(dx)>Math.abs(dy)*1.15){
-      g.active=true;
-      swipeBackIndicator.classList.add('show');
-      e.preventDefault();
-    }else if(Math.abs(dy)>Math.max(18,Math.abs(dx))){
-      g.active=false;
-      swipeBackIndicator.classList.remove('show');
-    }
+    if(dx>14&&Math.abs(dx)>Math.abs(dy)*1.15){g.active=true;swipeBackIndicator.classList.add('show');e.preventDefault()}
+    else if(Math.abs(dy)>Math.max(18,Math.abs(dx))){g.active=false;swipeBackIndicator.classList.remove('show')}
   });
   const finishSwipeBack=e=>{
     const g=swipeBackGesture;if(!g||g.id!==e.pointerId)return;
     const dx=(e.clientX??g.lastX)-g.startX,dy=(e.clientY??g.lastY)-g.startY;
-    swipeBackIndicator.classList.remove('show');
-    swipeBackGesture=null;
+    swipeBackIndicator.classList.remove('show');swipeBackGesture=null;
     if(g.active&&dx>=64&&Math.abs(dx)>Math.abs(dy)*1.2)appBack();
   };
   swipeBackEdge.addEventListener('pointerup',finishSwipeBack);
-  swipeBackEdge.addEventListener('pointercancel',e=>{swipeBackIndicator.classList.remove('show');swipeBackGesture=null});
+  swipeBackEdge.addEventListener('pointercancel',()=>{swipeBackIndicator.classList.remove('show');swipeBackGesture=null});
 }
 syncSwipeBackEdge();
 
 function renderAll(){
-  const known=knownCountryCount(),nordicKnown=knownCountryCount(NORDIC_IDS),nordicPct=pctFor(NORDIC_IDS);
+  const grade=currentGrade(),cfg=gradeConfig(),known=knownCountryCount(),nordicPct=pctFor(NORDIC_IDS);
   document.getElementById('home-greeting').textContent='Hei 👋';
-  const grade=currentGrade(),cfg=gradeConfig();
-  const missionTitle=document.getElementById('mission-title'),missionMeta=document.getElementById('mission-meta');
-  if(missionTitle)missionTitle.textContent=cfg.mission;
-  if(missionMeta)missionMeta.textContent=`${cfg.label} · 5 små oppgaver · ${cfg.intro}`;
+  document.getElementById('home-grade-label').textContent=cfg.label;
   const adultGrade=document.getElementById('adult-grade');if(adultGrade)adultGrade.value=String(grade);
-  document.getElementById('home-known').textContent=`${known} ${known===1?'land':'land'} totalt`;
-  document.getElementById('home-knowledge-label').textContent=`Norden: ${nordicKnown} av ${NORDIC_IDS.length}`;
-  document.getElementById('home-progress').style.width=nordicPct+'%';
-  document.getElementById('stat-capitals').textContent=knownCount('capital');
-  document.getElementById('stat-flags').textContent=knownCount('flag');
-  const streak=computeStreak();
-  document.getElementById('streak-text').textContent=streak?`${streak} ${streak===1?'dag':'dager'} på rad`:'Første økt venter';
   document.getElementById('norden-pct').textContent=nordicPct+' %';
   document.getElementById('norden-mini').style.width=nordicPct+'%';
-  const topicGeo=document.getElementById('topic-geography-progress');if(topicGeo)topicGeo.textContent=`Norden · ${nordicPct} %`;
+  const topicGeo=document.getElementById('topic-geography-progress');if(topicGeo)topicGeo.textContent=known?known+' land lært':'Start';
   document.getElementById('prog-land').textContent=known;
   document.getElementById('prog-cap').textContent=knownCount('capital');
   document.getElementById('prog-flag').textContent=knownCount('flag');
   document.getElementById('prog-map').textContent=knownCount('map');
-  const a7=last7Answers();
+  const a7=last7Answers(),streak=computeStreak();
   document.getElementById('weekly-new').textContent=a7.filter(a=>a.newlyMastered).length;
   document.getElementById('weekly-answers').textContent=a7.length;
   document.getElementById('weekly-accuracy').textContent=a7.length?Math.round(a7.filter(a=>a.correct).length/a7.length*100)+' %':'–';
-  document.getElementById('start-session').textContent=state.activeSession?'Fortsett oppdraget 🚀':'Start oppdraget 🚀';
-  renderContinentCards();renderAdult();
+  document.getElementById('home-week-new').textContent=a7.filter(a=>a.newlyMastered).length;
+  document.getElementById('home-week-answers').textContent=a7.length;
+  document.getElementById('home-week-streak').textContent=streak;
+  const geoGrade=document.getElementById('geography-grade-label');if(geoGrade)geoGrade.textContent=cfg.label+' · Geografi';
+  renderHomeContinue();renderContinentCards();renderAdult();renderGeographyContinue();
 }
 function renderContinentCards(){
   const grid=document.getElementById('continent-grid');if(!grid)return;grid.innerHTML='';
@@ -909,7 +929,7 @@ function openDetail(k,source=null){
   document.getElementById('detail-content').innerHTML=`<div class="eyebrow">${label}</div><div class="detail-flag">${c.flag}</div><h1>${c.name}</h1><div class="fact-grid">${capitalHtml}<div class="fact"><span>Verdensdel</span><strong>${c.continent}</strong></div><div class="fact"><span>Innbyggere · anslag</span><strong>${formatPopulation(c.population)}</strong></div></div>${note}<button class="primary" onclick="startCountryPractice('${k}')">Øv på ${c.name}</button><div class="small-note">Befolkningstall vises som avrundede anslag. Kart og fakta er forenklet for læring på mobil.</div>`;
   showScreen('detail');
 }
-document.getElementById('detail-back').onclick=()=>{if(['home','learn','progress'].includes(returnScreen))setTab(returnScreen);else showScreen(returnScreen)};
+document.getElementById('detail-back').onclick=()=>{if(['home','progress'].includes(returnScreen))setTab(returnScreen);else showScreen(returnScreen||'home')};
 
 function canQuizCapital(k){const c=countries[k];return !!(c&&c.capital&&c.quizCapital!==false)}
 function canMapQuiz(k){const c=countries[k];return !!(c&&c.geometry)}
@@ -993,15 +1013,14 @@ function loadActiveSession(){
 }
 function startSession(customCountry=null,scope=null){
   if(!customCountry&&!scope&&loadActiveSession()){showScreen('session');renderQuestion();return}
-  if(customCountry){sessionScope={type:'country',label:countries[customCountry].name,ids:[customCountry],includeMap:isMapSuitableForGrade(countries[customCountry])};sessionQuestions=buildCountryQuestions(customCountry)}
-  else if(scope){sessionScope=scope;sessionQuestions=buildQuestionsForIds(sessionScope.ids,!!sessionScope.includeMap)}
-  else{sessionScope={type:'grade',label:missionLabel(),ids:gradeScopeIds(),includeMap:true,grade:currentGrade()};sessionQuestions=buildGradeMissionQuestions()}
+  if(customCountry){sessionScope={type:'country',label:countries[customCountry].name,ids:[customCountry],includeMap:isMapSuitableForGrade(countries[customCountry])};sessionQuestions=buildCountryQuestions(customCountry);state.lastActivity={kind:'geography-country',country:customCountry,label:countries[customCountry].name}}
+  else if(scope){sessionScope=scope;sessionQuestions=buildQuestionsForIds(sessionScope.ids,!!sessionScope.includeMap);state.lastActivity={kind:'geography-scope',scope:JSON.parse(JSON.stringify(scope)),label:scope.label||'Geografi'}}
+  else{sessionScope={type:'grade',label:missionLabel(),ids:gradeScopeIds(),includeMap:true,grade:currentGrade()};sessionQuestions=buildGradeMissionQuestions();state.lastActivity={kind:'geography-scope',scope:JSON.parse(JSON.stringify(sessionScope)),label:sessionScope.label}}
   qIndex=0;sessionCorrect=0;sessionStrengthened=new Set();currentAnswered=null;state.activeSession={startedAt:Date.now()};persistActiveSession();showScreen('session');renderQuestion();
 }
 window.startCountryPractice=(k)=>startSession(k);
 document.getElementById('start-session').onclick=()=>startSession();
-document.getElementById('open-geography').onclick=()=>showScreen('geography');
-document.getElementById('geography-back').onclick=()=>setTab('learn');
+document.getElementById('geography-back').onclick=()=>setTab('home');
 document.getElementById('norden-course').onclick=()=>openCollection('Norden','❄️',NORDIC_IDS,'norden');
 document.getElementById('start-continent').onclick=()=>startSession(null,{type:'collection',label:currentCollectionLabel,ids:[...currentCollectionIds],includeMap:true});
 document.getElementById('start-world').onclick=()=>startSession(null,{type:'world',label:'Hele verden',ids:WORLD_COUNTRIES.map(c=>c.id),includeMap:true});
@@ -1009,7 +1028,7 @@ document.getElementById('start-world-from-globe').onclick=()=>startSession(null,
 document.getElementById('continent-back').onclick=()=>showScreen('geography');
 document.getElementById('open-world').onclick=()=>showScreen('world');
 document.getElementById('world-back').onclick=()=>showScreen('geography');
-document.getElementById('close-session').onclick=()=>{persistActiveSession();setTab('home')};
+document.getElementById('close-session').onclick=()=>{persistActiveSession();returnToLearningHome()};
 
 
 // --- Full-scale subject learning engine ---
@@ -1026,16 +1045,16 @@ const SUBJECT_MODULES={
     {id:'language',icon:'✍️',title:'Språk',copy:'Setninger, grammatikk, ordforråd og virkemidler.'}
   ],
   math:[
-    {id:'numbers',icon:'🔢',title:'Tall og regning',copy:'Tallforståelse, pluss, minus, gange og divisjon.'},
-    {id:'fractions',icon:'🍕',title:'Brøk, desimal og prosent',copy:'Se sammenhenger og løs praktiske oppgaver.'},
-    {id:'geometry',icon:'📐',title:'Geometri og måling',copy:'Former, areal, omkrets, tid og måling.'},
-    {id:'algebra',icon:'🧩',title:'Algebra og mønstre',copy:'Mønstre, ukjente tall, likninger og funksjoner.'}
+    {id:'numbers',minGrade:1,icon:'🔢',title:'Tall og regning',copy:'Tallforståelse, pluss, minus, gange og divisjon.'},
+    {id:'geometry',minGrade:1,icon:'📐',title:'Former og måling',copy:'Former, lengde, areal, omkrets, tid og måling.'},
+    {id:'fractions',minGrade:4,icon:'🍕',title:'Brøk, desimal og prosent',copy:'Se sammenhenger og løs praktiske oppgaver.'},
+    {id:'algebra',minGrade:5,icon:'🧩',title:'Mønstre og algebra',copy:'Mønstre, ukjente tall, likninger og funksjoner.'}
   ],
   english:[
-    {id:'words',icon:'🖼️',title:'Words',copy:'Vanlige ord, betydning og stavemønstre.'},
-    {id:'sentences',icon:'💬',title:'Sentences',copy:'Bygg og forstå engelske setninger.'},
-    {id:'grammar',icon:'🧠',title:'Grammar',copy:'Verb, pronouns og språkstruktur på riktig nivå.'},
-    {id:'reading',icon:'📘',title:'Reading',copy:'Korte tekster og spørsmål om innholdet.'}
+    {id:'words',minGrade:1,icon:'🖼️',title:'Words',copy:'Vanlige ord, betydning og stavemønstre.'},
+    {id:'sentences',minGrade:1,icon:'💬',title:'Sentences',copy:'Bygg og forstå engelske setninger.'},
+    {id:'reading',minGrade:2,icon:'📘',title:'Reading',copy:'Korte tekster og spørsmål om innholdet.'},
+    {id:'grammar',minGrade:3,icon:'🧠',title:'Grammar',copy:'Verb, pronouns og språkstruktur på riktig nivå.'}
   ]
 };
 const NORWAY_REGIONS=[
@@ -1081,34 +1100,55 @@ function renderSubjectProgress(){
 const baseRenderAll=renderAll;
 renderAll=function(){ensureLearningState();baseRenderAll();renderSubjectProgress()};
 
+function visibleSubjectModules(subject=activeSubject){
+  return (SUBJECT_MODULES[subject]||[]).filter(m=>!m.minGrade||currentGrade()>=m.minGrade);
+}
 function openSubject(subject){
   activeSubject=subject;activeModule=null;
   const s=SUBJECTS[subject];if(!s)return;
+  const screen=document.getElementById('subject-screen');screen.dataset.subject=subject;
   document.getElementById('subject-eyebrow').textContent=GRADE_CONFIG[currentGrade()].label;
   document.getElementById('subject-title').textContent=s.title;
   document.getElementById('subject-copy').textContent=s.copy;
   document.getElementById('subject-icon').textContent=s.icon;
-  document.getElementById('subject-mission-title').textContent=s.mission;
-  document.getElementById('subject-mission-copy').textContent='En kort økt som starter på '+GRADE_CONFIG[currentGrade()].label.toLowerCase()+' og tilpasses underveis.';
   document.getElementById('subject-grade-label').textContent=GRADE_CONFIG[currentGrade()].label;
-  renderSubjectModules();
-  showScreen('subject');
+  renderSubjectModules();renderSubjectContinue();showScreen('subject');
 }
 function renderSubjectModules(){
   const box=document.getElementById('subject-modules');box.innerHTML='';
-  (SUBJECT_MODULES[activeSubject]||[]).forEach(m=>{
+  visibleSubjectModules().forEach(m=>{
     const b=document.createElement('button');b.type='button';b.className='subject-module';
     b.innerHTML='<div class="module-icon">'+m.icon+'</div><div><strong>'+m.title+'</strong><small>'+m.copy+'</small></div><div class="topic-arrow">›</div>';
     b.onclick=()=>{activeModule=m.id;startLearningSession(activeSubject,m.id,m.title)};
     box.appendChild(b);
   });
-  document.getElementById('subject-progress-copy').textContent=subjectMasteredSkills(activeSubject)+' ferdigheter er styrket. Fremgangen lagres bare på denne enheten.';
+  const mastered=subjectMasteredSkills(activeSubject),attempted=subjectAnswered(activeSubject);
+  const pct=Math.min(100,Math.round((mastered/Math.max(4,visibleSubjectModules().length*3))*100));
+  document.getElementById('subject-progress-label').textContent=attempted?mastered+' ferdigheter styrket':'Start';
+  document.getElementById('subject-progress-bar').style.width=pct+'%';
+  document.getElementById('subject-progress-copy').textContent=attempted?'Appen prioriterer det som fortsatt trenger øving. Fremgangen lagres bare på denne enheten.':'Start med en kort økt. Appen tilpasser neste runde etter svarene dine.';
 }
-document.getElementById('subject-back').onclick=()=>setTab('learn');
+function renderSubjectContinue(){
+  const s=SUBJECTS[activeSubject],a=state.activeSession?.scope,last=state.lastActivity;
+  const sameActive=a?.subject===activeSubject;
+  const sameLast=last?.kind==='subject'&&last.subject===activeSubject;
+  const module=sameLast?(SUBJECT_MODULES[activeSubject]||[]).find(m=>m.id===last.module):null;
+  document.getElementById('subject-continue-eyebrow').textContent=sameActive?'Pågående økt':sameLast?'Fortsett':'Anbefalt nå';
+  document.getElementById('subject-mission-title').textContent=sameActive?(a.label||s.mission):module?.title||s.mission;
+  document.getElementById('subject-mission-copy').textContent=sameActive?'Du har en økt som ikke er ferdig ennå.':sameLast?'Fortsett i samme læringsområde, med nye oppgaver.':'En kort blandet økt på '+GRADE_CONFIG[currentGrade()].label.toLowerCase()+'.';
+  const btn=document.getElementById('start-subject-session');
+  btn.textContent=sameActive?'Fortsett økten 🚀':sameLast?'Fortsett 🚀':'Start 5 oppgaver 🚀';
+  btn.onclick=()=>{
+    if(state.activeSession?.scope?.subject===activeSubject){startSession();return}
+    if(sameLast){startLearningSession(activeSubject,last.module,last.label);return}
+    startLearningSession(activeSubject,null,s.mission);
+  };
+}
+document.getElementById('subject-back').onclick=()=>setTab('home');
 document.getElementById('open-norwegian').onclick=()=>openSubject('norwegian');
 document.getElementById('open-math').onclick=()=>openSubject('math');
 document.getElementById('open-english').onclick=()=>openSubject('english');
-document.getElementById('start-subject-session').onclick=()=>startLearningSession(activeSubject,null,SUBJECTS[activeSubject].mission);
+document.getElementById('open-geography').onclick=()=>{renderGeographyContinue();showScreen('geography')};
 
 function choiceQuestion(subject,skill,prompt,answer,options,extra={}){
   return Object.assign({subject,skill,type:'learning-choice',prompt,answer,options:shuffle([...new Set(options)]),curriculum:CURRICULUM[subject]||null},extra);
@@ -1218,13 +1258,14 @@ function buildLearningQuestions(subject,module){
   return out;
 }
 function startLearningSession(subject,module,label){
-  sessionScope={type:'subject',subject,label:(SUBJECTS[subject]?.title||subject)+' · '+(label||'Blandet'),grade:currentGrade()};
+  sessionScope={type:'subject',subject,module:module||null,label:(SUBJECTS[subject]?.title||subject)+' · '+(label||'Blandet'),grade:currentGrade()};
+  state.lastActivity={kind:'subject',subject,module:module||null,label:label||SUBJECTS[subject]?.mission||'Blandet'};
   sessionQuestions=buildLearningQuestions(subject,module);qIndex=0;sessionCorrect=0;sessionStrengthened=new Set();currentAnswered=null;
   state.activeSession={startedAt:Date.now()};persistActiveSession();showScreen('session');renderQuestion();
 }
 function startNorwayRegions(){
   const regions=[...new Set(NORWAY_REGIONS.map(x=>x.region))];
-  sessionScope={type:'subject',subject:'geography',label:'Geografi · Norges landsdeler',grade:currentGrade()};
+  sessionScope={type:'subject',subject:'geography',label:'Geografi · Norges landsdeler',grade:currentGrade()};state.lastActivity={kind:'geography-theme',theme:'regions',label:'Norges landsdeler'};
   sessionQuestions=shuffle(NORWAY_REGIONS).slice(0,5).map((x,i)=>choiceQuestion('geography','norway-regions','Hvilken landsdel ligger '+x.place+' i?',x.region,[x.region,...shuffle(regions.filter(r=>r!==x.region)).slice(0,currentGrade()<=2?1:3)],{curriculum:null}));
   qIndex=0;sessionCorrect=0;sessionStrengthened=new Set();currentAnswered=null;state.activeSession={startedAt:Date.now()};persistActiveSession();showScreen('session');renderQuestion();
 }
@@ -1236,14 +1277,77 @@ function startGeographyTheme(){
   if(!qs.length){toast('Dette temaet trenger litt mer kartdata på dette nivået.');return}
   while(qs.length<5)qs.push(qs[qs.length%Math.max(1,qs.length)]);
   sessionScope={type:'geography-theme',label:'Geografi · '+({country:'Land',capital:'Hovedsteder',flag:'Flagg',continent:'Verdensdeler',map:'Kart'}[geoTheme]||'Geografi'),ids,includeMap:geoTheme==='map'};
+  state.lastActivity={kind:'geography-theme',theme:geoTheme,label:({country:'Land',capital:'Hovedsteder',flag:'Flagg',continent:'Verdensdeler',regions:'Norges landsdeler',map:'Kart'}[geoTheme]||'Geografi')};
   sessionQuestions=qs;qIndex=0;sessionCorrect=0;sessionStrengthened=new Set();currentAnswered=null;state.activeSession={startedAt:Date.now()};persistActiveSession();showScreen('session');renderQuestion();
 }
-document.querySelectorAll('.geo-theme').forEach(b=>b.onclick=()=>{
-  geoTheme=b.dataset.geoTheme;document.querySelectorAll('.geo-theme').forEach(x=>x.classList.toggle('active',x===b));
-  const label={country:'Land',capital:'Hovedsteder',flag:'Flagg',continent:'Verdensdeler',regions:'Norges landsdeler',map:'Kart'}[geoTheme];
-  document.getElementById('start-geography-theme').textContent='Start '+label+' 🚀';
-});
+document.querySelectorAll('.geo-theme').forEach(b=>b.onclick=()=>{geoTheme=b.dataset.geoTheme;syncGeoThemeButtons()});
 document.getElementById('start-geography-theme').onclick=startGeographyTheme;
+
+function activityTitle(activity){
+  if(!activity)return '';
+  if(activity.kind==='subject')return SUBJECTS[activity.subject]?.title||'Læring';
+  return 'Geografi';
+}
+function activityCopy(activity){
+  if(!activity)return '';
+  if(activity.kind==='subject')return activity.label||SUBJECTS[activity.subject]?.mission||'Blandet økt';
+  if(activity.kind==='geography-country')return 'Øv videre på '+activity.label;
+  if(activity.kind==='geography-theme')return activity.label||'Geografi';
+  if(activity.kind==='geography-scope')return activity.label||activity.scope?.label||'Geografi';
+  return 'Fortsett læringen';
+}
+function resumeLastActivity(){
+  if(state.activeSession){startSession();return}
+  const a=state.lastActivity;if(!a)return;
+  if(a.kind==='subject'){openSubject(a.subject);startLearningSession(a.subject,a.module,a.label);return}
+  if(a.kind==='geography-country'){startSession(a.country);return}
+  if(a.kind==='geography-scope'&&a.scope){startSession(null,a.scope);return}
+  if(a.kind==='geography-theme'){geoTheme=a.theme||'country';syncGeoThemeButtons();startGeographyTheme();return}
+}
+function renderHomeContinue(){
+  const wrap=document.getElementById('home-continue-wrap');if(!wrap)return;
+  const active=state.activeSession?.scope;
+  if(state.activeSession&&active){
+    wrap.hidden=false;
+    document.getElementById('home-continue-title').textContent=active.subject&&active.subject!=='geography'?(SUBJECTS[active.subject]?.title||'Fortsett'):'Geografi';
+    document.getElementById('home-continue-copy').textContent=active.label||'Pågående økt';
+    document.getElementById('home-continue-button').textContent='Fortsett økten 🚀';
+    document.getElementById('home-continue-button').onclick=()=>startSession();
+    return;
+  }
+  const a=state.lastActivity;
+  if(!a){wrap.hidden=true;return}
+  wrap.hidden=false;
+  document.getElementById('home-continue-title').textContent=activityTitle(a);
+  document.getElementById('home-continue-copy').textContent=activityCopy(a);
+  document.getElementById('home-continue-button').textContent='Fortsett 🚀';
+  document.getElementById('home-continue-button').onclick=resumeLastActivity;
+}
+function syncGeoThemeButtons(){
+  document.querySelectorAll('.geo-theme').forEach(x=>x.classList.toggle('active',x.dataset.geoTheme===geoTheme));
+  const label={country:'Land',capital:'Hovedsteder',flag:'Flagg',continent:'Verdensdeler',regions:'Norges landsdeler',map:'Kart'}[geoTheme]||'Geografi';
+  document.getElementById('start-geography-theme').textContent='Start '+label+' 🚀';
+}
+function renderGeographyContinue(){
+  const active=state.activeSession?.scope,last=state.lastActivity;
+  const geoActive=!!active&&(active.subject==='geography'||!active.subject);
+  const geoLast=last&&String(last.kind||'').startsWith('geography');
+  const title=document.getElementById('geography-continue-title'),copy=document.getElementById('geography-continue-copy'),eye=document.getElementById('geography-continue-eyebrow'),btn=document.getElementById('geography-continue-button');
+  if(!title||!btn)return;
+  if(geoActive){
+    eye.textContent='Pågående økt';title.textContent=active.label||'Geografi';copy.textContent='Du har en økt som ikke er ferdig ennå.';btn.textContent='Fortsett økten 🚀';btn.onclick=()=>startSession();return;
+  }
+  if(geoLast){
+    eye.textContent='Fortsett';title.textContent=activityCopy(last);copy.textContent='Fortsett i samme område med en ny kort økt.';btn.textContent='Fortsett 🚀';btn.onclick=resumeLastActivity;return;
+  }
+  eye.textContent='Anbefalt nå';title.textContent='Land';copy.textContent='Fem korte spørsmål tilpasset '+GRADE_CONFIG[currentGrade()].label.toLowerCase()+'.';btn.textContent='Start 🚀';btn.onclick=()=>{geoTheme='country';syncGeoThemeButtons();startGeographyTheme()};
+}
+function returnToLearningHome(){
+  const s=sessionScope?.subject;
+  if(s&&s!=='geography'&&SUBJECTS[s]){openSubject(s);return}
+  if(sessionScope?.type==='subject'&&s==='geography'||String(sessionScope?.type||'').startsWith('geography')||['country','collection','world','grade'].includes(sessionScope?.type)){renderGeographyContinue();showScreen('geography');return}
+  setTab('home');
+}
 
 function recordLearningAnswer(q,correct,selected){
   if(currentAnswered)return;
@@ -1511,7 +1615,7 @@ function finishSession(){  const result={endedAt:Date.now(),correct:sessionCorre
   document.getElementById('complete-copy').textContent=result.correct===result.total?'Full pott! Du knuste dagens oppdrag. 🌟':result.correct>=3?'Bra jobbet! Det vanskelige får du møte igjen senere.':'God innsats! Nå vet appen hva du skal øve mer på.';
   showScreen('complete');
 }
-document.getElementById('complete-home').onclick=()=>setTab('home');
+document.getElementById('complete-home').onclick=()=>returnToLearningHome();
 
 
 // Onboarding
@@ -1540,7 +1644,7 @@ document.getElementById('open-feedback').onclick=()=>showScreen('feedback');
 document.getElementById('feedback-back').onclick=()=>showScreen('adult');
 
 document.getElementById('reset-progress').onclick=()=>{
-  if(!confirm('Nullstille all fremgang, navn og pågående økt på denne enheten?'))return;
+  if(!confirm('Nullstille all fremgang, klassetrinn og pågående økt på denne enheten?'))return;
   safeStorageRemove(STORAGE_KEY);safeStorageRemove('laerlittmer-v1');state=cloneDefault();sessionQuestions=[];qIndex=0;sessionCorrect=0;sessionStrengthened=new Set();currentAnswered=null;onboardingStep=0;selectedGrade=null;renderGradeChoice();updateOnboarding();document.getElementById('onboarding').classList.add('show');setTab('home');
 };
 
@@ -1595,6 +1699,6 @@ renderAll();updateOnboarding();loadQualityData();
 if(!state.profile.onboarded||!state.profile.grade){onboardingStep=2;selectedGrade=Number(state.profile.grade)||null;renderGradeChoice();updateOnboarding();document.getElementById('onboarding').classList.add('show')}
 else if(loadActiveSession()){showScreen('session');renderQuestion()}
 </script>
-<!-- build: fullscale-learning-swipe-back-2026-10-02 -->
+<!-- build: global-home-subject-hubs-2026-10-02 -->
 </body>
 </html>
