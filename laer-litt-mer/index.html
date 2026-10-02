@@ -1631,7 +1631,6 @@ function renderBuildWord(q,wrap){
     wrap.querySelectorAll('.letter-slot').forEach(slot=>{
       const slotIdx=Number(slot.dataset.slot);
       slot.onclick=()=>{
-        if(Date.now()<suppressTapUntil)return;
         if(slots[slotIdx]){removeFromSlot(slotIdx);return}
         if(selectedLetterIdx!==null){placeLetter(selectedLetterIdx,slotIdx);return}
         selectedSlotIdx=selectedSlotIdx===slotIdx?null:slotIdx;paint();
