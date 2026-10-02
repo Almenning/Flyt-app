@@ -1533,9 +1533,16 @@ function renderBuildWord(q,wrap){
   const answerString=()=>slots.map(x=>x?.l||'').join('');
   const clearDragHighlights=()=>wrap.querySelectorAll('.letter-slot.drag-over').forEach(x=>x.classList.remove('drag-over'));
   function slotAtPoint(x,y){
-    const hit=document.elementFromPoint(x,y);
-    const slot=hit&&hit.closest?hit.closest('.letter-slot'):null;
-    return slot&&slotBox.contains(slot)?slot:null;
+    const candidates=[...slotBox.querySelectorAll('.letter-slot')];
+    let best=null,bestDistance=Infinity;
+    for(const slot of candidates){
+      const r=slot.getBoundingClientRect(),pad=10;
+      if(x>=r.left-pad&&x<=r.right+pad&&y>=r.top-pad&&y<=r.bottom+pad){
+        const cx=r.left+r.width/2,cy=r.top+r.height/2,d=Math.hypot(x-cx,y-cy);
+        if(d<bestDistance){best=slot;bestDistance=d}
+      }
+    }
+    return best;
   }
   function hideRetryFeedback(){
     if(!wrongAttempt)return;
