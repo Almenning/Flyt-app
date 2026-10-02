@@ -170,7 +170,8 @@ async function finishSession(page){
     assert.ok(backHeight>=44,`small back target: ${backHeight}`);
 
     // First grade: capitals are intentionally hidden but Land still works.
-    const p1=await context.newPage();p1.__base=url;
+    const context1=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
+    const p1=await context1.newPage();p1.__base=url;
     await p1.route('https://raw.githubusercontent.com/**',r=>r.abort());await p1.route('https://api.worldbank.org/**',r=>r.abort());
     await onboard(p1,1);
     await p1.locator('#open-geography').click();
@@ -178,7 +179,7 @@ async function finishSession(page){
     await p1.locator('#start-geography-theme').click();
     await p1.locator('#session-screen.active').waitFor();
     assert.equal(await p1.evaluate(()=>sessionQuestions.length),5);
-    await p1.close();
+    await context1.close();
 
     // Structural sweep: every visible subject module on every grade can build a five-question session.
     for(let grade=1;grade<=10;grade++){
