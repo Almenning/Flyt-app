@@ -1,4 +1,4 @@
-const CACHE='laer-litt-mer-v5-mastery-2026-10-02';
+const CACHE='laer-litt-mer-v6-globe-modes-2026-10-02';
 const SHELL=['./','./index.html','./manifest.webmanifest','./icon.svg'];
 
 self.addEventListener('install',event=>{
