@@ -274,14 +274,14 @@
     .geo-theme.active{background:#E8EEFF;border-color:#8191E8;color:#4659B9}
     .learning-passage{background:#fff;border-radius:21px;padding:17px;margin:8px 0 16px;font-size:18px;line-height:1.55;font-weight:750;box-shadow:0 5px 0 rgba(70,72,115,.04)}
     .letter-slots{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:18px 0}
-    .letter-slot{width:52px;height:58px;border:2px dashed #BBC2DB;border-radius:16px;background:#fff;display:grid;place-items:center;font-size:25px;font-weight:950;color:var(--ink);cursor:pointer;touch-action:manipulation;transition:.12s border-color,.12s background,.12s transform,.12s box-shadow}
+    .letter-slot{width:52px;height:58px;border:2px dashed #BBC2DB;border-radius:16px;background:#fff;display:grid;place-items:center;font-size:25px;font-weight:950;color:var(--ink);cursor:pointer;touch-action:none;transition:.12s border-color,.12s background,.12s transform,.12s box-shadow}
     .letter-slot.filled{border-style:solid;border-color:#AEB8E8;background:#F7F8FF;box-shadow:0 4px 0 #E0E3F4}
     .letter-slot.selected{border-color:#6178EA;background:#EEF1FF;box-shadow:0 0 0 4px rgba(90,125,242,.13),0 4px 0 #D7DCF5;transform:translateY(-1px)}
     .letter-slot.drag-over{border-color:#45A67A;background:#EAF8F0;box-shadow:0 0 0 4px rgba(69,166,122,.12)}
     .letter-slot.wrong-letter{border-color:#E79AA2;background:#FFF1F2;color:#9B3F49}
     .letter-helper{min-height:20px;margin:-7px 0 4px;text-align:center;font-size:12px;font-weight:800;color:#777D96}
     .letter-bank,.word-bank{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin:16px 0}
-    .letter-tile,.word-tile{border:0;border-radius:15px;background:#EEF1FF;color:#3E4E9E;min-width:48px;min-height:48px;padding:10px 13px;font-size:21px;font-weight:950;box-shadow:0 4px 0 #D7DCF5;cursor:grab;touch-action:manipulation;transition:.12s transform,.12s box-shadow,.12s opacity}
+    .letter-tile,.word-tile{border:0;border-radius:15px;background:#EEF1FF;color:#3E4E9E;min-width:48px;min-height:48px;padding:10px 13px;font-size:21px;font-weight:950;box-shadow:0 4px 0 #D7DCF5;cursor:grab;touch-action:manipulation;transition:.12s transform,.12s box-shadow,.12s opacity}.letter-tile{touch-action:none}
     .letter-tile.selected{box-shadow:0 0 0 4px rgba(90,125,242,.17),0 5px 0 #C9D0F3;transform:translateY(-2px)}
     .word-tile{font-size:16px;min-width:auto}.letter-tile.used,.word-tile.used{opacity:.25;box-shadow:none;pointer-events:none}
     .sentence-target{min-height:62px;border:2px dashed #CCD1E2;border-radius:18px;background:#fff;padding:10px;display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;margin:14px 0}
@@ -1526,11 +1526,17 @@ function showLearningFeedback(q,correct){
 function renderBuildWord(q,wrap){
   const letters=q.letters.map((x,i)=>Object.assign({},x,{idx:i}));
   const slots=Array(q.answer.length).fill(null);
-  let selectedLetterIdx=null,selectedSlotIdx=null,wrongAttempt=false,mistakeRecorded=false;
+  let selectedLetterIdx=null,selectedSlotIdx=null,wrongAttempt=false,mistakeRecorded=false,suppressTapUntil=0;
   const slotBox=wrap.querySelector('#letter-slots'),helper=wrap.querySelector('#letter-helper'),check=wrap.querySelector('#check-build');
 
   const usedLetter=idx=>slots.some(x=>x&&x.idx===idx);
   const answerString=()=>slots.map(x=>x?.l||'').join('');
+  const clearDragHighlights=()=>wrap.querySelectorAll('.letter-slot.drag-over').forEach(x=>x.classList.remove('drag-over'));
+  function slotAtPoint(x,y){
+    const hit=document.elementFromPoint(x,y);
+    const slot=hit&&hit.closest?hit.closest('.letter-slot'):null;
+    return slot&&slotBox.contains(slot)?slot:null;
+  }
   function hideRetryFeedback(){
     if(!wrongAttempt)return;
     wrongAttempt=false;
@@ -1538,7 +1544,7 @@ function renderBuildWord(q,wrap){
     const next=wrap.querySelector('#next-question');if(next)next.style.display='none';
   }
   function placeLetter(letterIdx,slotIdx){
-    if(currentAnswered||letterIdx===null||slotIdx===null)return;
+    if(currentAnswered||letterIdx===null||slotIdx===null||Number.isNaN(letterIdx)||Number.isNaN(slotIdx))return;
     hideRetryFeedback();
     const from=slots.findIndex(x=>x&&x.idx===letterIdx);
     if(from===slotIdx){selectedLetterIdx=null;selectedSlotIdx=null;paint();return}
@@ -1566,6 +1572,43 @@ function renderBuildWord(q,wrap){
     slots[to]=moving;slots[from]=target||null;
     selectedLetterIdx=null;selectedSlotIdx=null;paint();
   }
+  function bindTouchDrag(el,sourceType,sourceIndex){
+    el.addEventListener('pointerdown',down=>{
+      if(down.pointerType!=='touch'||currentAnswered)return;
+      const pointerId=down.pointerId,startX=down.clientX,startY=down.clientY;
+      let active=false,targetSlot=null;
+      try{el.setPointerCapture(pointerId)}catch(_){}
+      const move=event=>{
+        if(event.pointerId!==pointerId)return;
+        const dx=event.clientX-startX,dy=event.clientY-startY;
+        if(!active&&Math.hypot(dx,dy)>=8)active=true;
+        if(!active)return;
+        event.preventDefault();
+        const hit=slotAtPoint(event.clientX,event.clientY);
+        if(hit!==targetSlot){
+          clearDragHighlights();targetSlot=hit;
+          if(targetSlot)targetSlot.classList.add('drag-over');
+        }
+      };
+      const finish=event=>{
+        if(event.pointerId!==pointerId)return;
+        el.removeEventListener('pointermove',move);el.removeEventListener('pointerup',finish);el.removeEventListener('pointercancel',cancel);
+        clearDragHighlights();
+        if(active&&targetSlot){
+          suppressTapUntil=Date.now()+350;
+          const to=Number(targetSlot.dataset.slot);
+          if(sourceType==='letter')placeLetter(sourceIndex,to);else moveSlot(sourceIndex,to);
+        }
+        try{el.releasePointerCapture(pointerId)}catch(_){}
+      };
+      const cancel=event=>{
+        if(event.pointerId!==pointerId)return;
+        el.removeEventListener('pointermove',move);el.removeEventListener('pointerup',finish);el.removeEventListener('pointercancel',cancel);
+        clearDragHighlights();
+      };
+      el.addEventListener('pointermove',move);el.addEventListener('pointerup',finish);el.addEventListener('pointercancel',cancel);
+    });
+  }
   function helperText(){
     if(selectedLetterIdx!==null)return 'Velg hvilken rute '+letters[selectedLetterIdx].l+' skal stå i.';
     if(selectedSlotIdx!==null)return 'Velg bokstaven som skal stå i rute '+(selectedSlotIdx+1)+'.';
@@ -1588,6 +1631,7 @@ function renderBuildWord(q,wrap){
     wrap.querySelectorAll('.letter-slot').forEach(slot=>{
       const slotIdx=Number(slot.dataset.slot);
       slot.onclick=()=>{
+        if(Date.now()<suppressTapUntil)return;
         if(slots[slotIdx]){removeFromSlot(slotIdx);return}
         if(selectedLetterIdx!==null){placeLetter(selectedLetterIdx,slotIdx);return}
         selectedSlotIdx=selectedSlotIdx===slotIdx?null:slotIdx;paint();
@@ -1604,18 +1648,20 @@ function renderBuildWord(q,wrap){
         if(data.startsWith('letter:'))placeLetter(Number(data.slice(7)),slotIdx);
         else if(data.startsWith('slot:'))moveSlot(Number(data.slice(5)),slotIdx);
       });
+      if(slots[slotIdx])bindTouchDrag(slot,'slot',slotIdx);
     });
   }
 
   wrap.querySelectorAll('.letter-tile').forEach(b=>{
     const idx=Number(b.dataset.idx);
     b.onclick=()=>{
-      if(currentAnswered||usedLetter(idx))return;
+      if(Date.now()<suppressTapUntil||currentAnswered||usedLetter(idx))return;
       if(selectedSlotIdx!==null){placeLetter(idx,selectedSlotIdx);return}
       selectedLetterIdx=selectedLetterIdx===idx?null:idx;paint();
     };
     b.draggable=true;
     b.addEventListener('dragstart',e=>{e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain','letter:'+idx)});
+    bindTouchDrag(b,'letter',idx);
   });
 
   check.onclick=()=>{
@@ -1961,6 +2007,6 @@ if(!state.profile.onboarded||!state.profile.grade){
   renderGradeChoice();updateOnboarding();document.getElementById('onboarding').classList.add('show');
 }else if(loadActiveSession()){showScreen('session');renderQuestion()}
 </script>
-<!-- build: free-position-word-builder-2026-10-02 -->
+<!-- build: free-position-touch-word-builder-2026-10-02 -->
 </body>
 </html>
