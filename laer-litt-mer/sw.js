@@ -1,5 +1,5 @@
-const CACHE='laer-litt-mer-v13-multiplication-mobile-2026-10-03';
-const SHELL=['./','./index.html','./manifest.webmanifest','./icon.svg','./fraction-lab.css','./fraction-lab.js','./multiplication-lab.css','./multiplication-lab.js','./norwegian-content.js'];
+const CACHE='laer-litt-mer-v14-fraction-mobile2-2026-10-03';
+const SHELL=['./','./index.html','./manifest.webmanifest','./icon.svg','./fraction-lab.css?v=20261003-mobile2','./fraction-lab.js?v=20261003-mobile2','./multiplication-lab.css','./multiplication-lab.js','./norwegian-content.js'];
 
 self.addEventListener('install',event=>{
   event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(SHELL)).then(()=>self.skipWaiting()));
