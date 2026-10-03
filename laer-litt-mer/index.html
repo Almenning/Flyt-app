@@ -424,6 +424,9 @@
     #subject-screen[data-subject="math"] .subject-hero{background:linear-gradient(145deg,#FFF5D9,#fff)}
     #subject-screen[data-subject="english"] .subject-hero{background:linear-gradient(145deg,#EAF8F0,#fff)}
     .geography-continue{padding:18px;margin:14px 0;background:linear-gradient(145deg,#F2F7FF,#fff)}
+    .geo-journey-shell{margin-top:20px}.geo-journey-shell .journey-area{background:linear-gradient(145deg,rgba(244,251,255,.94),rgba(248,255,251,.84))}
+    .geo-journey-shell .journey-area-icon{background:linear-gradient(145deg,#DDF4FA,#EAF8F0)}
+
     .daily-goal{padding:17px 18px;margin:15px 0 2px;background:linear-gradient(145deg,#FFFDF4,#F5FBFF)}
     .daily-goal-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
     .daily-goal-head strong{font-size:17px;font-weight:950}.daily-goal-head span{font-size:12px;font-weight:900;color:#66708A}
@@ -1360,6 +1363,7 @@
   <!-- young-premium-art-direction-v5-2026-10-04 -->
   <!-- learning-journey-runtime-2026-10-04 -->
   <!-- grade-scoped-skills-v3-2026-10-04 -->
+  <!-- geography-journey-v1-2026-10-04 -->
 </head>
 <body>
 <div class="app">
@@ -1787,7 +1791,20 @@
         <button class="primary" id="geography-continue-button" type="button">Start 🚀</button>
       </div>
 
-      <div class="section-title"><h3>Test deg</h3><span>Velg tema</span></div>
+      <div class="geo-journey-shell" id="geo-journey-shell">
+        <div class="journey-heading">
+          <div><div class="eyebrow">Geografireisen</div><h2 id="geo-journey-title">Fra Norden til verden</h2></div>
+          <div class="journey-grade-chip" id="geo-journey-grade">3. klasse</div>
+        </div>
+        <div class="card journey-summary">
+          <div><strong id="geo-journey-summary">0 % gjennom kjerneløpet</strong><span>Kloden og stien bruker den samme fremgangen.</span></div>
+          <div class="journey-summary-ring" id="geo-journey-ring" style="--journey-pct:0"><span id="geo-journey-pct">0%</span></div>
+        </div>
+        <div class="journey-map" id="geo-journey-map"></div>
+        <div class="card journey-finish" id="geo-journey-finish"></div>
+      </div>
+
+      <div class="section-title"><h3>Test deg fritt</h3><span>Velg tema</span></div>
       <div class="geo-themes" id="geo-themes" aria-label="Velg geografitema">
         <button class="geo-theme active" data-geo-theme="country" type="button">Land</button>
         <button class="geo-theme" data-geo-theme="capital" type="button">Hovedsteder</button>
@@ -2608,6 +2625,139 @@ function canQuizCapital(k){const c=countries[k];return !!(c&&c.capital&&c.quizCa
 function canMapQuiz(k){const c=countries[k];return !!(c&&c.geometry)}
 function canQuizCapital(k){const c=countries[k];return !!(c&&hasQuizCapital(c))}
 function canMapQuiz(k){const c=countries[k];return !!(c&&isMapSuitableForGrade(c))}
+
+const GEO_JOURNEY_TEMPLATES=[
+  {min:1,max:1,areas:[{id:'norden',title:'Norden',emoji:'❄️',scope:'nordic',types:['flag','continent','map'],target:3,copy:'Bli kjent med landene nærmest oss.'}]},
+  {min:2,max:2,areas:[{id:'norden',title:'Norden',emoji:'❄️',scope:'nordic',types:['flag','capital','map'],target:4,copy:'Land, flagg, hovedsteder og kart.'},{id:'naboer',title:'Nære land i Europa',emoji:'🧭',scope:'near-europe',types:['flag','continent','map'],target:5,copy:'Utvid kartet litt utenfor Norden.'}]},
+  {min:3,max:3,areas:[{id:'norden',title:'Norden',emoji:'❄️',scope:'nordic',types:['flag','capital','map'],target:4},{id:'europa-start',title:'Europa begynner',emoji:'🏰',scope:'core-europe',types:['flag','capital','country','map'],target:8,copy:'Bygg et sikkert kart over sentrale europeiske land.'}]},
+  {min:4,max:4,areas:[{id:'europa-kjerne',title:'Europa: kjernen',emoji:'🏰',scope:'core-europe',types:['flag','capital','country','map'],target:10},{id:'europa-videre',title:'Europa videre',emoji:'🗺️',scope:'europe',types:['flag','capital','country','map'],target:14,copy:'Utvid fra de kjente landene til en større del av Europa.'}]},
+  {min:5,max:5,areas:[{id:'europa',title:'Europa',emoji:'🏰',scope:'europe',types:['country','capital','map'],target:14},{id:'verdensdeler',title:'Verdensdeler og store land',emoji:'🌍',scope:'world-core',types:['continent','flag','country'],target:14,copy:'Koble store land til riktig del av verden.'}]},
+  {min:6,max:6,areas:[{id:'verdenskjerne',title:'Verdenskartet',emoji:'🌍',scope:'world-core',types:['continent','flag','country','capital','map'],target:16},{id:'verden-videre',title:'Verden videre',emoji:'🧭',scope:'grade',types:['continent','flag','country','capital','map'],target:20,copy:'Flere land, regioner og plasseringer.'}]},
+  {min:7,max:10,areas:[{id:'verdenskjerne',title:'Verdenskartet',emoji:'🌍',scope:'world-core',types:['continent','flag','country','capital','map'],target:18},{id:'regioner',title:'Regioner og sammenhenger',emoji:'🧭',scope:'grade',types:['continent','country','map'],target:22},{id:'presisjon',title:'Global presisjon',emoji:'🎯',scope:'grade',types:['flag','capital','country','map'],target:24,copy:'Tren bredt og presist på hele verden.'}]}
+];
+function geoJourneyIds(scope,grade=currentGrade()){
+  if(scope==='nordic')return [...NORDIC_IDS];
+  if(scope==='near-europe')return [...new Set([...NORDIC_IDS,...CORE_EUROPE_2])].filter(id=>countries[id]);
+  if(scope==='core-europe')return [...CORE_EUROPE_3].filter(id=>countries[id]);
+  if(scope==='europe')return WORLD_COUNTRIES.filter(c=>c.continent==='Europa').map(c=>c.id);
+  if(scope==='world-core')return [...new Set([...CORE_EUROPE_3,...WORLD_CORE])].filter(id=>countries[id]);
+  return gradeScopeIds(grade);
+}
+function geoJourneyModel(grade=currentGrade()){
+  const tpl=GEO_JOURNEY_TEMPLATES.find(t=>grade>=t.min&&grade<=t.max);if(!tpl)return {subject:'geography',grade,areas:[],nodes:[]};
+  const allowed=new Set(allowedTypesForGrade()),areas=[];
+  for(const src of tpl.areas){
+    const ids=geoJourneyIds(src.scope,grade),types=src.types.filter(t=>allowed.has(t)&&ids.some(id=>questionTypesForCountry(id,true).includes(t)));
+    const skillNodes=types.map(t=>({id:src.id+'-'+t,type:'geo-skill',geoType:t,title:({flag:'Flagg',capital:'Hovedsteder',country:'Land og hovedsteder',continent:'Verdensdeler',map:'Finn på kartet'}[t]||t),ids,target:Math.min(src.target,ids.filter(id=>questionTypesForCountry(id,true).includes(t)).length),subject:'geography',grade,areaId:src.id,areaTitle:src.title,areaTypes:types}));
+    const extras=[
+      {id:src.id+'-challenge',type:'challenge',title:'Utfordring'},
+      {id:src.id+'-review',type:'review',title:'Husker du?'},
+      {id:src.id+'-checkpoint',type:'checkpoint',title:'Checkpoint'}
+    ].map(n=>({...n,subject:'geography',grade,areaId:src.id,areaTitle:src.title,ids,areaTypes:types,target:src.target}));
+    const nodes=[...skillNodes,...extras];areas.push({...src,ids,types,nodes});
+  }
+  return {subject:'geography',grade,areas,nodes:areas.flatMap(a=>a.nodes)};
+}
+function geoJourneyNodeState(node){
+  if(node.type!=='geo-skill'){
+    const rec=journeyNodeRecord(node);
+    if((node.type==='checkpoint'||node.type==='challenge')&&rec.passed)return 'passed';
+    if(node.type==='review'){
+      const due=node.ids.some(id=>node.areaTypes.some(t=>reviewDue(typeStage(id,t),evidenceForGeo(id,t))));
+      return due?'active':'new';
+    }
+    return 'new';
+  }
+  const eligible=node.ids.filter(id=>questionTypesForCountry(id,true).includes(node.geoType)),target=Math.max(1,Math.min(node.target||1,eligible.length));
+  const mastered=eligible.filter(id=>typeMastered(id,node.geoType)).length,can=eligible.filter(id=>typeCanNow(id,node.geoType)).length,seen=eligible.filter(id=>stageRank(typeStage(id,node.geoType))>=stageRank('seen')).length;
+  if(mastered>=target)return 'mastered';if(can>=target)return 'can-now';if(seen>0)return 'active';return 'new';
+}
+function geoJourneyAreaComplete(area){
+  const skills=area.nodes.filter(n=>n.type==='geo-skill'),cp=area.nodes.find(n=>n.type==='checkpoint');
+  return skills.every(n=>['can-now','mastered'].includes(geoJourneyNodeState(n)))&&!!journeyNodeRecord(cp).passed;
+}
+function geoJourneyProgress(grade=currentGrade()){
+  const model=geoJourneyModel(grade),required=model.nodes.filter(n=>n.type==='geo-skill'||n.type==='checkpoint');
+  const done=required.filter(n=>n.type==='geo-skill'?['can-now','mastered'].includes(geoJourneyNodeState(n)):!!journeyNodeRecord(n).passed).length;
+  const areasDone=model.areas.filter(geoJourneyAreaComplete).length,pct=required.length?Math.round(done/required.length*100):0;
+  return {model,required,done,total:required.length,pct,areasDone,complete:model.areas.length>0&&areasDone===model.areas.length};
+}
+function geoJourneyRecommendedNode(grade=currentGrade()){
+  const {model}=geoJourneyProgress(grade);
+  for(const area of model.areas){
+    for(const n of area.nodes.filter(x=>x.type==='geo-skill'))if(!['can-now','mastered'].includes(geoJourneyNodeState(n)))return n;
+    const cp=area.nodes.find(n=>n.type==='checkpoint');if(cp&&!journeyNodeRecord(cp).passed)return cp;
+  }
+  return model.nodes.find(n=>n.type==='review')||model.nodes[0]||null;
+}
+function geoJourneyStatusText(node,st){
+  if(node.type==='checkpoint')return st==='passed'?'Bestått':'Checkpoint';
+  if(node.type==='challenge')return st==='passed'?'Klart':'Ekstra';
+  if(node.type==='review')return st==='active'?'Klar for repetisjon':'Frivillig';
+  if(st==='mastered')return 'Mestret';if(st==='can-now')return 'Kan nå';if(st==='active')return 'Under arbeid';return 'Ny';
+}
+function geoJourneyIcon(node,st){
+  if(node.type==='checkpoint')return st==='passed'?'✓':'🏆';if(node.type==='challenge')return st==='passed'?'✓':'⚡';if(node.type==='review')return '🔁';
+  if(st==='mastered')return '★';if(st==='can-now')return '●';if(st==='active')return '◐';return '●';
+}
+function buildGeoJourneyQuestions(node,allowCooldown=false){
+  const types=node.type==='geo-skill'?[node.geoType]:node.areaTypes,items=[];
+  for(const id of node.ids){
+    for(const type of questionTypesForCountry(id,true)){
+      if(!types.includes(type))continue;
+      const q=makeQuestion(id,type,node.ids),cooling=questionOnCooldown(q);
+      if(cooling&&!allowCooldown)continue;
+      q.practiceRepeat=!!cooling;
+      const st=typeStage(id,type),ev=evidenceForGeo(id,type),bucket=learningBucket(st,ev),mist=Number(state.mistakes[masteryKey(id,type)]||0);
+      items.push({q,id,type,bucket,score:bucketBias(bucket)-Math.min(.7,mist*.12)+Math.random()*.12});
+    }
+  }
+  items.sort((a,b)=>a.score-b.score);
+  const chosen=[],used=new Set(),countriesUsed=new Set(),typesUsed=new Set();
+  const add=item=>{if(!item||chosen.length>=5)return false;const sig=questionIdentity(item.q);if(used.has(sig))return false;chosen.push(item.q);used.add(sig);countriesUsed.add(item.id);typesUsed.add(item.type);return true};
+  if(node.type==='review')for(const item of items.filter(x=>reviewDue(typeStage(x.id,x.type),evidenceForGeo(x.id,x.type))))add(item);
+  if(node.type==='checkpoint'||node.type==='challenge')for(const t of types){const item=items.find(x=>x.type===t&&!used.has(questionIdentity(x.q)));if(item)add(item)}
+  for(const item of items){if(chosen.length>=5)break;if(!countriesUsed.has(item.id)||!typesUsed.has(item.type))add(item)}
+  for(const item of items){if(chosen.length>=5)break;add(item)}
+  return chosen.slice(0,5);
+}
+function startGeoJourneyNode(nodeId){
+  const model=geoJourneyModel(currentGrade()),node=model.nodes.find(n=>n.id===nodeId);if(!node)return;
+  sessionScope={type:'geo-journey',subject:'geography',journeyNode:node.id,journeyArea:node.areaId,journeyGrade:node.grade,journeyType:node.type,label:'Geografi · '+node.title,ids:node.ids,includeMap:true};
+  state.lastActivity={kind:'geo-journey',nodeId:node.id,label:node.title};
+  sessionQuestions=buildGeoJourneyQuestions(node,false);
+  if(!sessionQuestions.length){sessionQuestions=buildGeoJourneyQuestions(node,true);sessionScope.practiceOnly=sessionQuestions.length>0}else sessionScope.practiceOnly=sessionQuestions.every(q=>q.practiceRepeat);
+  if(!sessionQuestions.length){toast('Dette punktet trenger flere oppgaver før det kan startes.');return}
+  qIndex=0;sessionCorrect=0;sessionStrengthened=new Set();currentAnswered=null;state.activeSession={startedAt:Date.now()};persistActiveSession();showScreen('session');renderQuestion();
+}
+function recordGeoJourneyResult(result){
+  if(sessionScope?.type!=='geo-journey'||sessionScope.practiceOnly)return;
+  ensureJourneyState();const grade=Number(sessionScope.journeyGrade||currentGrade()),model=geoJourneyModel(grade),node=model.nodes.find(n=>n.id===sessionScope.journeyNode);if(!node)return;
+  const key=journeyNodeKey('geography',grade,node.id),old=state.journey.nodes[key]||{},best=Math.max(Number(old.best||0),Number(result.correct||0)),passable=node.type==='checkpoint'||node.type==='challenge',passed=passable?(best>=4):!!old.passed;
+  state.journey.nodes[key]={...old,best,attempts:Number(old.attempts||0)+1,lastAt:Date.now(),passed,passedAt:passed?(old.passedAt||Date.now()):null};
+  const prog=geoJourneyProgress(grade),winKey='geography:'+grade;
+  if(prog.complete&&!state.journey.gradeWins[winKey]){state.journey.gradeWins[winKey]={at:Date.now()};state.lastMilestone={title:GRADE_CONFIG[grade].label+' fullført i geografi! 🏆',copy:'Du har klart geografiens kjerneløp på dette trinnet.',at:Date.now()}}
+}
+function renderGeoJourney(){
+  const host=document.getElementById('geo-journey-map');if(!host)return;
+  const prog=geoJourneyProgress(),recommended=geoJourneyRecommendedNode(),model=prog.model,recommendedIndex=recommended?model.nodes.findIndex(n=>n.id===recommended.id):-1,positions=['left','right','left','right','center'];
+  document.getElementById('geo-journey-grade').textContent=GRADE_CONFIG[currentGrade()].label;
+  document.getElementById('geo-journey-title').textContent=prog.complete?'Du rundet geografien! 🏆':'Fra det kjente til hele verden';
+  document.getElementById('geo-journey-summary').textContent=prog.complete?'Kjerneløpet er fullført':prog.pct+' % gjennom geografireisen';
+  document.getElementById('geo-journey-pct').textContent=prog.pct+'%';document.getElementById('geo-journey-ring').style.setProperty('--journey-pct',prog.pct);
+  host.innerHTML=model.areas.map((area,ai)=>{
+    const areaDone=geoJourneyAreaComplete(area),required=area.nodes.filter(n=>n.type==='geo-skill'||n.type==='checkpoint'),done=required.filter(n=>n.type==='geo-skill'?['can-now','mastered'].includes(geoJourneyNodeState(n)):journeyNodeRecord(n).passed).length;
+    const nodes=area.nodes.map((node,i)=>{
+      const st=geoJourneyNodeState(node),idx=model.nodes.findIndex(n=>n.id===node.id),isNext=recommended&&recommended.id===node.id,future=!isNext&&recommendedIndex>=0&&idx>recommendedIndex&&st==='new',visual=isNext&&!['can-now','mastered','passed'].includes(st)?'next':future?'future':st;
+      return '<div class="journey-node-row '+positions[i%positions.length]+'"><button class="journey-node type-'+node.type+' state-'+visual+'" type="button" data-geo-journey-node="'+node.id+'"><span class="journey-node-orb">'+geoJourneyIcon(node,st)+'</span><span class="journey-node-copy"><strong>'+node.title+'</strong><small>'+(isNext?'Neste for deg · ':'')+geoJourneyStatusText(node,st)+'</small></span></button></div>';
+    }).join('');
+    const soft=['#E2F6EC','#DDF4FA','#FFF2D8'][ai%3];
+    return '<section class="journey-area" style="--area-soft:'+soft+'"><div class="journey-area-head"><div class="journey-area-icon">'+area.emoji+'</div><div><strong>'+area.title+'</strong><small>'+(area.copy||'Bygg kartet steg for steg.')+'</small></div><span class="journey-area-progress">'+(areaDone?'Klart ✓':done+' / '+required.length)+'</span></div><div class="journey-nodes">'+nodes+'</div></section>';
+  }).join('');
+  host.querySelectorAll('[data-geo-journey-node]').forEach(b=>b.onclick=()=>startGeoJourneyNode(b.dataset.geoJourneyNode));
+  const finish=document.getElementById('geo-journey-finish');finish.classList.toggle('complete',prog.complete);
+  finish.innerHTML=prog.complete?'<strong>🏆 '+GRADE_CONFIG[currentGrade()].label+' fullført i geografi</strong><p>Du har klart hovedpunktene og checkpointene. Kloden viser fortsatt hva som er «Kan nå» og hva som er mestret over tid.</p>':'<strong>🏁 Mål: rund geografireisen</strong><p>Bygg opp landkunnskapen og bestå checkpointene. Fri utforskning er alltid åpen.</p>';
+}
 function questionTypesForCountry(k,includeMap=false){
   const allowed=new Set(allowedTypesForGrade()),types=[];
   if(allowed.has('flag'))types.push('flag');
@@ -2949,7 +3099,7 @@ function renderSubjectProgress(){
   }
   const grid=document.getElementById('subject-progress-grid');
   if(grid)grid.innerHTML=[
-    ['🌍','Geografi',knownCountryCount()+' land lært'],
+    ['🌍','Geografi',geoJourneyProgress().complete?'Trinnet fullført 🏆':geoJourneyProgress().pct+' % av reisen'],
     ['📖','Norsk',journeyProgress('norwegian').complete?'Trinnet fullført 🏆':journeyProgress('norwegian').pct+' % av reisen'],
     ['➗','Matte',journeyProgress('math').complete?'Trinnet fullført 🏆':journeyProgress('math').pct+' % av reisen'],
     ['🇬🇧','Engelsk',journeyProgress('english').complete?'Trinnet fullført 🏆':journeyProgress('english').pct+' % av reisen']
@@ -3218,6 +3368,7 @@ function startJourneyNode(subject,nodeId){
   state.activeSession={startedAt:Date.now()};persistActiveSession();showScreen('session');renderQuestion();
 }
 function recordJourneySessionResult(result){
+  if(sessionScope?.type==='geo-journey'){recordGeoJourneyResult(result);return}
   if(sessionScope?.type!=='journey'||sessionScope.practiceOnly)return;
   ensureJourneyState();
   const subject=sessionScope.subject,grade=Number(sessionScope.journeyGrade||currentGrade()),nodeId=sessionScope.journeyNode,model=journeyModel(subject,grade),node=model.nodes.find(n=>n.id===nodeId);if(!node)return;
@@ -3334,6 +3485,7 @@ function resumeLastActivity(){
   const a=state.lastActivity;if(!a)return;
   if(a.kind==='journey'){openSubject(a.subject);startJourneyNode(a.subject,a.nodeId);return}
   if(a.kind==='subject'){openSubject(a.subject);startLearningSession(a.subject,a.module,a.label);return}
+  if(a.kind==='geo-journey'){startGeoJourneyNode(a.nodeId);return}
   if(a.kind==='geography-country'){startSession(a.country);return}
   if(a.kind==='geography-scope'&&a.scope){startSession(null,a.scope);return}
   if(a.kind==='geography-theme'){geoTheme=a.theme||'country';syncGeoThemeButtons();startGeographyTheme();return}
@@ -3398,27 +3550,24 @@ function syncGeoThemeButtons(){
   const label={country:'Land',capital:'Hovedsteder',flag:'Flagg',continent:'Verdensdeler',regions:'Norges landsdeler',map:'Kart'}[geoTheme]||'Geografi';
   document.getElementById('start-geography-theme').textContent='Start '+label+' 🚀';
 }
+
 function renderGeographyContinue(){
   const capitalTheme=document.querySelector('.geo-theme[data-geo-theme="capital"]');
   if(capitalTheme)capitalTheme.hidden=currentGrade()===1;
   if(currentGrade()===1&&geoTheme==='capital'){geoTheme='country';syncGeoThemeButtons()}
-  const active=state.activeSession?.scope,last=state.lastActivity;
-  const geoActive=!!active&&(active.subject==='geography'||!active.subject);
-  const geoLast=last&&String(last.kind||'').startsWith('geography');
+  renderGeoJourney();
+  const active=state.activeSession?.scope,prog=geoJourneyProgress(),next=geoJourneyRecommendedNode(),geoActive=!!active&&(active.subject==='geography'||!active.subject);
   const title=document.getElementById('geography-continue-title'),copy=document.getElementById('geography-continue-copy'),eye=document.getElementById('geography-continue-eyebrow'),btn=document.getElementById('geography-continue-button');
   if(!title||!btn)return;
-  if(geoActive){
-    eye.textContent='Pågående økt';title.textContent=active.label||'Geografi';copy.textContent='Du har en økt som ikke er ferdig ennå.';btn.textContent='Fortsett økten 🚀';btn.onclick=()=>startSession();return;
-  }
-  if(geoLast){
-    eye.textContent='Fortsett';title.textContent=activityCopy(last);copy.textContent='Fortsett i samme område med en ny kort økt.';btn.textContent='Fortsett 🚀';btn.onclick=resumeLastActivity;return;
-  }
+  if(geoActive){eye.textContent='Pågående økt';title.textContent=active.label||'Geografi';copy.textContent='Du har en økt som ikke er ferdig ennå.';btn.textContent='Fortsett økten 🚀';btn.onclick=()=>startSession();return}
+  if(prog.complete){eye.textContent='Trinnet er rundet';title.textContent='🏆 '+GRADE_CONFIG[currentGrade()].label+' fullført';copy.textContent='Utforsk fritt, repeter eller prøv en ekstra utfordring.';btn.textContent='Ekstra utfordring ⚡';btn.onclick=()=>{const c=prog.model.nodes.find(n=>n.type==='challenge');if(c)startGeoJourneyNode(c.id)};return}
+  if(next){eye.textContent='Neste på reisen';title.textContent=next.title;copy.textContent=next.areaTitle+' · '+geoJourneyStatusText(next,geoJourneyNodeState(next));btn.textContent='Fortsett reisen 🚀';btn.onclick=()=>startGeoJourneyNode(next.id);return}
   eye.textContent='Anbefalt nå';title.textContent='Land';copy.textContent='Fem korte spørsmål tilpasset '+GRADE_CONFIG[currentGrade()].label.toLowerCase()+'.';btn.textContent='Start 🚀';btn.onclick=()=>{geoTheme='country';syncGeoThemeButtons();startGeographyTheme()};
 }
 function returnToLearningHome(){
   const s=sessionScope?.subject;
   if(s&&s!=='geography'&&SUBJECTS[s]){openSubject(s);return}
-  if((sessionScope?.type==='subject'&&s==='geography')||String(sessionScope?.type||'').startsWith('geography')||['country','collection','world','grade'].includes(sessionScope?.type)){renderGeographyContinue();showScreen('geography');return}
+  if((sessionScope?.type==='subject'&&s==='geography')||(String(sessionScope?.type||'').startsWith('geography')||sessionScope?.type==='geo-journey')||['country','collection','world','grade'].includes(sessionScope?.type)){renderGeographyContinue();showScreen('geography');return}
   setTab('home');
 }
 
