@@ -452,6 +452,18 @@
     .grade-band-young .home-continue:not(:active){animation:youngMissionPulse 3.4s ease-in-out infinite}
     @media (prefers-reduced-motion:reduce){.grade-band-young .home-continue:not(:active){animation:none}}
     .grade-band-young .subject-progress-grid{grid-template-columns:1fr}.grade-band-young .subject-progress-card{padding:16px;border-radius:22px}
+    .grade-band-young #geography-screen .geography-head h1,.grade-band-young #subject-screen>h1{font-size:35px}
+    .grade-band-young #geography-screen .geography-head .hero-copy{font-size:14px}
+    .grade-band-young #geography-screen .world-hero{border-radius:31px;padding:20px;min-height:118px}
+    .grade-band-young #geography-screen .geography-continue,.grade-band-young .subject-hero{border-radius:29px;padding:21px}
+    .grade-band-young #geography-screen .geo-themes{display:grid;grid-template-columns:1fr 1fr;overflow:visible;gap:9px}
+    .grade-band-young #geography-screen .geo-theme{min-height:58px;border-radius:19px;font-size:14px;white-space:normal}
+    .grade-band-young #geography-screen #start-geography-theme{min-height:60px;border-radius:22px;font-size:17px}
+    .grade-band-young #geography-screen .continent-card{border-radius:24px;min-height:108px}
+    .grade-band-young #subject-screen .subject-hero .subject-big{font-size:60px}
+    .grade-band-young #subject-screen .subject-hero h2{font-size:25px}
+    .grade-band-young #subject-screen .subject-hero .primary{min-height:60px;border-radius:21px;font-size:17px}
+    .grade-band-young .section-title h3{font-size:20px}
     .grade-band-middle{--radius:28px}.grade-band-middle .home-subject{min-height:174px}
     .grade-band-older{--radius:24px}.grade-band-older:before,.grade-band-older:after{opacity:.35}.grade-band-older .home-subject{min-height:157px;border-radius:22px}.grade-band-older .home-subject-icon{width:47px;height:47px;border-radius:15px;font-size:25px}.grade-band-older .question{font-size:28px}.grade-band-older .subject-module{border-radius:19px}
     .grade-band-teen{--radius:20px}.grade-band-teen:before,.grade-band-teen:after{display:none}.grade-band-teen .brand:after{content:""}.grade-band-teen .avatar{width:43px;height:43px;border-radius:14px;font-size:22px}.grade-band-teen .home-subject{min-height:145px;border-radius:19px}.grade-band-teen .home-subject-icon{width:44px;height:44px;border-radius:13px;font-size:23px}.grade-band-teen .question{font-size:27px}.grade-band-teen .subject-module{border-radius:17px}
@@ -1842,7 +1854,12 @@ function startGeographyTheme(){
   else if(geoTheme==='capital')types=['capital','country'];
   else if(geoTheme==='map')types=['map'];
   else types=[geoTheme];
-  const qs=[];for(const item of questionPool(ids,true)){if(qs.length>=5)break;if(!types.includes(item.type))continue;qs.push(makeQuestion(item.k,item.type,ids))}
+  const candidates=questionPool(ids,true).filter(item=>types.includes(item.type)),qs=[];
+  if(grade<=2&&geoTheme==='country'){
+    const warm=candidates.find(item=>item.type==='flag'&&item.k==='no')||candidates.find(item=>item.type==='flag'&&item.k==='se')||candidates.find(item=>item.type==='flag');
+    if(warm)qs.push(makeQuestion(warm.k,warm.type,ids));
+  }
+  for(const item of candidates){if(qs.length>=5)break;if(qs.some(q=>q.k===item.k&&q.type===item.type))continue;qs.push(makeQuestion(item.k,item.type,ids))}
   if(!qs.length){toast('Du har nettopp klart oppgavene her. Prøv et annet geografitema litt først.');return}
   sessionScope={type:'geography-theme',label:'Geografi · '+({country:'Land',capital:'Hovedsteder',flag:'Flagg',continent:'Verdensdeler',map:'Kart'}[geoTheme]||'Geografi'),ids,includeMap:geoTheme==='map'};
   state.lastActivity={kind:'geography-theme',theme:geoTheme,label:({country:'Land',capital:'Hovedsteder',flag:'Flagg',continent:'Verdensdeler',regions:'Norges landsdeler',map:'Kart'}[geoTheme]||'Geografi')};
@@ -2002,7 +2019,10 @@ function answerLearningChoice(answer){
 function showLearningFeedback(q,correct){
   const box=document.getElementById('feedback');box.style.display='block';box.classList.toggle('bad',!correct);
   document.getElementById('feedback-title').textContent=correct?(currentGrade()<=2?'🦊 ⭐ Riktig!':'⭐ Riktig!'):'💪 Nesten!';
-  document.getElementById('feedback-copy').textContent=learningFeedbackText(q,correct);
+  let copy=learningFeedbackText(q,correct);
+  const last=state.answerLog[state.answerLog.length-1];
+  if(correct&&currentGrade()<=2&&last?.strengthened)copy+=' ⭐ Dette ble sterkere i samlingen din.';
+  document.getElementById('feedback-copy').textContent=copy;
   document.getElementById('next-question').style.display='block';
 }
 function renderBuildWord(q,wrap){
@@ -2567,6 +2587,8 @@ function showFeedback(q,correct){
   else if(q.type==='map')copy=`${c.name} ligger her på kartet.`;
   else if(q.type==='continent')copy=`${c.name} ligger i ${c.continent}.`;
   else copy=c.capital?`${c.capital} er hovedstaden i ${c.name}.`:`Riktig land er ${c.name}.`;
+  const last=state.answerLog[state.answerLog.length-1];
+  if(correct&&currentGrade()<=2&&last?.strengthened)copy+=' ⭐ '+c.name+' rykket ett steg frem i Min verden.';
   document.getElementById('feedback-copy').textContent=copy;
   document.getElementById('next-question').style.display='block';
 }
