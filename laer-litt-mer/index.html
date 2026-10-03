@@ -284,6 +284,42 @@
     .subject-module .module-icon{width:48px;height:48px;border-radius:16px;background:#F2F1FA;display:grid;place-items:center;font-size:25px;flex:0 0 auto}
     .subject-module strong{display:block;font-size:16px}.subject-module small{display:block;color:var(--muted);margin-top:3px;font-weight:750;line-height:1.35}
     .subject-progress{margin-top:14px;padding:14px 16px;border-radius:18px;background:rgba(255,255,255,.7);font-size:13px;font-weight:800;color:var(--muted)}
+    .journey-section{margin-top:20px}
+    .journey-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:0 2px 12px}
+    .journey-heading h2{font-size:22px;margin-top:5px}.journey-grade-chip{border-radius:999px;background:#fff;padding:8px 11px;font-size:11px;font-weight:950;color:#5A6690;box-shadow:0 4px 12px rgba(55,65,105,.08)}
+    .journey-summary{padding:16px 17px;display:flex;align-items:center;justify-content:space-between;gap:14px;background:linear-gradient(145deg,#FFFFFF,#F8F6FF)}
+    .journey-summary strong{display:block;font-size:15px;font-weight:950}.journey-summary span{display:block;margin-top:4px;color:var(--muted);font-size:11px;line-height:1.4;font-weight:750}
+    .journey-summary-ring{--journey-pct:0;width:58px;height:58px;border-radius:50%;display:grid;place-items:center;flex:0 0 auto;background:conic-gradient(#6A7DE8 calc(var(--journey-pct)*1%),#E8EAF2 0);position:relative}
+    .journey-summary-ring:after{content:"";position:absolute;inset:6px;border-radius:50%;background:#fff}.journey-summary-ring span{position:relative;z-index:1;margin:0;color:#46547B;font-size:11px;font-weight:950}
+    .journey-map{margin-top:15px;display:grid;gap:15px}
+    .journey-area{position:relative;padding:17px 13px 19px;border-radius:28px;background:linear-gradient(145deg,rgba(255,255,255,.88),rgba(248,250,255,.76));border:2px solid rgba(255,255,255,.95);box-shadow:0 8px 24px rgba(58,64,100,.07);overflow:hidden}
+    .journey-area:before{content:"";position:absolute;width:100px;height:100px;border-radius:50%;right:-34px;top:-42px;background:var(--area-soft,#EEF1FF);opacity:.85}
+    .journey-area-head{position:relative;z-index:1;display:flex;align-items:center;gap:10px;margin-bottom:10px}
+    .journey-area-icon{width:43px;height:43px;border-radius:15px;background:var(--area-soft,#EEF1FF);display:grid;place-items:center;font-size:23px}
+    .journey-area-head strong{display:block;font-size:17px}.journey-area-head small{display:block;color:var(--muted);font-size:10px;font-weight:800;margin-top:2px;line-height:1.3}
+    .journey-area-progress{margin-left:auto;font-size:10px;font-weight:950;color:#63708E;background:#fff;border-radius:999px;padding:6px 8px;box-shadow:0 3px 9px rgba(60,66,100,.06);white-space:nowrap}
+    .journey-nodes{position:relative;padding:3px 0}.journey-nodes:before{content:"";position:absolute;top:18px;bottom:18px;left:50%;width:4px;transform:translateX(-50%);border-radius:999px;background:linear-gradient(180deg,#D9DEEE,#E9EAF1)}
+    .journey-node-row{position:relative;z-index:1;min-height:82px;display:flex;align-items:center}
+    .journey-node-row.left{justify-content:flex-start;padding-right:26%}.journey-node-row.right{justify-content:flex-end;padding-left:26%}.journey-node-row.center{justify-content:center}
+    .journey-node{border:0;background:transparent;color:var(--ink);display:flex;align-items:center;gap:9px;text-align:left;padding:0;cursor:pointer;max-width:220px}
+    .journey-node-row.right .journey-node{flex-direction:row-reverse;text-align:right}
+    .journey-node-orb{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;flex:0 0 auto;background:#fff;border:5px solid #D9DEEA;box-shadow:0 6px 0 rgba(65,72,112,.10),0 10px 20px rgba(60,66,105,.10);font-size:20px;font-weight:950;position:relative}
+    .journey-node-copy strong{display:block;font-size:12px;font-weight:950;line-height:1.2}.journey-node-copy small{display:block;margin-top:3px;font-size:9px;line-height:1.25;color:var(--muted);font-weight:850}
+    .journey-node.state-active .journey-node-orb{border-color:#FFD169;background:#FFF7D8}.journey-node.state-can-now .journey-node-orb{border-color:#64C08E;background:#EAF8F0}.journey-node.state-mastered .journey-node-orb{border-color:#E2A92E;background:#FFF2BF}.journey-node.state-passed .journey-node-orb{border-color:#6A7DE8;background:#EEF0FF}
+    .journey-node.state-next .journey-node-orb{border-color:#657BE9;background:#fff;box-shadow:0 0 0 7px rgba(101,123,233,.13),0 6px 0 rgba(65,72,112,.10),0 12px 24px rgba(88,101,184,.20);animation:journeyPulse 1.9s ease-in-out infinite}
+    .journey-node.state-future{opacity:.63}.journey-node.state-future .journey-node-orb{background:#F6F7FA}
+    .journey-node.type-checkpoint .journey-node-orb{width:65px;height:65px;border-radius:22px}.journey-node.type-challenge .journey-node-orb,.journey-node.type-review .journey-node-orb{border-radius:18px}
+    @keyframes journeyPulse{0%,100%{box-shadow:0 0 0 5px rgba(101,123,233,.10),0 6px 0 rgba(65,72,112,.10),0 12px 24px rgba(88,101,184,.15)}50%{box-shadow:0 0 0 9px rgba(101,123,233,.16),0 6px 0 rgba(65,72,112,.10),0 14px 28px rgba(88,101,184,.22)}}
+    .journey-finish{margin-top:15px;padding:17px;background:linear-gradient(145deg,#F3F5FF,#FFF9E8)}
+    .journey-finish strong{display:block;font-size:16px;font-weight:950}.journey-finish p{font-size:11px;margin-top:5px}.journey-finish.complete{background:linear-gradient(145deg,#FFF1B8,#FFF9E6);border-color:#FFE08B}
+    .journey-finish-actions{display:flex;gap:8px;margin-top:12px}.journey-finish-actions button{flex:1;min-height:43px}
+    .journey-sidequests{margin-top:18px}.journey-sidequest-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .journey-sidequest{border:2px solid #fff;border-radius:21px;padding:14px 12px;background:rgba(255,255,255,.88);color:var(--ink);text-align:left;cursor:pointer;box-shadow:0 5px 0 rgba(70,72,115,.05)}
+    .journey-sidequest span{font-size:25px;display:block;margin-bottom:7px}.journey-sidequest strong{display:block;font-size:13px;font-weight:950}.journey-sidequest small{display:block;margin-top:4px;color:var(--muted);font-size:9px;line-height:1.35;font-weight:750}
+    .journey-sidequest.review{background:linear-gradient(145deg,#ECF7FF,#fff)}.journey-sidequest.challenge{background:linear-gradient(145deg,#FFF5D5,#fff)}
+    .free-practice-title{margin-top:22px}
+    @media (prefers-reduced-motion:reduce){.journey-node.state-next .journey-node-orb{animation:none}}
+
     .geo-themes{display:flex;gap:8px;overflow-x:auto;padding:3px 2px 8px;margin:10px -2px 4px;scrollbar-width:none}.geo-themes::-webkit-scrollbar{display:none}
     .geo-theme{flex:0 0 auto;border:2px solid #E5E3EF;background:#fff;color:#5F6682;border-radius:999px;padding:9px 12px;font-weight:900;cursor:pointer;min-height:44px}
     .geo-theme.active{background:#E8EEFF;border-color:#8191E8;color:#4659B9}
@@ -1657,6 +1693,29 @@
         <button class="primary" id="start-subject-session" type="button">Start 5 oppgaver 🚀</button>
       </div>
 
+      <div class="journey-section" id="subject-journey-section">
+        <div class="journey-heading">
+          <div><div class="eyebrow">Læringsreisen</div><h2 id="journey-heading-title">Din vei gjennom trinnet</h2></div>
+          <div class="journey-grade-chip" id="journey-grade-chip">3. klasse</div>
+        </div>
+        <div class="card journey-summary">
+          <div>
+            <strong id="journey-summary-title">0 % gjennom kjerneløpet</strong>
+            <span id="journey-summary-copy">Følg stien, eller trykk på et punkt du vil øve på.</span>
+          </div>
+          <div class="journey-summary-ring" id="journey-summary-ring" style="--journey-pct:0"><span id="journey-summary-pct">0%</span></div>
+        </div>
+        <div class="journey-map" id="journey-map" aria-label="Læringssti"></div>
+        <div class="card journey-finish" id="journey-finish"></div>
+        <div class="journey-sidequests" id="journey-sidequests">
+          <div class="section-title"><h3>Sideoppdrag</h3><span>Frivillig</span></div>
+          <div class="journey-sidequest-grid">
+            <button class="journey-sidequest review" id="journey-review" type="button"><span>🔁</span><strong>Husker du?</strong><small>Repeter noe du har møtt før.</small></button>
+            <button class="journey-sidequest challenge" id="journey-challenge" type="button"><span>⚡</span><strong>Ekstra utfordring</strong><small>En blandet runde uten å flytte stien.</small></button>
+          </div>
+        </div>
+      </div>
+
       <div class="math-lab-entry" id="math-lab-entry" hidden>
         <div class="section-title"><h3>Eksperimenter</h3><span>Åpent på alle trinn</span></div>
         <div class="math-lab-grid">
@@ -1673,7 +1732,7 @@
         </div>
       </div>
 
-      <div class="section-title"><h3>Hva vil du øve på?</h3><span id="subject-grade-label"></span></div>
+      <div class="section-title free-practice-title"><h3>Øv fritt</h3><span id="subject-grade-label">Velg område</span></div>
       <div class="subject-modules" id="subject-modules"></div>
 
       <div class="hub-progress-line">
@@ -2107,7 +2166,7 @@ function missionLabel(){return gradeConfig().mission}
 
 const STORAGE_KEY='laerlittmer-v2';
 const defaultState={
-  version:5,
+  version:6,
   progressSchemaVersion:2,
   profile:{grade:null,onboarded:false},
   mastery:{},
@@ -2121,6 +2180,7 @@ const defaultState={
   lastMilestone:null,
   recentCountryWin:null,
   lastActivity:null,
+  journey:{nodes:{},gradeWins:{}},
   answerLog:[],
   sessionLog:[],
   activeSession:null
@@ -2156,6 +2216,7 @@ function loadState(){
       masteryEvidence:parsed.masteryEvidence||{},skillEvidence:parsed.skillEvidence||{},
       preferences:{...defaultState.preferences,...(parsed.preferences||{})},
       lastMilestone:parsed.lastMilestone||null,recentCountryWin:parsed.recentCountryWin||null,
+      journey:{nodes:{...(parsed.journey?.nodes||{})},gradeWins:{...(parsed.journey?.gradeWins||{})}},
       answerLog:Array.isArray(parsed.answerLog)?parsed.answerLog:[],
       sessionLog:Array.isArray(parsed.sessionLog)?parsed.sessionLog:[]
     };
@@ -2693,6 +2754,131 @@ const SUBJECT_MODULES={
     {id:'grammar',minGrade:3,icon:'🧠',title:'Grammar',copy:'Verb, pronouns og språkstruktur på riktig nivå.'}
   ]
 };
+
+function jSkill(id,title,skills,module,copy=''){return {id,type:'skill',title,skills:Array.isArray(skills)?skills:[skills],module,copy}}
+function jArea(id,title,emoji,module,skillNodes,copy=''){
+  const areaSkills=[...new Set(skillNodes.flatMap(n=>n.skills||[]))];
+  return {id,title,emoji,module,copy,areaSkills,nodes:[
+    ...skillNodes,
+    {id:id+'-challenge',type:'challenge',title:'Utfordring',skills:areaSkills,module,copy:'Bland ferdighetene i området.'},
+    {id:id+'-review',type:'review',title:'Husker du?',skills:areaSkills,module,copy:'Frivillig repetisjon.'},
+    {id:id+'-checkpoint',type:'checkpoint',title:'Checkpoint',skills:areaSkills,module,copy:'Vis at området sitter nå.'}
+  ]};
+}
+const JOURNEY_TEMPLATES={
+  norwegian:[
+    {min:1,max:2,areas:[
+      jArea('ordstart','Bokstaver og ord','🔤','spelling',[jSkill('lyder','Lyder og bokstaver',['letter-sound','missing-letter'],'spelling'),jSkill('ordbilder','Ord og bilder',['word-picture'],'reading'),jSkill('ordlek','Ordlek',['rhyme','synonyms'],'language')],'Bygg trygghet med lyder, bokstaver og korte ord.'),
+      jArea('setninger','Setningsbygger','🧱','language',[jSkill('setningsrekkefolge','Bygg setninger',['sentence-order'],'language'),jSkill('ordbetydning','Ord som ligner',['synonyms','rhyme'],'language')],'Sett ord sammen og oppdag hvordan språk henger sammen.'),
+      jArea('lesedetektiv','Lesedetektiv','🔎','reading',[jSkill('detaljer','Finn detaljer',['reading-detail'],'reading'),jSkill('forsta','Forstå teksten',['reading-comprehension'],'reading'),jSkill('tenkvidere','Tenk videre',['reading-inference'],'reading')],'Les korte tekster og finn mening.')
+    ]},
+    {min:3,max:4,areas:[
+      jArea('staving','Stavemester','✍️','spelling',[jSkill('rettskriving','Riktig stavemåte',['spelling'],'spelling'),jSkill('dobbel','Dobbel konsonant',['double-consonant'],'spelling'),jSkill('sammensatte','Sammensatte ord',['compound-words'],'spelling')]),
+      jArea('sprakbygger','Språkbygger','🧩','language',[jSkill('ordklasser','Ordklasser',['word-class'],'language'),jSkill('tegnsetting','Tegnsetting',['punctuation'],'language'),jSkill('setninger','Bygg gode setninger',['sentence-order'],'language')]),
+      jArea('ordkraft','Ordkraft','💬','language',[jSkill('synonymer','Ord med lignende betydning',['synonyms'],'language'),jSkill('setningsflyt','Setningsflyt',['sentence-order','punctuation'],'language')]),
+      jArea('leseforstaelse','Les og forstå','📚','reading',[jSkill('lesedetaljer','Finn informasjon',['reading-detail'],'reading'),jSkill('hovedpoeng','Finn hovedpoenget',['reading-main-idea','reading-comprehension'],'reading'),jSkill('mellomlinjene','Les mellom linjene',['reading-inference'],'reading')])
+    ]},
+    {min:5,max:7,areas:[
+      jArea('grammatikk','Språk og grammatikk','🧠','language',[jSkill('grammatikk','Grammatikk',['grammar'],'language'),jSkill('tegn','Tegnsetting',['punctuation'],'language'),jSkill('setningsstruktur','Setningsstruktur',['sentence-order'],'language')]),
+      jArea('ordforrad','Ordforråd','🗣️','language',[jSkill('synonymer','Presise ord',['synonyms'],'language'),jSkill('nynorsk','Bokmål og nynorsk',['nynorsk'],'language')]),
+      jArea('lesedypere','Les dypere','🔎','reading',[jSkill('hovedide','Hovedidé',['reading-main-idea'],'reading'),jSkill('inferens','Mellom linjene',['reading-inference'],'reading'),jSkill('kildespor','Spor kilden',['reading-source'],'reading')]),
+      jArea('tekstblikk','Tekst og virkemidler','📝','reading',[jSkill('retorisklesing','Hvordan teksten virker',['reading-rhetoric','reading-main-idea'],'reading'),jSkill('detaljbevis','Finn belegg',['reading-detail','reading-source'],'reading')])
+    ]},
+    {min:8,max:10,areas:[
+      jArea('retorikk','Retorikk','🎙️','language',[jSkill('retorikkgrep','Retoriske grep',['rhetoric'],'language'),jSkill('argumenter','Argumentasjon',['argumentation'],'language')]),
+      jArea('kildekritikk','Kildekritikk','🧭','language',[jSkill('kildekritikk','Vurder kilder',['source-criticism'],'language'),jSkill('kildelesing','Kilder i tekst',['reading-source'],'reading')]),
+      jArea('litteratur','Litterære virkemidler','📚','language',[jSkill('virkemidler','Virkemidler',['literary-devices'],'language'),jSkill('tolkning','Tolk tekst',['reading-rhetoric','reading-inference'],'reading')]),
+      jArea('saktekst','Saklig og presist','✒️','language',[jSkill('sprakvalg','Presist språk',['language'],'language'),jSkill('hovedpoeng','Hovedpoeng og begrunnelse',['reading-main-idea','argumentation'],'reading')])
+    ]}
+  ],
+  math:[
+    {min:1,max:1,areas:[jArea('tall','Tall på plass','🔢','numbers',[jSkill('tallrekkefolge','Tallrekkefølge',['number-order'],'numbers')]),jArea('pluss','Pluss til 10','➕','numbers',[jSkill('addisjon10','Legg sammen',['addition-10'],'numbers')])]},
+    {min:2,max:2,areas:[jArea('tall100','Tall til 100','🔢','numbers',[jSkill('plassverdi','Plassverdi',['place-value'],'numbers'),jSkill('rekkefolge','Tallrekkefølge',['number-order'],'numbers')]),jArea('pluss100','Addisjon','➕','numbers',[jSkill('addisjon100','Legg sammen',['addition-100'],'numbers')]),jArea('minus100','Subtraksjon','➖','numbers',[jSkill('sub100','Trekk fra',['subtraction-100'],'numbers')])]},
+    {min:3,max:3,areas:[jArea('ganging','Ganging','✖️','numbers',[jSkill('gange','Gangestykker',['multiplication'],'numbers'),jSkill('tallmønster','Tall i rekkefølge',['number-order'],'numbers')]),jArea('deling','Deling','➗','numbers',[jSkill('dele','Delestykker',['division'],'numbers')])]},
+    {min:4,max:4,areas:[jArea('store-regnestykker','Regn videre','🧮','numbers',[jSkill('ganging','Ganging',['multiplication'],'numbers'),jSkill('deling','Deling',['division'],'numbers'),jSkill('storetall','Store tall',['large-numbers'],'numbers')]),jArea('brokstart','Brøk','🍕','fractions',[jSkill('brok','Forstå brøk',['fractions'],'fractions')])]},
+    {min:5,max:5,areas:[jArea('tallregning','Tall og desimaler','🔢','numbers',[jSkill('desimal','Desimaltall',['decimals'],'numbers'),jSkill('storetall','Store tall',['large-numbers'],'numbers'),jSkill('firearter','Gange og dele',['multiplication','division'],'numbers')]),jArea('brokprosent','Brøk og prosent','🍕','fractions',[jSkill('brok','Brøk',['fractions'],'fractions'),jSkill('prosent','Prosent',['percent'],'fractions'),jSkill('desimalbrok','Brøk og desimal',['decimals'],'fractions')]),jArea('geometri','Geometri og måling','📐','geometry',[jSkill('areal','Areal',['area'],'geometry'),jSkill('omkrets','Omkrets',['perimeter'],'geometry'),jSkill('vinkelenheter','Vinkler og enheter',['angles','units'],'geometry')])]},
+    {min:6,max:6,areas:[jArea('regnerekkefolge','Tall og regnerekkefølge','🧮','numbers',[jSkill('desimal','Desimaltall',['decimals'],'numbers'),jSkill('rekkefolge','Regnerekkefølge',['order'],'numbers'),jSkill('firearter','Gange og dele',['multiplication','division'],'numbers')]),jArea('brokforhold','Brøk, prosent og forhold','🍕','fractions',[jSkill('brok','Brøk',['fractions'],'fractions'),jSkill('prosent','Prosent',['percent'],'fractions'),jSkill('forhold','Forhold',['ratio'],'fractions')]),jArea('geometri','Geometri','📐','geometry',[jSkill('arealomkrets','Areal og omkrets',['area','perimeter'],'geometry'),jSkill('vinkler','Vinkler',['angles'],'geometry'),jSkill('volum','Volum og enheter',['volume','units'],'geometry')])]},
+    {min:7,max:7,areas:[jArea('tallmakt','Tall, potenser og statistikk','🔢','numbers',[jSkill('negative','Negative tall',['negative'],'numbers'),jSkill('potenser','Potenser',['powers'],'numbers'),jSkill('statistikk','Statistikk',['statistics'],'numbers')]),jArea('prosentforhold','Prosent og forhold','📊','fractions',[jSkill('prosent','Prosent',['percent'],'fractions'),jSkill('forhold','Forhold',['ratio'],'fractions'),jSkill('brokdesimal','Brøk og desimal',['fractions','decimals'],'fractions')]),jArea('geometri','Geometri','📐','geometry',[jSkill('vinkler','Vinkler',['angles'],'geometry'),jSkill('sirkel','Sirkel og målestokk',['circle','scale'],'geometry'),jSkill('arealvolum','Areal og volum',['area','volume'],'geometry')]),jArea('algebra','Algebra','🧩','algebra',[jSkill('likninger','Likninger',['algebra'],'algebra'),jSkill('monster','Mønstre',['pattern'],'algebra'),jSkill('uttrykk','Uttrykk',['expression'],'algebra')])]},
+    {min:8,max:10,areas:[jArea('tallforstaelse','Tall og statistikk','🔢','numbers',[jSkill('negative','Negative tall',['negative'],'numbers'),jSkill('potenserrot','Potenser og røtter',['powers','roots'],'numbers'),jSkill('statistikk','Statistikk',['statistics'],'numbers')]),jArea('prosent','Prosent og endring','📊','fractions',[jSkill('prosentendring','Prosentvis endring',['percent-change'],'fractions'),jSkill('brokdesimal','Brøk og desimal',['fractions','decimals'],'fractions')]),jArea('geometri','Geometri og målestokk','📐','geometry',[jSkill('pythagoras','Pytagoras',['pythagoras'],'geometry'),jSkill('sirkel','Sirkel',['circle','area'],'geometry'),jSkill('malestokk','Målestokk',['scale'],'geometry')]),jArea('algebrafunksjon','Algebra og funksjoner','📈','algebra',[jSkill('likninger','Likninger',['algebra'],'algebra'),jSkill('lineaer','Lineære sammenhenger',['linear'],'algebra'),jSkill('funksjoner','Funksjoner',['functions'],'algebra')])]}
+  ],
+  english:[
+    {min:1,max:2,areas:[jArea('firstwords','First words','🖼️','words',[jSkill('words','Words',['words','spelling'],'words'),jSkill('numbers','Numbers',['numbers'],'words')]),jArea('talk','Talk and build','💬','sentences',[jSkill('phrases','Useful phrases',['phrases'],'sentences'),jSkill('sentences','Build sentences',['sentence'],'sentences')]),jArea('read','Read English','📘','reading',[jSkill('reading','Read and understand',['reading'],'reading')])]},
+    {min:3,max:4,areas:[jArea('vocab','Vocabulary','🗣️','words',[jSkill('vocabulary','New words',['vocabulary'],'words')]),jArea('grammar','Grammar basics','🧠','grammar',[jSkill('verbs','Verbs',['verbs','past-tense'],'grammar'),jSkill('pronouns','Pronouns',['pronouns'],'grammar'),jSkill('grammar','Grammar',['grammar'],'grammar')]),jArea('sentences','Sentences','💬','sentences',[jSkill('sentence','Build and choose sentences',['sentence','phrases'],'sentences')]),jArea('reading','Reading','📘','reading',[jSkill('reading','Read and understand',['reading'],'reading')])]},
+    {min:5,max:7,areas:[jArea('vocab','Vocabulary','🗣️','words',[jSkill('vocabulary','Vocabulary',['vocabulary'],'words')]),jArea('grammar','Grammar and verbs','🧠','grammar',[jSkill('past','Past tense',['past-tense'],'grammar'),jSkill('grammar','Grammar',['grammar','pronouns','verbs'],'grammar')]),jArea('communication','Communication','💬','sentences',[jSkill('sentence','Sentences and replies',['sentence','phrases'],'sentences')]),jArea('reading','Reading and inference','📘','reading',[jSkill('reading','Read, infer and explain',['reading'],'reading')])]},
+    {min:8,max:10,areas:[jArea('academic-vocab','Academic vocabulary','🗣️','words',[jSkill('vocabulary','Precise vocabulary',['vocabulary'],'words')]),jArea('advanced-grammar','Advanced grammar','🧠','grammar',[jSkill('grammar','Advanced grammar',['grammar'],'grammar')]),jArea('formal-language','Clear communication','✍️','sentences',[jSkill('sentence','Formal and clear sentences',['sentence'],'sentences')]),jArea('critical-reading','Critical reading','📘','reading',[jSkill('reading','Main idea, evidence and tone',['reading'],'reading')])]}
+  ]
+};
+function subjectPoolForGrade(subject,grade,module=null){
+  if(subject==='norwegian')return norwegianPool(grade,module).filter(validLearningQuestion);
+  if(subject==='math')return mathPool(grade,module).filter(validLearningQuestion);
+  if(subject==='english')return englishPool(grade,module).filter(validLearningQuestion);
+  return [];
+}
+function rawJourneyTemplate(subject,grade=currentGrade()){return (JOURNEY_TEMPLATES[subject]||[]).find(t=>grade>=t.min&&grade<=t.max)||null}
+function journeyModel(subject,grade=currentGrade()){
+  const tpl=rawJourneyTemplate(subject,grade);if(!tpl)return {subject,grade,areas:[],nodes:[]};
+  const fullPool=subjectPoolForGrade(subject,grade,null),availableSkills=new Set(fullPool.map(q=>q.skill)),areas=[];
+  for(const source of tpl.areas){
+    const skillNodes=source.nodes.filter(n=>n.type==='skill').map(n=>({...n,skills:n.skills.filter(s=>availableSkills.has(s))})).filter(n=>n.skills.length);
+    if(!skillNodes.length)continue;
+    const areaSkills=[...new Set(skillNodes.flatMap(n=>n.skills))];
+    const extras=source.nodes.filter(n=>n.type!=='skill').map(n=>({...n,skills:areaSkills}));
+    const nodes=[...skillNodes,...extras].map(n=>({...n,subject,grade,areaId:source.id,areaTitle:source.title,areaSkills,module:n.module||source.module}));
+    areas.push({...source,areaSkills,nodes});
+  }
+  return {subject,grade,areas,nodes:areas.flatMap(a=>a.nodes)};
+}
+function ensureJourneyState(){state.journey=state.journey||{nodes:{},gradeWins:{}};state.journey.nodes=state.journey.nodes||{};state.journey.gradeWins=state.journey.gradeWins||{}}
+function journeyNodeKey(subject,grade,nodeId){return subject+':'+grade+':'+nodeId}
+function journeyNodeRecord(node){ensureJourneyState();return state.journey.nodes[journeyNodeKey(node.subject,node.grade,node.id)]||{}}
+function journeySkillStage(node){
+  const stages=(node.skills||[]).map(skill=>skillStage(node.subject,skill));if(!stages.length)return 'new';
+  if(stages.every(s=>s==='mastered'))return 'mastered';
+  if(stages.every(s=>stageRank(s)>=stageRank('can-now')))return 'can-now';
+  if(stages.some(s=>stageRank(s)>=stageRank('seen')))return 'active';
+  return 'new';
+}
+function journeyNodeState(node){
+  if(node.type==='skill')return journeySkillStage(node);
+  const rec=journeyNodeRecord(node);
+  if((node.type==='checkpoint'||node.type==='challenge')&&rec.passed)return 'passed';
+  if(node.type==='review'){
+    const due=(node.skills||[]).some(skill=>{const ev=evidenceForSkill(node.subject,skill),st=skillStage(node.subject,skill);return reviewDue(st,ev)});
+    return due?'active':'new';
+  }
+  return 'new';
+}
+function journeyAreaComplete(area){
+  const skillDone=area.nodes.filter(n=>n.type==='skill').every(n=>['can-now','mastered'].includes(journeyNodeState(n)));
+  const checkpoint=area.nodes.find(n=>n.type==='checkpoint');
+  return skillDone&&!!journeyNodeRecord(checkpoint).passed;
+}
+function journeyProgress(subject,grade=currentGrade()){
+  const model=journeyModel(subject,grade),required=model.nodes.filter(n=>n.type==='skill'||n.type==='checkpoint');
+  const done=required.filter(n=>n.type==='skill'?['can-now','mastered'].includes(journeyNodeState(n)):!!journeyNodeRecord(n).passed).length;
+  const pct=required.length?Math.round(done/required.length*100):0,areasDone=model.areas.filter(journeyAreaComplete).length;
+  return {model,required,done,total:required.length,pct,areasDone,complete:model.areas.length>0&&areasDone===model.areas.length};
+}
+function journeyRecommendedNode(subject,grade=currentGrade()){
+  const {model}=journeyProgress(subject,grade);if(!model.nodes.length)return null;
+  for(const area of model.areas){
+    for(const n of area.nodes.filter(x=>x.type==='skill'))if(!['can-now','mastered'].includes(journeyNodeState(n)))return n;
+    const cp=area.nodes.find(n=>n.type==='checkpoint');if(cp&&!journeyNodeRecord(cp).passed)return cp;
+  }
+  return model.nodes.find(n=>n.type==='review')||model.nodes[0];
+}
+function journeyStatusText(node,stateName){
+  if(node.type==='checkpoint')return stateName==='passed'?'Bestått':'Checkpoint';
+  if(node.type==='challenge')return stateName==='passed'?'Klart':'Ekstra';
+  if(node.type==='review')return stateName==='active'?'Klar for repetisjon':'Frivillig';
+  if(stateName==='mastered')return 'Mestret';if(stateName==='can-now')return 'Kan nå';if(stateName==='active')return 'Under arbeid';return 'Ny';
+}
+function journeyNodeIcon(node,stateName){
+  if(node.type==='checkpoint')return stateName==='passed'?'✓':'🏆';
+  if(node.type==='challenge')return stateName==='passed'?'✓':'⚡';
+  if(node.type==='review')return '🔁';
+  if(stateName==='mastered')return '★';if(stateName==='can-now')return '●';if(stateName==='active')return '◐';return '●';
+}
 const NORWAY_REGIONS=[
   {region:'Østlandet',place:'Oslo'},{region:'Østlandet',place:'Lillehammer'},{region:'Østlandet',place:'Hamar'},{region:'Østlandet',place:'Drammen'},{region:'Østlandet',place:'Fredrikstad'},{region:'Østlandet',place:'Skien'},
   {region:'Sørlandet',place:'Kristiansand'},{region:'Sørlandet',place:'Arendal'},
