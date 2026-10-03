@@ -303,6 +303,49 @@
     .word-tile{font-size:16px;min-width:auto}.letter-tile.used,.word-tile.used{opacity:.25;box-shadow:none;pointer-events:none}
     .sentence-target{min-height:62px;border:2px dashed #CCD1E2;border-radius:18px;background:#fff;padding:10px;display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;margin:14px 0}
     .sentence-target button{border:0;background:#EAF7EF;color:#34745A;border-radius:12px;padding:9px 11px;font-weight:900}
+    /* Brøklab: åpent eksperimentrom. Klassetrinn anbefaler, men låser aldri innhold. */
+    .math-lab-entry{margin:18px 0 2px}
+    .math-lab-card{width:100%;border:0;text-align:left;padding:19px;border-radius:27px;background:linear-gradient(145deg,#FFF0B8,#FFF8E4);color:var(--ink);box-shadow:0 8px 0 rgba(170,126,42,.08),0 15px 30px rgba(65,64,104,.07);display:flex;align-items:center;gap:15px;cursor:pointer}
+    .math-lab-card:active{transform:translateY(2px)}
+    .math-lab-card .module-icon{width:58px;height:58px;border-radius:20px;background:rgba(255,255,255,.8);display:grid;place-items:center;font-size:31px;flex:0 0 auto}
+    .math-lab-card strong{display:block;font-size:18px;font-weight:950}.math-lab-card small{display:block;color:var(--muted);margin-top:4px;font-size:12px;font-weight:750;line-height:1.4}
+    .lab-head{padding:4px 2px 2px}.lab-head h1{margin-bottom:7px}.lab-recommend{margin:14px 0 18px;padding:16px 17px;background:linear-gradient(145deg,#FFF4CB,#FFFDF2)}
+    .lab-recommend strong{display:block;font-size:15px}.lab-recommend p{font-size:12px;margin-top:4px}
+    .lab-mode-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:12px 0 18px}
+    .lab-mode{border:2px solid #fff;background:#fff;color:var(--ink);border-radius:21px;padding:14px 12px;text-align:left;min-height:100px;box-shadow:0 5px 0 rgba(70,72,115,.05);cursor:pointer}
+    .lab-mode.active{border-color:#F0BC4D;background:#FFF7D9;box-shadow:0 5px 0 rgba(202,148,42,.13)}
+    .lab-mode .emoji{display:block;font-size:28px;margin-bottom:7px}.lab-mode strong{display:block;font-size:14px}.lab-mode small{display:block;font-size:10px;line-height:1.3;color:var(--muted);margin-top:4px;font-weight:750}
+    .fraction-toolbar{display:flex;align-items:center;justify-content:space-between;gap:9px;margin-bottom:12px}
+    .fraction-toolbar .secondary{font-size:12px;padding:10px 12px;min-height:42px}
+    .fraction-lab-workspace{padding:16px;background:rgba(255,255,255,.84);border-radius:27px;box-shadow:0 8px 0 rgba(70,72,115,.05)}
+    .fraction-lab-workspace h2{font-size:21px}.fraction-lab-workspace .lab-instruction{font-size:13px;margin:5px 0 15px}
+    .fraction-wall{display:grid;gap:6px}
+    .fraction-wall-row{display:grid;gap:4px;height:38px}
+    .fraction-wall-piece{border:2px solid rgba(255,255,255,.9);border-radius:10px;color:#26334E;font-weight:950;font-size:12px;min-width:0;cursor:pointer;box-shadow:inset 0 -3px 0 rgba(50,60,90,.07)}
+    .fraction-wall-piece:active{transform:translateY(1px)}
+    .fraction-wall-row[data-den="1"] .fraction-wall-piece{background:#F58C72}.fraction-wall-row[data-den="2"] .fraction-wall-piece{background:#F3AE5B}.fraction-wall-row[data-den="3"] .fraction-wall-piece{background:#F2D35F}.fraction-wall-row[data-den="4"] .fraction-wall-piece{background:#B6D66E}.fraction-wall-row[data-den="5"] .fraction-wall-piece{background:#7BC68E}.fraction-wall-row[data-den="6"] .fraction-wall-piece{background:#57B9A0}.fraction-wall-row[data-den="8"] .fraction-wall-piece{background:#5FC1D6}.fraction-wall-row[data-den="10"] .fraction-wall-piece{background:#68A9D8}.fraction-wall-row[data-den="12"] .fraction-wall-piece{background:#9B88CF}
+    .fraction-tray{min-height:78px;margin:14px 0 8px;padding:10px;border:3px dashed #DADDEA;border-radius:20px;background:#FAFAFD;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+    .fraction-tray.empty:before{content:"Trykk på brøkbiter for å legge dem her";color:#9298AA;font-size:12px;font-weight:800}
+    .fraction-chip{border:0;border-radius:14px;padding:10px 11px;background:#EEF1FF;color:#42527A;font-weight:950;cursor:pointer;min-height:42px}
+    .fraction-chip small{display:block;font-size:9px;font-weight:850;opacity:.72;margin-top:2px}
+    .fraction-total{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:11px 13px;border-radius:16px;background:#F3F5FA;font-size:13px;font-weight:850}
+    .fraction-total strong{font-size:18px}.fraction-total.good{background:#E7F7ED;color:#246747}.fraction-total.over{background:#FFF0EC;color:#9B4A3E}
+    .fraction-palette{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+    .fraction-palette button{border:2px solid #fff;background:#F4F2FA;color:#3D4965;border-radius:15px;min-width:52px;min-height:45px;font-weight:950;cursor:pointer;box-shadow:0 4px 0 rgba(70,72,115,.05)}
+    .fraction-circle-wrap{display:grid;place-items:center;margin:12px 0 17px}
+    .fraction-circle{width:min(72vw,250px);aspect-ratio:1;border-radius:50%;border:5px solid #fff;box-shadow:0 8px 0 rgba(70,72,115,.08),0 14px 28px rgba(65,64,104,.08);background:#EEF0F5;position:relative;overflow:hidden}
+    .fraction-circle svg{width:100%;height:100%;display:block}
+    .fraction-circle-center{position:absolute;inset:35%;border-radius:50%;background:rgba(255,255,255,.94);display:grid;place-items:center;text-align:center;font-weight:950;font-size:14px;box-shadow:0 2px 10px rgba(60,60,90,.08)}
+    .compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.compare-side{padding:12px;border-radius:20px;background:#F7F7FB}
+    .compare-side h3{font-size:15px;margin-bottom:8px}.compare-strip{height:42px;border-radius:13px;background:#ECEEF4;overflow:hidden;border:2px solid #fff}.compare-fill{height:100%;background:linear-gradient(90deg,#69B7E7,#7E8DE7);border-radius:10px}
+    .compare-picks{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}.compare-picks button{border:0;border-radius:11px;padding:8px;background:#fff;font-weight:900;color:#46516D;cursor:pointer}.compare-picks button.active{background:#5A7DF2;color:#fff}
+    .compare-result{text-align:center;font-size:18px;font-weight:950;margin-top:14px;padding:12px;border-radius:16px;background:#EEF1FF}
+    .equiv-list{display:grid;gap:10px;margin-top:12px}.equiv-row{display:grid;grid-template-columns:66px 1fr;gap:10px;align-items:center}.equiv-label{font-weight:950;text-align:center}.equiv-bar{height:34px;border-radius:11px;background:#ECEEF4;overflow:hidden;border:2px solid #fff}.equiv-bar i{display:block;height:100%;background:linear-gradient(90deg,#77C997,#61B5C9);border-radius:9px}
+    .lab-hint{margin-top:13px;padding:12px 14px;border-radius:16px;background:#FFF7D9;color:#725B21;font-size:12px;font-weight:800;line-height:1.45}
+    .lab-clear{width:100%;margin-top:11px}
+    .grade-band-young .lab-mode{min-height:110px;border-radius:24px}.grade-band-young .fraction-wall-row{height:42px}.grade-band-young .fraction-wall-piece{font-size:13px}
+    .grade-band-teen .lab-mode{min-height:88px;border-radius:17px}.grade-band-teen .fraction-lab-workspace{border-radius:20px}
+    @media (max-width:370px){.lab-mode-grid{gap:8px}.lab-mode{padding:12px 10px}.compare-grid{grid-template-columns:1fr}.fraction-wall-piece{font-size:10px}}
     .subject-progress-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
     .subject-progress-card{background:#fff;border-radius:20px;padding:14px;box-shadow:0 5px 0 rgba(70,72,115,.04)}
     .subject-progress-card strong{display:block;font-size:14px}.subject-progress-card span{display:block;margin-top:5px;color:var(--muted);font-size:12px;font-weight:750}
@@ -483,6 +526,15 @@
         <button class="primary" id="start-subject-session" type="button">Start 5 oppgaver 🚀</button>
       </div>
 
+      <div class="math-lab-entry" id="math-lab-entry" hidden>
+        <div class="section-title"><h3>Eksperimenter</h3><span>Åpent på alle trinn</span></div>
+        <button class="math-lab-card" id="open-fraction-lab" type="button">
+          <div class="module-icon">🧪</div>
+          <div style="flex:1"><strong>Brøklab</strong><small>Bygg, sammenlign og oppdag brøker med brøkvegg og brøksirkler.</small></div>
+          <div class="topic-arrow">›</div>
+        </button>
+      </div>
+
       <div class="section-title"><h3>Hva vil du øve på?</h3><span id="subject-grade-label"></span></div>
       <div class="subject-modules" id="subject-modules"></div>
 
@@ -491,6 +543,32 @@
         <div class="progress"><div class="bar" id="subject-progress-bar"></div></div>
         <div class="subject-progress" id="subject-progress-copy">Fremgangen lagres bare på denne enheten.</div>
       </div>
+    </section>
+
+    <section class="screen" id="fraction-lab-screen">
+      <button class="detail-back" id="fraction-lab-back">← Matte</button>
+      <div class="lab-head">
+        <div class="eyebrow" id="fraction-lab-grade">Brøklab</div>
+        <h1>Brøklab 🧪</h1>
+        <p class="hero-copy">Her kan du utforske mer enn det du må kunne på trinnet ditt. Prøv, bygg og finn ut hva som skjer.</p>
+      </div>
+
+      <div class="card lab-recommend">
+        <strong id="fraction-lab-recommend-title">Anbefalt å starte med</strong>
+        <p id="fraction-lab-recommend-copy"></p>
+      </div>
+
+      <div class="section-title"><h3>Velg eksperiment</h3><span>Du kan prøve alle</span></div>
+      <div class="lab-mode-grid" id="fraction-lab-modes" aria-label="Velg eksperiment">
+        <button class="lab-mode active" type="button" data-lab-mode="wall"><span class="emoji">🧱</span><strong>Brøkveggen</strong><small>Se og sammenlign størrelser.</small></button>
+        <button class="lab-mode" type="button" data-lab-mode="circles"><span class="emoji">🟠</span><strong>Brøksirkler</strong><small>Bygg en sirkel bit for bit.</small></button>
+        <button class="lab-mode" type="button" data-lab-mode="whole"><span class="emoji">🧩</span><strong>Bygg en hel</strong><small>Finn flere måter å lage 1.</small></button>
+        <button class="lab-mode" type="button" data-lab-mode="compare"><span class="emoji">⚖️</span><strong>Sammenlign</strong><small>Hvilken brøk er størst?</small></button>
+        <button class="lab-mode" type="button" data-lab-mode="equivalent"><span class="emoji">🔍</span><strong>Like brøker</strong><small>Oppdag brøker med samme verdi.</small></button>
+        <button class="lab-mode" type="button" data-lab-mode="free"><span class="emoji">🚀</span><strong>Fri utforsking</strong><small>Ingen fasit. Bare prøv.</small></button>
+      </div>
+
+      <div class="fraction-lab-workspace" id="fraction-lab-workspace"></div>
     </section>
 
     <section class="screen" id="geography-screen">
@@ -1095,7 +1173,7 @@ function showScreen(name){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   const el=document.getElementById(name+'-screen'); if(!el) return;
   el.classList.add('active');
-  const special=['session','complete','detail','adult','parent-info','feedback','world','continent','geography','subject'].includes(name);
+  const special=['session','complete','detail','adult','parent-info','feedback','world','continent','geography','subject','fraction-lab'].includes(name);
   document.getElementById('bottom-nav').style.display=special?'none':'grid';
   document.getElementById('topbar').style.display=special?'none':'flex';
   window.scrollTo(0,0);
@@ -1110,7 +1188,7 @@ function setTab(tab){
 document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
 
 // Native-feeling left-edge swipe. Narrow edge avoids stealing map and exercise gestures.
-const SWIPE_BACK_SCREENS=new Set(['subject','geography','continent','world','detail','adult','parent-info','feedback','session','complete']);
+const SWIPE_BACK_SCREENS=new Set(['subject','geography','continent','world','detail','adult','parent-info','feedback','session','complete','fraction-lab']);
 const swipeBackEdge=document.getElementById('swipe-back-edge');
 const swipeBackIndicator=document.getElementById('swipe-back-indicator');
 let swipeBackGesture=null;
@@ -1122,6 +1200,7 @@ function syncSwipeBackEdge(name=activeScreenName()){
 function appBack(){
   const current=activeScreenName();
   if(current==='subject'||current==='geography'){setTab('home');return true}
+  if(current==='fraction-lab'){openSubject('math');return true}
   if(current==='continent'||current==='world'){showScreen('geography');return true}
   if(current==='detail'){
     if(['home','progress'].includes(returnScreen))setTab(returnScreen);else showScreen(returnScreen||'home');
@@ -1464,6 +1543,7 @@ function openSubject(subject){
   document.getElementById('subject-copy').textContent=s.copy;
   document.getElementById('subject-icon').textContent=s.icon;
   document.getElementById('subject-grade-label').textContent=GRADE_CONFIG[currentGrade()].label;
+  const labEntry=document.getElementById('math-lab-entry');if(labEntry)labEntry.hidden=subject!=='math';
   renderSubjectModules();renderSubjectContinue();showScreen('subject');
 }
 function renderSubjectModules(){
@@ -1501,6 +1581,160 @@ document.getElementById('open-norwegian').onclick=()=>openSubject('norwegian');
 document.getElementById('open-math').onclick=()=>openSubject('math');
 document.getElementById('open-english').onclick=()=>openSubject('english');
 document.getElementById('open-geography').onclick=()=>{renderGeographyContinue();showScreen('geography')};
+
+// --- Brøklab: åpent eksperimentrom, uavhengig av klassetrinn ---
+const FRACTION_LAB_DENOMS=[1,2,3,4,5,6,8,10,12];
+const FRACTION_LAB_COLORS=['#F58C72','#F3AE5B','#F2D35F','#B6D66E','#7BC68E','#57B9A0','#5FC1D6','#68A9D8','#9B88CF','#E59ABE'];
+let fractionLabMode='wall';
+let fractionLabPieces=[];
+let fractionLabShowConversions=false;
+let fractionCompareLeft={n:1,d:2},fractionCompareRight={n:1,d:3};
+let fractionEquivalentBase={n:1,d:2};
+
+function fracGcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b){const t=b;b=a%b;a=t}return a||1}
+function fracReduce(n,d){const g=fracGcd(n,d);return {n:n/g,d:d/g}}
+function fracValue(f){return Number(f.n)/Number(f.d)}
+function fracSum(parts){return parts.reduce((sum,p)=>sum+fracValue(p),0)}
+function fracFromSum(parts){
+  if(!parts.length)return {n:0,d:1};
+  let den=1;
+  parts.forEach(p=>{den=(den*p.d)/fracGcd(den,p.d)});
+  let num=0;parts.forEach(p=>{num+=p.n*(den/p.d)});
+  return fracReduce(num,den);
+}
+function fracDecimal(v){return String(Math.round(v*1000)/1000).replace('.',',')}
+function fracPercent(v){const x=Math.round(v*1000)/10;return String(Number.isInteger(x)?Math.round(x):x).replace('.',',')+' %'}
+function fractionPieceLabel(p){
+  const base=p.n+'/'+p.d;
+  if(!fractionLabShowConversions)return base;
+  return base+'<small>'+fracDecimal(fracValue(p))+' · '+fracPercent(fracValue(p))+'</small>';
+}
+function fractionLabRecommendation(){
+  const g=currentGrade();
+  if(g<=2)return {mode:'whole',title:'Start med hel og halv',copy:'Prøv å lage én hel med to halvdeler, og se hva som skjer med mindre biter.'};
+  if(g<=4)return {mode:'wall',title:'Start med brøkveggen',copy:'Sammenlign 1/2, 1/3 og 1/4 visuelt før du prøver de vanskeligere eksperimentene.'};
+  if(g<=7)return {mode:'equivalent',title:'Start med like brøker',copy:'Oppdag hvorfor 1/2, 2/4 og 4/8 har samme verdi, og hopp videre til de andre variantene.'};
+  return {mode:'free',title:'Start med fri utforsking',copy:'Bruk brøk, desimal og prosent samtidig, eller gå tilbake til de visuelle modellene når du vil.'};
+}
+function openFractionLab(){
+  const rec=fractionLabRecommendation();
+  document.getElementById('fraction-lab-grade').textContent=GRADE_CONFIG[currentGrade()].label+' · Eksperimenter';
+  document.getElementById('fraction-lab-recommend-title').textContent=rec.title;
+  document.getElementById('fraction-lab-recommend-copy').textContent=rec.copy+' Alt i Brøklab er likevel åpent.';
+  if(!fractionLabMode)fractionLabMode=rec.mode;
+  showScreen('fraction-lab');
+  renderFractionLab();
+}
+function setFractionLabMode(mode){
+  fractionLabMode=mode;
+  fractionLabPieces=[];
+  renderFractionLab();
+}
+function fractionWallHtml(){
+  return '<div class="fraction-wall">'+FRACTION_LAB_DENOMS.map(function(d){
+    const pieces=Array.from({length:d},function(_,i){return '<button class="fraction-wall-piece" type="button" data-add-frac="1/'+d+'" aria-label="Legg til en '+d+'-del">'+(d===1?'1':'1/'+d)+'</button>'}).join('');
+    return '<div class="fraction-wall-row" data-den="'+d+'" style="grid-template-columns:repeat('+d+',1fr)">'+pieces+'</div>';
+  }).join('')+'</div>';
+}
+function fractionPaletteHtml(){
+  return '<div class="fraction-palette">'+FRACTION_LAB_DENOMS.filter(function(d){return d>1}).map(function(d){return '<button type="button" data-add-frac="1/'+d+'">1/'+d+'</button>'}).join('')+'</div>';
+}
+function fractionTrayHtml(){
+  const sum=fracSum(fractionLabPieces),exact=fracFromSum(fractionLabPieces),cls=sum>1.000001?' over':Math.abs(sum-1)<.000001?' good':'';
+  const chips=fractionLabPieces.map(function(p,i){return '<button class="fraction-chip" type="button" data-remove-frac="'+i+'" aria-label="Fjern '+p.n+'/'+p.d+'">'+fractionPieceLabel(p)+'</button>'}).join('');
+  return '<div class="fraction-tray'+(fractionLabPieces.length?'':' empty')+'">'+chips+'</div>'+
+    '<div class="fraction-total'+cls+'"><span>Til sammen</span><strong>'+exact.n+'/'+exact.d+(fractionLabShowConversions?' · '+fracDecimal(sum)+' · '+fracPercent(sum):'')+'</strong></div>';
+}
+function polarPoint(cx,cy,r,angle){const a=(angle-90)*Math.PI/180;return [cx+r*Math.cos(a),cy+r*Math.sin(a)]}
+function wedgePath(start,end){
+  const a=polarPoint(50,50,47,start),b=polarPoint(50,50,47,end),large=end-start>180?1:0;
+  return 'M 50 50 L '+a[0]+' '+a[1]+' A 47 47 0 '+large+' 1 '+b[0]+' '+b[1]+' Z';
+}
+function fractionCircleSvg(){
+  let angle=0;
+  const colors=FRACTION_LAB_COLORS;
+  const paths=[];
+  fractionLabPieces.forEach(function(p,i){
+    const span=Math.min(360-angle,360*fracValue(p));if(span<=0)return;
+    paths.push('<path d="'+wedgePath(angle,angle+span)+'" fill="'+colors[i%colors.length]+'" stroke="#fff" stroke-width="1.5"></path>');
+    angle+=span;
+  });
+  return '<div class="fraction-circle"><svg viewBox="0 0 100 100" aria-label="Sirkel fylt '+Math.round(Math.min(1,fracSum(fractionLabPieces))*100)+' prosent">'+paths.join('')+'</svg><div class="fraction-circle-center">'+fracFromSum(fractionLabPieces).n+'/'+fracFromSum(fractionLabPieces).d+'</div></div>';
+}
+function bindFractionCommon(){
+  document.querySelectorAll('[data-add-frac]').forEach(function(b){b.onclick=function(){
+    const parts=b.dataset.addFrac.split('/').map(Number);fractionLabPieces.push({n:parts[0],d:parts[1]});renderFractionLabWorkspace();
+  }});
+  document.querySelectorAll('[data-remove-frac]').forEach(function(b){b.onclick=function(){fractionLabPieces.splice(Number(b.dataset.removeFrac),1);renderFractionLabWorkspace()}});
+  const clear=document.getElementById('fraction-lab-clear');if(clear)clear.onclick=function(){fractionLabPieces=[];renderFractionLabWorkspace()};
+  const conversions=document.getElementById('fraction-conversions');if(conversions)conversions.onclick=function(){fractionLabShowConversions=!fractionLabShowConversions;renderFractionLabWorkspace()};
+}
+function renderFractionWall(){
+  return '<h2>Brøkveggen 🧱</h2><p class="lab-instruction">Trykk på biter og bygg med dem under veggen. Legg merke til at jo større nevneren blir, desto mindre blir hver bit.</p>'+
+    '<div class="fraction-toolbar"><span class="eyebrow">Trykk på en bit</span><button class="secondary" id="fraction-conversions" type="button">'+(fractionLabShowConversions?'Skjul desimal og %':'Vis desimal og %')+'</button></div>'+
+    fractionWallHtml()+fractionTrayHtml()+'<button class="secondary lab-clear" id="fraction-lab-clear" type="button">Tøm arbeidsflaten</button>'+
+    '<div class="lab-hint">Prøv: Kan du lage 1/2 på flere måter? Hva med 1 hel uten å bruke 1/2?</div>';
+}
+function renderFractionCircles(targetWhole){
+  const sum=fracSum(fractionLabPieces),whole=Math.abs(sum-1)<.000001;
+  return '<h2>'+(targetWhole?'Bygg en hel 🧩':'Brøksirkler 🟠')+'</h2><p class="lab-instruction">'+(targetWhole?'Målet er akkurat én hel. Det finnes mange riktige løsninger.':'Legg brøkbiter inn i sirkelen og se hvor mye plass de tar.')+'</p>'+
+    '<div class="fraction-toolbar"><span class="eyebrow">'+(targetWhole?(whole?'Du klarte en hel! ⭐':'Mål: 1 hel'):'Bygg fritt')+'</span><button class="secondary" id="fraction-conversions" type="button">'+(fractionLabShowConversions?'Skjul desimal og %':'Vis desimal og %')+'</button></div>'+
+    '<div class="fraction-circle-wrap">'+fractionCircleSvg()+'</div>'+fractionPaletteHtml()+fractionTrayHtml()+
+    '<button class="secondary lab-clear" id="fraction-lab-clear" type="button">Start på nytt</button>'+
+    '<div class="lab-hint">'+(targetWhole?(whole?'Prøv nå en annen løsning. Klarer du én hel med nøyaktig fem biter?':'Tips: To 1/2, fire 1/4 eller åtte 1/8 er bare starten.'):'Trykk på en bit i listen under sirkelen for å ta den ut igjen.')+'</div>';
+}
+function compareChoiceHtml(side,current){
+  const values=[{n:1,d:2},{n:1,d:3},{n:1,d:4},{n:2,d:3},{n:3,d:4},{n:3,d:5},{n:5,d:8}];
+  return '<div class="compare-picks">'+values.map(function(f){const active=f.n===current.n&&f.d===current.d?' active':'';return '<button class="'+active+'" type="button" data-compare-side="'+side+'" data-compare="'+f.n+'/'+f.d+'">'+f.n+'/'+f.d+'</button>'}).join('')+'</div>';
+}
+function renderFractionCompare(){
+  const lv=fracValue(fractionCompareLeft),rv=fracValue(fractionCompareRight),symbol=Math.abs(lv-rv)<.000001?'=':lv>rv?'>':'<';
+  return '<h2>Sammenlign brøker ⚖️</h2><p class="lab-instruction">Velg en brøk på hver side. Lengden viser verdien, så du trenger ikke gjette på symbolene.</p>'+
+    '<div class="compare-grid"><div class="compare-side"><h3>Venstre: '+fractionCompareLeft.n+'/'+fractionCompareLeft.d+'</h3><div class="compare-strip"><div class="compare-fill" style="width:'+Math.min(100,lv*100)+'%"></div></div>'+compareChoiceHtml('left',fractionCompareLeft)+'</div>'+
+    '<div class="compare-side"><h3>Høyre: '+fractionCompareRight.n+'/'+fractionCompareRight.d+'</h3><div class="compare-strip"><div class="compare-fill" style="width:'+Math.min(100,rv*100)+'%"></div></div>'+compareChoiceHtml('right',fractionCompareRight)+'</div></div>'+
+    '<div class="compare-result">'+fractionCompareLeft.n+'/'+fractionCompareLeft.d+' '+symbol+' '+fractionCompareRight.n+'/'+fractionCompareRight.d+'</div>'+
+    '<div class="lab-hint">Undersøk: Er en stor nevner alltid en stor brøk? Prøv 1/8 mot 1/3 og se.</div>';
+}
+function renderFractionEquivalent(){
+  const bases=[{n:1,d:2},{n:1,d:3},{n:1,d:4},{n:2,d:3},{n:3,d:4}];
+  const v=fracValue(fractionEquivalentBase);
+  const equiv=[];
+  for(let mult=1;mult<=5;mult++)equiv.push({n:fractionEquivalentBase.n*mult,d:fractionEquivalentBase.d*mult});
+  return '<h2>Like brøker 🔍</h2><p class="lab-instruction">Velg en brøk. Appen viser flere navn på nøyaktig samme mengde.</p>'+
+    '<div class="fraction-palette">'+bases.map(function(f){const active=f.n===fractionEquivalentBase.n&&f.d===fractionEquivalentBase.d?' style="background:#5A7DF2;color:#fff"':'';return '<button type="button" data-equivalent="'+f.n+'/'+f.d+'"'+active+'>'+f.n+'/'+f.d+'</button>'}).join('')+'</div>'+
+    '<div class="equiv-list">'+equiv.map(function(f){return '<div class="equiv-row"><div class="equiv-label">'+f.n+'/'+f.d+'</div><div class="equiv-bar"><i style="width:'+Math.min(100,v*100)+'%"></i></div></div>'}).join('')+'</div>'+
+    '<div class="compare-result">'+fractionEquivalentBase.n+'/'+fractionEquivalentBase.d+' = '+equiv[1].n+'/'+equiv[1].d+' = '+equiv[3].n+'/'+equiv[3].d+'</div>'+
+    '<div class="lab-hint">Du ganger både teller og nevner med samme tall. Mengden endrer seg ikke, bare navnet.</div>';
+}
+function renderFractionFree(){
+  return '<h2>Fri utforsking 🚀</h2><p class="lab-instruction">Ingen oppgave og ingen fasit. Bygg det du vil, og skru på desimal og prosent når du vil se flere måter å beskrive samme mengde på.</p>'+
+    '<div class="fraction-toolbar"><span class="eyebrow">Alle verktøy åpne</span><button class="secondary" id="fraction-conversions" type="button">'+(fractionLabShowConversions?'Skjul desimal og %':'Vis desimal og %')+'</button></div>'+
+    fractionWallHtml()+'<div class="fraction-circle-wrap" style="margin-top:18px">'+fractionCircleSvg()+'</div>'+fractionTrayHtml()+
+    '<button class="secondary lab-clear" id="fraction-lab-clear" type="button">Tøm arbeidsflaten</button>'+
+    '<div class="lab-hint">Forsøk: Lag noe som er større enn 1/3, men mindre enn 2/3. Det finnes mange svar.</div>';
+}
+function renderFractionLabWorkspace(){
+  const w=document.getElementById('fraction-lab-workspace');if(!w)return;
+  if(fractionLabMode==='wall')w.innerHTML=renderFractionWall();
+  else if(fractionLabMode==='circles')w.innerHTML=renderFractionCircles(false);
+  else if(fractionLabMode==='whole')w.innerHTML=renderFractionCircles(true);
+  else if(fractionLabMode==='compare')w.innerHTML=renderFractionCompare();
+  else if(fractionLabMode==='equivalent')w.innerHTML=renderFractionEquivalent();
+  else w.innerHTML=renderFractionFree();
+
+  if(['wall','circles','whole','free'].includes(fractionLabMode))bindFractionCommon();
+  document.querySelectorAll('[data-compare]').forEach(function(b){b.onclick=function(){
+    const p=b.dataset.compare.split('/').map(Number),f={n:p[0],d:p[1]};if(b.dataset.compareSide==='left')fractionCompareLeft=f;else fractionCompareRight=f;renderFractionLabWorkspace();
+  }});
+  document.querySelectorAll('[data-equivalent]').forEach(function(b){b.onclick=function(){const p=b.dataset.equivalent.split('/').map(Number);fractionEquivalentBase={n:p[0],d:p[1]};renderFractionLabWorkspace()}});
+}
+function renderFractionLab(){
+  document.querySelectorAll('#fraction-lab-modes .lab-mode').forEach(function(b){b.classList.toggle('active',b.dataset.labMode===fractionLabMode)});
+  renderFractionLabWorkspace();
+}
+document.getElementById('open-fraction-lab').onclick=openFractionLab;
+document.getElementById('fraction-lab-back').onclick=function(){openSubject('math')};
+document.querySelectorAll('#fraction-lab-modes .lab-mode').forEach(function(b){b.onclick=function(){setFractionLabMode(b.dataset.labMode)}});
 
 function choiceQuestion(subject,skill,prompt,answer,options,extra={}){
   return Object.assign({subject,skill,type:'learning-choice',prompt,answer,options:shuffle([...new Set(options)]),curriculum:CURRICULUM[subject]||null},extra);
