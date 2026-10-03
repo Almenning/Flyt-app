@@ -936,6 +936,31 @@
       .grade-band-young .dashboard-main-grid{grid-template-columns:minmax(0,.9fr) minmax(0,1.18fr)}
     }
 
+    /* Young dashboard fidelity v3: clearer hierarchy, visible mastery and child-first navigation. */
+    .young-achievements{display:none}
+    .grade-band-young .dashboard-welcome-copy .eyebrow{display:block;font-size:11px;line-height:1;color:#596A99;margin:0 0 5px;text-transform:none;letter-spacing:0}
+    .grade-band-young .dashboard-welcome h1{font-size:28px;line-height:1.02;margin:0 0 5px}
+    .grade-band-young .dashboard-welcome .hero-copy{font-size:11px;font-weight:800;color:#66728A}
+    .grade-band-young .dashboard-chips{margin-top:8px}
+    .grade-band-young .dashboard-panel-heading .section-kicker{color:#8A6D29!important}
+    .grade-band-young .dashboard-panel-heading h3{font-size:20px}
+    .grade-band-young .young-achievements{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:10px}
+    .grade-band-young .young-achievement{min-width:0;padding:9px 4px 8px;border-radius:15px;background:#F1F2F6;border:2px solid transparent;text-align:center;color:#8A8FA0;transition:.18s transform,.18s background,.18s border-color}
+    .grade-band-young .young-achievement span{display:grid;place-items:center;width:29px;height:29px;margin:0 auto 5px;border-radius:10px;background:#fff;font-size:16px;filter:grayscale(1);opacity:.62}
+    .grade-band-young .young-achievement b{display:block;font-size:8.5px;line-height:1.15;font-weight:950;white-space:normal}
+    .grade-band-young .young-achievement.active{background:linear-gradient(145deg,#FFF7D7,#FFFDF2);border-color:#FFE39B;color:#67501D;transform:translateY(-1px)}
+    .grade-band-young .young-achievement.active span{filter:none;opacity:1;box-shadow:0 3px 8px rgba(138,103,26,.08)}
+    .grade-band-young .young-achievement:nth-child(2).active{background:linear-gradient(145deg,#E6F7F0,#F4FCF8);border-color:#BDE9D4;color:#2E6B52}
+    .grade-band-young .young-achievement:nth-child(3).active{background:linear-gradient(145deg,#EEE9FF,#F8F6FF);border-color:#D8CCFF;color:#5C4AA0}
+    .grade-band-young .young-achievement:nth-child(4).active{background:linear-gradient(145deg,#FFEAF0,#FFF6F8);border-color:#F7CDD9;color:#8E4E62}
+    .grade-band-young .dashboard-world-column .home-story-scene{border:3px solid rgba(255,255,255,.96);box-shadow:0 8px 0 rgba(67,98,122,.05),0 17px 28px rgba(58,84,107,.10)}
+    .grade-band-young .story-copy .eyebrow{color:#4A7D68}
+    .grade-band-young #nav-explore.active{background:#E3E9FF;color:#5568D3}
+    @media (max-width:360px){
+      .grade-band-young .young-achievement{padding-left:2px;padding-right:2px}
+      .grade-band-young .young-achievement b{font-size:8px}
+    }
+
   </style>
   <link rel="stylesheet" href="./fraction-lab.css?v=20261003-mobile2" />
   <link rel="stylesheet" href="./multiplication-lab.css?v=20261003-table1" />
@@ -960,6 +985,7 @@
   <!-- success-dashboard-redesign-v1-2026-10-03 -->
   <!-- illustrated-inner-screens-v1-2026-10-03 -->
   <!-- young-visual-fidelity-v2-2026-10-03 -->
+  <!-- young-dashboard-fidelity-v3-2026-10-03 -->
 </head>
 <body>
 <div class="app">
@@ -1058,7 +1084,7 @@
       <div class="dashboard-main-grid">
         <div class="card dashboard-progress-panel">
           <div class="dashboard-panel-heading">
-            <div><span class="section-kicker">MIN FREMGANG</span><h3>Jeg kan mer nå</h3></div>
+            <div><span class="section-kicker" id="home-progress-panel-kicker">SMÅ STEG</span><h3 id="home-progress-panel-title">Min fremdrift</h3></div>
             <button class="dashboard-panel-link" id="home-progress-open" type="button">Se alt ›</button>
           </div>
 
@@ -1076,6 +1102,13 @@
               <button class="young-knowledge-item" id="young-words" type="button"><b id="young-words-count">0</b><span>språkting</span></button>
               <button class="young-knowledge-item" id="young-math" type="button"><b id="young-math-count">0</b><span>matteting</span></button>
             </div>
+          </div>
+
+          <div class="young-achievements" id="young-achievements" aria-label="Mestringsmerker">
+            <div class="young-achievement" id="young-badge-learn"><span aria-hidden="true">⭐</span><b>Lærer</b></div>
+            <div class="young-achievement" id="young-badge-explore"><span aria-hidden="true">🌱</span><b>Utforsker</b></div>
+            <div class="young-achievement" id="young-badge-retry"><span aria-hidden="true">↻</span><b>Prøver igjen</b></div>
+            <div class="young-achievement" id="young-badge-can"><span aria-hidden="true">🏆</span><b>Jeg klarer det!</b></div>
           </div>
 
           <div class="home-week-section" id="home-week-section">
@@ -1520,7 +1553,7 @@
 
   <nav class="nav" id="bottom-nav">
     <button data-tab="home" class="active"><span>⌂</span><b id="nav-home-label">Hjem</b></button>
-    <button id="nav-explore" type="button"><span>◉</span><b>Utforsk</b></button>
+    <button id="nav-explore" type="button"><span>◉</span><b id="nav-explore-label">Utforsk</b></button>
     <button data-tab="progress"><span>↗</span><b id="nav-progress-label">Fremgang</b></button>
   </nav>
   <div class="toast" id="toast"></div>
@@ -1894,10 +1927,10 @@ function renderAll(){
   const grade=currentGrade(),cfg=gradeConfig(),known=knownCountryCount(),nordicPct=pctFor(NORDIC_IDS),young=grade<=2,band=gradeBand();
   applyGradeDesign();
   const tone={
-    young:{title:'Hei! 👋',copy:'Klar for nye eventyr?',subject:'Velg et eventyr',pEye:'Det du kan',pTitle:'Dette kan du! ⭐',pCopy:'Her samler du det du lærer. Samlingen vokser litt etter litt.',nav:'Det jeg kan',avatar:'🦦',icons:{geography:'🌍',norwegian:'📖',math:'➗',english:'🇬🇧'}},
-    middle:{title:'Hei! 👋',copy:'Klar for nye utfordringer? Utforsk, løs oppdrag og bygg videre.',subject:'Velg fag',pEye:'Din oppdagelsesreise',pTitle:'Se hva du har lært',pCopy:'Her ser du det du har oppdaget, øvd på og fått bedre tak på.',nav:'Fremgang',avatar:'🧭',icons:{geography:'🌍',norwegian:'📚',math:'✖️',english:'💬'}},
-    older:{title:'Hva vil du bli bedre på i dag?',copy:'Velg et fag og bygg kunnskap med korte økter og tydelig fremgang.',subject:'Dine fag',pEye:'Din fremgang',pTitle:'Kunnskap du bygger',pCopy:'Følg hva du mestrer, hva du øver på og hva som er smart å repetere.',nav:'Fremgang',avatar:'🌐',icons:{geography:'🌐',norwegian:'Aa',math:'∑',english:'EN'}},
-    teen:{title:'Fortsett fremgangen din',copy:'Fortsett der du slapp, eller velg et fag og jobb videre mot neste mål.',subject:'Fag',pEye:'Oversikt',pTitle:'Fremgang og mestring',pCopy:'Se aktivitet, mestring og områder som er klare for videre arbeid.',nav:'Fremgang',avatar:'◎',icons:{geography:'GEO',norwegian:'NO',math:'∑',english:'EN'}}
+    young:{title:'Klar for nye eventyr?',copy:'Jeg kan mer i dag enn i går.',subject:'Velg et eventyr',pEye:'Det du kan',pTitle:'Dette kan du! ⭐',pCopy:'Her samler du det du lærer. Samlingen vokser litt etter litt.',nav:'Det jeg kan',explore:'Oppdag',avatar:'🦦',icons:{geography:'🌍',norwegian:'📖',math:'➗',english:'🇬🇧'}},
+    middle:{title:'Hei! 👋',copy:'Klar for nye utfordringer? Utforsk, løs oppdrag og bygg videre.',subject:'Velg fag',pEye:'Din oppdagelsesreise',pTitle:'Se hva du har lært',pCopy:'Her ser du det du har oppdaget, øvd på og fått bedre tak på.',nav:'Fremgang',explore:'Utforsk',avatar:'🧭',icons:{geography:'🌍',norwegian:'📚',math:'✖️',english:'💬'}},
+    older:{title:'Hva vil du bli bedre på i dag?',copy:'Velg et fag og bygg kunnskap med korte økter og tydelig fremgang.',subject:'Dine fag',pEye:'Din fremgang',pTitle:'Kunnskap du bygger',pCopy:'Følg hva du mestrer, hva du øver på og hva som er smart å repetere.',nav:'Fremgang',explore:'Utforsk',avatar:'🌐',icons:{geography:'🌐',norwegian:'Aa',math:'∑',english:'EN'}},
+    teen:{title:'Fortsett fremgangen din',copy:'Fortsett der du slapp, eller velg et fag og jobb videre mot neste mål.',subject:'Fag',pEye:'Oversikt',pTitle:'Fremgang og mestring',pCopy:'Se aktivitet, mestring og områder som er klare for videre arbeid.',nav:'Fremgang',explore:'Utforsk',avatar:'◎',icons:{geography:'GEO',norwegian:'NO',math:'∑',english:'EN'}}
   }[band];
   const lastAt=lastLearningAt(),away=lastAt&&Date.now()-lastAt>48*60*60*1000;
   document.getElementById('home-greeting').textContent=away?'Hyggelig å se deg igjen 👋':'Hei 👋';
@@ -1909,6 +1942,10 @@ function renderAll(){
   document.getElementById('progress-copy').textContent=tone.pCopy;
   document.getElementById('nav-home-label').textContent='Hjem';
   document.getElementById('nav-progress-label').textContent=tone.nav;
+  const navExploreLabel=document.getElementById('nav-explore-label');if(navExploreLabel)navExploreLabel.textContent=tone.explore||'Utforsk';
+  const panelTitle=document.getElementById('home-progress-panel-title'),panelKicker=document.getElementById('home-progress-panel-kicker');
+  if(panelTitle)panelTitle.textContent=band==='young'?'Min fremdrift':band==='middle'?'Din fremgang':band==='older'?'Fremgang':'Oversikt';
+  if(panelKicker)panelKicker.textContent=band==='young'?'SMÅ STEG':band==='middle'?'DENNE UKEN':band==='older'?'UTVIKLING':'STATUS';
   const avatar=document.querySelector('.avatar');if(avatar)avatar.textContent=tone.avatar;
   Object.entries(tone.icons).forEach(([subject,icon])=>{const el=document.querySelector('.home-subject.'+subject+' .home-subject-icon');if(el)el.textContent=icon});
   document.getElementById('home-grade-label').textContent=cfg.label;
@@ -1930,16 +1967,30 @@ function renderAll(){
   const homeStreak=document.getElementById('home-streak'),homeStreakLabel=document.getElementById('home-streak-label'),streakNow=computeStreak();
   if(homeStreak)homeStreak.textContent=streakNow;
   if(homeStreakLabel)homeStreakLabel.textContent=streakNow===1?'dag på rad':'dager på rad';
-  const recentSessions=last7Sessions().length,progressTarget=5,progressPct=Math.min(100,Math.round(recentSessions/progressTarget*100));
+  const recentSessions=last7Sessions().length;
+  const progressCurrent=band==='young'?Math.min(10,a7.length):recentSessions;
+  const progressTarget=band==='young'?10:5;
+  const progressPct=Math.min(100,Math.round(progressCurrent/progressTarget*100));
   const progressFill=document.getElementById('home-progress-fill'),progressText=document.getElementById('home-progress-text'),progressCheer=document.getElementById('home-progress-cheer');
   if(progressFill)progressFill.style.width=progressPct+'%';
-  if(progressText)progressText.textContent=recentSessions+' '+(recentSessions===1?'økt':'økter');
-  if(progressCheer)progressCheer.textContent=band==='young'?(recentSessions?'Du er kjempeflink!':'Klar for første stjerne?'):band==='middle'?(recentSessions>=3?'Godt i gang!':'Bygg læringsreisen din'):band==='older'?'Fremgang siste 7 dager':'Aktivitet siste 7 dager';
+  if(progressText)progressText.textContent=band==='young'?(progressCurrent+' av 10 oppgaver'):(recentSessions+' '+(recentSessions===1?'økt':'økter'));
+  if(progressCheer)progressCheer.textContent=band==='young'?(progressCurrent>=10?'Du klarte ukesmålet! ⭐':progressCurrent?'Du er kjempeflink!':'Klar for første stjerne?'):band==='middle'?(recentSessions>=3?'Godt i gang!':'Bygg læringsreisen din'):band==='older'?'Fremgang siste 7 dager':'Aktivitet siste 7 dager';
   const languageSkills=subjectMasteredSkills('norwegian')+subjectMasteredSkills('english'),mathSkills=subjectMasteredSkills('math');
   document.getElementById('young-world-count').textContent=known;
   document.getElementById('young-words-count').textContent=languageSkills;
   document.getElementById('young-math-count').textContent=mathSkills;
-  document.getElementById('young-knowledge-total').textContent=(known+languageSkills+mathSkills)>0?'Samlingen din vokser':'Start samlingen i dag';
+  const masteredTotal=known+languageSkills+mathSkills;
+  document.getElementById('young-knowledge-total').textContent=masteredTotal>0?'Samlingen din vokser':'Start samlingen i dag';
+  const learningAnswers=state.answerLog.filter(a=>a.countsForLearning!==false);
+  const wrongKeys=new Set(learningAnswers.filter(a=>!a.correct&&a.questionKey).map(a=>a.questionKey));
+  const retriedSuccessfully=learningAnswers.some(a=>a.correct&&a.questionKey&&wrongKeys.has(a.questionKey));
+  const badgeStates={
+    'young-badge-learn':learningAnswers.length>0,
+    'young-badge-explore':known>0,
+    'young-badge-retry':retriedSuccessfully,
+    'young-badge-can':masteredTotal>0
+  };
+  Object.entries(badgeStates).forEach(([id,on])=>{const el=document.getElementById(id);if(el)el.classList.toggle('active',!!on)});
   document.getElementById('daily-goal-count').textContent=goal.done+' av '+goal.target;
   document.querySelectorAll('#daily-goal-dots i').forEach((dot,i)=>dot.classList.toggle('done',i<goal.done));
   document.getElementById('daily-goal-copy').textContent=goal.done>=goal.target?'Dagens lille mål er nådd. Resten er bonus.':'Fullfør én kort læringsøkt. Riktige og feil svar teller like mye for innsatsen.';
