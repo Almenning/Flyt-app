@@ -286,6 +286,24 @@ async function finishSession(page){
     await page.locator('#open-math').click();
     const mathModules=await page.locator('#subject-modules .subject-module strong').allTextContents();
     assert.deepEqual(mathModules,['Tall og regning']);
+    // Brøklab is an open experiment area, separate from grade-gated exercise modules.
+    assert.equal(await page.locator('#math-lab-entry').isVisible(),true);
+    await page.locator('#open-fraction-lab').click();
+    await page.locator('#fraction-lab-screen.active').waitFor();
+    assert.equal(await page.locator('#fraction-lab-modes .lab-mode').count(),6);
+    assert.match(await page.locator('#fraction-lab-grade').textContent(),/2\. klasse/);
+    assert.equal(await page.locator('#fraction-lab-modes .lab-mode.active').getAttribute('data-lab-mode'),'whole');
+    await page.locator('[data-add-frac="1/2"]').first().click();
+    await page.locator('[data-add-frac="1/2"]').first().click();
+    assert.equal((await page.locator('.fraction-total strong').textContent()).trim(),'1/1');
+    assert.equal(await page.locator('.fraction-total').evaluate(el=>el.classList.contains('good')),true);
+    await page.locator('[data-lab-mode="compare"]').click();
+    await page.locator('[data-compare-side="left"][data-compare="3/4"]').click();
+    await page.locator('[data-compare-side="right"][data-compare="1/2"]').click();
+    assert.equal((await page.locator('.compare-result').textContent()).trim(),'3/4 > 1/2');
+    await page.locator('#fraction-lab-back').click();
+    await page.locator('#subject-screen.active').waitFor();
+    assert.equal(await page.locator('#subject-title').textContent(),'Matte');
     await page.locator('#subject-modules .subject-module').click();
     assert.equal(await page.evaluate(()=>sessionQuestions.length),5);
     await page.locator('#close-session').click();
