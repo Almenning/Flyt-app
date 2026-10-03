@@ -292,13 +292,25 @@ async function finishSession(page){
     await page.locator('#open-fraction-lab').click();
     await page.locator('#fraction-lab-screen.active').waitFor();
     assert.equal((await page.locator('.fraction-lab-head-copy h1').textContent()).trim(),'Brøklab');
-    assert.equal(await page.locator('[data-lab-variant]').count(),5);
+    assert.equal(await page.locator('[data-lab-variant]').count(),6);
     assert.equal(await page.locator('[data-lab-level]').count(),4);
     assert.equal(await page.locator('[data-lab-level="0"]').isVisible(),true);
     assert.equal(await page.locator('[data-lab-level="3"]').isVisible(),true);
     assert.equal(await page.locator('.lab-fraction-row').count(),9);
     assert.equal(await page.locator('.lab-circle-source').count(),9);
     assert.match(await page.locator('.lab-mission').innerText(),/Finn en halv/i);
+    assert.match(await page.locator('.lab-meaning-card').innerText(),/1\/2/);
+    assert.match(await page.locator('.lab-meaning-card').innerText(),/0,5/);
+    assert.match(await page.locator('.lab-meaning-card').innerText(),/50 %/);
+
+    // Tapping the board explains the selected fraction without silently adding it to the workbench.
+    const beforeInspect=await page.locator('.lab-workpiece').count();
+    await page.locator('.lab-fraction-row[data-parts="4"] [data-denom="4"]').first().click();
+    assert.equal(await page.locator('.lab-workpiece').count(),beforeInspect);
+    assert.match(await page.locator('.lab-meaning-card').innerText(),/1\/4/);
+    assert.match(await page.locator('.lab-meaning-card').innerText(),/0,25/);
+    assert.match(await page.locator('.lab-meaning-card').innerText(),/25 %/);
+    await page.locator('.lab-fraction-row[data-parts="2"] [data-denom="2"]').first().click();
 
     // Portrait mobile must never require horizontal page scrolling. The active manipulative gets the full phone width.
     const fractionPortraitFit=await page.evaluate(()=>{
@@ -335,16 +347,23 @@ async function finishSession(page){
     await page.locator('#fraction-lab-check').click();
     assert.match(await page.locator('#fraction-lab-feedback').innerText(),/Du fant det/i);
 
-    // Free play has no task pressure and can expose fraction, decimal and percent connections on demand.
+    // The lab makes fraction, decimal and percent equivalence visible all the time, including in free play.
     await page.locator('[data-lab-variant="wall"]').click();
     await page.locator('[data-lab-mode="free"]').click();
-    assert.match(await page.locator('.lab-free-note').innerText(),/Ingen feil/i);
+    assert.match(await page.locator('.lab-free-note').innerText(),/Brøk, desimal og prosent/i);
     await page.locator('.lab-piece-bank [data-denom="4"]').click();
     await page.locator('.lab-piece-bank [data-denom="4"]').click();
     assert.match(await page.locator('.lab-total-value').innerText(),/1\/2/);
-    await page.locator('#fraction-lab-connections').click();
     assert.match(await page.locator('.lab-total-value').innerText(),/0,5/);
     assert.match(await page.locator('.lab-total-value').innerText(),/50 %/);
+
+    // Dedicated conversion experiments make the purpose concrete.
+    await page.locator('[data-lab-mode="mission"]').click();
+    await page.locator('[data-lab-variant="connections"]').click();
+    assert.match(await page.locator('.lab-mission').innerText(),/Hva er 50 %/);
+    await page.locator('.lab-piece-bank [data-denom="2"]').click();
+    await page.locator('#fraction-lab-check').click();
+    assert.match(await page.locator('#fraction-lab-feedback').innerText(),/1\/2 = 0,5 = 50 %/);
     const fractionTouchHeights=await page.locator('.lab-piece-bank .lab-loose-piece').evaluateAll(els=>els.map(e=>e.getBoundingClientRect().height));
     assert.ok(fractionTouchHeights.every(h=>h>=44),'small fraction touch target: '+fractionTouchHeights.join(','));
 
