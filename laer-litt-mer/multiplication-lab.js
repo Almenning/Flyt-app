@@ -112,7 +112,8 @@ function multLabNumberlineHtml(){
     const left=100*(i*step)/max,width=100*step/max;
     jumps.push('<span class="mult-jump" style="left:'+left+'%;width:'+width+'%"><b class="mult-jump-label">+'+step+'</b></span>');
   }
-  return '<div class="mult-numberline-wrap"><div class="mult-numberline" style="--end:'+Math.max(1,end)+'"><div class="mult-numberline-axis"></div>'+ticks.join('')+jumps.join('')+'</div></div>';
+  const minWidth=Math.max(320,end*26+38);
+  return '<div class="mult-numberline-wrap"><div class="mult-numberline" style="min-width:'+minWidth+'px"><div class="mult-numberline-axis"></div>'+ticks.join('')+jumps.join('')+'</div></div>';
 }
 function multLabSwapHtml(){
   const mini=(rows,cols,color)=>'<div class="mult-swap-mini" style="--mini-cols:'+cols+';--mini-color:'+color+'">'+Array.from({length:rows*cols},()=>'<i></i>').join('')+'</div>';
