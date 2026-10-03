@@ -410,7 +410,48 @@
     .globe-status-badge{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:4px 8px;font-size:10px;font-weight:950;line-height:1.1}
     .globe-status-badge.mastered{background:#FFF3C6;color:#7B5A0C}.globe-status-badge.known{background:#E5F6EC;color:#28704C}.globe-status-badge.learning{background:#FFF3CB;color:#7B5A0C}.globe-status-badge.seen{background:#EEF2F7;color:#5E6B81}.globe-status-badge.new{background:#F0F1F4;color:#747C8A}
     .complete-next{margin:14px 2px 0;padding:15px 16px;border-radius:20px;background:#EEF5FF;color:#4C5F9E;font-size:14px;line-height:1.45;font-weight:900}
-    .grade-band-young{--radius:32px}.grade-band-young .home-subject{min-height:184px;border-radius:29px}.grade-band-young .home-subject-icon{width:57px;height:57px;font-size:31px}.grade-band-young .home-subject strong{font-size:19px}.grade-band-young .answer{font-size:18px;padding:19px 17px}.grade-band-young .question{font-size:32px}.grade-band-young .subject-module{padding:18px;border-radius:24px}
+    .young-only{display:none}
+    .young-knowledge{display:none}
+    .young-knowledge-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .young-knowledge-head strong{font-size:19px;font-weight:950}.young-knowledge-head span{font-size:12px;font-weight:900;color:#66708A}
+    .young-knowledge-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+    .young-knowledge-item{border:0;border-radius:19px;padding:13px 8px;background:rgba(255,255,255,.78);text-align:center;color:var(--ink);box-shadow:0 4px 0 rgba(70,72,115,.05)}
+    .young-knowledge-item b{display:block;font-size:24px;font-weight:950;line-height:1}.young-knowledge-item span{display:block;margin-top:6px;font-size:10px;font-weight:900;color:#6C7390}
+    .young-reward{display:none;margin:18px 0;padding:19px;border-radius:26px;background:linear-gradient(145deg,#FFF3B9,#FFF9E8);border:3px solid #fff;box-shadow:0 8px 0 rgba(185,139,45,.08),0 18px 34px rgba(65,64,104,.08);text-align:left}
+    .young-reward-row{display:flex;gap:13px;align-items:center}.young-reward-icon{width:58px;height:58px;border-radius:20px;background:#fff;display:grid;place-items:center;font-size:31px;box-shadow:0 5px 0 rgba(160,120,35,.09)}
+    .young-reward strong{display:block;font-size:20px;line-height:1.12}.young-reward p{font-size:13px;margin-top:4px;line-height:1.4}
+    .grade-band-young{--radius:34px;background:radial-gradient(circle at 12% 8%,rgba(255,216,105,.46) 0 52px,transparent 53px),radial-gradient(circle at 92% 17%,rgba(242,139,168,.23) 0 70px,transparent 71px),linear-gradient(180deg,#FFF8E8 0%,#F5F0FF 48%,#EEF9FF 100%)}
+    .grade-band-young .young-only,.grade-band-young .young-knowledge{display:block}
+    .grade-band-young .home-intro h1{font-size:36px;max-width:340px}.grade-band-young .home-intro .hero-copy{font-size:15px;max-width:355px}
+    .grade-band-young .daily-goal{display:none}
+    .grade-band-young .fox-guide{margin-top:11px;padding:14px 15px;border-radius:24px;background:rgba(255,255,255,.82)}
+    .grade-band-young .fox-guide-face{width:52px;height:52px;border-radius:19px;font-size:31px}
+    .grade-band-young .fox-guide strong{font-size:16px}.grade-band-young .fox-guide p{font-size:13px}
+    .grade-band-young .home-continue-wrap{margin-top:14px}
+    .grade-band-young .home-continue{padding:23px 20px 21px;border-radius:32px;background:linear-gradient(150deg,#657EF3,#816DEB);box-shadow:0 11px 0 rgba(73,73,157,.14),0 22px 38px rgba(87,91,181,.22)}
+    .grade-band-young .home-continue:before{content:"⭐";position:absolute;right:18px;top:15px;font-size:34px;opacity:.28;transform:rotate(12deg)}
+    .grade-band-young .home-continue{position:relative;overflow:hidden}
+    .grade-band-young .home-continue h2{font-size:27px;max-width:80%}.grade-band-young .home-continue p{font-size:14px;max-width:82%}
+    .grade-band-young .home-continue .primary{min-height:62px;border-radius:22px;font-size:18px;margin-top:18px}
+    .grade-band-young .home-subject-grid{gap:11px}
+    .grade-band-young .home-subject{min-height:158px;border-radius:30px;padding:18px 15px;align-items:center;text-align:center}
+    .grade-band-young .home-subject-icon{width:66px;height:66px;border-radius:23px;font-size:36px}
+    .grade-band-young .home-subject strong{font-size:20px;margin-top:10px}.grade-band-young .home-subject p{display:none}.grade-band-young .home-subject-progress{font-size:11px;margin-top:7px}
+    .grade-band-young .home-week-section{display:none}
+    .grade-band-young .section-title.young-explore-title h3{font-size:21px}
+    .grade-band-young .answer{font-size:19px;padding:20px 17px;border-radius:24px;min-height:62px}
+    .grade-band-young .question{font-size:33px;line-height:1.1;text-align:center}
+    .grade-band-young .question-tools{justify-content:center}.grade-band-young .qtype{font-size:11px}
+    .grade-band-young .big-flag{font-size:112px}
+    .grade-band-young .session-top{margin-bottom:20px}.grade-band-young #session-count{font-size:14px;min-width:72px;text-align:center}
+    .grade-band-young .subject-module{padding:19px;border-radius:26px}.grade-band-young .subject-module .module-icon{width:58px;height:58px;border-radius:20px;font-size:30px}
+    .grade-band-young #complete-screen .summary{display:none}.grade-band-young .young-reward{display:block}.grade-band-young .complete .medal{font-size:108px}.grade-band-young .complete h1{font-size:34px}
+    .grade-band-young #complete-home{min-height:62px;font-size:18px;border-radius:22px}.grade-band-young #complete-repeat{min-height:54px;border-radius:20px}
+    .grade-band-young .nav button{font-size:12px}.grade-band-young .nav button span{font-size:26px}
+    @keyframes youngMissionPulse{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+    .grade-band-young .home-continue:not(:active){animation:youngMissionPulse 3.4s ease-in-out infinite}
+    @media (prefers-reduced-motion:reduce){.grade-band-young .home-continue:not(:active){animation:none}}
+    .grade-band-young .subject-progress-grid{grid-template-columns:1fr}.grade-band-young .subject-progress-card{padding:16px;border-radius:22px}
     .grade-band-middle{--radius:28px}.grade-band-middle .home-subject{min-height:174px}
     .grade-band-older{--radius:24px}.grade-band-older:before,.grade-band-older:after{opacity:.35}.grade-band-older .home-subject{min-height:157px;border-radius:22px}.grade-band-older .home-subject-icon{width:47px;height:47px;border-radius:15px;font-size:25px}.grade-band-older .question{font-size:28px}.grade-band-older .subject-module{border-radius:19px}
     .grade-band-teen{--radius:20px}.grade-band-teen:before,.grade-band-teen:after{display:none}.grade-band-teen .brand:after{content:""}.grade-band-teen .avatar{width:43px;height:43px;border-radius:14px;font-size:22px}.grade-band-teen .home-subject{min-height:145px;border-radius:19px}.grade-band-teen .home-subject-icon{width:44px;height:44px;border-radius:13px;font-size:23px}.grade-band-teen .question{font-size:27px}.grade-band-teen .subject-module{border-radius:17px}
@@ -443,6 +484,7 @@
   <!-- globe-status-legend-2026-10-03 -->
   <!-- globe-known-symbol-fix-2026-10-03 -->
   <!-- norwegian-content-depth-2026-10-03 -->
+  <!-- young-learning-game-polish-2026-10-03 -->
 </head>
 <body>
 <div class="app">
@@ -455,8 +497,8 @@
     <section class="screen active" id="home-screen">
       <div class="home-intro">
         <div class="eyebrow" id="home-greeting">Hei 👋</div>
-        <h1>Hva vil du lære i dag? ✨</h1>
-        <p class="hero-copy">Velg et fag, fortsett der du slapp og se kunnskapen vokse litt etter litt.</p>
+        <h1 id="home-title">Hva vil du lære i dag? ✨</h1>
+        <p class="hero-copy" id="home-copy">Velg et fag, fortsett der du slapp og se kunnskapen vokse litt etter litt.</p>
       </div>
 
       <div class="card daily-goal" id="home-daily-goal">
@@ -480,7 +522,16 @@
         </div>
       </div>
 
-      <div class="section-title"><h3>Fag</h3><span id="home-grade-label">3. klasse</span></div>
+      <div class="card young-knowledge" id="young-knowledge">
+        <div class="young-knowledge-head"><strong>Dette kan du ⭐</strong><span id="young-knowledge-total">Du bygger samlingen</span></div>
+        <div class="young-knowledge-grid">
+          <button class="young-knowledge-item" id="young-world" type="button"><b id="young-world-count">0</b><span>land</span></button>
+          <button class="young-knowledge-item" id="young-words" type="button"><b id="young-words-count">0</b><span>språkting</span></button>
+          <button class="young-knowledge-item" id="young-math" type="button"><b id="young-math-count">0</b><span>matteting</span></button>
+        </div>
+      </div>
+
+      <div class="section-title young-explore-title"><h3 id="home-subject-title">Fag</h3><span id="home-grade-label">3. klasse</span></div>
       <div class="home-subject-grid" aria-label="Velg fag">
         <button class="home-subject geography" id="open-geography" type="button">
           <div class="home-subject-icon">🌍</div>
@@ -508,11 +559,13 @@
         </button>
       </div>
 
-      <div class="section-title"><h3>Denne uken</h3><span id="home-week-label">Litt hver dag</span></div>
-      <div class="home-week">
-        <div class="stat"><strong id="home-week-new">0</strong><span>ting styrket</span></div>
-        <div class="stat"><strong id="home-week-answers">0</strong><span>oppgaver</span></div>
-        <div class="stat"><strong id="home-week-days">0</strong><span>læringsdager</span></div>
+      <div class="home-week-section" id="home-week-section">
+        <div class="section-title"><h3>Denne uken</h3><span id="home-week-label">Litt hver dag</span></div>
+        <div class="home-week">
+          <div class="stat"><strong id="home-week-new">0</strong><span>ting styrket</span></div>
+          <div class="stat"><strong id="home-week-answers">0</strong><span>oppgaver</span></div>
+          <div class="stat"><strong id="home-week-days">0</strong><span>læringsdager</span></div>
+        </div>
       </div>
 
       <button class="adult-entry" id="adult-entry" aria-label="Hold inne for voksenområdet">🔒 Hold inne for voksne</button>
@@ -654,9 +707,9 @@
     </section>
 
     <section class="screen" id="progress-screen">
-      <div class="eyebrow">Din fremgang</div>
-      <h1>Se alt du har lært! 🌟</h1>
-      <p class="hero-copy">Her vokser kunnskapen din litt etter litt.</p>
+      <div class="eyebrow" id="progress-eyebrow">Din fremgang</div>
+      <h1 id="progress-title">Se alt du har lært! 🌟</h1>
+      <p class="hero-copy" id="progress-copy">Her vokser kunnskapen din litt etter litt.</p>
       <div class="stats">
         <div class="stat"><strong id="prog-land">0</strong><span>land</span></div>
         <div class="stat"><strong id="prog-cap">0</strong><span>hovedsteder</span></div>
@@ -689,6 +742,12 @@
         <div class="eyebrow">Økt fullført</div>
         <h1>Oppdrag fullført!</h1>
         <p id="complete-copy">Bra jobbet.</p>
+        <div class="young-reward" id="young-reward">
+          <div class="young-reward-row">
+            <div class="young-reward-icon" id="young-reward-icon">⭐</div>
+            <div><strong id="young-reward-title">Du klarte oppdraget!</strong><p id="young-reward-copy">Kunnskapen din vokste litt i dag.</p></div>
+          </div>
+        </div>
         <div class="card summary">
           <div class="summary-row"><span>Riktige</span><span id="complete-correct">0/5</span></div>
           <div class="summary-row"><span>Nye ting styrket</span><span id="complete-learned">0</span></div>
@@ -870,8 +929,8 @@
   <div class="swipe-back-indicator" id="swipe-back-indicator" aria-hidden="true">‹</div>
 
   <nav class="nav" id="bottom-nav">
-    <button data-tab="home" class="active"><span>⌂</span>Hjem</button>
-    <button data-tab="progress"><span>↗</span>Fremgang</button>
+    <button data-tab="home" class="active"><span>⌂</span><b id="nav-home-label">Hjem</b></button>
+    <button data-tab="progress"><span>↗</span><b id="nav-progress-label">Fremgang</b></button>
   </nav>
   <div class="toast" id="toast"></div>
 </div>
@@ -1184,6 +1243,9 @@ function setTab(tab){
   renderAll();
 }
 document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
+document.getElementById('young-world').onclick=()=>{showScreen('geography');requestAnimationFrame(()=>{globeMode='mine';showScreen('world');setGlobeMode('mine')})};
+document.getElementById('young-words').onclick=()=>setTab('progress');
+document.getElementById('young-math').onclick=()=>setTab('progress');
 
 // Native-feeling left-edge swipe. Narrow edge avoids stealing map and exercise gestures.
 const SWIPE_BACK_SCREENS=new Set(['subject','geography','continent','world','detail','adult','parent-info','feedback','session','complete','fraction-lab','multiplication-lab']);
@@ -1235,10 +1297,18 @@ if(swipeBackEdge){
 syncSwipeBackEdge();
 
 function renderAll(){
-  const grade=currentGrade(),cfg=gradeConfig(),known=knownCountryCount(),nordicPct=pctFor(NORDIC_IDS);
+  const grade=currentGrade(),cfg=gradeConfig(),known=knownCountryCount(),nordicPct=pctFor(NORDIC_IDS),young=grade<=2;
   applyGradeDesign();
   const lastAt=lastLearningAt(),away=lastAt&&Date.now()-lastAt>48*60*60*1000;
   document.getElementById('home-greeting').textContent=away?'Hyggelig å se deg igjen 👋':'Hei 👋';
+  document.getElementById('home-title').textContent=young?'Klar for et lite oppdrag? 🌟':'Hva vil du lære i dag? ✨';
+  document.getElementById('home-copy').textContent=young?'Klar én kort økt. Så har du lært litt mer enn da du startet.':'Velg et fag, fortsett der du slapp og se kunnskapen vokse litt etter litt.';
+  document.getElementById('home-subject-title').textContent=young?'Utforsk mer':'Fag';
+  document.getElementById('progress-eyebrow').textContent=young?'Det du kan':'Din fremgang';
+  document.getElementById('progress-title').textContent=young?'Dette kan du! ⭐':'Se alt du har lært! 🌟';
+  document.getElementById('progress-copy').textContent=young?'Her samler du det du lærer. Samlingen vokser litt etter litt.':'Her vokser kunnskapen din litt etter litt.';
+  document.getElementById('nav-home-label').textContent='Hjem';
+  document.getElementById('nav-progress-label').textContent=young?'Det jeg kan':'Fremgang';
   document.getElementById('home-grade-label').textContent=cfg.label;
   const adultGrade=document.getElementById('adult-grade');if(adultGrade)adultGrade.value=String(grade);
   document.getElementById('norden-pct').textContent=nordicPct+' %';
@@ -1255,6 +1325,11 @@ function renderAll(){
   document.getElementById('home-week-new').textContent=a7.filter(a=>a.strengthened||a.newlyMastered).length;
   document.getElementById('home-week-answers').textContent=a7.length;
   document.getElementById('home-week-days').textContent=learningDaysLast7();
+  const languageSkills=subjectMasteredSkills('norwegian')+subjectMasteredSkills('english'),mathSkills=subjectMasteredSkills('math');
+  document.getElementById('young-world-count').textContent=known;
+  document.getElementById('young-words-count').textContent=languageSkills;
+  document.getElementById('young-math-count').textContent=mathSkills;
+  document.getElementById('young-knowledge-total').textContent=(known+languageSkills+mathSkills)>0?'Samlingen din vokser':'Start samlingen i dag';
   document.getElementById('daily-goal-count').textContent=goal.done+' av '+goal.target;
   document.querySelectorAll('#daily-goal-dots i').forEach((dot,i)=>dot.classList.toggle('done',i<goal.done));
   document.getElementById('daily-goal-copy').textContent=goal.done>=goal.target?'Dagens lille mål er nådd. Resten er bonus.':'Fullfør én kort læringsøkt. Riktige og feil svar teller like mye for innsatsen.';
@@ -1567,7 +1642,7 @@ function renderSubjectContinue(){
   document.getElementById('subject-mission-title').textContent=sameActive?(a.label||s.mission):module?.title||s.mission;
   document.getElementById('subject-mission-copy').textContent=sameActive?'Du har en økt som ikke er ferdig ennå.':sameLast?'Fortsett i samme læringsområde, med nye oppgaver.':'En kort blandet økt på '+GRADE_CONFIG[currentGrade()].label.toLowerCase()+'.';
   const btn=document.getElementById('start-subject-session');
-  btn.textContent=sameActive?'Fortsett økten 🚀':sameLast?'Fortsett 🚀':'Start 5 oppgaver 🚀';
+  btn.textContent=currentGrade()<=2?(sameActive?'Fortsett oppdraget ⭐':sameLast?'Fortsett oppdraget ⭐':'Start oppdraget ⭐'):(sameActive?'Fortsett økten 🚀':sameLast?'Fortsett 🚀':'Start 5 oppgaver 🚀');
   btn.onclick=()=>{
     if(state.activeSession?.scope?.subject===activeSubject){startSession();return}
     if(sameLast){startLearningSession(activeSubject,last.module,last.label);return}
@@ -1833,11 +1908,11 @@ function renderHomeContinue(){
     document.getElementById('home-continue-button').onclick=()=>startSession();
     return;
   }
-  const rec=recommendedStarter();
-  eye.textContent='Anbefalt nå';
-  document.getElementById('home-continue-title').textContent=rec.title;
-  document.getElementById('home-continue-copy').textContent=rec.copy;
-  document.getElementById('home-continue-button').textContent='Start en liten økt 🚀';
+  const rec=recommendedStarter(),young=currentGrade()<=2,goal=dailyGoal();
+  eye.textContent=young?(goal.done>=goal.target?'Dagens oppdrag fullført':'Dagens oppdrag'):'Anbefalt nå';
+  document.getElementById('home-continue-title').textContent=young?(goal.done>=goal.target?'Du klarte det! ⭐':rec.title):rec.title;
+  document.getElementById('home-continue-copy').textContent=young?(goal.done>=goal.target?'Du har gjort dagens lille oppdrag. Nå kan du utforske fritt, eller være ferdig.':rec.copy):rec.copy;
+  document.getElementById('home-continue-button').textContent=young?(goal.done>=goal.target?'Utforsk litt til 🌍':'Start oppdraget ⭐'):'Start en liten økt 🚀';
   document.getElementById('home-continue-button').onclick=rec.action;
 }
 function renderFoxGuide(){
@@ -1848,8 +1923,8 @@ function renderFoxGuide(){
   const goal=dailyGoal();
   if(goal.done>=goal.target){title.textContent='Dagens lille mål er i boks';copy.textContent='Resten er bonus. Det er lov å være ferdig.';return}
   if(goal.done>0){title.textContent='Dagens lille mål er i boks';copy.textContent='Resten er bonus. Det er lov å være ferdig.';return}
-  title.textContent=currentGrade()<=2?'Vi starter enkelt':'Klar for litt mer?';
-  copy.textContent=currentGrade()<=2?'Første oppgave skal være mulig å få til.':'Én liten økt er nok. Resten er bonus.';
+  title.textContent=currentGrade()<=2?'Jeg har et lite oppdrag til deg 🦊':'Klar for litt mer?';
+  copy.textContent=currentGrade()<=2?'Fem små utfordringer. Jeg starter med noe du har god sjanse til å klare.':'Én liten økt er nok. Resten er bonus.';
 }
 function syncGeoThemeButtons(){
   document.querySelectorAll('.geo-theme').forEach(x=>x.classList.toggle('active',x.dataset.geoTheme===geoTheme));
@@ -2444,7 +2519,7 @@ function bindReadAloud(q){
 function renderQuestion(){
   const q=sessionQuestions[qIndex];if(!q){finishSession();return}
   document.getElementById('session-progress-bar').style.width=(qIndex/sessionQuestions.length*100)+'%';
-  document.getElementById('session-count').textContent=`${qIndex+1}/${sessionQuestions.length}`;
+  document.getElementById('session-count').textContent=currentGrade()<=2?`${qIndex+1} av ${sessionQuestions.length}`:`${qIndex+1}/${sessionQuestions.length}`;
   const wrap=document.getElementById('question-wrap');
   const typeLabel=q.type==='flag'?'Flagg':q.type==='capital'?'Hovedstad':q.type==='map'?'Kart':q.type==='continent'?'Verdensdel':'Land';
   let html=`<div class="question-tools"><div class="qtype">${typeLabel}</div>${readAloudButton(q)}</div><div class="question">${q.prompt}</div>`;
@@ -2524,9 +2599,16 @@ function finishSession(){
   document.getElementById('complete-learned').textContent=result.strengthened;
   document.getElementById('complete-area').textContent=result.area||'Verden';
   document.getElementById('complete-copy').textContent=practiceOnly?'Repetisjon fullført! Denne runden trener hukommelsen, men påvirker ikke dagens mål eller mestring.':newRecord?'Ny personlig rekord: '+result.correct+' riktige! 🌟':result.correct===result.total?'Full pott! Du klarte hele oppdraget. 🌟':result.correct>=3?'Bra jobbet! Det vanskelige får du møte igjen senere.':'God innsats! Nå vet appen hva du skal øve mer på.';
+  const rewardTitle=document.getElementById('young-reward-title'),rewardCopy=document.getElementById('young-reward-copy'),rewardIcon=document.getElementById('young-reward-icon');
+  if(rewardTitle&&rewardCopy&&rewardIcon){
+    const milestone=state.lastMilestone&&Date.now()-Number(state.lastMilestone.at||0)<10*60*1000?state.lastMilestone:null;
+    rewardIcon.textContent=result.correct===result.total?'🏆':result.strengthened>0?'⭐':'🌱';
+    rewardTitle.textContent=practiceOnly?'God repetisjon!':milestone?.title||'Du klarte oppdraget!';
+    rewardCopy.textContent=practiceOnly?'Du trente hukommelsen uten at fremgangen ble kunstig blåst opp.':milestone?.copy||(result.strengthened>0?result.strengthened+' ting ble litt sterkere i dag.':'Du fullførte hele økten. Det teller.');
+  }
   document.getElementById('complete-next').textContent=practiceOnly?'Vil du prøve én gang til, kan du gjøre det så mange ganger du vil.':nextTeaserForScope();
   const backLabel=sessionScope?.subject&&sessionScope.subject!=='geography'?(SUBJECTS[sessionScope.subject]?.title||'faget'):'Geografi';
-  document.getElementById('complete-home').textContent='Tilbake til '+backLabel+' ⭐';
+  document.getElementById('complete-home').textContent=currentGrade()<=2?'Se hva jeg kan ⭐':'Tilbake til '+backLabel+' ⭐';
   document.getElementById('complete-repeat').style.display=lastCompletedQuestions.length?'block':'none';
   showScreen('complete');
 }
@@ -2538,7 +2620,7 @@ function repeatCompletedSession(){
   state.activeSession={startedAt:Date.now()};persistActiveSession();showScreen('session');renderQuestion();
 }
 document.getElementById('complete-repeat').onclick=repeatCompletedSession;
-document.getElementById('complete-home').onclick=()=>returnToLearningHome();
+document.getElementById('complete-home').onclick=()=>{if(currentGrade()<=2){setTab('progress');return}returnToLearningHome()};
 
 
 // Onboarding
