@@ -3190,7 +3190,7 @@ function renderGradeJourneyOverview(){
   document.getElementById('grade-round-eyebrow').textContent=label;
   document.getElementById('grade-round-title').textContent=o.complete?'🏆 '+label+' rundet i Lær litt mer':'Rund '+label;
   document.getElementById('grade-round-score').textContent=o.done+'/'+o.total;
-  document.getElementById('grade-round-copy').textContent=o.complete?'Du har fullført appens kjerneløp i alle fire fag. Dette er ikke en offisiell skolegodkjenning, og varig mestring bygges videre med repetisjon.':'Fullfør appens kjerneløp i hvert fag. Du trenger ikke gjøre alt på én gang.';
+  document.getElementById('grade-round-copy').textContent=o.complete?'Du har rundet appens kjerneløp i alle fire fag. Nå handler det om å hente kunnskapen fram igjen og gjøre den varig.':'Fullfør appens kjerneløp i hvert fag. Du trenger ikke gjøre alt på én gang.';
   document.getElementById('grade-round-subjects').innerHTML=o.items.map(x=>'<div class="grade-round-pill '+(x.progress.complete?'done':'')+'"><b>'+(x.progress.complete?'✓':x.icon)+'</b><span>'+x.label+' · '+(x.progress.complete?'fullført':x.progress.pct+' %')+'</span></div>').join('');
   const history=document.getElementById('grade-round-history');
   if(history)history.innerHTML=Array.from({length:10},(_,i)=>i+1).map(g=>{
@@ -3630,18 +3630,19 @@ function resumeLastActivity(){
 
 
 function dueReviewSubject(){
-  const due=[];
+  const due=[],prefix=':g'+currentGrade()+':';
   for(const [key,ev] of Object.entries(state.skillEvidence||{})){
-    const m=key.match(/^([^:]+):g(\d+):/);if(!m||Number(m[2])!==currentGrade())continue;
-    const subject=m[1],stage=skillStageByKey(key);if(reviewDue(stage,ev))due.push(subject);
+    if(!key.includes(prefix))continue;
+    const subject=key.split(':')[0],stage=skillStageByKey(key);
+    if(reviewDue(stage,ev))due.push(subject);
   }
-  if(Object.values(state.masteryEvidence||{}).some((ev)=>reviewDue(evidenceStage(ev,0,1),ev)))due.push('geography');
+  if(Object.values(state.masteryEvidence||{}).some(ev=>reviewDue(evidenceStage(ev,0,1),ev)))due.push('geography');
   return due[0]||null;
 }
 function recommendedStarter(){
   const g=currentGrade(),review=dueReviewSubject();
   if(review==='geography')return {title:'Geografi · liten repetisjon',copy:'Noe du kunne før er klart for å hentes fram igjen.',action:()=>{geoTheme='country';syncGeoThemeButtons();startGeographyTheme()}};
-  if(review&&SUBJECTS[review]){const s=SUBJECTS[review];return {title:s.title+' · repetisjon',copy:'En ferdighet er moden for en kort repetisjon.',action:()=>{openSubject(review);startLearningSession(review,null,s.mission)}}}
+  if(review&&SUBJECTS[review]){const s=SUBJECTS[review];return {title:s.title+' · repetisjon',copy:'En ferdighet er moden for en kort repetisjon.',action:()=>{openSubject(review);startJourneyReview(review)}}}
   if(state.lastActivity)return {title:activityTitle(state.lastActivity),copy:activityCopy(state.lastActivity),action:resumeLastActivity};
   if(g<=2)return {title:'Geografi · Norden',copy:'Start med kjente land, flagg og kart.',action:()=>{geoTheme='country';syncGeoThemeButtons();startGeographyTheme()}};
   if(g<=4)return {title:'Geografi · Land',copy:'Fem korte spørsmål på nivået ditt.',action:()=>{geoTheme='country';syncGeoThemeButtons();startGeographyTheme()}};
