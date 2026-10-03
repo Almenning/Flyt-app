@@ -388,7 +388,7 @@ async function finishSession(page){
     assert.ok(multPortraitFit.documentWidth<=multPortraitFit.viewport+1,'Gangetabell-lab creates horizontal page overflow in portrait: '+JSON.stringify(multPortraitFit));
     assert.ok(multPortraitFit.screenLeft>=-1&&multPortraitFit.screenRight<=multPortraitFit.viewport+1,'Gangetabell-lab screen exceeds portrait viewport: '+JSON.stringify(multPortraitFit));
     assert.ok(multPortraitFit.shellLeft>=multPortraitFit.screenLeft-1&&multPortraitFit.shellRight<=multPortraitFit.screenRight+1,'Gangetabell-lab shell exceeds its screen: '+JSON.stringify(multPortraitFit));
-    assert.equal(await page.locator('[data-mult-variant]').count(),5);
+    assert.equal(await page.locator('[data-mult-variant]').count(),6);
     assert.equal(await page.locator('[data-mult-level]').count(),4);
     assert.equal(await page.locator('[data-mult-level="3"]').isVisible(),true);
     assert.match(await page.locator('.mult-mission').innerText(),/Tre grupper med to/i);
@@ -418,6 +418,38 @@ async function finishSession(page){
     await page.locator('[data-mult-variant="patterns"]').click();
     assert.equal(await page.locator('.mult-table-cell').count(),169);
     assert.match(await page.locator('.mult-table-legend').innerText(),/5-gangen/);
+
+    // Dedicated gangetabell mode behaves like a physical 1-12 board:
+    // tap a cell, keep the table visible, highlight row/column and explain the multiplication.
+    await page.locator('[data-mult-variant="table"]').click();
+    assert.equal(await page.locator('.mult-table-cell').count(),169);
+    assert.match(await page.locator('.mult-mission').innerText(),/Finn 2 × 3/i);
+    await page.locator('[data-table-a="2"][data-table-b="3"]').click();
+    assert.match(await page.locator('.mult-equation').innerText(),/2 × 3 = 6/);
+    const tableInspector=await page.locator('.mult-table-inspector').innerText();
+    assert.match(tableInspector,/3 × 2 = 6/);
+    assert.match(tableInspector,/2 \+ 2 = 6/);
+    assert.equal(await page.locator('.mult-table-cell.row-selected').count(),12);
+    assert.equal(await page.locator('.mult-table-cell.col-selected').count(),12);
+    assert.equal(await page.locator('.mult-table-cell.cell-selected').count(),1);
+    await page.locator('#mult-lab-check').click();
+    assert.match(await page.locator('#mult-lab-feedback').innerText(),/Du fant det/i);
+
+    // In free play, a product such as 24 exposes all factor pairs available inside the 1-12 table.
+    await page.locator('[data-mult-mode="free"]').click();
+    await page.locator('[data-table-a="4"][data-table-b="6"]').click();
+    assert.match(await page.locator('.mult-equation').innerText(),/4 × 6 = 24/);
+    const freeTableInspector=await page.locator('.mult-table-inspector').innerText();
+    assert.match(freeTableInspector,/6 × 4 = 24/);
+    assert.match(freeTableInspector,/2 × 12/);
+    assert.match(freeTableInspector,/3 × 8/);
+    assert.match(freeTableInspector,/8 × 3/);
+    assert.ok(await page.locator('.mult-table-cell.same-product').count()>=5);
+    await page.locator('#mult-table-answer-toggle').click();
+    assert.equal((await page.locator('[data-table-a="1"][data-table-b="1"]').innerText()).trim(),'?');
+    assert.equal((await page.locator('[data-table-a="4"][data-table-b="6"]').innerText()).trim(),'24');
+    await page.locator('[data-table-focus="2"]').click();
+    assert.ok(await page.locator('.mult-table-cell.dimmed').count()>0);
 
     // Free play allows arbitrary factors regardless of recommended grade.
     await page.locator('[data-mult-mode="free"]').click();
