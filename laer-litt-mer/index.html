@@ -1391,6 +1391,7 @@
   <!-- learning-journey-runtime-2026-10-04 -->
   <!-- grade-scoped-skills-v3-2026-10-04 -->
   <!-- geography-journey-v1-2026-10-04 -->
+  <!-- multi-grade-journeys-2026-10-04 -->
 </head>
 <body>
 <div class="app">
@@ -2218,8 +2219,8 @@ function gradeScopeIds(grade=currentGrade()){
   else ids=WORLD_COUNTRIES.map(c=>c.id);
   return ids.filter(id=>countries[id]);
 }
-function optionCount(){return gradeConfig().options}
-function allowedTypesForGrade(){return gradeConfig().types}
+function optionCount(grade=currentGrade()){return (GRADE_CONFIG[grade]||gradeConfig()).options}
+function allowedTypesForGrade(grade=currentGrade()){return (GRADE_CONFIG[grade]||gradeConfig()).types}
 function isMapSuitableForGrade(c,grade=currentGrade()){
   if(!canMapCountry(c))return false;
   if(grade<=2)return NORDIC_IDS.includes(c.id)||CORE_EUROPE_2.includes(c.id);
@@ -2667,10 +2668,8 @@ function openDetail(k,source=null){
 }
 document.getElementById('detail-back').onclick=()=>{if(['home','progress'].includes(returnScreen))setTab(returnScreen);else showScreen(returnScreen||'home')};
 
-function canQuizCapital(k){const c=countries[k];return !!(c&&c.capital&&c.quizCapital!==false)}
-function canMapQuiz(k){const c=countries[k];return !!(c&&c.geometry)}
 function canQuizCapital(k){const c=countries[k];return !!(c&&hasQuizCapital(c))}
-function canMapQuiz(k){const c=countries[k];return !!(c&&isMapSuitableForGrade(c))}
+function canMapQuiz(k,grade=currentGrade()){const c=countries[k];return !!(c&&isMapSuitableForGrade(c,grade))}
 
 const GEO_JOURNEY_TEMPLATES=[
   {min:1,max:1,areas:[{id:'norden',title:'Norden',emoji:'❄️',scope:'nordic',types:['flag','continent','map'],target:3,copy:'Bli kjent med landene nærmest oss.'}]},
@@ -2691,10 +2690,10 @@ function geoJourneyIds(scope,grade=currentGrade()){
 }
 function geoJourneyModel(grade=currentGrade()){
   const tpl=GEO_JOURNEY_TEMPLATES.find(t=>grade>=t.min&&grade<=t.max);if(!tpl)return {subject:'geography',grade,areas:[],nodes:[]};
-  const allowed=new Set(allowedTypesForGrade()),areas=[];
+  const allowed=new Set(allowedTypesForGrade(grade)),areas=[];
   for(const src of tpl.areas){
-    const ids=geoJourneyIds(src.scope,grade),types=src.types.filter(t=>allowed.has(t)&&ids.some(id=>questionTypesForCountry(id,true).includes(t)));
-    const skillNodes=types.map(t=>({id:src.id+'-'+t,type:'geo-skill',geoType:t,title:({flag:'Flagg',capital:'Hovedsteder',country:'Land og hovedsteder',continent:'Verdensdeler',map:'Finn på kartet'}[t]||t),ids,target:Math.min(src.target,ids.filter(id=>questionTypesForCountry(id,true).includes(t)).length),subject:'geography',grade,areaId:src.id,areaTitle:src.title,areaTypes:types}));
+    const ids=geoJourneyIds(src.scope,grade),types=src.types.filter(t=>allowed.has(t)&&ids.some(id=>questionTypesForCountry(id,true,grade).includes(t)));
+    const skillNodes=types.map(t=>({id:src.id+'-'+t,type:'geo-skill',geoType:t,title:({flag:'Flagg',capital:'Hovedsteder',country:'Land og hovedsteder',continent:'Verdensdeler',map:'Finn på kartet'}[t]||t),ids,target:Math.min(src.target,ids.filter(id=>questionTypesForCountry(id,true,grade).includes(t)).length),subject:'geography',grade,areaId:src.id,areaTitle:src.title,areaTypes:types}));
     const extras=[
       {id:src.id+'-challenge',type:'challenge',title:'Utfordring'},
       {id:src.id+'-review',type:'review',title:'Husker du?'},
@@ -2714,7 +2713,7 @@ function geoJourneyNodeState(node){
     }
     return 'new';
   }
-  const eligible=node.ids.filter(id=>questionTypesForCountry(id,true).includes(node.geoType)),target=Math.max(1,Math.min(node.target||1,eligible.length));
+  const grade=Number(node.grade||currentGrade()),eligible=node.ids.filter(id=>questionTypesForCountry(id,true,grade).includes(node.geoType)),target=Math.max(1,Math.min(node.target||1,eligible.length));
   const mastered=eligible.filter(id=>typeMastered(id,node.geoType)).length,can=eligible.filter(id=>typeCanNow(id,node.geoType)).length,seen=eligible.filter(id=>stageRank(typeStage(id,node.geoType))>=stageRank('seen')).length;
   if(mastered>=target)return 'mastered';if(can>=target)return 'can-now';if(seen>0)return 'active';return 'new';
 }
@@ -2749,9 +2748,9 @@ function geoJourneyIcon(node,st){
 function buildGeoJourneyQuestions(node,allowCooldown=false){
   const types=node.type==='geo-skill'?[node.geoType]:node.areaTypes,items=[];
   for(const id of node.ids){
-    for(const type of questionTypesForCountry(id,true)){
+    for(const type of questionTypesForCountry(id,true,node.grade)){
       if(!types.includes(type))continue;
-      const q=makeQuestion(id,type,node.ids),cooling=questionOnCooldown(q);
+      const q=makeQuestion(id,type,node.ids,node.grade),cooling=questionOnCooldown(q);
       if(cooling&&!allowCooldown)continue;
       q.practiceRepeat=!!cooling;
       const st=typeStage(id,type),ev=evidenceForGeo(id,type),bucket=learningBucket(st,ev),mist=Number(state.mistakes[masteryKey(id,type)]||0);
@@ -2767,10 +2766,10 @@ function buildGeoJourneyQuestions(node,allowCooldown=false){
   for(const item of items){if(chosen.length>=5)break;add(item)}
   return chosen.slice(0,5);
 }
-function startGeoJourneyNode(nodeId){
-  const model=geoJourneyModel(currentGrade()),node=model.nodes.find(n=>n.id===nodeId);if(!node)return;
+function startGeoJourneyNode(nodeId,grade=journeyViewGrade('geography')){
+  const model=geoJourneyModel(grade),node=model.nodes.find(n=>n.id===nodeId);if(!node)return;
   sessionScope={type:'geo-journey',subject:'geography',journeyNode:node.id,journeyArea:node.areaId,journeyGrade:node.grade,journeyType:node.type,label:'Geografi · '+node.title,ids:node.ids,includeMap:true};
-  state.lastActivity={kind:'geo-journey',nodeId:node.id,label:node.title};
+  state.lastActivity={kind:'geo-journey',nodeId:node.id,grade:node.grade,label:node.title};
   sessionQuestions=buildGeoJourneyQuestions(node,false);
   if(!sessionQuestions.length){sessionQuestions=buildGeoJourneyQuestions(node,true);sessionScope.practiceOnly=sessionQuestions.length>0}else sessionScope.practiceOnly=sessionQuestions.every(q=>q.practiceRepeat);
   if(!sessionQuestions.length){toast('Dette punktet trenger flere oppgaver før det kan startes.');return}
@@ -2786,8 +2785,9 @@ function recordGeoJourneyResult(result){
 }
 function renderGeoJourney(){
   const host=document.getElementById('geo-journey-map');if(!host)return;
-  const prog=geoJourneyProgress(),recommended=geoJourneyRecommendedNode(),model=prog.model,recommendedIndex=recommended?model.nodes.findIndex(n=>n.id===recommended.id):-1,positions=['left','right','left','right','center'];
-  document.getElementById('geo-journey-grade').textContent=GRADE_CONFIG[currentGrade()].label;
+  const viewGrade=journeyViewGrade('geography'),prog=geoJourneyProgress(viewGrade),recommended=geoJourneyRecommendedNode(viewGrade),model=prog.model,recommendedIndex=recommended?model.nodes.findIndex(n=>n.id===recommended.id):-1,positions=['left','right','left','right','center'];
+  document.getElementById('geo-journey-grade').textContent=GRADE_CONFIG[viewGrade].label;
+  renderJourneyGradeStrip('geography','geo-journey-grade-strip','geo-journey-grade-note',viewGrade);
   document.getElementById('geo-journey-title').textContent=prog.complete?'Du rundet geografien! 🏆':'Fra det kjente til hele verden';
   document.getElementById('geo-journey-summary').textContent=prog.complete?'Kjerneløpet er fullført':prog.pct+' % gjennom geografireisen';
   document.getElementById('geo-journey-pct').textContent=prog.pct+'%';document.getElementById('geo-journey-ring').style.setProperty('--journey-pct',prog.pct);
@@ -2802,15 +2802,15 @@ function renderGeoJourney(){
   }).join('');
   host.querySelectorAll('[data-geo-journey-node]').forEach(b=>b.onclick=()=>startGeoJourneyNode(b.dataset.geoJourneyNode));
   const finish=document.getElementById('geo-journey-finish');finish.classList.toggle('complete',prog.complete);
-  finish.innerHTML=prog.complete?'<strong>🏆 '+GRADE_CONFIG[currentGrade()].label+' fullført i geografi</strong><p>Du har klart hovedpunktene og checkpointene. Kloden viser fortsatt hva som er «Kan nå» og hva som er mestret over tid.</p>':'<strong>🏁 Mål: rund geografireisen</strong><p>Bygg opp landkunnskapen og bestå checkpointene. Fri utforskning er alltid åpen.</p>';
+  finish.innerHTML=prog.complete?'<strong>🏆 '+GRADE_CONFIG[viewGrade].label+' fullført i geografi</strong><p>Du har klart hovedpunktene og checkpointene. Kloden viser fortsatt hva som er «Kan nå» og hva som er mestret over tid.</p>':'<strong>🏁 Mål: rund geografireisen</strong><p>Bygg opp landkunnskapen og bestå checkpointene. Fri utforskning er alltid åpen.</p>';
 }
-function questionTypesForCountry(k,includeMap=false){
-  const allowed=new Set(allowedTypesForGrade()),types=[];
+function questionTypesForCountry(k,includeMap=false,grade=currentGrade()){
+  const allowed=new Set(allowedTypesForGrade(grade)),types=[];
   if(allowed.has('flag'))types.push('flag');
   if(allowed.has('continent'))types.push('continent');
   if(allowed.has('capital')&&canQuizCapital(k))types.push('capital');
   if(allowed.has('country')&&canQuizCapital(k))types.push('country');
-  if(includeMap&&allowed.has('map')&&canMapQuiz(k))types.push('map');
+  if(includeMap&&allowed.has('map')&&canMapQuiz(k,grade))types.push('map');
   return types.length?types:['flag'];
 }
 
@@ -2877,8 +2877,8 @@ function buildCountryQuestions(k){
   }
   return [...fresh,...repeats].slice(0,5);
 }
-function makeQuestion(k,type,poolIds=Object.keys(countries)){
-  const c=countries[k],count=optionCount();let ids=poolIds.filter(x=>x!==k&&countries[x]);
+function makeQuestion(k,type,poolIds=Object.keys(countries),grade=currentGrade()){
+  const c=countries[k],count=optionCount(grade);let ids=poolIds.filter(x=>x!==k&&countries[x]);
   if(type==='flag')return {k,type,prompt:'Hvilket land har dette flagget?',visual:c.flag,answer:c.name,options:shuffle([c.name,...shuffle(ids).slice(0,count-1).map(x=>countries[x].name)])};
   if(type==='capital'){
     ids=ids.filter(x=>canQuizCapital(x)&&countries[x].capital!==c.capital);
@@ -2889,8 +2889,8 @@ function makeQuestion(k,type,poolIds=Object.keys(countries)){
     return {k,type,prompt:`Hvilket land har hovedstaden ${c.capital}?`,answer:c.name,options:shuffle([c.name,...shuffle(ids).slice(0,count-1).map(x=>countries[x].name)])};
   }
   if(type==='continent')return {k,type,prompt:`Hvilken verdensdel ligger ${c.name} i?`,answer:c.continent,options:shuffle([c.continent,...shuffle(CONTINENTS.map(x=>x.label).filter(x=>x!==c.continent)).slice(0,count-1)])};
-  const mapIds=(poolIds||[]).filter(id=>countries[id]?.continent===c.continent&&isMapSuitableForGrade(countries[id]));
-  return {k,type:'map',prompt:`Hvor ligger ${c.name}?`,answer:k,mapIds:mapIds.length?mapIds:WORLD_COUNTRIES.filter(x=>x.continent===c.continent&&isMapSuitableForGrade(x)).map(x=>x.id),mapRegion:c.continent};
+  const mapIds=(poolIds||[]).filter(id=>countries[id]?.continent===c.continent&&isMapSuitableForGrade(countries[id],grade));
+  return {k,type:'map',prompt:`Hvor ligger ${c.name}?`,answer:k,mapIds:mapIds.length?mapIds:WORLD_COUNTRIES.filter(x=>x.continent===c.continent&&isMapSuitableForGrade(x,grade)).map(x=>x.id),mapRegion:c.continent};
 }
 function shuffle(a){return [...a].sort(()=>Math.random()-.5)}
 
@@ -3192,6 +3192,11 @@ function renderGradeJourneyOverview(){
   document.getElementById('grade-round-score').textContent=o.done+'/'+o.total;
   document.getElementById('grade-round-copy').textContent=o.complete?'Du har fullført appens kjerneløp i alle fire fag. Dette er ikke en offisiell skolegodkjenning, og varig mestring bygges videre med repetisjon.':'Fullfør appens kjerneløp i hvert fag. Du trenger ikke gjøre alt på én gang.';
   document.getElementById('grade-round-subjects').innerHTML=o.items.map(x=>'<div class="grade-round-pill '+(x.progress.complete?'done':'')+'"><b>'+(x.progress.complete?'✓':x.icon)+'</b><span>'+x.label+' · '+(x.progress.complete?'fullført':x.progress.pct+' %')+'</span></div>').join('');
+  const history=document.getElementById('grade-round-history');
+  if(history)history.innerHTML=Array.from({length:10},(_,i)=>i+1).map(g=>{
+    const p=gradeJourneyOverview(g),complete=p.complete;
+    return '<div class="grade-round-history-item'+(complete?' complete':'')+(g===currentGrade()?' mine':'')+'"><b>'+(complete?'🏆 ':'')+g+'.</b><span>'+p.done+'/4</span></div>';
+  }).join('');
 }
 function renderSubjectProgress(){
   renderGradeJourneyOverview();
@@ -3236,16 +3241,16 @@ function renderSubjectModules(){
     b.onclick=()=>{activeModule=m.id;startLearningSession(activeSubject,m.id,m.title)};
     box.appendChild(b);
   });
-  const jp=journeyProgress(activeSubject,currentGrade());
+  const jp=journeyProgress(activeSubject,journeyViewGrade(activeSubject));
   document.getElementById('subject-progress-label').textContent=jp.complete?'Fullført 🏆':jp.pct+' %';
   document.getElementById('subject-progress-bar').style.width=jp.pct+'%';
   document.getElementById('subject-progress-copy').textContent=jp.complete?'Kjerneløpet er rundet. Repetisjon bygger varig mestring.':'Stien viser anbefalt rekkefølge. Øv fritt når du vil.';
 }
 function renderSubjectContinue(){
-  const s=SUBJECTS[activeSubject],a=state.activeSession?.scope,sameActive=a?.subject===activeSubject,prog=journeyProgress(activeSubject,currentGrade()),next=journeyRecommendedNode(activeSubject,currentGrade());
+  const s=SUBJECTS[activeSubject],a=state.activeSession?.scope,sameActive=a?.subject===activeSubject,viewGrade=journeyViewGrade(activeSubject),prog=journeyProgress(activeSubject,viewGrade),next=journeyRecommendedNode(activeSubject,viewGrade);
   document.getElementById('subject-continue-eyebrow').textContent=sameActive?'Pågående økt':prog.complete?'Trinnet er rundet':'Neste på reisen';
   document.getElementById('subject-mission-title').textContent=sameActive?(a.label||s.mission):prog.complete?'🏆 '+GRADE_CONFIG[currentGrade()].label+' fullført':next?.title||s.mission;
-  document.getElementById('subject-mission-copy').textContent=sameActive?'Du har en økt som ikke er ferdig ennå.':prog.complete?'Repeter det du har lært, eller ta en ekstra utfordring.':next?(next.areaTitle+' · '+journeyStatusText(next,journeyNodeState(next))):'En kort blandet økt på '+GRADE_CONFIG[currentGrade()].label.toLowerCase()+'.';
+  document.getElementById('subject-mission-copy').textContent=sameActive?'Du har en økt som ikke er ferdig ennå.':prog.complete?'Repeter det du har lært, eller ta en ekstra utfordring.':next?(next.areaTitle+' · '+journeyStatusText(next,journeyNodeState(next))):'En kort blandet økt på '+GRADE_CONFIG[viewGrade].label.toLowerCase()+'.';
   const btn=document.getElementById('start-subject-session');
   btn.textContent=sameActive?'Fortsett økten 🚀':prog.complete?'Ekstra utfordring ⚡':'Fortsett reisen 🚀';
   btn.onclick=()=>{
@@ -3460,10 +3465,10 @@ function buildJourneyQuestions(subject,node,allowCooldown=false){
   for(const q of pool){if(chosen.length>=5)break;add(q)}
   return chosen.slice(0,5);
 }
-function startJourneyNode(subject,nodeId){
-  const model=journeyModel(subject,currentGrade()),node=model.nodes.find(n=>n.id===nodeId);if(!node)return;
+function startJourneyNode(subject,nodeId,grade=journeyViewGrade(subject)){
+  const model=journeyModel(subject,grade),node=model.nodes.find(n=>n.id===nodeId);if(!node)return;
   sessionScope={type:'journey',subject,journeyNode:node.id,journeyArea:node.areaId,journeyGrade:node.grade,journeyType:node.type,module:node.module||null,label:(SUBJECTS[subject]?.title||subject)+' · '+node.title};
-  state.lastActivity={kind:'journey',subject,nodeId:node.id,label:node.title};
+  state.lastActivity={kind:'journey',subject,nodeId:node.id,grade:node.grade,label:node.title};
   sessionQuestions=buildJourneyQuestions(subject,node,false);
   if(!sessionQuestions.length){
     sessionQuestions=buildJourneyQuestions(subject,node,true);
@@ -3487,13 +3492,13 @@ function recordJourneySessionResult(result){
     state.lastMilestone={title:GRADE_CONFIG[grade].label+' fullført! 🏆',copy:'Du har klart kjerneløpet i '+(SUBJECTS[subject]?.title||subject)+'.',at:Date.now()};
   }
 }
-function startJourneyReview(subject){
-  const model=journeyModel(subject,currentGrade()),due=model.nodes.filter(n=>n.type==='review').find(n=>journeyNodeState(n)==='active')||model.nodes.find(n=>n.type==='review');
+function startJourneyReview(subject,grade=journeyViewGrade(subject)){
+  const model=journeyModel(subject,grade),due=model.nodes.filter(n=>n.type==='review').find(n=>journeyNodeState(n)==='active')||model.nodes.find(n=>n.type==='review');
   if(due){startJourneyNode(subject,due.id);return}
   startLearningSession(subject,null,'Repetisjon');
 }
-function startJourneyChallenge(subject){
-  const model=journeyModel(subject,currentGrade()),next=journeyRecommendedNode(subject,currentGrade()),area=next?model.areas.find(a=>a.id===next.areaId):model.areas[0],challenge=area?.nodes.find(n=>n.type==='challenge');
+function startJourneyChallenge(subject,grade=journeyViewGrade(subject)){
+  const model=journeyModel(subject,grade),next=journeyRecommendedNode(subject,grade),area=next?model.areas.find(a=>a.id===next.areaId):model.areas[0],challenge=area?.nodes.find(n=>n.type==='challenge');
   if(challenge){startJourneyNode(subject,challenge.id);return}
   startLearningSession(subject,null,'Ekstra utfordring');
 }
@@ -3522,10 +3527,11 @@ function startNextGradePreview(subject){
 }
 function renderSubjectJourney(){
   const host=document.getElementById('journey-map');if(!host||!SUBJECTS[activeSubject])return;
-  const prog=journeyProgress(activeSubject,currentGrade()),recommended=journeyRecommendedNode(activeSubject,currentGrade()),model=prog.model;
+  const viewGrade=journeyViewGrade(activeSubject),prog=journeyProgress(activeSubject,viewGrade),recommended=journeyRecommendedNode(activeSubject,viewGrade),model=prog.model;
   const recommendedIndex=recommended?model.nodes.findIndex(n=>n.id===recommended.id):-1;
-  document.getElementById('journey-grade-chip').textContent=GRADE_CONFIG[currentGrade()].label;
-  document.getElementById('journey-heading-title').textContent=prog.complete?'Du rundet trinnet! 🏆':'Din vei gjennom '+GRADE_CONFIG[currentGrade()].label.toLowerCase();
+  document.getElementById('journey-grade-chip').textContent=GRADE_CONFIG[viewGrade].label;
+  renderJourneyGradeStrip(activeSubject,'journey-grade-strip','journey-grade-note',viewGrade);
+  document.getElementById('journey-heading-title').textContent=prog.complete?'Du rundet trinnet! 🏆':'Din vei gjennom '+GRADE_CONFIG[viewGrade].label.toLowerCase();
   document.getElementById('journey-summary-title').textContent=prog.complete?'Kjerneløpet er fullført':prog.pct+' % gjennom kjerneløpet';
   document.getElementById('journey-summary-copy').textContent=prog.complete?'Du kan fortsatt repetere, mestre over tid eller ta ekstra utfordringer.':'Følg stien, eller trykk på et punkt du vil øve på.';
   document.getElementById('journey-summary-pct').textContent=prog.pct+'%';
@@ -3546,10 +3552,10 @@ function renderSubjectJourney(){
   host.querySelectorAll('[data-journey-node]').forEach(b=>b.onclick=()=>startJourneyNode(activeSubject,b.dataset.journeyNode));
   const finish=document.getElementById('journey-finish');finish.classList.toggle('complete',prog.complete);
   finish.innerHTML=prog.complete
-    ?'<strong>🏆 '+GRADE_CONFIG[currentGrade()].label+' fullført i '+SUBJECTS[activeSubject].title+'</strong><p>Du har klart alle hovedpunktene og checkpointene i appens kjerneløp. Fortsett å repetere for å gjøre mer av kunnskapen varig.</p><div class="journey-finish-actions"><button class="secondary" id="journey-repeat-grade">Repeter</button>'+(currentGrade()<10?'<button class="secondary" id="journey-next-grade">Prøv '+GRADE_CONFIG[currentGrade()+1].label+'</button>':'')+'</div>'
-    :'<strong>🏁 Mål: rund '+GRADE_CONFIG[currentGrade()].label+'</strong><p>Få hovedpunktene til «Kan nå» og bestå checkpointene. Du kan alltid hoppe fram og prøve noe vanskeligere.</p>';
+    ?'<strong>🏆 '+GRADE_CONFIG[viewGrade].label+' fullført i '+SUBJECTS[activeSubject].title+'</strong><p>Du har klart alle hovedpunktene og checkpointene i appens kjerneløp. Fortsett å repetere for å gjøre mer av kunnskapen varig.</p><div class="journey-finish-actions"><button class="secondary" id="journey-repeat-grade">Repeter</button>'+(viewGrade<10?'<button class="secondary" id="journey-next-grade">Fortsett til '+GRADE_CONFIG[viewGrade+1].label+'</button>':'')+'</div>'
+    :'<strong>🏁 Mål: rund '+GRADE_CONFIG[viewGrade].label+'</strong><p>Få hovedpunktene til «Kan nå» og bestå checkpointene. Du kan alltid hoppe fram og prøve noe vanskeligere.</p>';
   const repeatBtn=document.getElementById('journey-repeat-grade');if(repeatBtn)repeatBtn.onclick=()=>startJourneyReview(activeSubject);
-  const nextBtn=document.getElementById('journey-next-grade');if(nextBtn)nextBtn.onclick=()=>startNextGradePreview(activeSubject);
+  const nextBtn=document.getElementById('journey-next-grade');if(nextBtn)nextBtn.onclick=()=>setJourneyViewGrade(activeSubject,viewGrade+1);
   document.getElementById('journey-review').onclick=()=>startJourneyReview(activeSubject);
   document.getElementById('journey-challenge').onclick=()=>startJourneyChallenge(activeSubject);
 }
@@ -3614,9 +3620,9 @@ function activityCopy(activity){
 function resumeLastActivity(){
   if(state.activeSession){startSession();return}
   const a=state.lastActivity;if(!a)return;
-  if(a.kind==='journey'){openSubject(a.subject);startJourneyNode(a.subject,a.nodeId);return}
+  if(a.kind==='journey'){setJourneyViewGrade(a.subject,Number(a.grade)||currentGrade(),false);openSubject(a.subject);startJourneyNode(a.subject,a.nodeId,Number(a.grade)||journeyViewGrade(a.subject));return}
   if(a.kind==='subject'){openSubject(a.subject);startLearningSession(a.subject,a.module,a.label);return}
-  if(a.kind==='geo-journey'){startGeoJourneyNode(a.nodeId);return}
+  if(a.kind==='geo-journey'){setJourneyViewGrade('geography',Number(a.grade)||currentGrade(),false);startGeoJourneyNode(a.nodeId,Number(a.grade)||journeyViewGrade('geography'));return}
   if(a.kind==='geography-country'){startSession(a.country);return}
   if(a.kind==='geography-scope'&&a.scope){startSession(null,a.scope);return}
   if(a.kind==='geography-theme'){geoTheme=a.theme||'country';syncGeoThemeButtons();startGeographyTheme();return}
@@ -3626,7 +3632,8 @@ function resumeLastActivity(){
 function dueReviewSubject(){
   const due=[];
   for(const [key,ev] of Object.entries(state.skillEvidence||{})){
-    const subject=key.split(':')[0],stage=skillStageByKey(key);if(reviewDue(stage,ev))due.push(subject);
+    const m=key.match(/^([^:]+):g(\d+):/);if(!m||Number(m[2])!==currentGrade())continue;
+    const subject=m[1],stage=skillStageByKey(key);if(reviewDue(stage,ev))due.push(subject);
   }
   if(Object.values(state.masteryEvidence||{}).some((ev)=>reviewDue(evidenceStage(ev,0,1),ev)))due.push('geography');
   return due[0]||null;
@@ -3687,13 +3694,13 @@ function renderGeographyContinue(){
   if(capitalTheme)capitalTheme.hidden=currentGrade()===1;
   if(currentGrade()===1&&geoTheme==='capital'){geoTheme='country';syncGeoThemeButtons()}
   renderGeoJourney();
-  const active=state.activeSession?.scope,prog=geoJourneyProgress(),next=geoJourneyRecommendedNode(),geoActive=!!active&&(active.subject==='geography'||!active.subject);
+  const active=state.activeSession?.scope,viewGrade=journeyViewGrade('geography'),prog=geoJourneyProgress(viewGrade),next=geoJourneyRecommendedNode(viewGrade),geoActive=!!active&&(active.subject==='geography'||!active.subject);
   const title=document.getElementById('geography-continue-title'),copy=document.getElementById('geography-continue-copy'),eye=document.getElementById('geography-continue-eyebrow'),btn=document.getElementById('geography-continue-button');
   if(!title||!btn)return;
   if(geoActive){eye.textContent='Pågående økt';title.textContent=active.label||'Geografi';copy.textContent='Du har en økt som ikke er ferdig ennå.';btn.textContent='Fortsett økten 🚀';btn.onclick=()=>startSession();return}
-  if(prog.complete){eye.textContent='Trinnet er rundet';title.textContent='🏆 '+GRADE_CONFIG[currentGrade()].label+' fullført';copy.textContent='Utforsk fritt, repeter eller prøv en ekstra utfordring.';btn.textContent='Ekstra utfordring ⚡';btn.onclick=()=>{const c=prog.model.nodes.find(n=>n.type==='challenge');if(c)startGeoJourneyNode(c.id)};return}
+  if(prog.complete){eye.textContent='Trinnet er rundet';title.textContent='🏆 '+GRADE_CONFIG[viewGrade].label+' fullført';copy.textContent='Utforsk fritt, repeter eller prøv en ekstra utfordring.';btn.textContent='Ekstra utfordring ⚡';btn.onclick=()=>{const c=prog.model.nodes.find(n=>n.type==='challenge');if(c)startGeoJourneyNode(c.id)};return}
   if(next){eye.textContent='Neste på reisen';title.textContent=next.title;copy.textContent=next.areaTitle+' · '+geoJourneyStatusText(next,geoJourneyNodeState(next));btn.textContent='Fortsett reisen 🚀';btn.onclick=()=>startGeoJourneyNode(next.id);return}
-  eye.textContent='Anbefalt nå';title.textContent='Land';copy.textContent='Fem korte spørsmål tilpasset '+GRADE_CONFIG[currentGrade()].label.toLowerCase()+'.';btn.textContent='Start 🚀';btn.onclick=()=>{geoTheme='country';syncGeoThemeButtons();startGeographyTheme()};
+  eye.textContent='Anbefalt nå';title.textContent='Land';copy.textContent='Fem korte spørsmål tilpasset '+GRADE_CONFIG[viewGrade].label.toLowerCase()+'.';btn.textContent='Start 🚀';btn.onclick=()=>{geoTheme='country';syncGeoThemeButtons();startGeographyTheme()};
 }
 function returnToLearningHome(){
   const s=sessionScope?.subject;
@@ -4409,7 +4416,7 @@ document.getElementById('reset-progress').onclick=()=>{
 };
 
 const adultGradeSelect=document.getElementById('adult-grade');
-if(adultGradeSelect)adultGradeSelect.addEventListener('change',()=>{state.profile.grade=Number(adultGradeSelect.value);state.activeSession=null;state.lastActivity=null;selectedGrade=state.profile.grade;saveState();renderGradeChoice();renderAll();toast(`Nivået er tilpasset ${state.profile.grade}. klasse`)});
+if(adultGradeSelect)adultGradeSelect.addEventListener('change',()=>{state.profile.grade=Number(adultGradeSelect.value);state.activeSession=null;state.lastActivity=null;ensureJourneyState();state.journey.viewGrades={};selectedGrade=state.profile.grade;saveState();renderGradeChoice();renderAll();toast(`Nivået er tilpasset ${state.profile.grade}. klasse`)});
 const adultSoundToggle=document.getElementById('adult-sound-toggle');
 const adultAutoReadToggle=document.getElementById('adult-autoread-toggle');
 if(adultSoundToggle)adultSoundToggle.addEventListener('change',()=>{state.preferences.sound=adultSoundToggle.checked;saveState();toast(adultSoundToggle.checked?'Lydeffekt er på':'Lydeffekt er av')});
