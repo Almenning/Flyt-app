@@ -1,7 +1,8 @@
 
 /* Brøklab: tactile fraction exploration inspired by physical fraction manipulatives. */
 #fraction-lab-screen{padding:calc(8px + env(safe-area-inset-top)) 14px 34px}
-.fraction-lab-shell{display:grid;gap:13px}
+.fraction-lab-shell{display:grid;gap:13px;min-width:0;max-width:100%}
+.fraction-lab-shell>*{min-width:0;max-width:100%;box-sizing:border-box}
 .fraction-lab-head{display:grid;grid-template-columns:48px 1fr 48px;align-items:center;gap:8px}
 .fraction-lab-head .detail-back{margin:0;width:48px;height:48px;padding:0;font-size:22px}
 .fraction-lab-head-copy{text-align:center;min-width:0}
@@ -30,21 +31,21 @@
 .lab-level.recommended:after{content:"★";margin-left:5px;font-size:9px}
 .lab-harder{margin-top:10px;border:0;background:transparent;color:#4B62B1;font-size:12px;font-weight:900;padding:6px 2px;cursor:pointer}
 
-.lab-board{position:relative;background:linear-gradient(180deg,#18B8BF,#0EA5AD);padding:8px;border-radius:24px;display:grid;grid-template-columns:1fr 1fr;gap:7px;box-shadow:0 8px 0 #078B92,0 17px 30px rgba(40,85,102,.16);overflow:hidden}
+.lab-board{position:relative;background:linear-gradient(180deg,#18B8BF,#0EA5AD);padding:8px;border-radius:24px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:7px;box-shadow:0 8px 0 #078B92,0 17px 30px rgba(40,85,102,.16);overflow:hidden;min-width:0;max-width:100%;box-sizing:border-box}
 .lab-board:before{content:"";position:absolute;left:50%;top:5px;bottom:5px;width:7px;transform:translateX(-50%);border-radius:9px;background:linear-gradient(90deg,#078A91,#32C6CB,#078A91);z-index:3;pointer-events:none}
-.lab-board-page{background:#FFFDF8;border-radius:17px;padding:9px 7px 10px;min-width:0;box-shadow:inset 0 0 0 2px rgba(255,255,255,.92)}
+.lab-board-page{background:#FFFDF8;border-radius:17px;padding:9px 7px 10px;min-width:0;max-width:100%;overflow:hidden;box-sizing:border-box;box-shadow:inset 0 0 0 2px rgba(255,255,255,.92)}
 .lab-board.focus-wall .lab-board-page:last-child{opacity:.72}
 .lab-board.focus-circles .lab-board-page:first-child{opacity:.72}
 .lab-board-title{font-size:10px;font-weight:950;color:#64737A;margin:0 0 7px;text-align:center;text-transform:uppercase;letter-spacing:.06em}
 .lab-fraction-wall{display:grid;gap:3px}
-.lab-fraction-row{display:grid;grid-template-columns:repeat(var(--parts),1fr);gap:2px;min-width:0}
+.lab-fraction-row{display:grid;grid-template-columns:repeat(var(--parts),minmax(0,1fr));gap:2px;min-width:0;max-width:100%}
 .lab-fraction-tile{min-width:0;min-height:31px;padding:0;border:0;border-radius:6px;background:var(--piece-color);color:#fff;display:grid;place-items:center;font-weight:950;font-size:clamp(8px,2.25vw,13px);box-shadow:inset 0 -3px 0 rgba(0,0,0,.10),0 1px 2px rgba(0,0,0,.08);cursor:pointer;touch-action:none}
 .lab-fraction-row[data-parts="8"] .lab-fraction-tile,.lab-fraction-row[data-parts="10"] .lab-fraction-tile,.lab-fraction-row[data-parts="12"] .lab-fraction-tile{font-size:clamp(6px,1.8vw,9px)}
 .lab-fraction-tile:active{transform:translateY(1px)}
 .lab-frac{display:inline-flex;align-items:center;gap:1px;line-height:1}
 .lab-frac sup,.lab-frac sub{font-size:.82em;line-height:1}
 .lab-frac .slash{font-size:.95em;opacity:.95}
-.lab-circles{display:grid;grid-template-columns:repeat(3,1fr);gap:7px 5px;align-items:start}
+.lab-circles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px 5px;align-items:start;min-width:0;max-width:100%}
 .lab-circle-source{border:0;background:transparent;padding:0;display:grid;justify-items:center;gap:3px;min-width:0;cursor:pointer;touch-action:none;color:#344F58}
 .lab-circle{width:min(100%,59px);aspect-ratio:1;border-radius:50%;display:grid;place-items:center;background:repeating-conic-gradient(from -90deg,var(--piece-color) 0 calc((360deg / var(--parts)) - 1.8deg),rgba(255,255,255,.95) calc((360deg / var(--parts)) - 1.8deg) calc(360deg / var(--parts)));box-shadow:inset 0 -4px 0 rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.12);border:1px solid rgba(0,0,0,.05);color:#fff;font-weight:950;font-size:12px;text-shadow:0 1px 2px rgba(0,0,0,.14)}
 .lab-circle-meta{font-size:8px;font-weight:900;line-height:1.1;text-align:center;min-height:18px}
@@ -93,6 +94,32 @@
 .lab-prediction.active{background:#DDF7F4;border-color:#2CB6B3;color:#087078}
 .lab-free-note{padding:13px 14px;border-radius:18px;background:#EEF7FF;color:#496276;font-size:12px;font-weight:800;line-height:1.45}
 .lab-completed-count{text-align:center;color:#78838A;font-size:10px;font-weight:850;padding:0 4px}
+
+
+@media (max-width:560px) and (orientation:portrait){
+  #fraction-lab-screen{overflow-x:hidden}
+  .lab-board{grid-template-columns:minmax(0,1fr);gap:8px;padding:7px}
+  .lab-board:before{display:none}
+  .lab-board.focus-wall .lab-board-page:last-child{display:none}
+  .lab-board.focus-circles .lab-board-page:first-child{display:none}
+  .lab-board.focus-wall .lab-board-page:first-child,
+  .lab-board.focus-circles .lab-board-page:last-child{opacity:1}
+  .lab-board-page{width:100%;padding:10px 8px 11px}
+  .lab-board-title{font-size:11px;margin-bottom:8px}
+  .lab-fraction-wall{gap:4px}
+  .lab-fraction-row{gap:3px}
+  .lab-fraction-tile{min-height:32px;font-size:clamp(7px,2.6vw,12px);border-radius:7px}
+  .lab-fraction-row[data-parts="8"] .lab-fraction-tile,
+  .lab-fraction-row[data-parts="10"] .lab-fraction-tile,
+  .lab-fraction-row[data-parts="12"] .lab-fraction-tile{font-size:clamp(6px,2.1vw,9px)}
+  .lab-circles{gap:10px 8px}
+  .lab-circle{width:min(100%,82px)}
+  .lab-circle-meta{font-size:9px}
+  .lab-toolbox,.lab-workzone{width:100%;overflow:hidden;box-sizing:border-box}
+  .lab-toolbox-head{align-items:flex-start;flex-wrap:wrap}
+  .lab-piece-bank{max-width:100%}
+  .lab-workbench{max-width:100%;box-sizing:border-box}
+}
 
 @media (max-width:380px){
   #fraction-lab-screen{padding-left:10px;padding-right:10px}
