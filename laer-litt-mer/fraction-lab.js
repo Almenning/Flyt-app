@@ -79,7 +79,12 @@ function fractionLabRecommendedLevel(){
 }
 function ensureFractionLabProgress(){
   state.fractionLab=state.fractionLab||{completed:{}};
-  state.fractionLab.completed=state.fractionLab.completed||{};
+  if(Array.isArray(state.fractionLab.completed)){
+    const legacy=state.fractionLab.completed;
+    state.fractionLab.completed=Object.fromEntries(legacy.map((id,i)=>['legacy:'+i,String(id)]));
+  }else if(!state.fractionLab.completed||typeof state.fractionLab.completed!=='object'){
+    state.fractionLab.completed={};
+  }
 }
 function fractionLabCompletedCount(){ensureFractionLabProgress();return Object.keys(state.fractionLab.completed).length}
 function fractionLabMission(){
@@ -275,3 +280,5 @@ function openFractionLab(){
   renderFractionLab();showScreen('fraction-lab');
 }
 window.openFractionLab=openFractionLab;
+const fractionLabEntry=document.getElementById('open-fraction-lab');
+if(fractionLabEntry)fractionLabEntry.onclick=openFractionLab;
