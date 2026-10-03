@@ -326,10 +326,10 @@ async function finishSession(page){
     assert.match(legendText,/Kan nå/);
     assert.match(legendText,/Under arbeid/);
     assert.match(legendText,/Sett/);
-    assert.match(legendText,/Ikke startet/);
+    assert.match(legendText,/ikke startet/i);
     await page.evaluate(()=>selectGlobeCountry('no'));
     const statusText=(await page.locator('.globe-status-badge').innerText()).trim();
-    assert.ok(['★ Fullført','✓ Kan nå','○ Under arbeid','• Sett','· Ikke startet'].includes(statusText),`unexpected globe status: ${statusText}`);
+    assert.ok(['★ Fullført','● Kan nå','◐ Under arbeid','• Sett','– Ikke startet'].includes(statusText),`unexpected globe status: ${statusText}`);
 
     // Custom edge swipe back from the globe.
     await page.mouse.move(2,400);await page.mouse.down();await page.mouse.move(110,400,{steps:5});await page.mouse.up();
