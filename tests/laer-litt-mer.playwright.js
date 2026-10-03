@@ -6,7 +6,7 @@ const path=require('node:path');
 const {chromium}=require('playwright');
 
 const root=path.resolve(__dirname,'..','laer-litt-mer');
-const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.json':'application/json; charset=utf-8','.webmanifest':'application/manifest+json; charset=utf-8','.svg':'image/svg+xml'};
+const mime={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.json':'application/json; charset=utf-8','.webmanifest':'application/manifest+json; charset=utf-8','.svg':'image/svg+xml'};
 
 function startServer(){
   return new Promise((resolve,reject)=>{
