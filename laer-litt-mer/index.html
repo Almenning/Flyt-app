@@ -1227,7 +1227,7 @@ function adultSummary(){
 }
 function renderAdult(){
   const {best,worst}=adultSummary(),a7=last7Answers();
-  document.getElementById('adult-sessions').textContent=state.sessionLog.length;
+  document.getElementById('adult-sessions').textContent=state.sessionLog.filter(s=>s.countsTowardGoal!==false).length;
   document.getElementById('adult-accuracy').textContent=a7.length?Math.round(a7.filter(a=>a.correct).length/a7.length*100)+' %':'–';
   document.getElementById('adult-strong').textContent=best?countries[best.k].name:'Ikke nok data ennå';
   document.getElementById('adult-practice').textContent=worst?countries[worst.k].name:'Start en økt';
@@ -1428,7 +1428,7 @@ function bumpSkill(subject,skill,correct){
   if(!correct)state.skillMistakes[key]=Number(state.skillMistakes[key]||0)+1;
   return {old,next,before,after,strengthened,newlyMastered};
 }
-function subjectAnswered(subject){return state.answerLog.filter(a=>a.subject===subject).length}
+function subjectAnswered(subject){return state.answerLog.filter(a=>a.countsForLearning!==false&&a.subject===subject).length}
 function subjectMasteredSkills(subject){
   ensureLearningState();return Object.keys(state.skillMastery).filter(k=>k.startsWith(subject+':')&&stageRank(skillStageByKey(k))>=stageRank('can-now')).length;
 }
