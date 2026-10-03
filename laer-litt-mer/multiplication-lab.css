@@ -63,7 +63,7 @@
 
 .mult-numberline-wrap{padding:16px 5px 4px;overflow-x:auto;scrollbar-width:none}
 .mult-numberline-wrap::-webkit-scrollbar{display:none}
-.mult-numberline{position:relative;height:104px;min-width:max(100%,calc(var(--end) * 26px + 38px));margin:0 12px}
+.mult-numberline{position:relative;height:104px;min-width:320px;margin:0 12px}
 .mult-numberline-axis{position:absolute;left:0;right:0;bottom:28px;height:4px;border-radius:999px;background:#C8CCDB}
 .mult-numberline-tick{position:absolute;bottom:18px;transform:translateX(-50%);display:grid;justify-items:center;gap:3px;font-size:9px;font-weight:900;color:#6D738A}
 .mult-numberline-tick:before{content:"";width:2px;height:12px;background:#B4B8C8;border-radius:2px}
