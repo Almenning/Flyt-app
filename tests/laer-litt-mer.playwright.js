@@ -318,6 +318,19 @@ async function finishSession(page){
     await page.locator('#random-country').click();
     assert.doesNotMatch(await page.locator('#globe-status').innerText(),/Finn et land/);
 
+    // Min verden must explain every progress symbol, and a selected country must show explicit status.
+    await page.locator('[data-globe-mode="mine"]').click();
+    assert.equal(await page.locator('#globe-legend').isVisible(),true);
+    const legendText=await page.locator('#globe-legend').innerText();
+    assert.match(legendText,/Fullført/);
+    assert.match(legendText,/Kan nå/);
+    assert.match(legendText,/Under arbeid/);
+    assert.match(legendText,/Sett/);
+    assert.match(legendText,/Ikke startet/);
+    await page.evaluate(()=>selectGlobeCountry('no'));
+    const statusText=(await page.locator('.globe-status-badge').innerText()).trim();
+    assert.ok(['★ Fullført','✓ Kan nå','○ Under arbeid','• Sett','· Ikke startet'].includes(statusText),`unexpected globe status: ${statusText}`);
+
     // Custom edge swipe back from the globe.
     await page.mouse.move(2,400);await page.mouse.down();await page.mouse.move(110,400,{steps:5});await page.mouse.up();
     await page.locator('#geography-screen.active').waitFor();
