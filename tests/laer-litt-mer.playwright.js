@@ -676,6 +676,39 @@ async function finishSession(page){
       }
     }
 
+
+    // Simulate a fully completed grade-2 core journey and verify the global 4/4 rounded state.
+    const rounded=await page.evaluate(()=>{
+      state.profile.grade=2;ensureJourneyState();
+      for(const subject of ['norwegian','math','english']){
+        const model=journeyModel(subject,2);
+        for(const node of model.nodes.filter(n=>n.type==='skill')){
+          for(const skill of node.skills)state.skillMastery[learningMasteryKey(subject,skill,2)]=2;
+        }
+        for(const cp of model.nodes.filter(n=>n.type==='checkpoint')){
+          state.journey.nodes[journeyNodeKey(subject,2,cp.id)]={passed:true,best:5,attempts:1};
+        }
+      }
+      const geo=geoJourneyModel(2);
+      for(const node of geo.nodes.filter(n=>n.type==='geo-skill')){
+        const eligible=node.ids.filter(id=>questionTypesForCountry(id,true).includes(node.geoType));
+        const need=Math.max(1,Math.min(node.target||1,eligible.length));
+        for(const id of eligible.slice(0,need))state.mastery[masteryKey(id,node.geoType)]=2;
+      }
+      for(const cp of geo.nodes.filter(n=>n.type==='checkpoint')){
+        state.journey.nodes[journeyNodeKey('geography',2,cp.id)]={passed:true,best:5,attempts:1};
+      }
+      saveState();renderAll();setTab('progress');
+      const overview=gradeJourneyOverview(2);
+      return {done:overview.done,total:overview.total,complete:overview.complete};
+    });
+    assert.equal(rounded.done,4);
+    assert.equal(rounded.total,4);
+    assert.equal(rounded.complete,true);
+    await page.locator('#progress-screen.active').waitFor();
+    assert.equal((await page.locator('#grade-round-score').textContent()).trim(),'4/4');
+    assert.match(await page.locator('#grade-round-title').textContent(),/rundet/i);
+
     assert.deepEqual(errors,[]);
     console.log('laer-litt-mer browser QA passed');
   }finally{
