@@ -1,4 +1,4 @@
-const CACHE='laer-litt-mer-v10-multiplication-lab-final-2026-10-03';
+const CACHE='laer-litt-mer-v11-fraction-lab-portrait-2026-10-03';
 const SHELL=['./','./index.html','./manifest.webmanifest','./icon.svg','./fraction-lab.css','./fraction-lab.js','./multiplication-lab.css','./multiplication-lab.js','./norwegian-content.js'];
 
 self.addEventListener('install',event=>{
