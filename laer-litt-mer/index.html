@@ -961,6 +961,196 @@
       .grade-band-young .young-achievement b{font-size:8px}
     }
 
+
+    /* Grade 1-2 reference fidelity v4: this intentionally departs from the shared dashboard. */
+    .young-nav-only{display:none}
+
+    .grade-band-young #home-screen{
+      padding-left:15px;padding-right:15px;padding-top:2px;
+      background:
+        radial-gradient(circle at 7% 7%,rgba(255,225,97,.42) 0 14px,transparent 15px),
+        radial-gradient(circle at 91% 16%,rgba(255,130,173,.20) 0 22px,transparent 23px)
+    }
+    .grade-band-young .top{
+      padding:11px 16px 4px;background:transparent
+    }
+    .grade-band-young .top .avatar{display:none}
+    .grade-band-young .brand{font-size:24px}
+
+    /* The reference starts with a compact greeting row, not a giant hero card. */
+    .grade-band-young .dashboard-welcome{
+      display:grid!important;
+      grid-template-columns:58px minmax(0,1fr);
+      grid-template-areas:"mascot copy" "progress progress";
+      gap:8px 11px;
+      min-height:0!important;margin:2px 0 10px!important;padding:8px 3px 4px!important;
+      border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;overflow:visible
+    }
+    .grade-band-young .dashboard-welcome:before,.grade-band-young .dashboard-welcome:after{display:none}
+    .grade-band-young .dashboard-mascot{
+      grid-area:mascot;position:relative!important;inset:auto!important;width:58px!important;height:58px!important;
+      align-self:start;border:3px solid #fff;border-radius:50%;overflow:hidden;
+      background:linear-gradient(145deg,#D9F4FF,#FFF0C9);filter:drop-shadow(0 4px 5px rgba(65,73,95,.11))
+    }
+    .grade-band-young .dashboard-mascot svg{transform:scale(1.28) translateY(7px)}
+    .grade-band-young .dashboard-welcome-copy{
+      grid-area:copy;width:100%!important;min-height:0!important;padding-top:2px
+    }
+    .grade-band-young .dashboard-welcome-copy .eyebrow{
+      display:block!important;margin:0 0 2px!important;font-size:12px!important;font-weight:950!important;
+      color:#384966!important;text-transform:none!important;letter-spacing:0!important
+    }
+    .grade-band-young .dashboard-welcome h1{
+      margin:0!important;font-size:20px!important;line-height:1.05!important;letter-spacing:-.035em!important;color:#273852
+    }
+    .grade-band-young .dashboard-welcome .hero-copy{display:none}
+    .grade-band-young .dashboard-chips{margin-top:6px!important;gap:5px!important}
+    .grade-band-young .grade-chip,.grade-band-young .streak-chip{
+      min-height:25px!important;padding:4px 7px!important;border:1px solid rgba(255,255,255,.95);
+      background:rgba(255,255,255,.78)!important;box-shadow:0 2px 7px rgba(63,76,107,.05)!important;font-size:9px!important
+    }
+    .grade-band-young .dashboard-welcome .home-progress-banner{
+      grid-area:progress;width:100%!important;margin:2px 0 0!important;padding:8px 10px!important;
+      border:2px solid #fff!important;border-radius:16px!important;background:rgba(255,255,255,.90)!important;
+      box-shadow:0 5px 0 rgba(72,79,118,.035),0 9px 17px rgba(61,67,102,.05)!important
+    }
+    .grade-band-young .home-progress-star{width:34px;height:34px;border-radius:11px;font-size:19px}
+    .grade-band-young .home-progress-main strong{font-size:11px}.grade-band-young .home-progress-banner>span{font-size:9px}
+
+    .grade-band-young .dashboard-section-title{margin:10px 2px 7px!important}
+    .grade-band-young .dashboard-section-title .section-kicker,.grade-band-young .dashboard-section-title .section-hint{display:none!important}
+    .grade-band-young .dashboard-section-title h3{font-size:17px!important;color:#35445D}
+
+    /* Subject cards become vivid illustrated worlds, closer to the approved concept. */
+    .grade-band-young .home-subject-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px!important}
+    .grade-band-young .home-subject{
+      height:172px!important;min-height:172px!important;border-radius:23px!important;
+      border:3px solid rgba(255,255,255,.97)!important;box-shadow:0 7px 0 rgba(67,73,107,.055),0 13px 22px rgba(55,64,98,.11)!important
+    }
+    .grade-band-young .home-subject-art{border-radius:20px!important}
+    .grade-band-young .home-subject-art svg{transform:scale(1.08)}
+    .grade-band-young .home-subject:after{
+      inset:0!important;background:linear-gradient(180deg,rgba(14,35,62,.02) 0 45%,rgba(19,36,61,.12) 58%,rgba(19,36,61,.76) 100%)!important
+    }
+    .grade-band-young .home-subject-body{
+      left:10px!important;right:9px!important;top:10px!important;bottom:auto!important;
+      display:grid!important;grid-template-columns:1fr 28px!important;align-items:start!important;padding:0!important
+    }
+    .grade-band-young .home-subject-copy strong{
+      display:inline-block!important;padding:5px 8px!important;border-radius:999px;
+      background:rgba(255,255,255,.91);color:#34425B!important;text-shadow:none!important;
+      box-shadow:0 3px 9px rgba(45,55,86,.08);font-size:15px!important
+    }
+    .grade-band-young .home-subject-arrow{
+      width:28px!important;height:28px!important;font-size:20px!important;background:#fff!important;color:#5B6CDF!important
+    }
+    .grade-band-young .home-subject-progress{
+      left:9px!important;bottom:8px!important;padding:4px 7px!important;
+      background:rgba(255,255,255,.92)!important;color:#42506A!important;font-size:8.5px!important
+    }
+
+    /* Young progress is one clean, game-like panel instead of three analytics boxes. */
+    .grade-band-young .dashboard-main-grid{
+      grid-template-columns:1fr!important;gap:10px!important;margin-top:12px!important
+    }
+    .grade-band-young .dashboard-progress-panel{
+      padding:13px!important;border-radius:23px!important;background:rgba(255,255,255,.94)!important;
+      border:3px solid #fff!important;box-shadow:0 7px 0 rgba(72,79,118,.04),0 14px 23px rgba(61,67,102,.07)!important
+    }
+    .grade-band-young .dashboard-panel-heading{margin:0 1px 8px!important}
+    .grade-band-young .dashboard-panel-heading .section-kicker{display:none!important}
+    .grade-band-young .dashboard-panel-heading h3{font-size:18px!important}
+    .grade-band-young .dashboard-panel-link{padding:6px 9px!important;font-size:9px!important}
+    .grade-band-young .dashboard-progress-panel .daily-goal,
+    .grade-band-young .dashboard-progress-panel .young-knowledge,
+    .grade-band-young .dashboard-progress-panel .home-week-section{display:none!important}
+    .young-reference-progress{display:none}
+    .grade-band-young .young-reference-progress{
+      display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:18px;
+      background:linear-gradient(145deg,#FFF9D9,#FFFDF4);border:2px solid #FFF2BC
+    }
+    .young-reference-progress-icon{
+      width:46px;height:46px;border-radius:15px;background:#FFD85D;display:grid;place-items:center;
+      font-size:25px;box-shadow:inset 0 -4px 0 rgba(182,130,25,.10),0 4px 9px rgba(104,78,25,.08)
+    }
+    .young-reference-progress-copy{min-width:0;flex:1}
+    .young-reference-progress-copy strong{display:block;font-size:13px;color:#4E4325}
+    .young-reference-progress-bar{height:8px;margin:6px 0 4px;border-radius:999px;background:#EFE8D2;overflow:hidden}
+    .young-reference-progress-bar i{display:block;height:100%;width:0;border-radius:inherit;background:linear-gradient(90deg,#63C28C,#6BD0AF);transition:width .4s ease}
+    .young-reference-progress-copy span{display:block;font-size:9px;font-weight:900;color:#7A7159}
+    .grade-band-young .young-achievements{margin-top:8px!important}
+    .grade-band-young .young-achievement{padding:8px 3px 7px!important;border-radius:13px!important}
+    .grade-band-young .young-achievement span{width:27px;height:27px;margin-bottom:4px;font-size:14px}
+    .grade-band-young .young-achievement b{font-size:8px!important}
+
+    /* The globe becomes the large discovery toy from the reference, with the note on the right. */
+    .grade-band-young .dashboard-world-column{display:block!important}
+    .grade-band-young .dashboard-world-column .home-story-scene{
+      margin-top:0!important;min-height:220px!important;border-radius:24px!important;
+      background:linear-gradient(180deg,#D9F3FF 0 51%,#E8F6E4 52%,#CDEABB 100%)!important;
+      overflow:hidden
+    }
+    .grade-band-young .dashboard-world-column .home-story-scene:before{left:-35px;right:44%;bottom:-64px;height:125px;background:#96CF8C;opacity:1}
+    .grade-band-young .dashboard-world-column .home-story-scene:after{right:-45px;bottom:-70px;width:220px;height:130px;background:#6FBE84;opacity:1}
+    .grade-band-young .story-globe-button{
+      left:24px!important;right:auto!important;bottom:25px!important;width:128px!important;height:128px!important;
+      border-width:5px!important;box-shadow:0 9px 0 rgba(55,112,135,.09),0 16px 25px rgba(55,88,124,.15)!important
+    }
+    .grade-band-young .story-copy{
+      position:absolute!important;z-index:7!important;right:11px!important;left:auto!important;top:52px!important;
+      width:47%!important;padding:11px 10px!important;border-radius:16px!important;background:#FFF7D5!important;
+      box-shadow:0 6px 0 rgba(126,100,45,.07),0 12px 18px rgba(75,67,49,.08);transform:rotate(-1.5deg)
+    }
+    .grade-band-young .story-copy .eyebrow{font-size:8px!important;color:#95722D!important}
+    .grade-band-young .story-copy strong{font-size:17px!important;line-height:1.05!important;color:#34405A!important}
+    .grade-band-young .story-copy p{font-size:9px!important;line-height:1.35!important;color:#6A7184!important}
+    .grade-band-young .story-note{display:none!important}
+    .grade-band-young .story-lion{display:block!important;width:43px!important;height:43px!important;left:8px!important;right:auto!important;bottom:7px!important}
+    .grade-band-young .story-fox{display:block!important;width:47px!important;height:47px!important;left:139px!important;right:auto!important;bottom:4px!important}
+    .grade-band-young .story-star{right:45%!important;bottom:155px!important}
+    .grade-band-young .fox-guide,.grade-band-young .home-continue-wrap{display:none!important}
+
+    .grade-band-young .adult-entry{
+      margin:11px auto 0!important;display:block!important;opacity:.62;font-size:9px!important
+    }
+
+    /* Four compact bottom destinations, like the concept screen. */
+    .grade-band-young .nav{grid-template-columns:repeat(4,1fr)!important;padding:5px 8px calc(6px + env(safe-area-inset-bottom))!important}
+    .grade-band-young .young-nav-only{display:block}
+    .grade-band-young .nav button{min-height:54px!important;font-size:9px!important}
+    .grade-band-young .nav button span{font-size:20px!important}
+
+    @media (min-width:700px){
+      .grade-band-young #home-screen{padding-left:28px;padding-right:28px}
+      .grade-band-young .dashboard-welcome{
+        grid-template-columns:64px minmax(0,1fr) 285px!important;
+        grid-template-areas:"mascot copy progress"!important;align-items:center!important;gap:13px!important;
+        padding:6px 2px 9px!important
+      }
+      .grade-band-young .dashboard-mascot{width:64px!important;height:64px!important}
+      .grade-band-young .dashboard-welcome .home-progress-banner{margin:0!important}
+      .grade-band-young .home-subject-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:12px!important}
+      .grade-band-young .home-subject{height:188px!important;min-height:188px!important}
+      .grade-band-young .dashboard-main-grid{
+        grid-template-columns:minmax(0,.82fr) minmax(0,1.18fr)!important;gap:13px!important;align-items:stretch!important
+      }
+      .grade-band-young .dashboard-progress-panel{min-height:100%!important}
+      .grade-band-young .dashboard-world-column .home-story-scene{min-height:100%!important;height:100%!important}
+      .grade-band-young .story-globe-button{left:32px!important;bottom:28px!important;width:150px!important;height:150px!important}
+      .grade-band-young .story-copy{right:18px!important;top:57px!important;width:45%!important;padding:14px 13px!important}
+      .grade-band-young .story-copy strong{font-size:20px!important}
+      .grade-band-young .story-copy p{font-size:10px!important}
+    }
+
+    @media (max-width:370px){
+      .grade-band-young .dashboard-welcome{grid-template-columns:52px minmax(0,1fr)!important}
+      .grade-band-young .dashboard-mascot{width:52px!important;height:52px!important}
+      .grade-band-young .dashboard-welcome h1{font-size:18px!important}
+      .grade-band-young .home-subject{height:162px!important;min-height:162px!important}
+      .grade-band-young .story-globe-button{width:112px!important;height:112px!important;left:18px!important}
+      .grade-band-young .story-copy{width:49%!important;right:8px!important}
+    }
+
   </style>
   <link rel="stylesheet" href="./fraction-lab.css?v=20261003-mobile2" />
   <link rel="stylesheet" href="./multiplication-lab.css?v=20261003-table1" />
@@ -986,6 +1176,7 @@
   <!-- illustrated-inner-screens-v1-2026-10-03 -->
   <!-- young-visual-fidelity-v2-2026-10-03 -->
   <!-- young-dashboard-fidelity-v3-2026-10-03 -->
+  <!-- young-reference-fidelity-v4-2026-10-03 -->
 </head>
 <body>
 <div class="app">
@@ -1101,6 +1292,15 @@
               <button class="young-knowledge-item" id="young-world" type="button"><b id="young-world-count">0</b><span>land</span></button>
               <button class="young-knowledge-item" id="young-words" type="button"><b id="young-words-count">0</b><span>språkting</span></button>
               <button class="young-knowledge-item" id="young-math" type="button"><b id="young-math-count">0</b><span>matteting</span></button>
+            </div>
+          </div>
+
+          <div class="young-reference-progress" id="young-reference-progress">
+            <div class="young-reference-progress-icon" aria-hidden="true">⭐</div>
+            <div class="young-reference-progress-copy">
+              <strong id="young-reference-progress-title">Du er kjempeflink!</strong>
+              <div class="young-reference-progress-bar" aria-hidden="true"><i id="young-reference-progress-fill"></i></div>
+              <span id="young-reference-progress-text">0 av 10 oppgaver denne uken</span>
             </div>
           </div>
 
@@ -1554,6 +1754,7 @@
   <nav class="nav" id="bottom-nav">
     <button data-tab="home" class="active"><span>⌂</span><b id="nav-home-label">Hjem</b></button>
     <button id="nav-explore" type="button"><span>◉</span><b id="nav-explore-label">Utforsk</b></button>
+    <button id="nav-tasks" class="young-nav-only" type="button"><span>★</span><b>Oppgaver</b></button>
     <button data-tab="progress"><span>↗</span><b id="nav-progress-label">Fremgang</b></button>
   </nav>
   <div class="toast" id="toast"></div>
@@ -1868,6 +2069,7 @@ function setTab(tab){
 }
 document.querySelectorAll('.nav button[data-tab]').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
 const navExplore=document.getElementById('nav-explore');if(navExplore)navExplore.addEventListener('click',()=>{showScreen('geography')});
+const navTasks=document.getElementById('nav-tasks');if(navTasks)navTasks.addEventListener('click',()=>{setTab('home');requestAnimationFrame(()=>document.querySelector('.home-subject-grid')?.scrollIntoView({behavior:'smooth',block:'start'}))});
 const homeProgressOpen=document.getElementById('home-progress-open');if(homeProgressOpen)homeProgressOpen.addEventListener('click',()=>setTab('progress'));
 document.getElementById('young-world').onclick=()=>{showScreen('geography');requestAnimationFrame(()=>{globeMode='mine';showScreen('world');setGlobeMode('mine')})};
 document.getElementById('home-story-globe').onclick=()=>{showScreen('geography');requestAnimationFrame(()=>{globeMode='mine';showScreen('world');setGlobeMode('mine')})};
@@ -1975,6 +2177,10 @@ function renderAll(){
   if(progressFill)progressFill.style.width=progressPct+'%';
   if(progressText)progressText.textContent=band==='young'?(progressCurrent+' av 10 oppgaver'):(recentSessions+' '+(recentSessions===1?'økt':'økter'));
   if(progressCheer)progressCheer.textContent=band==='young'?(progressCurrent>=10?'Du klarte ukesmålet! ⭐':progressCurrent?'Du er kjempeflink!':'Klar for første stjerne?'):band==='middle'?(recentSessions>=3?'Godt i gang!':'Bygg læringsreisen din'):band==='older'?'Fremgang siste 7 dager':'Aktivitet siste 7 dager';
+  const youngRefFill=document.getElementById('young-reference-progress-fill'),youngRefText=document.getElementById('young-reference-progress-text'),youngRefTitle=document.getElementById('young-reference-progress-title');
+  if(youngRefFill)youngRefFill.style.width=progressPct+'%';
+  if(youngRefText)youngRefText.textContent=progressCurrent+' av 10 oppgaver denne uken';
+  if(youngRefTitle)youngRefTitle.textContent=progressCurrent>=10?'Du klarte ukesmålet! ⭐':progressCurrent?'Du er kjempeflink!':'Klar for første stjerne?';
   const languageSkills=subjectMasteredSkills('norwegian')+subjectMasteredSkills('english'),mathSkills=subjectMasteredSkills('math');
   document.getElementById('young-world-count').textContent=known;
   document.getElementById('young-words-count').textContent=languageSkills;
