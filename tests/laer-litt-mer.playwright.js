@@ -379,6 +379,15 @@ async function finishSession(page){
     await page.locator('#open-multiplication-lab').click();
     await page.locator('#multiplication-lab-screen.active').waitFor();
     assert.equal((await page.locator('.mult-lab-head-copy h1').textContent()).trim(),'Gangetabell-lab');
+    const multPortraitFit=await page.evaluate(()=>{
+      const screen=document.querySelector('#multiplication-lab-screen');
+      const shell=document.querySelector('.mult-lab-shell');
+      const sr=screen.getBoundingClientRect(),hr=shell.getBoundingClientRect();
+      return {viewport:window.innerWidth,documentWidth:document.documentElement.scrollWidth,screenLeft:sr.left,screenRight:sr.right,shellLeft:hr.left,shellRight:hr.right};
+    });
+    assert.ok(multPortraitFit.documentWidth<=multPortraitFit.viewport+1,'Gangetabell-lab creates horizontal page overflow in portrait: '+JSON.stringify(multPortraitFit));
+    assert.ok(multPortraitFit.screenLeft>=-1&&multPortraitFit.screenRight<=multPortraitFit.viewport+1,'Gangetabell-lab screen exceeds portrait viewport: '+JSON.stringify(multPortraitFit));
+    assert.ok(multPortraitFit.shellLeft>=multPortraitFit.screenLeft-1&&multPortraitFit.shellRight<=multPortraitFit.screenRight+1,'Gangetabell-lab shell exceeds its screen: '+JSON.stringify(multPortraitFit));
     assert.equal(await page.locator('[data-mult-variant]').count(),5);
     assert.equal(await page.locator('[data-mult-level]').count(),4);
     assert.equal(await page.locator('[data-mult-level="3"]').isVisible(),true);
