@@ -101,7 +101,7 @@
     .flag{font-size:30px;background:#F5F6FB;width:47px;height:47px;border-radius:15px;display:grid;place-items:center}
     .country .name{flex:1;font-weight:900}
     .status-dot{width:29px;height:29px;border-radius:50%;display:grid;place-items:center;font-weight:950;font-size:13px;border:2px solid rgba(255,255,255,.8)}
-    .status-known{background:var(--green);color:#fff}.status-learning{background:var(--yellow);color:#715218}.status-new{background:#ECEAF2;color:#8B8797}
+    .status-mastered{background:#4FAF7F;color:#fff}.status-known{background:#7EC89E;color:#184F36}.status-learning{background:var(--yellow);color:#715218}.status-seen{background:#E5EBF4;color:#657087}.status-new{background:#ECEAF2;color:#8B8797}
     .nav{position:fixed;z-index:20;bottom:0;left:50%;transform:translateX(-50%);width:min(100%,480px);padding:9px 14px calc(10px + env(safe-area-inset-bottom));background:rgba(255,255,255,.94);backdrop-filter:blur(18px);border-top:2px solid rgba(230,228,242,.8);display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
     .nav button{border:0;background:transparent;border-radius:17px;padding:9px 6px;color:#88869A;font-size:11px;font-weight:900;cursor:pointer}
     .nav button span{display:block;font-size:23px;margin-bottom:3px;filter:grayscale(1);opacity:.65}
@@ -375,6 +375,7 @@
   <!-- joy-loop-phase1-2026-10-03 -->
   <!-- mastery-evidence-v2-2026-10-03 -->
   <!-- tts-task-variety-2026-10-03 -->
+  <!-- my-world-mastery-colors-2026-10-03 -->
 </head>
 <body>
 <div class="app">
@@ -1129,10 +1130,10 @@ function renderAll(){
   document.getElementById('daily-goal-copy').textContent=goal.done>=goal.target?'Dagens lille mål er nådd. Resten er bonus.':goal.done===0?'Tre små oppgaver er nok til å gjøre dagen til en læringsdag.':'Bare '+(goal.target-goal.done)+' oppgave'+(goal.target-goal.done===1?'':'r')+' igjen til dagens lille mål.';
   document.getElementById('daily-growth').textContent=todayStrengthened?'Du kan mer i dag enn da du startet: '+todayStrengthened+' ting er styrket.':goal.done>=goal.target?'Bra jobbet. Du trenger ikke gjøre mer i dag.':'Klar for første lille seier?';
   renderFoxGuide();
-  const learning=WORLD_COUNTRIES.filter(x=>countryStatus(x.id)==='learning').length;
+  const mastered=masteredCountryCount(),learning=WORLD_COUNTRIES.filter(x=>['learning','seen'].includes(countryStatus(x.id))).length,canNow=Math.max(0,known-mastered);
   const worldTitle=document.getElementById('my-world-title'),worldCopy=document.getElementById('my-world-copy');
-  if(worldTitle)worldTitle.textContent=known?'Utforsk verden · '+known+' land lært':'Utforsk hele verden';
-  if(worldCopy)worldCopy.textContent=known||learning?'Min verden: '+known+' lært · '+learning+' på vei.':'Snurr på kloden, eller åpne Min verden og se hva du lærer.';
+  if(worldTitle)worldTitle.textContent=known?'Utforsk verden · '+known+' land på plass':'Utforsk hele verden';
+  if(worldCopy)worldCopy.textContent=known||learning?'Min verden: '+mastered+' mestret · '+canNow+' kan nå · '+learning+' på vei.':'Snurr på kloden, eller åpne Min verden og se hva du lærer.';
   const geoGrade=document.getElementById('geography-grade-label');if(geoGrade)geoGrade.textContent=cfg.label+' · Geografi';
   renderHomeContinue();renderContinentCards();renderAdult();renderGeographyContinue();
   if(document.getElementById('world-screen')?.classList.contains('active'))drawGlobe();
@@ -1158,7 +1159,7 @@ function openCollection(label,emoji,ids,type='collection'){
 function renderCollectionCountries(){
   const list=document.getElementById('continent-country-list');if(!list)return;list.innerHTML='';
   [...currentCollectionIds].sort((a,b)=>countries[a].name.localeCompare(countries[b].name,'nb')).forEach(k=>{
-    const c=countries[k],st=countryStatus(k),mark=st==='known'?'✓':st==='learning'?'●':'○';
+    const c=countries[k],st=countryStatus(k),mark=st==='mastered'?'★':st==='known'?'✓':st==='learning'?'●':st==='seen'?'·':'○';
     const el=document.createElement('button');el.type='button';el.className='country';
     el.innerHTML=`<div class="flag">${c.flag}</div><div class="namewrap"><span class="name">${c.name}</span><span class="sub">${c.capital||c.continent}</span></div><div class="status-dot status-${st}">${mark}</div>`;
     el.onclick=()=>openDetail(k,'continent');list.appendChild(el);
@@ -1184,7 +1185,7 @@ function renderAdult(){
 
 function openDetail(k,source=null){
   const active=document.querySelector('.screen.active')?.id?.replace('-screen','');
-  returnScreen=source||active||'home';const c=countries[k],st=countryStatus(k),label=st==='known'?'Lært':st==='learning'?'Du øver':'Ikke lært ennå';
+  returnScreen=source||active||'home';const c=countries[k],st=countryStatus(k),label=st==='mastered'?'Mestret over tid':st==='known'?'Kan nå':st==='learning'?'Du øver':st==='seen'?'Du har sett dette':'Nytt';
   const capitalHtml=c.capital?`<div class="fact"><span>Hovedstad</span><strong>${c.capital}</strong></div>`:'';
   const note=c.note?`<div class="small-note">${c.note}</div>`:'';
   document.getElementById('detail-content').innerHTML=`<div class="eyebrow">${label}</div><div class="detail-flag">${c.flag}</div><h1>${c.name}</h1><div class="fact-grid">${capitalHtml}<div class="fact"><span>Verdensdel</span><strong>${c.continent}</strong></div><div class="fact"><span>Innbyggere · anslag</span><strong>${formatPopulation(c.population)}</strong></div></div>${note}<button class="primary" onclick="startCountryPractice('${k}')">Øv på ${c.name}</button><div class="small-note">Befolkningstall vises som avrundede anslag. Kart og fakta er forenklet for læring på mobil.</div>`;
@@ -2149,19 +2150,49 @@ function geographicHitDistance(c,lon,lat){
 
 // --- Interactive globe ---
 const CONTINENT_COLORS={'Europa':'#78A9EE','Asia':'#E0B35E','Afrika':'#DE866A','Nord-Amerika':'#72C082','Sør-Amerika':'#58B88A','Oseania':'#9B7DDE'};
-function globeCountryColor(country){return CONTINENT_COLORS[country.continent]||'#9DBF95'}
+let globePulse={id:null,until:0};
+function mixHex(a,b,t){
+  const p=x=>parseInt(x,16),aa=a.replace('#',''),bb=b.replace('#','');
+  const ar=p(aa.slice(0,2)),ag=p(aa.slice(2,4)),ab=p(aa.slice(4,6)),br=p(bb.slice(0,2)),bg=p(bb.slice(2,4)),bl=p(bb.slice(4,6));
+  const h=n=>Math.round(n).toString(16).padStart(2,'0');
+  return '#'+h(ar+(br-ar)*t)+h(ag+(bg-ag)*t)+h(ab+(bl-ab)*t);
+}
+function globeCountryColor(country){
+  const base=CONTINENT_COLORS[country.continent]||'#9DBF95';
+  if(globeMode!=='mine')return base;
+  const st=countryStatus(country.id);
+  if(st==='mastered')return base;
+  if(st==='known')return mixHex(base,'#FFFFFF',.24);
+  if(st==='learning')return mixHex(base,'#DDE3EC',.58);
+  if(st==='seen')return '#D7DEE8';
+  return '#E4E7EC';
+}
 function drawMasteryMarker(ctx,country,w,h){
   if(globeMode!=='mine')return;
   const st=countryStatus(country.id);if(st==='new')return;
   const p=globeProject(country.lon,country.lat,w,h);if(!p)return;
-  if(st==='known'){
-    const r=globeZoom>=2.2?9:7;
-    ctx.beginPath();ctx.arc(p[0],p[1],r,0,Math.PI*2);ctx.fillStyle='#FFD869';ctx.fill();ctx.strokeStyle='#FFFFFF';ctx.lineWidth=2;ctx.stroke();
+  if(st==='mastered'){
+    const r=globeZoom>=2.2?9:7;ctx.beginPath();ctx.arc(p[0],p[1],r,0,Math.PI*2);ctx.fillStyle='#FFD869';ctx.fill();ctx.strokeStyle='#FFFFFF';ctx.lineWidth=2;ctx.stroke();
     ctx.fillStyle='#6A531D';ctx.font=`950 ${globeZoom>=2.2?10:8}px system-ui,-apple-system,sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('★',p[0],p[1]+.3);
+  }else if(st==='known'){
+    const r=globeZoom>=2.2?7:5.5;ctx.beginPath();ctx.arc(p[0],p[1],r,0,Math.PI*2);ctx.fillStyle='#FFFFFF';ctx.fill();ctx.strokeStyle='#5EB88A';ctx.lineWidth=3;ctx.stroke();
+    ctx.fillStyle='#2F7B57';ctx.font=`950 ${globeZoom>=2.2?9:7}px system-ui,-apple-system,sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('✓',p[0],p[1]+.2);
+  }else if(st==='learning'){
+    const r=globeZoom>=2.2?6:5;ctx.beginPath();ctx.arc(p[0],p[1],r,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,.92)';ctx.fill();ctx.strokeStyle='#FFD869';ctx.lineWidth=3;ctx.stroke();
   }else{
-    const r=globeZoom>=2.2?6:5;
-    ctx.beginPath();ctx.arc(p[0],p[1],r,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,.92)';ctx.fill();ctx.strokeStyle='#FFD869';ctx.lineWidth=3;ctx.stroke();
+    ctx.beginPath();ctx.arc(p[0],p[1],3,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,.9)';ctx.fill();ctx.strokeStyle='#AAB5C7';ctx.lineWidth=1.5;ctx.stroke();
   }
+}
+function drawGlobePulse(ctx,w,h){
+  if(!globePulse.id||Date.now()>globePulse.until)return false;
+  const country=countries[globePulse.id],p=country&&globeProject(country.lon,country.lat,w,h);if(!p)return false;
+  const remaining=Math.max(0,globePulse.until-Date.now()),phase=1-remaining/1700,r=12+phase*26,alpha=Math.max(0,.72-phase*.72);
+  ctx.beginPath();ctx.arc(p[0],p[1],r,0,Math.PI*2);ctx.strokeStyle='rgba(255,216,105,'+alpha+')';ctx.lineWidth=4;ctx.stroke();
+  return true;
+}
+function startRecentCountryCelebration(){
+  const win=state.recentCountryWin;if(!win||win.seen||Date.now()-Number(win.at||0)>7*24*60*60*1000)return;
+  win.seen=true;saveState();globePulse={id:win.id,until:Date.now()+1700};focusCountry(win.id);
 }
 function setGlobeZoom(next){
   globeZoom=Math.max(GLOBE_ZOOM_MIN,Math.min(GLOBE_ZOOM_MAX,next));
@@ -2193,7 +2224,9 @@ function drawGlobe(){const canvas=document.getElementById('globe-canvas');if(!ca
   for(const country of WORLD_COUNTRIES){if(!country.geometry)continue;ctx.beginPath();for(const poly of geometryPolygons(country.geometry)){for(const ring of poly){drawProjectedLine(ctx,ring,w,h)}}ctx.fillStyle=country.id===globeSelected?'#FFD869':globeCountryColor(country);ctx.strokeStyle='rgba(255,255,255,.82)';ctx.lineWidth=globeZoom>2?1.05:.75;ctx.fill();ctx.stroke()}
   for(const country of WORLD_COUNTRIES){if(!isTinyCountry(country)&&country.id!==globeSelected)continue;const p=globeProject(country.lon,country.lat,w,h);if(!p)continue;const selected=country.id===globeSelected;ctx.beginPath();ctx.arc(p[0],p[1],selected?6:Math.min(4.2,2.7+globeZoom*.28),0,Math.PI*2);ctx.fillStyle=selected?'#FFD869':'#FFF7C8';ctx.fill();ctx.strokeStyle='rgba(69,82,105,.35)';ctx.lineWidth=1;ctx.stroke()}
   for(const country of WORLD_COUNTRIES)drawMasteryMarker(ctx,country,w,h);
+  const pulsing=drawGlobePulse(ctx,w,h);
   ctx.restore();ctx.beginPath();ctx.arc(w/2,h/2,s*.46,0,Math.PI*2);ctx.strokeStyle='rgba(255,255,255,.95)';ctx.lineWidth=5;ctx.stroke();
+  if(pulsing)requestAnimationFrame(drawGlobe);
 }
 function globeInverse(x,y){const canvas=document.getElementById('globe-canvas'),w=canvas._cssW||canvas._cssSize,h=canvas._cssH||canvas._cssSize,s=Math.min(w,h),r=s*.455*globeZoom,X=(x-w/2)/r,Y=-(y-h/2)/r,rho=Math.hypot(X,Y);if(rho>1)return null;const rad=Math.PI/180,p0=globeLat*rad,l0=globeLon*rad,c=Math.asin(Math.min(1,rho));if(rho<1e-8)return {lon:globeLon,lat:globeLat};const lat=Math.asin(Math.cos(c)*Math.sin(p0)+(Y*Math.sin(c)*Math.cos(p0)/rho));const lon=l0+Math.atan2(X*Math.sin(c),rho*Math.cos(p0)*Math.cos(c)-Y*Math.sin(p0)*Math.sin(c));return {lon:((lon/rad+540)%360)-180,lat:lat/rad}}
 function pickGlobeCountry(e){const canvas=document.getElementById('globe-canvas'),rect=canvas.getBoundingClientRect(),x=e.clientX-rect.left,y=e.clientY-rect.top,ll=globeInverse(x,y);if(!ll)return;
@@ -2202,18 +2235,19 @@ function pickGlobeCountry(e){const canvas=document.getElementById('globe-canvas'
   if(!picked){let best=null,dist=Infinity;for(const c of WORLD_COUNTRIES){if(!canMapCountry(c)||(!isTinyCountry(c)&&c.id!==globeSelected))continue;const p=globeProject(c.lon,c.lat,canvas._cssW,canvas._cssH);if(!p)continue;const d=Math.hypot(p[0]-x,p[1]-y);if(d<dist){dist=d;best=c}}if(dist<Math.min(24,15+globeZoom*2.2))picked=best}
   if(picked)selectGlobeCountry(picked.id);
 }
-function globeProgressLabel(id){const st=countryStatus(id);return st==='known'?' · ⭐ Lært':st==='learning'?' · ◐ Du øver':''}
+function globeProgressLabel(id){const st=countryStatus(id);return st==='mastered'?' · ★ Mestret':st==='known'?' · ✓ Kan nå':st==='learning'?' · ◐ Du øver':st==='seen'?' · Sett':''}
 function selectGlobeCountry(id){const c=countries[id];if(!c)return;globeSelected=id;drawGlobe();const box=document.getElementById('globe-status'),progress=globeMode==='mine'?globeProgressLabel(id):'';box.innerHTML=`<div class="flag">${c.flag}</div><div><strong>${c.name}</strong><span>${c.continent}${c.capitalDisplay?' · '+c.capitalDisplay:''}${progress} · trykk for å lære mer</span></div>`;box.style.cursor='pointer';box.onclick=()=>openDetail(id,'world')}
 function focusCountry(id){const c=countries[id];if(!c)return;if(Number.isFinite(c.lon))globeLon=c.lon;if(Number.isFinite(c.lat))globeLat=Math.max(-78,Math.min(78,c.lat));setGlobeZoom(countryFocusZoom(c));selectGlobeCountry(id)}
 function setGlobeMode(mode){
   globeMode=mode==='mine'?'mine':'explore';
   document.querySelectorAll('[data-globe-mode]').forEach(b=>b.classList.toggle('active',b.dataset.globeMode===globeMode));
-  const box=document.getElementById('globe-status'),known=knownCountryCount(),learning=WORLD_COUNTRIES.filter(x=>countryStatus(x.id)==='learning').length;
+  const box=document.getElementById('globe-status'),known=knownCountryCount(),mastered=masteredCountryCount(),learning=WORLD_COUNTRIES.filter(x=>['learning','seen'].includes(countryStatus(x.id))).length;
   if(globeSelected)selectGlobeCountry(globeSelected);
   else if(box)box.innerHTML=globeMode==='mine'
-    ?`<div class="flag">⭐</div><div><strong>Min verden</strong><span>${known} land lært · ${learning} på vei</span></div>`
+    ?`<div class="flag">⭐</div><div><strong>Min verden</strong><span>${mastered} mestret · ${Math.max(0,known-mastered)} kan nå · ${learning} på vei</span></div>`
     :'<div class="flag">🧭</div><div><strong>Utforsk verden</strong><span>Snurr på kloden og trykk på et land.</span></div>';
   drawGlobe();
+  if(globeMode==='mine')setTimeout(startRecentCountryCelebration,70);
 }
 document.querySelectorAll('[data-globe-mode]').forEach(b=>b.onclick=()=>setGlobeMode(b.dataset.globeMode));
 document.getElementById('globe-zoom-in').onclick=()=>setGlobeZoom(globeZoom+.35);
@@ -2291,7 +2325,8 @@ function recordAnswer(q,correct,selected){
   if(correct)sessionCorrect++;else state.mistakes[masteryKey(q.k,q.type)]=(state.mistakes[masteryKey(q.k,q.type)]||0)+1;
   const result=bump(masteryKey(q.k,q.type),correct);
   state.answerLog.push({at:Date.now(),country:q.k,type:q.type,key:masteryKey(q.k,q.type),questionKey:questionIdentity(q),correct,strengthened:result.strengthened,newlyMastered:result.newlyMastered,masteryStage:result.after});
-  if(result.newlyMastered){state.lastMilestone={title:'Denne satt igjen! ⭐',copy:countries[q.k].name+': Nå har du vist at kunnskapen sitter over tid.',at:Date.now()};state.recentCountryWin={id:q.k,at:Date.now(),seen:false}}
+  if(result.newlyMastered&&countryStatus(q.k)==='mastered'){state.lastMilestone={title:countries[q.k].name+' er mestret! ⭐',copy:'Du har hentet fram kunnskapen igjen på en senere dag.',at:Date.now()};state.recentCountryWin={id:q.k,at:Date.now(),seen:false}}
+  else if(result.newlyMastered){state.lastMilestone={title:'Denne satt igjen! ⭐',copy:countries[q.k].name+': Denne delen av kunnskapen sitter over tid.',at:Date.now()}}
   else if(result.strengthened){state.lastMilestone={title:'Der satt '+countries[q.k].name+'! ⭐',copy:'Du har flyttet kunnskapen ett steg videre.',at:Date.now()}}
   currentAnswered={selected,correct};persistActiveSession();
   if(correct)celebrateCorrect();
@@ -2323,7 +2358,7 @@ function nextTeaserForScope(){
   const subject=sessionScope?.subject;
   if(!subject||subject==='geography'||['country','collection','world','grade'].includes(sessionScope?.type)){
     const ids=(sessionScope?.ids||gradeScopeIds()).filter(id=>countries[id]);
-    const next=ids.find(id=>countryStatus(id)!=='known');
+    const next=ids.find(id=>!['known','mastered'].includes(countryStatus(id)));
     return next?'Neste gang: Klarer du å gi '+countries[next].name+' mer farge på kloden?':'Neste gang: Klarer du full pott på et nytt område?';
   }
   if(subject==='math')return 'Neste gang: Klarer du én oppgave mer uten hjelp?';
