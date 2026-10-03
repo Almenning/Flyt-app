@@ -207,6 +207,57 @@ async function finishSession(page){
       if(!questionOnCooldown(g))throw new Error('Geography cooldown not active after correct answer');
     });
 
+    // Explicit manual repeat must override cooldown without affecting learning progress.
+    const repeatStart=await page.evaluate(()=>{
+      state.profile.grade=2;
+      const types=questionTypesForCountry('ru',true);
+      for(const type of types){
+        const q=makeQuestion('ru',type,gradeScopeIds());
+        state.answerLog.push({at:Date.now(),country:'ru',type,questionKey:questionIdentity(q),correct:true,countsForLearning:true});
+      }
+      const goalBefore=dailyGoal().done;
+      startSession('ru');
+      return {
+        active:activeScreenName(),
+        count:sessionQuestions.length,
+        practiceOnly:!!sessionScope.practiceOnly,
+        allRepeat:sessionQuestions.every(q=>q.practiceRepeat),
+        goalBefore
+      };
+    });
+    assert.equal(repeatStart.active,'session');
+    assert.ok(repeatStart.count>0,'Russia repeat should still contain questions');
+    assert.equal(repeatStart.practiceOnly,true);
+    assert.equal(repeatStart.allRepeat,true);
+
+    const repeatAnswer=await page.evaluate(()=>{
+      const q=sessionQuestions[0],key=masteryKey(q.k,q.type),before=mastery(key);
+      if(q.type==='map')answerMap(q.answer);else answerText(q.answer);
+      return {before,after:mastery(key),logged:state.answerLog.at(-1)};
+    });
+    assert.equal(repeatAnswer.after,repeatAnswer.before,'practice repeat must not change mastery');
+    assert.equal(repeatAnswer.logged.countsForLearning,false);
+
+    await page.evaluate(()=>finishSession());
+    await page.locator('#complete-screen.active').waitFor();
+    assert.equal(await page.evaluate(()=>state.sessionLog.at(-1).countsTowardGoal),false);
+    assert.equal(await page.evaluate(()=>dailyGoal().done),repeatStart.goalBefore,'practice repeat must not complete daily goal');
+    assert.equal(await page.locator('#complete-repeat').isVisible(),true);
+
+    const exactRepeat=await page.evaluate(()=>{
+      const expected=lastCompletedQuestions.map(questionIdentity);
+      document.getElementById('complete-repeat').click();
+      return {
+        practiceOnly:!!sessionScope.practiceOnly,
+        allRepeat:sessionQuestions.every(q=>q.practiceRepeat),
+        same:JSON.stringify(expected)===JSON.stringify(sessionQuestions.map(questionIdentity))
+      };
+    });
+    assert.equal(exactRepeat.practiceOnly,true);
+    assert.equal(exactRepeat.allRepeat,true);
+    assert.equal(exactRepeat.same,true,'same-test button should preserve exact questions');
+    await page.evaluate(()=>{state.activeSession=null;sessionQuestions=[];currentAnswered=null;saveState();setTab('home')});
+
     assert.equal(await page.locator('.home-subject').count(),4);
     assert.equal(await page.locator('#bottom-nav button').count(),2);
     assert.equal(await page.locator('#learn-screen').count(),0);
