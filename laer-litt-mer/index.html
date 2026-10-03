@@ -377,6 +377,7 @@
   <!-- tts-task-variety-2026-10-03 -->
   <!-- my-world-mastery-colors-2026-10-03 -->
   <!-- adaptive-balanced-sessions-2026-10-03 -->
+  <!-- daily-goal-session-based-2026-10-03 -->
 </head>
 <body>
 <div class="app">
@@ -394,9 +395,9 @@
       </div>
 
       <div class="card daily-goal" id="home-daily-goal">
-        <div class="daily-goal-head"><strong>Dagens lille mål</strong><span id="daily-goal-count">0 av 3</span></div>
-        <div class="daily-goal-dots" id="daily-goal-dots" aria-label="Dagens mål"><i></i><i></i><i></i></div>
-        <div class="daily-goal-copy" id="daily-goal-copy">Tre riktige svar er nok til å gjøre dagen til en læringsdag.</div>
+        <div class="daily-goal-head"><strong>Dagens lille mål</strong><span id="daily-goal-count">0 av 1</span></div>
+        <div class="daily-goal-dots" id="daily-goal-dots" aria-label="Dagens mål"><i></i></div>
+        <div class="daily-goal-copy" id="daily-goal-copy">Én kort læringsøkt er nok til å gjøre dagen til en læringsdag.</div>
         <div class="daily-growth" id="daily-growth">Klar for første lille seier?</div>
       </div>
 
@@ -1041,15 +1042,14 @@ function last7Answers(){const cutoff=Date.now()-7*24*60*60*1000;return state.ans
 function last7Sessions(){const cutoff=Date.now()-7*24*60*60*1000;return state.sessionLog.filter(s=>(s.endedAt||0)>=cutoff)}
 function todaysAnswers(){const today=dayKeyOffset(0);return state.answerLog.filter(a=>a.at&&localDay(a.at)===today)}
 function learningDaysLast7(){return new Set(last7Answers().filter(a=>a.at).map(a=>localDay(a.at))).size}
-function todaysUniqueAttempts(){
-  const seen=new Set(),out=[];
-  for(const a of todaysAnswers()){
-    const key=a.questionKey||[a.subject||'geo',a.country||'',a.skill||'',a.type||'',a.at||''].join('|');
-    if(seen.has(key))continue;seen.add(key);out.push(a);
-  }
-  return out;
+function todaysCompletedSessions(){
+  const today=dayKeyOffset(0);
+  return state.sessionLog.filter(s=>s.endedAt&&localDay(s.endedAt)===today&&Number(s.total||0)>0);
 }
-function dailyGoal(){const items=todaysUniqueAttempts(),attempts=items.length,correct=items.filter(a=>a.correct).length;return {target:3,done:Math.min(3,attempts),attempts,correct}}
+function dailyGoal(){
+  const sessions=todaysCompletedSessions();
+  return {target:1,done:sessions.length?1:0,sessions:sessions.length};
+}
 function gradeBand(grade=currentGrade()){return grade<=2?'young':grade<=4?'middle':grade<=7?'older':'teen'}
 function applyGradeDesign(){const app=document.querySelector('.app');if(!app)return;app.classList.remove('grade-band-young','grade-band-middle','grade-band-older','grade-band-teen');app.classList.add('grade-band-'+gradeBand())}
 function lastLearningAt(){return state.answerLog.reduce((m,a)=>Math.max(m,Number(a.at||0)),0)}
@@ -1152,7 +1152,7 @@ function renderAll(){
   document.getElementById('home-week-days').textContent=learningDaysLast7();
   document.getElementById('daily-goal-count').textContent=goal.done+' av '+goal.target;
   document.querySelectorAll('#daily-goal-dots i').forEach((dot,i)=>dot.classList.toggle('done',i<goal.done));
-  document.getElementById('daily-goal-copy').textContent=goal.done>=goal.target?'Dagens lille mål er nådd. Resten er bonus.':goal.done===0?'Tre små oppgaver er nok til å gjøre dagen til en læringsdag.':'Bare '+(goal.target-goal.done)+' oppgave'+(goal.target-goal.done===1?'':'r')+' igjen til dagens lille mål.';
+  document.getElementById('daily-goal-copy').textContent=goal.done>=goal.target?'Dagens lille mål er nådd. Resten er bonus.':'Fullfør én kort læringsøkt. Riktige og feil svar teller like mye for innsatsen.';
   document.getElementById('daily-growth').textContent=todayStrengthened?'Du kan mer i dag enn da du startet: '+todayStrengthened+' ting er styrket.':goal.done>=goal.target?'Bra jobbet. Du trenger ikke gjøre mer i dag.':'Klar for første lille seier?';
   renderFoxGuide();
   const mastered=masteredCountryCount(),learning=WORLD_COUNTRIES.filter(x=>['learning','seen'].includes(countryStatus(x.id))).length,canNow=Math.max(0,known-mastered);
@@ -1788,7 +1788,7 @@ function renderFoxGuide(){
   if(state.activeSession){title.textContent='Jeg holder plassen din';copy.textContent='Økten venter. Du kan fortsette når du er klar.';return}
   const goal=dailyGoal();
   if(goal.done>=goal.target){title.textContent='Dagens lille mål er i boks';copy.textContent='Resten er bonus. Det er lov å være ferdig.';return}
-  if(goal.done>0){title.textContent='God start';copy.textContent='Bare '+(goal.target-goal.done)+' liten oppgave'+(goal.target-goal.done===1?'':'r')+' igjen til dagens mål.';return}
+  if(goal.done>0){title.textContent='Dagens lille mål er i boks';copy.textContent='Resten er bonus. Det er lov å være ferdig.';return}
   title.textContent=currentGrade()<=2?'Vi starter enkelt':'Klar for litt mer?';
   copy.textContent=currentGrade()<=2?'Første oppgave skal være mulig å få til.':'Én liten økt er nok. Resten er bonus.';
 }
