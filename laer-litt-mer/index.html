@@ -1359,6 +1359,7 @@
   <!-- young-reference-fidelity-v4-2026-10-03 -->
   <!-- young-premium-art-direction-v5-2026-10-04 -->
   <!-- learning-journey-runtime-2026-10-04 -->
+  <!-- grade-scoped-skills-v3-2026-10-04 -->
 </head>
 <body>
 <div class="app">
@@ -2168,7 +2169,7 @@ function missionLabel(){return gradeConfig().mission}
 const STORAGE_KEY='laerlittmer-v2';
 const defaultState={
   version:6,
-  progressSchemaVersion:2,
+  progressSchemaVersion:3,
   profile:{grade:null,onboarded:false},
   mastery:{},
   mistakes:{},
@@ -2338,7 +2339,7 @@ function countryStatus(k){
 }
 migrateEvidenceIfNeeded();
 function evidenceForGeo(k,type){ensureEvidenceContainers();return state.masteryEvidence[masteryKey(k,type)]||null}
-function evidenceForSkill(subject,skill){ensureEvidenceContainers();return state.skillEvidence[learningMasteryKey(subject,skill)]||null}
+function evidenceForSkill(subject,skill,grade=currentGrade()){ensureEvidenceContainers();return state.skillEvidence[learningMasteryKey(subject,skill,grade)]||null}
 function reviewDue(stage,ev,now=Date.now()){
   const last=Number(ev?.lastCorrectAt||0);if(!last)return false;
   if(stage==='can-now')return now-last>=8*60*60*1000;
@@ -2833,7 +2834,7 @@ function ensureJourneyState(){state.journey=state.journey||{nodes:{},gradeWins:{
 function journeyNodeKey(subject,grade,nodeId){return subject+':'+grade+':'+nodeId}
 function journeyNodeRecord(node){ensureJourneyState();return state.journey.nodes[journeyNodeKey(node.subject,node.grade,node.id)]||{}}
 function journeySkillStage(node){
-  const stages=(node.skills||[]).map(skill=>skillStage(node.subject,skill));if(!stages.length)return 'new';
+  const stages=(node.skills||[]).map(skill=>skillStage(node.subject,skill,node.grade));if(!stages.length)return 'new';
   if(stages.every(s=>s==='mastered'))return 'mastered';
   if(stages.every(s=>stageRank(s)>=stageRank('can-now')))return 'can-now';
   if(stages.some(s=>stageRank(s)>=stageRank('seen')))return 'active';
@@ -2844,7 +2845,7 @@ function journeyNodeState(node){
   const rec=journeyNodeRecord(node);
   if((node.type==='checkpoint'||node.type==='challenge')&&rec.passed)return 'passed';
   if(node.type==='review'){
-    const due=(node.skills||[]).some(skill=>{const ev=evidenceForSkill(node.subject,skill),st=skillStage(node.subject,skill);return reviewDue(st,ev)});
+    const due=(node.skills||[]).some(skill=>{const ev=evidenceForSkill(node.subject,skill,node.grade),st=skillStage(node.subject,skill,node.grade);return reviewDue(st,ev)});
     return due?'active':'new';
   }
   return 'new';
@@ -2889,6 +2890,7 @@ const NORWAY_REGIONS=[
 ];
 let activeSubject='norwegian',activeModule=null,geoTheme='country';
 
+
 function ensureLearningState(){
   state.skillMastery=state.skillMastery||{};
   state.skillMistakes=state.skillMistakes||{};
@@ -2897,25 +2899,46 @@ function ensureLearningState(){
 }
 ensureLearningState();
 function skillLevel(key){return Number(state.skillMastery[key]||0)}
-function learningMasteryKey(subject,skill){return subject+':'+skill}
+function learningMasteryKey(subject,skill,grade=currentGrade()){return subject+':g'+Number(grade||currentGrade())+':'+skill}
+function learningKeyPrefix(subject,grade=currentGrade()){return subject+':g'+Number(grade||currentGrade())+':'}
 function skillStageByKey(key){ensureLearningState();return evidenceStage(state.skillEvidence[key],skillLevel(key),2)}
-function skillStage(subject,skill){return skillStageByKey(learningMasteryKey(subject,skill))}
-function bumpSkill(subject,skill,correct){
+function skillStage(subject,skill,grade=currentGrade()){return skillStageByKey(learningMasteryKey(subject,skill,grade))}
+function migrateSkillEvidenceV3(){
   ensureLearningState();
-  const key=learningMasteryKey(subject,skill),q=sessionQuestions[qIndex],variant=questionIdentity(q),before=skillStageByKey(key),old=skillLevel(key),next=correct?Math.min(3,old+1):Math.max(0,old-1);
+  if(Number(state.progressSchemaVersion||0)>=3)return;
+  const grade=Number(state.profile?.grade)||3;
+  const migrateMap=map=>{
+    for(const [key,value] of Object.entries({...map})){
+      if(/:g\d+:/.test(key))continue;
+      const m=key.match(/^([^:]+):(.+)$/);if(!m)continue;
+      const next=learningMasteryKey(m[1],m[2],grade);
+      if(map[next]===undefined)map[next]=value;
+      delete map[key];
+    }
+  };
+  migrateMap(state.skillMastery);migrateMap(state.skillMistakes);migrateMap(state.skillLastSeen);migrateMap(state.skillEvidence);
+  state.answerLog=(state.answerLog||[]).map(a=>a.subject&&!a.grade?{...a,grade}:a);
+  state.progressSchemaVersion=3;saveState();
+}
+migrateSkillEvidenceV3();
+function bumpSkill(subject,skill,correct,grade=Number(sessionScope?.journeyGrade||sessionScope?.grade||currentGrade())){
+  ensureLearningState();
+  const key=learningMasteryKey(subject,skill,grade),q=sessionQuestions[qIndex],variant=questionIdentity(q),before=skillStageByKey(key),old=skillLevel(key),next=correct?Math.min(3,old+1):Math.max(0,old-1);
   state.skillMastery[key]=next;state.skillLastSeen[key]=Date.now();
   addEvidenceEvent(state.skillEvidence,key,correct,variant);
   const after=skillStageByKey(key),strengthened=stageRank(after)>stageRank(before),newlyMastered=before!=='mastered'&&after==='mastered';
   if(correct&&(next>old||strengthened))sessionStrengthened.add(key);
   if(!correct)state.skillMistakes[key]=Number(state.skillMistakes[key]||0)+1;
-  return {old,next,before,after,strengthened,newlyMastered};
+  return {old,next,before,after,strengthened,newlyMastered,key,grade};
 }
-function subjectAnswered(subject){return state.answerLog.filter(a=>a.countsForLearning!==false&&a.subject===subject).length}
-function subjectMasteredSkills(subject){
-  ensureLearningState();return Object.keys(state.skillMastery).filter(k=>k.startsWith(subject+':')&&stageRank(skillStageByKey(k))>=stageRank('can-now')).length;
+function subjectAnswered(subject,grade=currentGrade()){return state.answerLog.filter(a=>a.countsForLearning!==false&&a.subject===subject&&Number(a.grade||grade)===Number(grade)).length}
+function subjectMasteredSkills(subject,grade=currentGrade()){
+  ensureLearningState();const prefix=learningKeyPrefix(subject,grade);
+  return Object.keys(state.skillMastery).filter(k=>k.startsWith(prefix)&&stageRank(skillStageByKey(k))>=stageRank('can-now')).length;
 }
-function subjectLongTermMasteredSkills(subject){
-  ensureLearningState();return Object.keys(state.skillEvidence).filter(k=>k.startsWith(subject+':')&&skillStageByKey(k)==='mastered').length;
+function subjectLongTermMasteredSkills(subject,grade=currentGrade()){
+  ensureLearningState();const prefix=learningKeyPrefix(subject,grade);
+  return Object.keys(state.skillEvidence).filter(k=>k.startsWith(prefix)&&skillStageByKey(k)==='mastered').length;
 }
 
 function renderSubjectProgress(){
@@ -3120,7 +3143,7 @@ function buildLearningQuestions(subject,module,allowCooldown=false){
   for(const q of [...focused,...mixed]){
     const sig=questionIdentity(q),cooling=questionOnCooldown(q);if(seen.has(sig)||(cooling&&!allowCooldown))continue;
     seen.add(sig);q._focused=focused.includes(q);q.practiceRepeat=!!cooling;
-    const key=learningMasteryKey(q.subject,q.skill),stage=skillStageByKey(key),ev=evidenceForSkill(q.subject,q.skill),bucket=learningBucket(stage,ev),mist=Number(state.skillMistakes[key]||0),focus=q._focused?-.28:0;
+    const key=learningMasteryKey(q.subject,q.skill,currentGrade()),stage=skillStageByKey(key),ev=evidenceForSkill(q.subject,q.skill,currentGrade()),bucket=learningBucket(stage,ev),mist=Number(state.skillMistakes[key]||0),focus=q._focused?-.28:0;
     q._adaptive={stage,bucket,score:bucketBias(bucket)-Math.min(.7,mist*.12)+focus+Math.random()*.1};pool.push(q);
   }
   if(!pool.length)return [];
@@ -3155,7 +3178,7 @@ function buildJourneyQuestions(subject,node,allowCooldown=false){
     const q={...q0},sig=questionIdentity(q),cooling=questionOnCooldown(q);
     if(seen.has(sig)||(cooling&&!allowCooldown))continue;
     seen.add(sig);q.practiceRepeat=!!cooling;
-    const key=learningMasteryKey(q.subject,q.skill),st=skillStageByKey(key),ev=evidenceForSkill(q.subject,q.skill),bucket=learningBucket(st,ev),mist=Number(state.skillMistakes[key]||0);
+    const key=learningMasteryKey(q.subject,q.skill,grade),st=skillStageByKey(key),ev=evidenceForSkill(q.subject,q.skill,grade),bucket=learningBucket(st,ev),mist=Number(state.skillMistakes[key]||0);
     q._adaptive={stage:st,bucket,score:bucketBias(bucket)-Math.min(.7,mist*.12)+Math.random()*.12};pool.push(q);
   }
   pool.sort((a,b)=>a._adaptive.score-b._adaptive.score);
@@ -3169,7 +3192,7 @@ function buildJourneyQuestions(subject,node,allowCooldown=false){
     for(const skill of node.skills||[]){const q=pool.find(x=>x.skill===skill&&!used.has(questionIdentity(x)));if(q)add(q)}
   }
   if(node.type==='review'){
-    for(const q of pool.filter(x=>reviewDue(skillStage(x.subject,x.skill),evidenceForSkill(x.subject,x.skill))))add(q);
+    for(const q of pool.filter(x=>reviewDue(skillStage(x.subject,x.skill,grade),evidenceForSkill(x.subject,x.skill,grade))))add(q);
   }
   if(node.type==='skill'){
     for(const skill of node.skills||[]){const q=pool.find(x=>x.skill===skill&&!used.has(questionIdentity(x)));if(q)add(q)}
@@ -3404,10 +3427,10 @@ function recordLearningAnswer(q,correct,selected){
   const practice=isPracticeRepeat(q);
   if(correct)sessionCorrect++;
   if(practice){
-    state.answerLog.push({at:Date.now(),subject:q.subject,skill:q.skill,type:q.type,questionKey:questionIdentity(q),correct,practiceRepeat:true,countsForLearning:false,curriculum:q.curriculum||null});
+    state.answerLog.push({at:Date.now(),subject:q.subject,skill:q.skill,type:q.type,grade:Number(sessionScope?.journeyGrade||sessionScope?.grade||currentGrade()),questionKey:questionIdentity(q),correct,practiceRepeat:true,countsForLearning:false,curriculum:q.curriculum||null});
   }else{
     const result=bumpSkill(q.subject,q.skill,correct);
-    state.answerLog.push({at:Date.now(),subject:q.subject,skill:q.skill,type:q.type,questionKey:questionIdentity(q),correct,strengthened:result.strengthened,newlyMastered:result.newlyMastered,masteryStage:result.after,countsForLearning:true,curriculum:q.curriculum||null});
+    state.answerLog.push({at:Date.now(),subject:q.subject,skill:q.skill,type:q.type,grade:result.grade,questionKey:questionIdentity(q),correct,strengthened:result.strengthened,newlyMastered:result.newlyMastered,masteryStage:result.after,countsForLearning:true,curriculum:q.curriculum||null});
     if(result.newlyMastered){state.lastMilestone={title:'Denne satt igjen! ⭐',copy:(SUBJECTS[q.subject]?.title||'Faget')+': Du har vist at ferdigheten sitter over tid.',at:Date.now()}}
     else if(result.strengthened){state.lastMilestone={title:'Dette satt! ⭐',copy:(SUBJECTS[q.subject]?.title||'Faget')+': Du har flyttet en ferdighet ett steg videre.',at:Date.now()}}
   }
@@ -3641,7 +3664,7 @@ function renderBuildWord(q,wrap){
       else{
         const repeatPractice=isPracticeRepeat(q);
         if(!repeatPractice)bumpSkill(q.subject,q.skill,true);
-        state.answerLog.push({at:Date.now(),subject:q.subject,skill:q.skill,type:q.type,questionKey:questionIdentity(q),correct:true,corrected:true,newlyMastered:false,practiceRepeat:repeatPractice,countsForLearning:!repeatPractice,curriculum:q.curriculum||null});
+        state.answerLog.push({at:Date.now(),subject:q.subject,skill:q.skill,type:q.type,grade:Number(sessionScope?.journeyGrade||sessionScope?.grade||currentGrade()),questionKey:questionIdentity(q),correct:true,corrected:true,newlyMastered:false,practiceRepeat:repeatPractice,countsForLearning:!repeatPractice,curriculum:q.curriculum||null});
         currentAnswered={selected:answer,correct:true,corrected:true};
         persistActiveSession();
       }
@@ -3652,7 +3675,7 @@ function renderBuildWord(q,wrap){
     }
     if(!mistakeRecorded){
       const repeatPractice=isPracticeRepeat(q),result=repeatPractice?{newlyMastered:false}:bumpSkill(q.subject,q.skill,false);
-      state.answerLog.push({at:Date.now(),subject:q.subject,skill:q.skill,type:q.type,questionKey:questionIdentity(q),correct:false,newlyMastered:result.newlyMastered,practiceRepeat:repeatPractice,countsForLearning:!repeatPractice,curriculum:q.curriculum||null});
+      state.answerLog.push({at:Date.now(),subject:q.subject,skill:q.skill,type:q.type,grade:Number(sessionScope?.journeyGrade||sessionScope?.grade||currentGrade()),questionKey:questionIdentity(q),correct:false,newlyMastered:result.newlyMastered,practiceRepeat:repeatPractice,countsForLearning:!repeatPractice,curriculum:q.curriculum||null});
       mistakeRecorded=true;saveState();
     }
     wrongAttempt=true;paint();
