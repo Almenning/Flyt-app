@@ -1151,6 +1151,150 @@
       .grade-band-young .story-copy{width:49%!important;right:8px!important}
     }
 
+
+    /* Young premium art direction v5. The goal is paid-product polish, not more UI. */
+    .grade-band-young{
+      --young-ink:#263750;
+      --young-paper:#FFFDF8;
+      background:
+        radial-gradient(circle at 6% 4%,rgba(255,223,93,.44) 0 13px,transparent 14px),
+        radial-gradient(circle at 95% 12%,rgba(255,137,180,.18) 0 28px,transparent 29px),
+        linear-gradient(180deg,#D9F1FF 0%,#E9F6FF 28%,#F8F1FF 61%,#FFF8E7 100%)!important
+    }
+    .grade-band-young .brand{
+      position:relative;isolation:isolate;font-size:25px!important;letter-spacing:-.06em!important;
+      filter:drop-shadow(0 2px 0 rgba(255,255,255,.9))
+    }
+    .grade-band-young .brand:after{content:" ✦"!important;font-size:12px!important;color:#FFB34F!important;-webkit-text-fill-color:#FFB34F}
+    .grade-band-young .dashboard-welcome{
+      padding:11px 10px 9px!important;margin:3px 0 12px!important;border-radius:24px!important;
+      background:linear-gradient(145deg,rgba(255,255,255,.76),rgba(255,255,255,.52))!important;
+      border:2px solid rgba(255,255,255,.94)!important;
+      box-shadow:0 9px 0 rgba(69,83,116,.035),0 18px 34px rgba(56,68,102,.075)!important;
+      backdrop-filter:blur(12px)
+    }
+    .grade-band-young .premium-otter{
+      background:linear-gradient(145deg,#D8F4FF,#FFF0C9)!important;border:3px solid #FFF!important;
+      box-shadow:0 7px 0 rgba(70,82,112,.05),0 13px 24px rgba(59,69,96,.11)!important
+    }
+    .grade-band-young .dashboard-welcome h1{color:var(--young-ink)!important;font-weight:950!important}
+    .grade-band-young .grade-chip,.grade-band-young .streak-chip{
+      background:rgba(255,255,255,.94)!important;border:1px solid rgba(255,255,255,.98)!important;
+      box-shadow:0 4px 11px rgba(58,70,101,.07)!important
+    }
+    .grade-band-young .dashboard-welcome .home-progress-banner{
+      background:linear-gradient(145deg,#FFFFFF,#FFFDF4)!important;
+      border:2px solid #FFF!important;
+      box-shadow:0 5px 0 rgba(93,77,36,.035),0 10px 18px rgba(68,66,86,.06)!important
+    }
+    .grade-band-young .home-progress-star{
+      background:radial-gradient(circle at 35% 30%,#FFF1A2,#FFD354 70%,#E7A838 100%)!important;
+      box-shadow:inset 0 2px 3px rgba(255,255,255,.65),inset 0 -5px 6px rgba(184,123,23,.10),0 4px 9px rgba(123,92,29,.10)!important
+    }
+
+    .grade-band-young .home-subject{
+      overflow:hidden!important;border-radius:26px!important;border:3px solid #FFF!important;
+      box-shadow:0 9px 0 rgba(66,73,106,.055),0 18px 31px rgba(53,62,91,.13)!important;
+      transform:translateZ(0);transition:transform .16s ease,box-shadow .16s ease
+    }
+    .grade-band-young .home-subject:before{
+      content:""!important;display:block!important;position:absolute;z-index:2;inset:0!important;
+      background:linear-gradient(135deg,rgba(255,255,255,.26) 0 16%,transparent 34%,transparent 73%,rgba(255,255,255,.10));
+      pointer-events:none
+    }
+    .grade-band-young .home-subject:after{
+      background:linear-gradient(180deg,rgba(12,30,52,0) 0 51%,rgba(12,30,52,.08) 62%,rgba(17,31,53,.77) 100%)!important
+    }
+    .grade-band-young .home-subject-art{filter:saturate(1.08) contrast(1.02)}
+    .grade-band-young .home-subject-art svg{transform:scale(1.03)!important;filter:drop-shadow(0 4px 4px rgba(46,57,82,.08))}
+    .grade-band-young .home-subject-copy strong{
+      padding:6px 9px!important;border:1px solid rgba(255,255,255,.92)!important;
+      background:rgba(255,255,255,.94)!important;color:#2E3C54!important;
+      box-shadow:0 5px 14px rgba(36,48,74,.12)!important;backdrop-filter:blur(8px)
+    }
+    .grade-band-young .home-subject-arrow{
+      border:1px solid rgba(255,255,255,.9)!important;
+      box-shadow:0 5px 13px rgba(31,43,69,.16)!important
+    }
+    .grade-band-young .home-subject-progress{
+      border:1px solid rgba(255,255,255,.9)!important;box-shadow:0 4px 11px rgba(29,43,71,.10)!important
+    }
+    .grade-band-young .home-subject:active{
+      transform:translateY(3px) scale(.985)!important;
+      box-shadow:0 4px 0 rgba(66,73,106,.04),0 9px 18px rgba(53,62,91,.10)!important
+    }
+
+    .grade-band-young .dashboard-progress-panel{
+      background:linear-gradient(150deg,rgba(255,255,255,.97),rgba(255,252,242,.94))!important;
+      border:3px solid #FFF!important;
+      box-shadow:0 9px 0 rgba(72,79,118,.035),0 18px 31px rgba(61,67,102,.075)!important
+    }
+    .grade-band-young .young-reference-progress{
+      background:linear-gradient(145deg,#FFF5BE,#FFFDF2)!important;border:2px solid #FFF0A1!important;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 6px 15px rgba(114,88,35,.08)
+    }
+    .grade-band-young .young-reference-progress-icon{
+      background:radial-gradient(circle at 35% 28%,#FFF4A4,#FFD653 68%,#E8AA38 100%)!important;
+      box-shadow:inset 0 2px 3px rgba(255,255,255,.55),inset 0 -4px 5px rgba(152,105,27,.10),0 5px 12px rgba(96,73,27,.10)!important
+    }
+    .grade-band-young .young-achievement{
+      background:linear-gradient(145deg,#F3F5F8,#ECEFF4)!important;border:2px solid rgba(255,255,255,.92)!important;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.85),0 4px 10px rgba(54,64,90,.055)
+    }
+    .grade-band-young .young-achievement.active{
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 5px 12px rgba(72,67,72,.08)!important
+    }
+
+    .grade-band-young .dashboard-world-column .home-story-scene{
+      background:
+        radial-gradient(circle at 79% 18%,rgba(255,239,132,.95) 0 19px,rgba(255,239,132,.18) 20px 33px,transparent 34px),
+        linear-gradient(180deg,#AEE8F9 0 50%,#DDF3D2 51%,#B8DFA5 100%)!important;
+      border:3px solid #FFF!important;
+      box-shadow:0 9px 0 rgba(67,98,122,.045),0 19px 32px rgba(58,84,107,.12)!important
+    }
+    .grade-band-young .story-globe-button{
+      background:
+        radial-gradient(circle at 34% 26%,rgba(255,255,255,.65) 0 8%,transparent 9%),
+        radial-gradient(circle at 34% 28%,#C9F7FF 0 18%,#69CFE4 58%,#3BA7C6 100%)!important;
+      box-shadow:inset -9px -12px 17px rgba(21,99,123,.16),inset 7px 6px 15px rgba(255,255,255,.30),0 10px 0 rgba(55,112,135,.09),0 19px 28px rgba(55,88,124,.17)!important
+    }
+    .grade-band-young .story-globe-button:before,.grade-band-young .story-globe-button:after{
+      filter:drop-shadow(0 2px 2px rgba(35,90,61,.18))!important
+    }
+    .grade-band-young .story-copy{
+      border:2px solid #FFF2B2!important;
+      background:linear-gradient(150deg,#FFF7D2,#FFFDF0)!important;
+      box-shadow:0 7px 0 rgba(126,100,45,.055),0 14px 22px rgba(75,67,49,.11)!important
+    }
+    .grade-band-young .story-copy:after{
+      content:"";position:absolute;width:22px;height:22px;left:-7px;bottom:14px;background:#FFF8D9;
+      transform:rotate(45deg);border-left:2px solid #FFF2B2;border-bottom:2px solid #FFF2B2;z-index:-1
+    }
+
+    .grade-band-young .nav{
+      background:rgba(255,255,255,.94)!important;backdrop-filter:blur(20px);
+      border-top:1px solid rgba(214,221,233,.95)!important;
+      box-shadow:0 -10px 24px rgba(52,62,89,.06)
+    }
+    .grade-band-young .nav button.active{
+      background:linear-gradient(145deg,#EDF1FF,#E5EAFF)!important;color:#5367D0!important;
+      box-shadow:inset 0 0 0 1px #DDE4FF,0 3px 8px rgba(72,82,134,.06)!important
+    }
+
+    @keyframes youngPremiumFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+    @keyframes youngPremiumGlow{0%,100%{filter:drop-shadow(0 4px 5px rgba(65,73,95,.11))}50%{filter:drop-shadow(0 7px 8px rgba(65,73,95,.16))}}
+    .grade-band-young .premium-otter{animation:youngPremiumFloat 4.8s ease-in-out infinite,youngPremiumGlow 4.8s ease-in-out infinite}
+    .grade-band-young .story-globe-button{animation:youngPremiumFloat 4.2s ease-in-out infinite!important}
+    @media (prefers-reduced-motion:reduce){
+      .grade-band-young .premium-otter,.grade-band-young .story-globe-button{animation:none!important}
+    }
+
+    @media (min-width:700px){
+      .grade-band-young .home-subject{height:210px!important;min-height:210px!important}
+      .grade-band-young .home-subject-copy strong{font-size:16px!important}
+      .grade-band-young .dashboard-main-grid{gap:15px!important}
+    }
+
   </style>
   <link rel="stylesheet" href="./fraction-lab.css?v=20261003-mobile2" />
   <link rel="stylesheet" href="./multiplication-lab.css?v=20261003-table1" />
@@ -1177,6 +1321,7 @@
   <!-- young-visual-fidelity-v2-2026-10-03 -->
   <!-- young-dashboard-fidelity-v3-2026-10-03 -->
   <!-- young-reference-fidelity-v4-2026-10-03 -->
+  <!-- young-premium-art-direction-v5-2026-10-04 -->
 </head>
 <body>
 <div class="app">
@@ -1197,22 +1342,39 @@
             <span class="streak-chip"><b aria-hidden="true">🔥</b><span id="home-streak">0</span><small id="home-streak-label">dagers rekke</small></span>
           </div>
         </div>
-        <div class="dashboard-mascot" aria-hidden="true">
-          <svg viewBox="0 0 170 170">
-            <defs><linearGradient id="otterFur" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#B97845"/><stop offset="1" stop-color="#7D4C32"/></linearGradient></defs>
-            <circle cx="48" cy="55" r="20" fill="#875136"/><circle cx="122" cy="55" r="20" fill="#875136"/>
-            <circle cx="48" cy="55" r="11" fill="#D5A174"/><circle cx="122" cy="55" r="11" fill="#D5A174"/>
-            <ellipse cx="85" cy="90" rx="57" ry="58" fill="url(#otterFur)"/>
-            <ellipse cx="85" cy="106" rx="41" ry="34" fill="#EBC9A4"/>
-            <ellipse cx="85" cy="91" rx="15" ry="11" fill="#4F3428"/>
-            <circle cx="63" cy="77" r="7" fill="#243148"/><circle cx="107" cy="77" r="7" fill="#243148"/>
-            <circle cx="61" cy="74" r="2.5" fill="#fff"/><circle cx="105" cy="74" r="2.5" fill="#fff"/>
-            <path d="M70 108q15 15 30 0" fill="none" stroke="#6B4332" stroke-width="5" stroke-linecap="round"/>
-            <path d="M47 95l-25 5M47 102l-27 4M123 95l25 5M123 102l27 4" stroke="#E6C4A2" stroke-width="2.3" stroke-linecap="round"/>
-            <path d="M57 139h56l-8 29H65z" fill="#4B956B"/>
-            <path d="M63 145l-17 22M107 145l17 22" stroke="#397454" stroke-width="8" stroke-linecap="round"/>
-            <path d="M40 125q-18 3-24 22 20 3 36-10M130 125q17 3 24 22-20 3-36-10" fill="#8A5438"/>
-            <circle cx="140" cy="40" r="12" fill="#FFD65D"/><path d="M140 29v22M129 40h22" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+        <div class="dashboard-mascot premium-otter" aria-hidden="true">
+          <svg viewBox="0 0 190 190">
+            <defs>
+              <radialGradient id="otterFacePremium" cx=".42" cy=".3" r=".76"><stop offset="0" stop-color="#DCA06A"/><stop offset=".58" stop-color="#B77549"/><stop offset="1" stop-color="#75462F"/></radialGradient>
+              <linearGradient id="otterMuzzlePremium" x1=".2" y1="0" x2=".8" y2="1"><stop stop-color="#FFF0D8"/><stop offset="1" stop-color="#DDBA96"/></linearGradient>
+              <linearGradient id="otterBagPremium" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#5FBF83"/><stop offset="1" stop-color="#2F7F65"/></linearGradient>
+              <filter id="otterSoftShadow" x="-35%" y="-35%" width="170%" height="180%"><feDropShadow dx="0" dy="7" stdDeviation="5" flood-color="#514B58" flood-opacity=".24"/></filter>
+              <filter id="otterInnerGlow"><feGaussianBlur stdDeviation="2.8"/></filter>
+            </defs>
+            <g filter="url(#otterSoftShadow)">
+              <ellipse cx="95" cy="174" rx="49" ry="8" fill="#536079" opacity=".13"/>
+              <circle cx="52" cy="52" r="23" fill="#815036"/><circle cx="138" cy="52" r="23" fill="#815036"/>
+              <circle cx="52" cy="52" r="13" fill="#D6A071"/><circle cx="138" cy="52" r="13" fill="#D6A071"/>
+              <path d="M47 53q7-9 14 0" fill="none" stroke="#EEC49F" stroke-width="4" stroke-linecap="round"/>
+              <path d="M129 53q7-9 14 0" fill="none" stroke="#EEC49F" stroke-width="4" stroke-linecap="round"/>
+              <ellipse cx="95" cy="96" rx="61" ry="64" fill="url(#otterFacePremium)"/>
+              <ellipse cx="95" cy="113" rx="43" ry="36" fill="url(#otterMuzzlePremium)"/>
+              <ellipse cx="95" cy="93" rx="17" ry="12" fill="#493027"/>
+              <ellipse cx="90" cy="89" rx="5" ry="3" fill="#FFF" opacity=".38"/>
+              <ellipse cx="69" cy="78" rx="9" ry="11" fill="#273047"/><ellipse cx="121" cy="78" rx="9" ry="11" fill="#273047"/>
+              <circle cx="66" cy="74" r="3.2" fill="#FFF"/><circle cx="118" cy="74" r="3.2" fill="#FFF"/>
+              <circle cx="72" cy="82" r="1.8" fill="#80A6C7" opacity=".65"/><circle cx="124" cy="82" r="1.8" fill="#80A6C7" opacity=".65"/>
+              <path d="M78 111q17 18 34 0" fill="none" stroke="#754431" stroke-width="5.5" stroke-linecap="round"/>
+              <path d="M84 120q11 7 22 0" fill="#A74F54"/>
+              <path d="M55 104l-31 3M55 111l-32 10M135 104l31 3M135 111l32 10" stroke="#F2D2B3" stroke-width="2.4" stroke-linecap="round" opacity=".9"/>
+              <path d="M56 142q39-18 78 0l-9 37H65z" fill="url(#otterBagPremium)"/>
+              <path d="M72 143q23 15 46 0" fill="none" stroke="#83D09C" stroke-width="4" opacity=".7"/>
+              <path d="M70 146L52 178M120 146l18 32" stroke="#34755E" stroke-width="9" stroke-linecap="round"/>
+              <path d="M49 126q-24 3-33 24 22 7 46-10M141 126q24 3 33 24-22 7-46-10" fill="#8B5538"/>
+              <path d="M54 53q38-31 82 1" fill="none" stroke="#F2B67F" stroke-width="5" stroke-linecap="round" opacity=".45"/>
+              <circle cx="151" cy="30" r="14" fill="#FFD65C"/><path d="M151 20v20M141 30h20" stroke="#FFF" stroke-width="4" stroke-linecap="round"/>
+              <circle cx="151" cy="30" r="19" fill="none" stroke="#FFF" stroke-width="3" opacity=".35"/>
+            </g>
           </svg>
         </div>
         <div class="home-progress-banner" id="home-progress-banner" aria-label="Fremgang siste sju dager">
@@ -1233,7 +1395,34 @@
       <div class="home-subject-grid" aria-label="Velg fag">
         <button class="home-subject geography" id="open-geography" type="button">
           <div class="home-subject-art" aria-hidden="true">
-            <svg viewBox="0 0 220 126"><defs><linearGradient id="gGeo2" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#6FD7F3"/><stop offset=".7" stop-color="#BDEEF3"/><stop offset="1" stop-color="#78C79D"/></linearGradient></defs><rect width="220" height="126" rx="22" fill="url(#gGeo2)"/><circle cx="181" cy="24" r="13" fill="#FFE17A"/><path d="M0 99L45 48l25 25 31-47 53 73z" fill="#559873"/><path d="M53 51l17 22 31-47 20 29-17-9-9 12-14-8-12 14z" fill="#F4FBFF"/><path d="M0 96c40-14 59 13 100 0s75-5 120 7v23H0z" fill="#4FB6D0"/><path d="M31 101c18-9 35-7 49 0-20 1-35 7-50 16z" fill="#F5D16A"/><g transform="translate(157 74)"><circle r="23" fill="#FFF" opacity=".97"/><circle r="17" fill="#F3F6FA"/><path d="M0-13L5 0 0 13-5 0z" fill="#EB665E"/><path d="M-13 0L0-5 13 0 0 5z" fill="#4267B1"/><circle r="3" fill="#FFF"/></g><path d="M17 89q19-12 38-3" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".65"/></svg>
+            <svg viewBox="0 0 260 176">
+              <defs>
+                <linearGradient id="geoSkyPremium" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#55C8F2"/><stop offset=".58" stop-color="#B9EDF5"/><stop offset="1" stop-color="#DDF7EE"/></linearGradient>
+                <linearGradient id="geoHillPremium" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#70C57F"/><stop offset="1" stop-color="#3A9368"/></linearGradient>
+                <linearGradient id="geoWaterPremium" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#64D6E7"/><stop offset="1" stop-color="#3AA9C8"/></linearGradient>
+                <filter id="geoShadowPremium"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#2C6A78" flood-opacity=".22"/></filter>
+              </defs>
+              <rect width="260" height="176" rx="28" fill="url(#geoSkyPremium)"/>
+              <circle cx="218" cy="31" r="18" fill="#FFE470"/><circle cx="218" cy="31" r="26" fill="none" stroke="#FFF5B5" stroke-width="6" opacity=".38"/>
+              <path d="M-10 128L42 66l23 28 43-64 48 71 26-37 58 64z" fill="#4A9570"/>
+              <path d="M45 70l20 24 43-64 17 25-13-6-8 12-10-8-15 21-11-10-10 12z" fill="#F7FBFF"/>
+              <path d="M98 45l10-15 12 18-8-3-5 8z" fill="#DFF4FF"/>
+              <path d="M-4 119c49-15 79 14 128 0s91-4 140 10v53H-4z" fill="url(#geoWaterPremium)"/>
+              <path d="M-8 145c45-23 69-17 104 4-31 0-63 10-87 27H-8z" fill="url(#geoHillPremium)"/>
+              <path d="M170 147c22-18 45-21 94-7v36h-94z" fill="#74C589"/>
+              <g filter="url(#geoShadowPremium)" transform="translate(176 71)">
+                <circle r="30" fill="#FFF" opacity=".98"/><circle r="22" fill="#ECF5FB"/>
+                <path d="M0-17L6 0 0 17-6 0z" fill="#F36D60"/><path d="M-17 0L0-6 17 0 0 6z" fill="#406CB7"/><circle r="4" fill="#FFF"/>
+              </g>
+              <g transform="translate(34 105)" filter="url(#geoShadowPremium)">
+                <rect x="0" y="20" width="24" height="27" rx="4" fill="#FFF5E9"/><path d="M-4 21L12 8l16 13z" fill="#EE7964"/><rect x="9" y="29" width="6" height="18" fill="#4B78A7"/>
+              </g>
+              <g transform="translate(213 103)" filter="url(#geoShadowPremium)">
+                <rect x="-6" y="13" width="12" height="32" rx="4" fill="#FFF"/><path d="M-10 15L0 0l10 15z" fill="#E96456"/><rect x="-14" y="42" width="28" height="5" rx="2.5" fill="#576A86"/>
+              </g>
+              <path d="M113 137q33-21 72-11" fill="none" stroke="#FFF" stroke-width="4" stroke-linecap="round" opacity=".35"/>
+              <g opacity=".86"><circle cx="19" cy="32" r="5" fill="#FFF"/><circle cx="30" cy="32" r="7" fill="#FFF"/><circle cx="42" cy="33" r="5" fill="#FFF"/></g>
+            </svg>
           </div>
           <div class="home-subject-body">
             <div class="home-subject-icon">🌍</div><div class="home-subject-copy"><strong>Geografi</strong><p>Utforsk verden og se landene få farge.</p></div><span class="home-subject-arrow">›</span>
@@ -1243,7 +1432,32 @@
 
         <button class="home-subject norwegian" id="open-norwegian" type="button">
           <div class="home-subject-art" aria-hidden="true">
-            <svg viewBox="0 0 220 126"><defs><linearGradient id="gNor2" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FF9FB7"/><stop offset="1" stop-color="#FFD7B2"/></linearGradient></defs><rect width="220" height="126" rx="22" fill="url(#gNor2)"/><circle cx="31" cy="26" r="11" fill="#FFF0A8"/><path d="M39 33q36-14 66 8v58q-29-20-66-5z" fill="#FFF"/><path d="M181 33q-36-14-66 8v58q29-20 66-5z" fill="#FFF7F0"/><path d="M110 42v59" stroke="#D99AA7" stroke-width="4"/><path d="M53 53h36M53 66h31M131 53h34M131 66h29" stroke="#D6A9B3" stroke-width="5" stroke-linecap="round"/><g transform="translate(153 83) rotate(-30)"><rect x="-5" y="-27" width="10" height="54" rx="5" fill="#6C75E5"/><path d="M-5 27h10l-5 12z" fill="#F3B15B"/></g><path d="M23 99q18 10 34 2" stroke="#FFF" stroke-width="4" stroke-linecap="round" opacity=".55"/></svg>
+            <svg viewBox="0 0 260 176">
+              <defs>
+                <linearGradient id="norSkyPremium" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FF9FBB"/><stop offset=".56" stop-color="#FFCEBA"/><stop offset="1" stop-color="#FFE7C8"/></linearGradient>
+                <linearGradient id="norBookPremium" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FFFFFF"/><stop offset="1" stop-color="#FFEDE7"/></linearGradient>
+                <filter id="norShadowPremium"><feDropShadow dx="0" dy="6" stdDeviation="4" flood-color="#8C4860" flood-opacity=".2"/></filter>
+              </defs>
+              <rect width="260" height="176" rx="28" fill="url(#norSkyPremium)"/>
+              <circle cx="29" cy="31" r="14" fill="#FFF0A0"/><circle cx="29" cy="31" r="21" fill="none" stroke="#FFF6C4" stroke-width="5" opacity=".42"/>
+              <g filter="url(#norShadowPremium)">
+                <path d="M42 55q44-22 81 7v82q-39-28-81-8z" fill="url(#norBookPremium)"/>
+                <path d="M218 55q-44-22-81 7v82q39-28 81-8z" fill="#FFF8F3"/>
+                <path d="M130 64v82" stroke="#D99CAE" stroke-width="5"/>
+                <path d="M59 75h42M59 90h36M59 105h46M155 75h43M155 90h35M155 105h39" stroke="#D7A5B1" stroke-width="5" stroke-linecap="round" opacity=".9"/>
+              </g>
+              <g transform="translate(194 111) rotate(-29)" filter="url(#norShadowPremium)">
+                <rect x="-7" y="-38" width="14" height="72" rx="7" fill="#6578E8"/><path d="M-7 34h14L0 50z" fill="#F5B154"/><rect x="-7" y="-31" width="14" height="10" fill="#8A99F0"/>
+              </g>
+              <g filter="url(#norShadowPremium)" transform="translate(31 114)">
+                <rect width="38" height="33" rx="10" fill="#FFF"/><text x="19" y="23" text-anchor="middle" font-size="20" font-weight="950" fill="#EE6787">A</text>
+              </g>
+              <g filter="url(#norShadowPremium)" transform="translate(70 124)">
+                <rect width="35" height="30" rx="9" fill="#FFE46F"/><text x="18" y="21" text-anchor="middle" font-size="18" font-weight="950" fill="#71531B">Å</text>
+              </g>
+              <path d="M13 157q57-19 108 1" fill="none" stroke="#FFF" stroke-width="5" stroke-linecap="round" opacity=".25"/>
+              <g fill="#FFF" opacity=".75"><circle cx="221" cy="29" r="4"/><circle cx="233" cy="39" r="6"/><circle cx="214" cy="47" r="3"/></g>
+            </svg>
           </div>
           <div class="home-subject-body">
             <div class="home-subject-icon">📖</div><div class="home-subject-copy"><strong>Norsk</strong><p>Les, bygg ord og lek med språket.</p></div><span class="home-subject-arrow">›</span>
@@ -1253,7 +1467,35 @@
 
         <button class="home-subject math" id="open-math" type="button">
           <div class="home-subject-art" aria-hidden="true">
-            <svg viewBox="0 0 220 126"><defs><linearGradient id="gMath2" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#A88DF6"/><stop offset="1" stop-color="#F0B8F5"/></linearGradient></defs><rect width="220" height="126" rx="22" fill="url(#gMath2)"/><rect x="33" y="27" width="62" height="78" rx="15" fill="#FFD55D"/><rect x="43" y="37" width="42" height="19" rx="6" fill="#EDF5FF"/><circle cx="54" cy="47" r="3.2" fill="#31415C"/><circle cx="73" cy="47" r="3.2" fill="#31415C"/><path d="M55 52q9 7 18 0" fill="none" stroke="#31415C" stroke-width="2.4" stroke-linecap="round"/><g fill="#FFF"><rect x="43" y="64" width="12" height="12" rx="4"/><rect x="61" y="64" width="12" height="12" rx="4"/><rect x="43" y="83" width="12" height="12" rx="4"/><rect x="61" y="83" width="12" height="12" rx="4"/></g><path d="M143 40v47M120 63h47" stroke="#4B78E7" stroke-width="11" stroke-linecap="round"/><text x="188" y="92" text-anchor="middle" font-size="37" font-weight="950" fill="#FFF">3</text><path d="M113 105q31-11 68-4" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity=".45"/></svg>
+            <svg viewBox="0 0 260 176">
+              <defs>
+                <linearGradient id="mathBgPremium" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#9A80EF"/><stop offset=".52" stop-color="#C49CF5"/><stop offset="1" stop-color="#F0B8EC"/></linearGradient>
+                <linearGradient id="calcPremium" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FFD965"/><stop offset="1" stop-color="#F2A948"/></linearGradient>
+                <filter id="mathShadowPremium"><feDropShadow dx="0" dy="6" stdDeviation="4" flood-color="#4A337B" flood-opacity=".24"/></filter>
+              </defs>
+              <rect width="260" height="176" rx="28" fill="url(#mathBgPremium)"/>
+              <g fill="#FFF" opacity=".18"><circle cx="28" cy="31" r="17"/><circle cx="232" cy="28" r="10"/><circle cx="216" cy="145" r="22"/></g>
+              <g filter="url(#mathShadowPremium)" transform="translate(39 32)">
+                <rect width="82" height="112" rx="22" fill="url(#calcPremium)"/>
+                <rect x="13" y="14" width="56" height="28" rx="9" fill="#EFF7FF"/>
+                <circle cx="30" cy="28" r="4" fill="#34445F"/><circle cx="53" cy="28" r="4" fill="#34445F"/>
+                <path d="M31 35q11 8 22 0" fill="none" stroke="#34445F" stroke-width="3" stroke-linecap="round"/>
+                <g fill="#FFF"><rect x="15" y="53" width="18" height="18" rx="6"/><rect x="41" y="53" width="18" height="18" rx="6"/><rect x="15" y="78" width="18" height="18" rx="6"/><rect x="41" y="78" width="18" height="18" rx="6"/></g>
+                <rect x="64" y="53" width="9" height="43" rx="5" fill="#F27D5D"/>
+              </g>
+              <g filter="url(#mathShadowPremium)" transform="translate(159 75)">
+                <path d="M0-30v60M-30 0h60" stroke="#4F78EC" stroke-width="15" stroke-linecap="round"/>
+                <circle r="5" fill="#FFF"/>
+              </g>
+              <g filter="url(#mathShadowPremium)" transform="translate(212 112)">
+                <circle r="27" fill="#FFF" opacity=".96"/><text x="0" y="12" text-anchor="middle" font-size="34" font-weight="950" fill="#6955C8">3</text>
+              </g>
+              <g filter="url(#mathShadowPremium)" transform="translate(176 33) rotate(8)">
+                <rect x="-22" y="-15" width="44" height="30" rx="10" fill="#70D0C0"/><text x="0" y="7" text-anchor="middle" font-size="19" font-weight="950" fill="#28594F">½</text>
+              </g>
+              <path d="M132 143q35-18 80-8" fill="none" stroke="#FFF" stroke-width="5" stroke-linecap="round" opacity=".24"/>
+              <g fill="#FFF" opacity=".7"><circle cx="19" cy="141" r="5"/><circle cx="27" cy="151" r="3"/><circle cx="244" cy="65" r="5"/></g>
+            </svg>
           </div>
           <div class="home-subject-body">
             <div class="home-subject-icon">➗</div><div class="home-subject-copy"><strong>Matte</strong><p>Regn, eksperimenter og finn mønstrene.</p></div><span class="home-subject-arrow">›</span>
@@ -1263,7 +1505,41 @@
 
         <button class="home-subject english" id="open-english" type="button">
           <div class="home-subject-art" aria-hidden="true">
-            <svg viewBox="0 0 220 126"><defs><linearGradient id="gEng2" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FF8C7B"/><stop offset="1" stop-color="#FFC568"/></linearGradient></defs><rect width="220" height="126" rx="22" fill="url(#gEng2)"/><g transform="translate(33 22)"><rect x="0" y="16" width="52" height="70" rx="5" fill="#D9C9A2"/><rect x="12" y="0" width="28" height="23" rx="4" fill="#E7D9B5"/><circle cx="26" cy="38" r="12" fill="#FFF"/><path d="M26 30v10l7 4" stroke="#44516A" stroke-width="3" stroke-linecap="round"/></g><g transform="translate(117 48)"><rect width="63" height="43" rx="6" fill="#3156A3"/><path d="M0 0l63 43M63 0L0 43" stroke="#FFF" stroke-width="8"/><path d="M0 0l63 43M63 0L0 43" stroke="#E95059" stroke-width="3.5"/><path d="M31.5 0v43M0 21.5h63" stroke="#FFF" stroke-width="12"/><path d="M31.5 0v43M0 21.5h63" stroke="#E95059" stroke-width="6"/></g><rect x="132" y="14" width="60" height="27" rx="14" fill="#FFF"/><text x="162" y="32" text-anchor="middle" font-size="15" font-weight="950" fill="#44516A">Hello!</text></svg>
+            <svg viewBox="0 0 260 176">
+              <defs>
+                <linearGradient id="engSkyPremium" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FF8C7A"/><stop offset=".55" stop-color="#FFB86D"/><stop offset="1" stop-color="#FFD58A"/></linearGradient>
+                <filter id="engShadowPremium"><feDropShadow dx="0" dy="6" stdDeviation="4" flood-color="#7A493C" flood-opacity=".22"/></filter>
+              </defs>
+              <rect width="260" height="176" rx="28" fill="url(#engSkyPremium)"/>
+              <circle cx="224" cy="31" r="16" fill="#FFF1A0"/><circle cx="224" cy="31" r="24" fill="none" stroke="#FFF6C7" stroke-width="5" opacity=".38"/>
+              <g filter="url(#engShadowPremium)" transform="translate(34 38)">
+                <rect x="0" y="22" width="57" height="84" rx="7" fill="#D9C9A4"/>
+                <rect x="14" y="0" width="29" height="28" rx="5" fill="#E9DDBD"/>
+                <circle cx="28" cy="49" r="15" fill="#FFF"/><circle cx="28" cy="49" r="11" fill="#EAF3FA"/>
+                <path d="M28 39v12l8 5" stroke="#44516A" stroke-width="3.4" stroke-linecap="round"/>
+                <path d="M8 70h40M8 84h40M8 98h40" stroke="#B8AA8C" stroke-width="4" opacity=".55"/>
+              </g>
+              <g filter="url(#engShadowPremium)" transform="translate(144 85)">
+                <rect x="-8" y="-34" width="83" height="57" rx="9" fill="#3157A3"/>
+                <path d="M-8-34l83 57M75-34L-8 23" stroke="#FFF" stroke-width="10"/>
+                <path d="M-8-34l83 57M75-34L-8 23" stroke="#E94F5B" stroke-width="4"/>
+                <path d="M33-34v57M-8-6h83" stroke="#FFF" stroke-width="14"/>
+                <path d="M33-34v57M-8-6h83" stroke="#E94F5B" stroke-width="7"/>
+              </g>
+              <g filter="url(#engShadowPremium)" transform="translate(143 29)">
+                <rect width="76" height="36" rx="18" fill="#FFF"/>
+                <path d="M16 34l-7 12 17-10" fill="#FFF"/>
+                <text x="38" y="24" text-anchor="middle" font-size="17" font-weight="950" fill="#3B4860">Hello!</text>
+              </g>
+              <g filter="url(#engShadowPremium)" transform="translate(108 128)">
+                <ellipse cx="0" cy="12" rx="28" ry="20" fill="#C7753F"/>
+                <circle cx="-13" cy="-4" r="13" fill="#D88A50"/><circle cx="13" cy="-4" r="13" fill="#D88A50"/>
+                <ellipse cx="0" cy="2" rx="19" ry="17" fill="#E4A56D"/>
+                <circle cx="-6" cy="0" r="2.5" fill="#293346"/><circle cx="6" cy="0" r="2.5" fill="#293346"/>
+                <path d="M-5 8q5 5 10 0" fill="none" stroke="#6B4935" stroke-width="2.5" stroke-linecap="round"/>
+              </g>
+              <path d="M9 152q41-17 83-2" fill="none" stroke="#FFF" stroke-width="5" stroke-linecap="round" opacity=".25"/>
+            </svg>
           </div>
           <div class="home-subject-body">
             <div class="home-subject-icon">🇬🇧</div><div class="home-subject-copy"><strong>Engelsk</strong><p>Words, sentences and real-world English.</p></div><span class="home-subject-arrow">›</span>
