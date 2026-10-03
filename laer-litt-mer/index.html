@@ -1585,7 +1585,7 @@ document.getElementById('open-geography').onclick=()=>{renderGeographyContinue()
 // --- Brøklab: åpent eksperimentrom, uavhengig av klassetrinn ---
 const FRACTION_LAB_DENOMS=[1,2,3,4,5,6,8,10,12];
 const FRACTION_LAB_COLORS=['#F58C72','#F3AE5B','#F2D35F','#B6D66E','#7BC68E','#57B9A0','#5FC1D6','#68A9D8','#9B88CF','#E59ABE'];
-let fractionLabMode='wall';
+let fractionLabMode=null;
 let fractionLabPieces=[];
 let fractionLabShowConversions=false;
 let fractionCompareLeft={n:1,d:2},fractionCompareRight={n:1,d:3};
