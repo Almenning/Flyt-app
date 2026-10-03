@@ -659,6 +659,83 @@ async function finishSession(page){
     assert.equal(previewAfter.logged.countsForLearning,false);
     await page.evaluate(()=>{state.activeSession=null;sessionQuestions=[];currentAnswered=null;saveState();setTab('home')});
 
+    // A journey grade is a chapter, not a profile change: children can genuinely work on another grade.
+    await page.evaluate(()=>{
+      state.profile.grade=2;
+      ensureJourneyState();
+      state.journey.viewGrades={};
+      state.activeSession=null;state.lastActivity=null;
+      saveState();setTab('home');
+    });
+    await page.locator('#open-math').click();
+    assert.equal(await page.locator('#journey-grade-strip [data-journey-grade]').count(),10);
+    await page.locator('#journey-grade-strip [data-journey-grade="3"]').click();
+    const selectedJourney=await page.evaluate(()=>({
+      profile:currentGrade(),
+      view:journeyViewGrade('math'),
+      activeText:document.querySelector('#journey-grade-strip .journey-grade-choice.active')?.textContent||'',
+      note:document.getElementById('journey-grade-note')?.textContent||''
+    }));
+    assert.equal(selectedJourney.profile,2);
+    assert.equal(selectedJourney.view,3);
+    assert.match(selectedJourney.activeText,/3\./);
+    assert.match(selectedJourney.note,/Ditt klassetrinn er fortsatt 2\. klasse/i);
+
+    const realGrade3Node=await page.evaluate(()=>journeyRecommendedNode('math',journeyViewGrade('math'))?.id);
+    assert.ok(realGrade3Node,'missing real grade-3 math node');
+    await page.evaluate(id=>startJourneyNode('math',id),realGrade3Node);
+    await page.locator('#session-screen.active').waitFor();
+    const realOtherGradeScope=await page.evaluate(()=>({
+      profile:currentGrade(),view:journeyViewGrade('math'),grade:sessionScope.journeyGrade,
+      type:sessionScope.type,practiceOnly:!!sessionScope.practiceOnly,count:sessionQuestions.length,
+      skill:sessionQuestions[0]?.skill||null
+    }));
+    assert.equal(realOtherGradeScope.profile,2);
+    assert.equal(realOtherGradeScope.view,3);
+    assert.equal(realOtherGradeScope.grade,3);
+    assert.equal(realOtherGradeScope.type,'journey');
+    assert.equal(realOtherGradeScope.count,5);
+    const grade2Before=await page.evaluate(skill=>skill?JSON.stringify(state.skillEvidence[learningMasteryKey('math',skill,2)]||null):null,realOtherGradeScope.skill);
+    await answerCurrent(page);
+    const gradeWrite=await page.evaluate(skill=>({
+      profile:currentGrade(),
+      grade2:skill?JSON.stringify(state.skillEvidence[learningMasteryKey('math',skill,2)]||null):null,
+      grade3:skill?state.skillEvidence[learningMasteryKey('math',skill,3)]||null:null,
+      logged:state.answerLog.at(-1)
+    }),realOtherGradeScope.skill);
+    assert.equal(gradeWrite.profile,2);
+    assert.equal(gradeWrite.grade2,grade2Before,'working grade 3 must not modify grade-2 mastery');
+    assert.ok(gradeWrite.grade3&&gradeWrite.grade3.attempts>=1,'working grade 3 should write grade-3 evidence');
+    assert.equal(Number(gradeWrite.logged.grade),3);
+    assert.notEqual(gradeWrite.logged.countsForLearning,false);
+
+    // Geography uses its selected journey grade for content rules while the profile remains untouched.
+    await page.evaluate(()=>{state.activeSession=null;sessionQuestions=[];currentAnswered=null;setJourneyViewGrade('geography',4,false);saveState();renderGeographyContinue();showScreen('geography')});
+    await page.locator('#geography-screen.active').waitFor();
+    assert.equal(await page.locator('#geo-journey-grade-strip [data-journey-grade]').count(),10);
+    const geoSelected=await page.evaluate(()=>({
+      profile:currentGrade(),view:journeyViewGrade('geography'),
+      active:document.querySelector('#geo-journey-grade-strip .journey-grade-choice.active')?.dataset.journeyGrade,
+      next:geoJourneyRecommendedNode(journeyViewGrade('geography'))
+    }));
+    assert.equal(geoSelected.profile,2);
+    assert.equal(geoSelected.view,4);
+    assert.equal(geoSelected.active,'4');
+    assert.ok(geoSelected.next&&geoSelected.next.grade===4,'geography should recommend from selected grade 4');
+    await page.evaluate(id=>startGeoJourneyNode(id),geoSelected.next.id);
+    await page.locator('#session-screen.active').waitFor();
+    const geoOtherGradeScope=await page.evaluate(()=>({profile:currentGrade(),view:journeyViewGrade('geography'),grade:sessionScope.journeyGrade,count:sessionQuestions.length}));
+    assert.equal(geoOtherGradeScope.profile,2);
+    assert.equal(geoOtherGradeScope.view,4);
+    assert.equal(geoOtherGradeScope.grade,4);
+    assert.equal(geoOtherGradeScope.count,5);
+
+    await page.evaluate(()=>{
+      state.activeSession=null;sessionQuestions=[];currentAnswered=null;
+      ensureJourneyState();state.journey.viewGrades={};
+      state.profile.grade=2;saveState();setTab('home');
+    });
+
     // Structural sweep: isolate content sufficiency from the deliberate repeat-cooldown history above.
     await page.evaluate(()=>{state.answerLog=[];state.activeSession=null;saveState()});
     // Every visible subject module on every grade can build a five-question session when no tasks are cooling down.
