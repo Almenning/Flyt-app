@@ -1005,10 +1005,11 @@ function questionIdentity(q){
 }
 function latestQuestionAttempt(q){
   const key=questionIdentity(q);
+  const legacySubjectKey=q?.subject?['learn',q.subject,q.type||'',q.skill||'',String(q.prompt||''),String(q.answer??'')].join('|'):null;
   for(let i=state.answerLog.length-1;i>=0;i--){
     const a=state.answerLog[i];
     if(a.countsForLearning===false)continue;
-    if(a.questionKey===key)return a;
+    if(a.questionKey===key||(legacySubjectKey&&a.questionKey===legacySubjectKey))return a;
     // Geography logs from older app versions can still be recognized.
     if(!a.questionKey&&q?.k&&a.country===q.k&&a.type===q.type)return a;
   }
@@ -1017,7 +1018,7 @@ function latestQuestionAttempt(q){
 function questionOnCooldown(q,now=Date.now()){
   const a=latestQuestionAttempt(q);if(!a||!a.at)return false;
   const age=now-Number(a.at);
-  const correctCooldown=q?.subject?24*60*60*1000:CORRECT_QUESTION_COOLDOWN_MS;
+  const correctCooldown=q?.subject==='norwegian'?24*60*60*1000:CORRECT_QUESTION_COOLDOWN_MS;
   return age<(a.correct?correctCooldown:WRONG_QUESTION_COOLDOWN_MS);
 }
 
