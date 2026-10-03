@@ -48,7 +48,7 @@ const fractionLabUi={
   level:0,
   pieces:[],
   compare:{left:null,right:null,active:'left',prediction:null},
-  showConnections:false,
+  selectedDenom:2,
   lastGrade:null,
   feedback:null
 };
@@ -62,13 +62,21 @@ function fractionLabTotal(pieces=fractionLabUi.pieces){
 }
 function fractionLabEqual(a,b){return a[0]*b[1]===b[0]*a[1]}
 function fractionLabValue(pair){return pair[0]/pair[1]}
+function fractionLabIsTerminating(pair){
+  let d=fractionLabReduce(pair[0],pair[1])[1];
+  while(d%2===0)d/=2;
+  while(d%5===0)d/=5;
+  return d===1;
+}
 function fractionLabDecimal(pair){
-  const v=fractionLabValue(pair),rounded=Math.round(v*1000)/1000;
-  return String(rounded).replace('.',',');
+  const v=fractionLabValue(pair),exact=fractionLabIsTerminating(pair);
+  const rounded=exact?Math.round(v*10000)/10000:Math.round(v*1000)/1000;
+  return (exact?'':'≈ ')+String(rounded).replace('.',',')+(exact?'':'…');
 }
 function fractionLabPercent(pair){
-  const v=fractionLabValue(pair)*100,rounded=Math.abs(v-Math.round(v))<.001?Math.round(v):Math.round(v*10)/10;
-  return String(rounded).replace('.',',')+' %';
+  const v=fractionLabValue(pair)*100,exact=fractionLabIsTerminating(pair);
+  const rounded=exact?(Math.abs(v-Math.round(v))<.0001?Math.round(v):Math.round(v*100)/100):Math.round(v*10)/10;
+  return (exact?'':'≈ ')+String(rounded).replace('.',',')+(exact?'':'…')+' %';
 }
 function fractionLabFracHtml(d,n=1){
   if(d===1&&n===1)return '1';
@@ -93,7 +101,7 @@ function fractionLabMission(){
 function fractionLabMissionKey(){return fractionLabUi.variant+':'+fractionLabUi.level}
 function fractionLabColor(d){return FRACTION_LAB_COLORS[d]||'#6BAAB1'}
 function fractionLabConnectionsHtml(pair){
-  return fractionLabUi.showConnections?'<small>'+fractionLabDecimal(pair)+' · '+fractionLabPercent(pair)+'</small>':'';
+  return '<small>'+fractionLabDecimal(pair)+' · '+fractionLabPercent(pair)+'</small>';
 }
 function fractionLabPieceLabel(d){return d===1?'1':fractionLabFracHtml(d)}
 function fractionLabResetWork(){
@@ -110,6 +118,7 @@ function fractionLabSetLevel(level){
 }
 function fractionLabAddPiece(d,targetSide){
   d=Number(d);if(!FRACTION_LAB_DENOMS.includes(d))return;
+  fractionLabUi.selectedDenom=d;
   fractionLabUi.feedback=null;
   if(fractionLabUi.variant==='compare'){
     const side=targetSide||fractionLabUi.compare.active||'left';
@@ -176,15 +185,28 @@ function fractionLabCheck(){
   renderFractionLab();
 }
 function fractionLabCircleMeta(d){
-  const pair=[1,d];if(d===1)return '<b>1</b>'+(fractionLabUi.showConnections?'<span>100 %</span>':'');
-  return '<b>1/'+d+'</b>'+(fractionLabUi.showConnections?'<span>'+fractionLabPercent(pair)+' · '+fractionLabDecimal(pair)+'</span>':'');
+  const pair=[1,d];
+  if(d===1)return '<b>1</b><span>1,0 · 100 %</span>';
+  return '<b>1/'+d+'</b><span>'+fractionLabDecimal(pair)+' · '+fractionLabPercent(pair)+'</span>';
+}
+function fractionLabMeaningHtml(){
+  const d=fractionLabUi.selectedDenom||2,pair=[1,d],exact=fractionLabIsTerminating(pair);
+  const percent=fractionLabValue(pair)*100;
+  const filled=Math.max(0,Math.min(100,Math.round(percent)));
+  const cells=Array.from({length:100},(_,i)=>'<i class="'+(i<filled?'active':'')+'"></i>').join('');
+  const fraction=d===1?'1':'1/'+d;
+  const countText=(exact?'':'Omtrent ')+filled+' av 100';
+  const meaning=d===1?'Én hel er det samme som 1,0 og 100 %.':
+    'Én '+(d===2?'halvdel':d===3?'tredel':d===4?'firedel':d+'del')+' betyr én av '+d+' like deler av en hel.';
+  return '<div class="lab-meaning-card"><div class="lab-meaning-head"><div><span>Se sammenhengen</span><strong>Samme mengde · tre skrivemåter</strong></div><small>Trykk på en brøk i brettet</small></div><div class="lab-equivalence"><div class="lab-value-chip"><span>BRØK</span><b>'+fraction+'</b></div><em>=</em><div class="lab-value-chip"><span>DESIMAL</span><b>'+fractionLabDecimal(pair)+'</b></div><em>=</em><div class="lab-value-chip"><span>PROSENT</span><b>'+fractionLabPercent(pair)+'</b></div></div><div class="lab-meaning-bottom"><div class="lab-hundred-grid" aria-label="'+countText+' ruter">'+cells+'</div><p><strong>'+countText+'</strong>'+meaning+' Alle tre uttrykkene beskriver samme mengde.</p></div></div>';
 }
 function fractionLabBoardHtml(){
   const wall=FRACTION_LAB_DENOMS.map(d=>{
-    const cells=Array.from({length:d},()=>'<button type="button" class="lab-fraction-tile" data-fraction-source data-denom="'+d+'" style="--piece-color:'+fractionLabColor(d)+'" aria-label="'+(d===1?'En hel':'En '+d+'del')+'">'+fractionLabPieceLabel(d)+'</button>').join('');
+    const selected=d===fractionLabUi.selectedDenom?' selected':'';
+    const cells=Array.from({length:d},()=>'<button type="button" class="lab-fraction-tile'+selected+'" data-fraction-source data-inspect-only="true" data-denom="'+d+'" style="--piece-color:'+fractionLabColor(d)+'" aria-label="'+(d===1?'En hel':'En '+d+'del')+'">'+fractionLabPieceLabel(d)+'</button>').join('');
     return '<div class="lab-fraction-row" data-parts="'+d+'" style="--parts:'+d+'">'+cells+'</div>';
   }).join('');
-  const circles=FRACTION_LAB_DENOMS.map(d=>'<button type="button" class="lab-circle-source" data-fraction-source data-denom="'+d+'" aria-label="Brøksirkel '+(d===1?'en hel':'en '+d+'del')+'"><span class="lab-circle" style="--parts:'+d+';--piece-color:'+fractionLabColor(d)+'">'+fractionLabPieceLabel(d)+'</span><span class="lab-circle-meta">'+fractionLabCircleMeta(d)+'</span></button>').join('');
+  const circles=FRACTION_LAB_DENOMS.map(d=>'<button type="button" class="lab-circle-source '+(d===fractionLabUi.selectedDenom?'selected':'')+'" data-fraction-source data-inspect-only="true" data-denom="'+d+'" aria-label="Brøksirkel '+(d===1?'en hel':'en '+d+'del')+'"><span class="lab-circle" style="--parts:'+d+';--piece-color:'+fractionLabColor(d)+'">'+fractionLabPieceLabel(d)+'</span><span class="lab-circle-meta">'+fractionLabCircleMeta(d)+'</span></button>').join('');
   const focus=fractionLabUi.variant==='circles'?'focus-circles':(fractionLabUi.variant==='wall'||fractionLabUi.variant==='whole'||fractionLabUi.variant==='equivalent'?'focus-wall':'');
   return '<div class="lab-board '+focus+'" aria-label="Digitalt brøkbrett"><div class="lab-board-page"><div class="lab-board-title">Brøkvegg</div><div class="lab-fraction-wall">'+wall+'</div></div><div class="lab-board-page"><div class="lab-board-title">Brøksirkler</div><div class="lab-circles">'+circles+'</div></div></div>';
 }
@@ -201,21 +223,21 @@ function fractionLabWorkHtml(){
   const total=fractionLabTotal();
   const pieces=fractionLabUi.pieces.length?fractionLabUi.pieces.map((d,i)=>'<button type="button" class="lab-workpiece" data-remove-piece="'+i+'" style="--piece-color:'+fractionLabColor(d)+';--piece-width:'+(100/d)+'%" aria-label="Fjern '+(d===1?'en hel':'en '+d+'del')+'">'+fractionLabPieceLabel(d)+'</button>').join(''):'<div class="lab-empty">Dra en brøkbit hit, eller trykk på en brikke over.<br>Trykk på en brikke her for å fjerne den.</div>';
   const display=total[1]===1?String(total[0]):total[0]+'/'+total[1];
-  return '<div class="lab-workzone"><div class="lab-workzone-title"><strong>Arbeidsfelt</strong><button type="button" class="lab-clear" id="fraction-lab-clear">Tøm</button></div><div class="lab-workbench" id="fraction-workbench">'+pieces+'</div><div class="lab-total"><div class="lab-total-label">Du har bygget</div><div class="lab-total-value">'+display+fractionLabConnectionsHtml(total)+'</div></div>'+fractionLabFeedbackHtml()+(fractionLabUi.mode==='mission'?'<button type="button" class="lab-check" id="fraction-lab-check">Sjekk oppdraget</button>':'')+'</div>';
+  return '<div class="lab-workzone"><div class="lab-workzone-title"><strong>Arbeidsfelt</strong><button type="button" class="lab-clear" id="fraction-lab-clear">Tøm</button></div><div class="lab-workbench" id="fraction-workbench">'+pieces+'</div><div class="lab-total"><div class="lab-total-label">Det du har bygget</div><div class="lab-total-equivalence"><b>'+display+'</b><span>=</span><b>'+fractionLabDecimal(total)+'</b><span>=</span><b>'+fractionLabPercent(total)+'</b></div></div>'+fractionLabFeedbackHtml()+(fractionLabUi.mode==='mission'?'<button type="button" class="lab-check" id="fraction-lab-check">Sjekk oppdraget</button>':'')+'</div>';
 }
 function fractionLabFeedbackHtml(){
   const f=fractionLabUi.feedback;if(!f)return '<div class="lab-feedback" id="fraction-lab-feedback" aria-live="polite"></div>';
   return '<div class="lab-feedback show '+f.type+'" id="fraction-lab-feedback" aria-live="polite">'+f.text+'</div>';
 }
 function fractionLabMissionHtml(){
-  if(fractionLabUi.mode==='free')return '<div class="lab-free-note"><strong>Fri lek.</strong> Her finnes ingen feil. Alle brøker og alle nivåer er åpne, uansett klassetrinn. Bygg, sammenlign og se hva som skjer.</div>';
+  if(fractionLabUi.mode==='free')return '<div class="lab-free-note"><strong>Fri lek.</strong> Brøk, desimal og prosent er forskjellige måter å beskrive samme mengde på. Trykk på brøkene, bygg selv og se sammenhengene.</div>';
   const mission=fractionLabMission(),recommended=fractionLabRecommendedLevel();
   return '<div class="lab-mission"><div class="lab-mission-top"><span class="lab-mission-badge">'+FRACTION_LAB_LEVELS[fractionLabUi.level]+'</span><span class="lab-recommended">Anbefalt: '+GRADE_CONFIG[currentGrade()].label+'</span></div><h2>'+mission.title+'</h2><p>'+mission.copy+'</p><div class="lab-levels">'+FRACTION_LAB_LEVELS.map((label,i)=>'<button type="button" class="lab-level '+(i===fractionLabUi.level?'active ':'')+(i===recommended?'recommended':'')+'" data-lab-level="'+i+'">'+label+'</button>').join('')+'</div>'+(fractionLabUi.level<3?'<button type="button" class="lab-harder" id="fraction-lab-harder">Prøv noe vanskeligere →</button>':'')+'</div>';
 }
 function renderFractionLab(){
   const root=document.getElementById('fraction-lab-root');if(!root)return;
   const recommended=fractionLabRecommendedLevel();
-  root.innerHTML='<div class="fraction-lab-shell"><div class="fraction-lab-head"><button type="button" class="detail-back" id="fraction-lab-back" aria-label="Tilbake">←</button><div class="fraction-lab-head-copy"><div class="eyebrow">Matte · eksperimenter</div><h1>Brøklab</h1></div><div class="fraction-lab-head-spacer"></div></div><div class="lab-mode-tabs" role="tablist" aria-label="Velg modus"><button type="button" class="lab-mode-tab '+(fractionLabUi.mode==='mission'?'active':'')+'" data-lab-mode="mission">Oppdrag</button><button type="button" class="lab-mode-tab '+(fractionLabUi.mode==='free'?'active':'')+'" data-lab-mode="free">Fri lek</button></div><div class="lab-intro">Dra eller trykk på brøkbiter. Klassetrinnet anbefaler, men låser ingenting.</div><div class="lab-variant-wrap"><div class="lab-variants">'+FRACTION_LAB_VARIANTS.map(v=>'<button type="button" class="lab-variant '+(fractionLabUi.variant===v.id?'active':'')+'" data-lab-variant="'+v.id+'">'+v.icon+' '+v.label+'</button>').join('')+'</div></div>'+fractionLabMissionHtml()+fractionLabBoardHtml()+'<div class="lab-toolbox"><div class="lab-toolbox-head"><strong>Brøkbiter</strong><button type="button" class="lab-connections '+(fractionLabUi.showConnections?'active':'')+'" id="fraction-lab-connections">'+(fractionLabUi.showConnections?'Skjul':'Vis')+' desimal og %</button></div><div class="lab-piece-bank">'+fractionLabBankHtml()+'</div></div>'+fractionLabWorkHtml()+'<div class="lab-completed-count">'+fractionLabCompletedCount()+' oppdagelser lagret på denne enheten · nivå '+(recommended+1)+' er anbefalt akkurat nå</div></div>';
+  root.innerHTML='<div class="fraction-lab-shell"><div class="fraction-lab-head"><button type="button" class="detail-back" id="fraction-lab-back" aria-label="Tilbake">←</button><div class="fraction-lab-head-copy"><div class="eyebrow">Matte · eksperimenter</div><h1>Brøklab</h1></div><div class="fraction-lab-head-spacer"></div></div><div class="lab-mode-tabs" role="tablist" aria-label="Velg modus"><button type="button" class="lab-mode-tab '+(fractionLabUi.mode==='mission'?'active':'')+'" data-lab-mode="mission">Oppdrag</button><button type="button" class="lab-mode-tab '+(fractionLabUi.mode==='free'?'active':'')+'" data-lab-mode="free">Fri lek</button></div><div class="lab-intro"><strong>Poenget:</strong> Brøk, desimal og prosent kan være tre navn på akkurat samme mengde.</div><div class="lab-variant-wrap"><div class="lab-variants">'+FRACTION_LAB_VARIANTS.map(v=>'<button type="button" class="lab-variant '+(fractionLabUi.variant===v.id?'active':'')+'" data-lab-variant="'+v.id+'">'+v.icon+' '+v.label+'</button>').join('')+'</div></div>'+fractionLabMissionHtml()+fractionLabMeaningHtml()+fractionLabBoardHtml()+'<div class="lab-toolbox"><div class="lab-toolbox-head"><div><strong>Brøkbiter</strong><small class="lab-toolbox-copy">Trykk for å legge i arbeidsfeltet. Dra hvis du vil plassere selv.</small></div></div><div class="lab-piece-bank">'+fractionLabBankHtml()+'</div></div>'+fractionLabWorkHtml()+'<div class="lab-completed-count">'+fractionLabCompletedCount()+' oppdagelser lagret på denne enheten · nivå '+(recommended+1)+' er anbefalt akkurat nå</div></div>';
   bindFractionLabUi();
 }
 function bindFractionLabUi(){
@@ -224,7 +246,6 @@ function bindFractionLabUi(){
   document.querySelectorAll('[data-lab-variant]').forEach(b=>b.addEventListener('click',()=>fractionLabSetVariant(b.dataset.labVariant)));
   document.querySelectorAll('[data-lab-level]').forEach(b=>b.addEventListener('click',()=>fractionLabSetLevel(b.dataset.labLevel)));
   document.getElementById('fraction-lab-harder')?.addEventListener('click',()=>fractionLabSetLevel(fractionLabUi.level+1));
-  document.getElementById('fraction-lab-connections')?.addEventListener('click',()=>{fractionLabUi.showConnections=!fractionLabUi.showConnections;renderFractionLab()});
   document.getElementById('fraction-lab-clear')?.addEventListener('click',()=>{fractionLabResetWork();renderFractionLab()});
   document.getElementById('fraction-lab-check')?.addEventListener('click',fractionLabCheck);
   document.querySelectorAll('[data-remove-piece]').forEach(b=>b.addEventListener('click',()=>fractionLabRemovePiece(Number(b.dataset.removePiece))));
@@ -236,6 +257,8 @@ function bindFractionLabSource(button){
   const denom=Number(button.dataset.denom);let drag=null;
   button.addEventListener('click',event=>{
     if(Number(button._labDraggedUntil||0)>Date.now()){event.preventDefault();return}
+    fractionLabUi.selectedDenom=denom;
+    if(button.dataset.inspectOnly==='true'){fractionLabUi.feedback=null;renderFractionLab();return}
     fractionLabAddPiece(denom);
   });
   button.addEventListener('pointerdown',event=>{
@@ -276,7 +299,6 @@ function bindFractionLabSource(button){
 function openFractionLab(){
   const grade=currentGrade();
   if(fractionLabUi.lastGrade!==grade){fractionLabUi.level=fractionLabRecommendedLevel();fractionLabUi.lastGrade=grade;fractionLabResetWork()}
-  if(grade>=5&&fractionLabUi.lastGrade===grade&&fractionLabUi.showConnections===false&&fractionLabCompletedCount()===0)fractionLabUi.showConnections=true;
   renderFractionLab();showScreen('fraction-lab');
 }
 window.openFractionLab=openFractionLab;
