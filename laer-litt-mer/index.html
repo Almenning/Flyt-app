@@ -2224,9 +2224,9 @@ function globeCountryColor(country){
   const st=countryStatus(country.id);
   if(st==='mastered')return base;
   if(st==='known')return mixHex(base,'#FFFFFF',.24);
-  if(st==='learning')return mixHex(base,'#DDE3EC',.58);
-  if(st==='seen')return '#D7DEE8';
-  return '#E4E7EC';
+  if(st==='learning')return mixHex(base,'#F3F5F8',.52);
+  if(st==='seen')return mixHex(base,'#F3F5F8',.70);
+  return mixHex(base,'#F3F5F8',.84);
 }
 function drawMasteryMarker(ctx,country,w,h){
   if(globeMode!=='mine')return;
