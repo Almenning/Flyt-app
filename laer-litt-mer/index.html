@@ -362,6 +362,7 @@
   <!-- touch-target-sensitivity-2026-10-03 -->
   <!-- resume-home-policy-2026-10-03 -->
   <!-- joy-loop-phase1-2026-10-03 -->
+  <!-- mastery-evidence-v2-2026-10-03 -->
 </head>
 <body>
 <div class="app">
@@ -832,7 +833,7 @@ function missionLabel(){return gradeConfig().mission}
 const STORAGE_KEY='laerlittmer-v2';
 const defaultState={
   version:5,
-  progressSchemaVersion:1,
+  progressSchemaVersion:2,
   profile:{grade:null,onboarded:false},
   mastery:{},
   mistakes:{},
@@ -912,27 +913,87 @@ function questionOnCooldown(q,now=Date.now()){
   const age=now-Number(a.at);
   return age<(a.correct?CORRECT_QUESTION_COOLDOWN_MS:WRONG_QUESTION_COOLDOWN_MS);
 }
+
+function evidenceDay(ts){const d=new Date(ts);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
+const MASTERY_STAGES=['new','seen','practicing','can-now','mastered'];
+function stageRank(stage){const i=MASTERY_STAGES.indexOf(stage);return i<0?0:i}
+function ensureEvidenceContainers(){state.masteryEvidence=state.masteryEvidence||{};state.skillEvidence=state.skillEvidence||{}}
+function addEvidenceEvent(bucket,key,correct,variant,at=Date.now()){
+  ensureEvidenceContainers();
+  const ev=bucket[key]||{attempts:0,correctCount:0,wrongCount:0,lastAttemptAt:0,lastCorrectAt:0,days:[],correctDays:[],variants:[]};
+  ev.attempts=Number(ev.attempts||0)+1;ev.lastAttemptAt=at;
+  const day=evidenceDay(at);
+  if(!ev.days.includes(day))ev.days.push(day);
+  if(correct){
+    ev.correctCount=Number(ev.correctCount||0)+1;ev.lastCorrectAt=at;
+    if(!ev.correctDays.includes(day))ev.correctDays.push(day);
+    if(variant&&!ev.variants.includes(variant))ev.variants.push(variant);
+  }else ev.wrongCount=Number(ev.wrongCount||0)+1;
+  ev.days=ev.days.slice(-12);ev.correctDays=ev.correctDays.slice(-12);ev.variants=ev.variants.slice(-16);
+  bucket[key]=ev;return ev;
+}
+function evidenceStage(ev,legacyLevel=0,minVariantsForMastery=1){
+  if(ev){
+    const days=(ev.correctDays||[]).length,variants=(ev.variants||[]).length,correct=Number(ev.correctCount||0),attempts=Number(ev.attempts||0);
+    if(days>=2&&correct>=2&&variants>=minVariantsForMastery)return 'mastered';
+    if(correct>=2||legacyLevel>=2)return 'can-now';
+    if(correct>=1||legacyLevel>=1)return 'practicing';
+    if(attempts>0)return 'seen';
+  }
+  if(legacyLevel>=2)return 'can-now';
+  if(legacyLevel>=1)return 'practicing';
+  return 'new';
+}
+function migrateEvidenceIfNeeded(){
+  ensureEvidenceContainers();
+  if(Number(state.progressSchemaVersion||0)>=2)return;
+  const answers=[...(state.answerLog||[])].sort((a,b)=>Number(a.at||0)-Number(b.at||0));
+  for(const a of answers){
+    if(a.country&&a.type){
+      const key=masteryKey(a.country,a.type);addEvidenceEvent(state.masteryEvidence,key,!!a.correct,a.questionKey||('geo|'+a.country+'|'+a.type),Number(a.at||Date.now()));
+    }else if(a.subject&&a.skill){
+      const key=learningMasteryKey(a.subject,a.skill);addEvidenceEvent(state.skillEvidence,key,!!a.correct,a.questionKey||('learn|'+a.subject+'|'+a.skill+'|'+a.type),Number(a.at||Date.now()));
+    }
+  }
+  state.progressSchemaVersion=2;saveState();
+}
 function mastery(key){return Number(state.mastery[key]||0)}
 function masteryKey(k,type){return `${k}:${type}`}
+function typeStageByKey(key){ensureEvidenceContainers();return evidenceStage(state.masteryEvidence[key],mastery(key),1)}
+function typeStage(k,type){return typeStageByKey(masteryKey(k,type))}
+function typeCanNow(k,type){return stageRank(typeStage(k,type))>=stageRank('can-now')}
+function typeMastered(k,type){return typeStage(k,type)==='mastered'}
 function bump(key,correct){
-  const old=mastery(key);
-  const next=correct?Math.min(3,old+1):Math.max(0,old-1);
-  state.mastery[key]=next;
-  if(correct&&next>old) sessionStrengthened.add(key);
-  return {old,next,newlyMastered:old<2&&next>=2};
+  ensureEvidenceContainers();
+  const q=sessionQuestions[qIndex],variant=questionIdentity(q),before=typeStageByKey(key),old=mastery(key);
+  const next=correct?Math.min(3,old+1):Math.max(0,old-1);state.mastery[key]=next;
+  addEvidenceEvent(state.masteryEvidence,key,correct,variant);
+  const after=typeStageByKey(key),strengthened=stageRank(after)>stageRank(before),newlyMastered=before!=='mastered'&&after==='mastered';
+  if(correct&&(next>old||strengthened))sessionStrengthened.add(key);
+  return {old,next,before,after,strengthened,newlyMastered};
 }
-function typeMastered(k,type){return mastery(masteryKey(k,type))>=2}
 function learningTypes(k){
   const types=['country','flag','continent'];
   if(countries[k]?.capital) types.splice(1,0,'capital');
   if(NORDIC_IDS.includes(k)) types.push('map');
   return types;
 }
-function masteredParts(k){return learningTypes(k).filter(t=>typeMastered(k,t)).length}
+function masteredParts(k){return learningTypes(k).filter(t=>typeCanNow(k,t)).length}
+function longTermMasteredParts(k){return learningTypes(k).filter(t=>typeMastered(k,t)).length}
 function knownCountryCount(ids=Object.keys(countries)){return ids.filter(k=>countries[k]&&masteredParts(k)>=2).length}
-function knownCount(type,ids=Object.keys(countries)){return ids.filter(k=>countries[k]&&typeMastered(k,type)).length}
+function masteredCountryCount(ids=Object.keys(countries)){return ids.filter(k=>countries[k]&&longTermMasteredParts(k)>=2).length}
+function knownCount(type,ids=Object.keys(countries)){return ids.filter(k=>countries[k]&&typeCanNow(k,type)).length}
 function pctFor(ids){return ids.length?Math.round(knownCountryCount(ids)/ids.length*100):0}
-function countryStatus(k){const types=learningTypes(k),n=types.filter(t=>typeMastered(k,t)).length,any=types.some(t=>mastery(masteryKey(k,t))>0);return n>=2?'known':any?'learning':'new'}
+function countryStatus(k){
+  const types=learningTypes(k),long=types.filter(t=>typeMastered(k,t)).length,now=types.filter(t=>typeCanNow(k,t)).length;
+  const stages=types.map(t=>typeStage(k,t));
+  if(long>=2)return 'mastered';
+  if(now>=2)return 'known';
+  if(stages.some(s=>stageRank(s)>=stageRank('practicing')))return 'learning';
+  if(stages.some(s=>s==='seen'))return 'seen';
+  return 'new';
+}
+migrateEvidenceIfNeeded();
 function localDay(ts){const d=new Date(ts); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
 function dayKeyOffset(days){const d=new Date(); d.setHours(12,0,0,0); d.setDate(d.getDate()+days); return localDay(d.getTime())}
 function computeStreak(){
@@ -1042,11 +1103,11 @@ function renderAll(){
   document.getElementById('prog-cap').textContent=knownCount('capital');
   document.getElementById('prog-flag').textContent=knownCount('flag');
   document.getElementById('prog-map').textContent=knownCount('map');
-  const a7=last7Answers(),today=todaysAnswers(),goal=dailyGoal(),todayStrengthened=today.filter(a=>a.newlyMastered).length;
-  document.getElementById('weekly-new').textContent=a7.filter(a=>a.newlyMastered).length;
+  const a7=last7Answers(),today=todaysAnswers(),goal=dailyGoal(),todayStrengthened=today.filter(a=>a.strengthened||a.newlyMastered).length;
+  document.getElementById('weekly-new').textContent=a7.filter(a=>a.strengthened||a.newlyMastered).length;
   document.getElementById('weekly-answers').textContent=a7.length;
   document.getElementById('weekly-accuracy').textContent=a7.length?Math.round(a7.filter(a=>a.correct).length/a7.length*100)+' %':'–';
-  document.getElementById('home-week-new').textContent=a7.filter(a=>a.newlyMastered).length;
+  document.getElementById('home-week-new').textContent=a7.filter(a=>a.strengthened||a.newlyMastered).length;
   document.getElementById('home-week-answers').textContent=a7.length;
   document.getElementById('home-week-days').textContent=learningDaysLast7();
   document.getElementById('daily-goal-count').textContent=goal.done+' av '+goal.target;
@@ -1253,26 +1314,34 @@ const NORWAY_REGIONS=[
   {region:'Nord-Norge',place:'Bodø'},{region:'Nord-Norge',place:'Tromsø'},{region:'Nord-Norge',place:'Harstad'},{region:'Nord-Norge',place:'Alta'},{region:'Nord-Norge',place:'Kirkenes'}
 ];
 let activeSubject='norwegian',activeModule=null,geoTheme='country';
+
 function ensureLearningState(){
   state.skillMastery=state.skillMastery||{};
   state.skillMistakes=state.skillMistakes||{};
   state.skillLastSeen=state.skillLastSeen||{};
+  state.skillEvidence=state.skillEvidence||{};
 }
 ensureLearningState();
-function skillLevel(key){ensureLearningState();return Number(state.skillMastery[key]||0)}
+function skillLevel(key){return Number(state.skillMastery[key]||0)}
 function learningMasteryKey(subject,skill){return subject+':'+skill}
+function skillStageByKey(key){ensureLearningState();return evidenceStage(state.skillEvidence[key],skillLevel(key),2)}
+function skillStage(subject,skill){return skillStageByKey(learningMasteryKey(subject,skill))}
 function bumpSkill(subject,skill,correct){
   ensureLearningState();
-  const key=learningMasteryKey(subject,skill),old=skillLevel(key),next=correct?Math.min(3,old+1):Math.max(0,old-1);
-  state.skillMastery[key]=next;
-  state.skillLastSeen[key]=Date.now();
-  if(correct&&next>old)sessionStrengthened.add(key);
+  const key=learningMasteryKey(subject,skill),q=sessionQuestions[qIndex],variant=questionIdentity(q),before=skillStageByKey(key),old=skillLevel(key),next=correct?Math.min(3,old+1):Math.max(0,old-1);
+  state.skillMastery[key]=next;state.skillLastSeen[key]=Date.now();
+  addEvidenceEvent(state.skillEvidence,key,correct,variant);
+  const after=skillStageByKey(key),strengthened=stageRank(after)>stageRank(before),newlyMastered=before!=='mastered'&&after==='mastered';
+  if(correct&&(next>old||strengthened))sessionStrengthened.add(key);
   if(!correct)state.skillMistakes[key]=Number(state.skillMistakes[key]||0)+1;
-  return {old,next,newlyMastered:old<2&&next>=2};
+  return {old,next,before,after,strengthened,newlyMastered};
 }
 function subjectAnswered(subject){return state.answerLog.filter(a=>a.subject===subject).length}
 function subjectMasteredSkills(subject){
-  ensureLearningState();return Object.keys(state.skillMastery).filter(k=>k.startsWith(subject+':')&&Number(state.skillMastery[k])>=2).length;
+  ensureLearningState();return Object.keys(state.skillMastery).filter(k=>k.startsWith(subject+':')&&stageRank(skillStageByKey(k))>=stageRank('can-now')).length;
+}
+function subjectLongTermMasteredSkills(subject){
+  ensureLearningState();return Object.keys(state.skillEvidence).filter(k=>k.startsWith(subject+':')&&skillStageByKey(k)==='mastered').length;
 }
 function renderSubjectProgress(){
   for(const s of Object.keys(SUBJECTS)){
@@ -1647,8 +1716,9 @@ function recordLearningAnswer(q,correct,selected){
   if(currentAnswered)return;
   if(correct)sessionCorrect++;
   const result=bumpSkill(q.subject,q.skill,correct);
-  state.answerLog.push({at:Date.now(),subject:q.subject,skill:q.skill,type:q.type,questionKey:questionIdentity(q),correct,newlyMastered:result.newlyMastered,curriculum:q.curriculum||null});
-  if(result.newlyMastered){state.lastMilestone={title:'Dette satt! ⭐',copy:(SUBJECTS[q.subject]?.title||'Faget')+': Du har styrket en ferdighet du har øvd på.',at:Date.now()}}
+  state.answerLog.push({at:Date.now(),subject:q.subject,skill:q.skill,type:q.type,questionKey:questionIdentity(q),correct,strengthened:result.strengthened,newlyMastered:result.newlyMastered,masteryStage:result.after,curriculum:q.curriculum||null});
+  if(result.newlyMastered){state.lastMilestone={title:'Denne satt igjen! ⭐',copy:(SUBJECTS[q.subject]?.title||'Faget')+': Du har vist at ferdigheten sitter over tid.',at:Date.now()}}
+  else if(result.strengthened){state.lastMilestone={title:'Dette satt! ⭐',copy:(SUBJECTS[q.subject]?.title||'Faget')+': Du har flyttet en ferdighet ett steg videre.',at:Date.now()}}
   currentAnswered={selected,correct};persistActiveSession();
   if(correct)celebrateCorrect();
 }
@@ -2114,8 +2184,9 @@ function recordAnswer(q,correct,selected){
   if(currentAnswered)return;
   if(correct)sessionCorrect++;else state.mistakes[masteryKey(q.k,q.type)]=(state.mistakes[masteryKey(q.k,q.type)]||0)+1;
   const result=bump(masteryKey(q.k,q.type),correct);
-  state.answerLog.push({at:Date.now(),country:q.k,type:q.type,key:masteryKey(q.k,q.type),questionKey:questionIdentity(q),correct,newlyMastered:result.newlyMastered});
-  if(result.newlyMastered){state.lastMilestone={title:'Der satt '+countries[q.k].name+'! ⭐',copy:'Du har styrket kunnskapen din om '+countries[q.k].name+'.',at:Date.now()}}
+  state.answerLog.push({at:Date.now(),country:q.k,type:q.type,key:masteryKey(q.k,q.type),questionKey:questionIdentity(q),correct,strengthened:result.strengthened,newlyMastered:result.newlyMastered,masteryStage:result.after});
+  if(result.newlyMastered){state.lastMilestone={title:'Denne satt igjen! ⭐',copy:countries[q.k].name+': Nå har du vist at kunnskapen sitter over tid.',at:Date.now()};state.recentCountryWin={id:q.k,at:Date.now(),seen:false}}
+  else if(result.strengthened){state.lastMilestone={title:'Der satt '+countries[q.k].name+'! ⭐',copy:'Du har flyttet kunnskapen ett steg videre.',at:Date.now()}}
   currentAnswered={selected,correct};persistActiveSession();
   if(correct)celebrateCorrect();
 }
