@@ -1155,7 +1155,12 @@
     .grade-band-young .story-lion{display:block!important;width:43px!important;height:43px!important;left:8px!important;right:auto!important;bottom:7px!important}
     .grade-band-young .story-fox{display:block!important;width:47px!important;height:47px!important;left:139px!important;right:auto!important;bottom:4px!important}
     .grade-band-young .story-star{right:45%!important;bottom:155px!important}
-    .grade-band-young .fox-guide,.grade-band-young .home-continue-wrap{display:none!important}
+    .grade-band-young .fox-guide{display:none!important}
+    .grade-band-young .home-continue-wrap{display:block!important;margin-top:10px!important}
+    .grade-band-young .dashboard-world-column .home-continue{padding:15px 16px!important;border-radius:22px!important;box-shadow:0 7px 0 rgba(73,73,157,.10),0 14px 24px rgba(87,91,181,.16)!important}
+    .grade-band-young .dashboard-world-column .home-continue h2{font-size:20px!important;max-width:84%!important}
+    .grade-band-young .dashboard-world-column .home-continue p{font-size:11px!important}
+    .grade-band-young .dashboard-world-column .home-continue .primary{min-height:50px!important;margin-top:12px!important;font-size:15px!important}
 
     .grade-band-young .adult-entry{
       margin:11px auto 0!important;display:block!important;opacity:.62;font-size:9px!important
@@ -3534,12 +3539,14 @@ document.getElementById('start-geography-theme').onclick=startGeographyTheme;
 
 function activityTitle(activity){
   if(!activity)return '';
-  if(activity.kind==='subject')return SUBJECTS[activity.subject]?.title||'Læring';
+  if(activity.kind==='subject'||activity.kind==='journey')return SUBJECTS[activity.subject]?.title||'Læring';
   return 'Geografi';
 }
 function activityCopy(activity){
   if(!activity)return '';
+  if(activity.kind==='journey')return 'Læringsreisen · '+(activity.label||'Fortsett stien');
   if(activity.kind==='subject')return activity.label||SUBJECTS[activity.subject]?.mission||'Blandet økt';
+  if(activity.kind==='geo-journey')return 'Geografireisen · '+(activity.label||'Fortsett stien');
   if(activity.kind==='geography-country')return 'Øv videre på '+activity.label;
   if(activity.kind==='geography-theme')return activity.label||'Geografi';
   if(activity.kind==='geography-scope')return activity.label||activity.scope?.label||'Geografi';
