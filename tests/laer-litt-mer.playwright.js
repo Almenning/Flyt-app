@@ -585,6 +585,76 @@ async function finishSession(page){
     assert.equal(masteryStage,'mastered');
     await context1.close();
 
+
+    // Mastery is grade-scoped: grade-3 multiplication must not silently complete grade 5.
+    const scopedMastery=await page.evaluate(()=>{
+      const k3=learningMasteryKey('math','multiplication',3),k5=learningMasteryKey('math','multiplication',5);
+      state.skillMastery[k3]=2;delete state.skillMastery[k5];delete state.skillEvidence[k5];
+      return {g3:skillStage('math','multiplication',3),g5:skillStage('math','multiplication',5)};
+    });
+    assert.ok(['can-now','mastered'].includes(scopedMastery.g3));
+    assert.equal(scopedMastery.g5,'new');
+
+    // Every grade has a real journey and every required node can build a full valid session.
+    await page.evaluate(()=>{state.answerLog=[];state.activeSession=null;saveState()});
+    for(let grade=1;grade<=10;grade++){
+      await page.evaluate(g=>{state.profile.grade=g;state.activeSession=null;state.lastActivity=null;saveState();setTab('home')},grade);
+      for(const subject of ['norwegian','math','english']){
+        const journey=await page.evaluate(subject=>{
+          const model=journeyModel(subject,currentGrade());
+          const checks=model.nodes.filter(n=>n.type==='skill'||n.type==='checkpoint').map(n=>{
+            const qs=buildJourneyQuestions(subject,n,true);
+            return {id:n.id,type:n.type,skills:n.skills,count:qs.length,valid:qs.every(validLearningQuestion),unique:new Set(qs.map(questionIdentity)).size};
+          });
+          return {areas:model.areas.length,nodes:model.nodes.length,checks};
+        },subject);
+        assert.ok(journey.areas>0,subject+' grade '+grade+' has no journey areas');
+        assert.ok(journey.nodes>0,subject+' grade '+grade+' has no journey nodes');
+        for(const n of journey.checks){
+          assert.ok(n.skills.length>0,subject+' grade '+grade+' node '+n.id+' has no skills');
+          assert.equal(n.count,5,subject+' grade '+grade+' journey node '+n.id+' did not build 5 questions');
+          assert.equal(n.valid,true,subject+' grade '+grade+' journey node '+n.id+' has invalid questions');
+          assert.ok(n.unique>=4,subject+' grade '+grade+' journey node '+n.id+' is too repetitive: '+n.unique+'/5');
+        }
+      }
+      const geo=await page.evaluate(()=>{
+        const model=geoJourneyModel(currentGrade());
+        const checks=model.nodes.filter(n=>n.type==='geo-skill'||n.type==='checkpoint').map(n=>{
+          const qs=buildGeoJourneyQuestions(n,true);
+          return {id:n.id,type:n.type,count:qs.length,unique:new Set(qs.map(questionIdentity)).size};
+        });
+        return {areas:model.areas.length,nodes:model.nodes.length,checks};
+      });
+      assert.ok(geo.areas>0,'geography grade '+grade+' has no journey areas');
+      assert.ok(geo.nodes>0,'geography grade '+grade+' has no journey nodes');
+      for(const n of geo.checks){
+        assert.equal(n.count,5,'geography grade '+grade+' journey node '+n.id+' did not build 5 questions');
+        assert.ok(n.unique>=4,'geography grade '+grade+' journey node '+n.id+' is too repetitive: '+n.unique+'/5');
+      }
+    }
+
+    // A next-grade preview is deliberately non-counting and must not alter either grade.
+    await page.evaluate(()=>{state.profile.grade=2;state.answerLog=[];state.activeSession=null;saveState();setTab('home')});
+    const previewBefore=await page.evaluate(()=>{
+      const model=journeyModel('math',3),node=model.nodes.find(n=>n.type==='skill'),skill=node.skills[0];
+      return {skill,current:skillStage('math',skill,2),next:skillStage('math',skill,3),profile:currentGrade()};
+    });
+    await page.evaluate(()=>startNextGradePreview('math'));
+    await page.locator('#session-screen.active').waitFor();
+    const previewScope=await page.evaluate(()=>({type:sessionScope.type,practiceOnly:sessionScope.practiceOnly,previewOnly:sessionScope.previewOnly,grade:sessionScope.journeyGrade,count:sessionQuestions.length}));
+    assert.equal(previewScope.type,'journey-preview');
+    assert.equal(previewScope.practiceOnly,true);
+    assert.equal(previewScope.previewOnly,true);
+    assert.equal(previewScope.grade,3);
+    assert.equal(previewScope.count,5);
+    await answerCurrent(page);
+    const previewAfter=await page.evaluate(skill=>({current:skillStage('math',skill,2),next:skillStage('math',skill,3),profile:currentGrade(),logged:state.answerLog.at(-1)}),previewBefore.skill);
+    assert.equal(previewAfter.current,previewBefore.current);
+    assert.equal(previewAfter.next,previewBefore.next);
+    assert.equal(previewAfter.profile,2);
+    assert.equal(previewAfter.logged.countsForLearning,false);
+    await page.evaluate(()=>{state.activeSession=null;sessionQuestions=[];currentAnswered=null;saveState();setTab('home')});
+
     // Structural sweep: isolate content sufficiency from the deliberate repeat-cooldown history above.
     await page.evaluate(()=>{state.answerLog=[];state.activeSession=null;saveState()});
     // Every visible subject module on every grade can build a five-question session when no tasks are cooling down.
