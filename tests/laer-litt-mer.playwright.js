@@ -450,6 +450,8 @@ async function finishSession(page){
     assert.equal((await page.locator('[data-table-a="4"][data-table-b="6"]').innerText()).trim(),'24');
     await page.locator('[data-table-focus="2"]').click();
     assert.ok(await page.locator('.mult-table-cell.dimmed').count()>0);
+    const tableControlHeights=await page.locator('.mult-table-focus, #mult-table-answer-toggle, .mult-table-pairs button').evaluateAll(els=>els.map(e=>e.getBoundingClientRect().height));
+    assert.ok(tableControlHeights.every(h=>h>=44),'small multiplication table control: '+tableControlHeights.join(','));
 
     // Free play allows arbitrary factors regardless of recommended grade.
     await page.locator('[data-mult-mode="free"]').click();
