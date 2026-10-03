@@ -376,6 +376,7 @@
   <!-- mastery-evidence-v2-2026-10-03 -->
   <!-- tts-task-variety-2026-10-03 -->
   <!-- my-world-mastery-colors-2026-10-03 -->
+  <!-- adaptive-balanced-sessions-2026-10-03 -->
 </head>
 <body>
 <div class="app">
@@ -1009,6 +1010,22 @@ function countryStatus(k){
   return 'new';
 }
 migrateEvidenceIfNeeded();
+function evidenceForGeo(k,type){ensureEvidenceContainers();return state.masteryEvidence[masteryKey(k,type)]||null}
+function evidenceForSkill(subject,skill){ensureEvidenceContainers();return state.skillEvidence[learningMasteryKey(subject,skill)]||null}
+function reviewDue(stage,ev,now=Date.now()){
+  const last=Number(ev?.lastCorrectAt||0);if(!last)return false;
+  if(stage==='can-now')return now-last>=8*60*60*1000;
+  if(stage==='mastered')return now-last>=3*24*60*60*1000;
+  return false;
+}
+function learningBucket(stage,ev){
+  if(reviewDue(stage,ev))return 'review';
+  if(stage==='seen'||stage==='practicing')return 'active';
+  if(stage==='new')return 'new';
+  return 'strong';
+}
+function bucketBias(bucket){return bucket==='review'?-1.25:bucket==='active'?-0.85:bucket==='new'?-0.25:.65}
+
 function localDay(ts){const d=new Date(ts); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
 function dayKeyOffset(days){const d=new Date(); d.setHours(12,0,0,0); d.setDate(d.getDate()+days); return localDay(d.getTime())}
 function computeStreak(){
@@ -1024,7 +1041,15 @@ function last7Answers(){const cutoff=Date.now()-7*24*60*60*1000;return state.ans
 function last7Sessions(){const cutoff=Date.now()-7*24*60*60*1000;return state.sessionLog.filter(s=>(s.endedAt||0)>=cutoff)}
 function todaysAnswers(){const today=dayKeyOffset(0);return state.answerLog.filter(a=>a.at&&localDay(a.at)===today)}
 function learningDaysLast7(){return new Set(last7Answers().filter(a=>a.at).map(a=>localDay(a.at))).size}
-function dailyGoal(){const attempts=todaysAnswers().length,correct=todaysAnswers().filter(a=>a.correct).length;return {target:3,done:Math.min(3,attempts),attempts,correct}}
+function todaysUniqueAttempts(){
+  const seen=new Set(),out=[];
+  for(const a of todaysAnswers()){
+    const key=a.questionKey||[a.subject||'geo',a.country||'',a.skill||'',a.type||'',a.at||''].join('|');
+    if(seen.has(key))continue;seen.add(key);out.push(a);
+  }
+  return out;
+}
+function dailyGoal(){const items=todaysUniqueAttempts(),attempts=items.length,correct=items.filter(a=>a.correct).length;return {target:3,done:Math.min(3,attempts),attempts,correct}}
 function gradeBand(grade=currentGrade()){return grade<=2?'young':grade<=4?'middle':grade<=7?'older':'teen'}
 function applyGradeDesign(){const app=document.querySelector('.app');if(!app)return;app.classList.remove('grade-band-young','grade-band-middle','grade-band-older','grade-band-teen');app.classList.add('grade-band-'+gradeBand())}
 function lastLearningAt(){return state.answerLog.reduce((m,a)=>Math.max(m,Number(a.at||0)),0)}
@@ -1206,21 +1231,38 @@ function questionTypesForCountry(k,includeMap=false){
   if(includeMap&&allowed.has('map')&&canMapQuiz(k))types.push('map');
   return types.length?types:['flag'];
 }
+
 function questionPool(ids,includeMap=false){
   const pool=[];
   ids.filter(id=>countries[id]).forEach(k=>{
     questionTypesForCountry(k,includeMap).forEach(type=>{
       if(questionOnCooldown({k,type}))return;
-      const key=masteryKey(k,type),mistakes=Number(state.mistakes[key]||0);
-      pool.push({k,type,score:mastery(key)-Math.min(.7,mistakes*.12)+Math.random()*.18});
+      const key=masteryKey(k,type),stage=typeStage(k,type),ev=evidenceForGeo(k,type),bucket=learningBucket(stage,ev),mistakes=Number(state.mistakes[key]||0);
+      const score=bucketBias(bucket)-Math.min(.75,mistakes*.12)+Math.random()*.12;
+      pool.push({k,type,stage,bucket,score});
     });
   });
   return pool.sort((a,b)=>a.score-b.score);
 }
-function buildQuestionsForIds(ids,includeMap=false){
-  const pool=questionPool(ids,includeMap),chosen=[],perCountry={};
-  for(const item of pool){if(chosen.length>=5)break;if((perCountry[item.k]||0)>=2)continue;chosen.push(makeQuestion(item.k,item.type,ids));perCountry[item.k]=(perCountry[item.k]||0)+1}
+function balancedGeoItems(pool,count=5){
+  const chosen=[],used=new Set(),perCountry={};
+  const take=(bucket,limit)=>{
+    for(const item of pool){
+      if(chosen.length>=count||limit<=0)break;
+      const id=item.k+':'+item.type;if(used.has(id)||item.bucket!==bucket||(perCountry[item.k]||0)>=2)continue;
+      chosen.push(item);used.add(id);perCountry[item.k]=(perCountry[item.k]||0)+1;limit--;
+    }
+  };
+  take('review',1);take('active',2);take('new',1);
+  for(const item of pool){
+    if(chosen.length>=count)break;
+    const id=item.k+':'+item.type;if(used.has(id)||(perCountry[item.k]||0)>=2)continue;
+    chosen.push(item);used.add(id);perCountry[item.k]=(perCountry[item.k]||0)+1;
+  }
   return chosen;
+}
+function buildQuestionsForIds(ids,includeMap=false){
+  return balancedGeoItems(questionPool(ids,includeMap),5).map(item=>makeQuestion(item.k,item.type,ids));
 }
 function warmupSpecs(){
   const g=currentGrade();
@@ -1230,18 +1272,16 @@ function warmupSpecs(){
   if(g===4)return [['no','capital'],['de','flag']];
   return [['no','capital'],['de','flag']];
 }
+
 function buildGradeMissionQuestions(){
   const ids=gradeScopeIds(),chosen=[],used=new Set();
   for(const [k,type] of warmupSpecs()){
+    if(chosen.length>=2)break;
     if(!countries[k]||!questionTypesForCountry(k,true).includes(type)||questionOnCooldown({k,type}))continue;
-    chosen.push(makeQuestion(k,type,ids));used.add(`${k}:${type}`);
+    chosen.push(makeQuestion(k,type,ids));used.add(k+':'+type);
   }
-  for(const item of questionPool(ids,true)){
-    if(chosen.length>=5)break;
-    const key=`${item.k}:${item.type}`;if(used.has(key))continue;
-    if(chosen.filter(q=>q.k===item.k).length>=2)continue;
-    chosen.push(makeQuestion(item.k,item.type,ids));used.add(key);
-  }
+  const balanced=balancedGeoItems(questionPool(ids,true).filter(item=>!used.has(item.k+':'+item.type)),5-chosen.length);
+  for(const item of balanced)chosen.push(makeQuestion(item.k,item.type,ids));
   return chosen.slice(0,5);
 }
 function buildCountryQuestions(k){
@@ -1613,25 +1653,35 @@ function validLearningQuestion(q){
   if(q.type==='sequence-order')return Array.isArray(q.items)&&q.items.length>1&&String(q.answer).length>0;
   return false;
 }
+
 function buildLearningQuestions(subject,module){
   const getPool=(m)=>subject==='norwegian'?norwegianPool(currentGrade(),m):subject==='math'?mathPool(currentGrade(),m):englishPool(currentGrade(),m);
   const focused=module?getPool(module).filter(validLearningQuestion):[];
-  const mixed=getPool(null).filter(validLearningQuestion);
-  const seen=new Set(),pool=[];
+  const mixed=getPool(null).filter(validLearningQuestion),seen=new Set(),pool=[];
   for(const q of [...focused,...mixed]){
-    const sig=questionIdentity(q);
-    if(seen.has(sig)||questionOnCooldown(q))continue;
-    seen.add(sig);q._focused=focused.includes(q);pool.push(q);
+    const sig=questionIdentity(q);if(seen.has(sig)||questionOnCooldown(q))continue;
+    seen.add(sig);q._focused=focused.includes(q);
+    const key=learningMasteryKey(q.subject,q.skill),stage=skillStageByKey(key),ev=evidenceForSkill(q.subject,q.skill),bucket=learningBucket(stage,ev),mist=Number(state.skillMistakes[key]||0),focus=q._focused?-.28:0;
+    q._adaptive={stage,bucket,score:bucketBias(bucket)-Math.min(.7,mist*.12)+focus+Math.random()*.1};pool.push(q);
   }
   if(!pool.length)return [];
-  ensureLearningState();
-  const ranked=pool.map((q,i)=>{
-    const key=learningMasteryKey(q.subject,q.skill),mist=Number(state.skillMistakes[key]||0),last=Number(state.skillLastSeen[key]||0);
-    const focusBonus=q._focused?-.55:0,novelty=last?0:.22;
-    return {q,score:skillLevel(key)-Math.min(.8,mist*.14)+focusBonus+novelty+i*.001+Math.random()*.08};
-  }).sort((a,b)=>a.score-b.score).map(x=>x.q);
-  const warm=ranked.find(q=>q.type==='learning-choice'&&(q.visual||skillLevel(learningMasteryKey(q.subject,q.skill))>0))||ranked.find(q=>q.type==='learning-choice')||ranked[0];
-  return [warm,...ranked.filter(q=>q!==warm)].slice(0,5);
+  pool.sort((a,b)=>a._adaptive.score-b._adaptive.score);
+  const chosen=[],used=new Set(),types=new Set();
+  const add=q=>{const sig=questionIdentity(q);if(!q||used.has(sig)||chosen.length>=5)return false;chosen.push(q);used.add(sig);types.add(q.type);return true};
+  const warm=pool.find(q=>q.type==='learning-choice'&&(q.visual||q._adaptive.stage!=='new'))||pool.find(q=>q.type==='learning-choice')||pool[0];
+  add(warm);
+  const take=(bucket,limit)=>{
+    for(const q of pool){if(chosen.length>=5||limit<=0)break;if(q._adaptive.bucket!==bucket)continue;if(add(q))limit--}
+  };
+  take('review',1);take('active',2);take('new',1);
+  for(const q of pool){
+    if(chosen.length>=5)break;
+    // When scores are close, prefer a different interaction type.
+    if(types.has(q.type)&&pool.some(x=>!used.has(questionIdentity(x))&&!types.has(x.type)&&Math.abs(x._adaptive.score-q._adaptive.score)<.45))continue;
+    add(q);
+  }
+  for(const q of pool){if(chosen.length>=5)break;add(q)}
+  return chosen.slice(0,5);
 }
 function startLearningSession(subject,module,label){
   sessionScope={type:'subject',subject,module:module||null,label:(SUBJECTS[subject]?.title||subject)+' · '+(label||'Blandet'),grade:currentGrade()};
@@ -1689,8 +1739,19 @@ function resumeLastActivity(){
   if(a.kind==='geography-theme'){geoTheme=a.theme||'country';syncGeoThemeButtons();startGeographyTheme();return}
 }
 
+
+function dueReviewSubject(){
+  const due=[];
+  for(const [key,ev] of Object.entries(state.skillEvidence||{})){
+    const subject=key.split(':')[0],stage=skillStageByKey(key);if(reviewDue(stage,ev))due.push(subject);
+  }
+  if(Object.values(state.masteryEvidence||{}).some((ev)=>reviewDue(evidenceStage(ev,0,1),ev)))due.push('geography');
+  return due[0]||null;
+}
 function recommendedStarter(){
-  const g=currentGrade();
+  const g=currentGrade(),review=dueReviewSubject();
+  if(review==='geography')return {title:'Geografi · liten repetisjon',copy:'Noe du kunne før er klart for å hentes fram igjen.',action:()=>{geoTheme='country';syncGeoThemeButtons();startGeographyTheme()}};
+  if(review&&SUBJECTS[review]){const s=SUBJECTS[review];return {title:s.title+' · repetisjon',copy:'En ferdighet er moden for en kort repetisjon.',action:()=>{openSubject(review);startLearningSession(review,null,s.mission)}}}
   if(state.lastActivity)return {title:activityTitle(state.lastActivity),copy:activityCopy(state.lastActivity),action:resumeLastActivity};
   if(g<=2)return {title:'Geografi · Norden',copy:'Start med kjente land, flagg og kart.',action:()=>{geoTheme='country';syncGeoThemeButtons();startGeographyTheme()}};
   if(g<=4)return {title:'Geografi · Land',copy:'Fem korte spørsmål på nivået ditt.',action:()=>{geoTheme='country';syncGeoThemeButtons();startGeographyTheme()}};
