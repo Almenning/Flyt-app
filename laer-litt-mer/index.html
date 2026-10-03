@@ -559,6 +559,63 @@
     }
         @media (max-width:370px){h1{font-size:30px}.question{font-size:27px}.grade-grid{grid-template-columns:repeat(5,1fr)}.home-subject-grid{gap:9px}.home-subject{padding:15px 13px;min-height:168px}}
 
+    /* Illustration-led home dashboard, derived from the approved grade concepts. */
+    .home-progress-banner{display:flex;align-items:center;gap:12px;margin:10px 0 14px;padding:12px 14px;border-radius:22px;background:rgba(255,255,255,.88);border:2px solid rgba(255,255,255,.96);box-shadow:0 7px 0 rgba(70,72,115,.04),0 14px 24px rgba(65,64,104,.06)}
+    .home-progress-star{width:45px;height:45px;flex:0 0 auto;border-radius:16px;display:grid;place-items:center;background:#FFF1B0;font-size:25px;box-shadow:inset 0 -4px 0 rgba(218,160,55,.11)}
+    .home-progress-main{min-width:0;flex:1}.home-progress-main strong{display:block;font-size:13px;font-weight:950;color:#384663;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .home-progress-track{height:9px;margin-top:7px;border-radius:999px;background:#E8EAF0;overflow:hidden}.home-progress-track i{display:block;width:0;height:100%;border-radius:inherit;background:linear-gradient(90deg,#5CC18E,#6BD0AE);transition:width .4s ease}
+    .home-progress-banner>span{font-size:11px;font-weight:900;color:#65718A;white-space:nowrap}
+    .home-subject-art{height:82px;margin:-17px -15px 0;border-radius:24px 24px 16px 16px;overflow:hidden;position:relative;box-shadow:inset 0 -1px 0 rgba(255,255,255,.45)}
+    .home-subject-art svg{display:block;width:100%;height:100%;object-fit:cover}
+    .home-subject .home-subject-icon{position:absolute;right:11px;top:61px;width:42px;height:42px;border:3px solid rgba(255,255,255,.9);z-index:2}
+    .home-subject strong{margin-top:11px}
+    .grade-band-young .home-subject{padding-top:17px;text-align:left;align-items:stretch;min-height:214px}
+    .grade-band-young .home-subject-art{height:96px;margin:-17px -15px 0;border-radius:29px 29px 17px 17px}
+    .grade-band-young .home-subject .home-subject-icon{display:grid;top:72px;width:46px;height:46px;border-radius:16px;font-size:24px}
+    .grade-band-young .home-subject strong{font-size:19px;margin-top:11px}.grade-band-young .home-subject p{display:block;font-size:11px;line-height:1.3;margin-top:3px}
+    .grade-band-young .home-subject-progress{display:inline-flex;align-self:flex-start;padding:5px 8px;border-radius:999px;background:rgba(255,255,255,.72);margin-top:8px}
+    .grade-band-middle .home-subject{min-height:205px}.grade-band-middle .home-subject-art{height:90px}.grade-band-middle .home-subject .home-subject-icon{top:66px}
+    .grade-band-older .home-subject-art{height:67px;margin:-16px -15px 0;border-radius:20px 20px 12px 12px;filter:saturate(.72)}
+    .grade-band-older .home-subject .home-subject-icon{top:48px;right:10px;width:37px;height:37px;font-size:15px}
+    .grade-band-older .home-subject{min-height:177px}
+    .grade-band-teen .home-subject-art{height:55px;margin:-15px -15px 0;border-radius:15px 15px 9px 9px;filter:saturate(.55) contrast(.94)}
+    .grade-band-teen .home-subject .home-subject-icon{top:39px;right:10px;width:34px;height:34px;border-width:2px;font-size:11px}
+    .grade-band-teen .home-subject{min-height:157px}
+
+    .grade-band-young .app{background:radial-gradient(circle at 10% 5%,rgba(255,223,106,.55) 0 38px,transparent 39px),radial-gradient(circle at 92% 13%,rgba(255,151,184,.24) 0 62px,transparent 63px),linear-gradient(180deg,#DFF4FF 0,#F3F0FF 31%,#FFF8E7 66%,#EFF9F3 100%)}
+    .grade-band-young .brand{font-size:25px;background:linear-gradient(90deg,#3479E7 0 19%,#F06450 20% 39%,#43A75B 40% 58%,#E75B9B 59% 78%,#7857D8 79%);-webkit-background-clip:text;background-clip:text;color:transparent;letter-spacing:-.055em}
+    .grade-band-young .top{padding-top:16px}.grade-band-young .avatar{border-radius:50%;background:linear-gradient(145deg,#F4B35E,#E9894F);box-shadow:0 6px 0 rgba(153,100,43,.12),0 12px 22px rgba(75,63,89,.12)}
+    .grade-band-young .home-intro{padding:3px 2px 0}.grade-band-young .home-intro .eyebrow{font-size:11px;color:#5F70A4}.grade-band-young .home-intro h1{font-size:31px;margin-top:7px}.grade-band-young .home-intro .hero-copy{font-size:14px;margin-bottom:8px}
+    .grade-band-young .home-progress-banner{background:rgba(255,255,255,.92);border-radius:24px}
+    .grade-band-young .home-story-scene{min-height:224px;border-radius:32px}.grade-band-young .story-globe-button{width:112px;height:112px;right:36px;bottom:28px}.grade-band-young .story-copy{width:58%}.grade-band-young .story-copy strong{font-size:23px}.grade-band-young .story-note{font-size:9px}
+    .grade-band-young .young-knowledge{background:rgba(255,255,255,.86);backdrop-filter:blur(8px)}
+    .grade-band-young .home-continue{background:linear-gradient(145deg,#6F80F4,#8B6DE7)}
+    .grade-band-young .section-title{margin-top:20px}
+    .grade-band-young .home-subject.geography,.grade-band-young .home-subject.norwegian,.grade-band-young .home-subject.math,.grade-band-young .home-subject.english{background:rgba(255,255,255,.82)}
+    .grade-band-young .home-subject:after{display:none}
+
+    .grade-band-middle .home-progress-banner{border-color:#E4F3EF;background:#F9FFFD}.grade-band-middle .home-progress-star{background:#DDF5EE}
+    .grade-band-middle .home-progress-track i{background:linear-gradient(90deg,#3C9A7A,#57B5A7)}
+    .grade-band-middle .home-subject.geography,.grade-band-middle .home-subject.norwegian,.grade-band-middle .home-subject.math,.grade-band-middle .home-subject.english{background:#fff}
+    .grade-band-middle .home-story-scene{min-height:192px}
+
+    .grade-band-older .home-progress-banner{border:1px solid #E1E7EF;border-radius:18px;background:#fff;box-shadow:0 5px 14px rgba(48,62,91,.05)}.grade-band-older .home-progress-star{width:40px;height:40px;border-radius:12px;background:#EEF2F6;font-size:19px;box-shadow:none}.grade-band-older .home-progress-track{height:7px}.grade-band-older .home-progress-track i{background:#59779B}
+    .grade-band-teen .home-progress-banner{border:1px solid #DDE4EE;border-radius:15px;background:#fff;box-shadow:none;padding:10px 12px}.grade-band-teen .home-progress-star{width:38px;height:38px;border-radius:10px;background:#E7EDF5;font-size:17px;box-shadow:none}.grade-band-teen .home-progress-track{height:6px}.grade-band-teen .home-progress-track i{background:#355B7A}.grade-band-teen .home-progress-main strong{font-size:12px}
+
+    @media (min-width:700px){
+      .app{width:min(100%,900px)}
+      .top{padding-left:30px;padding-right:30px}.screen{padding-left:30px;padding-right:30px}
+      .nav{width:min(100%,900px)}
+      .home-subject-grid{grid-template-columns:repeat(4,1fr);gap:14px}
+      .grade-band-young .home-subject,.grade-band-middle .home-subject{min-height:225px}
+      .grade-band-young .home-subject-art,.grade-band-middle .home-subject-art{height:110px}
+      .grade-band-young .home-subject .home-subject-icon,.grade-band-middle .home-subject .home-subject-icon{top:84px}
+      .home-story-scene{min-height:245px}.grade-band-older .home-story-scene{min-height:190px}.grade-band-teen .home-story-scene{min-height:155px}
+      .story-copy{padding-left:28px;padding-top:28px}.story-copy strong{font-size:27px}.story-copy p{font-size:14px;max-width:330px}
+      .grade-band-young .story-globe-button{width:145px;height:145px;right:70px;bottom:36px}.grade-band-middle .story-globe-button{width:124px;height:124px;right:70px;bottom:34px}
+      .home-week{grid-template-columns:repeat(3,1fr)}
+    }
+
     /* Lightweight illustrated home scene. Shared structure, calmer as grade level rises. */
     .home-story-scene{position:relative;min-height:194px;margin:14px 0 18px;border-radius:31px;overflow:hidden;background:linear-gradient(180deg,#DDF4FF 0%,#EDF2FF 54%,#EAF7E7 55%,#DDF1D8 100%);border:3px solid rgba(255,255,255,.96);box-shadow:0 9px 0 rgba(70,72,115,.05),0 18px 34px rgba(65,64,104,.08)}
     .home-story-scene:before{content:"";position:absolute;left:-30px;right:-50px;bottom:-58px;height:132px;border-radius:50% 50% 0 0;background:#A8D39B;transform:rotate(-2deg)}
@@ -620,6 +677,7 @@
   <!-- norwegian-content-depth-2026-10-03 -->
   <!-- young-learning-game-polish-2026-10-03 -->
   <!-- grade-adaptive-visual-system-v2-2026-10-03 -->
+  <!-- illustration-led-home-v1-2026-10-03 -->
 </head>
 <body>
 <div class="app">
@@ -634,6 +692,15 @@
         <div class="eyebrow" id="home-greeting">Hei 👋</div>
         <h1 id="home-title">Hva vil du lære i dag? ✨</h1>
         <p class="hero-copy" id="home-copy">Velg et fag, fortsett der du slapp og se kunnskapen vokse litt etter litt.</p>
+      </div>
+
+      <div class="home-progress-banner" id="home-progress-banner" aria-label="Fremgang siste sju dager">
+        <div class="home-progress-star" aria-hidden="true">⭐</div>
+        <div class="home-progress-main">
+          <strong id="home-progress-cheer">Du er kjempeflink!</strong>
+          <div class="home-progress-track" aria-hidden="true"><i id="home-progress-fill"></i></div>
+        </div>
+        <span id="home-progress-text">0 økter</span>
       </div>
 
       <div class="home-story-scene" id="home-story-scene" aria-label="Din læringsverden">
@@ -683,24 +750,36 @@
       <div class="section-title young-explore-title"><h3 id="home-subject-title">Fag</h3><span id="home-grade-label">3. klasse</span></div>
       <div class="home-subject-grid" aria-label="Velg fag">
         <button class="home-subject geography" id="open-geography" type="button">
+          <div class="home-subject-art" aria-hidden="true">
+            <svg viewBox="0 0 180 92" role="img"><defs><linearGradient id="gGeo" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#78D8F1"/><stop offset="1" stop-color="#CFF1F4"/></linearGradient></defs><rect width="180" height="92" rx="18" fill="url(#gGeo)"/><circle cx="149" cy="20" r="11" fill="#FFE17A"/><path d="M0 75L39 35l19 19 24-34 42 55z" fill="#6BAE78"/><path d="M44 38l14 16 24-34 15 25-13-9-8 10-11-7-9 10z" fill="#F5FBFF"/><path d="M0 73c32-10 49 10 82 0s60-4 98 4v15H0z" fill="#58B9D0"/><path d="M20 75c14-6 30-6 42 1-15 1-29 5-40 11z" fill="#F8D46A"/><g transform="translate(122 49)"><circle r="18" fill="#FFF" opacity=".96"/><circle r="13" fill="#F4F7FA"/><path d="M0-10L4 0 0 10-4 0z" fill="#EA6A63"/><path d="M-10 0L0-4 10 0 0 4z" fill="#4267B1"/><circle r="3" fill="#FFF"/></g></svg>
+          </div>
           <div class="home-subject-icon">🌍</div>
           <strong>Geografi</strong>
           <p>Land, hovedsteder, flagg og verden.</p>
           <div class="home-subject-progress" id="topic-geography-progress">Start</div>
         </button>
         <button class="home-subject norwegian" id="open-norwegian" type="button">
+          <div class="home-subject-art" aria-hidden="true">
+            <svg viewBox="0 0 180 92" role="img"><defs><linearGradient id="gNor" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FFB1C2"/><stop offset="1" stop-color="#FFE5C8"/></linearGradient></defs><rect width="180" height="92" rx="18" fill="url(#gNor)"/><path d="M35 23q27-10 49 6v43q-21-15-49-4z" fill="#FFF"/><path d="M145 23q-27-10-49 6v43q21-15 49-4z" fill="#FFF7F0"/><path d="M90 31v42" stroke="#D99AA7" stroke-width="3"/><path d="M46 37h28M46 47h25M106 37h28M106 47h23" stroke="#D6A9B3" stroke-width="4" stroke-linecap="round"/><g transform="translate(118 59) rotate(-28)"><rect x="-4" y="-20" width="8" height="40" rx="4" fill="#6C75E5"/><path d="M-4 20h8l-4 9z" fill="#F3B15B"/></g><circle cx="33" cy="22" r="6" fill="#FFF0A8"/><circle cx="151" cy="20" r="4" fill="#FFF" opacity=".75"/></svg>
+          </div>
           <div class="home-subject-icon">📖</div>
           <strong>Norsk</strong>
           <p>Lesing, ord, staving og språk.</p>
           <div class="home-subject-progress" id="topic-norwegian-progress">Start</div>
         </button>
         <button class="home-subject math" id="open-math" type="button">
+          <div class="home-subject-art" aria-hidden="true">
+            <svg viewBox="0 0 180 92" role="img"><defs><linearGradient id="gMath" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#BFA8FF"/><stop offset="1" stop-color="#F1C3FF"/></linearGradient></defs><rect width="180" height="92" rx="18" fill="url(#gMath)"/><rect x="34" y="18" width="48" height="60" rx="12" fill="#FFD765"/><rect x="42" y="25" width="32" height="15" rx="5" fill="#EEF5FF"/><g fill="#FFF"><rect x="42" y="47" width="9" height="9" rx="3"/><rect x="56" y="47" width="9" height="9" rx="3"/><rect x="42" y="61" width="9" height="9" rx="3"/><rect x="56" y="61" width="9" height="9" rx="3"/></g><path d="M112 30v34M95 47h34" stroke="#527BEA" stroke-width="9" stroke-linecap="round"/><text x="143" y="64" text-anchor="middle" font-size="27" font-weight="900" fill="#FFF">3</text><circle cx="145" cy="24" r="8" fill="#FFF" opacity=".35"/></svg>
+          </div>
           <div class="home-subject-icon">➗</div>
           <strong>Matte</strong>
           <p>Tall, regning og problemløsing.</p>
           <div class="home-subject-progress" id="topic-math-progress">Start</div>
         </button>
         <button class="home-subject english" id="open-english" type="button">
+          <div class="home-subject-art" aria-hidden="true">
+            <svg viewBox="0 0 180 92" role="img"><defs><linearGradient id="gEng" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FF9B88"/><stop offset="1" stop-color="#FFD086"/></linearGradient></defs><rect width="180" height="92" rx="18" fill="url(#gEng)"/><g transform="translate(36 15)"><rect x="0" y="12" width="40" height="52" rx="4" fill="#D9C9A2"/><rect x="9" y="0" width="22" height="18" rx="3" fill="#E7D9B5"/><circle cx="20" cy="28" r="9" fill="#FFF"/><path d="M20 22v7l5 3" stroke="#44516A" stroke-width="2.5" stroke-linecap="round"/></g><g transform="translate(95 28)"><rect width="50" height="34" rx="5" fill="#3156A3"/><path d="M0 0l50 34M50 0L0 34" stroke="#FFF" stroke-width="7"/><path d="M0 0l50 34M50 0L0 34" stroke="#E95059" stroke-width="3"/><path d="M25 0v34M0 17h50" stroke="#FFF" stroke-width="10"/><path d="M25 0v34M0 17h50" stroke="#E95059" stroke-width="5"/></g><rect x="116" y="8" width="45" height="22" rx="11" fill="#FFF"/><text x="138" y="23" text-anchor="middle" font-size="12" font-weight="900" fill="#44516A">Hello!</text></svg>
+          </div>
           <div class="home-subject-icon">🇬🇧</div>
           <strong>Engelsk</strong>
           <p>Words, sentences and reading.</p>
@@ -1450,8 +1529,8 @@ function renderAll(){
   const grade=currentGrade(),cfg=gradeConfig(),known=knownCountryCount(),nordicPct=pctFor(NORDIC_IDS),young=grade<=2,band=gradeBand();
   applyGradeDesign();
   const tone={
-    young:{title:'Klar for et lite oppdrag? 🌟',copy:'Klar én kort økt. Så har du lært litt mer enn da du startet.',subject:'Utforsk mer',pEye:'Det du kan',pTitle:'Dette kan du! ⭐',pCopy:'Her samler du det du lærer. Samlingen vokser litt etter litt.',nav:'Det jeg kan',avatar:'🦊',icons:{geography:'🌍',norwegian:'📖',math:'➗',english:'🇬🇧'}},
-    middle:{title:'Hva vil du oppdage i dag? 🧭',copy:'Utforsk, løs oppdrag og se kunnskapen vokse mens du lærer.',subject:'Velg fag',pEye:'Din oppdagelsesreise',pTitle:'Se hva du har lært',pCopy:'Her ser du det du har oppdaget, øvd på og fått bedre tak på.',nav:'Fremgang',avatar:'🧭',icons:{geography:'🌍',norwegian:'📚',math:'✖️',english:'💬'}},
+    young:{title:'Hei! 👋',copy:'Klar for nye eventyr? Velg et fag eller fortsett læringsreisen din.',subject:'Velg et eventyr',pEye:'Det du kan',pTitle:'Dette kan du! ⭐',pCopy:'Her samler du det du lærer. Samlingen vokser litt etter litt.',nav:'Det jeg kan',avatar:'🦊',icons:{geography:'🌍',norwegian:'📖',math:'➗',english:'🇬🇧'}},
+    middle:{title:'Hei! 👋',copy:'Klar for nye utfordringer? Utforsk, løs oppdrag og bygg videre.',subject:'Velg fag',pEye:'Din oppdagelsesreise',pTitle:'Se hva du har lært',pCopy:'Her ser du det du har oppdaget, øvd på og fått bedre tak på.',nav:'Fremgang',avatar:'🧭',icons:{geography:'🌍',norwegian:'📚',math:'✖️',english:'💬'}},
     older:{title:'Hva vil du bli bedre på i dag?',copy:'Velg et fag og bygg kunnskap med korte økter og tydelig fremgang.',subject:'Dine fag',pEye:'Din fremgang',pTitle:'Kunnskap du bygger',pCopy:'Følg hva du mestrer, hva du øver på og hva som er smart å repetere.',nav:'Fremgang',avatar:'🌐',icons:{geography:'🌐',norwegian:'Aa',math:'∑',english:'EN'}},
     teen:{title:'Fortsett fremgangen din',copy:'Fortsett der du slapp, eller velg et fag og jobb videre mot neste mål.',subject:'Fag',pEye:'Oversikt',pTitle:'Fremgang og mestring',pCopy:'Se aktivitet, mestring og områder som er klare for videre arbeid.',nav:'Fremgang',avatar:'◎',icons:{geography:'GEO',norwegian:'NO',math:'∑',english:'EN'}}
   }[band];
@@ -1483,6 +1562,11 @@ function renderAll(){
   document.getElementById('home-week-new').textContent=a7.filter(a=>a.strengthened||a.newlyMastered).length;
   document.getElementById('home-week-answers').textContent=a7.length;
   document.getElementById('home-week-days').textContent=learningDaysLast7();
+  const recentSessions=last7Sessions().length,progressTarget=5,progressPct=Math.min(100,Math.round(recentSessions/progressTarget*100));
+  const progressFill=document.getElementById('home-progress-fill'),progressText=document.getElementById('home-progress-text'),progressCheer=document.getElementById('home-progress-cheer');
+  if(progressFill)progressFill.style.width=progressPct+'%';
+  if(progressText)progressText.textContent=recentSessions+' '+(recentSessions===1?'økt':'økter');
+  if(progressCheer)progressCheer.textContent=band==='young'?(recentSessions?'Du er kjempeflink!':'Klar for første stjerne?'):band==='middle'?(recentSessions>=3?'Godt i gang!':'Bygg læringsreisen din'):band==='older'?'Fremgang siste 7 dager':'Aktivitet siste 7 dager';
   const languageSkills=subjectMasteredSkills('norwegian')+subjectMasteredSkills('english'),mathSkills=subjectMasteredSkills('math');
   document.getElementById('young-world-count').textContent=known;
   document.getElementById('young-words-count').textContent=languageSkills;
