@@ -2410,7 +2410,7 @@ function renderHomeContinue(){
     return;
   }
   const rec=recommendedStarter(),young=currentGrade()<=2,goal=dailyGoal();
-  eye.textContent=young?(goal.done>=goal.target?'Dagens oppdrag fullført':'Dagens oppdrag'):'Anbefalt nå';
+  eye.textContent=young?(goal.done>=goal.target?'Dagens oppdrag fullført':'Anbefalt nå'):'Anbefalt nå';
   document.getElementById('home-continue-title').textContent=young?(goal.done>=goal.target?'Du klarte det! ⭐':rec.title):rec.title;
   document.getElementById('home-continue-copy').textContent=young?(goal.done>=goal.target?'Du har gjort dagens lille oppdrag. Nå kan du utforske fritt, eller være ferdig.':rec.copy):rec.copy;
   document.getElementById('home-continue-button').textContent=young?(goal.done>=goal.target?'Utforsk litt til 🌍':'Start oppdraget ⭐'):'Start en liten økt 🚀';
