@@ -114,13 +114,22 @@ async function finishSession(page){
     assert.equal(await page.locator('#home-continue-wrap').isVisible(),true);
     assert.match(await page.locator('#home-continue-eyebrow').textContent(),/Anbefalt nå|Fortsett der du slapp/);
 
-    // Daily goal rewards effort, not correctness.
+    // Daily goal is session-based: answers alone do not complete it, one finished session does.
     await page.evaluate(()=>{
       state.answerLog.push({at:Date.now(),subject:'math',skill:'test-effort',type:'learning-choice',questionKey:'effort-test-1',correct:false});
       renderAll();
     });
-    assert.equal((await page.locator('#daily-goal-count').textContent()).trim(),'1 av 3');
-    await page.evaluate(()=>{state.answerLog=state.answerLog.filter(a=>a.questionKey!=='effort-test-1');saveState();renderAll()});
+    assert.equal((await page.locator('#daily-goal-count').textContent()).trim(),'0 av 1');
+    await page.evaluate(()=>{
+      state.sessionLog.push({endedAt:Date.now(),correct:0,total:5,strengthened:0,area:'Test'});
+      renderAll();
+    });
+    assert.equal((await page.locator('#daily-goal-count').textContent()).trim(),'1 av 1');
+    await page.evaluate(()=>{
+      state.answerLog=state.answerLog.filter(a=>a.questionKey!=='effort-test-1');
+      state.sessionLog=state.sessionLog.filter(s=>s.area!=='Test');
+      saveState();renderAll();
+    });
 
     // Word builder must support free placement, return-to-bank, editing and last-letter-first input.
     await page.evaluate(()=>{
