@@ -285,6 +285,23 @@ async function finishSession(page){
     assert.ok(mathVariety.includes('number-input'),'grade 2 math should include typed answers');
     assert.ok(mathVariety.includes('sequence-order'),'grade 2 math should include ordering');
     await page.locator('#open-math').click();
+    assert.equal(await page.locator('#journey-map').isVisible(),true);
+    assert.ok(await page.locator('#journey-map .journey-area').count()>=2,'math journey should have multiple areas');
+    assert.ok(await page.locator('#journey-map [data-journey-node]').count()>=6,'math journey should expose real path nodes');
+    assert.match(await page.locator('#journey-map').innerText(),/Neste for deg/);
+
+    const nextMathNode=await page.evaluate(()=>journeyRecommendedNode('math',2)?.id);
+    assert.ok(nextMathNode,'missing recommended math journey node');
+    await page.evaluate(id=>startJourneyNode('math',id),nextMathNode);
+    await page.locator('#session-screen.active').waitFor();
+    const mathJourneySession=await page.evaluate(()=>({type:sessionScope.type,grade:sessionScope.journeyGrade,count:sessionQuestions.length,valid:sessionQuestions.every(validLearningQuestion)}));
+    assert.equal(mathJourneySession.type,'journey');
+    assert.equal(mathJourneySession.grade,2);
+    assert.equal(mathJourneySession.count,5);
+    assert.equal(mathJourneySession.valid,true);
+    await page.locator('#close-session').click();
+    await page.locator('#subject-screen.active').waitFor();
+
     const mathModules=await page.locator('#subject-modules .subject-module strong').allTextContents();
     assert.deepEqual(mathModules,['Tall og regning']);
     // Brøklab is an open experiment space: grade recommends a start, but every variant and level stays available.
@@ -491,6 +508,19 @@ async function finishSession(page){
     // Geography: default Land must work on a young grade.
     await page.locator('#open-geography').click();
     assert.equal(await page.locator('.geo-theme').count(),6);
+    assert.equal(await page.locator('#geo-journey-map').isVisible(),true);
+    assert.ok(await page.locator('#geo-journey-map .journey-area').count()>=1,'geography journey should have areas');
+    assert.ok(await page.locator('#geo-journey-map [data-geo-journey-node]').count()>=4,'geography journey should expose path nodes');
+    const nextGeoNode=await page.evaluate(()=>geoJourneyRecommendedNode()?.id);
+    assert.ok(nextGeoNode,'missing recommended geography journey node');
+    await page.evaluate(id=>startGeoJourneyNode(id),nextGeoNode);
+    await page.locator('#session-screen.active').waitFor();
+    const geoJourneySession=await page.evaluate(()=>({type:sessionScope.type,count:sessionQuestions.length}));
+    assert.equal(geoJourneySession.type,'geo-journey');
+    assert.equal(geoJourneySession.count,5);
+    await page.locator('#close-session').click();
+    await page.locator('#geography-screen.active').waitFor();
+
     await page.locator('#start-geography-theme').click();
     await page.locator('#session-screen.active').waitFor();
     assert.equal(await page.evaluate(()=>sessionQuestions.length),5);
