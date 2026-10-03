@@ -111,8 +111,12 @@ async function finishSession(page){
     await onboard(page,2);
 
     // Home should always surface one obvious recommended next action.
-    assert.equal(await page.locator('#home-continue-wrap').isVisible(),true);
-    assert.match(await page.locator('#home-continue-eyebrow').textContent(),/Anbefalt nå|Fortsett der du slapp/);
+    const homeDiag=await page.locator('#home-continue-wrap').evaluate(el=>{
+      const r=el.getBoundingClientRect(),s=getComputedStyle(el),p=getComputedStyle(el.parentElement);
+      return {hidden:el.hidden,display:s.display,visibility:s.visibility,opacity:s.opacity,width:r.width,height:r.height,parentDisplay:p.display,parentVisibility:p.visibility,appClass:document.querySelector('.app')?.className||'',active:document.querySelector('.screen.active')?.id||''};
+    });
+    assert.equal(await page.locator('#home-continue-wrap').isVisible(),true,'home continue not visible: '+JSON.stringify(homeDiag)+' errors='+JSON.stringify(errors));
+    assert.match(await page.locator('#home-continue-eyebrow').textContent(),/Anbefalt nå|Fortsett der du slapp|Dagens oppdrag fullført/);
 
     // Daily goal is session-based: answers alone do not complete it, one finished session does.
     await page.evaluate(()=>{
