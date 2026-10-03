@@ -286,45 +286,59 @@ async function finishSession(page){
     await page.locator('#open-math').click();
     const mathModules=await page.locator('#subject-modules .subject-module strong').allTextContents();
     assert.deepEqual(mathModules,['Tall og regning']);
-    // Brøklab is a guided sandbox: child lands directly on one board, not a menu of mini-tools.
+    // Brøklab is an open experiment space: grade recommends a start, but every variant and level stays available.
     assert.equal(await page.locator('#math-lab-entry').isVisible(),true);
+    const labBefore=await page.evaluate(()=>({goal:dailyGoal().done,answers:subjectAnswered('math')}));
     await page.locator('#open-fraction-lab').click();
     await page.locator('#fraction-lab-screen.active').waitFor();
-    assert.equal(await page.locator('#fraction-lab-mode .fraction-mode-option').count(),2);
-    assert.equal(await page.locator('#fraction-lab-mode .fraction-mode-option.active').getAttribute('data-fraction-mode'),'mission');
-    assert.match(await page.locator('#fraction-lab-grade').textContent(),/2\. klasse/);
-    assert.match(await page.locator('#fraction-mission-card').innerText(),/halv/i);
-    assert.equal((await page.locator('#fraction-total-value').textContent()).trim(),'1/2');
-    assert.equal(await page.locator('#fraction-basic-pieces .fraction-source').count(),3);
-    assert.equal(await page.locator('#fraction-more-pieces').isVisible(),false);
+    assert.equal((await page.locator('.fraction-lab-head-copy h1').textContent()).trim(),'Brøklab');
+    assert.equal(await page.locator('[data-lab-variant]').count(),5);
+    assert.equal(await page.locator('[data-lab-level]').count(),4);
+    assert.equal(await page.locator('[data-lab-level="0"]').isVisible(),true);
+    assert.equal(await page.locator('[data-lab-level="3"]').isVisible(),true);
+    assert.equal(await page.locator('.lab-fraction-row').count(),9);
+    assert.equal(await page.locator('.lab-circle-source').count(),9);
+    assert.match(await page.locator('.lab-mission').innerText(),/Finn en halv/i);
 
-    // Intro mission starts with 1/2 already on the board. One more 1/2 should visibly complete one whole.
-    await page.locator('[data-frac-den="2"]').first().click();
-    assert.equal((await page.locator('#fraction-total-value').textContent()).trim(),'1');
-    assert.match(await page.locator('#fraction-mission-card').innerText(),/klarte/i);
-    assert.equal(await page.locator('#fraction-next-mission').isVisible(),true);
+    // Young child can solve the recommended discovery directly with a physical-style piece.
+    await page.locator('.lab-piece-bank [data-denom="2"]').click();
+    assert.match(await page.locator('.lab-total-value').innerText(),/1\/2/);
+    await page.locator('#fraction-lab-check').click();
+    assert.match(await page.locator('#fraction-lab-feedback').innerText(),/Du fant det/i);
 
-    // Same construction can be viewed as bars or a circle without losing the child's work.
-    await page.locator('[data-fraction-view="circle"]').click();
-    assert.equal(await page.locator('.fraction-circle').isVisible(),true);
-    assert.equal((await page.locator('#fraction-total-value').textContent()).trim(),'1');
-    await page.locator('[data-fraction-view="bars"]').click();
-    assert.equal(await page.locator('.fraction-whole-track').isVisible(),true);
+    // Harder levels are not locked by grade.
+    await page.locator('[data-lab-level="3"]').click();
+    assert.match(await page.locator('.lab-mission').innerText(),/fem sjettedeler/i);
+    await page.locator('[data-lab-variant="equivalent"]').click();
+    await page.locator('[data-lab-level="1"]').click();
+    assert.match(await page.locator('.lab-mission').innerText(),/Fire åttendedeler/i);
 
-    // Free play removes the task pressure, but still exposes mathematical discoveries.
-    await page.locator('[data-fraction-mode="free"]').click();
-    assert.match(await page.locator('#fraction-mission-card').innerText(),/fri lek/i);
-    await page.locator('[data-frac-den="4"]').first().click();
-    await page.locator('[data-frac-den="4"]').first().click();
-    assert.equal((await page.locator('#fraction-total-value').textContent()).trim(),'1/2');
-    assert.match(await page.locator('#fraction-discovery').innerText(),/1\/2/);
-    await page.locator('#fraction-more-button').click();
-    assert.equal(await page.locator('#fraction-more-pieces').isVisible(),true);
-    const fractionTouchHeights=await page.locator('.fraction-source:visible').evaluateAll(els=>els.map(e=>e.getBoundingClientRect().height));
+    // Comparison is its own experiment variant.
+    await page.locator('[data-lab-variant="compare"]').click();
+    await page.locator('[data-lab-level="0"]').click();
+    await page.locator('.lab-piece-bank [data-denom="2"]').click();
+    await page.locator('.lab-piece-bank [data-denom="4"]').click();
+    await page.locator('[data-prediction=">"]').click();
+    await page.locator('#fraction-lab-check').click();
+    assert.match(await page.locator('#fraction-lab-feedback').innerText(),/Du fant det/i);
+
+    // Free play has no task pressure and can expose fraction, decimal and percent connections on demand.
+    await page.locator('[data-lab-variant="wall"]').click();
+    await page.locator('[data-lab-mode="free"]').click();
+    assert.match(await page.locator('.lab-free-note').innerText(),/Ingen feil/i);
+    await page.locator('.lab-piece-bank [data-denom="4"]').click();
+    await page.locator('.lab-piece-bank [data-denom="4"]').click();
+    assert.match(await page.locator('.lab-total-value').innerText(),/1\/2/);
+    await page.locator('#fraction-lab-connections').click();
+    assert.match(await page.locator('.lab-total-value').innerText(),/0,5/);
+    assert.match(await page.locator('.lab-total-value').innerText(),/50 %/);
+    const fractionTouchHeights=await page.locator('.lab-piece-bank .lab-loose-piece').evaluateAll(els=>els.map(e=>e.getBoundingClientRect().height));
     assert.ok(fractionTouchHeights.every(h=>h>=44),'small fraction touch target: '+fractionTouchHeights.join(','));
 
     await page.locator('#fraction-lab-back').click();
     await page.locator('#subject-screen.active').waitFor();
+    const labAfter=await page.evaluate(()=>({goal:dailyGoal().done,answers:subjectAnswered('math')}));
+    assert.deepEqual(labAfter,labBefore,'Brøklab exploration must not count as a completed test or graded answer');
     assert.equal(await page.locator('#subject-title').textContent(),'Matte');
     await page.locator('#subject-modules .subject-module').click();
     assert.equal(await page.evaluate(()=>sessionQuestions.length),5);
