@@ -467,6 +467,87 @@
     .grade-band-middle{--radius:28px}.grade-band-middle .home-subject{min-height:174px}
     .grade-band-older{--radius:24px}.grade-band-older:before,.grade-band-older:after{opacity:.35}.grade-band-older .home-subject{min-height:157px;border-radius:22px}.grade-band-older .home-subject-icon{width:47px;height:47px;border-radius:15px;font-size:25px}.grade-band-older .question{font-size:28px}.grade-band-older .subject-module{border-radius:19px}
     .grade-band-teen{--radius:20px}.grade-band-teen:before,.grade-band-teen:after{display:none}.grade-band-teen .brand:after{content:""}.grade-band-teen .avatar{width:43px;height:43px;border-radius:14px;font-size:22px}.grade-band-teen .home-subject{min-height:145px;border-radius:19px}.grade-band-teen .home-subject-icon{width:44px;height:44px;border-radius:13px;font-size:23px}.grade-band-teen .question{font-size:27px}.grade-band-teen .subject-module{border-radius:17px}
+    /* Grade-adaptive visual system v2: same learning architecture, progressively more mature presentation. */
+    .grade-band-young .brand:after{content:" ✨"}
+    .grade-band-young #home-grade-label{padding:5px 9px;border-radius:999px;background:#FFF1B9;color:#795A13;font-weight:950}
+    .grade-band-young .home-subject:after{content:"";position:absolute;width:52px;height:52px;border-radius:50%;right:-19px;top:-20px;background:rgba(255,255,255,.34)}
+    .grade-band-young .home-subject.geography{background:linear-gradient(145deg,#DDF5F1,#E9F1FF)}
+    .grade-band-young .home-subject.norwegian{background:linear-gradient(145deg,#FFE4EC,#FFF2DF)}
+    .grade-band-young .home-subject.math{background:linear-gradient(145deg,#FFF0AE,#FFF8D9)}
+    .grade-band-young .home-subject.english{background:linear-gradient(145deg,#E4F6FF,#EEE9FF)}
+    .grade-band-young .home-subject-icon{box-shadow:inset 0 -5px 0 rgba(60,65,100,.05),0 5px 12px rgba(75,76,115,.08)}
+    .grade-band-young .nav{padding-left:18px;padding-right:18px}.grade-band-young .nav button.active{border-radius:20px;background:#EEF0FF}
+
+    .grade-band-middle{--radius:28px;background:
+      radial-gradient(circle at 91% 7%,rgba(89,189,197,.18) 0 54px,transparent 55px),
+      radial-gradient(circle at 9% 19%,rgba(255,207,101,.22) 0 42px,transparent 43px),
+      linear-gradient(180deg,#F7FBF6 0%,#EEF7FF 52%,#F7F4FF 100%)}
+    .grade-band-middle .brand{color:#326B78}.grade-band-middle .brand:after{content:" · OPPDAG";font-size:10px;letter-spacing:.09em;color:#76919B}
+    .grade-band-middle .avatar{background:linear-gradient(145deg,#82D7C5,#54ABC4);box-shadow:0 7px 0 rgba(55,121,132,.12),0 11px 22px rgba(45,91,112,.12);transform:none}
+    .grade-band-middle #home-grade-label{padding:5px 9px;border-radius:999px;background:#E0F2EF;color:#347568;font-weight:950}
+    .grade-band-middle .home-intro h1{max-width:390px}.grade-band-middle .home-intro .hero-copy{max-width:410px}
+    .grade-band-middle .home-story-scene{border-radius:28px;background:linear-gradient(180deg,#DFF5FB 0%,#EAF2FF 53%,#E4F4DF 54%,#CDE8C7 100%);box-shadow:0 8px 0 rgba(57,113,119,.06),0 18px 32px rgba(55,85,110,.09)}
+    .grade-band-middle .home-story-scene:before{background:#9ED19A}.grade-band-middle .home-story-scene:after{background:#65B786}
+    .grade-band-middle .home-continue{background:linear-gradient(145deg,#397F91,#5269C9);box-shadow:0 8px 0 rgba(45,85,115,.13),0 18px 30px rgba(55,84,125,.18)}
+    .grade-band-middle .home-continue:after{content:"🧭";position:absolute;right:17px;top:16px;font-size:29px;opacity:.24;transform:rotate(10deg)}
+    .grade-band-middle .home-continue{position:relative;overflow:hidden}.grade-band-middle .home-continue .primary{color:#3D6484}
+    .grade-band-middle .home-subject{min-height:170px;border-radius:25px;padding:17px 15px;box-shadow:0 6px 0 rgba(56,86,108,.05),0 13px 23px rgba(55,80,103,.06)}
+    .grade-band-middle .home-subject.geography{background:linear-gradient(145deg,#DDF4EA,#EDF8F3)}
+    .grade-band-middle .home-subject.norwegian{background:linear-gradient(145deg,#FFF0E6,#FFF7EF)}
+    .grade-band-middle .home-subject.math{background:linear-gradient(145deg,#EEE9FF,#F7F4FF)}
+    .grade-band-middle .home-subject.english{background:linear-gradient(145deg,#E7F1FF,#F3F7FF)}
+    .grade-band-middle .home-subject-icon{background:rgba(255,255,255,.86);border-radius:17px}
+    .grade-band-middle .daily-goal{background:linear-gradient(145deg,#FEFEF7,#EEF8F6)}.grade-band-middle .daily-goal-dots i.done{background:linear-gradient(90deg,#3C9A7A,#5BBAB1)}
+    .grade-band-middle .home-week .stat{border-radius:20px}
+
+    .grade-band-older{--radius:23px;background:linear-gradient(180deg,#F7F9FC 0%,#F4F6FB 55%,#F8F7FB 100%)}
+    .grade-band-older:before,.grade-band-older:after{display:none}
+    .grade-band-older .brand{color:#33405C}.grade-band-older .brand:after{content:""}
+    .grade-band-older .avatar{background:linear-gradient(145deg,#DCE8F1,#C9D5E5);color:#314260;box-shadow:0 5px 0 rgba(58,75,105,.08);transform:none;border-radius:15px}
+    .grade-band-older #home-grade-label{padding:4px 8px;border-radius:9px;background:#E9EEF6;color:#526078;font-weight:900}
+    .grade-band-older .home-intro h1{font-size:32px}.grade-band-older .home-intro .hero-copy{font-size:14px}
+    .grade-band-older .fox-guide{display:none}
+    .grade-band-older .home-story-scene{min-height:136px;border:1px solid #E3E8F1;background:linear-gradient(145deg,#EAF1F9,#F4F2FA);box-shadow:0 8px 20px rgba(48,62,91,.07)}
+    .grade-band-older .home-story-scene:before,.grade-band-older .home-story-scene:after{opacity:.22}
+    .grade-band-older .story-globe-button{box-shadow:0 7px 18px rgba(48,79,103,.12)}
+    .grade-band-older .home-continue{border:1px solid #DFE5EF;background:linear-gradient(145deg,#FFFFFF,#F0F4FA);color:#27344F;box-shadow:0 8px 20px rgba(48,62,91,.07)}
+    .grade-band-older .home-continue .eyebrow{color:#67759A}.grade-band-older .home-continue p{color:#677189}
+    .grade-band-older .home-continue .primary{background:#334B78;color:#fff;box-shadow:0 5px 0 #25395F,0 9px 16px rgba(43,61,98,.15)}
+    .grade-band-older .home-subject{min-height:154px;border:1px solid #E3E8F1;background:#fff!important;box-shadow:0 6px 16px rgba(48,62,91,.06);padding:16px 15px}
+    .grade-band-older .home-subject:before{content:"";position:absolute;left:0;right:0;top:0;height:4px;background:#91A6C4}
+    .grade-band-older .home-subject.geography:before{background:#58A789}.grade-band-older .home-subject.norwegian:before{background:#D88787}.grade-band-older .home-subject.math:before{background:#8776C9}.grade-band-older .home-subject.english:before{background:#5A8CC8}
+    .grade-band-older .home-subject-icon{width:45px;height:45px;background:#F3F6FA;box-shadow:none;font-size:19px;font-weight:950;color:#384764}
+    .grade-band-older .home-subject strong{margin-top:10px;font-size:17px}.grade-band-older .home-subject p{font-size:11px}
+    .grade-band-older .daily-goal{border:1px solid #E3E8F1;background:#fff;box-shadow:0 5px 14px rgba(48,62,91,.05)}
+    .grade-band-older .home-week .stat{border:1px solid #E4E8EF;border-radius:18px;background:#fff;box-shadow:none}
+    .grade-band-older .subject-hero,.grade-band-older .subject-module,.grade-band-older .subject-progress-card{border:1px solid #E3E8F1;box-shadow:0 5px 14px rgba(48,62,91,.05)}
+    .grade-band-older .answer{border-radius:18px;box-shadow:0 4px 0 #E2E6ED}
+
+    .grade-band-teen{--radius:18px;background:linear-gradient(180deg,#F3F6FA 0%,#F7F8FB 100%);color:#17233B}
+    .grade-band-teen:before,.grade-band-teen:after{display:none}
+    .grade-band-teen .top{padding-top:18px}.grade-band-teen .brand{font-size:19px;letter-spacing:-.025em;color:#182640}.grade-band-teen .brand:after{content:""}
+    .grade-band-teen .avatar{width:42px;height:42px;border:1px solid #DCE3ED;border-radius:12px;background:#1D2D4B;color:#fff;box-shadow:none;transform:none;font-size:17px;font-weight:950}
+    .grade-band-teen #home-grade-label{padding:4px 8px;border-radius:8px;background:#E1E8F2;color:#43516A;font-weight:900}
+    .grade-band-teen .home-intro .eyebrow{color:#64738B}.grade-band-teen .home-intro h1{font-size:30px;letter-spacing:-.035em}.grade-band-teen .home-intro .hero-copy{font-size:14px;max-width:420px}
+    .grade-band-teen .home-story-scene{min-height:116px;border:0;border-radius:18px;background:linear-gradient(135deg,#13213D 0%,#233C63 62%,#2C5770 100%);box-shadow:0 10px 24px rgba(27,43,70,.16)}
+    .grade-band-teen .home-story-scene:before,.grade-band-teen .home-story-scene:after{display:none}
+    .grade-band-teen .story-copy{width:72%;padding:20px 0 0 19px}.grade-band-teen .story-copy strong{font-size:18px;color:#fff}.grade-band-teen .story-copy p{font-size:11px;color:#C8D6E9}.grade-band-teen .story-copy .eyebrow{color:#8FC8D7}
+    .grade-band-teen .story-globe-button{width:70px;height:70px;right:19px;bottom:22px;border-width:3px;opacity:1;box-shadow:0 7px 18px rgba(5,20,39,.24)}
+    .grade-band-teen .home-continue{padding:18px;border-radius:18px;background:linear-gradient(135deg,#1B2948,#2D3C68);box-shadow:0 8px 22px rgba(30,43,75,.15)}
+    .grade-band-teen .home-continue .primary{min-height:50px;border-radius:13px;background:#EEF3FA;color:#22345A;box-shadow:none}
+    .grade-band-teen .home-subject{min-height:144px;border-radius:16px;border:1px solid #DDE4EE;background:#fff!important;box-shadow:0 5px 14px rgba(36,52,81,.05);padding:15px}
+    .grade-band-teen .home-subject:before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:#8294B3}
+    .grade-band-teen .home-subject.geography:before{background:#3E9275}.grade-band-teen .home-subject.norwegian:before{background:#B66B70}.grade-band-teen .home-subject.math:before{background:#6D63B3}.grade-band-teen .home-subject.english:before{background:#4778B5}
+    .grade-band-teen .home-subject-icon{width:41px;height:41px;border-radius:11px;background:#F0F3F8;box-shadow:none;color:#263754;font-size:15px;font-weight:950;letter-spacing:-.02em}
+    .grade-band-teen .home-subject strong{font-size:16px;margin-top:9px}.grade-band-teen .home-subject p{font-size:11px;line-height:1.35}.grade-band-teen .home-subject-progress{font-size:10px;color:#69758A}
+    .grade-band-teen .daily-goal{border:1px solid #DDE4EE;border-radius:17px;background:#fff;box-shadow:none}.grade-band-teen .daily-goal-dots i{height:8px}.grade-band-teen .daily-goal-dots i.done{background:#3E9275}
+    .grade-band-teen .home-week .stat{border:1px solid #DDE4EE;border-radius:15px;background:#fff;box-shadow:none}.grade-band-teen .home-week .stat strong{font-size:19px}
+    .grade-band-teen .nav{border-top:1px solid #DCE3ED;background:rgba(247,249,252,.96)}.grade-band-teen .nav button{border-radius:12px}.grade-band-teen .nav button.active{background:#E5EBF4;color:#2D426B;box-shadow:none}
+    .grade-band-teen .subject-hero,.grade-band-teen .subject-module,.grade-band-teen .subject-progress-card,.grade-band-teen .course,.grade-band-teen .stat{border:1px solid #DDE4EE;box-shadow:none}
+    .grade-band-teen .answer{border-radius:14px;border:1px solid #DDE4EE;box-shadow:0 3px 0 #DFE4EB}.grade-band-teen .question{font-size:26px;letter-spacing:-.025em}
+    .grade-band-teen .qtype{border-radius:8px;background:#E4E9F2;color:#44516A}
+    .grade-band-teen .primary{border-radius:14px}
+
     @media (pointer:coarse){
       .primary,.secondary,.answer,.detail-back,.close,.nav button,.grade-btn,.globe-zoom button{min-height:48px}
       .primary{padding-top:18px;padding-bottom:18px}
@@ -527,6 +608,7 @@
   <!-- globe-known-symbol-fix-2026-10-03 -->
   <!-- norwegian-content-depth-2026-10-03 -->
   <!-- young-learning-game-polish-2026-10-03 -->
+  <!-- grade-adaptive-visual-system-v2-2026-10-03 -->
 </head>
 <body>
 <div class="app">
@@ -1354,18 +1436,26 @@ if(swipeBackEdge){
 syncSwipeBackEdge();
 
 function renderAll(){
-  const grade=currentGrade(),cfg=gradeConfig(),known=knownCountryCount(),nordicPct=pctFor(NORDIC_IDS),young=grade<=2;
+  const grade=currentGrade(),cfg=gradeConfig(),known=knownCountryCount(),nordicPct=pctFor(NORDIC_IDS),young=grade<=2,band=gradeBand();
   applyGradeDesign();
+  const tone={
+    young:{title:'Klar for et lite oppdrag? 🌟',copy:'Klar én kort økt. Så har du lært litt mer enn da du startet.',subject:'Utforsk mer',pEye:'Det du kan',pTitle:'Dette kan du! ⭐',pCopy:'Her samler du det du lærer. Samlingen vokser litt etter litt.',nav:'Det jeg kan',avatar:'🦊',icons:{geography:'🌍',norwegian:'📖',math:'➗',english:'🇬🇧'}},
+    middle:{title:'Hva vil du oppdage i dag? 🧭',copy:'Utforsk, løs oppdrag og se kunnskapen vokse mens du lærer.',subject:'Velg fag',pEye:'Din oppdagelsesreise',pTitle:'Se hva du har lært',pCopy:'Her ser du det du har oppdaget, øvd på og fått bedre tak på.',nav:'Fremgang',avatar:'🧭',icons:{geography:'🌍',norwegian:'📚',math:'✖️',english:'💬'}},
+    older:{title:'Hva vil du bli bedre på i dag?',copy:'Velg et fag og bygg kunnskap med korte økter og tydelig fremgang.',subject:'Dine fag',pEye:'Din fremgang',pTitle:'Kunnskap du bygger',pCopy:'Følg hva du mestrer, hva du øver på og hva som er smart å repetere.',nav:'Fremgang',avatar:'🌐',icons:{geography:'🌐',norwegian:'Aa',math:'∑',english:'EN'}},
+    teen:{title:'Fortsett fremgangen din',copy:'Fortsett der du slapp, eller velg et fag og jobb videre mot neste mål.',subject:'Fag',pEye:'Oversikt',pTitle:'Fremgang og mestring',pCopy:'Se aktivitet, mestring og områder som er klare for videre arbeid.',nav:'Fremgang',avatar:'◎',icons:{geography:'GEO',norwegian:'NO',math:'∑',english:'EN'}}
+  }[band];
   const lastAt=lastLearningAt(),away=lastAt&&Date.now()-lastAt>48*60*60*1000;
   document.getElementById('home-greeting').textContent=away?'Hyggelig å se deg igjen 👋':'Hei 👋';
-  document.getElementById('home-title').textContent=young?'Klar for et lite oppdrag? 🌟':'Hva vil du lære i dag? ✨';
-  document.getElementById('home-copy').textContent=young?'Klar én kort økt. Så har du lært litt mer enn da du startet.':'Velg et fag, fortsett der du slapp og se kunnskapen vokse litt etter litt.';
-  document.getElementById('home-subject-title').textContent=young?'Utforsk mer':'Fag';
-  document.getElementById('progress-eyebrow').textContent=young?'Det du kan':'Din fremgang';
-  document.getElementById('progress-title').textContent=young?'Dette kan du! ⭐':'Se alt du har lært! 🌟';
-  document.getElementById('progress-copy').textContent=young?'Her samler du det du lærer. Samlingen vokser litt etter litt.':'Her vokser kunnskapen din litt etter litt.';
+  document.getElementById('home-title').textContent=tone.title;
+  document.getElementById('home-copy').textContent=tone.copy;
+  document.getElementById('home-subject-title').textContent=tone.subject;
+  document.getElementById('progress-eyebrow').textContent=tone.pEye;
+  document.getElementById('progress-title').textContent=tone.pTitle;
+  document.getElementById('progress-copy').textContent=tone.pCopy;
   document.getElementById('nav-home-label').textContent='Hjem';
-  document.getElementById('nav-progress-label').textContent=young?'Det jeg kan':'Fremgang';
+  document.getElementById('nav-progress-label').textContent=tone.nav;
+  const avatar=document.querySelector('.avatar');if(avatar)avatar.textContent=tone.avatar;
+  Object.entries(tone.icons).forEach(([subject,icon])=>{const el=document.querySelector('.home-subject.'+subject+' .home-subject-icon');if(el)el.textContent=icon});
   document.getElementById('home-grade-label').textContent=cfg.label;
   const adultGrade=document.getElementById('adult-grade');if(adultGrade)adultGrade.value=String(grade);
   document.getElementById('norden-pct').textContent=nordicPct+' %';
@@ -1985,8 +2075,9 @@ function renderFoxGuide(){
   const goal=dailyGoal();
   if(goal.done>=goal.target){title.textContent='Dagens lille mål er i boks';copy.textContent='Resten er bonus. Det er lov å være ferdig.';return}
   if(goal.done>0){title.textContent='Dagens lille mål er i boks';copy.textContent='Resten er bonus. Det er lov å være ferdig.';return}
-  title.textContent=currentGrade()<=2?'Jeg har et lite oppdrag til deg 🦊':'Klar for litt mer?';
-  copy.textContent=currentGrade()<=2?'Fem små utfordringer. Jeg starter med noe du har god sjanse til å klare.':'Én liten økt er nok. Resten er bonus.';
+  const band=gradeBand();
+  title.textContent=band==='young'?'Jeg har et lite oppdrag til deg 🦊':band==='middle'?'Klar for et nytt oppdrag? 🧭':'Klar for litt mer?';
+  copy.textContent=band==='young'?'Fem små utfordringer. Jeg starter med noe du har god sjanse til å klare.':band==='middle'?'Velg ett fag og ta et kort oppdrag. Du ser fremgangen med en gang.':'Én liten økt er nok. Resten er bonus.';
 }
 function syncGeoThemeButtons(){
   document.querySelectorAll('.geo-theme').forEach(x=>x.classList.toggle('active',x.dataset.geoTheme===geoTheme));
