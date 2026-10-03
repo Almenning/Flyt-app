@@ -340,6 +340,60 @@ async function finishSession(page){
     const labAfter=await page.evaluate(()=>({goal:dailyGoal().done,answers:subjectAnswered('math')}));
     assert.deepEqual(labAfter,labBefore,'Brøklab exploration must not count as a completed test or graded answer');
     assert.equal(await page.locator('#subject-title').textContent(),'Matte');
+
+    // Gangetabell-lab is also open across grades and teaches multiplication visually, not as a locked drill.
+    assert.equal(await page.locator('#open-multiplication-lab').isVisible(),true);
+    const multBefore=await page.evaluate(()=>({goal:dailyGoal().done,answers:subjectAnswered('math')}));
+    await page.locator('#open-multiplication-lab').click();
+    await page.locator('#multiplication-lab-screen.active').waitFor();
+    assert.equal((await page.locator('.mult-lab-head-copy h1').textContent()).trim(),'Gangetabell-lab');
+    assert.equal(await page.locator('[data-mult-variant]').count(),5);
+    assert.equal(await page.locator('[data-mult-level]').count(),4);
+    assert.equal(await page.locator('[data-mult-level="3"]').isVisible(),true);
+    assert.match(await page.locator('.mult-mission').innerText(),/Tre grupper med to/i);
+    assert.match(await page.locator('.mult-equation').innerText(),/3 × 2 = 6/);
+    assert.equal(await page.locator('.mult-group').count(),3);
+    assert.equal(await page.locator('.mult-group .mult-dot').count(),6);
+
+    await page.locator('[data-mult-answer="6"]').click();
+    await page.locator('#mult-lab-check').click();
+    assert.match(await page.locator('#mult-lab-feedback').innerText(),/Du fant det/i);
+
+    // A young child can deliberately jump to the hardest level.
+    await page.locator('[data-mult-level="3"]').click();
+    assert.match(await page.locator('.mult-mission').innerText(),/Ni grupper med sju/i);
+    assert.match(await page.locator('.mult-equation').innerText(),/9 × 7 = 63/);
+
+    // Commutativity is shown visually as two rotated arrays with the same product.
+    await page.locator('[data-mult-variant="swap"]').click();
+    await page.locator('[data-mult-level="0"]').click();
+    assert.match(await page.locator('.mult-mission').innerText(),/To veier til samme svar/i);
+    assert.equal(await page.locator('.mult-swap-card').count(),2);
+    await page.locator('[data-mult-answer="Ja"]').click();
+    await page.locator('#mult-lab-check').click();
+    assert.match(await page.locator('#mult-lab-feedback').innerText(),/Du fant det/i);
+
+    // Pattern mode exposes the full 1-12 multiplication table.
+    await page.locator('[data-mult-variant="patterns"]').click();
+    assert.equal(await page.locator('.mult-table-cell').count(),169);
+    assert.match(await page.locator('.mult-table-legend').innerText(),/5-gangen/);
+
+    // Free play allows arbitrary factors regardless of recommended grade.
+    await page.locator('[data-mult-mode="free"]').click();
+    await page.locator('[data-mult-variant="array"]').click();
+    await page.locator('[data-factor-preset="a"][data-value="7"]').click();
+    await page.locator('[data-factor-preset="b"][data-value="8"]').click();
+    assert.match(await page.locator('.mult-equation').innerText(),/7 × 8 = 56/);
+    assert.equal(await page.locator('.mult-array .mult-dot').count(),56);
+    assert.match(await page.locator('.mult-discovery').innerText(),/56/);
+    const multTouchHeights=await page.locator('.mult-preset').evaluateAll(els=>els.map(e=>e.getBoundingClientRect().height));
+    assert.ok(multTouchHeights.every(h=>h>=40),'small multiplication touch target: '+multTouchHeights.join(','));
+
+    await page.locator('#multiplication-lab-back').click();
+    await page.locator('#subject-screen.active').waitFor();
+    const multAfter=await page.evaluate(()=>({goal:dailyGoal().done,answers:subjectAnswered('math')}));
+    assert.deepEqual(multAfter,multBefore,'Gangetabell-lab exploration must not count as a completed test or graded answer');
+
     await page.locator('#subject-modules .subject-module').click();
     assert.equal(await page.evaluate(()=>sessionQuestions.length),5);
     await page.locator('#close-session').click();
