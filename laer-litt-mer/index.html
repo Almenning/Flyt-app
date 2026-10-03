@@ -386,6 +386,14 @@
     .grade-band-teen .fraction-playground,.grade-band-teen .fraction-mission-card{border-radius:19px}.grade-band-teen .fraction-source{border-radius:16px;min-height:74px}
     @media (max-width:370px){.fraction-source-grid{gap:7px}.fraction-source{padding:9px 6px}.fraction-built-piece{font-size:10px}.fraction-view-button{padding:7px 8px}.fraction-mission-card{padding:13px}.fraction-circle{width:min(64vw,205px)}}
     .subject-progress-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+    .grade-round-card{margin-top:16px;padding:18px;background:linear-gradient(145deg,#EEF2FF,#FFF8E7)}
+    .grade-round-card.complete{background:linear-gradient(145deg,#FFF0B6,#FFF8E4);border-color:#FFE08B}
+    .grade-round-head{display:flex;align-items:center;justify-content:space-between;gap:12px}.grade-round-head h2{margin-top:5px}
+    .grade-round-score{min-width:58px;height:58px;border-radius:20px;background:#fff;display:grid;place-items:center;font-size:17px;font-weight:950;color:#5364A7;box-shadow:0 5px 0 rgba(70,72,115,.06)}
+    .grade-round-card p{font-size:12px;margin-top:7px}.grade-round-subjects{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:13px}
+    .grade-round-pill{display:flex;align-items:center;gap:7px;border-radius:15px;background:rgba(255,255,255,.8);padding:9px 10px;font-size:11px;font-weight:900;color:#626B86}
+    .grade-round-pill.done{color:#2E7755;background:#E9F7EF}.grade-round-pill b{font-size:15px}
+
     .subject-progress-card{background:#fff;border-radius:20px;padding:14px;box-shadow:0 5px 0 rgba(70,72,115,.04)}
     .subject-progress-card strong{display:block;font-size:14px}.subject-progress-card span{display:block;margin-top:5px;color:var(--muted);font-size:12px;font-weight:750}
     .home-intro{margin-bottom:7px}
@@ -1894,6 +1902,15 @@
         <div class="stat"><strong id="prog-map">0</strong><span>kartplasseringer</span></div>
       </div>
 
+      <div class="card grade-round-card" id="grade-round-card">
+        <div class="grade-round-head">
+          <div><div class="eyebrow" id="grade-round-eyebrow">3. klasse</div><h2 id="grade-round-title">Kjerneløpet</h2></div>
+          <div class="grade-round-score" id="grade-round-score">0/4</div>
+        </div>
+        <p id="grade-round-copy">Fullfør fagreisene i ditt tempo.</p>
+        <div class="grade-round-subjects" id="grade-round-subjects"></div>
+      </div>
+
       <div class="section-title"><h3>Fag</h3></div>
       <div class="subject-progress-grid" id="subject-progress-grid"></div>
 
@@ -3091,7 +3108,29 @@ function subjectLongTermMasteredSkills(subject,grade=currentGrade()){
   return Object.keys(state.skillEvidence).filter(k=>k.startsWith(prefix)&&skillStageByKey(k)==='mastered').length;
 }
 
+
+function gradeJourneyOverview(grade=currentGrade()){
+  const items=[
+    {id:'geography',label:'Geografi',icon:'🌍',progress:geoJourneyProgress(grade)},
+    {id:'norwegian',label:'Norsk',icon:'📖',progress:journeyProgress('norwegian',grade)},
+    {id:'math',label:'Matte',icon:'➗',progress:journeyProgress('math',grade)},
+    {id:'english',label:'Engelsk',icon:'🇬🇧',progress:journeyProgress('english',grade)}
+  ];
+  const done=items.filter(x=>x.progress.complete).length;
+  return {grade,items,done,total:items.length,complete:done===items.length};
+}
+function renderGradeJourneyOverview(){
+  const card=document.getElementById('grade-round-card');if(!card)return;
+  const o=gradeJourneyOverview(),label=GRADE_CONFIG[o.grade].label;
+  card.classList.toggle('complete',o.complete);
+  document.getElementById('grade-round-eyebrow').textContent=label;
+  document.getElementById('grade-round-title').textContent=o.complete?'🏆 '+label+' rundet i Lær litt mer':'Rund '+label;
+  document.getElementById('grade-round-score').textContent=o.done+'/'+o.total;
+  document.getElementById('grade-round-copy').textContent=o.complete?'Du har fullført appens kjerneløp i alle fire fag. Dette er ikke en offisiell skolegodkjenning, og varig mestring bygges videre med repetisjon.':'Fullfør appens kjerneløp i hvert fag. Du trenger ikke gjøre alt på én gang.';
+  document.getElementById('grade-round-subjects').innerHTML=o.items.map(x=>'<div class="grade-round-pill '+(x.progress.complete?'done':'')+'"><b>'+(x.progress.complete?'✓':x.icon)+'</b><span>'+x.label+' · '+(x.progress.complete?'fullført':x.progress.pct+' %')+'</span></div>').join('');
+}
 function renderSubjectProgress(){
+  renderGradeJourneyOverview();
   for(const s of Object.keys(SUBJECTS)){
     const el=document.getElementById('topic-'+s+'-progress');if(!el)continue;
     const jp=journeyProgress(s,currentGrade());
