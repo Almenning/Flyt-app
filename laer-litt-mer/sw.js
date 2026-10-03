@@ -1,5 +1,5 @@
-const CACHE='laer-litt-mer-v9-guided-fraction-lab-2026-10-03';
-const SHELL=['./','./index.html','./manifest.webmanifest','./icon.svg'];
+const CACHE='laer-litt-mer-v7-fraction-lab-2026-10-03';
+const SHELL=['./','./index.html','./manifest.webmanifest','./icon.svg','./fraction-lab.css','./fraction-lab.js'];
 
 self.addEventListener('install',event=>{
   event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(SHELL)).then(()=>self.skipWaiting()));
