@@ -1358,6 +1358,7 @@
   <!-- young-dashboard-fidelity-v3-2026-10-03 -->
   <!-- young-reference-fidelity-v4-2026-10-03 -->
   <!-- young-premium-art-direction-v5-2026-10-04 -->
+  <!-- learning-journey-runtime-2026-10-04 -->
 </head>
 <body>
 <div class="app">
@@ -1711,7 +1712,7 @@
           <div class="section-title"><h3>Sideoppdrag</h3><span>Frivillig</span></div>
           <div class="journey-sidequest-grid">
             <button class="journey-sidequest review" id="journey-review" type="button"><span>🔁</span><strong>Husker du?</strong><small>Repeter noe du har møtt før.</small></button>
-            <button class="journey-sidequest challenge" id="journey-challenge" type="button"><span>⚡</span><strong>Ekstra utfordring</strong><small>En blandet runde uten å flytte stien.</small></button>
+            <button class="journey-sidequest challenge" id="journey-challenge" type="button"><span>⚡</span><strong>Ekstra utfordring</strong><small>En blandet runde fra området du jobber med.</small></button>
           </div>
         </div>
       </div>
@@ -2916,17 +2917,19 @@ function subjectMasteredSkills(subject){
 function subjectLongTermMasteredSkills(subject){
   ensureLearningState();return Object.keys(state.skillEvidence).filter(k=>k.startsWith(subject+':')&&skillStageByKey(k)==='mastered').length;
 }
+
 function renderSubjectProgress(){
   for(const s of Object.keys(SUBJECTS)){
-    const el=document.getElementById('topic-'+s+'-progress');
-    if(el)el.textContent=subjectAnswered(s)?subjectMasteredSkills(s)+' ferdigheter styrket':'Start';
+    const el=document.getElementById('topic-'+s+'-progress');if(!el)continue;
+    const jp=journeyProgress(s,currentGrade());
+    el.textContent=jp.complete?'Trinnet fullført 🏆':subjectAnswered(s)?jp.pct+' % av reisen':'Start reisen';
   }
   const grid=document.getElementById('subject-progress-grid');
   if(grid)grid.innerHTML=[
     ['🌍','Geografi',knownCountryCount()+' land lært'],
-    ['📖','Norsk',subjectMasteredSkills('norwegian')+' ferdigheter styrket'],
-    ['➗','Matte',subjectMasteredSkills('math')+' ferdigheter styrket'],
-    ['🇬🇧','Engelsk',subjectMasteredSkills('english')+' ferdigheter styrket']
+    ['📖','Norsk',journeyProgress('norwegian').complete?'Trinnet fullført 🏆':journeyProgress('norwegian').pct+' % av reisen'],
+    ['➗','Matte',journeyProgress('math').complete?'Trinnet fullført 🏆':journeyProgress('math').pct+' % av reisen'],
+    ['🇬🇧','Engelsk',journeyProgress('english').complete?'Trinnet fullført 🏆':journeyProgress('english').pct+' % av reisen']
   ].map(x=>'<div class="subject-progress-card"><strong>'+x[0]+' '+x[1]+'</strong><span>'+x[2]+'</span></div>').join('');
 }
 const baseRenderAll=renderAll;
@@ -2947,7 +2950,7 @@ function openSubject(subject){
   const bannerIcon=document.getElementById('subject-banner-icon');if(bannerIcon)bannerIcon.textContent=s.icon;
   document.getElementById('subject-grade-label').textContent=GRADE_CONFIG[currentGrade()].label;
   const labEntry=document.getElementById('math-lab-entry');if(labEntry)labEntry.hidden=subject!=='math';
-  renderSubjectModules();renderSubjectContinue();showScreen('subject');
+  renderSubjectModules();renderSubjectJourney();renderSubjectContinue();showScreen('subject');
 }
 function renderSubjectModules(){
   const box=document.getElementById('subject-modules');box.innerHTML='';
@@ -2957,25 +2960,22 @@ function renderSubjectModules(){
     b.onclick=()=>{activeModule=m.id;startLearningSession(activeSubject,m.id,m.title)};
     box.appendChild(b);
   });
-  const mastered=subjectMasteredSkills(activeSubject),attempted=subjectAnswered(activeSubject);
-  const pct=Math.min(100,Math.round((mastered/Math.max(4,visibleSubjectModules().length*3))*100));
-  document.getElementById('subject-progress-label').textContent=attempted?mastered+' ferdigheter styrket':'Start';
-  document.getElementById('subject-progress-bar').style.width=pct+'%';
-  document.getElementById('subject-progress-copy').textContent=attempted?'Appen prioriterer det som fortsatt trenger øving. Fremgangen lagres bare på denne enheten.':'Start med en kort økt. Appen tilpasser neste runde etter svarene dine.';
+  const jp=journeyProgress(activeSubject,currentGrade());
+  document.getElementById('subject-progress-label').textContent=jp.complete?'Fullført 🏆':jp.pct+' %';
+  document.getElementById('subject-progress-bar').style.width=jp.pct+'%';
+  document.getElementById('subject-progress-copy').textContent=jp.complete?'Kjerneløpet er rundet. Repetisjon bygger varig mestring.':'Stien viser anbefalt rekkefølge. Øv fritt når du vil.';
 }
 function renderSubjectContinue(){
-  const s=SUBJECTS[activeSubject],a=state.activeSession?.scope,last=state.lastActivity;
-  const sameActive=a?.subject===activeSubject;
-  const sameLast=last?.kind==='subject'&&last.subject===activeSubject;
-  const module=sameLast?(SUBJECT_MODULES[activeSubject]||[]).find(m=>m.id===last.module):null;
-  document.getElementById('subject-continue-eyebrow').textContent=sameActive?'Pågående økt':sameLast?'Fortsett':'Anbefalt nå';
-  document.getElementById('subject-mission-title').textContent=sameActive?(a.label||s.mission):module?.title||s.mission;
-  document.getElementById('subject-mission-copy').textContent=sameActive?'Du har en økt som ikke er ferdig ennå.':sameLast?'Fortsett i samme læringsområde, med nye oppgaver.':'En kort blandet økt på '+GRADE_CONFIG[currentGrade()].label.toLowerCase()+'.';
+  const s=SUBJECTS[activeSubject],a=state.activeSession?.scope,sameActive=a?.subject===activeSubject,prog=journeyProgress(activeSubject,currentGrade()),next=journeyRecommendedNode(activeSubject,currentGrade());
+  document.getElementById('subject-continue-eyebrow').textContent=sameActive?'Pågående økt':prog.complete?'Trinnet er rundet':'Neste på reisen';
+  document.getElementById('subject-mission-title').textContent=sameActive?(a.label||s.mission):prog.complete?'🏆 '+GRADE_CONFIG[currentGrade()].label+' fullført':next?.title||s.mission;
+  document.getElementById('subject-mission-copy').textContent=sameActive?'Du har en økt som ikke er ferdig ennå.':prog.complete?'Repeter det du har lært, eller ta en ekstra utfordring.':next?(next.areaTitle+' · '+journeyStatusText(next,journeyNodeState(next))):'En kort blandet økt på '+GRADE_CONFIG[currentGrade()].label.toLowerCase()+'.';
   const btn=document.getElementById('start-subject-session');
-  btn.textContent=currentGrade()<=2?(sameActive?'Fortsett oppdraget ⭐':sameLast?'Fortsett oppdraget ⭐':'Start oppdraget ⭐'):(sameActive?'Fortsett økten 🚀':sameLast?'Fortsett 🚀':'Start 5 oppgaver 🚀');
+  btn.textContent=sameActive?'Fortsett økten 🚀':prog.complete?'Ekstra utfordring ⚡':'Fortsett reisen 🚀';
   btn.onclick=()=>{
     if(state.activeSession?.scope?.subject===activeSubject){startSession();return}
-    if(sameLast){startLearningSession(activeSubject,last.module,last.label);return}
+    if(prog.complete){startJourneyChallenge(activeSubject);return}
+    if(next){startJourneyNode(activeSubject,next.id);return}
     startLearningSession(activeSubject,null,s.mission);
   };
 }
@@ -3143,6 +3143,113 @@ function buildLearningQuestions(subject,module,allowCooldown=false){
   for(const q of pool){if(chosen.length>=5)break;add(q)}
   return chosen.slice(0,5);
 }
+
+function buildJourneyQuestions(subject,node,allowCooldown=false){
+  const grade=node.grade||currentGrade(),module=node.module||null,focused=subjectPoolForGrade(subject,grade,module),all=subjectPoolForGrade(subject,grade,null);
+  let source=focused.filter(q=>(node.skills||[]).includes(q.skill));
+  if(source.length<5)source=[...source,...focused.filter(q=>!source.includes(q)&&(node.areaSkills||node.skills||[]).includes(q.skill))];
+  if(source.length<5)source=[...source,...all.filter(q=>!source.includes(q)&&(node.areaSkills||node.skills||[]).includes(q.skill))];
+  if(source.length<5)source=[...source,...focused.filter(q=>!source.includes(q))];
+  const seen=new Set(),pool=[];
+  for(const q0 of source){
+    const q={...q0},sig=questionIdentity(q),cooling=questionOnCooldown(q);
+    if(seen.has(sig)||(cooling&&!allowCooldown))continue;
+    seen.add(sig);q.practiceRepeat=!!cooling;
+    const key=learningMasteryKey(q.subject,q.skill),st=skillStageByKey(key),ev=evidenceForSkill(q.subject,q.skill),bucket=learningBucket(st,ev),mist=Number(state.skillMistakes[key]||0);
+    q._adaptive={stage:st,bucket,score:bucketBias(bucket)-Math.min(.7,mist*.12)+Math.random()*.12};pool.push(q);
+  }
+  pool.sort((a,b)=>a._adaptive.score-b._adaptive.score);
+  const chosen=[],used=new Set(),skills=new Set(),types=new Set();
+  const add=q=>{
+    if(!q||chosen.length>=5)return false;
+    const sig=questionIdentity(q);if(used.has(sig))return false;
+    chosen.push(q);used.add(sig);skills.add(q.skill);types.add(q.type);return true;
+  };
+  if(node.type==='checkpoint'||node.type==='challenge'){
+    for(const skill of node.skills||[]){const q=pool.find(x=>x.skill===skill&&!used.has(questionIdentity(x)));if(q)add(q)}
+  }
+  if(node.type==='review'){
+    for(const q of pool.filter(x=>reviewDue(skillStage(x.subject,x.skill),evidenceForSkill(x.subject,x.skill))))add(q);
+  }
+  if(node.type==='skill'){
+    for(const skill of node.skills||[]){const q=pool.find(x=>x.skill===skill&&!used.has(questionIdentity(x)));if(q)add(q)}
+  }
+  for(const q of pool){
+    if(chosen.length>=5)break;
+    if(!skills.has(q.skill)||!types.has(q.type))add(q);
+  }
+  for(const q of pool){if(chosen.length>=5)break;add(q)}
+  return chosen.slice(0,5);
+}
+function startJourneyNode(subject,nodeId){
+  const model=journeyModel(subject,currentGrade()),node=model.nodes.find(n=>n.id===nodeId);if(!node)return;
+  sessionScope={type:'journey',subject,journeyNode:node.id,journeyArea:node.areaId,journeyGrade:node.grade,journeyType:node.type,module:node.module||null,label:(SUBJECTS[subject]?.title||subject)+' · '+node.title};
+  state.lastActivity={kind:'journey',subject,nodeId:node.id,label:node.title};
+  sessionQuestions=buildJourneyQuestions(subject,node,false);
+  if(!sessionQuestions.length){
+    sessionQuestions=buildJourneyQuestions(subject,node,true);
+    sessionScope.practiceOnly=sessionQuestions.length>0;
+  }else sessionScope.practiceOnly=sessionQuestions.every(q=>q.practiceRepeat);
+  if(!sessionQuestions.length){toast('Dette punktet trenger flere oppgaver før det kan startes.');return}
+  qIndex=0;sessionCorrect=0;sessionStrengthened=new Set();currentAnswered=null;
+  state.activeSession={startedAt:Date.now()};persistActiveSession();showScreen('session');renderQuestion();
+}
+function recordJourneySessionResult(result){
+  if(sessionScope?.type!=='journey'||sessionScope.practiceOnly)return;
+  ensureJourneyState();
+  const subject=sessionScope.subject,grade=Number(sessionScope.journeyGrade||currentGrade()),nodeId=sessionScope.journeyNode,model=journeyModel(subject,grade),node=model.nodes.find(n=>n.id===nodeId);if(!node)return;
+  const key=journeyNodeKey(subject,grade,node.id),old=state.journey.nodes[key]||{},best=Math.max(Number(old.best||0),Number(result.correct||0));
+  const passable=node.type==='checkpoint'||node.type==='challenge',passed=passable?(best>=4):!!old.passed;
+  state.journey.nodes[key]={...old,best,attempts:Number(old.attempts||0)+1,lastAt:Date.now(),passed,passedAt:passed?(old.passedAt||Date.now()):null};
+  const prog=journeyProgress(subject,grade),winKey=subject+':'+grade;
+  if(prog.complete&&!state.journey.gradeWins[winKey]){
+    state.journey.gradeWins[winKey]={at:Date.now()};
+    state.lastMilestone={title:GRADE_CONFIG[grade].label+' fullført! 🏆',copy:'Du har klart kjerneløpet i '+(SUBJECTS[subject]?.title||subject)+'.',at:Date.now()};
+  }
+}
+function startJourneyReview(subject){
+  const model=journeyModel(subject,currentGrade()),due=model.nodes.filter(n=>n.type==='review').find(n=>journeyNodeState(n)==='active')||model.nodes.find(n=>n.type==='review');
+  if(due){startJourneyNode(subject,due.id);return}
+  startLearningSession(subject,null,'Repetisjon');
+}
+function startJourneyChallenge(subject){
+  const model=journeyModel(subject,currentGrade()),next=journeyRecommendedNode(subject,currentGrade()),area=next?model.areas.find(a=>a.id===next.areaId):model.areas[0],challenge=area?.nodes.find(n=>n.type==='challenge');
+  if(challenge){startJourneyNode(subject,challenge.id);return}
+  startLearningSession(subject,null,'Ekstra utfordring');
+}
+function renderSubjectJourney(){
+  const host=document.getElementById('journey-map');if(!host||!SUBJECTS[activeSubject])return;
+  const prog=journeyProgress(activeSubject,currentGrade()),recommended=journeyRecommendedNode(activeSubject,currentGrade()),model=prog.model;
+  const recommendedIndex=recommended?model.nodes.findIndex(n=>n.id===recommended.id):-1;
+  document.getElementById('journey-grade-chip').textContent=GRADE_CONFIG[currentGrade()].label;
+  document.getElementById('journey-heading-title').textContent=prog.complete?'Du rundet trinnet! 🏆':'Din vei gjennom '+GRADE_CONFIG[currentGrade()].label.toLowerCase();
+  document.getElementById('journey-summary-title').textContent=prog.complete?'Kjerneløpet er fullført':prog.pct+' % gjennom kjerneløpet';
+  document.getElementById('journey-summary-copy').textContent=prog.complete?'Du kan fortsatt repetere, mestre over tid eller ta ekstra utfordringer.':'Følg stien, eller trykk på et punkt du vil øve på.';
+  document.getElementById('journey-summary-pct').textContent=prog.pct+'%';
+  document.getElementById('journey-summary-ring').style.setProperty('--journey-pct',prog.pct);
+  const positions=['left','right','left','right','center'];
+  host.innerHTML=model.areas.map((area,areaIndex)=>{
+    const areaDone=journeyAreaComplete(area),required=area.nodes.filter(n=>n.type==='skill'||n.type==='checkpoint'),done=required.filter(n=>n.type==='skill'?['can-now','mastered'].includes(journeyNodeState(n)):journeyNodeRecord(n).passed).length;
+    const nodes=area.nodes.map((node,i)=>{
+      const st=journeyNodeState(node),globalIndex=model.nodes.findIndex(n=>n.id===node.id);
+      const isNext=recommended&&recommended.id===node.id;
+      const future=!isNext&&recommendedIndex>=0&&globalIndex>recommendedIndex&&st==='new';
+      const visualState=isNext&&!['can-now','mastered','passed'].includes(st)?'next':future?'future':st,pos=positions[i%positions.length];
+      return '<div class="journey-node-row '+pos+'"><button type="button" class="journey-node type-'+node.type+' state-'+visualState+'" data-journey-node="'+node.id+'" aria-label="'+escapeAttr(node.title+'. '+journeyStatusText(node,st))+'"><span class="journey-node-orb">'+journeyNodeIcon(node,st)+'</span><span class="journey-node-copy"><strong>'+node.title+'</strong><small>'+(isNext?'Neste for deg · ':'')+journeyStatusText(node,st)+'</small></span></button></div>';
+    }).join('');
+    const soft=['#EEF1FF','#EAF8F0','#FFF2D8','#F7EFFF'][areaIndex%4];
+    return '<section class="journey-area" style="--area-soft:'+soft+'"><div class="journey-area-head"><div class="journey-area-icon">'+area.emoji+'</div><div><strong>'+area.title+'</strong><small>'+(area.copy||'Bygg ferdighetene steg for steg.')+'</small></div><span class="journey-area-progress">'+(areaDone?'Klart ✓':done+' / '+required.length)+'</span></div><div class="journey-nodes">'+nodes+'</div></section>';
+  }).join('');
+  host.querySelectorAll('[data-journey-node]').forEach(b=>b.onclick=()=>startJourneyNode(activeSubject,b.dataset.journeyNode));
+  const finish=document.getElementById('journey-finish');finish.classList.toggle('complete',prog.complete);
+  finish.innerHTML=prog.complete
+    ?'<strong>🏆 '+GRADE_CONFIG[currentGrade()].label+' fullført i '+SUBJECTS[activeSubject].title+'</strong><p>Du har klart alle hovedpunktene og checkpointene i appens kjerneløp. Fortsett å repetere for å gjøre mer av kunnskapen varig.</p><div class="journey-finish-actions"><button class="secondary" id="journey-repeat-grade">Repeter</button>'+(currentGrade()<10?'<button class="secondary" id="journey-next-grade">Ekstra utfordring</button>':'')+'</div>'
+    :'<strong>🏁 Mål: rund '+GRADE_CONFIG[currentGrade()].label+'</strong><p>Få hovedpunktene til «Kan nå» og bestå checkpointene. Du kan alltid hoppe fram og prøve noe vanskeligere.</p>';
+  const repeatBtn=document.getElementById('journey-repeat-grade');if(repeatBtn)repeatBtn.onclick=()=>startJourneyReview(activeSubject);
+  const nextBtn=document.getElementById('journey-next-grade');if(nextBtn)nextBtn.onclick=()=>startJourneyChallenge(activeSubject);
+  document.getElementById('journey-review').onclick=()=>startJourneyReview(activeSubject);
+  document.getElementById('journey-challenge').onclick=()=>startJourneyChallenge(activeSubject);
+}
 function startLearningSession(subject,module,label){
   sessionScope={type:'subject',subject,module:module||null,label:(SUBJECTS[subject]?.title||subject)+' · '+(label||'Blandet'),grade:currentGrade()};
   state.lastActivity={kind:'subject',subject,module:module||null,label:label||SUBJECTS[subject]?.mission||'Blandet'};
@@ -3202,6 +3309,7 @@ function activityCopy(activity){
 function resumeLastActivity(){
   if(state.activeSession){startSession();return}
   const a=state.lastActivity;if(!a)return;
+  if(a.kind==='journey'){openSubject(a.subject);startJourneyNode(a.subject,a.nodeId);return}
   if(a.kind==='subject'){openSubject(a.subject);startLearningSession(a.subject,a.module,a.label);return}
   if(a.kind==='geography-country'){startSession(a.country);return}
   if(a.kind==='geography-scope'&&a.scope){startSession(null,a.scope);return}
@@ -3935,6 +4043,7 @@ function finishSession(){
   const comparable=state.sessionLog.filter(s=>s.countsTowardGoal!==false&&Number(s.total||0)===sessionQuestions.length),previousBest=comparable.reduce((best,s)=>Math.max(best,Number(s.correct||0)),0),hadPrevious=comparable.length>0;
   const result={endedAt:Date.now(),correct:sessionCorrect,total:sessionQuestions.length,strengthened:practiceOnly?0:sessionStrengthened.size,area:sessionScope.label,practiceOnly,countsTowardGoal:!practiceOnly};
   const newRecord=!practiceOnly&&hadPrevious&&result.correct>previousBest;
+  recordJourneySessionResult(result);
   state.sessionLog.push(result);state.activeSession=null;saveState();renderAll();
   document.getElementById('complete-correct').textContent=`${result.correct}/${result.total}`;
   document.getElementById('complete-learned').textContent=result.strengthened;
