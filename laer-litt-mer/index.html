@@ -350,6 +350,7 @@
   <!-- globe-hit-test-dateline-fix-2026-10-02 -->
   <!-- parent-info-udir-2026-10-02 -->
   <!-- touch-target-sensitivity-2026-10-03 -->
+  <!-- resume-home-policy-2026-10-03 -->
 </head>
 <body>
 <div class="app">
@@ -2177,13 +2178,56 @@ if('serviceWorker' in navigator){
   window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).catch(()=>{}));
 }
 
+// App resume policy:
+// - A real launch always starts on Home.
+// - Short background pauses keep the current screen.
+// - After 10 minutes away, return to Home while preserving any unfinished session.
+const APP_RESUME_HOME_AFTER_MS=10*60*1000;
+let appHiddenAt=null;
+
+function returnHomeAfterLongPause(){
+  if(activeScreenName()==='session'&&state.activeSession)persistActiveSession();
+  setTab('home');
+  renderHomeContinue();
+}
+
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState==='hidden'){
+    appHiddenAt=Date.now();
+    if(activeScreenName()==='session'&&state.activeSession)persistActiveSession();
+    return;
+  }
+  if(document.visibilityState==='visible'&&appHiddenAt){
+    const awayFor=Date.now()-appHiddenAt;
+    appHiddenAt=null;
+    if(awayFor>=APP_RESUME_HOME_AFTER_MS)returnHomeAfterLongPause();
+  }
+});
+
+window.addEventListener('pagehide',()=>{
+  appHiddenAt=Date.now();
+  if(activeScreenName()==='session'&&state.activeSession)persistActiveSession();
+});
+
+window.addEventListener('pageshow',event=>{
+  if(!event.persisted)return;
+  const awayFor=appHiddenAt?Date.now()-appHiddenAt:APP_RESUME_HOME_AFTER_MS;
+  appHiddenAt=null;
+  if(awayFor>=APP_RESUME_HOME_AFTER_MS)returnHomeAfterLongPause();
+});
+
 // Initial render / recovery
 renderAll();updateOnboarding();loadQualityData();
 if(!state.profile.onboarded||!state.profile.grade){
   onboardingStep=state.profile.onboarded?2:0;
   selectedGrade=Number(state.profile.grade)||null;
   renderGradeChoice();updateOnboarding();document.getElementById('onboarding').classList.add('show');
-}else if(loadActiveSession()){showScreen('session');renderQuestion()}
+}else{
+  // Never drop the child straight back into yesterday's question on a fresh launch.
+  // The unfinished session remains in state and is offered from Home.
+  setTab('home');
+  renderHomeContinue();
+}
 </script>
 <!-- build: explore-my-world-globe-2026-10-02 -->
 </body>
