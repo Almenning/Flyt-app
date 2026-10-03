@@ -762,6 +762,66 @@
       .grade-band-teen .dashboard-welcome-copy,.grade-band-older .dashboard-welcome-copy{width:100%}.grade-band-teen .dashboard-welcome,.grade-band-older .dashboard-welcome{min-height:unset}.grade-band-teen .dashboard-mascot,.grade-band-older .dashboard-mascot{display:none}
     }
 
+    /* Illustrated inner screens: one coherent product from home to learning flow. */
+    .detail-back{margin-bottom:14px;background:rgba(255,255,255,.80);backdrop-filter:blur(10px);border-color:rgba(220,225,238,.88);box-shadow:0 4px 12px rgba(55,65,95,.05)}
+    .subject-page-banner{position:relative;overflow:hidden;min-height:190px;margin:2px 0 14px;padding:25px 24px;border-radius:31px;background:linear-gradient(145deg,#FFE6EB,#FFF4E5);border:3px solid rgba(255,255,255,.95);box-shadow:0 9px 0 rgba(70,72,115,.05),0 20px 36px rgba(65,64,104,.08)}
+    .subject-page-copy{position:relative;z-index:3;width:66%}.subject-page-copy h1{margin:7px 0 7px;font-size:38px}.subject-page-copy .hero-copy{font-size:14px;margin:0;max-width:430px}
+    .subject-page-visual{position:absolute;inset:0 0 0 auto;width:38%;pointer-events:none}.subject-page-symbol{position:absolute;right:27px;bottom:21px;width:88px;height:88px;border-radius:29px;background:rgba(255,255,255,.88);display:grid;place-items:center;font-size:48px;box-shadow:0 10px 24px rgba(68,70,103,.10);transform:rotate(4deg)}
+    .subject-visual-orb{position:absolute;border-radius:50%;background:rgba(255,255,255,.42)}.subject-visual-orb.one{width:150px;height:150px;right:-40px;top:-47px}.subject-visual-orb.two{width:70px;height:70px;right:91px;bottom:-20px;background:rgba(255,255,255,.32)}
+    #subject-screen[data-subject="math"] .subject-page-banner{background:linear-gradient(145deg,#EEE5FF,#FAE7FF)}
+    #subject-screen[data-subject="english"] .subject-page-banner{background:linear-gradient(145deg,#FFE5D8,#FFF2D7)}
+    #subject-screen[data-subject="norwegian"] .subject-page-banner{background:linear-gradient(145deg,#FFE5EC,#FFF2E3)}
+    #subject-screen .subject-hero{display:grid;grid-template-columns:auto 1fr;gap:14px 16px;align-items:center;min-height:0;padding:19px 20px;border-radius:26px;background:#fff;box-shadow:0 7px 0 rgba(70,72,115,.04),0 16px 27px rgba(65,64,104,.07)}
+    #subject-screen .subject-hero:after{display:none}.subject-hero-copy{min-width:0}.subject-hero-copy h2{font-size:21px}.subject-hero-copy p{font-size:12px;line-height:1.4;margin-top:5px}
+    #subject-screen .subject-big{width:64px;height:64px;border-radius:20px;font-size:34px!important;background:#F6F5FC;box-shadow:none}
+    #subject-screen .subject-hero .primary{grid-column:1/-1;margin-top:0}
+    .subject-modules{margin-top:12px}.subject-module{position:relative;overflow:hidden;min-height:82px;padding:15px 15px;border:2px solid rgba(255,255,255,.95);box-shadow:0 6px 0 rgba(70,72,115,.04),0 13px 22px rgba(65,64,104,.05)}
+    .subject-module:nth-child(4n+1){background:linear-gradient(145deg,#FFF4D8,#FFF9EB)}.subject-module:nth-child(4n+2){background:linear-gradient(145deg,#EAF4FF,#F4F8FF)}.subject-module:nth-child(4n+3){background:linear-gradient(145deg,#F0E9FF,#F8F4FF)}.subject-module:nth-child(4n+4){background:linear-gradient(145deg,#E7F7EF,#F3FBF6)}
+    .subject-module .module-icon{width:52px;height:52px;background:rgba(255,255,255,.82);box-shadow:inset 0 -3px 0 rgba(61,65,97,.04)}.subject-module .topic-arrow{margin-left:auto;width:31px;height:31px;border-radius:50%;background:#fff;display:grid;place-items:center;color:#5B6ED1;font-size:21px}
+    .hub-progress-line{margin-top:24px;padding:17px 18px;border-radius:23px;background:rgba(255,255,255,.78);border:2px solid rgba(255,255,255,.95)}.hub-progress-line .section-title{margin:0 0 8px}.hub-progress-line .subject-progress{margin-top:10px;background:transparent;padding:0}
+
+    .geography-banner{position:relative;overflow:hidden;min-height:215px;margin:2px 0 16px;border-radius:31px;background:#E2F5FB;border:3px solid rgba(255,255,255,.95);box-shadow:0 9px 0 rgba(70,72,115,.05),0 20px 36px rgba(65,64,104,.08)}
+    .geography-banner-copy{position:relative;z-index:3;width:57%;padding:27px 0 0 24px}.geography-banner-copy h1{font-size:36px;margin:7px 0 8px}.geography-banner-copy .hero-copy{font-size:13px;margin:0;color:#5A6B7F}
+    .geography-banner-art{position:absolute;right:0;top:0;width:51%;height:100%;overflow:hidden}.geography-banner-art svg{width:100%;height:100%;display:block}
+    #geography-screen .world-hero{min-height:142px;padding:20px;border-radius:27px;background:linear-gradient(145deg,#E8F6FF,#F1EDFF);box-shadow:0 7px 0 rgba(70,72,115,.04),0 16px 28px rgba(65,64,104,.07)}
+    #geography-screen .world-orb{width:82px;height:82px;border:5px solid rgba(255,255,255,.9);box-shadow:0 7px 18px rgba(55,90,125,.14)}
+    #geography-screen .geography-continue{padding:19px 20px;border-radius:25px;background:#fff;box-shadow:0 7px 0 rgba(70,72,115,.04),0 15px 26px rgba(65,64,104,.06)}
+    #geography-screen .geo-themes{padding:4px;gap:7px}.geo-theme{border-radius:16px;background:rgba(255,255,255,.80);border:2px solid #EBEAF2}.geo-theme.active{background:#5369D3;color:#fff;border-color:#5369D3;box-shadow:0 4px 11px rgba(60,77,150,.15)}
+    .continent-card{border:2px solid rgba(255,255,255,.94);box-shadow:0 6px 0 rgba(70,72,115,.04),0 13px 22px rgba(65,64,104,.05)}
+
+    .progress-page-banner{position:relative;overflow:hidden;min-height:186px;margin:2px 0 16px;padding:25px 24px;border-radius:31px;background:linear-gradient(145deg,#E9F3FF,#F2ECFF);border:3px solid rgba(255,255,255,.95);box-shadow:0 9px 0 rgba(70,72,115,.05),0 20px 36px rgba(65,64,104,.08)}
+    .progress-page-copy{position:relative;z-index:2;width:70%}.progress-page-copy h1{font-size:35px;margin:7px 0 8px}.progress-page-copy .hero-copy{font-size:13px;margin:0}
+    .progress-trophy{position:absolute;right:16px;bottom:4px;width:132px;height:132px;filter:drop-shadow(0 11px 12px rgba(114,86,31,.13));transform:rotate(3deg)}.progress-trophy svg{width:100%;height:100%}
+    #progress-screen .stats{gap:10px}.progress-page-banner+.stats .stat{min-height:104px;padding:18px 16px;border-radius:23px;border:2px solid #fff;box-shadow:0 6px 0 rgba(70,72,115,.04),0 14px 24px rgba(65,64,104,.05)}
+    #progress-screen .stat strong{font-size:29px}.subject-progress-card{min-height:86px;border:2px solid #fff;box-shadow:0 5px 0 rgba(70,72,115,.04),0 11px 20px rgba(65,64,104,.05)}
+    #progress-screen .subject-progress-card:nth-child(1){background:#EAF7F2}#progress-screen .subject-progress-card:nth-child(2){background:#FFF0F3}#progress-screen .subject-progress-card:nth-child(3){background:#F2ECFF}#progress-screen .subject-progress-card:nth-child(4){background:#EAF2FF}
+    #progress-screen .knowledge{border-radius:24px}
+
+    .grade-band-young .subject-page-banner,.grade-band-young .geography-banner,.grade-band-young .progress-page-banner{border-radius:33px}
+    .grade-band-young .subject-page-banner{min-height:207px}.grade-band-young .subject-page-symbol{width:96px;height:96px;font-size:52px;border-radius:31px}
+    .grade-band-young .subject-module{border-radius:25px;min-height:91px}.grade-band-young .subject-module .module-icon{width:58px;height:58px;border-radius:20px;font-size:29px}
+    .grade-band-young .geography-banner{min-height:228px}.grade-band-young .geography-banner-copy h1{font-size:37px}.grade-band-young #geography-screen .world-hero{border-radius:30px}
+    .grade-band-young .progress-page-banner{min-height:204px}.grade-band-young .progress-trophy{width:145px;height:145px}
+    .grade-band-older .subject-page-banner,.grade-band-older .geography-banner,.grade-band-older .progress-page-banner{border:1px solid #E0E6EF;border-radius:23px;box-shadow:0 8px 20px rgba(48,62,91,.07)}
+    .grade-band-older .subject-page-symbol{width:75px;height:75px;font-size:36px;border-radius:21px}.grade-band-older .subject-module{border:1px solid #E1E6EE;background:#fff}.grade-band-older .geography-banner,.grade-band-older .progress-page-banner{min-height:170px}.grade-band-older .geography-banner-copy h1,.grade-band-older .progress-page-copy h1{font-size:30px}
+    .grade-band-teen .subject-page-banner,.grade-band-teen .geography-banner,.grade-band-teen .progress-page-banner{border:0;border-radius:18px;box-shadow:0 9px 22px rgba(28,42,69,.12)}
+    .grade-band-teen .subject-page-banner{background:linear-gradient(135deg,#172640,#243E66)}.grade-band-teen .subject-page-banner h1,.grade-band-teen .subject-page-banner p{color:#fff}.grade-band-teen .subject-page-banner .eyebrow{color:#91C9D6}.grade-band-teen .subject-page-symbol{background:rgba(255,255,255,.11);box-shadow:none}
+    .grade-band-teen .geography-banner{background:#172640}.grade-band-teen .geography-banner-copy h1{color:#fff}.grade-band-teen .geography-banner-copy .hero-copy{color:#C5D4E5}.grade-band-teen .geography-banner-copy .eyebrow{color:#8FC5D5}.grade-band-teen .geography-banner-art{opacity:.72}
+    .grade-band-teen .progress-page-banner{background:linear-gradient(135deg,#172640,#273E68)}.grade-band-teen .progress-page-banner h1{color:#fff}.grade-band-teen .progress-page-banner p{color:#C8D5E5}.grade-band-teen .progress-page-banner .eyebrow{color:#8FC5D5}.grade-band-teen .progress-trophy{opacity:.88}
+    .grade-band-teen .subject-module{border:1px solid #DCE3EC;background:#fff!important;border-radius:15px;box-shadow:none}.grade-band-teen #subject-screen .subject-hero{border:1px solid #DCE3EC;box-shadow:none}
+
+    @media (min-width:700px){
+      .subject-page-banner,.geography-banner,.progress-page-banner{min-height:225px}.subject-page-copy h1{font-size:44px}.subject-page-symbol{width:112px;height:112px;font-size:60px;right:45px;bottom:31px}
+      #subject-screen .subject-hero{grid-template-columns:auto 1fr auto}.subject-hero-copy{padding-right:10px}#subject-screen .subject-hero .primary{grid-column:auto;width:auto;min-width:180px;margin:0}
+      .geography-banner-copy{padding:34px 0 0 31px}.geography-banner-copy h1{font-size:43px}.geography-banner-copy .hero-copy{font-size:15px;max-width:390px}
+      .progress-page-copy h1{font-size:42px}.progress-trophy{width:170px;height:170px;right:29px;bottom:-6px}
+    }
+    @media (max-width:430px){
+      .subject-page-banner{min-height:174px;padding:21px 18px}.subject-page-copy{width:68%}.subject-page-copy h1{font-size:31px}.subject-page-copy .hero-copy{font-size:11px}.subject-page-symbol{width:72px;height:72px;font-size:38px;right:17px;bottom:21px}
+      .geography-banner{min-height:187px}.geography-banner-copy{width:61%;padding:22px 0 0 18px}.geography-banner-copy h1{font-size:30px}.geography-banner-copy .hero-copy{font-size:11px}.geography-banner-art{width:55%}
+      .progress-page-banner{min-height:174px;padding:21px 18px}.progress-page-copy h1{font-size:30px}.progress-page-copy .hero-copy{font-size:11px}.progress-trophy{width:108px;height:108px;right:4px}
+    }
+
   </style>
   <link rel="stylesheet" href="./fraction-lab.css?v=20261003-mobile2" />
   <link rel="stylesheet" href="./multiplication-lab.css?v=20261003-table1" />
@@ -784,6 +844,7 @@
   <!-- grade-adaptive-visual-system-v2-2026-10-03 -->
   <!-- illustration-led-home-v1-2026-10-03 -->
   <!-- success-dashboard-redesign-v1-2026-10-03 -->
+  <!-- illustrated-inner-screens-v1-2026-10-03 -->
 </head>
 <body>
 <div class="app">
@@ -948,15 +1009,27 @@
 
     <section class="screen" id="subject-screen" data-subject="norwegian">
       <button class="detail-back" id="subject-back">← Hjem</button>
-      <div class="eyebrow" id="subject-eyebrow">3. klasse</div>
-      <h1 id="subject-title">Norsk</h1>
-      <p class="hero-copy" id="subject-copy"></p>
+
+      <div class="subject-page-banner">
+        <div class="subject-page-copy">
+          <div class="eyebrow" id="subject-eyebrow">3. klasse</div>
+          <h1 id="subject-title">Norsk</h1>
+          <p class="hero-copy" id="subject-copy"></p>
+        </div>
+        <div class="subject-page-visual" aria-hidden="true">
+          <div class="subject-visual-orb one"></div>
+          <div class="subject-visual-orb two"></div>
+          <div class="subject-page-symbol" id="subject-banner-icon">📖</div>
+        </div>
+      </div>
 
       <div class="card subject-hero hub-continue">
         <div class="subject-big" id="subject-icon">📖</div>
-        <div class="eyebrow" id="subject-continue-eyebrow">Anbefalt nå</div>
-        <h2 id="subject-mission-title">Lesetrening og språk</h2>
-        <p id="subject-mission-copy"></p>
+        <div class="subject-hero-copy">
+          <div class="eyebrow" id="subject-continue-eyebrow">Anbefalt nå</div>
+          <h2 id="subject-mission-title">Lesetrening og språk</h2>
+          <p id="subject-mission-copy"></p>
+        </div>
         <button class="primary" id="start-subject-session" type="button">Start 5 oppgaver 🚀</button>
       </div>
 
@@ -996,10 +1069,24 @@
 
     <section class="screen" id="geography-screen">
       <button class="detail-back" id="geography-back">← Hjem</button>
-      <div class="geography-head">
-        <div class="eyebrow" id="geography-grade-label">Geografi</div>
-        <h1>Geografi 🌍</h1>
-        <p class="hero-copy">Utforsk verden, test deg og bygg kunnskapen område for område.</p>
+      <div class="geography-head geography-banner">
+        <div class="geography-banner-copy">
+          <div class="eyebrow" id="geography-grade-label">Geografi</div>
+          <h1>Utforsk verden 🌍</h1>
+          <p class="hero-copy">Land, flagg, hovedsteder og kart blir en verden du faktisk kjenner.</p>
+        </div>
+        <div class="geography-banner-art" aria-hidden="true">
+          <svg viewBox="0 0 260 150">
+            <defs><linearGradient id="geoSkyHero" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#72D6F0"/><stop offset="1" stop-color="#E8F7FF"/></linearGradient></defs>
+            <rect width="260" height="150" rx="26" fill="url(#geoSkyHero)"/>
+            <circle cx="205" cy="31" r="16" fill="#FFE176"/>
+            <path d="M0 118L57 56l31 33 39-58 70 87z" fill="#5EA77C"/>
+            <path d="M65 60l23 29 39-58 25 36-21-12-13 16-17-10-15 18z" fill="#F7FCFF"/>
+            <path d="M0 115c47-16 74 13 122-1s85-6 138 10v26H0z" fill="#54B8D0"/>
+            <path d="M34 120q28-15 57-2-25 3-48 18z" fill="#F4D06E"/>
+            <g transform="translate(192 98)"><circle r="30" fill="#FFF"/><circle r="23" fill="#F4F7FA"/><path d="M0-17L6 0 0 17-6 0z" fill="#E9655F"/><path d="M-17 0L0-6 17 0 0 6z" fill="#4268B4"/><circle r="4" fill="#FFF"/></g>
+          </svg>
+        </div>
       </div>
 
       <button class="card world-hero my-world-card" id="open-world" type="button">
@@ -1082,9 +1169,22 @@
     </section>
 
     <section class="screen" id="progress-screen">
-      <div class="eyebrow" id="progress-eyebrow">Din fremgang</div>
-      <h1 id="progress-title">Se alt du har lært! 🌟</h1>
-      <p class="hero-copy" id="progress-copy">Her vokser kunnskapen din litt etter litt.</p>
+      <div class="progress-page-banner">
+        <div class="progress-page-copy">
+          <div class="eyebrow" id="progress-eyebrow">Din fremgang</div>
+          <h1 id="progress-title">Se alt du har lært! 🌟</h1>
+          <p class="hero-copy" id="progress-copy">Her vokser kunnskapen din litt etter litt.</p>
+        </div>
+        <div class="progress-trophy" aria-hidden="true">
+          <svg viewBox="0 0 120 120">
+            <path d="M38 22h44v24c0 19-9 31-22 31S38 65 38 46z" fill="#FFD55F"/>
+            <path d="M38 30H20v9c0 14 9 23 23 25M82 30h18v9c0 14-9 23-23 25" fill="none" stroke="#F1A943" stroke-width="8" stroke-linecap="round"/>
+            <rect x="53" y="76" width="14" height="19" rx="5" fill="#E9A23F"/>
+            <rect x="37" y="93" width="46" height="12" rx="6" fill="#FFD55F"/>
+            <path d="M60 34l5 10 11 2-8 8 2 11-10-5-10 5 2-11-8-8 11-2z" fill="#FFF6C6"/>
+          </svg>
+        </div>
+      </div>
       <div class="stats">
         <div class="stat"><strong id="prog-land">0</strong><span>land</span></div>
         <div class="stat"><strong id="prog-cap">0</strong><span>hovedsteder</span></div>
@@ -2010,6 +2110,7 @@ function openSubject(subject){
   document.getElementById('subject-title').textContent=s.title;
   document.getElementById('subject-copy').textContent=s.copy;
   document.getElementById('subject-icon').textContent=s.icon;
+  const bannerIcon=document.getElementById('subject-banner-icon');if(bannerIcon)bannerIcon.textContent=s.icon;
   document.getElementById('subject-grade-label').textContent=GRADE_CONFIG[currentGrade()].label;
   const labEntry=document.getElementById('math-lab-entry');if(labEntry)labEntry.hidden=subject!=='math';
   renderSubjectModules();renderSubjectContinue();showScreen('subject');
