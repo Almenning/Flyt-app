@@ -1,4 +1,4 @@
-const CACHE='laer-litt-mer-v8-guided-fraction-lab-2026-10-03';
+const CACHE='laer-litt-mer-v9-guided-fraction-lab-2026-10-03';
 const SHELL=['./','./index.html','./manifest.webmanifest','./icon.svg'];
 
 self.addEventListener('install',event=>{
