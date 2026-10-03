@@ -263,7 +263,7 @@ async function finishSession(page){
     await page.evaluate(()=>{state.activeSession=null;sessionQuestions=[];currentAnswered=null;saveState();setTab('home')});
 
     assert.equal(await page.locator('.home-subject').count(),4);
-    assert.equal(await page.locator('#bottom-nav button').count(),3);
+    assert.equal(await page.locator('#bottom-nav button').count(),4);
     assert.equal(await page.locator('#nav-explore').isVisible(),true);
     assert.equal(await page.locator('#learn-screen').count(),0);
     assert.match(await page.locator('.onboard-step[data-step="0"] p').textContent(),/norsk, matte, engelsk og geografi/i);
