@@ -286,21 +286,43 @@ async function finishSession(page){
     await page.locator('#open-math').click();
     const mathModules=await page.locator('#subject-modules .subject-module strong').allTextContents();
     assert.deepEqual(mathModules,['Tall og regning']);
-    // Brøklab is an open experiment area, separate from grade-gated exercise modules.
+    // Brøklab is a guided sandbox: child lands directly on one board, not a menu of mini-tools.
     assert.equal(await page.locator('#math-lab-entry').isVisible(),true);
     await page.locator('#open-fraction-lab').click();
     await page.locator('#fraction-lab-screen.active').waitFor();
-    assert.equal(await page.locator('#fraction-lab-modes .lab-mode').count(),6);
+    assert.equal(await page.locator('#fraction-lab-mode .fraction-mode-option').count(),2);
+    assert.equal(await page.locator('#fraction-lab-mode .fraction-mode-option.active').getAttribute('data-fraction-mode'),'mission');
     assert.match(await page.locator('#fraction-lab-grade').textContent(),/2\. klasse/);
-    assert.equal(await page.locator('#fraction-lab-modes .lab-mode.active').getAttribute('data-lab-mode'),'whole');
-    await page.locator('[data-add-frac="1/2"]').first().click();
-    await page.locator('[data-add-frac="1/2"]').first().click();
-    assert.equal((await page.locator('.fraction-total strong').textContent()).trim(),'1/1');
-    assert.equal(await page.locator('.fraction-total').evaluate(el=>el.classList.contains('good')),true);
-    await page.locator('[data-lab-mode="compare"]').click();
-    await page.locator('[data-compare-side="left"][data-compare="3/4"]').click();
-    await page.locator('[data-compare-side="right"][data-compare="1/2"]').click();
-    assert.equal((await page.locator('.compare-result').textContent()).trim(),'3/4 > 1/2');
+    assert.match(await page.locator('#fraction-mission-card').innerText(),/halv/i);
+    assert.equal((await page.locator('#fraction-total-value').textContent()).trim(),'1/2');
+    assert.equal(await page.locator('#fraction-basic-pieces .fraction-source').count(),3);
+    assert.equal(await page.locator('#fraction-more-pieces').isVisible(),false);
+
+    // Intro mission starts with 1/2 already on the board. One more 1/2 should visibly complete one whole.
+    await page.locator('[data-frac-den="2"]').first().click();
+    assert.equal((await page.locator('#fraction-total-value').textContent()).trim(),'1');
+    assert.match(await page.locator('#fraction-mission-card').innerText(),/klarte/i);
+    assert.equal(await page.locator('#fraction-next-mission').isVisible(),true);
+
+    // Same construction can be viewed as bars or a circle without losing the child's work.
+    await page.locator('[data-fraction-view="circle"]').click();
+    assert.equal(await page.locator('.fraction-circle').isVisible(),true);
+    assert.equal((await page.locator('#fraction-total-value').textContent()).trim(),'1');
+    await page.locator('[data-fraction-view="bars"]').click();
+    assert.equal(await page.locator('.fraction-whole-track').isVisible(),true);
+
+    // Free play removes the task pressure, but still exposes mathematical discoveries.
+    await page.locator('[data-fraction-mode="free"]').click();
+    assert.match(await page.locator('#fraction-mission-card').innerText(),/fri lek/i);
+    await page.locator('[data-frac-den="4"]').first().click();
+    await page.locator('[data-frac-den="4"]').first().click();
+    assert.equal((await page.locator('#fraction-total-value').textContent()).trim(),'1/2');
+    assert.match(await page.locator('#fraction-discovery').innerText(),/1\/2/);
+    await page.locator('#fraction-more-button').click();
+    assert.equal(await page.locator('#fraction-more-pieces').isVisible(),true);
+    const fractionTouchHeights=await page.locator('.fraction-source:visible').evaluateAll(els=>els.map(e=>e.getBoundingClientRect().height));
+    assert.ok(fractionTouchHeights.every(h=>h>=44),'small fraction touch target: '+fractionTouchHeights.join(','));
+
     await page.locator('#fraction-lab-back').click();
     await page.locator('#subject-screen.active').waitFor();
     assert.equal(await page.locator('#subject-title').textContent(),'Matte');
