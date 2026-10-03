@@ -378,6 +378,7 @@
   <!-- my-world-mastery-colors-2026-10-03 -->
   <!-- adaptive-balanced-sessions-2026-10-03 -->
   <!-- daily-goal-session-based-2026-10-03 -->
+  <!-- voluntary-repeat-tests-2026-10-03 -->
 </head>
 <body>
 <div class="app">
@@ -599,6 +600,7 @@
           <div class="summary-row"><span>Område</span><span id="complete-area">Norden</span></div>
         </div>
         <div class="complete-next" id="complete-next">Neste gang venter en ny liten utfordring.</div>
+        <button class="secondary" id="complete-repeat" type="button">↻ Ta samme test igjen</button>
         <button class="primary" id="complete-home">Ferdig! ⭐</button>
       </div>
     </section>
@@ -875,6 +877,8 @@ let qIndex=0;
 let sessionCorrect=0;
 let sessionStrengthened=new Set();
 let currentAnswered=null;
+let lastCompletedQuestions=[];
+let lastCompletedScope=null;
 let onboardingStep=0;
 let holdTimer=null;
 
@@ -919,6 +923,7 @@ function latestQuestionAttempt(q){
   const key=questionIdentity(q);
   for(let i=state.answerLog.length-1;i>=0;i--){
     const a=state.answerLog[i];
+    if(a.countsForLearning===false)continue;
     if(a.questionKey===key)return a;
     // Geography logs from older app versions can still be recognized.
     if(!a.questionKey&&q?.k&&a.country===q.k&&a.type===q.type)return a;
@@ -974,6 +979,7 @@ function migrateEvidenceIfNeeded(){
   }
   state.progressSchemaVersion=2;saveState();
 }
+function isPracticeRepeat(q=sessionQuestions[qIndex]){return !!(sessionScope?.practiceOnly||q?.practiceRepeat)}
 function mastery(key){return Number(state.mastery[key]||0)}
 function masteryKey(k,type){return `${k}:${type}`}
 function typeStageByKey(key){ensureEvidenceContainers();return evidenceStage(state.masteryEvidence[key],mastery(key),1)}
@@ -1030,7 +1036,7 @@ function bucketBias(bucket){return bucket==='review'?-1.25:bucket==='active'?-0.
 function localDay(ts){const d=new Date(ts); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
 function dayKeyOffset(days){const d=new Date(); d.setHours(12,0,0,0); d.setDate(d.getDate()+days); return localDay(d.getTime())}
 function computeStreak(){
-  const days=new Set(state.sessionLog.map(s=>localDay(s.endedAt||s.at||Date.now())));
+  const days=new Set(state.sessionLog.filter(s=>s.countsTowardGoal!==false).map(s=>localDay(s.endedAt||s.at||Date.now())));
   if(!days.size) return 0;
   let offset=days.has(dayKeyOffset(0))?0:(days.has(dayKeyOffset(-1))?-1:null);
   if(offset===null) return 0;
@@ -1038,13 +1044,13 @@ function computeStreak(){
   while(days.has(dayKeyOffset(offset))){count++;offset--}
   return count;
 }
-function last7Answers(){const cutoff=Date.now()-7*24*60*60*1000;return state.answerLog.filter(a=>a.at>=cutoff)}
-function last7Sessions(){const cutoff=Date.now()-7*24*60*60*1000;return state.sessionLog.filter(s=>(s.endedAt||0)>=cutoff)}
-function todaysAnswers(){const today=dayKeyOffset(0);return state.answerLog.filter(a=>a.at&&localDay(a.at)===today)}
+function last7Answers(){const cutoff=Date.now()-7*24*60*60*1000;return state.answerLog.filter(a=>a.countsForLearning!==false&&a.at>=cutoff)}
+function last7Sessions(){const cutoff=Date.now()-7*24*60*60*1000;return state.sessionLog.filter(s=>s.countsTowardGoal!==false&&(s.endedAt||0)>=cutoff)}
+function todaysAnswers(){const today=dayKeyOffset(0);return state.answerLog.filter(a=>a.countsForLearning!==false&&a.at&&localDay(a.at)===today)}
 function learningDaysLast7(){return new Set(last7Answers().filter(a=>a.at).map(a=>localDay(a.at))).size}
 function todaysCompletedSessions(){
   const today=dayKeyOffset(0);
-  return state.sessionLog.filter(s=>s.endedAt&&localDay(s.endedAt)===today&&Number(s.total||0)>0);
+  return state.sessionLog.filter(s=>s.countsTowardGoal!==false&&s.endedAt&&localDay(s.endedAt)===today&&Number(s.total||0)>0);
 }
 function dailyGoal(){
   const sessions=todaysCompletedSessions();
@@ -1287,12 +1293,13 @@ function buildGradeMissionQuestions(){
 function buildCountryQuestions(k){
   const ids=[k,...WORLD_COUNTRIES.filter(c=>c.continent===countries[k].continent&&c.id!==k).map(c=>c.id)];
   let types=questionTypesForCountry(k,true);if(!types.length)types=['flag'];
-  const out=[];
+  const fresh=[],repeats=[];
   for(const type of types){
-    if(questionOnCooldown({k,type}))continue;
-    out.push(makeQuestion(k,type,ids));
+    const q=makeQuestion(k,type,ids);
+    if(questionOnCooldown({k,type})){q.practiceRepeat=true;repeats.push(q)}
+    else fresh.push(q);
   }
-  return out.slice(0,5);
+  return [...fresh,...repeats].slice(0,5);
 }
 function makeQuestion(k,type,poolIds=Object.keys(countries)){
   const c=countries[k],count=optionCount();let ids=poolIds.filter(x=>x!==k&&countries[x]);
@@ -1320,7 +1327,12 @@ function loadActiveSession(){
 }
 function startSession(customCountry=null,scope=null){
   if(!customCountry&&!scope&&loadActiveSession()){showScreen('session');renderQuestion();return}
-  if(customCountry){sessionScope={type:'country',label:countries[customCountry].name,ids:[customCountry],includeMap:isMapSuitableForGrade(countries[customCountry])};sessionQuestions=buildCountryQuestions(customCountry);state.lastActivity={kind:'geography-country',country:customCountry,label:countries[customCountry].name}}
+  if(customCountry){
+    sessionScope={type:'country',label:countries[customCountry].name,ids:[customCountry],includeMap:isMapSuitableForGrade(countries[customCountry])};
+    sessionQuestions=buildCountryQuestions(customCountry);
+    sessionScope.practiceOnly=sessionQuestions.length>0&&sessionQuestions.every(q=>q.practiceRepeat);
+    state.lastActivity={kind:'geography-country',country:customCountry,label:countries[customCountry].name};
+  }
   else if(scope){sessionScope=scope;sessionQuestions=buildQuestionsForIds(sessionScope.ids,!!sessionScope.includeMap);state.lastActivity={kind:'geography-scope',scope:JSON.parse(JSON.stringify(scope)),label:scope.label||'Geografi'}}
   else{sessionScope={type:'grade',label:missionLabel(),ids:gradeScopeIds(),includeMap:true,grade:currentGrade()};sessionQuestions=buildGradeMissionQuestions();state.lastActivity={kind:'geography-scope',scope:JSON.parse(JSON.stringify(sessionScope)),label:sessionScope.label}}
   if(!sessionQuestions.length){toast('Du har nettopp klart oppgavene her. Utforsk noe annet litt først.');return}
@@ -1654,13 +1666,13 @@ function validLearningQuestion(q){
   return false;
 }
 
-function buildLearningQuestions(subject,module){
+function buildLearningQuestions(subject,module,allowCooldown=false){
   const getPool=(m)=>subject==='norwegian'?norwegianPool(currentGrade(),m):subject==='math'?mathPool(currentGrade(),m):englishPool(currentGrade(),m);
   const focused=module?getPool(module).filter(validLearningQuestion):[];
   const mixed=getPool(null).filter(validLearningQuestion),seen=new Set(),pool=[];
   for(const q of [...focused,...mixed]){
-    const sig=questionIdentity(q);if(seen.has(sig)||questionOnCooldown(q))continue;
-    seen.add(sig);q._focused=focused.includes(q);
+    const sig=questionIdentity(q),cooling=questionOnCooldown(q);if(seen.has(sig)||(cooling&&!allowCooldown))continue;
+    seen.add(sig);q._focused=focused.includes(q);q.practiceRepeat=!!cooling;
     const key=learningMasteryKey(q.subject,q.skill),stage=skillStageByKey(key),ev=evidenceForSkill(q.subject,q.skill),bucket=learningBucket(stage,ev),mist=Number(state.skillMistakes[key]||0),focus=q._focused?-.28:0;
     q._adaptive={stage,bucket,score:bucketBias(bucket)-Math.min(.7,mist*.12)+focus+Math.random()*.1};pool.push(q);
   }
@@ -1687,7 +1699,11 @@ function startLearningSession(subject,module,label){
   sessionScope={type:'subject',subject,module:module||null,label:(SUBJECTS[subject]?.title||subject)+' · '+(label||'Blandet'),grade:currentGrade()};
   state.lastActivity={kind:'subject',subject,module:module||null,label:label||SUBJECTS[subject]?.mission||'Blandet'};
   sessionQuestions=buildLearningQuestions(subject,module);
-  if(!sessionQuestions.length){toast('Du har nettopp klart oppgavene her. Prøv et annet område litt først.');return}
+  if(!sessionQuestions.length){
+    sessionQuestions=buildLearningQuestions(subject,module,true);
+    sessionScope.practiceOnly=sessionQuestions.length>0;
+  }else sessionScope.practiceOnly=sessionQuestions.every(q=>q.practiceRepeat);
+  if(!sessionQuestions.length){toast('Fant ingen oppgaver akkurat nå.');return}
   qIndex=0;sessionCorrect=0;sessionStrengthened=new Set();currentAnswered=null;
   state.activeSession={startedAt:Date.now()};persistActiveSession();showScreen('session');renderQuestion();
 }
@@ -1823,12 +1839,17 @@ function returnToLearningHome(){
 
 function recordLearningAnswer(q,correct,selected){
   if(currentAnswered)return;
+  const practice=isPracticeRepeat(q);
   if(correct)sessionCorrect++;
-  const result=bumpSkill(q.subject,q.skill,correct);
-  state.answerLog.push({at:Date.now(),subject:q.subject,skill:q.skill,type:q.type,questionKey:questionIdentity(q),correct,strengthened:result.strengthened,newlyMastered:result.newlyMastered,masteryStage:result.after,curriculum:q.curriculum||null});
-  if(result.newlyMastered){state.lastMilestone={title:'Denne satt igjen! ⭐',copy:(SUBJECTS[q.subject]?.title||'Faget')+': Du har vist at ferdigheten sitter over tid.',at:Date.now()}}
-  else if(result.strengthened){state.lastMilestone={title:'Dette satt! ⭐',copy:(SUBJECTS[q.subject]?.title||'Faget')+': Du har flyttet en ferdighet ett steg videre.',at:Date.now()}}
-  currentAnswered={selected,correct};persistActiveSession();
+  if(practice){
+    state.answerLog.push({at:Date.now(),subject:q.subject,skill:q.skill,type:q.type,questionKey:questionIdentity(q),correct,practiceRepeat:true,countsForLearning:false,curriculum:q.curriculum||null});
+  }else{
+    const result=bumpSkill(q.subject,q.skill,correct);
+    state.answerLog.push({at:Date.now(),subject:q.subject,skill:q.skill,type:q.type,questionKey:questionIdentity(q),correct,strengthened:result.strengthened,newlyMastered:result.newlyMastered,masteryStage:result.after,countsForLearning:true,curriculum:q.curriculum||null});
+    if(result.newlyMastered){state.lastMilestone={title:'Denne satt igjen! ⭐',copy:(SUBJECTS[q.subject]?.title||'Faget')+': Du har vist at ferdigheten sitter over tid.',at:Date.now()}}
+    else if(result.strengthened){state.lastMilestone={title:'Dette satt! ⭐',copy:(SUBJECTS[q.subject]?.title||'Faget')+': Du har flyttet en ferdighet ett steg videre.',at:Date.now()}}
+  }
+  currentAnswered={selected,correct,practiceRepeat:practice};persistActiveSession();
   if(correct)celebrateCorrect();
 }
 
@@ -2053,8 +2074,9 @@ function renderBuildWord(q,wrap){
     if(correct){
       if(!mistakeRecorded)recordLearningAnswer(q,true,answer);
       else{
-        bumpSkill(q.subject,q.skill,true);
-        state.answerLog.push({at:Date.now(),subject:q.subject,skill:q.skill,type:q.type,questionKey:questionIdentity(q),correct:true,corrected:true,newlyMastered:false,curriculum:q.curriculum||null});
+        const repeatPractice=isPracticeRepeat(q);
+        if(!repeatPractice)bumpSkill(q.subject,q.skill,true);
+        state.answerLog.push({at:Date.now(),subject:q.subject,skill:q.skill,type:q.type,questionKey:questionIdentity(q),correct:true,corrected:true,newlyMastered:false,practiceRepeat:repeatPractice,countsForLearning:!repeatPractice,curriculum:q.curriculum||null});
         currentAnswered={selected:answer,correct:true,corrected:true};
         persistActiveSession();
       }
@@ -2064,8 +2086,8 @@ function renderBuildWord(q,wrap){
       return;
     }
     if(!mistakeRecorded){
-      const result=bumpSkill(q.subject,q.skill,false);
-      state.answerLog.push({at:Date.now(),subject:q.subject,skill:q.skill,type:q.type,questionKey:questionIdentity(q),correct:false,newlyMastered:result.newlyMastered,curriculum:q.curriculum||null});
+      const repeatPractice=isPracticeRepeat(q),result=repeatPractice?{newlyMastered:false}:bumpSkill(q.subject,q.skill,false);
+      state.answerLog.push({at:Date.now(),subject:q.subject,skill:q.skill,type:q.type,questionKey:questionIdentity(q),correct:false,newlyMastered:result.newlyMastered,practiceRepeat:repeatPractice,countsForLearning:!repeatPractice,curriculum:q.curriculum||null});
       mistakeRecorded=true;saveState();
     }
     wrongAttempt=true;paint();
@@ -2383,13 +2405,19 @@ function answerText(answer){if(currentAnswered)return;const q=sessionQuestions[q
 function answerMap(answer){if(currentAnswered)return;const q=sessionQuestions[qIndex],correct=answer===q.answer;recordAnswer(q,correct,answer);applyAnsweredState(q,currentAnswered)}
 function recordAnswer(q,correct,selected){
   if(currentAnswered)return;
-  if(correct)sessionCorrect++;else state.mistakes[masteryKey(q.k,q.type)]=(state.mistakes[masteryKey(q.k,q.type)]||0)+1;
-  const result=bump(masteryKey(q.k,q.type),correct);
-  state.answerLog.push({at:Date.now(),country:q.k,type:q.type,key:masteryKey(q.k,q.type),questionKey:questionIdentity(q),correct,strengthened:result.strengthened,newlyMastered:result.newlyMastered,masteryStage:result.after});
-  if(result.newlyMastered&&countryStatus(q.k)==='mastered'){state.lastMilestone={title:countries[q.k].name+' er mestret! ⭐',copy:'Du har hentet fram kunnskapen igjen på en senere dag.',at:Date.now()};state.recentCountryWin={id:q.k,at:Date.now(),seen:false}}
-  else if(result.newlyMastered){state.lastMilestone={title:'Denne satt igjen! ⭐',copy:countries[q.k].name+': Denne delen av kunnskapen sitter over tid.',at:Date.now()}}
-  else if(result.strengthened){state.lastMilestone={title:'Der satt '+countries[q.k].name+'! ⭐',copy:'Du har flyttet kunnskapen ett steg videre.',at:Date.now()}}
-  currentAnswered={selected,correct};persistActiveSession();
+  const practice=isPracticeRepeat(q);
+  if(correct)sessionCorrect++;
+  if(practice){
+    state.answerLog.push({at:Date.now(),country:q.k,type:q.type,key:masteryKey(q.k,q.type),questionKey:questionIdentity(q),correct,practiceRepeat:true,countsForLearning:false});
+  }else{
+    if(!correct)state.mistakes[masteryKey(q.k,q.type)]=(state.mistakes[masteryKey(q.k,q.type)]||0)+1;
+    const result=bump(masteryKey(q.k,q.type),correct);
+    state.answerLog.push({at:Date.now(),country:q.k,type:q.type,key:masteryKey(q.k,q.type),questionKey:questionIdentity(q),correct,strengthened:result.strengthened,newlyMastered:result.newlyMastered,masteryStage:result.after,countsForLearning:true});
+    if(result.newlyMastered&&countryStatus(q.k)==='mastered'){state.lastMilestone={title:countries[q.k].name+' er mestret! ⭐',copy:'Du har hentet fram kunnskapen igjen på en senere dag.',at:Date.now()};state.recentCountryWin={id:q.k,at:Date.now(),seen:false}}
+    else if(result.newlyMastered){state.lastMilestone={title:'Denne satt igjen! ⭐',copy:countries[q.k].name+': Denne delen av kunnskapen sitter over tid.',at:Date.now()}}
+    else if(result.strengthened){state.lastMilestone={title:'Der satt '+countries[q.k].name+'! ⭐',copy:'Du har flyttet kunnskapen ett steg videre.',at:Date.now()}}
+  }
+  currentAnswered={selected,correct,practiceRepeat:practice};persistActiveSession();
   if(correct)celebrateCorrect();
 }
 function applyAnsweredState(q,answered){
@@ -2427,19 +2455,31 @@ function nextTeaserForScope(){
   return 'Neste gang: Klarer du å styrke én ny ferdighet?';
 }
 function finishSession(){
-  const comparable=state.sessionLog.filter(s=>Number(s.total||0)===sessionQuestions.length),previousBest=comparable.reduce((best,s)=>Math.max(best,Number(s.correct||0)),0),hadPrevious=comparable.length>0;
-  const result={endedAt:Date.now(),correct:sessionCorrect,total:sessionQuestions.length,strengthened:sessionStrengthened.size,area:sessionScope.label};
-  const newRecord=hadPrevious&&result.correct>previousBest;
+  const practiceOnly=!!sessionScope?.practiceOnly;
+  lastCompletedQuestions=JSON.parse(JSON.stringify(sessionQuestions));
+  lastCompletedScope=JSON.parse(JSON.stringify(sessionScope||{}));
+  const comparable=state.sessionLog.filter(s=>s.countsTowardGoal!==false&&Number(s.total||0)===sessionQuestions.length),previousBest=comparable.reduce((best,s)=>Math.max(best,Number(s.correct||0)),0),hadPrevious=comparable.length>0;
+  const result={endedAt:Date.now(),correct:sessionCorrect,total:sessionQuestions.length,strengthened:practiceOnly?0:sessionStrengthened.size,area:sessionScope.label,practiceOnly,countsTowardGoal:!practiceOnly};
+  const newRecord=!practiceOnly&&hadPrevious&&result.correct>previousBest;
   state.sessionLog.push(result);state.activeSession=null;saveState();renderAll();
   document.getElementById('complete-correct').textContent=`${result.correct}/${result.total}`;
   document.getElementById('complete-learned').textContent=result.strengthened;
   document.getElementById('complete-area').textContent=result.area||'Verden';
-  document.getElementById('complete-copy').textContent=newRecord?'Ny personlig rekord: '+result.correct+' riktige! 🌟':result.correct===result.total?'Full pott! Du klarte hele oppdraget. 🌟':result.correct>=3?'Bra jobbet! Det vanskelige får du møte igjen senere.':'God innsats! Nå vet appen hva du skal øve mer på.';
-  document.getElementById('complete-next').textContent=nextTeaserForScope();
+  document.getElementById('complete-copy').textContent=practiceOnly?'Repetisjon fullført! Denne runden trener hukommelsen, men påvirker ikke dagens mål eller mestring.':newRecord?'Ny personlig rekord: '+result.correct+' riktige! 🌟':result.correct===result.total?'Full pott! Du klarte hele oppdraget. 🌟':result.correct>=3?'Bra jobbet! Det vanskelige får du møte igjen senere.':'God innsats! Nå vet appen hva du skal øve mer på.';
+  document.getElementById('complete-next').textContent=practiceOnly?'Vil du prøve én gang til, kan du gjøre det så mange ganger du vil.':nextTeaserForScope();
   const backLabel=sessionScope?.subject&&sessionScope.subject!=='geography'?(SUBJECTS[sessionScope.subject]?.title||'faget'):'Geografi';
   document.getElementById('complete-home').textContent='Tilbake til '+backLabel+' ⭐';
+  document.getElementById('complete-repeat').style.display=lastCompletedQuestions.length?'block':'none';
   showScreen('complete');
 }
+function repeatCompletedSession(){
+  if(!lastCompletedQuestions.length)return;
+  sessionQuestions=JSON.parse(JSON.stringify(lastCompletedQuestions)).map(q=>({...q,practiceRepeat:true}));
+  sessionScope={...(lastCompletedScope||{}),practiceOnly:true,label:(lastCompletedScope?.label||'Test')};
+  qIndex=0;sessionCorrect=0;sessionStrengthened=new Set();currentAnswered=null;
+  state.activeSession={startedAt:Date.now()};persistActiveSession();showScreen('session');renderQuestion();
+}
+document.getElementById('complete-repeat').onclick=repeatCompletedSession;
 document.getElementById('complete-home').onclick=()=>returnToLearningHome();
 
 
