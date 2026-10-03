@@ -3433,6 +3433,29 @@ function startJourneyChallenge(subject){
   if(challenge){startJourneyNode(subject,challenge.id);return}
   startLearningSession(subject,null,'Ekstra utfordring');
 }
+
+function startNextGradePreview(subject){
+  const grade=currentGrade()+1;
+  if(grade>10){startJourneyChallenge(subject);return}
+  const model=journeyModel(subject,grade),node=model.nodes.find(n=>n.type==='skill')||model.nodes[0];
+  if(!node){toast('Neste trinn er ikke klart for dette faget ennå.');return}
+  sessionScope={
+    type:'journey-preview',
+    subject,
+    journeyNode:node.id,
+    journeyArea:node.areaId,
+    journeyGrade:grade,
+    journeyType:node.type,
+    module:node.module||null,
+    label:(SUBJECTS[subject]?.title||subject)+' · Prøv '+GRADE_CONFIG[grade].label,
+    practiceOnly:true,
+    previewOnly:true
+  };
+  sessionQuestions=buildJourneyQuestions(subject,node,true).map(q=>({...q,practiceRepeat:true}));
+  if(!sessionQuestions.length){toast('Neste trinn trenger flere oppgaver før det kan prøves.');return}
+  qIndex=0;sessionCorrect=0;sessionStrengthened=new Set();currentAnswered=null;
+  state.activeSession={startedAt:Date.now()};persistActiveSession();showScreen('session');renderQuestion();
+}
 function renderSubjectJourney(){
   const host=document.getElementById('journey-map');if(!host||!SUBJECTS[activeSubject])return;
   const prog=journeyProgress(activeSubject,currentGrade()),recommended=journeyRecommendedNode(activeSubject,currentGrade()),model=prog.model;
@@ -3459,10 +3482,10 @@ function renderSubjectJourney(){
   host.querySelectorAll('[data-journey-node]').forEach(b=>b.onclick=()=>startJourneyNode(activeSubject,b.dataset.journeyNode));
   const finish=document.getElementById('journey-finish');finish.classList.toggle('complete',prog.complete);
   finish.innerHTML=prog.complete
-    ?'<strong>🏆 '+GRADE_CONFIG[currentGrade()].label+' fullført i '+SUBJECTS[activeSubject].title+'</strong><p>Du har klart alle hovedpunktene og checkpointene i appens kjerneløp. Fortsett å repetere for å gjøre mer av kunnskapen varig.</p><div class="journey-finish-actions"><button class="secondary" id="journey-repeat-grade">Repeter</button>'+(currentGrade()<10?'<button class="secondary" id="journey-next-grade">Ekstra utfordring</button>':'')+'</div>'
+    ?'<strong>🏆 '+GRADE_CONFIG[currentGrade()].label+' fullført i '+SUBJECTS[activeSubject].title+'</strong><p>Du har klart alle hovedpunktene og checkpointene i appens kjerneløp. Fortsett å repetere for å gjøre mer av kunnskapen varig.</p><div class="journey-finish-actions"><button class="secondary" id="journey-repeat-grade">Repeter</button>'+(currentGrade()<10?'<button class="secondary" id="journey-next-grade">Prøv '+GRADE_CONFIG[currentGrade()+1].label+'</button>':'')+'</div>'
     :'<strong>🏁 Mål: rund '+GRADE_CONFIG[currentGrade()].label+'</strong><p>Få hovedpunktene til «Kan nå» og bestå checkpointene. Du kan alltid hoppe fram og prøve noe vanskeligere.</p>';
   const repeatBtn=document.getElementById('journey-repeat-grade');if(repeatBtn)repeatBtn.onclick=()=>startJourneyReview(activeSubject);
-  const nextBtn=document.getElementById('journey-next-grade');if(nextBtn)nextBtn.onclick=()=>startJourneyChallenge(activeSubject);
+  const nextBtn=document.getElementById('journey-next-grade');if(nextBtn)nextBtn.onclick=()=>startNextGradePreview(activeSubject);
   document.getElementById('journey-review').onclick=()=>startJourneyReview(activeSubject);
   document.getElementById('journey-challenge').onclick=()=>startJourneyChallenge(activeSubject);
 }
@@ -4262,15 +4285,15 @@ function finishSession(){
   document.getElementById('complete-correct').textContent=`${result.correct}/${result.total}`;
   document.getElementById('complete-learned').textContent=result.strengthened;
   document.getElementById('complete-area').textContent=result.area||'Verden';
-  document.getElementById('complete-copy').textContent=practiceOnly?'Repetisjon fullført! Denne runden trener hukommelsen, men påvirker ikke dagens mål eller mestring.':newRecord?'Ny personlig rekord: '+result.correct+' riktige! 🌟':result.correct===result.total?'Full pott! Du klarte hele oppdraget. 🌟':result.correct>=3?'Bra jobbet! Det vanskelige får du møte igjen senere.':'God innsats! Nå vet appen hva du skal øve mer på.';
+  document.getElementById('complete-copy').textContent=sessionScope?.previewOnly?'Ekstra utfordring fullført! Dette var en forhåndstitt og endrer ikke klassetrinnet eller mestringen din.':practiceOnly?'Repetisjon fullført! Denne runden trener hukommelsen, men påvirker ikke dagens mål eller mestring.':newRecord?'Ny personlig rekord: '+result.correct+' riktige! 🌟':result.correct===result.total?'Full pott! Du klarte hele oppdraget. 🌟':result.correct>=3?'Bra jobbet! Det vanskelige får du møte igjen senere.':'God innsats! Nå vet appen hva du skal øve mer på.';
   const rewardTitle=document.getElementById('young-reward-title'),rewardCopy=document.getElementById('young-reward-copy'),rewardIcon=document.getElementById('young-reward-icon');
   if(rewardTitle&&rewardCopy&&rewardIcon){
     const milestone=state.lastMilestone&&Date.now()-Number(state.lastMilestone.at||0)<10*60*1000?state.lastMilestone:null;
     rewardIcon.textContent=result.correct===result.total?'🏆':result.strengthened>0?'⭐':'🌱';
-    rewardTitle.textContent=practiceOnly?'God repetisjon!':milestone?.title||'Du klarte oppdraget!';
-    rewardCopy.textContent=practiceOnly?'Du trente hukommelsen uten at fremgangen ble kunstig blåst opp.':milestone?.copy||(result.strengthened>0?result.strengthened+' ting ble litt sterkere i dag.':'Du fullførte hele økten. Det teller.');
+    rewardTitle.textContent=sessionScope?.previewOnly?'Du prøvde noe vanskeligere! ⚡':practiceOnly?'God repetisjon!':milestone?.title||'Du klarte oppdraget!';
+    rewardCopy.textContent=sessionScope?.previewOnly?'Dette var bare en smakebit. Fremgangen på ditt eget trinn er uendret.':practiceOnly?'Du trente hukommelsen uten at fremgangen ble kunstig blåst opp.':milestone?.copy||(result.strengthened>0?result.strengthened+' ting ble litt sterkere i dag.':'Du fullførte hele økten. Det teller.');
   }
-  document.getElementById('complete-next').textContent=practiceOnly?'Vil du prøve én gang til, kan du gjøre det så mange ganger du vil.':nextTeaserForScope();
+  document.getElementById('complete-next').textContent=sessionScope?.previewOnly?'Du kan gå tilbake til ditt eget trinn når du er ferdig.':practiceOnly?'Vil du prøve én gang til, kan du gjøre det så mange ganger du vil.':nextTeaserForScope();
   const backLabel=sessionScope?.subject&&sessionScope.subject!=='geography'?(SUBJECTS[sessionScope.subject]?.title||'faget'):'Geografi';
   document.getElementById('complete-home').textContent=currentGrade()<=2?'Se hva jeg kan ⭐':'Tilbake til '+backLabel+' ⭐';
   document.getElementById('complete-repeat').style.display=lastCompletedQuestions.length?'block':'none';
