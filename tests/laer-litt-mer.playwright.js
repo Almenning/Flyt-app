@@ -66,6 +66,19 @@ async function answerCurrent(page){
       }
       document.querySelector('#check-sentence').click();
     });
+  }else if(q.type==='number-input'){
+    await page.locator('#math-input').fill(String(q.answer));
+    await page.locator('#check-number').click();
+  }else if(q.type==='sequence-order'){
+    await page.evaluate(()=>{
+      const q=sessionQuestions[qIndex],used=new Set();
+      for(const value of String(q.answer).split('|')){
+        const idx=q.items.findIndex((x,i)=>String(x)===String(value)&&!used.has(i));
+        if(idx<0)throw new Error('sequence item missing: '+value);
+        used.add(idx);document.querySelector(`.sequence-tile[data-idx="${idx}"]`).click();
+      }
+      document.querySelector('#check-sequence').click();
+    });
   }else if(q.type==='map'){
     await page.evaluate(()=>answerMap(sessionQuestions[qIndex].answer));
   }else{
@@ -96,6 +109,18 @@ async function finishSession(page){
     await page.route('https://api.worldbank.org/**',r=>r.fulfill({status:200,contentType:'application/json',body:'[{},[]]'}));
 
     await onboard(page,2);
+
+    // Home should always surface one obvious recommended next action.
+    assert.equal(await page.locator('#home-continue-wrap').isVisible(),true);
+    assert.match(await page.locator('#home-continue-eyebrow').textContent(),/Anbefalt nå|Fortsett der du slapp/);
+
+    // Daily goal rewards effort, not correctness.
+    await page.evaluate(()=>{
+      state.answerLog.push({at:Date.now(),subject:'math',skill:'test-effort',type:'learning-choice',questionKey:'effort-test-1',correct:false});
+      renderAll();
+    });
+    assert.equal((await page.locator('#daily-goal-count').textContent()).trim(),'1 av 3');
+    await page.evaluate(()=>{state.answerLog=state.answerLog.filter(a=>a.questionKey!=='effort-test-1');saveState();renderAll()});
 
     // Word builder must support free placement, return-to-bank, editing and last-letter-first input.
     await page.evaluate(()=>{
@@ -194,7 +219,10 @@ async function finishSession(page){
     await page.locator('#home-screen.active').waitFor();
     assert.equal(await page.locator('#home-continue-wrap').isVisible(),true);
 
-    // Matte: second grade should stay simple.
+    // Matte: second grade should stay simple, but interaction should not be only multiple choice.
+    const mathVariety=await page.evaluate(()=>mathPool(2,'numbers').map(q=>q.type));
+    assert.ok(mathVariety.includes('number-input'),'grade 2 math should include typed answers');
+    assert.ok(mathVariety.includes('sequence-order'),'grade 2 math should include ordering');
     await page.locator('#open-math').click();
     const mathModules=await page.locator('#subject-modules .subject-module strong').allTextContents();
     assert.deepEqual(mathModules,['Tall og regning']);
@@ -258,6 +286,16 @@ async function finishSession(page){
     await p1.locator('#start-geography-theme').click();
     await p1.locator('#session-screen.active').waitFor();
     assert.equal(await p1.evaluate(()=>sessionQuestions.length),5);
+    assert.equal(await p1.locator('#read-aloud').isVisible(),true,'1st grade should offer read aloud');
+
+    // Delayed recall on separate days is required before a single geography skill is long-term mastered.
+    const masteryStage=await p1.evaluate(()=>{
+      const key=masteryKey('no','flag'),today=evidenceDay(Date.now()),yesterday=evidenceDay(Date.now()-24*60*60*1000);
+      state.mastery[key]=2;
+      state.masteryEvidence[key]={attempts:2,correctCount:2,wrongCount:0,lastAttemptAt:Date.now(),lastCorrectAt:Date.now(),days:[yesterday,today],correctDays:[yesterday,today],variants:['geo|no|flag']};
+      return typeStage('no','flag');
+    });
+    assert.equal(masteryStage,'mastered');
     await context1.close();
 
     // Structural sweep: isolate content sufficiency from the deliberate repeat-cooldown history above.
