@@ -657,6 +657,111 @@
     .grade-band-teen .story-globe-button{width:70px;height:70px;right:19px;bottom:22px;border-width:3px;animation:none;opacity:1;box-shadow:0 7px 18px rgba(5,20,39,.24)}
 
 
+    /* Success redesign v1: the home experience is now a cohesive illustrated dashboard. */
+    .app{width:min(100%,1024px)}
+    .nav{width:min(100%,1024px);grid-template-columns:repeat(3,1fr);padding-left:18px;padding-right:18px}
+    #home-screen{padding-bottom:38px}
+    .dashboard-welcome{position:relative;overflow:hidden;margin:2px 0 20px;padding:24px 22px 18px;border-radius:34px;background:linear-gradient(145deg,#DDF5FF 0%,#EAF1FF 52%,#F2ECFF 100%);border:3px solid rgba(255,255,255,.92);box-shadow:0 10px 0 rgba(73,93,140,.05),0 24px 45px rgba(64,78,118,.10)}
+    .dashboard-welcome:before{content:"";position:absolute;width:210px;height:210px;border-radius:50%;right:-82px;top:-96px;background:rgba(255,255,255,.45)}
+    .dashboard-welcome:after{content:"";position:absolute;width:120px;height:32px;border-radius:999px;right:116px;top:34px;background:rgba(255,255,255,.48);box-shadow:30px -15px 0 -3px rgba(255,255,255,.48)}
+    .dashboard-welcome-copy{position:relative;z-index:3;width:min(68%,520px)}
+    .dashboard-welcome h1{margin:7px 0 7px;font-size:37px;max-width:600px}.dashboard-welcome .hero-copy{margin:0;max-width:540px;font-size:15px}
+    .dashboard-chips{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:15px}
+    .grade-chip,.streak-chip{display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:7px 10px;border-radius:999px;background:rgba(255,255,255,.88);font-size:11px;font-weight:950;color:#4D5E7E;box-shadow:0 3px 10px rgba(54,68,103,.07)}
+    .streak-chip b{font-size:16px}.streak-chip small{font:inherit;color:#75809A}
+    .dashboard-mascot{position:absolute;z-index:2;right:4px;bottom:-16px;width:165px;height:165px;filter:drop-shadow(0 15px 10px rgba(65,73,95,.14));pointer-events:none}
+    .dashboard-mascot svg{display:block;width:100%;height:100%}
+    .dashboard-welcome .home-progress-banner{position:relative;z-index:4;width:calc(100% - 145px);margin:19px 0 0;padding:12px 14px;border:0;background:rgba(255,255,255,.88);box-shadow:0 5px 16px rgba(56,69,100,.07)}
+    .dashboard-section-title{margin-top:20px;align-items:flex-end}.dashboard-section-title>div{min-width:0}.dashboard-section-title h3{font-size:22px;margin-top:2px}.section-kicker{display:block!important;font-size:10px!important;letter-spacing:.12em!important;text-transform:uppercase;color:#7580A0!important;font-weight:950!important}.section-hint{font-size:11px!important}
+    .home-subject-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;margin-top:0}
+    .home-subject{min-height:224px;padding:0 0 13px;border-radius:29px;background:#fff!important;border:3px solid rgba(255,255,255,.96);box-shadow:0 8px 0 rgba(72,79,118,.05),0 18px 30px rgba(61,67,102,.08);overflow:hidden;text-align:left;display:block}
+    .home-subject:active{transform:translateY(3px);box-shadow:0 4px 0 rgba(72,79,118,.05),0 10px 18px rgba(61,67,102,.07)}
+    .home-subject:before,.home-subject:after{display:none!important}
+    .home-subject-art{height:126px;margin:0;border-radius:26px 26px 17px 17px;overflow:hidden}
+    .home-subject-art svg{width:100%;height:100%;display:block}
+    .home-subject-body{display:grid;grid-template-columns:44px 1fr 27px;gap:9px;align-items:center;padding:11px 12px 0}
+    .home-subject .home-subject-icon{position:static!important;width:44px!important;height:44px!important;border-radius:15px!important;border:0!important;background:#F7F8FC!important;display:grid;place-items:center;font-size:22px!important;box-shadow:inset 0 -3px 0 rgba(50,60,90,.04)}
+    .home-subject-copy{min-width:0}.home-subject-copy strong{display:block;margin:0!important;font-size:18px!important;line-height:1.05}.home-subject-copy p{display:block!important;margin:4px 0 0!important;font-size:10px!important;line-height:1.28;color:#727A91}
+    .home-subject-arrow{width:27px;height:27px;border-radius:50%;background:#fff;display:grid;place-items:center;color:#5567C9;font-size:21px;font-weight:950;box-shadow:0 3px 9px rgba(63,69,103,.12)}
+    .home-subject-progress{display:block;margin:0 13px!important;padding:0!important;background:transparent!important;font-size:10px!important;color:#68758B;font-weight:900}
+    .home-subject-progress:before{content:"";display:inline-block;width:36px;height:6px;border-radius:999px;background:#7EC89E;margin-right:6px;vertical-align:1px}
+    .home-subject.geography .home-subject-progress:before{background:#62BBA3}.home-subject.norwegian .home-subject-progress:before{background:#E58B9E}.home-subject.math .home-subject-progress:before{background:#9277DD}.home-subject.english .home-subject-progress:before{background:#EF8E66}
+
+    .dashboard-main-grid{display:grid;grid-template-columns:1fr;gap:14px;margin-top:19px}
+    .dashboard-progress-panel{padding:17px;border-radius:29px;background:rgba(255,255,255,.92)}
+    .dashboard-panel-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:1px 2px 11px}.dashboard-panel-heading h3{font-size:20px;margin-top:2px}.dashboard-panel-link{border:0;background:#EEF2FF;color:#5669C8;border-radius:999px;padding:8px 11px;font-weight:950;font-size:11px;cursor:pointer}
+    .dashboard-progress-panel .daily-goal{display:block!important;margin:0;padding:14px 15px;border-radius:20px;box-shadow:none;border:0;background:linear-gradient(145deg,#FFFDF5,#F0FAFF)}
+    .dashboard-progress-panel .young-knowledge{margin:10px 0 0;padding:14px;border-radius:20px;box-shadow:none;border:0}
+    .dashboard-progress-panel .home-week-section{margin-top:13px}.home-week-head{display:flex;align-items:center;justify-content:space-between;margin:0 2px 8px}.home-week-head strong{font-size:13px}.home-week-head span{font-size:10px;font-weight:850;color:#7A8295}
+    .dashboard-progress-panel .home-week{margin:0;gap:7px}.dashboard-progress-panel .home-week .stat{padding:11px 7px;border-radius:15px;box-shadow:none}.dashboard-progress-panel .home-week .stat strong{font-size:19px}.dashboard-progress-panel .home-week .stat span{font-size:9px}
+    .dashboard-world-column{display:grid;gap:10px;align-content:start}
+    .dashboard-world-column .home-story-scene{margin:0;min-height:225px;border-radius:29px}
+    .dashboard-world-column .fox-guide{margin:0}
+    .dashboard-world-column .home-continue-wrap{margin:0}
+    .dashboard-world-column .home-continue{padding:18px;border-radius:25px}
+    .home-continue-top{display:flex;align-items:center;justify-content:space-between;gap:10px}.mission-badge{width:34px;height:34px;border-radius:12px;background:rgba(255,255,255,.16);display:grid;place-items:center;font-size:17px}.home-continue h2{margin-top:3px}
+    .adult-entry{margin-top:22px}
+
+    /* Youngest band: closest to the approved playful illustration. */
+    .grade-band-young{background:linear-gradient(180deg,#CDEEFF 0%,#E8F5FF 27%,#F7F1FF 58%,#FFF8E8 100%)}
+    .grade-band-young .top{padding:16px 20px 8px}.grade-band-young .brand{font-size:27px;text-shadow:0 2px 0 rgba(255,255,255,.9)}
+    .grade-band-young .dashboard-welcome{background:linear-gradient(145deg,#CDEEFF 0%,#E1F3FF 48%,#F0E9FF 100%);min-height:248px}
+    .grade-band-young .dashboard-welcome h1{font-size:36px;max-width:360px}.grade-band-young .dashboard-welcome-copy{width:66%}.grade-band-young .dashboard-mascot{width:185px;height:185px;right:-3px;bottom:-14px}
+    .grade-band-young .home-progress-star{background:#FFF1A8}.grade-band-young .home-subject{min-height:224px!important;border-radius:29px!important;padding:0 0 13px!important}
+    .grade-band-young .home-subject-art{height:126px!important;margin:0!important;border-radius:26px 26px 17px 17px!important}.grade-band-young .home-subject p{display:block!important}
+    .grade-band-young .dashboard-progress-panel{background:rgba(255,255,255,.86)}
+    .grade-band-young .home-story-scene{min-height:245px!important}.grade-band-young .story-globe-button{width:124px;height:124px;right:37px;bottom:24px}.grade-band-young .story-copy{width:58%;padding:25px 0 0 20px}.grade-band-young .story-copy strong{font-size:25px}
+    .grade-band-young .fox-guide{display:flex}.grade-band-young .home-continue{background:linear-gradient(145deg,#677FF0,#846DE4)}
+    .grade-band-young .nav button{border-radius:20px}.grade-band-young .nav button.active{background:#E7EDFF}
+
+    /* Grades 3-4: still adventurous, a little more structured. */
+    .grade-band-middle .dashboard-welcome{background:linear-gradient(145deg,#D9F1F4,#E6F1FF 50%,#F2F0FF)}.grade-band-middle .dashboard-mascot{width:148px;height:148px;opacity:.95}
+    .grade-band-middle .home-subject{min-height:214px}.grade-band-middle .home-subject-art{height:115px}.grade-band-middle .home-story-scene{min-height:225px!important}
+
+    /* Grades 5-7: reduce toy-like surfaces while preserving the visual world. */
+    .grade-band-older .dashboard-welcome{border:1px solid #E0E6EF;border-radius:24px;background:linear-gradient(145deg,#EDF4F8,#EEF1F8);box-shadow:0 8px 20px rgba(48,62,91,.07)}
+    .grade-band-older .dashboard-welcome h1{font-size:31px}.grade-band-older .dashboard-mascot{display:none}.grade-band-older .dashboard-welcome-copy{width:100%}.grade-band-older .dashboard-welcome .home-progress-banner{width:100%;border:1px solid #E0E6EF}
+    .grade-band-older .home-subject{min-height:190px;border-radius:20px!important;border:1px solid #DFE5ED}.grade-band-older .home-subject-art{height:93px;filter:saturate(.75)}.grade-band-older .home-subject-body{grid-template-columns:38px 1fr 24px}.grade-band-older .home-subject .home-subject-icon{width:38px!important;height:38px!important;font-size:15px!important;border-radius:11px!important}.grade-band-older .home-subject-copy strong{font-size:16px!important}
+    .grade-band-older .dashboard-progress-panel{border:1px solid #E0E6EF;border-radius:22px}.grade-band-older .home-story-scene{min-height:190px!important}.grade-band-older .fox-guide{display:none}.grade-band-older .home-continue{border-radius:20px}
+
+    /* Grades 8-10: modern dashboard rather than a children's toy. */
+    .grade-band-teen .dashboard-welcome{border:0;border-radius:20px;background:linear-gradient(135deg,#14223E,#233D64 65%,#2D5C72);box-shadow:0 12px 28px rgba(27,43,70,.17)}
+    .grade-band-teen .dashboard-welcome:before{background:rgba(255,255,255,.06)}.grade-band-teen .dashboard-welcome:after{display:none}.grade-band-teen .dashboard-welcome h1{color:#fff;font-size:30px}.grade-band-teen .dashboard-welcome .hero-copy{color:#C9D5E7}.grade-band-teen .dashboard-welcome .eyebrow{color:#94C9D7}.grade-band-teen .dashboard-chips span{background:rgba(255,255,255,.10);color:#DBE5F2;box-shadow:none}.grade-band-teen .streak-chip small{color:#AFC0D5}
+    .grade-band-teen .dashboard-mascot{display:none}.grade-band-teen .dashboard-welcome-copy{width:100%}.grade-band-teen .dashboard-welcome .home-progress-banner{width:100%;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.12)}.grade-band-teen .dashboard-welcome .home-progress-main strong,.grade-band-teen .dashboard-welcome .home-progress-banner>span{color:#EAF0F8}.grade-band-teen .dashboard-welcome .home-progress-track{background:rgba(255,255,255,.16)}
+    .grade-band-teen .home-subject{min-height:178px;border-radius:16px!important;border:1px solid #DBE2EC;box-shadow:0 5px 14px rgba(36,52,81,.05)}.grade-band-teen .home-subject-art{height:82px;filter:saturate(.62) contrast(.96)}.grade-band-teen .home-subject-body{grid-template-columns:36px 1fr 22px}.grade-band-teen .home-subject .home-subject-icon{width:36px!important;height:36px!important;font-size:11px!important;border-radius:10px!important}.grade-band-teen .home-subject-copy strong{font-size:15px!important}.grade-band-teen .home-subject-copy p{font-size:9px!important}
+    .grade-band-teen .dashboard-progress-panel{border:1px solid #DDE4EE;border-radius:18px;box-shadow:none}.grade-band-teen .dashboard-world-column .home-story-scene{min-height:176px!important}.grade-band-teen .home-continue{border-radius:17px}.grade-band-teen .fox-guide{display:none}
+
+    /* Subject hubs inherit the same visual language, not a separate older app. */
+    #subject-screen,#geography-screen,#progress-screen{max-width:860px;margin:0 auto}
+    #subject-screen .subject-hero{position:relative;overflow:hidden;padding:24px;border-radius:28px;min-height:220px}
+    #subject-screen .subject-hero:after{content:"";position:absolute;width:170px;height:170px;border-radius:50%;right:-45px;top:-48px;background:rgba(255,255,255,.42);pointer-events:none}
+    #subject-screen .subject-big{position:relative;z-index:2;width:76px;height:76px;border-radius:24px;background:rgba(255,255,255,.74);display:grid;place-items:center;font-size:42px!important;box-shadow:0 7px 18px rgba(65,68,100,.08)}
+    #subject-screen .subject-hero .eyebrow,#subject-screen .subject-hero h2,#subject-screen .subject-hero p,#subject-screen .subject-hero .primary{position:relative;z-index:2}
+    .grade-band-young #subject-screen .subject-hero{min-height:240px;border-radius:31px}.grade-band-young #subject-screen .subject-hero h2{font-size:28px}
+    .subject-modules{grid-template-columns:1fr;gap:10px}.subject-module{border-radius:21px}
+    .grade-band-young .subject-module:nth-child(4n+1){background:#FFF1D2}.grade-band-young .subject-module:nth-child(4n+2){background:#EAF3FF}.grade-band-young .subject-module:nth-child(4n+3){background:#F1EAFE}.grade-band-young .subject-module:nth-child(4n+4){background:#E7F7EE}
+    #geography-screen .world-hero{min-height:150px;border-radius:28px;background:linear-gradient(145deg,#DDF3FF,#EDEBFF)}#geography-screen .world-orb{width:82px;height:82px}#geography-screen .geography-continue{border-radius:25px}
+    #progress-screen .stats{grid-template-columns:repeat(2,1fr)}#progress-screen .stat{min-height:92px}
+    .complete .medal{filter:drop-shadow(0 10px 12px rgba(83,72,31,.14))}
+
+    @media (min-width:700px){
+      .top{padding-left:34px;padding-right:34px}.screen{padding-left:34px;padding-right:34px}
+      #home-screen{padding-top:2px}
+      .dashboard-welcome{padding:30px 31px 22px;min-height:270px}.dashboard-welcome-copy{width:66%}.dashboard-welcome h1{font-size:43px}.dashboard-welcome .hero-copy{font-size:16px}.dashboard-mascot{width:225px;height:225px;right:8px;bottom:-23px}.dashboard-welcome .home-progress-banner{width:calc(100% - 190px);max-width:590px}
+      .home-subject-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.home-subject{min-height:236px!important}.home-subject-art{height:132px!important}.home-subject-body{grid-template-columns:42px 1fr 26px;padding-left:12px;padding-right:12px}.home-subject-copy strong{font-size:17px!important}.home-subject-copy p{font-size:9px!important}
+      .dashboard-main-grid{grid-template-columns:minmax(0,.9fr) minmax(0,1.25fr);gap:15px;align-items:start}.dashboard-progress-panel{min-height:100%}.dashboard-world-column .home-story-scene{min-height:274px!important}
+      .dashboard-world-column .story-copy{padding:28px 0 0 27px}.dashboard-world-column .story-copy strong{font-size:27px}.dashboard-world-column .story-copy p{font-size:13px;max-width:290px}
+      .dashboard-world-column .story-globe-button{width:142px!important;height:142px!important;right:48px!important;bottom:34px!important}
+      .subject-modules{grid-template-columns:1fr 1fr}.subject-module{min-height:88px}
+      #progress-screen .stats{grid-template-columns:repeat(4,1fr)}
+    }
+    @media (max-width:430px){
+      .dashboard-welcome{padding:20px 17px 15px;min-height:231px}.dashboard-welcome-copy{width:67%}.dashboard-welcome h1{font-size:29px}.dashboard-welcome .hero-copy{font-size:12px}.dashboard-mascot{width:142px;height:142px;right:-10px;bottom:-8px}.dashboard-welcome .home-progress-banner{width:100%;margin-top:15px;padding:10px 11px}.home-progress-star{width:39px;height:39px}.home-progress-main strong{font-size:11px}
+      .home-subject-grid{gap:10px}.home-subject{min-height:210px}.home-subject-art{height:112px}.home-subject-body{grid-template-columns:38px 1fr 23px;padding:10px 10px 0}.home-subject .home-subject-icon{width:38px!important;height:38px!important;border-radius:12px!important;font-size:19px!important}.home-subject-copy strong{font-size:15px!important}.home-subject-copy p{font-size:9px!important}.home-subject-progress{margin:0 11px!important;font-size:9px!important}
+      .dashboard-panel-heading h3{font-size:18px}.dashboard-world-column .home-story-scene{min-height:222px!important}
+      .grade-band-teen .dashboard-welcome-copy,.grade-band-older .dashboard-welcome-copy{width:100%}.grade-band-teen .dashboard-welcome,.grade-band-older .dashboard-welcome{min-height:unset}.grade-band-teen .dashboard-mascot,.grade-band-older .dashboard-mascot{display:none}
+    }
+
   </style>
   <link rel="stylesheet" href="./fraction-lab.css?v=20261003-mobile2" />
   <link rel="stylesheet" href="./multiplication-lab.css?v=20261003-table1" />
@@ -678,6 +783,7 @@
   <!-- young-learning-game-polish-2026-10-03 -->
   <!-- grade-adaptive-visual-system-v2-2026-10-03 -->
   <!-- illustration-led-home-v1-2026-10-03 -->
+  <!-- success-dashboard-redesign-v1-2026-10-03 -->
 </head>
 <body>
 <div class="app">
@@ -688,111 +794,152 @@
 
   <main>
     <section class="screen active" id="home-screen">
-      <div class="home-intro">
-        <div class="eyebrow" id="home-greeting">Hei 👋</div>
-        <h1 id="home-title">Hva vil du lære i dag? ✨</h1>
-        <p class="hero-copy" id="home-copy">Velg et fag, fortsett der du slapp og se kunnskapen vokse litt etter litt.</p>
-      </div>
-
-      <div class="home-progress-banner" id="home-progress-banner" aria-label="Fremgang siste sju dager">
-        <div class="home-progress-star" aria-hidden="true">⭐</div>
-        <div class="home-progress-main">
-          <strong id="home-progress-cheer">Du er kjempeflink!</strong>
-          <div class="home-progress-track" aria-hidden="true"><i id="home-progress-fill"></i></div>
+      <div class="dashboard-welcome">
+        <div class="dashboard-welcome-copy">
+          <div class="eyebrow" id="home-greeting">Hei 👋</div>
+          <h1 id="home-title">Klar for nye eventyr?</h1>
+          <p class="hero-copy" id="home-copy">Velg et fag, fortsett der du slapp og se kunnskapen vokse litt etter litt.</p>
+          <div class="dashboard-chips">
+            <span class="grade-chip" id="home-grade-label">3. klasse</span>
+            <span class="streak-chip"><b aria-hidden="true">🔥</b><span id="home-streak">0</span><small id="home-streak-label">dagers rekke</small></span>
+          </div>
         </div>
-        <span id="home-progress-text">0 økter</span>
-      </div>
-
-      <div class="home-story-scene" id="home-story-scene" aria-label="Din læringsverden">
-        <div class="story-copy">
-          <div class="young-copy"><div class="eyebrow">Din læringsverden</div><strong>Se verden vokse! 🌍</strong><p>Land får mer farge etter hvert som du lærer dem.</p></div>
-          <div class="middle-copy"><div class="eyebrow">Dagens oppdrag</div><strong>Bygg videre på det du kan</strong><p>Utforsk, løs oppgaver og se kunnskapen vokse.</p></div>
-          <div class="older-copy"><div class="eyebrow">Din fremgang</div><strong>Kunnskap du faktisk bygger</strong><p>Fortsett litt etter litt. Kloden husker landene du lærer.</p></div>
-          <div class="teen-copy"><div class="eyebrow">Oversikt</div><strong>Fortsett læringen</strong><p>Velg fag eller gå videre fra siste økt.</p></div>
+        <div class="dashboard-mascot" aria-hidden="true">
+          <svg viewBox="0 0 170 170">
+            <defs><linearGradient id="mascotFur" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#E9A35E"/><stop offset="1" stop-color="#B96B42"/></linearGradient></defs>
+            <path d="M42 56L29 23l34 19M128 56l13-33-34 19" fill="#B96B42"/>
+            <path d="M48 49L37 32l22 13M122 49l11-17-22 13" fill="#F4C58F"/>
+            <ellipse cx="85" cy="91" rx="58" ry="59" fill="url(#mascotFur)"/>
+            <ellipse cx="85" cy="104" rx="43" ry="36" fill="#F7D7B0"/>
+            <ellipse cx="85" cy="91" rx="17" ry="12" fill="#624231"/>
+            <circle cx="63" cy="76" r="7" fill="#263146"/><circle cx="107" cy="76" r="7" fill="#263146"/>
+            <circle cx="61" cy="73" r="2.5" fill="#fff"/><circle cx="105" cy="73" r="2.5" fill="#fff"/>
+            <path d="M70 105q15 18 30 0" fill="none" stroke="#7A4B39" stroke-width="5" stroke-linecap="round"/>
+            <path d="M35 118q-19 7-24 29 26-2 39-18" fill="#B96B42"/>
+            <path d="M135 117q18 6 24 28-23 0-40-16" fill="#B96B42"/>
+            <path d="M58 140h54l-9 28H67z" fill="#4B8F69"/>
+            <path d="M63 145l-16 23M107 145l16 23" stroke="#335D49" stroke-width="8" stroke-linecap="round"/>
+            <circle cx="139" cy="41" r="12" fill="#FFD65D"/><path d="M139 30v22M128 41h22" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+          </svg>
         </div>
-        <span class="story-sun" aria-hidden="true"></span><span class="story-cloud one" aria-hidden="true"></span><span class="story-cloud two" aria-hidden="true"></span><span class="story-star" aria-hidden="true"></span>
-        <button class="story-globe-button" id="home-story-globe" type="button" aria-label="Åpne Min verden"></button>
-        <svg class="story-character story-lion" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="33" r="26" fill="#D58E43"/><circle cx="32" cy="33" r="19" fill="#F4C56C"/><circle cx="25" cy="30" r="2.4" fill="#3D4050"/><circle cx="39" cy="30" r="2.4" fill="#3D4050"/><path d="M29 36 Q32 39 35 36" fill="none" stroke="#6F4930" stroke-width="2.2" stroke-linecap="round"/><path d="M28 34 Q32 31 36 34 Q32 37 28 34" fill="#8F5B3A"/><circle cx="19" cy="17" r="7" fill="#D58E43"/><circle cx="45" cy="17" r="7" fill="#D58E43"/></svg>
-        <svg class="story-character story-fox" viewBox="0 0 72 72" aria-hidden="true"><path d="M14 18 L28 8 L31 25 Z" fill="#E9834B"/><path d="M58 18 L44 8 L41 25 Z" fill="#E9834B"/><path d="M17 21 Q36 7 55 21 L57 42 Q51 61 36 63 Q21 61 15 42 Z" fill="#ED9358"/><path d="M19 25 Q36 19 53 25 Q48 50 36 58 Q24 50 19 25" fill="#FFF0D6"/><circle cx="28" cy="33" r="2.6" fill="#343848"/><circle cx="44" cy="33" r="2.6" fill="#343848"/><path d="M32 43 Q36 47 40 43" fill="none" stroke="#6A4A3A" stroke-width="2.2" stroke-linecap="round"/><path d="M32 40 Q36 37 40 40 Q36 43 32 40" fill="#4B3D3D"/></svg>
-        <div class="story-note"><i></i><span>Trykk på kloden for Min verden</span></div>
-      </div>
-
-      <div class="card daily-goal" id="home-daily-goal">
-        <div class="daily-goal-head"><strong>Dagens lille mål</strong><span id="daily-goal-count">0 av 1</span></div>
-        <div class="daily-goal-dots" id="daily-goal-dots" aria-label="Dagens mål"><i></i></div>
-        <div class="daily-goal-copy" id="daily-goal-copy">Én kort læringsøkt er nok til å gjøre dagen til en læringsdag.</div>
-        <div class="daily-growth" id="daily-growth">Klar for første lille seier?</div>
-      </div>
-
-      <div class="fox-guide" id="fox-guide">
-        <div class="fox-guide-face" aria-hidden="true">🦊</div>
-        <div><strong id="fox-guide-title">Vi starter enkelt</strong><p id="fox-guide-copy">Én liten økt er nok. Resten er bonus.</p></div>
-      </div>
-
-      <div class="home-continue-wrap" id="home-continue-wrap">
-        <div class="card home-continue">
-          <div class="eyebrow" id="home-continue-eyebrow">Anbefalt nå</div>
-          <h2 id="home-continue-title" style="margin-top:6px">Norsk</h2>
-          <p id="home-continue-copy">Lesetrening</p>
-          <button class="primary" id="home-continue-button" type="button">Fortsett 🚀</button>
+        <div class="home-progress-banner" id="home-progress-banner" aria-label="Fremgang siste sju dager">
+          <div class="home-progress-star" aria-hidden="true">⭐</div>
+          <div class="home-progress-main">
+            <strong id="home-progress-cheer">Du er kjempeflink!</strong>
+            <div class="home-progress-track" aria-hidden="true"><i id="home-progress-fill"></i></div>
+          </div>
+          <span id="home-progress-text">0 økter</span>
         </div>
       </div>
 
-      <div class="card young-knowledge" id="young-knowledge">
-        <div class="young-knowledge-head"><strong>Dette kan du ⭐</strong><span id="young-knowledge-total">Du bygger samlingen</span></div>
-        <div class="young-knowledge-grid">
-          <button class="young-knowledge-item" id="young-world" type="button"><b id="young-world-count">0</b><span>land</span></button>
-          <button class="young-knowledge-item" id="young-words" type="button"><b id="young-words-count">0</b><span>språkting</span></button>
-          <button class="young-knowledge-item" id="young-math" type="button"><b id="young-math-count">0</b><span>matteting</span></button>
-        </div>
+      <div class="section-title dashboard-section-title">
+        <div><span class="section-kicker" id="home-subject-kicker">VELG FAG</span><h3 id="home-subject-title">Velg et eventyr</h3></div>
+        <span class="section-hint">Trykk for å starte</span>
       </div>
 
-      <div class="section-title young-explore-title"><h3 id="home-subject-title">Fag</h3><span id="home-grade-label">3. klasse</span></div>
       <div class="home-subject-grid" aria-label="Velg fag">
         <button class="home-subject geography" id="open-geography" type="button">
           <div class="home-subject-art" aria-hidden="true">
-            <svg viewBox="0 0 180 92" role="img"><defs><linearGradient id="gGeo" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#78D8F1"/><stop offset="1" stop-color="#CFF1F4"/></linearGradient></defs><rect width="180" height="92" rx="18" fill="url(#gGeo)"/><circle cx="149" cy="20" r="11" fill="#FFE17A"/><path d="M0 75L39 35l19 19 24-34 42 55z" fill="#6BAE78"/><path d="M44 38l14 16 24-34 15 25-13-9-8 10-11-7-9 10z" fill="#F5FBFF"/><path d="M0 73c32-10 49 10 82 0s60-4 98 4v15H0z" fill="#58B9D0"/><path d="M20 75c14-6 30-6 42 1-15 1-29 5-40 11z" fill="#F8D46A"/><g transform="translate(122 49)"><circle r="18" fill="#FFF" opacity=".96"/><circle r="13" fill="#F4F7FA"/><path d="M0-10L4 0 0 10-4 0z" fill="#EA6A63"/><path d="M-10 0L0-4 10 0 0 4z" fill="#4267B1"/><circle r="3" fill="#FFF"/></g></svg>
+            <svg viewBox="0 0 220 126"><defs><linearGradient id="gGeo2" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#6FD7F3"/><stop offset=".7" stop-color="#BDEEF3"/><stop offset="1" stop-color="#78C79D"/></linearGradient></defs><rect width="220" height="126" rx="22" fill="url(#gGeo2)"/><circle cx="181" cy="24" r="13" fill="#FFE17A"/><path d="M0 99L45 48l25 25 31-47 53 73z" fill="#559873"/><path d="M53 51l17 22 31-47 20 29-17-9-9 12-14-8-12 14z" fill="#F4FBFF"/><path d="M0 96c40-14 59 13 100 0s75-5 120 7v23H0z" fill="#4FB6D0"/><path d="M31 101c18-9 35-7 49 0-20 1-35 7-50 16z" fill="#F5D16A"/><g transform="translate(157 74)"><circle r="23" fill="#FFF" opacity=".97"/><circle r="17" fill="#F3F6FA"/><path d="M0-13L5 0 0 13-5 0z" fill="#EB665E"/><path d="M-13 0L0-5 13 0 0 5z" fill="#4267B1"/><circle r="3" fill="#FFF"/></g><path d="M17 89q19-12 38-3" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".65"/></svg>
           </div>
-          <div class="home-subject-icon">🌍</div>
-          <strong>Geografi</strong>
-          <p>Land, hovedsteder, flagg og verden.</p>
+          <div class="home-subject-body">
+            <div class="home-subject-icon">🌍</div><div class="home-subject-copy"><strong>Geografi</strong><p>Utforsk verden og se landene få farge.</p></div><span class="home-subject-arrow">›</span>
+          </div>
           <div class="home-subject-progress" id="topic-geography-progress">Start</div>
         </button>
+
         <button class="home-subject norwegian" id="open-norwegian" type="button">
           <div class="home-subject-art" aria-hidden="true">
-            <svg viewBox="0 0 180 92" role="img"><defs><linearGradient id="gNor" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FFB1C2"/><stop offset="1" stop-color="#FFE5C8"/></linearGradient></defs><rect width="180" height="92" rx="18" fill="url(#gNor)"/><path d="M35 23q27-10 49 6v43q-21-15-49-4z" fill="#FFF"/><path d="M145 23q-27-10-49 6v43q21-15 49-4z" fill="#FFF7F0"/><path d="M90 31v42" stroke="#D99AA7" stroke-width="3"/><path d="M46 37h28M46 47h25M106 37h28M106 47h23" stroke="#D6A9B3" stroke-width="4" stroke-linecap="round"/><g transform="translate(118 59) rotate(-28)"><rect x="-4" y="-20" width="8" height="40" rx="4" fill="#6C75E5"/><path d="M-4 20h8l-4 9z" fill="#F3B15B"/></g><circle cx="33" cy="22" r="6" fill="#FFF0A8"/><circle cx="151" cy="20" r="4" fill="#FFF" opacity=".75"/></svg>
+            <svg viewBox="0 0 220 126"><defs><linearGradient id="gNor2" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FF9FB7"/><stop offset="1" stop-color="#FFD7B2"/></linearGradient></defs><rect width="220" height="126" rx="22" fill="url(#gNor2)"/><circle cx="31" cy="26" r="11" fill="#FFF0A8"/><path d="M39 33q36-14 66 8v58q-29-20-66-5z" fill="#FFF"/><path d="M181 33q-36-14-66 8v58q29-20 66-5z" fill="#FFF7F0"/><path d="M110 42v59" stroke="#D99AA7" stroke-width="4"/><path d="M53 53h36M53 66h31M131 53h34M131 66h29" stroke="#D6A9B3" stroke-width="5" stroke-linecap="round"/><g transform="translate(153 83) rotate(-30)"><rect x="-5" y="-27" width="10" height="54" rx="5" fill="#6C75E5"/><path d="M-5 27h10l-5 12z" fill="#F3B15B"/></g><path d="M23 99q18 10 34 2" stroke="#FFF" stroke-width="4" stroke-linecap="round" opacity=".55"/></svg>
           </div>
-          <div class="home-subject-icon">📖</div>
-          <strong>Norsk</strong>
-          <p>Lesing, ord, staving og språk.</p>
+          <div class="home-subject-body">
+            <div class="home-subject-icon">📖</div><div class="home-subject-copy"><strong>Norsk</strong><p>Les, bygg ord og lek med språket.</p></div><span class="home-subject-arrow">›</span>
+          </div>
           <div class="home-subject-progress" id="topic-norwegian-progress">Start</div>
         </button>
+
         <button class="home-subject math" id="open-math" type="button">
           <div class="home-subject-art" aria-hidden="true">
-            <svg viewBox="0 0 180 92" role="img"><defs><linearGradient id="gMath" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#BFA8FF"/><stop offset="1" stop-color="#F1C3FF"/></linearGradient></defs><rect width="180" height="92" rx="18" fill="url(#gMath)"/><rect x="34" y="18" width="48" height="60" rx="12" fill="#FFD765"/><rect x="42" y="25" width="32" height="15" rx="5" fill="#EEF5FF"/><g fill="#FFF"><rect x="42" y="47" width="9" height="9" rx="3"/><rect x="56" y="47" width="9" height="9" rx="3"/><rect x="42" y="61" width="9" height="9" rx="3"/><rect x="56" y="61" width="9" height="9" rx="3"/></g><path d="M112 30v34M95 47h34" stroke="#527BEA" stroke-width="9" stroke-linecap="round"/><text x="143" y="64" text-anchor="middle" font-size="27" font-weight="900" fill="#FFF">3</text><circle cx="145" cy="24" r="8" fill="#FFF" opacity=".35"/></svg>
+            <svg viewBox="0 0 220 126"><defs><linearGradient id="gMath2" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#A88DF6"/><stop offset="1" stop-color="#F0B8F5"/></linearGradient></defs><rect width="220" height="126" rx="22" fill="url(#gMath2)"/><rect x="33" y="27" width="62" height="78" rx="15" fill="#FFD55D"/><rect x="43" y="37" width="42" height="19" rx="6" fill="#EDF5FF"/><g fill="#FFF"><rect x="43" y="64" width="12" height="12" rx="4"/><rect x="61" y="64" width="12" height="12" rx="4"/><rect x="43" y="83" width="12" height="12" rx="4"/><rect x="61" y="83" width="12" height="12" rx="4"/></g><path d="M143 40v47M120 63h47" stroke="#4B78E7" stroke-width="11" stroke-linecap="round"/><text x="188" y="92" text-anchor="middle" font-size="37" font-weight="950" fill="#FFF">3</text><path d="M113 105q31-11 68-4" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity=".45"/></svg>
           </div>
-          <div class="home-subject-icon">➗</div>
-          <strong>Matte</strong>
-          <p>Tall, regning og problemløsing.</p>
+          <div class="home-subject-body">
+            <div class="home-subject-icon">➗</div><div class="home-subject-copy"><strong>Matte</strong><p>Regn, eksperimenter og finn mønstrene.</p></div><span class="home-subject-arrow">›</span>
+          </div>
           <div class="home-subject-progress" id="topic-math-progress">Start</div>
         </button>
+
         <button class="home-subject english" id="open-english" type="button">
           <div class="home-subject-art" aria-hidden="true">
-            <svg viewBox="0 0 180 92" role="img"><defs><linearGradient id="gEng" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FF9B88"/><stop offset="1" stop-color="#FFD086"/></linearGradient></defs><rect width="180" height="92" rx="18" fill="url(#gEng)"/><g transform="translate(36 15)"><rect x="0" y="12" width="40" height="52" rx="4" fill="#D9C9A2"/><rect x="9" y="0" width="22" height="18" rx="3" fill="#E7D9B5"/><circle cx="20" cy="28" r="9" fill="#FFF"/><path d="M20 22v7l5 3" stroke="#44516A" stroke-width="2.5" stroke-linecap="round"/></g><g transform="translate(95 28)"><rect width="50" height="34" rx="5" fill="#3156A3"/><path d="M0 0l50 34M50 0L0 34" stroke="#FFF" stroke-width="7"/><path d="M0 0l50 34M50 0L0 34" stroke="#E95059" stroke-width="3"/><path d="M25 0v34M0 17h50" stroke="#FFF" stroke-width="10"/><path d="M25 0v34M0 17h50" stroke="#E95059" stroke-width="5"/></g><rect x="116" y="8" width="45" height="22" rx="11" fill="#FFF"/><text x="138" y="23" text-anchor="middle" font-size="12" font-weight="900" fill="#44516A">Hello!</text></svg>
+            <svg viewBox="0 0 220 126"><defs><linearGradient id="gEng2" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FF8C7B"/><stop offset="1" stop-color="#FFC568"/></linearGradient></defs><rect width="220" height="126" rx="22" fill="url(#gEng2)"/><g transform="translate(33 22)"><rect x="0" y="16" width="52" height="70" rx="5" fill="#D9C9A2"/><rect x="12" y="0" width="28" height="23" rx="4" fill="#E7D9B5"/><circle cx="26" cy="38" r="12" fill="#FFF"/><path d="M26 30v10l7 4" stroke="#44516A" stroke-width="3" stroke-linecap="round"/></g><g transform="translate(117 48)"><rect width="63" height="43" rx="6" fill="#3156A3"/><path d="M0 0l63 43M63 0L0 43" stroke="#FFF" stroke-width="8"/><path d="M0 0l63 43M63 0L0 43" stroke="#E95059" stroke-width="3.5"/><path d="M31.5 0v43M0 21.5h63" stroke="#FFF" stroke-width="12"/><path d="M31.5 0v43M0 21.5h63" stroke="#E95059" stroke-width="6"/></g><rect x="132" y="14" width="60" height="27" rx="14" fill="#FFF"/><text x="162" y="32" text-anchor="middle" font-size="15" font-weight="950" fill="#44516A">Hello!</text></svg>
           </div>
-          <div class="home-subject-icon">🇬🇧</div>
-          <strong>Engelsk</strong>
-          <p>Words, sentences and reading.</p>
+          <div class="home-subject-body">
+            <div class="home-subject-icon">🇬🇧</div><div class="home-subject-copy"><strong>Engelsk</strong><p>Words, sentences and real-world English.</p></div><span class="home-subject-arrow">›</span>
+          </div>
           <div class="home-subject-progress" id="topic-english-progress">Start</div>
         </button>
       </div>
 
-      <div class="home-week-section" id="home-week-section">
-        <div class="section-title"><h3>Denne uken</h3><span id="home-week-label">Litt hver dag</span></div>
-        <div class="home-week">
-          <div class="stat"><strong id="home-week-new">0</strong><span>ting styrket</span></div>
-          <div class="stat"><strong id="home-week-answers">0</strong><span>oppgaver</span></div>
-          <div class="stat"><strong id="home-week-days">0</strong><span>læringsdager</span></div>
+      <div class="dashboard-main-grid">
+        <div class="card dashboard-progress-panel">
+          <div class="dashboard-panel-heading">
+            <div><span class="section-kicker">MIN FREMGANG</span><h3>Jeg kan mer nå</h3></div>
+            <button class="dashboard-panel-link" id="home-progress-open" type="button">Se alt ›</button>
+          </div>
+
+          <div class="card daily-goal" id="home-daily-goal">
+            <div class="daily-goal-head"><strong>Dagens lille mål</strong><span id="daily-goal-count">0 av 1</span></div>
+            <div class="daily-goal-dots" id="daily-goal-dots" aria-label="Dagens mål"><i></i></div>
+            <div class="daily-goal-copy" id="daily-goal-copy">Én kort læringsøkt er nok til å gjøre dagen til en læringsdag.</div>
+            <div class="daily-growth" id="daily-growth">Klar for første lille seier?</div>
+          </div>
+
+          <div class="card young-knowledge" id="young-knowledge">
+            <div class="young-knowledge-head"><strong>Dette kan du ⭐</strong><span id="young-knowledge-total">Du bygger samlingen</span></div>
+            <div class="young-knowledge-grid">
+              <button class="young-knowledge-item" id="young-world" type="button"><b id="young-world-count">0</b><span>land</span></button>
+              <button class="young-knowledge-item" id="young-words" type="button"><b id="young-words-count">0</b><span>språkting</span></button>
+              <button class="young-knowledge-item" id="young-math" type="button"><b id="young-math-count">0</b><span>matteting</span></button>
+            </div>
+          </div>
+
+          <div class="home-week-section" id="home-week-section">
+            <div class="home-week-head"><strong>Denne uken</strong><span id="home-week-label">Litt hver dag</span></div>
+            <div class="home-week">
+              <div class="stat"><strong id="home-week-new">0</strong><span>ting styrket</span></div>
+              <div class="stat"><strong id="home-week-answers">0</strong><span>oppgaver</span></div>
+              <div class="stat"><strong id="home-week-days">0</strong><span>læringsdager</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="dashboard-world-column">
+          <div class="home-story-scene" id="home-story-scene" aria-label="Din læringsverden">
+            <div class="story-copy">
+              <div class="young-copy"><div class="eyebrow">DIN LÆRINGSVERDEN</div><strong>Se verden få farge! 🌍</strong><p>Land våkner til liv etter hvert som du lærer dem.</p></div>
+              <div class="middle-copy"><div class="eyebrow">UTFORSK VERDEN</div><strong>Samle land og bygg kunnskap</strong><p>Oppdag nye steder og se hvor langt du har kommet.</p></div>
+              <div class="older-copy"><div class="eyebrow">DIN VERDEN</div><strong>Kunnskap du faktisk bygger</strong><p>Kloden viser hva du kan, og hva som er på vei.</p></div>
+              <div class="teen-copy"><div class="eyebrow">VERDENSKART</div><strong>Utforsk og følg fremgangen</strong><p>Åpne kloden for å se status område for område.</p></div>
+            </div>
+            <span class="story-sun" aria-hidden="true"></span><span class="story-cloud one" aria-hidden="true"></span><span class="story-cloud two" aria-hidden="true"></span><span class="story-star" aria-hidden="true"></span>
+            <button class="story-globe-button" id="home-story-globe" type="button" aria-label="Åpne Min verden"></button>
+            <svg class="story-character story-lion" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="33" r="26" fill="#D58E43"/><circle cx="32" cy="33" r="19" fill="#F4C56C"/><circle cx="25" cy="30" r="2.4" fill="#3D4050"/><circle cx="39" cy="30" r="2.4" fill="#3D4050"/><path d="M29 36 Q32 39 35 36" fill="none" stroke="#6F4930" stroke-width="2.2" stroke-linecap="round"/><path d="M28 34 Q32 31 36 34 Q32 37 28 34" fill="#8F5B3A"/><circle cx="19" cy="17" r="7" fill="#D58E43"/><circle cx="45" cy="17" r="7" fill="#D58E43"/></svg>
+            <svg class="story-character story-fox" viewBox="0 0 72 72" aria-hidden="true"><path d="M14 18 L28 8 L31 25 Z" fill="#E9834B"/><path d="M58 18 L44 8 L41 25 Z" fill="#E9834B"/><path d="M17 21 Q36 7 55 21 L57 42 Q51 61 36 63 Q21 61 15 42 Z" fill="#ED9358"/><path d="M19 25 Q36 19 53 25 Q48 50 36 58 Q24 50 19 25" fill="#FFF0D6"/><circle cx="28" cy="33" r="2.6" fill="#343848"/><circle cx="44" cy="33" r="2.6" fill="#343848"/><path d="M32 43 Q36 47 40 43" fill="none" stroke="#6A4A3A" stroke-width="2.2" stroke-linecap="round"/><path d="M32 40 Q36 37 40 40 Q36 43 32 40" fill="#4B3D3D"/></svg>
+            <div class="story-note"><i></i><span>Trykk på kloden for Min verden</span></div>
+          </div>
+
+          <div class="fox-guide" id="fox-guide">
+            <div class="fox-guide-face" aria-hidden="true">🦊</div>
+            <div><strong id="fox-guide-title">Vi starter enkelt</strong><p id="fox-guide-copy">Én liten økt er nok. Resten er bonus.</p></div>
+          </div>
+
+          <div class="home-continue-wrap" id="home-continue-wrap">
+            <div class="card home-continue">
+              <div class="home-continue-top"><div class="eyebrow" id="home-continue-eyebrow">NESTE OPPDRAG</div><span class="mission-badge">★</span></div>
+              <h2 id="home-continue-title">Norsk</h2>
+              <p id="home-continue-copy">Lesetrening</p>
+              <button class="primary" id="home-continue-button" type="button">Fortsett 🚀</button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1158,6 +1305,7 @@
 
   <nav class="nav" id="bottom-nav">
     <button data-tab="home" class="active"><span>⌂</span><b id="nav-home-label">Hjem</b></button>
+    <button id="nav-explore" type="button"><span>◉</span><b>Utforsk</b></button>
     <button data-tab="progress"><span>↗</span><b id="nav-progress-label">Fremgang</b></button>
   </nav>
   <div class="toast" id="toast"></div>
@@ -1470,7 +1618,9 @@ function setTab(tab){
   document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
   renderAll();
 }
-document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
+document.querySelectorAll('.nav button[data-tab]').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
+const navExplore=document.getElementById('nav-explore');if(navExplore)navExplore.addEventListener('click',()=>{showScreen('geography')});
+const homeProgressOpen=document.getElementById('home-progress-open');if(homeProgressOpen)homeProgressOpen.addEventListener('click',()=>setTab('progress'));
 document.getElementById('young-world').onclick=()=>{showScreen('geography');requestAnimationFrame(()=>{globeMode='mine';showScreen('world');setGlobeMode('mine')})};
 document.getElementById('home-story-globe').onclick=()=>{showScreen('geography');requestAnimationFrame(()=>{globeMode='mine';showScreen('world');setGlobeMode('mine')})};
 document.getElementById('young-words').onclick=()=>setTab('progress');
@@ -1562,6 +1712,9 @@ function renderAll(){
   document.getElementById('home-week-new').textContent=a7.filter(a=>a.strengthened||a.newlyMastered).length;
   document.getElementById('home-week-answers').textContent=a7.length;
   document.getElementById('home-week-days').textContent=learningDaysLast7();
+  const homeStreak=document.getElementById('home-streak'),homeStreakLabel=document.getElementById('home-streak-label'),streakNow=computeStreak();
+  if(homeStreak)homeStreak.textContent=streakNow;
+  if(homeStreakLabel)homeStreakLabel.textContent=streakNow===1?'dag på rad':'dager på rad';
   const recentSessions=last7Sessions().length,progressTarget=5,progressPct=Math.min(100,Math.round(recentSessions/progressTarget*100));
   const progressFill=document.getElementById('home-progress-fill'),progressText=document.getElementById('home-progress-text'),progressCheer=document.getElementById('home-progress-cheer');
   if(progressFill)progressFill.style.width=progressPct+'%';
