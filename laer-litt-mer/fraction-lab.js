@@ -7,7 +7,8 @@ const FRACTION_LAB_VARIANTS=[
   {id:'circles',label:'Brøksirkler',icon:'◉'},
   {id:'whole',label:'Bygg en hel',icon:'🧩'},
   {id:'compare',label:'Sammenlign',icon:'⚖️'},
-  {id:'equivalent',label:'Like brøker',icon:'🔎'}
+  {id:'equivalent',label:'Like brøker',icon:'🔎'},
+  {id:'connections',label:'Brøk · desimal · %',icon:'🔄'}
 ];
 const FRACTION_LAB_LEVELS=['Oppdag','Utforsk','Utfordring','Mester'];
 const FRACTION_LAB_MISSIONS={
@@ -40,6 +41,12 @@ const FRACTION_LAB_MISSIONS={
     {title:'Sammenlign tredel og firedel',copy:'Legg 1/3 til venstre og 1/4 til høyre. Velg riktig tegn.',pair:[3,4]},
     {title:'Nære brøker',copy:'Legg 1/5 til venstre og 1/6 til høyre. Velg riktig tegn.',pair:[5,6]},
     {title:'Se forskjellen',copy:'Legg 1/8 til venstre og 1/10 til høyre. Velg riktig tegn.',pair:[8,10]}
+  ],
+  connections:[
+    {title:'Hva er 50 %?',copy:'Bygg mengden som er 50 %. Se hvordan den også kan skrives som brøk og desimaltall.',target:[1,2]},
+    {title:'Hva er 0,25?',copy:'Bygg mengden som er 0,25. Finn den samme mengden som brøk og prosent.',target:[1,4]},
+    {title:'Bygg 75 %',copy:'Lag 75 % i arbeidsfeltet. Du kan kombinere flere brøkbiter.',target:[3,4],minCount:2},
+    {title:'Bygg 62,5 %',copy:'Lag 62,5 %. Finn en kombinasjon som viser 5/8 = 0,625 = 62,5 %.',target:[5,8],minCount:2}
   ]
 };
 const fractionLabUi={
@@ -172,13 +179,16 @@ function fractionLabCheck(){
   }
   if(fractionLabMissionMatches(mission)){
     ensureFractionLabProgress();state.fractionLab.completed[fractionLabMissionKey()]=Date.now();saveState();
-    fractionLabUi.feedback={type:'good',text:'Du fant det! ✨ Prøv en annen måte, eller gå videre til neste utfordring.'};
+    const target=mission.target||fractionLabTotal();
+    const targetText=target[1]===1?String(target[0]):target[0]+'/'+target[1];
+    fractionLabUi.feedback={type:'good',text:'Du fant det! ✨ '+targetText+' = '+fractionLabDecimal(target)+' = '+fractionLabPercent(target)+'. Samme mengde, tre skrivemåter.'};
     try{celebrateCorrect()}catch(_){}
   }else{
     let hint='Se på størrelsen på brikkene og prøv en ny kombinasjon.';
     if(fractionLabUi.variant==='whole')hint='Du er på '+(fractionLabTotal()[0]+'/'+fractionLabTotal()[1])+'. Målet er nøyaktig 1.';
-    if(fractionLabUi.variant==='equivalent'||fractionLabUi.variant==='wall'||fractionLabUi.variant==='circles'){
-      const t=fractionLabTotal();hint='Du har bygget '+(t[1]===1?String(t[0]):t[0]+'/'+t[1])+'. Juster brikkene og prøv igjen.';
+    if(['equivalent','wall','circles','connections'].includes(fractionLabUi.variant)){
+      const t=fractionLabTotal(),shown=t[1]===1?String(t[0]):t[0]+'/'+t[1];
+      hint='Du har bygget '+shown+' = '+fractionLabDecimal(t)+' = '+fractionLabPercent(t)+'. Juster brikkene og prøv igjen.';
     }
     fractionLabUi.feedback={type:'try',text:hint};
   }
@@ -207,7 +217,7 @@ function fractionLabBoardHtml(){
     return '<div class="lab-fraction-row" data-parts="'+d+'" style="--parts:'+d+'">'+cells+'</div>';
   }).join('');
   const circles=FRACTION_LAB_DENOMS.map(d=>'<button type="button" class="lab-circle-source '+(d===fractionLabUi.selectedDenom?'selected':'')+'" data-fraction-source data-inspect-only="true" data-denom="'+d+'" aria-label="Brøksirkel '+(d===1?'en hel':'en '+d+'del')+'"><span class="lab-circle" style="--parts:'+d+';--piece-color:'+fractionLabColor(d)+'">'+fractionLabPieceLabel(d)+'</span><span class="lab-circle-meta">'+fractionLabCircleMeta(d)+'</span></button>').join('');
-  const focus=fractionLabUi.variant==='circles'?'focus-circles':(fractionLabUi.variant==='wall'||fractionLabUi.variant==='whole'||fractionLabUi.variant==='equivalent'?'focus-wall':'');
+  const focus=fractionLabUi.variant==='circles'?'focus-circles':(['wall','whole','equivalent','connections'].includes(fractionLabUi.variant)?'focus-wall':'');
   return '<div class="lab-board '+focus+'" aria-label="Digitalt brøkbrett"><div class="lab-board-page"><div class="lab-board-title">Brøkvegg</div><div class="lab-fraction-wall">'+wall+'</div></div><div class="lab-board-page"><div class="lab-board-title">Brøksirkler</div><div class="lab-circles">'+circles+'</div></div></div>';
 }
 function fractionLabBankHtml(){
@@ -223,7 +233,7 @@ function fractionLabWorkHtml(){
   const total=fractionLabTotal();
   const pieces=fractionLabUi.pieces.length?fractionLabUi.pieces.map((d,i)=>'<button type="button" class="lab-workpiece" data-remove-piece="'+i+'" style="--piece-color:'+fractionLabColor(d)+';--piece-width:'+(100/d)+'%" aria-label="Fjern '+(d===1?'en hel':'en '+d+'del')+'">'+fractionLabPieceLabel(d)+'</button>').join(''):'<div class="lab-empty">Dra en brøkbit hit, eller trykk på en brikke over.<br>Trykk på en brikke her for å fjerne den.</div>';
   const display=total[1]===1?String(total[0]):total[0]+'/'+total[1];
-  return '<div class="lab-workzone"><div class="lab-workzone-title"><strong>Arbeidsfelt</strong><button type="button" class="lab-clear" id="fraction-lab-clear">Tøm</button></div><div class="lab-workbench" id="fraction-workbench">'+pieces+'</div><div class="lab-total"><div class="lab-total-label">Det du har bygget</div><div class="lab-total-equivalence"><b>'+display+'</b><span>=</span><b>'+fractionLabDecimal(total)+'</b><span>=</span><b>'+fractionLabPercent(total)+'</b></div></div>'+fractionLabFeedbackHtml()+(fractionLabUi.mode==='mission'?'<button type="button" class="lab-check" id="fraction-lab-check">Sjekk oppdraget</button>':'')+'</div>';
+  return '<div class="lab-workzone"><div class="lab-workzone-title"><strong>Arbeidsfelt</strong><button type="button" class="lab-clear" id="fraction-lab-clear">Tøm</button></div><div class="lab-workbench" id="fraction-workbench">'+pieces+'</div><div class="lab-total"><div class="lab-total-label">Det du har bygget</div><div class="lab-total-value lab-total-equivalence"><b>'+display+'</b><span>=</span><b>'+fractionLabDecimal(total)+'</b><span>=</span><b>'+fractionLabPercent(total)+'</b></div></div>'+fractionLabFeedbackHtml()+(fractionLabUi.mode==='mission'?'<button type="button" class="lab-check" id="fraction-lab-check">Sjekk oppdraget</button>':'')+'</div>';
 }
 function fractionLabFeedbackHtml(){
   const f=fractionLabUi.feedback;if(!f)return '<div class="lab-feedback" id="fraction-lab-feedback" aria-live="polite"></div>';
