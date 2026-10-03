@@ -1,18 +1,19 @@
 
 /* Gangetabell-lab: open visual multiplication exploration. */
 #multiplication-lab-screen{padding:calc(8px + env(safe-area-inset-top)) 14px 36px}
-.mult-lab-shell{display:grid;gap:13px}
-.mult-lab-head{display:grid;grid-template-columns:48px 1fr 48px;align-items:center;gap:8px}
+.mult-lab-shell{display:grid;gap:13px;min-width:0;max-width:100%}
+.mult-lab-shell>*{min-width:0;max-width:100%;box-sizing:border-box}
+.mult-lab-head{display:grid;grid-template-columns:48px minmax(0,1fr) 48px;align-items:center;gap:8px}
 .mult-lab-head .detail-back{margin:0;width:48px;height:48px;padding:0;font-size:22px}
 .mult-lab-head-copy{text-align:center;min-width:0}
 .mult-lab-head-copy .eyebrow{font-size:10px}
-.mult-lab-head-copy h1{font-size:29px;margin:3px 0 0;color:#4B5698}
+.mult-lab-head-copy h1{font-size:29px;margin:3px 0 0;color:#4B5698;overflow-wrap:anywhere}
 .mult-lab-head-spacer{width:48px}
-.mult-mode-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:5px;background:#ECECF8;border-radius:20px}
+.mult-mode-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:5px;background:#ECECF8;border-radius:20px;min-width:0}
 .mult-mode-tab{border:0;border-radius:16px;min-height:48px;background:transparent;color:#636786;font-weight:950;cursor:pointer}
 .mult-mode-tab.active{background:#5E68D8;color:#fff;box-shadow:0 5px 0 rgba(64,70,145,.18)}
 .mult-intro{text-align:center;font-size:13px;font-weight:800;color:#71758D;margin-top:-3px}
-.mult-variants{display:flex;gap:8px;overflow-x:auto;padding:2px 1px 8px;scrollbar-width:none}
+.mult-variants{display:flex;gap:8px;overflow-x:auto;max-width:100%;padding:2px 1px 8px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .mult-variants::-webkit-scrollbar{display:none}
 .mult-variant{flex:0 0 auto;border:2px solid #E1E2EF;background:#fff;color:#565D7A;border-radius:999px;min-height:44px;padding:10px 13px;font-size:12px;font-weight:900;cursor:pointer;white-space:nowrap}
 .mult-variant.active{background:#ECEEFF;border-color:#7A83E2;color:#4751B4;box-shadow:0 3px 0 rgba(80,87,170,.09)}
@@ -23,7 +24,7 @@
 .mult-recommended{font-size:10px;font-weight:900;color:#6F6B7E;background:#fff;border-radius:999px;padding:6px 9px}
 .mult-mission h2{font-size:20px;margin:8px 0 4px}
 .mult-mission p{font-size:13px;line-height:1.45}
-.mult-levels{display:flex;gap:6px;overflow-x:auto;margin-top:12px;padding-bottom:2px;scrollbar-width:none}
+.mult-levels{display:flex;gap:6px;overflow-x:auto;max-width:100%;margin-top:12px;padding-bottom:2px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .mult-levels::-webkit-scrollbar{display:none}
 .mult-level{position:relative;flex:0 0 auto;border:1.5px solid #E3D8B7;background:rgba(255,255,255,.76);color:#675D43;border-radius:999px;min-height:38px;padding:8px 11px;font-size:11px;font-weight:900;cursor:pointer}
 .mult-level.active{background:#F6B94B;color:#583F11;border-color:#EAA93B}
@@ -37,19 +38,19 @@
 .mult-equation{position:relative;z-index:1;font-size:34px;line-height:1.15;font-weight:950;margin-top:4px}
 .mult-equation-sub{position:relative;z-index:1;margin-top:6px;font-size:12px;font-weight:800;color:rgba(255,255,255,.88);line-height:1.4}
 
-.mult-factor-panel{background:#fff;border:2px solid #fff;border-radius:23px;padding:14px;box-shadow:0 6px 0 rgba(70,72,115,.05)}
+.mult-factor-panel{background:#fff;border:2px solid #fff;border-radius:23px;padding:14px;box-shadow:0 6px 0 rgba(70,72,115,.05);min-width:0;max-width:100%;overflow:hidden}
 .mult-factor-title{font-size:12px;font-weight:950;color:#586078;margin-bottom:8px}
 .mult-factor-row{display:grid;grid-template-columns:46px 1fr 46px;gap:8px;align-items:center;margin-top:7px}
 .mult-factor-name{font-size:11px;font-weight:900;color:#777C92;text-align:center}
 .mult-factor-value{text-align:center;font-size:25px;font-weight:950;color:#35405E}
 .mult-factor-btn{border:0;border-radius:14px;background:#EEF0FF;color:#4E59B5;min-height:44px;font-size:21px;font-weight:950;cursor:pointer;box-shadow:0 3px 0 #D9DCF5}
 .mult-factor-btn:active{transform:translateY(2px);box-shadow:0 1px 0 #D9DCF5}
-.mult-factor-presets{display:flex;gap:7px;overflow-x:auto;margin-top:12px;padding-bottom:2px;scrollbar-width:none}
+.mult-factor-presets{display:flex;gap:7px;overflow-x:auto;max-width:100%;margin-top:12px;padding-bottom:2px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .mult-factor-presets::-webkit-scrollbar{display:none}
 .mult-preset{flex:0 0 auto;border:2px solid #E2E4EF;background:#FAFAFD;color:#525A78;border-radius:14px;min-width:44px;min-height:42px;font-size:12px;font-weight:950;cursor:pointer}
 .mult-preset.active{background:#E8EAFF;border-color:#747EE1;color:#4650B2}
 
-.mult-stage{background:#fff;border:2px solid #fff;border-radius:25px;padding:14px;box-shadow:0 7px 0 rgba(70,72,115,.05)}
+.mult-stage{background:#fff;border:2px solid #fff;border-radius:25px;padding:14px;box-shadow:0 7px 0 rgba(70,72,115,.05);min-width:0;max-width:100%;overflow:hidden}
 .mult-stage-head{display:flex;align-items:center;justify-content:space-between;gap:9px;margin-bottom:10px}
 .mult-stage-head strong{font-size:15px}
 .mult-stage-note{font-size:10px;font-weight:850;color:#7B8195;text-align:right}
@@ -105,6 +106,46 @@
 .math-lab-grid{display:grid;gap:10px}
 .math-lab-card.multiplication{background:linear-gradient(145deg,#E9ECFF,#F7F8FF)}
 .math-lab-card.multiplication .module-icon{background:#fff;color:#535FC8}
+
+
+@media (max-width:560px) and (orientation:portrait){
+  #multiplication-lab-screen{padding-left:10px;padding-right:10px;overflow-x:hidden}
+  .mult-lab-shell{gap:11px}
+  .mult-lab-head{grid-template-columns:44px minmax(0,1fr) 44px;gap:6px}
+  .mult-lab-head .detail-back{width:44px;height:44px}
+  .mult-lab-head-spacer{width:44px}
+  .mult-lab-head-copy .eyebrow{font-size:9px;letter-spacing:.08em;white-space:normal}
+  .mult-lab-head-copy h1{font-size:clamp(22px,7.2vw,28px);line-height:1.02;white-space:normal}
+  .mult-mode-tabs{gap:6px;padding:4px;border-radius:17px}
+  .mult-mode-tab{min-height:44px;font-size:13px;border-radius:14px}
+  .mult-intro{font-size:12px;line-height:1.35;padding:0 4px}
+  .mult-variant{min-height:42px;padding:9px 11px;font-size:11px}
+  .mult-mission{padding:14px;border-radius:20px}
+  .mult-mission h2{font-size:19px}
+  .mult-mission p{font-size:12px}
+  .mult-level{min-height:38px;padding:8px 10px;font-size:10px}
+  .mult-equation-card{padding:14px;border-radius:21px}
+  .mult-equation{font-size:30px}
+  .mult-equation-sub{font-size:11px}
+  .mult-factor-panel{padding:12px;border-radius:20px}
+  .mult-factor-title{font-size:11px;line-height:1.25}
+  .mult-factor-row{grid-template-columns:44px minmax(0,1fr) 44px;gap:7px}
+  .mult-factor-btn{min-height:44px}
+  .mult-factor-value{font-size:23px}
+  .mult-preset{min-width:42px;min-height:42px}
+  .mult-stage{padding:12px;border-radius:21px}
+  .mult-stage-head{align-items:flex-start}
+  .mult-stage-note{max-width:45%;line-height:1.25}
+  .mult-array{gap:4px;padding:9px}
+  .mult-group{padding:8px;gap:4px}
+  .mult-group .mult-dot{width:27px;height:27px}
+  .mult-swap{grid-template-columns:minmax(0,1fr) 32px minmax(0,1fr);gap:5px}
+  .mult-swap-card{padding:8px;min-height:128px;border-radius:16px}
+  .mult-swap-card strong{font-size:13px}
+  .mult-swap-icon{font-size:20px}
+  .mult-table-wrap{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .mult-answer{min-width:54px}
+}
 
 @media (max-width:380px){
   #multiplication-lab-screen{padding-left:10px;padding-right:10px}
