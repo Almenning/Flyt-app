@@ -300,6 +300,19 @@ async function finishSession(page){
     assert.equal(await page.locator('.lab-circle-source').count(),9);
     assert.match(await page.locator('.lab-mission').innerText(),/Finn en halv/i);
 
+    // Portrait mobile must never require horizontal page scrolling. The active manipulative gets the full phone width.
+    const fractionPortraitFit=await page.evaluate(()=>{
+      const screen=document.querySelector('#fraction-lab-screen');
+      const board=document.querySelector('.lab-board');
+      const pages=[...document.querySelectorAll('.lab-board-page')].filter(el=>getComputedStyle(el).display!=='none');
+      const sr=screen.getBoundingClientRect(),br=board.getBoundingClientRect();
+      return {viewport:window.innerWidth,documentWidth:document.documentElement.scrollWidth,screenLeft:sr.left,screenRight:sr.right,boardLeft:br.left,boardRight:br.right,visibleBoardPages:pages.length};
+    });
+    assert.ok(fractionPortraitFit.documentWidth<=fractionPortraitFit.viewport+1,'Brøklab creates horizontal page overflow in portrait: '+JSON.stringify(fractionPortraitFit));
+    assert.ok(fractionPortraitFit.screenLeft>=-1&&fractionPortraitFit.screenRight<=fractionPortraitFit.viewport+1,'Brøklab screen exceeds portrait viewport: '+JSON.stringify(fractionPortraitFit));
+    assert.ok(fractionPortraitFit.boardLeft>=fractionPortraitFit.screenLeft-1&&fractionPortraitFit.boardRight<=fractionPortraitFit.screenRight+1,'fraction board exceeds its screen: '+JSON.stringify(fractionPortraitFit));
+    assert.equal(fractionPortraitFit.visibleBoardPages,1,'portrait should show one full-width manipulative board at a time');
+
     // Young child can solve the recommended discovery directly with a physical-style piece.
     await page.locator('.lab-piece-bank [data-denom="2"]').click();
     assert.match(await page.locator('.lab-total-value').innerText(),/1\/2/);
