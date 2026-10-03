@@ -427,6 +427,7 @@
 
   </style>
   <link rel="stylesheet" href="./fraction-lab.css" />
+  <link rel="stylesheet" href="./multiplication-lab.css" />
   <!-- immersive-globe-viewport-2026-10-02 -->
   <!-- globe-hit-test-dateline-fix-2026-10-02 -->
   <!-- parent-info-udir-2026-10-02 -->
@@ -533,11 +534,18 @@
 
       <div class="math-lab-entry" id="math-lab-entry" hidden>
         <div class="section-title"><h3>Eksperimenter</h3><span>Åpent på alle trinn</span></div>
-        <button class="math-lab-card" id="open-fraction-lab" type="button">
-          <div class="module-icon">🧪</div>
-          <div style="flex:1"><strong>Brøklab</strong><small>Flytt brøkbiter, bygg mengder og oppdag sammenhengene selv.</small></div>
-          <div class="topic-arrow">›</div>
-        </button>
+        <div class="math-lab-grid">
+          <button class="math-lab-card" id="open-fraction-lab" type="button">
+            <div class="module-icon">🧪</div>
+            <div style="flex:1"><strong>Brøklab</strong><small>Flytt brøkbiter, bygg mengder og oppdag sammenhengene selv.</small></div>
+            <div class="topic-arrow">›</div>
+          </button>
+          <button class="math-lab-card multiplication" id="open-multiplication-lab" type="button">
+            <div class="module-icon">✖️</div>
+            <div style="flex:1"><strong>Gangetabell-lab</strong><small>Bygg grupper, rutenett og mønstre og se hvorfor gange virker.</small></div>
+            <div class="topic-arrow">›</div>
+          </button>
+        </div>
       </div>
 
       <div class="section-title"><h3>Hva vil du øve på?</h3><span id="subject-grade-label"></span></div>
@@ -552,6 +560,10 @@
 
     <section class="screen" id="fraction-lab-screen" aria-label="Brøklab">
       <div id="fraction-lab-root"></div>
+    </section>
+
+    <section class="screen" id="multiplication-lab-screen" aria-label="Gangetabell-lab">
+      <div id="multiplication-lab-root"></div>
     </section>
 
     <section class="screen" id="geography-screen">
@@ -1159,7 +1171,7 @@ function showScreen(name){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   const el=document.getElementById(name+'-screen'); if(!el) return;
   el.classList.add('active');
-  const special=['session','complete','detail','adult','parent-info','feedback','world','continent','geography','subject','fraction-lab'].includes(name);
+  const special=['session','complete','detail','adult','parent-info','feedback','world','continent','geography','subject','fraction-lab','multiplication-lab'].includes(name);
   document.getElementById('bottom-nav').style.display=special?'none':'grid';
   document.getElementById('topbar').style.display=special?'none':'flex';
   window.scrollTo(0,0);
@@ -1174,7 +1186,7 @@ function setTab(tab){
 document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
 
 // Native-feeling left-edge swipe. Narrow edge avoids stealing map and exercise gestures.
-const SWIPE_BACK_SCREENS=new Set(['subject','geography','continent','world','detail','adult','parent-info','feedback','session','complete','fraction-lab']);
+const SWIPE_BACK_SCREENS=new Set(['subject','geography','continent','world','detail','adult','parent-info','feedback','session','complete','fraction-lab','multiplication-lab']);
 const swipeBackEdge=document.getElementById('swipe-back-edge');
 const swipeBackIndicator=document.getElementById('swipe-back-indicator');
 let swipeBackGesture=null;
@@ -1186,7 +1198,7 @@ function syncSwipeBackEdge(name=activeScreenName()){
 function appBack(){
   const current=activeScreenName();
   if(current==='subject'||current==='geography'){setTab('home');return true}
-  if(current==='fraction-lab'){openSubject('math');return true}
+  if(current==='fraction-lab'||current==='multiplication-lab'){openSubject('math');return true}
   if(current==='continent'||current==='world'){showScreen('geography');return true}
   if(current==='detail'){
     if(['home','progress'].includes(returnScreen))setTab(returnScreen);else showScreen(returnScreen||'home');
@@ -2663,6 +2675,7 @@ if(!state.profile.onboarded||!state.profile.grade){
 }
 </script>
 <script src="./fraction-lab.js" defer></script>
-<!-- build: fraction-lab-v2-2026-10-03 -->
+<script src="./multiplication-lab.js" defer></script>
+<!-- build: multiplication-lab-v1-2026-10-03 -->
 </body>
 </html>
