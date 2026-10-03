@@ -114,6 +114,17 @@
     .session-progress div{height:100%;background:linear-gradient(90deg,#5A7DF2,#8A6CE8);border-radius:inherit;transition:width .3s ease}
     #session-count{font-size:13px;background:#fff;padding:8px 9px;border-radius:12px;color:#5F6380;box-shadow:0 4px 0 rgba(71,72,104,.05)}
     .qtype{display:inline-block;font-size:12px;font-weight:950;text-transform:uppercase;letter-spacing:.08em;color:#6558B3;background:#EEEAFE;padding:7px 10px;border-radius:999px}
+    .question-tools{display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .read-aloud{border:2px solid #E1E5F2;background:#fff;color:#5364A7;border-radius:999px;padding:8px 11px;font-weight:900;font-size:12px;cursor:pointer;min-height:40px}
+    .read-aloud:active{transform:translateY(1px)}
+    .number-input-wrap{display:grid;gap:11px;margin:8px 0 4px}
+    .math-input{width:100%;border:3px solid #fff;background:#fff;color:var(--ink);border-radius:21px;padding:17px 16px;font:950 24px/1.2 ui-rounded,"SF Pro Rounded",system-ui;text-align:center;outline:none;box-shadow:0 7px 0 #E4E2EC}
+    .math-input:focus{border-color:#93A5F7;box-shadow:0 0 0 4px rgba(90,125,242,.12),0 7px 0 #E4E2EC}
+    .sequence-target{min-height:66px;border:3px dashed #DADDEA;border-radius:22px;background:rgba(255,255,255,.62);padding:10px;display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;margin:8px 0 14px}
+    .sequence-bank{display:flex;gap:9px;justify-content:center;flex-wrap:wrap;margin-bottom:12px}
+    .sequence-tile,.sequence-target button{min-width:54px;min-height:52px;border:2px solid #fff;border-radius:17px;background:#fff;color:var(--ink);font-weight:950;font-size:19px;box-shadow:0 5px 0 #E2E0EA;cursor:pointer}
+    .sequence-tile.used{opacity:.3}
+    .adult-toggle{cursor:pointer}.adult-toggle input{width:22px;height:22px;accent-color:#5A7DF2;flex:0 0 auto}
     .question{font-size:30px;line-height:1.13;letter-spacing:-.04em;margin:15px 0 20px;font-weight:950}
     .big-flag{font-size:103px;text-align:center;margin:4px 0 24px;filter:drop-shadow(0 9px 6px rgba(55,55,91,.09));animation:floaty 2.8s ease-in-out infinite}
     @keyframes floaty{50%{transform:translateY(-6px) rotate(1deg)}}
@@ -363,6 +374,7 @@
   <!-- resume-home-policy-2026-10-03 -->
   <!-- joy-loop-phase1-2026-10-03 -->
   <!-- mastery-evidence-v2-2026-10-03 -->
+  <!-- tts-task-variety-2026-10-03 -->
 </head>
 <body>
 <div class="app">
@@ -601,6 +613,8 @@
 
       <div class="card adult-card">
         <div class="parent-row"><span>Klassetrinn</span><select class="adult-grade-select" id="adult-grade" aria-label="Klassetrinn"><option value="1">1. klasse</option><option value="2">2. klasse</option><option value="3">3. klasse</option><option value="4">4. klasse</option><option value="5">5. klasse</option><option value="6">6. klasse</option><option value="7">7. klasse</option><option value="8">8. klasse</option><option value="9">9. klasse</option><option value="10">10. klasse</option></select></div>
+        <label class="parent-row adult-toggle"><span>Lydeffekt ved riktig svar</span><input type="checkbox" id="adult-sound-toggle" aria-label="Lydeffekt ved riktig svar"></label>
+        <label class="parent-row adult-toggle"><span>Les opp automatisk i 1.–2. klasse</span><input type="checkbox" id="adult-autoread-toggle" aria-label="Automatisk opplesning i 1. og 2. klasse"></label>
         <div class="parent-row"><span>Læringsøkter</span><b id="adult-sessions">0</b></div>
         <div class="parent-row"><span>Riktige svar</span><b id="adult-accuracy">–</b></div>
         <div class="parent-row"><span>Sterkest nå</span><b id="adult-strong">Ikke nok data ennå</b></div>
@@ -1163,6 +1177,9 @@ function renderAdult(){
   document.getElementById('adult-accuracy').textContent=a7.length?Math.round(a7.filter(a=>a.correct).length/a7.length*100)+' %':'–';
   document.getElementById('adult-strong').textContent=best?countries[best.k].name:'Ikke nok data ennå';
   document.getElementById('adult-practice').textContent=worst?countries[worst.k].name:'Start en økt';
+  const sound=document.getElementById('adult-sound-toggle'),auto=document.getElementById('adult-autoread-toggle');
+  if(sound)sound.checked=state.preferences?.sound!==false;
+  if(auto)auto.checked=!!state.preferences?.autoRead;
 }
 
 function openDetail(k,source=null){
@@ -1481,6 +1498,13 @@ function norwegianPool(grade,module){
   return q;
 }
 function rand(min,max){return Math.floor(Math.random()*(max-min+1))+min}
+
+function numberInputQuestion(skill,prompt,answer,extra={}){
+  return Object.assign({subject:'math',skill,type:'number-input',prompt,answer:String(answer),curriculum:CURRICULUM.math},extra);
+}
+function sequenceOrderQuestion(skill,prompt,items,answerItems,extra={}){
+  return Object.assign({subject:'math',skill,type:'sequence-order',prompt,items:shuffle(items.map(String)),answer:answerItems.map(String).join('|'),curriculum:CURRICULUM.math},extra);
+}
 function mathPool(grade,module){
   const numbers=[],fractions=[],geometry=[],algebra=[];
   const add=(arr,skill,prompt,answer,opts,extra={})=>arr.push(choiceQuestion('math',skill,prompt,String(answer),opts.map(String),extra));
@@ -1522,7 +1546,28 @@ function mathPool(grade,module){
     add(geometry,'geometry','En rett vinkel er ... grader',90,[90,45,180,360]);add(geometry,'pythagoras','Katetene er 3 og 4. Hypotenusen er ...',5,[5,6,7,4]);add(geometry,'circle','Omkretsen av en sirkel uttrykkes som ...','2πr',['2πr','πr²','πd²','r²']);add(geometry,'area','Arealet av en sirkel uttrykkes som ...','πr²',['πr²','2πr','πd','r²/2']);add(geometry,'scale','Målestokk 1:50. 4 cm på tegningen er ... cm',200,[200,54,100,400]);
     add(algebra,'algebra','3x = 21. Hva er x?',7,[7,18,24,6]);add(algebra,'linear','Hvis y = 2x + 1 og x = 4, hva er y?',9,[9,8,7,10]);add(algebra,'algebra','2x + 5 = 17. x = ?',6,[6,11,5,7]);add(algebra,'functions','f(x)=3x−2. f(5)=?',13,[13,15,17,10]);add(algebra,'algebra','4(x−2)=24. x = ?',8,[8,6,10,4]);add(algebra,'functions','y = −2x + 6. Når x=2 er y = ?',2,[2,4,0,10]);
   }
-  if(module==='numbers')return numbers;
+
+  if(grade===1){
+    numbers.push(numberInputQuestion('addition-10','Mia har 3 epler og får 2 til. Hvor mange har hun?',5));
+    numbers.push(sequenceOrderQuestion('number-order','Sett tallene fra minst til størst',[2,5,3],[2,3,5]));
+  }else if(grade===2){
+    numbers.push(numberInputQuestion('subtraction-100','Noah har 28 klinkekuler og gir bort 6. Hvor mange har han igjen?',22));
+    numbers.push(sequenceOrderQuestion('number-order','Sett tallene fra minst til størst',[14,9,20,11],[9,11,14,20]));
+  }else if(grade===3){
+    numbers.push(numberInputQuestion('multiplication','Det er 4 poser med 6 epler i hver. Hvor mange epler er det?',24));
+    numbers.push(sequenceOrderQuestion('number-order','Sett tallene fra minst til størst',[36,18,27,9],[9,18,27,36]));
+  }else if(grade===4){
+    numbers.push(numberInputQuestion('division','96 kjeks fordeles likt på 8 barn. Hvor mange får hver?',12));
+  }else if(grade===5){
+    fractions.push(numberInputQuestion('percent','En genser koster 200 kr. Hva er 25 % av 200?',50));
+  }else if(grade===6){
+    fractions.push(numberInputQuestion('fractions','Hva er 3/4 av 28?',21));
+  }else if(grade===7){
+    algebra.push(numberInputQuestion('algebra','x + 9 = 23. Hva er x?',14));
+  }else{
+    algebra.push(numberInputQuestion('algebra','2x + 6 = 24. Hva er x?',9));
+  }
+    if(module==='numbers')return numbers;
   if(module==='fractions')return fractions;
   if(module==='geometry')return geometry;
   if(module==='algebra')return algebra;
@@ -1563,6 +1608,8 @@ function validLearningQuestion(q){
   if(q.type==='learning-choice')return Array.isArray(q.options)&&q.options.length>=2&&q.options.map(String).includes(String(q.answer));
   if(q.type==='build-word')return Array.isArray(q.letters)&&q.letters.length>0&&String(q.answer).length===q.letters.length;
   if(q.type==='sentence-order')return Array.isArray(q.words)&&q.words.length>1&&String(q.answer).length>0;
+  if(q.type==='number-input')return String(q.answer).length>0;
+  if(q.type==='sequence-order')return Array.isArray(q.items)&&q.items.length>1&&String(q.answer).length>0;
   return false;
 }
 function buildLearningQuestions(subject,module){
@@ -1753,7 +1800,7 @@ function answerLearningChoice(answer){
 }
 function showLearningFeedback(q,correct){
   const box=document.getElementById('feedback');box.style.display='block';box.classList.toggle('bad',!correct);
-  document.getElementById('feedback-title').textContent=correct?'⭐ Riktig!':'💪 Nesten!';
+  document.getElementById('feedback-title').textContent=correct?(currentGrade()<=2?'🦊 ⭐ Riktig!':'⭐ Riktig!'):'💪 Nesten!';
   document.getElementById('feedback-copy').textContent=learningFeedbackText(q,correct);
   document.getElementById('next-question').style.display='block';
 }
@@ -1980,19 +2027,49 @@ function renderSentenceOrder(q,wrap){
   wrap.querySelector('#check-sentence').onclick=()=>{const answer=chosen.map(x=>x.w).join(' '),correct=answer===q.answer;recordLearningAnswer(q,correct,answer);wrap.querySelectorAll('.word-tile,[data-chosen]').forEach(b=>b.disabled=true);showLearningFeedback(q,correct)};
   paint();
 }
+
+function normalizeNumericAnswer(v){return String(v??'').trim().replace(/\s+/g,'').replace(',','.')}
+function renderNumberInput(q,wrap){
+  const input=wrap.querySelector('#math-input'),check=wrap.querySelector('#check-number');
+  const submit=()=>{
+    if(currentAnswered)return;
+    const raw=input.value,correct=normalizeNumericAnswer(raw)===normalizeNumericAnswer(q.answer);
+    recordLearningAnswer(q,correct,raw);input.disabled=true;check.disabled=true;showLearningFeedback(q,correct);
+  };
+  check.onclick=submit;input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();submit()}});
+  setTimeout(()=>input.focus({preventScroll:true}),60);
+}
+function renderSequenceOrder(q,wrap){
+  let chosen=[];const items=q.items.map((value,i)=>({value,i}));
+  const target=wrap.querySelector('#sequence-target'),bank=wrap.querySelector('#sequence-bank'),check=wrap.querySelector('#check-sequence');
+  function paint(){
+    target.innerHTML=chosen.length?chosen.map((x,i)=>'<button type="button" data-seq-chosen="'+i+'">'+x.value+'</button>').join(''):'<span style="color:#9298AA;font-weight:800">Trykk på tallene i riktig rekkefølge</span>';
+    bank.querySelectorAll('.sequence-tile').forEach(b=>b.classList.toggle('used',chosen.some(x=>x.i===Number(b.dataset.idx))));
+    check.disabled=chosen.length!==items.length;
+    target.querySelectorAll('[data-seq-chosen]').forEach(b=>b.onclick=()=>{chosen.splice(Number(b.dataset.seqChosen),1);paint()});
+  }
+  bank.querySelectorAll('.sequence-tile').forEach(b=>b.onclick=()=>{const item=items[Number(b.dataset.idx)];if(item&&!chosen.some(x=>x.i===item.i)){chosen.push(item);paint()}});
+  check.onclick=()=>{if(currentAnswered)return;const answer=chosen.map(x=>x.value).join('|'),correct=answer===q.answer;recordLearningAnswer(q,correct,answer);bank.querySelectorAll('button').forEach(b=>b.disabled=true);target.querySelectorAll('button').forEach(b=>b.disabled=true);check.disabled=true;showLearningFeedback(q,correct)};
+  paint();
+}
+
 function renderLearningQuestion(){
   const q=sessionQuestions[qIndex];if(!q){finishSession();return}
   document.getElementById('session-progress-bar').style.width=(qIndex/sessionQuestions.length*100)+'%';
   document.getElementById('session-count').textContent=(qIndex+1)+'/'+sessionQuestions.length;
   const wrap=document.getElementById('question-wrap');
   const label=q.subject==='norwegian'?'Norsk':q.subject==='math'?'Matte':q.subject==='english'?'English':'Geografi';
-  let html='<div class="qtype">'+label+' · '+GRADE_CONFIG[currentGrade()].label+'</div><div class="question">'+q.prompt+'</div>';
+  let html='<div class="question-tools"><div class="qtype">'+label+' · '+GRADE_CONFIG[currentGrade()].label+'</div>'+readAloudButton(q)+'</div><div class="question">'+q.prompt+'</div>';
   if(q.passage)html+='<div class="learning-passage">'+q.passage+'</div>';
   if(q.visual)html+='<div class="big-flag">'+q.visual+'</div>';
   if(q.type==='build-word'){
     html+='<div class="letter-slots" id="letter-slots"></div><div class="letter-helper" id="letter-helper" aria-live="polite">Trykk på en rute og en bokstav, eller dra bokstaven dit.</div><div class="letter-bank">'+q.letters.map((x,i)=>'<button type="button" class="letter-tile" data-idx="'+i+'" aria-label="Bokstav '+x.l+'">'+x.l+'</button>').join('')+'</div><button class="secondary" id="check-build" type="button">Sjekk ordet</button>';
   }else if(q.type==='sentence-order'){
     html+='<div class="sentence-target" id="sentence-target"></div><div class="word-bank">'+q.words.map((w,i)=>'<button type="button" class="word-tile" data-idx="'+i+'">'+w+'</button>').join('')+'</div><button class="secondary" id="check-sentence" type="button">Sjekk setningen</button>';
+  }else if(q.type==='number-input'){
+    html+='<div class="number-input-wrap"><input class="math-input" id="math-input" inputmode="decimal" autocomplete="off" aria-label="Skriv svaret"><button class="secondary" id="check-number" type="button">Sjekk svaret</button></div>';
+  }else if(q.type==='sequence-order'){
+    html+='<div class="sequence-target" id="sequence-target"></div><div class="sequence-bank" id="sequence-bank">'+q.items.map((x,i)=>'<button type="button" class="sequence-tile" data-idx="'+i+'">'+x+'</button>').join('')+'</div><button class="secondary" id="check-sequence" type="button">Sjekk rekkefølgen</button>';
   }else{
     html+='<div class="answers">'+q.options.map(o=>'<button class="answer" data-answer="'+escapeAttr(o)+'">'+o+'</button>').join('')+'</div>';
   }
@@ -2000,10 +2077,15 @@ function renderLearningQuestion(){
   wrap.innerHTML=html;
   if(q.type==='build-word')renderBuildWord(q,wrap);
   else if(q.type==='sentence-order')renderSentenceOrder(q,wrap);
+  else if(q.type==='number-input')renderNumberInput(q,wrap);
+  else if(q.type==='sequence-order')renderSequenceOrder(q,wrap);
   else document.querySelectorAll('.answer').forEach(b=>b.onclick=()=>answerLearningChoice(b.dataset.answer));
   document.getElementById('next-question').onclick=nextQuestion;
+  bindReadAloud(q);
   if(currentAnswered){
     if(q.type==='learning-choice')document.querySelectorAll('.answer').forEach(b=>{b.disabled=true;if(b.dataset.answer===String(q.answer))b.classList.add('correct');else if(b.dataset.answer===String(currentAnswered.selected))b.classList.add('wrong')});
+    const input=document.getElementById('math-input');if(input){input.value=currentAnswered.selected??'';input.disabled=true}
+    document.querySelectorAll('#check-number,#check-sequence').forEach(b=>b.disabled=true);
     showLearningFeedback(q,currentAnswered.correct);
   }
 }
@@ -2161,13 +2243,36 @@ function renderQuizMap(q,answered=currentAnswered){const canvas=document.getElem
 }
 
 
+
+function canSpeak(){return typeof window!=='undefined'&&'speechSynthesis' in window&&typeof SpeechSynthesisUtterance!=='undefined'}
+function speechTextForQuestion(q){
+  const parts=[];if(q.passage)parts.push(q.passage);if(q.prompt)parts.push(q.prompt);
+  if(Array.isArray(q.options)&&q.options.length&&currentGrade()<=2)parts.push('Svar: '+q.options.join(', '));
+  return parts.join('. ');
+}
+function speakQuestion(q){
+  if(!canSpeak()||!q)return;
+  try{
+    window.speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(speechTextForQuestion(q));
+    u.lang=q.subject==='english'?'en-GB':'nb-NO';u.rate=currentGrade()<=2?.88:.96;u.pitch=1;
+    window.speechSynthesis.speak(u);
+  }catch(_){}
+}
+function readAloudButton(q){
+  return currentGrade()<=2&&canSpeak()?'<button type="button" class="read-aloud" id="read-aloud">🔊 Les opp</button>':'';
+}
+function bindReadAloud(q){
+  const b=document.getElementById('read-aloud');if(b)b.onclick=()=>speakQuestion(q);
+  if(currentGrade()<=2&&state.preferences?.autoRead&&canSpeak())setTimeout(()=>speakQuestion(q),90);
+}
 function renderQuestion(){
   const q=sessionQuestions[qIndex];if(!q){finishSession();return}
   document.getElementById('session-progress-bar').style.width=(qIndex/sessionQuestions.length*100)+'%';
   document.getElementById('session-count').textContent=`${qIndex+1}/${sessionQuestions.length}`;
   const wrap=document.getElementById('question-wrap');
   const typeLabel=q.type==='flag'?'Flagg':q.type==='capital'?'Hovedstad':q.type==='map'?'Kart':q.type==='continent'?'Verdensdel':'Land';
-  let html=`<div class="qtype">${typeLabel}</div><div class="question">${q.prompt}</div>`;
+  let html=`<div class="question-tools"><div class="qtype">${typeLabel}</div>${readAloudButton(q)}</div><div class="question">${q.prompt}</div>`;
   if(q.visual)html+=`<div class="big-flag">${q.visual}</div>`;
   if(q.type==='map')html+=`<div class="map-region">🗺️ ${q.mapRegion||countries[q.k].continent}</div><div class="map quiz-real-map" id="quiz-map"><canvas id="quiz-map-canvas" aria-label="Kart over ${q.mapRegion||countries[q.k].continent}"></canvas></div>`;
   else html+=`<div class="answers">${q.options.map(o=>`<button class="answer" data-answer="${escapeAttr(o)}">${o}</button>`).join('')}</div>`;
@@ -2175,6 +2280,7 @@ function renderQuestion(){
   wrap.innerHTML=html;
   if(q.type==='map')requestAnimationFrame(()=>renderQuizMap(q,currentAnswered));else document.querySelectorAll('.answer').forEach(b=>b.onclick=()=>answerText(b.dataset.answer));
   document.getElementById('next-question').onclick=nextQuestion;
+  bindReadAloud(q);
   if(currentAnswered)applyAnsweredState(q,currentAnswered);
 }
 function escapeAttr(s){return String(s).replaceAll('&','&amp;').replaceAll('"','&quot;').replaceAll('<','&lt;').replaceAll('>','&gt;')}
@@ -2197,7 +2303,7 @@ function applyAnsweredState(q,answered){
 }
 function showFeedback(q,correct){
   const c=countries[q.k],box=document.getElementById('feedback');box.style.display='block';box.classList.toggle('bad',!correct);
-  document.getElementById('feedback-title').textContent=correct?'⭐ Riktig!':'💪 Nesten!';
+  document.getElementById('feedback-title').textContent=correct?(currentGrade()<=2?'🦊 ⭐ Riktig!':'⭐ Riktig!'):'💪 Nesten!';
   let copy='';
   if(q.type==='capital')copy=`${c.name} har hovedstaden ${c.capital}.`;
   else if(q.type==='flag')copy=`Dette er flagget til ${c.name}.`;
@@ -2275,6 +2381,10 @@ document.getElementById('reset-progress').onclick=()=>{
 
 const adultGradeSelect=document.getElementById('adult-grade');
 if(adultGradeSelect)adultGradeSelect.addEventListener('change',()=>{state.profile.grade=Number(adultGradeSelect.value);state.activeSession=null;state.lastActivity=null;selectedGrade=state.profile.grade;saveState();renderGradeChoice();renderAll();toast(`Nivået er tilpasset ${state.profile.grade}. klasse`)});
+const adultSoundToggle=document.getElementById('adult-sound-toggle');
+const adultAutoReadToggle=document.getElementById('adult-autoread-toggle');
+if(adultSoundToggle)adultSoundToggle.addEventListener('change',()=>{state.preferences.sound=adultSoundToggle.checked;saveState();toast(adultSoundToggle.checked?'Lydeffekt er på':'Lydeffekt er av')});
+if(adultAutoReadToggle)adultAutoReadToggle.addEventListener('change',()=>{state.preferences.autoRead=adultAutoReadToggle.checked;saveState();toast(adultAutoReadToggle.checked?'Automatisk opplesning er på':'Automatisk opplesning er av')});
 
 // Feedback stays under the parent's control: use native Share when available, otherwise copy.
 document.getElementById('feedback-form').addEventListener('submit',async e=>{
