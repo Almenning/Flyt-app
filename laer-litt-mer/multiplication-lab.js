@@ -6,7 +6,7 @@ const MULT_LAB_VARIANTS=[
   {id:'array',label:'Rutenett',icon:'▦'},
   {id:'swap',label:'Bytt plass',icon:'↔️'},
   {id:'line',label:'Tallinja',icon:'➜'},
-  {id:'patterns',label:'Mønstre',icon:'✨'}
+  {id:'patterns',label:'Gangetabellen',icon:'✨'}
 ];
 const MULT_LAB_MISSIONS={
   groups:[
