@@ -1,4 +1,4 @@
-const CACHE='laer-litt-mer-v7-young-game-2026-10-03';
+const CACHE='laer-litt-mer-v8-illustrated-home-2026-10-03';
 const SHELL=['./','./index.html','./manifest.webmanifest','./icon.svg','./fraction-lab.css?v=20261003-mobile2','./fraction-lab.js?v=20261003-mobile2','./multiplication-lab.css','./multiplication-lab.js','./norwegian-content.js'];
 
 self.addEventListener('install',event=>{
