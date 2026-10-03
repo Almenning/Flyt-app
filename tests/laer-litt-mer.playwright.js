@@ -428,7 +428,7 @@ async function finishSession(page){
     assert.match(await page.locator('.mult-equation').innerText(),/2 × 3 = 6/);
     const tableInspector=await page.locator('.mult-table-inspector').innerText();
     assert.match(tableInspector,/3 × 2 = 6/);
-    assert.match(tableInspector,/2 \+ 2 = 6/);
+    assert.match(tableInspector,/3 \+ 3 = 6/);
     assert.equal(await page.locator('.mult-table-cell.row-selected').count(),12);
     assert.equal(await page.locator('.mult-table-cell.col-selected').count(),12);
     assert.equal(await page.locator('.mult-table-cell.cell-selected').count(),1);
