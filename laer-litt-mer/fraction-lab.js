@@ -217,7 +217,7 @@ function fractionLabBoardHtml(){
     return '<div class="lab-fraction-row" data-parts="'+d+'" style="--parts:'+d+'">'+cells+'</div>';
   }).join('');
   const circles=FRACTION_LAB_DENOMS.map(d=>'<button type="button" class="lab-circle-source '+(d===fractionLabUi.selectedDenom?'selected':'')+'" data-fraction-source data-inspect-only="true" data-denom="'+d+'" aria-label="Brøksirkel '+(d===1?'en hel':'en '+d+'del')+'"><span class="lab-circle" style="--parts:'+d+';--piece-color:'+fractionLabColor(d)+'">'+fractionLabPieceLabel(d)+'</span><span class="lab-circle-meta">'+fractionLabCircleMeta(d)+'</span></button>').join('');
-  const focus=fractionLabUi.variant==='circles'?'focus-circles':(['wall','whole','equivalent','connections'].includes(fractionLabUi.variant)?'focus-wall':'');
+  const focus=fractionLabUi.variant==='circles'?'focus-circles':'focus-wall';
   return '<div class="lab-board '+focus+'" aria-label="Digitalt brøkbrett"><div class="lab-board-page"><div class="lab-board-title">Brøkvegg</div><div class="lab-fraction-wall">'+wall+'</div></div><div class="lab-board-page"><div class="lab-board-title">Brøksirkler</div><div class="lab-circles">'+circles+'</div></div></div>';
 }
 function fractionLabBankHtml(){
