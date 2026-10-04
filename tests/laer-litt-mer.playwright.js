@@ -292,8 +292,9 @@ async function finishSession(page){
     await finishSession(page);
     assert.match(await page.locator('#complete-area').textContent(),/Norsk/);
     await page.locator('#complete-home').click();
-    await page.locator('#progress-screen.active').waitFor();
-    await page.locator('#bottom-nav button[data-tab="home"]').click();
+    await page.locator('#subject-screen.active').waitFor();
+    assert.equal(await page.locator('#journey-map .bok-v11-world').count(),1,'journey completion should return to the Bokskogen board');
+    await page.locator('#journey-map .bok-v10-home').click();
     await page.locator('#home-screen.active').waitFor();
     assert.equal(await page.locator('#home-continue-wrap').isVisible(),true);
 
