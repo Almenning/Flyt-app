@@ -1155,3 +1155,47 @@
 @media(prefers-reduced-motion:reduce){
   .premium-world-depth-ready .premium-place-marker{transition:none}
 }
+
+
+/* Young-grade world-first integration v1 — the journey is the subject home, not a card halfway down it. */
+@media (max-width:699px){
+  #geography-screen.premium-geo-active{
+    display:flex!important;
+    flex-direction:column;
+    padding:0 18px 24px!important;
+    background:linear-gradient(180deg,#153b43 0,#dff2f3 54%,#f4f6fb 100%);
+  }
+  #geography-screen.premium-geo-active > .detail-back,
+  #geography-screen.premium-geo-active > .geography-head,
+  #geography-screen.premium-geo-active > .geography-continue{
+    display:none!important;
+  }
+  #geography-screen.premium-geo-active .geo-journey-shell{
+    order:-3;
+    width:calc(100% + 36px);
+    margin:0 -18px 18px!important;
+  }
+  #geography-screen.premium-geo-active .geo-journey-shell > .journey-heading,
+  #geography-screen.premium-geo-active .geo-journey-shell > .journey-grade-picker,
+  #geography-screen.premium-geo-active .geo-journey-shell > .journey-summary,
+  #geography-screen.premium-geo-active .geo-journey-shell > .journey-now-card,
+  #geography-screen.premium-geo-active .geo-journey-shell > .journey-collection{
+    display:none!important;
+  }
+  #geography-screen.premium-geo-active .my-world-card{
+    order:-2;
+    margin-top:0;
+  }
+  #geography-screen.premium-geo-active .premium-journey-map,
+  #geography-screen.premium-geo-active .premium-world{
+    border-radius:0 0 28px 28px!important;
+  }
+  #geography-screen.premium-geo-active .premium-world-hud{
+    top:max(62px,calc(env(safe-area-inset-top,0px) + 10px))!important;
+    left:10px;
+    right:10px;
+  }
+  #geography-screen.premium-geo-active .premium-world-title{
+    top:max(116px,calc(env(safe-area-inset-top,0px) + 64px))!important;
+  }
+}

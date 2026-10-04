@@ -1969,3 +1969,114 @@
   .bok-v11-world .bok-v10-place.state-current .hit,
   .bok-v11-current-tag i{animation:none!important}
 }
+
+
+/* Bokskogen v12 — world-first mobile integration from real-device review. */
+#subject-screen.bokskogen-v10-active{
+  min-height:100dvh;
+  padding:0!important;
+  background:#10261f!important;
+}
+#subject-screen.bokskogen-v10-active > :not(#subject-journey-section){
+  display:none!important;
+}
+#subject-screen.bokskogen-v10-active #subject-journey-section,
+#subject-screen.bokskogen-v10-active #journey-map{
+  width:100%;
+  margin:0!important;
+  padding:0!important;
+}
+.bok-v11-world .bok-v10-top{
+  position:fixed;
+  z-index:520;
+  top:max(62px,calc(env(safe-area-inset-top,0px) + 10px));
+  left:max(10px,env(safe-area-inset-left,0px));
+  right:max(10px,env(safe-area-inset-right,0px));
+  max-width:540px;
+  margin-inline:auto;
+}
+.bok-v11-world .bok-v10-home,
+.bok-v11-world .bok-v10-grade,
+.bok-v11-world .bok-v10-progress{
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.22),
+    0 5px 14px rgba(5,26,18,.20);
+}
+.bok-v11-world .bok-v10-place{
+  overflow:visible;
+}
+.bok-v11-world .bok-v11-status{
+  display:none!important;
+}
+.bok-v12-state-mark{
+  position:absolute;
+  z-index:8;
+  right:9px;
+  top:50%;
+  width:19px;
+  height:22px;
+  transform:translateY(-48%) rotate(-7deg);
+  pointer-events:none;
+}
+.bok-v12-state-mark i{
+  position:relative;
+  display:grid;
+  place-items:center;
+  width:100%;
+  height:100%;
+  border-radius:4px 9px 9px 5px;
+  font:1000 11px/1 ui-rounded,"SF Pro Rounded",-apple-system,sans-serif;
+  font-style:normal;
+  box-shadow:0 2px 5px rgba(22,43,31,.22);
+}
+.bok-v12-state-mark i:before{
+  content:"";
+  position:absolute;
+  left:3px;
+  top:3px;
+  width:4px;
+  height:4px;
+  border-radius:50%;
+  background:rgba(255,249,218,.75);
+  box-shadow:0 0 0 1px rgba(71,56,30,.10);
+}
+.bok-v12-state-mark.done i{
+  color:#fff9d8;
+  background:linear-gradient(160deg,#6fc37e,#3b8756);
+  border:1px solid rgba(255,244,205,.70);
+}
+.bok-v12-state-mark.locked{
+  opacity:.62;
+  transform:translateY(-48%) rotate(5deg) scale(.82);
+}
+.bok-v12-state-mark.locked i{
+  color:#efe7cf;
+  background:linear-gradient(160deg,#6b756f,#4c5751);
+  border:1px solid rgba(255,255,255,.42);
+}
+.bok-v11-world .bok-v10-place.state-future{
+  opacity:.70;
+  filter:saturate(.70) brightness(.91);
+}
+.bok-v11-world .bok-v10-place.state-done .hit{
+  box-shadow:inset 0 -2px 0 rgba(106,165,102,.12);
+}
+.bok-v11-world .bok-v10-place.state-current .hit{
+  border-color:rgba(255,231,137,.20);
+  box-shadow:
+    0 0 0 4px rgba(255,216,72,.025),
+    0 0 21px rgba(255,195,38,.20);
+}
+@media (min-width:600px){
+  .bok-v11-world .bok-v10-top{
+    top:18px;
+  }
+}
+@media (max-width:390px){
+  .bok-v11-world .bok-v10-top{
+    top:max(62px,calc(env(safe-area-inset-top,0px) + 10px));
+    left:max(8px,env(safe-area-inset-left,0px));
+    right:max(8px,env(safe-area-inset-right,0px));
+  }
+  .bok-v12-state-mark{right:7px}
+}

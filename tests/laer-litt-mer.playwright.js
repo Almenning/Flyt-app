@@ -280,6 +280,10 @@ async function finishSession(page){
     assert.equal(await page.locator('#journey-map .bok-v10-home').isVisible(),true);
     assert.equal(await page.locator('#journey-map .bok-v10-grade').isVisible(),true);
     assert.equal(await page.locator('#journey-map .bok-v10-progress').isVisible(),true);
+    assert.equal(await page.locator('#journey-map .bok-v11-status').count(),0,'Bokskogen must not render floating circular state badges');
+    assert.equal(await page.locator('#subject-screen > .detail-back').isVisible(),false,'world-first Bokskogen must not leak the old page back button below the map');
+    const bokHudTop=await page.locator('#journey-map .bok-v10-top').evaluate(el=>el.getBoundingClientRect().top);
+    assert.ok(bokHudTop>=55,'Bokskogen HUD must clear iPhone status/Dynamic Island area');
     assert.equal(await page.locator('#subject-modules').isVisible(),false,'the old module dashboard should not compete with the game board');
     await page.waitForTimeout(450);
     const bokNextPosition=await page.locator('#journey-map .bok-v10-place.state-current').evaluate(el=>el.getBoundingClientRect().top);
@@ -620,6 +624,10 @@ async function finishSession(page){
     assert.equal(await page.locator('#geo-journey-map .premium-place.is-next').count(),1);
     assert.ok(await page.locator('#geo-journey-map .premium-place.is-future').count()>=1);
     assert.equal(await page.locator('#geo-journey-map .premium-world-hud').count(),1);
+    const geoWorldTop=await page.locator('#geo-journey-map').evaluate(el=>el.getBoundingClientRect().top);
+    const geoGlobeTop=await page.locator('#open-world').evaluate(el=>el.getBoundingClientRect().top);
+    assert.ok(geoWorldTop<geoGlobeTop,'young-grade geography journey should be the primary surface before globe/free exploration');
+    assert.equal(await page.locator('#geography-screen > .geography-head').isVisible(),false,'young-grade geography should not put a dashboard banner before the world');
     await page.locator('#geo-journey-map .premium-place.is-next').click();
     assert.equal(await page.locator('#geo-journey-map .premium-world-sheet').isVisible(),true);
     await page.locator('#geo-journey-map .premium-sheet-start').click();

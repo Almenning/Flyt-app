@@ -467,8 +467,8 @@
     return '<button type="button" class="bok-v10-place state-'+state+'" style="left:'+place.point[0]+'%;top:'+place.point[1]+'%;--tilt:'+place.tilt+'deg" data-v10-place="'+place.id+'" data-title="'+escapeAttr(place.title)+'" aria-label="'+escapeAttr(place.title+(done?', fullført':current?', neste sted':future?', låst':''))+'">'+
       '<span class="hit"></span>'+
       '<span class="bok-v11-anchor" aria-hidden="true"></span>'+
-      (done?'<span class="bok-v11-status done" aria-hidden="true">✓</span>':'')+
-      (future?'<span class="bok-v11-status locked" aria-hidden="true">🔒</span>':'')+
+      (done?'<span class="bok-v12-state-mark done" aria-hidden="true"><i>✓</i></span>':'')+
+      (future?'<span class="bok-v12-state-mark locked" aria-hidden="true"><i>⌁</i></span>':'')+
       (current?'<span class="bok-v11-current-tag" aria-hidden="true"><b>NESTE</b><i></i></span>':'')+
     '</button>';
   }
