@@ -1,57 +1,23 @@
 <!doctype html>
 <html lang="nb">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#FFF7E8">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="Læria">
-  <meta name="application-name" content="Læria">
-  <meta name="description" content="Læria – læring som føles som et spill.">
-  <link rel="manifest" href="./manifest.webmanifest">
-  <link rel="icon" href="./icon.svg" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="./icon.svg">
-  <title>Læria</title>
-  <style>
-    html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#FFF7E8}
-    body{position:fixed;inset:0}
-    #laria-app{display:block;width:100%;height:100dvh;border:0;background:#FFF7E8}
-    #loading{position:fixed;inset:0;display:grid;place-items:center;background:#FFF7E8;color:#24314B;font:800 18px system-ui,-apple-system,sans-serif;z-index:2}
-    #loading.hide{display:none}
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#FFF7E8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Læria">
+<meta name="application-name" content="Læria">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
+<title>Læria</title>
+<style>html,body{margin:0;min-height:100%;background:#FFF7E8;color:#24314B;font-family:system-ui,-apple-system,sans-serif}body{display:grid;place-items:center}.launch{text-align:center;font-weight:800}.launch a{display:inline-block;margin-top:16px;padding:14px 20px;border-radius:16px;background:#5A7DF2;color:#fff;text-decoration:none}</style>
+<script>
+  // No iframe. The Home-screen entry opens the real app directly.
+  location.replace('../laer-litt-mer/?app=laria&v=20261004-2305');
+</script>
 </head>
 <body>
-  <div id="loading">Læria ✨</div>
-  <iframe id="laria-app" title="Læria" src="../laer-litt-mer/?laria=1&v=20261004-2250" allow="clipboard-write; fullscreen"></iframe>
-  <script>
-  (() => {
-    const frame=document.getElementById('laria-app');
-    const loading=document.getElementById('loading');
-    const rename=doc=>{
-      if(!doc)return;
-      doc.title='Læria';
-      const brand=doc.querySelector('.brand');
-      if(brand)brand.textContent='Læria';
-      const walker=doc.createTreeWalker(doc.body,NodeFilter.SHOW_TEXT);
-      const nodes=[]; while(walker.nextNode())nodes.push(walker.currentNode);
-      for(const n of nodes){
-        if(n.nodeValue&&n.nodeValue.includes('Lær litt mer'))n.nodeValue=n.nodeValue.replaceAll('Lær litt mer','Læria');
-      }
-    };
-    frame.addEventListener('load',()=>{
-      loading.classList.add('hide');
-      try{
-        const doc=frame.contentDocument;
-        rename(doc);
-        const observer=new MutationObserver(()=>rename(doc));
-        observer.observe(doc.documentElement,{subtree:true,childList:true,characterData:true});
-      }catch(e){}
-    });
-    if('serviceWorker' in navigator){
-      addEventListener('load',()=>navigator.serviceWorker.register('./sw.js',{updateViaCache:'none'}).catch(()=>{}));
-    }
-  })();
-  </script>
+<div class="launch"><div>Læria ✨</div><a href="../laer-litt-mer/?app=laria&v=20261004-2305">Åpne Læria</a></div>
 </body>
 </html>
