@@ -1558,6 +1558,81 @@
     .grade-band-young #subject-screen .journey-now-card{margin-top:7px}
     .grade-band-young #subject-screen .journey-trophy-rail{margin-top:8px}
     .grade-band-young .journey-grade-note{font-size:9px}
+
+    /* Læringsreisen v4: fullverdig spillbrett */
+    #subject-journey-section>.journey-summary,
+    #subject-journey-section>.journey-now-card,
+    #subject-journey-section>.journey-collection,
+    #subject-journey-section>.journey-sidequests,
+    #geography-screen .journey-summary,
+    #geography-screen .journey-now-card,
+    #geography-screen .journey-collection{display:none!important}
+
+    .journey-map-v4{display:grid;gap:16px;margin-top:12px}
+    .journey-game-hud-v4{position:sticky;top:max(8px,env(safe-area-inset-top));z-index:25;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:11px;margin:0 2px 8px;padding:10px 12px;border-radius:21px;background:rgba(28,45,78,.94);color:#fff;box-shadow:0 8px 22px rgba(35,50,84,.20);backdrop-filter:blur(14px)}
+    .journey-game-hud-v4 .hud-grade{font-size:10px;font-weight:1000;white-space:nowrap;letter-spacing:.02em}
+    .journey-game-hud-v4 .hud-mid{min-width:0}.journey-game-hud-v4 .hud-mid b{display:block;font-size:10px;font-weight:950;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.journey-game-hud-v4 .hud-bar{height:7px;margin-top:5px;border-radius:999px;background:rgba(255,255,255,.17);overflow:hidden}.journey-game-hud-v4 .hud-bar i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#7EE1A9,#FFD76A)}
+    .journey-game-hud-v4 .hud-score{display:flex;align-items:center;gap:4px;font-size:10px;font-weight:1000;white-space:nowrap}.journey-game-hud-v4 .hud-score b{font-size:15px;color:#FFD76A}
+
+    .journey-world-v4{--v4-accent:#697FE8;position:relative;min-height:620px;overflow:hidden;border-radius:34px;border:3px solid rgba(255,255,255,.96);background:#d8eff9;box-shadow:0 11px 0 rgba(50,64,97,.09),0 25px 46px rgba(42,58,94,.16);isolation:isolate}
+    .journey-world-v4.world-current{box-shadow:0 0 0 5px rgba(103,126,233,.12),0 11px 0 rgba(50,64,97,.09),0 28px 50px rgba(42,58,94,.19)}
+    .journey-world-art-v4{position:absolute;inset:0;width:100%;height:100%;z-index:0}
+    .journey-world-v4:after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(255,255,255,.12),transparent 30%,transparent 72%,rgba(15,36,65,.10))}
+    .journey-world-head-v4{position:relative;z-index:12;display:flex;align-items:flex-start;gap:10px;padding:17px 17px 0;color:#203454}
+    .journey-world-number-v4{flex:0 0 auto;min-width:49px;height:43px;border-radius:15px;display:grid;place-items:center;background:rgba(255,255,255,.84);box-shadow:0 5px 13px rgba(41,63,94,.10);font-size:9px;font-weight:1000;line-height:1.1;text-align:center;letter-spacing:.08em}
+    .journey-world-title-v4{flex:1;min-width:0}.journey-world-title-v4 strong{display:block;font-size:22px;line-height:1.02;font-weight:1000;letter-spacing:-.025em}.journey-world-title-v4 small{display:block;margin-top:4px;max-width:245px;font-size:9px;line-height:1.35;font-weight:850;color:rgba(31,51,81,.67)}
+    .journey-prize-v4{flex:0 0 auto;display:flex;align-items:center;gap:6px;max-width:116px;border-radius:17px;padding:7px 9px;background:rgba(255,255,255,.84);box-shadow:0 5px 13px rgba(41,63,94,.10);font-size:8px;line-height:1.15;font-weight:950;color:#586783}
+    .journey-prize-v4 b{font-size:19px}.journey-prize-v4.won{background:#FFF0B4;color:#73540B}
+
+    .journey-playfield-v4{position:absolute;z-index:5;left:0;right:0;top:82px;bottom:0}
+    .journey-route-v4{position:absolute;inset:3% 1.5% 4%;width:97%;height:93%;overflow:visible;pointer-events:none}
+    .journey-route-v4 .route-shadow{fill:none;stroke:rgba(38,59,79,.18);stroke-width:13;stroke-linecap:round;stroke-linejoin:round}
+    .journey-route-v4 .route-road{fill:none;stroke:#FFF6D8;stroke-width:9;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 3px 1px rgba(50,68,86,.10))}
+    .journey-route-v4 .route-center{fill:none;stroke:rgba(219,173,83,.34);stroke-width:2.2;stroke-linecap:round;stroke-dasharray:1 5}
+    .journey-route-v4 .route-progress{fill:none;stroke:#63BD89;stroke-width:6;stroke-linecap:round;stroke-linejoin:round}
+
+    .journey-node-v4{position:absolute;z-index:10;transform:translate(-50%,-50%);border:0;background:transparent;padding:0;color:#243556;cursor:pointer;touch-action:manipulation}
+    .journey-node-v4 .node-pad-v4{position:relative;width:76px;height:76px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(155deg,#fff,#edf3f8);border:5px solid #D4DEE8;box-shadow:0 9px 0 #AEBCCB,0 15px 24px rgba(42,65,93,.22),inset 0 2px 0 #fff;transition:transform .14s ease,box-shadow .14s ease}
+    .journey-node-v4:active .node-pad-v4{transform:translateY(5px);box-shadow:0 4px 0 #AEBCCB,0 9px 15px rgba(42,65,93,.17),inset 0 2px 0 #fff}
+    .journey-node-v4.state-next .node-pad-v4{border-color:#6B7FE7;background:linear-gradient(155deg,#fff,#EEF0FF);box-shadow:0 9px 0 #4D62C9,0 0 0 10px rgba(107,127,231,.15),0 18px 29px rgba(60,78,166,.25);animation:v4NodePulse 1.9s ease-in-out infinite}
+    .journey-node-v4.state-active .node-pad-v4{border-color:#E8B84B;background:linear-gradient(155deg,#FFFDF5,#FFF1C4);box-shadow:0 9px 0 #BD8623,0 15px 23px rgba(110,78,25,.18)}
+    .journey-node-v4.state-can-now .node-pad-v4{border-color:#60BB87;background:linear-gradient(155deg,#F3FFF8,#DDF4E7);box-shadow:0 9px 0 #3F9167,0 15px 23px rgba(43,100,73,.18)}
+    .journey-node-v4.state-mastered .node-pad-v4,.journey-node-v4.state-passed .node-pad-v4{border-color:#E3AA2D;background:linear-gradient(155deg,#FFFCEB,#FFE996);box-shadow:0 9px 0 #B67B17,0 15px 23px rgba(117,83,22,.18)}
+    .journey-node-v4.state-future{opacity:.58;filter:saturate(.45)}
+    .journey-node-v4.type-checkpoint .node-pad-v4{width:92px;height:92px;border-radius:29px;border-width:6px}
+    .journey-node-v4.type-challenge .node-pad-v4,.journey-node-v4.type-review .node-pad-v4{width:57px;height:57px;border-radius:20px;border-width:4px}
+    .journey-node-v4.type-challenge .node-pad-v4{background:linear-gradient(155deg,#FFF8D4,#FFE5A0);border-color:#E0AD38}.journey-node-v4.type-review .node-pad-v4{background:linear-gradient(155deg,#F3F8FF,#DEEDFF);border-color:#7DA2D0}
+    .journey-node-v4 .journey-node-glyph{transform:scale(1.08)}.journey-node-v4.type-checkpoint .journey-node-glyph{transform:scale(1.18)}
+    .journey-state-v4{position:absolute;right:-4px;top:-5px;min-width:24px;height:24px;padding:0 5px;border-radius:999px;display:grid;place-items:center;background:#263A62;color:#fff;border:3px solid #fff;box-shadow:0 3px 8px rgba(35,54,92,.22);font-size:10px;font-weight:1000}
+    .state-mastered .journey-state-v4,.state-passed .journey-state-v4{background:#DFA628}.state-can-now .journey-state-v4{background:#4EAD78}.state-active .journey-state-v4{background:#DFA92D;color:#604500}
+
+    .journey-player-v4{position:absolute;z-index:15;left:-37px;bottom:-11px;width:49px;height:49px;filter:drop-shadow(0 6px 5px rgba(43,56,82,.23));animation:v4FoxFloat 2.2s ease-in-out infinite}.journey-player-v4 svg{width:100%;height:100%}
+    .journey-next-label-v4{position:absolute;z-index:14;left:50%;top:-64px;transform:translateX(-50%);min-width:142px;max-width:190px;border-radius:18px;padding:8px 10px;background:#263A62;color:#fff;text-align:left;box-shadow:0 7px 18px rgba(35,53,91,.23)}
+    .journey-next-label-v4:after{content:"";position:absolute;left:50%;bottom:-5px;width:10px;height:10px;background:#263A62;transform:translateX(-50%) rotate(45deg)}
+    .journey-next-label-v4 b{display:block;font-size:7px;letter-spacing:.12em;color:#AFC2FF}.journey-next-label-v4 strong{display:block;margin-top:2px;font-size:12px;line-height:1.1;font-weight:1000}
+    .journey-goal-label-v4{position:absolute;left:50%;top:102px;transform:translateX(-50%);min-width:145px;border-radius:16px;padding:7px 9px;background:rgba(255,255,255,.92);text-align:center;box-shadow:0 5px 13px rgba(45,62,92,.14);pointer-events:none}
+    .journey-goal-label-v4 b{display:block;font-size:7px;letter-spacing:.12em;color:#9A6A11}.journey-goal-label-v4 strong{display:block;margin-top:2px;font-size:11px;font-weight:1000}
+    .journey-side-label-v4{position:absolute;left:50%;top:64px;transform:translateX(-50%);border-radius:999px;padding:5px 8px;background:rgba(255,255,255,.87);box-shadow:0 4px 9px rgba(40,59,87,.10);font-size:7px;font-weight:1000;color:#5C6880;white-space:nowrap;pointer-events:none}
+    @keyframes v4NodePulse{0%,100%{box-shadow:0 9px 0 #4D62C9,0 0 0 7px rgba(107,127,231,.10),0 18px 29px rgba(60,78,166,.20)}50%{box-shadow:0 9px 0 #4D62C9,0 0 0 13px rgba(107,127,231,.18),0 21px 33px rgba(60,78,166,.27)}}
+    @keyframes v4FoxFloat{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-5px) rotate(2deg)}}
+
+    .journey-complete-v4,.journey-locked-strip-v4{position:relative;overflow:hidden;min-height:154px;border-radius:28px;border:3px solid rgba(255,255,255,.95);box-shadow:0 8px 0 rgba(52,65,99,.07),0 16px 30px rgba(45,60,93,.10);background:#EAF3F7}
+    .journey-complete-v4 .journey-world-art-v4,.journey-locked-strip-v4 .journey-world-art-v4{opacity:.74}
+    .journey-complete-v4:after,.journey-locked-strip-v4:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(255,255,255,.92),rgba(255,255,255,.50) 60%,rgba(255,255,255,.18));z-index:1}
+    .journey-complete-copy-v4,.journey-locked-copy-v4{position:relative;z-index:3;padding:18px;max-width:70%}.journey-complete-copy-v4 span,.journey-locked-copy-v4 span{font-size:8px;font-weight:1000;letter-spacing:.12em;color:#61708A}.journey-complete-copy-v4 strong,.journey-locked-copy-v4 strong{display:block;margin-top:4px;font-size:19px;font-weight:1000}.journey-complete-copy-v4 small,.journey-locked-copy-v4 small{display:block;margin-top:4px;font-size:9px;line-height:1.35;font-weight:800;color:#69748A}
+    .journey-complete-trophy-v4{position:absolute;z-index:4;right:20px;top:50%;transform:translateY(-50%);width:71px;height:71px;border-radius:24px;background:linear-gradient(155deg,#FFF6CB,#FFD76A);display:grid;place-items:center;font-size:34px;box-shadow:0 8px 0 #C99528,0 13px 23px rgba(112,78,19,.18)}
+    .journey-replay-v4,.journey-preview-btn-v4{margin-top:10px;border:0;border-radius:999px;padding:8px 11px;background:#263A62;color:#fff;font-size:8px;font-weight:1000;cursor:pointer}
+    .journey-locked-strip-v4{min-height:125px;filter:saturate(.42)}.journey-locked-strip-v4 .journey-world-art-v4{filter:blur(.5px);opacity:.55}.journey-locked-copy-v4{max-width:78%}.journey-lock-icon-v4{position:absolute;z-index:4;right:20px;top:50%;transform:translateY(-50%);width:54px;height:54px;border-radius:18px;background:rgba(255,255,255,.86);display:grid;place-items:center;color:#758096;font-size:25px;font-weight:1000;box-shadow:0 6px 15px rgba(55,66,92,.12)}
+    .journey-preview-v4{position:relative;min-height:300px;overflow:hidden;border-radius:30px;border:3px solid rgba(255,255,255,.94);box-shadow:0 9px 0 rgba(55,68,101,.07),0 18px 34px rgba(45,60,94,.11);filter:saturate(.82)}
+    .journey-preview-v4 .journey-world-art-v4{opacity:.90}.journey-preview-v4:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(35,54,83,.18));z-index:1}
+    .journey-preview-card-v4{position:absolute;z-index:5;left:18px;right:18px;bottom:17px;padding:14px 15px;border-radius:21px;background:rgba(255,255,255,.91);backdrop-filter:blur(10px);box-shadow:0 8px 20px rgba(43,58,88,.15)}.journey-preview-card-v4 span{font-size:8px;font-weight:1000;letter-spacing:.12em;color:#6A7390}.journey-preview-card-v4 strong{display:block;margin-top:3px;font-size:18px;font-weight:1000}.journey-preview-card-v4 small{display:block;margin-top:3px;font-size:9px;line-height:1.35;color:#69748A;font-weight:800}
+    .journey-world-transition-v4{height:30px;display:grid;place-items:center}.journey-world-transition-v4:before{content:"";width:5px;height:30px;border-radius:999px;background:linear-gradient(#93A0B8,#D7DDE8)}
+    .journey-finish{border:0!important;border-radius:26px!important;background:linear-gradient(145deg,#253B67,#3F568E)!important;color:#fff!important;box-shadow:0 8px 0 rgba(37,55,96,.12),0 16px 30px rgba(42,58,95,.16)!important}
+    .journey-finish p{color:#DDE5FF!important}.journey-finish.complete{background:linear-gradient(145deg,#8B6514,#D6A327)!important}
+    @media (max-width:390px){
+      .journey-world-v4{min-height:590px;border-radius:30px}.journey-world-title-v4 strong{font-size:20px}.journey-node-v4 .node-pad-v4{width:70px;height:70px}.journey-node-v4.type-checkpoint .node-pad-v4{width:84px;height:84px}.journey-next-label-v4{min-width:128px;max-width:160px}
+    }
+    @media (prefers-reduced-motion:reduce){.journey-node-v4.state-next .node-pad-v4,.journey-player-v4{animation:none!important}}
 </style>
   <link rel="stylesheet" href="./fraction-lab.css?v=20261003-mobile2" />
   <link rel="stylesheet" href="./multiplication-lab.css?v=20261003-table1" />
@@ -1591,6 +1666,7 @@
   <!-- multi-grade-journeys-2026-10-04 -->
   <!-- learning-journey-gameworld-v3-2026-10-04 -->
   <!-- journey-game-map-v3-2026-10-04 -->
+  <!-- learning-journey-v4-gameboard-2026-10-04 -->
 </head>
 <body>
 <div class="app">
@@ -3074,45 +3150,42 @@ function geoJourneyRouteSvg(area){
 }
 
 
+
 function renderGeoJourney(){
   const host=document.getElementById('geo-journey-map');if(!host)return;
-  host.className='journey-map journey-map-v3';
+  host.className='journey-map journey-map-v4';
   const viewGrade=journeyViewGrade('geography'),prog=geoJourneyProgress(viewGrade),recommended=geoJourneyRecommendedNode(viewGrade),model=prog.model,recommendedIndex=recommended?model.nodes.findIndex(n=>n.id===recommended.id):-1,currentAreaIndex=journeyFirstOpenArea(model,geoJourneyAreaComplete);
   document.getElementById('geo-journey-grade').textContent=GRADE_CONFIG[viewGrade].label;
   renderJourneyGradeStrip('geography','geo-journey-grade-strip','geo-journey-grade-note',viewGrade);
   document.getElementById('geo-journey-title').textContent=prog.complete?'Ekspedisjonen er fullført':'Fra det kjente til hele verden';
-  document.getElementById('geo-journey-summary').textContent=prog.complete?'Kjerneløpet er fullført':prog.pct+' % gjennom geografireisen';
-  document.getElementById('geo-journey-pct').textContent=prog.pct+'%';
-  document.getElementById('geo-journey-ring').style.setProperty('--journey-pct',prog.pct);
-  const nowTitle=document.getElementById('geo-journey-now-title'),nowCopy=document.getElementById('geo-journey-now-copy'),foxHost=document.querySelector('.geo-now .journey-now-fox');
-  if(foxHost)foxHost.innerHTML=journeyFoxSvg();
-  if(nowTitle&&nowCopy){nowTitle.textContent=prog.complete?'Ekspedisjonen er rundet':recommended?recommended.title:'Velg en etappe';nowCopy.textContent=prog.complete?'Kloden er fortsatt åpen for fri utforskning og repetisjon.':recommended?(recommended.areaTitle+' · '+geoJourneyStatusText(recommended,geoJourneyNodeState(recommended))):'Kloden er alltid åpen.'}
-  renderJourneyCollection('geo-journey-collection','geography',model,geoJourneyAreaComplete);
-
+  const hud='<div class="journey-game-hud-v4"><span class="hud-grade">'+GRADE_CONFIG[viewGrade].label+'</span><div class="hud-mid"><b>'+(prog.complete?'Ekspedisjonen er rundet':'Neste: '+(recommended?.title||'Velg etappe'))+'</b><div class="hud-bar"><i style="width:'+prog.pct+'%"></i></div></div><span class="hud-score"><b>🏆</b>'+prog.areasDone+'/'+model.areas.length+'</span></div>';
   const chunks=model.areas.map((area,ai)=>{
-    const areaDone=geoJourneyAreaComplete(area),isCurrent=!prog.complete&&ai===currentAreaIndex,isFuture=!prog.complete&&ai>currentAreaIndex;
-    const required=area.nodes.filter(n=>n.type==='geo-skill'||n.type==='checkpoint'),done=required.filter(n=>n.type==='geo-skill'?['can-now','mastered'].includes(geoJourneyNodeState(n)):journeyNodeRecord(n).passed).length,reward=journeyAreaReward('geography',ai);
-    const core=geoJourneyCoreNodes(area),positions=journeyCorePositionsV3(core.length),posMap=new Map(core.map((n,i)=>[n.id,positions[i]]));
-    const nodes=isFuture?'':area.nodes.map(node=>{
-      const st=geoJourneyNodeState(node),idx=model.nodes.findIndex(n=>n.id===node.id),isNext=recommended&&recommended.id===node.id,future=!isNext&&recommendedIndex>=0&&idx>recommendedIndex&&st==='new';
-      const visual=isNext&&!['can-now','mastered','passed'].includes(st)?'next':future?'future':st,point=posMap.get(node.id)||journeySidePositionV3(node.type,ai),badge=journeyNodeBadgeV3(node,st);
-      const fox=isNext?'<span class="journey-next-tag">NESTE</span><span class="journey-fox-marker">'+journeyFoxSvg()+'</span>':'';
-      const side=(node.type==='challenge'||node.type==='review')?'<span class="journey-side-sign">'+(node.type==='challenge'?'BONUS':'REPETISJON')+'</span>':'';
-      return '<button type="button" class="journey-map-node-v3 type-'+node.type+' state-'+visual+'" style="left:'+point[0]+'%;top:'+point[1]+'%" data-geo-journey-node="'+node.id+'" aria-label="'+escapeAttr(node.title+'. '+geoJourneyStatusText(node,st))+'">'+fox+'<span class="node-orb-v3">'+journeySkillGlyph(node,true)+(badge?'<span class="journey-node-badge-v3">'+badge+'</span>':'')+'</span>'+side+'</button>';
-    }).join('');
-    if(isFuture){
-      return '<section class="journey-world-v3 locked">'+journeyWorldArt('geography',ai,true)+'<div class="journey-world-top"><div class="journey-world-index">ETAPPE<br>'+(ai+1)+'</div><div class="journey-world-copy"><strong>'+area.title+'</strong><small>'+(area.copy||'Neste del av ekspedisjonen.')+'</small></div><span class="journey-world-count">LÅST</span></div><div class="journey-world-lock"><div class="lock-shape">×</div><strong>'+area.title+' venter</strong><small>Fullfør troféet i etappen før for å åpne denne i hovedreisen.</small><button type="button" data-geo-journey-peek="'+area.id+'">Prøv likevel</button></div></section>';
+    const areaDone=geoJourneyAreaComplete(area),isCurrent=!prog.complete&&ai===currentAreaIndex,isPreview=!prog.complete&&ai===currentAreaIndex+1,isFuture=!prog.complete&&ai>currentAreaIndex+1,reward=journeyAreaReward('geography',ai);
+    if(prog.complete||areaDone&&ai<currentAreaIndex){
+      const review=area.nodes.find(n=>n.type==='review')||area.nodes[0];
+      return '<section class="journey-complete-v4">'+journeyWorldArtV4('geography',ai,false)+'<div class="journey-complete-copy-v4"><span>ETAPPE '+(ai+1)+' · FULLFØRT</span><strong>'+area.title+'</strong><small>Du vant '+reward.label+'. Etappen kan alltid tas igjen.</small><button class="journey-replay-v4" data-geo-journey-replay="'+review.id+'">Utforsk igjen</button></div><div class="journey-complete-trophy-v4">🏆</div></section>';
     }
-    return '<section class="journey-world-v3 '+(isCurrent?'world-current ':'')+(areaDone?'area-complete':'')+'">'+journeyWorldArt('geography',ai,false)+
-      '<div class="journey-world-top"><div class="journey-world-index">ETAPPE<br>'+(ai+1)+'</div><div class="journey-world-copy"><strong>'+area.title+'</strong><small>'+(area.copy||'Bygg verdenskartet steg for steg.')+'</small></div><span class="journey-world-count '+(areaDone?'complete':'')+'">'+(areaDone?'KLART':done+' / '+required.length)+'</span></div>'+
-      '<div class="journey-playfield-v3">'+journeyRouteSvgV3(area,true)+nodes+
-      '<div class="journey-reward-zone '+(areaDone?'won':'')+'"><div class="journey-chest"><span class="lid"></span><span class="box"></span><span class="lock"></span></div><div class="journey-reward-label">'+(areaDone?'Vunnet: '+reward.label:'Premie: '+reward.label)+'</div></div></div></section>';
+    if(isPreview){
+      return '<section class="journey-preview-v4">'+journeyWorldArtV4('geography',ai,false)+'<div class="journey-preview-card-v4"><span>NESTE ETAPPE</span><strong>'+area.title+'</strong><small>'+(area.copy||'En ny del av verden venter.')+'</small><button class="journey-preview-btn-v4" data-geo-journey-peek="'+area.id+'">Prøv etappen nå</button></div></section>';
+    }
+    if(isFuture){
+      return '<section class="journey-locked-strip-v4">'+journeyWorldArtV4('geography',ai,true)+'<div class="journey-locked-copy-v4"><span>ETAPPE '+(ai+1)+'</span><strong>'+area.title+'</strong><small>Åpnes senere i hovedreisen.</small></div><div class="journey-lock-icon-v4">⌁</div></section>';
+    }
+    const core=geoJourneyCoreNodes(area),positions=journeyCorePositionsV4(core.length),posMap=new Map(core.map((n,i)=>[n.id,positions[i]]));
+    const nodes=area.nodes.map(node=>{
+      const st=geoJourneyNodeState(node),idx=model.nodes.findIndex(n=>n.id===node.id),isNext=recommended&&recommended.id===node.id,future=!isNext&&recommendedIndex>=0&&idx>recommendedIndex&&st==='new',point=posMap.get(node.id)||journeySidePositionV4(node.type,ai);
+      return journeyNodeMarkupV4(node,point,st,isNext,future,true);
+    }).join('');
+    return '<section class="journey-world-v4 world-current">'+journeyWorldArtV4('geography',ai,false)+
+      '<div class="journey-world-head-v4"><div class="journey-world-number-v4">ETAPPE<br>'+(ai+1)+'</div><div class="journey-world-title-v4"><strong>'+area.title+'</strong><small>'+(area.copy||'Bygg verdenskartet steg for steg.')+'</small></div><div class="journey-prize-v4"><b>🏆</b><span>Premie<br>'+reward.label+'</span></div></div>'+
+      '<div class="journey-playfield-v4">'+journeyRouteSvgV4(area,true)+nodes+'</div></section>';
   });
-  host.innerHTML=chunks.join('<div class="journey-world-transition-v3" aria-hidden="true">↓</div>');
+  host.innerHTML=hud+chunks.join('<div class="journey-world-transition-v4" aria-hidden="true"></div>');
   host.querySelectorAll('[data-geo-journey-node]').forEach(b=>b.onclick=()=>openJourneyMission('geography',b.dataset.geoJourneyNode,viewGrade,true));
   host.querySelectorAll('[data-geo-journey-peek]').forEach(b=>b.onclick=()=>startGeoWorldPreview(b.dataset.geoJourneyPeek,viewGrade));
+  host.querySelectorAll('[data-geo-journey-replay]').forEach(b=>b.onclick=()=>openJourneyMission('geography',b.dataset.geoJourneyReplay,viewGrade,true));
   const finish=document.getElementById('geo-journey-finish');finish.classList.toggle('complete',prog.complete);
-  finish.innerHTML=prog.complete?'<strong>Ekspedisjonen er rundet</strong><p>Du har vunnet troféet i alle hovedetappene. Kloden fortsetter å vise hva du kan nå og hva som er mestret over tid.</p>':'<strong>Sluttmål: rund geografiekspedisjonen</strong><p>Vinn troféet i hver etappe. Kloden og fri utforskning er alltid åpne.</p>';
+  finish.innerHTML=prog.complete?'<strong>🏆 Ekspedisjonen er rundet</strong><p>Du har vunnet troféet i alle hovedetappene. Kloden fortsetter å vise hva som sitter over tid.</p>':'<strong>🌍 Ekspedisjonsmålet</strong><p>Følg hovedruten og vinn troféet i hver etappe. Kloden er alltid åpen for fri utforskning.</p>';
 }
 function questionTypesForCountry(k,includeMap=false,grade=currentGrade()){
   const allowed=new Set(allowedTypesForGrade(grade)),types=[];
@@ -4107,6 +4180,85 @@ function journeyNodeBadgeV3(node,stateName){
   if(node.type==='review')return stateName==='active'?'!':'';
   if(stateName==='mastered')return '★';if(stateName==='can-now')return '✓';if(stateName==='active')return '◐';return '';
 }
+
+function journeyThemeV4(subject,index){
+  const palettes=[
+    {sky1:'#BDE7FF',sky2:'#EEF9FF',far:'#B5D9A7',mid:'#7FC08B',near:'#4D9872',water:'#75CBE1',sun:'#FFD76A',accent:'#657CE7'},
+    {sky1:'#FFE0BD',sky2:'#FFF6E8',far:'#E7BC8D',mid:'#C88C66',near:'#9E6555',water:'#79C7D6',sun:'#FFBE63',accent:'#DE775E'},
+    {sky1:'#D9D9FF',sky2:'#F5F0FF',far:'#AFB1DA',mid:'#7D83B7',near:'#555E92',water:'#87B5D7',sun:'#FFF0A4',accent:'#766AD4'},
+    {sky1:'#C9F0E7',sky2:'#F0FFF9',far:'#A2D4BC',mid:'#62B89B',near:'#3A7F71',water:'#72C8E0',sun:'#FFE184',accent:'#4FAB91'}
+  ];
+  const p={...palettes[index%palettes.length]};
+  const tokens={
+    math:[['1','2','3'],['+','×','÷'],['△','○','□'],['x','y','∞']],
+    norwegian:[['A','Å','B'],['ORD','!','?'],['LES','Aa','…'],['✦','« »','✎']],
+    english:[['A','B','C'],['HI','YES','GO'],['READ','?','!'],['WORLD','EN','→']],
+    geography:[['N','S','E'],['FLAG','CAP','MAP'],['EU','AS','AF'],['360','GEO','✦']]
+  };
+  return {...p,tokens:(tokens[subject]||tokens.math)[index%4]};
+}
+function journeyWorldArtV4(subject,index,locked=false){
+  const p=journeyThemeV4(subject,index),t=p.tokens,opacity=locked?.55:1;
+  const landmark=subject==='math'
+    ?'<g transform="translate(310 356)"><rect x="-28" y="-58" width="56" height="74" rx="14" fill="#fff" opacity=".84"/><path d="M-18-42h36M-18-20h36M-18 2h36" stroke="'+p.accent+'" stroke-width="5" stroke-linecap="round"/><circle cx="-9" cy="-42" r="5" fill="#FFD66A"/><circle cx="8" cy="-20" r="5" fill="#6BC49A"/><circle cx="-2" cy="2" r="5" fill="#85A4F0"/></g>'
+    :subject==='norwegian'
+    ?'<g transform="translate(312 360)"><path d="M-54-44q27-12 54 8v70q-27-16-54-4zM54-44q-27-12-54 8v70q27-16 54-4z" fill="#fff" opacity=".88"/><path d="M0-35v67" stroke="'+p.accent+'" stroke-width="4"/><path d="M-42-24h29M13-24h29M-42-10h23M13-10h25" stroke="'+p.accent+'" stroke-width="4" stroke-linecap="round" opacity=".65"/></g>'
+    :subject==='english'
+    ?'<g transform="translate(312 360)"><path d="M-49 20h98v28h-98z" fill="#fff" opacity=".86"/><path d="M-35 20v-48h70v48M-25-17h18v18h-18M7-17h18v18H7" fill="#fff" stroke="'+p.accent+'" stroke-width="4"/><path d="M-55 48h110" stroke="'+p.accent+'" stroke-width="7" stroke-linecap="round"/></g>'
+    :'<g transform="translate(312 360)"><circle r="45" fill="#fff" opacity=".87"/><circle r="33" fill="none" stroke="'+p.accent+'" stroke-width="5"/><path d="M0-27L9 0 0 27-9 0z" fill="#E9655F"/><path d="M-27 0L0-9 27 0 0 9z" fill="'+p.accent+'"/></g>';
+  return '<svg class="journey-world-art-v4" viewBox="0 0 420 640" preserveAspectRatio="xMidYMid slice" aria-hidden="true" style="opacity:'+opacity+'">'+
+    '<defs><linearGradient id="v4sky'+subject+index+'" x1="0" y1="0" x2="0" y2="1"><stop stop-color="'+p.sky1+'"/><stop offset="1" stop-color="'+p.sky2+'"/></linearGradient><linearGradient id="v4river'+subject+index+'" x1="0" y1="0" x2="1" y2="1"><stop stop-color="'+p.water+'"/><stop offset="1" stop-color="#D7F4F8"/></linearGradient></defs>'+
+    '<rect width="420" height="640" fill="url(#v4sky'+subject+index+')"/><circle cx="340" cy="79" r="34" fill="'+p.sun+'" opacity=".94"/>'+
+    '<g fill="#fff" opacity=".75"><ellipse cx="77" cy="91" rx="42" ry="15"/><ellipse cx="108" cy="88" rx="26" ry="21"/><ellipse cx="48" cy="97" rx="24" ry="12"/><ellipse cx="281" cy="157" rx="30" ry="11"/><ellipse cx="305" cy="153" rx="22" ry="16"/></g>'+
+    '<path d="M0 265Q55 202 117 250T236 230T338 247T420 220V640H0z" fill="'+p.far+'"/>'+
+    '<path d="M0 348Q72 286 142 330T281 315T420 295V640H0z" fill="'+p.mid+'"/>'+
+    '<path d="M0 505Q84 445 171 482T312 462T420 470V640H0z" fill="'+p.near+'"/>'+
+    '<path d="M166 640c33-92 12-150 72-218 30-34 58-48 101-70-28 49-58 88-67 133-10 51 17 93 4 155z" fill="url(#v4river'+subject+index+')" opacity=".86"/>'+
+    '<g opacity=".72"><circle cx="64" cy="397" r="18" fill="#fff"/><circle cx="92" cy="418" r="11" fill="#fff"/><circle cx="356" cy="435" r="15" fill="#fff"/></g>'+
+    '<g transform="translate(47 178) rotate(-5)"><rect width="91" height="50" rx="16" fill="rgba(255,255,255,.80)"/><text x="45.5" y="31" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" font-size="'+(t[0].length>2?15:21)+'" font-weight="950" fill="'+p.accent+'">'+t[0]+'</text></g>'+
+    '<g transform="translate(62 470) rotate(5)"><rect width="61" height="39" rx="13" fill="rgba(255,255,255,.64)"/><text x="30.5" y="26" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" font-size="'+(t[1].length>2?11:18)+'" font-weight="950" fill="'+p.accent+'">'+t[1]+'</text></g>'+
+    landmark+
+    '<g opacity=".82"><path d="M34 545l12-25 12 25z" fill="#fff"/><path d="M372 514l10-22 10 22z" fill="#fff"/></g>'+
+  '</svg>';
+}
+function journeyCorePositionsV4(count){
+  const maps={
+    2:[[31,25],[50,84]],
+    3:[[29,19],[72,49],[50,85]],
+    4:[[28,14],[72,36],[30,60],[50,86]],
+    5:[[27,11],[72,29],[31,48],[72,66],[50,87]],
+    6:[[27,9],[72,24],[31,40],[72,56],[31,72],[50,89]]
+  };
+  return maps[count]||journeyCorePositionsV3(count);
+}
+function journeySidePositionV4(type,index){
+  if(type==='challenge')return index%2===0?[85,55]:[15,51];
+  return index%2===0?[14,69]:[86,68];
+}
+function journeyNodeDoneV4(node,isGeo){
+  if(isGeo)return node.type==='geo-skill'?['can-now','mastered'].includes(geoJourneyNodeState(node)):!!journeyNodeRecord(node).passed;
+  return node.type==='skill'?['can-now','mastered'].includes(journeyNodeState(node)):!!journeyNodeRecord(node).passed;
+}
+function journeyRouteSvgV4(area,isGeo=false){
+  const core=isGeo?geoJourneyCoreNodes(area):journeyCoreNodes(area),pts=journeyCorePositionsV4(core.length);if(pts.length<2)return '';
+  const paths=[],progress=[];
+  for(let i=0;i<pts.length-1;i++){
+    const [x1,y1]=pts[i],[x2,y2]=pts[i+1],bend=(i%2===0?12:-12),mx=(x1+x2)/2+bend,my=(y1+y2)/2,d='M '+x1+' '+y1+' Q '+mx+' '+my+' '+x2+' '+y2;
+    paths.push('<path class="route-shadow" d="'+d+'"/><path class="route-road" d="'+d+'"/><path class="route-center" d="'+d+'"/>');
+    if(journeyNodeDoneV4(core[i],isGeo)&&journeyNodeDoneV4(core[i+1],isGeo))progress.push('<path class="route-progress" d="'+d+'"/>');
+  }
+  return '<svg class="journey-route-v4" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">'+paths.join('')+progress.join('')+'</svg>';
+}
+function journeyNodeMarkupV4(node,point,st,isNext,future,isGeo=false){
+  const visual=isNext&&!['can-now','mastered','passed'].includes(st)?'next':future?'future':st;
+  const badge=journeyNodeBadgeV3(node,st),isCheckpoint=node.type==='checkpoint',isSide=node.type==='challenge'||node.type==='review';
+  const attr=isGeo?'data-geo-journey-node':'data-journey-node';
+  const label=isNext?'<span class="journey-next-label-v4"><b>NESTE OPPDRAG</b><strong>'+node.title+'</strong></span>':'';
+  const fox=isNext?'<span class="journey-player-v4">'+journeyFoxSvg()+'</span>':'';
+  const goal=isCheckpoint?'<span class="journey-goal-label-v4"><b>VERDENSMÅL</b><strong>'+node.title+'</strong></span>':'';
+  const side=isSide?'<span class="journey-side-label-v4">'+(node.type==='challenge'?'BONUS':'REPETISJON')+'</span>':'';
+  return '<button type="button" class="journey-node-v4 type-'+node.type+' state-'+visual+'" style="left:'+point[0]+'%;top:'+point[1]+'%" '+attr+'="'+node.id+'" aria-label="'+escapeAttr(node.title+'. '+(isGeo?geoJourneyStatusText(node,st):journeyStatusText(node,st)))+'">'+label+fox+'<span class="node-pad-v4">'+journeySkillGlyph(node,isGeo)+(badge?'<span class="journey-state-v4">'+badge+'</span>':'')+'</span>'+goal+side+'</button>';
+}
 function journeyMissionCopy(node,isGeo){
   if(node.type==='checkpoint')return 'En blandet runde fra denne verdenen. Få minst 4 av 5 riktige for å vinne troféet og åpne neste verden.';
   if(node.type==='challenge')return 'Et frivillig bonusoppdrag med litt mer variasjon. Det er lov å prøve selv om du ikke er ferdig med hovedstien.';
@@ -4133,53 +4285,52 @@ function startSelectedJourneyMission(){
   const m=selectedJourneyMission;if(!m)return;closeJourneyMission();
   if(m.isGeo)startGeoJourneyNode(m.nodeId,m.grade);else startJourneyNode(m.subject,m.nodeId,m.grade);
 }
+
 function renderSubjectJourney(){
   const host=document.getElementById('journey-map');if(!host||!SUBJECTS[activeSubject])return;
-  host.className='journey-map journey-map-v3';
+  host.className='journey-map journey-map-v4';
   const viewGrade=journeyViewGrade(activeSubject),prog=journeyProgress(activeSubject,viewGrade),recommended=journeyRecommendedNode(activeSubject,viewGrade),model=prog.model;
   const recommendedIndex=recommended?model.nodes.findIndex(n=>n.id===recommended.id):-1,currentAreaIndex=journeyFirstOpenArea(model,journeyAreaComplete);
   document.getElementById('journey-grade-chip').textContent=GRADE_CONFIG[viewGrade].label;
   renderJourneyGradeStrip(activeSubject,'journey-grade-strip','journey-grade-note',viewGrade);
   document.getElementById('journey-heading-title').textContent=prog.complete?'Du rundet trinnet!':'Reisen gjennom '+GRADE_CONFIG[viewGrade].label.toLowerCase();
-  document.getElementById('journey-summary-title').textContent=prog.complete?'Kjerneløpet er fullført':prog.pct+' % gjennom reisen';
-  document.getElementById('journey-summary-copy').textContent=prog.complete?'Alle hovedverdenene er åpnet. Nå kan du jakte på varig mestring.':'Finn neste oppdrag, vinn troféene og åpne nye verdener.';
-  document.getElementById('journey-summary-pct').textContent=prog.pct+'%';
-  document.getElementById('journey-summary-ring').style.setProperty('--journey-pct',prog.pct);
-  const nowTitle=document.getElementById('journey-now-title'),nowCopy=document.getElementById('journey-now-copy'),foxHost=document.querySelector('.journey-now-fox');
-  if(foxHost)foxHost.innerHTML=journeyFoxSvg();
-  if(nowTitle&&nowCopy){
-    nowTitle.textContent=prog.complete?'Trinnet er rundet':recommended?recommended.title:'Velg et oppdrag';
-    nowCopy.textContent=prog.complete?'Ta sideoppdrag eller repeter for å gjøre mer av kunnskapen varig.':recommended?(recommended.areaTitle+' · '+journeyStatusText(recommended,journeyNodeState(recommended))):'Du kan øve fritt eller velge en verden.';
-  }
-  renderJourneyCollection('journey-collection',activeSubject,model,journeyAreaComplete);
+  const trophies=prog.areasDone;
+  const hud='<div class="journey-game-hud-v4"><span class="hud-grade">'+GRADE_CONFIG[viewGrade].label+'</span><div class="hud-mid"><b>'+(prog.complete?'Trinnet er rundet':'Neste: '+(recommended?.title||'Velg oppdrag'))+'</b><div class="hud-bar"><i style="width:'+prog.pct+'%"></i></div></div><span class="hud-score"><b>🏆</b>'+trophies+'/'+model.areas.length+'</span></div>';
 
   const chunks=model.areas.map((area,areaIndex)=>{
-    const areaDone=journeyAreaComplete(area),isCurrent=!prog.complete&&areaIndex===currentAreaIndex,isPreview=false,isFuture=!prog.complete&&areaIndex>currentAreaIndex;
-    const required=area.nodes.filter(n=>n.type==='skill'||n.type==='checkpoint'),done=required.filter(n=>n.type==='skill'?['can-now','mastered'].includes(journeyNodeState(n)):journeyNodeRecord(n).passed).length;
-    const reward=journeyAreaReward(activeSubject,areaIndex),core=journeyCoreNodes(area),positions=journeyCorePositionsV3(core.length),posMap=new Map(core.map((n,i)=>[n.id,positions[i]]));
-    const nodes=isFuture?'':area.nodes.map(node=>{
-      const st=journeyNodeState(node),globalIndex=model.nodes.findIndex(n=>n.id===node.id),isNext=recommended&&recommended.id===node.id,future=!isNext&&recommendedIndex>=0&&globalIndex>recommendedIndex&&st==='new';
-      const visual=isNext&&!['can-now','mastered','passed'].includes(st)?'next':future?'future':st,point=posMap.get(node.id)||journeySidePositionV3(node.type,areaIndex),badge=journeyNodeBadgeV3(node,st);
-      const fox=isNext?'<span class="journey-next-tag">NESTE</span><span class="journey-fox-marker">'+journeyFoxSvg()+'</span>':'';
-      const side=(node.type==='challenge'||node.type==='review')?'<span class="journey-side-sign">'+(node.type==='challenge'?'BONUS':'REPETISJON')+'</span>':'';
-      return '<button type="button" class="journey-map-node-v3 type-'+node.type+' state-'+visual+'" style="left:'+point[0]+'%;top:'+point[1]+'%" data-journey-node="'+node.id+'" aria-label="'+escapeAttr(node.title+'. '+journeyStatusText(node,st))+'">'+fox+'<span class="node-orb-v3">'+journeySkillGlyph(node,false)+(badge?'<span class="journey-node-badge-v3">'+badge+'</span>':'')+'</span>'+side+'</button>';
-    }).join('');
-    if(isFuture){
-      return '<section class="journey-world-v3 locked">'+journeyWorldArt(activeSubject,areaIndex,true)+'<div class="journey-world-top"><div class="journey-world-index">VERDEN<br>'+(areaIndex+1)+'</div><div class="journey-world-copy"><strong>'+area.title+'</strong><small>'+area.copy+'</small></div><span class="journey-world-count">LÅST</span></div><div class="journey-world-lock"><div class="lock-shape">×</div><strong>'+area.title+' venter</strong><small>Fullfør troféet i verden '+(currentAreaIndex+1)+' for å åpne denne i hovedreisen.</small><button type="button" data-journey-peek="'+area.id+'">Prøv likevel</button></div></section>';
+    const areaDone=journeyAreaComplete(area),isCurrent=!prog.complete&&areaIndex===currentAreaIndex,isPreview=!prog.complete&&areaIndex===currentAreaIndex+1,isFuture=!prog.complete&&areaIndex>currentAreaIndex+1;
+    const required=area.nodes.filter(n=>n.type==='skill'||n.type==='checkpoint'),done=required.filter(n=>n.type==='skill'?['can-now','mastered'].includes(journeyNodeState(n)):journeyNodeRecord(n).passed).length,reward=journeyAreaReward(activeSubject,areaIndex);
+
+    if(prog.complete||areaDone&&areaIndex<currentAreaIndex){
+      const review=area.nodes.find(n=>n.type==='review')||area.nodes[0];
+      return '<section class="journey-complete-v4">'+journeyWorldArtV4(activeSubject,areaIndex,false)+'<div class="journey-complete-copy-v4"><span>VERDEN '+(areaIndex+1)+' · FULLFØRT</span><strong>'+area.title+'</strong><small>Du vant '+reward.label+'. Denne verdenen kan alltid spilles igjen.</small><button class="journey-replay-v4" data-journey-replay="'+review.id+'">Spill igjen</button></div><div class="journey-complete-trophy-v4">🏆</div></section>';
     }
-    return '<section class="journey-world-v3 '+(isCurrent?'world-current ':'')+(areaDone?'area-complete':'')+'">'+journeyWorldArt(activeSubject,areaIndex,false)+
-      '<div class="journey-world-top"><div class="journey-world-index">VERDEN<br>'+(areaIndex+1)+'</div><div class="journey-world-copy"><strong>'+area.title+'</strong><small>'+(area.copy||'Bygg ferdighetene steg for steg.')+'</small></div><span class="journey-world-count '+(areaDone?'complete':'')+'">'+(areaDone?'KLART':done+' / '+required.length)+'</span></div>'+
-      '<div class="journey-playfield-v3">'+journeyRouteSvgV3(area,false)+nodes+
-      '<div class="journey-reward-zone '+(areaDone?'won':'')+'"><div class="journey-chest"><span class="lid"></span><span class="box"></span><span class="lock"></span></div><div class="journey-reward-label">'+(areaDone?'Vunnet: '+reward.label:'Premie: '+reward.label)+'</div></div></div></section>';
+    if(isPreview){
+      return '<section class="journey-preview-v4">'+journeyWorldArtV4(activeSubject,areaIndex,false)+'<div class="journey-preview-card-v4"><span>NESTE VERDEN</span><strong>'+area.title+'</strong><small>'+(area.copy||'Et nytt område venter når troféet foran er vunnet.')+'</small><button class="journey-preview-btn-v4" data-journey-peek="'+area.id+'">Prøv verden nå</button></div></section>';
+    }
+    if(isFuture){
+      return '<section class="journey-locked-strip-v4">'+journeyWorldArtV4(activeSubject,areaIndex,true)+'<div class="journey-locked-copy-v4"><span>VERDEN '+(areaIndex+1)+'</span><strong>'+area.title+'</strong><small>Åpnes senere i hovedreisen.</small></div><div class="journey-lock-icon-v4">⌁</div></section>';
+    }
+
+    const core=journeyCoreNodes(area),positions=journeyCorePositionsV4(core.length),posMap=new Map(core.map((n,i)=>[n.id,positions[i]]));
+    const nodes=area.nodes.map(node=>{
+      const st=journeyNodeState(node),globalIndex=model.nodes.findIndex(n=>n.id===node.id),isNext=recommended&&recommended.id===node.id,future=!isNext&&recommendedIndex>=0&&globalIndex>recommendedIndex&&st==='new',point=posMap.get(node.id)||journeySidePositionV4(node.type,areaIndex);
+      return journeyNodeMarkupV4(node,point,st,isNext,future,false);
+    }).join('');
+    return '<section class="journey-world-v4 world-current">'+journeyWorldArtV4(activeSubject,areaIndex,false)+
+      '<div class="journey-world-head-v4"><div class="journey-world-number-v4">VERDEN<br>'+(areaIndex+1)+'</div><div class="journey-world-title-v4"><strong>'+area.title+'</strong><small>'+(area.copy||'Bygg ferdighetene steg for steg.')+'</small></div><div class="journey-prize-v4"><b>🏆</b><span>'+(areaDone?'Vunnet':'Premie')+'<br>'+reward.label+'</span></div></div>'+
+      '<div class="journey-playfield-v4">'+journeyRouteSvgV4(area,false)+nodes+'</div></section>';
   });
-  host.innerHTML=chunks.join('<div class="journey-world-transition-v3" aria-hidden="true">↓</div>');
+
+  host.innerHTML=hud+chunks.join('<div class="journey-world-transition-v4" aria-hidden="true"></div>');
   host.querySelectorAll('[data-journey-node]').forEach(b=>b.onclick=()=>openJourneyMission(activeSubject,b.dataset.journeyNode,viewGrade,false));
   host.querySelectorAll('[data-journey-peek]').forEach(b=>b.onclick=()=>startJourneyWorldPreview(activeSubject,b.dataset.journeyPeek,viewGrade));
+  host.querySelectorAll('[data-journey-replay]').forEach(b=>b.onclick=()=>openJourneyMission(activeSubject,b.dataset.journeyReplay,viewGrade,false));
 
   const finish=document.getElementById('journey-finish');finish.classList.toggle('complete',prog.complete);
   finish.innerHTML=prog.complete
-    ?'<strong>Trinnet er rundet</strong><p>Du har vunnet troféet i alle hovedverdenene. Fortsett å repetere for å gjøre mer av kunnskapen varig.</p><div class="journey-finish-actions"><button class="secondary" id="journey-repeat-grade">Repeter</button>'+(viewGrade<10?'<button class="secondary" id="journey-next-grade">Prøv '+GRADE_CONFIG[viewGrade+1].label+'</button>':'')+'</div>'
-    :'<strong>Sluttmål: rund '+GRADE_CONFIG[viewGrade].label+'</strong><p>Få hovedpunktene til «Kan nå» og vinn troféet i hver verden. Sideoppdrag er frivillige.</p>';
+    ?'<strong>🏆 '+GRADE_CONFIG[viewGrade].label+' er rundet</strong><p>Du har vunnet troféet i alle hovedverdenene. Nå bygger repetisjon varig mestring.</p><div class="journey-finish-actions"><button class="secondary" id="journey-repeat-grade">Repeter</button>'+(viewGrade<10?'<button class="secondary" id="journey-next-grade">Utforsk '+GRADE_CONFIG[viewGrade+1].label+'</button>':'')+'</div>'
+    :'<strong>🏁 Målet er verden for verden</strong><p>Følg hovedruten og vinn troféet. Bonus og repetisjon ligger ved siden av ruten og er frivillig.</p>';
   const repeatBtn=document.getElementById('journey-repeat-grade');if(repeatBtn)repeatBtn.onclick=()=>startJourneyReview(activeSubject,viewGrade);
   const nextBtn=document.getElementById('journey-next-grade');if(nextBtn)nextBtn.onclick=()=>setJourneyViewGrade(activeSubject,viewGrade+1);
   document.getElementById('journey-review').onclick=()=>startJourneyReview(activeSubject,viewGrade);
