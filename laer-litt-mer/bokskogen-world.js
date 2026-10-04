@@ -329,8 +329,6 @@
     host.className='journey-map bokskogen-map';
 
     const recommendedIndex=recommended?model.nodes.findIndex(n=>n.id===recommended.id):-1;
-    renderJourneyGradeStrip('norwegian','journey-grade-strip','journey-grade-note',viewGrade);
-
     const places=PLACE_DEFS.map(place=>{
       const state=placeVisualState(place,model,recommended,recommendedIndex);
       return placeMarkup(place,state);
@@ -338,7 +336,9 @@
 
     const currentPlace=recommended?placeByNode(recommended.id):null;
     let guide='';
-    if(recommended&&!prog.complete&&currentPlace){
+    if(prog.complete){
+      guide='<button type="button" class="bokskogen-mission-sign is-complete" data-bok-place-open="biblioteket" aria-label="Bokskogen fullført. Åpne Biblioteket"><span>RUNDET</span><strong>Biblioteket</strong><small>Utforsk oppdragene igjen</small></button>';
+    }else if(recommended&&currentPlace){
       guide='<button type="button" class="bokskogen-mission-sign" data-bok-next="'+recommended.id+'" aria-label="'+escapeAttr('Neste oppdrag: '+recommended.title)+'"><span>NESTE</span><strong>'+currentPlace.title+'</strong><small>'+recommended.title+'</small></button>';
     }
 
@@ -358,6 +358,13 @@
     });
     const nextBtn=host.querySelector('[data-bok-next]');
     if(nextBtn)nextBtn.onclick=()=>openJourneyMission('norwegian',nextBtn.dataset.bokNext,viewGrade,false);
+    const completeSign=host.querySelector('[data-bok-place-open]');
+    if(completeSign){
+      completeSign.onclick=()=>{
+        const place=PLACE_DEFS.find(p=>p.id===completeSign.dataset.bokPlaceOpen);
+        if(place)openPlaceSheet(host,place,viewGrade,model,recommended);
+      };
+    }
     const gradeBtn=host.querySelector('.bokskogen-grade-pill');
     const gradeMenu=host.querySelector('.bokskogen-grade-menu');
     if(gradeBtn&&gradeMenu){
