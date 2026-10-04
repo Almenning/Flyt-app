@@ -1988,7 +1988,7 @@
 }
 .bok-v11-world .bok-v10-top{
   position:fixed;
-  z-index:520;
+  z-index:90;
   top:max(62px,calc(env(safe-area-inset-top,0px) + 10px));
   left:max(10px,env(safe-area-inset-left,0px));
   right:max(10px,env(safe-area-inset-right,0px));
