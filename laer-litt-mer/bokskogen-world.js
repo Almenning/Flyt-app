@@ -464,7 +464,7 @@
   }
   function plaque(place,state){
     const done=state==='done',current=state==='current',future=state==='future';
-    return '<button type="button" class="bok-v10-place state-'+state+'" style="left:'+place.point[0]+'%;top:'+place.point[1]+'%;--tilt:'+place.tilt+'deg" data-v10-place="'+place.id+'" aria-label="'+escapeAttr(place.title+(done?', fullført':current?', neste sted':future?', låst':''))+'">'+
+    return '<button type="button" class="bok-v10-place state-'+state+'" style="left:'+place.point[0]+'%;top:'+place.point[1]+'%;--tilt:'+place.tilt+'deg" data-v10-place="'+place.id+'" data-title="'+escapeAttr(place.title)+'" aria-label="'+escapeAttr(place.title+(done?', fullført':current?', neste sted':future?', låst':''))+'">'+
       '<span class="hit"></span>'+
       '<span class="bok-v11-anchor" aria-hidden="true"></span>'+
       (done?'<span class="bok-v11-status done" aria-hidden="true">✓</span>':'')+
@@ -546,7 +546,7 @@
     const recommendedIndex=recommended?model.nodes.findIndex(n=>n.id===recommended.id):-1;
     const places=PLACES.map(p=>plaque(p,placeState(p,model,recommended,recommendedIndex))).join('');
     return '<section class="bok-v10-world bok-v11-world'+(prog.complete?' is-complete':'')+'" aria-label="Bokskogen, interaktiv læringsverden">'+
-      '<img class="bok-v10-art" src="./bokskogen-reference-bg.webp?v=20261004-art2" alt="" draggable="false" decoding="async">'+
+      '<img class="bok-v10-art" src="./bokskogen-verden.png?v=20261004-world1" alt="" draggable="false" decoding="async">'+
       '<div class="bok-v10-vignette" aria-hidden="true"></div>'+
       progressTrail(prog,recommended,model)+
       '<div class="bok-v10-water-shimmer" aria-hidden="true"></div>'+

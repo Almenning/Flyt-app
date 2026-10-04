@@ -304,44 +304,34 @@ async function finishSession(page){
     assert.ok(mathVariety.includes('sequence-order'),'grade 2 math should include ordering');
     await page.locator('#open-math').click();
     assert.equal(await page.locator('#journey-map').isVisible(),true);
-    assert.equal(await page.locator('#journey-map.journey-map-v5').count(),1,'math journey should use the game-board renderer');
-    assert.equal(await page.locator('#journey-map .journey-world-v5.world-current').count(),1,'journey should expose exactly one active full-size world');
-    assert.ok(await page.locator('#journey-map .journey-world-v5.world-current [data-journey-node]').count()>=4,'current math world should expose a complete playable route');
-    assert.equal(await page.locator('#journey-map .journey-route-v5').count(),1,'only the active world should render the full route');
-    assert.equal(await page.locator('#journey-map .journey-player-v5').count(),1,'recommended node should carry the fox player marker');
-    assert.equal(await page.locator('#journey-map .journey-next-flag-v5').count(),1,'only one next mission should be visually called out');
-    assert.match(await page.locator('#journey-map .journey-next-flag-v5').innerText(),/NESTE OPPDRAG/);
-    assert.equal(await page.locator('#journey-now-card').isVisible(),false,'separate dashboard-style you-are-here card should be removed');
-    assert.equal(await page.locator('#journey-collection').isVisible(),false,'prototype collectible rail should not compete with the game board');
-    assert.ok(await page.locator('#journey-map .journey-node-glyph').count()>=4,'active journey nodes should have distinct visual motifs');
-    assert.ok(await page.locator('#journey-map .node-platform-v5').count()>=4,'main route should use physical level platforms');
-    const journeyIcons=await page.locator('#journey-map .journey-node-glyph').evaluateAll(els=>els.map(el=>el.innerHTML.replace(/\s+/g,' ').trim()));
-    assert.ok(new Set(journeyIcons.filter(Boolean)).size>=3,'journey should not use one generic symbol for every node');
-    assert.equal(await page.locator('#journey-map .journey-world-reward-v5').count(),1,'active world should show one concrete world prize');
-    assert.ok(await page.locator('#journey-map .journey-world-art-v5').count()>=3,'active, preview and future worlds should contain themed scenery');
-    assert.equal(await page.locator('#journey-map .journey-checkpoint-banner-v5').count(),1,'checkpoint should read as the world goal');
-    assert.ok(await page.locator('#journey-map .journey-preview-v5').count()>=1,'journey should visually tease the next world');
-    assert.ok(await page.locator('#journey-map .journey-locked-v5').count()>=1,'later worlds should sit on the horizon behind a soft lock');
-    assert.ok(await page.locator('#journey-map [data-journey-peek]').count()>=1,'next world should allow a non-counting peek');
-    assert.equal(await page.locator('#journey-map .journey-game-hud-v5').count(),1,'journey should have a compact in-game HUD');
-    assert.equal(await page.locator('#journey-map .journey-gate-v5').count(),1,'active world should end in a visible trophy gate');
-    const nodeRects=await page.locator('#journey-map .journey-world-v5.world-current .journey-node-v5:not(.type-side)').evaluateAll(nodes=>nodes.map(n=>{const r=n.getBoundingClientRect();return {l:r.left,t:r.top,r:r.right,b:r.bottom}}));
-    for(let i=0;i<nodeRects.length;i++)for(let j=i+1;j<nodeRects.length;j++){
-      const a=nodeRects[i],b=nodeRects[j],w=Math.max(0,Math.min(a.r,b.r)-Math.max(a.l,b.l)),h=Math.max(0,Math.min(a.b,b.b)-Math.max(a.t,b.t));
-      assert.ok(w*h<350,'core journey nodes should not visibly overlap');
-    }
-
-    // Tapping a level opens a proper mission sheet instead of dumping the child straight into a quiz.
-    await page.locator('#journey-map [data-journey-node]').first().click();
-    assert.equal(await page.locator('#journey-mission-backdrop').isVisible(),true,'journey node should open mission sheet');
-    assert.ok((await page.locator('#journey-mission-title').textContent()).trim().length>0,'mission sheet needs a title');
-    assert.match(await page.locator('#journey-mission-start').textContent(),/Start|Trofé|repetisjon|bonus/i);
+    assert.equal(await page.locator('#journey-map.premium-journey-map .premium-math').count(),1);
+    assert.ok(await page.locator('#journey-map .premium-place[data-journey-node]').count()>=4);
+    assert.equal(await page.locator('#journey-map .premium-place.is-next').count(),1);
+    assert.equal(await page.locator('#journey-map .premium-traveler').count(),1);
+    assert.ok(await page.locator('#journey-map .premium-place.is-future').count()>=1);
+    assert.equal(await page.locator('#journey-map .premium-world-hud').count(),1);
+    assert.equal(await page.locator('#journey-now-card').isVisible(),false);
+    assert.equal(await page.locator('#journey-collection').isVisible(),false);
+    const worldImage=await page.locator('#journey-map .premium-world-art').evaluate(img=>img.complete&&img.naturalWidth>800);
+    assert.equal(worldImage,true,'math landscape artwork should load at useful resolution');
+    const firstNode=page.locator('#journey-map .premium-place.is-next');
+    await firstNode.click();
+    assert.equal(await page.locator('#journey-map .premium-world-sheet').isVisible(),true);
+    assert.match(await page.locator('#journey-map .premium-world-sheet').innerText(),/Neste oppdrag/);
+    await page.locator('#journey-map .premium-sheet-start').click();
+    assert.equal(await page.locator('#journey-mission-backdrop').isVisible(),true);
     await page.locator('#journey-mission-close').click();
-    assert.equal(await page.locator('#journey-mission-backdrop').isVisible(),false);
-
+    await page.locator('#journey-map .premium-place.is-future').first().click();
+    assert.equal(await page.locator('#journey-map .premium-sheet-start').count(),0,'future place must not start a mission');
+    await page.locator('#journey-map .premium-sheet-close').click();
 
     const peekBefore=await page.evaluate(()=>({pct:journeyProgress('math',2).pct,goal:dailyGoal().done,answers:subjectAnswered('math')}));
-    await page.locator('#journey-map [data-journey-peek]').first().click();
+    const previewNode=await page.evaluate(()=>{
+      const model=journeyModel('math',2),id=model.areas[1].nodes.find(n=>n.type==='skill').id;
+      return id;
+    });
+    await page.locator('#journey-map [data-journey-node="'+previewNode+'"]').click();
+    await page.locator('#journey-map .premium-sheet-peek').click();
     await page.locator('#session-screen.active').waitFor();
     const peekScope=await page.evaluate(()=>({type:sessionScope.type,previewOnly:sessionScope.previewOnly,practiceOnly:sessionScope.practiceOnly,count:sessionQuestions.length}));
     assert.equal(peekScope.type,'journey-preview');
@@ -350,11 +340,11 @@ async function finishSession(page){
     assert.ok(peekScope.count>=1);
     await answerCurrent(page);
     const peekLogged=await page.evaluate(()=>state.answerLog.at(-1));
-    assert.equal(peekLogged.countsForLearning,false,'peek answers must not count as learning progress');
+    assert.equal(peekLogged.countsForLearning,false);
     await page.locator('#close-session').click();
     await page.locator('#subject-screen.active').waitFor();
     const peekAfter=await page.evaluate(()=>({pct:journeyProgress('math',2).pct,goal:dailyGoal().done,answers:subjectAnswered('math')}));
-    assert.deepEqual(peekAfter,peekBefore,'soft-lock peek must not change progress or the daily goal');
+    assert.deepEqual(peekAfter,peekBefore);
 
     // Trophy completion must award the world's collectible, and the final trophy must genuinely round the grade.
     const journeyRewardCheck=await page.evaluate(()=>{
@@ -386,6 +376,9 @@ async function finishSession(page){
       const finalResult={correct:5,learningCorrect:5,total:5};
       recordJourneySessionResult(finalResult);
       const final={complete:journeyProgress('math',2).complete,gradeCompleted:finalResult.gradeCompleted||null,gradeWin:state.journey.gradeWins['math:2']||null};
+      renderSubjectJourney();
+      final.visiblePrizes=document.querySelectorAll('#journey-map .premium-world-prize').length;
+      final.replayable=document.querySelectorAll('#journey-map .premium-place.is-done').length;
 
       state.skillMastery=backup.skillMastery;state.skillEvidence=backup.skillEvidence;state.journey=backup.journey;state.lastMilestone=backup.lastMilestone;sessionScope=oldScope;saveState();renderAll();openSubject('math');
       return {first,final};
@@ -395,6 +388,8 @@ async function finishSession(page){
     assert.equal(journeyRewardCheck.final.complete,true,'final trophy should round the grade');
     assert.equal(journeyRewardCheck.final.gradeCompleted.grade,2);
     assert.ok(journeyRewardCheck.final.gradeWin,'grade completion should be persisted');
+    assert.ok(journeyRewardCheck.final.visiblePrizes>=1,'finished worlds should show trophies in the landscape');
+    assert.ok(journeyRewardCheck.final.replayable>=1,'finished places should remain interactive');
 
     const nextMathNode=await page.evaluate(()=>journeyRecommendedNode('math',2)?.id);
     assert.ok(nextMathNode,'missing recommended math journey node');
@@ -615,18 +610,16 @@ async function finishSession(page){
     await page.locator('#open-geography').click();
     assert.equal(await page.locator('.geo-theme').count(),6);
     assert.equal(await page.locator('#geo-journey-map').isVisible(),true);
-    assert.equal(await page.locator('#geo-journey-map.journey-map-v5').count(),1,'geography should use the game-board renderer');
-    assert.equal(await page.locator('#geo-journey-map .journey-world-v5.world-current').count(),1,'geography should expose one active expedition board');
-    assert.ok(await page.locator('#geo-journey-map .journey-world-v5.world-current [data-geo-journey-node]').count()>=4,'current geography world should expose a complete playable route');
-    assert.equal(await page.locator('#geo-journey-map .journey-route-v5').count(),1,'geography active world should render one clear expedition route');
-    assert.equal(await page.locator('#geo-journey-map .journey-player-v5').count(),1,'geography next node should carry the player marker');
-    assert.ok(await page.locator('#geo-journey-map .node-platform-v5').count()>=4,'geography route should use the same physical game-map language');
-    assert.equal(await page.locator('#geo-journey-map .journey-next-flag-v5').count(),1,'geography should call out one next mission');
-    assert.ok(await page.locator('#geo-journey-map .journey-node-glyph').count()>=3,'geography journey should use map/flag/capital motifs');
-    assert.equal(await page.locator('#geo-journey-map .journey-world-reward-v5').count(),1,'active geography expedition should show one prize');
-    assert.ok(await page.locator('#geo-journey-map .journey-world-art-v5').count()>=1,'geography expedition should contain illustrated scenery');
-    await page.locator('#geo-journey-map [data-geo-journey-node]').first().click();
-    assert.equal(await page.locator('#journey-mission-backdrop').isVisible(),true,'geography node should open mission sheet');
+    assert.equal(await page.locator('#geo-journey-map.premium-journey-map .premium-geography').count(),1);
+    assert.ok(await page.locator('#geo-journey-map .premium-place[data-geo-journey-node]').count()>=4);
+    assert.equal(await page.locator('#geo-journey-map .premium-place.is-next').count(),1);
+    assert.ok(await page.locator('#geo-journey-map .premium-place.is-future').count()>=1);
+    assert.equal(await page.locator('#geo-journey-map .premium-traveler').count(),1);
+    assert.equal(await page.locator('#geo-journey-map .premium-world-hud').count(),1);
+    await page.locator('#geo-journey-map .premium-place.is-next').click();
+    assert.equal(await page.locator('#geo-journey-map .premium-world-sheet').isVisible(),true);
+    await page.locator('#geo-journey-map .premium-sheet-start').click();
+    assert.equal(await page.locator('#journey-mission-backdrop').isVisible(),true);
     await page.locator('#journey-mission-close').click();
 
     const nextGeoNode=await page.evaluate(()=>geoJourneyRecommendedNode()?.id);
