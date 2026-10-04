@@ -2788,7 +2788,7 @@ function geoJourneyModel(grade=currentGrade()){
     const extras=[
       {id:src.id+'-challenge',type:'challenge',title:'Utfordring'},
       {id:src.id+'-review',type:'review',title:'Husker du?'},
-      {id:src.id+'-checkpoint',type:'checkpoint',title:'Checkpoint'}
+      {id:src.id+'-checkpoint',type:'checkpoint',title:'Trofé'}
     ].map(n=>({...n,subject:'geography',grade,areaId:src.id,areaTitle:src.title,ids,areaTypes:types,target:src.target}));
     const nodes=[...skillNodes,...extras];areas.push({...src,ids,types,nodes});
   }
@@ -2827,7 +2827,7 @@ function geoJourneyRecommendedNode(grade=currentGrade()){
   return model.nodes.find(n=>n.type==='review')||model.nodes[0]||null;
 }
 function geoJourneyStatusText(node,st){
-  if(node.type==='checkpoint')return st==='passed'?'Bestått':'Checkpoint';
+  if(node.type==='checkpoint')return st==='passed'?'Trofé vunnet':'Trofétest';
   if(node.type==='challenge')return st==='passed'?'Klart':'Ekstra';
   if(node.type==='review')return st==='active'?'Klar for repetisjon':'Frivillig';
   if(st==='mastered')return 'Mestret';if(st==='can-now')return 'Kan nå';if(st==='active')return 'Under arbeid';return 'Ny';
@@ -2886,14 +2886,27 @@ function startGeoJourneyNode(nodeId,grade=journeyViewGrade('geography')){
   if(sessionQuestions.length<5){toast('Dette punktet trenger flere oppgaver før det kan startes.');return}
   qIndex=0;sessionCorrect=0;sessionStrengthened=new Set();currentAnswered=null;state.activeSession={startedAt:Date.now()};persistActiveSession();showScreen('session');renderQuestion();
 }
+
 function recordGeoJourneyResult(result){
   if(sessionScope?.type!=='geo-journey'||sessionScope.practiceOnly)return;
-  ensureJourneyState();const grade=Number(sessionScope.journeyGrade||currentGrade()),model=geoJourneyModel(grade),node=model.nodes.find(n=>n.id===sessionScope.journeyNode);if(!node)return;
+  ensureJourneyState();
+  const grade=Number(sessionScope.journeyGrade||currentGrade()),model=geoJourneyModel(grade),node=model.nodes.find(n=>n.id===sessionScope.journeyNode);if(!node)return;
+  const area=model.areas.find(a=>a.id===node.areaId),areaIndex=Math.max(0,model.areas.findIndex(a=>a.id===node.areaId)),wasAreaComplete=area?geoJourneyAreaComplete(area):false;
   const key=journeyNodeKey('geography',grade,node.id),old=state.journey.nodes[key]||{},passable=node.type==='checkpoint'||node.type==='challenge';
   const scoredCorrect=passable?Number(result.learningCorrect??result.correct??0):Number(result.correct||0),best=Math.max(Number(old.best||0),scoredCorrect),passed=passable?(best>=4):!!old.passed;
   state.journey.nodes[key]={...old,best,attempts:Number(old.attempts||0)+1,lastAt:Date.now(),passed,passedAt:passed?(old.passedAt||Date.now()):null};
+  const nowAreaComplete=area?geoJourneyAreaComplete(area):false;
+  if(area&&!wasAreaComplete&&nowAreaComplete){
+    const reward=journeyAreaReward('geography',areaIndex);
+    result.journeyReward={...reward,areaTitle:area.title};
+    state.lastMilestone={title:reward.emoji+' '+area.title+' fullført!',copy:'Du vant '+reward.label+'. Neste etappe i ekspedisjonen er åpnet.',at:Date.now()};
+  }
   const prog=geoJourneyProgress(grade),winKey='geography:'+grade;
-  if(prog.complete&&!state.journey.gradeWins[winKey]){state.journey.gradeWins[winKey]={at:Date.now()};state.lastMilestone={title:GRADE_CONFIG[grade].label+' fullført i geografi! 🏆',copy:'Du har klart geografiens kjerneløp på dette trinnet.',at:Date.now()}}
+  if(prog.complete&&!state.journey.gradeWins[winKey]){
+    state.journey.gradeWins[winKey]={at:Date.now()};
+    result.gradeCompleted={subject:'geography',grade};
+    state.lastMilestone={title:GRADE_CONFIG[grade].label+' fullført i geografi! 🏆',copy:'Du har rundet geografiens kjerneløp på dette trinnet.',at:Date.now()};
+  }
 }
 
 function geoJourneyCoreNodes(area){return area.nodes.filter(n=>n.type==='geo-skill'||n.type==='checkpoint')}
@@ -3128,7 +3141,7 @@ function jArea(id,title,emoji,module,skillNodes,copy=''){
     ...skillNodes,
     {id:id+'-challenge',type:'challenge',title:'Utfordring',skills:areaSkills,module,copy:'Bland ferdighetene i området.'},
     {id:id+'-review',type:'review',title:'Husker du?',skills:areaSkills,module,copy:'Frivillig repetisjon.'},
-    {id:id+'-checkpoint',type:'checkpoint',title:'Checkpoint',skills:areaSkills,module,copy:'Vis at området sitter nå.'}
+    {id:id+'-checkpoint',type:'checkpoint',title:'Trofé',skills:areaSkills,module,copy:'Siste prøve før verden er rundet.'}
   ]};
 }
 const JOURNEY_TEMPLATES={
@@ -3269,7 +3282,7 @@ function journeyRecommendedNode(subject,grade=currentGrade()){
   return model.nodes.find(n=>n.type==='review')||model.nodes[0];
 }
 function journeyStatusText(node,stateName){
-  if(node.type==='checkpoint')return stateName==='passed'?'Bestått':'Checkpoint';
+  if(node.type==='checkpoint')return stateName==='passed'?'Trofé vunnet':'Trofétest';
   if(node.type==='challenge')return stateName==='passed'?'Klart':'Ekstra';
   if(node.type==='review')return stateName==='active'?'Klar for repetisjon':'Frivillig';
   if(stateName==='mastered')return 'Mestret';if(stateName==='can-now')return 'Kan nå';if(stateName==='active')return 'Under arbeid';return 'Ny';
@@ -3671,18 +3684,27 @@ function startJourneyNode(subject,nodeId,grade=journeyViewGrade(subject)){
   qIndex=0;sessionCorrect=0;sessionStrengthened=new Set();currentAnswered=null;
   state.activeSession={startedAt:Date.now()};persistActiveSession();showScreen('session');renderQuestion();
 }
+
 function recordJourneySessionResult(result){
   if(sessionScope?.type==='geo-journey'){recordGeoJourneyResult(result);return}
   if(sessionScope?.type!=='journey'||sessionScope.practiceOnly)return;
   ensureJourneyState();
   const subject=sessionScope.subject,grade=Number(sessionScope.journeyGrade||currentGrade()),nodeId=sessionScope.journeyNode,model=journeyModel(subject,grade),node=model.nodes.find(n=>n.id===nodeId);if(!node)return;
+  const area=model.areas.find(a=>a.id===node.areaId),areaIndex=Math.max(0,model.areas.findIndex(a=>a.id===node.areaId)),wasAreaComplete=area?journeyAreaComplete(area):false;
   const key=journeyNodeKey(subject,grade,node.id),old=state.journey.nodes[key]||{},passable=node.type==='checkpoint'||node.type==='challenge';
   const scoredCorrect=passable?Number(result.learningCorrect??result.correct??0):Number(result.correct||0),best=Math.max(Number(old.best||0),scoredCorrect),passed=passable?(best>=4):!!old.passed;
   state.journey.nodes[key]={...old,best,attempts:Number(old.attempts||0)+1,lastAt:Date.now(),passed,passedAt:passed?(old.passedAt||Date.now()):null};
+  const nowAreaComplete=area?journeyAreaComplete(area):false;
+  if(area&&!wasAreaComplete&&nowAreaComplete){
+    const reward=journeyAreaReward(subject,areaIndex);
+    result.journeyReward={...reward,areaTitle:area.title};
+    state.lastMilestone={title:reward.emoji+' '+area.title+' fullført!',copy:'Du vant '+reward.label+'. Neste verden i reisen er åpnet.',at:Date.now()};
+  }
   const prog=journeyProgress(subject,grade),winKey=subject+':'+grade;
   if(prog.complete&&!state.journey.gradeWins[winKey]){
     state.journey.gradeWins[winKey]={at:Date.now()};
-    state.lastMilestone={title:GRADE_CONFIG[grade].label+' fullført! 🏆',copy:'Du har klart kjerneløpet i '+(SUBJECTS[subject]?.title||subject)+'.',at:Date.now()};
+    result.gradeCompleted={subject,grade};
+    state.lastMilestone={title:GRADE_CONFIG[grade].label+' fullført! 🏆',copy:'Du har rundet kjerneløpet i '+(SUBJECTS[subject]?.title||subject)+'.',at:Date.now()};
   }
 }
 function startJourneyReview(subject,grade=journeyViewGrade(subject)){
@@ -4644,7 +4666,7 @@ function finishSession(){
   document.getElementById('complete-correct').textContent=`${result.correct}/${result.total}`;
   document.getElementById('complete-learned').textContent=result.strengthened;
   document.getElementById('complete-area').textContent=result.area||'Verden';
-  document.getElementById('complete-copy').textContent=sessionScope?.previewOnly?'Ekstra utfordring fullført! Dette var en forhåndstitt og endrer ikke klassetrinnet eller mestringen din.':practiceOnly?'Repetisjon fullført! Denne runden trener hukommelsen, men påvirker ikke dagens mål eller mestring.':newRecord?'Ny personlig rekord: '+result.correct+' riktige! 🌟':result.correct===result.total?'Full pott! Du klarte hele oppdraget. 🌟':result.correct>=3?'Bra jobbet! Det vanskelige får du møte igjen senere.':'God innsats! Nå vet appen hva du skal øve mer på.';
+  document.getElementById('complete-copy').textContent=sessionScope?.previewOnly?'Sniktitt fullført! Dette var en forhåndstitt og endrer ikke progresjonen i hovedreisen.':practiceOnly?'Repetisjon fullført! Denne runden trener hukommelsen, men påvirker ikke dagens mål eller mestring.':result.gradeCompleted?'🏆 Du har rundet hele '+GRADE_CONFIG[result.gradeCompleted.grade].label+' i dette faget!':result.journeyReward?(result.journeyReward.emoji+' Verden fullført! Du vant '+result.journeyReward.label+'.'):newRecord?'Ny personlig rekord: '+result.correct+' riktige! 🌟':result.correct===result.total?'Full pott! Du klarte hele oppdraget. 🌟':result.correct>=3?'Bra jobbet! Det vanskelige får du møte igjen senere.':'God innsats! Nå vet appen hva du skal øve mer på.';
   const rewardTitle=document.getElementById('young-reward-title'),rewardCopy=document.getElementById('young-reward-copy'),rewardIcon=document.getElementById('young-reward-icon');
   if(rewardTitle&&rewardCopy&&rewardIcon){
     const milestone=state.lastMilestone&&Date.now()-Number(state.lastMilestone.at||0)<10*60*1000?state.lastMilestone:null;
@@ -4652,7 +4674,7 @@ function finishSession(){
     rewardTitle.textContent=sessionScope?.previewOnly?'Du prøvde noe vanskeligere! ⚡':practiceOnly?'God repetisjon!':milestone?.title||'Du klarte oppdraget!';
     rewardCopy.textContent=sessionScope?.previewOnly?'Dette var bare en smakebit. Fremgangen på ditt eget trinn er uendret.':practiceOnly?'Du trente hukommelsen uten at fremgangen ble kunstig blåst opp.':milestone?.copy||(result.strengthened>0?result.strengthened+' ting ble litt sterkere i dag.':'Du fullførte hele økten. Det teller.');
   }
-  document.getElementById('complete-next').textContent=sessionScope?.previewOnly?'Du kan gå tilbake til ditt eget trinn når du er ferdig.':practiceOnly?'Vil du prøve én gang til, kan du gjøre det så mange ganger du vil.':nextTeaserForScope();
+  document.getElementById('complete-next').textContent=sessionScope?.previewOnly?'Gå tilbake til hovedreisen når du er klar.':practiceOnly?'Vil du prøve én gang til, kan du gjøre det så mange ganger du vil.':result.gradeCompleted?'Alle verdener på trinnet er fullført. Repetisjon gjør kunnskapen sterkere over tid.':result.journeyReward?'Neste verden er åpnet i hovedreisen.':nextTeaserForScope();
   const backLabel=sessionScope?.subject&&sessionScope.subject!=='geography'?(SUBJECTS[sessionScope.subject]?.title||'faget'):'Geografi';
   document.getElementById('complete-home').textContent=currentGrade()<=2?'Se hva jeg kan ⭐':'Tilbake til '+backLabel+' ⭐';
   document.getElementById('complete-repeat').style.display=lastCompletedQuestions.length?'block':'none';
