@@ -110,6 +110,21 @@
     window.scrollTo({top,behavior:'auto'});
   }
 
+  function journeyLandmarkKind(node,i){
+    if(node.type==='checkpoint')return 'castle';
+    return ['cottage','tower','gate','observatory'][i%4];
+  }
+  function journeyLandmarkMarkup(subject,node,i,done,next,future){
+    const kind=journeyLandmarkKind(node,i);
+    const badge=node.type==='checkpoint'?'★':done?'✓':future?'🔒':next?'★':String(i+1);
+    return '<span class="premium-place-marker premium-landmark-platform" aria-hidden="true">'+
+      '<span class="premium-landmark premium-landmark-'+kind+' premium-landmark-'+subject+'">'+
+        '<i class="landmark-body"></i><i class="landmark-roof"></i><i class="landmark-window"></i><i class="landmark-door"></i><i class="landmark-flag"></i>'+
+      '</span>'+
+      '<span class="premium-place-state-badge">'+badge+'</span>'+
+    '</span>';
+  }
+
   function renderMap(subject,geo){
     const config=WORLDS[subject],host=document.getElementById(geo?'geo-journey-map':'journey-map');if(!host)return;
     const grade=journeyViewGrade(subject),prog=geo?geoJourneyProgress(grade):journeyProgress(subject,grade),model=prog.model;
@@ -125,7 +140,7 @@
       const [x,y]=pointAt(config,i,route.length),place=config.places[Math.min(6,Math.round(i*6/Math.max(1,route.length-1)))];
       const status=done?'fullført':next?'neste oppdrag':future?'låst':stateText(node,geo).toLowerCase();
       return '<button type="button" class="premium-place '+(done?'is-done ':next?'is-next ':future?'is-future ':'is-open ')+(node.type==='checkpoint'?'is-trophy':'')+'" style="--x:'+x+'%;--y:'+y+'%" '+nodeAttr+'="'+esc(node.id)+'" aria-label="'+esc(place+', '+node.title+', '+status)+'">'+
-        '<span class="premium-place-marker" aria-hidden="true">'+(node.type==='checkpoint'?'🏆':done?'✓':String(i+1))+'</span><span class="premium-place-sign"><b>'+esc(node.title)+'</b><small>'+esc(status)+'</small></span>'+
+        journeyLandmarkMarkup(subject,node,i,done,next,future)+'<span class="premium-place-sign"><b>'+esc(node.title)+'</b><small>'+esc(status)+'</small></span>'+
         (done?'<span class="premium-place-bloom" aria-hidden="true">✦</span>':'')+
       '</button>';
     }).join('');
