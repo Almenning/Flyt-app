@@ -1,5 +1,5 @@
 /* Atlas 32. Screen visibility is navigation state, never a world theme. */
-.screen:not(.active){display:none!important}
+.screen:not(.active),#geography-screen.screen:not(.active),#subject-screen.screen:not(.active){display:none!important}
 .screen.active{visibility:visible}
 
 /* One painted landscape, with hit targets aligned to its actual landmarks. */
@@ -33,3 +33,5 @@
 
 .bok-v15-world .bok-v10-progress{min-width:0;padding:8px;margin-left:auto;gap:4px}
 .bok-v15-world .bok-v10-progress b,.bok-v15-world .bok-v10-progress span{font-size:11px}
+
+.bok-v10-map{background:transparent!important;padding:0!important;max-width:560px!important;margin:0 auto!important}
