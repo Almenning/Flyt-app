@@ -1753,6 +1753,198 @@
     @media (prefers-reduced-motion:reduce){
       .journey-player-v5,.journey-gate-v5.open .gate-trophy{animation:none!important}
     }
+
+    /* Læringsreisen v6: premium spillbrett / diorama */
+    .journey-map-v5{gap:24px;margin-top:14px;padding:0 1px}
+    .journey-game-hud-v5{
+      top:max(7px,env(safe-area-inset-top));margin:0 5px 12px;padding:10px 12px 10px 11px;border-radius:24px;
+      border:1px solid rgba(255,255,255,.22);
+      background:
+        radial-gradient(circle at 12% 20%,rgba(123,150,255,.20),transparent 31%),
+        linear-gradient(145deg,rgba(27,44,78,.97),rgba(43,61,103,.96));
+      box-shadow:0 8px 0 rgba(22,35,65,.13),0 17px 35px rgba(28,43,77,.22),inset 0 1px 0 rgba(255,255,255,.16);
+    }
+    .journey-game-hud-v5:before{content:"";width:34px;height:34px;flex:0 0 auto;border-radius:50%;background:
+      radial-gradient(circle,#FFD96F 0 22%,#FFF4C0 23% 29%,transparent 30%),
+      conic-gradient(from 0deg,#C7D5FF 0 12.5%,transparent 12.5% 25%,#C7D5FF 25% 37.5%,transparent 37.5% 50%,#C7D5FF 50% 62.5%,transparent 62.5% 75%,#C7D5FF 75% 87.5%,transparent 87.5%);
+      border:1px solid rgba(255,255,255,.20);box-shadow:inset 0 0 0 4px rgba(255,255,255,.06),0 4px 9px rgba(13,27,52,.24);transform:rotate(12deg)}
+    .journey-game-hud-v5 .hud-level{min-width:50px;height:36px;border-radius:14px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.08)}
+    .journey-game-hud-v5 .hud-quest b{font-size:10.5px;letter-spacing:-.01em}
+    .journey-game-hud-v5 .hud-quest small{font-size:7.5px;color:#C7D4F9}
+    .journey-game-hud-v5 .hud-progress{height:7px;background:rgba(255,255,255,.12);box-shadow:inset 0 1px 2px rgba(10,20,40,.22)}
+    .journey-game-hud-v5 .hud-progress i{background:linear-gradient(90deg,#69D99C,#F9D766);box-shadow:0 0 8px rgba(116,221,159,.35)}
+    .journey-game-hud-v5 .hud-trophy{min-height:36px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.08)}
+
+    .journey-world-v5{
+      min-height:754px;border-radius:42px;border:1px solid rgba(255,255,255,.82);
+      box-shadow:0 13px 0 rgba(40,57,85,.09),0 34px 62px rgba(35,52,86,.20),inset 0 1px 0 rgba(255,255,255,.65);
+      transform:translateZ(0);
+    }
+    .journey-world-v5.world-current{box-shadow:0 0 0 5px rgba(93,118,229,.09),0 13px 0 rgba(40,57,85,.10),0 36px 66px rgba(35,52,86,.23)}
+    .journey-world-v5:before{content:"";position:absolute;inset:1px;z-index:3;border-radius:41px;pointer-events:none;
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,.28),inset 0 -70px 90px rgba(20,43,61,.07)}
+    .journey-world-v5:after{z-index:3;background:
+      radial-gradient(circle at 50% 20%,transparent 0 38%,rgba(28,47,66,.03) 80%),
+      linear-gradient(180deg,rgba(255,255,255,.04),transparent 24%,transparent 75%,rgba(19,42,66,.13))}
+    .journey-world-art-v5{filter:saturate(1.04) contrast(1.01)}
+
+    .journey-world-head-v5{z-index:19;gap:10px;padding:16px 15px 0;color:#203653}
+    .journey-world-kicker-v5{
+      width:50px;height:50px;border-radius:17px;background:linear-gradient(145deg,rgba(255,255,255,.93),rgba(244,248,255,.74));
+      border:1px solid rgba(255,255,255,.86);box-shadow:0 5px 13px rgba(39,58,88,.12),inset 0 1px 0 #fff;
+      color:#52627B;font-size:8px;letter-spacing:.075em;
+    }
+    .journey-world-title-v5{
+      padding:8px 12px 9px;border-radius:18px;background:rgba(255,255,255,.64);backdrop-filter:blur(9px);
+      border:1px solid rgba(255,255,255,.66);box-shadow:0 5px 13px rgba(41,60,88,.08);
+    }
+    .journey-world-title-v5 strong{font-size:21px;text-shadow:0 1px rgba(255,255,255,.55)}
+    .journey-world-title-v5 small{margin-top:3px;font-size:8.5px;color:rgba(31,51,80,.67)}
+    .journey-world-reward-v5{width:58px;height:54px}
+    .journey-world-reward-v5:before{content:"PREMIE";position:absolute;left:50%;bottom:-9px;transform:translateX(-50%);
+      font-size:5.5px;font-weight:1000;letter-spacing:.11em;color:#6C5A30;background:rgba(255,250,224,.86);padding:3px 5px;border-radius:999px;white-space:nowrap}
+    .journey-world-reward-v5:after{display:none}
+    .journey-world-reward-v5 .reward-chest{inset:4px 2px 2px;transition:.18s transform}
+    .journey-world-reward-v5.won .reward-chest{transform:translateY(-2px)}
+    .journey-world-reward-v5.won:before{content:"VUNNET";color:#366B4A;background:rgba(225,250,233,.92)}
+
+    .journey-playfield-v5{top:91px;z-index:8}
+    .journey-route-v5{inset:1% 0 2%;height:97%}
+    .journey-route-v5 .route-shadow{stroke:rgba(40,54,62,.22);stroke-width:18}
+    .journey-route-v5 .route-earth{stroke:#E7C578;stroke-width:14;filter:drop-shadow(0 4px 1px rgba(54,60,62,.12))}
+    .journey-route-v5 .route-light{stroke:#FFF0C0;stroke-width:6;opacity:.95}
+    .journey-route-v5 .route-progress{stroke:#4FB67C;stroke-width:9;filter:drop-shadow(0 3px 2px rgba(34,98,65,.17))}
+    .journey-route-v5 .route-dot{r:1.4;fill:#FFF5D2;stroke:#C9A95C;stroke-width:.75}
+    .journey-route-v5 .route-dot.done{fill:#E3F8EC;stroke:#3EA96D}
+
+    .journey-node-v5{z-index:14;min-width:88px;min-height:92px;margin:-5px 0 0;transition:.14s transform,.14s filter}
+    .journey-node-v5 .node-pedestal-v5{width:88px;height:76px;transition:.13s transform}
+    .journey-node-v5 .node-shadow-v5{left:13px;right:13px;bottom:0;height:21px;background:rgba(36,51,67,.22);filter:blur(2px)}
+    .journey-node-v5 .node-platform-v5{
+      left:7px;right:7px;bottom:10px;height:57px;border-radius:50%;
+      border:4px solid rgba(255,255,255,.92);
+      background:linear-gradient(180deg,#FFFFFF 0%,#E8EEF2 54%,#C6D2D8 55%,#AEBCC5 100%);
+      box-shadow:0 8px 0 #93A4AF,0 14px 23px rgba(38,55,73,.20),inset 0 5px 0 rgba(255,255,255,.80),inset 0 -5px 0 rgba(70,86,98,.08);
+    }
+    .journey-node-v5 .node-platform-v5:before{content:"";position:absolute;left:12px;right:12px;top:7px;height:12px;border-radius:50%;background:rgba(255,255,255,.70);filter:blur(.3px)}
+    .journey-node-v5 .node-platform-v5:after{left:15px;right:15px;top:12px;height:15px;background:rgba(255,255,255,.34)}
+    .journey-node-v5 .node-glyph-v5{width:49px;height:49px;margin-bottom:14px;font-size:22px;text-shadow:0 1px rgba(255,255,255,.80)}
+    .journey-node-v5 .journey-node-glyph svg{filter:drop-shadow(0 2px 2px rgba(37,53,77,.10))}
+    .journey-node-v5 .level-number-v5{
+      left:12px;bottom:4px;transform:none;min-width:24px;height:20px;padding:0 6px;border-radius:9px;
+      background:#324761;border:2px solid rgba(255,255,255,.92);font-size:7.5px;box-shadow:0 3px 7px rgba(40,54,77,.20)
+    }
+    .journey-node-v5 .journey-state-v5{right:3px;top:-1px;min-width:25px;height:25px}
+    .journey-node-v5.state-next{z-index:25;filter:drop-shadow(0 7px 9px rgba(58,76,154,.15))}
+    .journey-node-v5.state-next .node-platform-v5{
+      background:linear-gradient(180deg,#FBFCFF 0%,#E6EAFF 53%,#8A9CEF 54%,#6479DC 100%);
+      box-shadow:0 9px 0 #495DBE,0 0 0 9px rgba(104,125,230,.11),0 0 0 15px rgba(104,125,230,.05),0 19px 28px rgba(53,73,159,.28),inset 0 5px 0 rgba(255,255,255,.82);
+      animation:v6NextPulse 2.1s ease-in-out infinite
+    }
+    .journey-node-v5.state-active .node-platform-v5{
+      background:linear-gradient(180deg,#FFFDF0,#FFF0B5 53%,#D7A335 54%,#B9841C 100%);
+      box-shadow:0 9px 0 #906617,0 16px 24px rgba(102,73,23,.22),inset 0 5px 0 rgba(255,255,255,.78)
+    }
+    .journey-node-v5.state-can-now .node-platform-v5{
+      background:linear-gradient(180deg,#F4FFF8,#DCF5E5 53%,#58B982 54%,#398E61 100%);
+      box-shadow:0 9px 0 #2E704D,0 16px 24px rgba(38,98,67,.22),inset 0 5px 0 rgba(255,255,255,.78)
+    }
+    .journey-node-v5.state-mastered .node-platform-v5,.journey-node-v5.state-passed .node-platform-v5{
+      background:linear-gradient(180deg,#FFFDF1,#FFE99A 53%,#DDA72E 54%,#B87914 100%);
+      box-shadow:0 9px 0 #8F5F0F,0 17px 26px rgba(105,72,17,.23),0 0 0 5px rgba(255,220,104,.10),inset 0 5px 0 rgba(255,255,255,.78)
+    }
+    .journey-node-v5.state-future{opacity:.59;filter:saturate(.38) brightness(.98)}
+    .journey-node-v5.state-future .node-platform-v5{box-shadow:0 8px 0 #A3B0B8,0 13px 20px rgba(43,58,72,.15)}
+    .journey-node-v5:active .node-pedestal-v5{transform:translateY(5px) scale(.98)}
+
+    .node-name-v6{
+      position:absolute;left:50%;top:69px;transform:translateX(-50%);min-width:92px;max-width:132px;padding:5px 7px 6px;border-radius:12px;
+      background:rgba(255,255,255,.90);border:1px solid rgba(255,255,255,.96);box-shadow:0 4px 11px rgba(43,59,82,.12);
+      color:#33455E;text-align:center;line-height:1.05;pointer-events:none;backdrop-filter:blur(5px)
+    }
+    .node-name-v6 strong{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:7.8px;font-weight:1000}
+    .node-name-v6 small{display:block;margin-top:2px;font-size:5.8px;font-weight:950;letter-spacing:.06em;color:#7A8597}
+    .journey-node-v5.state-next .node-name-v6{background:#2B416C;color:#fff;border-color:#50689A;box-shadow:0 5px 12px rgba(35,53,89,.22)}
+    .journey-node-v5.state-next .node-name-v6 small{color:#BFD0FF}
+    .journey-node-v5.state-mastered .node-name-v6 small,.journey-node-v5.state-passed .node-name-v6 small{color:#A16D13}
+    .journey-node-v5.state-can-now .node-name-v6 small{color:#39825A}
+    .journey-node-v5.state-future .node-name-v6{background:rgba(242,245,247,.88)}
+
+    .journey-node-v5.type-checkpoint .node-pedestal-v5{width:108px;height:92px}
+    .journey-node-v5.type-checkpoint .node-platform-v5{
+      left:5px;right:5px;height:71px;border-radius:29px;
+      background:linear-gradient(180deg,#FFFCE7,#FFE47D 52%,#D59A20 53%,#A96A0E 100%);
+      box-shadow:0 11px 0 #7E4E0B,0 20px 31px rgba(98,62,12,.26),0 0 0 6px rgba(255,221,92,.10),inset 0 6px 0 rgba(255,255,255,.74)
+    }
+    .journey-node-v5.type-checkpoint .node-glyph-v5{width:58px;height:58px;margin-bottom:19px}
+    .journey-node-v5.type-checkpoint .node-name-v6{top:84px;min-width:106px}
+    .journey-node-v5.type-side{min-width:70px;min-height:76px}
+    .journey-node-v5.type-side .node-pedestal-v5{width:64px;height:57px}
+    .journey-node-v5.type-side .node-platform-v5{left:4px;right:4px;height:43px;border-radius:18px}
+    .journey-node-v5.type-side .node-glyph-v5{width:37px;height:37px;margin-bottom:10px}
+    .journey-node-v5.type-side .node-name-v6{top:54px;min-width:74px;max-width:94px;padding:4px 5px}
+    .journey-node-v5.type-side .node-name-v6 strong{font-size:6.8px}
+    .journey-node-v5.type-side .node-name-v6 small{font-size:5.2px}
+    .journey-node-v5.type-challenge .node-platform-v5{background:linear-gradient(180deg,#FFFCEB,#FFE8A7 54%,#DBA52F 55%,#B57814 100%)}
+    .journey-node-v5.type-review .node-platform-v5{background:linear-gradient(180deg,#F7FAFF,#E0ECFF 54%,#78A1D0 55%,#56769D 100%)}
+
+    .journey-player-v5{left:-39px;top:-48px;width:61px;height:61px;filter:drop-shadow(0 8px 6px rgba(34,48,68,.26));animation:v6PlayerBob 2s ease-in-out infinite}
+    .journey-next-flag-v5{
+      left:57px;top:-50px;width:139px;padding:8px 10px 9px;border-radius:16px 16px 16px 5px;
+      background:linear-gradient(145deg,#23375F,#354D7D);border:1px solid rgba(255,255,255,.12);
+      box-shadow:0 8px 18px rgba(27,43,74,.25),inset 0 1px rgba(255,255,255,.10)
+    }
+    .journey-next-flag-v5:before{content:"";position:absolute;left:-6px;bottom:-6px;width:13px;height:13px;background:#263B65;transform:rotate(45deg);border-radius:2px}
+    .journey-next-flag-v5 b{font-size:6px;color:#B9C9FF}
+    .journey-next-flag-v5 strong{font-size:11px}
+    .journey-checkpoint-banner-v5{bottom:101px;padding:5px 9px;background:linear-gradient(145deg,#6A4A0D,#8A6418);box-shadow:0 4px 9px rgba(92,61,10,.18)}
+    .journey-side-sign-v5{display:none}
+
+    .journey-gate-v5{bottom:11px;width:150px;height:99px}
+    .journey-gate-v5 .gate-pillar{width:31px;height:68px;border-radius:10px 10px 4px 4px;background:linear-gradient(90deg,#AE9970,#F7E8B8 44%,#9B845C);box-shadow:0 5px 0 rgba(93,77,47,.12)}
+    .journey-gate-v5 .gate-arch{left:23px;right:23px;top:4px;height:59px;border-width:13px;border-color:#E4D1A0;box-shadow:inset 0 0 0 3px rgba(255,255,255,.25),0 4px 0 rgba(112,91,52,.08)}
+    .journey-gate-v5 .gate-trophy{top:-8px;width:44px;height:44px;border-width:5px}
+    .journey-gate-v5.open:after{content:"NESTE VERDEN";position:absolute;left:50%;bottom:-4px;transform:translateX(-50%);white-space:nowrap;
+      padding:4px 7px;border-radius:999px;background:rgba(255,249,218,.94);color:#805D18;font-size:6px;font-weight:1000;letter-spacing:.09em}
+    .journey-gate-v5.locked:after{content:"VINN TROFÉET";position:absolute;left:50%;bottom:-4px;transform:translateX(-50%);white-space:nowrap;
+      padding:4px 7px;border-radius:999px;background:rgba(243,245,247,.91);color:#78808C;font-size:6px;font-weight:1000;letter-spacing:.08em}
+
+    .journey-map-v5 .journey-world-transition-v5{height:46px}
+    .journey-world-transition-v5:before{width:18px;height:46px;background:
+      radial-gradient(circle,#7B8AA4 0 3px,transparent 3.5px) center 2px/18px 13px repeat-y;opacity:.55}
+
+    .journey-preview-v5{min-height:310px;border-radius:36px;border:1px solid rgba(255,255,255,.75);box-shadow:0 10px 0 rgba(48,63,96,.07),0 22px 41px rgba(41,57,90,.15)}
+    .journey-preview-portal-v5 .portal-ring{width:96px;height:96px;border-width:7px;box-shadow:0 0 0 9px rgba(79,104,188,.21),0 14px 27px rgba(28,45,78,.28),inset 0 0 24px rgba(255,255,255,.17)}
+    .journey-complete-v5{min-height:205px;border-radius:34px;border:1px solid rgba(255,255,255,.75)}
+    .journey-locked-v5{min-height:145px;border-radius:31px;border:1px solid rgba(255,255,255,.72)}
+
+    @keyframes v6NextPulse{
+      0%,100%{box-shadow:0 9px 0 #495DBE,0 0 0 8px rgba(104,125,230,.10),0 0 0 14px rgba(104,125,230,.04),0 19px 28px rgba(53,73,159,.27),inset 0 5px 0 rgba(255,255,255,.82)}
+      50%{box-shadow:0 9px 0 #495DBE,0 0 0 12px rgba(104,125,230,.15),0 0 0 20px rgba(104,125,230,.03),0 22px 33px rgba(53,73,159,.31),inset 0 5px 0 rgba(255,255,255,.82)}
+    }
+    @keyframes v6PlayerBob{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-6px) rotate(2deg)}}
+
+    @media (max-width:390px){
+      .journey-world-v5{min-height:710px;border-radius:35px}
+      .journey-world-v5:before{border-radius:34px}
+      .journey-world-head-v5{padding:13px 12px 0;gap:7px}
+      .journey-world-kicker-v5{width:45px;height:45px;border-radius:15px;font-size:7px}
+      .journey-world-title-v5{padding:7px 9px 8px;border-radius:15px}
+      .journey-world-title-v5 strong{font-size:18px}
+      .journey-world-title-v5 small{font-size:7.5px}
+      .journey-world-reward-v5{width:49px;height:48px}
+      .journey-playfield-v5{top:82px}
+      .journey-node-v5 .node-pedestal-v5{transform:scale(.91)}
+      .node-name-v6{top:64px;min-width:84px;max-width:112px}
+      .journey-node-v5.type-checkpoint .node-name-v6{top:78px}
+      .journey-node-v5.type-side .node-name-v6{top:50px}
+      .journey-player-v5{left:-34px;top:-43px;width:55px;height:55px}
+      .journey-next-flag-v5{left:50px;top:-46px;width:122px}
+    }
+    @media (prefers-reduced-motion:reduce){
+      .journey-player-v5,.journey-node-v5.state-next .node-platform-v5{animation:none!important}
+    }
+
 </style>
   <link rel="stylesheet" href="./fraction-lab.css?v=20261003-mobile2" />
   <link rel="stylesheet" href="./multiplication-lab.css?v=20261003-table1" />
@@ -1772,6 +1964,7 @@
   <!-- globe-known-symbol-fix-2026-10-03 -->
   <!-- norwegian-content-depth-2026-10-03 -->
   <!-- young-learning-game-polish-2026-10-03 -->
+  <!-- premium-gameboard-v6-2026-10-04 -->
   <!-- grade-adaptive-visual-system-v2-2026-10-03 -->
   <!-- illustration-led-home-v1-2026-10-03 -->
   <!-- success-dashboard-redesign-v1-2026-10-03 -->
@@ -4385,29 +4578,63 @@ function journeyNodeMarkupV4(node,point,st,isNext,future,isGeo=false){
 }
 
 function journeyWorldArtV5(subject,index,locked=false){
-  const p=journeyThemeV4(subject,index),id='v5'+subject+index,op=locked?.58:1;
-  const tree=(x,y,s=1)=>'<g transform="translate('+x+' '+y+') scale('+s+')"><rect x="-3" y="10" width="6" height="18" rx="2" fill="#77563C"/><circle cx="0" cy="4" r="15" fill="'+p.deep+'" opacity=".92"/><circle cx="-8" cy="5" r="10" fill="'+p.near+'"/><circle cx="8" cy="7" r="11" fill="'+p.near+'"/></g>';
-  const rock=(x,y,s=1)=>'<g transform="translate('+x+' '+y+') scale('+s+')"><path d="M-14 12L-8-8 7-13 17 4 12 14z" fill="#B7C3C5"/><path d="M-8-8L3-7 12 14-14 12z" fill="#D7E0DF" opacity=".75"/></g>';
-  let landmark='';
-  if(subject==='math')landmark='<g transform="translate(344 520)"><rect x="-39" y="-54" width="78" height="66" rx="12" fill="#F8E8B1" stroke="#8E6F32" stroke-width="4"/><rect x="-29" y="-42" width="20" height="20" rx="4" fill="#6E85E3"/><rect x="7" y="-42" width="20" height="20" rx="4" fill="#68B78A"/><rect x="-11" y="-12" width="22" height="24" rx="4" fill="#E7A648"/><path d="M-47-54L0-91 47-54z" fill="#D86E55" stroke="#8E4A3B" stroke-width="4"/></g>';
-  else if(subject==='norwegian')landmark='<g transform="translate(344 520)"><path d="M-58-43q29-16 58 7v65q-30-14-58-4zM58-43q-29-16-58 7v65q30-14 58-4z" fill="#FFF8DF" stroke="#865B52" stroke-width="4"/><path d="M0-36v63" stroke="#C06F74" stroke-width="4"/><path d="M-44-25h28M16-25h28M-44-10h22M16-10h23" stroke="#C06F74" stroke-width="4" stroke-linecap="round"/></g>';
-  else if(subject==='english')landmark='<g transform="translate(344 520)"><rect x="-52" y="-44" width="104" height="72" rx="8" fill="#F9F4DB" stroke="#567A6A" stroke-width="4"/><path d="M-62-44L0-84 62-44z" fill="#5C9D7A" stroke="#3E7158" stroke-width="4"/><rect x="-12" y="-5" width="24" height="33" fill="#D6905C"/><rect x="-39" y="-28" width="20" height="18" rx="3" fill="#93C7D8"/><rect x="19" y="-28" width="20" height="18" rx="3" fill="#93C7D8"/></g>';
-  else landmark='<g transform="translate(344 520)"><path d="M-15 28L-8-61H8L15 28z" fill="#F4EFE0" stroke="#4C7F91" stroke-width="4"/><path d="M-12-61H12L7-82H-7z" fill="#D76157" stroke="#88453F" stroke-width="4"/><path d="M-36 28H36" stroke="#4C7F91" stroke-width="7" stroke-linecap="round"/><path d="M8-72l54-13" stroke="#FFE58C" stroke-width="8" stroke-linecap="round" opacity=".60"/></g>';
-  return '<svg class="journey-world-art-v5" viewBox="0 0 420 700" preserveAspectRatio="xMidYMid slice" aria-hidden="true" style="opacity:'+op+'">'+
-    '<defs><linearGradient id="'+id+'sky" x1="0" y1="0" x2="0" y2="1"><stop stop-color="'+p.sky1+'"/><stop offset=".72" stop-color="'+p.sky2+'"/></linearGradient><linearGradient id="'+id+'ground" x1="0" y1="0" x2="0" y2="1"><stop stop-color="'+p.mid+'"/><stop offset="1" stop-color="'+p.deep+'"/></linearGradient></defs>'+
-    '<rect width="420" height="700" fill="url(#'+id+'sky)"/>'+
-    '<circle cx="340" cy="83" r="39" fill="'+p.sun+'" opacity=".92"/>'+
-    '<g fill="#fff" opacity=".72"><ellipse cx="73" cy="91" rx="39" ry="13"/><ellipse cx="103" cy="87" rx="23" ry="20"/><ellipse cx="44" cy="96" rx="22" ry="10"/><ellipse cx="291" cy="169" rx="35" ry="12"/><ellipse cx="316" cy="164" rx="23" ry="18"/></g>'+
-    '<path d="M0 278Q62 214 121 252T238 228T343 251T420 219V700H0z" fill="'+p.far+'"/>'+
-    '<path d="M0 381Q74 317 146 350T281 328T420 305V700H0z" fill="'+p.mid+'"/>'+
-    '<path d="M0 541Q84 477 169 505T312 487T420 491V700H0z" fill="url(#'+id+'ground)"/>'+
-    '<path d="M0 610Q89 571 159 602T297 585T420 574V700H0z" fill="'+p.near+'" opacity=".78"/>'+
-    tree(54,427,.85)+tree(91,448,.58)+tree(365,393,.72)+tree(321,616,.62)+tree(72,625,.54)+
-    rock(122,562,.8)+rock(292,456,.65)+rock(376,601,.72)+
-    '<g opacity=".55"><path d="M20 548q18-18 36 0" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/><path d="M180 614q16-16 32 0" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"/></g>'+
-    landmark+
+  const p=journeyThemeV4(subject,index),id='v6'+subject+index,op=locked?.56:1,t=p.tokens||[];
+  const tree=(x,y,s=1,c=p.deep)=>'<g transform="translate('+x+' '+y+') scale('+s+')" filter="url(#'+id+'soft)"><rect x="-3.5" y="9" width="7" height="22" rx="2.5" fill="#6E5039"/><circle cx="0" cy="2" r="16" fill="'+c+'"/><circle cx="-9" cy="5" r="10" fill="'+p.near+'"/><circle cx="9" cy="6" r="11" fill="'+p.near+'"/><circle cx="-4" cy="-7" r="10" fill="'+p.far+'" opacity=".9"/></g>';
+  const fir=(x,y,s=1)=>'<g transform="translate('+x+' '+y+') scale('+s+')" filter="url(#'+id+'soft)"><rect x="-2.5" y="12" width="5" height="17" rx="2" fill="#76563F"/><path d="M0-20L-16 8h10l-10 13h32L6 8h10z" fill="'+p.deep+'"/><path d="M0-15L-11 5h8L-11 16h22L3 5h8z" fill="'+p.near+'" opacity=".9"/></g>';
+  const rock=(x,y,s=1)=>'<g transform="translate('+x+' '+y+') scale('+s+')"><ellipse cx="1" cy="13" rx="18" ry="6" fill="rgba(43,58,64,.13)"/><path d="M-15 10L-8-9 5-14 18 2 12 13z" fill="#AEBABD"/><path d="M-8-9L3-7 12 13-15 10z" fill="#D9E0DF" opacity=".82"/></g>';
+  const flower=(x,y,c1)=>'<g transform="translate('+x+' '+y+')"><path d="M0 1v13" stroke="#4C8E5D" stroke-width="2"/><circle cx="-4" cy="0" r="4" fill="'+c1+'"/><circle cx="4" cy="0" r="4" fill="'+c1+'"/><circle cx="0" cy="-4" r="4" fill="'+c1+'"/><circle cx="0" cy="4" r="4" fill="'+c1+'"/><circle r="2.5" fill="#FFE57B"/></g>';
+  const sign=(x,y,a,b)=>'<g transform="translate('+x+' '+y+')" filter="url(#'+id+'shadow)"><rect x="-3" y="3" width="6" height="42" rx="3" fill="#795739"/><path d="M-38-12h76l8 13-8 13h-76l-8-13z" fill="#F6E4B5" stroke="#8E6C3D" stroke-width="3"/><text x="0" y="5" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" font-size="11" font-weight="900" fill="#5A4732">'+a+'</text>'+(b?'<text x="0" y="33" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" font-size="7.5" font-weight="900" fill="#FFF">'+b+'</text>':'')+'</g>';
+
+  let landmark='',details='';
+  if(subject==='math'){
+    landmark='<g transform="translate(343 522)" filter="url(#'+id+'shadow)"><path d="M-51 20h102v25H-51z" fill="#C49B67"/><rect x="-42" y="-48" width="84" height="70" rx="12" fill="#FFF0C1" stroke="#856839" stroke-width="4"/><path d="M-51-48L0-91 51-48z" fill="#D96F55" stroke="#8E4938" stroke-width="4"/><rect x="-28" y="-35" width="21" height="21" rx="5" fill="#748AE6"/><rect x="7" y="-35" width="21" height="21" rx="5" fill="#65B68A"/><rect x="-11" y="-4" width="22" height="26" rx="5" fill="#E5A744"/><text x="-18" y="-20" font-size="12" font-weight="1000" fill="#fff">+</text><text x="18" y="-20" text-anchor="middle" font-size="12" font-weight="1000" fill="#fff">×</text></g>';
+    details=sign(78,326,t[0]||'123','')+'<g transform="translate(338 338)"><circle r="32" fill="#F8EDC7" stroke="#8C713D" stroke-width="4"/><path d="M-17 0h34M0-17v34" stroke="'+p.accent+'" stroke-width="6" stroke-linecap="round"/></g>'+
+      '<g transform="translate(119 560)"><rect x="-30" y="-22" width="60" height="44" rx="10" fill="#FFF7D6" stroke="#A27A36" stroke-width="3"/><text x="0" y="7" text-anchor="middle" font-size="22" font-weight="1000" fill="#5F6FD0">1 2 3</text></g>';
+  }else if(subject==='norwegian'){
+    landmark='<g transform="translate(343 520)" filter="url(#'+id+'shadow)"><path d="M-63-38q31-17 63 6v70q-31-15-63-4zM63-38q-31-17-63 6v70q31-15 63-4z" fill="#FFF9E7" stroke="#84564F" stroke-width="4"/><path d="M0-31v67" stroke="#C16D79" stroke-width="4"/><path d="M-48-20h31M17-20h31M-48-5h25M17-5h27M-48 10h28M17 10h24" stroke="#C16D79" stroke-width="3.5" stroke-linecap="round"/></g>';
+    details=sign(79,325,t[0]||'Aa','')+'<g transform="translate(334 344)" filter="url(#'+id+'shadow)"><rect x="-38" y="-25" width="76" height="50" rx="13" fill="#FFF8EA"/><text x="0" y="8" text-anchor="middle" font-size="25" font-weight="1000" fill="#B85F77">Aa Å</text></g>'+
+      '<g transform="translate(119 559) rotate(-8)"><rect x="-37" y="-8" width="74" height="16" rx="8" fill="#F2C95E"/><path d="M37-8l18 8-18 8z" fill="#E7A56B"/><path d="M55 0l8 0" stroke="#3A4656" stroke-width="5"/></g>';
+  }else if(subject==='english'){
+    landmark='<g transform="translate(343 520)" filter="url(#'+id+'shadow)"><rect x="-56" y="-44" width="112" height="74" rx="10" fill="#FAF5DD" stroke="#527665" stroke-width="4"/><path d="M-66-44L0-87 66-44z" fill="#579879" stroke="#3E6E58" stroke-width="4"/><rect x="-13" y="-4" width="26" height="34" fill="#D68A59"/><rect x="-43" y="-28" width="21" height="18" rx="3" fill="#8FC4D7"/><rect x="22" y="-28" width="21" height="18" rx="3" fill="#8FC4D7"/></g>';
+    details=sign(79,325,t[0]||'HELLO','')+'<g transform="translate(330 342)" filter="url(#'+id+'shadow)"><rect x="-43" y="-28" width="86" height="48" rx="20" fill="#FFF"/><path d="M-18 18l-10 17 23-14" fill="#FFF"/><text x="0" y="2" text-anchor="middle" font-size="16" font-weight="1000" fill="#3D6F61">Hello!</text></g>'+
+      '<g transform="translate(114 557)"><rect x="-26" y="-39" width="52" height="70" rx="5" fill="#C94E50" stroke="#783436" stroke-width="4"/><rect x="-18" y="-29" width="36" height="22" fill="#D9F1F7"/><path d="M0-29v22M-18-18h36" stroke="#783436" stroke-width="3"/></g>';
+  }else{
+    landmark='<g transform="translate(343 520)" filter="url(#'+id+'shadow)"><path d="M-17 30L-9-62H9L17 30z" fill="#F6F1E1" stroke="#47788A" stroke-width="4"/><path d="M-13-62H13L8-84H-8z" fill="#D85D55" stroke="#86423D" stroke-width="4"/><path d="M-40 30H40" stroke="#47788A" stroke-width="7" stroke-linecap="round"/><path d="M9-75l55-14" stroke="#FFE68E" stroke-width="9" stroke-linecap="round" opacity=".58"/></g>';
+    details=sign(79,325,t[0]||'N S E','')+'<g transform="translate(332 345)" filter="url(#'+id+'shadow)"><circle r="35" fill="#FFF9E9" stroke="#477C8C" stroke-width="4"/><path d="M0-27L9 0 0 27-9 0z" fill="#E56058"/><path d="M-27 0L0-9 27 0 0 9z" fill="#4C86A0"/><circle r="5" fill="#F2C957"/></g>'+
+      '<g transform="translate(117 553)" filter="url(#'+id+'shadow)"><path d="M0-39c18 0 31 12 31 29 0 24-31 48-31 48S-31 14-31-10C-31-27-18-39 0-39z" fill="#E96C62" stroke="#963F3B" stroke-width="4"/><circle cy="-10" r="10" fill="#FFF1C6"/></g>';
+  }
+
+  const zone=index%4;
+  let zoneBits='';
+  if(zone===0) zoneBits=tree(44,405,.83)+fir(92,436,.66)+tree(371,402,.72)+flower(52,590,'#FFD56A')+flower(77,610,'#F18CA7');
+  else if(zone===1) zoneBits='<path d="M0 430q55-38 112-8t111-6t197-18v92q-90 21-184 5T0 521z" fill="#E5B67E" opacity=".72"/>'+rock(67,455,.9)+rock(360,431,.7)+fir(94,590,.58)+flower(374,585,'#FFD76A');
+  else if(zone===2) zoneBits='<path d="M34 289l49-75 49 75zM271 276l59-96 63 96z" fill="#C9C9E6" opacity=".78"/><path d="M66 240l17-26 18 27M311 211l19-31 21 32" fill="#FFF" opacity=".82"/>'+fir(57,462,.7)+fir(380,448,.75)+rock(94,601,.7);
+  else zoneBits='<path d="M0 482q87-38 173 7t247-2v74q-116 25-214-4T0 565z" fill="'+p.water+'" opacity=".50"/>'+tree(50,445,.7)+tree(384,442,.76)+flower(63,602,'#F28BA8')+flower(349,610,'#FFE06D');
+
+  return '<svg class="journey-world-art-v5" viewBox="0 0 420 760" preserveAspectRatio="xMidYMid slice" aria-hidden="true" style="opacity:'+op+'">'+
+    '<defs>'+
+      '<linearGradient id="'+id+'sky" x1="0" y1="0" x2="0" y2="1"><stop stop-color="'+p.sky1+'"/><stop offset=".68" stop-color="'+p.sky2+'"/></linearGradient>'+
+      '<linearGradient id="'+id+'ground" x1="0" y1="0" x2="0" y2="1"><stop stop-color="'+p.mid+'"/><stop offset="1" stop-color="'+p.deep+'"/></linearGradient>'+
+      '<radialGradient id="'+id+'sun"><stop stop-color="#FFF7B5"/><stop offset=".62" stop-color="'+p.sun+'"/><stop offset="1" stop-color="'+p.sun+'" stop-opacity=".15"/></radialGradient>'+
+      '<filter id="'+id+'shadow" x="-40%" y="-40%" width="180%" height="200%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#314255" flood-opacity=".20"/></filter>'+
+      '<filter id="'+id+'soft" x="-30%" y="-30%" width="160%" height="180%"><feDropShadow dx="0" dy="3" stdDeviation="2" flood-color="#314255" flood-opacity=".12"/></filter>'+
+    '</defs>'+
+    '<rect width="420" height="760" fill="url(#'+id+'sky)"/>'+
+    '<circle cx="341" cy="87" r="58" fill="url(#'+id+'sun)" opacity=".95"/><circle cx="341" cy="87" r="30" fill="'+p.sun+'"/>'+
+    '<g fill="#fff" opacity=".74" filter="url(#'+id+'soft)"><ellipse cx="72" cy="94" rx="39" ry="13"/><ellipse cx="101" cy="90" rx="23" ry="20"/><ellipse cx="43" cy="99" rx="21" ry="10"/><ellipse cx="286" cy="168" rx="34" ry="11"/><ellipse cx="311" cy="164" rx="21" ry="17"/></g>'+
+    '<g fill="#fff" opacity=".55"><circle cx="182" cy="104" r="2.2"/><circle cx="206" cy="74" r="1.8"/><circle cx="252" cy="116" r="2.4"/><circle cx="153" cy="145" r="1.7"/></g>'+
+    '<path d="M0 293Q57 226 119 266T237 240T342 264T420 231V760H0z" fill="'+p.far+'"/>'+
+    '<path d="M0 401Q71 333 145 369T281 344T420 319V760H0z" fill="'+p.mid+'"/>'+
+    '<path d="M0 574Q82 502 171 540T309 517T420 520V760H0z" fill="url(#'+id+'ground)"/>'+
+    '<path d="M0 660Q92 608 166 645T301 625T420 613V760H0z" fill="'+p.near+'" opacity=".82"/>'+
+    '<path d="M-20 732q78-71 161-49t147-5t152-30v112H-20z" fill="rgba(36,80,62,.10)"/>'+
+    zoneBits+details+landmark+
+    tree(325,645,.58)+rock(284,604,.62)+rock(379,658,.72)+
+    '<g opacity=".55"><path d="M20 585q18-17 36 0" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/><path d="M182 666q16-15 32 0" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"/></g>'+
+    '<g opacity=".35" fill="#fff"><circle cx="23" cy="306" r="3"/><circle cx="396" cy="281" r="2.5"/><circle cx="211" cy="315" r="2"/></g>'+
   '</svg>';
 }
+
 function journeyCorePositionsV5(count){
   const maps={
     2:[[28,24],[50,78]],
@@ -4443,11 +4670,13 @@ function journeyNodeMarkupV5(node,point,st,isNext,future,isGeo=false,stepNumber=
   const attr=isGeo?'data-geo-journey-node':'data-journey-node';
   const fox=isNext?'<span class="journey-player-v5">'+journeyFoxSvg()+'</span><span class="journey-next-flag-v5"><b>NESTE OPPDRAG</b><strong>'+node.title+'</strong></span>':'';
   const checkpoint=isCheckpoint?'<span class="journey-checkpoint-banner-v5">TROFÉTEST</span>':'';
-  const side=isSide?'<span class="journey-side-sign-v5">'+(node.type==='challenge'?'BONUS':'REPETER')+'</span>':'';
   const number=!isSide&&!isCheckpoint?'<span class="level-number-v5">'+stepNumber+'</span>':'';
   const cls=isSide?' type-side':'';
-  return '<button type="button" class="journey-node-v5 type-'+node.type+cls+' state-'+visual+'" style="left:'+point[0]+'%;top:'+point[1]+'%" '+attr+'="'+node.id+'" aria-label="'+escapeAttr(node.title+'. '+(isGeo?geoJourneyStatusText(node,st):journeyStatusText(node,st)))+'">'+fox+'<span class="node-pedestal-v5"><span class="node-shadow-v5"></span><span class="node-platform-v5"></span><span class="node-glyph-v5">'+journeySkillGlyph(node,isGeo)+'</span>'+(badge?'<span class="journey-state-v5">'+badge+'</span>':'')+number+'</span>'+checkpoint+side+'</button>';
+  const status=visual==='next'?'SPILL':visual==='future'?'LÅST':st==='mastered'||st==='passed'?'MESTRET':st==='can-now'?'KLAR':st==='active'?'PÅ GANG':isSide?(node.type==='challenge'?'BONUS':'REPETER'):'NY';
+  const label='<span class="node-name-v6"><strong>'+node.title+'</strong><small>'+status+'</small></span>';
+  return '<button type="button" class="journey-node-v5 type-'+node.type+cls+' state-'+visual+'" style="left:'+point[0]+'%;top:'+point[1]+'%" '+attr+'="'+node.id+'" aria-label="'+escapeAttr(node.title+'. '+(isGeo?geoJourneyStatusText(node,st):journeyStatusText(node,st)))+'">'+fox+'<span class="node-pedestal-v5"><span class="node-shadow-v5"></span><span class="node-platform-v5"></span><span class="node-glyph-v5">'+journeySkillGlyph(node,isGeo)+'</span>'+(badge?'<span class="journey-state-v5">'+badge+'</span>':'')+number+'</span>'+checkpoint+label+'</button>';
 }
+
 function journeyGateV5(open=false){
   return '<div class="journey-gate-v5 '+(open?'open':'locked')+'" aria-hidden="true"><span class="gate-pillar l"></span><span class="gate-pillar r"></span><span class="gate-arch"></span><span class="gate-trophy">'+journeySpecialSvg('checkpoint')+'</span></div>';
 }
