@@ -97,6 +97,19 @@
     schedule();
   }
 
+
+  function keepCurrentMissionVisible(host,geo){
+    const screen=document.getElementById(geo?'geography-screen':'subject-screen');
+    const target=host.querySelector('.premium-place.is-next');
+    if(!screen?.classList.contains('active')||!target)return;
+    const rect=target.getBoundingClientRect();
+    const viewport=window.innerHeight||document.documentElement.clientHeight||800;
+    const safeTop=Math.max(74,viewport*.16),safeBottom=viewport*.78;
+    if(rect.top>=safeTop&&rect.bottom<=safeBottom)return;
+    const top=Math.max(0,window.scrollY+rect.top-viewport*.56);
+    window.scrollTo({top,behavior:'auto'});
+  }
+
   function renderMap(subject,geo){
     const config=WORLDS[subject],host=document.getElementById(geo?'geo-journey-map':'journey-map');if(!host)return;
     const grade=journeyViewGrade(subject),prog=geo?geoJourneyProgress(grade):journeyProgress(subject,grade),model=prog.model;
@@ -174,6 +187,7 @@
       renderJourneyGradeStrip(subject,'geo-journey-grade-strip','geo-journey-grade-note',grade);
       const finish=document.getElementById('geo-journey-finish');if(finish)finish.hidden=true;
     }
+    setTimeout(()=>keepCurrentMissionVisible(host,geo),320);
   }
   renderSubjectJourney=function(){
     const grade=journeyViewGrade(activeSubject),screen=document.getElementById('subject-screen');
