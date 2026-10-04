@@ -182,6 +182,20 @@
       sheet.querySelector('.premium-sheet-peek')?.addEventListener('click',()=>{close();geo?startGeoWorldPreview(area.id,grade):startJourneyWorldPreview(subject,area.id,grade)});
       sheet.querySelector('.premium-sheet-close').focus({preventScroll:true});
     });
+    // Keep the recommended destination inside the first mobile viewport.
+    // showScreen resets scroll during navigation, so run after the render settles.
+    setTimeout(()=>{
+      const screen=document.getElementById(geo?'geography-screen':'subject-screen');
+      if(!screen?.classList.contains('active'))return;
+      const target=host.querySelector('.premium-place.is-next');
+      if(!target)return;
+      const rect=target.getBoundingClientRect(),vh=window.innerHeight||document.documentElement.clientHeight||800;
+      const safeTop=Math.max(78,vh*.12),safeBottom=vh*.84;
+      if(rect.top<safeTop||rect.bottom>safeBottom){
+        const desired=vh*.58;
+        window.scrollTo({top:Math.max(0,window.scrollY+rect.top-desired),behavior:'auto'});
+      }
+    },350);
     if(!geo){
       document.getElementById('subject-screen').classList.add('premium-journey-active');
       const finish=document.getElementById('journey-finish');if(finish)finish.hidden=true;
