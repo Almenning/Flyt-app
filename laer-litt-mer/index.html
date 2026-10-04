@@ -3486,10 +3486,17 @@ function topUpSessionQuestions(fresh,all,count=5){
 }
 function buildJourneyQuestions(subject,node,allowCooldown=false){
   const grade=node.grade||currentGrade(),module=node.module||null,focused=subjectPoolForGrade(subject,grade,module),all=subjectPoolForGrade(subject,grade,null);
-  let source=focused.filter(q=>(node.skills||[]).includes(q.skill));
-  if(source.length<5)source=[...source,...focused.filter(q=>!source.includes(q)&&(node.areaSkills||node.skills||[]).includes(q.skill))];
-  if(source.length<5)source=[...source,...all.filter(q=>!source.includes(q)&&(node.areaSkills||node.skills||[]).includes(q.skill))];
-  if(source.length<5)source=[...source,...focused.filter(q=>!source.includes(q))];
+  const source=[],sourceSeen=new Set(),addSource=questions=>{
+    for(const q of questions){
+      const sig=questionIdentity(q);if(sourceSeen.has(sig))continue;
+      sourceSeen.add(sig);source.push(q);
+    }
+  };
+  addSource(focused.filter(q=>(node.skills||[]).includes(q.skill)));
+  if(source.length<5)addSource(focused.filter(q=>(node.areaSkills||node.skills||[]).includes(q.skill)));
+  if(source.length<5)addSource(all.filter(q=>(node.areaSkills||node.skills||[]).includes(q.skill)));
+  if(source.length<5)addSource(focused);
+  if(source.length<5)addSource(all);
   const seen=new Set(),pool=[];
   for(const q0 of source){
     const q={...q0},sig=questionIdentity(q),cooling=questionOnCooldown(q);
