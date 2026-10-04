@@ -3720,7 +3720,8 @@ function journeyNodeState(node){
     const stage=journeySkillStage(node);
     // A completed journey stop should move the child forward immediately.
     // Long-term mastery is still tracked separately by the skill evidence.
-    return stage==='mastered'?'mastered':rec.passed?'can-now':stage;
+    // `attempts` makes sessions completed before this release count too.
+    return stage==='mastered'?'mastered':(rec.passed||Number(rec.attempts||0)>0)?'can-now':stage;
   }
   if((node.type==='checkpoint'||node.type==='challenge')&&rec.passed)return 'passed';
   if(node.type==='review'){
