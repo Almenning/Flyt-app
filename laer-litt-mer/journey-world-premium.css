@@ -1048,3 +1048,82 @@
   .world-cloud.cloud-b{right:8%}
   .world-birds{display:none}
 }
+
+
+/* Journey frontier v1 — the map itself communicates what is behind, current and ahead. */
+.premium-world-frontier{
+  position:absolute;
+  z-index:28;
+  inset:0;
+  pointer-events:none;
+  overflow:hidden;
+}
+.frontier-haze,
+.frontier-focus,
+.frontier-ring{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+}
+.frontier-haze{
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(205,220,226,.34) 0%,
+      rgba(205,220,226,.26) max(0%, calc(var(--focus-y) - 22%)),
+      rgba(209,224,229,.12) max(0%, calc(var(--focus-y) - 7%)),
+      transparent min(100%, calc(var(--focus-y) + 8%))
+    );
+  mix-blend-mode:screen;
+  opacity:.82;
+}
+.premium-world.has-progress .frontier-haze{opacity:.62}
+.premium-world.is-complete .frontier-haze{opacity:0}
+.frontier-focus{
+  background:
+    radial-gradient(
+      circle at var(--focus-x) var(--focus-y),
+      rgba(255,244,184,.23) 0 4%,
+      rgba(255,231,130,.12) 7%,
+      rgba(255,220,100,.04) 13%,
+      transparent 21%
+    );
+  mix-blend-mode:screen;
+}
+.frontier-ring{
+  left:var(--focus-x);
+  top:var(--focus-y);
+  inset:auto;
+  width:86px;
+  height:36px;
+  transform:translate(-50%,-50%);
+  border:1px solid rgba(255,232,132,.28);
+  border-radius:50%;
+  box-shadow:
+    0 0 0 8px rgba(255,225,108,.06),
+    0 0 25px rgba(255,217,88,.20);
+  animation:premiumFrontierPulse 3.4s ease-in-out infinite;
+}
+.premium-world.is-complete .frontier-focus,
+.premium-world.is-complete .frontier-ring{display:none}
+.premium-place.is-next .premium-landmark-platform:after{
+  background:rgba(81,72,28,.21);
+  box-shadow:0 0 16px rgba(255,218,87,.22);
+}
+.premium-place.is-future{
+  filter:saturate(.52) brightness(.91);
+}
+.premium-place.is-future .premium-place-sign{
+  opacity:.42;
+}
+@keyframes premiumFrontierPulse{
+  0%,100%{transform:translate(-50%,-50%) scale(.94);opacity:.42}
+  50%{transform:translate(-50%,-50%) scale(1.12);opacity:.72}
+}
+@media(max-width:390px){
+  .frontier-ring{width:72px;height:30px}
+  .frontier-haze{opacity:.72}
+}
+@media(prefers-reduced-motion:reduce){
+  .frontier-ring{animation:none!important}
+}
