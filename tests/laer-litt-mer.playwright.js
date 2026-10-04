@@ -297,14 +297,15 @@ async function finishSession(page){
     assert.match(await page.locator('#journey-map').innerText(),/NESTE/);
     assert.equal(await page.locator('#journey-now-card').isVisible(),true,'journey should show a clear you-are-here card');
     assert.ok(await page.locator('#journey-map .journey-node-glyph').count()>=6,'journey nodes should have distinct visual motifs');
-    const journeyIcons=await page.locator('#journey-map .journey-node-glyph').allTextContents();
+    const journeyIcons=await page.locator('#journey-map .journey-node-glyph').evaluateAll(els=>els.map(el=>el.innerHTML.replace(/\s+/g,' ').trim()));
     assert.ok(new Set(journeyIcons.filter(Boolean)).size>=3,'journey should not use one generic symbol for every node');
     assert.ok(await page.locator('#journey-map .journey-reward-zone').count()>=2,'each visible world should show a concrete reward goal');
     assert.ok(await page.locator('#journey-map .journey-world-art').count()>=2,'worlds should include thematic landmarks');
     const worldCount=await page.locator('#journey-map .journey-world-v3').count();
     assert.equal(await page.locator('#journey-collection .journey-collectible').count(),worldCount,'each world should have one collectible slot');
+    assert.equal(await page.locator('#journey-collection .journey-collectible strong').count(),0,'trophy rail should not repeat prototype-style labels');
     assert.equal(await page.locator('#journey-map .journey-world-v3.world-current').count(),1,'journey should expose exactly one current world');
-    assert.ok(await page.locator('#journey-map .journey-world-v3:not(.world-current):not(.locked)').count()>=1,'journey should visibly tease the next world');
+    assert.ok(await page.locator('#journey-map .journey-world-v3.locked').count()>=1,'journey should visibly tease later worlds behind a soft lock');
     assert.ok(await page.locator('#journey-map .journey-world-v3.locked').count()>=1,'grade 2 math should have a later soft-locked world');
     assert.ok(await page.locator('#journey-map [data-journey-peek]').count()>=1,'soft-locked worlds should allow a non-counting peek');
 
