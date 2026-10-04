@@ -205,7 +205,7 @@
 
   function worldArt(prog){
     const dim=prog.complete?0:Math.max(0,.16-(prog.pct/100)*.13);
-    return '<img class="bokskogen-art bokskogen-reference-art" src="./bokskogen-reference-bg.webp?v=20261004-art1" alt="" draggable="false" />'+
+    return '<img class="bokskogen-art bokskogen-reference-art" src="./bokskogen-reference-bg.webp?v=20261004-art2" alt="" draggable="false" />'+
       '<div class="bokskogen-world-vignette" aria-hidden="true"></div>'+
       '<div class="bokskogen-progress-light" style="opacity:'+(1-dim)+'" aria-hidden="true"></div>';
   }
