@@ -859,3 +859,192 @@
 @media(prefers-reduced-motion:reduce){
   .premium-place.is-next .premium-landmark{animation:none!important}
 }
+
+
+/* Living world v1 — restrained ambient motion and progression-reactive scenery. */
+.premium-world-life,
+.premium-world-foreground-life{
+  position:absolute;
+  inset:0;
+  overflow:hidden;
+  pointer-events:none;
+}
+.premium-world-life{z-index:3}
+.world-cloud{
+  position:absolute;
+  width:64px;
+  height:20px;
+  border-radius:999px;
+  background:rgba(255,255,255,.30);
+  box-shadow:
+    18px -7px 0 3px rgba(255,255,255,.25),
+    38px 1px 0 -2px rgba(255,255,255,.24);
+  opacity:.42;
+  filter:drop-shadow(0 4px 7px rgba(40,73,76,.06));
+}
+.world-cloud.cloud-a{top:9%;left:-24%;animation:premiumCloudDriftA 29s linear infinite}
+.world-cloud.cloud-b{top:22%;right:-29%;transform:scale(.72);opacity:.28;animation:premiumCloudDriftB 37s linear infinite}
+.world-birds{
+  position:absolute;
+  z-index:4;
+  left:-18%;
+  top:29%;
+  width:42px;
+  height:18px;
+  opacity:.48;
+  animation:premiumBirdJourney 24s linear infinite;
+}
+.world-birds i{
+  position:absolute;
+  top:7px;
+  width:12px;
+  height:6px;
+  border-top:2px solid rgba(48,65,57,.72);
+  border-radius:50%;
+  transform:rotate(-18deg);
+}
+.world-birds i:first-child{left:0}
+.world-birds i:last-child{left:16px;top:2px;transform:rotate(18deg) scale(.82)}
+.world-glint{
+  position:absolute;
+  z-index:3;
+  width:30px;
+  height:5px;
+  border-radius:50%;
+  background:linear-gradient(90deg,transparent,rgba(255,249,201,.62),transparent);
+  opacity:.12;
+  animation:premiumWaterGlint 5.8s ease-in-out infinite;
+}
+.world-glint.glint-a{left:17%;top:47%;transform:rotate(-8deg)}
+.world-glint.glint-b{right:12%;top:63%;width:42px;animation-delay:-2.3s;transform:rotate(5deg)}
+.world-glint.glint-c{left:42%;top:78%;width:24px;animation-delay:-4.1s}
+.world-firefly{
+  position:absolute;
+  z-index:5;
+  width:4px;
+  height:4px;
+  border-radius:50%;
+  background:#fff2a3;
+  box-shadow:0 0 8px rgba(255,225,102,.74);
+  opacity:.15;
+  animation:premiumFirefly 4.8s ease-in-out infinite;
+}
+.world-firefly.firefly-a{left:18%;top:58%}
+.world-firefly.firefly-b{right:20%;top:72%;animation-delay:-1.7s}
+.world-firefly.firefly-c{left:57%;top:38%;animation-delay:-3.1s}
+.premium-world.has-progress .world-firefly{opacity:.34}
+.premium-world.is-complete .world-firefly{opacity:.58}
+.premium-world.is-complete .premium-world-art{
+  filter:saturate(1.10) contrast(1.035) brightness(1.035);
+}
+.premium-world-foreground-life i{
+  position:absolute;
+  bottom:-3px;
+  width:17px;
+  height:34px;
+  border-radius:100% 0 100% 0;
+  background:linear-gradient(145deg,rgba(76,119,67,.10),rgba(35,82,52,.38));
+  transform-origin:50% 100%;
+  animation:premiumGrassSway 4.7s ease-in-out infinite;
+}
+.premium-world-foreground-life i:nth-child(1){left:5%;height:39px;transform:rotate(-12deg)}
+.premium-world-foreground-life i:nth-child(2){right:8%;height:45px;animation-delay:-1.8s;transform:rotate(9deg)}
+.premium-world-foreground-life i:nth-child(3){right:19%;height:28px;animation-delay:-3s;transform:rotate(5deg)}
+.premium-landmark .landmark-flag:after{
+  transform-origin:0 50%;
+  animation:premiumFlagWave 2.3s ease-in-out infinite;
+}
+.premium-place.is-done .premium-landmark .landmark-window{
+  background:#ffe793;
+  border-color:rgba(122,94,37,.34);
+  box-shadow:16px 0 0 -1px #ffe793,0 0 7px rgba(255,222,91,.46);
+}
+.premium-place.is-done .premium-landmark-tower .landmark-window{
+  box-shadow:0 12px 0 -1px #ffe793,0 0 7px rgba(255,222,91,.46);
+}
+.premium-place.is-done .premium-landmark-castle .landmark-window{
+  box-shadow:0 11px 0 -1px #ffe793,0 0 8px rgba(255,222,91,.48);
+}
+.premium-place-bloom{
+  z-index:7;
+  right:7px;
+  top:auto;
+  bottom:8px;
+  width:28px;
+  height:17px;
+  overflow:visible;
+  color:#fff0a0;
+  font-size:13px;
+  text-align:right;
+  text-shadow:0 0 7px rgba(255,226,100,.58);
+}
+.premium-place-bloom:before,
+.premium-place-bloom:after{
+  content:"";
+  position:absolute;
+  bottom:0;
+  width:7px;
+  height:11px;
+  border-radius:80% 0 80% 0;
+  background:#72ad68;
+  transform-origin:50% 100%;
+}
+.premium-place-bloom:before{left:2px;transform:rotate(-27deg)}
+.premium-place-bloom:after{left:8px;transform:rotate(28deg)}
+.premium-place.is-done .premium-landmark-platform:before{
+  box-shadow:
+    0 5px 0 #6d5d46,
+    0 9px 0 #504b40,
+    0 0 18px rgba(118,190,102,.20),
+    0 13px 15px rgba(20,42,35,.28);
+}
+.premium-place.is-next .landmark-flag:after{animation-duration:1.7s}
+@keyframes premiumCloudDriftA{
+  from{transform:translateX(0)}
+  to{transform:translateX(690%)}
+}
+@keyframes premiumCloudDriftB{
+  from{transform:translateX(0) scale(.72)}
+  to{transform:translateX(-780%) scale(.72)}
+}
+@keyframes premiumBirdJourney{
+  0%{transform:translateX(0) translateY(0);opacity:0}
+  8%{opacity:.42}
+  52%{transform:translateX(620%) translateY(-11px);opacity:.48}
+  100%{transform:translateX(1250%) translateY(7px);opacity:0}
+}
+@keyframes premiumWaterGlint{
+  0%,100%{opacity:.08;transform:scaleX(.72)}
+  50%{opacity:.34;transform:scaleX(1.18)}
+}
+@keyframes premiumFirefly{
+  0%,100%{transform:translate(0,0) scale(.72);opacity:.14}
+  45%{transform:translate(6px,-9px) scale(1.05);opacity:.62}
+  72%{transform:translate(-3px,-4px) scale(.86);opacity:.28}
+}
+@keyframes premiumGrassSway{
+  0%,100%{rotate:-2deg}
+  50%{rotate:5deg}
+}
+@keyframes premiumFlagWave{
+  0%,100%{transform:skewY(0deg) scaleX(.96)}
+  50%{transform:skewY(-7deg) scaleX(1.06)}
+}
+@media(max-width:390px){
+  .world-cloud{opacity:.34}
+  .world-birds{opacity:.38}
+  .premium-world-foreground-life i{opacity:.72}
+}
+@media(prefers-reduced-motion:reduce){
+  .world-cloud,
+  .world-birds,
+  .world-glint,
+  .world-firefly,
+  .premium-world-foreground-life i,
+  .premium-landmark .landmark-flag:after{
+    animation:none!important;
+  }
+  .world-cloud.cloud-a{left:5%}
+  .world-cloud.cloud-b{right:8%}
+  .world-birds{display:none}
+}

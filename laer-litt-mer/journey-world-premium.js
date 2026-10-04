@@ -125,6 +125,15 @@
     '</span>';
   }
 
+  function journeyAmbientMarkup(){
+    return '<div class="premium-world-life" aria-hidden="true">'+
+      '<span class="world-cloud cloud-a"></span><span class="world-cloud cloud-b"></span>'+
+      '<span class="world-birds birds-a"><i></i><i></i></span>'+
+      '<span class="world-glint glint-a"></span><span class="world-glint glint-b"></span><span class="world-glint glint-c"></span>'+
+      '<span class="world-firefly firefly-a"></span><span class="world-firefly firefly-b"></span><span class="world-firefly firefly-c"></span>'+
+    '</div>';
+  }
+
   function renderMap(subject,geo){
     const config=WORLDS[subject],host=document.getElementById(geo?'geo-journey-map':'journey-map');if(!host)return;
     const grade=journeyViewGrade(subject),prog=geo?geoJourneyProgress(grade):journeyProgress(subject,grade),model=prog.model;
@@ -159,14 +168,14 @@
     const traveler=!prog.complete?'<div class="premium-traveler" style="--x:'+Math.min(86,Math.max(14,cx+(cx>50?-19:19)))+'%;--y:'+Math.min(88,Math.max(13,cy+1))+'%" aria-hidden="true">'+journeyFoxSvg()+'</div>':'';
     const routeOverlay=journeyRouteOverlay(config,route,nextIndex);
     host.className='journey-map premium-journey-map';
-    host.innerHTML='<section class="premium-world premium-'+subject+' premium-world-depth-ready'+(prog.complete?' is-complete':'')+'" aria-label="'+esc(config.name+', interaktiv læringsverden')+'">'+
-      '<div class="premium-world-depth-layer premium-world-distant-layer" data-world-depth="0.14" aria-hidden="true"><img class="premium-world-depth-art premium-world-depth-art-distant" src="./'+config.image+'" alt="" draggable="false" decoding="async"></div>'+
+    host.innerHTML='<section class="premium-world premium-'+subject+' premium-world-depth-ready'+(prog.done>0?' has-progress':'')+(prog.complete?' is-complete':'')+'" style="--world-progress:'+prog.pct+'" aria-label="'+esc(config.name+', interaktiv læringsverden')+'">'+
+      '<div class="premium-world-depth-layer premium-world-distant-layer" data-world-depth="0.14" aria-hidden="true"><img class="premium-world-depth-art premium-world-depth-art-distant" src="./'+config.image+'" alt="" draggable="false" decoding="async">'+journeyAmbientMarkup()+'</div>'+
       '<div class="premium-world-depth-layer premium-world-midground-layer" data-world-depth="0.42">'+
         '<img class="premium-world-art" src="./'+config.image+'" alt="" draggable="false" decoding="async">'+
         '<div class="premium-world-relief" aria-hidden="true"><i class="relief-a"></i><i class="relief-b"></i><i class="relief-c"></i></div>'+
         routeOverlay+medals+buttons+traveler+
       '</div>'+
-      '<div class="premium-world-depth-layer premium-world-foreground-layer" data-world-depth="0.82" aria-hidden="true"><img class="premium-world-depth-art premium-world-depth-art-foreground" src="./'+config.image+'" alt="" draggable="false" decoding="async"><i class="premium-foreground-vignette"></i></div>'+
+      '<div class="premium-world-depth-layer premium-world-foreground-layer" data-world-depth="0.82" aria-hidden="true"><img class="premium-world-depth-art premium-world-depth-art-foreground" src="./'+config.image+'" alt="" draggable="false" decoding="async"><i class="premium-foreground-vignette"></i><div class="premium-world-foreground-life"><i></i><i></i><i></i></div></div>'+
       '<div class="premium-world-shade" aria-hidden="true"></div><div class="premium-world-mist" style="--mist-top:'+Math.max(0,cy-13)+'%" aria-hidden="true"></div>'+
       '<div class="premium-world-sparkles" aria-hidden="true"></div>'+
       '<div class="premium-world-hud"><button type="button" class="premium-world-back" aria-label="Tilbake">‹</button><button type="button" class="premium-world-grade" aria-expanded="false">'+esc(GRADE_CONFIG[grade].label)+' ▾</button><div class="premium-world-progress" aria-label="'+prog.pct+' prosent fullført"><span>★</span><b>'+prog.done+'/'+prog.total+'</b><i><em style="width:'+prog.pct+'%"></em></i></div><div class="premium-world-trophies" aria-label="'+prog.areasDone+' av '+model.areas.length+' trofeer">🏆 '+prog.areasDone+'</div></div>'+
