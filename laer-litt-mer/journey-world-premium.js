@@ -77,12 +77,11 @@
       '<img class="premium-world-art" src="./'+config.image+'" alt="" draggable="false">'+
       '<div class="premium-world-shade" aria-hidden="true"></div><div class="premium-world-mist" style="--mist-top:'+Math.max(0,cy-13)+'%" aria-hidden="true"></div>'+
       '<div class="premium-world-sparkles" aria-hidden="true"></div>'+journeyRouteOverlay(config,route,nextIndex)+
-      '<div class="premium-world-hud"><button type="button" class="premium-world-back" aria-label="Tilbake">‹</button><button type="button" class="premium-world-grade" aria-expanded="false">'+esc(GRADE_CONFIG[grade].label)+' ▾</button><div class="premium-world-progress" aria-label="'+prog.pct+' prosent fullført"><span>★</span><b>'+prog.done+'/'+prog.total+'</b><i><em style="width:'+prog.pct+'%"></em></i></div><div class="premium-world-trophies" aria-label="'+prog.areasDone+' av '+model.areas.length+' trofeer">🏆 '+prog.areasDone+'</div></div>'+
+      '<div class="premium-world-hud"><button type="button" class="premium-world-grade" aria-expanded="false">'+esc(GRADE_CONFIG[grade].label)+' ▾</button><div class="premium-world-progress" aria-label="'+prog.pct+' prosent fullført"><span>★</span><b>'+prog.done+'/'+prog.total+'</b><i><em style="width:'+prog.pct+'%"></em></i></div><div class="premium-world-trophies" aria-label="'+prog.areasDone+' av '+model.areas.length+' trofeer">🏆 '+prog.areasDone+'</div></div>'+
       '<div class="premium-world-title"><small>'+esc(SUBJECTS[subject]?.title||'Geografi')+' · '+esc(GRADE_CONFIG[grade].label)+'</small><strong>'+esc(config.name)+'</strong></div>'+
       '<div class="premium-world-grade-menu" hidden></div>'+medals+buttons+sides+
       (!prog.complete?'<div class="premium-traveler" style="--x:'+Math.min(90,Math.max(10,cx-11))+'%;--y:'+Math.min(90,cy+5)+'%" aria-hidden="true">'+journeyFoxSvg()+'</div>':'')+
       '<div class="premium-world-sheet-back" hidden></div><section class="premium-world-sheet" role="dialog" aria-modal="true" aria-label="Oppdragssted" hidden></section></section>';
-    host.querySelector('.premium-world-back').onclick=()=>{if(geo)document.getElementById('geography-back')?.click();else document.getElementById('subject-back')?.click()};
     const gradeBtn=host.querySelector('.premium-world-grade'),menu=host.querySelector('.premium-world-grade-menu');
     menu.innerHTML='<strong>Velg klassetrinn</strong>'+Array.from({length:10},(_,i)=>i+1).map(g=>'<button type="button" data-premium-grade="'+g+'"'+(g===grade?' class="selected"':'')+'>'+g+'. klasse'+(subjectGradeComplete(subject,g)?' · 🏆':'')+'</button>').join('');
     gradeBtn.onclick=()=>{menu.hidden=!menu.hidden;gradeBtn.setAttribute('aria-expanded',String(!menu.hidden))};
