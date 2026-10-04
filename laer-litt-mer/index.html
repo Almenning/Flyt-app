@@ -4514,6 +4514,12 @@ window.addEventListener('pageshow',event=>{
 
 // Initial render / recovery
 renderAll();updateOnboarding();loadQualityData();
+// norwegian-content.js is deferred. Refresh journey-derived UI after deferred local content has executed.
+document.addEventListener('DOMContentLoaded',()=>{
+  renderAll();
+  if(activeScreenName()==='subject'&&activeSubject){renderSubjectModules();renderSubjectJourney();renderSubjectContinue()}
+  if(activeScreenName()==='geography')renderGeographyContinue();
+});
 if(!state.profile.onboarded||!state.profile.grade){
   onboardingStep=state.profile.onboarded?2:0;
   selectedGrade=Number(state.profile.grade)||null;
