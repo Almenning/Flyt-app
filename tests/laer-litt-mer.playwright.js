@@ -302,6 +302,9 @@ async function finishSession(page){
     await page.locator('#complete-home').click();
     await page.locator('#subject-screen.active').waitFor();
     assert.equal(await page.locator('#journey-map .bok-v11-world').count(),1,'journey completion should return to the Bokskogen board');
+    assert.equal(await page.locator('#journey-map .bok-v14-traveler-character').count(),1,'Bokskogen traveler should use the movement-safe inner character');
+    const bokTravelOrigin=await page.locator('#journey-map .bok-v13-traveler').getAttribute('data-travel-from-x');
+    assert.ok(bokTravelOrigin!==null,'real progression should arm a traveler origin for the return-to-world movement');
     await page.locator('#journey-map .bok-v10-home').click();
     await page.locator('#home-screen.active').waitFor();
     assert.equal(await page.locator('#home-continue-wrap').isVisible(),true);
@@ -636,6 +639,8 @@ async function finishSession(page){
     },reactionNode);
     assert.equal(await page.locator('#geo-journey-map .premium-world.is-progress-reaction .premium-progress-reaction').count(),1,'a newly completed core mission should trigger one landscape reaction');
     assert.equal(await page.locator('#geo-journey-map .premium-place.is-just-completed').count(),1,'the completed landmark should receive the reaction state');
+    assert.equal(await page.locator('#geo-journey-map .premium-traveler-character').count(),1,'premium worlds should isolate guide motion from idle breathing');
+    assert.notEqual(await page.locator('#geo-journey-map .premium-traveler').getAttribute('data-travel-from-x'),null,'reaction render should carry the travel origin');
     assert.equal(await page.evaluate(()=>window.__journeyWorldReaction),null,'the world reaction must be one-shot');
     await page.locator('#geo-journey-map .premium-place.is-next').click();
     assert.equal(await page.locator('#geo-journey-map .premium-world-sheet').isVisible(),true);

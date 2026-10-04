@@ -551,13 +551,43 @@
     return {node,place};
   }
 
+  function bokTravelerPoint(point){
+    if(!point)return null;
+    const x=Number(point[0]),y=Number(point[1]);
+    return [Math.max(9,Math.min(91,x+(x>50?-10:10))),Math.max(8,Math.min(95,y+1.8))];
+  }
+  function animateBokskogenTraveler(host){
+    const traveler=host.querySelector('.bok-v13-traveler[data-travel-from-x]');
+    if(!traveler)return;
+    const reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(reduce||typeof traveler.animate!=='function')return;
+    const world=host.querySelector('.bok-v11-world');
+    const fromX=Number(traveler.dataset.travelFromX),fromY=Number(traveler.dataset.travelFromY);
+    const toX=Number(traveler.dataset.travelToX),toY=Number(traveler.dataset.travelToY);
+    if(!world||![fromX,fromY,toX,toY].every(Number.isFinite))return;
+    const dx=(fromX-toX)*world.clientWidth/100,dy=(fromY-toY)*world.clientHeight/100;
+    const distance=Math.hypot(dx,dy);
+    if(distance<10)return;
+    traveler.classList.add('is-traveling');
+    traveler.dataset.travelDistance=String(Math.round(distance));
+    const lift=Math.max(7,Math.min(20,distance*.075));
+    const animation=traveler.animate([
+      {transform:'translate3d('+dx.toFixed(1)+'px,'+dy.toFixed(1)+'px,0) translate(-50%,-50%)',offset:0},
+      {transform:'translate3d('+(dx*.60).toFixed(1)+'px,'+(dy*.61-lift).toFixed(1)+'px,0) translate(-50%,-50%)',offset:.45},
+      {transform:'translate3d('+(dx*.18).toFixed(1)+'px,'+(dy*.20-lift*.42).toFixed(1)+'px,0) translate(-50%,-50%)',offset:.80},
+      {transform:'translate3d(0,0,0) translate(-50%,-50%)',offset:1}
+    ],{duration:1550,easing:'cubic-bezier(.22,.74,.18,1)',fill:'none'});
+    animation.finished.then(()=>traveler.classList.remove('is-traveling')).catch(()=>traveler.classList.remove('is-traveling'));
+  }
+
   function worldMarkup(viewGrade,prog,recommended,model){
     const recommendedIndex=recommended?model.nodes.findIndex(n=>n.id===recommended.id):-1;
     const reaction=takeBokskogenReaction(viewGrade,model),reactionPlace=reaction?.place||null,currentPlace=recommended?placeByNode(recommended.id):null;
     const newlyOpenedId=reactionPlace&&currentPlace&&reactionPlace.id!==currentPlace.id?currentPlace.id:null;
     const places=PLACES.map(p=>plaque(p,placeState(p,model,recommended,recommendedIndex),reactionPlace?.id||null,newlyOpenedId)).join('');
-    const travelerPoint=currentPlace?[Math.max(9,Math.min(91,currentPlace.point[0]+(currentPlace.point[0]>50?-10:10))),Math.max(8,Math.min(95,currentPlace.point[1]+1.8))]:null;
-    const traveler=travelerPoint&&!prog.complete?'<div class="bok-v13-traveler'+(reaction?' is-arriving':'')+'" style="left:'+travelerPoint[0]+'%;top:'+travelerPoint[1]+'%" aria-hidden="true">'+(typeof journeyFoxSvg==='function'?journeyFoxSvg():'🦊')+'</div>':'';
+    const travelerPoint=currentPlace?bokTravelerPoint(currentPlace.point):null;
+    const reactionTravelerPoint=reactionPlace?bokTravelerPoint(reactionPlace.point):null;
+    const traveler=travelerPoint&&!prog.complete?'<div class="bok-v13-traveler'+(reaction?' is-arriving':'')+'" style="left:'+travelerPoint[0]+'%;top:'+travelerPoint[1]+'%"'+(reactionTravelerPoint?' data-travel-from-x="'+reactionTravelerPoint[0]+'" data-travel-from-y="'+reactionTravelerPoint[1]+'" data-travel-to-x="'+travelerPoint[0]+'" data-travel-to-y="'+travelerPoint[1]+'"':'')+' aria-hidden="true"><span class="bok-v14-traveler-character">'+(typeof journeyFoxSvg==='function'?journeyFoxSvg():'🦊')+'</span><span class="bok-v14-travel-dust"><i></i><i></i><i></i></span></div>':'';
     const reactionFx=reactionPlace?'<div class="bok-v13-progress-reaction" style="left:'+reactionPlace.point[0]+'%;top:'+reactionPlace.point[1]+'%" aria-hidden="true"><i></i><i></i><i></i><b>✓</b></div>':'';
     return '<section class="bok-v10-world bok-v11-world'+(prog.complete?' is-complete':'')+(reaction?' has-progress-reaction':'')+'" aria-label="Bokskogen, interaktiv læringsverden">'+
       '<img class="bok-v10-art" src="./bokskogen-verden.png?v=20261004-world1" alt="" draggable="false" decoding="async">'+
@@ -583,6 +613,7 @@
     screen.classList.add('bokskogen-v10-active');
     host.className='journey-map bokskogen-map bok-v10-map';
     host.innerHTML=worldMarkup(viewGrade,prog,recommended,model);
+    requestAnimationFrame(()=>animateBokskogenTraveler(host));
 
     host.querySelector('.bok-v10-home').onclick=()=>{
       const back=document.getElementById('subject-back');

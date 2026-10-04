@@ -54,11 +54,17 @@ test('2.5D assets are cache-busted consistently for the PWA', () => {
   assert.match(html, /bokskogen-world\.js\?v=20261004-world4/);
   assert.match(sw, /bokskogen-world\.css\?v=20261004-premium13/);
   assert.match(sw, /bokskogen-world\.js\?v=20261004-world4/);
-  assert.match(sw, /laer-litt-mer-v27-world-reaction-2026-10-04/);
+  assert.match(sw, /laer-litt-mer-v28-world-traveler-2026-10-04/);
   assert.match(html, /journeyWasComplete:journeyNodeIsCompleteForWorldReaction/);
   assert.match(html, /function armJourneyWorldReaction\(scope\)/);
   assert.match(read('journey-world-premium.js'), /premium-progress-reaction/);
   assert.match(read('journey-world-premium.css'), /Progression reaction v1/);
   assert.match(read('bokskogen-world.js'), /bok-v13-traveler/);
   assert.match(read('bokskogen-world.css'), /Bokskogen v13/);
+  assert.match(read('journey-world-premium.js'), /function animatePremiumTravelerJourney\(host\)/);
+  assert.match(read('journey-world-premium.js'), /data-travel-from-x/);
+  assert.match(read('journey-world-premium.css'), /Traveler movement v1/);
+  assert.match(read('bokskogen-world.js'), /function animateBokskogenTraveler\(host\)/);
+  assert.match(read('bokskogen-world.js'), /bok-v14-traveler-character/);
+  assert.match(read('bokskogen-world.css'), /Bokskogen v14/);
 });

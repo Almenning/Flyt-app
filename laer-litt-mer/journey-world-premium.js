@@ -98,6 +98,36 @@
   }
 
 
+  function journeyTravelerPoint(point){
+    if(!point)return null;
+    const x=Number(point[0]),y=Number(point[1]);
+    return [Math.min(86,Math.max(14,x+(x>50?-19:19))),Math.min(88,Math.max(13,y+1))];
+  }
+
+  function animatePremiumTravelerJourney(host){
+    const traveler=host.querySelector('.premium-traveler[data-travel-from-x]');
+    if(!traveler)return;
+    const reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(reduce||typeof traveler.animate!=='function')return;
+    const layer=traveler.parentElement;
+    const fromX=Number(traveler.dataset.travelFromX),fromY=Number(traveler.dataset.travelFromY);
+    const toX=Number(traveler.dataset.travelToX),toY=Number(traveler.dataset.travelToY);
+    if(!layer||![fromX,fromY,toX,toY].every(Number.isFinite))return;
+    const dx=(fromX-toX)*layer.clientWidth/100,dy=(fromY-toY)*layer.clientHeight/100;
+    const distance=Math.hypot(dx,dy);
+    if(distance<12)return;
+    traveler.classList.add('is-traveling');
+    traveler.dataset.travelDistance=String(Math.round(distance));
+    const lift=Math.max(8,Math.min(22,distance*.08));
+    const animation=traveler.animate([
+      {transform:'translate3d('+dx.toFixed(1)+'px,'+dy.toFixed(1)+'px,0) translate(-50%,-50%)',offset:0},
+      {transform:'translate3d('+(dx*.58).toFixed(1)+'px,'+(dy*.60-lift).toFixed(1)+'px,0) translate(-50%,-50%)',offset:.46},
+      {transform:'translate3d('+(dx*.18).toFixed(1)+'px,'+(dy*.20-lift*.45).toFixed(1)+'px,0) translate(-50%,-50%)',offset:.80},
+      {transform:'translate3d(0,0,0) translate(-50%,-50%)',offset:1}
+    ],{duration:1550,easing:'cubic-bezier(.22,.74,.18,1)',fill:'none'});
+    animation.finished.then(()=>traveler.classList.remove('is-traveling')).catch(()=>traveler.classList.remove('is-traveling'));
+  }
+
   function keepCurrentMissionVisible(host,geo){
     const screen=document.getElementById(geo?'geography-screen':'subject-screen');
     const target=host.querySelector('.premium-place.is-next');
@@ -186,15 +216,17 @@
       return '<button type="button" class="premium-side '+(ai>firstOpen?'is-future':'')+'" style="--x:'+sx+'%;--y:'+sy+'%" '+nodeAttr+'="'+esc(node.id)+'" aria-label="'+esc(node.title+', '+(ai>firstOpen?'låst':stateText(node,geo)))+'"><span aria-hidden="true">'+(node.type==='review'?'↺':'✧')+'</span><b>'+esc(node.type==='review'?'Repeter':'Bonus')+'</b></button>';
     })).join('');
     const [cx,cy]=pointAt(config,Math.max(0,nextIndex),route.length);
+    const travelerPoint=journeyTravelerPoint([cx,cy]);
     const medals=model.areas.map((area,ai)=>{
       if(!(geo?geoJourneyAreaComplete(area):journeyAreaComplete(area)))return '';
       const last=core(area,geo).at(-1),i=route.findIndex(n=>n.id===last?.id),[x,y]=pointAt(config,Math.max(0,i),route.length);
       return '<span class="premium-world-prize" style="--x:'+x+'%;--y:'+y+'%" title="'+esc(area.title+' fullført')+'" aria-label="'+esc(area.title+' fullført, trofé vunnet')+'">🏆</span>';
     }).join('');
     if(host._premiumWorldMotionCleanup)host._premiumWorldMotionCleanup();
-    const traveler=!prog.complete?'<div class="premium-traveler'+(reaction?' is-arriving':'')+'" style="--x:'+Math.min(86,Math.max(14,cx+(cx>50?-19:19)))+'%;--y:'+Math.min(88,Math.max(13,cy+1))+'%" aria-hidden="true">'+journeyFoxSvg()+'</div>':'';
-    const routeOverlay=journeyRouteOverlay(config,route,nextIndex);
     const reactionPoint=reaction?pointAt(config,reaction.index,route.length):null;
+    const reactionTravelerPoint=reactionPoint?journeyTravelerPoint(reactionPoint):null;
+    const traveler=!prog.complete?'<div class="premium-traveler'+(reaction?' is-arriving':'')+'" style="--x:'+travelerPoint[0]+'%;--y:'+travelerPoint[1]+'%"'+(reactionTravelerPoint?' data-travel-from-x="'+reactionTravelerPoint[0]+'" data-travel-from-y="'+reactionTravelerPoint[1]+'" data-travel-to-x="'+travelerPoint[0]+'" data-travel-to-y="'+travelerPoint[1]+'"':'')+' aria-hidden="true"><span class="premium-traveler-character">'+journeyFoxSvg()+'</span><span class="premium-travel-dust"><i></i><i></i><i></i></span></div>':'';
+    const routeOverlay=journeyRouteOverlay(config,route,nextIndex);
     const reactionFx=reactionPoint?'<div class="premium-progress-reaction" style="--reaction-x:'+reactionPoint[0]+'%;--reaction-y:'+reactionPoint[1]+'%" aria-hidden="true"><i></i><i></i><i></i><i></i><b>✓</b></div>':'';
     host.className='journey-map premium-journey-map';
     host.innerHTML='<section class="premium-world premium-'+subject+' premium-world-depth-ready'+(prog.done>0?' has-progress':'')+(prog.complete?' is-complete':'')+(reaction?' is-progress-reaction':'')+'" style="--world-progress:'+prog.pct+';--focus-x:'+cx+'%;--focus-y:'+cy+'%" aria-label="'+esc(config.name+', interaktiv læringsverden')+'">'+
@@ -213,6 +245,7 @@
       '<div class="premium-world-grade-menu" hidden></div>'+
       '<div class="premium-world-sheet-back" hidden></div><section class="premium-world-sheet" role="dialog" aria-modal="true" aria-label="Oppdragssted" hidden></section></section><div class="premium-side-dock" aria-label="Ekstra oppdrag">'+sides+'</div>';
     installWorldDepthMotion(host);
+    requestAnimationFrame(()=>animatePremiumTravelerJourney(host));
     const worldBack=host.querySelector('.premium-world-back');
     if(worldBack)worldBack.onclick=()=>{
       const backButton=document.getElementById(geo?'geography-back':'subject-back');

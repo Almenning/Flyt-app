@@ -2106,3 +2106,17 @@
 @keyframes bokV13NewPlace{0%{filter:saturate(.55) brightness(.82);opacity:.48}55%{filter:saturate(1.14) brightness(1.10);opacity:1}100%{filter:none;opacity:1}}
 @media(max-width:390px){.bok-v13-traveler,.bok-v13-traveler svg{width:43px;height:43px}.bok-v13-progress-reaction{width:74px;height:74px}}
 @media(prefers-reduced-motion:reduce){.bok-v13-progress-reaction{display:none!important}.bok-v13-traveler,.bok-v13-traveler.is-arriving svg,.bok-v11-world.has-progress-reaction .bok-v11-route .route-glow,.bok-v11-world.has-progress-reaction .bok-v11-route .route-steps,.bok-v11-world .bok-v10-place.is-just-progressed .hit,.bok-v11-world .bok-v10-place.is-just-progressed .bok-v12-state-mark,.bok-v11-world .bok-v10-place.is-newly-opened .hit{animation:none!important}}
+
+
+/* Bokskogen v14 — the guide visibly travels to the next destination. */
+.bok-v13-traveler{animation:none!important;will-change:transform}
+.bok-v14-traveler-character{display:block;width:100%;height:100%;animation:bokV13TravelerBreathe 3.8s ease-in-out infinite;transform-origin:50% 82%}
+.bok-v14-traveler-character svg{width:100%;height:100%}
+.bok-v14-travel-dust{position:absolute;left:50%;bottom:-1px;width:36px;height:16px;transform:translateX(-50%);pointer-events:none}
+.bok-v14-travel-dust i{position:absolute;left:50%;bottom:1px;width:6px;height:6px;border-radius:50%;background:rgba(228,207,166,.70);opacity:0}
+.bok-v13-traveler.is-traveling .bok-v14-traveler-character{animation:bokV14TravelerStride .34s ease-in-out infinite}
+.bok-v13-traveler.is-traveling .bok-v14-travel-dust i{animation:bokV14TravelDust .72s ease-out infinite}
+.bok-v13-traveler.is-traveling .bok-v14-travel-dust i:nth-child(2){animation-delay:.21s}.bok-v13-traveler.is-traveling .bok-v14-travel-dust i:nth-child(3){animation-delay:.43s}
+@keyframes bokV14TravelerStride{0%,100%{transform:translateY(0) rotate(-3deg) scale(1)}50%{transform:translateY(-5px) rotate(3deg) scale(1.035)}}
+@keyframes bokV14TravelDust{0%{transform:translate(-50%,0) scale(.45);opacity:0}22%{opacity:.62}100%{transform:translate(calc(-50% - 17px),-11px) scale(1.4);opacity:0}}
+@media(prefers-reduced-motion:reduce){.bok-v14-traveler-character,.bok-v13-traveler.is-traveling .bok-v14-traveler-character,.bok-v13-traveler.is-traveling .bok-v14-travel-dust i{animation:none!important}.bok-v14-travel-dust{display:none!important}}
