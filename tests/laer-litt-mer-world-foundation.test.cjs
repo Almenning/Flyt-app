@@ -46,14 +46,14 @@ test('2.5D assets are cache-busted consistently for the PWA', () => {
   const html = read('index.html');
   const sw = read('sw.js');
 
-  assert.match(html, /journey-world-premium\.css\?v=20261004-integration2/);
-  assert.match(html, /journey-world-premium\.js\?v=20261004-integration3/);
-  assert.match(sw, /journey-world-premium\.css\?v=20261004-integration2/);
-  assert.match(sw, /journey-world-premium\.js\?v=20261004-integration3/);
-  assert.match(html, /bokskogen-world\.css\?v=20261004-premium12/);
-  assert.match(html, /bokskogen-world\.js\?v=20261004-world3/);
-  assert.match(sw, /bokskogen-world\.css\?v=20261004-premium12/);
-  assert.match(sw, /bokskogen-world\.js\?v=20261004-world3/);
+  assert.match(html, /journey-world-premium\.css\?v=20261004-reaction3/);
+  assert.match(html, /journey-world-premium\.js\?v=20261004-reaction4/);
+  assert.match(sw, /journey-world-premium\.css\?v=20261004-reaction3/);
+  assert.match(sw, /journey-world-premium\.js\?v=20261004-reaction4/);
+  assert.match(html, /bokskogen-world\.css\?v=20261004-premium13/);
+  assert.match(html, /bokskogen-world\.js\?v=20261004-world4/);
+  assert.match(sw, /bokskogen-world\.css\?v=20261004-premium13/);
+  assert.match(sw, /bokskogen-world\.js\?v=20261004-world4/);
   assert.match(sw, /laer-litt-mer-v27-world-reaction-2026-10-04/);
   assert.match(html, /journeyWasComplete:journeyNodeIsCompleteForWorldReaction/);
   assert.match(html, /function armJourneyWorldReaction\(scope\)/);
