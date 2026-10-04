@@ -54,3 +54,135 @@
 #geography-screen.premium-geo-active>.detail-back,#geography-screen.premium-geo-active>.geography-head{display:none!important}
 #geography-screen.premium-geo-active .geo-journey-shell{order:-1;margin-top:0}
 @media(min-width:700px){#geography-screen.premium-geo-active .geo-journey-shell{margin-left:0;margin-right:0}}
+
+
+/* premium-board-v8-2026-10-04 */
+/* Less dashboard, more game board: one route, strong level stones, fewer labels. */
+.premium-world{background:#183c46}
+.premium-route{
+  position:absolute;z-index:9;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;
+  filter:drop-shadow(0 5px 4px rgba(24,45,40,.16));
+}
+.premium-route path{fill:none;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+.premium-route-shadow{stroke:rgba(58,43,29,.26);stroke-width:17}
+.premium-route-earth{stroke:#d8b977;stroke-width:13}
+.premium-route-light{stroke:#f7e5b6;stroke-width:5;opacity:.74}
+.premium-route-progress{stroke:#76c686;stroke-width:8;filter:drop-shadow(0 0 5px rgba(103,207,137,.42))}
+.premium-route-dot{fill:#f9e8b9;stroke:#88683d;stroke-width:.55;opacity:.66}
+.premium-route-dot.done{fill:#9ddeaa;stroke:#3d7f55}
+.premium-route-dot.current{fill:#ffe77b;stroke:#9b6d20;filter:drop-shadow(0 0 3px #ffe27e)}
+
+.premium-place{
+  width:clamp(82px,22%,126px);min-height:82px;
+  transition:transform .16s ease,filter .16s ease,opacity .16s ease;
+}
+.premium-place-marker{
+  position:relative;width:54px;height:54px;margin:0;border:3px solid rgba(255,249,225,.96);
+  background:linear-gradient(180deg,#fff7db 0%,#ead6a7 52%,#c69a5c 53%,#9a6b3b 100%);
+  box-shadow:0 7px 0 #76502f,0 12px 18px rgba(22,42,38,.28),inset 0 4px 0 rgba(255,255,255,.62);
+  color:#5a4029;font:950 19px/1 ui-rounded,"SF Pro Rounded",system-ui,sans-serif;opacity:1;
+}
+.premium-place-marker:before{
+  content:"";position:absolute;left:8px;right:8px;top:7px;height:16px;border-radius:50%;
+  background:rgba(255,255,255,.34);pointer-events:none
+}
+.premium-place-marker:after{
+  content:"";position:absolute;left:50%;bottom:-12px;transform:translateX(-50%);width:42px;height:12px;border-radius:50%;
+  background:rgba(22,43,39,.20);filter:blur(2px);z-index:-1;pointer-events:none
+}
+.premium-place.is-next{transform:translate(-50%,-50%) scale(1.08)}
+.premium-place.is-next .premium-place-marker{
+  width:63px;height:63px;border-width:4px;
+  background:linear-gradient(180deg,#fffef2 0%,#fff0a7 48%,#f2bc4f 49%,#d68d2c 100%);
+  color:#644112;font-size:22px;
+  box-shadow:0 8px 0 #a66722,0 0 0 8px rgba(255,235,130,.22),0 0 28px 9px rgba(255,220,93,.48),0 18px 25px rgba(41,51,35,.26),inset 0 5px 0 rgba(255,255,255,.74);
+  animation:premiumLevelPulse 2.25s ease-in-out infinite
+}
+.premium-place.is-done .premium-place-marker{
+  background:linear-gradient(180deg,#f6fff1 0%,#caedc7 52%,#76bb79 53%,#4d8f5e 100%);
+  color:#25533a;border-color:#f3ffe7;box-shadow:0 7px 0 #3d714d,0 12px 18px rgba(29,72,48,.25),inset 0 4px 0 rgba(255,255,255,.62)
+}
+.premium-place.is-trophy .premium-place-marker{
+  width:62px;height:62px;font-size:24px;
+  background:linear-gradient(180deg,#fff9d7,#ffd765 52%,#d99e2d 53%,#a96b16 100%);
+  box-shadow:0 8px 0 #855414,0 15px 22px rgba(72,48,18,.25),0 0 0 5px rgba(255,229,121,.13)
+}
+.premium-place.is-future{opacity:.68;filter:saturate(.55) brightness(.94)}
+.premium-place.is-future .premium-place-marker{
+  background:linear-gradient(180deg,#e9e8dc,#cacabe 55%,#a5a69c 56%,#858a83 100%);
+  border-color:rgba(246,244,226,.78);color:#5c645e;box-shadow:0 6px 0 #707770,0 10px 15px rgba(30,45,42,.18)
+}
+.premium-place.is-future .premium-place-marker:before{opacity:.5}
+.premium-place.is-future .premium-place-marker:after{content:"🔒";bottom:-1px;left:auto;right:-10px;transform:none;width:25px;height:25px;display:grid;place-items:center;background:#5e6b65;color:#fff;border:2px solid #eef0e6;border-radius:50%;filter:none;font-size:11px;z-index:2}
+
+.premium-place-sign{
+  margin-top:7px;min-width:0;width:max-content;max-width:116px;min-height:0;padding:5px 9px 6px;
+  border:1px solid rgba(96,62,34,.72);border-radius:9px;
+  background:linear-gradient(165deg,rgba(242,214,164,.96),rgba(190,139,83,.96));
+  box-shadow:0 3px 0 rgba(101,64,35,.78),0 6px 11px rgba(20,42,37,.18),inset 0 1px rgba(255,242,205,.72);
+  opacity:0;visibility:hidden;transform:translateY(4px) rotate(-1deg) scale(.94);transition:.15s ease;
+}
+.premium-place:nth-of-type(2n) .premium-place-sign{transform:translateY(4px) rotate(1deg) scale(.94)}
+.premium-place-sign b{font-size:clamp(10px,2.25vw,13px);line-height:1.05}
+.premium-place-sign small{font-size:clamp(7px,1.55vw,9px);max-width:104px;margin-top:2px}
+.premium-place.is-next .premium-place-sign,.premium-place.is-trophy .premium-place-sign,.premium-place:focus-visible .premium-place-sign{
+  opacity:1;visibility:visible;transform:translateY(0) rotate(-1deg) scale(1)
+}
+.premium-place:nth-of-type(2n).is-next .premium-place-sign,.premium-place:nth-of-type(2n).is-trophy .premium-place-sign,.premium-place:nth-of-type(2n):focus-visible .premium-place-sign{
+  transform:translateY(0) rotate(1deg) scale(1)
+}
+@media(hover:hover){
+  .premium-place:hover .premium-place-sign{opacity:1;visibility:visible;transform:translateY(0) rotate(-1deg) scale(1)}
+  .premium-place:nth-of-type(2n):hover .premium-place-sign{transform:translateY(0) rotate(1deg) scale(1)}
+}
+.premium-place.is-next .premium-place-sign{
+  border-color:#80591f;background:linear-gradient(165deg,#fff0b1,#eabe64);
+  box-shadow:0 3px 0 #8c5d20,0 8px 16px rgba(41,48,30,.23),inset 0 1px #fff7d6
+}
+.premium-place.is-next .premium-place-sign:after{
+  content:"NESTE OPPDRAG";bottom:-18px;padding:3px 8px;border-radius:999px;background:#285f48;color:#fff5cf;font-size:7.5px;letter-spacing:.09em
+}
+.premium-place-bloom{right:9px;top:-6px;font-size:16px;color:#fff1a5;filter:drop-shadow(0 2px 3px rgba(77,54,20,.22))}
+
+.premium-side{
+  z-index:16;min-width:58px;min-height:37px;padding:3px 6px;border-color:rgba(92,62,38,.66);border-radius:999px;
+  background:rgba(239,214,171,.88);box-shadow:0 3px 0 rgba(100,68,41,.68),0 6px 12px rgba(18,41,36,.17);
+  backdrop-filter:blur(3px);font-size:8px;opacity:.88
+}
+.premium-side span{font-size:12px}.premium-side.is-future{opacity:.42}
+
+.premium-traveler{
+  z-index:28;width:66px;height:66px;font-size:40px;
+  filter:drop-shadow(0 8px 7px rgba(18,43,38,.34));animation:premiumFoxGuide 3s ease-in-out infinite
+}
+.premium-traveler svg{width:66px;height:66px;filter:drop-shadow(0 0 8px rgba(255,239,180,.36))}
+.premium-traveler:before{
+  content:"";position:absolute;left:50%;bottom:-8px;transform:translateX(-50%);width:45px;height:13px;border-radius:50%;
+  background:rgba(22,44,40,.20);filter:blur(2px);z-index:-1
+}
+
+.premium-world-title{
+  top:8.5%;padding:7px 16px 9px;border-radius:18px;
+  background:linear-gradient(155deg,rgba(128,82,44,.94),rgba(87,54,31,.96));
+  box-shadow:0 4px 0 #472b18,0 11px 19px rgba(17,27,21,.30),inset 0 1px 0 rgba(255,232,190,.35)
+}
+.premium-world-title strong{font-size:clamp(19px,4.7vw,30px)}
+.premium-world-title small{font-size:clamp(7px,1.45vw,9px)}
+
+@keyframes premiumLevelPulse{
+  0%,100%{box-shadow:0 8px 0 #a66722,0 0 0 7px rgba(255,235,130,.18),0 0 23px 7px rgba(255,220,93,.38),0 18px 25px rgba(41,51,35,.26),inset 0 5px 0 rgba(255,255,255,.74)}
+  50%{box-shadow:0 8px 0 #a66722,0 0 0 11px rgba(255,235,130,.12),0 0 34px 11px rgba(255,220,93,.55),0 20px 29px rgba(41,51,35,.28),inset 0 5px 0 rgba(255,255,255,.74)}
+}
+@keyframes premiumFoxGuide{0%,100%{transform:translate(-50%,-50%) translateY(0) rotate(-2deg)}50%{transform:translate(-50%,-50%) translateY(-5px) rotate(2deg)}}
+
+@media(max-width:390px){
+  .premium-place{width:78px;min-height:72px}
+  .premium-place-marker{width:48px;height:48px;font-size:17px}
+  .premium-place.is-next .premium-place-marker{width:57px;height:57px}
+  .premium-place.is-trophy .premium-place-marker{width:56px;height:56px}
+  .premium-place-sign{max-width:100px;padding:4px 7px 5px}
+  .premium-traveler,.premium-traveler svg{width:58px;height:58px}
+}
+@media(prefers-reduced-motion:reduce){
+  .premium-place.is-next .premium-place-marker,.premium-traveler{animation:none!important}
+}
