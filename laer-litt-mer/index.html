@@ -2770,9 +2770,11 @@ function startGeoJourneyNode(nodeId,grade=journeyViewGrade('geography')){
   const model=geoJourneyModel(grade),node=model.nodes.find(n=>n.id===nodeId);if(!node)return;
   sessionScope={type:'geo-journey',subject:'geography',journeyNode:node.id,journeyArea:node.areaId,journeyGrade:node.grade,journeyType:node.type,label:'Geografi · '+node.title,ids:node.ids,includeMap:true};
   state.lastActivity={kind:'geo-journey',nodeId:node.id,grade:node.grade,label:node.title};
-  sessionQuestions=buildGeoJourneyQuestions(node,false);
-  if(!sessionQuestions.length){sessionQuestions=buildGeoJourneyQuestions(node,true);sessionScope.practiceOnly=sessionQuestions.length>0}else sessionScope.practiceOnly=sessionQuestions.every(q=>q.practiceRepeat);
-  if(!sessionQuestions.length){toast('Dette punktet trenger flere oppgaver før det kan startes.');return}
+  const fresh=buildGeoJourneyQuestions(node,false);
+  const all=fresh.length<5?buildGeoJourneyQuestions(node,true):fresh;
+  sessionQuestions=topUpSessionQuestions(fresh,all,5);
+  sessionScope.practiceOnly=sessionQuestions.length>0&&sessionQuestions.every(q=>q.practiceRepeat);
+  if(sessionQuestions.length<5){toast('Dette punktet trenger flere oppgaver før det kan startes.');return}
   qIndex=0;sessionCorrect=0;sessionStrengthened=new Set();currentAnswered=null;state.activeSession={startedAt:Date.now()};persistActiveSession();showScreen('session');renderQuestion();
 }
 function recordGeoJourneyResult(result){
@@ -2814,14 +2816,15 @@ function questionTypesForCountry(k,includeMap=false,grade=currentGrade()){
   return types.length?types:['flag'];
 }
 
-function questionPool(ids,includeMap=false){
+function questionPool(ids,includeMap=false,allowCooldown=false){
   const pool=[];
   ids.filter(id=>countries[id]).forEach(k=>{
     questionTypesForCountry(k,includeMap).forEach(type=>{
-      if(questionOnCooldown({k,type}))return;
+      const cooling=questionOnCooldown({k,type});
+      if(cooling&&!allowCooldown)return;
       const key=masteryKey(k,type),stage=typeStage(k,type),ev=evidenceForGeo(k,type),bucket=learningBucket(stage,ev),mistakes=Number(state.mistakes[key]||0);
-      const score=bucketBias(bucket)-Math.min(.75,mistakes*.12)+Math.random()*.12;
-      pool.push({k,type,stage,bucket,score});
+      const score=bucketBias(bucket)-Math.min(.75,mistakes*.12)+(cooling?.35:0)+Math.random()*.12;
+      pool.push({k,type,stage,bucket,score,practiceRepeat:!!cooling});
     });
   });
   return pool.sort((a,b)=>a.score-b.score);
@@ -2844,7 +2847,15 @@ function balancedGeoItems(pool,count=5){
   return chosen;
 }
 function buildQuestionsForIds(ids,includeMap=false){
-  return balancedGeoItems(questionPool(ids,includeMap),5).map(item=>makeQuestion(item.k,item.type,ids));
+  const fresh=balancedGeoItems(questionPool(ids,includeMap,false),5);
+  const items=[...fresh],used=new Set(fresh.map(x=>x.k+':'+x.type));
+  if(items.length<5){
+    for(const item of questionPool(ids,includeMap,true)){
+      const key=item.k+':'+item.type;if(used.has(key))continue;
+      used.add(key);items.push(item);if(items.length>=5)break;
+    }
+  }
+  return items.slice(0,5).map(item=>{const q=makeQuestion(item.k,item.type,ids);if(item.practiceRepeat)q.practiceRepeat=true;return q});
 }
 function warmupSpecs(){
   const g=currentGrade();
@@ -2862,8 +2873,15 @@ function buildGradeMissionQuestions(){
     if(!countries[k]||!questionTypesForCountry(k,true).includes(type)||questionOnCooldown({k,type}))continue;
     chosen.push(makeQuestion(k,type,ids));used.add(k+':'+type);
   }
-  const balanced=balancedGeoItems(questionPool(ids,true).filter(item=>!used.has(item.k+':'+item.type)),5-chosen.length);
-  for(const item of balanced)chosen.push(makeQuestion(item.k,item.type,ids));
+  const balanced=balancedGeoItems(questionPool(ids,true,false).filter(item=>!used.has(item.k+':'+item.type)),5-chosen.length);
+  for(const item of balanced){const q=makeQuestion(item.k,item.type,ids);chosen.push(q);used.add(item.k+':'+item.type)}
+  if(chosen.length<5){
+    for(const item of questionPool(ids,true,true)){
+      const key=item.k+':'+item.type;if(used.has(key))continue;
+      const q=makeQuestion(item.k,item.type,ids);if(item.practiceRepeat)q.practiceRepeat=true;
+      chosen.push(q);used.add(key);if(chosen.length>=5)break;
+    }
+  }
   return chosen.slice(0,5);
 }
 function buildCountryQuestions(k){
@@ -3436,6 +3454,17 @@ function buildLearningQuestions(subject,module,allowCooldown=false){
   return chosen.slice(0,5);
 }
 
+function topUpSessionQuestions(fresh,all,count=5){
+  const out=[],seen=new Set();
+  for(const q of [...(fresh||[]),...(all||[])]){
+    if(!q)continue;
+    const sig=questionIdentity(q);
+    if(seen.has(sig))continue;
+    seen.add(sig);out.push(q);
+    if(out.length>=count)break;
+  }
+  return out;
+}
 function buildJourneyQuestions(subject,node,allowCooldown=false){
   const grade=node.grade||currentGrade(),module=node.module||null,focused=subjectPoolForGrade(subject,grade,module),all=subjectPoolForGrade(subject,grade,null);
   let source=focused.filter(q=>(node.skills||[]).includes(q.skill));
@@ -3477,12 +3506,11 @@ function startJourneyNode(subject,nodeId,grade=journeyViewGrade(subject)){
   const model=journeyModel(subject,grade),node=model.nodes.find(n=>n.id===nodeId);if(!node)return;
   sessionScope={type:'journey',subject,journeyNode:node.id,journeyArea:node.areaId,journeyGrade:node.grade,journeyType:node.type,module:node.module||null,label:(SUBJECTS[subject]?.title||subject)+' · '+node.title};
   state.lastActivity={kind:'journey',subject,nodeId:node.id,grade:node.grade,label:node.title};
-  sessionQuestions=buildJourneyQuestions(subject,node,false);
-  if(!sessionQuestions.length){
-    sessionQuestions=buildJourneyQuestions(subject,node,true);
-    sessionScope.practiceOnly=sessionQuestions.length>0;
-  }else sessionScope.practiceOnly=sessionQuestions.every(q=>q.practiceRepeat);
-  if(!sessionQuestions.length){toast('Dette punktet trenger flere oppgaver før det kan startes.');return}
+  const fresh=buildJourneyQuestions(subject,node,false);
+  const all=fresh.length<5?buildJourneyQuestions(subject,node,true):fresh;
+  sessionQuestions=topUpSessionQuestions(fresh,all,5);
+  sessionScope.practiceOnly=sessionQuestions.length>0&&sessionQuestions.every(q=>q.practiceRepeat);
+  if(sessionQuestions.length<5){toast('Dette punktet trenger flere oppgaver før det kan startes.');return}
   qIndex=0;sessionCorrect=0;sessionStrengthened=new Set();currentAnswered=null;
   state.activeSession={startedAt:Date.now()};persistActiveSession();showScreen('session');renderQuestion();
 }
@@ -3570,21 +3598,21 @@ function renderSubjectJourney(){
 function startLearningSession(subject,module,label){
   sessionScope={type:'subject',subject,module:module||null,label:(SUBJECTS[subject]?.title||subject)+' · '+(label||'Blandet'),grade:currentGrade()};
   state.lastActivity={kind:'subject',subject,module:module||null,label:label||SUBJECTS[subject]?.mission||'Blandet'};
-  sessionQuestions=buildLearningQuestions(subject,module);
-  if(!sessionQuestions.length){
-    sessionQuestions=buildLearningQuestions(subject,module,true);
-    sessionScope.practiceOnly=sessionQuestions.length>0;
-  }else sessionScope.practiceOnly=sessionQuestions.every(q=>q.practiceRepeat);
-  if(!sessionQuestions.length){toast('Fant ingen oppgaver akkurat nå.');return}
+  const fresh=buildLearningQuestions(subject,module);
+  const all=fresh.length<5?buildLearningQuestions(subject,module,true):fresh;
+  sessionQuestions=topUpSessionQuestions(fresh,all,5);
+  sessionScope.practiceOnly=sessionQuestions.length>0&&sessionQuestions.every(q=>q.practiceRepeat);
+  if(sessionQuestions.length<5){toast('Fant ikke nok oppgaver akkurat nå.');return}
   qIndex=0;sessionCorrect=0;sessionStrengthened=new Set();currentAnswered=null;
   state.activeSession={startedAt:Date.now()};persistActiveSession();showScreen('session');renderQuestion();
 }
 function startNorwayRegions(){
   const regions=[...new Set(NORWAY_REGIONS.map(x=>x.region))];
-  const candidates=shuffle(NORWAY_REGIONS).map(x=>choiceQuestion('geography','norway-regions','Hvilken landsdel ligger '+x.place+' i?',x.region,[x.region,...shuffle(regions.filter(r=>r!==x.region)).slice(0,currentGrade()<=2?1:3)],{curriculum:null})).filter(q=>!questionOnCooldown(q));
-  sessionQuestions=candidates.slice(0,5);
-  if(!sessionQuestions.length){toast('Du har nettopp klart disse oppgavene. Prøv et annet geografitema litt først.');return}
-  sessionScope={type:'subject',subject:'geography',label:'Geografi · Norges landsdeler',grade:currentGrade()};state.lastActivity={kind:'geography-theme',theme:'regions',label:'Norges landsdeler'};
+  const pool=shuffle(NORWAY_REGIONS).map(x=>choiceQuestion('geography','norway-regions','Hvilken landsdel ligger '+x.place+' i?',x.region,[x.region,...shuffle(regions.filter(r=>r!==x.region)).slice(0,currentGrade()<=2?1:3)],{curriculum:null}));
+  const fresh=pool.filter(q=>!questionOnCooldown(q)),all=pool.map(q=>questionOnCooldown(q)?({...q,practiceRepeat:true}):q);
+  sessionQuestions=topUpSessionQuestions(fresh,all,5);
+  if(sessionQuestions.length<5){toast('Fant ikke nok oppgaver akkurat nå.');return}
+  sessionScope={type:'subject',subject:'geography',label:'Geografi · Norges landsdeler',grade:currentGrade(),practiceOnly:sessionQuestions.every(q=>q.practiceRepeat)};state.lastActivity={kind:'geography-theme',theme:'regions',label:'Norges landsdeler'};
   qIndex=0;sessionCorrect=0;sessionStrengthened=new Set();currentAnswered=null;state.activeSession={startedAt:Date.now()};persistActiveSession();showScreen('session');renderQuestion();
 }
 function startGeographyTheme(){
@@ -3596,14 +3624,16 @@ function startGeographyTheme(){
   else if(geoTheme==='capital')types=['capital','country'];
   else if(geoTheme==='map')types=['map'];
   else types=[geoTheme];
-  const candidates=questionPool(ids,true).filter(item=>types.includes(item.type)),qs=[];
+  const freshCandidates=questionPool(ids,true,false).filter(item=>types.includes(item.type)),allCandidates=questionPool(ids,true,true).filter(item=>types.includes(item.type)),qs=[],used=new Set();
+  const addItem=item=>{if(!item||qs.length>=5)return;const key=item.k+':'+item.type;if(used.has(key))return;const q=makeQuestion(item.k,item.type,ids);if(item.practiceRepeat)q.practiceRepeat=true;qs.push(q);used.add(key)};
   if(grade<=2&&geoTheme==='country'){
-    const warm=candidates.find(item=>item.type==='flag'&&item.k==='no')||candidates.find(item=>item.type==='flag'&&item.k==='se')||candidates.find(item=>item.type==='flag');
-    if(warm)qs.push(makeQuestion(warm.k,warm.type,ids));
+    const warm=freshCandidates.find(item=>item.type==='flag'&&item.k==='no')||freshCandidates.find(item=>item.type==='flag'&&item.k==='se')||freshCandidates.find(item=>item.type==='flag');
+    addItem(warm);
   }
-  for(const item of candidates){if(qs.length>=5)break;if(qs.some(q=>q.k===item.k&&q.type===item.type))continue;qs.push(makeQuestion(item.k,item.type,ids))}
-  if(!qs.length){toast('Du har nettopp klart oppgavene her. Prøv et annet geografitema litt først.');return}
-  sessionScope={type:'geography-theme',label:'Geografi · '+({country:'Land',capital:'Hovedsteder',flag:'Flagg',continent:'Verdensdeler',map:'Kart'}[geoTheme]||'Geografi'),ids,includeMap:geoTheme==='map'};
+  for(const item of freshCandidates)addItem(item);
+  if(qs.length<5)for(const item of allCandidates)addItem(item);
+  if(qs.length<5){toast('Fant ikke nok oppgaver akkurat nå.');return}
+  sessionScope={type:'geography-theme',label:'Geografi · '+({country:'Land',capital:'Hovedsteder',flag:'Flagg',continent:'Verdensdeler',map:'Kart'}[geoTheme]||'Geografi'),ids,includeMap:geoTheme==='map',practiceOnly:qs.every(q=>q.practiceRepeat)};
   state.lastActivity={kind:'geography-theme',theme:geoTheme,label:({country:'Land',capital:'Hovedsteder',flag:'Flagg',continent:'Verdensdeler',regions:'Norges landsdeler',map:'Kart'}[geoTheme]||'Geografi')};
   sessionQuestions=qs;qIndex=0;sessionCorrect=0;sessionStrengthened=new Set();currentAnswered=null;state.activeSession={startedAt:Date.now()};persistActiveSession();showScreen('session');renderQuestion();
 }
