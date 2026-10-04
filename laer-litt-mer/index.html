@@ -331,6 +331,27 @@
     @media (prefers-reduced-motion:reduce){.journey-node.state-next .journey-node-orb{animation:none}}
 
     /* Læringsreisen v2: hvert område er et lite spillkart, ikke en vertikal sjekkliste. */
+
+    .journey-now-card{display:flex;align-items:center;gap:12px;margin:12px 0 10px;padding:13px 15px;border-radius:23px;background:linear-gradient(145deg,#263A66,#40558B);color:#fff;box-shadow:0 7px 0 rgba(38,52,93,.14),0 14px 25px rgba(46,60,102,.16)}
+    .journey-now-card.geo-now{background:linear-gradient(145deg,#24556A,#39798A)}
+    .journey-now-fox{width:49px;height:49px;border-radius:17px;background:rgba(255,255,255,.14);display:grid;place-items:center;font-size:29px;flex:0 0 auto}
+    .journey-now-card span{display:block;font-size:8px;letter-spacing:.13em;font-weight:950;opacity:.72}.journey-now-card strong{display:block;margin-top:2px;font-size:15px;font-weight:950}.journey-now-card small{display:block;margin-top:3px;font-size:9px;line-height:1.35;font-weight:750;color:rgba(255,255,255,.78)}
+    .journey-collection{display:flex;gap:8px;overflow-x:auto;padding:3px 2px 11px;scrollbar-width:none}.journey-collection::-webkit-scrollbar{display:none}
+    .journey-collectible{flex:0 0 auto;min-width:82px;border-radius:19px;padding:10px 9px;text-align:center;background:rgba(255,255,255,.74);border:2px solid rgba(255,255,255,.88);box-shadow:0 4px 12px rgba(53,63,97,.07)}
+    .journey-collectible .item{width:42px;height:42px;margin:0 auto 5px;border-radius:14px;display:grid;place-items:center;background:#EDF0F5;font-size:23px;filter:grayscale(1);opacity:.38}
+    .journey-collectible strong{display:block;font-size:8px;font-weight:950;color:#747C91}.journey-collectible.unlocked{background:linear-gradient(145deg,#FFF7D3,#fff);border-color:#FFF1B5}.journey-collectible.unlocked .item{background:#FFF0AD;filter:none;opacity:1;box-shadow:0 4px 0 rgba(188,143,41,.12)}.journey-collectible.unlocked strong{color:#725713}
+    .journey-world-ribbon{position:absolute;left:16px;top:61px;z-index:8;border-radius:999px;padding:6px 9px;font-size:8px;font-weight:950;letter-spacing:.07em;background:#263B68;color:#fff;box-shadow:0 4px 10px rgba(38,59,104,.17)}
+    .journey-world-ribbon.complete{background:#B98619}.journey-world-ribbon.preview{background:#7B6BB6}.journey-world-ribbon.future{background:#6E778B}
+    .journey-world.world-current{box-shadow:0 0 0 5px rgba(93,117,235,.10),0 12px 0 rgba(67,76,116,.07),0 24px 44px rgba(64,72,110,.12)}
+    .journey-world.world-preview{transform:scale(.99);opacity:.90}
+    .journey-world.world-future{min-height:315px;background:linear-gradient(180deg,#EEF0F5,#E4E7EB);filter:saturate(.55);opacity:.72}
+    .journey-world.world-future .journey-playfield{height:225px}.journey-world.world-future .journey-map-node{display:none}.journey-world.world-future .journey-route{display:none}.journey-world.world-future .journey-scenery{opacity:.35}
+    .journey-future-teaser{position:absolute;z-index:9;left:50%;top:56%;transform:translate(-50%,-50%);width:min(78%,260px);padding:16px;border-radius:22px;background:rgba(255,255,255,.92);box-shadow:0 10px 25px rgba(55,64,95,.13);text-align:center}
+    .journey-future-teaser .lock{font-size:29px}.journey-future-teaser strong{display:block;margin-top:5px;font-size:13px}.journey-future-teaser small{display:block;margin-top:4px;color:#737C90;font-size:9px;line-height:1.35;font-weight:750}.journey-future-teaser button{margin-top:10px;border:0;border-radius:999px;background:#EDF0F7;color:#536078;padding:8px 11px;font-size:9px;font-weight:950;cursor:pointer}
+    .journey-world-reward{position:absolute;right:13px;top:61px;z-index:8;display:flex;align-items:center;gap:5px;border-radius:999px;padding:5px 8px;background:rgba(255,255,255,.86);font-size:8px;font-weight:950;color:#68728A;box-shadow:0 4px 10px rgba(55,65,95,.09)}
+    .journey-world.area-complete .journey-world-reward{background:#FFF0B5;color:#73550B}.journey-world-reward b{font-size:15px}
+    .journey-world-transition{display:flex;justify-content:center;align-items:center;height:24px;margin:-11px 0;color:#98A2B7;font-size:18px;font-weight:950}
+    .journey-map-v2{gap:22px}
     .journey-map-v2{gap:22px}
     .journey-world{--world-sky:#DFF4FF;--world-ground:#D8F0D7;--world-accent:#667DE9;position:relative;overflow:hidden;border-radius:34px;min-height:525px;padding:0;border:3px solid rgba(255,255,255,.92);box-shadow:0 12px 0 rgba(67,76,116,.07),0 24px 44px rgba(64,72,110,.10);background:linear-gradient(180deg,var(--world-sky) 0 58%,var(--world-ground) 58% 100%)}
     .journey-world.world-1{--world-sky:#EAF1FF;--world-ground:#E5F4E8;--world-accent:#657BE9}
@@ -1803,6 +1824,11 @@
           </div>
           <div class="journey-summary-ring" id="journey-summary-ring" style="--journey-pct:0"><span id="journey-summary-pct">0%</span></div>
         </div>
+        <div class="journey-now-card" id="journey-now-card">
+          <div class="journey-now-fox" aria-hidden="true">🦊</div>
+          <div><span>DU ER HER</span><strong id="journey-now-title">Første oppdrag</strong><small id="journey-now-copy">Start reisen og vinn ditt første samleobjekt.</small></div>
+        </div>
+        <div class="journey-collection" id="journey-collection" aria-label="Samleobjekter fra reisen"></div>
         <div class="journey-map" id="journey-map" aria-label="Læringssti"></div>
         <div class="card journey-finish" id="journey-finish"></div>
         <div class="journey-sidequests" id="journey-sidequests">
@@ -1896,6 +1922,11 @@
           <div><strong id="geo-journey-summary">0 % gjennom kjerneløpet</strong><span>Kloden og stien bruker den samme fremgangen.</span></div>
           <div class="journey-summary-ring" id="geo-journey-ring" style="--journey-pct:0"><span id="geo-journey-pct">0%</span></div>
         </div>
+        <div class="journey-now-card geo-now" id="geo-journey-now">
+          <div class="journey-now-fox" aria-hidden="true">🦊</div>
+          <div><span>DU ER HER</span><strong id="geo-journey-now-title">Første etappe</strong><small id="geo-journey-now-copy">Start ekspedisjonen og samle ditt første stempel.</small></div>
+        </div>
+        <div class="journey-collection" id="geo-journey-collection" aria-label="Stempler fra geografireisen"></div>
         <div class="journey-map" id="geo-journey-map"></div>
         <div class="card journey-finish" id="geo-journey-finish"></div>
       </div>
@@ -2878,38 +2909,52 @@ function geoJourneyRouteSvg(area){
   return '<svg class="journey-route" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">'+segs.join('')+'</svg>';
 }
 
+
 function renderGeoJourney(){
   const host=document.getElementById('geo-journey-map');if(!host)return;
   host.classList.add('journey-map-v2');
-  const viewGrade=journeyViewGrade('geography'),prog=geoJourneyProgress(viewGrade),recommended=geoJourneyRecommendedNode(viewGrade),model=prog.model,recommendedIndex=recommended?model.nodes.findIndex(n=>n.id===recommended.id):-1;
+  const viewGrade=journeyViewGrade('geography'),prog=geoJourneyProgress(viewGrade),recommended=geoJourneyRecommendedNode(viewGrade),model=prog.model,recommendedIndex=recommended?model.nodes.findIndex(n=>n.id===recommended.id):-1,currentAreaIndex=journeyFirstOpenArea(model,geoJourneyAreaComplete);
   document.getElementById('geo-journey-grade').textContent=GRADE_CONFIG[viewGrade].label;
   renderJourneyGradeStrip('geography','geo-journey-grade-strip','geo-journey-grade-note',viewGrade);
   document.getElementById('geo-journey-title').textContent=prog.complete?'Ekspedisjonen er fullført! 🏆':'Fra det kjente til hele verden';
   document.getElementById('geo-journey-summary').textContent=prog.complete?'Kjerneløpet er fullført':prog.pct+' % gjennom geografireisen';
   document.getElementById('geo-journey-pct').textContent=prog.pct+'%';
   document.getElementById('geo-journey-ring').style.setProperty('--journey-pct',prog.pct);
+  const nowTitle=document.getElementById('geo-journey-now-title'),nowCopy=document.getElementById('geo-journey-now-copy');
+  if(nowTitle&&nowCopy){
+    nowTitle.textContent=prog.complete?'Hele ekspedisjonen er fullført!':recommended?recommended.title:'Velg en etappe';
+    nowCopy.textContent=prog.complete?'Alle etappene i kjerneløpet er stemplet.':recommended?(recommended.areaTitle+' · '+geoJourneyStatusText(recommended,geoJourneyNodeState(recommended))):'Kloden er alltid åpen for fri utforskning.';
+  }
+  renderJourneyCollection('geo-journey-collection','geography',model,geoJourneyAreaComplete);
 
-  host.innerHTML=model.areas.map((area,ai)=>{
-    const areaDone=geoJourneyAreaComplete(area),required=area.nodes.filter(n=>n.type==='geo-skill'||n.type==='checkpoint'),done=required.filter(n=>n.type==='geo-skill'?['can-now','mastered'].includes(geoJourneyNodeState(n)):journeyNodeRecord(n).passed).length;
+  const chunks=model.areas.map((area,ai)=>{
+    const areaDone=geoJourneyAreaComplete(area),isCurrent=!prog.complete&&ai===currentAreaIndex,isPreview=!prog.complete&&ai===currentAreaIndex+1,isFuture=!prog.complete&&ai>currentAreaIndex+1;
+    const required=area.nodes.filter(n=>n.type==='geo-skill'||n.type==='checkpoint'),done=required.filter(n=>n.type==='geo-skill'?['can-now','mastered'].includes(geoJourneyNodeState(n)):journeyNodeRecord(n).passed).length,reward=journeyAreaReward('geography',ai);
     const core=geoJourneyCoreNodes(area),corePositions=journeyCorePositions(core.length),positionMap=new Map(core.map((n,i)=>[n.id,corePositions[i]]));
-    const nodes=area.nodes.map(node=>{
+    const nodes=isFuture?'':area.nodes.map(node=>{
       const st=geoJourneyNodeState(node),idx=model.nodes.findIndex(n=>n.id===node.id),isNext=recommended&&recommended.id===node.id,future=!isNext&&recommendedIndex>=0&&idx>recommendedIndex&&st==='new';
       const visual=isNext&&!['can-now','mastered','passed'].includes(st)?'next':future?'future':st,point=positionMap.get(node.id)||journeySidePosition(node.type,ai);
       const fox=isNext?'<span class="journey-next-bubble">Neste!</span><span class="journey-fox" aria-hidden="true">🦊</span>':'';
       return '<button class="journey-map-node type-'+node.type+' state-'+visual+'" style="left:'+point[0]+'%;top:'+point[1]+'%" type="button" data-geo-journey-node="'+node.id+'" aria-label="'+escapeAttr(node.title+'. '+geoJourneyStatusText(node,st))+'">'+fox+'<span class="node-orb">'+geoJourneyIcon(node,st)+'</span><span class="node-label"><strong>'+node.title+'</strong><small>'+geoJourneyStatusText(node,st)+'</small></span></button>';
     }).join('');
-    return '<section class="journey-world geo-world world-'+((ai%3)+1)+(areaDone?' area-complete':'')+'">'+
+    const worldClass='geo-world world-'+((ai%3)+1)+(areaDone?' area-complete':'')+(isCurrent?' world-current':'')+(isPreview?' world-preview':'')+(isFuture?' world-future':'');
+    const ribbon=areaDone?'★ ETAPPE STEMPLET':isCurrent?'🦊 DU ER HER':isPreview?'🔓 NESTE ETAPPE':'🔒 SENERE';
+    const ribbonClass=areaDone?'complete':isPreview?'preview':isFuture?'future':'';
+    const teaser=isFuture?'<div class="journey-future-teaser"><div class="lock">🔒</div><strong>'+area.title+' venter</strong><small>Fullfør etappen før for å åpne den i hovedekspedisjonen. Du kan sniktitte uten at det teller.</small><button type="button" data-geo-journey-peek="'+area.id+'">Sniktitt</button></div>':'';
+    return '<section class="journey-world '+worldClass+'">'+
       '<div class="journey-scenery" aria-hidden="true"><i class="journey-cloud c1"></i><i class="journey-cloud c2"></i><i class="journey-hill h1"></i><i class="journey-hill h2"></i><span class="journey-spark s1">🧭</span><span class="journey-spark s2">✦</span><span class="journey-spark s3">🌍</span></div>'+
       '<div class="journey-world-head"><div class="journey-world-number">ETAPPE<br>'+(ai+1)+'</div><div class="journey-world-title"><strong>'+area.emoji+' '+area.title+'</strong><small>'+(area.copy||'Bygg kartet steg for steg.')+'</small></div><span class="journey-world-progress '+(areaDone?'complete':'')+'">'+(areaDone?'Klart ★':done+' / '+required.length)+'</span></div>'+
-      '<div class="journey-playfield">'+geoJourneyRouteSvg(area)+nodes+'<div class="journey-zone-gate"></div><div class="geo-expedition-stamp">'+(areaDone?'STEMPLET ✓':'EKSPEDISJON')+'</div><div class="journey-zone-badge">'+(areaDone?'Etappe fullført ★':'Mål: nå troféet')+'</div></div>'+
+      '<div class="journey-world-ribbon '+ribbonClass+'">'+ribbon+'</div><div class="journey-world-reward"><b>'+(areaDone?reward.emoji:'?')+'</b>'+(areaDone?reward.label:'Stempel')+'</div>'+
+      '<div class="journey-playfield">'+(isFuture?'':geoJourneyRouteSvg(area))+nodes+teaser+'<div class="journey-zone-gate"></div><div class="journey-zone-badge">'+(areaDone?'Samlet '+reward.emoji:'Mål: vinn '+reward.emoji)+'</div></div>'+
       '</section>';
-  }).join('');
-
+  });
+  host.innerHTML=chunks.join('<div class="journey-world-transition" aria-hidden="true">↓</div>');
   host.querySelectorAll('[data-geo-journey-node]').forEach(b=>b.onclick=()=>startGeoJourneyNode(b.dataset.geoJourneyNode));
+  host.querySelectorAll('[data-geo-journey-peek]').forEach(b=>b.onclick=()=>startGeoWorldPreview(b.dataset.geoJourneyPeek,viewGrade));
   const finish=document.getElementById('geo-journey-finish');finish.classList.toggle('complete',prog.complete);
   finish.innerHTML=prog.complete
-    ?'<strong>🏆 '+GRADE_CONFIG[viewGrade].label+' fullført i geografi</strong><p>Du har gjennomført hovedekspedisjonene og checkpointene. Kloden fortsetter å vise hva du kan nå og hva som er mestret over tid.</p>'
-    :'<strong>🧭 Mål: fullfør geografiekspedisjonen</strong><p>Følg hovedruten og nå troféet i hver etappe. Kloden og fri utforskning er alltid åpne.</p>';
+    ?'<strong>🏆 '+GRADE_CONFIG[viewGrade].label+' fullført i geografi</strong><p>Du har samlet alle ekspedisjonsmerkene. Kloden fortsetter å vise hva du kan nå og hva som er mestret over tid.</p>'
+    :'<strong>🧭 Sluttmål: fullfør geografiekspedisjonen</strong><p>Samle merket i hver etappe og nå troféet. Kloden og fri utforskning er alltid åpne.</p>';
 }
 function questionTypesForCountry(k,includeMap=false,grade=currentGrade()){
   const allowed=new Set(allowedTypesForGrade(grade)),types=[];
@@ -3674,6 +3719,40 @@ function startNextGradePreview(subject){
   state.activeSession={startedAt:Date.now()};persistActiveSession();showScreen('session');renderQuestion();
 }
 
+
+function journeyAreaReward(subject,index){
+  const rewards={
+    norwegian:[['🔤','Bokstavmerket'],['📖','Historieboka'],['🔎','Detektivmerket'],['✒️','Språkpennen']],
+    math:[['🔢','Tallmerket'],['🧮','Regnemaskinen'],['📐','Geometrimerket'],['🧩','Algebranøkkelen']],
+    english:[['🎒','Word pack'],['💬','Talk badge'],['📘','Reader badge'],['🗺️','English map']],
+    geography:[['🧭','Kompasset'],['🗺️','Kartstempelet'],['🌍','Verdensmerket'],['🎯','Oppdagermerket']]
+  };
+  const arr=rewards[subject]||rewards.math;const [emoji,label]=arr[index%arr.length];return {emoji,label};
+}
+function journeyFirstOpenArea(model,completeFn){
+  const i=model.areas.findIndex(a=>!completeFn(a));return i<0?Math.max(0,model.areas.length-1):i;
+}
+function renderJourneyCollection(hostId,subject,model,completeFn){
+  const host=document.getElementById(hostId);if(!host)return;
+  host.innerHTML=model.areas.map((area,i)=>{
+    const reward=journeyAreaReward(subject,i),done=completeFn(area);
+    return '<div class="journey-collectible '+(done?'unlocked':'')+'"><div class="item">'+(done?reward.emoji:'?')+'</div><strong>'+(done?reward.label:'Ikke vunnet')+'</strong></div>';
+  }).join('');
+}
+function startJourneyWorldPreview(subject,areaId,grade=journeyViewGrade(subject)){
+  const model=journeyModel(subject,grade),area=model.areas.find(a=>a.id===areaId),node=area?.nodes.find(n=>n.type==='skill');if(!node)return;
+  sessionScope={type:'journey-preview',subject,journeyNode:node.id,journeyArea:area.id,journeyGrade:grade,journeyType:node.type,module:node.module||null,label:(SUBJECTS[subject]?.title||subject)+' · Sniktitt',practiceOnly:true,previewOnly:true};
+  sessionQuestions=buildJourneyQuestions(subject,node,true).map(q=>({...q,practiceRepeat:true}));
+  if(sessionQuestions.length<1){toast('Denne verdenen er ikke klar for sniktitt ennå.');return}
+  qIndex=0;sessionCorrect=0;sessionStrengthened=new Set();currentAnswered=null;state.activeSession={startedAt:Date.now()};persistActiveSession();showScreen('session');renderQuestion();
+}
+function startGeoWorldPreview(areaId,grade=journeyViewGrade('geography')){
+  const model=geoJourneyModel(grade),area=model.areas.find(a=>a.id===areaId),node=area?.nodes.find(n=>n.type==='geo-skill');if(!node)return;
+  sessionScope={type:'journey-preview',subject:'geography',journeyNode:node.id,journeyArea:area.id,journeyGrade:grade,journeyType:node.type,label:'Geografi · Sniktitt',ids:node.ids,includeMap:true,practiceOnly:true,previewOnly:true};
+  sessionQuestions=buildGeoJourneyQuestions(node,true).map(q=>({...q,practiceRepeat:true}));
+  if(sessionQuestions.length<1){toast('Denne etappen er ikke klar for sniktitt ennå.');return}
+  qIndex=0;sessionCorrect=0;sessionStrengthened=new Set();currentAnswered=null;state.activeSession={startedAt:Date.now()};persistActiveSession();showScreen('session');renderQuestion();
+}
 function journeyCoreNodes(area){return area.nodes.filter(n=>n.type==='skill'||n.type==='checkpoint')}
 function journeyCorePositions(count){
   const maps={
@@ -3706,44 +3785,57 @@ function journeySceneEmoji(subject,areaIndex){
   return (sets[subject]||sets.math)[areaIndex%4];
 }
 
+
 function renderSubjectJourney(){
   const host=document.getElementById('journey-map');if(!host||!SUBJECTS[activeSubject])return;
   host.classList.add('journey-map-v2');
   const viewGrade=journeyViewGrade(activeSubject),prog=journeyProgress(activeSubject,viewGrade),recommended=journeyRecommendedNode(activeSubject,viewGrade),model=prog.model;
-  const recommendedIndex=recommended?model.nodes.findIndex(n=>n.id===recommended.id):-1;
+  const recommendedIndex=recommended?model.nodes.findIndex(n=>n.id===recommended.id):-1,currentAreaIndex=journeyFirstOpenArea(model,journeyAreaComplete);
   document.getElementById('journey-grade-chip').textContent=GRADE_CONFIG[viewGrade].label;
   renderJourneyGradeStrip(activeSubject,'journey-grade-strip','journey-grade-note',viewGrade);
   document.getElementById('journey-heading-title').textContent=prog.complete?'Du rundet trinnet! 🏆':'Din vei gjennom '+GRADE_CONFIG[viewGrade].label.toLowerCase();
   document.getElementById('journey-summary-title').textContent=prog.complete?'Kjerneløpet er fullført':prog.pct+' % gjennom kjerneløpet';
-  document.getElementById('journey-summary-copy').textContent=prog.complete?'Du kan fortsatt repetere, mestre over tid eller ta ekstra utfordringer.':'Hver verden har et mål. Følg hovedruten, ta sideoppdrag når du vil, og nå troféet.';
+  document.getElementById('journey-summary-copy').textContent=prog.complete?'Du kan fortsatt repetere, mestre over tid eller ta ekstra utfordringer.':'Fullfør én verden om gangen, vinn samleobjektene og nå slutt-troféet.';
   document.getElementById('journey-summary-pct').textContent=prog.pct+'%';
   document.getElementById('journey-summary-ring').style.setProperty('--journey-pct',prog.pct);
+  const nowTitle=document.getElementById('journey-now-title'),nowCopy=document.getElementById('journey-now-copy');
+  if(nowTitle&&nowCopy){
+    nowTitle.textContent=prog.complete?'Hele trinnet er rundet!':recommended?recommended.title:'Velg et oppdrag';
+    nowCopy.textContent=prog.complete?'Alle verdener i kjerneløpet er fullført.':recommended?(recommended.areaTitle+' · '+journeyStatusText(recommended,journeyNodeState(recommended))):'Du kan øve fritt eller prøve et sideoppdrag.';
+  }
+  renderJourneyCollection('journey-collection',activeSubject,model,journeyAreaComplete);
 
-  host.innerHTML=model.areas.map((area,areaIndex)=>{
-    const areaDone=journeyAreaComplete(area),required=area.nodes.filter(n=>n.type==='skill'||n.type==='checkpoint'),done=required.filter(n=>n.type==='skill'?['can-now','mastered'].includes(journeyNodeState(n)):journeyNodeRecord(n).passed).length;
-    const core=journeyCoreNodes(area),corePositions=journeyCorePositions(core.length);
-    const corePositionMap=new Map(core.map((n,i)=>[n.id,corePositions[i]]));
-    const nodes=area.nodes.map(node=>{
+  const chunks=model.areas.map((area,areaIndex)=>{
+    const areaDone=journeyAreaComplete(area),isCurrent=!prog.complete&&areaIndex===currentAreaIndex,isPreview=!prog.complete&&areaIndex===currentAreaIndex+1,isFuture=!prog.complete&&areaIndex>currentAreaIndex+1;
+    const required=area.nodes.filter(n=>n.type==='skill'||n.type==='checkpoint'),done=required.filter(n=>n.type==='skill'?['can-now','mastered'].includes(journeyNodeState(n)):journeyNodeRecord(n).passed).length;
+    const reward=journeyAreaReward(activeSubject,areaIndex),core=journeyCoreNodes(area),corePositions=journeyCorePositions(core.length),corePositionMap=new Map(core.map((n,i)=>[n.id,corePositions[i]]));
+    const nodes=isFuture?'':area.nodes.map(node=>{
       const st=journeyNodeState(node),globalIndex=model.nodes.findIndex(n=>n.id===node.id),isNext=recommended&&recommended.id===node.id;
       const future=!isNext&&recommendedIndex>=0&&globalIndex>recommendedIndex&&st==='new';
-      const visualState=isNext&&!['can-now','mastered','passed'].includes(st)?'next':future?'future':st;
-      const point=corePositionMap.get(node.id)||journeySidePosition(node.type,areaIndex),left=point[0],top=point[1];
+      const visualState=isNext&&!['can-now','mastered','passed'].includes(st)?'next':future?'future':st,point=corePositionMap.get(node.id)||journeySidePosition(node.type,areaIndex);
       const fox=isNext?'<span class="journey-next-bubble">Neste!</span><span class="journey-fox" aria-hidden="true">🦊</span>':'';
-      return '<button type="button" class="journey-map-node type-'+node.type+' state-'+visualState+'" style="left:'+left+'%;top:'+top+'%" data-journey-node="'+node.id+'" aria-label="'+escapeAttr(node.title+'. '+journeyStatusText(node,st))+'">'+fox+'<span class="node-orb">'+journeyNodeIcon(node,st)+'</span><span class="node-label"><strong>'+node.title+'</strong><small>'+journeyStatusText(node,st)+'</small></span></button>';
+      return '<button type="button" class="journey-map-node type-'+node.type+' state-'+visualState+'" style="left:'+point[0]+'%;top:'+point[1]+'%" data-journey-node="'+node.id+'" aria-label="'+escapeAttr(node.title+'. '+journeyStatusText(node,st))+'">'+fox+'<span class="node-orb">'+journeyNodeIcon(node,st)+'</span><span class="node-label"><strong>'+node.title+'</strong><small>'+journeyStatusText(node,st)+'</small></span></button>';
     }).join('');
-    const worldClass='world-'+((areaIndex%4)+1),scene=journeySceneEmoji(activeSubject,areaIndex);
-    return '<section class="journey-world '+worldClass+(areaDone?' area-complete':'')+'">'+
+    const worldClass='world-'+((areaIndex%4)+1)+(areaDone?' area-complete':'')+(isCurrent?' world-current':'')+(isPreview?' world-preview':'')+(isFuture?' world-future':'');
+    const ribbon=areaDone?'★ VERDEN FULLFØRT':isCurrent?'🦊 DU ER HER':isPreview?'🔓 NESTE VERDEN':'🔒 SENERE';
+    const ribbonClass=areaDone?'complete':isPreview?'preview':isFuture?'future':'';
+    const scene=journeySceneEmoji(activeSubject,areaIndex);
+    const teaser=isFuture?'<div class="journey-future-teaser"><div class="lock">🔒</div><strong>'+area.title+' venter</strong><small>Fullfør verden '+(currentAreaIndex+1)+' for å åpne den i hovedreisen. Nysgjerrig? Du kan sniktitte uten at det teller.</small><button type="button" data-journey-peek="'+area.id+'">Sniktitt</button></div>':'';
+    return '<section class="journey-world '+worldClass+'">'+
       '<div class="journey-scenery" aria-hidden="true"><i class="journey-cloud c1"></i><i class="journey-cloud c2"></i><i class="journey-hill h1"></i><i class="journey-hill h2"></i><span class="journey-spark s1">'+scene+'</span><span class="journey-spark s2">✦</span><span class="journey-spark s3">✧</span></div>'+
       '<div class="journey-world-head"><div class="journey-world-number">VERDEN<br>'+(areaIndex+1)+'</div><div class="journey-world-title"><strong>'+area.emoji+' '+area.title+'</strong><small>'+(area.copy||'Bygg ferdighetene steg for steg.')+'</small></div><span class="journey-world-progress '+(areaDone?'complete':'')+'">'+(areaDone?'Klart ★':done+' / '+required.length)+'</span></div>'+
-      '<div class="journey-playfield">'+journeyRouteSvg(area)+nodes+'<div class="journey-zone-gate"></div><div class="journey-zone-badge">'+(areaDone?'Verden fullført ★':'Mål: nå troféet')+'</div></div>'+
+      '<div class="journey-world-ribbon '+ribbonClass+'">'+ribbon+'</div><div class="journey-world-reward"><b>'+(areaDone?reward.emoji:'?')+'</b>'+(areaDone?reward.label:'Belønning')+'</div>'+
+      '<div class="journey-playfield">'+(isFuture?'':journeyRouteSvg(area))+nodes+teaser+'<div class="journey-zone-gate"></div><div class="journey-zone-badge">'+(areaDone?'Samlet '+reward.emoji:'Mål: vinn '+reward.emoji)+'</div></div>'+
       '</section>';
-  }).join('');
-
+  });
+  host.innerHTML=chunks.join('<div class="journey-world-transition" aria-hidden="true">↓</div>');
   host.querySelectorAll('[data-journey-node]').forEach(b=>b.onclick=()=>startJourneyNode(activeSubject,b.dataset.journeyNode));
+  host.querySelectorAll('[data-journey-peek]').forEach(b=>b.onclick=()=>startJourneyWorldPreview(activeSubject,b.dataset.journeyPeek,viewGrade));
+
   const finish=document.getElementById('journey-finish');finish.classList.toggle('complete',prog.complete);
   finish.innerHTML=prog.complete
-    ?'<strong>🏆 '+GRADE_CONFIG[viewGrade].label+' fullført i '+SUBJECTS[activeSubject].title+'</strong><p>Du har klart alle hovedpunktene og checkpointene i appens kjerneløp. Fortsett å repetere for å gjøre mer av kunnskapen varig.</p><div class="journey-finish-actions"><button class="secondary" id="journey-repeat-grade">Repeter</button>'+(viewGrade<10?'<button class="secondary" id="journey-next-grade">Fortsett til '+GRADE_CONFIG[viewGrade+1].label+'</button>':'')+'</div>'
-    :'<strong>🏁 Mål: rund '+GRADE_CONFIG[viewGrade].label+'</strong><p>Fullfør hovedrutene og troféene i hver verden. Sideoppdrag er frivillige, og du kan alltid gå tilbake og øve.</p>';
+    ?'<strong>🏆 '+GRADE_CONFIG[viewGrade].label+' fullført i '+SUBJECTS[activeSubject].title+'</strong><p>Du har vunnet alle samleobjektene i kjerneløpet. Fortsett å repetere for å gjøre mer av kunnskapen varig.</p><div class="journey-finish-actions"><button class="secondary" id="journey-repeat-grade">Repeter</button>'+(viewGrade<10?'<button class="secondary" id="journey-next-grade">Fortsett til '+GRADE_CONFIG[viewGrade+1].label+'</button>':'')+'</div>'
+    :'<strong>🏁 Sluttmål: rund '+GRADE_CONFIG[viewGrade].label+'</strong><p>Vinn samleobjektet i hver verden og bestå troféet. Sideoppdrag er frivillige.</p>';
   const repeatBtn=document.getElementById('journey-repeat-grade');if(repeatBtn)repeatBtn.onclick=()=>startJourneyReview(activeSubject);
   const nextBtn=document.getElementById('journey-next-grade');if(nextBtn)nextBtn.onclick=()=>setJourneyViewGrade(activeSubject,viewGrade+1);
   document.getElementById('journey-review').onclick=()=>startJourneyReview(activeSubject);
