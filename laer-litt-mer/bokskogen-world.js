@@ -18,18 +18,16 @@
     'lesedetektiv-checkpoint':'Biblioteket'
   };
 
-  const CORE_POSITIONS=[
-    [31,89],     // Bokstavporten
-    [82,70],     // Lesestua
-    [82,47],     // Rimdammen
-    [29,58],     // Skogsporten
-    [42,33],     // Ordbrua
-    [36,22],     // Ordhagen
-    [53,18],     // Fortellerhytta
-    [62,15],     // Detektivstien
-    [68,12.5],   // Historiehytta
-    [73,10.5],   // Fortell
-    [76,8.5]     // Biblioteket
+  // The illustration has seven real destinations. Learning missions live inside
+  // those destinations instead of being rendered as eleven artificial map nodes.
+  const PLACE_DEFS=[
+    {id:'bokstavporten',title:'Bokstavporten',point:[28,91],required:['lyder']},
+    {id:'lesestua',title:'Lesestua',point:[78,70],required:['ordbilder']},
+    {id:'rimdammen',title:'Rimdammen',point:[78,44],required:['ordlek']},
+    {id:'skogsporten',title:'Skogsporten',point:[27,53],required:['ordstart-checkpoint'],extrasArea:'ordstart'},
+    {id:'ordbrua',title:'Ordbrua',point:[43,32],required:['setningsrekkefolge']},
+    {id:'ordhagen',title:'Ordhagen',point:[39,21],required:['ordbetydning','setninger-checkpoint'],extrasArea:'setninger'},
+    {id:'biblioteket',title:'Biblioteket',point:[77,8.5],required:['detaljer','forsta','tenkvidere','lesedetektiv-checkpoint'],extrasArea:'lesedetektiv'}
   ];
 
   function label(node){return LABELS[node.id]||node.title}
@@ -47,6 +45,91 @@
     if(st==='mastered'||st==='passed')return 'mastered';
     if(st==='can-now')return 'done';
     return '';
+  }
+  function placeByNode(nodeId){
+    return PLACE_DEFS.find(p=>p.required.includes(nodeId))||
+      PLACE_DEFS.find(p=>p.extrasArea&&String(nodeId).startsWith(p.extrasArea+'-'))||null;
+  }
+  function placeNodes(place,model){
+    const ids=[...place.required];
+    if(place.extrasArea){
+      model.nodes.filter(n=>n.areaId===place.extrasArea&&(n.type==='challenge'||n.type==='review')).forEach(n=>ids.push(n.id));
+    }
+    return ids.map(id=>model.nodes.find(n=>n.id===id)).filter(Boolean);
+  }
+  function requiredPlaceNodes(place,model){
+    return place.required.map(id=>model.nodes.find(n=>n.id===id)).filter(Boolean);
+  }
+  function nodeFinished(node){
+    const st=journeyNodeState(node);
+    if(node.type==='checkpoint'||node.type==='challenge')return st==='passed';
+    if(node.type==='skill')return st==='can-now'||st==='mastered';
+    return false;
+  }
+  function placeVisualState(place,model,recommended,recommendedIndex){
+    const req=requiredPlaceNodes(place,model);
+    const done=req.length>0&&req.every(nodeFinished);
+    if(done)return 'done';
+    if(recommended&&placeByNode(recommended.id)?.id===place.id)return 'current';
+    const indices=req.map(n=>model.nodes.findIndex(x=>x.id===n.id)).filter(i=>i>=0);
+    if(recommendedIndex>=0&&indices.length&&Math.min(...indices)>recommendedIndex)return 'future';
+    return 'open';
+  }
+  function placeProgress(place,model){
+    const req=requiredPlaceNodes(place,model),done=req.filter(nodeFinished).length;
+    return {done,total:req.length,pct:req.length?Math.round(done/req.length*100):0};
+  }
+  function placeMarkup(place,state){
+    const p=place.point,done=state==='done',current=state==='current';
+    return '<button type="button" class="bokskogen-place state-'+state+'" style="left:'+p[0]+'%;top:'+p[1]+'%" data-bok-place="'+place.id+'" aria-label="'+escapeAttr(place.title+(done?', fullført':current?', neste sted':''))+'">'+
+      '<span class="place-hit"></span>'+
+      (done?'<span class="place-done" aria-hidden="true">✓</span>':'')+
+      (current?'<span class="place-pulse" aria-hidden="true"></span>':'')+
+    '</button>';
+  }
+  function missionAvailability(node,model,recommended,recommendedIndex){
+    const st=journeyNodeState(node),idx=model.nodes.findIndex(n=>n.id===node.id);
+    const completed=nodeFinished(node);
+    const future=!completed&&recommendedIndex>=0&&idx>recommendedIndex&&st==='new';
+    return {st,completed,future,isNext:!!recommended&&recommended.id===node.id};
+  }
+  function missionRow(node,info){
+    const extra=node.type==='challenge'?'BONUS':node.type==='review'?'REPETISJON':'';
+    const status=info.completed?(info.st==='mastered'?'Mestret':'Fullført'):info.isNext?'Neste oppdrag':info.future?'Låst':journeyStatusText(node,info.st);
+    const icon=journeyNodeIcon(node,info.st);
+    return '<button type="button" class="bokskogen-mission-row'+(info.isNext?' is-next':'')+(info.completed?' is-done':'')+'" data-bok-mission="'+node.id+'"'+(info.future?' disabled aria-disabled="true"':'')+'>'+
+      '<span class="mission-icon" aria-hidden="true">'+icon+'</span>'+
+      '<span class="mission-copy">'+(extra?'<small>'+extra+'</small>':'')+'<strong>'+node.title+'</strong><em>'+status+'</em></span>'+
+      '<span class="mission-arrow" aria-hidden="true">'+(info.completed?'↻':'›')+'</span>'+
+    '</button>';
+  }
+  function openPlaceSheet(host,place,viewGrade,model,recommended){
+    const sheet=host.querySelector('.bokskogen-place-sheet'),backdrop=host.querySelector('.bokskogen-sheet-backdrop');
+    if(!sheet||!backdrop)return;
+    const recommendedIndex=recommended?model.nodes.findIndex(n=>n.id===recommended.id):-1;
+    const state=placeVisualState(place,model,recommended,recommendedIndex),progress=placeProgress(place,model);
+    const nodes=placeNodes(place,model);
+    const nextPlace=recommended?placeByNode(recommended.id):null;
+    const locked=state==='future';
+    const rows=locked
+      ?'<div class="bokskogen-locked-place"><span aria-hidden="true">🔒</span><strong>Dette stedet åpner snart</strong><p>Fortsett først ved '+(nextPlace?.title||'neste sted')+'.</p></div>'
+      :nodes.map(n=>missionRow(n,missionAvailability(n,model,recommended,recommendedIndex))).join('');
+    sheet.innerHTML='<div class="place-sheet-handle" aria-hidden="true"></div>'+
+      '<div class="place-sheet-head"><div><small>STED I BOKSKOGEN</small><strong>'+place.title+'</strong><span>'+progress.done+' av '+progress.total+' hovedoppdrag fullført</span></div><button type="button" class="place-sheet-close" aria-label="Lukk">×</button></div>'+
+      '<div class="place-sheet-progress" aria-hidden="true"><i style="width:'+progress.pct+'%"></i></div>'+
+      '<div class="place-sheet-missions">'+rows+'</div>';
+    backdrop.hidden=false;sheet.hidden=false;
+    requestAnimationFrame(()=>{backdrop.classList.add('show');sheet.classList.add('show')});
+    const close=()=>{
+      backdrop.classList.remove('show');sheet.classList.remove('show');
+      setTimeout(()=>{backdrop.hidden=true;sheet.hidden=true},180);
+    };
+    sheet.querySelector('.place-sheet-close').onclick=close;
+    backdrop.onclick=close;
+    sheet.querySelectorAll('[data-bok-mission]').forEach(btn=>{
+      if(btn.disabled)return;
+      btn.onclick=()=>{close();openJourneyMission('norwegian',btn.dataset.bokMission,viewGrade,false)};
+    });
   }
 
   function tree(x,y,s=1,a='#315F4C',b='#4E8562'){
@@ -246,53 +329,43 @@
     host.className='journey-map bokskogen-map';
 
     const recommendedIndex=recommended?model.nodes.findIndex(n=>n.id===recommended.id):-1;
-    const core=coreNodes(model),positions=CORE_POSITIONS.slice(0,core.length);
-
     renderJourneyGradeStrip('norwegian','journey-grade-strip','journey-grade-note',viewGrade);
 
-    const main=core.map((node,i)=>{
-      const st=journeyNodeState(node),globalIndex=model.nodes.findIndex(n=>n.id===node.id),isNext=!!recommended&&recommended.id===node.id;
-      const future=!isNext&&recommendedIndex>=0&&globalIndex>recommendedIndex&&st==='new';
-      return stopMarkup(node,positions[i]||[50,50],st,isNext,future);
+    const places=PLACE_DEFS.map(place=>{
+      const state=placeVisualState(place,model,recommended,recommendedIndex);
+      return placeMarkup(place,state);
     }).join('');
 
-    const sparkles=core.map((node,i)=>{
-      if(!nodeDone(node))return '';
-      const p=positions[i]||[50,50],kind=statusMark(journeyNodeState(node));
-      return '<span class="bokskogen-world-spark '+kind+'" style="left:'+(p[0]+(p[0]<50?7:-7))+'%;top:'+(p[1]-3)+'%" aria-hidden="true"></span>';
-    }).join('');
-
-    const sides=model.areas.map((area,ai)=>area.nodes.filter(n=>n.type==='challenge'||n.type==='review').map((n,i)=>sideMarkup(n,ai,i,recommendedIndex,model)).join('')).join('');
-
+    const currentPlace=recommended?placeByNode(recommended.id):null;
     let guide='';
-    if(recommended){
-      guide='<button type="button" class="bokskogen-mission-sign" data-bok-node="'+recommended.id+'" aria-label="'+escapeAttr('Neste oppdrag: '+label(recommended))+'"><span>NESTE</span><strong>'+label(recommended)+'</strong><small>Trykk for å starte</small></button>';
+    if(recommended&&!prog.complete&&currentPlace){
+      guide='<button type="button" class="bokskogen-mission-sign" data-bok-next="'+recommended.id+'" aria-label="'+escapeAttr('Neste oppdrag: '+recommended.title)+'"><span>NESTE</span><strong>'+currentPlace.title+'</strong><small>'+recommended.title+'</small></button>';
     }
 
-
-    const top='<div class="bokskogen-topbar"><div class="bokskogen-progress"><div class="bokskogen-progress-head"><b>★ '+prog.done+'/'+prog.total+'</b><span>🏆 '+prog.areasDone+'/'+model.areas.length+'</span></div><div class="bokskogen-progress-track"><i style="width:'+prog.pct+'%"></i></div><small>'+(prog.complete?'Hele skogen lyser':'Bokskogen · '+GRADE_CONFIG[viewGrade].label)+'</small></div></div>';
+    const top='<div class="bokskogen-topbar"><div class="bokskogen-progress" aria-label="'+prog.pct+' prosent fullført"><b>★ '+prog.done+'/'+prog.total+'</b><span>'+prog.pct+' %</span></div></div>';
 
     host.innerHTML='<section class="bokskogen-world'+(prog.complete?' is-complete':'')+'" aria-label="Bokskogen, interaktiv læringsverden">'+
-      worldArt(prog)+route(core)+top+main+sparkles+sides+guide+
+      worldArt(prog)+top+places+guide+
+      '<div class="bokskogen-sheet-backdrop" hidden></div><section class="bokskogen-place-sheet" role="dialog" aria-modal="true" hidden></section>'+
     '</section>';
 
-    host.querySelectorAll('[data-bok-node]').forEach(btn=>{
-      if(btn.disabled)return;
-      btn.onclick=()=>openJourneyMission('norwegian',btn.dataset.bokNode,viewGrade,false);
+    host.querySelectorAll('[data-bok-place]').forEach(btn=>{
+      const place=PLACE_DEFS.find(p=>p.id===btn.dataset.bokPlace);
+      if(place)btn.onclick=()=>openPlaceSheet(host,place,viewGrade,model,recommended);
     });
+    const nextBtn=host.querySelector('[data-bok-next]');
+    if(nextBtn)nextBtn.onclick=()=>openJourneyMission('norwegian',nextBtn.dataset.bokNext,viewGrade,false);
 
     const finish=document.getElementById('journey-finish');
     finish.classList.toggle('complete',prog.complete);
     finish.innerHTML=prog.complete
-      ?'<strong>🏆 Bokskogen er rundet</strong><p>Biblioteket lyser og hele eventyrstien er åpen. Du kan besøke alle stedene igjen når du vil.</p><div class="journey-finish-actions"><button class="secondary" id="journey-repeat-grade">Repeter</button><button class="secondary" id="journey-next-grade">Utforsk 3. klasse</button></div>'
-      :'<strong>🌲 Målet: få biblioteket til å lyse</strong><p>Følg reven gjennom skogen. Nye steder våkner til liv når du mestrer dem.</p>';
+      ?'<strong>🏆 Bokskogen er rundet</strong><p>Biblioteket lyser og alle stedene er åpne. Du kan gå tilbake til et hvilket som helst sted og øve igjen.</p><div class="journey-finish-actions"><button class="secondary" id="journey-repeat-grade">Repeter</button><button class="secondary" id="journey-next-grade">Utforsk 3. klasse</button></div>'
+      :'<strong>🌲 Målet: nå Biblioteket</strong><p>Besøk stedene langs stien. Hvert sted inneholder ett eller flere oppdrag, og du kan alltid gå tilbake til steder du allerede har klart.</p>';
 
     const repeatBtn=document.getElementById('journey-repeat-grade');
     if(repeatBtn)repeatBtn.onclick=()=>startJourneyReview('norwegian',viewGrade);
-    const nextBtn=document.getElementById('journey-next-grade');
-    if(nextBtn)nextBtn.onclick=()=>setJourneyViewGrade('norwegian',3);
-
-    // The illustrated board is intentionally shown as one coherent scene; no forced auto-scroll.
+    const nextGradeBtn=document.getElementById('journey-next-grade');
+    if(nextGradeBtn)nextGradeBtn.onclick=()=>setJourneyViewGrade('norwegian',3);
   }
 
   renderSubjectJourney=function(){
