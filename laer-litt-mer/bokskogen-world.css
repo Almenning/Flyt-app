@@ -412,3 +412,224 @@
 @media (prefers-reduced-motion:reduce){
   .bokskogen-world-spark.mastered{animation:none!important}
 }
+
+
+/* Bokskogen v5 — illustration-first board. */
+#subject-screen.bokskogen-v3-active{
+  background:#182d27;
+}
+#subject-screen.bokskogen-v3-active #subject-journey-section{
+  margin-top:0;
+}
+#subject-screen.bokskogen-v3-active .journey-grade-picker{
+  position:relative;
+  z-index:70;
+  margin:0;
+  padding:3px 14px 8px;
+  background:linear-gradient(180deg,#edf6f0 0%,rgba(237,246,240,.95) 78%,rgba(237,246,240,0) 100%);
+}
+.bokskogen-map{
+  margin:0;
+  background:#162b25;
+}
+.bokskogen-world{
+  width:100%;
+  height:auto!important;
+  min-height:0!important;
+  aspect-ratio:863 / 1822;
+  border-radius:0;
+  overflow:hidden;
+  background:#18332a;
+  box-shadow:none;
+}
+.bokskogen-world:before{
+  display:none;
+}
+.bokskogen-world:after{
+  z-index:7;
+  background:
+    linear-gradient(90deg,rgba(5,20,15,.12),transparent 8%,transparent 92%,rgba(5,20,15,.12)),
+    linear-gradient(180deg,rgba(0,0,0,.04),transparent 18%,transparent 83%,rgba(0,0,0,.08));
+}
+.bokskogen-reference-art{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center;
+  filter:saturate(1.03) contrast(1.02);
+  user-select:none;
+  -webkit-user-drag:none;
+}
+.bokskogen-world-vignette{
+  position:absolute;
+  inset:0;
+  z-index:4;
+  pointer-events:none;
+  box-shadow:
+    inset 0 0 70px rgba(12,35,27,.10),
+    inset 0 -36px 50px rgba(8,26,20,.10);
+}
+.bokskogen-progress-light{
+  position:absolute;
+  inset:0;
+  z-index:5;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 52% 60%,rgba(255,226,123,.11),transparent 15%),
+    radial-gradient(circle at 77% 9%,rgba(255,232,151,.12),transparent 18%);
+  mix-blend-mode:screen;
+}
+.bokskogen-topbar{
+  top:12px;
+  left:auto;
+  right:12px;
+  width:132px;
+  display:block;
+  pointer-events:none;
+}
+.bokskogen-brand{display:none!important}
+.bokskogen-progress{
+  width:132px;
+  padding:7px 9px 8px;
+  border:1px solid rgba(255,255,255,.22);
+  border-radius:16px;
+  background:linear-gradient(145deg,rgba(17,48,38,.83),rgba(38,72,56,.78));
+  box-shadow:0 7px 18px rgba(9,28,22,.20);
+  backdrop-filter:blur(10px) saturate(1.15);
+}
+.bokskogen-progress-head{font-size:6.5px}
+.bokskogen-progress-head b{font-size:8.2px}
+.bokskogen-progress small{font-size:5.8px;color:#e1eee5}
+
+.bokskogen-route{
+  z-index:10;
+  opacity:.72;
+}
+.bokskogen-route .trail-done{
+  stroke:#ffe58e;
+  stroke-width:.46;
+  stroke-dasharray:.35 2.4;
+  filter:drop-shadow(0 0 .8px rgba(255,214,70,.45));
+}
+.bokskogen-stop{
+  z-index:28;
+  width:76px;
+  height:76px;
+}
+.bokskogen-stop.state-next:before{
+  inset:8px;
+  border:2px solid rgba(255,232,132,.96);
+  box-shadow:
+    0 0 0 5px rgba(255,219,78,.10),
+    0 0 24px rgba(255,197,44,.44);
+}
+.bokskogen-stop.state-next .stop-label{
+  display:none!important;
+}
+.bokskogen-stop.state-future{
+  pointer-events:none;
+}
+.bokskogen-world-spark{
+  z-index:26;
+  width:16px;height:16px;
+}
+.bokskogen-world-spark:before{height:16px}
+.bokskogen-world-spark:after{width:16px}
+
+.bokskogen-guide,
+.bokskogen-guide-tag{
+  display:none!important;
+}
+.bokskogen-mission-sign{
+  position:absolute;
+  z-index:42;
+  left:51%;
+  top:63%;
+  transform:translate(-50%,-50%) rotate(-1.2deg);
+  width:164px;
+  min-height:66px;
+  padding:9px 15px 10px;
+  border:2px solid #5d361b;
+  border-radius:8px 13px 8px 12px;
+  color:#fff1c7;
+  text-align:center;
+  cursor:pointer;
+  background:
+    linear-gradient(180deg,#8c5729 0%,#77451f 53%,#5d3418 100%);
+  box-shadow:
+    inset 0 2px 0 rgba(255,226,161,.18),
+    0 4px 0 #442712,
+    0 10px 22px rgba(27,24,16,.30),
+    0 0 22px rgba(255,211,92,.16);
+  font-family:Georgia,"Times New Roman",serif;
+  -webkit-tap-highlight-color:transparent;
+}
+.bokskogen-mission-sign:before,
+.bokskogen-mission-sign:after{
+  content:"";
+  position:absolute;
+  top:9px;
+  width:5px;height:45px;
+  border-radius:3px;
+  background:#4c2c17;
+  z-index:-1;
+}
+.bokskogen-mission-sign:before{left:-7px;transform:rotate(-3deg)}
+.bokskogen-mission-sign:after{right:-7px;transform:rotate(3deg)}
+.bokskogen-mission-sign span{
+  display:block;
+  color:#ffd86d;
+  font-family:ui-rounded,"SF Pro Rounded",-apple-system,sans-serif;
+  font-size:6px;
+  line-height:1;
+  font-weight:1000;
+  letter-spacing:.18em;
+}
+.bokskogen-mission-sign strong{
+  display:block;
+  margin-top:4px;
+  font-size:15px;
+  line-height:1.02;
+  font-weight:700;
+  text-shadow:0 1px 1px rgba(37,21,11,.35);
+}
+.bokskogen-mission-sign small{
+  display:block;
+  margin-top:4px;
+  color:#edd6a3;
+  font-family:ui-rounded,"SF Pro Rounded",-apple-system,sans-serif;
+  font-size:5.5px;
+  font-weight:850;
+}
+.bokskogen-mission-sign:active{
+  transform:translate(-50%,-47%) rotate(-1.2deg) scale(.98);
+}
+.bokskogen-side{
+  z-index:30;
+}
+.bokskogen-side .side-plank{
+  backdrop-filter:blur(2px);
+}
+.bokskogen-landmark-label,
+.bokskogen-chapter-marker{
+  display:none!important;
+}
+#subject-screen.bokskogen-v3-active #journey-finish{
+  margin:14px 18px 18px;
+}
+@media (max-width:390px){
+  .bokskogen-world{height:auto!important}
+  .bokskogen-stop{width:70px;height:70px}
+  .bokskogen-mission-sign{width:148px;min-height:61px}
+  .bokskogen-mission-sign strong{font-size:14px}
+  .bokskogen-progress{width:120px}
+}
+@media (min-width:600px){
+  .bokskogen-world{
+    height:auto!important;
+    max-width:520px;
+    margin:0 auto;
+  }
+}
