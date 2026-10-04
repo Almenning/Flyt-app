@@ -281,6 +281,9 @@ async function finishSession(page){
     assert.equal(await page.locator('#journey-map .bok-v10-grade').isVisible(),true);
     assert.equal(await page.locator('#journey-map .bok-v10-progress').isVisible(),true);
     assert.equal(await page.locator('#subject-modules').isVisible(),false,'the old module dashboard should not compete with the game board');
+    await page.waitForTimeout(450);
+    const bokNextPosition=await page.locator('#journey-map .bok-v10-place.state-current').evaluate(el=>el.getBoundingClientRect().top);
+    assert.ok(bokNextPosition>=0&&bokNextPosition<844,'Bokskogen must open with the next destination in the mobile viewport');
 
     await page.locator('#journey-map .bok-v10-place.state-current').click();
     await page.locator('#journey-mission-backdrop').waitFor({state:'visible'});
@@ -314,6 +317,9 @@ async function finishSession(page){
     assert.equal(await page.locator('#journey-collection').isVisible(),false);
     const worldImage=await page.locator('#journey-map .premium-world-art').evaluate(img=>img.complete&&img.naturalWidth>800);
     assert.equal(worldImage,true,'math landscape artwork should load at useful resolution');
+    await page.waitForTimeout(450);
+    const mathNextPosition=await page.locator('#journey-map .premium-place.is-next').evaluate(el=>el.getBoundingClientRect().top);
+    assert.ok(mathNextPosition>=0&&mathNextPosition<844,'Tallenga must open with the next mission in the mobile viewport');
     const firstNode=page.locator('#journey-map .premium-place.is-next');
     await firstNode.click();
     assert.equal(await page.locator('#journey-map .premium-world-sheet').isVisible(),true);

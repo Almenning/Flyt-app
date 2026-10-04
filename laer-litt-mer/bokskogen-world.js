@@ -601,6 +601,14 @@
       };
     });
 
+    // Enter the journey beside the next destination, with the traveler and
+    // nearby landscape in view. Navigation resets scroll after rendering.
+    setTimeout(()=>{
+      if(!screen?.classList.contains('active'))return;
+      const target=host.querySelector('.bok-v10-place.state-current');
+      if(target)window.scrollTo({top:window.scrollY+target.getBoundingClientRect().top-window.innerHeight*.67,behavior:'auto'});
+    },350);
+
     const finish=document.getElementById('journey-finish');
     if(finish)finish.style.display='none';
   }

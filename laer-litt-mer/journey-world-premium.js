@@ -28,7 +28,8 @@
     const nextIndex=idx<0?route.length-1:idx;
     const nodeAttr=geo?'data-geo-journey-node':'data-journey-node';
     const buttons=route.map((node,i)=>{
-      const ai=model.areas.findIndex(a=>a.id===node.areaId),area=model.areas[ai],done=complete(node,geo),future=!done&&ai>firstOpen;
+      const ai=model.areas.findIndex(a=>a.id===node.areaId),area=model.areas[ai],done=complete(node,geo);
+      const future=!done&&(ai>firstOpen||(i>nextIndex&&(geo?geoJourneyNodeState(node):journeyNodeState(node))==='new'));
       const next=node.id===recommended?.id&&!prog.complete;
       const [x,y]=pointAt(config,i,route.length),place=config.places[Math.min(6,Math.round(i*6/Math.max(1,route.length-1)))];
       const status=done?'fullført':next?'neste oppdrag':future?'låst':stateText(node,geo).toLowerCase();
@@ -68,7 +69,7 @@
     back.onclick=close;
     host.querySelectorAll('['+nodeAttr+']').forEach(b=>b.onclick=()=>{
       const node=model.nodes.find(n=>n.id===b.getAttribute(nodeAttr)),area=model.areas.find(a=>a.id===node?.areaId);if(!node)return;
-      const ai=model.areas.indexOf(area),locked=ai>firstOpen&&!complete(node,geo);
+      const ai=model.areas.indexOf(area),locked=b.classList.contains('is-future');
       const status=complete(node,geo)?'Fullført · spill igjen':node.id===recommended?.id?'Neste oppdrag':locked?'Låst område':stateText(node,geo);
       sheet.innerHTML='<div class="premium-sheet-illustration" aria-hidden="true">'+(node.type==='checkpoint'?'🏆':subject==='geography'?'🧭':subject==='math'?'✦':'📖')+'</div><button class="premium-sheet-close" type="button" aria-label="Lukk">×</button><small>'+esc(area?.title||config.name)+' · '+(node.type==='checkpoint'?'TROFÉTEST':node.type==='review'?'REPETISJON':node.type==='challenge'?'BONUSOPPDRAG':'OPPDRAG')+'</small><h2>'+esc(node.title)+'</h2><p>'+esc(locked?'Følg stien og fullfør oppdragene foran for å åpne dette stedet.':journeyMissionCopy(node,geo))+'</p><div class="premium-sheet-meta"><span>'+esc(status)+'</span><span>'+esc(node.type==='checkpoint'?'Trofé venter':'5 oppgaver')+'</span></div>'+(locked&&ai===firstOpen+1?'<button type="button" class="premium-sheet-peek">Ta en sniktitt</button>':locked?'':'<button type="button" class="premium-sheet-start">'+(node.type==='checkpoint'?'Ta trofétesten':complete(node,geo)?'Spill igjen':'Start oppdrag')+'</button>');
       back.hidden=false;sheet.hidden=false;sheet.querySelector('.premium-sheet-close').onclick=close;
@@ -78,8 +79,11 @@
     });
     setTimeout(()=>{
       if((geo?document.getElementById('geography-screen'):document.getElementById('subject-screen'))?.classList.contains('active'))
-        host.querySelector('.premium-place.is-next')?.scrollIntoView({block:'center',behavior:'instant'});
-    },60);
+      {
+        const target=host.querySelector('.premium-place.is-next');
+        if(target)window.scrollTo({top:window.scrollY+target.getBoundingClientRect().top-window.innerHeight*.64,behavior:'auto'});
+      }
+    },350);
     if(!geo){
       document.getElementById('subject-screen').classList.add('premium-journey-active');
       const finish=document.getElementById('journey-finish');if(finish)finish.hidden=true;
