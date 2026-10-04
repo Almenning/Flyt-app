@@ -1137,3 +1137,30 @@
   background:rgba(245,249,240,.92);
   box-shadow:0 4px 12px rgba(32,54,45,.09);
 }
+
+
+/* Bokskogen v9 — final board cleanup. */
+#subject-screen.bokskogen-v3-active #journey-finish{
+  display:none!important;
+}
+.bokskogen-mission-sign.is-complete{
+  background:
+    radial-gradient(circle at 50% 0%,rgba(255,237,147,.22),transparent 38%),
+    linear-gradient(180deg,#7f7336 0%,#5f642f 55%,#414b28 100%);
+  border-color:#3c3d1f;
+  box-shadow:
+    inset 0 2px 0 rgba(255,248,191,.18),
+    0 4px 0 #30331b,
+    0 10px 24px rgba(22,29,18,.30),
+    0 0 32px rgba(255,224,92,.20);
+}
+.bokskogen-mission-sign.is-complete span{
+  color:#ffe36f;
+}
+.bokskogen-place.state-done .place-done{
+  animation:bokDonePop .28s ease-out both;
+}
+@keyframes bokDonePop{
+  from{transform:scale(.65);opacity:0}
+  to{transform:scale(1);opacity:1}
+}
