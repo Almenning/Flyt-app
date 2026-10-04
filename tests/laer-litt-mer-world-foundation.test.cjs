@@ -46,15 +46,18 @@ test('2.5D assets are cache-busted consistently for the PWA', () => {
   const html = read('index.html');
   const sw = read('sw.js');
 
-  assert.match(html, /journey-world-premium\.css\?v=20261004-travel4/);
-  assert.match(html, /journey-world-premium\.js\?v=20261004-travel5/);
-  assert.match(sw, /journey-world-premium\.css\?v=20261004-travel4/);
-  assert.match(sw, /journey-world-premium\.js\?v=20261004-travel5/);
-  assert.match(html, /bokskogen-world\.css\?v=20261004-modular15/);
-  assert.match(html, /bokskogen-world\.js\?v=20261004-world6/);
-  assert.match(sw, /bokskogen-world\.css\?v=20261004-modular15/);
-  assert.match(sw, /bokskogen-world\.js\?v=20261004-world6/);
-  assert.match(sw, /laer-litt-mer-v29-bokskogen-modular-2026-10-04/);
+  assert.match(html, /journey-world-premium\.css\?v=atlas33/);
+  assert.match(html, /journey-world-premium\.js\?v=atlas33/);
+  assert.match(sw, /journey-world-premium\.css\?v=atlas33/);
+  assert.match(sw, /journey-world-premium\.js\?v=atlas33/);
+  assert.match(html, /bokskogen-world\.css\?v=atlas33/);
+  assert.match(html, /bokskogen-world\.js\?v=atlas33/);
+  assert.match(sw, /bokskogen-world\.css\?v=atlas33/);
+  assert.match(sw, /bokskogen-world\.js\?v=atlas33/);
+  assert.match(sw, /laria-atlas33-2026-10-04/);
+  assert.match(html, /world-atlas\.css\?v=atlas33/);
+  assert.match(sw, /world-atlas\.css\?v=atlas33/);
+  assert.match(sw, /bokskogen-atlas32\.webp/);
   assert.match(html, /journeyWasComplete:journeyNodeIsCompleteForWorldReaction/);
   assert.match(html, /function armJourneyWorldReaction\(scope\)/);
   assert.match(read('journey-world-premium.js'), /premium-progress-reaction/);
