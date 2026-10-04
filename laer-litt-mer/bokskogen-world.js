@@ -342,10 +342,13 @@
       guide='<button type="button" class="bokskogen-mission-sign" data-bok-next="'+recommended.id+'" aria-label="'+escapeAttr('Neste oppdrag: '+recommended.title)+'"><span>NESTE</span><strong>'+currentPlace.title+'</strong><small>'+recommended.title+'</small></button>';
     }
 
-    const top='<div class="bokskogen-topbar"><div class="bokskogen-progress" aria-label="'+prog.pct+' prosent fullført"><b>★ '+prog.done+'/'+prog.total+'</b><span>'+prog.pct+' %</span></div></div>';
+    const top='<div class="bokskogen-topbar">'+
+      '<button type="button" class="bokskogen-grade-pill" aria-label="Bytt klassetrinn">'+GRADE_CONFIG[viewGrade].label+' <span>⌄</span></button>'+
+      '<div class="bokskogen-progress" aria-label="'+prog.pct+' prosent fullført"><b>★ '+prog.done+'/'+prog.total+'</b><span>'+prog.pct+' %</span></div></div>';
 
     host.innerHTML='<section class="bokskogen-world'+(prog.complete?' is-complete':'')+'" aria-label="Bokskogen, interaktiv læringsverden">'+
       worldArt(prog)+top+places+guide+
+      '<div class="bokskogen-grade-menu" hidden></div>'+
       '<div class="bokskogen-sheet-backdrop" hidden></div><section class="bokskogen-place-sheet" role="dialog" aria-modal="true" hidden></section>'+
     '</section>';
 
@@ -355,6 +358,24 @@
     });
     const nextBtn=host.querySelector('[data-bok-next]');
     if(nextBtn)nextBtn.onclick=()=>openJourneyMission('norwegian',nextBtn.dataset.bokNext,viewGrade,false);
+    const gradeBtn=host.querySelector('.bokskogen-grade-pill');
+    const gradeMenu=host.querySelector('.bokskogen-grade-menu');
+    if(gradeBtn&&gradeMenu){
+      gradeBtn.onclick=()=>{
+        const open=!gradeMenu.hidden;
+        if(open){
+          gradeMenu.classList.remove('show');
+          setTimeout(()=>{gradeMenu.hidden=true},150);
+          return;
+        }
+        gradeMenu.innerHTML='<strong>Velg klassetrinn</strong><div>'+
+          [1,2].map(g=>'<button type="button" data-bok-grade="'+g+'" class="'+(g===viewGrade?'active':'')+'">'+g+'. klasse'+(subjectGradeComplete('norwegian',g)?' 🏆':'')+'</button>').join('')+
+          '</div>';
+        gradeMenu.hidden=false;
+        requestAnimationFrame(()=>gradeMenu.classList.add('show'));
+        gradeMenu.querySelectorAll('[data-bok-grade]').forEach(b=>b.onclick=()=>setJourneyViewGrade('norwegian',Number(b.dataset.bokGrade)));
+      };
+    }
 
     const finish=document.getElementById('journey-finish');
     finish.classList.toggle('complete',prog.complete);
