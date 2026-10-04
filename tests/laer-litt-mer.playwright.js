@@ -277,6 +277,11 @@ async function finishSession(page){
     assert.equal(await page.locator('#journey-map .bok-v10-place.state-current').count(),1,'exactly one destination should be the next place');
     assert.equal(await page.locator('#journey-map .bok-v10-place .plaque').count(),0,'destination labels must belong to the illustrated world, not duplicate UI plaques');
     assert.equal(await page.locator('#journey-map .bok-v11-route').count(),1,'Bokskogen should show one integrated progress trail');
+    assert.equal(await page.locator('#journey-map .bok-v15-world').count(),1,'Bokskogen should use the modular world renderer');
+    assert.equal(await page.locator('#journey-map .bok-v15-scene').count(),1,'Bokskogen should render terrain as scene layers');
+    assert.equal(await page.locator('#journey-map .bok-v10-art').count(),0,'Bokskogen must not fall back to the painted full-map image');
+    assert.equal(await page.locator('#journey-map .bok-v15-place .bok-v15-landmark').count(),7,'each Bokskogen destination should be a physical in-world landmark');
+    assert.equal(await page.locator('#journey-map .bok-v15-place.state-current .bok-v15-landmark').count(),1,'the current mission must be represented by the physical destination itself');
     assert.equal(await page.locator('#journey-map .bok-v13-traveler').count(),1,'Bokskogen should place the traveler beside the current destination');
     assert.equal(await page.locator('#journey-map .bok-v10-home').isVisible(),true);
     assert.equal(await page.locator('#journey-map .bok-v10-grade').isVisible(),true);
