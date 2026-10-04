@@ -463,11 +463,13 @@
     return {done,total:req.length,pct:req.length?Math.round(done/req.length*100):0};
   }
   function plaque(place,state){
-    const done=state==='done',current=state==='current';
-    return '<button type="button" class="bok-v10-place state-'+state+'" style="left:'+place.point[0]+'%;top:'+place.point[1]+'%;--tilt:'+place.tilt+'deg" data-v10-place="'+place.id+'" aria-label="'+escapeAttr(place.title+(done?', fullført':current?', neste sted':''))+'">'+
+    const done=state==='done',current=state==='current',future=state==='future';
+    return '<button type="button" class="bok-v10-place state-'+state+'" style="left:'+place.point[0]+'%;top:'+place.point[1]+'%;--tilt:'+place.tilt+'deg" data-v10-place="'+place.id+'" aria-label="'+escapeAttr(place.title+(done?', fullført':current?', neste sted':future?', låst':''))+'">'+
       '<span class="hit"></span>'+
-      '<span class="plaque">'+place.title+(done?'<span class="bok-v10-seal" aria-hidden="true">✓</span>':'')+'</span>'+
-      (current?'<span class="bok-v10-next-ribbon">NESTE</span>':'')+
+      '<span class="bok-v11-anchor" aria-hidden="true"></span>'+
+      (done?'<span class="bok-v11-status done" aria-hidden="true">✓</span>':'')+
+      (future?'<span class="bok-v11-status locked" aria-hidden="true">🔒</span>':'')+
+      (current?'<span class="bok-v11-current-tag" aria-hidden="true"><b>NESTE</b><i></i></span>':'')+
     '</button>';
   }
   function missionInfo(node,model,recommended,recommendedIndex){
@@ -527,12 +529,26 @@
       '</div>';
     menu.querySelectorAll('[data-v10-grade]').forEach(b=>b.onclick=()=>setJourneyViewGrade('norwegian',Number(b.dataset.v10Grade)));
   }
+  function progressTrail(prog,recommended,model){
+    const currentPlace=recommended?placeByNode(recommended.id):null;
+    let currentIndex=currentPlace?PLACES.findIndex(p=>p.id===currentPlace.id):-1;
+    if(prog.complete)currentIndex=PLACES.length-1;
+    const pct=prog.complete?100:Math.max(0,currentIndex)/(PLACES.length-1)*100;
+    const d='M30 93.5 C49 90 70 79 78 70 C64 64 40 61 27 53 C43 50 66 48 78 44 C68 39 51 35 43 32 C38 28 39 24 39 21 C51 17 66 14 76 11.5';
+    return '<svg class="bok-v11-route" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">'+
+      '<path class="route-shadow" d="'+d+'" pathLength="100"></path>'+
+      '<path class="route-glow" d="'+d+'" pathLength="100" style="stroke-dasharray:'+pct+' 100"></path>'+
+      '<path class="route-steps" d="'+d+'" pathLength="100" style="stroke-dasharray:'+pct+' 100"></path>'+
+    '</svg>';
+  }
+
   function worldMarkup(viewGrade,prog,recommended,model){
     const recommendedIndex=recommended?model.nodes.findIndex(n=>n.id===recommended.id):-1;
     const places=PLACES.map(p=>plaque(p,placeState(p,model,recommended,recommendedIndex))).join('');
-    return '<section class="bok-v10-world'+(prog.complete?' is-complete':'')+'" aria-label="Bokskogen, interaktiv læringsverden">'+
+    return '<section class="bok-v10-world bok-v11-world'+(prog.complete?' is-complete':'')+'" aria-label="Bokskogen, interaktiv læringsverden">'+
       '<img class="bok-v10-art" src="./bokskogen-reference-bg.webp?v=20261004-art2" alt="" draggable="false" decoding="async">'+
       '<div class="bok-v10-vignette" aria-hidden="true"></div>'+
+      progressTrail(prog,recommended,model)+
       '<div class="bok-v10-water-shimmer" aria-hidden="true"></div>'+
       '<div class="bok-v10-atmosphere" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>'+
       '<div class="bok-v10-top">'+
