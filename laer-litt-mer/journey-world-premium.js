@@ -57,7 +57,7 @@
       const [x,y]=pointAt(config,i,route.length),place=config.places[Math.min(6,Math.round(i*6/Math.max(1,route.length-1)))];
       const status=done?'fullført':next?'neste oppdrag':future?'låst':stateText(node,geo).toLowerCase();
       return '<button type="button" class="premium-place '+(done?'is-done ':next?'is-next ':future?'is-future ':'is-open ')+(node.type==='checkpoint'?'is-trophy':'')+'" style="--x:'+x+'%;--y:'+y+'%" '+nodeAttr+'="'+esc(node.id)+'" aria-label="'+esc(place+', '+node.title+', '+status)+'">'+
-        '<span class="premium-place-marker" aria-hidden="true">'+(node.type==='checkpoint'?'🏆':done?'✓':String(i+1))+'</span><span class="premium-place-sign"><b>'+esc(place)+'</b><small>'+esc(node.title)+'</small></span>'+
+        '<span class="premium-place-marker" aria-hidden="true">'+(node.type==='checkpoint'?'🏆':done?'✓':String(i+1))+'</span><span class="premium-place-sign"><b>'+esc(node.title)+'</b><small>'+esc(status)+'</small></span>'+
         (done?'<span class="premium-place-bloom" aria-hidden="true">✦</span>':'')+
       '</button>';
     }).join('');
@@ -76,12 +76,12 @@
     host.innerHTML='<section class="premium-world premium-'+subject+(prog.complete?' is-complete':'')+'" aria-label="'+esc(config.name+', interaktiv læringsverden')+'">'+
       '<img class="premium-world-art" src="./'+config.image+'" alt="" draggable="false">'+
       '<div class="premium-world-shade" aria-hidden="true"></div><div class="premium-world-mist" style="--mist-top:'+Math.max(0,cy-13)+'%" aria-hidden="true"></div>'+
-      '<div class="premium-world-sparkles" aria-hidden="true"></div>'+journeyRouteOverlay(config,route,nextIndex)+
+      '<div class="premium-world-sparkles" aria-hidden="true"></div>'+
       '<div class="premium-world-hud"><button type="button" class="premium-world-grade" aria-expanded="false">'+esc(GRADE_CONFIG[grade].label)+' ▾</button><div class="premium-world-progress" aria-label="'+prog.pct+' prosent fullført"><span>★</span><b>'+prog.done+'/'+prog.total+'</b><i><em style="width:'+prog.pct+'%"></em></i></div><div class="premium-world-trophies" aria-label="'+prog.areasDone+' av '+model.areas.length+' trofeer">🏆 '+prog.areasDone+'</div></div>'+
       '<div class="premium-world-title"><small>'+esc(SUBJECTS[subject]?.title||'Geografi')+' · '+esc(GRADE_CONFIG[grade].label)+'</small><strong>'+esc(config.name)+'</strong></div>'+
-      '<div class="premium-world-grade-menu" hidden></div>'+medals+buttons+sides+
-      (!prog.complete?'<div class="premium-traveler" style="--x:'+Math.min(90,Math.max(10,cx-11))+'%;--y:'+Math.min(90,cy+5)+'%" aria-hidden="true">'+journeyFoxSvg()+'</div>':'')+
-      '<div class="premium-world-sheet-back" hidden></div><section class="premium-world-sheet" role="dialog" aria-modal="true" aria-label="Oppdragssted" hidden></section></section>';
+      '<div class="premium-world-grade-menu" hidden></div>'+medals+buttons+
+      (!prog.complete?'<div class="premium-traveler" style="--x:'+Math.min(86,Math.max(14,cx+(cx>50?-19:19)))+'%;--y:'+Math.min(88,Math.max(13,cy+1))+'%" aria-hidden="true">'+journeyFoxSvg()+'</div>':'')+
+      '<div class="premium-world-sheet-back" hidden></div><section class="premium-world-sheet" role="dialog" aria-modal="true" aria-label="Oppdragssted" hidden></section></section><div class="premium-side-dock" aria-label="Ekstra oppdrag">'+sides+'</div>';
     const gradeBtn=host.querySelector('.premium-world-grade'),menu=host.querySelector('.premium-world-grade-menu');
     menu.innerHTML='<strong>Velg klassetrinn</strong>'+Array.from({length:10},(_,i)=>i+1).map(g=>'<button type="button" data-premium-grade="'+g+'"'+(g===grade?' class="selected"':'')+'>'+g+'. klasse'+(subjectGradeComplete(subject,g)?' · 🏆':'')+'</button>').join('');
     gradeBtn.onclick=()=>{menu.hidden=!menu.hidden;gradeBtn.setAttribute('aria-expanded',String(!menu.hidden))};
@@ -99,13 +99,6 @@
       sheet.querySelector('.premium-sheet-peek')?.addEventListener('click',()=>{close();geo?startGeoWorldPreview(area.id,grade):startJourneyWorldPreview(subject,area.id,grade)});
       sheet.querySelector('.premium-sheet-close').focus({preventScroll:true});
     });
-    setTimeout(()=>{
-      if((geo?document.getElementById('geography-screen'):document.getElementById('subject-screen'))?.classList.contains('active'))
-      {
-        const target=host.querySelector('.premium-place.is-next');
-        if(target)window.scrollTo({top:window.scrollY+target.getBoundingClientRect().top-window.innerHeight*.64,behavior:'auto'});
-      }
-    },350);
     if(!geo){
       document.getElementById('subject-screen').classList.add('premium-journey-active');
       const finish=document.getElementById('journey-finish');if(finish)finish.hidden=true;
