@@ -4772,13 +4772,13 @@ function finishSession(){
   const rewardTitle=document.getElementById('young-reward-title'),rewardCopy=document.getElementById('young-reward-copy'),rewardIcon=document.getElementById('young-reward-icon');
   if(rewardTitle&&rewardCopy&&rewardIcon){
     const milestone=state.lastMilestone&&Date.now()-Number(state.lastMilestone.at||0)<10*60*1000?state.lastMilestone:null;
-    rewardIcon.textContent=result.correct===result.total?'🏆':result.strengthened>0?'⭐':'🌱';
-    rewardTitle.textContent=sessionScope?.previewOnly?'Du prøvde noe vanskeligere! ⚡':practiceOnly?'God repetisjon!':milestone?.title||'Du klarte oppdraget!';
-    rewardCopy.textContent=sessionScope?.previewOnly?'Dette var bare en smakebit. Fremgangen på ditt eget trinn er uendret.':practiceOnly?'Du trente hukommelsen uten at fremgangen ble kunstig blåst opp.':milestone?.copy||(result.strengthened>0?result.strengthened+' ting ble litt sterkere i dag.':'Du fullførte hele økten. Det teller.');
+    rewardIcon.textContent=result.gradeCompleted?'🏆':result.journeyReward?.emoji||(result.correct===result.total?'🏆':result.strengthened>0?'⭐':'🌱');
+    rewardTitle.textContent=sessionScope?.previewOnly?'Du prøvde noe vanskeligere! ⚡':practiceOnly?'God repetisjon!':result.gradeCompleted?GRADE_CONFIG[result.gradeCompleted.grade].label+' er rundet! 🏆':result.journeyReward?result.journeyReward.emoji+' Du vant '+result.journeyReward.label+'!':milestone?.title||'Du klarte oppdraget!';
+    rewardCopy.textContent=sessionScope?.previewOnly?'Dette var bare en smakebit. Fremgangen på ditt eget trinn er uendret.':practiceOnly?'Du trente hukommelsen uten at fremgangen ble kunstig blåst opp.':result.gradeCompleted?'Alle hovedverdenene og checkpointene i dette faget er fullført.':result.journeyReward?result.journeyReward.areaTitle+' er ferdig. Neste verden er nå åpnet.':milestone?.copy||(result.strengthened>0?result.strengthened+' ting ble litt sterkere i dag.':'Du fullførte hele økten. Det teller.');
   }
   document.getElementById('complete-next').textContent=sessionScope?.previewOnly?'Gå tilbake til hovedreisen når du er klar.':practiceOnly?'Vil du prøve én gang til, kan du gjøre det så mange ganger du vil.':result.gradeCompleted?'Alle verdener på trinnet er fullført. Repetisjon gjør kunnskapen sterkere over tid.':result.journeyReward?'Neste verden er åpnet i hovedreisen.':nextTeaserForScope();
   const backLabel=sessionScope?.subject&&sessionScope.subject!=='geography'?(SUBJECTS[sessionScope.subject]?.title||'faget'):'Geografi';
-  document.getElementById('complete-home').textContent=currentGrade()<=2?'Se hva jeg kan ⭐':'Tilbake til '+backLabel+' ⭐';
+  document.getElementById('complete-home').textContent=result.gradeCompleted?'Se troféet 🏆':result.journeyReward?'Se neste verden 🗺️':currentGrade()<=2?'Se hva jeg kan ⭐':'Tilbake til '+backLabel+' ⭐';
   document.getElementById('complete-repeat').style.display=lastCompletedQuestions.length?'block':'none';
   showScreen('complete');
 }
@@ -4790,7 +4790,13 @@ function repeatCompletedSession(){
   state.activeSession={startedAt:Date.now()};persistActiveSession();showScreen('session');renderQuestion();
 }
 document.getElementById('complete-repeat').onclick=repeatCompletedSession;
-document.getElementById('complete-home').onclick=()=>{if(currentGrade()<=2){setTab('progress');return}returnToLearningHome()};
+document.getElementById('complete-home').onclick=()=>{
+  const scope=lastCompletedScope||{};
+  if(scope.type==='journey'&&scope.subject&&scope.subject!=='geography'){openSubject(scope.subject);return}
+  if(scope.type==='geo-journey'||scope.subject==='geography'){renderGeographyContinue();showScreen('geography');return}
+  if(currentGrade()<=2){setTab('progress');return}
+  returnToLearningHome();
+};
 
 
 // Onboarding
