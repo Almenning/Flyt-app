@@ -413,3 +413,195 @@
     renderBokskogen(host,viewGrade,prog,recommended,prog.model);
   };
 })();
+/* Bokskogen v10 — premium world-native renderer. */
+(function(){
+  if(typeof renderSubjectJourney!=='function')return;
+
+  const previousRenderSubjectJourney=renderSubjectJourney;
+  const PLACES=[
+    {id:'bokstavporten',title:'Bokstavporten',point:[30,93.5],tilt:-3,required:['lyder']},
+    {id:'lesestua',title:'Lesestua',point:[78,70],tilt:2,required:['ordbilder']},
+    {id:'skogsporten',title:'Skogsporten',point:[27,53],tilt:-2,required:['ordstart-checkpoint'],extrasArea:'ordstart'},
+    {id:'rimdammen',title:'Rimdammen',point:[78,44],tilt:-2,required:['ordlek']},
+    {id:'ordbrua',title:'Ordbrua',point:[43,32],tilt:-4,required:['setningsrekkefolge']},
+    {id:'ordhagen',title:'Ordhagen',point:[39,21],tilt:1,required:['ordbetydning','setninger-checkpoint'],extrasArea:'setninger'},
+    {id:'biblioteket',title:'Biblioteket',point:[76,11.5],tilt:-1,required:['detaljer','forsta','tenkvidere','lesedetektiv-checkpoint'],extrasArea:'lesedetektiv'}
+  ];
+
+  function finished(node){
+    const st=journeyNodeState(node);
+    if(node.type==='checkpoint'||node.type==='challenge')return st==='passed';
+    if(node.type==='skill')return st==='can-now'||st==='mastered';
+    return false;
+  }
+  function placeByNode(nodeId){
+    return PLACES.find(p=>p.required.includes(nodeId))||
+      PLACES.find(p=>p.extrasArea&&String(nodeId).startsWith(p.extrasArea+'-'))||null;
+  }
+  function requiredNodes(place,model){
+    return place.required.map(id=>model.nodes.find(n=>n.id===id)).filter(Boolean);
+  }
+  function allNodes(place,model){
+    const ids=[...place.required];
+    if(place.extrasArea){
+      model.nodes
+        .filter(n=>n.areaId===place.extrasArea&&(n.type==='challenge'||n.type==='review'))
+        .forEach(n=>ids.push(n.id));
+    }
+    return ids.map(id=>model.nodes.find(n=>n.id===id)).filter(Boolean);
+  }
+  function placeState(place,model,recommended,recommendedIndex){
+    const req=requiredNodes(place,model);
+    if(req.length&&req.every(finished))return 'done';
+    if(recommended&&placeByNode(recommended.id)?.id===place.id)return 'current';
+    const idx=req.map(n=>model.nodes.findIndex(x=>x.id===n.id)).filter(i=>i>=0);
+    if(recommendedIndex>=0&&idx.length&&Math.min(...idx)>recommendedIndex)return 'future';
+    return 'open';
+  }
+  function placeProgress(place,model){
+    const req=requiredNodes(place,model),done=req.filter(finished).length;
+    return {done,total:req.length,pct:req.length?Math.round(done/req.length*100):0};
+  }
+  function plaque(place,state){
+    const done=state==='done',current=state==='current';
+    return '<button type="button" class="bok-v10-place state-'+state+'" style="left:'+place.point[0]+'%;top:'+place.point[1]+'%;--tilt:'+place.tilt+'deg" data-v10-place="'+place.id+'" aria-label="'+escapeAttr(place.title+(done?', fullført':current?', neste sted':''))+'">'+
+      '<span class="hit"></span>'+
+      '<span class="plaque">'+place.title+(done?'<span class="bok-v10-seal" aria-hidden="true">✓</span>':'')+'</span>'+
+      (current?'<span class="bok-v10-next-ribbon">NESTE</span>':'')+
+    '</button>';
+  }
+  function missionInfo(node,model,recommended,recommendedIndex){
+    const st=journeyNodeState(node),idx=model.nodes.findIndex(n=>n.id===node.id);
+    const completed=finished(node);
+    const future=!completed&&recommendedIndex>=0&&idx>recommendedIndex&&st==='new';
+    return {st,completed,future,isNext:!!recommended&&recommended.id===node.id};
+  }
+  function missionRow(node,info){
+    const extra=node.type==='challenge'?'BONUS':node.type==='review'?'REPETISJON':'';
+    const status=info.completed?(info.st==='mastered'?'Mestret':'Fullført'):info.isNext?'Neste oppdrag':info.future?'Låst':journeyStatusText(node,info.st);
+    const icon=journeyNodeIcon(node,info.st);
+    return '<button type="button" class="bok-v10-mission'+(info.isNext?' is-next':'')+(info.completed?' is-done':'')+'" data-v10-mission="'+node.id+'"'+(info.future?' disabled aria-disabled="true"':'')+'>'+
+      '<span class="icon" aria-hidden="true">'+icon+'</span>'+
+      '<span class="copy">'+(extra?'<small>'+extra+'</small>':'')+'<strong>'+node.title+'</strong><em>'+status+'</em></span>'+
+      '<span class="arrow" aria-hidden="true">'+(info.completed?'↻':'›')+'</span>'+
+    '</button>';
+  }
+  function closeSheet(host){
+    const sheet=host.querySelector('.bok-v10-sheet'),back=host.querySelector('.bok-v10-backdrop');
+    if(!sheet||!back)return;
+    back.classList.remove('show');sheet.classList.remove('show');
+    setTimeout(()=>{back.hidden=true;sheet.hidden=true},180);
+  }
+  function openSheet(host,place,viewGrade,model,recommended){
+    const sheet=host.querySelector('.bok-v10-sheet'),back=host.querySelector('.bok-v10-backdrop');
+    if(!sheet||!back)return;
+    const recommendedIndex=recommended?model.nodes.findIndex(n=>n.id===recommended.id):-1;
+    const state=placeState(place,model,recommended,recommendedIndex);
+    const progress=placeProgress(place,model);
+    const nodes=allNodes(place,model);
+    const nextPlace=recommended?placeByNode(recommended.id):null;
+    const rows=state==='future'
+      ?'<div class="bok-v10-locked"><span aria-hidden="true">🔒</span><strong>Dette stedet åpner senere</strong><p>Fortsett først ved '+(nextPlace?.title||'neste sted')+'.</p></div>'
+      :nodes.map(n=>missionRow(n,missionInfo(n,model,recommended,recommendedIndex))).join('');
+    sheet.innerHTML='<div class="handle" aria-hidden="true"></div>'+
+      '<div class="head"><div><small>STED I BOKSKOGEN</small><strong>'+place.title+'</strong><span>'+progress.done+' av '+progress.total+' hovedoppdrag fullført</span></div><button type="button" class="bok-v10-close" aria-label="Lukk">×</button></div>'+
+      '<div class="progress" aria-hidden="true"><i style="width:'+progress.pct+'%"></i></div>'+
+      '<div class="bok-v10-missions">'+rows+'</div>';
+    back.hidden=false;sheet.hidden=false;
+    requestAnimationFrame(()=>{back.classList.add('show');sheet.classList.add('show')});
+    sheet.querySelector('.bok-v10-close').onclick=()=>closeSheet(host);
+    back.onclick=()=>closeSheet(host);
+    sheet.querySelectorAll('[data-v10-mission]').forEach(btn=>{
+      if(btn.disabled)return;
+      btn.onclick=()=>{
+        closeSheet(host);
+        openJourneyMission('norwegian',btn.dataset.v10Mission,viewGrade,false);
+      };
+    });
+  }
+  function renderGradeMenu(host,viewGrade){
+    const menu=host.querySelector('.bok-v10-grade-menu');
+    if(!menu)return;
+    menu.innerHTML='<strong>Velg klassetrinn</strong><div>'+
+      [1,2,3].map(g=>'<button type="button" data-v10-grade="'+g+'" class="'+(g===viewGrade?'active':'')+'">'+g+'. klasse'+(subjectGradeComplete('norwegian',g)?' 🏆':'')+'</button>').join('')+
+      '</div>';
+    menu.querySelectorAll('[data-v10-grade]').forEach(b=>b.onclick=()=>setJourneyViewGrade('norwegian',Number(b.dataset.v10Grade)));
+  }
+  function worldMarkup(viewGrade,prog,recommended,model){
+    const recommendedIndex=recommended?model.nodes.findIndex(n=>n.id===recommended.id):-1;
+    const places=PLACES.map(p=>plaque(p,placeState(p,model,recommended,recommendedIndex))).join('');
+    return '<section class="bok-v10-world'+(prog.complete?' is-complete':'')+'" aria-label="Bokskogen, interaktiv læringsverden">'+
+      '<img class="bok-v10-art" src="./bokskogen-reference-bg.webp?v=20261004-art2" alt="" draggable="false" decoding="async">'+
+      '<div class="bok-v10-vignette" aria-hidden="true"></div>'+
+      '<div class="bok-v10-water-shimmer" aria-hidden="true"></div>'+
+      '<div class="bok-v10-atmosphere" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>'+
+      '<div class="bok-v10-top">'+
+        '<button type="button" class="bok-v10-home"><b aria-hidden="true">‹</b> Hjem</button>'+
+        '<button type="button" class="bok-v10-grade">'+GRADE_CONFIG[viewGrade].label+' <span>⌄</span></button>'+
+        '<div class="bok-v10-progress" aria-label="'+prog.pct+' prosent fullført"><span class="star" aria-hidden="true">★</span><b>'+prog.done+'/'+prog.total+'</b><span>'+prog.pct+' %</span></div>'+
+      '</div>'+
+      places+
+      '<div class="bok-v10-grade-menu" hidden></div>'+
+      '<div class="bok-v10-backdrop" hidden></div>'+
+      '<section class="bok-v10-sheet" role="dialog" aria-modal="true" hidden></section>'+
+    '</section>';
+  }
+  function renderPremiumBokskogen(host,viewGrade,prog,recommended,model){
+    const screen=document.getElementById('subject-screen');
+    screen.classList.remove('bokskogen-v2-active','bokskogen-v3-active');
+    screen.classList.add('bokskogen-v10-active');
+    host.className='journey-map bokskogen-map bok-v10-map';
+    host.innerHTML=worldMarkup(viewGrade,prog,recommended,model);
+
+    host.querySelector('.bok-v10-home').onclick=()=>{
+      const back=document.getElementById('subject-back');
+      if(back)back.click();
+      else if(typeof setTab==='function')setTab('home');
+    };
+    const gradeBtn=host.querySelector('.bok-v10-grade');
+    const gradeMenu=host.querySelector('.bok-v10-grade-menu');
+    renderGradeMenu(host,viewGrade);
+    gradeBtn.onclick=()=>{
+      const open=!gradeMenu.hidden;
+      if(open){
+        gradeMenu.classList.remove('show');
+        setTimeout(()=>{gradeMenu.hidden=true},150);
+      }else{
+        gradeMenu.hidden=false;
+        requestAnimationFrame(()=>gradeMenu.classList.add('show'));
+      }
+    };
+
+    const recommendedPlace=recommended?placeByNode(recommended.id):null;
+    host.querySelectorAll('[data-v10-place]').forEach(btn=>{
+      const place=PLACES.find(p=>p.id===btn.dataset.v10Place);
+      if(!place)return;
+      btn.onclick=()=>{
+        if(recommended&&recommendedPlace?.id===place.id){
+          openJourneyMission('norwegian',recommended.id,viewGrade,false);
+          return;
+        }
+        openSheet(host,place,viewGrade,model,recommended);
+      };
+    });
+
+    const finish=document.getElementById('journey-finish');
+    if(finish)finish.style.display='none';
+  }
+
+  renderSubjectJourney=function(){
+    const screen=document.getElementById('subject-screen');
+    const viewGrade=journeyViewGrade(activeSubject);
+    if(activeSubject!=='norwegian'||viewGrade>2){
+      if(screen)screen.classList.remove('bokskogen-v10-active');
+      const finish=document.getElementById('journey-finish');
+      if(finish)finish.style.display='';
+      return previousRenderSubjectJourney();
+    }
+    const host=document.getElementById('journey-map');
+    if(!host)return;
+    const prog=journeyProgress('norwegian',viewGrade);
+    const recommended=journeyRecommendedNode('norwegian',viewGrade);
+    renderPremiumBokskogen(host,viewGrade,prog,recommended,prog.model);
+  };
+})();
