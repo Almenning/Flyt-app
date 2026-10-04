@@ -118,6 +118,21 @@ async function finishSession(page){
     assert.equal(await page.locator('#home-continue-wrap').isVisible(),true,'home continue not visible: '+JSON.stringify(homeDiag)+' errors='+JSON.stringify(errors));
     assert.match(await page.locator('#home-continue-eyebrow').textContent(),/Anbefalt nå|Fortsett der du slapp|Dagens oppdrag fullført/);
 
+    // The next action and every subject remain usable on a narrow phone.
+    const homeLayout=await page.evaluate(()=>{
+      const hero=document.querySelector('#home-continue-wrap').getBoundingClientRect();
+      const grid=document.querySelector('.home-subject-grid').getBoundingClientRect();
+      return {heroTop:hero.top,heroBottom:hero.bottom,gridTop:grid.top,width:document.documentElement.clientWidth,scrollWidth:document.documentElement.scrollWidth};
+    });
+    assert.ok(homeLayout.heroBottom<=homeLayout.gridTop,'recommended action should precede subject selection');
+    assert.ok(homeLayout.heroBottom<844,'next action should fit in the initial phone view');
+    assert.ok(homeLayout.scrollWidth<=homeLayout.width,'Home must not scroll horizontally');
+    for(const subject of ['geography','norwegian','math','english']){
+      const card=page.locator('#open-'+subject);
+      assert.equal(await card.isVisible(),true);
+      assert.equal(await card.isEnabled(),true);
+    }
+
     // Daily goal is session-based: answers alone do not complete it, one finished session does.
     await page.evaluate(()=>{
       state.answerLog.push({at:Date.now(),subject:'math',skill:'test-effort',type:'learning-choice',questionKey:'effort-test-1',correct:false});

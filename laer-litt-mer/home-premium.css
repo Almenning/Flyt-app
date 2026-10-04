@@ -108,3 +108,10 @@
 #home-screen .story-note{display:flex!important}
 #home-screen .home-week-section{display:block!important}
 .app:has(#home-screen.active)::before,.app:has(#home-screen.active)::after{display:none!important}
+.app:has(#home-screen.active) .brand{background:none!important;color:#244c3b!important;-webkit-text-fill-color:#244c3b!important;text-shadow:none!important;font-size:24px!important;letter-spacing:-1px!important}
+.app:has(#home-screen.active) .brand::after{content:" ·"!important;color:#baa269!important}
+.app:has(#home-screen.active) .nav button.active{background:#e8eedf!important;color:#345a43!important;border-color:#d8e2ce!important;box-shadow:none!important}
+#home-screen .dashboard-welcome-copy::before,#home-screen .dashboard-welcome-copy::after{display:none!important}
+#home-screen #home-copy{display:block!important}
+#home-screen .story-copy{border:0!important}
+#home-screen .dashboard-welcome-copy{min-height:0!important}
