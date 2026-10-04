@@ -268,14 +268,27 @@ async function finishSession(page){
     assert.equal(await page.locator('#learn-screen').count(),0);
     assert.match(await page.locator('.onboard-step[data-step="0"] p').textContent(),/norsk, matte, engelsk og geografi/i);
 
-    // Norsk: a complete real child flow, including game-like question types.
+    // Norsk 1.–2.: the child enters the premium Bokskogen board, not the old module dashboard.
     await page.locator('#open-norwegian').click();
     await page.locator('#subject-screen.active').waitFor();
     assert.equal(await page.locator('#subject-title').textContent(),'Norsk');
-    const norwegianModules=await page.locator('#subject-modules .subject-module strong').allTextContents();
-    assert.ok(norwegianModules.includes('Lesetrening'));
-    assert.ok(norwegianModules.includes('Ord og staving'));
-    await page.locator('#subject-modules .subject-module').filter({hasText:'Lesetrening'}).click();
+    assert.equal(await page.locator('#journey-map .bok-v11-world').count(),1,'young Norwegian should use Bokskogen v11');
+    assert.equal(await page.locator('#journey-map [data-v10-place]').count(),7,'Bokskogen should expose seven real destinations');
+    assert.equal(await page.locator('#journey-map .bok-v10-place.state-current').count(),1,'exactly one destination should be the next place');
+    assert.equal(await page.locator('#journey-map .bok-v10-place .plaque').count(),0,'destination labels must belong to the illustrated world, not duplicate UI plaques');
+    assert.equal(await page.locator('#journey-map .bok-v11-route').count(),1,'Bokskogen should show one integrated progress trail');
+    assert.equal(await page.locator('#journey-map .bok-v10-home').isVisible(),true);
+    assert.equal(await page.locator('#journey-map .bok-v10-grade').isVisible(),true);
+    assert.equal(await page.locator('#journey-map .bok-v10-progress').isVisible(),true);
+    assert.equal(await page.locator('#subject-modules').isVisible(),false,'the old module dashboard should not compete with the game board');
+
+    await page.locator('#journey-map .bok-v10-place.state-current').click();
+    await page.locator('#journey-mission-backdrop').waitFor({state:'visible'});
+    assert.ok((await page.locator('#journey-mission-title').textContent()).trim().length>0,'Bokskogen destination should open a real mission');
+    await page.locator('#journey-mission-start').click();
+    await page.locator('#session-screen.active').waitFor();
+    assert.equal(await page.evaluate(()=>sessionScope.type),'journey');
+    assert.equal(await page.evaluate(()=>sessionScope.subject),'norwegian');
     await finishSession(page);
     assert.match(await page.locator('#complete-area').textContent(),/Norsk/);
     await page.locator('#complete-home').click();
