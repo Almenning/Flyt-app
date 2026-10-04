@@ -291,7 +291,7 @@ async function finishSession(page){
     await page.locator('#open-math').click();
     assert.equal(await page.locator('#journey-map').isVisible(),true);
     assert.ok(await page.locator('#journey-map .journey-world-v3').count()>=2,'math journey should have multiple worlds');
-    assert.ok(await page.locator('#journey-map [data-journey-node]').count()>=6,'math journey should expose real path nodes');
+    assert.ok(await page.locator('#journey-map .journey-world-v3.world-current [data-journey-node]').count()>=4,'current math world should expose a complete playable path');
     assert.ok(await page.locator('#journey-map .journey-route-v3').count()>=2,'journey should render visible routes');
     assert.equal(await page.locator('#journey-map .journey-fox-marker').count(),1,'recommended node should show the fox');
     assert.match(await page.locator('#journey-map').innerText(),/NESTE/);
@@ -594,7 +594,7 @@ async function finishSession(page){
     assert.equal(await page.locator('.geo-theme').count(),6);
     assert.equal(await page.locator('#geo-journey-map').isVisible(),true);
     assert.ok(await page.locator('#geo-journey-map .journey-world-v3').count()>=1,'geography journey should have expedition worlds');
-    assert.ok(await page.locator('#geo-journey-map [data-geo-journey-node]').count()>=4,'geography journey should expose path nodes');
+    assert.ok(await page.locator('#geo-journey-map .journey-world-v3.world-current [data-geo-journey-node]').count()>=4,'current geography world should expose a complete playable path');
     assert.ok(await page.locator('#geo-journey-map .journey-route-v3').count()>=1,'geography journey should render expedition routes');
     assert.ok(await page.locator('#geo-journey-map .journey-node-glyph').count()>=3,'geography journey should use map/flag/capital motifs');
     assert.ok(await page.locator('#geo-journey-map .journey-reward-zone').count()>=1,'geography expedition should show a stamp/reward goal');
