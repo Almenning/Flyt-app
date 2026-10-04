@@ -697,7 +697,9 @@
     setTimeout(()=>{
       if(!screen?.classList.contains('active'))return;
       const target=host.querySelector('.bok-v10-place.state-current');
-      if(target)window.scrollTo({top:window.scrollY+target.getBoundingClientRect().top-window.innerHeight*.67,behavior:'auto'});
+      const world=host.querySelector('.bok-v15-world');
+      if(target&&world&&world.clientHeight>window.innerHeight-24)window.scrollTo({top:window.scrollY+target.getBoundingClientRect().top-window.innerHeight*.67,behavior:'auto'});
+      else window.scrollTo(0,0);
     },350);
 
     const finish=document.getElementById('journey-finish');

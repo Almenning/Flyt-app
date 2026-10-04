@@ -35,3 +35,5 @@
 .bok-v15-world .bok-v10-progress b,.bok-v15-world .bok-v10-progress span{font-size:11px}
 
 .bok-v10-map{background:transparent!important;padding:0!important;max-width:560px!important;margin:0 auto!important}
+
+#subject-screen.bokskogen-v10-active{max-width:584px!important;min-height:0!important;margin:0 auto!important;background:transparent!important;padding:12px!important}
