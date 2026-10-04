@@ -276,13 +276,10 @@ async function finishSession(page){
     assert.equal(await page.locator('#journey-map [data-v10-place]').count(),7,'Bokskogen should expose seven real destinations');
     assert.equal(await page.locator('#journey-map .bok-v10-place.state-current').count(),1,'exactly one destination should be the next place');
     assert.equal(await page.locator('#journey-map .bok-v10-place .plaque').count(),0,'destination labels must belong to the illustrated world, not duplicate UI plaques');
-    assert.equal(await page.locator('#journey-map .bok-v11-route').count(),1,'Bokskogen should show one integrated progress trail');
-    assert.equal(await page.locator('#journey-map .bok-v15-world').count(),1,'Bokskogen should use the modular world renderer');
-    assert.equal(await page.locator('#journey-map .bok-v15-scene').count(),1,'Bokskogen should render terrain as scene layers');
-    assert.equal(await page.locator('#journey-map .bok-v10-art').count(),0,'Bokskogen must not fall back to the painted full-map image');
-    assert.equal(await page.locator('#journey-map .bok-v15-place .bok-v15-landmark').count(),7,'each Bokskogen destination should be a physical in-world landmark');
-    assert.equal(await page.locator('#journey-map .bok-v15-place.state-current .bok-v15-landmark').count(),1,'the current mission must be represented by the physical destination itself');
-    assert.equal(await page.locator('#journey-map .bok-v13-traveler').count(),1,'Bokskogen should place the traveler beside the current destination');
+    assert.equal(await page.locator('#journey-map .bok-atlas-art img').count(),1,'Bokskogen should show the new compact isometric atlas');
+    assert.equal(await page.locator('#journey-map .bok-v15-scene').count(),0,'obsolete modular terrain must not compete with the atlas');
+    assert.equal(await page.locator('#journey-map .atlas-place-label').count(),7,'all seven destinations need readable controls');
+    assert.equal(await page.locator('#journey-map').getAttribute('data-release'),'atlas32');
     assert.equal(await page.locator('#journey-map .bok-v10-home').isVisible(),true);
     assert.equal(await page.locator('#journey-map .bok-v10-grade').isVisible(),true);
     assert.equal(await page.locator('#journey-map .bok-v10-progress').isVisible(),true);
@@ -296,9 +293,7 @@ async function finishSession(page){
     assert.ok(bokNextPosition>=0&&bokNextPosition<844,'Bokskogen must open with the next destination in the mobile viewport');
 
     await page.locator('#journey-map .bok-v10-place.state-current').click();
-    await page.locator('#journey-mission-backdrop').waitFor({state:'visible'});
-    assert.ok((await page.locator('#journey-mission-title').textContent()).trim().length>0,'Bokskogen destination should open a real mission');
-    await page.locator('#journey-mission-start').click();
+    assert.equal(await page.locator('#journey-mission-backdrop').isVisible(),false,'map click must open the exercise directly');
     await page.locator('#session-screen.active').waitFor();
     assert.equal(await page.evaluate(()=>sessionScope.type),'journey');
     assert.equal(await page.evaluate(()=>sessionScope.subject),'norwegian');
@@ -307,7 +302,7 @@ async function finishSession(page){
     await page.locator('#complete-home').click();
     await page.locator('#subject-screen.active').waitFor();
     assert.equal(await page.locator('#journey-map .bok-v11-world').count(),1,'journey completion should return to the Bokskogen board');
-    assert.equal(await page.locator('#journey-map .bok-v14-traveler-character').count(),1,'Bokskogen traveler should use the movement-safe inner character');
+    assert.equal(await page.locator('#journey-map .bok-atlas-art img').isVisible(),true,'the atlas should remain visible after completing a session');
     await page.locator('#journey-map .bok-v10-home').click();
     await page.locator('#home-screen.active').waitFor();
     assert.equal(await page.locator('#home-continue-wrap').isVisible(),true);
@@ -332,11 +327,10 @@ async function finishSession(page){
     assert.ok(mathNextPosition>=0&&mathNextPosition<844,'Tallenga must open with the next mission in the mobile viewport');
     const firstNode=page.locator('#journey-map .premium-place.is-next');
     await firstNode.click();
-    assert.equal(await page.locator('#journey-map .premium-world-sheet').isVisible(),true);
-    assert.match(await page.locator('#journey-map .premium-world-sheet').innerText(),/Neste oppdrag/);
-    await page.locator('#journey-map .premium-sheet-start').click();
-    assert.equal(await page.locator('#journey-mission-backdrop').isVisible(),true);
-    await page.locator('#journey-mission-close').click();
+    await page.locator('#session-screen.active').waitFor();
+    assert.equal(await page.locator('#journey-mission-backdrop').isVisible(),false,'math map opens exercises with one tap');
+    assert.equal(await page.locator('#geography-screen').isVisible(),false,'inactive geography screen stays hidden');
+    await page.locator('#close-session').click();
     await page.locator('#journey-map .premium-place.is-future').first().click();
     assert.equal(await page.locator('#journey-map .premium-sheet-start').count(),0,'future place must not start a mission');
     await page.locator('#journey-map .premium-sheet-close').click();
@@ -654,10 +648,10 @@ async function finishSession(page){
     assert.ok(travelDistance>10,'a reaction between different landmarks should start a real traveler movement');
     assert.equal(await page.evaluate(()=>window.__journeyWorldReaction),null,'the world reaction must be one-shot');
     await page.locator('#geo-journey-map .premium-place.is-next').click();
-    assert.equal(await page.locator('#geo-journey-map .premium-world-sheet').isVisible(),true);
-    await page.locator('#geo-journey-map .premium-sheet-start').click();
-    assert.equal(await page.locator('#journey-mission-backdrop').isVisible(),true);
-    await page.locator('#journey-mission-close').click();
+    await page.locator('#session-screen.active').waitFor();
+    assert.equal(await page.locator('#journey-mission-backdrop').isVisible(),false,'geography map opens exercises with one tap');
+    assert.equal(await page.locator('#geography-screen').isVisible(),false,'geography theme must not leak over exercises');
+    await page.locator('#close-session').click();
 
     const nextGeoNode=await page.evaluate(()=>geoJourneyRecommendedNode()?.id);
     assert.ok(nextGeoNode,'missing recommended geography journey node');

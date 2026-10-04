@@ -21,13 +21,13 @@
   // The illustration has seven real destinations. Learning missions live inside
   // those destinations instead of being rendered as eleven artificial map nodes.
   const PLACE_DEFS=[
-    {id:'bokstavporten',title:'Bokstavporten',point:[30,93.5],required:['lyder']},
-    {id:'lesestua',title:'Lesestua',point:[78,70],required:['ordbilder']},
-    {id:'rimdammen',title:'Rimdammen',point:[78,44],required:['ordlek']},
-    {id:'skogsporten',title:'Skogsporten',point:[27,53],required:['ordstart-checkpoint'],extrasArea:'ordstart'},
-    {id:'ordbrua',title:'Ordbrua',point:[43,32],required:['setningsrekkefolge']},
-    {id:'ordhagen',title:'Ordhagen',point:[39,21],required:['ordbetydning','setninger-checkpoint'],extrasArea:'setninger'},
-    {id:'biblioteket',title:'Biblioteket',point:[76,11.5],required:['detaljer','forsta','tenkvidere','lesedetektiv-checkpoint'],extrasArea:'lesedetektiv'}
+    {id:'bokstavporten',title:'Bokstavporten',point:[24,80],required:['lyder']},
+    {id:'lesestua',title:'Lesestua',point:[78,71],required:['ordbilder']},
+    {id:'rimdammen',title:'Rimdammen',point:[77,51],required:['ordlek']},
+    {id:'skogsporten',title:'Skogsporten',point:[26,52],required:['ordstart-checkpoint'],extrasArea:'ordstart'},
+    {id:'ordbrua',title:'Ordbrua',point:[37,34],required:['setningsrekkefolge']},
+    {id:'ordhagen',title:'Ordhagen',point:[74,31],required:['ordbetydning','setninger-checkpoint'],extrasArea:'setninger'},
+    {id:'biblioteket',title:'Biblioteket',point:[55,17],required:['detaljer','forsta','tenkvidere','lesedetektiv-checkpoint'],extrasArea:'lesedetektiv'}
   ];
 
   function label(node){return LABELS[node.id]||node.title}
@@ -419,13 +419,13 @@
 
   const previousRenderSubjectJourney=renderSubjectJourney;
   const PLACES=[
-    {id:'bokstavporten',title:'Bokstavporten',point:[30,93.5],tilt:-3,required:['lyder']},
-    {id:'lesestua',title:'Lesestua',point:[78,70],tilt:2,required:['ordbilder']},
-    {id:'skogsporten',title:'Skogsporten',point:[27,53],tilt:-2,required:['ordstart-checkpoint'],extrasArea:'ordstart'},
-    {id:'rimdammen',title:'Rimdammen',point:[78,44],tilt:-2,required:['ordlek']},
-    {id:'ordbrua',title:'Ordbrua',point:[43,32],tilt:-4,required:['setningsrekkefolge']},
-    {id:'ordhagen',title:'Ordhagen',point:[39,21],tilt:1,required:['ordbetydning','setninger-checkpoint'],extrasArea:'setninger'},
-    {id:'biblioteket',title:'Biblioteket',point:[76,11.5],tilt:-1,required:['detaljer','forsta','tenkvidere','lesedetektiv-checkpoint'],extrasArea:'lesedetektiv'}
+    {id:'bokstavporten',title:'Bokstavporten',point:[24,80],tilt:-3,required:['lyder']},
+    {id:'lesestua',title:'Lesestua',point:[78,71],tilt:2,required:['ordbilder']},
+    {id:'skogsporten',title:'Skogsporten',point:[26,52],tilt:-2,required:['ordstart-checkpoint'],extrasArea:'ordstart'},
+    {id:'rimdammen',title:'Rimdammen',point:[77,51],tilt:-2,required:['ordlek']},
+    {id:'ordbrua',title:'Ordbrua',point:[37,34],tilt:-4,required:['setningsrekkefolge']},
+    {id:'ordhagen',title:'Ordhagen',point:[74,31],tilt:1,required:['ordbetydning','setninger-checkpoint'],extrasArea:'setninger'},
+    {id:'biblioteket',title:'Biblioteket',point:[55,17],tilt:-1,required:['detaljer','forsta','tenkvidere','lesedetektiv-checkpoint'],extrasArea:'lesedetektiv'}
   ];
 
   function finished(node){
@@ -509,7 +509,7 @@
     const depthScale=Math.max(.84,Math.min(1.08,.82+Number(place.point[1])*.0028));
     const placeZ=Math.round(28+Number(place.point[1])*.22);
     return '<button type="button" class="bok-v10-place bok-v15-place state-'+state+(place.id===reactionPlaceId?' is-just-progressed':'')+(place.id===newlyOpenedId?' is-newly-opened':'')+'" style="left:'+place.point[0]+'%;top:'+place.point[1]+'%;--tilt:'+place.tilt+'deg;--place-scale:'+depthScale.toFixed(3)+';--place-z:'+placeZ+'" data-v10-place="'+place.id+'" data-title="'+escapeAttr(place.title)+'" aria-label="'+escapeAttr(place.title+(done?', fullført':current?', neste sted':future?', låst':''))+'">'+
-      '<span class="hit"></span>'+landmarkMarkup(place,state)+
+      '<span class="hit"></span><span class="atlas-place-label"><strong>'+escapeAttr(place.title)+'</strong><small>'+(done?'✓ Spill igjen':current?'▶ Spill':future?'🔒 Senere':'Utforsk')+'</small></span>'+
       (future?'<span class="bok-v15-vine-lock" aria-hidden="true"></span>':'')+
     '</button>';
   }
@@ -559,7 +559,7 @@
       if(btn.disabled)return;
       btn.onclick=()=>{
         closeSheet(host);
-        openJourneyMission('norwegian',btn.dataset.v10Mission,viewGrade,false);
+        startJourneyNode('norwegian',btn.dataset.v10Mission,viewGrade);
       };
     });
   }
@@ -587,31 +587,7 @@
   }
 
   function modularScene(){
-    return '<div class="bok-v15-scene" aria-hidden="true">'+
-      '<div class="bok-v15-layer bok-v15-sky"></div>'+
-      '<div class="bok-v15-layer bok-v15-distant">'+
-        '<svg viewBox="0 0 100 100" preserveAspectRatio="none"><defs><linearGradient id="v15hill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6f9a74"/><stop offset="1" stop-color="#3f7056"/></linearGradient></defs>'+
-          '<path d="M0 17 Q12 8 24 15 T48 14 T73 13 T100 17 L100 36 L0 36Z" fill="#8aae83"/>'+
-          '<path d="M0 23 Q13 12 29 21 T58 20 T82 18 T100 24 L100 43 L0 43Z" fill="url(#v15hill)"/>'+
-          '<g fill="#315f4b" opacity=".88"><path d="M4 28l5-15 5 15zM13 27l5-17 5 17zM26 29l6-19 6 19zM64 27l6-18 6 18zM77 28l6-20 6 20zM89 28l5-16 5 16z"/></g>'+
-        '</svg>'+
-      '</div>'+
-      '<div class="bok-v15-layer bok-v15-terrain">'+
-        '<svg viewBox="0 0 100 100" preserveAspectRatio="none"><defs><linearGradient id="v15ground" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#78a665"/><stop offset=".55" stop-color="#5f8f59"/><stop offset="1" stop-color="#456f4d"/></linearGradient><linearGradient id="v15river" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#67c4d2"/><stop offset=".55" stop-color="#3aa3b8"/><stop offset="1" stop-color="#277f9b"/></linearGradient></defs>'+
-          '<rect x="0" y="28" width="100" height="72" fill="url(#v15ground)"/>'+
-          '<path d="M81 8 C73 19 87 26 78 38 C70 49 84 57 73 70 C65 80 73 91 62 100 H100 V8Z" fill="url(#v15river)"/>'+
-          '<path d="M78 8 C70 20 83 27 74 38 C66 49 80 58 69 70 C60 81 69 92 58 100" fill="none" stroke="#b3eced" stroke-width="1.2" opacity=".55"/>'+
-          '<path d="M0 39 Q21 32 37 40 T69 38 L65 56 Q45 51 29 59 T0 58Z" fill="#6f9e5d" opacity=".72"/>'+
-          '<path d="M0 67 Q17 61 34 68 T67 66 L61 84 Q43 78 25 87 T0 86Z" fill="#5d8d54" opacity=".74"/>'+
-          '<g fill="#91b970" opacity=".9"><ellipse cx="29" cy="93" rx="13" ry="5"/><ellipse cx="78" cy="70" rx="13" ry="5"/><ellipse cx="27" cy="53" rx="12" ry="4"/><ellipse cx="78" cy="44" rx="12" ry="5"/><ellipse cx="43" cy="32" rx="10" ry="4"/><ellipse cx="39" cy="21" rx="11" ry="4"/><ellipse cx="76" cy="12" rx="13" ry="4"/></g>'+
-        '</svg>'+
-      '</div>'+
-      '<div class="bok-v15-layer bok-v15-props">'+
-        '<span class="v15-tree t1"></span><span class="v15-tree t2"></span><span class="v15-tree t3"></span><span class="v15-tree t4"></span><span class="v15-tree t5"></span><span class="v15-tree t6"></span><span class="v15-tree t7"></span><span class="v15-tree t8"></span>'+
-        '<span class="v15-rock r1"></span><span class="v15-rock r2"></span><span class="v15-rock r3"></span><span class="v15-rock r4"></span>'+
-      '</div>'+
-      '<div class="bok-v15-layer bok-v15-foreground"><span class="fg-tree left"></span><span class="fg-tree right"></span><span class="fg-grass g1"></span><span class="fg-grass g2"></span></div>'+
-    '</div>';
+    return '<div class="bok-atlas-art" aria-hidden="true"><img src="./bokskogen-atlas32.webp" alt="" width="1024" height="1536" decoding="async" fetchpriority="high"></div>';
   }
 
   function takeBokskogenReaction(viewGrade,model){
@@ -662,7 +638,7 @@
     const traveler=travelerPoint&&!prog.complete?'<div class="bok-v13-traveler bok-v15-traveler'+(reaction?' is-arriving':'')+'" style="left:'+travelerPoint[0]+'%;top:'+travelerPoint[1]+'%"'+(reactionTravelerPoint?' data-travel-from-x="'+reactionTravelerPoint[0]+'" data-travel-from-y="'+reactionTravelerPoint[1]+'" data-travel-to-x="'+travelerPoint[0]+'" data-travel-to-y="'+travelerPoint[1]+'"':'')+' aria-hidden="true"><span class="bok-v14-traveler-character">'+(typeof journeyFoxSvg==='function'?journeyFoxSvg():'🦊')+'</span><span class="bok-v14-travel-dust"><i></i><i></i><i></i></span></div>':'';
     const reactionFx=reactionPlace?'<div class="bok-v13-progress-reaction" style="left:'+reactionPlace.point[0]+'%;top:'+reactionPlace.point[1]+'%" aria-hidden="true"><i></i><i></i><i></i><b>✓</b></div>':'';
     return '<section class="bok-v10-world bok-v11-world bok-v15-world'+(prog.complete?' is-complete':'')+(reaction?' has-progress-reaction':'')+'" aria-label="Bokskogen, interaktiv læringsverden">'+
-      modularScene()+progressTrail(prog,recommended,model)+
+      modularScene()+
       '<div class="bok-v10-atmosphere bok-v15-atmosphere" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>'+
       reactionFx+places+traveler+
       '<div class="bok-v10-top">'+
@@ -681,6 +657,7 @@
     screen.classList.add('bokskogen-v10-active');
     host.className='journey-map bokskogen-map bok-v10-map';
     host.innerHTML=worldMarkup(viewGrade,prog,recommended,model);
+    host.dataset.release='atlas32';
     requestAnimationFrame(()=>animateBokskogenTraveler(host));
 
     host.querySelector('.bok-v10-home').onclick=()=>{
@@ -708,7 +685,7 @@
       if(!place)return;
       btn.onclick=()=>{
         if(recommended&&recommendedPlace?.id===place.id){
-          openJourneyMission('norwegian',recommended.id,viewGrade,false);
+          startJourneyNode('norwegian',recommended.id,viewGrade);
           return;
         }
         openSheet(host,place,viewGrade,model,recommended);

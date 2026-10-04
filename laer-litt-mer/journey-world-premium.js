@@ -262,10 +262,11 @@
     host.querySelectorAll('['+nodeAttr+']').forEach(b=>b.onclick=()=>{
       const node=model.nodes.find(n=>n.id===b.getAttribute(nodeAttr)),area=model.areas.find(a=>a.id===node?.areaId);if(!node)return;
       const ai=model.areas.indexOf(area),locked=b.classList.contains('is-future');
+      if(!locked&&node.id===recommended?.id){geo?startGeoJourneyNode(node.id,grade):startJourneyNode(subject,node.id,grade);return}
       const status=complete(node,geo)?'Fullført · spill igjen':node.id===recommended?.id?'Neste oppdrag':locked?'Låst område':stateText(node,geo);
       sheet.innerHTML='<div class="premium-sheet-illustration" aria-hidden="true">'+(node.type==='checkpoint'?'🏆':subject==='geography'?'🧭':subject==='math'?'✦':'📖')+'</div><button class="premium-sheet-close" type="button" aria-label="Lukk">×</button><small>'+esc(area?.title||config.name)+' · '+(node.type==='checkpoint'?'TROFÉTEST':node.type==='review'?'REPETISJON':node.type==='challenge'?'BONUSOPPDRAG':'OPPDRAG')+'</small><h2>'+esc(node.title)+'</h2><p>'+esc(locked?'Følg stien og fullfør oppdragene foran for å åpne dette stedet.':journeyMissionCopy(node,geo))+'</p><div class="premium-sheet-meta"><span>'+esc(status)+'</span><span>'+esc(node.type==='checkpoint'?'Trofé venter':'5 oppgaver')+'</span></div>'+(locked&&ai===firstOpen+1?'<button type="button" class="premium-sheet-peek">Ta en sniktitt</button>':locked?'':'<button type="button" class="premium-sheet-start">'+(node.type==='checkpoint'?'Ta trofétesten':complete(node,geo)?'Spill igjen':'Start oppdrag')+'</button>');
       back.hidden=false;sheet.hidden=false;sheet.querySelector('.premium-sheet-close').onclick=close;
-      sheet.querySelector('.premium-sheet-start')?.addEventListener('click',()=>{close();openJourneyMission(subject,node.id,grade,geo)});
+      sheet.querySelector('.premium-sheet-start')?.addEventListener('click',()=>{close();geo?startGeoJourneyNode(node.id,grade):startJourneyNode(subject,node.id,grade)});
       sheet.querySelector('.premium-sheet-peek')?.addEventListener('click',()=>{close();geo?startGeoWorldPreview(area.id,grade):startJourneyWorldPreview(subject,area.id,grade)});
       sheet.querySelector('.premium-sheet-close').focus({preventScroll:true});
     });
