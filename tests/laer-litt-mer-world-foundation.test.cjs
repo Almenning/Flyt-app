@@ -24,7 +24,7 @@ test('learning world uses layered 2.5D presentation without changing the journey
   assert.match(js, /premium-landmark-/);
   assert.match(css, /Premium landmarks v1/);
   assert.match(css, /premium-place-state-badge/);
-  assert.match(js, /journeyAmbientMarkup\\(\\)/);
+  assert.match(js, /journeyAmbientMarkup\(\)/);
   assert.match(js, /premium-world-life/);
   assert.match(js, /has-progress/);
   assert.match(css, /Living world v1/);
