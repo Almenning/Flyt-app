@@ -57,7 +57,7 @@
       '<div class="premium-world-hud"><button type="button" class="premium-world-back" aria-label="Tilbake">‹</button><button type="button" class="premium-world-grade" aria-expanded="false">'+esc(GRADE_CONFIG[grade].label)+' ▾</button><div class="premium-world-progress" aria-label="'+prog.pct+' prosent fullført"><span>★</span><b>'+prog.done+'/'+prog.total+'</b><i><em style="width:'+prog.pct+'%"></em></i></div><div class="premium-world-trophies" aria-label="'+prog.areasDone+' av '+model.areas.length+' trofeer">🏆 '+prog.areasDone+'</div></div>'+
       '<div class="premium-world-title"><small>'+esc(SUBJECTS[subject]?.title||'Geografi')+' · '+esc(GRADE_CONFIG[grade].label)+'</small><strong>'+esc(config.name)+'</strong></div>'+
       '<div class="premium-world-grade-menu" hidden></div>'+medals+buttons+sides+
-      (!prog.complete?'<div class="premium-traveler" style="--x:'+Math.min(90,Math.max(10,cx-12))+'%;--y:'+Math.min(90,cy+4)+'%" aria-hidden="true"><span>🦊</span></div>':'')+
+      (!prog.complete&&nextIndex>0?'<div class="premium-traveler" style="--x:'+Math.min(90,Math.max(10,cx-12))+'%;--y:'+Math.min(90,cy+4)+'%" aria-hidden="true">'+journeyFoxSvg()+'</div>':'')+
       '<div class="premium-world-sheet-back" hidden></div><section class="premium-world-sheet" role="dialog" aria-modal="true" aria-label="Oppdragssted" hidden></section></section>';
     host.querySelector('.premium-world-back').onclick=()=>{if(geo)document.getElementById('geography-back')?.click();else document.getElementById('subject-back')?.click()};
     const gradeBtn=host.querySelector('.premium-world-grade'),menu=host.querySelector('.premium-world-grade-menu');
@@ -99,7 +99,10 @@
   renderSubjectJourney=function(){
     const grade=journeyViewGrade(activeSubject),screen=document.getElementById('subject-screen');
     screen.classList.remove('premium-journey-active');
-    if(grade<=2&&(activeSubject==='math'||activeSubject==='english'))return renderMap(activeSubject,false);
+    if(grade<=2&&(activeSubject==='math'||activeSubject==='english')){
+      screen.classList.remove('bokskogen-v10-active','bokskogen-v2-active','bokskogen-v3-active');
+      return renderMap(activeSubject,false);
+    }
     return priorSubject();
   };
   renderGeoJourney=function(){

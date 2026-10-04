@@ -97,7 +97,7 @@ async function finishSession(page){
 
 (async()=>{
   const {server,url}=await startServer();
-  const browser=await chromium.launch({headless:true});
+  const browser=await chromium.launch({headless:true,...(process.env.LEARNING_CHROME_PATH?{executablePath:process.env.LEARNING_CHROME_PATH}:{})});
   const errors=[];
   try{
     const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
@@ -310,7 +310,6 @@ async function finishSession(page){
     assert.equal(await page.locator('#journey-map.premium-journey-map .premium-math').count(),1);
     assert.ok(await page.locator('#journey-map .premium-place[data-journey-node]').count()>=4);
     assert.equal(await page.locator('#journey-map .premium-place.is-next').count(),1);
-    assert.equal(await page.locator('#journey-map .premium-traveler').count(),1);
     assert.ok(await page.locator('#journey-map .premium-place.is-future').count()>=1);
     assert.equal(await page.locator('#journey-map .premium-world-hud').count(),1);
     assert.equal(await page.locator('#journey-now-card').isVisible(),false);
@@ -597,7 +596,7 @@ async function finishSession(page){
     await page.locator('#subject-modules .subject-module').click();
     assert.equal(await page.evaluate(()=>sessionQuestions.length),5);
     await page.locator('#close-session').click();
-    await page.locator('#subject-back').click();
+    await page.locator('#journey-map .premium-world-back').click();
 
     // English: no premature grammar, but real sentences and reading are available.
     await page.locator('#open-english').click();
@@ -610,7 +609,7 @@ async function finishSession(page){
     assert.equal(await page.evaluate(()=>sessionQuestions.length),5);
     assert.equal(await page.evaluate(()=>new Set(sessionQuestions.map(q=>q.prompt+'|'+q.answer)).size),5);
     await page.locator('#close-session').click();
-    await page.locator('#subject-back').click();
+    await page.locator('#journey-map .premium-world-back').click();
 
     // Geography: default Land must work on a young grade.
     await page.locator('#open-geography').click();
@@ -620,7 +619,6 @@ async function finishSession(page){
     assert.ok(await page.locator('#geo-journey-map .premium-place[data-geo-journey-node]').count()>=4);
     assert.equal(await page.locator('#geo-journey-map .premium-place.is-next').count(),1);
     assert.ok(await page.locator('#geo-journey-map .premium-place.is-future').count()>=1);
-    assert.equal(await page.locator('#geo-journey-map .premium-traveler').count(),1);
     assert.equal(await page.locator('#geo-journey-map .premium-world-hud').count(),1);
     await page.locator('#geo-journey-map .premium-place.is-next').click();
     assert.equal(await page.locator('#geo-journey-map .premium-world-sheet').isVisible(),true);
@@ -667,7 +665,7 @@ async function finishSession(page){
     await page.locator('#geography-screen.active').waitFor();
 
     // Progress.
-    await page.locator('#geography-back').click();
+    await page.locator('#geo-journey-map .premium-world-back').click();
     await page.locator('#bottom-nav button[data-tab="progress"]').click();
     await page.locator('#progress-screen.active').waitFor();
     assert.equal(await page.locator('#subject-progress-grid .subject-progress-card').count(),4);
@@ -677,7 +675,7 @@ async function finishSession(page){
     await page.locator('#open-geography').click();
     const themeHeights=await page.locator('.geo-theme:visible').evaluateAll(els=>els.map(e=>e.getBoundingClientRect().height));
     assert.ok(themeHeights.every(h=>h>=44),`small geography touch target: ${themeHeights}`);
-    const backHeight=await page.locator('#geography-back').evaluate(e=>e.getBoundingClientRect().height);
+    const backHeight=await page.locator('#geo-journey-map .premium-world-back').evaluate(e=>e.getBoundingClientRect().height);
     assert.ok(backHeight>=44,`small back target: ${backHeight}`);
 
     // First grade: capitals are intentionally hidden but Land still works.
@@ -782,7 +780,8 @@ async function finishSession(page){
     });
     await page.locator('#open-math').click();
     assert.equal(await page.locator('#journey-grade-strip [data-journey-grade]').count(),10);
-    await page.locator('#journey-grade-strip [data-journey-grade="3"]').click();
+    await page.locator('#journey-map .premium-world-grade').click();
+    await page.locator('#journey-map [data-premium-grade="3"]').click();
     const selectedJourney=await page.evaluate(()=>({
       profile:currentGrade(),
       view:journeyViewGrade('math'),
