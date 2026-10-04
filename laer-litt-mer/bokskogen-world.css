@@ -1174,7 +1174,17 @@
 #subject-screen.bokskogen-v10-active>.detail-back,
 #subject-screen.bokskogen-v10-active>.subject-page-banner,
 #subject-screen.bokskogen-v10-active>#subject-overview,
-#subject-screen.bokskogen-v10-active .journey-grade-picker{
+#subject-screen.bokskogen-v10-active .subject-hero,
+#subject-screen.bokskogen-v10-active .journey-heading,
+#subject-screen.bokskogen-v10-active .journey-grade-picker,
+#subject-screen.bokskogen-v10-active .journey-summary,
+#subject-screen.bokskogen-v10-active .journey-now-card,
+#subject-screen.bokskogen-v10-active .journey-collection,
+#subject-screen.bokskogen-v10-active .journey-sidequests,
+#subject-screen.bokskogen-v10-active .math-lab-entry,
+#subject-screen.bokskogen-v10-active .free-practice-title,
+#subject-screen.bokskogen-v10-active .subject-modules,
+#subject-screen.bokskogen-v10-active .hub-progress-line{
   display:none!important;
 }
 #subject-screen.bokskogen-v10-active #subject-journey-section{
