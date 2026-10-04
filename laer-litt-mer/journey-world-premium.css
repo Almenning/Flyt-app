@@ -186,3 +186,88 @@
 @media(prefers-reduced-motion:reduce){
   .premium-place.is-next .premium-place-marker,.premium-traveler{animation:none!important}
 }
+
+
+/* premium-board-integration-v9-2026-10-04 */
+/* The game board belongs to the subject page. It must not replace the subject page. */
+#subject-screen.premium-journey-active{
+  padding:0 18px 28px!important;
+  background:transparent!important;
+}
+#subject-screen.premium-journey-active>.detail-back{display:inline-flex!important}
+#subject-screen.premium-journey-active>.subject-page-banner{display:flex!important}
+#subject-screen.premium-journey-active>.subject-hero{display:none!important}
+#subject-screen.premium-journey-active #subject-journey-section{
+  margin:22px 0 0!important;
+  padding:0!important;
+}
+#subject-screen.premium-journey-active #subject-journey-section>.journey-heading{
+  display:flex!important;
+  align-items:end;
+  justify-content:space-between;
+  margin:0 2px 12px;
+}
+#subject-screen.premium-journey-active #subject-journey-section>.journey-heading .journey-grade-chip{display:none!important}
+#subject-screen.premium-journey-active #subject-journey-section>.journey-grade-picker,
+#subject-screen.premium-journey-active #subject-journey-section>.journey-summary,
+#subject-screen.premium-journey-active #subject-journey-section>.journey-now-card,
+#subject-screen.premium-journey-active #subject-journey-section>.journey-collection,
+#subject-screen.premium-journey-active #subject-journey-section>.journey-sidequests,
+#subject-screen.premium-journey-active #journey-finish{display:none!important}
+
+#geography-screen.premium-geo-active{
+  display:block!important;
+  padding-top:0!important;
+}
+#geography-screen.premium-geo-active>.detail-back{display:inline-flex!important}
+#geography-screen.premium-geo-active>.geography-head{display:flex!important}
+#geography-screen.premium-geo-active .geo-journey-shell{
+  order:initial!important;
+  margin:24px 0 0!important;
+}
+#geography-screen.premium-geo-active .geo-journey-shell>.journey-heading{
+  display:flex!important;
+  align-items:end;
+  justify-content:space-between;
+  margin:0 2px 12px;
+}
+#geography-screen.premium-geo-active .geo-journey-shell>.journey-heading .journey-grade-chip{display:none!important}
+#geography-screen.premium-geo-active .geo-journey-shell>.journey-grade-picker,
+#geography-screen.premium-geo-active .geo-journey-shell>.journey-summary,
+#geography-screen.premium-geo-active .geo-journey-shell>.journey-now-card,
+#geography-screen.premium-geo-active .geo-journey-shell>.journey-collection,
+#geography-screen.premium-geo-active #geo-journey-finish{display:none!important}
+
+.premium-journey-map{
+  width:100%!important;
+  margin:0!important;
+  border-radius:28px;
+  overflow:hidden;
+  box-shadow:0 10px 0 rgba(54,65,91,.07),0 20px 42px rgba(45,58,88,.13);
+  background:#183c46;
+}
+.premium-world{
+  width:100%;
+  border-radius:28px;
+  border:2px solid rgba(255,255,255,.92);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.42);
+}
+.premium-world-hud{
+  top:12px;
+  left:10px;
+  right:10px;
+}
+.premium-world-title{top:7.6%}
+.premium-world-grade-menu{top:62px;left:10px}
+.premium-world-sheet-back{z-index:90}
+.premium-world-sheet{z-index:91}
+
+@media(max-width:390px){
+  #subject-screen.premium-journey-active{padding-left:14px!important;padding-right:14px!important}
+  #geography-screen.premium-geo-active .geo-journey-shell{margin-top:20px!important}
+  .premium-journey-map,.premium-world{border-radius:24px}
+}
+@media(min-width:700px){
+  .premium-journey-map{max-width:640px!important;margin:0 auto!important}
+  #geography-screen.premium-geo-active .geo-journey-shell{margin-left:0!important;margin-right:0!important}
+}
