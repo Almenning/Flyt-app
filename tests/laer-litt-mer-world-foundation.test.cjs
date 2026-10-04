@@ -17,6 +17,7 @@ test('learning world uses layered 2.5D presentation without changing the journey
   assert.match(js, /journeyRouteOverlay\(config,route,nextIndex\)/);
   assert.match(js, /installWorldDepthMotion\(host\)/);
   assert.match(js, /keepCurrentMissionVisible\(host,geo\)/);
+  assert.match(js, /premium-world-back/);
   assert.match(css, /2\.5D foundation v1/);
   assert.match(css, /prefers-reduced-motion:reduce/);
   assert.doesNotMatch(js, /THREE\.|WebGLRenderer|three\.js/i);
@@ -26,9 +27,9 @@ test('2.5D assets are cache-busted consistently for the PWA', () => {
   const html = read('index.html');
   const sw = read('sw.js');
 
-  assert.match(html, /journey-world-premium\.css\?v=20261004-depth2/);
-  assert.match(html, /journey-world-premium\.js\?v=20261004-depth2/);
-  assert.match(sw, /journey-world-premium\.css\?v=20261004-depth2/);
-  assert.match(sw, /journey-world-premium\.js\?v=20261004-depth2/);
-  assert.match(sw, /laer-litt-mer-v19-2-5d-foundation-2026-10-04/);
+  assert.match(html, /journey-world-premium\.css\?v=20261004-depth3/);
+  assert.match(html, /journey-world-premium\.js\?v=20261004-depth3/);
+  assert.match(sw, /journey-world-premium\.css\?v=20261004-depth3/);
+  assert.match(sw, /journey-world-premium\.js\?v=20261004-depth3/);
+  assert.match(sw, /laer-litt-mer-v20-2-5d-foundation-2026-10-04/);
 });
