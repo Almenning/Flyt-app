@@ -19,8 +19,17 @@
   };
 
   const CORE_POSITIONS=[
-    [24,89],[55,82],[30,75],[63,68],[78,59],[42,52.5],
-    [68,45],[34,37.5],[62,30],[40,22.5],[70,14.5]
+    [31,89],     // Bokstavporten
+    [82,70],     // Lesestua
+    [82,47],     // Rimdammen
+    [29,58],     // Skogsporten
+    [42,33],     // Ordbrua
+    [36,22],     // Ordhagen
+    [53,18],     // Fortellerhytta
+    [62,15],     // Detektivstien
+    [68,12.5],   // Historiehytta
+    [73,10.5],   // Fortell
+    [76,8.5]     // Biblioteket
   ];
 
   function label(node){return LABELS[node.id]||node.title}
@@ -195,95 +204,10 @@
   }
 
   function worldArt(prog){
-    const a1=prog.areasDone>=1,a2=prog.areasDone>=2,all=prog.complete;
-    const litCount=prog.done;
-    const scenery=[
-      tree(38,210,1.18),tree(390,245,1.06),tree(42,420,.88),tree(383,485,.98),
-      tree(31,690,1.08),tree(393,755,.94),tree(48,1005,1.02),tree(392,1112,1.13),
-      tree(30,1328,1.18),tree(390,1398,1.05),
-      pine(96,286,.78),pine(327,340,.72),pine(84,610,.76),pine(340,615,.82),
-      pine(88,890,.74),pine(350,970,.82),pine(80,1210,.75),pine(344,1270,.80),
-      rock(69,745,.8),rock(349,827,.72),rock(78,1178,.77),rock(344,1198,.82),
-      flower(56,1273,'#F4A0B8'),flower(74,1264,'#F5C96A'),flower(351,1080,'#AEBCF2'),flower(364,1070,'#F2A4BD'),
-      flower(58,856,'#F6C96A'),flower(372,713,'#F4A3B7'),flower(54,515,'#A9BFF0')
-    ].join('');
-
-    const lights=[
-      lamp(83,1375,litCount>=1,.62),lamp(185,1271,litCount>=2,.58),lamp(99,1168,litCount>=3,.58),
-      lamp(266,1067,a1,.63),lamp(336,938,a1,.58),lamp(186,841,a1,.58),
-      lamp(284,719,a2,.58),lamp(146,607,a2,.58),lamp(264,492,a2,.58),
-      lamp(177,377,a2,.58),lamp(291,268,all,.62)
-    ].join('');
-
-    const fog=!a1
-      ?'<g opacity=".24" filter="url(#bokMist)"><ellipse cx="210" cy="515" rx="245" ry="94" fill="#E7EFEA"/><ellipse cx="250" cy="335" rx="215" ry="72" fill="#EDF3EF"/></g>'
-      :!a2
-      ?'<g opacity=".18" filter="url(#bokMist)"><ellipse cx="228" cy="430" rx="228" ry="72" fill="#EDF3EF"/><ellipse cx="280" cy="275" rx="175" ry="58" fill="#EFF5F2"/></g>'
-      :!all
-      ?'<g opacity=".13" filter="url(#bokMist)"><ellipse cx="282" cy="252" rx="170" ry="52" fill="#EFF5F2"/></g>'
-      :'';
-
-    return '<svg class="bokskogen-art" viewBox="0 0 420 1500" preserveAspectRatio="xMidYMid slice" aria-hidden="true">'+
-      '<defs>'+
-        '<linearGradient id="bokSky2" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#78BDE4"/><stop offset=".30" stop-color="#D9EEF0"/><stop offset=".62" stop-color="#DCE7C3"/><stop offset="1" stop-color="#D6BF86"/></linearGradient>'+
-        '<linearGradient id="bokGround2" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#65936B"/><stop offset="1" stop-color="#2D5A49"/></linearGradient>'+
-        '<linearGradient id="bokWater2" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#74D1DC"/><stop offset=".58" stop-color="#45AFC2"/><stop offset="1" stop-color="#337D99"/></linearGradient>'+
-        '<linearGradient id="bokPath2" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#F4DB9B"/><stop offset="1" stop-color="#CEAD69"/></linearGradient>'+
-        '<linearGradient id="bokFog" x1="0" y1="1" x2="0" y2="0"><stop stop-color="#D9E4DF" stop-opacity="0"/><stop offset=".38" stop-color="#D9E4DF" stop-opacity=".76"/><stop offset="1" stop-color="#D3DEDC" stop-opacity=".95"/></linearGradient>'+
-        '<linearGradient id="bokWoodLabel" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#F7DEAA"/><stop offset=".52" stop-color="#E5BD77"/><stop offset="1" stop-color="#C7924E"/></linearGradient>'+
-        '<linearGradient id="bokRiverShine" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#E8FFFF" stop-opacity=".72"/><stop offset=".5" stop-color="#C8F7FA" stop-opacity=".10"/><stop offset="1" stop-color="#FFFFFF" stop-opacity=".55"/></linearGradient>'+
-        '<filter id="bokBlur2"><feGaussianBlur stdDeviation="9"/></filter>'+
-        '<filter id="bokMist"><feGaussianBlur stdDeviation="22"/></filter>'+
-        '<filter id="bokLandmarkShadow" x="-30%" y="-30%" width="160%" height="180%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#18362B" flood-opacity=".24"/></filter>'+
-      '</defs>'+
-      '<rect width="420" height="1500" fill="url(#bokSky2)"/>'+
-      '<circle cx="350" cy="105" r="46" fill="#FFE393" opacity=".94"/><circle cx="350" cy="105" r="78" fill="#FFE7A1" opacity=".18" filter="url(#bokBlur2)"/>'+
-      '<g fill="#fff" opacity=".64"><ellipse cx="84" cy="119" rx="52" ry="16"/><ellipse cx="125" cy="110" rx="31" ry="24"/><ellipse cx="45" cy="126" rx="28" ry="13"/><ellipse cx="287" cy="188" rx="43" ry="13"/><ellipse cx="318" cy="181" rx="27" ry="21"/></g>'+
-      '<path d="M0 245L54 183 91 215 145 135 193 205 241 154 300 215 350 168 420 230V360H0Z" fill="#78958F" opacity=".55"/>'+
-      '<path d="M0 273L58 221 112 253 167 196 220 248 276 211 330 250 382 217 420 245V380H0Z" fill="#9DB5A7" opacity=".55"/>'+
-      '<path d="M0 300Q70 221 137 274T267 241T420 224V566H0z" fill="#91B097"/>'+
-      '<path d="M0 438Q78 359 153 405T302 367T420 347V735H0z" fill="#6F9778"/>'+
-      '<path d="M0 625Q87 550 173 598T316 566T420 551V1500H0z" fill="url(#bokGround2)"/>'+
-      '<path d="M0 924Q87 850 171 899T313 868T420 850V1500H0z" fill="#46755A" opacity=".55"/>'+
-      '<path d="M323 762C384 818 400 915 367 1011C338 1095 282 1131 238 1199C205 1250 192 1331 168 1500H84C111 1328 143 1212 198 1136C248 1067 287 1030 298 966C310 897 280 829 323 762Z" fill="url(#bokWater2)" opacity=".97"/>'+
-      '<path d="M0 1070C86 1037 131 1064 175 1124C208 1169 217 1217 201 1277C184 1338 144 1395 123 1500H0z" fill="#4B9CAE" opacity=".76"/>'+
-      '<g opacity=".48"><path d="M302 844q39 20 78 0" fill="none" stroke="#EAFFFF" stroke-width="7" stroke-linecap="round"/><path d="M278 987q42 19 86 0" fill="none" stroke="#EAFFFF" stroke-width="6" stroke-linecap="round"/><path d="M171 1264q38 18 78 0" fill="none" stroke="#EAFFFF" stroke-width="6" stroke-linecap="round"/><path d="M315 900q33 15 66-1" fill="none" stroke="url(#bokRiverShine)" stroke-width="3" stroke-linecap="round"/><path d="M247 1082q38 15 76-3" fill="none" stroke="url(#bokRiverShine)" stroke-width="3" stroke-linecap="round"/><path d="M93 1384q41 14 80-4" fill="none" stroke="url(#bokRiverShine)" stroke-width="3" stroke-linecap="round"/></g>'+
-      '<g fill="#DCE8DF" opacity=".72"><ellipse cx="303" cy="925" rx="14" ry="7"/><ellipse cx="345" cy="1067" rx="11" ry="6"/><ellipse cx="155" cy="1326" rx="13" ry="7"/><ellipse cx="118" cy="1421" rx="10" ry="5"/></g>'+
-      '<path d="M103 1435Q92 1360 121 1315T226 1240T133 1122T265 1018T328 886T176 788T286 675T143 563T260 450T168 338T294 218" fill="none" stroke="rgba(88,67,40,.13)" stroke-width="11" stroke-linecap="round"/>'+
-      '<path d="M103 1435Q92 1360 121 1315T226 1240T133 1122T265 1018T328 886T176 788T286 675T143 563T260 450T168 338T294 218" fill="none" stroke="#DCC995" stroke-width="6.4" stroke-linecap="round"/>'+
-      '<path d="M103 1435Q92 1360 121 1315T226 1240T133 1122T265 1018T328 886T176 788T286 675T143 563T260 450T168 338T294 218" fill="none" stroke="#FFF0B7" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="1.2 18" opacity=".72"/>'+
-      scenery+
-      chapterMarker(210,1452,'START PÅ EVENTYRSTIEN')+
-      chapterMarker(210,1080,'ORD · LYD · RIM')+
-      chapterMarker(210,742,'SETNINGER')+
-      chapterMarker(210,404,'LES · FORSTÅ')+
-      '<g filter="url(#bokLandmarkShadow)" transform="translate(320 895)"><path d="M-68 28q68-44 136 0" fill="none" stroke="#3D8EA1" stroke-width="27" opacity=".62"/>'+wordBridge(0,0,litCount>=5)+'</g>'+
-      '<g filter="url(#bokLandmarkShadow)">'+letterGate(101,1335,litCount>=1)+'</g>'+
-      '<g filter="url(#bokLandmarkShadow)">'+readingHut(231,1230,litCount>=2)+'</g>'+
-      '<g filter="url(#bokLandmarkShadow)">'+rimPond(126,1125,litCount>=3)+'</g>'+
-      '<g filter="url(#bokLandmarkShadow)">'+forestGate(265,1020,a1)+'</g>'+
-      '<g filter="url(#bokLandmarkShadow)">'+garden(176,788,litCount>=6)+'</g>'+
-      '<g filter="url(#bokLandmarkShadow)">'+cabin(286,675,a2,'tell')+'</g>'+
-      '<g filter="url(#bokLandmarkShadow)">'+cabin(143,563,a2,'detective')+'</g>'+
-      '<g filter="url(#bokLandmarkShadow)">'+cabin(260,450,a2,'story')+'</g>'+
-      '<g filter="url(#bokLandmarkShadow)">'+treehouse(168,338,a2)+'</g>'+
-      '<g filter="url(#bokLandmarkShadow)">'+library(294,218,all)+'</g>'+
-      landmarkLabel(105,1400,'Bokstavporten',{done:litCount>=1,tilt:-3})+
-      landmarkLabel(238,1284,'Lesestua',{done:litCount>=2,tilt:2})+
-      landmarkLabel(127,1183,'Rimdammen',{done:litCount>=3,tilt:-2})+
-      landmarkLabel(267,1077,'Skogsporten',{done:a1,major:true,tilt:2})+
-      landmarkLabel(319,944,'Ordbrua',{done:litCount>=5,tilt:-2})+
-      landmarkLabel(176,847,'Ordhagen',{done:litCount>=6,tilt:2})+
-      landmarkLabel(287,733,'Fortellerhytta',{done:a2,tilt:-2})+
-      landmarkLabel(143,620,'Detektivstien',{done:a2,tilt:2})+
-      landmarkLabel(261,507,'Historiehytta',{done:a2,tilt:-2})+
-      landmarkLabel(168,396,'Fortell',{done:a2,tilt:2})+
-      landmarkLabel(294,286,'Biblioteket',{done:all,major:true,tilt:-2})+
-      lights+
-      '<g fill="#F6EEE0" opacity=".90"><circle cx="55" cy="1417" r="4"/><circle cx="357" cy="1342" r="3"/><circle cx="64" cy="1008" r="3"/><circle cx="360" cy="732" r="4"/><circle cx="72" cy="505" r="3"/><circle cx="346" cy="331" r="3"/></g>'+
-      '<g opacity=".78"><path d="M13 70q42 18 64 70-35-23-73-9z" fill="#244F40"/><path d="M407 72q-45 25-65 72 36-21 76-8z" fill="#285342"/><path d="M-4 1460q52-42 103-25-42 14-74 65H0z" fill="#214B3C"/><path d="M424 1442q-55-34-103-12 43 12 75 70h28z" fill="#214B3C"/></g>'+
-      fog+
-    '</svg>';
+    const dim=prog.complete?0:Math.max(0,.16-(prog.pct/100)*.13);
+    return '<img class="bokskogen-art bokskogen-reference-art" src="./bokskogen-reference-bg.webp?v=20261004-art1" alt="" draggable="false" />'+
+      '<div class="bokskogen-world-vignette" aria-hidden="true"></div>'+
+      '<div class="bokskogen-progress-light" style="opacity:'+(1-dim)+'" aria-hidden="true"></div>';
   }
 
   function route(core){
@@ -342,17 +266,11 @@
 
     let guide='';
     if(recommended){
-      const ci=core.findIndex(n=>n.id===recommended.id);
-      const p=ci>=0?positions[ci]:[50,55];
-      const gx=Math.max(12,Math.min(88,p[0]+(p[0]<50?14:-14)));
-      const gy=Math.max(10,Math.min(93,p[1]+3));
-      const tx=Math.max(16,Math.min(84,gx+(gx<50?10:-10)));
-      guide='<div class="bokskogen-guide" style="left:'+gx+'%;top:'+gy+'%">'+journeyFoxSvg()+'</div>'+
-        '<div class="bokskogen-guide-tag" style="left:'+tx+'%;top:'+(gy-3)+'%"><span>NESTE</span>'+label(recommended)+'</div>';
+      guide='<button type="button" class="bokskogen-mission-sign" data-bok-node="'+recommended.id+'" aria-label="'+escapeAttr('Neste oppdrag: '+label(recommended))+'"><span>NESTE</span><strong>'+label(recommended)+'</strong><small>Trykk for å starte</small></button>';
     }
 
-    const top='<div class="bokskogen-topbar"><div class="bokskogen-brand"><small>NORSK · '+GRADE_CONFIG[viewGrade].label.toUpperCase()+'</small><strong>Bokskogen</strong></div>'+
-      '<div class="bokskogen-progress"><div class="bokskogen-progress-head"><b>★ '+prog.done+'/'+prog.total+'</b><span>🏆 '+prog.areasDone+'/'+model.areas.length+'</span></div><div class="bokskogen-progress-track"><i style="width:'+prog.pct+'%"></i></div><small>'+(prog.complete?'Hele skogen lyser':'Eventyrstien til biblioteket')+'</small></div></div>';
+
+    const top='<div class="bokskogen-topbar"><div class="bokskogen-progress"><div class="bokskogen-progress-head"><b>★ '+prog.done+'/'+prog.total+'</b><span>🏆 '+prog.areasDone+'/'+model.areas.length+'</span></div><div class="bokskogen-progress-track"><i style="width:'+prog.pct+'%"></i></div><small>'+(prog.complete?'Hele skogen lyser':'Bokskogen · '+GRADE_CONFIG[viewGrade].label)+'</small></div></div>';
 
     host.innerHTML='<section class="bokskogen-world'+(prog.complete?' is-complete':'')+'" aria-label="Bokskogen, interaktiv læringsverden">'+
       worldArt(prog)+route(core)+top+main+sparkles+sides+guide+
@@ -374,12 +292,7 @@
     const nextBtn=document.getElementById('journey-next-grade');
     if(nextBtn)nextBtn.onclick=()=>setJourneyViewGrade('norwegian',3);
 
-    if(recommended){
-      requestAnimationFrame(()=>{
-        const next=host.querySelector('.bokskogen-stop.state-next');
-        if(next)setTimeout(()=>next.scrollIntoView({behavior:'auto',block:'center',inline:'nearest'}),40);
-      });
-    }
+    // The illustrated board is intentionally shown as one coherent scene; no forced auto-scroll.
   }
 
   renderSubjectJourney=function(){
