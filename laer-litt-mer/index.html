@@ -1945,6 +1945,45 @@
       .journey-player-v5,.journey-node-v5.state-next .node-platform-v5{animation:none!important}
     }
 
+
+    /* Læringsreisen v7: levende verdener som bygges av læring */
+    .journey-world-v5{--growth-glow:rgba(88,191,128,.16)}
+    .world-place-v7{display:inline-flex;align-items:center;gap:4px;margin-right:5px;padding:2px 6px;border-radius:999px;background:rgba(255,255,255,.64);color:#425675;font-size:6.5px;font-weight:1000;letter-spacing:.08em;text-transform:uppercase;vertical-align:1px}
+    .world-place-v7:before{content:"◆";font-size:5px;color:#D4A536}
+    .world-copy-v7{opacity:.92}
+    .journey-world-v5[data-growth="1"]{box-shadow:0 0 0 5px rgba(93,118,229,.09),0 13px 0 rgba(40,57,85,.10),0 36px 66px rgba(35,52,86,.23),inset 0 -70px 110px rgba(82,183,117,.035)}
+    .journey-world-v5[data-growth="2"]{box-shadow:0 0 0 5px rgba(83,177,119,.10),0 13px 0 rgba(40,57,85,.10),0 36px 66px rgba(35,52,86,.23),inset 0 -80px 120px rgba(82,183,117,.055)}
+    .journey-world-v5[data-growth="3"]{box-shadow:0 0 0 5px rgba(79,181,119,.13),0 13px 0 rgba(40,57,85,.10),0 38px 70px rgba(35,52,86,.23),inset 0 -90px 135px rgba(82,183,117,.075)}
+    .journey-world-v5[data-growth="4"]{box-shadow:0 0 0 5px rgba(223,172,52,.13),0 13px 0 rgba(40,57,85,.10),0 40px 74px rgba(35,52,86,.24),inset 0 -100px 145px rgba(255,210,83,.07)}
+    .journey-growth-chip-v7{position:absolute;z-index:17;left:16px;bottom:14px;display:flex;align-items:center;gap:6px;min-height:24px;padding:5px 8px;border-radius:999px;background:rgba(26,48,71,.72);border:1px solid rgba(255,255,255,.28);box-shadow:0 4px 12px rgba(23,42,67,.16);backdrop-filter:blur(7px);color:#fff;font-size:6px;font-weight:1000;letter-spacing:.08em;pointer-events:none}
+    .journey-growth-chip-v7 i{display:block;width:7px;height:7px;border-radius:50%;background:#FFD965;box-shadow:0 0 0 3px rgba(255,217,101,.14)}
+    .journey-growth-chip-v7.growing i{background:#68D597;box-shadow:0 0 0 3px rgba(104,213,151,.15)}
+    .journey-growth-chip-v7.complete i{background:#FFD75D;box-shadow:0 0 0 4px rgba(255,215,93,.18);animation:v7ChipGlow 1.8s ease-in-out infinite}
+    .journey-world-art-v5 .world-cloud-v7{animation:v7CloudDrift 13s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+    .journey-world-art-v5 .world-cloud-v7.alt{animation-duration:17s;animation-direction:alternate-reverse}
+    .journey-world-art-v5 .world-water-v7{animation:v7WaterShimmer 3.4s ease-in-out infinite}
+    .journey-world-art-v5 .world-bird-v7{animation:v7BirdFly 8s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+    .journey-world-art-v5 .world-flag-v7{animation:v7FlagWave 2.2s ease-in-out infinite;transform-box:fill-box;transform-origin:left center}
+    .journey-world-art-v5 .world-lantern-v7{animation:v7LanternGlow 2.3s ease-in-out infinite}
+    .journey-world-art-v5 .world-spark-v7{animation:v7Sparkle 1.9s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+    .journey-world-art-v5 .world-spark-v7.s2{animation-delay:.55s}.journey-world-art-v5 .world-spark-v7.s3{animation-delay:1.05s}
+    .journey-world-art-v5 .world-life-v7{animation:v7LifeBob 2.8s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+    .journey-world-art-v5 .world-built-v7{filter:drop-shadow(0 4px 5px rgba(41,58,75,.15))}
+    .journey-world-art-v5 .world-trophy-beam-v7{animation:v7Beam 2.4s ease-in-out infinite}
+    .journey-world-v5.world-complete-v7:before{box-shadow:inset 0 0 0 1px rgba(255,255,255,.34),inset 0 -85px 120px rgba(255,211,75,.09)}
+    @keyframes v7CloudDrift{0%,100%{transform:translateX(-3px)}50%{transform:translateX(7px)}}
+    @keyframes v7WaterShimmer{0%,100%{opacity:.38}50%{opacity:.72}}
+    @keyframes v7BirdFly{0%,100%{transform:translate(-3px,1px) rotate(-2deg)}50%{transform:translate(8px,-4px) rotate(2deg)}}
+    @keyframes v7FlagWave{0%,100%{transform:skewY(0deg) scaleX(1)}50%{transform:skewY(-5deg) scaleX(.94)}}
+    @keyframes v7LanternGlow{0%,100%{opacity:.72;filter:drop-shadow(0 0 1px rgba(255,213,91,.2))}50%{opacity:1;filter:drop-shadow(0 0 6px rgba(255,213,91,.75))}}
+    @keyframes v7Sparkle{0%,100%{opacity:.32;transform:scale(.78) rotate(0)}50%{opacity:1;transform:scale(1.18) rotate(18deg)}}
+    @keyframes v7LifeBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+    @keyframes v7Beam{0%,100%{opacity:.14}50%{opacity:.34}}
+    @keyframes v7ChipGlow{0%,100%{box-shadow:0 0 0 3px rgba(255,215,93,.15)}50%{box-shadow:0 0 0 7px rgba(255,215,93,.04)}}
+    @media (prefers-reduced-motion:reduce){
+      .journey-world-art-v5 .world-cloud-v7,.journey-world-art-v5 .world-water-v7,.journey-world-art-v5 .world-bird-v7,.journey-world-art-v5 .world-flag-v7,.journey-world-art-v5 .world-lantern-v7,.journey-world-art-v5 .world-spark-v7,.journey-world-art-v5 .world-life-v7,.journey-world-art-v5 .world-trophy-beam-v7,.journey-growth-chip-v7.complete i{animation:none!important}
+    }
+
 </style>
   <link rel="stylesheet" href="./fraction-lab.css?v=20261003-mobile2" />
   <link rel="stylesheet" href="./multiplication-lab.css?v=20261003-table1" />
@@ -1965,6 +2004,7 @@
   <!-- norwegian-content-depth-2026-10-03 -->
   <!-- young-learning-game-polish-2026-10-03 -->
   <!-- premium-gameboard-v6-2026-10-04 -->
+  <!-- living-learning-world-v7-2026-10-04 -->
   <!-- grade-adaptive-visual-system-v2-2026-10-03 -->
   <!-- illustration-led-home-v1-2026-10-03 -->
   <!-- success-dashboard-redesign-v1-2026-10-03 -->
@@ -4556,6 +4596,37 @@ function journeyNodeDoneV4(node,isGeo){
   if(isGeo)return node.type==='geo-skill'?['can-now','mastered'].includes(geoJourneyNodeState(node)):!!journeyNodeRecord(node).passed;
   return node.type==='skill'?['can-now','mastered'].includes(journeyNodeState(node)):!!journeyNodeRecord(node).passed;
 }
+function journeyAreaVisualProgressV7(area,isGeo=false){
+  const core=isGeo?geoJourneyCoreNodes(area):journeyCoreNodes(area);
+  if(!core.length)return 0;
+  const done=core.filter(n=>journeyNodeDoneV4(n,isGeo)).length;
+  return Math.max(0,Math.min(100,Math.round(done/core.length*100)));
+}
+function journeyGrowthStageV7(pct,complete=false){
+  if(complete||pct>=100)return 4;
+  if(pct>=67)return 3;
+  if(pct>=34)return 2;
+  if(pct>0)return 1;
+  return 0;
+}
+function journeyWorldFlavorV7(subject,index){
+  const names={
+    math:['Tallenga','Regnebyen','Mønsterfjellet','Formdalen'],
+    norwegian:['Bokskogen','Ordbyen','Lesefjellet','Fortellerdalen'],
+    english:['Wordwood','Hello Harbour','Story Hills','World Gate'],
+    geography:['Nordlysleiren','Europahavna','Verdensfjellet','Kompassøya']
+  };
+  return (names[subject]||names.math)[index%4];
+}
+function journeyGrowthChipV7(pct,complete=false){
+  const stage=journeyGrowthStageV7(pct,complete);
+  if(complete)return '<div class="journey-growth-chip-v7 complete"><i></i>VERDEN FULLFØRT</div>';
+  if(stage===0)return '<div class="journey-growth-chip-v7"><i></i>VERDEN VENTER</div>';
+  if(stage===1)return '<div class="journey-growth-chip-v7 growing"><i></i>VERDEN VÅKNER</div>';
+  if(stage===2)return '<div class="journey-growth-chip-v7 growing"><i></i>VERDEN VOKSER</div>';
+  return '<div class="journey-growth-chip-v7 growing"><i></i>NESTEN BYGGET</div>';
+}
+
 function journeyRouteSvgV4(area,isGeo=false){
   const core=isGeo?geoJourneyCoreNodes(area):journeyCoreNodes(area),pts=journeyCorePositionsV4(core.length);if(pts.length<2)return '';
   const paths=[],progress=[];
@@ -4577,8 +4648,8 @@ function journeyNodeMarkupV4(node,point,st,isNext,future,isGeo=false){
   return '<button type="button" class="journey-node-v4 type-'+node.type+' state-'+visual+'" style="left:'+point[0]+'%;top:'+point[1]+'%" '+attr+'="'+node.id+'" aria-label="'+escapeAttr(node.title+'. '+(isGeo?geoJourneyStatusText(node,st):journeyStatusText(node,st)))+'">'+label+fox+'<span class="node-pad-v4">'+journeySkillGlyph(node,isGeo)+(badge?'<span class="journey-state-v4">'+badge+'</span>':'')+'</span>'+goal+side+'</button>';
 }
 
-function journeyWorldArtV5(subject,index,locked=false){
-  const p=journeyThemeV4(subject,index),id='v6'+subject+index,op=locked?.56:1,t=p.tokens||[];
+function journeyWorldArtV5(subject,index,locked=false,progress=0,complete=false){
+  const p=journeyThemeV4(subject,index),id='v7'+subject+index,op=locked?.56:1,t=p.tokens||[],pct=locked?0:Math.max(0,Math.min(100,Number(progress)||0)),growth=journeyGrowthStageV7(pct,complete);
   const tree=(x,y,s=1,c=p.deep)=>'<g transform="translate('+x+' '+y+') scale('+s+')" filter="url(#'+id+'soft)"><rect x="-3.5" y="9" width="7" height="22" rx="2.5" fill="#6E5039"/><circle cx="0" cy="2" r="16" fill="'+c+'"/><circle cx="-9" cy="5" r="10" fill="'+p.near+'"/><circle cx="9" cy="6" r="11" fill="'+p.near+'"/><circle cx="-4" cy="-7" r="10" fill="'+p.far+'" opacity=".9"/></g>';
   const fir=(x,y,s=1)=>'<g transform="translate('+x+' '+y+') scale('+s+')" filter="url(#'+id+'soft)"><rect x="-2.5" y="12" width="5" height="17" rx="2" fill="#76563F"/><path d="M0-20L-16 8h10l-10 13h32L6 8h10z" fill="'+p.deep+'"/><path d="M0-15L-11 5h8L-11 16h22L3 5h8z" fill="'+p.near+'" opacity=".9"/></g>';
   const rock=(x,y,s=1)=>'<g transform="translate('+x+' '+y+') scale('+s+')"><ellipse cx="1" cy="13" rx="18" ry="6" fill="rgba(43,58,64,.13)"/><path d="M-15 10L-8-9 5-14 18 2 12 13z" fill="#AEBABD"/><path d="M-8-9L3-7 12 13-15 10z" fill="#D9E0DF" opacity=".82"/></g>';
@@ -4611,6 +4682,50 @@ function journeyWorldArtV5(subject,index,locked=false){
   else if(zone===2) zoneBits='<path d="M34 289l49-75 49 75zM271 276l59-96 63 96z" fill="#C9C9E6" opacity=".78"/><path d="M66 240l17-26 18 27M311 211l19-31 21 32" fill="#FFF" opacity=".82"/>'+fir(57,462,.7)+fir(380,448,.75)+rock(94,601,.7);
   else zoneBits='<path d="M0 482q87-38 173 7t247-2v74q-116 25-214-4T0 565z" fill="'+p.water+'" opacity=".50"/>'+tree(50,445,.7)+tree(384,442,.76)+flower(63,602,'#F28BA8')+flower(349,610,'#FFE06D');
 
+
+  let livingBits='';
+  if(growth>=1){
+    livingBits+=
+      '<g class="world-built-v7">'+
+        flower(148,628,'#FFD665')+flower(174,642,'#F08DA8')+flower(202,624,'#8ED79D')+
+        '<g transform="translate(232 635)"><path d="M-34 5q34-15 68 0" fill="none" stroke="#7D5C3F" stroke-width="7" stroke-linecap="round"/><path d="M-30 1q30-11 60 0" fill="none" stroke="#E5C184" stroke-width="4" stroke-linecap="round"/></g>'+
+        '<g class="world-lantern-v7" transform="translate(252 613)"><path d="M0 0v27" stroke="#66503B" stroke-width="3"/><rect x="-7" y="-10" width="14" height="13" rx="4" fill="#FFE28A" stroke="#8B6B38" stroke-width="2"/></g>'+
+      '</g>';
+  }
+  if(growth>=2){
+    livingBits+=
+      '<g class="world-built-v7">'+
+        '<g transform="translate(219 565)"><path d="M-48 17Q0-14 48 17" fill="none" stroke="#765C43" stroke-width="16" stroke-linecap="round"/><path d="M-44 13Q0-13 44 13" fill="none" stroke="#E3C58B" stroke-width="10" stroke-linecap="round"/><path d="M-29 4v24M0-4v25M29 4v24" stroke="#8B6B49" stroke-width="4"/></g>'+
+        '<g class="world-flag-v7" transform="translate(112 503)"><path d="M0 0v58" stroke="#5D4A39" stroke-width="4"/><path d="M4 4h37l-9 13 9 13H4z" fill="'+p.accent+'" stroke="#FFF" stroke-width="2"/></g>'+
+        '<g class="world-bird-v7" transform="translate(223 246)" fill="none" stroke="#516475" stroke-width="3" stroke-linecap="round"><path d="M-18 5q9-10 18 0q9-10 18 0"/><path d="M19-8q7-7 14 0q7-7 14 0"/></g>'+
+      '</g>';
+  }
+  if(growth>=3){
+    const animal=subject==='geography'
+      ?'<g class="world-life-v7" transform="translate(77 651)"><ellipse cx="0" cy="5" rx="17" ry="10" fill="#C8894C"/><circle cx="13" cy="-2" r="8" fill="#D79A59"/><path d="M-12 11l-4 12M5 13l3 11" stroke="#754B32" stroke-width="4" stroke-linecap="round"/><circle cx="16" cy="-4" r="1.6" fill="#27364B"/></g>'
+      :subject==='norwegian'
+      ?'<g class="world-life-v7" transform="translate(78 650)"><ellipse cx="0" cy="4" rx="16" ry="11" fill="#C98B55"/><circle cx="12" cy="-4" r="8" fill="#D79A62"/><path d="M15-11l5-9 3 10M7-10L2-19 0-8" fill="#D79A62" stroke="#7B5239" stroke-width="2"/><circle cx="15" cy="-5" r="1.5" fill="#27364B"/></g>'
+      :'<g class="world-life-v7" transform="translate(78 649)"><ellipse cx="0" cy="5" rx="17" ry="10" fill="#E58B49"/><circle cx="13" cy="-3" r="8" fill="#ED9A59"/><path d="M16-10l5-10 2 12M7-10L2-19 1-7" fill="#ED9A59" stroke="#824A2D" stroke-width="2"/><path d="M-15 4q-18-10-21 6q9 1 17 8" fill="none" stroke="#E58B49" stroke-width="7" stroke-linecap="round"/><circle cx="15" cy="-4" r="1.5" fill="#27364B"/></g>';
+    livingBits+=
+      '<g class="world-built-v7">'+
+        '<g class="world-water-v7"><path d="M118 686q42-20 84 0t86 0" fill="none" stroke="#CFF7FA" stroke-width="7" stroke-linecap="round" opacity=".62"/><path d="M146 704q30-13 60 0t63 0" fill="none" stroke="#FFF" stroke-width="4" stroke-linecap="round" opacity=".45"/></g>'+
+        animal+
+        '<g class="world-lantern-v7" transform="translate(303 606)"><path d="M0 0v28" stroke="#66503B" stroke-width="3"/><rect x="-7" y="-10" width="14" height="13" rx="4" fill="#FFE28A" stroke="#8B6B38" stroke-width="2"/></g>'+
+        '<g class="world-lantern-v7" transform="translate(337 624)"><path d="M0 0v26" stroke="#66503B" stroke-width="3"/><rect x="-7" y="-10" width="14" height="13" rx="4" fill="#FFE28A" stroke="#8B6B38" stroke-width="2"/></g>'+
+      '</g>';
+  }
+  if(growth>=4){
+    livingBits+=
+      '<g class="world-built-v7">'+
+        '<path class="world-trophy-beam-v7" d="M343 394L310 544H376z" fill="#FFE889" opacity=".18"/>'+
+        '<g class="world-flag-v7" transform="translate(347 423)"><path d="M0 0v61" stroke="#6D5235" stroke-width="4"/><path d="M4 3h43l-10 15 10 15H4z" fill="#FFD65C" stroke="#8E681E" stroke-width="2"/><path d="M19 10l4 7 8 1-6 6 2 8-8-4-7 4 1-8-6-6 8-1z" fill="#FFF4BD"/></g>'+
+        '<g class="world-spark-v7" transform="translate(301 426)"><path d="M0-12L4-4 12 0 4 4 0 12-4 4-12 0-4-4z" fill="#FFF1A1"/></g>'+
+        '<g class="world-spark-v7 s2" transform="translate(382 464) scale(.72)"><path d="M0-12L4-4 12 0 4 4 0 12-4 4-12 0-4-4z" fill="#FFF1A1"/></g>'+
+        '<g class="world-spark-v7 s3" transform="translate(318 493) scale(.55)"><path d="M0-12L4-4 12 0 4 4 0 12-4 4-12 0-4-4z" fill="#FFF9D6"/></g>'+
+        '<g transform="translate(209 711)" filter="url(#'+id+'shadow)"><rect x="-69" y="-20" width="138" height="40" rx="20" fill="#FFF5C7" stroke="#B88723" stroke-width="3"/><text x="0" y="6" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" font-size="12" font-weight="1000" fill="#765312">VERDEN BYGGET ★</text></g>'+
+      '</g>';
+  }
+
   return '<svg class="journey-world-art-v5" viewBox="0 0 420 760" preserveAspectRatio="xMidYMid slice" aria-hidden="true" style="opacity:'+op+'">'+
     '<defs>'+
       '<linearGradient id="'+id+'sky" x1="0" y1="0" x2="0" y2="1"><stop stop-color="'+p.sky1+'"/><stop offset=".68" stop-color="'+p.sky2+'"/></linearGradient>'+
@@ -4621,14 +4736,14 @@ function journeyWorldArtV5(subject,index,locked=false){
     '</defs>'+
     '<rect width="420" height="760" fill="url(#'+id+'sky)"/>'+
     '<circle cx="341" cy="87" r="58" fill="url(#'+id+'sun)" opacity=".95"/><circle cx="341" cy="87" r="30" fill="'+p.sun+'"/>'+
-    '<g fill="#fff" opacity=".74" filter="url(#'+id+'soft)"><ellipse cx="72" cy="94" rx="39" ry="13"/><ellipse cx="101" cy="90" rx="23" ry="20"/><ellipse cx="43" cy="99" rx="21" ry="10"/><ellipse cx="286" cy="168" rx="34" ry="11"/><ellipse cx="311" cy="164" rx="21" ry="17"/></g>'+
+    '<g class="world-cloud-v7" fill="#fff" opacity=".74" filter="url(#'+id+'soft)"><ellipse cx="72" cy="94" rx="39" ry="13"/><ellipse cx="101" cy="90" rx="23" ry="20"/><ellipse cx="43" cy="99" rx="21" ry="10"/></g><g class="world-cloud-v7 alt" fill="#fff" opacity=".70" filter="url(#'+id+'soft)"><ellipse cx="286" cy="168" rx="34" ry="11"/><ellipse cx="311" cy="164" rx="21" ry="17"/></g>'+
     '<g fill="#fff" opacity=".55"><circle cx="182" cy="104" r="2.2"/><circle cx="206" cy="74" r="1.8"/><circle cx="252" cy="116" r="2.4"/><circle cx="153" cy="145" r="1.7"/></g>'+
     '<path d="M0 293Q57 226 119 266T237 240T342 264T420 231V760H0z" fill="'+p.far+'"/>'+
     '<path d="M0 401Q71 333 145 369T281 344T420 319V760H0z" fill="'+p.mid+'"/>'+
     '<path d="M0 574Q82 502 171 540T309 517T420 520V760H0z" fill="url(#'+id+'ground)"/>'+
     '<path d="M0 660Q92 608 166 645T301 625T420 613V760H0z" fill="'+p.near+'" opacity=".82"/>'+
     '<path d="M-20 732q78-71 161-49t147-5t152-30v112H-20z" fill="rgba(36,80,62,.10)"/>'+
-    zoneBits+details+landmark+
+    zoneBits+details+landmark+livingBits+
     tree(325,645,.58)+rock(284,604,.62)+rock(379,658,.72)+
     '<g opacity=".55"><path d="M20 585q18-17 36 0" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"/><path d="M182 666q16-15 32 0" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"/></g>'+
     '<g opacity=".35" fill="#fff"><circle cx="23" cy="306" r="3"/><circle cx="396" cy="281" r="2.5"/><circle cx="211" cy="315" r="2"/></g>'+
