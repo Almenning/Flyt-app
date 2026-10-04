@@ -2747,14 +2747,18 @@ function geoJourneyIcon(node,st){
 }
 function buildGeoJourneyQuestions(node,allowCooldown=false){
   const types=node.type==='geo-skill'?[node.geoType]:node.areaTypes,items=[];
+  const makeItem=(id,type,supplement=false)=>{
+    const q=makeQuestion(id,type,node.ids,node.grade),cooling=questionOnCooldown(q);
+    if(cooling&&!allowCooldown)return null;
+    q.practiceRepeat=!!cooling;
+    if(supplement)q.journeySupplement=true;
+    const st=typeStage(id,type),ev=evidenceForGeo(id,type),bucket=learningBucket(st,ev),mist=Number(state.mistakes[masteryKey(id,type)]||0);
+    return {q,id,type,bucket,score:bucketBias(bucket)-Math.min(.7,mist*.12)+(supplement?.45:0)+Math.random()*.12};
+  };
   for(const id of node.ids){
     for(const type of questionTypesForCountry(id,true,node.grade)){
       if(!types.includes(type))continue;
-      const q=makeQuestion(id,type,node.ids,node.grade),cooling=questionOnCooldown(q);
-      if(cooling&&!allowCooldown)continue;
-      q.practiceRepeat=!!cooling;
-      const st=typeStage(id,type),ev=evidenceForGeo(id,type),bucket=learningBucket(st,ev),mist=Number(state.mistakes[masteryKey(id,type)]||0);
-      items.push({q,id,type,bucket,score:bucketBias(bucket)-Math.min(.7,mist*.12)+Math.random()*.12});
+      const item=makeItem(id,type,false);if(item)items.push(item);
     }
   }
   items.sort((a,b)=>a.score-b.score);
@@ -2764,6 +2768,20 @@ function buildGeoJourneyQuestions(node,allowCooldown=false){
   if(node.type==='checkpoint'||node.type==='challenge')for(const t of types){const item=items.find(x=>x.type===t&&!used.has(questionIdentity(x.q)));if(item)add(item)}
   for(const item of items){if(chosen.length>=5)break;if(!countriesUsed.has(item.id)||!typesUsed.has(item.type))add(item)}
   for(const item of items){if(chosen.length>=5)break;add(item)}
+  // Some narrow skills genuinely have fewer than five unique questions in their area.
+  // Fill the remaining slots with related, non-duplicate questions from the same area
+  // rather than repeating an identical task.
+  if(chosen.length<5&&node.type==='geo-skill'){
+    const supplemental=[];
+    for(const id of node.ids){
+      for(const type of questionTypesForCountry(id,true,node.grade)){
+        if(type===node.geoType||!(node.areaTypes||[]).includes(type))continue;
+        const item=makeItem(id,type,true);if(item)supplemental.push(item);
+      }
+    }
+    supplemental.sort((a,b)=>a.score-b.score);
+    for(const item of supplemental){if(chosen.length>=5)break;add(item)}
+  }
   return chosen.slice(0,5);
 }
 function startGeoJourneyNode(nodeId,grade=journeyViewGrade('geography')){
@@ -2780,7 +2798,8 @@ function startGeoJourneyNode(nodeId,grade=journeyViewGrade('geography')){
 function recordGeoJourneyResult(result){
   if(sessionScope?.type!=='geo-journey'||sessionScope.practiceOnly)return;
   ensureJourneyState();const grade=Number(sessionScope.journeyGrade||currentGrade()),model=geoJourneyModel(grade),node=model.nodes.find(n=>n.id===sessionScope.journeyNode);if(!node)return;
-  const key=journeyNodeKey('geography',grade,node.id),old=state.journey.nodes[key]||{},best=Math.max(Number(old.best||0),Number(result.correct||0)),passable=node.type==='checkpoint'||node.type==='challenge',passed=passable?(best>=4):!!old.passed;
+  const key=journeyNodeKey('geography',grade,node.id),old=state.journey.nodes[key]||{},passable=node.type==='checkpoint'||node.type==='challenge';
+  const scoredCorrect=passable?Number(result.learningCorrect??result.correct??0):Number(result.correct||0),best=Math.max(Number(old.best||0),scoredCorrect),passed=passable?(best>=4):!!old.passed;
   state.journey.nodes[key]={...old,best,attempts:Number(old.attempts||0)+1,lastAt:Date.now(),passed,passedAt:passed?(old.passedAt||Date.now()):null};
   const prog=geoJourneyProgress(grade),winKey='geography:'+grade;
   if(prog.complete&&!state.journey.gradeWins[winKey]){state.journey.gradeWins[winKey]={at:Date.now()};state.lastMilestone={title:GRADE_CONFIG[grade].label+' fullført i geografi! 🏆',copy:'Du har klart geografiens kjerneløp på dette trinnet.',at:Date.now()}}
@@ -3519,8 +3538,8 @@ function recordJourneySessionResult(result){
   if(sessionScope?.type!=='journey'||sessionScope.practiceOnly)return;
   ensureJourneyState();
   const subject=sessionScope.subject,grade=Number(sessionScope.journeyGrade||currentGrade()),nodeId=sessionScope.journeyNode,model=journeyModel(subject,grade),node=model.nodes.find(n=>n.id===nodeId);if(!node)return;
-  const key=journeyNodeKey(subject,grade,node.id),old=state.journey.nodes[key]||{},best=Math.max(Number(old.best||0),Number(result.correct||0));
-  const passable=node.type==='checkpoint'||node.type==='challenge',passed=passable?(best>=4):!!old.passed;
+  const key=journeyNodeKey(subject,grade,node.id),old=state.journey.nodes[key]||{},passable=node.type==='checkpoint'||node.type==='challenge';
+  const scoredCorrect=passable?Number(result.learningCorrect??result.correct??0):Number(result.correct||0),best=Math.max(Number(old.best||0),scoredCorrect),passed=passable?(best>=4):!!old.passed;
   state.journey.nodes[key]={...old,best,attempts:Number(old.attempts||0)+1,lastAt:Date.now(),passed,passedAt:passed?(old.passedAt||Date.now()):null};
   const prog=journeyProgress(subject,grade),winKey=subject+':'+grade;
   if(prog.complete&&!state.journey.gradeWins[winKey]){
@@ -4390,7 +4409,8 @@ function finishSession(){
   lastCompletedQuestions=JSON.parse(JSON.stringify(sessionQuestions));
   lastCompletedScope=JSON.parse(JSON.stringify(sessionScope||{}));
   const comparable=state.sessionLog.filter(s=>s.countsTowardGoal!==false&&Number(s.total||0)===sessionQuestions.length),previousBest=comparable.reduce((best,s)=>Math.max(best,Number(s.correct||0)),0),hadPrevious=comparable.length>0;
-  const result={endedAt:Date.now(),correct:sessionCorrect,total:sessionQuestions.length,strengthened:practiceOnly?0:sessionStrengthened.size,area:sessionScope.label,practiceOnly,countsTowardGoal:!practiceOnly};
+  const startedAt=Number(state.activeSession?.startedAt||0),learningCorrect=state.answerLog.filter(a=>a.at>=startedAt&&a.correct&&a.countsForLearning!==false).length;
+  const result={endedAt:Date.now(),correct:sessionCorrect,learningCorrect,total:sessionQuestions.length,strengthened:practiceOnly?0:sessionStrengthened.size,area:sessionScope.label,practiceOnly,countsTowardGoal:!practiceOnly};
   const newRecord=!practiceOnly&&hadPrevious&&result.correct>previousBest;
   recordJourneySessionResult(result);
   state.sessionLog.push(result);state.activeSession=null;saveState();renderAll();
