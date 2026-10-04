@@ -42,6 +42,61 @@
     return '<svg class="premium-route" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path class="premium-route-shadow" d="'+full+'"/><path class="premium-route-earth" d="'+full+'"/><path class="premium-route-light" d="'+full+'"/>'+(progress?'<path class="premium-route-progress" d="'+progress+'"/>':'')+dots+'</svg>';
   }
 
+
+  function installWorldDepthMotion(host){
+    if(host._premiumWorldMotionCleanup)host._premiumWorldMotionCleanup();
+    const world=host.querySelector('.premium-world');
+    if(!world)return;
+    const layers=[...world.querySelectorAll('[data-world-depth]')];
+    if(!layers.length)return;
+    const reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(reduce){
+      layers.forEach(layer=>{layer.style.setProperty('--world-x','0px');layer.style.setProperty('--world-y','0px')});
+      return;
+    }
+    let px=0,py=0,raf=0;
+    const clamp=v=>Math.max(-1,Math.min(1,v));
+    const apply=()=>{
+      raf=0;
+      const rect=world.getBoundingClientRect();
+      const viewport=window.innerHeight||document.documentElement.clientHeight||800;
+      const scroll=clamp((viewport*.48-(rect.top+rect.height*.5))/viewport);
+      layers.forEach(layer=>{
+        const depth=Number(layer.dataset.worldDepth||0);
+        const x=px*depth*7;
+        const y=py*depth*4+scroll*depth*9;
+        layer.style.setProperty('--world-x',x.toFixed(2)+'px');
+        layer.style.setProperty('--world-y',y.toFixed(2)+'px');
+      });
+    };
+    const schedule=()=>{if(!raf)raf=requestAnimationFrame(apply)};
+    const onPointer=e=>{
+      const rect=world.getBoundingClientRect();
+      if(!rect.width||!rect.height)return;
+      px=clamp(((e.clientX-rect.left)/rect.width-.5)*2);
+      py=clamp(((e.clientY-rect.top)/rect.height-.5)*2);
+      schedule();
+    };
+    const resetPointer=()=>{px=0;py=0;schedule()};
+    const finePointer=window.matchMedia&&window.matchMedia('(pointer:fine)').matches;
+    if(finePointer){
+      world.addEventListener('pointermove',onPointer,{passive:true});
+      world.addEventListener('pointerleave',resetPointer,{passive:true});
+    }
+    window.addEventListener('scroll',schedule,{passive:true});
+    window.addEventListener('resize',schedule,{passive:true});
+    host._premiumWorldMotionCleanup=()=>{
+      if(raf)cancelAnimationFrame(raf);
+      if(finePointer){
+        world.removeEventListener('pointermove',onPointer);
+        world.removeEventListener('pointerleave',resetPointer);
+      }
+      window.removeEventListener('scroll',schedule);
+      window.removeEventListener('resize',schedule);
+    };
+    schedule();
+  }
+
   function renderMap(subject,geo){
     const config=WORLDS[subject],host=document.getElementById(geo?'geo-journey-map':'journey-map');if(!host)return;
     const grade=journeyViewGrade(subject),prog=geo?geoJourneyProgress(grade):journeyProgress(subject,grade),model=prog.model;
@@ -72,16 +127,25 @@
       const last=core(area,geo).at(-1),i=route.findIndex(n=>n.id===last?.id),[x,y]=pointAt(config,Math.max(0,i),route.length);
       return '<span class="premium-world-prize" style="--x:'+x+'%;--y:'+y+'%" title="'+esc(area.title+' fullført')+'" aria-label="'+esc(area.title+' fullført, trofé vunnet')+'">🏆</span>';
     }).join('');
+    if(host._premiumWorldMotionCleanup)host._premiumWorldMotionCleanup();
+    const traveler=!prog.complete?'<div class="premium-traveler" style="--x:'+Math.min(86,Math.max(14,cx+(cx>50?-19:19)))+'%;--y:'+Math.min(88,Math.max(13,cy+1))+'%" aria-hidden="true">'+journeyFoxSvg()+'</div>':'';
+    const routeOverlay=journeyRouteOverlay(config,route,nextIndex);
     host.className='journey-map premium-journey-map';
-    host.innerHTML='<section class="premium-world premium-'+subject+(prog.complete?' is-complete':'')+'" aria-label="'+esc(config.name+', interaktiv læringsverden')+'">'+
-      '<img class="premium-world-art" src="./'+config.image+'" alt="" draggable="false">'+
+    host.innerHTML='<section class="premium-world premium-'+subject+' premium-world-depth-ready'+(prog.complete?' is-complete':'')+'" aria-label="'+esc(config.name+', interaktiv læringsverden')+'">'+
+      '<div class="premium-world-depth-layer premium-world-distant-layer" data-world-depth="0.14" aria-hidden="true"><img class="premium-world-depth-art premium-world-depth-art-distant" src="./'+config.image+'" alt="" draggable="false" decoding="async"></div>'+
+      '<div class="premium-world-depth-layer premium-world-midground-layer" data-world-depth="0.42">'+
+        '<img class="premium-world-art" src="./'+config.image+'" alt="" draggable="false" decoding="async">'+
+        '<div class="premium-world-relief" aria-hidden="true"><i class="relief-a"></i><i class="relief-b"></i><i class="relief-c"></i></div>'+
+        routeOverlay+medals+buttons+traveler+
+      '</div>'+
+      '<div class="premium-world-depth-layer premium-world-foreground-layer" data-world-depth="0.82" aria-hidden="true"><img class="premium-world-depth-art premium-world-depth-art-foreground" src="./'+config.image+'" alt="" draggable="false" decoding="async"><i class="premium-foreground-vignette"></i></div>'+
       '<div class="premium-world-shade" aria-hidden="true"></div><div class="premium-world-mist" style="--mist-top:'+Math.max(0,cy-13)+'%" aria-hidden="true"></div>'+
       '<div class="premium-world-sparkles" aria-hidden="true"></div>'+
       '<div class="premium-world-hud"><button type="button" class="premium-world-grade" aria-expanded="false">'+esc(GRADE_CONFIG[grade].label)+' ▾</button><div class="premium-world-progress" aria-label="'+prog.pct+' prosent fullført"><span>★</span><b>'+prog.done+'/'+prog.total+'</b><i><em style="width:'+prog.pct+'%"></em></i></div><div class="premium-world-trophies" aria-label="'+prog.areasDone+' av '+model.areas.length+' trofeer">🏆 '+prog.areasDone+'</div></div>'+
       '<div class="premium-world-title"><small>'+esc(SUBJECTS[subject]?.title||'Geografi')+' · '+esc(GRADE_CONFIG[grade].label)+'</small><strong>'+esc(config.name)+'</strong></div>'+
-      '<div class="premium-world-grade-menu" hidden></div>'+medals+buttons+
-      (!prog.complete?'<div class="premium-traveler" style="--x:'+Math.min(86,Math.max(14,cx+(cx>50?-19:19)))+'%;--y:'+Math.min(88,Math.max(13,cy+1))+'%" aria-hidden="true">'+journeyFoxSvg()+'</div>':'')+
+      '<div class="premium-world-grade-menu" hidden></div>'+
       '<div class="premium-world-sheet-back" hidden></div><section class="premium-world-sheet" role="dialog" aria-modal="true" aria-label="Oppdragssted" hidden></section></section><div class="premium-side-dock" aria-label="Ekstra oppdrag">'+sides+'</div>';
+    installWorldDepthMotion(host);
     const gradeBtn=host.querySelector('.premium-world-grade'),menu=host.querySelector('.premium-world-grade-menu');
     menu.innerHTML='<strong>Velg klassetrinn</strong>'+Array.from({length:10},(_,i)=>i+1).map(g=>'<button type="button" data-premium-grade="'+g+'"'+(g===grade?' class="selected"':'')+'>'+g+'. klasse'+(subjectGradeComplete(subject,g)?' · 🏆':'')+'</button>').join('');
     gradeBtn.onclick=()=>{menu.hidden=!menu.hidden;gradeBtn.setAttribute('aria-expanded',String(!menu.hidden))};
