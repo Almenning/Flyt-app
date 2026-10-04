@@ -296,6 +296,11 @@ async function finishSession(page){
     assert.equal(await page.locator('#journey-map .journey-fox').count(),1,'recommended node should show the fox');
     assert.match(await page.locator('#journey-map').innerText(),/Neste!/);
     assert.equal(await page.locator('#journey-now-card').isVisible(),true,'journey should show a clear you-are-here card');
+    assert.ok(await page.locator('#journey-map .node-main-icon').count()>=6,'journey nodes should have distinct visual motifs');
+    const journeyIcons=await page.locator('#journey-map .node-main-icon').allTextContents();
+    assert.ok(new Set(journeyIcons.filter(Boolean)).size>=3,'journey should not use one generic symbol for every node');
+    assert.ok(await page.locator('#journey-map .journey-goal-gate').count()>=2,'each visible world should show a concrete reward goal');
+    assert.ok(await page.locator('#journey-map .journey-landmark').count()>=2,'worlds should include thematic landmarks');
     const worldCount=await page.locator('#journey-map .journey-world').count();
     assert.equal(await page.locator('#journey-collection .journey-collectible').count(),worldCount,'each world should have one collectible slot');
     assert.equal(await page.locator('#journey-map .journey-world.world-current').count(),1,'journey should expose exactly one current world');
@@ -581,6 +586,9 @@ async function finishSession(page){
     assert.ok(await page.locator('#geo-journey-map .journey-world.geo-world').count()>=1,'geography journey should have expedition worlds');
     assert.ok(await page.locator('#geo-journey-map [data-geo-journey-node]').count()>=4,'geography journey should expose path nodes');
     assert.ok(await page.locator('#geo-journey-map .journey-route').count()>=1,'geography journey should render expedition routes');
+    assert.ok(await page.locator('#geo-journey-map .node-main-icon').count()>=3,'geography journey should use map/flag/capital motifs');
+    assert.ok(await page.locator('#geo-journey-map .journey-goal-gate').count()>=1,'geography expedition should show a stamp/reward goal');
+    assert.ok(await page.locator('#geo-journey-map .journey-landmark').count()>=1,'geography expedition should contain visual landmarks');
     const nextGeoNode=await page.evaluate(()=>geoJourneyRecommendedNode()?.id);
     assert.ok(nextGeoNode,'missing recommended geography journey node');
     await page.evaluate(id=>startGeoJourneyNode(id),nextGeoNode);
