@@ -1649,3 +1649,323 @@
 @media (prefers-reduced-motion:reduce){
   .bok-v10-atmosphere i,.bok-v10-water-shimmer,.bok-v10-place.state-current .hit{animation:none!important}
 }
+
+
+/* Bokskogen v11 — premium world-native polish.
+   The illustration owns the labels; the interaction layer only shows state. */
+.bok-v11-world{
+  background:#18352b;
+}
+.bok-v11-world .bok-v10-art{
+  filter:saturate(1.075) contrast(1.065) brightness(1.015);
+}
+.bok-v11-world .bok-v10-vignette{
+  background:
+    linear-gradient(180deg,rgba(4,18,13,.10),transparent 12%,transparent 86%,rgba(5,19,14,.11)),
+    radial-gradient(ellipse at 51% 48%,transparent 58%,rgba(5,22,16,.09) 100%);
+  box-shadow:
+    inset 0 0 54px rgba(5,23,16,.08),
+    inset 0 -26px 42px rgba(5,22,16,.07);
+}
+
+/* A subtle completed trail follows the path already painted into the world. */
+.bok-v11-route{
+  position:absolute;
+  inset:0;
+  z-index:5;
+  width:100%;
+  height:100%;
+  overflow:visible;
+  pointer-events:none;
+}
+.bok-v11-route path{
+  fill:none;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+.bok-v11-route .route-shadow{
+  stroke:rgba(75,50,23,.16);
+  stroke-width:.74;
+  opacity:.28;
+}
+.bok-v11-route .route-glow{
+  stroke:#ffd96f;
+  stroke-width:.76;
+  opacity:.46;
+  filter:drop-shadow(0 0 1.3px rgba(255,211,74,.58));
+}
+.bok-v11-route .route-steps{
+  stroke:#fff0aa;
+  stroke-width:.38;
+  stroke-dasharray:.42 2.7!important;
+  opacity:.72;
+  filter:drop-shadow(0 0 .7px rgba(255,235,153,.52));
+}
+
+/* The map artwork already contains the wooden destination signs.
+   Do not duplicate them as UI cards. */
+.bok-v11-world .bok-v10-place{
+  z-index:37;
+  width:126px;
+  height:58px;
+}
+.bok-v11-world .bok-v10-place .plaque,
+.bok-v11-world .bok-v10-next-ribbon,
+.bok-v11-world .bok-v10-seal{
+  display:none!important;
+}
+.bok-v11-world .bok-v10-place .hit{
+  inset:-10px -8px;
+  border-radius:18px;
+  background:transparent;
+}
+.bok-v11-world .bok-v10-place.state-current .hit{
+  inset:-13px -11px;
+  border:1px solid rgba(255,231,137,.30);
+  border-radius:20px;
+  background:
+    radial-gradient(ellipse at center,rgba(255,224,102,.13),rgba(255,224,102,0) 68%);
+  box-shadow:
+    0 0 0 5px rgba(255,216,72,.035),
+    0 0 25px rgba(255,195,38,.25);
+  animation:bokV11DestinationGlow 2.25s ease-in-out infinite;
+}
+.bok-v11-world .bok-v10-place.state-future .hit{
+  inset:-8px -5px;
+  border:0;
+  background:rgba(29,45,38,.035);
+}
+.bok-v11-anchor{
+  position:absolute;
+  z-index:2;
+  left:50%;
+  top:50%;
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  transform:translate(-50%,-50%);
+  background:rgba(255,229,141,.62);
+  box-shadow:0 0 8px rgba(255,211,86,.45);
+  opacity:.0;
+}
+.state-current .bok-v11-anchor{opacity:.9}
+
+.bok-v11-status{
+  position:absolute;
+  z-index:7;
+  right:1px;
+  top:2px;
+  display:grid;
+  place-items:center;
+  width:25px;
+  height:25px;
+  border-radius:50%;
+  border:2px solid rgba(255,248,219,.92);
+  font-family:ui-rounded,"SF Pro Rounded",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size:11px;
+  font-weight:1000;
+  box-shadow:0 3px 8px rgba(21,45,33,.28);
+}
+.bok-v11-status.done{
+  color:#fff;
+  background:linear-gradient(180deg,#78d391,#3f9f66);
+}
+.bok-v11-status.locked{
+  width:23px;
+  height:23px;
+  right:3px;
+  top:4px;
+  border-width:1.5px;
+  color:#fff;
+  background:linear-gradient(180deg,rgba(83,97,89,.92),rgba(59,72,65,.94));
+  font-size:8px;
+  filter:saturate(.62);
+}
+.bok-v11-current-tag{
+  position:absolute;
+  z-index:8;
+  left:50%;
+  bottom:-8px;
+  transform:translateX(-50%) rotate(-1deg);
+  display:flex;
+  align-items:center;
+  gap:4px;
+  min-width:58px;
+  padding:4px 9px 4px;
+  border:1px solid #a36e13;
+  border-radius:4px 4px 7px 7px;
+  color:#593a07;
+  background:linear-gradient(180deg,#ffe77a,#f3bf3e);
+  box-shadow:
+    inset 0 1px 0 rgba(255,249,196,.68),
+    0 2px 0 #946111,
+    0 5px 10px rgba(63,43,9,.19);
+  font-family:ui-rounded,"SF Pro Rounded",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  white-space:nowrap;
+}
+.bok-v11-current-tag b{
+  font-size:6.4px;
+  line-height:1;
+  font-weight:1000;
+  letter-spacing:.16em;
+}
+.bok-v11-current-tag i{
+  width:5px;
+  height:5px;
+  border-radius:50%;
+  background:#fff4b8;
+  box-shadow:0 0 6px rgba(255,241,158,.8);
+  animation:bokV11TagSpark 1.9s ease-in-out infinite;
+}
+
+/* HUD: larger, calmer and readable on a real phone. */
+.bok-v11-world .bok-v10-top{
+  top:max(12px,calc(env(safe-area-inset-top,0px) + 8px));
+  left:11px;
+  right:11px;
+  gap:7px 8px;
+}
+.bok-v11-world .bok-v10-home{
+  min-height:39px;
+  padding:8px 14px 8px 11px;
+  border-color:rgba(255,255,255,.50);
+  color:#3b3b4a;
+  background:rgba(255,251,238,.94);
+  box-shadow:
+    inset 0 1px 0 #fff,
+    0 5px 15px rgba(9,31,22,.18);
+  font-size:14px;
+}
+.bok-v11-world .bok-v10-home b{font-size:20px}
+.bok-v11-world .bok-v10-grade{
+  min-height:34px;
+  padding:8px 12px;
+  border-color:rgba(235,255,243,.24);
+  background:linear-gradient(145deg,rgba(18,51,40,.94),rgba(49,83,65,.91));
+  font-size:10px;
+}
+.bok-v11-world .bok-v10-progress{
+  min-width:126px;
+  min-height:39px;
+  padding:8px 12px;
+  gap:8px;
+  border-color:rgba(235,255,243,.24);
+  background:linear-gradient(145deg,rgba(18,51,40,.94),rgba(49,83,65,.91));
+}
+.bok-v11-world .bok-v10-progress .star{font-size:15px}
+.bok-v11-world .bok-v10-progress b,
+.bok-v11-world .bok-v10-progress span{font-size:10px}
+
+/* Bottom sheet: stop making seven-year-olds read ant typography. */
+.bok-v11-world .bok-v10-sheet{
+  left:10px;
+  right:10px;
+  bottom:max(10px,env(safe-area-inset-bottom,0px));
+  max-height:67%;
+  padding:9px 13px 16px;
+  border-radius:27px 27px 19px 19px;
+  background:
+    radial-gradient(circle at 18% -4%,rgba(255,255,255,.84),transparent 29%),
+    linear-gradient(180deg,#fff6dc 0%,#f7e3b6 58%,#e9ca91 100%);
+  box-shadow:
+    0 -1px 0 rgba(255,255,255,.82) inset,
+    0 -15px 42px rgba(13,34,24,.30);
+}
+.bok-v11-world .bok-v10-sheet .handle{
+  width:42px;
+  height:5px;
+  margin-bottom:10px;
+}
+.bok-v11-world .bok-v10-sheet .head small{
+  font-size:9px;
+  letter-spacing:.13em;
+}
+.bok-v11-world .bok-v10-sheet .head strong{
+  margin-top:3px;
+  font-size:28px;
+}
+.bok-v11-world .bok-v10-sheet .head span{
+  margin-top:5px;
+  font-size:11px;
+  line-height:1.25;
+}
+.bok-v11-world .bok-v10-close{
+  width:36px;
+  height:36px;
+  font-size:22px;
+}
+.bok-v11-world .bok-v10-sheet .progress{
+  height:8px;
+  margin:13px 0 13px;
+}
+.bok-v11-world .bok-v10-missions{gap:9px}
+.bok-v11-world .bok-v10-mission{
+  min-height:64px;
+  padding:9px 10px;
+  gap:10px;
+  border-radius:18px;
+  background:rgba(255,252,237,.72);
+  box-shadow:0 3px 0 rgba(117,79,40,.08);
+}
+.bok-v11-world .bok-v10-mission .icon{
+  width:43px;
+  height:43px;
+  border-radius:14px;
+  font-size:21px;
+}
+.bok-v11-world .bok-v10-mission .copy small{
+  margin-bottom:2px;
+  font-size:8px;
+}
+.bok-v11-world .bok-v10-mission .copy strong{
+  font-size:15px;
+  line-height:1.16;
+}
+.bok-v11-world .bok-v10-mission .copy em{
+  margin-top:3px;
+  font-size:10px;
+}
+.bok-v11-world .bok-v10-mission .arrow{
+  width:30px;
+  height:30px;
+  font-size:18px;
+}
+.bok-v11-world .bok-v10-locked span{font-size:30px}
+.bok-v11-world .bok-v10-locked strong{font-size:16px}
+.bok-v11-world .bok-v10-locked p{font-size:11px;line-height:1.4}
+
+/* Grade menu also needs actual reading size. */
+.bok-v11-world .bok-v10-grade-menu{
+  top:max(96px,calc(env(safe-area-inset-top,0px) + 78px));
+  min-width:176px;
+  padding:12px;
+  border-radius:19px;
+}
+.bok-v11-world .bok-v10-grade-menu strong{font-size:15px}
+.bok-v11-world .bok-v10-grade-menu button{
+  padding:9px 10px;
+  font-size:11px;
+}
+
+@keyframes bokV11DestinationGlow{
+  0%,100%{opacity:.68;transform:scale(.98)}
+  50%{opacity:1;transform:scale(1.035)}
+}
+@keyframes bokV11TagSpark{
+  0%,100%{opacity:.5;transform:scale(.8)}
+  50%{opacity:1;transform:scale(1.15)}
+}
+@media (max-width:390px){
+  .bok-v11-world .bok-v10-place{width:116px;height:54px}
+  .bok-v11-status{right:0;top:1px}
+  .bok-v11-world .bok-v10-home{font-size:13px}
+  .bok-v11-world .bok-v10-progress{min-width:115px}
+  .bok-v11-world .bok-v10-progress b,
+  .bok-v11-world .bok-v10-progress span{font-size:9px}
+  .bok-v11-world .bok-v10-sheet .head strong{font-size:25px}
+  .bok-v11-world .bok-v10-mission .copy strong{font-size:14px}
+}
+@media (prefers-reduced-motion:reduce){
+  .bok-v11-world .bok-v10-place.state-current .hit,
+  .bok-v11-current-tag i{animation:none!important}
+}
