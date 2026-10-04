@@ -1,4 +1,4 @@
-const CACHE='laer-litt-mer-v12-bokskogen-premium10-2026-10-04';
+const CACHE='laer-litt-mer-v13-bokskogen-premium10-final-2026-10-04';
 const SHELL=['./','./index.html','./manifest.webmanifest','./icon.svg','./fraction-lab.css?v=20261003-mobile2','./fraction-lab.js?v=20261003-mobile2','./multiplication-lab.css?v=20261003-table1','./multiplication-lab.js?v=20261003-table1','./norwegian-content.js','./bokskogen-world.css?v=20261004-premium9','./bokskogen-world.js?v=20261004-premium9','./bokskogen-reference-bg.webp?v=20261004-art2'];
 
 self.addEventListener('install',event=>{
