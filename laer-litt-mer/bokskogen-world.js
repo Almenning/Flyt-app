@@ -462,16 +462,58 @@
     const req=requiredNodes(place,model),done=req.filter(finished).length;
     return {done,total:req.length,pct:req.length?Math.round(done/req.length*100):0};
   }
+  function landmarkMarkup(place,state){
+    const lit=state==='done'||state==='current';
+    const status=state==='done'?'Fullført':state==='current'?'Neste':'';
+    const stateBit=status?'<span class="bok-v15-state-word">'+status+'</span>':'';
+    const common='<span class="bok-v15-ground-shadow"></span>';
+    if(place.id==='bokstavporten'){
+      return '<span class="bok-v15-landmark type-gate">'+common+
+        '<span class="gate-post left"><i>A</i></span><span class="gate-post right"><i>B</i></span><span class="gate-arch"><i>C</i></span>'+
+        '<span class="gate-door '+(lit?'is-open':'')+'"></span><span class="bok-v15-lantern left"></span><span class="bok-v15-lantern right"></span>'+
+        '<span class="bok-v15-name">'+place.title+'</span>'+stateBit+'</span>';
+    }
+    if(place.id==='lesestua'){
+      return '<span class="bok-v15-landmark type-hut">'+common+
+        '<span class="hut-body"><i class="window left"></i><i class="window right"></i><i class="door"></i></span><span class="hut-roof"></span>'+
+        '<span class="hut-book">Aa</span><span class="bok-v15-name">'+place.title+'</span>'+stateBit+'</span>';
+    }
+    if(place.id==='rimdammen'){
+      return '<span class="bok-v15-landmark type-pond">'+common+
+        '<span class="pond-water"><i class="lily l1"></i><i class="lily l2"></i><i class="lily l3"></i><i class="frog">•‿•</i></span>'+
+        '<span class="pond-reeds r1"></span><span class="pond-reeds r2"></span><span class="bok-v15-name">'+place.title+'</span>'+stateBit+'</span>';
+    }
+    if(place.id==='skogsporten'){
+      return '<span class="bok-v15-landmark type-forest-gate">'+common+
+        '<span class="forest-post left"></span><span class="forest-post right"></span><span class="forest-arch"></span><span class="forest-lamp"></span>'+
+        '<span class="bok-v15-name">'+place.title+'</span>'+stateBit+'</span>';
+    }
+    if(place.id==='ordbrua'){
+      return '<span class="bok-v15-landmark type-bridge">'+common+
+        '<span class="bridge-rail back"></span><span class="bridge-deck"><i></i><i></i><i></i><i></i><i></i></span><span class="bridge-rail front"></span>'+
+        '<span class="bok-v15-name">'+place.title+'</span>'+stateBit+'</span>';
+    }
+    if(place.id==='ordhagen'){
+      return '<span class="bok-v15-landmark type-garden">'+common+
+        '<span class="garden-arch"></span><span class="garden-book">ORD</span><span class="garden-flower f1"></span><span class="garden-flower f2"></span><span class="garden-flower f3"></span><span class="garden-flower f4"></span>'+
+        '<span class="bok-v15-name">'+place.title+'</span>'+stateBit+'</span>';
+    }
+    return '<span class="bok-v15-landmark type-library">'+common+
+      '<span class="library-wing left"><i></i></span><span class="library-wing right"><i></i></span><span class="library-tower"><i class="window"></i><i class="door"></i><b>ABC</b></span>'+
+      '<span class="library-roof main"></span><span class="library-roof tower"></span><span class="library-flag"></span>'+
+      '<span class="bok-v15-name">'+place.title+'</span>'+stateBit+'</span>';
+  }
+
   function plaque(place,state,reactionPlaceId,newlyOpenedId){
     const done=state==='done',current=state==='current',future=state==='future';
-    return '<button type="button" class="bok-v10-place state-'+state+(place.id===reactionPlaceId?' is-just-progressed':'')+(place.id===newlyOpenedId?' is-newly-opened':'')+'" style="left:'+place.point[0]+'%;top:'+place.point[1]+'%;--tilt:'+place.tilt+'deg" data-v10-place="'+place.id+'" data-title="'+escapeAttr(place.title)+'" aria-label="'+escapeAttr(place.title+(done?', fullført':current?', neste sted':future?', låst':''))+'">'+
-      '<span class="hit"></span>'+
-      '<span class="bok-v11-anchor" aria-hidden="true"></span>'+
-      (done?'<span class="bok-v12-state-mark done" aria-hidden="true"><i>✓</i></span>':'')+
-      (future?'<span class="bok-v12-state-mark locked" aria-hidden="true"><i>⌁</i></span>':'')+
-      (current?'<span class="bok-v11-current-tag" aria-hidden="true"><b>NESTE</b><i></i></span>':'')+
+    const depthScale=Math.max(.84,Math.min(1.08,.82+Number(place.point[1])*.0028));
+    const placeZ=Math.round(70+Number(place.point[1]));
+    return '<button type="button" class="bok-v10-place bok-v15-place state-'+state+(place.id===reactionPlaceId?' is-just-progressed':'')+(place.id===newlyOpenedId?' is-newly-opened':'')+'" style="left:'+place.point[0]+'%;top:'+place.point[1]+'%;--tilt:'+place.tilt+'deg;--place-scale:'+depthScale.toFixed(3)+';--place-z:'+placeZ+'" data-v10-place="'+place.id+'" data-title="'+escapeAttr(place.title)+'" aria-label="'+escapeAttr(place.title+(done?', fullført':current?', neste sted':future?', låst':''))+'">'+
+      '<span class="hit"></span>'+landmarkMarkup(place,state)+
+      (future?'<span class="bok-v15-vine-lock" aria-hidden="true"></span>':'')+
     '</button>';
   }
+
   function missionInfo(node,model,recommended,recommendedIndex){
     const st=journeyNodeState(node),idx=model.nodes.findIndex(n=>n.id===node.id);
     const completed=finished(node);
@@ -535,11 +577,41 @@
     if(prog.complete)currentIndex=PLACES.length-1;
     const pct=prog.complete?100:Math.max(0,currentIndex)/(PLACES.length-1)*100;
     const d='M30 93.5 C49 90 70 79 78 70 C64 64 40 61 27 53 C43 50 66 48 78 44 C68 39 51 35 43 32 C38 28 39 24 39 21 C51 17 66 14 76 11.5';
-    return '<svg class="bok-v11-route" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">'+
-      '<path class="route-shadow" d="'+d+'" pathLength="100"></path>'+
+    return '<svg class="bok-v11-route bok-v15-route" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">'+
+      '<path class="route-earth-shadow" d="'+d+'"></path>'+
+      '<path class="route-earth" d="'+d+'"></path>'+
+      '<path class="route-center" d="'+d+'"></path>'+
       '<path class="route-glow" d="'+d+'" pathLength="100" style="stroke-dasharray:'+pct+' 100"></path>'+
       '<path class="route-steps" d="'+d+'" pathLength="100" style="stroke-dasharray:'+pct+' 100"></path>'+
     '</svg>';
+  }
+
+  function modularScene(){
+    return '<div class="bok-v15-scene" aria-hidden="true">'+
+      '<div class="bok-v15-layer bok-v15-sky"></div>'+
+      '<div class="bok-v15-layer bok-v15-distant">'+
+        '<svg viewBox="0 0 100 100" preserveAspectRatio="none"><defs><linearGradient id="v15hill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6f9a74"/><stop offset="1" stop-color="#3f7056"/></linearGradient></defs>'+
+          '<path d="M0 17 Q12 8 24 15 T48 14 T73 13 T100 17 L100 36 L0 36Z" fill="#8aae83"/>'+
+          '<path d="M0 23 Q13 12 29 21 T58 20 T82 18 T100 24 L100 43 L0 43Z" fill="url(#v15hill)"/>'+
+          '<g fill="#315f4b" opacity=".88"><path d="M4 28l5-15 5 15zM13 27l5-17 5 17zM26 29l6-19 6 19zM64 27l6-18 6 18zM77 28l6-20 6 20zM89 28l5-16 5 16z"/></g>'+
+        '</svg>'+
+      '</div>'+
+      '<div class="bok-v15-layer bok-v15-terrain">'+
+        '<svg viewBox="0 0 100 100" preserveAspectRatio="none"><defs><linearGradient id="v15ground" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#78a665"/><stop offset=".55" stop-color="#5f8f59"/><stop offset="1" stop-color="#456f4d"/></linearGradient><linearGradient id="v15river" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#67c4d2"/><stop offset=".55" stop-color="#3aa3b8"/><stop offset="1" stop-color="#277f9b"/></linearGradient></defs>'+
+          '<rect x="0" y="28" width="100" height="72" fill="url(#v15ground)"/>'+
+          '<path d="M81 8 C73 19 87 26 78 38 C70 49 84 57 73 70 C65 80 73 91 62 100 H100 V8Z" fill="url(#v15river)"/>'+
+          '<path d="M78 8 C70 20 83 27 74 38 C66 49 80 58 69 70 C60 81 69 92 58 100" fill="none" stroke="#b3eced" stroke-width="1.2" opacity=".55"/>'+
+          '<path d="M0 39 Q21 32 37 40 T69 38 L65 56 Q45 51 29 59 T0 58Z" fill="#6f9e5d" opacity=".72"/>'+
+          '<path d="M0 67 Q17 61 34 68 T67 66 L61 84 Q43 78 25 87 T0 86Z" fill="#5d8d54" opacity=".74"/>'+
+          '<g fill="#91b970" opacity=".9"><ellipse cx="29" cy="93" rx="13" ry="5"/><ellipse cx="78" cy="70" rx="13" ry="5"/><ellipse cx="27" cy="53" rx="12" ry="4"/><ellipse cx="78" cy="44" rx="12" ry="5"/><ellipse cx="43" cy="32" rx="10" ry="4"/><ellipse cx="39" cy="21" rx="11" ry="4"/><ellipse cx="76" cy="12" rx="13" ry="4"/></g>'+
+        '</svg>'+
+      '</div>'+
+      '<div class="bok-v15-layer bok-v15-props">'+
+        '<span class="v15-tree t1"></span><span class="v15-tree t2"></span><span class="v15-tree t3"></span><span class="v15-tree t4"></span><span class="v15-tree t5"></span><span class="v15-tree t6"></span><span class="v15-tree t7"></span><span class="v15-tree t8"></span>'+
+        '<span class="v15-rock r1"></span><span class="v15-rock r2"></span><span class="v15-rock r3"></span><span class="v15-rock r4"></span>'+
+      '</div>'+
+      '<div class="bok-v15-layer bok-v15-foreground"><span class="fg-tree left"></span><span class="fg-tree right"></span><span class="fg-grass g1"></span><span class="fg-grass g2"></span></div>'+
+    '</div>';
   }
 
   function takeBokskogenReaction(viewGrade,model){
@@ -587,21 +659,17 @@
     const places=PLACES.map(p=>plaque(p,placeState(p,model,recommended,recommendedIndex),reactionPlace?.id||null,newlyOpenedId)).join('');
     const travelerPoint=currentPlace?bokTravelerPoint(currentPlace.point):null;
     const reactionTravelerPoint=reactionPlace?bokTravelerPoint(reactionPlace.point):null;
-    const traveler=travelerPoint&&!prog.complete?'<div class="bok-v13-traveler'+(reaction?' is-arriving':'')+'" style="left:'+travelerPoint[0]+'%;top:'+travelerPoint[1]+'%"'+(reactionTravelerPoint?' data-travel-from-x="'+reactionTravelerPoint[0]+'" data-travel-from-y="'+reactionTravelerPoint[1]+'" data-travel-to-x="'+travelerPoint[0]+'" data-travel-to-y="'+travelerPoint[1]+'"':'')+' aria-hidden="true"><span class="bok-v14-traveler-character">'+(typeof journeyFoxSvg==='function'?journeyFoxSvg():'🦊')+'</span><span class="bok-v14-travel-dust"><i></i><i></i><i></i></span></div>':'';
+    const traveler=travelerPoint&&!prog.complete?'<div class="bok-v13-traveler bok-v15-traveler'+(reaction?' is-arriving':'')+'" style="left:'+travelerPoint[0]+'%;top:'+travelerPoint[1]+'%"'+(reactionTravelerPoint?' data-travel-from-x="'+reactionTravelerPoint[0]+'" data-travel-from-y="'+reactionTravelerPoint[1]+'" data-travel-to-x="'+travelerPoint[0]+'" data-travel-to-y="'+travelerPoint[1]+'"':'')+' aria-hidden="true"><span class="bok-v14-traveler-character">'+(typeof journeyFoxSvg==='function'?journeyFoxSvg():'🦊')+'</span><span class="bok-v14-travel-dust"><i></i><i></i><i></i></span></div>':'';
     const reactionFx=reactionPlace?'<div class="bok-v13-progress-reaction" style="left:'+reactionPlace.point[0]+'%;top:'+reactionPlace.point[1]+'%" aria-hidden="true"><i></i><i></i><i></i><b>✓</b></div>':'';
-    return '<section class="bok-v10-world bok-v11-world'+(prog.complete?' is-complete':'')+(reaction?' has-progress-reaction':'')+'" aria-label="Bokskogen, interaktiv læringsverden">'+
-      '<img class="bok-v10-art" src="./bokskogen-verden.png?v=20261004-world1" alt="" draggable="false" decoding="async">'+
-      '<div class="bok-v10-vignette" aria-hidden="true"></div>'+
-      progressTrail(prog,recommended,model)+
-      '<div class="bok-v10-water-shimmer" aria-hidden="true"></div>'+
-      '<div class="bok-v10-atmosphere" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>'+
-      reactionFx+traveler+
+    return '<section class="bok-v10-world bok-v11-world bok-v15-world'+(prog.complete?' is-complete':'')+(reaction?' has-progress-reaction':'')+'" aria-label="Bokskogen, interaktiv læringsverden">'+
+      modularScene()+progressTrail(prog,recommended,model)+
+      '<div class="bok-v10-atmosphere bok-v15-atmosphere" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>'+
+      reactionFx+places+traveler+
       '<div class="bok-v10-top">'+
         '<button type="button" class="bok-v10-home"><b aria-hidden="true">‹</b> Hjem</button>'+
         '<button type="button" class="bok-v10-grade">'+GRADE_CONFIG[viewGrade].label+' <span>⌄</span></button>'+
         '<div class="bok-v10-progress" aria-label="'+prog.pct+' prosent fullført"><span class="star" aria-hidden="true">★</span><b>'+prog.done+'/'+prog.total+'</b><span>'+prog.pct+' %</span></div>'+
       '</div>'+
-      places+
       '<div class="bok-v10-grade-menu" hidden></div>'+
       '<div class="bok-v10-backdrop" hidden></div>'+
       '<section class="bok-v10-sheet" role="dialog" aria-modal="true" hidden></section>'+
