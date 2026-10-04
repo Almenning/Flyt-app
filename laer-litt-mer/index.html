@@ -330,6 +330,59 @@
     .free-practice-title{margin-top:22px}
     @media (prefers-reduced-motion:reduce){.journey-node.state-next .journey-node-orb{animation:none}}
 
+    /* Læringsreisen v2: hvert område er et lite spillkart, ikke en vertikal sjekkliste. */
+    .journey-map-v2{gap:22px}
+    .journey-world{--world-sky:#DFF4FF;--world-ground:#D8F0D7;--world-accent:#667DE9;position:relative;overflow:hidden;border-radius:34px;min-height:525px;padding:0;border:3px solid rgba(255,255,255,.92);box-shadow:0 12px 0 rgba(67,76,116,.07),0 24px 44px rgba(64,72,110,.10);background:linear-gradient(180deg,var(--world-sky) 0 58%,var(--world-ground) 58% 100%)}
+    .journey-world.world-1{--world-sky:#EAF1FF;--world-ground:#E5F4E8;--world-accent:#657BE9}
+    .journey-world.world-2{--world-sky:#FFF0D8;--world-ground:#E7F2D4;--world-accent:#E0A52B}
+    .journey-world.world-3{--world-sky:#F1E9FF;--world-ground:#E2F1EB;--world-accent:#8A68D7}
+    .journey-world.world-4{--world-sky:#E3F6F2;--world-ground:#F0E8D8;--world-accent:#4BA47A}
+    .journey-world-head{position:relative;z-index:7;display:flex;align-items:center;gap:11px;padding:17px 17px 10px}
+    .journey-world-number{width:36px;height:36px;border-radius:13px;background:rgba(255,255,255,.84);display:grid;place-items:center;font-size:11px;font-weight:950;color:#61708B;box-shadow:0 4px 11px rgba(55,66,100,.08);flex:0 0 auto}
+    .journey-world-title{min-width:0;flex:1}.journey-world-title strong{font-size:18px;font-weight:950;display:block}.journey-world-title small{display:block;margin-top:2px;font-size:10px;font-weight:800;line-height:1.3;color:#66708A}
+    .journey-world-progress{flex:0 0 auto;min-width:54px;text-align:center;border-radius:999px;background:rgba(255,255,255,.88);padding:7px 9px;font-size:10px;font-weight:950;color:#56627E;box-shadow:0 4px 11px rgba(55,66,100,.08)}
+    .journey-world-progress.complete{background:#FFF0B5;color:#72530A}
+    .journey-scenery{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+    .journey-cloud{position:absolute;width:62px;height:21px;border-radius:999px;background:rgba(255,255,255,.55);filter:blur(.1px)}
+    .journey-cloud:before,.journey-cloud:after{content:"";position:absolute;border-radius:50%;background:inherit}.journey-cloud:before{width:27px;height:27px;left:11px;top:-12px}.journey-cloud:after{width:34px;height:34px;right:7px;top:-16px}
+    .journey-cloud.c1{left:7%;top:21%}.journey-cloud.c2{right:5%;top:32%;transform:scale(.72);opacity:.7}
+    .journey-hill{position:absolute;width:190px;height:95px;border-radius:50% 50% 0 0;background:rgba(87,159,106,.13);bottom:-27px}.journey-hill.h1{left:-45px}.journey-hill.h2{right:-72px;width:230px;height:116px;background:rgba(83,144,104,.09)}
+    .journey-spark{position:absolute;font-size:16px;opacity:.55;filter:saturate(.8)}.journey-spark.s1{right:12%;top:17%}.journey-spark.s2{left:10%;bottom:17%;font-size:13px}.journey-spark.s3{right:19%;bottom:11%;font-size:12px}
+    .journey-playfield{position:relative;height:430px;margin:0 4px 8px;z-index:3}
+    .journey-route{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+    .journey-route path{fill:none;stroke:#C7D2DD;stroke-width:4.8;stroke-linecap:round;stroke-dasharray:1 0}
+    .journey-route path.done{stroke:var(--world-accent);stroke-width:6.2;filter:drop-shadow(0 2px 0 rgba(255,255,255,.55))}
+    .journey-map-node{position:absolute;transform:translate(-50%,-50%);z-index:6;border:0;background:transparent;color:var(--ink);padding:0;cursor:pointer;text-align:center;min-width:84px}
+    .journey-map-node .node-orb{width:68px;height:68px;margin:auto;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.95);border:6px solid #D2DAE8;box-shadow:0 7px 0 rgba(57,68,108,.12),0 13px 23px rgba(56,66,104,.15);font-size:23px;font-weight:950;transition:transform .16s ease,box-shadow .16s ease}
+    .journey-map-node:active .node-orb{transform:translateY(2px);box-shadow:0 4px 0 rgba(57,68,108,.12),0 8px 16px rgba(56,66,104,.13)}
+    .journey-map-node .node-label{display:inline-block;margin-top:8px;max-width:128px;padding:6px 9px;border-radius:12px;background:rgba(255,255,255,.86);box-shadow:0 3px 9px rgba(57,67,103,.08);backdrop-filter:blur(5px)}
+    .journey-map-node .node-label strong{display:block;font-size:11px;line-height:1.16;font-weight:950}.journey-map-node .node-label small{display:block;margin-top:2px;font-size:8px;line-height:1.2;color:#6B748C;font-weight:850}
+    .journey-map-node.state-active .node-orb{border-color:#F3BD48;background:#FFF6D7}
+    .journey-map-node.state-can-now .node-orb{border-color:#56B987;background:#E8F8EF}
+    .journey-map-node.state-mastered .node-orb{border-color:#E5AD27;background:#FFF1B1}
+    .journey-map-node.state-passed .node-orb{border-color:#667DE9;background:#EEF0FF}
+    .journey-map-node.state-future{opacity:.58;filter:saturate(.55)}
+    .journey-map-node.state-next .node-orb{border-color:#5D75EB;background:#fff;box-shadow:0 0 0 9px rgba(93,117,235,.13),0 8px 0 rgba(57,68,108,.12),0 16px 28px rgba(77,91,170,.20);animation:journeyPulseV2 1.7s ease-in-out infinite}
+    .journey-map-node.state-next .node-label{background:#536BE0;color:#fff;box-shadow:0 5px 13px rgba(68,84,171,.25)}.journey-map-node.state-next .node-label small{color:#EDF0FF}
+    .journey-map-node.type-checkpoint .node-orb{width:82px;height:82px;border-radius:26px;font-size:31px}.journey-map-node.type-checkpoint .node-label strong{font-size:12px}
+    .journey-map-node.type-challenge .node-orb,.journey-map-node.type-review .node-orb{width:57px;height:57px;border-radius:19px;font-size:21px;border-width:5px}
+    .journey-map-node.type-challenge .node-label,.journey-map-node.type-review .node-label{max-width:104px}
+    .journey-map-node.type-challenge{z-index:5}.journey-map-node.type-review{z-index:5}
+    .journey-map-node.type-challenge .node-orb{background:#FFF3C8;border-color:#EAB63E}.journey-map-node.type-review .node-orb{background:#EAF4FF;border-color:#87A9DB}
+    .journey-fox{position:absolute;left:50%;top:-43px;transform:translateX(-50%);font-size:34px;filter:drop-shadow(0 4px 4px rgba(55,62,90,.16));animation:foxBob 1.8s ease-in-out infinite}
+    .journey-next-bubble{position:absolute;left:50%;top:-65px;transform:translateX(-50%);white-space:nowrap;background:#263451;color:#fff;border-radius:999px;padding:5px 8px;font-size:8px;font-weight:950;box-shadow:0 4px 10px rgba(38,52,81,.18)}
+    .journey-next-bubble:after{content:"";position:absolute;left:50%;bottom:-4px;width:8px;height:8px;background:#263451;transform:translateX(-50%) rotate(45deg)}
+    .journey-zone-gate{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);width:66%;height:34px;border-radius:50% 50% 13px 13px;background:rgba(255,255,255,.24);border:2px solid rgba(255,255,255,.45);pointer-events:none}
+    .journey-zone-badge{position:absolute;right:13px;bottom:12px;border-radius:999px;background:rgba(255,255,255,.80);padding:5px 8px;font-size:8px;font-weight:950;color:#65708A;z-index:5}
+    .journey-world.area-complete .journey-zone-badge{background:#FFF0B7;color:#74560A}
+    @keyframes journeyPulseV2{0%,100%{box-shadow:0 0 0 6px rgba(93,117,235,.09),0 8px 0 rgba(57,68,108,.12),0 16px 28px rgba(77,91,170,.16)}50%{box-shadow:0 0 0 11px rgba(93,117,235,.17),0 8px 0 rgba(57,68,108,.12),0 17px 30px rgba(77,91,170,.23)}}
+    @keyframes foxBob{0%,100%{transform:translate(-50%,0) rotate(-2deg)}50%{transform:translate(-50%,-4px) rotate(2deg)}}
+    .grade-band-young .journey-world{min-height:550px}.grade-band-young .journey-map-node .node-orb{width:74px;height:74px}.grade-band-young .journey-map-node .node-label strong{font-size:12px}.grade-band-young .journey-playfield{height:452px}
+    .grade-band-older .journey-world,.grade-band-teen .journey-world{min-height:500px;border-radius:27px}.grade-band-older .journey-playfield,.grade-band-teen .journey-playfield{height:405px}.grade-band-older .journey-map-node .node-orb,.grade-band-teen .journey-map-node .node-orb{width:61px;height:61px}
+    @media (max-width:380px){.journey-map-node .node-label{max-width:104px;padding:5px 7px}.journey-map-node .node-label strong{font-size:10px}.journey-world-head{padding-left:13px;padding-right:13px}.journey-world-progress{min-width:48px}}
+    @media (prefers-reduced-motion:reduce){.journey-map-node.state-next .node-orb,.journey-fox{animation:none}}
+
+
     .geo-themes{display:flex;gap:8px;overflow-x:auto;padding:3px 2px 8px;margin:10px -2px 4px;scrollbar-width:none}.geo-themes::-webkit-scrollbar{display:none}
     .geo-theme{flex:0 0 auto;border:2px solid #E5E3EF;background:#fff;color:#5F6682;border-radius:999px;padding:9px 12px;font-weight:900;cursor:pointer;min-height:44px}
     .geo-theme.active{background:#E8EEFF;border-color:#8191E8;color:#4659B9}
@@ -3587,35 +3640,77 @@ function startNextGradePreview(subject){
   qIndex=0;sessionCorrect=0;sessionStrengthened=new Set();currentAnswered=null;
   state.activeSession={startedAt:Date.now()};persistActiveSession();showScreen('session');renderQuestion();
 }
+
+function journeyCoreNodes(area){return area.nodes.filter(n=>n.type==='skill'||n.type==='checkpoint')}
+function journeyCorePositions(count){
+  const maps={
+    2:[[24,24],[69,80]],
+    3:[[22,18],[72,49],[39,83]],
+    4:[[20,14],[74,36],[29,61],[68,84]],
+    5:[[20,11],[72,28],[31,48],[75,67],[40,87]],
+    6:[[19,9],[72,24],[31,40],[76,56],[29,73],[66,89]]
+  };
+  return maps[count]||Array.from({length:count},(_,i)=>[i%2?72:28,10+i*(80/Math.max(1,count-1))]);
+}
+function journeySidePosition(type,areaIndex){
+  if(type==='challenge')return areaIndex%2===0?[84,54]:[15,48];
+  return areaIndex%2===0?[14,72]:[86,70];
+}
+function journeyRouteSvg(area){
+  const core=journeyCoreNodes(area),pts=journeyCorePositions(core.length);
+  if(pts.length<2)return '';
+  const segs=[];
+  for(let i=0;i<pts.length-1;i++){
+    const [x1,y1]=pts[i],[x2,y2]=pts[i+1],mx=(x1+x2)/2,my=(y1+y2)/2,curve=(i%2===0?7:-7);
+    const n1=core[i],n2=core[i+1],done1=n1.type==='skill'?['can-now','mastered'].includes(journeyNodeState(n1)):!!journeyNodeRecord(n1).passed;
+    const done2=n2.type==='skill'?['can-now','mastered'].includes(journeyNodeState(n2)):!!journeyNodeRecord(n2).passed;
+    segs.push('<path class="'+(done1&&done2?'done':'')+'" d="M '+x1+' '+y1+' Q '+(mx+curve)+' '+my+' '+x2+' '+y2+'"/>');
+  }
+  return '<svg class="journey-route" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">'+segs.join('')+'</svg>';
+}
+function journeySceneEmoji(subject,areaIndex){
+  const sets={norwegian:['✦','✎','❖','✦'],math:['✦','△','✣','✦'],english:['✦','❝','✧','✦']};
+  return (sets[subject]||sets.math)[areaIndex%4];
+}
+
 function renderSubjectJourney(){
   const host=document.getElementById('journey-map');if(!host||!SUBJECTS[activeSubject])return;
+  host.classList.add('journey-map-v2');
   const viewGrade=journeyViewGrade(activeSubject),prog=journeyProgress(activeSubject,viewGrade),recommended=journeyRecommendedNode(activeSubject,viewGrade),model=prog.model;
   const recommendedIndex=recommended?model.nodes.findIndex(n=>n.id===recommended.id):-1;
   document.getElementById('journey-grade-chip').textContent=GRADE_CONFIG[viewGrade].label;
   renderJourneyGradeStrip(activeSubject,'journey-grade-strip','journey-grade-note',viewGrade);
   document.getElementById('journey-heading-title').textContent=prog.complete?'Du rundet trinnet! 🏆':'Din vei gjennom '+GRADE_CONFIG[viewGrade].label.toLowerCase();
   document.getElementById('journey-summary-title').textContent=prog.complete?'Kjerneløpet er fullført':prog.pct+' % gjennom kjerneløpet';
-  document.getElementById('journey-summary-copy').textContent=prog.complete?'Du kan fortsatt repetere, mestre over tid eller ta ekstra utfordringer.':'Følg stien, eller trykk på et punkt du vil øve på.';
+  document.getElementById('journey-summary-copy').textContent=prog.complete?'Du kan fortsatt repetere, mestre over tid eller ta ekstra utfordringer.':'Hver verden har et mål. Følg hovedruten, ta sideoppdrag når du vil, og nå troféet.';
   document.getElementById('journey-summary-pct').textContent=prog.pct+'%';
   document.getElementById('journey-summary-ring').style.setProperty('--journey-pct',prog.pct);
-  const positions=['left','right','left','right','center'];
+
   host.innerHTML=model.areas.map((area,areaIndex)=>{
     const areaDone=journeyAreaComplete(area),required=area.nodes.filter(n=>n.type==='skill'||n.type==='checkpoint'),done=required.filter(n=>n.type==='skill'?['can-now','mastered'].includes(journeyNodeState(n)):journeyNodeRecord(n).passed).length;
-    const nodes=area.nodes.map((node,i)=>{
-      const st=journeyNodeState(node),globalIndex=model.nodes.findIndex(n=>n.id===node.id);
-      const isNext=recommended&&recommended.id===node.id;
+    const core=journeyCoreNodes(area),corePositions=journeyCorePositions(core.length);
+    const corePositionMap=new Map(core.map((n,i)=>[n.id,corePositions[i]]));
+    const nodes=area.nodes.map(node=>{
+      const st=journeyNodeState(node),globalIndex=model.nodes.findIndex(n=>n.id===node.id),isNext=recommended&&recommended.id===node.id;
       const future=!isNext&&recommendedIndex>=0&&globalIndex>recommendedIndex&&st==='new';
-      const visualState=isNext&&!['can-now','mastered','passed'].includes(st)?'next':future?'future':st,pos=positions[i%positions.length];
-      return '<div class="journey-node-row '+pos+'"><button type="button" class="journey-node type-'+node.type+' state-'+visualState+'" data-journey-node="'+node.id+'" aria-label="'+escapeAttr(node.title+'. '+journeyStatusText(node,st))+'"><span class="journey-node-orb">'+journeyNodeIcon(node,st)+'</span><span class="journey-node-copy"><strong>'+node.title+'</strong><small>'+(isNext?'Neste for deg · ':'')+journeyStatusText(node,st)+'</small></span></button></div>';
+      const visualState=isNext&&!['can-now','mastered','passed'].includes(st)?'next':future?'future':st;
+      const point=corePositionMap.get(node.id)||journeySidePosition(node.type,areaIndex),left=point[0],top=point[1];
+      const fox=isNext?'<span class="journey-next-bubble">Neste!</span><span class="journey-fox" aria-hidden="true">🦊</span>':'';
+      return '<button type="button" class="journey-map-node type-'+node.type+' state-'+visualState+'" style="left:'+left+'%;top:'+top+'%" data-journey-node="'+node.id+'" aria-label="'+escapeAttr(node.title+'. '+journeyStatusText(node,st))+'">'+fox+'<span class="node-orb">'+journeyNodeIcon(node,st)+'</span><span class="node-label"><strong>'+node.title+'</strong><small>'+journeyStatusText(node,st)+'</small></span></button>';
     }).join('');
-    const soft=['#EEF1FF','#EAF8F0','#FFF2D8','#F7EFFF'][areaIndex%4];
-    return '<section class="journey-area" style="--area-soft:'+soft+'"><div class="journey-area-head"><div class="journey-area-icon">'+area.emoji+'</div><div><strong>'+area.title+'</strong><small>'+(area.copy||'Bygg ferdighetene steg for steg.')+'</small></div><span class="journey-area-progress">'+(areaDone?'Klart ✓':done+' / '+required.length)+'</span></div><div class="journey-nodes">'+nodes+'</div></section>';
+    const worldClass='world-'+((areaIndex%4)+1),scene=journeySceneEmoji(activeSubject,areaIndex);
+    return '<section class="journey-world '+worldClass+(areaDone?' area-complete':'')+'">'+
+      '<div class="journey-scenery" aria-hidden="true"><i class="journey-cloud c1"></i><i class="journey-cloud c2"></i><i class="journey-hill h1"></i><i class="journey-hill h2"></i><span class="journey-spark s1">'+scene+'</span><span class="journey-spark s2">✦</span><span class="journey-spark s3">✧</span></div>'+
+      '<div class="journey-world-head"><div class="journey-world-number">VERDEN<br>'+(areaIndex+1)+'</div><div class="journey-world-title"><strong>'+area.emoji+' '+area.title+'</strong><small>'+(area.copy||'Bygg ferdighetene steg for steg.')+'</small></div><span class="journey-world-progress '+(areaDone?'complete':'')+'">'+(areaDone?'Klart ★':done+' / '+required.length)+'</span></div>'+
+      '<div class="journey-playfield">'+journeyRouteSvg(area)+nodes+'<div class="journey-zone-gate"></div><div class="journey-zone-badge">'+(areaDone?'Verden fullført ★':'Mål: nå troféet')+'</div></div>'+
+      '</section>';
   }).join('');
+
   host.querySelectorAll('[data-journey-node]').forEach(b=>b.onclick=()=>startJourneyNode(activeSubject,b.dataset.journeyNode));
   const finish=document.getElementById('journey-finish');finish.classList.toggle('complete',prog.complete);
   finish.innerHTML=prog.complete
     ?'<strong>🏆 '+GRADE_CONFIG[viewGrade].label+' fullført i '+SUBJECTS[activeSubject].title+'</strong><p>Du har klart alle hovedpunktene og checkpointene i appens kjerneløp. Fortsett å repetere for å gjøre mer av kunnskapen varig.</p><div class="journey-finish-actions"><button class="secondary" id="journey-repeat-grade">Repeter</button>'+(viewGrade<10?'<button class="secondary" id="journey-next-grade">Fortsett til '+GRADE_CONFIG[viewGrade+1].label+'</button>':'')+'</div>'
-    :'<strong>🏁 Mål: rund '+GRADE_CONFIG[viewGrade].label+'</strong><p>Få hovedpunktene til «Kan nå» og bestå checkpointene. Du kan alltid hoppe fram og prøve noe vanskeligere.</p>';
+    :'<strong>🏁 Mål: rund '+GRADE_CONFIG[viewGrade].label+'</strong><p>Fullfør hovedrutene og troféene i hver verden. Sideoppdrag er frivillige, og du kan alltid gå tilbake og øve.</p>';
   const repeatBtn=document.getElementById('journey-repeat-grade');if(repeatBtn)repeatBtn.onclick=()=>startJourneyReview(activeSubject);
   const nextBtn=document.getElementById('journey-next-grade');if(nextBtn)nextBtn.onclick=()=>setJourneyViewGrade(activeSubject,viewGrade+1);
   document.getElementById('journey-review').onclick=()=>startJourneyReview(activeSubject);
