@@ -633,3 +633,391 @@
     margin:0 auto;
   }
 }
+
+
+/* Bokskogen v7 — destination-driven game board. */
+.bokskogen-route,
+.bokskogen-stop,
+.bokskogen-world-spark,
+.bokskogen-side{
+  display:none!important;
+}
+
+.bokskogen-place{
+  position:absolute;
+  z-index:30;
+  transform:translate(-50%,-50%);
+  width:84px;
+  height:84px;
+  padding:0;
+  border:0;
+  border-radius:50%;
+  background:transparent;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;
+}
+.bokskogen-place .place-hit{
+  position:absolute;
+  inset:0;
+  border-radius:50%;
+  background:transparent;
+}
+.bokskogen-place.state-current .place-hit{
+  inset:11px;
+  border:2px solid rgba(255,234,143,.96);
+  background:radial-gradient(circle,rgba(255,220,96,.11),rgba(255,220,96,0) 68%);
+  box-shadow:
+    0 0 0 6px rgba(255,218,89,.08),
+    0 0 28px rgba(255,199,50,.36),
+    inset 0 0 20px rgba(255,238,160,.08);
+  animation:bokPlacePulse 2.15s ease-in-out infinite;
+}
+.bokskogen-place.state-done .place-hit{
+  inset:17px;
+  border:1.5px solid rgba(235,255,223,.54);
+  background:radial-gradient(circle,rgba(123,214,137,.10),rgba(123,214,137,0) 70%);
+}
+.bokskogen-place.state-future{
+  cursor:pointer;
+}
+.bokskogen-place.state-future .place-hit{
+  inset:19px;
+  border:1px solid rgba(255,255,255,.10);
+}
+.bokskogen-place:active{
+  transform:translate(-50%,-50%) scale(.96);
+}
+.place-done{
+  position:absolute;
+  right:8px;
+  top:7px;
+  display:grid;
+  place-items:center;
+  width:22px;
+  height:22px;
+  border:2px solid rgba(255,255,255,.88);
+  border-radius:50%;
+  color:white;
+  background:linear-gradient(180deg,#73d18d,#3eaa69);
+  box-shadow:0 3px 7px rgba(26,70,46,.28);
+  font-family:ui-rounded,"SF Pro Rounded",-apple-system,sans-serif;
+  font-size:11px;
+  font-weight:1000;
+}
+.place-pulse{
+  position:absolute;
+  inset:2px;
+  border-radius:50%;
+  border:1px solid rgba(255,225,114,.48);
+  animation:bokPlaceOuter 2.15s ease-out infinite;
+}
+
+.bokskogen-mission-sign{
+  left:50%;
+  top:61.7%;
+  width:170px;
+  min-height:70px;
+  padding:9px 15px 10px;
+  background:
+    radial-gradient(ellipse at 30% 20%,rgba(255,219,149,.13),transparent 42%),
+    linear-gradient(180deg,#8e592c 0%,#77451f 52%,#5a3218 100%);
+  border-color:#523016;
+  box-shadow:
+    inset 0 2px 0 rgba(255,232,180,.17),
+    inset 0 -2px 0 rgba(47,23,8,.25),
+    0 4px 0 #42250f,
+    0 10px 22px rgba(28,22,13,.27),
+    0 0 28px rgba(255,210,88,.15);
+}
+.bokskogen-mission-sign strong{
+  margin-top:3px;
+  font-size:15px;
+}
+.bokskogen-mission-sign small{
+  max-width:142px;
+  margin:4px auto 0;
+  overflow:hidden;
+  white-space:nowrap;
+  text-overflow:ellipsis;
+  font-size:6.3px;
+}
+
+.bokskogen-sheet-backdrop{
+  position:absolute;
+  inset:0;
+  z-index:80;
+  background:rgba(12,27,21,.15);
+  backdrop-filter:blur(0);
+  opacity:0;
+  transition:opacity .18s ease,backdrop-filter .18s ease;
+}
+.bokskogen-sheet-backdrop.show{
+  opacity:1;
+  backdrop-filter:blur(3px);
+}
+.bokskogen-place-sheet{
+  position:absolute;
+  z-index:90;
+  left:10px;
+  right:10px;
+  bottom:10px;
+  max-height:62%;
+  overflow:auto;
+  padding:8px 12px 14px;
+  border:1px solid rgba(105,65,30,.34);
+  border-radius:24px 24px 17px 17px;
+  color:#3f2d1d;
+  background:
+    radial-gradient(circle at 18% 0%,rgba(255,255,255,.72),transparent 28%),
+    linear-gradient(180deg,#fff4d4 0%,#f6dfae 58%,#e8c88c 100%);
+  box-shadow:
+    0 -1px 0 rgba(255,255,255,.75) inset,
+    0 -12px 36px rgba(24,40,31,.24),
+    0 4px 0 rgba(105,69,32,.12);
+  transform:translateY(24px);
+  opacity:0;
+  transition:transform .2s cubic-bezier(.2,.8,.2,1),opacity .17s ease;
+  overscroll-behavior:contain;
+}
+.bokskogen-place-sheet.show{
+  transform:translateY(0);
+  opacity:1;
+}
+.place-sheet-handle{
+  width:38px;
+  height:4px;
+  margin:0 auto 8px;
+  border-radius:99px;
+  background:rgba(87,58,31,.18);
+}
+.place-sheet-head{
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+}
+.place-sheet-head>div{
+  flex:1;
+  min-width:0;
+}
+.place-sheet-head small{
+  display:block;
+  color:#89643d;
+  font-family:ui-rounded,"SF Pro Rounded",-apple-system,sans-serif;
+  font-size:6px;
+  font-weight:1000;
+  letter-spacing:.14em;
+}
+.place-sheet-head strong{
+  display:block;
+  margin-top:2px;
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:24px;
+  line-height:1.02;
+  letter-spacing:-.035em;
+}
+.place-sheet-head span{
+  display:block;
+  margin-top:4px;
+  color:#795d3f;
+  font-family:ui-rounded,"SF Pro Rounded",-apple-system,sans-serif;
+  font-size:7px;
+  font-weight:850;
+}
+.place-sheet-close{
+  flex:0 0 auto;
+  display:grid;
+  place-items:center;
+  width:31px;
+  height:31px;
+  padding:0;
+  border:1px solid rgba(90,59,32,.18);
+  border-radius:50%;
+  color:#765331;
+  background:rgba(255,255,255,.43);
+  font-size:20px;
+  line-height:1;
+}
+.place-sheet-progress{
+  height:6px;
+  margin:10px 0 11px;
+  overflow:hidden;
+  border-radius:99px;
+  background:rgba(99,69,37,.12);
+  box-shadow:inset 0 1px 2px rgba(78,51,25,.07);
+}
+.place-sheet-progress i{
+  display:block;
+  height:100%;
+  border-radius:inherit;
+  background:linear-gradient(90deg,#64c986,#a9dd7b 65%,#f0c858);
+}
+.place-sheet-missions{
+  display:grid;
+  gap:7px;
+}
+.bokskogen-mission-row{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  width:100%;
+  min-height:52px;
+  padding:7px 9px;
+  border:1px solid rgba(103,70,39,.15);
+  border-radius:15px;
+  color:#49331f;
+  text-align:left;
+  background:rgba(255,251,232,.63);
+  box-shadow:0 2px 0 rgba(117,79,40,.08);
+}
+.bokskogen-mission-row:not([disabled]):active{
+  transform:translateY(1px);
+  box-shadow:none;
+}
+.bokskogen-mission-row[disabled]{
+  opacity:.48;
+}
+.bokskogen-mission-row.is-next{
+  border-color:rgba(202,144,45,.38);
+  background:
+    radial-gradient(circle at 92% 8%,rgba(255,217,92,.22),transparent 28%),
+    linear-gradient(180deg,rgba(255,250,219,.92),rgba(247,222,164,.90));
+  box-shadow:
+    0 2px 0 rgba(140,91,31,.12),
+    0 0 0 3px rgba(255,209,80,.08);
+}
+.bokskogen-mission-row.is-done{
+  background:rgba(239,248,220,.56);
+}
+.mission-icon{
+  flex:0 0 auto;
+  display:grid;
+  place-items:center;
+  width:37px;
+  height:37px;
+  border-radius:12px;
+  background:rgba(255,255,255,.58);
+  box-shadow:0 2px 5px rgba(87,60,35,.08);
+  font-size:19px;
+}
+.mission-copy{
+  flex:1;
+  min-width:0;
+}
+.mission-copy small{
+  display:block;
+  margin-bottom:1px;
+  color:#b1782c;
+  font-family:ui-rounded,"SF Pro Rounded",-apple-system,sans-serif;
+  font-size:5.5px;
+  font-weight:1000;
+  letter-spacing:.12em;
+}
+.mission-copy strong{
+  display:block;
+  font-size:12px;
+  line-height:1.15;
+  font-weight:950;
+}
+.mission-copy em{
+  display:block;
+  margin-top:2px;
+  color:#7b654d;
+  font-family:ui-rounded,"SF Pro Rounded",-apple-system,sans-serif;
+  font-size:6.7px;
+  font-style:normal;
+  font-weight:800;
+}
+.mission-arrow{
+  flex:0 0 auto;
+  display:grid;
+  place-items:center;
+  width:25px;
+  height:25px;
+  border-radius:50%;
+  color:#71502e;
+  background:rgba(255,255,255,.54);
+  font-size:16px;
+  font-weight:900;
+}
+.bokskogen-locked-place{
+  padding:18px 12px 16px;
+  text-align:center;
+  color:#6f583d;
+}
+.bokskogen-locked-place>span{
+  display:block;
+  font-size:25px;
+}
+.bokskogen-locked-place strong{
+  display:block;
+  margin-top:5px;
+  font-size:13px;
+}
+.bokskogen-locked-place p{
+  margin:4px auto 0;
+  max-width:250px;
+  font-size:8px;
+  line-height:1.35;
+}
+.bokskogen-topbar{
+  width:auto;
+}
+.bokskogen-progress{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  width:auto;
+  min-width:78px;
+  padding:6px 9px;
+  border-radius:999px;
+}
+.bokskogen-progress b,
+.bokskogen-progress span{
+  font-family:ui-rounded,"SF Pro Rounded",-apple-system,sans-serif;
+  font-size:7px;
+  font-weight:1000;
+}
+.bokskogen-progress span{
+  color:#d9eadf;
+}
+.bokskogen-progress-head,
+.bokskogen-progress-track,
+.bokskogen-progress small{
+  display:none!important;
+}
+
+@keyframes bokPlacePulse{
+  0%,100%{opacity:.74;transform:scale(.96)}
+  50%{opacity:1;transform:scale(1.05)}
+}
+@keyframes bokPlaceOuter{
+  0%{opacity:.38;transform:scale(.84)}
+  70%,100%{opacity:0;transform:scale(1.17)}
+}
+@media (max-width:390px){
+  .bokskogen-place{
+    width:78px;
+    height:78px;
+  }
+  .bokskogen-mission-sign{
+    width:154px;
+    min-height:65px;
+    top:61.5%;
+  }
+  .bokskogen-place-sheet{
+    left:8px;
+    right:8px;
+    bottom:8px;
+    padding-left:10px;
+    padding-right:10px;
+  }
+  .place-sheet-head strong{font-size:22px}
+  .mission-copy strong{font-size:11px}
+}
+@media (prefers-reduced-motion:reduce){
+  .bokskogen-place.state-current .place-hit,
+  .place-pulse{
+    animation:none!important;
+  }
+}
