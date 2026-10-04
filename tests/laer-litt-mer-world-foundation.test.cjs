@@ -54,7 +54,7 @@ test('2.5D assets are cache-busted consistently for the PWA', () => {
   assert.match(html, /bokskogen-world\.js\?v=atlas35/);
   assert.match(sw, /bokskogen-world\.css\?v=atlas35/);
   assert.match(sw, /bokskogen-world\.js\?v=atlas35/);
-  assert.match(sw, /laria-home36-2026-10-04/);
+  assert.match(sw, /laria-home37-2026-10-04/);
   assert.match(html, /world-atlas\.css\?v=atlas35/);
   assert.match(sw, /world-atlas\.css\?v=atlas35/);
   assert.match(sw, /bokskogen-atlas32\.webp/);
