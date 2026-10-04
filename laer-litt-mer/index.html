@@ -358,6 +358,19 @@
     .journey-world.world-2{--world-sky:#FFF0D8;--world-ground:#E7F2D4;--world-accent:#E0A52B}
     .journey-world.world-3{--world-sky:#F1E9FF;--world-ground:#E2F1EB;--world-accent:#8A68D7}
     .journey-world.world-4{--world-sky:#E3F6F2;--world-ground:#F0E8D8;--world-accent:#4BA47A}
+    #subject-screen[data-subject="norwegian"] .journey-world.world-1{--world-sky:#EAF2FF;--world-ground:#E9F5E8}
+    #subject-screen[data-subject="norwegian"] .journey-world.world-2{--world-sky:#FFF0DB;--world-ground:#F6E9D6}
+    #subject-screen[data-subject="norwegian"] .journey-world.world-3{--world-sky:#E9F7F3;--world-ground:#DCEFE6}
+    #subject-screen[data-subject="norwegian"] .journey-world.world-4{--world-sky:#F3EAFE;--world-ground:#EEE5D9}
+    #subject-screen[data-subject="math"] .journey-world.world-1{--world-sky:#EEF2FF;--world-ground:#E3EEF8}
+    #subject-screen[data-subject="math"] .journey-world.world-2{--world-sky:#FFF3D8;--world-ground:#F0E8D4}
+    #subject-screen[data-subject="math"] .journey-world.world-3{--world-sky:#E8F6F1;--world-ground:#DFEAE0}
+    #subject-screen[data-subject="math"] .journey-world.world-4{--world-sky:#F2EAFE;--world-ground:#E5E9F3}
+    #subject-screen[data-subject="english"] .journey-world.world-1{--world-sky:#E6F7F2;--world-ground:#E7F1E5}
+    #subject-screen[data-subject="english"] .journey-world.world-2{--world-sky:#EAF2FF;--world-ground:#E5EBF5}
+    #subject-screen[data-subject="english"] .journey-world.world-3{--world-sky:#FFF1DB;--world-ground:#F5E8D8}
+    #subject-screen[data-subject="english"] .journey-world.world-4{--world-sky:#EEE8FF;--world-ground:#E6EEF0}
+
     .journey-world-head{position:relative;z-index:7;display:flex;align-items:center;gap:11px;padding:17px 17px 10px}
     .journey-world-number{width:36px;height:36px;border-radius:13px;background:rgba(255,255,255,.84);display:grid;place-items:center;font-size:11px;font-weight:950;color:#61708B;box-shadow:0 4px 11px rgba(55,66,100,.08);flex:0 0 auto}
     .journey-world-title{min-width:0;flex:1}.journey-world-title strong{font-size:18px;font-weight:950;display:block}.journey-world-title small{display:block;margin-top:2px;font-size:10px;font-weight:800;line-height:1.3;color:#66708A}
@@ -375,6 +388,18 @@
     .journey-route path.done{stroke:var(--world-accent);stroke-width:6.2;filter:drop-shadow(0 2px 0 rgba(255,255,255,.55))}
     .journey-map-node{position:absolute;transform:translate(-50%,-50%);z-index:6;border:0;background:transparent;color:var(--ink);padding:0;cursor:pointer;text-align:center;min-width:84px}
     .journey-map-node .node-orb{width:68px;height:68px;margin:auto;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.95);border:6px solid #D2DAE8;box-shadow:0 7px 0 rgba(57,68,108,.12),0 13px 23px rgba(56,66,104,.15);font-size:23px;font-weight:950;transition:transform .16s ease,box-shadow .16s ease}
+    .journey-map-node .node-orb{isolation:isolate}
+    .journey-map-node .node-orb .node-main-icon{position:relative;z-index:1;font-size:25px;filter:saturate(.93)}
+    .journey-map-node .node-state-badge{position:absolute;right:-4px;bottom:-3px;z-index:3;min-width:22px;height:22px;padding:0 5px;border-radius:999px;display:grid;place-items:center;background:#fff;border:2px solid rgba(255,255,255,.95);box-shadow:0 3px 8px rgba(46,55,88,.18);font-size:11px;font-weight:950;color:#3F4D70}
+    .journey-map-node.state-mastered .node-state-badge{background:#FFD86A;color:#684B00}.journey-map-node.state-can-now .node-state-badge{background:#59BD89;color:#fff}.journey-map-node.state-active .node-state-badge{background:#F5C95C;color:#6A4E00}.journey-map-node.state-passed .node-state-badge{background:#667DE9;color:#fff}
+    .journey-landmark{position:absolute;z-index:2;display:grid;place-items:center;pointer-events:none;filter:drop-shadow(0 10px 12px rgba(45,54,88,.13))}
+    .journey-landmark.main{right:5%;bottom:33px;font-size:58px;transform:rotate(4deg)}.journey-landmark.small{left:7%;bottom:26px;font-size:34px;transform:rotate(-7deg);opacity:.9}
+    .journey-scene-token{position:absolute;z-index:2;border-radius:18px;background:rgba(255,255,255,.46);backdrop-filter:blur(3px);padding:6px 8px;font-weight:950;color:rgba(56,66,95,.50);box-shadow:0 4px 10px rgba(60,68,100,.06);pointer-events:none}
+    .journey-scene-token.t1{left:7%;top:28%;transform:rotate(-7deg)}.journey-scene-token.t2{right:8%;top:39%;transform:rotate(7deg)}.journey-scene-token.t3{left:10%;bottom:18%;transform:rotate(3deg)}
+    .journey-goal-gate{position:absolute;left:50%;bottom:5px;transform:translateX(-50%);z-index:4;width:124px;height:58px;border-radius:28px 28px 12px 12px;background:linear-gradient(180deg,rgba(255,255,255,.78),rgba(255,255,255,.44));border:3px solid rgba(255,255,255,.88);box-shadow:0 7px 17px rgba(55,65,95,.11);display:flex;align-items:center;justify-content:center;gap:7px;font-size:9px;font-weight:950;color:#5B6681}
+    .journey-goal-gate b{font-size:24px}.journey-world.area-complete .journey-goal-gate{background:linear-gradient(180deg,#FFF4BD,#FFE59A);color:#70520A;border-color:#FFF1BD}
+    .journey-world.world-current .journey-goal-gate{box-shadow:0 0 0 5px rgba(93,117,235,.08),0 7px 17px rgba(55,65,95,.12)}
+
     .journey-map-node:active .node-orb{transform:translateY(2px);box-shadow:0 4px 0 rgba(57,68,108,.12),0 8px 16px rgba(56,66,104,.13)}
     .journey-map-node .node-label{display:inline-block;margin-top:8px;max-width:128px;padding:6px 9px;border-radius:12px;background:rgba(255,255,255,.86);box-shadow:0 3px 9px rgba(57,67,103,.08);backdrop-filter:blur(5px)}
     .journey-map-node .node-label strong{display:block;font-size:11px;line-height:1.16;font-weight:950}.journey-map-node .node-label small{display:block;margin-top:2px;font-size:8px;line-height:1.2;color:#6B748C;font-weight:850}
@@ -3287,11 +3312,50 @@ function journeyStatusText(node,stateName){
   if(node.type==='review')return stateName==='active'?'Klar for repetisjon':'Frivillig';
   if(stateName==='mastered')return 'Mestret';if(stateName==='can-now')return 'Kan nå';if(stateName==='active')return 'Under arbeid';return 'Ny';
 }
+function journeySkillIcon(node){
+  const skills=node.skills||[],id=(node.id||'').toLowerCase(),subject=node.subject||activeSubject;
+  if(subject==='norwegian'){
+    if(skills.some(s=>['letter-sound','missing-letter','spelling','double-consonant'].includes(s))||/lyd|stav|bokstav/.test(id))return '🔤';
+    if(skills.some(s=>['word-picture','synonyms','rhyme','compound-words'].includes(s))||/ord/.test(id))return '🧩';
+    if(skills.some(s=>['sentence-order','punctuation','grammar','word-class'].includes(s))||/setning|grammatikk|tegn/.test(id))return '📝';
+    if(skills.some(s=>String(s).startsWith('reading'))||/les/.test(id))return '📖';
+    if(skills.some(s=>['source-criticism','argumentation','rhetoric'].includes(s)))return '🔎';
+    return '✏️';
+  }
+  if(subject==='math'){
+    if(skills.some(s=>['addition-10','addition-100'].includes(s)))return '➕';
+    if(skills.some(s=>String(s).includes('subtraction')))return '➖';
+    if(skills.some(s=>['multiplication'].includes(s)))return '✖️';
+    if(skills.some(s=>['division'].includes(s)))return '➗';
+    if(skills.some(s=>['fractions'].includes(s)))return '🍕';
+    if(skills.some(s=>['percent','percent-change','ratio'].includes(s)))return '📊';
+    if(skills.some(s=>['area','perimeter','angles','circle','volume','scale','pythagoras','geometry'].includes(s)))return '📐';
+    if(skills.some(s=>['algebra','expression','functions','linear','pattern'].includes(s)))return '🧮';
+    return '🔢';
+  }
+  if(subject==='english'){
+    if(skills.some(s=>['words','vocabulary','spelling','numbers'].includes(s)))return '🗣️';
+    if(skills.some(s=>['sentence','phrases'].includes(s)))return '💬';
+    if(skills.some(s=>['grammar','verbs','pronouns','past-tense'].includes(s)))return '🧠';
+    if(skills.some(s=>['reading'].includes(s)))return '📘';
+    return '🇬🇧';
+  }
+  return '⭐';
+}
 function journeyNodeIcon(node,stateName){
-  if(node.type==='checkpoint')return stateName==='passed'?'✓':'🏆';
-  if(node.type==='challenge')return stateName==='passed'?'✓':'⚡';
+  if(node.type==='checkpoint')return '🏆';
+  if(node.type==='challenge')return '⚡';
   if(node.type==='review')return '🔁';
-  if(stateName==='mastered')return '★';if(stateName==='can-now')return '●';if(stateName==='active')return '◐';return '●';
+  return journeySkillIcon(node);
+}
+function journeyStateBadge(node,stateName){
+  if(node.type==='checkpoint')return stateName==='passed'?'✓':'';
+  if(node.type==='challenge')return stateName==='passed'?'✓':'';
+  if(node.type==='review')return stateName==='active'?'!':'';
+  if(stateName==='mastered')return '★';
+  if(stateName==='can-now')return '✓';
+  if(stateName==='active')return '◐';
+  return '';
 }
 const NORWAY_REGIONS=[
   {region:'Østlandet',place:'Oslo'},{region:'Østlandet',place:'Lillehammer'},{region:'Østlandet',place:'Hamar'},{region:'Østlandet',place:'Drammen'},{region:'Østlandet',place:'Fredrikstad'},{region:'Østlandet',place:'Skien'},
@@ -3803,7 +3867,21 @@ function journeyRouteSvg(area){
   return '<svg class="journey-route" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">'+segs.join('')+'</svg>';
 }
 function journeySceneEmoji(subject,areaIndex){
-  const sets={norwegian:['✦','✎','❖','✦'],math:['✦','△','✣','✦'],english:['✦','❝','✧','✦']};
+  const sets={norwegian:['🔤','📚','🔎','✒️'],math:['🔢','🧮','📐','🧩'],english:['🎒','💬','📘','🗺️']};
+  return (sets[subject]||sets.math)[areaIndex%4];
+}
+function journeySceneDetails(subject,areaIndex){
+  const sets={
+    norwegian:[
+      ['A','Å','📚','✏️'],['🧱','💬','✍️','📖'],['🔎','💡','📜','🕵️'],['✒️','📚','✨','📝']
+    ],
+    math:[
+      ['1 2 3','🔢','➕','🎲'],['🧮','✖️','➗','🔷'],['📐','📏','◯','△'],['x','📈','🧩','∞']
+    ],
+    english:[
+      ['A B C','🎒','🍎','🐶'],['💬','👋','🗣️','✈️'],['📘','🔎','🌟','☕'],['🗺️','🌍','✒️','🎧']
+    ]
+  };
   return (sets[subject]||sets.math)[areaIndex%4];
 }
 
@@ -3836,18 +3914,19 @@ function renderSubjectJourney(){
       const future=!isNext&&recommendedIndex>=0&&globalIndex>recommendedIndex&&st==='new';
       const visualState=isNext&&!['can-now','mastered','passed'].includes(st)?'next':future?'future':st,point=corePositionMap.get(node.id)||journeySidePosition(node.type,areaIndex);
       const fox=isNext?'<span class="journey-next-bubble">Neste!</span><span class="journey-fox" aria-hidden="true">🦊</span>':'';
-      return '<button type="button" class="journey-map-node type-'+node.type+' state-'+visualState+'" style="left:'+point[0]+'%;top:'+point[1]+'%" data-journey-node="'+node.id+'" aria-label="'+escapeAttr(node.title+'. '+journeyStatusText(node,st))+'">'+fox+'<span class="node-orb">'+journeyNodeIcon(node,st)+'</span><span class="node-label"><strong>'+node.title+'</strong><small>'+journeyStatusText(node,st)+'</small></span></button>';
+      const badge=journeyStateBadge(node,st),badgeHtml=badge?'<span class="node-state-badge">'+badge+'</span>':'';
+      return '<button type="button" class="journey-map-node type-'+node.type+' state-'+visualState+'" style="left:'+point[0]+'%;top:'+point[1]+'%" data-journey-node="'+node.id+'" aria-label="'+escapeAttr(node.title+'. '+journeyStatusText(node,st))+'">'+fox+'<span class="node-orb"><span class="node-main-icon">'+journeyNodeIcon(node,st)+'</span>'+badgeHtml+'</span><span class="node-label"><strong>'+node.title+'</strong><small>'+journeyStatusText(node,st)+'</small></span></button>';
     }).join('');
     const worldClass='world-'+((areaIndex%4)+1)+(areaDone?' area-complete':'')+(isCurrent?' world-current':'')+(isPreview?' world-preview':'')+(isFuture?' world-future':'');
     const ribbon=areaDone?'★ VERDEN FULLFØRT':isCurrent?'🦊 DU ER HER':isPreview?'🔓 NESTE VERDEN':'🔒 SENERE';
     const ribbonClass=areaDone?'complete':isPreview?'preview':isFuture?'future':'';
-    const scene=journeySceneEmoji(activeSubject,areaIndex);
+    const scene=journeySceneEmoji(activeSubject,areaIndex),details=journeySceneDetails(activeSubject,areaIndex);
     const teaser=isFuture?'<div class="journey-future-teaser"><div class="lock">🔒</div><strong>'+area.title+' venter</strong><small>Fullfør verden '+(currentAreaIndex+1)+' for å åpne den i hovedreisen. Nysgjerrig? Du kan sniktitte uten at det teller.</small><button type="button" data-journey-peek="'+area.id+'">Sniktitt</button></div>':'';
     return '<section class="journey-world '+worldClass+'">'+
-      '<div class="journey-scenery" aria-hidden="true"><i class="journey-cloud c1"></i><i class="journey-cloud c2"></i><i class="journey-hill h1"></i><i class="journey-hill h2"></i><span class="journey-spark s1">'+scene+'</span><span class="journey-spark s2">✦</span><span class="journey-spark s3">✧</span></div>'+
+      '<div class="journey-scenery" aria-hidden="true"><i class="journey-cloud c1"></i><i class="journey-cloud c2"></i><i class="journey-hill h1"></i><i class="journey-hill h2"></i><span class="journey-spark s1">'+scene+'</span><span class="journey-spark s2">✦</span><span class="journey-spark s3">✧</span><span class="journey-scene-token t1">'+details[0]+'</span><span class="journey-scene-token t2">'+details[1]+'</span><span class="journey-scene-token t3">'+details[2]+'</span><span class="journey-landmark small">'+details[3]+'</span><span class="journey-landmark main">'+scene+'</span></div>'+
       '<div class="journey-world-head"><div class="journey-world-number">VERDEN<br>'+(areaIndex+1)+'</div><div class="journey-world-title"><strong>'+area.emoji+' '+area.title+'</strong><small>'+(area.copy||'Bygg ferdighetene steg for steg.')+'</small></div><span class="journey-world-progress '+(areaDone?'complete':'')+'">'+(areaDone?'Klart ★':done+' / '+required.length)+'</span></div>'+
       '<div class="journey-world-ribbon '+ribbonClass+'">'+ribbon+'</div><div class="journey-world-reward"><b>'+(areaDone?reward.emoji:'?')+'</b>'+(areaDone?reward.label:'Belønning')+'</div>'+
-      '<div class="journey-playfield">'+(isFuture?'':journeyRouteSvg(area))+nodes+teaser+'<div class="journey-zone-gate"></div><div class="journey-zone-badge">'+(areaDone?'Samlet '+reward.emoji:'Mål: vinn '+reward.emoji)+'</div></div>'+
+      '<div class="journey-playfield">'+(isFuture?'':journeyRouteSvg(area))+nodes+teaser+'<div class="journey-goal-gate"><b>'+(areaDone?reward.emoji:'🎁')+'</b><span>'+(areaDone?'Vunnet<br>'+reward.label:'MÅL<br>'+reward.label)+'</span></div></div>'+
       '</section>';
   });
   host.innerHTML=chunks.join('<div class="journey-world-transition" aria-hidden="true">↓</div>');
