@@ -15,7 +15,8 @@ test('learning world uses layered 2.5D presentation without changing the journey
   assert.match(js, /data-world-depth="0\.42"/);
   assert.match(js, /data-world-depth="0\.82"/);
   assert.match(js, /journeyRouteOverlay\(config,route,nextIndex\)/);
-  assert.match(js, /installWorldDepthMotion\(host\)/);\n  assert.match(js, /keepCurrentMissionVisible\(host,geo\)/);
+  assert.match(js, /installWorldDepthMotion\(host\)/);
+  assert.match(js, /keepCurrentMissionVisible\(host,geo\)/);
   assert.match(css, /2\.5D foundation v1/);
   assert.match(css, /prefers-reduced-motion:reduce/);
   assert.doesNotMatch(js, /THREE\.|WebGLRenderer|three\.js/i);
