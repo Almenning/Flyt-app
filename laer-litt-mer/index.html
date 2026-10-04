@@ -1543,6 +1543,21 @@
       .journey-map-node-v3.type-checkpoint .node-orb-v3{width:78px;height:78px}
     }
     @media (prefers-reduced-motion:reduce){.journey-map-node-v3.state-next .node-orb-v3,.journey-fox-marker,.journey-mission-sheet{animation:none}}
+
+    /* v3 cleanup: remove the last dashboard/prototype remnants. */
+    .journey-sidequests{display:none}
+    .journey-trophy-rail{display:flex;align-items:center;gap:8px;margin:8px 0 12px;padding:9px 11px;border-radius:19px;background:rgba(255,255,255,.62);border:2px solid rgba(255,255,255,.82);box-shadow:0 5px 15px rgba(51,63,94,.06);overflow-x:auto;scrollbar-width:none}
+    .journey-trophy-rail::-webkit-scrollbar{display:none}
+    .journey-trophy-label{flex:0 0 auto;font-size:8px;font-weight:1000;letter-spacing:.13em;color:#727d95;margin-right:2px}
+    .journey-trophy-rail .journey-collectible{flex:0 0 auto;min-width:0;width:44px;height:44px;padding:0;border-radius:50%;display:grid;place-items:center;background:rgba(241,244,248,.88);border:3px solid rgba(255,255,255,.9);box-shadow:0 4px 0 rgba(70,82,110,.08)}
+    .journey-trophy-rail .journey-collectible .item{width:100%;height:100%;margin:0;border-radius:50%;background:transparent;display:grid;place-items:center;font-size:10px;font-weight:1000;letter-spacing:-.04em;color:#9aa4b5;filter:none;opacity:1;box-shadow:none}
+    .journey-trophy-rail .journey-collectible.unlocked{background:linear-gradient(155deg,#fff6c6,#ffe58e);border-color:#fff5c6;box-shadow:0 4px 0 #c6902c,0 7px 13px rgba(126,91,27,.13)}
+    .journey-trophy-rail .journey-collectible.unlocked .item{background:transparent;color:#5f4918}
+    .grade-band-young #subject-screen .journey-summary{display:none}
+    .grade-band-young #subject-screen .journey-heading{margin-top:6px}
+    .grade-band-young #subject-screen .journey-now-card{margin-top:7px}
+    .grade-band-young #subject-screen .journey-trophy-rail{margin-top:8px}
+    .grade-band-young .journey-grade-note{font-size:9px}
 </style>
   <link rel="stylesheet" href="./fraction-lab.css?v=20261003-mobile2" />
   <link rel="stylesheet" href="./multiplication-lab.css?v=20261003-table1" />
@@ -3075,7 +3090,7 @@ function renderGeoJourney(){
   renderJourneyCollection('geo-journey-collection','geography',model,geoJourneyAreaComplete);
 
   const chunks=model.areas.map((area,ai)=>{
-    const areaDone=geoJourneyAreaComplete(area),isCurrent=!prog.complete&&ai===currentAreaIndex,isFuture=!prog.complete&&ai>currentAreaIndex+1;
+    const areaDone=geoJourneyAreaComplete(area),isCurrent=!prog.complete&&ai===currentAreaIndex,isFuture=!prog.complete&&ai>currentAreaIndex;
     const required=area.nodes.filter(n=>n.type==='geo-skill'||n.type==='checkpoint'),done=required.filter(n=>n.type==='geo-skill'?['can-now','mastered'].includes(geoJourneyNodeState(n)):journeyNodeRecord(n).passed).length,reward=journeyAreaReward('geography',ai);
     const core=geoJourneyCoreNodes(area),positions=journeyCorePositionsV3(core.length),posMap=new Map(core.map((n,i)=>[n.id,positions[i]]));
     const nodes=isFuture?'':area.nodes.map(node=>{
@@ -3929,9 +3944,10 @@ function journeyFirstOpenArea(model,completeFn){
 }
 function renderJourneyCollection(hostId,subject,model,completeFn){
   const host=document.getElementById(hostId);if(!host)return;
-  host.innerHTML=model.areas.map((area,i)=>{
+  host.classList.add('journey-trophy-rail');
+  host.innerHTML='<span class="journey-trophy-label">TROFÉER</span>'+model.areas.map((area,i)=>{
     const reward=journeyAreaReward(subject,i),done=completeFn(area);
-    return '<div class="journey-collectible '+(done?'unlocked':'')+'"><div class="item">'+(done?reward.emoji:'?')+'</div><strong>'+(done?reward.label:'Ikke vunnet')+'</strong></div>';
+    return '<div class="journey-collectible '+(done?'unlocked':'')+'" aria-label="'+escapeAttr(done?reward.label+' vunnet':reward.label+' ikke vunnet')+'"><div class="item">'+(done?reward.emoji:'•')+'</div></div>';
   }).join('');
 }
 function startJourneyWorldPreview(subject,areaId,grade=journeyViewGrade(subject)){
@@ -4138,7 +4154,7 @@ function renderSubjectJourney(){
   renderJourneyCollection('journey-collection',activeSubject,model,journeyAreaComplete);
 
   const chunks=model.areas.map((area,areaIndex)=>{
-    const areaDone=journeyAreaComplete(area),isCurrent=!prog.complete&&areaIndex===currentAreaIndex,isPreview=!prog.complete&&areaIndex===currentAreaIndex+1,isFuture=!prog.complete&&areaIndex>currentAreaIndex+1;
+    const areaDone=journeyAreaComplete(area),isCurrent=!prog.complete&&areaIndex===currentAreaIndex,isPreview=false,isFuture=!prog.complete&&areaIndex>currentAreaIndex;
     const required=area.nodes.filter(n=>n.type==='skill'||n.type==='checkpoint'),done=required.filter(n=>n.type==='skill'?['can-now','mastered'].includes(journeyNodeState(n)):journeyNodeRecord(n).passed).length;
     const reward=journeyAreaReward(activeSubject,areaIndex),core=journeyCoreNodes(area),positions=journeyCorePositionsV3(core.length),posMap=new Map(core.map((n,i)=>[n.id,positions[i]]));
     const nodes=isFuture?'':area.nodes.map(node=>{
