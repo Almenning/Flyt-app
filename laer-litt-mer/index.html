@@ -1987,8 +1987,8 @@
 </style>
   <link rel="stylesheet" href="./fraction-lab.css?v=20261003-mobile2" />
   <link rel="stylesheet" href="./multiplication-lab.css?v=20261003-table1" />
-  <link rel="stylesheet" href="./bokskogen-world.css?v=20261004-premium12" />
-  <link rel="stylesheet" href="./journey-world-premium.css?v=20261004-integration2" />
+  <link rel="stylesheet" href="./bokskogen-world.css?v=20261004-premium13" />
+  <link rel="stylesheet" href="./journey-world-premium.css?v=20261004-reaction3" />
   <!-- immersive-globe-viewport-2026-10-02 -->
   <!-- globe-hit-test-dateline-fix-2026-10-02 -->
   <!-- parent-info-udir-2026-10-02 -->
@@ -3460,7 +3460,7 @@ function buildGeoJourneyQuestions(node,allowCooldown=false){
 }
 function startGeoJourneyNode(nodeId,grade=journeyViewGrade('geography')){
   const model=geoJourneyModel(grade),node=model.nodes.find(n=>n.id===nodeId);if(!node)return;
-  sessionScope={type:'geo-journey',subject:'geography',journeyNode:node.id,journeyArea:node.areaId,journeyGrade:node.grade,journeyType:node.type,label:'Geografi · '+node.title,ids:node.ids,includeMap:true};
+  sessionScope={type:'geo-journey',subject:'geography',journeyNode:node.id,journeyArea:node.areaId,journeyGrade:node.grade,journeyType:node.type,journeyWasComplete:journeyNodeIsCompleteForWorldReaction(node,true),label:'Geografi · '+node.title,ids:node.ids,includeMap:true};
   state.lastActivity={kind:'geo-journey',nodeId:node.id,grade:node.grade,label:node.title};
   const fresh=buildGeoJourneyQuestions(node,false);
   const all=fresh.length<5?buildGeoJourneyQuestions(node,true):fresh;
@@ -4292,9 +4292,17 @@ function buildJourneyQuestions(subject,node,allowCooldown=false){
   for(const q of pool){if(chosen.length>=5)break;add(q)}
   return chosen.slice(0,5);
 }
+function journeyNodeIsCompleteForWorldReaction(node,isGeo=false){
+  if(!node)return false;
+  const st=isGeo?geoJourneyNodeState(node):journeyNodeState(node);
+  if(node.type==='checkpoint')return st==='passed';
+  if(isGeo&&node.type==='geo-skill')return st==='can-now'||st==='mastered';
+  if(!isGeo&&node.type==='skill')return st==='can-now'||st==='mastered';
+  return false;
+}
 function startJourneyNode(subject,nodeId,grade=journeyViewGrade(subject)){
   const model=journeyModel(subject,grade),node=model.nodes.find(n=>n.id===nodeId);if(!node)return;
-  sessionScope={type:'journey',subject,journeyNode:node.id,journeyArea:node.areaId,journeyGrade:node.grade,journeyType:node.type,module:node.module||null,label:(SUBJECTS[subject]?.title||subject)+' · '+node.title};
+  sessionScope={type:'journey',subject,journeyNode:node.id,journeyArea:node.areaId,journeyGrade:node.grade,journeyType:node.type,module:node.module||null,journeyWasComplete:journeyNodeIsCompleteForWorldReaction(node,false),label:(SUBJECTS[subject]?.title||subject)+' · '+node.title};
   state.lastActivity={kind:'journey',subject,nodeId:node.id,grade:node.grade,label:node.title};
   const fresh=buildJourneyQuestions(subject,node,false);
   const all=fresh.length<5?buildJourneyQuestions(subject,node,true):fresh;
@@ -5697,8 +5705,19 @@ function repeatCompletedSession(){
   state.activeSession={startedAt:Date.now()};persistActiveSession();showScreen('session');renderQuestion();
 }
 document.getElementById('complete-repeat').onclick=repeatCompletedSession;
+function armJourneyWorldReaction(scope){
+  if(!scope||scope.practiceOnly||scope.previewOnly||scope.journeyWasComplete)return;
+  const isGeo=scope.type==='geo-journey'||scope.subject==='geography';
+  if(scope.type!=='journey'&&!isGeo)return;
+  const subject=isGeo?'geography':scope.subject,grade=Number(scope.journeyGrade||currentGrade());
+  const model=isGeo?geoJourneyModel(grade):journeyModel(subject,grade);
+  const node=model.nodes.find(n=>n.id===scope.journeyNode);
+  if(!journeyNodeIsCompleteForWorldReaction(node,isGeo))return;
+  window.__journeyWorldReaction={subject,grade,nodeId:node.id,areaId:node.areaId,at:Date.now()};
+}
 document.getElementById('complete-home').onclick=()=>{
   const scope=lastCompletedScope||{};
+  armJourneyWorldReaction(scope);
   if(scope.type==='journey'&&scope.subject&&scope.subject!=='geography'){openSubject(scope.subject);return}
   if(scope.type==='geo-journey'||scope.subject==='geography'){renderGeographyContinue();showScreen('geography');return}
   if(currentGrade()<=2){setTab('progress');return}
@@ -5847,8 +5866,8 @@ if(!state.profile.onboarded||!state.profile.grade){
 </script>
 <script src="./fraction-lab.js?v=20261003-mobile2" defer></script>
 <script src="./multiplication-lab.js?v=20261003-table1" defer></script>
-<script src="./bokskogen-world.js?v=20261004-world3" defer></script>
-<script src="./journey-world-premium.js?v=20261004-integration3" defer></script>
+<script src="./bokskogen-world.js?v=20261004-world4" defer></script>
+<script src="./journey-world-premium.js?v=20261004-reaction4" defer></script>
 <!-- premium-board-v8-2026-10-04 -->
 <!-- natural-journey-integration-v9-2026-10-04 -->
 <!-- premium-world-engine-v3-2026-10-04 -->

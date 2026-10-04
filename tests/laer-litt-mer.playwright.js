@@ -277,6 +277,7 @@ async function finishSession(page){
     assert.equal(await page.locator('#journey-map .bok-v10-place.state-current').count(),1,'exactly one destination should be the next place');
     assert.equal(await page.locator('#journey-map .bok-v10-place .plaque').count(),0,'destination labels must belong to the illustrated world, not duplicate UI plaques');
     assert.equal(await page.locator('#journey-map .bok-v11-route').count(),1,'Bokskogen should show one integrated progress trail');
+    assert.equal(await page.locator('#journey-map .bok-v13-traveler').count(),1,'Bokskogen should place the traveler beside the current destination');
     assert.equal(await page.locator('#journey-map .bok-v10-home').isVisible(),true);
     assert.equal(await page.locator('#journey-map .bok-v10-grade').isVisible(),true);
     assert.equal(await page.locator('#journey-map .bok-v10-progress').isVisible(),true);
@@ -628,6 +629,14 @@ async function finishSession(page){
     const geoGlobeTop=await page.locator('#open-world').evaluate(el=>el.getBoundingClientRect().top);
     assert.ok(geoWorldTop<geoGlobeTop,'young-grade geography journey should be the primary surface before globe/free exploration');
     assert.equal(await page.locator('#geography-screen > .geography-head').isVisible(),false,'young-grade geography should not put a dashboard banner before the world');
+    const reactionNode=await page.locator('#geo-journey-map .premium-place.is-next').getAttribute('data-geo-journey-node');
+    await page.evaluate(nodeId=>{
+      window.__journeyWorldReaction={subject:'geography',grade:journeyViewGrade('geography'),nodeId,at:Date.now()};
+      renderGeoJourney();
+    },reactionNode);
+    assert.equal(await page.locator('#geo-journey-map .premium-world.is-progress-reaction .premium-progress-reaction').count(),1,'a newly completed core mission should trigger one landscape reaction');
+    assert.equal(await page.locator('#geo-journey-map .premium-place.is-just-completed').count(),1,'the completed landmark should receive the reaction state');
+    assert.equal(await page.evaluate(()=>window.__journeyWorldReaction),null,'the world reaction must be one-shot');
     await page.locator('#geo-journey-map .premium-place.is-next').click();
     assert.equal(await page.locator('#geo-journey-map .premium-world-sheet').isVisible(),true);
     await page.locator('#geo-journey-map .premium-sheet-start').click();

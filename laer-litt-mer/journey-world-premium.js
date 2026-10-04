@@ -149,6 +149,15 @@
     }
   }
 
+  function takeWorldProgressReaction(subject,grade,route){
+    const reaction=window.__journeyWorldReaction;
+    if(!reaction||reaction.subject!==subject||Number(reaction.grade)!==Number(grade)||Date.now()-Number(reaction.at||0)>120000)return null;
+    const index=route.findIndex(n=>n.id===reaction.nodeId);
+    if(index<0)return null;
+    window.__journeyWorldReaction=null;
+    return {node:route[index],index};
+  }
+
   function renderMap(subject,geo){
     const config=WORLDS[subject],host=document.getElementById(geo?'geo-journey-map':'journey-map');if(!host)return;
     const grade=journeyViewGrade(subject),prog=geo?geoJourneyProgress(grade):journeyProgress(subject,grade),model=prog.model;
@@ -156,6 +165,7 @@
     const recommended=geo?geoJourneyRecommendedNode(grade):journeyRecommendedNode(subject,grade),firstOpen=journeyFirstOpenArea(model,geo?geoJourneyAreaComplete:journeyAreaComplete);
     const route=model.areas.flatMap(area=>core(area,geo)),idx=route.findIndex(n=>n.id===recommended?.id);
     const nextIndex=idx<0?route.length-1:idx;
+    const reaction=takeWorldProgressReaction(subject,grade,route),reactionIndex=reaction?.index??-1;
     const nodeAttr=geo?'data-geo-journey-node':'data-journey-node';
     const buttons=route.map((node,i)=>{
       const ai=model.areas.findIndex(a=>a.id===node.areaId),area=model.areas[ai],done=complete(node,geo);
@@ -164,7 +174,8 @@
       const [x,y]=pointAt(config,i,route.length),place=config.places[Math.min(6,Math.round(i*6/Math.max(1,route.length-1)))];
       const depthScale=Math.max(.88,Math.min(1.10,.84+y*.0031)),placeZ=Math.round(120+y);
       const status=done?'fullført':next?'neste oppdrag':future?'låst':stateText(node,geo).toLowerCase();
-      return '<button type="button" class="premium-place '+(done?'is-done ':next?'is-next ':future?'is-future ':'is-open ')+(node.type==='checkpoint'?'is-trophy':'')+'" style="--x:'+x+'%;--y:'+y+'%;--depth-scale:'+depthScale.toFixed(3)+';--place-z:'+placeZ+'" '+nodeAttr+'="'+esc(node.id)+'" aria-label="'+esc(place+', '+node.title+', '+status)+'">'+
+      const justCompleted=!!reaction&&reaction.node.id===node.id,newlyOpened=!!reaction&&next&&reactionIndex>=0&&i>reactionIndex;
+      return '<button type="button" class="premium-place '+(done?'is-done ':next?'is-next ':future?'is-future ':'is-open ')+(node.type==='checkpoint'?'is-trophy ':'')+(justCompleted?'is-just-completed ':'')+(newlyOpened?'is-newly-opened ':'')+'" style="--x:'+x+'%;--y:'+y+'%;--depth-scale:'+depthScale.toFixed(3)+';--place-z:'+placeZ+'" '+nodeAttr+'="'+esc(node.id)+'" aria-label="'+esc(place+', '+node.title+', '+status)+'">'+
         journeyLandmarkMarkup(subject,node,i,done,next,future)+'<span class="premium-place-sign"><b>'+esc(node.title)+'</b><small>'+esc(status)+'</small></span>'+
         (done?'<span class="premium-place-bloom" aria-hidden="true">✦</span>':'')+
       '</button>';
@@ -181,15 +192,17 @@
       return '<span class="premium-world-prize" style="--x:'+x+'%;--y:'+y+'%" title="'+esc(area.title+' fullført')+'" aria-label="'+esc(area.title+' fullført, trofé vunnet')+'">🏆</span>';
     }).join('');
     if(host._premiumWorldMotionCleanup)host._premiumWorldMotionCleanup();
-    const traveler=!prog.complete?'<div class="premium-traveler" style="--x:'+Math.min(86,Math.max(14,cx+(cx>50?-19:19)))+'%;--y:'+Math.min(88,Math.max(13,cy+1))+'%" aria-hidden="true">'+journeyFoxSvg()+'</div>':'';
+    const traveler=!prog.complete?'<div class="premium-traveler'+(reaction?' is-arriving':'')+'" style="--x:'+Math.min(86,Math.max(14,cx+(cx>50?-19:19)))+'%;--y:'+Math.min(88,Math.max(13,cy+1))+'%" aria-hidden="true">'+journeyFoxSvg()+'</div>':'';
     const routeOverlay=journeyRouteOverlay(config,route,nextIndex);
+    const reactionPoint=reaction?pointAt(config,reaction.index,route.length):null;
+    const reactionFx=reactionPoint?'<div class="premium-progress-reaction" style="--reaction-x:'+reactionPoint[0]+'%;--reaction-y:'+reactionPoint[1]+'%" aria-hidden="true"><i></i><i></i><i></i><i></i><b>✓</b></div>':'';
     host.className='journey-map premium-journey-map';
-    host.innerHTML='<section class="premium-world premium-'+subject+' premium-world-depth-ready'+(prog.done>0?' has-progress':'')+(prog.complete?' is-complete':'')+'" style="--world-progress:'+prog.pct+';--focus-x:'+cx+'%;--focus-y:'+cy+'%" aria-label="'+esc(config.name+', interaktiv læringsverden')+'">'+
+    host.innerHTML='<section class="premium-world premium-'+subject+' premium-world-depth-ready'+(prog.done>0?' has-progress':'')+(prog.complete?' is-complete':'')+(reaction?' is-progress-reaction':'')+'" style="--world-progress:'+prog.pct+';--focus-x:'+cx+'%;--focus-y:'+cy+'%" aria-label="'+esc(config.name+', interaktiv læringsverden')+'">'+
       '<div class="premium-world-depth-layer premium-world-distant-layer" data-world-depth="0.14" aria-hidden="true"><img class="premium-world-depth-art premium-world-depth-art-distant" src="./'+config.image+'" alt="" draggable="false" decoding="async">'+journeyAmbientMarkup()+'</div>'+
       '<div class="premium-world-depth-layer premium-world-midground-layer" data-world-depth="0.42">'+
         '<img class="premium-world-art" src="./'+config.image+'" alt="" draggable="false" decoding="async">'+
         '<div class="premium-world-relief" aria-hidden="true"><i class="relief-a"></i><i class="relief-b"></i><i class="relief-c"></i></div>'+
-        routeOverlay+medals+buttons+traveler+
+        routeOverlay+reactionFx+medals+buttons+traveler+
       '</div>'+
       '<div class="premium-world-depth-layer premium-world-foreground-layer" data-world-depth="0.82" aria-hidden="true"><img class="premium-world-depth-art premium-world-depth-art-foreground" src="./'+config.image+'" alt="" draggable="false" decoding="async"><i class="premium-foreground-vignette"></i><div class="premium-world-foreground-life"><i></i><i></i><i></i></div></div>'+
       '<div class="premium-world-frontier" aria-hidden="true"><i class="frontier-haze"></i><i class="frontier-focus"></i><i class="frontier-ring"></i></div>'+

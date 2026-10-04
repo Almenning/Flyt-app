@@ -54,5 +54,11 @@ test('2.5D assets are cache-busted consistently for the PWA', () => {
   assert.match(html, /bokskogen-world\.js\?v=20261004-world3/);
   assert.match(sw, /bokskogen-world\.css\?v=20261004-premium12/);
   assert.match(sw, /bokskogen-world\.js\?v=20261004-world3/);
-  assert.match(sw, /laer-litt-mer-v26-world-first-order-2026-10-04/);
+  assert.match(sw, /laer-litt-mer-v27-world-reaction-2026-10-04/);
+  assert.match(html, /journeyWasComplete:journeyNodeIsCompleteForWorldReaction/);
+  assert.match(html, /function armJourneyWorldReaction\(scope\)/);
+  assert.match(read('journey-world-premium.js'), /premium-progress-reaction/);
+  assert.match(read('journey-world-premium.css'), /Progression reaction v1/);
+  assert.match(read('bokskogen-world.js'), /bok-v13-traveler/);
+  assert.match(read('bokskogen-world.css'), /Bokskogen v13/);
 });

@@ -462,9 +462,9 @@
     const req=requiredNodes(place,model),done=req.filter(finished).length;
     return {done,total:req.length,pct:req.length?Math.round(done/req.length*100):0};
   }
-  function plaque(place,state){
+  function plaque(place,state,reactionPlaceId,newlyOpenedId){
     const done=state==='done',current=state==='current',future=state==='future';
-    return '<button type="button" class="bok-v10-place state-'+state+'" style="left:'+place.point[0]+'%;top:'+place.point[1]+'%;--tilt:'+place.tilt+'deg" data-v10-place="'+place.id+'" data-title="'+escapeAttr(place.title)+'" aria-label="'+escapeAttr(place.title+(done?', fullført':current?', neste sted':future?', låst':''))+'">'+
+    return '<button type="button" class="bok-v10-place state-'+state+(place.id===reactionPlaceId?' is-just-progressed':'')+(place.id===newlyOpenedId?' is-newly-opened':'')+'" style="left:'+place.point[0]+'%;top:'+place.point[1]+'%;--tilt:'+place.tilt+'deg" data-v10-place="'+place.id+'" data-title="'+escapeAttr(place.title)+'" aria-label="'+escapeAttr(place.title+(done?', fullført':current?', neste sted':future?', låst':''))+'">'+
       '<span class="hit"></span>'+
       '<span class="bok-v11-anchor" aria-hidden="true"></span>'+
       (done?'<span class="bok-v12-state-mark done" aria-hidden="true"><i>✓</i></span>':'')+
@@ -542,15 +542,30 @@
     '</svg>';
   }
 
+  function takeBokskogenReaction(viewGrade,model){
+    const reaction=window.__journeyWorldReaction;
+    if(!reaction||reaction.subject!=='norwegian'||Number(reaction.grade)!==Number(viewGrade)||Date.now()-Number(reaction.at||0)>120000)return null;
+    const node=model.nodes.find(n=>n.id===reaction.nodeId),place=node?placeByNode(node.id):null;
+    if(!node||!place)return null;
+    window.__journeyWorldReaction=null;
+    return {node,place};
+  }
+
   function worldMarkup(viewGrade,prog,recommended,model){
     const recommendedIndex=recommended?model.nodes.findIndex(n=>n.id===recommended.id):-1;
-    const places=PLACES.map(p=>plaque(p,placeState(p,model,recommended,recommendedIndex))).join('');
-    return '<section class="bok-v10-world bok-v11-world'+(prog.complete?' is-complete':'')+'" aria-label="Bokskogen, interaktiv læringsverden">'+
+    const reaction=takeBokskogenReaction(viewGrade,model),reactionPlace=reaction?.place||null,currentPlace=recommended?placeByNode(recommended.id):null;
+    const newlyOpenedId=reactionPlace&&currentPlace&&reactionPlace.id!==currentPlace.id?currentPlace.id:null;
+    const places=PLACES.map(p=>plaque(p,placeState(p,model,recommended,recommendedIndex),reactionPlace?.id||null,newlyOpenedId)).join('');
+    const travelerPoint=currentPlace?[Math.max(9,Math.min(91,currentPlace.point[0]+(currentPlace.point[0]>50?-10:10))),Math.max(8,Math.min(95,currentPlace.point[1]+1.8))]:null;
+    const traveler=travelerPoint&&!prog.complete?'<div class="bok-v13-traveler'+(reaction?' is-arriving':'')+'" style="left:'+travelerPoint[0]+'%;top:'+travelerPoint[1]+'%" aria-hidden="true">'+(typeof journeyFoxSvg==='function'?journeyFoxSvg():'🦊')+'</div>':'';
+    const reactionFx=reactionPlace?'<div class="bok-v13-progress-reaction" style="left:'+reactionPlace.point[0]+'%;top:'+reactionPlace.point[1]+'%" aria-hidden="true"><i></i><i></i><i></i><b>✓</b></div>':'';
+    return '<section class="bok-v10-world bok-v11-world'+(prog.complete?' is-complete':'')+(reaction?' has-progress-reaction':'')+'" aria-label="Bokskogen, interaktiv læringsverden">'+
       '<img class="bok-v10-art" src="./bokskogen-verden.png?v=20261004-world1" alt="" draggable="false" decoding="async">'+
       '<div class="bok-v10-vignette" aria-hidden="true"></div>'+
       progressTrail(prog,recommended,model)+
       '<div class="bok-v10-water-shimmer" aria-hidden="true"></div>'+
       '<div class="bok-v10-atmosphere" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>'+
+      reactionFx+traveler+
       '<div class="bok-v10-top">'+
         '<button type="button" class="bok-v10-home"><b aria-hidden="true">‹</b> Hjem</button>'+
         '<button type="button" class="bok-v10-grade">'+GRADE_CONFIG[viewGrade].label+' <span>⌄</span></button>'+

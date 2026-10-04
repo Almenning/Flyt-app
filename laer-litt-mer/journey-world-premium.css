@@ -1199,3 +1199,29 @@
     top:max(116px,calc(env(safe-area-inset-top,0px) + 64px))!important;
   }
 }
+
+
+/* Progression reaction v1 — the landscape responds once when a core mission advances. */
+.premium-progress-reaction{position:absolute;z-index:260;left:var(--reaction-x);top:var(--reaction-y);width:92px;height:92px;transform:translate(-50%,-50%);pointer-events:none}
+.premium-progress-reaction:before,.premium-progress-reaction:after{content:"";position:absolute;inset:12px;border:2px solid rgba(255,235,137,.82);border-radius:50%;box-shadow:0 0 18px rgba(255,218,89,.38);animation:premiumReactionRing 1.45s cubic-bezier(.2,.75,.2,1) both}
+.premium-progress-reaction:after{animation-delay:.16s;opacity:.65}
+.premium-progress-reaction b{position:absolute;left:50%;top:50%;display:grid;place-items:center;width:30px;height:30px;border:2px solid rgba(255,250,221,.94);border-radius:50%;color:#fff9d7;background:linear-gradient(180deg,#73ca8b,#3d8d5a);box-shadow:0 5px 13px rgba(29,73,48,.30);font:1000 15px/1 ui-rounded,"SF Pro Rounded",system-ui,sans-serif;transform:translate(-50%,-50%);animation:premiumReactionCheck 1.35s cubic-bezier(.2,.8,.2,1) both}
+.premium-progress-reaction i{position:absolute;left:50%;top:50%;width:7px;height:7px;border-radius:50%;background:#ffe484;box-shadow:0 0 9px rgba(255,224,104,.70);animation:premiumReactionSpark 1.35s ease-out both}
+.premium-progress-reaction i:nth-child(1){--spark-x:-35px;--spark-y:-28px}.premium-progress-reaction i:nth-child(2){--spark-x:34px;--spark-y:-20px;animation-delay:.06s}.premium-progress-reaction i:nth-child(3){--spark-x:-28px;--spark-y:30px;animation-delay:.12s}.premium-progress-reaction i:nth-child(4){--spark-x:31px;--spark-y:27px;animation-delay:.18s}
+.premium-place.is-just-completed .premium-landmark{animation:premiumLandmarkComplete 1.45s cubic-bezier(.2,.8,.2,1) both!important}
+.premium-place.is-just-completed .premium-place-state-badge{animation:premiumBadgePop 1.25s cubic-bezier(.2,.8,.2,1) both}
+.premium-place.is-newly-opened .premium-landmark{animation:premiumNewDestination 1.7s ease-out both!important}
+.premium-world.is-progress-reaction .premium-route-progress{animation:premiumRouteCharge 1.55s ease-out both}
+.premium-world.is-progress-reaction .premium-world-progress{animation:premiumHudReward 1.45s ease-out both}
+.premium-traveler.is-arriving svg{animation:premiumTravelerArrive 1.55s cubic-bezier(.18,.8,.22,1) both}
+@keyframes premiumReactionRing{0%{transform:scale(.18);opacity:0}24%{opacity:.86}100%{transform:scale(1.35);opacity:0}}
+@keyframes premiumReactionCheck{0%{transform:translate(-50%,-50%) scale(.35);opacity:0}45%{transform:translate(-50%,-50%) scale(1.13);opacity:1}100%{transform:translate(-50%,-50%) scale(.92);opacity:0}}
+@keyframes premiumReactionSpark{0%{transform:translate(-50%,-50%) scale(.4);opacity:0}25%{opacity:1}100%{transform:translate(calc(-50% + var(--spark-x)),calc(-50% + var(--spark-y))) scale(.15);opacity:0}}
+@keyframes premiumLandmarkComplete{0%{transform:translateX(-50%) scale(.92);filter:brightness(1)}42%{transform:translateX(-50%) translateY(-7px) scale(1.09);filter:brightness(1.20)}100%{transform:translateX(-50%) scale(1);filter:brightness(1)}}
+@keyframes premiumBadgePop{0%{transform:scale(.4) rotate(-16deg);opacity:.2}55%{transform:scale(1.24) rotate(5deg);opacity:1}100%{transform:scale(1) rotate(0);opacity:1}}
+@keyframes premiumNewDestination{0%{filter:saturate(.55) brightness(.86);opacity:.55}55%{filter:saturate(1.15) brightness(1.12);opacity:1}100%{filter:none;opacity:1}}
+@keyframes premiumRouteCharge{0%{filter:drop-shadow(0 0 0 rgba(255,226,102,0));opacity:.72}45%{filter:drop-shadow(0 0 8px rgba(255,226,102,.70));opacity:1}100%{filter:drop-shadow(0 0 5px rgba(103,207,137,.42));opacity:1}}
+@keyframes premiumHudReward{0%,100%{box-shadow:none}42%{box-shadow:0 0 0 5px rgba(255,221,100,.16),0 0 18px rgba(255,213,72,.36)}}
+@keyframes premiumTravelerArrive{0%{transform:translate(-9px,7px) rotate(-7deg) scale(.82);opacity:.35}62%{transform:translate(2px,-5px) rotate(5deg) scale(1.08);opacity:1}100%{transform:none;opacity:1}}
+@media(max-width:390px){.premium-progress-reaction{width:78px;height:78px}}
+@media(prefers-reduced-motion:reduce){.premium-progress-reaction{display:none!important}.premium-place.is-just-completed .premium-landmark,.premium-place.is-just-completed .premium-place-state-badge,.premium-place.is-newly-opened .premium-landmark,.premium-world.is-progress-reaction .premium-route-progress,.premium-world.is-progress-reaction .premium-world-progress,.premium-traveler.is-arriving svg{animation:none!important}}

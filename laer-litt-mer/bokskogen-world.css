@@ -2080,3 +2080,29 @@
   }
   .bok-v12-state-mark{right:7px}
 }
+
+
+/* Bokskogen v13 — traveler and one-shot progression response. */
+.bok-v13-traveler{position:absolute;z-index:34;width:48px;height:48px;transform:translate(-50%,-50%);pointer-events:none;filter:drop-shadow(0 6px 5px rgba(18,43,31,.24));animation:bokV13TravelerBreathe 3.8s ease-in-out infinite}
+.bok-v13-traveler:after{content:"";position:absolute;z-index:-1;left:50%;bottom:0;width:30px;height:8px;border-radius:50%;background:rgba(23,55,38,.20);transform:translateX(-50%);filter:blur(1px)}
+.bok-v13-traveler svg{display:block;width:48px;height:48px}.bok-v13-traveler.is-arriving svg{animation:bokV13TravelerArrive 1.55s cubic-bezier(.18,.8,.22,1) both}
+.bok-v13-progress-reaction{position:absolute;z-index:45;width:86px;height:86px;transform:translate(-50%,-50%);pointer-events:none}
+.bok-v13-progress-reaction:before,.bok-v13-progress-reaction:after{content:"";position:absolute;inset:12px;border:2px solid rgba(255,233,133,.82);border-radius:50%;box-shadow:0 0 18px rgba(255,213,75,.36);animation:bokV13ReactionRing 1.45s ease-out both}
+.bok-v13-progress-reaction:after{animation-delay:.15s}.bok-v13-progress-reaction b{position:absolute;left:50%;top:50%;display:grid;place-items:center;width:28px;height:28px;border:2px solid rgba(255,249,218,.94);border-radius:50%;color:#fff8d4;background:linear-gradient(180deg,#72c986,#3f8c58);box-shadow:0 4px 10px rgba(25,65,42,.28);font:1000 14px/1 ui-rounded,"SF Pro Rounded",-apple-system,sans-serif;transform:translate(-50%,-50%);animation:bokV13ReactionCheck 1.3s ease-out both}
+.bok-v13-progress-reaction i{position:absolute;left:50%;top:50%;width:6px;height:6px;border-radius:50%;background:#ffe37e;box-shadow:0 0 8px rgba(255,224,104,.66);animation:bokV13Spark 1.25s ease-out both}
+.bok-v13-progress-reaction i:nth-child(1){--bx:-31px;--by:-25px}.bok-v13-progress-reaction i:nth-child(2){--bx:31px;--by:-17px;animation-delay:.07s}.bok-v13-progress-reaction i:nth-child(3){--bx:24px;--by:28px;animation-delay:.14s}
+.bok-v11-world.has-progress-reaction .bok-v11-route .route-glow,.bok-v11-world.has-progress-reaction .bok-v11-route .route-steps{animation:bokV13RouteWake 1.6s ease-out both}
+.bok-v11-world .bok-v10-place.is-just-progressed .hit{animation:bokV13PlaceWake 1.6s cubic-bezier(.2,.8,.2,1) both!important}
+.bok-v11-world .bok-v10-place.is-just-progressed .bok-v12-state-mark{animation:bokV13StatePop 1.25s cubic-bezier(.2,.8,.2,1) both}
+.bok-v11-world .bok-v10-place.is-newly-opened .hit{animation:bokV13NewPlace 1.8s ease-out both!important}
+@keyframes bokV13TravelerBreathe{0%,100%{transform:translate(-50%,-50%) translateY(0) rotate(-1deg)}50%{transform:translate(-50%,-50%) translateY(-3px) rotate(2deg)}}
+@keyframes bokV13TravelerArrive{0%{transform:translate(-10px,8px) rotate(-8deg) scale(.80);opacity:.35}62%{transform:translate(2px,-5px) rotate(5deg) scale(1.08);opacity:1}100%{transform:none;opacity:1}}
+@keyframes bokV13ReactionRing{0%{transform:scale(.18);opacity:0}28%{opacity:.85}100%{transform:scale(1.35);opacity:0}}
+@keyframes bokV13ReactionCheck{0%{transform:translate(-50%,-50%) scale(.35);opacity:0}50%{transform:translate(-50%,-50%) scale(1.14);opacity:1}100%{transform:translate(-50%,-50%) scale(.92);opacity:0}}
+@keyframes bokV13Spark{0%{transform:translate(-50%,-50%) scale(.35);opacity:0}25%{opacity:1}100%{transform:translate(calc(-50% + var(--bx)),calc(-50% + var(--by))) scale(.12);opacity:0}}
+@keyframes bokV13RouteWake{0%{filter:drop-shadow(0 0 0 rgba(255,218,80,0));opacity:.45}45%{filter:drop-shadow(0 0 4px rgba(255,218,80,.72));opacity:1}100%{filter:drop-shadow(0 0 1.3px rgba(255,211,74,.58));opacity:.72}}
+@keyframes bokV13PlaceWake{0%{transform:scale(.82);opacity:.25}45%{transform:scale(1.08);opacity:1;box-shadow:0 0 0 7px rgba(255,219,83,.10),0 0 30px rgba(255,199,38,.40)}100%{transform:scale(1);opacity:1}}
+@keyframes bokV13StatePop{0%{transform:translateY(-48%) rotate(-18deg) scale(.35);opacity:.2}55%{transform:translateY(-48%) rotate(4deg) scale(1.22);opacity:1}100%{transform:translateY(-48%) rotate(-7deg) scale(1);opacity:1}}
+@keyframes bokV13NewPlace{0%{filter:saturate(.55) brightness(.82);opacity:.48}55%{filter:saturate(1.14) brightness(1.10);opacity:1}100%{filter:none;opacity:1}}
+@media(max-width:390px){.bok-v13-traveler,.bok-v13-traveler svg{width:43px;height:43px}.bok-v13-progress-reaction{width:74px;height:74px}}
+@media(prefers-reduced-motion:reduce){.bok-v13-progress-reaction{display:none!important}.bok-v13-traveler,.bok-v13-traveler.is-arriving svg,.bok-v11-world.has-progress-reaction .bok-v11-route .route-glow,.bok-v11-world.has-progress-reaction .bok-v11-route .route-steps,.bok-v11-world .bok-v10-place.is-just-progressed .hit,.bok-v11-world .bok-v10-place.is-just-progressed .bok-v12-state-mark,.bok-v11-world .bok-v10-place.is-newly-opened .hit{animation:none!important}}
