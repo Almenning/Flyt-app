@@ -507,7 +507,7 @@
   function plaque(place,state,reactionPlaceId,newlyOpenedId){
     const done=state==='done',current=state==='current',future=state==='future';
     const depthScale=Math.max(.84,Math.min(1.08,.82+Number(place.point[1])*.0028));
-    const placeZ=Math.round(70+Number(place.point[1]));
+    const placeZ=Math.round(28+Number(place.point[1])*.22);
     return '<button type="button" class="bok-v10-place bok-v15-place state-'+state+(place.id===reactionPlaceId?' is-just-progressed':'')+(place.id===newlyOpenedId?' is-newly-opened':'')+'" style="left:'+place.point[0]+'%;top:'+place.point[1]+'%;--tilt:'+place.tilt+'deg;--place-scale:'+depthScale.toFixed(3)+';--place-z:'+placeZ+'" data-v10-place="'+place.id+'" data-title="'+escapeAttr(place.title)+'" aria-label="'+escapeAttr(place.title+(done?', fullført':current?', neste sted':future?', låst':''))+'">'+
       '<span class="hit"></span>'+landmarkMarkup(place,state)+
       (future?'<span class="bok-v15-vine-lock" aria-hidden="true"></span>':'')+
