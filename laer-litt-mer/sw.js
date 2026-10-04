@@ -1,5 +1,5 @@
-const CACHE='laer-litt-mer-v25-world-first-integration-2026-10-04';
-const SHELL=['./','./index.html','./manifest.webmanifest','./icon.svg','./fraction-lab.css?v=20261003-mobile2','./fraction-lab.js?v=20261003-mobile2','./multiplication-lab.css?v=20261003-table1','./multiplication-lab.js?v=20261003-table1','./norwegian-content.js','./bokskogen-world.css?v=20261004-premium12','./bokskogen-world.js?v=20261004-world3','./bokskogen-verden.png?v=20261004-world1','./journey-world-premium.css?v=20261004-integration2','./journey-world-premium.js?v=20261004-perspective1','./matte-verden.png?v=20261004-world1','./engelsk-verden.png?v=20261004-world1','./geografi-verden.png?v=20261004-world1'];
+const CACHE='laer-litt-mer-v26-world-first-order-2026-10-04';
+const SHELL=['./','./index.html','./manifest.webmanifest','./icon.svg','./fraction-lab.css?v=20261003-mobile2','./fraction-lab.js?v=20261003-mobile2','./multiplication-lab.css?v=20261003-table1','./multiplication-lab.js?v=20261003-table1','./norwegian-content.js','./bokskogen-world.css?v=20261004-premium12','./bokskogen-world.js?v=20261004-world3','./bokskogen-verden.png?v=20261004-world1','./journey-world-premium.css?v=20261004-integration2','./journey-world-premium.js?v=20261004-integration3','./matte-verden.png?v=20261004-world1','./engelsk-verden.png?v=20261004-world1','./geografi-verden.png?v=20261004-world1'];
 
 self.addEventListener('install',event=>{
   event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(SHELL)).then(()=>self.skipWaiting()));
