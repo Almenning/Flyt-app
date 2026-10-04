@@ -290,9 +290,11 @@ async function finishSession(page){
     assert.ok(mathVariety.includes('sequence-order'),'grade 2 math should include ordering');
     await page.locator('#open-math').click();
     assert.equal(await page.locator('#journey-map').isVisible(),true);
-    assert.ok(await page.locator('#journey-map .journey-area').count()>=2,'math journey should have multiple areas');
+    assert.ok(await page.locator('#journey-map .journey-world').count()>=2,'math journey should have multiple worlds');
     assert.ok(await page.locator('#journey-map [data-journey-node]').count()>=6,'math journey should expose real path nodes');
-    assert.match(await page.locator('#journey-map').innerText(),/Neste for deg/);
+    assert.ok(await page.locator('#journey-map .journey-route').count()>=2,'journey should render visible routes');
+    assert.equal(await page.locator('#journey-map .journey-fox').count(),1,'recommended node should show the fox');
+    assert.match(await page.locator('#journey-map').innerText(),/Neste!/);
 
     const nextMathNode=await page.evaluate(()=>journeyRecommendedNode('math',2)?.id);
     assert.ok(nextMathNode,'missing recommended math journey node');
