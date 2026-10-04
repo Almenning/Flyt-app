@@ -1,0 +1,415 @@
+
+/* Premium World Engine v1 — Bokskogen pilot, Norsk 1.–2. */
+.bokskogen-map{
+  display:grid;
+  gap:14px;
+  margin-top:10px;
+}
+.bokskogen-hud{
+  position:sticky;
+  top:max(8px,env(safe-area-inset-top));
+  z-index:40;
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  align-items:center;
+  gap:9px;
+  margin:0 2px 7px;
+  padding:8px 10px;
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:20px;
+  color:#fff;
+  background:linear-gradient(145deg,rgba(24,47,53,.96),rgba(41,74,66,.96));
+  box-shadow:0 7px 0 rgba(18,39,43,.15),0 15px 28px rgba(25,49,49,.20);
+  backdrop-filter:blur(15px);
+}
+.bokskogen-hud .bok-grade{
+  min-width:54px;
+  height:36px;
+  display:grid;
+  place-items:center;
+  padding:0 9px;
+  border-radius:13px;
+  background:rgba(255,255,255,.11);
+  border:1px solid rgba(255,255,255,.10);
+  font-size:9px;
+  font-weight:1000;
+}
+.bokskogen-hud .bok-progress{min-width:0}
+.bokskogen-hud .bok-progress strong{
+  display:block;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  font-size:10px;
+  font-weight:1000;
+}
+.bokskogen-hud .bok-progress small{
+  display:block;
+  margin-top:2px;
+  color:#D7EAD9;
+  font-size:7.5px;
+  font-weight:850;
+}
+.bokskogen-hud .bok-progress-track{
+  height:6px;
+  margin-top:5px;
+  overflow:hidden;
+  border-radius:99px;
+  background:rgba(255,255,255,.14);
+  box-shadow:inset 0 1px 2px rgba(8,27,29,.25);
+}
+.bokskogen-hud .bok-progress-track i{
+  display:block;
+  height:100%;
+  border-radius:inherit;
+  background:linear-gradient(90deg,#79D79A,#FFE07D);
+  box-shadow:0 0 10px rgba(127,220,161,.32);
+}
+.bokskogen-hud .bok-trophies{
+  min-height:36px;
+  display:flex;
+  align-items:center;
+  gap:4px;
+  padding:0 9px;
+  border-radius:13px;
+  background:rgba(255,255,255,.10);
+  border:1px solid rgba(255,255,255,.09);
+  font-size:10px;
+  font-weight:1000;
+}
+.bokskogen-world{
+  position:relative;
+  height:1180px;
+  overflow:hidden;
+  isolation:isolate;
+  border:1px solid rgba(255,255,255,.84);
+  border-radius:38px;
+  background:#CDECF4;
+  box-shadow:
+    0 0 0 5px rgba(92,127,95,.08),
+    0 13px 0 rgba(48,65,73,.09),
+    0 34px 64px rgba(38,57,67,.22),
+    inset 0 1px 0 rgba(255,255,255,.7);
+}
+.bokskogen-world:after{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:4;
+  pointer-events:none;
+  border-radius:inherit;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.06),transparent 21%,transparent 82%,rgba(20,45,39,.10)),
+    radial-gradient(circle at 48% 42%,transparent 0 54%,rgba(23,42,38,.04) 100%);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.22);
+}
+.bokskogen-art{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  z-index:0;
+  pointer-events:none;
+}
+.bokskogen-title{
+  position:absolute;
+  z-index:12;
+  top:18px;
+  left:50%;
+  transform:translateX(-50%);
+  min-width:190px;
+  max-width:78%;
+  padding:9px 18px 10px;
+  text-align:center;
+  border:2px solid rgba(102,66,35,.42);
+  border-radius:18px 18px 22px 22px;
+  color:#FFF7D9;
+  background:
+    linear-gradient(180deg,rgba(119,79,43,.98),rgba(88,55,31,.98)),
+    repeating-linear-gradient(90deg,rgba(255,255,255,.04) 0 2px,transparent 2px 11px);
+  box-shadow:0 7px 0 rgba(72,47,28,.18),0 13px 24px rgba(53,45,34,.18),inset 0 1px 0 rgba(255,255,255,.16);
+  text-shadow:0 2px 1px rgba(58,37,23,.35);
+}
+.bokskogen-title strong{
+  display:block;
+  font-family:ui-rounded,"SF Pro Rounded","Arial Rounded MT Bold",system-ui,sans-serif;
+  font-size:24px;
+  line-height:1;
+  letter-spacing:-.03em;
+  font-weight:1000;
+}
+.bokskogen-title small{
+  display:block;
+  margin-top:4px;
+  color:#EADDBE;
+  font-size:7.5px;
+  letter-spacing:.08em;
+  font-weight:900;
+}
+.bokskogen-route{
+  position:absolute;
+  z-index:5;
+  inset:0;
+  width:100%;
+  height:100%;
+  pointer-events:none;
+}
+.bokskogen-route .trail-shadow{
+  fill:none;
+  stroke:rgba(70,53,35,.20);
+  stroke-width:2.5;
+  stroke-linecap:round;
+}
+.bokskogen-route .trail-base{
+  fill:none;
+  stroke:#E9C77A;
+  stroke-width:1.8;
+  stroke-linecap:round;
+  filter:drop-shadow(0 1px 0 rgba(81,62,36,.10));
+}
+.bokskogen-route .trail-light{
+  fill:none;
+  stroke:#FFE9A9;
+  stroke-width:.7;
+  stroke-linecap:round;
+  stroke-dasharray:1.1 1.7;
+  opacity:.95;
+}
+.bokskogen-route .trail-done{
+  fill:none;
+  stroke:#79C894;
+  stroke-width:1.25;
+  stroke-linecap:round;
+  filter:drop-shadow(0 0 1px rgba(73,152,101,.28));
+}
+.bokskogen-stop{
+  position:absolute;
+  z-index:20;
+  transform:translate(-50%,-50%);
+  width:94px;
+  min-height:72px;
+  padding:0;
+  border:0;
+  background:transparent;
+  color:#29394A;
+  cursor:pointer;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+}
+.bokskogen-stop[disabled]{cursor:default}
+.bokskogen-stop .stop-landmark{
+  position:relative;
+  width:66px;
+  height:58px;
+  margin:0 auto;
+  display:grid;
+  place-items:center;
+  border:3px solid rgba(255,255,255,.88);
+  border-radius:23px 23px 19px 19px;
+  background:linear-gradient(180deg,#FFF8D6 0 55%,#D9B86F 56% 100%);
+  box-shadow:
+    0 7px 0 #A57B3C,
+    0 13px 20px rgba(54,48,35,.18),
+    inset 0 4px 0 rgba(255,255,255,.58);
+  transition:transform .16s ease,filter .16s ease,box-shadow .16s ease;
+}
+.bokskogen-stop .stop-landmark:before{
+  content:"";
+  position:absolute;
+  left:8px;
+  right:8px;
+  top:6px;
+  height:21px;
+  border-radius:50%;
+  background:rgba(255,255,255,.42);
+}
+.bokskogen-stop .stop-icon{
+  position:relative;
+  z-index:2;
+  display:grid;
+  place-items:center;
+  min-width:36px;
+  height:36px;
+  padding:0 4px;
+  border-radius:50%;
+  color:#405046;
+  font-size:18px;
+  line-height:1;
+  font-weight:1000;
+}
+.bokskogen-stop .stop-icon.tiny{
+  font-size:10px;
+  letter-spacing:-.02em;
+}
+.bokskogen-stop .stop-sign{
+  position:relative;
+  z-index:4;
+  display:inline-block;
+  max-width:112px;
+  margin-top:8px;
+  padding:5px 8px 5px;
+  border:1px solid rgba(91,61,35,.22);
+  border-radius:8px 8px 10px 10px;
+  color:#4B3925;
+  background:linear-gradient(180deg,#F7D797,#DDB26D);
+  box-shadow:0 3px 0 rgba(111,79,41,.18),0 6px 10px rgba(56,46,33,.12),inset 0 1px 0 rgba(255,255,255,.50);
+  font-size:7.7px;
+  line-height:1.08;
+  font-weight:1000;
+  white-space:nowrap;
+}
+.bokskogen-stop .stop-state{
+  position:absolute;
+  z-index:9;
+  right:9px;
+  top:-4px;
+  min-width:22px;
+  height:22px;
+  padding:0 4px;
+  display:grid;
+  place-items:center;
+  border:2px solid #fff;
+  border-radius:99px;
+  color:#fff;
+  background:#52647C;
+  box-shadow:0 3px 7px rgba(38,49,67,.20);
+  font-size:8px;
+  font-weight:1000;
+}
+.bokskogen-stop.state-next .stop-landmark{
+  background:linear-gradient(180deg,#FFFCE8 0 55%,#F3C75D 56% 100%);
+  box-shadow:
+    0 8px 0 #AE7A22,
+    0 0 0 9px rgba(255,215,108,.15),
+    0 17px 27px rgba(91,65,27,.22),
+    inset 0 4px 0 rgba(255,255,255,.66);
+  animation:bokNextPulse 2s ease-in-out infinite;
+}
+.bokskogen-stop.state-active .stop-landmark{
+  background:linear-gradient(180deg,#FFFBE6 0 55%,#EAC55E 56% 100%);
+  box-shadow:0 7px 0 #A67924,0 13px 20px rgba(84,63,28,.18),inset 0 4px 0 rgba(255,255,255,.58);
+}
+.bokskogen-stop.state-can-now .stop-landmark{
+  background:linear-gradient(180deg,#F3FFF5 0 55%,#80C998 56% 100%);
+  box-shadow:0 7px 0 #47845E,0 13px 20px rgba(51,103,69,.18),inset 0 4px 0 rgba(255,255,255,.63);
+}
+.bokskogen-stop.state-mastered .stop-landmark,
+.bokskogen-stop.state-passed .stop-landmark{
+  background:linear-gradient(180deg,#FFFBE8 0 55%,#E4BA48 56% 100%);
+  box-shadow:0 7px 0 #A8741E,0 13px 21px rgba(91,65,24,.19),inset 0 4px 0 rgba(255,255,255,.64);
+}
+.bokskogen-stop.state-can-now .stop-state{background:#4DA86E}
+.bokskogen-stop.state-mastered .stop-state,
+.bokskogen-stop.state-passed .stop-state{background:#D6A028}
+.bokskogen-stop.state-active .stop-state{background:#D2A132;color:#5D450E}
+.bokskogen-stop.state-future{
+  opacity:.47;
+  filter:saturate(.42);
+}
+.bokskogen-stop.state-future .stop-sign{background:linear-gradient(#DAD3C2,#BEB8AA);color:#6E6A63}
+.bokskogen-stop.type-checkpoint .stop-landmark{
+  width:77px;
+  height:67px;
+  border-radius:25px;
+}
+.bokskogen-stop.type-checkpoint .stop-icon{font-size:22px}
+.bokskogen-stop:active:not([disabled]) .stop-landmark{transform:translateY(4px)}
+.bokskogen-next-fox{
+  position:absolute;
+  z-index:10;
+  left:-29px;
+  top:-42px;
+  width:52px;
+  height:52px;
+  filter:drop-shadow(0 6px 5px rgba(45,55,55,.24));
+  animation:bokFoxBob 2.1s ease-in-out infinite;
+}
+.bokskogen-next-fox svg{width:100%;height:100%}
+.bokskogen-next-bubble{
+  position:absolute;
+  z-index:11;
+  left:55px;
+  top:-37px;
+  width:112px;
+  padding:7px 9px 8px;
+  border-radius:13px 13px 13px 4px;
+  color:#fff;
+  background:rgba(38,65,61,.96);
+  box-shadow:0 7px 15px rgba(34,55,53,.23);
+  text-align:left;
+}
+.bokskogen-next-bubble b{
+  display:block;
+  color:#BEE7C8;
+  font-size:6px;
+  letter-spacing:.12em;
+}
+.bokskogen-next-bubble strong{
+  display:block;
+  margin-top:2px;
+  font-size:9.5px;
+  line-height:1.08;
+  font-weight:1000;
+}
+.bokskogen-side{
+  position:absolute;
+  z-index:16;
+  transform:translate(-50%,-50%);
+  border:1px solid rgba(255,255,255,.72);
+  border-radius:999px;
+  padding:6px 8px;
+  color:#4B4E58;
+  background:rgba(255,255,255,.78);
+  backdrop-filter:blur(7px);
+  box-shadow:0 4px 10px rgba(47,57,57,.10);
+  font-size:7px;
+  font-weight:1000;
+  cursor:pointer;
+}
+.bokskogen-side[disabled]{opacity:.35;filter:grayscale(1);cursor:default}
+.bokskogen-side.challenge:before{content:"✦ ";color:#D39A2A}
+.bokskogen-side.review:before{content:"↻ ";color:#6384B7}
+.bokskogen-world-note{
+  position:absolute;
+  z-index:13;
+  left:17px;
+  bottom:17px;
+  max-width:210px;
+  padding:9px 11px;
+  border:1px solid rgba(255,255,255,.72);
+  border-radius:16px;
+  color:#365244;
+  background:rgba(255,255,255,.76);
+  backdrop-filter:blur(9px);
+  box-shadow:0 6px 15px rgba(42,62,54,.11);
+  font-size:7.5px;
+  line-height:1.35;
+  font-weight:850;
+}
+.bokskogen-world-note strong{font-weight:1000}
+.bokskogen-world.is-complete .bokskogen-title{
+  background:linear-gradient(180deg,#A5792B,#72501C);
+  box-shadow:0 7px 0 rgba(91,62,23,.18),0 0 0 7px rgba(255,220,115,.10),0 15px 26px rgba(63,47,26,.20);
+}
+@keyframes bokNextPulse{
+  0%,100%{filter:brightness(1);transform:translateY(0)}
+  50%{filter:brightness(1.05);transform:translateY(-3px)}
+}
+@keyframes bokFoxBob{
+  0%,100%{transform:translateY(0) rotate(-2deg)}
+  50%{transform:translateY(-5px) rotate(2deg)}
+}
+@media (max-width:390px){
+  .bokskogen-world{height:1110px;border-radius:33px}
+  .bokskogen-title{min-width:174px}
+  .bokskogen-title strong{font-size:22px}
+  .bokskogen-stop{transform:translate(-50%,-50%) scale(.94)}
+  .bokskogen-next-bubble{width:102px;left:51px}
+}
+@media (min-width:600px){
+  .bokskogen-world{height:1260px}
+}
+@media (prefers-reduced-motion:reduce){
+  .bokskogen-stop.state-next .stop-landmark,
+  .bokskogen-next-fox{animation:none!important}
+}
