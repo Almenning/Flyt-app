@@ -3336,12 +3336,12 @@ function mathPool(grade,module){
   const add=(arr,skill,prompt,answer,opts,extra={})=>arr.push(choiceQuestion('math',skill,prompt,String(answer),opts.map(String),extra));
   if(grade===1){
     for(let i=0;i<6;i++){const a=rand(1,8),b=rand(1,10-a),ans=a+b;add(numbers,'addition-10',a+' + '+b+' = ?',ans,[ans,ans+1,Math.max(0,ans-1)])}
-    for(let i=0;i<5;i++){const vals=shuffle([rand(1,4),rand(5,7),rand(8,10)]),ans=Math.max(...vals);add(numbers,'number-order','Hvilket tall er størst?',ans,vals)}
+    for(let i=0;i<5;i++){const vals=shuffle([rand(1,4),rand(5,7),rand(8,10)]),ans=Math.max(...vals);add(numbers,'number-order','Hvilket tall er størst av '+vals.join(', ')+'?',ans,vals)}
   }else if(grade===2){
     for(let i=0;i<4;i++){const a=rand(10,60),b=rand(2,25),ans=a+b;add(numbers,'addition-100',a+' + '+b+' = ?',ans,[ans,ans+10,ans-1])}
     for(let i=0;i<2;i++){const a=rand(20,80),b=rand(2,Math.min(18,a-1)),ans=a-b;add(numbers,'subtraction-100',a+' − '+b+' = ?',ans,[ans,ans+10,Math.max(0,ans-1)])}
     for(let i=0;i<5;i++){const tens=rand(2,9),ones=rand(0,9),n=tens*10+ones;add(numbers,'place-value','Hva er verdien til '+tens+' i tallet '+n+'?',tens*10,[tens*10,tens,ones,ones*10])}
-    for(let i=0;i<3;i++){const vals=shuffle([rand(10,35),rand(36,65),rand(66,99)]),ans=Math.max(...vals);add(numbers,'number-order','Hvilket tall er størst?',ans,vals)}
+    for(let i=0;i<3;i++){const vals=shuffle([rand(10,35),rand(36,65),rand(66,99)]),ans=Math.max(...vals);add(numbers,'number-order','Hvilket tall er størst av '+vals.join(', ')+'?',ans,vals)}
   }else if(grade===3){
     for(let i=0;i<5;i++){const a=rand(2,10),b=rand(2,10),ans=a*b;add(numbers,'multiplication',a+' × '+b+' = ?',ans,[ans,ans+a,Math.max(1,ans-b)])}
     for(let i=0;i<5;i++){const divisor=rand(2,10),ans=rand(2,10),total=divisor*ans;add(numbers,'division',total+' ÷ '+divisor+' = ?',ans,[ans,Math.max(1,ans-1),ans+1])}
