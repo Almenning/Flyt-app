@@ -432,6 +432,10 @@
     .journey-world.geo-world.world-3{--world-sky:#E8F7EF;--world-ground:#F2E6C9;--world-accent:#55A072}
     .journey-world.geo-world .journey-world-number{color:#39778A}
     .journey-world.geo-world .journey-route path.done{stroke:#3E9BB4}
+    .journey-world.geo-world .journey-goal-gate{border-style:dashed;border-color:rgba(48,120,139,.28)}
+    .journey-world.geo-world.area-complete .journey-goal-gate{border-style:solid;border-color:#FFF1BD}
+    .journey-world.geo-world .journey-map-node.type-geo-skill .node-orb{background:rgba(255,255,255,.96)}
+
     .geo-expedition-stamp{position:absolute;left:14px;bottom:12px;z-index:4;transform:rotate(-5deg);border:2px dashed rgba(44,104,121,.38);border-radius:11px;padding:4px 7px;font-size:8px;font-weight:950;color:#39778A;background:rgba(255,255,255,.55)}
 
 
@@ -2858,8 +2862,24 @@ function geoJourneyStatusText(node,st){
   if(st==='mastered')return 'Mestret';if(st==='can-now')return 'Kan nå';if(st==='active')return 'Under arbeid';return 'Ny';
 }
 function geoJourneyIcon(node,st){
-  if(node.type==='checkpoint')return st==='passed'?'✓':'🏆';if(node.type==='challenge')return st==='passed'?'✓':'⚡';if(node.type==='review')return '🔁';
-  if(st==='mastered')return '★';if(st==='can-now')return '●';if(st==='active')return '◐';return '●';
+  if(node.type==='checkpoint')return '🏆';
+  if(node.type==='challenge')return '⚡';
+  if(node.type==='review')return '🔁';
+  if(node.geoType==='flag')return '🏳️';
+  if(node.geoType==='capital')return '🏛️';
+  if(node.geoType==='country')return '🌍';
+  if(node.geoType==='continent')return '🧭';
+  if(node.geoType==='map')return '🗺️';
+  return '📍';
+}
+function geoSceneDetails(areaIndex){
+  const sets=[
+    ['🧭','🇳🇴','🏔️','🗺️'],
+    ['🚂','🏛️','🇪🇺','📍'],
+    ['🌍','✈️','🧳','🗺️'],
+    ['🎯','🛰️','🌐','🏆']
+  ];
+  return sets[areaIndex%sets.length];
 }
 function buildGeoJourneyQuestions(node,allowCooldown=false){
   const types=node.type==='geo-skill'?[node.geoType]:node.areaTypes,items=[];
@@ -2973,17 +2993,19 @@ function renderGeoJourney(){
       const st=geoJourneyNodeState(node),idx=model.nodes.findIndex(n=>n.id===node.id),isNext=recommended&&recommended.id===node.id,future=!isNext&&recommendedIndex>=0&&idx>recommendedIndex&&st==='new';
       const visual=isNext&&!['can-now','mastered','passed'].includes(st)?'next':future?'future':st,point=positionMap.get(node.id)||journeySidePosition(node.type,ai);
       const fox=isNext?'<span class="journey-next-bubble">Neste!</span><span class="journey-fox" aria-hidden="true">🦊</span>':'';
-      return '<button class="journey-map-node type-'+node.type+' state-'+visual+'" style="left:'+point[0]+'%;top:'+point[1]+'%" type="button" data-geo-journey-node="'+node.id+'" aria-label="'+escapeAttr(node.title+'. '+geoJourneyStatusText(node,st))+'">'+fox+'<span class="node-orb">'+geoJourneyIcon(node,st)+'</span><span class="node-label"><strong>'+node.title+'</strong><small>'+geoJourneyStatusText(node,st)+'</small></span></button>';
+      const badge=journeyStateBadge(node,st),badgeHtml=badge?'<span class="node-state-badge">'+badge+'</span>':'';
+      return '<button class="journey-map-node type-'+node.type+' state-'+visual+'" style="left:'+point[0]+'%;top:'+point[1]+'%" type="button" data-geo-journey-node="'+node.id+'" aria-label="'+escapeAttr(node.title+'. '+geoJourneyStatusText(node,st))+'">'+fox+'<span class="node-orb"><span class="node-main-icon">'+geoJourneyIcon(node,st)+'</span>'+badgeHtml+'</span><span class="node-label"><strong>'+node.title+'</strong><small>'+geoJourneyStatusText(node,st)+'</small></span></button>';
     }).join('');
     const worldClass='geo-world world-'+((ai%3)+1)+(areaDone?' area-complete':'')+(isCurrent?' world-current':'')+(isPreview?' world-preview':'')+(isFuture?' world-future':'');
     const ribbon=areaDone?'★ ETAPPE STEMPLET':isCurrent?'🦊 DU ER HER':isPreview?'🔓 NESTE ETAPPE':'🔒 SENERE';
     const ribbonClass=areaDone?'complete':isPreview?'preview':isFuture?'future':'';
+    const details=geoSceneDetails(ai);
     const teaser=isFuture?'<div class="journey-future-teaser"><div class="lock">🔒</div><strong>'+area.title+' venter</strong><small>Fullfør etappen før for å åpne den i hovedekspedisjonen. Du kan sniktitte uten at det teller.</small><button type="button" data-geo-journey-peek="'+area.id+'">Sniktitt</button></div>':'';
     return '<section class="journey-world '+worldClass+'">'+
-      '<div class="journey-scenery" aria-hidden="true"><i class="journey-cloud c1"></i><i class="journey-cloud c2"></i><i class="journey-hill h1"></i><i class="journey-hill h2"></i><span class="journey-spark s1">🧭</span><span class="journey-spark s2">✦</span><span class="journey-spark s3">🌍</span></div>'+
+      '<div class="journey-scenery" aria-hidden="true"><i class="journey-cloud c1"></i><i class="journey-cloud c2"></i><i class="journey-hill h1"></i><i class="journey-hill h2"></i><span class="journey-spark s1">'+details[0]+'</span><span class="journey-spark s2">✦</span><span class="journey-spark s3">'+details[1]+'</span><span class="journey-scene-token t1">'+details[0]+'</span><span class="journey-scene-token t2">'+details[1]+'</span><span class="journey-scene-token t3">'+details[2]+'</span><span class="journey-landmark small">'+details[2]+'</span><span class="journey-landmark main">'+details[3]+'</span></div>'+
       '<div class="journey-world-head"><div class="journey-world-number">ETAPPE<br>'+(ai+1)+'</div><div class="journey-world-title"><strong>'+area.emoji+' '+area.title+'</strong><small>'+(area.copy||'Bygg kartet steg for steg.')+'</small></div><span class="journey-world-progress '+(areaDone?'complete':'')+'">'+(areaDone?'Klart ★':done+' / '+required.length)+'</span></div>'+
       '<div class="journey-world-ribbon '+ribbonClass+'">'+ribbon+'</div><div class="journey-world-reward"><b>'+(areaDone?reward.emoji:'?')+'</b>'+(areaDone?reward.label:'Stempel')+'</div>'+
-      '<div class="journey-playfield">'+(isFuture?'':geoJourneyRouteSvg(area))+nodes+teaser+'<div class="journey-zone-gate"></div><div class="journey-zone-badge">'+(areaDone?'Samlet '+reward.emoji:'Mål: vinn '+reward.emoji)+'</div></div>'+
+      '<div class="journey-playfield">'+(isFuture?'':geoJourneyRouteSvg(area))+nodes+teaser+'<div class="journey-goal-gate"><b>'+(areaDone?reward.emoji:'📮')+'</b><span>'+(areaDone?'Stemplet<br>'+reward.label:'MÅL<br>'+reward.label)+'</span></div></div>'+
       '</section>';
   });
   host.innerHTML=chunks.join('<div class="journey-world-transition" aria-hidden="true">↓</div>');
