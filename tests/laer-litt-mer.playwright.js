@@ -295,6 +295,69 @@ async function finishSession(page){
     assert.ok(await page.locator('#journey-map .journey-route').count()>=2,'journey should render visible routes');
     assert.equal(await page.locator('#journey-map .journey-fox').count(),1,'recommended node should show the fox');
     assert.match(await page.locator('#journey-map').innerText(),/Neste!/);
+    assert.equal(await page.locator('#journey-now-card').isVisible(),true,'journey should show a clear you-are-here card');
+    const worldCount=await page.locator('#journey-map .journey-world').count();
+    assert.equal(await page.locator('#journey-collection .journey-collectible').count(),worldCount,'each world should have one collectible slot');
+    assert.equal(await page.locator('#journey-map .journey-world.world-current').count(),1,'journey should expose exactly one current world');
+    assert.ok(await page.locator('#journey-map .journey-world.world-preview').count()>=1,'journey should tease the next world');
+    assert.ok(await page.locator('#journey-map .journey-world.world-future').count()>=1,'grade 2 math should have a later soft-locked world');
+    assert.ok(await page.locator('#journey-map [data-journey-peek]').count()>=1,'soft-locked worlds should allow a non-counting peek');
+
+    const peekBefore=await page.evaluate(()=>({pct:journeyProgress('math',2).pct,goal:dailyGoal().done,answers:subjectAnswered('math')}));
+    await page.locator('#journey-map [data-journey-peek]').first().click();
+    await page.locator('#session-screen.active').waitFor();
+    const peekScope=await page.evaluate(()=>({type:sessionScope.type,previewOnly:sessionScope.previewOnly,practiceOnly:sessionScope.practiceOnly,count:sessionQuestions.length}));
+    assert.equal(peekScope.type,'journey-preview');
+    assert.equal(peekScope.previewOnly,true);
+    assert.equal(peekScope.practiceOnly,true);
+    assert.ok(peekScope.count>=1);
+    await answerCurrent(page);
+    const peekLogged=await page.evaluate(()=>state.answerLog.at(-1));
+    assert.equal(peekLogged.countsForLearning,false,'peek answers must not count as learning progress');
+    await page.locator('#close-session').click();
+    await page.locator('#subject-screen.active').waitFor();
+    const peekAfter=await page.evaluate(()=>({pct:journeyProgress('math',2).pct,goal:dailyGoal().done,answers:subjectAnswered('math')}));
+    assert.deepEqual(peekAfter,peekBefore,'soft-lock peek must not change progress or the daily goal');
+
+    // Trophy completion must award the world's collectible, and the final trophy must genuinely round the grade.
+    const journeyRewardCheck=await page.evaluate(()=>{
+      const backup={
+        skillMastery:JSON.parse(JSON.stringify(state.skillMastery)),
+        skillEvidence:JSON.parse(JSON.stringify(state.skillEvidence)),
+        journey:JSON.parse(JSON.stringify(state.journey)),
+        lastMilestone:state.lastMilestone?JSON.parse(JSON.stringify(state.lastMilestone)):null
+      };
+      const oldScope=sessionScope;
+      const model=journeyModel('math',2);
+      for(const area of model.areas){
+        for(const node of area.nodes.filter(n=>n.type==='skill')){
+          for(const skill of node.skills)state.skillMastery[learningMasteryKey('math',skill,2)]=2;
+        }
+      }
+      const firstArea=model.areas[0],firstCp=firstArea.nodes.find(n=>n.type==='checkpoint');
+      sessionScope={type:'journey',subject:'math',journeyGrade:2,journeyNode:firstCp.id,journeyArea:firstArea.id,journeyType:'checkpoint',practiceOnly:false};
+      const firstResult={correct:5,learningCorrect:5,total:5};
+      recordJourneySessionResult(firstResult);
+      const first={areaComplete:journeyAreaComplete(firstArea),reward:firstResult.journeyReward||null};
+
+      for(let i=1;i<model.areas.length-1;i++){
+        const cp=model.areas[i].nodes.find(n=>n.type==='checkpoint');
+        state.journey.nodes[journeyNodeKey('math',2,cp.id)]={passed:true,best:5,attempts:1,lastAt:Date.now(),passedAt:Date.now()};
+      }
+      const lastArea=model.areas.at(-1),lastCp=lastArea.nodes.find(n=>n.type==='checkpoint');
+      sessionScope={type:'journey',subject:'math',journeyGrade:2,journeyNode:lastCp.id,journeyArea:lastArea.id,journeyType:'checkpoint',practiceOnly:false};
+      const finalResult={correct:5,learningCorrect:5,total:5};
+      recordJourneySessionResult(finalResult);
+      const final={complete:journeyProgress('math',2).complete,gradeCompleted:finalResult.gradeCompleted||null,gradeWin:state.journey.gradeWins['math:2']||null};
+
+      state.skillMastery=backup.skillMastery;state.skillEvidence=backup.skillEvidence;state.journey=backup.journey;state.lastMilestone=backup.lastMilestone;sessionScope=oldScope;saveState();renderAll();openSubject('math');
+      return {first,final};
+    });
+    assert.equal(journeyRewardCheck.first.areaComplete,true);
+    assert.ok(journeyRewardCheck.first.reward&&journeyRewardCheck.first.reward.label,'world trophy should award a collectible');
+    assert.equal(journeyRewardCheck.final.complete,true,'final trophy should round the grade');
+    assert.equal(journeyRewardCheck.final.gradeCompleted.grade,2);
+    assert.ok(journeyRewardCheck.final.gradeWin,'grade completion should be persisted');
 
     const nextMathNode=await page.evaluate(()=>journeyRecommendedNode('math',2)?.id);
     assert.ok(nextMathNode,'missing recommended math journey node');
