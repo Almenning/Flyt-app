@@ -3515,16 +3515,16 @@ function renderGeoJourney(){
   const hud='<div class="journey-game-hud-v5"><span class="hud-level">'+GRADE_CONFIG[viewGrade].label+'</span><div class="hud-quest"><b>'+(prog.complete?'Ekspedisjonen er rundet':'Neste: '+(recommended?.title||'Velg etappe'))+'</b><small>'+prog.pct+' % av ekspedisjonen</small><div class="hud-progress"><i style="width:'+prog.pct+'%"></i></div></div><span class="hud-trophy">'+journeySpecialSvg('checkpoint')+prog.areasDone+'/'+model.areas.length+'</span></div>';
 
   const chunks=model.areas.map((area,ai)=>{
-    const areaDone=geoJourneyAreaComplete(area),isPreview=!prog.complete&&ai===currentAreaIndex+1,isFuture=!prog.complete&&ai>currentAreaIndex+1,reward=journeyAreaReward('geography',ai);
+    const areaDone=geoJourneyAreaComplete(area),areaPct=journeyAreaVisualProgressV7(area,true),growth=journeyGrowthStageV7(areaPct,areaDone),isPreview=!prog.complete&&ai===currentAreaIndex+1,isFuture=!prog.complete&&ai>currentAreaIndex+1,reward=journeyAreaReward('geography',ai);
     if(prog.complete||areaDone&&ai<currentAreaIndex){
       const review=area.nodes.find(n=>n.type==='review')||area.nodes[0];
-      return '<section class="journey-complete-v5">'+journeyWorldArtV5('geography',ai,false)+'<div class="journey-complete-copy-v5"><span>ETAPPE '+(ai+1)+' · FULLFØRT</span><strong>'+area.title+'</strong><small>'+reward.label+' er vunnet. Etappen kan alltid utforskes igjen.</small><button data-geo-journey-replay="'+review.id+'">Utforsk igjen</button></div><div class="journey-complete-medal-v5">'+journeySpecialSvg('checkpoint')+'</div></section>';
+      return '<section class="journey-complete-v5">'+journeyWorldArtV5('geography',ai,false,100,true)+'<div class="journey-complete-copy-v5"><span>ETAPPE '+(ai+1)+' · FULLFØRT</span><strong>'+area.title+'</strong><small>'+reward.label+' er vunnet. Etappen kan alltid utforskes igjen.</small><button data-geo-journey-replay="'+review.id+'">Utforsk igjen</button></div><div class="journey-complete-medal-v5">'+journeySpecialSvg('checkpoint')+'</div></section>';
     }
     if(isPreview){
-      return '<section class="journey-preview-v5">'+journeyWorldArtV5('geography',ai,false)+'<div class="journey-preview-portal-v5"><div class="portal-ring">✦</div><strong>'+area.title+'</strong><small>Neste etappe venter bak troféporten.</small><button data-geo-journey-peek="'+area.id+'">Ta en sniktitt</button></div></section>';
+      return '<section class="journey-preview-v5">'+journeyWorldArtV5('geography',ai,false,0,false)+'<div class="journey-preview-portal-v5"><div class="portal-ring">✦</div><strong>'+area.title+'</strong><small>Neste etappe venter bak troféporten.</small><button data-geo-journey-peek="'+area.id+'">Ta en sniktitt</button></div></section>';
     }
     if(isFuture){
-      return '<section class="journey-locked-v5">'+journeyWorldArtV5('geography',ai,true)+'<div class="journey-locked-copy-v5"><span>ETAPPE '+(ai+1)+'</span><strong>'+area.title+'</strong><small>Åpnes senere i hovedekspedisjonen.</small></div><div class="journey-lock-v5" aria-hidden="true"></div></section>';
+      return '<section class="journey-locked-v5">'+journeyWorldArtV5('geography',ai,true,0,false)+'<div class="journey-locked-copy-v5"><span>ETAPPE '+(ai+1)+'</span><strong>'+area.title+'</strong><small>Åpnes senere i hovedekspedisjonen.</small></div><div class="journey-lock-v5" aria-hidden="true"></div></section>';
     }
 
     const core=geoJourneyCoreNodes(area),positions=journeyCorePositionsV5(core.length),posMap=new Map(core.map((n,i)=>[n.id,positions[i]])),coreIndex=new Map(core.map((n,i)=>[n.id,i]));
@@ -3532,8 +3532,8 @@ function renderGeoJourney(){
       const st=geoJourneyNodeState(node),idx=model.nodes.findIndex(n=>n.id===node.id),isNext=recommended&&recommended.id===node.id,future=!isNext&&recommendedIndex>=0&&idx>recommendedIndex&&st==='new',point=posMap.get(node.id)||journeySidePositionV5(node.type,ai),step=(coreIndex.get(node.id)??0)+1;
       return journeyNodeMarkupV5(node,point,st,isNext,future,true,step);
     }).join('');
-    return '<section class="journey-world-v5 world-current">'+journeyWorldArtV5('geography',ai,false)+
-      '<div class="journey-world-head-v5"><div class="journey-world-kicker-v5">ETAPPE<br>'+(ai+1)+'</div><div class="journey-world-title-v5"><strong>'+area.title+'</strong><small>'+(area.copy||'Bygg verdenskartet steg for steg.')+'</small></div><div class="journey-world-reward-v5 '+(areaDone?'won':'')+'" data-label="'+escapeAttr(reward.label)+'"><div class="reward-chest"><span class="base"></span><span class="lid"></span><span class="lock"></span></div></div></div>'+
+    return '<section class="journey-world-v5 world-current '+(areaDone?'world-complete-v7':'')+'" data-growth="'+growth+'">'+journeyWorldArtV5('geography',ai,false,areaPct,areaDone)+
+      '<div class="journey-world-head-v5"><div class="journey-world-kicker-v5">ETAPPE<br>'+(ai+1)+'</div><div class="journey-world-title-v5"><strong>'+area.title+'</strong><small><span class="world-place-v7">'+journeyWorldFlavorV7('geography',ai)+'</span><span class="world-copy-v7">'+(area.copy||'Bygg verdenskartet steg for steg.')+'</span></small></div><div class="journey-world-reward-v5 '+(areaDone?'won':'')+'" data-label="'+escapeAttr(reward.label)+'"><div class="reward-chest"><span class="base"></span><span class="lid"></span><span class="lock"></span></div></div></div>'+journeyGrowthChipV7(areaPct,areaDone)+
       '<div class="journey-playfield-v5">'+journeyRouteSvgV5(area,true)+nodes+journeyGateV5(areaDone)+'</div></section>';
   });
 
@@ -4834,16 +4834,16 @@ function renderSubjectJourney(){
   const hud='<div class="journey-game-hud-v5"><span class="hud-level">'+GRADE_CONFIG[viewGrade].label+'</span><div class="hud-quest"><b>'+(prog.complete?'Alle hovedverdenene er vunnet':'Neste: '+(recommended?.title||'Velg oppdrag'))+'</b><small>'+prog.pct+' % av kjerneløpet</small><div class="hud-progress"><i style="width:'+prog.pct+'%"></i></div></div><span class="hud-trophy">'+journeySpecialSvg('checkpoint')+prog.areasDone+'/'+model.areas.length+'</span></div>';
 
   const chunks=model.areas.map((area,areaIndex)=>{
-    const areaDone=journeyAreaComplete(area),isPreview=!prog.complete&&areaIndex===currentAreaIndex+1,isFuture=!prog.complete&&areaIndex>currentAreaIndex+1,reward=journeyAreaReward(activeSubject,areaIndex);
+    const areaDone=journeyAreaComplete(area),areaPct=journeyAreaVisualProgressV7(area,false),growth=journeyGrowthStageV7(areaPct,areaDone),isPreview=!prog.complete&&areaIndex===currentAreaIndex+1,isFuture=!prog.complete&&areaIndex>currentAreaIndex+1,reward=journeyAreaReward(activeSubject,areaIndex);
     if(prog.complete||areaDone&&areaIndex<currentAreaIndex){
       const review=area.nodes.find(n=>n.type==='review')||area.nodes[0];
-      return '<section class="journey-complete-v5">'+journeyWorldArtV5(activeSubject,areaIndex,false)+'<div class="journey-complete-copy-v5"><span>VERDEN '+(areaIndex+1)+' · FULLFØRT</span><strong>'+area.title+'</strong><small>'+reward.label+' er vunnet. Du kan spille verdenen igjen når du vil.</small><button data-journey-replay="'+review.id+'">Spill igjen</button></div><div class="journey-complete-medal-v5">'+journeySpecialSvg('checkpoint')+'</div></section>';
+      return '<section class="journey-complete-v5">'+journeyWorldArtV5(activeSubject,areaIndex,false,100,true)+'<div class="journey-complete-copy-v5"><span>VERDEN '+(areaIndex+1)+' · FULLFØRT</span><strong>'+area.title+'</strong><small>'+reward.label+' er vunnet. Du kan spille verdenen igjen når du vil.</small><button data-journey-replay="'+review.id+'">Spill igjen</button></div><div class="journey-complete-medal-v5">'+journeySpecialSvg('checkpoint')+'</div></section>';
     }
     if(isPreview){
-      return '<section class="journey-preview-v5">'+journeyWorldArtV5(activeSubject,areaIndex,false)+'<div class="journey-preview-portal-v5"><div class="portal-ring">✦</div><strong>'+area.title+'</strong><small>Neste verden venter bak troféporten.</small><button data-journey-peek="'+area.id+'">Ta en sniktitt</button></div></section>';
+      return '<section class="journey-preview-v5">'+journeyWorldArtV5(activeSubject,areaIndex,false,0,false)+'<div class="journey-preview-portal-v5"><div class="portal-ring">✦</div><strong>'+area.title+'</strong><small>Neste verden venter bak troféporten.</small><button data-journey-peek="'+area.id+'">Ta en sniktitt</button></div></section>';
     }
     if(isFuture){
-      return '<section class="journey-locked-v5">'+journeyWorldArtV5(activeSubject,areaIndex,true)+'<div class="journey-locked-copy-v5"><span>VERDEN '+(areaIndex+1)+'</span><strong>'+area.title+'</strong><small>Åpnes når hovedruten foran er fullført.</small></div><div class="journey-lock-v5" aria-hidden="true"></div></section>';
+      return '<section class="journey-locked-v5">'+journeyWorldArtV5(activeSubject,areaIndex,true,0,false)+'<div class="journey-locked-copy-v5"><span>VERDEN '+(areaIndex+1)+'</span><strong>'+area.title+'</strong><small>Åpnes når hovedruten foran er fullført.</small></div><div class="journey-lock-v5" aria-hidden="true"></div></section>';
     }
 
     const core=journeyCoreNodes(area),positions=journeyCorePositionsV5(core.length),posMap=new Map(core.map((n,i)=>[n.id,positions[i]])),coreIndex=new Map(core.map((n,i)=>[n.id,i]));
@@ -4851,8 +4851,8 @@ function renderSubjectJourney(){
       const st=journeyNodeState(node),globalIndex=model.nodes.findIndex(n=>n.id===node.id),isNext=recommended&&recommended.id===node.id,future=!isNext&&recommendedIndex>=0&&globalIndex>recommendedIndex&&st==='new',point=posMap.get(node.id)||journeySidePositionV5(node.type,areaIndex),step=(coreIndex.get(node.id)??0)+1;
       return journeyNodeMarkupV5(node,point,st,isNext,future,false,step);
     }).join('');
-    return '<section class="journey-world-v5 world-current">'+journeyWorldArtV5(activeSubject,areaIndex,false)+
-      '<div class="journey-world-head-v5"><div class="journey-world-kicker-v5">VERDEN<br>'+(areaIndex+1)+'</div><div class="journey-world-title-v5"><strong>'+area.title+'</strong><small>'+(area.copy||'Bygg ferdighetene steg for steg.')+'</small></div><div class="journey-world-reward-v5 '+(areaDone?'won':'')+'" data-label="'+escapeAttr(reward.label)+'"><div class="reward-chest"><span class="base"></span><span class="lid"></span><span class="lock"></span></div></div></div>'+
+    return '<section class="journey-world-v5 world-current '+(areaDone?'world-complete-v7':'')+'" data-growth="'+growth+'">'+journeyWorldArtV5(activeSubject,areaIndex,false,areaPct,areaDone)+
+      '<div class="journey-world-head-v5"><div class="journey-world-kicker-v5">VERDEN<br>'+(areaIndex+1)+'</div><div class="journey-world-title-v5"><strong>'+area.title+'</strong><small><span class="world-place-v7">'+journeyWorldFlavorV7(activeSubject,areaIndex)+'</span><span class="world-copy-v7">'+(area.copy||'Bygg ferdighetene steg for steg.')+'</span></small></div><div class="journey-world-reward-v5 '+(areaDone?'won':'')+'" data-label="'+escapeAttr(reward.label)+'"><div class="reward-chest"><span class="base"></span><span class="lid"></span><span class="lock"></span></div></div></div>'+journeyGrowthChipV7(areaPct,areaDone)+
       '<div class="journey-playfield-v5">'+journeyRouteSvgV5(area,false)+nodes+journeyGateV5(areaDone)+'</div></section>';
   });
 
