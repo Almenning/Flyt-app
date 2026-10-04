@@ -35,6 +35,10 @@ test('learning world uses layered 2.5D presentation without changing the journey
   assert.match(js, /--focus-y/);
   assert.match(css, /Journey frontier v1/);
   assert.match(css, /premiumFrontierPulse/);
+  assert.match(js, /--depth-scale/);
+  assert.match(js, /--place-z/);
+  assert.match(css, /Perspective depth ordering v1/);
+  assert.match(css, /var\(--depth-scale,1\)/);
   assert.doesNotMatch(js, /THREE\.|WebGLRenderer|three\.js/i);
 });
 
@@ -42,9 +46,9 @@ test('2.5D assets are cache-busted consistently for the PWA', () => {
   const html = read('index.html');
   const sw = read('sw.js');
 
-  assert.match(html, /journey-world-premium\.css\?v=20261004-frontier1/);
-  assert.match(html, /journey-world-premium\.js\?v=20261004-frontier1/);
-  assert.match(sw, /journey-world-premium\.css\?v=20261004-frontier1/);
-  assert.match(sw, /journey-world-premium\.js\?v=20261004-frontier1/);
-  assert.match(sw, /laer-litt-mer-v23-journey-frontier-2026-10-04/);
+  assert.match(html, /journey-world-premium\.css\?v=20261004-perspective1/);
+  assert.match(html, /journey-world-premium\.js\?v=20261004-perspective1/);
+  assert.match(sw, /journey-world-premium\.css\?v=20261004-perspective1/);
+  assert.match(sw, /journey-world-premium\.js\?v=20261004-perspective1/);
+  assert.match(sw, /laer-litt-mer-v24-perspective-depth-2026-10-04/);
 });

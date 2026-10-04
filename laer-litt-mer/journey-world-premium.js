@@ -147,8 +147,9 @@
       const future=!done&&(ai>firstOpen||(i>nextIndex&&(geo?geoJourneyNodeState(node):journeyNodeState(node))==='new'));
       const next=node.id===recommended?.id&&!prog.complete;
       const [x,y]=pointAt(config,i,route.length),place=config.places[Math.min(6,Math.round(i*6/Math.max(1,route.length-1)))];
+      const depthScale=Math.max(.88,Math.min(1.10,.84+y*.0031)),placeZ=Math.round(120+y);
       const status=done?'fullført':next?'neste oppdrag':future?'låst':stateText(node,geo).toLowerCase();
-      return '<button type="button" class="premium-place '+(done?'is-done ':next?'is-next ':future?'is-future ':'is-open ')+(node.type==='checkpoint'?'is-trophy':'')+'" style="--x:'+x+'%;--y:'+y+'%" '+nodeAttr+'="'+esc(node.id)+'" aria-label="'+esc(place+', '+node.title+', '+status)+'">'+
+      return '<button type="button" class="premium-place '+(done?'is-done ':next?'is-next ':future?'is-future ':'is-open ')+(node.type==='checkpoint'?'is-trophy':'')+'" style="--x:'+x+'%;--y:'+y+'%;--depth-scale:'+depthScale.toFixed(3)+';--place-z:'+placeZ+'" '+nodeAttr+'="'+esc(node.id)+'" aria-label="'+esc(place+', '+node.title+', '+status)+'">'+
         journeyLandmarkMarkup(subject,node,i,done,next,future)+'<span class="premium-place-sign"><b>'+esc(node.title)+'</b><small>'+esc(status)+'</small></span>'+
         (done?'<span class="premium-place-bloom" aria-hidden="true">✦</span>':'')+
       '</button>';

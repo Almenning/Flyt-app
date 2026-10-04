@@ -1127,3 +1127,31 @@
 @media(prefers-reduced-motion:reduce){
   .frontier-ring{animation:none!important}
 }
+
+
+/* Perspective depth ordering v1 — foreground places are larger and occlude distant places. */
+.premium-world-depth-ready .premium-place{
+  z-index:var(--place-z,20);
+}
+.premium-world-depth-ready .premium-place-marker{
+  transform:scale(var(--depth-scale,1));
+  transform-origin:50% 100%;
+  transition:transform .22s ease,filter .22s ease;
+}
+.premium-world-depth-ready .premium-place.is-next{
+  z-index:calc(var(--place-z,20) + 60);
+}
+.premium-world-depth-ready .premium-place.is-next .premium-place-marker{
+  filter:drop-shadow(0 8px 8px rgba(45,58,34,.11));
+}
+.premium-world-depth-ready .premium-place.is-future .premium-place-marker{
+  filter:saturate(.84) brightness(.96);
+}
+@media(max-width:390px){
+  .premium-world-depth-ready .premium-place-marker{
+    transform:scale(calc(var(--depth-scale,1) * .94));
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .premium-world-depth-ready .premium-place-marker{transition:none}
+}
