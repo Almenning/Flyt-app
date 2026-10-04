@@ -290,23 +290,32 @@ async function finishSession(page){
     assert.ok(mathVariety.includes('sequence-order'),'grade 2 math should include ordering');
     await page.locator('#open-math').click();
     assert.equal(await page.locator('#journey-map').isVisible(),true);
-    assert.ok(await page.locator('#journey-map .journey-world').count()>=2,'math journey should have multiple worlds');
+    assert.ok(await page.locator('#journey-map .journey-world-v3').count()>=2,'math journey should have multiple worlds');
     assert.ok(await page.locator('#journey-map [data-journey-node]').count()>=6,'math journey should expose real path nodes');
-    assert.ok(await page.locator('#journey-map .journey-route').count()>=2,'journey should render visible routes');
-    assert.equal(await page.locator('#journey-map .journey-fox').count(),1,'recommended node should show the fox');
-    assert.match(await page.locator('#journey-map').innerText(),/Neste!/);
+    assert.ok(await page.locator('#journey-map .journey-route-v3').count()>=2,'journey should render visible routes');
+    assert.equal(await page.locator('#journey-map .journey-fox-marker').count(),1,'recommended node should show the fox');
+    assert.match(await page.locator('#journey-map').innerText(),/NESTE/);
     assert.equal(await page.locator('#journey-now-card').isVisible(),true,'journey should show a clear you-are-here card');
-    assert.ok(await page.locator('#journey-map .node-main-icon').count()>=6,'journey nodes should have distinct visual motifs');
-    const journeyIcons=await page.locator('#journey-map .node-main-icon').allTextContents();
+    assert.ok(await page.locator('#journey-map .journey-node-glyph').count()>=6,'journey nodes should have distinct visual motifs');
+    const journeyIcons=await page.locator('#journey-map .journey-node-glyph').allTextContents();
     assert.ok(new Set(journeyIcons.filter(Boolean)).size>=3,'journey should not use one generic symbol for every node');
-    assert.ok(await page.locator('#journey-map .journey-goal-gate').count()>=2,'each visible world should show a concrete reward goal');
-    assert.ok(await page.locator('#journey-map .journey-landmark').count()>=2,'worlds should include thematic landmarks');
-    const worldCount=await page.locator('#journey-map .journey-world').count();
+    assert.ok(await page.locator('#journey-map .journey-reward-zone').count()>=2,'each visible world should show a concrete reward goal');
+    assert.ok(await page.locator('#journey-map .journey-world-art').count()>=2,'worlds should include thematic landmarks');
+    const worldCount=await page.locator('#journey-map .journey-world-v3').count();
     assert.equal(await page.locator('#journey-collection .journey-collectible').count(),worldCount,'each world should have one collectible slot');
-    assert.equal(await page.locator('#journey-map .journey-world.world-current').count(),1,'journey should expose exactly one current world');
-    assert.ok(await page.locator('#journey-map .journey-world.world-preview').count()>=1,'journey should tease the next world');
-    assert.ok(await page.locator('#journey-map .journey-world.world-future').count()>=1,'grade 2 math should have a later soft-locked world');
+    assert.equal(await page.locator('#journey-map .journey-world-v3.world-current').count(),1,'journey should expose exactly one current world');
+    assert.ok(await page.locator('#journey-map .journey-world-v3:not(.world-current):not(.locked)').count()>=1,'journey should visibly tease the next world');
+    assert.ok(await page.locator('#journey-map .journey-world-v3.locked').count()>=1,'grade 2 math should have a later soft-locked world');
     assert.ok(await page.locator('#journey-map [data-journey-peek]').count()>=1,'soft-locked worlds should allow a non-counting peek');
+
+    // Tapping a level opens a proper mission sheet instead of dumping the child straight into a quiz.
+    await page.locator('#journey-map [data-journey-node]').first().click();
+    assert.equal(await page.locator('#journey-mission-backdrop').isVisible(),true,'journey node should open mission sheet');
+    assert.ok((await page.locator('#journey-mission-title').textContent()).trim().length>0,'mission sheet needs a title');
+    assert.match(await page.locator('#journey-mission-start').textContent(),/Start|Trofé|repetisjon|bonus/i);
+    await page.locator('#journey-mission-close').click();
+    assert.equal(await page.locator('#journey-mission-backdrop').isVisible(),false);
+
 
     const peekBefore=await page.evaluate(()=>({pct:journeyProgress('math',2).pct,goal:dailyGoal().done,answers:subjectAnswered('math')}));
     await page.locator('#journey-map [data-journey-peek]').first().click();
@@ -583,12 +592,16 @@ async function finishSession(page){
     await page.locator('#open-geography').click();
     assert.equal(await page.locator('.geo-theme').count(),6);
     assert.equal(await page.locator('#geo-journey-map').isVisible(),true);
-    assert.ok(await page.locator('#geo-journey-map .journey-world.geo-world').count()>=1,'geography journey should have expedition worlds');
+    assert.ok(await page.locator('#geo-journey-map .journey-world-v3').count()>=1,'geography journey should have expedition worlds');
     assert.ok(await page.locator('#geo-journey-map [data-geo-journey-node]').count()>=4,'geography journey should expose path nodes');
-    assert.ok(await page.locator('#geo-journey-map .journey-route').count()>=1,'geography journey should render expedition routes');
-    assert.ok(await page.locator('#geo-journey-map .node-main-icon').count()>=3,'geography journey should use map/flag/capital motifs');
-    assert.ok(await page.locator('#geo-journey-map .journey-goal-gate').count()>=1,'geography expedition should show a stamp/reward goal');
-    assert.ok(await page.locator('#geo-journey-map .journey-landmark').count()>=1,'geography expedition should contain visual landmarks');
+    assert.ok(await page.locator('#geo-journey-map .journey-route-v3').count()>=1,'geography journey should render expedition routes');
+    assert.ok(await page.locator('#geo-journey-map .journey-node-glyph').count()>=3,'geography journey should use map/flag/capital motifs');
+    assert.ok(await page.locator('#geo-journey-map .journey-reward-zone').count()>=1,'geography expedition should show a stamp/reward goal');
+    assert.ok(await page.locator('#geo-journey-map .journey-world-art').count()>=1,'geography expedition should contain visual landmarks');
+    await page.locator('#geo-journey-map [data-geo-journey-node]').first().click();
+    assert.equal(await page.locator('#journey-mission-backdrop').isVisible(),true,'geography node should open mission sheet');
+    await page.locator('#journey-mission-close').click();
+
     const nextGeoNode=await page.evaluate(()=>geoJourneyRecommendedNode()?.id);
     assert.ok(nextGeoNode,'missing recommended geography journey node');
     await page.evaluate(id=>startGeoJourneyNode(id),nextGeoNode);
