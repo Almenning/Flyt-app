@@ -1,345 +1,185 @@
-
-/* Bokskogen v2 — immersive premium world. Norsk 1.–2. */
-#subject-screen.bokskogen-v2-active{
+/* Bokskogen v3 — world first, UI almost invisible. Norsk 1.–2. */
+#subject-screen.bokskogen-v3-active{
   padding-left:0;
   padding-right:0;
-  background:
-    linear-gradient(180deg,#EFF8F3 0,#F8F1DF 72%,#F4E8D0 100%);
+  padding-top:max(8px,env(safe-area-inset-top));
+  background:linear-gradient(180deg,#edf6f0 0,#f8f0dc 68%,#f1e3c9 100%);
 }
-#subject-screen.bokskogen-v2-active>.detail-back{
+#subject-screen.bokskogen-v3-active:before{
+  content:"";
+  position:fixed;
+  z-index:90;
+  top:0;left:0;right:0;
+  height:max(0px,env(safe-area-inset-top));
+  pointer-events:none;
+  background:#edf6f0;
+}
+#subject-screen.bokskogen-v3-active>.detail-back{
   position:relative;
   z-index:60;
   margin-left:18px;
 }
-#subject-screen.bokskogen-v2-active>.subject-page-banner,
-#subject-screen.bokskogen-v2-active>.hub-continue{
-  display:none!important;
-}
-#subject-screen.bokskogen-v2-active #subject-journey-section{
-  margin-top:6px;
-}
-#subject-screen.bokskogen-v2-active .journey-heading,
-#subject-screen.bokskogen-v2-active .journey-summary,
-#subject-screen.bokskogen-v2-active .journey-now-card,
-#subject-screen.bokskogen-v2-active .journey-collection,
-#subject-screen.bokskogen-v2-active .journey-sidequests{
-  display:none!important;
-}
-#subject-screen.bokskogen-v2-active .journey-grade-picker{
-  margin:0;
-  padding:0 18px 11px;
-}
-#subject-screen.bokskogen-v2-active .journey-grade-strip{
-  padding-bottom:7px;
-}
-#subject-screen.bokskogen-v2-active .journey-grade-note{
-  display:none;
-}
-#subject-screen.bokskogen-v2-active .free-practice-title,
-#subject-screen.bokskogen-v2-active #subject-modules,
-#subject-screen.bokskogen-v2-active .hub-progress-line{
-  margin-left:18px;
-  margin-right:18px;
-}
-.bokskogen-map{
-  margin:0;
-  display:block;
-}
+#subject-screen.bokskogen-v3-active>.subject-page-banner,
+#subject-screen.bokskogen-v3-active>.hub-continue{display:none!important}
+#subject-screen.bokskogen-v3-active #subject-journey-section{margin-top:4px}
+#subject-screen.bokskogen-v3-active .journey-heading,
+#subject-screen.bokskogen-v3-active .journey-summary,
+#subject-screen.bokskogen-v3-active .journey-now-card,
+#subject-screen.bokskogen-v3-active .journey-collection,
+#subject-screen.bokskogen-v3-active .journey-sidequests{display:none!important}
+#subject-screen.bokskogen-v3-active .journey-grade-picker{margin:0;padding:0 18px 10px}
+#subject-screen.bokskogen-v3-active .journey-grade-strip{padding-bottom:6px}
+#subject-screen.bokskogen-v3-active .journey-grade-note{display:none}
+#subject-screen.bokskogen-v3-active .free-practice-title,
+#subject-screen.bokskogen-v3-active #subject-modules,
+#subject-screen.bokskogen-v3-active .hub-progress-line{margin-left:18px;margin-right:18px}
+
+.bokskogen-map{display:block;margin:0}
 .bokskogen-world{
-  --forest-ink:#243D34;
+  --forest-ink:#233b32;
   position:relative;
-  height:1500px;
+  height:1540px;
   overflow:hidden;
   isolation:isolate;
-  background:#CDE9E5;
-  box-shadow:0 22px 50px rgba(28,55,48,.20);
+  background:#cbe4df;
+  box-shadow:0 22px 54px rgba(27,52,45,.20);
 }
 .bokskogen-world:after{
   content:"";
-  position:absolute;
-  inset:0;
-  z-index:5;
-  pointer-events:none;
+  position:absolute;inset:0;z-index:6;pointer-events:none;
   background:
-    linear-gradient(180deg,rgba(255,255,255,.12),transparent 12%,transparent 82%,rgba(16,42,35,.08)),
-    radial-gradient(ellipse at 50% 46%,transparent 0 59%,rgba(11,35,29,.07) 100%);
+    radial-gradient(ellipse at 50% 44%,transparent 0 68%,rgba(13,39,31,.08) 100%),
+    linear-gradient(180deg,rgba(255,255,255,.04),transparent 15%,transparent 84%,rgba(17,44,35,.06));
 }
-.bokskogen-art{
-  position:absolute;
-  inset:0;
-  width:100%;
-  height:100%;
-  z-index:0;
-  pointer-events:none;
-}
+.bokskogen-art{position:absolute;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+
 .bokskogen-topbar{
-  position:absolute;
-  z-index:45;
-  left:14px;
-  right:14px;
-  top:14px;
-  display:flex;
-  align-items:flex-start;
-  justify-content:space-between;
-  gap:9px;
+  position:absolute;z-index:45;
+  left:14px;right:14px;top:14px;
+  display:flex;align-items:flex-start;justify-content:space-between;gap:10px;
   pointer-events:none;
 }
 .bokskogen-brand{
-  min-width:0;
-  padding:10px 13px 9px;
-  border:1px solid rgba(91,61,33,.28);
-  border-radius:15px;
-  color:#49351F;
-  background:linear-gradient(180deg,rgba(250,220,158,.96),rgba(222,177,105,.96));
-  box-shadow:0 5px 0 rgba(101,72,38,.16),0 10px 18px rgba(54,55,39,.12),inset 0 1px 0 rgba(255,255,255,.62);
+  min-width:0;padding:9px 12px 8px;
+  border:1px solid rgba(91,61,33,.22);border-radius:14px;
+  color:#49351f;
+  background:linear-gradient(180deg,rgba(250,221,163,.93),rgba(220,175,104,.92));
+  box-shadow:0 4px 0 rgba(101,72,38,.12),0 9px 18px rgba(54,55,39,.10),inset 0 1px 0 rgba(255,255,255,.55);
 }
-.bokskogen-brand small{
-  display:block;
-  font-size:6.8px;
-  font-weight:1000;
-  letter-spacing:.10em;
-  color:#755532;
-}
-.bokskogen-brand strong{
-  display:block;
-  margin-top:2px;
-  font-size:18px;
-  line-height:1;
-  font-weight:1000;
-  letter-spacing:-.025em;
-}
+.bokskogen-brand small{display:block;font-size:6.4px;font-weight:1000;letter-spacing:.10em;color:#725331}
+.bokskogen-brand strong{display:block;margin-top:2px;font-size:18px;line-height:1;font-weight:1000;letter-spacing:-.025em}
 .bokskogen-progress{
-  flex:0 0 137px;
-  padding:8px 10px 9px;
-  border:1px solid rgba(255,255,255,.18);
-  border-radius:16px;
-  color:#fff;
-  background:linear-gradient(145deg,rgba(27,52,49,.95),rgba(41,72,61,.95));
-  box-shadow:0 6px 0 rgba(18,39,36,.12),0 12px 22px rgba(23,48,43,.17);
-  backdrop-filter:blur(10px);
+  flex:0 0 126px;padding:7px 9px 8px;
+  border:1px solid rgba(255,255,255,.15);border-radius:15px;color:#fff;
+  background:linear-gradient(145deg,rgba(25,49,45,.90),rgba(39,67,57,.90));
+  box-shadow:0 5px 0 rgba(18,39,36,.10),0 10px 19px rgba(23,48,43,.14);
+  backdrop-filter:blur(9px);
 }
-.bokskogen-progress-head{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:6px;
-  font-size:7px;
-  font-weight:1000;
-}
-.bokskogen-progress-head b{font-size:9px}
-.bokskogen-progress-track{
-  height:6px;
-  margin-top:6px;
-  overflow:hidden;
-  border-radius:99px;
-  background:rgba(255,255,255,.15);
-  box-shadow:inset 0 1px 2px rgba(8,25,22,.24);
-}
-.bokskogen-progress-track i{
-  display:block;
-  height:100%;
-  border-radius:inherit;
-  background:linear-gradient(90deg,#70D394,#F9D66A);
-  box-shadow:0 0 9px rgba(115,218,153,.28);
-}
-.bokskogen-progress small{
-  display:block;
-  margin-top:4px;
-  color:#CFE5D7;
-  font-size:6.3px;
-  line-height:1.1;
-  font-weight:850;
-}
-.bokskogen-route{
-  position:absolute;
-  z-index:7;
-  inset:0;
-  width:100%;
-  height:100%;
-  pointer-events:none;
-}
+.bokskogen-progress-head{display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:6.7px;font-weight:1000}
+.bokskogen-progress-head b{font-size:8.7px}
+.bokskogen-progress-track{height:5px;margin-top:5px;overflow:hidden;border-radius:99px;background:rgba(255,255,255,.14)}
+.bokskogen-progress-track i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#6ed092,#f3d36a)}
+.bokskogen-progress small{display:block;margin-top:4px;color:#cfe3d6;font-size:5.9px;line-height:1.1;font-weight:850}
+
+.bokskogen-route{position:absolute;z-index:8;inset:0;width:100%;height:100%;pointer-events:none}
 .bokskogen-route .trail-done{
-  fill:none;
-  stroke:#FFE48C;
-  stroke-width:.85;
-  stroke-linecap:round;
-  stroke-dasharray:.7 1.6;
-  filter:drop-shadow(0 0 1.4px rgba(255,215,91,.55));
+  fill:none;stroke:#ffe28a;stroke-width:.55;stroke-linecap:round;
+  stroke-dasharray:.45 2.15;opacity:.82;
+  filter:drop-shadow(0 0 1.1px rgba(255,213,81,.40));
 }
+
+/* Hotspots are touch targets, not visible buttons. */
 .bokskogen-stop{
-  position:absolute;
-  z-index:24;
+  position:absolute;z-index:24;
   transform:translate(-50%,-50%);
-  width:86px;
-  height:86px;
-  padding:0;
-  border:0;
-  border-radius:50%;
-  color:#253B34;
-  background:transparent;
-  cursor:pointer;
-  touch-action:manipulation;
+  width:94px;height:94px;padding:0;border:0;border-radius:50%;
+  color:#243930;background:transparent;cursor:pointer;touch-action:manipulation;
   -webkit-tap-highlight-color:transparent;
 }
-.bokskogen-stop .stop-hit{
-  position:absolute;
-  inset:5px;
-  border-radius:50%;
-  border:0;
-  background:transparent;
-}
-.bokskogen-stop .stop-status{
-  position:absolute;
-  z-index:5;
-  right:3px;
-  top:1px;
-  width:26px;
-  height:26px;
-  display:grid;
-  place-items:center;
-  border:3px solid rgba(255,255,255,.96);
-  border-radius:50%;
-  color:#fff;
-  background:#748078;
-  box-shadow:0 4px 9px rgba(27,45,39,.20);
-  font-size:10px;
-  font-weight:1000;
-}
-.bokskogen-stop .stop-label{
-  position:absolute;
-  z-index:4;
-  left:50%;
-  top:67px;
-  transform:translateX(-50%);
-  white-space:nowrap;
-  padding:5px 8px 6px;
-  border:1px solid rgba(91,61,35,.25);
-  border-radius:7px;
-  color:#4A3622;
-  background:linear-gradient(180deg,rgba(247,213,147,.98),rgba(216,169,95,.98));
-  box-shadow:0 3px 0 rgba(96,66,33,.16),0 6px 11px rgba(47,50,37,.11),inset 0 1px 0 rgba(255,255,255,.48);
-  font-size:7.4px;
-  line-height:1;
-  font-weight:1000;
-  letter-spacing:.005em;
-}
-.bokskogen-stop.state-new .stop-status{display:none}
-.bokskogen-stop.state-active .stop-status{background:#D3A02C;color:#60460D}
-.bokskogen-stop.state-can-now .stop-status{background:#4DA86F}
-.bokskogen-stop.state-mastered .stop-status,
-.bokskogen-stop.state-passed .stop-status{background:#D5A028}
-.bokskogen-stop.state-future .stop-status{
-  display:grid;
-  background:rgba(55,70,66,.78);
-}
-.bokskogen-stop.state-future .stop-label{
-  color:#6A665E;
-  background:linear-gradient(180deg,rgba(218,211,194,.86),rgba(187,181,165,.86));
-  box-shadow:0 3px 0 rgba(81,77,69,.10);
-}
+.bokskogen-stop .stop-hit{position:absolute;inset:0;border-radius:50%;border:0;background:transparent}
+.bokskogen-stop .stop-label,
+.bokskogen-stop .stop-status{display:none}
+.bokskogen-stop:active:not([disabled]){transform:translate(-50%,-50%) scale(.96)}
+.bokskogen-stop[disabled]{cursor:default}
+
+/* Only the next destination gets visible UI. */
 .bokskogen-stop.state-next:before{
-  content:"";
-  position:absolute;
-  inset:3px;
-  border:3px solid rgba(255,225,123,.96);
-  border-radius:50%;
-  box-shadow:0 0 0 6px rgba(255,222,112,.13),0 0 23px rgba(255,218,93,.45);
-  animation:bokHotspotPulse 2s ease-in-out infinite;
+  content:"";position:absolute;inset:8px;border:2px solid rgba(255,226,118,.92);border-radius:50%;
+  box-shadow:0 0 0 7px rgba(255,221,101,.10),0 0 28px rgba(255,211,74,.40);
+  animation:bokHotspotPulse 2.05s ease-in-out infinite;
 }
 .bokskogen-stop.state-next .stop-label{
-  background:linear-gradient(180deg,#FFEBA5,#E8BA55);
-  box-shadow:0 3px 0 #AA7823,0 7px 14px rgba(84,62,25,.18),0 0 0 4px rgba(255,226,117,.12);
+  display:block;position:absolute;z-index:5;left:50%;top:76px;transform:translateX(-50%);
+  white-space:nowrap;padding:5px 9px 6px;border:1px solid rgba(83,57,32,.20);border-radius:8px;
+  color:#44311d;background:linear-gradient(180deg,#ffeba8,#e9bd5d);
+  box-shadow:0 3px 0 rgba(154,105,27,.72),0 7px 15px rgba(71,54,26,.17),0 0 0 4px rgba(255,226,117,.08);
+  font-size:7.2px;line-height:1;font-weight:1000;
 }
-.bokskogen-stop:active:not([disabled]){transform:translate(-50%,-50%) scale(.95)}
-.bokskogen-stop[disabled]{cursor:default}
+
+/* Progress is expressed in the world. Tiny integrated sparkles replace floating rings. */
+.bokskogen-world-spark{
+  position:absolute;z-index:18;transform:translate(-50%,-50%);
+  width:18px;height:18px;pointer-events:none;
+}
+.bokskogen-world-spark:before,
+.bokskogen-world-spark:after{
+  content:"";position:absolute;left:50%;top:50%;background:#fff1a3;border-radius:999px;
+  box-shadow:0 0 8px rgba(255,224,117,.44);
+}
+.bokskogen-world-spark:before{width:3px;height:18px;transform:translate(-50%,-50%)}
+.bokskogen-world-spark:after{width:18px;height:3px;transform:translate(-50%,-50%)}
+.bokskogen-world-spark.mastered{filter:drop-shadow(0 0 5px rgba(255,203,61,.42))}
+.bokskogen-world-spark.mastered:before,
+.bokskogen-world-spark.mastered:after{background:#ffd55c}
+
 .bokskogen-guide{
-  position:absolute;
-  z-index:30;
-  transform:translate(-50%,-50%);
-  width:58px;
-  height:58px;
-  pointer-events:none;
+  position:absolute;z-index:30;transform:translate(-50%,-50%);
+  width:60px;height:60px;pointer-events:none;
   filter:drop-shadow(0 7px 6px rgba(33,49,41,.24));
   animation:bokFoxBob 2.2s ease-in-out infinite;
 }
 .bokskogen-guide svg{width:100%;height:100%}
 .bokskogen-guide-tag{
-  position:absolute;
-  z-index:31;
-  transform:translate(-50%,-50%);
-  padding:6px 9px 7px;
-  border-radius:11px 11px 11px 4px;
-  color:#fff;
-  background:rgba(29,54,49,.95);
-  box-shadow:0 6px 13px rgba(25,45,41,.19);
-  font-size:7px;
-  font-weight:1000;
-  pointer-events:none;
-  white-space:nowrap;
+  position:absolute;z-index:31;transform:translate(-50%,-50%);
+  padding:6px 9px 7px;border-radius:11px 11px 11px 4px;color:#fff;
+  background:rgba(28,52,47,.92);box-shadow:0 6px 13px rgba(25,45,41,.17);
+  font-size:7px;font-weight:1000;pointer-events:none;white-space:nowrap;
 }
-.bokskogen-guide-tag span{
-  color:#C7E9D0;
-  margin-right:4px;
-  font-size:5.7px;
-  letter-spacing:.08em;
-}
+.bokskogen-guide-tag span{color:#c8e8d0;margin-right:4px;font-size:5.5px;letter-spacing:.09em}
+
+/* Side quests become environmental signs and disappear until available. */
 .bokskogen-side{
-  position:absolute;
-  z-index:23;
-  transform:translate(-50%,-50%);
-  width:66px;
-  height:58px;
-  padding:0;
-  border:0;
-  background:transparent;
-  cursor:pointer;
+  position:absolute;z-index:22;transform:translate(-50%,-50%);
+  width:62px;height:54px;padding:0;border:0;background:transparent;cursor:pointer;
 }
 .bokskogen-side .side-plank{
-  display:inline-flex;
-  align-items:center;
-  gap:4px;
-  padding:5px 7px;
-  border:1px solid rgba(86,58,34,.28);
-  border-radius:6px;
-  color:#4F3822;
-  background:linear-gradient(180deg,#E8BF78,#C99755);
-  box-shadow:0 3px 0 rgba(92,61,31,.17),0 6px 10px rgba(49,46,35,.10);
-  font-size:6.7px;
-  font-weight:1000;
-  white-space:nowrap;
-  transform:rotate(-3deg);
+  display:inline-flex;align-items:center;gap:3px;padding:4px 6px;
+  border:1px solid rgba(82,57,35,.20);border-radius:5px;color:#513a24;
+  background:linear-gradient(180deg,rgba(226,187,116,.88),rgba(192,143,79,.88));
+  box-shadow:0 2px 0 rgba(91,60,31,.14);font-size:6.1px;font-weight:1000;white-space:nowrap;
+  transform:rotate(-4deg);opacity:.78;
 }
-.bokskogen-side.review .side-plank{transform:rotate(3deg)}
-.bokskogen-side[disabled]{
-  opacity:.42;
-  filter:saturate(.45);
-  cursor:default;
-}
-.bokskogen-finish{
-  margin:18px;
-}
-#subject-screen.bokskogen-v2-active #journey-finish{
-  margin:18px;
-}
+.bokskogen-side.review .side-plank{transform:rotate(4deg)}
+.bokskogen-side[disabled]{opacity:0;pointer-events:none}
+
+#subject-screen.bokskogen-v3-active #journey-finish{margin:18px}
+
 @keyframes bokHotspotPulse{
-  0%,100%{opacity:.80;transform:scale(.98)}
-  50%{opacity:1;transform:scale(1.06)}
+  0%,100%{opacity:.72;transform:scale(.98)}
+  50%{opacity:1;transform:scale(1.07)}
 }
 @keyframes bokFoxBob{
   0%,100%{transform:translate(-50%,-50%) translateY(0) rotate(-2deg)}
   50%{transform:translate(-50%,-50%) translateY(-5px) rotate(2deg)}
 }
 @media (max-width:390px){
-  .bokskogen-world{height:1430px}
-  .bokskogen-progress{flex-basis:126px}
+  .bokskogen-world{height:1470px}
+  .bokskogen-progress{flex-basis:118px}
   .bokskogen-brand strong{font-size:17px}
-  .bokskogen-stop{width:78px;height:78px}
-  .bokskogen-stop .stop-label{top:62px;font-size:7px}
+  .bokskogen-stop{width:88px;height:88px}
+  .bokskogen-stop.state-next .stop-label{top:72px}
 }
-@media (min-width:600px){
-  .bokskogen-world{height:1620px}
-}
+@media (min-width:600px){.bokskogen-world{height:1650px}}
 @media (prefers-reduced-motion:reduce){
-  .bokskogen-stop.state-next:before,
-  .bokskogen-guide{animation:none!important}
+  .bokskogen-stop.state-next:before,.bokskogen-guide{animation:none!important}
 }
