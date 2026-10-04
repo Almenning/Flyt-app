@@ -515,8 +515,9 @@ async function finishSession(page){
     await page.locator('#open-geography').click();
     assert.equal(await page.locator('.geo-theme').count(),6);
     assert.equal(await page.locator('#geo-journey-map').isVisible(),true);
-    assert.ok(await page.locator('#geo-journey-map .journey-area').count()>=1,'geography journey should have areas');
+    assert.ok(await page.locator('#geo-journey-map .journey-world.geo-world').count()>=1,'geography journey should have expedition worlds');
     assert.ok(await page.locator('#geo-journey-map [data-geo-journey-node]').count()>=4,'geography journey should expose path nodes');
+    assert.ok(await page.locator('#geo-journey-map .journey-route').count()>=1,'geography journey should render expedition routes');
     const nextGeoNode=await page.evaluate(()=>geoJourneyRecommendedNode()?.id);
     assert.ok(nextGeoNode,'missing recommended geography journey node');
     await page.evaluate(id=>startGeoJourneyNode(id),nextGeoNode);
