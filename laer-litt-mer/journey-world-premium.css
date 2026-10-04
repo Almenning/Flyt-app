@@ -1226,6 +1226,45 @@
 @media(max-width:390px){.premium-progress-reaction{width:78px;height:78px}}
 @media(prefers-reduced-motion:reduce){.premium-progress-reaction{display:none!important}.premium-place.is-just-completed .premium-landmark,.premium-place.is-just-completed .premium-place-state-badge,.premium-place.is-newly-opened .premium-landmark,.premium-world.is-progress-reaction .premium-route-progress,.premium-world.is-progress-reaction .premium-world-progress,.premium-traveler.is-arriving svg{animation:none!important}}
 
+/* Mobile map clarity: every stop is a named place, not an unexplained circle. */
+@media(max-width:699px){
+  .premium-world-depth-ready .premium-place-sign{
+    display:grid!important;
+    visibility:visible!important;
+    opacity:1!important;
+    min-width:0!important;
+    max-width:92px!important;
+    padding:3px 6px 4px!important;
+    border:1px solid rgba(67,57,36,.72)!important;
+    border-radius:8px!important;
+    background:rgba(255,247,220,.95)!important;
+    box-shadow:0 2px 7px rgba(17,42,34,.30)!important;
+    transform:translateY(1px) scale(.92)!important;
+  }
+  .premium-world-depth-ready .premium-place-sign b{
+    display:block!important;
+    overflow:hidden;
+    max-width:80px;
+    color:#334838!important;
+    font:900 9px/1.08 ui-rounded,"SF Pro Rounded",system-ui,sans-serif!important;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .premium-world-depth-ready .premium-place-sign small{display:none!important}
+  .premium-world-depth-ready .premium-place.is-next .premium-place-sign{
+    max-width:104px!important;
+    padding:5px 8px 6px!important;
+    background:#fff1b9!important;
+    box-shadow:0 0 0 3px rgba(255,225,103,.24),0 4px 10px rgba(21,42,34,.35)!important;
+    transform:translateY(1px) scale(1)!important;
+  }
+  .premium-world-depth-ready .premium-place.is-next .premium-place-sign b{max-width:92px;font-size:11px!important}
+  .premium-world-depth-ready .premium-place.is-next .premium-place-sign small{display:block!important;color:#6a5324!important;font-size:7px!important}
+  .premium-world-depth-ready .premium-place.is-future .premium-place-sign{background:rgba(236,238,224,.89)!important}
+  .premium-world-depth-ready .premium-place.is-future .premium-place-sign b{color:#617067!important}
+  .premium-world-depth-ready .premium-place.is-trophy .premium-place-sign{visibility:hidden!important}
+}
+
 
 /* Traveler movement v1 — one short transform-only journey after real progress. */
 .premium-traveler{animation:none!important;will-change:transform}

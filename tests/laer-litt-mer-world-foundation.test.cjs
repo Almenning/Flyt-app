@@ -46,18 +46,19 @@ test('2.5D assets are cache-busted consistently for the PWA', () => {
   const html = read('index.html');
   const sw = read('sw.js');
 
-  assert.match(html, /journey-world-premium\.css\?v=atlas35/);
+  assert.match(html, /journey-world-premium\.css\?v=map38/);
   assert.match(html, /journey-world-premium\.js\?v=atlas35/);
-  assert.match(sw, /journey-world-premium\.css\?v=atlas35/);
+  assert.match(sw, /journey-world-premium\.css\?v=map38/);
   assert.match(sw, /journey-world-premium\.js\?v=atlas35/);
   assert.match(html, /bokskogen-world\.css\?v=atlas35/);
   assert.match(html, /bokskogen-world\.js\?v=atlas35/);
   assert.match(sw, /bokskogen-world\.css\?v=atlas35/);
   assert.match(sw, /bokskogen-world\.js\?v=atlas35/);
-  assert.match(sw, /laria-home37-2026-10-04/);
-  assert.match(html, /world-atlas\.css\?v=atlas35/);
-  assert.match(sw, /world-atlas\.css\?v=atlas35/);
+  assert.match(sw, /laria-fox-journey-2026-10-05/);
+  assert.match(html, /world-atlas\.css\?v=fox-journey-1/);
+  assert.match(sw, /world-atlas\.css\?v=fox-journey-1/);
   assert.match(sw, /bokskogen-atlas32\.webp/);
+  assert.match(sw, /lia-fox-explorer\.webp/);
   assert.match(html, /journeyWasComplete:journeyNodeIsCompleteForWorldReaction/);
   assert.match(html, /function armJourneyWorldReaction\(scope\)/);
   assert.match(read('journey-world-premium.js'), /premium-progress-reaction/);
@@ -68,8 +69,9 @@ test('2.5D assets are cache-busted consistently for the PWA', () => {
   assert.match(read('journey-world-premium.js'), /data-travel-from-x/);
   assert.match(read('journey-world-premium.css'), /Traveler movement v1/);
   assert.match(read('bokskogen-world.js'), /function animateBokskogenTraveler\(host\)/);
-  assert.match(read('bokskogen-world.js'), /bok-v14-traveler-character/);
+  assert.match(read('bokskogen-world.js'), /bok-v15-fox/);
   assert.match(read('bokskogen-world.css'), /Bokskogen v14/);
+  assert.match(read('world-atlas.css'), /bok-v15-fox-bubble/);
   assert.match(read('bokskogen-world.js'), /function modularScene\(\)/);
   assert.match(read('bokskogen-world.js'), /bok-v15-landmark/);
   assert.doesNotMatch(read('bokskogen-world.js'), /bokskogen-verden\.png/);

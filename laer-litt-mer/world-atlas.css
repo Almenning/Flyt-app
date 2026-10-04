@@ -6,7 +6,7 @@
 .bok-v15-world{aspect-ratio:2/3;min-height:0!important;max-width:560px!important;background:#193f32;perspective:none;border-radius:28px;overflow:hidden;isolation:isolate;box-shadow:0 16px 48px #12352638}
 .bok-atlas-art{position:absolute;inset:0;pointer-events:none;z-index:0}
 .bok-atlas-art img{display:block;width:100%;height:100%;object-fit:fill}
-.bok-v15-world .bok-v15-scene,.bok-v15-world .bok-v15-route,.bok-v15-world .bok-v15-atmosphere,.bok-v15-world .bok-v15-traveler,.bok-v15-world .bok-v15-vine-lock{display:none!important}
+.bok-v15-world .bok-v15-scene,.bok-v15-world .bok-v15-route,.bok-v15-world .bok-v15-atmosphere,.bok-v15-world .bok-v15-vine-lock{display:none!important}
 .bok-v15-world .bok-v10-place{width:136px;height:66px;transform:translate(-50%,-50%);opacity:1!important;filter:none!important;background:none!important;border:0;z-index:var(--place-z,40)}
 .bok-v15-world .bok-v10-place .hit{inset:-8px;border:0!important;background:none!important;box-shadow:none!important;animation:none!important}
 .bok-v15-world .bok-v10-place::before,.bok-v15-world .bok-v10-place::after{display:none!important}
@@ -35,6 +35,17 @@
 .bok-v15-world .bok-v10-progress b,.bok-v15-world .bok-v10-progress span{font-size:11px}
 
 .bok-v10-map{background:transparent!important;padding:0!important;max-width:560px!important;margin:0 auto!important}
+
+/* The guide is part of the journey: it stands beside the next destination and
+   travels forward after a completed mission. */
+.bok-v15-world .bok-v15-traveler{display:block!important;position:absolute;z-index:82;width:94px;height:112px;pointer-events:none;filter:drop-shadow(0 9px 7px rgba(19,42,32,.30));animation:atlasFoxBob 2.7s ease-in-out infinite}
+.bok-v15-fox{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;user-select:none;-webkit-user-drag:none}
+.bok-v15-fox-bubble{position:absolute;z-index:2;left:50px;top:-12px;min-width:70px;padding:6px 8px 7px;border:1px solid #7e542f;border-radius:11px 13px 13px 5px;background:#fff1c7;color:#5b3920;box-shadow:0 3px 0 #8d60332b,0 6px 12px #17352a35;font:900 8px/1 ui-rounded,-apple-system,sans-serif;white-space:nowrap;transform:rotate(2deg)}
+.bok-v15-fox-bubble:after{content:"";position:absolute;left:10px;bottom:-7px;border-width:7px 7px 0 0;border-style:solid;border-color:#fff1c7 transparent transparent transparent}
+.bok-v15-world .bok-v15-traveler .bok-v14-travel-dust{display:block!important;left:-16px;bottom:6px;transform:scale(.82)}
+@keyframes atlasFoxBob{0%,100%{transform:translate(-50%,-50%) rotate(-2deg)}50%{transform:translate(-50%,calc(-50% - 6px)) rotate(2deg)}}
+@media(max-width:390px){.bok-v15-world .bok-v15-traveler{width:80px;height:96px}.bok-v15-fox-bubble{left:42px;top:-9px;font-size:7px;padding:5px 6px 6px}}
+@media(prefers-reduced-motion:reduce){.bok-v15-world .bok-v15-traveler{animation:none!important}}
 
 #subject-screen.bokskogen-v10-active{max-width:584px!important;min-height:0!important;margin:0 auto!important;background:transparent!important;padding:12px!important}
 
