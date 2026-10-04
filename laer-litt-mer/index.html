@@ -6,12 +6,12 @@
   <meta name="theme-color" content="#F6F0E7" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <meta name="apple-mobile-web-app-title" content="Lær litt mer" />
+  <meta name="apple-mobile-web-app-title" content="Læria" />
   <meta name="description" content="Korte, trygge læringsøkter i geografi, norsk, matte og engelsk for 1.–10. trinn." />
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://raw.githubusercontent.com https://api.worldbank.org; img-src 'self' data:; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests" />
   <link rel="manifest" href="./manifest.webmanifest" />
   <link rel="icon" href="./icon.svg" type="image/svg+xml" />
-  <title>Lær litt mer</title>
+  <title>Læria</title>
   <style>
 
     :root{
@@ -2027,7 +2027,7 @@
 <body>
 <div class="app">
   <header class="top" id="topbar">
-    <div class="brand">Lær litt mer</div>
+    <div class="brand">Læria</div>
     <div class="avatar" aria-hidden="true">🦊</div>
   </header>
 
@@ -2677,12 +2677,12 @@
       <button class="detail-back" id="parent-info-back">← For voksne</button>
       <div class="eyebrow">Om appen</div>
       <h1>Til foreldre</h1>
-      <p class="hero-copy">Hvorfor vi har laget «Lær litt mer», og hva vi ønsker at barna skal få ut av tiden de bruker her.</p>
+      <p class="hero-copy">Hvorfor vi har laget «Læria», og hva vi ønsker at barna skal få ut av tiden de bruker her.</p>
 
       <div class="parent-letter">
         <div class="card lead">
           <h3>Skjermtid med et formål 🌱</h3>
-          <p>Barn bruker allerede iPad, mobil og PC som en naturlig del av hverdagen. Målet med «Lær litt mer» er ikke at barn skal være mer på skjerm, men at noe av tiden de allerede bruker digitalt kan fylles med nysgjerrighet, kunnskap og mestring.</p>
+          <p>Barn bruker allerede iPad, mobil og PC som en naturlig del av hverdagen. Målet med «Læria» er ikke at barn skal være mer på skjerm, men at noe av tiden de allerede bruker digitalt kan fylles med nysgjerrighet, kunnskap og mestring.</p>
           <p>Derfor er appen bygget rundt korte og tydelige læringsøkter, aktiv deltakelse og oppgaver barnet faktisk må tenke på, i stedet for passiv scrolling og endeløs underholdning.</p>
         </div>
 
@@ -2701,7 +2701,7 @@
 
         <div class="card">
           <h3>Et supplement, ikke en erstatning</h3>
-          <p>Digitale verktøy er bare én del av god læring. «Lær litt mer» skal ikke erstatte læreren, bøker, samtaler, lek, fysisk aktivitet eller utforsking av verden utenfor skjermen. Appen skal være et enkelt supplement som gjør digital tid mer målrettet når skjermen først er i bruk.</p>
+          <p>Digitale verktøy er bare én del av god læring. «Læria» skal ikke erstatte læreren, bøker, samtaler, lek, fysisk aktivitet eller utforsking av verden utenfor skjermen. Appen skal være et enkelt supplement som gjør digital tid mer målrettet når skjermen først er i bruk.</p>
           <p>For de yngste barna er dette særlig viktig. Derfor prioriterer vi korte økter, enkel navigasjon og et tydelig læringsformål fremfor å holde barnet lengst mulig i appen.</p>
         </div>
 
@@ -2712,7 +2712,7 @@
           </div>
         </div>
 
-        <div class="disclaimer">«Lær litt mer» er et uavhengig produkt. Appen er ikke utviklet, godkjent eller anbefalt av Utdanningsdirektoratet. Udir og LK20 brukes som faglige kilder og rammeverk for utviklingen.</div>
+        <div class="disclaimer">«Læria» er et uavhengig produkt. Appen er ikke utviklet, godkjent eller anbefalt av Utdanningsdirektoratet. Udir og LK20 brukes som faglige kilder og rammeverk for utviklingen.</div>
       </div>
     </section>
 
@@ -3985,7 +3985,7 @@ function renderGradeJourneyOverview(){
   const o=gradeJourneyOverview(),label=GRADE_CONFIG[o.grade].label;
   card.classList.toggle('complete',o.complete);
   document.getElementById('grade-round-eyebrow').textContent=label;
-  document.getElementById('grade-round-title').textContent=o.complete?'🏆 '+label+' rundet i Lær litt mer':'Rund '+label;
+  document.getElementById('grade-round-title').textContent=o.complete?'🏆 '+label+' rundet i Læria':'Rund '+label;
   document.getElementById('grade-round-score').textContent=o.done+'/'+o.total;
   document.getElementById('grade-round-copy').textContent=o.complete?'Du har rundet appens kjerneløp i alle fire fag. Nå handler det om å hente kunnskapen fram igjen og gjøre den varig.':'Fullfør appens kjerneløp i hvert fag. Du trenger ikke gjøre alt på én gang.';
   document.getElementById('grade-round-subjects').innerHTML=o.items.map(x=>'<div class="grade-round-pill '+(x.progress.complete?'done':'')+'"><b>'+(x.progress.complete?'✓':x.icon)+'</b><span>'+x.label+' · '+(x.progress.complete?'fullført':x.progress.pct+' %')+'</span></div>').join('');
@@ -5768,7 +5768,7 @@ if(adultAutoReadToggle)adultAutoReadToggle.addEventListener('change',()=>{state.
 document.getElementById('feedback-form').addEventListener('submit',async e=>{
   e.preventDefault();
   const lines=[
-    'Tilbakemelding – Lær litt mer',
+    'Tilbakemelding – Læria',
     `Barnets klassetrinn: ${document.getElementById('fb-grade').value}`,
     `Forstod uten hjelp: ${document.getElementById('fb-understand').value}`,
     `Fullførte økten: ${document.getElementById('fb-complete').value}`,
@@ -5782,7 +5782,7 @@ document.getElementById('feedback-form').addEventListener('submit',async e=>{
   ];
   const text=lines.join('\n'),status=document.getElementById('share-status');
   try{
-    if(navigator.share){await navigator.share({title:'Tilbakemelding – Lær litt mer',text});status.textContent='Tilbakemeldingen er klar til deling.'}
+    if(navigator.share){await navigator.share({title:'Tilbakemelding – Læria',text});status.textContent='Tilbakemeldingen er klar til deling.'}
     else{await navigator.clipboard.writeText(text);status.textContent='Kopiert. Lim inn i meldingen du vil sende.'}
   }catch(err){
     if(err&&err.name==='AbortError'){status.textContent='Deling avbrutt.';return}
