@@ -271,3 +271,135 @@
   .premium-journey-map{max-width:640px!important;margin:0 auto!important}
   #geography-screen.premium-geo-active .geo-journey-shell{margin-left:0!important;margin-right:0!important}
 }
+
+
+/* natural-journey-integration-v9-2026-10-04 */
+/* The map belongs to the subject page. It is not a second full-screen app. */
+.premium-journey-map{
+  display:block!important;
+  width:100%;
+  margin:0!important;
+  padding:0!important;
+  border-radius:30px;
+  overflow:hidden;
+  box-shadow:0 9px 0 rgba(63,72,105,.05),0 20px 38px rgba(48,57,92,.11);
+}
+.premium-world{
+  width:100%;
+  border-radius:30px;
+  border:2px solid rgba(255,255,255,.92);
+  overflow:hidden;
+  box-shadow:none;
+}
+.premium-world-title{display:none!important}
+.premium-route{display:none!important}
+.premium-world-hud{
+  top:12px;
+  left:12px;
+  right:12px;
+  gap:6px;
+  filter:drop-shadow(0 3px 7px rgba(13,32,34,.18));
+}
+.premium-world-grade-menu{top:62px;left:12px}
+.premium-world-hud button,.premium-world-progress,.premium-world-trophies{
+  background:rgba(27,52,58,.58);
+  border-color:rgba(255,255,255,.24);
+  box-shadow:inset 0 1px rgba(255,255,255,.08);
+}
+.premium-place-sign{
+  max-width:105px;
+  padding:5px 8px 6px;
+  border-radius:11px;
+}
+.premium-place-sign b{font-family:ui-rounded,"SF Pro Rounded",system-ui,sans-serif;font-size:11px}
+.premium-place-sign small{font-size:7px;text-transform:uppercase;letter-spacing:.04em}
+.premium-place.is-next .premium-place-sign:after{display:none!important}
+.premium-place.is-next .premium-place-sign{
+  margin-top:9px;
+  background:rgba(255,247,218,.94);
+  border-color:rgba(126,86,35,.72);
+  box-shadow:0 4px 11px rgba(38,45,31,.18);
+}
+.premium-place.is-trophy .premium-place-sign{opacity:.92}
+.premium-traveler,.premium-traveler svg{width:48px;height:48px}
+.premium-traveler{filter:drop-shadow(0 6px 5px rgba(18,43,38,.25))}
+.premium-traveler:before{width:34px;height:9px;bottom:-4px}
+
+.premium-side-dock{
+  display:flex;
+  gap:9px;
+  margin:11px 0 0;
+  padding:0 2px 2px;
+}
+.premium-side-dock .premium-side{
+  position:static;
+  left:auto;
+  top:auto;
+  transform:none!important;
+  flex:1;
+  min-height:44px;
+  border:1px solid #E4E1EA;
+  border-radius:15px;
+  background:rgba(255,255,255,.90);
+  color:#58627A;
+  box-shadow:0 4px 0 rgba(63,72,105,.04),0 8px 16px rgba(48,57,92,.06);
+  font-size:10px;
+  opacity:1;
+}
+.premium-side-dock .premium-side span{font-size:14px}
+.premium-side-dock .premium-side.is-future{opacity:.48}
+
+/* Geography keeps its normal page hierarchy. */
+#geography-screen.premium-geo-active{
+  display:block;
+  padding-top:0;
+}
+#geography-screen.premium-geo-active>.detail-back{display:inline-block!important}
+#geography-screen.premium-geo-active>.geography-head{display:block!important}
+#geography-screen.premium-geo-active .geo-journey-shell{
+  order:initial;
+  margin:28px 0 0!important;
+}
+#geography-screen.premium-geo-active .geo-journey-shell>.journey-heading{
+  display:flex!important;
+  margin:0 2px 12px;
+}
+#geography-screen.premium-geo-active .geo-journey-shell>.journey-heading .journey-grade-chip{display:none}
+#geography-screen.premium-geo-active .geo-journey-shell>.journey-grade-picker,
+#geography-screen.premium-geo-active .geo-journey-shell>.journey-summary,
+#geography-screen.premium-geo-active .geo-journey-shell>.journey-now-card,
+#geography-screen.premium-geo-active .geo-journey-shell>.journey-collection,
+#geography-screen.premium-geo-active #geo-journey-finish{display:none!important}
+
+/* The same integration applies to Math and English on the youngest grades. */
+#subject-screen.premium-journey-active{
+  padding-left:18px!important;
+  padding-right:18px!important;
+  background:transparent;
+}
+#subject-screen.premium-journey-active>.detail-back{display:inline-block!important}
+#subject-screen.premium-journey-active>.subject-page-banner{display:block!important}
+#subject-screen.premium-journey-active #subject-journey-section{
+  margin:26px 0 0!important;
+  padding:0!important;
+}
+#subject-screen.premium-journey-active #subject-journey-section>.journey-heading{
+  display:flex!important;
+  margin:0 2px 12px;
+}
+#subject-screen.premium-journey-active #subject-journey-section>.journey-heading .journey-grade-chip{display:none}
+#subject-screen.premium-journey-active #subject-journey-section>.journey-grade-picker,
+#subject-screen.premium-journey-active #subject-journey-section>.journey-summary,
+#subject-screen.premium-journey-active #subject-journey-section>.journey-now-card,
+#subject-screen.premium-journey-active #subject-journey-section>.journey-collection,
+#subject-screen.premium-journey-active #journey-finish,
+#subject-screen.premium-journey-active #journey-sidequests{display:none!important}
+
+@media(max-width:390px){
+  .premium-journey-map,.premium-world{border-radius:25px}
+  .premium-world-hud{top:9px;left:9px;right:9px}
+  .premium-place-sign{max-width:94px}
+  .premium-traveler,.premium-traveler svg{width:43px;height:43px}
+  #geography-screen.premium-geo-active .geo-journey-shell,
+  #subject-screen.premium-journey-active #subject-journey-section{margin-top:23px!important}
+}
