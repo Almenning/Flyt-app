@@ -1,6 +1,6 @@
 {
-  "name": "Lær litt mer",
-  "short_name": "Lær litt mer",
+  "name": "Læria",
+  "short_name": "Læria",
   "description": "Korte læringsøkter i geografi, norsk, matte og engelsk for 1.–10. trinn.",
   "start_url": "./",
   "scope": "./",
