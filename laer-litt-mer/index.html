@@ -381,6 +381,13 @@
     .grade-band-older .journey-world,.grade-band-teen .journey-world{min-height:500px;border-radius:27px}.grade-band-older .journey-playfield,.grade-band-teen .journey-playfield{height:405px}.grade-band-older .journey-map-node .node-orb,.grade-band-teen .journey-map-node .node-orb{width:61px;height:61px}
     @media (max-width:380px){.journey-map-node .node-label{max-width:104px;padding:5px 7px}.journey-map-node .node-label strong{font-size:10px}.journey-world-head{padding-left:13px;padding-right:13px}.journey-world-progress{min-width:48px}}
     @media (prefers-reduced-motion:reduce){.journey-map-node.state-next .node-orb,.journey-fox{animation:none}}
+    .journey-world.geo-world{--world-sky:#D9F5FB;--world-ground:#DDEEDB;--world-accent:#3E9BB4}
+    .journey-world.geo-world.world-2{--world-sky:#E4F1FF;--world-ground:#E7F0D5;--world-accent:#5287CE}
+    .journey-world.geo-world.world-3{--world-sky:#E8F7EF;--world-ground:#F2E6C9;--world-accent:#55A072}
+    .journey-world.geo-world .journey-world-number{color:#39778A}
+    .journey-world.geo-world .journey-route path.done{stroke:#3E9BB4}
+    .geo-expedition-stamp{position:absolute;left:14px;bottom:12px;z-index:4;transform:rotate(-5deg);border:2px dashed rgba(44,104,121,.38);border-radius:11px;padding:4px 7px;font-size:8px;font-weight:950;color:#39778A;background:rgba(255,255,255,.55)}
+
 
 
     .geo-themes{display:flex;gap:8px;overflow-x:auto;padding:3px 2px 8px;margin:10px -2px 4px;scrollbar-width:none}.geo-themes::-webkit-scrollbar{display:none}
@@ -2857,26 +2864,52 @@ function recordGeoJourneyResult(result){
   const prog=geoJourneyProgress(grade),winKey='geography:'+grade;
   if(prog.complete&&!state.journey.gradeWins[winKey]){state.journey.gradeWins[winKey]={at:Date.now()};state.lastMilestone={title:GRADE_CONFIG[grade].label+' fullført i geografi! 🏆',copy:'Du har klart geografiens kjerneløp på dette trinnet.',at:Date.now()}}
 }
+
+function geoJourneyCoreNodes(area){return area.nodes.filter(n=>n.type==='geo-skill'||n.type==='checkpoint')}
+function geoJourneyRouteSvg(area){
+  const core=geoJourneyCoreNodes(area),pts=journeyCorePositions(core.length);if(pts.length<2)return '';
+  const segs=[];
+  for(let i=0;i<pts.length-1;i++){
+    const [x1,y1]=pts[i],[x2,y2]=pts[i+1],mx=(x1+x2)/2,my=(y1+y2)/2,curve=i%2===0?7:-7,n1=core[i],n2=core[i+1];
+    const d1=n1.type==='geo-skill'?['can-now','mastered'].includes(geoJourneyNodeState(n1)):!!journeyNodeRecord(n1).passed;
+    const d2=n2.type==='geo-skill'?['can-now','mastered'].includes(geoJourneyNodeState(n2)):!!journeyNodeRecord(n2).passed;
+    segs.push('<path class="'+(d1&&d2?'done':'')+'" d="M '+x1+' '+y1+' Q '+(mx+curve)+' '+my+' '+x2+' '+y2+'"/>');
+  }
+  return '<svg class="journey-route" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">'+segs.join('')+'</svg>';
+}
+
 function renderGeoJourney(){
   const host=document.getElementById('geo-journey-map');if(!host)return;
-  const viewGrade=journeyViewGrade('geography'),prog=geoJourneyProgress(viewGrade),recommended=geoJourneyRecommendedNode(viewGrade),model=prog.model,recommendedIndex=recommended?model.nodes.findIndex(n=>n.id===recommended.id):-1,positions=['left','right','left','right','center'];
+  host.classList.add('journey-map-v2');
+  const viewGrade=journeyViewGrade('geography'),prog=geoJourneyProgress(viewGrade),recommended=geoJourneyRecommendedNode(viewGrade),model=prog.model,recommendedIndex=recommended?model.nodes.findIndex(n=>n.id===recommended.id):-1;
   document.getElementById('geo-journey-grade').textContent=GRADE_CONFIG[viewGrade].label;
   renderJourneyGradeStrip('geography','geo-journey-grade-strip','geo-journey-grade-note',viewGrade);
-  document.getElementById('geo-journey-title').textContent=prog.complete?'Du rundet geografien! 🏆':'Fra det kjente til hele verden';
+  document.getElementById('geo-journey-title').textContent=prog.complete?'Ekspedisjonen er fullført! 🏆':'Fra det kjente til hele verden';
   document.getElementById('geo-journey-summary').textContent=prog.complete?'Kjerneløpet er fullført':prog.pct+' % gjennom geografireisen';
-  document.getElementById('geo-journey-pct').textContent=prog.pct+'%';document.getElementById('geo-journey-ring').style.setProperty('--journey-pct',prog.pct);
+  document.getElementById('geo-journey-pct').textContent=prog.pct+'%';
+  document.getElementById('geo-journey-ring').style.setProperty('--journey-pct',prog.pct);
+
   host.innerHTML=model.areas.map((area,ai)=>{
     const areaDone=geoJourneyAreaComplete(area),required=area.nodes.filter(n=>n.type==='geo-skill'||n.type==='checkpoint'),done=required.filter(n=>n.type==='geo-skill'?['can-now','mastered'].includes(geoJourneyNodeState(n)):journeyNodeRecord(n).passed).length;
-    const nodes=area.nodes.map((node,i)=>{
-      const st=geoJourneyNodeState(node),idx=model.nodes.findIndex(n=>n.id===node.id),isNext=recommended&&recommended.id===node.id,future=!isNext&&recommendedIndex>=0&&idx>recommendedIndex&&st==='new',visual=isNext&&!['can-now','mastered','passed'].includes(st)?'next':future?'future':st;
-      return '<div class="journey-node-row '+positions[i%positions.length]+'"><button class="journey-node type-'+node.type+' state-'+visual+'" type="button" data-geo-journey-node="'+node.id+'"><span class="journey-node-orb">'+geoJourneyIcon(node,st)+'</span><span class="journey-node-copy"><strong>'+node.title+'</strong><small>'+(isNext?'Neste for deg · ':'')+geoJourneyStatusText(node,st)+'</small></span></button></div>';
+    const core=geoJourneyCoreNodes(area),corePositions=journeyCorePositions(core.length),positionMap=new Map(core.map((n,i)=>[n.id,corePositions[i]]));
+    const nodes=area.nodes.map(node=>{
+      const st=geoJourneyNodeState(node),idx=model.nodes.findIndex(n=>n.id===node.id),isNext=recommended&&recommended.id===node.id,future=!isNext&&recommendedIndex>=0&&idx>recommendedIndex&&st==='new';
+      const visual=isNext&&!['can-now','mastered','passed'].includes(st)?'next':future?'future':st,point=positionMap.get(node.id)||journeySidePosition(node.type,ai);
+      const fox=isNext?'<span class="journey-next-bubble">Neste!</span><span class="journey-fox" aria-hidden="true">🦊</span>':'';
+      return '<button class="journey-map-node type-'+node.type+' state-'+visual+'" style="left:'+point[0]+'%;top:'+point[1]+'%" type="button" data-geo-journey-node="'+node.id+'" aria-label="'+escapeAttr(node.title+'. '+geoJourneyStatusText(node,st))+'">'+fox+'<span class="node-orb">'+geoJourneyIcon(node,st)+'</span><span class="node-label"><strong>'+node.title+'</strong><small>'+geoJourneyStatusText(node,st)+'</small></span></button>';
     }).join('');
-    const soft=['#E2F6EC','#DDF4FA','#FFF2D8'][ai%3];
-    return '<section class="journey-area" style="--area-soft:'+soft+'"><div class="journey-area-head"><div class="journey-area-icon">'+area.emoji+'</div><div><strong>'+area.title+'</strong><small>'+(area.copy||'Bygg kartet steg for steg.')+'</small></div><span class="journey-area-progress">'+(areaDone?'Klart ✓':done+' / '+required.length)+'</span></div><div class="journey-nodes">'+nodes+'</div></section>';
+    return '<section class="journey-world geo-world world-'+((ai%3)+1)+(areaDone?' area-complete':'')+'">'+
+      '<div class="journey-scenery" aria-hidden="true"><i class="journey-cloud c1"></i><i class="journey-cloud c2"></i><i class="journey-hill h1"></i><i class="journey-hill h2"></i><span class="journey-spark s1">🧭</span><span class="journey-spark s2">✦</span><span class="journey-spark s3">🌍</span></div>'+
+      '<div class="journey-world-head"><div class="journey-world-number">ETAPPE<br>'+(ai+1)+'</div><div class="journey-world-title"><strong>'+area.emoji+' '+area.title+'</strong><small>'+(area.copy||'Bygg kartet steg for steg.')+'</small></div><span class="journey-world-progress '+(areaDone?'complete':'')+'">'+(areaDone?'Klart ★':done+' / '+required.length)+'</span></div>'+
+      '<div class="journey-playfield">'+geoJourneyRouteSvg(area)+nodes+'<div class="journey-zone-gate"></div><div class="geo-expedition-stamp">'+(areaDone?'STEMPLET ✓':'EKSPEDISJON')+'</div><div class="journey-zone-badge">'+(areaDone?'Etappe fullført ★':'Mål: nå troféet')+'</div></div>'+
+      '</section>';
   }).join('');
+
   host.querySelectorAll('[data-geo-journey-node]').forEach(b=>b.onclick=()=>startGeoJourneyNode(b.dataset.geoJourneyNode));
   const finish=document.getElementById('geo-journey-finish');finish.classList.toggle('complete',prog.complete);
-  finish.innerHTML=prog.complete?'<strong>🏆 '+GRADE_CONFIG[viewGrade].label+' fullført i geografi</strong><p>Du har klart hovedpunktene og checkpointene. Kloden viser fortsatt hva som er «Kan nå» og hva som er mestret over tid.</p>':'<strong>🏁 Mål: rund geografireisen</strong><p>Bygg opp landkunnskapen og bestå checkpointene. Fri utforskning er alltid åpen.</p>';
+  finish.innerHTML=prog.complete
+    ?'<strong>🏆 '+GRADE_CONFIG[viewGrade].label+' fullført i geografi</strong><p>Du har gjennomført hovedekspedisjonene og checkpointene. Kloden fortsetter å vise hva du kan nå og hva som er mestret over tid.</p>'
+    :'<strong>🧭 Mål: fullfør geografiekspedisjonen</strong><p>Følg hovedruten og nå troféet i hver etappe. Kloden og fri utforskning er alltid åpne.</p>';
 }
 function questionTypesForCountry(k,includeMap=false,grade=currentGrade()){
   const allowed=new Set(allowedTypesForGrade(grade)),types=[];
