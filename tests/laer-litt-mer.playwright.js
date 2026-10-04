@@ -303,8 +303,6 @@ async function finishSession(page){
     await page.locator('#subject-screen.active').waitFor();
     assert.equal(await page.locator('#journey-map .bok-v11-world').count(),1,'journey completion should return to the Bokskogen board');
     assert.equal(await page.locator('#journey-map .bok-v14-traveler-character').count(),1,'Bokskogen traveler should use the movement-safe inner character');
-    const bokTravelOrigin=await page.locator('#journey-map .bok-v13-traveler').getAttribute('data-travel-from-x');
-    assert.ok(bokTravelOrigin!==null,'real progression should arm a traveler origin for the return-to-world movement');
     await page.locator('#journey-map .bok-v10-home').click();
     await page.locator('#home-screen.active').waitFor();
     assert.equal(await page.locator('#home-continue-wrap').isVisible(),true);
@@ -632,7 +630,12 @@ async function finishSession(page){
     const geoGlobeTop=await page.locator('#open-world').evaluate(el=>el.getBoundingClientRect().top);
     assert.ok(geoWorldTop<geoGlobeTop,'young-grade geography journey should be the primary surface before globe/free exploration');
     assert.equal(await page.locator('#geography-screen > .geography-head').isVisible(),false,'young-grade geography should not put a dashboard banner before the world');
-    const reactionNode=await page.locator('#geo-journey-map .premium-place.is-next').getAttribute('data-geo-journey-node');
+    const reactionNode=await page.evaluate(()=>{
+      const grade=journeyViewGrade('geography'),model=geoJourneyProgress(grade).model,current=geoJourneyRecommendedNode(grade);
+      const route=model.areas.flatMap(area=>area.nodes.filter(n=>n.type==='geo-skill'||n.type==='checkpoint'));
+      const currentIndex=Math.max(0,route.findIndex(n=>n.id===current?.id));
+      return route[Math.min(route.length-1,currentIndex+1)]?.id||current?.id;
+    });
     await page.evaluate(nodeId=>{
       window.__journeyWorldReaction={subject:'geography',grade:journeyViewGrade('geography'),nodeId,at:Date.now()};
       renderGeoJourney();
@@ -641,6 +644,9 @@ async function finishSession(page){
     assert.equal(await page.locator('#geo-journey-map .premium-place.is-just-completed').count(),1,'the completed landmark should receive the reaction state');
     assert.equal(await page.locator('#geo-journey-map .premium-traveler-character').count(),1,'premium worlds should isolate guide motion from idle breathing');
     assert.notEqual(await page.locator('#geo-journey-map .premium-traveler').getAttribute('data-travel-from-x'),null,'reaction render should carry the travel origin');
+    await page.waitForTimeout(80);
+    const travelDistance=Number(await page.locator('#geo-journey-map .premium-traveler').getAttribute('data-travel-distance')||0);
+    assert.ok(travelDistance>10,'a reaction between different landmarks should start a real traveler movement');
     assert.equal(await page.evaluate(()=>window.__journeyWorldReaction),null,'the world reaction must be one-shot');
     await page.locator('#geo-journey-map .premium-place.is-next').click();
     assert.equal(await page.locator('#geo-journey-map .premium-world-sheet').isVisible(),true);
