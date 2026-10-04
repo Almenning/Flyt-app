@@ -134,6 +134,21 @@
     '</div>';
   }
 
+  function setYoungGeographyWorldFirst(enabled){
+    const screen=document.getElementById('geography-screen');
+    const shell=document.getElementById('geo-journey-shell');
+    const globe=document.getElementById('open-world');
+    const continuation=screen?.querySelector('.geography-continue');
+    if(!screen||!shell||!globe)return;
+    if(enabled){
+      if(shell.nextElementSibling!==globe)screen.insertBefore(shell,globe);
+      return;
+    }
+    if(continuation&&continuation.nextElementSibling!==shell){
+      continuation.insertAdjacentElement('afterend',shell);
+    }
+  }
+
   function renderMap(subject,geo){
     const config=WORLDS[subject],host=document.getElementById(geo?'geo-journey-map':'journey-map');if(!host)return;
     const grade=journeyViewGrade(subject),prog=geo?geoJourneyProgress(grade):journeyProgress(subject,grade),model=prog.model;
@@ -214,6 +229,7 @@
       document.getElementById('journey-grade-chip').textContent=GRADE_CONFIG[grade].label;
       renderJourneyGradeStrip(subject,'journey-grade-strip','journey-grade-note',grade);
     }else{
+      setYoungGeographyWorldFirst(true);
       document.getElementById('geography-screen').classList.add('premium-geo-active');
       document.getElementById('geo-journey-grade').textContent=GRADE_CONFIG[grade].label;
       renderJourneyGradeStrip(subject,'geo-journey-grade-strip','geo-journey-grade-note',grade);
@@ -233,6 +249,7 @@
   renderGeoJourney=function(){
     document.getElementById('geography-screen')?.classList.remove('premium-geo-active');
     if(journeyViewGrade('geography')<=2)return renderMap('geography',true);
+    setYoungGeographyWorldFirst(false);
     return priorGeo();
   };
 })();
