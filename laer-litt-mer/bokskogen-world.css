@@ -1021,3 +1021,119 @@
     animation:none!important;
   }
 }
+
+
+/* Bokskogen v8 — map owns the screen. */
+#subject-screen.bokskogen-v3-active .journey-grade-picker{
+  height:0;
+  min-height:0;
+  padding:0;
+  margin:0;
+  overflow:hidden;
+  opacity:0;
+  pointer-events:none;
+}
+#subject-screen.bokskogen-v3-active #subject-journey-section{
+  margin-top:-2px;
+}
+.bokskogen-topbar{
+  left:12px;
+  right:12px;
+  top:12px;
+  width:auto;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  pointer-events:auto;
+}
+.bokskogen-grade-pill,
+.bokskogen-progress{
+  min-height:31px;
+  border:1px solid rgba(255,255,255,.24);
+  color:#f5f7e9;
+  background:
+    linear-gradient(145deg,rgba(21,49,40,.82),rgba(43,76,61,.78));
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.08) inset,
+    0 6px 16px rgba(8,26,20,.18);
+  backdrop-filter:blur(10px) saturate(1.15);
+}
+.bokskogen-grade-pill{
+  display:flex;
+  align-items:center;
+  gap:5px;
+  padding:6px 9px;
+  border-radius:999px;
+  font-family:ui-rounded,"SF Pro Rounded",-apple-system,sans-serif;
+  font-size:7px;
+  font-weight:950;
+  letter-spacing:.01em;
+}
+.bokskogen-grade-pill span{
+  opacity:.7;
+  font-size:8px;
+  transform:translateY(-1px);
+}
+.bokskogen-progress{
+  min-width:80px;
+  justify-content:center;
+}
+.bokskogen-grade-menu{
+  position:absolute;
+  z-index:72;
+  left:12px;
+  top:49px;
+  min-width:156px;
+  padding:10px;
+  border:1px solid rgba(92,58,30,.30);
+  border-radius:16px;
+  color:#4a321e;
+  background:
+    radial-gradient(circle at 12% 0%,rgba(255,255,255,.68),transparent 25%),
+    linear-gradient(180deg,#fff1cc,#eccb91);
+  box-shadow:0 10px 28px rgba(24,38,29,.25);
+  opacity:0;
+  transform:translateY(-5px) scale(.98);
+  transform-origin:top left;
+  transition:opacity .15s ease,transform .15s ease;
+}
+.bokskogen-grade-menu.show{
+  opacity:1;
+  transform:translateY(0) scale(1);
+}
+.bokskogen-grade-menu>strong{
+  display:block;
+  margin-bottom:7px;
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:13px;
+}
+.bokskogen-grade-menu>div{
+  display:grid;
+  gap:5px;
+}
+.bokskogen-grade-menu button{
+  width:100%;
+  padding:7px 9px;
+  border:1px solid rgba(103,68,33,.14);
+  border-radius:10px;
+  color:#594126;
+  text-align:left;
+  background:rgba(255,255,255,.45);
+  font-family:ui-rounded,"SF Pro Rounded",-apple-system,sans-serif;
+  font-size:8px;
+  font-weight:900;
+}
+.bokskogen-grade-menu button.active{
+  color:#fff8df;
+  background:linear-gradient(180deg,#7a9f65,#527b55);
+  border-color:rgba(60,92,62,.38);
+}
+#subject-screen.bokskogen-v3-active>.detail-back{
+  z-index:95;
+  margin:4px 0 4px 12px;
+  min-height:34px;
+  border-radius:999px;
+  background:rgba(245,249,240,.92);
+  box-shadow:0 4px 12px rgba(32,54,45,.09);
+}
