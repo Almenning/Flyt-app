@@ -3649,8 +3649,8 @@ function dueReviewSubject(){
 }
 function recommendedStarter(){
   const g=currentGrade(),review=dueReviewSubject();
-  if(review==='geography')return {title:'Geografi · liten repetisjon',copy:'Noe du kunne før er klart for å hentes fram igjen.',action:()=>{geoTheme='country';syncGeoThemeButtons();startGeographyTheme()}};
-  if(review&&SUBJECTS[review]){const s=SUBJECTS[review];return {title:s.title+' · repetisjon',copy:'En ferdighet er moden for en kort repetisjon.',action:()=>{openSubject(review);startJourneyReview(review)}}}
+  if(review==='geography')return {title:'Geografi · liten repetisjon',copy:'Noe du kunne før på ditt klassetrinn er klart for å hentes fram igjen.',action:()=>{setJourneyViewGrade('geography',currentGrade(),false);geoTheme='country';syncGeoThemeButtons();startGeographyTheme()}};
+  if(review&&SUBJECTS[review]){const s=SUBJECTS[review];return {title:s.title+' · repetisjon',copy:'En ferdighet på ditt klassetrinn er moden for en kort repetisjon.',action:()=>{setJourneyViewGrade(review,currentGrade(),false);openSubject(review);startJourneyReview(review,currentGrade())}}}
   if(state.lastActivity)return {title:activityTitle(state.lastActivity),copy:activityCopy(state.lastActivity),action:resumeLastActivity};
   if(g<=2)return {title:'Geografi · Norden',copy:'Start med kjente land, flagg og kart.',action:()=>{geoTheme='country';syncGeoThemeButtons();startGeographyTheme()}};
   if(g<=4)return {title:'Geografi · Land',copy:'Fem korte spørsmål på nivået ditt.',action:()=>{geoTheme='country';syncGeoThemeButtons();startGeographyTheme()}};
