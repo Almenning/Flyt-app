@@ -183,3 +183,232 @@
 @media (prefers-reduced-motion:reduce){
   .bokskogen-stop.state-next:before,.bokskogen-guide{animation:none!important}
 }
+
+
+/* Bokskogen v4 — cinematic premium world polish. */
+#subject-screen.bokskogen-v3-active{
+  background:
+    radial-gradient(circle at 50% 4%,rgba(255,238,187,.34),transparent 28%),
+    linear-gradient(180deg,#e5f1ed 0,#f4ead5 58%,#e8d8b8 100%);
+}
+.bokskogen-world{
+  height:1640px;
+  background:#b9d9d1;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.72) inset,
+    0 24px 64px rgba(24,52,43,.23);
+}
+.bokskogen-world:before{
+  content:"";
+  position:absolute;inset:0;z-index:5;pointer-events:none;
+  background:
+    radial-gradient(circle at 14% 12%,rgba(255,246,207,.24) 0 1px,transparent 1.7px),
+    radial-gradient(circle at 76% 24%,rgba(255,242,180,.16) 0 1px,transparent 1.7px),
+    radial-gradient(circle at 31% 55%,rgba(255,255,255,.13) 0 1px,transparent 1.8px);
+  background-size:37px 43px,53px 47px,61px 57px;
+  mix-blend-mode:screen;
+  opacity:.48;
+}
+.bokskogen-world:after{
+  background:
+    linear-gradient(90deg,rgba(11,39,30,.12),transparent 11%,transparent 89%,rgba(11,39,30,.13)),
+    radial-gradient(ellipse at 50% 43%,transparent 0 61%,rgba(14,41,32,.11) 100%),
+    linear-gradient(180deg,rgba(255,255,255,.08),transparent 17%,transparent 80%,rgba(15,43,34,.10));
+}
+.bokskogen-art{
+  filter:saturate(1.06) contrast(1.025);
+}
+.bokskogen-topbar{
+  top:16px;left:16px;right:16px;
+}
+.bokskogen-brand{
+  padding:10px 13px 9px;
+  border-color:rgba(94,64,31,.27);
+  border-radius:13px 18px 13px 18px;
+  background:
+    linear-gradient(180deg,rgba(255,231,177,.96),rgba(210,162,90,.96));
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.66) inset,
+    0 4px 0 rgba(104,70,32,.18),
+    0 10px 24px rgba(40,48,34,.13);
+  transform:rotate(-.7deg);
+}
+.bokskogen-brand small{font-size:6.1px;color:#6a4d2e}
+.bokskogen-brand strong{
+  margin-top:3px;
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:19px;
+  letter-spacing:-.035em;
+  text-shadow:0 1px rgba(255,255,255,.35);
+}
+.bokskogen-progress{
+  flex-basis:132px;
+  padding:8px 10px 9px;
+  border:1px solid rgba(236,255,245,.18);
+  border-radius:18px;
+  background:
+    linear-gradient(145deg,rgba(18,48,39,.93),rgba(40,73,58,.91));
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.08) inset,
+    0 5px 0 rgba(12,32,27,.09),
+    0 13px 27px rgba(17,44,36,.17);
+}
+.bokskogen-progress-track{height:6px;background:rgba(255,255,255,.12)}
+.bokskogen-progress-track i{
+  background:linear-gradient(90deg,#6ed69a 0%,#bfe88c 52%,#ffd86b 100%);
+  box-shadow:0 0 9px rgba(255,217,104,.22);
+}
+.bokskogen-progress small{font-size:6px;color:#d5e9dc}
+
+.bokskogen-stop{
+  width:102px;height:102px;
+}
+.bokskogen-stop.state-next:before{
+  inset:12px;
+  border:1.5px solid rgba(255,236,160,.92);
+  box-shadow:
+    0 0 0 6px rgba(255,224,105,.08),
+    0 0 34px rgba(255,207,66,.39),
+    inset 0 0 22px rgba(255,235,151,.10);
+}
+.bokskogen-stop.state-next .stop-label{
+  top:79px;
+  padding:0;
+  border:0;
+  background:transparent;
+  box-shadow:none;
+  color:#fff6d8;
+  text-shadow:0 2px 4px rgba(48,31,15,.42);
+  font-size:7px;
+}
+
+.bokskogen-guide{
+  width:68px;height:68px;
+  filter:drop-shadow(0 9px 8px rgba(22,43,35,.27));
+}
+.bokskogen-guide-tag{
+  min-width:108px;
+  padding:8px 12px 9px;
+  border:1px solid rgba(87,54,24,.52);
+  border-radius:8px 12px 9px 7px;
+  color:#fff3cf;
+  background:
+    linear-gradient(180deg,#8c5b2c,#68401f 58%,#55341b 100%);
+  box-shadow:
+    0 2px 0 rgba(255,220,151,.18) inset,
+    0 4px 0 #452918,
+    0 9px 18px rgba(35,31,23,.20),
+    0 0 0 3px rgba(255,220,123,.05);
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:8.3px;
+  letter-spacing:.01em;
+  text-align:center;
+}
+.bokskogen-guide-tag:after{
+  content:"";
+  position:absolute;left:18px;bottom:-8px;
+  width:16px;height:10px;
+  background:#55341b;
+  clip-path:polygon(0 0,100% 0,34% 100%);
+}
+.bokskogen-guide-tag span{
+  display:block;
+  margin:0 0 2px;
+  color:#ffd968;
+  font-family:ui-rounded,"SF Pro Rounded",-apple-system,sans-serif;
+  font-size:5.4px;
+  letter-spacing:.16em;
+}
+
+.bokskogen-landmark-label{
+  pointer-events:none;
+}
+.bokskogen-landmark-label .label-shadow{
+  fill:rgba(38,30,20,.18);
+}
+.bokskogen-landmark-label .label-plank{
+  fill:url(#bokWoodLabel);
+  stroke:#74502d;
+  stroke-width:2.1;
+}
+.bokskogen-landmark-label .label-pin{
+  fill:#765033;
+}
+.bokskogen-landmark-label .label-text{
+  fill:#4a321d;
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:10px;
+  font-weight:700;
+  text-anchor:middle;
+  dominant-baseline:middle;
+}
+.bokskogen-landmark-label.major .label-text{font-size:11px;font-weight:700}
+.bokskogen-landmark-label.future{opacity:.58;filter:saturate(.52)}
+.bokskogen-landmark-label.done .label-plank{stroke:#9d782d}
+.bokskogen-landmark-label.done .label-text{fill:#503719}
+
+.bokskogen-chapter-marker{
+  pointer-events:none;
+  opacity:.90;
+}
+.bokskogen-chapter-marker .chapter-line{
+  stroke:rgba(255,238,192,.62);
+  stroke-width:1;
+  stroke-dasharray:1 4;
+}
+.bokskogen-chapter-marker .chapter-plaque{
+  fill:rgba(35,65,52,.86);
+  stroke:rgba(236,246,226,.24);
+  stroke-width:1;
+}
+.bokskogen-chapter-marker text{
+  fill:#f1e8c9;
+  font-family:ui-rounded,"SF Pro Rounded",-apple-system,sans-serif;
+  font-size:6.5px;
+  font-weight:1000;
+  letter-spacing:.13em;
+  text-anchor:middle;
+}
+
+.bokskogen-side .side-plank{
+  padding:5px 7px;
+  border-color:rgba(79,51,27,.28);
+  border-radius:5px 8px 6px 5px;
+  background:linear-gradient(180deg,rgba(232,194,123,.94),rgba(181,126,66,.94));
+  box-shadow:0 2px 0 rgba(84,54,27,.26),0 5px 10px rgba(42,39,27,.08);
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:6.3px;
+  color:#4d321e;
+  opacity:.9;
+}
+
+.bokskogen-world-spark{
+  width:20px;height:20px;
+  filter:drop-shadow(0 0 5px rgba(255,221,104,.24));
+}
+.bokskogen-world-spark:before{width:2.5px;height:20px}
+.bokskogen-world-spark:after{width:20px;height:2.5px}
+.bokskogen-world-spark.mastered{
+  animation:bokPremiumSpark 2.7s ease-in-out infinite;
+}
+.bokskogen-world.is-complete{
+  box-shadow:0 0 0 2px rgba(255,224,122,.18),0 25px 66px rgba(50,54,31,.24);
+}
+.bokskogen-world.is-complete:before{
+  opacity:.72;
+}
+@keyframes bokPremiumSpark{
+  0%,100%{opacity:.62;transform:translate(-50%,-50%) scale(.84) rotate(0deg)}
+  50%{opacity:1;transform:translate(-50%,-50%) scale(1.12) rotate(15deg)}
+}
+@media (max-width:390px){
+  .bokskogen-world{height:1560px}
+  .bokskogen-guide{width:64px;height:64px}
+  .bokskogen-guide-tag{min-width:102px}
+}
+@media (min-width:600px){
+  .bokskogen-world{height:1760px}
+}
+@media (prefers-reduced-motion:reduce){
+  .bokskogen-world-spark.mastered{animation:none!important}
+}
