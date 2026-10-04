@@ -175,6 +175,25 @@
     '</g>';
   }
 
+  function landmarkLabel(x,y,text,opts={}){
+    const major=!!opts.major,done=!!opts.done,future=!!opts.future,tilt=Number(opts.tilt||0);
+    const width=Math.max(76,Math.min(126,52+String(text).length*6.2));
+    const cls='bokskogen-landmark-label'+(major?' major':'')+(done?' done':'')+(future?' future':'');
+    return '<g class="'+cls+'" transform="translate('+x+' '+y+') rotate('+tilt+')">'+
+      '<ellipse class="label-shadow" cx="0" cy="13" rx="'+(width*.48)+'" ry="7"/>'+
+      '<rect class="label-pin" x="-3" y="8" width="6" height="28" rx="3"/>'+
+      '<path class="label-plank" d="M '+(-width/2)+' -13 H '+(width/2-8)+' L '+(width/2)+' 0 L '+(width/2-8)+' 13 H '+(-width/2)+' L '+(-width/2-7)+' 0 Z"/>'+
+      '<text class="label-text" x="0" y="1">'+text+'</text>'+
+    '</g>';
+  }
+  function chapterMarker(x,y,text){
+    return '<g class="bokskogen-chapter-marker" transform="translate('+x+' '+y+')">'+
+      '<path class="chapter-line" d="M-48 0H48"/>'+
+      '<rect class="chapter-plaque" x="-39" y="-10" width="78" height="20" rx="10"/>'+
+      '<text x="0" y="2">'+text+'</text>'+
+    '</g>';
+  }
+
   function worldArt(prog){
     const a1=prog.areasDone>=1,a2=prog.areasDone>=2,all=prog.complete;
     const litCount=prog.done;
@@ -211,36 +230,58 @@
         '<linearGradient id="bokWater2" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#74D1DC"/><stop offset=".58" stop-color="#45AFC2"/><stop offset="1" stop-color="#337D99"/></linearGradient>'+
         '<linearGradient id="bokPath2" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#F4DB9B"/><stop offset="1" stop-color="#CEAD69"/></linearGradient>'+
         '<linearGradient id="bokFog" x1="0" y1="1" x2="0" y2="0"><stop stop-color="#D9E4DF" stop-opacity="0"/><stop offset=".38" stop-color="#D9E4DF" stop-opacity=".76"/><stop offset="1" stop-color="#D3DEDC" stop-opacity=".95"/></linearGradient>'+
+        '<linearGradient id="bokWoodLabel" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#F7DEAA"/><stop offset=".52" stop-color="#E5BD77"/><stop offset="1" stop-color="#C7924E"/></linearGradient>'+
+        '<linearGradient id="bokRiverShine" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#E8FFFF" stop-opacity=".72"/><stop offset=".5" stop-color="#C8F7FA" stop-opacity=".10"/><stop offset="1" stop-color="#FFFFFF" stop-opacity=".55"/></linearGradient>'+
         '<filter id="bokBlur2"><feGaussianBlur stdDeviation="9"/></filter>'+
         '<filter id="bokMist"><feGaussianBlur stdDeviation="22"/></filter>'+
+        '<filter id="bokLandmarkShadow" x="-30%" y="-30%" width="160%" height="180%"><feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#18362B" flood-opacity=".24"/></filter>'+
       '</defs>'+
       '<rect width="420" height="1500" fill="url(#bokSky2)"/>'+
       '<circle cx="350" cy="105" r="46" fill="#FFE393" opacity=".94"/><circle cx="350" cy="105" r="78" fill="#FFE7A1" opacity=".18" filter="url(#bokBlur2)"/>'+
       '<g fill="#fff" opacity=".64"><ellipse cx="84" cy="119" rx="52" ry="16"/><ellipse cx="125" cy="110" rx="31" ry="24"/><ellipse cx="45" cy="126" rx="28" ry="13"/><ellipse cx="287" cy="188" rx="43" ry="13"/><ellipse cx="318" cy="181" rx="27" ry="21"/></g>'+
+      '<path d="M0 245L54 183 91 215 145 135 193 205 241 154 300 215 350 168 420 230V360H0Z" fill="#78958F" opacity=".55"/>'+
+      '<path d="M0 273L58 221 112 253 167 196 220 248 276 211 330 250 382 217 420 245V380H0Z" fill="#9DB5A7" opacity=".55"/>'+
       '<path d="M0 300Q70 221 137 274T267 241T420 224V566H0z" fill="#91B097"/>'+
       '<path d="M0 438Q78 359 153 405T302 367T420 347V735H0z" fill="#6F9778"/>'+
       '<path d="M0 625Q87 550 173 598T316 566T420 551V1500H0z" fill="url(#bokGround2)"/>'+
       '<path d="M0 924Q87 850 171 899T313 868T420 850V1500H0z" fill="#46755A" opacity=".55"/>'+
       '<path d="M323 762C384 818 400 915 367 1011C338 1095 282 1131 238 1199C205 1250 192 1331 168 1500H84C111 1328 143 1212 198 1136C248 1067 287 1030 298 966C310 897 280 829 323 762Z" fill="url(#bokWater2)" opacity=".97"/>'+
       '<path d="M0 1070C86 1037 131 1064 175 1124C208 1169 217 1217 201 1277C184 1338 144 1395 123 1500H0z" fill="#4B9CAE" opacity=".76"/>'+
-      '<g opacity=".34"><path d="M302 844q39 20 78 0" fill="none" stroke="#EAFFFF" stroke-width="7" stroke-linecap="round"/><path d="M278 987q42 19 86 0" fill="none" stroke="#EAFFFF" stroke-width="6" stroke-linecap="round"/><path d="M171 1264q38 18 78 0" fill="none" stroke="#EAFFFF" stroke-width="6" stroke-linecap="round"/></g>'+
+      '<g opacity=".48"><path d="M302 844q39 20 78 0" fill="none" stroke="#EAFFFF" stroke-width="7" stroke-linecap="round"/><path d="M278 987q42 19 86 0" fill="none" stroke="#EAFFFF" stroke-width="6" stroke-linecap="round"/><path d="M171 1264q38 18 78 0" fill="none" stroke="#EAFFFF" stroke-width="6" stroke-linecap="round"/><path d="M315 900q33 15 66-1" fill="none" stroke="url(#bokRiverShine)" stroke-width="3" stroke-linecap="round"/><path d="M247 1082q38 15 76-3" fill="none" stroke="url(#bokRiverShine)" stroke-width="3" stroke-linecap="round"/><path d="M93 1384q41 14 80-4" fill="none" stroke="url(#bokRiverShine)" stroke-width="3" stroke-linecap="round"/></g>'+
+      '<g fill="#DCE8DF" opacity=".72"><ellipse cx="303" cy="925" rx="14" ry="7"/><ellipse cx="345" cy="1067" rx="11" ry="6"/><ellipse cx="155" cy="1326" rx="13" ry="7"/><ellipse cx="118" cy="1421" rx="10" ry="5"/></g>'+
       '<path d="M103 1435Q92 1360 121 1315T226 1240T133 1122T265 1018T328 886T176 788T286 675T143 563T260 450T168 338T294 218" fill="none" stroke="rgba(88,67,40,.13)" stroke-width="11" stroke-linecap="round"/>'+
       '<path d="M103 1435Q92 1360 121 1315T226 1240T133 1122T265 1018T328 886T176 788T286 675T143 563T260 450T168 338T294 218" fill="none" stroke="#DCC995" stroke-width="6.4" stroke-linecap="round"/>'+
       '<path d="M103 1435Q92 1360 121 1315T226 1240T133 1122T265 1018T328 886T176 788T286 675T143 563T260 450T168 338T294 218" fill="none" stroke="#FFF0B7" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="1.2 18" opacity=".72"/>'+
       scenery+
-      '<g transform="translate(320 895)"><path d="M-68 28q68-44 136 0" fill="none" stroke="#3D8EA1" stroke-width="27" opacity=".62"/>'+wordBridge(0,0,litCount>=5)+'</g>'+
-      letterGate(101,1335,litCount>=1)+
-      readingHut(231,1230,litCount>=2)+
-      rimPond(126,1125,litCount>=3)+
-      forestGate(265,1020,a1)+
-      garden(176,788,litCount>=6)+
-      cabin(286,675,a2,'tell')+
-      cabin(143,563,a2,'detective')+
-      cabin(260,450,a2,'story')+
-      treehouse(168,338,a2)+
-      library(294,218,all)+
+      chapterMarker(210,1452,'START PÅ EVENTYRSTIEN')+
+      chapterMarker(210,1080,'ORD · LYD · RIM')+
+      chapterMarker(210,742,'SETNINGER')+
+      chapterMarker(210,404,'LES · FORSTÅ')+
+      '<g filter="url(#bokLandmarkShadow)" transform="translate(320 895)"><path d="M-68 28q68-44 136 0" fill="none" stroke="#3D8EA1" stroke-width="27" opacity=".62"/>'+wordBridge(0,0,litCount>=5)+'</g>'+
+      '<g filter="url(#bokLandmarkShadow)">'+letterGate(101,1335,litCount>=1)+'</g>'+
+      '<g filter="url(#bokLandmarkShadow)">'+readingHut(231,1230,litCount>=2)+'</g>'+
+      '<g filter="url(#bokLandmarkShadow)">'+rimPond(126,1125,litCount>=3)+'</g>'+
+      '<g filter="url(#bokLandmarkShadow)">'+forestGate(265,1020,a1)+'</g>'+
+      '<g filter="url(#bokLandmarkShadow)">'+garden(176,788,litCount>=6)+'</g>'+
+      '<g filter="url(#bokLandmarkShadow)">'+cabin(286,675,a2,'tell')+'</g>'+
+      '<g filter="url(#bokLandmarkShadow)">'+cabin(143,563,a2,'detective')+'</g>'+
+      '<g filter="url(#bokLandmarkShadow)">'+cabin(260,450,a2,'story')+'</g>'+
+      '<g filter="url(#bokLandmarkShadow)">'+treehouse(168,338,a2)+'</g>'+
+      '<g filter="url(#bokLandmarkShadow)">'+library(294,218,all)+'</g>'+
+      landmarkLabel(105,1400,'Bokstavporten',{done:litCount>=1,tilt:-3})+
+      landmarkLabel(238,1284,'Lesestua',{done:litCount>=2,tilt:2})+
+      landmarkLabel(127,1183,'Rimdammen',{done:litCount>=3,tilt:-2})+
+      landmarkLabel(267,1077,'Skogsporten',{done:a1,major:true,tilt:2})+
+      landmarkLabel(319,944,'Ordbrua',{done:litCount>=5,tilt:-2})+
+      landmarkLabel(176,847,'Ordhagen',{done:litCount>=6,tilt:2})+
+      landmarkLabel(287,733,'Fortellerhytta',{done:a2,tilt:-2})+
+      landmarkLabel(143,620,'Detektivstien',{done:a2,tilt:2})+
+      landmarkLabel(261,507,'Historiehytta',{done:a2,tilt:-2})+
+      landmarkLabel(168,396,'Fortell',{done:a2,tilt:2})+
+      landmarkLabel(294,286,'Biblioteket',{done:all,major:true,tilt:-2})+
       lights+
       '<g fill="#F6EEE0" opacity=".90"><circle cx="55" cy="1417" r="4"/><circle cx="357" cy="1342" r="3"/><circle cx="64" cy="1008" r="3"/><circle cx="360" cy="732" r="4"/><circle cx="72" cy="505" r="3"/><circle cx="346" cy="331" r="3"/></g>'+
+      '<g opacity=".78"><path d="M13 70q42 18 64 70-35-23-73-9z" fill="#244F40"/><path d="M407 72q-45 25-65 72 36-21 76-8z" fill="#285342"/><path d="M-4 1460q52-42 103-25-42 14-74 65H0z" fill="#214B3C"/><path d="M424 1442q-55-34-103-12 43 12 75 70h28z" fill="#214B3C"/></g>'+
       fog+
     '</svg>';
   }
