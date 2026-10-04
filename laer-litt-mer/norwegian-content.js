@@ -493,4 +493,5 @@
   }
 
   window.buildNorwegianPool=buildNorwegianPool;
+  window.dispatchEvent(new CustomEvent('norwegian-content-ready'));
 })();
