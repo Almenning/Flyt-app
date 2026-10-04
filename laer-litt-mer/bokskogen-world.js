@@ -21,13 +21,13 @@
   // The illustration has seven real destinations. Learning missions live inside
   // those destinations instead of being rendered as eleven artificial map nodes.
   const PLACE_DEFS=[
-    {id:'bokstavporten',title:'Bokstavporten',point:[28,91],required:['lyder']},
+    {id:'bokstavporten',title:'Bokstavporten',point:[30,93.5],required:['lyder']},
     {id:'lesestua',title:'Lesestua',point:[78,70],required:['ordbilder']},
     {id:'rimdammen',title:'Rimdammen',point:[78,44],required:['ordlek']},
     {id:'skogsporten',title:'Skogsporten',point:[27,53],required:['ordstart-checkpoint'],extrasArea:'ordstart'},
     {id:'ordbrua',title:'Ordbrua',point:[43,32],required:['setningsrekkefolge']},
     {id:'ordhagen',title:'Ordhagen',point:[39,21],required:['ordbetydning','setninger-checkpoint'],extrasArea:'setninger'},
-    {id:'biblioteket',title:'Biblioteket',point:[77,8.5],required:['detaljer','forsta','tenkvidere','lesedetektiv-checkpoint'],extrasArea:'lesedetektiv'}
+    {id:'biblioteket',title:'Biblioteket',point:[76,11.5],required:['detaljer','forsta','tenkvidere','lesedetektiv-checkpoint'],extrasArea:'lesedetektiv'}
   ];
 
   function label(node){return LABELS[node.id]||node.title}
@@ -376,7 +376,7 @@
           return;
         }
         gradeMenu.innerHTML='<strong>Velg klassetrinn</strong><div>'+
-          [1,2].map(g=>'<button type="button" data-bok-grade="'+g+'" class="'+(g===viewGrade?'active':'')+'">'+g+'. klasse'+(subjectGradeComplete('norwegian',g)?' 🏆':'')+'</button>').join('')+
+          [1,2,3].map(g=>'<button type="button" data-bok-grade="'+g+'" class="'+(g===viewGrade?'active':'')+'">'+g+'. klasse'+(subjectGradeComplete('norwegian',g)?' 🏆':'')+'</button>').join('')+
           '</div>';
         gradeMenu.hidden=false;
         requestAnimationFrame(()=>gradeMenu.classList.add('show'));
