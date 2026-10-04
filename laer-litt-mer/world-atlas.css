@@ -37,3 +37,5 @@
 .bok-v10-map{background:transparent!important;padding:0!important;max-width:560px!important;margin:0 auto!important}
 
 #subject-screen.bokskogen-v10-active{max-width:584px!important;min-height:0!important;margin:0 auto!important;background:transparent!important;padding:12px!important}
+
+@media(max-width:600px){#subject-screen.bokskogen-v10-active{padding-top:max(55px,env(safe-area-inset-top))!important}}
