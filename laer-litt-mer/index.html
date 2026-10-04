@@ -3361,7 +3361,7 @@ function recordGeoJourneyResult(result){
   const grade=Number(sessionScope.journeyGrade||currentGrade()),model=geoJourneyModel(grade),node=model.nodes.find(n=>n.id===sessionScope.journeyNode);if(!node)return;
   const area=model.areas.find(a=>a.id===node.areaId),areaIndex=Math.max(0,model.areas.findIndex(a=>a.id===node.areaId)),wasAreaComplete=area?geoJourneyAreaComplete(area):false;
   const key=journeyNodeKey('geography',grade,node.id),old=state.journey.nodes[key]||{},passable=node.type==='checkpoint'||node.type==='challenge';
-  const scoredCorrect=Number(result.correct||0),best=Math.max(Number(old.best||0),scoredCorrect),passed=passable?(best>=4):!!old.passed;
+  const scoredCorrect=Number(result.correct||0),best=Math.max(Number(old.best||0),scoredCorrect),passed=node.type==='skill'?true:passable?(best>=4):!!old.passed;
   state.journey.nodes[key]={...old,best,attempts:Number(old.attempts||0)+1,lastAt:Date.now(),passed,passedAt:passed?(old.passedAt||Date.now()):null};
   const nowAreaComplete=area?geoJourneyAreaComplete(area):false;
   if(area&&!wasAreaComplete&&nowAreaComplete){
@@ -3715,8 +3715,13 @@ function journeySkillStage(node){
   return 'new';
 }
 function journeyNodeState(node){
-  if(node.type==='skill')return journeySkillStage(node);
   const rec=journeyNodeRecord(node);
+  if(node.type==='skill'){
+    const stage=journeySkillStage(node);
+    // A completed journey stop should move the child forward immediately.
+    // Long-term mastery is still tracked separately by the skill evidence.
+    return stage==='mastered'?'mastered':rec.passed?'can-now':stage;
+  }
   if((node.type==='checkpoint'||node.type==='challenge')&&rec.passed)return 'passed';
   if(node.type==='review'){
     const due=(node.skills||[]).some(skill=>{const ev=evidenceForSkill(node.subject,skill,node.grade),st=skillStage(node.subject,skill,node.grade);return reviewDue(st,ev)});
@@ -4190,10 +4195,13 @@ function startJourneyNode(subject,nodeId,grade=journeyViewGrade(subject)){
   sessionScope={type:'journey',subject,journeyNode:node.id,journeyArea:node.areaId,journeyGrade:node.grade,journeyType:node.type,module:node.module||null,journeyWasComplete:journeyNodeIsCompleteForWorldReaction(node,false),label:(SUBJECTS[subject]?.title||subject)+' · '+node.title};
   state.lastActivity={kind:'journey',subject,nodeId:node.id,grade:node.grade,label:node.title};
   const fresh=buildJourneyQuestions(subject,node,false);
-  const all=fresh.length<5?buildJourneyQuestions(subject,node,true):fresh;
-  sessionQuestions=topUpSessionQuestions(fresh,all,5);
+  // Each visible map stop is one short mission. Checkpoints remain a little
+  // longer, while ordinary stops give clear, quick movement on the trail.
+  const questionCount=node.type==='skill'?3:5;
+  const all=fresh.length<questionCount?buildJourneyQuestions(subject,node,true):fresh;
+  sessionQuestions=topUpSessionQuestions(fresh,all,questionCount);
   sessionScope.practiceOnly=sessionQuestions.length>0&&sessionQuestions.every(q=>q.practiceRepeat);
-  if(sessionQuestions.length<5){toast('Dette punktet trenger flere oppgaver før det kan startes.');return}
+  if(sessionQuestions.length<questionCount){toast('Dette punktet trenger flere oppgaver før det kan startes.');return}
   qIndex=0;sessionCorrect=0;sessionStrengthened=new Set();currentAnswered=null;
   state.activeSession={startedAt:Date.now()};persistActiveSession();showScreen('session');renderQuestion();
 }
@@ -5227,7 +5235,8 @@ function renderSequenceOrder(q,wrap){
 function renderLearningQuestion(){
   const q=sessionQuestions[qIndex];if(!q){finishSession();return}
   document.getElementById('session-progress-bar').style.width=(qIndex/sessionQuestions.length*100)+'%';
-  document.getElementById('session-count').textContent=(qIndex+1)+'/'+sessionQuestions.length;
+  const shortMission=sessionScope?.type==='journey'&&sessionScope?.journeyType==='skill';
+  document.getElementById('session-count').textContent=shortMission?`Oppdrag ${qIndex+1} av ${sessionQuestions.length}`:(qIndex+1)+'/'+sessionQuestions.length;
   const wrap=document.getElementById('question-wrap');
   const label=q.subject==='norwegian'?'Norsk':q.subject==='math'?'Matte':q.subject==='english'?'English':'Geografi';
   let html='<div class="question-tools"><div class="qtype">'+label+' · '+GRADE_CONFIG[currentGrade()].label+'</div>'+readAloudButton(q)+'</div><div class="question">'+q.prompt+'</div>';
