@@ -119,9 +119,9 @@
   position:absolute!important;
   z-index:26!important;
   left:50%!important;
-  top:49.3%!important;
+  top:49.6%!important;
   transform:translate(-50%,-50%)!important;
-  width:46.2%!important;
+  width:50.5%!important;
   height:auto!important;
   aspect-ratio:1!important;
   inset:auto!important;
@@ -141,14 +141,13 @@
   height:100%!important;
   aspect-ratio:1!important;
   border-radius:50%!important;
-  opacity:.015!important;
-  transition:opacity .22s ease!important;
+  opacity:1!important;
+  transition:none!important;
   filter:saturate(1.18) contrast(1.04) drop-shadow(0 12px 18px rgba(25,49,46,.18))!important;
   cursor:grab!important;
   touch-action:none!important;
 }
-#world-screen.active.globe-v16-live #globe-canvas,
-#world-screen.active .globe-v16-stage.globe-v16-live #globe-canvas{opacity:1!important}
+#world-screen.active.globe-v16-live #globe-canvas,\n#world-screen.active .globe-v16-stage.globe-v16-live #globe-canvas{opacity:1!important}
 #world-screen.active #globe-canvas:active{cursor:grabbing!important}
 
 /* Real zoom buttons cover the painted controls so they remain usable. */
@@ -391,4 +390,24 @@
   #world-screen.active .globe-v16-titlecopy{top:4.5%}
   #world-screen.active .globe-v16-title{font-size:29px}
   #world-screen.active .globe-v16-subtitle{font-size:9px;margin-top:4px}
+}
+
+
+/* v16c emergency visibility fix: the functional globe is always visible.
+   The approved art remains the scene/background; the live canvas owns the globe surface. */
+#world-screen.active .globe-wrap{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+}
+#world-screen.active #globe-canvas{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  z-index:30!important;
+  pointer-events:auto!important;
+}
+#world-screen.active .globe-v16-stage{
+  min-width:1px!important;
+  min-height:1px!important;
 }
