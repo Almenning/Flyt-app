@@ -87,7 +87,11 @@
   }
 
   const stage=syncLayout();
+  // The globe itself must never depend on the decorative plate loading.
+  screen.classList.add('globe-v16-live');
+  stage.classList.add('globe-v16-live');
   loadApprovedPlate(stage);
+  requestAnimationFrame(()=>{try{resizeGlobe();drawGlobe()}catch(_){}});
 
   const wrap=stage.querySelector('.globe-wrap');
   if(wrap){
