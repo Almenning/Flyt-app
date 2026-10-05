@@ -2347,7 +2347,10 @@
   <link rel="stylesheet" href="./journey-world-premium.css?v=map38" />
   <link rel="stylesheet" href="./world-atlas.css?v=fox-journey-1" />
   <link rel="stylesheet" href="./home-premium.css?v=young8" />
-  <link rel="stylesheet" href="./word-hunt.css?v=wordhunt2" />\n  <link rel="stylesheet" href="./home-basecamp-v12.css?v=basecamp12" />\n  <link rel="stylesheet" href="./laria-unified-v13.css?v=unified13" />\n  <link rel="stylesheet" href="./globe-premium-v15.css?v=globe15" />
+  <link rel="stylesheet" href="./word-hunt.css?v=wordhunt2" />
+  <link rel="stylesheet" href="./home-basecamp-v12.css?v=basecamp12" />
+  <link rel="stylesheet" href="./laria-unified-v13.css?v=unified13" />
+  <link rel="stylesheet" href="./globe-premium-v15.css?v=globe15" />
   <!-- immersive-globe-viewport-2026-10-02 -->
   <!-- globe-hit-test-dateline-fix-2026-10-02 -->
   <!-- parent-info-udir-2026-10-02 -->
@@ -3108,7 +3111,7 @@ const STORAGE_KEY='laerlittmer-v2';
 const defaultState={
   version:7,
   progressSchemaVersion:3,
-  profile:{grade:null,onboarded:false,name:'',avatar:'boy'},
+  profile:{grade:null,onboarded:false,name:'',avatar:null,setupVersion:0},
   mastery:{},
   mistakes:{},
   skillMastery:{},
@@ -3150,7 +3153,8 @@ function loadState(){
     const profile={...defaultState.profile,...(parsed.profile||{})};
       if(typeof profile.name!=='string')profile.name='';
       profile.name=profile.name.trim().slice(0,20);
-      if(profile.avatar!=='girl'&&profile.avatar!=='boy')profile.avatar='boy';
+      if(profile.avatar!=='girl'&&profile.avatar!=='boy')profile.avatar=null;
+      profile.setupVersion=Number(profile.setupVersion)||0;
     const next={
       ...cloneDefault(),...parsed,profile,
       mastery:parsed.mastery||{}, mistakes:parsed.mistakes||{},
@@ -3444,7 +3448,7 @@ function renderAll(){
   if(panelTitle)panelTitle.textContent=band==='young'?'Stjernene dine ⭐':band==='middle'?'Din fremgang':band==='older'?'Fremgang':'Oversikt';
   if(panelKicker)panelKicker.textContent=band==='young'?'DIN SAMLING':band==='middle'?'DENNE UKEN':band==='older'?'UTVIKLING':'STATUS';
   const subjectKicker=document.getElementById('home-subject-kicker');if(subjectKicker)subjectKicker.textContent=band==='young'?'VELG EN VERDEN':'VELG FAG';
-  const avatar=document.querySelector('.avatar');if(avatar){const chosenAvatar=state.profile?.avatar==='girl'?'girl':'boy';avatar.classList.add('profile-fox-avatar');avatar.dataset.profileAvatar=chosenAvatar;avatar.removeAttribute('aria-hidden');avatar.setAttribute('aria-label',chosenAvatar==='girl'?'Valgt figur: revejente':'Valgt figur: revegutt');avatar.innerHTML='<img src="'+avatarSrc(chosenAvatar)+'" alt="">'}
+  const avatar=document.querySelector('.avatar');if(avatar){const chosenAvatar=state.profile?.avatar==='girl'?'girl':'boy';avatar.classList.add('profile-fox-avatar');avatar.dataset.profileAvatar=chosenAvatar;avatar.removeAttribute('aria-hidden');avatar.setAttribute('aria-label',chosenAvatar==='girl'?'Valgt figur: revejente':'Valgt figur: revegutt');avatar.innerHTML='<img src="./lia-fox-explorer.webp" alt="">'}
   Object.entries(tone.icons).forEach(([subject,icon])=>{const el=document.querySelector('.home-subject.'+subject+' .home-subject-icon');if(el)el.textContent=icon});
   document.getElementById('home-grade-label').textContent=cfg.label;
   const adultGrade=document.getElementById('adult-grade');if(adultGrade)adultGrade.value=String(grade);
@@ -5983,7 +5987,7 @@ function updateOnboarding(){
   document.querySelectorAll('.onboard-dots span').forEach((el,i)=>el.classList.toggle('active',i===onboardingStep));
 }
 let profileName=typeof state.profile.name==='string'?state.profile.name.trim().slice(0,20):'';
-let selectedAvatar=state.profile.avatar==='girl'?'girl':'boy';
+let selectedAvatar=state.profile.avatar==='girl'?'girl':state.profile.avatar==='boy'?'boy':null;
 function avatarSrc(which){return window.LARIA_PROFILE_AVATARS?.[which]||'./lia-fox-explorer-home.webp'}
 function renderAvatarChoice(){
   document.querySelectorAll('.avatar-choice-card').forEach(btn=>{
@@ -5997,12 +6001,17 @@ function renderAvatarChoice(){
 document.querySelectorAll('.avatar-choice-card').forEach(btn=>btn.onclick=()=>{selectedAvatar=btn.dataset.avatar==='girl'?'girl':'boy';renderAvatarChoice();document.getElementById('profile-error').textContent=''});
 const profileNameInput=document.getElementById('profile-name');
 if(profileNameInput){profileNameInput.value=profileName;profileNameInput.addEventListener('input',()=>{profileName=profileNameInput.value.slice(0,20);document.getElementById('profile-error').textContent=''});profileNameInput.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();document.getElementById('profile-next').click()}})}
-document.getElementById('profile-next').onclick=()=>{profileName=(profileNameInput?.value||'').trim().replace(/\s+/g,' ').slice(0,20);if(!profileName){document.getElementById('profile-error').textContent='Skriv navnet ditt først.';profileNameInput?.focus();return}onboardingStep=1;updateOnboarding()};
+document.getElementById('profile-next').onclick=()=>{
+  profileName=(profileNameInput?.value||'').trim().replace(/\s+/g,' ').slice(0,20);
+  if(!selectedAvatar){document.getElementById('profile-error').textContent='Velg reven du vil være med først.';return}
+  if(!profileName){document.getElementById('profile-error').textContent='Skriv navnet ditt først.';profileNameInput?.focus();return}
+  onboardingStep=1;updateOnboarding()
+};
 document.querySelectorAll('.onboard-next').forEach(b=>b.onclick=()=>{onboardingStep=Math.min(2,onboardingStep+1);updateOnboarding()});
 let selectedGrade=Number(state.profile.grade)||null;
 function renderGradeChoice(){document.querySelectorAll('.grade-btn').forEach(b=>b.classList.toggle('selected',Number(b.dataset.grade)===selectedGrade))}
 document.querySelectorAll('.grade-btn').forEach(b=>b.onclick=()=>{selectedGrade=Number(b.dataset.grade);renderGradeChoice();document.getElementById('name-error').textContent=''});
-document.getElementById('finish-onboarding').onclick=()=>{if(!selectedGrade){document.getElementById('name-error').textContent='Velg hvilket klassetrinn du går i.';return}if(!profileName){onboardingStep=0;updateOnboarding();document.getElementById('profile-error').textContent='Skriv navnet ditt først.';profileNameInput?.focus();return}state.profile={...state.profile,name:profileName,avatar:selectedAvatar,grade:selectedGrade,onboarded:true};state.activeSession=null;saveState();document.getElementById('onboarding').classList.remove('show');renderAll()};
+document.getElementById('finish-onboarding').onclick=()=>{if(!selectedGrade){document.getElementById('name-error').textContent='Velg hvilket klassetrinn du går i.';return}if(!profileName){onboardingStep=0;updateOnboarding();document.getElementById('profile-error').textContent='Skriv navnet ditt først.';profileNameInput?.focus();return}state.profile={...state.profile,name:profileName,avatar:selectedAvatar,grade:selectedGrade,onboarded:true,setupVersion:1};state.activeSession=null;saveState();document.getElementById('onboarding').classList.remove('show');renderAll()};
 renderAvatarChoice();renderGradeChoice();
 
 // Lightweight adult gate: requires a deliberate long press rather than a normal child tap.
@@ -6019,7 +6028,7 @@ document.getElementById('feedback-back').onclick=()=>showScreen('adult');
 
 document.getElementById('reset-progress').onclick=()=>{
   if(!confirm('Nullstille bruker, figurvalg, fremgang, klassetrinn og pågående økt på denne enheten?'))return;
-  safeStorageRemove(STORAGE_KEY);safeStorageRemove('laerlittmer-v1');state=cloneDefault();sessionQuestions=[];qIndex=0;sessionCorrect=0;sessionStrengthened=new Set();currentAnswered=null;onboardingStep=0;selectedGrade=null;profileName='';selectedAvatar='boy';if(profileNameInput)profileNameInput.value='';renderAvatarChoice();renderGradeChoice();updateOnboarding();document.getElementById('onboarding').classList.add('show');setTab('home');
+  safeStorageRemove(STORAGE_KEY);safeStorageRemove('laerlittmer-v1');state=cloneDefault();sessionQuestions=[];qIndex=0;sessionCorrect=0;sessionStrengthened=new Set();currentAnswered=null;onboardingStep=0;selectedGrade=null;profileName='';selectedAvatar=null;if(profileNameInput)profileNameInput.value='';renderAvatarChoice();renderGradeChoice();updateOnboarding();document.getElementById('onboarding').classList.add('show');setTab('home');
 };
 
 const adultGradeSelect=document.getElementById('adult-grade');
@@ -6118,10 +6127,14 @@ document.addEventListener('DOMContentLoaded',()=>{
   if(activeScreenName()==='subject'&&activeSubject){renderSubjectModules();renderSubjectJourney();renderSubjectContinue()}
   if(activeScreenName()==='geography')renderGeographyContinue();
 });
-if(!state.profile.onboarded||!state.profile.grade){
-  onboardingStep=state.profile.onboarded?2:0;
+const needsProfileSetup=Number(state.profile.setupVersion||0)<1||!String(state.profile.name||'').trim()||(state.profile.avatar!=='boy'&&state.profile.avatar!=='girl');
+if(needsProfileSetup||!state.profile.onboarded||!state.profile.grade){
+  onboardingStep=needsProfileSetup?0:(state.profile.onboarded?2:0);
   selectedGrade=Number(state.profile.grade)||null;
-  renderGradeChoice();updateOnboarding();document.getElementById('onboarding').classList.add('show');
+  profileName=typeof state.profile.name==='string'?state.profile.name.trim().slice(0,20):'';
+  selectedAvatar=state.profile.avatar==='girl'?'girl':state.profile.avatar==='boy'?'boy':null;
+  if(profileNameInput)profileNameInput.value=profileName;
+  renderAvatarChoice();renderGradeChoice();updateOnboarding();document.getElementById('onboarding').classList.add('show');
 }else{
   // Never drop the child straight back into yesterday's question on a fresh launch.
   // The unfinished session remains in state and is offered from Home.
@@ -6133,7 +6146,10 @@ if(!state.profile.onboarded||!state.profile.grade){
 <script src="./multiplication-lab.js?v=20261003-table1" defer></script>
 <script src="./bokskogen-world.js?v=atlas35" defer></script>
 <script src="./journey-world-premium.js?v=atlas35" defer></script>
-<script src="./word-hunt.js?v=wordhunt2" defer></script>\n<script src="./home-basecamp-v12.js?v=basecamp12" defer></script>\n<script src="./laria-unified-v13.js?v=unified13" defer></script>\n<script src="./globe-premium-v15.js?v=globe15" defer></script>
+<script src="./word-hunt.js?v=wordhunt2" defer></script>
+<script src="./home-basecamp-v12.js?v=basecamp12" defer></script>
+<script src="./laria-unified-v13.js?v=unified13" defer></script>
+<script src="./globe-premium-v15.js?v=globe15" defer></script>
 <!-- premium-board-v8-2026-10-04 -->
 <!-- natural-journey-integration-v9-2026-10-04 -->
 <!-- premium-world-engine-v3-2026-10-04 -->
