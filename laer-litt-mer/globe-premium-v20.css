@@ -368,3 +368,14 @@
 
 /* Pixel-match the segmented control to the approved 1200×900 plate. */
 #world-screen.active .globe-mode{top:18.6%!important;}
+
+
+/* v20f interaction rule:
+   A tap may update the selected-country card, but the approved globe artwork stays visible.
+   The live sphere appears only after an actual drag/zoom/navigation action. */
+#world-screen.active.globe-v20-selected:not(.globe-v20-live) .globe-status{
+  opacity:1!important;
+}
+#world-screen.active.globe-v20-selected:not(.globe-v20-live) .globe-mode{
+  opacity:.001!important;
+}
