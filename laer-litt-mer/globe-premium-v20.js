@@ -117,12 +117,9 @@
       ctx.fillStyle='rgba(255,255,255,.35)';ctx.beginPath();ctx.ellipse(-s*.18,-s*.10,s*.22,s*.06,-.15,0,Math.PI*2);ctx.fill();
       ctx.restore();
     }
-    const features=[
-      ['tree',18,63,1],['tree',53,56,.9],['tree',95,55,.95],['tree',26,7,.78],['tree',32,-3,.8],
-      ['mountain',79,31,1.08],['mountain',45,43,.92],['mountain',93,36,.9],
-      ['boat',-28,24,1.12,false],['boat',66,-17,.95,true],
-      ['whale',-25,-31,1.18]
-    ];
+    /* v15 already draws the explorer details (trees, mountains, clouds, ship and whale).
+       v20 only adds glass/depth so the live state stays rich without becoming cluttered. */
+    const features=[];
 
     function premiumOverlay(){
       const canvas=document.getElementById('globe-canvas');
