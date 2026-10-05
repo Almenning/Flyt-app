@@ -29,6 +29,8 @@
 .bc12-fox{position:absolute;z-index:4;left:25%;bottom:14%;width:25%;max-width:355px;pointer-events:none;transform-origin:50% 95%;animation:bc12-breathe 5s ease-in-out infinite;filter:drop-shadow(3px 13px 5px #35281666)}
 .bc12-fox:before{content:'';position:absolute;bottom:0;left:25%;width:65%;height:5%;background:#47371c60;border-radius:50%;filter:blur(5px)}
 .bc12-fox img{width:100%;height:auto;display:block}
+.bc12-fox[data-avatar="girl"] img{transform:scaleX(-1)}
+.bc12-fox[data-avatar="girl"]:after{content:"🌼";position:absolute;z-index:6;right:22%;top:8%;font-size:clamp(18px,2.3cqw,31px);filter:drop-shadow(0 2px 2px #4a342655);transform:rotate(10deg)}
 
 
 .bc12-journey{position:absolute;left:52%;top:65%;width:28%;z-index:5;background:none;border:0;padding:0 0 25px;text-align:left;filter:drop-shadow(0 7px 6px #28221466);transform:rotate(-3deg)}
