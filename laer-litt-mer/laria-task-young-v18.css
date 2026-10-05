@@ -311,6 +311,7 @@
 
 /* Guide character is part of the composition, not a pasted thumbnail. */
 #session-screen.task-scene[data-task-band="young"] .task-fox-companion{
+  position:absolute!important;
   top:43px!important;
   right:24px!important;
   width:118px!important;
@@ -467,6 +468,9 @@
 }
 
 /* Phone */
+@media(min-width:760px){
+  #session-screen.task-scene[data-task-band="young"] .question{max-width:calc(100% - 240px)!important;}
+}
 @media (max-width:759px){
   #session-screen.task-scene[data-task-band="young"] .session{
     padding-left:9px!important;
@@ -533,6 +537,9 @@
     right:7px!important;
     width:56px!important;
     height:70px!important;
+  }
+  #session-screen.task-scene[data-task-band="young"] :is(.text-only,.has-passage) .task-fox-companion{
+    top:15px!important;right:7px!important;width:56px!important;height:70px!important;
   }
   #session-screen.task-scene[data-task-band="young"] .task-fox-companion:after{
     left:-6px!important;

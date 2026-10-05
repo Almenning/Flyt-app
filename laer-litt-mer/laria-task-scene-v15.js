@@ -50,11 +50,7 @@
   }
   function foxSource(){
     const which=(typeof state!=='undefined'&&state?.profile?.avatar==='girl')?'girl':'boy';
-    try{
-      if(typeof avatarSrc==='function')return avatarSrc(which);
-    }catch(_){}
-    const fromProfile=window.LARIA_PROFILE_AVATARS?.[which];
-    return fromProfile||'./lia-fox-explorer.webp';
+    return './task-fox-'+which+'-v21.webp';
   }
   const objectArt={'🏠':'house','🏡':'house','🐱':'cat','🐈':'cat','🐶':'dog','🐕':'dog','🍎':'apple','🌳':'tree','📘':'book','☀️':'sun','☀':'sun','⚽':'ball','🐟':'fish','🐭':'mouse','🚗':'car','🧀':'cheese','🍦':'icecream','⛵':'boat','🧢':'hat','👟':'shoe','🚆':'train','🐄':'cow','🐑':'lamb','☕':'cup','🛏️':'bed','🌙':'moon','🌼':'flower'};
   function taskVisualMarkup(q){

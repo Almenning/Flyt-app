@@ -22,7 +22,7 @@
   --laria-shadow:0 8px 0 rgba(109,78,43,.10),0 18px 34px rgba(38,51,66,.10);
   --laria-card-shadow:0 6px 0 rgba(109,78,43,.09),0 13px 24px rgba(38,51,66,.08);
 }
-body.grade-band-young :is(h1,h2,h3,.question,.answer,.letter-tile,.letter-slot,.word-tile,.sequence-tile){
+.grade-band-young :is(h1,h2,h3,.question,.answer,.letter-tile,.letter-slot,.word-tile,.sequence-tile){
   font-family:var(--laria-display);font-weight:600;letter-spacing:0;
 }
 
@@ -48,11 +48,11 @@ body.grade-band-young :is(h1,h2,h3,.question,.answer,.letter-tile,.letter-slot,.
 
 /* Global type + surfaces */
 /* Illustrated edges surround a calm readable panel, as in the task scene. */
-body.laria-world-surface .app{width:100%;max-width:none;background:#d9eee5;}
+body.laria-world-surface .app{width:100%!important;max-width:none!important;background:#d9eee5;}
 body.laria-world-surface .screen.active{
   min-height:100dvh;
   padding:clamp(14px,3vw,34px) max(14px,calc((100vw - 960px)/2)) 40px;
-  background:linear-gradient(#fff8e918,#1d42382b),var(--surface-world,url('./basecamp-v11.webp')) center/cover fixed no-repeat;
+  background:linear-gradient(#fff8e918,#1d42382b),var(--surface-world,url('./basecamp-v11.webp')) center/cover fixed no-repeat!important;
 }
 body.laria-world-surface #complete-screen{--surface-world:url('./bokskogen-verden.png');}
 body.laria-world-surface #complete-screen[data-scene-subject="english"]{--surface-world:url('./engelsk-verden.png');}
@@ -66,7 +66,7 @@ body.laria-world-surface :is(#progress-screen,#continent-screen,#detail-screen)>
 }
 #fraction-lab-screen .fraction-lab-head:after,#multiplication-lab-screen .mult-lab-head:after{
   content:"";position:absolute;right:0;top:0;width:70px;height:88px;
-  background:url('./lia-fox-explorer-home.webp') center/contain no-repeat;pointer-events:none;
+  background:var(--laria-guide-image,url('./lia-fox-explorer-home.webp')) center/contain no-repeat;pointer-events:none;
 }
 @media(max-width:600px){
   body.laria-world-surface .screen.active{padding:12px 10px 28px;}
@@ -172,7 +172,7 @@ body.laria-world-surface :is(#progress-screen,#continent-screen,#detail-screen)>
   width:116px;
   height:142px;
   border-radius:0;
-  background:url('./lia-fox-explorer-home.webp') center bottom/contain no-repeat;
+  background:var(--laria-guide-image,url('./lia-fox-explorer-home.webp')) center bottom/contain no-repeat;
   opacity:1;
   pointer-events:none;
   filter:drop-shadow(0 9px 7px rgba(53,43,31,.18));
@@ -277,7 +277,7 @@ body.laria-world-surface :is(#progress-screen,#continent-screen,#detail-screen)>
 }
 #geography-screen .geography-banner:after{
   content:"";position:absolute;right:3%;bottom:-5px;width:112px;height:138px;z-index:7;
-  background:url('./lia-fox-explorer-home.webp') center bottom/contain no-repeat;
+  background:var(--laria-guide-image,url('./lia-fox-explorer-home.webp')) center bottom/contain no-repeat;
   filter:drop-shadow(0 9px 7px rgba(53,43,31,.17));pointer-events:none;
 }
 #geography-screen .geography-banner-copy{position:relative;z-index:8;width:64%}
@@ -327,7 +327,7 @@ body.laria-world-surface :is(#progress-screen,#continent-screen,#detail-screen)>
   left:calc(50% + min(15vw,190px));
   top:max(10px,env(safe-area-inset-top));
   width:65px;height:70px;
-  background:url('./lia-fox-explorer-home.webp') center/contain no-repeat;
+  background:var(--laria-guide-image,url('./lia-fox-explorer-home.webp')) center/contain no-repeat;
   pointer-events:none;
   filter:drop-shadow(0 6px 6px rgba(48,40,29,.16));
 }
@@ -432,7 +432,7 @@ body.laria-world-surface :is(#progress-screen,#continent-screen,#detail-screen)>
   z-index:0;
   right:12px;top:10px;
   width:72px;height:82px;
-  background:url('./lia-fox-explorer-home.webp') center/contain no-repeat;
+  background:var(--laria-guide-image,url('./lia-fox-explorer-home.webp')) center/contain no-repeat;
   opacity:.20;
   pointer-events:none;
 }
@@ -488,7 +488,7 @@ body.laria-world-surface :is(#progress-screen,#continent-screen,#detail-screen)>
 #complete-screen .complete:after{
   content:"";
   right:4%;top:42px;width:84px;height:96px;
-  background:url('./lia-fox-explorer-home.webp') center/contain no-repeat;
+  background:var(--laria-guide-image,url('./lia-fox-explorer-home.webp')) center/contain no-repeat;
   filter:drop-shadow(0 7px 6px rgba(53,43,31,.14));
 }
 #complete-screen .young-reward,#complete-screen .summary{
@@ -508,7 +508,7 @@ body.laria-world-surface :is(#progress-screen,#continent-screen,#detail-screen)>
 }
 #progress-screen .progress-page-banner:after{
   content:"";position:absolute;right:3%;bottom:-5px;width:112px;height:138px;
-  background:url('./lia-fox-explorer-home.webp') center bottom/contain no-repeat;
+  background:var(--laria-guide-image,url('./lia-fox-explorer-home.webp')) center bottom/contain no-repeat;
   filter:drop-shadow(0 9px 7px rgba(53,43,31,.17));pointer-events:none;z-index:5
 }
 #progress-screen .progress-page-copy{position:relative;z-index:6;width:65%}

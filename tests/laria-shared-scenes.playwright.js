@@ -32,7 +32,10 @@ let browser;
         showScreen('session');renderQuestion();
       },kind);
       await page.locator('.laria-task-card').waitFor({state:'visible'});
+      await page.evaluate(()=>document.fonts.ready);
       assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),`${name}/${kind}: overflow`);
+      assert.equal(await page.locator('.task-fox-companion').evaluate(e=>getComputedStyle(e).position),'absolute','Fox must sit in its reserved corner');
+      assert.match(await page.locator('.question').evaluate(e=>getComputedStyle(e).fontFamily),/LariaRounded/);
     }
     for(const subject of ['english','math','norwegian','geography']){
       await fixture(subject);
@@ -54,6 +57,10 @@ let browser;
         await page.locator('#check-build').click();
       }
       assert(await page.evaluate(()=>currentAnswered?.correct),`${name}/${subject}: answer not recorded`);
+      if(subject==='norwegian'){
+        await page.evaluate(()=>renderQuestion());
+        assert.equal(await page.locator('.letter-slot.filled').count(),await page.evaluate(()=>sessionQuestions[0].answer.length),'Restored answer must remain visible');
+      }
       assert(await page.locator('#next-question').isVisible());
       await page.locator('#next-question').click();
       assert.equal(await page.evaluate(()=>qIndex),1);
@@ -67,6 +74,7 @@ let browser;
     await page.locator('[data-answer="house"]').click();
     await page.locator('#next-question').click();
     await page.locator('#complete-screen.active').waitFor();
+    assert.match(await page.locator('#complete-screen').evaluate(e=>getComputedStyle(e).backgroundImage),/engelsk-verden/);
     await page.screenshot({path:`${output}/${name}-complete.png`,fullPage:true});
     for(const kind of ['sentence','passage','sequence','map']){
       await fixture(kind);
@@ -74,6 +82,7 @@ let browser;
     }
     for(const lab of ['Fraction','Multiplication']){
       await page.evaluate(lab=>window['open'+lab+'Lab'](),lab);
+      assert.equal(Math.round(await page.locator('.app').evaluate(e=>e.getBoundingClientRect().width)),width,'Lab world must fill viewport');
       assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),`${name}/${lab}: overflow`);
       await page.screenshot({path:`${output}/${name}-${lab}.png`,fullPage:true});
     }

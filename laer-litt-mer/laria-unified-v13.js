@@ -14,6 +14,8 @@ else ensureThemeArtifacts();
 const worldScreens=new Set(['complete-screen','progress-screen','continent-screen','detail-screen','fraction-lab-screen','multiplication-lab-screen']);
 function syncWorldSurface(){
   const active=document.querySelector('.screen.active');
+  const avatar=(typeof state!=='undefined'&&state?.profile?.avatar==='girl')?'girl':'boy';
+  document.body.style.setProperty('--laria-guide-image','url("./task-fox-'+avatar+'-v21.webp")');
   document.body.classList.toggle('laria-world-surface',worldScreens.has(active?.id));
   if(active?.id==='complete-screen'){
     active.dataset.sceneSubject=(typeof sessionScope!=='undefined'&&sessionScope?.subject)||'geography';
