@@ -337,3 +337,29 @@
   #world-screen.active .globe-status span{font-size:8px!important}
   #world-screen.active .premium-country-learn{min-height:42px!important;font-size:10px!important;border-radius:12px!important}
 }
+
+
+/* v20c precision pass: align the live sphere to the approved brass-ring artwork. */
+#world-screen.active .globe-wrap{
+  left:51.46%!important;
+  top:51.72%!important;
+  width:47.75%!important;
+}
+#world-screen.active .globe-zoom{
+  right:-43.5%!important;
+  top:7.6%!important;
+}
+/* Keep the exact approved artwork pin-sharp. Never stretch a tiny fallback. */
+#world-screen.active{
+  image-rendering:auto!important;
+}
+#world-screen.active.globe-v20-live #globe-canvas{
+  filter:saturate(1.22) contrast(1.045) brightness(1.01) drop-shadow(0 10px 16px rgba(20,45,43,.18))!important;
+}
+@media(max-width:760px){
+  #world-screen.active .globe-wrap{
+    left:51.46%!important;
+    top:51.72%!important;
+    width:47.75%!important;
+  }
+}
