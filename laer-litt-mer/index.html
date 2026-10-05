@@ -2205,6 +2205,128 @@
       .grade-band-young .dashboard-world-column{order:1!important}.grade-band-young .dashboard-progress-panel{order:2!important}
     }
 
+
+
+    /* Læria young home v7 — hard child-first override for grades 1–2, including iPad landscape. */
+    .grade-band-young .streak-chip{display:none!important}
+    .grade-band-young .grade-chip:after{content:" ✨"}
+
+    .grade-band-young .dashboard-welcome{
+      min-height:225px!important;
+      grid-template-columns:minmax(0,1fr) 168px!important;
+      grid-template-areas:"copy mascot"!important;
+      align-items:center!important;
+      padding:22px 14px 20px 22px!important;
+      border-radius:36px!important;
+      background:
+        radial-gradient(circle at 84% 22%,rgba(255,255,255,.88) 0 16px,transparent 17px),
+        radial-gradient(circle at 91% 27%,rgba(255,255,255,.72) 0 9px,transparent 10px),
+        linear-gradient(145deg,#BFEAFF 0%,#DFF5FF 46%,#EFE4FF 100%)!important;
+    }
+    .grade-band-young .dashboard-welcome-copy{align-self:center!important}
+    .grade-band-young .dashboard-welcome h1{
+      font-size:35px!important;line-height:.98!important;max-width:360px!important;
+      color:#263B59!important
+    }
+    .grade-band-young .dashboard-welcome .hero-copy{
+      display:block!important;max-width:345px!important;font-size:14px!important;line-height:1.35!important;margin-top:10px!important
+    }
+    .grade-band-young .dashboard-mascot{
+      width:172px!important;height:190px!important;margin:0 -10px -5px auto!important
+    }
+    .grade-band-young .dashboard-welcome .home-progress-banner{display:none!important}
+
+    .grade-band-young .home-continue{
+      min-height:315px!important;border-radius:36px!important;
+      background:
+        linear-gradient(180deg,rgba(17,32,53,.02) 0 34%,rgba(19,31,48,.15) 53%,rgba(22,32,51,.88) 100%),
+        url('./bokskogen-atlas32.webp') center 49%/cover no-repeat!important;
+      box-shadow:0 10px 0 rgba(72,76,121,.08),0 24px 38px rgba(55,65,98,.16)!important
+    }
+    .grade-band-young .home-continue:after{
+      content:"🦊  Jeg er klar!"!important;position:absolute!important;z-index:3!important;
+      left:18px!important;top:18px!important;padding:8px 11px!important;border-radius:16px 16px 16px 5px!important;
+      background:rgba(255,255,255,.94)!important;color:#3B4A60!important;font-size:11px!important;font-weight:950!important;
+      box-shadow:0 5px 13px rgba(37,50,71,.12)!important
+    }
+    .grade-band-young .home-journey-content{padding:84px 20px 19px!important}
+    .grade-band-young .home-continue h2{font-size:34px!important;max-width:78%!important}
+    .grade-band-young .home-continue p{font-size:14px!important}
+    .grade-band-young .home-continue .primary{
+      width:auto!important;min-width:170px!important;min-height:58px!important;
+      font-size:17px!important;border-radius:20px!important
+    }
+
+    .grade-band-young .dashboard-section-title{margin-top:20px!important}
+    .grade-band-young .dashboard-section-title h3{font-size:27px!important}
+    .grade-band-young .home-subject-grid{
+      grid-template-columns:repeat(2,minmax(0,1fr))!important;
+      gap:14px!important;max-width:100%!important
+    }
+    .grade-band-young .home-subject{
+      height:235px!important;min-height:235px!important;border-radius:32px!important;border-width:4px!important
+    }
+    .grade-band-young .home-subject-art{border-radius:28px!important}
+    .grade-band-young .home-world-label{
+      left:12px!important;top:12px!important;padding:6px 10px!important;font-size:10px!important
+    }
+    .grade-band-young .home-subject-body{left:14px!important;right:12px!important;bottom:38px!important}
+    .grade-band-young .home-subject-copy strong{font-size:25px!important}
+    .grade-band-young .home-subject-arrow{width:36px!important;height:36px!important;font-size:25px!important}
+    .grade-band-young .home-subject-progress{left:14px!important;bottom:10px!important;font-size:10px!important;padding:5px 8px!important}
+
+    /* The home should end in rewards, not another adult dashboard/world panel. */
+    .grade-band-young .dashboard-main-grid{margin-top:17px!important}
+    .grade-band-young .dashboard-world-column{display:none!important}
+    .grade-band-young .dashboard-progress-panel{
+      display:block!important;padding:16px!important;border-radius:29px!important;
+      background:linear-gradient(145deg,#FFF1B9,#FFF9E1)!important
+    }
+    .grade-band-young .dashboard-panel-heading h3{font-size:23px!important}
+    .grade-band-young .young-reference-progress{padding:13px!important;border-radius:20px!important}
+    .grade-band-young .young-reference-progress-icon{width:54px!important;height:54px!important;font-size:30px!important}
+    .grade-band-young .young-reference-progress-copy strong{font-size:14px!important}
+    .grade-band-young .young-achievement{padding:10px 4px 9px!important;border-radius:16px!important}
+    .grade-band-young .young-achievement span{width:34px!important;height:34px!important;font-size:19px!important}
+    .grade-band-young .young-achievement b{font-size:9px!important}
+
+    .grade-band-young .nav{
+      max-width:1024px!important;grid-template-columns:repeat(4,1fr)!important;
+      padding-top:7px!important
+    }
+    .grade-band-young .nav button{min-height:61px!important;font-size:10px!important}
+    .grade-band-young .nav button span{font-size:24px!important}
+
+    /* Crucial: wide iPads stay playful. Do NOT collapse young home into four desktop cards. */
+    @media (min-width:700px){
+      .grade-band-young #home-screen{padding-left:26px!important;padding-right:26px!important}
+      .grade-band-young .dashboard-welcome{
+        grid-template-columns:minmax(0,1fr) 220px!important;min-height:255px!important;
+        padding:25px 24px 22px 30px!important
+      }
+      .grade-band-young .dashboard-welcome h1{font-size:43px!important;max-width:520px!important}
+      .grade-band-young .dashboard-welcome .hero-copy{font-size:16px!important;max-width:500px!important}
+      .grade-band-young .dashboard-mascot{width:215px!important;height:225px!important}
+      .grade-band-young .home-continue{min-height:365px!important}
+      .grade-band-young .home-continue h2{font-size:39px!important}
+      .grade-band-young .home-subject-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:16px!important}
+      .grade-band-young .home-subject{height:270px!important;min-height:270px!important}
+      .grade-band-young .home-subject-copy strong{font-size:28px!important}
+      .grade-band-young .dashboard-main-grid{display:block!important}
+      .grade-band-young .dashboard-progress-panel{max-width:none!important}
+    }
+
+    @media (max-width:420px){
+      .grade-band-young .dashboard-welcome{grid-template-columns:minmax(0,1fr) 118px!important;min-height:200px!important;padding:18px 9px 16px 16px!important}
+      .grade-band-young .dashboard-welcome h1{font-size:29px!important;max-width:235px!important}
+      .grade-band-young .dashboard-welcome .hero-copy{font-size:11px!important;max-width:225px!important}
+      .grade-band-young .dashboard-mascot{width:122px!important;height:145px!important}
+      .grade-band-young .home-continue{min-height:270px!important}
+      .grade-band-young .home-continue h2{font-size:29px!important}
+      .grade-band-young .home-subject{height:192px!important;min-height:192px!important}
+      .grade-band-young .home-subject-copy strong{font-size:20px!important}
+    }
+
 </style>
   <link rel="stylesheet" href="./fraction-lab.css?v=20261003-mobile2" />
   <link rel="stylesheet" href="./multiplication-lab.css?v=20261003-table1" />
@@ -2314,7 +2436,7 @@
 
       <div class="home-subject-grid" aria-label="Velg fag">
         <button class="home-subject geography" id="open-geography" type="button">
-          <div class="home-subject-art" aria-hidden="true"><img src="./geografi-verden.png" alt="" loading="lazy" width="600" height="400"><span class="home-world-label">Verden venter</span></div>
+          <div class="home-subject-art" aria-hidden="true"><img src="./geografi-verden.png" alt="" loading="lazy" width="600" height="400"><span class="home-world-label">Oppdagelsesriket</span></div>
           <div class="home-subject-body">
             <div class="home-subject-icon">🌍</div><div class="home-subject-copy"><strong>Geografi</strong><p>Utforsk verden og se landene få farge.</p></div><span class="home-subject-arrow">›</span>
           </div>
@@ -2338,7 +2460,7 @@
         </button>
 
         <button class="home-subject english" id="open-english" type="button">
-          <div class="home-subject-art" aria-hidden="true"><img src="./engelsk-verden.png" alt="" loading="lazy" width="600" height="400"><span class="home-world-label">En verden av ord</span></div>
+          <div class="home-subject-art" aria-hidden="true"><img src="./engelsk-verden.png" alt="" loading="lazy" width="600" height="400"><span class="home-world-label">Ordlandsbyen</span></div>
           <div class="home-subject-body">
             <div class="home-subject-icon">🇬🇧</div><div class="home-subject-copy"><strong>Engelsk</strong><p>Words, sentences and real-world English.</p></div><span class="home-subject-arrow">›</span>
           </div>
@@ -3283,7 +3405,7 @@ function renderAll(){
   const grade=currentGrade(),cfg=gradeConfig(),known=knownCountryCount(),nordicPct=pctFor(NORDIC_IDS),young=grade<=2,band=gradeBand();
   applyGradeDesign();
   const tone={
-    young:{title:'Hvor skal vi dra i dag?',copy:'Reven venter på deg. Velg en verden, finn neste sted og lær noe nytt på veien.',subject:'Velg en verden ✨',pEye:'Skattene dine',pTitle:'Se hva du har samlet! ⭐',pCopy:'Hver lille seier gjør samlingen din større.',nav:'Trofeer',explore:'Kloden',avatar:'🦊',icons:{geography:'🌍',norwegian:'📖',math:'🔢',english:'💬'}},
+    young:{title:'Hvor skal vi dra i dag?',copy:'Reven er klar! Velg en verden, finn neste sted og lær noe nytt på veien.',subject:'Velg en verden ✨',pEye:'Skattene dine',pTitle:'Se hva du har samlet! ⭐',pCopy:'Hver lille seier gjør samlingen din større.',nav:'Trofeer',explore:'Kloden',avatar:'🦊',icons:{geography:'🌍',norwegian:'📖',math:'🔢',english:'💬'}},
     middle:{title:'Hei! 👋',copy:'Klar for nye utfordringer? Utforsk, løs oppdrag og bygg videre.',subject:'Velg fag',pEye:'Din oppdagelsesreise',pTitle:'Se hva du har lært',pCopy:'Her ser du det du har oppdaget, øvd på og fått bedre tak på.',nav:'Fremgang',explore:'Utforsk',avatar:'🧭',icons:{geography:'🌍',norwegian:'📚',math:'✖️',english:'💬'}},
     older:{title:'Hva vil du bli bedre på i dag?',copy:'Velg et fag og bygg kunnskap med korte økter og tydelig fremgang.',subject:'Dine fag',pEye:'Din fremgang',pTitle:'Kunnskap du bygger',pCopy:'Følg hva du mestrer, hva du øver på og hva som er smart å repetere.',nav:'Fremgang',explore:'Utforsk',avatar:'🌐',icons:{geography:'🌐',norwegian:'Aa',math:'∑',english:'EN'}},
     teen:{title:'Fortsett fremgangen din',copy:'Fortsett der du slapp, eller velg et fag og jobb videre mot neste mål.',subject:'Fag',pEye:'Oversikt',pTitle:'Fremgang og mestring',pCopy:'Se aktivitet, mestring og områder som er klare for videre arbeid.',nav:'Fremgang',explore:'Utforsk',avatar:'◎',icons:{geography:'GEO',norwegian:'NO',math:'∑',english:'EN'}}
@@ -3299,6 +3421,17 @@ function renderAll(){
   document.getElementById('nav-home-label').textContent='Hjem';
   document.getElementById('nav-progress-label').textContent=tone.nav;
   const navExploreLabel=document.getElementById('nav-explore-label');if(navExploreLabel)navExploreLabel.textContent=tone.explore||'Utforsk';
+  const youngNav=band==='young';
+  const navHome=document.querySelector('#bottom-nav [data-tab="home"] span');
+  const navExploreIcon=document.querySelector('#nav-explore span');
+  const navTasksIcon=document.querySelector('#nav-tasks span');
+  const navTasksLabel=document.querySelector('#nav-tasks b');
+  const navProgressIcon=document.querySelector('#bottom-nav [data-tab="progress"] span');
+  if(navHome)navHome.textContent=youngNav?'🏠':'⌂';
+  if(navExploreIcon)navExploreIcon.textContent=youngNav?'🌍':'◉';
+  if(navTasksIcon)navTasksIcon.textContent=youngNav?'🗺️':'★';
+  if(navTasksLabel)navTasksLabel.textContent=youngNav?'Oppdrag':'Oppgaver';
+  if(navProgressIcon)navProgressIcon.textContent=youngNav?'🏆':'↗';
   const panelTitle=document.getElementById('home-progress-panel-title'),panelKicker=document.getElementById('home-progress-panel-kicker');
   if(panelTitle)panelTitle.textContent=band==='young'?'Stjernene dine ⭐':band==='middle'?'Din fremgang':band==='older'?'Fremgang':'Oversikt';
   if(panelKicker)panelKicker.textContent=band==='young'?'DIN SAMLING':band==='middle'?'DENNE UKEN':band==='older'?'UTVIKLING':'STATUS';
@@ -5080,25 +5213,29 @@ function recommendedStarter(){
 function renderHomeContinue(){
   const wrap=document.getElementById('home-continue-wrap');if(!wrap)return;
   wrap.hidden=false;
-  const eye=document.getElementById('home-continue-eyebrow');
+  const eye=document.getElementById('home-continue-eyebrow'),young=currentGrade()<=2;
+  const worldNames={norwegian:'Bokskogen',math:'Tallriket',english:'Ordlandsbyen',geography:'Oppdagelsesriket'};
   const homeSubject=state.activeSession?.scope?.subject||state.lastActivity?.subject||'geography';
   wrap.dataset.subject=['norwegian','math','english'].includes(homeSubject)?homeSubject:'geography';
   const active=state.activeSession?.scope;
   if(state.activeSession&&active){
-    eye.textContent='Fortsett der du slapp';
-    document.getElementById('home-continue-title').textContent=active.subject&&active.subject!=='geography'?(SUBJECTS[active.subject]?.title||'Fortsett'):'Geografi';
+    const subject=['norwegian','math','english'].includes(active.subject)?active.subject:'geography';
+    wrap.dataset.subject=subject;
+    eye.textContent=young?'REVEN VENTER HER':'Fortsett der du slapp';
+    document.getElementById('home-continue-title').textContent=young?worldNames[subject]:(active.subject&&active.subject!=='geography'?(SUBJECTS[active.subject]?.title||'Fortsett'):'Geografi');
     const done=Math.max(0,Number(state.activeSession.qIndex||0)),total=Array.isArray(state.activeSession.questions)?state.activeSession.questions.length:5;
-    document.getElementById('home-continue-copy').textContent=(active.label||'Pågående økt')+' · '+done+' av '+total+' ferdig';
-    document.getElementById('home-continue-button').textContent='Fortsett økten →';
+    document.getElementById('home-continue-copy').textContent=young?((active.label||'Oppdrag')+' · '+Math.max(0,total-done)+' igjen'):((active.label||'Pågående økt')+' · '+done+' av '+total+' ferdig');
+    document.getElementById('home-continue-button').textContent=young?'Fortsett eventyret →':'Fortsett økten →';
     document.getElementById('home-continue-button').onclick=()=>startSession();
     return;
   }
-  const rec=recommendedStarter(),young=currentGrade()<=2,goal=dailyGoal();
-  wrap.dataset.subject=rec.title.startsWith('Norsk')?'norwegian':rec.title.startsWith('Matte')?'math':rec.title.startsWith('Engelsk')?'english':'geography';
-  eye.textContent=young?(goal.done>=goal.target?'Dagens oppdrag fullført':'Anbefalt nå'):'Anbefalt nå';
-  document.getElementById('home-continue-title').textContent=young?(goal.done>=goal.target?'Du klarte det! ⭐':rec.title):rec.title;
-  document.getElementById('home-continue-copy').textContent=young?(goal.done>=goal.target?'Du har gjort dagens lille oppdrag. Nå kan du utforske fritt, eller være ferdig.':rec.copy):rec.copy;
-  document.getElementById('home-continue-button').textContent=young?(goal.done>=goal.target?'Utforsk videre →':'Start oppdraget →'):'Start en liten økt →';
+  const rec=recommendedStarter(),goal=dailyGoal();
+  const subject=rec.title.startsWith('Norsk')?'norwegian':rec.title.startsWith('Matte')?'math':rec.title.startsWith('Engelsk')?'english':'geography';
+  wrap.dataset.subject=subject;
+  eye.textContent=young?(goal.done>=goal.target?'STJERNE VUNNET ⭐':'NESTE EVENTYR'):'Anbefalt nå';
+  document.getElementById('home-continue-title').textContent=young?(goal.done>=goal.target?'Bra jobbet!':worldNames[subject]):rec.title;
+  document.getElementById('home-continue-copy').textContent=young?(goal.done>=goal.target?'Dagens stjerne er din. Du kan utforske videre hvis du vil.':('Neste stopp: '+rec.title)):rec.copy;
+  document.getElementById('home-continue-button').textContent=young?(goal.done>=goal.target?'Utforsk videre →':'Dra dit →'):'Start en liten økt →';
   document.getElementById('home-continue-button').onclick=rec.action;
 }
 function renderFoxGuide(){
