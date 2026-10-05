@@ -1,5 +1,5 @@
 /* Læria Oppgavescene v14
-   Shared premium task surface for Norwegian and English.
+   Shared storybook task surface for every subject.
    Keeps the child's learning world visible while the task stays calm and readable. */
 
 body.laria-task-scene-open{
@@ -9,7 +9,7 @@ body.laria-task-scene-open{
   background:#203d55;
 }
 body.laria-task-scene-open .app{
-  width:min(100%,980px);
+  width:100%;
   max-width:none;
   min-height:100dvh;
   padding-bottom:0!important;
@@ -70,8 +70,11 @@ body.laria-task-scene-open #bottom-nav{
   --task-answer-edge:#b57a33;
   --task-answer-shadow:#895824;
 }
+#session-screen.task-scene[data-task-subject="math"]{--task-world:url("./matte-verden.png");}
+#session-screen.task-scene[data-task-subject="geography"]{--task-world:url("./geografi-verden.png");}
 
 #session-screen.task-scene .session{
+  max-width:none;
   position:relative;
   z-index:1;
   width:100%;
@@ -190,14 +193,21 @@ body.laria-task-scene-open #bottom-nav{
 #session-screen.task-scene #question-wrap{
   position:relative;
   z-index:3;
-  width:min(100%,820px);
+  width:min(100%,940px);
   margin:0 auto;
   align-self:start;
+  padding:0;
+  border:0;
+  border-radius:0;
+  background:none;
+  box-shadow:none;
+  overflow:visible;
 }
+#session-screen.task-scene #question-wrap:after{display:none;}
 #session-screen.task-scene .laria-task-card{
   position:relative;
   width:100%;
-  min-height:min(610px,calc(100dvh - 106px));
+  min-height:0;
   padding:clamp(24px,4vw,38px) clamp(18px,4.6vw,44px) clamp(25px,4vw,40px);
   border:3px solid rgba(190,128,48,.72);
   border-radius:clamp(28px,4vw,42px);
@@ -246,7 +256,7 @@ body.laria-task-scene-open #bottom-nav{
   align-items:center;
   justify-content:center;
   gap:9px 12px;
-  padding-right:96px;
+  padding:0 104px 0 0;
 }
 #session-screen.task-scene .qtype{
   padding:8px 18px;
@@ -293,12 +303,12 @@ body.laria-task-scene-open #bottom-nav{
 }
 
 #session-screen.task-scene .question{
-  max-width:690px;
+  max-width:calc(100% - 150px);
   margin:clamp(16px,2.8vh,27px) auto 10px;
   color:var(--task-ink);
   text-align:center;
   font-size:clamp(30px,5.7vw,48px);
-  line-height:1.03;
+  line-height:1.12;
   letter-spacing:-.045em;
   font-weight:1000;
   text-wrap:balance;
@@ -369,6 +379,14 @@ body.laria-task-scene-open #bottom-nav{
   filter:drop-shadow(0 10px 7px rgba(79,72,48,.18));
   animation:taskObjectFloat 3.1s ease-in-out infinite;
 }
+#session-screen.task-scene .task-object-art{
+  display:block;
+  width:clamp(175px,28vh,270px);
+  height:clamp(175px,28vh,270px);
+  max-width:100%;
+  object-fit:contain;
+  filter:drop-shadow(0 12px 9px rgba(79,72,48,.14));
+}
 #session-screen.task-scene .task-fox-companion{
   position:absolute;
   z-index:4;
@@ -402,7 +420,7 @@ body.laria-task-scene-open #bottom-nav{
 }
 #session-screen.task-scene .text-only .task-fox-companion,
 #session-screen.task-scene .has-passage .task-fox-companion{
-  top:78px;
+  top:85px;
   width:78px;
   height:94px;
   opacity:.92;
@@ -417,7 +435,7 @@ body.laria-task-scene-open #bottom-nav{
   gap:12px;
 }
 #session-screen.task-scene .short-answers .answers{
-  grid-template-columns:repeat(3,minmax(0,1fr));
+  grid-template-columns:repeat(var(--answer-count,3),minmax(0,1fr));
 }
 #session-screen.task-scene .medium-answers .answers{
   grid-template-columns:repeat(2,minmax(0,1fr));
@@ -508,7 +526,12 @@ body.laria-task-scene-open #bottom-nav{
 #session-screen.task-scene .math-input{
   border-color:#d5a464;
   background:#fffaf0;
+  width:100%;max-width:340px;justify-self:center;
+  min-height:78px;font-size:36px;color:var(--task-ink);
 }
+#session-screen.task-scene :is(button,input):focus-visible{outline:3px solid #226bb0;outline-offset:4px;}
+#session-screen.task-scene .task-type-map .task-interaction{width:100%;}
+#session-screen.task-scene .text-only .task-interaction{margin-top:34px;}
 
 #session-screen.task-scene .feedback{
   width:min(100%,690px);
@@ -606,7 +629,7 @@ body.laria-task-scene-open #bottom-nav{
     padding-right:34px;
   }
   #session-screen.task-scene .laria-task-card{
-    min-height:min(650px,calc(100dvh - 108px));
+    min-height:0;
   }
   #session-screen.task-scene .task-visual-row{
     min-height:226px;
@@ -628,6 +651,7 @@ body.laria-task-scene-open #bottom-nav{
     padding-right:10px;
   }
   #session-screen.task-scene .session-top{
+    grid-template-columns:auto minmax(45px,1fr) auto;
     gap:7px;
     margin-bottom:11px;
   }
@@ -655,7 +679,7 @@ body.laria-task-scene-open #bottom-nav{
     font-size:10px;
   }
   #session-screen.task-scene .laria-task-card{
-    min-height:calc(100dvh - 91px);
+    min-height:0;
     padding:20px 14px 24px;
     border-width:2.5px;
     border-radius:27px;
@@ -675,15 +699,11 @@ body.laria-task-scene-open #bottom-nav{
     font-size:10px;
   }
   #session-screen.task-scene .task-world-chip{
-    top:17px;
-    right:13px;
-    max-width:72px;
-    padding:6px 7px;
-    font-size:7px;
-    overflow:hidden;
-    text-overflow:ellipsis;
+    display:none;
   }
   #session-screen.task-scene .question{
+    max-width:100%;
+    padding-right:0;
     margin-top:17px;
     font-size:clamp(28px,9vw,38px);
   }
@@ -710,17 +730,17 @@ body.laria-task-scene-open #bottom-nav{
     font-size:clamp(74px,24vw,102px);
   }
   #session-screen.task-scene .task-fox-companion{
-    top:112px;
+    top:14px;
     right:10px;
-    width:66px;
-    height:83px;
+    width:49px;
+    height:61px;
   }
   #session-screen.task-scene .text-only .task-fox-companion,
   #session-screen.task-scene .has-passage .task-fox-companion{
-    top:78px;
-    width:54px;
-    height:67px;
-    opacity:.74;
+    top:14px;
+    width:49px;
+    height:61px;
+    opacity:1;
   }
   #session-screen.task-scene .task-interaction{
     margin-top:10px;
@@ -758,7 +778,7 @@ body.laria-task-scene-open #bottom-nav{
     display:none;
   }
   #session-screen.task-scene .task-card-head{
-    padding-right:0;
+    padding-right:48px;
   }
 }
 

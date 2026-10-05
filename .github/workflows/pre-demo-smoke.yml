@@ -13,6 +13,27 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  laria-scenes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Verify shared learning scenes and progression
+        run: node tests/laria-shared-scenes.playwright.js
+      - name: Keep responsive scene screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-scenes-${{ github.run_id }}
+          path: /tmp/laria-scenes-qa
+          retention-days: 7
+
   smoke:
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -52,7 +73,7 @@ jobs:
           retention-days: 7
 
   pages-config:
-    needs: smoke
+    needs: [smoke, laria-scenes]
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     permissions:

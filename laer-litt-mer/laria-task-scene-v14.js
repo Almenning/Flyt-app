@@ -1,12 +1,13 @@
 /* Læria Oppgavescene v14
-   Uses existing learning/session logic; replaces only the presentation for Norwegian and English. */
+   Shared presentation for all four subjects. Existing answer handlers own progression. */
 (function(){
   'use strict';
 
   if(typeof renderQuestion!=='function')return;
 
   const baseRenderQuestion=renderQuestion;
-  const sceneSubjects=new Set(['norwegian','english']);
+  const sceneSubjects=new Set(['norwegian','english','math','geography']);
+  const objectArt={'🏠':'house','🏡':'house','🐱':'cat','🐈':'cat','🐶':'dog','🐕':'dog','🍎':'apple','🌳':'tree','📘':'book','☀️':'sun','☀':'sun','⚽':'ball','🐟':'fish','🐭':'mouse','🚗':'car','🧀':'cheese','🍦':'icecream','⛵':'boat','🧢':'hat','👟':'shoe','🚆':'train','🐄':'cow','🐑':'lamb','☕':'cup','🛏️':'bed','🌙':'moon','🌼':'flower'};
   const screen=document.getElementById('session-screen');
   const closeButton=document.getElementById('close-session');
   const progressBar=document.getElementById('session-progress-bar');
@@ -37,10 +38,10 @@
     return prompt||((q?.subject==='english')?'Choose the right answer':'Velg riktig svar');
   }
   function sceneName(subject){
-    return subject==='english'?'Ordlandsbyen':'Bokskogen';
+    return {english:'Ordlandsbyen',norwegian:'Bokskogen',math:'Tallriket',geography:'Verden'}[subject];
   }
   function subjectName(subject){
-    return subject==='english'?'ENGLISH':'NORSK';
+    return {english:'ENGLISH',norwegian:'NORSK',math:'MATTE',geography:'GEOGRAFI'}[subject];
   }
   function foxSource(){
     const which=(typeof state!=='undefined'&&state?.profile?.avatar==='girl')?'girl':'boy';
@@ -71,7 +72,7 @@
     screen.dataset.taskSubject=q.subject;
     screen.dataset.taskBand=taskBand();
     document.body.classList.add('laria-task-scene-open');
-    closeButton.innerHTML='<span aria-hidden="true">‹</span><span>Hjem</span>';
+    closeButton.innerHTML='<span aria-hidden="true">‹</span><span>Tilbake</span>';
     closeButton.setAttribute('aria-label','Tilbake til faget');
   }
   function clearScene(){
@@ -85,6 +86,10 @@
     if(wrap)wrap.classList.remove('task-scene-wrap');
   }
   function interactionMarkup(q){
+    if(q.type==='map'&&!q.subject){
+      const region=q.mapRegion||countries[q.k].continent;
+      return '<div class="map-region">'+text(region)+'</div><div class="map quiz-real-map" id="quiz-map"><canvas id="quiz-map-canvas" aria-label="Kart over '+attr(region)+'"></canvas></div>';
+    }
     if(q.type==='build-word'){
       return '<div class="letter-slots" id="letter-slots"></div>'+
         '<div class="letter-helper" id="letter-helper" aria-live="polite">'+
@@ -108,7 +113,11 @@
     return '<div class="answers">'+options.map(o=>'<button class="answer" data-answer="'+attr(o)+'">'+text(o)+'</button>').join('')+'</div>';
   }
   function bindInteraction(q,wrap){
-    if(q.type==='build-word')renderBuildWord(q,wrap);
+    if(!q.subject){
+      if(q.type==='map')requestAnimationFrame(()=>renderQuizMap(q,currentAnswered));
+      else wrap.querySelectorAll('.answer').forEach(b=>b.onclick=()=>answerText(b.dataset.answer));
+    }
+    else if(q.type==='build-word')renderBuildWord(q,wrap);
     else if(q.type==='sentence-order')renderSentenceOrder(q,wrap);
     else if(q.type==='number-input')renderNumberInput(q,wrap);
     else if(q.type==='sequence-order')renderSequenceOrder(q,wrap);
@@ -116,6 +125,7 @@
   }
   function restoreAnswered(q,wrap){
     if(!currentAnswered)return;
+    if(!q.subject){applyAnsweredState(q,currentAnswered);return;}
     if(q.type==='learning-choice'){
       wrap.querySelectorAll('.answer').forEach(b=>{
         b.disabled=true;
@@ -125,16 +135,37 @@
     }
     const input=wrap.querySelector('#math-input');
     if(input){input.value=currentAnswered.selected??'';input.disabled=true}
+    if(q.type==='build-word'){
+      const selected=Array.from(String(currentAnswered.selected||''));
+      wrap.querySelectorAll('.letter-slot').forEach((slot,i)=>{
+        slot.textContent=selected[i]||'';slot.classList.toggle('filled',!!selected[i]);slot.disabled=true;
+        slot.setAttribute('aria-label','Rute '+(i+1)+': '+(selected[i]||'tom'));
+      });
+      wrap.querySelectorAll('.letter-tile,#check-build').forEach(b=>b.disabled=true);
+    }
+    if(q.type==='sentence-order'||q.type==='sequence-order'){
+      const target=wrap.querySelector('.sentence-target,.sequence-target');
+      if(target)target.textContent=String(currentAnswered.selected||'').replaceAll('|',' · ');
+      wrap.querySelectorAll('.word-tile,.sequence-tile,#check-sentence').forEach(b=>b.disabled=true);
+    }
     wrap.querySelectorAll('#check-number,#check-sequence').forEach(b=>b.disabled=true);
     showLearningFeedback(q,currentAnswered.correct);
   }
   function renderSceneQuestion(q){
-    activateScene(q);
+    const subject=q.subject||'geography';
+    activateScene({subject});
 
     const total=Math.max(1,sessionQuestions.length);
     const position=Math.max(0,Math.min(total,qIndex+1));
     progressBar.style.width=(qIndex/total*100)+'%';
+    const progress=progressBar.parentElement;
+    progress.setAttribute('role','progressbar');
+    progress.setAttribute('aria-label','Fullførte oppgaver');
+    progress.setAttribute('aria-valuemin','0');
+    progress.setAttribute('aria-valuemax',String(total));
+    progress.setAttribute('aria-valuenow',String(qIndex));
     countLabel.textContent='Oppdrag '+position+' av '+total;
+    countLabel.setAttribute('aria-live','polite');
 
     const wrap=document.getElementById('question-wrap');
     if(!wrap)return;
@@ -144,16 +175,19 @@
     const prompt=cleanPrompt(q);
     const mode=cardMode(q);
     const layout=answerLayout(q);
+    // Only replace an exact single object. Counting groups and flags retain their meaning.
+    const artwork=q.answer==='EPLER'&&q.visual==='🍎'?'apples':objectArt[String(q.visual||'').trim()];
+    const imageSource=q.visual==='🦊'?'./lia-fox-explorer-home.webp':artwork?'./task-'+artwork+'-v21.webp':null;
     const visual=q.visual
-      ? '<div class="task-visual-row"><div class="task-object-stage"><div class="big-flag" aria-hidden="true">'+text(q.visual)+'</div></div></div>'
+      ? '<div class="task-visual-row"><div class="task-object-stage">'+(imageSource?'<img class="task-object-art" src="'+imageSource+'" alt="'+attr(q.visual)+'">':'<div class="big-flag" aria-hidden="true">'+text(q.visual)+'</div>')+'</div></div>'
       : '';
     const passage=q.passage?'<div class="learning-passage">'+text(q.passage)+'</div>':'';
     const readButton=readAloudButton(q);
 
     wrap.innerHTML=
-      '<article class="laria-task-card '+mode+' '+layout+' '+taskTypeClass(q)+'">'+
-        '<div class="task-world-chip">'+text(sceneName(q.subject))+'</div>'+
-        '<div class="task-card-head"><div class="qtype">'+subjectName(q.subject)+' · '+text(String(gradeLabel).toUpperCase())+'</div>'+readButton+'</div>'+
+      '<article class="laria-task-card '+mode+' '+layout+' '+taskTypeClass(q)+'" style="--answer-count:'+Math.min(3,q.options?.length||3)+'">'+
+        '<div class="task-world-chip">'+text(sceneName(subject))+'</div>'+
+        '<div class="task-card-head"><div class="qtype">'+subjectName(subject)+' · '+text(String(gradeLabel).toUpperCase())+'</div>'+readButton+'</div>'+
         '<div class="question">'+text(prompt)+'</div>'+
         passage+
         visual+
@@ -172,7 +206,7 @@
 
   renderQuestion=function(){
     const q=sessionQuestions[qIndex];
-    if(q&&sceneSubjects.has(q.subject))return renderSceneQuestion(q);
+    if(q&&sceneSubjects.has(q.subject||'geography'))return renderSceneQuestion(q);
     clearScene();
     return baseRenderQuestion();
   };

@@ -2,7 +2,12 @@
    Applies the Ordjakt / premium storybook language across the rest of the app.
    Hjem v12 and Ordjakt remain their own locked reference surfaces. */
 
+@font-face{
+  font-family:LariaRounded;src:url('./fredoka-v21.ttf') format('truetype');
+  font-weight:300 700;font-style:normal;font-display:swap;
+}
 :root{
+  --laria-display:LariaRounded,ui-rounded,"Arial Rounded MT Bold",sans-serif;
   --laria-cream:#fff8e9;
   --laria-cream-2:#fffdf7;
   --laria-cream-3:#f6ead0;
@@ -16,6 +21,9 @@
   --laria-green:#70975f;
   --laria-shadow:0 8px 0 rgba(109,78,43,.10),0 18px 34px rgba(38,51,66,.10);
   --laria-card-shadow:0 6px 0 rgba(109,78,43,.09),0 13px 24px rgba(38,51,66,.08);
+}
+body.grade-band-young :is(h1,h2,h3,.question,.answer,.letter-tile,.letter-slot,.word-tile,.sequence-tile){
+  font-family:var(--laria-display);font-weight:600;letter-spacing:0;
 }
 
 /* App worlds outside the locked Home / Ordjakt. */
@@ -39,6 +47,32 @@
 }
 
 /* Global type + surfaces */
+/* Illustrated edges surround a calm readable panel, as in the task scene. */
+body.laria-world-surface .app{width:100%;max-width:none;background:#d9eee5;}
+body.laria-world-surface .screen.active{
+  min-height:100dvh;
+  padding:clamp(14px,3vw,34px) max(14px,calc((100vw - 960px)/2)) 40px;
+  background:linear-gradient(#fff8e918,#1d42382b),var(--surface-world,url('./basecamp-v11.webp')) center/cover fixed no-repeat;
+}
+body.laria-world-surface #complete-screen{--surface-world:url('./bokskogen-verden.png');}
+body.laria-world-surface #complete-screen[data-scene-subject="english"]{--surface-world:url('./engelsk-verden.png');}
+body.laria-world-surface #complete-screen[data-scene-subject="math"]{--surface-world:url('./matte-verden.png');}
+body.laria-world-surface #complete-screen[data-scene-subject="geography"]{--surface-world:url('./geografi-verden.png');}
+body.laria-world-surface :is(#progress-screen,#continent-screen,#detail-screen)>.section-title{
+  background:#fff5dc;border:2px solid #dbb77b;border-radius:18px;padding:12px 17px;
+}
+#fraction-lab-screen .fraction-lab-head,#multiplication-lab-screen .mult-lab-head{
+  position:relative;min-height:90px;padding-right:74px;
+}
+#fraction-lab-screen .fraction-lab-head:after,#multiplication-lab-screen .mult-lab-head:after{
+  content:"";position:absolute;right:0;top:0;width:70px;height:88px;
+  background:url('./lia-fox-explorer-home.webp') center/contain no-repeat;pointer-events:none;
+}
+@media(max-width:600px){
+  body.laria-world-surface .screen.active{padding:12px 10px 28px;}
+  body.laria-world-surface #progress-screen{padding-bottom:100px;}
+}
+
 #subject-screen h1,#subject-screen h2,#subject-screen h3,
 #geography-screen h1,#geography-screen h2,#geography-screen h3,
 #continent-screen h1,#continent-screen h2,#continent-screen h3,
@@ -367,19 +401,19 @@
 }
 
 /* Question / task flow */
-#session-screen{padding-top:max(8px,env(safe-area-inset-top))}
-#session-screen .session{max-width:920px;margin:0 auto;padding-top:4px}
-#session-screen .session-progress{
+#session-screen:not(.task-scene){padding-top:max(8px,env(safe-area-inset-top))}
+#session-screen:not(.task-scene) .session{max-width:920px;margin:0 auto;padding-top:4px}
+#session-screen:not(.task-scene) .session-progress{
   background:#e8dcc0!important;
   border:2px solid rgba(214,184,132,.82)!important;
   box-shadow:inset 0 2px 4px rgba(97,70,35,.05);
 }
-#session-screen .session-progress div{background:linear-gradient(90deg,#d6aa4f,#f0d176)!important}
-#session-screen #session-count{
+#session-screen:not(.task-scene) .session-progress div{background:linear-gradient(90deg,#d6aa4f,#f0d176)!important}
+#session-screen:not(.task-scene) #session-count{
   background:#fff8e8!important;border:2px solid #dbc08c;color:#685130!important;
   box-shadow:0 4px 0 rgba(105,75,37,.08)!important;
 }
-#session-screen #question-wrap{
+#session-screen:not(.task-scene) #question-wrap{
   position:relative;
   overflow:hidden;
   margin-top:8px;
@@ -392,7 +426,7 @@
     linear-gradient(180deg,rgba(255,253,247,.99),rgba(255,244,223,.99));
   box-shadow:var(--laria-shadow);
 }
-#session-screen #question-wrap:after{
+#session-screen:not(.task-scene) #question-wrap:after{
   content:"";
   position:absolute;
   z-index:0;
@@ -402,52 +436,54 @@
   opacity:.20;
   pointer-events:none;
 }
-#session-screen .question-tools,#session-screen .question,#session-screen .big-flag,
-#session-screen .learning-passage,#session-screen .answers,#session-screen .letter-slots,
-#session-screen .letter-helper,#session-screen .letter-bank,#session-screen .sentence-target,
-#session-screen .word-bank,#session-screen .number-input-wrap,#session-screen .sequence-target,
-#session-screen .sequence-bank,#session-screen .feedback,#session-screen .next,#session-screen .map-region,
-#session-screen .quiz-real-map{position:relative;z-index:1}
-#session-screen .qtype{
+#session-screen:not(.task-scene) .question-tools,#session-screen:not(.task-scene) .question,#session-screen:not(.task-scene) .big-flag,
+#session-screen:not(.task-scene) .learning-passage,#session-screen:not(.task-scene) .answers,#session-screen:not(.task-scene) .letter-slots,
+#session-screen:not(.task-scene) .letter-helper,#session-screen:not(.task-scene) .letter-bank,#session-screen:not(.task-scene) .sentence-target,
+#session-screen:not(.task-scene) .word-bank,#session-screen:not(.task-scene) .number-input-wrap,#session-screen:not(.task-scene) .sequence-target,
+#session-screen:not(.task-scene) .sequence-bank,#session-screen:not(.task-scene) .feedback,#session-screen:not(.task-scene) .next,#session-screen:not(.task-scene) .map-region,
+#session-screen:not(.task-scene) .quiz-real-map{position:relative;z-index:1}
+#session-screen:not(.task-scene) .qtype{
   background:#f7e7ba!important;border:2px solid #e0c68d;color:#6d5020!important;
 }
-#session-screen .read-aloud{
+#session-screen:not(.task-scene) .read-aloud{
   background:#fff8e8!important;border:2px solid #d8bf8d!important;color:#634d2d!important;
 }
-#session-screen .question{color:var(--laria-ink);font-size:clamp(29px,4.3vw,42px)}
-#session-screen .learning-passage,
-#session-screen .sentence-target,#session-screen .sequence-target,#session-screen .letter-slots{
+#session-screen:not(.task-scene) .question{color:var(--laria-ink);font-size:clamp(29px,4.3vw,42px)}
+#session-screen:not(.task-scene) .learning-passage,
+#session-screen:not(.task-scene) .sentence-target,#session-screen:not(.task-scene) .sequence-target,#session-screen:not(.task-scene) .letter-slots{
   background:rgba(255,250,240,.78)!important;
   border:2px dashed rgba(180,139,78,.38)!important;
   border-radius:21px!important;
 }
-#session-screen .answer,#session-screen .word-tile,#session-screen .sequence-tile,
-#session-screen .sequence-target button,#session-screen .letter-tile,#session-screen .math-input{
+#session-screen:not(.task-scene) .answer,#session-screen:not(.task-scene) .word-tile,#session-screen:not(.task-scene) .sequence-tile,
+#session-screen:not(.task-scene) .sequence-target button,#session-screen:not(.task-scene) .letter-tile,#session-screen:not(.task-scene) .math-input{
   background:linear-gradient(180deg,#fffdf8,#fff2db)!important;
   color:var(--laria-ink)!important;
   border:2px solid #dfc698!important;
   box-shadow:0 6px 0 rgba(117,84,43,.10),0 12px 22px rgba(48,53,69,.06)!important;
 }
-#session-screen .answer.correct{
+#session-screen:not(.task-scene) .answer.correct{
   background:linear-gradient(180deg,#f5fff6,#e2f6e7)!important;
   border-color:#91c39e!important;color:#2b6745!important;
   box-shadow:0 6px 0 #b5d9bc!important;
 }
-#session-screen .answer.wrong{
+#session-screen:not(.task-scene) .answer.wrong{
   background:linear-gradient(180deg,#fff8f5,#ffebe6)!important;
   border-color:#e2a99f!important;color:#8a493f!important;
   box-shadow:0 6px 0 #efc6bf!important;
 }
-#session-screen .feedback{
+#session-screen:not(.task-scene) .feedback{
   background:linear-gradient(180deg,#fff9e9,#f8edcf)!important;
   border:2px solid #e4c88e!important;color:#5d482b!important;
 }
-#session-screen .feedback.bad{background:linear-gradient(180deg,#fff8f0,#fde9d7)!important;border-color:#e8c19c!important}
-#session-screen .map{border:2px solid #dbc08c!important;box-shadow:var(--laria-card-shadow)!important}
+#session-screen:not(.task-scene) .feedback.bad{background:linear-gradient(180deg,#fff8f0,#fde9d7)!important;border-color:#e8c19c!important}
+#session-screen:not(.task-scene) .map{border:2px solid #dbc08c!important;box-shadow:var(--laria-card-shadow)!important}
 
 /* Completion / rewards */
 #complete-screen .complete{
-  max-width:760px;margin:0 auto;padding:34px 8px 24px;
+  position:relative;max-width:760px;margin:24px auto;padding:34px clamp(18px,4vw,42px) 30px;
+  background:linear-gradient(145deg,#fffbea,#fff0ca);
+  border:3px solid #c99a58;border-radius:34px;box-shadow:0 8px 0 #8b603b55,0 24px 50px #18362c40;
 }
 #complete-screen .complete:after{
   content:"";
@@ -500,13 +536,13 @@
 /* Fraction lab: keep the manipulative colors, unify the surrounding product shell. */
 #fraction-lab-screen{
   background:
-    linear-gradient(180deg,rgba(255,248,230,.94),rgba(237,246,236,.96)),
+    linear-gradient(180deg,rgba(255,248,230,.10),rgba(31,74,61,.18)),
     url('./matte-verden.png') center/cover fixed no-repeat!important;
 }
 #fraction-lab-screen .fraction-lab-shell{
-  max-width:980px;margin:0 auto;padding:14px;
-  border:2px solid rgba(214,184,132,.82);border-radius:29px;
-  background:rgba(255,249,237,.94);box-shadow:var(--laria-shadow)
+  max-width:980px;margin:24px auto;padding:clamp(16px,3vw,32px);
+  border:3px solid #c99a58;border-radius:32px;
+  background:linear-gradient(145deg,#fffbea,#fff0d4);box-shadow:0 8px 0 #8b603b55,0 24px 50px #18362c40
 }
 #fraction-lab-screen .fraction-lab-head-copy h1{color:var(--laria-ink)!important}
 #fraction-lab-screen .lab-mode-tabs,#fraction-lab-screen .lab-variants,
@@ -539,13 +575,13 @@
 /* Multiplication lab */
 #multiplication-lab-screen{
   background:
-    linear-gradient(180deg,rgba(255,248,230,.94),rgba(237,246,236,.96)),
+    linear-gradient(180deg,rgba(255,248,230,.10),rgba(31,74,61,.18)),
     url('./matte-verden.png') center/cover fixed no-repeat!important;
 }
 #multiplication-lab-screen .mult-lab-shell{
-  max-width:980px;margin:0 auto;padding:14px;
-  border:2px solid rgba(214,184,132,.82);border-radius:29px;
-  background:rgba(255,249,237,.94);box-shadow:var(--laria-shadow)
+  max-width:980px;margin:24px auto;padding:clamp(16px,3vw,32px);
+  border:3px solid #c99a58;border-radius:32px;
+  background:linear-gradient(145deg,#fffbea,#fff0d4);box-shadow:0 8px 0 #8b603b55,0 24px 50px #18362c40
 }
 #multiplication-lab-screen .mult-lab-head-copy h1{color:var(--laria-ink)!important}
 #multiplication-lab-screen .mult-mode-tabs{
