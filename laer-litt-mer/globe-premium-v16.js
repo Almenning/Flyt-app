@@ -4,7 +4,15 @@
   const screen=document.getElementById('world-screen');
   if(!screen)return;
 
-  const APPROVED_PLATE='./globe-v17-reference.jpg?v=1';
+  const PLATE_PARTS=[
+    './globe-v17-bg-0.txt?v=2',
+    './globe-v17-bg-1a.txt?v=2',
+    './globe-v17-bg-1b.txt?v=2',
+    './globe-v17-bg-2.txt?v=2',
+    './globe-v17-bg-3.txt?v=2',
+    './globe-v17-bg-4.txt?v=2',
+    './globe-v17-bg-5.txt?v=2'
+  ];
 
   function ensureStage(){
     let stage=screen.querySelector('.globe-v16-stage');
@@ -36,19 +44,29 @@
     return stage;
   }
 
-  function loadApprovedPlate(stage){
-    const img=new Image();
-    img.onload=()=>{
-      stage.style.backgroundImage='url("'+APPROVED_PLATE+'")';
-      screen.style.backgroundImage='url("'+APPROVED_PLATE+'")';
+  async function loadApprovedPlate(stage){
+    try{
+      const parts=await Promise.all(PLATE_PARTS.map(async url=>{
+        const res=await fetch(url,{cache:'force-cache'});
+        if(!res.ok)throw new Error('plate '+res.status);
+        return (await res.text()).trim();
+      }));
+      const data='data:image/jpeg;base64,'+parts.join('');
+      const img=new Image();
+      await new Promise((resolve,reject)=>{
+        img.onload=resolve;
+        img.onerror=()=>reject(new Error('plate decode'));
+        img.src=data;
+      });
+      stage.style.setProperty('background-image','url("'+data+'")','important');
+      screen.style.setProperty('background-image','url("'+data+'")','important');
       screen.dataset.globeV16Plate='ready';
-    };
-    img.onerror=()=>{
-      stage.style.backgroundImage="url('./geografi-verden.png?v=20261004-world1')";
-      screen.style.backgroundImage="url('./geografi-verden.png?v=20261004-world1')";
+    }catch(err){
+      console.warn('Læria globe plate fallback',err);
+      stage.style.setProperty('background-image',"url('./geografi-verden.png?v=20261004-world1')",'important');
+      screen.style.setProperty('background-image',"url('./geografi-verden.png?v=20261004-world1')",'important');
       screen.dataset.globeV16Plate='fallback';
-    };
-    img.src=APPROVED_PLATE;
+    }
   }
 
   function makeLive(){
