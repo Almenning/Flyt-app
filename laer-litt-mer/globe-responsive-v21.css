@@ -452,3 +452,107 @@ body:has(#world-screen.active){
     font-size:15px!important;
   }
 }
+
+
+/* v21b phone/iPad polish based on real-device screenshot.
+   Fixes the clipped header, duplicate fox and over-scaled globe. */
+@media (orientation:portrait) and (max-width:1100px){
+  #world-screen.active .premium-globe-header{
+    left:10px!important;
+    right:10px!important;
+    width:auto!important;
+    transform:none!important;
+    min-height:0!important;
+  }
+
+  /* Do not crop the approved plate into the header. That baked a second fox into
+     the banner. Use the clean geography scenery as the banner illustration. */
+  #world-screen.active .premium-globe-header::before{
+    content:""!important;
+    display:block!important;
+    position:absolute!important;
+    z-index:0!important;
+    inset:0 0 0 57%!important;
+    background:
+      linear-gradient(90deg,rgba(255,249,231,.98) 0%,rgba(255,249,231,.56) 34%,rgba(255,249,231,.06) 72%),
+      url('./geografi-verden.png') 62% 46%/cover no-repeat!important;
+    opacity:.72!important;
+    filter:none!important;
+    transform:none!important;
+  }
+
+  /* Replace the GPU-blurred full-screen plate with a clean explorer landscape.
+     Safari was visibly tiling the blur into rectangular blocks. */
+  #world-screen.active::before{
+    inset:0!important;
+    background:
+      linear-gradient(180deg,rgba(123,205,235,.08),rgba(62,119,96,.16)),
+      url('./geografi-verden.png') center/cover no-repeat!important;
+    filter:none!important;
+    transform:none!important;
+    opacity:1!important;
+  }
+  #world-screen.active::after{
+    background:
+      linear-gradient(180deg,
+        rgba(236,250,249,.06) 0%,
+        rgba(236,250,249,.00) 42%,
+        rgba(31,72,58,.05) 67%,
+        rgba(27,55,45,.14) 100%)!important;
+  }
+
+  #world-screen.active .globe-wrap{
+    width:min(88vw,55dvh,690px)!important;
+    height:auto!important;
+  }
+}
+
+/* Small iPhones: slightly more breathing room around the hero globe. */
+@media (orientation:portrait) and (max-width:430px){
+  #world-screen.active{
+    --rp-globe:min(88vw,53dvh)!important;
+  }
+  #world-screen.active .premium-globe-header{
+    left:7px!important;
+    right:7px!important;
+    width:auto!important;
+    transform:none!important;
+    padding-left:72px!important;
+    padding-right:82px!important;
+  }
+  #world-screen.active .premium-globe-header::before{
+    inset:0 0 0 60%!important;
+  }
+  #world-screen.active .premium-globe-fox{
+    width:72px!important;
+    right:7px!important;
+    bottom:-1px!important;
+  }
+  #world-screen.active .globe-wrap{
+    width:var(--rp-globe)!important;
+    top:49.5dvh!important;
+  }
+  #world-screen.active .globe-mode{
+    width:min(300px,78vw)!important;
+  }
+}
+
+/* iPad portrait: preserve the premium composition and add more scene around the globe. */
+@media (orientation:portrait) and (min-width:700px) and (max-width:1100px){
+  #world-screen.active{
+    --rp-globe:min(76vw,55dvh,720px)!important;
+  }
+  #world-screen.active .premium-globe-header{
+    left:18px!important;
+    right:18px!important;
+    width:auto!important;
+    transform:none!important;
+  }
+  #world-screen.active .premium-globe-header::before{
+    inset:0 0 0 55%!important;
+  }
+  #world-screen.active .globe-wrap{
+    width:var(--rp-globe)!important;
+    top:49dvh!important;
+  }
+}
