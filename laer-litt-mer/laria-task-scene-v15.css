@@ -913,3 +913,197 @@ body.laria-task-scene-open #bottom-nav{
     border-radius:20px;
   }
 }
+
+
+/* v16 screenshot-driven composition */
+body.laria-task-scene-open{
+  width:100vw;
+  max-width:none;
+  margin:0;
+  background:#18394f;
+}
+body.laria-task-scene-open .app{
+  width:100vw;
+  max-width:none;
+  margin:0;
+  min-height:100dvh;
+  background:transparent;
+}
+#session-screen.task-scene{
+  width:100vw;
+  max-width:none;
+}
+#session-screen.task-scene .session{
+  width:100vw;
+  max-width:none;
+  min-height:100dvh;
+  box-sizing:border-box;
+  grid-template-rows:auto minmax(0,1fr);
+  background-position:center 44%;
+}
+#session-screen.task-scene .session:before{
+  background:
+    radial-gradient(ellipse at 50% 48%,rgba(255,245,209,.16) 0 27%,rgba(13,46,59,.08) 52%,rgba(11,37,52,.24) 100%),
+    linear-gradient(90deg,rgba(10,34,46,.18),transparent 22%,transparent 78%,rgba(10,34,46,.18));
+}
+#session-screen.task-scene .session-top{
+  width:min(calc(100vw - 40px),980px);
+  margin-bottom:18px;
+}
+#session-screen.task-scene #question-wrap{
+  width:min(calc(100vw - 48px),900px);
+  align-self:center;
+  margin:auto;
+  padding-bottom:clamp(18px,3vh,34px);
+}
+#session-screen.task-scene .laria-task-card{
+  box-sizing:border-box;
+  min-height:0;
+  overflow:visible;
+  padding:30px 38px 34px;
+  border:2px solid rgba(188,127,49,.66);
+  border-radius:34px;
+  background:linear-gradient(145deg,rgba(255,253,241,.985),rgba(255,245,214,.982));
+  box-shadow:0 7px 0 rgba(115,71,30,.24),0 22px 58px rgba(18,44,51,.27),inset 0 1px 0 rgba(255,255,255,.92);
+}
+#session-screen.task-scene .laria-task-card:before,
+#session-screen.task-scene .laria-task-card:after{
+  display:none;
+}
+#session-screen.task-scene .task-card-head{
+  min-height:39px;
+  padding-right:0;
+}
+#session-screen.task-scene .task-world-chip{
+  display:none;
+}
+#session-screen.task-scene .question{
+  margin-top:18px;
+  margin-bottom:6px;
+  font-size:clamp(32px,4.1vw,46px);
+  line-height:1.02;
+  letter-spacing:-.04em;
+}
+#session-screen.task-scene .task-visual-row{
+  min-height:205px;
+  margin:0 auto 2px;
+}
+#session-screen.task-scene .premium-visual .task-object-stage{
+  width:min(80%,460px);
+  min-height:205px;
+}
+#session-screen.task-scene .premium-visual .task-object-stage:after{
+  width:270px;
+  height:180px;
+  background:radial-gradient(ellipse at center,rgba(255,226,135,.30),rgba(255,243,206,.14) 56%,transparent 75%);
+}
+#session-screen.task-scene .task-illustration{
+  width:min(100%,360px);
+  filter:drop-shadow(0 12px 10px rgba(68,58,41,.16));
+}
+#session-screen.task-scene .task-illustration-house{
+  width:min(100%,390px);
+}
+#session-screen.task-scene .task-interaction{
+  width:min(100%,720px);
+  margin-top:10px;
+}
+#session-screen.task-scene .answers{
+  gap:12px;
+}
+#session-screen.task-scene .answer{
+  min-height:62px;
+  padding:13px 12px;
+  border-width:2px;
+  border-radius:17px;
+  box-shadow:0 4px 0 var(--task-answer-shadow),0 9px 17px rgba(75,57,35,.08),inset 0 1px 0 #fff;
+}
+#session-screen.task-scene .answer:active:not(:disabled){
+  transform:translateY(3px);
+  box-shadow:0 1px 0 var(--task-answer-shadow),0 4px 9px rgba(75,57,35,.07),inset 0 1px 0 #fff;
+}
+#session-screen.task-scene .task-fox-companion{
+  top:120px;
+  right:-54px;
+  width:148px;
+  height:178px;
+  z-index:6;
+  filter:drop-shadow(0 12px 10px rgba(43,53,44,.24));
+}
+#session-screen.task-scene .task-fox-companion img{
+  object-fit:contain;
+  border-radius:0;
+  background:transparent;
+}
+#session-screen.task-scene .task-fox-companion:before,
+#session-screen.task-scene .task-fox-companion:after{
+  display:none;
+}
+#session-screen.task-scene .text-only .task-fox-companion,
+#session-screen.task-scene .has-passage .task-fox-companion{
+  top:92px;
+  right:-36px;
+  width:112px;
+  height:138px;
+  opacity:.9;
+}
+#session-screen.task-scene[data-task-band="middle"] .task-fox-companion{
+  width:112px;
+  height:138px;
+  right:-38px;
+}
+#session-screen.task-scene[data-task-band="older"] .task-fox-companion{
+  width:82px;
+  height:100px;
+  right:-22px;
+}
+@media (min-width:1100px){
+  #session-screen.task-scene #question-wrap{
+    width:min(calc(100vw - 120px),930px);
+  }
+  #session-screen.task-scene .laria-task-card{
+    padding-left:52px;
+    padding-right:52px;
+  }
+}
+@media (max-width:720px){
+  #session-screen.task-scene .session-top{
+    width:calc(100vw - 20px);
+  }
+  #session-screen.task-scene #question-wrap{
+    width:calc(100vw - 20px);
+    padding-bottom:18px;
+  }
+  #session-screen.task-scene .laria-task-card{
+    min-height:0;
+    padding:20px 16px 24px;
+    border-radius:27px;
+  }
+  #session-screen.task-scene .question{
+    margin-top:16px;
+    font-size:clamp(28px,8.6vw,38px);
+  }
+  #session-screen.task-scene .task-visual-row{
+    min-height:154px;
+  }
+  #session-screen.task-scene .premium-visual .task-object-stage{
+    min-height:154px;
+  }
+  #session-screen.task-scene .task-illustration,
+  #session-screen.task-scene .task-illustration-house{
+    width:min(100%,270px);
+  }
+  #session-screen.task-scene .task-fox-companion{
+    top:105px;
+    right:-4px;
+    width:70px;
+    height:88px;
+  }
+  #session-screen.task-scene .text-only .task-fox-companion,
+  #session-screen.task-scene .has-passage .task-fox-companion{
+    top:77px;
+    right:2px;
+    width:54px;
+    height:66px;
+  }
+}
