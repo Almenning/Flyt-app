@@ -7,8 +7,8 @@
   left:50%!important;
   top:50%!important;
   transform:translate(-50%,-50%)!important;
-  width:min(100vw,calc(100dvh * 1.333333))!important;
-  height:min(100dvh,calc(100vw * .75))!important;
+  width:min(100vw,133.333dvh)!important;
+  height:min(100dvh,75vw)!important;
   min-height:0!important;
   max-width:none!important;
   max-height:none!important;
