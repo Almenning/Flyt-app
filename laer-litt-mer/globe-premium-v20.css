@@ -347,7 +347,7 @@
 }
 #world-screen.active .globe-zoom{
   right:-43.5%!important;
-  top:7.6%!important;
+  top:12.5%!important;
 }
 /* Keep the exact approved artwork pin-sharp. Never stretch a tiny fallback. */
 #world-screen.active{
@@ -363,3 +363,5 @@
     width:47.75%!important;
   }
 }
+
+#world-screen.active .globe-hint{bottom:12%!important;}
