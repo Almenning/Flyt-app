@@ -49,7 +49,7 @@
     return null;
   }
   function foxSource(){
-    return './lia-fox-explorer.webp';
+    return './lia-fox-explorer-home.webp';
   }
 
   function premiumIllustrationSvg(visual){
