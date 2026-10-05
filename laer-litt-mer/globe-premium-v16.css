@@ -46,7 +46,7 @@
   height:min(100dvh,calc(100vw * .75))!important;
   aspect-ratio:4/3!important;
   overflow:hidden!important;
-  background:#87c9ee center/100% 100% no-repeat!important;
+  background:#87c9ee url('./globe-v17-reference.jpg?v=1') center/100% 100% no-repeat!important;
   box-shadow:0 0 70px rgba(15,29,28,.32)!important;
   container-type:size;
 }
@@ -410,4 +410,37 @@
 #world-screen.active .globe-v16-stage{
   min-width:1px!important;
   min-height:1px!important;
+}
+
+/* v16d: use the approved rendered scene as the actual stage background. */
+#world-screen.active .globe-v16-stage{
+  background-image:url('./globe-v17-reference.jpg?v=1')!important;
+  background-size:100% 100%!important;
+  background-position:center!important;
+  background-repeat:no-repeat!important;
+}
+#world-screen.active{
+  background-image:url('./globe-v17-reference.jpg?v=1')!important;
+  background-size:cover!important;
+  background-position:center!important;
+  background-repeat:no-repeat!important;
+}
+#world-screen.active .globe-v16-titlecopy{display:none!important}
+
+/* Fix positioning regression caused by inset:auto resetting left/top. */
+#world-screen.active .globe-wrap{
+  inset:auto!important;
+  left:50%!important;
+  top:49.6%!important;
+  right:auto!important;
+  bottom:auto!important;
+  transform:translate(-50%,-50%)!important;
+  width:50.5%!important;
+  height:auto!important;
+  aspect-ratio:1!important;
+}
+#world-screen.active #globe-canvas{
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
 }
