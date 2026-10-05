@@ -29,8 +29,8 @@
 .bc12-fox{position:absolute;z-index:4;left:25%;bottom:14%;width:25%;max-width:355px;pointer-events:none;transform-origin:50% 95%;animation:bc12-breathe 5s ease-in-out infinite;filter:drop-shadow(3px 13px 5px #35281666)}
 .bc12-fox:before{content:'';position:absolute;bottom:0;left:25%;width:65%;height:5%;background:#47371c60;border-radius:50%;filter:blur(5px)}
 .bc12-fox img{width:100%;height:auto;display:block}
-.bc12-fox[data-avatar="girl"] img{transform:scaleX(-1)}
-.bc12-fox[data-avatar="girl"]:after{content:"🌼";position:absolute;z-index:6;right:23%;top:8%;font-size:clamp(18px,2.3cqw,31px);filter:drop-shadow(0 2px 2px #4a342655);transform:rotate(10deg)}
+
+
 .bc12-journey{position:absolute;left:52%;top:65%;width:28%;z-index:5;background:none;border:0;padding:0 0 25px;text-align:left;filter:drop-shadow(0 7px 6px #28221466);transform:rotate(-3deg)}
 .bc12-journey:before{content:'';position:absolute;top:20px;bottom:0;left:19%;width:12px;background:linear-gradient(90deg,#54351e,#a4723c,#654120);z-index:-1;border-radius:2px;box-shadow:125px 0 #705030}
 .bc12-journey>span{display:block;background:repeating-linear-gradient(1deg,transparent 0 17px,#381d1333 18px,transparent 20px),linear-gradient(#9d6937,#774120);border:2px solid #d3a05b;border-radius:8px 20px 18px 6px;padding:15px 15px;color:#fff0bf;font-size:clamp(19px,2.25cqw,31px);font-weight:850;line-height:1.12;box-shadow:inset 0 2px #fff4,0 4px #54311d;text-shadow:0 2px #512e17}
