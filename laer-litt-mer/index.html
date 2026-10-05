@@ -2327,6 +2327,19 @@
       .grade-band-young .home-subject-copy strong{font-size:20px!important}
     }
 
+
+    /* Child profile onboarding v1 — avatar + local display name */
+    .onboarding{align-items:flex-start!important;justify-content:center!important;padding:max(14px,env(safe-area-inset-top)) 14px max(14px,env(safe-area-inset-bottom))!important;overflow:auto!important;background:linear-gradient(rgba(235,247,255,.46),rgba(255,247,229,.68)),url('./basecamp-v11-mobile.webp') center/cover no-repeat!important}
+    .onboarding-card{width:min(100%,470px)!important;margin:auto!important;background:rgba(255,255,255,.94)!important;border-radius:34px!important;padding:22px 20px 18px!important;box-shadow:0 24px 70px rgba(34,56,94,.22),inset 0 1px rgba(255,255,255,.95)!important;border:2px solid rgba(255,255,255,.92)!important;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+    .onboard-brandmark{display:inline-flex;align-items:center;gap:5px;margin:0 auto 8px;padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.8);color:#194D86;font-size:20px;font-weight:950;letter-spacing:-.045em;box-shadow:0 5px 14px rgba(37,72,118,.10)}
+    .onboard-brandmark b{color:#E2A72B;font-size:.72em}.onboard-profile h1{margin:7px 0 5px;font-size:clamp(27px,8vw,36px);letter-spacing:-.045em;color:#203B67}.onboard-profile>.hero-copy{max-width:330px;margin:0 auto 14px;color:#63718A;line-height:1.42}
+    .avatar-choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0 15px}.avatar-choice-card{position:relative;min-width:0;padding:6px 6px 9px;border:2px solid rgba(83,108,150,.16);border-radius:24px;background:linear-gradient(180deg,#F7FBFF,#EAF5FF);color:#253A5D;box-shadow:0 8px 20px rgba(39,67,107,.08);cursor:pointer;transition:.15s transform,.15s border-color,.15s box-shadow}.avatar-choice-card[data-avatar="girl"]{background:linear-gradient(180deg,#FFF9F6,#FFF0E9)}.avatar-choice-card:active{transform:scale(.985)}
+    .avatar-choice-card.selected{border-color:#4EA9FF;box-shadow:0 0 0 4px rgba(78,169,255,.16),0 10px 24px rgba(39,90,150,.16)}.avatar-choice-card.selected:after{content:"✓";position:absolute;right:8px;top:8px;z-index:4;width:27px;height:27px;border-radius:50%;display:grid;place-items:center;background:#3198F5;color:#fff;border:3px solid #fff;font-size:15px;font-weight:950;box-shadow:0 4px 10px rgba(39,95,155,.24)}
+    .avatar-art{position:relative;display:block;height:145px;overflow:hidden;border-radius:18px 18px 14px 14px;background:radial-gradient(circle at 50% 22%,#fff,rgba(216,239,255,.82) 48%,rgba(124,187,223,.18) 76%,transparent 77%)}.avatar-choice-card[data-avatar="girl"] .avatar-art{background:radial-gradient(circle at 50% 22%,#fff,rgba(255,229,220,.82) 48%,rgba(236,169,147,.15) 76%,transparent 77%)}
+    .avatar-fox-img{position:absolute;left:50%;bottom:-1px;width:auto;height:149px;transform:translateX(-50%);transform-origin:center bottom;filter:drop-shadow(0 8px 7px rgba(43,61,86,.18))}.avatar-choice-card[data-avatar="girl"] .avatar-fox-img{transform:translateX(-50%) scaleX(-1)}.avatar-choice-card[data-avatar="girl"] .avatar-art:after{content:"🌼";position:absolute;z-index:3;right:18%;top:13%;font-size:25px;filter:drop-shadow(0 2px 2px rgba(85,60,40,.2));transform:rotate(10deg)}
+    .avatar-choice-label{display:block;margin-top:5px;font-size:15px;font-weight:950;letter-spacing:-.02em}.avatar-choice-note{display:block;margin-top:1px;font-size:10px;font-weight:800;color:#748096}.profile-name-label{display:block;text-align:left;margin:1px 3px 7px;color:#2C4168;font-size:13px;font-weight:950}.profile-name-wrap{position:relative}.profile-name-wrap:before{content:"☺";position:absolute;left:14px;top:50%;transform:translateY(-50%);z-index:2;color:#71809A;font-size:18px}.profile-name-wrap .name-input{margin:0;padding-left:43px!important;text-align:left;font-weight:850;border-color:#CBD9EB;background:rgba(255,255,255,.97)}.profile-next{margin-top:12px!important}
+    .top .avatar.profile-fox-avatar{position:relative;overflow:visible;padding:0;background:linear-gradient(145deg,#E7F5FF,#FFF2DE);border:2px solid #fff;box-shadow:0 5px 13px rgba(45,67,101,.12)}.top .avatar.profile-fox-avatar img{display:block;width:100%;height:100%;object-fit:contain;object-position:center bottom}.top .avatar.profile-fox-avatar[data-profile-avatar="girl"] img{transform:scaleX(-1)}.top .avatar.profile-fox-avatar[data-profile-avatar="girl"]:after{content:"🌼";position:absolute;right:-5px;top:-8px;font-size:14px;filter:drop-shadow(0 1px 1px rgba(80,55,35,.24))}
+    @media(max-height:700px){.onboarding-card{padding:16px 16px 13px!important;border-radius:28px!important}.onboard-brandmark{margin-bottom:4px;font-size:18px}.onboard-profile h1{font-size:26px;margin-top:4px}.onboard-profile>.hero-copy{font-size:13px;margin-bottom:8px}.avatar-choice-grid{margin:8px 0 10px;gap:8px}.avatar-art{height:112px}.avatar-fox-img{height:118px}.avatar-choice-label{font-size:14px}.avatar-choice-note{display:none}.profile-next{margin-top:8px!important}}
 </style>
   <link rel="stylesheet" href="./fraction-lab.css?v=20261003-mobile2" />
   <link rel="stylesheet" href="./multiplication-lab.css?v=20261003-table1" />
@@ -2983,38 +2996,29 @@
     </section>
   </div>
 
-  <div class="onboarding" id="onboarding" aria-modal="true" role="dialog">
+  <div class="onboarding" id="onboarding" aria-modal="true" role="dialog" aria-labelledby="profile-onboarding-title">
     <div class="onboarding-card">
-      <div class="onboard-step active" data-step="0">
-        <div class="onboard-hero">🦊✨</div>
-        <div class="eyebrow">Hei!</div>
-        <h1>Her lærer du litt mer hver dag</h1>
-        <p>Korte oppdrag i norsk, matte, engelsk og geografi.</p>
-        <button class="primary onboard-next">Neste</button>
-      </div>
-      <div class="onboard-step" data-step="1">
-        <div class="onboard-hero">🧠⭐</div>
-        <div class="eyebrow">Dagens oppdrag</div>
-        <h1>Du øver på det du trenger</h1>
-        <p>Det som er vanskelig kommer tilbake. Det du kan godt, trenger du ikke pugge hele tiden.</p>
-        <button class="primary onboard-next">Neste</button>
-      </div>
-      <div class="onboard-step" data-step="2">
-        <div class="onboard-hero">🦊</div>
-        <div class="eyebrow">Nesten klar</div>
-        <h1>Hvilken klasse går du i?</h1>
-        <p>Vi bruker bare klassetrinn for å finne et godt startnivå. Du kan endre det senere.</p>
-        <div class="grade-question">
-          <div class="grade-grid" id="grade-grid" aria-label="Velg klassetrinn">
-            <button type="button" class="grade-btn" data-grade="1">1.</button><button type="button" class="grade-btn" data-grade="2">2.</button><button type="button" class="grade-btn" data-grade="3">3.</button><button type="button" class="grade-btn" data-grade="4">4.</button><button type="button" class="grade-btn" data-grade="5">5.</button>
-            <button type="button" class="grade-btn" data-grade="6">6.</button><button type="button" class="grade-btn" data-grade="7">7.</button><button type="button" class="grade-btn" data-grade="8">8.</button><button type="button" class="grade-btn" data-grade="9">9.</button><button type="button" class="grade-btn" data-grade="10">10.</button>
-          </div>
-          <p>Klassetrinnet er startpunktet. Vanskelighetsgraden justeres etter hva du mestrer.</p>
+      <div class="onboard-step active onboard-profile" data-step="0">
+        <div class="onboard-brandmark" aria-label="Læria">Læria <b>✦</b></div>
+        <div class="eyebrow">LAG DIN BRUKER</div>
+        <h1 id="profile-onboarding-title">Velg din eventyrvenn</h1>
+        <p class="hero-copy">Hvem vil du være med på reisen?</p>
+        <div class="avatar-choice-grid" role="group" aria-label="Velg rev">
+          <button type="button" class="avatar-choice-card" data-avatar="boy" aria-pressed="false"><span class="avatar-art" aria-hidden="true"><img class="avatar-fox-img" src="./lia-fox-explorer-home.webp" alt=""></span><span class="avatar-choice-label">Revegutt</span><span class="avatar-choice-note">Eventyrlysten og klar</span></button>
+          <button type="button" class="avatar-choice-card" data-avatar="girl" aria-pressed="false"><span class="avatar-art" aria-hidden="true"><img class="avatar-fox-img" src="./lia-fox-explorer-home.webp" alt=""></span><span class="avatar-choice-label">Revejente</span><span class="avatar-choice-note">Nysgjerrig og klar</span></button>
         </div>
-        <button class="primary" id="finish-onboarding">Start eventyret 🚀</button>
-        <p class="form-error" id="name-error" aria-live="polite"></p>
+        <label class="profile-name-label" for="profile-name">Hva heter du?</label>
+        <div class="profile-name-wrap"><input class="name-input" id="profile-name" maxlength="20" autocomplete="off" autocapitalize="words" placeholder="Skriv navnet ditt" aria-describedby="profile-error"></div>
+        <p class="form-error" id="profile-error" aria-live="polite"></p>
+        <button class="primary profile-next" id="profile-next" type="button">Fortsett reisen →</button>
       </div>
-      <div class="onboard-dots"><span></span><span></span><span></span></div>
+      <div class="onboard-step" data-step="1"><div class="onboard-hero">🧠✨</div><div class="eyebrow">Slik lærer du</div><h1>Korte oppdrag. Ekte mestring.</h1><p>Det som er vanskelig kommer tilbake. Det du kan godt åpner nye utfordringer og steder å utforske.</p><button class="primary onboard-next" type="button">Neste</button></div>
+      <div class="onboard-step" data-step="2">
+        <div class="onboard-hero">🗺️</div><div class="eyebrow">Nesten klar</div><h1>Hvilken klasse går du i?</h1><p>Vi bruker klassetrinnet som startpunkt. Du kan fortsatt utforske andre trinn senere.</p>
+        <div class="grade-question"><div class="grade-grid" id="grade-grid" aria-label="Velg klassetrinn"><button type="button" class="grade-btn" data-grade="1">1.</button><button type="button" class="grade-btn" data-grade="2">2.</button><button type="button" class="grade-btn" data-grade="3">3.</button><button type="button" class="grade-btn" data-grade="4">4.</button><button type="button" class="grade-btn" data-grade="5">5.</button><button type="button" class="grade-btn" data-grade="6">6.</button><button type="button" class="grade-btn" data-grade="7">7.</button><button type="button" class="grade-btn" data-grade="8">8.</button><button type="button" class="grade-btn" data-grade="9">9.</button><button type="button" class="grade-btn" data-grade="10">10.</button></div><p>Klassetrinnet er startpunktet. Vanskelighetsgraden justeres etter hva du mestrer.</p></div>
+        <button class="primary" id="finish-onboarding" type="button">Start eventyret 🚀</button><p class="form-error" id="name-error" aria-live="polite"></p>
+      </div>
+      <div class="onboard-dots" aria-hidden="true"><span></span><span></span><span></span></div>
     </div>
   </div>
 
@@ -3101,9 +3105,9 @@ function missionLabel(){return gradeConfig().mission}
 
 const STORAGE_KEY='laerlittmer-v2';
 const defaultState={
-  version:6,
+  version:7,
   progressSchemaVersion:3,
-  profile:{grade:null,onboarded:false},
+  profile:{grade:null,onboarded:false,name:'',avatar:'boy'},
   mastery:{},
   mistakes:{},
   skillMastery:{},
@@ -3143,7 +3147,9 @@ function loadState(){
     const parsed=JSON.parse(safeStorageGet(STORAGE_KEY)||'null');
     if(!parsed) return cloneDefault();
     const profile={...defaultState.profile,...(parsed.profile||{})};
-    delete profile.name;
+      if(typeof profile.name!=='string')profile.name='';
+      profile.name=profile.name.trim().slice(0,20);
+      if(profile.avatar!=='girl'&&profile.avatar!=='boy')profile.avatar='boy';
     const next={
       ...cloneDefault(),...parsed,profile,
       mastery:parsed.mastery||{}, mistakes:parsed.mistakes||{},
@@ -3155,7 +3161,6 @@ function loadState(){
       answerLog:Array.isArray(parsed.answerLog)?parsed.answerLog:[],
       sessionLog:Array.isArray(parsed.sessionLog)?parsed.sessionLog:[]
     };
-    if(parsed.profile&&Object.prototype.hasOwnProperty.call(parsed.profile,'name'))safeStorageSet(STORAGE_KEY,JSON.stringify(next));
     return next;
   }catch(e){return cloneDefault()}
 }
@@ -3412,7 +3417,8 @@ function renderAll(){
     teen:{title:'Fortsett fremgangen din',copy:'Fortsett der du slapp, eller velg et fag og jobb videre mot neste mål.',subject:'Fag',pEye:'Oversikt',pTitle:'Fremgang og mestring',pCopy:'Se aktivitet, mestring og områder som er klare for videre arbeid.',nav:'Fremgang',explore:'Utforsk',avatar:'◎',icons:{geography:'GEO',norwegian:'NO',math:'∑',english:'EN'}}
   }[band];
   const lastAt=lastLearningAt(),away=lastAt&&Date.now()-lastAt>48*60*60*1000;
-  document.getElementById('home-greeting').textContent=away?'Hyggelig å se deg igjen 👋':'Hei 👋';
+  const profileNameGreeting=(state.profile?.name||'').trim();
+  document.getElementById('home-greeting').textContent=profileNameGreeting?(away?'Hyggelig å se deg igjen, '+profileNameGreeting+' 👋':'Hei, '+profileNameGreeting+' 👋'):(away?'Hyggelig å se deg igjen 👋':'Hei 👋');
   document.getElementById('home-title').textContent=tone.title;
   document.getElementById('home-copy').textContent=tone.copy;
   document.getElementById('home-subject-title').textContent=tone.subject;
@@ -3437,7 +3443,7 @@ function renderAll(){
   if(panelTitle)panelTitle.textContent=band==='young'?'Stjernene dine ⭐':band==='middle'?'Din fremgang':band==='older'?'Fremgang':'Oversikt';
   if(panelKicker)panelKicker.textContent=band==='young'?'DIN SAMLING':band==='middle'?'DENNE UKEN':band==='older'?'UTVIKLING':'STATUS';
   const subjectKicker=document.getElementById('home-subject-kicker');if(subjectKicker)subjectKicker.textContent=band==='young'?'VELG EN VERDEN':'VELG FAG';
-  const avatar=document.querySelector('.avatar');if(avatar)avatar.textContent=tone.avatar;
+  const avatar=document.querySelector('.avatar');if(avatar){const chosenAvatar=state.profile?.avatar==='girl'?'girl':'boy';avatar.classList.add('profile-fox-avatar');avatar.dataset.profileAvatar=chosenAvatar;avatar.removeAttribute('aria-hidden');avatar.setAttribute('aria-label',chosenAvatar==='girl'?'Valgt figur: revejente':'Valgt figur: revegutt');avatar.innerHTML='<img src="./lia-fox-explorer.webp" alt="">'}
   Object.entries(tone.icons).forEach(([subject,icon])=>{const el=document.querySelector('.home-subject.'+subject+' .home-subject-icon');if(el)el.textContent=icon});
   document.getElementById('home-grade-label').textContent=cfg.label;
   const adultGrade=document.getElementById('adult-grade');if(adultGrade)adultGrade.value=String(grade);
@@ -5975,15 +5981,22 @@ function updateOnboarding(){
   document.querySelectorAll('.onboard-step').forEach((el,i)=>el.classList.toggle('active',i===onboardingStep));
   document.querySelectorAll('.onboard-dots span').forEach((el,i)=>el.classList.toggle('active',i===onboardingStep));
 }
+let profileName=typeof state.profile.name==='string'?state.profile.name.trim().slice(0,20):'';
+let selectedAvatar=state.profile.avatar==='girl'?'girl':'boy';
+function renderAvatarChoice(){
+  document.querySelectorAll('.avatar-choice-card').forEach(btn=>{const selected=btn.dataset.avatar===selectedAvatar;btn.classList.toggle('selected',selected);btn.setAttribute('aria-pressed',selected?'true':'false')});
+  const input=document.getElementById('profile-name');if(input&&document.activeElement!==input&&input.value!==profileName)input.value=profileName;
+}
+document.querySelectorAll('.avatar-choice-card').forEach(btn=>btn.onclick=()=>{selectedAvatar=btn.dataset.avatar==='girl'?'girl':'boy';renderAvatarChoice();document.getElementById('profile-error').textContent=''});
+const profileNameInput=document.getElementById('profile-name');
+if(profileNameInput){profileNameInput.value=profileName;profileNameInput.addEventListener('input',()=>{profileName=profileNameInput.value.slice(0,20);document.getElementById('profile-error').textContent=''});profileNameInput.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();document.getElementById('profile-next').click()}})}
+document.getElementById('profile-next').onclick=()=>{profileName=(profileNameInput?.value||'').trim().replace(/\s+/g,' ').slice(0,20);if(!profileName){document.getElementById('profile-error').textContent='Skriv navnet ditt først.';profileNameInput?.focus();return}onboardingStep=1;updateOnboarding()};
 document.querySelectorAll('.onboard-next').forEach(b=>b.onclick=()=>{onboardingStep=Math.min(2,onboardingStep+1);updateOnboarding()});
 let selectedGrade=Number(state.profile.grade)||null;
 function renderGradeChoice(){document.querySelectorAll('.grade-btn').forEach(b=>b.classList.toggle('selected',Number(b.dataset.grade)===selectedGrade))}
 document.querySelectorAll('.grade-btn').forEach(b=>b.onclick=()=>{selectedGrade=Number(b.dataset.grade);renderGradeChoice();document.getElementById('name-error').textContent=''});
-document.getElementById('finish-onboarding').onclick=()=>{
-  if(!selectedGrade){document.getElementById('name-error').textContent='Velg hvilket klassetrinn du går i.';return}
-  state.profile={...state.profile,grade:selectedGrade,onboarded:true};state.activeSession=null;saveState();document.getElementById('onboarding').classList.remove('show');renderAll();
-};
-renderGradeChoice();
+document.getElementById('finish-onboarding').onclick=()=>{if(!selectedGrade){document.getElementById('name-error').textContent='Velg hvilket klassetrinn du går i.';return}if(!profileName){onboardingStep=0;updateOnboarding();document.getElementById('profile-error').textContent='Skriv navnet ditt først.';profileNameInput?.focus();return}state.profile={...state.profile,name:profileName,avatar:selectedAvatar,grade:selectedGrade,onboarded:true};state.activeSession=null;saveState();document.getElementById('onboarding').classList.remove('show');renderAll()};
+renderAvatarChoice();renderGradeChoice();
 
 // Lightweight adult gate: requires a deliberate long press rather than a normal child tap.
 const adultEntry=document.getElementById('adult-entry');
@@ -5998,8 +6011,8 @@ document.getElementById('open-feedback').onclick=()=>showScreen('feedback');
 document.getElementById('feedback-back').onclick=()=>showScreen('adult');
 
 document.getElementById('reset-progress').onclick=()=>{
-  if(!confirm('Nullstille all fremgang, klassetrinn og pågående økt på denne enheten?'))return;
-  safeStorageRemove(STORAGE_KEY);safeStorageRemove('laerlittmer-v1');state=cloneDefault();sessionQuestions=[];qIndex=0;sessionCorrect=0;sessionStrengthened=new Set();currentAnswered=null;onboardingStep=0;selectedGrade=null;renderGradeChoice();updateOnboarding();document.getElementById('onboarding').classList.add('show');setTab('home');
+  if(!confirm('Nullstille bruker, figurvalg, fremgang, klassetrinn og pågående økt på denne enheten?'))return;
+  safeStorageRemove(STORAGE_KEY);safeStorageRemove('laerlittmer-v1');state=cloneDefault();sessionQuestions=[];qIndex=0;sessionCorrect=0;sessionStrengthened=new Set();currentAnswered=null;onboardingStep=0;selectedGrade=null;profileName='';selectedAvatar='boy';if(profileNameInput)profileNameInput.value='';renderAvatarChoice();renderGradeChoice();updateOnboarding();document.getElementById('onboarding').classList.add('show');setTab('home');
 };
 
 const adultGradeSelect=document.getElementById('adult-grade');
