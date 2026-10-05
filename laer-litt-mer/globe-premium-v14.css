@@ -121,8 +121,8 @@
   background:linear-gradient(90deg,#8a5828,#d7a752 48%,#835125);
   border:3px solid #71451f;box-shadow:0 4px 0 #4f2e17;
 }
-#world-screen.active .premium-globe-knob.left{left:calc(50% - var(--pg-size)/2 - 18px)}
-#world-screen.active .premium-globe-knob.right{right:calc(50% - var(--pg-size)/2 - 18px)}
+#world-screen.active .premium-globe-knob.left{left:calc(50% - min(46vh,46vw) - 18px)}
+#world-screen.active .premium-globe-knob.right{right:calc(50% - min(46vh,46vw) - 18px)}
 
 #world-screen.active .globe-wrap{
   z-index:5!important;background:transparent!important;
