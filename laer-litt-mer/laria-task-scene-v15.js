@@ -6,7 +6,7 @@
   if(typeof renderQuestion!=='function')return;
 
   const baseRenderQuestion=renderQuestion;
-  const sceneSubjects=new Set(['norwegian','english']);
+  const sceneSubjects=new Set(['norwegian','english','math']);
   const screen=document.getElementById('session-screen');
   const closeButton=document.getElementById('close-session');
   const progressBar=document.getElementById('session-progress-bar');
@@ -37,10 +37,10 @@
     return prompt||((q?.subject==='english')?'Choose the right answer':'Velg riktig svar');
   }
   function sceneName(subject){
-    return subject==='english'?'Ordlandsbyen':'Bokskogen';
+    return subject==='english'?'Ordlandsbyen':subject==='math'?'Tallriket':'Bokskogen';
   }
   function subjectName(subject){
-    return subject==='english'?'ENGLISH':'NORSK';
+    return subject==='english'?'ENGLISH':subject==='math'?'MATTE':'NORSK';
   }
   function foxSource(){
     const which=(typeof state!=='undefined'&&state?.profile?.avatar==='girl')?'girl':'boy';
