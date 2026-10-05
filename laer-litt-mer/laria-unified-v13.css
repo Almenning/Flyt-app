@@ -1,0 +1,615 @@
+/* Læria unified visual system v13
+   Applies the Ordjakt / premium storybook language across the rest of the app.
+   Hjem v12 and Ordjakt remain their own locked reference surfaces. */
+
+:root{
+  --laria-cream:#fff8e9;
+  --laria-cream-2:#fffdf7;
+  --laria-cream-3:#f6ead0;
+  --laria-wood:#7a4a27;
+  --laria-wood-dark:#4f2f1b;
+  --laria-gold:#d6aa58;
+  --laria-gold-soft:#efd89d;
+  --laria-ink:#273a56;
+  --laria-ink-warm:#4f402e;
+  --laria-muted:#75654f;
+  --laria-green:#70975f;
+  --laria-shadow:0 8px 0 rgba(109,78,43,.10),0 18px 34px rgba(38,51,66,.10);
+  --laria-card-shadow:0 6px 0 rgba(109,78,43,.09),0 13px 24px rgba(38,51,66,.08);
+}
+
+/* App worlds outside the locked Home / Ordjakt. */
+#subject-screen,
+#geography-screen,
+#continent-screen,
+#progress-screen,
+#session-screen,
+#complete-screen,
+#detail-screen,
+#adult-screen,
+#parent-info-screen,
+#feedback-screen,
+#fraction-lab-screen,
+#multiplication-lab-screen{
+  color:var(--laria-ink);
+  background:
+    radial-gradient(circle at 12% 12%,rgba(255,224,125,.18) 0 48px,transparent 49px),
+    radial-gradient(circle at 92% 24%,rgba(237,165,149,.14) 0 60px,transparent 61px),
+    linear-gradient(180deg,#fff7df 0%,#f4f6e9 48%,#edf5ef 100%);
+}
+
+/* Global type + surfaces */
+#subject-screen h1,#subject-screen h2,#subject-screen h3,
+#geography-screen h1,#geography-screen h2,#geography-screen h3,
+#continent-screen h1,#continent-screen h2,#continent-screen h3,
+#progress-screen h1,#progress-screen h2,#progress-screen h3,
+#session-screen h1,#session-screen h2,#session-screen h3,
+#complete-screen h1,#complete-screen h2,#complete-screen h3,
+#detail-screen h1,#detail-screen h2,#detail-screen h3,
+#adult-screen h1,#adult-screen h2,#adult-screen h3,
+#parent-info-screen h1,#parent-info-screen h2,#parent-info-screen h3,
+#feedback-screen h1,#feedback-screen h2,#feedback-screen h3{
+  color:var(--laria-ink);
+}
+
+#subject-screen p,#geography-screen p,#continent-screen p,#progress-screen p,
+#session-screen p,#complete-screen p,#detail-screen p,#adult-screen p,
+#parent-info-screen p,#feedback-screen p{
+  color:var(--laria-muted);
+}
+
+#subject-screen .card,#geography-screen .card,#continent-screen .card,
+#progress-screen .card,#complete-screen .card,#detail-screen .card,
+#adult-screen .card,#parent-info-screen .card,#feedback-screen .card{
+  background:linear-gradient(180deg,rgba(255,253,247,.98),rgba(255,246,229,.98));
+  border:2px solid rgba(214,184,132,.86);
+  box-shadow:var(--laria-card-shadow);
+}
+
+#subject-screen .eyebrow,#geography-screen .eyebrow,#continent-screen .eyebrow,
+#progress-screen .eyebrow,#session-screen .qtype,#complete-screen .eyebrow,
+#detail-screen .eyebrow,#adult-screen .eyebrow,#parent-info-screen .eyebrow,
+#feedback-screen .eyebrow{
+  color:#72521e;
+}
+
+#subject-screen .detail-back,#geography-screen .detail-back,#continent-screen .detail-back,
+#progress-screen .detail-back,#detail-screen .detail-back,#adult-screen .detail-back,
+#parent-info-screen .detail-back,#feedback-screen .detail-back,
+#fraction-lab-screen .detail-back,#multiplication-lab-screen .detail-back,
+#session-screen .close{
+  background:linear-gradient(180deg,#fff9ed,#f5e8c9)!important;
+  border:2px solid #d7ba83!important;
+  color:#5e4726!important;
+  box-shadow:0 5px 0 rgba(112,80,42,.10),0 10px 20px rgba(45,49,62,.06)!important;
+}
+
+#subject-screen .primary,#geography-screen .primary,#continent-screen .primary,
+#progress-screen .primary,#session-screen .primary,#complete-screen .primary,
+#detail-screen .primary,#adult-screen .primary,#parent-info-screen .primary,
+#feedback-screen .primary,#fraction-lab-screen .primary,#multiplication-lab-screen .primary{
+  background:linear-gradient(180deg,#ffdc76,#efb245)!important;
+  color:#533b17!important;
+  border:2px solid #c99431!important;
+  box-shadow:0 6px 0 #b47a1c,0 13px 23px rgba(86,63,18,.15)!important;
+}
+#subject-screen .secondary,#geography-screen .secondary,#continent-screen .secondary,
+#progress-screen .secondary,#session-screen .secondary,#complete-screen .secondary,
+#detail-screen .secondary,#adult-screen .secondary,#parent-info-screen .secondary,
+#feedback-screen .secondary{
+  background:linear-gradient(180deg,#fffdf7,#f7ecd5)!important;
+  color:#5b482c!important;
+  border:2px solid #dcc292!important;
+  box-shadow:0 5px 0 rgba(112,80,42,.09)!important;
+}
+
+/* Subject hubs */
+#subject-screen{padding-top:6px}
+#subject-screen .subject-page-banner{
+  min-height:205px;
+  border-radius:31px;
+  border:3px solid rgba(255,247,227,.96);
+  box-shadow:var(--laria-shadow);
+  overflow:hidden;
+  isolation:isolate;
+}
+#subject-screen[data-subject="norwegian"] .subject-page-banner{
+  background:
+    linear-gradient(100deg,rgba(255,248,230,.96) 0 49%,rgba(255,248,230,.55) 72%,rgba(255,248,230,.16) 100%),
+    url('./bokskogen-verden.png') center/cover no-repeat!important;
+}
+#subject-screen[data-subject="math"] .subject-page-banner{
+  background:
+    linear-gradient(100deg,rgba(255,248,230,.96) 0 49%,rgba(255,248,230,.55) 72%,rgba(255,248,230,.16) 100%),
+    url('./matte-verden.png') center/cover no-repeat!important;
+}
+#subject-screen[data-subject="english"] .subject-page-banner{
+  background:
+    linear-gradient(100deg,rgba(255,248,230,.96) 0 49%,rgba(255,248,230,.55) 72%,rgba(255,248,230,.16) 100%),
+    url('./engelsk-verden.png') center/cover no-repeat!important;
+}
+#subject-screen .subject-page-banner:after{
+  content:"";
+  display:block!important;
+  position:absolute;
+  z-index:5;
+  right:3%;
+  bottom:-5px;
+  width:116px;
+  height:142px;
+  border-radius:0;
+  background:url('./lia-fox-explorer-home.webp') center bottom/contain no-repeat;
+  opacity:1;
+  pointer-events:none;
+  filter:drop-shadow(0 9px 7px rgba(53,43,31,.18));
+}
+#subject-screen .subject-page-copy{z-index:6;width:64%;max-width:560px}
+#subject-screen .subject-page-copy h1{font-size:clamp(34px,4.2vw,48px);color:var(--laria-ink);text-shadow:0 2px rgba(255,255,255,.6)}
+#subject-screen .subject-page-copy p{color:#685a45;font-weight:800}
+#subject-screen .subject-page-visual{opacity:.88}
+#subject-screen .subject-page-symbol{
+  background:rgba(255,250,238,.94)!important;
+  border:2px solid rgba(214,184,132,.88);
+  box-shadow:var(--laria-card-shadow)!important;
+}
+
+#subject-screen .subject-hero{
+  background:linear-gradient(180deg,#fffdf7,#fff3dd)!important;
+  border:2px solid rgba(214,184,132,.86)!important;
+  box-shadow:var(--laria-card-shadow)!important;
+  border-radius:27px!important;
+}
+#subject-screen .subject-big{
+  background:#fff9ec!important;
+  border:2px solid #dbc18f;
+  box-shadow:0 5px 0 rgba(116,82,41,.08)!important;
+}
+#subject-screen .subject-module{
+  background:linear-gradient(180deg,#fffdf8,#fff4df)!important;
+  border:2px solid rgba(214,184,132,.82)!important;
+  box-shadow:var(--laria-card-shadow)!important;
+  border-radius:24px!important;
+}
+#subject-screen .subject-module .module-icon,
+#subject-screen .math-lab-card .module-icon{
+  background:#fffaf0!important;
+  border:2px solid #e0c99d;
+}
+#subject-screen .subject-module strong,#subject-screen .math-lab-card strong{color:var(--laria-ink)}
+#subject-screen .subject-module small,#subject-screen .math-lab-card small{color:var(--laria-muted)!important}
+#subject-screen .topic-arrow{color:#8a6939!important}
+
+/* Journey chrome: keep the existing map engine, make its UI match Læria. */
+#subject-screen .journey-heading,
+#geography-screen .journey-heading{margin-top:21px}
+#subject-screen .journey-heading h2,#geography-screen .journey-heading h2{color:var(--laria-ink)}
+#subject-screen .journey-grade-chip,#geography-screen .journey-grade-chip{
+  background:#fff8e8!important;
+  color:#6a512b!important;
+  border:2px solid #dac08c;
+  box-shadow:0 4px 0 rgba(104,75,36,.08)!important;
+}
+#subject-screen .journey-summary,#geography-screen .journey-summary{
+  background:linear-gradient(180deg,#fffdf7,#fff4dd)!important;
+  border:2px solid rgba(214,184,132,.82)!important;
+  border-radius:22px!important;
+}
+#subject-screen .journey-summary-ring,#geography-screen .journey-summary-ring{
+  background:conic-gradient(#d8aa49 calc(var(--journey-pct)*1%),#e8ded0 0)!important;
+}
+#subject-screen .journey-summary-ring:after,#geography-screen .journey-summary-ring:after{background:#fff9ec!important}
+#subject-screen .journey-summary-ring span,#geography-screen .journey-summary-ring span{color:#6a512b!important}
+#subject-screen .journey-now-card{
+  background:linear-gradient(145deg,#617c51,#8da56d)!important;
+  border:2px solid rgba(255,247,225,.75);
+  box-shadow:0 7px 0 rgba(62,84,49,.16),0 15px 25px rgba(49,73,48,.15)!important;
+}
+#geography-screen .journey-now-card.geo-now{
+  background:linear-gradient(145deg,#4f7580,#739ba3)!important;
+  border:2px solid rgba(255,247,225,.75);
+}
+#subject-screen .journey-sidequest,#geography-screen .journey-sidequest{
+  border:2px solid #dcc394!important;
+  background:linear-gradient(180deg,#fffdf7,#fff2d9)!important;
+  box-shadow:var(--laria-card-shadow)!important;
+}
+#subject-screen .journey-map-node .node-label,
+#subject-screen .journey-node-v5 .node-name-v6,
+#geography-screen .journey-map-node .node-label,
+#geography-screen .journey-node-v5 .node-name-v6{
+  background:rgba(255,249,236,.94)!important;
+  border:1px solid rgba(214,184,132,.75);
+  color:var(--laria-ink)!important;
+  box-shadow:0 4px 10px rgba(75,57,31,.10)!important;
+}
+
+/* Math exploration entry */
+#subject-screen .math-lab-card{
+  border:2px solid #dcc394!important;
+  background:linear-gradient(180deg,#fff9e9,#ffefc9)!important;
+  box-shadow:var(--laria-card-shadow)!important;
+}
+
+/* Geography hub */
+#geography-screen .geography-banner{
+  min-height:202px;
+  border-radius:31px;
+  border:3px solid rgba(255,247,227,.96)!important;
+  background:
+    linear-gradient(100deg,rgba(255,248,230,.96) 0 49%,rgba(255,248,230,.54) 72%,rgba(255,248,230,.18) 100%),
+    url('./geografi-verden.png') center/cover no-repeat!important;
+  box-shadow:var(--laria-shadow)!important;
+  overflow:hidden;
+}
+#geography-screen .geography-banner:after{
+  content:"";position:absolute;right:3%;bottom:-5px;width:112px;height:138px;z-index:7;
+  background:url('./lia-fox-explorer-home.webp') center bottom/contain no-repeat;
+  filter:drop-shadow(0 9px 7px rgba(53,43,31,.17));pointer-events:none;
+}
+#geography-screen .geography-banner-copy{position:relative;z-index:8;width:64%}
+#geography-screen .geography-banner-art{opacity:.28}
+#geography-screen .world-hero,
+#geography-screen .geography-continue,
+#geography-screen .norden-card{
+  background:linear-gradient(180deg,#fffdf7,#fff4dd)!important;
+  border:2px solid #dcc394!important;
+  box-shadow:var(--laria-card-shadow)!important;
+}
+#geography-screen .world-orb{box-shadow:inset -12px -13px 0 rgba(46,112,153,.14),0 0 0 4px #fff9e9,0 0 0 6px #d8bd8d!important}
+
+/* Interactive globe: preserve the actual globe, replace the "left the app" chrome. */
+#world-screen.active{
+  background:
+    linear-gradient(180deg,rgba(195,231,238,.24),rgba(221,241,229,.20)),
+    url('./geografi-verden.png') center/cover no-repeat!important;
+}
+#world-screen.active .globe-wrap{
+  background:transparent!important;
+}
+#world-screen.active::before{
+  content:"🌍  Kloden";
+  position:absolute;
+  z-index:28;
+  left:50%;
+  top:max(14px,env(safe-area-inset-top));
+  transform:translateX(-50%);
+  min-width:250px;
+  max-width:min(52vw,620px);
+  padding:10px 74px 10px 18px;
+  border-radius:21px;
+  border:2px solid #d9bd87;
+  background:linear-gradient(180deg,rgba(255,250,239,.96),rgba(255,242,216,.94));
+  color:var(--laria-ink);
+  font-size:clamp(21px,2.4vw,31px);
+  font-weight:1000;
+  letter-spacing:-.035em;
+  box-shadow:0 7px 0 rgba(109,78,43,.10),0 16px 30px rgba(29,50,48,.15);
+  pointer-events:none;
+}
+#world-screen.active::after{
+  content:"";
+  position:absolute;
+  z-index:29;
+  left:calc(50% + min(15vw,190px));
+  top:max(10px,env(safe-area-inset-top));
+  width:65px;height:70px;
+  background:url('./lia-fox-explorer-home.webp') center/contain no-repeat;
+  pointer-events:none;
+  filter:drop-shadow(0 6px 6px rgba(48,40,29,.16));
+}
+#world-screen.active #world-back{
+  background:linear-gradient(180deg,#fff9ed,#f5e8c9)!important;
+  border:2px solid #d7ba83!important;
+  color:#5e4726!important;
+  box-shadow:0 5px 0 rgba(112,80,42,.10),0 10px 20px rgba(38,48,54,.10)!important;
+}
+#world-screen.active .globe-mode{
+  top:max(78px,calc(env(safe-area-inset-top) + 68px))!important;
+  position:absolute!important;
+  left:50%!important;
+  transform:translateX(-50%)!important;
+  z-index:31!important;
+  padding:4px!important;
+  border:2px solid #d9bd87!important;
+  background:rgba(255,248,233,.95)!important;
+  box-shadow:0 5px 14px rgba(38,48,54,.10)!important;
+}
+#world-screen.active .globe-mode button{color:#6c5a3d!important}
+#world-screen.active .globe-mode button.active{
+  background:linear-gradient(180deg,#8aaa70,#6f925a)!important;
+  color:white!important;
+}
+#world-screen.active .globe-legend{
+  top:max(128px,calc(env(safe-area-inset-top) + 116px))!important;
+  border:2px solid #d9bd87!important;
+  background:rgba(255,248,233,.94)!important;
+  color:#68583f!important;
+  box-shadow:0 5px 14px rgba(38,48,54,.08)!important;
+}
+#world-screen.active .globe-zoom button{
+  background:linear-gradient(180deg,#fff9ed,#f5e8c9)!important;
+  border:2px solid #d7ba83!important;color:#654a25!important;
+  box-shadow:0 4px 0 rgba(112,80,42,.10),0 9px 16px rgba(38,48,54,.08)!important;
+}
+#world-screen.active .globe-hint{
+  background:rgba(255,248,232,.95)!important;
+  border:2px solid #d9bd87!important;
+  color:#644f30!important;
+  box-shadow:0 5px 14px rgba(38,48,54,.08)!important;
+}
+#world-screen.active .globe-status{
+  border:2px solid #d9bd87!important;
+  background:linear-gradient(180deg,rgba(255,252,244,.97),rgba(255,242,216,.97))!important;
+  box-shadow:0 7px 0 rgba(109,78,43,.08),0 15px 28px rgba(29,50,48,.14)!important;
+}
+#world-screen.active .globe-status .flag{background:#fffaf0!important;border:2px solid #e0c89a}
+#world-screen.active .globe-status strong{color:var(--laria-ink)!important}
+#world-screen.active .globe-status span{color:var(--laria-muted)!important}
+#world-screen.active .globe-actions .secondary{
+  background:linear-gradient(180deg,rgba(255,252,244,.97),rgba(255,242,216,.97))!important;
+  border:2px solid #d9bd87!important;color:#5e4726!important;
+  box-shadow:0 5px 0 rgba(109,78,43,.08)!important;
+}
+
+/* Continent/detail lists */
+#continent-screen .continent-head,#detail-screen .fact{
+  background:linear-gradient(180deg,#fffdf7,#fff4dd)!important;
+  border:2px solid #dcc394!important;
+  box-shadow:var(--laria-card-shadow)!important;
+}
+#continent-screen .country,#geography-screen .country,#world-screen .country{
+  background:linear-gradient(180deg,#fffdf7,#fff4dd)!important;
+  border:2px solid #dcc394!important;
+  box-shadow:var(--laria-card-shadow)!important;
+}
+#continent-screen .flag,#geography-screen .flag,#world-screen .flag,#detail-screen .flag{
+  background:#fffaf0!important;border:2px solid #e0c99d;
+}
+
+/* Question / task flow */
+#session-screen{padding-top:max(8px,env(safe-area-inset-top))}
+#session-screen .session{max-width:920px;margin:0 auto;padding-top:4px}
+#session-screen .session-progress{
+  background:#e8dcc0!important;
+  border:2px solid rgba(214,184,132,.82)!important;
+  box-shadow:inset 0 2px 4px rgba(97,70,35,.05);
+}
+#session-screen .session-progress div{background:linear-gradient(90deg,#d6aa4f,#f0d176)!important}
+#session-screen #session-count{
+  background:#fff8e8!important;border:2px solid #dbc08c;color:#685130!important;
+  box-shadow:0 4px 0 rgba(105,75,37,.08)!important;
+}
+#session-screen #question-wrap{
+  position:relative;
+  overflow:hidden;
+  margin-top:8px;
+  padding:24px 20px 25px;
+  border-radius:31px;
+  border:3px solid rgba(214,184,132,.90);
+  background:
+    radial-gradient(circle at 9% 9%,rgba(255,228,153,.20) 0 48px,transparent 49px),
+    radial-gradient(circle at 93% 88%,rgba(143,180,131,.15) 0 64px,transparent 65px),
+    linear-gradient(180deg,rgba(255,253,247,.99),rgba(255,244,223,.99));
+  box-shadow:var(--laria-shadow);
+}
+#session-screen #question-wrap:after{
+  content:"";
+  position:absolute;
+  z-index:0;
+  right:12px;top:10px;
+  width:72px;height:82px;
+  background:url('./lia-fox-explorer-home.webp') center/contain no-repeat;
+  opacity:.20;
+  pointer-events:none;
+}
+#session-screen .question-tools,#session-screen .question,#session-screen .big-flag,
+#session-screen .learning-passage,#session-screen .answers,#session-screen .letter-slots,
+#session-screen .letter-helper,#session-screen .letter-bank,#session-screen .sentence-target,
+#session-screen .word-bank,#session-screen .number-input-wrap,#session-screen .sequence-target,
+#session-screen .sequence-bank,#session-screen .feedback,#session-screen .next,#session-screen .map-region,
+#session-screen .quiz-real-map{position:relative;z-index:1}
+#session-screen .qtype{
+  background:#f7e7ba!important;border:2px solid #e0c68d;color:#6d5020!important;
+}
+#session-screen .read-aloud{
+  background:#fff8e8!important;border:2px solid #d8bf8d!important;color:#634d2d!important;
+}
+#session-screen .question{color:var(--laria-ink);font-size:clamp(29px,4.3vw,42px)}
+#session-screen .learning-passage,
+#session-screen .sentence-target,#session-screen .sequence-target,#session-screen .letter-slots{
+  background:rgba(255,250,240,.78)!important;
+  border:2px dashed rgba(180,139,78,.38)!important;
+  border-radius:21px!important;
+}
+#session-screen .answer,#session-screen .word-tile,#session-screen .sequence-tile,
+#session-screen .sequence-target button,#session-screen .letter-tile,#session-screen .math-input{
+  background:linear-gradient(180deg,#fffdf8,#fff2db)!important;
+  color:var(--laria-ink)!important;
+  border:2px solid #dfc698!important;
+  box-shadow:0 6px 0 rgba(117,84,43,.10),0 12px 22px rgba(48,53,69,.06)!important;
+}
+#session-screen .answer.correct{
+  background:linear-gradient(180deg,#f5fff6,#e2f6e7)!important;
+  border-color:#91c39e!important;color:#2b6745!important;
+  box-shadow:0 6px 0 #b5d9bc!important;
+}
+#session-screen .answer.wrong{
+  background:linear-gradient(180deg,#fff8f5,#ffebe6)!important;
+  border-color:#e2a99f!important;color:#8a493f!important;
+  box-shadow:0 6px 0 #efc6bf!important;
+}
+#session-screen .feedback{
+  background:linear-gradient(180deg,#fff9e9,#f8edcf)!important;
+  border:2px solid #e4c88e!important;color:#5d482b!important;
+}
+#session-screen .feedback.bad{background:linear-gradient(180deg,#fff8f0,#fde9d7)!important;border-color:#e8c19c!important}
+#session-screen .map{border:2px solid #dbc08c!important;box-shadow:var(--laria-card-shadow)!important}
+
+/* Completion / rewards */
+#complete-screen .complete{
+  max-width:760px;margin:0 auto;padding:34px 8px 24px;
+}
+#complete-screen .complete:after{
+  content:"";
+  right:4%;top:42px;width:84px;height:96px;
+  background:url('./lia-fox-explorer-home.webp') center/contain no-repeat;
+  filter:drop-shadow(0 7px 6px rgba(53,43,31,.14));
+}
+#complete-screen .young-reward,#complete-screen .summary{
+  background:linear-gradient(180deg,#fffdf7,#fff3d9)!important;
+  border:2px solid #dcc394!important;box-shadow:var(--laria-card-shadow)!important;
+  border-radius:25px!important;
+}
+#complete-screen .summary-row{border-bottom:2px dashed rgba(184,142,83,.20)!important}
+
+/* Progress / collection: still informative, but no cold dashboard aesthetic. */
+#progress-screen .progress-page-banner{
+  min-height:190px;border-radius:31px;border:3px solid rgba(255,247,227,.96)!important;
+  background:
+    linear-gradient(100deg,rgba(255,248,230,.96) 0 54%,rgba(255,248,230,.55) 78%,rgba(255,248,230,.18) 100%),
+    url('./geografi-verden.png') center/cover no-repeat!important;
+  box-shadow:var(--laria-shadow)!important;
+}
+#progress-screen .progress-page-banner:after{
+  content:"";position:absolute;right:3%;bottom:-5px;width:112px;height:138px;
+  background:url('./lia-fox-explorer-home.webp') center bottom/contain no-repeat;
+  filter:drop-shadow(0 9px 7px rgba(53,43,31,.17));pointer-events:none;z-index:5
+}
+#progress-screen .progress-page-copy{position:relative;z-index:6;width:65%}
+#progress-screen .progress-trophy{opacity:.42}
+#progress-screen .stat,#progress-screen .grade-round-card,#progress-screen .knowledge,#progress-screen .subject-progress-card{
+  background:linear-gradient(180deg,#fffdf7,#fff4dd)!important;
+  border:2px solid #dcc394!important;
+  box-shadow:var(--laria-card-shadow)!important;
+}
+#progress-screen .stat{border-radius:23px}
+#progress-screen .bar{background:linear-gradient(90deg,#d6aa4f,#f0d176)!important}
+
+/* Parent / detail / feedback pages use the same materials, but calmer. */
+#adult-screen .adult-card,#adult-screen .test-info,#adult-screen .privacy-note,
+#parent-info-screen .parent-letter .card,#feedback-screen .card,
+#detail-screen .fact{
+  background:linear-gradient(180deg,#fffdf7,#fff4dd)!important;
+  border:2px solid #dcc394!important;
+  box-shadow:var(--laria-card-shadow)!important;
+}
+#adult-screen .adult-grade-select,#feedback-screen select,#feedback-screen textarea,#feedback-screen input{
+  background:#fffaf0!important;color:var(--laria-ink)!important;border:2px solid #dbc292!important;
+}
+
+/* Fraction lab: keep the manipulative colors, unify the surrounding product shell. */
+#fraction-lab-screen{
+  background:
+    linear-gradient(180deg,rgba(255,248,230,.94),rgba(237,246,236,.96)),
+    url('./matte-verden.png') center/cover fixed no-repeat!important;
+}
+#fraction-lab-screen .fraction-lab-shell{
+  max-width:980px;margin:0 auto;padding:14px;
+  border:2px solid rgba(214,184,132,.82);border-radius:29px;
+  background:rgba(255,249,237,.94);box-shadow:var(--laria-shadow)
+}
+#fraction-lab-screen .fraction-lab-head-copy h1{color:var(--laria-ink)!important}
+#fraction-lab-screen .lab-mode-tabs,#fraction-lab-screen .lab-variants,
+#fraction-lab-screen .lab-levels{background:transparent!important}
+#fraction-lab-screen .lab-mode-tabs{
+  border:2px solid #dcc394;background:#f7ead0!important;
+}
+#fraction-lab-screen .lab-mode-tab{color:#6b5739!important}
+#fraction-lab-screen .lab-mode-tab.active{background:#779b69!important;color:white!important;box-shadow:0 5px 0 #5e7c53!important}
+#fraction-lab-screen .lab-variant,#fraction-lab-screen .lab-level{
+  border:2px solid #ddc596!important;background:#fffaf0!important;color:#655235!important;
+}
+#fraction-lab-screen .lab-variant.active,#fraction-lab-screen .lab-level.active{
+  background:#f8e4aa!important;border-color:#d1a75c!important;color:#664819!important;
+}
+#fraction-lab-screen .lab-mission,#fraction-lab-screen .lab-meaning-card,
+#fraction-lab-screen .lab-toolbox,#fraction-lab-screen .lab-workzone,
+#fraction-lab-screen .lab-free-note{
+  background:linear-gradient(180deg,#fffdf7,#fff3dc)!important;
+  border:2px solid #dcc394!important;
+  box-shadow:var(--laria-card-shadow)!important;
+}
+#fraction-lab-screen .lab-check{background:#779b69!important;box-shadow:0 6px 0 #5d7b51!important}
+#fraction-lab-screen .lab-board{
+  border:3px solid #d5b67b!important;
+  background:linear-gradient(180deg,#82b7b0,#659b96)!important;
+  box-shadow:0 8px 0 #547f7a,0 17px 30px rgba(40,85,102,.14)!important;
+}
+
+/* Multiplication lab */
+#multiplication-lab-screen{
+  background:
+    linear-gradient(180deg,rgba(255,248,230,.94),rgba(237,246,236,.96)),
+    url('./matte-verden.png') center/cover fixed no-repeat!important;
+}
+#multiplication-lab-screen .mult-lab-shell{
+  max-width:980px;margin:0 auto;padding:14px;
+  border:2px solid rgba(214,184,132,.82);border-radius:29px;
+  background:rgba(255,249,237,.94);box-shadow:var(--laria-shadow)
+}
+#multiplication-lab-screen .mult-lab-head-copy h1{color:var(--laria-ink)!important}
+#multiplication-lab-screen .mult-mode-tabs{
+  border:2px solid #dcc394!important;background:#f7ead0!important;
+}
+#multiplication-lab-screen .mult-mode-tab{color:#6b5739!important}
+#multiplication-lab-screen .mult-mode-tab.active{background:#779b69!important;color:white!important;box-shadow:0 5px 0 #5e7c53!important}
+#multiplication-lab-screen .mult-variant,#multiplication-lab-screen .mult-level,
+#multiplication-lab-screen .mult-preset,#multiplication-lab-screen .mult-answer{
+  border:2px solid #ddc596!important;background:#fffaf0!important;color:#655235!important;
+}
+#multiplication-lab-screen .mult-variant.active,#multiplication-lab-screen .mult-level.active,
+#multiplication-lab-screen .mult-preset.active,#multiplication-lab-screen .mult-answer.active{
+  background:#f8e4aa!important;border-color:#d1a75c!important;color:#664819!important;
+}
+#multiplication-lab-screen .mult-mission,#multiplication-lab-screen .mult-factor-panel,
+#multiplication-lab-screen .mult-stage,#multiplication-lab-screen .mult-free-note,
+#multiplication-lab-screen .mult-table-inspector{
+  background:linear-gradient(180deg,#fffdf7,#fff3dc)!important;
+  border:2px solid #dcc394!important;
+  box-shadow:var(--laria-card-shadow)!important;
+}
+#multiplication-lab-screen .mult-equation-card{
+  background:linear-gradient(145deg,#6e8c63,#879f76)!important;
+  box-shadow:0 8px 0 #58744f,0 16px 28px rgba(59,77,55,.15)!important;
+}
+#multiplication-lab-screen .mult-factor-btn{
+  background:#f7ead0!important;color:#69512c!important;box-shadow:0 3px 0 #dcc394!important;
+}
+#multiplication-lab-screen .mult-check{background:#779b69!important;box-shadow:0 6px 0 #5d7b51!important}
+
+/* Onboarding uses the same world language. */
+.onboarding{
+  background:
+    linear-gradient(180deg,rgba(255,248,230,.90),rgba(237,246,236,.94)),
+    url('./bokskogen-verden.png') center/cover no-repeat!important;
+}
+.onboarding-card{
+  background:linear-gradient(180deg,#fffdf7,#fff4dd)!important;
+  border:3px solid #dcc394!important;
+  box-shadow:var(--laria-shadow)!important;
+}
+.name-input{background:#fffaf0!important;border:2px solid #dbc292!important;color:var(--laria-ink)!important}
+
+/* Responsive: keep the world richness, not desktop UI squeezed smaller. */
+@media(max-width:700px){
+  #subject-screen .subject-page-banner,#geography-screen .geography-banner,#progress-screen .progress-page-banner{min-height:180px}
+  #subject-screen .subject-page-copy,#geography-screen .geography-banner-copy,#progress-screen .progress-page-copy{width:72%}
+  #subject-screen .subject-page-banner:after,#geography-screen .geography-banner:after,#progress-screen .progress-page-banner:after{width:88px;height:108px}
+  #session-screen #question-wrap{padding:18px 14px 21px;border-radius:25px}
+  #session-screen #question-wrap:after{width:58px;height:66px;right:5px;top:7px}
+  #world-screen.active::before{min-width:205px;max-width:56vw;padding:9px 52px 9px 13px;font-size:19px}
+  #world-screen.active::after{left:auto;right:82px;width:48px;height:54px}
+  #world-screen.active .globe-mode{top:max(68px,calc(env(safe-area-inset-top) + 58px))!important}
+  #fraction-lab-screen .fraction-lab-shell,#multiplication-lab-screen .mult-lab-shell{padding:10px;border-radius:23px}
+}
+
+@media(max-height:700px) and (orientation:landscape){
+  #world-screen.active::before{top:8px;font-size:18px;padding-top:7px;padding-bottom:7px}
+  #world-screen.active::after{top:4px;width:48px;height:53px}
+  #world-screen.active .globe-mode{top:58px!important}
+}
+
+@media(prefers-reduced-motion:reduce){
+  #subject-screen .journey-node.state-next .journey-node-orb,
+  #subject-screen .journey-map-node.state-next .node-orb{animation:none!important}
+}
