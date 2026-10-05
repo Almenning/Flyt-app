@@ -13,6 +13,93 @@ const mix=(a,b,t)=>{
 };
 const project=(lon,lat,w,h)=>typeof globeProject==='function'?globeProject(lon,lat,w,h):null;
 
+const compassSvg='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M15.8 8.2l-2.3 5.3-5.3 2.3 2.3-5.3 5.3-2.3z" fill="currentColor"/><circle cx="12" cy="12" r="1.2" fill="#fff"/></svg>';
+const globeSvg='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3.8 12h16.4M12 3.5c2.3 2.3 3.5 5.1 3.5 8.5S14.3 18.2 12 20.5M12 3.5C9.7 5.8 8.5 8.6 8.5 12s1.2 6.2 3.5 8.5" fill="none" stroke="currentColor" stroke-width="1.45" stroke-linecap="round"/></svg>';
+const bookSvg='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.4c2.7-.7 5.2-.2 8 1.5v12c-2.8-1.7-5.3-2.2-8-1.5v-12zm16 0c-2.7-.7-5.2-.2-8 1.5v12c2.8-1.7 5.3-2.2 8-1.5v-12z" fill="currentColor"/><path d="M12 6.9v12" stroke="#fff" stroke-opacity=".55" stroke-width="1"/></svg>';
+
+function ensurePremiumShell(){
+  let header=screen.querySelector('.premium-globe-header');
+  if(!header){
+    header=document.createElement('div');
+    header.className='premium-globe-header';
+    header.setAttribute('aria-hidden','true');
+    header.innerHTML='<div class="premium-globe-kicker">VERDEN OG MENNESKER</div><div class="premium-globe-title">Kloden</div><div class="premium-globe-subtitle" data-premium-globe-subtitle>Utforsk land, folk, dyr og spennende steder fra hele verden!</div><img class="premium-globe-fox" src="./lia-fox-explorer-home.webp" alt="">';
+    screen.prepend(header);
+  }
+
+  const wrap=screen.querySelector('.globe-wrap');
+  if(wrap){
+    let ring=wrap.querySelector('.premium-globe-ring');
+    if(!ring){ring=document.createElement('i');ring.className='premium-globe-ring';ring.setAttribute('aria-hidden','true');wrap.appendChild(ring)}
+    for(const side of ['left','right']){
+      let knob=wrap.querySelector('.premium-globe-knob.'+side);
+      if(!knob){knob=document.createElement('i');knob.className='premium-globe-knob '+side;knob.setAttribute('aria-hidden','true');wrap.appendChild(knob)}
+    }
+  }
+
+  const bar=document.getElementById('globe-mode');
+  if(bar){
+    let classic=bar.querySelector('[data-globe-mode="classic"]');
+    if(!classic){
+      classic=document.createElement('button');
+      classic.type='button';
+      classic.dataset.globeMode='classic';
+      classic.setAttribute('aria-label','Åpne klassisk interaktiv klode');
+      bar.appendChild(classic);
+    }
+    const explore=bar.querySelector('[data-globe-mode="explore"]');
+    const mine=bar.querySelector('[data-globe-mode="mine"]');
+    if(explore)explore.innerHTML='<span class="pg-mode-icon">'+compassSvg+'</span>Utforsk';
+    if(mine)mine.innerHTML='<span class="pg-mode-icon">'+globeSvg+'</span>Min verden';
+    classic.innerHTML='<span class="pg-mode-icon" aria-hidden="true">◎</span>Kloden';
+  }
+
+  const back=document.getElementById('world-back');
+  if(back){back.textContent='←';back.setAttribute('aria-label','Tilbake til Utforsk')}
+}
+
+function syncPremiumChrome(mode){
+  const next=mode==='classic'?'classic':(mode==='mine'?'mine':'explore');
+  screen.dataset.premiumGlobeMode=next;
+  screen.dataset.globeVersion='24';
+  document.querySelectorAll('#globe-mode [data-globe-mode]').forEach(b=>b.classList.toggle('active',b.dataset.globeMode===next));
+  document.getElementById('globe-legend')?.classList.toggle('show',next==='mine');
+
+  const sub=screen.querySelector('[data-premium-globe-subtitle]');
+  if(sub)sub.textContent=next==='mine'
+    ?'Min verden – se landene du har oppdaget og lært om!'
+    :next==='classic'
+      ?'Den klassiske snurrbare kloden – dra, zoom og finn land.'
+      :'Utforsk land, folk, dyr og spennende steder fra hele verden!';
+
+  const canvas=document.getElementById('globe-canvas');
+  if(canvas)canvas.setAttribute('aria-label',next==='mine'
+    ?'Min verden på interaktiv klode'
+    :next==='classic'
+      ?'Klassisk interaktiv klode'
+      :'Utforsk verden på interaktiv klode');
+}
+
+function enhanceSelectedCountryV24(id){
+  const box=document.getElementById('globe-status');
+  if(!box||!id||typeof countries==='undefined'||!countries[id])return;
+  const c=countries[id];
+  const st=typeof globeStatusInfo==='function'?globeStatusInfo(id):{key:'new',symbol:'–',label:'Ikke startet'};
+  const meta=c.continent+(c.capitalDisplay?' · '+c.capitalDisplay:'')+' · trykk for å lære mer';
+
+  box.classList.add('premium-country-selected');
+  box.innerHTML='<div class="flag">'+c.flag+'</div>'+
+    '<div class="globe-country-copy"><div class="globe-country-line"><strong>'+c.name+'</strong>'+
+    '<span class="globe-status-badge '+st.key+'">'+st.symbol+' '+st.label+'</span></div>'+
+    '<span class="globe-country-meta">'+meta+'</span></div>'+
+    '<button type="button" class="premium-country-learn" aria-label="Lær mer om '+c.name+'">'+bookSvg+'<span>Lær mer</span></button>';
+  box.style.cursor='pointer';
+  box.onclick=()=>openDetail(id,'world');
+  const btn=box.querySelector('.premium-country-learn');
+  if(btn)btn.onclick=e=>{e.stopPropagation();openDetail(id,'world')};
+}
+
+
 function addPath(ctx,c,w,h){
   if(!c.geometry||typeof geometryPolygons!=='function'||typeof drawProjectedLine!=='function')return false;
   for(const poly of geometryPolygons(c.geometry))for(const ring of poly)drawProjectedLine(ctx,ring,w,h);
@@ -172,22 +259,65 @@ function premiumDraw(){
   if(pulsing)requestAnimationFrame(()=>window.drawGlobe?.());
 }
 function install(){
-  if(window.__lariaGlobeV24Installed||typeof window.drawGlobe!=='function'||typeof window.globeProject!=='function')return false;
-  const baseDraw=window.drawGlobe;window.__lariaGlobeClassicDraw=baseDraw;
+  if(window.__lariaGlobeV24Installed||typeof window.drawGlobe!=='function'||typeof window.globeProject!=='function'||typeof window.setGlobeMode!=='function'||typeof window.selectGlobeCountry!=='function')return false;
+  ensurePremiumShell();
+
+  const baseDraw=window.drawGlobe;
+  const baseSet=window.setGlobeMode;
+  const baseSelect=window.selectGlobeCountry;
+  window.__lariaGlobeClassicDraw=baseDraw;
+
   const routedDraw=function(){
     try{if(typeof globeMode==='string'&&globeMode==='classic')return baseDraw.apply(this,arguments)}catch(_){}
     return premiumDraw.apply(this,arguments);
   };
-  window.drawGlobe=routedDraw;try{drawGlobe=routedDraw}catch(_){}
-  window.__lariaGlobeV24Installed=true;screen.dataset.globeVersion='24';
+
+  const routedSelect=function(id){
+    const result=baseSelect.call(this,id);
+    enhanceSelectedCountryV24(id);
+    return result;
+  };
+
+  const routedSet=function(mode){
+    const next=mode==='classic'?'classic':(mode==='mine'?'mine':'explore');
+    if(next==='classic'){
+      try{globeMode='classic'}catch(_){}
+      syncPremiumChrome(next);
+      if(typeof globeSelected==='string'&&globeSelected)enhanceSelectedCountryV24(globeSelected);
+      requestAnimationFrame(()=>{try{resizeGlobe()}catch(_){} requestAnimationFrame(routedDraw)});
+      return;
+    }
+    const result=baseSet.call(this,next);
+    syncPremiumChrome(next);
+    if(typeof globeSelected==='string'&&globeSelected)enhanceSelectedCountryV24(globeSelected);
+    requestAnimationFrame(routedDraw);
+    return result;
+  };
+
+  window.drawGlobe=routedDraw;
+  window.selectGlobeCountry=routedSelect;
+  window.setGlobeMode=routedSet;
+  try{drawGlobe=routedDraw}catch(_){}
+  try{selectGlobeCountry=routedSelect}catch(_){}
+  try{setGlobeMode=routedSet}catch(_){}
+
+  document.querySelectorAll('#globe-mode [data-globe-mode]').forEach(btn=>{btn.onclick=()=>routedSet(btn.dataset.globeMode)});
+  syncPremiumChrome(typeof globeMode==='string'?globeMode:'explore');
+
+  window.__lariaGlobeV24Installed=true;
+  screen.dataset.globeVersion='24';
   requestAnimationFrame(()=>{try{resizeGlobe();routedDraw()}catch(_){}});
   return true;
 }
 function seed(){
   try{
+    ensurePremiumShell();
     if(!globeSelected&&typeof WORLD_COUNTRIES!=='undefined'&&typeof selectGlobeCountry==='function'){
       const c=WORLD_COUNTRIES.find(x=>x?.name==='Tsjad');if(c)selectGlobeCountry(c.id);
+    }else if(typeof globeSelected==='string'&&globeSelected){
+      enhanceSelectedCountryV24(globeSelected);
     }
+    syncPremiumChrome(typeof globeMode==='string'?globeMode:'explore');
   }catch(_){}
 }
 let tries=0;const boot=setInterval(()=>{tries++;if(install()){clearInterval(boot);seed()}else if(tries>80)clearInterval(boot)},50);
