@@ -67,7 +67,7 @@ function render(){
  const profile=window.state?.profile||{};
  const playerName=typeof profile.name==='string'?profile.name.trim():'';
  const playerAvatar=profile.avatar==='girl'?'girl':'boy';
- const fox=host.querySelector('.bc12-fox');if(fox){fox.dataset.avatar=playerAvatar;fox.setAttribute('aria-label',playerAvatar==='girl'?'Din valgte revejente':'Din valgte revegutt');const img=fox.querySelector('img');if(img)img.src=window.LARIA_PROFILE_AVATARS?.[playerAvatar]||'./lia-fox-explorer-home.webp'}
+ const fox=host.querySelector('.bc12-fox');if(fox){fox.dataset.avatar=playerAvatar;fox.setAttribute('aria-label',playerAvatar==='girl'?'Din valgte revejente':'Din valgte revegutt');const img=fox.querySelector('img');if(img)img.src='./lia-fox-explorer-home.webp'}
  host.querySelector('h1').textContent=mode==='explore'?'Hva vil du leke med?':'Hvor skal vi dra i dag?';
  host.querySelector('[data-camp-intro]').textContent=mode==='explore'?'Velg et sted. Bli så lenge du vil.':(playerName?'Et nytt eventyr venter på deg, '+playerName+'.':'Et nytt eventyr venter på deg.');
  const foxCall=host.querySelector('[data-camp-fox-call]');if(foxCall)foxCall.textContent=mode==='explore'?'Velg noe du liker!':(playerName?'Klar, '+playerName+'? Jeg viser vei!':'Klar? Jeg viser vei!');
