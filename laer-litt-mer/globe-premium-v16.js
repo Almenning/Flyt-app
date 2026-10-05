@@ -4,7 +4,7 @@
   const screen=document.getElementById('world-screen');
   if(!screen)return;
 
-  const PARTS=['./globe-v16-plate-0.txt?v=2','./globe-v16-plate-1.txt?v=2','./globe-v16-plate-2.txt?v=2'];
+  const APPROVED_PLATE='./globe-v17-reference.jpg?v=1';
 
   function ensureStage(){
     let stage=screen.querySelector('.globe-v16-stage');
@@ -36,23 +36,19 @@
     return stage;
   }
 
-  async function loadApprovedPlate(stage){
-    try{
-      const parts=await Promise.all(PARTS.map(async url=>{
-        const res=await fetch(url,{cache:'force-cache'});
-        if(!res.ok)throw new Error('plate '+res.status);
-        return (await res.text()).trim();
-      }));
-      const data='data:image/jpeg;base64,'+parts.join('');
-      stage.style.backgroundImage='url("'+data+'")';
-      screen.style.backgroundImage='url("'+data+'")';
+  function loadApprovedPlate(stage){
+    const img=new Image();
+    img.onload=()=>{
+      stage.style.backgroundImage='url("'+APPROVED_PLATE+'")';
+      screen.style.backgroundImage='url("'+APPROVED_PLATE+'")';
       screen.dataset.globeV16Plate='ready';
-    }catch(err){
-      console.warn('Læria globe plate fallback',err);
+    };
+    img.onerror=()=>{
       stage.style.backgroundImage="url('./geografi-verden.png?v=20261004-world1')";
       screen.style.backgroundImage="url('./geografi-verden.png?v=20261004-world1')";
       screen.dataset.globeV16Plate='fallback';
-    }
+    };
+    img.src=APPROVED_PLATE;
   }
 
   function makeLive(){
