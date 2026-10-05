@@ -10,4 +10,16 @@ function ensureThemeArtifacts(){
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ensureThemeArtifacts,{once:true});
 else ensureThemeArtifacts();
+// Observe navigation without replacing app handlers or rebuilding interactive content.
+const worldScreens=new Set(['complete-screen','progress-screen','continent-screen','detail-screen','fraction-lab-screen','multiplication-lab-screen']);
+function syncWorldSurface(){
+  const active=document.querySelector('.screen.active');
+  document.body.classList.toggle('laria-world-surface',worldScreens.has(active?.id));
+  if(active?.id==='complete-screen'){
+    active.dataset.sceneSubject=(typeof sessionScope!=='undefined'&&sessionScope?.subject)||'geography';
+  }
+}
+const navigationObserver=new MutationObserver(syncWorldSurface);
+document.querySelectorAll('.screen').forEach(el=>navigationObserver.observe(el,{attributes:true,attributeFilter:['class']}));
+syncWorldSurface();
 })();
