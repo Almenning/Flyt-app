@@ -379,3 +379,23 @@
 #world-screen.active.globe-v20-selected:not(.globe-v20-live) .globe-mode{
   opacity:.001!important;
 }
+
+
+/* v20g: one globe, one visual language.
+   The premium interactive canvas is visible from the first frame so drag/tap never swaps designs. */
+#world-screen.active #globe-canvas,
+#world-screen.active .globe-mode,
+#world-screen.active .globe-zoom button,
+#world-screen.active .globe-hint,
+#world-screen.active .globe-status{
+  opacity:1!important;
+}
+#world-screen.active #globe-canvas{
+  transition:none!important;
+  filter:saturate(1.08) contrast(1.025) brightness(.995) drop-shadow(0 10px 18px rgba(19,45,42,.19))!important;
+}
+#world-screen.active .globe-mode,
+#world-screen.active .globe-zoom button,
+#world-screen.active .globe-status{
+  transition:none!important;
+}
