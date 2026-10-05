@@ -4,7 +4,7 @@
   const screen=document.getElementById('world-screen');
   if(!screen)return;
 
-  const PARTS=['./globe-v16-plate-0.txt?v=1','./globe-v16-plate-1.txt?v=1','./globe-v16-plate-2.txt?v=1'];
+  const PARTS=['./globe-v16-plate-0.txt?v=2','./globe-v16-plate-1.txt?v=2','./globe-v16-plate-2.txt?v=2'];
 
   function ensureStage(){
     let stage=screen.querySelector('.globe-v16-stage');
