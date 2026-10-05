@@ -365,3 +365,6 @@
 }
 
 #world-screen.active .globe-hint{bottom:12%!important;}
+
+/* Pixel-match the segmented control to the approved 1200×900 plate. */
+#world-screen.active .globe-mode{top:18.6%!important;}
