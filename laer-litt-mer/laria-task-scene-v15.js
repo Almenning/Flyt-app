@@ -1,12 +1,12 @@
 /* Læria Oppgavescene v15
-   Uses existing learning/session logic; replaces only the presentation for Norwegian and English. */
+   Uses existing learning/session logic; unifies Norwegian, English, Math and Geography tasks. */
 (function(){
   'use strict';
 
   if(typeof renderQuestion!=='function')return;
 
   const baseRenderQuestion=renderQuestion;
-  const sceneSubjects=new Set(['norwegian','english','math']);
+  const sceneSubjects=new Set(['norwegian','english','math','geography']);
   const screen=document.getElementById('session-screen');
   const closeButton=document.getElementById('close-session');
   const progressBar=document.getElementById('session-progress-bar');
@@ -37,10 +37,16 @@
     return prompt||((q?.subject==='english')?'Choose the right answer':'Velg riktig svar');
   }
   function sceneName(subject){
-    return subject==='english'?'Ordlandsbyen':subject==='math'?'Tallriket':'Bokskogen';
+    return subject==='english'?'Ordlandsbyen':subject==='math'?'Tallriket':subject==='geography'?'Oppdagelsesriket':'Bokskogen';
   }
   function subjectName(subject){
-    return subject==='english'?'ENGLISH':subject==='math'?'MATTE':'NORSK';
+    return subject==='english'?'ENGLISH':subject==='math'?'MATTE':subject==='geography'?'GEOGRAFI':'NORSK';
+  }
+  function taskSubject(q){
+    if(q?.subject)return q.subject;
+    const geoTypes=new Set(['flag','capital','country','continent','map']);
+    if(q&&(q.k||geoTypes.has(q.type)))return 'geography';
+    return null;
   }
   function foxSource(){
     const which=(typeof state!=='undefined'&&state?.profile?.avatar==='girl')?'girl':'boy';
@@ -95,9 +101,9 @@
   function taskTypeClass(q){
     return 'task-type-'+String(q?.type||'choice').replace(/[^a-z0-9_-]/gi,'-');
   }
-  function activateScene(q){
+  function activateScene(q,subject=taskSubject(q)){
     screen.classList.add('task-scene');
-    screen.dataset.taskSubject=q.subject;
+    screen.dataset.taskSubject=subject;
     screen.dataset.taskBand=taskBand();
     screen.dataset.taskSceneVersion='15';
     document.body.classList.add('laria-task-scene-open');
@@ -138,6 +144,20 @@
     const options=Array.isArray(q.options)?q.options:[];
     return '<div class="answers">'+options.map(o=>'<button class="answer" data-answer="'+attr(o)+'">'+text(o)+'</button>').join('')+'</div>';
   }
+
+  function geographyInteractionMarkup(q){
+    if(q.type==='map'){
+      const region=q.mapRegion||(typeof countries!=='undefined'&&countries[q.k]?countries[q.k].continent:'Verden');
+      return '<div class="map-region">🗺️ '+text(region)+'</div><div class="map quiz-real-map" id="quiz-map"><canvas id="quiz-map-canvas" aria-label="Kart over '+attr(region)+'"></canvas></div>';
+    }
+    const options=Array.isArray(q.options)?q.options:[];
+    return '<div class="answers">'+options.map(o=>'<button class="answer" data-answer="'+attr(o)+'">'+text(o)+'</button>').join('')+'</div>';
+  }
+  function bindGeographyInteraction(q,wrap){
+    if(q.type==='map')requestAnimationFrame(()=>renderQuizMap(q,currentAnswered));
+    else wrap.querySelectorAll('.answer').forEach(b=>b.onclick=()=>answerText(b.dataset.answer));
+  }
+
   function bindInteraction(q,wrap){
     if(q.type==='build-word')renderBuildWord(q,wrap);
     else if(q.type==='sentence-order')renderSentenceOrder(q,wrap);
@@ -159,8 +179,15 @@
     wrap.querySelectorAll('#check-number,#check-sequence').forEach(b=>b.disabled=true);
     showLearningFeedback(q,currentAnswered.correct);
   }
+
+  function restoreGeographyAnswered(q){
+    if(!currentAnswered)return;
+    applyAnsweredState(q,currentAnswered);
+  }
+
   function renderSceneQuestion(q){
-    activateScene(q);
+    const subject=taskSubject(q);
+    activateScene(q,subject);
 
     const total=Math.max(1,sessionQuestions.length);
     const position=Math.max(0,Math.min(total,qIndex+1));
@@ -181,27 +208,29 @@
 
     wrap.innerHTML=
       '<article class="laria-task-card '+mode+' '+layout+' '+taskTypeClass(q)+'">'+
-        '<div class="task-world-chip">'+text(sceneName(q.subject))+'</div>'+
-        '<div class="task-card-head"><div class="qtype">'+subjectName(q.subject)+' · '+text(String(gradeLabel).toUpperCase())+'</div>'+readButton+'</div>'+
+        '<div class="task-world-chip">'+text(sceneName(subject))+'</div>'+
+        '<div class="task-card-head"><div class="qtype">'+subjectName(subject)+' · '+text(String(gradeLabel).toUpperCase())+'</div>'+readButton+'</div>'+
         '<div class="question">'+text(prompt)+'</div>'+
         passage+
         visual+
         '<div class="task-fox-companion" aria-hidden="true"><img src="'+attr(foxSource())+'" alt=""></div>'+
-        '<div class="task-interaction">'+interactionMarkup(q)+'</div>'+
+        '<div class="task-interaction">'+(subject==='geography'?geographyInteractionMarkup(q):interactionMarkup(q))+'</div>'+
         '<div class="feedback" id="feedback"><strong id="feedback-title"></strong><p id="feedback-copy"></p></div>'+
-        '<button class="primary next" id="next-question" type="button">'+(q.subject==='english'?'Next':'Neste')+'</button>'+
+        '<button class="primary next" id="next-question" type="button">'+(subject==='english'?'Next':'Neste')+'</button>'+
       '</article>';
 
-    bindInteraction(q,wrap);
+    if(subject==='geography')bindGeographyInteraction(q,wrap);
+    else bindInteraction(q,wrap);
     const next=wrap.querySelector('#next-question');
     if(next)next.onclick=nextQuestion;
     bindReadAloud(q);
-    restoreAnswered(q,wrap);
+    if(subject==='geography')restoreGeographyAnswered(q);
+    else restoreAnswered(q,wrap);
   }
 
   renderQuestion=function(){
-    const q=sessionQuestions[qIndex];
-    if(q&&sceneSubjects.has(q.subject))return renderSceneQuestion(q);
+    const q=sessionQuestions[qIndex],subject=taskSubject(q);
+    if(q&&sceneSubjects.has(subject))return renderSceneQuestion(q);
     clearScene();
     return baseRenderQuestion();
   };
