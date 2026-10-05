@@ -11,10 +11,11 @@ function dirSet(){return ui.level==='easy'?[[0,1],[1,0]]:[[0,1],[1,0],[0,-1],[-1
 function makeRound(){
   ui.size=ui.level==='easy'?6:7;ui.found=new Map();ui.completed=false;ui.tapStart=null;ui.drag=null;
   const pool=shuffle(ui.level==='easy'?EASY_WORDS:HARD_WORDS).filter(w=>w.length<=ui.size);
-  ui.words=pool.slice(0,ui.level==='easy'?4:5);
+  const requested=pool.slice(0,ui.level==='easy'?4:5),placedWords=[];
+  ui.words=requested;
   ui.grid=Array.from({length:ui.size},()=>Array(ui.size).fill(''));
   const dirs=dirSet();
-  for(const word of ui.words){
+  for(const word of requested){
     let placed=false;
     for(let tries=0;tries<220&&!placed;tries++){
       const [dr,dc]=dirs[Math.floor(Math.random()*dirs.length)],r=Math.floor(Math.random()*ui.size),c=Math.floor(Math.random()*ui.size);
@@ -24,9 +25,11 @@ function makeRound(){
       for(let i=0;i<word.length;i++){const rr=r+dr*i,cc=c+dc*i,ch=ui.grid[rr][cc];if(ch&&ch!==word[i]){ok=false;break}}
       if(!ok)continue;
       for(let i=0;i<word.length;i++)ui.grid[r+dr*i][c+dc*i]=word[i];
-      placed=true;
+      placed=true;placedWords.push(word);
     }
   }
+  ui.words=placedWords;
+  if(ui.words.length<3){makeRound();return}
   for(let r=0;r<ui.size;r++)for(let c=0;c<ui.size;c++)if(!ui.grid[r][c])ui.grid[r][c]=LETTERS[Math.floor(Math.random()*LETTERS.length)];
 }
 function overlay(){
@@ -63,7 +66,7 @@ function preview(path,anchor=false){
 }
 function clearPreview(){ui.drag=null;preview(ui.tapStart?[ui.tapStart]:[],!!ui.tapStart)}
 function pointerDown(e){
-  const cell=e.target.closest('.word-hunt-cell');if(!cell)return;e.preventDefault();
+  const cell=e.target.closest('.word-hunt-cell');if(!cell)return;
   ui.tapStart=null;ui.drag={id:e.pointerId,start:coord(cell),end:coord(cell),moved:false};try{e.currentTarget.setPointerCapture(e.pointerId)}catch(_){}
 }
 function pointerMove(e){
