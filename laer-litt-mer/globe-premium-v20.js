@@ -40,6 +40,7 @@
   function activate(){
     if(!screen.classList.contains('active'))return;
     seedPreview();
+    makeLive();
     redraw();
   }
 
@@ -150,12 +151,12 @@
       const zoom=(typeof globeZoom==='number'?globeZoom:1);
       const selected=(typeof globeSelected==='string'?globeSelected:null);
       const palette={
-        'Europa':'#527BEA',
-        'Asia':'#F0BB3F',
-        'Afrika':'#F07C59',
-        'Nord-Amerika':'#55B96A',
-        'Sør-Amerika':'#35A964',
-        'Oseania':'#8A75DF'
+        'Europa':'#557FD9',
+        'Asia':'#E5B13F',
+        'Afrika':'#E87959',
+        'Nord-Amerika':'#53AE67',
+        'Sør-Amerika':'#3DA567',
+        'Oseania':'#8372CC'
       };
       const mix=(a,b,t)=>{
         const pa=parseInt(a.slice(1),16),pb=parseInt(b.slice(1),16);
@@ -202,36 +203,52 @@
         }
       }
 
-      /* Premium land pass: stronger colour, cream borders, slight relief shadow. */
+      /* Illustrated land pass: warm light from upper left, subtle coast relief, cream borders. */
       if(typeof WORLD_COUNTRIES!=='undefined'&&typeof geometryPolygons==='function'&&typeof drawProjectedLine==='function'){
+        const makeLandGradient=(base,selectedLand)=>{
+          const g=ctx.createLinearGradient(w*.28,h*.18,w*.72,h*.83);
+          if(selectedLand){
+            g.addColorStop(0,'#FFE985');g.addColorStop(.55,'#FFD45C');g.addColorStop(1,'#E8B83C');
+          }else{
+            g.addColorStop(0,mix(base,'#FFF4D2',.16));
+            g.addColorStop(.52,base);
+            g.addColorStop(1,mix(base,'#56634D',.12));
+          }
+          return g;
+        };
         for(const country of WORLD_COUNTRIES){
           if(!country.geometry)continue;
           ctx.beginPath();
           for(const poly of geometryPolygons(country.geometry)){
             for(const ring of poly)drawProjectedLine(ctx,ring,w,h);
           }
+          const base=countryColor(country);
           ctx.save();
-          ctx.shadowColor='rgba(35,67,62,.22)';
-          ctx.shadowBlur=Math.max(1,s*.004);
-          ctx.shadowOffsetY=Math.max(.5,s*.0015);
-          ctx.fillStyle=country.id===selected?'#FFD45C':countryColor(country);
+          ctx.shadowColor='rgba(25,61,58,.26)';
+          ctx.shadowBlur=Math.max(1.5,s*.005);
+          ctx.shadowOffsetY=Math.max(.7,s*.0021);
+          ctx.fillStyle=makeLandGradient(base,country.id===selected);
           ctx.fill();
           ctx.restore();
-          ctx.strokeStyle='rgba(255,247,219,.90)';
-          ctx.lineWidth=zoom>2?1.25:Math.max(.8,s*.0016);
+
+          /* warm inner rim */
+          ctx.strokeStyle='rgba(255,246,214,.94)';
+          ctx.lineWidth=zoom>2?1.15:Math.max(.9,s*.00175);
           ctx.stroke();
         }
 
-        /* Small island/city-country dots remain tappable and visible. */
+        /* Tiny countries and islands stay legible and tactile. */
         for(const country of WORLD_COUNTRIES){
           let tiny=false;
           try{tiny=typeof isTinyCountry==='function'&&isTinyCountry(country)}catch(_){}
           if(!tiny&&country.id!==selected)continue;
           const p=project(country.lon,country.lat);if(!p)continue;
-          ctx.beginPath();
-          ctx.arc(p[0],p[1],country.id===selected?Math.max(5,s*.009):Math.max(2.4,s*.0044),0,Math.PI*2);
-          ctx.fillStyle=country.id===selected?'#FFD45C':'#FFF1A8';ctx.fill();
-          ctx.strokeStyle='rgba(87,76,52,.32)';ctx.lineWidth=1;ctx.stroke();
+          const rr=country.id===selected?Math.max(5.5,s*.010):Math.max(2.2,s*.0042);
+          const dot=ctx.createRadialGradient(p[0]-rr*.25,p[1]-rr*.25,1,p[0],p[1],rr);
+          dot.addColorStop(0,country.id===selected?'#FFF0A0':'#FFF6C3');
+          dot.addColorStop(1,country.id===selected?'#F1C23F':'#F2D776');
+          ctx.beginPath();ctx.arc(p[0],p[1],rr,0,Math.PI*2);ctx.fillStyle=dot;ctx.fill();
+          ctx.strokeStyle='rgba(105,84,45,.28)';ctx.lineWidth=1;ctx.stroke();
         }
       }
 
@@ -280,15 +297,47 @@
         ctx.fillStyle='rgba(255,255,255,.38)';ctx.beginPath();ctx.ellipse(-k*.18,-k*.10,k*.22,k*.06,-.15,0,Math.PI*2);ctx.fill();
         ctx.restore();
       }
-      if(mode==='explore'&&zoom<2.15){
-        const fade=Math.max(.28,1-(zoom-1)*.38);ctx.save();ctx.globalAlpha=fade;
+      function terrainPatch(lon,lat,rx,ry,color,alpha=.16){
+        const q=project(lon,lat);if(!q||q[2]<.10)return;
+        const k=Math.max(.62,Math.min(1.15,q[2]+.18));
+        ctx.save();ctx.translate(q[0],q[1]);ctx.scale(1,.62);
+        const g=ctx.createRadialGradient(0,0,1,0,0,s*rx*k);
+        g.addColorStop(0,color.replace('ALPHA',String(alpha)));
+        g.addColorStop(1,color.replace('ALPHA','0'));
+        ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(0,0,s*rx*k,s*ry*k,0,0,Math.PI*2);ctx.fill();ctx.restore();
+      }
+      if(mode==='explore'&&zoom<2.25){
+        const fade=Math.max(.26,1-(zoom-1)*.34);ctx.save();ctx.globalAlpha=fade;
+
+        /* soft forest/alpine washes behind the icons */
+        terrainPatch(42,57,.075,.052,'rgba(32,112,65,ALPHA)',.18);
+        terrainPatch(82,55,.090,.055,'rgba(46,119,65,ALPHA)',.15);
+        terrainPatch(20,8,.055,.042,'rgba(37,117,64,ALPHA)',.12);
+        terrainPatch(10,46,.042,.030,'rgba(118,126,116,ALPHA)',.12);
+        terrainPatch(82,29,.070,.035,'rgba(132,138,136,ALPHA)',.13);
+        terrainPatch(-105,46,.070,.046,'rgba(42,118,69,ALPHA)',.14);
+
         [
-          [18,61,1.05],[24,55,.78],[31,8,.82],[38,8,.70],[52,57,.85],[67,55,.78],[92,57,.96],[101,51,.80],
-          [-98,49,.88],[-58,-10,.82],[12,-4,.72],[28,-19,.70]
+          [18,62,1.05],[23,58,.78],[28,55,.72],[31,8,.82],[38,8,.70],[34,-3,.66],
+          [52,57,.86],[61,55,.72],[70,57,.72],[92,57,.96],[101,51,.80],[82,23,.62],
+          [-98,49,.88],[-111,44,.72],[-58,-10,.82],[-63,-18,.66],[-50,-23,.62],
+          [12,-4,.72],[28,-19,.70],[36,-4,.62]
         ].forEach(v=>tree(...v));
-        [[72,36,1.1],[82,30,.78],[45,43,.86],[92,39,.82],[-108,39,.78]].forEach(v=>mountain(...v));
-        [[-10,45,1.1],[44,-4,.92],[-145,20,.78],[10,-30,.85]].forEach(v=>cloud(...v));
-        ship(-28,24,1.05,false);ship(70,-18,.88,true);whale(-27,-31,1.08);
+
+        [
+          [9,46,.78],[45,43,.78],[72,36,.92],[80,31,.92],[87,29,1.02],[92,39,.76],
+          [-108,39,.78],[-72,-33,.76],[-70,-20,.72],[39,9,.66]
+        ].forEach(v=>mountain(...v));
+
+        [
+          [-10,45,1.05],[44,-4,.88],[-145,20,.76],[10,-30,.82],[105,-16,.70],[-42,-3,.72]
+        ].forEach(v=>cloud(...v));
+
+        ship(-28,24,1.02,false);
+        ship(70,-18,.86,true);
+        ship(118,8,.72,true);
+        whale(-27,-31,1.08);
+        whale(146,-28,.72);
         ctx.restore();
       }
 
