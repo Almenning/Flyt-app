@@ -9,7 +9,7 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
  for(const [name,width,height] of [['ipad-landscape',1180,820],['ipad-portrait',820,1180],['iphone',390,844],['small-phone',320,568],['desktop',1024,768]]){
   const context=await browser.newContext({viewport:{width,height},hasTouch:true,reducedMotion:'reduce',serviceWorkers:'block'});
   const page=await context.newPage();page.on('pageerror',e=>errors.push(name+': '+e.message));
-  await page.addInitScript(()=>localStorage.setItem('laerlittmer-v2',JSON.stringify({profile:{grade:2,onboarded:true}})));
+  await page.addInitScript(()=>localStorage.setItem('laerlittmer-v2',JSON.stringify({profile:{grade:2,onboarded:true,name:'Testbarn',avatar:'boy',setupVersion:1}})));
   await page.goto(process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/',{waitUntil:'networkidle'});
   await page.locator('.bc12').waitFor({state:'visible'});
   await page.screenshot({path:`${screenshots}/${name}.png`,fullPage:true});
