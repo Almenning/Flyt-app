@@ -1,0 +1,172 @@
+/* Læria Home v9 — Basecamp
+   Locked philosophy: Reisen lokker fremover. Utforsk lar barnet bli værende.
+   Grades 1–2 only. */
+.grade-band-young.app:has(#home-screen.active){
+  background:#dff3e7!important;
+}
+.grade-band-young.app:has(#home-screen.active) #topbar,
+.grade-band-young.app:has(#home-screen.active) #bottom-nav{display:none!important}
+.grade-band-young #home-screen{
+  max-width:none!important;
+  margin:0!important;
+  padding:0!important;
+  background:transparent!important;
+  overflow:visible!important;
+}
+.grade-band-young #home-screen > :not(.laria-basecamp-v9){display:none!important}
+.laria-basecamp-v9{display:none}
+.grade-band-young #home-screen>.laria-basecamp-v9{display:block!important}
+
+.laria-basecamp-v9{
+  --wood:#754622;--wood2:#4d2e1a;--cream:#fff0c7;--ink:#1f3555;
+  position:relative;width:min(100%,1180px);min-height:clamp(720px,73vw,860px);margin:0 auto;
+  overflow:hidden;isolation:isolate;background:#8bc7da;
+  background-image:
+    linear-gradient(180deg,rgba(112,205,238,.10),rgba(30,70,55,.08)),
+    url('./geografi-verden.png');
+  background-size:cover;background-position:center 48%;
+  border-radius:0 0 34px 34px;
+  box-shadow:0 24px 70px rgba(36,58,67,.16);
+}
+.laria-basecamp-v9:before{
+  content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:
+    linear-gradient(180deg,rgba(255,248,220,.20),transparent 28%),
+    radial-gradient(circle at 28% 73%,rgba(255,227,115,.19),transparent 26%),
+    linear-gradient(90deg,rgba(18,46,42,.16),transparent 36%,transparent 70%,rgba(18,43,42,.08));
+}
+.laria-basecamp-v9:after{
+  content:"";position:absolute;z-index:1;left:-5%;right:-5%;bottom:-4%;height:25%;pointer-events:none;
+  background:linear-gradient(180deg,transparent,rgba(30,70,48,.28));
+  filter:blur(1px);
+}
+.bc-v9-logo{
+  position:absolute;z-index:12;left:3.6%;top:2.3%;font-weight:1000;font-size:clamp(29px,4vw,48px);
+  letter-spacing:-.06em;color:#4d61d3;text-shadow:0 3px 0 rgba(255,255,255,.85),0 5px 13px rgba(34,54,105,.16)
+}
+.bc-v9-logo i{font-style:normal;color:#f7be39;font-size:.72em;margin-left:.12em}
+.bc-v9-title{
+  position:absolute;z-index:11;left:3.5%;top:10.2%;width:44%;min-height:20%;
+  padding:2.1% 2.4% 1.9%;border:3px solid rgba(122,77,30,.24);border-radius:26px 31px 24px 28px;
+  background:linear-gradient(145deg,rgba(255,244,202,.97),rgba(255,250,226,.95));
+  color:var(--ink);box-shadow:0 9px 0 rgba(93,63,33,.10),0 17px 31px rgba(37,57,64,.13);
+  transform:rotate(-.5deg)
+}
+.bc-v9-title:before,.bc-v9-title:after{
+  content:"";position:absolute;width:20%;height:13px;border-radius:50%;background:rgba(105,151,69,.60);filter:blur(.2px)
+}
+.bc-v9-title:before{left:4%;top:-8px}.bc-v9-title:after{right:8%;bottom:-7px}
+.bc-v9-title small{display:block;font-weight:950;font-size:clamp(11px,1.5vw,16px);color:#78613d;margin-bottom:4px}
+.bc-v9-title h1{margin:0;font-size:clamp(30px,4.1vw,52px);line-height:.98;letter-spacing:-.045em}
+.bc-v9-title p{max-width:95%;margin:10px 0 0;font-weight:850;font-size:clamp(11px,1.45vw,16px);line-height:1.35;color:#6d664e}
+
+.bc-v9-fox{
+  position:absolute;z-index:9;left:29%;bottom:12.2%;width:27%;max-width:330px;pointer-events:none;
+  filter:drop-shadow(0 15px 9px rgba(27,45,39,.26));
+  transform:rotate(-2deg);
+  animation:bcFoxFloat 3.2s ease-in-out infinite
+}
+.bc-v9-fox img{display:block;width:100%;height:auto}
+@keyframes bcFoxFloat{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-7px) rotate(0)}}
+
+.bc-v9-travel{
+  position:absolute;z-index:10;left:4%;top:36.5%;width:27%;min-width:210px;
+  border:0;background:transparent;text-align:left;cursor:pointer;color:#fff;padding:0;
+  filter:drop-shadow(0 9px 7px rgba(31,36,28,.25))
+}
+.bc-v9-travel .plank{
+  display:block;padding:14px 17px 13px;border:3px solid #a97636;border-radius:14px 18px 13px 16px;
+  background:linear-gradient(180deg,#8e5d2b,#633c20);box-shadow:inset 0 2px 0 rgba(255,255,255,.18),0 5px 0 #4b2b18;
+  font-size:clamp(20px,2.5vw,31px);font-weight:1000;letter-spacing:-.035em;line-height:1
+}
+.bc-v9-travel .plank b{float:right;color:#ffe06e;font-size:1.25em}
+.bc-v9-travel .next{
+  display:block;margin:8px 7px 0;padding:10px 12px;border:3px solid rgba(115,78,38,.22);border-radius:12px;
+  background:rgba(255,241,202,.95);color:#643f25;font-size:clamp(11px,1.45vw,15px);font-weight:850;line-height:1.25
+}
+.bc-v9-travel .next strong{display:block;font-size:1.12em;color:#3f3528;margin-top:2px}
+.bc-v9-travel:active{transform:translateY(3px)}
+
+.bc-v9-dest{
+  --dest-img:url('./geografi-verden.png');
+  position:absolute;z-index:7;width:19.5%;aspect-ratio:1.28/1;border:3px solid rgba(255,255,255,.92);
+  border-radius:42% 48% 34% 46%/37% 38% 48% 45%;overflow:hidden;padding:0;cursor:pointer;
+  background-image:linear-gradient(180deg,rgba(21,39,51,.03),rgba(20,36,46,.72)),var(--dest-img);
+  background-size:cover;background-position:center;
+  box-shadow:0 10px 0 rgba(44,65,59,.09),0 18px 26px rgba(23,47,42,.18);
+  transition:transform .16s ease,filter .16s ease
+}
+.bc-v9-dest:before{content:"";position:absolute;left:8%;right:8%;bottom:-10%;height:30%;border-radius:50%;background:#55794f;z-index:-1}
+.bc-v9-dest:active{transform:translateY(3px) scale(.985)}
+.bc-v9-dest .dest-icon{
+  position:absolute;left:9%;top:9%;width:37px;height:37px;border-radius:13px;display:grid;place-items:center;
+  background:rgba(255,255,255,.93);font-size:21px;box-shadow:0 4px 11px rgba(20,34,46,.18)
+}
+.bc-v9-dest .dest-sign{
+  position:absolute;left:7%;right:7%;bottom:7%;padding:8px 9px;border:2px solid rgba(255,222,149,.75);
+  border-radius:12px;background:linear-gradient(180deg,rgba(111,70,34,.95),rgba(72,43,25,.96));
+  color:#fff5d9;text-align:center;font-weight:1000;font-size:clamp(12px,1.55vw,18px);
+  box-shadow:0 4px 0 rgba(49,28,17,.58);text-shadow:0 1px 2px rgba(0,0,0,.25)
+}
+.bc-v9-dest.globe{left:57.5%;top:7%;--dest-img:url('./geografi-verden.png')}
+.bc-v9-dest.fraction{left:78%;top:12%;--dest-img:url('./matte-verden.png');transform:rotate(1deg)}
+.bc-v9-dest.words{left:59.5%;top:30.5%;--dest-img:url('./bokskogen-atlas32.webp');transform:rotate(-1deg)}
+.bc-v9-dest.multiply{left:80.5%;top:34%;--dest-img:url('./matte-verden.png')}
+.bc-v9-dest:hover{filter:saturate(1.08) brightness(1.04)}
+
+.bc-v9-explore-label{
+  position:absolute;z-index:10;right:7.2%;top:3.4%;padding:10px 18px;border:3px solid rgba(127,82,34,.25);
+  border-radius:15px;background:rgba(255,235,188,.96);color:#253f5b;font-size:clamp(16px,2.15vw,25px);font-weight:1000;
+  box-shadow:0 5px 0 rgba(91,60,31,.11);transform:rotate(.6deg)
+}
+.bc-v9-explore-label span{margin-right:6px}
+
+.bc-v9-quest,.bc-v9-collection{
+  position:absolute;z-index:10;border:3px solid rgba(118,77,35,.26);border-radius:19px;
+  background:linear-gradient(145deg,rgba(255,241,203,.97),rgba(255,249,225,.97));
+  box-shadow:0 7px 0 rgba(82,55,31,.10),0 13px 22px rgba(32,52,47,.15);
+  color:#543a28;text-align:left;cursor:pointer
+}
+.bc-v9-quest{left:45.5%;bottom:10.4%;width:25%;padding:12px 13px 11px}
+.bc-v9-quest strong,.bc-v9-collection strong{display:block;font-size:clamp(13px,1.7vw,19px);font-weight:1000}
+.bc-v9-quest span{display:block;font-size:clamp(9px,1.1vw,12px);font-weight:800;margin-top:4px;color:#7a6048}
+.bc-v9-quest:before{content:"🦊";float:left;margin-right:9px;font-size:31px}
+.bc-v9-collection{right:3.7%;bottom:10.4%;width:20.5%;padding:12px 13px}
+.bc-v9-collection:before{content:"⭐";float:left;margin-right:9px;font-size:29px}
+.bc-v9-collection span{display:block;margin-top:3px;font-size:clamp(9px,1.1vw,12px);font-weight:800;color:#816941}
+.bc-v9-quest:active,.bc-v9-collection:active{transform:translateY(3px)}
+
+.bc-v9-nav{
+  position:absolute;z-index:14;left:15%;right:15%;bottom:1.7%;display:grid;grid-template-columns:repeat(4,1fr);
+  gap:4px;padding:7px;border:2px solid rgba(255,255,255,.92);border-radius:27px;
+  background:rgba(255,255,255,.94);box-shadow:0 9px 26px rgba(30,50,54,.18);backdrop-filter:blur(8px)
+}
+.bc-v9-nav button{
+  min-height:61px;border:0;border-radius:20px;background:transparent;color:#59627a;font-weight:950;font-size:10px;cursor:pointer
+}
+.bc-v9-nav button span{display:block;font-size:23px;line-height:1.05;margin-bottom:3px}
+.bc-v9-nav button.active{background:#e8f0dc;color:#2f5e43}
+.bc-v9-nav button:active{transform:translateY(2px)}
+
+.bc-v9-pulse .bc-v9-dest{animation:bcDestPulse .75s ease 1}
+@keyframes bcDestPulse{50%{filter:brightness(1.12) saturate(1.16);box-shadow:0 0 0 6px rgba(255,222,91,.38),0 18px 28px rgba(23,47,42,.18)}}
+
+@media(max-width:700px){
+  .laria-basecamp-v9{min-height:900px;border-radius:0}
+  .bc-v9-logo{left:5%;top:2%;font-size:31px}
+  .bc-v9-title{left:4%;top:8%;width:88%;padding:18px 17px}
+  .bc-v9-title h1{font-size:32px}.bc-v9-title p{font-size:11px}
+  .bc-v9-travel{left:5%;top:28.5%;width:48%}
+  .bc-v9-fox{left:17%;bottom:31%;width:44%}
+  .bc-v9-explore-label{right:4%;top:27.5%;font-size:14px;padding:8px 11px}
+  .bc-v9-dest{width:33%;aspect-ratio:1.22/1}
+  .bc-v9-dest.globe{left:60%;top:34%}
+  .bc-v9-dest.fraction{left:61%;top:48%}
+  .bc-v9-dest.words{left:4%;top:58%}
+  .bc-v9-dest.multiply{left:63%;top:62%}
+  .bc-v9-quest{left:5%;bottom:12%;width:43%}
+  .bc-v9-collection{right:5%;bottom:12%;width:40%}
+  .bc-v9-nav{left:3%;right:3%;bottom:2%;border-radius:23px}
+  .bc-v9-nav button{min-height:58px;font-size:9px}.bc-v9-nav button span{font-size:21px}
+}
+@media(prefers-reduced-motion:reduce){.bc-v9-fox{animation:none!important}.bc-v9-dest{transition:none!important}}
