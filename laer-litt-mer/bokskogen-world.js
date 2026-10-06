@@ -3,6 +3,10 @@
   if(typeof renderSubjectJourney!=='function')return;
 
   const baseRenderSubjectJourney=renderSubjectJourney;
+  function selectedProfileFox(){
+    const which=(typeof state!=='undefined'&&state?.profile?.avatar==='girl')?'girl':'boy';
+    return window.LARIA_PROFILE_AVATARS?.[which]||'./lia-fox-explorer.webp';
+  }
 
   const LABELS={
     lyder:'Bokstavporten',
@@ -657,7 +661,7 @@
     const places=PLACES.map(p=>plaque(p,placeState(p,model,recommended,recommendedIndex),reactionPlace?.id||null,newlyOpenedId)).join('');
     const travelerPoint=currentPlace?bokTravelerPoint(currentPlace.point):null;
     const reactionTravelerPoint=reactionPlace?bokTravelerPoint(reactionPlace.point):null;
-    const traveler=travelerPoint&&!prog.complete?'<div class="bok-v13-traveler bok-v15-traveler'+(reaction?' is-arriving':'')+'" style="left:'+travelerPoint[0]+'%;top:'+travelerPoint[1]+'%"'+(reactionTravelerPoint?' data-travel-from-x="'+reactionTravelerPoint[0]+'" data-travel-from-y="'+reactionTravelerPoint[1]+'" data-travel-to-x="'+travelerPoint[0]+'" data-travel-to-y="'+travelerPoint[1]+'"':'')+' aria-hidden="true"><span class="bok-v15-fox-bubble">Vi går hit!</span><img class="bok-v15-fox" src="./lia-fox-explorer.webp?v=fox1" alt="" draggable="false"><span class="bok-v14-travel-dust"><i></i><i></i><i></i></span></div>':'';
+    const traveler=travelerPoint&&!prog.complete?'<div class="bok-v13-traveler bok-v15-traveler'+(reaction?' is-arriving':'')+'" style="left:'+travelerPoint[0]+'%;top:'+travelerPoint[1]+'%"'+(reactionTravelerPoint?' data-travel-from-x="'+reactionTravelerPoint[0]+'" data-travel-from-y="'+reactionTravelerPoint[1]+'" data-travel-to-x="'+travelerPoint[0]+'" data-travel-to-y="'+travelerPoint[1]+'"':'')+' aria-hidden="true"><span class="bok-v15-fox-bubble">Vi går hit!</span><img class="bok-v15-fox" src="'+selectedProfileFox()+'" alt="" draggable="false"><span class="bok-v14-travel-dust"><i></i><i></i><i></i></span></div>':'';
     const reactionFx=reactionPlace?'<div class="bok-v13-progress-reaction" style="left:'+reactionPlace.point[0]+'%;top:'+reactionPlace.point[1]+'%" aria-hidden="true"><i></i><i></i><i></i><b>✓</b></div>':'';
     return '<section class="bok-v10-world bok-v11-world bok-v15-world'+(prog.complete?' is-complete':'')+(reaction?' has-progress-reaction':'')+'" aria-label="Bokskogen, interaktiv læringsverden">'+
       modularScene()+

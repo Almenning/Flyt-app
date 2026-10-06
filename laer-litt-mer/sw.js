@@ -1,4 +1,4 @@
-const CACHE='laria-homeqa-2026-10-06-v3';
+const CACHE='laria-profileqa-2026-10-06-v4';
 const APP_CACHE_PREFIXES=['laer-litt-mer-','laria-'];
 
 const SHELL=[
@@ -14,14 +14,14 @@ const SHELL=[
   './multiplication-lab.js?v=20261006-assets1',
   // Journey / Bokskogen
   './bokskogen-world.css?v=20261006-assets1',
-  './bokskogen-world.js?v=20261006-assets1',
+  './bokskogen-world.js?v=20261006-profileqa1',
   './journey-world-premium.css?v=20261006-assets1',
   './journey-world-premium.js?v=20261006-assets1',
   './world-atlas.css?v=20261006-assets1',
   // Home
   './home-premium.css?v=20261006-assets1',
   './home-basecamp-v12.css?v=20261006-homeqa1',
-  './home-basecamp-v12.js?v=20261006-homeqa1',
+  './home-basecamp-v12.js?v=20261006-profileqa1',
   // Free play
   './word-hunt.css?v=20261006-assets1',
   './word-hunt.js?v=20261006-assets1',
@@ -34,7 +34,7 @@ const SHELL=[
   // Kloden
   './globe-v24.css?v=20261006-assets1',
   './globe-v24-art.js?v=20261006-assets1',
-  './globe-v25-renderer.js?v=20261006-assets1',
+  './globe-v25-renderer.js?v=20261006-profileqa1',
   './basecamp-v11.webp?v=basecamp12d',
   './basecamp-v11-mobile.webp?v=basecamp12d',
   './bokskogen-atlas32.webp?v=atlas32',

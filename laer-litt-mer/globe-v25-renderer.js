@@ -16,6 +16,10 @@ const project=(lon,lat,w,h)=>typeof globeProject==='function'?globeProject(lon,l
 const compassSvg='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M15.8 8.2l-2.3 5.3-5.3 2.3 2.3-5.3 5.3-2.3z" fill="currentColor"/><circle cx="12" cy="12" r="1.2" fill="#fff"/></svg>';
 const globeSvg='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3.8 12h16.4M12 3.5c2.3 2.3 3.5 5.1 3.5 8.5S14.3 18.2 12 20.5M12 3.5C9.7 5.8 8.5 8.6 8.5 12s1.2 6.2 3.5 8.5" fill="none" stroke="currentColor" stroke-width="1.45" stroke-linecap="round"/></svg>';
 const bookSvg='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.4c2.7-.7 5.2-.2 8 1.5v12c-2.8-1.7-5.3-2.2-8-1.5v-12zm16 0c-2.7-.7-5.2-.2-8 1.5v12c2.8-1.7 5.3-2.2 8-1.5v-12z" fill="currentColor"/><path d="M12 6.9v12" stroke="#fff" stroke-opacity=".55" stroke-width="1"/></svg>';
+function selectedProfileFox(){
+  const which=(typeof state!=='undefined'&&state?.profile?.avatar==='girl')?'girl':'boy';
+  return window.LARIA_PROFILE_AVATARS?.[which]||'./lia-fox-explorer-home.webp';
+}
 
 function ensurePremiumShell(){
   let header=screen.querySelector('.premium-globe-header');
@@ -23,10 +27,11 @@ function ensurePremiumShell(){
     header=document.createElement('div');
     header.className='premium-globe-header';
     header.setAttribute('aria-hidden','true');
-    header.innerHTML='<div class="premium-globe-kicker">VERDEN OG MENNESKER</div><div class="premium-globe-title">Kloden</div><div class="premium-globe-subtitle" data-premium-globe-subtitle>Utforsk land, folk, dyr og spennende steder fra hele verden!</div><img class="premium-globe-fox" src="./lia-fox-explorer-home.webp" alt="">';
+    header.innerHTML='<div class="premium-globe-kicker">VERDEN OG MENNESKER</div><div class="premium-globe-title">Kloden</div><div class="premium-globe-subtitle" data-premium-globe-subtitle>Utforsk land, folk, dyr og spennende steder fra hele verden!</div><img class="premium-globe-fox" src="'+selectedProfileFox()+'" alt="">';
     screen.prepend(header);
   }
 
+  const fox=screen.querySelector('.premium-globe-fox');if(fox)fox.src=selectedProfileFox();
   const wrap=screen.querySelector('.globe-wrap');
   if(wrap){
     let ring=wrap.querySelector('.premium-globe-ring');

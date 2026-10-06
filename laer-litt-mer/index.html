@@ -3544,7 +3544,7 @@ function renderAll(){
   if(panelTitle)panelTitle.textContent=band==='young'?'Stjernene dine ⭐':band==='middle'?'Din fremgang':band==='older'?'Fremgang':'Oversikt';
   if(panelKicker)panelKicker.textContent=band==='young'?'DIN SAMLING':band==='middle'?'DENNE UKEN':band==='older'?'UTVIKLING':'STATUS';
   const subjectKicker=document.getElementById('home-subject-kicker');if(subjectKicker)subjectKicker.textContent=band==='young'?'VELG EN VERDEN':'VELG FAG';
-  const avatar=document.querySelector('.avatar');if(avatar){const chosenAvatar=state.profile?.avatar==='girl'?'girl':'boy';avatar.classList.add('profile-fox-avatar');avatar.dataset.profileAvatar=chosenAvatar;avatar.removeAttribute('aria-hidden');avatar.setAttribute('aria-label',chosenAvatar==='girl'?'Valgt figur: revejente':'Valgt figur: revegutt');avatar.innerHTML='<img src="./lia-fox-explorer.webp" alt="">'}
+  const avatar=document.querySelector('.avatar');if(avatar){const chosenAvatar=state.profile?.avatar==='girl'?'girl':'boy';avatar.classList.add('profile-fox-avatar');avatar.dataset.profileAvatar=chosenAvatar;avatar.removeAttribute('aria-hidden');avatar.setAttribute('aria-label',chosenAvatar==='girl'?'Valgt figur: revejente':'Valgt figur: revegutt');avatar.innerHTML='<img src="'+avatarSrc(chosenAvatar)+'" alt="">'}
   Object.entries(tone.icons).forEach(([subject,icon])=>{const el=document.querySelector('.home-subject.'+subject+' .home-subject-icon');if(el)el.textContent=icon});
   document.getElementById('home-grade-label').textContent=cfg.label;
   const adultGrade=document.getElementById('adult-grade');if(adultGrade)adultGrade.value=String(grade);
@@ -6304,18 +6304,18 @@ if(needsProfileSetup||!state.profile.onboarded||!state.profile.grade){
 <script src="./fraction-lab.js?v=20261006-assets1" defer></script>
 <script src="./multiplication-lab.js?v=20261006-assets1" defer></script>
 <!-- Journey / Bokskogen -->
-<script src="./bokskogen-world.js?v=20261006-assets1" defer></script>
+<script src="./bokskogen-world.js?v=20261006-profileqa1" defer></script>
 <script src="./journey-world-premium.js?v=20261006-assets1" defer></script>
 <!-- Free play + Home -->
 <script src="./word-hunt.js?v=20261006-assets1" defer></script>
-<script src="./home-basecamp-v12.js?v=20261006-homeqa1" defer></script>
+<script src="./home-basecamp-v12.js?v=20261006-profileqa1" defer></script>
 <!-- Shared inner-screen helpers + task scene -->
 <script src="./laria-unified-v13.js?v=20261006-assets1" defer></script>
 <script src="./laria-task-scene-v15.js?v=20261006-assets1" defer></script>
 
 <!-- Kloden: art primitives must load before the active renderer. -->
 <script src="./globe-v24-art.js?v=20261006-assets1" defer></script>
-<script src="./globe-v25-renderer.js?v=20261006-assets1" defer></script>
+<script src="./globe-v25-renderer.js?v=20261006-profileqa1" defer></script>
 
 <!-- premium-board-v8-2026-10-04 -->
 <!-- natural-journey-integration-v9-2026-10-04 -->

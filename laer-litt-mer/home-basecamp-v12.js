@@ -74,7 +74,7 @@ function render(){
  }
  host.hidden=!young();if(!young())return;
  host.dataset.mode=mode;
- const profile=window.state?.profile||{};
+ const profile=(typeof state!=='undefined'&&state?.profile)?state.profile:{};
  const playerName=typeof profile.name==='string'?profile.name.trim():'';
  const playerAvatar=profile.avatar==='girl'?'girl':'boy';
  const fox=host.querySelector('.bc12-fox');if(fox){fox.dataset.avatar=playerAvatar;fox.setAttribute('aria-label',playerAvatar==='girl'?'Din valgte revejente':'Din valgte revegutt');const img=fox.querySelector('img');if(img){img.src=selectedFoxSource(playerAvatar);img.alt=playerAvatar==='girl'?'Din valgte revejente venter på stien':'Din valgte revegutt venter på stien'}}
