@@ -595,7 +595,14 @@
   }
 
   function modularScene(){
-    return '<div class="bok-atlas-art" aria-hidden="true"><img src="./bokskogen-atlas32.webp" alt="" width="1024" height="1536" decoding="async" fetchpriority="high"></div>';
+    return '<div class="bok-v16-scene" aria-hidden="true">'+
+      '<div class="bok-v16-layer bok-v16-sky"></div>'+
+      '<div class="bok-v16-layer bok-v16-distant"></div>'+
+      '<div class="bok-v16-layer bok-v16-terrain"><img src="./bokskogen-atlas32.webp" alt="" width="1024" height="1536" decoding="async" fetchpriority="high"></div>'+
+      '<div class="bok-v16-layer bok-v16-water"></div>'+
+      '<div class="bok-v16-layer bok-v16-props"><i class="v16-tree a"></i><i class="v16-tree b"></i><i class="v16-tree c"></i><i class="v16-rock a"></i><i class="v16-rock b"></i></div>'+
+      '<div class="bok-v16-layer bok-v16-foreground"><i class="v16-grass left"></i><i class="v16-grass right"></i></div>'+
+    '</div>';
   }
 
   function takeBokskogenReaction(viewGrade,model){
