@@ -91,3 +91,23 @@
   .bc12-explore-ribbon{top:16.2%;right:3.5%;font-size:11px;padding:6px 9px}
   .bc12-fox-call{left:31%;bottom:38%;max-width:130px;font-size:9px;padding:6px 8px}
 }
+
+
+/* Input safety: decorative Basecamp layers must never intercept taps. */
+.bc12-sun,
+.bc12-heading,
+.bc12-explore-ribbon,
+.bc12-fox,
+.bc12-fox-call,
+.bc12-spark,
+.bc12-place-glow{
+  pointer-events:none!important;
+}
+.bc12-place,
+.bc12-journey,
+.bc12-quest,
+.bc12-treasure,
+.bc12-nav button{
+  pointer-events:auto!important;
+  touch-action:manipulation!important;
+}
