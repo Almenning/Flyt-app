@@ -1,4 +1,4 @@
-const CACHE='laria-stable-2026-10-06-v2';
+const CACHE='laria-stable-2026-10-06-v3';
 const APP_CACHE_PREFIXES=['laer-litt-mer-','laria-'];
 
 const SHELL=[
@@ -14,6 +14,7 @@ const SHELL=[
   './bokskogen-world.js?v=atlas35',
   './journey-world-premium.css?v=map38',
   './journey-world-premium.js?v=atlas35',
+  './world-atlas.css?v=fox-journey-1',
   './home-premium.css?v=young8',
   './home-basecamp-v12.css?v=basecamp12e',
   './home-basecamp-v12.js?v=basecamp12e',
