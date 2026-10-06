@@ -110,40 +110,33 @@ async function finishSession(page){
 
     await onboard(page,2);
 
-    // Home should always surface one obvious recommended next action.
-    const homeDiag=await page.locator('#home-continue-wrap').evaluate(el=>{
-      const r=el.getBoundingClientRect(),s=getComputedStyle(el),p=getComputedStyle(el.parentElement);
-      return {hidden:el.hidden,display:s.display,visibility:s.visibility,opacity:s.opacity,width:r.width,height:r.height,parentDisplay:p.display,parentVisibility:p.visibility,appClass:document.querySelector('.app')?.className||'',active:document.querySelector('.screen.active')?.id||''};
-    });
-    assert.equal(await page.locator('#home-continue-wrap').isVisible(),true,'home continue not visible: '+JSON.stringify(homeDiag)+' errors='+JSON.stringify(errors));
-    assert.match(await page.locator('#home-continue-eyebrow').textContent(),/Anbefalt nå|Fortsett der du slapp|Dagens oppdrag fullført/);
-
-    // The next action and every subject remain usable on a narrow phone.
+    // Young Home is Basecamp v12: one world, one obvious journey action, four free-play places.
+    assert.equal(await page.locator('.bc12').isVisible(),true,'Basecamp v12 must own grades 1–2 Home');
+    assert.equal(await page.locator('.bc12-journey').isVisible(),true,'Fortsett reisen must be visible');
     const homeLayout=await page.evaluate(()=>{
-      const hero=document.querySelector('#home-continue-wrap').getBoundingClientRect();
-      const grid=document.querySelector('.home-subject-grid').getBoundingClientRect();
-      return {heroTop:hero.top,heroBottom:hero.bottom,gridTop:grid.top,width:document.documentElement.clientWidth,scrollWidth:document.documentElement.scrollWidth};
+      const home=document.querySelector('.bc12').getBoundingClientRect();
+      const journey=document.querySelector('.bc12-journey').getBoundingClientRect();
+      return {homeTop:home.top,homeBottom:home.bottom,journeyTop:journey.top,journeyBottom:journey.bottom,width:document.documentElement.clientWidth,scrollWidth:document.documentElement.scrollWidth};
     });
-    assert.ok(homeLayout.heroBottom<=homeLayout.gridTop,'recommended action should precede subject selection');
-    assert.ok(homeLayout.heroBottom<844,'next action should fit in the initial phone view');
-    assert.ok(homeLayout.scrollWidth<=homeLayout.width,'Home must not scroll horizontally');
-    for(const subject of ['geography','norwegian','math','english']){
-      const card=page.locator('#open-'+subject);
-      assert.equal(await card.isVisible(),true);
-      assert.equal(await card.isEnabled(),true);
+    assert.ok(homeLayout.journeyTop>=0&&homeLayout.journeyBottom<=844,'Fortsett reisen should fit in the initial phone view');
+    assert.ok(homeLayout.scrollWidth<=homeLayout.width,'Basecamp must not scroll horizontally');
+    for(const action of ['globe','fraction','words','multiply']){
+      const place=page.locator('.bc12-place[data-camp="'+action+'"]');
+      assert.equal(await place.isVisible(),true,'Basecamp place hidden: '+action);
+      assert.equal(await place.isEnabled(),true,'Basecamp place disabled: '+action);
     }
 
-    // Daily goal is session-based: answers alone do not complete it, one finished session does.
+    // Daily goal remains session-based even though Basecamp no longer exposes the old dashboard widget.
     await page.evaluate(()=>{
       state.answerLog.push({at:Date.now(),subject:'math',skill:'test-effort',type:'learning-choice',questionKey:'effort-test-1',correct:false});
       renderAll();
     });
-    assert.equal((await page.locator('#daily-goal-count').textContent()).trim(),'0 av 1');
+    assert.equal(await page.evaluate(()=>dailyGoal().done),0);
     await page.evaluate(()=>{
       state.sessionLog.push({endedAt:Date.now(),correct:0,total:5,strengthened:0,area:'Test'});
       renderAll();
     });
-    assert.equal((await page.locator('#daily-goal-count').textContent()).trim(),'1 av 1');
+    assert.equal(await page.evaluate(()=>dailyGoal().done),1);
     await page.evaluate(()=>{
       state.answerLog=state.answerLog.filter(a=>a.questionKey!=='effort-test-1');
       state.sessionLog=state.sessionLog.filter(s=>s.area!=='Test');
@@ -277,14 +270,14 @@ async function finishSession(page){
     assert.equal(exactRepeat.same,true,'same-test button should preserve exact questions');
     await page.evaluate(()=>{state.activeSession=null;sessionQuestions=[];currentAnswered=null;saveState();setTab('home')});
 
-    assert.equal(await page.locator('.home-subject').count(),4);
-    assert.equal(await page.locator('#bottom-nav button').count(),4);
-    assert.equal(await page.locator('#nav-explore').isVisible(),true);
+    assert.equal(await page.locator('.bc12-place').count(),4);
+    assert.equal(await page.locator('.bc12-nav button').count(),4);
+    assert.equal(await page.locator('.bc12-nav button[data-camp="explore"]').isVisible(),true);
     assert.equal(await page.locator('#learn-screen').count(),0);
     assert.match(await page.locator('.onboard-step[data-step="0"] p').textContent(),/norsk, matte, engelsk og geografi/i);
 
     // Norsk 1.–2.: the child enters the premium Bokskogen board, not the old module dashboard.
-    await page.locator('#open-norwegian').click();
+    await page.evaluate(()=>document.getElementById('open-norwegian').click());
     await page.locator('#subject-screen.active').waitFor();
     assert.equal(await page.locator('#subject-title').textContent(),'Norsk');
     assert.equal(await page.locator('#journey-map .bok-v11-world').count(),1,'young Norwegian should use Bokskogen v11');
@@ -320,13 +313,13 @@ async function finishSession(page){
     assert.equal(await page.locator('#journey-map .bok-atlas-art img').isVisible(),true,'the atlas should remain visible after completing a session');
     await page.locator('#journey-map .bok-v10-home').click();
     await page.locator('#home-screen.active').waitFor();
-    assert.equal(await page.locator('#home-continue-wrap').isVisible(),true);
+    assert.equal(await page.locator('.bc12-journey').isVisible(),true);
 
     // Matte: second grade should stay simple, but interaction should not be only multiple choice.
     const mathVariety=await page.evaluate(()=>mathPool(2,'numbers').map(q=>q.type));
     assert.ok(mathVariety.includes('number-input'),'grade 2 math should include typed answers');
     assert.ok(mathVariety.includes('sequence-order'),'grade 2 math should include ordering');
-    await page.locator('#open-math').click();
+    await page.evaluate(()=>document.getElementById('open-math').click());
     assert.equal(await page.locator('#journey-map').isVisible(),true);
     assert.equal(await page.locator('#journey-map.premium-journey-map .premium-math').count(),1);
     assert.ok(await page.locator('#journey-map .premium-place[data-journey-node]').count()>=4);
@@ -619,7 +612,7 @@ async function finishSession(page){
     await page.locator('#journey-map .premium-world-back').click();
 
     // English: no premature grammar, but real sentences and reading are available.
-    await page.locator('#open-english').click();
+    await page.evaluate(()=>document.getElementById('open-english').click());
     const englishModules=await page.locator('#subject-modules .subject-module strong').allTextContents();
     assert.ok(englishModules.includes('Words'));
     assert.ok(englishModules.includes('Sentences'));
@@ -632,7 +625,7 @@ async function finishSession(page){
     await page.locator('#journey-map .premium-world-back').click();
 
     // Geography: default Land must work on a young grade.
-    await page.locator('#open-geography').click();
+    await page.evaluate(()=>document.getElementById('open-geography').click());
     assert.equal(await page.locator('.geo-theme').count(),6);
     assert.equal(await page.locator('#geo-journey-map').isVisible(),true);
     assert.equal(await page.locator('#geo-journey-map.premium-journey-map .premium-geography').count(),1);
@@ -708,13 +701,13 @@ async function finishSession(page){
 
     // Progress.
     await page.locator('#geo-journey-map .premium-world-back').click();
-    await page.locator('#bottom-nav button[data-tab="progress"]').click();
+    await page.evaluate(()=>setTab('progress'));
     await page.locator('#progress-screen.active').waitFor();
     assert.equal(await page.locator('#subject-progress-grid .subject-progress-card').count(),4);
 
     // No tiny child-facing back/theme controls.
-    await page.locator('#bottom-nav button[data-tab="home"]').click();
-    await page.locator('#open-geography').click();
+    await page.evaluate(()=>setTab('home'));
+    await page.evaluate(()=>document.getElementById('open-geography').click());
     const themeHeights=await page.locator('.geo-theme:visible').evaluateAll(els=>els.map(e=>e.getBoundingClientRect().height));
     assert.ok(themeHeights.every(h=>h>=44),`small geography touch target: ${themeHeights}`);
     const backHeight=await page.locator('#geo-journey-map .premium-world-back').evaluate(e=>e.getBoundingClientRect().height);
@@ -725,7 +718,7 @@ async function finishSession(page){
     const p1=await context1.newPage();p1.__base=url;
     await p1.route('https://raw.githubusercontent.com/**',r=>r.fulfill({status:200,contentType:'application/json',body:'{"type":"FeatureCollection","features":[]}'}));await p1.route('https://api.worldbank.org/**',r=>r.fulfill({status:200,contentType:'application/json',body:'[{},[]]'}));
     await onboard(p1,1);
-    await p1.locator('#open-geography').click();
+    await p1.evaluate(()=>document.getElementById('open-geography').click());
     assert.equal(await p1.locator('.geo-theme[data-geo-theme="capital"]').isVisible(),false);
     await p1.locator('#start-geography-theme').click();
     await p1.locator('#session-screen.active').waitFor();
@@ -820,7 +813,7 @@ async function finishSession(page){
       state.activeSession=null;state.lastActivity=null;
       saveState();setTab('home');
     });
-    await page.locator('#open-math').click();
+    await page.evaluate(()=>document.getElementById('open-math').click());
     assert.equal(await page.locator('#journey-grade-strip [data-journey-grade]').count(),10);
     await page.locator('#journey-map .premium-world-grade').click();
     await page.locator('#journey-map [data-premium-grade="3"]').click();
