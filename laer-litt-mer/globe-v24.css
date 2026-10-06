@@ -23,8 +23,8 @@ body:has(#world-screen.active){
   z-index:80!important;
   width:100vw!important;
   max-width:none!important;
-  height:100dvh!important;
-  min-height:100dvh!important;
+  height:auto!important;
+  min-height:0!important;
   padding:0!important;
   overflow:hidden!important;
   border-radius:0!important;
@@ -604,4 +604,39 @@ body:has(#world-screen.active){
 
 @media (prefers-reduced-motion:reduce){
   #world-screen.active *{scroll-behavior:auto!important}
+}
+
+
+/* Responsive QA: real fixed viewport geometry for iPhone/iPad Safari. */
+body:has(#world-screen.active),
+html:has(#world-screen.active){
+  width:100%!important;
+  height:100%!important;
+  min-height:100%!important;
+  margin:0!important;
+  overflow:hidden!important;
+}
+.app:has(#world-screen.active){
+  position:static!important;
+  width:100%!important;
+  max-width:none!important;
+  min-height:0!important;
+  padding:0!important;
+  overflow:visible!important;
+}
+#world-screen.active{
+  top:0!important;
+  right:0!important;
+  bottom:0!important;
+  left:0!important;
+}
+@media (orientation:landscape) and (min-width:700px) and (min-height:681px){
+  #world-screen.active{
+    --g24-globe:min(55dvh,48vw,650px);
+    --g24-globe-top:51dvh;
+  }
+  #world-screen.active .premium-globe-header{width:min(92vw,1120px)!important}
+  #world-screen.active .globe-mode{width:min(54vw,590px)!important;min-width:470px!important}
+  #world-screen.active .globe-status,
+  #world-screen.active .globe-actions{width:min(92vw,1120px)!important}
 }
