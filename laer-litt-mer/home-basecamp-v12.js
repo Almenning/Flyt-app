@@ -30,6 +30,13 @@ function next(){
  const node=subject==='geography'?geoJourneyRecommendedNode(grade):journeyRecommendedNode(subject,grade);
  return {subject,title:active?.label||(subject==='norwegian'?PLACES[node?.id]:null)||node?.title||'Bokskogen',active:!!active};
 }
+function journeyCopy(info){
+ if(info?.active)return 'Du har allerede startet. Reisen fortsetter der du slapp.';
+ if(info?.subject==='geography')return 'Et nytt sted i verden venter.';
+ if(info?.subject==='math')return 'Tall, mønstre og neste utfordring venter.';
+ if(info?.subject==='english')return 'Nye ord og et nytt oppdrag venter.';
+ return 'Bokskogen har et nytt oppdrag til deg.';
+}
 function home(view='home'){mode=view;setTab('home');render();}
 function travel(){const info=next();fromCamp=true;if(info.active){startSession();return}if(info.subject==='geography'){renderGeographyContinue();showScreen('geography')}else openSubject(info.subject);}
 function activity(name){
@@ -59,8 +66,11 @@ function markup(){return '<section class="bc12" aria-label="Læria basecamp">'+
  '<div class="bc12-landscape" aria-hidden="true"></div><div class="bc12-sun" aria-hidden="true"></div>'+
  '<header class="bc12-heading"><div class="bc12-brand">Læria<span>✦</span></div><h1>Hvor skal vi dra i dag?</h1><p data-camp-intro>Et nytt eventyr venter på deg.</p></header>'+
  '<div class="bc12-explore-ribbon"><span aria-hidden="true">🧭</span>Lek & utforsk</div><div class="bc12-destinations" aria-label="Lek og utforsk">'+destination('globe','Kloden','Oppdag verden')+destination('fraction','Brøklab','Del og eksperimenter')+destination('words','Ordjakt','Inn i Bokskogen')+destination('multiply','Gangetabell','Lek med tall')+'</div>'+
+ '<div class="bc12-journey-route" aria-hidden="true"><svg viewBox="0 0 100 100" preserveAspectRatio="none"><path class="bc12-route-edge" d="M5 88 C25 82 27 62 46 64 S72 43 95 16"></path><path class="bc12-route-main" d="M5 88 C25 82 27 62 46 64 S72 43 95 16"></path></svg><span class="bc12-route-bridge"></span></div>'+
+ '<div class="bc12-you-are-here" aria-hidden="true"><i></i><span>Du er her</span></div>'+
+ '<div class="bc12-next-beacon" aria-hidden="true"><i></i><span>Neste sted</span></div>'+
  '<div class="bc12-fox"><img src="./lia-fox-explorer-home.webp" alt="Reven med ryggsekk venter på stien" draggable="false"></div><div class="bc12-fox-call" data-camp-fox-call>Klar? Jeg viser vei!</div>'+
- '<button class="bc12-journey" data-camp="travel"><span>Fortsett reisen <b aria-hidden="true">→</b></span><small>Neste: <strong data-camp-next>Bokskogen</strong></small></button>'+
+ '<button class="bc12-journey" data-camp="travel"><span>Fortsett reisen <b aria-hidden="true">→</b></span><small><em>Neste sted</em><strong data-camp-next>Bokskogen</strong><span data-camp-next-copy>Et nytt oppdrag venter.</span></small></button>'+
  '<button class="bc12-quest" data-camp="quest"><span class="bc12-wax" aria-hidden="true">✦</span><span>Et brev fra reven<small>Vil du bli med?</small></span></button>'+
  '<button class="bc12-treasure" data-camp="collection"><span>Samlingen min</span></button>'+
  '<i class="bc12-spark a" aria-hidden="true"></i><i class="bc12-spark b" aria-hidden="true"></i><i class="bc12-spark c" aria-hidden="true"></i>'+
@@ -81,7 +91,11 @@ function render(){
  host.querySelector('h1').textContent=mode==='explore'?'Hva vil du leke med?':'Hvor skal vi dra i dag?';
  host.querySelector('[data-camp-intro]').textContent=mode==='explore'?'Velg et sted. Bli så lenge du vil.':(playerName?'Et nytt eventyr venter på deg, '+playerName+'.':'Et nytt eventyr venter på deg.');
  const foxCall=host.querySelector('[data-camp-fox-call]');if(foxCall)foxCall.textContent=mode==='explore'?'Velg noe du liker!':(playerName?'Klar, '+playerName+'? Jeg viser vei!':'Klar? Jeg viser vei!');
- host.querySelector('[data-camp-next]').textContent=next().title;
+ const trip=next(),journeyButton=host.querySelector('.bc12-journey');
+ host.dataset.journeySubject=trip.subject||'norwegian';
+ host.querySelector('[data-camp-next]').textContent=trip.title;
+ host.querySelector('[data-camp-next-copy]').textContent=journeyCopy(trip);
+ if(journeyButton)journeyButton.setAttribute('aria-label','Fortsett reisen. Neste sted: '+trip.title+'. '+journeyCopy(trip));
  host.querySelectorAll('.bc12-nav button').forEach(b=>{if(b.dataset.camp===mode)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
 }
 function init(){
