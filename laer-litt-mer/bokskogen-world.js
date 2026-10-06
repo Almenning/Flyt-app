@@ -591,7 +591,7 @@
     let currentIndex=currentPlace?PLACES.findIndex(p=>p.id===currentPlace.id):-1;
     if(prog.complete)currentIndex=PLACES.length-1;
     const pct=prog.complete?100:Math.max(0,currentIndex)/(PLACES.length-1)*100;
-    const pts=PLACES.map(p=>p.point),d=pts.length?('M '+pts[0][0]+' '+pts[0][1]+pts.slice(1).map((p,i)=>{const prev=pts[i],mx=(prev[0]+p[0])/2,my=(prev[1]+p[1])/2;return ' Q '+prev[0]+' '+prev[1]+' '+mx+' '+my}).join('')):'';
+    const pts=PLACES.map(p=>p.point),d=pts.length?('M '+pts[0][0]+' '+pts[0][1]+pts.slice(1).map((p,i)=>{const prev=pts[i],mx=(prev[0]+p[0])/2,my=(prev[1]+p[1])/2;return ' Q '+mx+' '+my+' '+p[0]+' '+p[1]}).join('')):'';
     return '<svg class="bok-v11-route bok-v15-route" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">'+
       '<path class="route-earth-shadow" d="'+d+'"></path>'+
       '<path class="route-earth" d="'+d+'"></path>'+
