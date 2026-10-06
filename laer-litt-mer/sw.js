@@ -1,4 +1,4 @@
-const CACHE='laria-prompt8-2026-10-06-v7';
+const CACHE='laria-prompt8-2026-10-06-v8';
 const APP_CACHE_PREFIXES=['laer-litt-mer-','laria-'];
 
 const SHELL=[
@@ -15,7 +15,7 @@ const SHELL=[
   './multiplication-lab.js?v=20261006-assets1',
   // Journey / Bokskogen
   './bokskogen-world.css?v=20261006-assets1',
-  './bokskogen-world.js?v=20261006-profileqa1',
+  './bokskogen-world.js?v=20261006-p8foundation3',
   './journey-world-premium.css?v=20261006-p8foundation1',
   './journey-world-premium.js?v=20261006-p8foundation1',
   './world-atlas.css?v=20261006-assets1',
