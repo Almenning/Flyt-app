@@ -3048,8 +3048,13 @@ const countries = Object.fromEntries(WORLD_COUNTRIES.map(c=>[c.id,c]));
 const COUNTRY_OVERRIDES={
   at:{capital:'Wien'},be:{capital:'Brussel'},cy:{capital:'Nikosia'},cz:{capital:'Praha'},dk:{capital:'København'},gr:{capital:'Aten'},it:{capital:'Roma'},pl:{capital:'Warszawa'},pt:{capital:'Lisboa'},ro:{capital:'Bucuresti'},ru:{capital:'Moskva'},sm:{capital:'San Marino'},rs:{capital:'Beograd'},ua:{capital:'Kyiv'},gb:{capital:'London',lat:54,lon:-2.5,population:69226000,populationYear:2024},
   am:{capital:'Jerevan'},bt:{capital:'Thimpu'},ir:{capital:'Teheran'},iq:{capital:'Bagdad'},kw:{capital:'Kuwait by'},kg:{capital:'Bisjkek'},mn:{capital:'Ulaanbaatar'},np:{capital:'Katmandu'},sy:{capital:'Damaskus'},tj:{capital:'Dusjanbe'},tm:{capital:'Asjkhabad'},uz:{capital:'Tasjkent'},ye:{capital:'Sana'},
-  dz:{capital:'Alger'},bi:{capital:'Gitega'},eg:{capital:'Kairo'},et:{capital:'Addis Abeba'},sz:{capital:'Mbabane'},
+  lk:{capital:'Sri Jayawardenepura Kotte',capitalDisplay:'Sri Jayawardenepura Kotte · Colombo',capitalQuiz:false,note:'Sri Jayawardenepura Kotte er den lovgivende hovedstaden. Colombo er landets største by og viktige administrative og kommersielle sentrum.'},
+  dz:{capital:'Alger'},bi:{capital:'Gitega'},eg:{capital:'Kairo'},et:{capital:'Addis Abeba'},
+  gq:{capital:'Ciudad de la Paz',capitalDisplay:'Ciudad de la Paz',note:'Ciudad de la Paz ble utpekt som Ekvatorial-Guineas hovedstad i januar 2026 og erstattet Malabo.'},
+  sz:{capital:'Mbabane',capitalDisplay:'Mbabane (administrativ) · Lobamba (kongelig/lovgivende)',capitalQuiz:false,note:'Eswatini har Mbabane som administrativ hovedstad og Lobamba som kongelig og lovgivende sentrum.'},
   cu:{capital:'Havanna'},gt:{capital:'Guatemala by'},mx:{capital:'Mexico by'},pa:{capital:'Panama by'},ki:{capital:'Sør-Tarawa'},
+  bo:{capital:'Sucre',capitalDisplay:'Sucre (konstitusjonell) · La Paz (regjeringssete)',capitalQuiz:false,note:'Sucre er Bolivias konstitusjonelle hovedstad, mens regjeringen og nasjonalforsamlingen holder til i La Paz.'},
+  nr:{capital:'Yaren',capitalDisplay:'Yaren (de facto)',capitalQuiz:false,note:'Nauru har ingen offisielt utpekt hovedstad. Regjeringskontorene ligger i Yaren-distriktet.'},
   me:{capital:'Podgorica',capitalDisplay:'Podgorica (administrativ) · Cetinje (hovedstad)',capitalQuiz:false,note:'Montenegro har Podgorica som administrativ hovedstad og Cetinje som hovedstad.'},
   za:{capital:'Pretoria',capitalDisplay:'Pretoria · Cape Town · Bloemfontein',capitalQuiz:false,note:'Sør-Afrika har tre hovedstadsfunksjoner: Pretoria er administrativ hovedstad, Cape Town har den lovgivende forsamlingen og Bloemfontein er hovedsete for høyesterett.'},
   ps:{name:'Palestina',capital:'Jerusalem',capitalDisplay:'Jerusalem*',capitalQuiz:false,note:'Palestina har proklamert Jerusalem som hovedstad. Myndighetsinstitusjoner ligger i Ramallah, og Jerusalems sluttstatus er omstridt.'},
@@ -3057,6 +3062,7 @@ const COUNTRY_OVERRIDES={
   id:{capital:'Jakarta',note:'Nusantara bygges som framtidig politisk hovedstad. Jakarta er fortsatt hovedstad fram til den formelle flyttingen er gjennomført.'}
 };
 for(const [id,override] of Object.entries(COUNTRY_OVERRIDES)){if(countries[id])Object.assign(countries[id],override)}
+if(countries.cd)countries.cd.name='Kongo-Kinshasa';
 for(const c of WORLD_COUNTRIES){c.capitalDisplay=c.capitalDisplay||c.capital;if(c.populationYear===undefined)c.populationYear=null}
 function hasQuizCapital(c){return !!(c&&c.capital&&c.capitalQuiz!==false)}
 function canMapCountry(c){return !!(c&&Number.isFinite(c.lon)&&Number.isFinite(c.lat))}
