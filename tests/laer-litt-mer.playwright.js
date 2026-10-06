@@ -88,7 +88,9 @@ async function answerCurrent(page){
 }
 
 async function finishSession(page){
-  for(let i=0;i<5;i++){
+  const count=await page.evaluate(()=>sessionQuestions.length);
+  assert.ok(count>0,'session must contain at least one question');
+  for(let i=0;i<count;i++){
     await answerCurrent(page);
     await page.locator('#next-question').click();
   }
