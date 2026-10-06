@@ -45,7 +45,7 @@ test('Prompt 8 active Læria layers are explicit, unique and cache-aligned',()=>
   assert.ok(order('laria-unified-v13.css')<order('laria-task-scene-v15.css'),'task scene must load after unified fallback');
   assert.ok(order('laria-task-scene-v15.css')<order('laria-task-young-v18.css'),'young task layer must load after shared task scene');
 
-  assert.match(sw,/const CACHE='laria-prompt8-2026-10-06-v6'/);
+  assert.match(sw,/const CACHE='laria-prompt8-2026-10-06-v7'/);
 });
 
 test('active external styles do not reference missing local assets',()=>{
