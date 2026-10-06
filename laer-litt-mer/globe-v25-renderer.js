@@ -1,5 +1,5 @@
 (()=>{'use strict';
-const screen=document.getElementById('world-screen');if(!screen)return;screen.classList.add('globe-v25');
+const screen=document.getElementById('world-screen');if(!screen)return;screen.classList.add('globe-v26');
 const ART=window.LariaGlobeArtV24;if(!ART)return;
 const {clamp,TERRAIN,FEATURES,draw}=ART;
 
@@ -61,7 +61,7 @@ function ensurePremiumShell(){
 function syncPremiumChrome(mode){
   const next=mode==='classic'?'classic':(mode==='mine'?'mine':'explore');
   screen.dataset.premiumGlobeMode=next;
-  screen.dataset.globeVersion='25';
+  screen.dataset.globeVersion='26';
   document.querySelectorAll('#globe-mode [data-globe-mode]').forEach(b=>b.classList.toggle('active',b.dataset.globeMode===next));
   document.getElementById('globe-legend')?.classList.toggle('show',next==='mine');
 
@@ -141,99 +141,77 @@ function ocean(ctx,w,h,s){
 }
 function continentGradient(ctx,continent,w,h){
   const base=PALETTE[continent]||'#78A47B';
-  const g=ctx.createLinearGradient(w*.26,h*.16,w*.76,h*.86);
-  g.addColorStop(0,mix(base,'#FFF1C9',.24));
-  g.addColorStop(.46,base);
-  g.addColorStop(1,mix(base,'#385548',.18));
+  const g=ctx.createLinearGradient(w*.24,h*.15,w*.77,h*.88);
+  g.addColorStop(0,mix(base,'#FFF4D0',.28));
+  g.addColorStop(.42,mix(base,'#FFF0C7',.08));
+  g.addColorStop(.70,base);
+  g.addColorStop(1,mix(base,'#365247',.19));
   return g;
 }
-
 function continentCountries(continent){
   return typeof WORLD_COUNTRIES==='undefined'?[]:WORLD_COUNTRIES.filter(c=>c.geometry&&c.continent===continent);
 }
-
 function paintContinents(ctx,w,h,s){
   if(typeof WORLD_COUNTRIES==='undefined')return;
   const continents=[...new Set(WORLD_COUNTRIES.filter(c=>c.geometry).map(c=>c.continent))];
 
-  /* First pass: merge countries visually into one land mass per continent.
-     Thick strokes in the same fill color remove the old tiled-map seams. */
   for(const continent of continents){
     const members=continentCountries(continent);
     if(!members.length)continue;
-    const base=PALETTE[continent]||'#78A47B';
 
     ctx.save();
-    ctx.shadowColor='rgba(28,58,50,.18)';
-    ctx.shadowBlur=Math.max(2,s*.006);
-    ctx.shadowOffsetY=Math.max(1,s*.002);
+    ctx.fillStyle=continentGradient(ctx,continent,w,h);
+    ctx.strokeStyle=ctx.fillStyle;
+    ctx.lineJoin='round';
+    ctx.lineCap='round';
+    ctx.lineWidth=Math.max(3.5,s*.007);
+    ctx.shadowColor='rgba(22,54,49,.22)';
+    ctx.shadowBlur=Math.max(3,s*.009);
+    ctx.shadowOffsetY=Math.max(1,s*.0025);
 
     for(const c of members){
       ctx.beginPath();
       if(!addPath(ctx,c,w,h))continue;
-      ctx.fillStyle=continentGradient(ctx,continent,w,h);
       ctx.fill();
-      ctx.strokeStyle=mix(base,'#FFF0C8',.08);
-      ctx.lineWidth=Math.max(2.2,s*.0052);
       ctx.stroke();
     }
     ctx.restore();
   }
 
-  /* Second pass: broad painterly light across land, shared across borders. */
   ctx.save();
   if(landClip(ctx,w,h)){
-    const light=ctx.createRadialGradient(w*.37,h*.25,s*.03,w*.50,h*.50,s*.55);
-    light.addColorStop(0,'rgba(255,244,191,.20)');
-    light.addColorStop(.48,'rgba(255,237,174,.06)');
-    light.addColorStop(1,'rgba(57,76,55,.08)');
+    const light=ctx.createRadialGradient(w*.36,h*.24,2,w*.48,h*.48,s*.46);
+    light.addColorStop(0,'rgba(255,248,206,.22)');
+    light.addColorStop(.52,'rgba(255,239,180,.05)');
+    light.addColorStop(1,'rgba(42,69,54,.07)');
     ctx.fillStyle=light;
     ctx.fillRect(0,0,w,h);
   }
   ctx.restore();
 }
-
 function paintCountryBorders(ctx,w,h,s){
   if(typeof WORLD_COUNTRIES==='undefined')return;
-  const borderAlpha=globeZoom>2.3?.70:globeZoom>1.5?.54:.40;
+  const borderAlpha=globeZoom>2.5?.58:globeZoom>1.65?.38:.22;
 
   for(const c of WORLD_COUNTRIES){
     if(!c.geometry)continue;
     ctx.beginPath();
     if(!addPath(ctx,c,w,h))continue;
-
     const selected=c.id===globeSelected;
+
     if(selected){
       ctx.save();
-      ctx.fillStyle='rgba(255,215,83,.64)';
-      ctx.shadowColor='rgba(255,197,43,.38)';
-      ctx.shadowBlur=Math.max(6,s*.012);
+      ctx.fillStyle='rgba(255,216,83,.68)';
+      ctx.shadowColor='rgba(255,197,43,.28)';
+      ctx.shadowBlur=Math.max(5,s*.010);
       ctx.fill();
       ctx.restore();
-      ctx.strokeStyle='rgba(255,250,220,.98)';
-      ctx.lineWidth=Math.max(1.7,s*.0031);
+      ctx.strokeStyle='rgba(255,252,226,.98)';
+      ctx.lineWidth=Math.max(1.6,s*.0028);
     }else{
-      ctx.strokeStyle='rgba(255,248,221,'+borderAlpha+')';
-      ctx.lineWidth=globeZoom>2.5?1.0:Math.max(.52,s*.00105);
+      ctx.strokeStyle='rgba(255,250,229,'+borderAlpha+')';
+      ctx.lineWidth=globeZoom>2.7?.9:Math.max(.4,s*.00082);
     }
-    ctx.stroke();
-  }
-
-  /* Tiny countries stay hittable without turning the globe into a pinboard. */
-  for(const c of WORLD_COUNTRIES){
-    let tiny=false;
-    try{tiny=typeof isTinyCountry==='function'&&isTinyCountry(c)}catch(_){}
-    if(!tiny&&c.id!==globeSelected)continue;
-    const p=project(c.lon,c.lat,w,h);
-    if(!p||p[2]<.05)continue;
-    const selected=c.id===globeSelected;
-    const rr=selected?Math.max(5.5,s*.0098):Math.max(1.8,s*.0032);
-    ctx.beginPath();
-    ctx.arc(p[0],p[1],rr,0,Math.PI*2);
-    ctx.fillStyle=selected?'#FFD55D':'rgba(255,242,171,.88)';
-    ctx.fill();
-    ctx.strokeStyle=selected?'rgba(255,252,229,.96)':'rgba(88,71,45,.20)';
-    ctx.lineWidth=selected?1.4:.8;
     ctx.stroke();
   }
 }
@@ -417,7 +395,7 @@ function install(){
   syncPremiumChrome(typeof globeMode==='string'?globeMode:'explore');
 
   window.__lariaGlobeV25Installed=true;
-  screen.dataset.globeVersion='25';
+  screen.dataset.globeVersion='26';
   requestAnimationFrame(()=>{try{resizeGlobe();routedDraw()}catch(_){}});
   return true;
 }
