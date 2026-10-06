@@ -5402,19 +5402,39 @@ function learningFeedbackText(q,correct){
   return 'Nesten. Oppgaven kommer tilbake senere, med litt mer støtte.';
 }
 function answerLearningChoice(answer){
-  if(currentAnswered)return;const q=sessionQuestions[qIndex],correct=String(answer)===String(q.answer);
+  if(currentAnswered)return;
+  const q=sessionQuestions[qIndex],correct=String(answer)===String(q.answer),young=currentGrade()<=2;
   recordLearningAnswer(q,correct,answer);
-  document.querySelectorAll('.answer').forEach(b=>{b.disabled=true;if(b.dataset.answer===String(q.answer))b.classList.add('correct');else if(b.dataset.answer===String(answer))b.classList.add('wrong')});
-  showLearningFeedback(q,correct);
+  const buttons=[...document.querySelectorAll('.answer')];
+  buttons.forEach(b=>{
+    b.classList.remove('correct','wrong');
+    if(correct){
+      b.disabled=true;
+      if(b.dataset.answer===String(q.answer))b.classList.add('correct');
+    }else if(b.dataset.answer===String(answer)){
+      b.classList.add('wrong');
+    }
+  });
+  showLearningFeedback(q,correct,{retry:young&&!correct});
+  if(young&&!correct){
+    currentAnswered=null;
+    persistActiveSession();
+    buttons.forEach(b=>{if(!b.classList.contains('wrong'))b.disabled=false});
+  }
 }
-function showLearningFeedback(q,correct){
-  const box=document.getElementById('feedback');box.style.display='block';box.classList.toggle('bad',!correct);
+function showLearningFeedback(q,correct,options={}){
+  const box=document.getElementById('feedback');
+  box.style.display='block';
+  box.classList.toggle('bad',!correct);
+  box.classList.toggle('success-pop',!!correct);
+  box.classList.toggle('retry',!!options.retry);
   document.getElementById('feedback-title').textContent=correct?(currentGrade()<=2?'🦊 ⭐ Riktig!':'⭐ Riktig!'):'💪 Nesten!';
   let copy=learningFeedbackText(q,correct);
+  if(options.retry)copy+=(q.subject==='english'?' Try again.':' Prøv en gang til.');
   const last=state.answerLog[state.answerLog.length-1];
   if(correct&&currentGrade()<=2&&last?.strengthened)copy+=' ⭐ Dette ble sterkere i samlingen din.';
   document.getElementById('feedback-copy').textContent=copy;
-  document.getElementById('next-question').style.display='block';
+  document.getElementById('next-question').style.display=options.retry?'none':'block';
 }
 function renderBuildWord(q,wrap){
   const letters=q.letters.map((x,i)=>Object.assign({},x,{idx:i}));
