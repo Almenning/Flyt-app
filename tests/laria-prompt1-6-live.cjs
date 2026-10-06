@@ -39,8 +39,8 @@ async function existing(engine,name){
  assert.deepEqual(errs,[],name+' existing profile errors');await c.close();await b.close()
 }
 async function onboarding(engine,name,avatar){
- const b=await engine.launch({headless:true}),c=await b.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,serviceWorkers:'block'});await c.addInitScript(()=>localStorage.clear());
- const p=await c.newPage(),errs=[];p.on('pageerror',e=>errs.push(e.message));await p.goto(QA_URL+'&onboard='+avatar+'&runtime='+Date.now(),{waitUntil:'networkidle'});await p.locator('#onboarding.show').waitFor();
+ const b=await engine.launch({headless:true}),c=await b.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,serviceWorkers:'block'});
+ const p=await c.newPage(),errs=[];p.on('pageerror',e=>errs.push(e.message));await p.goto(QA_URL+'&prepare='+avatar+'&runtime='+Date.now(),{waitUntil:'networkidle'});await p.evaluate(()=>localStorage.clear());await p.reload({waitUntil:'networkidle'});await p.locator('#onboarding.show').waitFor();
  await p.locator('.avatar-choice-card[data-avatar="'+avatar+'"]').click();const n=avatar==='boy'?'Oskar QA':'Ida QA';await p.locator('#profile-name').fill(n);await p.locator('.grade-btn[data-grade="2"]').click();await p.locator('#profile-next').click();await p.locator('#home-screen.active').waitFor();
  let profile=await p.evaluate(k=>JSON.parse(localStorage.getItem(k)).profile,KEY);assert.deepEqual([profile.name,profile.avatar,profile.grade,profile.onboarded],[n,avatar,2,true]);
  await p.reload({waitUntil:'networkidle'});await p.locator('#home-screen.active').waitFor();profile=await p.evaluate(k=>JSON.parse(localStorage.getItem(k)).profile,KEY);assert.deepEqual([profile.name,profile.avatar,profile.grade],[n,avatar,2]);
