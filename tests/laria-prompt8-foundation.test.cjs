@@ -18,8 +18,10 @@ function versionOf(ref){
   return m?m[1]:null;
 }
 function swVersion(sw,file){
-  const escaped=file.replace(/[.*+?^()|[\]\\$]/g,'\\$&');
-  return sw.match(new RegExp(escaped+'\\?v=([^"\\'\\s,]+)'))?.[1]||null;
+  const needle=file+'?v=';
+  const at=sw.indexOf(needle);
+  if(at<0)return null;
+  return sw.slice(at+needle.length).split(/["'\\s,]/,1)[0]||null;
 }
 
 test('Prompt 8 active Læria layers are explicit, unique and cache-aligned',()=>{
