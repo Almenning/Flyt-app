@@ -21,7 +21,7 @@ function swVersion(sw,file){
   const needle=file+'?v=';
   const at=sw.indexOf(needle);
   if(at<0)return null;
-  return sw.slice(at+needle.length).split(/["'\\s,]/,1)[0]||null;
+  return sw.slice(at+needle.length).split(/[\"'\s,]/,1)[0]||null;
 }
 
 test('Prompt 8 active Læria layers are explicit, unique and cache-aligned',()=>{
