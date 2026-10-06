@@ -35,16 +35,28 @@ jobs:
         run: npx playwright install --with-deps chromium webkit
       - name: Run complete Node test suite
         run: npm run test:node
-      - name: Run Læria local browser verification
+      - name: Run complete Læria browser suite in WebKit
+        env:
+          LEARNING_BROWSER: webkit
         run: node tests/laer-litt-mer.playwright.js
       - name: Run general repository browser suite
-        continue-on-error: true
         shell: bash
         run: |
           set +e
           npm run test:browser 2>&1 | tee browser-test.log
           status=${PIPESTATUS[0]}
           exit "$status"
+      - name: Verify Basecamp touch, persistence and responsive layouts in both engines
+        shell: bash
+        env:
+          QA_SCREENSHOTS: artifacts/laria-prompt8b
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/laria-server.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid"' EXIT
+          node tests/laria-basecamp-v12.cjs
+          LEARNING_BROWSER=webkit node tests/laria-basecamp-v12.cjs
       - name: Verify published Læria runtime
         if: always()
         env:
@@ -55,7 +67,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: browser-test-log-${{ github.run_id }}
-          path: browser-test.log
+          path: |
+            browser-test.log
+            artifacts/laria-prompt8b
           if-no-files-found: ignore
           retention-days: 7
 

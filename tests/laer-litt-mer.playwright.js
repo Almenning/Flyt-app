@@ -3,7 +3,9 @@ const assert=require('node:assert/strict');
 const http=require('node:http');
 const fs=require('node:fs');
 const path=require('node:path');
-const {chromium}=require('playwright');
+const engines=require('playwright');
+const browserName=process.env.LEARNING_BROWSER||'chromium';
+assert.ok(['chromium','webkit'].includes(browserName),'unsupported LEARNING_BROWSER');
 
 const root=path.resolve(__dirname,'..','laer-litt-mer');
 const mime={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.json':'application/json; charset=utf-8','.webmanifest':'application/manifest+json; charset=utf-8','.svg':'image/svg+xml'};
@@ -99,7 +101,7 @@ async function finishSession(page){
 
 (async()=>{
   const {server,url}=await startServer();
-  const browser=await chromium.launch({headless:true,...(process.env.LEARNING_CHROME_PATH?{executablePath:process.env.LEARNING_CHROME_PATH}:{})});
+  const browser=await engines[browserName].launch({headless:true,...(browserName==='chromium'&&process.env.LEARNING_CHROME_PATH?{executablePath:process.env.LEARNING_CHROME_PATH}:{})});
   const errors=[];
   try{
     const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
@@ -944,7 +946,7 @@ async function finishSession(page){
     assert.match(await page.locator('#grade-round-title').textContent(),/rundet/i);
 
     assert.deepEqual(errors,[]);
-    console.log('laer-litt-mer browser QA passed');
+    console.log('laer-litt-mer browser QA passed ('+browserName+')');
   }finally{
     await browser.close();
     await new Promise(resolve=>server.close(resolve));
