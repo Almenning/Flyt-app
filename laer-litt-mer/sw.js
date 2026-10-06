@@ -1,4 +1,4 @@
-const CACHE='laria-stable-2026-10-06-v3';
+const CACHE='laria-stable-2026-10-06-v4';
 const APP_CACHE_PREFIXES=['laer-litt-mer-','laria-'];
 
 const SHELL=[
