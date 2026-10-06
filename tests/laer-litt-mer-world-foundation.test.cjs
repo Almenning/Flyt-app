@@ -46,10 +46,15 @@ test('2.5D assets are cache-busted consistently for the PWA', () => {
   const html = read('index.html');
   const sw = read('sw.js');
 
+  const assetVersion=(source,asset)=>{
+    const needle=asset+'?v=';
+    const at=source.indexOf(needle);
+    if(at<0)return null;
+    return source.slice(at+needle.length).split(/["'\\s>]/,1)[0]||null;
+  };
   for(const asset of ['journey-world-premium.css','journey-world-premium.js','bokskogen-world.css','bokskogen-world.js','world-atlas.css']){
-    const escaped=asset.replace(/[.*+?^$()|[\]\\]/g,'\\$&');
-    const htmlVersion=html.match(new RegExp(escaped+"\\\\?v=([^\\\"']+)"))?.[1];
-    const swVersion=sw.match(new RegExp(escaped+"\\\\?v=([^\\\"']+)"))?.[1];
+    const htmlVersion=assetVersion(html,asset);
+    const swVersion=assetVersion(sw,asset);
     assert.ok(htmlVersion,asset+' is missing a cache-busted HTML reference');
     assert.equal(swVersion,htmlVersion,asset+' version differs between HTML and service worker');
   }
