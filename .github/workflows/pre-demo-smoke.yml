@@ -43,6 +43,7 @@ jobs:
           status=${PIPESTATUS[0]}
           exit "$status"
       - name: Verify published Læria runtime
+        if: always()
         env:
           QA_URL: https://almenning.github.io/Flyt-app/laer-litt-mer/?app=laria
         run: npm run test:laria-live
