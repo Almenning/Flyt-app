@@ -9,13 +9,13 @@ body:has(#world-screen.active){
 }
 
 #world-screen.active{
-  --g24-cream:#fff7e5;
-  --g24-paper:#fffaf0;
-  --g24-ink:#133c70;
-  --g24-brown:#75461f;
-  --g24-brown-dark:#4d2c17;
-  --g24-gold:#e0ad4d;
-  --g24-green:#4f7d43;
+  --g24-cream:var(--laria-cream,#fff7e5);
+  --g24-paper:var(--laria-cream-answer,#fffaf0);
+  --g24-ink:var(--laria-ink,#133c70);
+  --g24-brown:var(--laria-wood,#75461f);
+  --g24-brown-dark:var(--laria-wood-dark,#4d2c17);
+  --g24-gold:var(--laria-gold,#e0ad4d);
+  --g24-green:var(--laria-green,#4f7d43);
   --g24-globe:min(57dvh,60vw,760px);
   --g24-globe-top:51.3dvh;
   position:fixed!important;
