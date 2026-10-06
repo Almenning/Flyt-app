@@ -1,4 +1,4 @@
-const CACHE='laria-prompt7-2026-10-06-v5';
+const CACHE='laria-prompt8-2026-10-06-v6';
 const APP_CACHE_PREFIXES=['laer-litt-mer-','laria-'];
 
 const SHELL=[
@@ -8,6 +8,7 @@ const SHELL=[
   './profile-avatars.js?v=20261006-assets1',
   './norwegian-content.js?v=20261006-assets1',
   // Labs
+  './laria-foundation-v1.css?v=20261006-p8foundation1',
   './fraction-lab.css?v=20261006-assets1',
   './fraction-lab.js?v=20261006-assets1',
   './multiplication-lab.css?v=20261006-assets1',
@@ -15,12 +16,12 @@ const SHELL=[
   // Journey / Bokskogen
   './bokskogen-world.css?v=20261006-assets1',
   './bokskogen-world.js?v=20261006-profileqa1',
-  './journey-world-premium.css?v=20261006-assets1',
-  './journey-world-premium.js?v=20261006-assets1',
+  './journey-world-premium.css?v=20261006-p8foundation1',
+  './journey-world-premium.js?v=20261006-p8foundation1ssets1',
   './world-atlas.css?v=20261006-assets1',
   // Home
-  './home-premium.css?v=20261006-assets1',
-  './home-basecamp-v12.css?v=20261006-prompt7',
+  './home-premium.css?v=20261006-p8foundation1',
+  './home-basecamp-v12.css?v=20261006-p8foundation1',
   './home-basecamp-v12.js?v=20261006-prompt7',
   // Free play
   './word-hunt.css?v=20261006-assets1',
@@ -28,11 +29,11 @@ const SHELL=[
   // Shared UI + task scene
   './laria-unified-v13.css?v=20261006-assets1',
   './laria-unified-v13.js?v=20261006-assets1',
-  './laria-task-scene-v15.css?v=20261006-assets1',
+  './laria-task-scene-v15.css?v=20261006-p8foundation1',
   './laria-task-scene-v15.js?v=20261006-assets1',
   './laria-task-young-v18.css?v=20261006-assets1',
   // Kloden
-  './globe-v24.css?v=20261006-assets1',
+  './globe-v24.css?v=20261006-p8foundation1',
   './globe-v24-art.js?v=20261006-assets1',
   './globe-v25-renderer.js?v=20261006-profileqa1',
   './basecamp-v11.webp?v=basecamp12d',
