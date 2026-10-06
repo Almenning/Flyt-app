@@ -1,6 +1,6 @@
 /* The world is one continuous illustrated surface. Interaction stays on its landmarks. */
 .premium-journey-map{display:block!important;margin:0!important;padding:0!important;max-width:none!important}
-.premium-world{position:relative;isolation:isolate;width:100%;aspect-ratio:841/1870;overflow:hidden;background:#183c46;color:#fff}
+.premium-world{position:relative;isolation:isolate;width:100%;aspect-ratio:841/1870;overflow:hidden;background:#183c46;color:#fff;font-family:var(--laria-font-rounded,system-ui,sans-serif)}
 .premium-world-art{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;user-select:none}
 .premium-world-shade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(10,30,40,.35),transparent 16%,transparent 79%,rgba(8,28,34,.09)),linear-gradient(90deg,rgba(5,24,27,.1),transparent 14%,transparent 87%,rgba(5,24,27,.08))}
 .premium-world-mist{position:absolute;inset:0;pointer-events:none;background:linear-gradient(to top,transparent 0%,transparent var(--mist-top),rgba(212,226,235,.09) 93%,rgba(232,237,246,.11) 100%);mix-blend-mode:screen}
@@ -1269,6 +1269,7 @@
 /* Traveler movement v1 — one short transform-only journey after real progress. */
 .premium-traveler{animation:none!important;will-change:transform}
 .premium-traveler-character{display:grid;place-items:center;width:100%;height:100%;animation:premiumFoxGuide 3s ease-in-out infinite;transform-origin:50% 82%}
+.premium-traveler-character img{display:block;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 4px 5px rgba(29,42,31,.24));user-select:none;pointer-events:none}
 .premium-travel-dust{position:absolute;left:50%;bottom:-2px;width:40px;height:18px;transform:translateX(-50%);pointer-events:none}
 .premium-travel-dust i{position:absolute;left:50%;bottom:1px;width:6px;height:6px;border-radius:50%;background:rgba(234,214,170,.72);opacity:0}
 .premium-traveler.is-traveling .premium-traveler-character{animation:premiumTravelerStride .34s ease-in-out infinite}
