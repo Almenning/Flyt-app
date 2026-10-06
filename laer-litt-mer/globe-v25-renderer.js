@@ -189,6 +189,29 @@ function paintContinents(ctx,w,h,s){
   }
   ctx.restore();
 }
+function paintMasteryOverlay(ctx,w,h,s){
+  let mode='explore';try{mode=typeof globeMode==='string'?globeMode:'explore'}catch(_){}
+  if(mode!=='mine'||typeof WORLD_COUNTRIES==='undefined'||typeof countryStatus!=='function')return;
+  const fills={
+    mastered:'rgba(255,214,90,.25)',
+    known:'rgba(91,181,125,.20)',
+    learning:'rgba(246,190,75,.18)',
+    seen:'rgba(180,202,210,.18)',
+    new:'rgba(244,238,221,.16)'
+  };
+  for(const country of WORLD_COUNTRIES){
+    if(!country.geometry)continue;
+    const status=countryStatus(country.id),fill=fills[status]||fills.new;
+    ctx.beginPath();if(!addPath(ctx,country,w,h))continue;
+    ctx.save();ctx.fillStyle=fill;ctx.fill();
+    if(status==='mastered'){
+      ctx.shadowColor='rgba(255,210,64,.28)';ctx.shadowBlur=Math.max(3,s*.006);
+      ctx.strokeStyle='rgba(255,242,185,.72)';ctx.lineWidth=Math.max(.8,s*.0015);ctx.stroke();
+    }
+    ctx.restore();
+  }
+}
+
 function paintCountryBorders(ctx,w,h,s){
   if(typeof WORLD_COUNTRIES==='undefined')return;
   const borderAlpha=globeZoom>2.5?.58:globeZoom>1.65?.38:.22;
@@ -440,6 +463,7 @@ function premiumDraw(){
   ctx.restore();
 
   landRelief(ctx,w,h,s);
+  paintMasteryOverlay(ctx,w,h,s);
   paintCountryBorders(ctx,w,h,s);
   waterDetails(ctx,w,h,s);
   discoveryDetails(ctx,w,h,s);
