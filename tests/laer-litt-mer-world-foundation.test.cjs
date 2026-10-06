@@ -46,17 +46,14 @@ test('2.5D assets are cache-busted consistently for the PWA', () => {
   const html = read('index.html');
   const sw = read('sw.js');
 
-  assert.match(html, /journey-world-premium\.css\?v=map38/);
-  assert.match(html, /journey-world-premium\.js\?v=atlas35/);
-  assert.match(sw, /journey-world-premium\.css\?v=map38/);
-  assert.match(sw, /journey-world-premium\.js\?v=atlas35/);
-  assert.match(html, /bokskogen-world\.css\?v=atlas35/);
-  assert.match(html, /bokskogen-world\.js\?v=atlas35/);
-  assert.match(sw, /bokskogen-world\.css\?v=atlas35/);
-  assert.match(sw, /bokskogen-world\.js\?v=atlas35/);
-  assert.match(sw, /laria-journey-steps-2026-10-05/);
-  assert.match(html, /world-atlas\.css\?v=fox-journey-1/);
-  assert.match(sw, /world-atlas\.css\?v=fox-journey-1/);
+  for(const asset of ['journey-world-premium.css','journey-world-premium.js','bokskogen-world.css','bokskogen-world.js','world-atlas.css']){
+    const escaped=asset.replace(/[.*+?^$()|[\]\\]/g,'\\$&');
+    const htmlVersion=html.match(new RegExp(escaped+'\\?v=([^"\\']+)'))?.[1];
+    const swVersion=sw.match(new RegExp(escaped+'\\?v=([^"\\']+)'))?.[1];
+    assert.ok(htmlVersion,asset+' is missing a cache-busted HTML reference');
+    assert.equal(swVersion,htmlVersion,asset+' version differs between HTML and service worker');
+  }
+  assert.match(sw, /const CACHE=['"][^'"]+v\d+[^'"]*['"]/);
   assert.match(sw, /bokskogen-atlas32\.webp/);
   assert.match(sw, /lia-fox-explorer\.webp/);
   assert.match(html, /journeyWasComplete:journeyNodeIsCompleteForWorldReaction/);
