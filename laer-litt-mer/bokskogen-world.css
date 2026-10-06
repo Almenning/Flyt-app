@@ -2366,3 +2366,15 @@
 .bok-v15-world .bok-v15-route{z-index:12!important}
 .bok-v15-world .bok-v10-place{z-index:var(--place-z,32)}
 .bok-v15-world .bok-v15-traveler{z-index:52!important}
+
+
+/* v16 real destination: Fortellertårnet */
+.bok-v15-landmark.type-story-tower{width:86px;height:112px}
+.type-story-tower .story-tower-body{position:absolute;left:50%;bottom:18px;width:48px;height:72px;transform:translateX(-50%);border:3px solid #5f4935;border-radius:10px 10px 6px 6px;background:linear-gradient(90deg,#c99d68,#f0d19b 48%,#bd8e5e);box-shadow:inset 0 3px rgba(255,245,213,.45)}
+.type-story-tower .story-tower-roof{position:absolute;left:50%;bottom:84px;width:68px;height:36px;transform:translateX(-50%);clip-path:polygon(50% 0,100% 80%,88% 100%,12% 100%,0 80%);background:linear-gradient(145deg,#7c5239,#4f3b32);filter:drop-shadow(0 3px 0 #403026)}
+.type-story-tower .story-window{position:absolute;left:50%;width:15px;height:18px;transform:translateX(-50%);border:2px solid #654835;border-radius:7px 7px 4px 4px;background:#f7dc74;box-shadow:0 0 10px rgba(255,220,104,.38)}
+.type-story-tower .story-window.w1{top:10px}.type-story-tower .story-window.w2{top:34px}
+.type-story-tower .story-door{position:absolute;left:50%;bottom:0;width:20px;height:24px;transform:translateX(-50%);border-radius:9px 9px 2px 2px;background:#6f4933}
+.type-story-tower .story-tower-flag{position:absolute;left:50%;bottom:111px;width:2px;height:18px;background:#65432d}
+.type-story-tower .story-tower-flag:after{content:"";position:absolute;left:2px;top:0;width:19px;height:10px;clip-path:polygon(0 0,100% 18%,76% 100%,0 82%);background:#d7a53d}
+.type-story-tower .story-tower-book{position:absolute;left:50%;bottom:48px;transform:translateX(-50%);color:#75492c;font:1000 8px/1 system-ui,sans-serif}
