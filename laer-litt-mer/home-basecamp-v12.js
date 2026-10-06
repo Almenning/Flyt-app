@@ -13,11 +13,21 @@ const QUESTS=[
 function dailyQuest(){const d=new Date(),seed=d.getFullYear()*400+d.getMonth()*31+d.getDate()+Number(currentGrade()||0);return QUESTS[seed%QUESTS.length]}
 function wordHuntRounds(){try{return Number(JSON.parse(localStorage.getItem('laria-wordhunt-v1')||'{}').rounds||0)}catch(_){return 0}}
 const young=()=>currentGrade()<=2;
+function selectedFoxSource(which){
+ return window.LARIA_PROFILE_AVATARS?.[which]||'./lia-fox-explorer-home.webp';
+}
+function activitySubject(scope,last){
+ if(scope?.subject==='geography'||String(scope?.type||'').startsWith('geo')||['country','collection','world','grade','geography-theme'].includes(scope?.type))return 'geography';
+ if(['norwegian','math','english'].includes(scope?.subject))return scope.subject;
+ if(last?.subject==='geography'||String(last?.kind||'').startsWith('geo'))return 'geography';
+ if(['norwegian','math','english'].includes(last?.subject))return last.subject;
+ return 'norwegian';
+}
 function next(){
  const active=state.activeSession?.scope;
- const candidate=active?.subject||state.lastActivity?.subject;
- const subject=['norwegian','math','english','geography'].includes(candidate)?candidate:'norwegian';
- const node=subject==='geography'?geoJourneyRecommendedNode(currentGrade()):journeyRecommendedNode(subject,currentGrade());
+ const subject=activitySubject(active,state.lastActivity);
+ const grade=Number(active?.journeyGrade||active?.grade||state.lastActivity?.grade||currentGrade());
+ const node=subject==='geography'?geoJourneyRecommendedNode(grade):journeyRecommendedNode(subject,grade);
  return {subject,title:active?.label||(subject==='norwegian'?PLACES[node?.id]:null)||node?.title||'Bokskogen',active:!!active};
 }
 function home(view='home'){mode=view;setTab('home');render();}
@@ -67,7 +77,7 @@ function render(){
  const profile=window.state?.profile||{};
  const playerName=typeof profile.name==='string'?profile.name.trim():'';
  const playerAvatar=profile.avatar==='girl'?'girl':'boy';
- const fox=host.querySelector('.bc12-fox');if(fox){fox.dataset.avatar=playerAvatar;fox.setAttribute('aria-label',playerAvatar==='girl'?'Din valgte revejente':'Din valgte revegutt');const img=fox.querySelector('img');if(img)img.src='./lia-fox-explorer-home.webp'}
+ const fox=host.querySelector('.bc12-fox');if(fox){fox.dataset.avatar=playerAvatar;fox.setAttribute('aria-label',playerAvatar==='girl'?'Din valgte revejente':'Din valgte revegutt');const img=fox.querySelector('img');if(img){img.src=selectedFoxSource(playerAvatar);img.alt=playerAvatar==='girl'?'Din valgte revejente venter på stien':'Din valgte revegutt venter på stien'}}
  host.querySelector('h1').textContent=mode==='explore'?'Hva vil du leke med?':'Hvor skal vi dra i dag?';
  host.querySelector('[data-camp-intro]').textContent=mode==='explore'?'Velg et sted. Bli så lenge du vil.':(playerName?'Et nytt eventyr venter på deg, '+playerName+'.':'Et nytt eventyr venter på deg.');
  const foxCall=host.querySelector('[data-camp-fox-call]');if(foxCall)foxCall.textContent=mode==='explore'?'Velg noe du liker!':(playerName?'Klar, '+playerName+'? Jeg viser vei!':'Klar? Jeg viser vei!');
