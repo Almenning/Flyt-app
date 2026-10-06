@@ -344,8 +344,8 @@ function landRelief(ctx,w,h,s){
   for(const {f,p} of visible){
     const type=f[0];
     const typeScale=type==='mountains'?1.32:type==='trees'?.88:.80;
-    const base=clamp(s*.028,9,20);
-    const k=base*f[3]*typeScale*clamp(p[2]+.18,.64,1.10)*clamp(Math.pow(globeZoom,.055),1,1.08);
+    const mobileBoost=s<520?1.24:s<760?1.10:1,base=clamp(s*.034,11,24);
+    const k=base*mobileBoost*f[3]*typeScale*clamp(p[2]+.18,.64,1.10)*clamp(Math.pow(globeZoom,.045),1,1.07);
     const fn=draw[type];
     if(fn)fn(ctx,p[0],p[1],k,!!f[4]);
   }
@@ -367,27 +367,27 @@ function waterDetails(ctx,w,h,s){
   for(const {f,p} of visible){
     const type=f[0];
     const typeScale=type==='ship'?1.02:type==='whale'?.92:type==='cloud'?.78:.88;
-    const base=clamp(s*.027,9,19);
-    const k=base*f[3]*typeScale*clamp(p[2]+.18,.64,1.08);
+    const mobileBoost=s<520?1.22:s<760?1.10:1,base=clamp(s*.032,10,23);
+    const k=base*mobileBoost*f[3]*typeScale*clamp(p[2]+.18,.64,1.08);
     const fn=draw[type];
     if(fn)fn(ctx,p[0],p[1],k,!!f[4]);
   }
   ctx.restore();
 }
 const DISCOVERY_COMPOSITION=[
-  ['village',16,50,.82],['village',77,28,.66],
-  ['pyramids',30,27,.80],['camel',11,24,.68],
-  ['elephant',28,-3,.80],['giraffe',23,-25,.78],
-  ['lighthouse',-9,38,.60],['lighthouse',-71,42,.54],
-  ['dolphin',-119,18,.68],['dolphin',112,-22,.62],
-  ['plane',7,-1,.50]
+  ['village',16,50,.86],['village',33,56,.62],['village',77,28,.70],
+  ['pyramids',30,27,.84],['camel',11,24,.72],
+  ['elephant',28,-3,.86],['giraffe',23,-25,.82],
+  ['lighthouse',-9,38,.66],['lighthouse',-71,42,.58],
+  ['dolphin',-119,18,.72],['dolphin',112,-22,.66],
+  ['island',73,5,.58],['plane',7,-1,.54]
 ];
 
 function discoveryDetails(ctx,w,h,s){
   let mode='explore';try{mode=typeof globeMode==='string'?globeMode:'explore'}catch(_){}
   if(mode!=='explore')return;
   ctx.save();
-  ctx.globalAlpha=clamp(1.02-globeZoom*.065,.64,.96);
+  ctx.globalAlpha=clamp(1.08-globeZoom*.095,.58,.98);
   const visible=[];
   for(const f of DISCOVERY_COMPOSITION){
     const p=project(f[1],f[2],w,h);
@@ -396,8 +396,8 @@ function discoveryDetails(ctx,w,h,s){
   }
   visible.sort((a,b)=>a.p[2]-b.p[2]);
   for(const {f,p} of visible){
-    const type=f[0],base=clamp(s*.032,11,22);
-    const k=base*f[3]*clamp(p[2]+.20,.64,1.12)*clamp(Math.pow(globeZoom,.08),1,1.13);
+    const type=f[0],mobileBoost=s<520?1.30:s<760?1.14:1,base=clamp(s*.044,15,30);
+    const k=base*mobileBoost*f[3]*clamp(p[2]+.20,.64,1.12)*clamp(Math.pow(globeZoom,.06),1,1.10);
     const fn=draw[type];if(fn)fn(ctx,p[0],p[1],k,!!f[4]);
   }
   ctx.restore();
