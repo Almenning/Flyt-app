@@ -29,9 +29,9 @@ body.laria-task-scene-open #bottom-nav{
   --task-accent:#ca8a2f;
   --task-accent-dark:#9b6122;
   --task-progress:#f0b33c;
-  --task-card:#fff7d9;
+  --task-card:var(--laria-cream-task,#fff7d9);
   --task-card-2:#fff2c8;
-  --task-answer:#fffaf0;
+  --task-answer:var(--laria-cream-answer,#fffaf0);
   --task-answer-edge:#c88936;
   --task-answer-shadow:#a96827;
   --task-good:#4e9b6d;
