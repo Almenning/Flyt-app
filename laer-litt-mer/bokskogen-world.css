@@ -2325,3 +2325,44 @@
 @media(prefers-reduced-motion:reduce){
   .bok-v15-landmark{transition:none}
 }
+
+
+/* Bokskogen v16: explicit 2.5D scene stack. The atlas remains the visual source,
+   but depth, atmosphere, interaction and foreground now live in separate layers. */
+.bok-v15-world .bok-v16-scene{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none;background:#86b8ad}
+.bok-v15-world .bok-v16-layer{position:absolute;inset:0;pointer-events:none}
+.bok-v15-world .bok-v16-sky{z-index:0;background:
+  radial-gradient(circle at 73% 8%,rgba(255,239,176,.48),transparent 10%),
+  linear-gradient(180deg,#a9d7df 0 16%,#c7e3dc 21%,rgba(199,227,220,0) 36%)}
+.bok-v15-world .bok-v16-distant{z-index:1;background:
+  linear-gradient(180deg,transparent 0 12%,rgba(61,104,89,.10) 24%,transparent 37%),
+  radial-gradient(ellipse at 18% 23%,rgba(66,101,88,.18),transparent 25%),
+  radial-gradient(ellipse at 82% 20%,rgba(75,111,91,.17),transparent 24%)}
+.bok-v15-world .bok-v16-terrain{z-index:3;overflow:hidden}
+.bok-v15-world .bok-v16-terrain img{display:block;width:100%;height:100%;object-fit:cover;object-position:center center;filter:saturate(1.03) contrast(1.015);transform:scale(1.002)}
+.bok-v15-world .bok-v16-water{z-index:5;background:
+  radial-gradient(ellipse at 51% 63%,rgba(202,239,235,.17),transparent 12%),
+  linear-gradient(104deg,transparent 38%,rgba(255,255,255,.09) 48%,transparent 58%);
+  mix-blend-mode:screen;opacity:.8}
+.bok-v15-world .bok-v16-props{z-index:9}
+.bok-v15-world .bok-v16-foreground{z-index:58;overflow:hidden}
+.bok-v15-world .v16-tree{position:absolute;width:27px;height:44px;filter:drop-shadow(0 5px 5px rgba(28,55,39,.18))}
+.bok-v15-world .v16-tree:before{content:"";position:absolute;left:50%;bottom:0;width:6px;height:23px;border-radius:4px;background:#6f4c31;transform:translateX(-50%)}
+.bok-v15-world .v16-tree:after{content:"";position:absolute;left:50%;bottom:15px;width:33px;height:33px;border-radius:48%;transform:translateX(-50%);background:
+  radial-gradient(circle at 33% 28%,#729e63 0 22%,transparent 23%),
+  radial-gradient(circle at 68% 35%,#5c8d57 0 25%,transparent 26%),
+  radial-gradient(circle at 50% 66%,#3f754d 0 48%,#315f43 70%)}
+.bok-v15-world .v16-tree.a{left:8%;top:45%;transform:scale(.86)}
+.bok-v15-world .v16-tree.b{right:7%;top:34%;transform:scale(.76)}
+.bok-v15-world .v16-tree.c{right:10%;top:69%;transform:scale(1.02)}
+.bok-v15-world .v16-rock{position:absolute;width:18px;height:11px;border-radius:58% 42% 45% 55%;background:linear-gradient(145deg,#bcc9bc,#73897b);box-shadow:0 4px 5px rgba(34,54,42,.14)}
+.bok-v15-world .v16-rock.a{left:17%;top:59%;transform:rotate(-11deg)}
+.bok-v15-world .v16-rock.b{right:19%;top:78%;transform:rotate(8deg) scale(.88)}
+.bok-v15-world .v16-grass{position:absolute;bottom:-8px;width:120px;height:86px;border-radius:50% 50% 0 0;background:
+  repeating-linear-gradient(74deg,transparent 0 10px,rgba(45,96,57,.72) 11px 15px,transparent 16px 24px);
+  filter:drop-shadow(0 -7px 10px rgba(25,53,37,.10))}
+.bok-v15-world .v16-grass.left{left:-25px;transform:rotate(4deg)}
+.bok-v15-world .v16-grass.right{right:-28px;transform:rotate(-4deg)}
+.bok-v15-world .bok-v15-route{z-index:12!important}
+.bok-v15-world .bok-v10-place{z-index:var(--place-z,32)}
+.bok-v15-world .bok-v15-traveler{z-index:52!important}
