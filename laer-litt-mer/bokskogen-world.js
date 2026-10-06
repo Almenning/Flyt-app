@@ -21,13 +21,17 @@
   // The illustration has seven real destinations. Learning missions live inside
   // those destinations instead of being rendered as eleven artificial map nodes.
   const PLACE_DEFS=[
-    {id:'bokstavporten',title:'Bokstavporten',point:[24,80],required:['lyder']},
-    {id:'lesestua',title:'Lesestua',point:[78,71],required:['ordbilder']},
-    {id:'rimdammen',title:'Rimdammen',point:[77,51],required:['ordlek']},
-    {id:'skogsporten',title:'Skogsporten',point:[26,52],required:['ordstart-checkpoint'],extrasArea:'ordstart'},
-    {id:'ordbrua',title:'Ordbrua',point:[37,34],required:['setningsrekkefolge']},
-    {id:'ordhagen',title:'Ordhagen',point:[74,31],required:['ordbetydning','setninger-checkpoint'],extrasArea:'setninger'},
-    {id:'biblioteket',title:'Biblioteket',point:[55,17],required:['detaljer','forsta','tenkvidere','lesedetektiv-checkpoint'],extrasArea:'lesedetektiv'}
+    {id:'bokstavporten',title:'Bokstavporten',point:[24,82],required:['lyder']},
+    {id:'lesestua',title:'Lesestua',point:[74,73],required:['ordbilder']},
+    {id:'rimdammen',title:'Rimdammen',point:[28,64],required:['ordlek']},
+    {id:'skogsporten',title:'Skogsporten',point:[73,56],required:['ordstart-checkpoint'],extrasArea:'ordstart'},
+    {id:'ordbrua',title:'Ordbrua',point:[34,47],required:['setningsrekkefolge']},
+    {id:'ordhagen',title:'Ordhagen',point:[72,40],required:['ordbetydning']},
+    {id:'fortellerhytta',title:'Fortellerhytta',point:[30,33],required:['setninger-checkpoint'],extrasArea:'setninger'},
+    {id:'detektivstien',title:'Detektivstien',point:[67,27],required:['detaljer']},
+    {id:'historiehytta',title:'Historiehytta',point:[38,21],required:['forsta']},
+    {id:'fortellertarnet',title:'Fortellertårnet',point:[72,16],required:['tenkvidere']},
+    {id:'biblioteket',title:'Biblioteket',point:[52,10],required:['lesedetektiv-checkpoint'],extrasArea:'lesedetektiv'}
   ];
 
   function label(node){return LABELS[node.id]||node.title}
@@ -388,7 +392,7 @@
     finish.classList.toggle('complete',prog.complete);
     finish.innerHTML=prog.complete
       ?'<strong>🏆 Bokskogen er rundet</strong><p>Biblioteket lyser og alle stedene er åpne. Du kan gå tilbake til et hvilket som helst sted og øve igjen.</p><div class="journey-finish-actions"><button class="secondary" id="journey-repeat-grade">Repeter</button><button class="secondary" id="journey-next-grade">Utforsk 3. klasse</button></div>'
-      :'<strong>🌲 Målet: nå Biblioteket</strong><p>Besøk stedene langs stien. Hvert sted inneholder ett eller flere oppdrag, og du kan alltid gå tilbake til steder du allerede har klart.</p>';
+      :'<strong>🌲 Målet: nå Biblioteket</strong><p>Besøk stedene langs stien. Hvert stopp er ett tydelig hovedoppdrag. Du kan alltid gå tilbake til steder du allerede har klart.</p>';
 
     const repeatBtn=document.getElementById('journey-repeat-grade');
     if(repeatBtn)repeatBtn.onclick=()=>startJourneyReview('norwegian',viewGrade);
@@ -419,13 +423,17 @@
 
   const previousRenderSubjectJourney=renderSubjectJourney;
   const PLACES=[
-    {id:'bokstavporten',title:'Bokstavporten',point:[24,80],tilt:-3,required:['lyder']},
-    {id:'lesestua',title:'Lesestua',point:[78,71],tilt:2,required:['ordbilder']},
-    {id:'skogsporten',title:'Skogsporten',point:[26,52],tilt:-2,required:['ordstart-checkpoint'],extrasArea:'ordstart'},
-    {id:'rimdammen',title:'Rimdammen',point:[77,51],tilt:-2,required:['ordlek']},
-    {id:'ordbrua',title:'Ordbrua',point:[37,34],tilt:-4,required:['setningsrekkefolge']},
-    {id:'ordhagen',title:'Ordhagen',point:[74,31],tilt:1,required:['ordbetydning','setninger-checkpoint'],extrasArea:'setninger'},
-    {id:'biblioteket',title:'Biblioteket',point:[55,17],tilt:-1,required:['detaljer','forsta','tenkvidere','lesedetektiv-checkpoint'],extrasArea:'lesedetektiv'}
+    {id:'bokstavporten',title:'Bokstavporten',point:[24,82],tilt:-3,required:['lyder']},
+    {id:'lesestua',title:'Lesestua',point:[74,73],tilt:2,required:['ordbilder']},
+    {id:'rimdammen',title:'Rimdammen',point:[28,64],tilt:-2,required:['ordlek']},
+    {id:'skogsporten',title:'Skogsporten',point:[73,56],tilt:2,required:['ordstart-checkpoint'],extrasArea:'ordstart'},
+    {id:'ordbrua',title:'Ordbrua',point:[34,47],tilt:-4,required:['setningsrekkefolge']},
+    {id:'ordhagen',title:'Ordhagen',point:[72,40],tilt:1,required:['ordbetydning']},
+    {id:'fortellerhytta',title:'Fortellerhytta',point:[30,33],tilt:-2,required:['setninger-checkpoint'],extrasArea:'setninger'},
+    {id:'detektivstien',title:'Detektivstien',point:[67,27],tilt:1,required:['detaljer']},
+    {id:'historiehytta',title:'Historiehytta',point:[38,21],tilt:-2,required:['forsta']},
+    {id:'fortellertarnet',title:'Fortellertårnet',point:[72,16],tilt:2,required:['tenkvidere']},
+    {id:'biblioteket',title:'Biblioteket',point:[52,10],tilt:-1,required:['lesedetektiv-checkpoint'],extrasArea:'lesedetektiv'}
   ];
 
   function finished(node){
@@ -473,7 +481,7 @@
         '<span class="gate-door '+(lit?'is-open':'')+'"></span><span class="bok-v15-lantern left"></span><span class="bok-v15-lantern right"></span>'+
         '<span class="bok-v15-name">'+place.title+'</span>'+stateBit+'</span>';
     }
-    if(place.id==='lesestua'){
+    if(place.id==='lesestua'||place.id==='fortellerhytta'||place.id==='historiehytta'){
       return '<span class="bok-v15-landmark type-hut">'+common+
         '<span class="hut-body"><i class="window left"></i><i class="window right"></i><i class="door"></i></span><span class="hut-roof"></span>'+
         '<span class="hut-book">Aa</span><span class="bok-v15-name">'+place.title+'</span>'+stateBit+'</span>';
@@ -483,7 +491,7 @@
         '<span class="pond-water"><i class="lily l1"></i><i class="lily l2"></i><i class="lily l3"></i><i class="frog">•‿•</i></span>'+
         '<span class="pond-reeds r1"></span><span class="pond-reeds r2"></span><span class="bok-v15-name">'+place.title+'</span>'+stateBit+'</span>';
     }
-    if(place.id==='skogsporten'){
+    if(place.id==='skogsporten'||place.id==='detektivstien'){
       return '<span class="bok-v15-landmark type-forest-gate">'+common+
         '<span class="forest-post left"></span><span class="forest-post right"></span><span class="forest-arch"></span><span class="forest-lamp"></span>'+
         '<span class="bok-v15-name">'+place.title+'</span>'+stateBit+'</span>';
@@ -576,7 +584,7 @@
     let currentIndex=currentPlace?PLACES.findIndex(p=>p.id===currentPlace.id):-1;
     if(prog.complete)currentIndex=PLACES.length-1;
     const pct=prog.complete?100:Math.max(0,currentIndex)/(PLACES.length-1)*100;
-    const d='M30 93.5 C49 90 70 79 78 70 C64 64 40 61 27 53 C43 50 66 48 78 44 C68 39 51 35 43 32 C38 28 39 24 39 21 C51 17 66 14 76 11.5';
+    const pts=PLACES.map(p=>p.point),d=pts.length?('M '+pts[0][0]+' '+pts[0][1]+pts.slice(1).map((p,i)=>{const prev=pts[i],mx=(prev[0]+p[0])/2,my=(prev[1]+p[1])/2;return ' Q '+prev[0]+' '+prev[1]+' '+mx+' '+my}).join('')):'';
     return '<svg class="bok-v11-route bok-v15-route" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">'+
       '<path class="route-earth-shadow" d="'+d+'"></path>'+
       '<path class="route-earth" d="'+d+'"></path>'+
