@@ -48,8 +48,13 @@
     if(q&&(q.k||geoTypes.has(q.type)))return 'geography';
     return null;
   }
+  function foxChoice(){
+    try{return (typeof state!=='undefined'&&state?.profile?.avatar==='girl')?'girl':'boy'}catch(_){return 'boy'}
+  }
   function foxSource(){
-    return './lia-fox-explorer-home.webp';
+    const which=foxChoice();
+    try{if(typeof avatarSrc==='function')return avatarSrc(which)}catch(_){}
+    return window.LARIA_PROFILE_AVATARS?.[which]||'./lia-fox-explorer-home.webp';
   }
 
   function premiumIllustrationSvg(visual){
@@ -208,7 +213,7 @@
         '<div class="question">'+text(prompt)+'</div>'+
         passage+
         visual+
-        '<div class="task-fox-companion" aria-hidden="true"><img src="'+attr(foxSource())+'" alt=""></div>'+
+        '<div class="task-fox-companion" data-avatar="'+foxChoice()+'" aria-hidden="true"><img src="'+attr(foxSource())+'" alt=""></div>'+
         '<div class="task-interaction">'+(subject==='geography'?geographyInteractionMarkup(q):interactionMarkup(q))+'</div>'+
         '<div class="feedback" id="feedback"><strong id="feedback-title"></strong><p id="feedback-copy"></p></div>'+
         '<button class="primary next" id="next-question" type="button">'+(subject==='english'?'Next':'Neste')+'</button>'+
