@@ -21,8 +21,8 @@ const SHELL=[
   './world-atlas.css?v=20261006-assets1',
   // Home
   './home-premium.css?v=20261006-p8foundation1',
-  './home-basecamp-v12.css?v=20261006-p9rc1',
-  './home-basecamp-v12.js?v=20261006-p9rc1',
+  './home-basecamp-v12.css?v=20261007-p9rc2',
+  './home-basecamp-v12.js?v=20261007-p9rc2',
   // Free play
   './word-hunt.css?v=20261006-assets1',
   './word-hunt.js?v=20261006-assets1',
