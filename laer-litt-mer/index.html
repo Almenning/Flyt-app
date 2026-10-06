@@ -198,6 +198,9 @@
     .onboard-dots{display:flex;justify-content:center;gap:7px;margin-top:18px}.onboard-dots span{width:8px;height:8px;border-radius:50%;background:#DDD9EA}.onboard-dots span.active{width:23px;border-radius:8px;background:#6D7EE8}
     .name-input{margin-top:18px;text-align:center;font-weight:850}
     .form-error{min-height:20px;margin-top:9px;color:#B84F59;font-size:13px;font-weight:800}
+    .onboarding-grade{margin-top:13px;text-align:left}.onboarding-grade h3{font-size:14px;margin:0 3px 7px;color:#2C4168}.onboarding-grade .grade-grid{grid-template-columns:repeat(5,1fr);gap:6px;margin-top:0}.onboarding-grade .grade-btn{min-height:42px;border-radius:13px}
+    @media(max-height:760px){.onboarding-grade{margin-top:9px}.onboarding-grade .grade-btn{min-height:36px;font-size:12px}.onboarding-grade .grade-grid{gap:5px}}
+
 
     .topic-grid{display:grid;gap:13px;margin-top:18px}
     .topic-card{width:100%;border:0;text-align:left;padding:19px;border-radius:27px;color:var(--ink);box-shadow:0 8px 0 rgba(70,72,115,.06),0 15px 30px rgba(65,64,104,.07);display:flex;align-items:center;gap:15px;position:relative;overflow:hidden}
@@ -3007,23 +3010,20 @@
         <div class="onboard-brandmark" aria-label="Læria">Læria <b>✦</b></div>
         <div class="eyebrow">LAG DIN BRUKER</div>
         <h1 id="profile-onboarding-title">Velg din eventyrvenn</h1>
-        <p class="hero-copy">Hvem vil du være med på reisen?</p>
+        <p class="hero-copy">Velg reven din, skriv navnet ditt og start reisen.</p>
         <div class="avatar-choice-grid" role="group" aria-label="Velg rev">
           <button type="button" class="avatar-choice-card" data-avatar="boy" aria-pressed="false"><span class="avatar-art" aria-hidden="true"><img class="avatar-fox-img" data-profile-avatar-img alt=""></span><span class="avatar-choice-label">Revegutt</span><span class="avatar-choice-note">Eventyrlysten og klar</span></button>
           <button type="button" class="avatar-choice-card" data-avatar="girl" aria-pressed="false"><span class="avatar-art" aria-hidden="true"><img class="avatar-fox-img" data-profile-avatar-img alt=""></span><span class="avatar-choice-label">Revejente</span><span class="avatar-choice-note">Nysgjerrig og klar</span></button>
         </div>
         <label class="profile-name-label" for="profile-name">Hva heter du?</label>
         <div class="profile-name-wrap"><input class="name-input" id="profile-name" maxlength="20" autocomplete="off" autocapitalize="words" placeholder="Skriv navnet ditt" aria-describedby="profile-error"></div>
+        <div class="grade-question onboarding-grade">
+          <h3>Hvilken klasse går du i?</h3>
+          <div class="grade-grid" id="grade-grid" aria-label="Velg klassetrinn"><button type="button" class="grade-btn" data-grade="1">1.</button><button type="button" class="grade-btn" data-grade="2">2.</button><button type="button" class="grade-btn" data-grade="3">3.</button><button type="button" class="grade-btn" data-grade="4">4.</button><button type="button" class="grade-btn" data-grade="5">5.</button><button type="button" class="grade-btn" data-grade="6">6.</button><button type="button" class="grade-btn" data-grade="7">7.</button><button type="button" class="grade-btn" data-grade="8">8.</button><button type="button" class="grade-btn" data-grade="9">9.</button><button type="button" class="grade-btn" data-grade="10">10.</button></div>
+        </div>
         <p class="form-error" id="profile-error" aria-live="polite"></p>
-        <button class="primary profile-next" id="profile-next" type="button">Fortsett reisen →</button>
+        <button class="primary profile-next" id="profile-next" type="button">Start eventyret 🚀</button>
       </div>
-      <div class="onboard-step" data-step="1"><div class="onboard-hero">🧠✨</div><div class="eyebrow">Slik lærer du</div><h1>Korte oppdrag. Ekte mestring.</h1><p>Det som er vanskelig kommer tilbake. Det du kan godt åpner nye utfordringer og steder å utforske.</p><button class="primary onboard-next" type="button">Neste</button></div>
-      <div class="onboard-step" data-step="2">
-        <div class="onboard-hero">🗺️</div><div class="eyebrow">Nesten klar</div><h1>Hvilken klasse går du i?</h1><p>Vi bruker klassetrinnet som startpunkt. Du kan fortsatt utforske andre trinn senere.</p>
-        <div class="grade-question"><div class="grade-grid" id="grade-grid" aria-label="Velg klassetrinn"><button type="button" class="grade-btn" data-grade="1">1.</button><button type="button" class="grade-btn" data-grade="2">2.</button><button type="button" class="grade-btn" data-grade="3">3.</button><button type="button" class="grade-btn" data-grade="4">4.</button><button type="button" class="grade-btn" data-grade="5">5.</button><button type="button" class="grade-btn" data-grade="6">6.</button><button type="button" class="grade-btn" data-grade="7">7.</button><button type="button" class="grade-btn" data-grade="8">8.</button><button type="button" class="grade-btn" data-grade="9">9.</button><button type="button" class="grade-btn" data-grade="10">10.</button></div><p>Klassetrinnet er startpunktet. Vanskelighetsgraden justeres etter hva du mestrer.</p></div>
-        <button class="primary" id="finish-onboarding" type="button">Start eventyret 🚀</button><p class="form-error" id="name-error" aria-live="polite"></p>
-      </div>
-      <div class="onboard-dots" aria-hidden="true"><span></span><span></span><span></span></div>
     </div>
   </div>
 
@@ -6057,12 +6057,14 @@ document.getElementById('complete-home').onclick=()=>{
 
 
 // Onboarding
+// One deliberate setup screen: choose fox, name and grade, then enter Læria.
 function updateOnboarding(){
-  document.querySelectorAll('.onboard-step').forEach((el,i)=>el.classList.toggle('active',i===onboardingStep));
-  document.querySelectorAll('.onboard-dots span').forEach((el,i)=>el.classList.toggle('active',i===onboardingStep));
+  onboardingStep=0;
+  document.querySelectorAll('.onboard-step').forEach((el,i)=>el.classList.toggle('active',i===0));
 }
 let profileName=typeof state.profile.name==='string'?state.profile.name.trim().slice(0,20):'';
 let selectedAvatar=state.profile.avatar==='girl'?'girl':state.profile.avatar==='boy'?'boy':null;
+let selectedGrade=Number(state.profile.grade)||null;
 function avatarSrc(which){return window.LARIA_PROFILE_AVATARS?.[which]||'./lia-fox-explorer-home.webp'}
 function renderAvatarChoice(){
   document.querySelectorAll('.avatar-choice-card').forEach(btn=>{
@@ -6073,21 +6075,50 @@ function renderAvatarChoice(){
   });
   const input=document.getElementById('profile-name');if(input&&document.activeElement!==input&&input.value!==profileName)input.value=profileName;
 }
-document.querySelectorAll('.avatar-choice-card').forEach(btn=>btn.onclick=()=>{selectedAvatar=btn.dataset.avatar==='girl'?'girl':'boy';renderAvatarChoice();document.getElementById('profile-error').textContent=''});
+function renderGradeChoice(){
+  document.querySelectorAll('.grade-btn').forEach(b=>{
+    const selected=Number(b.dataset.grade)===selectedGrade;
+    b.classList.toggle('selected',selected);
+    b.setAttribute('aria-pressed',selected?'true':'false');
+  });
+}
+document.querySelectorAll('.avatar-choice-card').forEach(btn=>btn.onclick=()=>{
+  selectedAvatar=btn.dataset.avatar==='girl'?'girl':'boy';
+  renderAvatarChoice();
+  document.getElementById('profile-error').textContent='';
+});
+document.querySelectorAll('.grade-btn').forEach(b=>b.onclick=()=>{
+  selectedGrade=Number(b.dataset.grade);
+  renderGradeChoice();
+  document.getElementById('profile-error').textContent='';
+});
 const profileNameInput=document.getElementById('profile-name');
-if(profileNameInput){profileNameInput.value=profileName;profileNameInput.addEventListener('input',()=>{profileName=profileNameInput.value.slice(0,20);document.getElementById('profile-error').textContent=''});profileNameInput.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();document.getElementById('profile-next').click()}})}
+if(profileNameInput){
+  profileNameInput.value=profileName;
+  profileNameInput.addEventListener('input',()=>{
+    profileName=profileNameInput.value.slice(0,20);
+    document.getElementById('profile-error').textContent='';
+  });
+  profileNameInput.addEventListener('keydown',e=>{
+    if(e.key==='Enter'){e.preventDefault();document.getElementById('profile-next').click()}
+  });
+}
 document.getElementById('profile-next').onclick=()=>{
   profileName=(profileNameInput?.value||'').trim().replace(/\s+/g,' ').slice(0,20);
-  if(!selectedAvatar){document.getElementById('profile-error').textContent='Velg reven du vil være med først.';return}
-  if(!profileName){document.getElementById('profile-error').textContent='Skriv navnet ditt først.';profileNameInput?.focus();return}
-  onboardingStep=1;updateOnboarding()
+  const error=document.getElementById('profile-error');
+  if(!selectedAvatar){error.textContent='Velg reven du vil være med først.';return}
+  if(!profileName){error.textContent='Skriv navnet ditt først.';profileNameInput?.focus();return}
+  if(!selectedGrade){error.textContent='Velg hvilket klassetrinn du går i.';return}
+  state.profile={...state.profile,name:profileName,avatar:selectedAvatar,grade:selectedGrade,onboarded:true,setupVersion:2};
+  state.activeSession=null;
+  saveState();
+  document.getElementById('onboarding').classList.remove('show');
+  setTab('home');
+  renderAll();
 };
-document.querySelectorAll('.onboard-next').forEach(b=>b.onclick=()=>{onboardingStep=Math.min(2,onboardingStep+1);updateOnboarding()});
-let selectedGrade=Number(state.profile.grade)||null;
-function renderGradeChoice(){document.querySelectorAll('.grade-btn').forEach(b=>b.classList.toggle('selected',Number(b.dataset.grade)===selectedGrade))}
-document.querySelectorAll('.grade-btn').forEach(b=>b.onclick=()=>{selectedGrade=Number(b.dataset.grade);renderGradeChoice();document.getElementById('name-error').textContent=''});
-document.getElementById('finish-onboarding').onclick=()=>{if(!selectedGrade){document.getElementById('name-error').textContent='Velg hvilket klassetrinn du går i.';return}if(!profileName){onboardingStep=0;updateOnboarding();document.getElementById('profile-error').textContent='Skriv navnet ditt først.';profileNameInput?.focus();return}state.profile={...state.profile,name:profileName,avatar:selectedAvatar,grade:selectedGrade,onboarded:true,setupVersion:1};state.activeSession=null;saveState();document.getElementById('onboarding').classList.remove('show');renderAll()};
-renderAvatarChoice();renderGradeChoice();
+renderAvatarChoice();
+renderGradeChoice();
+updateOnboarding();
 
 // Lightweight adult gate: requires a deliberate long press rather than a normal child tap.
 const adultEntry=document.getElementById('adult-entry');
