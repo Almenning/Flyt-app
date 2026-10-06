@@ -45,7 +45,7 @@ test('Prompt 8 active Læria layers are explicit, unique and cache-aligned',()=>
   assert.ok(order('laria-unified-v13.css')<order('laria-task-scene-v15.css'),'task scene must load after unified fallback');
   assert.ok(order('laria-task-scene-v15.css')<order('laria-task-young-v18.css'),'young task layer must load after shared task scene');
 
-  assert.match(sw,/const CACHE='laria-prompt8-2026-10-06-v7'/);
+  assert.match(sw,/const CACHE='laria-prompt8-2026-10-06-v8'/);
 });
 
 test('active external styles do not reference missing local assets',()=>{
@@ -84,6 +84,11 @@ test('selected profile fox is wired through every active premium scene',()=>{
     'laria-task-scene-v15.js':/function foxSource\(\)/
   };
   for(const [file,re] of Object.entries(checks))assert.match(read(file),re,file+' does not use profile fox chain');
+  const bok=read('bokskogen-world.js');
+  const premiumMarker=bok.indexOf('/* Bokskogen v10 — premium world-native renderer. */');
+  const premiumWorld=bok.indexOf('function worldMarkup',premiumMarker);
+  const scopedFox=bok.indexOf('function selectedProfileFox()',premiumMarker);
+  assert.ok(premiumMarker>=0&&scopedFox>premiumMarker&&scopedFox<premiumWorld,'premium Bokskogen renderer must define its profile fox helper in the same scope');
   assert.doesNotMatch(read('journey-world-premium.js'),/premium-traveler-character[^]*journeyFoxSvg\(\)/);
 });
 
