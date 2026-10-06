@@ -246,7 +246,7 @@ function terrainPatch(ctx,w,h,s,t){
   /* Low-contrast surface marks. These are texture, not icons. */
   ctx.save();
   ctx.globalCompositeOperation=type==='snow'?'screen':'multiply';
-  ctx.globalAlpha=clamp(.52-globeZoom*.055,.22,.44);
+  ctx.globalAlpha=clamp(.66-globeZoom*.060,.28,.54);
 
   const marks=[[-.62,-.14],[-.40,.25],[-.17,-.28],[.04,.18],[.28,-.12],[.51,.24],[.66,-.02],[-.02,.43]];
   for(let i=0;i<marks.length;i++){
@@ -290,12 +290,18 @@ const LAND_COMPOSITION=[
 ];
 
 const WATER_COMPOSITION=[
-  ['ship',-29,24,.92,0],         // Atlanteren
-  ['ship',70,-15,.78,1],         // Indiahavet
-  ['whale',-27,-31,.88,0],       // Sør-Atlanteren
-  ['island',73,5,.62,0],         // Maldivene-området
-  ['cloud',-8,44,.58,0],         // Vest-Europa
-  ['cloud',43,-5,.50,0]          // Øst-Afrika / Indiahavet
+  ['ship',-29,24,.94,0],         // Atlanteren
+  ['ship',70,-15,.82,1],         // Indiahavet
+  ['ship',145,-9,.64,1],         // Stillehavet
+  ['whale',-27,-31,.92,0],       // Sør-Atlanteren
+  ['whale',150,-31,.64,0],       // Sør-Stillehavet
+  ['dolphin',-119,18,.60,0],
+  ['dolphin',112,-22,.56,0],
+  ['island',73,5,.64,0],         // Maldivene-området
+  ['island',151,-18,.54,0],
+  ['cloud',-8,44,.60,0],         // Vest-Europa
+  ['cloud',43,-5,.52,0],
+  ['cloud',-145,18,.46,0]
 ];
 
 function landRelief(ctx,w,h,s){
@@ -315,7 +321,7 @@ function landRelief(ctx,w,h,s){
   for(const {f,p} of visible){
     const type=f[0];
     const typeScale=type==='mountains'?1.32:type==='trees'?.88:.80;
-    const base=clamp(s*.024,8,17);
+    const base=clamp(s*.028,9,20);
     const k=base*f[3]*typeScale*clamp(p[2]+.18,.64,1.10)*clamp(Math.pow(globeZoom,.055),1,1.08);
     const fn=draw[type];
     if(fn)fn(ctx,p[0],p[1],k,!!f[4]);
@@ -345,10 +351,40 @@ function waterDetails(ctx,w,h,s){
   }
   ctx.restore();
 }
+const DISCOVERY_COMPOSITION=[
+  ['village',16,50,.82],['village',77,28,.66],
+  ['pyramids',30,27,.80],['camel',11,24,.68],
+  ['elephant',28,-3,.80],['giraffe',23,-25,.78],
+  ['lighthouse',-9,38,.60],['lighthouse',-71,42,.54],
+  ['dolphin',-119,18,.68],['dolphin',112,-22,.62],
+  ['plane',7,-1,.50]
+];
+
+function discoveryDetails(ctx,w,h,s){
+  let mode='explore';try{mode=typeof globeMode==='string'?globeMode:'explore'}catch(_){}
+  if(mode!=='explore')return;
+  ctx.save();
+  ctx.globalAlpha=clamp(1.02-globeZoom*.065,.64,.96);
+  const visible=[];
+  for(const f of DISCOVERY_COMPOSITION){
+    const p=project(f[1],f[2],w,h);
+    if(!p||p[2]<.12)continue;
+    visible.push({f,p});
+  }
+  visible.sort((a,b)=>a.p[2]-b.p[2]);
+  for(const {f,p} of visible){
+    const type=f[0],base=clamp(s*.032,11,22);
+    const k=base*f[3]*clamp(p[2]+.20,.64,1.12)*clamp(Math.pow(globeZoom,.08),1,1.13);
+    const fn=draw[type];if(fn)fn(ctx,p[0],p[1],k,!!f[4]);
+  }
+  ctx.restore();
+}
+
+let selectionPulse={id:null,until:0};
 function selectedHalo(ctx,w,h,s){
-  if(typeof WORLD_COUNTRIES==='undefined'||!globeSelected)return;
+  if(typeof WORLD_COUNTRIES==='undefined'||!globeSelected)return false;
   const c=WORLD_COUNTRIES.find(x=>x.id===globeSelected);if(!c)return;
-  const p=project(c.lon,c.lat,w,h);if(!p||p[2]<.08)return;
+  const p=project(c.lon,c.lat,w,h);if(!p||p[2]<.08)return false;
   const r=Math.max(18,s*.034);
   const g=ctx.createRadialGradient(p[0],p[1],2,p[0],p[1],r*1.6);
   g.addColorStop(0,'rgba(255,237,129,.34)');g.addColorStop(.58,'rgba(255,211,69,.14)');g.addColorStop(1,'rgba(255,211,69,0)');
@@ -362,6 +398,14 @@ function selectedHalo(ctx,w,h,s){
     ctx.moveTo(x,y-q);ctx.lineTo(x+q*.28,y-q*.28);ctx.lineTo(x+q,y);ctx.lineTo(x+q*.28,y+q*.28);
     ctx.lineTo(x,y+q);ctx.lineTo(x-q*.28,y+q*.28);ctx.lineTo(x-q,y);ctx.lineTo(x-q*.28,y-q*.28);ctx.closePath();ctx.fill();
   }
+  const active=selectionPulse.id===globeSelected&&Date.now()<selectionPulse.until;
+  if(active){
+    const phase=1-(selectionPulse.until-Date.now())/850,pr=r*(.74+phase*.72),alpha=Math.max(0,.48-phase*.48);
+    ctx.beginPath();ctx.arc(p[0],p[1],pr,0,Math.PI*2);
+    ctx.strokeStyle='rgba(255,226,119,'+alpha.toFixed(3)+')';
+    ctx.lineWidth=Math.max(1.4,s*.0027);ctx.stroke();
+  }
+  return active;
 }
 function finish(ctx,w,h,s){
   const shine=ctx.createRadialGradient(w/2-s*.21,h/2-s*.29,s*.01,w/2-s*.05,h/2-s*.10,s*.57);
@@ -398,7 +442,8 @@ function premiumDraw(){
   landRelief(ctx,w,h,s);
   paintCountryBorders(ctx,w,h,s);
   waterDetails(ctx,w,h,s);
-  selectedHalo(ctx,w,h,s);
+  discoveryDetails(ctx,w,h,s);
+  const selectionAnimating=selectedHalo(ctx,w,h,s);
 
   if(typeof globeMode==='string'&&globeMode==='mine'&&typeof WORLD_COUNTRIES!=='undefined'&&typeof drawMasteryMarker==='function'){
     for(const c of WORLD_COUNTRIES)drawMasteryMarker(ctx,c,w,h);
@@ -421,7 +466,7 @@ function premiumDraw(){
   ctx.lineWidth=Math.max(1.6,s*.004);
   ctx.stroke();
 
-  if(pulsing)requestAnimationFrame(()=>window.drawGlobe?.());
+  if(pulsing||selectionAnimating)requestAnimationFrame(()=>window.drawGlobe?.());
 }
 function install(){
   if(window.__lariaGlobeV25Installed||typeof window.drawGlobe!=='function'||typeof window.globeProject!=='function'||typeof window.setGlobeMode!=='function'||typeof window.selectGlobeCountry!=='function')return false;
@@ -438,8 +483,11 @@ function install(){
   };
 
   const routedSelect=function(id){
+    const previous=typeof globeSelected==='string'?globeSelected:null;
     const result=baseSelect.call(this,id);
+    if(id&&id!==previous)selectionPulse={id,until:Date.now()+850};
     enhanceSelectedCountryV24(id);
+    requestAnimationFrame(routedDraw);
     return result;
   };
 
