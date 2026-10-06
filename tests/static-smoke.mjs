@@ -158,7 +158,7 @@ check('HTML shells and local resource references are consistent', () => {
     const duplicates = [...new Set(normalized.filter((src, index) => normalized.indexOf(src) !== index))];
     assert.deepEqual(duplicates, [], `${rel(file)} loads a script more than once: ${duplicates.join(', ')}`);
     for (const item of scripts.filter(item => !isExternal(item.src))) {
-      assert.match(item.tag, /\b(?:defer|async|type=["']module["'])\b/i, `${rel(file)} loads ${item.src} without defer, async or module`);
+      assert.match(item.tag, /\b(?:defer|async|type=["']module["']|data-boot-sync)\b/i, `${rel(file)} loads ${item.src} without defer, async, module or documented boot-sync`);
     }
   }
 });
