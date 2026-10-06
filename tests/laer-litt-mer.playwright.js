@@ -417,10 +417,10 @@ async function finishSession(page){
     assert.ok(nextMathNode,'missing recommended math journey node');
     await page.evaluate(id=>startJourneyNode('math',id),nextMathNode);
     await page.locator('#session-screen.active').waitFor();
-    const mathJourneySession=await page.evaluate(()=>({type:sessionScope.type,grade:sessionScope.journeyGrade,count:sessionQuestions.length,valid:sessionQuestions.every(validLearningQuestion)}));
+    const mathJourneySession=await page.evaluate(()=>({type:sessionScope.type,journeyType:sessionScope.journeyType,grade:sessionScope.journeyGrade,count:sessionQuestions.length,valid:sessionQuestions.every(validLearningQuestion)}));
     assert.equal(mathJourneySession.type,'journey');
     assert.equal(mathJourneySession.grade,2);
-    assert.equal(mathJourneySession.count,5);
+    assert.equal(mathJourneySession.count,mathJourneySession.journeyType==='skill'?3:5);
     assert.equal(mathJourneySession.valid,true);
     await page.locator('#close-session').click();
     await page.locator('#subject-screen.active').waitFor();
