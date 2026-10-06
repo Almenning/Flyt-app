@@ -278,7 +278,7 @@ async function finishSession(page){
     assert.equal(await page.locator('.onboard-step[data-step="0"] .grade-question').count(),1,'grade choice must remain on the same onboarding screen');
 
     // Norsk 1.–2.: the child enters the premium Bokskogen board, not the old module dashboard.
-    await page.evaluate(()=>document.getElementById('open-norwegian').click());
+    await page.evaluate(()=>openSubject('norwegian'));
     await page.locator('#subject-screen.active').waitFor();
     assert.equal(await page.locator('#subject-title').textContent(),'Norsk');
     assert.equal(await page.locator('#journey-map .bok-v11-world').count(),1,'young Norwegian should use Bokskogen v11');
