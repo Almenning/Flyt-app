@@ -506,6 +506,12 @@
         '<span class="garden-arch"></span><span class="garden-book">ORD</span><span class="garden-flower f1"></span><span class="garden-flower f2"></span><span class="garden-flower f3"></span><span class="garden-flower f4"></span>'+
         '<span class="bok-v15-name">'+place.title+'</span>'+stateBit+'</span>';
     }
+    if(place.id==='fortellertarnet'){
+      return '<span class="bok-v15-landmark type-story-tower">'+common+
+        '<span class="story-tower-body"><i class="story-window w1"></i><i class="story-window w2"></i><i class="story-door"></i></span>'+
+        '<span class="story-tower-roof"></span><span class="story-tower-flag"></span><span class="story-tower-book">Aa</span>'+
+        '<span class="bok-v15-name">'+place.title+'</span>'+stateBit+'</span>';
+    }
     return '<span class="bok-v15-landmark type-library">'+common+
       '<span class="library-wing left"><i></i></span><span class="library-wing right"><i></i></span><span class="library-tower"><i class="window"></i><i class="door"></i><b>ABC</b></span>'+
       '<span class="library-roof main"></span><span class="library-roof tower"></span><span class="library-flag"></span>'+
@@ -517,7 +523,8 @@
     const depthScale=Math.max(.84,Math.min(1.08,.82+Number(place.point[1])*.0028));
     const placeZ=Math.round(28+Number(place.point[1])*.22);
     return '<button type="button" class="bok-v10-place bok-v15-place state-'+state+(place.id===reactionPlaceId?' is-just-progressed':'')+(place.id===newlyOpenedId?' is-newly-opened':'')+'" style="left:'+place.point[0]+'%;top:'+place.point[1]+'%;--tilt:'+place.tilt+'deg;--place-scale:'+depthScale.toFixed(3)+';--place-z:'+placeZ+'" data-v10-place="'+place.id+'" data-title="'+escapeAttr(place.title)+'" aria-label="'+escapeAttr(place.title+(done?', fullført':current?', neste sted':future?', låst':''))+'">'+
-      '<span class="hit"></span><span class="atlas-place-label"><strong>'+escapeAttr(place.title)+'</strong><small>'+(done?'✓ Spill igjen':current?'▶ Spill':future?'🔒 Senere':'Utforsk')+'</small></span>'+
+      '<span class="hit"></span>'+landmarkMarkup(place,state)+
+      '<span class="atlas-place-label"><strong>'+escapeAttr(place.title)+'</strong><small>'+(done?'✓ Spill igjen':current?'▶ Spill':future?'🔒 Senere':'Utforsk')+'</small></span>'+
       (future?'<span class="bok-v15-vine-lock" aria-hidden="true"></span>':'')+
     '</button>';
   }
