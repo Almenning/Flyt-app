@@ -31,10 +31,10 @@ jobs:
           while IFS= read -r -d '' file; do
             node --check "$file"
           done < <(find . -maxdepth 2 -type f \( -name '*.js' -o -name '*.mjs' \) -not -path './.git/*' -print0)
+      - name: Install browser engines for Læria runtime verification
+        run: npx playwright install --with-deps chromium webkit
       - name: Run complete Node test suite
         run: npm run test:node
-      - name: Install Chromium for browser tests
-        run: npx playwright install --with-deps chromium
       - name: Run summary UI browser test
         shell: bash
         run: |
@@ -42,6 +42,10 @@ jobs:
           npm run test:browser 2>&1 | tee browser-test.log
           status=${PIPESTATUS[0]}
           exit "$status"
+      - name: Verify published Læria runtime
+        env:
+          QA_URL: https://almenning.github.io/Flyt-app/laer-litt-mer/?app=laria
+        run: npm run test:laria-live
       - name: Upload browser test log
         if: always()
         uses: actions/upload-artifact@v4
