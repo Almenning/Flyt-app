@@ -274,7 +274,8 @@ async function finishSession(page){
     assert.equal(await page.locator('.bc12-nav button').count(),4);
     assert.equal(await page.locator('.bc12-nav button[data-camp="explore"]').isVisible(),true);
     assert.equal(await page.locator('#learn-screen').count(),0);
-    assert.match(await page.locator('.onboard-step[data-step="0"] p').textContent(),/norsk, matte, engelsk og geografi/i);
+    assert.match(await page.locator('.onboard-step[data-step="0"] .hero-copy').textContent(),/Velg reven din, skriv navnet ditt og start reisen/i);
+    assert.equal(await page.locator('.onboard-step[data-step="0"] .grade-question').count(),1,'grade choice must remain on the same onboarding screen');
 
     // Norsk 1.–2.: the child enters the premium Bokskogen board, not the old module dashboard.
     await page.evaluate(()=>document.getElementById('open-norwegian').click());
