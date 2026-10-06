@@ -4,7 +4,7 @@
 .grade-band-young #home-screen{max-width:none!important;margin:0!important;padding:0!important;background:transparent!important}
 .grade-band-young #home-screen>:not(.bc12){display:none!important}
 .bc12[hidden]{display:none}
-.bc12{--ink:#24364b;--gold:#ffdf82;position:relative;isolation:isolate;width:100%;height:max(720px,100svh);max-height:1150px;overflow:hidden;background:#6ca7a2 url('./basecamp-v11.webp') center/cover no-repeat;color:var(--ink);font-family:ui-rounded,'Arial Rounded MT Bold',system-ui,sans-serif;container-type:inline-size}
+.bc12{--ink:#24364b;--gold:#ffdf82;position:relative;isolation:isolate;width:100%;height:max(720px,100svh);max-height:1150px;overflow:hidden;background:linear-gradient(180deg,rgba(255,246,220,.03),rgba(18,50,39,.06)),url('./basecamp-v11.webp?v=basecamp12d') center/cover no-repeat,url('./bokskogen-atlas32.webp?v=atlas32') center/cover no-repeat,#6ca7a2;color:var(--ink);font-family:ui-rounded,'Arial Rounded MT Bold',system-ui,sans-serif;container-type:inline-size}
 .bc12 *{box-sizing:border-box}
 .bc12-landscape{display:none!important}
 .bc12-sun{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(255,245,210,.08),rgba(22,57,43,.08)),radial-gradient(ellipse at 49% 6%,#ffefd533,transparent 40%);z-index:1}
@@ -57,7 +57,7 @@
 @media(min-width:1500px){.bc12{max-width:1536px;margin:auto}}
 @media(max-width:700px){
  .bc12{height:900px;min-height:100svh;max-height:none}
- .bc12{background-image:url('./basecamp-v11-mobile.webp')}
+ .bc12{background-image:url('./basecamp-v11-mobile.webp?v=basecamp12d'),url('./bokskogen-atlas32.webp?v=atlas32');background-position:center,center;background-size:cover,cover;background-repeat:no-repeat,no-repeat}
  .bc12-heading{top:2%;left:12%;width:76%}.bc12-brand{font-size:42px}.bc12-heading h1{font-size:25px;margin-top:8px}.bc12-heading p{font-size:12px}
  .bc12-place{width:45%;height:19%}.bc12-globe{left:2%;top:18%}.bc12-words{right:2%;top:20%}.bc12-fraction{left:2%;top:39%}.bc12-multiply{right:2%;top:41%}
  .bc12-sign{font-size:17px;padding:9px 16px;min-width:120px}.bc12-place-hint{font-size:10px;padding:4px 7px;opacity:1;transform:none}
@@ -65,7 +65,7 @@
  .bc12-quest{left:5%;bottom:12%;width:48%;padding:9px;font-size:13px;min-height:60px}.bc12-quest small{font-size:10px}.bc12-treasure{right:2%;bottom:11%;width:35%;height:9%}.bc12-treasure span{font-size:12px}
  .bc12-nav{left:3%;width:94%;bottom:2%;padding:5px;border-radius:18px}.bc12-nav button{flex-direction:column;gap:0;min-height:54px;font-size:11px}.bc12-nav button span{font-size:28px}
 }
-@media(min-width:701px) and (orientation:portrait){.bc12{height:100svh;min-height:900px;background-image:url('./basecamp-v11-mobile.webp')}.bc12-heading{left:20%;width:60%}.bc12-place{width:34%;height:21%}.bc12-globe{left:5%;top:16%}.bc12-words{right:5%;top:18%}.bc12-fraction{left:4%;top:37%}.bc12-multiply{right:4%;top:39%}.bc12-fox{left:23%;width:32%;bottom:20%}.bc12-journey{left:56%;width:37%;top:66%}.bc12-quest{bottom:13%;width:28%}.bc12-nav{left:8%;width:84%}}
+@media(min-width:701px) and (orientation:portrait){.bc12{height:100svh;min-height:900px;background-image:url('./basecamp-v11-mobile.webp?v=basecamp12d'),url('./bokskogen-atlas32.webp?v=atlas32');background-position:center,center;background-size:cover,cover;background-repeat:no-repeat,no-repeat}.bc12-heading{left:20%;width:60%}.bc12-place{width:34%;height:21%}.bc12-globe{left:5%;top:16%}.bc12-words{right:5%;top:18%}.bc12-fraction{left:4%;top:37%}.bc12-multiply{right:4%;top:39%}.bc12-fox{left:23%;width:32%;bottom:20%}.bc12-journey{left:56%;width:37%;top:66%}.bc12-quest{bottom:13%;width:28%}.bc12-nav{left:8%;width:84%}}
 @media(prefers-reduced-motion:reduce){.bc12 *{animation:none!important;transition:none!important}}
 
 /* v12: make the two product modes readable inside one illustrated world. */
