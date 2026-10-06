@@ -3337,6 +3337,7 @@ const GLOBE_ZOOM_MIN=1,GLOBE_ZOOM_MAX=5;
 
 function showScreen(name){
   const el=document.getElementById(name+'-screen'); if(!el) return;
+  if(name!=='session'&&typeof stopSpeech==='function')stopSpeech();
   document.querySelectorAll('.screen').forEach(s=>{
     s.classList.toggle('active',s===el);
     if(s===el)s.style.removeProperty('display');
@@ -5929,15 +5930,20 @@ function renderQuizMap(q,answered=currentAnswered){const canvas=document.getElem
 function canSpeak(){return typeof window!=='undefined'&&'speechSynthesis' in window&&typeof SpeechSynthesisUtterance!=='undefined'}
 function speechTextForQuestion(q){
   const parts=[];if(q.passage)parts.push(q.passage);if(q.prompt)parts.push(q.prompt);
-  if(Array.isArray(q.options)&&q.options.length&&currentGrade()<=2)parts.push('Svar: '+q.options.join(', '));
+  if(Array.isArray(q.options)&&q.options.length&&currentGrade()<=2)parts.push((q.subject==='english'?'Answers: ':'Svar: ')+q.options.join(', '));
   return parts.join('. ');
 }
+function stopSpeech(){try{if(canSpeak())window.speechSynthesis.cancel()}catch(_){}}
 function speakQuestion(q){
   if(!canSpeak()||!q)return;
   try{
-    window.speechSynthesis.cancel();
+    stopSpeech();
     const u=new SpeechSynthesisUtterance(speechTextForQuestion(q));
     u.lang=q.subject==='english'?'en-GB':'nb-NO';u.rate=currentGrade()<=2?.88:.96;u.pitch=1;
+    const b=document.getElementById('read-aloud');
+    if(b){b.classList.add('is-speaking');b.setAttribute('aria-pressed','true')}
+    const done=()=>{const now=document.getElementById('read-aloud');if(now){now.classList.remove('is-speaking');now.setAttribute('aria-pressed','false')}};
+    u.onend=done;u.onerror=done;
     window.speechSynthesis.speak(u);
   }catch(_){}
 }
@@ -6006,6 +6012,7 @@ function showFeedback(q,correct){
 }
 function nextQuestion(){
   if(!currentAnswered)return;
+  if(typeof stopSpeech==='function')stopSpeech();
   qIndex++;currentAnswered=null;
   if(qIndex>=sessionQuestions.length){finishSession();return}
   persistActiveSession();renderQuestion();
