@@ -282,12 +282,13 @@ async function finishSession(page){
     await page.locator('#subject-screen.active').waitFor();
     assert.equal(await page.locator('#subject-title').textContent(),'Norsk');
     assert.equal(await page.locator('#journey-map .bok-v11-world').count(),1,'young Norwegian should use Bokskogen v11');
-    assert.equal(await page.locator('#journey-map [data-v10-place]').count(),7,'Bokskogen should expose seven real destinations');
+    assert.equal(await page.locator('#journey-map [data-v10-place]').count(),11,'Bokskogen should expose one destination for each core learning stop');
     assert.equal(await page.locator('#journey-map .bok-v10-place.state-current').count(),1,'exactly one destination should be the next place');
     assert.equal(await page.locator('#journey-map .bok-v10-place .plaque').count(),0,'destination labels must belong to the illustrated world, not duplicate UI plaques');
-    assert.equal(await page.locator('#journey-map .bok-atlas-art img').count(),1,'Bokskogen should show the new compact isometric atlas');
-    assert.equal(await page.locator('#journey-map .bok-v15-scene').count(),0,'obsolete modular terrain must not compete with the atlas');
-    assert.equal(await page.locator('#journey-map .atlas-place-label').count(),7,'all seven destinations need readable controls');
+    assert.equal(await page.locator('#journey-map .bok-v16-terrain img').count(),1,'Bokskogen should show the active illustrated terrain atlas');
+    assert.equal(await page.locator('#journey-map .bok-v16-scene').count(),1,'Bokskogen should use one active layered scene');
+    assert.equal(await page.locator('#journey-map .bok-v15-scene').count(),0,'obsolete modular terrain must not compete with the active scene');
+    assert.equal(await page.locator('#journey-map .atlas-place-label').count(),11,'all core destinations need readable controls');
     assert.equal(await page.locator('#journey-map').getAttribute('data-release'),'atlas32');
     assert.equal(await page.locator('#journey-map .bok-v10-home').isVisible(),true);
     assert.equal(await page.locator('#journey-map .bok-v10-grade').isVisible(),true);
@@ -311,7 +312,7 @@ async function finishSession(page){
     await page.locator('#complete-home').click();
     await page.locator('#subject-screen.active').waitFor();
     assert.equal(await page.locator('#journey-map .bok-v11-world').count(),1,'journey completion should return to the Bokskogen board');
-    assert.equal(await page.locator('#journey-map .bok-atlas-art img').isVisible(),true,'the atlas should remain visible after completing a session');
+    assert.equal(await page.locator('#journey-map .bok-v16-terrain img').isVisible(),true,'the terrain atlas should remain visible after completing a session');
     await page.locator('#journey-map .bok-v10-home').click();
     await page.locator('#home-screen.active').waitFor();
     assert.equal(await page.locator('.bc12-journey').isVisible(),true);
