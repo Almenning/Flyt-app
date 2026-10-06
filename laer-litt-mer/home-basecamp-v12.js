@@ -14,7 +14,9 @@ function dailyQuest(){const d=new Date(),seed=d.getFullYear()*400+d.getMonth()*3
 function wordHuntRounds(){try{return Number(JSON.parse(localStorage.getItem('laria-wordhunt-v1')||'{}').rounds||0)}catch(_){return 0}}
 const young=()=>currentGrade()<=2;
 function selectedFoxSource(which){
- return window.LARIA_PROFILE_AVATARS?.[which]||'./lia-fox-explorer-home.webp';
+ // Profile portraits are intentionally not used as scene art: some include a baked rectangular background.
+ // Keep the saved avatar choice, but render the dedicated transparent/in-world explorer mascot in Basecamp.
+ return './lia-fox-explorer-home.webp';
 }
 function activitySubject(scope,last){
  if(scope?.subject==='geography'||String(scope?.type||'').startsWith('geo')||['country','collection','world','grade','geography-theme'].includes(scope?.type))return 'geography';
@@ -88,7 +90,7 @@ function render(){
  const profile=(typeof state!=='undefined'&&state?.profile)?state.profile:{};
  const playerName=typeof profile.name==='string'?profile.name.trim():'';
  const playerAvatar=profile.avatar==='girl'?'girl':'boy';
- const fox=host.querySelector('.bc12-fox');if(fox){fox.dataset.avatar=playerAvatar;fox.setAttribute('aria-label',playerAvatar==='girl'?'Din valgte revejente':'Din valgte revegutt');const img=fox.querySelector('img');if(img){img.src=selectedFoxSource(playerAvatar);img.alt=playerAvatar==='girl'?'Din valgte revejente venter på stien':'Din valgte revegutt venter på stien'}}
+ const fox=host.querySelector('.bc12-fox');if(fox){fox.dataset.avatar=playerAvatar;fox.setAttribute('aria-label',playerAvatar==='girl'?'Din valgte revejente':'Din valgte revegutt');const img=fox.querySelector('img');if(img){img.src=selectedFoxSource(playerAvatar);img.alt='Læria-reven venter på stien'}}
  host.querySelector('h1').textContent=mode==='explore'?'Hva vil du leke med?':'Hvor skal vi dra i dag?';
  host.querySelector('[data-camp-intro]').textContent=mode==='explore'?'Velg et sted. Bli så lenge du vil.':(playerName?'Et nytt eventyr venter på deg, '+playerName+'.':'Et nytt eventyr venter på deg.');
  const foxCall=host.querySelector('[data-camp-fox-call]');if(foxCall)foxCall.textContent=mode==='explore'?'Velg noe du liker!':(playerName?'Klar, '+playerName+'? Jeg viser vei!':'Klar? Jeg viser vei!');
