@@ -1,5 +1,5 @@
 (()=>{'use strict';
-const screen=document.getElementById('world-screen');if(!screen)return;screen.classList.add('globe-v26');
+const screen=document.getElementById('world-screen');if(!screen)return;screen.classList.add('globe-v27');
 const ART=window.LariaGlobeArtV24;if(!ART)return;
 const {clamp,TERRAIN,FEATURES,draw}=ART;
 
@@ -61,7 +61,7 @@ function ensurePremiumShell(){
 function syncPremiumChrome(mode){
   const next=mode==='classic'?'classic':(mode==='mine'?'mine':'explore');
   screen.dataset.premiumGlobeMode=next;
-  screen.dataset.globeVersion='26';
+  screen.dataset.globeVersion='27';
   document.querySelectorAll('#globe-mode [data-globe-mode]').forEach(b=>b.classList.toggle('active',b.dataset.globeMode===next));
   document.getElementById('globe-legend')?.classList.toggle('show',next==='mine');
 
@@ -221,51 +221,101 @@ function landClip(ctx,w,h){
 }
 function terrainPatch(ctx,w,h,s,t){
   const p=project(t[1],t[2],w,h);if(!p||p[2]<.08)return;
-  const type=t[0],k=t[3]*clamp(p[2]+.20,.58,1.14),r=s*(type==='desert'?.082:type==='snow'?.072:.075)*k;
-  ctx.save();ctx.translate(p[0],p[1]);ctx.rotate(-.14);
-  let center='rgba(39,127,67,.32)',edge='rgba(39,127,67,0)';
-  if(type==='desert'){center='rgba(248,204,93,.38)';edge='rgba(248,204,93,0)'}
-  if(type==='savanna'){center='rgba(150,158,67,.26)';edge='rgba(150,158,67,0)'}
-  if(type==='snow'){center='rgba(255,255,244,.45)';edge='rgba(255,255,244,0)'}
-  const g=ctx.createRadialGradient(0,0,1,0,0,r);g.addColorStop(0,center);g.addColorStop(1,edge);
-  ctx.fillStyle=g;ctx.scale(1,.60);ctx.beginPath();ctx.arc(0,0,r,0,Math.PI*2);ctx.fill();ctx.restore();
+  const type=t[0],k=t[3]*clamp(p[2]+.20,.58,1.14);
+  const r=s*(type==='desert'?.095:type==='snow'?.082:.090)*k;
 
-  /* micro texture makes the continents feel illustrated rather than flat */
-  ctx.save();ctx.globalAlpha=clamp(.72-globeZoom*.08,.30,.62);
-  const marks=[[-.55,-.10],[-.26,.26],[.02,-.24],[.31,.18],[.58,-.03],[-.05,.44]];
+  ctx.save();
+  ctx.translate(p[0],p[1]);
+  ctx.rotate(-.12);
+
+  let c0='rgba(35,119,61,.30)',c1='rgba(35,119,61,.10)',blend='multiply';
+  if(type==='desert'){c0='rgba(239,190,78,.40)';c1='rgba(214,151,49,.08)';blend='multiply'}
+  if(type==='savanna'){c0='rgba(139,150,61,.28)';c1='rgba(120,126,49,.07)';blend='multiply'}
+  if(type==='snow'){c0='rgba(255,255,244,.46)';c1='rgba(235,244,236,.10)';blend='screen'}
+
+  ctx.globalCompositeOperation=blend;
+  const g=ctx.createRadialGradient(-r*.14,-r*.12,1,0,0,r);
+  g.addColorStop(0,c0);
+  g.addColorStop(.62,c1);
+  g.addColorStop(1,'rgba(255,255,255,0)');
+  ctx.fillStyle=g;
+  ctx.scale(1,.58);
+  ctx.beginPath();ctx.arc(0,0,r,0,Math.PI*2);ctx.fill();
+  ctx.restore();
+
+  /* Low-contrast surface marks. These are texture, not icons. */
+  ctx.save();
+  ctx.globalCompositeOperation=type==='snow'?'screen':'multiply';
+  ctx.globalAlpha=clamp(.52-globeZoom*.055,.22,.44);
+
+  const marks=[[-.62,-.14],[-.40,.25],[-.17,-.28],[.04,.18],[.28,-.12],[.51,.24],[.66,-.02],[-.02,.43]];
   for(let i=0;i<marks.length;i++){
-    const dx=marks[i][0]*r*.68,dy=marks[i][1]*r*.48,x=p[0]+dx,y=p[1]+dy,size=Math.max(1.2,s*.0035*k);
+    const dx=marks[i][0]*r*.68,dy=marks[i][1]*r*.42;
+    const x=p[0]+dx,y=p[1]+dy,size=Math.max(1,s*.0029*k);
+
     if(type==='forest'){
-      ctx.fillStyle=i%2?'rgba(31,103,54,.62)':'rgba(53,132,65,.62)';
-      ctx.beginPath();ctx.moveTo(x,y-size*1.6);ctx.lineTo(x-size,y+size);ctx.lineTo(x+size,y+size);ctx.closePath();ctx.fill();
+      ctx.fillStyle=i%2?'rgba(27,93,47,.72)':'rgba(52,118,57,.66)';
+      ctx.beginPath();
+      ctx.moveTo(x,y-size*1.45);ctx.lineTo(x-size*.82,y+size*.80);ctx.lineTo(x+size*.82,y+size*.80);
+      ctx.closePath();ctx.fill();
     }else if(type==='desert'){
-      ctx.strokeStyle='rgba(167,117,42,.43)';ctx.lineWidth=Math.max(.7,size*.35);ctx.beginPath();ctx.arc(x,y,size*1.5,Math.PI*1.05,Math.PI*1.9);ctx.stroke();
+      ctx.strokeStyle='rgba(150,100,35,.50)';
+      ctx.lineWidth=Math.max(.65,size*.30);
+      ctx.beginPath();ctx.arc(x,y,size*1.55,Math.PI*1.05,Math.PI*1.88);ctx.stroke();
     }else if(type==='savanna'){
-      ctx.strokeStyle='rgba(92,111,46,.45)';ctx.lineWidth=Math.max(.7,size*.30);ctx.beginPath();ctx.moveTo(x,y+size);ctx.lineTo(x,y-size);ctx.moveTo(x,y);ctx.lineTo(x-size*.8,y-size*.7);ctx.moveTo(x,y);ctx.lineTo(x+size*.8,y-size*.7);ctx.stroke();
+      ctx.strokeStyle='rgba(79,101,42,.48)';
+      ctx.lineWidth=Math.max(.65,size*.26);
+      ctx.beginPath();ctx.moveTo(x,y+size);ctx.lineTo(x,y-size*.92);ctx.moveTo(x,y-.1);ctx.lineTo(x-size*.70,y-size*.58);ctx.moveTo(x,y-.1);ctx.lineTo(x+size*.70,y-size*.58);ctx.stroke();
     }else{
-      ctx.fillStyle='rgba(255,255,248,.58)';ctx.beginPath();ctx.arc(x,y,size*.72,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='rgba(255,255,250,.70)';
+      ctx.beginPath();ctx.arc(x,y,size*.68,0,Math.PI*2);ctx.fill();
     }
   }
   ctx.restore();
 }
-function features(ctx,w,h,s){
-  const allowed=new Set(['mountains','trees','jungle','ship','whale','dolphin','island','cloud','plane']);
-  const alpha=clamp(1.05-globeZoom*.13,.30,.82);
+
+function landRelief(ctx,w,h,s){
+  const landTypes=new Set(['mountains','trees','jungle']);
   ctx.save();
-  ctx.globalAlpha=alpha;
+  if(typeof WORLD_COUNTRIES!=='undefined')landClip(ctx,w,h);
+  ctx.globalAlpha=clamp(.72-globeZoom*.08,.30,.58);
+  ctx.globalCompositeOperation='multiply';
 
   const visible=[];
   for(const f of FEATURES){
-    if(!allowed.has(f[0]))continue;
+    if(!landTypes.has(f[0]))continue;
     const p=project(f[1],f[2],w,h);
     if(!p||p[2]<.10)continue;
     visible.push({f,p});
   }
-
   visible.sort((a,b)=>a.p[2]-b.p[2]);
+
   for(const {f,p} of visible){
-    const base=clamp(s*.030,9,20);
-    const k=base*f[3]*clamp(p[2]+.18,.62,1.10)*clamp(Math.pow(globeZoom,.09),1,1.14);
+    const base=clamp(s*.023,7,15);
+    const k=base*f[3]*clamp(p[2]+.18,.62,1.08)*clamp(Math.pow(globeZoom,.07),1,1.10);
+    const fn=draw[f[0]];
+    if(fn)fn(ctx,p[0],p[1],k,!!f[4]);
+  }
+  ctx.restore();
+}
+
+function waterDetails(ctx,w,h,s){
+  const waterTypes=new Set(['ship','whale','dolphin','island','cloud','plane']);
+  ctx.save();
+  ctx.globalAlpha=clamp(.92-globeZoom*.10,.38,.78);
+
+  const visible=[];
+  for(const f of FEATURES){
+    if(!waterTypes.has(f[0]))continue;
+    const p=project(f[1],f[2],w,h);
+    if(!p||p[2]<.10)continue;
+    visible.push({f,p});
+  }
+  visible.sort((a,b)=>a.p[2]-b.p[2]);
+
+  for(const {f,p} of visible){
+    const base=clamp(s*.026,8,18);
+    const k=base*f[3]*clamp(p[2]+.18,.62,1.10);
     const fn=draw[f[0]];
     if(fn)fn(ctx,p[0],p[1],k,!!f[4]);
   }
@@ -321,8 +371,9 @@ function premiumDraw(){
   if(landClip(ctx,w,h))for(const t of TERRAIN)terrainPatch(ctx,w,h,s,t);
   ctx.restore();
 
+  landRelief(ctx,w,h,s);
   paintCountryBorders(ctx,w,h,s);
-  features(ctx,w,h,s);
+  waterDetails(ctx,w,h,s);
   selectedHalo(ctx,w,h,s);
 
   if(typeof globeMode==='string'&&globeMode==='mine'&&typeof WORLD_COUNTRIES!=='undefined'&&typeof drawMasteryMarker==='function'){
@@ -395,7 +446,7 @@ function install(){
   syncPremiumChrome(typeof globeMode==='string'?globeMode:'explore');
 
   window.__lariaGlobeV25Installed=true;
-  screen.dataset.globeVersion='26';
+  screen.dataset.globeVersion='27';
   requestAnimationFrame(()=>{try{resizeGlobe();routedDraw()}catch(_){}});
   return true;
 }
