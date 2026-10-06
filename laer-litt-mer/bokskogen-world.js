@@ -425,6 +425,11 @@
 (function(){
   if(typeof renderSubjectJourney!=='function')return;
 
+  function selectedProfileFox(){
+    const which=(typeof state!=='undefined'&&state?.profile?.avatar==='girl')?'girl':'boy';
+    return window.LARIA_PROFILE_AVATARS?.[which]||'./lia-fox-explorer-home.webp';
+  }
+
   const previousRenderSubjectJourney=renderSubjectJourney;
   const PLACES=[
     {id:'bokstavporten',title:'Bokstavporten',point:[24,82],tilt:-3,required:['lyder']},
