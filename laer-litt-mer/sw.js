@@ -17,7 +17,7 @@ const SHELL=[
   './bokskogen-world.css?v=20261006-assets1',
   './bokskogen-world.js?v=20261006-profileqa1',
   './journey-world-premium.css?v=20261006-p8foundation1',
-  './journey-world-premium.js?v=20261006-p8foundation1ssets1',
+  './journey-world-premium.js?v=20261006-p8foundation1',
   './world-atlas.css?v=20261006-assets1',
   // Home
   './home-premium.css?v=20261006-p8foundation1',
