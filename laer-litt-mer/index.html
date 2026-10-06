@@ -3349,6 +3349,32 @@ function showScreen(name){
   syncSwipeBackEdge(name);
   if(name==='world')requestAnimationFrame(()=>{initGlobe();setGlobeZoom(globeZoom)});
 }
+function openGlobe(mode='explore'){
+  const next=mode==='mine'?'mine':'explore';
+  globeMode=next;
+  showScreen('world');
+
+  let tries=0;
+  const ready=()=>{
+    tries++;
+    const screen=document.getElementById('world-screen');
+    const canvas=document.getElementById('globe-canvas');
+    if(!screen?.classList.contains('active')){
+      showScreen('world');
+    }
+    try{if(typeof window.initGlobe==='function')window.initGlobe();else initGlobe()}catch(_){}
+    try{
+      if(typeof window.setGlobeMode==='function')window.setGlobeMode(next);
+      else setGlobeMode(next);
+    }catch(_){}
+    try{if(typeof window.resizeGlobe==='function')window.resizeGlobe();else resizeGlobe()}catch(_){}
+    try{if(typeof window.drawGlobe==='function')window.drawGlobe();else drawGlobe()}catch(_){}
+
+    if((!canvas?._cssW||!canvas?._cssH)&&tries<6)requestAnimationFrame(ready);
+  };
+  requestAnimationFrame(ready);
+}
+window.openGlobe=openGlobe;
 function setTab(tab){
   activeTab=tab;showScreen(tab);
   document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
@@ -3358,8 +3384,8 @@ document.querySelectorAll('.nav button[data-tab]').forEach(b=>b.addEventListener
 const navExplore=document.getElementById('nav-explore');if(navExplore)navExplore.addEventListener('click',()=>{showScreen('geography')});
 const navTasks=document.getElementById('nav-tasks');if(navTasks)navTasks.addEventListener('click',()=>{setTab('home');requestAnimationFrame(()=>document.querySelector('.home-subject-grid')?.scrollIntoView({behavior:'smooth',block:'start'}))});
 const homeProgressOpen=document.getElementById('home-progress-open');if(homeProgressOpen)homeProgressOpen.addEventListener('click',()=>setTab('progress'));
-document.getElementById('young-world').onclick=()=>{showScreen('geography');requestAnimationFrame(()=>{globeMode='mine';showScreen('world');setGlobeMode('mine')})};
-document.getElementById('home-story-globe').onclick=()=>{showScreen('geography');requestAnimationFrame(()=>{globeMode='mine';showScreen('world');setGlobeMode('mine')})};
+document.getElementById('young-world').onclick=()=>openGlobe('mine');
+document.getElementById('home-story-globe').onclick=()=>openGlobe('mine');
 document.getElementById('young-words').onclick=()=>setTab('progress');
 document.getElementById('young-math').onclick=()=>setTab('progress');
 
@@ -3920,7 +3946,7 @@ document.getElementById('start-continent').onclick=()=>startSession(null,{type:'
 document.getElementById('start-world').onclick=()=>startSession(null,{type:'world',label:'Hele verden',ids:WORLD_COUNTRIES.map(c=>c.id),includeMap:true});
 document.getElementById('start-world-from-globe').onclick=()=>startSession(null,{type:'world',label:'Hele verden',ids:WORLD_COUNTRIES.map(c=>c.id),includeMap:true});
 document.getElementById('continent-back').onclick=()=>showScreen('geography');
-document.getElementById('open-world').onclick=()=>{globeMode='explore';showScreen('world');requestAnimationFrame(()=>setGlobeMode('explore'))};
+document.getElementById('open-world').onclick=()=>openGlobe('explore');
 document.getElementById('world-back').onclick=()=>showScreen('geography');
 document.getElementById('close-session').onclick=()=>{persistActiveSession();returnToLearningHome()};
 
