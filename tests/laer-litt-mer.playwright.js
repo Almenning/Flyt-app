@@ -32,10 +32,8 @@ async function onboard(page,grade){
   await page.locator('#onboarding.show').waitFor();
   await page.locator('.avatar-choice-card[data-avatar="boy"]').click();
   await page.locator('#profile-name').fill('Testbarn');
-  await page.locator('#profile-next').click();
-  await page.locator('.onboard-step.active .onboard-next').click();
   await page.locator(`.grade-btn[data-grade="${grade}"]`).click();
-  await page.locator('#finish-onboarding').click();
+  await page.locator('#profile-next').click();
   await page.locator('#home-screen.active').waitFor();
 }
 
