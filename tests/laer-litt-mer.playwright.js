@@ -840,14 +840,14 @@ async function finishSession(page){
     await page.locator('#session-screen.active').waitFor();
     const realOtherGradeScope=await page.evaluate(()=>({
       profile:currentGrade(),view:journeyViewGrade('math'),grade:sessionScope.journeyGrade,
-      type:sessionScope.type,practiceOnly:!!sessionScope.practiceOnly,count:sessionQuestions.length,
+      type:sessionScope.type,journeyType:sessionScope.journeyType,practiceOnly:!!sessionScope.practiceOnly,count:sessionQuestions.length,
       skill:sessionQuestions[0]?.skill||null
     }));
     assert.equal(realOtherGradeScope.profile,2);
     assert.equal(realOtherGradeScope.view,3);
     assert.equal(realOtherGradeScope.grade,3);
     assert.equal(realOtherGradeScope.type,'journey');
-    assert.equal(realOtherGradeScope.count,5);
+    assert.equal(realOtherGradeScope.count,realOtherGradeScope.journeyType==='skill'?3:5);
     const grade2Before=await page.evaluate(skill=>skill?JSON.stringify(state.skillEvidence[learningMasteryKey('math',skill,2)]||null):null,realOtherGradeScope.skill);
     await answerCurrent(page);
     const gradeWrite=await page.evaluate(skill=>({
