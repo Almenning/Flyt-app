@@ -1,5 +1,5 @@
 (()=>{'use strict';
-const screen=document.getElementById('world-screen');if(!screen)return;screen.classList.add('globe-v27');
+const screen=document.getElementById('world-screen');if(!screen)return;screen.classList.add('globe-v28');
 const ART=window.LariaGlobeArtV24;if(!ART)return;
 const {clamp,TERRAIN,FEATURES,draw}=ART;
 
@@ -61,7 +61,7 @@ function ensurePremiumShell(){
 function syncPremiumChrome(mode){
   const next=mode==='classic'?'classic':(mode==='mine'?'mine':'explore');
   screen.dataset.premiumGlobeMode=next;
-  screen.dataset.globeVersion='27';
+  screen.dataset.globeVersion='28';
   document.querySelectorAll('#globe-mode [data-globe-mode]').forEach(b=>b.classList.toggle('active',b.dataset.globeMode===next));
   document.getElementById('globe-legend')?.classList.toggle('show',next==='mine');
 
@@ -274,49 +274,73 @@ function terrainPatch(ctx,w,h,s,t){
   ctx.restore();
 }
 
+const LAND_COMPOSITION=[
+  ['mountains',10,46,1.18],      // Alpene
+  ['mountains',79,31,1.48],      // Himalaya
+  ['mountains',91,37,.74],       // Tibet / Sentral-Asia
+  ['mountains',39,8,.58],        // Øst-Afrika
+  ['trees',18,61,.82],           // Skandinavia
+  ['trees',54,58,.76],           // Vest-Russland
+  ['trees',97,57,.63],           // Sibir
+  ['trees',33,-4,.46],           // Øst-Afrika
+  ['trees',24,-25,.38],          // Sør-Afrika
+  ['jungle',-61,-5,.72],         // Amazonas
+  ['jungle',23,0,.54],           // Kongo
+  ['jungle',104,16,.48]          // Sørøst-Asia
+];
+
+const WATER_COMPOSITION=[
+  ['ship',-29,24,.92,0],         // Atlanteren
+  ['ship',70,-15,.78,1],         // Indiahavet
+  ['whale',-27,-31,.88,0],       // Sør-Atlanteren
+  ['island',73,5,.62,0],         // Maldivene-området
+  ['cloud',-8,44,.58,0],         // Vest-Europa
+  ['cloud',43,-5,.50,0]          // Øst-Afrika / Indiahavet
+];
+
 function landRelief(ctx,w,h,s){
-  const landTypes=new Set(['mountains','trees','jungle']);
   ctx.save();
   if(typeof WORLD_COUNTRIES!=='undefined')landClip(ctx,w,h);
-  ctx.globalAlpha=clamp(.72-globeZoom*.08,.30,.58);
+  ctx.globalAlpha=clamp(.78-globeZoom*.075,.34,.64);
   ctx.globalCompositeOperation='multiply';
 
   const visible=[];
-  for(const f of FEATURES){
-    if(!landTypes.has(f[0]))continue;
+  for(const f of LAND_COMPOSITION){
     const p=project(f[1],f[2],w,h);
-    if(!p||p[2]<.10)continue;
+    if(!p||p[2]<.12)continue;
     visible.push({f,p});
   }
   visible.sort((a,b)=>a.p[2]-b.p[2]);
 
   for(const {f,p} of visible){
-    const base=clamp(s*.023,7,15);
-    const k=base*f[3]*clamp(p[2]+.18,.62,1.08)*clamp(Math.pow(globeZoom,.07),1,1.10);
-    const fn=draw[f[0]];
+    const type=f[0];
+    const typeScale=type==='mountains'?1.32:type==='trees'?.88:.80;
+    const base=clamp(s*.024,8,17);
+    const k=base*f[3]*typeScale*clamp(p[2]+.18,.64,1.10)*clamp(Math.pow(globeZoom,.055),1,1.08);
+    const fn=draw[type];
     if(fn)fn(ctx,p[0],p[1],k,!!f[4]);
   }
   ctx.restore();
 }
 
 function waterDetails(ctx,w,h,s){
-  const waterTypes=new Set(['ship','whale','dolphin','island','cloud','plane']);
   ctx.save();
-  ctx.globalAlpha=clamp(.92-globeZoom*.10,.38,.78);
+  ctx.globalAlpha=clamp(.90-globeZoom*.09,.40,.76);
 
   const visible=[];
-  for(const f of FEATURES){
-    if(!waterTypes.has(f[0]))continue;
+  for(const f of WATER_COMPOSITION){
     const p=project(f[1],f[2],w,h);
-    if(!p||p[2]<.10)continue;
+    if(!p||p[2]<.12)continue;
     visible.push({f,p});
   }
   visible.sort((a,b)=>a.p[2]-b.p[2]);
 
   for(const {f,p} of visible){
-    const base=clamp(s*.026,8,18);
-    const k=base*f[3]*clamp(p[2]+.18,.62,1.10);
-    const fn=draw[f[0]];
+    const type=f[0];
+    const typeScale=type==='ship'?1.02:type==='whale'?.92:type==='cloud'?.78:.88;
+    const base=clamp(s*.027,9,19);
+    const k=base*f[3]*typeScale*clamp(p[2]+.18,.64,1.08);
+    const fn=draw[type];
     if(fn)fn(ctx,p[0],p[1],k,!!f[4]);
   }
   ctx.restore();
@@ -446,7 +470,7 @@ function install(){
   syncPremiumChrome(typeof globeMode==='string'?globeMode:'explore');
 
   window.__lariaGlobeV25Installed=true;
-  screen.dataset.globeVersion='27';
+  screen.dataset.globeVersion='28';
   requestAnimationFrame(()=>{try{resizeGlobe();routedDraw()}catch(_){}});
   return true;
 }
