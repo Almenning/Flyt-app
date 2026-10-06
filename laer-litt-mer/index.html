@@ -3324,9 +3324,15 @@ function todaysCompletedSessions(){
   const today=dayKeyOffset(0);
   return state.sessionLog.filter(s=>s.countsTowardGoal!==false&&s.endedAt&&localDay(s.endedAt)===today&&Number(s.total||0)>0);
 }
+function sessionActivityKey(scope=sessionScope){
+  if(!scope)return 'unknown';
+  const ids=Array.isArray(scope.ids)?[...scope.ids].sort().join(','):'';
+  return [scope.type||'',scope.subject||'geography',scope.journeyGrade||currentGrade(),scope.journeyNode||'',scope.module||'',scope.label||'',ids].join('|');
+}
 function dailyGoal(){
   const sessions=todaysCompletedSessions();
-  return {target:1,done:sessions.length?1:0,sessions:sessions.length};
+  const unique=new Set(sessions.map(s=>s.activityKey||[s.area||'',s.total||0].join('|')));
+  return {target:1,done:unique.size?1:0,sessions:unique.size};
 }
 function gradeBand(grade=currentGrade()){return grade<=2?'young':grade<=4?'middle':grade<=7?'older':'teen'}
 function applyGradeDesign(){const app=document.querySelector('.app');if(!app)return;app.classList.remove('grade-band-young','grade-band-middle','grade-band-older','grade-band-teen');app.classList.add('grade-band-'+gradeBand())}
@@ -6040,7 +6046,9 @@ function finishSession(){
   lastCompletedScope=JSON.parse(JSON.stringify(sessionScope||{}));
   const comparable=state.sessionLog.filter(s=>s.countsTowardGoal!==false&&Number(s.total||0)===sessionQuestions.length),previousBest=comparable.reduce((best,s)=>Math.max(best,Number(s.correct||0)),0),hadPrevious=comparable.length>0;
   const startedAt=Number(state.activeSession?.startedAt||0),learningCorrect=state.answerLog.filter(a=>a.at>=startedAt&&a.correct&&a.countsForLearning!==false).length;
-  const result={endedAt:Date.now(),correct:sessionCorrect,learningCorrect,total:sessionQuestions.length,strengthened:practiceOnly?0:sessionStrengthened.size,area:sessionScope.label,practiceOnly,countsTowardGoal:!practiceOnly};
+  const activityKey=sessionActivityKey(sessionScope),today=dayKeyOffset(0);
+  const duplicateToday=!practiceOnly&&state.sessionLog.some(s=>s.countsTowardGoal!==false&&s.activityKey===activityKey&&s.endedAt&&localDay(s.endedAt)===today);
+  const result={endedAt:Date.now(),correct:sessionCorrect,learningCorrect,total:sessionQuestions.length,strengthened:practiceOnly?0:sessionStrengthened.size,area:sessionScope.label,practiceOnly,activityKey,duplicateToday,countsTowardGoal:!practiceOnly&&!duplicateToday};
   const newRecord=!practiceOnly&&hadPrevious&&result.correct>previousBest;
   recordJourneySessionResult(result);
   state.sessionLog.push(result);state.activeSession=null;saveState();renderAll();
