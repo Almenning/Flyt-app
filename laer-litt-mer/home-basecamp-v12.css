@@ -125,3 +125,187 @@
   pointer-events:auto!important;
   touch-action:manipulation!important;
 }
+
+
+/* Prompt 9 RC mobile composition fix — validated against the supplied iPhone screenshot.
+   Keep one world, but reserve explicit vertical zones so controls never pile on top of each other. */
+.bc12[data-release="basecamp-rc1"]{
+  --bc12-progress:0;
+}
+.bc12[data-release="basecamp-rc1"] .bc12-route-progress{
+  fill:none;
+  stroke:#f1c765;
+  stroke-width:9;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  stroke-dasharray:var(--bc12-progress) 100;
+  filter:drop-shadow(0 0 5px rgba(255,220,119,.78));
+}
+.bc12[data-release="basecamp-rc1"] .bc12-nav button{
+  min-width:var(--laria-touch,48px);
+  min-height:var(--laria-touch,48px);
+}
+@media(max-width:700px){
+  .bc12[data-release="basecamp-rc1"]{
+    min-height:100dvh;
+    height:100dvh;
+  }
+  .bc12[data-release="basecamp-rc1"] .bc12-heading{
+    top:max(1.5%,env(safe-area-inset-top));
+    left:8%;
+    width:84%;
+  }
+  .bc12[data-release="basecamp-rc1"] .bc12-brand{font-size:40px}
+  .bc12[data-release="basecamp-rc1"] .bc12-heading h1{font-size:24px;margin-top:6px}
+  .bc12[data-release="basecamp-rc1"] .bc12-heading p{font-size:11px;margin-top:5px}
+  .bc12[data-release="basecamp-rc1"] .bc12-explore-ribbon{
+    top:14.5%;
+    right:4%;
+    font-size:10px;
+    padding:6px 9px;
+  }
+
+  /* Exploration destinations own the upper half of the world. */
+  .bc12[data-release="basecamp-rc1"] .bc12-place{
+    width:42%;
+    height:15%;
+  }
+  .bc12[data-release="basecamp-rc1"] .bc12-globe{left:3%;top:18%}
+  .bc12[data-release="basecamp-rc1"] .bc12-words{right:3%;top:19.5%}
+  .bc12[data-release="basecamp-rc1"] .bc12-fraction{left:3%;top:34%}
+  .bc12[data-release="basecamp-rc1"] .bc12-multiply{right:3%;top:35.5%}
+  .bc12[data-release="basecamp-rc1"] .bc12-sign{
+    min-width:112px;
+    max-width:150px;
+    padding:8px 13px;
+    font-size:16px;
+  }
+  .bc12[data-release="basecamp-rc1"] .bc12-place-hint{
+    max-width:145px;
+    font-size:9px;
+    padding:3px 7px;
+    text-align:center;
+  }
+
+  /* The mascot occupies its own central-left zone and never covers controls. */
+  .bc12[data-release="basecamp-rc1"] .bc12-fox{
+    left:15%;
+    top:49%;
+    bottom:auto;
+    width:27%;
+    max-width:120px;
+    z-index:4;
+  }
+  .bc12[data-release="basecamp-rc1"] .bc12-fox img{
+    width:100%;
+    height:auto;
+    object-fit:contain;
+  }
+  .bc12[data-release="basecamp-rc1"] .bc12-fox-call{
+    left:8%;
+    top:61%;
+    bottom:auto;
+    max-width:125px;
+    font-size:9px;
+    padding:6px 8px;
+  }
+
+  /* Reisen is the primary action and gets a dedicated central-right zone. */
+  .bc12[data-release="basecamp-rc1"] .bc12-journey-route{
+    left:34%;
+    top:48%;
+    width:49%;
+    height:29%;
+  }
+  .bc12[data-release="basecamp-rc1"] .bc12-you-are-here{
+    left:29%;
+    top:63%;
+    font-size:8px;
+    padding:4px 7px;
+  }
+  .bc12[data-release="basecamp-rc1"] .bc12-next-beacon{
+    left:68%;
+    top:57%;
+    font-size:8px;
+    padding:4px 7px;
+  }
+  .bc12[data-release="basecamp-rc1"] .bc12-journey{
+    left:48%;
+    top:61%;
+    width:48%;
+    padding-bottom:14px;
+    z-index:7;
+  }
+  .bc12[data-release="basecamp-rc1"] .bc12-journey>span{
+    padding:11px 10px;
+    font-size:18px;
+  }
+  .bc12[data-release="basecamp-rc1"] .bc12-journey small{
+    margin:5px 4px 0;
+    padding:7px 8px;
+    font-size:9px;
+    line-height:1.15;
+  }
+  .bc12[data-release="basecamp-rc1"] .bc12-journey:before{
+    box-shadow:78px 0 #705030;
+  }
+
+  /* Optional quest stays secondary. Collection is already in the fixed nav on phone. */
+  .bc12[data-release="basecamp-rc1"] .bc12-quest{
+    left:5%;
+    bottom:11.5%;
+    width:43%;
+    min-height:52px;
+    padding:7px 8px;
+    font-size:11px;
+    transform:rotate(-3deg);
+  }
+  .bc12[data-release="basecamp-rc1"] .bc12-quest small{font-size:9px}
+  .bc12[data-release="basecamp-rc1"] .bc12-wax{
+    width:27px;
+    height:27px;
+    border-width:2px;
+  }
+  .bc12[data-release="basecamp-rc1"] .bc12-treasure{display:none}
+
+  .bc12[data-release="basecamp-rc1"] .bc12-nav{
+    left:3%;
+    width:94%;
+    bottom:max(1%,env(safe-area-inset-bottom));
+    padding:4px;
+    border-radius:18px;
+  }
+  .bc12[data-release="basecamp-rc1"] .bc12-nav button{
+    min-height:52px;
+    font-size:10px;
+  }
+  .bc12[data-release="basecamp-rc1"] .bc12-nav button span{font-size:25px}
+
+  .bc12[data-release="basecamp-rc1"][data-mode="explore"] .bc12-journey,
+  .bc12[data-release="basecamp-rc1"][data-mode="explore"] .bc12-journey-route,
+  .bc12[data-release="basecamp-rc1"][data-mode="explore"] .bc12-you-are-here,
+  .bc12[data-release="basecamp-rc1"][data-mode="explore"] .bc12-next-beacon,
+  .bc12[data-release="basecamp-rc1"][data-mode="explore"] .bc12-quest{
+    opacity:.32;
+  }
+  .bc12[data-release="basecamp-rc1"][data-mode="explore"] .bc12-place{
+    opacity:1;
+    filter:brightness(1.1) saturate(1.08);
+  }
+}
+@media(max-width:360px){
+  .bc12[data-release="basecamp-rc1"] .bc12-brand{font-size:35px}
+  .bc12[data-release="basecamp-rc1"] .bc12-heading h1{font-size:21px}
+  .bc12[data-release="basecamp-rc1"] .bc12-sign{min-width:98px;font-size:14px;padding:7px 9px}
+  .bc12[data-release="basecamp-rc1"] .bc12-place-hint{max-width:115px;font-size:8px}
+  .bc12[data-release="basecamp-rc1"] .bc12-fox{left:13%;width:25%}
+  .bc12[data-release="basecamp-rc1"] .bc12-fox-call{left:5%;max-width:110px;font-size:8px}
+  .bc12[data-release="basecamp-rc1"] .bc12-journey{left:47%;width:50%}
+  .bc12[data-release="basecamp-rc1"] .bc12-journey>span{font-size:16px}
+  .bc12[data-release="basecamp-rc1"] .bc12-quest{width:44%;font-size:10px}
+}
+@media(min-width:701px) and (orientation:portrait){
+  .bc12[data-release="basecamp-rc1"] .bc12-fox{left:23%;width:26%;bottom:20%}
+  .bc12[data-release="basecamp-rc1"] .bc12-journey{left:56%;width:36%;top:64%}
+  .bc12[data-release="basecamp-rc1"] .bc12-journey-route{left:35%;top:53%;width:38%;height:31%}
+}
