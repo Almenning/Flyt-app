@@ -24,7 +24,7 @@ function home(view='home'){mode=view;setTab('home');render();}
 function travel(){const info=next();fromCamp=true;if(info.active){startSession();return}if(info.subject==='geography'){renderGeographyContinue();showScreen('geography')}else openSubject(info.subject);}
 function activity(name){
  fromCamp=true;
- if(name==='globe'){showScreen('world');requestAnimationFrame(()=>setGlobeMode('explore'));}
+ if(name==='globe'){if(typeof window.openGlobe==='function')window.openGlobe('explore');else{showScreen('world');requestAnimationFrame(()=>setGlobeMode('explore'));}}
  else if(name==='fraction')window.openFractionLab();
  else if(name==='multiply')window.openMultiplicationLab();
  // TODO: replace this entry with the dedicated free-play Ordjakt module when available.
