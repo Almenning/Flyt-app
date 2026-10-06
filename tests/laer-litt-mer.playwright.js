@@ -682,7 +682,9 @@ async function finishSession(page){
     await page.locator('#open-world').click();
     await page.locator('#world-screen.active').waitFor();
     const box=await page.locator('#globe-canvas').boundingBox();
-    assert.ok(box&&box.width>300&&box.height>500,'globe should fill the mobile viewport');
+    const worldBox=await page.locator('#world-screen.active').boundingBox();
+    assert.ok(worldBox&&worldBox.width>=389&&worldBox.height>=843,'globe scene should fill the mobile viewport');
+    assert.ok(box&&box.width>=340&&box.height>=340&&Math.abs(box.width-box.height)<3,'interactive globe should stay large and circular on phone');
     await page.locator('#random-country').click();
     assert.doesNotMatch(await page.locator('#globe-status').innerText(),/Finn et land/);
 
