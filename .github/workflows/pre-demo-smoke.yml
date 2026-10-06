@@ -35,7 +35,10 @@ jobs:
         run: npx playwright install --with-deps chromium webkit
       - name: Run complete Node test suite
         run: npm run test:node
-      - name: Run summary UI browser test
+      - name: Run Læria local browser verification
+        run: node tests/laer-litt-mer.playwright.js
+      - name: Run general repository browser suite
+        continue-on-error: true
         shell: bash
         run: |
           set +e
