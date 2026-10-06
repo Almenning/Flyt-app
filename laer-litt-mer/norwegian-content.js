@@ -53,6 +53,26 @@
       ].forEach(([word,answer,options])=>addChoice('rhyme','Hvilket ord rimer på '+word+'?',answer,options));
 
       [
+        ['MUS','HUS','Bytt M med H i MUS. Hvilket ord får du?',['HUS','MUS','HUND']],
+        ['BIL','PIL','Bytt B med P i BIL. Hvilket ord får du?',['PIL','BIL','BALL']],
+        ['KATT','HATT','Bytt K med H i KATT. Hvilket ord får du?',['HATT','KATT','HUS']],
+        ['SOL','SOV','Bytt L med V i SOL. Hvilket ord får du?',['SOV','SOL','SOKK']],
+        ['REV','REN','Bytt V med N i REV. Hvilket ord får du?',['REN','REV','RIS']],
+        ['BOK','BOL','Bytt K med L i BOK. Hvilket ord får du?',['BOL','BOK','BIL']],
+        ['S','SKO','Legg S foran KO. Hvilket ord får du?',['SKO','KO','KU']],
+        ['B','BÅT','Legg B foran ÅT. Hvilket ord får du?',['BÅT','BIL','BOK']],
+        ['M','MUS','Legg M foran US. Hvilket ord får du?',['MUS','HUS','IS']],
+        ['H','HUS','Legg H foran US. Hvilket ord får du?',['HUS','MUS','IS']],
+        ['T','TRE','Legg T foran RE. Hvilket ord får du?',['TRE','REV','TOG']],
+        ['K','KU','Legg K foran U. Hvilket ord får du?',['KU','KO','KATT']]
+      ].forEach(([,answer,prompt,options],i)=>addChoice(i<6?'change-letter':'add-letter',prompt,answer,options));
+
+      [
+        ['SKO','S','KO',['KO','KU','TO']],['BÅT','B','ÅT',['ÅT','BÅ','AT']],['MUS','M','US',['US','MU','IS']],
+        ['HUS','H','US',['US','HU','IS']],['TRE','T','RE',['RE','TE','TRE']],['KU','K','U',['U','KU','K']]
+      ].forEach(([word,letter,answer,options])=>addChoice('remove-letter','Ta bort '+letter+' fra '+word+'. Hva står igjen?',answer,options));
+
+      [
         ['glad','blid',['blid','sur','våt']],['stor','svær',['svær','liten','rask']],['rask','fort',['fort','sakte','tung']],['snill','grei',['grei','sint','mørk']],
         ['redd','engstelig',['engstelig','mett','glad']],['liten','små',['små','store','lange']],['se','kikke',['kikke','rope','hoppe']],['gå','spasere',['spasere','sove','tegne']],
         ['rolig','stille',['stille','bråkete','rask']],['fin','pen',['pen','vond','sur']],['sint','sur',['sur','glad','snill']],['morsom','artig',['artig','trist','kald']]
@@ -484,7 +504,7 @@
     }
 
     const readingSkills=new Set(['letter-sound','word-picture','reading-comprehension','reading-inference','reading-main-idea','reading-detail','reading-source','reading-rhetoric','reading-structure']);
-    const spellingSkills=new Set(['missing-letter','spelling','compound-words','double-consonant','letter-sound']);
+    const spellingSkills=new Set(['missing-letter','spelling','compound-words','double-consonant','letter-sound','change-letter','add-letter','remove-letter']);
     const languageSkills=new Set(['sentence-order','rhyme','synonyms','word-class','grammar','nynorsk','punctuation','rhetoric','source-criticism','literary-devices','argumentation','language']);
     if(module==='reading')return q.filter(x=>readingSkills.has(x.skill));
     if(module==='spelling')return q.filter(x=>spellingSkills.has(x.skill));
