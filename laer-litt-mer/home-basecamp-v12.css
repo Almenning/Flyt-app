@@ -1,5 +1,5 @@
 /* Læria basecamp v12. One scoped stylesheet, building on Work v11 without reintroducing dashboard layers. */
-.grade-band-young.app:has(#home-screen.active){width:100%;max-width:none;padding:0;background:#203b31}
+.grade-band-young.app:has(#home-screen.active){width:100%;max-width:none;padding:0;background:#203b31!important;color:var(--laria-ink-soft,#24364b)!important}
 .grade-band-young.app:has(#home-screen.active) :is(#topbar,#bottom-nav){display:none!important}
 .grade-band-young #home-screen{max-width:none!important;margin:0!important;padding:0!important;background:transparent!important}
 .grade-band-young #home-screen>:not(.bc12){display:none!important}
