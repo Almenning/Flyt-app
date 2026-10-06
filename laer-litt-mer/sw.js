@@ -1,4 +1,4 @@
-const CACHE='laria-prompt8-2026-10-06-v6';
+const CACHE='laria-prompt8-2026-10-06-v7';
 const APP_CACHE_PREFIXES=['laer-litt-mer-','laria-'];
 
 const SHELL=[
@@ -21,7 +21,7 @@ const SHELL=[
   './world-atlas.css?v=20261006-assets1',
   // Home
   './home-premium.css?v=20261006-p8foundation1',
-  './home-basecamp-v12.css?v=20261006-p8foundation1',
+  './home-basecamp-v12.css?v=20261006-p8foundation2',
   './home-basecamp-v12.js?v=20261006-prompt7',
   // Free play
   './word-hunt.css?v=20261006-assets1',
