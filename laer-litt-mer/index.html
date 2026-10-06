@@ -5426,6 +5426,7 @@ function answerLearningChoice(answer){
       if(b.dataset.answer===String(q.answer))b.classList.add('correct');
     }else if(b.dataset.answer===String(answer)){
       b.classList.add('wrong');
+      b.disabled=true;
     }
   });
   showLearningFeedback(q,correct,{retry:young&&!correct});
