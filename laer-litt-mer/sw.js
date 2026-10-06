@@ -1,33 +1,40 @@
-const CACHE='laria-prompt44-2026-10-06-v1';
+const CACHE='laria-assets-2026-10-06-v2';
 const APP_CACHE_PREFIXES=['laer-litt-mer-','laria-'];
 
 const SHELL=[
+  // Core data
   './manifest.webmanifest',
   './icon.svg',
-  './profile-avatars.js?v=profile1',
-  './norwegian-content.js',
-  './fraction-lab.css?v=20261003-mobile2',
-  './fraction-lab.js?v=20261006-tonal3',
-  './multiplication-lab.css?v=20261006-table2',
-  './multiplication-lab.js?v=20261003-table1',
-  './bokskogen-world.css?v=atlas36',
-  './bokskogen-world.js?v=atlas36',
-  './journey-world-premium.css?v=map38',
-  './journey-world-premium.js?v=atlas35',
-  './world-atlas.css?v=fox-journey-1',
-  './home-premium.css?v=young8',
-  './home-basecamp-v12.css?v=basecamp12e',
-  './home-basecamp-v12.js?v=basecamp12e',
-  './word-hunt.css?v=wordhunt2',
-  './word-hunt.js?v=wordhunt2',
-  './laria-unified-v13.css?v=unified13b',
-  './laria-unified-v13.js?v=unified13',
-  './laria-task-scene-v15.css?v=taskscene17',
-  './laria-task-scene-v15.js?v=taskscene19',
-  './laria-task-young-v18.css?v=young18',
-  './globe-v24.css?v=globe29',
-  './globe-v24-art.js?v=globe29',
-  './globe-v25-renderer.js?v=globe29',
+  './profile-avatars.js?v=20261006-assets1',
+  './norwegian-content.js?v=20261006-assets1',
+  // Labs
+  './fraction-lab.css?v=20261006-assets1',
+  './fraction-lab.js?v=20261006-assets1',
+  './multiplication-lab.css?v=20261006-assets1',
+  './multiplication-lab.js?v=20261006-assets1',
+  // Journey / Bokskogen
+  './bokskogen-world.css?v=20261006-assets1',
+  './bokskogen-world.js?v=20261006-assets1',
+  './journey-world-premium.css?v=20261006-assets1',
+  './journey-world-premium.js?v=20261006-assets1',
+  './world-atlas.css?v=20261006-assets1',
+  // Home
+  './home-premium.css?v=20261006-assets1',
+  './home-basecamp-v12.css?v=20261006-assets1',
+  './home-basecamp-v12.js?v=20261006-assets1',
+  // Free play
+  './word-hunt.css?v=20261006-assets1',
+  './word-hunt.js?v=20261006-assets1',
+  // Shared UI + task scene
+  './laria-unified-v13.css?v=20261006-assets1',
+  './laria-unified-v13.js?v=20261006-assets1',
+  './laria-task-scene-v15.css?v=20261006-assets1',
+  './laria-task-scene-v15.js?v=20261006-assets1',
+  './laria-task-young-v18.css?v=20261006-assets1',
+  // Kloden
+  './globe-v24.css?v=20261006-assets1',
+  './globe-v24-art.js?v=20261006-assets1',
+  './globe-v25-renderer.js?v=20261006-assets1',
   './basecamp-v11.webp?v=basecamp12d',
   './basecamp-v11-mobile.webp?v=basecamp12d',
   './bokskogen-atlas32.webp?v=atlas32',
