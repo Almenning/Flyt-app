@@ -5872,7 +5872,7 @@ function globeInverse(x,y){const canvas=document.getElementById('globe-canvas'),
 function pickGlobeCountry(e){const canvas=document.getElementById('globe-canvas'),rect=canvas.getBoundingClientRect(),x=e.clientX-rect.left,y=e.clientY-rect.top,ll=globeInverse(x,y);if(!ll)return;
   const hits=WORLD_COUNTRIES.filter(c=>c.geometry&&pointInCountry(c,ll.lon,ll.lat));
   let picked=hits.length===1?hits[0]:hits.length>1?[...hits].sort((a,b)=>geographicHitDistance(a,ll.lon,ll.lat)-geographicHitDistance(b,ll.lon,ll.lat))[0]:null;
-  if(!picked){let best=null,dist=Infinity;for(const c of WORLD_COUNTRIES){if(!canMapCountry(c)||(!isTinyCountry(c)&&c.id!==globeSelected))continue;const p=globeProject(c.lon,c.lat,canvas._cssW,canvas._cssH);if(!p)continue;const d=Math.hypot(p[0]-x,p[1]-y);if(d<dist){dist=d;best=c}}if(dist<Math.min(24,15+globeZoom*2.2))picked=best}
+  if(!picked){let best=null,dist=Infinity;for(const c of WORLD_COUNTRIES){if(!canMapCountry(c)||(!isTinyCountry(c)&&c.id!==globeSelected))continue;const p=globeProject(c.lon,c.lat,canvas._cssW,canvas._cssH);if(!p)continue;const d=Math.hypot(p[0]-x,p[1]-y);if(d<dist){dist=d;best=c}}const hitRadius=best&&isTinyCountry(best)?Math.min(34,Math.max(24,20+globeZoom*2.6)):18;if(dist<hitRadius)picked=best}
   if(picked)selectGlobeCountry(picked.id);
 }
 function globeStatusInfo(id){
@@ -5928,7 +5928,7 @@ function renderQuizMap(q,answered=currentAnswered){const canvas=document.getElem
   const g=ctx.createLinearGradient(0,0,0,h);g.addColorStop(0,'#BDE9F4');g.addColorStop(1,'#D9F5F2');ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
   for(const id of ids){let fill='#BFD7A2';if(answered&&id===q.answer)fill='#62BB88';else if(answered&&id===answered.selected)fill='#E99388';drawFlatCountry(ctx,countries[id],project,fill)}
   for(const id of ids){const c=countries[id];if(!isTinyCountry(c)&&c.geometry)continue;const p=project(c.lon,c.lat);if(!p)continue;ctx.beginPath();ctx.arc(p[0],p[1],answered&&id===q.answer?6:4,0,Math.PI*2);ctx.fillStyle=answered&&id===q.answer?'#62BB88':answered&&id===answered.selected?'#E99388':'#FFF2A9';ctx.fill();ctx.strokeStyle='rgba(60,70,90,.4)';ctx.stroke()}
-  canvas.onclick=answered?null:(e=>{const r=canvas.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top,xlon=bounds.minLon+(x-pad)/(w-pad*2)*(bounds.maxLon-bounds.minLon),lat=bounds.maxLat-(y-pad)/(h-pad*2)*(bounds.maxLat-bounds.minLat),lon=((xlon+540)%360)-180;let c=ids.map(id=>countries[id]).find(c=>c.geometry&&pointInCountry(c,lon,lat));if(!c){let best=null,dist=Infinity;for(const id of ids){const item=countries[id],p=project(item.lon,item.lat);if(!p)continue;const d=Math.hypot(p[0]-x,p[1]-y);if(d<dist){dist=d;best=item}}if(dist<18)c=best}if(c)answerMap(c.id)});
+  canvas.onclick=answered?null:(e=>{const r=canvas.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top,xlon=bounds.minLon+(x-pad)/(w-pad*2)*(bounds.maxLon-bounds.minLon),lat=bounds.maxLat-(y-pad)/(h-pad*2)*(bounds.maxLat-bounds.minLat),lon=((xlon+540)%360)-180;let c=ids.map(id=>countries[id]).find(c=>c.geometry&&pointInCountry(c,lon,lat));if(!c){let best=null,dist=Infinity;for(const id of ids){const item=countries[id],p=project(item.lon,item.lat);if(!p)continue;const d=Math.hypot(p[0]-x,p[1]-y);if(d<dist){dist=d;best=item}}const hitRadius=best&&isTinyCountry(best)?24:18;if(dist<hitRadius)c=best}if(c)answerMap(c.id)});
 }
 
 
