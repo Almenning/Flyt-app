@@ -1,7 +1,7 @@
 
 /* Brøklab: open-ended fraction experimentation. Kept separate from graded quiz flow on purpose. */
 const FRACTION_LAB_DENOMS=[1,2,3,4,5,6,8,10,12];
-const FRACTION_LAB_COLORS={1:'#EF4E55',2:'#F68B2C',3:'#F8C936',4:'#B9D94B',5:'#39B868',6:'#1DB4B4',8:'#4EB9E9',10:'#268ED8',12:'#A56BD6'};
+const FRACTION_LAB_COLORS={1:'#D3A24A',2:'#277F86',3:'#368F91',4:'#439A96',5:'#4FA39B',6:'#5AACA0',8:'#67B6A8',10:'#75BFB0',12:'#84C8B8'};
 const FRACTION_LAB_VARIANTS=[
   {id:'wall',label:'Brøkveggen',icon:'🧱'},
   {id:'circles',label:'Brøksirkler',icon:'◉'},
