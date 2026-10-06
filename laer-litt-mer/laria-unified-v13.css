@@ -613,3 +613,17 @@
   #subject-screen .journey-node.state-next .journey-node-orb,
   #subject-screen .journey-map-node.state-next .node-orb{animation:none!important}
 }
+
+
+/* TaskScene owns its own surface. Do not let the legacy unified question card
+   create a second card around the premium task scene. */
+#session-screen.task-scene #question-wrap{
+  overflow:visible;
+  margin-top:0;
+  padding:0;
+  border:0;
+  border-radius:0;
+  background:none;
+  box-shadow:none;
+}
+#session-screen.task-scene #question-wrap:after{display:none}
