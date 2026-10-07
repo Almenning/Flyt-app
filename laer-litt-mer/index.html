@@ -3416,6 +3416,7 @@ document.addEventListener('click',e=>{
   const camp=target.closest('.bc12');
   if(!action||!camp)return;
   e.preventDefault();
+  if(typeof window.LARIA_MARK_BASECAMP_ORIGIN==='function')window.LARIA_MARK_BASECAMP_ORIGIN();
 
   if(action==='globe'){openGlobe('explore');return}
   if(action==='words'){
