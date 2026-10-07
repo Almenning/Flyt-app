@@ -49,10 +49,34 @@
 
   function activateWorldImages(host,geo){
     const screen=document.getElementById(geo?'geography-screen':'subject-screen');
-    if(!screen?.classList.contains('active'))return;
-    host.querySelectorAll('img[data-world-src]').forEach(img=>{
-      if(!img.getAttribute('src'))img.setAttribute('src',img.dataset.worldSrc);
+    if(host._premiumWorldImageObserver){
+      host._premiumWorldImageObserver.disconnect();
+      host._premiumWorldImageObserver=null;
+    }
+    const load=()=>{
+      const primary=host.querySelector('.premium-world-art');
+      const refocus=()=>{
+        requestAnimationFrame(()=>requestAnimationFrame(()=>keepCurrentMissionVisible(host,geo)));
+      };
+      if(primary&&!primary.dataset.worldFocusBound){
+        primary.dataset.worldFocusBound='true';
+        primary.addEventListener('load',refocus,{once:true});
+      }
+      host.querySelectorAll('img[data-world-src]').forEach(img=>{
+        if(!img.getAttribute('src'))img.setAttribute('src',img.dataset.worldSrc);
+      });
+      if(primary?.complete&&primary.naturalWidth>0)refocus();
+    };
+    if(screen?.classList.contains('active')){load();return}
+    if(!screen){return}
+    const observer=new MutationObserver(()=>{
+      if(!screen.classList.contains('active'))return;
+      observer.disconnect();
+      host._premiumWorldImageObserver=null;
+      load();
     });
+    observer.observe(screen,{attributes:true,attributeFilter:['class']});
+    host._premiumWorldImageObserver=observer;
   }
 
   function installWorldDepthMotion(host){
@@ -144,12 +168,18 @@
     const screen=document.getElementById(geo?'geography-screen':'subject-screen');
     const target=host.querySelector('.premium-place.is-next');
     if(!screen?.classList.contains('active')||!target)return;
-    const rect=target.getBoundingClientRect();
     const viewport=window.innerHeight||document.documentElement.clientHeight||800;
-    const safeTop=Math.max(74,viewport*.16),safeBottom=viewport*.78;
-    if(rect.top>=safeTop&&rect.bottom<=safeBottom)return;
-    const top=Math.max(0,window.scrollY+rect.top-viewport*.56);
-    window.scrollTo({top,behavior:'auto'});
+    const position=()=>{
+      const rect=target.getBoundingClientRect();
+      const safeTop=Math.max(74,viewport*.16),safeBottom=viewport*.78;
+      if(rect.top>=safeTop&&rect.bottom<=safeBottom)return true;
+      const delta=rect.top-viewport*.48;
+      window.scrollTo({top:Math.max(0,window.scrollY+delta),behavior:'auto'});
+      const after=target.getBoundingClientRect();
+      return after.top>=0&&after.top<viewport;
+    };
+    if(position())return;
+    [50,140,320].forEach(delay=>setTimeout(()=>{if(screen.classList.contains('active'))position()},delay));
   }
 
   function journeyLandmarkKind(node,i){
@@ -314,5 +344,15 @@
     if(journeyViewGrade('geography')<=2)return renderMap('geography',true);
     setYoungGeographyWorldFirst(false);
     return priorGeo();
+  };
+  const priorOpenSubject=openSubject;
+  openSubject=function(subject){
+    const result=priorOpenSubject.apply(this,arguments);
+    if(journeyViewGrade(subject)<=2&&(subject==='math'||subject==='english')){
+      const host=document.getElementById('journey-map');
+      requestAnimationFrame(()=>requestAnimationFrame(()=>keepCurrentMissionVisible(host,false)));
+      setTimeout(()=>keepCurrentMissionVisible(host,false),180);
+    }
+    return result;
   };
 })();

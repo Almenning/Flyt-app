@@ -38,7 +38,7 @@ test('Prompt 8 active Læria layers are explicit, unique and cache-aligned',()=>
     assert.ok(v,'active asset is not cache-busted: '+ref);
   }
 
-  assert.match(sw,/const CACHE='laria-runtime-[^']+perf\d+'/,'runtime cache must use an explicit performance release');
+  assert.match(sw,/const CACHE='laria-(?:runtime|stable)-[^']+'/,'runtime cache must use an explicit Læria release');
   assert.match(sw,/caches\.match\(req\)/,'static runtime assets must consult cache before network');
   assert.match(sw,/if\(cached\)return cached/,'warm static assets must return from cache immediately');
   assert.doesNotMatch(sw,/\.css\?v=|\.js\?v=/,'service worker install must not precache the active CSS\/JS graph');

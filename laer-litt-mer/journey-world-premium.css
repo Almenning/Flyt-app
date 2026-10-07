@@ -1278,3 +1278,28 @@
 @keyframes premiumTravelerStride{0%,100%{transform:translateY(0) rotate(-3deg) scale(1)}50%{transform:translateY(-5px) rotate(3deg) scale(1.035)}}
 @keyframes premiumTravelDust{0%{transform:translate(-50%,0) scale(.45);opacity:0}22%{opacity:.65}100%{transform:translate(calc(-50% - 18px),-12px) scale(1.45);opacity:0}}
 @media(prefers-reduced-motion:reduce){.premium-traveler-character,.premium-traveler.is-traveling .premium-traveler-character,.premium-traveler.is-traveling .premium-travel-dust i{animation:none!important}.premium-travel-dust{display:none!important}}
+
+
+/* Young mobile world-first contract: for grades 1-2 the learning world is the subject home.
+   Later board-integration rules must not push the current mission below the first viewport. */
+@media(max-width:699px){
+  .grade-band-young #subject-screen.premium-journey-active{
+    padding:0!important;
+    background:#183b3c!important;
+  }
+  .grade-band-young #subject-screen.premium-journey-active>.detail-back,
+  .grade-band-young #subject-screen.premium-journey-active>.subject-page-banner,
+  .grade-band-young #subject-screen.premium-journey-active>.subject-hero,
+  .grade-band-young #subject-screen.premium-journey-active>#subject-overview,
+  .grade-band-young #subject-screen.premium-journey-active #subject-journey-section>.journey-heading{
+    display:none!important;
+  }
+  .grade-band-young #subject-screen.premium-journey-active #subject-journey-section{
+    margin:0!important;
+    padding:0!important;
+  }
+  .grade-band-young #subject-screen.premium-journey-active .premium-journey-map,
+  .grade-band-young #subject-screen.premium-journey-active .premium-world{
+    border-radius:0 0 28px 28px!important;
+  }
+}
