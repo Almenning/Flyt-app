@@ -751,10 +751,10 @@ body.laria-task-scene-open #bottom-nav{
     font-size:clamp(74px,24vw,102px);
   }
   #session-screen.task-scene .task-fox-companion{
-    top:112px;
+    top:190px;
     right:10px;
-    width:66px;
-    height:83px;
+    width:56px;
+    height:70px;
   }
   #session-screen.task-scene .text-only .task-fox-companion,
   #session-screen.task-scene .has-passage .task-fox-companion{
@@ -1522,5 +1522,33 @@ body.laria-task-scene-open .app:after{
   }
   #session-screen.task-scene .task-object-stage{
     width:100%!important;
+  }
+}
+
+
+/* Prompt 13 stabilization: visual questions own a bounded companion stage.
+   The fox may overlap scenery, never the question or answer controls. */
+#session-screen.task-scene .task-visual-companion-stage{
+  position:relative;
+  width:min(100%,650px);
+  margin:0 auto;
+}
+#session-screen.task-scene .task-visual-companion-stage .task-visual-row{
+  width:100%;
+  margin-left:0;
+  margin-right:0;
+}
+#session-screen.task-scene .task-visual-companion-stage .task-fox-companion{
+  top:auto;
+  right:8px;
+  bottom:14px;
+}
+@media(max-width:600px){
+  #session-screen.task-scene .task-visual-companion-stage .task-fox-companion{
+    top:auto;
+    right:4px;
+    bottom:10px;
+    width:52px;
+    height:65px;
   }
 }
