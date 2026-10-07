@@ -79,9 +79,16 @@ function paintCountryScene(canvas,c){
   const wash=ctx.createLinearGradient(0,0,w,0);wash.addColorStop(0,'rgba(255,250,230,.20)');wash.addColorStop(.55,'rgba(255,250,230,0)');wash.addColorStop(1,'rgba(40,70,55,.06)');ctx.fillStyle=wash;ctx.fillRect(0,0,w,h);
 }
 
-function selectedProfileFox(){return './lia-fox-explorer-home.webp'}
 function selectedProfileAvatar(){
   try{return (typeof state!=='undefined'&&state?.profile?.avatar==='girl')?'girl':'boy'}catch(_){return 'boy'}
+}
+function selectedProfileFox(){
+  const avatar=selectedProfileAvatar();
+  try{
+    const src=window.LARIA_PROFILE_AVATARS?.[avatar];
+    if(typeof src==='string'&&src.startsWith('data:image/'))return src;
+  }catch(_){}
+  return './lia-fox-explorer-home.webp';
 }
 
 function ensurePremiumShell(){

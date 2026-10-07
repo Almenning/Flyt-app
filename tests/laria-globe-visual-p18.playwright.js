@@ -34,6 +34,34 @@ const seed={
   journey:{nodes:{},gradeWins:{},viewGrades:{}},answerLog:[],sessionLog:[],activeSession:null
 };
 
+async function assertProfileFoxSelection(browserType){
+  const browser=await browserType.launch({headless:true});
+  try{
+    const sources={};
+    for(const avatar of ['boy','girl']){
+      const avatarSeed={...seed,profile:{...seed.profile,avatar}};
+      const ctx=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,serviceWorkers:'block',deviceScaleFactor:1});
+      const page=await ctx.newPage();
+      await page.addInitScript(x=>localStorage.setItem('laerlittmer-v2',JSON.stringify(x)),avatarSeed);
+      await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
+      await page.route('https://api.worldbank.org/**',r=>r.abort());
+      await page.goto(globalThis.__url+'?app=laria&p18=profile-'+avatar,{waitUntil:'domcontentloaded'});
+      await page.waitForFunction(()=>typeof openGlobe==='function'&&window.LARIA_PROFILE_AVATARS);
+      await page.evaluate(()=>openGlobe());
+      await page.locator('#world-screen.active .premium-globe-fox').waitFor();
+      const pair=await page.evaluate(a=>({
+        actual:document.querySelector('#world-screen.active .premium-globe-fox')?.getAttribute('src')||'',
+        expected:window.LARIA_PROFILE_AVATARS?.[a]||''
+      }),avatar);
+      assert.ok(pair.expected.startsWith('data:image/webp;base64,'),'missing '+avatar+' profile fox source');
+      assert.equal(pair.actual,pair.expected,'globe did not render selected '+avatar+' profile fox');
+      sources[avatar]=pair.actual;
+      await ctx.close();
+    }
+    assert.notEqual(sources.boy,sources.girl,'boy and girl globe companions must remain distinct');
+  }finally{await browser.close()}
+}
+
 async function capture(browserType,label,viewport){
   const browser=await browserType.launch({headless:true});
   try{
@@ -94,6 +122,7 @@ async function capture(browserType,label,viewport){
 (async()=>{
   const {s,url}=await server();globalThis.__url=url;
   try{
+    await assertProfileFoxSelection(chromium);
     await capture(chromium,'chromium-iphone',{width:390,height:844});
     await capture(webkit,'webkit-iphone',{width:390,height:844});
     await capture(webkit,'webkit-ipad',{width:820,height:1180});
