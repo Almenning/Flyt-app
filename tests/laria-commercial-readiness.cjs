@@ -58,6 +58,7 @@ function buildAuditRuntime() {
     console,
     window: null,
     CustomEvent: function CustomEvent(type) { this.type = type; },
+    dispatchEvent: () => true,
   };
   context.window = context;
   vm.createContext(context);
