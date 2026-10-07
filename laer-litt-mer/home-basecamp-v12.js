@@ -41,6 +41,11 @@ function journeyCopy(info){
  return 'Bokskogen har et nytt oppdrag til deg.';
 }
 function home(view='home'){mode=view;setTab('home');render();}
+window.LARIA_MARK_BASECAMP_ORIGIN=()=>{fromCamp=true};
+window.LARIA_RETURN_TO_BASECAMP=()=>{
+ if(!young()||!fromCamp)return false;
+ fromCamp=false;home(mode);return true;
+};
 function travel(){const info=next();fromCamp=true;if(info.active){startSession();return}if(info.subject==='geography'){renderGeographyContinue();showScreen('geography')}else openSubject(info.subject);}
 function activity(name){
  fromCamp=true;
