@@ -29,8 +29,8 @@ const SHELL=[
   // Shared UI + task scene
   './laria-unified-v13.css?v=20261006-assets1',
   './laria-unified-v13.js?v=20261006-assets1',
-  './laria-task-scene-v15.css?v=20261006-p8foundation1',
-  './laria-task-scene-v15.js?v=20261007-p12rc1',
+  './laria-task-scene-v15.css?v=20261007-p13rc1',
+  './laria-task-scene-v15.js?v=20261007-p13rc1',
   './laria-task-young-v18.css?v=20261006-assets1',
   // Kloden
   './globe-v24.css?v=20261006-p8foundation1',
