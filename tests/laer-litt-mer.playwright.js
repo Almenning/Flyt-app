@@ -292,6 +292,8 @@ async function finishSession(page){
     assert.equal(await page.locator('#journey-map .bok-v15-scene').count(),0,'obsolete modular terrain must not compete with the active scene');
     assert.equal(await page.locator('#journey-map .atlas-place-label').count(),11,'all core destinations need readable controls');
     assert.equal(await page.locator('#journey-map').getAttribute('data-release'),'atlas32');
+    assert.equal(await page.locator('#journey-map').getAttribute('data-journey-release'),'journey-rc1');
+    assert.equal(Number(await page.locator('#journey-map').getAttribute('data-journey-core-stops')),11,'Bokskogen RC must expose 11 distinct core destinations');
     assert.equal(await page.locator('#journey-map .bok-v10-home').isVisible(),true);
     assert.equal(await page.locator('#journey-map .bok-v10-grade').isVisible(),true);
     assert.equal(await page.locator('#journey-map .bok-v10-progress').isVisible(),true);
@@ -326,6 +328,8 @@ async function finishSession(page){
     await page.evaluate(()=>document.getElementById('open-math').click());
     assert.equal(await page.locator('#journey-map').isVisible(),true);
     assert.equal(await page.locator('#journey-map.premium-journey-map .premium-math').count(),1);
+    assert.equal(await page.locator('#journey-map').getAttribute('data-journey-release'),'journey-rc1');
+    assert.equal(await page.locator('#journey-map').getAttribute('data-journey-subject'),'math');
     assert.ok(await page.locator('#journey-map .premium-place[data-journey-node]').count()>=4);
     assert.equal(await page.locator('#journey-map .premium-place.is-next').count(),1);
     assert.ok(await page.locator('#journey-map .premium-place.is-future').count()>=1);
@@ -633,6 +637,8 @@ async function finishSession(page){
     assert.equal(await page.locator('.geo-theme').count(),6);
     assert.equal(await page.locator('#geo-journey-map').isVisible(),true);
     assert.equal(await page.locator('#geo-journey-map.premium-journey-map .premium-geography').count(),1);
+    assert.equal(await page.locator('#geo-journey-map').getAttribute('data-journey-release'),'journey-rc1');
+    assert.equal(await page.locator('#geo-journey-map').getAttribute('data-journey-subject'),'geography');
     assert.ok(await page.locator('#geo-journey-map .premium-place[data-geo-journey-node]').count()>=4);
     assert.equal(await page.locator('#geo-journey-map .premium-place.is-next').count(),1);
     assert.ok(await page.locator('#geo-journey-map .premium-place.is-future').count()>=1);
