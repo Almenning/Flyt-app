@@ -9,9 +9,10 @@ const {chromium,webkit}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
  for(const [engineName,engine] of engines){
  const browser=await engine.launch({headless:true,args:engineName==='chromium'?['--no-sandbox']:[]});
  for(const [name,width,height] of [['ipad-landscape',1180,820],['ipad-portrait',820,1180],['iphone',390,844],['small-phone',320,568],['desktop',1024,768]]){
-  const context=await browser.newContext({viewport:{width,height},hasTouch:true,reducedMotion:'reduce',serviceWorkers:'block'});
-  const page=await context.newPage();page.on('pageerror',e=>errors.push(name+': '+e.message));
-  await page.addInitScript(()=>localStorage.setItem('laerlittmer-v2',JSON.stringify({profile:{grade:2,onboarded:true,name:'Testbarn',avatar:'boy',setupVersion:1}})));
+  const context=await browser.newContext({viewport:{width,height},isMobile:name.includes('phone'),hasTouch:true,reducedMotion:'reduce',serviceWorkers:'block'});
+  const page=await context.newPage();page.on('pageerror',e=>errors.push(engineName+' '+name+': '+e.message));
+  const seed={version:7,progressSchemaVersion:3,profile:{grade:2,onboarded:true,name:'Testbarn',avatar:'boy',setupVersion:2},mastery:{},mistakes:{},skillMastery:{},skillMistakes:{},skillLastSeen:{},masteryEvidence:{},skillEvidence:{},preferences:{sound:false,autoRead:false},lastMilestone:null,recentCountryWin:null,lastActivity:null,journey:{nodes:{},gradeWins:{},viewGrades:{}},answerLog:[],sessionLog:[],activeSession:null};
+  await page.addInitScript(s=>localStorage.setItem('laerlittmer-v2',JSON.stringify(s)),seed);
   await page.goto(process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/',{waitUntil:'networkidle'});
   await page.locator('.bc12').waitFor({state:'visible'});
   assert.equal(await page.locator('.bc12').getAttribute('data-release'),'basecamp-rc1',name+' wrong Basecamp release');
