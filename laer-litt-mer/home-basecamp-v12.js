@@ -1,5 +1,6 @@
 /* Hjem v12: premium basecamp + real free-play Ordjakt. Presentation and entry points only; learning state remains owned by the app. Learning state is owned by the app. */
 (()=>{'use strict';
+window.LARIA_BASECAMP_DIAG={loaded:true,init:false,render:false,error:null};
 const PLACES={lyder:'Bokstavporten',ordbilder:'Lesestua',ordlek:'Rimdammen','ordstart-checkpoint':'Skogsporten',setningsrekkefolge:'Ordbrua',ordbetydning:'Ordhagen','setninger-checkpoint':'Ordhagen',detaljer:'Biblioteket',forsta:'Biblioteket',tenkvidere:'Biblioteket','lesedetektiv-checkpoint':'Biblioteket'};
 const svg=paths=>'<svg viewBox="0 0 24 24" aria-hidden="true">'+paths+'</svg>';
 const icons={home:svg('<path d="m3 10 9-7 9 7M5 9v12h5v-7h4v7h5V9"/>'),travel:svg('<path d="m3 5 6-2 6 3 6-2v16l-6 2-6-3-6 2ZM9 3v16m6-13v16"/>'),explore:svg('<circle cx="12" cy="12" r="9"/><path d="m16 8-2 6-6 2 2-6Z"/>'),collection:svg('<path d="M5 9a7 7 0 0 1 14 0v12H5ZM9 3V1h6v2M8 14h8v5H8ZM5 10h14"/>')};
@@ -102,6 +103,7 @@ function bindCampControls(host){
  });
 }
 function render(){
+ window.LARIA_BASECAMP_DIAG.render=true;
  const screen=document.getElementById('home-screen');if(!screen)return;
  let host=screen.querySelector('.bc12');
  if(!host){screen.insertAdjacentHTML('afterbegin',markup());host=screen.querySelector('.bc12');}
@@ -125,6 +127,7 @@ function render(){
  host.querySelectorAll('.bc12-nav button').forEach(b=>{if(b.dataset.camp===mode)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
 }
 function init(){
+ window.LARIA_BASECAMP_DIAG.init=true;
  if(!document.getElementById('bc12-dialog')){const d=document.createElement('dialog');d.id='bc12-dialog';d.setAttribute('aria-labelledby','bc12-dialog-title');document.body.append(d);d.addEventListener('click',e=>{if(e.target===d){const r=d.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)closeDialog()}});}
  // Capture only returns from activities entered through basecamp. Other routes keep their original behavior.
  // Bind the concrete back controls directly. Safari/WebKit has proven less reliable with delegated closest() touch routes.
