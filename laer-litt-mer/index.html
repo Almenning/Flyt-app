@@ -2876,13 +2876,15 @@
       <div id="detail-content"></div>
     </section>
 
-    <section class="screen" id="adult-screen">
+    <section class="screen" id="adult-screen" data-parent-trust-release="parent-trust-rc1">
       <button class="detail-back" id="adult-back">← Tilbake</button>
-      <div class="eyebrow">For voksne</div>
-      <h1>Testoversikt</h1>
-      <p class="hero-copy">Dette er en tidlig test. Vi prøver først og fremst å finne ut om barnet forstår appen, lærer noe og vil bruke den igjen.</p>
+      <div class="eyebrow">Foreldreområde</div>
+      <h1>Foreldreoversikt</h1>
+      <p class="hero-copy">Se barnets profil og læringsaktivitet, juster klassetrinn og innstillinger, og les hvordan Læria bruker læreplanen som faglig ramme.</p>
 
       <div class="card adult-card">
+        <div class="parent-row"><span>Profilnavn</span><b id="adult-profile-name">–</b></div>
+        <div class="parent-row"><span>Valgt figur</span><b id="adult-profile-avatar">–</b></div>
         <div class="parent-row"><span>Klassetrinn</span><select class="adult-grade-select" id="adult-grade" aria-label="Klassetrinn"><option value="1">1. klasse</option><option value="2">2. klasse</option><option value="3">3. klasse</option><option value="4">4. klasse</option><option value="5">5. klasse</option><option value="6">6. klasse</option><option value="7">7. klasse</option><option value="8">8. klasse</option><option value="9">9. klasse</option><option value="10">10. klasse</option></select></div>
         <label class="parent-row adult-toggle"><span>Lydeffekt ved riktig svar</span><input type="checkbox" id="adult-sound-toggle" aria-label="Lydeffekt ved riktig svar"></label>
         <label class="parent-row adult-toggle"><span>Les opp automatisk i 1.–2. klasse</span><input type="checkbox" id="adult-autoread-toggle" aria-label="Automatisk opplesning i 1. og 2. klasse"></label>
@@ -2893,12 +2895,12 @@
       </div>
 
       <div class="card test-info">
-        <h3>Det vi tester</h3>
+        <h3>Slik bruker Læria aktiviteten</h3>
         <ul>
-          <li>Forstår barnet appen uten mye hjelp?</li>
-          <li>Fullfører barnet en kort økt?</li>
-          <li>Husker barnet noe senere?</li>
-          <li>Vil barnet åpne appen igjen?</li>
+          <li>Klassetrinnet setter et naturlig startnivå, men barnet kan utforske andre trinn uten å endre profilen.</li>
+          <li>Feil svar brukes til å gi mer relevant øving. De straffer ikke barnet og låser ikke innhold.</li>
+          <li>Mestring bygges over tid gjennom øving og gjenhenting, ikke av én perfekt runde.</li>
+          <li>Innhold barnet liker og fri utforsking forblir tilgjengelig også når barnet mestrer området.</li>
         </ul>
       </div>
 
@@ -2920,7 +2922,7 @@
       <div class="small-note">Nullstilling sletter klassetrinn, læringsdata og pågående økt fra denne nettleseren.</div>
     </section>
 
-    <section class="screen" id="parent-info-screen">
+    <section class="screen" id="parent-info-screen" data-parent-trust-release="parent-trust-rc1">
       <button class="detail-back" id="parent-info-back">← For voksne</button>
       <div class="eyebrow">Om appen</div>
       <h1>Til foreldre</h1>
@@ -2965,7 +2967,7 @@
 
     <section class="screen" id="feedback-screen">
       <button class="detail-back" id="feedback-back">← For voksne</button>
-      <div class="eyebrow">Vennetest</div>
+      <div class="eyebrow">Tilbakemelding</div>
       <h1>Hvordan gikk det?</h1>
       <p class="hero-copy">Kort og konkret er mest nyttig. Forelderen deler svaret selv, så appen sender ingen persondata noe sted.</p>
 
@@ -3017,7 +3019,7 @@
     </section>
   </div>
 
-  <div class="onboarding" id="onboarding" aria-modal="true" role="dialog" aria-labelledby="profile-onboarding-title">
+  <div class="onboarding" id="onboarding" data-profile-release="profile-rc1" aria-modal="true" role="dialog" aria-labelledby="profile-onboarding-title">
     <div class="onboarding-card">
       <div class="onboard-step active onboard-profile" data-step="0">
         <div class="onboard-brandmark" aria-label="Læria">Læria <b>✦</b></div>
@@ -3670,6 +3672,11 @@ function adultSummary(){
 }
 function renderAdult(){
   const {best,worst}=adultSummary(),a7=last7Answers();
+  const profileName=(state.profile?.name||'').trim();
+  const profileAvatar=state.profile?.avatar==='girl'?'Revejente':state.profile?.avatar==='boy'?'Revegutt':'Ikke valgt';
+  const profileNameEl=document.getElementById('adult-profile-name'),profileAvatarEl=document.getElementById('adult-profile-avatar');
+  if(profileNameEl)profileNameEl.textContent=profileName||'Ikke valgt';
+  if(profileAvatarEl)profileAvatarEl.textContent=profileAvatar;
   document.getElementById('adult-sessions').textContent=state.sessionLog.filter(s=>s.countsTowardGoal!==false).length;
   document.getElementById('adult-accuracy').textContent=a7.length?Math.round(a7.filter(a=>a.correct).length/a7.length*100)+' %':'–';
   document.getElementById('adult-strong').textContent=best?countries[best.k].name:'Ikke nok data ennå';
@@ -6221,7 +6228,6 @@ document.getElementById('profile-next').onclick=()=>{
   if(!profileName){error.textContent='Skriv navnet ditt først.';profileNameInput?.focus();return}
   if(!selectedGrade){error.textContent='Velg hvilket klassetrinn du går i.';return}
   state.profile={...state.profile,name:profileName,avatar:selectedAvatar,grade:selectedGrade,onboarded:true,setupVersion:2};
-  state.activeSession=null;
   saveState();
   document.getElementById('onboarding').classList.remove('show');
   setTab('home');
