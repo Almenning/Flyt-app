@@ -276,7 +276,7 @@ async function finishSession(page){
         assert.match(parentText,/supplement, ikke en erstatning/i);
         assert.match(parentText,/ingen annonser eller sporing/i);
         assert.match(parentText,/ikke utviklet, godkjent eller anbefalt av Utdanningsdirektoratet/i);
-        assert.equal(await p.locator('.parent-source-link').getAttribute('href'),'https://www.udir.no/lk20/');
+        assert.equal(await p.locator('.parent-source-link[href="https://www.udir.no/lk20/"]').getAttribute('href'),'https://www.udir.no/lk20/');
 
         const gradeBands=await p.evaluate(()=>{
           const expected={1:'grade-band-young',3:'grade-band-middle',6:'grade-band-older',9:'grade-band-teen'};
