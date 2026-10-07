@@ -121,7 +121,7 @@ async function verifyOlderHome(page,label,width,height){
 
   const bottom=page.locator('#bottom-nav');
   if(await bottom.isVisible()){
-    const buttons=bottom.locator('button');
+    const buttons=bottom.locator('button:visible');
     const n=await buttons.count();
     assert.ok(n>=3,label+' bottom nav unexpectedly sparse');
     for(let i=0;i<n;i++){
