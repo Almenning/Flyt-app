@@ -71,8 +71,7 @@ async function runCase(browserType,label,viewport){
     await page.locator('#commerce-back').click();
     await page.locator('#adult-screen.active').waitFor();
 
-    await page.evaluate(()=>showScreen('home'));
-    await page.locator('#open-norwegian').click();
+    await page.evaluate(()=>{showScreen('home');openSubject('norwegian')});
     await page.locator('#subject-screen.active').waitFor();
     await page.locator('#start-subject-session').click();
     await page.locator('#session-screen.active').waitFor();
