@@ -153,7 +153,7 @@ async function verifyOlderHome(page,label,width,height){
   await adult.dispatchEvent('pointerup',{pointerType:'touch',pointerId:17,isPrimary:true,clientX:20,clientY:20}).catch(()=>{});
   await noOverflow(page,label+' adult');
   const adultBack=await rect(page,'#adult-back');assertTap(adultBack,label+' adult back');
-  const select=await rect(page,'#adult-grade');assert.ok(select.h>=40,label+' grade select too small: '+JSON.stringify(select));
+  const select=await rect(page,'#adult-grade');assertTap(select,label+' grade select');
   await page.locator('#adult-back').tap();
   await page.locator('#home-screen.active').waitFor();
 
@@ -186,7 +186,8 @@ async function verifyOlderHome(page,label,width,height){
     {name:'ipad-portrait',width:820,height:1180,grade:2},
     {name:'ipad-landscape',width:1180,height:820,grade:2},
     {name:'older-iphone',width:390,height:844,grade:7},
-    {name:'older-ipad',width:820,height:1180,grade:7}
+    {name:'older-ipad',width:820,height:1180,grade:7},
+    {name:'older-ipad-landscape',width:1180,height:820,grade:7}
   ];
 
   try{
