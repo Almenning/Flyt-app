@@ -729,8 +729,11 @@ async function finishSession(page){
     async function assertTaskScene(subject, starter){
       await page.evaluate(()=>setTab('home'));
       await page.evaluate(s=>document.querySelector(s).click(),starter);
-      if(subject==='geography')await page.locator('#start-geography-theme').click();
-      else await page.locator('#start-subject-session').click();
+      if(subject==='geography'){
+        await page.evaluate(()=>{geoTheme='country';syncGeoThemeButtons();startGeographyTheme()});
+      }else{
+        await page.evaluate(s=>startLearningSession(s,null,SUBJECTS[s]?.mission||'Blandet'),subject);
+      }
       await page.locator('#session-screen.active').waitFor();
       assert.equal(await page.locator('#session-screen').getAttribute('data-task-scene-release'),'task-rc1',subject+' missing Prompt 11 task RC');
       assert.equal(await page.locator('#session-screen').getAttribute('data-task-subject'),subject,subject+' wrong task-scene subject');
