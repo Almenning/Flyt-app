@@ -266,7 +266,10 @@ function renderMultiplicationLab(){
   bindMultiplicationLabUi();
 }
 function bindMultiplicationLabUi(){
-  document.getElementById('multiplication-lab-back')?.addEventListener('click',()=>openSubject('math'));
+  document.getElementById('multiplication-lab-back')?.addEventListener('click',()=>{
+    if(typeof window.LARIA_RETURN_TO_BASECAMP==='function'&&window.LARIA_RETURN_TO_BASECAMP())return;
+    openSubject('math');
+  });
   document.querySelectorAll('[data-mult-mode]').forEach(b=>b.addEventListener('click',()=>{multLabUi.mode=b.dataset.multMode;multLabUi.answer=null;multLabUi.feedback=null;multLabUi.tableTouched=false;if(multLabUi.mode==='mission')multLabResetToMission();renderMultiplicationLab()}));
   document.querySelectorAll('[data-mult-variant]').forEach(b=>b.addEventListener('click',()=>multLabSetVariant(b.dataset.multVariant)));
   document.querySelectorAll('[data-mult-level]').forEach(b=>b.addEventListener('click',()=>multLabSetLevel(b.dataset.multLevel)));
