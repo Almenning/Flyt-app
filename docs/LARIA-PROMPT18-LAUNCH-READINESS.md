@@ -74,7 +74,7 @@ Merk: Matte 1.–4. bruker generative oppgaver. Tallene er unionen fra determini
 
 ### P1 — kommersiell kvalitet
 
-- Endelig App Store-navn, ikon/splash og metadata må være Læria, ikke HverdagsOss.
+- **Native branding — IMPLEMENTERT, CI-verifisering pågår:** dedikert Læria-ikon og splash genereres i `laria-native/prepare-brand.swift`, installeres etter Capacitor-sync og valideres på 1024×1024 / 2732×2732 før Xcode-build. App-ID og appnavn er `no.adspire.laria` / `Læria`.
 - Pris og abonnementsnivå må være definert før kjøpsflaten kan sluttgodkjennes.
 - Foreldreteksten må peke til faktisk personvernerklæring og vilkår når de finnes.
 
