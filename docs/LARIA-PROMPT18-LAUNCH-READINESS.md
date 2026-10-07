@@ -53,19 +53,20 @@ Merk: Matte 1.–4. bruker generative oppgaver. Tallene er unionen fra determini
 
 ### P0 — må lukkes før Prompt 19
 
-1. **Egen Læria-distribusjon mangler**
-   - Root `capacitor.config.json` og eksisterende iOS-prosjekt er HverdagsOss.
-   - Bundle-ID er `no.adspire.hverdagsoss`.
-   - Læria har derfor ikke et eget verifisert App Store-target i repoet.
+1. **Egen Læria-distribusjon — IMPLEMENTERT, CI-verifisering pågår**
+   - `laria-native/` har egen Capacitor-identitet `no.adspire.laria` / `Læria`.
+   - Egen macOS/Xcode-workflow genererer og bygger Læria separat fra HverdagsOss.
+   - Første dedikerte simulatorbygg er grønt; StoreKit-broen bygges nå i samme gate.
 
-2. **Abonnement / betaling mangler**
-   - Aktiv Læria-runtime har ingen StoreKit-/IAP-/entitlement-flyt.
-   - Ingen gjenoppretting av kjøp.
-   - Ingen verifisert låsing/opplåsing av betalt innhold.
-   - Produkt-IDer og App Store Connect-konfigurasjon finnes ikke i repoet.
+2. **Abonnement / betaling — KLIENT + STOREKIT IMPLEMENTERT, EKSTERN KONFIG GJENSTÅR**
+   - StoreKit 2-bro bruker verifiserte `Transaction.currentEntitlements`.
+   - Produkt-IDer er `no.adspire.laria.monthly` og `no.adspire.laria.yearly`.
+   - Foreldreområdet har kjøpsstatus og `Gjenopprett kjøp`.
+   - Native læringsøkter krever Premium når StoreKit-produktene faktisk er tilgjengelige; web/PWA forblir åpen forhåndsvisning.
+   - Gjenstående ekstern aktivitet: opprette produktene/abonnementsgruppen og prisene i App Store Connect og sluttverifisere med Sandbox/TestFlight.
 
-3. **Vilkår mangler**
-   - Foreldreområdet har personvernforklaring, men ingen separat vilkårsoverflate knyttet til et betalt produkt.
+3. **Vilkår — IMPLEMENTERT, QA-verifisering pågår**
+   - Foreldreområdet har egen `Vilkår og personvern`-side med lokallagring, produktansvar, kjøp/fornyelse, gjenoppretting og App Store-håndtering.
 
 4. **Kloden må sluttverifiseres mot låst referanse**
    - Teknisk/device QA er grønn fra Prompt 17.
