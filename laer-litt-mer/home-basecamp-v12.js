@@ -16,7 +16,7 @@ const young=()=>currentGrade()<=2;
 function selectedFoxSource(which){
  // Profile portraits are intentionally not used as scene art: some include a baked rectangular background.
  // Keep the saved avatar choice, but render the dedicated transparent/in-world explorer mascot in Basecamp.
- return './lia-fox-explorer-home.webp';
+ return './lia-fox-explorer.webp';
 }
 function activitySubject(scope,last){
  if(scope?.subject==='geography'||String(scope?.type||'').startsWith('geo')||['country','collection','world','grade','geography-theme'].includes(scope?.type))return 'geography';
