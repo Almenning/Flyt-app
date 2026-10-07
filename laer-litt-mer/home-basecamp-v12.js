@@ -53,7 +53,6 @@ function activity(name){
  if(name==='globe'){if(typeof window.openGlobe==='function')window.openGlobe('explore');else{showScreen('world');requestAnimationFrame(()=>setGlobeMode('explore'));}}
  else if(name==='fraction')window.openFractionLab();
  else if(name==='multiply')window.openMultiplicationLab();
- // TODO: replace this entry with the dedicated free-play Ordjakt module when available.
  else if(name==='words'){if(typeof window.openWordHunt==='function')window.openWordHunt();else openSubject('norwegian');}
 }
 function closeDialog(){const d=document.getElementById('bc12-dialog');if(d?.open)d.close();returnFocus?.focus();}
