@@ -1,5 +1,5 @@
 (()=>{'use strict';
-const screen=document.getElementById('world-screen');if(!screen)return;screen.classList.add('globe-v29');
+const screen=document.getElementById('world-screen');if(!screen)return;screen.classList.add('globe-v30');
 const ART=window.LariaGlobeArtV24;if(!ART)return;
 const {clamp,TERRAIN,FEATURES,draw}=ART;
 
@@ -79,10 +79,7 @@ function paintCountryScene(canvas,c){
   const wash=ctx.createLinearGradient(0,0,w,0);wash.addColorStop(0,'rgba(255,250,230,.20)');wash.addColorStop(.55,'rgba(255,250,230,0)');wash.addColorStop(1,'rgba(40,70,55,.06)');ctx.fillStyle=wash;ctx.fillRect(0,0,w,h);
 }
 
-function selectedProfileFox(){
-  const which=(typeof state!=='undefined'&&state?.profile?.avatar==='girl')?'girl':'boy';
-  return window.LARIA_PROFILE_AVATARS?.[which]||'./lia-fox-explorer-home.webp';
-}
+function selectedProfileFox(){return './lia-fox-explorer-home.webp'}
 
 function ensurePremiumShell(){
   let header=screen.querySelector('.premium-globe-header');
@@ -129,7 +126,7 @@ function ensurePremiumShell(){
 function syncPremiumChrome(mode){
   const next=mode==='classic'?'classic':(mode==='mine'?'mine':'explore');
   screen.dataset.premiumGlobeMode=next;
-  screen.dataset.globeVersion='29';
+  screen.dataset.globeVersion='30';
   document.querySelectorAll('#globe-mode [data-globe-mode]').forEach(b=>b.classList.toggle('active',b.dataset.globeMode===next));
   document.getElementById('globe-legend')?.classList.toggle('show',next==='mine');
 
@@ -158,23 +155,18 @@ function enhanceSelectedCountryV24(id){
 
   box.classList.add('premium-country-selected');
   box.innerHTML=
-    '<div class="premium-country-main">'+
-      '<div class="flag">'+c.flag+'</div>'+
-      '<div class="globe-country-copy">'+
-        '<div class="globe-country-line"><strong>'+c.name+'</strong><span class="globe-status-badge '+st.key+'">'+st.symbol+' '+st.label+'</span></div>'+
-        '<div class="premium-country-facts"><span>🌍 '+c.continent+'</span><span>📍 '+capital+'</span></div>'+
-        '<span class="globe-country-tagline">'+scene.tag+'</span>'+
-      '</div>'+
+    '<div class="flag">'+c.flag+'</div>'+
+    '<div class="globe-country-copy">'+
+      '<div class="globe-country-line"><strong>'+c.name+'</strong><span class="globe-status-badge '+st.key+'">'+st.symbol+' '+st.label+'</span></div>'+
+      '<div class="premium-country-facts"><span>🌍 '+c.continent+'</span><span>📍 '+capital+'</span></div>'+
+      '<span class="globe-country-tagline">✨ '+scene.tag+'</span>'+
     '</div>'+
-    '<div class="premium-country-scene-wrap" aria-hidden="true"><canvas class="premium-country-scene"></canvas></div>'+
     '<button type="button" class="premium-country-learn" aria-label="Lær mer om '+c.name+'">'+bookSvg+'<span>Lær mer</span><b>›</b></button>';
 
   box.style.cursor='pointer';
   box.onclick=()=>openDetail(id,'world');
   const btn=box.querySelector('.premium-country-learn');
   if(btn)btn.onclick=e=>{e.stopPropagation();openDetail(id,'world')};
-  const canvas=box.querySelector('.premium-country-scene');
-  requestAnimationFrame(()=>paintCountryScene(canvas,c));
 }
 
 function addPath(ctx,c,w,h){
@@ -619,7 +611,7 @@ function install(){
   syncPremiumChrome(typeof globeMode==='string'?globeMode:'explore');
 
   window.__lariaGlobeV25Installed=true;
-  screen.dataset.globeVersion='29';
+  screen.dataset.globeVersion='30';
   requestAnimationFrame(()=>{try{resizeGlobe();routedDraw()}catch(_){}});
   return true;
 }
