@@ -28,9 +28,9 @@ const {chromium,webkit}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
   try{
     await page.waitForFunction(()=>{
       const host=document.querySelector('.bc12'),screen=document.getElementById('home-screen');
-      if(!host||!screen?.classList.contains('active')||host.hidden)return false;
-      const rect=host.getBoundingClientRect(),style=getComputedStyle(host);
-      return rect.width>1&&rect.height>1&&style.display!=='none'&&style.visibility!=='hidden';
+      const globe=host?.querySelector('.bc12-place[data-camp="globe"]');
+      return !!(host&&screen?.classList.contains('active')&&!host.hidden&&
+        window.LARIA_BASECAMP_DIAG?.render&&globe&&!globe.disabled);
     },null,{timeout:10000});
   }catch(err){
     const boot=await page.evaluate(()=>({
