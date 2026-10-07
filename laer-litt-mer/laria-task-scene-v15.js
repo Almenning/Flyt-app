@@ -55,6 +55,26 @@
     // Onboarding portraits may contain baked backgrounds. The task companion is world art, not a profile thumbnail.
     return './lia-fox-explorer.webp';
   }
+  function reactFox(correct){
+    const fox=document.querySelector('#session-screen.task-scene .task-fox-companion');
+    if(!fox)return;
+    fox.classList.remove('fox-correct');
+    if(!correct)return;
+    void fox.offsetWidth;
+    fox.classList.add('fox-correct');
+    window.setTimeout(()=>fox.classList.remove('fox-correct'),620);
+  }
+  function bindFoxReaction(wrap){
+    if(!wrap||wrap.dataset.foxReactionBound==='true')return;
+    wrap.dataset.foxReactionBound='true';
+    const sync=()=>{
+      window.requestAnimationFrame(()=>{
+        if(typeof currentAnswered!=='undefined'&&currentAnswered?.correct===true)reactFox(true);
+      });
+    };
+    wrap.addEventListener('click',sync);
+    wrap.addEventListener('keydown',e=>{if(e.key==='Enter')sync()});
+  }
 
   const PREMIUM_VISUAL_KEYS=Object.freeze(['🏠','🐱','🐶','📘','🍎','🚗','⛵','🌳','☀️','🌙','🐟','⚽']);
   window.LARIA_TASK_PREMIUM_VISUALS=PREMIUM_VISUAL_KEYS.slice();
@@ -111,6 +131,7 @@
     screen.dataset.taskSceneVersion='15';
     screen.dataset.taskSceneRelease='task-rc1';
     screen.dataset.taskIllustrationRelease='illustrations-rc1';
+    screen.dataset.taskFoxRelease='fox-rc1';
     document.body.classList.add('laria-task-scene-open');
     closeButton.innerHTML='<span aria-hidden="true">‹</span><span>Hjem</span>';
     closeButton.setAttribute('aria-label','Tilbake til faget');
@@ -122,6 +143,7 @@
     delete screen.dataset.taskSceneVersion;
     delete screen.dataset.taskSceneRelease;
     delete screen.dataset.taskIllustrationRelease;
+    delete screen.dataset.taskFoxRelease;
     document.body.classList.remove('laria-task-scene-open');
     closeButton.textContent='×';
     closeButton.setAttribute('aria-label','Avslutt');
@@ -228,6 +250,7 @@
 
     if(subject==='geography')bindGeographyInteraction(q,wrap);
     else bindInteraction(q,wrap);
+    bindFoxReaction(wrap);
     const next=wrap.querySelector('#next-question');
     if(next)next.onclick=nextQuestion;
     bindReadAloud(q);
