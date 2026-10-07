@@ -1,0 +1,125 @@
+import Foundation
+import Capacitor
+import StoreKit
+
+@objc(LariaStorePlugin)
+public class LariaStorePlugin: CAPPlugin, CAPBridgedPlugin {
+    public let identifier = "LariaStorePlugin"
+    public let jsName = "LariaStore"
+    public let pluginMethods: [CAPPluginMethod] = [
+        CAPPluginMethod(name: "getProducts", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "getEntitlement", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "purchase", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "restore", returnType: CAPPluginReturnPromise)
+    ]
+
+    private let productIDs = [
+        "no.adspire.laria.monthly",
+        "no.adspire.laria.yearly"
+    ]
+
+    private func entitlementSnapshot() async -> (Bool, [String]) {
+        var active: [String] = []
+        for await result in Transaction.currentEntitlements {
+            guard case .verified(let transaction) = result else { continue }
+            guard productIDs.contains(transaction.productID) else { continue }
+            active.append(transaction.productID)
+        }
+        return (!active.isEmpty, active.sorted())
+    }
+
+    @objc func getProducts(_ call: CAPPluginCall) {
+        Task {
+            do {
+                let products = try await Product.products(for: productIDs)
+                let payload: JSArray = products.sorted { $0.price < $1.price }.map { product in
+                    var item = JSObject()
+                    item["id"] = product.id
+                    item["displayName"] = product.displayName
+                    item["description"] = product.description
+                    item["displayPrice"] = product.displayPrice
+                    if let period = product.subscription?.subscriptionPeriod {
+                        item["periodValue"] = period.value
+                        item["periodUnit"] = String(describing: period.unit)
+                    }
+                    return item
+                }
+                let (active, activeIDs) = await entitlementSnapshot()
+                call.resolve([
+                    "products": payload,
+                    "active": active,
+                    "activeProductIds": activeIDs
+                ])
+            } catch {
+                call.reject("Kunne ikke hente abonnementene fra App Store.", nil, error)
+            }
+        }
+    }
+
+    @objc func getEntitlement(_ call: CAPPluginCall) {
+        Task {
+            let (active, activeIDs) = await entitlementSnapshot()
+            call.resolve([
+                "active": active,
+                "activeProductIds": activeIDs
+            ])
+        }
+    }
+
+    @objc func purchase(_ call: CAPPluginCall) {
+        guard let productID = call.getString("productId"), productIDs.contains(productID) else {
+            call.reject("Ugyldig produkt.")
+            return
+        }
+
+        Task {
+            do {
+                guard let product = try await Product.products(for: [productID]).first else {
+                    call.reject("Abonnementet er ikke tilgjengelig i App Store ennå.")
+                    return
+                }
+
+                let result = try await product.purchase()
+                switch result {
+                case .success(let verification):
+                    switch verification {
+                    case .verified(let transaction):
+                        await transaction.finish()
+                        let (active, activeIDs) = await entitlementSnapshot()
+                        call.resolve([
+                            "status": "purchased",
+                            "active": active,
+                            "activeProductIds": activeIDs
+                        ])
+                    case .unverified(_, let error):
+                        call.reject("App Store-kjøpet kunne ikke verifiseres.", nil, error)
+                    }
+                case .pending:
+                    call.resolve(["status": "pending", "active": false])
+                case .userCancelled:
+                    call.resolve(["status": "cancelled", "active": false])
+                @unknown default:
+                    call.reject("Ukjent svar fra App Store.")
+                }
+            } catch {
+                call.reject("Kjøpet kunne ikke fullføres.", nil, error)
+            }
+        }
+    }
+
+    @objc func restore(_ call: CAPPluginCall) {
+        Task {
+            do {
+                try await AppStore.sync()
+                let (active, activeIDs) = await entitlementSnapshot()
+                call.resolve([
+                    "status": "restored",
+                    "active": active,
+                    "activeProductIds": activeIDs
+                ])
+            } catch {
+                call.reject("Kunne ikke gjenopprette kjøp.", nil, error)
+            }
+        }
+    }
+}
