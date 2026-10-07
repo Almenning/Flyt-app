@@ -1576,5 +1576,5 @@ body.laria-task-scene-open .app:after{
   font:900 11px/1 system-ui,sans-serif;
   pointer-events:none;
 }
-#session-screen.task-scene .task-fox-companion[data-avatar="boy"]::after{content:"✦";color:#3979b7}
-#session-screen.task-scene .task-fox-companion[data-avatar="girl"]::after{content:"✿";color:#d86f78;background:#fff3ef}
+#session-screen.task-scene .task-fox-companion[data-avatar="boy"]::after{content:"✦"!important;color:#3979b7}
+#session-screen.task-scene .task-fox-companion[data-avatar="girl"]::after{content:"✿"!important;color:#d86f78;background:#fff3ef}
