@@ -1,0 +1,60 @@
+name: Laria QA
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'laer-litt-mer/**'
+      - 'tests/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/laria-qa.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  laria-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium webkit
+
+      - name: Static and Node regression suite
+        run: npm run test:node
+
+      - name: Start exact-head local server
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/laria-http.log 2>&1 &
+          echo $! >/tmp/laria-http.pid
+          for i in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:8765/laer-litt-mer/?app=laria >/dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/laria-http.log
+          exit 1
+
+      - name: Laria Basecamp Chromium + WebKit performance gate
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+          QA_WEBKIT_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+        run: node tests/laria-basecamp-v12.cjs
+
+      - name: Full browser regression suite
+        run: npm run test:browser
