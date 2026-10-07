@@ -4,8 +4,7 @@
 
   const baseRenderSubjectJourney=renderSubjectJourney;
   function selectedProfileFox(){
-    const which=(typeof state!=='undefined'&&state?.profile?.avatar==='girl')?'girl':'boy';
-    return window.LARIA_PROFILE_AVATARS?.[which]||'./lia-fox-explorer.webp';
+    return './lia-fox-explorer.webp';
   }
 
   const LABELS={
@@ -689,6 +688,8 @@
     host.className='journey-map bokskogen-map bok-v10-map';
     host.innerHTML=worldMarkup(viewGrade,prog,recommended,model);
     host.dataset.release='atlas32';
+    host.dataset.journeyRelease='journey-rc1';
+    host.dataset.journeyCoreStops=String(PLACES.length);
     requestAnimationFrame(()=>animateBokskogenTraveler(host));
 
     host.querySelector('.bok-v10-home').onclick=()=>{
