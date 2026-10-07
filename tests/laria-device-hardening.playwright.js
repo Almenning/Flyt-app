@@ -102,10 +102,11 @@ async function verifyBasecamp(page,label,width,height){
   await page.locator('.bok-v10-home').tap();
   await page.locator('#home-screen.active').waitFor();
 
-  // Edge-swipe style browser navigation must never leave the app in a blank/hidden screen.
-  await page.evaluate(()=>showScreen('world'));
+  // Edge-swipe/back contract: enter through the real Basecamp route so return context is genuine.
+  await page.locator('.bc12-place[data-camp="globe"]').tap();
   await page.locator('#world-screen.active').waitFor();
-  await page.evaluate(()=>appBack());
+  const handled=await page.evaluate(()=>appBack());
+  assert.equal(handled,true,label+' appBack did not handle Basecamp globe');
   await page.locator('#home-screen.active').waitFor();
   await noOverflow(page,label+' appBack home');
 }
