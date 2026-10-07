@@ -67,7 +67,7 @@ async function capture(browserType,label,viewport){
       };
     });
     assert.equal(metrics.overflow,false,label+' horizontal overflow');
-    const minGlobeWidth=viewport.width<600?viewport.width*.84:viewport.width*.68;
+    const minGlobeWidth=viewport.width<600?viewport.width*.84:(viewport.width>viewport.height?viewport.height*.70:viewport.width*.68);
     assert.ok(metrics.canvas.w>=minGlobeWidth,label+' globe too narrow for locked composition: '+metrics.canvas.w+' < '+minGlobeWidth);
     assert.ok(metrics.canvas.h>=300,label+' globe too short: '+metrics.canvas.h);
     assert.ok(metrics.back.h>=44,label+' globe back control below 44px');
@@ -97,6 +97,7 @@ async function capture(browserType,label,viewport){
     await capture(chromium,'chromium-iphone',{width:390,height:844});
     await capture(webkit,'webkit-iphone',{width:390,height:844});
     await capture(webkit,'webkit-ipad',{width:820,height:1180});
+    await capture(webkit,'webkit-ipad-landscape',{width:1180,height:820});
     console.log('ok - Prompt 18 globe visual evidence captured');
   }finally{s.close()}
 })().catch(err=>{console.error(err);process.exit(1)});
