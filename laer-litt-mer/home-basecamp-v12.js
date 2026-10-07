@@ -142,3 +142,14 @@ function init(){
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
+
+
+// Prompt 16: load the isolated safe five-question challenge after Home is interactive.
+(function loadSafeChallenge(){
+ if(document.querySelector('script[data-laria-safe-challenge]'))return;
+ const script=document.createElement('script');
+ script.src='./safe-challenge.js?v=20261007-p16rc1';
+ script.async=true;
+ script.dataset.lariaSafeChallenge='challenge-rc1';
+ document.head.appendChild(script);
+})();
