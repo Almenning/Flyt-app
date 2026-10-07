@@ -5881,11 +5881,35 @@ function setGlobeZoom(next){
 }
 function pointerDistance(){const p=[...globePointers.values()];return p.length<2?0:Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y)}
 function initGlobe(){const canvas=document.getElementById('globe-canvas');if(!canvas)return;resizeGlobe();drawGlobe();if(canvas.dataset.ready)return;canvas.dataset.ready='1';
-  canvas.addEventListener('pointerdown',e=>{canvas.setPointerCapture(e.pointerId);globePointers.set(e.pointerId,{x:e.clientX,y:e.clientY});if(globePointers.size===1){globeDrag={x:e.clientX,y:e.clientY,lon:globeLon,lat:globeLat};globeMove=0;globePinch=null}else if(globePointers.size===2){globePinch={distance:pointerDistance(),zoom:globeZoom};globeDrag=null;globeMove=20}});
-  canvas.addEventListener('pointermove',e=>{if(!globePointers.has(e.pointerId))return;globePointers.set(e.pointerId,{x:e.clientX,y:e.clientY});if(globePointers.size>=2&&globePinch){const d=pointerDistance();if(globePinch.distance>0)setGlobeZoom(globePinch.zoom*(d/globePinch.distance));return}if(!globeDrag)return;const dx=e.clientX-globeDrag.x,dy=e.clientY-globeDrag.y;globeMove=Math.max(globeMove,Math.hypot(dx,dy));const sensLon=.20/Math.max(1,globeZoom*.72),sensLat=.16/Math.max(1,globeZoom*.72);globeLon=((globeDrag.lon-dx*sensLon+540)%360)-180;globeLat=Math.max(-82,Math.min(82,globeDrag.lat+dy*sensLat));drawGlobe()});
+  let raf=0,pendingDraw=false,lastMoveAt=0;
+  const scheduleDraw=()=>{if(pendingDraw)return;pendingDraw=true;raf=requestAnimationFrame(()=>{pendingDraw=false;drawGlobe()})};
+  canvas.addEventListener('pointerdown',e=>{canvas.setPointerCapture(e.pointerId);globePointers.set(e.pointerId,{x:e.clientX,y:e.clientY});if(globePointers.size===1){globeDrag={x:e.clientX,y:e.clientY,lon:globeLon,lat:globeLat,lastX:e.clientX,lastY:e.clientY};globeMove=0;globePinch=null}else if(globePointers.size===2){globePinch={distance:pointerDistance(),zoom:globeZoom};globeDrag=null;globeMove=20}});
+  canvas.addEventListener('pointermove',e=>{if(!globePointers.has(e.pointerId))return;globePointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(globePointers.size>=2&&globePinch){
+      const d=pointerDistance();
+      if(globePinch.distance>0){
+        const ratio=d/globePinch.distance;
+        const eased=Math.pow(ratio,1.08);
+        globeZoom=Math.max(GLOBE_ZOOM_MIN,Math.min(GLOBE_ZOOM_MAX,globePinch.zoom*eased));
+        const zin=document.getElementById('globe-zoom-in'),zout=document.getElementById('globe-zoom-out');
+        if(zin)zin.disabled=globeZoom>=GLOBE_ZOOM_MAX-.01;if(zout)zout.disabled=globeZoom<=GLOBE_ZOOM_MIN+.01;
+        scheduleDraw();
+      }
+      return;
+    }
+    if(!globeDrag)return;
+    const dx=e.clientX-globeDrag.x,dy=e.clientY-globeDrag.y;
+    globeMove=Math.max(globeMove,Math.hypot(dx,dy));
+    const zoomFactor=Math.max(1,Math.pow(globeZoom,.72));
+    const sensLon=.32/zoomFactor,sensLat=.255/zoomFactor;
+    globeLon=((globeDrag.lon-dx*sensLon+540)%360)-180;
+    globeLat=Math.max(-82,Math.min(82,globeDrag.lat+dy*sensLat));
+    globeDrag.lastX=e.clientX;globeDrag.lastY=e.clientY;lastMoveAt=performance.now();
+    scheduleDraw();
+  },{passive:true});
   canvas.addEventListener('pointerup',e=>{const wasSingle=globePointers.size===1;if(wasSingle&&globeDrag&&globeMove<8)pickGlobeCountry(e);globePointers.delete(e.pointerId);globeDrag=null;if(globePointers.size<2)globePinch=null});
   canvas.addEventListener('pointercancel',e=>{globePointers.delete(e.pointerId);globeDrag=null;if(globePointers.size<2)globePinch=null});
-  canvas.addEventListener('wheel',e=>{e.preventDefault();setGlobeZoom(globeZoom+(e.deltaY<0?.28:-.28))},{passive:false});
+  canvas.addEventListener('wheel',e=>{e.preventDefault();setGlobeZoom(globeZoom+(e.deltaY<0?.42:-.42))},{passive:false});
   window.addEventListener('resize',()=>{if(document.getElementById('world-screen').classList.contains('active')){resizeGlobe();drawGlobe()}});
 }
 function resizeGlobe(){const canvas=document.getElementById('globe-canvas');if(!canvas)return;const rect=canvas.getBoundingClientRect(),w=Math.max(280,Math.round(rect.width||window.innerWidth||360)),h=Math.max(280,Math.round(rect.height||window.innerHeight||w)),dpr=Math.min(2,window.devicePixelRatio||1);canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);canvas._cssW=w;canvas._cssH=h;canvas._cssSize=Math.min(w,h);canvas._dpr=dpr}
