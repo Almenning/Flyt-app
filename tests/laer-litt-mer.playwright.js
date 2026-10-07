@@ -140,6 +140,226 @@ async function finishSession(page){
       await perfContext.close();
     }
 
+    // Prompt 15: profile, one-screen onboarding, grade adaptation and parent trust.
+    {
+      const profileCases=[
+        {label:'phone',viewport:{width:390,height:844},avatar:'girl',name:'Mina',grade:2,band:'grade-band-young'},
+        {label:'ipad',viewport:{width:820,height:1180},avatar:'boy',name:'Noah',grade:7,band:'grade-band-older'}
+      ];
+      for(const cfg of profileCases){
+        const ctx=await browser.newContext({viewport:cfg.viewport,isMobile:cfg.label==='phone',hasTouch:true,serviceWorkers:'block'});
+        const p=await ctx.newPage();
+        await p.route('https://raw.githubusercontent.com/**',r=>r.fulfill({status:200,contentType:'application/json',body:'{"type":"FeatureCollection","features":[]}'}));
+        await p.route('https://api.worldbank.org/**',r=>r.fulfill({status:200,contentType:'application/json',body:'[{},[]]'}));
+        await p.goto(url+'?app=laria&prompt15='+cfg.label,{waitUntil:'domcontentloaded'});
+        await p.locator('#onboarding.show').waitFor();
+        assert.equal(await p.locator('#onboarding').getAttribute('data-profile-release'),'profile-rc1',cfg.label+' onboarding release drifted');
+        assert.equal(await p.locator('.onboard-step').count(),1,cfg.label+' onboarding must remain one deliberate setup screen');
+        assert.equal(await p.locator('.avatar-choice-card').count(),2,cfg.label+' must offer revegutt and revejente');
+        assert.equal(await p.locator('.grade-btn').count(),10,cfg.label+' must offer grades 1-10');
+        const fit=await p.evaluate(()=>{
+          const card=document.querySelector('.onboarding-card').getBoundingClientRect();
+          return {vw:innerWidth,scrollWidth:document.documentElement.scrollWidth,left:card.left,right:card.right};
+        });
+        assert.ok(fit.scrollWidth<=fit.vw+1,cfg.label+' onboarding creates horizontal overflow: '+JSON.stringify(fit));
+        assert.ok(fit.left>=-1&&fit.right<=fit.vw+1,cfg.label+' onboarding card exceeds viewport: '+JSON.stringify(fit));
+        const gradeTargets=await p.locator('.grade-btn').evaluateAll(els=>els.map(e=>e.getBoundingClientRect().height));
+        assert.ok(gradeTargets.every(h=>h>=44),cfg.label+' onboarding has undersized grade target: '+gradeTargets.join(','));
+
+        await p.locator('.avatar-choice-card[data-avatar="'+cfg.avatar+'"]').click();
+        await p.locator('#profile-name').fill(cfg.name);
+        await p.locator('.grade-btn[data-grade="'+cfg.grade+'"]').click();
+        await p.locator('#profile-next').click();
+        await p.locator('#home-screen.active').waitFor();
+        const profile=await p.evaluate(()=>({
+          profile:state.profile,
+          appClass:document.querySelector('.app').className,
+          greeting:document.getElementById('home-greeting')?.textContent||'',
+          avatar:document.querySelector('.avatar')?.dataset.profileAvatar||null,
+          gradeLabel:document.getElementById('home-grade-label')?.textContent||''
+        }));
+        assert.equal(profile.profile.name,cfg.name,cfg.label+' profile name did not persist');
+        assert.equal(profile.profile.avatar,cfg.avatar,cfg.label+' profile avatar did not persist');
+        assert.equal(Number(profile.profile.grade),cfg.grade,cfg.label+' profile grade did not persist');
+        assert.equal(profile.profile.setupVersion,2,cfg.label+' profile setup version changed unexpectedly');
+        assert.ok(profile.appClass.includes(cfg.band),cfg.label+' wrong grade design band: '+profile.appClass);
+        assert.match(profile.greeting,new RegExp(cfg.name),cfg.label+' Home does not reuse profile name');
+        assert.equal(profile.avatar,cfg.avatar,cfg.label+' Home does not reuse selected fox');
+        assert.equal(profile.gradeLabel,cfg.grade+'. klasse',cfg.label+' Home grade label drifted');
+
+        await p.reload({waitUntil:'domcontentloaded'});
+        await p.locator('#home-screen.active').waitFor();
+        assert.equal(await p.locator('#onboarding').isVisible(),false,cfg.label+' repeated onboarding after completed profile');
+        assert.equal(await p.locator('.avatar').getAttribute('data-profile-avatar'),cfg.avatar,cfg.label+' avatar changed after reload');
+        assert.match(await p.locator('#home-greeting').textContent(),new RegExp(cfg.name),cfg.label+' name changed after reload');
+
+        if(cfg.label==='phone'){
+          const pwa=await p.evaluate(async()=>{
+            const manifest=await fetch('./manifest.webmanifest',{cache:'no-store'}).then(r=>r.json());
+            return {
+              title:document.title,
+              appleTitle:document.querySelector('meta[name="apple-mobile-web-app-title"]')?.content||'',
+              icon:document.querySelector('link[rel="icon"]')?.getAttribute('href')||'',
+              iconText:await fetch('./icon.svg',{cache:'no-store'}).then(r=>r.text()),
+              manifest,
+              visibleText:document.body.innerText
+            };
+          });
+          assert.equal(pwa.title,'Læria','visible document title drifted');
+          assert.equal(pwa.appleTitle,'Læria','Apple PWA title drifted');
+          assert.equal(pwa.manifest.name,'Læria','manifest name drifted');
+          assert.equal(pwa.manifest.short_name,'Læria','manifest short name drifted');
+          assert.match(String(pwa.manifest.icons?.[0]?.src||''),/icon\.svg$/,'manifest icon drifted');
+          assert.equal(pwa.icon,'./icon.svg','visible favicon drifted');
+          assert.match(pwa.iconText,/aria-label="Læria"/,'app icon accessibility name drifted');
+          assert.doesNotMatch(pwa.iconText,/Lær litt mer|Lære litt mer/i,'old product name remains in app icon');
+          assert.doesNotMatch(pwa.visibleText,/\bFlyt\b|Lære litt mer/i,'old product name remains visible in Læria');
+
+          await p.locator('.bc12').waitFor();
+          const homeFox=p.locator('.bc12-fox');
+          assert.equal(await homeFox.getAttribute('data-avatar'),'girl','Basecamp fox did not follow saved revejente choice');
+          assert.ok((await homeFox.evaluate(el=>getComputedStyle(el,'::after').content)).includes('✿'),'Basecamp revejente has no visible profile marker');
+
+          await p.evaluate(()=>openGlobe('explore'));
+          await p.locator('#world-screen.active').waitFor();
+          const globeHeader=p.locator('.premium-globe-header');
+          const globeFox=p.locator('.premium-globe-fox');
+          await globeFox.waitFor();
+          assert.equal(await globeHeader.getAttribute('data-avatar'),'girl','Kloden header did not follow saved revejente choice');
+          assert.equal(await globeFox.getAttribute('data-avatar'),'girl','Kloden fox did not follow saved revejente choice');
+          assert.ok((await globeHeader.evaluate(el=>getComputedStyle(el,'::after').content)).includes('✿'),'Kloden revejente has no visible profile marker');
+
+          await p.evaluate(()=>setTab('home'));
+          await p.locator('#home-screen.active .bc12').waitFor();
+          await p.evaluate(()=>openSubject('norwegian'));
+          await p.locator('#subject-screen.active').waitFor();
+          const traveler=p.locator('#subject-screen.active .bok-v15-traveler');
+          await traveler.waitFor({state:'visible'});
+          const travelerImg=traveler.locator('.bok-v15-fox');
+          await travelerImg.waitFor({state:'visible'});
+          const travelerSrc=await travelerImg.getAttribute('src');
+          const expectedTravelerSrc=await p.evaluate(()=>window.LARIA_PROFILE_AVATARS?.girl||'./lia-fox-explorer-home.webp');
+          assert.equal(travelerSrc,expectedTravelerSrc,'Bokskogen traveler did not render the saved revejente artwork');
+
+          await p.evaluate(()=>{
+            sessionScope={type:'subject',subject:'norwegian',module:'reading',label:'Norsk',grade:2};
+            sessionQuestions=[choiceQuestion('norwegian','vocabulary','Hva ser du?','katt',['katt','hund','mus'],{visual:'🐱'})];
+            qIndex=0;sessionCorrect=0;sessionStrengthened=new Set();currentAnswered=null;
+            showScreen('session');renderQuestion();
+          });
+          await p.locator('#session-screen.active').waitFor();
+          const taskFox=p.locator('.task-fox-companion');
+          await taskFox.waitFor();
+          assert.equal(await taskFox.getAttribute('data-avatar'),'girl','Oppgavescene fox did not follow saved revejente choice');
+          const taskMarker=taskFox.locator('.task-profile-marker');
+          await taskMarker.waitFor({state:'visible'});
+          assert.equal((await taskMarker.textContent()).trim(),'✿','Oppgavescene revejente has no visible profile marker');
+          await p.evaluate(()=>{state.activeSession=null;currentAnswered=null;setTab('home')});
+          await p.locator('#home-screen.active .bc12').waitFor();
+        }
+
+        await p.evaluate(()=>openAdult());
+        await p.locator('#adult-screen.active').waitFor();
+        assert.equal(await p.locator('#adult-screen').getAttribute('data-parent-trust-release'),'parent-trust-rc1');
+        assert.equal((await p.locator('#adult-profile-name').textContent()).trim(),cfg.name);
+        assert.equal((await p.locator('#adult-profile-avatar').textContent()).trim(),cfg.avatar==='girl'?'Revejente':'Revegutt');
+        assert.doesNotMatch(await p.locator('#adult-screen').innerText(),/tidlig test|vennetest/i,'parent area still exposes prototype language');
+        await p.locator('#open-parent-info').click();
+        await p.locator('#parent-info-screen.active').waitFor();
+        assert.equal(await p.locator('#parent-info-screen').getAttribute('data-parent-trust-release'),'parent-trust-rc1');
+        const parentText=await p.locator('.parent-letter').innerText();
+        assert.match(parentText,/Skjermtid med et formål/i);
+        assert.match(parentText,/LK20/i);
+        assert.match(parentText,/supplement, ikke en erstatning/i);
+        assert.match(parentText,/ingen annonser eller sporing/i);
+        assert.match(parentText,/ikke utviklet, godkjent eller anbefalt av Utdanningsdirektoratet/i);
+        assert.equal(await p.locator('.parent-source-link').getAttribute('href'),'https://www.udir.no/lk20/');
+
+        const gradeBands=await p.evaluate(()=>{
+          const expected={1:'grade-band-young',3:'grade-band-middle',6:'grade-band-older',9:'grade-band-teen'};
+          return Object.entries(expected).map(([grade,want])=>{
+            state.profile.grade=Number(grade);renderAll();
+            return {grade:Number(grade),want,actual:[...document.querySelector('.app').classList].find(x=>x.startsWith('grade-band-'))||''};
+          });
+        });
+        for(const item of gradeBands)assert.equal(item.actual,item.want,cfg.label+' grade '+item.grade+' mapped to wrong design band');
+        await ctx.close();
+      }
+
+      // Existing users who are upgraded into profile setup keep learning data and an unfinished session.
+      const migrationSeed={
+        version:7,progressSchemaVersion:3,
+        profile:{grade:2,onboarded:true,name:'',avatar:null,setupVersion:0},
+        mastery:{'no:flag':2},mistakes:{},skillMastery:{'math:g2:addition':1},skillMistakes:{},skillLastSeen:{},
+        masteryEvidence:{},skillEvidence:{},preferences:{sound:true,autoRead:false},lastMilestone:null,recentCountryWin:null,
+        lastActivity:{kind:'subject',subject:'math',label:'Matte'},
+        journey:{nodes:{'math:g2:legacy':{passed:true,best:4,attempts:1}},gradeWins:{},viewGrades:{}},
+        answerLog:[{at:1700000000000,subject:'math',skill:'addition',grade:2,type:'learning-choice',questionKey:'legacy-q',correct:true,countsForLearning:true}],
+        sessionLog:[{endedAt:1700000001000,total:5,correct:4,countsTowardGoal:true,activityKey:'legacy-session'}],
+        activeSession:{
+          questions:[{subject:'math',skill:'addition',type:'learning-choice',prompt:'1 + 1 = ?',answer:'2',options:['2','3'],curriculum:'MAT01-06'}],
+          qIndex:0,correct:0,strengthened:[],answered:null,
+          scope:{type:'subject',subject:'math',label:'Matte',grade:2},startedAt:1700000002000
+        }
+      };
+      const migrationContext=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,serviceWorkers:'block'});
+      const migrationPage=await migrationContext.newPage();
+      await migrationPage.addInitScript(seed=>{
+        const marker='prompt15-migration-seeded';
+        if(localStorage.getItem(marker)==='1')return;
+        localStorage.setItem('laerlittmer-v2',JSON.stringify(seed));
+        localStorage.setItem(marker,'1');
+      },migrationSeed);
+      await migrationPage.route('https://raw.githubusercontent.com/**',r=>r.fulfill({status:200,contentType:'application/json',body:'{"type":"FeatureCollection","features":[]}'}));
+      await migrationPage.route('https://api.worldbank.org/**',r=>r.fulfill({status:200,contentType:'application/json',body:'[{},[]]'}));
+      await migrationPage.goto(url+'?app=laria&prompt15=migration',{waitUntil:'domcontentloaded'});
+      await migrationPage.locator('#onboarding.show').waitFor();
+      assert.equal(await migrationPage.locator('.grade-btn[data-grade="2"]').getAttribute('aria-pressed'),'true','existing grade was not preselected during profile migration');
+      await migrationPage.locator('.avatar-choice-card[data-avatar="girl"]').click();
+      await migrationPage.locator('#profile-name').fill('Mira');
+      await migrationPage.locator('#profile-next').click();
+      await migrationPage.locator('#home-screen.active').waitFor();
+      const migrated=await migrationPage.evaluate(()=>({
+        profile:state.profile,
+        mastery:state.mastery['no:flag'],
+        skill:state.skillMastery['math:g2:addition'],
+        answers:state.answerLog.length,
+        sessions:state.sessionLog.length,
+        journey:state.journey.nodes['math:g2:legacy'],
+        activeSubject:state.activeSession?.scope?.subject||null,
+        activeCount:Array.isArray(state.activeSession?.questions)?state.activeSession.questions.length:0
+      }));
+      assert.equal(migrated.profile.name,'Mira');
+      assert.equal(migrated.profile.avatar,'girl');
+      assert.equal(migrated.profile.grade,2);
+      assert.equal(migrated.mastery,2,'profile migration lost geography mastery');
+      assert.equal(migrated.skill,1,'profile migration lost subject mastery');
+      assert.equal(migrated.answers,1,'profile migration lost answer history');
+      assert.equal(migrated.sessions,1,'profile migration lost session history');
+      assert.equal(migrated.journey.passed,true,'profile migration lost journey state');
+      assert.equal(migrated.activeSubject,'math','profile migration discarded unfinished session');
+      assert.equal(migrated.activeCount,1,'profile migration changed unfinished session questions');
+
+      await migrationPage.reload({waitUntil:'domcontentloaded'});
+      await migrationPage.locator('#home-screen.active').waitFor();
+      assert.equal(await migrationPage.locator('#onboarding').isVisible(),false,'migrated profile was not remembered');
+      await migrationPage.evaluate(()=>openAdult());
+      await migrationPage.locator('#adult-grade').selectOption('8');
+      const afterGradeChange=await migrationPage.evaluate(()=>({
+        grade:state.profile.grade,name:state.profile.name,avatar:state.profile.avatar,
+        answers:state.answerLog.length,sessions:state.sessionLog.length,mastery:state.mastery['no:flag'],
+        band:[...document.querySelector('.app').classList].find(x=>x.startsWith('grade-band-'))||''
+      }));
+      assert.equal(afterGradeChange.grade,8);
+      assert.equal(afterGradeChange.name,'Mira');
+      assert.equal(afterGradeChange.avatar,'girl');
+      assert.equal(afterGradeChange.answers,1,'grade change erased answer history');
+      assert.equal(afterGradeChange.sessions,1,'grade change erased session history');
+      assert.equal(afterGradeChange.mastery,2,'grade change erased mastery');
+      assert.equal(afterGradeChange.band,'grade-band-teen','grade change did not apply teen design band');
+      await migrationContext.close();
+    }
+
     const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
     const page=await context.newPage();
     page.__base=url;
