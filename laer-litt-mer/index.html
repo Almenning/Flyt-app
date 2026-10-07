@@ -3386,6 +3386,7 @@ function openGlobe(mode='explore'){
   const next=mode==='mine'?'mine':'explore';
   globeMode=next;
   const openedAt=performance.now();
+  document.getElementById('world-screen')?.setAttribute('data-explore-release','explore-rc1');
   showScreen('world');
   document.getElementById('world-screen')?.setAttribute('data-opened-immediately','true');
 
@@ -3496,7 +3497,11 @@ function appBack(){
   const current=activeScreenName();
   if(current==='subject'||current==='geography'){setTab('home');return true}
   if(current==='fraction-lab'||current==='multiplication-lab'){openSubject('math');return true}
-  if(current==='continent'||current==='world'){showScreen('geography');return true}
+  if(current==='world'){
+    if(typeof window.LARIA_RETURN_TO_BASECAMP==='function'&&window.LARIA_RETURN_TO_BASECAMP())return true;
+    showScreen('geography');return true
+  }
+  if(current==='continent'){showScreen('geography');return true}
   if(current==='detail'){
     if(['home','progress'].includes(returnScreen))setTab(returnScreen);else showScreen(returnScreen||'home');
     return true;
@@ -4038,7 +4043,10 @@ document.getElementById('start-world').onclick=()=>startSession(null,{type:'worl
 document.getElementById('start-world-from-globe').onclick=()=>startSession(null,{type:'world',label:'Hele verden',ids:WORLD_COUNTRIES.map(c=>c.id),includeMap:true});
 document.getElementById('continent-back').onclick=()=>showScreen('geography');
 document.getElementById('open-world').onclick=()=>openGlobe('explore');
-document.getElementById('world-back').onclick=()=>showScreen('geography');
+document.getElementById('world-back').onclick=()=>{
+  if(typeof window.LARIA_RETURN_TO_BASECAMP==='function'&&window.LARIA_RETURN_TO_BASECAMP())return;
+  showScreen('geography');
+};
 document.getElementById('close-session').onclick=()=>{persistActiveSession();returnToLearningHome()};
 
 

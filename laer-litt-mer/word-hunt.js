@@ -3,7 +3,7 @@ const EASY_WORDS=['SOL','MUS','REV','BOK','IS','MAT','HUS','BIL','TRE','SKO','LY
 const HARD_WORDS=['SKOG','BRO','KART','VANN','LYKT','REVEN','FJELL','VENN','LEKE','TALL','PIZZA','BLOMST','STJERNE','SPRÅK','ORD','BOKA'];
 const LETTERS='ABCDEFGHIJKLMNOPQRSTUVWXYZÆØÅ';
 const KEY='laria-wordhunt-v1';
-let ui={level:'easy',size:6,grid:[],words:[],found:new Map(),drag:null,tapStart:null,completed:false};
+let ui={level:'easy',size:6,grid:[],words:[],recentWords:[],found:new Map(),drag:null,tapStart:null,completed:false};
 function stats(){try{return JSON.parse(localStorage.getItem(KEY)||'{"rounds":0}')||{rounds:0}}catch(_){return {rounds:0}}}
 function saveRound(){const s=stats();s.rounds=Number(s.rounds||0)+1;localStorage.setItem(KEY,JSON.stringify(s))}
 function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b}
@@ -11,7 +11,9 @@ function dirSet(){return ui.level==='easy'?[[0,1],[1,0]]:[[0,1],[1,0],[0,-1],[-1
 function makeRound(){
   ui.size=ui.level==='easy'?6:7;ui.found=new Map();ui.completed=false;ui.tapStart=null;ui.drag=null;
   const pool=shuffle(ui.level==='easy'?EASY_WORDS:HARD_WORDS).filter(w=>w.length<=ui.size);
-  const requested=pool.slice(0,ui.level==='easy'?4:5),placedWords=[];
+  const count=ui.level==='easy'?4:5;
+  const recent=new Set(ui.recentWords||[]);
+  const requested=[...pool.filter(w=>!recent.has(w)),...pool.filter(w=>recent.has(w))].slice(0,count),placedWords=[];
   ui.words=requested;
   ui.grid=Array.from({length:ui.size},()=>Array(ui.size).fill(''));
   const dirs=dirSet();
@@ -30,11 +32,12 @@ function makeRound(){
   }
   ui.words=placedWords;
   if(ui.words.length<3){makeRound();return}
+  ui.recentWords=[...ui.words];
   for(let r=0;r<ui.size;r++)for(let c=0;c<ui.size;c++)if(!ui.grid[r][c])ui.grid[r][c]=LETTERS[Math.floor(Math.random()*LETTERS.length)];
 }
 function overlay(){
   let root=document.getElementById('word-hunt-overlay');if(root)return root;
-  root=document.createElement('section');root.id='word-hunt-overlay';root.className='word-hunt-overlay';root.hidden=true;root.setAttribute('role','dialog');root.setAttribute('aria-modal','true');root.setAttribute('aria-label','Ordjakt i Bokskogen');
+  root=document.createElement('section');root.id='word-hunt-overlay';root.className='word-hunt-overlay';root.dataset.exploreRelease='explore-rc1';root.hidden=true;root.setAttribute('role','dialog');root.setAttribute('aria-modal','true');root.setAttribute('aria-label','Ordjakt i Bokskogen');
   root.innerHTML='<div class="word-hunt-shell"><div class="word-hunt-top"><button type="button" class="word-hunt-back" aria-label="Tilbake til Læria">←</button><div class="word-hunt-title"><small>Lek & utforsk</small><h1>Ordjakt i Bokskogen</h1></div><img class="word-hunt-fox" src="./lia-fox-explorer-home.webp" alt="" aria-hidden="true"></div><div class="word-hunt-intro">Finn ordene som har gjemt seg mellom bokstavene. Dra over et ord, eller trykk første og siste bokstav.</div><div class="word-hunt-levels" role="group" aria-label="Velg vanskelighetsgrad"><button type="button" class="word-hunt-level" data-word-level="easy">🌱 Rolig</button><button type="button" class="word-hunt-level" data-word-level="hard">✨ Litt lurere</button></div><div class="word-hunt-board-wrap"><div class="word-hunt-board-card"><div class="word-hunt-board" role="grid" aria-label="Bokstavrutenett"></div></div><aside class="word-hunt-side"><div class="word-hunt-targets"><h2>Finn disse</h2><div class="word-hunt-words"></div></div><div class="word-hunt-status" aria-live="polite"></div><div class="word-hunt-actions"><button type="button" class="word-hunt-new">Ny runde</button><div class="word-hunt-rounds"></div></div></aside></div></div>';
   document.body.append(root);
   root.querySelector('.word-hunt-back').onclick=closeWordHunt;
@@ -118,6 +121,6 @@ function render(resetStatus=true){
 function openWordHunt(){
   const root=overlay();if(!ui.grid.length)makeRound();render();root.hidden=false;document.documentElement.style.overflow='hidden';root.querySelector('.word-hunt-back').focus({preventScroll:true})
 }
-function closeWordHunt(){const root=overlay();root.hidden=true;document.documentElement.style.overflow='';ui.drag=null;ui.tapStart=null}
+function closeWordHunt(){const root=overlay();root.hidden=true;document.documentElement.style.overflow='';ui.drag=null;ui.tapStart=null;if(typeof window.LARIA_RETURN_TO_BASECAMP==='function')window.LARIA_RETURN_TO_BASECAMP()}
 window.openWordHunt=openWordHunt;window.closeWordHunt=closeWordHunt;
 })();

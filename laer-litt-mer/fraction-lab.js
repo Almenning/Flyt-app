@@ -310,6 +310,7 @@ function bindFractionLabSource(button){
   button.addEventListener('pointercancel',event=>{if(drag&&event.pointerId===drag.id){drag.ghost?.remove();drag=null;document.querySelectorAll('.lab-workbench,.lab-compare-slot').forEach(x=>x.classList.remove('drag-over'))}});
 }
 function openFractionLab(){
+  document.getElementById('fraction-lab-screen')?.setAttribute('data-explore-release','explore-rc1');
   const grade=currentGrade();
   if(fractionLabUi.lastGrade!==grade){fractionLabUi.level=fractionLabRecommendedLevel();fractionLabUi.lastGrade=grade;fractionLabResetWork()}
   renderFractionLab();showScreen('fraction-lab');
