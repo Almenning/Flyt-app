@@ -45,16 +45,14 @@ self.addEventListener('fetch',event=>{
   if(url.origin===self.location.origin){
     event.respondWith(
       caches.match(req).then(cached=>{
-        const refresh=fetch(req)
-          .then(res=>{
-            if(res.ok){
-              const copy=res.clone();
-              event.waitUntil(caches.open(CACHE).then(cache=>cache.put(req,copy)));
-            }
-            return res;
-          })
-          .catch(()=>cached);
-        return cached||refresh;
+        if(cached)return cached;
+        return fetch(req).then(async res=>{
+          if(res.ok){
+            const cache=await caches.open(CACHE);
+            await cache.put(req,res.clone());
+          }
+          return res;
+        });
       })
     );
     return;
@@ -62,18 +60,15 @@ self.addEventListener('fetch',event=>{
 
   if(url.hostname==='raw.githubusercontent.com'||url.hostname==='api.worldbank.org'){
     event.respondWith(
-      caches.match(req).then(cached=>{
-        const refresh=fetch(req)
-          .then(res=>{
-            if(res.ok){
-              const copy=res.clone();
-              event.waitUntil(caches.open(CACHE).then(cache=>cache.put(req,copy)));
-            }
-            return res;
-          })
-          .catch(()=>cached);
-        return cached||refresh;
-      })
+      fetch(req)
+        .then(async res=>{
+          if(res.ok){
+            const cache=await caches.open(CACHE);
+            await cache.put(req,res.clone());
+          }
+          return res;
+        })
+        .catch(()=>caches.match(req))
     );
   }
 });
