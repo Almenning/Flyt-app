@@ -73,7 +73,7 @@ async function verifyBasecamp(page,label,width,height){
   assertInViewport(challenge,width,height,label+' challenge');
   assertTap(challenge,label+' challenge');
 
-  for(const sel of ['.bc12-nav [data-camp="home"]','.bc12-nav [data-camp="journey"]','.bc12-nav [data-camp="explore"]','.bc12-nav [data-camp="collection"]']){
+  for(const sel of ['.bc12-nav [data-camp="home"]','.bc12-nav [data-camp="travel"]','.bc12-nav [data-camp="explore"]','.bc12-nav [data-camp="collection"]']){
     const r=await rect(page,sel);assertInViewport(r,width,height,label+' '+sel);assertTap(r,label+' '+sel);
   }
 
