@@ -169,10 +169,14 @@ function enhanceSelectedCountryV24(id){
   if(btn)btn.onclick=e=>{e.stopPropagation();openDetail(id,'world')};
 }
 
-function addPath(ctx,c,w,h){
-  if(!c.geometry||typeof geometryPolygons!=='function'||typeof drawProjectedLine!=='function')return false;
-  for(const poly of geometryPolygons(c.geometry))for(const ring of poly)drawProjectedLine(ctx,ring,w,h);
-  return true;
+let pathKey='',pathCache=new Map();
+function countryPath(c,w,h){
+  const key=[w,h,globeLon,globeLat,globeZoom,window.__lariaGlobeInteracting].join('/');
+  if(key!==pathKey){pathKey=key;pathCache.clear()}
+  const cached=pathCache.get(c.id);if(cached&&cached.geometry===c.geometry)return cached.path;
+  const path=new Path2D();
+  if(c.geometry)for(const poly of geometryPolygons(c.geometry))for(const ring of poly)drawProjectedLine(path,ring,w,h);
+  pathCache.set(c.id,{geometry:c.geometry,path});return path;
 }
 function countryBase(c){
   let base=PALETTE[c.continent]||'#78A47B';
@@ -233,16 +237,14 @@ function paintContinents(ctx,w,h,s){
     ctx.strokeStyle=ctx.fillStyle;
     ctx.lineJoin='round';
     ctx.lineCap='round';
-    ctx.lineWidth=Math.max(3.5,s*.007);
+    ctx.lineWidth=.6;
     ctx.shadowColor='rgba(22,54,49,.22)';
-    ctx.shadowBlur=Math.max(3,s*.009);
+    ctx.shadowBlur=0;
     ctx.shadowOffsetY=Math.max(1,s*.0025);
 
     for(const c of members){
-      ctx.beginPath();
-      if(!addPath(ctx,c,w,h))continue;
-      ctx.fill();
-      ctx.stroke();
+      const path=countryPath(c,w,h);
+      ctx.fill(path,'evenodd');ctx.stroke(path);
     }
     ctx.restore();
   }
@@ -271,11 +273,11 @@ function paintMasteryOverlay(ctx,w,h,s){
   for(const country of WORLD_COUNTRIES){
     if(!country.geometry)continue;
     const status=countryStatus(country.id),fill=fills[status]||fills.new;
-    ctx.beginPath();if(!addPath(ctx,country,w,h))continue;
-    ctx.save();ctx.fillStyle=fill;ctx.fill();
+    const path=countryPath(country,w,h);
+    ctx.save();ctx.fillStyle=fill;ctx.fill(path,'evenodd');
     if(status==='mastered'){
       ctx.shadowColor='rgba(255,210,64,.28)';ctx.shadowBlur=Math.max(3,s*.006);
-      ctx.strokeStyle='rgba(255,242,185,.72)';ctx.lineWidth=Math.max(.8,s*.0015);ctx.stroke();
+      ctx.strokeStyle='rgba(255,242,185,.72)';ctx.lineWidth=Math.max(.8,s*.0015);ctx.stroke(path);
     }
     ctx.restore();
   }
@@ -287,16 +289,15 @@ function paintCountryBorders(ctx,w,h,s){
 
   for(const c of WORLD_COUNTRIES){
     if(!c.geometry)continue;
-    ctx.beginPath();
-    if(!addPath(ctx,c,w,h))continue;
+    const path=countryPath(c,w,h);
     const selected=c.id===globeSelected;
 
     if(selected){
       ctx.save();
       ctx.fillStyle='rgba(255,216,83,.68)';
       ctx.shadowColor='rgba(255,197,43,.28)';
-      ctx.shadowBlur=Math.max(5,s*.010);
-      ctx.fill();
+      ctx.shadowBlur=0;
+      ctx.fill(path,'evenodd');
       ctx.restore();
       ctx.strokeStyle='rgba(255,252,226,.98)';
       ctx.lineWidth=Math.max(1.6,s*.0028);
@@ -304,12 +305,13 @@ function paintCountryBorders(ctx,w,h,s){
       ctx.strokeStyle='rgba(255,250,229,'+borderAlpha+')';
       ctx.lineWidth=globeZoom>2.7?.9:Math.max(.4,s*.00082);
     }
-    ctx.stroke();
+    ctx.stroke(path);
   }
 }
 function landClip(ctx,w,h){
-  if(typeof WORLD_COUNTRIES==='undefined')return false;ctx.beginPath();
-  for(const c of WORLD_COUNTRIES)if(c.geometry)addPath(ctx,c,w,h);ctx.clip();return true;
+  if(typeof WORLD_COUNTRIES==='undefined')return false;
+  const path=new Path2D();for(const c of WORLD_COUNTRIES)if(c.geometry)path.addPath(countryPath(c,w,h));
+  ctx.clip(path,'evenodd');return true;
 }
 function terrainPatch(ctx,w,h,s,t){
   const p=project(t[1],t[2],w,h);if(!p||p[2]<.08)return;
@@ -558,7 +560,7 @@ function premiumDraw(){
   ctx.beginPath();
   ctx.arc(w/2,h/2,s*.46,0,Math.PI*2);
   ctx.strokeStyle='rgba(246,254,255,.96)';
-  ctx.lineWidth=Math.max(3.5,s*.007);
+  ctx.lineWidth=.6;
   ctx.stroke();
 
   ctx.beginPath();
@@ -567,7 +569,7 @@ function premiumDraw(){
   ctx.lineWidth=Math.max(1.6,s*.004);
   ctx.stroke();
 
-  if(pulsing||selectionAnimating)requestAnimationFrame(()=>window.drawGlobe?.());
+  if(pulsing||selectionAnimating)window.drawGlobe?.();
 }
 function install(){
   if(window.__lariaGlobeV25Installed||typeof window.drawGlobe!=='function'||typeof window.globeProject!=='function'||typeof window.setGlobeMode!=='function'||typeof window.selectGlobeCountry!=='function')return false;
@@ -578,34 +580,31 @@ function install(){
   const baseSelect=window.selectGlobeCountry;
   window.__lariaGlobeClassicDraw=baseDraw;
 
+  let frame=0;
   const routedDraw=function(){
-    try{if(typeof globeMode==='string'&&globeMode==='classic')return baseDraw.apply(this,arguments)}catch(_){}
-    return premiumDraw.apply(this,arguments);
+    if(frame||!screen.classList.contains('active'))return;
+    frame=requestAnimationFrame(()=>{
+      frame=0;if(!screen.classList.contains('active'))return;
+      const start=performance.now();
+      if(globeMode==='classic')baseDraw();else premiumDraw();
+      const metrics=window.__lariaGlobeMetrics||(window.__lariaGlobeMetrics={frames:0,totalMs:0,maxMs:0});
+      const elapsed=performance.now()-start;metrics.frames++;metrics.totalMs+=elapsed;metrics.maxMs=Math.max(metrics.maxMs,elapsed);
+    });
   };
-
   const routedSelect=function(id){
     const previous=typeof globeSelected==='string'?globeSelected:null;
     const result=baseSelect.call(this,id);
     if(id&&id!==previous)selectionPulse={id,until:Date.now()+850};
     enhanceSelectedCountryV24(id);
-    requestAnimationFrame(routedDraw);
+    routedDraw();
     return result;
   };
 
   const routedSet=function(mode){
-    const next=mode==='classic'?'classic':(mode==='mine'?'mine':'explore');
-    if(next==='classic'){
-      try{globeMode='classic'}catch(_){}
-      syncPremiumChrome(next);
-      if(typeof globeSelected==='string'&&globeSelected)enhanceSelectedCountryV24(globeSelected);
-      requestAnimationFrame(()=>{try{resizeGlobe()}catch(_){} requestAnimationFrame(routedDraw)});
-      return;
-    }
-    const result=baseSet.call(this,next);
-    syncPremiumChrome(next);
-    if(typeof globeSelected==='string'&&globeSelected)enhanceSelectedCountryV24(globeSelected);
-    requestAnimationFrame(routedDraw);
-    return result;
+    const next=['classic','mine'].includes(mode)?mode:'explore';
+    const result=baseSet.call(this,next);syncPremiumChrome(next);
+    if(globeSelected)enhanceSelectedCountryV24(globeSelected);
+    routedDraw();return result;
   };
 
   window.drawGlobe=routedDraw;
@@ -624,21 +623,11 @@ function install(){
   return true;
 }
 function seed(){
-  try{
-    ensurePremiumShell();
-    if(!globeSelected&&typeof WORLD_COUNTRIES!=='undefined'&&typeof selectGlobeCountry==='function'){
-      const c=WORLD_COUNTRIES.find(x=>x?.name==='Tsjad');if(c)selectGlobeCountry(c.id);
-    }else if(typeof globeSelected==='string'&&globeSelected){
-      enhanceSelectedCountryV24(globeSelected);
-    }
-    syncPremiumChrome(typeof globeMode==='string'?globeMode:'explore');
-  }catch(_){}
+  if(globeSelected)enhanceSelectedCountryV24(globeSelected);
+  syncPremiumChrome(globeMode);
 }
-let tries=0;const boot=setInterval(()=>{tries++;if(install()){clearInterval(boot);seed()}else if(tries>80)clearInterval(boot)},50);
+install();seed();
 new MutationObserver(()=>{
-  if(screen.classList.contains('active')){
-    install();seed();requestAnimationFrame(()=>{try{resizeGlobe();premiumDraw()}catch(_){}});
-  }
+  if(screen.classList.contains('active')){seed();resizeGlobe();window.drawGlobe()}
 }).observe(screen,{attributes:true,attributeFilter:['class']});
-window.addEventListener('resize',()=>{if(screen.classList.contains('active'))requestAnimationFrame(()=>{try{resizeGlobe();premiumDraw()}catch(_){}})});
 })();
