@@ -44,6 +44,7 @@ function mathExtra(g){
   [['3:4','9:12'],['2:5','8:20'],['5:3','20:12'],['7:2','21:6'],['4:9','12:27']].forEach(x=>C('ratio','Hvilket forhold er likt '+x[0]+'?',x[1],[x[1],'1:2','2:3','5:6']));
   [[40,'spiss'],[90,'rett'],[135,'stump'],[75,'spiss'],[160,'stump']].forEach(x=>C('angles','Hva slags vinkel er '+x[0]+'°?',x[1],[x[1],'spiss','rett','stump']));
   [[12,7],[9,9],[14,5],[8,11],[16,6]].forEach(x=>N('area','Areal av rektangel '+x[0]+' × '+x[1]+'?',x[0]*x[1]));
+  [[2,'4π'],[3,'9π'],[4,'16π'],[5,'25π'],[6,'36π']].forEach(x=>C('circle','Areal av sirkel med radius '+x[0]+'?',x[1],[x[1],2*x[0]+'π',x[0]+'π']));
   [['1:50 000','1 cm = 500 m'],['1:100 000','1 cm = 1 km'],['1:25 000','4 cm = 1 km'],['1:10 000','10 cm = 1 km'],['1:200 000','1 cm = 2 km']].forEach(x=>C('scale','Hva betyr målestokken '+x[0]+'?',x[1],[x[1],'1 cm = 10 km','1 cm = 100 m']));
   [[3,4,5],[5,12,13],[8,15,17],[7,24,25],[9,12,15]].forEach(x=>N('pythagoras','Rettvinklet trekant med kateter '+x[0]+' og '+x[1]+'. Hypotenusen?',x[2]));
   [[2,4,6,8,10],[5,7,9,11,13],[3,6,9,12,15],[10,20,30,40,50],[1,4,7,10,13]].forEach(x=>N('statistics','Gjennomsnitt av '+x.join(', ')+'?',x.reduce((a,b)=>a+b,0)/x.length));
