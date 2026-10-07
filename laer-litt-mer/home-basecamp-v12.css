@@ -370,3 +370,125 @@
     top:63.5%;
   }
 }
+
+
+/* Prompt 9 RC4 — final mobile hierarchy pass from supplied iPhone QA.
+   Reduce overlay feel: the world leads, controls sit inside it without collisions. */
+@media(max-width:700px){
+  .bc12[data-release="basecamp-rc1"] .bc12-heading p{
+    max-width:64%;
+    margin-top:4px;
+  }
+  .bc12[data-release="basecamp-rc1"] .bc12-explore-ribbon{
+    top:16.9%;
+    right:3.5%;
+    transform:rotate(1deg);
+  }
+
+  .bc12[data-release="basecamp-rc1"] .bc12-fox{
+    left:12%;
+    top:50.5%;
+    width:29%;
+    max-width:126px;
+  }
+  .bc12[data-release="basecamp-rc1"] .bc12-fox-call{
+    left:5.5%;
+    top:62.5%;
+    max-width:106px;
+    font-size:8.5px;
+    line-height:1.2;
+    padding:6px 7px;
+  }
+  .bc12[data-release="basecamp-rc1"] .bc12-fox-call:after{
+    left:18px;
+  }
+
+  /* Turn the journey line into a subtle landscape cue instead of a dominant diagram. */
+  .bc12[data-release="basecamp-rc1"] .bc12-journey-route{
+    left:36%;
+    top:51%;
+    width:45%;
+    height:22%;
+    opacity:.42;
+    filter:none;
+  }
+  .bc12[data-release="basecamp-rc1"] .bc12-route-edge{
+    stroke-width:10;
+    opacity:.17;
+  }
+  .bc12[data-release="basecamp-rc1"] .bc12-route-main{
+    stroke-width:6;
+    opacity:.42;
+    stroke-dasharray:3 8;
+  }
+  .bc12[data-release="basecamp-rc1"] .bc12-route-progress{
+    stroke-width:6;
+    opacity:.72;
+    filter:drop-shadow(0 0 3px rgba(255,220,119,.5));
+  }
+  .bc12[data-release="basecamp-rc1"] .bc12-route-bridge{
+    opacity:.38;
+    transform:rotate(-19deg) scale(.8);
+  }
+
+  /* Never let the speech bubble cover these two state markers. */
+  .bc12[data-release="basecamp-rc1"] .bc12-you-are-here{
+    left:38%;
+    top:62.5%;
+    z-index:6;
+    font-size:8px;
+    padding:4px 7px;
+  }
+  .bc12[data-release="basecamp-rc1"] .bc12-next-beacon{
+    left:70%;
+    top:59%;
+    z-index:6;
+  }
+
+  /* Primary journey action stays dominant, but more compact and less billboard-like. */
+  .bc12[data-release="basecamp-rc1"] .bc12-journey{
+    left:49%;
+    top:64.5%;
+    width:46%;
+  }
+  .bc12[data-release="basecamp-rc1"] .bc12-journey>span{
+    padding:10px 9px;
+    font-size:17px;
+    border-radius:8px 16px 14px 6px;
+  }
+  .bc12[data-release="basecamp-rc1"] .bc12-journey small{
+    padding:6px 7px;
+    margin-top:4px;
+    font-size:8.5px;
+  }
+
+  /* Optional quest should read as a small invitation, not a second primary CTA. */
+  .bc12[data-release="basecamp-rc1"] .bc12-quest{
+    left:6%;
+    bottom:12%;
+    width:38%;
+    min-height:46px;
+    padding:6px 7px;
+    font-size:10px;
+    border-width:2px;
+    box-shadow:0 3px #5d3c24,0 6px 10px #172f3030;
+  }
+  .bc12[data-release="basecamp-rc1"] .bc12-quest small{
+    font-size:8.5px;
+    margin-top:2px;
+  }
+  .bc12[data-release="basecamp-rc1"] .bc12-wax{
+    width:24px;
+    height:24px;
+    font-size:10px;
+  }
+}
+@media(max-width:360px){
+  .bc12[data-release="basecamp-rc1"] .bc12-heading p{max-width:60%}
+  .bc12[data-release="basecamp-rc1"] .bc12-explore-ribbon{top:17.4%}
+  .bc12[data-release="basecamp-rc1"] .bc12-fox{left:11%;width:27%}
+  .bc12[data-release="basecamp-rc1"] .bc12-fox-call{left:4%;max-width:96px}
+  .bc12[data-release="basecamp-rc1"] .bc12-you-are-here{left:36%}
+  .bc12[data-release="basecamp-rc1"] .bc12-journey{left:48%;width:48%}
+  .bc12[data-release="basecamp-rc1"] .bc12-quest{width:39%}
+}
