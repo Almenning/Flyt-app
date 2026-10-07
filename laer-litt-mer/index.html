@@ -171,7 +171,7 @@
     .small-note{font-size:12px;color:var(--muted);margin-top:16px;text-align:center;font-weight:700}
     .toast{position:fixed;left:50%;transform:translateX(-50%) translateY(20px);bottom:101px;background:#343753;color:white;padding:12px 16px;border-radius:17px;font-weight:850;font-size:14px;opacity:0;pointer-events:none;transition:.25s;z-index:30;white-space:nowrap;box-shadow:0 8px 20px rgba(50,51,79,.18)}
     .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-    .adult-entry{display:block;margin:28px auto 86px;border:0;background:transparent;color:#817E94;font-weight:850;font-size:12px;padding:12px 16px;cursor:pointer;touch-action:none}
+    .adult-entry{display:block;margin:28px auto 86px;border:0;background:transparent;color:#817E94;font-weight:850;font-size:12px;padding:12px 16px;min-height:44px;cursor:pointer;touch-action:none}
     .adult-entry.holding{color:#5568D3;background:#EEF1FF;border-radius:16px}
     .adult-card,.test-info,.privacy-note{padding:19px;margin-top:14px}
     .test-info ul{padding-left:20px;margin:12px 0 0;color:var(--muted);line-height:1.55;font-weight:700}
@@ -249,7 +249,7 @@
     .grade-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:10px}
     .grade-btn{min-height:48px;border:2px solid #E5E3EF;border-radius:16px;background:#F8F8FD;color:var(--ink);font-weight:900;cursor:pointer}
     .grade-btn.selected{background:#E8EEFF;border-color:#6B7FE6;color:#4257B5;box-shadow:0 3px 0 rgba(90,125,242,.15)}
-    .adult-grade-select{border:2px solid #E5E3EF;border-radius:12px;padding:7px 10px;background:#fff;color:var(--ink);font:inherit;font-weight:850}
+    .adult-grade-select{border:2px solid #E5E3EF;border-radius:12px;padding:7px 10px;min-height:44px;background:#fff;color:var(--ink);font:inherit;font-weight:850}
     /* Immersive globe: the globe itself, not merely the page, owns the viewport. */
     #world-screen.active{position:fixed;inset:0;z-index:80;width:100vw;max-width:none;height:100dvh;min-height:100dvh;overflow:hidden;background:#DDF4FA;padding:0}
     #world-screen.active>.eyebrow,
