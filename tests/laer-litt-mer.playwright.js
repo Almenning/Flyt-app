@@ -166,6 +166,86 @@ async function finishSession(page){
       assert.equal(await place.isEnabled(),true,'Basecamp place disabled: '+action);
     }
 
+    // Prompt 14: every Lek & utforsk destination is a replayable place with one consistent
+    // Basecamp -> activity -> Basecamp route. Free exploration must not mutate graded progress.
+    const exploreProgressBefore=await page.evaluate(()=>JSON.stringify({
+      answerLog:state.answerLog,sessionLog:state.sessionLog,skillMastery:state.skillMastery,mastery:state.mastery
+    }));
+
+    await page.locator('.bc12-place[data-camp="globe"]').click();
+    await page.locator('#world-screen.active').waitFor();
+    assert.equal(await page.locator('#world-screen').getAttribute('data-explore-release'),'explore-rc1');
+    await page.locator('#world-back').click();
+    await page.locator('#home-screen.active .bc12').waitFor();
+
+    await page.locator('.bc12-place[data-camp="fraction"]').click();
+    await page.locator('#fraction-lab-screen.active').waitFor();
+    assert.equal(await page.locator('#fraction-lab-screen').getAttribute('data-explore-release'),'explore-rc1');
+    assert.equal(await page.locator('[data-lab-mode="free"]').isVisible(),true);
+    await page.locator('#fraction-lab-back').click();
+    await page.locator('#home-screen.active .bc12').waitFor();
+
+    await page.locator('.bc12-place[data-camp="multiply"]').click();
+    await page.locator('#multiplication-lab-screen.active').waitFor();
+    assert.equal(await page.locator('#multiplication-lab-screen').getAttribute('data-explore-release'),'explore-rc1');
+    assert.equal(await page.locator('[data-mult-mode="free"]').isVisible(),true);
+    await page.locator('#multiplication-lab-back').click();
+    await page.locator('#home-screen.active .bc12').waitFor();
+
+    await page.locator('.bc12-place[data-camp="words"]').click();
+    const wordHunt=page.locator('#word-hunt-overlay');
+    await wordHunt.waitFor({state:'visible'});
+    assert.equal(await wordHunt.getAttribute('data-explore-release'),'explore-rc1');
+    assert.equal(await page.locator('.word-hunt-word').count(),4);
+    const wordHuntFit=await page.evaluate(()=>{
+      const root=document.getElementById('word-hunt-overlay'),shell=root.querySelector('.word-hunt-shell'),board=root.querySelector('.word-hunt-board');
+      const rr=root.getBoundingClientRect(),sr=shell.getBoundingClientRect(),br=board.getBoundingClientRect();
+      return {viewport:window.innerWidth,documentWidth:document.documentElement.scrollWidth,rootLeft:rr.left,rootRight:rr.right,shellLeft:sr.left,shellRight:sr.right,boardLeft:br.left,boardRight:br.right};
+    });
+    assert.ok(wordHuntFit.documentWidth<=wordHuntFit.viewport+1,'Ordjakt creates horizontal page overflow: '+JSON.stringify(wordHuntFit));
+    assert.ok(wordHuntFit.shellLeft>=-1&&wordHuntFit.shellRight<=wordHuntFit.viewport+1,'Ordjakt shell exceeds portrait viewport: '+JSON.stringify(wordHuntFit));
+    assert.ok(wordHuntFit.boardLeft>=wordHuntFit.shellLeft-1&&wordHuntFit.boardRight<=wordHuntFit.shellRight+1,'Ordjakt board exceeds its shell: '+JSON.stringify(wordHuntFit));
+    const firstWordRound=await page.locator('.word-hunt-word').allTextContents().then(xs=>xs.map(x=>x.replace(/^✓\s*/,'').trim()));
+    await page.locator('.word-hunt-new').click();
+    const secondWordRound=await page.locator('.word-hunt-word').allTextContents().then(xs=>xs.map(x=>x.replace(/^✓\s*/,'').trim()));
+    assert.equal(firstWordRound.filter(w=>secondWordRound.includes(w)).length,0,'Ordjakt immediately repeated a target word in the next round');
+    await page.locator('[data-word-level="hard"]').click();
+    assert.equal(await page.locator('.word-hunt-word').count(),5);
+    const hardCellHeights=await page.locator('.word-hunt-cell').evaluateAll(els=>els.map(e=>e.getBoundingClientRect().height));
+    assert.ok(hardCellHeights.every(h=>h>=44),'small Ordjakt touch target in portrait: '+hardCellHeights.join(','));
+    await page.locator('.word-hunt-back').click();
+    await page.locator('#home-screen.active .bc12').waitFor();
+    assert.equal(await wordHunt.isHidden(),true);
+
+    const exploreProgressAfter=await page.evaluate(()=>JSON.stringify({
+      answerLog:state.answerLog,sessionLog:state.sessionLog,skillMastery:state.skillMastery,mastery:state.mastery
+    }));
+    assert.equal(exploreProgressAfter,exploreProgressBefore,'Lek & utforsk navigation changed graded progress');
+
+    // Free-play places never disappear because the child has mastered academic content.
+    await page.evaluate(()=>{
+      const now=Date.now(),yesterday=now-86400000,today=evidenceDay(now),prev=evidenceDay(yesterday);
+      for(const subject of ['norwegian','math','english']){
+        for(const q of subjectPoolForGrade(subject,currentGrade(),null)){
+          const key=learningMasteryKey(subject,q.skill,currentGrade());
+          state.skillMastery[key]=2;
+          state.skillEvidence[key]={attempts:4,correctCount:4,wrongCount:0,lastAttemptAt:now,lastCorrectAt:now,days:[prev,today],correctDays:[prev,today],variants:['a','b']};
+        }
+      }
+      for(const id of gradeScopeIds()){
+        for(const type of questionTypesForCountry(id,true)){
+          state.mastery[masteryKey(id,type)]=2;
+          state.masteryEvidence[masteryKey(id,type)]={attempts:4,correctCount:4,wrongCount:0,lastAttemptAt:now,lastCorrectAt:now,days:[prev,today],correctDays:[prev,today],variants:['a','b']};
+        }
+      }
+      saveState();setTab('home');
+    });
+    for(const action of ['globe','fraction','words','multiply']){
+      const place=page.locator('.bc12-place[data-camp="'+action+'"]');
+      assert.equal(await place.isVisible(),true,'mastery hid free-play place: '+action);
+      assert.equal(await place.isEnabled(),true,'mastery disabled free-play place: '+action);
+    }
+
     // Daily goal remains session-based even though Basecamp no longer exposes the old dashboard widget.
     await page.evaluate(()=>{
       state.answerLog.push({at:Date.now(),subject:'math',skill:'test-effort',type:'learning-choice',questionKey:'effort-test-1',correct:false});
