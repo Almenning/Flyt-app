@@ -251,7 +251,10 @@ function renderFractionLab(){
   bindFractionLabUi();
 }
 function bindFractionLabUi(){
-  document.getElementById('fraction-lab-back')?.addEventListener('click',()=>openSubject('math'));
+  document.getElementById('fraction-lab-back')?.addEventListener('click',()=>{
+    if(typeof window.LARIA_RETURN_TO_BASECAMP==='function'&&window.LARIA_RETURN_TO_BASECAMP())return;
+    openSubject('math');
+  });
   document.querySelectorAll('[data-lab-mode]').forEach(b=>b.addEventListener('click',()=>{fractionLabUi.mode=b.dataset.labMode;fractionLabUi.feedback=null;renderFractionLab()}));
   document.querySelectorAll('[data-lab-variant]').forEach(b=>b.addEventListener('click',()=>fractionLabSetVariant(b.dataset.labVariant)));
   document.querySelectorAll('[data-lab-level]').forEach(b=>b.addEventListener('click',()=>fractionLabSetLevel(b.dataset.labLevel)));
