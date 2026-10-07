@@ -873,6 +873,165 @@ async function finishSession(page){
     await page.evaluate(()=>{state.profile.avatar='boy';saveState()});
     await page.setViewportSize({width:390,height:844});
 
+    // Content-depth finishing contract: three normal sessions in a row should stay fresh,
+    // repeats must not inflate today's goal, and mastered interests remain replayable.
+    const contentDepth=await page.evaluate(()=>{
+      const savedState=JSON.stringify(state);
+      const savedRuntime={
+        scope:JSON.stringify(sessionScope||{}),
+        questions:JSON.stringify(sessionQuestions||[]),
+        qIndex,sessionCorrect,
+        strengthened:[...sessionStrengthened],
+        answered:currentAnswered
+      };
+      const restore=()=>{
+        state=JSON.parse(savedState);
+        sessionScope=JSON.parse(savedRuntime.scope);
+        sessionQuestions=JSON.parse(savedRuntime.questions);
+        qIndex=savedRuntime.qIndex;
+        sessionCorrect=savedRuntime.sessionCorrect;
+        sessionStrengthened=new Set(savedRuntime.strengthened);
+        currentAnswered=savedRuntime.answered;
+        saveState();
+        showScreen('home');
+        renderAll();
+      };
+      const markAnswered=(qs,round)=>{
+        const base=Date.now()+round*1000;
+        qs.forEach((q,i)=>state.answerLog.push({
+          at:base+i,correct:true,countsForLearning:true,
+          questionKey:questionIdentity(q),
+          subject:q.subject||null,skill:q.skill||null,
+          country:q.k||null,type:q.type
+        }));
+      };
+      const overlap=(a,b)=>{
+        const set=new Set(b);
+        return a.filter(x=>set.has(x)).length;
+      };
+      const assertRoundsFresh=rounds=>{
+        if(rounds.some(r=>r.length!==5))return false;
+        for(let i=0;i<rounds.length;i++)for(let j=i+1;j<rounds.length;j++)if(overlap(rounds[i],rounds[j])!==0)return false;
+        return true;
+      };
+      const learningRounds=subject=>{
+        const rounds=[];
+        for(let round=0;round<3;round++){
+          const fresh=buildLearningQuestions(subject,null,false);
+          const all=fresh.length<5?buildLearningQuestions(subject,null,true):fresh;
+          const qs=topUpSessionQuestions(fresh,all,5);
+          rounds.push(qs.map(questionIdentity));
+          markAnswered(qs,round);
+        }
+        return rounds;
+      };
+      const geographyRounds=()=>{
+        const rounds=[];
+        for(let round=0;round<3;round++){
+          const qs=buildQuestionsForIds(gradeScopeIds(),true);
+          rounds.push(qs.map(questionIdentity));
+          markAnswered(qs,10+round);
+        }
+        return rounds;
+      };
+
+      state.profile.grade=2;
+      state.answerLog=[];
+      state.sessionLog=[];
+      state.skillMastery={};
+      state.skillEvidence={};
+      state.mastery={};
+      state.masteryEvidence={};
+      const rounds={
+        norwegian:learningRounds('norwegian'),
+        english:learningRounds('english'),
+        math:learningRounds('math'),
+        geography:geographyRounds()
+      };
+      const fresh={
+        norwegian:assertRoundsFresh(rounds.norwegian),
+        english:assertRoundsFresh(rounds.english),
+        math:assertRoundsFresh(rounds.math),
+        geography:assertRoundsFresh(rounds.geography)
+      };
+
+      const depth={};
+      for(const grade of [2,4,7,10]){
+        state.profile.grade=grade;
+        const count=pool=>new Set(pool.map(questionIdentity)).size;
+        depth[grade]={
+          norwegian:count(norwegianPool(grade,null)),
+          english:count(englishPool(grade,null)),
+          math:count(mathPool(grade,null)),
+          geography:new Set(questionPool(gradeScopeIds(),true,true).map(x=>x.k+':'+x.type)).size
+        };
+      }
+
+      // A normal activity may satisfy the daily goal once. Repeating the exact same
+      // activity the same day remains available, but is explicitly non-counting.
+      state.profile.grade=2;
+      state.answerLog=[];
+      state.sessionLog=[];
+      const dailyQs=englishPool(2,'words').slice(0,5);
+      sessionScope={type:'subject',subject:'english',module:'words',label:'Engelsk · Words',grade:2};
+      sessionQuestions=dailyQs;
+      qIndex=dailyQs.length-1;
+      sessionCorrect=5;
+      sessionStrengthened=new Set();
+      currentAnswered={correct:true};
+      state.activeSession={startedAt:Date.now()-1000};
+      finishSession();
+      sessionScope={type:'subject',subject:'english',module:'words',label:'Engelsk · Words',grade:2};
+      sessionQuestions=dailyQs;
+      qIndex=dailyQs.length-1;
+      sessionCorrect=5;
+      sessionStrengthened=new Set();
+      currentAnswered={correct:true};
+      state.activeSession={startedAt:Date.now()-1000};
+      finishSession();
+      const lastTwo=state.sessionLog.slice(-2).map(s=>({
+        countsTowardGoal:s.countsTowardGoal,
+        duplicateToday:s.duplicateToday,
+        activityKey:s.activityKey
+      }));
+      const goal=dailyGoal();
+
+      // Mastery opens/recommends other content but must not remove a favorite activity.
+      state.answerLog=[];
+      state.skillMastery={};
+      state.skillEvidence={};
+      const wordPool=englishPool(2,'words');
+      const today=evidenceDay(Date.now()),yesterday=evidenceDay(Date.now()-86400000);
+      for(const skill of new Set(wordPool.map(q=>q.skill))){
+        const key=learningMasteryKey('english',skill,2);
+        state.skillMastery[key]=2;
+        state.skillEvidence[key]={
+          attempts:2,correctCount:2,wrongCount:0,lastAttemptAt:Date.now(),lastCorrectAt:Date.now(),
+          days:[yesterday,today],correctDays:[yesterday,today],variants:['a','b']
+        };
+      }
+      const replayAfterMastery=buildLearningQuestions('english','words',true).length;
+
+      const result={rounds,fresh,depth,lastTwo,goal,replayAfterMastery};
+      restore();
+      return result;
+    });
+    for(const subject of ['norwegian','english','math','geography']){
+      assert.equal(contentDepth.fresh[subject],true,subject+' repeated an exact question across three consecutive grade-2 sessions');
+    }
+    for(const grade of [2,4,7,10]){
+      assert.ok(contentDepth.depth[grade].norwegian>=20,'Norwegian content bank too shallow for grade '+grade+': '+contentDepth.depth[grade].norwegian);
+      assert.ok(contentDepth.depth[grade].english>=15,'English content bank too shallow for grade '+grade+': '+contentDepth.depth[grade].english);
+      assert.ok(contentDepth.depth[grade].math>=10,'Math content bank too shallow for grade '+grade+': '+contentDepth.depth[grade].math);
+      assert.ok(contentDepth.depth[grade].geography>=15,'Geography content bank too shallow for grade '+grade+': '+contentDepth.depth[grade].geography);
+    }
+    assert.equal(contentDepth.lastTwo[0].countsTowardGoal,true,'first normal completion should count toward daily goal');
+    assert.equal(contentDepth.lastTwo[1].countsTowardGoal,false,'same activity repeated today must not count twice');
+    assert.equal(contentDepth.lastTwo[1].duplicateToday,true,'repeat completion must be marked as duplicateToday');
+    assert.equal(contentDepth.lastTwo[0].activityKey,contentDepth.lastTwo[1].activityKey,'daily-goal replay test did not use the same activity');
+    assert.deepEqual(contentDepth.goal,{target:1,done:1,sessions:1},'daily goal inflated after replaying the same activity');
+    assert.equal(contentDepth.replayAfterMastery,5,'mastered English content was locked away instead of remaining replayable');
+
     // First grade: capitals are intentionally hidden but Land still works.
     const context1=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
     const p1=await context1.newPage();p1.__base=url;
