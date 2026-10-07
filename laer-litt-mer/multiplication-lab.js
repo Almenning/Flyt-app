@@ -290,6 +290,7 @@ function bindMultiplicationLabUi(){
   document.querySelectorAll('[data-table-pair-a]').forEach(button=>button.addEventListener('click',()=>{multLabUi.a=Number(button.dataset.tablePairA);multLabUi.b=Number(button.dataset.tablePairB);multLabUi.tableTouched=true;multLabUi.answer=String(multLabUi.a*multLabUi.b);multLabUi.feedback=null;renderMultiplicationLab()}));
 }
 function openMultiplicationLab(){
+  document.getElementById('multiplication-lab-screen')?.setAttribute('data-explore-release','explore-rc1');
   const grade=currentGrade();
   if(multLabUi.lastGrade!==grade){multLabUi.level=multLabRecommendedLevel();multLabUi.lastGrade=grade}
   multLabResetToMission();renderMultiplicationLab();showScreen('multiplication-lab');
