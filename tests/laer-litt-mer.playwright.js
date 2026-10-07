@@ -791,6 +791,49 @@ async function finishSession(page){
     assert.equal(progressAfterIllustrations,progressBeforeIllustrations,'Prompt 12 illustration rendering changed learning progress');
     await page.locator('#close-session').click();
 
+    // Prompt 13: TaskScene fox must stay in-world, follow the saved avatar state,
+    // avoid covering the question/answers, and react briefly only after a correct answer.
+    async function assertPrompt13Fox(width,height,label){
+      await page.setViewportSize({width,height});
+      await page.evaluate(()=>{
+        state.profile.avatar='girl';saveState();
+        sessionQuestions=[{
+          subject:'norwegian',skill:'word-picture',type:'learning-choice',
+          prompt:'Hvilket ord passer til bildet?',answer:'katt',options:['katt','hund','hus'],
+          visual:'🐱',curriculum:CURRICULUM.norwegian
+        }];
+        qIndex=0;currentAnswered=null;showScreen('session');renderQuestion();
+      });
+      const fox=page.locator('.task-fox-companion');
+      assert.equal(await page.locator('#session-screen').getAttribute('data-task-fox-release'),'fox-rc1',label+' missing Prompt 13 fox release');
+      assert.equal(await fox.getAttribute('data-avatar'),'girl',label+' TaskScene fox did not follow saved avatar state');
+      assert.match(await fox.locator('img').getAttribute('src'),/lia-fox-explorer\.webp(?:\?|$)/,label+' must use the transparent scene fox');
+      assert.equal(await fox.locator('img').getAttribute('src').then(src=>String(src).startsWith('data:')),false,label+' must not use onboarding portrait data');
+      const layout=await page.evaluate(()=>{
+        const rect=s=>document.querySelector(s)?.getBoundingClientRect();
+        const f=rect('.task-fox-companion'),q=rect('.question'),a=rect('.task-interaction');
+        const overlap=(x,y)=>!!x&&!!y&&Math.max(0,Math.min(x.right,y.right)-Math.max(x.left,y.left))*Math.max(0,Math.min(x.bottom,y.bottom)-Math.max(x.top,y.top));
+        return {fox:{left:f.left,right:f.right,top:f.top,bottom:f.bottom},questionOverlap:overlap(f,q),answerOverlap:overlap(f,a),scrollWidth:document.documentElement.scrollWidth,clientWidth:document.documentElement.clientWidth};
+      });
+      assert.equal(layout.questionOverlap,0,label+' fox overlaps question text');
+      assert.equal(layout.answerOverlap,0,label+' fox overlaps answer controls');
+      assert.ok(layout.fox.left>=-1&&layout.fox.right<=width+1,label+' fox is cropped horizontally');
+      assert.ok(layout.scrollWidth<=layout.clientWidth,label+' fox creates horizontal overflow');
+      const beforeCount=await page.evaluate(()=>state.answerLog.length);
+      await page.locator('.answer[data-answer="katt"]').click();
+      assert.equal(await fox.evaluate(el=>el.classList.contains('fox-correct')),true,label+' fox did not react to correct answer');
+      const answerResult=await page.evaluate(()=>({count:state.answerLog.length,last:state.answerLog[state.answerLog.length-1]}));
+      assert.equal(answerResult.count,beforeCount+1,label+' correct answer should create exactly one normal progress record');
+      assert.equal(answerResult.last.correct,true,label+' correct answer progress record changed');
+      await page.waitForTimeout(700);
+      assert.equal(await fox.evaluate(el=>el.classList.contains('fox-correct')),false,label+' fox reaction should settle quickly');
+      await page.locator('#close-session').click();
+    }
+    await assertPrompt13Fox(390,844,'phone');
+    await assertPrompt13Fox(820,1180,'ipad-portrait');
+    await page.evaluate(()=>{state.profile.avatar='boy';saveState()});
+    await page.setViewportSize({width:390,height:844});
+
     // First grade: capitals are intentionally hidden but Land still works.
     const context1=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
     const p1=await context1.newPage();p1.__base=url;
