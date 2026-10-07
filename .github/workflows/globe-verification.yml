@@ -1,0 +1,33 @@
+name: Globe runtime verification
+on:
+  push:
+    branches: [work/globe-complete]
+  pull_request:
+    paths: ['laer-litt-mer/globe*', 'tests/globe-complete.playwright.js']
+permissions:
+  contents: read
+jobs:
+  globe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, webkit]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps ${{ matrix.browser }}
+      - run: node tests/globe-complete.playwright.js
+        env:
+          GLOBE_BROWSER: ${{ matrix.browser }}
+          GLOBE_OUTPUT: globe-qa
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: globe-${{ matrix.browser }}
+          path: globe-qa

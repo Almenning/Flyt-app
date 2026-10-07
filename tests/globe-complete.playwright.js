@@ -1,0 +1,40 @@
+'use strict';
+// Run with NODE_PATH pointing to an installed Playwright, or npm dependencies.
+const engine=require('playwright')[process.env.GLOBE_BROWSER||'chromium'];
+const assert=require('node:assert/strict'),fs=require('node:fs'),http=require('node:http'),path=require('node:path');
+const root=process.env.GLOBE_ROOT||path.resolve(__dirname,'..');
+const output=process.env.GLOBE_OUTPUT||'/tmp/laria-globe-qa';fs.mkdirSync(output,{recursive:true});
+const server=http.createServer((req,res)=>{const file=path.join(root,new URL(req.url,'http://local').pathname.replace(/\/$/,'/index.html'));fs.readFile(file,(e,d)=>{res.writeHead(e?404:200,{'Content-Type':file.endsWith('.js')?'text/javascript':file.endsWith('.css')?'text/css':file.endsWith('.html')?'text/html':'application/octet-stream'});res.end(e?'missing':d)})});
+const errors=[],missing=[],report={viewports:[],interactions:[],errors,missing};
+(async()=>{await new Promise(r=>server.listen(0,'127.0.0.1',r));const browser=await engine.launch({headless:true});
+try{const page=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:2,hasTouch:true,isMobile:true});page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error')errors.push(m.text())});page.on('response',r=>{if(r.status()>=400&&r.url().includes('127.0.0.1'))missing.push(r.url())});
+await page.goto(`http://127.0.0.1:${server.address().port}/laer-litt-mer/`);
+await page.locator('.avatar-choice-card[data-avatar="boy"]').click();await page.locator('#profile-name').fill('Globetester');await page.locator('.grade-btn[data-grade="2"]').click();await page.locator('#profile-next').click();
+await page.evaluate(()=>openGlobe());await page.waitForTimeout(300);
+for(const [width,height] of [[375,667],[390,844],[393,852],[430,932],[768,1024],[820,1180],[1024,1366],[844,390],[1180,820]]){
+await page.setViewportSize({width,height});await page.waitForTimeout(100);
+const geometry=await page.evaluate(()=>{const c=document.querySelector('#globe-canvas'),r=c.getBoundingClientRect();const controls=['#world-back','#globe-mode','#world-search','#globe-status','#random-country','#reset-globe','#globe-zoom-in','#globe-zoom-out'].map(s=>{const el=document.querySelector(s),b=el.getBoundingClientRect();return {s,x:b.x,y:b.y,width:b.width,height:b.height,display:getComputedStyle(el).display}});const data=c.getContext('2d').getImageData(c.width/2,c.height/2,1,1).data;return {canvas:{x:r.x,y:r.y,w:r.width,h:r.height},painted:data[3]>0,controls}});
+assert(geometry.painted,'canvas blank');for(const c of geometry.controls){assert(c.display!=='none'&&c.width>0&&c.height>0,`${width}: ${c.s} hidden`);assert(c.x>=-1&&c.y>=-1&&c.x+c.width<=width+1&&c.y+c.height<=height+1,`${width}x${height}: ${c.s} outside viewport ${JSON.stringify(c)}`)}
+report.viewports.push({width,height,...geometry});await page.screenshot({path:`${output}/${width}x${height}-explore.png`});
+}
+await page.setViewportSize({width:390,height:844});
+for(const mode of ['mine','classic','explore']){await page.locator(`[data-globe-mode="${mode}"]`).click();assert.equal(await page.evaluate(()=>globeMode),mode);await page.screenshot({path:`${output}/phone-${mode}.png`})}report.interactions.push('three modes');
+await page.locator('#globe-zoom-in').click();assert(await page.evaluate(()=>globeZoom>1));await page.locator('#globe-zoom-out').click();assert.equal(await page.evaluate(()=>globeZoom),1);report.interactions.push('zoom buttons');
+await page.locator('#world-search').fill('norge');await page.locator('#world-search-results button').first().click();assert.equal(await page.evaluate(()=>countries[globeSelected].name),'Norge');await page.screenshot({path:output+'/phone-selected.png'});
+const saved=await page.evaluate(()=>({lon:globeLon,lat:globeLat,zoom:globeZoom,id:globeSelected,mode:globeMode}));await page.locator('.premium-country-learn').click();await page.locator('#detail-screen.active').waitFor();await page.locator('#detail-back').click();await page.locator('#world-screen.active').waitFor();assert.deepEqual(await page.evaluate(()=>({lon:globeLon,lat:globeLat,zoom:globeZoom,id:globeSelected,mode:globeMode})),saved);report.interactions.push('search, country card, detail, return preserving state');
+for(const name of ['Norge','USA','Luxemburg','Liechtenstein','Andorra','Monaco','San Marino','Vatikanstaten','Malta','Singapore']){
+const target=await page.evaluate(name=>{const c=WORLD_COUNTRIES.find(c=>c.name===name);if(!c)return null;focusCountry(c.id);return {id:c.id,name:c.name}},name);assert(target,`missing ${name}`);
+await page.waitForTimeout(30);const point=await page.evaluate(()=>{const c=countries[globeSelected],p=globeProject(c.lon,c.lat),r=document.querySelector('#globe-canvas').getBoundingClientRect();globeSelected=null;return {x:p[0]+r.x,y:p[1]+r.y}});await page.mouse.click(point.x,point.y);
+if(await page.locator('.globe-pick-choices').count())await page.locator('.globe-pick-choices button').filter({hasText:name}).click();
+if(await page.evaluate(()=>globeSelected)!==target.id){await page.screenshot({path:output+'/failed-country.png'});console.log(name,point,await page.evaluate(({x,y})=>({top:document.elementFromPoint(x,y)?.outerHTML,selected:globeSelected,pointers:globePointers.size,move:globeMove,drag:globeDrag,status:document.querySelector('#globe-status').textContent}),point))} assert.equal(await page.evaluate(()=>globeSelected),target.id,`wrong country at ${name}`);
+}report.interactions.push('Norge, USA and eight tiny countries selected by projected touch');
+for(let i=0;i<5;i++){await page.locator('#random-country').click();assert(await page.evaluate(()=>!!countries[globeSelected]))}report.interactions.push('random five times');
+await page.locator('[data-globe-mode="classic"]').click();await page.locator('#reset-globe').click();assert.deepEqual(await page.evaluate(()=>[globeMode,globeZoom,globeSelected,globeLon,globeLat]),['classic',1,null,15,18]);await page.locator('[data-globe-mode="explore"]').click();
+const r=await page.locator('#globe-canvas').boundingBox();const before=await page.evaluate(()=>globeLon);await page.mouse.move(r.x+r.width*.7,r.y+r.height*.5);await page.mouse.down();await page.mouse.move(r.x+r.width*.3,r.y+r.height*.5,{steps:24});await page.mouse.up();assert.notEqual(await page.evaluate(()=>globeLon),before);await page.waitForTimeout(500);report.interactions.push('drag and short momentum');
+// Synthetic multi-pointer events exercise cancellation and two-to-one handover; hardware iOS remains a separate gate.
+await page.evaluate(()=>{const c=document.querySelector('#globe-canvas'),r=c.getBoundingClientRect();window.__testPointer=(type,id,x,y)=>c.dispatchEvent(new PointerEvent(type,{pointerId:id,pointerType:'touch',clientX:r.x+x,clientY:r.y+y,bubbles:true}));__testPointer('pointerdown',11,130,190);__testPointer('pointerdown',12,230,190);__testPointer('pointermove',12,280,190)});assert(await page.evaluate(()=>globeZoom>1));await page.evaluate(()=>{__testPointer('pointercancel',12,280,190);__testPointer('pointercancel',11,130,190)});assert(await page.evaluate(()=>globePointers.size===0&&!window.__lariaGlobeInteracting));report.interactions.push('synthetic pinch and cancel');
+for(let i=0;i<8;i++){await page.locator('#world-back').click();await page.evaluate(()=>openGlobe())}
+await page.waitForTimeout(300);const frameBefore=await page.evaluate(()=>window.__lariaGlobeMetrics.frames);await page.waitForTimeout(1000);const frameAfter=await page.evaluate(()=>window.__lariaGlobeMetrics.frames);assert.equal(frameBefore,frameAfter,'idle render loop');report.interactions.push('eight reopen cycles, no idle rendering');
+report.metrics=await page.evaluate(()=>window.__lariaGlobeMetrics);assert.equal(errors.length,0,errors.join('\n'));assert.equal(missing.length,0);console.log(JSON.stringify({viewports:report.viewports.length,interactions:report.interactions,errors,missing,metrics:report.metrics},null,2));
+}finally{fs.writeFileSync(output+'/report.json',JSON.stringify(report,null,2));await browser.close();server.close()}
+})().catch(e=>{console.error(e);server.close();process.exitCode=1});
