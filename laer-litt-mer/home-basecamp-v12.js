@@ -34,8 +34,7 @@ function next(){
  const node=subject==='geography'?geoJourneyRecommendedNode(grade):journeyRecommendedNode(subject,grade);
  return {subject,grade,title:active?.label||(subject==='norwegian'?PLACES[node?.id]:null)||node?.title||'Bokskogen',active:!!active,pct:Number(progress?.pct||0),complete:!!progress?.complete};
 }
-       '<button class="bc12-adult-entry" type="button" data-camp-adult aria-label="Hold inne for voksenområdet">🔒 For voksne</button>'+
-
+       
 function journeyCopy(info){
  if(info?.active)return 'Du har allerede startet. Reisen fortsetter der du slapp.';
  if(info?.subject==='geography')return 'Et nytt sted i verden venter.';
