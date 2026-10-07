@@ -15,9 +15,9 @@ const SHELL=[
   './multiplication-lab.js?v=20261006-assets1',
   // Journey / Bokskogen
   './bokskogen-world.css?v=20261006-assets1',
-  './bokskogen-world.js?v=20261006-p8foundation3',
+  './bokskogen-world.js?v=20261007-p10rc1',
   './journey-world-premium.css?v=20261006-p8foundation1',
-  './journey-world-premium.js?v=20261006-p8foundation1',
+  './journey-world-premium.js?v=20261007-p10rc1',
   './world-atlas.css?v=20261006-assets1',
   // Home
   './home-premium.css?v=20261006-p8foundation1',
