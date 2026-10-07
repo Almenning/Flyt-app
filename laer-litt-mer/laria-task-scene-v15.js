@@ -232,7 +232,8 @@
     const visual=taskVisualMarkup(q);
     const passage=q.passage?'<div class="learning-passage">'+text(q.passage)+'</div>':'';
     const readButton=readAloudButton(q);
-    const fox='<div class="task-fox-companion" data-avatar="'+foxChoice()+'" aria-hidden="true"><img src="'+attr(foxSource())+'" alt=""></div>';
+    const avatar=foxChoice();
+    const fox='<div class="task-fox-companion" data-avatar="'+avatar+'" aria-hidden="true"><img src="'+attr(foxSource())+'" alt=""><span class="task-profile-marker">'+(avatar==='girl'?'✿':'✦')+'</span></div>';
     const visualWithFox=visual?'<div class="task-visual-companion-stage">'+visual+fox+'</div>':fox;
 
     wrap.innerHTML=
