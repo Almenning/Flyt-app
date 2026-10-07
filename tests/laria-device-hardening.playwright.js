@@ -121,16 +121,14 @@ async function verifyOlderHome(page,label,width,height){
 
   const bottom=page.locator('#bottom-nav');
   if(await bottom.isVisible()){
-    const buttons=bottom.locator('button');
-    const n=await buttons.count();let visibleCount=0;
+    const buttons=bottom.locator('button:visible');
+    const n=await buttons.count();
+    assert.ok(n>=3,label+' bottom nav unexpectedly sparse');
     for(let i=0;i<n;i++){
-      if(!await buttons.nth(i).isVisible())continue;
-      visibleCount++;
       const r=await buttons.nth(i).evaluate(el=>{const b=el.getBoundingClientRect();return {w:b.width,h:b.height,x:b.x,y:b.y,right:b.right,bottom:b.bottom}});
       assertTap(r,label+' bottom nav '+i);
       assert.ok(r.right<=width+1&&r.x>=-1,label+' bottom nav button outside viewport: '+JSON.stringify(r));
     }
-    assert.ok(visibleCount>=3,label+' bottom nav unexpectedly sparse: '+visibleCount);
   }
 
   await entry.tap();
@@ -148,8 +146,11 @@ async function verifyOlderHome(page,label,width,height){
   // Parent area is part of the trust-critical product surface.
   const adult=page.locator('#adult-entry');
   await adult.scrollIntoViewIfNeeded();
-  await adult.tap();
+  const adultEntryRect=await rect(page,'#adult-entry');assertTap(adultEntryRect,label+' adult entry');
+  await adult.dispatchEvent('pointerdown',{pointerType:'touch',pointerId:17,isPrimary:true,clientX:20,clientY:20});
+  await page.waitForTimeout(1650);
   await page.locator('#adult-screen.active').waitFor();
+  await adult.dispatchEvent('pointerup',{pointerType:'touch',pointerId:17,isPrimary:true,clientX:20,clientY:20}).catch(()=>{});
   await noOverflow(page,label+' adult');
   const adultBack=await rect(page,'#adult-back');assertTap(adultBack,label+' adult back');
   const select=await rect(page,'#adult-grade');assert.ok(select.h>=40,label+' grade select too small: '+JSON.stringify(select));
@@ -160,7 +161,7 @@ async function verifyOlderHome(page,label,width,height){
   await page.evaluate(()=>openSubject('math'));
   await page.locator('#subject-screen.active').waitFor();
   await noOverflow(page,label+' math subject');
-  const subjectBack=page.locator('.subject-back').first();
+  const subjectBack=page.locator('#subject-back');
   if(await subjectBack.count()&&await subjectBack.isVisible()){
     const r=await subjectBack.evaluate(el=>{const b=el.getBoundingClientRect();return {w:b.width,h:b.height,x:b.x,y:b.y,right:b.right,bottom:b.bottom}});
     assertTap(r,label+' subject back');
