@@ -193,6 +193,63 @@ async function finishSession(page){
         assert.equal(await p.locator('.avatar').getAttribute('data-profile-avatar'),cfg.avatar,cfg.label+' avatar changed after reload');
         assert.match(await p.locator('#home-greeting').textContent(),new RegExp(cfg.name),cfg.label+' name changed after reload');
 
+        if(cfg.label==='phone'){
+          const pwa=await p.evaluate(async()=>{
+            const manifest=await fetch('./manifest.webmanifest',{cache:'no-store'}).then(r=>r.json());
+            return {
+              title:document.title,
+              appleTitle:document.querySelector('meta[name="apple-mobile-web-app-title"]')?.content||'',
+              icon:document.querySelector('link[rel="icon"]')?.getAttribute('href')||'',
+              manifest,
+              visibleText:document.body.innerText
+            };
+          });
+          assert.equal(pwa.title,'Læria','visible document title drifted');
+          assert.equal(pwa.appleTitle,'Læria','Apple PWA title drifted');
+          assert.equal(pwa.manifest.name,'Læria','manifest name drifted');
+          assert.equal(pwa.manifest.short_name,'Læria','manifest short name drifted');
+          assert.match(String(pwa.manifest.icons?.[0]?.src||''),/icon\.svg$/,'manifest icon drifted');
+          assert.equal(pwa.icon,'./icon.svg','visible favicon drifted');
+          assert.doesNotMatch(pwa.visibleText,/\bFlyt\b|Lære litt mer/i,'old product name remains visible in Læria');
+
+          await p.locator('.bc12').waitFor();
+          const homeFox=p.locator('.bc12-fox');
+          assert.equal(await homeFox.getAttribute('data-avatar'),'girl','Basecamp fox did not follow saved revejente choice');
+          assert.ok((await homeFox.evaluate(el=>getComputedStyle(el,'::after').content)).includes('✿'),'Basecamp revejente has no visible profile marker');
+
+          await p.evaluate(()=>openGlobe('explore'));
+          await p.locator('#world-screen.active').waitFor();
+          const globeHeader=p.locator('.premium-globe-header');
+          const globeFox=p.locator('.premium-globe-fox');
+          await globeFox.waitFor();
+          assert.equal(await globeHeader.getAttribute('data-avatar'),'girl','Kloden header did not follow saved revejente choice');
+          assert.equal(await globeFox.getAttribute('data-avatar'),'girl','Kloden fox did not follow saved revejente choice');
+          assert.ok((await globeHeader.evaluate(el=>getComputedStyle(el,'::after').content)).includes('✿'),'Kloden revejente has no visible profile marker');
+
+          await p.evaluate(()=>setTab('home'));
+          await p.locator('#home-screen.active .bc12').waitFor();
+          await p.evaluate(()=>openSubject('norwegian'));
+          await p.locator('#subject-screen.active').waitFor();
+          const traveler=p.locator('.premium-traveler');
+          await traveler.waitFor({state:'visible'});
+          assert.equal(await traveler.getAttribute('data-avatar'),'girl','Reisen traveler did not follow saved revejente choice');
+          assert.ok((await traveler.evaluate(el=>getComputedStyle(el,'::after').content)).includes('✿'),'Reisen revejente has no visible profile marker');
+
+          await p.evaluate(()=>{
+            sessionScope={type:'subject',subject:'norwegian',module:'reading',label:'Norsk',grade:2};
+            sessionQuestions=[choiceQuestion('norwegian','vocabulary','Hva ser du?','katt',['katt','hund','mus'],{visual:'🐱'})];
+            qIndex=0;sessionCorrect=0;sessionStrengthened=new Set();currentAnswered=null;
+            showScreen('session');renderQuestion();
+          });
+          await p.locator('#session-screen.active').waitFor();
+          const taskFox=p.locator('.task-fox-companion');
+          await taskFox.waitFor();
+          assert.equal(await taskFox.getAttribute('data-avatar'),'girl','Oppgavescene fox did not follow saved revejente choice');
+          assert.ok((await taskFox.evaluate(el=>getComputedStyle(el,'::after').content)).includes('✿'),'Oppgavescene revejente has no visible profile marker');
+          await p.evaluate(()=>{state.activeSession=null;currentAnswered=null;setTab('home')});
+          await p.locator('#home-screen.active .bc12').waitFor();
+        }
+
         await p.evaluate(()=>openAdult());
         await p.locator('#adult-screen.active').waitFor();
         assert.equal(await p.locator('#adult-screen').getAttribute('data-parent-trust-release'),'parent-trust-rc1');
