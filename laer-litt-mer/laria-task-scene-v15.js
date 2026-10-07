@@ -234,6 +234,8 @@
     const visual=taskVisualMarkup(q);
     const passage=q.passage?'<div class="learning-passage">'+text(q.passage)+'</div>':'';
     const readButton=readAloudButton(q);
+    const fox='<div class="task-fox-companion" data-avatar="'+foxChoice()+'" aria-hidden="true"><img src="'+attr(foxSource())+'" alt=""></div>';
+    const visualWithFox=visual?'<div class="task-visual-companion-stage">'+visual+fox+'</div>':fox;
 
     wrap.innerHTML=
       '<article class="laria-task-card '+mode+' '+layout+' '+taskTypeClass(q)+'">'+
@@ -241,8 +243,7 @@
         '<div class="task-card-head"><div class="qtype">'+subjectName(subject)+' · '+text(String(gradeLabel).toUpperCase())+'</div>'+readButton+'</div>'+
         '<div class="question">'+text(prompt)+'</div>'+
         passage+
-        visual+
-        '<div class="task-fox-companion" data-avatar="'+foxChoice()+'" aria-hidden="true"><img src="'+attr(foxSource())+'" alt=""></div>'+
+        visualWithFox+
         '<div class="task-interaction">'+(subject==='geography'?geographyInteractionMarkup(q):interactionMarkup(q))+'</div>'+
         '<div class="feedback" id="feedback"><strong id="feedback-title"></strong><p id="feedback-copy"></p></div>'+
         '<button class="primary next" id="next-question" type="button">'+(subject==='english'?'Next':'Neste')+'</button>'+
