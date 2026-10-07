@@ -6335,6 +6335,7 @@ function startAdultHold(e){e.preventDefault();adultEntry.classList.add('holding'
 function cancelAdultHold(){if(holdTimer){clearTimeout(holdTimer);holdTimer=null}adultEntry.classList.remove('holding');adultEntry.textContent='🔒 Hold inne for voksne'}
 adultEntry.addEventListener('pointerdown',startAdultHold);adultEntry.addEventListener('pointerup',cancelAdultHold);adultEntry.addEventListener('pointerleave',cancelAdultHold);adultEntry.addEventListener('pointercancel',cancelAdultHold);
 function openAdult(){renderAdult();showScreen('adult')}
+  window.LARIA_OPEN_ADULT=openAdult;
 document.getElementById('adult-back').onclick=()=>setTab('home');
 document.getElementById('open-parent-info').onclick=()=>showScreen('parent-info');
 document.getElementById('parent-info-back').onclick=()=>showScreen('adult');
