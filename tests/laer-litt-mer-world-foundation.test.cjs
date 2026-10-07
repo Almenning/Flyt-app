@@ -56,7 +56,7 @@ test('2.5D assets are cache-busted in HTML while the PWA install stays lightweig
     const htmlVersion=assetVersion(html,asset);
     assert.ok(htmlVersion,asset+' is missing a cache-busted HTML reference');
   }
-  assert.match(sw, /const CACHE=['"]laria-runtime-[^'"]+perf\d+['"]/);
+  assert.match(sw, /const CACHE=['"]laria-(?:runtime|stable)-[^'"]+['"]/,'service worker cache must use an explicit Læria release');
   assert.match(sw, /caches\.match\(req\)/);
   assert.match(sw, /if\(cached\)return cached/);
   assert.doesNotMatch(sw, /journey-world-premium\.(?:css|js)|bokskogen-atlas32\.webp|lia-fox-explorer\.webp/);
