@@ -122,13 +122,15 @@ async function verifyOlderHome(page,label,width,height){
   const bottom=page.locator('#bottom-nav');
   if(await bottom.isVisible()){
     const buttons=bottom.locator('button');
-    const n=await buttons.count();
-    assert.ok(n>=3,label+' bottom nav unexpectedly sparse');
+    const n=await buttons.count();let visibleCount=0;
     for(let i=0;i<n;i++){
+      if(!await buttons.nth(i).isVisible())continue;
+      visibleCount++;
       const r=await buttons.nth(i).evaluate(el=>{const b=el.getBoundingClientRect();return {w:b.width,h:b.height,x:b.x,y:b.y,right:b.right,bottom:b.bottom}});
       assertTap(r,label+' bottom nav '+i);
       assert.ok(r.right<=width+1&&r.x>=-1,label+' bottom nav button outside viewport: '+JSON.stringify(r));
     }
+    assert.ok(visibleCount>=3,label+' bottom nav unexpectedly sparse: '+visibleCount);
   }
 
   await entry.tap();
