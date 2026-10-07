@@ -4,7 +4,8 @@
 
   const baseRenderSubjectJourney=renderSubjectJourney;
   function selectedProfileFox(){
-    return './lia-fox-explorer.webp';
+    const avatar=(typeof state!=='undefined'&&state?.profile?.avatar==='girl')?'girl':'boy';
+    return window.LARIA_PROFILE_AVATARS?.[avatar]||'./lia-fox-explorer.webp';
   }
 
   const LABELS={
