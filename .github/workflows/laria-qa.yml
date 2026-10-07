@@ -1,6 +1,14 @@
 name: Laria QA
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'laer-litt-mer/**'
+      - 'tests/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/laria-qa.yml'
   pull_request:
     branches: [main]
     paths:
