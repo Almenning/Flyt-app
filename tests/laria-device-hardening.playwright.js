@@ -146,6 +146,7 @@ async function verifyOlderHome(page,label,width,height){
   // Parent area is part of the trust-critical product surface.
   const adult=page.locator('#adult-entry');
   await adult.scrollIntoViewIfNeeded();
+  const adultEntryRect=await rect(page,'#adult-entry');assertTap(adultEntryRect,label+' adult entry');
   await adult.dispatchEvent('pointerdown',{pointerType:'touch',pointerId:17,isPrimary:true,clientX:20,clientY:20});
   await page.waitForTimeout(1650);
   await page.locator('#adult-screen.active').waitFor();
