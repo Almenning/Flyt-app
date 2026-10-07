@@ -67,7 +67,7 @@ function buildAuditRuntime() {
   const prelude = `
     const CURRICULUM={norwegian:'NOR01-08',math:'MAT01-06',english:'ENG01-06'};
     function shuffle(items){return Array.isArray(items)?items.slice():items}
-    function rand(min,max){return Math.floor((Number(min)+Number(max))/2)}
+    let __auditRandState=0x12345678;\n    function rand(min,max){\n      __auditRandState=(Math.imul(__auditRandState,1664525)+1013904223)>>>0;\n      const lo=Number(min),hi=Number(max);\n      return lo+(__auditRandState%(hi-lo+1));\n    }
     function choiceQuestion(subject,skill,prompt,answer,options,extra={}){
       return Object.assign({subject,skill,type:'choice',prompt,answer:String(answer),options:(options||[]).map(String),curriculum:CURRICULUM[subject]},extra);
     }
