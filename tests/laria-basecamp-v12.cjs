@@ -26,9 +26,18 @@ const {chromium,webkit}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),name+' horizontal overflow');
 
   for(const [action,screen,back] of [['globe','world','world-back'],['fraction','fraction-lab','fraction-lab-back'],['multiply','multiplication-lab','multiplication-lab-back']]){
+   console.log('[basecamp]',engineName,name,'open',action);
    await page.locator(`.bc12-place[data-camp="${action}"]`).tap();
-   await page.locator(`#${screen}-screen.active`).waitFor();
-   await page.locator('#'+back).tap();await page.locator('#home-screen.active').waitFor();
+   await page.locator(`#${screen}-screen.active`).waitFor({timeout:10000});
+   console.log('[basecamp]',engineName,name,'back',action);
+   await page.locator('#'+back).tap();
+   try{
+    await page.locator('#home-screen.active').waitFor({timeout:10000});
+    console.log('[basecamp]',engineName,name,'returned',action);
+   }catch(err){
+    const active=await page.evaluate(()=>document.querySelector('.screen.active')?.id||null);
+    throw new Error(`Basecamp return failed: engine=${engineName} viewport=${name} action=${action} active=${active}; ${err.message}`);
+   }
   }
 
   await page.locator('.bc12-place[data-camp="words"]').tap();
