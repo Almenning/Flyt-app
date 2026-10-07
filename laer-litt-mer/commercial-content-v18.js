@@ -67,12 +67,27 @@
 
   function math(grade,module){
     const buckets={numbers:[],fractions:[],geometry:[],algebra:[]};
-    if(grade<5)return [];
-
     const add=(bucket,skill,prompt,answer)=>buckets[bucket].push(number(skill,prompt,answer));
     const six=[0,1,2,3,4,5];
 
-    if(grade===5){
+    if(grade===1){
+      [[2,3],[4,5],[1,6],[3,6],[5,4],[7,2]].forEach(([a,b])=>add('numbers','addition-10',a+' + '+b+' = ?',a+b));
+      [[2,5,8],[1,6,9],[3,4,7],[2,7,10],[1,5,8],[4,6,9]].forEach(vals=>add('numbers','number-order','Hvilket tall er størst av '+vals.join(', ')+'?',Math.max(...vals)));
+    }else if(grade===2){
+      [[24,13],[35,22],[41,17],[52,26],[63,15],[28,34]].forEach(([a,b])=>add('numbers','addition-100',a+' + '+b+' = ?',a+b));
+      [[45,12],[58,23],[71,19],[64,28],[83,31],[50,17]].forEach(([a,b])=>add('numbers','subtraction-100',a+' − '+b+' = ?',a-b));
+      [[4,47],[6,63],[8,82],[3,35],[7,79],[5,54]].forEach(([digit,n])=>add('numbers','place-value','Hva er verdien til '+digit+' i tallet '+n+'?',digit*10));
+      [[14,29,51],[18,42,77],[23,56,91],[11,38,64],[27,49,83],[16,61,95]].forEach(vals=>add('numbers','number-order','Hvilket tall er størst av '+vals.join(', ')+'?',Math.max(...vals)));
+    }else if(grade===3){
+      [[3,4],[6,7],[8,5],[9,4],[7,6],[8,8]].forEach(([a,b])=>add('numbers','multiplication',a+' × '+b+' = ?',a*b));
+      [[24,4],[42,6],[56,7],[72,8],[81,9],[63,7]].forEach(([total,d])=>add('numbers','division',total+' ÷ '+d+' = ?',total/d));
+      [[2,5,8],[4,8,12],[5,10,15],[7,11,15],[3,9,15],[6,12,18]].forEach(vals=>{const step=vals[1]-vals[0];add('numbers','number-order','Hva kommer videre? '+vals.join(', ')+', ...',vals[2]+step)});
+    }else if(grade===4){
+      [[14,6],[23,4],[31,7],[42,5],[56,3],[18,8]].forEach(([a,b])=>add('numbers','multiplication',a+' × '+b+' = ?',a*b));
+      [[84,7],[96,8],[108,9],[72,6],[65,5],[144,8]].forEach(([total,d])=>add('numbers','division',total+' ÷ '+d+' = ?',total/d));
+      [[2300,1400],[4500,1250],[3700,1800],[6200,2400],[5100,1750],[7800,1600]].forEach(([a,b])=>add('numbers','large-numbers',a+' + '+b+' = ?',a+b));
+      [[1,2,18],[1,3,24],[3,4,20],[2,5,30],[1,4,28],[3,5,25]].forEach(([num,den,total])=>add('fractions','fractions','Hva er '+num+'/'+den+' av '+total+'?',total*num/den));
+    }else if(grade===5){
       six.forEach(i=>{
         const a=24+i*7,b=3+(i%4),prod=a*b;
         add('numbers','multiplication',a+' × '+b+' = ?',prod);
