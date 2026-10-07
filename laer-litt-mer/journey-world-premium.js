@@ -172,8 +172,7 @@
     const viewport=window.innerHeight||document.documentElement.clientHeight||800;
     const safeTop=Math.max(74,viewport*.16),safeBottom=viewport*.78;
     if(rect.top>=safeTop&&rect.bottom<=safeBottom)return;
-    const top=Math.max(0,window.scrollY+rect.top-viewport*.56);
-    window.scrollTo({top,behavior:'auto'});
+    target.scrollIntoView({block:'center',inline:'nearest',behavior:'auto'});
   }
 
   function journeyLandmarkKind(node,i){
