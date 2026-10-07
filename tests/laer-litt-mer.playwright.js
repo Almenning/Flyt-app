@@ -251,7 +251,9 @@ async function finishSession(page){
           const taskFox=p.locator('.task-fox-companion');
           await taskFox.waitFor();
           assert.equal(await taskFox.getAttribute('data-avatar'),'girl','Oppgavescene fox did not follow saved revejente choice');
-          assert.ok((await taskFox.evaluate(el=>getComputedStyle(el,'::after').content)).includes('✿'),'Oppgavescene revejente has no visible profile marker');
+          const taskMarker=taskFox.locator('.task-profile-marker');
+          await taskMarker.waitFor({state:'visible'});
+          assert.equal((await taskMarker.textContent()).trim(),'✿','Oppgavescene revejente has no visible profile marker');
           await p.evaluate(()=>{state.activeSession=null;currentAnswered=null;setTab('home')});
           await p.locator('#home-screen.active .bc12').waitFor();
         }
