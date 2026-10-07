@@ -3386,6 +3386,7 @@ function openGlobe(mode='explore'){
   const next=mode==='mine'?'mine':'explore';
   globeMode=next;
   const openedAt=performance.now();
+  document.getElementById('world-screen')?.setAttribute('data-explore-release','explore-rc1');
   showScreen('world');
   document.getElementById('world-screen')?.setAttribute('data-opened-immediately','true');
 
