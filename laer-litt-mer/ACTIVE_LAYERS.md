@@ -20,7 +20,8 @@ Prompt 8 establishes the canonical active layer order. This file documents owner
 ## JavaScript load order
 Boot data before inline runtime:
 1. profile-avatars.js — synchronous profile avatar map
-2. norwegian-content.js — deferred content
+2. commercial-content-v18.js — synchronous Prompt 18 launch-depth supplements for Norwegian, Math and English
+3. norwegian-content.js — deferred canonical Norwegian content
 
 Deferred presentation/activity modules after inline runtime:
 1. fraction-lab.js
