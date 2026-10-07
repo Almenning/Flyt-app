@@ -345,4 +345,14 @@
     setYoungGeographyWorldFirst(false);
     return priorGeo();
   };
+  const priorOpenSubject=openSubject;
+  openSubject=function(subject){
+    const result=priorOpenSubject.apply(this,arguments);
+    if(journeyViewGrade(subject)<=2&&(subject==='math'||subject==='english')){
+      const host=document.getElementById('journey-map');
+      requestAnimationFrame(()=>requestAnimationFrame(()=>keepCurrentMissionVisible(host,false)));
+      setTimeout(()=>keepCurrentMissionVisible(host,false),180);
+    }
+    return result;
+  };
 })();
