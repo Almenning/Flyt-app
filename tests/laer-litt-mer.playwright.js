@@ -231,12 +231,15 @@ async function finishSession(page){
 
           await p.evaluate(()=>setTab('home'));
           await p.locator('#home-screen.active .bc12').waitFor();
-          await p.evaluate(()=>openSubject('english'));
+          await p.evaluate(()=>openSubject('norwegian'));
           await p.locator('#subject-screen.active').waitFor();
-          const traveler=p.locator('#subject-screen.active .premium-traveler');
+          const traveler=p.locator('#subject-screen.active .bok-v15-traveler');
           await traveler.waitFor({state:'visible'});
-          assert.equal(await traveler.getAttribute('data-avatar'),'girl','Reisen traveler did not follow saved revejente choice');
-          assert.ok((await traveler.evaluate(el=>getComputedStyle(el,'::after').content)).includes('✿'),'Reisen revejente has no visible profile marker');
+          const travelerImg=traveler.locator('.bok-v15-fox');
+          await travelerImg.waitFor({state:'visible'});
+          const travelerSrc=await travelerImg.getAttribute('src');
+          const expectedTravelerSrc=await p.evaluate(()=>window.LARIA_PROFILE_AVATARS?.girl||'./lia-fox-explorer-home.webp');
+          assert.equal(travelerSrc,expectedTravelerSrc,'Bokskogen traveler did not render the saved revejente artwork');
 
           await p.evaluate(()=>{
             sessionScope={type:'subject',subject:'norwegian',module:'reading',label:'Norsk',grade:2};
