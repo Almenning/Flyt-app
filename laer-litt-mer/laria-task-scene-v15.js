@@ -56,6 +56,9 @@
     return './lia-fox-explorer.webp';
   }
 
+  const PREMIUM_VISUAL_KEYS=Object.freeze(['🏠','🐱','🐶','📘','🍎','🚗','⛵','🌳','☀️','🌙','🐟','⚽']);
+  window.LARIA_TASK_PREMIUM_VISUALS=PREMIUM_VISUAL_KEYS.slice();
+
   function premiumIllustrationSvg(visual){
     const common='<ellipse cx="130" cy="158" rx="78" ry="12" fill="rgba(78,92,65,.12)"/>';
     const art={
@@ -77,11 +80,12 @@
   }
   function taskVisualMarkup(q){
     if(!q?.visual)return '';
-    const premium=premiumIllustrationSvg(String(q.visual).trim());
+    const key=String(q.visual).trim();
+    const premium=premiumIllustrationSvg(key);
     if(premium){
-      return '<div class="task-visual-row premium-visual"><div class="task-object-stage">'+premium+'</div></div>';
+      return '<div class="task-visual-row premium-visual" data-task-visual-kind="premium" data-task-visual-release="illustrations-rc1" data-task-visual-key="'+attr(key)+'"><div class="task-object-stage">'+premium+'</div></div>';
     }
-    return '<div class="task-visual-row"><div class="task-object-stage"><div class="task-emoji-sticker" aria-hidden="true">'+text(q.visual)+'</div></div></div>';
+    return '<div class="task-visual-row" data-task-visual-kind="fallback" data-task-visual-key="'+attr(key)+'"><div class="task-object-stage"><div class="task-emoji-sticker" aria-hidden="true">'+text(q.visual)+'</div></div></div>';
   }
 
   function answerLayout(q){
@@ -106,6 +110,7 @@
     screen.dataset.taskBand=taskBand();
     screen.dataset.taskSceneVersion='15';
     screen.dataset.taskSceneRelease='task-rc1';
+    screen.dataset.taskIllustrationRelease='illustrations-rc1';
     document.body.classList.add('laria-task-scene-open');
     closeButton.innerHTML='<span aria-hidden="true">‹</span><span>Hjem</span>';
     closeButton.setAttribute('aria-label','Tilbake til faget');
@@ -116,6 +121,7 @@
     delete screen.dataset.taskBand;
     delete screen.dataset.taskSceneVersion;
     delete screen.dataset.taskSceneRelease;
+    delete screen.dataset.taskIllustrationRelease;
     document.body.classList.remove('laria-task-scene-open');
     closeButton.textContent='×';
     closeButton.setAttribute('aria-label','Avslutt');
