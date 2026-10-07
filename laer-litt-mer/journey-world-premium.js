@@ -168,11 +168,18 @@
     const screen=document.getElementById(geo?'geography-screen':'subject-screen');
     const target=host.querySelector('.premium-place.is-next');
     if(!screen?.classList.contains('active')||!target)return;
-    const rect=target.getBoundingClientRect();
     const viewport=window.innerHeight||document.documentElement.clientHeight||800;
-    const safeTop=Math.max(74,viewport*.16),safeBottom=viewport*.78;
-    if(rect.top>=safeTop&&rect.bottom<=safeBottom)return;
-    target.scrollIntoView({block:'center',inline:'nearest',behavior:'auto'});
+    const position=()=>{
+      const rect=target.getBoundingClientRect();
+      const safeTop=Math.max(74,viewport*.16),safeBottom=viewport*.78;
+      if(rect.top>=safeTop&&rect.bottom<=safeBottom)return true;
+      const delta=rect.top-viewport*.48;
+      window.scrollTo({top:Math.max(0,window.scrollY+delta),behavior:'auto'});
+      const after=target.getBoundingClientRect();
+      return after.top>=0&&after.top<viewport;
+    };
+    if(position())return;
+    [50,140,320].forEach(delay=>setTimeout(()=>{if(screen.classList.contains('active'))position()},delay));
   }
 
   function journeyLandmarkKind(node,i){
