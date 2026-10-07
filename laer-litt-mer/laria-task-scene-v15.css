@@ -428,6 +428,19 @@ body.laria-task-scene-open #bottom-nav{
 #session-screen.task-scene .task-fox-companion:after{
   width:6px;height:14px;right:12px;top:5px;transform:rotate(8deg);
 }
+#session-screen.task-scene .task-fox-companion.fox-correct{
+  animation:taskFoxCorrect .58s cubic-bezier(.2,.82,.25,1);
+}
+@keyframes taskFoxCorrect{
+  0%{transform:translateY(0) rotate(0)}
+  28%{transform:translateY(-9px) rotate(-2deg)}
+  52%{transform:translateY(-2px) rotate(2deg)}
+  76%{transform:translateY(-5px) rotate(-1deg)}
+  100%{transform:translateY(0) rotate(0)}
+}
+@media (prefers-reduced-motion:reduce){
+  #session-screen.task-scene .task-fox-companion.fox-correct{animation:none}
+}
 #session-screen.task-scene .text-only .task-fox-companion,
 #session-screen.task-scene .has-passage .task-fox-companion{
   top:78px;
