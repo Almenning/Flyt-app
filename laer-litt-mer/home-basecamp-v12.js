@@ -79,12 +79,28 @@ function markup(){return '<section class="bc12" data-release="basecamp-rc1" aria
  '<i class="bc12-spark a" aria-hidden="true"></i><i class="bc12-spark b" aria-hidden="true"></i><i class="bc12-spark c" aria-hidden="true"></i>'+
  '<nav class="bc12-nav" aria-label="Læria hovedmeny">'+[['home','Hjem'],['travel','Reisen'],['explore','Utforsk'],['collection','Samlingen']].map(([a,t])=>'<button data-camp="'+a+'"><span aria-hidden="true">'+icons[a]+'</span>'+t+'</button>').join('')+'</nav></section>';
 }
+function runCampAction(action){
+ if(!action)return;
+ if(action==='home'||action==='explore')home(action);
+ else if(action==='travel')travel();
+ else if(action==='quest'||action==='collection')dialog(action);
+ else activity(action);
+}
+function bindCampControls(host){
+ if(!host||host.dataset.controlsBound==='true')return;
+ host.dataset.controlsBound='true';
+ host.querySelectorAll('[data-camp]').forEach(control=>{
+  control.addEventListener('click',e=>{
+   e.preventDefault();
+   runCampAction(control.dataset.camp);
+  });
+ });
+}
 function render(){
  const screen=document.getElementById('home-screen');if(!screen)return;
  let host=screen.querySelector('.bc12');
- if(!host){screen.insertAdjacentHTML('afterbegin',markup());host=screen.querySelector('.bc12');
-  host.addEventListener('click',e=>{const action=e.target.closest('[data-camp]')?.dataset.camp;if(!action)return;if(action==='home'||action==='explore')home(action);else if(action==='travel')travel();else if(action==='quest'||action==='collection')dialog(action);else activity(action)});
- }
+ if(!host){screen.insertAdjacentHTML('afterbegin',markup());host=screen.querySelector('.bc12');}
+ bindCampControls(host);
  host.hidden=!young();if(!young())return;
  host.dataset.mode=mode;
  const profile=(typeof state!=='undefined'&&state?.profile)?state.profile:{};
