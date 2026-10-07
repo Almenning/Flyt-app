@@ -1,11 +1,13 @@
 /* Læria basecamp v12 + Ordjakt: local browser regression and responsive touch checks. */
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
-const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
+const {chromium,webkit}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
 (async()=>{
- const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
  const screenshots=process.env.QA_SCREENSHOTS||'/tmp/laria-v12-qa';fs.mkdirSync(screenshots,{recursive:true});
  const errors=[];
+ const engines=[['chromium',chromium],['webkit',webkit]];
+ for(const [engineName,engine] of engines){
+ const browser=await engine.launch({headless:true,args:engineName==='chromium'?['--no-sandbox']:[]});
  for(const [name,width,height] of [['ipad-landscape',1180,820],['ipad-portrait',820,1180],['iphone',390,844],['small-phone',320,568],['desktop',1024,768]]){
   const context=await browser.newContext({viewport:{width,height},hasTouch:true,reducedMotion:'reduce',serviceWorkers:'block'});
   const page=await context.newPage();page.on('pageerror',e=>errors.push(name+': '+e.message));
@@ -61,8 +63,10 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
   const rcTouch=await page.locator('.bc12-nav button').evaluateAll(els=>els.map(el=>({w:el.getBoundingClientRect().width,h:el.getBoundingClientRect().height})));
   assert.ok(rcTouch.every(x=>x.w>=44&&x.h>=44),name+' RC navigation has undersized touch targets: '+JSON.stringify(rcTouch));
   assert.equal(await page.evaluate(()=>state.profile.grade),2);
-  console.log(name+': basecamp, real Ordjakt, routes, returns, optional quest, collection and explore passed');
+  console.log(engineName+' '+name+': basecamp, real Ordjakt, routes, returns, optional quest, collection and explore passed');
   await context.close();
  }
- assert.deepEqual(errors,[],'No JS errors');await browser.close();
+ await browser.close();
+ }
+ assert.deepEqual(errors,[],'No JS errors');
 })().catch(e=>{console.error(e);process.exit(1)});
