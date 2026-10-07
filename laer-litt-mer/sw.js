@@ -10,9 +10,9 @@ const SHELL=[
   // Labs
   './laria-foundation-v1.css?v=20261006-p8foundation1',
   './fraction-lab.css?v=20261006-assets1',
-  './fraction-lab.js?v=20261006-assets1',
+  './fraction-lab.js?v=20261007-return1',
   './multiplication-lab.css?v=20261006-assets1',
-  './multiplication-lab.js?v=20261006-assets1',
+  './multiplication-lab.js?v=20261007-return1',
   // Journey / Bokskogen
   './bokskogen-world.css?v=20261006-assets1',
   './bokskogen-world.js?v=20261007-p10rc1',
@@ -22,7 +22,7 @@ const SHELL=[
   // Home
   './home-premium.css?v=20261006-p8foundation1',
   './home-basecamp-v12.css?v=20261007-p9rc4',
-  './home-basecamp-v12.js?v=20261007-safari2',
+  './home-basecamp-v12.js?v=20261007-return1',
   // Free play
   './word-hunt.css?v=20261006-assets1',
   './word-hunt.js?v=20261006-assets1',
