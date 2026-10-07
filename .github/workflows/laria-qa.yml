@@ -64,5 +64,19 @@ jobs:
           QA_WEBKIT_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
         run: node tests/laria-basecamp-v12.cjs
 
+      - name: Prompt 17 visual/device hardening matrix
+        env:
+          QA_SCREENSHOTS: /tmp/laria-device-hardening
+        run: node tests/laria-device-hardening.playwright.js
+
+      - name: Upload Prompt 17 device screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-device-hardening-${{ github.sha }}
+          path: /tmp/laria-device-hardening
+          if-no-files-found: warn
+          retention-days: 7
+
       - name: Full browser regression suite
         run: npm run test:browser
