@@ -1,5 +1,7 @@
 name: Laria QA
 
+# Verification branch: exercises the exact-head Laria gate before closing the performance blocker.
+
 on:
   push:
     branches: [main]
