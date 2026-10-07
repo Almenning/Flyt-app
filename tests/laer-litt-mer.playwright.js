@@ -102,6 +102,44 @@ async function finishSession(page){
   const browser=await chromium.launch({headless:true,...(process.env.LEARNING_CHROME_PATH?{executablePath:process.env.LEARNING_CHROME_PATH}:{})});
   const errors=[];
   try{
+    // Performance/stability blocker: cold mobile startup and Home -> Globe must stay off heavy/network critical paths.
+    {
+      const perfContext=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,serviceWorkers:'block'});
+      const perfPage=await perfContext.newPage();
+      const seed={version:7,progressSchemaVersion:3,profile:{grade:2,onboarded:true,name:'Testbarn',avatar:'boy',setupVersion:2},mastery:{},mistakes:{},skillMastery:{},skillMistakes:{},skillLastSeen:{},masteryEvidence:{},skillEvidence:{},preferences:{sound:false,autoRead:false},lastMilestone:null,recentCountryWin:null,lastActivity:null,journey:{nodes:{},gradeWins:{},viewGrades:{}},answerLog:[],sessionLog:[],activeSession:null};
+      await perfPage.addInitScript(s=>localStorage.setItem('laerlittmer-v2',JSON.stringify(s)),seed);
+      const requests=[];
+      perfPage.on('request',req=>requests.push(req.url()));
+      await perfPage.route('https://raw.githubusercontent.com/**',route=>route.abort());
+      await perfPage.route('https://api.worldbank.org/**',route=>route.abort());
+
+      const coldStart=Date.now();
+      await perfPage.goto(url+'?app=laria&perfqa='+Date.now(),{waitUntil:'domcontentloaded'});
+      await perfPage.locator('.bc12').waitFor({state:'visible',timeout:3000});
+      const homeInteractiveMs=Date.now()-coldStart;
+      assert.ok(homeInteractiveMs<3000,'mobile Home took too long to become interactive: '+homeInteractiveMs+'ms');
+
+      const tapStart=Date.now();
+      await perfPage.locator('.bc12-place[data-camp="globe"]').tap();
+      await perfPage.locator('#world-screen.active').waitFor({timeout:1000});
+      const screenSwitchMs=Date.now()-tapStart;
+      assert.ok(screenSwitchMs<750,'Home -> Globe screen switch too slow: '+screenSwitchMs+'ms');
+
+      await perfPage.waitForFunction(()=>{
+        const c=document.getElementById('globe-canvas');
+        return !!(c&&c._cssW&&c._cssH&&Number(c._cssW)>=280&&Number(c._cssH)>=280);
+      },null,{timeout:1500});
+      const globeReadyMs=Number(await perfPage.locator('#world-screen').getAttribute('data-globe-ready-ms'));
+      assert.ok(Number.isFinite(globeReadyMs)&&globeReadyMs<1500,'Globe canvas readiness too slow: '+globeReadyMs+'ms');
+
+      await perfPage.waitForTimeout(900);
+      const criticalRequests=requests.slice();
+      assert.equal(criticalRequests.some(x=>/geografi-verden\.png|matte-verden\.png|engelsk-verden\.png|bokskogen-verden\.png/.test(x)),false,'large 3 MB world art loaded on Home/Globe critical path');
+      assert.equal(criticalRequests.some(x=>x.includes('raw.githubusercontent.com')||x.includes('api.worldbank.org')),false,'external enrichment started before Globe interaction settled');
+      assert.equal(criticalRequests.some(x=>x.includes('basecamp-v11-mobile.webp')),true,'mobile Basecamp background was not requested/preloaded');
+      await perfContext.close();
+    }
+
     const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
     const page=await context.newPage();
     page.__base=url;
