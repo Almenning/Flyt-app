@@ -27,7 +27,10 @@ const {chromium,webkit}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
       bc12Hidden:document.querySelector('.bc12')?.hidden??null,
       profile:JSON.parse(localStorage.getItem('laerlittmer-v2')||'null')?.profile||null,
       ready:document.readyState,
-      bodyClass:document.body?.className||''
+      bodyClass:document.body?.className||'',
+      basecampDiag:window.LARIA_BASECAMP_DIAG||null,
+      basecampScript:[...document.scripts].find(s=>s.src.includes('home-basecamp-v12.js'))?.src||null,
+      basecampResource:performance.getEntriesByType('resource').filter(x=>String(x.name).includes('home-basecamp-v12.js')).map(x=>({name:x.name,duration:x.duration,transferSize:x.transferSize}))
     }));
     throw new Error(`Basecamp bootstrap failed: engine=${engineName} viewport=${name} state=${JSON.stringify(boot)} pageErrors=${JSON.stringify(errors.slice(-5))}; ${err.message}`);
   }
