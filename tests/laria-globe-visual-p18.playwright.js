@@ -67,16 +67,24 @@ async function capture(browserType,label,viewport){
       };
     });
     assert.equal(metrics.overflow,false,label+' horizontal overflow');
-    assert.ok(metrics.canvas.w>=Math.min(330,viewport.width*.72),label+' globe too narrow: '+metrics.canvas.w);
+    const minGlobeWidth=viewport.width<600?viewport.width*.84:viewport.width*.68;
+    assert.ok(metrics.canvas.w>=minGlobeWidth,label+' globe too narrow for locked composition: '+metrics.canvas.w+' < '+minGlobeWidth);
     assert.ok(metrics.canvas.h>=300,label+' globe too short: '+metrics.canvas.h);
     assert.ok(metrics.back.h>=44,label+' globe back control below 44px');
     assert.ok(metrics.mode.h>=44,label+' globe mode control below 44px');
     assert.equal(await page.locator('[data-globe-mode="explore"]').isVisible(),true);
     assert.equal(await page.locator('[data-globe-mode="mine"]').isVisible(),true);
+    assert.equal(await page.locator('[data-globe-mode="classic"]').isVisible(),true);
+    assert.equal(await page.locator('#globe-mode [data-globe-mode]').count(),3,label+' must expose Utforsk, Min verden and Kloden');
     assert.equal(await page.locator('#random-country').isVisible(),true);
     assert.equal(await page.locator('#reset-globe').isVisible(),true);
 
-    await page.screenshot({path:path.join(out,label+'.png'),fullPage:true});
+    for(const mode of ['explore','mine','classic']){
+      await page.locator('[data-globe-mode="'+mode+'"]').click();
+      await page.waitForTimeout(250);
+      assert.equal(await page.locator('[data-globe-mode="'+mode+'"]').getAttribute('class').then(x=>(x||'').includes('active')),true,label+' '+mode+' mode did not activate');
+      await page.screenshot({path:path.join(out,label+'-'+mode+'.png'),fullPage:true});
+    }
     fs.writeFileSync(path.join(out,label+'.json'),JSON.stringify(metrics,null,2));
     assert.deepEqual(errors,[],label+' page errors: '+errors.join('\n'));
     await ctx.close();
