@@ -68,9 +68,7 @@
     if(!wrap||wrap.dataset.foxReactionBound==='true')return;
     wrap.dataset.foxReactionBound='true';
     const sync=()=>{
-      window.requestAnimationFrame(()=>{
-        if(typeof currentAnswered!=='undefined'&&currentAnswered?.correct===true)reactFox(true);
-      });
+      if(typeof currentAnswered!=='undefined'&&currentAnswered?.correct===true)reactFox(true);
     };
     wrap.addEventListener('click',sync);
     wrap.addEventListener('keydown',e=>{if(e.key==='Enter')sync()});
