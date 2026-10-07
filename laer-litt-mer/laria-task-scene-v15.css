@@ -1563,7 +1563,7 @@ body.laria-task-scene-open .app:after{
   z-index:5;
   right:2px;
   top:4px;
-  display:grid;
+  display:grid!important;
   place-items:center;
   width:20px;
   height:20px;
