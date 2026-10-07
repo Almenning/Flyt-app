@@ -3408,7 +3408,6 @@ function openGlobe(mode='explore'){
     if((!canvas?._cssW||!canvas?._cssH)&&tries<6)requestAnimationFrame(ready);
     else if(canvas?._cssW&&canvas?._cssH){
       screen.dataset.globeReadyMs=String(Math.round(performance.now()-openedAt));
-      if(tries===1)scheduleQualityData();
     }
   };
   requestAnimationFrame(ready);
@@ -5963,7 +5962,10 @@ const MAP_BOUNDS={
 };
 function drawFlatCountry(ctx,c,project,fill,stroke='#fff'){const geom=c?._detailGeometry||c?.geometry;if(!geom)return;ctx.beginPath();for(const poly of geometryPolygons(geom)){for(const ring of poly){let first=true,last=null,step=Math.max(1,Math.floor(ring.length/450));for(let i=0;i<ring.length;i+=step){const p=project(ring[i][0],ring[i][1]);if(!p)continue;if(first){ctx.moveTo(p[0],p[1]);first=false}else ctx.lineTo(p[0],p[1]);last=p}if(step>1&&ring.length){const p=project(ring[ring.length-1][0],ring[ring.length-1][1]);if(p&&last)ctx.lineTo(p[0],p[1])}ctx.closePath()}}ctx.fillStyle=fill;ctx.strokeStyle=stroke;ctx.lineWidth=1.2;ctx.fill();ctx.stroke()}
 function quizBounds(q){if(q.mapIds?.length===NORDIC_IDS.length&&NORDIC_IDS.every(id=>q.mapIds.includes(id)))return MAP_BOUNDS.Norden;return MAP_BOUNDS[q.mapRegion]||MAP_BOUNDS[countries[q.k]?.continent]||MAP_BOUNDS.Europa}
-function renderQuizMap(q,answered=currentAnswered){const canvas=document.getElementById('quiz-map-canvas');if(!canvas)return;const rect=canvas.getBoundingClientRect(),w=Math.max(300,rect.width||390),h=Math.max(280,rect.height||320),dpr=Math.min(2,window.devicePixelRatio||1);canvas.width=w*dpr;canvas.height=h*dpr;const ctx=canvas.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);const bounds=quizBounds(q),pad=15,ids=(q.mapIds||[]).filter(id=>countries[id]);const project=(lon,lat)=>{const xlon=normalizeLon(lon,bounds.ref);if(xlon<bounds.minLon-6||xlon>bounds.maxLon+6||lat<bounds.minLat-6||lat>bounds.maxLat+6)return null;return [pad+(xlon-bounds.minLon)/(bounds.maxLon-bounds.minLon)*(w-pad*2),pad+(bounds.maxLat-lat)/(bounds.maxLat-bounds.minLat)*(h-pad*2)]};
+function renderQuizMap(q,answered=currentAnswered){const canvas=document.getElementById('quiz-map-canvas');if(!canvas)return;
+  if(!qualityStatus.map&&!qualityDataPromise){
+    loadQualityData().then(()=>{if(document.getElementById('quiz-map-canvas')===canvas)renderQuizMap(q,answered)}).catch(()=>{});
+  }const rect=canvas.getBoundingClientRect(),w=Math.max(300,rect.width||390),h=Math.max(280,rect.height||320),dpr=Math.min(2,window.devicePixelRatio||1);canvas.width=w*dpr;canvas.height=h*dpr;const ctx=canvas.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);const bounds=quizBounds(q),pad=15,ids=(q.mapIds||[]).filter(id=>countries[id]);const project=(lon,lat)=>{const xlon=normalizeLon(lon,bounds.ref);if(xlon<bounds.minLon-6||xlon>bounds.maxLon+6||lat<bounds.minLat-6||lat>bounds.maxLat+6)return null;return [pad+(xlon-bounds.minLon)/(bounds.maxLon-bounds.minLon)*(w-pad*2),pad+(bounds.maxLat-lat)/(bounds.maxLat-bounds.minLat)*(h-pad*2)]};
   const g=ctx.createLinearGradient(0,0,0,h);g.addColorStop(0,'#BDE9F4');g.addColorStop(1,'#D9F5F2');ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
   for(const id of ids){let fill='#BFD7A2';if(answered&&id===q.answer)fill='#62BB88';else if(answered&&id===answered.selected)fill='#E99388';drawFlatCountry(ctx,countries[id],project,fill)}
   for(const id of ids){const c=countries[id];if(!isTinyCountry(c)&&c.geometry)continue;const p=project(c.lon,c.lat);if(!p)continue;ctx.beginPath();ctx.arc(p[0],p[1],answered&&id===q.answer?6:4,0,Math.PI*2);ctx.fillStyle=answered&&id===q.answer?'#62BB88':answered&&id===answered.selected?'#E99388':'#FFF2A9';ctx.fill();ctx.strokeStyle='rgba(60,70,90,.4)';ctx.stroke()}
