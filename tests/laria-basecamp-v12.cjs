@@ -69,6 +69,7 @@ const {chromium,webkit}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
     const openMs=Date.now()-actionStarted;
     assert.ok(openMs<900,'iphone Home -> globe took too long: '+openMs+'ms');
     await page.locator('#globe-canvas').waitFor({state:'visible',timeout:1500});
+    await page.waitForFunction(()=>Number(document.getElementById('world-screen')?.dataset.globeReadyMs||0)>0,null,{timeout:900});
     const globeState=await page.evaluate(()=>({
       cssW:document.getElementById('globe-canvas')?._cssW||0,
       cssH:document.getElementById('globe-canvas')?._cssH||0,
