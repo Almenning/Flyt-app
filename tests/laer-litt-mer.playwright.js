@@ -239,7 +239,12 @@ async function finishSession(page){
       };
       const migrationContext=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,serviceWorkers:'block'});
       const migrationPage=await migrationContext.newPage();
-      await migrationPage.addInitScript(seed=>localStorage.setItem('laerlittmer-v2',JSON.stringify(seed)),migrationSeed);
+      await migrationPage.addInitScript(seed=>{
+        const marker='prompt15-migration-seeded';
+        if(localStorage.getItem(marker)==='1')return;
+        localStorage.setItem('laerlittmer-v2',JSON.stringify(seed));
+        localStorage.setItem(marker,'1');
+      },migrationSeed);
       await migrationPage.route('https://raw.githubusercontent.com/**',r=>r.fulfill({status:200,contentType:'application/json',body:'{"type":"FeatureCollection","features":[]}'}));
       await migrationPage.route('https://api.worldbank.org/**',r=>r.fulfill({status:200,contentType:'application/json',body:'[{},[]]'}));
       await migrationPage.goto(url+'?app=laria&prompt15=migration',{waitUntil:'domcontentloaded'});
