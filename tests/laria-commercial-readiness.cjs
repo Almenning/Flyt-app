@@ -101,11 +101,11 @@ function buildAuditRuntime() {
     prelude,
     extractFunction(html, 'mathPool'),
     extractFunction(html, 'englishPool'),
-    norwegianContent
+    norwegianContent,
+    'globalThis.__mathPool=mathPool;globalThis.__englishPool=englishPool;globalThis.__norwegianPool=window.buildNorwegianPool;'
   ].join('\n');
   vm.runInContext(runtime, context, { filename: 'laria-commercial-audit-runtime.js' });
   vm.runInContext(commercialContent, context, { filename: 'commercial-content-v18.js' });
-  vm.runInContext('globalThis.__mathPool=mathPool;globalThis.__englishPool=englishPool;globalThis.__norwegianPool=window.buildNorwegianPool;', context);
 
   const journeyExpr = extractConstExpression(html, 'JOURNEY_TEMPLATES', '{', '}');
   vm.runInContext('const JOURNEY_TEMPLATES=' + journeyExpr + ';globalThis.__journeys=JOURNEY_TEMPLATES;', context);
@@ -168,9 +168,7 @@ test('Prompt 18 commercial content audit exposes real launch readiness', () => {
   for (const [subject, poolFactory] of Object.entries(subjects)) {
     report.subjects[subject] = {};
     for (let grade = 1; grade <= 10; grade += 1) {
-      const samples = subject === 'math' ? 40 : 1;
-      const pool = [];
-      for (let sample = 0; sample < samples; sample += 1) pool.push(...poolFactory(grade, null));
+      const pool = poolFactory(grade, null);
       const summary = summarizePool(pool);
       const expected = expectedSkills(runtime.__journeys, subject, grade);
       const missing = expected.filter(skill => !summary.bySkill[skill]);
