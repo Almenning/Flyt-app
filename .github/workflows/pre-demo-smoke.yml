@@ -40,14 +40,14 @@ jobs:
       - name: Run Basecamp interaction verification in Chromium and WebKit
         if: always()
         env:
-          QA_URL: http://127.0.0.1:8765/laer-litt-mer/
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
         shell: bash
         run: |
           python3 -m http.server 8765 --directory . >/tmp/laria-basecamp-server.log 2>&1 &
           server_pid=$!
           trap 'kill "$server_pid" 2>/dev/null || true' EXIT
           for i in {1..20}; do
-            if curl -fsS http://127.0.0.1:8765/laer-litt-mer/ >/dev/null; then break; fi
+            if curl -fsS 'http://127.0.0.1:8765/laer-litt-mer/?app=laria' >/dev/null; then break; fi
             sleep 0.5
           done
           node tests/laria-basecamp-v12.cjs
