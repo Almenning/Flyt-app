@@ -13,7 +13,9 @@ const {chromium,webkit}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
   const page=await context.newPage();page.on('pageerror',e=>errors.push(engineName+' '+name+': '+e.message));
   const seed={version:7,progressSchemaVersion:3,profile:{grade:2,onboarded:true,name:'Testbarn',avatar:'boy',setupVersion:2},mastery:{},mistakes:{},skillMastery:{},skillMistakes:{},skillLastSeen:{},masteryEvidence:{},skillEvidence:{},preferences:{sound:false,autoRead:false},lastMilestone:null,recentCountryWin:null,lastActivity:null,journey:{nodes:{},gradeWins:{},viewGrades:{}},answerLog:[],sessionLog:[],activeSession:null};
   await page.addInitScript(s=>localStorage.setItem('laerlittmer-v2',JSON.stringify(s)),seed);
-  const targetUrl=process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/';
+  const localUrl=process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria';
+  const publishedUrl=process.env.QA_WEBKIT_URL||'https://almenning.github.io/Flyt-app/laer-litt-mer/?app=laria';
+  const targetUrl=(engineName==='webkit'?publishedUrl:localUrl)+(engineName==='webkit'?(publishedUrl.includes('?')?'&':'?')+'basecampqa='+Date.now():'');
   console.log('[basecamp]',engineName,name,'goto',targetUrl);
   await page.goto(targetUrl,{waitUntil:'networkidle'});
   try{
