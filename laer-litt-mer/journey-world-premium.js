@@ -47,6 +47,14 @@
   }
 
 
+  function activateWorldImages(host,geo){
+    const screen=document.getElementById(geo?'geography-screen':'subject-screen');
+    if(!screen?.classList.contains('active'))return;
+    host.querySelectorAll('img[data-world-src]').forEach(img=>{
+      if(!img.getAttribute('src'))img.setAttribute('src',img.dataset.worldSrc);
+    });
+  }
+
   function installWorldDepthMotion(host){
     if(host._premiumWorldMotionCleanup)host._premiumWorldMotionCleanup();
     const world=host.querySelector('.premium-world');
@@ -237,13 +245,13 @@
     host.dataset.journeySubject=subject;
     host.dataset.journeyCoreStops=String(route.length);
     host.innerHTML='<section class="premium-world premium-'+subject+' premium-world-depth-ready'+(prog.done>0?' has-progress':'')+(prog.complete?' is-complete':'')+(reaction?' is-progress-reaction':'')+'" style="--world-progress:'+prog.pct+';--focus-x:'+cx+'%;--focus-y:'+cy+'%" aria-label="'+esc(config.name+', interaktiv læringsverden')+'">'+
-      '<div class="premium-world-depth-layer premium-world-distant-layer" data-world-depth="0.14" aria-hidden="true"><img class="premium-world-depth-art premium-world-depth-art-distant" src="./'+config.image+'" alt="" draggable="false" decoding="async">'+journeyAmbientMarkup()+'</div>'+
+      '<div class="premium-world-depth-layer premium-world-distant-layer" data-world-depth="0.14" aria-hidden="true"><img class="premium-world-depth-art premium-world-depth-art-distant" data-world-src="./'+config.image+'" alt="" draggable="false" decoding="async">'+journeyAmbientMarkup()+'</div>'+
       '<div class="premium-world-depth-layer premium-world-midground-layer" data-world-depth="0.42">'+
-        '<img class="premium-world-art" src="./'+config.image+'" alt="" draggable="false" decoding="async">'+
+        '<img class="premium-world-art" data-world-src="./'+config.image+'" alt="" draggable="false" decoding="async">'+
         '<div class="premium-world-relief" aria-hidden="true"><i class="relief-a"></i><i class="relief-b"></i><i class="relief-c"></i></div>'+
         routeOverlay+reactionFx+medals+buttons+traveler+
       '</div>'+
-      '<div class="premium-world-depth-layer premium-world-foreground-layer" data-world-depth="0.82" aria-hidden="true"><img class="premium-world-depth-art premium-world-depth-art-foreground" src="./'+config.image+'" alt="" draggable="false" decoding="async"><i class="premium-foreground-vignette"></i><div class="premium-world-foreground-life"><i></i><i></i><i></i></div></div>'+
+      '<div class="premium-world-depth-layer premium-world-foreground-layer" data-world-depth="0.82" aria-hidden="true"><img class="premium-world-depth-art premium-world-depth-art-foreground" data-world-src="./'+config.image+'" alt="" draggable="false" decoding="async"><i class="premium-foreground-vignette"></i><div class="premium-world-foreground-life"><i></i><i></i><i></i></div></div>'+
       '<div class="premium-world-frontier" aria-hidden="true"><i class="frontier-haze"></i><i class="frontier-focus"></i><i class="frontier-ring"></i></div>'+
       '<div class="premium-world-shade" aria-hidden="true"></div><div class="premium-world-mist" style="--mist-top:'+Math.max(0,cy-13)+'%" aria-hidden="true"></div>'+
       '<div class="premium-world-sparkles" aria-hidden="true"></div>'+
@@ -251,6 +259,7 @@
       '<div class="premium-world-title"><small>'+esc(SUBJECTS[subject]?.title||'Geografi')+' · '+esc(GRADE_CONFIG[grade].label)+'</small><strong>'+esc(config.name)+'</strong></div>'+
       '<div class="premium-world-grade-menu" hidden></div>'+
       '<div class="premium-world-sheet-back" hidden></div><section class="premium-world-sheet" role="dialog" aria-modal="true" aria-label="Oppdragssted" hidden></section></section><div class="premium-side-dock" aria-label="Ekstra oppdrag">'+sides+'</div>';
+    activateWorldImages(host,geo);
     installWorldDepthMotion(host);
     requestAnimationFrame(()=>animatePremiumTravelerJourney(host));
     const worldBack=host.querySelector('.premium-world-back');
