@@ -870,3 +870,179 @@ html:has(#world-screen.active){
     --g24-globe-top:50.4dvh;
   }
 }
+
+
+/* v30: clean live scene. Never use the approved UI mockup as a runtime background. */
+#world-screen.active.globe-v30{
+  --g24-globe:min(72dvh,74vw,920px);
+  --g24-globe-top:50.5dvh;
+  background:
+    linear-gradient(180deg,rgba(40,104,116,.05),rgba(26,65,48,.10)),
+    url('./basecamp-v11.webp?v=globe30') center/cover no-repeat!important;
+}
+
+#world-screen.active.globe-v30::before{
+  background:
+    radial-gradient(circle at 50% 49%,rgba(255,255,255,0) 0 44%,rgba(21,52,42,.05) 74%,rgba(15,37,30,.14) 100%),
+    linear-gradient(180deg,rgba(255,248,220,.02),rgba(18,49,38,.08))!important;
+}
+
+#world-screen.active.globe-v30 .premium-globe-header::before{
+  background:linear-gradient(90deg,#fff8e8 0%,rgba(255,248,232,.94) 52%,rgba(244,231,202,.82) 100%)!important;
+  opacity:1!important;
+}
+
+#world-screen.active.globe-v30 .premium-globe-fox{
+  right:clamp(14px,2vw,28px)!important;
+  bottom:-2px!important;
+  width:clamp(88px,10.5vw,132px)!important;
+  height:auto!important;
+  object-fit:contain!important;
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+}
+
+#world-screen.active.globe-v30 .globe-wrap{
+  width:var(--g24-globe)!important;
+  height:var(--g24-globe)!important;
+}
+
+#world-screen.active.globe-v30 .globe-zoom{
+  right:calc(-1 * clamp(58px,6.5vw,82px))!important;
+  top:18%!important;
+  gap:12px!important;
+}
+
+#world-screen.active.globe-v30 .globe-zoom button{
+  width:clamp(54px,5.8vw,64px)!important;
+  height:clamp(54px,5.8vw,64px)!important;
+  border-radius:18px!important;
+  border:2px solid #a66d31!important;
+  background:linear-gradient(180deg,#fffdf5,#f1deb4)!important;
+  box-shadow:0 5px 0 #87552b,0 11px 20px rgba(45,35,24,.18)!important;
+}
+
+#world-screen.active.globe-v30 .globe-status{
+  grid-template-columns:auto minmax(0,1fr) auto!important;
+  gap:12px!important;
+  min-height:92px!important;
+  padding:10px 14px!important;
+}
+
+#world-screen.active.globe-v30 .premium-country-main,
+#world-screen.active.globe-v30 .premium-country-scene-wrap,
+#world-screen.active.globe-v30 .premium-country-scene{
+  display:none!important;
+}
+
+#world-screen.active.globe-v30 .premium-country-facts{
+  display:flex!important;
+  flex-wrap:wrap!important;
+  gap:6px!important;
+  margin-top:6px!important;
+}
+
+#world-screen.active.globe-v30 .premium-country-facts span{
+  display:inline-flex!important;
+  align-items:center!important;
+  min-height:25px!important;
+  padding:4px 8px!important;
+  border:1px solid #e5cb94!important;
+  border-radius:999px!important;
+  background:#fff8e7!important;
+  color:#5d462e!important;
+  font:900 clamp(8px,.9vw,11px)/1 system-ui,-apple-system,sans-serif!important;
+  white-space:nowrap!important;
+}
+
+#world-screen.active.globe-v30 .globe-country-tagline{
+  display:block!important;
+  margin-top:6px!important;
+  color:#6b5338!important;
+  font:850 clamp(9px,.9vw,11px)/1.25 system-ui,-apple-system,sans-serif!important;
+  white-space:normal!important;
+}
+
+#world-screen.active.globe-v30 .premium-country-learn{
+  min-width:clamp(118px,13vw,160px)!important;
+  min-height:54px!important;
+  border-radius:17px!important;
+}
+
+@media (orientation:portrait){
+  #world-screen.active.globe-v30{
+    --g24-globe:min(98vw,57dvh,720px);
+    --g24-globe-top:47.5dvh;
+    background:
+      linear-gradient(180deg,rgba(64,156,170,.06),rgba(25,69,53,.14)),
+      url('./basecamp-v11-mobile.webp?v=globe30') center/cover no-repeat!important;
+  }
+  #world-screen.active.globe-v30 .globe-zoom{
+    right:1.5%!important;
+    top:20%!important;
+  }
+  #world-screen.active.globe-v30 .globe-zoom button{
+    width:48px!important;
+    height:48px!important;
+    border-radius:15px!important;
+    font-size:22px!important;
+  }
+  #world-screen.active.globe-v30 .globe-status{
+    left:6px!important;
+    right:6px!important;
+    bottom:calc(58px + env(safe-area-inset-bottom))!important;
+    transform:none!important;
+    width:auto!important;
+    min-height:100px!important;
+    grid-template-columns:auto minmax(0,1fr) auto!important;
+    gap:7px!important;
+    padding:8px!important;
+  }
+  #world-screen.active.globe-v30 .premium-country-facts{gap:4px!important;margin-top:4px!important}
+  #world-screen.active.globe-v30 .premium-country-facts span{
+    min-height:21px!important;
+    padding:3px 6px!important;
+    font-size:7.8px!important;
+  }
+  #world-screen.active.globe-v30 .globe-country-tagline{font-size:7.8px!important;margin-top:4px!important}
+  #world-screen.active.globe-v30 .premium-country-learn{
+    min-width:84px!important;
+    min-height:48px!important;
+    padding:0 8px!important;
+    font-size:10px!important;
+  }
+}
+
+@media (orientation:portrait) and (max-width:430px){
+  #world-screen.active.globe-v30{
+    --g24-globe:min(99vw,54.5dvh);
+    --g24-globe-top:46.9dvh;
+  }
+  #world-screen.active.globe-v30 .premium-country-learn span{display:none!important}
+  #world-screen.active.globe-v30 .premium-country-learn{min-width:48px!important;width:48px!important;padding:0!important}
+}
+
+@media (orientation:portrait) and (min-width:700px){
+  #world-screen.active.globe-v30{
+    --g24-globe:min(95vw,61dvh,880px);
+    --g24-globe-top:48.5dvh;
+  }
+  #world-screen.active.globe-v30 .globe-status{
+    left:14px!important;
+    right:14px!important;
+    min-height:104px!important;
+    bottom:calc(76px + env(safe-area-inset-bottom))!important;
+  }
+  #world-screen.active.globe-v30 .premium-country-learn{
+    min-width:120px!important;
+    min-height:56px!important;
+  }
+}
+
+@media (orientation:landscape) and (min-width:900px){
+  #world-screen.active.globe-v30{
+    --g24-globe:min(74dvh,72vw,960px);
+    --g24-globe-top:50.5dvh;
+  }
+}
