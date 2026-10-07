@@ -374,9 +374,10 @@ async function finishSession(page){
     assert.equal(await page.locator('#journey-map .premium-world-hud').count(),1);
     assert.equal(await page.locator('#journey-now-card').isVisible(),false);
     assert.equal(await page.locator('#journey-collection').isVisible(),false);
-    const worldImage=await page.locator('#journey-map .premium-world-art').evaluate(img=>img.complete&&img.naturalWidth>800);
-    assert.equal(worldImage,true,'math landscape artwork should load at useful resolution');
-    await page.waitForTimeout(450);
+    const worldArt=page.locator('#journey-map .premium-world-art');
+    assert.match(await worldArt.getAttribute('data-world-src'),/matte-verden\.png$/,'math world should keep the premium landscape source');
+    await page.waitForFunction(()=>{const img=document.querySelector('#journey-map .premium-world-art');return !!img?.getAttribute('src')&&img.complete&&img.naturalWidth>800},{timeout:4000});
+    await page.waitForTimeout(150);
     const mathNextPosition=await page.locator('#journey-map .premium-place.is-next').evaluate(el=>el.getBoundingClientRect().top);
     assert.ok(mathNextPosition>=0&&mathNextPosition<844,'Tallenga must open with the next mission in the mobile viewport');
     const firstNode=page.locator('#journey-map .premium-place.is-next');
