@@ -53,6 +53,16 @@ jobs:
       - name: Sync Læria iOS project
         run: npx cap sync ios
 
+      - name: Install Læria native branding
+        run: swift prepare-brand.swift
+
+      - name: Verify Læria native branding
+        run: |
+          test -s ios/App/App/Assets.xcassets/AppIcon.appiconset/AppIcon-512@2x.png
+          test -s ios/App/App/Assets.xcassets/Splash.imageset/splash-2732x2732.png
+          sips -g pixelWidth -g pixelHeight ios/App/App/Assets.xcassets/AppIcon.appiconset/AppIcon-512@2x.png | grep -q "1024"
+          sips -g pixelWidth -g pixelHeight ios/App/App/Assets.xcassets/Splash.imageset/splash-2732x2732.png | grep -q "2732"
+
       - name: Install StoreKit 2 bridge
         run: node prepare-storekit.mjs
 
