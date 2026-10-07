@@ -725,6 +725,27 @@ async function finishSession(page){
     const backHeight=await page.locator('#geo-journey-map .premium-world-back').evaluate(e=>e.getBoundingClientRect().height);
     assert.ok(backHeight>=44,`small back target: ${backHeight}`);
 
+    // Prompt 11: all four subjects must render through the same premium task scene contract.
+    async function assertTaskScene(subject, starter){
+      await page.evaluate(()=>setTab('home'));
+      await page.evaluate(s=>document.getElementById(s).click(),starter);
+      if(subject==='geography')await page.locator('#start-geography-theme').click();
+      else await page.locator('#start-subject-session').click();
+      await page.locator('#session-screen.active').waitFor();
+      assert.equal(await page.locator('#session-screen').getAttribute('data-task-scene-release'),'task-rc1',subject+' missing Prompt 11 task RC');
+      assert.equal(await page.locator('#session-screen').getAttribute('data-task-subject'),subject,subject+' wrong task-scene subject');
+      assert.equal(await page.locator('#session-screen').getAttribute('data-task-band'),'young',subject+' grade 2 should use young task specialization');
+      assert.equal(await page.locator('.laria-task-card').count(),1,subject+' should render exactly one premium task card');
+      assert.equal(await page.locator('.task-fox-companion img').count(),1,subject+' needs one in-world fox companion');
+      assert.match(await page.locator('.task-fox-companion img').getAttribute('src'),/lia-fox-explorer\.webp(?:\?|$)/,subject+' must use the dedicated scene mascot');
+      assert.ok((await page.locator('.answer,.letter-tile,.word-tile,.sequence-tile,#math-input,#quiz-map-canvas').count())>0,subject+' task scene has no active interaction');
+      await page.locator('#close-session').click();
+    }
+    await assertTaskScene('norwegian','#open-norwegian');
+    await assertTaskScene('english','#open-english');
+    await assertTaskScene('math','#open-math');
+    await assertTaskScene('geography','#open-geography');
+
     // First grade: capitals are intentionally hidden but Land still works.
     const context1=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
     const p1=await context1.newPage();p1.__base=url;
