@@ -7,6 +7,7 @@ const vm = require('node:vm');
 const ROOT = path.resolve(__dirname, '..');
 const html = fs.readFileSync(path.join(ROOT, 'laer-litt-mer', 'index.html'), 'utf8');
 const norwegianContent = fs.readFileSync(path.join(ROOT, 'laer-litt-mer', 'norwegian-content.js'), 'utf8');
+const commercialContent = fs.readFileSync(path.join(ROOT, 'laer-litt-mer', 'commercial-content-v18.js'), 'utf8');
 
 function extractFunction(source, name) {
   const marker = 'function ' + name + '(';
@@ -69,7 +70,7 @@ function buildAuditRuntime() {
     function shuffle(items){return Array.isArray(items)?items.slice():items}
     let __auditRandState=0x12345678;\n    function rand(min,max){\n      __auditRandState=(Math.imul(__auditRandState,1664525)+1013904223)>>>0;\n      const lo=Number(min),hi=Number(max);\n      return lo+(__auditRandState%(hi-lo+1));\n    }
     function choiceQuestion(subject,skill,prompt,answer,options,extra={}){
-      return Object.assign({subject,skill,type:'choice',prompt,answer:String(answer),options:(options||[]).map(String),curriculum:CURRICULUM[subject]},extra);
+      return Object.assign({subject,skill,type:'learning-choice',prompt,answer:String(answer),options:(options||[]).map(String),curriculum:CURRICULUM[subject]},extra);
     }
     function numberInputQuestion(skill,prompt,answer,extra={}){
       return Object.assign({subject:'math',skill,type:'number-input',prompt,answer:String(answer),curriculum:CURRICULUM.math},extra);
@@ -104,6 +105,7 @@ function buildAuditRuntime() {
     'globalThis.__mathPool=mathPool;globalThis.__englishPool=englishPool;globalThis.__norwegianPool=window.buildNorwegianPool;'
   ].join('\n');
   vm.runInContext(runtime, context, { filename: 'laria-commercial-audit-runtime.js' });
+  vm.runInContext(commercialContent, context, { filename: 'commercial-content-v18.js' });
 
   const journeyExpr = extractConstExpression(html, 'JOURNEY_TEMPLATES', '{', '}');
   vm.runInContext('const JOURNEY_TEMPLATES=' + journeyExpr + ';globalThis.__journeys=JOURNEY_TEMPLATES;', context);
@@ -150,10 +152,15 @@ function expectedSkills(journeys, subject, grade) {
 
 test('Prompt 18 commercial content audit exposes real launch readiness', () => {
   const runtime = buildAuditRuntime();
+  const supplement = runtime.LARIA_COMMERCIAL_CONTENT_V18 || {};
+  const withSupplement = (base, subject) => (grade, module) => [
+    ...base(grade, module),
+    ...(typeof supplement[subject] === 'function' ? supplement[subject](grade, module) : [])
+  ];
   const subjects = {
-    norwegian: runtime.__norwegianPool,
-    math: runtime.__mathPool,
-    english: runtime.__englishPool,
+    norwegian: withSupplement(runtime.__norwegianPool, 'norwegian'),
+    math: withSupplement(runtime.__mathPool, 'math'),
+    english: withSupplement(runtime.__englishPool, 'english'),
   };
 
   const report = { generatedAt: new Date().toISOString(), subjects: {}, geography: {}, blockers: [] };
@@ -182,6 +189,7 @@ test('Prompt 18 commercial content audit exposes real launch readiness', () => {
           message: 'Journey skill has fewer than five own unique questions and may borrow unrelated questions to fill a session.'
         });
       }
+      assert.deepEqual(thin, [], subject + ' grade ' + grade + ' has journey skills with fewer than five own questions: ' + JSON.stringify(thin));
     }
   }
 
@@ -190,7 +198,11 @@ test('Prompt 18 commercial content audit exposes real launch readiness', () => {
   const continentCounts = {};
   const countryProblems = [];
   for (const c of countries) {
-    if (!c || !c.id || !c.name || !c.capital || !c.continent) {
+    const disputedCapital = !!(c && !c.capital && /omstridt/i.test(String(c.note || '')));
+    const missingCore = !c || !c.id || !c.name || !c.continent || (!c.capital && !disputedCapital)
+      || !Number.isFinite(Number(c.lat)) || !Number.isFinite(Number(c.lon))
+      || !Number.isFinite(Number(c.population)) || Number(c.population) <= 0;
+    if (missingCore) {
       countryProblems.push(c && c.id ? c.id : '<unknown>');
       continue;
     }
