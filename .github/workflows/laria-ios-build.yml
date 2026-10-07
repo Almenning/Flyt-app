@@ -1,0 +1,68 @@
+name: Laria iOS build
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'laer-litt-mer/**'
+      - 'laria-native/**'
+      - '.github/workflows/laria-ios-build.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'laer-litt-mer/**'
+      - 'laria-native/**'
+      - '.github/workflows/laria-ios-build.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: laria-ios-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: macos-26
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: laria-native
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install pinned Capacitor dependencies
+        run: npm install --no-package-lock --ignore-scripts
+
+      - name: Stage Læria web app
+        run: npm run stage
+
+      - name: Generate dedicated iOS project
+        run: npx cap add ios
+
+      - name: Verify Læria native identity
+        run: |
+          grep -R "no.adspire.laria" ios/App/App.xcodeproj/project.pbxproj
+          grep -R "Læria" capacitor.config.json
+
+      - name: Sync Læria iOS project
+        run: npx cap sync ios
+
+      - name: Show Xcode version
+        run: xcodebuild -version
+
+      - name: Build Læria simulator target
+        run: >
+          xcodebuild
+          -project ios/App/App.xcodeproj
+          -scheme App
+          -configuration Debug
+          -destination 'generic/platform=iOS Simulator'
+          -derivedDataPath "${{ runner.temp }}/laria-native-qa/DerivedData"
+          CODE_SIGNING_ALLOWED=NO
+          build
