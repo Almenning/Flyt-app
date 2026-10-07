@@ -492,3 +492,27 @@
   .bc12[data-release="basecamp-rc1"] .bc12-journey{left:48%;width:48%}
   .bc12[data-release="basecamp-rc1"] .bc12-quest{width:39%}
 }
+
+
+/* Prompt 15 profile identity: keep the transparent in-world fox, but make the saved
+   revegutt/revejente choice visible without importing the portrait backgrounds. */
+.bc12-fox[data-avatar="boy"]::after,
+.bc12-fox[data-avatar="girl"]::after{
+  position:absolute;
+  z-index:5;
+  right:13%;
+  top:7%;
+  display:grid;
+  place-items:center;
+  width:clamp(20px,2.3vw,30px);
+  height:clamp(20px,2.3vw,30px);
+  border:2px solid rgba(255,255,255,.96);
+  border-radius:50%;
+  background:#fff8e8;
+  box-shadow:0 3px 7px rgba(45,54,42,.22);
+  font-size:clamp(11px,1.25vw,16px);
+  line-height:1;
+  pointer-events:none;
+}
+.bc12-fox[data-avatar="boy"]::after{content:"✦";color:#3979b7}
+.bc12-fox[data-avatar="girl"]::after{content:"✿";color:#d86f78;background:#fff3ef}
