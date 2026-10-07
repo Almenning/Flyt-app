@@ -53,6 +53,15 @@ jobs:
       - name: Sync Læria iOS project
         run: npx cap sync ios
 
+      - name: Install StoreKit 2 bridge
+        run: node prepare-storekit.mjs
+
+      - name: Verify subscription bridge
+        run: |
+          grep -R "LariaStorePlugin" ios/App/App/LariaStorePlugin.swift
+          grep -R "no.adspire.laria.monthly" ios/App/App/LariaStorePlugin.swift
+          grep -R "LariaBridgeViewController" ios/App/App/Base.lproj/Main.storyboard
+
       - name: Show Xcode version
         run: xcodebuild -version
 
