@@ -25,10 +25,11 @@ function extractFunction(source, name) {
 }
 
 function extractConstExpression(source, name, openChar, closeChar) {
-  const marker = 'const ' + name + '=';
-  const start = source.indexOf(marker);
+  const matcher = new RegExp('\\\\bconst\\\\s+' + name + '\\\\s*=');
+  const match = matcher.exec(source);
+  const start = match ? match.index : -1;
   assert.notEqual(start, -1, 'Missing const ' + name);
-  const open = source.indexOf(openChar, start + marker.length);
+  const open = source.indexOf(openChar, start + match[0].length);
   let depth = 0;
   let quote = null;
   let escaped = false;
