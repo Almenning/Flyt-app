@@ -524,22 +524,30 @@ function premiumDraw(){
   /* New map order:
      ocean -> continent surfaces -> terrain -> subtle borders -> integrated details.
      The old country-by-country tile renderer is gone from Utforsk/Min verden. */
+  const moving=window.__lariaGlobeInteracting===true;
   ocean(ctx,w,h,s);
   paintContinents(ctx,w,h,s);
 
-  ctx.save();
-  if(landClip(ctx,w,h))for(const t of TERRAIN)terrainPatch(ctx,w,h,s,t);
-  ctx.restore();
+  if(!moving){
+    ctx.save();
+    if(landClip(ctx,w,h))for(const t of TERRAIN)terrainPatch(ctx,w,h,s,t);
+    ctx.restore();
 
-  landRelief(ctx,w,h,s);
-  paintMasteryOverlay(ctx,w,h,s);
+    landRelief(ctx,w,h,s);
+    paintMasteryOverlay(ctx,w,h,s);
+  }
+
   paintCountryBorders(ctx,w,h,s);
-  waterDetails(ctx,w,h,s);
-  discoveryDetails(ctx,w,h,s);
-  const selectionAnimating=selectedHalo(ctx,w,h,s);
 
-  if(typeof globeMode==='string'&&globeMode==='mine'&&typeof WORLD_COUNTRIES!=='undefined'&&typeof drawMasteryMarker==='function'){
-    for(const c of WORLD_COUNTRIES)drawMasteryMarker(ctx,c,w,h);
+  let selectionAnimating=false;
+  if(!moving){
+    waterDetails(ctx,w,h,s);
+    discoveryDetails(ctx,w,h,s);
+    selectionAnimating=selectedHalo(ctx,w,h,s);
+
+    if(typeof globeMode==='string'&&globeMode==='mine'&&typeof WORLD_COUNTRIES!=='undefined'&&typeof drawMasteryMarker==='function'){
+      for(const c of WORLD_COUNTRIES)drawMasteryMarker(ctx,c,w,h);
+    }
   }
 
   let pulsing=false;
