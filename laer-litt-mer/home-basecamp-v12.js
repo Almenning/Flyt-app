@@ -34,6 +34,8 @@ function next(){
  const node=subject==='geography'?geoJourneyRecommendedNode(grade):journeyRecommendedNode(subject,grade);
  return {subject,grade,title:active?.label||(subject==='norwegian'?PLACES[node?.id]:null)||node?.title||'Bokskogen',active:!!active,pct:Number(progress?.pct||0),complete:!!progress?.complete};
 }
+       '<button class="bc12-adult-entry" type="button" data-camp-adult aria-label="Hold inne for voksenområdet">🔒 For voksne</button>'+
+
 function journeyCopy(info){
  if(info?.active)return 'Du har allerede startet. Reisen fortsetter der du slapp.';
  if(info?.subject==='geography')return 'Et nytt sted i verden venter.';
@@ -73,6 +75,8 @@ function destination(action,label,description){return '<button class="bc12-place
 function markup(){return '<section class="bc12" data-release="basecamp-rc1" aria-label="Læria basecamp">'+
  '<div class="bc12-landscape" aria-hidden="true"></div><div class="bc12-sun" aria-hidden="true"></div>'+
  '<header class="bc12-heading"><div class="bc12-brand">Læria<span>✦</span></div><h1>Hvor skal vi dra i dag?</h1><p data-camp-intro>Et nytt eventyr venter på deg.</p></header>'+
+  '<button class="bc12-adult-entry" type="button" data-camp-adult aria-label="Hold inne for voksenområdet">🔒 For voksne</button>'+
+
  '<div class="bc12-explore-ribbon"><span aria-hidden="true">🧭</span>Lek & utforsk</div><div class="bc12-destinations" aria-label="Lek og utforsk">'+destination('globe','Kloden','Oppdag verden')+destination('fraction','Brøklab','Del og eksperimenter')+destination('words','Ordjakt','Inn i Bokskogen')+destination('multiply','Gangetabell','Lek med tall')+'</div>'+
  '<div class="bc12-journey-route" aria-hidden="true"><svg viewBox="0 0 100 100" preserveAspectRatio="none"><path class="bc12-route-edge" d="M5 88 C25 82 27 62 46 64 S72 43 95 16"></path><path class="bc12-route-main" pathLength="100" d="M5 88 C25 82 27 62 46 64 S72 43 95 16"></path><path class="bc12-route-progress" pathLength="100" d="M5 88 C25 82 27 62 46 64 S72 43 95 16"></path></svg><span class="bc12-route-bridge"></span></div>'+
  '<div class="bc12-you-are-here" aria-hidden="true"><i></i><span>Du er her</span></div>'+
@@ -100,6 +104,19 @@ function bindCampControls(host){
    runCampAction(control.dataset.camp);
   });
  });
+  const adult=host.querySelector('[data-camp-adult]');
+ if(adult){
+  let holdTimer=null;
+  const reset=()=>{if(holdTimer){clearTimeout(holdTimer);holdTimer=null}adult.classList.remove('holding');adult.textContent='🔒 For voksne'};
+  adult.addEventListener('pointerdown',e=>{
+   e.preventDefault();
+   if(holdTimer)return;
+   adult.classList.add('holding');adult.textContent='🔓 Fortsett å holde …';
+   holdTimer=setTimeout(()=>{holdTimer=null;adult.classList.remove('holding');adult.textContent='🔒 For voksne';window.LARIA_OPEN_ADULT?.()},1500);
+  });
+  ['pointerup','pointerleave','pointercancel'].forEach(type=>adult.addEventListener(type,reset));
+ }
+
 }
 function render(){
  window.LARIA_BASECAMP_DIAG.render=true;
