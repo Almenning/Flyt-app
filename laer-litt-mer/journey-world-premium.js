@@ -54,9 +54,18 @@
       host._premiumWorldImageObserver=null;
     }
     const load=()=>{
+      const primary=host.querySelector('.premium-world-art');
+      const refocus=()=>{
+        requestAnimationFrame(()=>requestAnimationFrame(()=>keepCurrentMissionVisible(host,geo)));
+      };
+      if(primary&&!primary.dataset.worldFocusBound){
+        primary.dataset.worldFocusBound='true';
+        primary.addEventListener('load',refocus,{once:true});
+      }
       host.querySelectorAll('img[data-world-src]').forEach(img=>{
         if(!img.getAttribute('src'))img.setAttribute('src',img.dataset.worldSrc);
       });
+      if(primary?.complete&&primary.naturalWidth>0)refocus();
     };
     if(screen?.classList.contains('active')){load();return}
     if(!screen){return}
