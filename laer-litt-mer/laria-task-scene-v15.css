@@ -1552,3 +1552,28 @@ body.laria-task-scene-open .app:after{
     height:65px;
   }
 }
+
+
+/* Prompt 15 profile identity: a real child element avoids competing with the
+   companion's existing ::before/::after reaction strokes. */
+#session-screen.task-scene .task-fox-companion .task-profile-marker{
+  position:absolute;
+  z-index:5;
+  right:2px;
+  top:4px;
+  display:grid;
+  place-items:center;
+  width:20px;
+  height:20px;
+  border:2px solid rgba(255,255,255,.96);
+  border-radius:50%;
+  background:#fff8e8;
+  box-shadow:0 2px 5px rgba(55,67,54,.20);
+  color:#3979b7;
+  font:900 11px/1 system-ui,sans-serif;
+  pointer-events:none;
+}
+#session-screen.task-scene .task-fox-companion[data-avatar="girl"] .task-profile-marker{
+  color:#d86f78;
+  background:#fff3ef;
+}
