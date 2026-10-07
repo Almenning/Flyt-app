@@ -751,10 +751,10 @@ body.laria-task-scene-open #bottom-nav{
     font-size:clamp(74px,24vw,102px);
   }
   #session-screen.task-scene .task-fox-companion{
-    top:112px;
+    top:190px;
     right:10px;
-    width:66px;
-    height:83px;
+    width:56px;
+    height:70px;
   }
   #session-screen.task-scene .text-only .task-fox-companion,
   #session-screen.task-scene .has-passage .task-fox-companion{
