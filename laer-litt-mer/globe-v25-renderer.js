@@ -1,5 +1,5 @@
 (()=>{'use strict';
-const screen=document.getElementById('world-screen');if(!screen)return;screen.classList.add('globe-v28');
+const screen=document.getElementById('world-screen');if(!screen)return;screen.classList.add('globe-v29');
 const ART=window.LariaGlobeArtV24;if(!ART)return;
 const {clamp,TERRAIN,FEATURES,draw}=ART;
 
@@ -16,6 +16,69 @@ const project=(lon,lat,w,h)=>typeof globeProject==='function'?globeProject(lon,l
 const compassSvg='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M15.8 8.2l-2.3 5.3-5.3 2.3 2.3-5.3 5.3-2.3z" fill="currentColor"/><circle cx="12" cy="12" r="1.2" fill="#fff"/></svg>';
 const globeSvg='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3.8 12h16.4M12 3.5c2.3 2.3 3.5 5.1 3.5 8.5S14.3 18.2 12 20.5M12 3.5C9.7 5.8 8.5 8.6 8.5 12s1.2 6.2 3.5 8.5" fill="none" stroke="currentColor" stroke-width="1.45" stroke-linecap="round"/></svg>';
 const bookSvg='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.4c2.7-.7 5.2-.2 8 1.5v12c-2.8-1.7-5.3-2.2-8-1.5v-12zm16 0c-2.7-.7-5.2-.2-8 1.5v12c2.8-1.7 5.3-2.2 8-1.5v-12z" fill="currentColor"/><path d="M12 6.9v12" stroke="#fff" stroke-opacity=".55" stroke-width="1"/></svg>';
+
+const COUNTRY_SCENES={
+  'tsjad':{tone:'desert',features:[['camel',.50,.63,.40],['trees',.18,.56,.26]],tag:'Sahel, savanne og store landskap'},
+  'norge':{tone:'north',features:[['mountains',.68,.46,.45],['trees',.25,.60,.30],['village',.48,.65,.23]],tag:'Fjorder, fjell og nordlig natur'},
+  'egypt':{tone:'desert',features:[['pyramids',.63,.58,.42],['camel',.28,.66,.30]],tag:'Nilen, ørken og pyramider'},
+  'japan':{tone:'green',features:[['mountains',.65,.42,.40],['village',.40,.65,.25],['trees',.18,.61,.24]],tag:'Øyer, fjell og levende bykultur'},
+  'brasil':{tone:'tropic',features:[['jungle',.58,.55,.40],['trees',.24,.63,.28]],tag:'Amazonas, regnskog og enorme landskap'},
+  'australia':{tone:'desert',features:[['mountains',.66,.54,.30],['trees',.24,.64,.25],['island',.46,.72,.24]],tag:'Kyst, ørken og unik natur'},
+  'island':{tone:'north',features:[['mountains',.60,.46,.43],['lighthouse',.22,.64,.27]],tag:'Vulkaner, is og dramatisk natur'},
+  'kenya':{tone:'savanna',features:[['giraffe',.66,.58,.32],['elephant',.34,.65,.30],['trees',.17,.55,.25]],tag:'Savanne, høyland og rikt dyreliv'},
+  'sør-afrika':{tone:'savanna',features:[['giraffe',.66,.58,.30],['mountains',.36,.49,.32],['trees',.18,.64,.25]],tag:'Fjell, kyst og store naturområder'},
+  'india':{tone:'warm',features:[['mountains',.72,.40,.38],['village',.42,.64,.24],['trees',.18,.62,.23]],tag:'Himalaya, storbyer og mangfold'},
+  'kina':{tone:'green',features:[['mountains',.70,.43,.40],['village',.40,.64,.24],['trees',.18,.61,.24]],tag:'Fjell, elver og store byområder'},
+  'frankrike':{tone:'green',features:[['village',.53,.61,.28],['mountains',.76,.47,.28],['trees',.20,.64,.23]],tag:'Byer, landskap og kultur'},
+  'usa':{tone:'warm',features:[['mountains',.65,.47,.38],['trees',.22,.62,.27],['lighthouse',.86,.62,.18]],tag:'Store landskap, kyst og storbyer'},
+  'canada':{tone:'north',features:[['mountains',.68,.44,.42],['trees',.26,.61,.30]],tag:'Skog, innsjøer og fjell'},
+  'peru':{tone:'warm',features:[['mountains',.65,.43,.44],['village',.30,.66,.22]],tag:'Andesfjellene og gamle kultursteder'}
+};
+const CONTINENT_SCENES={
+  'Afrika':{tone:'savanna',features:[['elephant',.62,.62,.30],['giraffe',.36,.59,.28],['trees',.16,.58,.24]],tag:'Store landskap og variert natur'},
+  'Europa':{tone:'green',features:[['village',.52,.63,.27],['mountains',.73,.45,.32],['trees',.18,.62,.24]],tag:'Byer, fjell og mange landskap'},
+  'Asia':{tone:'warm',features:[['mountains',.70,.44,.38],['village',.43,.64,.24],['trees',.18,.60,.24]],tag:'Store kontraster i natur og byliv'},
+  'Nord-Amerika':{tone:'north',features:[['mountains',.68,.44,.39],['trees',.25,.61,.29]],tag:'Fjell, skog og store byområder'},
+  'Sør-Amerika':{tone:'tropic',features:[['jungle',.58,.56,.40],['mountains',.74,.45,.30]],tag:'Regnskog, fjell og lange kystlinjer'},
+  'Oseania':{tone:'tropic',features:[['island',.58,.67,.31],['trees',.25,.60,.28]],tag:'Øyer, kyst og særegen natur'}
+};
+function countryKey(name=''){
+  return String(name).toLocaleLowerCase('nb').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9æøå-]+/g,'-').replace(/^-|-$/g,'');
+}
+function sceneForCountry(c){
+  const key=countryKey(c?.name);
+  return COUNTRY_SCENES[key]||CONTINENT_SCENES[c?.continent]||{tone:'green',features:[['mountains',.68,.45,.34],['trees',.22,.62,.26]],tag:'Oppdag landskapet og kulturen'};
+}
+function paintCountryScene(canvas,c){
+  if(!canvas||!c)return;
+  const rect=canvas.getBoundingClientRect();
+  const w=Math.max(160,Math.round(rect.width||300)),h=Math.max(76,Math.round(rect.height||110)),dpr=Math.min(2,window.devicePixelRatio||1);
+  canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);
+  const ctx=canvas.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
+  const cfg=sceneForCountry(c);
+  const tones={
+    desert:['#FFE4A8','#E7B75D','#B97835'],
+    savanna:['#FFE7A7','#CDBD64','#78934B'],
+    north:['#DDF3F5','#8FC5CE','#4F7A73'],
+    tropic:['#DDF7D0','#69B77D','#2F7B57'],
+    warm:['#FFE7B8','#D7B36A','#6F9A62'],
+    green:['#E3F2C9','#8FC278','#48765D']
+  };
+  const t=tones[cfg.tone]||tones.green;
+  let g=ctx.createLinearGradient(0,0,0,h);g.addColorStop(0,t[0]);g.addColorStop(.58,t[1]);g.addColorStop(1,t[2]);ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+  ctx.fillStyle='rgba(255,244,194,.78)';ctx.beginPath();ctx.arc(w*.82,h*.22,Math.max(10,h*.11),0,Math.PI*2);ctx.fill();
+  ctx.fillStyle=cfg.tone==='north'?'rgba(121,182,202,.72)':'rgba(97,148,99,.78)';
+  ctx.beginPath();ctx.moveTo(0,h*.72);ctx.quadraticCurveTo(w*.24,h*.55,w*.46,h*.70);ctx.quadraticCurveTo(w*.69,h*.84,w,h*.61);ctx.lineTo(w,h);ctx.lineTo(0,h);ctx.closePath();ctx.fill();
+  if(['desert','savanna','warm'].includes(cfg.tone)){
+    ctx.fillStyle='rgba(220,170,84,.74)';ctx.beginPath();ctx.moveTo(0,h*.78);ctx.quadraticCurveTo(w*.30,h*.68,w*.55,h*.80);ctx.quadraticCurveTo(w*.77,h*.88,w,h*.72);ctx.lineTo(w,h);ctx.lineTo(0,h);ctx.closePath();ctx.fill();
+  }
+  for(const f of cfg.features||[]){
+    const fn=draw[f[0]];if(!fn)continue;
+    fn(ctx,w*f[1],h*f[2],Math.min(w,h)*f[3],!!f[4]);
+  }
+  const wash=ctx.createLinearGradient(0,0,w,0);wash.addColorStop(0,'rgba(255,250,230,.20)');wash.addColorStop(.55,'rgba(255,250,230,0)');wash.addColorStop(1,'rgba(40,70,55,.06)');ctx.fillStyle=wash;ctx.fillRect(0,0,w,h);
+}
+
 function selectedProfileFox(){
   const which=(typeof state!=='undefined'&&state?.profile?.avatar==='girl')?'girl':'boy';
   return window.LARIA_PROFILE_AVATARS?.[which]||'./lia-fox-explorer-home.webp';
@@ -66,7 +129,7 @@ function ensurePremiumShell(){
 function syncPremiumChrome(mode){
   const next=mode==='classic'?'classic':(mode==='mine'?'mine':'explore');
   screen.dataset.premiumGlobeMode=next;
-  screen.dataset.globeVersion='28';
+  screen.dataset.globeVersion='29';
   document.querySelectorAll('#globe-mode [data-globe-mode]').forEach(b=>b.classList.toggle('active',b.dataset.globeMode===next));
   document.getElementById('globe-legend')?.classList.toggle('show',next==='mine');
 
@@ -90,20 +153,29 @@ function enhanceSelectedCountryV24(id){
   if(!box||!id||typeof countries==='undefined'||!countries[id])return;
   const c=countries[id];
   const st=typeof globeStatusInfo==='function'?globeStatusInfo(id):{key:'new',symbol:'–',label:'Ikke startet'};
-  const meta=c.continent+(c.capitalDisplay?' · '+c.capitalDisplay:'')+' · trykk for å lære mer';
+  const scene=sceneForCountry(c);
+  const capital=c.capitalDisplay||c.capital||'–';
 
   box.classList.add('premium-country-selected');
-  box.innerHTML='<div class="flag">'+c.flag+'</div>'+
-    '<div class="globe-country-copy"><div class="globe-country-line"><strong>'+c.name+'</strong>'+
-    '<span class="globe-status-badge '+st.key+'">'+st.symbol+' '+st.label+'</span></div>'+
-    '<span class="globe-country-meta">'+meta+'</span></div>'+
-    '<button type="button" class="premium-country-learn" aria-label="Lær mer om '+c.name+'">'+bookSvg+'<span>Lær mer</span></button>';
+  box.innerHTML=
+    '<div class="premium-country-main">'+
+      '<div class="flag">'+c.flag+'</div>'+
+      '<div class="globe-country-copy">'+
+        '<div class="globe-country-line"><strong>'+c.name+'</strong><span class="globe-status-badge '+st.key+'">'+st.symbol+' '+st.label+'</span></div>'+
+        '<div class="premium-country-facts"><span>🌍 '+c.continent+'</span><span>📍 '+capital+'</span></div>'+
+        '<span class="globe-country-tagline">'+scene.tag+'</span>'+
+      '</div>'+
+    '</div>'+
+    '<div class="premium-country-scene-wrap" aria-hidden="true"><canvas class="premium-country-scene"></canvas></div>'+
+    '<button type="button" class="premium-country-learn" aria-label="Lær mer om '+c.name+'">'+bookSvg+'<span>Lær mer</span><b>›</b></button>';
+
   box.style.cursor='pointer';
   box.onclick=()=>openDetail(id,'world');
   const btn=box.querySelector('.premium-country-learn');
   if(btn)btn.onclick=e=>{e.stopPropagation();openDetail(id,'world')};
+  const canvas=box.querySelector('.premium-country-scene');
+  requestAnimationFrame(()=>paintCountryScene(canvas,c));
 }
-
 
 function addPath(ctx,c,w,h){
   if(!c.geometry||typeof geometryPolygons!=='function'||typeof drawProjectedLine!=='function')return false;
@@ -547,7 +619,7 @@ function install(){
   syncPremiumChrome(typeof globeMode==='string'?globeMode:'explore');
 
   window.__lariaGlobeV25Installed=true;
-  screen.dataset.globeVersion='28';
+  screen.dataset.globeVersion='29';
   requestAnimationFrame(()=>{try{resizeGlobe();routedDraw()}catch(_){}});
   return true;
 }
