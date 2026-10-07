@@ -1,0 +1,43 @@
+name: Laria Prompt 18 content audit
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'laer-litt-mer/**'
+      - 'tests/laria-commercial-readiness.cjs'
+      - 'tests/laria-commerce-readiness.cjs'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/laria-p18-content-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: laria-p18-audit-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  content-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Prompt 18 subject-bank and geography audit
+        run: node --test tests/laria-commercial-readiness.cjs
+
+      - name: Prompt 18 commerce readiness audit
+        run: node --test tests/laria-commerce-readiness.cjs
