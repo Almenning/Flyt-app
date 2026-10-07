@@ -158,7 +158,7 @@ async function verifyOlderHome(page,label,width,height){
   await page.evaluate(()=>openSubject('math'));
   await page.locator('#subject-screen.active').waitFor();
   await noOverflow(page,label+' math subject');
-  const subjectBack=page.locator('.subject-back').first();
+  const subjectBack=page.locator('#subject-back');
   if(await subjectBack.count()&&await subjectBack.isVisible()){
     const r=await subjectBack.evaluate(el=>{const b=el.getBoundingClientRect();return {w:b.width,h:b.height,x:b.x,y:b.y,right:b.right,bottom:b.bottom}});
     assertTap(r,label+' subject back');
