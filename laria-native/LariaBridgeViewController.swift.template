@@ -1,0 +1,8 @@
+import UIKit
+import Capacitor
+
+class LariaBridgeViewController: CAPBridgeViewController {
+    override open func capacitorDidLoad() {
+        bridge?.registerPluginInstance(LariaStorePlugin())
+    }
+}
