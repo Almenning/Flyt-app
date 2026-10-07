@@ -749,6 +749,48 @@ async function finishSession(page){
     await assertTaskScene('math','#open-math');
     await assertTaskScene('geography','#open-geography');
 
+    // Prompt 12: the locked grade 1–2 object set must use the premium SVG illustration system,
+    // stay responsive on phone/tablet, and rendering art must never mutate learning progress.
+    const prompt12Visuals=['🏠','🐱','🐶','📘','🍎','🚗','⛵','🌳','☀️','🌙','🐟','⚽'];
+    assert.deepEqual(await page.evaluate(()=>window.LARIA_TASK_PREMIUM_VISUALS),prompt12Visuals,'Prompt 12 premium visual registry changed');
+    const progressBeforeIllustrations=await page.evaluate(()=>JSON.stringify({
+      answerLog:state.answerLog,journey:state.journey,skillMastery:state.skillMastery,mastery:state.mastery
+    }));
+    async function assertPrompt12Visuals(width,height,label){
+      await page.setViewportSize({width,height});
+      for(const visual of prompt12Visuals){
+        await page.evaluate(v=>{
+          sessionQuestions=[{
+            subject:'norwegian',skill:'word-picture',type:'learning-choice',
+            prompt:'Hvilket ord passer til bildet?',answer:'riktig',options:['riktig','feil','annet'],
+            visual:v,curriculum:CURRICULUM.norwegian
+          }];
+          qIndex=0;currentAnswered=null;showScreen('session');renderQuestion();
+        },visual);
+        const row=page.locator('.task-visual-row');
+        assert.equal(await page.locator('#session-screen').getAttribute('data-task-illustration-release'),'illustrations-rc1',label+' missing Prompt 12 illustration release');
+        assert.equal(await row.getAttribute('data-task-visual-kind'),'premium',label+' '+visual+' fell back from premium art');
+        assert.equal(await row.getAttribute('data-task-visual-release'),'illustrations-rc1',label+' '+visual+' missing illustration RC marker');
+        assert.equal(await row.locator('svg.task-illustration').count(),1,label+' '+visual+' must render exactly one SVG illustration');
+        assert.equal(await row.locator('.task-emoji-sticker').count(),0,label+' '+visual+' must not render emoji fallback');
+        const bounds=await row.evaluate(el=>{
+          const r=el.getBoundingClientRect(),svg=el.querySelector('svg')?.getBoundingClientRect();
+          return {left:r.left,right:r.right,width:r.width,svgLeft:svg?.left,svgRight:svg?.right,scrollWidth:document.documentElement.scrollWidth,clientWidth:document.documentElement.clientWidth};
+        });
+        assert.ok(bounds.left>=-1&&bounds.right<=width+1,label+' '+visual+' illustration row overflows viewport');
+        assert.ok(bounds.svgLeft>=-1&&bounds.svgRight<=width+1,label+' '+visual+' SVG is cropped horizontally');
+        assert.ok(bounds.scrollWidth<=bounds.clientWidth,label+' '+visual+' creates horizontal page overflow');
+      }
+    }
+    await assertPrompt12Visuals(390,844,'phone');
+    await assertPrompt12Visuals(820,1180,'ipad-portrait');
+    await page.setViewportSize({width:390,height:844});
+    const progressAfterIllustrations=await page.evaluate(()=>JSON.stringify({
+      answerLog:state.answerLog,journey:state.journey,skillMastery:state.skillMastery,mastery:state.mastery
+    }));
+    assert.equal(progressAfterIllustrations,progressBeforeIllustrations,'Prompt 12 illustration rendering changed learning progress');
+    await page.locator('#close-session').click();
+
     // First grade: capitals are intentionally hidden but Land still works.
     const context1=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
     const p1=await context1.newPage();p1.__base=url;
