@@ -179,6 +179,9 @@ async function swipeBack(page){
           await fit(page,engineName+'/'+device.name+'/home',['.bc12','.bc12-heading','.safe-challenge-young','.bc12-nav']);
           await touchTargets(page,engineName+'/'+device.name+'/home',['.bc12-nav button','.safe-challenge-young']);
           await noOverlap(page,engineName+'/'+device.name+'/home','.safe-challenge-young','.bc12-heading');
+          await noOverlap(page,engineName+'/'+device.name+'/home','.safe-challenge-young','.bc12-nav');
+          await noOverlap(page,engineName+'/'+device.name+'/home','.safe-challenge-young','.bc12-quest');
+          await noOverlap(page,engineName+'/'+device.name+'/home','.safe-challenge-young','.bc12-fox');
           assert.equal(await page.locator('.bc12-nav button').count(),4,device.name+': Basecamp navigation count changed');
           await screenshot(page,engineName,device,'home');
 
