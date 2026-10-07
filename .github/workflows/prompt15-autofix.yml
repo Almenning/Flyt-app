@@ -1,0 +1,54 @@
+name: Prompt 15 one-shot traveler fix
+
+on:
+  push:
+    branches:
+      - prompt15-profile-onboarding-parent-trust
+    paths:
+      - .github/workflows/prompt15-autofix.yml
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: prompt15-profile-onboarding-parent-trust
+          fetch-depth: 0
+
+      - name: Correct Prompt 15 traveler contract
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path("tests/laer-litt-mer.playwright.js")
+          text = path.read_text()
+          old = """          const traveler=p.locator('#subject-screen.active .premium-traveler');
+          await traveler.waitFor({state:'visible'});
+          assert.equal(await traveler.getAttribute('data-avatar'),'girl','Reisen traveler did not follow saved revejente choice');
+          assert.ok((await traveler.evaluate(el=>getComputedStyle(el,'::after').content)).includes('✿'),'Reisen revejente has no visible profile marker');"""
+          new = """          const traveler=p.locator('#subject-screen.active .bok-v15-traveler');
+          await traveler.waitFor({state:'visible'});
+          const travelerImg=traveler.locator('.bok-v15-fox');
+          await travelerImg.waitFor({state:'visible'});
+          const travelerSrc=await travelerImg.getAttribute('src');
+          const expectedTravelerSrc=await p.evaluate(()=>window.LARIA_PROFILE_AVATARS?.girl||'');
+          assert.equal(travelerSrc,expectedTravelerSrc,'Bokskogen traveler did not render the saved revejente artwork');"""
+          if old not in text:
+              raise SystemExit("Prompt 15 traveler test target not found")
+          path.write_text(text.replace(old, new))
+          PY
+
+          git fetch origin main --depth=1
+          git show FETCH_HEAD:laer-litt-mer/laria-unified-v13.js > laer-litt-mer/laria-unified-v13.js
+          rm .github/workflows/prompt15-autofix.yml
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tests/laer-litt-mer.playwright.js laer-litt-mer/laria-unified-v13.js .github/workflows/prompt15-autofix.yml
+          git commit -m "fix(laria): verify active Bokskogen profile traveler"
+          git push origin HEAD:prompt15-profile-onboarding-parent-trust
