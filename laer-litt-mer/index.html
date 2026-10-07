@@ -3397,9 +3397,8 @@ function openGlobe(mode='explore'){
     tries++;
     const screen=document.getElementById('world-screen');
     const canvas=document.getElementById('globe-canvas');
-    if(!screen?.classList.contains('active')){
-      showScreen('world');
-    }
+    // Never resurrect Globe after the child has already navigated away.
+    if(!screen?.classList.contains('active'))return;
     try{if(typeof window.initGlobe==='function')window.initGlobe();else initGlobe()}catch(_){}
     try{
       if(typeof window.setGlobeMode==='function')window.setGlobeMode(next);
