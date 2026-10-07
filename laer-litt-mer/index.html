@@ -2917,6 +2917,12 @@
         <div aria-hidden="true" style="font-size:24px;font-weight:950;color:#6672A5">›</div>
       </button>
 
+      <button class="parent-info-entry" id="open-terms" type="button">
+        <div class="icon" aria-hidden="true">📄</div>
+        <div class="copy"><strong>Vilkår og personvern</strong><span>Hva som lagres, ansvar, kjøp og hvordan abonnement håndteres når det aktiveres.</span></div>
+        <div aria-hidden="true" style="font-size:24px;font-weight:950;color:#6672A5">›</div>
+      </button>
+
       <button class="primary" id="open-feedback">Gi tilbakemelding</button>
       <button class="danger-button" id="reset-progress">Nullstill fremgang på denne enheten</button>
       <div class="small-note">Nullstilling sletter klassetrinn, læringsdata og pågående økt fra denne nettleseren.</div>
@@ -2962,6 +2968,50 @@
         </div>
 
         <div class="disclaimer">«Læria» er et uavhengig produkt. Appen er ikke utviklet, godkjent eller anbefalt av Utdanningsdirektoratet. Udir og LK20 brukes som faglige kilder og rammeverk for utviklingen.</div>
+      </div>
+    </section>
+
+    <section class="screen" id="terms-screen" data-commercial-release="p18rc1">
+      <button class="detail-back" id="terms-back">← For voksne</button>
+      <div class="eyebrow">For voksne</div>
+      <h1>Vilkår og personvern</h1>
+      <p class="hero-copy">Kortversjonen av hva Læria lagrer, hva tjenesten er, og hva som gjelder ved et fremtidig abonnement.</p>
+
+      <div class="parent-letter">
+        <div class="card">
+          <h3>1. Bruk av Læria</h3>
+          <p>Læria er et digitalt læringsverktøy og et supplement til skole, bøker, lek og annen læring. Innholdet er laget for øving, utforsking og mestring, og er ikke en individuell faglig vurdering eller garanti for bestemte læringsresultater.</p>
+        </div>
+
+        <div class="card privacy-note">
+          <h3>2. Personvern og lagring</h3>
+          <p>Profilnavn, valgt figur, klassetrinn, svar og fremgang lagres lokalt på enheten. Læria krever ikke konto, e-post, fødselsdato eller posisjon for den lokale læringsopplevelsen. Appen har ingen annonser eller adferdsbasert sporing.</p>
+          <p>Nullstilling i foreldreområdet sletter den lokale profilen og læringsdataene på denne enheten.</p>
+        </div>
+
+        <div class="card">
+          <h3>3. Innhold og faglige kilder</h3>
+          <p>Læreplanverket LK20 brukes som faglig ramme og kvalitetskontroll. Læria er et uavhengig produkt og er ikke utviklet, godkjent eller anbefalt av Utdanningsdirektoratet.</p>
+        </div>
+
+        <div class="card">
+          <h3>4. Kjøp og abonnement</h3>
+          <p>Når betalt abonnement aktiveres i den native appen, skal pris, periode og eventuelle prøvevilkår vises i kjøpsflaten før kjøpet godkjennes. Kjøpet håndteres av App Store og knyttes til App Store-kontoen som gjennomfører kjøpet.</p>
+          <p>Et abonnement kan fornyes automatisk etter vilkårene som vises av App Store. Administrasjon og oppsigelse skjer gjennom App Store-kontoens abonnementsinnstillinger. Læria skal tilby «Gjenopprett kjøp» når abonnement er aktivert.</p>
+          <p>Før StoreKit-kjøp er aktivert, er denne webversjonen en test-/forhåndsvisningsversjon og gjennomfører ingen betaling.</p>
+        </div>
+
+        <div class="card">
+          <h3>5. Tilgjengelighet og endringer</h3>
+          <p>Innhold, oppgaver og funksjoner kan forbedres og endres over tid. Vi forsøker å holde læringsinnhold og tekniske funksjoner korrekte og tilgjengelige, men midlertidige feil eller avbrudd kan forekomme.</p>
+        </div>
+
+        <div class="card">
+          <h3>6. Foreldrekontroll</h3>
+          <p>Innstillinger, klassetrinn, læringsoversikt, tilbakemelding og fremtidige kjøpsfunksjoner skal ligge i foreldreområdet. Barnets læringsinnhold skal ikke inneholde annonser eller direkte kjøpspress.</p>
+        </div>
+
+        <div class="disclaimer">Ved publisering i App Store skal utgiverinformasjon, gjeldende personvernerklæring og eventuelle tilleggsvilkår være tilgjengelige fra produktsiden og foreldreområdet.</div>
       </div>
     </section>
 
@@ -6252,6 +6302,8 @@ function openAdult(){renderAdult();showScreen('adult')}
 document.getElementById('adult-back').onclick=()=>setTab('home');
 document.getElementById('open-parent-info').onclick=()=>showScreen('parent-info');
 document.getElementById('parent-info-back').onclick=()=>showScreen('adult');
+document.getElementById('open-terms').onclick=()=>showScreen('terms');
+document.getElementById('terms-back').onclick=()=>showScreen('adult');
 document.getElementById('open-feedback').onclick=()=>showScreen('feedback');
 document.getElementById('feedback-back').onclick=()=>showScreen('adult');
 
