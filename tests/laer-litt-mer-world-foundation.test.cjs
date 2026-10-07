@@ -42,7 +42,7 @@ test('learning world uses layered 2.5D presentation without changing the journey
   assert.doesNotMatch(js, /THREE\.|WebGLRenderer|three\.js/i);
 });
 
-test('2.5D assets are cache-busted consistently for the PWA', () => {
+test('2.5D assets are cache-busted in HTML while the PWA install stays lightweight', () => {
   const html = read('index.html');
   const sw = read('sw.js');
 
@@ -54,13 +54,12 @@ test('2.5D assets are cache-busted consistently for the PWA', () => {
   };
   for(const asset of ['journey-world-premium.css','journey-world-premium.js','bokskogen-world.css','bokskogen-world.js','world-atlas.css']){
     const htmlVersion=assetVersion(html,asset);
-    const swVersion=assetVersion(sw,asset);
     assert.ok(htmlVersion,asset+' is missing a cache-busted HTML reference');
-    assert.equal(swVersion,htmlVersion,asset+' version differs between HTML and service worker');
   }
-  assert.match(sw, /const CACHE=['"][^'"]+v\d+[^'"]*['"]/);
-  assert.match(sw, /bokskogen-atlas32\.webp/);
-  assert.match(sw, /lia-fox-explorer\.webp/);
+  assert.match(sw, /const CACHE=['"]laria-runtime-[^'"]+perf\d+['"]/);
+  assert.match(sw, /caches\.match\(req\)/);
+  assert.match(sw, /if\(cached\)return cached/);
+  assert.doesNotMatch(sw, /journey-world-premium\.(?:css|js)|bokskogen-atlas32\.webp|lia-fox-explorer\.webp/);
   assert.match(html, /journeyWasComplete:journeyNodeIsCompleteForWorldReaction/);
   assert.match(html, /function armJourneyWorldReaction\(scope\)/);
   assert.match(read('journey-world-premium.js'), /premium-progress-reaction/);
