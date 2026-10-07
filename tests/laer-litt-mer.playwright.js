@@ -728,7 +728,7 @@ async function finishSession(page){
     // Prompt 11: all four subjects must render through the same premium task scene contract.
     async function assertTaskScene(subject, starter){
       await page.evaluate(()=>setTab('home'));
-      await page.evaluate(s=>document.getElementById(s).click(),starter);
+      await page.evaluate(s=>document.querySelector(s).click(),starter);
       if(subject==='geography')await page.locator('#start-geography-theme').click();
       else await page.locator('#start-subject-session').click();
       await page.locator('#session-screen.active').waitFor();
