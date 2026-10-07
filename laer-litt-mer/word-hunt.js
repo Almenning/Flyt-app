@@ -67,11 +67,16 @@ function preview(path,anchor=false){
 function clearPreview(){ui.drag=null;preview(ui.tapStart?[ui.tapStart]:[],!!ui.tapStart)}
 function pointerDown(e){
   const cell=e.target.closest('.word-hunt-cell');if(!cell)return;
-  ui.tapStart=null;ui.drag={id:e.pointerId,start:coord(cell),end:coord(cell),moved:false};try{e.currentTarget.setPointerCapture(e.pointerId)}catch(_){}
+  ui.drag={id:e.pointerId,start:coord(cell),end:coord(cell),moved:false};try{e.currentTarget.setPointerCapture(e.pointerId)}catch(_){}
 }
 function pointerMove(e){
   if(!ui.drag||ui.drag.id!==e.pointerId)return;const cell=cellFromEvent(e);if(!cell)return;
-  const end=coord(cell);if(end[0]!==ui.drag.start[0]||end[1]!==ui.drag.start[1])ui.drag.moved=true;ui.drag.end=end;preview(line(ui.drag.start,end))
+  const end=coord(cell);
+  if(end[0]!==ui.drag.start[0]||end[1]!==ui.drag.start[1]){
+    if(!ui.drag.moved)ui.tapStart=null;
+    ui.drag.moved=true;
+  }
+  ui.drag.end=end;preview(line(ui.drag.start,end))
 }
 function pointerUp(e){
   if(!ui.drag||ui.drag.id!==e.pointerId)return;const d=ui.drag;ui.drag=null;
