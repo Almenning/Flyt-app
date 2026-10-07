@@ -3410,7 +3410,7 @@ function openGlobe(mode='explore'){
 
     if((!canvas?._cssW||!canvas?._cssH)&&tries<6)requestAnimationFrame(ready);
     else if(canvas?._cssW&&canvas?._cssH){
-      screen.dataset.globeReadyMs=String(Math.round(performance.now()-openedAt));
+      screen.dataset.globeReadyMs=String(Math.max(1,Math.round(performance.now()-openedAt)));
     }
   };
   requestAnimationFrame(ready);
