@@ -11,6 +11,8 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://raw.githubusercontent.com https://api.worldbank.org; img-src 'self' data:; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests" />
   <link rel="manifest" href="./manifest.webmanifest" />
   <link rel="icon" href="./icon.svg" type="image/svg+xml" />
+  <link rel="preload" as="image" href="./basecamp-v11-mobile.webp?v=basecamp12d" media="(max-width:700px)" fetchpriority="high" />
+  <link rel="preload" as="image" href="./basecamp-v11.webp?v=basecamp12d" media="(min-width:701px)" fetchpriority="high" />
   <title>Læria</title>
   <style>
 
@@ -3374,7 +3376,9 @@ function showScreen(name){
 function openGlobe(mode='explore'){
   const next=mode==='mine'?'mine':'explore';
   globeMode=next;
+  const openedAt=performance.now();
   showScreen('world');
+  document.getElementById('world-screen')?.setAttribute('data-opened-immediately','true');
 
   let tries=0;
   const ready=()=>{
@@ -3393,6 +3397,10 @@ function openGlobe(mode='explore'){
     try{if(typeof window.drawGlobe==='function')window.drawGlobe();else drawGlobe()}catch(_){}
 
     if((!canvas?._cssW||!canvas?._cssH)&&tries<6)requestAnimationFrame(ready);
+    else if(canvas?._cssW&&canvas?._cssH){
+      screen.dataset.globeReadyMs=String(Math.round(performance.now()-openedAt));
+      if(tries===1)scheduleQualityData();
+    }
   };
   requestAnimationFrame(ready);
 }
@@ -5944,13 +5952,13 @@ const MAP_BOUNDS={
   'Sør-Amerika':{minLon:-86,maxLon:-30,minLat:-58,maxLat:16,ref:-60},
   'Oseania':{minLon:108,maxLon:242,minLat:-51,maxLat:30,ref:175}
 };
-function drawFlatCountry(ctx,c,project,fill,stroke='#fff'){if(!c.geometry)return;ctx.beginPath();for(const poly of geometryPolygons(c.geometry)){for(const ring of poly){let first=true,last=null,step=Math.max(1,Math.floor(ring.length/450));for(let i=0;i<ring.length;i+=step){const p=project(ring[i][0],ring[i][1]);if(!p)continue;if(first){ctx.moveTo(p[0],p[1]);first=false}else ctx.lineTo(p[0],p[1]);last=p}if(step>1&&ring.length){const p=project(ring[ring.length-1][0],ring[ring.length-1][1]);if(p&&last)ctx.lineTo(p[0],p[1])}ctx.closePath()}}ctx.fillStyle=fill;ctx.strokeStyle=stroke;ctx.lineWidth=1.2;ctx.fill();ctx.stroke()}
+function drawFlatCountry(ctx,c,project,fill,stroke='#fff'){const geom=c?._detailGeometry||c?.geometry;if(!geom)return;ctx.beginPath();for(const poly of geometryPolygons(geom)){for(const ring of poly){let first=true,last=null,step=Math.max(1,Math.floor(ring.length/450));for(let i=0;i<ring.length;i+=step){const p=project(ring[i][0],ring[i][1]);if(!p)continue;if(first){ctx.moveTo(p[0],p[1]);first=false}else ctx.lineTo(p[0],p[1]);last=p}if(step>1&&ring.length){const p=project(ring[ring.length-1][0],ring[ring.length-1][1]);if(p&&last)ctx.lineTo(p[0],p[1])}ctx.closePath()}}ctx.fillStyle=fill;ctx.strokeStyle=stroke;ctx.lineWidth=1.2;ctx.fill();ctx.stroke()}
 function quizBounds(q){if(q.mapIds?.length===NORDIC_IDS.length&&NORDIC_IDS.every(id=>q.mapIds.includes(id)))return MAP_BOUNDS.Norden;return MAP_BOUNDS[q.mapRegion]||MAP_BOUNDS[countries[q.k]?.continent]||MAP_BOUNDS.Europa}
 function renderQuizMap(q,answered=currentAnswered){const canvas=document.getElementById('quiz-map-canvas');if(!canvas)return;const rect=canvas.getBoundingClientRect(),w=Math.max(300,rect.width||390),h=Math.max(280,rect.height||320),dpr=Math.min(2,window.devicePixelRatio||1);canvas.width=w*dpr;canvas.height=h*dpr;const ctx=canvas.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);const bounds=quizBounds(q),pad=15,ids=(q.mapIds||[]).filter(id=>countries[id]);const project=(lon,lat)=>{const xlon=normalizeLon(lon,bounds.ref);if(xlon<bounds.minLon-6||xlon>bounds.maxLon+6||lat<bounds.minLat-6||lat>bounds.maxLat+6)return null;return [pad+(xlon-bounds.minLon)/(bounds.maxLon-bounds.minLon)*(w-pad*2),pad+(bounds.maxLat-lat)/(bounds.maxLat-bounds.minLat)*(h-pad*2)]};
   const g=ctx.createLinearGradient(0,0,0,h);g.addColorStop(0,'#BDE9F4');g.addColorStop(1,'#D9F5F2');ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
   for(const id of ids){let fill='#BFD7A2';if(answered&&id===q.answer)fill='#62BB88';else if(answered&&id===answered.selected)fill='#E99388';drawFlatCountry(ctx,countries[id],project,fill)}
   for(const id of ids){const c=countries[id];if(!isTinyCountry(c)&&c.geometry)continue;const p=project(c.lon,c.lat);if(!p)continue;ctx.beginPath();ctx.arc(p[0],p[1],answered&&id===q.answer?6:4,0,Math.PI*2);ctx.fillStyle=answered&&id===q.answer?'#62BB88':answered&&id===answered.selected?'#E99388':'#FFF2A9';ctx.fill();ctx.strokeStyle='rgba(60,70,90,.4)';ctx.stroke()}
-  canvas.onclick=answered?null:(e=>{const r=canvas.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top,xlon=bounds.minLon+(x-pad)/(w-pad*2)*(bounds.maxLon-bounds.minLon),lat=bounds.maxLat-(y-pad)/(h-pad*2)*(bounds.maxLat-bounds.minLat),lon=((xlon+540)%360)-180;let c=ids.map(id=>countries[id]).find(c=>c.geometry&&pointInCountry(c,lon,lat));if(!c){let best=null,dist=Infinity;for(const id of ids){const item=countries[id],p=project(item.lon,item.lat);if(!p)continue;const d=Math.hypot(p[0]-x,p[1]-y);if(d<dist){dist=d;best=item}}const hitRadius=best&&isTinyCountry(best)?24:18;if(dist<hitRadius)c=best}if(c)answerMap(c.id)});
+  canvas.onclick=answered?null:(e=>{const r=canvas.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top,xlon=bounds.minLon+(x-pad)/(w-pad*2)*(bounds.maxLon-bounds.minLon),lat=bounds.maxLat-(y-pad)/(h-pad*2)*(bounds.maxLat-bounds.minLat),lon=((xlon+540)%360)-180;let c=ids.map(id=>countries[id]).find(c=>{const geom=c?._detailGeometry||c?.geometry;return geom&&pointInCountry(Object.assign({},c,{geometry:geom}),lon,lat)});if(!c){let best=null,dist=Infinity;for(const id of ids){const item=countries[id],p=project(item.lon,item.lat);if(!p)continue;const d=Math.hypot(p[0]-x,p[1]-y);if(d<dist){dist=d;best=item}}const hitRadius=best&&isTinyCountry(best)?24:18;if(dist<hitRadius)c=best}if(c)answerMap(c.id)});
 }
 
 
@@ -6236,9 +6244,20 @@ const WB2024_URL='https://api.worldbank.org/v2/country/all/indicator/SP.POP.TOTL
 const qualityStatus={map:false,population:false};
 function updateDataStatus(){const el=document.getElementById('data-status');if(!el)return;if(qualityStatus.map&&qualityStatus.population)el.textContent='Kart: Natural Earth 1:50m · befolkning: Verdensbanken 2024';else if(qualityStatus.map)el.textContent='Kart: Natural Earth 1:50m · befolkning bruker reserveverdier';else if(qualityStatus.population)el.textContent='Befolkning: Verdensbanken 2024 · kart bruker innebygd reserve';else el.textContent='Norske navn og hovedsteder · innebygde reservefakta er aktive offline'}
 function findCountryForFeature(p={}){const a2=[p.ISO_A2_EH,p.ISO_A2,p.WB_A2].find(v=>typeof v==='string'&&v.length===2&&v!=='-99');if(a2){const hit=WORLD_COUNTRIES.find(c=>c.a2===a2);if(hit)return hit}const a3=[p.ISO_A3_EH,p.ADM0_A3,p.ISO_A3,p.SOV_A3].find(v=>typeof v==='string'&&v.length===3&&v!=='-99');return a3?WORLD_COUNTRIES.find(c=>c.a3===a3):null}
-async function loadDetailedGeometry(){try{const r=await fetch(NE50_URL,{cache:'force-cache'});if(!r.ok)throw new Error('map '+r.status);const geo=await r.json();let updated=0;for(const f of geo.features||[]){const c=findCountryForFeature(f.properties);if(!c||!f.geometry)continue;c.geometry=f.geometry;c._geometrySpan=null;const px=Number(f.properties?.LABEL_X),py=Number(f.properties?.LABEL_Y);if(Number.isFinite(px)&&Number.isFinite(py)){c.lon=px;c.lat=py}updated++}qualityStatus.map=updated>150;if(document.getElementById('world-screen').classList.contains('active')){resizeGlobe();drawGlobe()}updateDataStatus()}catch(e){updateDataStatus()}}
+async function loadDetailedGeometry(){try{const r=await fetch(NE50_URL,{cache:'force-cache'});if(!r.ok)throw new Error('map '+r.status);const geo=await r.json();let updated=0;for(const f of geo.features||[]){const c=findCountryForFeature(f.properties);if(!c||!f.geometry)continue;c._detailGeometry=f.geometry;const px=Number(f.properties?.LABEL_X),py=Number(f.properties?.LABEL_Y);if(Number.isFinite(px)&&Number.isFinite(py)){c.lon=px;c.lat=py}updated++}qualityStatus.map=updated>150;updateDataStatus()}catch(e){updateDataStatus()}}
 async function loadPopulation2024(){try{const r=await fetch(WB2024_URL,{cache:'force-cache'});if(!r.ok)throw new Error('population '+r.status);const data=await r.json(),rows=Array.isArray(data)&&Array.isArray(data[1])?data[1]:[];let updated=0;for(const row of rows){if(!row||row.value==null)continue;const code=String(row.countryiso3code||'').toUpperCase(),c=WORLD_COUNTRIES.find(x=>x.a3===code);if(!c)continue;c.population=Number(row.value);c.populationYear=2024;updated++}qualityStatus.population=updated>150;updateDataStatus()}catch(e){updateDataStatus()}}
-function loadQualityData(){updateDataStatus();Promise.allSettled([loadDetailedGeometry(),loadPopulation2024()]).then(()=>{renderAll();if(document.getElementById('world-screen').classList.contains('active'))drawGlobe()})}
+let qualityDataPromise=null;
+function loadQualityData(){
+  if(qualityDataPromise)return qualityDataPromise;
+  updateDataStatus();
+  qualityDataPromise=Promise.allSettled([loadDetailedGeometry(),loadPopulation2024()]).then(()=>{updateDataStatus();return true});
+  return qualityDataPromise;
+}
+function scheduleQualityData(){
+  const run=()=>loadQualityData().catch(()=>{});
+  if('requestIdleCallback' in window)requestIdleCallback(run,{timeout:6000});
+  else setTimeout(run,4500);
+}
 
 // PWA registration: network-first navigation in sw.js prevents stale HTML/JS mixes after deploy.
 if('serviceWorker' in navigator){
@@ -6284,7 +6303,7 @@ window.addEventListener('pageshow',event=>{
 });
 
 // Initial render / recovery
-renderAll();updateOnboarding();loadQualityData();
+renderAll();updateOnboarding();
 // norwegian-content.js is deferred. Refresh journey-derived UI after deferred local content has executed.
 document.addEventListener('DOMContentLoaded',()=>{
   renderAll();
