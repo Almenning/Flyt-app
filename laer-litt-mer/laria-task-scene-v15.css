@@ -57,7 +57,7 @@ body.laria-task-scene-open #bottom-nav{
   --task-answer-shadow:#9d5f22;
 }
 #session-screen.task-scene[data-task-subject="geography"]{
-  --task-world:url("./geografi-verden.png");
+  --task-world:url("./globe-v20-approved.webp");
   --task-sky:#78cbe3;
   --task-ink:#173d58;
   --task-ink-soft:#526d78;
