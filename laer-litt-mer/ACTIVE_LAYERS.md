@@ -24,6 +24,9 @@ Boot data before inline runtime:
 3. commerce-v18.js — parent-controlled StoreKit entitlement client; web remains preview-only
 4. norwegian-content.js — deferred canonical Norwegian content
 
+Deferred content/commercial depth after inline runtime:
+1. commercial-content-v1.js — Prompt 18 subject-bank extensions; wraps Math/English/Norwegian pools without owning progression
+
 Deferred presentation/activity modules after inline runtime:
 1. fraction-lab.js
 2. multiplication-lab.js
@@ -42,6 +45,7 @@ Deferred presentation/activity modules after inline runtime:
 - Task presentation is layered intentionally: laria-unified-v13 → laria-task-scene-v15 → laria-task-young-v18.
 - Journey presentation keeps the existing progression model; visual renderers do not own progress state.
 - Profile fox source is window.LARIA_PROFILE_AVATARS plus the saved state.profile.avatar choice.
+- Commercial content depth is owned by commercial-content-v1.js; it may extend subject pools but must not own progression, mastery, Home, Journey, Globe, or Task presentation.
 - Cache-busted asset versions in index.html and sw.js must match exactly.
 
 ## Responsive contract
