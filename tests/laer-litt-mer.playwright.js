@@ -267,7 +267,7 @@ async function finishSession(page){
         await p.locator('#open-parent-info').click();
         await p.locator('#parent-info-screen.active').waitFor();
         assert.equal(await p.locator('#parent-info-screen').getAttribute('data-parent-trust-release'),'parent-trust-rc1');
-        const parentText=await p.locator('.parent-letter').innerText();
+        const parentText=await p.locator('#parent-info-screen .parent-letter').innerText();
         assert.match(parentText,/Skjermtid med et formål/i);
         assert.match(parentText,/LK20/i);
         assert.match(parentText,/supplement, ikke en erstatning/i);
