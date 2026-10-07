@@ -237,7 +237,7 @@
   border:3px solid rgba(255,247,227,.96)!important;
   background:
     linear-gradient(100deg,rgba(255,248,230,.96) 0 49%,rgba(255,248,230,.54) 72%,rgba(255,248,230,.18) 100%),
-    url('./geografi-verden.png') center/cover no-repeat!important;
+    url('./globe-v20-approved.webp') center/cover no-repeat!important;
   box-shadow:var(--laria-shadow)!important;
   overflow:hidden;
 }
@@ -468,7 +468,7 @@
   min-height:190px;border-radius:31px;border:3px solid rgba(255,247,227,.96)!important;
   background:
     linear-gradient(100deg,rgba(255,248,230,.96) 0 54%,rgba(255,248,230,.55) 78%,rgba(255,248,230,.18) 100%),
-    url('./geografi-verden.png') center/cover no-repeat!important;
+    url('./globe-v20-approved.webp') center/cover no-repeat!important;
   box-shadow:var(--laria-shadow)!important;
 }
 #progress-screen .progress-page-banner:after{
