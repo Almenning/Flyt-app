@@ -260,8 +260,9 @@
 /* Interactive globe: preserve the actual globe, replace the "left the app" chrome. */
 #world-screen.active{
   background:
-    linear-gradient(180deg,rgba(195,231,238,.24),rgba(221,241,229,.20)),
-    url('./geografi-verden.png') center/cover no-repeat!important;
+    radial-gradient(circle at 18% 18%,rgba(255,248,219,.64),transparent 28%),
+    radial-gradient(circle at 82% 72%,rgba(160,207,184,.25),transparent 34%),
+    linear-gradient(180deg,#d8edf0 0%,#c8e4e3 48%,#dfead5 100%)!important;
 }
 #world-screen.active .globe-wrap{
   background:transparent!important;
@@ -500,8 +501,8 @@
 /* Fraction lab: keep the manipulative colors, unify the surrounding product shell. */
 #fraction-lab-screen{
   background:
-    linear-gradient(180deg,rgba(255,248,230,.94),rgba(237,246,236,.96)),
-    url('./matte-verden.png') center/cover fixed no-repeat!important;
+    radial-gradient(circle at 15% 10%,rgba(255,224,149,.36),transparent 30%),
+    linear-gradient(180deg,#fff7e8 0%,#eef5e9 100%)!important;
 }
 #fraction-lab-screen .fraction-lab-shell{
   max-width:980px;margin:0 auto;padding:14px;
@@ -539,8 +540,8 @@
 /* Multiplication lab */
 #multiplication-lab-screen{
   background:
-    linear-gradient(180deg,rgba(255,248,230,.94),rgba(237,246,236,.96)),
-    url('./matte-verden.png') center/cover fixed no-repeat!important;
+    radial-gradient(circle at 86% 13%,rgba(255,216,105,.26),transparent 27%),
+    linear-gradient(180deg,#fff7e8 0%,#eef5e9 100%)!important;
 }
 #multiplication-lab-screen .mult-lab-shell{
   max-width:980px;margin:0 auto;padding:14px;
