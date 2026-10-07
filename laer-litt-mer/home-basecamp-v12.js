@@ -111,7 +111,7 @@ function bindCampControls(host){
    e.preventDefault();
    if(holdTimer)return;
    adult.classList.add('holding');adult.textContent='🔓 Fortsett å holde …';
-   holdTimer=setTimeout(()=>{holdTimer=null;adult.classList.remove('holding');adult.textContent='🔒 For voksne';window.LARIA_OPEN_ADULT?.()},1500);
+   holdTimer=setTimeout(()=>{holdTimer=null;adult.classList.remove('holding');adult.textContent='🔒 For voksne';window.LARIA_OPEN_ADULT?window.LARIA_OPEN_ADULT():document.getElementById('adult-entry')?.click()},1500);
   });
   ['pointerup','pointerleave','pointercancel'].forEach(type=>adult.addEventListener(type,reset));
  }
