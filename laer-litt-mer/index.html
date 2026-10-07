@@ -3398,7 +3398,57 @@ function openGlobe(mode='explore'){
 }
 window.openGlobe=openGlobe;
 
-// Basecamp controls are owned exclusively by home-basecamp-v12.js.
+// Basecamp controls are primarily owned by home-basecamp-v12.js.
+// Safari fallback: only handle a Basecamp action when the primary handler did not already prevent it.
+document.addEventListener('click',e=>{
+  if(e.defaultPrevented)return;
+  const path=typeof e.composedPath==='function'?e.composedPath():[];
+  let target=path.find(node=>node&&node.dataset&&node.dataset.camp&&node.closest?.('.bc12'));
+  if(!target){
+    let node=e.target;
+    while(node&&node!==document){
+      if(node.dataset?.camp&&node.closest?.('.bc12')){target=node;break}
+      node=node.parentElement;
+    }
+  }
+  if(!target)return;
+  const action=target.dataset.camp;
+  const camp=target.closest('.bc12');
+  if(!action||!camp)return;
+  e.preventDefault();
+
+  if(action==='globe'){openGlobe('explore');return}
+  if(action==='words'){
+    if(typeof window.openWordHunt==='function')window.openWordHunt();
+    else if(typeof openSubject==='function')openSubject('norwegian');
+    return;
+  }
+  if(action==='fraction'){
+    if(typeof window.openFractionLab==='function')window.openFractionLab();
+    else if(typeof openSubject==='function')openSubject('math');
+    return;
+  }
+  if(action==='multiply'){
+    if(typeof window.openMultiplicationLab==='function')window.openMultiplicationLab();
+    else if(typeof openSubject==='function')openSubject('math');
+    return;
+  }
+  if(action==='travel'){
+    if(state?.activeSession){startSession();return}
+    const subject=state?.lastActivity?.subject||'norwegian';
+    if(subject==='geography')showScreen('geography');
+    else openSubject(['norwegian','math','english'].includes(subject)?subject:'norwegian');
+    return;
+  }
+  if(action==='home'){setTab('home');return}
+  if(action==='explore'){camp.dataset.mode='explore';return}
+  if(action==='collection'){setTab('progress');return}
+  if(action==='quest'){
+    const q=camp.querySelector('.bc12-quest');
+    if(q&&typeof q.click==='function'&&q!==target)q.click();
+  }
+});
+
 function setTab(tab){
   activeTab=tab;showScreen(tab);
   document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
