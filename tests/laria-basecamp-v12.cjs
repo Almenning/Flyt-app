@@ -11,13 +11,20 @@ const {chromium,webkit}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
  for(const [name,width,height] of [['ipad-landscape',1180,820],['ipad-portrait',820,1180],['iphone',390,844],['small-phone',320,568],['desktop',1024,768]]){
   const context=await browser.newContext({viewport:{width,height},isMobile:name.includes('phone'),hasTouch:true,reducedMotion:'reduce',serviceWorkers:'block'});
   const page=await context.newPage();page.on('pageerror',e=>errors.push(engineName+' '+name+': '+e.message));
+  const requested=[];
+  page.on('request',req=>requested.push(req.url()));
+  if(engineName==='chromium'&&name==='iphone'){
+    await page.route('https://raw.githubusercontent.com/**',async route=>{await new Promise(r=>setTimeout(r,5000));await route.fulfill({status:200,contentType:'application/json',body:'{"type":"FeatureCollection","features":[]}'});});
+    await page.route('https://api.worldbank.org/**',async route=>{await new Promise(r=>setTimeout(r,5000));await route.fulfill({status:200,contentType:'application/json',body:'[{},[]]'});});
+  }
   const seed={version:7,progressSchemaVersion:3,profile:{grade:2,onboarded:true,name:'Testbarn',avatar:'boy',setupVersion:2},mastery:{},mistakes:{},skillMastery:{},skillMistakes:{},skillLastSeen:{},masteryEvidence:{},skillEvidence:{},preferences:{sound:false,autoRead:false},lastMilestone:null,recentCountryWin:null,lastActivity:null,journey:{nodes:{},gradeWins:{},viewGrades:{}},answerLog:[],sessionLog:[],activeSession:null};
   await page.addInitScript(s=>localStorage.setItem('laerlittmer-v2',JSON.stringify(s)),seed);
   const localUrl=process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria';
   const publishedUrl=process.env.QA_WEBKIT_URL||'https://almenning.github.io/Flyt-app/laer-litt-mer/?app=laria';
   const targetUrl=(engineName==='webkit'?publishedUrl:localUrl)+(engineName==='webkit'?(publishedUrl.includes('?')?'&':'?')+'basecampqa='+Date.now():'');
   console.log('[basecamp]',engineName,name,'goto',targetUrl);
-  await page.goto(targetUrl,{waitUntil:'networkidle'});
+  const bootStarted=Date.now();
+  await page.goto(targetUrl,{waitUntil:engineName==='chromium'&&name==='iphone'?'domcontentloaded':'networkidle'});
   try{
     await page.locator('.bc12').waitFor({state:'visible',timeout:10000});
   }catch(err){
@@ -36,6 +43,13 @@ const {chromium,webkit}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
     }));
     throw new Error(`Basecamp bootstrap failed: engine=${engineName} viewport=${name} state=${JSON.stringify(boot)} pageErrors=${JSON.stringify(errors.slice(-5))}; ${err.message}`);
   }
+  if(engineName==='chromium'&&name==='iphone'){
+    const homeReadyMs=Date.now()-bootStarted;
+    assert.ok(homeReadyMs<2500,'iphone cold Home took too long: '+homeReadyMs+'ms');
+    assert.equal(requested.some(u=>u.includes('raw.githubusercontent.com')||u.includes('api.worldbank.org')),false,'Home must not start external geography data during critical startup');
+    assert.equal(await page.locator('.bc12-place[data-camp="globe"]').isEnabled(),true,'globe control must be interactive on first Home paint');
+    console.log('[perf] iphone cold-home',homeReadyMs+'ms');
+  }
   assert.equal(await page.locator('.bc12').getAttribute('data-release'),'basecamp-rc1',name+' wrong Basecamp release');
   assert.equal(await page.locator('.bc12-nav button').count(),4,name+' must expose four main navigation choices');
   assert.deepEqual(await page.locator('.bc12-nav button').allTextContents(),['Hjem','Reisen','Utforsk','Samlingen'],name+' main navigation contract changed');
@@ -48,8 +62,25 @@ const {chromium,webkit}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
 
   for(const [action,screen,back] of [['globe','world','world-back'],['fraction','fraction-lab','fraction-lab-back'],['multiply','multiplication-lab','multiplication-lab-back']]){
    console.log('[basecamp]',engineName,name,'open',action);
+   const actionStarted=Date.now();
    await page.locator(`.bc12-place[data-camp="${action}"]`).tap();
    await page.locator(`#${screen}-screen.active`).waitFor({timeout:10000});
+   if(engineName==='chromium'&&name==='iphone'&&action==='globe'){
+    const openMs=Date.now()-actionStarted;
+    assert.ok(openMs<900,'iphone Home -> globe took too long: '+openMs+'ms');
+    await page.locator('#globe-canvas').waitFor({state:'visible',timeout:1500});
+    const globeState=await page.evaluate(()=>({
+      cssW:document.getElementById('globe-canvas')?._cssW||0,
+      cssH:document.getElementById('globe-canvas')?._cssH||0,
+      readyMs:Number(document.getElementById('world-screen')?.dataset.globeReadyMs||0),
+      immediate:document.getElementById('world-screen')?.dataset.openedImmediately||''
+    }));
+    assert.ok(globeState.cssW>=280&&globeState.cssH>=280,'iphone globe canvas was not initialized immediately: '+JSON.stringify(globeState));
+    assert.equal(globeState.immediate,'true','globe screen did not switch immediately');
+    assert.ok(globeState.readyMs>0&&globeState.readyMs<900,'globe renderer took too long after tap: '+JSON.stringify(globeState));
+    assert.equal(requested.some(u=>u.includes('geografi-verden.png')),false,'opening globe must not fetch 3MB geography background art');
+    console.log('[perf] iphone home-to-globe',openMs+'ms','renderer',globeState.readyMs+'ms');
+   }
    console.log('[basecamp]',engineName,name,'back',action);
    await page.locator('#'+back).tap();
    try{
