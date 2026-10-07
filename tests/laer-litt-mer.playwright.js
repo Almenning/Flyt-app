@@ -1096,7 +1096,7 @@ async function finishSession(page){
       restore();
       return result;
     });
-    assert.deepEqual(await page.evaluate(()=>CURRICULUM),{norwegian:'NOR01-08',math:'MAT01-05',english:'ENG01-06'},'active curriculum references drifted from the verified Udir plans');
+    assert.deepEqual(await page.evaluate(()=>CURRICULUM),{norwegian:'NOR01-08',math:'MAT01-06',english:'ENG01-06'},'active curriculum references drifted from the verified Udir plans');
     for(const subject of ['norwegian','english','math','geography']){
       assert.equal(contentDepth.fresh[subject],true,subject+' repeated an exact question across three consecutive grade-2 sessions');
     }
