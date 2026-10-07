@@ -36,8 +36,12 @@ test('Prompt 8 active Læria layers are explicit, unique and cache-aligned',()=>
     assert.ok(fs.existsSync(path.join(root,file)),'missing active file '+file);
     const v=versionOf(ref);
     assert.ok(v,'active asset is not cache-busted: '+ref);
-    assert.equal(swVersion(sw,file),v,'service worker version mismatch for '+file);
   }
+
+  assert.match(sw,/const CACHE='laria-runtime-[^']+perf\d+'/,'runtime cache must use an explicit performance release');
+  assert.match(sw,/caches\.match\(req\)/,'static runtime assets must consult cache before network');
+  assert.match(sw,/if\(cached\)return cached/,'warm static assets must return from cache immediately');
+  assert.doesNotMatch(sw,/\.css\?v=|\.js\?v=/,'service worker install must not precache the active CSS\/JS graph');
 
   const order=name=>css.findIndex(x=>cleanRef(x)===name);
   assert.equal(order('laria-foundation-v1.css'),0,'visual foundation must load before component CSS');
@@ -45,7 +49,7 @@ test('Prompt 8 active Læria layers are explicit, unique and cache-aligned',()=>
   assert.ok(order('laria-unified-v13.css')<order('laria-task-scene-v15.css'),'task scene must load after unified fallback');
   assert.ok(order('laria-task-scene-v15.css')<order('laria-task-young-v18.css'),'young task layer must load after shared task scene');
 
-  assert.match(sw,/const CACHE='laria-prompt8-2026-10-06-v8'/);
+  assert.match(sw,/const SHELL=\[\s*\/\/ Keep install light[^]*'\.\/manifest\.webmanifest'[^]*'\.\/icon\.svg'[^]*\]/);
 });
 
 test('active external styles do not reference missing local assets',()=>{
