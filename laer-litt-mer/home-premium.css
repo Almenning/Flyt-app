@@ -13,7 +13,7 @@
 #home-screen .home-continue-wrap{display:block!important;margin:0 0 28px!important}
 #home-screen .home-continue{position:relative!important;isolation:isolate!important;overflow:hidden!important;min-height:280px!important;padding:32px!important;border-radius:26px!important;border:1px solid #34594c!important;background:#193d32!important;color:#fff!important;box-shadow:0 12px 32px #203c3516!important}
 #home-screen .home-continue::before,#home-screen .home-continue::after{display:none!important}
-#home-screen .home-journey-art{position:absolute!important;z-index:-2!important;inset:0 0 0 30%!important;background:url('./geografi-verden.png') center 55%/cover no-repeat!important}
+#home-screen .home-journey-art{position:absolute!important;z-index:-2!important;inset:0 0 0 30%!important;background:url('./globe-v20-approved.webp') center 55%/cover no-repeat!important}
 #home-screen [data-subject="norwegian"] .home-journey-art{background-image:url('./bokskogen-atlas32.webp')!important;background-position:center 44%!important}
 #home-screen [data-subject="math"] .home-journey-art{background-image:url('./matte-verden.png')!important}
 #home-screen [data-subject="english"] .home-journey-art{background-image:url('./engelsk-verden.png')!important}
