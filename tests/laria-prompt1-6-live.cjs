@@ -44,7 +44,11 @@ async function onboarding(engine,name,avatar){
  await p.locator('.avatar-choice-card[data-avatar="'+avatar+'"]').click();const n=avatar==='boy'?'Oskar QA':'Ida QA';await p.locator('#profile-name').fill(n);await p.locator('.grade-btn[data-grade="2"]').click();await p.locator('#profile-next').click();await p.locator('#home-screen.active').waitFor();
  let profile=await p.evaluate(k=>JSON.parse(localStorage.getItem(k)).profile,KEY);assert.deepEqual([profile.name,profile.avatar,profile.grade,profile.onboarded],[n,avatar,2,true]);
  await p.reload({waitUntil:'networkidle'});await p.locator('#home-screen.active').waitFor();profile=await p.evaluate(k=>JSON.parse(localStorage.getItem(k)).profile,KEY);assert.deepEqual([profile.name,profile.avatar,profile.grade],[n,avatar,2]);
- assert.equal(await p.locator('.bc12-fox img').evaluate((img,a)=>img.src===window.LARIA_PROFILE_AVATARS?.[a],avatar),true);assert.deepEqual(errs,[],name+' '+avatar+' onboarding errors');await c.close();await b.close()
+  const sceneFox=await p.locator('.bc12-fox img').evaluate(img=>({src:img.getAttribute('src'),naturalWidth:img.naturalWidth,naturalHeight:img.naturalHeight}));
+  assert.match(sceneFox.src,/lia-fox-explorer\.webp(?:\?|$)/,'Basecamp must use the dedicated in-world mascot instead of the rectangular onboarding portrait');
+  assert.ok(sceneFox.naturalWidth>0&&sceneFox.naturalHeight>0,'Basecamp scene mascot must load');
+  assert.equal(profile.avatar,avatar,'saved avatar choice must persist independently of scene artwork');
+  assert.deepEqual(errs,[],name+' '+avatar+' onboarding errors');await c.close();await b.close()
 }
 async function viewport(engine,name,w,h,label){
  const b=await engine.launch({headless:true}),c=await b.newContext({viewport:{width:w,height:h},hasTouch:true,isMobile:w<700,serviceWorkers:'block'}),s=JSON.parse(JSON.stringify(seed));s.profile.grade=2;
