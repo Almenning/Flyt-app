@@ -309,3 +309,64 @@
   .bc12[data-release="basecamp-rc1"] .bc12-journey{left:56%;width:36%;top:64%}
   .bc12[data-release="basecamp-rc1"] .bc12-journey-route{left:35%;top:53%;width:38%;height:31%}
 }
+
+
+/* Prompt 9 RC3 — tighten the supplied iPhone composition. */
+@media(max-width:700px){
+  .bc12[data-release="basecamp-rc1"] .bc12-heading{
+    top:max(1.2%,env(safe-area-inset-top));
+  }
+  .bc12[data-release="basecamp-rc1"] .bc12-heading p{
+    max-width:72%;
+    margin-left:auto;
+    margin-right:auto;
+  }
+  .bc12[data-release="basecamp-rc1"] .bc12-explore-ribbon{
+    top:15.8%;
+    right:3%;
+  }
+  .bc12[data-release="basecamp-rc1"] .bc12-fox{
+    left:10%;
+    top:50.5%;
+    width:31%;
+    max-width:132px;
+    filter:drop-shadow(2px 9px 4px #35281655);
+  }
+  .bc12[data-release="basecamp-rc1"] .bc12-fox-call{
+    left:6%;
+    top:62%;
+    max-width:118px;
+  }
+  .bc12[data-release="basecamp-rc1"] .bc12-journey-route{
+    left:31%;
+    top:49%;
+    width:53%;
+    height:27%;
+    opacity:.78;
+  }
+  .bc12[data-release="basecamp-rc1"] .bc12-route-edge{
+    stroke-width:12;
+    opacity:.25;
+  }
+  .bc12[data-release="basecamp-rc1"] .bc12-route-main{
+    stroke-width:7;
+    opacity:.58;
+  }
+  .bc12[data-release="basecamp-rc1"] .bc12-route-progress{
+    stroke-width:7;
+  }
+  .bc12[data-release="basecamp-rc1"] .bc12-route-bridge{
+    opacity:.72;
+  }
+  .bc12[data-release="basecamp-rc1"] .bc12-you-are-here{
+    left:27%;
+    top:64%;
+  }
+  .bc12[data-release="basecamp-rc1"] .bc12-next-beacon{
+    left:69%;
+    top:59%;
+  }
+  .bc12[data-release="basecamp-rc1"] .bc12-journey{
+    top:63.5%;
+  }
+}
