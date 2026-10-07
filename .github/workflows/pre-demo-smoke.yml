@@ -41,6 +41,7 @@ jobs:
         if: always()
         env:
           QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+          QA_WEBKIT_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
         shell: bash
         run: |
           python3 -m http.server 8765 --directory . >/tmp/laria-basecamp-server.log 2>&1 &
