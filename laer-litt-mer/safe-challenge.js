@@ -142,8 +142,8 @@ function style(){
     '.sc-link-wrap{display:grid;gap:8px;margin:14px 0}.sc-link{width:100%;border:2px solid #e5e3ef;border-radius:15px;padding:12px;background:#fff;color:#596078;font-size:12px}.sc-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}.sc-primary,.sc-secondary{min-height:50px;border-radius:17px;font-weight:950}.sc-primary{border:0;background:#667ff4;color:white;box-shadow:0 5px 0 #4f63ca}.sc-secondary{border:2px solid #e2e3ed;background:#fff;color:#38445f}.sc-actions .wide{grid-column:1/-1}',
     '.sc-status{min-height:20px;margin:9px 0 0;color:#55715f;font-size:12px;font-weight:800}.sc-history{margin-top:18px;padding-top:15px;border-top:2px dashed #e7e3d8}.sc-history h3{font-size:15px;margin:0 0 8px}.sc-history-row{display:flex;justify-content:space-between;gap:12px;padding:9px 0;font-size:12px;color:#6c7390}.sc-history-row b{color:#38445f}',
     '.safe-challenge-entry{width:100%;margin:20px 0 8px;border:2px solid #fff;border-radius:25px;padding:18px;background:linear-gradient(145deg,#fff3c9,#f3efff);color:#24314b;text-align:left;box-shadow:0 8px 0 rgba(70,72,115,.06),0 14px 26px rgba(65,64,104,.08);display:flex;align-items:center;gap:14px}.safe-challenge-entry span:first-child{font-size:31px}.safe-challenge-entry strong{display:block;font-size:17px}.safe-challenge-entry small{display:block;color:#6c7390;margin-top:3px;font-weight:750}',
-    '.bc12-nav.safe-has-challenge{grid-template-columns:repeat(5,1fr);left:9%;width:82%}.bc12-nav .safe-challenge-young{background:transparent;color:#f6e3c5;border:0;border-radius:15px;min-height:55px;font-size:12px;font-weight:750;display:flex;justify-content:center;align-items:center;gap:7px}.bc12-nav .safe-challenge-young span{font-size:28px;color:#f1cc97}',
-    '@media(max-width:520px){.sc-shell{padding:19px}.sc-shell h2{font-size:23px}.sc-actions{grid-template-columns:1fr}.sc-actions .wide{grid-column:auto}.bc12-nav.safe-has-challenge{left:2%;width:96%;padding:4px}.bc12-nav.safe-has-challenge button{font-size:9px!important;gap:2px!important;min-height:50px!important}.bc12-nav.safe-has-challenge button span{font-size:22px!important}}'
+    '.bc12 .safe-challenge-young{position:absolute;z-index:9;right:2.5%;top:2.5%;min-width:104px;min-height:48px;border:2px solid #c39859;border-radius:13px;background:linear-gradient(#986c3b,#623c21);color:#fff2cc;box-shadow:0 4px #422a1d,0 7px 14px #172f3040;font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 10px}.bc12 .safe-challenge-young span{font-size:21px;color:#ffdc84}',
+    '@media(max-width:520px){.sc-shell{padding:19px}.sc-shell h2{font-size:23px}.sc-actions{grid-template-columns:1fr}.sc-actions .wide{grid-column:auto}.bc12 .safe-challenge-young{right:2%;top:1.8%;min-width:92px;min-height:46px;font-size:10px;padding:7px 8px}.bc12 .safe-challenge-young span{font-size:19px}}'
   ].join('');
   document.head.appendChild(el);
 }
@@ -236,11 +236,10 @@ function injectEntries(){
     entry.onclick=()=>incomingPayload?fillPayload(incomingPayload,'incoming'):openCreate('geography');
     const adult=document.getElementById('adult-entry');home.insertBefore(entry,adult||null);
   }
-  const nav=document.querySelector('.bc12-nav');
-  if(nav&&!nav.querySelector('.safe-challenge-young')){
-    nav.classList.add('safe-has-challenge');
+  const camp=document.querySelector('.bc12');
+  if(camp&&!camp.querySelector('.safe-challenge-young')){
     const b=document.createElement('button');b.type='button';b.className='safe-challenge-young';b.setAttribute('aria-label','Utfordre noen med fem spørsmål');b.innerHTML='<span aria-hidden="true">⚡</span>Utfordre';
-    b.onclick=e=>{e.preventDefault();incomingPayload?fillPayload(incomingPayload,'incoming'):openCreate('geography')};nav.appendChild(b);
+    b.onclick=e=>{e.preventDefault();incomingPayload?fillPayload(incomingPayload,'incoming'):openCreate('geography')};camp.appendChild(b);
   }
 }
 function parseIncoming(){
