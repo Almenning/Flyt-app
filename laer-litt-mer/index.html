@@ -2473,7 +2473,7 @@
 
       <div class="home-subject-grid" aria-label="Velg fag">
         <button class="home-subject geography" id="open-geography" type="button">
-          <div class="home-subject-art" aria-hidden="true"><img src="./geografi-verden.png" alt="" loading="lazy" width="600" height="400"><span class="home-world-label">Oppdagelsesriket</span></div>
+          <div class="home-subject-art" aria-hidden="true"><img data-legacy-world-src="./geografi-verden.png" alt="" loading="lazy" width="600" height="400"><span class="home-world-label">Oppdagelsesriket</span></div>
           <div class="home-subject-body">
             <div class="home-subject-icon">🌍</div><div class="home-subject-copy"><strong>Geografi</strong><p>Utforsk verden og se landene få farge.</p></div><span class="home-subject-arrow">›</span>
           </div>
@@ -2489,7 +2489,7 @@
         </button>
 
         <button class="home-subject math" id="open-math" type="button">
-          <div class="home-subject-art" aria-hidden="true"><img src="./matte-verden.png" alt="" loading="lazy" width="600" height="400"><span class="home-world-label">Tallriket</span></div>
+          <div class="home-subject-art" aria-hidden="true"><img data-legacy-world-src="./matte-verden.png" alt="" loading="lazy" width="600" height="400"><span class="home-world-label">Tallriket</span></div>
           <div class="home-subject-body">
             <div class="home-subject-icon">➗</div><div class="home-subject-copy"><strong>Matte</strong><p>Regn, eksperimenter og finn mønstrene.</p></div><span class="home-subject-arrow">›</span>
           </div>
@@ -2497,7 +2497,7 @@
         </button>
 
         <button class="home-subject english" id="open-english" type="button">
-          <div class="home-subject-art" aria-hidden="true"><img src="./engelsk-verden.png" alt="" loading="lazy" width="600" height="400"><span class="home-world-label">Ordlandsbyen</span></div>
+          <div class="home-subject-art" aria-hidden="true"><img data-legacy-world-src="./engelsk-verden.png" alt="" loading="lazy" width="600" height="400"><span class="home-world-label">Ordlandsbyen</span></div>
           <div class="home-subject-body">
             <div class="home-subject-icon">🇬🇧</div><div class="home-subject-copy"><strong>Engelsk</strong><p>Words, sentences and real-world English.</p></div><span class="home-subject-arrow">›</span>
           </div>
@@ -3351,7 +3351,13 @@ function dailyGoal(){
   return {target:1,done:unique.size?1:0,sessions:unique.size};
 }
 function gradeBand(grade=currentGrade()){return grade<=2?'young':grade<=4?'middle':grade<=7?'older':'teen'}
-function applyGradeDesign(){const app=document.querySelector('.app');if(!app)return;app.classList.remove('grade-band-young','grade-band-middle','grade-band-older','grade-band-teen');app.classList.add('grade-band-'+gradeBand())}
+function hydrateLegacyHomeArt(){
+  if(currentGrade()<=2)return;
+  document.querySelectorAll('img[data-legacy-world-src]').forEach(img=>{
+    if(!img.getAttribute('src'))img.src=img.dataset.legacyWorldSrc;
+  });
+}
+function applyGradeDesign(){const app=document.querySelector('.app');if(!app)return;app.classList.remove('grade-band-young','grade-band-middle','grade-band-older','grade-band-teen');app.classList.add('grade-band-'+gradeBand());hydrateLegacyHomeArt()}
 function lastLearningAt(){return state.answerLog.reduce((m,a)=>Math.max(m,Number(a.at||0)),0)}
 function formatPopulation(n){if(!n)return '–';try{return new Intl.NumberFormat('nb-NO',{notation:'compact',maximumFractionDigits:1}).format(n)}catch(e){return String(n)}}
 
