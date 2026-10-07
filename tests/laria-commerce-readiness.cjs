@@ -14,6 +14,7 @@ test('Prompt 18 commerce contract is native-verified and parent controlled',()=>
   const swift=read('laria-native/LariaStorePlugin.swift.template');
   const bridge=read('laria-native/LariaBridgeViewController.swift.template');
   const workflow=read('.github/workflows/laria-ios-build.yml');
+  const brand=read('laria-native/prepare-brand.swift');
   const nativeConfig=JSON.parse(read('laria-native/capacitor.config.json'));
 
   assert.equal(nativeConfig.appId,'no.adspire.laria');
@@ -50,6 +51,12 @@ test('Prompt 18 commerce contract is native-verified and parent controlled',()=>
   assert.match(swift,/no\.adspire\.laria\.yearly/);
   assert.match(bridge,/registerPluginInstance\(LariaStorePlugin\(\)\)/);
 
+  assert.match(workflow,/Install Læria native branding/);
+  assert.match(workflow,/swift prepare-brand\.swift/);
+  assert.match(workflow,/Verify Læria native branding/);
+  assert.match(brand,/AppIcon-512@2x\.png/);
+  assert.match(brand,/splash-2732x2732\.png/);
+  assert.match(brand,/string: "Læria"/);
   assert.match(workflow,/Install StoreKit 2 bridge/);
   assert.match(workflow,/node prepare-storekit\.mjs/);
   assert.match(workflow,/Build Læria simulator target/);
