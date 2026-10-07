@@ -44,7 +44,7 @@ async function runCase(browserType,label,viewport){
     await page.route('https://api.worldbank.org/**',r=>r.abort());
     await page.goto(globalThis.__lariaUrl+'?app=laria&p18=commerce-'+label,{waitUntil:'domcontentloaded'});
 
-    const adult=page.locator('#adult-entry');
+    const adult=page.locator('.bc12-adult-entry');
     await adult.waitFor({state:'visible'});
     await adult.dispatchEvent('pointerdown',{pointerType:'touch',button:0});
     await page.waitForTimeout(1600);
