@@ -13,8 +13,24 @@ const {chromium,webkit}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
   const page=await context.newPage();page.on('pageerror',e=>errors.push(engineName+' '+name+': '+e.message));
   const seed={version:7,progressSchemaVersion:3,profile:{grade:2,onboarded:true,name:'Testbarn',avatar:'boy',setupVersion:2},mastery:{},mistakes:{},skillMastery:{},skillMistakes:{},skillLastSeen:{},masteryEvidence:{},skillEvidence:{},preferences:{sound:false,autoRead:false},lastMilestone:null,recentCountryWin:null,lastActivity:null,journey:{nodes:{},gradeWins:{},viewGrades:{}},answerLog:[],sessionLog:[],activeSession:null};
   await page.addInitScript(s=>localStorage.setItem('laerlittmer-v2',JSON.stringify(s)),seed);
-  await page.goto(process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/',{waitUntil:'networkidle'});
-  await page.locator('.bc12').waitFor({state:'visible'});
+  const targetUrl=process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/';
+  console.log('[basecamp]',engineName,name,'goto',targetUrl);
+  await page.goto(targetUrl,{waitUntil:'networkidle'});
+  try{
+    await page.locator('.bc12').waitFor({state:'visible',timeout:10000});
+  }catch(err){
+    const boot=await page.evaluate(()=>({
+      href:location.href,
+      active:document.querySelector('.screen.active')?.id||null,
+      onboarding:document.getElementById('onboarding')?.className||null,
+      bc12Count:document.querySelectorAll('.bc12').length,
+      bc12Hidden:document.querySelector('.bc12')?.hidden??null,
+      profile:JSON.parse(localStorage.getItem('laerlittmer-v2')||'null')?.profile||null,
+      ready:document.readyState,
+      bodyClass:document.body?.className||''
+    }));
+    throw new Error(`Basecamp bootstrap failed: engine=${engineName} viewport=${name} state=${JSON.stringify(boot)} pageErrors=${JSON.stringify(errors.slice(-5))}; ${err.message}`);
+  }
   assert.equal(await page.locator('.bc12').getAttribute('data-release'),'basecamp-rc1',name+' wrong Basecamp release');
   assert.equal(await page.locator('.bc12-nav button').count(),4,name+' must expose four main navigation choices');
   assert.deepEqual(await page.locator('.bc12-nav button').allTextContents(),['Hjem','Reisen','Utforsk','Samlingen'],name+' main navigation contract changed');
