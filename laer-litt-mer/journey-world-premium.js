@@ -49,10 +49,25 @@
 
   function activateWorldImages(host,geo){
     const screen=document.getElementById(geo?'geography-screen':'subject-screen');
-    if(!screen?.classList.contains('active'))return;
-    host.querySelectorAll('img[data-world-src]').forEach(img=>{
-      if(!img.getAttribute('src'))img.setAttribute('src',img.dataset.worldSrc);
+    if(host._premiumWorldImageObserver){
+      host._premiumWorldImageObserver.disconnect();
+      host._premiumWorldImageObserver=null;
+    }
+    const load=()=>{
+      host.querySelectorAll('img[data-world-src]').forEach(img=>{
+        if(!img.getAttribute('src'))img.setAttribute('src',img.dataset.worldSrc);
+      });
+    };
+    if(screen?.classList.contains('active')){load();return}
+    if(!screen){return}
+    const observer=new MutationObserver(()=>{
+      if(!screen.classList.contains('active'))return;
+      observer.disconnect();
+      host._premiumWorldImageObserver=null;
+      load();
     });
+    observer.observe(screen,{attributes:true,attributeFilter:['class']});
+    host._premiumWorldImageObserver=observer;
   }
 
   function installWorldDepthMotion(host){
