@@ -146,8 +146,10 @@ async function verifyOlderHome(page,label,width,height){
   // Parent area is part of the trust-critical product surface.
   const adult=page.locator('#adult-entry');
   await adult.scrollIntoViewIfNeeded();
-  await adult.tap();
+  await adult.dispatchEvent('pointerdown',{pointerType:'touch',pointerId:17,isPrimary:true,clientX:20,clientY:20});
+  await page.waitForTimeout(1650);
   await page.locator('#adult-screen.active').waitFor();
+  await adult.dispatchEvent('pointerup',{pointerType:'touch',pointerId:17,isPrimary:true,clientX:20,clientY:20}).catch(()=>{});
   await noOverflow(page,label+' adult');
   const adultBack=await rect(page,'#adult-back');assertTap(adultBack,label+' adult back');
   const select=await rect(page,'#adult-grade');assert.ok(select.h>=40,label+' grade select too small: '+JSON.stringify(select));
