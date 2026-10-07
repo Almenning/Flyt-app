@@ -3398,52 +3398,7 @@ function openGlobe(mode='explore'){
 }
 window.openGlobe=openGlobe;
 
-// Stable Basecamp routing. This capture handler is intentionally independent of
-// the presentation script so the four core activities remain usable even if a
-// Basecamp enhancement fails.
-document.addEventListener('click',e=>{
-  const target=e.target.closest?.('.bc12 [data-camp]');
-  if(!target)return;
-  const action=target.dataset.camp;
-  if(!action)return;
-
-  const core=new Set(['globe','words','fraction','multiply','travel','home','explore','collection']);
-  if(!core.has(action))return;
-
-  e.preventDefault();
-  e.stopImmediatePropagation();
-
-  if(action==='globe'){openGlobe('explore');return}
-  if(action==='words'){
-    if(typeof window.openWordHunt==='function')window.openWordHunt();
-    else if(typeof openSubject==='function')openSubject('norwegian');
-    return;
-  }
-  if(action==='fraction'){
-    if(typeof window.openFractionLab==='function')window.openFractionLab();
-    else if(typeof openSubject==='function')openSubject('math');
-    return;
-  }
-  if(action==='multiply'){
-    if(typeof window.openMultiplicationLab==='function')window.openMultiplicationLab();
-    else if(typeof openSubject==='function')openSubject('math');
-    return;
-  }
-  if(action==='travel'){
-    if(state?.activeSession){startSession();return}
-    const subject=state?.lastActivity?.subject||'norwegian';
-    if(subject==='geography')showScreen('geography');
-    else openSubject(['norwegian','math','english'].includes(subject)?subject:'norwegian');
-    return;
-  }
-  if(action==='collection'){setTab('progress');return}
-  if(action==='home'){setTab('home');return}
-  if(action==='explore'){
-    const camp=document.querySelector('.bc12');
-    if(camp)camp.dataset.mode='explore';
-  }
-},true);
-
+// Basecamp controls are owned exclusively by home-basecamp-v12.js.
 function setTab(tab){
   activeTab=tab;showScreen(tab);
   document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
