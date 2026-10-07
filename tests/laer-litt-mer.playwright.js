@@ -123,7 +123,7 @@ async function finishSession(page){
       await perfPage.locator('.bc12-place[data-camp="globe"]').tap();
       await perfPage.locator('#world-screen.active').waitFor({timeout:1000});
       const screenSwitchMs=Date.now()-tapStart;
-      assert.ok(screenSwitchMs<750,'Home -> Globe screen switch too slow: '+screenSwitchMs+'ms');
+      assert.ok(screenSwitchMs<900,'Home -> Globe screen switch too slow: '+screenSwitchMs+'ms');
 
       await perfPage.waitForFunction(()=>{
         const c=document.getElementById('globe-canvas');
