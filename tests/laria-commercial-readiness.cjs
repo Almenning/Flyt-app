@@ -25,7 +25,7 @@ function extractFunction(source, name) {
 }
 
 function extractConstExpression(source, name, openChar, closeChar) {
-  const matcher = new RegExp('\\\\bconst\\\\s+' + name + '\\\\s*=');
+  const matcher = new RegExp('\\bconst\\s+' + name + '\\s*=');
   const match = matcher.exec(source);
   const start = match ? match.index : -1;
   assert.notEqual(start, -1, 'Missing const ' + name);
