@@ -38,6 +38,7 @@ jobs:
       - name: Run Læria local browser verification
         run: node tests/laer-litt-mer.playwright.js
       - name: Run Basecamp interaction verification in Chromium and WebKit
+        if: always()
         env:
           QA_URL: http://127.0.0.1:8765/laer-litt-mer/
         shell: bash
