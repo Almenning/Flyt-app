@@ -1303,3 +1303,26 @@
     border-radius:0 0 28px 28px!important;
   }
 }
+
+
+/* Prompt 15 profile identity on the traveler. */
+.premium-traveler[data-avatar="boy"]::after,
+.premium-traveler[data-avatar="girl"]::after{
+  content:"";
+  position:absolute;
+  z-index:4;
+  right:-2px;
+  top:-4px;
+  display:grid;
+  place-items:center;
+  width:20px;
+  height:20px;
+  border:2px solid rgba(255,255,255,.96);
+  border-radius:50%;
+  background:#fff8e8;
+  box-shadow:0 2px 5px rgba(29,42,31,.22);
+  font:900 11px/1 system-ui,sans-serif;
+  pointer-events:none;
+}
+.premium-traveler[data-avatar="boy"]::after{content:"✦";color:#3979b7}
+.premium-traveler[data-avatar="girl"]::after{content:"✿";color:#d86f78;background:#fff3ef}

@@ -9,8 +9,11 @@
   };
   const esc=s=>escapeAttr(String(s));
   function selectedJourneyFox(){
-    // The onboarding portraits may contain baked backgrounds. Journey worlds use the dedicated in-world mascot.
+    // The onboarding portraits contain baked backgrounds. Journey worlds keep the dedicated transparent scene fox.
     return './lia-fox-explorer.webp';
+  }
+  function selectedJourneyAvatar(){
+    try{return (typeof state!=='undefined'&&state?.profile?.avatar==='girl')?'girl':'boy'}catch(_){return 'boy'}
   }
   function complete(node,geo){
     const st=geo?geoJourneyNodeState(node):journeyNodeState(node);
@@ -267,7 +270,8 @@
     if(host._premiumWorldMotionCleanup)host._premiumWorldMotionCleanup();
     const reactionPoint=reaction?pointAt(config,reaction.index,route.length):null;
     const reactionTravelerPoint=reactionPoint?journeyTravelerPoint(reactionPoint):null;
-    const traveler=!prog.complete?'<div class="premium-traveler'+(reaction?' is-arriving':'')+'" style="--x:'+travelerPoint[0]+'%;--y:'+travelerPoint[1]+'%"'+(reactionTravelerPoint?' data-travel-from-x="'+reactionTravelerPoint[0]+'" data-travel-from-y="'+reactionTravelerPoint[1]+'" data-travel-to-x="'+travelerPoint[0]+'" data-travel-to-y="'+travelerPoint[1]+'"':'')+' aria-hidden="true"><span class="premium-traveler-character"><img src="'+esc(selectedJourneyFox())+'" alt="" draggable="false"></span><span class="premium-travel-dust"><i></i><i></i><i></i></span></div>':'';
+    const travelerAvatar=selectedJourneyAvatar();
+    const traveler=!prog.complete?'<div class="premium-traveler'+(reaction?' is-arriving':'')+'" data-avatar="'+travelerAvatar+'" style="--x:'+travelerPoint[0]+'%;--y:'+travelerPoint[1]+'%"'+(reactionTravelerPoint?' data-travel-from-x="'+reactionTravelerPoint[0]+'" data-travel-from-y="'+reactionTravelerPoint[1]+'" data-travel-to-x="'+travelerPoint[0]+'" data-travel-to-y="'+travelerPoint[1]+'"':'')+' aria-label="'+(travelerAvatar==='girl'?'Din valgte revejente':'Din valgte revegutt')+'"><span class="premium-traveler-character"><img src="'+esc(selectedJourneyFox())+'" alt="" draggable="false"></span><span class="premium-travel-dust"><i></i><i></i><i></i></span></div>':'';
     const routeOverlay=journeyRouteOverlay(config,route,nextIndex);
     const reactionFx=reactionPoint?'<div class="premium-progress-reaction" style="--reaction-x:'+reactionPoint[0]+'%;--reaction-y:'+reactionPoint[1]+'%" aria-hidden="true"><i></i><i></i><i></i><i></i><b>✓</b></div>':'';
     host.className='journey-map premium-journey-map';

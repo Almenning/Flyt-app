@@ -80,6 +80,9 @@ function paintCountryScene(canvas,c){
 }
 
 function selectedProfileFox(){return './lia-fox-explorer-home.webp'}
+function selectedProfileAvatar(){
+  try{return (typeof state!=='undefined'&&state?.profile?.avatar==='girl')?'girl':'boy'}catch(_){return 'boy'}
+}
 
 function ensurePremiumShell(){
   let header=screen.querySelector('.premium-globe-header');
@@ -91,7 +94,9 @@ function ensurePremiumShell(){
     screen.prepend(header);
   }
 
-  const fox=screen.querySelector('.premium-globe-fox');if(fox)fox.src=selectedProfileFox();
+  const avatar=selectedProfileAvatar();
+  header.dataset.avatar=avatar;
+  const fox=screen.querySelector('.premium-globe-fox');if(fox){fox.src=selectedProfileFox();fox.dataset.avatar=avatar;fox.setAttribute('aria-label',avatar==='girl'?'Din valgte revejente':'Din valgte revegutt')}
   const wrap=screen.querySelector('.globe-wrap');
   if(wrap){
     let ring=wrap.querySelector('.premium-globe-ring');

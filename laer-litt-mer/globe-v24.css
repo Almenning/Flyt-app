@@ -1046,3 +1046,25 @@ html:has(#world-screen.active){
     --g24-globe-top:50.5dvh;
   }
 }
+
+
+/* Prompt 15 profile identity on the physical globe companion. */
+#world-screen.active .premium-globe-header[data-avatar="boy"]::after,
+#world-screen.active .premium-globe-header[data-avatar="girl"]::after{
+  position:absolute!important;
+  z-index:6!important;
+  right:clamp(11px,1.7vw,24px)!important;
+  top:clamp(5px,.8dvh,10px)!important;
+  display:grid!important;
+  place-items:center!important;
+  width:clamp(20px,2.4vw,30px)!important;
+  height:clamp(20px,2.4vw,30px)!important;
+  border:2px solid rgba(255,255,255,.96)!important;
+  border-radius:50%!important;
+  background:#fff8e8!important;
+  box-shadow:0 3px 8px rgba(53,45,34,.20)!important;
+  font:900 clamp(11px,1.3vw,16px)/1 system-ui,sans-serif!important;
+  pointer-events:none!important;
+}
+#world-screen.active .premium-globe-header[data-avatar="boy"]::after{content:"✦"!important;color:#3979b7!important}
+#world-screen.active .premium-globe-header[data-avatar="girl"]::after{content:"✿"!important;color:#d86f78!important;background:#fff3ef!important}

@@ -26,7 +26,12 @@ const {chromium,webkit}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
   const bootStarted=Date.now();
   await page.goto(targetUrl,{waitUntil:engineName==='chromium'&&name==='iphone'?'domcontentloaded':'networkidle'});
   try{
-    await page.locator('.bc12').waitFor({state:'visible',timeout:10000});
+    await page.waitForFunction(()=>{
+      const host=document.querySelector('.bc12'),screen=document.getElementById('home-screen');
+      if(!host||!screen?.classList.contains('active')||host.hidden)return false;
+      const rect=host.getBoundingClientRect(),style=getComputedStyle(host);
+      return rect.width>1&&rect.height>1&&style.display!=='none'&&style.visibility!=='hidden';
+    },null,{timeout:10000});
   }catch(err){
     const boot=await page.evaluate(()=>({
       href:location.href,
@@ -69,6 +74,7 @@ const {chromium,webkit}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
     const openMs=Date.now()-actionStarted;
     assert.ok(openMs<900,'iphone Home -> globe took too long: '+openMs+'ms');
     await page.locator('#globe-canvas').waitFor({state:'visible',timeout:1500});
+    await page.waitForFunction(()=>Number(document.getElementById('world-screen')?.dataset.globeReadyMs||0)>0,null,{timeout:900});
     const globeState=await page.evaluate(()=>({
       cssW:document.getElementById('globe-canvas')?._cssW||0,
       cssH:document.getElementById('globe-canvas')?._cssH||0,
