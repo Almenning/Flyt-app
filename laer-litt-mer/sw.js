@@ -25,7 +25,7 @@ const SHELL=[
   './home-basecamp-v12.js?v=20261007-return1',
   // Free play
   './word-hunt.css?v=20261006-assets1',
-  './word-hunt.js?v=20261006-assets1',
+  './word-hunt.js?v=20261007-touch1',
   // Shared UI + task scene
   './laria-unified-v13.css?v=20261006-assets1',
   './laria-unified-v13.js?v=20261006-assets1',
