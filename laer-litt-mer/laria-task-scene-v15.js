@@ -52,9 +52,8 @@
     try{return (typeof state!=='undefined'&&state?.profile?.avatar==='girl')?'girl':'boy'}catch(_){return 'boy'}
   }
   function foxSource(){
-    const which=foxChoice();
-    try{if(typeof avatarSrc==='function')return avatarSrc(which)}catch(_){}
-    return window.LARIA_PROFILE_AVATARS?.[which]||'./lia-fox-explorer-home.webp';
+    // Onboarding portraits may contain baked backgrounds. The task companion is world art, not a profile thumbnail.
+    return './lia-fox-explorer.webp';
   }
 
   function premiumIllustrationSvg(visual){
@@ -106,6 +105,7 @@
     screen.dataset.taskSubject=subject;
     screen.dataset.taskBand=taskBand();
     screen.dataset.taskSceneVersion='15';
+    screen.dataset.taskSceneRelease='task-rc1';
     document.body.classList.add('laria-task-scene-open');
     closeButton.innerHTML='<span aria-hidden="true">‹</span><span>Hjem</span>';
     closeButton.setAttribute('aria-label','Tilbake til faget');
@@ -115,6 +115,7 @@
     delete screen.dataset.taskSubject;
     delete screen.dataset.taskBand;
     delete screen.dataset.taskSceneVersion;
+    delete screen.dataset.taskSceneRelease;
     document.body.classList.remove('laria-task-scene-open');
     closeButton.textContent='×';
     closeButton.setAttribute('aria-label','Avslutt');
