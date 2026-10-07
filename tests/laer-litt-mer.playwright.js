@@ -200,6 +200,7 @@ async function finishSession(page){
               title:document.title,
               appleTitle:document.querySelector('meta[name="apple-mobile-web-app-title"]')?.content||'',
               icon:document.querySelector('link[rel="icon"]')?.getAttribute('href')||'',
+              iconText:await fetch('./icon.svg',{cache:'no-store'}).then(r=>r.text()),
               manifest,
               visibleText:document.body.innerText
             };
@@ -210,6 +211,8 @@ async function finishSession(page){
           assert.equal(pwa.manifest.short_name,'Læria','manifest short name drifted');
           assert.match(String(pwa.manifest.icons?.[0]?.src||''),/icon\.svg$/,'manifest icon drifted');
           assert.equal(pwa.icon,'./icon.svg','visible favicon drifted');
+          assert.match(pwa.iconText,/aria-label="Læria"/,'app icon accessibility name drifted');
+          assert.doesNotMatch(pwa.iconText,/Lær litt mer|Lære litt mer/i,'old product name remains in app icon');
           assert.doesNotMatch(pwa.visibleText,/\bFlyt\b|Lære litt mer/i,'old product name remains visible in Læria');
 
           await p.locator('.bc12').waitFor();
