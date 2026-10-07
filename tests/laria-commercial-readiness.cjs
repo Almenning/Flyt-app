@@ -7,7 +7,7 @@ const vm = require('node:vm');
 const ROOT = path.resolve(__dirname, '..');
 const html = fs.readFileSync(path.join(ROOT, 'laer-litt-mer', 'index.html'), 'utf8');
 const norwegianContent = fs.readFileSync(path.join(ROOT, 'laer-litt-mer', 'norwegian-content.js'), 'utf8');
-const commercialContent = fs.readFileSync(path.join(ROOT, 'laer-litt-mer', 'commercial-content-v1.js'), 'utf8');
+const commercialContent = fs.readFileSync(path.join(ROOT, 'laer-litt-mer', 'commercial-content-v18.js'), 'utf8');
 
 function extractFunction(source, name) {
   const marker = 'function ' + name + '(';
@@ -104,7 +104,7 @@ function buildAuditRuntime() {
     norwegianContent
   ].join('\n');
   vm.runInContext(runtime, context, { filename: 'laria-commercial-audit-runtime.js' });
-  vm.runInContext(commercialContent, context, { filename: 'commercial-content-v1.js' });
+  vm.runInContext(commercialContent, context, { filename: 'commercial-content-v18.js' });
   vm.runInContext('globalThis.__mathPool=mathPool;globalThis.__englishPool=englishPool;globalThis.__norwegianPool=window.buildNorwegianPool;', context);
 
   const journeyExpr = extractConstExpression(html, 'JOURNEY_TEMPLATES', '{', '}');
@@ -152,10 +152,15 @@ function expectedSkills(journeys, subject, grade) {
 
 test('Prompt 18 commercial content audit exposes real launch readiness', () => {
   const runtime = buildAuditRuntime();
+  const supplement = runtime.LARIA_COMMERCIAL_CONTENT_V18 || {};
+  const withSupplement = (base, subject) => (grade, module) => [
+    ...base(grade, module),
+    ...(typeof supplement[subject] === 'function' ? supplement[subject](grade, module) : [])
+  ];
   const subjects = {
-    norwegian: runtime.__norwegianPool,
-    math: runtime.__mathPool,
-    english: runtime.__englishPool,
+    norwegian: withSupplement(runtime.__norwegianPool, 'norwegian'),
+    math: withSupplement(runtime.__mathPool, 'math'),
+    english: withSupplement(runtime.__englishPool, 'english'),
   };
 
   const report = { generatedAt: new Date().toISOString(), subjects: {}, geography: {}, blockers: [] };
