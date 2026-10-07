@@ -148,7 +148,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 (function loadSafeChallenge(){
  if(document.querySelector('script[data-laria-safe-challenge]'))return;
  const script=document.createElement('script');
- script.src='./safe-challenge.js?v=20261007-p16rc1';
+ script.src='./safe-challenge.js?v=20261007-p17rc1';
  script.async=true;
  script.dataset.lariaSafeChallenge='challenge-rc1';
  document.head.appendChild(script);
