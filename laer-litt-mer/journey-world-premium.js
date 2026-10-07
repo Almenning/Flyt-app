@@ -9,8 +9,8 @@
   };
   const esc=s=>escapeAttr(String(s));
   function selectedJourneyFox(){
-    const which=(typeof state!=='undefined'&&state?.profile?.avatar==='girl')?'girl':'boy';
-    return window.LARIA_PROFILE_AVATARS?.[which]||'./lia-fox-explorer-home.webp';
+    // The onboarding portraits may contain baked backgrounds. Journey worlds use the dedicated in-world mascot.
+    return './lia-fox-explorer.webp';
   }
   function complete(node,geo){
     const st=geo?geoJourneyNodeState(node):journeyNodeState(node);
@@ -233,6 +233,9 @@
     const routeOverlay=journeyRouteOverlay(config,route,nextIndex);
     const reactionFx=reactionPoint?'<div class="premium-progress-reaction" style="--reaction-x:'+reactionPoint[0]+'%;--reaction-y:'+reactionPoint[1]+'%" aria-hidden="true"><i></i><i></i><i></i><i></i><b>✓</b></div>':'';
     host.className='journey-map premium-journey-map';
+    host.dataset.journeyRelease='journey-rc1';
+    host.dataset.journeySubject=subject;
+    host.dataset.journeyCoreStops=String(route.length);
     host.innerHTML='<section class="premium-world premium-'+subject+' premium-world-depth-ready'+(prog.done>0?' has-progress':'')+(prog.complete?' is-complete':'')+(reaction?' is-progress-reaction':'')+'" style="--world-progress:'+prog.pct+';--focus-x:'+cx+'%;--focus-y:'+cy+'%" aria-label="'+esc(config.name+', interaktiv læringsverden')+'">'+
       '<div class="premium-world-depth-layer premium-world-distant-layer" data-world-depth="0.14" aria-hidden="true"><img class="premium-world-depth-art premium-world-depth-art-distant" src="./'+config.image+'" alt="" draggable="false" decoding="async">'+journeyAmbientMarkup()+'</div>'+
       '<div class="premium-world-depth-layer premium-world-midground-layer" data-world-depth="0.42">'+
