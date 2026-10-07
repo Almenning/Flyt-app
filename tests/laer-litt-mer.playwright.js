@@ -223,6 +223,8 @@ async function finishSession(page){
     assert.equal(exploreProgressAfter,exploreProgressBefore,'Lek & utforsk navigation changed graded progress');
 
     // Free-play places never disappear because the child has mastered academic content.
+    // Keep this synthetic mastery isolated so later journey tests see the real pre-test state.
+    const beforeSyntheticMastery=await page.evaluate(()=>JSON.stringify(state));
     await page.evaluate(()=>{
       const now=Date.now(),yesterday=now-86400000,today=evidenceDay(now),prev=evidenceDay(yesterday);
       for(const subject of ['norwegian','math','english']){
@@ -245,6 +247,9 @@ async function finishSession(page){
       assert.equal(await place.isVisible(),true,'mastery hid free-play place: '+action);
       assert.equal(await place.isEnabled(),true,'mastery disabled free-play place: '+action);
     }
+    await page.evaluate(saved=>{
+      state=JSON.parse(saved);saveState();setTab('home');
+    },beforeSyntheticMastery);
 
     // Daily goal remains session-based even though Basecamp no longer exposes the old dashboard widget.
     await page.evaluate(()=>{
