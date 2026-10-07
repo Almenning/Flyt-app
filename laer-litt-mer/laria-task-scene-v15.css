@@ -1552,3 +1552,29 @@ body.laria-task-scene-open .app:after{
     height:65px;
   }
 }
+
+
+/* Prompt 15 profile identity: the companion remains scene art while the saved avatar
+   choice is visible as a small accessory inside the fox box. */
+#session-screen.task-scene .task-fox-companion[data-avatar="boy"]::after,
+#session-screen.task-scene .task-fox-companion[data-avatar="girl"]::after{
+  content:"";
+  position:absolute;
+  z-index:5;
+  right:2px;
+  top:4px;
+  display:grid;
+  place-items:center;
+  width:20px;
+  height:20px;
+  border:2px solid rgba(255,255,255,.96);
+  border-radius:50%;
+  background:#fff8e8;
+  box-shadow:0 2px 5px rgba(55,67,54,.20);
+  opacity:1;
+  transform:none;
+  font:900 11px/1 system-ui,sans-serif;
+  pointer-events:none;
+}
+#session-screen.task-scene .task-fox-companion[data-avatar="boy"]::after{content:"✦";color:#3979b7}
+#session-screen.task-scene .task-fox-companion[data-avatar="girl"]::after{content:"✿";color:#d86f78;background:#fff3ef}
