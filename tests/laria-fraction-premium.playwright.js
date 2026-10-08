@@ -22,6 +22,13 @@ async function run(browser,engine,label,viewport,url){
   assert.equal(await page.locator('#fraction-lab-screen').getAttribute('data-explore-release'),'explore-rc1');
   assert.equal(await page.locator('.fr2-home-card').count(),6);
   assert.equal(await page.locator('.fr2-home-card .fr2-illustration').count(),6,'each activity needs its own illustrative scene');
+  const labelsClear=await page.locator('.fr2-home-card').evaluateAll(cards=>cards.map(card=>{
+    const label=card.querySelector('strong').getBoundingClientRect();
+    const arrow=card.querySelector('.fr2-card-arrow').getBoundingClientRect();
+    const overlap=label.left<arrow.right&&label.right>arrow.left&&label.top<arrow.bottom&&label.bottom>arrow.top;
+    return {name:card.querySelector('strong').textContent,overlap};
+  }));
+  assert.ok(labelsClear.every(x=>!x.overlap),label+' activity names must never collide with arrows: '+JSON.stringify(labelsClear));
   assert.equal(await page.locator('.fr2-sign-decoration .fr2-illustration').count(),1,'workshop title must carry fraction artwork');
   const workshopScenery=await page.evaluate(async()=>({
     background:getComputedStyle(document.querySelector('.fr2-world-art')).backgroundImage,
