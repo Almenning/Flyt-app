@@ -1160,3 +1160,80 @@ html:has(#world-screen.active){
     filter:drop-shadow(0 12px 10px rgba(52,36,20,.24))!important;
   }
 }
+
+
+/* Prompt 18 final visual-signoff pass: match the locked atlas composition across devices. */
+#world-screen.active.globe-v30{
+  --g24-globe:min(54dvh,52vw,650px);
+  --g24-globe-top:48.2dvh;
+}
+#world-screen.active.globe-v30 .premium-globe-guide{
+  display:none!important;
+}
+#world-screen.active.globe-v30 .globe-wrap{
+  filter:drop-shadow(0 14px 16px rgba(28,57,45,.20))!important;
+}
+#world-screen.active.globe-v30 .globe-status{
+  bottom:calc(72px + env(safe-area-inset-bottom))!important;
+}
+#world-screen.active.globe-v30 .globe-actions{
+  height:58px!important;
+}
+#world-screen.active.globe-v30::before{
+  background:
+    radial-gradient(circle at 50% 46%,rgba(255,255,255,.08) 0 30%,rgba(255,248,222,.04) 58%,rgba(23,52,42,.14) 100%),
+    linear-gradient(180deg,rgba(255,250,230,.03),rgba(17,46,36,.10))!important;
+}
+
+@media (orientation:portrait) and (max-width:430px){
+  #world-screen.active.globe-v30{
+    --g24-globe:min(91vw,45.5dvh);
+    --g24-globe-top:45.7dvh;
+  }
+  #world-screen.active.globe-v30 .premium-globe-header{
+    min-height:92px!important;
+    padding-right:86px!important;
+  }
+  #world-screen.active.globe-v30 .premium-globe-fox{
+    width:88px!important;
+  }
+  #world-screen.active.globe-v30 .globe-zoom{
+    right:2%!important;
+    top:18%!important;
+  }
+  #world-screen.active.globe-v30 .globe-status{
+    bottom:calc(58px + env(safe-area-inset-bottom))!important;
+    min-height:96px!important;
+  }
+}
+
+@media (orientation:portrait) and (min-width:700px){
+  #world-screen.active.globe-v30{
+    --g24-globe:min(69vw,50dvh,610px);
+    --g24-globe-top:45.5dvh;
+  }
+  #world-screen.active.globe-v30 .premium-globe-header{
+    min-height:112px!important;
+    padding-right:154px!important;
+  }
+  #world-screen.active.globe-v30 .globe-status{
+    bottom:calc(76px + env(safe-area-inset-bottom))!important;
+    min-height:104px!important;
+  }
+}
+
+@media (orientation:landscape) and (min-width:900px){
+  #world-screen.active.globe-v30{
+    --g24-globe:min(54dvh,52vw,650px);
+    --g24-globe-top:49.2dvh;
+  }
+  #world-screen.active.globe-v30 .premium-globe-header{
+    min-height:112px!important;
+  }
+  #world-screen.active.globe-v30 .premium-globe-fox{
+    width:132px!important;
+  }
+  #world-screen.active.globe-v30 .globe-status{
+    bottom:calc(72px + env(safe-area-inset-bottom))!important;
+  }
+}
