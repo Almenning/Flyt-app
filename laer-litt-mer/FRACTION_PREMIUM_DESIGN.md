@@ -36,3 +36,24 @@ Låst formspråk: Læria-eventyrverden, varmt treverk, kremfarget pergament, dem
 
 ## Implementasjon
 `laer-litt-mer/fraction-premium-v2.js`, `laer-litt-mer/fraction-premium-v2.css`, browser QA `tests/laria-fraction-premium.playwright.js`.
+
+## Visuell gjennomgang 9. oktober 2026: illustrasjon mot kode
+
+Ved sammenligning av de seks låste illustrasjonene med faktiske Safari-skjermbilder fra den første Brøklaben ble tre vesentlige mangler funnet:
+
+1. **Miljø:** Den første kodeversjonen brukte en utvisket standardmattebakgrunn i stedet for et illustrert brøkverksted.
+2. **Aktiviteter:** De seks menyillustrasjonene var overforenklede gjentakelser av den samme brøksirkelen eller typografiske tegn.
+3. **Fysiske objekter:** Byggeskjermens løse brikker var Unicode-sirkler, ikke visuelt håndgripelige sektorer.
+
+### Ny forbedring v3
+
+- Eget illustrert **bakeri- og verkstedmiljø** `fraction-workshop-scene.svg`, med hyller, krukker, vindu mot eventyrlandskap, epler, pai og trebenk. Miljøet er en atmosfærisk bakgrunn, ikke et skjermbilde med falske knapper.
+- Seks distinkte SVG-illustrasjoner for startskjermens aktiviteter, basert på visuell retning i de godkjente konseptene. Hver illustrasjon er dekorativ, mens selve aktivitetsknappen forblir ekte HTML.
+- Ved bygging er hver løs sektor nå en brøkbit som viser riktig brøkdeling for valgt nevner. Både dra-og-slipp og trykk-alternativ er beholdt.
+- Større og tydeligere reveguide, tre-/papirtekstur med dybde og mer kontrast.
+- Ved vellykket sammenligning vises en synlig «Aha!»-oppdagelse. Mestring har en sti som viser **faktisk besøkte** aktiviteter, ikke en låst løype eller oppdiktet fullføring.
+- Opprinnelig læringslogikk og lagring beholdes uendret. Ingen endringer i kloden eller andre fag.
+- Cache-versjon er oppdatert for Safari/PWA.
+
+**Akseptanse:** Bildekvaliteten er forbedret og skal verifiseres med nye skjermbilder på iPhone/iPad mot referansene. Dette er ikke et løfte om pikselidentisk gjengivelse av konseptillustrasjonene: dem kan kreve dedikerte høyoppløselige illustrasjonsressurser. Ikke marker full visuell likhet uten bildeinspeksjon og tilbakemelding fra barnet.
+
