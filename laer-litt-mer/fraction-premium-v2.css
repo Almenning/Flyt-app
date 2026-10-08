@@ -115,7 +115,7 @@
 .fr2-sort-board{background:#FFF6E9E8;border:2px solid #E9D8BF;border-radius:21px;padding:12px}
 .fr2-sort-order{display:flex;justify-content:space-between;font-size:12px;font-weight:1000;letter-spacing:.07em;color:#7F6849;padding:0 5px 10px}
 .fr2-sort-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
-.fr2-sort-card{min-width:0;display:grid;justify-items:center;align-content:center;gap:10px;padding:10px 4px 12px;background:#FFFDF5;border:2px solid #FFF;border-radius:19px;box-shadow:0 5px 0 #E1CFAF,0 9px 16px #836A472B;cursor:grab;touch-action:pan-y}
+.fr2-sort-card{min-width:0;display:grid;justify-items:center;align-content:center;gap:10px;padding:10px 4px 12px;background:#FFFDF5;border:2px solid #FFF;border-radius:19px;box-shadow:0 5px 0 #E1CFAF,0 9px 16px #836A472B;cursor:grab;touch-action:none}
 .fr2-sort-graphic{display:grid;place-items:center;max-width:100%;min-height:80px}
 .fr2-sort-card .fr2-fraction{font-size:31px}
 .fr2-sort-move{display:flex;justify-content:center;gap:5px}
