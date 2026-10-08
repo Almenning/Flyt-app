@@ -162,6 +162,8 @@ async function capture(browserType,label,viewport){
     assert.ok(rendererSource.includes('paintPolarLand(ctx,w,h,s);'),'locked globe polar treatment missing');
     assert.ok(rendererSource.includes('paintStoryBiomes(ctx,w,h,s);'),'locked globe biome relief missing');
     assert.ok(rendererSource.includes('paintAtlasTexture(ctx,w,h,s);'),'locked globe painterly land texture missing');
+    assert.ok(rendererSource.includes("['desert',14,25,.220]"),'Sahara biome lost locked atlas scale');
+    assert.ok(rendererSource.includes("type==='mountains'?1.38"),'storybook relief scale drifted down');
     assert.ok(rendererSource.includes("const borderAlpha=globeZoom>2.5?.48:globeZoom>1.65?.34:.22"),'political borders became visually dominant again');
     assert.equal(rendererSource.includes("const sparks=[[-.95,-.70"),false,'legacy target-ring/spark marker must stay removed');
     await assertProfileFoxSelection(chromium);

@@ -335,12 +335,14 @@ function paintContinents(ctx,w,h,s){
   ctx.restore();
 }
 const STORY_BIOMES=[
-  ['forest',-111,55,.115],['forest',-83,49,.090],['forest',-63,-5,.125],['forest',-72,-12,.090],
-  ['forest',18,60,.082],['forest',52,59,.105],['forest',88,60,.115],['forest',112,56,.090],
-  ['forest',24,1,.075],['forest',103,18,.080],['forest',118,-3,.070],
-  ['desert',2,25,.120],['desert',22,24,.120],['desert',45,24,.090],['desert',68,39,.065],['desert',134,-25,.115],
-  ['savanna',18,8,.090],['savanna',30,-7,.105],['savanna',25,-23,.100],['savanna',-58,-18,.075],
-  ['snow',-42,72,.110],['snow',18,69,.065],['snow',91,69,.090],['snow',-112,68,.080]
+  ['forest',-111,55,.145],['forest',-83,49,.115],['forest',-63,-5,.165],['forest',-72,-12,.125],
+  ['forest',8,54,.110],['forest',24,60,.125],['forest',52,59,.145],['forest',82,60,.155],['forest',112,56,.135],
+  ['forest',24,1,.105],['forest',104,17,.115],['forest',118,-3,.100],
+  ['desert',-6,25,.175],['desert',14,25,.220],['desert',34,25,.195],['desert',52,26,.135],
+  ['desert',69,38,.100],['desert',79,27,.090],['desert',134,-24,.145],
+  ['savanna',10,8,.130],['savanna',27,-5,.155],['savanna',25,-22,.145],['savanna',-58,-18,.100],
+  ['savanna',74,43,.115],['savanna',100,43,.125],
+  ['snow',-42,72,.150],['snow',18,69,.100],['snow',91,69,.125],['snow',-112,68,.105]
 ];
 function paintStoryBiomes(ctx,w,h,s){
   ctx.save();
@@ -481,26 +483,34 @@ function terrainPatch(ctx,w,h,s,t){
   /* Low-contrast surface marks. These are texture, not icons. */
   ctx.save();
   ctx.globalCompositeOperation=type==='snow'?'screen':'multiply';
-  ctx.globalAlpha=clamp(.82-globeZoom*.055,.42,.70);
+  ctx.globalAlpha=clamp(.96-globeZoom*.055,.52,.84);
 
-  const marks=[[-.62,-.14],[-.40,.25],[-.17,-.28],[.04,.18],[.28,-.12],[.51,.24],[.66,-.02],[-.02,.43]];
+  const marks=[
+    [-.72,-.18],[-.58,.20],[-.46,-.36],[-.34,.38],[-.18,-.20],[-.08,.16],
+    [.05,-.38],[.16,.34],[.29,-.12],[.40,.25],[.52,-.32],[.61,.14],[.72,-.02],
+    [.02,.49],[-.50,.02]
+  ];
   for(let i=0;i<marks.length;i++){
     const dx=marks[i][0]*r*.68,dy=marks[i][1]*r*.42;
-    const x=p[0]+dx,y=p[1]+dy,size=Math.max(1,s*.0029*k);
+    const x=p[0]+dx,y=p[1]+dy,size=Math.max(1.35,s*.0037*k);
 
     if(type==='forest'){
-      ctx.fillStyle=i%2?'rgba(27,93,47,.72)':'rgba(52,118,57,.66)';
+      ctx.fillStyle=i%3===0?'rgba(24,86,43,.88)':i%2?'rgba(37,111,51,.82)':'rgba(66,133,58,.78)';
       ctx.beginPath();
-      ctx.moveTo(x,y-size*1.45);ctx.lineTo(x-size*.82,y+size*.80);ctx.lineTo(x+size*.82,y+size*.80);
+      ctx.moveTo(x,y-size*1.58);ctx.lineTo(x-size*.86,y+size*.78);ctx.lineTo(x+size*.86,y+size*.78);
       ctx.closePath();ctx.fill();
+      ctx.fillStyle='rgba(94,70,42,.62)';ctx.fillRect(x-size*.09,y+size*.60,size*.18,size*.56);
     }else if(type==='desert'){
-      ctx.strokeStyle='rgba(150,100,35,.50)';
-      ctx.lineWidth=Math.max(.65,size*.30);
-      ctx.beginPath();ctx.arc(x,y,size*1.55,Math.PI*1.05,Math.PI*1.88);ctx.stroke();
+      ctx.strokeStyle=i%2?'rgba(155,98,33,.64)':'rgba(196,128,39,.60)';
+      ctx.lineWidth=Math.max(.75,size*.28);
+      ctx.beginPath();ctx.arc(x-size*.18,y,size*1.45,Math.PI*1.08,Math.PI*1.88);ctx.stroke();
+      ctx.beginPath();ctx.arc(x+size*.45,y+size*.22,size*.92,Math.PI*1.04,Math.PI*1.82);ctx.stroke();
     }else if(type==='savanna'){
-      ctx.strokeStyle='rgba(79,101,42,.48)';
-      ctx.lineWidth=Math.max(.65,size*.26);
-      ctx.beginPath();ctx.moveTo(x,y+size);ctx.lineTo(x,y-size*.92);ctx.moveTo(x,y-.1);ctx.lineTo(x-size*.70,y-size*.58);ctx.moveTo(x,y-.1);ctx.lineTo(x+size*.70,y-size*.58);ctx.stroke();
+      ctx.strokeStyle='rgba(84,92,39,.68)';
+      ctx.lineWidth=Math.max(.75,size*.24);
+      ctx.beginPath();ctx.moveTo(x,y+size*.95);ctx.lineTo(x,y-size*.40);ctx.stroke();
+      ctx.fillStyle='rgba(96,123,45,.72)';
+      ctx.beginPath();ctx.ellipse(x,y-size*.48,size*.92,size*.34,0,0,Math.PI*2);ctx.fill();
     }else{
       ctx.fillStyle='rgba(255,255,250,.70)';
       ctx.beginPath();ctx.arc(x,y,size*.68,0,Math.PI*2);ctx.fill();
@@ -544,7 +554,7 @@ const WATER_COMPOSITION=[
 function landRelief(ctx,w,h,s){
   ctx.save();
   if(typeof WORLD_COUNTRIES!=='undefined')landClip(ctx,w,h);
-  ctx.globalAlpha=clamp(.92-globeZoom*.070,.46,.82);
+  ctx.globalAlpha=clamp(1.02-globeZoom*.060,.62,.94);
   ctx.globalCompositeOperation='source-over';
 
   const visible=[];
@@ -557,8 +567,8 @@ function landRelief(ctx,w,h,s){
 
   for(const {f,p} of visible){
     const type=f[0];
-    const typeScale=type==='mountains'?1.18:type==='trees'?.90:.94;
-    const mobileBoost=s<520?1.36:s<760?1.19:1.04,base=clamp(s*.037,12,28);
+    const typeScale=type==='mountains'?1.38:type==='trees'?1.02:1.06;
+    const mobileBoost=s<520?1.38:s<760?1.21:1.06,base=clamp(s*.041,14,31);
     const k=base*mobileBoost*f[3]*typeScale*clamp(p[2]+.18,.64,1.10)*clamp(Math.pow(globeZoom,.045),1,1.07);
     const fn=draw[type];
     if(fn)fn(ctx,p[0],p[1],k,!!f[4]);
