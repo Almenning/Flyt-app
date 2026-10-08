@@ -18,6 +18,56 @@ async function answer(page){
 }
 async function finish(page){const n=await page.evaluate(()=>sessionQuestions.length);for(let i=0;i<n;i++){await answer(page);await page.locator('#next-question').click()}await page.locator('#complete-screen.active').waitFor()}
 async function openBack(page,open,screen,back){await page.locator(open).click();await page.locator(screen+'.active').waitFor();await page.locator(back).click();await page.locator('#home-screen.active').waitFor()}
+async function checkPublishedFractionWorkshop(p,name){
+ await p.locator('#open-math').click();
+ await p.locator('#subject-screen.active').waitFor();
+ await p.locator('#open-fraction-lab').click();
+ await p.locator('#fraction-lab-screen.active').waitFor();
+ await p.locator('.fr2-home').waitFor();
+ assert.equal(await p.evaluate(()=>window.LARIA_FRACTION_PREMIUM?.version),'workshop-v1',name+' still has old Brøklab code');
+ assert.equal(await p.locator('.fr2-home-card').count(),6,name+' incomplete premium fraction menu');
+ const homeWidth=await p.evaluate(()=>[document.documentElement.scrollWidth,innerWidth]);
+ assert.ok(homeWidth[0]<=homeWidth[1]+2,name+' Brøklaben home overflows phone: '+homeWidth);
+ const fox=await p.locator('.fr2-guide .fr2-fox').first().evaluate(img=>({complete:img.complete,width:img.naturalWidth}));
+ assert.ok(fox.complete&&fox.width>0,name+' Brøklaben fox image failed to load');
+
+ await p.locator('.fr2-card-explore').click();
+ assert.equal(await p.locator('.fr2-view').count(),4,name+' missing fraction representations');
+ await p.locator('[data-fr-action="preset"][data-n="1"][data-d="2"]').click();
+ const half=await p.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().explore);
+ assert.deepEqual([half.n,half.d],[1,2]);
+ await p.locator('[data-fr-action="view"][data-view="glass"]').click();
+ assert.equal(await p.locator('.fr2-glass').count(),1);
+
+ await p.locator('.fr2-nav-item[data-page="build"]').click();
+ await p.locator('[data-fr-action="reset"]').click();
+ await p.locator('[data-fr-action="add"]').first().click();
+ assert.equal((await p.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot())).build.n,1,name+' cannot place fraction piece');
+
+ await p.locator('.fr2-nav-item[data-page="home"]').click();
+ await p.locator('.fr2-card-equal').click();
+ await p.locator('[data-fr-action="guess"][data-guess="equal"]').click();
+ assert.match(await p.locator('.fr2-feedback').innerText(),/Du fant det/);
+ await p.locator('.fr2-nav-item[data-page="home"]').click();
+ await p.locator('.fr2-card-sort').click();
+ assert.equal(await p.locator('.fr2-sort-card').count(),3);
+ await p.locator('[data-fr-action="sort-shift"][data-position="0"][data-direction="1"]').click();
+ assert.deepEqual((await p.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot())).sortOrder,[0,2,1]);
+ await p.locator('.fr2-nav-item[data-page="home"]').click();
+
+ await p.locator('.fr2-card-convert').click();
+ assert.match(await p.locator('.fr2-conversion-row').innerText(),/50 %/);
+ assert.match(await p.locator('.fr2-conversion-row').innerText(),/0,5/);
+ await p.locator('.fr2-nav-item[data-page="mastery"]').click();
+ assert.equal(await p.locator('.fr2-master-tile').count(),5);
+ assert.ok(Object.keys((await p.evaluate(()=>LARIA_FRACTION_PREMIUM.progress())).built).length>0,name+' mastery did not save a built fraction');
+ await p.locator('.fr2-nav-item[data-page="home"]').click();
+ await p.locator('#fraction-lab-back').click();
+ await p.locator('#subject-screen.active').waitFor();
+ await p.locator('#subject-back').click();
+ await p.locator('#home-screen.active').waitFor();
+ console.log('PASS published Brøklaben in '+name+': seven screens, visual assets, 1/2, conversions, discovery storage, back navigation');
+}
 async function existing(engine,name){
  const b=await engine.launch({headless:true}),c=await b.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,serviceWorkers:'block'});
  await c.addInitScript(({k,s})=>localStorage.setItem(k,JSON.stringify(s)),{k:KEY,s:seed});
@@ -27,6 +77,7 @@ async function existing(engine,name){
  await openBack(p,'#open-norwegian','#subject-screen','#subject-back');
  await openBack(p,'#open-english','#subject-screen','#subject-back');
  await openBack(p,'#open-math','#subject-screen','#subject-back');
+ await checkPublishedFractionWorkshop(p,name);
  await openBack(p,'#open-geography','#geography-screen','#geography-back');
  await p.locator('#open-norwegian').click();await p.locator('#subject-screen.active').waitFor();await p.locator('#start-subject-session').click();await p.locator('#session-screen.active').waitFor();await finish(p);
  await p.locator('#complete-home').click();await p.locator('#subject-screen.active').waitFor();await p.locator('#subject-back').click();await p.locator('#home-screen.active').waitFor();
