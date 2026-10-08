@@ -46,7 +46,7 @@ async function run(browser,engine,label,viewport,url){
   await page.locator('[data-fr-action="reset"]').click();
   assert.equal((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot())).build.n,0);
   await page.locator('.fr2-spare').first().dragTo(page.locator('.fr2-build-target'));
-  assert.equal((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot())).build.n,1,'dragging a physical piece must fill the pie');
+  assert.equal((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot())).build.n,1,'dragging a physical piece must fill the pie: '+JSON.stringify(await page.evaluate(()=>LARIA_FRACTION_PREMIUM.dragDiagnostics())));
   await page.locator('[data-fr-action="reset"]').click();
   await page.locator('[data-fr-action="add"]').first().click();
   assert.equal((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot())).build.n,1);
@@ -81,7 +81,7 @@ async function run(browser,engine,label,viewport,url){
   assert.match(await page.locator('.fr2-feedback').innerText(),/sorterte riktig/);
   await page.locator('[data-fr-action="sort-next"]').click();
   await page.locator('.fr2-sort-card').first().dragTo(page.locator('.fr2-sort-card').last());
-  assert.deepEqual((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot())).sortOrder,[0,1,2],'drag-to-reorder cards did not move');
+  assert.deepEqual((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot())).sortOrder,[0,1,2],'drag-to-reorder cards did not move: '+JSON.stringify(await page.evaluate(()=>LARIA_FRACTION_PREMIUM.dragDiagnostics())));
 
   await page.locator('.fr2-nav-item[data-page="home"]').click();
   await page.locator('.fr2-card-convert').click();
