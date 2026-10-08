@@ -143,13 +143,12 @@ async function capture(browserType,label,viewport){
       const lonDiff=Math.abs(((after.lon-anchor.lon+540)%360)-180),latDiff=Math.abs(after.lat-anchor.lat);
       const expectedRadius=s*.455*globeZoom;
       globeLon=previous.lon;globeLat=previous.lat;globeZoom=previous.zoom;window.drawGlobe();
-      return {lonDiff,latDiff,atlas,expectedRadius};
+      return {lonDiff,latDiff,atlas,expectedRadius,renderSource:window.__LARIA_GLOBE_RENDER_SOURCE};
     });
     assert.ok(projectionSync.lonDiff<.12,label+' pinch anchor longitude drifted: '+projectionSync.lonDiff);
     assert.ok(projectionSync.latDiff<.12,label+' pinch anchor latitude drifted: '+projectionSync.latDiff);
-    assert.ok(Math.abs(Number(projectionSync.atlas.radius)-projectionSync.expectedRadius)<1.2,label+' illustrated atlas is not using the same zoomed projection radius as country geometry');
-    assert.ok(Math.abs(Number(projectionSync.atlas.zoom)-3.2)<.001,label+' illustrated atlas did not receive globe zoom');
 
+    assert.equal(projectionSync.renderSource,'country-geometry',label+' must draw visible land from real country polygons');
     for(const mode of ['explore','mine','classic']){
       await page.locator('[data-globe-mode="'+mode+'"]').click();
       await page.waitForTimeout(250);
