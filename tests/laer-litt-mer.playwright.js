@@ -1284,10 +1284,29 @@ async function finishSession(page){
     const p1=await context1.newPage();p1.__base=url;
     await p1.route('https://raw.githubusercontent.com/**',r=>r.fulfill({status:200,contentType:'application/json',body:'{"type":"FeatureCollection","features":[]}'}));await p1.route('https://api.worldbank.org/**',r=>r.fulfill({status:200,contentType:'application/json',body:'[{},[]]'}));
     await onboard(p1,1);
-    await p1.evaluate(()=>document.getElementById('open-geography').click());
+    await p1.locator('#open-geography').click();
+    await p1.locator('#geography-screen.active').waitFor();
     assert.equal(await p1.locator('.geo-theme[data-geo-theme="capital"]').isVisible(),false);
+    // Explicitly choose Land and wait for the geographic view before starting.
+    // An earlier test clicked the theme button during the screen transition.
+    await p1.locator('.geo-theme[data-geo-theme="country"]').click();
+    assert.match(await p1.locator('#start-geography-theme').innerText(),/Start Land/);
     await p1.locator('#start-geography-theme').click();
-    await p1.locator('#session-screen.active').waitFor();
+    const gradeOneStarted=await p1.locator('#session-screen.active').waitFor({timeout:12000}).then(()=>true).catch(()=>false);
+    if(!gradeOneStarted){
+      const diagnosis=await p1.evaluate(()=>({
+        screen:typeof activeScreenName==='function'?activeScreenName():null,
+        grade:typeof currentGrade==='function'?currentGrade():null,
+        theme:typeof geoTheme==='string'?geoTheme:null,
+        countryIds:typeof gradeScopeIds==='function'?gradeScopeIds():[],
+        pool:typeof gradeScopeIds==='function'&&typeof questionPool==='function'?questionPool(gradeScopeIds(),true,true).length:null,
+        sessionCount:typeof sessionQuestions!=='undefined'?sessionQuestions.length:null,
+        activeSession:state?.activeSession||null,
+        onboarding:document.querySelector('#onboarding')?.className,
+        startLabel:document.querySelector('#start-geography-theme')?.textContent
+      }));
+      throw new Error('First-grade geography did not open a session: '+JSON.stringify(diagnosis));
+    }
     assert.equal(await p1.evaluate(()=>sessionQuestions.length),5);
     assert.equal(await p1.locator('#read-aloud').isVisible(),true,'1st grade should offer read aloud');
 
