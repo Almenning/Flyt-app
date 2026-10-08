@@ -178,6 +178,7 @@ function onClick(event){
 }
 const root=document.getElementById(ROOT);if(root&&!root.dataset.mpV2Bound){root.addEventListener('click',onClick);root.dataset.mpV2Bound='true'}
 window.openMultiplicationLab=function(){
+ document.getElementById('multiplication-lab-screen')?.setAttribute('data-explore-release','explore-rc1');
  stateBox.page='home';stateBox.showHints=false;stateBox.showSummary=false;render();
  try{showScreen('multiplication-lab')}catch(_){}
 };
