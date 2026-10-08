@@ -120,9 +120,12 @@ async function capture(browserType,label,viewport){
     assert.equal(metrics.underlay.includes('globe-map-art-v1.png'),false,label+' must not place static geography behind the rotating globe');
     if(label==='webkit-ipad-landscape'){
       assert.ok(metrics.guide&&metrics.guide.display!=='none',label+' physical explorer guide is hidden');
-      assert.ok(metrics.guide.w>=180&&metrics.guide.h>=150,label+' physical explorer guide is too small');
+      assert.ok(metrics.guide.w>=195&&metrics.guide.h>=150,label+' physical explorer guide is too small');
+    }else if(viewport.width<600){
+      assert.ok(metrics.guide&&metrics.guide.display!=='none',label+' phone explorer guide is hidden');
+      assert.ok(metrics.guide.w>=110&&metrics.guide.h>=110,label+' phone explorer guide is too small');
     }else{
-      assert.ok(!metrics.guide||metrics.guide.display==='none',label+' physical guide must not crowd portrait/mobile composition');
+      assert.ok(!metrics.guide||metrics.guide.display==='none',label+' physical guide must not crowd iPad portrait composition');
     }
     assert.equal(await page.locator('[data-globe-mode="explore"]').isVisible(),true);
     assert.equal(await page.locator('[data-globe-mode="mine"]').isVisible(),true);

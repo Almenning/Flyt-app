@@ -899,7 +899,9 @@ html:has(#world-screen.active){
 }
 
 #world-screen.active.globe-v30 .premium-globe-header::before{
-  background:linear-gradient(90deg,#fff8e8 0%,rgba(255,248,232,.94) 52%,rgba(244,231,202,.82) 100%)!important;
+  background:
+    linear-gradient(90deg,#fff8e8 0%,rgba(255,248,232,.96) 42%,rgba(255,248,232,.58) 61%,rgba(244,231,202,.16) 100%),
+    url('./basecamp-v11.webp?v=globe30') 72% 39%/170% auto no-repeat!important;
   opacity:1!important;
 }
 
@@ -1040,8 +1042,23 @@ html:has(#world-screen.active){
     --g24-globe:min(99vw,54.5dvh);
     --g24-globe-top:46.9dvh;
   }
-  #world-screen.active.globe-v30 .premium-globe-header{padding-right:100px!important}
-  #world-screen.active.globe-v30 .premium-globe-fox{width:108px!important}
+  #world-screen.active.globe-v30 .premium-globe-header{padding-right:82px!important}
+  #world-screen.active.globe-v30 .premium-globe-fox{width:86px!important}
+  #world-screen.active.globe-v30 .premium-globe-guide{
+    display:block!important;
+    position:absolute!important;
+    z-index:28!important;
+    left:-8px!important;
+    top:55dvh!important;
+    bottom:auto!important;
+    width:124px!important;
+    height:auto!important;
+    max-height:23dvh!important;
+    object-fit:contain!important;
+    transform:rotate(-2deg)!important;
+    transform-origin:50% 100%!important;
+    filter:drop-shadow(0 10px 8px rgba(52,36,20,.26))!important;
+  }
   #world-screen.active.globe-v30 .premium-country-learn span{display:none!important}
   #world-screen.active.globe-v30 .premium-country-learn{min-width:48px!important;width:48px!important;padding:0!important}
 }
@@ -1123,15 +1140,19 @@ html:has(#world-screen.active){
 }
 
 @media (orientation:landscape) and (min-width:900px){
+  #world-screen.active.globe-v30 .premium-globe-fox{
+    width:124px!important;
+    object-position:50% 15%!important;
+  }
   #world-screen.active.globe-v30 .premium-globe-guide{
     display:block!important;
     position:absolute!important;
     z-index:20!important;
     left:calc(50% - var(--g24-globe)/2 - clamp(178px,15vw,220px))!important;
     bottom:clamp(76px,9.4dvh,96px)!important;
-    width:clamp(190px,20vw,238px)!important;
+    width:clamp(205px,21vw,252px)!important;
     height:auto!important;
-    max-height:39dvh!important;
+    max-height:41dvh!important;
     object-fit:contain!important;
     transform:scaleX(-1) rotate(1.5deg)!important;
     transform-origin:50% 100%!important;

@@ -233,8 +233,8 @@ function ocean(ctx,w,h,s){
 function continentGradient(ctx,continent,w,h){
   const base=PALETTE[continent]||'#78A47B';
   const g=ctx.createLinearGradient(w*.24,h*.15,w*.77,h*.88);
-  g.addColorStop(0,mix(base,'#FFF4D0',.16));
-  g.addColorStop(.42,mix(base,'#FFF0C7',.035));
+  g.addColorStop(0,mix(base,'#FFF4D0',.24));
+  g.addColorStop(.42,mix(base,'#FFF0C7',.07));
   g.addColorStop(.72,base);
   g.addColorStop(1,mix(base,'#29463D',.14));
   return g;
@@ -254,11 +254,35 @@ function countryTint(c){
 }
 function paintCountryVariation(ctx,w,h){
   if(typeof WORLD_COUNTRIES==='undefined')return;
-  ctx.save();ctx.globalAlpha=.34;
+  ctx.save();ctx.globalAlpha=.46;
   for(const c of WORLD_COUNTRIES){
     if(!c.geometry)continue;
     ctx.beginPath();if(!addPath(ctx,c,w,h))continue;
     ctx.fillStyle=countryTint(c);ctx.fill();
+  }
+  ctx.restore();
+}
+function paintLandDepth(ctx,w,h,s){
+  if(typeof WORLD_COUNTRIES==='undefined')return;
+  ctx.save();
+  ctx.translate(s*.007,s*.010);
+  ctx.fillStyle='rgba(78,54,31,.20)';
+  ctx.shadowColor='rgba(25,40,31,.24)';
+  ctx.shadowBlur=Math.max(4,s*.010);
+  ctx.shadowOffsetY=Math.max(2,s*.004);
+  for(const c of WORLD_COUNTRIES){
+    if(!c.geometry)continue;
+    ctx.beginPath();if(addPath(ctx,c,w,h))ctx.fill();
+  }
+  ctx.restore();
+
+  ctx.save();
+  ctx.translate(-s*.0025,-s*.0035);
+  ctx.strokeStyle='rgba(255,249,214,.30)';
+  ctx.lineWidth=Math.max(1.2,s*.0023);
+  for(const c of WORLD_COUNTRIES){
+    if(!c.geometry)continue;
+    ctx.beginPath();if(addPath(ctx,c,w,h))ctx.stroke();
   }
   ctx.restore();
 }
@@ -441,7 +465,7 @@ const WATER_COMPOSITION=[
 function landRelief(ctx,w,h,s){
   ctx.save();
   if(typeof WORLD_COUNTRIES!=='undefined')landClip(ctx,w,h);
-  ctx.globalAlpha=clamp(.78-globeZoom*.075,.34,.64);
+  ctx.globalAlpha=clamp(.92-globeZoom*.070,.46,.82);
   ctx.globalCompositeOperation='multiply';
 
   const visible=[];
@@ -454,8 +478,8 @@ function landRelief(ctx,w,h,s){
 
   for(const {f,p} of visible){
     const type=f[0];
-    const typeScale=type==='mountains'?1.32:type==='trees'?.88:.80;
-    const mobileBoost=s<520?1.24:s<760?1.10:1,base=clamp(s*.034,11,24);
+    const typeScale=type==='mountains'?1.58:type==='trees'?1.10:.98;
+    const mobileBoost=s<520?1.42:s<760?1.20:1.06,base=clamp(s*.039,13,28);
     const k=base*mobileBoost*f[3]*typeScale*clamp(p[2]+.18,.64,1.10)*clamp(Math.pow(globeZoom,.045),1,1.07);
     const fn=draw[type];
     if(fn)fn(ctx,p[0],p[1],k,!!f[4]);
@@ -465,7 +489,7 @@ function landRelief(ctx,w,h,s){
 
 function waterDetails(ctx,w,h,s){
   ctx.save();
-  ctx.globalAlpha=clamp(.90-globeZoom*.09,.40,.76);
+  ctx.globalAlpha=clamp(1.02-globeZoom*.075,.52,.90);
 
   const visible=[];
   for(const f of WATER_COMPOSITION){
@@ -477,8 +501,8 @@ function waterDetails(ctx,w,h,s){
 
   for(const {f,p} of visible){
     const type=f[0];
-    const typeScale=type==='ship'?1.02:type==='whale'?.92:type==='cloud'?.78:.88;
-    const mobileBoost=s<520?1.22:s<760?1.10:1,base=clamp(s*.032,10,23);
+    const typeScale=type==='ship'?1.10:type==='whale'?1.02:type==='cloud'?1.08:.98;
+    const mobileBoost=s<520?1.34:s<760?1.17:1.04,base=clamp(s*.035,12,25);
     const k=base*mobileBoost*f[3]*typeScale*clamp(p[2]+.18,.64,1.08);
     const fn=draw[type];
     if(fn)fn(ctx,p[0],p[1],k,!!f[4]);
@@ -498,7 +522,7 @@ function discoveryDetails(ctx,w,h,s){
   let mode='explore';try{mode=typeof globeMode==='string'?globeMode:'explore'}catch(_){}
   if(mode!=='explore')return;
   ctx.save();
-  ctx.globalAlpha=clamp(1.08-globeZoom*.095,.58,.98);
+  ctx.globalAlpha=clamp(1.14-globeZoom*.080,.70,1);
   const visible=[];
   for(const f of DISCOVERY_COMPOSITION){
     const p=project(f[1],f[2],w,h);
@@ -507,7 +531,7 @@ function discoveryDetails(ctx,w,h,s){
   }
   visible.sort((a,b)=>a.p[2]-b.p[2]);
   for(const {f,p} of visible){
-    const type=f[0],mobileBoost=s<520?1.30:s<760?1.14:1,base=clamp(s*.044,15,30);
+    const type=f[0],mobileBoost=s<520?1.48:s<760?1.24:1.06,base=clamp(s*.050,17,34);
     const k=base*mobileBoost*f[3]*clamp(p[2]+.20,.64,1.12)*clamp(Math.pow(globeZoom,.06),1,1.10);
     const fn=draw[type];if(fn)fn(ctx,p[0],p[1],k,!!f[4]);
   }
@@ -543,10 +567,10 @@ function selectedHalo(ctx,w,h,s){
 }
 function finish(ctx,w,h,s){
   const shine=ctx.createRadialGradient(w/2-s*.21,h/2-s*.29,s*.01,w/2-s*.05,h/2-s*.10,s*.57);
-  shine.addColorStop(0,'rgba(255,255,255,.34)');shine.addColorStop(.30,'rgba(255,255,255,.10)');shine.addColorStop(1,'rgba(255,255,255,0)');
+  shine.addColorStop(0,'rgba(255,255,255,.44)');shine.addColorStop(.30,'rgba(255,255,255,.14)');shine.addColorStop(1,'rgba(255,255,255,0)');
   ctx.fillStyle=shine;ctx.fillRect(0,0,w,h);
   const edge=ctx.createRadialGradient(w/2,h/2,s*.26,w/2,h/2,s*.47);
-  edge.addColorStop(.68,'rgba(0,55,75,0)');edge.addColorStop(1,'rgba(0,45,66,.27)');
+  edge.addColorStop(.66,'rgba(0,55,75,0)');edge.addColorStop(1,'rgba(0,45,66,.34)');
   ctx.fillStyle=edge;ctx.fillRect(0,0,w,h);
 }
 function premiumDraw(){
@@ -568,6 +592,7 @@ function premiumDraw(){
      The old country-by-country tile renderer is gone from Utforsk/Min verden. */
   const moving=window.__lariaGlobeInteracting===true;
   ocean(ctx,w,h,s);
+  if(!moving)paintLandDepth(ctx,w,h,s);
   paintContinents(ctx,w,h,s);
   paintCountryVariation(ctx,w,h);
 
