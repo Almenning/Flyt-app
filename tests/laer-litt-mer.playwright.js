@@ -887,8 +887,8 @@ async function finishSession(page){
     assert.equal(await page.locator('.mp-table tbody tr').count(),12);
     assert.equal(await page.locator('.mp-table td button').count(),144,'1-12 physical board must contain 144 interactive products');
     await page.locator('[data-mp-cell="4,6"]').click();
-    assert.match(await page.locator('.mp-playground + .mp-note').innerText(),/4 × 6 = 24/);
-    assert.match(await page.locator('.mp-playground + .mp-note').innerText(),/6 × 4 = 24/);
+    assert.match(await page.locator('.mp-playground .mp-note').innerText(),/4 × 6 = 24/);
+    assert.match(await page.locator('.mp-playground .mp-note').innerText(),/6 × 4 = 24/);
     await page.locator('[data-mp-explore="groups"]').click();
     assert.equal(await page.locator('.mp-basket').count(),4);
     assert.equal(await page.locator('.mp-basket i').count(),12);
