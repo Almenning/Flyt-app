@@ -213,8 +213,9 @@ function moveSort(from,to){to=clamp(to,0,u.sortOrder.length-1);if(from===to)retu
 function nextSort(){u.sortIndex=(u.sortIndex+1)%SORT.length;u.sortOrder=[2,0,1];u.sortResult='';render();}
 function actionHandler(e){
  const root=document.getElementById(ROOT),btn=e.target.closest('[data-fr-action]');if(!btn||!root||!root.contains(btn))return;
- if(Date.now()<lastDragUntil)return;
  const a=btn.dataset.frAction;
+ // Ignore only the synthetic tap from a dragged piece, never block unrelated controls.
+ if(Date.now()<lastDragUntil&&a==='add')return;
  if(a==='back'){if(u.page!=='home'){enter('home');return;}try{if(typeof window.LARIA_RETURN_TO_BASECAMP==='function'&&window.LARIA_RETURN_TO_BASECAMP())return}catch(_){}try{openSubject('math')}catch(_){}return;}
  if(a==='go'){enter(btn.dataset.page);return;}
  if(a==='view'){u.explore.mode=btn.dataset.view;mark('explored',key(u.explore.n,u.explore.d));render();return;}
