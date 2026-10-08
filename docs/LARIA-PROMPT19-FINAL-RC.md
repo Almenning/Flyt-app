@@ -1,6 +1,6 @@
 # Prompt 19 — Final Release Candidate for Læria
 
-Status: **ÅPEN — siste samlede release-candidate-gate. Ingen nye produktfunksjoner skal inn i denne prompten.**
+Status: **KLAR FOR MERGE — branch-gatene er grønne på RC-koden. Kun merge til `main` og grønn push-verifisering gjenstår før Prompt 19 lukkes.**
 
 Base: `main@9e165075a3e53710848b29ae4f1da9a31f499ae5`.
 
@@ -58,3 +58,25 @@ Eksterne App Store Connect-oppgaver fra Prompt 18 holdes utenfor den interne RC-
 Prompt 19 er ferdig først når branch-head er grønn på alle relevante automatiske gater, genererte device-/Kloden-evidens ikke viser en ny blocker, PR-en er merget til `main`, og relevante push-gater på merge-commiten er grønne.
 
 Da kan den interne versjonen betegnes **Final Release Candidate**.
+
+
+## Verifisert RC-head
+
+Runtime/native RC-kode: `27fafae09917f6cd63770726adb91f845fc84336`.
+
+- Laria QA #180: **grønn**
+  - static/Node-regresjon
+  - Basecamp Chromium + WebKit
+  - Prompt 17 device-hardening
+  - Prompt 18 Kloden-evidens
+  - full browser-regresjon
+- Laria iOS build #67: **grønn**
+- Continuous smoke #2121: **grønn**
+  - komplett Node-suite
+  - lokal Læria browser-verifisering
+  - Basecamp Chromium + WebKit
+  - generell browser-suite
+  - publisert Læria-runtime
+- Exact-head device- og Kloden-artefakter er visuelt kontrollert på iPhone, iPad portrett og iPad landskap uten ny intern P0/P1-blocker.
+
+Denne statusoppdateringen endrer kun dokumentasjon. Runtime- og native-koden er uendret fra den verifiserte RC-headen over.
