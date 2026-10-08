@@ -743,6 +743,13 @@ function premiumDraw(){
   const atlasDrawn=!!atlasPixels;
   if(atlasDrawn){
     drawIllustratedAtlas(ctx,w,h,s);
+    /* Registered geography is the land foundation, not the entire artwork.
+       Rebuild the illustrated biome/relief on top of that exact surface.
+       All decorations use actual lon/lat and remain clipped to real land. */
+    if(!moving){
+      paintAtlasTexture(ctx,w,h,s);
+      paintStoryBiomes(ctx,w,h,s);
+    }
   }else{
     ocean(ctx,w,h,s);
     if(!moving)paintLandDepth(ctx,w,h,s);
@@ -754,11 +761,10 @@ function premiumDraw(){
     }
   }
 
-  if(!moving&&!atlasDrawn){
+  if(!moving){
     ctx.save();
     if(landClip(ctx,w,h))for(const t of TERRAIN)terrainPatch(ctx,w,h,s,t);
     ctx.restore();
-
     landRelief(ctx,w,h,s);
     paintMasteryOverlay(ctx,w,h,s);
   }
@@ -767,7 +773,7 @@ function premiumDraw(){
   paintCountryBorders(ctx,w,h,s);
 
   let selectionAnimating=false;
-  if(!moving&&!atlasDrawn){
+  if(!moving){
     waterDetails(ctx,w,h,s);
     discoveryDetails(ctx,w,h,s);
   }
