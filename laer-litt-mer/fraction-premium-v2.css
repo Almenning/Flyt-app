@@ -458,3 +458,37 @@
  .fr2-journey-stop small{font-size:9px}
  .fr2-aha{gap:8px}
 }
+
+/* Screenshot review: the locked references use clear art + name only on small
+   screens. Keep explanatory microcopy in the accessible button name, but
+   visually avoid collision with the navigation arrow. */
+@media(max-width:600px){
+ .fr2-home-card{
+  min-height:232px;
+  padding:11px 7px 19px;
+  justify-content:flex-start;
+  gap:8px;
+ }
+ .fr2-card-art{height:128px}
+ .fr2-illustration{height:126px}
+ .fr2-home-card strong{
+  display:block;
+  max-width:98%;
+  font-size:clamp(15px,4.4vw,19px);
+  line-height:1.1;
+  margin-top:0;
+  text-wrap:balance;
+ }
+ .fr2-home-card small{
+  position:absolute;
+  width:1px;height:1px;margin:-1px;padding:0;
+  border:0;clip:rect(0 0 0 0);clip-path:inset(50%);overflow:hidden;
+  white-space:nowrap;
+ }
+ .fr2-card-arrow{bottom:8px;right:10px}
+}
+@media(max-width:360px){
+ .fr2-home-card{min-height:217px}
+ .fr2-card-art{height:117px}
+ .fr2-illustration{height:116px}
+}
