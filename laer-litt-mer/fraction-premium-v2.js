@@ -215,8 +215,7 @@ function nextSort(){u.sortIndex=(u.sortIndex+1)%SORT.length;u.sortOrder=[2,0,1];
 function actionHandler(e){
  const root=document.getElementById(ROOT),btn=e.target.closest('[data-fr-action]');if(!btn||!root||!root.contains(btn))return;
  const a=btn.dataset.frAction;
- // Ignore only the synthetic tap from a dragged piece, never block unrelated controls.
- if(Date.now()<lastDragUntil&&a==='add')return;
+ // Normal taps must always work, including immediately after a drag or reset.
  if(a==='back'){if(u.page!=='home'){enter('home');return;}try{if(typeof window.LARIA_RETURN_TO_BASECAMP==='function'&&window.LARIA_RETURN_TO_BASECAMP())return}catch(_){}try{openSubject('math')}catch(_){}return;}
  if(a==='go'){enter(btn.dataset.page);return;}
  if(a==='view'){u.explore.mode=btn.dataset.view;mark('explored',key(u.explore.n,u.explore.d));render();return;}
