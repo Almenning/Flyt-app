@@ -88,6 +88,19 @@ async function capture(browserType,label,viewport){
     const backgroundImage=await page.evaluate(()=>getComputedStyle(document.getElementById('world-screen')).backgroundImage);
     assert.ok(backgroundImage.includes('globe-environment-v33-'+sceneName+'.svg'),label+' did not load the correct illustrated nature scene: '+backgroundImage);
     assert.ok(!backgroundImage.includes('basecamp-v11'),label+' incorrectly shows fantasy village behind globe');
+    if(label==='webkit-ipad-landscape'){
+      const seamCandidates=await page.evaluate(()=>{
+        const x=innerWidth*.30;
+        return [...document.querySelectorAll('*')].map(el=>{
+          const r=el.getBoundingClientRect(),cs=getComputedStyle(el),bef=getComputedStyle(el,'::before'),aft=getComputedStyle(el,'::after');
+          return {name:el.tagName.toLowerCase()+(el.id?'#'+el.id:''),className:typeof el.className==='string'?el.className.slice(0,90):'',
+            left:Math.round(r.left),right:Math.round(r.right),height:Math.round(r.height),
+            border:cs.borderRight,shadow:cs.boxShadow,pseudoBefore:bef.borderRight,pseudoAfter:aft.borderRight};
+        }).filter(e=>e.height>innerHeight*.76&&Math.abs(e.right-x)<32).slice(0,12);
+      });
+      console.log('[globe-seam-debug]',JSON.stringify(seamCandidates));
+    }
+
 
     const metrics=await page.evaluate(()=>{
       const screen=document.getElementById('world-screen').getBoundingClientRect();
