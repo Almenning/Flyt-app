@@ -3,11 +3,14 @@ const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 
 /* Broad biome washes. They stay clipped to real land geometry in the renderer. */
 const TERRAIN=[
-  ['forest',18,61,1.20],['forest',52,60,1.28],['forest',99,58,1.18],['forest',-106,53,1.12],
-  ['forest',-62,-5,1.28],['forest',-73,-12,.94],['forest',23,1,.96],['forest',104,17,1.00],['forest',118,-4,.78],
-  ['desert',12,24,1.34],['desert',48,25,.92],['desert',78,27,.72],['desert',134,-24,1.08],
-  ['savanna',28,-5,1.08],['savanna',24,-22,.98],['savanna',-58,-20,.70],
-  ['snow',-42,72,1.18],['snow',92,68,1.06],['snow',-108,68,.92]
+  ['forest',-112,55,1.02],['forest',-88,51,.82],['forest',-63,-4,1.34],['forest',-72,-12,.98],
+  ['forest',12,55,.82],['forest',28,60,.92],['forest',54,60,1.18],['forest',82,61,1.18],['forest',108,58,1.12],
+  ['forest',23,1,1.02],['forest',104,17,1.06],['forest',118,-4,.84],
+  ['desert',-8,25,1.22],['desert',11,25,1.48],['desert',31,25,1.42],['desert',49,25,1.02],
+  ['desert',68,37,.72],['desert',78,27,.74],['desert',134,-24,1.14],['desert',-108,31,.58],
+  ['savanna',12,8,.92],['savanna',28,-4,1.14],['savanna',25,-21,1.04],['savanna',-58,-20,.72],
+  ['savanna',78,18,.64],['savanna',103,39,.62],
+  ['snow',-42,72,1.28],['snow',18,69,.82],['snow',92,68,1.12],['snow',-108,68,.98]
 ];
 
 /* Discovery details: natural first, landmarks second. Coordinates are intentionally sparse. */

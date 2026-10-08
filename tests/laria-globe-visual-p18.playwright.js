@@ -156,11 +156,12 @@ async function capture(browserType,label,viewport){
   const {s,url}=await server();globalThis.__url=url;
   try{
     const rendererSource=fs.readFileSync(path.join(root,'globe-v25-renderer.js'),'utf8');
-    for(const token of ["'Europa':'#74AA55'","'Asia':'#C9AE52'","'Afrika':'#EA7048'","'Nord-Amerika':'#58A653'","'Sør-Amerika':'#389957'"]){
-      assert.ok(rendererSource.includes(token),'locked globe palette drift: '+token);
+    for(const token of ["'Europa':'#6D9E50'","'Asia':'#879A50'","'Afrika':'#B9784F'","'Nord-Amerika':'#57934F'","'Sør-Amerika':'#3D8B50'"]){
+      assert.ok(rendererSource.includes(token),'locked natural-atlas base drift: '+token);
     }
     assert.ok(rendererSource.includes('paintPolarLand(ctx,w,h,s);'),'locked globe polar treatment missing');
     assert.ok(rendererSource.includes('paintStoryBiomes(ctx,w,h,s);'),'locked globe biome relief missing');
+    assert.ok(rendererSource.includes('paintAtlasTexture(ctx,w,h,s);'),'locked globe painterly land texture missing');
     assert.ok(rendererSource.includes("const borderAlpha=globeZoom>2.5?.48:globeZoom>1.65?.34:.22"),'political borders became visually dominant again');
     assert.equal(rendererSource.includes("const sparks=[[-.95,-.70"),false,'legacy target-ring/spark marker must stay removed');
     await assertProfileFoxSelection(chromium);
