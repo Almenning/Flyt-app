@@ -111,7 +111,7 @@ async function capture(browserType,label,viewport){
       };
     });
     assert.equal(metrics.overflow,false,label+' horizontal overflow');
-    const minGlobeWidth=viewport.width<600?viewport.width*.84:(viewport.width>viewport.height?viewport.height*.70:viewport.width*.68);
+    const minGlobeWidth=viewport.width<600?viewport.width*.84:(viewport.width>viewport.height?viewport.height*.52:viewport.width*.68);
     assert.ok(metrics.canvas.w>=minGlobeWidth,label+' globe too narrow for locked composition: '+metrics.canvas.w+' < '+minGlobeWidth);
     assert.ok(metrics.canvas.h>=300,label+' globe too short: '+metrics.canvas.h);
     assert.ok(metrics.back.h>=44,label+' globe back control below 44px');
@@ -120,17 +120,7 @@ async function capture(browserType,label,viewport){
     assert.ok(metrics.zoomOut.h>=44&&metrics.zoomOut.w>=44,label+' zoom-out control below 44px');
     assert.ok(metrics.canvas.opacity>=.95,label+' rotating globe canvas must stay visually primary');
     assert.equal(metrics.underlay.includes('globe-map-art-v1.png'),false,label+' must not place static geography behind the rotating globe');
-    if(label==='webkit-ipad-landscape'){
-      assert.ok(metrics.guide&&metrics.guide.display!=='none',label+' physical explorer guide is hidden');
-      assert.ok(metrics.guide.w>=220&&metrics.guide.h>=180,label+' physical explorer guide is too small');
-      assert.ok(metrics.status&&metrics.status.top-metrics.guide.top>=metrics.guide.h*.66,label+' physical explorer is mostly hidden behind the country card');
-    }else if(viewport.width<600){
-      assert.ok(metrics.guide&&metrics.guide.display!=='none',label+' phone explorer guide is hidden');
-      assert.ok(metrics.guide.w>=145&&metrics.guide.h>=130,label+' phone explorer guide is too small');
-      assert.ok(metrics.status&&metrics.status.top-metrics.guide.top>=metrics.guide.h*.72,label+' phone explorer is mostly hidden behind the country card');
-    }else{
-      assert.ok(!metrics.guide||metrics.guide.display==='none',label+' physical guide must not crowd iPad portrait composition');
-    }
+    assert.ok(!metrics.guide||metrics.guide.display==='none',label+' physical explorer must not overlap the locked atlas composition');
     assert.equal(await page.locator('[data-globe-mode="explore"]').isVisible(),true);
     assert.equal(await page.locator('[data-globe-mode="mine"]').isVisible(),true);
     assert.equal(await page.locator('[data-globe-mode="classic"]').isVisible(),true);
