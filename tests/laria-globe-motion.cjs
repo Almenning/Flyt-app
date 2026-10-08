@@ -26,8 +26,8 @@ test('globe pinch keeps a geographic anchor and hands back to one-finger drag',(
 test('globe motion release rotates Safari cache keys',()=>{
   const index=read('laer-litt-mer/index.html');
   const sw=read('laer-litt-mer/sw.js');
-  assert.match(index,/globe33-scene1/);
-  assert.match(sw,/globe33-scene1/);
+  assert.match(index,/globe34-layout1/);
+  assert.match(sw,/globe34-layout1/);
 });
 
 test('visible globe land uses authoritative geographic boundaries, not a decorative image',()=>{
