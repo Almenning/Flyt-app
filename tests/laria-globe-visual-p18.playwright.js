@@ -130,6 +130,38 @@ async function capture(browserType,label,viewport){
     assert.equal(await page.locator('#globe-zoom-in').isVisible(),true,label+' zoom-in hidden');
     assert.equal(await page.locator('#globe-zoom-out').isVisible(),true,label+' zoom-out hidden');
 
+    // A matching zoom radius is not enough: the painted earth must agree with
+    // genuine land polygons. This catches the old Spain-on-the-ocean atlas bug.
+    await page.waitForFunction(()=>window.__LARIA_GLOBE_GEO_ATLAS?.ready===true,{timeout:30000});
+    const geographicAlignment=await page.evaluate(()=>{
+      const geo=window.__LARIA_GLOBE_GEO_ATLAS;
+      const probes=[
+        ['Spania',-4,40,true],['USA',-100,40,true],['Brasil',-55,-11,true],
+        ['Norge',12,64,true],['Japan',139,36,true],['Island',-19,65,true],
+        ['Sahara',12,25,true],['Atlanterhavet',-43,34,false],
+        ['Stillehavet',-145,0,false],['Indiahavet',75,-25,false]
+      ];
+      const prev={lon:globeLon,lat:globeLat,zoom:globeZoom,selected:globeSelected};
+      const canvas=document.getElementById('globe-canvas'),ctx=canvas.getContext('2d');
+      const samples=[];
+      globeSelected=null;globeZoom=1.5;
+      for(const [name,lon,lat,expectedLand] of probes){
+        globeLon=lon;globeLat=lat;window.drawGlobe();
+        const x=Math.round(canvas.width/2),y=Math.round(canvas.height/2);
+        const rgba=[...ctx.getImageData(x,y,1,1).data];
+        samples.push({name,lon,lat,expectedLand,land:geo.isLandAt(lon,lat),rgba});
+      }
+      globeLon=prev.lon;globeLat=prev.lat;globeZoom=prev.zoom;globeSelected=prev.selected;window.drawGlobe();
+      return {geometryCount:geo.geometryCount,projection:geo.projection,source:geo.source,samples};
+    });
+    assert.ok(geographicAlignment.geometryCount>=130,label+' missing country geometries in atlas');
+    assert.equal(geographicAlignment.projection,'EPSG:4326',label+' atlas is not georeferenced');
+    assert.equal(geographicAlignment.source,'real-country-geometries',label+' stale illustrative raster still active');
+    for(const p of geographicAlignment.samples)assert.equal(p.land,p.expectedLand,label+' incorrect coastline at '+p.name);
+    const spain=geographicAlignment.samples.find(p=>p.name==='Spania');
+    const ocean=geographicAlignment.samples.find(p=>p.name==='Atlanterhavet');
+    assert.ok(spain.rgba[0]>ocean.rgba[0]+20,label+' visible atlas fails Spain vs Atlantic pixel contrast: '+JSON.stringify({spain:spain.rgba,ocean:ocean.rgba}));
+
     const projectionSync=await page.evaluate(()=>{
       const canvas=document.getElementById('globe-canvas'),w=canvas._cssW,h=canvas._cssH,s=Math.min(w,h);
       const previous={lon:globeLon,lat:globeLat,zoom:globeZoom};
