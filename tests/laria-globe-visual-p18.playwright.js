@@ -84,6 +84,10 @@ async function capture(browserType,label,viewport){
       return r&&r.width>250&&r.height>250;
     });
     await page.waitForTimeout(650);
+    const sceneName=viewport.width>viewport.height&&viewport.width>=900?'landscape':viewport.width>=700?'tablet':'mobile';
+    const backgroundImage=await page.evaluate(()=>getComputedStyle(document.getElementById('world-screen')).backgroundImage);
+    assert.ok(backgroundImage.includes('globe-environment-v33-'+sceneName+'.svg'),label+' did not load the correct illustrated nature scene: '+backgroundImage);
+    assert.ok(!backgroundImage.includes('basecamp-v11'),label+' incorrectly shows fantasy village behind globe');
 
     const metrics=await page.evaluate(()=>{
       const screen=document.getElementById('world-screen').getBoundingClientRect();
@@ -139,11 +143,10 @@ async function capture(browserType,label,viewport){
       globeZoom=3.2;
       keepGlobeAnchor(anchor,x,y);
       window.drawGlobe();
-      const after=globeInverse(x,y),atlas={...(window.__LARIA_GLOBE_ATLAS_STATE||{})};
+      const after=globeInverse(x,y);
       const lonDiff=Math.abs(((after.lon-anchor.lon+540)%360)-180),latDiff=Math.abs(after.lat-anchor.lat);
-      const expectedRadius=s*.455*globeZoom;
       globeLon=previous.lon;globeLat=previous.lat;globeZoom=previous.zoom;window.drawGlobe();
-      return {lonDiff,latDiff,atlas,expectedRadius,renderSource:window.__LARIA_GLOBE_RENDER_SOURCE};
+      return {lonDiff,latDiff,renderSource:window.__LARIA_GLOBE_RENDER_SOURCE};
     });
     assert.ok(projectionSync.lonDiff<.12,label+' pinch anchor longitude drifted: '+projectionSync.lonDiff);
     assert.ok(projectionSync.latDiff<.12,label+' pinch anchor latitude drifted: '+projectionSync.latDiff);
