@@ -1375,3 +1375,38 @@ html:has(#world-screen.active){
     bottom:calc(7px + 58px + 13px + env(safe-area-inset-bottom))!important;
   }
 }
+
+
+/* Læria globe v34: balanced optical hierarchy */
+   Keep the map as the hero, but make the controls sit symmetrically about its
+   equator. A very light parchment wash softens the scenery without replacing
+   the locked illustrated mountain/forest artwork. */
+#world-screen.active.globe-v30 .globe-zoom{
+  top:50%!important;
+  transform:translateY(-50%)!important;
+  gap:10px!important;
+}
+#world-screen.active.globe-v30{
+  background-image:
+    linear-gradient(180deg,rgba(255,251,234,.10),rgba(245,247,225,.18)),
+    url('./globe-environment-v33-landscape.svg?v=scene33b')!important;
+}
+@media (orientation:portrait) and (max-width:699px){
+  #world-screen.active.globe-v30{
+    background-image:
+      linear-gradient(180deg,rgba(255,251,234,.075),rgba(245,247,225,.14)),
+      url('./globe-environment-v33-mobile.svg?v=scene33b')!important;
+  }
+}
+@media (orientation:portrait) and (min-width:700px){
+  #world-screen.active.globe-v30{
+    background-image:
+      linear-gradient(180deg,rgba(255,251,234,.09),rgba(245,247,225,.16)),
+      url('./globe-environment-v33-tablet.svg?v=scene33b')!important;
+  }
+}
+/* Keep disabled zoom visually present; only its action, not its legibility,
+   should disappear at minimum zoom. */
+#world-screen.active.globe-v30 .globe-zoom button:disabled{
+  opacity:.76!important;
+}

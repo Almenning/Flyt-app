@@ -138,10 +138,26 @@ async function capture(browserType,label,viewport){
         actions:box('#world-screen .globe-actions'),
         tagline:box('#world-screen .globe-country-tagline'),
         modes:box('#globe-mode'),
-        globe:box('#globe-canvas')
+        globe:box('#globe-canvas'),
+        zoomIn:box('#globe-zoom-in'),
+        zoomOut:box('#globe-zoom-out')
       };
     });
     assert.ok(layout.country&&layout.actions&&layout.globe,label+' missing active globe layout');
+    // The zoom pair belongs at the globe's visual equator, not in its top
+    // quadrant. Verify real pixels in Chromium and Safari on all QA sizes.
+    assert.ok(layout.zoomIn&&layout.zoomOut,label+' missing usable zoom buttons');
+    const globeCenter=(layout.globe.top+layout.globe.bottom)/2;
+    const zoomCenter=(layout.zoomIn.top+layout.zoomOut.bottom)/2;
+    assert.ok(Math.abs(globeCenter-zoomCenter)<=Math.max(12,layout.globe.height*.045),
+      label+' zoom pair is not centered on globe: '+JSON.stringify({globeCenter,zoomCenter,layout}));
+    assert.ok(layout.zoomIn.top>layout.modes.bottom+7,
+      label+' zoom-in collides with mode selector');
+    assert.ok(layout.zoomOut.bottom<layout.country.top-7,
+      label+' zoom-out collides with country card');
+    assert.ok(layout.zoomIn.left>=-1&&layout.zoomOut.right<=viewport.width+1,
+      label+' zoom buttons spill beyond viewport');
+
     assert.ok(layout.country.bottom+8<=layout.actions.top,label+' country card overlaps bottom actions: '+JSON.stringify(layout));
     if(layout.tagline){
       assert.ok(layout.tagline.bottom<=layout.country.bottom-3,label+' country tagline clipped by status card: '+JSON.stringify(layout));
