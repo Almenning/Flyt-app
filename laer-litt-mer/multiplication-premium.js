@@ -22,7 +22,7 @@ function questions(n=null){
  const ranked=shuffle(factors).sort((x,y)=>{const sx=stats.tries[x.join('x')]||{right:0,wrong:0},sy=stats.tries[y.join('x')]||{right:0,wrong:0};return (sx.right-sx.wrong*2)-(sy.right-sy.wrong*2)});
  return ranked.slice(0,8).map(([a,b])=>({a,b}));
 }
-function start(n=null){ui.table=n||rec();ui.round=questions(n);ui.at=0;ui.selected=null;ui.hint=false;ui.feedback='';ui.page='practice';render()}
+function start(n=null){ui.table=n||rec();ui.round=questions(n);ui.at=0;ui.selected=null;ui.hint=false;ui.feedback='';ui.firstRight=0;ui.hadWrong=false;ui.opts=null;ui.optsFor=null;ui.page='practice';render()}
 function choices(a,b){
  const correct=a*b;const unique=new Set([correct]);const offsets=[a,b,1,2,3,Math.max(1,a-b)];
  for(const d of offsets){if(unique.size>=4)break;if(correct+d<=144)unique.add(correct+d);if(unique.size<4&&correct-d>0)unique.add(correct-d)}
@@ -96,7 +96,7 @@ function next(){
  render();
 }
 window.openMultiplicationLab=function(){
- const grade=typeof currentGrade==='function'?currentGrade():2;ui.page='home';ui.table=grade<=2?2:rec();ui.at=0;ui.opts=null;render();showScreen('multiplication-lab');
+ const grade=typeof currentGrade==='function'?currentGrade():2;ui.page='home';ui.table=grade<=2?2:rec();ui.at=0;ui.firstRight=0;ui.hadWrong=false;ui.opts=null;ui.optsFor=null;render();showScreen('multiplication-lab');
 };
 window.LARIA_MULT_PREMIUM={open:window.openMultiplicationLab,stats:()=>JSON.parse(JSON.stringify(stats))};
 const entry=document.getElementById('open-multiplication-lab');if(entry)entry.onclick=window.openMultiplicationLab;
