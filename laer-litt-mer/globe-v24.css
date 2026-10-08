@@ -1247,7 +1247,7 @@ html:has(#world-screen.active){
   background-color:#c7e0d9!important;
   background-image:
     linear-gradient(180deg,rgba(255,247,223,.04),rgba(31,75,65,.10)),
-    url('./globe-environment-v33-landscape.svg?v=scene33a')!important;
+    url('./globe-environment-v33-landscape.svg?v=scene33b')!important;
   background-repeat:no-repeat!important;
   background-position:center center!important;
   background-size:cover!important;
@@ -1276,7 +1276,7 @@ html:has(#world-screen.active){
     --g24-globe-top:45.5dvh;
     background-image:
       linear-gradient(180deg,rgba(255,250,230,.045),rgba(31,75,65,.10)),
-      url('./globe-environment-v33-mobile.svg?v=scene33a')!important;
+      url('./globe-environment-v33-mobile.svg?v=scene33b')!important;
     background-position:center center!important;
     background-size:cover!important;
   }
@@ -1287,7 +1287,7 @@ html:has(#world-screen.active){
     --g24-globe-top:46dvh;
     background-image:
       linear-gradient(180deg,rgba(255,250,230,.045),rgba(31,75,65,.10)),
-      url('./globe-environment-v33-tablet.svg?v=scene33a')!important;
+      url('./globe-environment-v33-tablet.svg?v=scene33b')!important;
     background-position:center center!important;
     background-size:cover!important;
   }
