@@ -21,6 +21,14 @@ async function testView(browser,engine,label,viewport,url){
   await open(page,url);
   await dimensions(page,viewport.width,label+' home');
   await screenshot(page,label+'-01-home');
+  await page.locator('.mp-menu-practice').click();
+  const young=await page.evaluate(()=>LARIA_MULT_PREMIUM.snapshot());
+  assert.ok(young.round.every(q=>[2,5,10].includes(q.a)),'1st–2nd grade mixed rounds should use age-appropriate tables');
+  await page.locator('.mp-back').click();
+  assert.equal(await page.locator('[data-mp-action="resume"]').count(),1,'aborted round should offer continue');
+  await page.locator('[data-mp-action="resume"]').click();
+  assert.deepEqual((await page.evaluate(()=>LARIA_MULT_PREMIUM.snapshot())).round,young.round,'resume lost the questions');
+  await page.locator('.mp-back').click();
   await page.locator('.mp-menu-choose').click();
   await page.locator('.mp-choose-screen').waitFor();
   assert.equal(await page.locator('.mp-table-choice').count(),9);
@@ -79,4 +87,4 @@ async function testView(browser,engine,label,viewport,url){
   console.log('PASS '+engine+' '+label+': 6 screens, 8 questions, hints, all exploratory modes, 12x12, persistence, no page errors');
  }finally{await context.close()}
 }
-(async()=>{const {srv,url}=await serve();try{for(const [engine,launcher,views] of [['chromium',chromium,[['iphone', {width:390,height:844}],['ipad',{width:820,height:1180}]]],['webkit',webkit,[['iphone-safari',{width:390,height:844}],['ipad-safari',{width:820,height:1180}]]]]){const browser=await launcher.launch({headless:true});try{for(const [label,viewport] of views)await testView(browser,engine,label,viewport,url)}finally{await browser.close()}}console.log('PASS Læria illustrated multiplication complete browser matrix')}finally{await new Promise(resolve=>srv.close(resolve))}})().catch(e=>{console.error(e);process.exitCode=1});
+(async()=>{const {srv,url}=await serve();try{for(const [engine,launcher,views] of [['chromium',chromium,[['iphone', {width:390,height:844}],['ipad',{width:820,height:1180}],['ipad-landscape',{width:1180,height:820}]]],['webkit',webkit,[['iphone-safari',{width:390,height:844}],['ipad-safari',{width:820,height:1180}],['ipad-landscape-safari',{width:1180,height:820}]]]]){const browser=await launcher.launch({headless:true});try{for(const [label,viewport] of views)await testView(browser,engine,label,viewport,url)}finally{await browser.close()}}console.log('PASS Læria illustrated multiplication complete browser matrix')}finally{await new Promise(resolve=>srv.close(resolve))}})().catch(e=>{console.error(e);process.exitCode=1});
