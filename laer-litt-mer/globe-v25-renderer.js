@@ -211,19 +211,31 @@ function countryBase(c){
 /* The illustrated atlas is the globe surface itself.  Country geometry remains
    separate: it is used for hit-testing, selected-country feedback and learning
    progress, never to repaint the visible storybook map. */
-const illustratedAtlas=new Image();
 let atlasPixels=null,atlasWidth=0,atlasHeight=0,atlasBuffer=null,atlasBufferCtx=null;
-illustratedAtlas.onload=()=>{
-  const source=document.createElement('canvas');
-  source.width=illustratedAtlas.naturalWidth;source.height=illustratedAtlas.naturalHeight;
-  const sourceCtx=source.getContext('2d',{willReadFrequently:true});
-  sourceCtx.drawImage(illustratedAtlas,0,0);
-  atlasPixels=sourceCtx.getImageData(0,0,source.width,source.height).data;
-  atlasWidth=source.width;atlasHeight=source.height;
-  try{window.drawGlobe?.()}catch(_){}
-};
-illustratedAtlas.src='./globe-map-art-v2-equirect.png?v=1';
-
+let atlasRequested=false;
+function requestGeographicAtlas(){
+  if(atlasRequested||atlasPixels||typeof WORLD_COUNTRIES==='undefined')return;
+  atlasRequested=true;
+  /* Lazy on first Globe visit: Home should never build a large atlas. */
+  setTimeout(()=>{
+    try{
+      const geo=window.LariaGeographicAtlasV1?.build(WORLD_COUNTRIES);
+      if(!geo||!geo.pixels||geo.projection!=='EPSG:4326')
+        throw new Error('Georeferenced atlas not available');
+      atlasPixels=geo.pixels;atlasWidth=geo.width;atlasHeight=geo.height;
+      window.__LARIA_GLOBE_GEO_ATLAS={
+        ready:true,source:'real-country-geometries',projection:geo.projection,
+        width:geo.width,height:geo.height,geometryCount:geo.geometryCount,
+        isLandAt:geo.isLandAt,sampleAt:geo.sampleAt
+      };
+      if(screen.classList.contains('active'))requestAnimationFrame(()=>window.drawGlobe?.());
+    }catch(error){
+      window.__LARIA_GLOBE_GEO_ATLAS={ready:false,error:String(error)};
+      console.error('Geographic globe atlas could not be built',error);
+      /* Fail safely to the correctly projected vector globe, not a false map. */
+    }
+  },0);
+}
 function drawIllustratedAtlas(ctx,w,h,s){
   if(!atlasPixels)return false;
   /* One projection model owns both the painted atlas and the country geometry.
@@ -239,7 +251,7 @@ function drawIllustratedAtlas(ctx,w,h,s){
   const image=atlasBufferCtx.createImageData(bw,bh),out=image.data;
   const zoom=Math.max(1,Number(globeZoom)||1);
   const r=s*.455*zoom,cx=w/2,cy=h/2,phi0=(Number(globeLat)||0)*Math.PI/180,lambda0=(Number(globeLon)||15)*Math.PI/180;
-  window.__LARIA_GLOBE_ATLAS_STATE={radius:r,zoom,lon:Number(globeLon)||0,lat:Number(globeLat)||0,width:w,height:h};
+  window.__LARIA_GLOBE_ATLAS_STATE={radius:r,zoom,lon:Number(globeLon)||0,lat:Number(globeLat)||0,width:w,height:h,source:'geographic-v1'};
   const sin0=Math.sin(phi0),cos0=Math.cos(phi0);
   for(let py=0;py<bh;py++)for(let px=0;px<bw;px++){
     const X=((px+.5)*sample-cx)/r,Y=-((py+.5)*sample-cy)/r,rho=Math.hypot(X,Y),o=(py*bw+px)*4;
@@ -727,6 +739,7 @@ function premiumDraw(){
   /* The atlas moves with globe longitude/latitude.  It is the visible map;
      country geometry below supplies only thin interactive feedback. */
   const moving=window.__lariaGlobeInteracting===true;
+  if(!atlasPixels)requestGeographicAtlas();
   const atlasDrawn=!!atlasPixels;
   if(atlasDrawn){
     drawIllustratedAtlas(ctx,w,h,s);
