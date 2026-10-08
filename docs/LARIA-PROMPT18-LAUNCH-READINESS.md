@@ -1,8 +1,8 @@
 # Prompt 18 — kommersiell launch-readiness for Læria
 
-Status: **ÅPEN — intern P0 er implementert og automatisert verifisert, men den siste menneskelige visuelle godkjenningen av Kloden gjenstår. Prompt 19 skal ikke starte.**
+Status: **FERDIG — intern P0 er implementert, automatisert verifisert og Kloden er visuelt kontrollert mot den låste referansen på iPhone og iPad. Prompt 18 kan lukkes.**
 
-Siste verifiserte branch-head: `a1afeb779fc51779cd2679deb8f0adcb717a4275` på `prompt18-commercial-readiness`.
+Siste verifiserte branch-head: `2462ba3eea02cf4417d286fb02f3b18059ac9018` på `prompt18-visual-signoff`.
 
 ## Ferdigkriterium
 
@@ -29,31 +29,30 @@ Prompt 18 kan først lukkes når alle interne P0-punkter er implementert, testet
 4. **Vilkår og personvern — grønt**
    - Foreldreområdet har en egen flate for vilkår og personvern, med informasjon om lagring, produktansvar, kjøp/fornyelse, gjenoppretting og App Store-håndtering.
 
-5. **Kloden — automatisert grønt, menneskelig visuell sign-off gjenstår**
+5. **Kloden — grønt, inkludert visuell sign-off**
    - Den interaktive kloden er beholdt; den er ikke erstattet av en statisk illustrasjon.
    - Scene, vannflate, messingramme og skygge/dybde er forbedret for å ligge nærmere den låste kunstretningen.
    - Testen dekker valgt gutt-/jenterev, ingen horisontal overflow, globestørrelse, minimum 44 px kontroller, tre moduser og sentrale globehandlinger.
    - Den dekker Chromium iPhone, WebKit iPhone, WebKit iPad portrett og WebKit iPad landskap.
-   - CI-artefaktene ble produsert, men nedlasting via sky-nettleseren tidsavbrøt. Dette er en verktøy-/nedlastingsbegrensning; det erstatter ikke den påkrevde menneskelige sammenligningen mot `globe-v20-approved.webp`.
+   - Exact-head-skjermbilder fra WebKit iPhone, WebKit iPad portrett og WebKit iPad landskap er sammenlignet mot `globe-v20-approved.webp`. Den reviderte komposisjonen holder hele kloden synlig, fjerner den store forgrunnsreven som kolliderte med atlasreferansen og bevarer den interaktive naturatlas-globen.
 
 ## Seneste verifikasjon
 
 | Kontroll | Resultat | Evidens |
 |---|---|---|
-| Prompt 18 content audit | Grønn | `tests/laria-commercial-readiness.cjs` passerer |
-| Læria iOS-build | Grønn | egen Læria iOS-gate |
-| Laria QA på siste head | Grønn | GitHub Actions #154, 4m 35s |
-| Prompt 17 device/WebKit-regresjon | Grønn | del av Laria QA #154 |
-| Prompt 18 globe-evidence | Grønn | del av Laria QA #154; iPhone + iPad portrett/landskap |
-| Full browser-regresjon | Grønn | del av Laria QA #154 |
-| Kontinuerlig smoke | Grønn før siste visuelle CSS-pass | ingen produktregresjon funnet |
+| Prompt 18 content audit | Grønn | GitHub Actions #31 |
+| Læria iOS-build | Grønn | GitHub Actions #63 |
+| Laria QA | Grønn | GitHub Actions #175 |
+| Prompt 17 device/WebKit-regresjon | Grønn | del av Laria QA #175 |
+| Prompt 18 globe-evidence | Grønn | del av Laria QA #175; iPhone + iPad portrett/landskap |
+| Full browser-regresjon | Grønn | del av Laria QA #175 |
+| Continuous smoke | Grønn | GitHub Actions #2109 |
 
-Laria QA #154 kjørte mot commit `a1afeb779fc51779cd2679deb8f0adcb717a4275` og fullførte med suksess. Runner-notisene om Node 20/Ubuntu-image er plattformvarsler, ikke testfeil.
+Exact-head globe-evidence ble produsert fra commit `2462ba3eea02cf4417d286fb02f3b18059ac9018` og kontrollert mot den låste referansen.
 
 ## Gjenstående interne sluttpunkt
 
-- Åpne og sammenlign de genererte Kloden-skjermbildene visuelt mot `globe-v20-approved.webp`, særlig på iPhone, iPad portrett og iPad landskap.
-- Bekreft at den siste kunstretningen er akseptert. Først da kan Prompt 18 erklæres **FERDIG** og Prompt 19 åpnes.
+Ingen. Prompt 18 er internt lukket.
 
 ## Eksterne App Store Connect-oppgaver
 
@@ -66,4 +65,4 @@ Disse er ikke interne Prompt 18-blockers, men må være ferdige før betalt App 
 
 ## Arbeidsregel
 
-Prompt 19 starter ikke før det gjenstående interne, menneskelige Kloden-sjekkpunktet over er lukket. App Store Connect-punktene er eksterne publiseringsoppgaver og holdes tydelig adskilt fra interne produktblockers.
+Det interne Kloden-sjekkpunktet er lukket. Prompt 19 kan startes etter at Prompt 18-PR-en er merget og siste branch-head er grønn. App Store Connect-punktene er eksterne publiseringsoppgaver og holdes tydelig adskilt fra interne produktblockers.
