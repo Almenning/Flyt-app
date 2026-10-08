@@ -99,6 +99,27 @@ async function capture(browserType,label,viewport){
         }).filter(e=>e.height>innerHeight*.76&&Math.abs(e.right-x)<32).slice(0,12);
       });
       console.log('[globe-seam-debug]',JSON.stringify(seamCandidates));
+      const probe=await page.evaluate(()=>{
+        const screen=document.getElementById('world-screen');
+        const describe=el=>{
+          const rc=el.getBoundingClientRect(),st=getComputedStyle(el);
+          return {tag:el.tagName,id:el.id,className:typeof el.className==='string'?el.className.slice(0,100):'',
+            left:Math.round(rc.left),right:Math.round(rc.right),top:Math.round(rc.top),bottom:Math.round(rc.bottom),
+            border:st.border,outline:st.outline,background:st.backgroundImage.slice(0,220),transform:st.transform,
+            before:{content:getComputedStyle(el,'::before').content,border:getComputedStyle(el,'::before').border},
+            after:{content:getComputedStyle(el,'::after').content,border:getComputedStyle(el,'::after').border}};
+        };
+        return {screen:describe(screen),children:[...screen.children].map(describe),
+          hits:[...document.elementsFromPoint(innerWidth*.30,innerHeight*.78)].map(describe)};
+      });
+      console.log('[globe-computed-debug]',JSON.stringify(probe));
+      const disabledBackground=await page.addStyleTag({content:'#world-screen.active{background-image:none!important;}'});
+      await page.screenshot({path:path.join(out,label+'-diagnostic-without-environment.png'),fullPage:true});
+      await disabledBackground.evaluate(el=>el.remove());
+      const disabledPseudo=await page.addStyleTag({content:'#world-screen.active::before,#world-screen.active::after{display:none!important;content:none!important;}'});
+      await page.screenshot({path:path.join(out,label+'-diagnostic-without-pseudos.png'),fullPage:true});
+      await disabledPseudo.evaluate(el=>el.remove());
+
     }
 
 
