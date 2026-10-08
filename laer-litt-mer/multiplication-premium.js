@@ -11,7 +11,7 @@ const stats=store();
 const icon='<img class="mp-fox" src="./lia-fox-explorer.webp" alt="Læria-reven">';
 const tabs=[['home','Oversikt'],['practice','Øv'],['choose','Tabeller'],['explore','Utforsk'],['mastery','Mestring']];
 const clamp=x=>Math.max(1,Math.min(12,Number(x)||1));
-const row=(k,label,detail,emoji)=>'<button type="button" class="mp-menu-card mp-'+k+'" data-mp-go="'+k+'"'+(k==='explore'?' data-mult-mode="free"':'')><span class="mp-menu-icon" aria-hidden="true">'+emoji+'</span><span class="mp-menu-copy"><strong>'+label+'</strong><small>'+detail+'</small></span><span class="mp-chevron" aria-hidden="true">›</span></button>';
+const row=(k,label,detail,emoji)=>'<button type="button" class="mp-menu-card mp-'+k+'" data-mp-go="'+k+'"'+(k==='explore'?' data-mult-mode="free"':'')+'><span class="mp-menu-icon" aria-hidden="true">'+emoji+'</span><span class="mp-menu-copy"><strong>'+label+'</strong><small>'+detail+'</small></span><span class="mp-chevron" aria-hidden="true">›</span></button>';
 const title=(heading,sub='')=>'<header class="mp-heading"><h1>'+heading+'</h1>'+(sub?'<p>'+sub+'</p>':'')+'</header>';
 const fox=(message)=>'<div class="mp-guide">'+icon+'<span>'+message+'</span></div>';
 const getTotal=n=>{const arr=Object.entries(stats.tries).filter(([k])=>k.split('x').some(v=>Number(v)===n));return arr.reduce((a,[,v])=>a+v.right,0)};
