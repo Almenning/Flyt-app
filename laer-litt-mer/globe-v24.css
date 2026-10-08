@@ -60,6 +60,18 @@ body:has(#world-screen.active){
 #world-screen.active>h1,
 #world-screen.active>.hero-copy,
 
+
+/* Prompt 18 art pass: painted terrain beneath the real interactive country canvas. */
+#world-screen.active.globe-v30 .globe-wrap::before{
+  inset:3.05%!important;
+  background:url('./globe-map-art-v1.png?v=1') center/100% 100% no-repeat!important;
+  box-shadow:inset 0 0 0 2px rgba(220,250,244,.72),0 14px 26px rgba(21,49,45,.20)!important;
+}
+#world-screen.active.globe-v30 #globe-canvas{
+  opacity:.58!important;
+  filter:saturate(1.06) contrast(1.03) drop-shadow(0 10px 17px rgba(18,51,48,.14))!important;
+}
+
 #world-screen.active>#start-world-from-globe,#world-screen.active>.searchbox,#world-screen.active>#world-search-results,#world-screen.active>.data-status{display:none!important}
 /* Prompt 18 art pass: deepen the live globe without replacing it with a static mockup. */
 #world-screen.active.globe-v30 .globe-wrap{filter:drop-shadow(0 18px 18px rgba(28,57,45,.23))!important}
@@ -122,6 +134,18 @@ body:has(#world-screen.active){
 #world-screen.active .premium-globe-title{
   margin-top:clamp(3px,.55dvh,7px)!important;
   color:var(--g24-ink)!important;
+
+
+/* Prompt 18 final painted map layer — placed last to win cascade. */
+#world-screen.active.globe-v30 .globe-wrap::before{
+  inset:3.05%!important;
+  background:url('./globe-map-art-v1.png?v=1') center/100% 100% no-repeat!important;
+  box-shadow:inset 0 0 0 2px rgba(220,250,244,.72),0 14px 26px rgba(21,49,45,.20)!important;
+}
+#world-screen.active.globe-v30 #globe-canvas{
+  opacity:.58!important;
+  filter:saturate(1.06) contrast(1.03) drop-shadow(0 10px 17px rgba(18,51,48,.14))!important;
+}
   font:1000 clamp(34px,4.3vw,59px)/.88 system-ui,-apple-system,sans-serif!important;
   letter-spacing:-.055em!important;
 }
@@ -1090,3 +1114,6 @@ html:has(#world-screen.active){
 }
 #world-screen.active .premium-globe-header[data-avatar="boy"]::after{content:"✦"!important;color:#3979b7!important}
 #world-screen.active .premium-globe-header[data-avatar="girl"]::after{content:"✿"!important;color:#d86f78!important;background:#fff3ef!important}
+/* Prompt 18 art pass: deepen the live globe without replacing it with a static mockup. */#world-screen.active.globe-v30 .globe-wrap::before{inset:3.05%!important;background:radial-gradient
+                                                                                                                                             #world-screen.active.globe-v30 .globe-wrap::before{inset:3.05%!important;background:url('./globe-map-art-v1.png?v=1') center/100% 100% no-repeat!important;box-shadow:inset 0 0 0 2px rgba(220,250,244,.72),0 14px 26px rgba(21,49,45,.20)!important}
+#world-screen.active.globe-v30 #globe-canvas{opacity:.58!important;filter:saturate(1.06) contrast(1.03) drop-shadow(0 10px 17px rgba(18,51,48,.14))!important}
