@@ -1,9 +1,9 @@
 /* Læria gangetabellen · illustrated premium experience v2 · 2026-10-08 */
 (()=>{
 'use strict';
-const ROOT='multiplication-lab-root',KEY='laria_mult_premium_v1',MAX=12;
+const ROOT='multiplication-lab-root',KEY='laria_mult_premium_v1',MAX=10;
 const foxSrc='./lia-fox-explorer-home.webp';
-const stateBox={page:'home',tab:5,active:'groups',a:4,b:3,row:4,col:6,showMore:false,showHints:false,mask:false,options:[],optionsFor:-1,round:[],idx:0,answer:null,wrongOnce:false,feedback:'',firstTry:0,totalCorrect:0,earned:0,roundType:'mixed',showSummary:false};
+const stateBox={page:'home',tab:5,active:'table',a:4,b:3,row:4,col:6,showMore:false,showHints:false,mask:false,options:[],optionsFor:-1,round:[],idx:0,answer:null,wrongOnce:false,feedback:'',firstTry:0,totalCorrect:0,earned:0,roundType:'mixed',showSummary:false};
 function fromStorage(){try{const s=JSON.parse(localStorage.getItem(KEY)||'{}');return {tries:s.tries&&typeof s.tries==='object'?s.tries:{},sessions:Number(s.sessions)||0,days:s.days&&typeof s.days==='object'?s.days:{},stars:Number(s.stars)||0,draft:s.draft||null}}catch(_){return {tries:{},sessions:0,days:{},stars:0,draft:null}}}
 const saved=fromStorage();
 const d=(n)=>Math.max(1,Math.min(MAX,Number(n)||1));
@@ -16,20 +16,20 @@ function localDate(t=Date.now()){const date=new Date(t);return date.getFullYear(
 function streak(){let count=0,time=new Date();if(!saved.days[localDate(time)])time.setDate(time.getDate()-1);for(let i=0;i<365;i++){const k=localDate(time);if(!saved.days[k])break;count++;time.setDate(time.getDate()-1)}return count}
 function tryRecord(a,b){const item=saved.tries[a+'x'+b]||{right:0,wrong:0};return {right:Number(item.right)||0,wrong:Number(item.wrong)||0,last:Number(item.last)||0}}
 function tableProgress(n){let known=0,practiced=0,total=0;for(let i=1;i<=MAX;i++){const r=tryRecord(n,i),swapped=tryRecord(i,n);const good=Math.max(r.right,swapped.right);if(good>0)practiced++;if(good>=2&&((r.right+swapped.right)/(r.right+r.wrong+swapped.right+swapped.wrong||1))>=.67)known++;total+=r.right+swapped.right}return {known,practiced,total,mastered:known>=10}}
-function suggested(){const preferred=grade()<=2?[2,5,10,3,4,6,7,8,9,11,12,1]:grade()<=4?[2,3,4,5,6,7,8,9,10,11,12,1]:[3,4,6,7,8,9,11,12,2,5,10,1];const incomplete=preferred.find(n=>!tableProgress(n).mastered);return incomplete||preferred[0]}
+function suggested(){const preferred=grade()<=2?[2,5,10,3,4,6,7,8,9,1]:grade()<=4?[2,3,4,5,6,7,8,9,10,1]:[3,4,6,7,8,9,2,5,10,1];const incomplete=preferred.find(n=>!tableProgress(n).mastered);return incomplete||preferred[0]}
 function evidence(a,b){const r=tryRecord(a,b);return r.right-r.wrong*1.5+(r.last?0.1:0)}
 function createQuestions(n){
- const firstFactors=grade()<=2?[2,5,10]:grade()<=4?[2,3,4,5,6,7,8,9,10]:[2,3,4,5,6,7,8,9,10,11,12];const seconds=grade()<=2?10:12;
- const candidates=(n===null?firstFactors.flatMap(a=>Array.from({length:seconds},(_,j)=>({a,b:j+1}))):Array.from({length:12},(_,j)=>({a:n,b:j+1})));
+ const firstFactors=grade()<=2?[2,5,10]:grade()<=4?[2,3,4,5,6,7,8,9,10]:[2,3,4,5,6,7,8,9,10];const seconds=MAX;
+ const candidates=(n===null?firstFactors.flatMap(a=>Array.from({length:seconds},(_,j)=>({a,b:j+1}))):Array.from({length:MAX},(_,j)=>({a:n,b:j+1})));
  const randomized=shuffled(candidates);
  randomized.sort((x,y)=>evidence(x.a,x.b)-evidence(y.a,y.b));
  return randomized.slice(0,8).map(q=>({a:q.a,b:q.b}));
 }
-function answerOptions(a,b){const exact=a*b,items=new Set([exact]);for(const delta of shuffled([a,b,1,2,3,5,Math.abs(a-b)||4])){if(items.size===4)break;if(exact+delta<=144)items.add(exact+delta);if(items.size<4&&exact-delta>=1)items.add(exact-delta)}for(let n=1;items.size<4;n++)items.add(exact+n);return shuffled(Array.from(items).slice(0,4))}
+function answerOptions(a,b){const exact=a*b,items=new Set([exact]);for(const delta of shuffled([a,b,1,2,3,5,Math.abs(a-b)||4])){if(items.size===4)break;if(exact+delta<=MAX*MAX)items.add(exact+delta);if(items.size<4&&exact-delta>=1)items.add(exact-delta)}for(let n=1;items.size<4;n++){const alt=exact-n>=1?exact-n:exact+n<=MAX*MAX?exact+n:Math.max(1,n);items.add(alt)};return shuffled(Array.from(items).slice(0,4))}
 function currentQ(){return stateBox.round[stateBox.idx]||null}
 function writeDraft(){saved.draft=stateBox.page==='practice'&&stateBox.round.length?{questions:stateBox.round,index:stateBox.idx,firstTry:stateBox.firstTry,correct:stateBox.totalCorrect,earned:stateBox.earned,mode:stateBox.roundType,table:stateBox.tab,answer:stateBox.answer,wrongOnce:stateBox.wrongOnce,hint:stateBox.showHints,feedback:stateBox.feedback,options:stateBox.options,optionsFor:stateBox.optionsFor}:null;persist()}
 function begin(table=null,restore=false){
- if(restore){const draft=saved.draft;if(!draft||!Array.isArray(draft.questions)||draft.questions.length!==8)return begin(null);stateBox.round=draft.questions;stateBox.idx=Math.min(7,Math.max(0,Number(draft.index)||0));stateBox.firstTry=draft.firstTry||0;stateBox.totalCorrect=draft.correct||0;stateBox.earned=draft.earned||0;stateBox.roundType=draft.mode||'mixed';stateBox.tab=d(draft.table||5);stateBox.answer=draft.answer===null?null:Number(draft.answer);stateBox.wrongOnce=Boolean(draft.wrongOnce);stateBox.showHints=Boolean(draft.hint);stateBox.feedback=String(draft.feedback||'');stateBox.options=Array.isArray(draft.options)?draft.options:[];stateBox.optionsFor=Number.isInteger(draft.optionsFor)?draft.optionsFor:-1;}
+ if(restore){const draft=saved.draft;if(!draft||!Array.isArray(draft.questions)||draft.questions.length!==8||!draft.questions.every(q=>Number.isInteger(q.a)&&Number.isInteger(q.b)&&q.a>=1&&q.a<=MAX&&q.b>=1&&q.b<=MAX)){saved.draft=null;persist();return begin(null)}stateBox.round=draft.questions;stateBox.idx=Math.min(7,Math.max(0,Number(draft.index)||0));stateBox.firstTry=draft.firstTry||0;stateBox.totalCorrect=draft.correct||0;stateBox.earned=draft.earned||0;stateBox.roundType=draft.mode||'mixed';stateBox.tab=d(draft.table||5);stateBox.answer=draft.answer===null?null:Number(draft.answer);stateBox.wrongOnce=Boolean(draft.wrongOnce);stateBox.showHints=Boolean(draft.hint);stateBox.feedback=String(draft.feedback||'');stateBox.options=Array.isArray(draft.options)?draft.options:[];stateBox.optionsFor=Number.isInteger(draft.optionsFor)?draft.optionsFor:-1;}
  else{stateBox.roundType=table===null?'mixed':'table';stateBox.tab=table===null?suggested():d(table);stateBox.round=createQuestions(table===null?null:d(table));stateBox.idx=0;stateBox.firstTry=0;stateBox.totalCorrect=0;stateBox.earned=0;}
  if(!restore){stateBox.optionsFor=-1;stateBox.options=[];stateBox.answer=null;stateBox.wrongOnce=false;stateBox.showHints=false;stateBox.feedback='';}stateBox.showSummary=false;stateBox.page='practice';writeDraft();render();
 }
@@ -55,21 +55,18 @@ function heading(t,s){return '<div class="mp-heading"><h1>'+t+'</h1><p>'+s+'</p>
 function travel(progressCount=0,total=8){let circles='';for(let i=0;i<total;i++)circles+='<span class="mp-travel-node '+(i<progressCount?'done':'')+'">'+(i<progressCount?'★':'')+'</span>';return '<div class="mp-travel"><div class="mp-travel-scene" aria-hidden="true">🌲 ⛰️</div><div class="mp-travel-main"><span>'+(stateBox.page==='practice'?'Oppgave '+(stateBox.idx+1)+' av 8':'Din læringsreise')+'</span><div class="mp-travel-nodes">'+circles+'</div></div><div class="mp-travel-treasure" aria-hidden="true">🗝️</div></div>'}
 function menuCard(page,titleText,subtitle,art){return btn('go','<span class="mp-menu-copy"><strong>'+titleText+'</strong><small>'+subtitle+'</small></span><span class="mp-menu-art mp-art-'+page+'">'+art+'</span><span class="mp-arrow" aria-hidden="true">›</span>','mp-menu-card mp-menu-'+page,'data-page="'+page+'"')}
 function home(){
- const cont=saved.draft&&Array.isArray(saved.draft.questions)&&saved.draft.questions.length===8;
+ const cont=saved.draft&&Array.isArray(saved.draft.questions)&&saved.draft.questions.length===8&&saved.draft.questions.every(q=>q.a>=1&&q.a<=MAX&&q.b>=1&&q.b<=MAX);
  return '<section class="mp-home-screen">'+travel(Math.min(saved.sessions,8))+heading('Gangetabellen','Små tall. Store eventyr!')+'<p class="mp-intro">Øv, utforsk og bli trygg på gangetabellen.</p>'
  +'<div class="mp-menu-stack">'
  +menuCard('practice','Øv på gangetabellen','Svar på åtte spørsmål og finn nye mønstre.','<img src="'+foxSrc+'" alt="" loading="lazy"><span class="mp-math-plaque">3 × 4<br>= ?</span>')
  +menuCard('choose','Velg en gangetabell','Øv akkurat på den tabellen du ønsker.','<span class="mp-number-art"><i>2</i><i>5</i><i>3</i><i>4</i><i>6</i><i>10</i></span>')
- +menuCard('explore','Utforsk og lek','Bygg grupper, se mønstre og finn sammenhenger.',symbolArt())
+ +menuCard('explore','Utforsk og lek','Se gangetabellen 1–10 og oppdag sammenhenger.',symbolArt())
  +'</div>'+(cont?btn('resume','▶ Fortsett øvingen der du var','mp-resume'):'')+mascot('Du klarer dette! Hver gang du øver, blir du litt tryggere.')+'</section>';
 }
 function dots(n,filled){let s='<span class="mp-master-dots" aria-label="'+filled+' av '+n+' mål oppnådd">';for(let i=0;i<n;i++)s+='<i class="'+(i<filled?'filled':'')+'"></i>';return s+'</span>'}
-function tableCard(n){const p=tableProgress(n);return btn('start','<span class="mp-tile-symbol '+(n%2?'wood':'stone')+'">'+n+'</span><strong>'+n+'-gangen</strong>'+dots(3,Math.round(p.known/4))+'<small>'+(p.mastered?'★ Mestret':p.known?Math.round(100*p.known/12)+' % trygg':'Velg meg')+'</small>','mp-table-choice '+(n===suggested()?'recommended':'')+' '+(p.mastered?'mastered':''),'data-table="'+n+'" aria-label="Øv på '+n+'-gangen"')}
+function tableCard(n){const p=tableProgress(n);return btn('start','<span class="mp-tile-symbol '+(n%2?'wood':'stone')+'">'+n+'</span><strong>'+n+'-gangen</strong>'+dots(3,Math.round(p.known/4))+'<small>'+(p.mastered?'★ Mestret':p.known?Math.round(100*p.known/MAX)+' % trygg':'Velg meg')+'</small>','mp-table-choice '+(n===suggested()?'recommended':'')+' '+(p.mastered?'mastered':''),'data-table="'+n+'" aria-label="Øv på '+n+'-gangen"')}
 function choose(){
- const extras=[1,11,12];
- return '<section class="mp-choose-screen">'+travel(Math.min(saved.sessions,8))+heading('Velg en gangetabell','Velg den tabellen du vil øve på i dag.')+'<div class="mp-table-choice-grid">'+[2,3,4,5,6,7,8,9,10].map(tableCard).join('')+'</div>'
- +btn('more',(stateBox.showMore?'Skjul flere tabeller':'Vis 1-, 11- og 12-gangen')+' <span aria-hidden="true">⌄</span>','mp-more','aria-expanded="'+stateBox.showMore+'"')
- +(stateBox.showMore?'<div class="mp-table-choice-grid mp-table-choice-extra">'+extras.map(tableCard).join('')+'</div>':'')
+ return '<section class="mp-choose-screen">'+travel(Math.min(saved.sessions,8))+heading('Velg en gangetabell','Velg den tabellen du vil øve på i dag.')+'<div class="mp-table-choice-grid">'+[2,3,4,5,6,7,8,9,10,1].map(tableCard).join('')+'</div>'
  +'<div class="mp-pick-recommended"><span aria-hidden="true">🏅</span><div><small>Anbefalt i dag</small><strong>'+suggested()+'-gangen</strong><p>Du kan velge fritt, også noe du allerede kan!</p></div>'+btn('start','›','mp-round-arrow','data-table="'+suggested()+'" aria-label="Øv på anbefalt tabell"')+'</div>'+mascot('Hvilken gangetabell vil du øve på i dag?')+'</section>';
 }
 function apples(a,b){
@@ -95,7 +92,10 @@ function practice(){
  +(solved?btn('next',stateBox.idx===7?'Se resultatet ›':'Neste oppgave ›','mp-next'):'')
  +mascot(solved?'Bra! Du fant svaret.':stateBox.feedback?'Prøv igjen. Du kan bruke forklaringen.':'Vi finner svaret sammen!',true)+'</section>';
 }
-function exploreTabs(){return '<div class="mp-explore-tabs" role="group" aria-label="Velg måte å utforske gange på">'+[['groups','🍎','Grupper'],['array','▦','Rutenett'],['line','↝','Tallinje']].map(([id,icon,label])=>btn('mode','<span aria-hidden="true">'+icon+'</span><strong>'+label+'</strong>','mp-explore-tab '+(stateBox.active===id?'selected':''),'data-mode="'+id+'" aria-pressed="'+(stateBox.active===id)+'"')).join('')+'</div>'}
+function exploreTabs(){
+ const modes=[['table','▦','Tabellen'],['groups','🍎','Grupper'],['array','▥','Rutenett'],['line','↝','Tallinje'],['swap','⇄','Bytt plass'],['patterns','✳','Mønstre']];
+ return '<div class="mp-explore-tabs" role="group" aria-label="Velg hvordan du vil utforske gange">'+modes.map(([id,icon,label])=>btn('mode','<span aria-hidden="true">'+icon+'</span><strong>'+label+'</strong>','mp-explore-tab '+(stateBox.active===id?'selected':''),'data-mode="'+id+'" aria-pressed="'+(stateBox.active===id)+'"')).join('')+'</div>';
+}
 function smallArray(a,b){return '<div class="mp-mini-array" style="--mp-cols:'+b+'">'+Array.from({length:a*b},()=>'<i></i>').join('')+'</div>'}
 function numberLine(a,b){
  let html='<div class="mp-line-scroll" role="img" aria-label="'+a+' hopp på '+b+', ender på '+(a*b)+'"><div class="mp-line-points" style="--mp-n:'+(a+1)+'">';
@@ -103,15 +103,15 @@ function numberLine(a,b){
  return html+'</div></div>';
 }
 function patterns(a){
- return '<div class="mp-pattern-grid">'+Array.from({length:12},(_,i)=>'<div><small>'+a+' × '+(i+1)+'</small><strong>'+(a*(i+1))+'</strong></div>').join('')+'</div>';
+ return '<div class="mp-pattern-grid">'+Array.from({length:MAX},(_,i)=>'<div><small>'+a+' × '+(i+1)+'</small><strong>'+(a*(i+1))+'</strong></div>').join('')+'</div>';
 }
-function factorPairs(v){const pairs=[];for(let a=1;a<=12;a++){let b=v/a;if(Number.isInteger(b)&&b<=12)pairs.push([a,b])}return pairs}
+function factorPairs(v){const pairs=[];for(let a=1;a<=MAX;a++){let b=v/a;if(Number.isInteger(b)&&b<=MAX)pairs.push([a,b])}return pairs}
 function exploreTable(){
  const a=stateBox.row,b=stateBox.col,product=a*b;
- let html='<div class="mp-table-instruction">Sveip sidelengs for å utforske hele tabellen.</div><div class="mp-table-viewport" role="region" aria-label="Interaktiv 12 ganger 12-tabell" tabindex="0"><table class="mp-times-grid"><thead><tr><th class="corner">×</th>';
- for(let c=1;c<=12;c++)html+='<th class="'+(c===b?'axis':'')+'">'+c+'</th>';
+ let html='<div class="mp-table-instruction">Sveip sidelengs for å utforske hele tabellen.</div><div class="mp-table-viewport" role="region" aria-label="Interaktiv 10 ganger 10-tabell" tabindex="0"><table class="mp-times-grid"><thead><tr><th class="corner">×</th>';
+ for(let c=1;c<=MAX;c++)html+='<th class="'+(c===b?'axis':'')+'">'+c+'</th>';
  html+='</tr></thead><tbody>';
- for(let r=1;r<=12;r++){html+='<tr><th scope="row" class="'+(r===a?'axis':'')+'">'+r+'</th>';for(let c=1;c<=12;c++)html+='<td>'+btn('cell',String(r*c),'mp-grid-cell '+(r===a&&c===b?'selected':r===a?'row':c===b?'col':r*c===product?'same':''),'data-row="'+r+'" data-col="'+c+'" aria-label="'+r+' ganger '+c+' er '+(r*c)+'"')+'</td>';html+='</tr>';}
+ for(let r=1;r<=MAX;r++){html+='<tr><th scope="row" class="'+(r===a?'axis':'')+'">'+r+'</th>';for(let c=1;c<=MAX;c++)html+='<td>'+btn('cell',String(r*c),'mp-grid-cell '+(r===a&&c===b?'selected':r===a?'row':c===b?'col':r*c===product?'same':''),'data-row="'+r+'" data-col="'+c+'" aria-label="'+r+' ganger '+c+' er '+(r*c)+'"')+'</td>';html+='</tr>';}
  html+='</tbody></table></div><div class="mp-table-inspector"><div class="mp-inspector-equation"><b>'+a+' × '+b+' = '+product+'</b><strong>'+b+' × '+a+' = '+product+'</strong><p>Samme svar når vi bytter plass på tallene.</p></div><div class="mp-factor-title">Andre måter å lage '+product+' på</div><div class="mp-pair-buttons">'+factorPairs(product).map(([x,y])=>btn('pair',x+' × '+y,'mp-pair '+(x===a&&y===b?'selected':''),'data-row="'+x+'" data-col="'+y+'"')).join('')+'</div></div>';
  return html;
 }
@@ -124,17 +124,16 @@ function explorer(){
  if(mode==='swap'){stage='<div class="mp-wood-sign">Samme antall, snudd!</div><div class="mp-swap-pair">'+smallArray(a,b)+smallArray(b,a)+'</div><strong class="mp-swap-label">'+a+' × '+b+' = '+b+' × '+a+'</strong>'}
  if(mode==='patterns'){stage='<div class="mp-wood-sign">Oppdag '+a+'-gangen</div>'+patterns(a)}
  if(mode==='table'){stage=exploreTable()}
- const advanced=[['swap','Bytt plass'],['patterns','Mønstre'],['table','Hele tabellen']].map(([id,label])=>btn('mode',label,'mp-extra-mode '+(mode===id?'selected':''),'data-mode="'+id+'" aria-pressed="'+(mode===id)+'"')).join('');
- return '<section class="mp-explore-screen">'+heading('Utforsk og lek','Morsomme måter å lære gange på!')+exploreTabs()+'<div class="mp-extra-tabs">'+advanced+'</div>'
+ return '<section class="mp-explore-screen">'+heading('Utforsk og lek',mode==='table'?'Gangetabellen fra 1 til 10. Trykk på et tall og utforsk!':'Prøv deg fram og oppdag hvordan gange virker.')+exploreTabs()
  +'<div class="mp-explore-world '+(mode==='table'?'table-mode':'')+'">'+stage+'</div>'
  +(mode==='table'?'':'<div class="mp-factor-controls"><div><label>Antall grupper</label><div class="mp-factor-adjust">'+btn('factor','−','','data-factor="a" data-step="-1" aria-label="Færre grupper"')+'<strong>'+a+'</strong>'+btn('factor','+','','data-factor="a" data-step="1" aria-label="Flere grupper"')+'</div></div><div><label>I hver gruppe</label><div class="mp-factor-adjust">'+btn('factor','−','','data-factor="b" data-step="-1" aria-label="Færre i hver gruppe"')+'<strong>'+b+'</strong>'+btn('factor','+','','data-factor="b" data-step="1" aria-label="Flere i hver gruppe"')+'</div></div></div><div class="mp-math-result"><span>'+a+' × '+b+'</span><span> = </span><b>'+(a*b)+'</b></div>')
  +mascot(mode==='table'?'Trykk på et felt. Se hva som skjer når tallene bytter plass.':'Når vi samler like grupper, ser vi lettere hva gange betyr.',true)+'</section>';
 }
 function completed(){return '<span class="mp-medal">★</span>'}
 function mastery(){
- const covered=Array.from({length:12},(_,i)=>tableProgress(i+1)).filter(x=>x.mastered).length;
+ const covered=Array.from({length:MAX},(_,i)=>tableProgress(i+1)).filter(x=>x.mastered).length;
  let awards='<div class="mp-award-grid">';
- for(const n of [2,3,5,6,4,7,8,9,10,11,12,1]){const p=tableProgress(n);awards+=btn('start','<span class="mp-badge-round '+(p.mastered?'done':p.practiced?'started':'not-started')+'">'+n+(p.mastered?completed():'')+'</span><strong>'+n+'-gangen</strong><small>'+(p.mastered?'Mestret':p.practiced?p.known+' av 12 trygg':'Ikke startet')+'</small>','mp-award','data-table="'+n+'"');}awards+='</div>';
+ for(const n of [2,3,5,6,4,7,8,9,10,1]){const p=tableProgress(n);awards+=btn('start','<span class="mp-badge-round '+(p.mastered?'done':p.practiced?'started':'not-started')+'">'+n+(p.mastered?completed():'')+'</span><strong>'+n+'-gangen</strong><small>'+(p.mastered?'Mestret':p.practiced?p.known+' av '+MAX+' trygg':'Ikke startet')+'</small>','mp-award','data-table="'+n+'"');}awards+='</div>';
  return '<section class="mp-mastery-screen">'+heading('Min mestring','Hver økt tar deg videre på læringsreisen!')+travel(Math.min(saved.sessions,8))
  +'<div class="mp-mastery-highlights"><div class="mp-info-tile"><span aria-hidden="true">🗓️</span><div><strong>Dagens økt</strong><small>'+(saved.days[localDate()]?'Du har øvd i dag!':'En liten økt er nok.')+'</small></div><span class="mp-highlight-value">🔥 '+streak()+'</span></div><div class="mp-info-tile achieved"><span aria-hidden="true">🏅</span><div><strong>'+covered+' gangetabeller mestret</strong><small>Mestring betyr trygghet, ikke hastverk.</small></div></div><div class="mp-info-tile next"><span aria-hidden="true">🌟</span><div><strong>Neste mål: '+suggested()+'-gangen</strong><small>Du kan alltid øve på noe du allerede kan.</small></div>'+btn('start','›','mp-round-arrow','data-table="'+suggested()+'" aria-label="Øv på neste mål"')+'</div></div>'
  +'<div class="mp-award-heading"><h2>Dine gangetabeller</h2><p>Alle er åpne, også dem du har mestret.</p></div>'+awards
@@ -162,7 +161,7 @@ function render(){
 function onClick(event){
  const root=document.getElementById(ROOT),target=event.target.closest('button[data-mp-action]');if(!target||!root?.contains(target))return;
  const action=target.dataset.mpAction,page=target.dataset.page,n=Number(target.dataset.table);
- if(action==='go'){if(page==='practice')return begin();stateBox.page=page;render();scrollTop();return}
+ if(action==='go'){if(page==='practice')return begin();if(page==='explore')stateBox.active='table';stateBox.page=page;render();scrollTop();return}
  if(action==='back'){if(stateBox.page==='home'){try{if(typeof window.LARIA_RETURN_TO_BASECAMP==='function'&&window.LARIA_RETURN_TO_BASECAMP())return}catch(_){}try{openSubject('math')}catch(_){}return}stateBox.page='home';render();scrollTop();return}
  if(action==='resume')return begin(null,true);
  if(action==='start')return begin(n);
