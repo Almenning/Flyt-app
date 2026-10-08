@@ -84,7 +84,7 @@ const {chromium,webkit}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
     assert.ok(globeState.cssW>=280&&globeState.cssH>=280,'iphone globe canvas was not initialized immediately: '+JSON.stringify(globeState));
     assert.equal(globeState.immediate,'true','globe screen did not switch immediately');
     assert.ok(globeState.readyMs>0&&globeState.readyMs<900,'globe renderer took too long after tap: '+JSON.stringify(globeState));
-    assert.equal(requested.some(u=>u.includes('geografi-verden.png')),false,'opening globe must not fetch 3MB geography background art');
+    assert.equal(requested.some(u=>u.includes('geografi-verden.png')||u.includes('globe-map-art-v1.png')),false,'opening globe must not fetch multi-megabyte static geography art');
     console.log('[perf] iphone home-to-globe',openMs+'ms','renderer',globeState.readyMs+'ms');
    }
    console.log('[basecamp]',engineName,name,'back',action);

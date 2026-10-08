@@ -83,14 +83,21 @@ async function capture(browserType,label,viewport){
 
     const metrics=await page.evaluate(()=>{
       const screen=document.getElementById('world-screen').getBoundingClientRect();
-      const canvas=document.getElementById('globe-canvas').getBoundingClientRect();
+      const canvasEl=document.getElementById('globe-canvas');
+      const canvas=canvasEl.getBoundingClientRect();
       const mode=document.getElementById('globe-mode').getBoundingClientRect();
       const back=document.getElementById('world-back').getBoundingClientRect();
+      const zoomIn=document.getElementById('globe-zoom-in').getBoundingClientRect();
+      const zoomOut=document.getElementById('globe-zoom-out').getBoundingClientRect();
+      const wrap=document.querySelector('.globe-wrap');
       return {
         screen:{w:screen.width,h:screen.height},
-        canvas:{w:canvas.width,h:canvas.height},
+        canvas:{w:canvas.width,h:canvas.height,opacity:Number(getComputedStyle(canvasEl).opacity||1)},
         mode:{w:mode.width,h:mode.height},
         back:{w:back.width,h:back.height},
+        zoomIn:{w:zoomIn.width,h:zoomIn.height},
+        zoomOut:{w:zoomOut.width,h:zoomOut.height},
+        underlay:getComputedStyle(wrap,'::before').backgroundImage||'',
         overflow:document.documentElement.scrollWidth>document.documentElement.clientWidth
       };
     });
@@ -100,12 +107,18 @@ async function capture(browserType,label,viewport){
     assert.ok(metrics.canvas.h>=300,label+' globe too short: '+metrics.canvas.h);
     assert.ok(metrics.back.h>=44,label+' globe back control below 44px');
     assert.ok(metrics.mode.h>=44,label+' globe mode control below 44px');
+    assert.ok(metrics.zoomIn.h>=44&&metrics.zoomIn.w>=44,label+' zoom-in control below 44px');
+    assert.ok(metrics.zoomOut.h>=44&&metrics.zoomOut.w>=44,label+' zoom-out control below 44px');
+    assert.ok(metrics.canvas.opacity>=.95,label+' rotating globe canvas must stay visually primary');
+    assert.equal(metrics.underlay.includes('globe-map-art-v1.png'),false,label+' must not place static geography behind the rotating globe');
     assert.equal(await page.locator('[data-globe-mode="explore"]').isVisible(),true);
     assert.equal(await page.locator('[data-globe-mode="mine"]').isVisible(),true);
     assert.equal(await page.locator('[data-globe-mode="classic"]').isVisible(),true);
     assert.equal(await page.locator('#globe-mode [data-globe-mode]').count(),3,label+' must expose Utforsk, Min verden and Kloden');
     assert.equal(await page.locator('#random-country').isVisible(),true);
     assert.equal(await page.locator('#reset-globe').isVisible(),true);
+    assert.equal(await page.locator('#globe-zoom-in').isVisible(),true,label+' zoom-in hidden');
+    assert.equal(await page.locator('#globe-zoom-out').isVisible(),true,label+' zoom-out hidden');
 
     for(const mode of ['explore','mine','classic']){
       await page.locator('[data-globe-mode="'+mode+'"]').click();

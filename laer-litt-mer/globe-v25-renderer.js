@@ -4,8 +4,8 @@ const ART=window.LariaGlobeArtV24;if(!ART)return;
 const {clamp,TERRAIN,FEATURES,draw}=ART;
 
 const PALETTE={
-  'Europa':'#5B86D9','Asia':'#E1B247','Afrika':'#E57A59',
-  'Nord-Amerika':'#58A86B','Sør-Amerika':'#4DA567','Oseania':'#8A7AC9'
+  'Europa':'#4F7FE8','Asia':'#E8B33F','Afrika':'#EA704D',
+  'Nord-Amerika':'#50AA67','Sør-Amerika':'#339B6D','Oseania':'#7D70D1'
 };
 const mix=(a,b,t)=>{
   const pa=parseInt(a.slice(1),16),pb=parseInt(b.slice(1),16),m=(x,y)=>Math.round(x+(y-x)*t);
@@ -223,14 +223,34 @@ function ocean(ctx,w,h,s){
 function continentGradient(ctx,continent,w,h){
   const base=PALETTE[continent]||'#78A47B';
   const g=ctx.createLinearGradient(w*.24,h*.15,w*.77,h*.88);
-  g.addColorStop(0,mix(base,'#FFF4D0',.28));
-  g.addColorStop(.42,mix(base,'#FFF0C7',.08));
-  g.addColorStop(.70,base);
-  g.addColorStop(1,mix(base,'#365247',.19));
+  g.addColorStop(0,mix(base,'#FFF4D0',.16));
+  g.addColorStop(.42,mix(base,'#FFF0C7',.035));
+  g.addColorStop(.72,base);
+  g.addColorStop(1,mix(base,'#29463D',.14));
   return g;
 }
 function continentCountries(continent){
   return typeof WORLD_COUNTRIES==='undefined'?[]:WORLD_COUNTRIES.filter(c=>c.geometry&&c.continent===continent);
+}
+function countryTint(c){
+  const base=PALETTE[c?.continent]||'#78A47B',key=String(c?.id||c?.name||'');
+  let hash=0;for(let i=0;i<key.length;i++)hash=(hash*33+key.charCodeAt(i))>>>0;
+  const band=hash%5;
+  if(band===0)return mix(base,'#FFF2C9',.12);
+  if(band===1)return mix(base,'#FFFFFF',.075);
+  if(band===2)return mix(base,'#29463D',.055);
+  if(band===3)return mix(base,'#F7D789',.055);
+  return base;
+}
+function paintCountryVariation(ctx,w,h){
+  if(typeof WORLD_COUNTRIES==='undefined')return;
+  ctx.save();ctx.globalAlpha=.34;
+  for(const c of WORLD_COUNTRIES){
+    if(!c.geometry)continue;
+    ctx.beginPath();if(!addPath(ctx,c,w,h))continue;
+    ctx.fillStyle=countryTint(c);ctx.fill();
+  }
+  ctx.restore();
 }
 function paintContinents(ctx,w,h,s){
   if(typeof WORLD_COUNTRIES==='undefined')return;
@@ -295,7 +315,7 @@ function paintMasteryOverlay(ctx,w,h,s){
 
 function paintCountryBorders(ctx,w,h,s){
   if(typeof WORLD_COUNTRIES==='undefined')return;
-  const borderAlpha=globeZoom>2.5?.58:globeZoom>1.65?.38:.22;
+  const borderAlpha=globeZoom>2.5?.70:globeZoom>1.65?.50:.32;
 
   for(const c of WORLD_COUNTRIES){
     if(!c.geometry)continue;
@@ -314,7 +334,7 @@ function paintCountryBorders(ctx,w,h,s){
       ctx.lineWidth=Math.max(1.6,s*.0028);
     }else{
       ctx.strokeStyle='rgba(255,250,229,'+borderAlpha+')';
-      ctx.lineWidth=globeZoom>2.7?.9:Math.max(.4,s*.00082);
+      ctx.lineWidth=globeZoom>2.7?1.05:Math.max(.55,s*.00102);
     }
     ctx.stroke();
   }
@@ -539,6 +559,7 @@ function premiumDraw(){
   const moving=window.__lariaGlobeInteracting===true;
   ocean(ctx,w,h,s);
   paintContinents(ctx,w,h,s);
+  paintCountryVariation(ctx,w,h);
 
   if(!moving){
     ctx.save();
