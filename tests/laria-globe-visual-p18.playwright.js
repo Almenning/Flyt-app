@@ -182,6 +182,22 @@ async function capture(browserType,label,viewport){
     assert.ok(Math.abs(Number(projectionSync.atlas.radius)-projectionSync.expectedRadius)<1.2,label+' illustrated atlas is not using the same zoomed projection radius as country geometry');
     assert.ok(Math.abs(Number(projectionSync.atlas.zoom)-3.2)<.001,label+' illustrated atlas did not receive globe zoom');
 
+    // Capture the two user-reported failure cases with a selected-country
+    // polygon ON the geographically registered texture at real focus zoom.
+    for(const countryName of ['Spania','Island']){
+      const focused=await page.evaluate(name=>{
+        const c=WORLD_COUNTRIES.find(x=>x.name===name);
+        focusCountry(c.id);
+        window.drawGlobe();
+        return {selected:globeSelected,expected:c.id,land:window.__LARIA_GLOBE_GEO_ATLAS.isLandAt(c.lon,c.lat),zoom:globeZoom};
+      },countryName);
+      assert.equal(focused.selected,focused.expected,label+' selected country mismatch for '+countryName);
+      assert.equal(focused.land,true,label+' selected country is over painted ocean: '+countryName);
+      assert.ok(focused.zoom>1.5,label+' country focus did not zoom: '+countryName);
+      await page.screenshot({path:path.join(out,label+'-focus-'+countryName.toLowerCase()+'.png'),fullPage:true});
+    }
+    await page.locator('#reset-globe').click();
+
     for(const mode of ['explore','mine','classic']){
       await page.locator('[data-globe-mode="'+mode+'"]').click();
       await page.waitForTimeout(250);
