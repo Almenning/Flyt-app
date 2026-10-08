@@ -33,9 +33,9 @@ test('Laria Final RC preserves Prompt 18 locked contracts',()=>{
   const nativeConfig=JSON.parse(read('laria-native/capacitor.config.json'));
   const store=read('laria-native/LariaStorePlugin.swift.template');
 
-  assert.match(index,/globe-v24\.css\?v=globe31-motion1/,'approved globe CSS motion-release cache key changed');
-  assert.match(index,/globe-v25-renderer\.js\?v=globe31-motion1/,'approved globe renderer motion-release cache key changed');
-  assert.match(sw,/globe31-motion1/,'service-worker cache must match the approved globe motion release');
+  assert.match(index,/globe-v24\.css\?v=globe33-scene1/,'approved globe CSS motion-release cache key changed');
+  assert.match(index,/globe-v25-renderer\.js\?v=globe33-scene1/,'approved globe renderer motion-release cache key changed');
+  assert.match(sw,/globe33-scene1/,'service-worker cache must match the approved globe motion release');
   assert.match(p18,/Status: \*\*FERDIG/,'Prompt 18 must remain formally closed');
   assert.equal(nativeConfig.appId,'no.adspire.laria','native app id changed');
   assert.equal(nativeConfig.appName,'Læria','native app name changed');
@@ -48,4 +48,13 @@ test('Prompt 19 stays a frozen release-candidate gate',()=>{
   assert.match(rc,/Ingen nye fag, spillmoduser eller kommersielle funksjoner/);
   assert.match(rc,/Ingen kjente interne P0\/P1-blockers/);
   assert.match(rc,/Exact-head RC må være grønn/);
+});
+
+
+test('active premium globe scripts remain parseable',()=>{
+ const vm=require('node:vm');
+ for(const name of ['globe-v24-art.js','globe-v25-renderer.js']){
+  const p='laer-litt-mer/'+name;
+  assert.doesNotThrow(()=>new vm.Script(read(p),{filename:p}));
+ }
 });

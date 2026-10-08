@@ -84,7 +84,22 @@ async function capture(browserType,label,viewport){
       return r&&r.width>250&&r.height>250;
     });
     await page.waitForTimeout(650);
-
+    const sceneName=viewport.width>viewport.height&&viewport.width>=900?'landscape':viewport.width>=700?'tablet':'mobile';
+    const backgroundImage=await page.evaluate(()=>getComputedStyle(document.getElementById('world-screen')).backgroundImage);
+    assert.ok(backgroundImage.includes('globe-environment-v33-'+sceneName+'.svg'),label+' did not load the correct illustrated nature scene: '+backgroundImage);
+    assert.ok(!backgroundImage.includes('basecamp-v11'),label+' incorrectly shows fantasy village behind globe');
+    // Prevent the old unified globe plaque/fox pseudos from painting a gold
+    // vertical seam through the locked landscape in any device configuration.
+    const legacyPseudos=await page.evaluate(()=>{
+      const screen=document.getElementById('world-screen');
+      return ['::before','::after'].map(pseudo=>{
+        const computed=getComputedStyle(screen,pseudo);
+        return {pseudo,display:computed.display,content:computed.content};
+      });
+    });
+    for(const pseudo of legacyPseudos){
+      assert.equal(pseudo.display,'none',label+' legacy globe overlay '+pseudo.pseudo+' must not appear');
+    }
     const metrics=await page.evaluate(()=>{
       const screen=document.getElementById('world-screen').getBoundingClientRect();
       const canvasEl=document.getElementById('globe-canvas');
@@ -139,17 +154,15 @@ async function capture(browserType,label,viewport){
       globeZoom=3.2;
       keepGlobeAnchor(anchor,x,y);
       window.drawGlobe();
-      const after=globeInverse(x,y),atlas={...(window.__LARIA_GLOBE_ATLAS_STATE||{})};
+      const after=globeInverse(x,y);
       const lonDiff=Math.abs(((after.lon-anchor.lon+540)%360)-180),latDiff=Math.abs(after.lat-anchor.lat);
-      const expectedRadius=s*.455*globeZoom;
       globeLon=previous.lon;globeLat=previous.lat;globeZoom=previous.zoom;window.drawGlobe();
-      return {lonDiff,latDiff,atlas,expectedRadius};
+      return {lonDiff,latDiff,renderSource:window.__LARIA_GLOBE_RENDER_SOURCE};
     });
     assert.ok(projectionSync.lonDiff<.12,label+' pinch anchor longitude drifted: '+projectionSync.lonDiff);
     assert.ok(projectionSync.latDiff<.12,label+' pinch anchor latitude drifted: '+projectionSync.latDiff);
-    assert.ok(Math.abs(Number(projectionSync.atlas.radius)-projectionSync.expectedRadius)<1.2,label+' illustrated atlas is not using the same zoomed projection radius as country geometry');
-    assert.ok(Math.abs(Number(projectionSync.atlas.zoom)-3.2)<.001,label+' illustrated atlas did not receive globe zoom');
 
+    assert.equal(projectionSync.renderSource,'country-geometry',label+' must draw visible land from real country polygons');
     for(const mode of ['explore','mine','classic']){
       await page.locator('[data-globe-mode="'+mode+'"]').click();
       await page.waitForTimeout(250);
