@@ -96,6 +96,7 @@ async function capture(browserType,label,viewport){
       const wrap=document.querySelector('.globe-wrap');
       const guide=document.querySelector('.premium-globe-guide');
       const guideBox=guide?.getBoundingClientRect();
+      const statusBox=document.querySelector('.globe-status')?.getBoundingClientRect();
       return {
         screen:{w:screen.width,h:screen.height},
         canvas:{w:canvas.width,h:canvas.height,opacity:Number(getComputedStyle(canvasEl).opacity||1)},
@@ -104,7 +105,8 @@ async function capture(browserType,label,viewport){
         zoomIn:{w:zoomIn.width,h:zoomIn.height},
         zoomOut:{w:zoomOut.width,h:zoomOut.height},
         underlay:getComputedStyle(wrap,'::before').backgroundImage||'',
-        guide:guide?{display:getComputedStyle(guide).display,w:guideBox?.width||0,h:guideBox?.height||0}:null,
+        guide:guide?{display:getComputedStyle(guide).display,w:guideBox?.width||0,h:guideBox?.height||0,top:guideBox?.top||0,bottom:guideBox?.bottom||0}:null,
+        status:statusBox?{top:statusBox.top,bottom:statusBox.bottom}:null,
         overflow:document.documentElement.scrollWidth>document.documentElement.clientWidth
       };
     });
@@ -120,10 +122,12 @@ async function capture(browserType,label,viewport){
     assert.equal(metrics.underlay.includes('globe-map-art-v1.png'),false,label+' must not place static geography behind the rotating globe');
     if(label==='webkit-ipad-landscape'){
       assert.ok(metrics.guide&&metrics.guide.display!=='none',label+' physical explorer guide is hidden');
-      assert.ok(metrics.guide.w>=195&&metrics.guide.h>=150,label+' physical explorer guide is too small');
+      assert.ok(metrics.guide.w>=220&&metrics.guide.h>=180,label+' physical explorer guide is too small');
+      assert.ok(metrics.status&&metrics.status.top-metrics.guide.top>=metrics.guide.h*.66,label+' physical explorer is mostly hidden behind the country card');
     }else if(viewport.width<600){
       assert.ok(metrics.guide&&metrics.guide.display!=='none',label+' phone explorer guide is hidden');
-      assert.ok(metrics.guide.w>=110&&metrics.guide.h>=110,label+' phone explorer guide is too small');
+      assert.ok(metrics.guide.w>=145&&metrics.guide.h>=130,label+' phone explorer guide is too small');
+      assert.ok(metrics.status&&metrics.status.top-metrics.guide.top>=metrics.guide.h*.72,label+' phone explorer is mostly hidden behind the country card');
     }else{
       assert.ok(!metrics.guide||metrics.guide.display==='none',label+' physical guide must not crowd iPad portrait composition');
     }

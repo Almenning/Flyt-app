@@ -1048,16 +1048,16 @@ html:has(#world-screen.active){
     display:block!important;
     position:absolute!important;
     z-index:28!important;
-    left:-8px!important;
-    top:55dvh!important;
+    left:-18px!important;
+    top:51.8dvh!important;
     bottom:auto!important;
-    width:124px!important;
+    width:166px!important;
     height:auto!important;
-    max-height:23dvh!important;
+    max-height:28dvh!important;
     object-fit:contain!important;
     transform:rotate(-2deg)!important;
     transform-origin:50% 100%!important;
-    filter:drop-shadow(0 10px 8px rgba(52,36,20,.26))!important;
+    filter:drop-shadow(0 10px 8px rgba(52,36,20,.28))!important;
   }
   #world-screen.active.globe-v30 .premium-country-learn span{display:none!important}
   #world-screen.active.globe-v30 .premium-country-learn{min-width:48px!important;width:48px!important;padding:0!important}
@@ -1148,11 +1148,11 @@ html:has(#world-screen.active){
     display:block!important;
     position:absolute!important;
     z-index:20!important;
-    left:calc(50% - var(--g24-globe)/2 - clamp(178px,15vw,220px))!important;
-    bottom:clamp(76px,9.4dvh,96px)!important;
-    width:clamp(205px,21vw,252px)!important;
+    left:calc(50% - var(--g24-globe)/2 - clamp(150px,13vw,190px))!important;
+    bottom:clamp(166px,21dvh,196px)!important;
+    width:clamp(232px,23vw,280px)!important;
     height:auto!important;
-    max-height:41dvh!important;
+    max-height:47dvh!important;
     object-fit:contain!important;
     transform:scaleX(-1) rotate(1.5deg)!important;
     transform-origin:50% 100%!important;
