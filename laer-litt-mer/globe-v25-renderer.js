@@ -207,6 +207,49 @@ function countryBase(c){
   }
   return base;
 }
+
+/* The illustrated atlas is the globe surface itself.  Country geometry remains
+   separate: it is used for hit-testing, selected-country feedback and learning
+   progress, never to repaint the visible storybook map. */
+const illustratedAtlas=new Image();
+let atlasPixels=null,atlasWidth=0,atlasHeight=0,atlasBuffer=null,atlasBufferCtx=null;
+illustratedAtlas.onload=()=>{
+  const source=document.createElement('canvas');
+  source.width=illustratedAtlas.naturalWidth;source.height=illustratedAtlas.naturalHeight;
+  const sourceCtx=source.getContext('2d',{willReadFrequently:true});
+  sourceCtx.drawImage(illustratedAtlas,0,0);
+  atlasPixels=sourceCtx.getImageData(0,0,source.width,source.height).data;
+  atlasWidth=source.width;atlasHeight=source.height;
+  try{window.drawGlobe?.()}catch(_){}
+};
+illustratedAtlas.src='./globe-map-art-v2-equirect.png?v=1';
+
+function drawIllustratedAtlas(ctx,w,h,s){
+  if(!atlasPixels)return false;
+  const sample=Math.max(1.35,Math.min(2.2,s/270));
+  const bw=Math.ceil(w/sample),bh=Math.ceil(h/sample);
+  if(!atlasBuffer||atlasBuffer.width!==bw||atlasBuffer.height!==bh){
+    atlasBuffer=document.createElement('canvas');atlasBuffer.width=bw;atlasBuffer.height=bh;
+    atlasBufferCtx=atlasBuffer.getContext('2d',{alpha:true});
+  }
+  const image=atlasBufferCtx.createImageData(bw,bh),out=image.data;
+  const r=s*.46,cx=w/2,cy=h/2,phi0=(Number(globeLat)||0)*Math.PI/180,lambda0=(Number(globeLon)||15)*Math.PI/180;
+  const sin0=Math.sin(phi0),cos0=Math.cos(phi0);
+  for(let py=0;py<bh;py++)for(let px=0;px<bw;px++){
+    const X=((px+.5)*sample-cx)/r,Y=-((py+.5)*sample-cy)/r,rho=Math.hypot(X,Y),o=(py*bw+px)*4;
+    if(rho>1)continue;
+    const c=Math.asin(Math.min(1,rho));
+    const lat=rho<1e-6?phi0:Math.asin(Math.cos(c)*sin0+(Y*Math.sin(c)*cos0/rho));
+    const lon=rho<1e-6?lambda0:lambda0+Math.atan2(X*Math.sin(c),rho*Math.cos(c)*cos0-Y*Math.sin(c)*sin0);
+    const u=((lon/Math.PI+1)/2%1+1)%1,v=Math.max(0,Math.min(1,(.5-lat/Math.PI)));
+    const sx=Math.min(atlasWidth-1,Math.floor(u*(atlasWidth-1))),sy=Math.min(atlasHeight-1,Math.floor(v*(atlasHeight-1))),i=(sy*atlasWidth+sx)*4;
+    out[o]=atlasPixels[i];out[o+1]=atlasPixels[i+1];out[o+2]=atlasPixels[i+2];out[o+3]=255;
+  }
+  atlasBufferCtx.putImageData(image,0,0);
+  ctx.imageSmoothingEnabled=true;
+  ctx.drawImage(atlasBuffer,0,0,bw,bh,0,0,w,h);
+  return true;
+}
 function ocean(ctx,w,h,s){
   const g=ctx.createRadialGradient(w/2-s*.19,h/2-s*.26,s*.02,w/2+s*.06,h/2+s*.09,s*.63);
   g.addColorStop(0,'#55D9EE');
@@ -675,20 +718,24 @@ function premiumDraw(){
   ctx.arc(w/2,h/2,s*.46,0,Math.PI*2);
   ctx.clip();
 
-  /* New map order:
-     ocean -> continent surfaces -> terrain -> subtle borders -> integrated details.
-     The old country-by-country tile renderer is gone from Utforsk/Min verden. */
+  /* The atlas moves with globe longitude/latitude.  It is the visible map;
+     country geometry below supplies only thin interactive feedback. */
   const moving=window.__lariaGlobeInteracting===true;
-  ocean(ctx,w,h,s);
-  if(!moving)paintLandDepth(ctx,w,h,s);
-  paintContinents(ctx,w,h,s);
-  paintCountryVariation(ctx,w,h);
-  if(!moving){
-    paintAtlasTexture(ctx,w,h,s);
-    paintStoryBiomes(ctx,w,h,s);
+  const atlasDrawn=!!atlasPixels;
+  if(atlasDrawn){
+    drawIllustratedAtlas(ctx,w,h,s);
+  }else{
+    ocean(ctx,w,h,s);
+    if(!moving)paintLandDepth(ctx,w,h,s);
+    paintContinents(ctx,w,h,s);
+    paintCountryVariation(ctx,w,h);
+    if(!moving){
+      paintAtlasTexture(ctx,w,h,s);
+      paintStoryBiomes(ctx,w,h,s);
+    }
   }
 
-  if(!moving){
+  if(!moving&&!atlasDrawn){
     ctx.save();
     if(landClip(ctx,w,h))for(const t of TERRAIN)terrainPatch(ctx,w,h,s,t);
     ctx.restore();
@@ -701,14 +748,13 @@ function premiumDraw(){
   paintCountryBorders(ctx,w,h,s);
 
   let selectionAnimating=false;
-  if(!moving){
+  if(!moving&&!atlasDrawn){
     waterDetails(ctx,w,h,s);
     discoveryDetails(ctx,w,h,s);
-    selectionAnimating=selectedHalo(ctx,w,h,s);
-
-    if(typeof globeMode==='string'&&globeMode==='mine'&&typeof WORLD_COUNTRIES!=='undefined'&&typeof drawMasteryMarker==='function'){
-      for(const c of WORLD_COUNTRIES)drawMasteryMarker(ctx,c,w,h);
-    }
+  }
+  if(!moving)selectionAnimating=selectedHalo(ctx,w,h,s);
+  if(!moving&&typeof globeMode==='string'&&globeMode==='mine'&&typeof WORLD_COUNTRIES!=='undefined'&&typeof drawMasteryMarker==='function'){
+    for(const c of WORLD_COUNTRIES)drawMasteryMarker(ctx,c,w,h);
   }
 
   let pulsing=false;
