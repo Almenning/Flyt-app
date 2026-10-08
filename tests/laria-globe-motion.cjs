@@ -38,3 +38,14 @@ test('illustrated globe source is built from real country polygons, not an unrel
   assert.match(atlas,/paintGeometry\(lc,c\.geometry/,'land pixels must come from true country polygons');
   assert.match(atlas,/EPSG:4326/,'map pixel coordinates must be geographic');
 });
+
+test('registered atlas retains geographic decorative relief rather than flattening into a school map',()=>{
+  const renderer=read('laer-litt-mer/globe-v25-renderer.js');
+  const start=renderer.indexOf('function premiumDraw(){');
+  const end=renderer.indexOf('function install(){',start);
+  const block=renderer.slice(start,end);
+  assert.match(block,/if\(atlasDrawn\)\{[\s\S]*?drawIllustratedAtlas\(ctx,w,h,s\);[\s\S]*?paintAtlasTexture\(ctx,w,h,s\);[\s\S]*?paintStoryBiomes\(ctx,w,h,s\);/);
+  assert.match(block,/if\(!moving\)\{[\s\S]*?landRelief\(ctx,w,h,s\);[\s\S]*?paintMasteryOverlay\(ctx,w,h,s\);/);
+  assert.match(block,/waterDetails\(ctx,w,h,s\);[\s\S]*?discoveryDetails\(ctx,w,h,s\);/);
+  assert.doesNotMatch(block,/if\(!moving&&!atlasDrawn\)/,'premium geography cannot bypass its own illustrated relief');
+});
