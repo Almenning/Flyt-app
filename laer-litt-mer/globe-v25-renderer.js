@@ -724,28 +724,22 @@ function premiumDraw(){
   ctx.arc(w/2,h/2,s*.46,0,Math.PI*2);
   ctx.clip();
 
-  /* The atlas moves with globe longitude/latitude.  It is the visible map;
-     country geometry below supplies only thin interactive feedback. */
+  /* Geography is authoritative: every visible land pixel is drawn inside
+     its real country geometry. Never substitute the painted equirectangular
+     concept image: its coastline is not geographically registered. */
   const moving=window.__lariaGlobeInteracting===true;
-  const atlasDrawn=!!atlasPixels;
-  if(atlasDrawn){
-    drawIllustratedAtlas(ctx,w,h,s);
-  }else{
-    ocean(ctx,w,h,s);
-    if(!moving)paintLandDepth(ctx,w,h,s);
-    paintContinents(ctx,w,h,s);
-    paintCountryVariation(ctx,w,h);
-    if(!moving){
-      paintAtlasTexture(ctx,w,h,s);
-      paintStoryBiomes(ctx,w,h,s);
-    }
-  }
-
-  if(!moving&&!atlasDrawn){
+  const atlasDrawn=false;
+  window.__LARIA_GLOBE_RENDER_SOURCE='country-geometry';
+  ocean(ctx,w,h,s);
+  if(!moving)paintLandDepth(ctx,w,h,s);
+  paintContinents(ctx,w,h,s);
+  paintCountryVariation(ctx,w,h);
+  if(!moving){
+    paintAtlasTexture(ctx,w,h,s);
+    paintStoryBiomes(ctx,w,h,s);
     ctx.save();
     if(landClip(ctx,w,h))for(const t of TERRAIN)terrainPatch(ctx,w,h,s,t);
     ctx.restore();
-
     landRelief(ctx,w,h,s);
     paintMasteryOverlay(ctx,w,h,s);
   }
