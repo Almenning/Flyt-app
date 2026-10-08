@@ -125,6 +125,31 @@ async function capture(browserType,label,viewport){
         overflow:document.documentElement.scrollWidth>document.documentElement.clientWidth
       };
     });
+
+    // Capture the actual card, controls and canvas rectangles so a live country
+    // label cannot disappear behind a button even when all elements are visible.
+    const layout=await page.evaluate(()=>{
+      const box=q=>{
+        const el=document.querySelector(q),r=el?.getBoundingClientRect();
+        return r?{top:r.top,bottom:r.bottom,left:r.left,right:r.right,height:r.height,width:r.width}:null;
+      };
+      return {
+        country:box('#globe-status'),
+        actions:box('#world-screen .globe-actions'),
+        tagline:box('#world-screen .globe-country-tagline'),
+        modes:box('#globe-mode'),
+        globe:box('#globe-canvas')
+      };
+    });
+    assert.ok(layout.country&&layout.actions&&layout.globe,label+' missing active globe layout');
+    assert.ok(layout.country.bottom+8<=layout.actions.top,label+' country card overlaps bottom actions: '+JSON.stringify(layout));
+    if(layout.tagline){
+      assert.ok(layout.tagline.bottom<=layout.country.bottom-3,label+' country tagline clipped by status card: '+JSON.stringify(layout));
+    }
+    if(viewport.width>=900&&viewport.width>viewport.height){
+      assert.ok(layout.modes.bottom+3<=layout.globe.top,label+' mode tabs collide with rotating globe: '+JSON.stringify(layout));
+      assert.ok(layout.globe.bottom+3<=layout.country.top,label+' globe collides with land card: '+JSON.stringify(layout));
+    }
     assert.equal(metrics.overflow,false,label+' horizontal overflow');
     const minGlobeWidth=viewport.width<600?viewport.width*.84:(viewport.width>viewport.height?viewport.height*.52:viewport.width*.68);
     assert.ok(metrics.canvas.w>=minGlobeWidth,label+' globe too narrow for locked composition: '+metrics.canvas.w+' < '+minGlobeWidth);
@@ -194,6 +219,7 @@ async function capture(browserType,label,viewport){
     await capture(webkit,'webkit-iphone',{width:390,height:844});
     await capture(webkit,'webkit-ipad',{width:820,height:1180});
     await capture(webkit,'webkit-ipad-landscape',{width:1180,height:820});
+    await capture(webkit,'webkit-desktop-landscape',{width:1525,height:864});
     console.log('ok - Prompt 18 globe visual evidence captured');
   }finally{s.close()}
 })().catch(err=>{console.error(err);process.exit(1)});

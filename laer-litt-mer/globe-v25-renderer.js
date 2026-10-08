@@ -180,8 +180,7 @@ function enhanceSelectedCountryV24(id){
     '<div class="flag">'+c.flag+'</div>'+
     '<div class="globe-country-copy">'+
       '<div class="globe-country-line"><strong>'+c.name+'</strong><span class="globe-status-badge '+st.key+'">'+st.symbol+' '+st.label+'</span></div>'+
-      '<div class="premium-country-facts"><span>🌍 '+c.continent+'</span><span>📍 '+capital+'</span></div>'+
-      '<span class="globe-country-tagline">✨ '+scene.tag+'</span>'+
+      '<div class="premium-country-facts"><span>🌍 '+c.continent+'</span><span>📍 '+capital+'</span><span class="globe-country-tagline">✨ '+scene.tag+'</span></div>'+
     '</div>'+
     '<button type="button" class="premium-country-learn" aria-label="Lær mer om '+c.name+'">'+bookSvg+'<span>Lær mer</span><b>›</b></button>';
 
