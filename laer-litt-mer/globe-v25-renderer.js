@@ -226,14 +226,20 @@ illustratedAtlas.src='./globe-map-art-v2-equirect.png?v=1';
 
 function drawIllustratedAtlas(ctx,w,h,s){
   if(!atlasPixels)return false;
-  const sample=Math.max(1.35,Math.min(2.2,s/270));
+  /* One projection model owns both the painted atlas and the country geometry.
+     While fingers are moving we render slightly coarser for stable Safari FPS;
+     the released frame is restored to full CSS-pixel resolution. */
+  const moving=window.__lariaGlobeInteracting===true;
+  const sample=moving?1.25:1;
   const bw=Math.ceil(w/sample),bh=Math.ceil(h/sample);
   if(!atlasBuffer||atlasBuffer.width!==bw||atlasBuffer.height!==bh){
     atlasBuffer=document.createElement('canvas');atlasBuffer.width=bw;atlasBuffer.height=bh;
     atlasBufferCtx=atlasBuffer.getContext('2d',{alpha:true});
   }
   const image=atlasBufferCtx.createImageData(bw,bh),out=image.data;
-  const r=s*.46,cx=w/2,cy=h/2,phi0=(Number(globeLat)||0)*Math.PI/180,lambda0=(Number(globeLon)||15)*Math.PI/180;
+  const zoom=Math.max(1,Number(globeZoom)||1);
+  const r=s*.455*zoom,cx=w/2,cy=h/2,phi0=(Number(globeLat)||0)*Math.PI/180,lambda0=(Number(globeLon)||15)*Math.PI/180;
+  window.__LARIA_GLOBE_ATLAS_STATE={radius:r,zoom,lon:Number(globeLon)||0,lat:Number(globeLat)||0,width:w,height:h};
   const sin0=Math.sin(phi0),cos0=Math.cos(phi0);
   for(let py=0;py<bh;py++)for(let px=0;px<bw;px++){
     const X=((px+.5)*sample-cx)/r,Y=-((py+.5)*sample-cy)/r,rho=Math.hypot(X,Y),o=(py*bw+px)*4;

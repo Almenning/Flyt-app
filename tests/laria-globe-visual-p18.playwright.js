@@ -130,6 +130,26 @@ async function capture(browserType,label,viewport){
     assert.equal(await page.locator('#globe-zoom-in').isVisible(),true,label+' zoom-in hidden');
     assert.equal(await page.locator('#globe-zoom-out').isVisible(),true,label+' zoom-out hidden');
 
+    const projectionSync=await page.evaluate(()=>{
+      const canvas=document.getElementById('globe-canvas'),w=canvas._cssW,h=canvas._cssH,s=Math.min(w,h);
+      const previous={lon:globeLon,lat:globeLat,zoom:globeZoom};
+      globeLon=15;globeLat=18;globeZoom=1.25;
+      window.drawGlobe();
+      const x=w*.57,y=h*.46,anchor=globeInverse(x,y);
+      globeZoom=3.2;
+      keepGlobeAnchor(anchor,x,y);
+      window.drawGlobe();
+      const after=globeInverse(x,y),atlas={...(window.__LARIA_GLOBE_ATLAS_STATE||{})};
+      const lonDiff=Math.abs(((after.lon-anchor.lon+540)%360)-180),latDiff=Math.abs(after.lat-anchor.lat);
+      const expectedRadius=s*.455*globeZoom;
+      globeLon=previous.lon;globeLat=previous.lat;globeZoom=previous.zoom;window.drawGlobe();
+      return {lonDiff,latDiff,atlas,expectedRadius};
+    });
+    assert.ok(projectionSync.lonDiff<.12,label+' pinch anchor longitude drifted: '+projectionSync.lonDiff);
+    assert.ok(projectionSync.latDiff<.12,label+' pinch anchor latitude drifted: '+projectionSync.latDiff);
+    assert.ok(Math.abs(Number(projectionSync.atlas.radius)-projectionSync.expectedRadius)<1.2,label+' illustrated atlas is not using the same zoomed projection radius as country geometry');
+    assert.ok(Math.abs(Number(projectionSync.atlas.zoom)-3.2)<.001,label+' illustrated atlas did not receive globe zoom');
+
     for(const mode of ['explore','mine','classic']){
       await page.locator('[data-globe-mode="'+mode+'"]').click();
       await page.waitForTimeout(250);
