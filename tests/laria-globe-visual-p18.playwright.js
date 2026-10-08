@@ -160,6 +160,8 @@ async function capture(browserType,label,viewport){
       assert.ok(rendererSource.includes(token),'locked globe palette drift: '+token);
     }
     assert.ok(rendererSource.includes('paintPolarLand(ctx,w,h,s);'),'locked globe polar treatment missing');
+    assert.ok(rendererSource.includes('paintStoryBiomes(ctx,w,h,s);'),'locked globe biome relief missing');
+    assert.equal(rendererSource.includes("const sparks=[[-.95,-.70"),false,'legacy target-ring/spark marker must stay removed');
     await assertProfileFoxSelection(chromium);
     await capture(chromium,'chromium-iphone',{width:390,height:844});
     await capture(webkit,'webkit-iphone',{width:390,height:844});
