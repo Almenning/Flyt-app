@@ -21,6 +21,14 @@ async function run(browser,engine,label,viewport,url){
   assert.equal(await page.locator('#fraction-lab-screen.active').count(),1);
   assert.equal(await page.locator('#fraction-lab-screen').getAttribute('data-explore-release'),'explore-rc1');
   assert.equal(await page.locator('.fr2-home-card').count(),6);
+  assert.equal(await page.locator('.fr2-home-card .fr2-illustration').count(),6,'each activity needs its own illustrative scene');
+  assert.equal(await page.locator('.fr2-sign-decoration .fr2-illustration').count(),1,'workshop title must carry fraction artwork');
+  const workshopScenery=await page.evaluate(async()=>({
+    background:getComputedStyle(document.querySelector('.fr2-world-art')).backgroundImage,
+    status:(await fetch('./fraction-workshop-scene.svg')).status
+  }));
+  assert.equal(workshopScenery.status,200,'illustrated workshop background failed to load');
+  assert.ok(workshopScenery.background.includes('fraction-workshop-scene.svg'),'main stage lacks bakery scenery');
   await photo(page,label+'-01-home');
 
   await page.locator('.fr2-card-explore').click();
@@ -43,6 +51,7 @@ async function run(browser,engine,label,viewport,url){
   await page.locator('.fr2-nav-item[data-page="build"]').click();
   await page.locator('.fr2-build').waitFor();
   await photo(page,label+'-03-build');
+  assert.ok((await page.locator('.fr2-spare .fr2-loose-piece').count())>=4,'loose tiles must look like real pastry pieces');
   await page.locator('[data-fr-action="reset"]').click();
   assert.equal((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot())).build.n,0);
   await page.locator('.fr2-spare').first().dragTo(page.locator('.fr2-build-target'));
@@ -66,6 +75,7 @@ async function run(browser,engine,label,viewport,url){
   assert.equal((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot())).equal,0);
   await page.locator('[data-fr-action="guess"][data-guess="equal"]').click();
   assert.match(await page.locator('.fr2-feedback').innerText(),/Du fant det!/);
+  assert.match(await page.locator('.fr2-aha').innerText(),/1\/2 = 2\/4/,'children must see a clear visual Aha moment');
   await page.locator('[data-fr-action="next-equal"]').click();
   assert.equal((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot())).equal,1);
 
@@ -105,6 +115,8 @@ async function run(browser,engine,label,viewport,url){
   assert.ok(Object.keys(stats.sorted).length>=1);
   assert.ok(Object.keys(stats.converted).length>=1);
   assert.equal(await page.locator('.fr2-master-tile').count(),5);
+  assert.equal(await page.locator('.fr2-journey-stop').count(),5,'illustrated discovery path needs real progress for each activity');
+  assert.ok(await page.locator('.fr2-journey-stop.visited').count()>0,'only truly explored activities should be marked visited');
   const geom=await page.evaluate(()=>({viewport:window.innerWidth,pageWidth:document.documentElement.scrollWidth,targets:[...document.querySelectorAll('#fraction-lab-root .fr2-nav-item, #fraction-lab-root .fr2-next-arrow, #fraction-lab-root .fr2-back')].map(n=>({width:n.getBoundingClientRect().width,height:n.getBoundingClientRect().height}))}));
   assert.ok(geom.pageWidth<=geom.viewport+3,label+' page overflow '+JSON.stringify(geom));
   assert.ok(geom.targets.every(x=>x.width>=44&&x.height>=44),label+' touch target below 44px '+JSON.stringify(geom));
