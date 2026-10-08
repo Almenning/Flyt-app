@@ -492,3 +492,9 @@
  .fr2-card-art{height:117px}
  .fr2-illustration{height:116px}
 }
+
+/* The long, locked label needs its own vertical clearance above the arrow. */
+@media(max-width:600px){
+ .fr2-card-convert{min-height:274px}
+ .fr2-card-convert strong{font-size:clamp(14px,3.9vw,17px);line-height:1.14}
+}
