@@ -1377,7 +1377,7 @@ html:has(#world-screen.active){
 }
 
 
-/* Læria globe v34: balanced optical hierarchy */
+/* Læria globe v34: balanced optical hierarchy.
    Keep the map as the hero, but make the controls sit symmetrically about its
    equator. A very light parchment wash softens the scenery without replacing
    the locked illustrated mountain/forest artwork. */
