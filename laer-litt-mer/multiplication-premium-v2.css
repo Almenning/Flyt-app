@@ -163,3 +163,18 @@
  .mp-nav-link small{font-size:10px}
 }
 @media(prefers-reduced-motion:reduce){.mp-shell *{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+
+/* Reference-image QA polish: calm the illustrated background so teaching stays legible. */
+.mp-shell .mp-scenery{opacity:.67;filter:blur(2px) saturate(.72) brightness(1.05);background:linear-gradient(180deg,rgba(255,247,230,.74) 0%,rgba(255,247,230,.46) 28%,rgba(255,247,230,.62) 56%,#FFF7E8 94%),url('./matte-verden.png') center top/cover no-repeat}
+.mp-shell .mp-heading{isolation:isolate;position:relative;padding:23px 8px 18px;margin:2px 0 10px}
+.mp-shell .mp-heading:before{content:"";position:absolute;z-index:-1;inset:-22px -10px;background:radial-gradient(ellipse at 50% 51%,rgba(255,248,234,.98) 0%,rgba(255,248,234,.90) 55%,rgba(255,248,234,.49) 76%,transparent 99%);pointer-events:none}
+.mp-shell .mp-heading h1{color:#4E2C27;text-shadow:0 2px 0 #FFF6E8,0 1px 9px #FFF9ED}
+.mp-shell .mp-heading p{color:#62483D;font-weight:800;text-shadow:0 1px 1px #FFF8ED}
+.mp-shell .mp-intro{font-weight:850;color:#694F42;padding:10px 16px;max-width:fit-content;border-radius:18px;background:#FFF8EADC;box-shadow:0 2px 15px #FFF5E8A0}
+.mp-shell .mp-award-heading{padding:7px 13px 12px;border-radius:20px;background:#FFF7E9C7}
+.mp-shell.mp-middle .mp-heading h1{font-size:clamp(31px,7vw,43px)}
+.mp-shell.mp-older .mp-heading h1,.mp-shell.mp-teen .mp-heading h1{font-size:clamp(29px,6vw,39px)}
+.mp-shell.mp-older .mp-mascot>img,.mp-shell.mp-teen .mp-mascot>img{max-width:105px}
+.mp-shell.mp-older .mp-table-choice,.mp-shell.mp-teen .mp-table-choice{min-height:112px}
+.mp-shell.mp-teen .mp-menu-card{min-height:120px}
+.mp-shell.mp-teen .mp-tile-symbol{height:52px;width:52px;font-size:31px}
