@@ -62,7 +62,7 @@ function fractionSvg(n,d,kind='large',canTap=false){
   const attr=canTap?' data-fr-action="piece" data-piece="'+i+'" role="button" tabindex="0" aria-label="Del '+(i+1)+' av '+den+'"':'';
   slices+='<path d="'+p+'" fill="url(#fr2-'+(i<val?'berry':'pastry')+id+')" stroke="#9C6A48" stroke-width="3.5" stroke-linejoin="round" '+attr+'/>';
  }
- const sprinkles='<circle cx="80" cy="53" r="3" fill="#F5B08B" opacity=".8"/><circle cx="111" cy="65" r="2.5" fill="#F6B987" opacity=".75"/><circle cx="84" cy="142" r="2.5" fill="#F7BE96" opacity=".65"/>';
+ const sprinkles='<g pointer-events="none"><circle cx="80" cy="53" r="3" fill="#F5B08B" opacity=".8"/><circle cx="111" cy="65" r="2.5" fill="#F6B987" opacity=".75"/><circle cx="84" cy="142" r="2.5" fill="#F7BE96" opacity=".65"/><circle cx="100" cy="100" r="89" fill="none" stroke="#FFE6B9" stroke-width="8" stroke-dasharray="8 4"/><circle cx="100" cy="100" r="83" fill="none" stroke="#A66D44" stroke-width="2" opacity=".7"/></g>';
  return '<svg class="fr2-pie fr2-pie-'+kind+(canTap?' fr2-pie-interactive':'')+'" viewBox="0 0 200 200" role="img" aria-label="'+val+' av '+den+' like deler er fylt" xmlns="http://www.w3.org/2000/svg">'
  +'<defs><radialGradient id="fr2-berry'+id+'" cx="28%" cy="23%"><stop stop-color="#F5A18C"/><stop offset=".48" stop-color="#DD6450"/><stop offset="1" stop-color="#A94138"/></radialGradient><radialGradient id="fr2-pastry'+id+'" cx="25%" cy="20%"><stop stop-color="#FFF7E7"/><stop offset=".67" stop-color="#F4DFC0"/><stop offset="1" stop-color="#D6B889"/></radialGradient><linearGradient id="fr2-crust'+id+'" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#F8D18B"/><stop offset="1" stop-color="#B47543"/></linearGradient></defs>'
  +'<ellipse cx="102" cy="182" rx="88" ry="13" fill="#6B4A32" opacity=".16"/><circle cx="100" cy="98" r="94" fill="url(#fr2-crust'+id+')" stroke="#915B36" stroke-width="4"/><circle cx="100" cy="100" r="86" fill="#FAE8C7"/>'+slices+sprinkles+'</svg>';
@@ -215,10 +215,11 @@ function build(){
 }
 function eqCurrent(){return EQ[u.equal%EQ.length]}
 function equalScreen(){
- const q=eqCurrent(),l=q.a,r=q.b,isEqual=equal(l,r),answered=u.equalGuess!==null;
+ const q=eqCurrent(),l=q.a,r=q.b,isEqual=equal(l,r),answered=u.equalGuess!==null,discovered=answered&&isEqual===(u.equalGuess==='equal');
  return '<section class="fr2-equal">'+sign('Like mye?','Forskjellige brøker kan vise like mye.')
  +'<div class="fr2-trail"><span>Oppdagelse '+(u.equal%EQ.length+1)+' av '+EQ.length+'</span><div class="fr2-trail-nodes">'+Array.from({length:EQ.length},(_,i)=>'<i class="'+(i<=u.equal%EQ.length?'on':'')+'"></i>').join('')+'</div></div>'
  +'<div class="fr2-scale-stage"><div class="fr2-scale"><div class="fr2-scale-beam"></div><div class="fr2-scale-sides"><div class="fr2-scale-plate"><div class="fr2-scale-label">'+frac(l[0],l[1])+'</div>'+fractionSvg(l[0],l[1],'compare')+'</div><div class="fr2-scale-mid"><b>?</b></div><div class="fr2-scale-plate"><div class="fr2-scale-label">'+frac(r[0],r[1])+'</div>'+fractionSvg(r[0],r[1],'compare')+'</div></div><div class="fr2-scale-base">◆</div></div></div>'
+  +(discovered?'<div class="fr2-aha" role="status"><span aria-hidden="true">✦</span><div><small>Se hva du oppdaget!</small><strong>'+l[0]+'/'+l[1]+' '+(isEqual?'=':'≠')+' '+r[0]+'/'+r[1]+'</strong></div><span aria-hidden="true">✦</span></div>':'')
  +'<div class="fr2-comparison"><h2>Viser de like mye?</h2><div class="fr2-choice-pair">'+cta('guess','Ja, like mye','fr2-answer '+(u.equalGuess==='equal'?(isEqual?'right':'incorrect'):''),'data-guess="equal" aria-pressed="'+(u.equalGuess==='equal')+'"')+cta('guess','Nei, forskjellige','fr2-answer '+(u.equalGuess==='different'?(!isEqual?'right':'incorrect'):''),'data-guess="different" aria-pressed="'+(u.equalGuess==='different')+'"')+'</div>'
  +'<div class="fr2-feedback" aria-live="polite">'+(answered?(isEqual===(u.equalGuess==='equal')?'Du fant det! '+l[0]+'/'+l[1]+(isEqual?' = ':' ≠ ')+r[0]+'/'+r[1]+'.':(isEqual?'Se etter hvor mye som er fylt. Begge viser samme mengde.':'Tell hvor mye som er fylt i hver. De viser forskjellig mengde.')):'Se på figurene før du velger.')+'</div></div>'
  +cta('next-equal','Prøv et nytt eksempel ›','fr2-primary fr2-full')+mascot(answered?'Når vi sammenligner mengder, oppdager vi nye sammenhenger!':'Se hvor mye av hver kake som er fylt. Er det like mye?',true)+'</section>';
@@ -249,8 +250,10 @@ function mastery(){
  const counts=tags.map(([k])=>Object.keys(progress[k]||{}).length);
  const discoveries=counts.reduce((a,b)=>a+b,0);
  const next=!counts[0]?'explore':!counts[1]?'build':!counts[2]?'equal':!counts[3]?'sort':!counts[4]?'convert':'explore';
+ const journey=tags.map(([kind,title,icon],i)=>'<div class="fr2-journey-stop '+(counts[i]>0?'visited':'')+'"><span class="fr2-journey-medal" aria-hidden="true">'+(counts[i]>0?'★':icon)+'</span><small>'+title+'</small></div>').join('');
  return '<section class="fr2-mastery">'+sign('Min mestring','Her er det du har oppdaget i Brøklaben!')
  +'<div class="fr2-mastery-banner">'+fox+'<div><small>Dine brøkeeventyr</small><strong>'+discoveries+' oppdagelser</strong><p>Hver oppdagelse teller. Du kan alltid utforske noe på nytt.</p></div><span class="fr2-award-star" aria-hidden="true">★</span></div>'
+ +'<div class="fr2-master-journey"><div class="fr2-journey-heading"><strong>Oppdagelsesstien din</strong><small>'+counts.filter(n=>n>0).length+' av 5 aktiviteter utforsket. Alle kan prøves igjen.</small></div><div class="fr2-journey-stops">'+journey+'</div></div>'
  +'<h2 class="fr2-section-title">Dette har du prøvd</h2><div class="fr2-master-grid">'+tags.map(([k,title,icon],i)=>cta('go','<span class="fr2-master-icon" aria-hidden="true">'+icon+'</span><strong>'+title+'</strong><small>'+(counts[i]===0?'En oppdagelse venter':counts[i]+' oppdagelser')+'</small>','fr2-master-tile','data-page="'+(k==='explored'?'explore':k==='built'?'build':k==='equal'?'equal':k==='sorted'?'sort':'convert')+'"')).join('')+'</div>'
  +'<div class="fr2-next-suggestion"><span aria-hidden="true">🗺️</span><div><small>Prøv dette neste</small><strong>'+titles[next]+'</strong><p>Alle aktivitetene er åpne, også dem du kjenner godt.</p></div>'+cta('go','›','fr2-next-arrow','data-page="'+next+'" aria-label="Åpne '+titles[next]+'"')+'</div>'+mascot('Nysgjerrighet er superkraften din!')+'</section>';
 }
