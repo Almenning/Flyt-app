@@ -85,19 +85,92 @@ function presentation(n,d,kind='circle',interactive=false){
 }
 function mascot(message,small=false){return '<div class="fr2-guide'+(small?' compact':'')+'">'+fox+'<div class="fr2-fox-speech">'+message+'<span class="fr2-guide-heart" aria-hidden="true">♥</span></div></div>'}
 function topBar(){return '<header class="fr2-top">'+cta('back','‹','fr2-back','id="fraction-lab-back" aria-label="Tilbake"')+'<div class="fr2-brand">Læria<small>✦</small></div><div class="fr2-charm"><span aria-hidden="true">🍰</span> Brøklaben</div></header>'}
-function sign(text,sub){return '<div class="fr2-sign"><h1>'+text+'</h1>'+(sub?'<p>'+sub+'</p>':'')+'</div>'}
+function sign(text,sub){return '<div class="fr2-sign"><span class="fr2-sign-decoration" aria-hidden="true">'+cardIllustration('build')+'</span><h1>'+text+'</h1>'+(sub?'<p>'+sub+'</p>':'')+'</div>'}
 function screenTabs(){
  const items=[['home','⌂','Hjem'],['explore','◔','Utforsk'],['build','▧','Bygg'],['mastery','★','Mestring']];
  return '<nav class="fr2-nav" aria-label="Brøklab"><div class="fr2-nav-row">'+items.map(([p,i,label])=>cta('go','<span aria-hidden="true">'+i+'</span><small>'+label+'</small>','fr2-nav-item '+(u.page===p?'active':''),'data-page="'+p+'" '+(u.page===p?'aria-current="page"':''))).join('')+'</div></nav>';
 }
-function miniArt(type){
- if(type==='explore')return '<div class="fr2-mini-pie">'+fractionSvg(1,2,'mini')+'</div>';
- if(type==='build')return '<div class="fr2-mini-stack">'+fractionSvg(3,4,'mini')+'<span class="fr2-mini-piece">◕</span></div>';
- if(type==='equal')return '<div class="fr2-mini-equal">'+fractionSvg(1,2,'mini')+'<b>=</b>'+fractionSvg(2,4,'mini')+'</div>';
- if(type==='sort')return '<div class="fr2-mini-sorting"><span>¼</span><span>½</span><span>¾</span></div>';
- if(type==='convert')return '<div class="fr2-mini-convert">½ <b>=</b> 50 %<small>= 0,5</small></div>';
- return '<div class="fr2-mini-mastery"><span>★</span><b>✦ ✦ ✦</b></div>';
+
+/* Six bespoke workshop illustrations replace generic fraction glyphs. These are
+   artwork only: interactive labels and hit targets stay live HTML controls. */
+function cardIllustration(type){
+ const grad='<defs><linearGradient id="f3Wood" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#F4CEA0"/><stop offset=".53" stop-color="#C68B52"/><stop offset="1" stop-color="#8C5631"/></linearGradient><radialGradient id="f3Apple" cx=".25" cy=".2"><stop stop-color="#FFA995"/><stop offset=".4" stop-color="#E35C4B"/><stop offset="1" stop-color="#A5302A"/></radialGradient><linearGradient id="f3Pastry" x1="0" y1="0" x2=".6" y2="1"><stop stop-color="#FFF0C9"/><stop offset="1" stop-color="#E6B978"/></linearGradient><linearGradient id="f3Blue" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#9BCFE4"/><stop offset="1" stop-color="#4388AE"/></linearGradient><linearGradient id="f3Leaf" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#B7CE78"/><stop offset="1" stop-color="#4F8D55"/></linearGradient><filter id="f3Shadow"><feGaussianBlur stdDeviation="4"/></filter></defs>';
+ const leaf='<path d="M0 0Q11-29 35-22Q27-3 0 0Z" fill="url(#f3Leaf)" stroke="#4B8049" stroke-width="2"/><path d="M0 0L34-21" stroke="#D5E1A9" stroke-width="2"/>';
+ let p='';
+ if(type==='explore'){
+  p='<ellipse cx="122" cy="126" rx="102" ry="15" fill="#8B5F3D" opacity=".22" filter="url(#f3Shadow)"/>'
+   +'<path d="M33 103Q73 119 123 110L199 113L194 126Q119 143 39 123Z" fill="url(#f3Wood)" stroke="#956136" stroke-width="3"/>'
+   +'<path d="M53 71Q43 47 58 36Q75 22 96 37Q113 22 135 34Q157 51 146 90Q128 124 108 113Q91 119 68 107Z" fill="url(#f3Apple)" stroke="#9D3E30" stroke-width="4"/>'
+   +'<path d="M97 35Q82 14 66 16Q74 37 97 35Z" fill="#6E9F53" stroke="#46804B" stroke-width="3"/>'
+   +'<path d="M96 35Q100 13 114 8" stroke="#7B5935" stroke-width="5" fill="none" stroke-linecap="round"/>'
+   +'<path d="M94 41Q105 39 116 46Q131 69 117 101Q106 114 93 105Z" fill="url(#f3Pastry)" stroke="#C99367" stroke-width="3"/>'
+   +'<path d="M108 68l4 7m-12 8 7 5" stroke="#9C734D" stroke-width="3" stroke-linecap="round"/>'
+   +'<g transform="translate(130 73) rotate(17)"><path d="M0 0L37-12Q58 7 54 42L10 34Z" fill="url(#f3Pastry)" stroke="#B58454" stroke-width="3"/><path d="M50-1Q64 24 53 41" stroke="#D35F4A" stroke-width="10" fill="none" stroke-linecap="round"/></g>'
+   +'<circle cx="60" cy="49" r="5" fill="#FFF8DE" opacity=".65"/>';
+ }
+ if(type==='build'){
+  p='<ellipse cx="117" cy="126" rx="93" ry="12" fill="#765236" opacity=".24" filter="url(#f3Shadow)"/>'
+   +'<path d="M35 103Q110 87 209 108L198 131Q117 147 39 129Z" fill="url(#f3Wood)" stroke="#8D5D36" stroke-width="3"/>'
+   +'<path d="M121 69L123 17A52 52 0 0 1 176 68Z" fill="url(#f3Apple)" stroke="#A85040" stroke-width="5" transform="translate(0 -10) rotate(2 121 69)"/>'
+   +'<path d="M121 69L177 72A54 54 0 0 1 123 122Z" fill="#F3C553" stroke="#B78834" stroke-width="5" transform="translate(11 1) rotate(1 121 69)"/>'
+   +'<path d="M121 69L121 120A51 51 0 0 1 67 70Z" fill="url(#f3Blue)" stroke="#4882A3" stroke-width="5" transform="translate(0 9) rotate(-2 121 69)"/>'
+   +'<path d="M121 69L70 68A50 50 0 0 1 121 16Z" fill="#7FAF6B" stroke="#507E48" stroke-width="5" transform="translate(-10 -2) rotate(-2 121 69)"/>'
+   +'<path d="M81 40Q96 19 114 18M149 39Q165 45 173 57" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" opacity=".65"/>'
+   +'<path d="M27 36l6-17m3 18 15-9M211 35l-4-13" stroke="#F2B454" stroke-width="5" stroke-linecap="round"/>';
+ }
+ if(type==='equal'){
+  p='<ellipse cx="119" cy="128" rx="95" ry="14" fill="#987253" opacity=".2" filter="url(#f3Shadow)"/>'
+   +'<path d="M113 111L99 131H141L127 111V43H113Z" fill="url(#f3Wood)" stroke="#82502D" stroke-width="3"/>'
+   +'<path d="M54 42L187 42" stroke="#85532C" stroke-width="9" stroke-linecap="round"/>'
+   +'<path d="M54 39L187 39" stroke="#F1BB75" stroke-width="4" stroke-linecap="round"/>'
+   +'<circle cx="121" cy="41" r="10" fill="#F5C671" stroke="#915B31" stroke-width="4"/>'
+   +'<path d="M58 46V89m-32 0 30-43m58 43-56-43M183 46V89m-31 0 31-43m29 43-29-43" stroke="#A77F50" stroke-width="3"/>'
+   +'<path d="M22 87Q57 111 117 87Q111 127 70 124Q30 124 22 87Z" fill="url(#f3Wood)" stroke="#895936" stroke-width="3"/>'
+   +'<path d="M145 87Q183 111 219 87Q213 127 181 124Q155 124 145 87Z" fill="url(#f3Wood)" stroke="#895936" stroke-width="3"/>'
+   +'<circle cx="70" cy="87" r="28" fill="#F2D19B" stroke="#A66C40" stroke-width="5"/><path d="M70 59A28 28 0 0 1 70 115Z" fill="url(#f3Apple)"/>'
+   +'<circle cx="181" cy="87" r="28" fill="#F2D19B" stroke="#A66C40" stroke-width="5"/><path d="M181 59A28 28 0 0 1 181 115Z" fill="url(#f3Apple)"/><path d="M153 87H209M181 59V115" stroke="#A16B45" stroke-width="3"/>';
+ }
+ if(type==='sort'){
+  p='<ellipse cx="121" cy="125" rx="100" ry="13" fill="#74502C" opacity=".2" filter="url(#f3Shadow)"/>'
+   +'<path d="M44 84Q34 111 61 126H181Q207 107 201 84Z" fill="url(#f3Wood)" stroke="#89532D" stroke-width="5"/>'
+   +Array.from({length:5},(_,i)=>'<path d="M'+(60+i*30)+' 85Q'+(50+i*30)+' 110 '+(60+i*30)+' 125" stroke="#F2C48A" stroke-width="5" fill="none"/>').join('')
+   +'<path d="M38 78Q115 109 203 78" fill="none" stroke="#8E522D" stroke-width="13" stroke-linecap="round"/>'
+   +'<path d="M56 76Q115 97 186 76" fill="none" stroke="#E7B679" stroke-width="7" stroke-linecap="round"/>'
+   +'<path d="M58 78L68 40Q92 27 105 69Z" fill="#F6C258" stroke="#B17A32" stroke-width="4"/>'
+   +'<path d="M102 75L109 27Q142 28 146 71Z" fill="url(#f3Apple)" stroke="#A65A43" stroke-width="4"/>'
+   +'<path d="M144 77L151 45Q176 31 193 74Z" fill="url(#f3Blue)" stroke="#477E9F" stroke-width="4"/>'
+   +'<g transform="translate(38 14) rotate(-12)"><rect width="43" height="49" rx="7" fill="#F7EAD2" stroke="#BA8958" stroke-width="4"/><text x="22" y="33" font-size="24" font-weight="bold" text-anchor="middle" fill="#6E3F31">½</text></g>'
+   +'<g transform="translate(164 9) rotate(11)"><rect width="45" height="51" rx="7" fill="#F7EAD2" stroke="#BA8958" stroke-width="4"/><text x="23" y="35" font-size="25" font-weight="bold" text-anchor="middle" fill="#6E3F31">¼</text></g>';
+ }
+ if(type==='convert'){
+  p='<ellipse cx="119" cy="124" rx="94" ry="13" fill="#7E573C" opacity=".22" filter="url(#f3Shadow)"/>'
+   +'<path d="M29 95Q98 84 207 94L196 127Q112 140 32 123Z" fill="url(#f3Wood)" stroke="#9F693B" stroke-width="4"/>'
+   +'<g transform="translate(23 30) rotate(-7 37 45)"><rect x="0" y="0" width="67" height="81" rx="10" fill="url(#f3Pastry)" stroke="#BE8B55" stroke-width="4"/><text x="34" y="34" text-anchor="middle" font-size="31" font-weight="bold" fill="#74402C">1</text><path d="M14 43H53" stroke="#74402C" stroke-width="4"/><text x="34" y="70" text-anchor="middle" font-size="31" font-weight="bold" fill="#74402C">2</text></g>'
+   +'<g transform="translate(92 21) rotate(2 42 49)"><rect x="0" y="0" width="87" height="90" rx="12" fill="#F5CE7E" stroke="#C39543" stroke-width="4"/><text x="43" y="56" text-anchor="middle" font-size="30" font-weight="bold" fill="#7D4F30">50%</text></g>'
+   +'<g transform="translate(175 37) rotate(9 19 35)"><rect width="57" height="73" rx="9" fill="#C8E0EB" stroke="#7A9BB0" stroke-width="4"/><text x="28" y="48" text-anchor="middle" font-size="23" font-weight="bold" fill="#3A667C">0,5</text></g>'
+   +'<path d="M77 18l7-14m90 10 14-10" stroke="#E6B34E" stroke-width="5" stroke-linecap="round"/>';
+ }
+ if(type==='mastery'){
+  p='<ellipse cx="116" cy="128" rx="104" ry="13" fill="#74502C" opacity=".2" filter="url(#f3Shadow)"/>'
+   +'<path d="M22 110Q48 88 68 92Q98 49 132 73Q166 30 205 93L215 126Q124 145 21 126Z" fill="#81A46A" stroke="#587C55" stroke-width="3"/>'
+   +'<path d="M41 121Q65 101 90 115Q115 90 133 103Q162 75 193 111" fill="none" stroke="#F4DAA1" stroke-width="11" stroke-dasharray="18 11" stroke-linecap="round"/>'
+   +'<path d="M112 74L130 15" stroke="#866040" stroke-width="5"/><path d="M130 15L180 26 131 48Z" fill="#DC6F53" stroke="#A04A38" stroke-width="3"/>'
+   +'<path d="M62 106L78 61L94 106Z" fill="#467F55"/><path d="M54 89L78 47L103 89Z" fill="#71A35D"/>'
+   +'<path d="M163 106L178 62L193 106Z" fill="#43805A"/><path d="M157 89L178 43L200 89Z" fill="#74A764"/>'
+   +'<path d="M115 75v41h35V80l-15-13Z" fill="#BB8659" stroke="#8B5D39" stroke-width="3"/><path d="M109 80l20-25 25 27Z" fill="#F0B46B" stroke="#966239" stroke-width="3"/>'
+   +'<path d="M128 115V93h13v22" fill="#7D543E"/><path d="M33 24l5-15 5 15 16 1-13 9 5 15-13-10-12 10 4-15-13-9Z" fill="#F8CB63" stroke="#C99844" stroke-width="2"/>';
+ }
+ return '<svg class="fr2-illustration fr2-illustration-'+type+'" viewBox="0 0 240 150" role="presentation" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">'+grad+p+'</svg>';
 }
+function loosePieceSvg(denominator,slot){
+ const d=Math.max(2,denominator),id='fr2Loose'+denominator+'-'+slot;
+ const cx=57,cy=61,r=44,a0=-Math.PI/2,a1=a0+Math.PI*2/d;
+ const x0=cx+r*Math.cos(a0),y0=cy+r*Math.sin(a0);
+ const x1=cx+r*Math.cos(a1),y1=cy+r*Math.sin(a1);
+ const outline='M '+cx+' '+cy+' L '+x0.toFixed(3)+' '+y0.toFixed(3)+' A '+r+' '+r+' 0 0 1 '+x1.toFixed(3)+' '+y1.toFixed(3)+' Z';
+ return '<svg class="fr2-loose-piece" viewBox="0 0 114 114" aria-hidden="true" focusable="false"><defs><radialGradient id="'+id+'"><stop stop-color="#F8BE99"/><stop offset=".5" stop-color="#DC6B54"/><stop offset="1" stop-color="#A64039"/></radialGradient></defs><path d="'+outline+'" transform="translate(3 4)" fill="#B27D44" opacity=".3"/><path d="'+outline+'" fill="url(#'+id+')" stroke="#DAA36A" stroke-width="5" stroke-linejoin="round"/><path d="M57 61L'+x0.toFixed(1)+' '+y0.toFixed(1)+'" stroke="#F9D6AA" stroke-width="3" opacity=".7"/></svg>';
+}
+function miniArt(type){return cardIllustration(type)}
 function card(type,subtitle){
  return cta('go','<div class="fr2-card-art">'+miniArt(type)+'</div><strong>'+titles[type]+'</strong><small>'+subtitle+'</small><span class="fr2-card-arrow" aria-hidden="true">›</span>','fr2-home-card fr2-card-'+type,'data-page="'+type+'"');
 }
@@ -133,7 +206,7 @@ function explore(){
 function build(){
  const x=u.build;
  return '<section class="fr2-build">'+sign('Bygg en brøk','Flytt på bitene og lag din egen brøk.')
- +'<div class="fr2-build-workshop"><div class="fr2-wood-tray"><span class="fr2-tray-title">Brøkbiter</span><div class="fr2-spare-pieces">'+Array.from({length:Math.min(x.d,8)},(_,i)=>cta('add','<span aria-hidden="true">◕</span>','fr2-spare '+(i===0?'point':'') ,'data-fr-pick="1" aria-label="Legg til én del"')).join('')+'</div><small>Trykk på en bit, eller dra den inn</small></div>'
+ +'<div class="fr2-build-workshop"><div class="fr2-wood-tray"><span class="fr2-tray-title">Brøkbiter</span><div class="fr2-spare-pieces">'+Array.from({length:Math.min(x.d,8)},(_,i)=>cta('add',loosePieceSvg(x.d,i),'fr2-spare '+(i===0?'point':'') ,'data-fr-pick="1" aria-label="Legg til én del"')).join('')+'</div><small>Trykk på en bit, eller dra den inn</small></div>'
  +'<div class="fr2-build-target" data-fr-drop="1"><div class="fr2-fabric">'+fractionSvg(x.n,x.d,'builder',true)+'</div><p>Trykk på delene for å fylle eller fjerne dem.</p></div></div>'
  +'<div class="fr2-controls">'+adjustField('d')+adjustField('n')+'</div>'
  +'<div class="fr2-result"><span>Du har bygget</span>'+frac(x.n,x.d)+'<small>'+x.n+' av '+x.d+' like deler.</small></div>'
