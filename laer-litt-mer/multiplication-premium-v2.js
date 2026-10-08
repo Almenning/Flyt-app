@@ -19,18 +19,19 @@ function tableProgress(n){let known=0,practiced=0,total=0;for(let i=1;i<=MAX;i++
 function suggested(){const preferred=grade()<=2?[2,5,10,3,4,6,7,8,9,11,12,1]:grade()<=4?[2,3,4,5,6,7,8,9,10,11,12,1]:[3,4,6,7,8,9,11,12,2,5,10,1];const incomplete=preferred.find(n=>!tableProgress(n).mastered);return incomplete||preferred[0]}
 function evidence(a,b){const r=tryRecord(a,b);return r.right-r.wrong*1.5+(r.last?0.1:0)}
 function createQuestions(n){
- const candidates=(n===null?Array.from({length:11},(_,i)=>i+2).flatMap(a=>Array.from({length:12},(_,j)=>({a,b:j+1}))):Array.from({length:12},(_,j)=>({a:n,b:j+1})));
+ const firstFactors=grade()<=2?[2,5,10]:grade()<=4?[2,3,4,5,6,7,8,9,10]:[2,3,4,5,6,7,8,9,10,11,12];const seconds=grade()<=2?10:12;
+ const candidates=(n===null?firstFactors.flatMap(a=>Array.from({length:seconds},(_,j)=>({a,b:j+1}))):Array.from({length:12},(_,j)=>({a:n,b:j+1})));
  const randomized=shuffled(candidates);
  randomized.sort((x,y)=>evidence(x.a,x.b)-evidence(y.a,y.b));
  return randomized.slice(0,8).map(q=>({a:q.a,b:q.b}));
 }
 function answerOptions(a,b){const exact=a*b,items=new Set([exact]);for(const delta of shuffled([a,b,1,2,3,5,Math.abs(a-b)||4])){if(items.size===4)break;if(exact+delta<=144)items.add(exact+delta);if(items.size<4&&exact-delta>=1)items.add(exact-delta)}for(let n=1;items.size<4;n++)items.add(exact+n);return shuffled(Array.from(items).slice(0,4))}
 function currentQ(){return stateBox.round[stateBox.idx]||null}
-function writeDraft(){saved.draft=stateBox.page==='practice'&&stateBox.round.length?{questions:stateBox.round,index:stateBox.idx,firstTry:stateBox.firstTry,correct:stateBox.totalCorrect,earned:stateBox.earned,mode:stateBox.roundType,table:stateBox.tab}:null;persist()}
+function writeDraft(){saved.draft=stateBox.page==='practice'&&stateBox.round.length?{questions:stateBox.round,index:stateBox.idx,firstTry:stateBox.firstTry,correct:stateBox.totalCorrect,earned:stateBox.earned,mode:stateBox.roundType,table:stateBox.tab,answer:stateBox.answer,wrongOnce:stateBox.wrongOnce,hint:stateBox.showHints,feedback:stateBox.feedback,options:stateBox.options,optionsFor:stateBox.optionsFor}:null;persist()}
 function begin(table=null,restore=false){
- if(restore){const draft=saved.draft;if(!draft||!Array.isArray(draft.questions)||draft.questions.length!==8)return begin(null);stateBox.round=draft.questions;stateBox.idx=Math.min(7,Math.max(0,Number(draft.index)||0));stateBox.firstTry=draft.firstTry||0;stateBox.totalCorrect=draft.correct||0;stateBox.earned=draft.earned||0;stateBox.roundType=draft.mode||'mixed';stateBox.tab=d(draft.table||5);}
+ if(restore){const draft=saved.draft;if(!draft||!Array.isArray(draft.questions)||draft.questions.length!==8)return begin(null);stateBox.round=draft.questions;stateBox.idx=Math.min(7,Math.max(0,Number(draft.index)||0));stateBox.firstTry=draft.firstTry||0;stateBox.totalCorrect=draft.correct||0;stateBox.earned=draft.earned||0;stateBox.roundType=draft.mode||'mixed';stateBox.tab=d(draft.table||5);stateBox.answer=draft.answer===null?null:Number(draft.answer);stateBox.wrongOnce=Boolean(draft.wrongOnce);stateBox.showHints=Boolean(draft.hint);stateBox.feedback=String(draft.feedback||'');stateBox.options=Array.isArray(draft.options)?draft.options:[];stateBox.optionsFor=Number.isInteger(draft.optionsFor)?draft.optionsFor:-1;}
  else{stateBox.roundType=table===null?'mixed':'table';stateBox.tab=table===null?suggested():d(table);stateBox.round=createQuestions(table===null?null:d(table));stateBox.idx=0;stateBox.firstTry=0;stateBox.totalCorrect=0;stateBox.earned=0;}
- stateBox.optionsFor=-1;stateBox.options=[];stateBox.answer=null;stateBox.wrongOnce=false;stateBox.showHints=false;stateBox.feedback='';stateBox.showSummary=false;stateBox.page='practice';writeDraft();render();
+ if(!restore){stateBox.optionsFor=-1;stateBox.options=[];stateBox.answer=null;stateBox.wrongOnce=false;stateBox.showHints=false;stateBox.feedback='';}stateBox.showSummary=false;stateBox.page='practice';writeDraft();render();
 }
 function beginNext(){const q=currentQ();if(!q||stateBox.answer!==q.a*q.b)return;stateBox.idx++;stateBox.answer=null;stateBox.wrongOnce=false;stateBox.showHints=false;stateBox.feedback='';stateBox.optionsFor=-1;stateBox.options=[];if(stateBox.idx>=8){saved.sessions++;saved.days[localDate()]=true;stateBox.page='complete';saved.draft=null;persist();}else{writeDraft()}render();scrollTop()}
 function chooseAnswer(v){
@@ -155,7 +156,7 @@ function render(){
  const region=root.querySelector('.mp-table-viewport');
  const scroll=region?{left:region.scrollLeft,top:region.scrollTop}:null;
  let screen=stateBox.page==='home'?home():stateBox.page==='choose'?choose():stateBox.page==='practice'?practice():stateBox.page==='explore'?explorer():stateBox.page==='mastery'?mastery():complete();
- root.innerHTML='<main class="mp-shell"><div class="mp-scenery" aria-hidden="true"></div><div class="mp-main">'+top()+screen+navigation()+'</div></main>';
+ root.innerHTML='<main class="mp-shell '+(grade()<=2?'mp-young':grade()<=4?'mp-middle':grade()<=7?'mp-older':'mp-teen')+'"><div class="mp-scenery" aria-hidden="true"></div><div class="mp-main">'+top()+screen+navigation()+'</div></main>';
  if(scroll){const current=root.querySelector('.mp-table-viewport');if(current){current.scrollLeft=scroll.left;current.scrollTop=scroll.top}}
 }
 function onClick(event){
