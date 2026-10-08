@@ -2,7 +2,7 @@
 (()=>{
 'use strict';
 const N=12,K='laria_mult_premium_v1';
-const ui={page:'home',table:5,round:[],at:0,selected:null,hint:false,feedback:'',a:4,b:3,explore:'table',focus:0,gridA:4,gridB:6,seed:0};
+const ui={page:'home',table:5,round:[],at:0,selected:null,hint:false,feedback:'',a:4,b:3,explore:'groups',focus:0,gridA:4,gridB:6,seed:0};
 const store=()=>{
  try {const raw=JSON.parse(localStorage.getItem(K)||'{}');return {tries:raw.tries||{},sessions:raw.sessions||0,days:raw.days||{},stars:raw.stars||0};}catch(_){return {tries:{},sessions:0,days:{},stars:0};}
 };
@@ -11,7 +11,7 @@ const stats=store();
 const icon='<img class="mp-fox" src="./lia-fox-explorer.webp" alt="Læria-reven">';
 const tabs=[['home','Oversikt'],['practice','Øv'],['choose','Tabeller'],['explore','Utforsk'],['mastery','Mestring']];
 const clamp=x=>Math.max(1,Math.min(12,Number(x)||1));
-const row=(k,label,detail,emoji)=>'<button type="button" class="mp-menu-card mp-'+k+'" data-mp-go="'+k+'"'+(k==='explore'?' data-mult-mode="free"':'')+'><span class="mp-menu-icon" aria-hidden="true">'+emoji+'</span><span class="mp-menu-copy"><strong>'+label+'</strong><small>'+detail+'</small></span><span class="mp-chevron" aria-hidden="true">›</span></button>';
+const row=(k,label,detail,emoji)=>'<button type="button" class="mp-menu-card mp-'+k+'" data-mp-go="'+k+'"><span class="mp-menu-icon" aria-hidden="true">'+emoji+'</span><span class="mp-menu-copy"><strong>'+label+'</strong><small>'+detail+'</small></span><span class="mp-chevron" aria-hidden="true">›</span></button>';
 const title=(heading,sub='')=>'<header class="mp-heading"><h1>'+heading+'</h1>'+(sub?'<p>'+sub+'</p>':'')+'</header>';
 const fox=(message)=>'<div class="mp-guide">'+icon+'<span>'+message+'</span></div>';
 const getTotal=n=>{const arr=Object.entries(stats.tries).filter(([k])=>k.split('x').some(v=>Number(v)===n));return arr.reduce((a,[,v])=>a+v.right,0)};
@@ -72,7 +72,7 @@ function mastery(){
  return title('Min mestring','Alt du øver på, teller.')+'<div class="mp-mastery-hero">🏅 <strong>'+stats.sessions+' økter</strong><span>Stjerner: '+stats.stars+'</span></div><h2 class="mp-subheading">Dine gangetabeller</h2><div class="mp-choice-grid">'+Array.from({length:12},(_,i)=>{const n=i+1,c=getTotal(n);return '<button class="mp-choice" data-mp-start="'+n+'"><b>'+n+'</b><span>'+n+'-gangen</span><small>'+(c>=12?'★ Godt øvd':c?c+' riktige':'Ikke startet')+'</small></button>'}).join('')+'</div>'+fox('Mestring åpner muligheter. Den stenger aldri noe!')}
 function render(){
  const root=document.getElementById('multiplication-lab-root');if(!root)return;
- root.innerHTML='<section class="mp-shell"><div class="mp-top"><button type="button" id="multiplication-lab-back" class="mp-back" data-mp-back="1" aria-label="Tilbake">←</button><strong>Læria <span>✦</span></strong><span class="mp-stats">⭐ '+stats.stars+'</span></div>'+(ui.page==='home'?home():ui.page==='choose'?chooser():ui.page==='practice'?practice():ui.page==='explore'?explore():ui.page==='mastery'?mastery():finished())+'<nav class="mp-nav" aria-label="Gangetabell"><button data-mp-go="home" '+(ui.page==='home'?'aria-current="page"':'')+'>Hjem</button><button data-mp-go="choose" '+(ui.page==='choose'?'aria-current="page"':'')+'>Tabeller</button><button data-mp-go="explore" '+(ui.page==='explore'?'aria-current="page"':'')+'>Utforsk</button><button data-mp-go="mastery" '+(ui.page==='mastery'?'aria-current="page"':'')+'>Mestring</button></nav></section>';
+ root.innerHTML='<section class="mp-shell"><div class="mp-top"><button type="button" class="mp-back" data-mp-back="1" aria-label="Tilbake">←</button><strong>Læria <span>✦</span></strong><span class="mp-stats">⭐ '+stats.stars+'</span></div>'+(ui.page==='home'?home():ui.page==='choose'?chooser():ui.page==='practice'?practice():ui.page==='explore'?explore():ui.page==='mastery'?mastery():finished())+'<nav class="mp-nav" aria-label="Gangetabell"><button data-mp-go="home" '+(ui.page==='home'?'aria-current="page"':'')+'>Hjem</button><button data-mp-go="choose" '+(ui.page==='choose'?'aria-current="page"':'')+'>Tabeller</button><button data-mp-go="explore" '+(ui.page==='explore'?'aria-current="page"':'')+'>Utforsk</button><button data-mp-go="mastery" '+(ui.page==='mastery'?'aria-current="page"':'')+'>Mestring</button></nav></section>';
  root.querySelectorAll('[data-mp-go]').forEach(b=>b.onclick=()=>{ui.page=b.dataset.mpGo;if(ui.page==='practice')start();else render()});
  root.querySelectorAll('[data-mp-start]').forEach(b=>b.onclick=()=>start(Number(b.dataset.mpStart)));
  root.querySelectorAll('[data-mp-explore]').forEach(b=>b.onclick=()=>{ui.explore=b.dataset.mpExplore;render()});
@@ -96,8 +96,7 @@ function next(){
  render();
 }
 window.openMultiplicationLab=function(){
- document.getElementById('multiplication-lab-screen')?.setAttribute('data-explore-release','explore-rc1');
- const grade=typeof currentGrade==='function'?currentGrade():2;ui.page='home';ui.explore='table';ui.table=grade<=2?2:rec();ui.at=0;ui.firstRight=0;ui.hadWrong=false;ui.opts=null;ui.optsFor=null;render();showScreen('multiplication-lab');
+ const grade=typeof currentGrade==='function'?currentGrade():2;ui.page='home';ui.table=grade<=2?2:rec();ui.at=0;ui.firstRight=0;ui.hadWrong=false;ui.opts=null;ui.optsFor=null;render();showScreen('multiplication-lab');
 };
 window.LARIA_MULT_PREMIUM={open:window.openMultiplicationLab,stats:()=>JSON.parse(JSON.stringify(stats))};
 const entry=document.getElementById('open-multiplication-lab');if(entry)entry.onclick=window.openMultiplicationLab;

@@ -411,7 +411,7 @@ async function finishSession(page){
     await page.locator('.bc12-place[data-camp="multiply"]').click();
     await page.locator('#multiplication-lab-screen.active').waitFor();
     assert.equal(await page.locator('#multiplication-lab-screen').getAttribute('data-explore-release'),'explore-rc1');
-    assert.equal(await page.locator('[data-mult-mode="free"]').isVisible(),true);
+    assert.equal(await page.locator('.mp-menu-explore').isVisible(),true);
     await page.locator('#multiplication-lab-back').click();
     await page.locator('#home-screen.active .bc12').waitFor();
 
@@ -865,49 +865,67 @@ async function finishSession(page){
     assert.deepEqual(labAfter,labBefore,'Brøklab exploration must not count as a completed test or graded answer');
     assert.equal(await page.locator('#subject-title').textContent(),'Matte');
 
-    // Premium Gangetabell: the physical 1-12 table is the first view in Utforsk og lek.
-    // Preserve a real exploratory interaction and do not credit an answer toward daily goals.
+    // Premium gangetabell: every table remains open, short practice is guided,
+    // and free visual exploration never masquerades as a completed school test.
     assert.equal(await page.locator('#open-multiplication-lab').isVisible(),true);
     const multBefore=await page.evaluate(()=>({goal:dailyGoal().done,answers:subjectAnswered('math')}));
     await page.locator('#open-multiplication-lab').click();
     await page.locator('#multiplication-lab-screen.active').waitFor();
-    assert.equal((await page.locator('#multiplication-lab-screen .mp-heading h1').textContent()).trim(),'Gangetabellen');
+    assert.equal((await page.locator('.mp-heading h1').first().textContent()).trim(),'Gangetabellen');
     const multPortraitFit=await page.evaluate(()=>{
       const screen=document.querySelector('#multiplication-lab-screen');
-      const shell=document.querySelector('#multiplication-lab-root .mp-shell');
+      const shell=document.querySelector('.mp-shell');
       const sr=screen.getBoundingClientRect(),hr=shell.getBoundingClientRect();
       return {viewport:window.innerWidth,documentWidth:document.documentElement.scrollWidth,screenLeft:sr.left,screenRight:sr.right,shellLeft:hr.left,shellRight:hr.right};
     });
-    assert.ok(multPortraitFit.documentWidth<=multPortraitFit.viewport+1,'Premium gangetabell overflows portrait: '+JSON.stringify(multPortraitFit));
-    assert.ok(multPortraitFit.shellLeft>=multPortraitFit.screenLeft-1&&multPortraitFit.shellRight<=multPortraitFit.screenRight+1,'Premium gangetabell shell overflows: '+JSON.stringify(multPortraitFit));
-    await page.locator('.mp-menu-card[data-mp-go="explore"]').click();
-    assert.equal((await page.locator('#multiplication-lab-screen .mp-heading h1').textContent()).trim(),'Utforsk og lek');
-    assert.equal(await page.locator('.mp-mode-row [data-mp-explore]').count(),6,'all six exploration modes stay available');
-    assert.ok((await page.locator('[data-mp-explore="table"]').getAttribute('class')).includes('selected'),'full multiplication table must open first');
-    assert.equal(await page.locator('.mp-table tbody tr').count(),12);
-    assert.equal(await page.locator('.mp-table td button').count(),144,'1-12 physical board must contain 144 interactive products');
-    await page.locator('[data-mp-cell="4,6"]').click();
-    assert.match(await page.locator('.mp-playground .mp-note').innerText(),/4 × 6 = 24/);
-    assert.match(await page.locator('.mp-playground .mp-note').innerText(),/6 × 4 = 24/);
-    await page.locator('[data-mp-explore="groups"]').click();
-    assert.equal(await page.locator('.mp-basket').count(),4);
-    assert.equal(await page.locator('.mp-basket i').count(),12);
-    await page.locator('[data-mp-explore="array"]').click();
-    assert.equal(await page.locator('.mp-array i').count(),12);
-    await page.locator('[data-mp-explore="line"]').click();
-    assert.equal(await page.locator('.mp-line span').count(),5);
-    await page.locator('[data-mp-explore="swap"]').click();
-    assert.match(await page.locator('.mp-playground .mp-formula').innerText(),/4 × 3 = 3 × 4 = 12/);
-    await page.locator('[data-mp-explore="pattern"]').click();
-    assert.match(await page.locator('.mp-playground .mp-formula').innerText(),/4 · 8 · 12/);
-    const multTouchHeights=await page.locator('.mp-mode-row button, .mp-controls button').evaluateAll(els=>els.map(e=>e.getBoundingClientRect().height));
-    assert.ok(multTouchHeights.every(h=>h>=44),'small premium multiplication touch control: '+multTouchHeights.join(','));
-    await page.locator('#multiplication-lab-back').click();
-    assert.equal((await page.locator('.mp-heading h1').textContent()).trim(),'Gangetabellen');
+    assert.ok(multPortraitFit.documentWidth<=multPortraitFit.viewport+1,'Gangetabellen creates horizontal overflow: '+JSON.stringify(multPortraitFit));
+    assert.ok(multPortraitFit.screenLeft>=-1&&multPortraitFit.screenRight<=multPortraitFit.viewport+1,'Gangetabellen screen exceeds phone viewport: '+JSON.stringify(multPortraitFit));
+    assert.ok(multPortraitFit.shellLeft>=multPortraitFit.screenLeft-1&&multPortraitFit.shellRight<=multPortraitFit.screenRight+1,'Gangetabellen shell exceeds viewport: '+JSON.stringify(multPortraitFit));
+    assert.equal(await page.locator('.mp-menu-card').count(),3);
+    await page.locator('.mp-menu-choose').click();
+    assert.equal(await page.locator('.mp-table-choice').count(),10,'tables 1–10 must all be available');
+    assert.equal(await page.locator('.mp-table-choice[data-table="11"]').count(),0);
+    await page.locator('.mp-table-choice[data-table="5"]').first().click();
+    const selectedRound=await page.evaluate(()=>window.LARIA_MULT_PREMIUM.snapshot());
+    assert.equal(selectedRound.round.length,8);
+    assert.ok(selectedRound.round.every(q=>q.a===5),'selected 5-gangen was not used');
+    assert.equal(await page.locator('.mp-apple-basket').count(),selectedRound.round[0].a);
+    assert.equal(await page.locator('.mp-apple').count(),selectedRound.round[0].a*selectedRound.round[0].b);
+    const answer=selectedRound.round[0].a*selectedRound.round[0].b;
+    await page.locator('.mp-answer[data-value="'+answer+'"]').click();
+    assert.match(await page.locator('.mp-answer-feedback').innerText(),/Helt riktig/i);
+    await page.locator('.mp-next').click();
+    await page.locator('.mp-nav-link[data-page="explore"]').click();
+    assert.equal(await page.locator('.mp-explore-tab').first().getAttribute('data-mode'),'table','table must be the first mode');
+    assert.equal(await page.locator('.mp-explore-tab').first().getAttribute('aria-pressed'),'true','opening Utforsk must automatically show the table');
+    assert.equal(await page.locator('.mp-times-grid tbody tr').count(),10);
+    assert.equal(await page.locator('.mp-grid-cell').count(),100);
+    await page.locator('[data-mp-action="mode"][data-mode="groups"]').click();
+    for(let i=0;i<3;i++)await page.locator('[data-mp-action="factor"][data-factor="a"][data-step="1"]').click();
+    for(let i=0;i<5;i++)await page.locator('[data-mp-action="factor"][data-factor="b"][data-step="1"]').click();
+    assert.match(await page.locator('.mp-math-result').innerText(),/7 × 8/);
+    await page.locator('[data-mp-action="mode"][data-mode="array"]').click();
+    assert.equal(await page.locator('.mp-mini-array i').count(),56);
+    await page.locator('[data-mp-action="mode"][data-mode="swap"]').click();
+    assert.equal(await page.locator('.mp-swap-pair .mp-mini-array').count(),2);
+    await page.locator('[data-mp-action="mode"][data-mode="patterns"]').click();
+    assert.equal(await page.locator('.mp-pattern-grid>div').count(),10);
+    await page.locator('[data-mp-action="mode"][data-mode="table"]').click();
+    assert.equal(await page.locator('.mp-times-grid .mp-grid-cell').count(),100);
+    await page.locator('[data-mp-action="cell"][data-row="4"][data-col="6"]').click();
+    assert.match(await page.locator('.mp-table-inspector').innerText(),/4 × 6 = 24/);
+    assert.match(await page.locator('.mp-table-inspector').innerText(),/6 × 4 = 24/);
+    assert.doesNotMatch(await page.locator('.mp-table-inspector').innerText(),/2 × 12/,'factor pairs must stay inside the 10x10 table');
+    assert.match(await page.locator('.mp-table-inspector').innerText(),/3 × 8/);
+    assert.match(await page.locator('.mp-table-inspector').innerText(),/8 × 3/);
+    assert.ok(await page.locator('.mp-grid-cell.same').count()>=3);
+    const multTouchHeights=await page.locator('.mp-pair,.mp-grid-cell,.mp-factor-adjust button').evaluateAll(els=>els.map(e=>e.getBoundingClientRect().height));
+    assert.ok(multTouchHeights.every(h=>h>=44),'small multiplication touch target: '+multTouchHeights.join(','));
+    await page.locator('.mp-nav-link[data-page="home"]').click();
     await page.locator('#multiplication-lab-back').click();
     await page.locator('#subject-screen.active').waitFor();
     const multAfter=await page.evaluate(()=>({goal:dailyGoal().done,answers:subjectAnswered('math')}));
-    assert.deepEqual(multAfter,multBefore,'Premium gangetabell exploration must not count as a completed test or graded answer');
+    assert.deepEqual(multAfter,multBefore,'Gangetabell-lab exploration must not count as a completed test or graded answer');
 
     await page.locator('#subject-modules .subject-module').click();
     assert.equal(await page.evaluate(()=>sessionQuestions.length),5);
