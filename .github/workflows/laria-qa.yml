@@ -77,6 +77,9 @@ jobs:
           if-no-files-found: warn
           retention-days: 7
 
+      - name: Full browser regression suite
+        run: npm run test:browser
+
       - name: Start exact-head local server
         run: |
           python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/laria-http.log 2>&1 &
@@ -124,5 +127,4 @@ jobs:
           if-no-files-found: warn
           retention-days: 7
 
-      - name: Full browser regression suite
-        run: npm run test:browser
+
