@@ -33,9 +33,9 @@ test('Laria Final RC preserves Prompt 18 locked contracts',()=>{
   const nativeConfig=JSON.parse(read('laria-native/capacitor.config.json'));
   const store=read('laria-native/LariaStorePlugin.swift.template');
 
-  assert.match(index,/globe-v24\.css\?v=globe30-p18rc13/,'locked globe CSS cache key changed');
-  assert.match(index,/globe-v25-renderer\.js\?v=globe30-p18rc13/,'locked globe renderer cache key changed');
-  assert.match(sw,/p18rc13/,'service-worker cache must match the locked Prompt 18 runtime');
+  assert.match(index,/globe-v24\.css\?v=globe31-motion1/,'approved globe CSS motion-release cache key changed');
+  assert.match(index,/globe-v25-renderer\.js\?v=globe31-motion1/,'approved globe renderer motion-release cache key changed');
+  assert.match(sw,/globe31-motion1/,'service-worker cache must match the approved globe motion release');
   assert.match(p18,/Status: \*\*FERDIG/,'Prompt 18 must remain formally closed');
   assert.equal(nativeConfig.appId,'no.adspire.laria','native app id changed');
   assert.equal(nativeConfig.appName,'Læria','native app name changed');
