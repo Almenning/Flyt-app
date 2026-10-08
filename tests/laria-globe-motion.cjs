@@ -24,6 +24,15 @@ test('globe pinch keeps a geographic anchor and hands back to one-finger drag',(
 test('globe motion release rotates Safari cache keys',()=>{
   const index=read('laer-litt-mer/index.html');
   const sw=read('laer-litt-mer/sw.js');
-  assert.match(index,/globe31-motion1/);
-  assert.match(sw,/globe31-motion1/);
+  assert.match(index,/globe32-geo1/);
+  assert.match(sw,/globe32-geo1/);
+});
+
+test('visible globe land uses authoritative geographic boundaries, not a decorative image',()=>{
+  const renderer=read('laer-litt-mer/globe-v25-renderer.js');
+  const active=renderer.slice(renderer.indexOf('function premiumDraw(){'),renderer.indexOf('function install(){'));
+  assert.match(active,/__LARIA_GLOBE_RENDER_SOURCE='country-geometry'/);
+  assert.match(active,/paintContinents\(ctx,w,h,s\)/);
+  assert.match(active,/paintStoryBiomes\(ctx,w,h,s\)/);
+  assert.doesNotMatch(active,/drawIllustratedAtlas\(ctx,w,h,s\)/);
 });
