@@ -1304,3 +1304,14 @@ html:has(#world-screen.active){
     --g24-globe-top:49dvh;
   }
 }
+
+/* Globe v33: the old unified UI layer used the WORLD screen's ::before and
+   ::after to draw a tiny title plaque and mascot. Those pseudos kept their
+   borders, widths, transforms and drop shadows after the new landscape styles
+   changed only their backgrounds. On iPad this produced a tall gold rectangle
+   across the scenery. The dedicated premium header now owns the chrome. */
+#world-screen.active.globe-v30::before,
+#world-screen.active.globe-v30::after{
+  content:none!important;
+  display:none!important;
+}
