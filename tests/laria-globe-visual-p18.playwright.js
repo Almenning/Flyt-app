@@ -51,10 +51,14 @@ async function assertProfileFoxSelection(browserType){
       await page.locator('#world-screen.active .premium-globe-fox').waitFor();
       const pair=await page.evaluate(a=>({
         actual:document.querySelector('#world-screen.active .premium-globe-fox')?.getAttribute('src')||'',
-        expected:window.LARIA_PROFILE_AVATARS?.[a]||''
+        expected:window.LARIA_PROFILE_AVATARS?.[a]||'',
+        guide:document.querySelector('#world-screen.active .premium-globe-guide')?.getAttribute('src')||'',
+        guideAvatar:document.querySelector('#world-screen.active .premium-globe-guide')?.dataset.profileAvatar||''
       }),avatar);
       assert.ok(pair.expected.startsWith('data:image/webp;base64,'),'missing '+avatar+' profile fox source');
       assert.equal(pair.actual,pair.expected,'globe did not render selected '+avatar+' profile fox');
+      assert.equal(pair.guide,'./lia-fox-explorer-home.webp','physical globe guide must use the established transparent explorer asset');
+      assert.equal(pair.guideAvatar,avatar,'physical globe guide lost profile context');
       sources[avatar]=pair.actual;
       await ctx.close();
     }
@@ -90,6 +94,8 @@ async function capture(browserType,label,viewport){
       const zoomIn=document.getElementById('globe-zoom-in').getBoundingClientRect();
       const zoomOut=document.getElementById('globe-zoom-out').getBoundingClientRect();
       const wrap=document.querySelector('.globe-wrap');
+      const guide=document.querySelector('.premium-globe-guide');
+      const guideBox=guide?.getBoundingClientRect();
       return {
         screen:{w:screen.width,h:screen.height},
         canvas:{w:canvas.width,h:canvas.height,opacity:Number(getComputedStyle(canvasEl).opacity||1)},
@@ -98,6 +104,7 @@ async function capture(browserType,label,viewport){
         zoomIn:{w:zoomIn.width,h:zoomIn.height},
         zoomOut:{w:zoomOut.width,h:zoomOut.height},
         underlay:getComputedStyle(wrap,'::before').backgroundImage||'',
+        guide:guide?{display:getComputedStyle(guide).display,w:guideBox?.width||0,h:guideBox?.height||0}:null,
         overflow:document.documentElement.scrollWidth>document.documentElement.clientWidth
       };
     });
@@ -111,6 +118,12 @@ async function capture(browserType,label,viewport){
     assert.ok(metrics.zoomOut.h>=44&&metrics.zoomOut.w>=44,label+' zoom-out control below 44px');
     assert.ok(metrics.canvas.opacity>=.95,label+' rotating globe canvas must stay visually primary');
     assert.equal(metrics.underlay.includes('globe-map-art-v1.png'),false,label+' must not place static geography behind the rotating globe');
+    if(label==='webkit-ipad-landscape'){
+      assert.ok(metrics.guide&&metrics.guide.display!=='none',label+' physical explorer guide is hidden');
+      assert.ok(metrics.guide.w>=180&&metrics.guide.h>=150,label+' physical explorer guide is too small');
+    }else{
+      assert.ok(!metrics.guide||metrics.guide.display==='none',label+' physical guide must not crowd portrait/mobile composition');
+    }
     assert.equal(await page.locator('[data-globe-mode="explore"]').isVisible(),true);
     assert.equal(await page.locator('[data-globe-mode="mine"]').isVisible(),true);
     assert.equal(await page.locator('[data-globe-mode="classic"]').isVisible(),true);

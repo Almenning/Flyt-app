@@ -104,6 +104,16 @@ function ensurePremiumShell(){
   const avatar=selectedProfileAvatar();
   header.dataset.avatar=avatar;
   const fox=screen.querySelector('.premium-globe-fox');if(fox){fox.src=selectedProfileFox();fox.dataset.avatar=avatar;fox.setAttribute('aria-label',avatar==='girl'?'Din valgte revejente':'Din valgte revegutt')}
+  let guide=screen.querySelector('.premium-globe-guide');
+  if(!guide){
+    guide=document.createElement('img');
+    guide.className='premium-globe-guide';
+    guide.src='./lia-fox-explorer-home.webp';
+    guide.alt='';
+    guide.setAttribute('aria-hidden','true');
+    screen.appendChild(guide);
+  }
+  guide.dataset.profileAvatar=avatar;
   const wrap=screen.querySelector('.globe-wrap');
   if(wrap){
     let ring=wrap.querySelector('.premium-globe-ring');

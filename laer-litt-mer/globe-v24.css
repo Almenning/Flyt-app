@@ -1114,3 +1114,27 @@ html:has(#world-screen.active){
   display:grid!important;
   opacity:.58!important;
 }
+
+#world-screen.active .premium-globe-guide{
+  display:none!important;
+  pointer-events:none!important;
+  user-select:none!important;
+  -webkit-user-drag:none!important;
+}
+
+@media (orientation:landscape) and (min-width:900px){
+  #world-screen.active.globe-v30 .premium-globe-guide{
+    display:block!important;
+    position:absolute!important;
+    z-index:20!important;
+    left:calc(50% - var(--g24-globe)/2 - clamp(178px,15vw,220px))!important;
+    bottom:clamp(76px,9.4dvh,96px)!important;
+    width:clamp(190px,20vw,238px)!important;
+    height:auto!important;
+    max-height:39dvh!important;
+    object-fit:contain!important;
+    transform:scaleX(-1) rotate(1.5deg)!important;
+    transform-origin:50% 100%!important;
+    filter:drop-shadow(0 12px 10px rgba(52,36,20,.24))!important;
+  }
+}
