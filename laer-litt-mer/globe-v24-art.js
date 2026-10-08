@@ -3,11 +3,14 @@ const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 
 /* Broad biome washes. They stay clipped to real land geometry in the renderer. */
 const TERRAIN=[
-  ['forest',18,61,1.20],['forest',52,60,1.28],['forest',99,58,1.18],['forest',-106,53,1.12],
-  ['forest',-62,-5,1.28],['forest',-73,-12,.94],['forest',23,1,.96],['forest',104,17,1.00],['forest',118,-4,.78],
-  ['desert',12,24,1.34],['desert',48,25,.92],['desert',78,27,.72],['desert',134,-24,1.08],
-  ['savanna',28,-5,1.08],['savanna',24,-22,.98],['savanna',-58,-20,.70],
-  ['snow',-42,72,1.18],['snow',92,68,1.06],['snow',-108,68,.92]
+  ['forest',-112,55,1.02],['forest',-88,51,.82],['forest',-63,-4,1.34],['forest',-72,-12,.98],
+  ['forest',12,55,.82],['forest',28,60,.92],['forest',54,60,1.18],['forest',82,61,1.18],['forest',108,58,1.12],
+  ['forest',23,1,1.02],['forest',104,17,1.06],['forest',118,-4,.84],
+  ['desert',-8,25,1.22],['desert',11,25,1.48],['desert',31,25,1.42],['desert',49,25,1.02],
+  ['desert',68,37,.72],['desert',78,27,.74],['desert',134,-24,1.14],['desert',-108,31,.58],
+  ['savanna',12,8,.92],['savanna',28,-4,1.14],['savanna',25,-21,1.04],['savanna',-58,-20,.72],
+  ['savanna',78,18,.64],['savanna',103,39,.62],
+  ['snow',-42,72,1.28],['snow',18,69,.82],['snow',92,68,1.12],['snow',-108,68,.98]
 ];
 
 /* Discovery details: natural first, landmarks second. Coordinates are intentionally sparse. */
@@ -33,7 +36,7 @@ function stroke(ctx,color='rgba(87,61,35,.50)',w=1.5){ctx.strokeStyle=color;ctx.
 function tree(ctx,x,y,k,variant=0){
   ctx.save();ctx.translate(x,y);shadow(ctx,k*.15,k*.06,'rgba(38,66,40,.20)');
   ctx.fillStyle='#765032';ctx.fillRect(-k*.065,k*.03,k*.13,k*.42);
-  const cols=variant?['#3A7C49','#4D9654','#68A85B']:['#275E3E','#347649','#4B9652'];
+  const cols=variant?['#35804A','#50A358','#76B55F']:['#286943','#3F8850','#5AA45A'];
   for(const a of [[-.38,.58,cols[0]],[-.16,.78,cols[1]],[.09,.94,cols[2]]]){
     ctx.fillStyle=a[2];ctx.beginPath();ctx.moveTo(0,k*(a[0]-.42));ctx.lineTo(-k*a[1]*.48,k*(a[0]+.24));ctx.quadraticCurveTo(0,k*(a[0]+.12),k*a[1]*.48,k*(a[0]+.24));ctx.closePath();ctx.fill();
   }ctx.restore();
@@ -43,18 +46,18 @@ function trees(ctx,x,y,k){
 }
 function jungle(ctx,x,y,k){
   ctx.save();ctx.translate(x,y);shadow(ctx,k*.16,k*.05,'rgba(38,76,42,.18)');
-  for(const a of [[-.43,.08,.42,'#347E47'],[-.15,-.18,.56,'#489B54'],[.22,-.08,.50,'#2F7B48'],[.46,.11,.36,'#62A95B']]){
+  for(const a of [[-.43,.08,.42,'#2F8248'],[-.15,-.18,.56,'#4FA35A'],[.22,-.08,.50,'#2A7644'],[.46,.11,.36,'#70B45F']]){
     ctx.fillStyle=a[3];ctx.beginPath();ctx.arc(k*a[0],k*a[1],k*a[2],0,Math.PI*2);ctx.fill();
   }
   ctx.fillStyle='#E6C95E';for(const a of [[-.28,-.25],[.08,.18],[.38,-.02]]){ctx.beginPath();ctx.arc(k*a[0],k*a[1],k*.055,0,Math.PI*2);ctx.fill()}
   ctx.restore();
 }
 function mountains(ctx,x,y,k){
-  ctx.save();ctx.translate(x,y);shadow(ctx,k*.18,k*.07,'rgba(50,58,54,.22)');
-  for(const a of [[-.46,.10,.68,'#7D8B88'],[0,-.08,1,'#7D8684'],[.47,.12,.65,'#6F7E79']]){
+  ctx.save();ctx.translate(x,y);shadow(ctx,k*.14,k*.055,'rgba(45,55,48,.16)');
+  for(const a of [[-.46,.10,.68,'#9A9485'],[0,-.08,1,'#8C8B82'],[.47,.12,.65,'#7E8982']]){
     const m=k*a[2];ctx.save();ctx.translate(k*a[0],k*a[1]);ctx.fillStyle=a[3];
     ctx.beginPath();ctx.moveTo(0,-m*.68);ctx.lineTo(-m*.72,m*.48);ctx.lineTo(m*.72,m*.48);ctx.closePath();ctx.fill();
-    ctx.fillStyle='#FFF8E8';ctx.beginPath();ctx.moveTo(0,-m*.68);ctx.lineTo(-m*.24,-m*.23);ctx.lineTo(-m*.03,-m*.31);ctx.lineTo(m*.17,-m*.13);ctx.lineTo(m*.34,-m*.06);ctx.closePath();ctx.fill();
+    ctx.fillStyle='#FFFCF1';ctx.beginPath();ctx.moveTo(0,-m*.68);ctx.lineTo(-m*.30,-m*.17);ctx.lineTo(-m*.08,-m*.28);ctx.lineTo(m*.12,-m*.10);ctx.lineTo(m*.31,-m*.02);ctx.closePath();ctx.fill();
     ctx.strokeStyle='rgba(255,255,255,.22)';ctx.lineWidth=Math.max(1,m*.045);ctx.beginPath();ctx.moveTo(-m*.51,m*.35);ctx.lineTo(0,-m*.58);ctx.stroke();ctx.restore();
   }ctx.restore();
 }

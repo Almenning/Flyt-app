@@ -1,0 +1,8 @@
+{
+  "appId": "no.adspire.laria",
+  "appName": "Læria",
+  "webDir": "www",
+  "ios": {
+    "contentInset": "automatic"
+  }
+}

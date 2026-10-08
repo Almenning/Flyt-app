@@ -43,11 +43,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium webkit
-
       - name: Static and Node regression suite
         run: npm run test:node
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium webkit
 
       - name: Start exact-head local server
         run: |
@@ -79,6 +79,20 @@ jobs:
         with:
           name: laria-device-hardening-${{ github.sha }}
           path: /tmp/laria-device-hardening
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Prompt 18 globe visual evidence
+        env:
+          QA_SCREENSHOTS: /tmp/laria-p18-globe
+        run: node tests/laria-globe-visual-p18.playwright.js
+
+      - name: Upload Prompt 18 globe evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-p18-globe-${{ github.sha }}
+          path: /tmp/laria-p18-globe
           if-no-files-found: warn
           retention-days: 7
 

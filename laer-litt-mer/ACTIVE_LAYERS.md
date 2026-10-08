@@ -20,7 +20,10 @@ Prompt 8 establishes the canonical active layer order. This file documents owner
 ## JavaScript load order
 Boot data before inline runtime:
 1. profile-avatars.js — synchronous profile avatar map
-2. norwegian-content.js — deferred content
+2. commercial-content-v18.js — synchronous Prompt 18 launch-depth supplements for Norwegian, Math and English
+3. commerce-v18.js — parent-controlled StoreKit entitlement client; web remains preview-only
+4. norwegian-content.js — deferred canonical Norwegian content
+
 
 Deferred presentation/activity modules after inline runtime:
 1. fraction-lab.js
@@ -40,6 +43,7 @@ Deferred presentation/activity modules after inline runtime:
 - Task presentation is layered intentionally: laria-unified-v13 → laria-task-scene-v15 → laria-task-young-v18.
 - Journey presentation keeps the existing progression model; visual renderers do not own progress state.
 - Profile fox source is window.LARIA_PROFILE_AVATARS plus the saved state.profile.avatar choice.
+- Commercial content depth is owned by commercial-content-v18.js; it supplements subject pools but must not own progression, mastery, Home, Journey, Globe, or Task presentation.
 - Cache-busted asset versions in index.html and sw.js must match exactly.
 
 ## Responsive contract

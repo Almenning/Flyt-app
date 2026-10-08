@@ -19,9 +19,11 @@ const {chromium,webkit}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
   }
   const seed={version:7,progressSchemaVersion:3,profile:{grade:2,onboarded:true,name:'Testbarn',avatar:'boy',setupVersion:2},mastery:{},mistakes:{},skillMastery:{},skillMistakes:{},skillLastSeen:{},masteryEvidence:{},skillEvidence:{},preferences:{sound:false,autoRead:false},lastMilestone:null,recentCountryWin:null,lastActivity:null,journey:{nodes:{},gradeWins:{},viewGrades:{}},answerLog:[],sessionLog:[],activeSession:null};
   await page.addInitScript(s=>localStorage.setItem('laerlittmer-v2',JSON.stringify(s)),seed);
+  // The interaction suite must exercise the exact checked-out PR code in both engines.
+  // Published-runtime coverage runs separately in test:laria-live; using it here can
+  // accidentally test an older Pages deployment than the change under review.
   const localUrl=process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria';
-  const publishedUrl=process.env.QA_WEBKIT_URL||'https://almenning.github.io/Flyt-app/laer-litt-mer/?app=laria';
-  const targetUrl=(engineName==='webkit'?publishedUrl:localUrl)+(engineName==='webkit'?(publishedUrl.includes('?')?'&':'?')+'basecampqa='+Date.now():'');
+  const targetUrl=localUrl+(localUrl.includes('?')?'&':'?')+'basecampqa='+Date.now();
   console.log('[basecamp]',engineName,name,'goto',targetUrl);
   const bootStarted=Date.now();
   await page.goto(targetUrl,{waitUntil:engineName==='chromium'&&name==='iphone'?'domcontentloaded':'networkidle'});
@@ -84,7 +86,7 @@ const {chromium,webkit}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
     assert.ok(globeState.cssW>=280&&globeState.cssH>=280,'iphone globe canvas was not initialized immediately: '+JSON.stringify(globeState));
     assert.equal(globeState.immediate,'true','globe screen did not switch immediately');
     assert.ok(globeState.readyMs>0&&globeState.readyMs<900,'globe renderer took too long after tap: '+JSON.stringify(globeState));
-    assert.equal(requested.some(u=>u.includes('geografi-verden.png')),false,'opening globe must not fetch 3MB geography background art');
+    assert.equal(requested.some(u=>u.includes('geografi-verden.png')||u.includes('globe-map-art-v1.png')),false,'opening globe must not fetch multi-megabyte static geography art');
     console.log('[perf] iphone home-to-globe',openMs+'ms','renderer',globeState.readyMs+'ms');
    }
    console.log('[basecamp]',engineName,name,'back',action);
