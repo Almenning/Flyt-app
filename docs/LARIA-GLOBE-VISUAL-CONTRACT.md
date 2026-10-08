@@ -45,3 +45,13 @@ Kloden skal leses som en illustrert, premium eventyrglobus for barn, ikke som et
 ## Ferdigkriterium
 
 Automatiske tester er bare minimumsgate. Prompt 18 Kloden er ikke visuelt ferdig før exact-head-skjermbilder på iPhone og iPad er sammenlignet mot det låste målbildet og helheten faktisk har samme type **illustrert naturatlas / eventyrglobus**-uttrykk.
+
+
+### 7. Geografisk samsvar mellom malt kart og faktiske land (obligatorisk)
+
+- Landflaten i selve Utforsk-/Min verden-kloden skal genereres fra samme `WORLD_COUNTRIES`-polygondatasett som landvalg og grensemarkering, i EPSG:4326 før ortografisk projeksjon.
+- Fritt illustrerte eller perspektivtegnede verdenskart uten geografisk registrering må **ikke** brukes som den roterende klodens karttekstur. Et vakkert bilde er ikke et korrekt kart.
+- Biomer, skog, fjell, byer og dyr legges oppå en geografisk korrekt landflate og følger koordinatene gjennom drag, pinch og zoom.
+- Kloden skal bekreftes visuelt i Chromium og WebKit. Kontroller både land (Spania, Norge, Island, USA, Brasil, Japan og Sahara) og åpne havflater. Et markert land skal alltid samsvare med landformen under.
+- Der geometri mangler (svært små land og øyer), beholdes egne valgmarkører. Fravær av polygon skal ikke føre til et tilfeldig landpolygon eller et falskt kystlandskap.
+- Om det illustrerte kartlaget ikke kan bygges, vises den geografisk korrekte vektorkloden. Ingen fallback til det gamle feilregistrerte maleriet.

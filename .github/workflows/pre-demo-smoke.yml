@@ -35,6 +35,18 @@ jobs:
         run: npx playwright install --with-deps chromium webkit
       - name: Run complete Node test suite
         run: npm run test:node
+      - name: Verify registered geography in Chromium and WebKit
+        env:
+          QA_SCREENSHOTS: /tmp/laria-geo-screenshots
+        run: node tests/laria-globe-visual-p18.playwright.js
+      - name: Archive globe geography screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-geo-globe-${{ github.sha }}
+          path: /tmp/laria-geo-screenshots
+          if-no-files-found: warn
+          retention-days: 7
       - name: Run Læria local browser verification
         run: node tests/laer-litt-mer.playwright.js
       - name: Run Basecamp interaction verification in Chromium and WebKit

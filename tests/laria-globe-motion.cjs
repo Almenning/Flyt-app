@@ -24,6 +24,28 @@ test('globe pinch keeps a geographic anchor and hands back to one-finger drag',(
 test('globe motion release rotates Safari cache keys',()=>{
   const index=read('laer-litt-mer/index.html');
   const sw=read('laer-litt-mer/sw.js');
-  assert.match(index,/globe31-motion1/);
-  assert.match(sw,/globe31-motion1/);
+  assert.match(index,/globe32-geoatlas1/);
+  assert.match(sw,/globe32-geoatlas1/);
+});
+
+test('illustrated globe source is built from real country polygons, not an unrelated image',()=>{
+  const index=read('laer-litt-mer/index.html');
+  const renderer=read('laer-litt-mer/globe-v25-renderer.js');
+  const atlas=read('laer-litt-mer/globe-geographic-atlas-v1.js');
+  assert.match(index,/globe-geographic-atlas-v1\.js/,'geographic atlas module missing');
+  assert.match(renderer,/LariaGeographicAtlasV1\?\.build\(WORLD_COUNTRIES\)/,'renderer must build atlas from actual geometry');
+  assert.doesNotMatch(renderer,/illustratedAtlas\.src/,'unregistered atlas image must not be used');
+  assert.match(atlas,/paintGeometry\(lc,c\.geometry/,'land pixels must come from true country polygons');
+  assert.match(atlas,/EPSG:4326/,'map pixel coordinates must be geographic');
+});
+
+test('registered atlas retains geographic decorative relief rather than flattening into a school map',()=>{
+  const renderer=read('laer-litt-mer/globe-v25-renderer.js');
+  const start=renderer.indexOf('function premiumDraw(){');
+  const end=renderer.indexOf('function install(){',start);
+  const block=renderer.slice(start,end);
+  assert.match(block,/if\(atlasDrawn\)\{[\s\S]*?drawIllustratedAtlas\(ctx,w,h,s\);[\s\S]*?paintAtlasTexture\(ctx,w,h,s\);[\s\S]*?paintStoryBiomes\(ctx,w,h,s\);/);
+  assert.match(block,/if\(!moving\)\{[\s\S]*?landRelief\(ctx,w,h,s\);[\s\S]*?paintMasteryOverlay\(ctx,w,h,s\);/);
+  assert.match(block,/waterDetails\(ctx,w,h,s\);[\s\S]*?discoveryDetails\(ctx,w,h,s\);/);
+  assert.doesNotMatch(block,/if\(!moving&&!atlasDrawn\)/,'premium geography cannot bypass its own illustrated relief');
 });
