@@ -133,7 +133,7 @@ function explore(){
 function build(){
  const x=u.build;
  return '<section class="fr2-build">'+sign('Bygg en brøk','Flytt på bitene og lag din egen brøk.')
- +'<div class="fr2-build-workshop"><div class="fr2-wood-tray"><span class="fr2-tray-title">Brøkbiter</span><div class="fr2-spare-pieces">'+Array.from({length:Math.min(x.d,8)},(_,i)=>cta('add','<span aria-hidden="true">◕</span>','fr2-spare '+(i===0?'point':'') ,'data-fr-pick="1" draggable="true" aria-label="Legg til én del"')).join('')+'</div><small>Trykk på en bit, eller dra den inn</small></div>'
+ +'<div class="fr2-build-workshop"><div class="fr2-wood-tray"><span class="fr2-tray-title">Brøkbiter</span><div class="fr2-spare-pieces">'+Array.from({length:Math.min(x.d,8)},(_,i)=>cta('add','<span aria-hidden="true">◕</span>','fr2-spare '+(i===0?'point':'') ,'data-fr-pick="1" aria-label="Legg til én del"')).join('')+'</div><small>Trykk på en bit, eller dra den inn</small></div>'
  +'<div class="fr2-build-target" data-fr-drop="1"><div class="fr2-fabric">'+fractionSvg(x.n,x.d,'builder',true)+'</div><p>Trykk på delene for å fylle eller fjerne dem.</p></div></div>'
  +'<div class="fr2-controls">'+adjustField('d')+adjustField('n')+'</div>'
  +'<div class="fr2-result"><span>Du har bygget</span>'+frac(x.n,x.d)+'<small>'+x.n+' av '+x.d+' like deler.</small></div>'
@@ -156,7 +156,7 @@ function sorting(){
  const q=sortCurrent();
  return '<section class="fr2-sort">'+sign('Sorter brøker','Legg brøkene fra minst til størst.')
  +'<div class="fr2-sort-help"><span aria-hidden="true">🧺</span> Sammenlign de fargelagte delene. Flytt med pilene, eller dra brikken.</div>'
- +'<div class="fr2-sort-stage"><div class="fr2-sort-board"><div class="fr2-sort-order"><span>MINST</span><span>STØRST</span></div><div class="fr2-sort-cards">'+u.sortOrder.map((index,pos)=>'<div class="fr2-sort-card" data-fr-sort="'+pos+'" draggable="true" tabindex="0" aria-label="Brøk '+q[index][0]+' av '+q[index][1]+' i posisjon '+(pos+1)+'"><div class="fr2-sort-graphic">'+fractionSvg(q[index][0],q[index][1],'sort')+'</div>'+frac(q[index][0],q[index][1])+'<div class="fr2-sort-move">'+cta('sort-shift','←','fr2-sort-arrow','data-position="'+pos+'" data-direction="-1" aria-label="Flytt til venstre" '+(pos===0?'disabled':''))+cta('sort-shift','→','fr2-sort-arrow','data-position="'+pos+'" data-direction="1" aria-label="Flytt til høyre" '+(pos===u.sortOrder.length-1?'disabled':''))+'</div></div>').join('')+'</div></div></div>'
+ +'<div class="fr2-sort-stage"><div class="fr2-sort-board"><div class="fr2-sort-order"><span>MINST</span><span>STØRST</span></div><div class="fr2-sort-cards">'+u.sortOrder.map((index,pos)=>'<div class="fr2-sort-card" data-fr-sort="'+pos+'" tabindex="0" aria-label="Brøk '+q[index][0]+' av '+q[index][1]+' i posisjon '+(pos+1)+'"><div class="fr2-sort-graphic">'+fractionSvg(q[index][0],q[index][1],'sort')+'</div>'+frac(q[index][0],q[index][1])+'<div class="fr2-sort-move">'+cta('sort-shift','←','fr2-sort-arrow','data-position="'+pos+'" data-direction="-1" aria-label="Flytt til venstre" '+(pos===0?'disabled':''))+cta('sort-shift','→','fr2-sort-arrow','data-position="'+pos+'" data-direction="1" aria-label="Flytt til høyre" '+(pos===u.sortOrder.length-1?'disabled':''))+'</div></div>').join('')+'</div></div></div>'
  +cta('sort-check','Sjekk rekkefølgen','fr2-primary fr2-full')+'<div class="fr2-feedback '+(u.sortResult==='win'?'good':'')+'" aria-live="polite">'+(u.sortResult==='win'?'Du sorterte riktig! Mindre deler først, større til slutt.':u.sortResult==='try'?'Ikke helt ennå. Se hvor mye av hver figur som er fylt.':'Ta den tiden du trenger.')+'</div>'
  +cta('sort-next','Nye brøker ›','fr2-secondary fr2-full')+mascot(u.sortResult==='win'?'Du har fått øye på størrelsene!':'Du kan prøve så mange ganger du vil.',true)+'</section>';
 }
@@ -242,72 +242,15 @@ function clearDrag(){
  drag=null;
  document.querySelectorAll('.fr2-drag-over').forEach(x=>x.classList.remove('fr2-drag-over'));
 }
-/* Native drag-and-drop for desktop/Playwright. The pointer path below remains the
-   touch fallback for Safari and mobile devices without native HTML drag. */
-function dropTargetAt(x,y,kind){
- const selector=kind==='build'?'.fr2-build-target':'.fr2-sort-card[data-fr-sort]';
- const matches=[...document.querySelectorAll('#fraction-lab-root '+selector)];
- return matches.find(el=>{const r=el.getBoundingClientRect();return x>=r.left&&x<=r.right&&y>=r.top&&y<=r.bottom})||null;
-}
-function commitDragged(kind,from,target){
- if(!target)return false;
- clearDrag();lastDragUntil=Date.now()+350;
- if(kind==='build'&&u.build.n<u.build.d){
-  u.build.n++;u.build.notice='Brikken er på plass!';mark('built',key(u.build.n,u.build.d));render();return true;
- }
- if(kind==='sort'&&Number.isInteger(from)&&Number.isInteger(Number(target.dataset.frSort))){
-  moveSort(from,Number(target.dataset.frSort));return true;
- }
- return false;
-}
-function nativeDragStart(e){
- dragDiagnostics.nativeStart++;
- if(e.target.closest('.fr2-sort-arrow'))return;
- const src=e.target.closest('.fr2-spare[data-fr-pick],.fr2-sort-card[data-fr-sort]');
- if(!src)return;
- clearDrag();
- drag={type:src.hasAttribute('data-fr-pick')?'build':'sort',from:Number(src.dataset.frSort),native:true,hover:null,lastX:0,lastY:0};
- if(e.dataTransfer){e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain','laria-fraction');}
-}
-function nativeDragOver(e){
- dragDiagnostics.nativeOver++;
- if(!drag||!drag.native)return;
- // A native drop requires cancellation of dragover, even when the event bubbles
- // from a child or source node instead of the visual destination.
- e.preventDefault();
- if(e.dataTransfer)e.dataTransfer.dropEffect='move';
- drag.lastX=e.clientX;drag.lastY=e.clientY;
- const selector=drag.type==='build'?'.fr2-build-target':'.fr2-sort-card[data-fr-sort]';
- const target=e.target.closest(selector)||dropTargetAt(e.clientX,e.clientY,drag.type);
- if(!target)return;
- drag.hover=target;
- document.querySelectorAll('.fr2-drag-over').forEach(x=>x.classList.remove('fr2-drag-over'));
- target.classList.add('fr2-drag-over');
-}
-function nativeDrop(e){
- dragDiagnostics.nativeDrop++;
- if(!drag||!drag.native)return;
- e.preventDefault();
- const kind=drag.type,from=drag.from;
- const selector=kind==='build'?'.fr2-build-target':'.fr2-sort-card[data-fr-sort]';
- const target=e.target.closest(selector)||dropTargetAt(e.clientX,e.clientY,kind)||drag.hover;
- if(!commitDragged(kind,from,target))clearDrag();
-}
-function nativeDragEnd(e){
- if(!drag?.native)return;
- const kind=drag.type,from=drag.from;
- const target=dropTargetAt(e.clientX,e.clientY,kind)||dropTargetAt(drag.lastX,drag.lastY,kind)||drag.hover;
- if(!commitDragged(kind,from,target))clearDrag();
-}
 function pointerDown(e){
  dragDiagnostics.pointerDown++;
  // Leave the accessible arrow buttons clickable; capture only a deliberate card drag.
  if(e.target.closest('.fr2-sort-arrow'))return;
  const btn=e.target.closest('.fr2-spare[data-fr-pick],.fr2-sort-card[data-fr-sort]');
- // Document-level pointer listeners also cover browsers without native HTML drag.
+ // One pointer path for mouse, pen and touch avoids incompatible HTML5 drag events.
  if(!btn||e.pointerType==='mouse'&&e.button!==0)return;
  drag={type:btn.hasAttribute('data-fr-pick')?'build':'sort',pointer:e.pointerId,startX:e.clientX,startY:e.clientY,from:Number(btn.dataset.frSort),moved:false,ghost:null};
- if(e.pointerType!=='mouse')try{btn.setPointerCapture(e.pointerId)}catch(_){}
+ try{btn.setPointerCapture(e.pointerId)}catch(_){}
 }
 function pointerMove(e){
  dragDiagnostics.pointerMove++;
@@ -319,7 +262,7 @@ function pointerMove(e){
  const el=document.elementFromPoint(e.clientX,e.clientY)?.closest(drag.type==='build'?'.fr2-build-target':'.fr2-sort-card');
  document.querySelectorAll('.fr2-drag-over').forEach(x=>x.classList.remove('fr2-drag-over'));
  if(el)el.classList.add('fr2-drag-over');
- if(e.pointerType!=='mouse')e.preventDefault();
+ e.preventDefault();
 }
 function pointerUp(e){
  dragDiagnostics.pointerUp++;
@@ -328,8 +271,12 @@ function pointerUp(e){
  let target=null;
  if(moved){
   const selector=type==='build'?'.fr2-build-target':'.fr2-sort-card[data-fr-sort]';
-  target=document.elementFromPoint(e.clientX,e.clientY)?.closest(selector);
-  if(!target)target=[...document.querySelectorAll(selector)].find(el=>{const r=el.getBoundingClientRect();return e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom})||null;
+  // SVGs and other children can swallow hit-testing in emulated mobile browsers:
+  // rectangle containment is based on the child's actual on-screen drop location.
+  target=[...document.querySelectorAll('#fraction-lab-root '+selector)].find(el=>{
+   const r=el.getBoundingClientRect();
+   return e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom;
+  })||null;
  }
  clearDrag();
  if(moved)commitDragged(type,from,target);
@@ -339,7 +286,7 @@ window.openFractionLab=function(){
  u.page='home';render();try{showScreen('fraction-lab')}catch(_){}
 };
 const root=document.getElementById(ROOT);
-if(root&&!root.dataset.fr2Bound){root.addEventListener('click',actionHandler);root.addEventListener('keydown',keyHandler);root.addEventListener('pointerdown',pointerDown);document.addEventListener('pointermove',pointerMove);document.addEventListener('pointerup',pointerUp);document.addEventListener('pointercancel',clearDrag);root.addEventListener('dragstart',nativeDragStart);document.addEventListener('dragover',nativeDragOver);document.addEventListener('drop',nativeDrop);root.addEventListener('dragend',nativeDragEnd);root.dataset.fr2Bound='1'}
+if(root&&!root.dataset.fr2Bound){root.addEventListener('click',actionHandler);root.addEventListener('keydown',keyHandler);root.addEventListener('pointerdown',pointerDown);document.addEventListener('pointermove',pointerMove);document.addEventListener('pointerup',pointerUp);document.addEventListener('pointercancel',clearDrag);root.dataset.fr2Bound='1'}
 const entry=document.getElementById('open-fraction-lab');if(entry)entry.onclick=window.openFractionLab;
 window.LARIA_FRACTION_PREMIUM={version:'workshop-v1',open:window.openFractionLab,progress:()=>JSON.parse(JSON.stringify(progress)),snapshot:()=>JSON.parse(JSON.stringify(u)),compare:equal,format:formatValue,dragDiagnostics:()=>Object.assign({},dragDiagnostics)};
 })();
