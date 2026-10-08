@@ -1284,7 +1284,9 @@ async function finishSession(page){
     const p1=await context1.newPage();p1.__base=url;
     await p1.route('https://raw.githubusercontent.com/**',r=>r.fulfill({status:200,contentType:'application/json',body:'{"type":"FeatureCollection","features":[]}'}));await p1.route('https://api.worldbank.org/**',r=>r.fulfill({status:200,contentType:'application/json',body:'[{},[]]'}));
     await onboard(p1,1);
-    await p1.locator('.bc12-place[data-camp="globe"]').click();
+    // The Basecamp globe tile opens the 3D world, not the geography quiz screen.
+    // Enter the quiz screen explicitly so this regression checks the 1st-grade Land flow.
+    await p1.evaluate(()=>document.getElementById('open-geography').click());
     await p1.locator('#geography-screen.active').waitFor();
     assert.equal(await p1.locator('.geo-theme[data-geo-theme="capital"]').isVisible(),false);
     // Explicitly choose Land and wait for the geographic view before starting.
