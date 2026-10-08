@@ -45,7 +45,7 @@ test('Laria Final RC preserves Prompt 18 locked contracts',()=>{
 
 test('Prompt 19 stays a frozen release-candidate gate',()=>{
   const rc=read('docs/LARIA-PROMPT19-FINAL-RC.md');
-  assert.match(rc,/Ingen nye produktfunksjoner/);
+  assert.match(rc,/Ingen nye fag, spillmoduser eller kommersielle funksjoner/);
   assert.match(rc,/Ingen kjente interne P0\/P1-blockers/);
   assert.match(rc,/Exact-head RC må være grønn/);
 });
