@@ -186,4 +186,4 @@
 .mp-explore-screen .mp-table-instruction{margin:2px 0 8px}
 .mp-explore-screen .mp-times-grid th,.mp-explore-screen .mp-times-grid td{height:44px;min-width:44px}
 .mp-explore-screen .mp-grid-cell{min-width:44px;min-height:44px}
-@media(min-width:700px){.mp-explore-screen .mp-explore-tabs{justify-content:center;flex-wrap:wrap;overflow-x:visible}.mp-explore-screen .mp-explore-tab{flex-basis:calc((100% - 50px)/6);min-width:106px;max-width:145px}}
+@media(min-width:700px){.mp-explore-screen .mp-explore-tabs{justify-content:center;flex-wrap:nowrap;gap:7px;overflow-x:visible}.mp-explore-screen .mp-explore-tab{flex:1 1 0;min-width:0;max-width:none;padding-inline:3px}}
