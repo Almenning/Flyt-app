@@ -249,7 +249,7 @@ function pointerDown(e){
  const btn=e.target.closest('.fr2-spare[data-fr-pick],.fr2-sort-card[data-fr-sort]');
  // One pointer path for mouse, pen and touch avoids incompatible HTML5 drag events.
  if(!btn||e.pointerType==='mouse'&&e.button!==0)return;
- drag={type:btn.hasAttribute('data-fr-pick')?'build':'sort',pointer:e.pointerId,startX:e.clientX,startY:e.clientY,from:Number(btn.dataset.frSort),moved:false,ghost:null};
+ drag={type:btn.hasAttribute('data-fr-pick')?'build':'sort',pointer:e.pointerId,startX:e.clientX,startY:e.clientY,from:Number(btn.dataset.frSort),moved:false,ghost:null,lastX:e.clientX,lastY:e.clientY};
  try{btn.setPointerCapture(e.pointerId)}catch(_){}
 }
 function pointerMove(e){
@@ -258,6 +258,7 @@ function pointerMove(e){
  const dist=Math.hypot(e.clientX-drag.startX,e.clientY-drag.startY);
  if(dist<9&&!drag.moved)return;
  if(!drag.moved){drag.moved=true;drag.ghost=document.createElement('div');drag.ghost.className='fr2-drag-ghost';drag.ghost.textContent=drag.type==='sort'?'◕':'◔';document.body.appendChild(drag.ghost);}
+ drag.lastX=e.clientX;drag.lastY=e.clientY;
  if(drag.ghost){drag.ghost.style.left=e.clientX+'px';drag.ghost.style.top=e.clientY+'px'}
  const el=document.elementFromPoint(e.clientX,e.clientY)?.closest(drag.type==='build'?'.fr2-build-target':'.fr2-sort-card');
  document.querySelectorAll('.fr2-drag-over').forEach(x=>x.classList.remove('fr2-drag-over'));
@@ -267,19 +268,40 @@ function pointerMove(e){
 function pointerUp(e){
  dragDiagnostics.pointerUp++;
  if(!drag||drag.pointer!==e.pointerId)return;
- const moved=drag.moved,type=drag.type,from=drag.from;
+ const {moved,type,from,startX,lastX,lastY}=drag;
  let target=null;
- if(moved){
-  const selector=type==='build'?'.fr2-build-target':'.fr2-sort-card[data-fr-sort]';
-  // SVGs and other children can swallow hit-testing in emulated mobile browsers:
-  // rectangle containment is based on the child's actual on-screen drop location.
-  target=[...document.querySelectorAll('#fraction-lab-root '+selector)].find(el=>{
+ if(moved&&type==='build'){
+  target=[...document.querySelectorAll('#fraction-lab-root .fr2-build-target')].find(el=>{
    const r=el.getBoundingClientRect();
    return e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom;
   })||null;
  }
+ if(moved&&type==='sort'){
+  const cards=[...document.querySelectorAll('#fraction-lab-root .fr2-sort-card[data-fr-sort]')];
+  const x=Number.isFinite(e.clientX)?e.clientX:lastX;
+  // Sorting is deliberately horizontal. Selecting the closest card by x
+  // survives WebKit pointer capture and slight vertical finger drift.
+  const width=cards.length?cards[0].getBoundingClientRect().width:0;
+  if(Math.abs(x-startX)>Math.max(13,width*.33)){
+   target=cards.reduce((best,el)=>{
+    const r=el.getBoundingClientRect();
+    const distance=Math.abs(x-(r.left+r.right)/2);
+    return !best||distance<best.distance?{el,distance}:best;
+   },null)?.el||null;
+   if(target&&Number(target.dataset.frSort)===from){
+    target=x>startX?cards[cards.length-1]:cards[0];
+   }
+  }
+ }
  clearDrag();
- if(moved)commitDragged(type,from,target);
+ if(moved){
+  lastDragUntil=Date.now()+350;
+  if(type==='build'&&target&&u.build.n<u.build.d){
+   u.build.n++;u.build.notice='Brikken er på plass!';mark('built',key(u.build.n,u.build.d));render();
+  }else if(type==='sort'&&target){
+   moveSort(from,Number(target.dataset.frSort));
+  }
+ }
 }
 window.openFractionLab=function(){
  document.getElementById('fraction-lab-screen')?.setAttribute('data-explore-release','explore-rc1');
