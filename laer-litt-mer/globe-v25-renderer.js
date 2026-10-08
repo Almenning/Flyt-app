@@ -4,8 +4,8 @@ const ART=window.LariaGlobeArtV24;if(!ART)return;
 const {clamp,TERRAIN,FEATURES,draw}=ART;
 
 const PALETTE={
-  'Europa':'#286FE2','Asia':'#F0BB3F','Afrika':'#F0694D',
-  'Nord-Amerika':'#53A84E','Sør-Amerika':'#318E58','Oseania':'#806CCB'
+  'Europa':'#74AA55','Asia':'#C9AE52','Afrika':'#EA7048',
+  'Nord-Amerika':'#58A653','Sør-Amerika':'#389957','Oseania':'#B9954D'
 };
 const mix=(a,b,t)=>{
   const pa=parseInt(a.slice(1),16),pb=parseInt(b.slice(1),16),m=(x,y)=>Math.round(x+(y-x)*t);
@@ -209,11 +209,11 @@ function countryBase(c){
 }
 function ocean(ctx,w,h,s){
   const g=ctx.createRadialGradient(w/2-s*.19,h/2-s*.26,s*.02,w/2+s*.06,h/2+s*.09,s*.63);
-  g.addColorStop(0,'#69E6F4');
-  g.addColorStop(.24,'#26C7E7');
-  g.addColorStop(.58,'#079FD3');
-  g.addColorStop(.84,'#047CB4');
-  g.addColorStop(1,'#045B8E');
+  g.addColorStop(0,'#55D9EE');
+  g.addColorStop(.22,'#14B9DE');
+  g.addColorStop(.54,'#058FC5');
+  g.addColorStop(.82,'#056AA2');
+  g.addColorStop(1,'#034A7E');
   ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
 
   const aqua=ctx.createRadialGradient(w*.34,h*.28,0,w*.40,h*.33,s*.28);
@@ -264,7 +264,7 @@ function countryTint(c){
 }
 function paintCountryVariation(ctx,w,h){
   if(typeof WORLD_COUNTRIES==='undefined')return;
-  ctx.save();ctx.globalAlpha=.18;
+  ctx.save();ctx.globalAlpha=.065;
   for(const c of WORLD_COUNTRIES){
     if(!c.geometry)continue;
     ctx.beginPath();if(!addPath(ctx,c,w,h))continue;
@@ -349,10 +349,10 @@ function paintStoryBiomes(ctx,w,h,s){
     const p=project(b[1],b[2],w,h);if(!p||p[2]<.10)continue;
     const perspective=clamp(.60+p[2]*.48,.62,1.07);
     const r=s*b[3]*perspective;
-    let colors=['rgba(45,124,62,.34)','rgba(31,92,51,.05)'];
-    if(b[0]==='desert')colors=['rgba(246,192,73,.48)','rgba(221,138,47,.06)'];
-    if(b[0]==='savanna')colors=['rgba(153,160,64,.30)','rgba(112,121,48,.04)'];
-    if(b[0]==='snow')colors=['rgba(255,255,249,.60)','rgba(228,244,242,.05)'];
+    let colors=['rgba(47,139,62,.48)','rgba(28,96,48,.08)'];
+    if(b[0]==='desert')colors=['rgba(249,193,67,.68)','rgba(218,132,40,.10)'];
+    if(b[0]==='savanna')colors=['rgba(163,161,67,.42)','rgba(105,119,47,.07)'];
+    if(b[0]==='snow')colors=['rgba(255,255,250,.76)','rgba(219,241,242,.08)'];
     const g=ctx.createRadialGradient(p[0]-r*.13,p[1]-r*.12,1,p[0],p[1],r);
     g.addColorStop(0,colors[0]);g.addColorStop(.58,colors[1]);g.addColorStop(1,'rgba(255,255,255,0)');
     ctx.fillStyle=g;ctx.beginPath();ctx.arc(p[0],p[1],r,0,Math.PI*2);ctx.fill();
@@ -397,7 +397,7 @@ function paintPolarLand(ctx,w,h,s){
 }
 function paintCountryBorders(ctx,w,h,s){
   if(typeof WORLD_COUNTRIES==='undefined')return;
-  const borderAlpha=globeZoom>2.5?.92:globeZoom>1.65?.76:.60;
+  const borderAlpha=globeZoom>2.5?.48:globeZoom>1.65?.34:.22;
 
   for(const c of WORLD_COUNTRIES){
     if(!c.geometry)continue;
@@ -415,8 +415,8 @@ function paintCountryBorders(ctx,w,h,s){
       ctx.strokeStyle='rgba(255,252,226,.98)';
       ctx.lineWidth=Math.max(1.6,s*.0028);
     }else{
-      ctx.strokeStyle='rgba(255,251,235,'+borderAlpha+')';
-      ctx.lineWidth=globeZoom>2.7?1.28:Math.max(.82,s*.00145);
+      ctx.strokeStyle='rgba(255,252,235,'+borderAlpha+')';
+      ctx.lineWidth=globeZoom>2.7?.90:Math.max(.48,s*.00082);
     }
     ctx.stroke();
   }
@@ -434,10 +434,10 @@ function terrainPatch(ctx,w,h,s,t){
   ctx.translate(p[0],p[1]);
   ctx.rotate(-.12);
 
-  let c0='rgba(35,119,61,.30)',c1='rgba(35,119,61,.10)',blend='multiply';
-  if(type==='desert'){c0='rgba(239,190,78,.40)';c1='rgba(214,151,49,.08)';blend='multiply'}
-  if(type==='savanna'){c0='rgba(139,150,61,.28)';c1='rgba(120,126,49,.07)';blend='multiply'}
-  if(type==='snow'){c0='rgba(255,255,244,.46)';c1='rgba(235,244,236,.10)';blend='screen'}
+  let c0='rgba(38,137,61,.46)',c1='rgba(32,112,55,.13)',blend='multiply';
+  if(type==='desert'){c0='rgba(244,183,63,.62)';c1='rgba(210,130,42,.12)';blend='multiply'}
+  if(type==='savanna'){c0='rgba(151,157,63,.42)';c1='rgba(110,122,49,.10)';blend='multiply'}
+  if(type==='snow'){c0='rgba(255,255,247,.72)';c1='rgba(225,242,239,.14)';blend='screen'}
 
   ctx.globalCompositeOperation=blend;
   const g=ctx.createRadialGradient(-r*.14,-r*.12,1,0,0,r);
@@ -452,7 +452,7 @@ function terrainPatch(ctx,w,h,s,t){
   /* Low-contrast surface marks. These are texture, not icons. */
   ctx.save();
   ctx.globalCompositeOperation=type==='snow'?'screen':'multiply';
-  ctx.globalAlpha=clamp(.66-globeZoom*.060,.28,.54);
+  ctx.globalAlpha=clamp(.82-globeZoom*.055,.42,.70);
 
   const marks=[[-.62,-.14],[-.40,.25],[-.17,-.28],[.04,.18],[.28,-.12],[.51,.24],[.66,-.02],[-.02,.43]];
   for(let i=0;i<marks.length;i++){
@@ -481,17 +481,26 @@ function terrainPatch(ctx,w,h,s,t){
 }
 
 const LAND_COMPOSITION=[
-  ['mountains',-121,46,.78],['mountains',-109,39,.88],
-  ['mountains',-72,-12,.96],['mountains',-70,-27,.82],['mountains',-69,-39,.72],
-  ['mountains',10,46,1.18],['mountains',23,62,.64],['mountains',44,42,.66],
-  ['mountains',76,31,1.48],['mountains',88,31,1.18],['mountains',98,35,.72],
-  ['mountains',39,8,.62],['mountains',138,36,.52],['mountains',147,-37,.56],
-  ['trees',-112,56,.84],['trees',-83,50,.68],['trees',18,61,.86],
-  ['trees',54,58,.80],['trees',97,57,.72],['trees',119,54,.58],
-  ['trees',33,-4,.54],['trees',24,-25,.44],['trees',78,20,.50],
-  ['trees',104,17,.56],['trees',119,-4,.48],
-  ['jungle',-64,-4,.84],['jungle',-55,-10,.65],['jungle',23,0,.64],
-  ['jungle',104,15,.58],['jungle',116,2,.48]
+  // North America
+  ['mountains',-121,47,.58],['mountains',-114,42,.54],['mountains',-107,37,.50],
+  ['trees',-124,53,.48],['trees',-115,56,.46],['trees',-104,52,.43],['trees',-92,50,.42],['trees',-80,48,.38],
+  // South America
+  ['mountains',-76,5,.46],['mountains',-73,-8,.56],['mountains',-71,-18,.58],['mountains',-70,-29,.54],['mountains',-70,-39,.48],
+  ['jungle',-70,0,.48],['jungle',-63,-4,.56],['jungle',-57,-8,.50],['trees',-52,-15,.38],
+  // Europe and Mediterranean
+  ['mountains',-4,43,.38],['mountains',10,46,.54],['mountains',22,44,.38],['mountains',44,42,.40],
+  ['trees',-4,54,.34],['trees',7,55,.36],['trees',18,59,.43],['trees',28,57,.38],['trees',39,56,.36],
+  // Africa
+  ['mountains',-6,32,.34],['mountains',11,34,.32],['mountains',38,9,.42],['mountains',35,-4,.34],
+  ['trees',-5,8,.30],['trees',8,5,.32],['jungle',20,2,.40],['jungle',27,-3,.36],
+  ['trees',31,-14,.32],['trees',25,-24,.30],['trees',18,-31,.28],
+  // Asia
+  ['mountains',54,35,.34],['mountains',67,34,.40],['mountains',76,31,.62],['mountains',84,31,.66],['mountains',92,34,.48],
+  ['mountains',104,36,.34],['mountains',138,36,.30],
+  ['trees',49,55,.38],['trees',61,58,.40],['trees',75,58,.42],['trees',90,59,.44],['trees',105,57,.40],['trees',119,53,.35],
+  ['trees',76,22,.32],['trees',92,23,.31],['jungle',103,18,.38],['jungle',111,11,.36],['jungle',119,1,.34],
+  // Oceania
+  ['mountains',147,-37,.32],['trees',145,-28,.30],['trees',151,-35,.28],['jungle',121,-4,.32]
 ];
 
 const WATER_COMPOSITION=[
@@ -507,7 +516,7 @@ function landRelief(ctx,w,h,s){
   ctx.save();
   if(typeof WORLD_COUNTRIES!=='undefined')landClip(ctx,w,h);
   ctx.globalAlpha=clamp(.92-globeZoom*.070,.46,.82);
-  ctx.globalCompositeOperation='multiply';
+  ctx.globalCompositeOperation='source-over';
 
   const visible=[];
   for(const f of LAND_COMPOSITION){
@@ -519,8 +528,8 @@ function landRelief(ctx,w,h,s){
 
   for(const {f,p} of visible){
     const type=f[0];
-    const typeScale=type==='mountains'?1.58:type==='trees'?1.10:.98;
-    const mobileBoost=s<520?1.48:s<760?1.25:1.10,base=clamp(s*.046,15,34);
+    const typeScale=type==='mountains'?1.06:type==='trees'?.82:.86;
+    const mobileBoost=s<520?1.34:s<760?1.17:1.02,base=clamp(s*.034,11,25);
     const k=base*mobileBoost*f[3]*typeScale*clamp(p[2]+.18,.64,1.10)*clamp(Math.pow(globeZoom,.045),1,1.07);
     const fn=draw[type];
     if(fn)fn(ctx,p[0],p[1],k,!!f[4]);
