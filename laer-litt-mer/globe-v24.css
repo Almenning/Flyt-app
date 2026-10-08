@@ -59,6 +59,14 @@ body:has(#world-screen.active){
 #world-screen.active>.eyebrow,
 #world-screen.active>h1,
 #world-screen.active>.hero-copy,
+
+#world-screen.active>#start-world-from-globe,#world-screen.active>.searchbox,#world-screen.active>#world-search-results,#world-screen.active>.data-status{display:none!important}
+/* Prompt 18 art pass: deepen the live globe without replacing it with a static mockup. */
+#world-screen.active.globe-v30 .globe-wrap{filter:drop-shadow(0 18px 18px rgba(28,57,45,.23))!important}
+#world-screen.active.globe-v30 .globe-wrap::before{inset:3.05%!important;background:radial-gradient(circle at 29% 20%,rgba(236,255,255,.92) 0 5%,rgba(104,226,240,.50) 17%,rgba(22,187,215,.16) 44%,rgba(3,94,137,.20) 77%,rgba(1,61,97,.44) 100%),linear-gradient(138deg,#93eff6,#0fa9cf 48%,#076e9e)!important;box-shadow:inset 0 0 0 2px rgba(220,250,244,.72),0 14px 26px rgba(21,49,45,.20)!important}
+#world-screen.active.globe-v30 .premium-globe-ring{border-color:#74451f!important;background:linear-gradient(135deg,rgba(255,223,133,.16),rgba(115,66,28,.08) 44%,rgba(255,239,170,.18))!important;box-shadow:inset 0 0 0 2px #f7d77d,inset 0 0 0 5px #b57a2f,inset 0 0 0 7px rgba(79,43,18,.54),0 2px 0 rgba(255,235,171,.88),0 12px 25px rgba(52,34,18,.30)!important}
+#world-screen.active.globe-v30 .premium-globe-ring::after{content:"";position:absolute;inset:-5px;border:1px solid rgba(255,229,154,.70);border-radius:50%;box-shadow:inset 0 0 0 1px rgba(68,38,15,.42)}
+#world-screen.active.globe-v30 #globe-canvas{filter:saturate(1.12) contrast(1.045) drop-shadow(0 10px 17px rgba(18,51,48,.14))!important}
 #world-screen.active>#start-world-from-globe,
 #world-screen.active>.searchbox,
 #world-screen.active>#world-search-results,
