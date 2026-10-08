@@ -4,11 +4,13 @@ const fs=require('node:fs');
 
 const read=p=>fs.readFileSync(p,'utf8');
 
-test('premium globe atlas shares the same zoomed orthographic radius as country geometry',()=>{
+test('globe pixels and touch geography share real country geometry under zoom',()=>{
   const renderer=read('laer-litt-mer/globe-v25-renderer.js');
-  assert.match(renderer,/const r=s\*\.455\*zoom/,'illustrated atlas must scale with globeZoom');
-  assert.doesNotMatch(renderer,/const r=s\*\.46,cx=/,'legacy unzoomed atlas radius must stay removed');
-  assert.match(renderer,/__LARIA_GLOBE_ATLAS_STATE/,'atlas projection state must stay observable for QA');
+  const index=read('laer-litt-mer/index.html');
+  assert.match(renderer,/__LARIA_GLOBE_RENDER_SOURCE='country-geometry'/);
+  assert.match(index,/const r=Math\.min\(w,h\)\*\.455\*globeZoom/,'country projection must zoom geometrically');
+  assert.match(index,/function globeInverse\(x,y\)/,'selection must invert the same globe projection');
+  assert.doesNotMatch(renderer,/globe-map-art-v2-equirect\.png/,'non-georeferenced mockup must never load');
 });
 
 test('globe pinch keeps a geographic anchor and hands back to one-finger drag',()=>{
@@ -24,8 +26,8 @@ test('globe pinch keeps a geographic anchor and hands back to one-finger drag',(
 test('globe motion release rotates Safari cache keys',()=>{
   const index=read('laer-litt-mer/index.html');
   const sw=read('laer-litt-mer/sw.js');
-  assert.match(index,/globe32-geo1/);
-  assert.match(sw,/globe32-geo1/);
+  assert.match(index,/globe33-scene1/);
+  assert.match(sw,/globe33-scene1/);
 });
 
 test('visible globe land uses authoritative geographic boundaries, not a decorative image',()=>{
@@ -35,4 +37,19 @@ test('visible globe land uses authoritative geographic boundaries, not a decorat
   assert.match(active,/paintContinents\(ctx,w,h,s\)/);
   assert.match(active,/paintStoryBiomes\(ctx,w,h,s\)/);
   assert.doesNotMatch(active,/drawIllustratedAtlas\(ctx,w,h,s\)/);
+});
+
+test('locked Læria environment frames the globe with responsive illustrated nature',()=>{
+  const css=read('laer-litt-mer/globe-v24.css');
+  const active=css.slice(css.indexOf('/* Locked atlas environment v33:'));
+  assert.ok(active.length>900,'v33 visual scene contract not present');
+  for(const view of ['landscape','tablet','mobile']){
+    assert.match(active,new RegExp('globe-environment-v33-'+view+'\\.svg'),'missing '+view+' artwork');
+    const svg=read('laer-litt-mer/globe-environment-v33-'+view+'.svg');
+    assert.match(svg,/viewBox=/,'scene '+view+' is not responsive vector artwork');
+    for(const token of ['id="sky"','id="mount0"','id="meadow"','id="lake"'])
+      assert.ok(svg.includes(token),view+' lacks '+token);
+  }
+  assert.doesNotMatch(active,/basecamp-v11/,'globe environment must not reuse fantasy village artwork');
+  assert.match(active,/--g24-globe:min\(94vw,48dvh\)/,'phone globe must dominate usable width');
 });
