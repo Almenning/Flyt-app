@@ -280,7 +280,8 @@ function pointerDown(e){
  // Leave the accessible arrow buttons clickable; capture only a deliberate card drag.
  if(e.target.closest('.fr2-sort-arrow'))return;
  const btn=e.target.closest('.fr2-spare[data-fr-pick],.fr2-sort-card[data-fr-sort]');
- if(!btn||e.pointerType==='mouse'&&e.button!==0)return;
+ // Mouse uses native HTML drag-and-drop; touch uses this pointer fallback.
+ if(!btn||e.pointerType==='mouse')return;
  drag={type:btn.hasAttribute('data-fr-pick')?'build':'sort',pointer:e.pointerId,startX:e.clientX,startY:e.clientY,from:Number(btn.dataset.frSort),moved:false,ghost:null};
  try{btn.setPointerCapture(e.pointerId)}catch(_){}
 }
