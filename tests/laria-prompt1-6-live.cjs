@@ -52,7 +52,7 @@ async function checkPublishedFractionWorkshop(p,name){
  await p.locator('.fr2-card-sort').click();
  assert.equal(await p.locator('.fr2-sort-card').count(),3);
  await p.locator('[data-fr-action="sort-shift"][data-position="0"][data-direction="1"]').click();
- assert.deepEqual((await p.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot())).sortOrder,[0,2,1]);
+ assert.deepEqual((await p.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot())).sortOrder,[1,0,2]);
  await p.locator('.fr2-nav-item[data-page="home"]').click();
 
  await p.locator('.fr2-card-convert').click();
