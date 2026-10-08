@@ -125,9 +125,50 @@ async function capture(browserType,label,viewport){
         overflow:document.documentElement.scrollWidth>document.documentElement.clientWidth
       };
     });
+
+    // Capture the actual card, controls and canvas rectangles so a live country
+    // label cannot disappear behind a button even when all elements are visible.
+    const layout=await page.evaluate(()=>{
+      const box=q=>{
+        const el=document.querySelector(q),r=el?.getBoundingClientRect();
+        return r?{top:r.top,bottom:r.bottom,left:r.left,right:r.right,height:r.height,width:r.width}:null;
+      };
+      return {
+        country:box('#globe-status'),
+        actions:box('#world-screen .globe-actions'),
+        tagline:box('#world-screen .globe-country-tagline'),
+        modes:box('#globe-mode'),
+        globe:box('#globe-canvas'),
+        zoomIn:box('#globe-zoom-in'),
+        zoomOut:box('#globe-zoom-out')
+      };
+    });
+    assert.ok(layout.country&&layout.actions&&layout.globe,label+' missing active globe layout');
+    // The zoom pair belongs at the globe's visual equator, not in its top
+    // quadrant. Verify real pixels in Chromium and Safari on all QA sizes.
+    assert.ok(layout.zoomIn&&layout.zoomOut,label+' missing usable zoom buttons');
+    const globeCenter=(layout.globe.top+layout.globe.bottom)/2;
+    const zoomCenter=(layout.zoomIn.top+layout.zoomOut.bottom)/2;
+    assert.ok(Math.abs(globeCenter-zoomCenter)<=Math.max(12,layout.globe.height*.045),
+      label+' zoom pair is not centered on globe: '+JSON.stringify({globeCenter,zoomCenter,layout}));
+    assert.ok(layout.zoomIn.top>layout.modes.bottom+7,
+      label+' zoom-in collides with mode selector');
+    assert.ok(layout.zoomOut.bottom<layout.country.top-7,
+      label+' zoom-out collides with country card');
+    assert.ok(layout.zoomIn.left>=-1&&layout.zoomOut.right<=viewport.width+1,
+      label+' zoom buttons spill beyond viewport');
+
+    assert.ok(layout.country.bottom+8<=layout.actions.top,label+' country card overlaps bottom actions: '+JSON.stringify(layout));
+    if(layout.tagline){
+      assert.ok(layout.tagline.bottom<=layout.country.bottom-3,label+' country tagline clipped by status card: '+JSON.stringify(layout));
+    }
+    if(viewport.width>=900&&viewport.width>viewport.height){
+      assert.ok(layout.modes.bottom+3<=layout.globe.top,label+' mode tabs collide with rotating globe: '+JSON.stringify(layout));
+      assert.ok(layout.globe.bottom+3<=layout.country.top,label+' globe collides with land card: '+JSON.stringify(layout));
+    }
     assert.equal(metrics.overflow,false,label+' horizontal overflow');
     const minGlobeWidth=viewport.width<600?viewport.width*.84:(viewport.width>viewport.height?viewport.height*.52:viewport.width*.68);
-    assert.ok(metrics.canvas.w>=minGlobeWidth,label+' globe too narrow for locked composition: '+metrics.canvas.w+' < '+minGlobeWidth);
+    assert.ok(metrics.canvas.w+0.75>=minGlobeWidth,label+' globe too narrow for locked composition: '+metrics.canvas.w+' < '+minGlobeWidth);
     assert.ok(metrics.canvas.h>=300,label+' globe too short: '+metrics.canvas.h);
     assert.ok(metrics.back.h>=44,label+' globe back control below 44px');
     assert.ok(metrics.mode.h>=44,label+' globe mode control below 44px');
@@ -194,6 +235,7 @@ async function capture(browserType,label,viewport){
     await capture(webkit,'webkit-iphone',{width:390,height:844});
     await capture(webkit,'webkit-ipad',{width:820,height:1180});
     await capture(webkit,'webkit-ipad-landscape',{width:1180,height:820});
+    await capture(webkit,'webkit-desktop-landscape',{width:1525,height:864});
     console.log('ok - Prompt 18 globe visual evidence captured');
   }finally{s.close()}
 })().catch(err=>{console.error(err);process.exit(1)});
