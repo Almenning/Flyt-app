@@ -155,6 +155,11 @@ async function capture(browserType,label,viewport){
 (async()=>{
   const {s,url}=await server();globalThis.__url=url;
   try{
+    const rendererSource=fs.readFileSync(path.join(root,'laer-litt-mer','globe-v25-renderer.js'),'utf8');
+    for(const token of ["'Europa':'#286FE2'","'Asia':'#F0BB3F'","'Afrika':'#F0694D'","'Nord-Amerika':'#53A84E'","'Sør-Amerika':'#318E58'"]){
+      assert.ok(rendererSource.includes(token),'locked globe palette drift: '+token);
+    }
+    assert.ok(rendererSource.includes('paintPolarLand(ctx,w,h,s);'),'locked globe polar treatment missing');
     await assertProfileFoxSelection(chromium);
     await capture(chromium,'chromium-iphone',{width:390,height:844});
     await capture(webkit,'webkit-iphone',{width:390,height:844});
