@@ -2,7 +2,7 @@
 (()=>{
 'use strict';
 const N=12,K='laria_mult_premium_v1';
-const ui={page:'home',table:5,round:[],at:0,selected:null,hint:false,feedback:'',a:4,b:3,explore:'groups',focus:0,gridA:4,gridB:6,seed:0};
+const ui={page:'home',table:5,round:[],at:0,selected:null,hint:false,feedback:'',a:4,b:3,explore:'table',focus:0,gridA:4,gridB:6,seed:0};
 const store=()=>{
  try {const raw=JSON.parse(localStorage.getItem(K)||'{}');return {tries:raw.tries||{},sessions:raw.sessions||0,days:raw.days||{},stars:raw.stars||0};}catch(_){return {tries:{},sessions:0,days:{},stars:0};}
 };
@@ -97,7 +97,7 @@ function next(){
 }
 window.openMultiplicationLab=function(){
  document.getElementById('multiplication-lab-screen')?.setAttribute('data-explore-release','explore-rc1');
- const grade=typeof currentGrade==='function'?currentGrade():2;ui.page='home';ui.table=grade<=2?2:rec();ui.at=0;ui.firstRight=0;ui.hadWrong=false;ui.opts=null;ui.optsFor=null;render();showScreen('multiplication-lab');
+ const grade=typeof currentGrade==='function'?currentGrade():2;ui.page='home';ui.explore='table';ui.table=grade<=2?2:rec();ui.at=0;ui.firstRight=0;ui.hadWrong=false;ui.opts=null;ui.optsFor=null;render();showScreen('multiplication-lab');
 };
 window.LARIA_MULT_PREMIUM={open:window.openMultiplicationLab,stats:()=>JSON.parse(JSON.stringify(stats))};
 const entry=document.getElementById('open-multiplication-lab');if(entry)entry.onclick=window.openMultiplicationLab;
