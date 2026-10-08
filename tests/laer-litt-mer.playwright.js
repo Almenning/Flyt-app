@@ -231,7 +231,7 @@ async function finishSession(page){
 
           await p.evaluate(()=>setTab('home'));
           await p.locator('#home-screen.active .bc12').waitFor();
-          await p.evaluate(()=>openSubject('norwegian'));
+          await p.evaluate(()=>openSubject('math'));
           await p.locator('#subject-screen.active').waitFor();
           const traveler=p.locator('#subject-screen.active .bok-v15-traveler');
           await traveler.waitFor({state:'visible'});
