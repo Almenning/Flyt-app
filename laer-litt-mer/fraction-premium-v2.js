@@ -160,10 +160,10 @@ function sorting(){
  +cta('sort-next','Nye brøker ›','fr2-secondary fr2-full')+mascot(u.sortResult==='win'?'Du har fått øye på størrelsene!':'Du kan prøve så mange ganger du vil.',true)+'</section>';
 }
 function convert(){
- const [n,d]=CONVERSIONS[u.convert%CONVERSIONS.length],fmt=formatValue(n,d);
+ const [n,d]=CONVERSIONS[u.convert%CONVERSIONS.length],fmt=formatValue(n,d),comparisonSymbol=fmt.exact?'=':'≈';
  return '<section class="fr2-convert">'+sign('Brøk, prosent og desimal','Samme del – tre måter å skrive det på!')
  +'<div class="fr2-convert-focus"><span class="fr2-wood-tag">Se på denne:</span><div class="fr2-convert-figure">'+fractionSvg(n,d,'large')+'<p>'+n+' av '+d+' like deler er fargelagt.</p></div>'
- +'<div class="fr2-conversion-row"><div><small>Brøk</small>'+frac(n,d)+'</div><span>=</span><div><small>Prosent</small><strong>'+fmt.pct+'</strong></div><span>=</span><div><small>Desimal</small><strong>'+fmt.dec+'</strong></div></div>'
+ +'<div class="fr2-conversion-row"><div><small>Brøk</small>'+frac(n,d)+'</div><span>'+comparisonSymbol+'</span><div><small>Prosent</small><strong>'+fmt.pct.replace(/^≈ /,'')+'</strong></div><span>'+comparisonSymbol+'</span><div><small>Desimal</small><strong>'+fmt.dec.replace(/^≈ /,'')+'</strong></div></div>'
  +(!fmt.exact?'<p class="fr2-approx-note">≈ betyr omtrent. Denne desimalen fortsetter videre.</p>':'')+'</div>'
  +'<div class="fr2-soft-section"><strong>Flere eksempler</strong><div class="fr2-example-row">'+CONVERSIONS.map(([a,b],i)=>cta('convert-example',frac(a,b)+'<small>'+formatValue(a,b).pct+'</small>','fr2-example '+(u.convert===i?'selected':''),'data-example="'+i+'" aria-label="Vis '+a+' av '+b+' som prosent og desimal"')).join('')+'</div></div>'
  +cta('next-convert','Neste eksempel ›','fr2-primary fr2-full')+mascot('Samme mengde kan skrives som brøk, prosent og desimaltall.',true)+'</section>';
