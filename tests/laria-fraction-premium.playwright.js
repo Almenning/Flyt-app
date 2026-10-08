@@ -60,10 +60,13 @@ async function run(browser,engine,label,viewport,url){
   await page.locator('[data-fr-action="add"]').first().click();
   assert.equal((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot())).build.n,1);
   await page.locator('.fr2-pie-builder path[data-fr-action="piece"][data-piece="2"]').click();
-  assert.equal((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot())).build.n,3);
+  assert.equal((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot())).build.n,2,'tapping one slice must add exactly one piece');
+  await page.locator('.fr2-pie-builder path[data-fr-action="piece"][data-piece="2"]').click();
+  assert.equal((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot())).build.n,1,'tapping the same slice must remove exactly one piece');
+  await page.locator('.fr2-pie-builder path[data-fr-action="piece"][data-piece="2"]').click();
   await page.locator('[data-fr-action="adjust"][data-field="d"][data-step="1"]').click();
   const build=await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build);
-  assert.equal(build.d,5);assert.equal(build.n,3);
+  assert.equal(build.d,5);assert.equal(build.n,2);assert.deepEqual(build.filled,[0,2]);
   await page.locator('[data-fr-action="next-build"]').click();
   assert.equal((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot())).build.n,0);
 
