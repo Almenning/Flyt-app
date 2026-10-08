@@ -20,7 +20,7 @@ const SORT=[
 const CONVERSIONS=[[1,2],[1,4],[3,4],[2,5],[1,5],[1,10],[1,3],[2,3],[5,8]];
 const titles={explore:'Utforsk brøker',build:'Bygg en brøk',equal:'Like mye?',sort:'Sorter brøker',convert:'Brøk, prosent og desimal',mastery:'Min mestring'};
 const faces={explore:'Brøker finnes overalt! Trykk på delene og se hva som skjer.',build:'Sett inn en bit. Du bestemmer hvor mye du vil bygge.',equal:'To forskjellige brøker kan vise akkurat like mye!',sort:'Sammenlign hvor stor del som er fargelagt.',convert:'Samme mengde kan skrives på tre måter.',mastery:'Det du har utforsket, kan du alltid utforske igjen.'};
-const u={page:'home',explore:{n:3,d:4,mode:'circle'},build:{n:3,d:4,notice:''},equal:0,equalGuess:null,sortIndex:0,sortOrder:[0,1,2],sortResult:'',sortSelected:null,convert:0,showConvertExtra:false};
+const u={page:'home',explore:{n:3,d:4,mode:'circle'},build:{n:3,d:4,filled:[0,1,2],notice:''},equal:0,equalGuess:null,sortIndex:0,sortOrder:[0,1,2],sortResult:'',sortSelected:null,convert:0,showConvertExtra:false};
 let svgId=0,drag=null,lastDragUntil=0;
 const dragDiagnostics={pointerDown:0,pointerMove:0,pointerUp:0,nativeStart:0,nativeOver:0,nativeDrop:0};
 const read=()=>{try{const o=JSON.parse(localStorage.getItem(STORE)||'{}');return {
@@ -52,15 +52,16 @@ function mark(kind,item){
 }
 function grade(){try{return typeof currentGrade==='function'?Number(currentGrade())||2:2}catch(_){return 2}}
 const cta=(action,text,className='',extra='')=>'<button type="button" class="'+className+'" data-fr-action="'+action+'" '+extra+'>'+text+'</button>';
-function fractionSvg(n,d,kind='large',canTap=false){
+function fractionSvg(n,d,kind='large',canTap=false,selected=null){
  const id=++svgId,den=Math.max(1,d),val=Math.max(0,Math.min(n,den)),r=83,c=100;
  let slices='';
  for(let i=0;i<den;i++){
   const a0=-Math.PI/2+2*Math.PI*i/den,a1=-Math.PI/2+2*Math.PI*(i+1)/den;
   const x0=c+r*Math.cos(a0),y0=c+r*Math.sin(a0),x1=c+r*Math.cos(a1),y1=c+r*Math.sin(a1);
   const p=den===1?'M 100 17 A 83 83 0 1 1 99.99 17 Z':'M 100 100 L '+x0.toFixed(3)+' '+y0.toFixed(3)+' A '+r+' '+r+' 0 '+(2*Math.PI/den>Math.PI?1:0)+' 1 '+x1.toFixed(3)+' '+y1.toFixed(3)+' Z';
-  const attr=canTap?' data-fr-action="piece" data-piece="'+i+'" role="button" tabindex="0" aria-label="Del '+(i+1)+' av '+den+'"':'';
-  slices+='<path d="'+p+'" fill="url(#fr2-'+(i<val?'berry':'pastry')+id+')" stroke="#9C6A48" stroke-width="3.5" stroke-linejoin="round" '+attr+'/>';
+  const chosen=Array.isArray(selected)?selected.includes(i):i<val;
+  const attr=canTap?' data-fr-action="piece" data-piece="'+i+'" role="button" tabindex="0" aria-pressed="'+chosen+'" aria-label="'+(chosen?'Fjern':'Fyll')+' del '+(i+1)+' av '+den+'"':'';
+  slices+='<path d="'+p+'" fill="url(#fr2-'+(chosen?'berry':'pastry')+id+')" stroke="#9C6A48" stroke-width="3.5" stroke-linejoin="round" '+attr+'/>';
  }
  const sprinkles='<g pointer-events="none"><circle cx="80" cy="53" r="3" fill="#F5B08B" opacity=".8"/><circle cx="111" cy="65" r="2.5" fill="#F6B987" opacity=".75"/><circle cx="84" cy="142" r="2.5" fill="#F7BE96" opacity=".65"/><circle cx="100" cy="100" r="89" fill="none" stroke="#FFE6B9" stroke-width="8" stroke-dasharray="8 4"/><circle cx="100" cy="100" r="83" fill="none" stroke="#A66D44" stroke-width="2" opacity=".7"/></g>';
  return '<svg class="fr2-pie fr2-pie-'+kind+(canTap?' fr2-pie-interactive':'')+'" viewBox="0 0 200 200" role="img" aria-label="'+val+' av '+den+' like deler er fylt" xmlns="http://www.w3.org/2000/svg">'
@@ -207,7 +208,7 @@ function build(){
  const x=u.build;
  return '<section class="fr2-build">'+sign('Bygg en brøk','Flytt på bitene og lag din egen brøk.')
  +'<div class="fr2-build-workshop"><div class="fr2-wood-tray"><span class="fr2-tray-title">Brøkbiter</span><div class="fr2-spare-pieces">'+Array.from({length:Math.min(x.d,8)},(_,i)=>cta('add',loosePieceSvg(x.d,i),'fr2-spare '+(i===0?'point':'') ,'data-fr-pick="1" aria-label="Legg til én del"')).join('')+'</div><small>Trykk på en bit, eller dra den inn</small></div>'
- +'<div class="fr2-build-target" data-fr-drop="1"><div class="fr2-fabric">'+fractionSvg(x.n,x.d,'builder',true)+'</div><p>Trykk på delene for å fylle eller fjerne dem.</p></div></div>'
+ +'<div class="fr2-build-target" data-fr-drop="1"><div class="fr2-fabric">'+fractionSvg(x.n,x.d,'builder',true,x.filled)+'</div><p>Trykk på delene for å fylle eller fjerne dem.</p></div></div>'
  +'<div class="fr2-controls">'+adjustField('d')+adjustField('n')+'</div>'
  +'<div class="fr2-result"><span>Du har bygget</span>'+frac(x.n,x.d)+'<small>'+x.n+' av '+x.d+' like deler.</small></div>'
  +'<div class="fr2-actions">'+cta('reset','Tøm brettet','fr2-secondary')+cta('next-build','Bygg noe nytt ›','fr2-primary')+'</div>'
@@ -271,20 +272,50 @@ function enter(next){
  render();
  try{document.getElementById(ROOT)?.scrollIntoView({block:'start',behavior:'instant'})}catch(_){}
 }
+function applyBuildPieces(parts,notice=''){
+ const x=u.build;
+ x.filled=[...new Set(parts)].filter(i=>Number.isInteger(i)&&i>=0&&i<x.d).sort((a,b)=>a-b);
+ x.n=x.filled.length;
+ if(x.n>0)mark('built',key(x.n,x.d));
+ x.notice=notice;
+ render();
+}
+function addBuildPiece(notice='Du la til én del!'){
+ const x=u.build,next=Array.from({length:x.d},(_,i)=>i).find(i=>!x.filled.includes(i));
+ if(next===undefined){x.notice='Alle delene er allerede fylt!';render();return}
+ applyBuildPieces([...x.filled,next],notice);
+}
 function adjust(field,step){
  const o=u.page==='build'?u.build:u.explore;
+ if(u.page==='build'){
+  if(field==='d'){
+   o.d=clamp(o.d+step,2,12);
+   applyBuildPieces(o.filled.filter(i=>i<o.d));
+  }else{
+   const goal=clamp(o.n+step,0,o.d);
+   if(goal<o.n)applyBuildPieces(o.filled.slice(0,goal));
+   else if(goal>o.n)addBuildPiece();
+   else render();
+  }
+  return;
+ }
  if(field==='d'){o.d=clamp(o.d+step,2,12);o.n=clamp(o.n,0,o.d);}
- else{o.n=clamp(o.n+step,0,o.d)}
- if(u.page==='explore')mark('explored',key(o.n,o.d));
- if(u.page==='build'&&o.n>0)mark('built',key(o.n,o.d));
- u.build.notice='';render();
+ else o.n=clamp(o.n+step,0,o.d);
+ mark('explored',key(o.n,o.d));
+ render();
 }
 function setPiece(index){
- const o=u.page==='build'?u.build:u.explore;
+ if(u.page==='build'){
+  const x=u.build;
+  if(index<0||index>=x.d)return;
+  const next=x.filled.includes(index)?x.filled.filter(i=>i!==index):[...x.filled,index];
+  applyBuildPieces(next,'Du har '+next.length+' av '+x.d+' deler.');
+  return;
+ }
+ const o=u.explore;
  o.n=index<o.n?index:index+1;
- if(u.page==='build'&&o.n>0)mark('built',key(o.n,o.d));
- if(u.page==='explore')mark('explored',key(o.n,o.d));
- u.build.notice='';render();
+ mark('explored',key(o.n,o.d));
+ render();
 }
 function moveSort(from,to){to=clamp(to,0,u.sortOrder.length-1);if(from===to)return;const moved=u.sortOrder.splice(from,1)[0];u.sortOrder.splice(to,0,moved);u.sortResult='';render();}
 function nextSort(){u.sortIndex=(u.sortIndex+1)%SORT.length;u.sortOrder=[2,0,1];u.sortResult='';render();}
@@ -298,9 +329,9 @@ function actionHandler(e){
  if(a==='preset'){u.explore.n=Number(btn.dataset.n);u.explore.d=Number(btn.dataset.d);mark('explored',key(u.explore.n,u.explore.d));render();return;}
  if(a==='adjust'){adjust(btn.dataset.field,Number(btn.dataset.step));return;}
  if(a==='piece'){setPiece(Number(btn.dataset.piece));return;}
- if(a==='add'){if(u.build.n<u.build.d){u.build.n++;mark('built',key(u.build.n,u.build.d));u.build.notice='Du la til én del!';}else{u.build.notice='Alle delene er allerede fylt!';}render();return;}
- if(a==='reset'){u.build.n=0;u.build.notice='Nå kan du bygge helt på nytt.';render();return;}
- if(a==='next-build'){u.build.d=DENOMS[(DENOMS.indexOf(u.build.d)+1)%DENOMS.length];u.build.n=0;u.build.notice='Prøv å bygge en ny brøk!';render();return;}
+ if(a==='add'){addBuildPiece();return;}
+ if(a==='reset'){applyBuildPieces([],'Nå kan du bygge helt på nytt.');return;}
+ if(a==='next-build'){u.build.d=DENOMS[(DENOMS.indexOf(u.build.d)+1)%DENOMS.length];applyBuildPieces([],'Prøv å bygge en ny brøk!');return;}
  if(a==='guess'){u.equalGuess=btn.dataset.guess;const q=eqCurrent(),correct=equal(q.a,q.b)===(u.equalGuess==='equal');if(correct)mark('equal',key(q.a[0],q.a[1])+'='+key(q.b[0],q.b[1]));render();return;}
  if(a==='next-equal'){u.equal=(u.equal+1)%EQ.length;u.equalGuess=null;render();return;}
  if(a==='sort-shift'){moveSort(Number(btn.dataset.position),Number(btn.dataset.position)+Number(btn.dataset.direction));return;}
@@ -332,7 +363,7 @@ function pointerMove(e){
  if(!drag||drag.pointer!==e.pointerId)return;
  const dist=Math.hypot(e.clientX-drag.startX,e.clientY-drag.startY);
  if(dist<9&&!drag.moved)return;
- if(!drag.moved){drag.moved=true;drag.ghost=document.createElement('div');drag.ghost.className='fr2-drag-ghost';drag.ghost.textContent=drag.type==='sort'?'◕':'◔';document.body.appendChild(drag.ghost);}
+ if(!drag.moved){drag.moved=true;drag.ghost=document.createElement('div');drag.ghost.className='fr2-drag-ghost';drag.ghost.innerHTML=drag.type==='build'?loosePieceSvg(u.build.d,'drag'):cardIllustration('sort');document.body.appendChild(drag.ghost);}
  drag.lastX=e.clientX;drag.lastY=e.clientY;
  if(drag.ghost){drag.ghost.style.left=e.clientX+'px';drag.ghost.style.top=e.clientY+'px'}
  const el=document.elementFromPoint(e.clientX,e.clientY)?.closest(drag.type==='build'?'.fr2-build-target':'.fr2-sort-card');
@@ -371,8 +402,8 @@ function pointerUp(e){
  clearDrag();
  if(moved){
   lastDragUntil=Date.now()+350;
-  if(type==='build'&&target&&u.build.n<u.build.d){
-   u.build.n++;u.build.notice='Brikken er på plass!';mark('built',key(u.build.n,u.build.d));render();
+  if(type==='build'&&target){
+   addBuildPiece('Brikken er på plass!');
   }else if(type==='sort'&&target){
    moveSort(from,Number(target.dataset.frSort));
   }
