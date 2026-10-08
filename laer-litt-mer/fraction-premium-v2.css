@@ -408,3 +408,53 @@
  .fr2-illustration{transition:none}
  .fr2-home-card{transition:none}
 }
+
+/* Discovery-first outcomes: show real relationships without school-style scores. */
+.fr2-aha{
+ display:flex;align-items:center;justify-content:center;gap:15px;
+ margin:15px 0 8px;padding:16px;
+ border:3px solid #FFF5D2;border-radius:24px;
+ background:radial-gradient(circle at 50% 15%,#FFFDF1,#F9DDA2 96%);
+ box-shadow:inset 0 5px 9px #FFF6E4,0 5px 0 #D2AE6B,0 13px 18px #77502B25;
+ color:#7D4B2C;
+}
+.fr2-aha>span{font-size:28px;color:#DFA949;filter:drop-shadow(0 2px 1px #FFF7D8)}
+.fr2-aha>div{display:grid;gap:4px;justify-items:center;text-align:center}
+.fr2-aha small{font-size:13px;font-weight:950;color:#825838}
+.fr2-aha strong{font-size:clamp(29px,8vw,45px);font-weight:1000;line-height:1;letter-spacing:-.04em}
+.fr2-master-journey{
+ margin:19px 0;padding:17px 10px 19px;
+ border:3px solid #FFF7E4;border-radius:28px;
+ background:radial-gradient(ellipse at 50% 3%,#FFFAE9,#E6EECF 97%);
+ box-shadow:0 6px 0 #C0C69EA8,0 13px 21px #86745030;
+}
+.fr2-journey-heading{display:grid;justify-items:center;text-align:center;gap:4px;margin-bottom:19px}
+.fr2-journey-heading strong{font-size:clamp(17px,4.8vw,22px);font-weight:1000;color:#5D3B2B}
+.fr2-journey-heading small{font-size:12px;font-weight:850;color:#6E5D49}
+.fr2-journey-stops{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:1px;position:relative}
+.fr2-journey-stops:before{
+ content:"";position:absolute;z-index:0;left:8%;right:8%;top:27px;
+ height:7px;border-radius:12px;
+ background:repeating-linear-gradient(90deg,#CCAE79 0 10px,#E9D3AC 10px 18px);
+ box-shadow:0 2px 0 #FFF9D0;
+}
+.fr2-journey-stop{position:relative;z-index:1;display:grid;align-content:start;justify-items:center;gap:10px}
+.fr2-journey-medal{
+ display:grid;place-items:center;width:56px;height:56px;
+ border-radius:50%;border:4px solid #F6F0D6;
+ background:linear-gradient(#E4DFD2,#BDB7A5);
+ color:#8A755A;font-size:25px;font-weight:1000;
+ box-shadow:0 4px 0 #AA9981,0 9px 10px #6B594229;
+}
+.fr2-journey-stop.visited .fr2-journey-medal{
+ background:linear-gradient(155deg,#FFEA8C,#EDB448);
+ color:#986132;border-color:#FFF5C7;
+ box-shadow:0 4px 0 #C58F38,0 7px 13px #E5B75390;
+}
+.fr2-journey-stop small{max-width:82px;text-align:center;font-size:10px;font-weight:900;color:#735A42;line-height:1.19}
+@media(max-width:390px){
+ .fr2-journey-medal{width:44px;height:44px;font-size:19px}
+ .fr2-journey-stops:before{top:22px}
+ .fr2-journey-stop small{font-size:9px}
+ .fr2-aha{gap:8px}
+}
