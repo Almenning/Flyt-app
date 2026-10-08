@@ -49,3 +49,16 @@ test('Prompt 19 stays a frozen release-candidate gate',()=>{
   assert.match(rc,/Ingen kjente interne P0\/P1-blockers/);
   assert.match(rc,/Exact-head RC må være grønn/);
 });
+
+
+test('premium multiplication script syntax and Basecamp navigation contract',()=>{
+  const vm=require('node:vm');
+  for(const script of ['multiplication-premium.js','globe-v24-art.js','globe-v25-renderer.js']){
+    const p='laer-litt-mer/'+script;
+    assert.doesNotThrow(()=>new vm.Script(read(p),{filename:p}),script+' must parse in Safari');
+  }
+  const multiplication=read('laer-litt-mer/multiplication-premium.js');
+  assert.match(multiplication,/id="multiplication-lab-back"/,'back button must remain addressable');
+  assert.match(multiplication,/data-mult-mode/,'free exploration must stay available');
+  assert.match(multiplication,/data-explore-release/,'Basecamp origin must be preserved');
+});
