@@ -404,7 +404,7 @@ async function finishSession(page){
     await page.locator('.bc12-place[data-camp="fraction"]').click();
     await page.locator('#fraction-lab-screen.active').waitFor();
     assert.equal(await page.locator('#fraction-lab-screen').getAttribute('data-explore-release'),'explore-rc1');
-    assert.equal(await page.locator('[data-lab-mode="free"]').isVisible(),true);
+    assert.equal(await page.locator('.fr2-home-card.fr2-card-explore').isVisible(),true);
     await page.locator('#fraction-lab-back').click();
     await page.locator('#home-screen.active .bc12').waitFor();
 
@@ -778,87 +778,59 @@ async function finishSession(page){
 
     const mathModules=await page.locator('#subject-modules .subject-module strong').allTextContents();
     assert.deepEqual(mathModules,['Tall og regning']);
-    // Brøklab is an open experiment space: grade recommends a start, but every variant and level stays available.
+    // Brøklaben premium remains an open discovery experience, never a graded school quiz.
     assert.equal(await page.locator('#math-lab-entry').isVisible(),true);
     const labBefore=await page.evaluate(()=>({goal:dailyGoal().done,answers:subjectAnswered('math')}));
     await page.locator('#open-fraction-lab').click();
     await page.locator('#fraction-lab-screen.active').waitFor();
-    assert.equal((await page.locator('.fraction-lab-head-copy h1').textContent()).trim(),'Brøklab');
-    assert.equal(await page.locator('[data-lab-variant]').count(),6);
-    assert.equal(await page.locator('[data-lab-level]').count(),4);
-    assert.equal(await page.locator('[data-lab-level="0"]').isVisible(),true);
-    assert.equal(await page.locator('[data-lab-level="3"]').isVisible(),true);
-    assert.equal(await page.locator('.lab-fraction-row').count(),9);
-    assert.equal(await page.locator('.lab-circle-source').count(),9);
-    assert.match(await page.locator('.lab-mission').innerText(),/Finn en halv/i);
-    assert.match(await page.locator('.lab-meaning-card').innerText(),/1\/2/);
-    assert.match(await page.locator('.lab-meaning-card').innerText(),/0,5/);
-    assert.match(await page.locator('.lab-meaning-card').innerText(),/50 %/);
-
-    // Tapping the board explains the selected fraction without silently adding it to the workbench.
-    const beforeInspect=await page.locator('.lab-workpiece').count();
-    await page.locator('.lab-fraction-row[data-parts="4"] [data-denom="4"]').first().click();
-    assert.equal(await page.locator('.lab-workpiece').count(),beforeInspect);
-    assert.match(await page.locator('.lab-meaning-card').innerText(),/1\/4/);
-    assert.match(await page.locator('.lab-meaning-card').innerText(),/0,25/);
-    assert.match(await page.locator('.lab-meaning-card').innerText(),/25 %/);
-    await page.locator('.lab-fraction-row[data-parts="2"] [data-denom="2"]').first().click();
-
-    // Portrait mobile must never require horizontal page scrolling. The active manipulative gets the full phone width.
-    const fractionPortraitFit=await page.evaluate(()=>{
-      const screen=document.querySelector('#fraction-lab-screen');
-      const board=document.querySelector('.lab-board');
-      const pages=[...document.querySelectorAll('.lab-board-page')].filter(el=>getComputedStyle(el).display!=='none');
-      const sr=screen.getBoundingClientRect(),br=board.getBoundingClientRect();
-      return {viewport:window.innerWidth,documentWidth:document.documentElement.scrollWidth,screenLeft:sr.left,screenRight:sr.right,boardLeft:br.left,boardRight:br.right,visibleBoardPages:pages.length};
+    assert.equal(await page.locator('#fraction-lab-screen').getAttribute('data-explore-release'),'explore-rc1');
+    assert.equal((await page.locator('.fr2-sign h1').first().textContent()).trim(),'Brøklaben');
+    assert.equal(await page.locator('.fr2-home-card').count(),6);
+    const fractionFit=await page.evaluate(()=>{
+      const screen=document.querySelector('#fraction-lab-screen'),shell=document.querySelector('.fr2-shell');
+      const sr=screen.getBoundingClientRect(),br=shell.getBoundingClientRect();
+      return {viewport:innerWidth,width:document.documentElement.scrollWidth,screenLeft:sr.left,screenRight:sr.right,boardLeft:br.left,boardRight:br.right};
     });
-    assert.ok(fractionPortraitFit.documentWidth<=fractionPortraitFit.viewport+1,'Brøklab creates horizontal page overflow in portrait: '+JSON.stringify(fractionPortraitFit));
-    assert.ok(fractionPortraitFit.screenLeft>=-1&&fractionPortraitFit.screenRight<=fractionPortraitFit.viewport+1,'Brøklab screen exceeds portrait viewport: '+JSON.stringify(fractionPortraitFit));
-    assert.ok(fractionPortraitFit.boardLeft>=fractionPortraitFit.screenLeft-1&&fractionPortraitFit.boardRight<=fractionPortraitFit.screenRight+1,'fraction board exceeds its screen: '+JSON.stringify(fractionPortraitFit));
-    assert.equal(fractionPortraitFit.visibleBoardPages,1,'portrait should show one full-width manipulative board at a time');
-
-    // Young child can solve the recommended discovery directly with a physical-style piece.
-    await page.locator('.lab-piece-bank [data-denom="2"]').click();
-    assert.match(await page.locator('.lab-total-value').innerText(),/1\/2/);
-    await page.locator('#fraction-lab-check').click();
-    assert.match(await page.locator('#fraction-lab-feedback').innerText(),/Du fant det/i);
-
-    // Harder levels are not locked by grade.
-    await page.locator('[data-lab-level="3"]').click();
-    assert.match(await page.locator('.lab-mission').innerText(),/fem sjettedeler/i);
-    await page.locator('[data-lab-variant="equivalent"]').click();
-    await page.locator('[data-lab-level="1"]').click();
-    assert.match(await page.locator('.lab-mission').innerText(),/Fire åttendedeler/i);
-
-    // Comparison is its own experiment variant.
-    await page.locator('[data-lab-variant="compare"]').click();
-    await page.locator('[data-lab-level="0"]').click();
-    await page.locator('.lab-piece-bank [data-denom="2"]').click();
-    await page.locator('.lab-piece-bank [data-denom="4"]').click();
-    await page.locator('[data-prediction=">"]').click();
-    await page.locator('#fraction-lab-check').click();
-    assert.match(await page.locator('#fraction-lab-feedback').innerText(),/Du fant det/i);
-
-    // The lab makes fraction, decimal and percent equivalence visible all the time, including in free play.
-    await page.locator('[data-lab-variant="wall"]').click();
-    await page.locator('[data-lab-mode="free"]').click();
-    assert.match(await page.locator('.lab-free-note').innerText(),/Brøk, desimal og prosent/i);
-    await page.locator('.lab-piece-bank [data-denom="4"]').click();
-    await page.locator('.lab-piece-bank [data-denom="4"]').click();
-    assert.match(await page.locator('.lab-total-value').innerText(),/1\/2/);
-    assert.match(await page.locator('.lab-total-value').innerText(),/0,5/);
-    assert.match(await page.locator('.lab-total-value').innerText(),/50 %/);
-
-    // Dedicated conversion experiments make the purpose concrete.
-    await page.locator('[data-lab-mode="mission"]').click();
-    await page.locator('[data-lab-variant="connections"]').click();
-    assert.match(await page.locator('.lab-mission').innerText(),/Hva er 50 %/);
-    await page.locator('.lab-piece-bank [data-denom="2"]').click();
-    await page.locator('#fraction-lab-check').click();
-    assert.match(await page.locator('#fraction-lab-feedback').innerText(),/1\/2 = 0,5 = 50 %/);
-    const fractionTouchHeights=await page.locator('.lab-piece-bank .lab-loose-piece').evaluateAll(els=>els.map(e=>e.getBoundingClientRect().height));
-    assert.ok(fractionTouchHeights.every(h=>h>=44),'small fraction touch target: '+fractionTouchHeights.join(','));
-
+    assert.ok(fractionFit.width<=fractionFit.viewport+1,'Brøklaben horizontal overflow: '+JSON.stringify(fractionFit));
+    assert.ok(fractionFit.boardLeft>=fractionFit.screenLeft-1&&fractionFit.boardRight<=fractionFit.viewport+1,'Brøklaben exceeds phone: '+JSON.stringify(fractionFit));
+    await page.locator('.fr2-card-explore').click();
+    assert.equal(await page.locator('.fr2-view').count(),4);
+    await page.locator('[data-fr-action="preset"][data-n="1"][data-d="2"]').click();
+    assert.deepEqual(await page.evaluate(()=>[LARIA_FRACTION_PREMIUM.snapshot().explore.n,LARIA_FRACTION_PREMIUM.snapshot().explore.d]),[1,2]);
+    await page.locator('[data-fr-action="view"][data-view="grid"]').click();
+    assert.equal(await page.locator('.fr2-block-grid span').count(),2);
+    await page.locator('[data-fr-action="view"][data-view="glass"]').click();
+    assert.equal(await page.locator('.fr2-glass').count(),1);
+    await page.locator('.fr2-nav-item[data-page="build"]').click();
+    await page.locator('[data-fr-action="reset"]').click();
+    await page.locator('[data-fr-action="add"]').first().click();
+    assert.equal((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot())).build.n,1);
+    await page.locator('.fr2-pie-builder path[data-fr-action="piece"][data-piece="2"]').click();
+    assert.equal((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot())).build.n,3);
+    await page.locator('.fr2-nav-item[data-page="home"]').click();
+    await page.locator('.fr2-card-equal').click();
+    assert.equal(await page.locator('.fr2-pie-compare').count(),2);
+    await page.locator('[data-fr-action="guess"][data-guess="equal"]').click();
+    assert.match(await page.locator('.fr2-feedback').innerText(),/Du fant det/);
+    await page.locator('.fr2-nav-item[data-page="home"]').click();
+    await page.locator('.fr2-card-sort').click();
+    assert.equal(await page.locator('.fr2-sort-card').count(),3);
+    await page.locator('[data-fr-action="sort-shift"][data-position="0"][data-direction="1"]').click();
+    await page.locator('[data-fr-action="sort-shift"][data-position="1"][data-direction="1"]').click();
+    await page.locator('[data-fr-action="sort-check"]').click();
+    assert.match(await page.locator('.fr2-feedback').innerText(),/sorterte riktig/);
+    await page.locator('.fr2-nav-item[data-page="home"]').click();
+    await page.locator('.fr2-card-convert').click();
+    assert.match(await page.locator('.fr2-conversion-row').innerText(),/50 %/);
+    assert.match(await page.locator('.fr2-conversion-row').innerText(),/0,5/);
+    await page.locator('[data-fr-action="convert-example"][data-example="1"]').click();
+    assert.match(await page.locator('.fr2-conversion-row').innerText(),/0,25/);
+    await page.locator('.fr2-nav-item[data-page="mastery"]').click();
+    assert.equal(await page.locator('.fr2-master-tile').count(),5);
+    assert.ok(Object.keys((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.progress())).built).length>0);
+    const fractionTouchHeights=await page.locator('.fr2-adjust-btn,.fr2-nav-item,.fr2-sort-arrow').evaluateAll(els=>els.map(e=>e.getBoundingClientRect().height));
+    assert.ok(fractionTouchHeights.every(h=>h>=44),'small Brøklaben touch target: '+fractionTouchHeights.join(','));
+    await page.locator('.fr2-nav-item[data-page="home"]').click();
     await page.locator('#fraction-lab-back').click();
     await page.locator('#subject-screen.active').waitFor();
     const labAfter=await page.evaluate(()=>({goal:dailyGoal().done,answers:subjectAnswered('math')}));
@@ -1312,10 +1284,31 @@ async function finishSession(page){
     const p1=await context1.newPage();p1.__base=url;
     await p1.route('https://raw.githubusercontent.com/**',r=>r.fulfill({status:200,contentType:'application/json',body:'{"type":"FeatureCollection","features":[]}'}));await p1.route('https://api.worldbank.org/**',r=>r.fulfill({status:200,contentType:'application/json',body:'[{},[]]'}));
     await onboard(p1,1);
+    // The Basecamp globe tile opens the 3D world, not the geography quiz screen.
+    // Enter the quiz screen explicitly so this regression checks the 1st-grade Land flow.
     await p1.evaluate(()=>document.getElementById('open-geography').click());
+    await p1.locator('#geography-screen.active').waitFor();
     assert.equal(await p1.locator('.geo-theme[data-geo-theme="capital"]').isVisible(),false);
+    // Explicitly choose Land and wait for the geographic view before starting.
+    // An earlier test clicked the theme button during the screen transition.
+    await p1.locator('.geo-theme[data-geo-theme="country"]').click();
+    assert.match(await p1.locator('#start-geography-theme').innerText(),/Start Land/);
     await p1.locator('#start-geography-theme').click();
-    await p1.locator('#session-screen.active').waitFor();
+    const gradeOneStarted=await p1.locator('#session-screen.active').waitFor({timeout:12000}).then(()=>true).catch(()=>false);
+    if(!gradeOneStarted){
+      const diagnosis=await p1.evaluate(()=>({
+        screen:typeof activeScreenName==='function'?activeScreenName():null,
+        grade:typeof currentGrade==='function'?currentGrade():null,
+        theme:typeof geoTheme==='string'?geoTheme:null,
+        countryIds:typeof gradeScopeIds==='function'?gradeScopeIds():[],
+        pool:typeof gradeScopeIds==='function'&&typeof questionPool==='function'?questionPool(gradeScopeIds(),true,true).length:null,
+        sessionCount:typeof sessionQuestions!=='undefined'?sessionQuestions.length:null,
+        activeSession:state?.activeSession||null,
+        onboarding:document.querySelector('#onboarding')?.className,
+        startLabel:document.querySelector('#start-geography-theme')?.textContent
+      }));
+      throw new Error('First-grade geography did not open a session: '+JSON.stringify(diagnosis));
+    }
     assert.equal(await p1.evaluate(()=>sessionQuestions.length),5);
     assert.equal(await p1.locator('#read-aloud').isVisible(),true,'1st grade should offer read aloud');
 

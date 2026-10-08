@@ -49,6 +49,20 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium webkit
 
+      - name: Verify premium Brøklaben in Chromium and WebKit
+        env:
+          FRACTION_QA_SCREENSHOTS: /tmp/laria-fraction-workshop
+        run: node tests/laria-fraction-premium.playwright.js
+
+      - name: Upload Brøklaben screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-fraction-workshop-${{ github.sha }}
+          path: /tmp/laria-fraction-workshop
+          if-no-files-found: warn
+          retention-days: 7
+
       - name: Verify premium multiplication in Chromium and WebKit
         env:
           QA_SCREENSHOTS: /tmp/laria-multiplication-v2
@@ -62,6 +76,9 @@ jobs:
           path: /tmp/laria-multiplication-v2
           if-no-files-found: warn
           retention-days: 7
+
+      - name: Full browser regression suite
+        run: npm run test:browser
 
       - name: Start exact-head local server
         run: |
@@ -110,5 +127,4 @@ jobs:
           if-no-files-found: warn
           retention-days: 7
 
-      - name: Full browser regression suite
-        run: npm run test:browser
+
