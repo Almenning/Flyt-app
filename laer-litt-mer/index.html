@@ -3466,7 +3466,10 @@ function showScreen(name){
   document.getElementById('topbar').style.display=special?'none':'flex';
   window.scrollTo(0,0);
   syncSwipeBackEdge(name);
-  if(name==='world')requestAnimationFrame(()=>{initGlobe();setGlobeZoom(globeZoom)});
+  if(name==='world'){
+    el.dataset.exploreRelease='explore-rc1';
+    requestAnimationFrame(()=>{initGlobe();setGlobeZoom(globeZoom)});
+  }
 }
 function openGlobe(mode='explore'){
   const next=mode==='mine'?'mine':'explore';
