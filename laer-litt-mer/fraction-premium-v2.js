@@ -244,42 +244,61 @@ function clearDrag(){
 }
 /* Native drag-and-drop for desktop/Playwright. The pointer path below remains the
    touch fallback for Safari and mobile devices without native HTML drag. */
+function dropTargetAt(x,y,kind){
+ const selector=kind==='build'?'.fr2-build-target':'.fr2-sort-card[data-fr-sort]';
+ const matches=[...document.querySelectorAll('#fraction-lab-root '+selector)];
+ return matches.find(el=>{const r=el.getBoundingClientRect();return x>=r.left&&x<=r.right&&y>=r.top&&y<=r.bottom})||null;
+}
+function commitDragged(kind,from,target){
+ if(!target)return false;
+ clearDrag();lastDragUntil=Date.now()+350;
+ if(kind==='build'&&u.build.n<u.build.d){
+  u.build.n++;u.build.notice='Brikken er på plass!';mark('built',key(u.build.n,u.build.d));render();return true;
+ }
+ if(kind==='sort'&&Number.isInteger(from)&&Number.isInteger(Number(target.dataset.frSort))){
+  moveSort(from,Number(target.dataset.frSort));return true;
+ }
+ return false;
+}
 function nativeDragStart(e){
  dragDiagnostics.nativeStart++;
  if(e.target.closest('.fr2-sort-arrow'))return;
  const src=e.target.closest('.fr2-spare[data-fr-pick],.fr2-sort-card[data-fr-sort]');
  if(!src)return;
  clearDrag();
- drag={type:src.hasAttribute('data-fr-pick')?'build':'sort',from:Number(src.dataset.frSort),native:true};
+ drag={type:src.hasAttribute('data-fr-pick')?'build':'sort',from:Number(src.dataset.frSort),native:true,hover:null,lastX:0,lastY:0};
  if(e.dataTransfer){e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain','laria-fraction');}
 }
 function nativeDragOver(e){
  dragDiagnostics.nativeOver++;
  if(!drag||!drag.native)return;
- const selector=drag.type==='build'?'.fr2-build-target':'.fr2-sort-card[data-fr-sort]';
- const target=e.target.closest(selector);
- if(!target)return;
+ // A native drop requires cancellation of dragover, even when the event bubbles
+ // from a child or source node instead of the visual destination.
  e.preventDefault();
  if(e.dataTransfer)e.dataTransfer.dropEffect='move';
+ drag.lastX=e.clientX;drag.lastY=e.clientY;
+ const selector=drag.type==='build'?'.fr2-build-target':'.fr2-sort-card[data-fr-sort]';
+ const target=e.target.closest(selector)||dropTargetAt(e.clientX,e.clientY,drag.type);
+ if(!target)return;
+ drag.hover=target;
  document.querySelectorAll('.fr2-drag-over').forEach(x=>x.classList.remove('fr2-drag-over'));
  target.classList.add('fr2-drag-over');
 }
 function nativeDrop(e){
  dragDiagnostics.nativeDrop++;
  if(!drag||!drag.native)return;
- const selector=drag.type==='build'?'.fr2-build-target':'.fr2-sort-card[data-fr-sort]';
- const target=e.target.closest(selector);if(!target)return;
  e.preventDefault();
- const kind=drag.type,from=drag.from,to=Number(target.dataset.frSort);
- clearDrag();lastDragUntil=Date.now()+350;
- if(kind==='build'&&u.build.n<u.build.d){
-  u.build.n++;u.build.notice='Brikken er på plass!';
-  mark('built',key(u.build.n,u.build.d));render();
- }else if(kind==='sort'&&Number.isInteger(from)&&Number.isInteger(to)){
-  moveSort(from,to);
- }
+ const kind=drag.type,from=drag.from;
+ const selector=kind==='build'?'.fr2-build-target':'.fr2-sort-card[data-fr-sort]';
+ const target=e.target.closest(selector)||dropTargetAt(e.clientX,e.clientY,kind)||drag.hover;
+ if(!commitDragged(kind,from,target))clearDrag();
 }
-function nativeDragEnd(){if(drag?.native)clearDrag();}
+function nativeDragEnd(e){
+ if(!drag?.native)return;
+ const kind=drag.type,from=drag.from;
+ const target=dropTargetAt(e.clientX,e.clientY,kind)||dropTargetAt(drag.lastX,drag.lastY,kind)||drag.hover;
+ if(!commitDragged(kind,from,target))clearDrag();
+}
 function pointerDown(e){
  dragDiagnostics.pointerDown++;
  // Leave the accessible arrow buttons clickable; capture only a deliberate card drag.
@@ -313,14 +332,14 @@ function pointerUp(e){
   if(!target)target=[...document.querySelectorAll(selector)].find(el=>{const r=el.getBoundingClientRect();return e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom})||null;
  }
  clearDrag();
- if(moved){lastDragUntil=Date.now()+350;if(type==='build'&&target&&u.build.n<u.build.d){u.build.n++;u.build.notice='Brikken er på plass!';mark('built',key(u.build.n,u.build.d));render();}else if(type==='sort'&&target){moveSort(from,Number(target.dataset.frSort))}}
+ if(moved)commitDragged(type,from,target);
 }
 window.openFractionLab=function(){
  document.getElementById('fraction-lab-screen')?.setAttribute('data-explore-release','explore-rc1');
  u.page='home';render();try{showScreen('fraction-lab')}catch(_){}
 };
 const root=document.getElementById(ROOT);
-if(root&&!root.dataset.fr2Bound){root.addEventListener('click',actionHandler);root.addEventListener('keydown',keyHandler);root.addEventListener('pointerdown',pointerDown);document.addEventListener('pointermove',pointerMove);document.addEventListener('pointerup',pointerUp);document.addEventListener('pointercancel',clearDrag);root.addEventListener('dragstart',nativeDragStart);root.addEventListener('dragover',nativeDragOver);root.addEventListener('drop',nativeDrop);root.addEventListener('dragend',nativeDragEnd);root.dataset.fr2Bound='1'}
+if(root&&!root.dataset.fr2Bound){root.addEventListener('click',actionHandler);root.addEventListener('keydown',keyHandler);root.addEventListener('pointerdown',pointerDown);document.addEventListener('pointermove',pointerMove);document.addEventListener('pointerup',pointerUp);document.addEventListener('pointercancel',clearDrag);root.addEventListener('dragstart',nativeDragStart);document.addEventListener('dragover',nativeDragOver);document.addEventListener('drop',nativeDrop);root.addEventListener('dragend',nativeDragEnd);root.dataset.fr2Bound='1'}
 const entry=document.getElementById('open-fraction-lab');if(entry)entry.onclick=window.openFractionLab;
 window.LARIA_FRACTION_PREMIUM={version:'workshop-v1',open:window.openFractionLab,progress:()=>JSON.parse(JSON.stringify(progress)),snapshot:()=>JSON.parse(JSON.stringify(u)),compare:equal,format:formatValue,dragDiagnostics:()=>Object.assign({},dragDiagnostics)};
 })();
