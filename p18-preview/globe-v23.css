@@ -1,0 +1,89 @@
+/* Læria Kloden v23 — restore the locked three-mode architecture.
+   Utforsk = illustrated discovery globe, Min verden = mastery view,
+   Kloden = preserved classic interactive globe renderer. */
+#world-screen.active .globe-mode{
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  width:min(48vw,590px)!important;
+  min-width:470px!important;
+}
+#world-screen.active .globe-mode button{
+  min-width:0!important;
+  padding-left:10px!important;
+  padding-right:10px!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+#world-screen.active .globe-mode button[data-globe-mode="classic"] .pg-mode-icon{
+  display:inline-grid!important;
+  place-items:center!important;
+  width:22px!important;
+  height:22px!important;
+  margin-right:6px!important;
+  vertical-align:-5px!important;
+  font-size:19px!important;
+}
+#world-screen.active[data-premium-globe-mode="classic"]{
+  background:
+    linear-gradient(180deg,rgba(28,66,52,.03),rgba(35,58,46,.12)),
+    url('./basecamp-v11.webp') center/cover no-repeat!important;
+}
+#world-screen.active[data-premium-globe-mode="classic"] .premium-globe-header::before{
+  background:
+    linear-gradient(90deg,rgba(255,247,229,.98),rgba(255,247,229,.22) 58%,rgba(255,247,229,0)),
+    url('./geografi-verden.png') 60% 40%/cover no-repeat!important;
+  opacity:.38!important;
+}
+#world-screen.active[data-premium-globe-mode="classic"] .globe-legend{display:none!important}
+#world-screen.active[data-premium-globe-mode="classic"] #globe-canvas{
+  filter:saturate(1.10) contrast(1.025) drop-shadow(0 16px 22px rgba(26,47,43,.17))!important;
+}
+
+@media (orientation:portrait) and (max-width:1100px){
+  #world-screen.active .globe-mode{
+    width:min(91vw,430px)!important;
+    min-width:0!important;
+    gap:0!important;
+  }
+  #world-screen.active .globe-mode button{
+    padding-left:6px!important;
+    padding-right:6px!important;
+    font-size:10.5px!important;
+  }
+  #world-screen.active .globe-mode button .pg-mode-icon,
+  #world-screen.active .globe-mode button[data-globe-mode="classic"] .pg-mode-icon{
+    width:17px!important;
+    height:17px!important;
+    margin-right:4px!important;
+    font-size:15px!important;
+    vertical-align:-4px!important;
+  }
+  #world-screen.active[data-premium-globe-mode="classic"]{
+    background:
+      linear-gradient(180deg,rgba(103,196,218,.12),rgba(35,85,68,.22)),
+      url('./basecamp-v11-mobile.webp') center/cover no-repeat!important;
+  }
+}
+@media (orientation:portrait) and (max-width:430px){
+  #world-screen.active .globe-mode{
+    width:calc(100vw - 22px)!important;
+    height:46px!important;
+  }
+  #world-screen.active .globe-mode button{
+    font-size:9.5px!important;
+    padding-left:4px!important;
+    padding-right:4px!important;
+  }
+  #world-screen.active .globe-mode button .pg-mode-icon,
+  #world-screen.active .globe-mode button[data-globe-mode="classic"] .pg-mode-icon{
+    width:15px!important;
+    height:15px!important;
+    margin-right:3px!important;
+    font-size:14px!important;
+  }
+}
+@media (orientation:landscape) and (max-height:680px){
+  #world-screen.active .globe-mode{
+    width:min(470px,58vw)!important;
+    min-width:0!important;
+  }
+}

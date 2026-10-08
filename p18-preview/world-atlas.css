@@ -1,0 +1,52 @@
+/* Atlas 32. Screen visibility is navigation state, never a world theme. */
+.screen:not(.active),#geography-screen.screen:not(.active),#subject-screen.screen:not(.active){display:none!important}
+.screen.active{visibility:visible}
+
+/* One painted landscape, with hit targets aligned to its actual landmarks. */
+.bok-v15-world{aspect-ratio:2/3;min-height:0!important;max-width:560px!important;background:#193f32;perspective:none;border-radius:28px;overflow:hidden;isolation:isolate;box-shadow:0 16px 48px #12352638}
+.bok-atlas-art{position:absolute;inset:0;pointer-events:none;z-index:0}
+.bok-atlas-art img{display:block;width:100%;height:100%;object-fit:fill}
+.bok-v15-world .bok-v15-scene,.bok-v15-world .bok-v15-route,.bok-v15-world .bok-v15-atmosphere,.bok-v15-world .bok-v15-vine-lock{display:none!important}
+.bok-v15-world .bok-v10-place{width:136px;height:66px;transform:translate(-50%,-50%);opacity:1!important;filter:none!important;background:none!important;border:0;z-index:var(--place-z,40)}
+.bok-v15-world .bok-v10-place .hit{inset:-8px;border:0!important;background:none!important;box-shadow:none!important;animation:none!important}
+.bok-v15-world .bok-v10-place::before,.bok-v15-world .bok-v10-place::after{display:none!important}
+.atlas-place-label{position:absolute;inset:12px 0 0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:#fff6d9;background:linear-gradient(180deg,#4b3627ed,#2a241ff2);border:1.5px solid #ebc88b;border-radius:14px;box-shadow:0 5px 0 #201a17,0 9px 16px #0b231d66;text-shadow:0 1px 2px #000;font-family:inherit;pointer-events:none}
+.atlas-place-label strong{font-size:13px;line-height:1.15;letter-spacing:0}
+.atlas-place-label small{font-size:12px;font-weight:750;color:#e7d7b9}
+.state-current .atlas-place-label{color:#352210;background:linear-gradient(180deg,#fff1b6,#efbd65);border:2px solid #fff8d2;box-shadow:0 5px 0 #815222,0 8px 24px #ffd06650;text-shadow:none}
+.state-current .atlas-place-label small{color:#543114}
+.state-done .atlas-place-label{border-color:#c6ebb2;background:linear-gradient(180deg,#3c654b,#224b36)}
+.state-future .atlas-place-label{background:#1c302de8;border-color:#869b83;color:#f2edda}
+.bok-v15-world .bok-v10-top{position:absolute;inset:10px 10px auto;display:flex;gap:8px;z-index:90}
+.bok-v15-world .bok-v10-home,.bok-v15-world .bok-v10-grade,.bok-v15-world .bok-v10-progress{min-height:44px;color:#fff5df;background:#18392fe8;border:1px solid #e3c78c70;box-shadow:0 4px 12px #0003;backdrop-filter:blur(8px);font-size:13px}
+.bok-v15-world .bok-v10-sheet{position:fixed!important;inset:auto max(12px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));max-width:500px;margin:0 auto;max-height:75dvh;overflow:auto;z-index:501}
+.bok-v15-world .bok-v10-backdrop{position:fixed!important;z-index:500;background:#102c2370}
+.bok-v15-world [hidden]{display:none!important}
+.bok-v15-world button:focus-visible{outline:3px solid #fff;outline-offset:5px}
+.bok-v15-world .state-current:active .atlas-place-label{transform:translateY(3px);box-shadow:0 2px 0 #815222}
+
+/* Themes may not resurrect screens that navigation has closed. */
+#subject-screen.bokskogen-v10-active{padding:12px 12px 26px!important}
+#subject-screen.bokskogen-v10-active .subject-page-banner{display:none!important}
+@media(max-width:390px){.bok-v15-world .bok-v10-place{width:110px;height:60px}.atlas-place-label strong{font-size:12px}.atlas-place-label small{font-size:11px}}
+@media(min-width:700px){.bok-v15-world .bok-v10-place{width:162px;height:72px}.atlas-place-label strong{font-size:17px}.atlas-place-label small{font-size:14px}}
+
+.bok-v15-world .bok-v10-progress{min-width:0;padding:8px;margin-left:auto;gap:4px}
+.bok-v15-world .bok-v10-progress b,.bok-v15-world .bok-v10-progress span{font-size:11px}
+
+.bok-v10-map{background:transparent!important;padding:0!important;max-width:560px!important;margin:0 auto!important}
+
+/* The guide is part of the journey: it stands beside the next destination and
+   travels forward after a completed mission. */
+.bok-v15-world .bok-v15-traveler{display:block!important;position:absolute;z-index:82;width:94px;height:112px;pointer-events:none;filter:drop-shadow(0 9px 7px rgba(19,42,32,.30));animation:atlasFoxBob 2.7s ease-in-out infinite}
+.bok-v15-fox{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;user-select:none;-webkit-user-drag:none}
+.bok-v15-fox-bubble{position:absolute;z-index:2;left:50px;top:-12px;min-width:70px;padding:6px 8px 7px;border:1px solid #7e542f;border-radius:11px 13px 13px 5px;background:#fff1c7;color:#5b3920;box-shadow:0 3px 0 #8d60332b,0 6px 12px #17352a35;font:900 8px/1 ui-rounded,-apple-system,sans-serif;white-space:nowrap;transform:rotate(2deg)}
+.bok-v15-fox-bubble:after{content:"";position:absolute;left:10px;bottom:-7px;border-width:7px 7px 0 0;border-style:solid;border-color:#fff1c7 transparent transparent transparent}
+.bok-v15-world .bok-v15-traveler .bok-v14-travel-dust{display:block!important;left:-16px;bottom:6px;transform:scale(.82)}
+@keyframes atlasFoxBob{0%,100%{transform:translate(-50%,-50%) rotate(-2deg)}50%{transform:translate(-50%,calc(-50% - 6px)) rotate(2deg)}}
+@media(max-width:390px){.bok-v15-world .bok-v15-traveler{width:80px;height:96px}.bok-v15-fox-bubble{left:42px;top:-9px;font-size:7px;padding:5px 6px 6px}}
+@media(prefers-reduced-motion:reduce){.bok-v15-world .bok-v15-traveler{animation:none!important}}
+
+#subject-screen.bokskogen-v10-active{max-width:584px!important;min-height:0!important;margin:0 auto!important;background:transparent!important;padding:12px!important}
+
+@media(max-width:600px){#subject-screen.bokskogen-v10-active{padding-top:max(55px,env(safe-area-inset-top))!important}}

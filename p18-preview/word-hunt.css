@@ -1,0 +1,99 @@
+/* Læria Ordjakt v1 — fri utforskning, grades 1–2 first. */
+.word-hunt-overlay[hidden]{display:none!important}
+.word-hunt-overlay{
+  position:fixed;inset:0;z-index:5000;overflow:auto;
+  background:
+    linear-gradient(180deg,rgba(19,48,42,.22),rgba(16,41,34,.76)),
+    url('./bokskogen-atlas32.webp') center/cover no-repeat;
+  color:#26394e;font-family:ui-rounded,'Arial Rounded MT Bold',system-ui,sans-serif;
+  -webkit-overflow-scrolling:touch
+}
+.word-hunt-overlay *{box-sizing:border-box}
+.word-hunt-shell{
+  width:min(920px,calc(100% - 28px));min-height:calc(100svh - 28px);margin:14px auto;padding:18px;
+  border:4px solid rgba(255,244,205,.92);border-radius:34px;
+  background:linear-gradient(145deg,rgba(255,245,211,.97),rgba(255,251,232,.96));
+  box-shadow:0 22px 80px rgba(20,38,34,.42),inset 0 2px rgba(255,255,255,.8)
+}
+.word-hunt-top{display:flex;align-items:center;gap:13px}
+.word-hunt-back{
+  flex:0 0 auto;width:48px;height:48px;border:0;border-radius:16px;background:#7d4d28;color:#fff1ce;
+  font-size:26px;font-weight:950;box-shadow:0 4px 0 #4c2c19;cursor:pointer;touch-action:manipulation
+}
+.word-hunt-title{min-width:0;flex:1}
+.word-hunt-title small{display:block;color:#8b6b3f;font-size:11px;font-weight:950;letter-spacing:.08em;text-transform:uppercase}
+.word-hunt-title h1{margin:2px 0 0;font-size:clamp(26px,4.2vw,40px);line-height:1;letter-spacing:-.04em;color:#29425c}
+.word-hunt-fox{width:76px;height:76px;object-fit:contain;filter:drop-shadow(0 7px 5px rgba(64,48,34,.18))}
+.word-hunt-intro{
+  margin:15px 0 13px;padding:12px 14px;border:2px solid #f1d698;border-radius:18px;background:#fff2c6;
+  color:#725532;font-size:13px;font-weight:850;line-height:1.4
+}
+.word-hunt-levels{display:flex;gap:8px;margin-bottom:13px}
+.word-hunt-level{
+  min-height:44px;padding:9px 14px;border:2px solid #d7c29a;border-radius:14px;background:#fffaf0;color:#6a5d4b;
+  font:inherit;font-size:12px;font-weight:950;cursor:pointer;touch-action:manipulation
+}
+.word-hunt-level.active{background:#dff0cb;border-color:#9db979;color:#345837;box-shadow:0 3px 0 #b4cb96}
+.word-hunt-board-wrap{
+  display:grid;grid-template-columns:minmax(0,1fr) 225px;gap:16px;align-items:start
+}
+.word-hunt-board-card{
+  padding:15px;border:3px solid #b17c45;border-radius:25px;background:
+  repeating-linear-gradient(0deg,rgba(107,62,28,.03) 0 11px,rgba(107,62,28,.08) 12px,transparent 14px),
+  linear-gradient(145deg,#e6b872,#f5d998);
+  box-shadow:0 7px 0 #7e522e,0 14px 28px rgba(66,49,34,.18)
+}
+.word-hunt-board{
+  --size:6;display:grid;grid-template-columns:repeat(var(--size),1fr);gap:7px;
+  touch-action:none;user-select:none
+}
+.word-hunt-cell{
+  aspect-ratio:1;border:2px solid #d2b77e;border-radius:14px;background:#fffaf0;color:#2f4761;
+  display:grid;place-items:center;padding:0;font:inherit;font-size:clamp(19px,4vw,32px);font-weight:1000;
+  box-shadow:0 4px 0 #c8a96c;cursor:pointer;transition:transform .08s,background .12s,box-shadow .12s
+}
+.word-hunt-cell.preview{background:#fff0a8;border-color:#e4b848;box-shadow:0 4px 0 #d2a233,0 0 0 3px rgba(255,219,84,.2)}
+.word-hunt-cell.anchor{background:#dfeeff;border-color:#8cb2e3;box-shadow:0 4px 0 #7ea1ca}
+.word-hunt-cell.found{background:#d9f0c7;border-color:#8cb36f;color:#315537;box-shadow:0 4px 0 #7fa460}
+.word-hunt-cell:focus-visible{outline:4px solid #6f83dc;outline-offset:2px}
+.word-hunt-side{display:grid;gap:12px}
+.word-hunt-targets{
+  padding:14px;border:3px solid #c99b57;border-radius:22px;background:linear-gradient(145deg,#fff2c9,#fff9e4);
+  box-shadow:0 6px 0 #a36e38
+}
+.word-hunt-targets h2{margin:0 0 9px;font-size:17px;color:#654a2e}
+.word-hunt-words{display:flex;flex-wrap:wrap;gap:7px}
+.word-hunt-word{
+  display:inline-flex;align-items:center;gap:5px;padding:7px 9px;border-radius:999px;background:#fff;border:2px solid #edd6aa;
+  color:#5b4d3d;font-size:12px;font-weight:950
+}
+.word-hunt-word.found{background:#dff1ce;border-color:#9bbb7c;color:#3b623d;text-decoration:line-through}
+.word-hunt-status{
+  min-height:72px;padding:13px;border:3px solid #8e6742;border-radius:20px;background:#f5dfb7;color:#5c452d;
+  font-size:13px;font-weight:850;line-height:1.45;box-shadow:0 5px 0 #715038
+}
+.word-hunt-status strong{display:block;font-size:16px;color:#3e4c42;margin-bottom:3px}
+.word-hunt-actions{display:grid;gap:8px}
+.word-hunt-new{
+  min-height:48px;border:0;border-radius:16px;background:#ffd75f;color:#554219;font:inherit;font-weight:1000;
+  box-shadow:0 5px 0 #c79b2f;cursor:pointer;touch-action:manipulation
+}
+.word-hunt-rounds{text-align:center;color:#7a6a52;font-size:10px;font-weight:850}
+.word-hunt-success{animation:wordHuntPop .55s ease}
+@keyframes wordHuntPop{50%{transform:scale(1.025);filter:brightness(1.08)}}
+@media(max-width:700px){
+  .word-hunt-shell{width:100%;min-height:100svh;margin:0;padding:12px;border:0;border-radius:0}
+  .word-hunt-top{gap:9px}.word-hunt-back{width:44px;height:44px;border-radius:14px}
+  .word-hunt-fox{width:58px;height:58px}.word-hunt-intro{font-size:11px;margin:10px 0}
+  .word-hunt-board-wrap{grid-template-columns:1fr;gap:11px}
+  .word-hunt-board-card{padding:10px;border-radius:20px}.word-hunt-board{gap:5px}
+  .word-hunt-cell{border-radius:11px;font-size:clamp(17px,7vw,27px)}
+  .word-hunt-side{grid-template-columns:1fr 1fr;gap:8px}
+  .word-hunt-targets{padding:10px;border-radius:17px}.word-hunt-targets h2{font-size:14px}
+  .word-hunt-word{font-size:10px;padding:5px 7px}.word-hunt-status{min-height:auto;padding:10px;font-size:11px;border-radius:17px}
+  .word-hunt-status strong{font-size:13px}.word-hunt-actions{grid-column:1/-1}.word-hunt-new{min-height:45px}
+}
+@media(max-width:350px){
+  .word-hunt-board{gap:4px}.word-hunt-cell{border-radius:9px}.word-hunt-side{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){.word-hunt-cell,.word-hunt-success{animation:none!important;transition:none!important}}
