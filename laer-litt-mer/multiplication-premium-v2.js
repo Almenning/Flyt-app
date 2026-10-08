@@ -108,7 +108,7 @@ function patterns(a){
 function factorPairs(v){const pairs=[];for(let a=1;a<=MAX;a++){let b=v/a;if(Number.isInteger(b)&&b<=MAX)pairs.push([a,b])}return pairs}
 function exploreTable(){
  const a=stateBox.row,b=stateBox.col,product=a*b;
- let html='<div class="mp-table-instruction">Sveip sidelengs for å utforske hele tabellen.</div><div class="mp-table-viewport" role="region" aria-label="Interaktiv 10 ganger 10-tabell" tabindex="0"><table class="mp-times-grid"><thead><tr><th class="corner">×</th>';
+ let html='<div class="mp-table-instruction">Trykk på et tall. Sveip sidelengs for å se flere kolonner.</div><div class="mp-table-viewport" role="region" aria-label="Interaktiv 10 ganger 10-tabell" tabindex="0"><table class="mp-times-grid"><thead><tr><th class="corner">×</th>';
  for(let c=1;c<=MAX;c++)html+='<th class="'+(c===b?'axis':'')+'">'+c+'</th>';
  html+='</tr></thead><tbody>';
  for(let r=1;r<=MAX;r++){html+='<tr><th scope="row" class="'+(r===a?'axis':'')+'">'+r+'</th>';for(let c=1;c<=MAX;c++)html+='<td>'+btn('cell',String(r*c),'mp-grid-cell '+(r===a&&c===b?'selected':r===a?'row':c===b?'col':r*c===product?'same':''),'data-row="'+r+'" data-col="'+c+'" aria-label="'+r+' ganger '+c+' er '+(r*c)+'"')+'</td>';html+='</tr>';}
