@@ -28,12 +28,13 @@ const {chromium,webkit}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
   const bootStarted=Date.now();
   await page.goto(targetUrl,{waitUntil:engineName==='chromium'&&name==='iphone'?'domcontentloaded':'networkidle'});
   try{
+    const bootTimeout=engineName==='webkit'?20000:10000;
     await page.waitForFunction(()=>{
       const host=document.querySelector('.bc12'),screen=document.getElementById('home-screen');
       const globe=host?.querySelector('.bc12-place[data-camp="globe"]');
       return !!(host&&screen?.classList.contains('active')&&!host.hidden&&
         window.LARIA_BASECAMP_DIAG?.render&&globe&&!globe.disabled);
-    },null,{timeout:10000});
+    },null,{timeout:bootTimeout});
   }catch(err){
     const boot=await page.evaluate(()=>({
       href:location.href,
@@ -41,6 +42,8 @@ const {chromium,webkit}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
       onboarding:document.getElementById('onboarding')?.className||null,
       bc12Count:document.querySelectorAll('.bc12').length,
       bc12Hidden:document.querySelector('.bc12')?.hidden??null,
+      globeCount:document.querySelectorAll('.bc12-place[data-camp="globe"]').length,
+      globeDisabled:document.querySelector('.bc12-place[data-camp="globe"]')?.disabled??null,
       profile:JSON.parse(localStorage.getItem('laerlittmer-v2')||'null')?.profile||null,
       ready:document.readyState,
       bodyClass:document.body?.className||'',
