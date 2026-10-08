@@ -49,6 +49,20 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium webkit
 
+      - name: Verify premium multiplication in Chromium and WebKit
+        env:
+          QA_SCREENSHOTS: /tmp/laria-multiplication-v2
+        run: node tests/laria-multiplication-premium.playwright.js
+
+      - name: Upload premium multiplication screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-multiplication-v2-${{ github.sha }}
+          path: /tmp/laria-multiplication-v2
+          if-no-files-found: warn
+          retention-days: 7
+
       - name: Start exact-head local server
         run: |
           python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/laria-http.log 2>&1 &
