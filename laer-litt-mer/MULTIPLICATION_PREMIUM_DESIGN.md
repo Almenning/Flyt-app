@@ -1,14 +1,14 @@
 # Læria: Gangetabellen, låst produkt- og designkontrakt
 
-Oppdatert 8. oktober 2026. Designreferanse: seks godkjente illustrasjoner i Laria_Gangetabell_Designpakke.zip (leverte originalbilder). Implementeringsfiler: multiplication-premium-v2.js og multiplication-premium-v2.css.
+Oppdatert 8. oktober 2026. Brukerjustering: Utforsk og lek skal vise 10 x 10-tabellen umiddelbart, som første valg. Denne overstyrer den tidligere 12 x 12-illustrasjonen. Designreferanse: seks godkjente illustrasjoner i Laria_Gangetabell_Designpakke.zip (leverte originalbilder). Implementeringsfiler: multiplication-premium-v2.js og multiplication-premium-v2.css.
 
 ## Seks skjermer
 
 1. **Oversikt**: Læria-logo, illustrert læringsreise, tre store valgmuligheter med tydelige ulike fargetoner, rev, støttebobler og fire internnavigasjonsvalg.
 2. **Øv**: åtte oppgaver, én av gangen; synlige illustrerte like grupper og riktig multiplikasjonsstykke, valgfri forklaring, les-opp, store taktile svarvalg, vennlig respons ved feil, Neste-knapp og øktoppsummering.
-3. **Velg tabell**: visuelt rutenett for 2–10 med valgfri utvidelse 1/11/12; anbefalt tabell; ingen låste tabeller. Progresjon må baseres på ulike faktastykker, ikke antall tilfeldige riktige svar.
-4. **Utforsk**: grupper, rutenett, tallinje, bytt plass, mønstre og tabell. Endre faktorer 1–12 med store pluss/minus-knapper, se matematisk korrekt visuelt resultat umiddelbart.
-5. **12×12-tabell**: tilgjengelig i Utforsk, horisontalt scrollområde på telefon, sticky rad-/kolonnehoder, valgt felt, multiplikasjonslikning, omvendt rekkefølge og korrekte faktorpar i 1–12-tabellen.
+3. **Velg tabell**: visuelt rutenett for 1–10, alltid tilgjengelig; anbefalt tabell; ingen låste tabeller. Progresjon må baseres på ulike faktastykker, ikke antall tilfeldige riktige svar.
+4. **Utforsk**: 10 x 10-tabellen åpnes automatisk og er første valg. Videre kommer grupper, rutenett, tallinje, bytt plass og mønstre. Endre faktorer 1–10 med store pluss/minus-knapper, se matematisk korrekt visuelt resultat umiddelbart.
+5. **10×10-tabell**: standardvisning når Utforsk og lek åpnes. Viser radene og kolonnene 1–10, 100 produkter, eget scrollområde på telefon, sticky rad-/kolonnehoder, valgt felt, multiplikasjonslikning, omvendt rekkefølge og faktorpar innen 1–10.
 6. **Min mestring**: dagens aktivitet og faktisk sammenhengende øvingsdager, fremgang per tabell, åpent innhold som aldri låses, opptjente stjerner og vennlige anbefalinger.
 
 ## Låst visuell retning
