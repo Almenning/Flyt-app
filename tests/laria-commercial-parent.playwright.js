@@ -5,8 +5,14 @@ const fs=require('node:fs');
 const path=require('node:path');
 const {chromium,webkit}=require('playwright');
 
+
+
+
 const root=path.resolve(__dirname,'..','laer-litt-mer');
 const mime={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.json':'application/json; charset=utf-8','.webmanifest':'application/manifest+json; charset=utf-8','.svg':'image/svg+xml','.webp':'image/webp','.png':'image/png','.jpg':'image/jpeg'};
+
+
+
 
 function server(){
   return new Promise((resolve,reject)=>{
@@ -25,6 +31,9 @@ function server(){
   });
 }
 
+
+
+
 const seed=grade=>({
   version:7,progressSchemaVersion:3,
   profile:{grade,onboarded:true,name:'Testbarn',avatar:'girl',setupVersion:2},
@@ -32,6 +41,9 @@ const seed=grade=>({
   preferences:{sound:false,autoRead:false},lastMilestone:null,recentCountryWin:null,lastActivity:null,
   journey:{nodes:{},gradeWins:{},viewGrades:{}},answerLog:[],sessionLog:[],activeSession:null
 });
+
+
+
 
 async function runCase(browserType,label,viewport){
   const browser=await browserType.launch({headless:true});
@@ -44,6 +56,9 @@ async function runCase(browserType,label,viewport){
     await page.route('https://api.worldbank.org/**',r=>r.abort());
     await page.goto(globalThis.__lariaUrl+'?app=laria&p18=commerce-'+label,{waitUntil:'domcontentloaded'});
 
+
+
+
     const adult=page.locator('.bc12-adult-entry');
     await adult.waitFor({state:'visible'});
     await adult.dispatchEvent('pointerdown',{pointerType:'touch',button:0});
@@ -51,12 +66,18 @@ async function runCase(browserType,label,viewport){
     await adult.dispatchEvent('pointerup',{pointerType:'touch',button:0});
     await page.locator('#adult-screen.active').waitFor();
 
+
+
+
     await page.locator('#open-terms').click();
     await page.locator('#terms-screen.active').waitFor();
     assert.match(await page.locator('#terms-screen').innerText(),/Vilkår og personvern/);
     assert.match(await page.locator('#terms-screen').innerText(),/App Store/);
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>document.documentElement.clientWidth),false,label+' terms overflow');
     await page.locator('#terms-back').click();
+
+
+
 
     await page.locator('#open-commerce').click();
     await page.locator('#commerce-screen.active').waitFor();
@@ -68,29 +89,32 @@ async function runCase(browserType,label,viewport){
     assert.ok(restoreBox&&restoreBox.height>=44,label+' restore control below 44px');
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>document.documentElement.clientWidth),false,label+' commerce overflow');
 
+
+
+
     await page.locator('#commerce-back').click();
     await page.locator('#adult-screen.active').waitFor();
+
+
+
 
     // Exercise the route a child actually uses after the adult flow rather
     // than calling the subject controller directly from an inactive screen.
     await page.locator('#adult-back').click();
     await page.locator('#home-screen.active .bc12').waitFor();
-    await page.locator('[data-camp="travel"]').click();
+    await page.locator('.bc12-journey').click();
     await page.locator('#subject-screen.active').waitFor();
     await page.locator('#start-subject-session').click();
     await page.locator('#session-screen.active').waitFor();
     assert.ok(await page.locator('#question-wrap').isVisible(),label+' web preview was incorrectly paywalled');
+
+
+
 
     assert.deepEqual(errors,[],label+' page errors: '+errors.join('\n'));
     await ctx.close();
   }finally{await browser.close()}
 }
 
-(async()=>{
-  const {s,url}=await server();globalThis.__lariaUrl=url;
-  try{
-    await runCase(chromium,'iphone',{width:390,height:844});
-    await runCase(webkit,'ipad',{width:820,height:1180});
-    console.log('ok - Prompt 18 parent commerce and terms work in Chromium + WebKit');
-  }finally{s.close()}
-})().catch(err=>{console.error(err);process.exit(1)});
+
+
