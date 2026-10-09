@@ -40,11 +40,14 @@ async function run(browser,engine,label,viewport,url){
        plaqueWithinArt:plaque.y>=art.y&&plaque.bottom<=art.bottom+2,
        objectInside:!!first&&first.x>=art.x-2&&first.right<=art.right+2};
     });
+    const borderStyle=stage?getComputedStyle(stage):null;
+    const frame=stage?.getBoundingClientRect();
+    const innerWidth=frame?frame.width-parseFloat(borderStyle.borderLeftWidth)-parseFloat(borderStyle.borderRightWidth):0;
     return {painted:!!painted,numberOfScenicDetails:painted?.querySelectorAll('path,ellipse,circle,rect').length||0,
-      stageWidth:stage?.getBoundingClientRect().width||0,sceneryWidth:painted?.getBoundingClientRect().width||0,boxes};
+      stageWidth:frame?.width||0,stageInnerWidth:innerWidth,sceneryWidth:painted?.getBoundingClientRect().width||0,boxes};
   });
   assert.ok(gallery.painted&&gallery.numberOfScenicDetails>95,label+' requires a detailed, actual illustrated storybook landscape '+JSON.stringify(gallery));
-  assert.ok(Math.abs(gallery.stageWidth-gallery.sceneryWidth)<3,label+' scenic background must not be stretched outside stage');
+  assert.ok(Math.abs(gallery.stageInnerWidth-gallery.sceneryWidth)<3,label+' scenic background must fit INNER stage without stretching: '+JSON.stringify(gallery));
   assert.ok(gallery.boxes.every(x=>x.width>=75&&x.actionsTop>=x.bottom+3&&x.plaqueWithinArt&&x.objectInside),
       label+' all counting controls must be clearly separated from physical containers: '+JSON.stringify(gallery.boxes));
   assert.ok(Math.max(...gallery.boxes.map(x=>x.top))-Math.min(...gallery.boxes.map(x=>x.top))<=3,
