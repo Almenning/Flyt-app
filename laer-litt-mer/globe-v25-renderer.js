@@ -727,10 +727,11 @@ function premiumDraw(){
   paintCountryBorders(ctx,w,h,s);
 
   let selectionAnimating=false;
-  if(!moving){
-    waterDetails(ctx,w,h,s);
-    discoveryDetails(ctx,w,h,s);
-  }
+  /* Keep inexpensive georeferenced ships, clouds and discovery markers
+     present during one-finger rotation and pinch. Only the costly polygon
+     clipping / watercolor texture passes are paused while moving. */
+  waterDetails(ctx,w,h,s);
+  discoveryDetails(ctx,w,h,s);
   if(!moving)selectionAnimating=selectedHalo(ctx,w,h,s);
   if(!moving&&typeof globeMode==='string'&&globeMode==='mine'&&typeof WORLD_COUNTRIES!=='undefined'&&typeof drawMasteryMarker==='function'){
     for(const c of WORLD_COUNTRIES)drawMasteryMarker(ctx,c,w,h);
