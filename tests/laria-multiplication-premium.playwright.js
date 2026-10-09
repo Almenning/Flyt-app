@@ -58,6 +58,12 @@ async function testView(browser,engine,label,viewport,url){
   const initial=snap.round[0];assert.equal(await page.locator('.mp-apple-basket').count(),initial.a);assert.equal(await page.locator('.mp-apple').count(),initial.a*initial.b,'visual groups disagree with math');
    assert.equal(await page.locator('.mp3-item').count(),initial.a*initial.b,'illustrated objects must match multiplication');
    assert.equal(await page.locator('.mp3-basket').count(),initial.a);
+   const mushroomLabel=await page.locator('.mp3-theme[data-theme="mushroom"]>span:last-child').evaluate(el=>{
+     const css=getComputedStyle(el);
+     return {height:el.getBoundingClientRect().height,lineHeight:parseFloat(css.lineHeight),text:el.textContent.trim()};
+   });
+   assert.equal(mushroomLabel.text,'Eventyrsopp');
+   assert.ok(mushroomLabel.height<=mushroomLabel.lineHeight*1.3,label+' Eventyrsopp picker must stay on one line: '+JSON.stringify(mushroomLabel));
    for(const theme of ['bun','mushroom','apple','strawberry']){
      await page.locator('[data-mp-action="theme"][data-theme="'+theme+'"]').click();
      assert.equal(await page.locator('.mp3-item').count(),initial.a*initial.b,'theme '+theme+' changed the visible count');
@@ -113,6 +119,8 @@ async function testView(browser,engine,label,viewport,url){
   for(let n=startFactors.a;n<3;n++)await page.locator('[data-mp-action="factor"][data-factor="a"][data-step="1"]').click();
   for(let n=startFactors.b;n<10;n++)await page.locator('[data-mp-action="factor"][data-factor="b"][data-step="1"]').click();
   assert.match(await page.locator('.mp-math-result').innerText(),/3 × 10/);
+  const resultInk=await page.locator('.mp-math-result b').evaluate(el=>getComputedStyle(el).color);
+  assert.equal(resultInk,'rgb(85, 48, 37)',label+' dark answer ink is required on the warm wood sign');
   assert.equal(await page.locator('.mp3-basket').count(),3,'3 × 10 needs three physically separate groups');
   assert.deepEqual(await page.locator('.mp3-basket').evaluateAll(els=>els.map(el=>el.querySelectorAll('.mp3-item').length)),[10,10,10]);
 
