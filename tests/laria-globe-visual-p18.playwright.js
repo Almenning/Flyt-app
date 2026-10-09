@@ -114,7 +114,8 @@ async function capture(browserType,label,viewport){
       const statusBox=document.querySelector('.globe-status')?.getBoundingClientRect();
       return {
         screen:{w:screen.width,h:screen.height},
-        canvas:{w:canvas.width,h:canvas.height,opacity:Number(getComputedStyle(canvasEl).opacity||1)},
+        canvas:{w:canvas.width,h:canvas.height,opacity:Number(getComputedStyle(canvasEl).opacity||1),
+          bitmapW:canvasEl.width,bitmapH:canvasEl.height,dpr:canvasEl._dpr||1},
         mode:{w:mode.width,h:mode.height},
         back:{w:back.width,h:back.height},
         zoomIn:{w:zoomIn.width,h:zoomIn.height},
@@ -203,6 +204,12 @@ async function capture(browserType,label,viewport){
     const minGlobeWidth=viewport.width<600?viewport.width*.84:(viewport.width>viewport.height?viewport.height*.52:viewport.width*.68);
     assert.ok(metrics.canvas.w+0.75>=minGlobeWidth,label+' globe too narrow for locked composition: '+metrics.canvas.w+' < '+minGlobeWidth);
     assert.ok(metrics.canvas.h>=300,label+' globe too short: '+metrics.canvas.h);
+    // A round globe is non-negotiable: CSS and backing bitmap must use the
+    // same proportions on iPhone, iPad and landscape desktop Safari.
+    assert.ok(Math.abs(metrics.canvas.w-metrics.canvas.h)<=1,
+      label+' globe has been visually stretched: '+JSON.stringify(metrics.canvas));
+    assert.ok(Math.abs(metrics.canvas.bitmapW/metrics.canvas.bitmapH-metrics.canvas.w/metrics.canvas.h)<.01,
+      label+' canvas bitmap ratio disagrees with CSS globe ratio: '+JSON.stringify(metrics.canvas));
     assert.ok(metrics.back.h>=44,label+' globe back control below 44px');
     assert.ok(metrics.mode.h>=44,label+' globe mode control below 44px');
     assert.ok(metrics.zoomIn.h>=44&&metrics.zoomIn.w>=44,label+' zoom-in control below 44px');
