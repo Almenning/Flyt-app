@@ -26,8 +26,8 @@ test('globe pinch keeps a geographic anchor and hands back to one-finger drag',(
 test('globe motion release rotates Safari cache keys',()=>{
   const index=read('laer-litt-mer/index.html');
   const sw=read('laer-litt-mer/sw.js');
-  assert.match(index,/globe36-refpalette2/);
-  assert.match(sw,/globe36-refpalette2/);
+  assert.match(index,/globe36-pigment3/);
+  assert.match(sw,/globe36-pigment3/);
 });
 
 test('visible globe land uses authoritative geographic boundaries, not a decorative image',()=>{
@@ -62,4 +62,18 @@ test('approved globe v36 continent palette is geographical and vibrant',()=>{
     assert.ok(renderer.includes(pair),'missing locked globe continent palette '+pair);
   }
   assert.match(renderer,/__LARIA_GLOBE_RENDER_SOURCE='country-geometry'/,'v36 palette must not restore misregistered mock-up');
+});
+
+test('globe surface detail stays georeferenced during rotation and zoom',()=>{
+  const renderer=read('laer-litt-mer/globe-v25-renderer.js');
+  const ocean=renderer.slice(renderer.indexOf('function ocean('),renderer.indexOf('function continentGradient('));
+  assert.match(ocean,/const p=project\(lon,lat,w,h\)/,
+    'ocean highlights must follow globe projection instead of sticking to screen');
+  assert.doesNotMatch(ocean,/ctx\.arc\(w\*ax,h\*ay/,
+    'painted water highlights may not stay fixed as the globe rotates');
+  assert.match(renderer,/paintContinents\(ctx,w,h,s\)/,
+    'geographic country fill must remain the active visual surface');
+  assert.match(renderer,/if\(!moving\)paintLandDepth\(ctx,w,h,s\)/,
+    'expensive depth pass must stay outside active gesture frames');
+  assert.match(renderer,/__LARIA_GLOBE_RENDER_SOURCE='country-geometry'/);
 });
