@@ -79,6 +79,12 @@ async function capture(browserType,label,viewport){
     await page.waitForFunction(()=>typeof openGlobe==='function'&&document.getElementById('globe-canvas'));
     await page.evaluate(()=>openGlobe());
     await page.locator('#world-screen.active').waitFor();
+    // Spherical-geometry regression applies to the explicitly retained Kloden mode.
+    // Utforsk and Min verden now present a separate, correct interactive atlas.
+    await page.waitForFunction(()=>window.LARIA_ATLAS_PERSPECTIVE?.snapshot().active===true);
+    assert.equal(await page.locator('#atlas-canvas').isVisible(),true,label+' atlas not active by default');
+    await page.locator('[data-globe-mode="classic"]').click();
+    await page.waitForFunction(()=>document.querySelector('#world-screen.active').dataset.mapPerspective==='globe');
     await page.waitForFunction(()=>{
       const c=document.getElementById('globe-canvas'),r=c?.getBoundingClientRect();
       return r&&r.width>250&&r.height>250;
