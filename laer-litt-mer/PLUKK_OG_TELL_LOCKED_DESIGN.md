@@ -117,3 +117,14 @@ Dette styrer førstesiden foran de tidligere godkjente funksjonsforslagene:
 - Respekter `prefers-reduced-motion`. Nærvisningen skal beholde tastatur, fokus, Esc-lukking og store berøringsflater.
 - De eksisterende 10 × 10- og Brøklab-funksjonene samt kloden får ingen endring i denne runden.
 - Denne runden er et målbart kvalitetssteg, ikke en erklæring om full visuell identitet med låste konseptillustrasjoner.
+
+## Premium materiale- og objektpass v5
+Status: utviklings- og regressjonsport. Ingen endring i matematikkmotor eller læreprogresjon.
+
+- Alle **ti** miljøer beholder én tellbar og selvstendig SVG-gjenstand per faktisk objekt, med stabile ID-er.
+- Miniatyrillustrasjonene får mer naturtro former, flere graderinger, lysfall, skygge og materialdetaljer. Jordbær har blader, mange frø, uregelmessig silhuett og opplyste flater; bollene har bakte kanter og spiral; soppene har hatt, prikker, stilk og lameller; resten har tilsvarende materialkarakter.
+- SVG-gradientnavn må være unike på siden, også når nærvisningen viser samme objekt som den lille kurven. Objektets form må ikke strekkes på iPhone/iPad.
+- Wicker er flettet med lys-/skyggevariasjon; bakerbrett, soppekasser, skattkister og akvarier får egne materialer. Antallsmerket er synlig og kontroller legges utenfor illustrasjonen.
+- Scenens øvrige dekorasjon må ikke ligne ekstra tellbare objekter; natur og tekstur kan være rik uten at barnet blir usikker på hvor mange som skal telles.
+- Første visning for 1.–2. trinn forblir to store grupper med tre gjenstander, kun et enkelt oppdrag. De øvrige funksjonene åpnes frivillig.
+- Skjermbilder kreves fra WebKit både for første jordbærrunde og bakeriet etter «Bytt motiv», deretter valgte øvrige miljøer og nærvisning. Teknisk grønt er ikke lik kunstnerisk godkjent: låste illustrasjoner skal fortsatt brukes til kvalitetssammenligning.

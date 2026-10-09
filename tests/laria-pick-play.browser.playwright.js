@@ -38,6 +38,18 @@ async function run(browser,engine,label,viewport,url){
   assert.equal(await page.locator('[data-pick-action="empty"]').count(),0,'empty basket action is not shown');
   const simpleButtons=await page.locator('.mp-pick-easy-actions button').evaluateAll(els=>els.map(el=>el.getBoundingClientRect().height));
   assert.ok(simpleButtons.length===3&&simpleButtons.every(n=>n>=44),label+' needs only three large simple controls');
+  // Premium v5: individual storybook-shaped, uniquely painted objects.
+  const newArt=await page.locator('.mp-pick-vessel .mp-pick-story-object').evaluateAll(els=>({
+    count:els.length,viewboxes:els.map(el=>el.getAttribute('viewBox')),
+    details:els.map(el=>el.querySelectorAll('path,ellipse,circle').length),
+    gradientIds:els.flatMap(el=>[...el.querySelectorAll('defs [id]')].map(e=>e.id)),
+    sizes:els.map(el=>{const r=el.getBoundingClientRect();return {width:r.width,height:r.height}})
+  }));
+  assert.equal(newArt.count,6,label+' initial 2x3 needs six painted fruit');
+  assert.ok(newArt.viewboxes.every(x=>x==='0 0 80 90'),label+' maintain fruit vector proportions');
+  assert.ok(newArt.details.every(n=>n>=23),label+' need leaves, seeds, shades and highlights');
+  assert.equal(newArt.gradientIds.length,new Set(newArt.gradientIds).size,label+' avoid duplicate paint IDs');
+  assert.ok(newArt.sizes.every(v=>v.width>=28&&v.height>=30),label+' illustrated fruit must be legible');
   if(engine==='webkit')await image(page,label+'-00-simple-2x3');
 
   const firstToken=await page.locator('.mp-pick-vessel[data-group="0"] .mp-pick-object').first().getAttribute('data-token');
@@ -53,6 +65,8 @@ async function run(browser,engine,label,viewport,url){
   assert.match(await page.locator('.mp-pick-equation').innerText(),/3 × 2 = 6/);
   await page.locator('[data-pick-action="worldNext"]').click();
   assert.equal((await snapshot(page)).world,'bun','one button changes the illustration without opening ten options');
+  assert.equal(await page.locator('.mp-pick-vessel .mp-pick-story-object').count(),6,'bakery has six individually drawn buns');
+  if(engine==='webkit')await image(page,label+'-00b-simple-bakery-3x2');
   assert.equal((await snapshot(page)).total,6);
   await page.locator('[data-pick-action="reset"]').click();
   assert.deepEqual((await snapshot(page)).counts,[2,2,2],'restart means retry the current round');
@@ -180,6 +194,7 @@ async function run(browser,engine,label,viewport,url){
     assert.equal(await page.locator('.mp-pick-screen').getAttribute('data-pick-world'),world);
     assert.equal((await snapshot(page)).total,27,'world switch changed multiplication');
     assert.equal(await page.locator('.mp-pick-object').count(),27,'world art count differs from maths');
+    assert.equal(await page.locator('.mp-pick-vessel .mp-pick-story-object').count(),27,label+' each world contains exactly the count of individual painted objects');
     if(engine==='webkit'&&label==='iphone-safari'&&['bun','mushroom','aquarium'].includes(world)){
       await page.locator('.mp-pick-vessel[data-group="1"] [data-pick-action="zoom"]').click();
       assert.equal(await page.locator('.mp-pick-zoom-landscape svg.mp-pick-storyscape').count(),1,
