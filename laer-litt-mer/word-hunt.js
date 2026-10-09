@@ -9,31 +9,53 @@ function saveRound(){const s=stats();s.rounds=Number(s.rounds||0)+1;localStorage
 function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b}
 function dirSet(){return ui.level==='easy'?[[0,1],[1,0]]:[[0,1],[1,0],[0,-1],[-1,0],[1,1],[1,-1],[-1,1],[-1,-1]]}
 function makeRound(){
-  ui.size=ui.level==='easy'?6:7;ui.found=new Map();ui.completed=false;ui.tapStart=null;ui.drag=null;
+  ui.size=ui.level==='easy'?6:7;
+  ui.found=new Map();ui.completed=false;ui.tapStart=null;ui.drag=null;
   const pool=shuffle(ui.level==='easy'?EASY_WORDS:HARD_WORDS).filter(w=>w.length<=ui.size);
   const count=ui.level==='easy'?4:5;
   const recent=new Set(ui.recentWords||[]);
-  const requested=[...pool.filter(w=>!recent.has(w)),...pool.filter(w=>recent.has(w))].slice(0,count),placedWords=[];
-  ui.words=requested;
-  ui.grid=Array.from({length:ui.size},()=>Array(ui.size).fill(''));
+  const requested=[...pool.filter(w=>!recent.has(w)),...pool.filter(w=>recent.has(w))].slice(0,count);
   const dirs=dirSet();
-  for(const word of requested){
-    let placed=false;
-    for(let tries=0;tries<220&&!placed;tries++){
-      const [dr,dc]=dirs[Math.floor(Math.random()*dirs.length)],r=Math.floor(Math.random()*ui.size),c=Math.floor(Math.random()*ui.size);
-      const er=r+dr*(word.length-1),ec=c+dc*(word.length-1);
-      if(er<0||ec<0||er>=ui.size||ec>=ui.size)continue;
-      let ok=true;
-      for(let i=0;i<word.length;i++){const rr=r+dr*i,cc=c+dc*i,ch=ui.grid[rr][cc];if(ch&&ch!==word[i]){ok=false;break}}
-      if(!ok)continue;
-      for(let i=0;i<word.length;i++)ui.grid[r+dr*i][c+dc*i]=word[i];
-      placed=true;placedWords.push(word);
+  let board=null;
+  // Rebuild the entire round, never silently drop a word when random placement fails.
+  for(let build=0;build<36&&!board;build++){
+    const trial=Array.from({length:ui.size},()=>Array(ui.size).fill(''));
+    let fits=true;
+    for(const word of [...requested].sort((a,b)=>b.length-a.length)){
+      let placed=false;
+      for(let tries=0;tries<160&&!placed;tries++){
+        const [dr,dc]=dirs[Math.floor(Math.random()*dirs.length)];
+        const r=Math.floor(Math.random()*ui.size),c=Math.floor(Math.random()*ui.size);
+        const er=r+dr*(word.length-1),ec=c+dc*(word.length-1);
+        if(er<0||ec<0||er>=ui.size||ec>=ui.size)continue;
+        let ok=true;
+        for(let i=0;i<word.length;i++){
+          const rr=r+dr*i,cc=c+dc*i,ch=trial[rr][cc];
+          if(ch&&ch!==word[i]){ok=false;break}
+        }
+        if(!ok)continue;
+        for(let i=0;i<word.length;i++)trial[r+dr*i][c+dc*i]=word[i];
+        placed=true;
+      }
+      if(!placed){fits=false;break}
     }
+    if(fits)board=trial;
   }
-  ui.words=placedWords;
-  if(ui.words.length<3){makeRound();return}
+  // Guaranteed, still playable fallback with separate rows, even under an
+  // unfavorable random generator or an unusually difficult set of words.
+  if(!board){
+    board=Array.from({length:ui.size},()=>Array(ui.size).fill(''));
+    requested.forEach((word,row)=>{
+      const backward=ui.level==='hard'&&row%2===1;
+      for(let i=0;i<word.length;i++)board[row][backward?ui.size-1-i:i]=word[i];
+    });
+  }
+  ui.words=requested;
+  ui.grid=board;
   ui.recentWords=[...ui.words];
-  for(let r=0;r<ui.size;r++)for(let c=0;c<ui.size;c++)if(!ui.grid[r][c])ui.grid[r][c]=LETTERS[Math.floor(Math.random()*LETTERS.length)];
+  for(let r=0;r<ui.size;r++)for(let c=0;c<ui.size;c++){
+    if(!ui.grid[r][c])ui.grid[r][c]=LETTERS[Math.floor(Math.random()*LETTERS.length)];
+  }
 }
 function overlay(){
   let root=document.getElementById('word-hunt-overlay');if(root)return root;
