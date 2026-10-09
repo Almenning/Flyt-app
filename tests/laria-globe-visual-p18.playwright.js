@@ -164,8 +164,25 @@ async function capture(browserType,label,viewport){
       assert.ok(layout.tagline.bottom<=layout.country.bottom-3,label+' country tagline clipped by status card: '+JSON.stringify(layout));
     }
     if(viewport.width>=900&&viewport.width>viewport.height){
-      assert.ok(layout.modes.bottom+3<=layout.globe.top,label+' mode tabs collide with rotating globe: '+JSON.stringify(layout));
-      assert.ok(layout.globe.bottom+3<=layout.country.top,label+' globe collides with land card: '+JSON.stringify(layout));
+      assert.ok(layout.modes.bottom+3<=layout.globe.top,
+        label+' mode tabs collide with rotating globe: '+JSON.stringify(layout));
+      if(viewport.height>=701){
+        // In the locked reference the country card overlaps the lower
+        // hemisphere on purpose, sitting IN FRONT of the living globe.
+        const overlap=layout.globe.bottom-layout.country.top;
+        assert.ok(overlap>=15&&overlap<layout.globe.height*.31,
+          label+' reference hero globe scale/overlap missing or excessive: '+JSON.stringify({overlap,layout}));
+        assert.ok(layout.globe.width>=viewport.height*.55,
+          label+' hero sphere still too small compared with locked design: '+JSON.stringify(layout));
+        const cardIsInFront=await page.evaluate(({x,y})=>{
+          const el=document.elementFromPoint(x,y);
+          return !!el?.closest('#globe-status');
+        },{x:(layout.country.left+layout.country.right)/2,y:layout.country.top+Math.min(16,overlap/2)});
+        assert.ok(cardIsInFront,label+' card must mask the bottom of the globe without blocking its upper interaction area');
+      }else{
+        assert.ok(layout.globe.bottom+3<=layout.country.top,
+          label+' compact landscape must keep action area clear');
+      }
     }
     // Child-facing text must stay legible on the physical country card.
     const readability=await page.evaluate(()=>{
@@ -244,6 +261,19 @@ async function capture(browserType,label,viewport){
     assert.ok(projectionSync.latDiff<.12,label+' pinch anchor latitude drifted: '+projectionSync.latDiff);
 
     assert.equal(projectionSync.renderSource,'country-geometry',label+' must draw visible land from real country polygons');
+    // v37: capture the ACTUAL MOVING frame. Historically the static screen was
+    // richly painted, but while dragging, countries suddenly went flat.
+    if(label==='webkit-iphone'||label==='webkit-ipad'||label==='webkit-desktop-landscape'){
+      const gestureCost=await page.evaluate(()=>{
+        window.__lariaGlobeInteracting=true;
+        const start=performance.now();window.drawGlobe();
+        return performance.now()-start;
+      });
+      await page.locator('#globe-canvas').screenshot({path:path.join(out,label+'-moving-canvas.png')});
+      await page.evaluate(()=>{window.__lariaGlobeInteracting=false;window.drawGlobe()});
+      assert.ok(Number.isFinite(gestureCost),label+' moving globe redraw was not measurable');
+      console.log(label+' geographically painted moving-frame duration: '+gestureCost.toFixed(1)+'ms');
+    }
     for(const mode of ['explore','mine','classic']){
       await page.locator('[data-globe-mode="'+mode+'"]').click();
       await page.waitForTimeout(250);

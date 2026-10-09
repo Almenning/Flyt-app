@@ -26,8 +26,8 @@ test('globe pinch keeps a geographic anchor and hands back to one-finger drag',(
 test('globe motion release rotates Safari cache keys',()=>{
   const index=read('laer-litt-mer/index.html');
   const sw=read('laer-litt-mer/sw.js');
-  assert.match(index,/globe36-pigment3/);
-  assert.match(sw,/globe36-pigment3/);
+  assert.match(index,/globe37-painted1/);
+  assert.match(sw,/globe37-painted1/);
 });
 
 test('visible globe land uses authoritative geographic boundaries, not a decorative image',()=>{
@@ -81,4 +81,27 @@ test('globe surface detail stays georeferenced during rotation and zoom',()=>{
     'illustrated landmarks must remain geographically anchored throughout pointer movement');
   assert.doesNotMatch(active,/if\(!moving\)\{\s*waterDetails/,
     'decorative geography must not vanish while the globe rotates');
+});
+
+test('v37 painterly world retains geographically projected texture while moving',()=>{
+  const renderer=read('laer-litt-mer/globe-v25-renderer.js');
+  const art=read('laer-litt-mer/globe-v24-art.js');
+  const body=renderer.slice(renderer.indexOf('function premiumDraw(){'),renderer.indexOf('function install(){'));
+  assert.match(body,/paintIllustratedGeography\(ctx,w,h,s,moving\)/,
+    'atlas pigment must render during drag as well as when stationary');
+  const painter=renderer.slice(renderer.indexOf('function paintIllustratedGeography('),
+    renderer.indexOf('function paintMasteryOverlay('));
+  assert.ok(painter.includes('landClip(ctx,w,h)'),
+    'hand-painted strokes must be clipped to actual land');
+  assert.match(painter,/project\(lon\+\(j1-\.5\)\*step\*\.6,lat\+\(j2-\.5\)\*step\*\.52,w,h\)/,
+    'painted strokes must rotate with actual geographical positions');
+  assert.ok(art.includes('mountains:paintedMountainRange'),
+    'mountains must use approved painterly physical illustrations');
+  assert.ok(art.includes('trees:paintedPines'),
+    'trees must use premium non-flat illustration');
+  assert.ok(art.includes('village:paintedVillage'),
+    'settlements must use miniature storybook artwork');
+  for(const f of ['function globeInverse(x,y)','function keepGlobeAnchor(','function resumeGlobeDragFromRemainingPointer()']){
+    assert.ok(read('laer-litt-mer/index.html').includes(f),'geometry and pinch anchor changed: '+f);
+  }
 });

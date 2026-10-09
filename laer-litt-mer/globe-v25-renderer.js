@@ -420,6 +420,84 @@ function paintAtlasTexture(ctx,w,h,s){
   ctx.restore();
 }
 
+
+/* v37: painterly pigment is sampled in geographic coordinates and clipped
+   to the actual countries. Unlike the historic flat mock-up, every wash
+   follows the same globeProject() as land selection and remains visible while
+   a child drags or pinches the sphere. No screen-fixed fake continent image. */
+function globePigmentPalette(lon,lat,n){
+  if(lat>67 || lat< -63) return n%3===0
+    ? ['rgba(193,215,223,.24)','rgba(255,255,241,.31)']
+    : ['rgba(102,155,181,.15)','rgba(236,250,255,.31)'];
+  if(lon>-19 && lon<53 && lat>-37 && lat<37) {
+    if(lat>14) return n%3===0
+      ? ['rgba(143,72,47,.17)','rgba(255,214,134,.26)']
+      : ['rgba(178,65,50,.16)','rgba(248,183,118,.22)'];
+    return n%3===0
+      ? ['rgba(143,58,52,.21)','rgba(255,217,166,.27)']
+      : ['rgba(183,66,51,.16)','rgba(246,185,107,.21)'];
+  }
+  if(lon>-18 && lon<46 && lat>=37 && lat<=72) return n%3===0
+    ? ['rgba(32,68,171,.22)','rgba(190,233,255,.28)']
+    : ['rgba(22,84,176,.17)','rgba(222,240,254,.27)'];
+  if(lon>=45 && lon<=179 && lat>-11) return n%3===0
+    ? ['rgba(164,100,34,.18)','rgba(255,241,155,.27)']
+    : ['rgba(171,120,50,.20)','rgba(255,224,145,.26)'];
+  if(lon>=-170 && lon<=-31) return n%3===0
+    ? ['rgba(27,104,59,.22)','rgba(201,247,159,.25)']
+    : ['rgba(29,119,66,.17)','rgba(230,252,186,.24)'];
+  return ['rgba(43,126,66,.15)','rgba(217,249,169,.23)'];
+}
+function pigmentJitter(lon,lat,k){
+  const v=Math.sin((lon+181.31)*12.9898+(lat+82.45)*78.233+k*36.122)*43758.5453;
+  return v-Math.floor(v);
+}
+function paintIllustratedGeography(ctx,w,h,s,moving){
+  if(typeof WORLD_COUNTRIES==='undefined')return;
+  ctx.save();
+  if(!landClip(ctx,w,h)){ctx.restore();return;}
+  const step=moving?16:11;
+  const sizeFactor=clamp(s*.0088,2.0,7.6);
+  const alpha=moving?.90:1;
+  ctx.globalCompositeOperation='multiply';
+  for(let lat=-68;lat<=75;lat+=step){
+    for(let lon=-177;lon<180;lon+=step){
+      const n=Math.round((lat+79)*37+(lon+186)*11);
+      const j1=pigmentJitter(lon,lat,0),j2=pigmentJitter(lon,lat,1);
+      const p=project(lon+(j1-.5)*step*.6,lat+(j2-.5)*step*.52,w,h);
+      if(!p||p[2]<.13)continue;
+      const r=sizeFactor*(.8+j1*.72)*clamp(.64+p[2]*.44,.65,1.08);
+      ctx.globalAlpha=alpha;
+      ctx.fillStyle=globePigmentPalette(lon,lat,n)[0];
+      ctx.beginPath();
+      ctx.ellipse(p[0],p[1],r*1.65,r*(.33+j2*.12),-.28+j1*.51,0,Math.PI*2);
+      ctx.fill();
+      if(!moving && n%3===0){
+        ctx.beginPath();
+        ctx.ellipse(p[0]+r*.56,p[1]-r*.34,r*.83,r*.19,-.34,0,Math.PI*2);
+        ctx.fill();
+      }
+    }
+  }
+  /* Pale brush glints bring back illuminated atlas depth without masking
+     true country colors or repainting political borders. */
+  ctx.globalCompositeOperation='screen';
+  for(let lat=-64;lat<=72;lat+=moving?24:19){
+    for(let lon=-176;lon<180;lon+=moving?24:19){
+      const n=Math.round((lat+79)*29+(lon+186)*13);
+      const j=pigmentJitter(lon,lat,2);
+      const p=project(lon+(j-.5)*6,lat+(j-.5)*4,w,h);
+      if(!p||p[2]<.16)continue;
+      const r=sizeFactor*(.65+j*.50);
+      ctx.fillStyle=globePigmentPalette(lon,lat,n)[1];
+      ctx.beginPath();
+      ctx.ellipse(p[0],p[1],r*1.6,r*.36,-.17,0,Math.PI*2);
+      ctx.fill();
+    }
+  }
+  ctx.restore();
+}
+
 function paintMasteryOverlay(ctx,w,h,s){
   let mode='explore';try{mode=typeof globeMode==='string'?globeMode:'explore'}catch(_){}
   if(mode!=='mine'||typeof WORLD_COUNTRIES==='undefined'||typeof countryStatus!=='function')return;
@@ -713,6 +791,7 @@ function premiumDraw(){
   if(!moving)paintLandDepth(ctx,w,h,s);
   paintContinents(ctx,w,h,s);
   paintCountryVariation(ctx,w,h);
+  paintIllustratedGeography(ctx,w,h,s,moving);
   if(!moving){
     paintAtlasTexture(ctx,w,h,s);
     paintStoryBiomes(ctx,w,h,s);
