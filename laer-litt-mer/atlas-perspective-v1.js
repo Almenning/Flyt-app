@@ -14,14 +14,15 @@ const REGIONS=[
  {id:'europe',label:'Europa',lon:15,lat:52,zoom:4.0},
  {id:'africa',label:'Afrika',lon:19,lat:1,zoom:3.0},
  {id:'asia',label:'Asia',lon:95,lat:37,zoom:2.25},
- {id:'americas',label:'Amerika',lon:-84,lat:8,zoom:2.0},
+ {id:'north-america',label:'Nord-Amerika',lon:-104,lat:44,zoom:2.9},
+ {id:'south-america',label:'Sør-Amerika',lon:-60,lat:-20,zoom:3.1},
  {id:'oceania',label:'Oseania',lon:151,lat:-24,zoom:3.1}
 ];
 const CONTINENT_TINT={
  'Europa':'#7AA6DB','Asia':'#E8BE69','Afrika':'#E39E7D',
  'Nord-Amerika':'#8BBE94','Sør-Amerika':'#74BC9A','Oseania':'#BAACC9'
 };
-const map={lon:15,lat:52,zoom:4,region:'europe',mode:'explore'};
+const map={lon:18,lat:15,zoom:3.5,region:'africa',mode:'explore'};
 let canvas,ctx,nav,caption,installed=false,renderPending=false,layoutPending=false;
 let dragDistance=0,hadMulti=false,pinch=null,silentSelection=false,gesture=false;
 const pointers=new Map();
@@ -265,8 +266,12 @@ function sync(mode){
  const hint=screen.querySelector('.globe-hint');
  if(hint)hint.textContent=atlas?'Dra i kartet · knip for zoom · trykk på et land':'Dra for å snurre · knip for zoom';
  if(atlas){queueLayout();if(typeof loadQualityData==='function'&&!window.__lariaAtlasDetailsRequested){
+  // Heavy Natural Earth / World Bank enrichment must not delay Home -> Atlas.
   window.__lariaAtlasDetailsRequested=true;
-  Promise.resolve().then(()=>loadQualityData()).then(queueDraw).catch(()=>{});
+  setTimeout(()=>{
+   if(!screen.classList.contains('active'))return;
+   Promise.resolve().then(()=>loadQualityData()).then(queueDraw).catch(()=>{});
+  },3500);
  }}
 }
 function install(){
