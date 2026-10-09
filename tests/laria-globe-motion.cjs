@@ -56,7 +56,7 @@ test('locked Læria environment frames the globe with responsive illustrated nat
     assert.ok(!svg.includes('<foreignObject')&&!svg.includes('<canvas'),'scenery must never embed a second interactive map');
   }
   assert.match(active,/background-size:cover!important/,'scenery must scale without distortion and crop if necessary');
-  assert.match(active,/globe-locked-environment-v36-landscape\\.svg/,'latest illustrated release must be active');
+  assert.ok(active.includes('globe-locked-environment-v36-landscape.svg'),'latest illustrated release must be active');
   assert.doesNotMatch(active,/background-size:100%\\s+100%/,'scene may not be stretched to fill arbitrary aspect ratios');
   assert.doesNotMatch(active,/basecamp-v11/,'globe environment must not reuse fantasy village artwork');
   assert.match(active,/--g24-globe:min\(94vw,48dvh\)/,'phone globe must dominate usable width');
