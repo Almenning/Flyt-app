@@ -25,6 +25,31 @@ async function run(browser,engine,label,viewport,url){
   assert.equal(await page.locator('.mp-pick-object').count(),30);
   assert.match(await page.locator('.mp-pick-equation').innerText(),/3 × 10 = 30/);
   await layout(page,label+' initial');
+
+  // Premium storybook contract: math objects stay interactive atop one richly layered
+  // scene; controls are BELOW the illustration and cannot occlude basket contents.
+  const gallery=await page.evaluate(()=>{
+    const stage=document.querySelector('.mp-pick-stage-v2');
+    const painted=stage?.querySelector('.mp-pick-storyscape');
+    const boxes=[...document.querySelectorAll('.mp-pick-vessel')].map(v=>{
+      const art=v.querySelector('.mp-pick-vessel-art').getBoundingClientRect();
+      const buttons=v.querySelector('.mp-pick-vessel-actions').getBoundingClientRect();
+      const first=v.querySelector('.mp-pick-object')?.getBoundingClientRect();
+      const plaque=v.querySelector('.mp-pick-number').getBoundingClientRect();
+      return {top:art.y,bottom:art.bottom,actionsTop:buttons.top,width:art.width,
+       plaqueWithinArt:plaque.y>=art.y&&plaque.bottom<=art.bottom+2,
+       objectInside:!!first&&first.x>=art.x-2&&first.right<=art.right+2};
+    });
+    return {painted:!!painted,numberOfScenicDetails:painted?.querySelectorAll('path,ellipse,circle,rect').length||0,
+      stageWidth:stage?.getBoundingClientRect().width||0,sceneryWidth:painted?.getBoundingClientRect().width||0,boxes};
+  });
+  assert.ok(gallery.painted&&gallery.numberOfScenicDetails>95,label+' requires a detailed, actual illustrated storybook landscape '+JSON.stringify(gallery));
+  assert.ok(Math.abs(gallery.stageWidth-gallery.sceneryWidth)<3,label+' scenic background must not be stretched outside stage');
+  assert.ok(gallery.boxes.every(x=>x.width>=75&&x.actionsTop>=x.bottom+3&&x.plaqueWithinArt&&x.objectInside),
+      label+' all counting controls must be clearly separated from physical containers: '+JSON.stringify(gallery.boxes));
+  assert.ok(Math.max(...gallery.boxes.map(x=>x.top))-Math.min(...gallery.boxes.map(x=>x.top))<=3,
+      label+' locked 3x10 three baskets must share a row');
+
   if(engine==='webkit')await image(page,label+'-01-garden-3x10');
 
   assert.equal(await page.locator('.mp-pick-world-emoji svg').count(),10,'all unlocked worlds need matching illustrated thumbnails');
@@ -67,8 +92,11 @@ async function run(browser,engine,label,viewport,url){
     assert.equal(await page.locator('.mp-pick-screen').getAttribute('data-pick-world'),world);
     assert.equal((await snapshot(page)).total,27,'world switch changed multiplication');
     assert.equal(await page.locator('.mp-pick-object').count(),27,'world art count differs from maths');
-    if(engine==='webkit'&&['strawberry','mushroom','treasure','beach','aquarium','balloon'].includes(world)){
+    if(engine==='webkit'){
       await layout(page,label+' world '+world);
+      assert.ok(await page.locator('.mp-pick-storyscape').count(),label+' '+world+' requires actual storybook scenery');
+      const details=await page.locator('.mp-pick-storyscape').evaluate(el=>el.querySelectorAll('path,ellipse,circle,rect').length);
+      assert.ok(details>50,label+' '+world+' scenery too simple: '+details);
       if(label==='iphone-safari'||label==='ipad-safari')await image(page,label+'-world-'+world);
     }
   }
