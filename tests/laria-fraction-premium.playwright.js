@@ -54,6 +54,9 @@ async function run(browser,engine,label,viewport,url){
   assert.equal(await page.locator('.fr4-presets .fr2-pie-preset').count(),7,'preset choices need real fraction diagrams');
   assert.equal(await page.locator('.fr4-scene-fox .fr2-fox').count(),1,'the fox must be inside the exploration scene, not only at the bottom');
   assert.match(await page.locator('.fr4-stage-caption').innerText(),/3 av 4/);
+  // A decorative speech bubble must never intercept the interactive slice.
+  await page.locator('.fr2-pie-large [data-fr-action="piece"][data-piece="1"]').click();
+  assert.equal((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot())).explore.n,1,'hero artwork may not block fraction touch targets');
   const readableHero=await page.evaluate(()=>{
     const stage=document.querySelector('.fr4-explore-stage').getBoundingClientRect();
     const figure=document.querySelector('.fr2-main-illustration').getBoundingClientRect();
