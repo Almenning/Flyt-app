@@ -1,0 +1,21 @@
+'use strict';
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const {test}=require('node:test');
+const root=path.resolve(__dirname,'..','laer-litt-mer');
+const read=p=>fs.readFileSync(path.join(root,p),'utf8');
+test('navigation v13 separates journey subjects from repeatable exploration',()=>{
+ const nav=read('laria-navigation-v13.js'),html=read('index.html'),css=read('laria-navigation-v13.css');
+ assert.match(html,/laria-navigation-v13\.js\?v=/);
+ assert.match(html,/laria-navigation-v13\.css\?v=/);
+ for(const subject of ['norwegian','math','english','geography'])assert.match(nav,new RegExp("'"+subject+"'"));
+ for(const action of ['globe','fraction','words','multiply'])assert.match(nav,new RegExp("'"+action+"'"));
+ assert.match(nav,/geoJourneyProgress\(grade\)/);
+ assert.match(nav,/journeyProgress\(subject,grade\)/);
+ assert.match(nav,/window\.LARIA_MARK_BASECAMP_ORIGIN/);
+ assert.match(nav,/openSubjectJourney\(action\)/);
+ assert.match(css,/\.bc13-card-grid/);
+ assert.match(css,/@media\(max-width:700px\)/);
+ assert.doesNotMatch(nav,/localStorage\.setItem|state\s*=|saveState\(/);
+});
