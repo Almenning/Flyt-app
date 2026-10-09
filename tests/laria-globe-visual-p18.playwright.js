@@ -244,6 +244,19 @@ async function capture(browserType,label,viewport){
     assert.ok(projectionSync.latDiff<.12,label+' pinch anchor latitude drifted: '+projectionSync.latDiff);
 
     assert.equal(projectionSync.renderSource,'country-geometry',label+' must draw visible land from real country polygons');
+    // v37: capture the ACTUAL MOVING frame. Historically the static screen was
+    // richly painted, but while dragging, countries suddenly went flat.
+    if(label==='webkit-iphone'||label==='webkit-ipad'||label==='webkit-desktop-landscape'){
+      const gestureCost=await page.evaluate(()=>{
+        window.__lariaGlobeInteracting=true;
+        const start=performance.now();window.drawGlobe();
+        return performance.now()-start;
+      });
+      await page.locator('#globe-canvas').screenshot({path:path.join(out,label+'-moving-canvas.png')});
+      await page.evaluate(()=>{window.__lariaGlobeInteracting=false;window.drawGlobe()});
+      assert.ok(Number.isFinite(gestureCost),label+' moving globe redraw was not measurable');
+      console.log(label+' geographically painted moving-frame duration: '+gestureCost.toFixed(1)+'ms');
+    }
     for(const mode of ['explore','mine','classic']){
       await page.locator('[data-globe-mode="'+mode+'"]').click();
       await page.waitForTimeout(250);
