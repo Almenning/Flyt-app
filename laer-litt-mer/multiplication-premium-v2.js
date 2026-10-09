@@ -129,10 +129,10 @@ function explorer(){
  if(mode==='swap'){stage='<div class="mp-wood-sign">Samme antall, snudd!</div><div class="mp-swap-pair">'+smallArray(a,b)+smallArray(b,a)+'</div><strong class="mp-swap-label">'+a+' × '+b+' = '+b+' × '+a+'</strong>'}
  if(mode==='patterns'){stage='<div class="mp-wood-sign">Oppdag '+a+'-gangen</div>'+patterns(a)}
  if(mode==='table'){stage=exploreTable()}
- return '<section class="mp-explore-screen">'+heading('Utforsk og lek',mode==='table'?'Gangetabellen fra 1 til 10. Trykk på et tall og utforsk!':mode==='pick'?'Plukk og flytt ting i levende eventyrverdener.':'Prøv deg fram og oppdag hvordan gange virker.')+exploreTabs()
+ return '<section class="mp-explore-screen">'+heading('Utforsk og lek',mode==='table'?'Gangetabellen fra 1 til 10. Trykk på et tall og utforsk!':mode==='pick'?'Trykk på en ting og se tallet endre seg.':'Prøv deg fram og oppdag hvordan gange virker.')+exploreTabs()
  +'<div class="mp-explore-world '+(mode==='table'?'table-mode':mode==='pick'?'pick-mode':'')+'">'+stage+'</div>'
  +((mode==='table'||mode==='pick')?'':'<div class="mp-factor-controls"><div><label>Antall grupper</label><div class="mp-factor-adjust">'+btn('factor','−','','data-factor="a" data-step="-1" aria-label="Færre grupper"')+'<strong>'+a+'</strong>'+btn('factor','+','','data-factor="a" data-step="1" aria-label="Flere grupper"')+'</div></div><div><label>I hver gruppe</label><div class="mp-factor-adjust">'+btn('factor','−','','data-factor="b" data-step="-1" aria-label="Færre i hver gruppe"')+'<strong>'+b+'</strong>'+btn('factor','+','','data-factor="b" data-step="1" aria-label="Flere i hver gruppe"')+'</div></div></div><div class="mp-math-result"><span>'+a+' × '+b+'</span><span> = </span><b>'+(a*b)+'</b></div>')
- +mascot(mode==='table'?'Trykk på et felt. Se hva som skjer når tallene bytter plass.':'Når vi samler like grupper, ser vi lettere hva gange betyr.',true)+'</section>';
+ +(mode==='pick'?'':mascot(mode==='table'?'Trykk på et felt. Se hva som skjer når tallene bytter plass.':'Når vi samler like grupper, ser vi lettere hva gange betyr.',true))+'</section>';
 }
 function completed(){return '<span class="mp-medal">★</span>'}
 function mastery(){

@@ -9,7 +9,7 @@ async function image(page,id){await fs.promises.mkdir(screens,{recursive:true});
 async function open(page,url){await page.goto(url,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.LARIA_MULT_PREMIUM&&window.LARIA_MULT_PICK_PLAY&&window.LARIA_MULT_PICK_ENGINE);await page.evaluate(()=>window.openMultiplicationLab());await page.locator('.mp-menu-explore').click();await page.locator('.mp-explore-screen').waitFor()}
 async function pickMode(page){await page.locator('.mp-explore-tab[data-mode="pick"]').click();await page.locator('.mp-pick-screen').waitFor()}
 async function snapshot(page){return await page.evaluate(()=>window.LARIA_MULT_PICK_PLAY.snapshot())}
-async function layout(page,label){const v=await page.evaluate(()=>({screen:innerWidth,scroll:document.documentElement.scrollWidth,groups:[...document.querySelectorAll('.mp-pick-vessel')].map(x=>({rect:x.getBoundingClientRect().toJSON(),count:x.querySelectorAll('.mp-pick-object').length})),buttons:[...document.querySelectorAll('.mp-pick-vessel-actions button, .mp-pick-main-actions button,.mp-pick-secondary-actions button,.mp-pick-check')].map(x=>({size:x.getBoundingClientRect().height,disabled:x.disabled}))}));assert.ok(v.scroll<=v.screen+4,label+' horizontal page overflow: '+JSON.stringify(v));assert.ok(v.buttons.filter(x=>!x.disabled).every(x=>x.size>=44),label+' undersized primary touch buttons '+JSON.stringify(v.buttons));return v}
+async function layout(page,label){const v=await page.evaluate(()=>({screen:innerWidth,scroll:document.documentElement.scrollWidth,groups:[...document.querySelectorAll('.mp-pick-vessel')].map(x=>({rect:x.getBoundingClientRect().toJSON(),count:x.querySelectorAll('.mp-pick-object').length})),buttons:[...document.querySelectorAll('.mp-pick-vessel-actions button, .mp-pick-main-actions button,.mp-pick-secondary-actions button,.mp-pick-check,.mp-pick-easy-actions button')].map(x=>({size:x.getBoundingClientRect().height,disabled:x.disabled}))}));assert.ok(v.scroll<=v.screen+4,label+' horizontal page overflow: '+JSON.stringify(v));assert.ok(v.buttons.filter(x=>!x.disabled).every(x=>x.size>=44),label+' undersized primary touch buttons '+JSON.stringify(v.buttons));return v}
 async function run(browser,engine,label,viewport,url){
  const context=await browser.newContext({viewport,deviceScaleFactor:1,serviceWorkers:'block',isMobile:viewport.width<700,hasTouch:true});
  const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(String(e)));
@@ -20,6 +20,49 @@ async function run(browser,engine,label,viewport,url){
   assert.equal(await page.locator('.mp-explore-tab').first().getAttribute('data-mode'),'table','10x10 must always remain first');
   assert.equal(await page.locator('.mp-grid-cell').count(),100,'100 products must remain visible in the default table');
   await pickMode(page);
+
+  // The first screen for a second grader must be playable without reading
+  // menus or understanding multiplication before touching the objects.
+  assert.equal(await page.locator('.mp-pick-screen').getAttribute('data-pick-easy'),'true');
+  assert.equal(await page.locator('.mp-pick-vessel').count(),2,'start with two spacious baskets');
+  assert.equal(await page.locator('.mp-pick-object').count(),6,'six countable objects, not thirty');
+  assert.deepEqual((await snapshot(page)).counts,[3,3]);
+  assert.match(await page.locator('.mp-pick-equation').innerText(),/2 × 3 = 6/);
+  assert.equal(await page.locator('.mp-pick-big-total').innerText(),'6');
+  assert.equal(await page.locator('.mp-pick-easy-feedback').count(),0,'one short fox instruction is enough before first pick');
+  assert.equal(await page.locator('.mp-pick-world-btn').count(),0,'the ten-world picker must not overwhelm children');
+  assert.equal(await page.locator('.mp-pick-mission').count(),0,'the four missions must be opt-in');
+  assert.equal(await page.locator('.mp-pick-view-switch').count(),0,'extra mathematical views are opt-in');
+  assert.equal(await page.locator('[data-pick-action="moveMode"]').count(),0,'drag mode is not shown on child screen');
+  assert.equal(await page.locator('[data-pick-action="newGroup"]').count(),0,'adding groups is not shown');
+  assert.equal(await page.locator('[data-pick-action="empty"]').count(),0,'empty basket action is not shown');
+  const simpleButtons=await page.locator('.mp-pick-easy-actions button').evaluateAll(els=>els.map(el=>el.getBoundingClientRect().height));
+  assert.ok(simpleButtons.length===3&&simpleButtons.every(n=>n>=44),label+' needs only three large simple controls');
+  if(engine==='webkit')await image(page,label+'-00-simple-2x3');
+
+  const firstToken=await page.locator('.mp-pick-vessel[data-group="0"] .mp-pick-object').first().getAttribute('data-token');
+  await page.locator('.mp-pick-vessel[data-group="0"] .mp-pick-object[data-token="'+firstToken+'"]').click();
+  assert.deepEqual((await snapshot(page)).counts,[2,3]);
+  assert.equal(await page.locator('.mp-pick-big-total').innerText(),'5');
+  assert.match(await page.locator('.mp-pick-easy-feedback').innerText(),/5 igjen/,'feedback appears only after the child acts');
+  assert.equal(await page.locator('.mp-pick-object[data-token="'+firstToken+'"]').count(),0);
+  await page.locator('[data-pick-action="undo"]').click();
+  assert.deepEqual((await snapshot(page)).counts,[3,3]);
+  await page.locator('[data-pick-action="nextScene"]').click();
+  assert.deepEqual((await snapshot(page)).counts,[2,2,2],'next round must build gradually, not leap to thirty items');
+  assert.match(await page.locator('.mp-pick-equation').innerText(),/3 × 2 = 6/);
+  await page.locator('[data-pick-action="worldNext"]').click();
+  assert.equal((await snapshot(page)).world,'bun','one button changes the illustration without opening ten options');
+  assert.equal((await snapshot(page)).total,6);
+  await page.locator('[data-pick-action="reset"]').click();
+  assert.deepEqual((await snapshot(page)).counts,[2,2,2],'restart means retry the current round');
+  await page.locator('[data-pick-action="toggleMore"]').click();
+  assert.equal(await page.locator('.mp-pick-screen').getAttribute('data-pick-easy'),'false');
+  assert.equal(await page.locator('.mp-pick-world-btn').count(),10,'advanced options remain available on request');
+  // Existing exhaustive 3 × 10 regression contract is tested in the optional
+  // rich mode without making its thirty objects the first child experience.
+  await page.evaluate(()=>window.LARIA_MULT_PICK_PLAY.reset());
+  await page.locator('.mp-pick-world-btn[data-world="strawberry"]').click();
   assert.equal(await page.locator('.mp-pick-world-btn').count(),10);
   assert.equal(await page.locator('.mp-pick-vessel').count(),3);
   assert.equal(await page.locator('.mp-pick-object').count(),30);
@@ -137,6 +180,8 @@ async function run(browser,engine,label,viewport,url){
   await page.waitForFunction(()=>window.LARIA_MULT_PICK_PLAY&&window.LARIA_MULT_PREMIUM);
   await page.evaluate(()=>window.openMultiplicationLab());
   await page.locator('.mp-menu-explore').click();await pickMode(page);
+  assert.equal(await page.locator('.mp-pick-mission').count(),0,'every new visit stays simple until the child asks for more');
+  await page.locator('[data-pick-action="toggleMore"]').click();
   assert.equal((await snapshot(page)).world,'balloon','world did not persist across reload');
   assert.deepEqual((await snapshot(page)).counts,[8,10,9],'counts did not persist across reload');
   assert.equal((await snapshot(page)).itemIds.reduce((total,arr)=>total+arr.length,0),27,'stable item IDs must persist consistently');
