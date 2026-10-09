@@ -113,14 +113,27 @@ async function run(browser,engine,label,viewport,url){
   // Drag the actual rendered item, rather than only using the accessible touch fallback.
   const fruit=page.locator('.mp-pick-vessel[data-group="0"] .mp-pick-object').first();
   const movedId=await fruit.getAttribute('data-token');
+  const destination=page.locator('.mp-pick-vessel[data-group="1"]');
+  // Mission controls left the page scrolled to the bottom; raw mouse coordinates
+  // do not auto-scroll. Move both containers into the viewport before dragging.
+  await fruit.scrollIntoViewIfNeeded();
+  await destination.scrollIntoViewIfNeeded();
   const sourceRect=await fruit.boundingBox();
-  const destRect=await page.locator('.mp-pick-vessel[data-group="1"]').boundingBox();
+  const destRect=await destination.boundingBox();
   assert.ok(sourceRect&&destRect,label+' must expose draggable physical items');
+  assert.ok(sourceRect.y>=-1&&sourceRect.y+sourceRect.height<=viewport.height+1,
+    label+' source fruit must be on screen before synthetic drag: '+JSON.stringify(sourceRect));
+  await page.evaluate(()=>{
+    window.__pickTrace=[];
+    for(const type of ['pointerdown','pointerup','pointercancel'])
+      document.addEventListener(type,e=>window.__pickTrace.push({type,x:Math.round(e.clientX),y:Math.round(e.clientY),pointerId:e.pointerId,target:e.target?.className?.baseVal||e.target?.className||''}),true);
+  });
   await page.mouse.move(sourceRect.x+sourceRect.width/2,sourceRect.y+sourceRect.height/2);
   await page.mouse.down();
   await page.mouse.move(destRect.x+destRect.width/2,destRect.y+Math.min(40,destRect.height/3),{steps:9});
   await page.mouse.up();
-  assert.deepEqual((await snapshot(page)).counts,[9,11,10],label+' must move exactly one item when dragged');
+  const pointerTrace=await page.evaluate(()=>window.__pickTrace);
+  assert.deepEqual((await snapshot(page)).counts,[9,11,10],label+' must move exactly one item when dragged; trace: '+JSON.stringify(pointerTrace));
   assert.equal(await page.locator('.mp-pick-vessel[data-group="1"] .mp-pick-object[data-token="'+movedId+'"]').count(),1,label+' dragged item must retain its identity');
   assert.equal((await snapshot(page)).total,30,'dragging must not alter the total');
 
