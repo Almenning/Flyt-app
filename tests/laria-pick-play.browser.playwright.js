@@ -178,6 +178,8 @@ async function run(browser,engine,label,viewport,url){
   await page.waitForFunction(()=>window.LARIA_MULT_PICK_PLAY&&window.LARIA_MULT_PREMIUM);
   await page.evaluate(()=>window.openMultiplicationLab());
   await page.locator('.mp-menu-explore').click();await pickMode(page);
+  assert.equal(await page.locator('.mp-pick-mission').count(),0,'every new visit stays simple until the child asks for more');
+  await page.locator('[data-pick-action="toggleMore"]').click();
   assert.equal((await snapshot(page)).world,'balloon','world did not persist across reload');
   assert.deepEqual((await snapshot(page)).counts,[8,10,9],'counts did not persist across reload');
   assert.equal((await snapshot(page)).itemIds.reduce((total,arr)=>total+arr.length,0),27,'stable item IDs must persist consistently');
