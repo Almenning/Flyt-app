@@ -5,7 +5,7 @@
 const THEMES=[
  {id:'strawberry',name:'Jordbær',item:'jordbær',singular:'jordbær',emoji:'🍓'},
  {id:'bun',name:'Boller',item:'boller',singular:'bolle',emoji:'🥐'},
- {id:'mushroom',name:'Eventyrsopp',item:'sopper',singular:'sopp',emoji:'🍄'},
+ {id:'mushroom',name:'Sopper',longName:'eventyrsopper',item:'sopper',singular:'sopp',emoji:'🍄'},
  {id:'apple',name:'Epler',item:'epler',singular:'eple',emoji:'🍎'}
 ];
 const PALETTE={
@@ -46,7 +46,7 @@ function render(a,b,theme='strawberry'){
  return html+'</div>';
 }
 function picker(theme){
- return '<div class="mp3-picker" role="group" aria-label="Velg illustrasjoner"><span>Velg motiv</span>'+THEMES.map((t,i)=>'<button type="button" data-mp-action="theme" data-theme="'+t.id+'" class="mp3-theme'+(theme===t.id?' active':'')+'" aria-pressed="'+(theme===t.id)+'"><span class="mp3-theme-art" aria-hidden="true">'+sprite(t.id,900+i)+'</span><span>'+t.name+'</span></button>').join('')+'</div>';
+ return '<div class="mp3-picker" role="group" aria-label="Velg illustrasjoner"><span>Velg motiv</span>'+THEMES.map((t,i)=>'<button type="button" data-mp-action="theme" data-theme="'+t.id+'" class="mp3-theme'+(theme===t.id?' active':'')+'" aria-pressed="'+(theme===t.id)+'" aria-label="Velg '+(t.longName||t.name)+'"><span class="mp3-theme-art" aria-hidden="true">'+sprite(t.id,900+i)+'</span><span>'+t.name+'</span></button>').join('')+'</div>';
 }
 window.LARIA_MULT_ILLUSTRATED_V3={themes:THEMES.map(t=>t.id),render,picker};
 })();
