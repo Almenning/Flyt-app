@@ -41,12 +41,12 @@ function landscape(){
  return '<svg class="mp-pick-landscape" viewBox="0 0 960 320" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="mpPickSky" x1="0" y1="0" x2="0" y2="1"><stop stop-color="'+colors[0]+'"/><stop offset="1" stop-color="#fff7e7"/></linearGradient><linearGradient id="mpPickSoil" x1="0" y1="0" x2="0" y2="1"><stop stop-color="'+colors[1]+'"/><stop offset="1" stop-color="'+colors[2]+'"/></linearGradient></defs><rect width="960" height="320" fill="url(#mpPickSky)"/><circle cx="777" cy="55" r="35" fill="#fff0b6" opacity=".75"/><path d="M0 191Q143 89 299 178Q433 94 590 177Q793 85 960 177V320H0Z" fill="'+colors[1]+'" opacity=".54"/><path d="M0 236Q220 174 387 222Q600 175 960 218V320H0Z" fill="url(#mpPickSoil)"/>'+extra+'<g fill="#fff9e9" opacity=".72"><circle cx="151" cy="58" r="15"/><circle cx="174" cy="61" r="19"/><circle cx="613" cy="42" r="13"/><circle cx="632" cy="42" r="17"/></g></svg>';
 }
 function worlds(){
- return '<div class="mp-pick-world-chooser"><div class="mp-pick-labelrow"><b>Velg eventyrverden</b><small>Alle er åpne</small></div><div class="mp-pick-world-strip" role="group" aria-label="Velg eventyrverden">'+E.WORLDS.map(t=>'<button type="button" data-mp-action="pick-play" data-pick-action="world" data-world="'+t.id+'" class="mp-pick-world-btn'+(state.world===t.id?' selected':'')+'" aria-pressed="'+(state.world===t.id)+'"><span class="mp-pick-world-emoji" aria-hidden="true">'+t.emoji+'</span><span>'+t.name+'</span></button>').join('')+'</div></div>';
+ return '<div class="mp-pick-world-chooser"><div class="mp-pick-labelrow"><b>Velg eventyrverden</b><small>Alle er åpne</small></div><div class="mp-pick-world-strip" role="group" aria-label="Velg eventyrverden">'+E.WORLDS.map((t,i)=>'<button type="button" data-mp-action="pick-play" data-pick-action="world" data-world="'+t.id+'" class="mp-pick-world-btn'+(state.world===t.id?' selected':'')+'" aria-pressed="'+(state.world===t.id)+'"><span class="mp-pick-world-emoji" aria-hidden="true">'+sprite(t.id,700+i)+'</span><span>'+t.name+'</span></button>').join('')+'</div></div>';
 }
 function groups(){
  const picked=w(),moving=state.moveMode;
  return '<div class="mp-pick-group-grid" style="--pick-n:'+state.counts.length+'">'+state.counts.map((count,group)=>{
-  const items=Array.from({length:count},(_,i)=>'<button type="button" data-mp-action="pick-play" data-pick-action="'+(moving?'selectMove':'take')+'" data-group="'+group+'" class="mp-pick-object" aria-label="'+(moving?'Velg for å flytte':'Plukk')+' '+esc(picked.unit)+' fra kurv '+(group+1)+'">'+sprite(picked.id,100*group+i)+'</button>').join('');
+  const items=state.itemIds[group].map((token,i)=>'<button type="button" data-mp-action="pick-play" data-pick-action="'+(moving?'selectMove':'take')+'" data-group="'+group+'" data-token="'+token+'" class="mp-pick-object" aria-label="'+(moving?'Velg for å flytte':'Plukk')+' '+esc(picked.unit)+' '+(i+1)+' fra kurv '+(group+1)+'">'+sprite(picked.id,token)+'</button>').join('');
   const gridColumns=count>=9?5:count>=5?3:count>=3?2:Math.max(1,count);
   return '<div class="mp-pick-vessel" data-group="'+group+'" role="group" aria-label="Kurv '+(group+1)+': '+count+' '+esc(picked.object)+'"><span class="mp-pick-handle" aria-hidden="true"></span><span class="mp-pick-linen" aria-hidden="true"></span><div class="mp-pick-objects" style="--pick-cols:'+gridColumns+'">'+items+'</div><span class="mp-pick-front" aria-hidden="true"></span><span class="mp-pick-number">'+count+'</span><div class="mp-pick-vessel-actions">'+(moving?'<button type="button" data-mp-action="pick-play" data-pick-action="moveTarget" data-group="'+group+'" '+(state.moveFrom===null||state.moveFrom===group||count>=E.MAX_EACH?'disabled':'')+'>Hit ↘</button>':
   '<button type="button" data-mp-action="pick-play" data-pick-action="take" data-group="'+group+'" '+(!count?'disabled':'')+' aria-label="Plukk én fra kurv '+(group+1)+'">− 1</button><button type="button" data-mp-action="pick-play" data-pick-action="return" data-group="'+group+'" '+(!state.collected||count>=E.MAX_EACH?'disabled':'')+' aria-label="Legg én tilbake i kurv '+(group+1)+'">+ 1</button>')+'</div><button type="button" class="mp-pick-empty" data-mp-action="pick-play" data-pick-action="empty" data-group="'+group+'" '+(!count?'disabled':'')+' aria-label="Tøm hele kurv '+(group+1)+'">Tøm kurv</button></div>';
@@ -62,7 +62,7 @@ function render(){
  worlds()+
  '<div class="mp-pick-stage"><div class="mp-pick-stage-landscape" aria-hidden="true">'+landscape()+'</div><div class="mp-pick-stage-inner"><div class="mp-pick-wood-sign" aria-live="polite"><span>Hva skjer med regnestykket?</span><strong class="mp-pick-equation">'+esc(eq.main)+'</strong><small>'+esc(eq.detail)+'</small></div>'+
  groups()+
- '<div class="mp-pick-collection"><span class="mp-pick-collection-art" aria-hidden="true">'+sprite(picked.id,900)+'</span><div><strong>Samlekurven</strong><small>Her havner alt du plukker</small></div><b class="mp-pick-collected">'+state.collected+'</b></div></div></div>'+
+ '<div class="mp-pick-collection"><span class="mp-pick-collection-art" aria-hidden="true">'+(state.pool.length?state.pool.slice(-9).map(token=>sprite(picked.id,token)).join(''):'<span class="mp-pick-blank-icon">✧</span>')+'</span><div><strong>Samlekurven</strong><small>Her havner alt du plukker</small></div><b class="mp-pick-collected">'+state.collected+'</b></div></div></div>'+
  '<div class="mp-pick-main-actions"><button type="button" data-mp-action="pick-play" data-pick-action="takeEach" '+(sum===0?'disabled':'')+'>− Én fra hver</button><button type="button" data-mp-action="pick-play" data-pick-action="moveMode" aria-pressed="'+state.moveMode+'" class="'+(state.moveMode?'selected':'')+'">'+(state.moveMode?'Avslutt flytting':'⇄ Flytt mellom')+'</button><button type="button" data-mp-action="pick-play" data-pick-action="newGroup" '+(state.counts.length>=E.MAX_GROUPS?'disabled':'')+'>+ Ny kurv</button></div>'+
  '<div class="mp-pick-secondary-actions"><button type="button" data-mp-action="pick-play" data-pick-action="undo" '+(!past.length?'disabled':'')+'>↶ Angre</button><button type="button" data-mp-action="pick-play" data-pick-action="redo" '+(!future.length?'disabled':'')+'>↷ Gjør om</button><button type="button" data-mp-action="pick-play" data-pick-action="read">🔊 Les opp</button><button type="button" data-mp-action="pick-play" data-pick-action="reset">Start på nytt</button></div>'+
  '<div class="mp-pick-feedback'+(state.success?' success':'')+'" role="status" aria-live="polite">'+esc(state.message||'Trykk på en gjenstand eller på − 1 under en kurv.')+'</div>'+
@@ -71,13 +71,13 @@ function render(){
 }
 function dispatch(target){
  if(Date.now()<suppressUntil)return true;
- const type=target?.dataset?.pickAction||'',index=Number(target?.dataset?.group);
+ const type=target?.dataset?.pickAction||'',index=Number(target?.dataset?.group),token=target?.dataset?.token===undefined?null:Number(target.dataset.token);
  let changed=false;
  if(type==='world')changed=go('world',{world:target.dataset.world});
  else if(type==='mission')changed=go('mission',{id:target.dataset.id});
- else if(type==='selectMove'||(type==='take'&&state.moveMode))changed=go('selectMove',{group:index},false);
- else if(type==='moveTarget'){if(state.moveFrom!==null)changed=go('move',{group:state.moveFrom,to:index});}
- else if(['take','return','empty'].includes(type))changed=go(type,{group:index});
+ else if(type==='selectMove'||(type==='take'&&state.moveMode))changed=go('selectMove',{group:index,token},false);
+ else if(type==='moveTarget'){if(state.moveFrom!==null)changed=go('move',{group:state.moveFrom,to:index,token:state.moveToken});}
+ else if(['take','return','empty'].includes(type))changed=go(type,{group:index,token});
  else if(['takeEach','newGroup','check'].includes(type))changed=go(type);
  else if(type==='moveMode')changed=go(type,{},false);
  else if(type==='undo')changed=back();
@@ -96,7 +96,7 @@ function mount(root,callback){
  root.dataset.mpPickPointerBound='true';
  root.addEventListener('pointerdown',event=>{
   const el=event.target.closest('.mp-pick-object');
-  if(el&&root.contains(el))drag={id:event.pointerId,x:event.clientX,y:event.clientY,from:Number(el.dataset.group)};
+  if(el&&root.contains(el))drag={id:event.pointerId,x:event.clientX,y:event.clientY,from:Number(el.dataset.group),token:Number(el.dataset.token)};
  },{passive:true});
  root.addEventListener('pointerup',event=>{
   if(!drag||drag.id!==event.pointerId)return;
@@ -105,7 +105,7 @@ function mount(root,callback){
   const target=document.elementFromPoint(event.clientX,event.clientY)?.closest('.mp-pick-vessel');
   if(!target||!root.contains(target))return;
   const to=Number(target.dataset.group);
-  if(go('move',{group:start.from,to})){suppressUntil=Date.now()+450;redraw();}
+  if(go('move',{group:start.from,to,token:start.token})){suppressUntil=Date.now()+450;redraw();}
  });
  root.addEventListener('pointercancel',()=>{drag=null});
 }
