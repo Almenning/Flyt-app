@@ -57,3 +57,24 @@ Ved sammenligning av de seks låste illustrasjonene med faktiske Safari-skjermbi
 
 **Akseptanse:** Bildekvaliteten er forbedret og skal verifiseres med nye skjermbilder på iPhone/iPad mot referansene. Dette er ikke et løfte om pikselidentisk gjengivelse av konseptillustrasjonene: dem kan kreve dedikerte høyoppløselige illustrasjonsressurser. Ikke marker full visuell likhet uten bildeinspeksjon og tilbakemelding fra barnet.
 
+
+## Visuell kvalitetsrunde v4 – opp mot låste seks illustrasjoner
+
+Bruker har presisert at v3 fortsatt ikke oppfyller uttrykket fra de seks låste referansene. Ved direkte sammenligning av ref-bildene med v3-skjermbilder fra WebKit (iPhone/iPad) var særlig disse avvikene synlige:
+
+1. **Hjemmet var for flatt**: Få fysiske bakeridetaljer i forgrunnen, og reven framstod for liten og løsrevet fra verden.
+2. **Utforskingen var for teknisk**: abstrakte tekstsymboler i visningsvalg, tallbrøker uten visuelle miniatyrer, og en liten brøksirkel uten revevenn ved læringsobjektet.
+3. **Byggingen var for kontrollpreget**: brøkbildet og de løse bitene trengte mer fysisk rom, en tydelig arbeidsflate og en direkte forklaring.
+4. **Noe av undervisningen manglet sammenheng mellom ting og symbol**: Barnet skal kunne velge et visuelt bilde av en brøk før det begynner å regne med symbolene.
+
+### Gjennomført i v4
+- Egen detaljert SVG-illustrasjon `fraction-bakery-foreground-v4.svg` som *dekorasjon*, med ekte paiillustrasjon, epler, bok, brøkbiter, serveringsbrett, løv og duk. Ingen usynlige knapper over en statisk designskjerm.
+- Hjemmekortene får forbedret romfølelse og faktisk fortelling i omgivelsene. Reven er tydeligere knyttet til scenen.
+- Fire nye SVG-miniatyrer for sirkel, stripe, rutenett og målebeger erstatter generiske Unicode-symboler i utforskingen.
+- De sju vanlige brøkvalgene viser matematisk korrekte miniatyrbrøksirkler sammen med teller/nevner.
+- Den store utforskingsscenen får en fysisk brett-/tre-ramme, reven og en kort matematisk korrekt støtteboble *inne i scenen*, ved siden av den interaktive brøkfiguren.
+- Brøkbyggingen får tydeligere fysisk arbeidsflate, større kakediagram og gode berøringsmål.
+- Ekte oppdagelsesantall i toppstripen erstatter den dekorative etiketten. Ingen oppdiktet antall stjerner.
+- Eldre fag og kloden berøres ikke; ingen innholdssperrer, tvangsrunder eller overtakelse av barnets favorittaktivitet.
+
+**Produktakseptanse:** V4 er en ny visuell forbedring, ikke garanti om full 3D-identitet med originalillustrasjonene. Godkjenn først når nye screenshots fra iPhone/iPad WebKit og Chromium er undersøkt konkret og den brede regresjonen er grønn. Første barnebeta skal bygge på dette og prøve om barn velger å fortsette frivillig.

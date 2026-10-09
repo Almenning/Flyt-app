@@ -1,0 +1,297 @@
+/* Brøklaben v4: locked six-screen illustration parity.
+   The artwork is decorative; every educational piece remains an actual button/SVG.
+   Strict fr2/fr4 scoping preserves Kloden, Gangetabellen and other modules. */
+#fraction-lab-screen .fr2-shell{
+ --fr4-ink:#4B2D23;
+ --fr4-caramel:#BC814F;
+ --fr4-honey:#E7AD5B;
+ --fr4-porcelain:#FFF7E4;
+ color:var(--fr4-ink);
+ background:radial-gradient(ellipse at 50% 16%,#FFF8E3 0%,#F8E8C9 50%,#F4DDB8 100%);
+}
+#fraction-lab-screen .fr2-world-art{
+ background:
+ linear-gradient(180deg,rgba(255,246,220,.01) 0%,rgba(255,246,220,.12) 44%,rgba(255,243,215,.34) 75%,#F8E9D3 100%),
+ url('./fraction-workshop-scene.svg') center top /100% 100% no-repeat;
+ opacity:1;filter:saturate(1.18) contrast(1.03);
+}
+#fraction-lab-screen .fr2-content{isolation:isolate}
+.fr2-top.fr4-top{
+ background:linear-gradient(120deg,#FFFCF2F7,#FFF1D4F2);
+ box-shadow:inset 0 2px 2px #FFF,0 6px 0 #B18A5C8C,0 12px 20px #66381B30;
+}
+.fr4-top .fr2-brand{font-size:clamp(30px,8vw,39px);letter-spacing:-.07em}
+.fr4-earned{
+ font-variant-numeric:tabular-nums;display:flex;gap:7px;
+ border-radius:26px;padding:8px 13px;
+ background:linear-gradient(#FFF7D7,#F9DCAC)!important;
+ border-color:#F5D09B!important;color:#71472E;
+ box-shadow:0 3px 0 #CEA7797A;
+}
+.fr4-earned span{color:#EDB243;font-size:24px;text-shadow:0 2px 0 #B77A28}
+.fr4-earned b{font-size:19px;font-weight:1000}
+.fr4-top-token{position:absolute;z-index:0;right:25%;top:2px;height:50px;width:50px;transform:rotate(-12deg);pointer-events:none;opacity:.94}
+.fr4-top-token .fr2-illustration{height:45px;width:50px;max-width:50px}
+.fr2-sign{margin-top:29px;margin-bottom:17px}
+.fr2-sign h1{font-size:clamp(33px,8vw,56px);text-shadow:0 2px 1px #FFF3CF}
+.fr2-sign p{font-size:clamp(13px,3.9vw,17px)}
+.fr4-home{position:relative}
+.fr4-home .fr2-home-grid{position:relative;z-index:2}
+.fr4-home .fr2-home-card{
+ background-image:
+ radial-gradient(ellipse at 32% 22%,#FFFCF4,transparent 67%),
+ linear-gradient(165deg,#FFF9E9,#F1D9B8);
+ border-color:#FFF9E7;
+ box-shadow:inset 0 4px 9px #FFFFFFB5,0 6px 0 #C7A276,0 14px 22px #5C3B2838;
+}
+.fr4-home .fr2-card-build{background-image:radial-gradient(ellipse at 33% 22%,#FFFFFF,transparent 70%),linear-gradient(165deg,#F2FAF7,#D2E9F0)}
+.fr4-home .fr2-card-equal{background-image:radial-gradient(ellipse at 33% 22%,#FFFEF3,transparent 71%),linear-gradient(165deg,#F1F8E6,#DCEABA)}
+.fr4-home .fr2-card-sort{background-image:radial-gradient(ellipse at 33% 22%,#FFFCF6,transparent 70%),linear-gradient(165deg,#F7F0DF,#EAD7B9)}
+.fr4-home .fr2-card-convert{background-image:radial-gradient(ellipse at 33% 22%,#FFFBF2,transparent 70%),linear-gradient(165deg,#FFF6E5,#F6D4BA)}
+.fr4-home .fr2-card-mastery{background-image:radial-gradient(ellipse at 33% 22%,#FFFEEE,transparent 70%),linear-gradient(165deg,#F4F8E4,#DDE8BC)}
+.fr4-home .fr2-card-art{height:135px}
+.fr4-home .fr2-illustration{max-width:220px;height:138px;filter:drop-shadow(0 8px 5px #714E3342)}
+.fr4-home .fr2-home-card strong{font-size:clamp(17px,4.4vw,23px);font-weight:1000;color:#4F2B22}
+.fr4-home-foreground{
+ height:clamp(155px,25vw,242px);
+ width:calc(100% + 30px);
+ margin:-20px -15px -83px;
+ position:relative;z-index:2;
+ pointer-events:none;
+ background:url('./fraction-bakery-foreground-v4.svg') center bottom /100% auto no-repeat;
+ filter:drop-shadow(0 7px 5px #68452129);
+}
+.fr4-home .fr2-guide{position:relative;z-index:3;margin-top:0;min-height:160px}
+.fr4-home .fr2-guide>.fr2-fox{
+ width:clamp(135px,36vw,215px);height:175px;
+ filter:drop-shadow(0 8px 7px #47291670);
+}
+.fr4-home .fr2-guide .fr2-fox-speech{
+ background:linear-gradient(150deg,#FFFDF8,#FFE7BC);
+ box-shadow:0 6px 0 #CCA57D,0 13px 19px #67411F40;
+ font-size:clamp(13px,3.6vw,17px);
+ border:3px solid #FFF9DF;
+}
+/* Tab icons replace mathematical Unicode glyphs that resemble placeholders. */
+.fr2-views.fr4-views{padding:8px;gap:6px;border-radius:25px;background:#FFF8E7F2;box-shadow:0 4px 0 #D2B6936B,0 12px 20px #805C3931}
+.fr4-views .fr2-view{
+ border:1px solid #E6C9A5;border-bottom:4px solid #DBC09F;
+ background:linear-gradient(#FFFCF3,#F8E7CE);
+ min-height:97px;gap:1px;border-radius:17px;
+ box-shadow:inset 0 3px 3px #FFFFFFBB;
+}
+.fr4-views .fr2-view.active{
+ border:2px solid #DDA54A;border-bottom:4px solid #C68A31;
+ background:linear-gradient(#FFF7D8,#FFE1A5);
+ box-shadow:0 0 0 2px #F8D9A2,0 7px 13px #AA7A3040;
+}
+.fr4-mode-art{display:grid;place-items:center;width:58px;height:54px}
+.fr4-mode-art svg{display:block;width:56px;height:48px;filter:drop-shadow(0 3px 1px #7D502B25)}
+.fr4-views .fr2-view b{font-size:clamp(10px,2.8vw,14px);font-weight:950}
+.fr2-explore-stage.fr4-explore-stage{
+ position:relative;isolation:isolate;overflow:hidden;
+ min-height:330px;margin-top:16px;
+ padding:13px 11px 16px;
+ background:
+ linear-gradient(150deg,#FFFDF4F2,#FFF3DAEC),
+ repeating-linear-gradient(180deg,#D8B58A,#D8B58A 12px,#C9A176 13px);
+ border:8px solid #C58B56;
+ outline:3px solid #F8D7A9;
+ box-shadow:inset 0 0 0 5px #FFEAC9,inset 0 4px 14px #FFF5DB,0 9px 0 #8D542F,0 18px 23px #6243244D;
+ border-radius:32px;
+}
+.fr4-explore-stage:before{
+ height:38%;opacity:.13;
+ background:repeating-linear-gradient(90deg,#F0CDA2 0px,#F0CDA2 18px,#C18F61 20px,#C18F61 21px);
+}
+.fr4-stage-main{
+ grid-template-columns:minmax(0,1.35fr) minmax(87px,.76fr);
+ gap:4px;min-height:242px;
+ padding:3px 6px 82px 0;
+}
+.fr4-stage-main .fr2-main-illustration{min-height:183px}
+.fr4-stage-main .fr2-pie-large{
+ width:min(100%,255px);
+ filter:drop-shadow(0 10px 5px #5F3D2E55);
+}
+.fr4-stage-main .fr2-main-value{min-width:0;align-content:start;padding-top:35px}
+.fr4-stage-main .fr2-main-value .fr2-fraction{font-size:clamp(64px,17vw,105px);color:#502719;text-shadow:0 3px 2px #FFF2DB}
+.fr4-stage-main .fr2-main-illustration:after{display:none}
+.fr4-explore-stage .fr4-scene-fox{
+ position:absolute;z-index:4;right:0;bottom:41px;
+ width:clamp(98px,25vw,155px);
+ height:clamp(122px,29vw,177px);
+ pointer-events:none;
+ filter:drop-shadow(0 7px 6px #60392255);
+}
+.fr4-scene-fox .fr2-fox{height:100%;width:100%;max-width:100%;object-fit:contain;object-position:bottom}
+.fr4-scene-speech{
+ position:absolute;z-index:3;pointer-events:none;
+ right:clamp(84px,24vw,138px);
+ bottom:92px;width:clamp(119px,33vw,198px);
+ min-height:66px;padding:12px 9px;
+ display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+ border:3px solid #FFF8E2;border-radius:26px 24px 24px 7px;
+ background:linear-gradient(135deg,#FFFDF3,#FFE5BE);
+ box-shadow:0 4px 0 #D0A77B,0 8px 17px #87563137;
+ font-size:clamp(11px,3vw,14px);font-weight:930;line-height:1.25;
+}
+.fr4-scene-speech span{color:#DB8267;font-size:15px;line-height:1.0}
+.fr4-stage-caption{
+ position:relative;z-index:5;max-width:310px;
+ margin:-11px auto 1px;
+ padding:9px 15px;
+ border:2px solid #F2CF9D;border-radius:21px;
+ background:linear-gradient(#FFEFD5,#F8D8AF);
+ box-shadow:inset 0 3px 5px #FFF6E8,0 3px 0 #C59B6B;
+ text-align:center;font-size:clamp(12px,3.5vw,15px);font-weight:950;color:#603722;
+}
+.fr4-controls .fr2-adjust{
+ padding-top:13px;
+ background:linear-gradient(155deg,#FFFDF7,#FFE2C1);
+ box-shadow:inset 0 3px 6px #FFFBF2,0 6px 0 #D5B28B,0 12px 18px #82593031;
+}
+.fr4-controls .fr2-adjust-heading b{font-size:clamp(17px,4.4vw,21px)}
+.fr4-controls .fr2-adjust-btn{min-height:48px;min-width:47px;width:47px;border-radius:50%;box-shadow:0 4px 0 #466E80}
+.fr4-controls .fr2-adjust-btn.plus{box-shadow:0 4px 0 #60864E}
+.fr4-common{border:3px solid #FFF8E7;padding:12px;background:#FFF8E8EB;box-shadow:0 5px 0 #CFB08C73,0 12px 20px #8A68472B}
+.fr4-common>strong{font-size:clamp(17px,4vw,21px)}
+.fr4-presets{gap:8px;align-items:stretch}
+.fr4-presets .fr2-preset{
+ flex:0 0 clamp(66px,21vw,98px);min-height:106px;
+ gap:3px;padding:7px 4px;
+ border:2px solid #E5C7A5;border-bottom:4px solid #CFA77A;border-radius:17px;
+ background:linear-gradient(#FFFCF3,#FFEED6);
+}
+.fr4-presets .fr2-preset.selected{background:linear-gradient(#FFF5CE,#FFE4A2);border-color:#E9B54F;box-shadow:0 0 0 3px #F5D493,0 5px 0 #CCA35B}
+.fr4-presets .fr2-preset .fr2-fraction{font-size:21px;font-weight:1000}
+.fr4-preset-pie{display:grid;place-items:center;width:52px;height:53px}
+.fr4-presets .fr2-pie-preset{height:51px;width:51px;filter:drop-shadow(0 3px 2px #68442239)}
+.fr4-small-discovery{
+ text-align:center;margin:7px auto 15px;padding:7px 13px;
+ max-width:max-content;border-radius:22px;
+ background:#FFF5DDDB;color:#7C563D;
+ font-size:13px;font-weight:850;
+}
+.fr4-small-discovery span{color:#C99D50}
+/* Fraction building should read like a physical workbench, not a controller panel. */
+.fr4-build-stage{position:relative;grid-template-columns:minmax(115px,.44fr) minmax(0,1fr);gap:10px;min-height:328px;padding:12px 8px;border:5px solid #F9D4A5}
+.fr4-build-stage .fr2-wood-tray{border-radius:19px;padding:10px 6px;min-width:0}
+.fr4-build-stage .fr2-tray-title{font-size:14px}
+.fr4-build-stage .fr2-spare-pieces{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.fr4-build-stage .fr2-spare{min-width:0;min-height:55px;border-radius:12px;box-shadow:inset 0 3px 7px #FFF2D5,0 4px 0 #985D39}
+.fr4-build-stage .fr2-loose-piece{width:100%;max-width:60px;height:58px}
+.fr4-build-stage .fr2-build-target{padding:11px 2px 9px;border-radius:25px}
+.fr4-build-woodhead{
+ position:relative;z-index:1;padding:6px 12px;margin-bottom:4px;
+ background:linear-gradient(#F9DCAD,#DEA36D);
+ border:2px solid #BE8952;border-radius:16px;
+ text-align:center;font-size:13px;font-weight:1000;color:#60371F;
+}
+.fr4-build-stage .fr2-fabric{max-width:330px;min-width:0}
+.fr4-build-stage .fr2-pie-builder{width:min(100%,300px);aspect-ratio:1;filter:drop-shadow(0 7px 6px #68452D65)}
+.fr4-build-result{font-size:17px;color:#603A26}
+.fr4-build-result .fr2-fraction{font-size:46px}
+.fr4-build .fr2-guide{margin-top:16px}
+/* Improve both question focus and physical-world detail without hiding learning content. */
+.fr2-equal .fr2-scale-stage{outline:3px solid #D7B987;outline-offset:0;background:radial-gradient(circle at 50% 2%,#FFFBEA,#E1EBCB 91%)}
+.fr2-equal .fr2-scale-beam{box-shadow:0 6px 6px #79512B49}
+.fr2-equal .fr2-scale-plate>.fr2-pie{filter:drop-shadow(0 9px 6px #6F523660)}
+.fr2-convert .fr2-convert-focus{background:radial-gradient(ellipse at 50% 11%,#FFFDF2,#F4DFBA 100%);outline:3px solid #D5AE77}
+.fr2-convert .fr2-conversion-row>div{min-height:99px}
+.fr2-sort .fr2-sort-stage{background:linear-gradient(150deg,#EBF3D9,#C5DFB3);border:4px solid #FFF1D3}
+.fr2-sort .fr2-sort-card{background:linear-gradient(#FFFDF4,#F8E6CB)}
+.fr2-mastery .fr2-master-journey{background:radial-gradient(ellipse at 50% 0,#FFFCED,#E4EFC5)}
+.fr2-mastery .fr2-mastery-banner{background:linear-gradient(115deg,#FFEDBB,#F2D498)}
+.fr2-mastery .fr2-guide>.fr2-fox{filter:drop-shadow(0 9px 8px #56362250)}
+@media(min-width:700px){
+ .fr4-top-token{right:17%;width:72px;height:60px}.fr4-top-token .fr2-illustration{width:70px;height:62px;max-width:72px}
+ .fr4-home .fr2-home-card{min-height:288px}
+ .fr4-home .fr2-card-art{height:164px}
+ .fr4-home .fr2-illustration{max-width:240px;height:164px}
+ .fr4-home-foreground{height:245px;margin-top:-21px;margin-bottom:-102px;background-size:100% auto}
+ .fr4-home .fr2-guide>.fr2-fox{width:220px;height:211px}
+ .fr4-explore-stage{min-height:430px}
+ .fr4-stage-main{min-height:355px;padding-bottom:88px;grid-template-columns:1.15fr .85fr}
+ .fr4-stage-main .fr2-main-illustration{min-height:293px}
+ .fr4-stage-main .fr2-pie-large{width:330px}
+ .fr4-stage-main .fr2-main-value{padding-top:55px}
+ .fr4-scene-speech{bottom:122px;right:170px;width:190px;min-height:95px;font-size:16px}
+ .fr4-explore-stage .fr4-scene-fox{width:190px;height:215px;bottom:40px}
+ .fr4-stage-caption{max-width:410px;margin-top:-4px;font-size:16px}
+ .fr4-build-stage{grid-template-columns:200px minmax(0,1fr);min-height:410px;padding:20px 17px}
+ .fr4-build-stage .fr2-wood-tray{min-height:340px}
+ .fr4-build-stage .fr2-spare{min-height:68px}
+ .fr4-build-stage .fr2-loose-piece{height:65px}
+ .fr4-build-stage .fr2-pie-builder{width:335px}
+}
+@media(max-width:390px){
+ .fr4-top .fr2-brand{font-size:30px}
+ .fr4-earned{padding:6px 10px}
+ .fr4-top-token{right:25%;top:4px;width:38px;height:43px}
+ .fr4-top-token .fr2-illustration{width:40px;height:41px}
+ .fr4-home .fr2-card-art{height:121px}
+ .fr4-home .fr2-illustration{height:123px}
+ .fr4-home-foreground{height:165px;margin:-16px -10px -68px;width:calc(100% + 20px)}
+ .fr4-home .fr2-guide>.fr2-fox{width:146px;height:170px}
+ .fr4-views .fr2-view{min-height:83px}
+ .fr4-mode-art{height:45px}
+ .fr4-mode-art svg{width:49px;height:43px}
+ .fr4-explore-stage{min-height:325px;padding:13px 6px 14px;border-width:7px}
+ .fr4-stage-main{min-height:238px;grid-template-columns:minmax(0,1.33fr) minmax(83px,.65fr);padding-bottom:74px}
+ .fr4-stage-main .fr2-main-illustration{min-height:165px}
+ .fr4-stage-main .fr2-main-value{padding-top:37px}
+ .fr4-stage-main .fr2-main-value .fr2-fraction{font-size:65px}
+ .fr4-explore-stage .fr4-scene-fox{right:-3px;bottom:39px;width:113px;height:130px}
+ .fr4-scene-speech{right:80px;bottom:108px;width:131px;font-size:11px}
+ .fr4-stage-caption{font-size:12px;margin:-14px auto 0;padding:8px 10px;max-width:280px}
+ .fr4-controls .fr2-adjust-btn{min-width:44px;width:44px}
+ .fr4-build-stage{grid-template-columns:minmax(106px,.44fr) minmax(0,1fr);gap:7px;padding:9px 5px}
+ .fr4-build-stage .fr2-spare{min-height:50px}
+ .fr4-build-stage .fr2-loose-piece{height:50px}
+ .fr4-build-stage .fr2-wood-tray{padding:8px 4px}
+ .fr4-build-stage .fr2-build-target{padding-inline:0}
+ .fr4-build-stage .fr2-pie-builder{width:min(100%,215px)}
+}
+@media(prefers-reduced-motion:reduce){.fr4-explore-stage *,.fr4-home *{transition:none!important;animation:none!important}}
+
+/* Hero readability after image QA: physical fraction and its equation must never be
+   hidden by the guide. The guide lives in its own strip beneath the pie. */
+.fr4-explore-stage{display:flex;flex-direction:column;align-items:stretch;min-height:0}
+.fr4-stage-main{min-height:207px;padding:6px 0 10px;flex:none;align-items:center}
+.fr4-stage-main .fr2-main-illustration{min-height:181px}
+.fr4-stage-main .fr2-main-value{align-self:center;padding-top:3px}
+.fr4-scene-speech{
+ position:relative;bottom:auto;right:auto;z-index:4;
+ margin:1px 112px 10px 10px;
+ width:auto;max-width:250px;min-height:65px;
+ padding:12px 10px;font-size:clamp(12px,3vw,15px);
+ pointer-events:none;align-self:stretch;
+}
+.fr4-explore-stage .fr4-scene-fox{
+ bottom:4px;right:2px;z-index:4;
+ width:clamp(114px,30vw,178px);
+ height:clamp(142px,38vw,201px);
+ pointer-events:none;
+}
+.fr4-stage-caption{
+ align-self:flex-start;max-width:285px;min-width:0;
+ width:calc(100% - 110px);margin:0 105px 6px 8px;
+ font-size:clamp(12px,3.6vw,16px);padding:9px 10px;
+}
+@media(min-width:700px){
+ .fr4-stage-main{min-height:300px;padding:2px 8px 12px}
+ .fr4-stage-main .fr2-main-illustration{min-height:292px}
+ .fr4-stage-main .fr2-main-value{padding-top:5px}
+ .fr4-scene-speech{margin-left:20px;margin-right:190px;max-width:390px;font-size:17px;min-height:75px}
+ .fr4-explore-stage .fr4-scene-fox{right:14px;bottom:7px;width:200px;height:240px}
+ .fr4-stage-caption{margin-left:20px;width:calc(100% - 195px);max-width:410px}
+}
+@media(max-width:390px){
+ .fr4-stage-main{min-height:196px;padding:5px 0 10px}
+ .fr4-stage-main .fr2-main-illustration{min-height:168px}
+ .fr4-stage-main .fr2-main-value{padding-top:0}
+ .fr4-scene-speech{margin-right:105px;margin-left:3px;min-height:60px;font-size:12px}
+ .fr4-explore-stage .fr4-scene-fox{right:-6px;bottom:7px;width:125px;height:160px}
+ .fr4-stage-caption{margin:0 102px 5px 4px;width:calc(100% - 107px);font-size:12px}
+}

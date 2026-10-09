@@ -36,13 +36,38 @@ async function run(browser,engine,label,viewport,url){
   }));
   assert.equal(workshopScenery.status,200,'illustrated workshop background failed to load');
   assert.ok(workshopScenery.background.includes('fraction-workshop-scene.svg'),'main stage lacks bakery scenery');
+  const realBakery=await page.evaluate(async()=>{
+    const node=document.querySelector('.fr4-home-foreground');
+    return {found:!!node,bg:node?getComputedStyle(node).backgroundImage:'',assetStatus:(await fetch('./fraction-bakery-foreground-v4.svg')).status,painted:node?node.getBoundingClientRect().height:0};
+  });
+  assert.ok(realBakery.found&&realBakery.painted>=130,'decorative bakery foreground is missing');
+  assert.ok(realBakery.bg.includes('fraction-bakery-foreground-v4.svg'),'foreground does not match locked workshop reference');
+  assert.equal(realBakery.assetStatus,200,'new bakery art asset not found');
+  assert.equal(await page.locator('.fr4-top .fr4-earned').count(),1,'earned discoveries must be shown from real state');
   await photo(page,label+'-01-home');
 
   await page.locator('.fr2-card-explore').click();
   await page.locator('.fr2-explore').waitFor();
   assert.equal(await page.locator('.fr2-view').count(),4);
   assert.equal(await page.locator('.fr2-pie-large').count(),1);
+  assert.equal(await page.locator('.fr4-mode-art svg').count(),4,'all four representations need illustrated control art');
+  assert.equal(await page.locator('.fr4-presets .fr2-pie-preset').count(),7,'preset choices need real fraction diagrams');
+  assert.equal(await page.locator('.fr4-scene-fox .fr2-fox').count(),1,'the fox must be inside the exploration scene, not only at the bottom');
+  assert.match(await page.locator('.fr4-stage-caption').innerText(),/3 av 4/);
   await photo(page,label+'-02-explore');
+  // A decorative speech bubble must never intercept the interactive slice.
+  await page.locator('.fr2-pie-large [data-fr-action="piece"][data-piece="1"]').click();
+  assert.equal((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot())).explore.n,1,'hero artwork may not block fraction touch targets');
+  const readableHero=await page.evaluate(()=>{
+    const stage=document.querySelector('.fr4-explore-stage').getBoundingClientRect();
+    const figure=document.querySelector('.fr2-main-illustration').getBoundingClientRect();
+    const speech=document.querySelector('.fr4-scene-speech').getBoundingClientRect();
+    const head=document.querySelector('.fr2-main-value').getBoundingClientRect();
+    const fraction=document.querySelector('.fr2-main-value .fr2-fraction').getBoundingClientRect();
+    const separated=(fraction.right<=speech.left||speech.right<=fraction.left||fraction.bottom<=speech.top||speech.bottom<=fraction.top);
+    return {stageHeight:stage.height,figureWidth:figure.width,speechWidth:speech.width,fractionReadable:separated,contentOnPage:[figure.left>=-1,figure.right<=innerWidth+1,speech.left>=-1,speech.right<=innerWidth+1,head.left>=-1,head.right<=innerWidth+1]};
+  });
+  assert.ok(readableHero.stageHeight>=300&&readableHero.figureWidth>=115&&readableHero.speechWidth>=115&&readableHero.fractionReadable&&readableHero.contentOnPage.every(Boolean),label+' illustrated scene too small or clipped: '+JSON.stringify(readableHero));
   await page.locator('[data-fr-action="preset"][data-n="1"][data-d="2"]').click();
   assert.deepEqual(await page.evaluate(()=>[LARIA_FRACTION_PREMIUM.snapshot().explore.n,LARIA_FRACTION_PREMIUM.snapshot().explore.d]),[1,2]);
   await page.locator('[data-fr-action="view"][data-view="bar"]').click();
@@ -54,11 +79,13 @@ async function run(browser,engine,label,viewport,url){
   await page.locator('[data-fr-action="view"][data-view="circle"]').click();
   await page.locator('[data-fr-action="adjust"][data-field="n"][data-step="1"]').click();
   assert.equal((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot())).explore.n,2);
+  assert.match(await page.locator('.fr4-stage-caption').innerText(),/2 av 2|Hele figuren/,'feedback must follow the chosen fraction');
 
   await page.locator('.fr2-nav-item[data-page="build"]').click();
   await page.locator('.fr2-build').waitFor();
   await photo(page,label+'-03-build');
   assert.ok((await page.locator('.fr2-spare .fr2-loose-piece').count())>=4,'loose tiles must look like real pastry pieces');
+  assert.equal(await page.locator('.fr4-build-woodhead').innerText(),'Delene dine');
   await page.locator('[data-fr-action="reset"]').click();
   assert.equal((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot())).build.n,0);
   await page.locator('.fr2-spare').first().dragTo(page.locator('.fr2-build-target'));
