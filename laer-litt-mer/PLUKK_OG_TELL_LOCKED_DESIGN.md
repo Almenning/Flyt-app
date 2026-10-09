@@ -107,3 +107,15 @@ Dette styrer førstesiden foran de tidligere godkjente funksjonsforslagene:
 - Læring og mestring må oppleves som lek, ikke som en oppgave med for mange kommandoer. Ingen instruksjonsblokker, skjemaer eller forutgående valg.
 
 **Godkjenningskriterium:** En andreklassing skal kunne begynne å plukke uten at en voksen forklarer menyene. Safari-/iPad-testen skal dokumentere seks objekter på førstesiden, to store kurver, ett enkelt instruksjonskort og at alt avansert er skjult fram til eksplisitt valg.
+
+
+## Premium materiale- og objektpass v5
+Status: utviklings- og regressjonsport. Ingen endring i matematikkmotor eller læreprogresjon.
+
+- Alle **ti** miljøer beholder én tellbar og selvstendig SVG-gjenstand per faktisk objekt, med stabile ID-er.
+- Miniatyrillustrasjonene får mer naturtro former, flere graderinger, lysfall, skygge og materialdetaljer. Jordbær har blader, mange frø, uregelmessig silhuett og opplyste flater; bollene har bakte kanter og spiral; soppene har hatt, prikker, stilk og lameller; resten har tilsvarende materialkarakter.
+- SVG-gradientnavn må være unike på siden, også når nærvisningen viser samme objekt som den lille kurven. Objektets form må ikke strekkes på iPhone/iPad.
+- Wicker er flettet med lys-/skyggevariasjon; bakerbrett, soppekasser, skattkister og akvarier får egne materialer. Antallsmerket er synlig og kontroller legges utenfor illustrasjonen.
+- Scenens øvrige dekorasjon må ikke ligne ekstra tellbare objekter; natur og tekstur kan være rik uten at barnet blir usikker på hvor mange som skal telles.
+- Første visning for 1.–2. trinn forblir to store grupper med tre gjenstander, kun et enkelt oppdrag. De øvrige funksjonene åpnes frivillig.
+- Skjermbilder kreves fra WebKit både for første jordbærrunde og bakeriet etter «Bytt motiv», deretter valgte øvrige miljøer og nærvisning. Teknisk grønt er ikke lik kunstnerisk godkjent: låste illustrasjoner skal fortsatt brukes til kvalitetssammenligning.
