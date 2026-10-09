@@ -116,6 +116,23 @@ async function run(browser,engine,label,viewport,url){
   await page.locator('[data-fr-action="next-equal"]').click();
   assert.equal((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot())).equal,1);
 
+  // The 16 comparisons must balance equal and unequal amounts. Simply
+  // answering "ja" must not pass, while the correct "nei" gives feedback.
+  assert.match(await page.locator('.fr2-trail').innerText(),/av 16/);
+  await page.locator('[data-fr-action="guess"][data-guess="equal"]').click();
+  assert.doesNotMatch(await page.locator('.fr2-feedback').innerText(),/Du fant det!/);
+  await page.locator('[data-fr-action="guess"][data-guess="different"]').click();
+  assert.match(await page.locator('.fr2-feedback').innerText(),/Du fant det!/);
+  let equalCount=1,differentCount=1;
+  for(let i=2;i<16;i++){
+    await page.locator('[data-fr-action="next-equal"]').click();
+    await page.locator('[data-fr-action="guess"][data-guess="equal"]').click();
+    if((await page.locator('.fr2-feedback').innerText()).includes('Du fant det!'))equalCount++;
+    else differentCount++;
+  }
+  assert.deepEqual([equalCount,differentCount],[8,8],'Eight equal and eight unequal fraction pairs expected');
+
+
   await page.locator('.fr2-nav-item[data-page="home"]').click();
   await page.locator('.fr2-card-sort').click();
   await page.locator('.fr2-sort').waitFor();
