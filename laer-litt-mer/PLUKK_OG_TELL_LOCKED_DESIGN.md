@@ -146,3 +146,14 @@ Status: Implementert som et rent CSS-lag på egen gren. Ikke erklært visuelt go
 - Ballongparken: stripete tivolistativer uten fruktkurvhank.
 
 Objektantall, plukk-ID-er, oppdrag, 10 × 10-tabellen, Brøklab, klode og lokal lagring skal være uendret. Ingen ekstra dekorativt jordbær, egg eller annet tellbart objekt i omgivelsene. Nærvisning skal videreføre materialfamilien. Sammenlign skjermbilder og vurder om enkelte rekvisitter fortsatt blir for generiske før kunstnerisk godkjenning.
+
+
+## Fysisk samsvar i nærvisningen v7
+
+Status: Implementert som rent CSS-lag; kunstnerisk sluttgodkjenning krever Safari-skjermbilder.
+
+- Når barnet velger «Se større» skal **samme fysiske rekvisitt** vises i nærvisningen, ikke en flettkurv uansett miljø.
+- Alle ti miljøer får egne materialer for bakvegg, innside og forkant: kurv, fruktkasse, bakerbrett, trekasse, gullkiste, togvogn, strandbøtte, reir, glasskar og tivolistativ.
+- Bakgrunnsmiljøet og eksakt antall manipulerbare objekter videreføres uendret. Ingen dekorativt falsk telling.
+- 44 px trykkflater, skjermtilpasning, tabell 10 × 10, 2 × 3-start, matematikkmotor, oppdrag og lokal fremgang skal forbli uendret.
+- Ta nærvisningsbilder fra Safari for samtlige ti miljøer. Ikke erklær full referanseidentitet kun på grunnlag av CSS-variasjon eller grønne automatiske tester.
