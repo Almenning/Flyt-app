@@ -227,7 +227,11 @@ function layout(){
  const modeRect=document.getElementById('globe-mode')?.getBoundingClientRect();
  const cardRect=document.getElementById('globe-status')?.getBoundingClientRect();
  const vw=window.innerWidth,vh=window.innerHeight;
- const top=Math.max(110,(modeRect?.bottom||185)+14);
+ const modeBottom=modeRect?.bottom||185;
+ screen.style.setProperty('--atlas-legend-top',(modeBottom+9)+'px');
+ const legend=document.getElementById('globe-legend');
+ const legendRect=map.mode==='mine'&&legend?.classList.contains('show')?legend.getBoundingClientRect():null;
+ const top=Math.max(110,modeBottom+14,legendRect?.height?legendRect.bottom+11:0);
  const bottom=Math.min(vh-104,(cardRect?.top||vh-164)-14);
  const h=Math.max(185,bottom-top);
  const w=Math.min(vw-24,vw>=1100?1080:vw>=700?850:vw-24);
