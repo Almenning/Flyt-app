@@ -53,5 +53,5 @@ test('locked Læria environment uses cohesive responsive artwork without stretch
   }
   assert.match(active,/background-size:cover!important/,'scene must preserve aspect ratio via cover');
   assert.doesNotMatch(active,/background-size:100%\\s+100%/,'do not stretch landscape to fit screen');
-  assert.match(css,/--g24-globe:min\\(94vw,48dvh\\)/,'preserve proportional mobile sphere size');
+  assert.ok(css.includes('--g24-globe:min(94vw,48dvh)'),'preserve proportional mobile sphere size');
 });
