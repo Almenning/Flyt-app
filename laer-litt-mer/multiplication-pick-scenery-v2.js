@@ -52,7 +52,7 @@ function forest(){
  '<g fill="#fff5cc" opacity=".7">'+Array.from({length:28},(_,i)=>'<circle cx="'+((i*139+9)%960)+'" cy="'+(110+(i*43)%310)+'" r="'+(i%3+1)*1.5+'"/>').join('')+'</g>';
 }
 function treasure(){
- let stones='';for(let j=0;j<16;j++)for(let i=0;i<19;i++){let x=i*54+(j%2)*27,y=j*38;stones+='<rect x="'+x+'" y="'+y+'" width="49" height="33" rx="5" fill="'+(i+j)%4===0?'#a99a86':'#b2a08c'+'" stroke="#716254" stroke-width="1.8" opacity=".56"/>';}
+ let stones='';for(let j=0;j<16;j++)for(let i=0;i<19;i++){let x=i*54+(j%2)*27,y=j*38;stones+='<rect x="'+x+'" y="'+y+'" width="49" height="33" rx="5" fill="'+(((i+j)%4===0)?'#a99a86':'#b2a08c')+'" stroke="#716254" stroke-width="1.8" opacity=".56"/>';}
  return '<rect width="960" height="620" fill="url(#ppCave)"/>'+stones+
  '<path d="M247 492V185Q480 -71 713 185V492Z" fill="#635b59" stroke="#b39b80" stroke-width="36"/>'+
  '<path d="M280 493V203Q480 -7 681 203V493Z" fill="#46525a" stroke="#8d7a67" stroke-width="8"/>'+
