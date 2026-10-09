@@ -119,3 +119,20 @@
  .mp-pick-collection{margin-top:20px}
 }
 @media(prefers-reduced-motion:reduce){.mp-pick-object{transition:none!important}}
+
+
+/* Stable individual objects from the child's basket are shown in the collection.
+   Scene selector artwork uses the same vector illustration as the live world. */
+.mp-pick-world-emoji{display:grid;place-items:center;width:49px;height:46px;line-height:1}
+.mp-pick-world-emoji svg{display:block;width:45px;height:45px;max-width:100%;max-height:100%;filter:drop-shadow(0 3px 2px #65432e45)}
+.mp-pick-world-btn{min-height:100px}
+.mp-pick-collection-art{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));align-items:center;justify-items:center;gap:1px;flex:0 1 128px;width:128px;max-width:36%;height:auto;min-height:44px}
+.mp-pick-collection-art svg{width:100%;height:auto;max-width:26px;max-height:26px;filter:drop-shadow(0 2px 1px #67402a42)}
+.mp-pick-collection-art:has(svg:only-child) svg{max-width:39px;max-height:39px}
+.mp-pick-blank-icon{display:grid;place-items:center;grid-column:1 / -1;font-size:31px;color:#a88962}
+@media(max-width:380px){
+ .mp-pick-world-emoji{width:43px;height:39px}
+ .mp-pick-world-emoji svg{height:39px;width:39px}
+ .mp-pick-collection-art{max-width:32%;flex-basis:89px}
+ .mp-pick-collection-art svg{max-width:22px;max-height:22px}
+}
