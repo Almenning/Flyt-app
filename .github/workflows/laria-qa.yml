@@ -49,6 +49,20 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium webkit
 
+      - name: Verify flat atlas perspective and retained classic globe
+        env:
+          ATLAS_QA_SCREENSHOTS: /tmp/laria-atlas-v1
+        run: node tests/laria-atlas-perspective.playwright.js
+
+      - name: Upload atlas perspective screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-atlas-v1-${{ github.sha }}
+          path: /tmp/laria-atlas-v1
+          if-no-files-found: warn
+          retention-days: 7
+
       - name: Verify premium Brøklaben in Chromium and WebKit
         env:
           FRACTION_QA_SCREENSHOTS: /tmp/laria-fraction-workshop
@@ -124,20 +138,6 @@ jobs:
         with:
           name: laria-device-hardening-${{ github.sha }}
           path: /tmp/laria-device-hardening
-          if-no-files-found: warn
-          retention-days: 7
-
-      - name: Verify flat atlas perspective and retained classic globe
-        env:
-          ATLAS_QA_SCREENSHOTS: /tmp/laria-atlas-v1
-        run: node tests/laria-atlas-perspective.playwright.js
-
-      - name: Upload atlas perspective screenshots
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: laria-atlas-v1-${{ github.sha }}
-          path: /tmp/laria-atlas-v1
           if-no-files-found: warn
           retention-days: 7
 
