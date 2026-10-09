@@ -36,6 +36,18 @@ Start: `3 × 10 = 30`. Plukk én: `3 × 10 − 1 = 29`; forklar ulik fordeling. 
 Når gruppene ikke er like, bruk korrekt subtraksjonsforhold eller nøyaktig addisjon som `8 + 10 + 9 = 27`. Ikke påstå at ulike grupper kan uttrykkes som et nytt gangestykke med én felles faktor.
 Ved flytting mellom grupper skal totalsummen være konstant. Maks fem grupper, tolv gjenstander per gruppe av hensyn til lesbarhet og ytelse. Lokalt lagret utforskningsstatus holdes adskilt fra fremgang i «Øv».
 
+
+## Posisjonsriktig plukking og visninger
+Når barnet peker på det tredje jordbæret, skal **det tredje objektet** forsvinne, ikke det sist tegnede. Gjenstander har stabile interne identiteter som følger dem til samlekurven, gjennom angre/gjør om, mellom kurver og ved opplasting av lagret lekestatus. Samlekurven skal vise de faktisk plukkede illustrasjonene (med samlet antall når de er mange).
+
+Barnet kan alltid bytte mellom fire uttrykk uten at mengden endres:
+- **Grupper**: et kort for hver gruppe med antallet.
+- **Rader**: faktiske prikker for samtlige gjenstander, gruppert per rad.
+- **Tallinje**: dynamiske hopp ut fra antall i hver gruppe, også når de er ulike.
+- **Sirkel**: en ring med én markør for hvert objekt i hver gruppe.
+
+Visningene er pedagogiske supplementer til den manipulerbare scenen, og ødelegger aldri interaksjonen. Læria-reven følger med som støttende ledsager uten å gi feilstraff eller holde innhold låst.
+
 ## Visuell kvalitet
 - Lærias varme håndlagde 2,5D-retning, med materialfølelse, perspektivlag, landskap og dype men ikke overdrevne skygger.
 - Synlige og riktige matematiske gjenstander. Dekorative gjenstander skal aldri telle i summen.
