@@ -104,6 +104,25 @@ async function testView(browser,engine,label,viewport,url){
   assert.match(await page.locator('.mp-table-inspector').innerText(),/4 × 6 = 24/);
   assert.match(await page.locator('.mp-table-inspector').innerText(),/6 × 4 = 24/);
   await screenshot(page,label+'-05-table');
+
+  // Explicit 3 × 10 acceptance case from the locked illustrated reference.
+  // The counted objects must remain distinct even on a narrow iPhone.
+  await page.locator('[data-mp-action="mode"][data-mode="groups"]').click();
+  await page.locator('[data-mp-action="factor"][data-factor="a"][data-step="-1"]').click();
+  for(let n=3;n<10;n++)await page.locator('[data-mp-action="factor"][data-factor="b"][data-step="1"]').click();
+  assert.match(await page.locator('.mp-math-result').innerText(),/3 × 10/);
+  assert.equal(await page.locator('.mp3-basket').count(),3,'3 × 10 needs three physically separate groups');
+  assert.deepEqual(await page.locator('.mp3-basket').evaluateAll(els=>els.map(el=>el.querySelectorAll('.mp3-item').length)),[10,10,10]);
+  const widths=await page.locator('.mp3-item').evaluateAll(els=>els.map(el=>el.getBoundingClientRect().width));
+  assert.ok(widths.every(w=>w>=17),label+' illustrated count objects must remain readable: '+Math.min(...widths));
+  for(const theme of ['strawberry','bun','mushroom','apple']){
+    await page.locator('[data-mp-action="theme"][data-theme="'+theme+'"]').click();
+    assert.equal(await page.locator('.mp3-collections').getAttribute('data-mp3-theme'),theme);
+    assert.equal(await page.locator('.mp3-item').count(),30);
+    await dimensions(page,viewport.width,label+' illustrated 3x10 '+theme);
+    if(label==='iphone-safari'||label==='ipad-safari')await screenshot(page,label+'-07-groups-3x10-'+theme);
+  }
+
   await page.locator('.mp-nav-link[data-page="mastery"]').click();
   await page.locator('.mp-mastery-screen').waitFor();
   assert.equal(await page.locator('.mp-award').count(),10);
