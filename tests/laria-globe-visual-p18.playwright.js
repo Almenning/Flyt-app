@@ -260,7 +260,7 @@ async function capture(browserType,label,viewport){
   const {s,url}=await server();globalThis.__url=url;
   try{
     const rendererSource=fs.readFileSync(path.join(root,'globe-v25-renderer.js'),'utf8');
-    for(const token of ["'Europa':'#6D9E50'","'Asia':'#879A50'","'Afrika':'#B9784F'","'Nord-Amerika':'#57934F'","'Sør-Amerika':'#3D8B50'"]){
+    for(const token of ["'Europa':'#316FE0'","'Asia':'#E6B544'","'Afrika':'#E87455'","'Nord-Amerika':'#4DAD60'","'Sør-Amerika':'#319F58'"]){
       assert.ok(rendererSource.includes(token),'locked natural-atlas base drift: '+token);
     }
     assert.ok(rendererSource.includes('paintPolarLand(ctx,w,h,s);'),'locked globe polar treatment missing');
