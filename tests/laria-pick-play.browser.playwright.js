@@ -61,7 +61,7 @@ async function run(browser,engine,label,viewport,url){
   assert.equal((await snapshot(page)).world,'balloon','world did not persist across reload');
   assert.deepEqual((await snapshot(page)).counts,[8,10,9],'counts did not persist across reload');
   await page.locator('[data-pick-action="mission"][data-id="twentyfour"]').click();
-  for(let i=0;i<6;i++)await page.locator('.mp-pick-vessel[data-group="0"] [data-pick-action="take"]').click();
+  for(let i=0;i<6;i++)await page.locator('.mp-pick-vessel[data-group="0"] .mp-pick-vessel-actions [data-pick-action="take"]').click();
   assert.equal((await snapshot(page)).total,24);
   await page.locator('[data-pick-action="check"]').click();
   assert.equal((await snapshot(page)).success,true);
