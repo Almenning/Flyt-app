@@ -131,7 +131,7 @@ const {chromium,webkit}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
   await page.locator('[data-camp="quest"]').tap();assert(await page.locator('#bc12-dialog').isVisible());await page.getByRole('button',{name:'Kanskje senere'}).tap();
   await page.locator('.bc12-nav [data-camp="collection"]').tap();await page.getByRole('heading',{name:'Samlingen din'}).waitFor();await page.getByRole('button',{name:'Tilbake til basecamp'}).tap();
   await page.locator('.bc12-nav [data-camp="explore"]').tap();assert.equal(await page.locator('.bc12 h1').textContent(),'Hvor skal vi dra i dag?');
-  assert.equal(await page.locator('[data-camp-fox-call]').textContent(),'Velg noe du liker!');
+  assert.equal(await page.locator('[data-camp-fox-call]').textContent(),'Klar, Testbarn? Jeg viser vei!');
   await page.locator('.bc12-nav [data-camp="home"]').tap();
   const rcTouch=await page.locator('.bc12-nav button').evaluateAll(els=>els.map(el=>({w:el.getBoundingClientRect().width,h:el.getBoundingClientRect().height})));
   assert.ok(rcTouch.every(x=>x.w>=44&&x.h>=44),name+' RC navigation has undersized touch targets: '+JSON.stringify(rcTouch));
