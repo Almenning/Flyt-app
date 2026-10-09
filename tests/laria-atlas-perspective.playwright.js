@@ -115,9 +115,20 @@ async function run(engine,label,viewport){
   await page.waitForFunction(()=>document.getElementById('world-screen').dataset.mapPerspective==='globe');
   assert.equal(await page.locator('#atlas-canvas').isVisible(),false,label+' atlas must hide for classic sphere');
   assert.equal(await page.locator('#globe-canvas').isVisible(),true,label+' classic sphere must remain playable');
+  const sphereFocus=await page.evaluate(()=>{
+    const c=countries?.[globeSelected];
+    return {selected:globeSelected,lon:globeLon,lat:globeLat,zoom:globeZoom,targetLon:c?.lon,targetLat:c?.lat};
+  });
+  assert.equal(sphereFocus.selected,'no',label+' switching modes must preserve Norway selection');
+  assert.ok(Math.abs(sphereFocus.lon-sphereFocus.targetLon)<.5&&Math.abs(sphereFocus.lat-sphereFocus.targetLat)<.5,
+    label+' classic sphere must center on the selected Norway instead of showing an unrelated continent: '+JSON.stringify(sphereFocus));
+  assert.ok(sphereFocus.zoom<=1.05,label+' returning to Kloden must keep a round, full-sized globe');
   await page.screenshot({path:path.join(out,label+'-sphere-retained.png'),fullPage:true});
   await page.locator('[data-globe-mode="explore"]').click();
   assert.equal(await page.locator('#atlas-canvas').isVisible(),true,label+' changing back should restore atlas');
+  const restored=await page.evaluate(()=>window.LARIA_ATLAS_PERSPECTIVE.snapshot());
+  assert.ok(Math.abs(restored.lon-sphereFocus.targetLon)<.5&&Math.abs(restored.lat-sphereFocus.targetLat)<.5,
+    label+' returning from Kloden must focus the same selected country in the atlas');
   assert.equal(await page.locator('#world-back').isVisible(),true);
   assert.deepEqual(errors,[],label+' runtime exceptions: '+errors.join(', '));
   fs.writeFileSync(path.join(out,label+'.json'),JSON.stringify({first,after,anchor,moved,rect,viewport},null,2));
