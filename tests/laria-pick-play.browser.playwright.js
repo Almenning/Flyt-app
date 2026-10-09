@@ -110,6 +110,20 @@ async function run(browser,engine,label,viewport,url){
   assert.deepEqual((await snapshot(page)).counts,[10,10,10]);
   assert.equal((await snapshot(page)).mission,null,'reset must leave challenge mode');
   await layout(page,label+' after reset');
+  // Drag the actual rendered item, rather than only using the accessible touch fallback.
+  const fruit=page.locator('.mp-pick-vessel[data-group="0"] .mp-pick-object').first();
+  const movedId=await fruit.getAttribute('data-token');
+  const sourceRect=await fruit.boundingBox();
+  const destRect=await page.locator('.mp-pick-vessel[data-group="1"]').boundingBox();
+  assert.ok(sourceRect&&destRect,label+' must expose draggable physical items');
+  await page.mouse.move(sourceRect.x+sourceRect.width/2,sourceRect.y+sourceRect.height/2);
+  await page.mouse.down();
+  await page.mouse.move(destRect.x+destRect.width/2,destRect.y+Math.min(40,destRect.height/3),{steps:9});
+  await page.mouse.up();
+  assert.deepEqual((await snapshot(page)).counts,[9,11,10],label+' must move exactly one item when dragged');
+  assert.equal(await page.locator('.mp-pick-vessel[data-group="1"] .mp-pick-object[data-token="'+movedId+'"]').count(),1,label+' dragged item must retain its identity');
+  assert.equal((await snapshot(page)).total,30,'dragging must not alter the total');
+
   if(engine==='webkit'&&(label==='iphone-safari'||label==='ipad-safari'))await image(page,label+'-02-missions-finished');
   await page.locator('.mp-explore-tab[data-mode="table"]').click();
   assert.equal(await page.locator('.mp-grid-cell').count(),100,'new activity damaged 10x10 table');
