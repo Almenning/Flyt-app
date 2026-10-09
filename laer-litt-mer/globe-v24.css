@@ -1441,8 +1441,8 @@ html:has(#world-screen.active){
     linear-gradient(90deg,#fff8e8 0%,rgba(255,248,232,.98) 46%,rgba(255,248,232,.58) 78%,rgba(249,238,211,.17) 100%)!important;
 }
 #world-screen.active.globe-v30 .premium-globe-fox{
-  -webkit-mask-image:radial-gradient(ellipse 105% 112% at 79% 61%,#000 36%,rgba(0,0,0,.94) 58%,rgba(0,0,0,.48) 82%,transparent 100%)!important;
-  mask-image:radial-gradient(ellipse 105% 112% at 79% 61%,#000 36%,rgba(0,0,0,.94) 58%,rgba(0,0,0,.48) 82%,transparent 100%)!important;
+  -webkit-mask-image:radial-gradient(ellipse 76% 88% at 79% 51%,#000 29%,rgba(0,0,0,.91) 54%,rgba(0,0,0,.32) 78%,transparent 100%)!important;
+  mask-image:radial-gradient(ellipse 76% 88% at 79% 51%,#000 29%,rgba(0,0,0,.91) 54%,rgba(0,0,0,.32) 78%,transparent 100%)!important;
   filter:saturate(.97) contrast(.99)!important;
 }
 @media (orientation:portrait) and (max-width:699px){
