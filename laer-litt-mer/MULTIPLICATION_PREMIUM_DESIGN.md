@@ -36,3 +36,12 @@ Oppdatert 8. oktober 2026. Brukerjustering: Utforsk og lek skal vise 10 x 10-tab
 - Utfør visuell gjennomgang opp mot de seks godkjente illustrasjonene. Detaljnivå i original mockup kan kreve flere separate illustrasjonsressurser for full pikselmatch.
 - Bevar klode-zoom, fagbanker og eksisterende navigasjon.
 - Status skal skille mellom merge/deploy, beståtte tester og visuell designgodkjenning. Ikke marker ferdig basert på kode alene.
+
+## Illustrert grupper v3 (9. oktober 2026)
+Godkjent visuelt prinsipp fra illustrasjonene: varme, tredimensjonale eventyrmiljøer, detaljerte kurver og brett, myke kremflater og svarfelt. Tellbare objekter må aldri være en flat bakgrunnsillustrasjon: de må genereres dynamisk av oppgavens faktorer.
+
+- Barnet kan velge jordbær, boller, eventyrsopper eller epler i både Øv og Utforsk → Grupper.
+- Nøyaktig a grupper, hver med nøyaktig b illustrerte objekter; ingen dekorativ rekvisitt skal telle som objekt.
+- Bytte av motiv endrer aldri regnestykke, svar, stjerner eller lagret fremgang.
+- Bruk reelle SVG-elementer som skalerer på iPhone og iPad. Behold 10 × 10-tabellen først i Utforsk.
+- Ny visuell kvalitet skal gjennomgås opp mot referanseillustrasjonene, ikke godkjennes bare fordi testene er grønne.
