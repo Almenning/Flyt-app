@@ -77,6 +77,20 @@ jobs:
           if-no-files-found: warn
           retention-days: 7
 
+      - name: Verify Plukk og tell in iPhone and iPad Chromium and WebKit
+        env:
+          PICK_QA_SCREENSHOTS: /tmp/laria-pick-play
+        run: node tests/laria-pick-play.browser.playwright.js
+
+      - name: Upload Plukk og tell storybook evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-pick-play-${{ github.sha }}
+          path: /tmp/laria-pick-play
+          if-no-files-found: warn
+          retention-days: 7
+
       - name: Full browser regression suite
         run: npm run test:browser
 
