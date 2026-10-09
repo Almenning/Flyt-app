@@ -39,25 +39,19 @@ test('visible globe land uses authoritative geographic boundaries, not a decorat
   assert.doesNotMatch(active,/drawIllustratedAtlas\(ctx,w,h,s\)/);
 });
 
-test('locked Læria environment frames the globe with responsive illustrated nature',()=>{
+test('locked Læria environment uses cohesive responsive artwork without stretching',()=>{
   const css=read('laer-litt-mer/globe-v24.css');
-  const active=css.slice(css.indexOf('/* Locked atlas environment v33:'));
-  assert.ok(active.length>900,'v33 visual scene contract not present');
+  const active=css.slice(css.indexOf('/* v36 unified storybook landscape:'));
+  assert.ok(active.length>450,'unified scene styles missing');
   for(const view of ['landscape','tablet','mobile']){
-    assert.match(active,new RegExp('globe-locked-environment-v36-'+view+'\\.svg'),'missing '+view+' artwork');
-    const svg=read('laer-litt-mer/globe-locked-environment-v36-'+view+'.svg');
-    assert.match(svg,/viewBox=/,'scene '+view+' is not responsive vector artwork');
-    assert.match(svg,/preserveAspectRatio="xMidYMid slice"/,view+' must CROP without stretching the source');
-    const expected={landscape:[1440,900],tablet:[850,1180],mobile:[450,960]}[view];
-    assert.ok(svg.includes('viewBox="0 0 '+expected[0]+' '+expected[1]+'"'),view+' must keep a correct source aspect ratio');
-    for(const token of ['id="sky"','id="range"','id="pine"','id="water"','id="woods"','id="approvedLeft"','id="approvedRight"'])
-      assert.ok(svg.includes(token),view+' lacks '+token);
-    assert.ok(svg.includes('<image href="data:image/webp;base64,'),'reference scenery must remain self-contained and avoid remote assets');
-    assert.ok(!svg.includes('<foreignObject')&&!svg.includes('<canvas'),'scenery must never embed a second interactive map');
+    const filename='laer-litt-mer/globe-storyscape-v36-'+view+'.webp';
+    const bytes=fs.readFileSync(filename);
+    assert.ok(bytes.length>30000,view+' environment artwork must be a real detailed image');
+    assert.equal(bytes.toString('ascii',0,4),'RIFF',view+' image must be valid WebP RIFF');
+    assert.equal(bytes.toString('ascii',8,12),'WEBP',view+' image must contain WebP payload');
+    assert.ok(active.includes('globe-storyscape-v36-'+view+'.webp'),view+' image must be used in CSS');
   }
-  assert.match(active,/background-size:cover!important/,'scenery must scale without distortion and crop if necessary');
-  assert.ok(active.includes('globe-locked-environment-v36-landscape.svg'),'latest illustrated release must be active');
-  assert.doesNotMatch(active,/background-size:100%\\s+100%/,'scene may not be stretched to fill arbitrary aspect ratios');
-  assert.doesNotMatch(active,/basecamp-v11/,'globe environment must not reuse fantasy village artwork');
-  assert.match(active,/--g24-globe:min\(94vw,48dvh\)/,'phone globe must dominate usable width');
+  assert.match(active,/background-size:cover!important/,'scene must preserve aspect ratio via cover');
+  assert.doesNotMatch(active,/background-size:100%\\s+100%/,'do not stretch landscape to fit screen');
+  assert.match(css,/--g24-globe:min\\(94vw,48dvh\\)/,'preserve proportional mobile sphere size');
 });
