@@ -120,10 +120,10 @@ function render(){
  groups()+
  '<div class="mp-pick-collection"><span class="mp-pick-collection-art" aria-hidden="true">'+(state.pool.length?state.pool.slice(-9).map(token=>sprite(picked.id,token)).join(''):'<span class="mp-pick-blank-icon">✧</span>')+'</span><div><strong>Du har plukket</strong><small>Se hva du har samlet!</small></div><b class="mp-pick-collected">'+state.collected+'</b></div></div></div>'+
  closeup()+
- '<p class="mp-pick-easy-feedback" role="status" aria-live="polite">'+esc(prompt)+'</p>'+
+ (state.collected>0?'<p class="mp-pick-easy-feedback" role="status" aria-live="polite">'+esc(prompt)+'</p>':'')+
  '<div class="mp-pick-easy-actions"><button type="button" data-mp-action="pick-play" data-pick-action="undo" '+(!past.length?'disabled':'')+'>↶ Angre</button><button type="button" data-mp-action="pick-play" data-pick-action="reset">Start på nytt</button><button type="button" data-mp-action="pick-play" data-pick-action="nextScene">Neste lek →</button></div>'+
  '<div class="mp-pick-more"><button type="button" class="mp-pick-more-toggle" data-mp-action="pick-play" data-pick-action="toggleMore" aria-expanded="'+moreOpen+'" aria-controls="mp-pick-optional"><span aria-hidden="true">'+(moreOpen?'−':'+')+'</span> '+(moreOpen?'Skjul flere valg':'Vil du prøve mer?')+'</button><div id="mp-pick-optional">'+advanced+'</div></div>'+
- '<p class="mp-pick-no-lockout">Du kan plukke så mange ganger du vil.</p></section>';
+ (moreOpen?'<p class="mp-pick-no-lockout">Du kan leke videre med det du liker.</p>':'')+'</section>';
 }
 function dispatch(target){
  if(Date.now()<suppressUntil)return true;
