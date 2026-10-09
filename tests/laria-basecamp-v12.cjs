@@ -78,7 +78,8 @@ const {chromium,webkit}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
    if(engineName==='chromium'&&name==='iphone'&&action==='globe'){
     const openMs=Date.now()-actionStarted;
     assert.ok(openMs<900,'iphone Home -> globe took too long: '+openMs+'ms');
-    await page.locator('#globe-canvas').waitFor({state:'visible',timeout:1500});
+    await page.locator('#atlas-canvas').waitFor({state:'visible',timeout:1500});
+    await page.waitForFunction(()=>document.getElementById('atlas-canvas')?.dataset.mapReady==='true',null,{timeout:900});
     await page.waitForFunction(()=>Number(document.getElementById('world-screen')?.dataset.globeReadyMs||0)>0,null,{timeout:900});
     const globeState=await page.evaluate(()=>({
       cssW:document.getElementById('globe-canvas')?._cssW||0,
@@ -86,7 +87,8 @@ const {chromium,webkit}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
       readyMs:Number(document.getElementById('world-screen')?.dataset.globeReadyMs||0),
       immediate:document.getElementById('world-screen')?.dataset.openedImmediately||''
     }));
-    assert.ok(globeState.cssW>=280&&globeState.cssH>=280,'iphone globe canvas was not initialized immediately: '+JSON.stringify(globeState));
+    const atlasBox=await page.locator('#atlas-canvas').boundingBox();
+    assert.ok(atlasBox&&atlasBox.width>=280&&atlasBox.height>=180,'iphone atlas was not drawn immediately: '+JSON.stringify(atlasBox));
     assert.equal(globeState.immediate,'true','globe screen did not switch immediately');
     assert.ok(globeState.readyMs>0&&globeState.readyMs<900,'globe renderer took too long after tap: '+JSON.stringify(globeState));
     assert.equal(requested.some(u=>u.includes('geografi-verden.png')||u.includes('globe-map-art-v1.png')),false,'opening globe must not fetch multi-megabyte static geography art');
