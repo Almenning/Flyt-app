@@ -1,0 +1,119 @@
+/* Læria Plukk og tell: storybook near view, one basket at a time.
+   The enlarged objects have the exact same IDs as their small originals.
+   They are a magnification, never additional mathematical objects. */
+.mp-pick-vessel .mp-pick-zoom-open{
+ display:block;position:relative;z-index:11;width:100%;min-height:44px;
+ margin:7px auto 2px;padding:6px 4px;border:2px solid #d7e4bc;border-radius:12px;
+ background:linear-gradient(180deg,#f8fbe9,#d7eabf);
+ color:#476446!important;font-weight:950;font-size:12px;
+ box-shadow:0 3px 0 #8aa77a,0 6px 8px #49613a1f;
+}
+.mp-pick-vessel .mp-pick-zoom-open:active{transform:translateY(2px);box-shadow:0 1px 0 #8aa77a}
+.mp-pick-zoom-overlay{position:fixed;inset:0;z-index:20000;
+ display:flex;align-items:center;justify-content:center;
+ padding:max(12px,env(safe-area-inset-top,0px)) max(11px,env(safe-area-inset-right,0px)) max(12px,env(safe-area-inset-bottom,0px)) max(11px,env(safe-area-inset-left,0px));
+ overscroll-behavior:contain;overflow:auto;}
+.mp-pick-zoom-backdrop{position:fixed;inset:0;border:0;border-radius:0;cursor:pointer;
+ background:linear-gradient(160deg,#202e29c7,#35291fc8);
+ -webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);}
+.mp-pick-zoom-dialog{position:relative;z-index:2;display:grid;gap:9px;
+ width:min(96vw,560px);max-width:100%;max-height:calc(100dvh - 28px);
+ padding:14px;border:5px solid #fff5df;border-radius:25px;
+ background:linear-gradient(160deg,#fff9e9 0%,#f6e4c7 70%,#e7d6b5 100%);
+ box-shadow:0 8px 0 #76533d94,0 27px 55px #1d271ed1,inset 0 0 0 2px #e2bf90;
+ overflow-y:auto;overflow-x:hidden;}
+.mp-pick-zoom-top{display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0}
+.mp-pick-zoom-top>div{min-width:0;display:grid;gap:3px}
+.mp-pick-zoom-top small{color:#94734f;font-size:10px;letter-spacing:.09em;font-weight:1000}
+.mp-pick-zoom-top strong{color:#52382c;font-size:clamp(19px,4.8vw,28px);line-height:1.1;font-weight:1000}
+.mp-pick-zoom-close{flex:0 0 auto;min-height:45px;padding:7px 12px;
+ border:2px solid #f0d3b1;border-radius:14px;background:linear-gradient(#fffdf5,#f0d9b9);
+ color:#674837!important;box-shadow:0 3px 0 #c39f74;font-size:13px;font-weight:920}
+.mp-pick-zoom-help{margin:0;color:#6c503f;font-size:13px;font-weight:780;line-height:1.32}
+.mp-pick-zoom-landscape{position:absolute;z-index:0;left:0;right:0;top:85px;height:calc(100% - 85px);
+ background:radial-gradient(ellipse at 30% 20%,#fffbe8b5,transparent 62%),
+ radial-gradient(ellipse at 70% 90%,#8fbd8b92,transparent 50%);pointer-events:none}
+.mp-pick-zoom-vessel{position:relative;isolation:isolate;min-height:202px;padding:37px 20px 48px;
+ display:grid;place-items:center;overflow:visible;margin:4px 4px 2px}
+.mp-pick-zoom-vessel:before{content:"";position:absolute;z-index:1;inset:20px 0 18px;
+ border:9px solid #aa7246;border-bottom:15px solid #8d5c37;border-radius:29px 29px 45px 45px;
+ background:repeating-linear-gradient(45deg,#b7864e7c 0 3px,transparent 3px 15px),
+ repeating-linear-gradient(-45deg,#a46d3770 0 3px,transparent 3px 15px),
+ linear-gradient(145deg,#f2d8a7,#cb955f);
+ box-shadow:inset 0 6px 11px #fff2d1a8,inset 0 -13px 16px #7549293e,
+ 0 10px 0 #65483088,0 19px 24px #583b2c56}
+.mp-pick-zoom-vessel:after{content:"";position:absolute;z-index:0;
+ top:-9px;left:10%;width:80%;height:91px;border:13px solid #b78351;border-bottom:0;
+ border-radius:52% 52% 0 0;box-shadow:inset 0 5px 0 #ffe1b1,0 -3px 0 #815632,0 4px 8px #5b422f55}
+.mp-pick-zoom-interior{position:relative;z-index:3;width:100%;padding:13px 7px 25px;
+ border-radius:18px;background:linear-gradient(#fff6d38e,#deb58a30);
+ box-shadow:inset 0 5px 11px #a3724d3c}
+.mp-pick-zoom-objects{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));
+ gap:4px;align-items:center;justify-items:center;min-height:106px;width:100%}
+.mp-pick-zoom-item{min-width:0;width:100%;min-height:49px;max-width:74px;
+ aspect-ratio:1/1;display:grid;place-items:center;padding:1px;
+ border:2px solid transparent;border-radius:12px;background:transparent;
+ box-shadow:none;touch-action:manipulation}
+.mp-pick-zoom-item svg{display:block;width:100%;height:100%;
+ max-width:70px;max-height:70px;filter:drop-shadow(0 3px 2px #45302550)}
+.mp-pick-zoom-item:active{transform:scale(.9) translateY(2px)}
+.mp-pick-zoom-item:focus-visible,.mp-pick-zoom-close:focus-visible{
+ outline:3px solid #227db3;outline-offset:2px}
+.mp-pick-zoom-vessel-front{position:absolute;z-index:4;pointer-events:none;
+ bottom:20px;left:10px;right:10px;height:42px;
+ border-top:8px ridge #f4d7a8;border-radius:2px 2px 32px 32px;
+ background:repeating-linear-gradient(47deg,#e5bb8257 0 5px,#83523369 5px 9px,transparent 10px 16px),
+ repeating-linear-gradient(-47deg,#fff7dd65 0 4px,#87512f5c 4px 8px,transparent 9px 17px),
+ linear-gradient(#dfad77,#a96f43);
+ box-shadow:inset 0 7px 8px #ffe2b188,inset 0 -9px 12px #78492857,0 -5px 7px #583d2954}
+.mp-pick-zoom-footer{display:flex;justify-content:space-between;align-items:center;
+ flex-wrap:wrap;gap:7px;z-index:2;margin-top:3px;padding:10px 13px;
+ border:2px solid #edd5b4;border-radius:14px;background:#fff9e8;
+ font-variant-numeric:tabular-nums;font-size:15px;color:#644632}
+.mp-pick-zoom-footer span{font-size:clamp(17px,4.4vw,25px);font-weight:1000}
+.mp-pick-zoom-footer b{font-weight:900;font-size:13px}
+/* Use the same illustrated materials as the overview, but with room for fingers. */
+.mp-pick-screen[data-pick-scene="bakery"] .mp-pick-zoom-vessel:after,
+.mp-pick-screen[data-pick-scene="forest"] .mp-pick-zoom-vessel:after,
+.mp-pick-screen[data-pick-scene="treasure"] .mp-pick-zoom-vessel:after,
+.mp-pick-screen[data-pick-scene="train"] .mp-pick-zoom-vessel:after,
+.mp-pick-screen[data-pick-scene="aquarium"] .mp-pick-zoom-vessel:after{display:none}
+.mp-pick-screen[data-pick-scene="bakery"] .mp-pick-zoom-vessel:before{
+ border-color:#a77b55;border-radius:14px 14px 23px 23px;
+ background:repeating-conic-gradient(#e6b8a675 0 25%,#fff3dfa1 0 50%) 50%/28px 28px,linear-gradient(#f3debc,#bf926c)}
+.mp-pick-screen[data-pick-scene="forest"] .mp-pick-zoom-vessel:before{
+ border-color:#7b624a;background:repeating-linear-gradient(90deg,#715a433b 0 4px,transparent 5px 30px),
+ linear-gradient(135deg,#d5bf95,#87734f)}
+.mp-pick-screen[data-pick-scene="treasure"] .mp-pick-zoom-vessel:before{
+ border-color:#9d732f;background:repeating-linear-gradient(0deg,#92632863 0 4px,transparent 5px 28px),
+ linear-gradient(145deg,#f6d581,#9a632f);border-radius:13px}
+.mp-pick-screen[data-pick-scene="train"] .mp-pick-zoom-vessel:before{
+ border-color:#7f5946;border-radius:14px 14px 18px 18px;background:linear-gradient(#d5ac7e,#8f6848)}
+.mp-pick-screen[data-pick-scene="aquarium"] .mp-pick-zoom-vessel:before{
+ border-color:#d5fff2bd;border-radius:41px;background:linear-gradient(85deg,#e9fff9a1,#53a7ba52,#faffea7d);
+ box-shadow:inset 0 9px 15px #fffdf2ac,0 8px 13px #225c7b78}
+.mp-pick-screen[data-pick-scene="aquarium"] .mp-pick-zoom-vessel-front{
+ background:linear-gradient(#95d7db90,#4a92a26e);border-top-color:#ddfff6cc}
+@media(max-width:420px){
+ .mp-pick-zoom-dialog{width:100%;border-width:4px;padding:11px;border-radius:21px}
+ .mp-pick-zoom-vessel{padding:35px 9px 42px;margin-inline:0}
+ .mp-pick-zoom-vessel:before{border-width:6px;border-bottom-width:11px}
+ .mp-pick-zoom-vessel-front{height:35px;bottom:17px}
+ .mp-pick-zoom-objects{gap:1px}
+ .mp-pick-zoom-item{min-height:46px;max-width:65px}
+ .mp-pick-zoom-top strong{font-size:20px}
+ .mp-pick-zoom-footer{padding:8px 11px}
+}
+@media(prefers-reduced-motion:reduce){
+ .mp-pick-zoom-item{transition:none;animation:none}
+}
+
+/* Older small iPhones: four columns make each interactive item comfortably tappable. */
+@media(max-width:360px){
+ .mp-pick-zoom-objects{grid-template-columns:repeat(4,minmax(0,1fr));gap:3px}
+ .mp-pick-zoom-vessel{padding-inline:10px}
+ .mp-pick-zoom-item{min-height:50px}
+ .mp-pick-zoom-top{gap:5px}
+ .mp-pick-zoom-top strong{font-size:18px}
+ .mp-pick-zoom-close{padding-inline:8px}
+}

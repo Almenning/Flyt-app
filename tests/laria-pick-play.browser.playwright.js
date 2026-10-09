@@ -25,7 +25,65 @@ async function run(browser,engine,label,viewport,url){
   assert.equal(await page.locator('.mp-pick-object').count(),30);
   assert.match(await page.locator('.mp-pick-equation').innerText(),/3 × 10 = 30/);
   await layout(page,label+' initial');
+
+  // Premium storybook contract: math objects stay interactive atop one richly layered
+  // scene; controls are BELOW the illustration and cannot occlude basket contents.
+  const gallery=await page.evaluate(()=>{
+    const stage=document.querySelector('.mp-pick-stage-v2');
+    const painted=stage?.querySelector('.mp-pick-storyscape');
+    const boxes=[...document.querySelectorAll('.mp-pick-vessel')].map(v=>{
+      const art=v.querySelector('.mp-pick-vessel-art').getBoundingClientRect();
+      const buttons=v.querySelector('.mp-pick-vessel-actions').getBoundingClientRect();
+      const first=v.querySelector('.mp-pick-object')?.getBoundingClientRect();
+      const plaque=v.querySelector('.mp-pick-number').getBoundingClientRect();
+      return {top:art.y,bottom:art.bottom,actionsTop:buttons.top,width:art.width,
+       plaqueWithinArt:plaque.y>=art.y&&plaque.bottom<=art.bottom+2,
+       objectInside:!!first&&first.x>=art.x-2&&first.right<=art.right+2};
+    });
+    const borderStyle=stage?getComputedStyle(stage):null;
+    const frame=stage?.getBoundingClientRect();
+    const innerWidth=frame?frame.width-parseFloat(borderStyle.borderLeftWidth)-parseFloat(borderStyle.borderRightWidth):0;
+    return {painted:!!painted,numberOfScenicDetails:painted?.querySelectorAll('path,ellipse,circle,rect').length||0,
+      stageWidth:frame?.width||0,stageInnerWidth:innerWidth,sceneryWidth:painted?.getBoundingClientRect().width||0,boxes};
+  });
+  assert.ok(gallery.painted&&gallery.numberOfScenicDetails>95,label+' requires a detailed, actual illustrated storybook landscape '+JSON.stringify(gallery));
+  assert.ok(Math.abs(gallery.stageInnerWidth-gallery.sceneryWidth)<3,label+' scenic background must fit INNER stage without stretching: '+JSON.stringify(gallery));
+  assert.ok(gallery.boxes.every(x=>x.width>=75&&x.actionsTop>=x.bottom+3&&x.plaqueWithinArt&&x.objectInside),
+      label+' all counting controls must be clearly separated from physical containers: '+JSON.stringify(gallery.boxes));
+  assert.ok(Math.max(...gallery.boxes.map(x=>x.top))-Math.min(...gallery.boxes.map(x=>x.top))<=3,
+      label+' locked 3x10 three baskets must share a row');
+
   if(engine==='webkit')await image(page,label+'-01-garden-3x10');
+
+  // Children must be able to pick a specific object without attempting
+  // to hit a tiny 5-in-a-row fruit in the three-basket overview.
+  await page.locator('.mp-pick-vessel[data-group="1"] [data-pick-action="zoom"]').click();
+  const zoom=page.locator('.mp-pick-zoom-overlay');
+  await zoom.waitFor();
+  assert.equal(await zoom.locator('[role="dialog"][aria-modal="true"]').count(),1,label+' zoom is a real accessible dialog');
+  assert.equal(await zoom.locator('.mp-pick-zoom-item').count(),10,label+' the closeup must show the same ten objects');
+  const closeupBounds=await page.locator('.mp-pick-zoom-item').evaluateAll(items=>items.map(el=>{
+    const r=el.getBoundingClientRect();return {w:r.width,h:r.height,visible:r.top>=0&&r.bottom<=innerHeight};
+  }));
+  assert.ok(closeupBounds.every(x=>x.w>=44&&x.h>=44&&x.visible),
+    label+' the enlarged objects must have usable physical touch areas '+JSON.stringify(closeupBounds));
+  const paintIds=await page.locator('.mp-pick-screen svg defs [id]').evaluateAll(els=>els.map(el=>el.id));
+  assert.equal(new Set(paintIds).size,paintIds.length,
+    label+' duplicated SVG paint IDs can break Safari gradients between normal and zoom views');
+  const zoomToken=await zoom.locator('.mp-pick-zoom-item').nth(3).getAttribute('data-token');
+  assert.equal(await page.locator('.mp-pick-vessel[data-group="1"] .mp-pick-object[data-token="'+zoomToken+'"]').count(),1);
+  if(engine==='webkit')await image(page,label+'-03-magnified-basket');
+  await zoom.locator('.mp-pick-zoom-item[data-token="'+zoomToken+'"]').click();
+  assert.deepEqual((await snapshot(page)).counts,[10,9,10],label+' magnified picking must decrease only chosen basket');
+  assert.equal(await page.locator('.mp-pick-object[data-token="'+zoomToken+'"]').count(),0);
+  assert.equal(await page.locator('.mp-pick-zoom-item[data-token="'+zoomToken+'"]').count(),0);
+  assert.match(await page.locator('.mp-pick-equation').innerText(),/3 × 10 − 1 = 29/);
+  await page.locator('.mp-pick-zoom-close').click();
+  assert.equal(await page.locator('.mp-pick-zoom-overlay').count(),0,label+' closeup must close');
+  await page.locator('[data-pick-action="undo"]').click();
+  assert.deepEqual((await snapshot(page)).counts,[10,10,10],label+' undo must restore the enlarged picked object');
+  assert.equal(await page.locator('.mp-pick-object[data-token="'+zoomToken+'"]').count(),1);
+
 
   assert.equal(await page.locator('.mp-pick-world-emoji svg').count(),10,'all unlocked worlds need matching illustrated thumbnails');
   for(const view of ['rows','numberline','circle','groups']){
@@ -67,8 +125,11 @@ async function run(browser,engine,label,viewport,url){
     assert.equal(await page.locator('.mp-pick-screen').getAttribute('data-pick-world'),world);
     assert.equal((await snapshot(page)).total,27,'world switch changed multiplication');
     assert.equal(await page.locator('.mp-pick-object').count(),27,'world art count differs from maths');
-    if(engine==='webkit'&&['strawberry','mushroom','treasure','beach','aquarium','balloon'].includes(world)){
+    if(engine==='webkit'){
       await layout(page,label+' world '+world);
+      assert.ok(await page.locator('.mp-pick-storyscape').count(),label+' '+world+' requires actual storybook scenery');
+      const details=await page.locator('.mp-pick-storyscape').evaluate(el=>el.querySelectorAll('path,ellipse,circle,rect').length);
+      assert.ok(details>50,label+' '+world+' scenery too simple: '+details);
       if(label==='iphone-safari'||label==='ipad-safari')await image(page,label+'-world-'+world);
     }
   }

@@ -3,7 +3,7 @@
 'use strict';
 const E=window.LARIA_MULT_PICK_ENGINE;if(!E)return;
 const KEY='laria-mult-pick-play-v1';
-let state=E.initial(),past=[],future=[],redraw=()=>{},drag=null,suppressUntil=0;
+let state=E.initial(),past=[],future=[],redraw=()=>{},drag=null,suppressUntil=0,zoomGroup=null;
 try{const v=JSON.parse(localStorage.getItem(KEY)||'null');if(v?.version===1)state=E.normalize(v)}catch(_){}
 const esc=v=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(_){}}
@@ -48,8 +48,8 @@ function groups(){
  return '<div class="mp-pick-group-grid" style="--pick-n:'+state.counts.length+'">'+state.counts.map((count,group)=>{
   const items=state.itemIds[group].map((token,i)=>'<button type="button" data-mp-action="pick-play" data-pick-action="'+(moving?'selectMove':'take')+'" data-group="'+group+'" data-token="'+token+'" class="mp-pick-object" aria-label="'+(moving?'Velg for å flytte':'Plukk')+' '+esc(picked.unit)+' '+(i+1)+' fra kurv '+(group+1)+'">'+sprite(picked.id,token)+'</button>').join('');
   const gridColumns=count>=9?5:count>=5?3:count>=3?2:Math.max(1,count);
-  return '<div class="mp-pick-vessel" data-group="'+group+'" role="group" aria-label="Kurv '+(group+1)+': '+count+' '+esc(picked.object)+'"><span class="mp-pick-handle" aria-hidden="true"></span><span class="mp-pick-linen" aria-hidden="true"></span><div class="mp-pick-objects" style="--pick-cols:'+gridColumns+'">'+items+'</div><span class="mp-pick-front" aria-hidden="true"></span><span class="mp-pick-number">'+count+'</span><div class="mp-pick-vessel-actions">'+(moving?'<button type="button" data-mp-action="pick-play" data-pick-action="moveTarget" data-group="'+group+'" '+(state.moveFrom===null||state.moveFrom===group||count>=E.MAX_EACH?'disabled':'')+'>Hit ↘</button>':
-  '<button type="button" data-mp-action="pick-play" data-pick-action="take" data-group="'+group+'" '+(!count?'disabled':'')+' aria-label="Plukk én fra kurv '+(group+1)+'">− 1</button><button type="button" data-mp-action="pick-play" data-pick-action="return" data-group="'+group+'" '+(!state.collected||count>=E.MAX_EACH?'disabled':'')+' aria-label="Legg én tilbake i kurv '+(group+1)+'">+ 1</button>')+'</div><button type="button" class="mp-pick-empty" data-mp-action="pick-play" data-pick-action="empty" data-group="'+group+'" '+(!count?'disabled':'')+' aria-label="Tøm hele kurv '+(group+1)+'">Tøm kurv</button></div>';
+  return '<div class="mp-pick-vessel" data-group="'+group+'" role="group" aria-label="Kurv '+(group+1)+': '+count+' '+esc(picked.object)+'"><div class="mp-pick-vessel-art"><span class="mp-pick-vessel-shadow" aria-hidden="true"></span><span class="mp-pick-handle" aria-hidden="true"></span><span class="mp-pick-linen" aria-hidden="true"></span><span class="mp-pick-leaf-decoration" aria-hidden="true"></span><div class="mp-pick-objects" style="--pick-cols:'+gridColumns+'">'+items+'</div><span class="mp-pick-front" aria-hidden="true"></span><span class="mp-pick-number">'+count+'</span></div><div class="mp-pick-vessel-actions">'+(moving?'<button type="button" data-mp-action="pick-play" data-pick-action="moveTarget" data-group="'+group+'" '+(state.moveFrom===null||state.moveFrom===group||count>=E.MAX_EACH?'disabled':'')+'>Hit ↘</button>':
+  '<button type="button" data-mp-action="pick-play" data-pick-action="take" data-group="'+group+'" '+(!count?'disabled':'')+' aria-label="Plukk én fra kurv '+(group+1)+'">− 1</button><button type="button" data-mp-action="pick-play" data-pick-action="return" data-group="'+group+'" '+(!state.collected||count>=E.MAX_EACH?'disabled':'')+' aria-label="Legg én tilbake i kurv '+(group+1)+'">+ 1</button>')+'</div><button type="button" class="mp-pick-empty" data-mp-action="pick-play" data-pick-action="empty" data-group="'+group+'" '+(!count?'disabled':'')+' aria-label="Tøm hele kurv '+(group+1)+'">Tøm kurv</button><button type="button" class="mp-pick-zoom-open" data-mp-action="pick-play" data-pick-action="zoom" data-group="'+group+'" aria-haspopup="dialog" aria-label="Se kurv '+(group+1)+' større">🔍 Se større</button></div>';
  }).join('')+'</div>';
 }
 function missions(){
@@ -78,13 +78,33 @@ function representations(){
  }
  return '<div class="mp-pick-representations"><div class="mp-pick-labelrow"><b>Se tallene på flere måter</b><small>Samme mengde, ulik visning</small></div><div class="mp-pick-view-switch" role="group" aria-label="Vis på ulike måter">'+views.map(([id,label])=>'<button type="button" data-mp-action="pick-play" data-pick-action="view" data-view="'+id+'" aria-pressed="'+(mode===id)+'" class="'+(mode===id?'selected':'')+'">'+label+'</button>').join('')+'</div><div class="mp-pick-visualization" data-math-view="'+mode+'">'+illustration+'</div></div>';
 }
+function zoomSprite(theme,token){
+ // The overview and closeup show the same object. Give each SVG paint server
+ // its own DOM ID so WebKit does not resolve two gradients with one identifier.
+ const source=sprite(theme,token);
+ const paintId=['strawberry','bun','mushroom','apple'].includes(theme)
+  ?'mp3-'+theme+'-'+token:'mpPick'+theme+token;
+ return source.replaceAll(paintId,paintId+'-closeup');
+}
+function closeup(){
+ if(zoomGroup===null||!state.itemIds[zoomGroup])return '';
+ const group=zoomGroup,picked=w(),count=state.counts[group];
+ const objects=state.itemIds[group].map((token,i)=>'<button type="button" class="mp-pick-zoom-item" data-mp-action="pick-play" data-pick-action="'+(state.moveMode?'selectMove':'take')+'" data-group="'+group+'" data-token="'+token+'" aria-label="'+(state.moveMode?'Velg for å flytte':'Plukk')+' '+esc(picked.unit)+' '+(i+1)+' fra den forstørrede kurven">' + zoomSprite(picked.id,token)+'</button>').join('');
+ return '<div class="mp-pick-zoom-overlay" data-group="'+group+'"><button type="button" class="mp-pick-zoom-backdrop" data-mp-action="pick-play" data-pick-action="zoomClose" tabindex="-1" aria-label="Lukk nærvisning"></button>'+
+ '<section class="mp-pick-zoom-dialog" role="dialog" aria-modal="true" aria-label="Forstørret kurv '+(group+1)+'"><header class="mp-pick-zoom-top"><div><small>NÆRVISNING · SAMME KURV</small><strong>Kurv '+(group+1)+' · '+count+' '+esc(picked.object)+'</strong></div><button type="button" class="mp-pick-zoom-close" data-mp-action="pick-play" data-pick-action="zoomClose" aria-label="Lukk nærvisning">✕ Lukk</button></header>'+
+ '<p class="mp-pick-zoom-help">Trykk på en gjenstand for å plukke den. Tallet oppdateres med én gang.</p>'+
+ '<div class="mp-pick-zoom-landscape" aria-hidden="true"></div><div class="mp-pick-zoom-vessel"><div class="mp-pick-zoom-interior"><div class="mp-pick-zoom-objects">'+objects+'</div></div><span class="mp-pick-zoom-vessel-front" aria-hidden="true"></span></div>'+
+ '<footer class="mp-pick-zoom-footer"><span>'+esc(E.equation(state).main)+'</span><b>'+count+' i kurven</b></footer></section></div>';
+}
+
 function render(){
  const eq=E.equation(state),picked=w(),sum=E.total(state);
  return '<section class="mp-pick-screen" data-pick-world="'+picked.id+'" data-pick-scene="'+picked.scene+'"><header class="mp-pick-heading"><span class="mp-pick-kicker">LÆRIA · UTFORSK OG LEK</span><h2>Plukk og tell</h2><p>Her er det du som styrer! Plukk, flytt og oppdag sammenhenger.</p></header>'+
  worlds()+
- '<div class="mp-pick-stage"><div class="mp-pick-stage-landscape" aria-hidden="true">'+landscape()+'</div><div class="mp-pick-stage-inner"><div class="mp-pick-wood-sign" aria-live="polite"><span>Hva skjer med regnestykket?</span><strong class="mp-pick-equation">'+esc(eq.main)+'</strong><small>'+esc(eq.detail)+'</small></div>'+
+ '<div class="mp-pick-stage mp-pick-stage-v2"><div class="mp-pick-stage-landscape" aria-hidden="true">'+(window.LARIA_PICK_SCENERY_V2?.scene(picked.scene)||landscape())+'</div><div class="mp-pick-stage-inner"><div class="mp-pick-wood-sign" aria-live="polite"><span>Hva skjer med regnestykket?</span><strong class="mp-pick-equation">'+esc(eq.main)+'</strong><small>'+esc(eq.detail)+'</small></div>'+
  groups()+
  '<div class="mp-pick-collection"><span class="mp-pick-collection-art" aria-hidden="true">'+(state.pool.length?state.pool.slice(-9).map(token=>sprite(picked.id,token)).join(''):'<span class="mp-pick-blank-icon">✧</span>')+'</span><div><strong>Samlekurven</strong><small>Her havner alt du plukker</small></div><b class="mp-pick-collected">'+state.collected+'</b></div></div></div>'+
+ closeup()+
  '<div class="mp-pick-main-actions"><button type="button" data-mp-action="pick-play" data-pick-action="takeEach" '+(sum===0?'disabled':'')+'>− Én fra hver</button><button type="button" data-mp-action="pick-play" data-pick-action="moveMode" aria-pressed="'+state.moveMode+'" class="'+(state.moveMode?'selected':'')+'">'+(state.moveMode?'Avslutt flytting':'⇄ Flytt mellom')+'</button><button type="button" data-mp-action="pick-play" data-pick-action="newGroup" '+(state.counts.length>=E.MAX_GROUPS?'disabled':'')+'>+ Ny kurv</button></div>'+
  representations()+
  '<div class="mp-pick-secondary-actions"><button type="button" data-mp-action="pick-play" data-pick-action="undo" '+(!past.length?'disabled':'')+'>↶ Angre</button><button type="button" data-mp-action="pick-play" data-pick-action="redo" '+(!future.length?'disabled':'')+'>↷ Gjør om</button><button type="button" data-mp-action="pick-play" data-pick-action="read">🔊 Les opp</button><button type="button" data-mp-action="pick-play" data-pick-action="reset">Start på nytt</button></div>'+
@@ -96,28 +116,48 @@ function dispatch(target){
  if(Date.now()<suppressUntil)return true;
  const type=target?.dataset?.pickAction||'',index=Number(target?.dataset?.group),token=target?.dataset?.token===undefined?null:Number(target.dataset.token);
  let changed=false;
+ if(type==='zoom'){
+  if(Number.isInteger(index)&&index>=0&&index<state.counts.length){zoomGroup=index;redraw();const close=document.querySelector('.mp-pick-zoom-close');try{close?.focus({preventScroll:true})}catch(_){}}
+  return true;
+ }
+ if(type==='zoomClose'){
+  const old=zoomGroup;zoomGroup=null;redraw();
+  const open=document.querySelector('.mp-pick-zoom-open[data-group="'+old+'"]');try{open?.focus({preventScroll:true})}catch(_){}
+  return true;
+ }
  if(type==='view')changed=go('view',{view:target.dataset.view},false);
  else if(type==='world')changed=go('world',{world:target.dataset.world});
- else if(type==='mission')changed=go('mission',{id:target.dataset.id});
- else if(type==='selectMove'||(type==='take'&&state.moveMode))changed=go('selectMove',{group:index,token},false);
+ else if(type==='mission'){zoomGroup=null;changed=go('mission',{id:target.dataset.id});}
+ else if(type==='selectMove'||(type==='take'&&state.moveMode)){changed=go('selectMove',{group:index,token},false);if(changed)zoomGroup=null;}
  else if(type==='moveTarget'){if(state.moveFrom!==null)changed=go('move',{group:state.moveFrom,to:index,token:state.moveToken});}
  else if(['take','return','empty'].includes(type))changed=go(type,{group:index,token});
  else if(['takeEach','newGroup','check'].includes(type))changed=go(type);
  else if(type==='moveMode')changed=go(type,{},false);
  else if(type==='undo')changed=back();
  else if(type==='redo')changed=forward();
- else if(type==='reset'){past.push(E.normalize(state));if(past.length>90)past.shift();future=[];state={...E.initial(),world:state.world};save();changed=true}
+ else if(type==='reset'){zoomGroup=null;past.push(E.normalize(state));if(past.length>90)past.shift();future=[];state={...E.initial(),world:state.world};save();changed=true}
  else if(type==='read'){
   try{if(window.speechSynthesis){window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(E.equation(state).main.replaceAll('×',' ganger ').replaceAll('−',' minus ').replaceAll('=',' er lik '));u.lang='nb-NO';u.rate=.85;window.speechSynthesis.speak(u)}}catch(_){}
   return true;
  }
- if(changed){redraw();return true}
+ if(changed){redraw();if(zoomGroup!==null){const next=document.querySelector('.mp-pick-zoom-item:not(:disabled)')||document.querySelector('.mp-pick-zoom-close');try{next?.focus({preventScroll:true})}catch(_){}}return true}
  return Boolean(type);
 }
 function mount(root,callback){
  redraw=callback;
  if(!root||root.dataset.mpPickPointerBound)return;
  root.dataset.mpPickPointerBound='true';
+ document.addEventListener('keydown',event=>{
+  if(zoomGroup===null)return;
+  if(event.key==='Escape'){event.preventDefault();dispatch({dataset:{pickAction:'zoomClose'}});return;}
+  if(event.key!=='Tab')return;
+  const overlay=root.querySelector('.mp-pick-zoom-overlay');if(!overlay)return;
+  const options=[...overlay.querySelectorAll('button:not([disabled]):not([tabindex="-1"])')];
+  if(!options.length)return;
+  const first=options[0],last=options[options.length-1];
+  if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus()}
+  else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus()}
+ },true);
  root.addEventListener('pointerdown',event=>{
   const el=event.target.closest('.mp-pick-object');
   if(!el||!root.contains(el))return;
