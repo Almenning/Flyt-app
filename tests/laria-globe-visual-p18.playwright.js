@@ -164,8 +164,25 @@ async function capture(browserType,label,viewport){
       assert.ok(layout.tagline.bottom<=layout.country.bottom-3,label+' country tagline clipped by status card: '+JSON.stringify(layout));
     }
     if(viewport.width>=900&&viewport.width>viewport.height){
-      assert.ok(layout.modes.bottom+3<=layout.globe.top,label+' mode tabs collide with rotating globe: '+JSON.stringify(layout));
-      assert.ok(layout.globe.bottom+3<=layout.country.top,label+' globe collides with land card: '+JSON.stringify(layout));
+      assert.ok(layout.modes.bottom+3<=layout.globe.top,
+        label+' mode tabs collide with rotating globe: '+JSON.stringify(layout));
+      if(viewport.height>=701){
+        // In the locked reference the country card overlaps the lower
+        // hemisphere on purpose, sitting IN FRONT of the living globe.
+        const overlap=layout.globe.bottom-layout.country.top;
+        assert.ok(overlap>=15&&overlap<layout.globe.height*.31,
+          label+' reference hero globe scale/overlap missing or excessive: '+JSON.stringify({overlap,layout}));
+        assert.ok(layout.globe.width>=viewport.height*.55,
+          label+' hero sphere still too small compared with locked design: '+JSON.stringify(layout));
+        const cardIsInFront=await page.evaluate(({x,y})=>{
+          const el=document.elementFromPoint(x,y);
+          return !!el?.closest('#globe-status');
+        },{x:(layout.country.left+layout.country.right)/2,y:layout.country.top+Math.min(16,overlap/2)});
+        assert.ok(cardIsInFront,label+' card must mask the bottom of the globe without blocking its upper interaction area');
+      }else{
+        assert.ok(layout.globe.bottom+3<=layout.country.top,
+          label+' compact landscape must keep action area clear');
+      }
     }
     // Child-facing text must stay legible on the physical country card.
     const readability=await page.evaluate(()=>{
