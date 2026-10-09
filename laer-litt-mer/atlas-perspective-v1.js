@@ -381,7 +381,25 @@ function install(){
  nav.addEventListener('click',e=>{const b=e.target.closest('button[data-atlas-region]');if(b)goRegion(b.dataset.atlasRegion)});
  wireGestures();
  const previousMode=window.setGlobeMode;
- const routedMode=function(mode){modeSwitching=true;let result;try{result=previousMode.apply(this,arguments)}finally{modeSwitching=false}sync(mode);return result};
+ const routedMode=function(mode){
+  const wasAtlas=isAtlas();
+  modeSwitching=true;
+  let result;
+  try{result=previousMode.apply(this,arguments)}finally{modeSwitching=false}
+  sync(mode);
+  const selected=typeof globeSelected==='string'&&typeof countries!=='undefined'?countries[globeSelected]:null;
+  if(selected&&mode==='classic'&&wasAtlas&&Number.isFinite(selected.lon)&&Number.isFinite(selected.lat)){
+    // Keep the real country beneath the country card when returning to the sphere.
+    globeLon=limitLon(selected.lon);
+    globeLat=clamp(selected.lat,-74,74);
+    if(typeof setGlobeZoom==='function')setGlobeZoom(1);
+    requestAnimationFrame(()=>window.drawGlobe?.());
+  }else if(selected&&mode!=='classic'&&!wasAtlas){
+    // The same selected country should remain visible on returning to the atlas.
+    focus(selected.id);
+  }
+  return result;
+ };
  window.setGlobeMode=routedMode;
  try{setGlobeMode=routedMode}catch(_){}
  document.querySelectorAll('#globe-mode [data-globe-mode]').forEach(btn=>{btn.onclick=()=>routedMode(btn.dataset.globeMode)});
