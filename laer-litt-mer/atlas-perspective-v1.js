@@ -265,7 +265,7 @@ function sync(mode){
  if(caption)caption.hidden=!atlas;
  const hint=screen.querySelector('.globe-hint');
  if(hint)hint.textContent=atlas?'Dra i kartet · knip for zoom · trykk på et land':'Dra for å snurre · knip for zoom';
- if(atlas){queueLayout();if(typeof loadQualityData==='function'&&!window.__lariaAtlasDetailsRequested){
+ if(atlas){queueLayout();if(screen.classList.contains('active')&&typeof loadQualityData==='function'&&!window.__lariaAtlasDetailsRequested){
   // Heavy Natural Earth / World Bank enrichment must not delay Home -> Atlas.
   window.__lariaAtlasDetailsRequested=true;
   setTimeout(()=>{
