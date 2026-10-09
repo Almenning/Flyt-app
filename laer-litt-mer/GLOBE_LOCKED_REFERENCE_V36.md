@@ -40,3 +40,5 @@ Brukerens skjermbilde fra 9. oktober viser faktisk v35-runtime. Det avviker tyde
 ## v36 integrated art update
 
 The actual runtime uses `globe-storyscape-v36-landscape.webp`, `globe-storyscape-v36-tablet.webp` and `globe-storyscape-v36-mobile.webp`. These are clean, cohesive scenes without baked-in UI. A screenshot comparison from the exact branch is required before merge. The original live geographic renderer and gesture handlers have not been edited.
+
+For v36 release, all four exact-head workflows (QA, native iOS, Prompt 18 audit and smoke) must pass on the same commit; interactive geography and non-stretched backgrounds are independently asserted.
