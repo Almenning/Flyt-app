@@ -3,6 +3,35 @@ const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const E=require('../laer-litt-mer/multiplication-pick-engine-v1.js');
 const act=(s,type,opts={})=>E.apply(s,{type,...opts});
+test('second-grade progression starts with two small baskets, six visible pieces and easy repeats',()=>{
+ assert.deepEqual(E.SCENARIOS.map(x=>x.id),['2x3','3x2','3x3','3x4']);
+ let s=E.apply(E.initial(),{type:'scenario',id:'2x3'});
+ assert.deepEqual(s.counts,[3,3]);
+ assert.equal(E.total(s),6);
+ assert.equal(E.equation(s).main,'2 × 3 = 6');
+ assert.equal(s.itemIds.reduce((n,a)=>n+a.length,0),6);
+ const token=s.itemIds[0][1];
+ s=act(s,'take',{group:0,token});
+ assert.deepEqual(s.counts,[2,3]);
+ assert.equal(E.total(s),5);
+ assert.equal(s.itemIds[0].includes(token),false);
+ assert.equal(s.pool.at(-1),token);
+ s=act(s,'return',{group:0});
+ assert.equal(E.equation(s).main,'2 × 3 = 6');
+ s=act(s,'scenario',{id:'3x2'});
+ assert.deepEqual(s.counts,[2,2,2]);
+ assert.equal(s.mission,null);
+ assert.equal(s.collected,0);
+ assert.equal(s.view,'groups');
+ assert.equal(E.total(s),6);
+ s=act(s,'scenario',{id:'3x3'});
+ assert.equal(E.equation(s).main,'3 × 3 = 9');
+ const saved=E.normalize(JSON.parse(JSON.stringify(s)));
+ assert.equal(saved.scenario,'3x3');
+ assert.equal(E.equation(saved).main,'3 × 3 = 9');
+ assert.deepEqual(act(saved,'scenario',{id:'does-not-exist'}).counts,[3,3,3]);
+});
+
 test('locked ten worlds and free-access educational mechanics',()=>{
  assert.equal(E.WORLDS.length,10);
  assert.equal(new Set(E.WORLDS.map(x=>x.id)).size,10);
