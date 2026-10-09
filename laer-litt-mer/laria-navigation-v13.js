@@ -63,10 +63,6 @@ function bind(){
      event.preventDefault();event.stopImmediatePropagation();clickAction(chosen.dataset.bc13Action);
    }
  },true);
- root.querySelector('.bc12-journey')?.insertAdjacentHTML('afterend','<button type="button" class="bc13-choose-journey" data-bc13-open-journeys>Velg fag og reisekart <span aria-hidden="true">›</span></button>');
- root.addEventListener('click',event=>{
-   if(event.target.closest?.('[data-bc13-open-journeys]')){event.preventDefault();activate('travel')}
- },true);
 }
 function init(){
  if(typeof window.renderAll!=='function')return;
