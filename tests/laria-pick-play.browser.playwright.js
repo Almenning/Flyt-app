@@ -55,6 +55,33 @@ async function run(browser,engine,label,viewport,url){
 
   if(engine==='webkit')await image(page,label+'-01-garden-3x10');
 
+  // Children must be able to pick a specific object without attempting
+  // to hit a tiny 5-in-a-row fruit in the three-basket overview.
+  await page.locator('.mp-pick-vessel[data-group="1"] [data-pick-action="zoom"]').click();
+  const zoom=page.locator('.mp-pick-zoom-overlay');
+  await zoom.waitFor();
+  assert.equal(await zoom.locator('[role="dialog"][aria-modal="true"]').count(),1,label+' zoom is a real accessible dialog');
+  assert.equal(await zoom.locator('.mp-pick-zoom-item').count(),10,label+' the closeup must show the same ten objects');
+  const closeupBounds=await page.locator('.mp-pick-zoom-item').evaluateAll(items=>items.map(el=>{
+    const r=el.getBoundingClientRect();return {w:r.width,h:r.height,visible:r.top>=0&&r.bottom<=innerHeight};
+  }));
+  assert.ok(closeupBounds.every(x=>x.w>=44&&x.h>=44&&x.visible),
+    label+' the enlarged objects must have usable physical touch areas '+JSON.stringify(closeupBounds));
+  const zoomToken=await zoom.locator('.mp-pick-zoom-item').nth(3).getAttribute('data-token');
+  assert.equal(await page.locator('.mp-pick-vessel[data-group="1"] .mp-pick-object[data-token="'+zoomToken+'"]').count(),1);
+  if(engine==='webkit')await image(page,label+'-03-magnified-basket');
+  await zoom.locator('.mp-pick-zoom-item[data-token="'+zoomToken+'"]').click();
+  assert.deepEqual((await snapshot(page)).counts,[10,9,10],label+' magnified picking must decrease only chosen basket');
+  assert.equal(await page.locator('.mp-pick-object[data-token="'+zoomToken+'"]').count(),0);
+  assert.equal(await page.locator('.mp-pick-zoom-item[data-token="'+zoomToken+'"]').count(),0);
+  assert.match(await page.locator('.mp-pick-equation').innerText(),/3 × 10 − 1 = 29/);
+  await page.locator('.mp-pick-zoom-close').click();
+  assert.equal(await page.locator('.mp-pick-zoom-overlay').count(),0,label+' closeup must close');
+  await page.locator('[data-pick-action="undo"]').click();
+  assert.deepEqual((await snapshot(page)).counts,[10,10,10],label+' undo must restore the enlarged picked object');
+  assert.equal(await page.locator('.mp-pick-object[data-token="'+zoomToken+'"]').count(),1);
+
+
   assert.equal(await page.locator('.mp-pick-world-emoji svg').count(),10,'all unlocked worlds need matching illustrated thumbnails');
   for(const view of ['rows','numberline','circle','groups']){
     await page.locator('[data-pick-action="view"][data-view="'+view+'"]').click();
