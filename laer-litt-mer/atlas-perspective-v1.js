@@ -244,6 +244,14 @@ function queueLayout(){
  if(layoutPending)return;layoutPending=true;
  requestAnimationFrame(()=>{layoutPending=false;layout()});
 }
+function syncZoomControls(atlasMode=isAtlas()){
+ const zin=document.getElementById('globe-zoom-in'),zout=document.getElementById('globe-zoom-out');
+ const z=atlasMode?map.zoom:(typeof globeZoom==='number'?globeZoom:1);
+ const min=atlasMode?MIN_ZOOM:(typeof GLOBE_ZOOM_MIN==='number'?GLOBE_ZOOM_MIN:1);
+ const max=atlasMode?MAX_ZOOM:(typeof GLOBE_ZOOM_MAX==='number'?GLOBE_ZOOM_MAX:5);
+ if(zin){zin.disabled=z>=max-.001;zin.setAttribute('aria-label',atlasMode?'Zoom inn i kartet':'Zoom inn')}
+ if(zout){zout.disabled=z<=min+.001;zout.setAttribute('aria-label',atlasMode?'Zoom ut av kartet':'Zoom ut')}
+}
 function zoomTo(next,x,y){
  const g=size(),px=Number.isFinite(x)?x:g.w/2,py=Number.isFinite(y)?y:g.h/2;
  const anchor=geoAt(px,py,g);
@@ -251,12 +259,14 @@ function zoomTo(next,x,y){
  const updated=size();
  map.lon=limitLon(anchor.lon-(px-updated.w/2)/updated.scale);
  map.lat=clamp(anchor.lat+(py-updated.h/2)/updated.scale,-74,74);
+ syncZoomControls();
  queueDraw();
 }
 function goRegion(id){
  const r=REGIONS.find(x=>x.id===id);if(!r)return;
  Object.assign(map,{lon:r.lon,lat:r.lat,zoom:r.zoom,region:r.id});
  nav?.querySelectorAll('button').forEach(b=>{const active=b.dataset.atlasRegion===id;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active))});
+ syncZoomControls();
  queueDraw();
 }
 function focus(id){
@@ -266,6 +276,7 @@ function focus(id){
  map.zoom=clamp(typeof countryFocusZoom==='function'?countryFocusZoom(c)*1.55:5.2,2.8,8.7);
  map.region='';
  nav?.querySelectorAll('button').forEach(b=>{b.classList.remove('active');b.setAttribute('aria-pressed','false')});
+ syncZoomControls();
  queueDraw();
 }
 function local(e){const r=canvas.getBoundingClientRect();return {x:e.clientX-r.left,y:e.clientY-r.top}}
@@ -314,7 +325,7 @@ function wireGestures(){
    const g=size();
    map.lon=limitLon(pinch.anchor.lon-(mid.x-g.w/2)/g.scale);
    map.lat=clamp(pinch.anchor.lat+(mid.y-g.h/2)/g.scale,-74,74);
-   dragDistance=999;queueDraw();return;
+   dragDistance=999;syncZoomControls();queueDraw();return;
   }
   if(pointers.size!==1)return;
   const g=size(),dx=p.x-last.x,dy=p.y-last.y;
@@ -340,6 +351,7 @@ function sync(mode){
  const atlas=mode!=='classic';
  screen.classList.toggle('atlas-perspective-on',atlas);
  screen.dataset.mapPerspective=atlas?'atlas':'globe';
+ syncZoomControls(atlas);
  if(nav)nav.hidden=!atlas;
  if(caption)caption.hidden=!atlas;
  const heading=screen.querySelector('.premium-globe-title');
