@@ -51,7 +51,7 @@ async function run(engine,label,viewport){
   const first=await page.evaluate(()=>window.LARIA_ATLAS_PERSPECTIVE.snapshot());
   assert.equal(first.source,'country-geometry',label+' country surfaces must use real polygon data');
   const regions=await page.locator('.atlas-region-nav button').count();
-  assert.equal(regions,7,label+' regions missing');
+  assert.equal(regions,8,label+' world, Norden and six continents missing');
   await page.evaluate(()=>window.LARIA_ATLAS_PERSPECTIVE.region('norden'));
   await page.waitForTimeout(120);
   const coords=await page.evaluate(()=>{
