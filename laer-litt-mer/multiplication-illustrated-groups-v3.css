@@ -4,11 +4,14 @@
 .mp-task-wood{padding-block:18px 15px;border-radius:24px;border:3px solid #fff8ee;box-shadow:0 6px 0 #d4b08480,0 12px 16px #936e4533;background:repeating-linear-gradient(179deg,#b78b4510 0px,#b78b4510 1px,transparent 2px,transparent 19px),linear-gradient(#fff9eb,#fce8c7)}
 .mp-task-apples{max-height:none;overflow:visible;isolation:isolate;background:linear-gradient(180deg,#fff8e839,#e4edc72b),url('./matte-verden.png') center 63%/cover no-repeat}
 .mp-task-apples:before{content:"";position:absolute;z-index:0;inset:0;pointer-events:none;border-radius:inherit;background:linear-gradient(180deg,#fff8e6a6,#fffaf134 36%,#fff9e129 65%,#cfe8cf55)}
-.mp3-picker{position:relative;z-index:2;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:7px;padding:12px 8px 5px;background:linear-gradient(180deg,#fff9edd9,#fffcf194);border-radius:17px}
-.mp3-picker>span{width:100%;font-size:13px;font-weight:950;text-align:center;color:#633d2a}
-.mp3-theme{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;gap:5px;padding:7px 11px;min-height:44px;border:2px solid #fff7e8;border-radius:15px;background:linear-gradient(#fffdf2,#f2dfc5);font-size:12px!important;font-weight:900!important;color:#68412f!important;box-shadow:0 4px 0 #c6a681,0 7px 10px #76502a28}
+.mp3-picker{position:relative;z-index:2;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));width:100%;align-items:stretch;gap:7px;padding:12px 8px 8px;background:linear-gradient(180deg,#fff9edd9,#fffcf194);border-radius:17px}
+.mp3-picker>span{grid-column:1/-1;width:100%;font-size:13px;font-weight:950;text-align:center;color:#633d2a}
+.mp3-theme{display:grid;grid-template-rows:35px auto;place-items:center;align-content:center;gap:2px;min-width:0;padding:6px 4px;min-height:64px;border:2px solid #fff7e8;border-radius:15px;background:linear-gradient(#fffdf2,#f2dfc5);font-size:12px!important;font-weight:900!important;color:#68412f!important;box-shadow:0 4px 0 #c6a681,0 7px 10px #76502a28}
 .mp3-theme.active{background:linear-gradient(#f6f8df,#e1eebf);border-color:#82aa72;box-shadow:0 2px 0 #82aa75,0 5px 10px #607f4433}
 .mp3-theme:focus-visible{outline:3px solid #2b769c;outline-offset:3px}
+.mp3-theme-art{width:34px;height:34px;display:grid;place-items:center}
+.mp3-theme-art .mp3-object{width:34px;height:34px;filter:drop-shadow(0 2px 2px #63432d50)}
+.mp3-theme>span:last-child{text-align:center;line-height:1.17;white-space:normal;overflow-wrap:anywhere}
 .mp3-collections{display:grid;position:relative;z-index:1;grid-template-columns:repeat(auto-fit,minmax(min(100%,165px),1fr));align-items:stretch;justify-items:center;gap:24px 14px;padding:28px 15px 36px;max-width:820px;width:100%;margin:auto}
 .mp3-collections[data-mp3-groups="1"]{grid-template-columns:minmax(0,235px);justify-content:center}
 .mp3-basket{position:relative;isolation:isolate;width:100%;min-width:0;max-width:236px;height:auto;min-height:136px;display:flex;align-items:center;justify-content:center;padding:17px 11px 34px;border:6px solid #ad7346;border-bottom:11px solid #905832;border-radius:25px 25px 36px 36px;background:repeating-linear-gradient(6deg,#a4703b29 0px,#a4703b29 2px,#e8c68f1a 4px,#e8c68f1a 10px),linear-gradient(145deg,#f1d39d,#c18a54 65%,#a36940);box-shadow:inset 0 6px 8px #fff4cd,0 5px 0 #82552b80,0 15px 19px #52382755;overflow:visible}
@@ -28,7 +31,7 @@
 .mp-explore-world .mp3-picker+ .mp3-collections{max-width:820px}
 @media(max-width:600px){
  .mp3-picker{gap:5px;padding:10px 4px 5px}
- .mp3-theme{padding:6px 8px;font-size:11px!important}
+ .mp3-theme{padding:6px 2px;font-size:11px!important}
  .mp3-collections,.mp-explore-world .mp3-collections{grid-template-columns:repeat(2,minmax(0,1fr));gap:22px 10px;padding:21px 8px 30px}
  .mp3-collections[data-mp3-groups="1"]{grid-template-columns:minmax(0,230px)}
  .mp3-collections[data-mp3-groups="3"]>.mp3-basket:last-child{grid-column:1/-1;width:calc(50% - 5px);justify-self:center}
@@ -40,9 +43,9 @@
  .mp3-fruits{gap:0}
 }
 @media(max-width:370px){
- .mp3-picker{justify-content:flex-start;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:thin;white-space:nowrap}
- .mp3-picker>span{width:auto;flex:0 0 auto;padding:0 4px}
- .mp3-theme{min-width:72px}
+ .mp3-picker{gap:4px;padding:8px 2px 7px}
+ .mp3-theme{font-size:10px!important;padding-inline:1px}
+ .mp3-theme-art,.mp3-theme-art .mp3-object{width:29px;height:29px}
  .mp3-collections,.mp-explore-world .mp3-collections{gap:19px 6px;padding-inline:5px}
  .mp3-basket{padding-inline:5px}
 }
