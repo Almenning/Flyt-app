@@ -14,6 +14,7 @@ test('second-grade progression starts with two small baskets, six visible pieces
  s=act(s,'take',{group:0,token});
  assert.deepEqual(s.counts,[2,3]);
  assert.equal(E.total(s),5);
+ assert.equal(E.equation(s).main,'2 × 3 − 1 = 5');
  assert.equal(s.itemIds[0].includes(token),false);
  assert.equal(s.pool.at(-1),token);
  s=act(s,'return',{group:0});
