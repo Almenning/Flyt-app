@@ -128,3 +128,21 @@ Status: utviklings- og regressjonsport. Ingen endring i matematikkmotor eller l�
 - Scenens øvrige dekorasjon må ikke ligne ekstra tellbare objekter; natur og tekstur kan være rik uten at barnet blir usikker på hvor mange som skal telles.
 - Første visning for 1.–2. trinn forblir to store grupper med tre gjenstander, kun et enkelt oppdrag. De øvrige funksjonene åpnes frivillig.
 - Skjermbilder kreves fra WebKit både for første jordbærrunde og bakeriet etter «Bytt motiv», deretter valgte øvrige miljøer og nærvisning. Teknisk grønt er ikke lik kunstnerisk godkjent: låste illustrasjoner skal fortsatt brukes til kvalitetssammenligning.
+
+
+## Fysiske beholderformer v6: ti forskjellige eventyrrekvisitter
+
+Status: Implementert som et rent CSS-lag på egen gren. Ikke erklært visuelt godkjent før gjennomgang av faktiske iPhone- og iPad-skjermbilder.
+
+- Jordbærhagen: buede, håndflettede sankekurver.
+- Frukthagen: solide spilekasser/innhøstingskurver, ikke bare omfargede jordbærkurver.
+- Eventyrbakeriet: grunne bakebrett med lin og varme trekanter.
+- Soppskogen: rettvinklede trekasser med mosedetaljer og tydelig tømmerstruktur.
+- Skattekammeret: gullkantede kister med buet lokk.
+- Eventyrtoget: bagasjevogner med mørke hjul og plankesider.
+- Strandekspedisjonen: avsmalnende sandbøtter med hanke.
+- Gårdstunet: runde, flettede kvistreir uten kurvhank.
+- Akvariet: gjennomsiktige glasskar med reflekser.
+- Ballongparken: stripete tivolistativer uten fruktkurvhank.
+
+Objektantall, plukk-ID-er, oppdrag, 10 × 10-tabellen, Brøklab, klode og lokal lagring skal være uendret. Ingen ekstra dekorativt jordbær, egg eller annet tellbart objekt i omgivelsene. Nærvisning skal videreføre materialfamilien. Sammenlign skjermbilder og vurder om enkelte rekvisitter fortsatt blir for generiske før kunstnerisk godkjenning.

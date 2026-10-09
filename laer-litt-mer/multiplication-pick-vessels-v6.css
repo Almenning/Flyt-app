@@ -1,0 +1,213 @@
+/* Læria | Plukk og tell v6 | Separate physical silhouettes for ten worlds.
+   Presentation only: never touch counts, item identity, interactions or progress. */
+.mp-pick-screen .mp-pick-stage-v2 .mp-pick-vessel-art{
+  transform:translateZ(0);
+}
+.mp-pick-screen .mp-pick-stage-v2 .mp-pick-vessel-art:before,
+.mp-pick-screen .mp-pick-stage-v2 .mp-pick-vessel-art:after,
+.mp-pick-screen .mp-pick-stage-v2 .mp-pick-vessel-art .mp-pick-front{
+  pointer-events:none;
+}
+/* Strawberry garden: round, handwoven harvesting baskets. */
+.mp-pick-screen[data-pick-scene="garden"] .mp-pick-vessel-art:before{
+  border-radius:31% 31% 44% 44% / 20% 20% 48% 48%;
+  background:
+    radial-gradient(ellipse at 38% 8%,#fff5d9bb,transparent 59%),
+    repeating-linear-gradient(39deg,transparent 0 6px,#fce3a47c 7px 10px,#85553575 11px 12px,transparent 13px 19px),
+    repeating-linear-gradient(-39deg,#bb895863 0 5px,#fff1c28a 6px 9px,#91643e69 10px 13px),
+    linear-gradient(98deg,#a97145,#e9bd85 28%,#eecb92 57%,#a86b3b);
+}
+.mp-pick-screen[data-pick-scene="garden"] .mp-pick-vessel-art .mp-pick-front{
+  border-radius:6% 6% 45% 45% / 15% 15% 85% 85%;
+}
+/* Apple orchard: sturdy slatted orchard crates, visibly different from strawberry baskets. */
+.mp-pick-screen[data-pick-scene="orchard"] .mp-pick-vessel-art .mp-pick-handle{
+  height:69px;border-width:8px;border-color:#91653f;border-top-color:#deb17c;
+}
+.mp-pick-screen[data-pick-scene="orchard"] .mp-pick-vessel-art:before{
+  border-radius:19px 19px 28px 28px;
+  border:7px solid #996a43;border-bottom:13px solid #815634;
+  background:
+    linear-gradient(90deg,transparent 16%,#7a4c2b56 17% 19%,transparent 20% 47%,#784a2c61 48% 50%,transparent 51% 78%,#6d432c50 79% 81%,transparent 82%),
+    repeating-linear-gradient(0deg,#dcb17b 0 17px,#a56a40 18px 21px,#f1cc96 22px 27px),
+    linear-gradient(#f8d29c,#9e704b);
+  box-shadow:inset 0 6px 9px #fff2d3b3,inset 0 -11px 9px #75482e69,0 8px 13px #55392140;
+}
+.mp-pick-screen[data-pick-scene="orchard"] .mp-pick-vessel-art .mp-pick-front{
+  border-radius:2px 2px 23px 23px;border-top:7px solid #e9bc81;
+  background:repeating-linear-gradient(0deg,#b57e4d 0 12px,#f0c58d 13px 18px,#97633d 19px 22px);
+}
+/* Baker's oven: low wooden baking trays, not vertical fruit baskets. */
+.mp-pick-screen[data-pick-scene="bakery"] .mp-pick-vessel-art:before{
+  border-radius:14px 14px 23px 23px;
+  background:
+    radial-gradient(ellipse at 50% 22%,#fff9e5b5,transparent 77%),
+    repeating-conic-gradient(#b17a635c 0 25%,#fff6e1c8 0 50%) center/23px 23px,
+    linear-gradient(#ead2b4,#b8896b);
+}
+.mp-pick-screen[data-pick-scene="bakery"] .mp-pick-vessel-art .mp-pick-front{
+  border-top:5px ridge #f4d8b3;
+  background:linear-gradient(#a87b5f,#765343);
+}
+/* Mushroom forest: squared timber-and-moss boxes, never wicker. */
+.mp-pick-screen[data-pick-scene="forest"] .mp-pick-vessel-art:before{
+  top:var(--art-top);border-radius:8px 8px 18px 18px;
+  border:7px solid #8a7356;border-bottom:13px solid #65563f;
+  background:
+    linear-gradient(90deg,#523f2a58 0 5px,transparent 7px calc(100% - 7px),#443d2a72 calc(100% - 5px)),
+    repeating-linear-gradient(90deg,transparent 0 18px,#5c523f46 19px 22px,transparent 23px 37px),
+    repeating-linear-gradient(0deg,#d4ba8b 0 18px,#8d7756 19px 22px,#b29b72 24px 33px),
+    linear-gradient(100deg,#cbb88c,#8c7352);
+  box-shadow:inset 0 7px 11px #efe2c0,inset 6px 0 8px #5445304a,0 7px 0 #534637ba,0 12px 18px #38412d50;
+}
+.mp-pick-screen[data-pick-scene="forest"] .mp-pick-vessel-art .mp-pick-front{
+  border-radius:3px 3px 15px 15px;border-top:7px solid #e1c99b;
+  background:
+    repeating-linear-gradient(90deg,transparent 0 17px,#54463478 18px 21px,transparent 22px 36px),
+    repeating-linear-gradient(0deg,#bca37a 0 15px,#6b563e 16px 19px,#aa916c 20px 28px);
+}
+/* Treasure: a squared, gold-edged wooden chest with a lifted arched lid. */
+.mp-pick-screen[data-pick-scene="treasure"] .mp-pick-vessel-art:before{
+  top:calc(var(--art-top) + 13px);bottom:12px;
+  border:7px solid #d5ae62;border-bottom:13px solid #79502d;
+  border-radius:10px 10px 21px 21px;
+  background:
+    repeating-linear-gradient(0deg,#6f423183 0 3px,transparent 4px 28px),
+    repeating-linear-gradient(90deg,#a2743b 0 21px,#744c31 22px 26px,#bb9357 27px 43px),
+    linear-gradient(#af7543,#61422f);
+  box-shadow:inset 0 6px 13px #efd09792,inset 8px 0 13px #472f2552,0 6px 0 #5b4234,0 10px 15px #392b276b;
+}
+.mp-pick-screen[data-pick-scene="treasure"] .mp-pick-vessel-art:after{
+  display:block;top:4px;left:4px;right:4px;bottom:auto;height:calc(var(--art-top) + 12px);
+  border:6px ridge #dab269;border-bottom:5px solid #916031;
+  border-radius:50% 50% 7px 7px / 65% 65% 7px 7px;
+  background:
+    repeating-linear-gradient(90deg,transparent 0 23px,#e5bd7044 24px 27px,transparent 28px 45px),
+    linear-gradient(160deg,#be9554,#795237 79%);
+  box-shadow:inset 0 4px 10px #ffdf9d78,0 5px 4px #3f2c2733;
+}
+.mp-pick-screen[data-pick-scene="treasure"] .mp-pick-vessel-art .mp-pick-front{
+  border-radius:2px 2px 17px 17px;border-top:9px ridge #f1cc79;
+  background:
+    repeating-linear-gradient(0deg,transparent 0 18px,#e4bd7487 19px 23px,transparent 24px 33px),
+    linear-gradient(100deg,#9b683d,#d5a25b,#74472f);
+}
+/* Railway: an actual cargo cart, with a metal lip and dark wheels. */
+.mp-pick-screen[data-pick-scene="train"] .mp-pick-vessel-art:before{
+  border:6px solid #9b6049;border-bottom:12px solid #62463b;
+  border-radius:7px 7px 15px 15px;
+  background:
+    repeating-linear-gradient(90deg,#e4b486 0 15px,#9b634a 16px 20px,#c9936a 21px 32px),
+    linear-gradient(#e7bd93,#936147);
+}
+.mp-pick-screen[data-pick-scene="train"] .mp-pick-vessel-art .mp-pick-front{
+  border-top:6px ridge #efbd84;border-radius:2px 2px 10px 10px;
+  background:repeating-linear-gradient(90deg,#b67f5b 0 18px,#85553b 19px 22px,#cb986a 23px 34px);
+}
+.mp-pick-screen[data-pick-scene="train"] .mp-pick-vessel-art:after{
+  display:block;top:auto;bottom:0;height:26px;left:6%;right:6%;
+  border:0;border-radius:0;background:
+    radial-gradient(circle at 18% 50%,#394042 0 10px,#c39258 11px 14px,transparent 15px),
+    radial-gradient(circle at 82% 50%,#394042 0 10px,#c39258 11px 14px,transparent 15px);
+  box-shadow:none;
+}
+/* Beach: tapered painted sand pails with hanging rope handles. */
+.mp-pick-screen[data-pick-scene="beach"] .mp-pick-vessel-art .mp-pick-handle{
+  left:12%;width:76%;top:8px;height:75px;border:6px solid #947e62;
+  border-bottom:0;border-radius:55% 55% 0 0;box-shadow:inset 0 2px #fce6ae,0 2px 5px #5348394c;
+}
+.mp-pick-screen[data-pick-scene="beach"] .mp-pick-vessel-art:before{
+  border:6px solid #c89c78;border-top-width:9px;border-bottom:12px solid #93745c;
+  border-radius:23px 23px 52px 52px;
+  clip-path:polygon(3% 0,97% 0,85% 100%,15% 100%);
+  background:
+    linear-gradient(95deg,#fff0cc9c,transparent 38%,#785a4a56),
+    repeating-linear-gradient(0deg,#eacfa3 0 21px,#a7c0ba 22px 33px,#cd9a79 34px 50px);
+  box-shadow:inset 0 8px 12px #fff9da,0 7px 12px #4f4d3e68;
+}
+.mp-pick-screen[data-pick-scene="beach"] .mp-pick-vessel-art .mp-pick-front{
+  left:10%;right:10%;bottom:18px;height:34px;
+  border-radius:0 0 31px 31px;border-top:6px ridge #f4dec1;
+  background:linear-gradient(#bcafa0,#dcba9a 50%,#ae876e);
+}
+/* Farmyard: twig nest holding real countable eggs. No fake eggs in decorations. */
+.mp-pick-screen[data-pick-scene="farm"] .mp-pick-vessel-art .mp-pick-handle{display:none}
+.mp-pick-screen[data-pick-scene="farm"] .mp-pick-vessel-art:before{
+  top:calc(var(--art-top) + 14px);bottom:19px;
+  border:9px solid #ae8453;border-bottom:18px solid #755639;
+  border-radius:48% 48% 48% 48% / 37% 37% 60% 60%;
+  background:
+    radial-gradient(ellipse at 49% 27%,#f8e9bcbd,#c59d63aa 65%,#684c3678),
+    repeating-linear-gradient(29deg,transparent 0 8px,#71533c9c 9px 11px,#ddba78b3 12px 15px,transparent 16px 25px),
+    repeating-linear-gradient(-33deg,#ac8257 0 7px,#e3c18b 8px 12px,#785638 13px 16px);
+  box-shadow:inset 0 8px 14px #fff2cc9c,inset 0 -11px 9px #5c483155,0 8px 11px #503e2d5a;
+}
+.mp-pick-screen[data-pick-scene="farm"] .mp-pick-vessel-art:after{
+  display:block;top:calc(var(--art-top) + 10px);bottom:auto;height:33px;left:4%;right:4%;
+  border:6px ridge #d7b27d;border-radius:50%;
+  background:linear-gradient(#b78d5b,#dec2947a);box-shadow:inset 0 4px 6px #6a50395c;
+}
+.mp-pick-screen[data-pick-scene="farm"] .mp-pick-vessel-art .mp-pick-front{
+  left:7%;right:7%;bottom:17px;height:42px;border-top:8px ridge #ebcb96;
+  border-radius:48% 48% 46% 46% / 24% 24% 75% 75%;
+  background:
+    repeating-linear-gradient(38deg,#d2ab77 0 4px,#805d3e 5px 7px,transparent 8px 14px),
+    repeating-linear-gradient(-32deg,#f0d19d 0 5px,#9c724a 6px 10px,transparent 11px 19px),
+    linear-gradient(#c59f6d,#81603f);
+}
+/* Aquarium: a glass tank, not a basket in blue. */
+.mp-pick-screen[data-pick-scene="aquarium"] .mp-pick-vessel-art:before{
+  border:7px solid #cafff5ab;border-bottom:12px solid #548ca49e;
+  border-radius:35% 35% 27% 27% / 14% 14% 36% 36%;
+  background:
+    linear-gradient(96deg,#fbfffcca 0%,transparent 13%,#f1ffff5e 26%,transparent 44%,#ffffffa6 79%,transparent 91%),
+    linear-gradient(0deg,#3d89a39c,#88d5d585 36%,#d5fcf043);
+  box-shadow:inset 9px 6px 13px #ffffffad,inset -9px -7px 13px #2b7b9873,0 7px 12px #275b786b;
+}
+.mp-pick-screen[data-pick-scene="aquarium"] .mp-pick-vessel-art .mp-pick-front{
+  border-top:7px solid #f3fffce3;border-radius:3px 3px 36px 36px;
+  background:linear-gradient(90deg,#327d9db8,#d1f8f5a3 41%,#4c94aac9);
+}
+/* Balloon fair: festival-striped stands, not fruit baskets. */
+.mp-pick-screen[data-pick-scene="park"] .mp-pick-vessel-art .mp-pick-handle{display:none}
+.mp-pick-screen[data-pick-scene="park"] .mp-pick-vessel-art:before{
+  top:calc(var(--art-top) + 13px);
+  border:7px solid #f7deaa;border-bottom:13px solid #895e4a;
+  border-radius:23px 23px 37px 37px;
+  background:repeating-linear-gradient(90deg,#d67c63 0 17px,#ffefcd 18px 32px,#92a990 33px 45px,#ffe9bd 46px 58px);
+  box-shadow:inset 0 8px 13px #fff6de,inset 0 -12px 10px #87573b75,0 8px 13px #51433661;
+}
+.mp-pick-screen[data-pick-scene="park"] .mp-pick-vessel-art:after{
+  display:block;top:calc(var(--art-top) + 9px);left:2%;right:2%;height:19px;bottom:auto;
+  border:5px ridge #f6d48e;border-radius:50%;
+  background:linear-gradient(#fff2d8,#d3a278);box-shadow:inset 0 3px 4px #b47850;
+}
+.mp-pick-screen[data-pick-scene="park"] .mp-pick-vessel-art .mp-pick-front{
+  border-top:8px ridge #f7dcb0;border-radius:1px 1px 29px 29px;
+  background:repeating-linear-gradient(90deg,#ce806d 0 14px,#fff0cb 15px 28px,#809985 29px 40px);
+}
+/* Magnified view uses the same material and silhouette family, never another theme. */
+.mp-pick-screen[data-pick-scene="forest"] .mp-pick-zoom-vessel:before{border-radius:9px 9px 17px 17px}
+.mp-pick-screen[data-pick-scene="treasure"] .mp-pick-zoom-vessel:before{border:10px ridge #d8b16d;border-radius:12px;background:repeating-linear-gradient(0deg,#ae7946 0 22px,#6f4d37 23px 28px)}
+.mp-pick-screen[data-pick-scene="farm"] .mp-pick-zoom-vessel:after,
+.mp-pick-screen[data-pick-scene="park"] .mp-pick-zoom-vessel:after{display:none}
+.mp-pick-screen[data-pick-scene="farm"] .mp-pick-zoom-vessel:before{
+  border-radius:49% 49% 49% 49% / 36% 36% 60% 60%;
+  border-color:#a77f55;border-bottom-width:19px;
+  background:repeating-linear-gradient(34deg,#d7ae79 0 7px,#866241 8px 12px,#efd099 13px 22px);
+}
+.mp-pick-screen[data-pick-scene="beach"] .mp-pick-zoom-vessel:before{
+  border-radius:23px 23px 52px 52px;border-color:#b18c6d;
+  background:repeating-linear-gradient(0deg,#f4dcb8 0 24px,#a7c5bf 25px 41px,#d6ab89 42px 60px);
+}
+.mp-pick-screen[data-pick-scene="park"] .mp-pick-zoom-vessel:before{
+  border-color:#ecd19e;background:repeating-linear-gradient(90deg,#cf7a65 0 26px,#fbe7bf 27px 46px,#87a38d 47px 66px);
+}
+@media(max-width:385px){
+ .mp-pick-screen[data-pick-scene="train"] .mp-pick-vessel-art:after{height:17px}
+ .mp-pick-screen[data-pick-scene="farm"] .mp-pick-vessel-art .mp-pick-front{height:32px}
+ .mp-pick-screen[data-pick-scene="treasure"] .mp-pick-vessel-art:after{height:calc(var(--art-top) + 6px)}
+}
+@media(prefers-reduced-motion:reduce){
+ .mp-pick-screen .mp-pick-stage-v2 .mp-pick-vessel-art{transform:none}
+}
