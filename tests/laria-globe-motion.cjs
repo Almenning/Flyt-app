@@ -26,8 +26,8 @@ test('globe pinch keeps a geographic anchor and hands back to one-finger drag',(
 test('globe motion release rotates Safari cache keys',()=>{
   const index=read('laer-litt-mer/index.html');
   const sw=read('laer-litt-mer/sw.js');
-  assert.match(index,/globe35-depth1/);
-  assert.match(sw,/globe35-depth1/);
+  assert.match(index,/globe36-locked-env1/);
+  assert.match(sw,/globe36-locked-env1/);
 });
 
 test('visible globe land uses authoritative geographic boundaries, not a decorative image',()=>{
@@ -47,11 +47,17 @@ test('locked Læria environment frames the globe with responsive illustrated nat
     assert.match(active,new RegExp('globe-locked-environment-v36-'+view+'\\.svg'),'missing '+view+' artwork');
     const svg=read('laer-litt-mer/globe-locked-environment-v36-'+view+'.svg');
     assert.match(svg,/viewBox=/,'scene '+view+' is not responsive vector artwork');
-    assert.match(svg,/approvedLeft/,'scene '+view+' lacks reference landscaping');
-    assert.match(svg,/laria-ridge-clip-far/,'scene '+view+' lacks clipped mountain relief');
-    for(const token of ['id="sky"','id="mount0"','id="meadow"','id="lake"'])
+    assert.match(svg,/preserveAspectRatio="xMidYMid slice"/,view+' must CROP without stretching the source');
+    const expected={landscape:[1440,900],tablet:[850,1180],mobile:[450,960]}[view];
+    assert.ok(svg.includes('viewBox="0 0 '+expected[0]+' '+expected[1]+'"'),view+' must keep a correct source aspect ratio');
+    for(const token of ['id="sky"','id="range"','id="pine"','id="water"','id="woods"','id="approvedLeft"','id="approvedRight"'])
       assert.ok(svg.includes(token),view+' lacks '+token);
+    assert.match(svg,/<image href="data:image\\/webp;base64,/,'reference scenery must remain self-contained and avoid remote assets');
+    assert.doesNotMatch(svg,/<foreignObject\\b|<canvas\\b/,'scenery must never embed a second interactive map');
   }
+  assert.match(active,/background-size:cover!important/,'scenery must scale without distortion and crop if necessary');
+  assert.match(active,/globe-locked-environment-v36-landscape\\.svg/,'latest illustrated release must be active');
+  assert.doesNotMatch(active,/background-size:100%\\s+100%/,'scene may not be stretched to fill arbitrary aspect ratios');
   assert.doesNotMatch(active,/basecamp-v11/,'globe environment must not reuse fantasy village artwork');
   assert.match(active,/--g24-globe:min\(94vw,48dvh\)/,'phone globe must dominate usable width');
 });
