@@ -71,9 +71,17 @@ async function run(engine,label,viewport){
   assert.equal(selected,'no',label+' Norway tap must select Norway, not China or a neighbouring country');
   assert.ok((await page.locator('#globe-status strong').allTextContents()).some(x=>x.includes('Norge')),label+' Norway card missing');
   const before=await page.evaluate(()=>window.LARIA_ATLAS_PERSPECTIVE.snapshot());
+  assert.equal(await page.locator('#globe-zoom-out').isEnabled(),true,label+' atlas zoom-out must not inherit disabled sphere controls');
   await page.locator('#globe-zoom-in').click();
   const after=await page.evaluate(()=>window.LARIA_ATLAS_PERSPECTIVE.snapshot());
   assert.ok(after.zoom>before.zoom,label+' zoom button fails');
+  await page.locator('#globe-zoom-out').click();
+  const backZoom=await page.evaluate(()=>window.LARIA_ATLAS_PERSPECTIVE.snapshot().zoom);
+  assert.ok(backZoom<after.zoom,label+' zoom-out button must reduce atlas scale');
+  await page.evaluate(()=>window.LARIA_ATLAS_PERSPECTIVE.zoom(1));
+  assert.equal(await page.locator('#globe-zoom-out').isEnabled(),false,label+' atlas zoom-out must disable at minimum atlas scale');
+  await page.evaluate(()=>window.LARIA_ATLAS_PERSPECTIVE.region('norden'));
+  assert.equal(await page.locator('#globe-zoom-out').isEnabled(),true,label+' zoom-out must re-enable on entering a zoomed region');
   const anchor=await page.evaluate(()=>{
    const atlas=window.LARIA_ATLAS_PERSPECTIVE,p=atlas.project(12,62);
    const before=atlas.inverse(p.x,p.y);
