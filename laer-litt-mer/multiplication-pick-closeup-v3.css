@@ -117,3 +117,65 @@
  .mp-pick-zoom-top strong{font-size:18px}
  .mp-pick-zoom-close{padding-inline:8px}
 }
+
+
+/* Premium illustrated closeup v5: one uninterrupted eventyrverden continues behind
+   the existing count-correct 2.5D objects. The scenery contains NO countables. */
+.mp-pick-zoom-dialog{isolation:isolate;background:linear-gradient(155deg,#fff8e9,#e7d4b7)}
+.mp-pick-zoom-landscape{
+ position:absolute;z-index:0;top:84px;right:0;bottom:0;left:0;
+ width:100%;height:auto;overflow:hidden;opacity:.95;
+ background:linear-gradient(160deg,#d2e5bc,#97b99a);
+ border-radius:0 0 21px 21px;
+ pointer-events:none
+}
+.mp-pick-zoom-landscape svg.mp-pick-storyscape{
+ position:absolute;top:0;left:0;width:100%;height:100%;min-height:0;
+ transform:none;opacity:.95;filter:saturate(.97);
+ display:block;pointer-events:none
+}
+.mp-pick-zoom-landscape:after{
+ content:"";position:absolute;inset:0;pointer-events:none;
+ background:linear-gradient(180deg,#fff7e6bc 0%,#fff8e557 18%,#fff7df1b 47%,#ffefd448 76%,#f1dab18b 100%)
+}
+.mp-pick-zoom-top,.mp-pick-zoom-help,.mp-pick-zoom-footer{position:relative;z-index:3}
+.mp-pick-zoom-help{
+ align-self:start;margin:0;padding:7px 10px;
+ border:1px solid #fff7e9b3;border-radius:12px;
+ background:#fff9e8c9;
+ box-shadow:0 3px 12px #4e3c2a1c;
+ color:#674d36;font-size:13px;font-weight:850;line-height:1.34
+}
+.mp-pick-zoom-vessel{position:relative;z-index:2;filter:drop-shadow(0 5px 6px #5e4a2b3e)}
+.mp-pick-zoom-footer{
+ border:2px solid #fff8e5;
+ background:linear-gradient(125deg,#fffaf0f5,#f4dec2f2);
+ box-shadow:0 3px 0 #bc9875b8,0 5px 14px #66533826
+}
+.mp-pick-zoom-dialog:after{
+ content:"";position:absolute;z-index:4;inset:3px;
+ border:1px solid #fff9e9c9;border-radius:18px;
+ pointer-events:none;box-shadow:inset 0 0 17px #fff7e75e
+}
+.mp-pick-screen[data-pick-scene="bakery"] .mp-pick-zoom-landscape{background:#d4a97e}
+.mp-pick-screen[data-pick-scene="forest"] .mp-pick-zoom-landscape{background:#739980}
+.mp-pick-screen[data-pick-scene="treasure"] .mp-pick-zoom-landscape{background:#9e8671}
+.mp-pick-screen[data-pick-scene="train"] .mp-pick-zoom-landscape{background:#b6c8a7}
+.mp-pick-screen[data-pick-scene="aquarium"] .mp-pick-zoom-landscape{background:#73bdc5}
+.mp-pick-screen[data-pick-scene="beach"] .mp-pick-zoom-landscape{background:#9bdde0}
+.mp-pick-screen[data-pick-scene="park"] .mp-pick-zoom-landscape{background:#b8dcb4}
+.mp-pick-flying-object{
+ position:fixed;z-index:30000;display:block;pointer-events:none;
+ border:0!important;box-shadow:none!important;opacity:1;
+ will-change:transform,opacity;
+ filter:drop-shadow(0 4px 4px #52362577)
+}
+.mp-pick-flying-object svg{width:100%;height:100%;display:block}
+@media(max-width:420px){
+ .mp-pick-zoom-landscape{top:83px;border-radius:0 0 17px 17px}
+ .mp-pick-zoom-help{padding:7px 9px;font-size:12px}
+ .mp-pick-zoom-footer{font-size:14px}
+}
+@media(prefers-reduced-motion:reduce){
+ .mp-pick-flying-object{display:none!important}
+}

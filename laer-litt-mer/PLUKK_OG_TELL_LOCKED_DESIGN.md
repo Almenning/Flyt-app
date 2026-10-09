@@ -107,3 +107,13 @@ Dette styrer førstesiden foran de tidligere godkjente funksjonsforslagene:
 - Læring og mestring må oppleves som lek, ikke som en oppgave med for mange kommandoer. Ingen instruksjonsblokker, skjemaer eller forutgående valg.
 
 **Godkjenningskriterium:** En andreklassing skal kunne begynne å plukke uten at en voksen forklarer menyene. Safari-/iPad-testen skal dokumentere seks objekter på førstesiden, to store kurver, ett enkelt instruksjonskort og at alt avansert er skjult fram til eksplisitt valg.
+
+
+## Premium nærsyn v5 (9. oktober 2026)
+
+- Nærvisningen viderefører det faktisk valgte eventyrmiljøet fra oversikten, ikke en generisk kremfarget bakgrunn.
+- Nærvisningens illustrerte landskap er dekorativt og inneholder **ingen tellbare gjenstander**. Barnet manipulerer fortsatt de samme objektene, med samme stabile identiteter.
+- Ved plukking kan en kort, dekorativ animasjon vise at akkurat den valgte gjenstanden flyttes mot samlekurven. Regnestykket oppdateres uavhengig og umiddelbart; animasjonen påvirker aldri regnelogikken eller antallet.
+- Respekter `prefers-reduced-motion`. Nærvisningen skal beholde tastatur, fokus, Esc-lukking og store berøringsflater.
+- De eksisterende 10 × 10- og Brøklab-funksjonene samt kloden får ingen endring i denne runden.
+- Denne runden er et målbart kvalitetssteg, ikke en erklæring om full visuell identitet med låste konseptillustrasjoner.

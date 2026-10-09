@@ -105,6 +105,18 @@ async function run(browser,engine,label,viewport,url){
   await zoom.waitFor();
   assert.equal(await zoom.locator('[role="dialog"][aria-modal="true"]').count(),1,label+' zoom is a real accessible dialog');
   assert.equal(await zoom.locator('.mp-pick-zoom-item').count(),10,label+' the closeup must show the same ten objects');
+  const closeupScene=zoom.locator('.mp-pick-zoom-landscape svg.mp-pick-storyscape');
+  assert.equal(await closeupScene.count(),1,label+' closeup must continue the exact illustrated world');
+  const scenicChecks=await closeupScene.evaluate(el=>{
+    const bounds=el.getBoundingClientRect(),canvas=el.closest('.mp-pick-zoom-landscape').getBoundingClientRect();
+    return {details:el.querySelectorAll('path,ellipse,circle,rect').length,
+      width:bounds.width,canvasWidth:canvas.width,
+      buttons:el.querySelectorAll('button,.mp-pick-object,.mp-pick-zoom-item').length};
+  });
+  assert.ok(scenicChecks.details>90&&Math.abs(scenicChecks.width-scenicChecks.canvasWidth)<3&&!scenicChecks.buttons,
+    label+' near view art must be detailed, fitted and never counted: '+JSON.stringify(scenicChecks));
+
+
   const closeupBounds=await page.locator('.mp-pick-zoom-item').evaluateAll(items=>items.map(el=>{
     const r=el.getBoundingClientRect();return {w:r.width,h:r.height,visible:r.top>=0&&r.bottom<=innerHeight};
   }));
@@ -168,6 +180,13 @@ async function run(browser,engine,label,viewport,url){
     assert.equal(await page.locator('.mp-pick-screen').getAttribute('data-pick-world'),world);
     assert.equal((await snapshot(page)).total,27,'world switch changed multiplication');
     assert.equal(await page.locator('.mp-pick-object').count(),27,'world art count differs from maths');
+    if(engine==='webkit'&&label==='iphone-safari'&&['bun','mushroom','aquarium'].includes(world)){
+      await page.locator('.mp-pick-vessel[data-group="1"] [data-pick-action="zoom"]').click();
+      assert.equal(await page.locator('.mp-pick-zoom-landscape svg.mp-pick-storyscape').count(),1,
+        label+' '+world+' needs its actual environment in closeup');
+      await image(page,label+'-nearview-world-'+world);
+      await page.locator('.mp-pick-zoom-close').click();
+    }
     if(engine==='webkit'){
       await layout(page,label+' world '+world);
       assert.ok(await page.locator('.mp-pick-storyscape').count(),label+' '+world+' requires actual storybook scenery');
