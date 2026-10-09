@@ -70,6 +70,11 @@ async function run(engine,label,viewport){
   const selected=await page.evaluate(()=>globeSelected);
   assert.equal(selected,'no',label+' Norway tap must select Norway, not China or a neighbouring country');
   assert.ok((await page.locator('#globe-status strong').allTextContents()).some(x=>x.includes('Norge')),label+' Norway card missing');
+  if(viewport.width<=430){
+   assert.equal(await page.locator('#globe-status .premium-country-learn span').isVisible(),true,label+' Lær mer text must be visible beside the Norwegian country card on iPhone');
+   const learnButton=await page.locator('#globe-status .premium-country-learn').boundingBox();
+   assert.ok(learnButton.width>=60&&learnButton.height>=50,label+' Lær mer needs a child-friendly tap target');
+  }
   const before=await page.evaluate(()=>window.LARIA_ATLAS_PERSPECTIVE.snapshot());
   assert.equal(await page.locator('#globe-zoom-out').isEnabled(),true,label+' atlas zoom-out must not inherit disabled sphere controls');
   await page.locator('#globe-zoom-in').click();
