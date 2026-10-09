@@ -173,18 +173,30 @@ function zoomSprite(theme,token){
  // Sprite creates unique gradients on each call, so WebKit closeups need no ID remapping.
  return sprite(theme,token);
 }
+const CLOSEUP_PROPS=Object.freeze({
+ garden:{label:'Kurv',place:'i kurven'},
+ bakery:{label:'Brett',place:'på brettet'},
+ forest:{label:'Kasse',place:'i kassen'},
+ orchard:{label:'Fruktkasse',place:'i fruktkassen'},
+ treasure:{label:'Kiste',place:'i kisten'},
+ train:{label:'Vogn',place:'på vognen'},
+ beach:{label:'Bøtte',place:'i bøtten'},
+ farm:{label:'Reir',place:'i reiret'},
+ aquarium:{label:'Glasskar',place:'i glasskaret'},
+ park:{label:'Stativ',place:'på stativet'}
+});
 function closeup(){
  if(zoomGroup===null||!state.itemIds[zoomGroup])return '';
- const group=zoomGroup,picked=w(),count=state.counts[group];
+ const group=zoomGroup,picked=w(),count=state.counts[group],prop=CLOSEUP_PROPS[picked.scene]||CLOSEUP_PROPS.garden;
  const rawWorld=window.LARIA_PICK_SCENERY_V2?.scene(picked.scene)||'';
  const zoomScenery=rawWorld.replace(/(id="|url\(#)(pp[A-Za-z0-9]+)/g,(_,prefix,id)=>prefix+id+'-near');
 
- const objects=state.itemIds[group].map((token,i)=>'<button type="button" class="mp-pick-zoom-item" data-mp-action="pick-play" data-pick-action="'+(state.moveMode?'selectMove':'take')+'" data-group="'+group+'" data-token="'+token+'" aria-label="'+(state.moveMode?'Velg for å flytte':'Plukk')+' '+esc(picked.unit)+' '+(i+1)+' fra den forstørrede kurven">' + zoomSprite(picked.id,token)+'</button>').join('');
+ const objects=state.itemIds[group].map((token,i)=>'<button type="button" class="mp-pick-zoom-item" data-mp-action="pick-play" data-pick-action="'+(state.moveMode?'selectMove':'take')+'" data-group="'+group+'" data-token="'+token+'" aria-label="'+(state.moveMode?'Velg for å flytte':'Plukk')+' '+esc(picked.unit)+' '+(i+1)+' fra '+esc(prop.label.toLowerCase())+' '+(group+1)+'">' + zoomSprite(picked.id,token)+'</button>').join('');
  return '<div class="mp-pick-zoom-overlay" data-group="'+group+'"><button type="button" class="mp-pick-zoom-backdrop" data-mp-action="pick-play" data-pick-action="zoomClose" tabindex="-1" aria-label="Lukk nærvisning"></button>'+
- '<section class="mp-pick-zoom-dialog" role="dialog" aria-modal="true" aria-label="Forstørret kurv '+(group+1)+'"><header class="mp-pick-zoom-top"><div><small>NÆRVISNING · SAMME KURV</small><strong>Kurv '+(group+1)+' · '+count+' '+esc(picked.object)+'</strong></div><button type="button" class="mp-pick-zoom-close" data-mp-action="pick-play" data-pick-action="zoomClose" aria-label="Lukk nærvisning">✕ Lukk</button></header>'+
+ '<section class="mp-pick-zoom-dialog" role="dialog" aria-modal="true" aria-label="Nærvisning av '+esc(prop.label.toLowerCase())+' '+(group+1)+'"><header class="mp-pick-zoom-top"><div><small>NÆRVISNING · SAMME '+esc(prop.label.toUpperCase())+'</small><strong>'+esc(prop.label)+' '+(group+1)+' · '+count+' '+esc(picked.object)+'</strong></div><button type="button" class="mp-pick-zoom-close" data-mp-action="pick-play" data-pick-action="zoomClose" aria-label="Lukk nærvisning">✕ Lukk</button></header>'+
  '<p class="mp-pick-zoom-help">Trykk på en gjenstand for å plukke den. Tallet oppdateres med én gang.</p>'+
  '<div class="mp-pick-zoom-landscape" aria-hidden="true">'+zoomScenery+'</div><div class="mp-pick-zoom-vessel"><div class="mp-pick-zoom-interior"><div class="mp-pick-zoom-objects">'+objects+'</div></div><span class="mp-pick-zoom-vessel-front" aria-hidden="true"></span></div>'+
- '<footer class="mp-pick-zoom-footer"><span>'+esc(E.equation(state).main)+'</span><b>'+count+' i kurven</b></footer></section></div>';
+ '<footer class="mp-pick-zoom-footer"><span>'+esc(E.equation(state).main)+'</span><b>'+count+' '+esc(prop.place)+'</b></footer></section></div>';
 }
 
 function render(){
