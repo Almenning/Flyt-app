@@ -1,4 +1,4 @@
-const CACHE='laria-stable-2026-10-08-globe35-depth1';
+const CACHE='laria-stable-2026-10-09-fraction59-globe35';
 const APP_CACHE_PREFIXES=['laer-litt-mer-','laria-'];
 
 // Keep install light. Runtime requests populate the cache as the child actually uses the app.
