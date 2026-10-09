@@ -56,6 +56,15 @@ async function testView(browser,engine,label,viewport,url){
   await dimensions(page,viewport.width,label+' practice');
   await screenshot(page,label+'-03-practice');
   const initial=snap.round[0];assert.equal(await page.locator('.mp-apple-basket').count(),initial.a);assert.equal(await page.locator('.mp-apple').count(),initial.a*initial.b,'visual groups disagree with math');
+   assert.equal(await page.locator('.mp3-item').count(),initial.a*initial.b,'illustrated objects must match multiplication');
+   assert.equal(await page.locator('.mp3-basket').count(),initial.a);
+   for(const theme of ['bun','mushroom','apple','strawberry']){
+     await page.locator('[data-mp-action="theme"][data-theme="'+theme+'"]').click();
+     assert.equal(await page.locator('.mp3-item').count(),initial.a*initial.b,'theme '+theme+' changed the visible count');
+     assert.equal(await page.locator('.mp3-basket').count(),initial.a);
+     assert.equal(await page.locator('.mp3-collections').getAttribute('data-mp3-theme'),theme);
+   }
+
   const answer=initial.a*initial.b,wrong=await page.locator('.mp-answer').evaluateAll((els,n)=>Number(els.find(x=>Number(x.dataset.value)!==n)?.dataset.value),answer);
   await page.locator('.mp-answer[data-value="'+wrong+'"]').click();
   assert.match(await page.locator('.mp-answer-feedback').innerText(),/Prøv igjen/);
@@ -74,6 +83,10 @@ async function testView(browser,engine,label,viewport,url){
   assert.equal(await page.locator('.mp-grid-cell').count(),100);
   await page.locator('[data-mp-action="mode"][data-mode="groups"]').click();
   assert.equal(await page.locator('.mp-apple-basket').count(),4);
+  assert.equal(await page.locator('.mp3-item').count(),12);
+  await page.locator('[data-mp-action="theme"][data-theme="bun"]').click();
+  assert.equal(await page.locator('.mp3-item').count(),12);
+
   await page.locator('[data-mp-action="factor"][data-factor="a"][data-step="1"]').click();
   assert.match(await page.locator('.mp-math-result').innerText(),/5 × 3/);
   await page.locator('[data-mp-action="mode"][data-mode="array"]').click();
@@ -91,6 +104,27 @@ async function testView(browser,engine,label,viewport,url){
   assert.match(await page.locator('.mp-table-inspector').innerText(),/4 × 6 = 24/);
   assert.match(await page.locator('.mp-table-inspector').innerText(),/6 × 4 = 24/);
   await screenshot(page,label+'-05-table');
+
+  // Explicit 3 × 10 acceptance case from the locked illustrated reference.
+  // The counted objects must remain distinct even on a narrow iPhone.
+  await page.locator('[data-mp-action="mode"][data-mode="groups"]').click();
+  const startFactors=await page.evaluate(()=>LARIA_MULT_PREMIUM.snapshot());
+  for(let n=startFactors.a;n>3;n--)await page.locator('[data-mp-action="factor"][data-factor="a"][data-step="-1"]').click();
+  for(let n=startFactors.a;n<3;n++)await page.locator('[data-mp-action="factor"][data-factor="a"][data-step="1"]').click();
+  for(let n=startFactors.b;n<10;n++)await page.locator('[data-mp-action="factor"][data-factor="b"][data-step="1"]').click();
+  assert.match(await page.locator('.mp-math-result').innerText(),/3 × 10/);
+  assert.equal(await page.locator('.mp3-basket').count(),3,'3 × 10 needs three physically separate groups');
+  assert.deepEqual(await page.locator('.mp3-basket').evaluateAll(els=>els.map(el=>el.querySelectorAll('.mp3-item').length)),[10,10,10]);
+  const widths=await page.locator('.mp3-item').evaluateAll(els=>els.map(el=>el.getBoundingClientRect().width));
+  assert.ok(widths.every(w=>w>=17),label+' illustrated count objects must remain readable: '+Math.min(...widths));
+  for(const theme of ['strawberry','bun','mushroom','apple']){
+    await page.locator('[data-mp-action="theme"][data-theme="'+theme+'"]').click();
+    assert.equal(await page.locator('.mp3-collections').getAttribute('data-mp3-theme'),theme);
+    assert.equal(await page.locator('.mp3-item').count(),30);
+    await dimensions(page,viewport.width,label+' illustrated 3x10 '+theme);
+    if(label==='iphone-safari'||label==='ipad-safari')await screenshot(page,label+'-07-groups-3x10-'+theme);
+  }
+
   await page.locator('.mp-nav-link[data-page="mastery"]').click();
   await page.locator('.mp-mastery-screen').waitFor();
   assert.equal(await page.locator('.mp-award').count(),10);
