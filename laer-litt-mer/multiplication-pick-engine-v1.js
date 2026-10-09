@@ -40,7 +40,10 @@ function equation(s){
  const sum=total(s),e=equal(s);
  if(e)return {main:e.groups+' × '+e.each+' = '+sum,detail:e.groups+' like grupper med '+e.each+' i hver',equal:true};
  if(sum===0)return {main:'0',detail:'Alle gruppene er tomme.',equal:false};
- return {main:s.counts.join(' + ')+' = '+sum,detail:'Gruppene er ulike. Vi kan legge sammen det som ligger i hver.',equal:false};
+ const added=s.counts.join(' + ')+' = '+sum;
+ if(s.counts.length===3&&s.counts.every(n=>n<=10)&&sum+s.collected===30&&s.collected>0)
+  return {main:'3 × 10 − '+s.collected+' = '+sum,detail:added+' · Ulike grupper kan legges sammen.',equal:false};
+ return {main:added,detail:'Gruppene er ulike. Vi kan legge sammen det som ligger i hver.',equal:false};
 }
 function missionInfo(s){
  if(!s.mission)return null;
