@@ -171,3 +171,7 @@
  #world-screen.active.atlas-perspective-on #atlas-canvas,
  #world-screen.active.atlas-perspective-on .atlas-region-nav{scroll-behavior:auto!important}
 }
+
+/* Achievement key belongs above the interactive map, not over the continent chips. */
+#world-screen.active.atlas-perspective-on[data-premium-globe-mode="mine"] .globe-legend{position:absolute!important;z-index:93!important;left:50%!important;right:auto!important;top:var(--atlas-legend-top,163px)!important;transform:translateX(-50%)!important;width:max-content!important;max-width:calc(100vw - 28px)!important;display:flex!important;align-items:center!important;justify-content:center!important;flex-wrap:wrap!important;padding:7px 11px!important;gap:4px 9px!important;background:rgba(255,248,226,.96)!important;border:2px solid #BFA073!important;border-radius:14px!important;box-shadow:0 4px 0 rgba(105,75,47,.17)!important}
+#world-screen.active.atlas-perspective-on[data-premium-globe-mode="mine"] .globe-legend span{white-space:nowrap!important;font-size:clamp(9px,1vw,11px)!important}
