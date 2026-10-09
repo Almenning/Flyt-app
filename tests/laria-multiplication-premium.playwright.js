@@ -108,8 +108,10 @@ async function testView(browser,engine,label,viewport,url){
   // Explicit 3 × 10 acceptance case from the locked illustrated reference.
   // The counted objects must remain distinct even on a narrow iPhone.
   await page.locator('[data-mp-action="mode"][data-mode="groups"]').click();
-  await page.locator('[data-mp-action="factor"][data-factor="a"][data-step="-1"]').click();
-  for(let n=3;n<10;n++)await page.locator('[data-mp-action="factor"][data-factor="b"][data-step="1"]').click();
+  const startFactors=await page.evaluate(()=>LARIA_MULT_PREMIUM.snapshot());
+  for(let n=startFactors.a;n>3;n--)await page.locator('[data-mp-action="factor"][data-factor="a"][data-step="-1"]').click();
+  for(let n=startFactors.a;n<3;n++)await page.locator('[data-mp-action="factor"][data-factor="a"][data-step="1"]').click();
+  for(let n=startFactors.b;n<10;n++)await page.locator('[data-mp-action="factor"][data-factor="b"][data-step="1"]').click();
   assert.match(await page.locator('.mp-math-result').innerText(),/3 × 10/);
   assert.equal(await page.locator('.mp3-basket').count(),3,'3 × 10 needs three physically separate groups');
   assert.deepEqual(await page.locator('.mp3-basket').evaluateAll(els=>els.map(el=>el.querySelectorAll('.mp3-item').length)),[10,10,10]);
