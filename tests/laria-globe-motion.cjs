@@ -27,7 +27,7 @@ test('globe motion release rotates Safari cache keys',()=>{
   const index=read('laer-litt-mer/index.html');
   const sw=read('laer-litt-mer/sw.js');
   assert.match(index,/globe35-depth1/);
-  assert.match(sw,/globe35-depth1/);
+  assert.match(sw,/const CACHE='laria-stable-2026-10-09-fraction59-globe35'/,'new cache must preserve globe35 while refreshing Brøklaben assets');
 });
 
 test('visible globe land uses authoritative geographic boundaries, not a decorative image',()=>{
