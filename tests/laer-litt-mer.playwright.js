@@ -806,7 +806,7 @@ async function finishSession(page){
     await page.locator('[data-fr-action="add"]').first().click();
     assert.equal((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot())).build.n,1);
     await page.locator('.fr2-pie-builder path[data-fr-action="piece"][data-piece="2"]').click();
-    assert.equal((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot())).build.n,3);
+    assert.equal((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot())).build.n,2,'each tapped piece should change the count by one');
     await page.locator('.fr2-nav-item[data-page="home"]').click();
     await page.locator('.fr2-card-equal').click();
     assert.equal(await page.locator('.fr2-pie-compare').count(),2);
