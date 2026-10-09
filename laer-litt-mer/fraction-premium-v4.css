@@ -254,3 +254,44 @@
  .fr4-build-stage .fr2-pie-builder{width:min(100%,215px)}
 }
 @media(prefers-reduced-motion:reduce){.fr4-explore-stage *,.fr4-home *{transition:none!important;animation:none!important}}
+
+/* Hero readability after image QA: physical fraction and its equation must never be
+   hidden by the guide. The guide lives in its own strip beneath the pie. */
+.fr4-explore-stage{display:flex;flex-direction:column;align-items:stretch;min-height:0}
+.fr4-stage-main{min-height:207px;padding:6px 0 10px;flex:none;align-items:center}
+.fr4-stage-main .fr2-main-illustration{min-height:181px}
+.fr4-stage-main .fr2-main-value{align-self:center;padding-top:3px}
+.fr4-scene-speech{
+ position:relative;bottom:auto;right:auto;z-index:4;
+ margin:1px 112px 10px 10px;
+ width:auto;max-width:250px;min-height:65px;
+ padding:12px 10px;font-size:clamp(12px,3vw,15px);
+ pointer-events:none;align-self:stretch;
+}
+.fr4-explore-stage .fr4-scene-fox{
+ bottom:4px;right:2px;z-index:4;
+ width:clamp(114px,30vw,178px);
+ height:clamp(142px,38vw,201px);
+ pointer-events:none;
+}
+.fr4-stage-caption{
+ align-self:flex-start;max-width:285px;min-width:0;
+ width:calc(100% - 110px);margin:0 105px 6px 8px;
+ font-size:clamp(12px,3.6vw,16px);padding:9px 10px;
+}
+@media(min-width:700px){
+ .fr4-stage-main{min-height:300px;padding:2px 8px 12px}
+ .fr4-stage-main .fr2-main-illustration{min-height:292px}
+ .fr4-stage-main .fr2-main-value{padding-top:5px}
+ .fr4-scene-speech{margin-left:20px;margin-right:190px;max-width:390px;font-size:17px;min-height:75px}
+ .fr4-explore-stage .fr4-scene-fox{right:14px;bottom:7px;width:200px;height:240px}
+ .fr4-stage-caption{margin-left:20px;width:calc(100% - 195px);max-width:410px}
+}
+@media(max-width:390px){
+ .fr4-stage-main{min-height:196px;padding:5px 0 10px}
+ .fr4-stage-main .fr2-main-illustration{min-height:168px}
+ .fr4-stage-main .fr2-main-value{padding-top:0}
+ .fr4-scene-speech{margin-right:105px;margin-left:3px;min-height:60px;font-size:12px}
+ .fr4-explore-stage .fr4-scene-fox{right:-6px;bottom:7px;width:125px;height:160px}
+ .fr4-stage-caption{margin:0 102px 5px 4px;width:calc(100% - 107px);font-size:12px}
+}
