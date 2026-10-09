@@ -120,18 +120,28 @@ function mount(root,callback){
  root.dataset.mpPickPointerBound='true';
  root.addEventListener('pointerdown',event=>{
   const el=event.target.closest('.mp-pick-object');
-  if(el&&root.contains(el))drag={id:event.pointerId,x:event.clientX,y:event.clientY,from:Number(el.dataset.group),token:Number(el.dataset.token)};
+  if(!el||!root.contains(el))return;
+  drag={id:event.pointerId,x:event.clientX,y:event.clientY,from:Number(el.dataset.group),token:Number(el.dataset.token)};
+  // Keep receiving pointer movement across baskets and Safari's nested SVG layers.
+  try{el.setPointerCapture(event.pointerId)}catch(_){}
  },{passive:true});
- root.addEventListener('pointerup',event=>{
+ document.addEventListener('pointerup',event=>{
   if(!drag||drag.id!==event.pointerId)return;
   const start=drag;drag=null;
   if(Math.hypot(event.clientX-start.x,event.clientY-start.y)<20)return;
-  const target=document.elementFromPoint(event.clientX,event.clientY)?.closest('.mp-pick-vessel');
-  if(!target||!root.contains(target))return;
+  const candidate=document.elementFromPoint(event.clientX,event.clientY);
+  let target=candidate?.closest('.mp-pick-vessel');
+  if(!target||!root.contains(target)){
+   target=Array.from(root.querySelectorAll('.mp-pick-vessel')).find(el=>{
+    const box=el.getBoundingClientRect();
+    return event.clientX>=box.left&&event.clientX<=box.right&&event.clientY>=box.top&&event.clientY<=box.bottom;
+   });
+  }
+  if(!target)return;
   const to=Number(target.dataset.group);
   if(go('move',{group:start.from,to,token:start.token})){suppressUntil=Date.now()+450;redraw();}
- });
- root.addEventListener('pointercancel',()=>{drag=null});
+ },true);
+ document.addEventListener('pointercancel',()=>{drag=null},true);
 }
 window.LARIA_MULT_PICK_PLAY={render,dispatch,mount,snapshot:()=>({...E.normalize(state),total:E.total(state),equation:E.equation(state),past:past.length,future:future.length}),reset:()=>{state=E.initial();past=[];future=[];save();redraw()}};
 
