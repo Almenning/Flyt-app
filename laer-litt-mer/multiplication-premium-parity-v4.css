@@ -11,6 +11,9 @@
 .mp4-collections[data-mp3-groups="1"]{grid-template-columns:minmax(0,min(100%,255px));justify-content:center}
 .mp4-collections[data-mp3-groups="2"]{grid-template-columns:repeat(2,minmax(0,235px));justify-content:center}
 .mp4-collections[data-mp3-groups="3"]{grid-template-columns:repeat(3,minmax(0,245px));justify-content:center}
+/* Override the v3 two-up/one-below special case: premium reference requires one row. */
+.mp4-collections[data-mp3-groups="3"] > .mp4-basket:last-child{grid-column:auto!important;width:100%!important;justify-self:stretch!important}
+
 .mp4-collections .mp4-basket{box-sizing:border-box;isolation:isolate;position:relative;align-self:stretch;display:flex;justify-content:center;align-items:center;width:100%;max-width:none!important;height:auto;min-height:140px;padding:26px 9px 42px;border:6px solid #a67644;border-bottom:11px solid #915b31;border-radius:26px 26px 43px 43px;background:radial-gradient(ellipse at 50% 30%,#ffeac0,#e0b17c 72%,#bf8c58);box-shadow:inset 0 7px 14px #fff1c5,0 4px 0 #734a2f88,0 12px 18px #573a2870}
 .mp4-basket:before{content:"";z-index:0;position:absolute;inset:5px 6px 11px!important;width:auto!important;height:auto!important;background:repeating-linear-gradient(42deg,transparent 0 10px,#ab754434 11px 13px,transparent 14px 25px),repeating-linear-gradient(-42deg,transparent 0 10px,#b47d4b33 11px 13px,transparent 14px 25px),linear-gradient(#edd2a4,#c99866);border:2px solid #ffe8b3a6;border-radius:20px 20px 28px 28px;pointer-events:none}
 .mp4-basket:after{display:none!important}
