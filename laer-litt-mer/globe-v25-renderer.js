@@ -237,21 +237,38 @@ function ocean(ctx,w,h,s){
     }
   }
 
-  /* soft storybook waves */
-  ctx.save();ctx.strokeStyle='rgba(238,253,255,.23)';ctx.lineWidth=Math.max(1,s*.0018);ctx.lineCap='round';
-  const waves=[[.24,.29,.05],[.72,.34,.04],[.22,.67,.035],[.76,.72,.05],[.51,.81,.03]];
-  for(const [ax,ay,ar] of waves){
-    ctx.beginPath();ctx.arc(w*ax,h*ay,s*ar,Math.PI*.10,Math.PI*.78);ctx.stroke();
+  /* v37: Sea glints are placed in geographic coordinates so they rotate
+     together with the coastline instead of remaining stuck to the viewport. */
+  const waves=[
+    [-52,38,.033],[-36,8,.039],[-35,-40,.035],[-17,-14,.027],
+    [59,-24,.039],[83,-34,.032],[149,20,.036],[175,-8,.033],
+    [-142,-27,.038],[-102,6,.029],[-163,49,.033]
+  ];
+  ctx.save();
+  ctx.strokeStyle='rgba(237,252,255,.34)';
+  ctx.lineWidth=Math.max(.9,s*.0020);
+  ctx.lineCap='round';
+  for(const [lon,lat,radius] of waves){
+    const p=project(lon,lat,w,h);
+    if(!p||p[2]<.18)continue;
+    const r=s*radius*clamp(.58+p[2]*.42,.62,1.0);
+    ctx.globalAlpha=clamp(.42+p[2]*.54,.42,.94);
+    ctx.beginPath();
+    ctx.ellipse(p[0],p[1],r,r*.34,-.16,Math.PI*.08,Math.PI*.86);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.ellipse(p[0]+r*.25,p[1]+r*.36,r*.62,r*.21,-.12,Math.PI*.20,Math.PI*.78);
+    ctx.stroke();
   }
   ctx.restore();
 }
 function continentGradient(ctx,continent,w,h){
   const base=PALETTE[continent]||'#6F9554';
   const g=ctx.createLinearGradient(w*.24,h*.14,w*.80,h*.91);
-  g.addColorStop(0,mix(base,'#EDE3A8',.12));
-  g.addColorStop(.38,mix(base,'#FFFFFF',.025));
+  g.addColorStop(0,mix(base,'#FFF9DF',.15));
+  g.addColorStop(.38,mix(base,'#FFFFFF',.055));
   g.addColorStop(.72,base);
-  g.addColorStop(1,mix(base,'#24483C',.13));
+  g.addColorStop(1,mix(base,'#20394D',.17));
   return g;
 }
 function continentCountries(continent){
@@ -356,10 +373,10 @@ function paintStoryBiomes(ctx,w,h,s){
     const p=project(b[1],b[2],w,h);if(!p||p[2]<.10)continue;
     const perspective=clamp(.60+p[2]*.48,.62,1.07);
     const r=s*b[3]*perspective;
-    let colors=['rgba(40,132,58,.62)','rgba(27,88,45,.10)'];
-    if(b[0]==='desert')colors=['rgba(247,190,62,.86)','rgba(207,126,37,.14)'];
-    if(b[0]==='savanna')colors=['rgba(170,158,62,.58)','rgba(108,112,45,.10)'];
-    if(b[0]==='snow')colors=['rgba(255,255,250,.90)','rgba(215,239,240,.12)'];
+    let colors=['rgba(34,132,59,.48)','rgba(27,88,45,.075)'];
+    if(b[0]==='desert')colors=['rgba(247,190,62,.53)','rgba(207,126,37,.08)'];
+    if(b[0]==='savanna')colors=['rgba(170,158,62,.41)','rgba(108,112,45,.08)'];
+    if(b[0]==='snow')colors=['rgba(255,255,250,.85)','rgba(215,239,240,.10)'];
     const g=ctx.createRadialGradient(p[0]-r*.13,p[1]-r*.12,1,p[0],p[1],r);
     g.addColorStop(0,colors[0]);g.addColorStop(.58,colors[1]);g.addColorStop(1,'rgba(255,255,255,0)');
     ctx.fillStyle=g;ctx.beginPath();ctx.arc(p[0],p[1],r,0,Math.PI*2);ctx.fill();
@@ -368,14 +385,21 @@ function paintStoryBiomes(ctx,w,h,s){
 }
 
 function atlasDabColor(lon,lat,n){
-  const a=Math.abs(lat);
-  if(a>64)return n%3===0?'rgba(244,251,240,.20)':'rgba(198,225,205,.14)';
-  if(a<13)return n%4===0?'rgba(29,102,48,.20)':'rgba(47,122,53,.16)';
-  if(a<34){
-    if((lon>-20&&lon<62)||(lon>112&&lon<154)||(lon>-120&&lon<-92))return n%3===0?'rgba(238,185,66,.22)':'rgba(181,144,62,.14)';
-    return n%4===0?'rgba(103,139,56,.16)':'rgba(63,125,53,.14)';
+  /* The pigment follows each region's palette instead of washing European blue
+     and African coral with the same green texture. Coordinates are geographic. */
+  if(lon>-19&&lon<44&&lat>35&&lat<73)
+    return n%3===0?'rgba(52,93,195,.19)':'rgba(231,242,255,.17)';
+  if(lon>-19&&lon<54&&lat>-37&&lat<=35){
+    if(lat>13)return n%3===0?'rgba(237,152,70,.17)':'rgba(245,209,110,.13)';
+    return n%3===0?'rgba(190,91,60,.17)':'rgba(253,201,145,.12)';
   }
-  return n%4===0?'rgba(66,121,55,.18)':'rgba(117,145,64,.12)';
+  if(lon>43&&lon<180&&lat>-12)
+    return n%3===0?'rgba(174,118,50,.17)':'rgba(247,222,137,.14)';
+  if(Math.abs(lat)>65)
+    return n%3===0?'rgba(249,254,249,.20)':'rgba(193,232,218,.12)';
+  if(lat<15)
+    return n%4===0?'rgba(24,107,54,.18)':'rgba(47,145,68,.13)';
+  return n%3===0?'rgba(27,107,53,.16)':'rgba(193,215,108,.10)';
 }
 function paintAtlasTexture(ctx,w,h,s){
   ctx.save();
@@ -433,7 +457,7 @@ function paintPolarLand(ctx,w,h,s){
 }
 function paintCountryBorders(ctx,w,h,s){
   if(typeof WORLD_COUNTRIES==='undefined')return;
-  const borderAlpha=globeZoom>2.5?.48:globeZoom>1.65?.34:.22;
+  const borderAlpha=globeZoom>2.5?.65:globeZoom>1.65?.49:.38;
 
   for(const c of WORLD_COUNTRIES){
     if(!c.geometry)continue;
@@ -452,7 +476,7 @@ function paintCountryBorders(ctx,w,h,s){
       ctx.lineWidth=Math.max(1.6,s*.0028);
     }else{
       ctx.strokeStyle='rgba(255,252,235,'+borderAlpha+')';
-      ctx.lineWidth=globeZoom>2.7?.90:Math.max(.48,s*.00082);
+      ctx.lineWidth=globeZoom>2.7?.98:Math.max(.59,s*.00104);
     }
     ctx.stroke();
   }
@@ -471,7 +495,7 @@ function terrainPatch(ctx,w,h,s,t){
   ctx.rotate(-.12);
 
   let c0='rgba(38,137,61,.46)',c1='rgba(32,112,55,.13)',blend='multiply';
-  if(type==='desert'){c0='rgba(244,183,63,.62)';c1='rgba(210,130,42,.12)';blend='multiply'}
+  if(type==='desert'){c0='rgba(244,183,63,.43)';c1='rgba(210,130,42,.09)';blend='multiply'}
   if(type==='savanna'){c0='rgba(151,157,63,.42)';c1='rgba(110,122,49,.10)';blend='multiply'}
   if(type==='snow'){c0='rgba(255,255,247,.72)';c1='rgba(225,242,239,.14)';blend='screen'}
 
@@ -649,9 +673,9 @@ function selectedHalo(ctx,w,h,s){
 }
 function finish(ctx,w,h,s){
   const shine=ctx.createRadialGradient(w/2-s*.22,h/2-s*.29,s*.01,w/2-s*.06,h/2-s*.09,s*.55);
-  shine.addColorStop(0,'rgba(255,255,255,.60)');
-  shine.addColorStop(.22,'rgba(255,255,255,.24)');
-  shine.addColorStop(.56,'rgba(255,255,255,.055)');
+  shine.addColorStop(0,'rgba(255,255,255,.40)');
+  shine.addColorStop(.22,'rgba(255,255,255,.14)');
+  shine.addColorStop(.56,'rgba(255,255,255,.035)');
   shine.addColorStop(1,'rgba(255,255,255,0)');
   ctx.fillStyle=shine;ctx.fillRect(0,0,w,h);
 
