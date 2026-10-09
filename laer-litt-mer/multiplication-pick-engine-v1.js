@@ -4,6 +4,7 @@
 'use strict';
 const MAX_GROUPS=5, MAX_EACH=12;
 const VIEWS=['groups','rows','numberline','circle'];
+const SCENARIOS=[{id:'3x2',counts:[2,2,2]},{id:'3x3',counts:[3,3,3]},{id:'3x4',counts:[4,4,4]},{id:'3x5',counts:[5,5,5]}];
 const WORLDS=[
  {id:'strawberry',name:'Jordbærhagen',object:'jordbær',unit:'jordbær',scene:'garden',emoji:'🍓'},
  {id:'bun',name:'Eventyrbakeriet',object:'boller',unit:'bolle',scene:'bakery',emoji:'🥐'},
@@ -28,7 +29,7 @@ const missionExists=id=>MISSIONS.some(m=>m.id===id);
 function makeTokens(counts){let id=0;return counts.map(n=>Array.from({length:n},()=>id++));}
 function initial(){
  const counts=[10,10,10];
- return {version:1,view:'groups',world:'strawberry',counts,itemIds:makeTokens(counts),pool:[],nextId:30,collected:0,mission:null,found:[],success:false,message:'Plukk et jordbær for å starte!',moved:false,moveFrom:null,moveToken:null,moveMode:false};
+ return {version:1,scenario:null,view:'groups',world:'strawberry',counts,itemIds:makeTokens(counts),pool:[],nextId:30,collected:0,mission:null,found:[],success:false,message:'Plukk et jordbær for å starte!',moved:false,moveFrom:null,moveToken:null,moveMode:false};
 }
 function normalize(source){
  const s=source&&typeof source==='object'?source:{};
@@ -50,7 +51,7 @@ function normalize(source){
  const moveFrom=Number.isInteger(s.moveFrom)&&s.moveFrom>=0&&s.moveFrom<counts.length?s.moveFrom:null;
  const moveToken=moveFrom!==null&&Number.isSafeInteger(s.moveToken)&&itemIds[moveFrom].includes(s.moveToken)?s.moveToken:null;
  const nextId=Math.max(seq,Number.isSafeInteger(s.nextId)?s.nextId:0);
- return {...initial(),view:VIEWS.includes(s.view)?s.view:'groups',world:worldExists(s.world)?s.world:'strawberry',counts,itemIds,pool,nextId,collected,
+ return {...initial(),scenario:SCENARIOS.some(x=>x.id===s.scenario)?s.scenario:null,view:VIEWS.includes(s.view)?s.view:'groups',world:worldExists(s.world)?s.world:'strawberry',counts,itemIds,pool,nextId,collected,
  mission:missionExists(s.mission)?s.mission:null,
  found:Array.isArray(s.found)?s.found.filter(x=>typeof x==='string').slice(0,3):[],
  success:Boolean(s.success),message:String(s.message||'').slice(0,180),moved:Boolean(s.moved),
@@ -96,7 +97,10 @@ function apply(source,action){
  const type=String(action?.type||''),token=Number.isSafeInteger(action?.token)?action.token:null;
  const position=(group)=>token===null?next.itemIds[group].length-1:next.itemIds[group].indexOf(token);
  const extract=(group)=>{const i=position(group);return i<0?null:next.itemIds[group].splice(i,1)[0];};
- if(type==='view'){
+ if(type==='scenario'){
+  const scene=SCENARIOS.find(x=>x.id===action.id);if(!scene)return s;
+  const counts=scene.counts.slice();next={...next,scenario:scene.id,counts,itemIds:makeTokens(counts),nextId:counts.reduce((a,b)=>a+b,0),pool:[],collected:0,mission:null,found:[],success:false,moved:false,moveFrom:null,moveToken:null,moveMode:false,view:'groups',message:'Trykk på en ting i kurven.'};
+ }else if(type==='view'){
   if(!VIEWS.includes(action.view)||action.view===s.view)return s;
   next.view=action.view;next.message='Se de samme tallene på en ny måte.';
  }else if(type==='world'){
@@ -166,7 +170,7 @@ function apply(source,action){
  if(['take','return','takeEach','empty','move','newGroup','removeGroup'].includes(type))next.success=false;
  return normalize(next);
 }
-const API={initial,normalize,total,equal,equation,evaluate,apply,WORLDS,MISSIONS,VIEWS,MAX_GROUPS,MAX_EACH};
+const API={initial,normalize,total,equal,equation,evaluate,apply,WORLDS,MISSIONS,VIEWS,SCENARIOS,MAX_GROUPS,MAX_EACH};
 if(typeof module!=='undefined'&&module.exports)module.exports=API;
 if(scope)scope.LARIA_MULT_PICK_ENGINE=API;
 })(typeof window!=='undefined'?window:null);
