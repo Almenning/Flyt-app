@@ -126,7 +126,7 @@
 }
 .fr4-scene-fox .fr2-fox{height:100%;width:100%;max-width:100%;object-fit:contain;object-position:bottom}
 .fr4-scene-speech{
- position:absolute;z-index:3;
+ position:absolute;z-index:3;pointer-events:none;
  right:clamp(84px,24vw,138px);
  bottom:92px;width:clamp(119px,33vw,198px);
  min-height:66px;padding:12px 9px;
