@@ -40,5 +40,75 @@ function landscape(){
  if(kind==='park')extra='<circle cx="795" cy="159" r="92" stroke="#e9d29b" stroke-width="10" fill="none"/><path d="M795 68V252M704 159H887M729 94L863 227M729 225L863 94" stroke="#e2bc9c" stroke-width="7"/><path d="M715 289L795 152L876 289" fill="none" stroke="#bb8660" stroke-width="11"/><path d="M43 276L169 99L288 276Z" fill="#f4d59e" stroke="#bc7e6a" stroke-width="7"/>';
  return '<svg class="mp-pick-landscape" viewBox="0 0 960 320" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><defs><linearGradient id="mpPickSky" x1="0" y1="0" x2="0" y2="1"><stop stop-color="'+colors[0]+'"/><stop offset="1" stop-color="#fff7e7"/></linearGradient><linearGradient id="mpPickSoil" x1="0" y1="0" x2="0" y2="1"><stop stop-color="'+colors[1]+'"/><stop offset="1" stop-color="'+colors[2]+'"/></linearGradient></defs><rect width="960" height="320" fill="url(#mpPickSky)"/><circle cx="777" cy="55" r="35" fill="#fff0b6" opacity=".75"/><path d="M0 191Q143 89 299 178Q433 94 590 177Q793 85 960 177V320H0Z" fill="'+colors[1]+'" opacity=".54"/><path d="M0 236Q220 174 387 222Q600 175 960 218V320H0Z" fill="url(#mpPickSoil)"/>'+extra+'<g fill="#fff9e9" opacity=".72"><circle cx="151" cy="58" r="15"/><circle cx="174" cy="61" r="19"/><circle cx="613" cy="42" r="13"/><circle cx="632" cy="42" r="17"/></g></svg>';
 }
-/* PICK_UI_BLOCK */
+function worlds(){
+ return '<div class="mp-pick-world-chooser"><div class="mp-pick-labelrow"><b>Velg eventyrverden</b><small>Alle er åpne</small></div><div class="mp-pick-world-strip" role="group" aria-label="Velg eventyrverden">'+E.WORLDS.map(t=>'<button type="button" data-mp-action="pick-play" data-pick-action="world" data-world="'+t.id+'" class="mp-pick-world-btn'+(state.world===t.id?' selected':'')+'" aria-pressed="'+(state.world===t.id)+'"><span class="mp-pick-world-emoji" aria-hidden="true">'+t.emoji+'</span><span>'+t.name+'</span></button>').join('')+'</div></div>';
+}
+function groups(){
+ const picked=w(),moving=state.moveMode;
+ return '<div class="mp-pick-group-grid" style="--pick-n:'+state.counts.length+'">'+state.counts.map((count,group)=>{
+  const items=Array.from({length:count},(_,i)=>'<button type="button" data-mp-action="pick-play" data-pick-action="'+(moving?'selectMove':'take')+'" data-group="'+group+'" class="mp-pick-object" aria-label="'+(moving?'Velg for å flytte':'Plukk')+' '+esc(picked.unit)+' fra kurv '+(group+1)+'">'+sprite(picked.id,100*group+i)+'</button>').join('');
+  const gridColumns=count>=9?5:count>=5?3:count>=3?2:Math.max(1,count);
+  return '<div class="mp-pick-vessel" data-group="'+group+'" role="group" aria-label="Kurv '+(group+1)+': '+count+' '+esc(picked.object)+'"><span class="mp-pick-handle" aria-hidden="true"></span><span class="mp-pick-linen" aria-hidden="true"></span><div class="mp-pick-objects" style="--pick-cols:'+gridColumns+'">'+items+'</div><span class="mp-pick-front" aria-hidden="true"></span><span class="mp-pick-number">'+count+'</span><div class="mp-pick-vessel-actions">'+(moving?'<button type="button" data-mp-action="pick-play" data-pick-action="moveTarget" data-group="'+group+'" '+(state.moveFrom===null||state.moveFrom===group||count>=E.MAX_EACH?'disabled':'')+'>Hit ↘</button>':
+  '<button type="button" data-mp-action="pick-play" data-pick-action="take" data-group="'+group+'" '+(!count?'disabled':'')+' aria-label="Plukk én fra kurv '+(group+1)+'">− 1</button><button type="button" data-mp-action="pick-play" data-pick-action="return" data-group="'+group+'" '+(!state.collected||count>=E.MAX_EACH?'disabled':'')+' aria-label="Legg én tilbake i kurv '+(group+1)+'">+ 1</button>')+'</div><button type="button" class="mp-pick-empty" data-mp-action="pick-play" data-pick-action="empty" data-group="'+group+'" '+(!count?'disabled':'')+' aria-label="Tøm hele kurv '+(group+1)+'">Tøm kurv</button></div>';
+ }).join('')+'</div>';
+}
+function missions(){
+ return '<div class="mp-pick-mission-panel"><div class="mp-pick-labelrow"><b>Små oppdrag</b><small>Ingen tidtaking eller feilstraff</small></div><div class="mp-pick-mission-grid" role="group" aria-label="Velg oppdrag">'+E.MISSIONS.map((m,i)=>'<button type="button" data-mp-action="pick-play" data-pick-action="mission" data-id="'+m.id+'" class="mp-pick-mission'+(state.mission===m.id?' selected':'')+'" aria-pressed="'+(state.mission===m.id)+'"><span aria-hidden="true">'+['✦','✧','★','✳'][i]+'</span>'+m.title+'</button>').join('')+'</div>'+
+ (state.mission?'<div class="mp-pick-mission-detail"><div><b>'+esc(E.MISSIONS.find(x=>x.id===state.mission).title)+'</b><p>'+esc(E.MISSIONS.find(x=>x.id===state.mission).prompt)+'</p>'+(state.mission==='twoWays'?'<small>Oppdaget: '+state.found.length+' av 2 måter</small>':'')+'</div><button type="button" data-mp-action="pick-play" data-pick-action="check" class="mp-pick-check">Sjekk</button></div>':'')+'</div>';
+}
+function render(){
+ const eq=E.equation(state),picked=w(),sum=E.total(state);
+ return '<section class="mp-pick-screen" data-pick-world="'+picked.id+'" data-pick-scene="'+picked.scene+'"><header class="mp-pick-heading"><span class="mp-pick-kicker">LÆRIA · UTFORSK OG LEK</span><h2>Plukk og tell</h2><p>Her er det du som styrer! Plukk, flytt og oppdag sammenhenger.</p></header>'+
+ worlds()+
+ '<div class="mp-pick-stage"><div class="mp-pick-stage-landscape" aria-hidden="true">'+landscape()+'</div><div class="mp-pick-stage-inner"><div class="mp-pick-wood-sign" aria-live="polite"><span>Hva skjer med regnestykket?</span><strong class="mp-pick-equation">'+esc(eq.main)+'</strong><small>'+esc(eq.detail)+'</small></div>'+
+ groups()+
+ '<div class="mp-pick-collection"><span class="mp-pick-collection-art" aria-hidden="true">'+sprite(picked.id,900)+'</span><div><strong>Samlekurven</strong><small>Her havner alt du plukker</small></div><b class="mp-pick-collected">'+state.collected+'</b></div></div></div>'+
+ '<div class="mp-pick-main-actions"><button type="button" data-mp-action="pick-play" data-pick-action="takeEach" '+(sum===0?'disabled':'')+'>− Én fra hver</button><button type="button" data-mp-action="pick-play" data-pick-action="moveMode" aria-pressed="'+state.moveMode+'" class="'+(state.moveMode?'selected':'')+'">'+(state.moveMode?'Avslutt flytting':'⇄ Flytt mellom')+'</button><button type="button" data-mp-action="pick-play" data-pick-action="newGroup" '+(state.counts.length>=E.MAX_GROUPS?'disabled':'')+'>+ Ny kurv</button></div>'+
+ '<div class="mp-pick-secondary-actions"><button type="button" data-mp-action="pick-play" data-pick-action="undo" '+(!past.length?'disabled':'')+'>↶ Angre</button><button type="button" data-mp-action="pick-play" data-pick-action="redo" '+(!future.length?'disabled':'')+'>↷ Gjør om</button><button type="button" data-mp-action="pick-play" data-pick-action="read">🔊 Les opp</button><button type="button" data-mp-action="pick-play" data-pick-action="reset">Start på nytt</button></div>'+
+ '<div class="mp-pick-feedback'+(state.success?' success':'')+'" role="status" aria-live="polite">'+esc(state.message||'Trykk på en gjenstand eller på − 1 under en kurv.')+'</div>'+
+ '<div class="mp-pick-explanation">'+(state.moveMode?(state.moveFrom===null?'Trykk på en gjenstand. Velg deretter kurven den skal flyttes til.':'Nå kan du trykke «Hit» i en annen kurv.'):(eq.equal?'Like grupper! Derfor kan vi bruke et gangestykke.':'Ulike grupper! Se hvordan vi kan regne med minus eller pluss.'))+'</div>'+
+ missions()+'<p class="mp-pick-no-lockout">Det er alltid lov å utforske videre, også når du kan svaret.</p></section>';
+}
+function dispatch(target){
+ if(Date.now()<suppressUntil)return true;
+ const type=target?.dataset?.pickAction||'',index=Number(target?.dataset?.group);
+ let changed=false;
+ if(type==='world')changed=go('world',{world:target.dataset.world});
+ else if(type==='mission')changed=go('mission',{id:target.dataset.id});
+ else if(type==='take'&&state.moveMode)changed=go('selectMove',{group:index},false);
+ else if(type==='moveTarget'){if(state.moveFrom!==null)changed=go('move',{group:state.moveFrom,to:index});}
+ else if(['take','return','empty'].includes(type))changed=go(type,{group:index});
+ else if(['takeEach','newGroup','check'].includes(type))changed=go(type);
+ else if(type==='moveMode')changed=go(type,{},false);
+ else if(type==='undo')changed=back();
+ else if(type==='redo')changed=forward();
+ else if(type==='reset'){past.push(E.normalize(state));if(past.length>90)past.shift();future=[];state={...E.initial(),world:state.world};save();changed=true}
+ else if(type==='read'){
+  try{if(window.speechSynthesis){window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(E.equation(state).main.replaceAll('×',' ganger ').replaceAll('−',' minus ').replaceAll('=',' er lik '));u.lang='nb-NO';u.rate=.85;window.speechSynthesis.speak(u)}}catch(_){}
+  return true;
+ }
+ if(changed){redraw();return true}
+ return Boolean(type);
+}
+function mount(root,callback){
+ redraw=callback;
+ if(!root||root.dataset.mpPickPointerBound)return;
+ root.dataset.mpPickPointerBound='true';
+ root.addEventListener('pointerdown',event=>{
+  const el=event.target.closest('.mp-pick-object');
+  if(el&&root.contains(el))drag={id:event.pointerId,x:event.clientX,y:event.clientY,from:Number(el.dataset.group)};
+ },{passive:true});
+ root.addEventListener('pointerup',event=>{
+  if(!drag||drag.id!==event.pointerId)return;
+  const start=drag;drag=null;
+  if(Math.hypot(event.clientX-start.x,event.clientY-start.y)<20)return;
+  const target=document.elementFromPoint(event.clientX,event.clientY)?.closest('.mp-pick-vessel');
+  if(!target||!root.contains(target))return;
+  const to=Number(target.dataset.group);
+  if(go('move',{group:start.from,to})){suppressUntil=Date.now()+450;redraw();}
+ });
+ root.addEventListener('pointercancel',()=>{drag=null});
+}
+window.LARIA_MULT_PICK_PLAY={render,dispatch,mount,snapshot:()=>({...E.normalize(state),total:E.total(state),equation:E.equation(state),past:past.length,future:future.length}),reset:()=>{state=E.initial();past=[];future=[];save();redraw()}};
+
 })();
