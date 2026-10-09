@@ -189,12 +189,25 @@ async function run(browser,engine,label,viewport,url){
   assert.deepEqual((await snapshot(page)).counts,[8,10,9]);
   assert.match(await page.locator('.mp-pick-equation').innerText(),/8 \+ 10 \+ 9 = 27/);
   const worlds=['strawberry','bun','mushroom','apple','treasure','train','beach','farm','aquarium','balloon'];
+  const vesselFamilies=new Map();
+  assert.equal(await page.locator('link[href*="multiplication-pick-vessels-v6.css"]').count(),1,'ten world-specific vessel silhouettes must be loaded');
   for(const world of worlds){
     await page.locator('.mp-pick-world-btn[data-world="'+world+'"]').click();
     assert.equal(await page.locator('.mp-pick-screen').getAttribute('data-pick-world'),world);
     assert.equal((await snapshot(page)).total,27,'world switch changed multiplication');
     assert.equal(await page.locator('.mp-pick-object').count(),27,'world art count differs from maths');
     assert.equal(await page.locator('.mp-pick-vessel .mp-pick-story-object').count(),27,label+' each world contains exactly the count of individual painted objects');
+    const vesselStyle=await page.locator('.mp-pick-vessel-art').first().evaluate(el=>{
+      const body=getComputedStyle(el,'::before'),rim=getComputedStyle(el,'::after');
+      const handle=el.querySelector('.mp-pick-handle');
+      return {body:body.backgroundImage,borderRadius:body.borderRadius,clip:body.clipPath,
+        rimVisible:rim.display!=='none',handle:handle?getComputedStyle(handle).display:'missing'};
+    });
+    vesselFamilies.set(world,JSON.stringify([vesselStyle.body,vesselStyle.borderRadius,vesselStyle.clip]));
+    if(world==='farm'||world==='balloon')assert.equal(vesselStyle.handle,'none',label+' nest/balloon stand must not show wicker handle');
+    if(world==='beach')assert.match(vesselStyle.clip,/polygon\(/,label+' sand pail needs a tapered physical silhouette');
+    if(world==='farm')assert.match(vesselStyle.borderRadius,/48%/,label+' eggs belong in a rounded twig nest');
+    if(world==='treasure')assert.ok(vesselStyle.rimVisible,label+' treasure chest must show its arched lid');
     if(engine==='webkit'&&label==='iphone-safari'&&['bun','mushroom','aquarium'].includes(world)){
       await page.locator('.mp-pick-vessel[data-group="1"] [data-pick-action="zoom"]').click();
       assert.equal(await page.locator('.mp-pick-zoom-landscape svg.mp-pick-storyscape').count(),1,
@@ -210,6 +223,7 @@ async function run(browser,engine,label,viewport,url){
       if(label==='iphone-safari'||label==='ipad-safari')await image(page,label+'-world-'+world);
     }
   }
+  assert.equal(new Set(vesselFamilies.values()).size,10,label+' every scene must have its own material and physical container');
   await page.reload({waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>window.LARIA_MULT_PICK_PLAY&&window.LARIA_MULT_PREMIUM);
   await page.evaluate(()=>window.openMultiplicationLab());
