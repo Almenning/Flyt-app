@@ -67,6 +67,9 @@ async function run(browser,engine,label,viewport,url){
   }));
   assert.ok(closeupBounds.every(x=>x.w>=44&&x.h>=44&&x.visible),
     label+' the enlarged objects must have usable physical touch areas '+JSON.stringify(closeupBounds));
+  const paintIds=await page.locator('.mp-pick-screen svg defs [id]').evaluateAll(els=>els.map(el=>el.id));
+  assert.equal(new Set(paintIds).size,paintIds.length,
+    label+' duplicated SVG paint IDs can break Safari gradients between normal and zoom views');
   const zoomToken=await zoom.locator('.mp-pick-zoom-item').nth(3).getAttribute('data-token');
   assert.equal(await page.locator('.mp-pick-vessel[data-group="1"] .mp-pick-object[data-token="'+zoomToken+'"]').count(),1);
   if(engine==='webkit')await image(page,label+'-03-magnified-basket');
