@@ -52,8 +52,8 @@ test('locked Læria environment frames the globe with responsive illustrated nat
     assert.ok(svg.includes('viewBox="0 0 '+expected[0]+' '+expected[1]+'"'),view+' must keep a correct source aspect ratio');
     for(const token of ['id="sky"','id="range"','id="pine"','id="water"','id="woods"','id="approvedLeft"','id="approvedRight"'])
       assert.ok(svg.includes(token),view+' lacks '+token);
-    assert.match(svg,/<image href="data:image\\/webp;base64,/,'reference scenery must remain self-contained and avoid remote assets');
-    assert.doesNotMatch(svg,/<foreignObject\\b|<canvas\\b/,'scenery must never embed a second interactive map');
+    assert.ok(svg.includes('<image href="data:image/webp;base64,'),'reference scenery must remain self-contained and avoid remote assets');
+    assert.ok(!svg.includes('<foreignObject')&&!svg.includes('<canvas'),'scenery must never embed a second interactive map');
   }
   assert.match(active,/background-size:cover!important/,'scenery must scale without distortion and crop if necessary');
   assert.match(active,/globe-locked-environment-v36-landscape\\.svg/,'latest illustrated release must be active');
