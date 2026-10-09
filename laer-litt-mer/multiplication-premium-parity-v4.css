@@ -113,7 +113,7 @@
  border:2px solid #a77849;border-radius:13px;
  box-shadow:inset 0 2px 0 #fffdf4,0 3px 0 #b18760;
 }
-.mp-shell .mp3-theme>span:last-child{white-space:nowrap;overflow-wrap:normal;word-break:normal;letter-spacing:-.015em}
+.mp-shell .mp3-theme>span:last-child{display:block;max-width:100%;white-space:nowrap;overflow-wrap:normal;word-break:normal;letter-spacing:-.015em}
 @media(max-width:390px){
  .mp-shell .mp3-picker{gap:5px}
  .mp-shell .mp3-theme{min-width:0;padding-inline:1px}
