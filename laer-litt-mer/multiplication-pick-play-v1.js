@@ -133,14 +133,27 @@ function landscape(){
 function worlds(){
  return '<div class="mp-pick-world-chooser"><div class="mp-pick-labelrow"><b>Velg eventyrverden</b><small>Alle er åpne</small></div><div class="mp-pick-world-strip" role="group" aria-label="Velg eventyrverden">'+E.WORLDS.map((t,i)=>'<button type="button" data-mp-action="pick-play" data-pick-action="world" data-world="'+t.id+'" class="mp-pick-world-btn'+(state.world===t.id?' selected':'')+'" aria-pressed="'+(state.world===t.id)+'"><span class="mp-pick-world-emoji" aria-hidden="true">'+sprite(t.id,700+i)+'</span><span>'+t.name+'</span></button>').join('')+'</div></div>';
 }
+const PICK_WORLD_PROPS=Object.freeze({
+ garden:{label:'Kurv',place:'i kurven'},
+ bakery:{label:'Brett',place:'på brettet'},
+ forest:{label:'Kasse',place:'i kassen'},
+ orchard:{label:'Fruktkasse',place:'i fruktkassen'},
+ treasure:{label:'Kiste',place:'i kisten'},
+ train:{label:'Vogn',place:'på vognen'},
+ beach:{label:'Bøtte',place:'i bøtten'},
+ farm:{label:'Reir',place:'i reiret'},
+ aquarium:{label:'Glasskar',place:'i glasskaret'},
+ park:{label:'Stativ',place:'på stativet'}
+});
+
 function groups(){
- const picked=w(),moving=moreOpen&&state.moveMode;
+ const picked=w(),moving=moreOpen&&state.moveMode,prop=PICK_WORLD_PROPS[picked.scene]||PICK_WORLD_PROPS.garden;
  return '<div class="mp-pick-group-grid" style="--pick-n:'+state.counts.length+'">'+state.counts.map((count,group)=>{
-  const items=state.itemIds[group].map((token,i)=>'<button type="button" data-mp-action="pick-play" data-pick-action="'+(moving?'selectMove':'take')+'" data-group="'+group+'" data-token="'+token+'" class="mp-pick-object" aria-label="'+(moving?'Velg for å flytte':'Plukk')+' '+esc(picked.unit)+' '+(i+1)+' fra kurv '+(group+1)+'">'+sprite(picked.id,token)+'</button>').join('');
+  const items=state.itemIds[group].map((token,i)=>'<button type="button" data-mp-action="pick-play" data-pick-action="'+(moving?'selectMove':'take')+'" data-group="'+group+'" data-token="'+token+'" class="mp-pick-object" aria-label="'+(moving?'Velg for å flytte':'Plukk')+' '+esc(picked.unit)+' '+(i+1)+' fra '+esc(prop.label.toLowerCase())+' '+(group+1)+'">'+sprite(picked.id,token)+'</button>').join('');
   const gridColumns=count>=9?5:count>=5?3:count>=3?2:Math.max(1,count);
   const advancedButtons=moreOpen?'<div class="mp-pick-vessel-actions">'+(moving?'<button type="button" data-mp-action="pick-play" data-pick-action="moveTarget" data-group="'+group+'" '+(state.moveFrom===null||state.moveFrom===group||count>=E.MAX_EACH?'disabled':'')+'>Hit ↘</button>':
-   '<button type="button" data-mp-action="pick-play" data-pick-action="take" data-group="'+group+'" '+(!count?'disabled':'')+' aria-label="Plukk én fra kurv '+(group+1)+'">− 1</button><button type="button" data-mp-action="pick-play" data-pick-action="return" data-group="'+group+'" '+(!state.collected||count>=E.MAX_EACH?'disabled':'')+' aria-label="Legg én tilbake i kurv '+(group+1)+'">+ 1</button>')+'</div><button type="button" class="mp-pick-empty" data-mp-action="pick-play" data-pick-action="empty" data-group="'+group+'" '+(!count?'disabled':'')+' aria-label="Tøm hele kurv '+(group+1)+'">Tøm kurv</button>':'';
-  return '<div class="mp-pick-vessel" data-group="'+group+'" role="group" aria-label="Kurv '+(group+1)+': '+count+' '+esc(picked.object)+'"><div class="mp-pick-vessel-art"><span class="mp-pick-vessel-shadow" aria-hidden="true"></span><span class="mp-pick-handle" aria-hidden="true"></span><span class="mp-pick-linen" aria-hidden="true"></span><span class="mp-pick-leaf-decoration" aria-hidden="true"></span><div class="mp-pick-objects" style="--pick-cols:'+gridColumns+'">'+items+'</div><span class="mp-pick-front" aria-hidden="true"></span><span class="mp-pick-number">'+count+'</span></div>'+advancedButtons+'<button type="button" class="mp-pick-zoom-open" data-mp-action="pick-play" data-pick-action="zoom" data-group="'+group+'" aria-haspopup="dialog" aria-label="Se kurv '+(group+1)+' større">'+(moreOpen?'🔍 Se større':'Se større')+'</button></div>';
+   '<button type="button" data-mp-action="pick-play" data-pick-action="take" data-group="'+group+'" '+(!count?'disabled':'')+' aria-label="Plukk én fra '+esc(prop.label.toLowerCase())+' '+(group+1)+'">− 1</button><button type="button" data-mp-action="pick-play" data-pick-action="return" data-group="'+group+'" '+(!state.collected||count>=E.MAX_EACH?'disabled':'')+' aria-label="Legg én tilbake '+esc(prop.place)+' '+(group+1)+'">+ 1</button>')+'</div><button type="button" class="mp-pick-empty" data-mp-action="pick-play" data-pick-action="empty" data-group="'+group+'" '+(!count?'disabled':'')+' aria-label="Tøm hele '+esc(prop.label.toLowerCase())+' '+(group+1)+'">Tøm '+esc(prop.label.toLowerCase())</button>':'';
+  return '<div class="mp-pick-vessel" data-group="'+group+'" role="group" aria-label="'+esc(prop.label)+' '+(group+1)+': '+count+' '+esc(picked.object)+'"><div class="mp-pick-vessel-art"><span class="mp-pick-vessel-shadow" aria-hidden="true"></span><span class="mp-pick-handle" aria-hidden="true"></span><span class="mp-pick-linen" aria-hidden="true"></span><span class="mp-pick-leaf-decoration" aria-hidden="true"></span><div class="mp-pick-objects" style="--pick-cols:'+gridColumns+'">'+items+'</div><span class="mp-pick-front" aria-hidden="true"></span><span class="mp-pick-number">'+count+'</span></div>'+advancedButtons+'<button type="button" class="mp-pick-zoom-open" data-mp-action="pick-play" data-pick-action="zoom" data-group="'+group+'" aria-haspopup="dialog" aria-label="Se '+esc(prop.label.toLowerCase())+' '+(group+1)+' større">'+(moreOpen?'🔍 Se større':'Se større')+'</button></div>';
  }).join('')+'</div>';
 }
 function missions(){
@@ -173,21 +186,9 @@ function zoomSprite(theme,token){
  // Sprite creates unique gradients on each call, so WebKit closeups need no ID remapping.
  return sprite(theme,token);
 }
-const CLOSEUP_PROPS=Object.freeze({
- garden:{label:'Kurv',place:'i kurven'},
- bakery:{label:'Brett',place:'på brettet'},
- forest:{label:'Kasse',place:'i kassen'},
- orchard:{label:'Fruktkasse',place:'i fruktkassen'},
- treasure:{label:'Kiste',place:'i kisten'},
- train:{label:'Vogn',place:'på vognen'},
- beach:{label:'Bøtte',place:'i bøtten'},
- farm:{label:'Reir',place:'i reiret'},
- aquarium:{label:'Glasskar',place:'i glasskaret'},
- park:{label:'Stativ',place:'på stativet'}
-});
 function closeup(){
  if(zoomGroup===null||!state.itemIds[zoomGroup])return '';
- const group=zoomGroup,picked=w(),count=state.counts[group],prop=CLOSEUP_PROPS[picked.scene]||CLOSEUP_PROPS.garden;
+ const group=zoomGroup,picked=w(),count=state.counts[group],prop=PICK_WORLD_PROPS[picked.scene]||PICK_WORLD_PROPS.garden;
  const rawWorld=window.LARIA_PICK_SCENERY_V2?.scene(picked.scene)||'';
  const zoomScenery=rawWorld.replace(/(id="|url\(#)(pp[A-Za-z0-9]+)/g,(_,prefix,id)=>prefix+id+'-near');
 
@@ -200,15 +201,15 @@ function closeup(){
 }
 
 function render(){
- const eq=E.equation(state),picked=w(),sum=E.total(state);
- const prompt=state.collected===0?'Trykk på en ting i en kurv!':sum===0?'Du plukket alle! Vil du prøve igjen?':sum+' igjen! Prøv gjerne en til.';
+ const eq=E.equation(state),picked=w(),sum=E.total(state),prop=PICK_WORLD_PROPS[picked.scene]||PICK_WORLD_PROPS.garden;
+ const prompt=state.collected===0?'Trykk på en av tingene!':sum===0?'Du plukket alle! Vil du prøve igjen?':sum+' igjen! Prøv gjerne en til.';
  const advanced=moreOpen?
   '<div class="mp-pick-advanced-content">'+worlds()+
-  '<div class="mp-pick-main-actions"><button type="button" data-mp-action="pick-play" data-pick-action="takeEach" '+(sum===0?'disabled':'')+'>− Én fra hver</button><button type="button" data-mp-action="pick-play" data-pick-action="moveMode" aria-pressed="'+state.moveMode+'" class="'+(state.moveMode?'selected':'')+'">'+(state.moveMode?'Avslutt flytting':'⇄ Flytt mellom')+'</button><button type="button" data-mp-action="pick-play" data-pick-action="newGroup" '+(state.counts.length>=E.MAX_GROUPS?'disabled':'')+'>+ Ny kurv</button></div>'+
+  '<div class="mp-pick-main-actions"><button type="button" data-mp-action="pick-play" data-pick-action="takeEach" '+(sum===0?'disabled':'')+'>− Én fra hver</button><button type="button" data-mp-action="pick-play" data-pick-action="moveMode" aria-pressed="'+state.moveMode+'" class="'+(state.moveMode?'selected':'')+'">'+(state.moveMode?'Avslutt flytting':'⇄ Flytt mellom')+'</button><button type="button" data-mp-action="pick-play" data-pick-action="newGroup" '+(state.counts.length>=E.MAX_GROUPS?'disabled':'')+'>+ Ny '+esc(prop.label.toLowerCase())+'</button></div>'+
   representations()+
   '<div class="mp-pick-secondary-actions mp-pick-extras"><button type="button" data-mp-action="pick-play" data-pick-action="redo" '+(!future.length?'disabled':'')+'>↷ Gjør om</button></div>'+
   '<div class="mp-pick-feedback'+(state.success?' success':'')+'" role="status">'+esc(state.message)+'</div>'+
-  '<div class="mp-pick-explanation">'+(state.moveMode?'Velg en gjenstand og flytt den til en annen kurv.':eq.equal?'Like grupper kan skrives som gange.':'Ulike grupper kan vi legge sammen.')+'</div>'+
+  '<div class="mp-pick-explanation">'+(state.moveMode?'Velg en gjenstand og flytt den til en annen beholder.':eq.equal?'Like grupper kan skrives som gange.':'Ulike grupper kan vi legge sammen.')+'</div>'+
   missions()+'</div>':'';
  return '<section class="mp-pick-screen mp-pick-easy" data-pick-easy="'+(!moreOpen)+'" data-pick-world="'+picked.id+'" data-pick-scene="'+picked.scene+'">'+
  '<header class="mp-pick-heading"><span class="mp-pick-kicker">LÆRIA · UTFORSK OG LEK</span><h2>Plukk og tell</h2></header>'+
