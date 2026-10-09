@@ -3,9 +3,11 @@ const screen=document.getElementById('world-screen');if(!screen)return;screen.cl
 const ART=window.LariaGlobeArtV24;if(!ART)return;
 const {clamp,TERRAIN,FEATURES,draw}=ART;
 
+/* v36 locked reference palette: ocean cyan, Europe blue, Africa coral,
+   Asia sun-gold and the Americas verdant green. Geography stays authoritative. */
 const PALETTE={
-  'Europa':'#6D9E50','Asia':'#879A50','Afrika':'#B9784F',
-  'Nord-Amerika':'#57934F','Sør-Amerika':'#3D8B50','Oseania':'#649154'
+  'Europa':'#316FE0','Asia':'#E6B544','Afrika':'#E87455',
+  'Nord-Amerika':'#4DAD60','Sør-Amerika':'#319F58','Oseania':'#6DB15E'
 };
 const mix=(a,b,t)=>{
   const pa=parseInt(a.slice(1),16),pb=parseInt(b.slice(1),16),m=(x,y)=>Math.round(x+(y-x)*t);
