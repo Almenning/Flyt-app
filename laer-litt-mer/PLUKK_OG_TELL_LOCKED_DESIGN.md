@@ -64,3 +64,16 @@ Visningene er pedagogiske supplementer til den manipulerbare scenen, og ødelegg
 3. Skjermbilder av alle miljøer og særlig 3 × 10-situasjonene; gjennomgå mot konseptene.
 4. Ingen regresjon i tabell 10 × 10, gangetabell-øvingen, Brøklaben eller kloden.
 5. Sammenføy og publiser kun ved grønne kontroller. Skill teknisk ferdig fra full kunstnerisk godkjenning.
+
+
+## Premium kunstpass v2, visuell kontrakt
+
+Status: Revisjon av publisert PR #67 mot brukerens låste konseptillustrasjoner.
+Implementering skjer uten endring i den rene matematiske modellen.
+
+- Hver av de **ti** verdenene har et eget illustrert scenebakteppe, ikke bare fargevariasjon av en generisk kurv. Foreground-spillgjenstandene forblir dynamiske og tellbare, mens bakgrunnen er separat og kan brukes ved ulike antall.
+- Fysisk materiell er tematisk: flettet kurv og håndtak i fruktverdenene, rutet bakepapir og serveringsbrett i bakeriet, tre- og mosekasser i skogen, gullforsterket skattkiste, vogn med hjul, sandbøtter, reir og glassbeholdere. Ikke samme generiske beholder i alle verdenene.
+- Tre × ti skal ha tre tydelig atskilte illustrasjoner på **én linje** ved vanlige iPhone-/iPad-størrelser. De tellebare objektene må ligge foran innerveggen og delvis bak forkanten. Antallsskilt er en del av beholderen.
+- Handlingene («−1», «+1», «Tøm kurv») står **nedenfor** den fysiske illustrasjonen på egen rad; berøringsfelter skal ikke dekke objektene eller antallsskiltet. Hovedkontroller skal være minst 44 CSS-piksler høye.
+- Karakter, materialer, lys og dybde skal brukes til å forbedre lesbarhet og lyst til å utforske, ikke til å dekorere med ekstra jordbær/sopper/boller som barnet feilaktig ville telle.
+- Screenshots fra Safari og Chromium for alle verdenene sammenlignes med de låste bildene før den kunstneriske premium-godkjenningen. Grønn automatisk test alene er **ikke** bevis på en eksakt illustrasjonsmatch.
