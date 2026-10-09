@@ -457,7 +457,7 @@ function paintPolarLand(ctx,w,h,s){
 }
 function paintCountryBorders(ctx,w,h,s){
   if(typeof WORLD_COUNTRIES==='undefined')return;
-  const borderAlpha=globeZoom>2.5?.65:globeZoom>1.65?.49:.38;
+  const borderAlpha=globeZoom>2.5?.48:globeZoom>1.65?.34:.22;
 
   for(const c of WORLD_COUNTRIES){
     if(!c.geometry)continue;
@@ -476,7 +476,7 @@ function paintCountryBorders(ctx,w,h,s){
       ctx.lineWidth=Math.max(1.6,s*.0028);
     }else{
       ctx.strokeStyle='rgba(255,252,235,'+borderAlpha+')';
-      ctx.lineWidth=globeZoom>2.7?.98:Math.max(.59,s*.00104);
+      ctx.lineWidth=globeZoom>2.7?.90:Math.max(.48,s*.00082);
     }
     ctx.stroke();
   }
