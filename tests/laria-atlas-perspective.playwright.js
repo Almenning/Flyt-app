@@ -40,6 +40,7 @@ async function run(engine,label,viewport){
   await page.evaluate(()=>openGlobe());
   await page.waitForFunction(()=>window.LARIA_ATLAS_PERSPECTIVE?.snapshot().active===true&&document.querySelector('#atlas-canvas')?.dataset.mapReady==='true');
   assert.equal(await page.locator('#atlas-canvas').isVisible(),true,label+' must load the actual atlas by default');
+  assert.equal((await page.locator('.premium-globe-title').innerText()).trim(),'Kartet',label+' atlas header must not say Kloden');
   assert.equal(await page.locator('#globe-canvas').isVisible(),false,label+' sphere must not compete with the atlas');
   const rect=await page.locator('#atlas-canvas').boundingBox();
   const modes=await page.locator('#globe-mode').boundingBox();
@@ -52,6 +53,8 @@ async function run(engine,label,viewport){
   assert.equal(first.source,'country-geometry',label+' country surfaces must use real polygon data');
   const regions=await page.locator('.atlas-region-nav button').count();
   assert.equal(regions,8,label+' world, Norden and six continents missing');
+  const touchTargets=await page.locator('.atlas-region-nav button').evaluateAll(all=>all.map(el=>el.getBoundingClientRect().height));
+  assert.ok(touchTargets.every(h=>h>=44),label+' region buttons must be 44px touch targets');
   await page.evaluate(()=>window.LARIA_ATLAS_PERSPECTIVE.region('norden'));
   await page.waitForTimeout(120);
   const coords=await page.evaluate(()=>{
@@ -89,6 +92,10 @@ async function run(engine,label,viewport){
   assert.ok(Math.abs(moved-initial)>2,label+' pan did not follow pointer motion');
   await page.locator('[data-globe-mode="mine"]').click();
   await page.waitForFunction(()=>window.LARIA_ATLAS_PERSPECTIVE.snapshot().mode==='mine');
+  await page.waitForTimeout(90);
+  const legendBox=await page.locator('#globe-legend').boundingBox();
+  const mineMapBox=await page.locator('#atlas-canvas').boundingBox();
+  assert.ok(legendBox&&mineMapBox&&legendBox.y+legendBox.height<=mineMapBox.y-5,label+' progress legend overlaps atlas: '+JSON.stringify({legendBox,mineMapBox}));
   assert.equal(await page.locator('#atlas-canvas').isVisible(),true,label+' Min verden must stay an atlas with progress');
   await page.screenshot({path:path.join(out,label+'-atlas-mine.png'),fullPage:true});
   await page.locator('[data-globe-mode="classic"]').click();
