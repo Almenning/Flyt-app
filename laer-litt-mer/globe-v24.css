@@ -1474,3 +1474,16 @@ html:has(#world-screen.active){
     min-height:24px!important;
   }
 }
+
+/* v36 locked reference scenery: responsive, separate from live globe canvas. */
+#world-screen.active.globe-v30{
+ background-image:url('./globe-locked-environment-v36-landscape.svg?v=36a')!important;
+ background-size:cover!important;
+ background-position:center!important;
+}
+@media(orientation:portrait) and (max-width:699px){
+ #world-screen.active.globe-v30{background-image:url('./globe-locked-environment-v36-mobile.svg?v=36a')!important}
+}
+@media(orientation:portrait) and (min-width:700px){
+ #world-screen.active.globe-v30{background-image:url('./globe-locked-environment-v36-tablet.svg?v=36a')!important}
+}
