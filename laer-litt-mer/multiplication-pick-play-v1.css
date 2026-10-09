@@ -41,7 +41,7 @@
 .mp-pick-number{z-index:5;position:absolute;bottom:34px;left:50%;transform:translateX(-50%);min-width:32px;height:32px;display:grid;place-items:center;border:3px solid #bc8e59;border-radius:10px;color:#613d2c;font-size:17px;font-weight:950;background:linear-gradient(#fff9df,#f1d09e);box-shadow:0 3px 0 #956a4991,0 6px 10px #5a3a2152}
 .mp-pick-vessel-actions{z-index:4;width:100%;display:flex;justify-content:center;gap:5px;margin-top:auto;padding-top:12px}
 .mp-pick-vessel-actions button{min-width:0;flex:1;min-height:44px;max-width:92px;padding:5px 3px;border:2px solid #fff4da;border-radius:13px;color:#644431!important;background:linear-gradient(#fffef3,#f2dabb);box-shadow:0 3px 0 #bd9877;font-weight:950;font-size:14px}
-.mp-pick-empty{z-index:4;min-height:35px;margin:9px auto 3px;padding:5px 9px;border:1px solid #dabd98;border-radius:10px;background:#fff8ecba;color:#795744!important;font-size:11px!important;font-weight:800}
+.mp-pick-empty{z-index:4;min-height:44px;margin:9px auto 3px;padding:5px 9px;border:1px solid #dabd98;border-radius:10px;background:#fff8ecba;color:#795744!important;font-size:11px!important;font-weight:800}
 .mp-pick-collection{display:flex;align-items:center;gap:10px;min-height:74px;max-width:400px;margin:17px auto 0;padding:7px 13px;border:3px solid #fff1ce;border-radius:20px;background:linear-gradient(#fff8e9e8,#ebd2a3ef);box-shadow:0 5px 0 #c4a47e8a,0 9px 17px #68472e30}
 .mp-pick-collection-art{width:44px;height:44px;flex:none;display:grid;place-items:center}
 .mp-pick-collection-art svg{width:44px;height:44px}
