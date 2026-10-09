@@ -113,6 +113,27 @@ async function testView(browser,engine,label,viewport,url){
   for(let n=startFactors.a;n<3;n++)await page.locator('[data-mp-action="factor"][data-factor="a"][data-step="1"]').click();
   for(let n=startFactors.b;n<10;n++)await page.locator('[data-mp-action="factor"][data-factor="b"][data-step="1"]').click();
   assert.match(await page.locator('.mp-math-result').innerText(),/3 × 10/);
+
+  // The answer on the parchment/wooden plaque must be readable in daylight.
+  // Test both the fallback solid colors and the darker gradient endpoint.
+  const resultContrast=await page.locator('.mp-math-result').evaluate(el=>{
+    function luminance(rgb){
+      const values=(rgb.match(/\d+(?:\.\d+)?/g)||[]).slice(0,3).map(n=>Number(n)/255);
+      if(values.length!==3)return NaN;
+      const channels=values.map(v=>v<=.04045?v/12.92:Math.pow((v+.055)/1.055,2.4));
+      return channels[0]*.2126+channels[1]*.7152+channels[2]*.0722;
+    }
+    function contrast(c1,c2){const a=luminance(c1),b=luminance(c2);return (Math.max(a,b)+.05)/(Math.min(a,b)+.05)}
+    const result=el.querySelector('b'),plaqueText=el.querySelector('span');
+    return {
+      result:contrast(getComputedStyle(result).color,getComputedStyle(result).backgroundColor),
+      plaque:contrast(getComputedStyle(plaqueText).color,getComputedStyle(el).backgroundColor),
+      resultColor:getComputedStyle(result).color,
+      resultBackground:getComputedStyle(result).backgroundColor
+    };
+  });
+  assert.ok(resultContrast.result>=7&&resultContrast.plaque>=7,label+' contrast below AAA normal-text target: '+JSON.stringify(resultContrast));
+
   assert.equal(await page.locator('.mp3-basket').count(),3,'3 × 10 needs three physically separate groups');
   assert.deepEqual(await page.locator('.mp3-basket').evaluateAll(els=>els.map(el=>el.querySelectorAll('.mp3-item').length)),[10,10,10]);
 
@@ -132,6 +153,18 @@ async function testView(browser,engine,label,viewport,url){
     await page.locator('[data-mp-action="theme"][data-theme="'+theme+'"]').click();
     assert.equal(await page.locator('.mp3-collections').getAttribute('data-mp3-theme'),theme);
     assert.equal(await page.locator('.mp3-item').count(),30);
+
+    if(theme==='mushroom'){
+      const mushroom=page.locator('[data-mp-action="theme"][data-theme="mushroom"]');
+      assert.equal((await mushroom.innerText()).trim(),'Sopper','The phone caption should not split the long original name');
+      assert.equal(await mushroom.getAttribute('aria-label'),'Velg eventyrsopper');
+    }
+    const labelLayout=await page.locator('.mp3-theme>span:last-child').evaluateAll(els=>els.map(el=>{
+      const rect=el.getBoundingClientRect(),button=el.closest('button').getBoundingClientRect();
+      return {text:el.textContent,width:rect.width,available:button.width-4,height:rect.height,lineHeight:parseFloat(getComputedStyle(el).lineHeight)};
+    }));
+    assert.ok(labelLayout.every(m=>m.height<=m.lineHeight*1.6&&m.width<=m.available+2),label+' motif labels should fit on one readable line: '+JSON.stringify(labelLayout));
+
     const style=await page.locator('.mp4-basket').first().evaluate(el=>({
       background:getComputedStyle(el).backgroundImage,
       handle:getComputedStyle(el.querySelector('.mp4-handle')).display,
