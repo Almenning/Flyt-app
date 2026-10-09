@@ -89,11 +89,15 @@ function zoomSprite(theme,token){
 function closeup(){
  if(zoomGroup===null||!state.itemIds[zoomGroup])return '';
  const group=zoomGroup,picked=w(),count=state.counts[group];
+ // Use the actual matching, object-free illustrated world. IDs must be unique
+ // because Safari renders both the overview and this closeup SVG at once.
+ const rawWorld=window.LARIA_PICK_SCENERY_V2?.scene(picked.scene)||'';
+ const zoomScenery=rawWorld.replace(/(id="|url\(#)(pp[A-Za-z0-9]+)/g,(_,prefix,id)=>prefix+id+'-near');
  const objects=state.itemIds[group].map((token,i)=>'<button type="button" class="mp-pick-zoom-item" data-mp-action="pick-play" data-pick-action="'+(state.moveMode?'selectMove':'take')+'" data-group="'+group+'" data-token="'+token+'" aria-label="'+(state.moveMode?'Velg for å flytte':'Plukk')+' '+esc(picked.unit)+' '+(i+1)+' fra den forstørrede kurven">' + zoomSprite(picked.id,token)+'</button>').join('');
  return '<div class="mp-pick-zoom-overlay" data-group="'+group+'"><button type="button" class="mp-pick-zoom-backdrop" data-mp-action="pick-play" data-pick-action="zoomClose" tabindex="-1" aria-label="Lukk nærvisning"></button>'+
  '<section class="mp-pick-zoom-dialog" role="dialog" aria-modal="true" aria-label="Forstørret kurv '+(group+1)+'"><header class="mp-pick-zoom-top"><div><small>NÆRVISNING · SAMME KURV</small><strong>Kurv '+(group+1)+' · '+count+' '+esc(picked.object)+'</strong></div><button type="button" class="mp-pick-zoom-close" data-mp-action="pick-play" data-pick-action="zoomClose" aria-label="Lukk nærvisning">✕ Lukk</button></header>'+
  '<p class="mp-pick-zoom-help">Trykk på en gjenstand for å plukke den. Tallet oppdateres med én gang.</p>'+
- '<div class="mp-pick-zoom-landscape" aria-hidden="true"></div><div class="mp-pick-zoom-vessel"><div class="mp-pick-zoom-interior"><div class="mp-pick-zoom-objects">'+objects+'</div></div><span class="mp-pick-zoom-vessel-front" aria-hidden="true"></span></div>'+
+ '<div class="mp-pick-zoom-landscape" aria-hidden="true">'+zoomScenery+'</div><div class="mp-pick-zoom-vessel"><div class="mp-pick-zoom-interior"><div class="mp-pick-zoom-objects">'+objects+'</div></div><span class="mp-pick-zoom-vessel-front" aria-hidden="true"></span></div>'+
  '<footer class="mp-pick-zoom-footer"><span>'+esc(E.equation(state).main)+'</span><b>'+count+' i kurven</b></footer></section></div>';
 }
 
@@ -112,9 +116,51 @@ function render(){
  '<div class="mp-pick-explanation">'+(state.moveMode?(state.moveFrom===null?'Trykk på en gjenstand. Velg deretter kurven den skal flyttes til.':'Nå kan du trykke «Hit» i en annen kurv.'):(eq.equal?'Like grupper! Derfor kan vi bruke et gangestykke.':'Ulike grupper! Se hvordan vi kan regne med minus eller pluss.'))+'</div>'+
  missions()+'<p class="mp-pick-no-lockout">Det er alltid lov å utforske videre, også når du kan svaret.</p></section>';
 }
+// A decorative transient illustration follows the exact item selected by the
+// child. The pure math model is updated immediately; animation never changes it.
+function capturePickedArt(button,group){
+ try{
+  if(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches)return null;
+  let item=button?.closest?.('.mp-pick-object,.mp-pick-zoom-item');
+  if(!item&&Number.isInteger(group)){
+   const basket=document.querySelector('.mp-pick-vessel[data-group="'+group+'"]');
+   item=basket?.querySelector('.mp-pick-object:last-child');
+  }
+  const graphic=item?.querySelector('svg');
+  const box=graphic?.getBoundingClientRect();
+  if(!box||box.width<8||!box.height||!graphic)return null;
+  return {graphic:graphic.cloneNode(true),x:box.left,y:box.top,w:box.width,h:box.height,
+   inZoom:Boolean(item.closest('.mp-pick-zoom-overlay'))};
+ }catch(_){return null}
+}
+function animateCollectedArt(art){
+ if(!art||!document.body)return;
+ try{
+  const target=document.querySelector(art.inZoom?'.mp-pick-zoom-footer b':'.mp-pick-collection-art');
+  if(!target)return;
+  const box=target.getBoundingClientRect();
+  const copy=document.createElement('span');
+  copy.className='mp-pick-flying-object';
+  copy.setAttribute('aria-hidden','true');
+  copy.appendChild(art.graphic);
+  copy.style.cssText='left:'+art.x+'px;top:'+art.y+'px;width:'+art.w+'px;height:'+art.h+'px';
+  document.body.appendChild(copy);
+  const deltaX=box.left+box.width/2-art.x-art.w/2;
+  const deltaY=box.top+box.height/2-art.y-art.h/2;
+  if(typeof copy.animate!=='function'){copy.remove();return;}
+  const movement=copy.animate([
+   {opacity:1,transform:'translate(0px,0px) scale(1)'},
+   {opacity:.96,transform:'translate('+(deltaX*.32).toFixed(1)+'px,'+(deltaY*.27-17).toFixed(1)+'px) scale(1.12)',offset:.4},
+   {opacity:0,transform:'translate('+deltaX.toFixed(1)+'px,'+deltaY.toFixed(1)+'px) scale(.28)'}
+  ],{duration:390,easing:'cubic-bezier(.22,.72,.32,1)',fill:'forwards'});
+  movement.finished.then(()=>copy.remove(),()=>copy.remove());
+ }catch(_){}
+}
+
 function dispatch(target){
  if(Date.now()<suppressUntil)return true;
  const type=target?.dataset?.pickAction||'',index=Number(target?.dataset?.group),token=target?.dataset?.token===undefined?null:Number(target.dataset.token);
+ const pickedAnimation=type==='take'&&!state.moveMode?capturePickedArt(target,index):null;
  let changed=false;
  if(type==='zoom'){
   if(Number.isInteger(index)&&index>=0&&index<state.counts.length){zoomGroup=index;redraw();const close=document.querySelector('.mp-pick-zoom-close');try{close?.focus({preventScroll:true})}catch(_){}}
@@ -140,7 +186,7 @@ function dispatch(target){
   try{if(window.speechSynthesis){window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(E.equation(state).main.replaceAll('×',' ganger ').replaceAll('−',' minus ').replaceAll('=',' er lik '));u.lang='nb-NO';u.rate=.85;window.speechSynthesis.speak(u)}}catch(_){}
   return true;
  }
- if(changed){redraw();if(zoomGroup!==null){const next=document.querySelector('.mp-pick-zoom-item:not(:disabled)')||document.querySelector('.mp-pick-zoom-close');try{next?.focus({preventScroll:true})}catch(_){}}return true}
+ if(changed){redraw();if(pickedAnimation)animateCollectedArt(pickedAnimation);if(zoomGroup!==null){const next=document.querySelector('.mp-pick-zoom-item:not(:disabled)')||document.querySelector('.mp-pick-zoom-close');try{next?.focus({preventScroll:true})}catch(_){}}return true}
  return Boolean(type);
 }
 function mount(root,callback){
