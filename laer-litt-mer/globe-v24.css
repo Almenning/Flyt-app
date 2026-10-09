@@ -1493,3 +1493,18 @@ html:has(#world-screen.active){
 @media(orientation:portrait) and (min-width:700px){
  #world-screen.active.globe-v30{background-image:url('./globe-storyscape-v36-tablet.webp?v=36b')!important}
 }
+
+/* v37 locked composition: the reference treats the globe as the hero. The
+   globe tucks BEHIND the parchment country card on wide screens; it must not
+   shrink just to avoid that intentional overlap. Keep CSS and canvas square. */
+@media (orientation:landscape) and (min-width:900px) and (min-height:701px){
+  #world-screen.active.globe-v30{
+    --g24-globe:min(60dvh,56vw,720px)!important;
+    --g24-globe-top:55dvh!important;
+  }
+  /* In the locked illustration the map card covers the bottom globe; a
+     floating drag instruction at the same spot is unnecessary clutter. */
+  #world-screen.active.globe-v30 .globe-hint{
+    display:none!important;
+  }
+}
