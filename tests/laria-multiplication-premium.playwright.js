@@ -115,12 +115,33 @@ async function testView(browser,engine,label,viewport,url){
   assert.match(await page.locator('.mp-math-result').innerText(),/3 × 10/);
   assert.equal(await page.locator('.mp3-basket').count(),3,'3 × 10 needs three physically separate groups');
   assert.deepEqual(await page.locator('.mp3-basket').evaluateAll(els=>els.map(el=>el.querySelectorAll('.mp3-item').length)),[10,10,10]);
+
+  // Locked image parity: one continuous row of three illustrated containers,
+  // not the old two-up-and-one-below grid from the first implementation.
+  const groupLayout=await page.locator('.mp4-basket').evaluateAll(els=>els.map(el=>{
+    const b=el.getBoundingClientRect();
+    return {x:b.x,y:b.y,width:b.width,height:b.height,handle:!!el.querySelector('.mp4-handle'),flowers:!!el.querySelector('.mp4-floral')};
+  }));
+  assert.equal(groupLayout.length,3);
+  assert.ok(groupLayout.every(g=>g.width>=88&&g.height>=88&&g.handle&&g.flowers),label+' premium baskets must be distinct, layered and readable: '+JSON.stringify(groupLayout));
+  assert.ok(Math.max(...groupLayout.map(g=>g.y))-Math.min(...groupLayout.map(g=>g.y))<=2,label+' 3x10 should present three groups side by side, not wrap: '+JSON.stringify(groupLayout));
+
   const widths=await page.locator('.mp3-item').evaluateAll(els=>els.map(el=>el.getBoundingClientRect().width));
   assert.ok(widths.every(w=>w>=17),label+' illustrated count objects must remain readable: '+Math.min(...widths));
   for(const theme of ['strawberry','bun','mushroom','apple']){
     await page.locator('[data-mp-action="theme"][data-theme="'+theme+'"]').click();
     assert.equal(await page.locator('.mp3-collections').getAttribute('data-mp3-theme'),theme);
     assert.equal(await page.locator('.mp3-item').count(),30);
+    const style=await page.locator('.mp4-basket').first().evaluate(el=>({
+      background:getComputedStyle(el).backgroundImage,
+      handle:getComputedStyle(el.querySelector('.mp4-handle')).display,
+      count:el.querySelectorAll('.mp3-item').length,
+      front:getComputedStyle(el.querySelector('.mp4-basket-front')).height
+    }));
+    assert.equal(style.count,10,label+' '+theme+' basket must display exactly ten objects');
+    assert.ok(parseFloat(style.front)>=16,label+' '+theme+' front weave must render');
+    assert.equal(style.handle,(theme==='bun'||theme==='mushroom')?'none':'block',label+' '+theme+' basket character must vary by scene');
+
     await dimensions(page,viewport.width,label+' illustrated 3x10 '+theme);
     if(label==='iphone-safari'||label==='ipad-safari')await screenshot(page,label+'-07-groups-3x10-'+theme);
   }

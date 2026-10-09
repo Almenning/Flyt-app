@@ -31,15 +31,17 @@ function sprite(theme,serial){
  '<linearGradient id="'+id+'stem" x1="0" x2="1"><stop stop-color="#fdf1cf"/><stop offset=".6" stop-color="#efd1a4"/><stop offset="1" stop-color="#be9469"/></linearGradient>'+
  '</defs><ellipse cx="32" cy="60" rx="23" ry="3" fill="#51351e" opacity=".17"/>'+spec+'</svg>';
 }
+const mp4Handle='<svg viewBox="0 0 240 90" preserveAspectRatio="none" aria-hidden="true"><path d="M20 83Q16 5 120 7Q224 5 220 83" stroke="#71472c" stroke-width="14" stroke-linecap="round" fill="none"/><path d="M20 83Q16 5 120 7Q224 5 220 83" stroke="#c78b50" stroke-width="9" stroke-linecap="round" fill="none"/><path d="M20 83Q16 5 120 7Q224 5 220 83" stroke="#ffdfab" stroke-width="2.5" stroke-dasharray="7 5" stroke-linecap="round" fill="none" opacity=".84"/></svg>';
+const mp4Flowers='<svg viewBox="0 0 98 48" aria-hidden="true"><path d="M6 39Q30 12 77 30M30 34Q40 4 72 8" stroke="#618044" stroke-width="3" fill="none"/><path d="M29 34Q16 17 12 27Q14 34 29 34ZM46 21Q39 4 29 11Q28 19 46 21ZM61 24Q68 8 78 12Q80 20 61 24ZM75 29Q85 18 94 26Q89 33 75 29Z" fill="#698d4d" stroke="#476a35" stroke-width="1"/><g fill="#fff9e7" stroke="#ebdcc4" stroke-width=".4"><ellipse cx="46" cy="29" rx="4" ry="9"/><ellipse cx="46" cy="29" rx="4" ry="9" transform="rotate(60 46 29)"/><ellipse cx="46" cy="29" rx="4" ry="9" transform="rotate(120 46 29)"/><ellipse cx="80" cy="19" rx="3" ry="7"/><ellipse cx="80" cy="19" rx="3" ry="7" transform="rotate(60 80 19)"/><ellipse cx="80" cy="19" rx="3" ry="7" transform="rotate(120 80 19)"/></g><circle cx="46" cy="29" r="4.3" fill="#e8bb4b"/><circle cx="80" cy="19" r="3.5" fill="#e8bb4b"/></svg>';
 function render(a,b,theme='strawberry'){
  a=Math.max(1,Math.min(10,Number(a)||1));b=Math.max(1,Math.min(10,Number(b)||1));
  if(!THEMES.some(t=>t.id===theme))theme='strawberry';
  const item=THEMES.find(t=>t.id===theme);
- let html='<div class="mp-apples mp3-collections" data-mp3-theme="'+theme+'" data-mp3-groups="'+a+'" data-mp3-each="'+b+'" role="group" aria-label="'+a+' grupper med '+b+' '+item.item+' i hver">';
+ let html='<div class="mp-apples mp3-collections mp4-collections" data-mp3-theme="'+theme+'" data-mp3-groups="'+a+'" data-mp3-each="'+b+'" role="group" aria-label="'+a+' grupper med '+b+' '+item.item+' i hver">';
  for(let g=0;g<a;g++){
-  html+='<div class="mp-apple-basket mp3-basket" role="group" aria-label="Gruppe '+(g+1)+': '+b+' '+item.item+'"><span class="mp3-leaf-ornament" aria-hidden="true">❧</span><div class="mp-apple-fruits mp3-fruits" style="--mp3-cols:'+(b>=9?5:b>=5?3:b===4?2:b)+'">';
+  html+='<div class="mp-apple-basket mp3-basket mp4-basket" role="group" aria-label="Gruppe '+(g+1)+': '+b+' '+item.item+'"><span class="mp4-handle" aria-hidden="true">'+mp4Handle+'</span><span class="mp4-basket-liner" aria-hidden="true"></span><span class="mp4-floral" aria-hidden="true">'+mp4Flowers+'</span><div class="mp-apple-fruits mp3-fruits" style="--mp3-cols:'+(b>=9?5:b>=5?3:b===4?2:b)+'">';
   for(let n=0;n<b;n++)html+='<span class="mp-apple mp3-item" role="img" aria-label="'+item.singular+'">'+sprite(theme,g*10+n)+'</span>';
-  html+='</div><span class="mp-basket-number">'+(g+1)+'</span></div>';
+  html+='</div><span class="mp4-basket-front" aria-hidden="true"></span><span class="mp-basket-number">'+(g+1)+'</span></div>';
  }
  return html+'</div>';
 }
