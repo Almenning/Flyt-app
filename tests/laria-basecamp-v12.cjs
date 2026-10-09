@@ -70,6 +70,7 @@ const {chromium,webkit}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
   await page.screenshot({path:`${screenshots}/${name}.png`,fullPage:true});
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),name+' horizontal overflow');
 
+
   for(const [action,screen,back] of [['globe','world','world-back'],['fraction','fraction-lab','fraction-lab-back'],['multiply','multiplication-lab','multiplication-lab-back']]){
    console.log('[basecamp]',engineName,name,'open',action);
    const actionStarted=Date.now();
@@ -103,6 +104,7 @@ const {chromium,webkit}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
    }
   }
 
+
   await page.locator('.bc12-place[data-camp="words"]').tap();
   const hunt=page.locator('#word-hunt-overlay');await hunt.waitFor({state:'visible'});
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),name+' Ordjakt overflow');
@@ -127,10 +129,11 @@ const {chromium,webkit}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
   assert(await page.locator('.word-hunt-word.found').count()>=1,name+' Ordjakt selection did not register');
   await page.locator('.word-hunt-back').tap();await hunt.waitFor({state:'hidden'});
 
+
   await page.locator('.bc12-journey').tap();await page.locator('#subject-screen.active').waitFor();await page.locator('.bok-v10-home').tap();
   await page.locator('[data-camp="quest"]').tap();assert(await page.locator('#bc12-dialog').isVisible());await page.getByRole('button',{name:'Kanskje senere'}).tap();
   await page.locator('.bc12-nav [data-camp="collection"]').tap();await page.getByRole('heading',{name:'Samlingen din'}).waitFor();await page.getByRole('button',{name:'Tilbake til basecamp'}).tap();
-  await page.locator('.bc12-nav [data-camp="explore"]').tap();assert.equal(await page.locator('.bc12 h1').textContent(),'Hva vil du leke med?');
+  await page.locator('.bc12-nav [data-camp="explore"]').tap();assert.equal(await page.locator('.bc12 h1').textContent(),'Hvor skal vi dra i dag?');
   assert.equal(await page.locator('[data-camp-fox-call]').textContent(),'Velg noe du liker!');
   await page.locator('.bc12-nav [data-camp="home"]').tap();
   const rcTouch=await page.locator('.bc12-nav button').evaluateAll(els=>els.map(el=>({w:el.getBoundingClientRect().width,h:el.getBoundingClientRect().height})));
