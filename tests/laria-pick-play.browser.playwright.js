@@ -26,6 +26,19 @@ async function run(browser,engine,label,viewport,url){
   assert.match(await page.locator('.mp-pick-equation').innerText(),/3 × 10 = 30/);
   await layout(page,label+' initial');
   if(engine==='webkit')await image(page,label+'-01-garden-3x10');
+
+  assert.equal(await page.locator('.mp-pick-world-emoji svg').count(),10,'all unlocked worlds need matching illustrated thumbnails');
+  for(const view of ['rows','numberline','circle','groups']){
+    await page.locator('[data-pick-action="view"][data-view="'+view+'"]').click();
+    assert.equal(await page.locator('.mp-pick-visualization').getAttribute('data-math-view'),view);
+    assert.equal((await snapshot(page)).total,30,'representation must not mutate maths');
+    assert.equal(await page.locator('.mp-pick-object').count(),30,'representation must not duplicate countable objects');
+    if(view==='rows')assert.equal(await page.locator('.mp-pick-mini-dot').count(),30);
+    if(view==='circle')assert.equal(await page.locator('.mp-pick-circle-dot').count(),30);
+    if(view==='numberline')assert.equal(await page.locator('.mp-pick-numberline').count(),1);
+    if(engine==='webkit'&&label==='iphone-safari'&&view==='numberline')await image(page,label+'-numberline-3x10');
+  }
+
   const selectedToken=await page.locator('.mp-pick-vessel[data-group="1"] .mp-pick-object').first().getAttribute('data-token');
   await page.locator('.mp-pick-vessel[data-group="1"] .mp-pick-object[data-token="'+selectedToken+'"]').click();
   assert.equal(await page.locator('.mp-pick-object[data-token="'+selectedToken+'"]').count(),0,'the tapped item itself should disappear');
