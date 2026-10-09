@@ -26,12 +26,17 @@ async function run(browser,engine,label,viewport,url){
   assert.match(await page.locator('.mp-pick-equation').innerText(),/3 × 10 = 30/);
   await layout(page,label+' initial');
   if(engine==='webkit')await image(page,label+'-01-garden-3x10');
-  await page.locator('.mp-pick-vessel[data-group="1"] .mp-pick-object').first().click();
+  const selectedToken=await page.locator('.mp-pick-vessel[data-group="1"] .mp-pick-object').first().getAttribute('data-token');
+  await page.locator('.mp-pick-vessel[data-group="1"] .mp-pick-object[data-token="'+selectedToken+'"]').click();
+  assert.equal(await page.locator('.mp-pick-object[data-token="'+selectedToken+'"]').count(),0,'the tapped item itself should disappear');
+  assert.equal(await page.locator('.mp-pick-collection-art svg').count(),1,'picked item should appear in the collection');
   assert.deepEqual((await snapshot(page)).counts,[10,9,10]);
+  assert.equal(await page.locator('.mp-pick-object[data-token="'+selectedToken+'"]' ).count(),0,'redo should remove the same item');
   assert.equal((await snapshot(page)).collected,1);
   assert.match(await page.locator('.mp-pick-equation').innerText(),/3 × 10 − 1 = 29/);
   await page.locator('[data-pick-action="undo"]').click();
   assert.deepEqual((await snapshot(page)).counts,[10,10,10]);
+  assert.equal(await page.locator('.mp-pick-object[data-token="'+selectedToken+'"]' ).count(),1,'undo should restore the same item');
   await page.locator('[data-pick-action="redo"]').click();
   assert.deepEqual((await snapshot(page)).counts,[10,9,10]);
   await page.locator('[data-pick-action="return"][data-group="1"]').click();
@@ -60,6 +65,7 @@ async function run(browser,engine,label,viewport,url){
   await page.locator('.mp-menu-explore').click();await pickMode(page);
   assert.equal((await snapshot(page)).world,'balloon','world did not persist across reload');
   assert.deepEqual((await snapshot(page)).counts,[8,10,9],'counts did not persist across reload');
+  assert.equal((await snapshot(page)).itemIds.reduce((total,arr)=>total+arr.length,0),27,'stable item IDs must persist consistently');
   await page.locator('[data-pick-action="mission"][data-id="twentyfour"]').click();
   for(let i=0;i<6;i++)await page.locator('.mp-pick-vessel[data-group="0"] .mp-pick-vessel-actions [data-pick-action="take"]').click();
   assert.equal((await snapshot(page)).total,24);
