@@ -4,7 +4,7 @@
 'use strict';
 const MAX_GROUPS=5, MAX_EACH=12;
 const VIEWS=['groups','rows','numberline','circle'];
-const SCENARIOS=[{id:'3x2',counts:[2,2,2]},{id:'3x3',counts:[3,3,3]},{id:'3x4',counts:[4,4,4]},{id:'3x5',counts:[5,5,5]}];
+const SCENARIOS=[{id:'2x3',counts:[3,3]},{id:'3x2',counts:[2,2,2]},{id:'3x3',counts:[3,3,3]},{id:'3x4',counts:[4,4,4]}];
 const WORLDS=[
  {id:'strawberry',name:'Jordbærhagen',object:'jordbær',unit:'jordbær',scene:'garden',emoji:'🍓'},
  {id:'bun',name:'Eventyrbakeriet',object:'boller',unit:'bolle',scene:'bakery',emoji:'🥐'},
