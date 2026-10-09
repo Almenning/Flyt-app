@@ -152,3 +152,62 @@
 @media(prefers-reduced-motion:reduce){
  .mp-pick-easy .mp-pick-vessel-art .mp-pick-object{transition:none!important}
 }
+
+/* Bakery trays: shallow, dark-edged baking tins with linen, not upright wicker buckets.
+   Scoped to 1st/2nd grade mode so the detailed 3x10 pilot remains unchanged. */
+.mp-pick-easy[data-pick-easy="true"][data-pick-scene="bakery"] .mp-pick-vessel-art{
+ --art-top:37px;height:158px;min-height:158px;
+}
+.mp-pick-easy[data-pick-easy="true"][data-pick-scene="bakery"] .mp-pick-vessel-art:before{
+ top:39px;bottom:16px;left:1px;right:1px;
+ border:5px solid #8c6551;border-top:8px solid #9e7560;border-bottom:10px solid #765349;
+ border-radius:19px 19px 28px 28px;
+ background:
+  radial-gradient(ellipse at 50% 31%,#fff8e9ac,transparent 74%),
+  repeating-conic-gradient(#b8756451 0% 25%,#fff8e9c9 0% 50%) center / 23px 23px,
+  linear-gradient(#e5d3b6,#ccb294);
+ box-shadow:inset 0 4px 9px #fffef1, inset 0 -8px 7px #775b4c3b,0 4px 0 #5b484090,0 8px 14px #443a3570;
+}
+.mp-pick-easy[data-pick-easy="true"][data-pick-scene="bakery"] .mp-pick-vessel-art:after{
+ top:40px;height:11px;left:3px;right:3px;border:3px solid #c39c7b;
+ background:linear-gradient(#fff2d7,#c9a188);border-radius:17px 17px 7px 7px;
+ box-shadow:0 2px 3px #694f4133,inset 0 2px 3px #fff6dfb0;
+}
+.mp-pick-easy[data-pick-easy="true"][data-pick-scene="bakery"] .mp-pick-vessel-art .mp-pick-linen{
+ top:52px;bottom:29px;left:8px;right:8px;
+ background:repeating-conic-gradient(#bb827158 0% 25%,#fffaf2a8 0% 50%) center / 18px 18px;
+ box-shadow:inset 0 2px 7px #6d4a3a2d;
+ border-radius:8px 8px 17px 17px;
+}
+.mp-pick-easy[data-pick-easy="true"][data-pick-scene="bakery"] .mp-pick-vessel-art .mp-pick-objects{
+ top:54px;bottom:29px;left:1px;right:1px;
+ padding:1px 0 3px;gap:0;
+}
+.mp-pick-easy[data-pick-easy="true"][data-pick-scene="bakery"] .mp-pick-vessel-art .mp-pick-object svg{
+ transform:scale(1.14);
+ transform-origin:50% 60%;
+ filter:drop-shadow(0 2px 2px #673d2a54);
+}
+.mp-pick-easy[data-pick-easy="true"][data-pick-scene="bakery"] .mp-pick-vessel-art .mp-pick-front{
+ bottom:15px;height:26px;left:3px;right:3px;
+ border-top:5px ridge #edd4b0;
+ border-radius:2px 2px 25px 25px;
+ background:repeating-linear-gradient(90deg,#a77c6144 0 2px,transparent 3px 16px),linear-gradient(180deg,#b59073,#855a47 73%,#6e4e3f);
+ box-shadow:inset 0 3px 4px #fff3df75,0 -2px 5px #513d3652;
+}
+.mp-pick-easy[data-pick-easy="true"][data-pick-scene="bakery"] .mp-pick-vessel-art .mp-pick-number{
+ bottom:2px;
+}
+/* Fruit baskets need a fuller handwoven silhouette than a rectangular storage crate. */
+.mp-pick-easy[data-pick-easy="true"][data-pick-scene="garden"] .mp-pick-vessel-art:before,
+.mp-pick-easy[data-pick-easy="true"][data-pick-scene="orchard"] .mp-pick-vessel-art:before{
+ border-radius:29px 29px 51px 51px;
+}
+.mp-pick-easy[data-pick-easy="true"][data-pick-scene="garden"] .mp-pick-vessel-art .mp-pick-front,
+.mp-pick-easy[data-pick-easy="true"][data-pick-scene="orchard"] .mp-pick-vessel-art .mp-pick-front{
+ border-radius:4px 4px 39px 39px;
+}
+@media(max-width:385px){
+ .mp-pick-easy[data-pick-easy="true"][data-pick-scene="bakery"] .mp-pick-vessel-art{height:151px;min-height:151px}
+ .mp-pick-easy[data-pick-easy="true"][data-pick-scene="bakery"] .mp-pick-vessel-art .mp-pick-object svg{transform:scale(1.1)}
+}
