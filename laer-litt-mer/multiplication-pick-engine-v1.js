@@ -24,12 +24,12 @@ const MISSIONS=[
 const limit=(x,lo,hi)=>Math.min(hi,Math.max(lo,Math.trunc(Number(x)||0)));
 const worldExists=id=>WORLDS.some(w=>w.id===id);
 const missionExists=id=>MISSIONS.some(m=>m.id===id);
-function initial(){return {version:1,world:'strawberry',counts:[10,10,10],collected:0,mission:null,found:[],success:false,message:'Plukk et jordbær for å starte!',moveFrom:null,moveMode:false};}
+function initial(){return {version:1,world:'strawberry',counts:[10,10,10],collected:0,mission:null,found:[],success:false,message:'Plukk et jordbær for å starte!',moved:false,moveFrom:null,moveMode:false};}
 function normalize(source){
  const s=source&&typeof source==='object'?source:{};
  const counts=Array.isArray(s.counts)?s.counts.slice(0,MAX_GROUPS).map(x=>limit(x,0,MAX_EACH)):[10,10,10];
  if(!counts.length)counts.push(10);
- return {...initial(),world:worldExists(s.world)?s.world:'strawberry',counts,collected:limit(s.collected,0,MAX_GROUPS*MAX_EACH+40),mission:missionExists(s.mission)?s.mission:null,found:Array.isArray(s.found)?s.found.filter(x=>typeof x==='string').slice(0,3):[],success:Boolean(s.success),message:String(s.message||'').slice(0,180),moveFrom:Number.isInteger(s.moveFrom)&&s.moveFrom>=0&&s.moveFrom<counts.length?s.moveFrom:null,moveMode:Boolean(s.moveMode)};
+ return {...initial(),world:worldExists(s.world)?s.world:'strawberry',counts,collected:limit(s.collected,0,MAX_GROUPS*MAX_EACH+40),mission:missionExists(s.mission)?s.mission:null,found:Array.isArray(s.found)?s.found.filter(x=>typeof x==='string').slice(0,3):[],success:Boolean(s.success),message:String(s.message||'').slice(0,180),moved:Boolean(s.moved),moveFrom:Number.isInteger(s.moveFrom)&&s.moveFrom>=0&&s.moveFrom<counts.length?s.moveFrom:null,moveMode:Boolean(s.moveMode)};
 }
 const total=s=>s.counts.reduce((sum,n)=>sum+n,0);
 function equal(s){
@@ -41,7 +41,7 @@ function equation(s){
  if(e)return {main:e.groups+' × '+e.each+' = '+sum,detail:e.groups+' like grupper med '+e.each+' i hver',equal:true};
  if(sum===0)return {main:'0',detail:'Alle gruppene er tomme.',equal:false};
  const added=s.counts.join(' + ')+' = '+sum;
- if(s.counts.length===3&&s.counts.every(n=>n<=10)&&sum+s.collected===30&&s.collected>0)
+ if(s.counts.length===3&&s.counts.every(n=>n<=10)&&sum+s.collected===30&&s.collected>0&&!s.moved)
   return {main:'3 × 10 − '+s.collected+' = '+sum,detail:added+' · Ulike grupper kan legges sammen.',equal:false};
  return {main:added,detail:'Gruppene er ulike. Vi kan legge sammen det som ligger i hver.',equal:false};
 }
@@ -86,7 +86,7 @@ function apply(source,action){
   next.collected+=next.counts[index];next.counts[index]=0;next.message='Du tømte en kurv. Hva skjedde med gangestykket?';
  }else if(type==='move'){
   if(!valid(index)||!valid(to)||index===to||next.counts[index]===0||next.counts[to]>=MAX_EACH)return s;
-  next.counts[index]--;next.counts[to]++;next.message='Du flyttet én. Totalsummen er den samme!';
+  next.counts[index]--;next.counts[to]++;next.moved=true;next.message='Du flyttet én. Totalsummen er den samme!';
   next.moveFrom=null;next.moveMode=false;
  }else if(type==='newGroup'){
   if(next.counts.length>=MAX_GROUPS)return s;
@@ -99,7 +99,7 @@ function apply(source,action){
  else if(type==='selectMove'){if(!valid(index)||!s.moveMode||next.counts[index]<1)return s;next.moveFrom=index;next.message='Velg en annen kurv for å flytte én.';}
  else if(type==='mission'){
   const m=MISSIONS.find(x=>x.id===action.id);if(!m)return s;
-  next={...next,mission:m.id,counts:m.initial.slice(),collected:m.collected||0,found:[],success:false,moveFrom:null,moveMode:false,message:m.prompt};
+  next={...next,mission:m.id,counts:m.initial.slice(),collected:m.collected||0,found:[],success:false,moved:false,moveFrom:null,moveMode:false,message:m.prompt};
  }else if(type==='check'){
   const result=evaluate(s);next.message=result.message;
   if(result.correct){
