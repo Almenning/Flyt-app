@@ -44,10 +44,10 @@ test('locked Læria environment frames the globe with responsive illustrated nat
   const active=css.slice(css.indexOf('/* Locked atlas environment v33:'));
   assert.ok(active.length>900,'v33 visual scene contract not present');
   for(const view of ['landscape','tablet','mobile']){
-    assert.match(active,new RegExp('globe-environment-v35-'+view+'\\.svg'),'missing '+view+' artwork');
-    const svg=read('laer-litt-mer/globe-environment-v35-'+view+'.svg');
+    assert.match(active,new RegExp('globe-locked-environment-v36-'+view+'\\.svg'),'missing '+view+' artwork');
+    const svg=read('laer-litt-mer/globe-locked-environment-v36-'+view+'.svg');
     assert.match(svg,/viewBox=/,'scene '+view+' is not responsive vector artwork');
-    assert.match(svg,/laria-scene-v35-ink/,'scene '+view+' lacks painterly edge details');
+    assert.match(svg,/approvedLeft/,'scene '+view+' lacks reference landscaping');
     assert.match(svg,/laria-ridge-clip-far/,'scene '+view+' lacks clipped mountain relief');
     for(const token of ['id="sky"','id="mount0"','id="meadow"','id="lake"'])
       assert.ok(svg.includes(token),view+' lacks '+token);
