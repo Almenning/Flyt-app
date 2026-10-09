@@ -36,3 +36,7 @@ Brukerens skjermbilde fra 9. oktober viser faktisk v35-runtime. Det avviker tyde
 - Eksisterende regressjon: `tests/laria-globe-visual-p18.playwright.js` samt `tests/laria-globe-motion.cjs`.
 
 **Status:** Visuell differanse identifisert og eksplisitt låst. Ingen ny bakgrunn er ennå produsert eller testet. PR holdes som draft.
+
+## v36 integrated art update
+
+The actual runtime uses `globe-storyscape-v36-landscape.webp`, `globe-storyscape-v36-tablet.webp` and `globe-storyscape-v36-mobile.webp`. These are clean, cohesive scenes without baked-in UI. A screenshot comparison from the exact branch is required before merge. The original live geographic renderer and gesture handlers have not been edited.
