@@ -19,12 +19,12 @@ const REGIONS=[
  {id:'oceania',label:'Oseania',lon:151,lat:-24,zoom:3.1}
 ];
 const CONTINENT_TINT={
- 'Europa':'#7AA6DB','Asia':'#E8BE69','Afrika':'#E39E7D',
- 'Nord-Amerika':'#8BBE94','Sør-Amerika':'#74BC9A','Oseania':'#BAACC9'
+ 'Europa':'#528ACA','Asia':'#DDB457','Afrika':'#DD926C',
+ 'Nord-Amerika':'#6BA984','Sør-Amerika':'#5FAF84','Oseania':'#A293C6'
 };
 const map={lon:18,lat:15,zoom:3.5,region:'africa',mode:'explore'};
 let canvas,ctx,nav,caption,installed=false,renderPending=false,layoutPending=false;
-let dragDistance=0,hadMulti=false,pinch=null,silentSelection=false,gesture=false;
+let dragDistance=0,hadMulti=false,pinch=null,silentSelection=false,modeSwitching=false,gesture=false;
 const pointers=new Map();
 const geometry=()=>typeof WORLD_COUNTRIES!=='undefined'?WORLD_COUNTRIES:[];
 const isAtlas=()=>screen.classList.contains('active')&&screen.classList.contains('atlas-perspective-on');
@@ -35,6 +35,67 @@ function screenPoint(lon,lat,g=size()){
 }
 function geoAt(x,y,g=size()){
  return {lon:limitLon(map.lon+(x-g.w/2)/g.scale),lat:clamp(map.lat-(y-g.h/2)/g.scale,-85,85)};
+}
+/* All relief and story details are anchored in geographic coordinates. */
+const atlasMix=(a,b,t)=>{
+ const aa=parseInt(a.slice(1),16),bb=parseInt(b.slice(1),16);
+ const lerp=(x,y)=>Math.round(x+(y-x)*t);
+ return '#'+[16,8,0].map(shift=>lerp((aa>>shift)&255,(bb>>shift)&255).toString(16).padStart(2,'0')).join('');
+};
+function paintStoryAtlas(g,list){
+ const art=window.LariaGlobeArtV24;
+ if(!art||map.zoom<1.6)return;
+ if(!gesture&&map.zoom>2){
+  ctx.save();ctx.beginPath();
+  for(const c of list)if(c.geometry)makePath(c,g);
+  ctx.clip('evenodd');
+  const biomeColors={forest:'#398451',desert:'#F9D495',savanna:'#BDB66D',snow:'#F5FFFF'};
+  for(const t of art.TERRAIN||[]){
+   const p=screenPoint(t[1],t[2],g),type=t[0];
+   if(p.x<-180||p.x>g.w+180||p.y<-130||p.y>g.h+130)continue;
+   const rad=clamp(g.scale*9*t[3],18,145);
+   const gradient=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,rad);
+   gradient.addColorStop(0,atlasMix(biomeColors[type]||'#C5D69D','#FFFFFF',.20)+'99');
+   gradient.addColorStop(.48,(biomeColors[type]||'#C5D69D')+'55');
+   gradient.addColorStop(1,(biomeColors[type]||'#C5D69D')+'00');
+   ctx.beginPath();ctx.ellipse(p.x,p.y,rad,rad*.79,0,0,Math.PI*2);
+   ctx.fillStyle=gradient;ctx.fill();
+  }
+  ctx.restore();
+ }
+ /* Keep illustrational landmarks tied to their true geographic coordinates. */
+ if(map.zoom<2.5)return;
+ const kbase=clamp(19+map.zoom*2.2,23,42)*(g.w>700?1.12:1);
+ for(const f of art.FEATURES||[]){
+  const fn=art.draw?.[f[0]];if(typeof fn!=='function')continue;
+  const p=screenPoint(f[1],f[2],g);
+  if(p.x<13||p.x>g.w-20||p.y<65||p.y>g.h-20)continue;
+  const k=kbase*f[3];
+  ctx.save();ctx.globalAlpha=map.zoom<3.2?.76:.91;
+  fn(ctx,p.x,p.y,k,f[4]);ctx.restore();
+ }
+}
+function paintMapLabels(g,list,selected){
+ if(map.zoom<3.3)return;
+ const font=g.w>650?13:11;
+ ctx.save();ctx.font='750 '+font+'px system-ui,-apple-system,sans-serif';
+ ctx.textBaseline='middle';ctx.textAlign='center';
+ const used=[];
+ const sorted=list.filter(c=>c.geometry&&Number.isFinite(c.lon)&&Number.isFinite(c.lat)&&c.id!==selected)
+  .sort((a,b)=>(typeof geometrySpan==='function'?geometrySpan(b)-geometrySpan(a):0));
+ for(const c of sorted){
+  if(typeof geometrySpan==='function'&&geometrySpan(c)<7.5)continue;
+  const p=screenPoint(c.lon,c.lat,g);
+  if(p.x<24||p.x>g.w-63||p.y<78||p.y>g.h-31)continue;
+  const text=String(c.name||'');if(!text||text.length>16)continue;
+  const width=ctx.measureText(text).width+13;
+  if(used.some(r=>Math.abs(r.x-p.x)<(r.w+width)/2+7&&Math.abs(r.y-p.y)<23))continue;
+  used.push({x:p.x,y:p.y,w:width});
+  ctx.strokeStyle='rgba(255,251,231,.87)';ctx.lineWidth=3.5;ctx.lineJoin='round';
+  ctx.strokeText(text,p.x,p.y);ctx.fillStyle='rgba(47,68,75,.91)';ctx.fillText(text,p.x,p.y);
+  if(used.length>=17)break;
+ }
+ ctx.restore();
 }
 function colorFor(c){
  let fill=CONTINENT_TINT[c.continent]||'#ADC6A0';
@@ -91,8 +152,17 @@ function draw(){
  ctx.setTransform(dpr,0,0,dpr,0,0);
  ctx.clearRect(0,0,g.w,g.h);
  const sea=ctx.createLinearGradient(0,0,0,g.h);
- sea.addColorStop(0,'#C1E7E8');sea.addColorStop(.58,'#94CDDA');sea.addColorStop(1,'#72B6C9');
+ sea.addColorStop(0,'#C4EDF0');sea.addColorStop(.54,'#91CDD9');sea.addColorStop(1,'#5CA7BC');
  ctx.fillStyle=sea;ctx.fillRect(0,0,g.w,g.h);
+ /* Restrained painted sea glints. Longitude positions move with the map. */
+ ctx.save();ctx.lineWidth=1.9;ctx.strokeStyle='rgba(247,255,248,.29)';
+ for(const pos of [[-28,23],[-33,-27],[57,-24],[125,-26],[-117,23],[-140,-38],[42,35],[161,1]]){
+  const p=screenPoint(pos[0],pos[1],g),r=clamp(g.scale*8,18,45);
+  if(p.x<0||p.x>g.w||p.y<0||p.y>g.h)continue;
+  ctx.beginPath();ctx.ellipse(p.x,p.y,r,r*.26,-.08,.08*Math.PI,.88*Math.PI);ctx.stroke();
+  ctx.beginPath();ctx.ellipse(p.x+r*.20,p.y+r*.32,r*.57,r*.14,.04,.14*Math.PI,.76*Math.PI);ctx.stroke();
+ }
+ ctx.restore();
  ctx.save();
  ctx.beginPath();ctx.rect(0,0,g.w,g.h);ctx.clip();
  ctx.strokeStyle='rgba(255,255,255,.28)';ctx.lineWidth=1;
@@ -110,15 +180,20 @@ function draw(){
   if(!country?.geometry)continue;
   ctx.beginPath();
   if(!makePath(country,g))continue;
-  ctx.fillStyle=colorFor(country);
-  ctx.fill('evenodd');
+  const base=colorFor(country);
+  const land=ctx.createLinearGradient(g.w*.18,g.h*.08,g.w*.76,g.h*.92);
+  land.addColorStop(0,atlasMix(base,'#FFF6D9',.19));
+  land.addColorStop(.52,base);
+  land.addColorStop(1,atlasMix(base,'#426B68',.13));
+  ctx.fillStyle=land;ctx.fill('evenodd');
   ctx.strokeStyle='rgba(255,252,236,.72)';
   ctx.lineWidth=clamp(g.scale*.075,.52,1.6);
   ctx.stroke();
  }
+ paintStoryAtlas(g,list);
+ paintMapLabels(g,list,selected);
  for(const c of list){
-  if(!c?.geometry)continue;
-  const hasTiny=typeof isTinyCountry==='function'?isTinyCountry(c):false;
+  const hasTiny=typeof isTinyCountry==='function'?isTinyCountry(c):!c.geometry;
   if(!hasTiny||map.zoom<2.5||!Number.isFinite(c.lon)||!Number.isFinite(c.lat))continue;
   const p=screenPoint(c.lon,c.lat,g);
   if(p.x<5||p.x>g.w-5||p.y<5||p.y>g.h-5)continue;
@@ -203,7 +278,7 @@ function pickAt(p){
  if(!country&&map.zoom>=2.4){
   let nearest=null,dist=Infinity;
   for(const c of geometry()){
-   if(!c.geometry||!Number.isFinite(c.lon)||!Number.isFinite(c.lat))continue;
+   if(!Number.isFinite(c.lon)||!Number.isFinite(c.lat))continue;
    if(typeof isTinyCountry==='function'&&!isTinyCountry(c))continue;
    const q=screenPoint(c.lon,c.lat),d=Math.hypot(q.x-p.x,q.y-p.y);
    if(d<dist){dist=d;nearest=c}
@@ -263,6 +338,8 @@ function sync(mode){
  screen.dataset.mapPerspective=atlas?'atlas':'globe';
  if(nav)nav.hidden=!atlas;
  if(caption)caption.hidden=!atlas;
+ const heading=screen.querySelector('.premium-globe-title');
+ if(heading)heading.textContent=atlas?'Kartet':'Kloden';
  const hint=screen.querySelector('.globe-hint');
  if(hint)hint.textContent=atlas?'Dra i kartet · knip for zoom · trykk på et land':'Dra for å snurre · knip for zoom';
  if(atlas){queueLayout();if(screen.classList.contains('active')&&typeof loadQualityData==='function'&&!window.__lariaAtlasDetailsRequested){
@@ -288,18 +365,18 @@ function install(){
  nav.addEventListener('click',e=>{const b=e.target.closest('button[data-atlas-region]');if(b)goRegion(b.dataset.atlasRegion)});
  wireGestures();
  const previousMode=window.setGlobeMode;
- const routedMode=function(mode){const result=previousMode.apply(this,arguments);sync(mode);return result};
+ const routedMode=function(mode){modeSwitching=true;let result;try{result=previousMode.apply(this,arguments)}finally{modeSwitching=false}sync(mode);return result};
  window.setGlobeMode=routedMode;
  try{setGlobeMode=routedMode}catch(_){}
  document.querySelectorAll('#globe-mode [data-globe-mode]').forEach(btn=>{btn.onclick=()=>routedMode(btn.dataset.globeMode)});
  const previousSelect=window.selectGlobeCountry;
- const routedSelect=function(id){const result=previousSelect.apply(this,arguments);if(!silentSelection&&isAtlas())focus(id);if(isAtlas()){queueLayout();queueDraw()}return result};
+ const routedSelect=function(id){const result=previousSelect.apply(this,arguments);if(!silentSelection&&!modeSwitching&&isAtlas())focus(id);if(isAtlas()){queueLayout();queueDraw()}return result};
  window.selectGlobeCountry=routedSelect;
  try{selectGlobeCountry=routedSelect}catch(_){}
  const zin=document.getElementById('globe-zoom-in'),zout=document.getElementById('globe-zoom-out'),reset=document.getElementById('reset-globe');
  if(zin){const old=zin.onclick;zin.onclick=function(){if(isAtlas())zoomTo(map.zoom*1.34);else old?.apply(this,arguments)}}
  if(zout){const old=zout.onclick;zout.onclick=function(){if(isAtlas())zoomTo(map.zoom/1.34);else old?.apply(this,arguments)}}
- if(reset){const old=reset.onclick;reset.onclick=function(){if(isAtlas()){goRegion('europe');return}return old?.apply(this,arguments)}}
+ if(reset){const old=reset.onclick;reset.onclick=function(){if(isAtlas()){goRegion('africa');return}return old?.apply(this,arguments)}}
  window.addEventListener('resize',queueLayout);
  window.addEventListener('orientationchange',queueLayout);
  if(typeof ResizeObserver!=='undefined'){
