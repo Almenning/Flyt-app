@@ -76,4 +76,9 @@ test('globe surface detail stays georeferenced during rotation and zoom',()=>{
   assert.match(renderer,/if\(!moving\)paintLandDepth\(ctx,w,h,s\)/,
     'expensive depth pass must stay outside active gesture frames');
   assert.match(renderer,/__LARIA_GLOBE_RENDER_SOURCE='country-geometry'/);
+  const active=renderer.slice(renderer.indexOf('function premiumDraw(){'),renderer.indexOf('function install(){'));
+  assert.match(active,/waterDetails\(ctx,w,h,s\);\s*discoveryDetails\(ctx,w,h,s\);/,
+    'illustrated landmarks must remain geographically anchored throughout pointer movement');
+  assert.doesNotMatch(active,/if\(!moving\)\{\s*waterDetails/,
+    'decorative geography must not vanish while the globe rotates');
 });
