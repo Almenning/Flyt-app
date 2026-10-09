@@ -54,6 +54,7 @@ async function run(browser,engine,label,viewport,url){
   assert.equal(await page.locator('.fr4-presets .fr2-pie-preset').count(),7,'preset choices need real fraction diagrams');
   assert.equal(await page.locator('.fr4-scene-fox .fr2-fox').count(),1,'the fox must be inside the exploration scene, not only at the bottom');
   assert.match(await page.locator('.fr4-stage-caption').innerText(),/3 av 4/);
+  await photo(page,label+'-02-explore');
   // A decorative speech bubble must never intercept the interactive slice.
   await page.locator('.fr2-pie-large [data-fr-action="piece"][data-piece="1"]').click();
   assert.equal((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot())).explore.n,1,'hero artwork may not block fraction touch targets');
@@ -62,10 +63,11 @@ async function run(browser,engine,label,viewport,url){
     const figure=document.querySelector('.fr2-main-illustration').getBoundingClientRect();
     const speech=document.querySelector('.fr4-scene-speech').getBoundingClientRect();
     const head=document.querySelector('.fr2-main-value').getBoundingClientRect();
-    return {stageHeight:stage.height,figureWidth:figure.width,speechWidth:speech.width,contentOnPage:[figure.left>=-1,figure.right<=innerWidth+1,speech.left>=-1,speech.right<=innerWidth+1,head.left>=-1,head.right<=innerWidth+1]};
+    const fraction=document.querySelector('.fr2-main-value .fr2-fraction').getBoundingClientRect();
+    const separated=(fraction.right<=speech.left||speech.right<=fraction.left||fraction.bottom<=speech.top||speech.bottom<=fraction.top);
+    return {stageHeight:stage.height,figureWidth:figure.width,speechWidth:speech.width,fractionReadable:separated,contentOnPage:[figure.left>=-1,figure.right<=innerWidth+1,speech.left>=-1,speech.right<=innerWidth+1,head.left>=-1,head.right<=innerWidth+1]};
   });
-  assert.ok(readableHero.stageHeight>=300&&readableHero.figureWidth>=115&&readableHero.speechWidth>=115&&readableHero.contentOnPage.every(Boolean),label+' illustrated scene too small or clipped: '+JSON.stringify(readableHero));
-  await photo(page,label+'-02-explore');
+  assert.ok(readableHero.stageHeight>=300&&readableHero.figureWidth>=115&&readableHero.speechWidth>=115&&readableHero.fractionReadable&&readableHero.contentOnPage.every(Boolean),label+' illustrated scene too small or clipped: '+JSON.stringify(readableHero));
   await page.locator('[data-fr-action="preset"][data-n="1"][data-d="2"]').click();
   assert.deepEqual(await page.evaluate(()=>[LARIA_FRACTION_PREMIUM.snapshot().explore.n,LARIA_FRACTION_PREMIUM.snapshot().explore.d]),[1,2]);
   await page.locator('[data-fr-action="view"][data-view="bar"]').click();
