@@ -97,7 +97,7 @@ function practice(){
  +mascot(solved?'Bra! Du fant svaret.':stateBox.feedback?'Prøv igjen. Du kan bruke forklaringen.':'Vi finner svaret sammen!',true)+'</section>';
 }
 function exploreTabs(){
- const modes=[['table','▦','Tabellen'],['groups','🍓','Grupper'],['array','▥','Rutenett'],['line','↝','Tallinje'],['swap','⇄','Bytt plass'],['patterns','✳','Mønstre']];
+ const modes=[['table','▦','Tabellen'],['pick','✋','Plukk og tell'],['groups','🍓','Grupper'],['array','▥','Rutenett'],['line','↝','Tallinje'],['swap','⇄','Bytt plass'],['patterns','✳','Mønstre']];
  return '<div class="mp-explore-tabs" role="group" aria-label="Velg hvordan du vil utforske gange">'+modes.map(([id,icon,label])=>btn('mode','<span aria-hidden="true">'+icon+'</span><strong>'+label+'</strong>','mp-explore-tab '+(stateBox.active===id?'selected':''),'data-mode="'+id+'" aria-pressed="'+(stateBox.active===id)+'"')).join('')+'</div>';
 }
 function smallArray(a,b){return '<div class="mp-mini-array" style="--mp-cols:'+b+'">'+Array.from({length:a*b},()=>'<i></i>').join('')+'</div>'}
@@ -122,15 +122,16 @@ function exploreTable(){
 function explorer(){
  const mode=stateBox.active,a=stateBox.a,b=stateBox.b;
  let stage='';
+ if(mode==='pick'){stage=window.LARIA_MULT_PICK_PLAY?window.LARIA_MULT_PICK_PLAY.render():'<p>Plukk og tell åpnes snart.</p>'}
  if(mode==='groups'){stage='<div class="mp-wood-sign">'+a+' grupper med '+b+'</div>'+(window.LARIA_MULT_ILLUSTRATED_V3?window.LARIA_MULT_ILLUSTRATED_V3.picker(currentIllustrationTheme()):'')+apples(a,b)}
  if(mode==='array'){stage='<div class="mp-wood-sign">'+a+' rader med '+b+'</div><div class="mp-array-panel">'+smallArray(a,b)+'</div>'}
  if(mode==='line'){stage='<div class="mp-wood-sign">'+a+' hopp på '+b+'</div>'+numberLine(a,b)}
  if(mode==='swap'){stage='<div class="mp-wood-sign">Samme antall, snudd!</div><div class="mp-swap-pair">'+smallArray(a,b)+smallArray(b,a)+'</div><strong class="mp-swap-label">'+a+' × '+b+' = '+b+' × '+a+'</strong>'}
  if(mode==='patterns'){stage='<div class="mp-wood-sign">Oppdag '+a+'-gangen</div>'+patterns(a)}
  if(mode==='table'){stage=exploreTable()}
- return '<section class="mp-explore-screen">'+heading('Utforsk og lek',mode==='table'?'Gangetabellen fra 1 til 10. Trykk på et tall og utforsk!':'Prøv deg fram og oppdag hvordan gange virker.')+exploreTabs()
- +'<div class="mp-explore-world '+(mode==='table'?'table-mode':'')+'">'+stage+'</div>'
- +(mode==='table'?'':'<div class="mp-factor-controls"><div><label>Antall grupper</label><div class="mp-factor-adjust">'+btn('factor','−','','data-factor="a" data-step="-1" aria-label="Færre grupper"')+'<strong>'+a+'</strong>'+btn('factor','+','','data-factor="a" data-step="1" aria-label="Flere grupper"')+'</div></div><div><label>I hver gruppe</label><div class="mp-factor-adjust">'+btn('factor','−','','data-factor="b" data-step="-1" aria-label="Færre i hver gruppe"')+'<strong>'+b+'</strong>'+btn('factor','+','','data-factor="b" data-step="1" aria-label="Flere i hver gruppe"')+'</div></div></div><div class="mp-math-result"><span>'+a+' × '+b+'</span><span> = </span><b>'+(a*b)+'</b></div>')
+ return '<section class="mp-explore-screen">'+heading('Utforsk og lek',mode==='table'?'Gangetabellen fra 1 til 10. Trykk på et tall og utforsk!':mode==='pick'?'Plukk og flytt ting i levende eventyrverdener.':'Prøv deg fram og oppdag hvordan gange virker.')+exploreTabs()
+ +'<div class="mp-explore-world '+(mode==='table'?'table-mode':mode==='pick'?'pick-mode':'')+'">'+stage+'</div>'
+ +((mode==='table'||mode==='pick')?'':'<div class="mp-factor-controls"><div><label>Antall grupper</label><div class="mp-factor-adjust">'+btn('factor','−','','data-factor="a" data-step="-1" aria-label="Færre grupper"')+'<strong>'+a+'</strong>'+btn('factor','+','','data-factor="a" data-step="1" aria-label="Flere grupper"')+'</div></div><div><label>I hver gruppe</label><div class="mp-factor-adjust">'+btn('factor','−','','data-factor="b" data-step="-1" aria-label="Færre i hver gruppe"')+'<strong>'+b+'</strong>'+btn('factor','+','','data-factor="b" data-step="1" aria-label="Flere i hver gruppe"')+'</div></div></div><div class="mp-math-result"><span>'+a+' × '+b+'</span><span> = </span><b>'+(a*b)+'</b></div>')
  +mascot(mode==='table'?'Trykk på et felt. Se hva som skjer når tallene bytter plass.':'Når vi samler like grupper, ser vi lettere hva gange betyr.',true)+'</section>';
 }
 function completed(){return '<span class="mp-medal">★</span>'}
@@ -158,9 +159,15 @@ function render(){
  const root=document.getElementById(ROOT);if(!root)return;
  const region=root.querySelector('.mp-table-viewport');
  const scroll=region?{left:region.scrollLeft,top:region.scrollTop}:null;
+ const pickScroll=root.querySelector('.mp-pick-world-strip')?.scrollLeft||0;
+ const focused=root.contains(document.activeElement)?document.activeElement:null;
+ const pickFocus=focused?.dataset?.pickAction?{action:focused.dataset.pickAction,group:focused.dataset.group,world:focused.dataset.world,id:focused.dataset.id}:null;
  let screen=stateBox.page==='home'?home():stateBox.page==='choose'?choose():stateBox.page==='practice'?practice():stateBox.page==='explore'?explorer():stateBox.page==='mastery'?mastery():complete();
  root.innerHTML='<main class="mp-shell '+(grade()<=2?'mp-young':grade()<=4?'mp-middle':grade()<=7?'mp-older':'mp-teen')+'"><div class="mp-scenery" aria-hidden="true"></div><div class="mp-main">'+top()+screen+navigation()+'</div></main>';
  if(scroll){const current=root.querySelector('.mp-table-viewport');if(current){current.scrollLeft=scroll.left;current.scrollTop=scroll.top}}
+ const worldStrip=root.querySelector('.mp-pick-world-strip');if(worldStrip)worldStrip.scrollLeft=pickScroll;
+ if(pickFocus){const buttons=root.querySelectorAll('button[data-pick-action]');const match=Array.from(buttons).find(b=>b.dataset.pickAction===pickFocus.action&&(b.dataset.group||'')===(pickFocus.group||'')&&(b.dataset.world||'')===(pickFocus.world||'')&&(b.dataset.id||'')===(pickFocus.id||''));if(match&&!match.disabled)try{match.focus({preventScroll:true})}catch(_){}}
+
 }
 function onClick(event){
  const root=document.getElementById(ROOT),target=event.target.closest('button[data-mp-action]');if(!target||!root?.contains(target))return;
@@ -175,12 +182,14 @@ function onClick(event){
  if(action==='again')return begin(stateBox.roundType==='table'?stateBox.tab:null);
  if(action==='hint'){stateBox.showHints=!stateBox.showHints;render();return}
  if(action==='read')return speak();
+ if(action==='pick-play'){window.LARIA_MULT_PICK_PLAY?.dispatch(target);return}
  if(action==='mode'){stateBox.active=target.dataset.mode;render();return}
   if(action==='theme'){if(window.LARIA_MULT_ILLUSTRATED_V3?.themes.includes(target.dataset.theme)){illustrationTheme=target.dataset.theme;render()}return}
  if(action==='factor'){const key=target.dataset.factor;stateBox[key]=d(stateBox[key]+Number(target.dataset.step));render();return}
  if(action==='cell'||action==='pair'){stateBox.row=Number(target.dataset.row);stateBox.col=Number(target.dataset.col);render();return}
 }
 const root=document.getElementById(ROOT);if(root&&!root.dataset.mpV2Bound){root.addEventListener('click',onClick);root.dataset.mpV2Bound='true'}
+window.LARIA_MULT_PICK_PLAY?.mount(root,render);
 window.openMultiplicationLab=function(){
  document.getElementById('multiplication-lab-screen')?.setAttribute('data-explore-release','explore-rc1');
  stateBox.page='home';stateBox.showHints=false;stateBox.showSummary=false;render();
