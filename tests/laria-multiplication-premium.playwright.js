@@ -56,6 +56,15 @@ async function testView(browser,engine,label,viewport,url){
   await dimensions(page,viewport.width,label+' practice');
   await screenshot(page,label+'-03-practice');
   const initial=snap.round[0];assert.equal(await page.locator('.mp-apple-basket').count(),initial.a);assert.equal(await page.locator('.mp-apple').count(),initial.a*initial.b,'visual groups disagree with math');
+   assert.equal(await page.locator('.mp3-item').count(),initial.a*initial.b,'illustrated objects must match multiplication');
+   assert.equal(await page.locator('.mp3-basket').count(),initial.a);
+   for(const theme of ['bun','mushroom','apple','strawberry']){
+     await page.locator('[data-mp-action="theme"][data-theme="'+theme+'"]').click();
+     assert.equal(await page.locator('.mp3-item').count(),initial.a*initial.b,'theme '+theme+' changed the visible count');
+     assert.equal(await page.locator('.mp3-basket').count(),initial.a);
+     assert.equal(await page.locator('.mp3-collections').getAttribute('data-mp3-theme'),theme);
+   }
+
   const answer=initial.a*initial.b,wrong=await page.locator('.mp-answer').evaluateAll((els,n)=>Number(els.find(x=>Number(x.dataset.value)!==n)?.dataset.value),answer);
   await page.locator('.mp-answer[data-value="'+wrong+'"]').click();
   assert.match(await page.locator('.mp-answer-feedback').innerText(),/Prøv igjen/);
@@ -74,6 +83,10 @@ async function testView(browser,engine,label,viewport,url){
   assert.equal(await page.locator('.mp-grid-cell').count(),100);
   await page.locator('[data-mp-action="mode"][data-mode="groups"]').click();
   assert.equal(await page.locator('.mp-apple-basket').count(),4);
+  assert.equal(await page.locator('.mp3-item').count(),12);
+  await page.locator('[data-mp-action="theme"][data-theme="bun"]').click();
+  assert.equal(await page.locator('.mp3-item').count(),12);
+
   await page.locator('[data-mp-action="factor"][data-factor="a"][data-step="1"]').click();
   assert.match(await page.locator('.mp-math-result').innerText(),/5 × 3/);
   await page.locator('[data-mp-action="mode"][data-mode="array"]').click();
