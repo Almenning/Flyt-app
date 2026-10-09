@@ -32,6 +32,22 @@ test('pick, return, equal-group removal, empty and zero are mathematically exact
  assert.equal(E.total(s),0);
  assert.equal(E.equation(s).main,'0');
 });
+test('four views change only how the same number is shown, not mathematical state',()=>{
+ let s=E.initial();
+ assert.deepEqual(E.VIEWS,['groups','rows','numberline','circle']);
+ for(const view of E.VIEWS){
+  s=act(s,'view',{view});
+  assert.equal(s.view,view);
+  assert.deepEqual(s.counts,[10,10,10]);
+  assert.equal(E.total(s),30);
+  assert.equal(E.equation(s).main,'3 × 10 = 30');
+ }
+ const picked=act(s,'take',{group:0,token:s.itemIds[0][3]});
+ assert.equal(picked.view,'circle','picked math must keep the chosen representation');
+ assert.equal(E.total(picked),29);
+ assert.equal(act(picked,'view',{view:'bogus'}).view,'circle');
+});
+
 test('the exact tapped object disappears, follows drag, and returns from the collection',()=>{
  const start=E.initial();
  const chosen=start.itemIds[1][4];
