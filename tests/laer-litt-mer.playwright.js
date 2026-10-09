@@ -434,6 +434,10 @@ async function finishSession(page){
     assert.equal(firstWordRound.filter(w=>secondWordRound.includes(w)).length,0,'Ordjakt immediately repeated a target word in the next round');
     await page.locator('[data-word-level="hard"]').click();
     assert.equal(await page.locator('.word-hunt-word').count(),5);
+    for(let round=0;round<8;round++){
+      await page.locator('.word-hunt-new').click();
+      assert.equal(await page.locator('.word-hunt-word').count(),5,'hard Ordjakt must never drop a target word');
+    }
     const hardCellHeights=await page.locator('.word-hunt-cell').evaluateAll(els=>els.map(e=>e.getBoundingClientRect().height));
     assert.ok(hardCellHeights.every(h=>h>=44),'small Ordjakt touch target in portrait: '+hardCellHeights.join(','));
     await page.locator('.word-hunt-back').click();

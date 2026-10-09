@@ -86,7 +86,7 @@ async function capture(browserType,label,viewport){
     await page.waitForTimeout(650);
     const sceneName=viewport.width>viewport.height&&viewport.width>=900?'landscape':viewport.width>=700?'tablet':'mobile';
     const backgroundImage=await page.evaluate(()=>getComputedStyle(document.getElementById('world-screen')).backgroundImage);
-    assert.ok(backgroundImage.includes('globe-environment-v33-'+sceneName+'.svg'),label+' did not load the correct illustrated nature scene: '+backgroundImage);
+    assert.ok(backgroundImage.includes('globe-environment-v35-'+sceneName+'.svg'),label+' did not load the correct illustrated nature scene: '+backgroundImage);
     assert.ok(!backgroundImage.includes('basecamp-v11'),label+' incorrectly shows fantasy village behind globe');
     // Prevent the old unified globe plaque/fox pseudos from painting a gold
     // vertical seam through the locked landscape in any device configuration.
@@ -165,6 +165,39 @@ async function capture(browserType,label,viewport){
     if(viewport.width>=900&&viewport.width>viewport.height){
       assert.ok(layout.modes.bottom+3<=layout.globe.top,label+' mode tabs collide with rotating globe: '+JSON.stringify(layout));
       assert.ok(layout.globe.bottom+3<=layout.country.top,label+' globe collides with land card: '+JSON.stringify(layout));
+    }
+    // Child-facing text must stay legible on the physical country card.
+    const readability=await page.evaluate(()=>{
+      const facts=[...document.querySelectorAll('#world-screen.active .premium-country-facts span')];
+      const fontSize=el=>Number.parseFloat(getComputedStyle(el).fontSize);
+      const rect=el=>el.getBoundingClientRect();
+      const card=document.querySelector('#world-screen.active .globe-status');
+      return {fonts:facts.map(fontSize),
+        allWithinCard:facts.every(el=>rect(el).bottom<=rect(card).bottom+1),
+        scene:getComputedStyle(document.getElementById('world-screen')).backgroundImage,
+        foxMask:getComputedStyle(document.querySelector('#world-screen.active .premium-globe-fox')).maskImage||''};
+    });
+    const minimumFactSize=viewport.width<700?10:viewport.width>viewport.height&&viewport.height<=700?10.9:11.9;
+    assert.ok(readability.fonts.length>=2,label+' missing visible country facts');
+    assert.ok(readability.fonts.every(v=>v>=minimumFactSize),label+' country facts are too small: '+JSON.stringify(readability));
+    assert.ok(readability.allWithinCard,label+' country facts overflow their card');
+    assert.ok(readability.scene.includes('globe-environment-v35-'),label+' old landscape still visible');
+    if(label==='webkit-desktop-landscape'){
+      const canvasBox=await page.locator('#globe-canvas').boundingBox();
+      const cx=canvasBox.x+canvasBox.width*.55,cy=canvasBox.y+canvasBox.height*.55;
+      const beforeLon=await page.evaluate(()=>globeLon);
+      await page.mouse.move(cx,cy);
+      await page.mouse.down();
+      await page.mouse.move(cx+52,cy+15,{steps:6});
+      await page.mouse.up();
+      const afterLon=await page.evaluate(()=>globeLon);
+      assert.ok(Math.abs(afterLon-beforeLon)>3,label+' real pointer drag failed to rotate globe');
+      const beforeZoom=await page.evaluate(()=>globeZoom);
+      await page.locator('#globe-zoom-in').click();
+      const afterZoom=await page.evaluate(()=>globeZoom);
+      assert.ok(afterZoom>beforeZoom+.1,label+' zoom-in failed to enlarge globe');
+      await page.locator('#globe-zoom-out').click();
+      await page.evaluate(()=>{globeLon=15;globeLat=18;window.drawGlobe()});
     }
     assert.equal(metrics.overflow,false,label+' horizontal overflow');
     const minGlobeWidth=viewport.width<600?viewport.width*.84:(viewport.width>viewport.height?viewport.height*.52:viewport.width*.68);
