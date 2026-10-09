@@ -224,6 +224,14 @@
     }
   }
 
+  // Every world returns through the screen's established Home route. That keeps
+  // Basecamp origin, progress and the native back affordance intact.
+  function returnToJourneyHome(geo){
+    const backButton=document.getElementById(geo?'geography-back':'subject-back');
+    if(backButton){backButton.click();return}
+    if(typeof setTab==='function')setTab('home');
+  }
+
   function takeWorldProgressReaction(subject,grade,route){
     const reaction=window.__journeyWorldReaction;
     if(!reaction||reaction.subject!==subject||Number(reaction.grade)!==Number(grade)||Date.now()-Number(reaction.at||0)>120000)return null;
@@ -289,7 +297,7 @@
       '<div class="premium-world-frontier" aria-hidden="true"><i class="frontier-haze"></i><i class="frontier-focus"></i><i class="frontier-ring"></i></div>'+
       '<div class="premium-world-shade" aria-hidden="true"></div><div class="premium-world-mist" style="--mist-top:'+Math.max(0,cy-13)+'%" aria-hidden="true"></div>'+
       '<div class="premium-world-sparkles" aria-hidden="true"></div>'+
-      '<div class="premium-world-hud"><button type="button" class="premium-world-back" aria-label="Tilbake">‹</button><button type="button" class="premium-world-grade" aria-expanded="false">'+esc(GRADE_CONFIG[grade].label)+' ▾</button><div class="premium-world-progress" aria-label="'+prog.pct+' prosent fullført"><span>★</span><b>'+prog.done+'/'+prog.total+'</b><i><em style="width:'+prog.pct+'%"></em></i></div><div class="premium-world-trophies" aria-label="'+prog.areasDone+' av '+model.areas.length+' trofeer">🏆 '+prog.areasDone+'</div></div>'+
+      '<div class="premium-world-hud"><button type="button" class="premium-world-back" aria-label="Tilbake til Hjem" title="Tilbake til Hjem">‹</button><button type="button" class="premium-world-grade" aria-expanded="false">'+esc(GRADE_CONFIG[grade].label)+' ▾</button><div class="premium-world-progress" aria-label="'+prog.pct+' prosent fullført"><span>★</span><b>'+prog.done+'/'+prog.total+'</b><i><em style="width:'+prog.pct+'%"></em></i></div><div class="premium-world-trophies" aria-label="'+prog.areasDone+' av '+model.areas.length+' trofeer">🏆 '+prog.areasDone+'</div></div>'+
       '<div class="premium-world-title"><small>'+esc(SUBJECTS[subject]?.title||'Geografi')+' · '+esc(GRADE_CONFIG[grade].label)+'</small><strong>'+esc(config.name)+'</strong></div>'+
       '<div class="premium-world-grade-menu" hidden></div>'+
       '<div class="premium-world-sheet-back" hidden></div><section class="premium-world-sheet" role="dialog" aria-modal="true" aria-label="Oppdragssted" hidden></section></section><div class="premium-side-dock" aria-label="Ekstra oppdrag">'+sides+'</div>';
@@ -297,11 +305,7 @@
     installWorldDepthMotion(host);
     requestAnimationFrame(()=>animatePremiumTravelerJourney(host));
     const worldBack=host.querySelector('.premium-world-back');
-    if(worldBack)worldBack.onclick=()=>{
-      const backButton=document.getElementById(geo?'geography-back':'subject-back');
-      if(backButton)backButton.click();
-      else if(typeof setTab==='function')setTab('home');
-    };
+    if(worldBack)worldBack.onclick=()=>returnToJourneyHome(geo);
     const gradeBtn=host.querySelector('.premium-world-grade'),menu=host.querySelector('.premium-world-grade-menu');
     menu.innerHTML='<strong>Velg klassetrinn</strong>'+Array.from({length:10},(_,i)=>i+1).map(g=>'<button type="button" data-premium-grade="'+g+'"'+(g===grade?' class="selected"':'')+'>'+g+'. klasse'+(subjectGradeComplete(subject,g)?' · 🏆':'')+'</button>').join('');
     gradeBtn.onclick=()=>{menu.hidden=!menu.hidden;gradeBtn.setAttribute('aria-expanded',String(!menu.hidden))};
