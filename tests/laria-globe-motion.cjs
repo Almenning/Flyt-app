@@ -55,3 +55,11 @@ test('locked Læria environment uses cohesive responsive artwork without stretch
   assert.doesNotMatch(active,/background-size:100%\\s+100%/,'do not stretch landscape to fit screen');
   assert.ok(css.includes('--g24-globe:min(94vw,48dvh)'),'preserve proportional mobile sphere size');
 });
+
+test('approved globe v36 continent palette is geographical and vibrant',()=>{
+  const renderer=read('laer-litt-mer/globe-v25-renderer.js');
+  for(const pair of ["'Europa':'#316FE0'","'Asia':'#E6B544'","'Afrika':'#E87455'","'Nord-Amerika':'#4DAD60'","'Sør-Amerika':'#319F58'"]){
+    assert.ok(renderer.includes(pair),'missing locked globe continent palette '+pair);
+  }
+  assert.match(renderer,/__LARIA_GLOBE_RENDER_SOURCE='country-geometry'/,'v36 palette must not restore misregistered mock-up');
+});
