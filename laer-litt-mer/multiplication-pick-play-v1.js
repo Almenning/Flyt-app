@@ -75,7 +75,7 @@ function dispatch(target){
  let changed=false;
  if(type==='world')changed=go('world',{world:target.dataset.world});
  else if(type==='mission')changed=go('mission',{id:target.dataset.id});
- else if(type==='take'&&state.moveMode)changed=go('selectMove',{group:index},false);
+ else if(type==='selectMove'||(type==='take'&&state.moveMode))changed=go('selectMove',{group:index},false);
  else if(type==='moveTarget'){if(state.moveFrom!==null)changed=go('move',{group:state.moveFrom,to:index});}
  else if(['take','return','empty'].includes(type))changed=go(type,{group:index});
  else if(['takeEach','newGroup','check'].includes(type))changed=go(type);
