@@ -283,7 +283,7 @@
     const routeOverlay=journeyRouteOverlay(config,route,nextIndex);
     const reactionFx=reactionPoint?'<div class="premium-progress-reaction" style="--reaction-x:'+reactionPoint[0]+'%;--reaction-y:'+reactionPoint[1]+'%" aria-hidden="true"><i></i><i></i><i></i><i></i><b>✓</b></div>':'';
     host.className='journey-map premium-journey-map';
-    host.dataset.journeyRelease='journey-rc2';
+    host.dataset.journeyRelease='journey-rc1';
     host.dataset.journeySubject=subject;
     host.dataset.journeyCoreStops=String(route.length);
     host.innerHTML='<section class="premium-world premium-'+subject+' premium-world-depth-ready'+(prog.done>0?' has-progress':'')+(prog.complete?' is-complete':'')+(reaction?' is-progress-reaction':'')+'" style="--world-progress:'+prog.pct+';--focus-x:'+cx+'%;--focus-y:'+cy+'%" aria-label="'+esc(config.name+', interaktiv læringsverden')+'">'+
