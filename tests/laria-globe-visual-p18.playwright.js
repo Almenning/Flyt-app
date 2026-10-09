@@ -86,7 +86,7 @@ async function capture(browserType,label,viewport){
     await page.waitForTimeout(650);
     const sceneName=viewport.width>viewport.height&&viewport.width>=900?'landscape':viewport.width>=700?'tablet':'mobile';
     const backgroundImage=await page.evaluate(()=>getComputedStyle(document.getElementById('world-screen')).backgroundImage);
-    assert.ok(backgroundImage.includes('globe-environment-v35-'+sceneName+'.svg'),label+' did not load the correct illustrated nature scene: '+backgroundImage);
+    assert.ok(backgroundImage.includes('globe-locked-environment-v36-'+sceneName+'.svg'),label+' did not load the correct illustrated nature scene: '+backgroundImage);
     assert.ok(!backgroundImage.includes('basecamp-v11'),label+' incorrectly shows fantasy village behind globe');
     // Prevent the old unified globe plaque/fox pseudos from painting a gold
     // vertical seam through the locked landscape in any device configuration.
@@ -181,7 +181,7 @@ async function capture(browserType,label,viewport){
     assert.ok(readability.fonts.length>=2,label+' missing visible country facts');
     assert.ok(readability.fonts.every(v=>v>=minimumFactSize),label+' country facts are too small: '+JSON.stringify(readability));
     assert.ok(readability.allWithinCard,label+' country facts overflow their card');
-    assert.ok(readability.scene.includes('globe-environment-v35-'),label+' old landscape still visible');
+    assert.ok(readability.scene.includes('globe-locked-environment-v36-'),label+' old landscape still visible');
     if(label==='webkit-desktop-landscape'){
       const canvasBox=await page.locator('#globe-canvas').boundingBox();
       const cx=canvasBox.x+canvasBox.width*.55,cy=canvasBox.y+canvasBox.height*.55;
