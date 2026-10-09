@@ -38,7 +38,7 @@
 .mp-pick-object:active{transform:translateY(3px) scale(.92)}
 .mp-pick-object svg{display:block;width:100%;height:auto;max-height:60px;pointer-events:none}
 .mp-pick-front{position:absolute;z-index:3;pointer-events:none;bottom:45px;left:3px;right:3px;height:24px;border-top:4px ridge #ffe0a0;border-radius:2px 2px 25px 25px;background:repeating-linear-gradient(44deg,#915d3d67 0 4px,#c99760a0 5px 10px,transparent 11px 14px),linear-gradient(#e5bb85,#9e673d);box-shadow:0 -1px 5px #6e42294a,inset 0 5px 5px #fff1c177}
-.mp-pick-number{z-index:5;position:absolute;bottom:34px;left:50%;transform:translateX(-50%);min-width:32px;height:32px;display:grid;place-items:center;border:3px solid #bc8e59;border-radius:10px;color:#613d2c;font-size:17px;font-weight:950;background:linear-gradient(#fff9df,#f1d09e);box-shadow:0 3px 0 #956a4991,0 6px 10px #5a3a2152}
+.mp-pick-number{z-index:5;pointer-events:none;position:absolute;bottom:45px;left:50%;transform:translateX(-50%);min-width:32px;height:32px;display:grid;place-items:center;border:3px solid #bc8e59;border-radius:10px;color:#613d2c;font-size:17px;font-weight:950;background:linear-gradient(#fff9df,#f1d09e);box-shadow:0 3px 0 #956a4991,0 6px 10px #5a3a2152}
 .mp-pick-vessel-actions{z-index:4;width:100%;display:flex;justify-content:center;gap:5px;margin-top:auto;padding-top:12px}
 .mp-pick-vessel-actions button{min-width:0;flex:1;min-height:44px;max-width:92px;padding:5px 3px;border:2px solid #fff4da;border-radius:13px;color:#644431!important;background:linear-gradient(#fffef3,#f2dabb);box-shadow:0 3px 0 #bd9877;font-weight:950;font-size:14px}
 .mp-pick-empty{z-index:4;min-height:44px;margin:9px auto 3px;padding:5px 9px;border:1px solid #dabd98;border-radius:10px;background:#fff8ecba;color:#795744!important;font-size:11px!important;font-weight:800}
@@ -94,7 +94,7 @@
  .mp-pick-linen{top:14px;bottom:51px;left:4px;right:4px}
  .mp-pick-objects{min-height:60px;padding:2px 1px 14px}
  .mp-pick-front{left:2px;right:2px;bottom:47px;height:16px;border-top-width:3px}
- .mp-pick-number{bottom:40px;min-width:25px;height:26px;font-size:13px;border-width:2px;border-radius:7px}
+  .mp-pick-number{bottom:49px;min-width:25px;height:26px;font-size:13px;border-width:2px;border-radius:7px}
  .mp-pick-vessel-actions{padding-top:11px;gap:2px}
  .mp-pick-vessel-actions button{font-size:12px;padding:5px 1px;min-height:44px;border-width:1px}
  .mp-pick-empty{margin:5px auto 3px;min-height:30px;font-size:10px!important;padding:4px 6px}
