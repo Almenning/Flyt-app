@@ -19,18 +19,104 @@ function go(type,data={},record=true){
 function back(){if(!past.length)return false;future.push(E.normalize(state));state=past.pop();save();return true}
 function forward(){if(!future.length)return false;past.push(E.normalize(state));state=future.pop();save();return true}
 function w(){return E.WORLDS.find(x=>x.id===state.world)||E.WORLDS[0]}
+let pickArtSerial=0;
+/* Physically countable miniature storybook artwork. All scenery is separate.
+   Unique gradient names per SVG prevent near-view and original objects colliding. */
 function sprite(theme,index){
- if(['strawberry','bun','mushroom','apple'].includes(theme)&&window.LARIA_MULT_ILLUSTRATED_V3?.sprite)return window.LARIA_MULT_ILLUSTRATED_V3.sprite(theme,index);
- const sid='mpPick'+theme+index,color=['#db4d4a','#e3ad43','#468bc0','#945fbc','#89b866'][index%5],grad='url(#'+sid+')';
- let d='';
- if(theme==='treasure')d='<path d="M7 23L19 8H46L57 23L32 56Z" fill="'+grad+'" stroke="#976d39" stroke-width="2"/><path d="M7 23H57M19 8L24 23L32 56L41 23L46 8" stroke="#fff5d6" stroke-width="2" fill="none"/>';
- else if(theme==='train')d='<rect x="8" y="18" width="48" height="37" rx="8" fill="'+grad+'" stroke="#714d31" stroke-width="2.5"/><path d="M22 19V10Q32 4 43 10V19M21 22V52M44 22V52" stroke="#e6c38a" stroke-width="4" fill="none"/><circle cx="18" cy="56" r="3" fill="#54493c"/><circle cx="47" cy="56" r="3" fill="#54493c"/>';
- else if(theme==='beach')d='<path d="M8 44Q3 25 20 15Q33 3 48 16Q62 29 55 45Q33 57 8 44Z" fill="'+grad+'" stroke="#a97771" stroke-width="2"/><path d="M32 15V51M32 15Q17 30 20 50M32 15Q45 29 45 50M32 15Q8 26 11 39M32 15Q56 27 54 40" stroke="#fff4de" stroke-width="2.8" fill="none"/>';
- else if(theme==='farm')d='<ellipse cx="32" cy="33" rx="23" ry="27" fill="'+grad+'" stroke="#ab936d" stroke-width="2"/><path d="M17 34Q18 19 28 13" stroke="#fff8e0" stroke-width="5" stroke-linecap="round" fill="none"/>';
- else if(theme==='aquarium')d='<path d="M16 31L3 17V46Z" fill="'+color+'" stroke="#a4773f" stroke-width="2"/><ellipse cx="38" cy="31" rx="23" ry="17" fill="'+grad+'" stroke="#a4773f" stroke-width="2"/><path d="M29 18L45 6L49 20M29 44L45 56L49 43" fill="'+grad+'" stroke="#b47c43" stroke-width="2"/><circle cx="49" cy="29" r="4" fill="white"/><circle cx="50" cy="29" r="2" fill="#333"/>';
- else d='<path d="M32 53Q12 43 14 25Q15 5 32 5Q51 5 50 25Q50 43 32 53Z" fill="'+grad+'" stroke="#ab5e59" stroke-width="2"/><path d="M32 54L29 58H35Z" fill="#a6754c"/><path d="M32 59Q24 62 32 64" stroke="#795f4b" stroke-width="1.7" fill="none"/><path d="M23 19Q18 30 23 37" stroke="#fff5e0" stroke-width="5" stroke-linecap="round" fill="none"/>';
- return '<svg class="mp-pick-sprite" viewBox="0 0 64 64" aria-hidden="true" focusable="false"><defs><radialGradient id="'+sid+'" cx="30%" cy="18%" r="90%"><stop stop-color="#fff3ce"/><stop offset=".38" stop-color="'+color+'"/><stop offset="1" stop-color="#875348"/></radialGradient></defs><ellipse cx="31" cy="59" rx="21" ry="3" fill="#493425" opacity=".15"/>'+d+'</svg>';
+ const variant=(Number(index)||0)%5,uid='pkart'+(++pickArtSerial);
+ const pigment=['#d63843','#d67c35','#d9b44c','#668ab1','#9964a2'][variant];
+ const gradient=(key,stops)=>'<radialGradient id="'+uid+key+'" cx="25%" cy="17%" r="91%">'+stops.map(([at,c])=>'<stop offset="'+at+'" stop-color="'+c+'"/>').join('')+'</radialGradient>';
+ const grad=key=>'url(#'+uid+key+')';
+ const line='<path d="M7 82Q39 87 74 82" stroke="#61472e" opacity=".12" stroke-width="2" fill="none"/>';
+ let defs='',shape='';
+ if(theme==='strawberry'){
+  defs=gradient('fruit',[['0','#ffe19a'],['.16','#ff8072'],['.51','#ee3345'],['.82','#c91731'],['1','#8c2130']]);
+  defs+=gradient('leaf',[['0','#dcf4a4'],['.32','#71b64c'],['.78','#388246'],['1','#275d3c']]);
+  const seeds=[[24,36],[35,32],[46,34],[58,38],[19,45],[31,44],[44,45],[57,48],[24,55],[37,56],[51,57],[31,66],[44,67],[38,75]].map(([x,y],i)=>
+   '<ellipse cx="'+x+'" cy="'+y+'" rx="'+(i%3===0?1.6:1.2)+'" ry="2.15" transform="rotate('+(-22+i%6*8)+' '+x+' '+y+')" fill="#ffe9ab" stroke="#9f2b27" stroke-width=".38"/><path d="M'+(x+1)+' '+(y-3)+'l1 -1" stroke="#fff1cb" stroke-width=".7"/>').join('');
+  shape='<path d="M40 24C30 15 17 22 14 34C8 48 20 65 33 78Q39 86 46 79C62 67 74 48 66 33C62 23 49 16 40 24Z" fill="'+grad('fruit')+'" stroke="#8e2c31" stroke-width="1.8"/>'+
+   '<path d="M17 34C13 49 28 72 39 77" fill="none" stroke="#f9aba0" stroke-width="2.5" opacity=".7"/>'+
+   '<path d="M54 31Q67 47 52 68" fill="none" stroke="#8f2631" stroke-width="2.3" opacity=".42"/>'+
+   '<path d="M23 34C27 30 34 29 38 35C34 44 25 47 19 43Z" fill="#fff8dc" opacity=".2"/>'+
+   seeds+
+   '<path d="M40 23Q36 16 39 9" fill="none" stroke="#587443" stroke-width="4" stroke-linecap="round"/>'+
+   '<g fill="'+grad('leaf')+'" stroke="#317540" stroke-width="1.1"><path d="M39 23Q24 6 15 19Q19 30 39 26Z"/><path d="M40 23Q48 3 63 17Q60 28 40 26Z"/><path d="M40 23Q30 9 31 4Q41 6 44 22Z"/><path d="M40 24Q29 25 27 35Q38 34 42 25Z"/><path d="M42 24Q52 22 57 34Q43 33 40 26Z"/></g>'+
+   '<path d="M17 19Q29 20 38 24M62 18Q52 21 42 24M32 6Q39 16 41 23" fill="none" stroke="#d9e897" stroke-width="1.3" opacity=".83"/>';
+ }else if(theme==='bun'){
+  defs=gradient('bake',[['0','#fff7cc'],['.25','#e6b979'],['.57','#c6874e'],['.86','#99572e'],['1','#754124']]);
+  defs+=gradient('icing',[['0','#fff9d7'],['.68','#e6bc86'],['1','#b47449']]);
+  shape='<path d="M7 51Q8 19 31 16Q59 12 71 43Q78 66 53 77Q25 89 11 67Q6 58 7 51Z" fill="'+grad('bake')+'" stroke="#85512e" stroke-width="2.2"/>'+
+   '<path d="M14 50Q17 27 39 25Q58 24 65 42Q70 60 50 69Q32 77 21 64Q15 59 22 45Q29 32 44 37Q56 42 47 54Q42 60 35 54Q31 50 39 46" fill="none" stroke="#82502d" stroke-width="8" stroke-linecap="round" opacity=".9"/>'+
+   '<path d="M14 48Q19 30 37 28Q57 28 62 44Q62 58 48 64Q34 69 24 57Q22 48 34 41Q48 36 48 47Q47 54 41 52" fill="none" stroke="'+grad('icing')+'" stroke-width="5.8" stroke-linecap="round"/>'+
+   '<path d="M15 54Q24 77 46 74M16 45Q22 31 32 29" fill="none" stroke="#fff5cd" stroke-width="2.6" opacity=".73"/>'+
+   Array.from({length:11},(_,i)=>{const x=16+(i*19)%51,y=32+(i*31)%32;return '<circle cx="'+x+'" cy="'+y+'" r=".8" fill="#fff0c3" opacity=".79"/>';}).join('');
+ }else if(theme==='mushroom'){
+  defs=gradient('cap',[['0','#ffce9b'],['.16','#ed6c52'],['.55','#d63c3e'],['.85','#9a303a'],['1','#702b36']]);
+  defs+=gradient('stem',[['0','#fffdeb'],['.5','#e8d2ad'],['.85','#bea179'],['1','#9d7d65']]);
+  shape='<path d="M31 47Q34 61 27 75Q40 82 53 75Q45 61 49 47Z" fill="'+grad('stem')+'" stroke="#9a8068" stroke-width="1.5"/>'+
+   '<path d="M32 58Q36 66 33 76" stroke="#fff9e8" stroke-width="3" opacity=".7" fill="none"/>'+
+   '<path d="M7 49Q8 17 35 14Q62 9 74 49Q41 64 7 49Z" fill="'+grad('cap')+'" stroke="#8b3840" stroke-width="2.2"/>'+
+   '<path d="M10 49Q42 56 71 49Q49 63 22 56Z" fill="#d9bb8c" stroke="#aa8a67" stroke-width="1.5"/>'+
+   '<path d="M18 54L25 58M28 54L31 60M40 55L40 62M51 54L49 60M61 54L57 57" stroke="#8d7258" stroke-width="1.3"/>'+
+   '<g fill="#fff2d2" stroke="#deb995" stroke-width=".5"><ellipse cx="28" cy="29" rx="7" ry="5" transform="rotate(-18 28 29)"/><ellipse cx="48" cy="26" rx="6" ry="5" transform="rotate(15 48 26)"/><ellipse cx="58" cy="40" rx="6" ry="3.5"/><ellipse cx="21" cy="43" rx="5" ry="3.2"/></g>'+
+   '<path d="M16 36Q20 22 38 19" stroke="#fff6d8" stroke-width="3" fill="none" opacity=".52" stroke-linecap="round"/>';
+ }else if(theme==='apple'){
+  defs=gradient('apple',[['0','#fff0a4'],['.2','#ed8355'],['.5','#e4453f'],['.76','#bf2936'],['1','#7e2732']]);
+  defs+=gradient('apleaf',[['0','#eff5a5'],['.5','#77b34c'],['1','#356a3d']]);
+  shape='<path d="M39 26C24 17 11 30 12 45Q12 70 26 78Q34 83 41 79Q49 84 57 77C69 66 71 43 65 32Q58 19 41 26Z" fill="'+grad('apple')+'" stroke="#963f31" stroke-width="2"/>'+
+   '<path d="M20 36Q12 55 28 73" stroke="#fff0b1" stroke-width="3.2" opacity=".51" fill="none"/>'+
+   '<path d="M51 30Q63 40 56 61" stroke="#942632" stroke-width="3" opacity=".44" fill="none"/>'+
+   '<path d="M41 27Q39 14 45 8" stroke="#745337" stroke-width="4" stroke-linecap="round" fill="none"/>'+
+   '<path d="M42 17Q58 2 70 16Q65 30 43 23Z" fill="'+grad('apleaf')+'" stroke="#467244" stroke-width="1.2"/>'+
+   '<path d="M43 23Q57 16 68 15" fill="none" stroke="#e3eda1" stroke-width="1.3"/>'+
+   Array.from({length:12},(_,i)=>'<circle cx="'+(22+(i*13)%38)+'" cy="'+(38+(i*11)%34)+'" r=".7" fill="#ffecc3" opacity=".53"/>').join('');
+ }else if(theme==='treasure'){
+  defs=gradient('gem',[['0','#fff8e6'],['.16','#fff0b7'],['.47',pigment],['.8','#6471ae'],['1','#45466d']]);
+  shape='<path d="M9 30L24 11L56 12L71 29L43 76Z" fill="'+grad('gem')+'" stroke="#6d5672" stroke-width="2"/>'+
+   '<path d="M9 30H71L43 76Z" fill="#bba8ec" opacity=".18"/>'+
+   '<path d="M9 30L24 11L34 30L43 76L56 12L71 29M34 30H71M24 11H56" fill="none" stroke="#fff6e8" stroke-width="2" opacity=".83"/>'+
+   '<path d="M21 27L26 17L34 27L42 14" stroke="#fffdf3" stroke-width="2.5" opacity=".75" fill="none"/>';
+ }else if(theme==='train'){
+  defs=gradient('case',[['0','#ffe7ab'],['.3','#dd9b5e'],['.67',pigment],['1','#844b36']]);
+  shape='<rect x="10" y="23" width="61" height="50" rx="8" fill="'+grad('case')+'" stroke="#5c453a" stroke-width="2.5"/>'+
+   '<path d="M29 24V16Q41 8 53 16V24" fill="none" stroke="#684a32" stroke-width="6" stroke-linecap="round"/>'+
+   '<path d="M19 28V68M60 28V68" stroke="#e8c88e" stroke-width="5"/>'+
+   '<path d="M19 28V68M60 28V68" stroke="#9a623c" stroke-width="1.6"/>'+
+   '<rect x="26" y="38" width="29" height="23" rx="5" fill="#ffebc7" opacity=".18" stroke="#ffe7b2" stroke-width="1"/>'+
+   '<circle cx="40" cy="48" r="8" fill="#f6d6a1" stroke="#876148"/><path d="M35 48H46M40 43V53" stroke="#986643" stroke-width="1.5"/>'+
+   '<circle cx="23" cy="74" r="4" fill="#3b3d3e"/><circle cx="58" cy="74" r="4" fill="#3b3d3e"/>';
+ }else if(theme==='beach'){
+  defs=gradient('shell',[['0','#fffef1'],['.16','#ffd2b0'],['.45',pigment],['.76','#bc8ab4'],['1','#8d6479']]);
+  const ribs=[-3,-2,-1,0,1,2,3].map(k=>'<path d="M40 25Q'+(40+16*k)+' '+(27-Math.abs(k)*2)+' '+(40+7*k)+' 68" stroke="'+(k%2===0?'#fff7df':'#bb8590')+'" stroke-width="2.2" fill="none" opacity=".74"/>').join('');
+  shape='<path d="M40 12Q53 12 63 23Q76 39 69 65Q40 82 11 65Q5 39 18 23Q29 12 40 12Z" fill="'+grad('shell')+'" stroke="#a27e82" stroke-width="2"/>'+
+   '<path d="M11 62Q40 75 69 62" stroke="#fff5dd" stroke-width="3.2" fill="none"/>'+ribs+
+   '<ellipse cx="40" cy="65" rx="23" ry="5" fill="#e1ab9d" opacity=".47"/>';
+ }else if(theme==='farm'){
+  defs=gradient('egg',[['0','#fffdf0'],['.3','#ffedc7'],['.62','#e7cb99'],['.86','#c3a271'],['1','#a18160']]);
+  shape='<path d="M41 8C58 8 67 30 67 52C67 70 54 80 40 80C25 80 13 69 13 52C13 31 24 8 41 8Z" fill="'+grad('egg')+'" stroke="#ae9575" stroke-width="2"/>'+
+   '<path d="M26 21Q15 41 23 59" stroke="#fffdf4" stroke-width="5" fill="none" opacity=".72" stroke-linecap="round"/>'+
+   Array.from({length:19},(_,i)=>'<ellipse cx="'+(25+(i*13)%33)+'" cy="'+(26+(i*19)%41)+'" rx="'+(.7+i%3*.3)+'" ry=".9" fill="#a37e5a" opacity=".38"/>').join('');
+ }else if(theme==='aquarium'){
+  defs=gradient('fish',[['0','#fffbc9'],['.26','#fac66c'],['.55','#ef8151'],['.83','#e05947'],['1','#b44b44']]);
+  shape='<path d="M28 43L7 22L7 65Z" fill="#f1a65a" stroke="#a66e47" stroke-width="2"/>'+
+   '<path d="M26 35L44 12L52 33" fill="#df714a" stroke="#ad6545" stroke-width="1.8"/>'+
+   '<path d="M24 59L44 79L52 62" fill="#df714a" stroke="#ad6545" stroke-width="1.8"/>'+
+   '<path d="M18 44C19 19 65 17 72 43Q67 68 39 65Q21 62 18 44Z" fill="'+grad('fish')+'" stroke="#a46a48" stroke-width="2"/>'+
+   '<path d="M36 26L36 62M43 24L43 65" stroke="#fff2ce" stroke-width="5" opacity=".87"/>'+
+   '<circle cx="60" cy="39" r="6" fill="#fffdf3"/><circle cx="62" cy="39" r="3" fill="#453b35"/><circle cx="63" cy="38" r="1" fill="white"/>'+
+   '<path d="M62 52Q68 55 71 50" stroke="#a66c4d" stroke-width="1.5" fill="none"/>';
+ }else if(theme==='balloon'){
+  defs=gradient('balloon',[['0','#fff8ce'],['.22','#ffdc9d'],['.47',pigment],['.77','#bf5171'],['1','#754577']]);
+  shape='<path d="M40 8Q16 7 12 36Q11 61 40 73Q69 59 68 36Q65 8 40 8Z" fill="'+grad('balloon')+'" stroke="#936377" stroke-width="2"/>'+
+   '<path d="M24 24Q15 45 30 56" stroke="#fff9e8" stroke-width="6" opacity=".65" fill="none" stroke-linecap="round"/>'+
+   '<path d="M40 72L34 78H46Z" fill="#a86b53" stroke="#8e5b51" stroke-width="1"/>'+
+   '<path d="M40 79Q29 84 43 88" stroke="#96785b" stroke-width="1.5" fill="none"/>';
+ }
+ const rotation=(variant-2)*2.1;
+ return '<svg class="mp-pick-sprite mp-pick-story-object" viewBox="0 0 80 90" aria-hidden="true" focusable="false">'+
+  '<defs>'+defs+'</defs><g transform="rotate('+rotation+' 40 44)">'+line+shape+'</g></svg>';
 }
+
 function landscape(){
  const kind=w().scene;
  const colors={garden:['#b4dfdf','#91bf8a','#688f64'],orchard:['#c5e4c6','#91bc82','#638659'],farm:['#d3e8ce','#bdc88c','#7c9b66'],forest:['#b6ccae','#809c74','#426a58'],bakery:['#e9c8ab','#bb906d','#956a50'],treasure:['#9b9d99','#997761','#66574d'],train:['#b1e1e3','#a8c390','#6a9879'],beach:['#b5e6ec','#87c6cf','#f0dcaa'],aquarium:['#7ac8da','#4599b4','#276f91'],park:['#bfe3eb','#acd1ad','#6b9a75']}[kind];
