@@ -78,8 +78,8 @@
 #world-screen.active.atlas-perspective-on .atlas-region-nav::-webkit-scrollbar{display:none}
 #world-screen.active.atlas-perspective-on .atlas-region-nav button{
  flex:0 0 auto;
- min-height:38px;
- min-width:52px;
+ min-height:44px;
+ min-width:56px;
  padding:8px 12px;
  background:rgba(255,250,235,.95);
  color:#554329;
@@ -148,10 +148,10 @@
   border-radius:22px!important;
  }
  #world-screen.active.atlas-perspective-on .atlas-region-nav{
-  top:8px;left:7px;right:52px;gap:5px;min-height:44px;padding-bottom:5px;
+  top:7px;left:7px;right:52px;gap:5px;min-height:50px;padding-bottom:4px;
  }
  #world-screen.active.atlas-perspective-on .atlas-region-nav button{
-  min-height:36px;padding:7px 10px;font-size:11px;
+  min-height:44px;padding:10px 11px;font-size:11px;
  }
  #world-screen.active.atlas-perspective-on .globe-zoom{
   right:7px!important;gap:8px!important;
@@ -165,7 +165,7 @@
 }
 @media(max-height:640px){
  #world-screen.active.atlas-perspective-on .atlas-caption{display:none!important}
- #world-screen.active.atlas-perspective-on .atlas-region-nav button{min-height:34px}
+ #world-screen.active.atlas-perspective-on .atlas-region-nav button{min-height:44px}
 }
 @media(prefers-reduced-motion:reduce){
  #world-screen.active.atlas-perspective-on #atlas-canvas,
