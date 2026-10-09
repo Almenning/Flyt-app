@@ -1,6 +1,6 @@
 # Kloden: låst visuell referanse og v36-godkjenningsport
 
-**Status: IKKE GODKJENT for merge.** Dette dokumentet er en kontrollport, ikke en påstand om at den visuelle implementeringen er ferdig.
+**Status: v36 referanseillustrasjon implementert og desktop/iPhone/iPad-bilder kontrollert; oppdatert kontinentpalett avventer eksakt SHA-verifisering.**
 
 ## Visuell fasit
 
@@ -35,10 +35,17 @@ Brukerens skjermbilde fra 9. oktober viser faktisk v35-runtime. Det avviker tyde
 - Bevar kartmotor: `globe-v25-renderer.js`.
 - Eksisterende regressjon: `tests/laria-globe-visual-p18.playwright.js` samt `tests/laria-globe-motion.cjs`.
 
-**Status:** Visuell differanse identifisert og eksplisitt låst. Ingen ny bakgrunn er ennå produsert eller testet. PR holdes som draft.
+**Status:** Den fragmenterte SVG-bakgrunnen er forkastet. Tre helhetlige WebP-bakgrunner er implementert og verifisert visuelt i WebKit og Chromium. Original geografimotor og zoom er bevart. PR holdes som draft til oppdatert palett er godkjent i eksakt-head QA.
 
 ## v36 integrated art update
 
 The actual runtime uses `globe-storyscape-v36-landscape.webp`, `globe-storyscape-v36-tablet.webp` and `globe-storyscape-v36-mobile.webp`. These are clean, cohesive scenes without baked-in UI. A screenshot comparison from the exact branch is required before merge. The original live geographic renderer and gesture handlers have not been edited.
 
 For v36 release, all four exact-head workflows (QA, native iOS, Prompt 18 audit and smoke) must pass on the same commit; interactive geography and non-stretched backgrounds are independently asserted.
+
+## Foreløpig skjermbildekontroll (v36)
+
+- WebKit desktop 1525x864: sammenhengende eventyrbakgrunn med treverk, fossefall, slott, trær og kompass; én rund interaktiv klode; alle kontroller tilgjengelige.
+- WebKit iPhone 390x844: separat portrettillustrasjon, rund klode, synlig zoompar og landkort, ingen utstrekking.
+- WebKit iPad portrett og landskap: separat illustrasjonsvariant og ingen geometri-/kontrollkollisjon.
+- Identifisert avvik ved v36 første visuelle test: jordfarget Europa/Afrika. Rettet med referansepalett i `globe-v25-renderer.js`. Krever ny visuell kontroll.
