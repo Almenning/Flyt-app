@@ -120,7 +120,7 @@ function dispatch(target){
  if(type==='view')changed=go('view',{view:target.dataset.view},false);
  else if(type==='world')changed=go('world',{world:target.dataset.world});
  else if(type==='mission'){zoomGroup=null;changed=go('mission',{id:target.dataset.id});}
- else if(type==='selectMove'||(type==='take'&&state.moveMode))changed=go('selectMove',{group:index,token},false);
+ else if(type==='selectMove'||(type==='take'&&state.moveMode)){changed=go('selectMove',{group:index,token},false);if(changed)zoomGroup=null;}
  else if(type==='moveTarget'){if(state.moveFrom!==null)changed=go('move',{group:state.moveFrom,to:index,token:state.moveToken});}
  else if(['take','return','empty'].includes(type))changed=go(type,{group:index,token});
  else if(['takeEach','newGroup','check'].includes(type))changed=go(type);
