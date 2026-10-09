@@ -1,6 +1,12 @@
 name: Laria Prompt 18 content audit
 
 on:
+  push:
+    branches: [fix/laria-globe-locked-scenery-v36]
+    paths:
+      - 'laer-litt-mer/**'
+      - 'tests/**'
+      - '.github/workflows/laria-p18-content-audit.yml'
   pull_request:
     branches: [main]
     paths:

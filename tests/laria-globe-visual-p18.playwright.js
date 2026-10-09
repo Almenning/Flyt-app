@@ -86,7 +86,7 @@ async function capture(browserType,label,viewport){
     await page.waitForTimeout(650);
     const sceneName=viewport.width>viewport.height&&viewport.width>=900?'landscape':viewport.width>=700?'tablet':'mobile';
     const backgroundImage=await page.evaluate(()=>getComputedStyle(document.getElementById('world-screen')).backgroundImage);
-    assert.ok(backgroundImage.includes('globe-environment-v35-'+sceneName+'.svg'),label+' did not load the correct illustrated nature scene: '+backgroundImage);
+    assert.ok(backgroundImage.includes('globe-storyscape-v36-'+sceneName+'.webp'),label+' did not load the correct illustrated nature scene: '+backgroundImage);
     assert.ok(!backgroundImage.includes('basecamp-v11'),label+' incorrectly shows fantasy village behind globe');
     // Prevent the old unified globe plaque/fox pseudos from painting a gold
     // vertical seam through the locked landscape in any device configuration.
@@ -114,7 +114,8 @@ async function capture(browserType,label,viewport){
       const statusBox=document.querySelector('.globe-status')?.getBoundingClientRect();
       return {
         screen:{w:screen.width,h:screen.height},
-        canvas:{w:canvas.width,h:canvas.height,opacity:Number(getComputedStyle(canvasEl).opacity||1)},
+        canvas:{w:canvas.width,h:canvas.height,opacity:Number(getComputedStyle(canvasEl).opacity||1),
+          bitmapW:canvasEl.width,bitmapH:canvasEl.height,dpr:canvasEl._dpr||1},
         mode:{w:mode.width,h:mode.height},
         back:{w:back.width,h:back.height},
         zoomIn:{w:zoomIn.width,h:zoomIn.height},
@@ -181,7 +182,7 @@ async function capture(browserType,label,viewport){
     assert.ok(readability.fonts.length>=2,label+' missing visible country facts');
     assert.ok(readability.fonts.every(v=>v>=minimumFactSize),label+' country facts are too small: '+JSON.stringify(readability));
     assert.ok(readability.allWithinCard,label+' country facts overflow their card');
-    assert.ok(readability.scene.includes('globe-environment-v35-'),label+' old landscape still visible');
+    assert.ok(readability.scene.includes('globe-storyscape-v36-'),label+' old landscape still visible');
     if(label==='webkit-desktop-landscape'){
       const canvasBox=await page.locator('#globe-canvas').boundingBox();
       const cx=canvasBox.x+canvasBox.width*.55,cy=canvasBox.y+canvasBox.height*.55;
@@ -203,6 +204,12 @@ async function capture(browserType,label,viewport){
     const minGlobeWidth=viewport.width<600?viewport.width*.84:(viewport.width>viewport.height?viewport.height*.52:viewport.width*.68);
     assert.ok(metrics.canvas.w+0.75>=minGlobeWidth,label+' globe too narrow for locked composition: '+metrics.canvas.w+' < '+minGlobeWidth);
     assert.ok(metrics.canvas.h>=300,label+' globe too short: '+metrics.canvas.h);
+    // A round globe is non-negotiable: CSS and backing bitmap must use the
+    // same proportions on iPhone, iPad and landscape desktop Safari.
+    assert.ok(Math.abs(metrics.canvas.w-metrics.canvas.h)<=1,
+      label+' globe has been visually stretched: '+JSON.stringify(metrics.canvas));
+    assert.ok(Math.abs(metrics.canvas.bitmapW/metrics.canvas.bitmapH-metrics.canvas.w/metrics.canvas.h)<.01,
+      label+' canvas bitmap ratio disagrees with CSS globe ratio: '+JSON.stringify(metrics.canvas));
     assert.ok(metrics.back.h>=44,label+' globe back control below 44px');
     assert.ok(metrics.mode.h>=44,label+' globe mode control below 44px');
     assert.ok(metrics.zoomIn.h>=44&&metrics.zoomIn.w>=44,label+' zoom-in control below 44px');
@@ -253,7 +260,7 @@ async function capture(browserType,label,viewport){
   const {s,url}=await server();globalThis.__url=url;
   try{
     const rendererSource=fs.readFileSync(path.join(root,'globe-v25-renderer.js'),'utf8');
-    for(const token of ["'Europa':'#6D9E50'","'Asia':'#879A50'","'Afrika':'#B9784F'","'Nord-Amerika':'#57934F'","'Sør-Amerika':'#3D8B50'"]){
+    for(const token of ["'Europa':'#316FE0'","'Asia':'#E6B544'","'Afrika':'#E87455'","'Nord-Amerika':'#4DAD60'","'Sør-Amerika':'#319F58'"]){
       assert.ok(rendererSource.includes(token),'locked natural-atlas base drift: '+token);
     }
     assert.ok(rendererSource.includes('paintPolarLand(ctx,w,h,s);'),'locked globe polar treatment missing');

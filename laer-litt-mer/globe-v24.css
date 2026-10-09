@@ -1474,3 +1474,22 @@ html:has(#world-screen.active){
     min-height:24px!important;
   }
 }
+
+/* v36 unified storybook landscape: real illustration without a second globe.
+   Background images use native aspect ratio and are cropped, never stretched. */
+#world-screen.active.globe-v30{
+ background-image:url('./globe-storyscape-v36-landscape.webp?v=36b')!important;
+ background-size:cover!important;
+ background-position:center center!important;
+}
+@media(orientation:portrait){
+ #world-screen.active.globe-v30{
+   background-image:url('./globe-storyscape-v36-mobile.webp?v=36b')!important;
+   background-position:center center!important;
+   background-size:cover!important;
+ }
+}
+
+@media(orientation:portrait) and (min-width:700px){
+ #world-screen.active.globe-v30{background-image:url('./globe-storyscape-v36-tablet.webp?v=36b')!important}
+}

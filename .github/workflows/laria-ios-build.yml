@@ -3,7 +3,7 @@ name: Laria iOS build
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    branches: [main, fix/laria-globe-locked-scenery-v36]
     paths:
       - 'laer-litt-mer/**'
       - 'laria-native/**'
