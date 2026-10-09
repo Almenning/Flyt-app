@@ -45,3 +45,17 @@ Godkjent visuelt prinsipp fra illustrasjonene: varme, tredimensjonale eventyrmil
 - Bytte av motiv endrer aldri regnestykke, svar, stjerner eller lagret fremgang.
 - Bruk reelle SVG-elementer som skalerer på iPhone og iPad. Behold 10 × 10-tabellen først i Utforsk.
 - Ny visuell kvalitet skal gjennomgås opp mot referanseillustrasjonene, ikke godkjennes bare fordi testene er grønne.
+
+
+## Premium visuell kvalitetsport v4 (9. oktober 2026)
+
+Dette er implementeringskontrakten for de låste referanseillustrasjonene fra samtalen:
+- **3 × 10 på iPhone og iPad** skal vise tre like grupper i **én rad**, med to tellbare rader à fem objekter i hver beholder. Ikke to grupper øverst og én alene nederst.
+- Jordbær og epler: dybde, flettet kurv, håndtak, naturdetaljer og et avgrenset antall tydelige frukter. Boller: grunne bakerbrett med rutet lin. Eventyrsopper: mose- og trepregede kasser. Ingen identiske kasser uansett motiv.
+- Kremfarget oppgavekort, varmt naturlandskap og diskré, ikke forstyrrende dekor. Hver gjenstand er en ekte interaktiv DOM-illustrasjon, ikke del av et statisk bilde som viser feil antall.
+- Temaene skal kunne velges uten at regnestykket endres. Valgfrie ulike illustrasjoner varierer automatisk mellom oppgavene.
+- Dybde består av adskilte illustrasjonslag (bakre håndtak, liner, tellbare objekter, front av kurv, blomster og nummerplate). Dette må kontrolleres i faktisk Safari-skjermbilde.
+- Oppgavenes tall og svar knyttes aldri til selve illustrasjonsfilen. Ingen ekstra frukter eller objekter i dekorative miljølag.
+- Test på iPhone og iPad i Safari og Chromium: eksakt 3 × 10-geometri, antall synlige objekter, 44 px+ trykkflater, full 10 × 10-tabell først under Utforsk, beholdt progresjon og fravær av sideveis overflow.
+
+**Kvalitetserklæring:** Automatiske grønne tester bekrefter funksjon, tilgjengelighet og layoutkrav, men ikke fotografisk/pikselmessig identitet med konseptillustrasjonen. Avvik skal opplyses eksplisitt og ikke skjules bak «premium»-navnet.
