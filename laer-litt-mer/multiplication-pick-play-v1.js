@@ -56,6 +56,28 @@ function missions(){
  return '<div class="mp-pick-mission-panel"><div class="mp-pick-labelrow"><b>Små oppdrag</b><small>Ingen tidtaking eller feilstraff</small></div><div class="mp-pick-mission-grid" role="group" aria-label="Velg oppdrag">'+E.MISSIONS.map((m,i)=>'<button type="button" data-mp-action="pick-play" data-pick-action="mission" data-id="'+m.id+'" class="mp-pick-mission'+(state.mission===m.id?' selected':'')+'" aria-pressed="'+(state.mission===m.id)+'"><span aria-hidden="true">'+['✦','✧','★','✳'][i]+'</span>'+m.title+'</button>').join('')+'</div>'+
  (state.mission?'<div class="mp-pick-mission-detail"><div><b>'+esc(E.MISSIONS.find(x=>x.id===state.mission).title)+'</b><p>'+esc(E.MISSIONS.find(x=>x.id===state.mission).prompt)+'</p>'+(state.mission==='twoWays'?'<small>Oppdaget: '+state.found.length+' av 2 måter</small>':'')+'</div><button type="button" data-mp-action="pick-play" data-pick-action="check" class="mp-pick-check">Sjekk</button></div>':'')+'</div>';
 }
+function representations(){
+ const views=[['groups','Grupper'],['rows','Rader'],['numberline','Tallinje'],['circle','Sirkel']];
+ const mode=E.VIEWS.includes(state.view)?state.view:'groups',total=E.total(state);
+ let illustration='';
+ if(mode==='rows'){
+  illustration='<div class="mp-pick-rows">'+state.counts.map((n,g)=>'<div class="mp-pick-row"><span>Gruppe '+(g+1)+'</span><div class="mp-pick-row-dots" aria-label="'+n+' gjenstander">'+Array.from({length:n},()=>'<i class="mp-pick-mini-dot" aria-hidden="true"></i>').join('')+'</div><strong>'+n+'</strong></div>').join('')+'</div>';
+ }else if(mode==='circle'){
+  illustration='<div class="mp-pick-circles">'+state.counts.map((n,g)=>'<div class="mp-pick-circle-card"><strong>Gruppe '+(g+1)+'</strong><div class="mp-pick-circle" aria-label="'+n+' i sirkel">'+(n?Array.from({length:n},(_,i)=>{const angle=2*Math.PI*i/n-Math.PI/2;return '<i class="mp-pick-circle-dot" style="left:'+(50+36*Math.cos(angle)).toFixed(2)+'%;top:'+(50+36*Math.sin(angle)).toFixed(2)+'%" aria-hidden="true"></i>';}).join(''):'<span class="mp-pick-circle-empty">Tom</span>')+'</div><span>'+n+' i gruppen</span></div>').join('')+'</div>';
+ }else if(mode==='numberline'){
+  let accumulated=0;
+  const segments=state.counts.map((n,g)=>{
+   const start=30+540*accumulated/Math.max(1,total);accumulated+=n;
+   const end=30+540*accumulated/Math.max(1,total),mid=(start+end)/2;
+   return n?'<path d="M'+start.toFixed(1)+' 100 Q'+mid.toFixed(1)+' '+(24-5*(g%2))+' '+end.toFixed(1)+' 100" stroke="'+['#a76542','#66875a','#d99d52','#628b96','#9270a4'][g%5]+'" stroke-width="4" stroke-linecap="round" fill="none"/><path d="M'+(end-7).toFixed(1)+' 90L'+end.toFixed(1)+' 100L'+(end-10).toFixed(1)+' 104" stroke="#765b42" stroke-width="3" stroke-linecap="round" fill="none"/><text x="'+mid.toFixed(1)+'" y="'+(36-5*(g%2))+'" text-anchor="middle" fill="#5e4031" font-weight="900" font-size="20">+'+n+'</text>':
+    '<text x="'+start.toFixed(1)+'" y="81" text-anchor="middle" fill="#836856" font-size="13">+0</text>';
+  }).join('');
+  illustration='<svg class="mp-pick-numberline" role="img" aria-label="Tallinje fra 0 til '+total+' med hopp på '+state.counts.join(', ')+'" viewBox="0 0 600 143"><path d="M20 100H586" stroke="#594e41" stroke-width="3" fill="none"/><path d="M586 100l-13-7v14z" fill="#594e41"/>'+segments+'<path d="M30 93V107M570 93V107" stroke="#594e41" stroke-width="3"/><text x="30" y="131" text-anchor="middle" font-size="20" font-weight="900" fill="#4f3428">0</text><text x="570" y="131" text-anchor="middle" font-size="20" font-weight="900" fill="#4f3428">'+total+'</text></svg>';
+ }else{
+  illustration='<div class="mp-pick-group-summary">'+state.counts.map((n,g)=>'<div class="mp-pick-summary-tile"><span aria-hidden="true">'+sprite(w().id,900+g)+'</span><b>Gruppe '+(g+1)+'</b><strong>'+n+'</strong></div>').join('')+'</div>';
+ }
+ return '<div class="mp-pick-representations"><div class="mp-pick-labelrow"><b>Se tallene på flere måter</b><small>Samme mengde, ulik visning</small></div><div class="mp-pick-view-switch" role="group" aria-label="Vis på ulike måter">'+views.map(([id,label])=>'<button type="button" data-mp-action="pick-play" data-pick-action="view" data-view="'+id+'" aria-pressed="'+(mode===id)+'" class="'+(mode===id?'selected':'')+'">'+label+'</button>').join('')+'</div><div class="mp-pick-visualization" data-math-view="'+mode+'">'+illustration+'</div></div>';
+}
 function render(){
  const eq=E.equation(state),picked=w(),sum=E.total(state);
  return '<section class="mp-pick-screen" data-pick-world="'+picked.id+'" data-pick-scene="'+picked.scene+'"><header class="mp-pick-heading"><span class="mp-pick-kicker">LÆRIA · UTFORSK OG LEK</span><h2>Plukk og tell</h2><p>Her er det du som styrer! Plukk, flytt og oppdag sammenhenger.</p></header>'+
@@ -64,6 +86,7 @@ function render(){
  groups()+
  '<div class="mp-pick-collection"><span class="mp-pick-collection-art" aria-hidden="true">'+(state.pool.length?state.pool.slice(-9).map(token=>sprite(picked.id,token)).join(''):'<span class="mp-pick-blank-icon">✧</span>')+'</span><div><strong>Samlekurven</strong><small>Her havner alt du plukker</small></div><b class="mp-pick-collected">'+state.collected+'</b></div></div></div>'+
  '<div class="mp-pick-main-actions"><button type="button" data-mp-action="pick-play" data-pick-action="takeEach" '+(sum===0?'disabled':'')+'>− Én fra hver</button><button type="button" data-mp-action="pick-play" data-pick-action="moveMode" aria-pressed="'+state.moveMode+'" class="'+(state.moveMode?'selected':'')+'">'+(state.moveMode?'Avslutt flytting':'⇄ Flytt mellom')+'</button><button type="button" data-mp-action="pick-play" data-pick-action="newGroup" '+(state.counts.length>=E.MAX_GROUPS?'disabled':'')+'>+ Ny kurv</button></div>'+
+ representations()+
  '<div class="mp-pick-secondary-actions"><button type="button" data-mp-action="pick-play" data-pick-action="undo" '+(!past.length?'disabled':'')+'>↶ Angre</button><button type="button" data-mp-action="pick-play" data-pick-action="redo" '+(!future.length?'disabled':'')+'>↷ Gjør om</button><button type="button" data-mp-action="pick-play" data-pick-action="read">🔊 Les opp</button><button type="button" data-mp-action="pick-play" data-pick-action="reset">Start på nytt</button></div>'+
  '<div class="mp-pick-feedback'+(state.success?' success':'')+'" role="status" aria-live="polite">'+esc(state.message||'Trykk på en gjenstand eller på − 1 under en kurv.')+'</div>'+
  '<div class="mp-pick-explanation">'+(state.moveMode?(state.moveFrom===null?'Trykk på en gjenstand. Velg deretter kurven den skal flyttes til.':'Nå kan du trykke «Hit» i en annen kurv.'):(eq.equal?'Like grupper! Derfor kan vi bruke et gangestykke.':'Ulike grupper! Se hvordan vi kan regne med minus eller pluss.'))+'</div>'+
@@ -73,7 +96,8 @@ function dispatch(target){
  if(Date.now()<suppressUntil)return true;
  const type=target?.dataset?.pickAction||'',index=Number(target?.dataset?.group),token=target?.dataset?.token===undefined?null:Number(target.dataset.token);
  let changed=false;
- if(type==='world')changed=go('world',{world:target.dataset.world});
+ if(type==='view')changed=go('view',{view:target.dataset.view},false);
+ elseif(type==='world')changed=go('world',{world:target.dataset.world});
  else if(type==='mission')changed=go('mission',{id:target.dataset.id});
  else if(type==='selectMove'||(type==='take'&&state.moveMode))changed=go('selectMove',{group:index,token},false);
  else if(type==='moveTarget'){if(state.moveFrom!==null)changed=go('move',{group:state.moveFrom,to:index,token:state.moveToken});}
