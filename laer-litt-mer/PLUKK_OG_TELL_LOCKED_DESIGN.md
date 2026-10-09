@@ -77,3 +77,14 @@ Implementering skjer uten endring i den rene matematiske modellen.
 - Handlingene («−1», «+1», «Tøm kurv») står **nedenfor** den fysiske illustrasjonen på egen rad; berøringsfelter skal ikke dekke objektene eller antallsskiltet. Hovedkontroller skal være minst 44 CSS-piksler høye.
 - Karakter, materialer, lys og dybde skal brukes til å forbedre lesbarhet og lyst til å utforske, ikke til å dekorere med ekstra jordbær/sopper/boller som barnet feilaktig ville telle.
 - Screenshots fra Safari og Chromium for alle verdenene sammenlignes med de låste bildene før den kunstneriske premium-godkjenningen. Grønn automatisk test alene er **ikke** bevis på en eksakt illustrasjonsmatch.
+
+
+## Presis plukking på smale skjermer, premium nærvisning
+
+Lås følgende som en del av den godkjente plukk-og-flytt-retningen:
+- De tre fysisk adskilte kurvene skal fortsatt stå på **én rad** i oversikten ved 3 × 10.
+- Barnet skal i tillegg kunne åpne **Se større** på en bestemt kurv. Den nærvisningen er en optisk forstørrelse av **den samme gruppen**, ikke et nytt antall gjenstander.
+- Minst 44 CSS-piksler per trykkflate for hver gjenstand i nærvisningen på iPhone, med individuell tastaturfokus og lesbare norske navn.
+- Nærvisningen viser nøyaktig de samme stabile objektidentitetene. Plukk, flytt, samlekurv og angre må fortsette å være matematisk korrekte.
+- En tydelig knapp lukker nærvisningen. Escape og tastaturfokus skal fungere. Valg av en gjenstand for flytting lukker nærvisningen slik at mottakerkurv kan velges.
+- Dette er en tilgjengelighets- og interaksjonsforbedring. Kunstnerisk likhet med de låste bildene må fortsatt vurderes separat.
