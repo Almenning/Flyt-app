@@ -37,7 +37,7 @@ function render(a,b,theme='strawberry'){
  const item=THEMES.find(t=>t.id===theme);
  let html='<div class="mp-apples mp3-collections" data-mp3-theme="'+theme+'" data-mp3-groups="'+a+'" data-mp3-each="'+b+'" role="group" aria-label="'+a+' grupper med '+b+' '+item.item+' i hver">';
  for(let g=0;g<a;g++){
-  html+='<div class="mp-apple-basket mp3-basket" role="group" aria-label="Gruppe '+(g+1)+': '+b+' '+item.item+'"><span class="mp3-leaf-ornament" aria-hidden="true">❧</span><div class="mp-apple-fruits mp3-fruits" style="--mp3-cols:'+Math.min(5,b)+'">';
+  html+='<div class="mp-apple-basket mp3-basket" role="group" aria-label="Gruppe '+(g+1)+': '+b+' '+item.item+'"><span class="mp3-leaf-ornament" aria-hidden="true">❧</span><div class="mp-apple-fruits mp3-fruits" style="--mp3-cols:'+(b>=9?5:b>=5?3:b===4?2:b)+'">';
   for(let n=0;n<b;n++)html+='<span class="mp-apple mp3-item" role="img" aria-label="'+item.singular+'">'+sprite(theme,g*10+n)+'</span>';
   html+='</div><span class="mp-basket-number">'+(g+1)+'</span></div>';
  }
