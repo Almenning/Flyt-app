@@ -29,6 +29,7 @@ async function run(browser,engine,label,viewport,url){
   assert.deepEqual((await snapshot(page)).counts,[3,3]);
   assert.match(await page.locator('.mp-pick-equation').innerText(),/2 × 3 = 6/);
   assert.equal(await page.locator('.mp-pick-big-total').innerText(),'6');
+  assert.equal(await page.locator('.mp-pick-easy-feedback').count(),0,'one short fox instruction is enough before first pick');
   assert.equal(await page.locator('.mp-pick-world-btn').count(),0,'the ten-world picker must not overwhelm children');
   assert.equal(await page.locator('.mp-pick-mission').count(),0,'the four missions must be opt-in');
   assert.equal(await page.locator('.mp-pick-view-switch').count(),0,'extra mathematical views are opt-in');
@@ -43,6 +44,7 @@ async function run(browser,engine,label,viewport,url){
   await page.locator('.mp-pick-vessel[data-group="0"] .mp-pick-object[data-token="'+firstToken+'"]').click();
   assert.deepEqual((await snapshot(page)).counts,[2,3]);
   assert.equal(await page.locator('.mp-pick-big-total').innerText(),'5');
+  assert.match(await page.locator('.mp-pick-easy-feedback').innerText(),/5 igjen/,'feedback appears only after the child acts');
   assert.equal(await page.locator('.mp-pick-object[data-token="'+firstToken+'"]').count(),0);
   await page.locator('[data-pick-action="undo"]').click();
   assert.deepEqual((await snapshot(page)).counts,[3,3]);
