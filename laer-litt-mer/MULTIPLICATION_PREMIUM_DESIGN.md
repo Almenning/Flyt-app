@@ -59,3 +59,6 @@ Dette er implementeringskontrakten for de låste referanseillustrasjonene fra sa
 - Test på iPhone og iPad i Safari og Chromium: eksakt 3 × 10-geometri, antall synlige objekter, 44 px+ trykkflater, full 10 × 10-tabell først under Utforsk, beholdt progresjon og fravær av sideveis overflow.
 
 **Kvalitetserklæring:** Automatiske grønne tester bekrefter funksjon, tilgjengelighet og layoutkrav, men ikke fotografisk/pikselmessig identitet med konseptillustrasjonen. Avvik skal opplyses eksplisitt og ikke skjules bak «premium»-navnet.
+
+### Sluttpolering av lesbarhet
+På smale skjermer vises «Sopper» i motivvelgeren, med «Velg eventyrsopper» som tilgjengelig navn. Resultatplaten skal bruke mørk brun tekst på lys krem/gull med testet kontrast på minst 7:1 for både regnestykke og svar, uten at tall, antall illustrerte objekter eller 10 × 10-tabellen endres. Et faktisk Safari-skjermbilde skal bekrefte begge deler.
