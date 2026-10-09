@@ -190,6 +190,7 @@ async function run(browser,engine,label,viewport,url){
   assert.match(await page.locator('.mp-pick-equation').innerText(),/8 \+ 10 \+ 9 = 27/);
   const worlds=['strawberry','bun','mushroom','apple','treasure','train','beach','farm','aquarium','balloon'];
   const vesselFamilies=new Map(),nearviewFamilies=new Map();
+  const worldPropNames={strawberry:['Kurv','i kurven'],bun:['Brett','på brettet'],mushroom:['Kasse','i kassen'],apple:['Fruktkasse','i fruktkassen'],treasure:['Kiste','i kisten'],train:['Vogn','på vognen'],beach:['Bøtte','i bøtten'],farm:['Reir','i reiret'],aquarium:['Glasskar','i glasskaret'],balloon:['Stativ','på stativet']};
   assert.equal(await page.locator('link[href*="multiplication-pick-vessels-v6.css"]').count(),1,'ten world-specific vessel silhouettes must be loaded');
   assert.equal(await page.locator('link[href*="multiplication-pick-closeup-v7.css"]').count(),1,'the physical near-view parity layer must be loaded');
   for(const world of worlds){
@@ -214,6 +215,15 @@ async function run(browser,engine,label,viewport,url){
       assert.equal(await page.locator('.mp-pick-zoom-landscape svg.mp-pick-storyscape').count(),1,
         label+' '+world+' needs its actual environment in closeup');
       assert.equal(await page.locator('.mp-pick-zoom-item').count(),10,label+' '+world+' near view must show the same ten countable items');
+      const expectedProp=worldPropNames[world];
+      assert.ok(expectedProp,label+' missing prop name for '+world);
+      const groupName=await page.locator('.mp-pick-vessel[data-group="1"]').getAttribute('aria-label');
+      assert.ok(groupName.startsWith(expectedProp[0]+' 2:'),label+' '+world+' group has wrong screen-reader name: '+groupName);
+      const zoomTitle=await page.locator('.mp-pick-zoom-top strong').innerText();
+      assert.ok(zoomTitle.startsWith(expectedProp[0]+' 2 · 10 '),label+' '+world+' has wrong near-view title: '+zoomTitle);
+      assert.equal(await page.locator('.mp-pick-zoom-footer b').innerText(),'10 '+expectedProp[1],label+' '+world+' footer must name its physical container');
+      const itemName=await page.locator('.mp-pick-zoom-item').first().getAttribute('aria-label');
+      assert.ok(itemName.endsWith('fra '+expectedProp[0].toLowerCase()+' 2'),label+' '+world+' item should name its container for screen readers');
       const nearviewFront=await page.locator('.mp-pick-zoom-vessel-front').evaluate(el=>getComputedStyle(el).backgroundImage);
       nearviewFamilies.set(world,nearviewFront);
       const closeupSizes=await page.locator('.mp-pick-zoom-item').evaluateAll(els=>els.map(el=>Math.min(el.getBoundingClientRect().width,el.getBoundingClientRect().height)));
