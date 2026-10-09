@@ -78,10 +78,18 @@ function representations(){
  }
  return '<div class="mp-pick-representations"><div class="mp-pick-labelrow"><b>Se tallene på flere måter</b><small>Samme mengde, ulik visning</small></div><div class="mp-pick-view-switch" role="group" aria-label="Vis på ulike måter">'+views.map(([id,label])=>'<button type="button" data-mp-action="pick-play" data-pick-action="view" data-view="'+id+'" aria-pressed="'+(mode===id)+'" class="'+(mode===id?'selected':'')+'">'+label+'</button>').join('')+'</div><div class="mp-pick-visualization" data-math-view="'+mode+'">'+illustration+'</div></div>';
 }
+function zoomSprite(theme,token){
+ // The overview and closeup show the same object. Give each SVG paint server
+ // its own DOM ID so WebKit does not resolve two gradients with one identifier.
+ const source=sprite(theme,token);
+ const paintId=['strawberry','bun','mushroom','apple'].includes(theme)
+  ?'mp3-'+theme+'-'+token:'mpPick'+theme+token;
+ return source.replaceAll(paintId,paintId+'-closeup');
+}
 function closeup(){
  if(zoomGroup===null||!state.itemIds[zoomGroup])return '';
  const group=zoomGroup,picked=w(),count=state.counts[group];
- const objects=state.itemIds[group].map((token,i)=>'<button type="button" class="mp-pick-zoom-item" data-mp-action="pick-play" data-pick-action="'+(state.moveMode?'selectMove':'take')+'" data-group="'+group+'" data-token="'+token+'" aria-label="'+(state.moveMode?'Velg for å flytte':'Plukk')+' '+esc(picked.unit)+' '+(i+1)+' fra den forstørrede kurven">'+sprite(picked.id,token)+'</button>').join('');
+ const objects=state.itemIds[group].map((token,i)=>'<button type="button" class="mp-pick-zoom-item" data-mp-action="pick-play" data-pick-action="'+(state.moveMode?'selectMove':'take')+'" data-group="'+group+'" data-token="'+token+'" aria-label="'+(state.moveMode?'Velg for å flytte':'Plukk')+' '+esc(picked.unit)+' '+(i+1)+' fra den forstørrede kurven">' + zoomSprite(picked.id,token)+'</button>').join('');
  return '<div class="mp-pick-zoom-overlay" data-group="'+group+'"><button type="button" class="mp-pick-zoom-backdrop" data-mp-action="pick-play" data-pick-action="zoomClose" tabindex="-1" aria-label="Lukk nærvisning"></button>'+
  '<section class="mp-pick-zoom-dialog" role="dialog" aria-modal="true" aria-label="Forstørret kurv '+(group+1)+'"><header class="mp-pick-zoom-top"><div><small>NÆRVISNING · SAMME KURV</small><strong>Kurv '+(group+1)+' · '+count+' '+esc(picked.object)+'</strong></div><button type="button" class="mp-pick-zoom-close" data-mp-action="pick-play" data-pick-action="zoomClose" aria-label="Lukk nærvisning">✕ Lukk</button></header>'+
  '<p class="mp-pick-zoom-help">Trykk på en gjenstand for å plukke den. Tallet oppdateres med én gang.</p>'+
