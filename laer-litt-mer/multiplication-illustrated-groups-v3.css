@@ -1,0 +1,52 @@
+/* Læria illustrated groups: tactile 2.5D bakery and garden artwork.
+   Always reserve an actual DOM object for every countable item. */
+.mp-task-scene{background:linear-gradient(164deg,#fff9ec,#f9ead2 54%,#e2ebd0)}
+.mp-task-wood{padding-block:18px 15px;border-radius:24px;border:3px solid #fff8ee;box-shadow:0 6px 0 #d4b08480,0 12px 16px #936e4533;background:repeating-linear-gradient(179deg,#b78b4510 0px,#b78b4510 1px,transparent 2px,transparent 19px),linear-gradient(#fff9eb,#fce8c7)}
+.mp-task-apples{max-height:none;overflow:visible;isolation:isolate;background:linear-gradient(180deg,#fff8e839,#e4edc72b),url('./matte-verden.png') center 63%/cover no-repeat}
+.mp-task-apples:before{content:"";position:absolute;z-index:0;inset:0;pointer-events:none;border-radius:inherit;background:linear-gradient(180deg,#fff8e6a6,#fffaf134 36%,#fff9e129 65%,#cfe8cf55)}
+.mp3-picker{position:relative;z-index:2;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));width:100%;align-items:stretch;gap:7px;padding:12px 8px 8px;background:linear-gradient(180deg,#fff9edd9,#fffcf194);border-radius:17px}
+.mp3-picker>span{grid-column:1/-1;width:100%;font-size:13px;font-weight:950;text-align:center;color:#633d2a}
+.mp3-theme{display:grid;grid-template-rows:35px auto;place-items:center;align-content:center;gap:2px;min-width:0;padding:6px 4px;min-height:64px;border:2px solid #fff7e8;border-radius:15px;background:linear-gradient(#fffdf2,#f2dfc5);font-size:12px!important;font-weight:900!important;color:#68412f!important;box-shadow:0 4px 0 #c6a681,0 7px 10px #76502a28}
+.mp3-theme.active{background:linear-gradient(#f6f8df,#e1eebf);border-color:#82aa72;box-shadow:0 2px 0 #82aa75,0 5px 10px #607f4433}
+.mp3-theme:focus-visible{outline:3px solid #2b769c;outline-offset:3px}
+.mp3-theme-art{width:34px;height:34px;display:grid;place-items:center}
+.mp3-theme-art .mp3-object{width:34px;height:34px;filter:drop-shadow(0 2px 2px #63432d50)}
+.mp3-theme>span:last-child{text-align:center;line-height:1.17;white-space:normal;overflow-wrap:anywhere}
+.mp3-collections{display:grid;position:relative;z-index:1;grid-template-columns:repeat(auto-fit,minmax(min(100%,165px),1fr));align-items:stretch;justify-items:center;gap:24px 14px;padding:28px 15px 36px;max-width:820px;width:100%;margin:auto}
+.mp3-collections[data-mp3-groups="1"]{grid-template-columns:minmax(0,235px);justify-content:center}
+.mp3-basket{position:relative;isolation:isolate;width:100%;min-width:0;max-width:236px;height:auto;min-height:136px;display:flex;align-items:center;justify-content:center;padding:17px 11px 34px;border:6px solid #ad7346;border-bottom:11px solid #905832;border-radius:25px 25px 36px 36px;background:repeating-linear-gradient(6deg,#a4703b29 0px,#a4703b29 2px,#e8c68f1a 4px,#e8c68f1a 10px),linear-gradient(145deg,#f1d39d,#c18a54 65%,#a36940);box-shadow:inset 0 6px 8px #fff4cd,0 5px 0 #82552b80,0 15px 19px #52382755;overflow:visible}
+.mp3-basket:before{content:"";position:absolute;z-index:0;inset:4px 5px 8px;width:auto;height:auto;pointer-events:none;border-radius:17px 17px 24px 24px;border:2px solid #f6dfb398;background:repeating-linear-gradient(40deg,transparent 0 8px,#88552b22 8px 10px,transparent 10px 22px),repeating-linear-gradient(-40deg,transparent 0 8px,#88552b22 8px 10px,transparent 10px 22px)}
+.mp3-basket:after{content:"";position:absolute;z-index:3;pointer-events:none;bottom:4px;left:3px;right:3px;height:23px;border-radius:0 0 26px 26px;border-top:3px solid #edc48a;background:repeating-linear-gradient(40deg,#ad7042b0 0 5px,#c59360c0 5px 10px,#dfaf75c0 10px 16px),linear-gradient(#d6a16a,#aa6e3f);box-shadow:0 -2px 3px #6e431e30,inset 0 4px 4px #fee3b2ab}
+.mp3-basket .mp-basket-number{bottom:-19px;z-index:6;min-width:36px;height:37px;font-size:17px;border-radius:10px;background:linear-gradient(#fff8dc,#f7dcac);border:2px solid #b78452;box-shadow:0 3px 0 #96623866,0 6px 11px #5435203a}
+.mp3-leaf-ornament{position:absolute;z-index:4;top:-18px;left:-6px;font-family:serif;font-size:33px;transform:rotate(-25deg);line-height:1;color:#628542;text-shadow:0 1px 1px #fff3c5,2px 3px 2px #462d1e49;pointer-events:none}
+.mp3-basket:nth-child(even) .mp3-leaf-ornament{left:auto;right:-6px;transform:rotate(23deg) scaleX(-1)}
+.mp3-fruits{position:relative;z-index:2;display:grid;grid-template-columns:repeat(var(--mp3-cols),minmax(0,1fr));justify-items:center;align-items:center;gap:0;width:100%;max-height:none;overflow:visible;padding:0}
+.mp3-item{display:block!important;position:relative;z-index:2;width:100%!important;height:auto!important;min-width:0!important;max-width:47px;aspect-ratio:1/1;background:none!important;box-shadow:none!important;border-radius:0!important}
+.mp3-item:before,.mp3-item:after{display:none!important}
+.mp3-object{width:100%;height:100%;display:block;filter:drop-shadow(0 2px 1px #5d392657)}
+.mp-explore-world .mp3-collections{gap:25px 17px;padding:21px 16px 34px}
+.mp-explore-world .mp3-basket{width:100%;max-width:236px;height:auto;min-height:136px}
+.mp-explore-world:has(.mp3-collections){background:linear-gradient(#fff7e449,#eef2d527),url('./matte-verden.png') center/cover no-repeat}
+.mp-explore-world .mp3-picker{border-radius:18px;max-width:100%;padding:10px}
+.mp-explore-world .mp3-picker+ .mp3-collections{max-width:820px}
+@media(max-width:600px){
+ .mp3-picker{gap:5px;padding:10px 4px 5px}
+ .mp3-theme{padding:6px 2px;font-size:11px!important}
+ .mp3-collections,.mp-explore-world .mp3-collections{grid-template-columns:repeat(2,minmax(0,1fr));gap:22px 10px;padding:21px 8px 30px}
+ .mp3-collections[data-mp3-groups="1"]{grid-template-columns:minmax(0,230px)}
+ .mp3-collections[data-mp3-groups="3"]>.mp3-basket:last-child{grid-column:1/-1;width:calc(50% - 5px);justify-self:center}
+ .mp3-basket,.mp-explore-world .mp3-basket{max-width:220px;min-height:119px;padding:13px 7px 27px;border-width:4px;border-bottom-width:9px;border-radius:21px 21px 31px 31px}
+ .mp3-basket:before{inset:3px 4px 7px}
+ .mp3-basket:after{height:18px}
+ .mp3-leaf-ornament{font-size:27px;top:-13px}
+ .mp3-basket .mp-basket-number{bottom:-16px;min-width:31px;height:31px;font-size:14px}
+ .mp3-fruits{gap:0}
+}
+@media(max-width:370px){
+ .mp3-picker{gap:4px;padding:8px 2px 7px}
+ .mp3-theme{font-size:10px!important;padding-inline:1px}
+ .mp3-theme-art,.mp3-theme-art .mp3-object{width:29px;height:29px}
+ .mp3-collections,.mp-explore-world .mp3-collections{gap:19px 6px;padding-inline:5px}
+ .mp3-basket{padding-inline:5px}
+}
+@media(prefers-reduced-motion:reduce){.mp3-collections *{transition:none!important;animation:none!important}}

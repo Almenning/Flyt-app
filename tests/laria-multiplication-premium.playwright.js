@@ -56,6 +56,15 @@ async function testView(browser,engine,label,viewport,url){
   await dimensions(page,viewport.width,label+' practice');
   await screenshot(page,label+'-03-practice');
   const initial=snap.round[0];assert.equal(await page.locator('.mp-apple-basket').count(),initial.a);assert.equal(await page.locator('.mp-apple').count(),initial.a*initial.b,'visual groups disagree with math');
+   assert.equal(await page.locator('.mp3-item').count(),initial.a*initial.b,'illustrated objects must match multiplication');
+   assert.equal(await page.locator('.mp3-basket').count(),initial.a);
+   for(const theme of ['bun','mushroom','apple','strawberry']){
+     await page.locator('[data-mp-action="theme"][data-theme="'+theme+'"]').click();
+     assert.equal(await page.locator('.mp3-item').count(),initial.a*initial.b,'theme '+theme+' changed the visible count');
+     assert.equal(await page.locator('.mp3-basket').count(),initial.a);
+     assert.equal(await page.locator('.mp3-collections').getAttribute('data-mp3-theme'),theme);
+   }
+
   const answer=initial.a*initial.b,wrong=await page.locator('.mp-answer').evaluateAll((els,n)=>Number(els.find(x=>Number(x.dataset.value)!==n)?.dataset.value),answer);
   await page.locator('.mp-answer[data-value="'+wrong+'"]').click();
   assert.match(await page.locator('.mp-answer-feedback').innerText(),/Prøv igjen/);
@@ -74,6 +83,10 @@ async function testView(browser,engine,label,viewport,url){
   assert.equal(await page.locator('.mp-grid-cell').count(),100);
   await page.locator('[data-mp-action="mode"][data-mode="groups"]').click();
   assert.equal(await page.locator('.mp-apple-basket').count(),4);
+  assert.equal(await page.locator('.mp3-item').count(),12);
+  await page.locator('[data-mp-action="theme"][data-theme="bun"]').click();
+  assert.equal(await page.locator('.mp3-item').count(),12);
+
   await page.locator('[data-mp-action="factor"][data-factor="a"][data-step="1"]').click();
   assert.match(await page.locator('.mp-math-result').innerText(),/5 × 3/);
   await page.locator('[data-mp-action="mode"][data-mode="array"]').click();
@@ -91,6 +104,81 @@ async function testView(browser,engine,label,viewport,url){
   assert.match(await page.locator('.mp-table-inspector').innerText(),/4 × 6 = 24/);
   assert.match(await page.locator('.mp-table-inspector').innerText(),/6 × 4 = 24/);
   await screenshot(page,label+'-05-table');
+
+  // Explicit 3 × 10 acceptance case from the locked illustrated reference.
+  // The counted objects must remain distinct even on a narrow iPhone.
+  await page.locator('[data-mp-action="mode"][data-mode="groups"]').click();
+  const startFactors=await page.evaluate(()=>LARIA_MULT_PREMIUM.snapshot());
+  for(let n=startFactors.a;n>3;n--)await page.locator('[data-mp-action="factor"][data-factor="a"][data-step="-1"]').click();
+  for(let n=startFactors.a;n<3;n++)await page.locator('[data-mp-action="factor"][data-factor="a"][data-step="1"]').click();
+  for(let n=startFactors.b;n<10;n++)await page.locator('[data-mp-action="factor"][data-factor="b"][data-step="1"]').click();
+  assert.match(await page.locator('.mp-math-result').innerText(),/3 × 10/);
+
+  // The answer on the parchment/wooden plaque must be readable in daylight.
+  // Test both the fallback solid colors and the darker gradient endpoint.
+  const resultContrast=await page.locator('.mp-math-result').evaluate(el=>{
+    function luminance(rgb){
+      const values=(rgb.match(/\d+(?:\.\d+)?/g)||[]).slice(0,3).map(n=>Number(n)/255);
+      if(values.length!==3)return NaN;
+      const channels=values.map(v=>v<=.04045?v/12.92:Math.pow((v+.055)/1.055,2.4));
+      return channels[0]*.2126+channels[1]*.7152+channels[2]*.0722;
+    }
+    function contrast(c1,c2){const a=luminance(c1),b=luminance(c2);return (Math.max(a,b)+.05)/(Math.min(a,b)+.05)}
+    const result=el.querySelector('b'),plaqueText=el.querySelector('span');
+    return {
+      result:contrast(getComputedStyle(result).color,getComputedStyle(result).backgroundColor),
+      plaque:contrast(getComputedStyle(plaqueText).color,getComputedStyle(el).backgroundColor),
+      resultColor:getComputedStyle(result).color,
+      resultBackground:getComputedStyle(result).backgroundColor
+    };
+  });
+  assert.ok(resultContrast.result>=7&&resultContrast.plaque>=7,label+' contrast below AAA normal-text target: '+JSON.stringify(resultContrast));
+
+  assert.equal(await page.locator('.mp3-basket').count(),3,'3 × 10 needs three physically separate groups');
+  assert.deepEqual(await page.locator('.mp3-basket').evaluateAll(els=>els.map(el=>el.querySelectorAll('.mp3-item').length)),[10,10,10]);
+
+  // Locked image parity: one continuous row of three illustrated containers,
+  // not the old two-up-and-one-below grid from the first implementation.
+  const groupLayout=await page.locator('.mp4-basket').evaluateAll(els=>els.map(el=>{
+    const b=el.getBoundingClientRect();
+    return {x:b.x,y:b.y,width:b.width,height:b.height,handle:!!el.querySelector('.mp4-handle'),flowers:!!el.querySelector('.mp4-floral')};
+  }));
+  assert.equal(groupLayout.length,3);
+  assert.ok(groupLayout.every(g=>g.width>=88&&g.height>=88&&g.handle&&g.flowers),label+' premium baskets must be distinct, layered and readable: '+JSON.stringify(groupLayout));
+  assert.ok(Math.max(...groupLayout.map(g=>g.y))-Math.min(...groupLayout.map(g=>g.y))<=2,label+' 3x10 should present three groups side by side, not wrap: '+JSON.stringify(groupLayout));
+
+  const widths=await page.locator('.mp3-item').evaluateAll(els=>els.map(el=>el.getBoundingClientRect().width));
+  assert.ok(widths.every(w=>w>=17),label+' illustrated count objects must remain readable: '+Math.min(...widths));
+  for(const theme of ['strawberry','bun','mushroom','apple']){
+    await page.locator('[data-mp-action="theme"][data-theme="'+theme+'"]').click();
+    assert.equal(await page.locator('.mp3-collections').getAttribute('data-mp3-theme'),theme);
+    assert.equal(await page.locator('.mp3-item').count(),30);
+
+    if(theme==='mushroom'){
+      const mushroom=page.locator('[data-mp-action="theme"][data-theme="mushroom"]');
+      assert.equal((await mushroom.innerText()).trim(),'Sopper','The phone caption should not split the long original name');
+      assert.equal(await mushroom.getAttribute('aria-label'),'Velg eventyrsopper');
+    }
+    const labelLayout=await page.locator('.mp3-theme>span:last-child').evaluateAll(els=>els.map(el=>{
+      const rect=el.getBoundingClientRect(),button=el.closest('button').getBoundingClientRect();
+      return {text:el.textContent,width:rect.width,available:button.width-4,height:rect.height,lineHeight:parseFloat(getComputedStyle(el).lineHeight)};
+    }));
+    assert.ok(labelLayout.every(m=>m.height<=m.lineHeight*1.6&&m.width<=m.available+2),label+' motif labels should fit on one readable line: '+JSON.stringify(labelLayout));
+
+    const style=await page.locator('.mp4-basket').first().evaluate(el=>({
+      background:getComputedStyle(el).backgroundImage,
+      handle:getComputedStyle(el.querySelector('.mp4-handle')).display,
+      count:el.querySelectorAll('.mp3-item').length,
+      front:getComputedStyle(el.querySelector('.mp4-basket-front')).height
+    }));
+    assert.equal(style.count,10,label+' '+theme+' basket must display exactly ten objects');
+    assert.ok(parseFloat(style.front)>=16,label+' '+theme+' front weave must render');
+    assert.equal(style.handle,(theme==='bun'||theme==='mushroom')?'none':'block',label+' '+theme+' basket character must vary by scene');
+
+    await dimensions(page,viewport.width,label+' illustrated 3x10 '+theme);
+    if(label==='iphone-safari'||label==='ipad-safari')await screenshot(page,label+'-07-groups-3x10-'+theme);
+  }
+
   await page.locator('.mp-nav-link[data-page="mastery"]').click();
   await page.locator('.mp-mastery-screen').waitFor();
   assert.equal(await page.locator('.mp-award').count(),10);

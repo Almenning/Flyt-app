@@ -3,6 +3,9 @@
 'use strict';
 const ROOT='multiplication-lab-root',KEY='laria_mult_premium_v1',MAX=10;
 const foxSrc='./lia-fox-explorer-home.webp';
+let illustrationTheme='auto';
+const ILLUSTRATION_THEMES=['strawberry','bun','mushroom','apple'];
+function currentIllustrationTheme(){return illustrationTheme==='auto'?ILLUSTRATION_THEMES[stateBox.idx % ILLUSTRATION_THEMES.length]:illustrationTheme}
 const stateBox={page:'home',tab:5,active:'table',a:4,b:3,row:4,col:6,showMore:false,showHints:false,mask:false,options:[],optionsFor:-1,round:[],idx:0,answer:null,wrongOnce:false,feedback:'',firstTry:0,totalCorrect:0,earned:0,roundType:'mixed',showSummary:false};
 function fromStorage(){try{const s=JSON.parse(localStorage.getItem(KEY)||'{}');return {tries:s.tries&&typeof s.tries==='object'?s.tries:{},sessions:Number(s.sessions)||0,days:s.days&&typeof s.days==='object'?s.days:{},stars:Number(s.stars)||0,draft:s.draft||null}}catch(_){return {tries:{},sessions:0,days:{},stars:0,draft:null}}}
 const saved=fromStorage();
@@ -70,6 +73,7 @@ function choose(){
  +'<div class="mp-pick-recommended"><span aria-hidden="true">🏅</span><div><small>Anbefalt i dag</small><strong>'+suggested()+'-gangen</strong><p>Du kan velge fritt, også noe du allerede kan!</p></div>'+btn('start','›','mp-round-arrow','data-table="'+suggested()+'" aria-label="Øv på anbefalt tabell"')+'</div>'+mascot('Hvilken gangetabell vil du øve på i dag?')+'</section>';
 }
 function apples(a,b){
+  if(window.LARIA_MULT_ILLUSTRATED_V3)return window.LARIA_MULT_ILLUSTRATED_V3.render(a,b,currentIllustrationTheme());
  let groups='<div class="mp-apples" role="img" aria-label="'+a+' grupper med '+b+' epler i hver">';
  for(let g=0;g<a;g++){groups+='<div class="mp-apple-basket" aria-label="Gruppe '+(g+1)+'"><span class="mp-basket-number">'+(g+1)+'</span><div class="mp-apple-fruits">';
  for(let v=0;v<b;v++)groups+='<i class="mp-apple" aria-hidden="true"></i>';
@@ -83,7 +87,7 @@ function practice(){
  const repetition=Array.from({length:q.a},()=>q.b).join(' + ')+' = '+(q.a*q.b);
  return '<section class="mp-practice-screen">'+travel(stateBox.idx,8)+heading('Øv på gangetabellen','Finn svaret, ett lite steg om gangen.')
  +'<article class="mp-task-scene"><div class="mp-task-wood"><span class="mp-task-pretitle">Hvor mange blir det?</span><h2>'+expression+' <span>?</span></h2><p>'+q.a+' grupper med '+q.b+' i hver</p></div>'
- +'<div class="mp-task-apples">'+apples(q.a,q.b)+'</div></article>'
+ +'<div class="mp-task-apples">'+(window.LARIA_MULT_ILLUSTRATED_V3?window.LARIA_MULT_ILLUSTRATED_V3.picker(currentIllustrationTheme()):'')+apples(q.a,q.b)+'</div></article>'
  +'<div class="mp-answer-head"><span>Velg riktig svar</span>'+btn('read','🔊 Les opp','mp-read')+'</div>'
  +'<div class="mp-answer-grid">'+stateBox.options.map((v,i)=>btn('answer',String(v),'mp-answer mp-answer-'+i+' '+(stateBox.answer===v?(solved?'correct':'incorrect'):''),'data-value="'+v+'" '+(solved?'disabled':'')+' aria-label="Svar '+v+'"')).join('')+'</div>'
  +btn('hint','💡 '+(stateBox.showHints?'Skjul forklaringen':'Vis meg hvordan'),'mp-hint-toggle','aria-expanded="'+stateBox.showHints+'"')
@@ -93,7 +97,7 @@ function practice(){
  +mascot(solved?'Bra! Du fant svaret.':stateBox.feedback?'Prøv igjen. Du kan bruke forklaringen.':'Vi finner svaret sammen!',true)+'</section>';
 }
 function exploreTabs(){
- const modes=[['table','▦','Tabellen'],['groups','🍎','Grupper'],['array','▥','Rutenett'],['line','↝','Tallinje'],['swap','⇄','Bytt plass'],['patterns','✳','Mønstre']];
+ const modes=[['table','▦','Tabellen'],['groups','🍓','Grupper'],['array','▥','Rutenett'],['line','↝','Tallinje'],['swap','⇄','Bytt plass'],['patterns','✳','Mønstre']];
  return '<div class="mp-explore-tabs" role="group" aria-label="Velg hvordan du vil utforske gange">'+modes.map(([id,icon,label])=>btn('mode','<span aria-hidden="true">'+icon+'</span><strong>'+label+'</strong>','mp-explore-tab '+(stateBox.active===id?'selected':''),'data-mode="'+id+'" aria-pressed="'+(stateBox.active===id)+'"')).join('')+'</div>';
 }
 function smallArray(a,b){return '<div class="mp-mini-array" style="--mp-cols:'+b+'">'+Array.from({length:a*b},()=>'<i></i>').join('')+'</div>'}
@@ -118,7 +122,7 @@ function exploreTable(){
 function explorer(){
  const mode=stateBox.active,a=stateBox.a,b=stateBox.b;
  let stage='';
- if(mode==='groups'){stage='<div class="mp-wood-sign">'+a+' grupper med '+b+'</div>'+apples(a,b)}
+ if(mode==='groups'){stage='<div class="mp-wood-sign">'+a+' grupper med '+b+'</div>'+(window.LARIA_MULT_ILLUSTRATED_V3?window.LARIA_MULT_ILLUSTRATED_V3.picker(currentIllustrationTheme()):'')+apples(a,b)}
  if(mode==='array'){stage='<div class="mp-wood-sign">'+a+' rader med '+b+'</div><div class="mp-array-panel">'+smallArray(a,b)+'</div>'}
  if(mode==='line'){stage='<div class="mp-wood-sign">'+a+' hopp på '+b+'</div>'+numberLine(a,b)}
  if(mode==='swap'){stage='<div class="mp-wood-sign">Samme antall, snudd!</div><div class="mp-swap-pair">'+smallArray(a,b)+smallArray(b,a)+'</div><strong class="mp-swap-label">'+a+' × '+b+' = '+b+' × '+a+'</strong>'}
@@ -172,6 +176,7 @@ function onClick(event){
  if(action==='hint'){stateBox.showHints=!stateBox.showHints;render();return}
  if(action==='read')return speak();
  if(action==='mode'){stateBox.active=target.dataset.mode;render();return}
+  if(action==='theme'){if(window.LARIA_MULT_ILLUSTRATED_V3?.themes.includes(target.dataset.theme)){illustrationTheme=target.dataset.theme;render()}return}
  if(action==='factor'){const key=target.dataset.factor;stateBox[key]=d(stateBox[key]+Number(target.dataset.step));render();return}
  if(action==='cell'||action==='pair'){stateBox.row=Number(target.dataset.row);stateBox.col=Number(target.dataset.col);render();return}
 }
@@ -181,6 +186,6 @@ window.openMultiplicationLab=function(){
  stateBox.page='home';stateBox.showHints=false;stateBox.showSummary=false;render();
  try{showScreen('multiplication-lab')}catch(_){}
 };
-window.LARIA_MULT_PREMIUM={version:'illustrated-v2',open:window.openMultiplicationLab,stats:()=>JSON.parse(JSON.stringify(saved)),snapshot:()=>({page:stateBox.page,mode:stateBox.active,a:stateBox.a,b:stateBox.b,row:stateBox.row,col:stateBox.col,round:stateBox.round.map(q=>Object.assign({},q)),index:stateBox.idx,firstTry:stateBox.firstTry,answer:stateBox.answer})};
+window.LARIA_MULT_PREMIUM={version:'illustrated-v2',open:window.openMultiplicationLab,stats:()=>JSON.parse(JSON.stringify(saved)),snapshot:()=>({page:stateBox.page,mode:stateBox.active,theme:currentIllustrationTheme(),a:stateBox.a,b:stateBox.b,row:stateBox.row,col:stateBox.col,round:stateBox.round.map(q=>Object.assign({},q)),index:stateBox.idx,firstTry:stateBox.firstTry,answer:stateBox.answer})};
 const entry=document.getElementById('open-multiplication-lab');if(entry)entry.onclick=window.openMultiplicationLab;
 })();
