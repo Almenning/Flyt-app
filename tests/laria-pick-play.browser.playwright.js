@@ -189,8 +189,9 @@ async function run(browser,engine,label,viewport,url){
   assert.deepEqual((await snapshot(page)).counts,[8,10,9]);
   assert.match(await page.locator('.mp-pick-equation').innerText(),/8 \+ 10 \+ 9 = 27/);
   const worlds=['strawberry','bun','mushroom','apple','treasure','train','beach','farm','aquarium','balloon'];
-  const vesselFamilies=new Map();
+  const vesselFamilies=new Map(),nearviewFamilies=new Map();
   assert.equal(await page.locator('link[href*="multiplication-pick-vessels-v6.css"]').count(),1,'ten world-specific vessel silhouettes must be loaded');
+  assert.equal(await page.locator('link[href*="multiplication-pick-closeup-v7.css"]').count(),1,'the physical near-view parity layer must be loaded');
   for(const world of worlds){
     await page.locator('.mp-pick-world-btn[data-world="'+world+'"]').click();
     assert.equal(await page.locator('.mp-pick-screen').getAttribute('data-pick-world'),world);
@@ -208,10 +209,15 @@ async function run(browser,engine,label,viewport,url){
     if(world==='beach')assert.match(vesselStyle.clip,/polygon\(/,label+' sand pail needs a tapered physical silhouette');
     if(world==='farm')assert.match(vesselStyle.borderRadius,/48%/,label+' eggs belong in a rounded twig nest');
     if(world==='treasure')assert.ok(vesselStyle.rimVisible,label+' treasure chest must show its arched lid');
-    if(engine==='webkit'&&label==='iphone-safari'&&['bun','mushroom','aquarium'].includes(world)){
+    if(engine==='webkit'&&label==='iphone-safari'){
       await page.locator('.mp-pick-vessel[data-group="1"] [data-pick-action="zoom"]').click();
       assert.equal(await page.locator('.mp-pick-zoom-landscape svg.mp-pick-storyscape').count(),1,
         label+' '+world+' needs its actual environment in closeup');
+      assert.equal(await page.locator('.mp-pick-zoom-item').count(),10,label+' '+world+' near view must show the same ten countable items');
+      const nearviewFront=await page.locator('.mp-pick-zoom-vessel-front').evaluate(el=>getComputedStyle(el).backgroundImage);
+      nearviewFamilies.set(world,nearviewFront);
+      const closeupSizes=await page.locator('.mp-pick-zoom-item').evaluateAll(els=>els.map(el=>Math.min(el.getBoundingClientRect().width,el.getBoundingClientRect().height)));
+      assert.ok(closeupSizes.every(n=>n>=44),label+' '+world+' near view must keep large touch targets');
       await image(page,label+'-nearview-world-'+world);
       await page.locator('.mp-pick-zoom-close').click();
     }
@@ -224,6 +230,7 @@ async function run(browser,engine,label,viewport,url){
     }
   }
   assert.equal(new Set(vesselFamilies.values()).size,10,label+' every scene must have its own material and physical container');
+  if(engine==='webkit'&&label==='iphone-safari')assert.equal(new Set(nearviewFamilies.values()).size,10,label+' all ten near views need distinct illustrated foreground materials');
   await page.reload({waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>window.LARIA_MULT_PICK_PLAY&&window.LARIA_MULT_PREMIUM);
   await page.evaluate(()=>window.openMultiplicationLab());
