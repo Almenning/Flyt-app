@@ -32,6 +32,32 @@ test('pick, return, equal-group removal, empty and zero are mathematically exact
  assert.equal(E.total(s),0);
  assert.equal(E.equation(s).main,'0');
 });
+test('the exact tapped object disappears, follows drag, and returns from the collection',()=>{
+ const start=E.initial();
+ const chosen=start.itemIds[1][4];
+ assert.equal(start.itemIds[1].length,10);
+ let s=act(start,'take',{group:1,token:chosen});
+ assert.equal(s.itemIds[1].includes(chosen),false,'clicked object itself must disappear, not a different icon');
+ assert.equal(s.pool.at(-1),chosen,'the same object must reach the collection');
+ assert.equal(s.itemIds[1].length,s.counts[1]);
+ assert.equal(s.pool.length,s.collected);
+ s=act(s,'return',{group:1});
+ assert.equal(s.itemIds[1].includes(chosen),true,'return restores the same object');
+ assert.equal(s.pool.length,0);
+ const toMove=s.itemIds[1][2],prior=E.total(s);
+ s=act(s,'move',{group:1,to:0,token:toMove});
+ assert.equal(s.itemIds[1].includes(toMove),false);
+ assert.equal(s.itemIds[0].includes(toMove),true,'direct drag must preserve identity');
+ assert.equal(E.total(s),prior,'moving a specific token must conserve total');
+ assert.equal(s.counts[0],11);
+ assert.equal(s.counts[1],9);
+ s=act(s,'empty',{group:0});
+ assert.equal(s.itemIds[0].length,0);
+ assert.equal(s.pool.length,s.collected);
+ const store=JSON.parse(JSON.stringify(s));
+ assert.deepEqual(E.normalize(store).itemIds,s.itemIds,'local persistence keeps specific objects intact');
+});
+
 test('moving an object conserves total and never fabricates an equal multiplication',()=>{
  let s=act(E.initial(),'takeEach');
  s=act(s,'move',{group:0,to:1});
