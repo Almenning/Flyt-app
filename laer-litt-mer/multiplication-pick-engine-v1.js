@@ -69,6 +69,13 @@ function equation(s){
  const added=s.counts.join(' + ')+' = '+sum;
  if(s.counts.length===3&&s.counts.every(n=>n<=10)&&sum+s.collected===30&&s.collected>0&&!s.moved)
   return {main:'3 × 10 − '+s.collected+' = '+sum,detail:added+' · Ulike grupper kan legges sammen.',equal:false};
+ const preset=SCENARIOS.find(x=>x.id===s.scenario);
+ if(preset&&!s.mission&&!s.moved&&s.collected>0&&s.counts.length===preset.counts.length&&
+    s.counts.every((n,i)=>n<=preset.counts[i])&&sum+s.collected===preset.counts.reduce((a,b)=>a+b,0)){
+  return {main:preset.counts.length+' × '+preset.counts[0]+' − '+s.collected+' = '+sum,
+   detail:added+' · Du plukket '+s.collected+'.',equal:false};
+ }
+
  return {main:added,detail:'Gruppene er ulike. Vi kan legge sammen det som ligger i hver.',equal:false};
 }
 function missionInfo(s){
