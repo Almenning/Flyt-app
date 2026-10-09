@@ -88,3 +88,13 @@ Lås følgende som en del av den godkjente plukk-og-flytt-retningen:
 - Nærvisningen viser nøyaktig de samme stabile objektidentitetene. Plukk, flytt, samlekurv og angre må fortsette å være matematisk korrekte.
 - En tydelig knapp lukker nærvisningen. Escape og tastaturfokus skal fungere. Valg av en gjenstand for flytting lukker nærvisningen slik at mottakerkurv kan velges.
 - Dette er en tilgjengelighets- og interaksjonsforbedring. Kunstnerisk likhet med de låste bildene må fortsatt vurderes separat.
+
+
+## Premium nærsyn v5 (9. oktober 2026)
+
+- Nærvisningen viderefører det faktisk valgte eventyrmiljøet fra oversikten, ikke en generisk kremfarget bakgrunn.
+- Nærvisningens illustrerte landskap er dekorativt og inneholder **ingen tellbare gjenstander**. Barnet manipulerer fortsatt de samme objektene, med samme stabile identiteter.
+- Ved plukking kan en kort, dekorativ animasjon vise at akkurat den valgte gjenstanden flyttes mot samlekurven. Regnestykket oppdateres uavhengig og umiddelbart; animasjonen påvirker aldri regnelogikken eller antallet.
+- Respekter `prefers-reduced-motion`. Nærvisningen skal beholde tastatur, fokus, Esc-lukking og store berøringsflater.
+- De eksisterende 10 × 10- og Brøklab-funksjonene samt kloden får ingen endring i denne runden.
+- Denne runden er et målbart kvalitetssteg, ikke en erklæring om full visuell identitet med låste konseptillustrasjoner.
