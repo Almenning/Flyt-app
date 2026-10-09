@@ -295,3 +295,22 @@
  .fr4-explore-stage .fr4-scene-fox{right:-6px;bottom:7px;width:125px;height:160px}
  .fr4-stage-caption{margin:0 102px 5px 4px;width:calc(100% - 107px);font-size:12px}
 }
+
+/* fr4-comparison-progress-16: The 16 discoveries must fit inside a narrow
+   iPhone without clipped milestones; use a calm two-row grid on phones. */
+.fr2-equal .fr2-trail,.fr2-equal .fr2-trail-nodes{min-width:0}
+.fr2-equal .fr2-trail-nodes i{flex-shrink:0}
+@media(max-width:600px){
+ .fr2-equal .fr2-trail{gap:9px;padding:11px 10px}
+ .fr2-equal .fr2-trail>span{flex:0 0 108px;line-height:1.25}
+ .fr2-equal .fr2-trail-nodes{
+  display:grid;flex:1 1 auto;min-width:0;
+  grid-template-columns:repeat(8,11px);gap:6px 7px;
+  justify-content:center;justify-items:center
+ }
+ .fr2-equal .fr2-trail-nodes i{width:11px;height:11px}
+}
+@media(max-width:350px){
+ .fr2-equal .fr2-trail>span{flex-basis:91px;font-size:12px}
+ .fr2-equal .fr2-trail-nodes{column-gap:5px}
+}

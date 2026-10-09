@@ -10,7 +10,7 @@ Brøklaben skal være et morsomt, forståelig, taktilt og faglig korrekt sted ba
 1. **Oversikt** (låst illustrasjon #1): seks store aktivitetskort inne i et varmt illustrert verksted / bakeri, Læria-reven nederst.
 2. **Utforsk brøker** (illustrasjon #2): startet med 3/4 i en stor sirkel. Bytt mellom sirkel, stripe, rutenett og målebeger. Velg teller/nevner og vanlige brøker. Grafikken oppdateres umiddelbart.
 3. **Bygg en brøk** (illustrasjon #3): ekte brøkbiter på trebrett. Legg til deler via trykk eller dra-og-slipp, juster teller/nevner, trykk på sektor for å legge til / fjerne, se riktig brøktall.
-4. **Like mye?** (illustrasjon #4): visuelt sammenlign like og ulike mengder; eksempler som 1/2 = 2/4, 3/4 ≠ 2/3. Barnet velger om mengdene er like, får skånsom respons og kan prøve et nytt eksempel.
+4. **Like mye?** (illustrasjon #4): visuelt sammenlign like og ulike mengder; eksempler som 1/2 = 2/4, 3/4 ≠ 2/3. Barnet velger om mengdene er like, får skånsom respons og kan prøve et nytt eksempel. Banken inneholder 16 blandede brøkpar, fordelt på åtte like og åtte ulike, slik at et fast gjettesvar ikke gir uttelling.
 5. **Sorter brøker** (tilgjengelig fra oversiktsillustrasjon): tre brøker sorteres fra minst til størst med drag-and-drop eller store pilknapper. Sammenlign brøkverdier eksakt, uten flyttallsavrundingsfeil.
 6. **Brøk, prosent og desimal** (illustrasjon #5): fysiske eksempler med 1/2 = 50 % = 0,5 og flere valg. Periodiske desimaltall vises som tilnærminger, aldri som eksakt likhet.
 7. **Min mestring** (illustrasjon #6): dokumenterer de faktiske brøkene og sammenhengene barnet har forsøkt eller oppdaget. Ingen oppdiktede poeng, falske ferdighetsmålinger eller innholdslåser.
