@@ -107,3 +107,13 @@
 @media(prefers-reduced-motion:reduce){
  .mp-pick-zoom-item{transition:none;animation:none}
 }
+
+/* Older small iPhones: four columns make each interactive item comfortably tappable. */
+@media(max-width:360px){
+ .mp-pick-zoom-objects{grid-template-columns:repeat(4,minmax(0,1fr));gap:3px}
+ .mp-pick-zoom-vessel{padding-inline:10px}
+ .mp-pick-zoom-item{min-height:50px}
+ .mp-pick-zoom-top{gap:5px}
+ .mp-pick-zoom-top strong{font-size:18px}
+ .mp-pick-zoom-close{padding-inline:8px}
+}
