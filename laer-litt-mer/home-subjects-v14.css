@@ -72,6 +72,26 @@
 .bc12[data-mode="home"] .bc12-next-beacon,
 .bc12[data-mode="home"] .bc12-explore-ribbon,
 .bc12[data-mode="home"] .bc12-treasure{display:none!important}
+/* Parents remain reachable, but their entry must not sit on top of the brand. */
+.bc12[data-mode="home"] .bc12-adult-entry{
+ position:absolute;z-index:10;top:max(1.7%,env(safe-area-inset-top));left:1.6%;
+ display:flex;align-items:center;justify-content:center;min-height:44px;
+ padding:7px 11px;border:2px solid #c89e69;border-radius:11px;
+ background:linear-gradient(160deg,#fff6dd,#e8cda4);
+ box-shadow:0 3px 0 #916a42,0 7px 13px #1c302b44;
+ color:#664527;font-size:12px;font-weight:850;white-space:nowrap
+}
+@media(max-width:360px){
+ .bc12[data-mode="home"] .bc12-adult-entry{
+  left:1%;top:max(1%,env(safe-area-inset-top));width:94px;max-width:94px;
+  min-height:44px;padding:4px 3px;font-size:10px
+ }
+ .bc12[data-mode="home"] .safe-challenge-young{
+  right:max(1%,env(safe-area-inset-right));top:max(1%,env(safe-area-inset-top));
+  min-width:84px;max-width:92px;min-height:44px;padding:4px 3px;font-size:9px
+ }
+ .bc12[data-mode="home"] .safe-challenge-young span{font-size:17px}
+}
 .bc12[data-mode="home"] .bc12-heading{
  top:max(3%,env(safe-area-inset-top));left:26%;width:48%;
  padding:8px 5px 10px;border-radius:24px;
