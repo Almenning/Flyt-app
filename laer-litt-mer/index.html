@@ -3495,18 +3495,29 @@ function openGlobe(mode='explore'){
   showScreen('world');
   document.getElementById('world-screen')?.setAttribute('data-opened-immediately','true');
 
-  let tries=0;
+  // Initial drawing can require several Safari frames. The selected mode
+  // must only be applied ONCE: later ready() retries must not override a
+  // genuine user tap on "Kloden" or "Min verden".
+  const world=document.getElementById('world-screen');
+  const openGeneration=Number(world?.dataset.globeOpenGeneration||0)+1;
+  if(world)world.dataset.globeOpenGeneration=String(openGeneration);
+  let tries=0,modeApplied=false;
   const ready=()=>{
     tries++;
     const screen=document.getElementById('world-screen');
     const canvas=document.getElementById('globe-canvas');
-    // Never resurrect Globe after the child has already navigated away.
-    if(!screen?.classList.contains('active'))return;
+    // Never resurrect Globe after leaving the screen or a newer openGlobe().
+    if(!screen?.classList.contains('active')||
+       Number(screen.dataset.globeOpenGeneration)!==openGeneration)return;
     try{if(typeof window.initGlobe==='function')window.initGlobe();else initGlobe()}catch(_){}
-    try{
-      if(typeof window.setGlobeMode==='function')window.setGlobeMode(next);
-      else setGlobeMode(next);
-    }catch(_){}
+    if(!modeApplied){
+      modeApplied=true;
+      // The child may have chosen another mode before the first ready frame.
+      if(globeMode===next)try{
+        if(typeof window.setGlobeMode==='function')window.setGlobeMode(next);
+        else setGlobeMode(next);
+      }catch(_){}
+    }
     try{if(typeof window.resizeGlobe==='function')window.resizeGlobe();else resizeGlobe()}catch(_){}
     try{if(typeof window.drawGlobe==='function')window.drawGlobe();else drawGlobe()}catch(_){}
 
