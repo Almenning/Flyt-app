@@ -15,7 +15,7 @@
   <link rel="preload" as="image" href="./basecamp-v11.webp?v=basecamp12d" media="(min-width:701px)" fetchpriority="high" />
   <link rel="preload" as="script" href="./home-basecamp-v12.js?v=20261010-subject-first1" />
   <link rel="preload" as="script" href="./globe-v24-art.js?v=globe36-pigment3" />
-  <link rel="preload" as="script" href="./globe-v25-renderer.js?v=globe36-pigment3" />
+  <link rel="preload" as="script" href="./globe-v25-renderer.js?v=20261010-globe-bitmap-v1" />
   <title>Læria</title>
   <style>
 
@@ -2384,6 +2384,8 @@
   <link rel="stylesheet" href="./globe-v24.css?v=globe36-pigment3" />
   <link rel="stylesheet" href="./laria-task-young-v18.css?v=20261010-math-tap2" />
   <link rel="stylesheet" href="./atlas-perspective-v1.css?v=20261009-atlas-story2" />
+  <!-- Original approved art: guarded rendering, no substitutions -->
+  <link rel="stylesheet" href="./locked-journey-renderer.css?v=20261010-locked-final1" />
   <!-- immersive-globe-viewport-2026-10-02 -->
   <!-- globe-hit-test-dateline-fix-2026-10-02 -->
   <!-- parent-info-udir-2026-10-02 -->
@@ -3493,18 +3495,29 @@ function openGlobe(mode='explore'){
   showScreen('world');
   document.getElementById('world-screen')?.setAttribute('data-opened-immediately','true');
 
-  let tries=0;
+  // Initial drawing can require several Safari frames. The selected mode
+  // must only be applied ONCE: later ready() retries must not override a
+  // genuine user tap on "Kloden" or "Min verden".
+  const world=document.getElementById('world-screen');
+  const openGeneration=Number(world?.dataset.globeOpenGeneration||0)+1;
+  if(world)world.dataset.globeOpenGeneration=String(openGeneration);
+  let tries=0,modeApplied=false;
   const ready=()=>{
     tries++;
     const screen=document.getElementById('world-screen');
     const canvas=document.getElementById('globe-canvas');
-    // Never resurrect Globe after the child has already navigated away.
-    if(!screen?.classList.contains('active'))return;
+    // Never resurrect Globe after leaving the screen or a newer openGlobe().
+    if(!screen?.classList.contains('active')||
+       Number(screen.dataset.globeOpenGeneration)!==openGeneration)return;
     try{if(typeof window.initGlobe==='function')window.initGlobe();else initGlobe()}catch(_){}
-    try{
-      if(typeof window.setGlobeMode==='function')window.setGlobeMode(next);
-      else setGlobeMode(next);
-    }catch(_){}
+    if(!modeApplied){
+      modeApplied=true;
+      // The child may have chosen another mode before the first ready frame.
+      if(globeMode===next)try{
+        if(typeof window.setGlobeMode==='function')window.setGlobeMode(next);
+        else setGlobeMode(next);
+      }catch(_){}
+    }
     try{if(typeof window.resizeGlobe==='function')window.resizeGlobe();else resizeGlobe()}catch(_){}
     try{if(typeof window.drawGlobe==='function')window.drawGlobe();else drawGlobe()}catch(_){}
 
@@ -6056,7 +6069,9 @@ function initGlobe(){const canvas=document.getElementById('globe-canvas');if(!ca
   const scheduleDraw=()=>{if(pendingDraw)return;pendingDraw=true;raf=requestAnimationFrame(()=>{pendingDraw=false;drawGlobe()})};
   canvas.addEventListener('pointerdown',e=>{
     window.__lariaGlobeInteracting=true;
-    canvas.setPointerCapture(e.pointerId);
+    // Safari desktop may reject synthetic pointer capture during fullscreen
+    // transitions. Dragging must continue even if capture is unsupported.
+    try{canvas.setPointerCapture(e.pointerId)}catch(_){}
     globePointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
     if(globePointers.size===1){
       globeDrag={x:e.clientX,y:e.clientY,lon:globeLon,lat:globeLat,lastX:e.clientX,lastY:e.clientY};globeMove=0;globePinch=null;
@@ -6621,6 +6636,8 @@ if(needsProfileSetup||!state.profile.onboarded||!state.profile.grade){
 <!-- Journey / Bokskogen -->
 <script src="./bokskogen-world.js?v=20261007-p15rc1" defer></script>
 <script src="./journey-world-premium.js?v=20261007-p15rc1" defer></script>
+<script src="./locked-journey-contract.js?v=20261010-locked-final1" defer></script>
+<script src="./locked-journey-renderer.js?v=20261010-locked-final1" defer></script>
 <!-- Free play + Home -->
 <script src="./word-hunt.js?v=20261007-touch1" defer></script>
 <script src="./home-basecamp-v12.js?v=20261010-subject-first1" defer></script>
@@ -6631,8 +6648,8 @@ if(needsProfileSetup||!state.profile.onboarded||!state.profile.grade){
 
 <!-- Kloden: art primitives must load before the active renderer. -->
 <script src="./globe-v24-art.js?v=globe36-pigment3" defer></script>
-<script src="./globe-v25-renderer.js?v=globe36-pigment3" defer></script>
-<script src="./atlas-perspective-v1.js?v=20261009-atlas-story2" defer></script>
+<script src="./globe-v25-renderer.js?v=20261010-globe-bitmap-v1" defer></script>
+<script src="./atlas-perspective-v1.js?v=20261010-atlas-webkit-paint-v2" defer></script>
 
 <!-- premium-board-v8-2026-10-04 -->
 <!-- natural-journey-integration-v9-2026-10-04 -->

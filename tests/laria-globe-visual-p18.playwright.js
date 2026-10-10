@@ -66,12 +66,86 @@ async function assertProfileFoxSelection(browserType){
   }finally{await browser.close()}
 }
 
+/* WebKit can deadlock Playwright's auto-scroll for controls positioned inside
+ * a fixed fullscreen atlas. Test the ACTUAL hit-target in viewport and issue a
+ * native mobile touch at its visible center, never a forced DOM click. */
+async function tapGlobeMode(page,mode,label){
+  const control=page.locator('#globe-mode [data-globe-mode="'+mode+'"]');
+  await control.waitFor({state:'visible',timeout:12000});
+  const target=await control.evaluate(el=>{
+    const rect=el.getBoundingClientRect();
+    const x=Math.round(rect.left+rect.width/2),y=Math.round(rect.top+rect.height/2);
+    const hit=document.elementFromPoint(x,y);
+    return {x,y,width:rect.width,height:rect.height,vw:innerWidth,vh:innerHeight,
+      reachable:hit===el||el.contains(hit),obstructor:hit?.className||hit?.tagName||null};
+  });
+  assert.ok(target.width>=28&&target.height>=28&&target.x>=0&&target.y>=0&&
+    target.x<target.vw&&target.y<target.vh&&target.reachable,
+    label+' '+mode+' mode button is not physically touchable: '+JSON.stringify(target));
+  await page.evaluate(()=>{
+    if(window.__lariaModeTouchProbe)return;
+    window.__lariaModeTouchProbe=[];
+    const events=['pointerdown','pointerup','touchstart','touchend','click'];
+    for(const event of events)document.addEventListener(event,e=>{
+      const node=e.target?.closest?.('[data-globe-mode]')||null;
+      window.__lariaModeTouchProbe.push({type:event,mode:node?.dataset.globeMode||null,
+        target:e.target?.tagName||null,at:Math.round(performance.now())});
+      if(window.__lariaModeTouchProbe.length>50)window.__lariaModeTouchProbe.shift();
+    },{capture:true,passive:true});
+  });
+  await page.touchscreen.tap(target.x,target.y);
+  try{
+    await page.waitForFunction(m=>{
+      const b=document.querySelector('#globe-mode [data-globe-mode="'+m+'"]');
+      return !!b&&b.classList.contains('active');
+    },mode,{timeout:8000,polling:100});
+  }catch(err){
+    // A Safari touch can be lost during fullscreen transition. Capture the
+    // native event path and actual state instead of classifying it as success.
+    const diagnostic=await page.evaluate(({mode,target})=>{
+      const screen=document.getElementById('world-screen'),buttons=[...document.querySelectorAll('#globe-mode [data-globe-mode]')];
+      const hit=document.elementFromPoint(target.x,target.y);
+      return {mode,target,hit:hit?.tagName||null,hitClass:typeof hit?.className==='string'?hit.className:null,
+        globeMode:typeof globeMode!=='undefined'?globeMode:null,
+        screenClass:screen?.className,perspective:screen?.dataset.mapPerspective,
+        atlasReady:document.getElementById('atlas-canvas')?.dataset.mapReady,
+        active:buttons.map(b=>({mode:b.dataset.globeMode,active:b.classList.contains('active'),
+          clickHandler:typeof b.onclick,rect:{x:b.getBoundingClientRect().x,y:b.getBoundingClientRect().y,
+          width:b.getBoundingClientRect().width,height:b.getBoundingClientRect().height}})),
+        events:(window.__lariaModeTouchProbe||[]).slice(-30)};
+    },{mode,target}).catch(e=>({evaluationError:String(e)}));
+    const suffix='-'+label+'-'+mode+'-touch-timeout';
+    fs.writeFileSync(path.join(out,'diagnostic'+suffix+'.json'),JSON.stringify(diagnostic,null,2));
+    try{await page.screenshot({path:path.join(out,'diagnostic'+suffix+'.png'),timeout:3000})}catch(_){}
+    // WebKit's page.waitForFunction polling can stall while a canvas is
+    // repainted. The same strict DOM state may already be reached when its
+    // timeout callback resumes. Verify the resulting MODE and perspective,
+    // not a callback's scheduling. Actual canvas pixels are asserted below.
+    const selected=diagnostic.active?.find(item=>item.mode===mode)?.active===true;
+    const expectedPerspective=mode==='classic'?'globe':'atlas';
+    const actualScreen=diagnostic.screenClass||'';
+    const visible=actualScreen.trim().split(' ').includes('active');
+    if(selected&&diagnostic.globeMode===mode&&
+       diagnostic.perspective===expectedPerspective&&visible){
+      console.log('[native Safari mode] accepted verified late-state after polling stall:',label,mode);
+      return;
+    }
+    throw new Error('Native mode tap did not activate: '+JSON.stringify(diagnostic));
+  }
+}
+
 async function capture(browserType,label,viewport){
   const browser=await browserType.launch({headless:true});
   try{
     const ctx=await browser.newContext({viewport,isMobile:viewport.width<600,hasTouch:true,serviceWorkers:'block',deviceScaleFactor:1});
     const page=await ctx.newPage();
-    const errors=[];page.on('pageerror',e=>errors.push(String(e)));
+    const errors=[],navigation=[],crashes=[];
+    page.on('pageerror',e=>errors.push(String(e)));
+    page.on('crash',()=>crashes.push('browser page crashed'));
+    page.on('close',()=>crashes.push('browser page closed'));
+    page.on('framenavigated',frame=>{
+      if(frame===page.mainFrame())navigation.push({url:frame.url(),at:Date.now()});
+    });
     await page.addInitScript(x=>localStorage.setItem('laerlittmer-v2',JSON.stringify(x)),seed);
     await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
     await page.route('https://api.worldbank.org/**',r=>r.abort());
@@ -83,13 +157,24 @@ async function capture(browserType,label,viewport){
     // Utforsk and Min verden now present a separate, correct interactive atlas.
     await page.waitForFunction(()=>window.LARIA_ATLAS_PERSPECTIVE?.snapshot().active===true);
     assert.equal(await page.locator('#atlas-canvas').isVisible(),true,label+' atlas not active by default');
-    await page.locator('[data-globe-mode="classic"]').click();
+    await tapGlobeMode(page,'classic',label);
     await page.waitForFunction(()=>document.querySelector('#world-screen.active').dataset.mapPerspective==='globe');
+    // A native Safari canvas can change from fullscreen atlas dimensions to
+    // the circular globe over more than one animation frame. Only inspect the
+    // frame once BOTH CSS geometry and the underlying bitmap are synchronized.
+    // This remains a strict functional check: an actually stretched or hidden
+    // globe will time out and fail rather than being silently accepted.
     await page.waitForFunction(()=>{
+      const screen=document.querySelector('#world-screen.active');
       const c=document.getElementById('globe-canvas'),r=c?.getBoundingClientRect();
-      return r&&r.width>250&&r.height>250;
-    });
-    await page.waitForTimeout(650);
+      if(!screen||!r||screen.classList.contains('atlas-perspective-on')||
+         screen.dataset.mapPerspective!=='globe')return false;
+      const dpr=c._dpr||window.devicePixelRatio||1;
+      return r.width>250&&r.height>250&&Math.abs(r.width-r.height)<3&&
+        Number(getComputedStyle(c).opacity)>.95&&
+        Math.abs(c.width-Math.round(r.width*dpr))<3&&
+        Math.abs(c.height-Math.round(r.height*dpr))<3;
+    },null,{timeout:16000});
     const sceneName=viewport.width>viewport.height&&viewport.width>=900?'landscape':viewport.width>=700?'tablet':'mobile';
     const backgroundImage=await page.evaluate(()=>getComputedStyle(document.getElementById('world-screen')).backgroundImage);
     assert.ok(backgroundImage.includes('globe-storyscape-v36-'+sceneName+'.webp'),label+' did not load the correct illustrated nature scene: '+backgroundImage);
@@ -193,12 +278,24 @@ async function capture(browserType,label,viewport){
       const canvasBox=await page.locator('#globe-canvas').boundingBox();
       const cx=canvasBox.x+canvasBox.width*.55,cy=canvasBox.y+canvasBox.height*.55;
       const beforeLon=await page.evaluate(()=>globeLon);
+      const pointerProbe=await page.evaluate(({cx,cy})=>{
+        const canvas=document.getElementById('globe-canvas'),hit=document.elementFromPoint(cx,cy);
+        const events=[];window.__lariaPointerProbe=events;
+        canvas.addEventListener('pointerdown',e=>events.push({type:'down',x:e.clientX,y:e.clientY}),{once:true});
+        canvas.addEventListener('pointermove',e=>{if(e.buttons)events.push({type:'move',x:e.clientX,y:e.clientY})});
+        return {hit:hit?.id||hit?.className||hit?.tagName,
+          style:getComputedStyle(canvas).pointerEvents,ready:!!canvas.dataset.ready,
+          mode:document.getElementById('world-screen')?.dataset.mapPerspective,
+          reachable:hit===canvas||canvas.contains(hit)};
+      },{cx,cy});
       await page.mouse.move(cx,cy);
       await page.mouse.down();
       await page.mouse.move(cx+52,cy+15,{steps:6});
       await page.mouse.up();
-      const afterLon=await page.evaluate(()=>globeLon);
-      assert.ok(Math.abs(afterLon-beforeLon)>3,label+' real pointer drag failed to rotate globe');
+      const dragResult=await page.evaluate(()=>({lon:globeLon,events:(window.__lariaPointerProbe||[]).slice(0,12),
+        pointerCount:typeof globePointers!=='undefined'?globePointers.size:-1}));
+      assert.ok(Math.abs(dragResult.lon-beforeLon)>3,
+        label+' real pointer drag failed to rotate globe: '+JSON.stringify({beforeLon,afterLon:dragResult.lon,pointerProbe,dragResult}));
       const beforeZoom=await page.evaluate(()=>globeZoom);
       await page.locator('#globe-zoom-in').click();
       const afterZoom=await page.evaluate(()=>globeZoom);
@@ -251,9 +348,53 @@ async function capture(browserType,label,viewport){
 
     assert.equal(projectionSync.renderSource,'country-geometry',label+' must draw visible land from real country polygons');
     for(const mode of ['explore','mine','classic']){
-      await page.locator('[data-globe-mode="'+mode+'"]').click();
-      await page.waitForTimeout(250);
-      assert.equal(await page.locator('[data-globe-mode="'+mode+'"]').getAttribute('class').then(x=>(x||'').includes('active')),true,label+' '+mode+' mode did not activate');
+      await tapGlobeMode(page,mode,label);
+      if(mode==='classic'){
+        await page.waitForFunction(()=>{
+          const c=document.getElementById('globe-canvas'),r=c?.getBoundingClientRect();
+          return r&&r.width>250&&Math.abs(r.width-r.height)<3&&Number(getComputedStyle(c).opacity)>.95;
+        },null,{timeout:12000});
+      }else{
+        // A plain blue frame is NOT a world map. Prove on Safari and Chromium
+        // that the actual 2D canvas contains opaque, coloured land pixels.
+        await page.waitForFunction(()=>{
+          const c=document.getElementById('atlas-canvas');
+          if(!c||c.dataset.mapReady!=='true'||c.width<150||c.height<150)return false;
+          const ctx=c.getContext('2d',{willReadFrequently:true});
+          if(!ctx)return false;
+          let opaque=0,warmLand=0;
+          for(let y=9;y<c.height;y+=Math.max(11,Math.floor(c.height/22)))
+           for(let x=9;x<c.width;x+=Math.max(11,Math.floor(c.width/22))){
+            const p=ctx.getImageData(x,y,1,1).data;
+            if(p[3]>200)opaque++;
+            if(p[3]>200&&p[0]>135&&p[0]>p[2]*1.12&&p[0]>p[1]*1.07)warmLand++;
+           }
+          return opaque>25&&warmLand>3;
+        },null,{timeout:12000});
+      }
+      // A WebKit failure has shown the mode control disappearing AFTER
+      // a successful atlas pixel check. Never hide that with a 30s locator
+      // timeout: capture the page lifecycle and exact browser DOM state.
+      const modeState=await page.evaluate(requested=>{
+        const buttons=[...document.querySelectorAll('#globe-mode [data-globe-mode]')];
+        const screen=document.getElementById('world-screen');
+        const atlas=document.getElementById('atlas-canvas');
+        const b=buttons.find(x=>x.dataset.globeMode===requested);
+        return {exists:!!b,active:!!b?.classList.contains('active'),
+          modes:buttons.map(x=>({value:x.dataset.globeMode,active:x.classList.contains('active')})),
+          screenExists:!!screen,screenActive:!!screen?.classList.contains('active'),
+          perspective:screen?.dataset.mapPerspective||null,
+          atlasReady:atlas?.dataset.mapReady||null,
+          bodyNodes:document.body?.children.length||0,
+          url:location.href,readyState:document.readyState};
+      },mode).catch(error=>({evaluationError:String(error)}));
+      if(!modeState.active){
+        try{await page.screenshot({path:path.join(out,label+'-'+mode+'-FAILED.png'),timeout:3000})}catch(_){}
+        fs.writeFileSync(path.join(out,label+'-'+mode+'-FAILED.json'),
+          JSON.stringify({modeState,errors,navigation,crashes},null,2));
+      }
+      assert.equal(modeState.active,true,label+' '+mode+' mode did not activate: '+
+        JSON.stringify({modeState,errors,navigation,crashes}));
       await page.screenshot({path:path.join(out,label+'-'+mode+'.png'),fullPage:true});
     }
     fs.writeFileSync(path.join(out,label+'.json'),JSON.stringify(metrics,null,2));

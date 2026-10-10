@@ -2,7 +2,7 @@ name: Laria QA
 
 on:
   push:
-    branches: [main, fix/laria-globe-locked-scenery-v36]
+    branches: [main, fix/laria-globe-locked-scenery-v36, feat/laria-oct10-locked-journeys-phase1]
     paths:
       - 'laer-litt-mer/**'
       - 'tests/**'
@@ -205,6 +205,39 @@ jobs:
           QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
           HOME_V14_SCREENSHOTS: /tmp/laria-home-v14
         run: node tests/laria-home-subjects-v14.playwright.js
+      - name: Locked journey interaction geometry (synthetic decoder only; NOT visual parity)
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+          LOCKED_JOURNEY_QA: /tmp/laria-locked-journey-geometry
+        run: |
+          node --check laer-litt-mer/locked-journey-renderer.js
+          node --check laer-litt-mer/locked-journey-contract.js
+          node tests/laria-locked-journeys.playwright.js
+      - name: Upload locked journey interaction screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-locked-journey-interaction-${{ github.sha }}
+          path: /tmp/laria-locked-journey-geometry
+          if-no-files-found: warn
+          retention-days: 7
+      - name: Verify old checkpoint progression survives reload on approved artwork
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+        run: node tests/laria-locked-persistence.playwright.js
+      - name: Real locked art screenshot validation (requires approved original PNGs)
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+          LOCKED_ORIGINAL_QA: /tmp/laria-locked-originals
+        run: node tests/laria-locked-reference-visual.playwright.js
+      - name: Upload original-PNG visual and touch-area evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-locked-original-reference-${{ github.sha }}
+          path: /tmp/laria-locked-originals
+          if-no-files-found: warn
+          retention-days: 7
       - name: Upload subject Home visual evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -221,3 +254,47 @@ jobs:
           path: /tmp/laria-navigation-v13
           if-no-files-found: warn
           retention-days: 7
+
+
+  # Isolate the slow fullscreen globe stress test from the complete QA matrix
+  # so device-mode regressions can be caught and diagnosed in minutes.
+  laria-globe-mode-touch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact PR source
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Install Chromium and WebKit
+        run: npx playwright install --with-deps chromium webkit
+      - name: Verify genuine globe button taps and preserved geometry
+        env:
+          QA_SCREENSHOTS: /tmp/laria-globe-mode-touch
+        run: node tests/laria-globe-visual-p18.playwright.js
+      - name: Upload globe phone-tablet screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-globe-mode-touch-${{ github.sha }}
+          path: /tmp/laria-globe-mode-touch
+          if-no-files-found: warn
+          retention-days: 7
+
+  # Separate from the synthetic UI tests. This gate deliberately FAILS while
+  # the approved source PNGs are missing, so an otherwise green PR cannot be
+  # mistaken for a visually finished implementation.
+  locked-original-artwork-release:
+    if: (github.event_name == 'pull_request' && github.head_ref == 'feat/laria-oct10-locked-journeys-phase1') || (github.event_name == 'push' && github.ref == 'refs/heads/feat/laria-oct10-locked-journeys-phase1')
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Checkout exact PR source
+        uses: actions/checkout@v4
+      - name: Verify approved original artwork release readiness
+        run: node scripts/laria-locked-release-gate.cjs

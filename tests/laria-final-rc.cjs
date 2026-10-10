@@ -34,7 +34,15 @@ test('Laria Final RC preserves Prompt 18 locked contracts',()=>{
   const store=read('laria-native/LariaStorePlugin.swift.template');
 
   assert.match(index,/globe-v24\.css\?v=globe36-pigment3/,'locked globe CSS release must match deployed asset version');
-  assert.match(index,/globe-v25-renderer\.js\?v=globe36-pigment3/,'live globe renderer must remain separately cache-busted');
+  const globeRendererVersion=index.match(/<script src="\.\/globe-v25-renderer\.js\?v=([^"]+)" defer><\/script>/)?.[1];
+  const globePreloadVersion=index.match(/<link rel="preload" as="script" href="\.\/globe-v25-renderer\.js\?v=([^"]+)"\s*\/>/)?.[1];
+  assert.ok(globeRendererVersion,'live globe renderer must stay versioned');
+  assert.equal(globeRendererVersion,globePreloadVersion,'globe preload and script must use the same version');
+  assert.ok(globeRendererVersion!=='globe36-pigment3','updated renderer must have its own cache-busting version');
+  assert.ok(sw.includes(globeRendererVersion.replace(/^\d{8}-/,'')),'service-worker release must contain current globe renderer cache tag');
+  const atlasVersion=index.match(/<script src="\.\/atlas-perspective-v1\.js\?v=([^"]+)" defer><\/script>/)?.[1];
+  assert.ok(atlasVersion,'atlas script must be cache-busted after the WebKit repaint fix');
+  assert.ok(sw.includes(atlasVersion.replace(/^\d{8}-/,'')),'service worker cache must include the current atlas tag');
   assert.match(sw,/globe36-pigment3/,'service-worker cache must match latest locked visual release');
   assert.match(p18,/Status: \*\*FERDIG/,'Prompt 18 must remain formally closed');
   assert.equal(nativeConfig.appId,'no.adspire.laria','native app id changed');

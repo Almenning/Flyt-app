@@ -246,13 +246,11 @@ async function finishSession(page){
           await p.locator('#home-screen.active .bc12').waitFor();
           await p.evaluate(()=>openSubject('norwegian'));
           await p.locator('#subject-screen.active').waitFor();
-          const traveler=p.locator('#subject-screen.active .bok-v15-traveler');
-          await traveler.waitFor({state:'visible'});
-          const travelerImg=traveler.locator('.bok-v15-fox');
-          await travelerImg.waitFor({state:'visible'});
+          const travelerImg=p.locator('#subject-screen.active .locked-journey-profile[data-avatar="girl"] img');
+          await travelerImg.waitFor({state:'visible',timeout:16000});
           const travelerSrc=await travelerImg.getAttribute('src');
           const expectedTravelerSrc=await p.evaluate(()=>window.LARIA_PROFILE_AVATARS?.girl||'./lia-fox-explorer-home.webp');
-          assert.equal(travelerSrc,expectedTravelerSrc,'Bokskogen traveler did not render the saved revejente artwork');
+          assert.equal(travelerSrc,expectedTravelerSrc,'Bokskogen must display the saved revejente avatar over the approved artwork');
 
           await p.evaluate(()=>{
             sessionScope={type:'subject',subject:'norwegian',module:'reading',label:'Norsk',grade:2};
@@ -644,35 +642,28 @@ async function finishSession(page){
     assert.match(await page.locator('.onboard-step[data-step="0"] .hero-copy').textContent(),/Velg reven din, skriv navnet ditt og start reisen/i);
     assert.equal(await page.locator('.onboard-step[data-step="0"] .grade-question').count(),1,'grade choice must remain on the same onboarding screen');
 
-    // Norsk 1.–2.: the child enters the premium Bokskogen board, not the old module dashboard.
+    // Norsk 1.–2.: the child enters the approved locked Bokskogen journey.
     await page.evaluate(()=>openSubject('norwegian'));
     await page.locator('#subject-screen.active').waitFor();
     assert.equal(await page.locator('#subject-title').textContent(),'Norsk');
-    assert.equal(await page.locator('#journey-map .bok-v11-world').count(),1,'young Norwegian should use Bokskogen v11');
-    assert.equal(await page.locator('#journey-map [data-v10-place]').count(),11,'Bokskogen should expose one destination for each core learning stop');
-    assert.equal(await page.locator('#journey-map .bok-v10-place.state-current').count(),1,'exactly one destination should be the next place');
-    assert.equal(await page.locator('#journey-map .bok-v10-place .plaque').count(),0,'destination labels must belong to the illustrated world, not duplicate UI plaques');
-    assert.equal(await page.locator('#journey-map .bok-v16-terrain img').count(),1,'Bokskogen should show the active illustrated terrain atlas');
-    assert.equal(await page.locator('#journey-map .bok-v16-scene').count(),1,'Bokskogen should use one active layered scene');
-    assert.equal(await page.locator('#journey-map .bok-v15-scene').count(),0,'obsolete modular terrain must not compete with the active scene');
-    assert.equal(await page.locator('#journey-map .atlas-place-label').count(),11,'all core destinations need readable controls');
-    assert.equal(await page.locator('#journey-map').getAttribute('data-release'),'atlas32');
+    await page.locator('#journey-map.locked-journey-map[data-journey-subject="norwegian"] .locked-journey-image').waitFor({timeout:16000});
+    assert.equal(await page.locator('#journey-map .locked-journey-image').count(),1,'Bokskogen should use one exact approved source image');
+    assert.equal(await page.locator('#journey-map .locked-journey-hotspot').count(),5,'Bokskogen should expose all five painted destinations');
+    assert.equal(await page.locator('#journey-map .locked-journey-hotspot.state-current').count(),1,'exactly one painted destination should be next');
     assert.equal(await page.locator('#journey-map').getAttribute('data-journey-release'),'journey-rc1');
     assert.equal(Number(await page.locator('#journey-map').getAttribute('data-journey-core-stops')),11,'Bokskogen RC must expose 11 distinct core destinations');
-    assert.equal(await page.locator('#journey-map .bok-v10-home').isVisible(),true);
-    assert.equal(await page.locator('#journey-map .bok-v10-grade').isVisible(),true);
-    assert.equal(await page.locator('#journey-map .bok-v10-progress').isVisible(),true);
-    assert.equal(await page.locator('#journey-map .bok-v11-status').count(),0,'Bokskogen must not render floating circular state badges');
+    assert.equal(await page.locator('#journey-map .locked-journey-back').isVisible(),true);
+    assert.equal(await page.locator('#journey-map .locked-journey-options').isVisible(),true);
+    assert.match(await page.locator('#journey-map .locked-journey-live-progress').innerText(),/^★\s*0\s*\/\s*11$/);
     assert.equal(await page.locator('#subject-screen > .detail-back').isVisible(),false,'world-first Bokskogen must not leak the old page back button below the map');
-    const bokHudTop=await page.locator('#journey-map .bok-v10-top').evaluate(el=>el.getBoundingClientRect().top);
-    assert.ok(bokHudTop>=55,'Bokskogen HUD must clear iPhone status/Dynamic Island area');
     assert.equal(await page.locator('#subject-modules').isVisible(),false,'the old module dashboard should not compete with the game board');
     await page.waitForTimeout(450);
-    const bokNextPosition=await page.locator('#journey-map .bok-v10-place.state-current').evaluate(el=>el.getBoundingClientRect().top);
+    const bokNextPosition=await page.locator('#journey-map .locked-journey-hotspot.state-current').evaluate(el=>el.getBoundingClientRect().top);
     assert.ok(bokNextPosition>=0&&bokNextPosition<844,'Bokskogen must open with the next destination in the mobile viewport');
 
-    await page.locator('#journey-map .bok-v10-place.state-current').click();
+    await page.locator('#journey-map .locked-journey-hotspot.state-current').click();
     assert.equal(await page.locator('#journey-mission-backdrop').isVisible(),false,'map click must open the exercise directly');
+    await page.locator('.locked-journey-overlay:not([hidden]) [data-locked-node]:not([disabled])').filter({hasText:'Neste oppdrag'}).first().click();
     await page.locator('#session-screen.active').waitFor();
     assert.equal(await page.evaluate(()=>sessionScope.type),'journey');
     assert.equal(await page.evaluate(()=>sessionScope.subject),'norwegian');
@@ -680,9 +671,9 @@ async function finishSession(page){
     assert.match(await page.locator('#complete-area').textContent(),/Norsk/);
     await page.locator('#complete-home').click();
     await page.locator('#subject-screen.active').waitFor();
-    assert.equal(await page.locator('#journey-map .bok-v11-world').count(),1,'journey completion should return to the Bokskogen board');
-    assert.equal(await page.locator('#journey-map .bok-v16-terrain img').isVisible(),true,'the terrain atlas should remain visible after completing a session');
-    await page.locator('#journey-map .bok-v10-home').click();
+    await page.locator('#journey-map.locked-journey-map[data-journey-subject="norwegian"] .locked-journey-image').waitFor({timeout:16000});
+    assert.equal(await page.locator('#journey-map .locked-journey-image').isVisible(),true,'the approved Bokskogen original should remain visible after completing a session');
+    await page.locator('#journey-map .locked-journey-back').click();
     await page.locator('#home-screen.active').waitFor();
     assert.equal(await page.locator('.bc12-journey').isVisible(),true);
 
@@ -746,39 +737,39 @@ async function finishSession(page){
       saveState();delete window.__mathTapBackup;
     });
     await page.evaluate(()=>document.getElementById('open-math').click());
-    assert.equal(await page.locator('#journey-map').isVisible(),true);
-    assert.equal(await page.locator('#journey-map.premium-journey-map .premium-math').count(),1);
+    await page.locator('#journey-map.locked-journey-map[data-journey-subject="math"] .locked-journey-image').waitFor({timeout:16000});
     assert.equal(await page.locator('#journey-map').getAttribute('data-journey-release'),'journey-rc1');
-    assert.equal(await page.locator('#journey-map').getAttribute('data-journey-subject'),'math');
-    assert.ok(await page.locator('#journey-map .premium-place[data-journey-node]').count()>=4);
-    assert.equal(await page.locator('#journey-map .premium-place.is-next').count(),1);
-    assert.ok(await page.locator('#journey-map .premium-place.is-future').count()>=1);
-    assert.equal(await page.locator('#journey-map .premium-world-hud').count(),1);
+    assert.equal(await page.locator('#journey-map .locked-journey-image').getAttribute('src'),'./locked-journeys/tallenga-locked-20261010.png');
+    assert.equal(await page.locator('#journey-map .locked-journey-hotspot').count(),5,'Tallenga uses five original destinations');
+    assert.equal(await page.locator('#journey-map .locked-journey-hotspot.state-current').count(),1);
+    assert.equal(await page.locator('#journey-map .locked-journey-live-progress').count(),1,'current math progress should cover painted sample score');
     assert.equal(await page.locator('#journey-now-card').isVisible(),false);
     assert.equal(await page.locator('#journey-collection').isVisible(),false);
-    const worldArt=page.locator('#journey-map .premium-world-art');
-    assert.match(await worldArt.getAttribute('data-world-src'),/matte-verden\.png$/,'math world should keep the premium landscape source');
-    await page.waitForFunction(()=>{const img=document.querySelector('#journey-map .premium-world-art');return !!img?.getAttribute('src')&&img.complete&&img.naturalWidth>800},null,{timeout:4000});
-    await page.waitForTimeout(150);
-    const mathNextPosition=await page.locator('#journey-map .premium-place.is-next').evaluate(el=>el.getBoundingClientRect().top);
-    assert.ok(mathNextPosition>=0&&mathNextPosition<844,'Tallenga must open with the next mission in the mobile viewport');
-    const firstNode=page.locator('#journey-map .premium-place.is-next');
-    await firstNode.click();
+    await page.waitForTimeout(250);
+    const mathNextPosition=await page.locator('#journey-map .locked-journey-hotspot.state-current').evaluate(el=>el.getBoundingClientRect().top);
+    assert.ok(mathNextPosition>=0&&mathNextPosition<844,'Tallenga should show the next mission in the mobile viewport');
+    await page.locator('#journey-map .locked-journey-hotspot.state-current').click();
+    await page.locator('.locked-journey-overlay:not([hidden]) [data-locked-node]:not([disabled])').filter({hasText:'Neste oppdrag'}).first().click();
     await page.locator('#session-screen.active').waitFor();
-    assert.equal(await page.locator('#journey-mission-backdrop').isVisible(),false,'math map opens exercises with one tap');
-    assert.equal(await page.locator('#geography-screen').isVisible(),false,'inactive geography screen stays hidden');
+    assert.equal(await page.locator('#journey-mission-backdrop').isVisible(),false);
+    assert.equal(await page.locator('#geography-screen').isVisible(),false);
     await page.locator('#close-session').click();
-    await page.locator('#journey-map .premium-place.is-future').first().click();
-    assert.equal(await page.locator('#journey-map .premium-sheet-start').count(),0,'future place must not start a mission');
-    await page.locator('#journey-map .premium-sheet-close').click();
+    await page.locator('#subject-screen.active .locked-journey-map').waitFor();
+    const future=page.locator('#journey-map .locked-journey-hotspot.state-future');
+    assert.ok(await future.count()>=1,'Tallenga should keep later areas locked');
+    await future.first().click();
+    assert.equal(await page.locator('.locked-journey-overlay:not([hidden]) [data-locked-node]:not([disabled])').count(),0,'future core missions cannot start');
+    await page.locator('.locked-sheet-close').click();
 
     const peekBefore=await page.evaluate(()=>({pct:journeyProgress('math',2).pct,goal:dailyGoal().done,answers:subjectAnswered('math')}));
-    const previewNode=await page.evaluate(()=>{
-      const model=journeyModel('math',2),id=model.areas[1].nodes.find(n=>n.type==='skill').id;
-      return id;
-    });
-    await page.locator('#journey-map [data-journey-node="'+previewNode+'"]').click();
-    await page.locator('#journey-map .premium-sheet-peek').click();
+    let peekFound=false;
+    for(let i=0;i<await future.count();i++){
+      await future.nth(i).click();
+      const button=page.locator('.locked-journey-overlay:not([hidden]) [data-locked-preview]');
+      if(await button.count()){await button.click();peekFound=true;break}
+      await page.locator('.locked-sheet-close').click();
+    }
+    assert.equal(peekFound,true,'Tallenga must retain progress-neutral preview of immediately next area');
     await page.locator('#session-screen.active').waitFor();
     const peekScope=await page.evaluate(()=>({type:sessionScope.type,previewOnly:sessionScope.previewOnly,practiceOnly:sessionScope.practiceOnly,count:sessionQuestions.length}));
     assert.equal(peekScope.type,'journey-preview');
@@ -824,8 +815,8 @@ async function finishSession(page){
       recordJourneySessionResult(finalResult);
       const final={complete:journeyProgress('math',2).complete,gradeCompleted:finalResult.gradeCompleted||null,gradeWin:state.journey.gradeWins['math:2']||null};
       renderSubjectJourney();
-      final.visiblePrizes=document.querySelectorAll('#journey-map .premium-world-prize').length;
-      final.replayable=document.querySelectorAll('#journey-map .premium-place.is-done').length;
+      final.visiblePrizes=document.querySelectorAll('#journey-map .locked-journey-hotspot.state-complete').length;
+      final.replayable=document.querySelectorAll('#journey-map .locked-journey-hotspot.state-complete').length;
 
       state.skillMastery=backup.skillMastery;state.skillEvidence=backup.skillEvidence;state.journey=backup.journey;state.lastMilestone=backup.lastMilestone;sessionScope=oldScope;saveState();renderAll();openSubject('math');
       return {first,final};
@@ -973,10 +964,10 @@ async function finishSession(page){
     const multAfter=await page.evaluate(()=>({goal:dailyGoal().done,answers:subjectAnswered('math')}));
     assert.deepEqual(multAfter,multBefore,'Gangetabell-lab exploration must not count as a completed test or graded answer');
 
-    await page.locator('#subject-modules .subject-module').click();
+    await page.evaluate(()=>startLearningSession('math','numbers','Tall og regning'));
     assert.equal(await page.evaluate(()=>sessionQuestions.length),5);
     await page.locator('#close-session').click();
-    await page.locator('#journey-map .premium-world-back').click();
+    await page.locator('#journey-map .locked-journey-back').click();
 
     // English: no premature grammar, but real sentences and reading are available.
     await page.evaluate(()=>document.getElementById('open-english').click());
@@ -985,50 +976,33 @@ async function finishSession(page){
     assert.ok(englishModules.includes('Sentences'));
     assert.ok(englishModules.includes('Reading'));
     assert.ok(!englishModules.includes('Grammar'));
-    await page.locator('#subject-modules .subject-module').filter({hasText:'Sentences'}).click();
+    await page.evaluate(()=>startLearningSession('english','sentences','Sentences'));
     assert.equal(await page.evaluate(()=>sessionQuestions.length),5);
     assert.equal(await page.evaluate(()=>new Set(sessionQuestions.map(q=>q.prompt+'|'+q.answer)).size),5);
     await page.locator('#close-session').click();
-    await page.locator('#journey-map .premium-world-back').click();
+    await page.locator('#journey-map .locked-journey-back').click();
 
     // Geography: default Land must work on a young grade.
     await page.evaluate(()=>document.getElementById('open-geography').click());
     assert.equal(await page.locator('.geo-theme').count(),6);
     assert.equal(await page.locator('#geo-journey-map').isVisible(),true);
-    assert.equal(await page.locator('#geo-journey-map.premium-journey-map .premium-geography').count(),1);
+    await page.locator('#geo-journey-map.locked-journey-map[data-journey-subject="geography"] .locked-journey-image').waitFor({timeout:16000});
+    assert.equal(await page.locator('#geo-journey-map .locked-journey-image').getAttribute('src'),'./locked-journeys/nordlysleiren-locked-20261010.png');
     assert.equal(await page.locator('#geo-journey-map').getAttribute('data-journey-release'),'journey-rc1');
-    assert.equal(await page.locator('#geo-journey-map').getAttribute('data-journey-subject'),'geography');
-    assert.ok(await page.locator('#geo-journey-map .premium-place[data-geo-journey-node]').count()>=4);
-    assert.equal(await page.locator('#geo-journey-map .premium-place.is-next').count(),1);
-    assert.ok(await page.locator('#geo-journey-map .premium-place.is-future').count()>=1);
-    assert.equal(await page.locator('#geo-journey-map .premium-world-hud').count(),1);
+    assert.equal(await page.locator('#geo-journey-map .locked-journey-hotspot').count(),5);
+    assert.equal(await page.locator('#geo-journey-map .locked-journey-hotspot.state-current').count(),1);
+    assert.equal(await page.locator('#geo-journey-map .locked-journey-live-progress').count(),1);
     const geoWorldTop=await page.locator('#geo-journey-map').evaluate(el=>el.getBoundingClientRect().top);
     const geoGlobeTop=await page.locator('#open-world').evaluate(el=>el.getBoundingClientRect().top);
-    assert.ok(geoWorldTop<geoGlobeTop,'young-grade geography journey should be the primary surface before globe/free exploration');
-    assert.equal(await page.locator('#geography-screen > .geography-head').isVisible(),false,'young-grade geography should not put a dashboard banner before the world');
-    const reactionNode=await page.evaluate(()=>{
-      const grade=journeyViewGrade('geography'),model=geoJourneyProgress(grade).model,current=geoJourneyRecommendedNode(grade);
-      const route=model.areas.flatMap(area=>area.nodes.filter(n=>n.type==='geo-skill'||n.type==='checkpoint'));
-      const currentIndex=Math.max(0,route.findIndex(n=>n.id===current?.id));
-      return route[Math.min(route.length-1,currentIndex+1)]?.id||current?.id;
-    });
-    await page.evaluate(nodeId=>{
-      window.__journeyWorldReaction={subject:'geography',grade:journeyViewGrade('geography'),nodeId,at:Date.now()};
-      renderGeoJourney();
-    },reactionNode);
-    assert.equal(await page.locator('#geo-journey-map .premium-world.is-progress-reaction .premium-progress-reaction').count(),1,'a newly completed core mission should trigger one landscape reaction');
-    assert.equal(await page.locator('#geo-journey-map .premium-place.is-just-completed').count(),1,'the completed landmark should receive the reaction state');
-    assert.equal(await page.locator('#geo-journey-map .premium-traveler-character').count(),1,'premium worlds should isolate guide motion from idle breathing');
-    assert.notEqual(await page.locator('#geo-journey-map .premium-traveler').getAttribute('data-travel-from-x'),null,'reaction render should carry the travel origin');
-    await page.waitForTimeout(80);
-    const travelDistance=Number(await page.locator('#geo-journey-map .premium-traveler').getAttribute('data-travel-distance')||0);
-    assert.ok(travelDistance>10,'a reaction between different landmarks should start a real traveler movement');
-    assert.equal(await page.evaluate(()=>window.__journeyWorldReaction),null,'the world reaction must be one-shot');
-    await page.locator('#geo-journey-map .premium-place.is-next').click();
+    assert.ok(geoWorldTop<geoGlobeTop,'Nordlysleiren must precede globe/free exploration');
+    assert.equal(await page.locator('#geography-screen > .geography-head').isVisible(),false);
+    await page.locator('#geo-journey-map .locked-journey-hotspot.state-current').click();
+    await page.locator('.locked-journey-overlay:not([hidden]) [data-locked-node]:not([disabled])').filter({hasText:'Neste oppdrag'}).first().click();
     await page.locator('#session-screen.active').waitFor();
-    assert.equal(await page.locator('#journey-mission-backdrop').isVisible(),false,'geography map opens exercises with one tap');
-    assert.equal(await page.locator('#geography-screen').isVisible(),false,'geography theme must not leak over exercises');
+    assert.equal(await page.locator('#journey-mission-backdrop').isVisible(),false);
+    assert.equal(await page.locator('#geography-screen').isVisible(),false);
     await page.locator('#close-session').click();
+    await page.locator('#geography-screen.active .locked-journey-map').waitFor();
 
     const nextGeoNode=await page.evaluate(()=>geoJourneyRecommendedNode()?.id);
     assert.ok(nextGeoNode,'missing recommended geography journey node');
@@ -1077,7 +1051,7 @@ async function finishSession(page){
     await page.locator('#geography-screen.active').waitFor();
 
     // Progress.
-    await page.locator('#geo-journey-map .premium-world-back').click();
+    await page.locator('#geo-journey-map .locked-journey-back').click();
     await page.evaluate(()=>setTab('progress'));
     await page.locator('#progress-screen.active').waitFor();
     assert.equal(await page.locator('#subject-progress-grid .subject-progress-card').count(),4);
@@ -1087,7 +1061,7 @@ async function finishSession(page){
     await page.evaluate(()=>document.getElementById('open-geography').click());
     const themeHeights=await page.locator('.geo-theme:visible').evaluateAll(els=>els.map(e=>e.getBoundingClientRect().height));
     assert.ok(themeHeights.every(h=>h>=44),`small geography touch target: ${themeHeights}`);
-    const backHeight=await page.locator('#geo-journey-map .premium-world-back').evaluate(e=>e.getBoundingClientRect().height);
+    const backHeight=await page.locator('#geo-journey-map .locked-journey-back').evaluate(e=>e.getBoundingClientRect().height);
     assert.ok(backHeight>=44,`small back target: ${backHeight}`);
 
     // Prompt 11: all four subjects must render through the same premium task scene contract.
@@ -1482,8 +1456,8 @@ async function finishSession(page){
     });
     await page.evaluate(()=>document.getElementById('open-math').click());
     assert.equal(await page.locator('#journey-grade-strip [data-journey-grade]').count(),10);
-    await page.locator('#journey-map .premium-world-grade').click();
-    await page.locator('#journey-map [data-premium-grade="3"]').click();
+    await page.locator('#journey-map .locked-journey-options').click();
+    await page.locator('.locked-journey-overlay:not([hidden]) [data-locked-grade="3"]').click();
     const selectedJourney=await page.evaluate(()=>({
       profile:currentGrade(),
       view:journeyViewGrade('math'),

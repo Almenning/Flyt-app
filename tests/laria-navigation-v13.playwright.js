@@ -47,16 +47,19 @@ async function run(engine,label,viewport){
   assert.equal(await page.locator('.bc13-panel:not([hidden])').count(),0,'Home should not show a detached chooser');
   await page.locator('.bc12-nav [data-camp="travel"]').click();
   await checkBoard(page,'travel',label);
-  for(const [subject,screen,back] of [
-   ['norwegian','subject','subject-back'],
-   ['math','subject','subject-back'],
-   ['english','subject','subject-back'],
-   ['geography','geography','geography-back']]){
+  for(const [subject,screen] of [
+   ['norwegian','subject'],
+   ['math','subject'],
+   ['english','subject'],
+   ['geography','geography']]){
    await page.locator('[data-bc13-action="'+subject+'"]').click();
    await page.locator('#'+screen+'-screen.active').waitFor({timeout:10000});
-   const visibleBack=page.locator('#'+screen+'-screen .bok-v10-home:visible, #'+screen+'-screen .premium-world-back:visible, #'+back+':visible').first();
-   await visibleBack.waitFor({state:'visible',timeout:10000});
-   await visibleBack.click();
+   // The verified PNG renderer replaces the legacy map asynchronously after
+   // its source image is decoded. Wait for its own back control so the test
+   // cannot capture a legacy button that becomes hidden between wait/click.
+   const journeyBack=page.locator('#'+screen+'-screen.active .locked-journey-map[data-journey-subject="'+subject+'"] .locked-journey-back');
+   await journeyBack.waitFor({state:'visible',timeout:16000});
+   await journeyBack.click();
    await page.locator('#home-screen.active').waitFor({timeout:10000});
    await page.locator('.bc13-panel:not([hidden]) [data-bc13-action="'+subject+'"]').waitFor({timeout:10000});
   }

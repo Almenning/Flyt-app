@@ -1,0 +1,95 @@
+'use strict';
+/* Regression: the approved October 10 art must never erase an existing
+ * checkpoint, alter its original node ID, or remove the ability to replay.
+ * Exercises and user progress remain owned by the existing journey engine.
+ */
+const {chromium,webkit}=require('playwright');
+const assert=require('node:assert/strict');
+const seed={
+ version:7,progressSchemaVersion:3,
+ profile:{grade:2,onboarded:true,name:'ProgresjonQA',avatar:'girl',setupVersion:2},
+ mastery:{},mistakes:{},skillMastery:{},skillMistakes:{},skillLastSeen:{},
+ masteryEvidence:{},skillEvidence:{},preferences:{sound:false,autoRead:false},
+ lastMilestone:null,recentCountryWin:null,lastActivity:null,
+ journey:{nodes:{},gradeWins:{},viewGrades:{}},answerLog:[],sessionLog:[],activeSession:null
+};
+const titles={norwegian:'Bokskogen',math:'Tallenga',english:'Ordlandsbyen',geography:'Nordlysleiren'};
+async function verify(engine,label,viewport){
+ const browser=await engine.launch({headless:true,args:engine===chromium?['--no-sandbox']:[]});
+ try{
+  const context=await browser.newContext({viewport,isMobile:viewport.width<600,hasTouch:true,serviceWorkers:'block'});
+  await context.addInitScript(value=>{
+   if(!localStorage.getItem('laerlittmer-v2'))
+    localStorage.setItem('laerlittmer-v2',JSON.stringify(value));
+  },seed);
+  const page=await context.newPage(),errors=[];
+  page.on('pageerror',err=>errors.push(err.message));
+  await page.route('https://raw.githubusercontent.com/**',route=>route.abort());
+  await page.route('https://api.worldbank.org/**',route=>route.abort());
+  const url=process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria';
+  await page.goto(url+'&locked-persistence='+label,{waitUntil:'domcontentloaded'});
+  await page.locator('.bc14-subject[data-camp="subject-norwegian"]').waitFor({timeout:16000});
+  // Use REAL, original checkpoint IDs. Never introduce invented records.
+  const marked=await page.evaluate(()=>{
+   const result={};
+   for(const subject of ['norwegian','math','english','geography']){
+    const model=subject==='geography'?geoJourneyModel(2):journeyModel(subject,2);
+    const checkpoint=model.nodes.find(n=>n.type==='checkpoint');
+    if(!checkpoint)throw Error('No original checkpoint in '+subject);
+    const key=journeyNodeKey(subject,2,checkpoint.id);
+    state.journey.nodes[key]={attempts:1,passed:true,best:5};
+    result[subject]={key,id:checkpoint.id};
+   }
+   saveState();return result;
+  });
+  const before=await page.evaluate(()=>JSON.parse(localStorage.getItem('laerlittmer-v2')).journey.nodes);
+  assert.equal(Object.keys(before).length,4,label+' must have four original checkpoints');
+  await page.reload({waitUntil:'domcontentloaded'});
+  await page.locator('.bc14-subject[data-camp="subject-norwegian"]').waitFor({timeout:16000});
+  assert.deepEqual(await page.evaluate(()=>JSON.parse(localStorage.getItem('laerlittmer-v2')).journey.nodes),before,
+   label+' original progress changed on reload');
+  for(const [subject,title] of Object.entries(titles)){
+   const screen=subject==='geography'?'geography':'subject';
+   await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').click();
+   const root=page.locator('#'+screen+'-screen.active .locked-journey-map');
+   await root.waitFor({timeout:16000});
+   await page.waitForFunction(s=>{
+    const image=document.querySelector('.screen.active .locked-journey-image');
+    return image?.complete&&image.naturalWidth===941&&
+      document.querySelector('.screen.active .locked-journey-map')?.dataset.journeySubject===s;
+   },subject,{timeout:16000});
+   assert.match(await root.locator('.locked-journey-live-progress').innerText(),/1\s*\/\s*\d+/,
+    label+' '+title+' has lost previously completed progress');
+   const counts=await root.locator('.locked-journey-milestones[role="progressbar"]').evaluate(el=>({
+    done:Number(el.getAttribute('aria-valuenow')),total:Number(el.getAttribute('aria-valuemax'))
+   }));
+   assert.equal(counts.done,1,label+' '+title+' old checkpoint not counted');
+   assert.ok(counts.total>0,label+' '+title+' invalid total');
+   assert.equal(await root.locator('.locked-journey-hotspot').count(),5);
+   let replayable=false;
+   for(let i=0;i<5;i++){
+    await root.locator('.locked-journey-hotspot').nth(i).click();
+    const item=page.locator('.locked-journey-overlay:not([hidden]) [data-locked-node="'+marked[subject].id+'"]');
+    if(await item.count()){
+     assert.equal(await item.isEnabled(),true,label+' '+title+' completed checkpoint was locked');
+     assert.match(await item.innerText(),/Fullført, kan spilles igjen/);
+     replayable=true;
+    }
+    await page.locator('.locked-sheet-close').click();
+    if(replayable)break;
+   }
+   assert(replayable,label+' '+title+' lost checkpoint ID '+marked[subject].id);
+   await root.locator('.locked-journey-back').click();
+   await page.locator('#home-screen.active').waitFor({timeout:16000});
+  }
+  assert.deepEqual(await page.evaluate(()=>JSON.parse(localStorage.getItem('laerlittmer-v2')).journey.nodes),before,
+   label+' journey navigation altered saved child progress');
+  assert.deepEqual(errors,[],label+' runtime errors');
+  console.log('[locked real-PNG persistence]',label,'4 old checkpoints, 4 maps, replay and reload OK');
+  await context.close();
+ }finally{await browser.close();}
+}
+(async()=>{
+ await verify(chromium,'chromium-iphone',{width:390,height:844});
+ await verify(webkit,'webkit-ipad-landscape',{width:1180,height:820});
+})().catch(err=>{console.error(err);process.exitCode=1});
