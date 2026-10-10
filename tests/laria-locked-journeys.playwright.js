@@ -91,6 +91,19 @@ async function run(engine,label,viewport){
    await page.evaluate(s=>setJourneyViewGrade(s,2),subject);
    await page.waitForFunction(s=>journeyViewGrade(s)===2&&document.querySelector('.screen.active .locked-journey-map')?.dataset.journeySubject===s,subject);
    assert.equal(await page.locator(base+' .locked-journey-hotspot').count(),5,label+' reference map did not return after grade switch');
+   if(subject==='math'){
+     const savedBefore=await page.evaluate(()=>JSON.stringify(JSON.parse(localStorage.getItem('laerlittmer-v2')).journey));
+     await page.locator(base+' .locked-journey-hotspot').nth(2).click();
+     const existing=page.locator('.locked-journey-overlay:not([hidden]) [data-locked-existing="fraction-lab"]');
+     await existing.waitFor({timeout:10000});
+     await existing.click();
+     await page.locator('#fraction-lab-screen.active').waitFor({timeout:12000});
+     assert.equal(await page.locator('#fraction-lab-root .lab-mode-tab').count(),2,label+' existing Brøklaben must keep both modes');
+     await page.locator('#fraction-lab-back').click();
+     await page.locator('#subject-screen.active .locked-journey-map').waitFor({timeout:12000});
+     const savedAfter=await page.evaluate(()=>JSON.stringify(JSON.parse(localStorage.getItem('laerlittmer-v2')).journey));
+     assert.equal(savedAfter,savedBefore,label+' Brøklaben must not fabricate journey progress');
+   }
    await page.evaluate(()=>{
     window.__lockedLaunch=null;
     window.startJourneyNode=(...args)=>{window.__lockedLaunch={kind:'subject',args}};
