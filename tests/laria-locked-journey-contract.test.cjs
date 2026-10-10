@@ -71,3 +71,19 @@ test('original node IDs and completion are stable over repeat mapping',()=>{
  assert.equal(first.places.reduce((n,p)=>n+p.done,0),2);
  assert.equal(first.places.reduce((n,p)=>n+p.total,0),2);
 });
+
+test('grades with four core missions still reach the fifth painted destination',()=>{
+ const nodes=[
+  {id:'first',areaId:'a',type:'skill'},
+  {id:'second',areaId:'a',type:'checkpoint'},
+  {id:'third',areaId:'b',type:'skill'},
+  {id:'last',areaId:'b',type:'checkpoint'}
+ ];
+ const model={areas:[{id:'a',nodes:nodes.slice(0,2)},{id:'b',nodes:nodes.slice(2)}],nodes};
+ const places=journey.build('math',model,()=>'new','third').places;
+ assert.equal(places[0].nodes[0].id,'first');
+ assert.equal(places[4].nodes[0].id,'last');
+ assert.equal(places[2].total,0,'vacant places may not fabricate activities');
+ assert.equal(places.reduce((total,p)=>total+p.total,0),4);
+ assert.deepEqual(places.flatMap(p=>p.nodes.map(n=>n.id)),['first','second','third','last']);
+});
