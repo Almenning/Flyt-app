@@ -67,8 +67,16 @@ async function answerCurrent(page){
       document.querySelector('#check-sentence').click();
     });
   }else if(q.type==='number-input'){
-    await page.locator('#math-input').fill(String(q.answer));
-    await page.locator('#check-number').click();
+    if(await page.locator('.young-math-option').count()){
+      await page.locator('.young-math-option').evaluateAll((els,answer)=>{
+        const chosen=els.find(x=>x.dataset.answer===String(answer));
+        if(!chosen)throw new Error('missing correct tap choice: '+answer);
+        chosen.click();
+      },q.answer);
+    }else{
+      await page.locator('#math-input').fill(String(q.answer));
+      await page.locator('#check-number').click();
+    }
   }else if(q.type==='sequence-order'){
     await page.evaluate(()=>{
       const q=sessionQuestions[qIndex],used=new Set();
@@ -680,8 +688,28 @@ async function finishSession(page){
 
     // Matte: second grade should stay simple, but interaction should not be only multiple choice.
     const mathVariety=await page.evaluate(()=>mathPool(2,'numbers').map(q=>q.type));
-    assert.ok(mathVariety.includes('number-input'),'grade 2 math should include typed answers');
+    assert.ok(mathVariety.includes('number-input'),'keep grade 2 numeric questions in the persisted question model');
     assert.ok(mathVariety.includes('sequence-order'),'grade 2 math should include ordering');
+    // Real premium task-scene route, including older persisted number-input questions.
+    await page.evaluate(()=>{
+      sessionQuestions=[{subject:'math',skill:'place-value',type:'number-input',
+        prompt:'Hva er verdien til 8 i tallet 82?',answer:'80',curriculum:'MAT01-06'}];
+      qIndex=0;currentAnswered=null;
+      sessionScope={type:'journey',subject:'math',journeyGrade:2,journeyType:'skill',label:'Plassverdi'};
+      state.activeSession={startedAt:Date.now()};persistActiveSession();showScreen('session');renderQuestion();
+    });
+    assert.equal(await page.locator('.young-math-option').count(),3,'second graders must tap, not type');
+    assert.equal(await page.locator('#math-input').count(),0,'keyboard must not appear');
+    const tapOptions=await page.locator('.young-math-option').evaluateAll(els=>els.map(x=>x.dataset.answer));
+    assert.equal(new Set(tapOptions).size,3,'choices must be distinct');
+    assert.ok(tapOptions.includes('80'),'80 is the correct value in 82');
+    assert.ok(tapOptions.includes('8'),'the digit 8 is a useful plausible distractor');
+    await page.locator('.young-math-option[data-answer="80"]').click();
+    assert.match(await page.locator('#feedback-title').innerText(),/Riktig/);
+    assert.equal(await page.locator('.young-math-option.correct').count(),1);
+    await page.evaluate(()=>renderQuestion());
+    assert.equal(await page.locator('.young-math-option.correct').count(),1,'resume/rerender must retain answer feedback');
+    await page.locator('#close-session').click();
     await page.evaluate(()=>document.getElementById('open-math').click());
     assert.equal(await page.locator('#journey-map').isVisible(),true);
     assert.equal(await page.locator('#journey-map.premium-journey-map .premium-math').count(),1);
