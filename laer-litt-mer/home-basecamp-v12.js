@@ -51,7 +51,7 @@ window.LARIA_RETURN_TO_BASECAMP=()=>{
 function travel(){const info=next();fromCamp=true;if(info.active){startSession();return}if(info.subject==='geography'){renderGeographyContinue();showScreen('geography')}else openSubject(info.subject);}
 function activity(name){
  fromCamp=true;
- if(name==='globe'){if(typeof window.openGlobe==='function')window.openGlobe('explore');else{showScreen('world');requestAnimationFrame(()=>setGlobeMode('explore'));}}
+ if(name==='globe'){if(typeof window.openGlobe==='function')window.openGlobe('classic');else{showScreen('world');requestAnimationFrame(()=>setGlobeMode('classic'));}}
  else if(name==='fraction')window.openFractionLab();
  else if(name==='multiply')window.openMultiplicationLab();
  else if(name==='words'){if(typeof window.openWordHunt==='function')window.openWordHunt();else openSubject('norwegian');}
