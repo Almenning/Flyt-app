@@ -259,7 +259,7 @@ async function capture(browserType,label,viewport){
         window.drawGlobe();
         const f=window.__LARIA_GLOBE_V37_FRAME;
         const canvas=document.getElementById('globe-canvas');
-        const markers=[...f.land,...f.water,...f.discovery];
+        const markers=[...f.land,...f.water,...f.discovery,...f.terrain];
         let maxDrift=0;
         for(const m of markers){
           const p=globeProject(m.lon,m.lat,canvas._cssW,canvas._cssH);
@@ -268,7 +268,7 @@ async function capture(browserType,label,viewport){
         }
         return {version:f.version,zoom:f.zoom,level:f.level,
           mediumAlpha:f.mediumAlpha,nearAlpha:f.nearAlpha,
-          land:f.land.length,water:f.water.length,discovery:f.discovery.length,
+          land:f.land.length,water:f.water.length,discovery:f.discovery.length,terrain:f.terrain.length,
           maxDrift,renderSource:f.renderSource};
       },zoom);
       assert.equal(frame.version,37,label+' '+level+' must use the v37 artwork');
@@ -280,6 +280,7 @@ async function capture(browserType,label,viewport){
     assert.equal(artLevels[0].land,0,label+' overview must not be cluttered by forest/mountain icons');
     assert.equal(artLevels[0].water,0,label+' overview must not be cluttered by ships/whales');
     assert.equal(artLevels[0].discovery,0,label+' overview must not be cluttered by landmark icons');
+    assert.equal(artLevels[0].terrain,0,label+' overview must not be cluttered by large decorative brushwork');
     assert.ok(artLevels[1].land>=1,label+' medium zoom must reveal geographically placed natural details');
     assert.ok(artLevels[2].land>=1,label+' near zoom must retain geographic natural details');
     assert.ok(artLevels[2].nearAlpha>.99,label+' close zoom must reveal locally placed discoverables');
