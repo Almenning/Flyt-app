@@ -191,6 +191,22 @@ jobs:
           QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
           HOME_V14_SCREENSHOTS: /tmp/laria-home-v14
         run: node tests/laria-home-subjects-v14.playwright.js
+      - name: Locked journey interaction geometry (synthetic decoder only; NOT visual parity)
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+          LOCKED_JOURNEY_QA: /tmp/laria-locked-journey-geometry
+        run: |
+          node --check laer-litt-mer/locked-journey-renderer.js
+          node --check laer-litt-mer/locked-journey-contract.js
+          node tests/laria-locked-journeys.playwright.js
+      - name: Upload locked journey interaction screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-locked-journey-interaction-${{ github.sha }}
+          path: /tmp/laria-locked-journey-geometry
+          if-no-files-found: warn
+          retention-days: 7
       - name: Upload subject Home visual evidence
         if: always()
         uses: actions/upload-artifact@v4
