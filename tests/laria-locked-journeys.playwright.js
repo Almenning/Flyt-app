@@ -5,7 +5,10 @@
  */
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
+const path=require('node:path');
 const {chromium,webkit}=require('playwright');
+const originalArtApproved=/const ORIGINAL_SOURCE_IMAGES_VERIFIED\\s*=\\s*true\\s*;/
+ .test(fs.readFileSync(path.join(__dirname,'..','laer-litt-mer','locked-journey-renderer.js'),'utf8'));
 const output=process.env.LOCKED_JOURNEY_QA||'/tmp/laria-locked-journey-geometry';
 fs.mkdirSync(output,{recursive:true});
 const seed={
@@ -176,6 +179,13 @@ async function run(engine,label,viewport){
  }finally{await browser.close()}
 }
 async function verifyProductionFallback(){
+ // Once all four originals have been explicitly approved, the real-PNG
+ // screenshot suite tests their live rendering. The legacy fallback is then
+ // intentionally inactive and must not be asserted as if art were missing.
+ if(originalArtApproved){
+  console.log('[locked fallback] skipped: approved originals are active; real-PNG QA is authoritative');
+  return;
+ }
  const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
  try{
   const ctx=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,serviceWorkers:'block'});
