@@ -104,6 +104,8 @@
 }
 @media(min-width:701px) and (orientation:portrait){
  .bc13-panel{top:11%;width:82%;height:75%}
+ .bc13-scene{flex-basis:68%}
+ .bc13-card-copy{padding-top:10px}
 }
 @media(max-height:530px) and (orientation:landscape){
  .bc13-panel{top:6%;height:80%;max-width:720px}
