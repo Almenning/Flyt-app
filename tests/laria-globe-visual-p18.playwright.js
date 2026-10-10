@@ -108,11 +108,22 @@ async function capture(browserType,label,viewport){
     assert.equal(await page.locator('#atlas-canvas').isVisible(),true,label+' atlas not active by default');
     await tapGlobeMode(page,'classic',label);
     await page.waitForFunction(()=>document.querySelector('#world-screen.active').dataset.mapPerspective==='globe');
+    // A native Safari canvas can change from fullscreen atlas dimensions to
+    // the circular globe over more than one animation frame. Only inspect the
+    // frame once BOTH CSS geometry and the underlying bitmap are synchronized.
+    // This remains a strict functional check: an actually stretched or hidden
+    // globe will time out and fail rather than being silently accepted.
     await page.waitForFunction(()=>{
+      const screen=document.querySelector('#world-screen.active');
       const c=document.getElementById('globe-canvas'),r=c?.getBoundingClientRect();
-      return r&&r.width>250&&r.height>250;
-    });
-    await page.waitForTimeout(650);
+      if(!screen||!r||screen.classList.contains('atlas-perspective-on')||
+         screen.dataset.mapPerspective!=='globe')return false;
+      const dpr=c._dpr||window.devicePixelRatio||1;
+      return r.width>250&&r.height>250&&Math.abs(r.width-r.height)<3&&
+        Number(getComputedStyle(c).opacity)>.95&&
+        Math.abs(c.width-Math.round(r.width*dpr))<3&&
+        Math.abs(c.height-Math.round(r.height*dpr))<3;
+    },null,{timeout:16000});
     const sceneName=viewport.width>viewport.height&&viewport.width>=900?'landscape':viewport.width>=700?'tablet':'mobile';
     const backgroundImage=await page.evaluate(()=>getComputedStyle(document.getElementById('world-screen')).backgroundImage);
     assert.ok(backgroundImage.includes('globe-storyscape-v36-'+sceneName+'.webp'),label+' did not load the correct illustrated nature scene: '+backgroundImage);
