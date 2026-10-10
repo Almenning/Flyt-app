@@ -207,6 +207,19 @@ jobs:
           path: /tmp/laria-locked-journey-geometry
           if-no-files-found: warn
           retention-days: 7
+      - name: Real locked art screenshot validation (requires approved original PNGs)
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+          LOCKED_ORIGINAL_QA: /tmp/laria-locked-originals
+        run: node tests/laria-locked-reference-visual.playwright.js
+      - name: Upload original-PNG visual and touch-area evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-locked-original-reference-${{ github.sha }}
+          path: /tmp/laria-locked-originals
+          if-no-files-found: warn
+          retention-days: 7
       - name: Upload subject Home visual evidence
         if: always()
         uses: actions/upload-artifact@v4
