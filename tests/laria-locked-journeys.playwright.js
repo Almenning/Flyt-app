@@ -74,7 +74,13 @@ async function run(engine,label,viewport){
    assert.equal(after,before,label+' map interactions must not modify progress');
    await page.locator(base+' .locked-journey-options').click();
    assert.equal(await page.locator('.locked-journey-grade-grid button').count(),10,label+' grade selector still available');
-   await page.locator('.locked-sheet-close').click();
+   // Older children still get their EXISTING map, not art meant for grades 1–2.
+   await page.locator('.locked-journey-grade-grid [data-locked-grade="3"]').click();
+   await page.waitForFunction(s=>journeyViewGrade(s)===3&&!document.querySelector('.screen.active .locked-journey-map'),subject);
+   assert.equal(await page.locator('#'+screen+'-screen.active').evaluate(el=>el.classList.contains('locked-journey-active')),false,label+' art class leaked into grade 3');
+   await page.evaluate(s=>setJourneyViewGrade(s,2),subject);
+   await page.waitForFunction(s=>journeyViewGrade(s)===2&&document.querySelector('.screen.active .locked-journey-map')?.dataset.journeySubject===s,subject);
+   assert.equal(await page.locator(base+' .locked-journey-hotspot').count(),5,label+' reference map did not return after grade switch');
    await page.evaluate(()=>{
     window.__lockedLaunch=null;
     window.startJourneyNode=(...args)=>{window.__lockedLaunch={kind:'subject',args}};
@@ -96,7 +102,35 @@ async function run(engine,label,viewport){
   await ctx.close();
  }finally{await browser.close()}
 }
+async function verifyProductionFallback(){
+ const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
+ try{
+  const ctx=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,serviceWorkers:'block'});
+  const page=await ctx.newPage(),originalRequests=[],errors=[];
+  page.on('request',req=>{if(req.url().includes('/locked-journeys/')&&req.url().endsWith('.png'))originalRequests.push(req.url())});
+  page.on('pageerror',err=>errors.push(err.message));
+  await page.addInitScript(value=>localStorage.setItem('laerlittmer-v2',JSON.stringify(value)),seed);
+  await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
+  await page.route('https://api.worldbank.org/**',r=>r.abort());
+  const url=process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria';
+  await page.goto(url+'&locked-fallback=1',{waitUntil:'domcontentloaded'});
+  await page.locator('.bc14-subject[data-camp="subject-norwegian"]').waitFor({timeout:16000});
+  for(const subject of Object.keys(expected)){
+   const screen=subject==='geography'?'geography':'subject';
+   await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').click();
+   await page.locator('#'+screen+'-screen.active').waitFor({timeout:10000});
+   assert.equal(await page.locator('#'+screen+'-screen.active .locked-journey-map').count(),0,'Unverified original art activated on '+subject);
+   await page.locator('#'+screen+'-back').click({force:true});
+   await page.locator('#home-screen.active').waitFor();
+  }
+  assert.deepEqual(originalRequests,[],'Unverified image requests produced 404 errors');
+  assert.deepEqual(errors,[],'Production fallback raised JS runtime errors');
+  await ctx.close();
+  console.log('[locked fallback] 4 legacy worlds remain reachable with zero original-image requests');
+ }finally{await browser.close()}
+}
 (async()=>{
+ await verifyProductionFallback();
  for(const [label,engine,viewport] of [
   ['chromium-iphone-portrait',chromium,{width:390,height:844}],
   ['webkit-iphone-portrait',webkit,{width:390,height:844}],
