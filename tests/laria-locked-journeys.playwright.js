@@ -98,7 +98,11 @@ async function run(engine,label,viewport){
      await existing.waitFor({timeout:10000});
      await existing.click();
      await page.locator('#fraction-lab-screen.active').waitFor({timeout:12000});
-     assert.equal(await page.locator('#fraction-lab-root .lab-mode-tab').count(),2,label+' existing Brøklaben must keep both modes');
+     assert.equal(await page.locator('#fraction-lab-root .fr2-home-card[data-page]').count(),6,label+' the existing six-card premium Brøklaben must be preserved');
+     await page.locator('#fraction-lab-root [data-fr-action="go"][data-page="explore"]').click();
+     await page.locator('#fraction-lab-root .fr2-explore').waitFor({timeout:12000});
+     await page.locator('#fraction-lab-back').click();
+     await page.locator('#fraction-lab-root .fr2-home').waitFor({timeout:12000});
      await page.locator('#fraction-lab-back').click();
      await page.locator('#subject-screen.active .locked-journey-map').waitFor({timeout:12000});
      const savedAfter=await page.evaluate(()=>JSON.stringify(JSON.parse(localStorage.getItem('laerlittmer-v2')).journey));
