@@ -40,18 +40,18 @@ async function run(engine,label,viewport){
    const screen=subject==='geography'?'geography':'subject';
    await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').click();
    await page.locator('#'+screen+'-screen.active').waitFor({timeout:16000});
-   await page.waitForFunction(s=>document.querySelector('.locked-journey-map')?.dataset.journeySubject===s,subject,{timeout:16000});
-   const base='.locked-journey-map';
+   await page.waitForFunction(s=>document.querySelector('.screen.active .locked-journey-map')?.dataset.journeySubject===s,subject,{timeout:16000});
+   const base='#'+screen+'-screen.active .locked-journey-map';
    assert.equal(await page.locator(base+' .locked-journey-hotspot').count(),5,label+' '+subject+' landmark count');
    const names=await page.locator(base+' .locked-journey-hotspot').evaluateAll(nodes=>nodes.map(n=>n.getAttribute('aria-label')));
    assert(names.every((s,i)=>s.includes(expected[subject][i])),label+' '+subject+' wrong painted places '+JSON.stringify(names));
    const geometry=await page.evaluate(()=>{
-    const board=document.querySelector('.locked-journey-board').getBoundingClientRect();
-    const img=document.querySelector('.locked-journey-image');
+    const board=document.querySelector('.screen.active .locked-journey-board').getBoundingClientRect();
+    const img=document.querySelector('.screen.active .locked-journey-image');
     const imageBox=img.getBoundingClientRect();
     return {ratio:board.width/board.height,imageRatio:imageBox.width/imageBox.height,
       w:board.width,h:board.height,natural:[img.naturalWidth,img.naturalHeight],
-      hits:[...document.querySelectorAll('.locked-journey-hotspot')].map(node=>{
+      hits:[...document.querySelectorAll('.screen.active .locked-journey-hotspot')].map(node=>{
         const r=node.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height,boardX:r.x-board.x,boardY:r.y-board.y}
       }),overflow:document.documentElement.scrollWidth-innerWidth};
    });
@@ -69,7 +69,7 @@ async function run(engine,label,viewport){
    }
    const after=await page.evaluate(()=>JSON.stringify(JSON.parse(localStorage.getItem('laerlittmer-v2')).journey));
    assert.equal(after,before,label+' map interactions must not modify progress');
-   await page.locator('.locked-journey-options').click();
+   await page.locator(base+' .locked-journey-options').click();
    assert.equal(await page.locator('.locked-journey-grade-grid button').count(),10,label+' grade selector still available');
    await page.locator('.locked-sheet-close').click();
    await page.evaluate(()=>{
@@ -85,7 +85,7 @@ async function run(engine,label,viewport){
    const launched=await page.evaluate(()=>window.__lockedLaunch);
    assert.deepEqual(launched?.args,subject==='geography'?[selectedId,2]:[subject,selectedId,2],label+' existing mission ID and grade must survive');
    await page.screenshot({path:output+'/'+label+'-'+subject+'-test-geometry.png',fullPage:true});
-   await page.locator('.locked-journey-back').click();
+   await page.locator(base+' .locked-journey-back').click();
    await page.locator('#home-screen.active').waitFor({timeout:16000});
   }
   assert.deepEqual(errors,[],label+' page errors '+JSON.stringify(errors));
