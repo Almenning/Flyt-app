@@ -5575,7 +5575,16 @@ function learningFeedbackText(q,correct){
 function answerLearningChoice(answer){
   if(currentAnswered)return;
   const q=sessionQuestions[qIndex],correct=String(answer)===String(q.answer),young=currentGrade()<=2;
-  recordLearningAnswer(q,correct,answer);
+  // On young screens a wrong first tap is the one assessed attempt.
+  // Later retries teach the answer but must not manufacture a second scored attempt.
+  const alreadyFailed=young&&q._youngFirstAttemptWrong===true;
+  if(!alreadyFailed){
+    recordLearningAnswer(q,correct,answer);
+    if(young&&!correct)q._youngFirstAttemptWrong=true;
+  }else if(correct){
+    currentAnswered={selected:answer,correct:false,corrected:true,practiceRepeat:!!q.practiceRepeat};
+    persistActiveSession();
+  }
   const buttons=[...document.querySelectorAll('.answer')];
   buttons.forEach(b=>{
     b.classList.remove('correct','wrong');
@@ -5892,7 +5901,7 @@ function renderLearningQuestion(){
     if(q.type==='learning-choice')document.querySelectorAll('.answer').forEach(b=>{b.disabled=true;if(b.dataset.answer===String(q.answer))b.classList.add('correct');else if(b.dataset.answer===String(currentAnswered.selected))b.classList.add('wrong')});
     const input=document.getElementById('math-input');if(input){input.value=currentAnswered.selected??'';input.disabled=true}
     document.querySelectorAll('#check-number,#check-sequence').forEach(b=>b.disabled=true);
-    showLearningFeedback(q,currentAnswered.correct);
+    showLearningFeedback(q,currentAnswered.correct||currentAnswered.corrected);
   }
 }
 const geographyRenderQuestion=renderQuestion;
