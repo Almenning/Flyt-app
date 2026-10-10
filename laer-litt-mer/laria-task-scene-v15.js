@@ -239,7 +239,7 @@
     const input=wrap.querySelector('#math-input');
     if(input){input.value=currentAnswered.selected??'';input.disabled=true}
     wrap.querySelectorAll('#check-number,#check-sequence').forEach(b=>b.disabled=true);
-    showLearningFeedback(q,currentAnswered.correct);
+    showLearningFeedback(q,currentAnswered.correct||currentAnswered.corrected);
   }
 
   function restoreGeographyAnswered(q){
