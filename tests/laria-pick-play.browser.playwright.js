@@ -255,10 +255,10 @@ async function run(browser,engine,label,viewport,url){
   assert.equal((await snapshot(page)).total,24);
   await page.locator('[data-pick-action="check"]').click();
   assert.equal((await snapshot(page)).success,true);
-     const checkedHistory=(await snapshot(page)).past;
-   await page.locator('[data-pick-action="check"]').click();
-   assert.equal((await snapshot(page)).past,checkedHistory,'checking a solved mission must not create phantom undo steps');
-await page.locator('[data-pick-action="mission"][data-id="equal"]').click();
+  const checkedHistory=(await snapshot(page)).past;
+  await page.locator('[data-pick-action="check"]').click();
+  assert.equal((await snapshot(page)).past,checkedHistory,'checking a solved mission must not create phantom undo steps');
+  await page.locator('[data-pick-action="mission"][data-id="equal"]').click();
   assert.deepEqual((await snapshot(page)).counts,[10,8,10]);
   for(let i=0;i<2;i++)await page.locator('[data-pick-action="return"][data-group="1"]').click();
   await page.locator('[data-pick-action="check"]').click();
