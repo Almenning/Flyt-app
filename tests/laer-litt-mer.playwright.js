@@ -67,8 +67,16 @@ async function answerCurrent(page){
       document.querySelector('#check-sentence').click();
     });
   }else if(q.type==='number-input'){
-    await page.locator('#math-input').fill(String(q.answer));
-    await page.locator('#check-number').click();
+    if(await page.locator('.young-math-option').count()){
+      await page.locator('.young-math-option').evaluateAll((els,answer)=>{
+        const chosen=els.find(x=>x.dataset.answer===String(answer));
+        if(!chosen)throw new Error('missing correct tap choice: '+answer);
+        chosen.click();
+      },q.answer);
+    }else{
+      await page.locator('#math-input').fill(String(q.answer));
+      await page.locator('#check-number').click();
+    }
   }else if(q.type==='sequence-order'){
     await page.evaluate(()=>{
       const q=sessionQuestions[qIndex],used=new Set();
@@ -680,8 +688,63 @@ async function finishSession(page){
 
     // Matte: second grade should stay simple, but interaction should not be only multiple choice.
     const mathVariety=await page.evaluate(()=>mathPool(2,'numbers').map(q=>q.type));
-    assert.ok(mathVariety.includes('number-input'),'grade 2 math should include typed answers');
+    assert.ok(mathVariety.includes('number-input'),'keep grade 2 numeric questions in the persisted question model');
     assert.ok(mathVariety.includes('sequence-order'),'grade 2 math should include ordering');
+    // Real premium task-scene route, including older persisted number-input questions.
+    await page.evaluate(()=>{
+      window.__mathTapBackup={state:JSON.parse(JSON.stringify(state)),questions:sessionQuestions,scope:sessionScope,index:qIndex,answered:currentAnswered,correct:sessionCorrect};
+      sessionQuestions=[{subject:'math',skill:'place-value',type:'number-input',
+        prompt:'Hva er verdien til 8 i tallet 82?',answer:'80',curriculum:'MAT01-06'}];
+      qIndex=0;currentAnswered=null;
+      sessionScope={type:'journey',subject:'math',journeyGrade:2,journeyType:'skill',label:'Plassverdi'};
+      state.activeSession={startedAt:Date.now()};persistActiveSession();showScreen('session');renderQuestion();
+    });
+    assert.equal(await page.locator('.young-math-option').count(),3,'second graders must tap, not type');
+    assert.equal(await page.locator('#math-input').count(),0,'keyboard must not appear');
+    const tapOptions=await page.locator('.young-math-option').evaluateAll(els=>els.map(x=>x.dataset.answer));
+    assert.equal(new Set(tapOptions).size,3,'choices must be distinct');
+    assert.ok(tapOptions.includes('80'),'80 is the correct value in 82');
+    assert.ok(tapOptions.includes('8'),'the digit 8 is a useful plausible distractor');
+    await page.locator('.young-math-option[data-answer="80"]').click();
+    assert.match(await page.locator('#feedback-title').innerText(),/Riktig/);
+    assert.equal(await page.locator('.young-math-option.correct').count(),1);
+    await page.evaluate(()=>renderQuestion());
+    assert.equal(await page.locator('.young-math-option.correct').count(),1,'resume/rerender must retain answer feedback');
+    // A wrong tap followed by a correct retry must not award a second assessed answer.
+    const mathRetryBefore=await page.evaluate(()=>({logs:state.answerLog.length,correct:sessionCorrect}));
+    await page.evaluate(()=>{
+      sessionQuestions[0]={subject:'math',skill:'place-value',type:'number-input',
+        prompt:'Hva er verdien til 8 i tallet 82?',answer:'80',curriculum:'MAT01-06'};
+      currentAnswered=null;persistActiveSession();renderQuestion();
+    });
+    await page.locator('.young-math-option[data-answer="8"]').click();
+    assert.equal(await page.locator('#next-question').isVisible(),false,'first error must invite another try');
+    await page.locator('.young-math-option[data-answer="80"]').click();
+    assert.match(await page.locator('#feedback-title').innerText(),/Riktig/);
+    const retryEvidence=await page.evaluate(()=>({
+      logs:state.answerLog.length,correct:sessionCorrect,answered:currentAnswered,
+      persisted:state.activeSession?.questions?.[0]?._youngFirstAttemptWrong
+    }));
+    assert.equal(retryEvidence.logs,mathRetryBefore.logs+1,'retry may not create two learning logs');
+    assert.equal(retryEvidence.correct,mathRetryBefore.correct,'corrected retry may not award a new first-try score');
+    assert.equal(retryEvidence.answered.corrected,true,'corrected retry must be recorded as corrected, not first-try');
+    assert.equal(retryEvidence.persisted,true,'retry state must survive session resume');
+    await page.evaluate(()=>renderQuestion());
+    assert.match(await page.locator('#feedback-title').innerText(),/Riktig/,'corrected feedback must survive rerender');
+    // Ordering questions must only offer the original numbers in the problem.
+    await page.evaluate(()=>{
+      sessionQuestions[0]={subject:'math',skill:'number-order',type:'number-input',
+        prompt:'Hvilket tall er størst av 14, 29, 51?',answer:'51',curriculum:'MAT01-06'};
+      currentAnswered=null;persistActiveSession();renderQuestion();
+    });
+    const orderingChoices=await page.locator('.young-math-option').evaluateAll(els=>els.map(el=>el.dataset.answer).sort());
+    assert.deepEqual(orderingChoices,['14','29','51'],'no invented numbers in a compare-the-given-numbers question');
+    await page.locator('#close-session').click();
+    await page.evaluate(()=>{
+      const prev=window.__mathTapBackup;
+      state=prev.state;sessionQuestions=prev.questions;sessionScope=prev.scope;qIndex=prev.index;currentAnswered=prev.answered;sessionCorrect=prev.correct;
+      saveState();delete window.__mathTapBackup;
+    });
     await page.evaluate(()=>document.getElementById('open-math').click());
     assert.equal(await page.locator('#journey-map').isVisible(),true);
     assert.equal(await page.locator('#journey-map.premium-journey-map .premium-math').count(),1);

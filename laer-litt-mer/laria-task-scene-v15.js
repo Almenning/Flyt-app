@@ -106,6 +106,48 @@
     return '<div class="task-visual-row" data-task-visual-kind="fallback" data-task-visual-key="'+attr(key)+'"><div class="task-object-stage"><div class="task-emoji-sticker" aria-hidden="true">'+text(q.visual)+'</div></div></div>';
   }
 
+  // Keep the persisted question model intact; only change the young child's interaction.
+  function youngMathChoices(q){
+    if(q?.subject!=='math'||q.type!=='number-input'||Number(currentGrade())>2)return null;
+    const correct=Number(String(q.answer).trim().replace(',','.'));
+    if(!Number.isFinite(correct)||correct<0||!Number.isInteger(correct))return null;
+    const candidates=[];
+    if(q.skill==='place-value'){
+      const match=String(q.prompt).match(/verdien til\s+(\d+)\s+i tallet\s+(\d+)/i);
+      if(match){
+        const digit=Number(match[1]),whole=Number(match[2]);
+        candidates.push(digit,whole,whole%10,digit*10+10);
+      }
+    }
+    if(q.skill==='number-order'){
+      const match=String(q.prompt).match(/hvilket tall er størst av\s+([\d,\s]+)\?/i);
+      if(match){
+        const listed=(match[1].match(/\d+/g)||[]).map(Number);
+        // A "which of these numbers" problem must not offer invented, larger numbers.
+        if(listed.includes(correct))candidates.push(...listed.filter(n=>n!==correct));
+      }
+    }
+    candidates.push(correct+10,Math.max(0,correct-10),correct+1,Math.max(0,correct-1),correct+2);
+    const pool=[String(correct)];
+    for(const n of candidates){
+      if(Number.isInteger(n)&&n>=0&&!pool.includes(String(n)))pool.push(String(n));
+      if(pool.length===3)break;
+    }
+    if(pool.length<3)return null;
+    // Stable order across rerenders/resume, with a varied correct position.
+    const hash=Array.from(String(q.prompt)).reduce((h,ch)=>(Math.imul(h,31)+ch.charCodeAt(0))>>>0,0);
+    const rightIndex=hash%3;
+    const others=pool.slice(1,3);
+    others.splice(rightIndex,0,pool[0]);
+    return others;
+  }
+  function youngMathChoice(q){return youngMathChoices(q)!==null}
+  function youngMathChoiceMarkup(q){
+    const choices=youngMathChoices(q);
+    return '<div class="answers young-math-answers" role="group" aria-label="Velg riktig tall">'+choices.map(value=>
+      '<button type="button" class="answer young-math-option" data-answer="'+attr(value)+'">'+text(value)+'</button>'
+    ).join('')+'</div>';
+  }
   function answerLayout(q){
     if(!Array.isArray(q?.options))return '';
     const lengths=q.options.map(x=>String(x).length);
@@ -163,6 +205,7 @@
         '<button class="secondary" id="check-sentence" type="button">'+(q.subject==='english'?'Check the sentence':'Sjekk setningen')+'</button>';
     }
     if(q.type==='number-input'){
+      if(youngMathChoice(q))return youngMathChoiceMarkup(q);
       return '<div class="number-input-wrap"><input class="math-input" id="math-input" inputmode="decimal" autocomplete="off" aria-label="Skriv svaret"><button class="secondary" id="check-number" type="button">Sjekk svaret</button></div>';
     }
     if(q.type==='sequence-order'){
@@ -188,13 +231,13 @@
   function bindInteraction(q,wrap){
     if(q.type==='build-word')renderBuildWord(q,wrap);
     else if(q.type==='sentence-order')renderSentenceOrder(q,wrap);
-    else if(q.type==='number-input')renderNumberInput(q,wrap);
+    else if(q.type==='number-input'&&!youngMathChoice(q))renderNumberInput(q,wrap);
     else if(q.type==='sequence-order')renderSequenceOrder(q,wrap);
     else wrap.querySelectorAll('.answer').forEach(b=>b.onclick=()=>answerLearningChoice(b.dataset.answer));
   }
   function restoreAnswered(q,wrap){
     if(!currentAnswered)return;
-    if(q.type==='learning-choice'){
+    if(q.type==='learning-choice'||youngMathChoice(q)){
       wrap.querySelectorAll('.answer').forEach(b=>{
         b.disabled=true;
         if(b.dataset.answer===String(q.answer))b.classList.add('correct');
@@ -204,7 +247,7 @@
     const input=wrap.querySelector('#math-input');
     if(input){input.value=currentAnswered.selected??'';input.disabled=true}
     wrap.querySelectorAll('#check-number,#check-sequence').forEach(b=>b.disabled=true);
-    showLearningFeedback(q,currentAnswered.correct);
+    showLearningFeedback(q,currentAnswered.correct||currentAnswered.corrected);
   }
 
   function restoreGeographyAnswered(q){
@@ -228,7 +271,7 @@
     const gradeLabel=GRADE_CONFIG[currentGrade()]?.label||currentGrade()+'. klasse';
     const prompt=cleanPrompt(q);
     const mode=cardMode(q);
-    const layout=answerLayout(q);
+    const layout=youngMathChoice(q)?'young-math-choice-layout':answerLayout(q);
     const visual=taskVisualMarkup(q);
     const passage=q.passage?'<div class="learning-passage">'+text(q.passage)+'</div>':'';
     const readButton=readAloudButton(q);
