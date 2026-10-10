@@ -1,6 +1,7 @@
-/* Læria: shared, presentation-only contract for the five locked illustrated places.
- * NO new node ids, learning sessions, storage keys or progression writes.
- * Source of truth for learning content remains journeyModel / geoJourneyModel.
+/* Læria: reference coordinates for the ORIGINAL, locked 10 October 2026 PNGs.
+ * Every image is exactly 941 x 1672 px. Pixel rectangles are on the image, never
+ * on an invented, reflowed or cropped map. Do NOT substitute October 4 worlds.
+ * Only original journeyModel/geoJourneyModel owns learning, IDs and progress.
  */
 (function(root,factory){
   const api=factory();
@@ -8,15 +9,29 @@
   if(root)root.LARIA_LOCKED_JOURNEYS=api;
 })(typeof window!=='undefined'?window:globalThis,function(){
   'use strict';
+  const DIMENSIONS=Object.freeze({width:941,height:1672});
+  function definition(title,subjectLabel,asset,places,hitRects){
+    return Object.freeze({
+      title,subjectLabel,asset,
+      dimensions:DIMENSIONS,
+      places:Object.freeze(places),
+      // x, y, width, height in the EXACT source PNG, not viewport pixels.
+      hitRects:Object.freeze(hitRects.map(rect=>Object.freeze(rect)))
+    });
+  }
   const DEFINITIONS=Object.freeze({
-    norwegian:Object.freeze({title:'Bokskogen',subjectLabel:'Norsk',asset:'bokskogen-locked-20261010.png',
-      places:Object.freeze(['Leselyset','Ordverkstedet','Historiehytta','Setningsbroen','Fortellingstårnet'])}),
-    math:Object.freeze({title:'Tallenga',subjectLabel:'Matte',asset:'tallenga-locked-20261010.png',
-      places:Object.freeze(['Tallverkstedet','Formfabrikken','Brøklaben','Målebroen','Problemtårnet'])}),
-    english:Object.freeze({title:'Ordlandsbyen',subjectLabel:'Engelsk',asset:'ordlandsbyen-locked-20261010.png',
-      places:Object.freeze(['Startplassen','Ordhandelen','Grammatikkhuset','Snakkekaféen','Fortellingsslottet'])}),
-    geography:Object.freeze({title:'Nordlysleiren',subjectLabel:'Geografi',asset:'nordlysleiren-locked-20261010.png',
-      places:Object.freeze(['Basecamp','Kartkroken','Utforskertårnet','Naturstien','Observatoriet'])})
+    norwegian:definition('Bokskogen','Norsk','locked-journeys/bokskogen-locked-20261010.png',
+      ['Leselyset','Ordverkstedet','Historiehytta','Setningsbroen','Fortellingstårnet'],
+      [[64,1238,280,79],[471,1029,289,72],[604,802,270,74],[531,563,275,68],[636,371,283,72]]),
+    math:definition('Tallenga','Matte','locked-journeys/tallenga-locked-20261010.png',
+      ['Tallverkstedet','Formfabrikken','Brøklaben','Målebroen','Problemtårnet'],
+      [[119,1309,328,86],[532,1126,312,81],[623,820,274,80],[456,564,250,73],[633,382,275,78]]),
+    english:definition('Ordlandsbyen','Engelsk','locked-journeys/ordlandsbyen-locked-20261010.png',
+      ['Startplassen','Ordhandelen','Grammatikkhuset','Snakkekaféen','Fortellingsslottet'],
+      [[71,1323,341,88],[522,1154,315,81],[581,914,332,80],[529,641,317,84],[641,346,274,79]]),
+    geography:definition('Nordlysleiren','Geografi','locked-journeys/nordlysleiren-locked-20261010.png',
+      ['Basecamp','Kartkroken','Utforskertårnet','Naturstien','Observatoriet'],
+      [[83,1315,340,99],[593,1088,289,80],[595,839,325,85],[576,542,267,75],[654,306,260,83]])
   });
   const SUBJECTS=Object.freeze(Object.keys(DEFINITIONS));
   const CORE_TYPES=new Set(['skill','geo-skill','checkpoint']);
@@ -27,15 +42,15 @@
     const def=DEFINITIONS[subject];
     assert(def,'unknown subject '+subject);
     assert(model&&Array.isArray(model.areas)&&Array.isArray(model.nodes),'missing original journey model');
-    assert(typeof readState==='function','missing existing progression reader');
+    assert(typeof readState==='function','missing original progress reader');
     const core=model.areas.flatMap(a=>(a.nodes||[]).filter(n=>CORE_TYPES.has(n.type)));
     const extras=model.areas.flatMap(a=>(a.nodes||[]).filter(n=>EXTRA_TYPES.has(n.type)));
     const allIds=new Set(model.nodes.map(n=>n.id));
     assert(allIds.size===model.nodes.length,'duplicate original node ids');
     assert(core.length>0,'no original core missions');
     const buckets=Array.from({length:5},()=>[]);
-    // Stable in-order partitioning. Every real mission remains attached to exactly
-    // one visual landmark; the original sequence is not re-identified or rewritten.
+    // Route order is immutable. Five painted LANDMARKS represent however many
+    // original missions the grade already has. No new IDs or checkpoints.
     core.forEach((n,i)=>buckets[Math.min(4,Math.floor(i*5/core.length))].push(n));
     extras.forEach(n=>{
       const index=core.findIndex(x=>x.areaId===n.areaId);
@@ -62,11 +77,20 @@
   }
   function imagePoint(point,box){
     assert(point&&box&&box.width>0&&box.height>0,'invalid map/image geometry');
-    // All landmark positions are relative to the *full un-cropped image*, not to
-    // the screen viewport. This retains the exact painted perspective.
     return Object.freeze({left:clamp(point[0],0,100)/100*box.width,
       top:clamp(point[1],0,100)/100*box.height});
   }
+  function hotspot(subject,index){
+    const def=DEFINITIONS[subject];
+    assert(def&&Number.isInteger(index)&&index>=0&&index<5,'invalid original artwork hotspot');
+    const [x,y,width,height]=def.hitRects[index];
+    const pct=(n,whole)=>String(Number((n/whole*100).toFixed(5)))+'%';
+    return Object.freeze({left:pct(x,DIMENSIONS.width),top:pct(y,DIMENSIONS.height),
+      width:pct(width,DIMENSIONS.width),height:pct(height,DIMENSIONS.height)});
+  }
+  function matchesOriginalSize(subject,width,height){
+    return !!DEFINITIONS[subject]&&width===DIMENSIONS.width&&height===DIMENSIONS.height;
+  }
   function get(subject){return DEFINITIONS[subject]||null}
-  return Object.freeze({DEFINITIONS,SUBJECTS,build,imagePoint,get});
+  return Object.freeze({DEFINITIONS,DIMENSIONS,SUBJECTS,build,imagePoint,hotspot,matchesOriginalSize,get});
 });
