@@ -40,6 +40,9 @@ test('Laria Final RC preserves Prompt 18 locked contracts',()=>{
   assert.equal(globeRendererVersion,globePreloadVersion,'globe preload and script must use the same version');
   assert.ok(globeRendererVersion!=='globe36-pigment3','updated renderer must have its own cache-busting version');
   assert.ok(sw.includes(globeRendererVersion.replace(/^\d{8}-/,'')),'service-worker release must contain current globe renderer cache tag');
+  const atlasVersion=index.match(/<script src="\.\/atlas-perspective-v1\.js\?v=([^"]+)" defer><\/script>/)?.[1];
+  assert.ok(atlasVersion,'atlas script must be cache-busted after the WebKit repaint fix');
+  assert.ok(sw.includes(atlasVersion.replace(/^\d{8}-/,'')),'service worker cache must include the current atlas tag');
   assert.match(sw,/globe36-pigment3/,'service-worker cache must match latest locked visual release');
   assert.match(p18,/Status: \*\*FERDIG/,'Prompt 18 must remain formally closed');
   assert.equal(nativeConfig.appId,'no.adspire.laria','native app id changed');

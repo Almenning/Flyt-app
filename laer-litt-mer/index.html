@@ -6043,7 +6043,9 @@ function initGlobe(){const canvas=document.getElementById('globe-canvas');if(!ca
   const scheduleDraw=()=>{if(pendingDraw)return;pendingDraw=true;raf=requestAnimationFrame(()=>{pendingDraw=false;drawGlobe()})};
   canvas.addEventListener('pointerdown',e=>{
     window.__lariaGlobeInteracting=true;
-    canvas.setPointerCapture(e.pointerId);
+    // Safari desktop may reject synthetic pointer capture during fullscreen
+    // transitions. Dragging must continue even if capture is unsupported.
+    try{canvas.setPointerCapture(e.pointerId)}catch(_){}
     globePointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
     if(globePointers.size===1){
       globeDrag={x:e.clientX,y:e.clientY,lon:globeLon,lat:globeLat,lastX:e.clientX,lastY:e.clientY};globeMove=0;globePinch=null;
@@ -6621,7 +6623,7 @@ if(needsProfileSetup||!state.profile.onboarded||!state.profile.grade){
 <!-- Kloden: art primitives must load before the active renderer. -->
 <script src="./globe-v24-art.js?v=globe36-pigment3" defer></script>
 <script src="./globe-v25-renderer.js?v=20261010-globe-bitmap-v1" defer></script>
-<script src="./atlas-perspective-v1.js?v=20261010-globe-bitmap-v1" defer></script>
+<script src="./atlas-perspective-v1.js?v=20261010-atlas-webkit-paint-v2" defer></script>
 
 <!-- premium-board-v8-2026-10-04 -->
 <!-- natural-journey-integration-v9-2026-10-04 -->
