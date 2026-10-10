@@ -22,7 +22,7 @@
   overflow:hidden;
   background:#213e45;
   border-radius:clamp(10px,2vw,22px);
-  touch-action:pan-y;
+  touch-action:pan-y pinch-zoom; /* Keep native Safari pinch-to-zoom while the artwork is never stretched. */
 }
 .locked-journey-image{
   position:absolute!important;
