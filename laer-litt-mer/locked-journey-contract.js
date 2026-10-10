@@ -49,12 +49,15 @@
     assert(allIds.size===model.nodes.length,'duplicate original node ids');
     assert(core.length>0,'no original core missions');
     const buckets=Array.from({length:5},()=>[]);
-    // Route order is immutable. Five painted LANDMARKS represent however many
-    // original missions the grade already has. No new IDs or checkpoints.
-    core.forEach((n,i)=>buckets[Math.min(4,Math.floor(i*5/core.length))].push(n));
+    // Distribute existing core missions from the FIRST painted place to the
+    // LAST one, even when a grade has fewer than five core missions. A vacant
+    // intermediate place is an exploration landmark, NEVER a synthetic task.
+    // In-order node IDs and the original journey / area sequence do not change.
+    const paintedIndex=i=>core.length===1?0:Math.round(i*4/(core.length-1));
+    core.forEach((n,i)=>buckets[paintedIndex(i)].push(n));
     extras.forEach(n=>{
       const index=core.findIndex(x=>x.areaId===n.areaId);
-      buckets[index<0?4:Math.min(4,Math.floor(index*5/core.length))].push(n);
+      buckets[index<0?4:paintedIndex(index)].push(n);
     });
     const assigned=new Set();
     const places=def.places.map((title,index)=>{
