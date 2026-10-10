@@ -2382,9 +2382,9 @@
   <link rel="stylesheet" href="./laria-task-scene-v15.css?v=20261007-p15rc1" />
   <!-- Kloden: one active scene stylesheet; art + renderer are loaded below in runtime order -->
   <link rel="stylesheet" href="./globe-v24.css?v=globe36-pigment3" />
-  <link rel="stylesheet" href="./laria-task-young-v18.css?v=20261006-assets1" />
+  <link rel="stylesheet" href="./laria-task-young-v18.css?v=20261010-math-tap2" />
   <link rel="stylesheet" href="./atlas-perspective-v1.css?v=20261009-atlas-story2" />
-  <!-- Original reference art: guarded overlay, never replace the locked artwork -->
+  <!-- Original approved art: guarded rendering, no substitutions -->
   <link rel="stylesheet" href="./locked-journey-renderer.css?v=20261010-ref-phase1" />
   <!-- immersive-globe-viewport-2026-10-02 -->
   <!-- globe-hit-test-dateline-fix-2026-10-02 -->
@@ -5577,7 +5577,16 @@ function learningFeedbackText(q,correct){
 function answerLearningChoice(answer){
   if(currentAnswered)return;
   const q=sessionQuestions[qIndex],correct=String(answer)===String(q.answer),young=currentGrade()<=2;
-  recordLearningAnswer(q,correct,answer);
+  // On young screens a wrong first tap is the one assessed attempt.
+  // Later retries teach the answer but must not manufacture a second scored attempt.
+  const alreadyFailed=young&&q._youngFirstAttemptWrong===true;
+  if(!alreadyFailed){
+    recordLearningAnswer(q,correct,answer);
+    if(young&&!correct)q._youngFirstAttemptWrong=true;
+  }else if(correct){
+    currentAnswered={selected:answer,correct:false,corrected:true,practiceRepeat:!!q.practiceRepeat};
+    persistActiveSession();
+  }
   const buttons=[...document.querySelectorAll('.answer')];
   buttons.forEach(b=>{
     b.classList.remove('correct','wrong');
@@ -5603,10 +5612,13 @@ function showLearningFeedback(q,correct,options={}){
   box.classList.toggle('success-pop',!!correct);
   box.classList.toggle('retry',!!options.retry);
   document.getElementById('feedback-title').textContent=correct?(currentGrade()<=2?'🦊 ⭐ Riktig!':'⭐ Riktig!'):'💪 Nesten!';
-  let copy=learningFeedbackText(q,correct);
+  let copy=correct&&currentAnswered?.corrected
+    ?(q.subject==='english'?'You found it after another try!':'Du fant det etter et nytt forsøk!')
+    :learningFeedbackText(q,correct);
   if(options.retry)copy+=(q.subject==='english'?' Try again.':' Prøv en gang til.');
   const last=state.answerLog[state.answerLog.length-1];
-  if(correct&&currentGrade()<=2&&last?.strengthened)copy+=' ⭐ Dette ble sterkere i samlingen din.';
+  if(correct&&!currentAnswered?.corrected&&last?.correct===true&&currentGrade()<=2&&last.strengthened)
+    copy+=' ⭐ Dette ble sterkere i samlingen din.';
   document.getElementById('feedback-copy').textContent=copy;
   document.getElementById('next-question').style.display=options.retry?'none':'block';
 }
@@ -5894,7 +5906,7 @@ function renderLearningQuestion(){
     if(q.type==='learning-choice')document.querySelectorAll('.answer').forEach(b=>{b.disabled=true;if(b.dataset.answer===String(q.answer))b.classList.add('correct');else if(b.dataset.answer===String(currentAnswered.selected))b.classList.add('wrong')});
     const input=document.getElementById('math-input');if(input){input.value=currentAnswered.selected??'';input.disabled=true}
     document.querySelectorAll('#check-number,#check-sequence').forEach(b=>b.disabled=true);
-    showLearningFeedback(q,currentAnswered.correct);
+    showLearningFeedback(q,currentAnswered.correct||currentAnswered.corrected);
   }
 }
 const geographyRenderQuestion=renderQuestion;
@@ -6604,7 +6616,7 @@ if(needsProfileSetup||!state.profile.onboarded||!state.profile.grade){
 <!-- Shared inner-screen helpers + task scene -->
 <script src="./laria-unified-v13.js?v=20261006-assets1" defer></script>
 <script src="./laria-navigation-v13.js?v=20261009-ia1" defer></script>
-<script src="./laria-task-scene-v15.js?v=20261007-p13rc1" defer></script>
+<script src="./laria-task-scene-v15.js?v=20261010-math-tap1" defer></script>
 
 <!-- Kloden: art primitives must load before the active renderer. -->
 <script src="./globe-v24-art.js?v=globe36-pigment3" defer></script>

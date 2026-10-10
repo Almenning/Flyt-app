@@ -12,8 +12,12 @@ try{if(localStorage.getItem(SIMPLE_INTRO_KEY)!=='1'){state=E.apply(state,{type:'
 const esc=v=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(_){}}
 function go(type,data={},record=true){
- const next=E.apply(state,{type,...data});if(next===state)return false;
- if(record){past.push(E.normalize(state));if(past.length>90)past.shift();future=[]}
+ const next=E.apply(state,{type,...data});
+ // Feedback and rejected taps are not mathematical moves; keep undo meaningful.
+ const meaningful=JSON.stringify({...next,message:''})!==JSON.stringify({...state,message:''});
+ const feedbackChanged=next.message!==state.message;
+ if(!meaningful&&!feedbackChanged)return false;
+ if(record&&type!=='check'&&meaningful){past.push(E.normalize(state));if(past.length>90)past.shift();future=[]}
  state=next;save();return true;
 }
 function back(){if(!past.length)return false;future.push(E.normalize(state));state=past.pop();save();return true}
