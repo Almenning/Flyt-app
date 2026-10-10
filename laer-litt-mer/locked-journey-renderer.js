@@ -180,6 +180,13 @@
         const locked=areaIndex>s.firstOpen&&!completed(original,geo);
         return {...n,locked,original};
       });
+      // Reuse the pre-existing, progress-neutral "Sniktitt" flow from the
+      // original journey. Future worlds must never lose their preview simply
+      // because the approved illustration has only five painted landmarks.
+      const previewNode=safeNodes.find(n=>n.locked&&n.original?.type===(geo?'geo-skill':'skill'));
+      const previewMarkup=previewNode&&typeof (geo?startGeoWorldPreview:startJourneyWorldPreview)==='function'?
+        '<button type="button" data-locked-preview><span><strong>Ta en sniktitt</strong><small>Prøv en smakebit uten å endre reiseprogresjonen.</small></span><b aria-hidden="true">›</b></button>':'';
+
       // The painted Brøklaben sign is a doorway to the ALREADY existing
       // exploratory fraction laboratory, not a synthetic quiz or new node.
       // Keep its free access independent from the core journey progression.
@@ -194,8 +201,8 @@
         (safeNodes.length?safeNodes.map(n=>'<button type="button" data-locked-node="'+escapeId(n.id)+'"'+(n.locked?' disabled':'')+'>'+
           '<span><strong>'+esc(n.title)+'</strong><small>'+esc(n.locked?'Kommer senere':n.complete?'Fullført, kan spilles igjen':n.type==='review'?'Frivillig repetisjon':n.type==='challenge'?'Ekstra utfordring':n.id===s.recommended?.id?'Neste oppdrag':'Åpent oppdrag')+'</small></span>'+
           '<b aria-hidden="true">'+(n.complete?'✓':n.locked?'🔒':'›')+'</b></button>').join(''):
-          '<button type="button" data-locked-recommended>Fortsett neste oppdrag</button>')+
-        '</div>';
+          '<p class="locked-journey-no-missions" role="status">Dette stedet har ingen egne reiseoppdrag på klassetrinnet ditt. Du kan fortsatt besøke det på kartet.</p>')+
+        previewMarkup+'</div>';
       open(content,hit);
       dialog.querySelectorAll('[data-locked-node]').forEach(btn=>btn.onclick=()=>{
         const node=safeNodes.find(n=>n.id===btn.dataset.lockedNode);
@@ -207,8 +214,12 @@
         // and no learning record is written on this navigation.
         window.openFractionLab({returnToJourney:'math'});
       });
-      dialog.querySelector('[data-locked-recommended]')?.addEventListener('click',()=>{
-        if(s.recommended)launch(s.recommended.id);else close();
+      dialog.querySelector('[data-locked-preview]')?.addEventListener('click',()=>{
+        if(!previewNode)return;
+        close();
+        // Original preview sessions are tagged previewOnly/practiceOnly.
+        if(geo)startGeoWorldPreview(previewNode.areaId,s.grade);
+        else startJourneyWorldPreview(subject,previewNode.areaId,s.grade);
       });
     });
     requestAnimationFrame(()=>requestAnimationFrame(()=>showCurrentIllustratedStop(host,geo)));
