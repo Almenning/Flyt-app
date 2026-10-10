@@ -180,9 +180,17 @@
         const locked=areaIndex>s.firstOpen&&!completed(original,geo);
         return {...n,locked,original};
       });
+      // The painted Brøklaben sign is a doorway to the ALREADY existing
+      // exploratory fraction laboratory, not a synthetic quiz or new node.
+      // Keep its free access independent from the core journey progression.
+      const existingFractionLab=subject==='math'&&place.index===2&&typeof window.openFractionLab==='function';
+      const existingActivity=existingFractionLab?
+        '<button type="button" class="locked-journey-existing-activity" data-locked-existing="fraction-lab">'+
+          '<span><strong>Utforsk Brøklaben</strong><small>Åpne den eksisterende Brøklaben. Fri utforskning uten nye reiseoppdrag.</small></span>'+
+          '<b aria-hidden="true">›</b></button>':'';
       const content='<small>STED '+(place.index+1)+' AV 5</small><h2>'+esc(place.title)+'</h2>'+
         '<p>'+esc(place.total?('Velg et oppdrag. '+place.done+' av '+place.total+' hovedoppdrag fullført.'):'Her kan du følge reisen videre uten å miste tidligere oppdrag.')+'</p>'+
-        '<div class="locked-journey-missions">'+
+        '<div class="locked-journey-missions">'+existingActivity+
         (safeNodes.length?safeNodes.map(n=>'<button type="button" data-locked-node="'+escapeId(n.id)+'"'+(n.locked?' disabled':'')+'>'+
           '<span><strong>'+esc(n.title)+'</strong><small>'+esc(n.locked?'Kommer senere':n.complete?'Fullført, kan spilles igjen':n.type==='review'?'Frivillig repetisjon':n.type==='challenge'?'Ekstra utfordring':n.id===s.recommended?.id?'Neste oppdrag':'Åpent oppdrag')+'</small></span>'+
           '<b aria-hidden="true">'+(n.complete?'✓':n.locked?'🔒':'›')+'</b></button>').join(''):
@@ -192,6 +200,12 @@
       dialog.querySelectorAll('[data-locked-node]').forEach(btn=>btn.onclick=()=>{
         const node=safeNodes.find(n=>n.id===btn.dataset.lockedNode);
         if(node&&!node.locked)launch(node.id);
+      });
+      dialog.querySelector('[data-locked-existing="fraction-lab"]')?.addEventListener('click',()=>{
+        close();
+        // Return to Tallenga, not straight to Basecamp. No new node is run,
+        // and no learning record is written on this navigation.
+        window.openFractionLab({returnToJourney:'math'});
       });
       dialog.querySelector('[data-locked-recommended]')?.addEventListener('click',()=>{
         if(s.recommended)launch(s.recommended.id);else close();
