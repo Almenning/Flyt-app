@@ -115,6 +115,7 @@ async function check(engine,label,viewport){
 (async()=>{
  for(const [label,engine,viewport] of [
   ['chromium-iphone',chromium,{width:390,height:844}],
+  ['webkit-small-iphone',webkit,{width:320,height:568}],
   ['webkit-iphone',webkit,{width:390,height:844}],
   ['webkit-iphone-landscape',webkit,{width:667,height:375}],
   ['webkit-ipad',webkit,{width:820,height:1180}],
