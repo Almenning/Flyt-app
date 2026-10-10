@@ -181,7 +181,12 @@
       // Reuse the pre-existing, progress-neutral "Sniktitt" flow from the
       // original journey. Future worlds must never lose their preview simply
       // because the approved illustration has only five painted landmarks.
-      const previewNode=safeNodes.find(n=>n.locked&&n.original?.type===(geo?'geo-skill':'skill'));
+      // Match the original journey: previews are for the *next* area only.
+      // Later worlds must not become prematurely available through a painted
+      // hotspot, even though preview sessions never write mastery.
+      const previewNode=!s.progress.complete?safeNodes.find(n=>
+        n.locked&&n.original?.type===(geo?'geo-skill':'skill')&&
+        model.areas.findIndex(a=>a.id===n.areaId)===s.firstOpen+1):null;
       const previewMarkup=previewNode&&typeof (geo?startGeoWorldPreview:startJourneyWorldPreview)==='function'?
         '<button type="button" data-locked-preview><span><strong>Ta en sniktitt</strong><small>Prøv en smakebit uten å endre reiseprogresjonen.</small></span><b aria-hidden="true">›</b></button>':'';
 
