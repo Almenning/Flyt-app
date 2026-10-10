@@ -692,6 +692,7 @@ async function finishSession(page){
     assert.ok(mathVariety.includes('sequence-order'),'grade 2 math should include ordering');
     // Real premium task-scene route, including older persisted number-input questions.
     await page.evaluate(()=>{
+      window.__mathTapBackup={state:JSON.parse(JSON.stringify(state)),questions:sessionQuestions,scope:sessionScope,index:qIndex,answered:currentAnswered,correct:sessionCorrect};
       sessionQuestions=[{subject:'math',skill:'place-value',type:'number-input',
         prompt:'Hva er verdien til 8 i tallet 82?',answer:'80',curriculum:'MAT01-06'}];
       qIndex=0;currentAnswered=null;
@@ -710,6 +711,11 @@ async function finishSession(page){
     await page.evaluate(()=>renderQuestion());
     assert.equal(await page.locator('.young-math-option.correct').count(),1,'resume/rerender must retain answer feedback');
     await page.locator('#close-session').click();
+    await page.evaluate(()=>{
+      const prev=window.__mathTapBackup;
+      state=prev.state;sessionQuestions=prev.questions;sessionScope=prev.scope;qIndex=prev.index;currentAnswered=prev.answered;sessionCorrect=prev.correct;
+      saveState();delete window.__mathTapBackup;
+    });
     await page.evaluate(()=>document.getElementById('open-math').click());
     assert.equal(await page.locator('#journey-map').isVisible(),true);
     assert.equal(await page.locator('#journey-map.premium-journey-map .premium-math').count(),1);
