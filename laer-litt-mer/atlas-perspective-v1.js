@@ -366,6 +366,17 @@ function sync(mode){
    Promise.resolve().then(()=>loadQualityData()).then(queueDraw).catch(()=>{});
   },3500);
  }}
+ // Classic Kloden has a square CSS canvas, while the atlas fills a taller
+ // viewport. Switching from atlas to globe must rebuild the *actual* canvas
+ // bitmap after the CSS class changes. Otherwise Safari stretches the old
+ // 390×844 backing store into a square and the globe becomes distorted.
+ else if(screen.classList.contains('active')){
+  requestAnimationFrame(()=>{
+   if(!screen.classList.contains('active')||isAtlas())return;
+   if(typeof window.resizeGlobe==='function')window.resizeGlobe();
+   if(typeof window.drawGlobe==='function')window.drawGlobe();
+  });
+ }
 }
 function install(){
  if(installed||!window.__lariaGlobeV25Installed||typeof window.setGlobeMode!=='function')return false;
