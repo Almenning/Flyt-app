@@ -31,9 +31,9 @@ const {chromium,webkit}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
     const bootTimeout=engineName==='webkit'?20000:10000;
     await page.waitForFunction(()=>{
       const host=document.querySelector('.bc12'),screen=document.getElementById('home-screen');
-      const globe=host?.querySelector('.bc12-place[data-camp="globe"]');
+      const subjects=host?.querySelectorAll('.bc14-subject');
       return !!(host&&screen?.classList.contains('active')&&!host.hidden&&
-        window.LARIA_BASECAMP_DIAG?.render&&globe&&!globe.disabled);
+        window.LARIA_BASECAMP_DIAG?.render&&subjects?.length===4&&![...subjects].some(x=>x.disabled));
     },null,{timeout:bootTimeout});
   }catch(err){
     const boot=await page.evaluate(()=>({
@@ -57,7 +57,7 @@ const {chromium,webkit}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
     const homeReadyMs=Date.now()-bootStarted;
     assert.ok(homeReadyMs<2500,'iphone cold Home took too long: '+homeReadyMs+'ms');
     assert.equal(requested.some(u=>u.includes('raw.githubusercontent.com')||u.includes('api.worldbank.org')),false,'Home must not start external geography data during critical startup');
-    assert.equal(await page.locator('.bc12-place[data-camp="globe"]').isEnabled(),true,'globe control must be interactive on first Home paint');
+    assert.equal(await page.locator('.bc14-subject[data-camp="subject-geography"]').isEnabled(),true,'geography subject must be interactive on first Home paint');
     console.log('[perf] iphone cold-home',homeReadyMs+'ms');
   }
   assert.equal(await page.locator('.bc12').getAttribute('data-release'),'basecamp-rc1',name+' wrong Basecamp release');
@@ -70,10 +70,13 @@ const {chromium,webkit}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
   await page.screenshot({path:`${screenshots}/${name}.png`,fullPage:true});
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),name+' horizontal overflow');
 
+  assert.equal(await page.locator('.bc14-subject:visible').count(),4,name+' subject-first Home missing four illustrated subjects');
+  await page.locator('.bc14-free').tap();
+  await page.locator('.bc13-panel:not([hidden]) [data-bc13-action="globe"]').waitFor();
   for(const [action,screen,back] of [['globe','world','world-back'],['fraction','fraction-lab','fraction-lab-back'],['multiply','multiplication-lab','multiplication-lab-back']]){
    console.log('[basecamp]',engineName,name,'open',action);
    const actionStarted=Date.now();
-   await page.locator(`.bc12-place[data-camp="${action}"]`).tap();
+   await page.locator(`.bc13-card[data-bc13-action="${action}"]`).tap();
    await page.locator(`#${screen}-screen.active`).waitFor({timeout:10000});
    if(engineName==='chromium'&&name==='iphone'&&action==='globe'){
     const openMs=Date.now()-actionStarted;
@@ -106,7 +109,7 @@ const {chromium,webkit}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
    }
   }
 
-  await page.locator('.bc12-place[data-camp="words"]').tap();
+  await page.locator('.bc13-card[data-bc13-action="words"]').tap();
   const hunt=page.locator('#word-hunt-overlay');await hunt.waitFor({state:'visible'});
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),name+' Ordjakt overflow');
   const pick=await page.evaluate(()=>{
@@ -130,10 +133,11 @@ const {chromium,webkit}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
   assert(await page.locator('.word-hunt-word.found').count()>=1,name+' Ordjakt selection did not register');
   await page.locator('.word-hunt-back').tap();await hunt.waitFor({state:'hidden'});
 
+  await page.locator('.bc12-nav [data-camp="home"]').tap();
   await page.locator('.bc12-journey').tap();await page.locator('#subject-screen.active').waitFor();await page.locator('.bok-v10-home').tap();
   await page.locator('[data-camp="quest"]').tap();assert(await page.locator('#bc12-dialog').isVisible());await page.getByRole('button',{name:'Kanskje senere'}).tap();
   await page.locator('.bc12-nav [data-camp="collection"]').tap();await page.getByRole('heading',{name:'Samlingen din'}).waitFor();await page.getByRole('button',{name:'Tilbake til basecamp'}).tap();
-  await page.locator('.bc12-nav [data-camp="explore"]').tap();assert.equal(await page.locator('.bc12 h1').textContent(),'Hvor skal vi dra i dag?');
+  await page.locator('.bc12-nav [data-camp="explore"]').tap();assert.equal(await page.locator('.bc12 h1').textContent(),'Hei, Testbarn!');
   assert.equal(await page.locator('[data-camp-fox-call]').textContent(),'Klar, Testbarn? Jeg viser vei!');
   await page.locator('.bc12-nav [data-camp="home"]').tap();
   const rcTouch=await page.locator('.bc12-nav button').evaluateAll(els=>els.map(el=>({w:el.getBoundingClientRect().width,h:el.getBoundingClientRect().height})));

@@ -119,8 +119,10 @@ async function finishSession(page){
       const homeInteractiveMs=Date.now()-coldStart;
       assert.ok(homeInteractiveMs<3000,'mobile Home took too long to become interactive: '+homeInteractiveMs+'ms');
 
+      await perfPage.locator('.bc14-free').tap();
+      await perfPage.locator('.bc13-panel:not([hidden]) [data-bc13-action="globe"]').waitFor();
       const tapStart=Date.now();
-      await perfPage.locator('.bc12-place[data-camp="globe"]').tap();
+      await perfPage.locator('.bc13-card[data-bc13-action="globe"]').tap();
       await perfPage.locator('#world-screen.active').waitFor({timeout:1000});
       const screenSwitchMs=Date.now()-tapStart;
       // The dedicated Basecamp performance gate still enforces <900 ms. This broad
@@ -373,7 +375,7 @@ async function finishSession(page){
 
     await onboard(page,2);
 
-    // Young Home is Basecamp v12: one world, one obvious journey action, four free-play places.
+    // Young Home is subject-first: one world, four illustrated subjects and one primary journey action.
     assert.equal(await page.locator('.bc12').isVisible(),true,'Basecamp v12 must own grades 1–2 Home');
     assert.equal(await page.locator('.bc12-journey').isVisible(),true,'Fortsett reisen must be visible');
     const homeLayout=await page.evaluate(()=>{
@@ -383,10 +385,13 @@ async function finishSession(page){
     });
     assert.ok(homeLayout.journeyTop>=0&&homeLayout.journeyBottom<=844,'Fortsett reisen should fit in the initial phone view');
     assert.ok(homeLayout.scrollWidth<=homeLayout.width,'Basecamp must not scroll horizontally');
+    assert.equal(await page.locator('.bc14-subject:visible').count(),4,'all four subjects must be visible on Home');
+    await page.locator('.bc14-free').click();
+    await page.locator('.bc13-panel:not([hidden]) [data-bc13-action="globe"]').waitFor();
     for(const action of ['globe','fraction','words','multiply']){
-      const place=page.locator('.bc12-place[data-camp="'+action+'"]');
-      assert.equal(await place.isVisible(),true,'Basecamp place hidden: '+action);
-      assert.equal(await place.isEnabled(),true,'Basecamp place disabled: '+action);
+      const place=page.locator('.bc13-card[data-bc13-action="'+action+'"]');
+      assert.equal(await place.isVisible(),true,'Explore destination hidden: '+action);
+      assert.equal(await place.isEnabled(),true,'Explore destination disabled: '+action);
     }
 
     // Prompt 14: every Lek & utforsk destination is a replayable place with one consistent
@@ -395,27 +400,27 @@ async function finishSession(page){
       answerLog:state.answerLog,sessionLog:state.sessionLog,skillMastery:state.skillMastery,mastery:state.mastery
     }));
 
-    await page.locator('.bc12-place[data-camp="globe"]').click();
+    await page.locator('.bc13-card[data-bc13-action="globe"]').click();
     await page.locator('#world-screen.active').waitFor();
     assert.equal(await page.locator('#world-screen').getAttribute('data-explore-release'),'explore-rc1');
     await page.locator('#world-back').click();
     await page.locator('#home-screen.active .bc12').waitFor();
 
-    await page.locator('.bc12-place[data-camp="fraction"]').click();
+    await page.locator('.bc13-card[data-bc13-action="fraction"]').click();
     await page.locator('#fraction-lab-screen.active').waitFor();
     assert.equal(await page.locator('#fraction-lab-screen').getAttribute('data-explore-release'),'explore-rc1');
     assert.equal(await page.locator('.fr2-home-card.fr2-card-explore').isVisible(),true);
     await page.locator('#fraction-lab-back').click();
     await page.locator('#home-screen.active .bc12').waitFor();
 
-    await page.locator('.bc12-place[data-camp="multiply"]').click();
+    await page.locator('.bc13-card[data-bc13-action="multiply"]').click();
     await page.locator('#multiplication-lab-screen.active').waitFor();
     assert.equal(await page.locator('#multiplication-lab-screen').getAttribute('data-explore-release'),'explore-rc1');
     assert.equal(await page.locator('.mp-menu-explore').isVisible(),true);
     await page.locator('#multiplication-lab-back').click();
     await page.locator('#home-screen.active .bc12').waitFor();
 
-    await page.locator('.bc12-place[data-camp="words"]').click();
+    await page.locator('.bc13-card[data-bc13-action="words"]').click();
     const wordHunt=page.locator('#word-hunt-overlay');
     await wordHunt.waitFor({state:'visible'});
     assert.equal(await wordHunt.getAttribute('data-explore-release'),'explore-rc1');
@@ -469,11 +474,13 @@ async function finishSession(page){
       }
       saveState();setTab('home');
     });
+    await page.locator('.bc12-nav [data-camp="explore"]').click();
     for(const action of ['globe','fraction','words','multiply']){
-      const place=page.locator('.bc12-place[data-camp="'+action+'"]');
+      const place=page.locator('.bc13-card[data-bc13-action="'+action+'"]');
       assert.equal(await place.isVisible(),true,'mastery hid free-play place: '+action);
       assert.equal(await place.isEnabled(),true,'mastery disabled free-play place: '+action);
     }
+    await page.locator('.bc12-nav [data-camp="home"]').click();
     await page.evaluate(saved=>{
       state=JSON.parse(saved);saveState();setTab('home');
     },beforeSyntheticMastery);
@@ -622,7 +629,7 @@ async function finishSession(page){
     assert.equal(exactRepeat.same,true,'same-test button should preserve exact questions');
     await page.evaluate(()=>{state.activeSession=null;sessionQuestions=[];currentAnswered=null;saveState();setTab('home')});
 
-    assert.equal(await page.locator('.bc12-place').count(),4);
+    assert.equal(await page.locator('.bc14-subject').count(),4);
     assert.equal(await page.locator('.bc12-nav button').count(),4);
     assert.equal(await page.locator('.bc12-nav button[data-camp="explore"]').isVisible(),true);
     assert.equal(await page.locator('#learn-screen').count(),0);
