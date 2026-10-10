@@ -358,7 +358,18 @@ function sync(mode){
  if(heading)heading.textContent=atlas?'Kartet':'Kloden';
  const hint=screen.querySelector('.globe-hint');
  if(hint)hint.textContent=atlas?'Dra i kartet · knip for zoom · trykk på et land':'Dra for å snurre · knip for zoom';
- if(atlas){queueLayout();if(screen.classList.contains('active')&&typeof loadQualityData==='function'&&!window.__lariaAtlasDetailsRequested){
+ if(atlas){
+  // WebKit can coalesce the first queued paint while the world screen is
+  // transitioning to fullscreen. A post-layout repaint guarantees the
+  // geographic layer appears instead of an empty blue atlas container.
+  canvas?.setAttribute('data-map-ready','false');
+  queueLayout();
+  if(screen.classList.contains('active'))requestAnimationFrame(()=>{
+   if(!isAtlas())return;
+   layout();
+   requestAnimationFrame(()=>{if(isAtlas())draw()});
+  });
+  if(screen.classList.contains('active')&&typeof loadQualityData==='function'&&!window.__lariaAtlasDetailsRequested){
   // Heavy Natural Earth / World Bank enrichment must not delay Home -> Atlas.
   window.__lariaAtlasDetailsRequested=true;
   setTimeout(()=>{

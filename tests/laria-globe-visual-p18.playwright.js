@@ -286,7 +286,29 @@ async function capture(browserType,label,viewport){
     assert.equal(projectionSync.renderSource,'country-geometry',label+' must draw visible land from real country polygons');
     for(const mode of ['explore','mine','classic']){
       await tapGlobeMode(page,mode,label);
-      await page.waitForTimeout(250);
+      if(mode==='classic'){
+        await page.waitForFunction(()=>{
+          const c=document.getElementById('globe-canvas'),r=c?.getBoundingClientRect();
+          return r&&r.width>250&&Math.abs(r.width-r.height)<3&&Number(getComputedStyle(c).opacity)>.95;
+        },null,{timeout:12000});
+      }else{
+        // A plain blue frame is NOT a world map. Prove on Safari and Chromium
+        // that the actual 2D canvas contains opaque, coloured land pixels.
+        await page.waitForFunction(()=>{
+          const c=document.getElementById('atlas-canvas');
+          if(!c||c.dataset.mapReady!=='true'||c.width<150||c.height<150)return false;
+          const ctx=c.getContext('2d',{willReadFrequently:true});
+          if(!ctx)return false;
+          let opaque=0,warmLand=0;
+          for(let y=9;y<c.height;y+=Math.max(11,Math.floor(c.height/22)))
+           for(let x=9;x<c.width;x+=Math.max(11,Math.floor(c.width/22))){
+            const p=ctx.getImageData(x,y,1,1).data;
+            if(p[3]>200)opaque++;
+            if(p[3]>200&&p[0]>135&&p[0]>p[2]*1.12&&p[0]>p[1]*1.07)warmLand++;
+           }
+          return opaque>25&&warmLand>3;
+        },null,{timeout:12000});
+      }
       assert.equal(await page.locator('[data-globe-mode="'+mode+'"]').getAttribute('class').then(x=>(x||'').includes('active')),true,label+' '+mode+' mode did not activate');
       await page.screenshot({path:path.join(out,label+'-'+mode+'.png'),fullPage:true});
     }
