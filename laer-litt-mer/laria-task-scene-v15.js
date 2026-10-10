@@ -113,7 +113,7 @@
     if(!Number.isFinite(correct)||correct<0||!Number.isInteger(correct))return null;
     const candidates=[];
     if(q.skill==='place-value'){
-      const match=String(q.prompt).match(/verdien til\\s+(\\d+)\\s+i tallet\\s+(\\d+)/i);
+      const match=String(q.prompt).match(/verdien til\s+(\d+)\s+i tallet\s+(\d+)/i);
       if(match){
         const digit=Number(match[1]),whole=Number(match[2]);
         candidates.push(digit,whole,whole%10,digit*10+10);
