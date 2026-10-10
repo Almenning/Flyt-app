@@ -100,17 +100,32 @@ async function run(engine,label,viewport){
    for(let k=0;k<await futureSpots.count();k++){
      await futureSpots.nth(k).click();
      const preview=page.locator('.locked-journey-overlay:not([hidden]) [data-locked-preview]');
-     if(await preview.count()){
+     const candidate=await page.evaluate(s=>{
+       const geo=s==='geography',grade=journeyViewGrade(s);
+       const model=geo?geoJourneyModel(grade):journeyModel(s,grade);
+       const first=journeyFirstOpenArea(model,geo?geoJourneyAreaComplete:journeyAreaComplete);
+       const complete=geo?geoJourneyProgress(grade).complete:journeyProgress(s,grade).complete;
+       const buttons=[...document.querySelectorAll('.locked-journey-overlay:not([hidden]) [data-locked-node]:disabled')];
+       return !complete&&buttons.some(btn=>{
+         const node=model.nodes.find(n=>n.id===btn.dataset.lockedNode);
+         return node?.type===(geo?'geo-skill':'skill')&&
+           model.areas.findIndex(a=>a.id===node.areaId)===first+1;
+       });
+     },subject);
+     assert.equal((await preview.count())>0,candidate,
+       label+' '+subject+' sneak peek must be offered ONLY for the next original area');
+     if(candidate&&!checkedPreview){
        await preview.click();
        const called=await page.evaluate(()=>window.__lockedPreview);
        assert(called?.args?.length===2+(subject!=='geography'?1:0),label+' original preview signature');
        assert.equal(called?.args?.at(-1),2,label+' sneak peek grade changed');
        assert.equal(called?.kind,subject==='geography'?'geo':'subject');
-       checkedPreview=true;break;
+       checkedPreview=true;
+     }else{
+       await page.locator('.locked-sheet-close').click();
      }
-     await page.locator('.locked-sheet-close').click();
    }
-   if(!checkedPreview)console.log('[locked preview] no future skill eligible at '+label+' '+subject);
+   if(!checkedPreview)console.log('[locked preview] no next-area skill eligible at '+label+' '+subject);
    const after=await page.evaluate(()=>JSON.stringify(JSON.parse(localStorage.getItem('laerlittmer-v2')).journey));
    assert.equal(after,before,label+' map interactions and preview must not modify progress');
    await page.locator(base+' .locked-journey-options').click();
