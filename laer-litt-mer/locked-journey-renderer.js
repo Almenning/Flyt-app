@@ -7,6 +7,10 @@
   const contract=window.LARIA_LOCKED_JOURNEYS;
   if(!contract||typeof renderSubjectJourney!=='function'||typeof renderGeoJourney!=='function')return;
   const previousSubject=renderSubjectJourney,previousGeo=renderGeoJourney;
+  // OFF until all FOUR exact October 10 source PNGs have been uploaded and
+  // visually compared. This avoids broken 404 requests in the live fallback.
+  // Only the automated decoder test opts in with a page-init flag.
+  const ORIGINAL_SOURCE_IMAGES_VERIFIED=false;
   const assets=new Map();
   const esc=value=>String(value??'').replace(/[&<>"']/g,ch=>({
     '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
@@ -174,6 +178,7 @@
     return true;
   }
   function canUse(subject){
+    if(!ORIGINAL_SOURCE_IMAGES_VERIFIED&&window.LARIA_LOCKED_JOURNEY_QA_ART!==true)return false;
     return !!contract.get(subject)&&journeyViewGrade(subject)<=2&&ensureOriginalArt(subject);
   }
   renderSubjectJourney=function(){
