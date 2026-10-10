@@ -124,7 +124,7 @@ async function tapGlobeMode(page,mode,label){
     const selected=diagnostic.active?.find(item=>item.mode===mode)?.active===true;
     const expectedPerspective=mode==='classic'?'globe':'atlas';
     const actualScreen=diagnostic.screenClass||'';
-    const visible=actualScreen.split(/\\s+/).includes('active');
+    const visible=actualScreen.trim().split(' ').includes('active');
     if(selected&&diagnostic.globeMode===mode&&
        diagnostic.perspective===expectedPerspective&&visible){
       console.log('[native Safari mode] accepted verified late-state after polling stall:',label,mode);
