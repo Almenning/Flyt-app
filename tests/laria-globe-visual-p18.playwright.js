@@ -117,6 +117,19 @@ async function tapGlobeMode(page,mode,label){
     const suffix='-'+label+'-'+mode+'-touch-timeout';
     fs.writeFileSync(path.join(out,'diagnostic'+suffix+'.json'),JSON.stringify(diagnostic,null,2));
     try{await page.screenshot({path:path.join(out,'diagnostic'+suffix+'.png'),timeout:3000})}catch(_){}
+    // WebKit's page.waitForFunction polling can stall while a canvas is
+    // repainted. The same strict DOM state may already be reached when its
+    // timeout callback resumes. Verify the resulting MODE and perspective,
+    // not a callback's scheduling. Actual canvas pixels are asserted below.
+    const selected=diagnostic.active?.find(item=>item.mode===mode)?.active===true;
+    const expectedPerspective=mode==='classic'?'globe':'atlas';
+    const actualScreen=diagnostic.screenClass||'';
+    const visible=actualScreen.split(/\\s+/).includes('active');
+    if(selected&&diagnostic.globeMode===mode&&
+       diagnostic.perspective===expectedPerspective&&visible){
+      console.log('[native Safari mode] accepted verified late-state after polling stall:',label,mode);
+      return;
+    }
     throw new Error('Native mode tap did not activate: '+JSON.stringify(diagnostic));
   }
 }
