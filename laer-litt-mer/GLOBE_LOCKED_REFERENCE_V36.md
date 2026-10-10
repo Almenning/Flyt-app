@@ -1,4 +1,36 @@
-# Kloden: låst visuell referanse og v36-godkjenningsport
+# Kloden: låst produktretning v37 og historisk visuell referanse v36
+
+## LÅST PRODUKTRETNING v37 — 10. oktober 2026
+
+**Denne beslutningen erstatter forslag om å bytte til et flatt atlas som Lærias primære geografikart.** Den overstyrer eldre v36-anbefalinger dersom de forutsetter stor, dekorasjonstung kartflate eller statiske kunstlag oppå geografien. Resten av v36-funksjons- og kvalitetskravene gjelder fortsatt.
+
+**Hovedregel:** Behold den interaktive, roterbare globusen som barnets primære geografiopplevelse. Ta utgangspunkt i det eksisterende grunnkartet og ekte, geografisk registrerte landkonturer. Forbedre kunsten med små **egne, geografisk forankrede illustrasjoner** som dukker gradvis opp ved zoom, ikke med ett stort illustrert bilde projisert oppå kloden.
+
+### Visuelt nivå etter zoom
+
+1. **Utzoom:** Klar, estetisk pen og lett lesbar globus med korrekt geografi, behagelig hav/land-palett, diskret tekstur og lite visuell støy. Landene skal fortsatt være hovedmotiv.
+2. **Mellomzoom:** Små koordinatfestede illustrasjoner av for eksempel fjell, skog, ørken, dyre- eller stedsdetaljer kan tre gradvis frem uten å skjule grenser eller valgflater.
+3. **Nærzoom:** Flere lokalt relevante, håndtegnede detaljer kan vises, men aldri i slik mengde at geografien, navigasjonen, landnavn eller landvalg blir dårligere.
+
+### Tekniske og pedagogiske bindinger
+
+- Grunnkartet forblir levende og tegnes fra ekte landgeometri. Ingen komplett illustrert atlasflate, ferdig skjermbilde eller feilregistrert equirectangular tekstur over landene.
+- Dekorasjon har longitude/latitude-posisjon, korrekt geografisk projeksjon og konsistent plassering ved rotasjon, sveip og pinch-zoom. Pyntelagene skal ikke ta imot trykk eller endre hvilken geometri som velges.
+- Landvalg må samsvare med tegnede konturer. Små land skal fremdeles kunne velges via gjennomtenkte markører og trykkflater.
+- Alle tre etablerte moduser (Utforsk, Min verden, Kloden), samt søk, tilfeldig land, landfakta, progresjon, zoom og navigasjon beholdes.
+- Zoomstyrt detaljnivå skal være begrenset, testet mot ytelse og trappes ned på svakere enheter. Art og data må ha trygg reserve ved treg lasting/offline.
+- iPhone, iPad stående/liggende og desktop Safari skal vise riktig geometri uten utstrukne elementer, kortkollisjoner eller ødelagte gester.
+- V36-referanseillustrasjonen er stil- og ambisjonsreferanse for premium helhet, **ikke** en flate som kan bakes inn i kartet. Verken ekstra pynt eller mer komplisert rendering er et mål i seg selv.
+- Behold eksisterende datakilder, landnavn, quiz, fagmotorer, lagring og brukerprogresjon. Ingen nye læringsaktiviteter i denne arbeidsrunden.
+- Et flatt atlas kan eventuelt vurderes separat for kartspørsmål og pedagogiske detaljvisninger, men skal **ikke** erstatte globusen som hovedvisning.
+
+### Ferdigkriterium for implementering
+
+Ikke godkjenn på bakgrunn av konseptbilder eller kun grønne automatiske tester. Sammenlign faktiske skjermbilder før/etter ved alle tre zoomnivåer, både iPhone og iPad, og verifiser at pynteobjekter følger koordinatene, at riktige land velges, at små land fungerer, og at ytelse, innlasting, pinch, sveip og eksisterende progresjon ikke svekkes. Først deretter kan en implementering omtales som premium-ferdig.
+
+---
+
+## Historisk v36-referanse (suppleres og ved konflikt overstyres av v37)
 
 **Status: v36 referanseillustrasjon implementert og desktop/iPhone/iPad-bilder kontrollert; oppdatert kontinentpalett avventer eksakt SHA-verifisering.**
 
