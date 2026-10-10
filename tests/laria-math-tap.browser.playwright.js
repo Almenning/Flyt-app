@@ -74,6 +74,7 @@ async function run(browser,engine,device,width,height,url){
       return {
         screen:innerWidth,scroll:document.documentElement.scrollWidth,
         rects:nodes.map(n=>n.getBoundingClientRect().toJSON()),
+        fox:document.querySelector('.young-math-choice-layout > .task-fox-companion')?.getBoundingClientRect().toJSON(),
         font:nodes.map(n=>parseFloat(getComputedStyle(n).fontSize)),
         columns:getComputedStyle(document.querySelector('.young-math-answers')).gridTemplateColumns
       };
@@ -82,6 +83,9 @@ async function run(browser,engine,device,width,height,url){
     assert.ok(layout.rects.every(x=>x.height>=58),'tap targets too small: '+JSON.stringify(layout));
     assert.ok(layout.rects[0].y===layout.rects[1].y&&layout.rects[1].y===layout.rects[2].y,
       'choices should be three in one row: '+JSON.stringify(layout));
+    assert.ok(layout.fox&&layout.fox.top>=0&&layout.fox.right<=layout.screen+4
+      &&layout.fox.bottom<Math.min(...layout.rects.map(x=>x.top)),
+      'the fox must remain visible and never cover any touch target: '+JSON.stringify(layout));
     await capture(page,engine,device,'01-choices');
     await page.locator('.young-math-option[data-answer="8"]').tap();
     assert.match(await page.locator('#feedback-title').innerText(),/Nesten/);
