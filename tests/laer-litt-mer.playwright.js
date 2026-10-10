@@ -986,40 +986,23 @@ async function finishSession(page){
     await page.evaluate(()=>document.getElementById('open-geography').click());
     assert.equal(await page.locator('.geo-theme').count(),6);
     assert.equal(await page.locator('#geo-journey-map').isVisible(),true);
-    assert.equal(await page.locator('#geo-journey-map.premium-journey-map .premium-geography').count(),1);
+    await page.locator('#geo-journey-map.locked-journey-map[data-journey-subject="geography"] .locked-journey-image').waitFor({timeout:16000});
+    assert.equal(await page.locator('#geo-journey-map .locked-journey-image').getAttribute('src'),'./locked-journeys/nordlysleiren-locked-20261010.png');
     assert.equal(await page.locator('#geo-journey-map').getAttribute('data-journey-release'),'journey-rc1');
-    assert.equal(await page.locator('#geo-journey-map').getAttribute('data-journey-subject'),'geography');
-    assert.ok(await page.locator('#geo-journey-map .premium-place[data-geo-journey-node]').count()>=4);
-    assert.equal(await page.locator('#geo-journey-map .premium-place.is-next').count(),1);
-    assert.ok(await page.locator('#geo-journey-map .premium-place.is-future').count()>=1);
-    assert.equal(await page.locator('#geo-journey-map .premium-world-hud').count(),1);
+    assert.equal(await page.locator('#geo-journey-map .locked-journey-hotspot').count(),5);
+    assert.equal(await page.locator('#geo-journey-map .locked-journey-hotspot.state-current').count(),1);
+    assert.equal(await page.locator('#geo-journey-map .locked-journey-live-progress').count(),1);
     const geoWorldTop=await page.locator('#geo-journey-map').evaluate(el=>el.getBoundingClientRect().top);
     const geoGlobeTop=await page.locator('#open-world').evaluate(el=>el.getBoundingClientRect().top);
-    assert.ok(geoWorldTop<geoGlobeTop,'young-grade geography journey should be the primary surface before globe/free exploration');
-    assert.equal(await page.locator('#geography-screen > .geography-head').isVisible(),false,'young-grade geography should not put a dashboard banner before the world');
-    const reactionNode=await page.evaluate(()=>{
-      const grade=journeyViewGrade('geography'),model=geoJourneyProgress(grade).model,current=geoJourneyRecommendedNode(grade);
-      const route=model.areas.flatMap(area=>area.nodes.filter(n=>n.type==='geo-skill'||n.type==='checkpoint'));
-      const currentIndex=Math.max(0,route.findIndex(n=>n.id===current?.id));
-      return route[Math.min(route.length-1,currentIndex+1)]?.id||current?.id;
-    });
-    await page.evaluate(nodeId=>{
-      window.__journeyWorldReaction={subject:'geography',grade:journeyViewGrade('geography'),nodeId,at:Date.now()};
-      renderGeoJourney();
-    },reactionNode);
-    assert.equal(await page.locator('#geo-journey-map .premium-world.is-progress-reaction .premium-progress-reaction').count(),1,'a newly completed core mission should trigger one landscape reaction');
-    assert.equal(await page.locator('#geo-journey-map .premium-place.is-just-completed').count(),1,'the completed landmark should receive the reaction state');
-    assert.equal(await page.locator('#geo-journey-map .premium-traveler-character').count(),1,'premium worlds should isolate guide motion from idle breathing');
-    assert.notEqual(await page.locator('#geo-journey-map .premium-traveler').getAttribute('data-travel-from-x'),null,'reaction render should carry the travel origin');
-    await page.waitForTimeout(80);
-    const travelDistance=Number(await page.locator('#geo-journey-map .premium-traveler').getAttribute('data-travel-distance')||0);
-    assert.ok(travelDistance>10,'a reaction between different landmarks should start a real traveler movement');
-    assert.equal(await page.evaluate(()=>window.__journeyWorldReaction),null,'the world reaction must be one-shot');
-    await page.locator('#geo-journey-map .premium-place.is-next').click();
+    assert.ok(geoWorldTop<geoGlobeTop,'Nordlysleiren must precede globe/free exploration');
+    assert.equal(await page.locator('#geography-screen > .geography-head').isVisible(),false);
+    await page.locator('#geo-journey-map .locked-journey-hotspot.state-current').click();
+    await page.locator('.locked-journey-overlay:not([hidden]) [data-locked-node]:not([disabled])').filter({hasText:'Neste oppdrag'}).first().click();
     await page.locator('#session-screen.active').waitFor();
-    assert.equal(await page.locator('#journey-mission-backdrop').isVisible(),false,'geography map opens exercises with one tap');
-    assert.equal(await page.locator('#geography-screen').isVisible(),false,'geography theme must not leak over exercises');
+    assert.equal(await page.locator('#journey-mission-backdrop').isVisible(),false);
+    assert.equal(await page.locator('#geography-screen').isVisible(),false);
     await page.locator('#close-session').click();
+    await page.locator('#geography-screen.active .locked-journey-map').waitFor();
 
     const nextGeoNode=await page.evaluate(()=>geoJourneyRecommendedNode()?.id);
     assert.ok(nextGeoNode,'missing recommended geography journey node');
@@ -1068,7 +1051,7 @@ async function finishSession(page){
     await page.locator('#geography-screen.active').waitFor();
 
     // Progress.
-    await page.locator('#geo-journey-map .premium-world-back').click();
+    await page.locator('#geo-journey-map .locked-journey-back').click();
     await page.evaluate(()=>setTab('progress'));
     await page.locator('#progress-screen.active').waitFor();
     assert.equal(await page.locator('#subject-progress-grid .subject-progress-card').count(),4);
@@ -1078,7 +1061,7 @@ async function finishSession(page){
     await page.evaluate(()=>document.getElementById('open-geography').click());
     const themeHeights=await page.locator('.geo-theme:visible').evaluateAll(els=>els.map(e=>e.getBoundingClientRect().height));
     assert.ok(themeHeights.every(h=>h>=44),`small geography touch target: ${themeHeights}`);
-    const backHeight=await page.locator('#geo-journey-map .premium-world-back').evaluate(e=>e.getBoundingClientRect().height);
+    const backHeight=await page.locator('#geo-journey-map .locked-journey-back').evaluate(e=>e.getBoundingClientRect().height);
     assert.ok(backHeight>=44,`small back target: ${backHeight}`);
 
     // Prompt 11: all four subjects must render through the same premium task scene contract.
@@ -1473,8 +1456,8 @@ async function finishSession(page){
     });
     await page.evaluate(()=>document.getElementById('open-math').click());
     assert.equal(await page.locator('#journey-grade-strip [data-journey-grade]').count(),10);
-    await page.locator('#journey-map .premium-world-grade').click();
-    await page.locator('#journey-map [data-premium-grade="3"]').click();
+    await page.locator('#journey-map .locked-journey-options').click();
+    await page.locator('.locked-journey-overlay:not([hidden]) [data-locked-grade="3"]').click();
     const selectedJourney=await page.evaluate(()=>({
       profile:currentGrade(),
       view:journeyViewGrade('math'),
