@@ -250,3 +250,17 @@ jobs:
           path: /tmp/laria-navigation-v13
           if-no-files-found: warn
           retention-days: 7
+
+
+  # Separate from the synthetic UI tests. This gate deliberately FAILS while
+  # the approved source PNGs are missing, so an otherwise green PR cannot be
+  # mistaken for a visually finished implementation.
+  locked-original-artwork-release:
+    if: github.event_name == 'pull_request' && github.head_ref == 'feat/laria-oct10-locked-journeys-phase1'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Checkout exact PR source
+        uses: actions/checkout@v4
+      - name: Verify approved original artwork release readiness
+        run: node tests/laria-locked-release-gate.cjs
