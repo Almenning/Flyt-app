@@ -7,8 +7,9 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
 const {chromium,webkit}=require('playwright');
-const originalArtApproved=/const ORIGINAL_SOURCE_IMAGES_VERIFIED\\s*=\\s*true\\s*;/
- .test(fs.readFileSync(path.join(__dirname,'..','laer-litt-mer','locked-journey-renderer.js'),'utf8'));
+const originalArtApproved=fs.readFileSync(
+ path.join(__dirname,'..','laer-litt-mer','locked-journey-renderer.js'),'utf8'
+).includes('const ORIGINAL_SOURCE_IMAGES_VERIFIED=true;');
 const output=process.env.LOCKED_JOURNEY_QA||'/tmp/laria-locked-journey-geometry';
 fs.mkdirSync(output,{recursive:true});
 const seed={
