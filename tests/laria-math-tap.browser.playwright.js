@@ -92,6 +92,9 @@ async function run(browser,engine,device,width,height,url){
     assert.equal(await page.locator('#next-question').isVisible(),false);
     await page.locator('.young-math-option[data-answer="80"]').tap();
     assert.match(await page.locator('#feedback-title').innerText(),/Riktig/);
+    const correctedFeedback=await page.locator('#feedback-copy').innerText();
+    assert.match(correctedFeedback,/etter et nytt forsøk/i,'acknowledge retry honestly');
+    assert.doesNotMatch(correctedFeedback,/sterkere|samlingen/i,'a retry is not new mastery');
     assert.equal(await page.locator('.young-math-option.correct').count(),1);
     const result=await page.evaluate(()=>({
       logs:state.answerLog.filter(x=>x.subject==='math'),
