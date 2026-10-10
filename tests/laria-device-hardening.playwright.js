@@ -99,9 +99,10 @@ async function verifyBasecamp(page,label,width,height){
   await page.locator('.bc12-nav [data-camp="home"]').tap();
   await page.locator('.bc12-journey').tap();
   await page.locator('#subject-screen.active').waitFor();
+  await page.locator('#subject-screen.active .locked-journey-map[data-journey-subject="norwegian"] .locked-journey-back').waitFor({state:'visible',timeout:16000});
   await noOverflow(page,label+' subject');
-  const home=await rect(page,'.bok-v10-home, .locked-journey-back');assertTap(home,label+' subject home');
-  await page.locator('.bok-v10-home:visible, .locked-journey-back:visible').first().tap();
+  const home=await rect(page,'#subject-screen.active .locked-journey-back');assertTap(home,label+' subject home');
+  await page.locator('#subject-screen.active .locked-journey-back').tap();
   await page.locator('#home-screen.active').waitFor();
 
   // Edge-back must preserve the real Basecamp origin contract.

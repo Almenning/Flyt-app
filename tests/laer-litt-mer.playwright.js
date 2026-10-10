@@ -644,35 +644,28 @@ async function finishSession(page){
     assert.match(await page.locator('.onboard-step[data-step="0"] .hero-copy').textContent(),/Velg reven din, skriv navnet ditt og start reisen/i);
     assert.equal(await page.locator('.onboard-step[data-step="0"] .grade-question').count(),1,'grade choice must remain on the same onboarding screen');
 
-    // Norsk 1.–2.: the child enters the premium Bokskogen board, not the old module dashboard.
+    // Norsk 1.–2.: the child enters the approved locked Bokskogen journey.
     await page.evaluate(()=>openSubject('norwegian'));
     await page.locator('#subject-screen.active').waitFor();
     assert.equal(await page.locator('#subject-title').textContent(),'Norsk');
-    assert.equal(await page.locator('#journey-map .bok-v11-world').count(),1,'young Norwegian should use Bokskogen v11');
-    assert.equal(await page.locator('#journey-map [data-v10-place]').count(),11,'Bokskogen should expose one destination for each core learning stop');
-    assert.equal(await page.locator('#journey-map .bok-v10-place.state-current').count(),1,'exactly one destination should be the next place');
-    assert.equal(await page.locator('#journey-map .bok-v10-place .plaque').count(),0,'destination labels must belong to the illustrated world, not duplicate UI plaques');
-    assert.equal(await page.locator('#journey-map .bok-v16-terrain img').count(),1,'Bokskogen should show the active illustrated terrain atlas');
-    assert.equal(await page.locator('#journey-map .bok-v16-scene').count(),1,'Bokskogen should use one active layered scene');
-    assert.equal(await page.locator('#journey-map .bok-v15-scene').count(),0,'obsolete modular terrain must not compete with the active scene');
-    assert.equal(await page.locator('#journey-map .atlas-place-label').count(),11,'all core destinations need readable controls');
-    assert.equal(await page.locator('#journey-map').getAttribute('data-release'),'atlas32');
+    await page.locator('#journey-map.locked-journey-map[data-journey-subject="norwegian"] .locked-journey-image').waitFor({timeout:16000});
+    assert.equal(await page.locator('#journey-map .locked-journey-image').count(),1,'Bokskogen should use one exact approved source image');
+    assert.equal(await page.locator('#journey-map .locked-journey-hotspot').count(),5,'Bokskogen should expose all five painted destinations');
+    assert.equal(await page.locator('#journey-map .locked-journey-hotspot.state-current').count(),1,'exactly one painted destination should be next');
     assert.equal(await page.locator('#journey-map').getAttribute('data-journey-release'),'journey-rc1');
     assert.equal(Number(await page.locator('#journey-map').getAttribute('data-journey-core-stops')),11,'Bokskogen RC must expose 11 distinct core destinations');
-    assert.equal(await page.locator('#journey-map .bok-v10-home').isVisible(),true);
-    assert.equal(await page.locator('#journey-map .bok-v10-grade').isVisible(),true);
-    assert.equal(await page.locator('#journey-map .bok-v10-progress').isVisible(),true);
-    assert.equal(await page.locator('#journey-map .bok-v11-status').count(),0,'Bokskogen must not render floating circular state badges');
+    assert.equal(await page.locator('#journey-map .locked-journey-back').isVisible(),true);
+    assert.equal(await page.locator('#journey-map .locked-journey-options').isVisible(),true);
+    assert.match(await page.locator('#journey-map .locked-journey-live-progress').innerText(),/^★\s*0\s*\/\s*11$/);
     assert.equal(await page.locator('#subject-screen > .detail-back').isVisible(),false,'world-first Bokskogen must not leak the old page back button below the map');
-    const bokHudTop=await page.locator('#journey-map .bok-v10-top').evaluate(el=>el.getBoundingClientRect().top);
-    assert.ok(bokHudTop>=55,'Bokskogen HUD must clear iPhone status/Dynamic Island area');
     assert.equal(await page.locator('#subject-modules').isVisible(),false,'the old module dashboard should not compete with the game board');
     await page.waitForTimeout(450);
-    const bokNextPosition=await page.locator('#journey-map .bok-v10-place.state-current').evaluate(el=>el.getBoundingClientRect().top);
+    const bokNextPosition=await page.locator('#journey-map .locked-journey-hotspot.state-current').evaluate(el=>el.getBoundingClientRect().top);
     assert.ok(bokNextPosition>=0&&bokNextPosition<844,'Bokskogen must open with the next destination in the mobile viewport');
 
-    await page.locator('#journey-map .bok-v10-place.state-current').click();
+    await page.locator('#journey-map .locked-journey-hotspot.state-current').click();
     assert.equal(await page.locator('#journey-mission-backdrop').isVisible(),false,'map click must open the exercise directly');
+    await page.locator('.locked-journey-overlay:not([hidden]) [data-locked-node]:not([disabled])').filter({hasText:'Neste oppdrag'}).first().click();
     await page.locator('#session-screen.active').waitFor();
     assert.equal(await page.evaluate(()=>sessionScope.type),'journey');
     assert.equal(await page.evaluate(()=>sessionScope.subject),'norwegian');
@@ -680,9 +673,9 @@ async function finishSession(page){
     assert.match(await page.locator('#complete-area').textContent(),/Norsk/);
     await page.locator('#complete-home').click();
     await page.locator('#subject-screen.active').waitFor();
-    assert.equal(await page.locator('#journey-map .bok-v11-world').count(),1,'journey completion should return to the Bokskogen board');
-    assert.equal(await page.locator('#journey-map .bok-v16-terrain img').isVisible(),true,'the terrain atlas should remain visible after completing a session');
-    await page.locator('#journey-map .bok-v10-home').click();
+    await page.locator('#journey-map.locked-journey-map[data-journey-subject="norwegian"] .locked-journey-image').waitFor({timeout:16000});
+    assert.equal(await page.locator('#journey-map .locked-journey-image').isVisible(),true,'the approved Bokskogen original should remain visible after completing a session');
+    await page.locator('#journey-map .locked-journey-back').click();
     await page.locator('#home-screen.active').waitFor();
     assert.equal(await page.locator('.bc12-journey').isVisible(),true);
 
