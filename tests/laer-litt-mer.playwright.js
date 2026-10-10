@@ -731,6 +731,14 @@ async function finishSession(page){
     assert.equal(retryEvidence.persisted,true,'retry state must survive session resume');
     await page.evaluate(()=>renderQuestion());
     assert.match(await page.locator('#feedback-title').innerText(),/Riktig/,'corrected feedback must survive rerender');
+    // Ordering questions must only offer the original numbers in the problem.
+    await page.evaluate(()=>{
+      sessionQuestions[0]={subject:'math',skill:'number-order',type:'number-input',
+        prompt:'Hvilket tall er størst av 14, 29, 51?',answer:'51',curriculum:'MAT01-06'};
+      currentAnswered=null;persistActiveSession();renderQuestion();
+    });
+    const orderingChoices=await page.locator('.young-math-option').evaluateAll(els=>els.map(el=>el.dataset.answer).sort());
+    assert.deepEqual(orderingChoices,['14','29','51'],'no invented numbers in a compare-the-given-numbers question');
     await page.locator('#close-session').click();
     await page.evaluate(()=>{
       const prev=window.__mathTapBackup;
