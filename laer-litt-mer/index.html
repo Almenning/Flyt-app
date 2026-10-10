@@ -3151,7 +3151,7 @@
 </div>
 <!-- Core local data used by the inline app runtime. -->
 <script src="./profile-avatars.js?v=20261006-assets1" data-boot-sync></script>
-<script src="./commercial-content-v18.js?v=20261007-p18rc1" data-boot-sync></script>
+<script src="./commercial-content-v18.js?v=20261010-math-decimal1" data-boot-sync></script>
 <script src="./commerce-v18.js?v=20261007-p18rc1" data-boot-sync></script>
 <script src="./norwegian-content.js?v=20261006-assets1" defer></script>
 <script>
@@ -5845,12 +5845,27 @@ function renderSentenceOrder(q,wrap){
   paint();
 }
 
-function normalizeNumericAnswer(v){return String(v??'').trim().replace(/\s+/g,'').replace(',','.')}
+function normalizeNumericAnswer(v){
+  return String(v??'').trim().replace(/\s+/g,'').replace(/[−–]/g,'-').replace(',','.');
+}
+function numericalAnswersMatch(given,expected){
+  const typed=normalizeNumericAnswer(given),correct=normalizeNumericAnswer(expected);
+  if(!typed||!correct)return false;
+  if(typed===correct)return true;
+  // Reject text, units and malformed numbers. Never use parseFloat() here.
+  const decimal=/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/;
+  if(!decimal.test(typed)||!decimal.test(correct))return false;
+  const a=Number(typed),b=Number(correct);
+  if(!Number.isFinite(a)||!Number.isFinite(b))return false;
+  // Computed curriculum answers can contain IEEE-754 noise such as
+  // 27.500000000000004. Twelve significant figures exceed task precision.
+  return Number(a.toPrecision(12))===Number(b.toPrecision(12));
+}
 function renderNumberInput(q,wrap){
   const input=wrap.querySelector('#math-input'),check=wrap.querySelector('#check-number');
   const submit=()=>{
     if(currentAnswered)return;
-    const raw=input.value,correct=normalizeNumericAnswer(raw)===normalizeNumericAnswer(q.answer);
+    const raw=input.value,correct=numericalAnswersMatch(raw,q.answer);
     recordLearningAnswer(q,correct,raw);input.disabled=true;check.disabled=true;showLearningFeedback(q,correct);
   };
   check.onclick=submit;input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();submit()}});
