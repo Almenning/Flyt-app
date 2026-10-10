@@ -104,8 +104,13 @@
 }
 @media(min-width:701px) and (orientation:portrait){
  .bc13-panel{top:11%;width:82%;height:75%}
- .bc13-scene{flex-basis:68%}
+ /* Keep the complete wide-format artwork visible: cards are compact stops on a journey, not tall image crops. */
+ .bc13-card{height:min(100%,283px);align-self:center}
+ .bc13-scene{flex-basis:56%}
  .bc13-card-copy{padding-top:10px}
+ .bc13-card-copy strong{font-size:22px}
+ .bc13-card-copy small{font-size:13px}
+ .bc13-card-world{font-size:11px}
 }
 @media(max-height:530px) and (orientation:landscape){
  .bc13-panel{top:6%;height:80%;max-width:720px}
