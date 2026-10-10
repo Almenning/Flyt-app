@@ -211,7 +211,12 @@
  .bc12[data-mode="home"] .bc12-journey>span{font-size:15px;padding:7px 8px}
  .bc12[data-mode="home"] .bc12-journey small{font-size:8px;padding:3px 6px}
  .bc12[data-mode="home"] .bc14-free{top:71%;min-height:55px}
- .bc12[data-mode="home"] .bc12-quest{display:none!important}
+ .bc12[data-mode="home"] .bc12-quest{
+  display:flex!important;left:6%;bottom:12.7%;width:42%;
+  min-height:44px;padding:4px 5px;transform:none;font-size:9px
+ }
+ .bc12[data-mode="home"] .bc12-quest small{display:none}
+ .bc12[data-mode="home"] .bc12-quest .bc12-wax{width:22px;height:22px;flex-basis:22px;font-size:10px}
  .bc12[data-mode="home"] .bc12-nav button{min-height:48px}
 }
 @media(max-height:580px) and (orientation:landscape){
