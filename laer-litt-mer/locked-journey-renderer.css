@@ -213,6 +213,11 @@
   font:800 15px system-ui,sans-serif;background:#fff3d7;color:#674122
 }
 .locked-journey-grade-grid button[aria-current=true]{background:#346b50;color:white}
+/* Young illustrated journeys are the primary subject surface. Never
+   show the old module dashboard underneath the approved portrait map. */
+#subject-screen.locked-journey-active .free-practice-title,
+#subject-screen.locked-journey-active #subject-modules,
+#subject-screen.locked-journey-active .hub-progress-line{display:none!important}
 #subject-screen.locked-journey-active{padding-left:0!important;padding-right:0!important}
 #subject-screen.locked-journey-active>#subject-journey-section{margin:0!important;padding:0!important}
 #subject-screen.locked-journey-active .journey-heading,
