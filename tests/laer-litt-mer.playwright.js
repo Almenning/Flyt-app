@@ -737,39 +737,39 @@ async function finishSession(page){
       saveState();delete window.__mathTapBackup;
     });
     await page.evaluate(()=>document.getElementById('open-math').click());
-    assert.equal(await page.locator('#journey-map').isVisible(),true);
-    assert.equal(await page.locator('#journey-map.premium-journey-map .premium-math').count(),1);
+    await page.locator('#journey-map.locked-journey-map[data-journey-subject="math"] .locked-journey-image').waitFor({timeout:16000});
     assert.equal(await page.locator('#journey-map').getAttribute('data-journey-release'),'journey-rc1');
-    assert.equal(await page.locator('#journey-map').getAttribute('data-journey-subject'),'math');
-    assert.ok(await page.locator('#journey-map .premium-place[data-journey-node]').count()>=4);
-    assert.equal(await page.locator('#journey-map .premium-place.is-next').count(),1);
-    assert.ok(await page.locator('#journey-map .premium-place.is-future').count()>=1);
-    assert.equal(await page.locator('#journey-map .premium-world-hud').count(),1);
+    assert.equal(await page.locator('#journey-map .locked-journey-image').getAttribute('src'),'./locked-journeys/tallenga-locked-20261010.png');
+    assert.equal(await page.locator('#journey-map .locked-journey-hotspot').count(),5,'Tallenga uses five original destinations');
+    assert.equal(await page.locator('#journey-map .locked-journey-hotspot.state-current').count(),1);
+    assert.equal(await page.locator('#journey-map .locked-journey-live-progress').count(),1,'current math progress should cover painted sample score');
     assert.equal(await page.locator('#journey-now-card').isVisible(),false);
     assert.equal(await page.locator('#journey-collection').isVisible(),false);
-    const worldArt=page.locator('#journey-map .premium-world-art');
-    assert.match(await worldArt.getAttribute('data-world-src'),/matte-verden\.png$/,'math world should keep the premium landscape source');
-    await page.waitForFunction(()=>{const img=document.querySelector('#journey-map .premium-world-art');return !!img?.getAttribute('src')&&img.complete&&img.naturalWidth>800},null,{timeout:4000});
-    await page.waitForTimeout(150);
-    const mathNextPosition=await page.locator('#journey-map .premium-place.is-next').evaluate(el=>el.getBoundingClientRect().top);
-    assert.ok(mathNextPosition>=0&&mathNextPosition<844,'Tallenga must open with the next mission in the mobile viewport');
-    const firstNode=page.locator('#journey-map .premium-place.is-next');
-    await firstNode.click();
+    await page.waitForTimeout(250);
+    const mathNextPosition=await page.locator('#journey-map .locked-journey-hotspot.state-current').evaluate(el=>el.getBoundingClientRect().top);
+    assert.ok(mathNextPosition>=0&&mathNextPosition<844,'Tallenga should show the next mission in the mobile viewport');
+    await page.locator('#journey-map .locked-journey-hotspot.state-current').click();
+    await page.locator('.locked-journey-overlay:not([hidden]) [data-locked-node]:not([disabled])').filter({hasText:'Neste oppdrag'}).first().click();
     await page.locator('#session-screen.active').waitFor();
-    assert.equal(await page.locator('#journey-mission-backdrop').isVisible(),false,'math map opens exercises with one tap');
-    assert.equal(await page.locator('#geography-screen').isVisible(),false,'inactive geography screen stays hidden');
+    assert.equal(await page.locator('#journey-mission-backdrop').isVisible(),false);
+    assert.equal(await page.locator('#geography-screen').isVisible(),false);
     await page.locator('#close-session').click();
-    await page.locator('#journey-map .premium-place.is-future').first().click();
-    assert.equal(await page.locator('#journey-map .premium-sheet-start').count(),0,'future place must not start a mission');
-    await page.locator('#journey-map .premium-sheet-close').click();
+    await page.locator('#subject-screen.active .locked-journey-map').waitFor();
+    const future=page.locator('#journey-map .locked-journey-hotspot.state-future');
+    assert.ok(await future.count()>=1,'Tallenga should keep later areas locked');
+    await future.first().click();
+    assert.equal(await page.locator('.locked-journey-overlay:not([hidden]) [data-locked-node]:not([disabled])').count(),0,'future core missions cannot start');
+    await page.locator('.locked-sheet-close').click();
 
     const peekBefore=await page.evaluate(()=>({pct:journeyProgress('math',2).pct,goal:dailyGoal().done,answers:subjectAnswered('math')}));
-    const previewNode=await page.evaluate(()=>{
-      const model=journeyModel('math',2),id=model.areas[1].nodes.find(n=>n.type==='skill').id;
-      return id;
-    });
-    await page.locator('#journey-map [data-journey-node="'+previewNode+'"]').click();
-    await page.locator('#journey-map .premium-sheet-peek').click();
+    let peekFound=false;
+    for(let i=0;i<await future.count();i++){
+      await future.nth(i).click();
+      const button=page.locator('.locked-journey-overlay:not([hidden]) [data-locked-preview]');
+      if(await button.count()){await button.click();peekFound=true;break}
+      await page.locator('.locked-sheet-close').click();
+    }
+    assert.equal(peekFound,true,'Tallenga must retain progress-neutral preview of immediately next area');
     await page.locator('#session-screen.active').waitFor();
     const peekScope=await page.evaluate(()=>({type:sessionScope.type,previewOnly:sessionScope.previewOnly,practiceOnly:sessionScope.practiceOnly,count:sessionQuestions.length}));
     assert.equal(peekScope.type,'journey-preview');
