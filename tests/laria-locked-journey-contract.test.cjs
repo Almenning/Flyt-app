@@ -31,5 +31,7 @@ test('extras stay attached without creating IDs',()=>{
  assert.deepEqual(built.places.flatMap(p=>p.nodes.map(n=>n.id)).sort(),['a','b','rev']);
 });
 test('uncropped proportional points respect original geometry',()=>{
- assert.deepEqual(journey.imagePoint([25,60],{width:941,height:1672}),{left:235.25,top:1003.1999999999999});
+ const p=journey.imagePoint([25,60],{width:941,height:1672});
+ assert.ok(Math.abs(p.left-235.25)<1e-9);
+ assert.ok(Math.abs(p.top-1003.2)<1e-9);
 });
