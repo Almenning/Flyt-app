@@ -83,9 +83,7 @@ async function run(engine,label,viewport){
    const selectedId=await firstAvailable.getAttribute('data-locked-node');
    await firstAvailable.click();
    const launched=await page.evaluate(()=>window.__lockedLaunch);
-   assert.equal(launched?.args?.[1],2,label+' view grade must not change');
-   assert.equal(launched?.args?.[0],subject==='geography'?selectedId:subject,label+' original mission routing '+JSON.stringify(launched));
-   if(subject!=='geography')assert.equal(launched?.args?.[1],selectedId,label+' original node id must survive');
+   assert.deepEqual(launched?.args,subject==='geography'?[selectedId,2]:[subject,selectedId,2],label+' existing mission ID and grade must survive');
    await page.screenshot({path:output+'/'+label+'-'+subject+'-test-geometry.png',fullPage:true});
    await page.locator('.locked-journey-back').click();
    await page.locator('#home-screen.active').waitFor({timeout:16000});
