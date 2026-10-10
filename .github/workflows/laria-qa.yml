@@ -2,7 +2,7 @@ name: Laria QA
 
 on:
   push:
-    branches: [main, fix/laria-globe-locked-scenery-v36]
+    branches: [main, fix/laria-globe-locked-scenery-v36, feat/laria-oct10-locked-journeys-phase1]
     paths:
       - 'laer-litt-mer/**'
       - 'tests/**'
@@ -290,7 +290,7 @@ jobs:
   # the approved source PNGs are missing, so an otherwise green PR cannot be
   # mistaken for a visually finished implementation.
   locked-original-artwork-release:
-    if: github.event_name == 'pull_request' && github.head_ref == 'feat/laria-oct10-locked-journeys-phase1'
+    if: (github.event_name == 'pull_request' && github.head_ref == 'feat/laria-oct10-locked-journeys-phase1') || (github.event_name == 'push' && github.ref == 'refs/heads/feat/laria-oct10-locked-journeys-phase1')
     runs-on: ubuntu-latest
     timeout-minutes: 3
     steps:
