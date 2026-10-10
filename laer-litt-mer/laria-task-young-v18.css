@@ -558,3 +558,30 @@
     animation:none!important;
   }
 }
+
+
+/* Grades 1–2: a simple number question uses three large tappable choices. */
+#session-screen.task-scene[data-task-band="young"] .young-math-choice-layout .young-math-answers{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:clamp(7px,1.5vw,13px)!important;
+  width:100%!important;
+  max-width:650px;
+  margin-inline:auto;
+}
+#session-screen.task-scene[data-task-band="young"] .young-math-option{
+  min-width:0!important;
+  min-height:76px!important;
+  padding:12px 6px!important;
+  font-size:clamp(21px,4.1vw,30px)!important;
+  font-variant-numeric:tabular-nums;
+}
+@media(max-width:430px){
+  #session-screen.task-scene[data-task-band="young"] .young-math-choice-layout .young-math-answers{
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  }
+  #session-screen.task-scene[data-task-band="young"] .young-math-option{
+    min-height:64px!important;
+    font-size:clamp(19px,5vw,25px)!important;
+  }
+}
