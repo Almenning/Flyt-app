@@ -17,6 +17,16 @@ Overordnet referanse, **kun for kvalitetssikring**:
 `image-gen-1(20261010-113502).png` (3 381 817 byte, 1122 × 1402).
 Dette er fire reisekart samlet i ett oversiktsbilde; bruk de separate filene i appen.
 
+## Verifiserte SHA-256-identiteter
+
+| Fil | SHA-256 |
+| --- | --- |
+| `image-gen-1(20261010-113502).png` | `a02e331f7df5fcd0df3e4ed9238c4ef04dcac1bfd26bb7f56190f20594a400f8` |
+| `bokskogen-locked-20261010.png` | `5fc16c5e4d7dfc397ac8d6e7883ad111443ce33df6acfd2dacab776936ef5506` |
+| `tallenga-locked-20261010.png` | `68f595b2bfb2a37206b23200ec3854feb9b6134a112bab3957e5df21098d8879` |
+| `ordlandsbyen-locked-20261010.png` | `c03e1f9abbdb582aa55d6473167e86ced8dce0b07196d810a2fb88bd77dd6da9` |
+| `nordlysleiren-locked-20261010.png` | `7f6ddd6649d813601e9c1bef8e2373e779ee97469ca5392be0e6dd146f38f32f` |
+
 ## Kodekontrakt
 
 - `../locked-journey-contract.js` eier de fem låste stedsnavnene,
@@ -44,10 +54,9 @@ Dette er fire reisekart samlet i ett oversiktsbilde; bruk de separate filene i a
    læringsprogresjon er verifisert ende-til-ende med eksisterende datamodeller.
 6. De originale referansebildene viser en illustrert avatar og tallet **127**
    i toppfeltet. Dette er **bildepiksler**, ikke ekte brukerdata. Før utgivelse
-   skal tall/avatar enten matches med faktiske dynamiske data uten å endre den
-   låste scenegrafikken, eller uttrykkelig behandles som dekor uten å fremstå
-   som oppnådd belønning. En hardkodet 127-poengstatus kan ikke publiseres som
-   om barnet faktisk har tjent den.
+   dekkes de av et separat dynamisk UI-lag med barnets lokalt valgte figur og
+   den faktiske reiseprogresjonen. Originalfilen endres ikke. En hardkodet
+   127-poengstatus publiseres aldri som om barnet faktisk har tjent den.
 7. Reiser uten nok kjerneoppdrag beholder de fem illustrerte reisemålene,
    men tomme steder får **ingen fabrikkert oppgave**. Fremtidige reisemål
    tilbyr den eksisterende progresjonsnøytrale `Sniktitt`-funksjonen.
