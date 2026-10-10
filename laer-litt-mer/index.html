@@ -5610,10 +5610,13 @@ function showLearningFeedback(q,correct,options={}){
   box.classList.toggle('success-pop',!!correct);
   box.classList.toggle('retry',!!options.retry);
   document.getElementById('feedback-title').textContent=correct?(currentGrade()<=2?'🦊 ⭐ Riktig!':'⭐ Riktig!'):'💪 Nesten!';
-  let copy=learningFeedbackText(q,correct);
+  let copy=correct&&currentAnswered?.corrected
+    ?(q.subject==='english'?'You found it after another try!':'Du fant det etter et nytt forsøk!')
+    :learningFeedbackText(q,correct);
   if(options.retry)copy+=(q.subject==='english'?' Try again.':' Prøv en gang til.');
   const last=state.answerLog[state.answerLog.length-1];
-  if(correct&&currentGrade()<=2&&last?.strengthened)copy+=' ⭐ Dette ble sterkere i samlingen din.';
+  if(correct&&!currentAnswered?.corrected&&last?.correct===true&&currentGrade()<=2&&last.strengthened)
+    copy+=' ⭐ Dette ble sterkere i samlingen din.';
   document.getElementById('feedback-copy').textContent=copy;
   document.getElementById('next-question').style.display=options.retry?'none':'block';
 }
