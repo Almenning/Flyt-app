@@ -16,6 +16,26 @@
     '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
   })[ch]);
   const escapeId=value=>esc(value);
+  function selectedAvatar(){
+    try{return state?.profile?.avatar==='girl'?'girl':'boy'}catch(_){return 'boy'}
+  }
+  function selectedAvatarSource(){
+    const which=selectedAvatar();
+    try{
+      if(typeof avatarSrc==='function')return avatarSrc(which);
+      return window.LARIA_PROFILE_AVATARS?.[which]||'./lia-fox-explorer-home.webp';
+    }catch(_){return './lia-fox-explorer-home.webp'}
+  }
+  function liveProfileMarkup(progress){
+    const which=selectedAvatar(),label=which==='girl'?'Din valgte revejente':'Din valgte revegutt';
+    // The approved painting contains a sample portrait and "127". Cover both
+    // with real local profile/progress UI so decorative pixels are never
+    // presented as the child's saved avatar or earned score.
+    return '<div class="locked-journey-profile" data-avatar="'+which+'" aria-label="'+label+'">'+
+      '<img src="'+esc(selectedAvatarSource())+'" alt=""></div>'+
+      '<div class="locked-journey-live-progress" role="status" aria-label="'+esc(progress.done+' av '+progress.total+' oppdrag fullført i denne reisen')+'">'+
+      '<span aria-hidden="true">★</span><b>'+progress.done+' / '+progress.total+'</b></div>';
+  }
   function screenFor(geo){return document.getElementById(geo?'geography-screen':'subject-screen')}
   function hostFor(geo){return document.getElementById(geo?'geo-journey-map':'journey-map')}
   function backHome(geo){
@@ -114,6 +134,7 @@
     host.dataset.lockedIllustration='2026-10-10';
     host.innerHTML='<section class="locked-journey-board" aria-label="'+esc(def.subjectLabel+' – '+def.title+', interaktivt eventyrkart')+'">'+
       '<img class="locked-journey-image" src="./'+esc(def.asset)+'" alt="" draggable="false" width="941" height="1672">'+
+      liveProfileMarkup(s.progress)+
       '<div class="locked-journey-hits">'+places.map(p=>placeButton(subject,p,model,s.firstOpen)).join('')+'</div>'+
       '<button type="button" class="locked-journey-back" aria-label="Tilbake til Hjem"></button>'+
       '<button type="button" class="locked-journey-options" aria-label="Velg klassetrinn"></button>'+
