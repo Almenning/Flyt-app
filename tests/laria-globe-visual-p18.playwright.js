@@ -227,12 +227,24 @@ async function capture(browserType,label,viewport){
       const canvasBox=await page.locator('#globe-canvas').boundingBox();
       const cx=canvasBox.x+canvasBox.width*.55,cy=canvasBox.y+canvasBox.height*.55;
       const beforeLon=await page.evaluate(()=>globeLon);
+      const pointerProbe=await page.evaluate(({cx,cy})=>{
+        const canvas=document.getElementById('globe-canvas'),hit=document.elementFromPoint(cx,cy);
+        const events=[];window.__lariaPointerProbe=events;
+        canvas.addEventListener('pointerdown',e=>events.push({type:'down',x:e.clientX,y:e.clientY}),{once:true});
+        canvas.addEventListener('pointermove',e=>{if(e.buttons)events.push({type:'move',x:e.clientX,y:e.clientY})});
+        return {hit:hit?.id||hit?.className||hit?.tagName,
+          style:getComputedStyle(canvas).pointerEvents,ready:!!canvas.dataset.ready,
+          mode:document.getElementById('world-screen')?.dataset.mapPerspective,
+          reachable:hit===canvas||canvas.contains(hit)};
+      },{cx,cy});
       await page.mouse.move(cx,cy);
       await page.mouse.down();
       await page.mouse.move(cx+52,cy+15,{steps:6});
       await page.mouse.up();
-      const afterLon=await page.evaluate(()=>globeLon);
-      assert.ok(Math.abs(afterLon-beforeLon)>3,label+' real pointer drag failed to rotate globe');
+      const dragResult=await page.evaluate(()=>({lon:globeLon,events:(window.__lariaPointerProbe||[]).slice(0,12),
+        pointerCount:typeof globePointers!=='undefined'?globePointers.size:-1}));
+      assert.ok(Math.abs(dragResult.lon-beforeLon)>3,
+        label+' real pointer drag failed to rotate globe: '+JSON.stringify({beforeLon,afterLon:dragResult.lon,pointerProbe,dragResult}));
       const beforeZoom=await page.evaluate(()=>globeZoom);
       await page.locator('#globe-zoom-in').click();
       const afterZoom=await page.evaluate(()=>globeZoom);
