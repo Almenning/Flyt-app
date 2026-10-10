@@ -120,7 +120,7 @@ async function verifyProductionFallback(){
    await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').click();
    await page.locator('#'+screen+'-screen.active').waitFor({timeout:10000});
    assert.equal(await page.locator('#'+screen+'-screen.active .locked-journey-map').count(),0,'Unverified original art activated on '+subject);
-   await page.locator('#'+screen+'-back').click({force:true});
+   await page.locator('#'+screen+'-screen .bok-v10-home:visible, #'+screen+'-screen .premium-world-back:visible, #'+screen+'-back:visible').first().click();
    await page.locator('#home-screen.active').waitFor();
   }
   assert.deepEqual(originalRequests,[],'Unverified image requests produced 404 errors');
