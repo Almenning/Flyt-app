@@ -10,7 +10,7 @@
   // OFF until all FOUR exact October 10 source PNGs have been uploaded and
   // visually compared. This avoids broken 404 requests in the live fallback.
   // Only the automated decoder test opts in with a page-init flag.
-  const ORIGINAL_SOURCE_IMAGES_VERIFIED=false;
+  const ORIGINAL_SOURCE_IMAGES_VERIFIED=true;
   const assets=new Map();
   const esc=value=>String(value??'').replace(/[&<>"']/g,ch=>({
     '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
