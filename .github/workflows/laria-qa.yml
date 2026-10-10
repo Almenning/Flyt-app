@@ -263,4 +263,4 @@ jobs:
       - name: Checkout exact PR source
         uses: actions/checkout@v4
       - name: Verify approved original artwork release readiness
-        run: node tests/laria-locked-release-gate.cjs
+        run: node scripts/laria-locked-release-gate.cjs
