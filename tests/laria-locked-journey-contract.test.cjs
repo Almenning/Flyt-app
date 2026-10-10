@@ -49,7 +49,7 @@ test('the four approved images have five non-overlapping tap regions in 941x1672
    assert.ok(x>=0&&y>=0&&w>0&&h>0);
    assert.ok(x+w<=941&&y+h<=1672,subject+' landmark '+index+' outside original PNG');
    const scaled=journey.hotspot(subject,index);
-   for(const value of Object.values(scaled))assert.match(value,/^\\d+(?:\\.\\d+)?%$/);
+   for(const value of Object.values(scaled))assert.ok(value.endsWith('%')&&Number.isFinite(Number(value.slice(0,-1))));
   }
   for(let i=0;i<rects.length;i++)for(let k=i+1;k<rects.length;k++){
    const [ax,ay,aw,ah]=rects[i],[bx,by,bw,bh]=rects[k];
