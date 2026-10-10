@@ -58,6 +58,10 @@ async function check(engine,label,viewport){
    const board=page.locator('.screen.active .locked-journey-board');
    const hits=board.locator('.locked-journey-hotspot');
    assert.equal(await hits.count(),5);
+   assert.equal(await board.locator('.locked-journey-profile[data-avatar="girl"] img').count(),1,label+' '+subject+' real selected avatar missing');
+   const liveProgress=(await board.locator('.locked-journey-live-progress').innerText()).trim();
+   assert.match(liveProgress,/^★\s*0\s*\/\s*\d+$/,label+' '+subject+' static 127 was not replaced by real progress');
+   assert.equal(liveProgress.includes('127'),false,label+' '+subject+' must not expose the painted sample score as user data');
    const boardSize=await board.boundingBox();
    assert(Math.abs(boardSize.width/boardSize.height-941/1672)<.004,label+' '+subject+' stretched original');
    await board.screenshot({path:path.join(output,label+'-'+subject+'-live.png')});

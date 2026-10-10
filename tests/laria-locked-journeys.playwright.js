@@ -50,6 +50,10 @@ async function run(engine,label,viewport){
    await page.waitForFunction(s=>document.querySelector('.screen.active .locked-journey-map')?.dataset.journeySubject===s,subject,{timeout:16000});
    const base='#'+screen+'-screen.active .locked-journey-map';
    assert.equal(await page.locator(base+' .locked-journey-hotspot').count(),5,label+' '+subject+' landmark count');
+   assert.equal(await page.locator(base+' .locked-journey-profile img').count(),1,label+' selected profile avatar layer missing');
+   const liveProgress=(await page.locator(base+' .locked-journey-live-progress').innerText()).trim();
+   assert.match(liveProgress,/^★\s*0\s*\/\s*\d+$/,label+' '+subject+' must cover painted 127 with real journey progress');
+   assert.equal(liveProgress.includes('127'),false,label+' painted sample score leaked into live UI');
    const bar=page.locator(base+' .locked-journey-milestones[role="progressbar"]');
    assert.equal(await bar.count(),1,label+' required lesson progression missing');
    const counts=await bar.evaluate(el=>({now:Number(el.getAttribute('aria-valuenow')),max:Number(el.getAttribute('aria-valuemax')),
