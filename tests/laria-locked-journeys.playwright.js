@@ -28,7 +28,10 @@ async function run(engine,label,viewport){
     reducedMotion:'reduce',serviceWorkers:'block'});
   const page=await ctx.newPage(),errors=[];
   page.on('pageerror',e=>errors.push(e.message));
-  await page.addInitScript(value=>localStorage.setItem('laerlittmer-v2',JSON.stringify(value)),seed);
+  await page.addInitScript(value=>{
+    localStorage.setItem('laerlittmer-v2',JSON.stringify(value));
+    window.LARIA_LOCKED_JOURNEY_QA_ART=true;
+  },seed);
   await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
   await page.route('https://api.worldbank.org/**',r=>r.abort());
   await page.route('**/locked-journeys/*-locked-20261010.png',r=>r.fulfill({
