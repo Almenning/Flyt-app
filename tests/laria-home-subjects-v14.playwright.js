@@ -50,7 +50,7 @@ async function run(engine,label,viewport){
   for(const [subject,screen] of [['norwegian','subject'],['math','subject'],['english','subject'],['geography','geography']]){
    await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').click();
    await page.locator('#'+screen+'-screen.active').waitFor({timeout:13000});
-   const back=page.locator('#'+screen+'-screen .bok-v10-home:visible, #'+screen+'-screen .premium-world-back:visible, #'+screen+'-back:visible').first();
+   const back=page.locator('#'+screen+'-screen .bok-v10-home:visible, #'+screen+'-screen .premium-world-back:visible, #'+screen+'-screen .locked-journey-back:visible, #'+screen+'-back:visible').first();
    await back.waitFor({state:'visible',timeout:12000});
    await back.click();
    await page.locator('#home-screen.active').waitFor({timeout:12000});

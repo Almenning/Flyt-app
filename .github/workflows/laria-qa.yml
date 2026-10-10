@@ -205,6 +205,35 @@ jobs:
           QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
           HOME_V14_SCREENSHOTS: /tmp/laria-home-v14
         run: node tests/laria-home-subjects-v14.playwright.js
+      - name: Locked journey interaction geometry (synthetic decoder only; NOT visual parity)
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+          LOCKED_JOURNEY_QA: /tmp/laria-locked-journey-geometry
+        run: |
+          node --check laer-litt-mer/locked-journey-renderer.js
+          node --check laer-litt-mer/locked-journey-contract.js
+          node tests/laria-locked-journeys.playwright.js
+      - name: Upload locked journey interaction screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-locked-journey-interaction-${{ github.sha }}
+          path: /tmp/laria-locked-journey-geometry
+          if-no-files-found: warn
+          retention-days: 7
+      - name: Real locked art screenshot validation (requires approved original PNGs)
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+          LOCKED_ORIGINAL_QA: /tmp/laria-locked-originals
+        run: node tests/laria-locked-reference-visual.playwright.js
+      - name: Upload original-PNG visual and touch-area evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-locked-original-reference-${{ github.sha }}
+          path: /tmp/laria-locked-originals
+          if-no-files-found: warn
+          retention-days: 7
       - name: Upload subject Home visual evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -221,3 +250,17 @@ jobs:
           path: /tmp/laria-navigation-v13
           if-no-files-found: warn
           retention-days: 7
+
+
+  # Separate from the synthetic UI tests. This gate deliberately FAILS while
+  # the approved source PNGs are missing, so an otherwise green PR cannot be
+  # mistaken for a visually finished implementation.
+  locked-original-artwork-release:
+    if: github.event_name == 'pull_request' && github.head_ref == 'feat/laria-oct10-locked-journeys-phase1'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Checkout exact PR source
+        uses: actions/checkout@v4
+      - name: Verify approved original artwork release readiness
+        run: node scripts/laria-locked-release-gate.cjs

@@ -1,0 +1,224 @@
+/* Locked 10 Oct 2026 illustration-first journey. Coordinates are defined
+   on the uncropped 941x1672 originals; no landscape stretching or repainting. */
+.locked-journey-map{
+  display:block!important;
+  margin:0 auto!important;
+  padding:0!important;
+  width:100%!important;
+  max-width:800px!important;
+  min-width:0!important;
+  overflow:visible!important;
+  background:transparent!important;
+}
+.locked-journey-board{
+  position:relative!important;
+  display:block!important;
+  width:100%!important;
+  height:auto!important;
+  aspect-ratio:941 / 1672!important;
+  margin:0 auto;
+  padding:0!important;
+  isolation:isolate;
+  overflow:hidden;
+  background:#213e45;
+  border-radius:clamp(10px,2vw,22px);
+  touch-action:pan-y pinch-zoom; /* Keep native Safari pinch-to-zoom while the artwork is never stretched. */
+}
+.locked-journey-image{
+  position:absolute!important;
+  display:block!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  object-fit:contain!important;
+  object-position:center center!important;
+  max-width:none!important;
+  user-select:none;
+  -webkit-user-select:none;
+  pointer-events:none;
+}
+.locked-journey-hits{position:absolute;inset:0;z-index:4;pointer-events:none}
+.locked-journey-hotspot{
+  position:absolute;
+  z-index:5;
+  display:block;
+  min-height:44px;
+  margin:0!important;
+  padding:0!important;
+  border:2px solid transparent;
+  border-radius:18px;
+  background:transparent!important;
+  box-shadow:none;
+  color:transparent;
+  cursor:pointer;
+  pointer-events:auto;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+}
+.locked-journey-hotspot::before{
+  content:"";
+  position:absolute;inset:-2px;
+  border-radius:17px;
+  background:transparent;
+  pointer-events:none;
+}
+.locked-journey-hotspot:focus-visible{outline:3px solid #fff2b1!important;outline-offset:5px}
+.locked-journey-hotspot.state-current::before{
+  border:2px solid rgba(255,229,111,.8);
+  box-shadow:0 0 20px rgba(255,221,102,.55),inset 0 0 11px rgba(255,240,160,.13);
+}
+.locked-journey-hotspot-mark{
+  position:absolute;
+  right:-3px;top:-13px;
+  display:grid;
+  place-items:center;
+  width:clamp(17px,4vw,29px);
+  height:clamp(17px,4vw,29px);
+  font:900 clamp(11px,2vw,16px)/1 system-ui,sans-serif;
+  border-radius:50%;
+  background:transparent;
+  color:transparent;
+  pointer-events:none;
+}
+.locked-journey-hotspot.state-complete .locked-journey-hotspot-mark{
+  color:#fff9df;
+  border:2px solid #fef0af;
+  background:#448b63;
+  box-shadow:0 3px 7px #122b2580;
+}
+.locked-journey-hotspot.state-current .locked-journey-hotspot-mark{
+  color:#704313;background:#fff3ac;
+  box-shadow:0 0 10px #ffdf81;
+}
+.locked-journey-back,.locked-journey-options{
+  position:absolute!important;
+  z-index:15;
+  top:1.7%;
+  display:block;
+  min-width:44px;min-height:44px;
+  padding:0!important;
+  margin:0!important;
+  border:none!important;
+  border-radius:50%;
+  background:transparent!important;
+  box-shadow:none!important;
+  cursor:pointer;
+  touch-action:manipulation;
+}
+.locked-journey-back{left:1.7%;width:10%;height:5.3%}
+.locked-journey-options{right:1.6%;width:10%;height:5.3%}
+.locked-journey-back:focus-visible,.locked-journey-options:focus-visible{
+  outline:3px solid #fff0a6!important;outline-offset:2px
+}
+.locked-journey-milestones{position:absolute;inset:0;z-index:6;pointer-events:none}
+.locked-journey-milestone{
+  position:absolute;
+  left:var(--dot-x);top:93.57%;
+  width:4.55%;height:auto;aspect-ratio:1;
+  transform:translate(-50%,-50%);
+  border-radius:50%;
+  border:clamp(1px,.23vw,3px) solid #b7884f;
+  background:#fff2d7;
+  box-shadow:inset 0 1px 2px rgba(92,51,23,.16);
+}
+.locked-journey-milestone.is-done{background:radial-gradient(circle at 28% 27%,#fff5a1,#f9c343 50%,#dc8f28 95%);border-color:#ae662b}
+.locked-journey-milestone.is-current{background:radial-gradient(circle at 27% 22%,#fff8ad,#facc49 53%,#e38b20);border-color:#ab5925;box-shadow:0 0 7px #ffdf6fb5}
+.locked-journey-progress-text{
+  position:absolute;z-index:7;
+  top:90.5%;left:50%;transform:translateX(-50%);
+  color:#684027;
+  background:#fff5d4e8;
+  border-radius:999px;
+  padding:3px 8px;
+  font:800 clamp(9px,1.25vw,12px)/1.1 system-ui,sans-serif;
+  box-shadow:0 2px 4px #6b43241a;
+  white-space:nowrap;
+  pointer-events:none;
+}
+.locked-journey-overlay[hidden]{display:none!important}
+.locked-journey-overlay{
+  position:fixed!important;inset:0;
+  z-index:1000!important;
+  display:flex;align-items:flex-end;justify-content:center;
+  padding:max(12px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) max(14px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));
+  box-sizing:border-box;
+}
+.locked-journey-dim{position:absolute;inset:0;background:#0e211cb8;backdrop-filter:blur(2px)}
+.locked-journey-sheet{
+  position:relative;z-index:1;
+  width:min(100%,520px);max-height:min(80dvh,740px);
+  padding:24px 18px 19px;
+  overflow:auto;overscroll-behavior:contain;
+  border:2px solid #b9824b;
+  border-radius:23px;
+  background:linear-gradient(155deg,#fff8e2 0%,#eed4a5 100%);
+  box-shadow:0 20px 50px #0b1d186b;
+  color:#402b1b;
+  font-family:system-ui,sans-serif;
+}
+.locked-journey-sheet>small{display:block;font-size:10px;font-weight:900;letter-spacing:.12em;color:#826037}
+.locked-journey-sheet h2{font:800 clamp(23px,4.3vw,30px)/1.14 Georgia,serif;margin:7px 46px 10px 0;color:#452d1c}
+.locked-journey-sheet p{font:650 14px/1.46 system-ui,sans-serif;margin:6px 0 15px;color:#68492f}
+.locked-sheet-close{
+  position:absolute;right:15px;top:15px;
+  width:44px;height:44px;
+  display:grid;place-items:center;
+  border:1px solid #c8a679;
+  border-radius:50%;background:#fff5d7;color:#604122;
+  font-size:29px;line-height:1;
+}
+.locked-journey-missions{display:grid;gap:9px}
+.locked-journey-missions button{
+  width:100%;min-height:60px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 13px;
+  gap:10px;
+  text-align:left;
+  border:1.5px solid #c9a577;border-radius:15px;
+  background:linear-gradient(#fff9e7,#f6dfb9);
+  color:#503920;
+  box-shadow:0 3px 0 #d2b287;
+  cursor:pointer;
+}
+.locked-journey-missions button strong,.locked-journey-missions button small{display:block}
+.locked-journey-missions button strong{font:800 15px/1.25 system-ui,sans-serif}
+.locked-journey-missions button small{font:600 12px/1.3 system-ui,sans-serif;margin-top:4px;color:#755d47}
+.locked-journey-missions button b{font-size:21px}
+.locked-journey-missions button:disabled{opacity:.6;cursor:default}
+.locked-journey-grade-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.locked-journey-grade-grid button{
+  min-height:48px;border:1.5px solid #c29a64;border-radius:12px;
+  font:800 15px system-ui,sans-serif;background:#fff3d7;color:#674122
+}
+.locked-journey-grade-grid button[aria-current=true]{background:#346b50;color:white}
+#subject-screen.locked-journey-active{padding-left:0!important;padding-right:0!important}
+#subject-screen.locked-journey-active>#subject-journey-section{margin:0!important;padding:0!important}
+#subject-screen.locked-journey-active .journey-heading,
+#subject-screen.locked-journey-active .journey-grade-picker,
+#subject-screen.locked-journey-active .journey-summary,
+#subject-screen.locked-journey-active .journey-now-card,
+#subject-screen.locked-journey-active .journey-collection,
+#subject-screen.locked-journey-active .journey-sidequests,
+#subject-screen.locked-journey-active .detail-back,
+#subject-screen.locked-journey-active .subject-page-banner,
+#subject-screen.locked-journey-active .subject-hero{display:none!important}
+#geography-screen.locked-journey-active{padding-top:0!important}
+#geography-screen.locked-journey-active .geo-journey-shell{order:-1;margin-top:0!important}
+#geography-screen.locked-journey-active .geo-journey-shell .journey-heading,
+#geography-screen.locked-journey-active .geo-journey-shell .journey-grade-picker,
+#geography-screen.locked-journey-active .geo-journey-shell .journey-summary,
+#geography-screen.locked-journey-active .geo-journey-shell .journey-now-card,
+#geography-screen.locked-journey-active .geo-journey-shell .journey-collection,
+#geography-screen.locked-journey-active .detail-back,
+#geography-screen.locked-journey-active .geography-head{display:none!important}
+@media(min-width:700px){
+ .locked-journey-map{max-width:min(70vw,780px)!important}
+ .locked-journey-sheet{margin:auto 0;max-height:80dvh}
+}
+@media(orientation:landscape) and (max-height:700px){
+ .locked-journey-map{max-width:min(68vw,690px)!important}
+ .locked-journey-sheet{max-height:88dvh}
+}
+@media(prefers-reduced-motion:reduce){
+ .locked-journey-hotspot,.locked-journey-hotspot::before{transition:none!important;animation:none!important}
+}
