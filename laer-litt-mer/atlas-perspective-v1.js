@@ -424,7 +424,43 @@ function install(){
  };
  window.setGlobeMode=routedMode;
  try{setGlobeMode=routedMode}catch(_){}
- document.querySelectorAll('#globe-mode [data-globe-mode]').forEach(btn=>{btn.onclick=()=>routedMode(btn.dataset.globeMode)});
+ // Safari/WebKit may not synthesize click above a fixed canvas after a
+ // genuine touch release. Activate once on stationary pointer/touch release
+ // and ignore the follow-on click, while preserving keyboard/mouse controls.
+ document.querySelectorAll('#globe-mode [data-globe-mode]').forEach(btn=>{
+  let pointerStart=null,touchStart=null,lastHandledAt=-Infinity;
+  const activate=(x,y,start)=>{
+   if(!start||Math.hypot(x-start.x,y-start.y)>14)return;
+   const now=performance.now();
+   if(now-lastHandledAt<180)return;
+   lastHandledAt=now;
+   routedMode(btn.dataset.globeMode);
+  };
+  btn.addEventListener('pointerdown',e=>{
+   if(e.pointerType==='touch'||e.pointerType==='pen')
+    pointerStart={id:e.pointerId,x:e.clientX,y:e.clientY};
+  },{passive:true});
+  btn.addEventListener('pointerup',e=>{
+   if(pointerStart&&e.pointerId===pointerStart.id)
+    activate(e.clientX,e.clientY,pointerStart);
+   pointerStart=null;
+  },{passive:true});
+  btn.addEventListener('pointercancel',()=>{pointerStart=null},{passive:true});
+  btn.addEventListener('touchstart',e=>{
+   const t=e.changedTouches?.[0];
+   touchStart=t?{id:t.identifier,x:t.clientX,y:t.clientY}:null;
+  },{passive:true});
+  btn.addEventListener('touchend',e=>{
+   const t=[...(e.changedTouches||[])].find(t=>t.identifier===touchStart?.id);
+   if(t)activate(t.clientX,t.clientY,touchStart);
+   touchStart=null;
+  },{passive:true});
+  btn.addEventListener('touchcancel',()=>{touchStart=null},{passive:true});
+  btn.onclick=e=>{
+   if(e.detail>0&&performance.now()-lastHandledAt<600)return;
+   routedMode(btn.dataset.globeMode);
+  };
+ });
  const previousSelect=window.selectGlobeCountry;
  const routedSelect=function(id){const result=previousSelect.apply(this,arguments);if(!silentSelection&&!modeSwitching&&isAtlas())focus(id);if(isAtlas()){queueLayout();queueDraw()}return result};
  window.selectGlobeCountry=routedSelect;
