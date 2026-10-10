@@ -49,6 +49,20 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium webkit
 
+      - name: Verify young Maths on iPhone and iPad Chromium and WebKit
+        env:
+          MATH_TAP_QA_SCREENSHOTS: /tmp/laria-math-tap
+        run: node tests/laria-math-tap.browser.playwright.js
+
+      - name: Upload young Maths visual evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-math-tap-${{ github.sha }}
+          path: /tmp/laria-math-tap
+          if-no-files-found: warn
+          retention-days: 7
+
       - name: Verify flat atlas perspective and retained classic globe
         env:
           ATLAS_QA_SCREENSHOTS: /tmp/laria-atlas-v1
@@ -107,20 +121,6 @@ jobs:
 
       - name: Full browser regression suite
         run: npm run test:browser
-
-      - name: Verify young Maths on iPhone and iPad Chromium and WebKit
-        env:
-          MATH_TAP_QA_SCREENSHOTS: /tmp/laria-math-tap
-        run: node tests/laria-math-tap.browser.playwright.js
-
-      - name: Upload young Maths visual evidence
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: laria-math-tap-${{ github.sha }}
-          path: /tmp/laria-math-tap
-          if-no-files-found: warn
-          retention-days: 7
 
       - name: Start exact-head local server
         run: |
