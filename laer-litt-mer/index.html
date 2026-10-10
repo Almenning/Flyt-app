@@ -5851,10 +5851,10 @@ function normalizeNumericAnswer(v){
 function numericalAnswersMatch(given,expected){
   const typed=normalizeNumericAnswer(given),correct=normalizeNumericAnswer(expected);
   if(!typed||!correct)return false;
-  if(typed===correct)return true;
   // Reject text, units and malformed numbers. Never use parseFloat() here.
   const decimal=/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/;
   if(!decimal.test(typed)||!decimal.test(correct))return false;
+  if(typed===correct)return true;
   const a=Number(typed),b=Number(correct);
   if(!Number.isFinite(a)||!Number.isFinite(b))return false;
   // Computed curriculum answers can contain IEEE-754 noise such as
