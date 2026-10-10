@@ -252,6 +252,36 @@ jobs:
           retention-days: 7
 
 
+  # Isolate the slow fullscreen globe stress test from the complete QA matrix
+  # so device-mode regressions can be caught and diagnosed in minutes.
+  laria-globe-mode-touch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact PR source
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Install Chromium and WebKit
+        run: npx playwright install --with-deps chromium webkit
+      - name: Verify genuine globe button taps and preserved geometry
+        env:
+          QA_SCREENSHOTS: /tmp/laria-globe-mode-touch
+        run: node tests/laria-globe-visual-p18.playwright.js
+      - name: Upload globe phone-tablet screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-globe-mode-touch-${{ github.sha }}
+          path: /tmp/laria-globe-mode-touch
+          if-no-files-found: warn
+          retention-days: 7
+
   # Separate from the synthetic UI tests. This gate deliberately FAILS while
   # the approved source PNGs are missing, so an otherwise green PR cannot be
   # mistaken for a visually finished implementation.

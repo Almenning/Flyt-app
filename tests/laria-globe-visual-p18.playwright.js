@@ -66,6 +66,29 @@ async function assertProfileFoxSelection(browserType){
   }finally{await browser.close()}
 }
 
+/* WebKit can deadlock Playwright's auto-scroll for controls positioned inside
+ * a fixed fullscreen atlas. Test the ACTUAL hit-target in viewport and issue a
+ * native mobile touch at its visible center, never a forced DOM click. */
+async function tapGlobeMode(page,mode,label){
+  const control=page.locator('#globe-mode [data-globe-mode="'+mode+'"]');
+  await control.waitFor({state:'visible',timeout:12000});
+  const target=await control.evaluate(el=>{
+    const rect=el.getBoundingClientRect();
+    const x=Math.round(rect.left+rect.width/2),y=Math.round(rect.top+rect.height/2);
+    const hit=document.elementFromPoint(x,y);
+    return {x,y,width:rect.width,height:rect.height,vw:innerWidth,vh:innerHeight,
+      reachable:hit===el||el.contains(hit),obstructor:hit?.className||hit?.tagName||null};
+  });
+  assert.ok(target.width>=28&&target.height>=28&&target.x>=0&&target.y>=0&&
+    target.x<target.vw&&target.y<target.vh&&target.reachable,
+    label+' '+mode+' mode button is not physically touchable: '+JSON.stringify(target));
+  await page.touchscreen.tap(target.x,target.y);
+  await page.waitForFunction(m=>{
+    const b=document.querySelector('#globe-mode [data-globe-mode="'+m+'"]');
+    return !!b&&b.classList.contains('active');
+  },mode,{timeout:8000});
+}
+
 async function capture(browserType,label,viewport){
   const browser=await browserType.launch({headless:true});
   try{
@@ -83,7 +106,7 @@ async function capture(browserType,label,viewport){
     // Utforsk and Min verden now present a separate, correct interactive atlas.
     await page.waitForFunction(()=>window.LARIA_ATLAS_PERSPECTIVE?.snapshot().active===true);
     assert.equal(await page.locator('#atlas-canvas').isVisible(),true,label+' atlas not active by default');
-    await page.locator('[data-globe-mode="classic"]').click();
+    await tapGlobeMode(page,'classic',label);
     await page.waitForFunction(()=>document.querySelector('#world-screen.active').dataset.mapPerspective==='globe');
     await page.waitForFunction(()=>{
       const c=document.getElementById('globe-canvas'),r=c?.getBoundingClientRect();
@@ -251,7 +274,7 @@ async function capture(browserType,label,viewport){
 
     assert.equal(projectionSync.renderSource,'country-geometry',label+' must draw visible land from real country polygons');
     for(const mode of ['explore','mine','classic']){
-      await page.locator('[data-globe-mode="'+mode+'"]').click();
+      await tapGlobeMode(page,mode,label);
       await page.waitForTimeout(250);
       assert.equal(await page.locator('[data-globe-mode="'+mode+'"]').getAttribute('class').then(x=>(x||'').includes('active')),true,label+' '+mode+' mode did not activate');
       await page.screenshot({path:path.join(out,label+'-'+mode+'.png'),fullPage:true});
