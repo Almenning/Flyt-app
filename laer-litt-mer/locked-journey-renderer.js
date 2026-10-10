@@ -53,6 +53,19 @@
     const st=statusFor(node,geo);
     return st==='passed'||st==='can-now'||st==='mastered';
   }
+  function showCurrentIllustratedStop(host,geo){
+    const screen=screenFor(geo),target=host.querySelector('.locked-journey-hotspot.state-current');
+    if(!screen?.classList.contains('active')||!target)return;
+    const viewport=window.innerHeight||document.documentElement.clientHeight||800;
+    const box=target.getBoundingClientRect();
+    // On iPad/landscape the uncropped portrait art may be taller than the
+    // viewport. Enter near the next stop rather than hiding the fox far below.
+    const topLimit=Math.max(48,viewport*.12),bottomLimit=viewport*.81;
+    if(box.top>=topLimit&&box.bottom<=bottomLimit)return;
+    const desired=viewport*.57;
+    const scrollY=Math.max(0,window.scrollY+box.top+box.height*.5-desired);
+    window.scrollTo({top:scrollY,behavior:'auto'});
+  }
   function stage(subject,geo){
     const grade=journeyViewGrade(subject);
     const progress=geo?geoJourneyProgress(grade):journeyProgress(subject,grade);
@@ -184,6 +197,8 @@
         if(s.recommended)launch(s.recommended.id);else close();
       });
     });
+    requestAnimationFrame(()=>requestAnimationFrame(()=>showCurrentIllustratedStop(host,geo)));
+    setTimeout(()=>showCurrentIllustratedStop(host,geo),180);
     return true;
   }
   function canUse(subject){
