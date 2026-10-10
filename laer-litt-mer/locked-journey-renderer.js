@@ -90,13 +90,11 @@
     return '<button type="button" class="locked-journey-hotspot state-'+state+'" data-locked-place="'+place.index+'" style="'+style+'" aria-label="'+esc('Sted '+(place.index+1)+': '+place.title+'. '+progress+(locked?'. Fremtidig etappe':place.recommended?'. Neste oppdrag':''))+'">'+
       '<span class="locked-journey-hotspot-mark" aria-hidden="true">'+(place.complete?'✓':place.recommended?'✦':'')+'</span></button>';
   }
-  function progressDots(places){
-    const active=places.findIndex(p=>p.recommended);
-    return '<div class="locked-journey-milestones" aria-label="'+esc(places.filter(p=>p.complete).length+' av fem steder fullført')+'">'+
-      places.slice(0,4).map((place,i)=>{
-        const state=place.complete?'done':i===active?'current':'new';
-        return '<span class="locked-journey-milestone is-'+state+'" aria-hidden="true" style="--dot-x:'+(22.8+i*12.85)+'%"></span>';
-      }).join('')+'</div>';
+  function progressDots(progress){
+    const states=contract.milestoneStates(progress.done,progress.total);
+    return '<div class="locked-journey-milestones" role="progressbar" aria-label="Hovedoppdrag fullført" aria-valuemin="0" aria-valuemax="'+progress.total+'" aria-valuenow="'+progress.done+'">'+
+      states.map((state,i)=>'<span class="locked-journey-milestone is-'+state+'" aria-hidden="true" style="--dot-x:'+(22.8+i*12.85)+'%"></span>').join('')+
+      '</div>';
   }
   function gradeChoices(grade){
     return '<p>Velg klassetrinn</p><div class="locked-journey-grade-grid">'+
@@ -119,7 +117,7 @@
       '<div class="locked-journey-hits">'+places.map(p=>placeButton(subject,p,model,s.firstOpen)).join('')+'</div>'+
       '<button type="button" class="locked-journey-back" aria-label="Tilbake til Hjem"></button>'+
       '<button type="button" class="locked-journey-options" aria-label="Velg klassetrinn"></button>'+
-      progressDots(places)+
+      progressDots(s.progress)+
       '<span class="locked-journey-progress-text">'+s.progress.done+' / '+s.progress.total+' oppdrag</span>'+
       '</section><div class="locked-journey-overlay" hidden><div class="locked-journey-dim"></div><section class="locked-journey-sheet" role="dialog" aria-modal="true" aria-label="Oppdragssted"></section></div>';
     screen.classList.add('locked-journey-active');

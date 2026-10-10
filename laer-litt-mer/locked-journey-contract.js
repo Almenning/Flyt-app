@@ -94,6 +94,14 @@
   function matchesOriginalSize(subject,width,height){
     return !!DEFINITIONS[subject]&&width===DIMENSIONS.width&&height===DIMENSIONS.height;
   }
+  // Four painted markers track QUARTILES of the ORIGINAL core missions.
+  // Five illustrated places do not necessarily mean five available lessons.
+  function milestoneStates(done,total){
+    const max=Math.max(0,Number(total)||0),value=Math.min(max,Math.max(0,Number(done)||0));
+    const filled=max>0?Math.min(4,Math.floor(value*4/max+1e-9)):0;
+    return Object.freeze(Array.from({length:4},(_,i)=>i<filled?'done':
+      max>0&&value<max&&i===filled?'current':'new'));
+  }
   function get(subject){return DEFINITIONS[subject]||null}
-  return Object.freeze({DEFINITIONS,DIMENSIONS,SUBJECTS,build,imagePoint,hotspot,matchesOriginalSize,get});
+  return Object.freeze({DEFINITIONS,DIMENSIONS,SUBJECTS,build,imagePoint,hotspot,milestoneStates,matchesOriginalSize,get});
 });

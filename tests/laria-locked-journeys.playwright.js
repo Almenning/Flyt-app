@@ -46,6 +46,13 @@ async function run(engine,label,viewport){
    await page.waitForFunction(s=>document.querySelector('.screen.active .locked-journey-map')?.dataset.journeySubject===s,subject,{timeout:16000});
    const base='#'+screen+'-screen.active .locked-journey-map';
    assert.equal(await page.locator(base+' .locked-journey-hotspot').count(),5,label+' '+subject+' landmark count');
+   const bar=page.locator(base+' .locked-journey-milestones[role="progressbar"]');
+   assert.equal(await bar.count(),1,label+' required lesson progression missing');
+   const counts=await bar.evaluate(el=>({now:Number(el.getAttribute('aria-valuenow')),max:Number(el.getAttribute('aria-valuemax')),
+     done:el.querySelectorAll('.is-done').length,current:el.querySelectorAll('.is-current').length}));
+   assert.ok(counts.now>=0&&counts.max>0&&counts.now<=counts.max,label+' impossible progress numbers');
+   assert.equal(counts.done,Math.floor(counts.now/counts.max*4+1e-9),label+' misleading milestone count');
+   assert.equal(counts.current,counts.now===counts.max?0:1,label+' should mark active progress quartile');
    await page.waitForTimeout(240);
    const focused=await page.locator(base+' .locked-journey-hotspot.state-current').first().evaluate(el=>{
      const r=el.getBoundingClientRect();

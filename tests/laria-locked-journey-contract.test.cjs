@@ -87,3 +87,13 @@ test('grades with four core missions still reach the fifth painted destination',
  assert.equal(places.reduce((total,p)=>total+p.total,0),4);
  assert.deepEqual(places.flatMap(p=>p.nodes.map(n=>n.id)),['first','second','third','last']);
 });
+
+test('four painted milestones show real core missions even for vacant places',()=>{
+ assert.deepEqual(journey.milestoneStates(0,4),['current','new','new','new']);
+ assert.deepEqual(journey.milestoneStates(1,4),['done','current','new','new']);
+ assert.deepEqual(journey.milestoneStates(2,4),['done','done','current','new']);
+ assert.deepEqual(journey.milestoneStates(4,4),['done','done','done','done']);
+ assert.deepEqual(journey.milestoneStates(3,8),['done','current','new','new']);
+ assert.deepEqual(journey.milestoneStates(0,0),['new','new','new','new']);
+ assert.deepEqual(journey.milestoneStates(30,4),['done','done','done','done']);
+});
