@@ -108,6 +108,20 @@ jobs:
       - name: Full browser regression suite
         run: npm run test:browser
 
+      - name: Verify young Maths on iPhone and iPad Chromium and WebKit
+        env:
+          MATH_TAP_QA_SCREENSHOTS: /tmp/laria-math-tap
+        run: node tests/laria-math-tap.browser.playwright.js
+
+      - name: Upload young Maths visual evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-math-tap-${{ github.sha }}
+          path: /tmp/laria-math-tap
+          if-no-files-found: warn
+          retention-days: 7
+
       - name: Start exact-head local server
         run: |
           python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/laria-http.log 2>&1 &
