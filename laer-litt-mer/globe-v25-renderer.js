@@ -766,7 +766,21 @@ function install(){
   window.__lariaGlobeClassicDraw=baseDraw;
 
   const routedDraw=function(){
-    try{if(typeof globeMode==='string'&&globeMode==='classic')return baseDraw.apply(this,arguments)}catch(_){}
+    try{
+      if(typeof globeMode==='string'&&globeMode==='classic'){
+        // Switching from the fullscreen atlas to the square globe changes the
+        // canvas CSS dimensions. Always resize its bitmap BEFORE projecting
+        // points, including on mobile WebKit. A stale 390x844 bitmap in a
+        // 367x367 CSS element distorts the globe and tap/zoom geometry.
+        const canvas=document.getElementById('globe-canvas');
+        const rect=canvas?.getBoundingClientRect();
+        if(rect&&rect.width>1&&rect.height>1&&
+           (Math.abs((canvas._cssW||0)-Math.round(rect.width))>1||
+            Math.abs((canvas._cssH||0)-Math.round(rect.height))>1))
+          resizeGlobe();
+        return baseDraw.apply(this,arguments);
+      }
+    }catch(_){}
     return premiumDraw.apply(this,arguments);
   };
 
@@ -802,6 +816,25 @@ function install(){
   try{selectGlobeCountry=routedSelect}catch(_){}
   try{setGlobeMode=routedSet}catch(_){}
 
+  // A CSS layout switch can complete AFTER the click handler's first frame.
+  // Observe the real container dimensions and repaint only if geometry changes.
+  const globeCanvas=document.getElementById('globe-canvas');
+  const globeFrame=screen.querySelector('.globe-wrap');
+  if(globeCanvas&&globeFrame&&typeof ResizeObserver==='function'){
+    let resizePending=false;
+    const geometryObserver=new ResizeObserver(()=>{
+      if(resizePending||!screen.classList.contains('active')||
+         screen.dataset.mapPerspective!=='globe')return;
+      resizePending=true;
+      requestAnimationFrame(()=>{
+        resizePending=false;
+        if(screen.classList.contains('active')&&screen.dataset.mapPerspective==='globe')
+          routedDraw();
+      });
+    });
+    geometryObserver.observe(globeFrame);
+    geometryObserver.observe(globeCanvas);
+  }
   document.querySelectorAll('#globe-mode [data-globe-mode]').forEach(btn=>{btn.onclick=()=>routedSet(btn.dataset.globeMode)});
   syncPremiumChrome(typeof globeMode==='string'?globeMode:'explore');
 
