@@ -16,6 +16,10 @@ test('navigation v13 separates journey subjects from repeatable exploration',()=
  assert.match(nav,/window\.LARIA_MARK_BASECAMP_ORIGIN/);
  assert.match(nav,/openSubjectJourney\(action\)/);
  assert.match(css,/\.bc13-card-grid/);
+ assert.doesNotThrow(()=>new (require('node:vm').Script)(nav),'the map-board entry script must parse');
+ assert.match(nav,/sceneMarkup\(card\.action\)/,'the map destinations must be illustrated, not plain cards');
+ assert.match(css,/\.bc13-map-trail/,'the map-board should show its physical journey route');
+ assert.match(css,/\.bc13-close/,'children need a visible return to Hjem');
  assert.match(css,/@media\(max-width:700px\)/);
  assert.doesNotMatch(nav,/localStorage\.setItem|state\s*=|saveState\(/);
 });
