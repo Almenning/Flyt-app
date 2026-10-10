@@ -46,6 +46,16 @@ async function run(engine,label,viewport){
    await page.waitForFunction(s=>document.querySelector('.screen.active .locked-journey-map')?.dataset.journeySubject===s,subject,{timeout:16000});
    const base='#'+screen+'-screen.active .locked-journey-map';
    assert.equal(await page.locator(base+' .locked-journey-hotspot').count(),5,label+' '+subject+' landmark count');
+   await page.waitForTimeout(240);
+   const focused=await page.locator(base+' .locked-journey-hotspot.state-current').first().evaluate(el=>{
+     const r=el.getBoundingClientRect();
+     const board=el.closest('.locked-journey-board');
+     return {centerY:r.y+r.height/2,viewport:innerHeight,boardHeight:board.getBoundingClientRect().height,
+       touchAction:getComputedStyle(board).touchAction};
+   });
+   assert(focused.centerY>=0&&focused.centerY<=focused.viewport,
+     label+' '+subject+' next place should be visible on entry '+JSON.stringify(focused));
+   assert.notEqual(focused.touchAction,'none',label+' native page navigation/zoom was disabled');
    const names=await page.locator(base+' .locked-journey-hotspot').evaluateAll(nodes=>nodes.map(n=>n.getAttribute('aria-label')));
    assert(names.every((s,i)=>s.includes(expected[subject][i])),label+' '+subject+' wrong painted places '+JSON.stringify(names));
    const geometry=await page.evaluate(()=>{
