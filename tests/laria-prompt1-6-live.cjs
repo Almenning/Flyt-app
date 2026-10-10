@@ -5,6 +5,16 @@ const QA_URL=process.env.QA_URL||'https://almenning.github.io/Flyt-app/laer-litt
 const KEY='laerlittmer-v2';
 const seed={version:7,progressSchemaVersion:3,profile:{grade:3,onboarded:true,name:'Runtimebarn',avatar:'boy',setupVersion:2},mastery:{},mistakes:{},skillMastery:{},skillMistakes:{},skillLastSeen:{},masteryEvidence:{},skillEvidence:{},preferences:{sound:false,autoRead:false},lastMilestone:null,recentCountryWin:null,lastActivity:null,journey:{nodes:{},gradeWins:{},viewGrades:{}},answerLog:[],sessionLog:[],activeSession:null};
 
+// This checks core Læria behaviour rather than World Bank availability.
+// Simulate a third-party HTTP 503 with CORS permission. The application must
+// continue normally with its built-in country population fallback.
+async function optionalPopulationUnavailable(context){
+ await context.route('https://api.worldbank.org/**',route=>route.fulfill({
+  status:503,contentType:'application/json',
+  headers:{'access-control-allow-origin':'*'},
+  body:'{"error":"World Bank intentionally unavailable in smoke QA"}'
+ }));
+}
 async function answer(page){
  const q=await page.evaluate(()=>{const x=sessionQuestions[qIndex];return x?{type:x.type,answer:x.answer}:null});assert.ok(q);
  if(q.type==='learning-choice')await page.locator('.answer').evaluateAll((els,a)=>els.find(x=>x.dataset.answer===String(a)).click(),q.answer);
@@ -70,6 +80,7 @@ async function checkPublishedFractionWorkshop(p,name){
 }
 async function existing(engine,name){
  const b=await engine.launch({headless:true}),c=await b.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,serviceWorkers:'block'});
+ await optionalPopulationUnavailable(c);
  await c.addInitScript(({k,s})=>localStorage.setItem(k,JSON.stringify(s)),{k:KEY,s:seed});
  const p=await c.newPage(),errs=[];p.on('pageerror',e=>errs.push(e.message));
  await p.goto(QA_URL+'&runtime='+Date.now(),{waitUntil:'networkidle'});await p.locator('#home-screen.active').waitFor();
@@ -91,6 +102,7 @@ async function existing(engine,name){
 }
 async function onboarding(engine,name,avatar){
  const b=await engine.launch({headless:true}),c=await b.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,serviceWorkers:'block'});
+ await optionalPopulationUnavailable(c);
  const p=await c.newPage(),errs=[];p.on('pageerror',e=>errs.push(e.message));await p.goto(QA_URL+'&prepare='+avatar+'&runtime='+Date.now(),{waitUntil:'networkidle'});await p.evaluate(()=>localStorage.clear());await p.reload({waitUntil:'networkidle'});await p.locator('#onboarding.show').waitFor();
  await p.locator('.avatar-choice-card[data-avatar="'+avatar+'"]').click();const n=avatar==='boy'?'Oskar QA':'Ida QA';await p.locator('#profile-name').fill(n);await p.locator('.grade-btn[data-grade="2"]').click();await p.locator('#profile-next').click();await p.locator('#home-screen.active').waitFor();
  let profile=await p.evaluate(k=>JSON.parse(localStorage.getItem(k)).profile,KEY);assert.deepEqual([profile.name,profile.avatar,profile.grade,profile.onboarded],[n,avatar,2,true]);
@@ -103,6 +115,7 @@ async function onboarding(engine,name,avatar){
 }
 async function viewport(engine,name,w,h,label){
  const b=await engine.launch({headless:true}),c=await b.newContext({viewport:{width:w,height:h},hasTouch:true,isMobile:w<700,serviceWorkers:'block'}),s=JSON.parse(JSON.stringify(seed));s.profile.grade=2;
+ await optionalPopulationUnavailable(c);
  await c.addInitScript(({k,s})=>localStorage.setItem(k,JSON.stringify(s)),{k:KEY,s});const p=await c.newPage(),errs=[];p.on('pageerror',e=>errs.push(e.message));await p.goto(QA_URL+'&viewport='+label+'&runtime='+Date.now(),{waitUntil:'networkidle'});await p.locator('.bc12').waitFor({state:'visible'});
  const d=await p.locator('.bc12').evaluate(x=>{const r=x.getBoundingClientRect();return {sw:document.documentElement.scrollWidth,iw:innerWidth,l:r.left,r:r.right,t:r.top,b:r.bottom,ih:innerHeight}});assert.ok(d.sw<=d.iw+1,label+' horizontal overflow');assert.ok(d.l>=-1&&d.r<=d.iw+1,label+' horizontal bounds');assert.ok(d.t>=-1&&d.b<=d.ih+2,label+' vertical bounds');assert.deepEqual(errs,[],name+' '+label+' errors');await c.close();await b.close()
 }
