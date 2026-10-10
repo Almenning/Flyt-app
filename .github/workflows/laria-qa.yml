@@ -141,6 +141,20 @@ jobs:
           if-no-files-found: warn
           retention-days: 7
 
+      - name: Verify v37 globe zoom artwork and real country taps
+        env:
+          ATLAS_QA_SCREENSHOTS: /tmp/laria-globe-v37
+        run: node tests/laria-atlas-perspective.playwright.js
+
+      - name: Upload globe-first v37 screenshot matrix
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-globe-v37-${{ github.sha }}
+          path: /tmp/laria-globe-v37
+          if-no-files-found: warn
+          retention-days: 7
+
       - name: Prompt 18 globe visual evidence
         env:
           QA_SCREENSHOTS: /tmp/laria-p18-globe
