@@ -98,7 +98,7 @@ async function tapGlobeMode(page,mode,label){
     await page.waitForFunction(m=>{
       const b=document.querySelector('#globe-mode [data-globe-mode="'+m+'"]');
       return !!b&&b.classList.contains('active');
-    },mode,{timeout:8000});
+    },mode,{timeout:8000,polling:100});
   }catch(err){
     // A Safari touch can be lost during fullscreen transition. Capture the
     // native event path and actual state instead of classifying it as success.
