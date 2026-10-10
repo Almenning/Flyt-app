@@ -82,11 +82,43 @@ async function tapGlobeMode(page,mode,label){
   assert.ok(target.width>=28&&target.height>=28&&target.x>=0&&target.y>=0&&
     target.x<target.vw&&target.y<target.vh&&target.reachable,
     label+' '+mode+' mode button is not physically touchable: '+JSON.stringify(target));
+  await page.evaluate(()=>{
+    if(window.__lariaModeTouchProbe)return;
+    window.__lariaModeTouchProbe=[];
+    const events=['pointerdown','pointerup','touchstart','touchend','click'];
+    for(const event of events)document.addEventListener(event,e=>{
+      const node=e.target?.closest?.('[data-globe-mode]')||null;
+      window.__lariaModeTouchProbe.push({type:event,mode:node?.dataset.globeMode||null,
+        target:e.target?.tagName||null,at:Math.round(performance.now())});
+      if(window.__lariaModeTouchProbe.length>50)window.__lariaModeTouchProbe.shift();
+    },{capture:true,passive:true});
+  });
   await page.touchscreen.tap(target.x,target.y);
-  await page.waitForFunction(m=>{
-    const b=document.querySelector('#globe-mode [data-globe-mode="'+m+'"]');
-    return !!b&&b.classList.contains('active');
-  },mode,{timeout:8000});
+  try{
+    await page.waitForFunction(m=>{
+      const b=document.querySelector('#globe-mode [data-globe-mode="'+m+'"]');
+      return !!b&&b.classList.contains('active');
+    },mode,{timeout:8000});
+  }catch(err){
+    // A Safari touch can be lost during fullscreen transition. Capture the
+    // native event path and actual state instead of classifying it as success.
+    const diagnostic=await page.evaluate(({mode,target})=>{
+      const screen=document.getElementById('world-screen'),buttons=[...document.querySelectorAll('#globe-mode [data-globe-mode]')];
+      const hit=document.elementFromPoint(target.x,target.y);
+      return {mode,target,hit:hit?.tagName||null,hitClass:typeof hit?.className==='string'?hit.className:null,
+        globeMode:typeof globeMode!=='undefined'?globeMode:null,
+        screenClass:screen?.className,perspective:screen?.dataset.mapPerspective,
+        atlasReady:document.getElementById('atlas-canvas')?.dataset.mapReady,
+        active:buttons.map(b=>({mode:b.dataset.globeMode,active:b.classList.contains('active'),
+          clickHandler:typeof b.onclick,rect:{x:b.getBoundingClientRect().x,y:b.getBoundingClientRect().y,
+          width:b.getBoundingClientRect().width,height:b.getBoundingClientRect().height}})),
+        events:(window.__lariaModeTouchProbe||[]).slice(-30)};
+    },{mode,target}).catch(e=>({evaluationError:String(e)}));
+    const suffix='-'+label+'-'+mode+'-touch-timeout';
+    fs.writeFileSync(path.join(out,'diagnostic'+suffix+'.json'),JSON.stringify(diagnostic,null,2));
+    try{await page.screenshot({path:path.join(out,'diagnostic'+suffix+'.png'),timeout:3000})}catch(_){}
+    throw new Error('Native mode tap did not activate: '+JSON.stringify(diagnostic));
+  }
 }
 
 async function capture(browserType,label,viewport){
