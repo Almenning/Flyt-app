@@ -94,7 +94,13 @@ async function capture(browserType,label,viewport){
   try{
     const ctx=await browser.newContext({viewport,isMobile:viewport.width<600,hasTouch:true,serviceWorkers:'block',deviceScaleFactor:1});
     const page=await ctx.newPage();
-    const errors=[];page.on('pageerror',e=>errors.push(String(e)));
+    const errors=[],navigation=[],crashes=[];
+    page.on('pageerror',e=>errors.push(String(e)));
+    page.on('crash',()=>crashes.push('browser page crashed'));
+    page.on('close',()=>crashes.push('browser page closed'));
+    page.on('framenavigated',frame=>{
+      if(frame===page.mainFrame())navigation.push({url:frame.url(),at:Date.now()});
+    });
     await page.addInitScript(x=>localStorage.setItem('laerlittmer-v2',JSON.stringify(x)),seed);
     await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
     await page.route('https://api.worldbank.org/**',r=>r.abort());
@@ -321,7 +327,29 @@ async function capture(browserType,label,viewport){
           return opaque>25&&warmLand>3;
         },null,{timeout:12000});
       }
-      assert.equal(await page.locator('[data-globe-mode="'+mode+'"]').getAttribute('class').then(x=>(x||'').includes('active')),true,label+' '+mode+' mode did not activate');
+      // A WebKit failure has shown the mode control disappearing AFTER
+      // a successful atlas pixel check. Never hide that with a 30s locator
+      // timeout: capture the page lifecycle and exact browser DOM state.
+      const modeState=await page.evaluate(requested=>{
+        const buttons=[...document.querySelectorAll('#globe-mode [data-globe-mode]')];
+        const screen=document.getElementById('world-screen');
+        const atlas=document.getElementById('atlas-canvas');
+        const b=buttons.find(x=>x.dataset.globeMode===requested);
+        return {exists:!!b,active:!!b?.classList.contains('active'),
+          modes:buttons.map(x=>({value:x.dataset.globeMode,active:x.classList.contains('active')})),
+          screenExists:!!screen,screenActive:!!screen?.classList.contains('active'),
+          perspective:screen?.dataset.mapPerspective||null,
+          atlasReady:atlas?.dataset.mapReady||null,
+          bodyNodes:document.body?.children.length||0,
+          url:location.href,readyState:document.readyState};
+      },mode).catch(error=>({evaluationError:String(error)}));
+      if(!modeState.active){
+        try{await page.screenshot({path:path.join(out,label+'-'+mode+'-FAILED.png'),timeout:3000})}catch(_){}
+        fs.writeFileSync(path.join(out,label+'-'+mode+'-FAILED.json'),
+          JSON.stringify({modeState,errors,navigation,crashes},null,2));
+      }
+      assert.equal(modeState.active,true,label+' '+mode+' mode did not activate: '+
+        JSON.stringify({modeState,errors,navigation,crashes}));
       await page.screenshot({path:path.join(out,label+'-'+mode+'.png'),fullPage:true});
     }
     fs.writeFileSync(path.join(out,label+'.json'),JSON.stringify(metrics,null,2));
