@@ -79,12 +79,12 @@ async function capture(browserType,label,viewport){
     await page.waitForFunction(()=>typeof openGlobe==='function'&&document.getElementById('globe-canvas'));
     await page.evaluate(()=>openGlobe());
     await page.locator('#world-screen.active').waitFor();
-    // Spherical-geometry regression applies to the explicitly retained Kloden mode.
-    // Utforsk and Min verden now present a separate, correct interactive atlas.
-    await page.waitForFunction(()=>window.LARIA_ATLAS_PERSPECTIVE?.snapshot().active===true);
-    assert.equal(await page.locator('#atlas-canvas').isVisible(),true,label+' atlas not active by default');
-    await page.locator('[data-globe-mode="classic"]').click();
-    await page.waitForFunction(()=>document.querySelector('#world-screen.active').dataset.mapPerspective==='globe');
+    // v37: the spherical map is once again the main exploration experience.
+    await page.waitForFunction(()=>window.__lariaGlobeV25Installed===true);
+    assert.equal(await page.locator('#atlas-canvas').count(),0,label+' retired flat atlas must not replace the globe');
+    assert.equal(await page.locator('#globe-canvas').isVisible(),true,label+' interactive sphere must appear in Utforsk by default');
+    assert.ok((await page.locator('[data-globe-mode="explore"]').getAttribute('class')||'').includes('active'),
+      label+' Utforsk must be the opening globe mode');
     await page.waitForFunction(()=>{
       const c=document.getElementById('globe-canvas'),r=c?.getBoundingClientRect();
       return r&&r.width>250&&r.height>250;
@@ -250,6 +250,40 @@ async function capture(browserType,label,viewport){
     assert.ok(projectionSync.latDiff<.12,label+' pinch anchor latitude drifted: '+projectionSync.latDiff);
 
     assert.equal(projectionSync.renderSource,'country-geometry',label+' must draw visible land from real country polygons');
+    // The same land geometry is kept at all three illustration zoom levels.
+    // Inspect genuine WebKit screenshots, never a static concept map.
+    const artLevels=[];
+    for(const [level,zoom] of [['overview',1],['medium',1.9],['near',3.25]]){
+      const frame=await page.evaluate(z=>{
+        globeLon=15;globeLat=30;setGlobeZoom(z);
+        window.drawGlobe();
+        const f=window.__LARIA_GLOBE_V37_FRAME;
+        const canvas=document.getElementById('globe-canvas');
+        const markers=[...f.land,...f.water,...f.discovery];
+        let maxDrift=0;
+        for(const m of markers){
+          const p=globeProject(m.lon,m.lat,canvas._cssW,canvas._cssH);
+          if(!p){maxDrift=1e9;break;}
+          maxDrift=Math.max(maxDrift,Math.hypot(p[0]-m.x,p[1]-m.y));
+        }
+        return {version:f.version,zoom:f.zoom,level:f.level,
+          mediumAlpha:f.mediumAlpha,nearAlpha:f.nearAlpha,
+          land:f.land.length,water:f.water.length,discovery:f.discovery.length,
+          maxDrift,renderSource:f.renderSource};
+      },zoom);
+      assert.equal(frame.version,37,label+' '+level+' must use the v37 artwork');
+      assert.equal(frame.renderSource,'country-geometry',label+' '+level+' lost actual country boundaries');
+      assert.ok(frame.maxDrift<.005,label+' '+level+' geography-dependent illustrations drift: '+JSON.stringify(frame));
+      artLevels.push(frame);
+      await page.screenshot({path:path.join(out,label+'-v37-'+level+'.png'),fullPage:true});
+    }
+    assert.equal(artLevels[0].land,0,label+' overview must not be cluttered by forest/mountain icons');
+    assert.equal(artLevels[0].water,0,label+' overview must not be cluttered by ships/whales');
+    assert.equal(artLevels[0].discovery,0,label+' overview must not be cluttered by landmark icons');
+    assert.ok(artLevels[1].land>=1,label+' medium zoom must reveal geographically placed natural details');
+    assert.ok(artLevels[2].land>=1,label+' near zoom must retain geographic natural details');
+    assert.ok(artLevels[2].nearAlpha>.99,label+' close zoom must reveal locally placed discoverables');
+    await page.evaluate(()=>{globeLon=15;globeLat=18;setGlobeZoom(1);window.drawGlobe();});
     for(const mode of ['explore','mine','classic']){
       await page.locator('[data-globe-mode="'+mode+'"]').click();
       await page.waitForTimeout(250);
@@ -273,7 +307,7 @@ async function capture(browserType,label,viewport){
     assert.ok(rendererSource.includes('paintStoryBiomes(ctx,w,h,s);'),'locked globe biome relief missing');
     assert.ok(rendererSource.includes('paintAtlasTexture(ctx,w,h,s);'),'locked globe painterly land texture missing');
     assert.ok(rendererSource.includes("['desert',14,25,.220]"),'Sahara biome lost locked atlas scale');
-    assert.ok(rendererSource.includes("type==='mountains'?1.38"),'storybook relief scale drifted down');
+    assert.ok(rendererSource.includes("type==='mountains'?1.30"),'v37 detailed relief scale drifted');
     assert.ok(rendererSource.includes("const borderAlpha=globeZoom>2.5?.48:globeZoom>1.65?.34:.22"),'political borders became visually dominant again');
     assert.equal(rendererSource.includes("const sparks=[[-.95,-.70"),false,'legacy target-ring/spark marker must stay removed');
     await assertProfileFoxSelection(chromium);
