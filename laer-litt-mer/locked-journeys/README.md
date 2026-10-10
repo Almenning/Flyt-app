@@ -25,6 +25,7 @@ Dette er fire reisekart samlet i ett oversiktsbilde; bruk de separate filene i a
   og viser kun originalen når nettleseren bekrefter forventet bredde/høyde.
 - Dersom et bilde mangler eller har feil størrelse, brukes **eksisterende fungerende
   reisekart**, ikke et midlertidig opptegnet etterligningskart.
+- **Viktig:** I `../locked-journey-renderer.js` står `ORIGINAL_SOURCE_IMAGES_VERIFIED=false` inntil alle fire originale bildefiler er lastet inn og visuelt kvalitetssikret. Den skal ikke settes til `true` bare fordi det finnes bildefiler med riktige navn. Uten dette forsøker ikke appen å hente manglende originaler og produserer ingen 404-støy.
 - Oppdrags-ID-er, lagret progresjon, læringsmotor, klassetrinn og oppgaver er uendret.
 - Tekst og dekor fra bildet skal ikke tegnes dobbelt opp; de fem merkede skiltene
   er klikkbare via transparente treffsoner med tilgjengelige navn.
