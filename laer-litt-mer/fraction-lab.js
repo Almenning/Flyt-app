@@ -57,7 +57,8 @@ const fractionLabUi={
   compare:{left:null,right:null,active:'left',prediction:null},
   selectedDenom:2,
   lastGrade:null,
-  feedback:null
+  feedback:null,
+  returnToJourney:false
 };
 
 function fractionLabGcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b){const t=b;b=a%b;a=t}return a||1}
@@ -252,6 +253,13 @@ function renderFractionLab(){
 }
 function bindFractionLabUi(){
   document.getElementById('fraction-lab-back')?.addEventListener('click',()=>{
+    // This explicit return origin is ONLY set when the existing Brøklaben was
+    // opened through Tallenga. Never change the normal Basecamp back behavior.
+    if(fractionLabUi.returnToJourney){
+      fractionLabUi.returnToJourney=false;
+      openSubject('math');
+      return;
+    }
     if(typeof window.LARIA_RETURN_TO_BASECAMP==='function'&&window.LARIA_RETURN_TO_BASECAMP())return;
     openSubject('math');
   });
@@ -309,7 +317,10 @@ function bindFractionLabSource(button){
   button.addEventListener('pointerup',finish);
   button.addEventListener('pointercancel',event=>{if(drag&&event.pointerId===drag.id){drag.ghost?.remove();drag=null;document.querySelectorAll('.lab-workbench,.lab-compare-slot').forEach(x=>x.classList.remove('drag-over'))}});
 }
-function openFractionLab(){
+function openFractionLab(options){
+  // UI-only navigation context. It is not stored in user learning data and it
+  // does not affect the fraction laboratory's existing learning mechanics.
+  fractionLabUi.returnToJourney=!!(options&&options.returnToJourney==='math');
   document.getElementById('fraction-lab-screen')?.setAttribute('data-explore-release','explore-rc1');
   const grade=currentGrade();
   if(fractionLabUi.lastGrade!==grade){fractionLabUi.level=fractionLabRecommendedLevel();fractionLabUi.lastGrade=grade;fractionLabResetWork()}
