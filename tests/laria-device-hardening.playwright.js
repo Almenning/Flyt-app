@@ -88,13 +88,15 @@ async function verifyBasecamp(page,label,width,height){
   await page.locator('#sc-close').tap();
   await dialog.waitFor({state:'hidden'});
 
-  await page.locator('.bc12-place[data-camp="globe"]').tap();
+  await page.locator('.bc14-free').tap();
+  await page.locator('.bc13-card[data-bc13-action="globe"]').tap();
   await page.locator('#world-screen.active').waitFor();
   await noOverflow(page,label+' globe');
   const back=await rect(page,'#world-back');assertTap(back,label+' globe back');
   await page.locator('#world-back').tap();
   await page.locator('#home-screen.active').waitFor();
 
+  await page.locator('.bc12-nav [data-camp="home"]').tap();
   await page.locator('.bc12-journey').tap();
   await page.locator('#subject-screen.active').waitFor();
   await noOverflow(page,label+' subject');
@@ -103,7 +105,8 @@ async function verifyBasecamp(page,label,width,height){
   await page.locator('#home-screen.active').waitFor();
 
   // Edge-back must preserve the real Basecamp origin contract.
-  await page.locator('.bc12-place[data-camp="globe"]').tap();
+  await page.locator('.bc14-free').tap();
+  await page.locator('.bc13-card[data-bc13-action="globe"]').tap();
   await page.locator('#world-screen.active').waitFor();
   await page.evaluate(()=>appBack());
   await page.locator('#home-screen.active').waitFor();
