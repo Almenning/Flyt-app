@@ -13,7 +13,7 @@
   <link rel="icon" href="./icon.svg" type="image/svg+xml" />
   <link rel="preload" as="image" href="./basecamp-v11-mobile.webp?v=basecamp12d" media="(max-width:700px)" fetchpriority="high" />
   <link rel="preload" as="image" href="./basecamp-v11.webp?v=basecamp12d" media="(min-width:701px)" fetchpriority="high" />
-  <link rel="preload" as="script" href="./home-basecamp-v12.js?v=20261007-p17rc1" />
+  <link rel="preload" as="script" href="./home-basecamp-v12.js?v=20261010-globe-v37" />
   <link rel="preload" as="script" href="./globe-v24-art.js?v=globe36-pigment3" />
   <link rel="preload" as="script" href="./globe-v25-renderer.js?v=globe36-pigment3" />
   <title>Læria</title>
@@ -3485,7 +3485,7 @@ function showScreen(name){
   }
 }
 function openGlobe(mode='explore'){
-  const next=mode==='mine'?'mine':'explore';
+  const next=mode==='classic'?'classic':(mode==='mine'?'mine':'explore');
   globeMode=next;
   const openedAt=performance.now();
   document.getElementById('world-screen')?.setAttribute('data-explore-release','explore-rc1');
@@ -3536,7 +3536,7 @@ document.addEventListener('click',e=>{
   e.preventDefault();
   if(typeof window.LARIA_MARK_BASECAMP_ORIGIN==='function')window.LARIA_MARK_BASECAMP_ORIGIN();
 
-  if(action==='globe'){openGlobe('explore');return}
+  if(action==='globe'){openGlobe('classic');return}
   if(action==='words'){
     if(typeof window.openWordHunt==='function')window.openWordHunt();
     else if(typeof openSubject==='function')openSubject('norwegian');

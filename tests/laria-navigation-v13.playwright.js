@@ -68,6 +68,10 @@ async function run(engine,label,viewport){
    ['multiply','multiplication-lab','multiplication-lab-back']]){
    await page.locator('[data-bc13-action="'+action+'"]').click();
    await page.locator('#'+screen+'-screen.active').waitFor({timeout:13000});
+   if(action==='globe'){
+    await page.waitForFunction(()=>document.getElementById('world-screen')?.dataset.mapPerspective==='globe'&&document.getElementById('world-screen')?.dataset.premiumGlobeMode==='classic',{timeout:8000});
+    assert.equal(await page.locator('#globe-canvas').isVisible(),true,label+' Kloden must show the interactive globe rather than atlas');
+   }
    await page.locator('#'+back).click();
    await page.locator('#home-screen.active').waitFor({timeout:10000});
    await page.locator('.bc13-panel:not([hidden]) [data-bc13-action="'+action+'"]').waitFor({timeout:10000});
