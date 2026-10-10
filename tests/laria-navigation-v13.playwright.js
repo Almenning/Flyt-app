@@ -54,7 +54,7 @@ async function run(engine,label,viewport){
    ['geography','geography','geography-back']]){
    await page.locator('[data-bc13-action="'+subject+'"]').click();
    await page.locator('#'+screen+'-screen.active').waitFor({timeout:10000});
-   const visibleBack=page.locator('#'+screen+'-screen .bok-v10-home:visible, #'+screen+'-screen .premium-world-back:visible, #'+back+':visible').first();
+   const visibleBack=page.locator('#'+screen+'-screen .bok-v10-home:visible, #'+screen+'-screen .premium-world-back:visible, #'+screen+'-screen .locked-journey-back:visible, #'+back+':visible').first();
    await visibleBack.waitFor({state:'visible',timeout:10000});
    await visibleBack.click();
    await page.locator('#home-screen.active').waitFor({timeout:10000});
