@@ -42,7 +42,16 @@ Dette er fire reisekart samlet i ett oversiktsbilde; bruk de separate filene i a
    har ingen overlapp, forvrengning eller utilgjengelige oppdragssteder.
 5. Trykk, frivillig repetisjon, oppgaver, tilbakeknapp, klassetrinnvalg og fortsatt
    læringsprogresjon er verifisert ende-til-ende med eksisterende datamodeller.
-6. Ingen implementeringsfase lukkes dersom originalgrafikken mangler.
+6. De originale referansebildene viser en illustrert avatar og tallet **127**
+   i toppfeltet. Dette er **bildepiksler**, ikke ekte brukerdata. Før utgivelse
+   skal tall/avatar enten matches med faktiske dynamiske data uten å endre den
+   låste scenegrafikken, eller uttrykkelig behandles som dekor uten å fremstå
+   som oppnådd belønning. En hardkodet 127-poengstatus kan ikke publiseres som
+   om barnet faktisk har tjent den.
+7. Reiser uten nok kjerneoppdrag beholder de fem illustrerte reisemålene,
+   men tomme steder får **ingen fabrikkert oppgave**. Fremtidige reisemål
+   tilbyr den eksisterende progresjonsnøytrale `Sniktitt`-funksjonen.
+8. Ingen implementeringsfase lukkes dersom originalgrafikken mangler.
 
 Dette dokumentet bevarer filidentiteten. **Originale binærfiler kan ikke skapes
 ved å skrive inn en fil med tilsvarende navn.**
