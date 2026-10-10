@@ -3,6 +3,28 @@ const screen=document.getElementById('world-screen');if(!screen)return;screen.cl
 const ART=window.LariaGlobeArtV24;if(!ART)return;
 const {clamp,TERRAIN,FEATURES,draw}=ART;
 
+/* v37: geography-first, deliberately quiet at overview scale.
+   All illustrated marks use longitude/latitude and the same live projection
+   as country selection; no screen-space globe texture or map replacement. */
+const v37Fade=(from,to)=>{
+  const t=clamp((globeZoom-from)/(to-from),0,1);
+  return t*t*(3-2*t);
+};
+const v37Level=()=>globeZoom<1.38?'oversikt':globeZoom<2.35?'mellomzoom':'nærzoom';
+let v37Frame=null;
+function v37Pick(items,limit,gap){
+  const chosen=[];
+  for(const item of items.sort((a,b)=>b.p[2]-a.p[2])){
+    if(chosen.some(other=>Math.hypot(other.p[0]-item.p[0],other.p[1]-item.p[1])<gap))continue;
+    chosen.push(item);if(chosen.length>=limit)break;
+  }
+  return chosen.sort((a,b)=>a.p[2]-b.p[2]);
+}
+function v37Record(kind,f,p){
+  if(!v37Frame)return;
+  v37Frame[kind].push({type:f[0],lon:f[1],lat:f[2],x:p[0],y:p[1]});
+}
+
 /* v36 locked reference palette: ocean cyan, Europe blue, Africa coral,
    Asia sun-gold and the Americas verdant green. Geography stays authoritative. */
 const PALETTE={
@@ -367,8 +389,11 @@ const STORY_BIOMES=[
   ['snow',-42,72,.150],['snow',18,69,.100],['snow',91,69,.125],['snow',-112,68,.105]
 ];
 function paintStoryBiomes(ctx,w,h,s){
+  const alpha=v37Fade(1.16,2.25)*.53;
+  if(alpha<.015)return;
   ctx.save();
   if(!landClip(ctx,w,h)){ctx.restore();return}
+  ctx.globalAlpha=alpha;
   for(const b of STORY_BIOMES){
     const p=project(b[1],b[2],w,h);if(!p||p[2]<.10)continue;
     const perspective=clamp(.60+p[2]*.48,.62,1.07);
@@ -404,6 +429,7 @@ function atlasDabColor(lon,lat,n){
 function paintAtlasTexture(ctx,w,h,s){
   ctx.save();
   if(!landClip(ctx,w,h)){ctx.restore();return}
+  ctx.globalAlpha=.25+v37Fade(1.23,2.5)*.33;
   ctx.globalCompositeOperation='multiply';
   let n=0;
   for(let lat=-70;lat<=70;lat+=10){
@@ -486,6 +512,8 @@ function landClip(ctx,w,h){
   for(const c of WORLD_COUNTRIES)if(c.geometry)addPath(ctx,c,w,h);ctx.clip();return true;
 }
 function terrainPatch(ctx,w,h,s,t){
+  const opacity=v37Fade(1.47,2.85);
+  if(opacity<.018)return;
   const p=project(t[1],t[2],w,h);if(!p||p[2]<.08)return;
   const type=t[0],k=t[3]*clamp(p[2]+.20,.58,1.14);
   const r=s*(type==='desert'?.095:type==='snow'?.082:.090)*k;
@@ -500,6 +528,7 @@ function terrainPatch(ctx,w,h,s,t){
   if(type==='snow'){c0='rgba(255,255,247,.72)';c1='rgba(225,242,239,.14)';blend='screen'}
 
   ctx.globalCompositeOperation=blend;
+  ctx.globalAlpha=opacity*.60;
   const g=ctx.createRadialGradient(-r*.14,-r*.12,1,0,0,r);
   g.addColorStop(0,c0);
   g.addColorStop(.62,c1);
@@ -512,7 +541,7 @@ function terrainPatch(ctx,w,h,s,t){
   /* Low-contrast surface marks. These are texture, not icons. */
   ctx.save();
   ctx.globalCompositeOperation=type==='snow'?'screen':'multiply';
-  ctx.globalAlpha=clamp(.96-globeZoom*.055,.52,.84);
+  ctx.globalAlpha=opacity*.62;
 
   const marks=[
     [-.72,-.18],[-.58,.20],[-.46,-.36],[-.34,.38],[-.18,-.20],[-.08,.16],
@@ -520,8 +549,9 @@ function terrainPatch(ctx,w,h,s,t){
     [.02,.49],[-.50,.02]
   ];
   for(let i=0;i<marks.length;i++){
-    const dx=marks[i][0]*r*.68,dy=marks[i][1]*r*.42;
-    const x=p[0]+dx,y=p[1]+dy,size=Math.max(1.35,s*.0037*k);
+    const mp=project(t[1]+marks[i][0]*8.2*t[3],t[2]+marks[i][1]*5.6*t[3],w,h);
+    if(!mp||mp[2]<.10)continue;
+    const x=mp[0],y=mp[1],size=Math.max(1.35,s*.0037*k);
 
     if(type==='forest'){
       ctx.fillStyle=i%3===0?'rgba(24,86,43,.88)':i%2?'rgba(37,111,51,.82)':'rgba(66,133,58,.78)';
@@ -580,53 +610,53 @@ const WATER_COMPOSITION=[
   ['cloud',-145,18,.54,0],['cloud',118,-19,.50,0],['cloud',-48,-37,.50,0]
 ];
 
-function landRelief(ctx,w,h,s){
-  ctx.save();
-  if(typeof WORLD_COUNTRIES!=='undefined')landClip(ctx,w,h);
-  ctx.globalAlpha=clamp(1.02-globeZoom*.060,.62,.94);
-  ctx.globalCompositeOperation='source-over';
-
+function landRelief(ctx,w,h,s,moving=false){
+  const alpha=v37Fade(1.22,2.16)*(moving?.44:.88);
+  if(alpha<.018)return;
   const visible=[];
   for(const f of LAND_COMPOSITION){
     const p=project(f[1],f[2],w,h);
-    if(!p||p[2]<.12)continue;
+    if(!p||p[2]<.14||p[0]<12||p[0]>w-12||p[1]<12||p[1]>h-12)continue;
     visible.push({f,p});
   }
-  visible.sort((a,b)=>a.p[2]-b.p[2]);
-
-  for(const {f,p} of visible){
-    const type=f[0];
-    const typeScale=type==='mountains'?1.38:type==='trees'?1.02:1.06;
-    const mobileBoost=s<520?1.38:s<760?1.21:1.06,base=clamp(s*.041,14,31);
-    const k=base*mobileBoost*f[3]*typeScale*clamp(p[2]+.18,.64,1.10)*clamp(Math.pow(globeZoom,.045),1,1.07);
-    const fn=draw[type];
-    if(fn)fn(ctx,p[0],p[1],k,!!f[4]);
+  const mobile=s<520,maxCount=Math.min(mobile?12:23,Math.floor((mobile?3:6)+globeZoom*(mobile?2.2:3.6)));
+  const chosen=v37Pick(visible,maxCount,mobile?39:43);
+  ctx.save();
+  if(typeof WORLD_COUNTRIES!=='undefined')landClip(ctx,w,h);
+  ctx.globalAlpha=alpha;
+  for(const {f,p} of chosen){
+    const type=f[0],fn=draw[type];if(!fn)continue;
+    const base=clamp(s*.042,14,31);
+    const k=base*f[3]*(type==='mountains'?1.30:1.07)*clamp(p[2]+.20,.69,1.07)
+      *clamp(1+.12*Math.log2(Math.max(1,globeZoom)),1,1.23);
+    fn(ctx,p[0],p[1],k,!!f[4]);
+    v37Record('land',f,p);
   }
   ctx.restore();
 }
 
-function waterDetails(ctx,w,h,s){
-  ctx.save();
-  ctx.globalAlpha=clamp(1.02-globeZoom*.075,.52,.90);
-
+function waterDetails(ctx,w,h,s,moving=false){
+  const alpha=v37Fade(1.44,2.80)*(moving?.48:.78);
+  if(alpha<.018)return;
   const visible=[];
   for(const f of WATER_COMPOSITION){
     const p=project(f[1],f[2],w,h);
-    if(!p||p[2]<.12)continue;
+    if(!p||p[2]<.16||p[0]<16||p[0]>w-16||p[1]<14||p[1]>h-14)continue;
     visible.push({f,p});
   }
-  visible.sort((a,b)=>a.p[2]-b.p[2]);
-
-  for(const {f,p} of visible){
-    const type=f[0];
-    const typeScale=type==='ship'?1.10:type==='whale'?1.02:type==='cloud'?1.08:.98;
-    const mobileBoost=s<520?1.40:s<760?1.22:1.08,base=clamp(s*.041,14,30);
-    const k=base*mobileBoost*f[3]*typeScale*clamp(p[2]+.18,.64,1.08);
-    const fn=draw[type];
-    if(fn)fn(ctx,p[0],p[1],k,!!f[4]);
+  const mobile=s<520;
+  const selected=v37Pick(visible,Math.min(mobile?5:10,Math.floor((mobile?2:4)+globeZoom*1.65)),mobile?50:60);
+  ctx.save();
+  ctx.globalAlpha=alpha;
+  for(const {f,p} of selected){
+    const fn=draw[f[0]];if(!fn)continue;
+    const k=clamp(s*.041,14,30)*f[3]*clamp(p[2]+.20,.69,1.07)*1.04;
+    fn(ctx,p[0],p[1],k,!!f[4]);
+    v37Record('water',f,p);
   }
   ctx.restore();
 }
+
 const DISCOVERY_COMPOSITION=[
   ['village',16,50,.86],['village',33,56,.62],['village',77,28,.70],
   ['pyramids',30,27,.84],['camel',11,24,.72],
@@ -636,22 +666,26 @@ const DISCOVERY_COMPOSITION=[
   ['island',73,5,.58],['plane',7,-1,.54]
 ];
 
-function discoveryDetails(ctx,w,h,s){
-  let mode='explore';try{mode=typeof globeMode==='string'?globeMode:'explore'}catch(_){}
+function discoveryDetails(ctx,w,h,s,moving=false){
+  const mode=typeof globeMode==='string'?globeMode:'explore';
   if(mode!=='explore')return;
-  ctx.save();
-  ctx.globalAlpha=clamp(1.14-globeZoom*.080,.70,1);
+  const alpha=v37Fade(1.92,3.14)*(moving?.42:.94);
+  if(alpha<.018)return;
   const visible=[];
   for(const f of DISCOVERY_COMPOSITION){
     const p=project(f[1],f[2],w,h);
-    if(!p||p[2]<.12)continue;
+    if(!p||p[2]<.17||p[0]<18||p[0]>w-18||p[1]<18||p[1]>h-18)continue;
     visible.push({f,p});
   }
-  visible.sort((a,b)=>a.p[2]-b.p[2]);
-  for(const {f,p} of visible){
-    const type=f[0],mobileBoost=s<520?1.52:s<760?1.28:1.10,base=clamp(s*.058,19,40);
-    const k=base*mobileBoost*f[3]*clamp(p[2]+.20,.64,1.12)*clamp(Math.pow(globeZoom,.06),1,1.10);
-    const fn=draw[type];if(fn)fn(ctx,p[0],p[1],k,!!f[4]);
+  const mobile=s<520;
+  const selected=v37Pick(visible,Math.min(mobile?5:10,Math.floor((mobile?1:3)+globeZoom*1.35)),mobile?52:66);
+  ctx.save();ctx.globalAlpha=alpha;
+  for(const {f,p} of selected){
+    const fn=draw[f[0]];if(!fn)continue;
+    const k=clamp(s*.050,19,40)*f[3]*clamp(p[2]+.20,.69,1.09)
+      *clamp(1+.13*Math.log2(Math.max(1,globeZoom)),1,1.25);
+    fn(ctx,p[0],p[1],k,!!f[4]);
+    v37Record('discovery',f,p);
   }
   ctx.restore();
 }
@@ -709,6 +743,10 @@ function premiumDraw(){
      concept image: its coastline is not geographically registered. */
   const moving=window.__lariaGlobeInteracting===true;
   window.__LARIA_GLOBE_RENDER_SOURCE='country-geometry';
+  v37Frame={version:37,zoom:globeZoom,level:v37Level(),moving,
+    mediumAlpha:v37Fade(1.22,2.16),nearAlpha:v37Fade(1.92,3.14),
+    land:[],water:[],discovery:[],renderSource:'country-geometry'};
+  window.__LARIA_GLOBE_V37_FRAME=v37Frame;
   ocean(ctx,w,h,s);
   if(!moving)paintLandDepth(ctx,w,h,s);
   paintContinents(ctx,w,h,s);
@@ -717,11 +755,13 @@ function premiumDraw(){
     paintAtlasTexture(ctx,w,h,s);
     paintStoryBiomes(ctx,w,h,s);
     ctx.save();
-    if(landClip(ctx,w,h))for(const t of TERRAIN)terrainPatch(ctx,w,h,s,t);
+    if(globeZoom>1.40&&landClip(ctx,w,h))for(const t of TERRAIN)terrainPatch(ctx,w,h,s,t);
     ctx.restore();
-    landRelief(ctx,w,h,s);
     paintMasteryOverlay(ctx,w,h,s);
   }
+  /* LOD detail stays geographically attached during drag, but with a
+     lower moving-frame draw budget and no expensive texture passes. */
+  landRelief(ctx,w,h,s,moving);
 
   paintPolarLand(ctx,w,h,s);
   paintCountryBorders(ctx,w,h,s);
@@ -730,8 +770,8 @@ function premiumDraw(){
   /* Keep inexpensive georeferenced ships, clouds and discovery markers
      present during one-finger rotation and pinch. Only the costly polygon
      clipping / watercolor texture passes are paused while moving. */
-  waterDetails(ctx,w,h,s);
-  discoveryDetails(ctx,w,h,s);
+  waterDetails(ctx,w,h,s,moving);
+  discoveryDetails(ctx,w,h,s,moving);
   if(!moving)selectionAnimating=selectedHalo(ctx,w,h,s);
   if(!moving&&typeof globeMode==='string'&&globeMode==='mine'&&typeof WORLD_COUNTRIES!=='undefined'&&typeof drawMasteryMarker==='function'){
     for(const c of WORLD_COUNTRIES)drawMasteryMarker(ctx,c,w,h);
