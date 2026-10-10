@@ -80,8 +80,32 @@ async function run(engine,label,viewport){
     assert.equal((await page.locator('.locked-journey-sheet h2').innerText()).trim(),expected[subject][i],label+' '+subject+' place '+i);
     await page.locator('.locked-sheet-close').click();
    }
+   // Original engine already provides optional "Sniktitt" for future areas.
+   // The locked illustration must retain that preview without fabricating
+   // mastery, changing node IDs or activating ordinary lesson mode.
+   await page.evaluate(()=>{
+     window.__lockedPreview=null;
+     window.startJourneyWorldPreview=(...args)=>{window.__lockedPreview={kind:'subject',args}};
+     window.startGeoWorldPreview=(...args)=>{window.__lockedPreview={kind:'geo',args}};
+   });
+   const futureSpots=page.locator(base+' .locked-journey-hotspot.state-future');
+   let checkedPreview=false;
+   for(let k=0;k<await futureSpots.count();k++){
+     await futureSpots.nth(k).click();
+     const preview=page.locator('.locked-journey-overlay:not([hidden]) [data-locked-preview]');
+     if(await preview.count()){
+       await preview.click();
+       const called=await page.evaluate(()=>window.__lockedPreview);
+       assert(called?.args?.length===2+(subject!=='geography'?1:0),label+' original preview signature');
+       assert.equal(called?.args?.at(-1),2,label+' sneak peek grade changed');
+       assert.equal(called?.kind,subject==='geography'?'geo':'subject');
+       checkedPreview=true;break;
+     }
+     await page.locator('.locked-sheet-close').click();
+   }
+   if(!checkedPreview)console.log('[locked preview] no future skill eligible at '+label+' '+subject);
    const after=await page.evaluate(()=>JSON.stringify(JSON.parse(localStorage.getItem('laerlittmer-v2')).journey));
-   assert.equal(after,before,label+' map interactions must not modify progress');
+   assert.equal(after,before,label+' map interactions and preview must not modify progress');
    await page.locator(base+' .locked-journey-options').click();
    assert.equal(await page.locator('.locked-journey-grade-grid button').count(),10,label+' grade selector still available');
    // Older children still get their EXISTING map, not art meant for grades 1–2.
