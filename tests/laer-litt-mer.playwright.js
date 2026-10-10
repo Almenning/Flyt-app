@@ -976,15 +976,15 @@ async function finishSession(page){
     await page.locator('#close-session').click();
     await page.locator('#open-world').click();
     await page.locator('#world-screen.active').waitFor();
-    await page.waitForFunction(()=>window.LARIA_ATLAS_PERSPECTIVE?.snapshot().active===true);
-    const box=await page.locator('#atlas-canvas').boundingBox();
+    await page.waitForFunction(()=>window.__lariaGlobeV25Installed===true&&window.__LARIA_GLOBE_V37_FRAME?.version===37);
     const worldBox=await page.locator('#world-screen.active').boundingBox();
-    assert.ok(worldBox&&worldBox.width>=389&&worldBox.height>=843,'world scene should fill the mobile viewport');
-    assert.ok(box&&box.width>=340&&box.height>=180,'real interactive atlas must occupy the mobile viewport');
-    await page.locator('[data-globe-mode="classic"]').click();
     const sphere=await page.locator('#globe-canvas').boundingBox();
+    assert.ok(worldBox&&worldBox.width>=389&&worldBox.height>=843,'world scene should fill the mobile viewport');
+    assert.equal(await page.locator('#atlas-canvas').count(),0,'obsolete flat atlas must not replace the globe');
     assert.ok(sphere&&sphere.width>=300&&Math.abs(sphere.width-sphere.height)<3,
-      'separate Kloden mode must preserve a large nonstretched globe');
+      'Utforsk must show a large undistorted live globe');
+    await page.locator('[data-globe-mode="classic"]').click();
+    assert.equal(await page.locator('#globe-canvas').isVisible(),true,'Kloden mode must retain its live sphere');
     await page.locator('[data-globe-mode="explore"]').click();
     await page.locator('#random-country').click();
     assert.doesNotMatch(await page.locator('#globe-status').innerText(),/Finn et land/);
