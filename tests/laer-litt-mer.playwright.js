@@ -710,6 +710,27 @@ async function finishSession(page){
     assert.equal(await page.locator('.young-math-option.correct').count(),1);
     await page.evaluate(()=>renderQuestion());
     assert.equal(await page.locator('.young-math-option.correct').count(),1,'resume/rerender must retain answer feedback');
+    // A wrong tap followed by a correct retry must not award a second assessed answer.
+    const mathRetryBefore=await page.evaluate(()=>({logs:state.answerLog.length,correct:sessionCorrect}));
+    await page.evaluate(()=>{
+      sessionQuestions[0]={subject:'math',skill:'place-value',type:'number-input',
+        prompt:'Hva er verdien til 8 i tallet 82?',answer:'80',curriculum:'MAT01-06'};
+      currentAnswered=null;persistActiveSession();renderQuestion();
+    });
+    await page.locator('.young-math-option[data-answer="8"]').click();
+    assert.equal(await page.locator('#next-question').isVisible(),false,'first error must invite another try');
+    await page.locator('.young-math-option[data-answer="80"]').click();
+    assert.match(await page.locator('#feedback-title').innerText(),/Riktig/);
+    const retryEvidence=await page.evaluate(()=>({
+      logs:state.answerLog.length,correct:sessionCorrect,answered:currentAnswered,
+      persisted:state.activeSession?.questions?.[0]?._youngFirstAttemptWrong
+    }));
+    assert.equal(retryEvidence.logs,mathRetryBefore.logs+1,'retry may not create two learning logs');
+    assert.equal(retryEvidence.correct,mathRetryBefore.correct,'corrected retry may not award a new first-try score');
+    assert.equal(retryEvidence.answered.corrected,true,'corrected retry must be recorded as corrected, not first-try');
+    assert.equal(retryEvidence.persisted,true,'retry state must survive session resume');
+    await page.evaluate(()=>renderQuestion());
+    assert.match(await page.locator('#feedback-title').innerText(),/Riktig/,'corrected feedback must survive rerender');
     await page.locator('#close-session').click();
     await page.evaluate(()=>{
       const prev=window.__mathTapBackup;
