@@ -156,3 +156,41 @@ jobs:
           retention-days: 7
 
 
+
+  laria-mapboard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium webkit
+      - name: Start exact-head local server
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/laria-nav-http.log 2>&1 &
+          for i in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:8765/laer-litt-mer/?app=laria >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/laria-nav-http.log
+          exit 1
+      - name: Verify Basecamp travel and explore on iPhone and iPad
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+          NAV_QA_SCREENSHOTS: /tmp/laria-navigation-v13
+        run: node tests/laria-navigation-v13.playwright.js
+      - name: Upload map-board screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-navigation-v13-${{ github.sha }}
+          path: /tmp/laria-navigation-v13
+          if-no-files-found: warn
+          retention-days: 7
