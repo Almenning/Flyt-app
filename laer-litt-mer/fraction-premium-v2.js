@@ -28,6 +28,7 @@ const titles={explore:'Utforsk brøker',build:'Bygg en brøk',equal:'Like mye?',
 const faces={explore:'Brøker finnes overalt! Trykk på delene og se hva som skjer.',build:'Sett inn en bit. Du bestemmer hvor mye du vil bygge.',equal:'To forskjellige brøker kan vise akkurat like mye!',sort:'Sammenlign hvor stor del som er fargelagt.',convert:'Samme mengde kan skrives på tre måter.',mastery:'Det du har utforsket, kan du alltid utforske igjen.'};
 const u={page:'home',explore:{n:3,d:4,mode:'circle'},build:{n:3,d:4,filled:[0,1,2],notice:''},equal:0,equalGuess:null,sortIndex:0,sortOrder:[0,1,2],sortResult:'',sortSelected:null,convert:0,showConvertExtra:false};
 let svgId=0,drag=null,lastDragUntil=0;
+let returnToLockedJourney=false; // navigation-only context; not persisted
 const dragDiagnostics={pointerDown:0,pointerMove:0,pointerUp:0,nativeStart:0,nativeOver:0,nativeDrop:0};
 const read=()=>{try{const o=JSON.parse(localStorage.getItem(STORE)||'{}');return {
   explored:o.explored&&typeof o.explored==='object'?o.explored:{},
@@ -346,7 +347,19 @@ function actionHandler(e){
  const root=document.getElementById(ROOT),btn=e.target.closest('[data-fr-action]');if(!btn||!root||!root.contains(btn))return;
  const a=btn.dataset.frAction;
  // Normal taps must always work, including immediately after a drag or reset.
- if(a==='back'){if(u.page!=='home'){enter('home');return;}try{if(typeof window.LARIA_RETURN_TO_BASECAMP==='function'&&window.LARIA_RETURN_TO_BASECAMP())return}catch(_){}try{openSubject('math')}catch(_){}return;}
+ if(a==='back'){
+  if(u.page!=='home'){enter('home');return;}
+  // The actual premium lab overrides the legacy openFractionLab. Keep the
+  // same Tallenga return contract when opened from the painted Brøklaben sign.
+  if(returnToLockedJourney){
+   returnToLockedJourney=false;
+   try{openSubject('math')}catch(_){}
+   return;
+  }
+  try{if(typeof window.LARIA_RETURN_TO_BASECAMP==='function'&&window.LARIA_RETURN_TO_BASECAMP())return}catch(_){}
+  try{openSubject('math')}catch(_){}
+  return;
+ }
  if(a==='go'){enter(btn.dataset.page);return;}
  if(a==='view'){u.explore.mode=btn.dataset.view;mark('explored',key(u.explore.n,u.explore.d));render();return;}
  if(a==='preset'){u.explore.n=Number(btn.dataset.n);u.explore.d=Number(btn.dataset.d);mark('explored',key(u.explore.n,u.explore.d));render();return;}
@@ -432,7 +445,10 @@ function pointerUp(e){
   }
  }
 }
-window.openFractionLab=function(){
+window.openFractionLab=function(options){
+ // Only the explicit Tallenga entry sets this. Plain Home/Utforsk launches
+ // reset the flag, preserving the previously approved Basecamp return route.
+ returnToLockedJourney=!!(options&&options.returnToJourney==='math');
  document.getElementById('fraction-lab-screen')?.setAttribute('data-explore-release','explore-rc1');
  u.page='home';render();try{showScreen('fraction-lab')}catch(_){}
 };
