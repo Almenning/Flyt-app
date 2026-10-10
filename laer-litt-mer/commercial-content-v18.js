@@ -8,8 +8,17 @@
     const opts=[answerText,...(options||[]).map(String)].filter((v,i,a)=>a.indexOf(v)===i);
     return Object.assign({subject,skill,type:'learning-choice',prompt,answer:answerText,options:opts,curriculum:CURRICULUM[subject]},extra);
   }
+  function canonicalMathAnswer(value){
+    const raw=String(value),normalized=raw.trim().replace(',','.');
+    if(!/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/.test(normalized))return raw;
+    const n=Number(normalized);
+    if(!Number.isFinite(n))return raw;
+    // Keep intended decimal precision instead of IEEE-754 calculation noise.
+    const clean=String(Number(n.toPrecision(12)));
+    return raw.includes(',')?clean.replace('.',','):clean;
+  }
   function number(skill,prompt,answer,extra={}){
-    return Object.assign({subject:'math',skill,type:'number-input',prompt,answer:String(answer),curriculum:CURRICULUM.math},extra);
+    return Object.assign({subject:'math',skill,type:'number-input',prompt,answer:canonicalMathAnswer(answer),curriculum:CURRICULUM.math},extra);
   }
   function sentence(skill,prompt,answer,words,extra={}){
     return Object.assign({subject:'english',skill,type:'sentence-order',prompt,answer,words:words.slice(),curriculum:CURRICULUM.english},extra);
