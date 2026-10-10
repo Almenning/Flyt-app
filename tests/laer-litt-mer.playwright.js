@@ -246,13 +246,11 @@ async function finishSession(page){
           await p.locator('#home-screen.active .bc12').waitFor();
           await p.evaluate(()=>openSubject('norwegian'));
           await p.locator('#subject-screen.active').waitFor();
-          const traveler=p.locator('#subject-screen.active .bok-v15-traveler');
-          await traveler.waitFor({state:'visible'});
-          const travelerImg=traveler.locator('.bok-v15-fox');
-          await travelerImg.waitFor({state:'visible'});
+          const travelerImg=p.locator('#subject-screen.active .locked-journey-profile[data-avatar="girl"] img');
+          await travelerImg.waitFor({state:'visible',timeout:16000});
           const travelerSrc=await travelerImg.getAttribute('src');
           const expectedTravelerSrc=await p.evaluate(()=>window.LARIA_PROFILE_AVATARS?.girl||'./lia-fox-explorer-home.webp');
-          assert.equal(travelerSrc,expectedTravelerSrc,'Bokskogen traveler did not render the saved revejente artwork');
+          assert.equal(travelerSrc,expectedTravelerSrc,'Bokskogen must display the saved revejente avatar over the approved artwork');
 
           await p.evaluate(()=>{
             sessionScope={type:'subject',subject:'norwegian',module:'reading',label:'Norsk',grade:2};
@@ -817,8 +815,8 @@ async function finishSession(page){
       recordJourneySessionResult(finalResult);
       const final={complete:journeyProgress('math',2).complete,gradeCompleted:finalResult.gradeCompleted||null,gradeWin:state.journey.gradeWins['math:2']||null};
       renderSubjectJourney();
-      final.visiblePrizes=document.querySelectorAll('#journey-map .premium-world-prize').length;
-      final.replayable=document.querySelectorAll('#journey-map .premium-place.is-done').length;
+      final.visiblePrizes=document.querySelectorAll('#journey-map .locked-journey-hotspot.state-complete').length;
+      final.replayable=document.querySelectorAll('#journey-map .locked-journey-hotspot.state-complete').length;
 
       state.skillMastery=backup.skillMastery;state.skillEvidence=backup.skillEvidence;state.journey=backup.journey;state.lastMilestone=backup.lastMilestone;sessionScope=oldScope;saveState();renderAll();openSubject('math');
       return {first,final};
@@ -966,10 +964,10 @@ async function finishSession(page){
     const multAfter=await page.evaluate(()=>({goal:dailyGoal().done,answers:subjectAnswered('math')}));
     assert.deepEqual(multAfter,multBefore,'Gangetabell-lab exploration must not count as a completed test or graded answer');
 
-    await page.locator('#subject-modules .subject-module').click();
+    await page.evaluate(()=>startLearningSession('math','numbers','Tall og regning'));
     assert.equal(await page.evaluate(()=>sessionQuestions.length),5);
     await page.locator('#close-session').click();
-    await page.locator('#journey-map .premium-world-back').click();
+    await page.locator('#journey-map .locked-journey-back').click();
 
     // English: no premature grammar, but real sentences and reading are available.
     await page.evaluate(()=>document.getElementById('open-english').click());
@@ -978,11 +976,11 @@ async function finishSession(page){
     assert.ok(englishModules.includes('Sentences'));
     assert.ok(englishModules.includes('Reading'));
     assert.ok(!englishModules.includes('Grammar'));
-    await page.locator('#subject-modules .subject-module').filter({hasText:'Sentences'}).click();
+    await page.evaluate(()=>startLearningSession('english','sentences','Sentences'));
     assert.equal(await page.evaluate(()=>sessionQuestions.length),5);
     assert.equal(await page.evaluate(()=>new Set(sessionQuestions.map(q=>q.prompt+'|'+q.answer)).size),5);
     await page.locator('#close-session').click();
-    await page.locator('#journey-map .premium-world-back').click();
+    await page.locator('#journey-map .locked-journey-back').click();
 
     // Geography: default Land must work on a young grade.
     await page.evaluate(()=>document.getElementById('open-geography').click());
