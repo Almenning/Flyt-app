@@ -35,3 +35,39 @@ test('uncropped proportional points respect original geometry',()=>{
  assert.ok(Math.abs(p.left-235.25)<1e-9);
  assert.ok(Math.abs(p.top-1003.2)<1e-9);
 });
+
+test('the four approved images have five non-overlapping tap regions in 941x1672 geometry',()=>{
+ for(const subject of journey.SUBJECTS){
+  const def=journey.get(subject);
+  assert.deepEqual(def.dimensions,journey.DIMENSIONS);
+  assert.equal(def.hitRects.length,5);
+  assert.equal(def.places.length,5);
+  assert.ok(def.asset.includes('-locked-20261010.png'));
+  const rects=def.hitRects;
+  for(const [index,rect] of rects.entries()){
+   const [x,y,w,h]=rect;
+   assert.ok(x>=0&&y>=0&&w>0&&h>0);
+   assert.ok(x+w<=941&&y+h<=1672,subject+' landmark '+index+' outside original PNG');
+   const scaled=journey.hotspot(subject,index);
+   for(const value of Object.values(scaled))assert.match(value,/^\\d+(?:\\.\\d+)?%$/);
+  }
+  for(let i=0;i<rects.length;i++)for(let k=i+1;k<rects.length;k++){
+   const [ax,ay,aw,ah]=rects[i],[bx,by,bw,bh]=rects[k];
+   assert.ok(ax+aw<=bx||bx+bw<=ax||ay+ah<=by||by+bh<=ay,subject+' landmarks overlap '+i+' '+k);
+  }
+  assert.equal(journey.matchesOriginalSize(subject,941,1672),true);
+  assert.equal(journey.matchesOriginalSize(subject,1122,1402),false);
+  assert.equal(journey.matchesOriginalSize(subject,941,1650),false);
+ }
+});
+test('original node IDs and completion are stable over repeat mapping',()=>{
+ const nodes=[{id:'old-1',areaId:'a',type:'skill',title:'One'},{id:'old-2',areaId:'a',type:'checkpoint',title:'Trophy'}];
+ const model={areas:[{id:'a',nodes}],nodes};
+ const states={ 'old-1':'can-now','old-2':'passed' };
+ const first=journey.build('norwegian',model,n=>states[n.id],'old-2');
+ const second=journey.build('norwegian',model,n=>states[n.id],'old-2');
+ assert.deepEqual(first,second);
+ assert.deepEqual(first.originalIds,['old-1','old-2']);
+ assert.equal(first.places.reduce((n,p)=>n+p.done,0),2);
+ assert.equal(first.places.reduce((n,p)=>n+p.total,0),2);
+});
