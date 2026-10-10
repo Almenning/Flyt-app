@@ -119,6 +119,14 @@
         candidates.push(digit,whole,whole%10,digit*10+10);
       }
     }
+    if(q.skill==='number-order'){
+      const match=String(q.prompt).match(/hvilket tall er størst av\s+([\d,\s]+)\?/i);
+      if(match){
+        const listed=(match[1].match(/\d+/g)||[]).map(Number);
+        // A "which of these numbers" problem must not offer invented, larger numbers.
+        if(listed.includes(correct))candidates.push(...listed.filter(n=>n!==correct));
+      }
+    }
     candidates.push(correct+10,Math.max(0,correct-10),correct+1,Math.max(0,correct-1),correct+2);
     const pool=[String(correct)];
     for(const n of candidates){
