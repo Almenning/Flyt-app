@@ -136,7 +136,16 @@
       dialog.querySelector('.locked-sheet-close').focus({preventScroll:true});
     }
     overlay.querySelector('.locked-journey-dim').onclick=close;
-    host.onkeydown=e=>{if(e.key==='Escape'&&!overlay.hidden){e.preventDefault();close()}};
+    host.onkeydown=e=>{
+      if(overlay.hidden)return;
+      if(e.key==='Escape'){e.preventDefault();close();return}
+      if(e.key!=='Tab')return;
+      const buttons=[...dialog.querySelectorAll('button:not([disabled])')].filter(el=>el.getClientRects().length>0);
+      if(!buttons.length)return;
+      const first=buttons[0],last=buttons.at(-1),focused=document.activeElement;
+      if(e.shiftKey&&(focused===first||!dialog.contains(focused))){e.preventDefault();last.focus()}
+      else if(!e.shiftKey&&(focused===last||!dialog.contains(focused))){e.preventDefault();first.focus()}
+    };
     host.querySelector('.locked-journey-back').onclick=()=>backHome(geo);
     host.querySelector('.locked-journey-options').onclick=e=>{
       open('<h2>Reiseinnstillinger</h2>'+gradeChoices(s.grade),e.currentTarget);
@@ -183,14 +192,16 @@
   }
   renderSubjectJourney=function(){
     const screen=screenFor(false);
-    screen?.classList.remove('locked-journey-active');
     if(canUse(activeSubject)&&renderLocked(activeSubject,false))return;
+    // Remove all opt-in art classes BEFORE delegating to the established
+    // renderer. Otherwise a grade change can leave older grade screens hidden.
+    screen?.classList.remove('locked-journey-active','premium-journey-active');
     return previousSubject.apply(this,arguments);
   };
   renderGeoJourney=function(){
     const screen=screenFor(true);
-    screen?.classList.remove('locked-journey-active');
     if(canUse('geography')&&renderLocked('geography',true))return;
+    screen?.classList.remove('locked-journey-active','premium-geo-active');
     return previousGeo.apply(this,arguments);
   };
   window.LARIA_LOCKED_JOURNEY_RUNTIME={
