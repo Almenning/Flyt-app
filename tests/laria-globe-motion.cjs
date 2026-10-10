@@ -77,8 +77,23 @@ test('globe surface detail stays georeferenced during rotation and zoom',()=>{
     'expensive depth pass must stay outside active gesture frames');
   assert.match(renderer,/__LARIA_GLOBE_RENDER_SOURCE='country-geometry'/);
   const active=renderer.slice(renderer.indexOf('function premiumDraw(){'),renderer.indexOf('function install(){'));
-  assert.match(active,/waterDetails\(ctx,w,h,s\);\s*discoveryDetails\(ctx,w,h,s\);/,
+  assert.match(active,/waterDetails\(ctx,w,h,s,moving\);\s*discoveryDetails\(ctx,w,h,s,moving\);/,
     'illustrated landmarks must remain geographically anchored throughout pointer movement');
   assert.doesNotMatch(active,/if\(!moving\)\{\s*waterDetails/,
     'decorative geography must not vanish while the globe rotates');
+});
+
+test('v37 keeps the interactive sphere first and reveals geographic art only with zoom',()=>{
+  const index=read('laer-litt-mer/index.html'),renderer=read('laer-litt-mer/globe-v25-renderer.js');
+  const sw=read('laer-litt-mer/sw.js');
+  assert.doesNotMatch(index,/src="\.\/atlas-perspective-v1\.js/, 'flat atlas may not override globe-first exploration');
+  assert.doesNotMatch(index,/href="\.\/atlas-perspective-v1\.css/, 'flat atlas should not control globe layout');
+  assert.match(index,/globe-v25-renderer\.js\?v=globe36-pigment3-zoom37b/, 'rendered script must refresh on Safari');
+  assert.match(sw,/globe36-pigment3-zoom37b/, 'Safari PWA must invalidate old globe resources');
+  for(const token of [
+    'v37Fade(1.22,2.16)', 'v37Fade(1.92,3.14)',
+    "window.__LARIA_GLOBE_V37_FRAME=v37Frame;",
+    "project(t[1]+marks[i][0]*8.2*t[3]",
+    "v37Record('land',f,p,k)", "v37Record('water',f,p,k)", "v37Record('discovery',f,p,k)", "v37Record('terrain',f,p,k)"
+  ])assert.ok(renderer.includes(token),'v37 geographic detail contract missing '+token);
 });

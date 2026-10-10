@@ -1,4 +1,4 @@
-const CACHE='laria-stable-2026-10-09-globe36-pigment3-plukk-closeup7c-atlas-story2';
+const CACHE='laria-stable-2026-10-10-globe36-pigment3-zoom37b-plukk-closeup7c';
 const APP_CACHE_PREFIXES=['laer-litt-mer-','laria-'];
 
 // Keep install light. Runtime requests populate the cache as the child actually uses the app.
