@@ -49,9 +49,10 @@ async function run(engine,label,viewport){
    const frame=await page.evaluate(zoom=>{
     globeLon=15;globeLat=30;setGlobeZoom(zoom);window.drawGlobe();
     const f=window.__LARIA_GLOBE_V37_FRAME,c=document.getElementById('globe-canvas');
-    const marks=[...f.land,...f.water,...f.discovery];
+    const marks=[...f.land,...f.water,...f.discovery,...f.terrain];
     return {level:f.level,source:f.renderSource,land:f.land.length,water:f.water.length,
-      discovery:f.discovery.length,nearAlpha:f.nearAlpha,
+      discovery:f.discovery.length,terrain:f.terrain.length,nearAlpha:f.nearAlpha,
+      landSize:Math.max(0,...f.land.map(m=>m.size)),discoverySize:Math.max(0,...f.discovery.map(m=>m.size)),
       drift:Math.max(0,...marks.map(m=>{
        const p=globeProject(m.lon,m.lat,c._cssW,c._cssH);
        return p?Math.hypot(p[0]-m.x,p[1]-m.y):1e6;
@@ -62,9 +63,12 @@ async function run(engine,label,viewport){
    levels.push(frame);
    await page.screenshot({path:path.join(out,label+'-v37-'+name+'.png'),fullPage:true});
   }
-  assert.equal(levels[0].land+levels[0].water+levels[0].discovery,0,label+' overview is too busy');
+  assert.equal(levels[0].land+levels[0].water+levels[0].discovery+levels[0].terrain,0,label+' overview is too busy');
   assert.ok(levels[1].land>=1,label+' zoom needs real forest/mountain illustrations');
   assert.ok(levels[2].nearAlpha>.99,label+' high zoom should reveal local discovery art');
+  assert.ok(levels[2].terrain>=1,label+' close zoom needs genuinely geographical local brushwork');
+  assert.ok(levels[2].landSize>=15,label+' close zoom needs visible illustrated relief, not pixel-sized triangles');
+  assert.ok(levels[2].discoverySize>=18,label+' close zoom needs visible places and objects');
   // Norway is an interior polygon hit. Test the same click and projection.
   const norway=await page.evaluate(()=>{
     globeLon=10.3;globeLat=61.2;setGlobeZoom(2.25);
