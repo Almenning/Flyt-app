@@ -135,8 +135,10 @@
     host.innerHTML='<section class="locked-journey-board" aria-label="'+esc(def.subjectLabel+' – '+def.title+', interaktivt eventyrkart')+'">'+
       '<img class="locked-journey-image" src="./'+esc(def.asset)+'" alt="" draggable="false" width="941" height="1672">'+
       liveProfileMarkup(s.progress)+
-      (places.some(p=>p.recommended)?(()=>{
-        const here=places.find(p=>p.recommended),hit=contract.hotspot(subject,here.index);
+      (places.length?(()=>{
+        // A completed journey still has its personal fox at the last reached stop.
+        const here=places.find(p=>p.recommended)||[...places].reverse().find(p=>p.done>0)||places[0];
+        const hit=contract.hotspot(subject,here.index);
         const x=parseFloat(hit.left)+parseFloat(hit.width)/2,y=parseFloat(hit.top);
         return '<div class="locked-journey-traveler" data-avatar="'+selectedAvatar()+'" style="--fox-x:'+x+'%;--fox-y:'+y+'%" aria-label="Din egen rev følger reisen"><img src="'+esc(selectedAvatarSource())+'" alt=""></div>';
       })():'')+
