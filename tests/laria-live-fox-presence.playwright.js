@@ -12,7 +12,8 @@ function seed(avatar){
     profile:{grade:2,onboarded:true,name:'ReveQA',avatar,setupVersion:2},
     mastery:{},mistakes:{},skillMastery:{},skillMistakes:{},skillLastSeen:{},masteryEvidence:{},skillEvidence:{},
     preferences:{sound:false,autoRead:false},lastMilestone:null,recentCountryWin:null,lastActivity:null,
-    journey:{nodes:{},gradeWins:{},viewGrades:{}},answerLog:[],sessionLog:[],activeSession:null
+    journey:{nodes:{},gradeWins:{},viewGrades:{}},answerLog:[],sessionLog:[],activeSession:null,
+    collectibles:{version:1,ownedIds:['magisk-samlebok','oppdagerhatt'],equipped:{head:'oppdagerhatt',neck:null,back:null,cape:null}}
   };
 }
 async function run(engine,name,viewport,avatar){
@@ -34,6 +35,13 @@ async function run(engine,name,viewport,avatar){
     await page.waitForFunction(()=>document.querySelector('.bc12-fox .laria-fox-pose'),null,{timeout:12000});
     assert.equal(await page.evaluate(()=>window.LARIA_FOX_PRESENCE.activeAvatar()),avatar,name+' saved avatar changed');
     assert.equal(await home.locator('svg.laria-fox-wardrobe-art .laria-fox-pose').count(),1,name+' missing single dressed fox rig');
+    assert.equal(await home.locator('.laria-fox-wardrobe-art [data-gear="oppdagerhatt"]').count(),1,name+' the chosen fox lost its equipped hat');
+    if(avatar==='girl'){
+      const source=await home.locator('svg.laria-fox-wardrobe-art image').getAttribute('href');
+      assert.match(source,/girl-braids-blue-dress-v1\.webp$/,name+' still renders a portrait instead of approved full-body fox');
+      const geometry=await home.evaluate(el=>{const r=el.getBoundingClientRect();return {width:r.width,height:r.height}});
+      assert(geometry.height>=geometry.width*1.3,name+' tall character was squashed into a portrait circle '+JSON.stringify(geometry));
+    }
     assert.equal(await page.evaluate(()=>window.LARIA_FOX_PRESENCE.react('greet')),true);
     assert.equal(await home.getAttribute('data-laria-fox-mood'),'greet');
     await page.screenshot({path:path.join(dir,name+'-home.png'),animations:'disabled'});
@@ -45,6 +53,7 @@ async function run(engine,name,viewport,avatar){
     assert.equal(await fox.count(),1,name+' must have exactly one movable personal fox');
     await fox.locator('svg.laria-fox-wardrobe-art .laria-fox-pose').waitFor({timeout:12000});
     assert.equal(await fox.getAttribute('data-avatar'),avatar,name+' route changed fox identity');
+    assert.equal(await fox.locator('.laria-fox-wardrobe-art [data-gear="oppdagerhatt"]').count(),1,name+' journey lost equipped clothes');
     const initial=await fox.evaluate(el=>({x:el.style.getPropertyValue('--fox-x'),y:el.style.getPropertyValue('--fox-y')}));
     const before=await page.evaluate(()=>JSON.stringify(JSON.parse(localStorage.getItem('laerlittmer-v2')).journey));
     await map.locator('.locked-journey-hotspot').nth(3).click();
@@ -66,6 +75,7 @@ async function run(engine,name,viewport,avatar){
     await task.waitFor({timeout:13000});
     await task.locator('svg.laria-fox-wardrobe-art .laria-fox-pose').waitFor({timeout:12000});
     assert.equal(await task.getAttribute('data-avatar'),avatar,name+' task changed fox identity');
+    assert.equal(await task.locator('.laria-fox-wardrobe-art [data-gear="oppdagerhatt"]').count(),1,name+' task lost equipped clothes');
     for(const mood of ['curious','support','celebrate']){
       assert.equal(await page.evaluate(m=>window.LARIA_FOX_PRESENCE.react(m)),true);
       assert.equal(await task.getAttribute('data-laria-fox-mood'),mood,name+' task mood '+mood+' missing');
