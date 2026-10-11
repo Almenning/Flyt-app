@@ -39,7 +39,7 @@ test('malformed and forged collection entries cannot equip locked or invalid gea
   assert.deepEqual(equip(safe,'nordlyskappe').changed,false);
   assert.deepEqual(equip(safe,'FAKE').reason,'unknown-item');
 });
-test('correct work and repeat-practice rules follow existing app learning evidence',()=>{
+test('learning attempts and repeat-practice rules follow the existing app evidence',()=>{
   const stats=evidence({answerLog:[
     answer('norwegian'),answer('norwegian',{correct:false}),
     answer('norwegian',{countsForLearning:false}),
@@ -47,7 +47,8 @@ test('correct work and repeat-practice rules follow existing app learning eviden
     {country:'US',correct:true,countsForLearning:false}
   ]});
   assert.equal(stats.correctAnswers,4);
-  assert.deepEqual(stats.bySubject,{norwegian:1,math:1,english:1,geography:1});
+  assert.equal(stats.effortUnits,5);
+  assert.deepEqual(stats.bySubject,{norwegian:3,math:1,english:1,geography:2});
   assert.equal(stats.completedGrades,0);
 });
 test('collecting all four world souvenirs needs evidence, not tapping a card',()=>{
@@ -78,6 +79,31 @@ test('replaying a favorite subject can earn wearable gear without world-hopping'
     assert.ok(won.collection.ownedIds.includes(id),id);
   assert.ok(!won.collection.ownedIds.includes('bokskogens-fjaer'));
   assert.equal(won.stats.correctAnswers,45);
+  assert.equal(won.stats.effortUnits,45);
+});
+test('a child who struggles still earns clothes for thoughtful attempts',()=>{
+  const p={answerLog:Array.from({length:12},(_,i)=>({
+    subject:'norwegian',correct:false,countsForLearning:true,questionKey:'try-'+i
+  }))};
+  const won=reconcile(null,p);
+  assert.equal(won.stats.correctAnswers,0);
+  assert.equal(won.stats.effortUnits,12);
+  assert.ok(won.collection.ownedIds.includes('eventyrskjerf'));
+  assert.ok(won.collection.ownedIds.includes('oppdagerhatt'));
+  assert.ok(won.collection.ownedIds.includes('bokskogens-fjaer'));
+});
+test('completed repetition sessions count, without rewriting daily goal flags',()=>{
+  const p={sessionLog:Array.from({length:10},(_,i)=>({
+    endedAt:1720000000000+i,total:3,correct:0,practiceOnly:true,countsTowardGoal:false
+  })),answerLog:[{subject:'math',correct:false,countsForLearning:false}]};
+  const copy=JSON.stringify(p);
+  const won=reconcile(null,p);
+  assert.equal(won.stats.completedSessions,10);
+  assert.equal(won.stats.effortUnits,30);
+  assert.ok(won.collection.ownedIds.includes('eventyrskjerf'));
+  assert.ok(won.collection.ownedIds.includes('oppdagerhatt'));
+  assert.ok(won.collection.ownedIds.includes('stjerneryggsekk'));
+  assert.equal(JSON.stringify(p),copy,'collection should not rewrite goal accounting');
 });
 test('a completed grade also unlocks cape but does not alter learning progression',()=>{
   const p={journey:{nodes:{},gradeWins:{'math:2':{at:1720000000000}}}};
