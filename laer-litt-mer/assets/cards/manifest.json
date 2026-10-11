@@ -1,0 +1,74 @@
+{
+  "reisen/norwegian": {
+    "path": "assets/cards/reisen/norwegian-premium.webp",
+    "bytes": 146190,
+    "sha256": "d13515ff5dac32d365cfa4dc90b6271d7e7e75efe1fc8aa71c81a12d143dba18",
+    "size": [
+      1024,
+      704
+    ]
+  },
+  "reisen/math": {
+    "path": "assets/cards/reisen/math-premium.webp",
+    "bytes": 147438,
+    "sha256": "77683058d4ad05d31e6765951434d270f5282420e26013e043d2cdaf8445821f",
+    "size": [
+      1024,
+      704
+    ]
+  },
+  "reisen/english": {
+    "path": "assets/cards/reisen/english-premium.webp",
+    "bytes": 163072,
+    "sha256": "92e3c61f581b41c98fdc85f41c34fefab5e730907adb75c44e6aad560f077461",
+    "size": [
+      1024,
+      704
+    ]
+  },
+  "reisen/geography": {
+    "path": "assets/cards/reisen/geography-premium.webp",
+    "bytes": 158098,
+    "sha256": "e8bd2e4967a09fdb0dc6194b060077576f59f41aa74cb53a870d0cedce0f463f",
+    "size": [
+      1024,
+      704
+    ]
+  },
+  "utforsk/globe": {
+    "path": "assets/cards/utforsk/globe-premium.webp",
+    "bytes": 145362,
+    "sha256": "bc9c0a1bf9b6703c543e4d8fe02848a8b5345e3ad2caaff0f602218ee375fcfa",
+    "size": [
+      1024,
+      704
+    ]
+  },
+  "utforsk/words": {
+    "path": "assets/cards/utforsk/words-premium.webp",
+    "bytes": 122642,
+    "sha256": "bc600da8a9e406563ed286c6cba25bf173010b39cdeb8a8e2c33dcee9178a441",
+    "size": [
+      1024,
+      704
+    ]
+  },
+  "utforsk/fraction": {
+    "path": "assets/cards/utforsk/fraction-premium.webp",
+    "bytes": 103556,
+    "sha256": "cf575c82b0b97c11b795251a71e5368afea2765f56a49facd13df10203f62980",
+    "size": [
+      1024,
+      704
+    ]
+  },
+  "utforsk/multiply": {
+    "path": "assets/cards/utforsk/multiply-premium.webp",
+    "bytes": 92112,
+    "sha256": "a80123993e1775fcf7a2260e64b0fe2bbcbeba534ce7f82e49cf611983987d8d",
+    "size": [
+      1024,
+      704
+    ]
+  }
+}
