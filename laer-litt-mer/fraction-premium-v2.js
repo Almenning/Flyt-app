@@ -51,9 +51,16 @@ const pair=(o)=>[o.n,o.d];
 const frac=(n,d)=>'<span class="fr2-fraction" role="img" aria-label="'+n+' av '+d+'"><b>'+n+'</b><i aria-hidden="true"></i><b>'+d+'</b></span>';
 const number=(n,max=3)=>new Intl.NumberFormat('nb-NO',{maximumFractionDigits:max}).format(n);
 function formatValue(n,d){
- let x=d;while(x%2===0)x/=2;while(x%5===0)x/=5;const exact=x===1;
- const v=n/d,p=v*100;
- return {dec:(exact?'':'≈ ')+number(v,exact?4:3)+(exact?'':'…'),pct:(exact?'':'≈ ')+number(p,exact?2:1)+' %',exact};
+ // Reduce before checking if the decimal terminates.
+ // 3/6 = 1/2, 0/3 = 0 and 3/3 = 1 are exact values.
+ let a=Math.abs(n),b=Math.abs(d);
+ while(b){const remainder=a%b;a=b;b=remainder;}
+ let reducedDenominator=d/(a||1);
+ while(reducedDenominator%2===0)reducedDenominator/=2;
+ while(reducedDenominator%5===0)reducedDenominator/=5;
+ const exact=reducedDenominator===1,v=n/d,p=v*100;
+ return {dec:(exact?'':'≈ ')+number(v,exact?4:3)+(exact?'':'…'),
+         pct:(exact?'':'≈ ')+number(p,exact?2:1)+' %',exact};
 }
 function mark(kind,item){
  if(!progress[kind]||progress[kind][item])return;
