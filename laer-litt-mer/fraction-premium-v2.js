@@ -39,7 +39,7 @@ const read=()=>{try{const o=JSON.parse(localStorage.getItem(STORE)||'{}');return
   actions:Number(o.actions)||0,updated:Number(o.updated)||0
  }}catch(_){return {explored:{},built:{},equal:{},sorted:{},converted:{},actions:0,updated:0}}};
 const progress=read();
-const fox='<img src="./lia-fox-explorer-home.webp" alt="" class="fr2-fox" loading="lazy">';
+const fox=()=>'<img src="'+window.LARIA_FOX.source(window.LARIA_FOX.choice())+'" alt="" class="fr2-fox" loading="lazy">';
 const key=(n,d)=>n+'/'+d;
 const clamp=(x,min,max)=>Math.max(min,Math.min(max,Number(x)||0));
 const equal=(a,b)=>a[0]*b[1]===b[0]*a[1];
@@ -91,7 +91,7 @@ function glassSvg(n,d){
 function presentation(n,d,kind='circle',interactive=false){
  return kind==='bar'?barSvg(n,d):kind==='grid'?gridSvg(n,d):kind==='glass'?glassSvg(n,d):fractionSvg(n,d,'large',interactive);
 }
-function mascot(message,small=false){return '<div class="fr2-guide'+(small?' compact':'')+'">'+fox+'<div class="fr2-fox-speech">'+message+'<span class="fr2-guide-heart" aria-hidden="true">♥</span></div></div>'}
+function mascot(message,small=false){return '<div class="fr2-guide'+(small?' compact':'')+'">'+fox()+'<div class="fr2-fox-speech">'+message+'<span class="fr2-guide-heart" aria-hidden="true">♥</span></div></div>'}
 function topBar(){const n=Object.entries(progress).filter(([k])=>['explored','built','equal','sorted','converted'].includes(k)).reduce((sum,[,v])=>sum+Object.keys(v||{}).length,0);return '<header class="fr2-top fr4-top">'+cta('back','‹','fr2-back','id="fraction-lab-back" aria-label="Tilbake"')+'<div class="fr2-brand">Læria<small>✦</small></div><div class="fr2-charm fr4-earned" aria-label="'+n+' oppdagelser i Brøklaben"><span aria-hidden="true">★</span><b>'+n+'</b></div><div class="fr4-top-token" aria-hidden="true">'+cardIllustration('explore')+'</div></header>'}
 function sign(text,sub){return '<div class="fr2-sign"><span class="fr2-sign-decoration" aria-hidden="true">'+cardIllustration('build')+'</span><h1>'+text+'</h1>'+(sub?'<p>'+sub+'</p>':'')+'</div>'}
 function screenTabs(){
@@ -222,7 +222,7 @@ function explore(){
  return '<section class="fr2-explore fr4-explore">'+sign('Utforsk brøker','Se, bygg og skap brøker på flere måter!')
  +'<div class="fr2-views fr4-views" role="group" aria-label="Velg brøkvisning">'+modes.map(([k,label])=>cta('view','<span class="fr4-mode-art">'+viewIllustration(k)+'</span><b>'+label+'</b>','fr2-view '+(x.mode===k?'active':''),'data-view="'+k+'" aria-pressed="'+(x.mode===k)+'"')).join('')+'</div>'
  +'<div class="fr2-stage fr2-explore-stage fr4-explore-stage"><div class="fr2-stage-main fr4-stage-main"><div class="fr2-main-illustration">'+presentation(x.n,x.d,x.mode,x.mode==='circle')+'</div><div class="fr2-main-value">'+frac(x.n,x.d)+'</div></div>'
- +'<div class="fr4-scene-fox">'+fox+'</div><div class="fr4-scene-speech" role="status" aria-live="polite">'+speech+'<span aria-hidden="true">♥</span></div>'
+ +'<div class="fr4-scene-fox">'+fox()+'</div><div class="fr4-scene-speech" role="status" aria-live="polite">'+speech+'<span aria-hidden="true">♥</span></div>'
  +'<div class="fr4-stage-caption">'+caption+'</div></div>'
  +'<div class="fr2-controls fr4-controls">'+adjustField('n')+adjustField('d')+'</div><div class="fr2-soft-section fr4-common"><strong>Vanlige brøker</strong>'+commonFractions()+'</div>'
  +'<div class="fr4-small-discovery" aria-hidden="true"><span>✦</span> Prøv å fylle én del til! <span>✦</span></div></section>';
@@ -277,7 +277,7 @@ function mastery(){
  const next=!counts[0]?'explore':!counts[1]?'build':!counts[2]?'equal':!counts[3]?'sort':!counts[4]?'convert':'explore';
  const journey=tags.map(([kind,title,icon],i)=>'<div class="fr2-journey-stop '+(counts[i]>0?'visited':'')+'"><span class="fr2-journey-medal" aria-hidden="true">'+(counts[i]>0?'★':icon)+'</span><small>'+title+'</small></div>').join('');
  return '<section class="fr2-mastery">'+sign('Min mestring','Her er det du har oppdaget i Brøklaben!')
- +'<div class="fr2-mastery-banner">'+fox+'<div><small>Dine brøkeeventyr</small><strong>'+discoveries+' oppdagelser</strong><p>Hver oppdagelse teller. Du kan alltid utforske noe på nytt.</p></div><span class="fr2-award-star" aria-hidden="true">★</span></div>'
+ +'<div class="fr2-mastery-banner">'+fox()+'<div><small>Dine brøkeeventyr</small><strong>'+discoveries+' oppdagelser</strong><p>Hver oppdagelse teller. Du kan alltid utforske noe på nytt.</p></div><span class="fr2-award-star" aria-hidden="true">★</span></div>'
  +'<div class="fr2-master-journey"><div class="fr2-journey-heading"><strong>Oppdagelsesstien din</strong><small>'+counts.filter(n=>n>0).length+' av 5 aktiviteter utforsket. Alle kan prøves igjen.</small></div><div class="fr2-journey-stops">'+journey+'</div></div>'
  +'<h2 class="fr2-section-title">Dette har du prøvd</h2><div class="fr2-master-grid">'+tags.map(([k,title,icon],i)=>cta('go','<span class="fr2-master-icon" aria-hidden="true">'+icon+'</span><strong>'+title+'</strong><small>'+(counts[i]===0?'En oppdagelse venter':counts[i]+' oppdagelser')+'</small>','fr2-master-tile','data-page="'+(k==='explored'?'explore':k==='built'?'build':k==='equal'?'equal':k==='sorted'?'sort':'convert')+'"')).join('')+'</div>'
  +'<div class="fr2-next-suggestion"><span aria-hidden="true">🗺️</span><div><small>Prøv dette neste</small><strong>'+titles[next]+'</strong><p>Alle aktivitetene er åpne, også dem du kjenner godt.</p></div>'+cta('go','›','fr2-next-arrow','data-page="'+next+'" aria-label="Åpne '+titles[next]+'"')+'</div>'+mascot('Nysgjerrighet er superkraften din!')+'</section>';
