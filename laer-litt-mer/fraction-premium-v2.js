@@ -449,7 +449,7 @@ function actionHandler(e){
  if(a==='adjust'){adjust(btn.dataset.field,Number(btn.dataset.step));return;}
  if(a==='piece'){setPiece(Number(btn.dataset.piece));return;}
   if(a==='glass-fill'){setGlassFill(e,btn);return;}
- if(a==='add'){if(Date.now()<lastDragUntil)return;addBuildPiece('Du la til én del!',Number(btn.dataset.pieceIndex));return;}
+ if(a==='add'){addBuildPiece('Du la til én del!',Number(btn.dataset.pieceIndex));return;}
  if(a==='reset'){applyBuildPieces([],'Nå kan du bygge helt på nytt.');return;}
  if(a==='next-build'){u.build.d=DENOMS[(DENOMS.indexOf(u.build.d)+1)%DENOMS.length];applyBuildPieces([],'Prøv å bygge en ny brøk!');return;}
  if(a==='guess'){u.equalGuess=btn.dataset.guess;const q=eqCurrent(),correct=equal(q.a,q.b)===(u.equalGuess==='equal');if(correct)mark('equal',key(q.a[0],q.a[1])+'='+key(q.b[0],q.b[1]));render();return;}
