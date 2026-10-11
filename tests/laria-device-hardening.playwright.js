@@ -128,7 +128,44 @@ async function verifyOlderHome(page,label,width,height){
   await page.locator('#home-screen.active').waitFor();
   await page.waitForFunction(()=>document.documentElement.dataset.safeChallengeRelease==='challenge-rc1');
   await noOverflow(page,label+' home');
-
+  // Personal collector is not a young-only feature: 3-10 use the same
+  // persistent fox and book with a more compact, age-appropriate entrance.
+  const entryNav=page.locator('#home-screen.active .laria-legacy-collection-shortcuts');
+  await entryNav.waitFor({state:'visible'});
+  const navChoices=entryNav.locator('button');
+  assert.deepEqual(await navChoices.allTextContents(),
+    ['✦ Samleboken Minner og skatter ›','◆ Min rev Klær og utstyr ›'].map(s=>s.replace(/\\s+/g,' ').trim()),
+    label+' older-grade collection shortcuts must remain accessible');
+  for(const destination of ['collection','wardrobe']){
+    const button=entryNav.locator('[data-laria-legacy-collection="'+destination+'"]');
+    const target=await button.evaluate(el=>{
+      const r=el.getBoundingClientRect();return {w:r.width,h:r.height,x:r.x,y:r.y,right:r.right,bottom:r.bottom};
+    });
+    assertTap(target,label+' '+destination+' shortcut');
+    assert.ok(target.x>=-1&&target.right<=width+1,label+' shortcut spills off screen');
+    await button.tap();
+    await page.locator('#bc12-dialog[open]').waitFor();
+    const expected=destination==='collection'?'.bc12-memory-grid':'.bc12-wardrobe-grid';
+    await page.locator('#bc12-dialog[open] '+expected).waitFor();
+    await noOverflow(page,label+' '+destination+' dialog');
+    if(label.includes('middle-ipad')&&destination==='wardrobe'){
+      const foxArt=page.locator('#bc12-dialog[open] .laria-fox-wardrobe-art');
+      assert.equal(await foxArt.getAttribute('data-avatar'),'boy');
+    }
+    await page.locator('#bc12-dialog[open] .bc12-close').tap();
+    await page.locator('#bc12-dialog[open]').waitFor({state:'hidden'});
+  }
+  if(label.includes('middle-ipad')){
+    const oldHero=page.locator('#home-screen.active .dashboard-mascot .laria-fox-wardrobe-art');
+    await oldHero.waitFor({state:'visible'});
+    assert.equal(await oldHero.getAttribute('data-avatar'),'boy');
+    assert.equal(await page.locator('#home-screen.active .dashboard-mascot #homeFoxFur').count(),0,
+      'grade 3-4 must not show the generic hard-coded mascot');
+    // Changing a child's existing avatar must update the personal fox,
+    // without removing progress or adding a second identity.
+    await page.evaluate(()=>{state.profile.avatar='girl';saveState();renderAll()});
+    assert.equal(await page.locator('#home-screen.active .dashboard-mascot .laria-fox-wardrobe-art').getAttribute('data-avatar'),'girl');
+  }
   const entry=page.locator('#safe-challenge-entry');
   await entry.waitFor({state:'visible'});
   const er=await rect(page,'#safe-challenge-entry');assertInViewport(er,width,height,label+' challenge entry',{allowBottomScroll:true});assertTap(er,label+' challenge entry');
@@ -199,6 +236,7 @@ async function verifyOlderHome(page,label,width,height){
     {name:'iphone',width:390,height:844,grade:2},
     {name:'ipad-portrait',width:820,height:1180,grade:2},
     {name:'ipad-landscape',width:1180,height:820,grade:2},
+    {name:'middle-ipad',width:820,height:1180,grade:4},
     {name:'older-iphone',width:390,height:844,grade:7},
     {name:'older-ipad',width:820,height:1180,grade:7},
     {name:'older-ipad-landscape',width:1180,height:820,grade:7}
