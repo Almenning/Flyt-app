@@ -1,6 +1,6 @@
 # Læria: Magisk samlebok og Min rev – fase 2A
 
-Status: **Samlekatalog og synlig minnerute i Samlingen under test. Garderobe ikke ferdig og PR-en er ikke klar for merge.**
+Status: **Samlekatalog, fire fagminner, interaktiv garderobe og komposittfigur er kodet på PR #90. Visuell godkjenning og full regresjon gjenstår. PR-en skal være utkast til dette er verifisert.**
 
 ## Produktretning
 
@@ -21,7 +21,7 @@ Samleboken skal etter hvert inneholde minner/skatter fra de fire verdenene, nye 
 
 **NB:** Denne fasen har en enkel synlig samlebok med fire fagminner, men bevisst ingen synlig garderobe, ingen falske «Bruk»-knapper og ingen påkledning av portretter. Det er ikke forsvarlig å kalle et plagg «på» før det faktisk vises på rett figur i alle sammenhenger.
 
-## Fase 2B – gjenstår før synlig utgivelse
+## Fase 2B – status og kvalitetskrav før synlig utgivelse
 
 1. Lag/velg **to gjenkjennelige, transparente fullkroppsrever**, én for hver allerede godkjente avatar. De må bruke samme påkledningsgeometri og være egnet for stående mobil, liggende iPad og store kart.
 2. Lag sammenfallende klær og utstyr i separate transparente lag med navngitte festepunkter. Barnet skal se faktisk påkledning på egen rev, ikke et dekorativt klistremerke.
@@ -37,3 +37,12 @@ Samleboken skal etter hvert inneholde minner/skatter fra de fire verdenene, nye 
 - Ingen belønning skal lokke barnet til overdreven skjermtid eller innlogging hver dag. Både forsøk, riktige svar og fullførte repetisjonsøkter kan være meningsfull innsats, uten at Lærias eksisterende mestrings- og dagsmålslogikk endres.
 - De fire låste kartillustrasjonene og de åtte premiumkortene endres ikke i fase 2A.
 - Ingen automatiske merges fra denne fasen før ekte garderobegrafikk og UI er godkjent.
+
+
+## 11. oktober – arbeidsstatus (på PR #90)
+
+- Garderobens knapp og fungerende valg «Ta på» / «I bruk» er implementert. Låste klær kan ikke velges. Tilbakeknappen returnerer til samme samlebok.
+- En felles SVG-komposisjonsmotor `laria-fox-wardrobe.js` bruker eksisterende bilde av den valgte reven og legger utstyr over det. Originale reisebakgrunner og faginnhold er uendret.
+- Figurkomponenten kobles til Hjem, oppgavescener, reisekart og de relevante lekaktivitetene, med beholdt originalbilde i DOM av hensyn til eksisterende navigasjon og tester.
+- **Kvalitetsmerknad:** Figuren bruker foreløpig en kodet silhuett/klippbane av de godkjente portrettene, og påkledningen bruker skalerbare SVG-lag. Dette er en reell funksjonell førsteversjon, men ikke en kunstnerisk godkjent, transparent fullkroppsillustrasjon med nøyaktig geometri. Den skal ikke omtales som endelig premiumgrafikk.
+- Verifisering krever vellykket siste-commit QA, iOS, smoke, Safari/iPad, visuell kontroll av kroppsklipp og at eventuelle overlegg ikke hindrer klikk eller dekker andre grensesnittelementer.
