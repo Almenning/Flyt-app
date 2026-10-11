@@ -43,7 +43,7 @@
     // Portraits in headers remain the previously selected avatar. In-world
     // artwork gets its own transparent, full-body silhouette and gear anchors.
     var src=(fullGirl?root.LARIA_FOX?.worldSource?.(avatar):root.LARIA_FOX?.source?.(avatar))||'';
-    var h=fullGirl?380:200;
+    var h=fullGirl?300:200;
     const cape=gearMarkup('cape',equipped.cape,avatar);
     const gear=(slot,item)=>fullGirl&&item?
       '<g transform="'+({neck:'translate(-2 38)',back:'translate(-10 68)',cape:'translate(-8 78)',head:'translate(2 13)'}[slot]||'')+'">'+gearMarkup(slot,item,avatar)+'</g>':
