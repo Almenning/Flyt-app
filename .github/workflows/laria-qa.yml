@@ -221,6 +221,10 @@ jobs:
           path: /tmp/laria-locked-journey-geometry
           if-no-files-found: warn
           retention-days: 7
+      - name: Integrated four-journey task and return paths on iPhone and iPad
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+        run: node tests/laria-journey-integrated-ux.playwright.js
       - name: Verify old checkpoint progression survives reload on approved artwork
         env:
           QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
