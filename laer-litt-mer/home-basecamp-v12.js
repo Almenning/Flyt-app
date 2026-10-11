@@ -69,7 +69,25 @@ function dialog(kind){
  else {
   const visited=Object.values(state.journey?.nodes||{}).filter(n=>n.passed||Number(n.attempts)>0).length;
   const trophies=Object.keys(state.journey?.gradeWins||{}).length,wordRounds=wordHuntRounds();
-  d.innerHTML='<button class="bc12-close" aria-label="Lukk">×</button><span class="bc12-eyebrow">Min eventyrsekk</span><h2 id="bc12-dialog-title">Samlingen din</h2><div class="bc12-shelf"><div><span aria-hidden="true">✦</span><strong>'+visited+'</strong><small>steder besøkt</small></div><div><span aria-hidden="true">🔤</span><strong>'+wordRounds+'</strong><small>ordjakter</small></div><div><span aria-hidden="true">♜</span><strong>'+trophies+'</strong><small>eventyr fullført</small></div></div><p>'+(visited||wordRounds?'Her ligger sporene etter det du har utforsket. Ingenting forsvinner fordi du blir flinkere.':'Ryggsekken er klar. Her samler vi sporene fra eventyrene dine.')+'</p><button class="bc12-dialog-go" data-dialog-home>Tilbake til basecamp</button>';
+  // A world keepsake is visible only when earned; clothing previews wait until
+  // the real full-body character and aligned outfit layers are available.
+  const treasures=(window.LARIA_COLLECTION_CORE?.available?.(state.collectibles)||[])
+    .filter(item=>item.kind==='treasure'&&item.realm!=='all');
+  const discovered=treasures.filter(item=>item.owned).length;
+  const symbols={norwegian:'🪶',math:'✧',english:'⚿',geography:'🧭'};
+  const keepsakes=treasures.map(item=>{
+    const owned=item.owned;
+    return '<div class="bc12-memory'+(owned?' is-found':' is-hidden')+'" data-collectible-id="'+item.id+'" data-owned="'+owned+'" aria-label="'+(owned?'Funnet: '+item.title:'Uoppdaget minne')+'">'+
+      '<span class="bc12-memory-symbol" aria-hidden="true">'+(symbols[item.realm]||'✦')+'</span>'+
+      '<strong>'+(owned?item.title:'Uoppdaget minne')+'</strong>'+
+      '<small>'+(owned?item.description:'Et minne venter på å bli funnet')+'</small>'+
+      '<span class="bc12-memory-status">'+(owned?'✦ Funnet':'Ikke funnet ennå')+'</span></div>';
+  }).join('');
+  d.innerHTML='<button class="bc12-close" aria-label="Lukk">×</button><span class="bc12-eyebrow">Min magiske samlebok</span><h2 id="bc12-dialog-title">Samlingen din</h2>'+
+    '<div class="bc12-memory-intro"><b>'+discovered+' av '+treasures.length+' minner funnet</b><span>Utforsk, prøv og øv. Du bestemmer hva du har lyst til.</span></div>'+
+    '<div class="bc12-memory-grid" role="group" aria-label="Minner fra de fire fagreisene">'+keepsakes+'</div>'+
+    '<div class="bc12-shelf"><div><span aria-hidden="true">✦</span><strong>'+visited+'</strong><small>steder besøkt</small></div><div><span aria-hidden="true">🔤</span><strong>'+wordRounds+'</strong><small>ordjakter</small></div><div><span aria-hidden="true">♜</span><strong>'+trophies+'</strong><small>eventyr fullført</small></div></div>'+
+    '<button class="bc12-dialog-go" data-dialog-home>Tilbake til basecamp</button>';
  }
  d.querySelector('.bc12-close').onclick=closeDialog;d.querySelector('.bc12-later')?.addEventListener('click',closeDialog);
  d.querySelector('[data-quest-go]')?.addEventListener('click',()=>{const action=d.dataset.questAction||'words';closeDialog();activity(action)});
