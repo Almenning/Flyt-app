@@ -1,0 +1,96 @@
+'use strict';
+/* Runtime proof: selected fox, not a generic picture or icon, follows the child
+ * through all four approved worlds and their actual question screens. */
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const {chromium,webkit}=require('playwright');
+const folder=process.env.LARIA_FOX_SCREENSHOTS||'/tmp/laria-fox-identity';
+fs.mkdirSync(folder,{recursive:true});
+const subjects=['norwegian','math','english','geography'];
+const makeSeed=which=>({
+ version:7,progressSchemaVersion:3,
+ profile:{grade:2,onboarded:true,name:'ReveQA',avatar:which,setupVersion:2},
+ mastery:{},mistakes:{},skillMastery:{},skillMistakes:{},skillLastSeen:{},masteryEvidence:{},skillEvidence:{},
+ preferences:{sound:false,autoRead:false},lastMilestone:null,recentCountryWin:null,lastActivity:null,
+ journey:{nodes:{},gradeWins:{},viewGrades:{}},answerLog:[],sessionLog:[],activeSession:null
+});
+async function imageIsChosen(page,selector,which,label){
+ const img=page.locator(selector);await img.waitFor({timeout:16000});
+ await page.waitForFunction(([css,id])=>{
+  const el=document.querySelector(css);
+  return el?.complete&&el.naturalWidth>0&&
+    el.getAttribute('src')===window.LARIA_PROFILE_AVATARS?.[id];
+ },[selector,which],{timeout:16000});
+ const info=await img.evaluate(el=>({
+  src:el.getAttribute('src'),width:el.naturalWidth,height:el.naturalHeight,
+  rect:(()=>{const r=el.getBoundingClientRect();return {w:r.width,h:r.height}})()
+ }));
+ assert.ok(info.src.startsWith('data:image/webp;base64,'),label+' uses non-profile asset');
+ assert.ok(info.width>50&&info.height>50,label+' profile picture does not decode');
+ assert.ok(info.rect.w>0&&info.rect.h>0,label+' profile picture is invisible');
+}
+async function run(engine,name,viewport,which){
+ const browser=await engine.launch({headless:true,args:engine===chromium?['--no-sandbox']:[]});
+ try{
+  const context=await browser.newContext({viewport,isMobile:viewport.width<600,hasTouch:true,reducedMotion:'reduce',serviceWorkers:'block'});
+  const seed=makeSeed(which);
+  await context.addInitScript(s=>{
+   if(!localStorage.getItem('laerlittmer-v2'))
+    localStorage.setItem('laerlittmer-v2',JSON.stringify(s));
+  },seed);
+  const page=await context.newPage(),errors=[];
+  page.on('pageerror',e=>errors.push(e.message));
+  await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
+  await page.route('https://api.worldbank.org/**',r=>r.abort());
+  const url=(process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria')+'&personal-fox='+name;
+  await page.goto(url,{waitUntil:'domcontentloaded'});
+  await page.locator('#home-screen.active .bc14-subject:visible').first().waitFor({timeout:16000});
+  assert.equal(await page.evaluate(()=>state.profile.avatar),which,name+' wrong persisted identity');
+  assert.notEqual(await page.evaluate(()=>window.LARIA_FOX.source('girl')),await page.evaluate(()=>window.LARIA_FOX.source('boy')),name+' two foxes are identical');
+  await imageIsChosen(page,'.bc12-fox img',which,name+' Home');
+  await page.screenshot({path:folder+'/'+name+'-home.png',fullPage:true});
+  for(const subject of subjects){
+   const target=subject==='geography'?'geography':'subject';
+   await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').click();
+   const root=page.locator('#'+target+'-screen.active .locked-journey-map[data-journey-subject="'+subject+'"]');
+   await root.waitFor({timeout:16000});
+   await imageIsChosen(page,'#'+target+'-screen.active .locked-journey-profile img',which,name+' '+subject+' profile');
+   const traveler=root.locator('.locked-journey-traveler');
+   assert.equal(await traveler.getAttribute('data-avatar'),which,name+' '+subject+' traveler identity');
+   await imageIsChosen(page,'#'+target+'-screen.active .locked-journey-traveler img',which,name+' '+subject+' traveler');
+   const scene=await traveler.evaluate(el=>({
+    pointer:getComputedStyle(el).pointerEvents,
+    border:getComputedStyle(el).borderRadius,
+    x:el.getBoundingClientRect().x,
+    w:el.getBoundingClientRect().width
+   }));
+   assert.equal(scene.pointer,'none',name+' '+subject+' fox intercepts landmark taps');
+   assert.ok(scene.w>=28,name+' '+subject+' tiny traveling fox');
+   await page.screenshot({path:folder+'/'+name+'-'+subject+'.png',fullPage:true});
+   await root.locator('.locked-journey-hotspot.state-current').first().click();
+   const mission=page.locator('.locked-journey-overlay:not([hidden]) button[data-locked-node]:not([disabled])').first();
+   await mission.waitFor({timeout:10000});await mission.click();
+   await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
+   assert.equal(await page.locator('.task-fox-companion').getAttribute('data-avatar'),which,name+' '+subject+' question identity');
+   await imageIsChosen(page,'#session-screen.active .task-fox-companion img',which,name+' '+subject+' question');
+   await page.locator('#close-session').click();await root.waitFor({timeout:16000});
+   await root.locator('.locked-journey-back').click();
+   await page.locator('#home-screen.active .bc14-subject[data-camp="subject-'+subject+'"]:visible').waitFor({timeout:12000});
+  }
+  await page.reload({waitUntil:'domcontentloaded'});
+  await page.locator('#home-screen.active .bc14-subject:visible').first().waitFor({timeout:16000});
+  assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('laerlittmer-v2')).profile.avatar),which,name+' reload lost avatar');
+  await imageIsChosen(page,'.bc12-fox img',which,name+' reloaded Home');
+  assert.deepEqual(errors,[],name+' uncaught errors');
+  await context.close();
+  console.log('Personal fox verified',name,which,'Home + four real journeys + four tasks + reload');
+ }finally{await browser.close()}
+}
+(async()=>{
+ for(const [engine,name,viewport,which] of [
+  [chromium,'chromium-iphone-boy',{width:390,height:844},'boy'],
+  [webkit,'webkit-iphone-girl',{width:390,height:844},'girl'],
+  [webkit,'webkit-ipad-boy',{width:820,height:1180},'boy'],
+  [webkit,'webkit-ipad-landscape-girl',{width:1180,height:820},'girl']
+ ])await run(engine,name,viewport,which);
+})().catch(e=>{console.error(e);process.exitCode=1});
