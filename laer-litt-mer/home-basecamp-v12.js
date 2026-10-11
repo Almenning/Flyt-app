@@ -81,6 +81,7 @@ function dialog(kind){
  const d=document.getElementById('bc12-dialog');if(!d.open)returnFocus=document.activeElement;
  d.classList.toggle('is-collection',kind==='collection'||kind==='wardrobe'||kind==='equipment');
  d.classList.toggle('is-wardrobe',kind==='wardrobe');
+ d.classList.toggle('is-fox-girl',kind==='wardrobe'&&window.LARIA_FOX?.choice?.()==='girl');
  d.classList.toggle('is-equipment',kind==='equipment');
  if(kind==='wardrobe'){
    const avatar=window.LARIA_FOX.choice(),collection=window.LARIA_COLLECTION_STORE.snapshot(),core=window.LARIA_COLLECTION_CORE;
