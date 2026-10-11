@@ -380,10 +380,26 @@ function addBuildPiece(notice='Du la til én del!',pieceIndex=null){
   if(next===undefined)return;
   applyBuildPieces([...x.filled,next],notice);
 }
+function remapFilledPieces(filled,oldD,newD){
+  // Changing the number of equally-sized pieces should not also silently
+  // change the numerator, except when it now exceeds the total piece count.
+  const count=Math.min(filled.length,newD),mapped=[];
+  for(const i of filled){
+    const target=Math.min(newD-1,Math.floor((i+.5)*newD/oldD));
+    if(!mapped.includes(target))mapped.push(target);
+  }
+  for(let i=0;mapped.length<count&&i<newD;i++)if(!mapped.includes(i))mapped.push(i);
+  return mapped.sort((a,b)=>a-b);
+}
 function adjust(field,step){
   const x=u.build;
-  if(field==='d'){x.d=clamp(x.d+step,2,12);applyBuildPieces(x.filled.filter(i=>i<x.d));}
-  else{
+  if(field==='d'){
+    const newD=clamp(x.d+step,2,12);
+    if(newD===x.d)return;
+    const pieces=remapFilledPieces(x.filled,x.d,newD);
+    x.d=newD;
+    applyBuildPieces(pieces);
+  }else{
     const goal=clamp(x.n+step,0,x.d);
     if(goal<x.n)applyBuildPieces(x.filled.slice(0,goal));
     else if(goal>x.n)addBuildPiece();
