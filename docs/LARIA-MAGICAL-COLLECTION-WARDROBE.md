@@ -1,6 +1,6 @@
 # Læria: Magisk samlebok og Min rev – fase 2A
 
-Status: **Grunnkontrakt under arbeid. Ikke ferdig garderobe og ikke klar for merge.**
+Status: **Samlekatalog og synlig minnerute i Samlingen under test. Garderobe ikke ferdig og PR-en er ikke klar for merge.**
 
 ## Produktretning
 
@@ -16,9 +16,10 @@ Samleboken skal etter hvert inneholde minner/skatter fra de fire verdenene, nye 
 - Intern `LARIA_COLLECTION_STORE` tilbyr `snapshot`, `refresh`, `equip` og `unequip` til kommende UI. Et plagg kan bare velges når det er opptjent; samme tildeling gjentas aldri. Gjenstander blir ikke borte når barnet går videre i klassetrinn.
 - Repetisjon innen ett favorittfag kan også låse opp klær. Noen fagspesifikke minner oppmuntrer til utforskning, men ingen klær krever at barnet forlater faget det liker.
 - Ingen tilfeldige kister, kjøp, tidspress, rangering eller krav om daglige innlogginger.
-- Statisk og nettleserbasert test på begge revevalg, iPhone, iPad, Safari og lagring.
+- Eksisterende Basecamp-åpning **Samlingen** viser de fire fagminnene, med tydelig skille mellom funnet og uoppdaget. Eksisterende fremgangsteller bevares. Ingen klær fremstilles som påkledd.
+- Statisk og nettleserbasert test på begge revevalg, iPhone, iPad, Safari og lagring; skjermbilder brukes til visuell kontroll.
 
-**NB:** Denne fasen har bevisst ingen synlig garderobe, ingen falske «Bruk»-knapper og ingen påkledning av portretter. Det er ikke forsvarlig å kalle et plagg «på» før det faktisk vises på rett figur i alle sammenhenger.
+**NB:** Denne fasen har en enkel synlig samlebok med fire fagminner, men bevisst ingen synlig garderobe, ingen falske «Bruk»-knapper og ingen påkledning av portretter. Det er ikke forsvarlig å kalle et plagg «på» før det faktisk vises på rett figur i alle sammenhenger.
 
 ## Fase 2B – gjenstår før synlig utgivelse
 
@@ -33,6 +34,6 @@ Samleboken skal etter hvert inneholde minner/skatter fra de fire verdenene, nye 
 
 - Skole-/læreplanmål skal sikre faglig verdi, ikke tvinge barnet bort fra aktiviteter det liker.
 - Mestring åpner innhold, men fjerner aldri tidligere innhold.
-- Ingen belønning skal lokke barnet til overdreven skjermtid eller innlogging hver dag.
+- Ingen belønning skal lokke barnet til overdreven skjermtid eller innlogging hver dag. Både forsøk, riktige svar og fullførte repetisjonsøkter kan være meningsfull innsats, uten at Lærias eksisterende mestrings- og dagsmålslogikk endres.
 - De fire låste kartillustrasjonene og de åtte premiumkortene endres ikke i fase 2A.
 - Ingen automatiske merges fra denne fasen før ekte garderobegrafikk og UI er godkjent.
