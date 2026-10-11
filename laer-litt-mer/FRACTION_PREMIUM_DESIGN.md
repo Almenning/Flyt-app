@@ -135,3 +135,48 @@ respons.»
 
 **Avgrensning:** Alternative materialer som sjokoladeplate og målebeger
 som byggemodus er senere idébank, ikke del av denne ombyggingen.
+
+
+## UX v6 – umiddelbar lek (arbeidsgren 11. oktober 2026)
+
+**Hvorfor:** Den teknisk fungerende Brøklaben krevde at barn valgte mellom
+«Utforsk» og «Bygg» før de kunne begynne. De to modusene hadde ulik
+brøktilstand, og de løse bitene fylte ikke bestemte kakestykker. Det
+brøt med det låste prinsippet om å lære gjennom handling uten forkunnskaper.
+
+### Nytt første møte, uten nye aktiviteter
+- Brøklaben åpner **direkte på én kake med 1 av 4 biter fylt**.
+- Barnet kan umiddelbart trykke på en bestemt sektor for å fylle eller
+  tømme akkurat den sektoren. Et trykk har samme betydning i alle
+  sektorbaserte visninger.
+- De løse bitene representerer navngitte, bestemte tomme sektorer.
+  Brikken fjernes fra brettet når den legges inn og kommer tilbake når
+  sektoren tømmes. Drag, trykk og tallkontroller oppdaterer samme modell.
+- Teller og nevner har samme plassering i Utforsk og Bygg. Kontroller
+  beskrives først som «Fylte deler» og «Like deler», med de matematiske
+  begrepene som sekundærtekst.
+- «Se på nye måter» viser samme kake/brøk i stripe, rutenett og målebeger,
+  i stedet for å starte en ny, urelatert tilstand.
+- Sammenligning, sortering, prosent/desimal og mestring er bevart bak
+  «Flere leker», men er ikke et obligatorisk startvalg.
+- Barnets personlige rev forblir ved kaken som frivillig støtte. Ingen
+  automatisk opplesning eller tvungne oppdrag.
+
+### Akseptanse før produksjon
+1. Barnet kan begynne å leke uten å se en aktivitetsmeny eller forstå
+   ordene teller og nevner.
+2. Sektorer og løse brikker har entydig identitet: riktig sektor fylles
+   og fjernes, og brikkebrettet viser faktisk beholdning.
+3. Bytte av visualisering beholder nøyaktig samme teller, nevner og
+   valgte sektorer. Stripen/rutenettet støtter direkte berøring;
+   målebegeret støtter berøring og tastatur, og tallkontrollene finnes.
+4. Vis kake, brøktall, kontrollene og valgt rev i første skjerm på
+   iPhone/iPad; kontroller overflow og 44-pikslers berøringsmål.
+5. Bevar de godkjente illustrasjonene, øvrige fag, framdrift, lagrede
+   brøkoppdagelser og navigasjonen fra Matematikksiden.
+6. Test Chromium og Safari/WebKit, se faktiske skjermbilder og prøv
+   med barn uten muntlige instruksjoner før endelig UX-godkjenning.
+
+**Status:** Arbeidsutkast, ikke ferdig produktgodkjenning. Låste
+illustrasjoner fra 8. oktober er fortsatt visuell fasit; funksjonalitet
+og grafiske kvaliteter skal gjennomgås i egen sluttkontroll.
