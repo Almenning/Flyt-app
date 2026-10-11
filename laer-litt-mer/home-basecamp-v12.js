@@ -131,7 +131,7 @@ function markup(){return '<section class="bc12" data-release="basecamp-rc1" aria
  '<div class="bc12-you-are-here" aria-hidden="true"><i></i><span>Du er her</span></div>'+
  '<div class="bc12-next-beacon" aria-hidden="true"><i></i><span>Neste sted</span></div>'+
  '<div class="bc12-fox"><img src="'+window.LARIA_FOX.source(window.LARIA_FOX.choice())+'" alt="Din valgte rev venter på stien" draggable="false"></div><div class="bc12-fox-call" data-camp-fox-call>Klar? Jeg viser vei!</div>'+
- '<button class="bc12-journey" data-camp="travel"><span>Fortsett reisen <b aria-hidden="true">→</b></span><small><em>Neste sted</em><strong data-camp-next>Bokskogen</strong><span data-camp-next-copy>Et nytt oppdrag venter.</span></small></button>'+
+ '<button class="bc12-journey" data-camp="travel"><span>Fortsett reisen <b aria-hidden="true">→</b></span><small><em data-camp-next-type>Neste sted</em><strong data-camp-next>Bokskogen</strong><span data-camp-next-copy>Et nytt oppdrag venter.</span></small></button>'+
  '<button type="button" class="bc14-free" data-camp="open-explore"><span class="bc14-free-icon" aria-hidden="true">✧</span><span><strong>Utforsk og lek</strong><small>Prøv det du liker</small></span><b aria-hidden="true">›</b></button>'+ '<button class="bc12-quest" data-camp="quest"><span class="bc12-wax" aria-hidden="true">✦</span><span>Et brev fra reven<small>Vil du bli med?</small></span></button>'+
  '<button class="bc12-treasure" data-camp="collection"><span>Samlingen min</span></button>'+
  '<i class="bc12-spark a" aria-hidden="true"></i><i class="bc12-spark b" aria-hidden="true"></i><i class="bc12-spark c" aria-hidden="true"></i>'+
