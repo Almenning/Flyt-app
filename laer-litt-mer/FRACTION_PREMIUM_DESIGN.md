@@ -78,3 +78,45 @@ Bruker har presisert at v3 fortsatt ikke oppfyller uttrykket fra de seks låste 
 - Eldre fag og kloden berøres ikke; ingen innholdssperrer, tvangsrunder eller overtakelse av barnets favorittaktivitet.
 
 **Produktakseptanse:** V4 er en ny visuell forbedring, ikke garanti om full 3D-identitet med originalillustrasjonene. Godkjenn først når nye screenshots fra iPhone/iPad WebKit og Chromium er undersøkt konkret og den brede regresjonen er grønn. Første barnebeta skal bygge på dette og prøve om barn velger å fortsette frivillig.
+
+
+## Låst beslutning 11. oktober 2026: Brøken først, med personlig rev
+
+Barnet skal i **«Bygg en brøk» og «Utforsk brøker»** se den interaktive brøkfiguren,
+tallbrøken (eksempel 3/4) og kontrollene for teller/nevner samtidig **uten
+å scrolle på vanlig iPhone i stående format**. Brøktallet skal ikke ligge i
+et selvstendig resultatpanel under kontrollene. Den fysiske kaken og tallbrøken
+vises ved siden av hverandre; den taktile brøkbiteskuffen er kompakt og kan
+scrolles vannrett ved mange deler. Også i Utforsk ligger figuren og resultatet
+før visningsvelgeren og vanlige brøker.
+
+Barnets valgte jente- eller gutterev, med den eksisterende garderobemodellen,
+skal være ved arbeidsbenken. Den reagerer kort når brøken endres, og kan trykkes
+på for en kontekstuell forklaring med frivillig norsk opplesning når nettleseren
+støtter dette. Reven skal ikke skjule kaken eller brøkverdien, avbryte frileken
+eller kreve oppdrag. Eksisterende LARIA_FOX.choice/source og
+LARIA_FOX_WARDROBE gjenbrukes.
+
+Brøkskivene, dra-og-slipp, løse brøkbiter, teller, nevner, tilbakestilling,
+«Bygg noe nytt», oppdagelser og alle øvrige Brøklab-aktiviteter beholdes.
+Teller er aldri negativ eller større enn nevner i den enkle modellen.
+Nevner er aldri 0 (eksisterende nedre grense er 2). Alle endringer skal
+synes med det samme både i kaken og tallet.
+
+**Ledestjerne:** «Barnet skal aldri måtte lete etter resultatet av det
+det bygger. Hver handling skal gi en umiddelbar, tydelig og morsom visuell
+respons.»
+
+### Godkjenningskriterier for v5
+- Kake, numerisk brøk og begge +/- kontrollene er synlige i første viewport
+  på iPhone, uten horisontal overflow. Minste berøringsmål er 44 px.
+- Samme informasjon er visuelt samlet på iPad stående og liggende.
+- Valgt rev og opptjent kosmetisk utstyr følger med, og frivillig hjelp
+  kan aktiveres med trykk og tastatur.
+- Endring av teller og nevner, tapping av skiver, dra brøkbiter, nullstilling,
+  ny oppgave, persistens og navigasjon er regressjonstestet.
+- Bruk faktiske Safari/WebKit-skjermbilder som visuell kontroll. Automatisk
+  DOM-test alene dokumenterer ikke den endelige premiumfølelsen.
+
+**Avgrensning:** Alternative materialer som sjokoladeplate og målebeger
+som byggemodus er senere idébank, ikke del av denne ombyggingen.
