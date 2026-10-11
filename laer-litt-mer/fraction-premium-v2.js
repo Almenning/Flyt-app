@@ -28,7 +28,7 @@ const titles={explore:'Utforsk brøker',build:'Bygg en brøk',equal:'Like mye?',
 const faces={explore:'Brøker finnes overalt! Trykk på delene og se hva som skjer.',build:'Sett inn en bit. Du bestemmer hvor mye du vil bygge.',equal:'To forskjellige brøker kan vise akkurat like mye!',sort:'Sammenlign hvor stor del som er fargelagt.',convert:'Samme mengde kan skrives på tre måter.',mastery:'Det du har utforsket, kan du alltid utforske igjen.'};
 const sharedCake={n:1,d:4,filled:[0],notice:'',mode:'circle'};
 // Both views manipulate one tangible cake; changing the view never resets its fraction.
-const u={page:'build',explore:sharedCake,build:sharedCake,equal:0,equalGuess:null,sortIndex:0,sortOrder:[0,1,2],sortResult:'',sortSelected:null,convert:0,showConvertExtra:false};
+const u={page:'build',explore:sharedCake,build:sharedCake,equal:0,equalGuess:null,sortIndex:0,sortOrder:[0,1,2],sortResult:'',sortSelected:null,convert:0,showConvertExtra:false,showEquivalents:false};
 let svgId=0,drag=null,lastDragUntil=0;
 let returnToLockedJourney=false; // navigation-only context; not persisted
 let returnToMathSubject=false; // nested route, UI only
@@ -294,6 +294,14 @@ function foxSpeak(){
  }catch(_){}
 }
 
+// The cake, numeric fraction and both equivalent forms share one source of truth.
+function fractionEquivalents(n,d){
+ const fmt=formatValue(n,d);
+ return '<div class="fr7-equivalent-tiles" role="group" aria-label="Samme mengde som '+n+' av '+d+'">'
+  +'<div class="fr7-equivalent-tile"><span>Desimaltall</span><strong>'+fmt.dec+'</strong></div>'
+  +'<div class="fr7-equivalent-tile"><span>Prosent</span><strong>'+fmt.pct+'</strong></div></div>'
+  +(!fmt.exact?'<small class="fr7-approx-note">≈ betyr omtrent. Desimaltallet fortsetter videre.</small>':'');
+}
 function build(){
   const x=u.build,half=x.d%2===0&&x.n*2===x.d;
   const status=x.n===0?'Trykk på et stykke!':x.n===x.d?'Du har én hel!':half?'Det er en halv!':x.n+' av '+x.d+'!';
@@ -303,11 +311,14 @@ function build(){
    +'<div class="fr2-build-workshop fr4-build-stage fr5-build-stage fr6-stage">'
    +'<div class="fr2-build-target fr5-build-target" data-fr-drop="1"><div class="fr4-build-woodhead">Kaken din</div><div class="fr2-fabric">'+fractionSvg(x.n,x.d,'builder',true,x.filled)+'</div><p>Trykk på et stykke for å fylle eller tømme det.</p></div>'
    +'<div class="fr5-build-aside"><div class="fr5-live-result fr6-result" role="status" aria-live="polite" aria-atomic="true"><span>Du har fylt</span>'+frac(x.n,x.d)+'<small>'+x.n+' av '+x.d+' like deler</small></div>'
+   +'<div class="fr7-tablet-equivalents"><div class="fr7-values-heading">Samme mengde som</div>'+fractionEquivalents(x.n,x.d)+'</div>'
    +'<div class="fr2-guide fr5-fox-mentor" data-fr-action="fox-help" role="button" tabindex="0" aria-label="Trykk på reven for frivillig hjelp og opplesning">'+fox()+'<span class="fr5-fox-bubble">'+status+' <span aria-hidden="true">🔊</span></span></div></div>'
    +'<div class="fr2-wood-tray fr5-piece-tray fr6-piece-tray"><span class="fr2-tray-title">Løse biter</span>'
    +'<div class="fr2-spare-pieces">'+(remaining.length?remaining.map(i=>cta('add',loosePieceSvg(x.d,i),'fr2-spare','data-fr-pick="1" data-piece-index="'+i+'" aria-label="Legg kakestykke '+(i+1)+' av '+x.d+' i kaken"')).join(''):'<span class="fr6-empty-tray">Alle bitene er i kaken!</span>')+'</div>'
    +'<small>Trykk eller dra en bit inn</small></div>'
    +'</div><div class="fr2-controls fr4-controls fr5-controls fr6-controls">'+adjustField('n')+adjustField('d')+'</div>'
+   +'<div class="fr7-mobile-discovery">'+cta('toggle-equivalents',u.showEquivalents?'Skjul desimaltall og prosent':'Se desimaltall og prosent','fr7-equivalents-toggle','aria-expanded="'+u.showEquivalents+'" aria-controls="fr7-mobile-values"')
+   +'<div id="fr7-mobile-values" class="fr7-mobile-equivalents" '+(u.showEquivalents?'':'hidden')+'><div class="fr7-values-heading">Samme mengde som</div>'+fractionEquivalents(x.n,x.d)+'</div></div>'
    +'<div class="fr2-actions">'+cta('reset','Tøm kaken','fr2-secondary')+cta('next-build','Del kaken på nytt ›','fr2-primary')+'</div></section>';
 }
 
@@ -455,6 +466,15 @@ function actionHandler(e){
   return;
  }
  if(a==='fox-help'){foxSpeak();return;}
+ if(a==='toggle-equivalents'){
+  u.showEquivalents=!u.showEquivalents;
+  if(u.showEquivalents)mark('converted',key(u.build.n,u.build.d));
+  render();
+  const button=document.querySelector('#'+ROOT+' .fr7-equivalents-toggle');
+  button?.focus({preventScroll:true});
+  if(u.showEquivalents)requestAnimationFrame(()=>document.querySelector('#'+ROOT+' #fr7-mobile-values')?.scrollIntoView({block:'nearest'}));
+  return;
+ }
   if(a==='go'){enter(btn.dataset.page);return;}
  if(a==='view'){u.build.mode=btn.dataset.view;mark('explored',key(u.build.n,u.build.d));render();return;}
  if(a==='preset'){const n=Number(btn.dataset.n),d=Number(btn.dataset.d);u.build.d=d;applyBuildPieces(Array.from({length:n},(_,i)=>i));mark('explored',key(n,d));return;}
@@ -553,7 +573,7 @@ window.openFractionLab=function(options){
  returnToLockedJourney=!!(options&&options.returnToJourney==='math');
  returnToMathSubject=!returnToLockedJourney&&!!document.querySelector('#subject-screen.active');
  document.getElementById('fraction-lab-screen')?.setAttribute('data-explore-release','explore-rc1');
- u.page='build';render();try{showScreen('fraction-lab')}catch(_){}
+ u.page='build';u.showEquivalents=false;render();try{showScreen('fraction-lab')}catch(_){}
 };
 const root=document.getElementById(ROOT);
 if(root&&!root.dataset.fr2Bound){root.addEventListener('click',actionHandler);root.addEventListener('keydown',keyHandler);root.addEventListener('pointerdown',pointerDown);document.addEventListener('pointermove',pointerMove);document.addEventListener('pointerup',pointerUp);document.addEventListener('pointercancel',clearDrag);root.dataset.fr2Bound='1'}
