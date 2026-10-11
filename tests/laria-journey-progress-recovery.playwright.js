@@ -201,6 +201,16 @@ async function run(engine,label,viewport){
    assert.match((await root.locator('.locked-journey-live-progress').innerText()),new RegExp('\\b'+after.done+'\\s*/\\s*'+after.total+'\\b'));
    await root.locator('.locked-journey-back').click();
    await page.locator('#home-screen.active').waitFor({timeout:16000});
+   const nextPaintedPlace=await page.evaluate(s=>{
+    const p=s==='geography'?geoJourneyProgress(2):journeyProgress(s,2);
+    const next=s==='geography'?geoJourneyRecommendedNode(2):journeyRecommendedNode(s,2);
+    const reader=s==='geography'?geoJourneyNodeState:journeyNodeState;
+    const journey=window.LARIA_LOCKED_JOURNEYS.build(s,p.model,reader,next.id);
+    return journey.places.find(place=>place.nodes.some(n=>n.id===next.id))?.title;
+   },subject);
+   assert.ok(nextPaintedPlace,label+' no painted next stop for '+subject);
+   assert.equal((await page.locator('.bc12-journey [data-camp-next]').innerText()).trim(),nextPaintedPlace,
+    label+' Home sign does not match actual painted next journey stop for '+subject);
    await page.reload({waitUntil:'domcontentloaded'});
    await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').waitFor({timeout:18000});
    const persisted=await progress(page,subject);
