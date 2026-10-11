@@ -577,7 +577,8 @@
 
 
 /* Personal fox & collectible wardrobe. SVG layers scale with original image. */
-.laria-fox-wardrobe-anchor{position:relative}
+/* Do not reset positioned journey, Home or task companions to relative:
+   the wearable renderer creates positioning context only for static parents. */
 .laria-fox-wardrobe-anchor>.laria-fox-base-under-sprite{opacity:0!important}
 .laria-fox-wardrobe-anchor>.laria-fox-wardrobe-placed{
   position:absolute;display:block;pointer-events:none!important;z-index:2;
