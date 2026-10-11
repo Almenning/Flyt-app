@@ -470,3 +470,6 @@
   #fraction-lab-screen .fr5-live-result,
   #fraction-lab-screen .fr5-build-target{animation:none!important;transition:none!important}
 }
+
+#fraction-lab-screen .fr5-fox-bubble.fr5-help-open{white-space:normal;line-height:1.2;overflow-wrap:break-word}
+#fraction-lab-screen .fr4-scene-speech.fr5-help-open{white-space:normal;line-height:1.25}
