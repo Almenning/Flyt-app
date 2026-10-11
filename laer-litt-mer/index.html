@@ -13,7 +13,7 @@
   <link rel="icon" href="./icon.svg" type="image/svg+xml" />
   <link rel="preload" as="image" href="./basecamp-v11-mobile.webp?v=basecamp12d" media="(max-width:700px)" fetchpriority="high" />
   <link rel="preload" as="image" href="./basecamp-v11.webp?v=basecamp12d" media="(min-width:701px)" fetchpriority="high" />
-  <link rel="preload" as="script" href="./home-basecamp-v12.js?v=20261011-collection-ui4" />
+  <link rel="preload" as="script" href="./home-basecamp-v12.js?v=20261011-unified-home1" />
   <link rel="preload" as="script" href="./globe-v24-art.js?v=globe36-pigment3" />
   <link rel="preload" as="script" href="./globe-v25-renderer.js?v=20261011-personalfox2" />
   <title>Læria</title>
@@ -2370,7 +2370,7 @@
   <link rel="stylesheet" href="./bokskogen-world.css?v=20261006-assets1" />
   <link rel="stylesheet" href="./journey-world-premium.css?v=20261007-p15rc1" />
   <link rel="stylesheet" href="./world-atlas.css?v=20261006-assets1" />
-  <!-- Home: shared home first, then the 1.–2. trinn Basecamp override -->
+  <!-- Home: one premium Basecamp for all grades; presentation matures by grade band -->
   <link rel="stylesheet" href="./home-premium.css?v=20261007-perf2" />
   <link rel="stylesheet" href="./home-basecamp-v12.css?v=20261011-portraitfade3" />
   <!-- Free play -->
@@ -2379,6 +2379,7 @@
   <link rel="stylesheet" href="./laria-unified-v13.css?v=20261011-personalfox2" />
   <link rel="stylesheet" href="./laria-navigation-v13.css?v=20261011-premium1" />
   <link rel="stylesheet" href="./home-subjects-v14.css?v=20261011-collection-ui4" />
+  <link rel="stylesheet" href="./home-grades-v16.css?v=20261011-unified-home2" />
   <link rel="stylesheet" href="./laria-task-scene-v15.css?v=20261007-p15rc1" />
   <!-- Kloden: one active scene stylesheet; art + renderer are loaded below in runtime order -->
   <link rel="stylesheet" href="./globe-v24.css?v=globe36-pigment3" />
@@ -3486,7 +3487,7 @@ function hydrateLegacyHomeArt(){
     if(!img.getAttribute('src'))img.src=img.dataset.legacyWorldSrc;
   });
 }
-function applyGradeDesign(){const app=document.querySelector('.app');if(!app)return;app.classList.remove('grade-band-young','grade-band-middle','grade-band-older','grade-band-teen');app.classList.add('grade-band-'+gradeBand());hydrateLegacyHomeArt()}
+function applyGradeDesign(){const app=document.querySelector('.app');if(!app)return;app.classList.remove('grade-band-young','grade-band-middle','grade-band-older','grade-band-teen');app.classList.add('grade-band-'+gradeBand());/* Legacy Home art is not loaded; Basecamp owns Home at every grade. */}
 function lastLearningAt(){return state.answerLog.reduce((m,a)=>Math.max(m,Number(a.at||0)),0)}
 function formatPopulation(n){if(!n)return '–';try{return new Intl.NumberFormat('nb-NO',{notation:'compact',maximumFractionDigits:1}).format(n)}catch(e){return String(n)}}
 
@@ -6678,7 +6679,7 @@ if(needsProfileSetup||!state.profile.onboarded||!state.profile.grade){
 <script src="./locked-journey-renderer.js?v=20261011-personalfox2" defer></script>
 <!-- Free play + Home -->
 <script src="./word-hunt.js?v=20261011-personalfox2" defer></script>
-<script src="./home-basecamp-v12.js?v=20261011-collection-ui4" defer></script>
+<script src="./home-basecamp-v12.js?v=20261011-unified-home1" defer></script>
 <!-- Shared inner-screen helpers + task scene -->
 <script src="./laria-unified-v13.js?v=20261006-assets1" defer></script>
 <script src="./laria-navigation-v13.js?v=20261011-premium1" defer></script>

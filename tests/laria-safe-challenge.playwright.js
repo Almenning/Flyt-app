@@ -87,8 +87,11 @@ async function answerCurrent(page){
     await sender.goto(url+'?app=laria&p16=sender',{waitUntil:'domcontentloaded'});
     await sender.waitForFunction(()=>document.documentElement.dataset.safeChallengeRelease==='challenge-rc1');
 
-    const olderEntry=sender.locator('#safe-challenge-entry');
+    // Grades 3-10 now share the same illustrated Home and challenge entry.
+    const olderEntry=sender.locator('#home-screen.active .bc12 .safe-challenge-young');
     await olderEntry.waitFor({state:'visible'});
+    assert.equal(await sender.locator('#safe-challenge-entry').isVisible(),false,
+      'deprecated dashboard challenge entry must remain hidden on unified Home');
     await olderEntry.click();
     await sender.locator('#safe-challenge-dialog[open]').waitFor();
 

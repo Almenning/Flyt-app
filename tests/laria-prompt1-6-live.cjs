@@ -27,9 +27,22 @@ async function answer(page){
  await page.locator('#next-question').waitFor({state:'visible'});
 }
 async function finish(page){const n=await page.evaluate(()=>sessionQuestions.length);for(let i=0;i<n;i++){await answer(page);await page.locator('#next-question').click()}await page.locator('#complete-screen.active').waitFor()}
-async function openBack(page,open,screen,back){await page.locator(open).click();await page.locator(screen+'.active').waitFor();await page.locator(back).click();await page.locator('#home-screen.active').waitFor()}
+async function openHomeSubject(page,subject){
+ // PR smoke runs against published Pages. During migration it must validate
+ // the old published Home and then the new single illustrated Home alike.
+ const newEntry=page.locator('.bc14-subject[data-camp="subject-'+subject+'"]:visible');
+ if(await newEntry.count())await newEntry.click();
+ else await page.locator('#open-'+subject).click();
+}
+async function openBack(page,open,screen,back){
+ const subject=String(open).replace(/^#open-/,'');
+ await openHomeSubject(page,subject);
+ await page.locator(screen+'.active').waitFor();
+ await page.locator(back).click();
+ await page.locator('#home-screen.active').waitFor();
+}
 async function checkPublishedFractionWorkshop(p,name){
- await p.locator('#open-math').click();
+ await openHomeSubject(p,'math');
  await p.locator('#subject-screen.active').waitFor();
  await p.locator('#open-fraction-lab').click();
  await p.locator('#fraction-lab-screen.active').waitFor();
@@ -90,9 +103,9 @@ async function existing(engine,name){
  await openBack(p,'#open-math','#subject-screen','#subject-back');
  await checkPublishedFractionWorkshop(p,name);
  await openBack(p,'#open-geography','#geography-screen','#geography-back');
- await p.locator('#open-norwegian').click();await p.locator('#subject-screen.active').waitFor();await p.locator('#start-subject-session').click();await p.locator('#session-screen.active').waitFor();await finish(p);
+ await openHomeSubject(p,'norwegian');await p.locator('#subject-screen.active').waitFor();await p.locator('#start-subject-session').click();await p.locator('#session-screen.active').waitFor();await finish(p);
  await p.locator('#complete-home').click();await p.locator('#subject-screen.active').waitFor();await p.locator('#subject-back').click();await p.locator('#home-screen.active').waitFor();
- await p.locator('#open-geography').click();await p.locator('#geography-screen.active').waitFor();await p.locator('#open-world').click();await p.locator('#world-screen.active').waitFor();
+ await openHomeSubject(p,'geography');await p.locator('#geography-screen.active').waitFor();await p.locator('#open-world').click();await p.locator('#world-screen.active').waitFor();
  await p.locator('#globe-mode [data-globe-mode="classic"]').waitFor();
  for(const m of ['explore','mine','classic']){await p.locator('#globe-mode [data-globe-mode="'+m+'"]').click();await p.waitForFunction(x=>document.getElementById('world-screen')?.dataset.premiumGlobeMode===x,m)}
  await p.locator('#random-country').click();await p.locator('.premium-country-learn').waitFor({state:'visible'});const country=(await p.locator('#globe-status strong').first().textContent()).trim();
