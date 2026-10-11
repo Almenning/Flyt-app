@@ -355,22 +355,74 @@ async function capture(browserType,label,viewport){
           return r&&r.width>250&&Math.abs(r.width-r.height)<3&&Number(getComputedStyle(c).opacity)>.95;
         },null,{timeout:12000});
       }else{
-        // A plain blue frame is NOT a world map. Prove on Safari and Chromium
-        // that the actual 2D canvas contains opaque, coloured land pixels.
-        await page.waitForFunction(()=>{
+        // A blue blank frame is NOT a world map. Check actual canvas pixels,
+        // but match the expected palette for each atlas mode:
+        //   explore: vivid countries plus pale golden/storybook highlights
+        //   mine: unseen countries are intentionally painted muted beige.
+        // Requiring strongly red/orange pixels for both modes rejects rendered
+        // land in Safari even with 195 real polygons and a ready country canvas.
+        // One canvas readback per poll avoids hundreds of synchronous WebKit
+        // getImageData calls while Safari is finishing a country repaint.
+        try{
+          await page.waitForFunction(requestedMode=>{
           const c=document.getElementById('atlas-canvas');
-          if(!c||c.dataset.mapReady!=='true'||c.width<150||c.height<150)return false;
+          if(!c||c.dataset.mapReady!=='true'||c.dataset.renderSource!=='country-geometry'||
+             c.width<150||c.height<150)return false;
           const ctx=c.getContext('2d',{willReadFrequently:true});
           if(!ctx)return false;
-          let opaque=0,warmLand=0;
+          const pixels=ctx.getImageData(0,0,c.width,c.height).data;
+          let opaque=0,land=0;
           for(let y=9;y<c.height;y+=Math.max(11,Math.floor(c.height/22)))
            for(let x=9;x<c.width;x+=Math.max(11,Math.floor(c.width/22))){
-            const p=ctx.getImageData(x,y,1,1).data;
-            if(p[3]>200)opaque++;
-            if(p[3]>200&&p[0]>135&&p[0]>p[2]*1.12&&p[0]>p[1]*1.07)warmLand++;
+            const i=(y*c.width+x)*4;
+            const r=pixels[i],g=pixels[i+1],b=pixels[i+2],a=pixels[i+3];
+            if(a<=200)continue;
+            opaque++;
+            if(requestedMode==='mine'){
+              // Includes unseen beige, learned green and mastered gold,
+              // while excluding the blue/cyan ocean gradient.
+              if((r>130&&r>b*1.045&&r>g*.92)||
+                 (g>125&&g>b*1.06&&g>r*1.05))land++;
+            }else if(r>130&&r>b*1.04&&r>g*.91){
+              // Pale lit land (#fff5d8) is real terrain, not cyan sea.
+              land++;
+            }
            }
-          return opaque>25&&warmLand>3;
-        },null,{timeout:12000});
+          return opaque>25&&land>3;
+          },mode,{timeout:18000,polling:250});
+        }catch(error){
+          // Preserve a factual diagnostic, never turn an unpainted map into a pass.
+          const diagnostic=await page.evaluate(requestedMode=>{
+            const c=document.getElementById('atlas-canvas');
+            const screen=document.getElementById('world-screen');
+            const buttons=[...document.querySelectorAll('#globe-mode [data-globe-mode]')];
+            const data={requestedMode,globeMode:typeof globeMode!=='undefined'?globeMode:null,
+              ready:c?.dataset.mapReady||null,size:c?[c.width,c.height]:null,
+              currentPerspective:screen?.dataset.mapPerspective||null,
+              activeScreen:!!screen?.classList.contains('active'),
+              activeButtons:buttons.filter(b=>b.classList.contains('active')).map(b=>b.dataset.globeMode),
+              geometryCount:typeof WORLD_COUNTRIES!=='undefined'?WORLD_COUNTRIES.length:null,
+              mapSource:c?.dataset.renderSource||null};
+            try{
+              if(c&&c.width>0&&c.height>0){
+                const ctx=c.getContext('2d');
+                const d=ctx.getImageData(0,0,c.width,c.height).data;
+                const points=[];
+                for(const [fx,fy] of [[.25,.25],[.5,.25],[.75,.25],[.25,.5],[.5,.5],[.75,.5],[.5,.75]]){
+                  const i=(Math.floor(c.height*fy)*c.width+Math.floor(c.width*fx))*4;
+                  points.push([...d.slice(i,i+4)]);
+                }
+                data.pixels=points;
+              }
+            }catch(e){data.readbackError=String(e)}
+            return data;
+          },mode).catch(e=>({diagnosticError:String(e)}));
+          fs.writeFileSync(path.join(out,label+'-'+mode+'-atlas-timeout.json'),
+            JSON.stringify({diagnostic,error:String(error),pageErrors:errors,crashes,navigation},null,2));
+          console.error('[atlas pixel timeout]',label,mode,JSON.stringify(diagnostic));
+          try{await page.screenshot({path:path.join(out,label+'-'+mode+'-atlas-timeout.png'),timeout:3000})}catch(_){}
+          throw error;
+        }
       }
       // A WebKit failure has shown the mode control disappearing AFTER
       // a successful atlas pixel check. Never hide that with a 30s locator
