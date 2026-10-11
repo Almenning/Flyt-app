@@ -67,7 +67,7 @@
     scheduled=false;
     if(!root.document?.body)return;
     var avatar=choice(),current=inventory();
-    var signature=avatar+'|'+JSON.stringify(current.equipped||{});
+    var signature=avatar+'|world-art-v1|'+JSON.stringify(current.equipped||{});
     root.document.querySelectorAll(SELECTORS).forEach(function(img){
       var parent=img.parentElement;if(!parent)return;
       if(img.dataset.lariaWardrobeSignature===signature&&parent.querySelector(':scope > .laria-fox-wardrobe-art'))return;
