@@ -241,12 +241,19 @@ function foxHint(){
  return 'Du har '+x.n+' av '+x.d+' like deler. Telleren er '+x.n+', antallet fargelagte deler. Nevneren er '+x.d+', antallet like deler.';
 }
 function foxSpeak(){
- // Speech starts only from the child's deliberate tap. The text remains visible
- // in the lab even on browsers without Norwegian speech synthesis.
+ // Help is visible even when speech synthesis or Norwegian voices are absent.
+ const x=u.page==='build'?u.build:u.explore,help=foxHint();
+ const bubble=document.querySelector('#'+ROOT+' '+(u.page==='build'?'.fr5-fox-bubble':'.fr4-scene-speech'));
+ if(bubble){
+  bubble.textContent=u.page==='build'?(x.n===x.d?'En hel!':x.n===0?'Trykk for å fylle!':'Teller '+x.n+', nevner '+x.d):help;
+  bubble.classList.add('fr5-help-open');
+  bubble.setAttribute('role','status');
+ }
+ // Speak only after a deliberate tap, never while changing individual pieces.
  try{
   if(!window.speechSynthesis||!window.SpeechSynthesisUtterance)return;
   window.speechSynthesis.cancel();
-  const utterance=new window.SpeechSynthesisUtterance(foxHint());
+  const utterance=new window.SpeechSynthesisUtterance(help);
   utterance.lang='nb-NO';utterance.rate=.88;
   window.speechSynthesis.speak(utterance);
  }catch(_){}
