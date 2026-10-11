@@ -1,4 +1,4 @@
-const CACHE='laria-stable-2026-10-10-globe36-pigment3-plukk-closeup7c-atlas-story2-globe-v37-subject-home-v14-math-tap2-decimal1-locked-journeys-final1-globe-bitmap-v1-atlas-webkit-paint-v2-premium-cards-painted-v2-personalfox2-collectionbook3-livefoxart4-headshots-task-singlefox1-footanchors2-journey-back3-math-lab-nav3-fractionfocus5-landscape-focus1';
+const CACHE='laria-stable-2026-10-10-globe36-pigment3-plukk-closeup7c-atlas-story2-globe-v37-subject-home-v14-math-tap2-decimal1-locked-journeys-final1-globe-bitmap-v1-atlas-webkit-paint-v2-premium-cards-painted-v2-personalfox2-collectionbook3-livefoxart4-headshots-task-singlefox1-footanchors2-journey-back3-math-lab-nav3-fractionfocus5-landscape-focus1-iphone-shortportrait1';
 const APP_CACHE_PREFIXES=['laer-litt-mer-','laria-'];
 
 // Keep install light. Runtime requests populate the cache as the child actually uses the app.
