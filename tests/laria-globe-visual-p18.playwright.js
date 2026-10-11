@@ -362,7 +362,8 @@ async function capture(browserType,label,viewport){
         // Requiring red/orange pixels for mine rejected correctly painted maps.
         // One canvas readback per poll avoids hundreds of synchronous WebKit
         // getImageData calls while Safari is finishing a country repaint.
-        await page.waitForFunction(requestedMode=>{
+        try{
+          await page.waitForFunction(requestedMode=>{
           const c=document.getElementById('atlas-canvas');
           if(!c||c.dataset.mapReady!=='true'||c.width<150||c.height<150)return false;
           const ctx=c.getContext('2d',{willReadFrequently:true});
@@ -385,7 +386,40 @@ async function capture(browserType,label,viewport){
             }
            }
           return opaque>25&&land>3;
-        },mode,{timeout:18000,polling:250});
+          },mode,{timeout:18000,polling:250});
+        }catch(error){
+          // Preserve a factual diagnostic, never turn an unpainted map into a pass.
+          const diagnostic=await page.evaluate(requestedMode=>{
+            const c=document.getElementById('atlas-canvas');
+            const screen=document.getElementById('world-screen');
+            const buttons=[...document.querySelectorAll('#globe-mode [data-globe-mode]')];
+            const data={requestedMode,globeMode:typeof globeMode!=='undefined'?globeMode:null,
+              ready:c?.dataset.mapReady||null,size:c?[c.width,c.height]:null,
+              currentPerspective:screen?.dataset.mapPerspective||null,
+              activeScreen:!!screen?.classList.contains('active'),
+              activeButtons:buttons.filter(b=>b.classList.contains('active')).map(b=>b.dataset.globeMode),
+              geometryCount:typeof WORLD_COUNTRIES!=='undefined'?WORLD_COUNTRIES.length:null,
+              mapSource:c?.dataset.renderSource||null};
+            try{
+              if(c&&c.width>0&&c.height>0){
+                const ctx=c.getContext('2d');
+                const d=ctx.getImageData(0,0,c.width,c.height).data;
+                const points=[];
+                for(const [fx,fy] of [[.25,.25],[.5,.25],[.75,.25],[.25,.5],[.5,.5],[.75,.5],[.5,.75]]){
+                  const i=(Math.floor(c.height*fy)*c.width+Math.floor(c.width*fx))*4;
+                  points.push([...d.slice(i,i+4)]);
+                }
+                data.pixels=points;
+              }
+            }catch(e){data.readbackError=String(e)}
+            return data;
+          },mode).catch(e=>({diagnosticError:String(e)}));
+          fs.writeFileSync(path.join(out,label+'-'+mode+'-atlas-timeout.json'),
+            JSON.stringify({diagnostic,error:String(error),pageErrors:errors,crashes,navigation},null,2));
+          console.error('[atlas pixel timeout]',label,mode,JSON.stringify(diagnostic));
+          try{await page.screenshot({path:path.join(out,label+'-'+mode+'-atlas-timeout.png'),timeout:3000})}catch(_){}
+          throw error;
+        }
       }
       // A WebKit failure has shown the mode control disappearing AFTER
       // a successful atlas pixel check. Never hide that with a 30s locator
