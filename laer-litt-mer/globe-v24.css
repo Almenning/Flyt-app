@@ -1610,3 +1610,33 @@ html:has(#world-screen.active){
     left:8px!important;right:auto!important;transform:none!important;
   }
 }
+
+/* Keep the short-landscape country panel in two purposeful columns.
+   The old auto-grid put "Lær mer" below the facts and wasted the right half. */
+@media (orientation:landscape) and (min-width:600px) and (max-height:649px){
+  #world-screen.active.globe-v30 .globe-status{
+    grid-template-columns:minmax(0,1fr) clamp(108px,13vw,122px)!important;
+    grid-template-areas:"main learn"!important;
+    align-items:center!important;
+  }
+  #world-screen.active.globe-v30 .premium-country-main{
+    grid-area:main!important;
+  }
+  #world-screen.active.globe-v30 .premium-country-learn{
+    grid-area:learn!important;
+    min-width:0!important;width:100%!important;
+    min-height:49px!important;justify-self:stretch!important;
+  }
+  /* "Min verden" legend belongs beside the map, never above it.
+     Its compact key stays accessible without covering any country polygon. */
+  #world-screen.active.globe-v30.atlas-perspective-on[data-premium-globe-mode="mine"] .globe-legend{
+    left:auto!important;right:max(8px,env(safe-area-inset-right))!important;
+    top:auto!important;bottom:calc(55px + env(safe-area-inset-bottom))!important;
+    transform:none!important;width:42vw!important;max-width:42vw!important;
+    padding:4px 6px!important;gap:2px 6px!important;
+    min-height:0!important;z-index:93!important;
+  }
+  #world-screen.active.globe-v30.atlas-perspective-on[data-premium-globe-mode="mine"] .globe-legend span{
+    font-size:9px!important;white-space:nowrap!important;
+  }
+}
