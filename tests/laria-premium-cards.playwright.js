@@ -43,7 +43,7 @@ async function run(engine,label,width,height){
      const frame=holder.getBoundingClientRect(),image=art.getBoundingClientRect(),css=getComputedStyle(art);
      return {action:node.dataset.bc13Action,src:art?.getAttribute('src'),
       ready:art?.complete,broken:art?.hidden,natural:[art?.naturalWidth,art?.naturalHeight],
-      fit:css.objectFit,objectPosition:css.objectPosition,
+      fit:css.objectFit,objectPosition:css.objectPosition,borderBottom:parseFloat(getComputedStyle(holder).borderBottomWidth),
       frame:{w:frame.width,h:frame.height,left:frame.left,right:frame.right},
       image:{w:image.width,h:image.height,left:image.left,right:image.right},
       fallback:!!svg,text:node.querySelector('.bc13-card-copy')?.innerText,
@@ -63,7 +63,7 @@ async function run(engine,label,width,height){
     assert.deepEqual(card.natural,[1024,704],label+' invalid premium image '+card.action);
     assert.equal(card.fit,'cover',label+' stretched image '+card.action);
     assert.ok(card.frame.w>95&&card.frame.h>35,label+' missing art surface '+card.action);
-    assert.ok(Math.abs(card.frame.w-card.image.w)<2&&Math.abs(card.frame.h-card.image.h)<2,label+' image geometry differs from card '+JSON.stringify(card));
+    assert.ok(Math.abs(card.frame.w-card.image.w)<1.5&&Math.abs((card.frame.h-card.image.h)-card.borderBottom)<1.5,label+' image geometry differs from image area above card bottom border '+JSON.stringify(card));
     assert.equal(card.fallback,true,label+' missing safe offline fallback '+card.action);
     assert.ok(card.text&&card.text.length>8,label+' card lost HTML labels '+card.action);
     assert.equal(card.progress,mode==='travel',label+' progress was added to free play '+card.action);
