@@ -17,5 +17,11 @@
     doc.documentElement.style.setProperty('--laria-fox-background','url("'+source(id)+'")');
     doc.documentElement.dataset.lariaFoxAvatar=id;
   }
-  root.LARIA_FOX=Object.freeze({choice,source,label,syncDecorations});
+  function worldSource(which){
+    // Keep the portrait-based selection and its persisted ID unchanged.
+    // The braided girl's cutout is a provisional full-body art layer, not a
+    // replacement for her original onboarding portrait.
+    return which==='girl'?'./assets/fox/girl-reference-cutout-draft.webp':source('boy');
+  }
+  root.LARIA_FOX=Object.freeze({choice,source,worldSource,label,syncDecorations});
 })(window);
