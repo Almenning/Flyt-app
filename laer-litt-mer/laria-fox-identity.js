@@ -10,5 +10,12 @@
     return root.LARIA_PROFILE_AVATARS?.[id]||'./lia-fox-explorer-home.webp';
   }
   function label(which){return (which==='girl'?'Revejente':'Revegutt');}
-  root.LARIA_FOX=Object.freeze({choice,source,label});
+  function syncDecorations(){
+    const id=choice();
+    const doc=root.document;
+    if(!doc?.documentElement||doc.documentElement.dataset.lariaFoxAvatar===id)return;
+    doc.documentElement.style.setProperty('--laria-fox-background','url("'+source(id)+'")');
+    doc.documentElement.dataset.lariaFoxAvatar=id;
+  }
+  root.LARIA_FOX=Object.freeze({choice,source,label,syncDecorations});
 })(window);
