@@ -38,6 +38,7 @@ async function run(engine,label,viewport){
    const rect=s=>{const {x,y,width,height,bottom,right}=document.querySelector(s).getBoundingClientRect();return {x,y,width,height,bottom,right}};
    return {cards:[...document.querySelectorAll('.bc14-subject')].map(e=>{const {x,y,width,height,bottom,right}=e.getBoundingClientRect();return {x,y,width,height,bottom,right}}),
     header:rect('.bc12-heading'),nav:rect('.bc12-nav'),journey:rect('.bc12-journey'),free:rect('.bc14-free'),
+    quest:document.querySelector('.bc12-quest')&&getComputedStyle(document.querySelector('.bc12-quest')).display!=='none'?rect('.bc12-quest'):null,
     scroll:document.documentElement.scrollWidth,viewport:innerWidth};
   });
   assert(positions.scroll<=positions.viewport+1,label+' horizontal overflow '+JSON.stringify(positions));
@@ -46,6 +47,8 @@ async function run(engine,label,viewport){
   assert(positions.cards.every(r=>r.bottom<=positions.journey.y+6),label+' journey obscures subject cards '+JSON.stringify(positions));
   assert(positions.journey.bottom<=positions.nav.y+5,label+' primary journey blocked by bottom navigation '+JSON.stringify(positions));
   assert(positions.free.bottom<=positions.nav.y+5,label+' Explore blocked by bottom navigation '+JSON.stringify(positions));
+  if(positions.quest)assert(positions.quest.bottom<=positions.nav.y+3,
+    label+' the fox letter must not be hidden behind bottom navigation '+JSON.stringify(positions));
   assert(positions.cards.every(r=>r.height>=44&&r.width>=44),label+' subject touch target too small');
   await page.screenshot({path:folder+'/'+label+'-home.png',fullPage:true});
   for(const [subject,screen] of [['norwegian','subject'],['math','subject'],['english','subject'],['geography','geography']]){

@@ -146,6 +146,8 @@ async function run(engine,label,viewport){
    await page.waitForFunction(s=>journeyViewGrade(s)===2&&document.querySelector('.screen.active .locked-journey-map')?.dataset.journeySubject===s,subject);
    assert.equal(await page.locator(base+' .locked-journey-hotspot').count(),5,label+' reference map did not return after grade switch');
    if(subject==='math'){
+     assert.equal(await page.locator('#math-lab-entry').isVisible(),false,
+       label+' locked Tallenga must not duplicate the Brøklaben under the painted journey');
      const savedBefore=await page.evaluate(()=>JSON.stringify(JSON.parse(localStorage.getItem('laerlittmer-v2')).journey));
      await page.locator(base+' .locked-journey-hotspot').nth(2).click();
      const existing=page.locator('.locked-journey-overlay:not([hidden]) [data-locked-existing="fraction-lab"]');
