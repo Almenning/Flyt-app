@@ -357,15 +357,17 @@ async function capture(browserType,label,viewport){
       }else{
         // A blue blank frame is NOT a world map. Check actual canvas pixels,
         // but match the expected palette for each atlas mode:
-        //   explore: vivid continent colours (including warm Africa)
+        //   explore: vivid countries plus pale golden/storybook highlights
         //   mine: unseen countries are intentionally painted muted beige.
-        // Requiring red/orange pixels for mine rejected correctly painted maps.
+        // Requiring strongly red/orange pixels for both modes rejects rendered
+        // land in Safari even with 195 real polygons and a ready country canvas.
         // One canvas readback per poll avoids hundreds of synchronous WebKit
         // getImageData calls while Safari is finishing a country repaint.
         try{
           await page.waitForFunction(requestedMode=>{
           const c=document.getElementById('atlas-canvas');
-          if(!c||c.dataset.mapReady!=='true'||c.width<150||c.height<150)return false;
+          if(!c||c.dataset.mapReady!=='true'||c.dataset.renderSource!=='country-geometry'||
+             c.width<150||c.height<150)return false;
           const ctx=c.getContext('2d',{willReadFrequently:true});
           if(!ctx)return false;
           const pixels=ctx.getImageData(0,0,c.width,c.height).data;
@@ -381,7 +383,8 @@ async function capture(browserType,label,viewport){
               // while excluding the blue/cyan ocean gradient.
               if((r>130&&r>b*1.045&&r>g*.92)||
                  (g>125&&g>b*1.06&&g>r*1.05))land++;
-            }else if(r>135&&r>b*1.12&&r>g*1.07){
+            }else if(r>130&&r>b*1.04&&r>g*.91){
+              // Pale lit land (#fff5d8) is real terrain, not cyan sea.
               land++;
             }
            }
