@@ -238,6 +238,19 @@ jobs:
           path: /tmp/laria-fox-identity
           if-no-files-found: warn
           retention-days: 7
+      - name: Selected fox in Brøklab, Plukk og tell, Ordjakt and globe
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+          LARIA_FOX_FREEPLAY_SCREENSHOTS: /tmp/laria-fox-freeplay
+        run: node tests/laria-fox-freeplay.playwright.js
+      - name: Upload selected-fox free-play screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-fox-freeplay-${{ github.sha }}
+          path: /tmp/laria-fox-freeplay
+          if-no-files-found: warn
+          retention-days: 7
       - name: Verify old checkpoint progression survives reload on approved artwork
         env:
           QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
