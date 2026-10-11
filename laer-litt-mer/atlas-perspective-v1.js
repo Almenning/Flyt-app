@@ -237,7 +237,7 @@ function layout(){
  const shortLandscape=!portrait&&vh<=649&&vw>=600;
  const tablet=vw>=700&&portrait;
  const gap=(tablet||!portrait)?9:14;
- const top=Math.max(110,modeBottom+gap,legendRect?.height?legendRect.bottom+9:0);
+ const top=Math.max(110,modeBottom+gap,(!shortLandscape&&legendRect?.height)?legendRect.bottom+9:0);
  // Short landscape uses a left-hand map and a separate right-hand country card;
  // the card's vertical top must not artificially shorten the atlas canvas.
  const bottom=shortLandscape?vh-10:
