@@ -97,6 +97,22 @@
     root.requestAnimationFrame(refresh);
   }
   function init(){
+    // Session answers can be taps, drags or keyboard interactions. Observe
+    // the existing feedback once, rather than reimplementing grading here.
+    const session=doc.getElementById('session-screen');
+    let lastFeedback='';
+    if(session)new MutationObserver(()=>{
+      const box=session.querySelector('#feedback');
+      if(!session.classList.contains('active')||!box||root.getComputedStyle(box).display==='none'){
+        lastFeedback='';return;
+      }
+      const heading=session.querySelector('#session-count')?.textContent||'';
+      const message=box.textContent?.trim()||'';
+      const signature=heading+'|'+box.className+'|'+message;
+      if(!message||signature===lastFeedback)return;
+      lastFeedback=signature;
+      afterAnswer();
+    }).observe(session,{attributes:true,attributeFilter:['class','style'],childList:true,subtree:true});
     doc.addEventListener('click',e=>{
       const hotspot=e.target.closest?.('.screen.active .locked-journey-hotspot[data-locked-place]');
       if(hotspot){
