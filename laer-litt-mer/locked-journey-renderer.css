@@ -37,6 +37,18 @@
   -webkit-user-select:none;
   pointer-events:none;
 }
+/* Independent reversible fox cleanup: no reflow, no new touch targets.
+   Crop coordinates map exactly to the approved 941x1672 original PNG. */
+.locked-journey-board>.locked-journey-fox-free{
+  position:absolute!important;display:block!important;z-index:1;
+  max-width:none!important;max-height:none!important;
+  object-fit:fill!important;
+  border:0!important;border-radius:0!important;
+  box-shadow:none!important;
+  margin:0!important;padding:0!important;
+  user-select:none;-webkit-user-select:none;
+  pointer-events:none!important;
+}
 .locked-journey-profile{
   position:absolute;z-index:12;
   left:60.9%;top:1.55%;width:10.65%;height:auto;aspect-ratio:1;

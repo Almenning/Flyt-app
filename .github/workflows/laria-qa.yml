@@ -2,7 +2,7 @@ name: Laria QA
 
 on:
   push:
-    branches: [main, fix/laria-globe-locked-scenery-v36, feat/laria-oct10-locked-journeys-phase1, feat/laria-personal-fox-20261011]
+    branches: [main, fix/laria-globe-locked-scenery-v36, feat/laria-oct10-locked-journeys-phase1, feat/laria-personal-fox-20261011, feat/laria-fox-live-companion-20261011]
     paths:
       - 'laer-litt-mer/**'
       - 'tests/**'
@@ -239,6 +239,19 @@ jobs:
           QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
           LARIA_FOX_SCREENSHOTS: /tmp/laria-fox-identity
         run: node tests/laria-fox-identity.playwright.js
+      - name: Verify one living personalized fox across Home, journey and tasks
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+          LARIA_LIVE_FOX_QA: /tmp/laria-live-fox
+        run: node tests/laria-live-fox-presence.playwright.js
+      - name: Upload living-fox preview images
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-live-fox-${{ github.sha }}
+          path: /tmp/laria-live-fox
+          if-no-files-found: warn
+          retention-days: 7
       - name: Upload selected-fox journey and task evidence
         if: always()
         uses: actions/upload-artifact@v4

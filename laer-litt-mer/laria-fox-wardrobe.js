@@ -1,6 +1,6 @@
 /* Læria - Min rev: one persistent identity, genuinely layered wearable art.
- * The approved full-height portrait is preserved without hard polygon crop.
- * Its soft oval mask blends the illustration into all companion scenes.
+ * In-world girl uses approved separate full-body transparent art.
+ * Original profile portrait is preserved with soft fade on profile/older figures.
  * No learned content, saved avatar, reward logic or journey map is rewritten.
  */
 (function(root){
@@ -33,22 +33,56 @@
     }
     return '';
   }
-  function render(which,collection){
+  // Full-body Læria girl: gear anchors are calibrated against the 200x300
+  // transparent character canvas, NOT the former square onboarding portrait.
+  // Outfits are deterministic and always follow the current saved wardrobe.
+  function worldGearMarkup(slot,item){
+    if(!item)return '';
+    if(slot==='head'&&item==='oppdagerhatt'){
+      return '<g data-gear="oppdagerhatt" stroke-linejoin="round">'+
+        '<path d="M65 48Q84 29 111 30Q140 29 157 49Q136 59 110 60Q85 58 65 48Z" fill="#477866" stroke="#345744" stroke-width="2.5"/>'+
+        '<path d="M86 46Q85 20 101 19L128 23Q141 35 140 47Q120 54 86 46Z" fill="#749879" stroke="#3e6550" stroke-width="2.5"/>'+
+        '<path d="M86 45Q110 52 140 45L145 50Q117 58 82 49Z" fill="#a96a4a"/>'+
+        '<path d="M113 32l4-7 5 7-5-1Z" fill="#f5d487"/></g>';
+    }
+    if(slot==='neck'&&item==='eventyrskjerf'){
+      return '<g data-gear="eventyrskjerf" stroke="#965e57" stroke-linejoin="round" stroke-width="1.5">'+
+        '<path d="M83 104Q109 115 135 100L146 108Q124 126 97 118Z" fill="#cf797c"/>'+
+        '<path d="M113 118Q127 131 122 152L110 151Q117 133 105 122Z" fill="#ca6872"/>'+
+        '<path d="M110 149l-1 7m6-5 0 7m7-8 2 7" fill="none" stroke="#f0c6af" stroke-width="2"/></g>';
+    }
+    if(slot==='back'&&item==='stjerneryggsekk'){
+      return '<g data-gear="stjerneryggsekk" stroke-linejoin="round" stroke="#69452d" stroke-width="2">'+
+        '<path d="M38 150Q54 138 72 151L79 190Q62 207 40 193Z" fill="#95663e"/>'+
+        '<path d="M45 148Q52 134 64 140Q73 143 73 151" fill="none" stroke-width="4"/>'+
+        '<path d="M42 166Q59 173 75 166L76 183Q59 190 43 181Z" fill="#b88a53"/>'+
+        '<path d="m59 164 3 6 7 1-5 5 1 7-6-4-6 4 1-7-5-5 7-1Z" fill="#f2df96" stroke="#b58d4b" stroke-width="1.3"/></g>';
+    }
+    if(slot==='cape'&&item==='nordlyskappe'){
+      return '<g data-gear="nordlyskappe" stroke-linejoin="round">'+
+        '<path d="M126 105Q146 103 159 127Q178 166 185 241Q149 233 121 203L116 131Z" fill="#3c8193" stroke="#2d5e77" stroke-width="3"/>'+
+        '<path d="M143 118Q161 157 168 209" fill="none" stroke="#95d7c9" stroke-width="4"/>'+
+        '<path d="M126 108l19 11" stroke="#efd99f" stroke-width="3"/>'+
+        '<circle cx="143" cy="118" r="4" fill="#f5dfab" stroke="#936d4f" stroke-width="1.4"/></g>';
+    }
+    return '';
+  }
+  function render(which,collection,mode='portrait'){
     var avatar=which==='girl'?'girl':'boy',equipped=collection?.equipped||{},id='laria-wd-'+(++counter);
-    var src=root.LARIA_FOX?.source?.(avatar)||'';
-    var cape=gearMarkup('cape',equipped.cape,avatar);
-    // The approved portraits are 200x272, not 200x200. Cropping them to
-    // a square amputated ears, feet and tail on real Safari screenshots.
-    // Use a soft perimeter mask; it preserves the full character while
-    // gently fading the photographed world at the outer corners.
-    return '<svg class="laria-fox-wardrobe-art" viewBox="0 0 200 272" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" preserveAspectRatio="xMidYMid meet" data-avatar="'+avatar+'">'+
-      '<defs><radialGradient id="'+id+'-fade" cx="50%" cy="50%" r="56%">'+
-      '<stop offset="0%" stop-color="white"/><stop offset="78%" stop-color="white"/><stop offset="100%" stop-color="black"/>'+
-      '</radialGradient><mask id="'+id+'-mask" maskUnits="userSpaceOnUse" maskContentUnits="userSpaceOnUse" style="mask-type:luminance">'+
-      '<rect width="200" height="272" fill="url(#'+id+'-fade)"/></mask></defs>'+
-      '<g>'+cape+'</g><image href="'+src+'" width="200" height="272" preserveAspectRatio="xMidYMid meet" mask="url(#'+id+'-mask)"/>'+
-      gearMarkup('back',equipped.back,avatar)+gearMarkup('head',equipped.head,avatar)+gearMarkup('neck',equipped.neck,avatar)+
-      '</svg>';
+    const fullBody=mode==='world';
+    // Portraits in headers remain the previously selected avatar. In-world
+    // artwork gets its own transparent, full-body silhouette and gear anchors.
+    var src=(fullBody?root.LARIA_FOX?.worldSource?.(avatar):root.LARIA_FOX?.source?.(avatar))||'';
+    var h=fullBody?300:272;
+    const cape=gearMarkup('cape',equipped.cape,avatar);
+    const gear=(slot,item)=>fullBody?worldGearMarkup(slot,item,avatar):gearMarkup(slot,item,avatar);
+    const mask=fullBody?'':'<radialGradient id="'+id+'-fade" cx="50%" cy="50%" r="56%"><stop offset="0%" stop-color="white"/><stop offset="78%" stop-color="white"/><stop offset="100%" stop-color="black"/></radialGradient>'+
+      '<mask id="'+id+'-mask" maskUnits="userSpaceOnUse" maskContentUnits="userSpaceOnUse" style="mask-type:luminance"><rect width="200" height="272" fill="url(#'+id+'-fade)"/></mask>';
+    return '<svg class="laria-fox-wardrobe-art" viewBox="0 0 200 '+h+'" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" preserveAspectRatio="xMidYMid meet" data-avatar="'+avatar+'" data-fox-art="'+(fullBody?avatar+'-fullbody-v1':'portrait')+'">'+
+      '<defs>'+mask+'</defs>'+
+      '<g class="laria-fox-pose" data-fox-gear-rig="'+avatar+'"><g>'+gear('cape',equipped.cape)+'</g><image href="'+src+'" width="200" height="'+h+'" preserveAspectRatio="xMidYMid meet"'+(fullBody?'':' mask="url(#'+id+'-mask)"')+'/>'+
+      gear('back',equipped.back)+gear('head',equipped.head)+gear('neck',equipped.neck)+
+      '</g></svg>';
   }
   var SELECTORS=[
     '.bc12-fox > img','.locked-journey-profile > img',
@@ -63,13 +97,14 @@
     scheduled=false;
     if(!root.document?.body)return;
     var avatar=choice(),current=inventory();
-    var signature=avatar+'|'+JSON.stringify(current.equipped||{});
+    var signature=avatar+'|world-art-v3|'+JSON.stringify(current.equipped||{});
     root.document.querySelectorAll(SELECTORS).forEach(function(img){
       var parent=img.parentElement;if(!parent)return;
       if(img.dataset.lariaWardrobeSignature===signature&&parent.querySelector(':scope > .laria-fox-wardrobe-art'))return;
       parent.querySelector(':scope > .laria-fox-wardrobe-art')?.remove();
       var slot=root.document.createElement('div');
-      slot.innerHTML=render(avatar,current);
+      const inWorld=!!img.closest('.bc12-fox,.locked-journey-traveler,.task-fox-companion,.fr2-guide,.fr4-scene-fox,.mp-mascot,.mp-art-practice,.word-hunt-top,.premium-globe-header');
+      slot.innerHTML=render(avatar,current,inWorld?'world':'portrait');
       var artwork=slot.firstElementChild;
       if(!artwork)return;
       if(root.getComputedStyle?.(parent)?.position==='static')parent.style.position='relative';

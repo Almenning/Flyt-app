@@ -50,6 +50,22 @@ async function run(engine,label,viewport){
    await page.waitForFunction(s=>document.querySelector('.screen.active .locked-journey-map')?.dataset.journeySubject===s,subject,{timeout:16000});
    const base='#'+screen+'-screen.active .locked-journey-map';
    assert.equal(await page.locator(base+' .locked-journey-hotspot').count(),5,label+' '+subject+' landmark count');
+   // Cleanup patches are not map replacements: they sit above the exact
+   // reference decoder but under every marker and selected character.
+   const cleaned=page.locator(base+' .locked-journey-fox-free');
+   assert.equal(await cleaned.count(),1,label+' '+subject+' must cover painted sample fox');
+   await cleaned.evaluate(img=>img.decode());
+   const layer=await cleaned.evaluate(img=>{
+     const ir=img.getBoundingClientRect(),br=img.closest('.locked-journey-board').getBoundingClientRect();
+     const st=getComputedStyle(img);
+     return {naturalW:img.naturalWidth,naturalH:img.naturalHeight,
+       w:ir.width/br.width,h:ir.height/br.height,
+       touch:st.pointerEvents,z:Number(st.zIndex),loaded:img.complete};
+   });
+   assert(layer.loaded&&layer.naturalW>200&&layer.naturalH>200,label+' '+subject+' cleanup patch did not load');
+   assert(layer.w>0.24&&layer.w<0.35&&layer.h>0.13&&layer.h<0.22,label+' '+subject+' patch geometry '+JSON.stringify(layer));
+   assert.equal(layer.touch,'none',label+' '+subject+' cleanup image must not block taps');
+   assert.equal(layer.z,1,label+' '+subject+' cleanup image must remain behind traveler and signs');
    assert.equal(await page.locator(base+' .locked-journey-profile img').count(),1,label+' selected profile avatar layer missing');
    const liveProgress=(await page.locator(base+' .locked-journey-live-progress').innerText()).trim();
    assert.match(liveProgress,/^★\s*0\s*\/\s*\d+$/,label+' '+subject+' must cover painted 127 with real journey progress');

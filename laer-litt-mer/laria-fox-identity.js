@@ -17,5 +17,11 @@
     doc.documentElement.style.setProperty('--laria-fox-background','url("'+source(id)+'")');
     doc.documentElement.dataset.lariaFoxAvatar=id;
   }
-  root.LARIA_FOX=Object.freeze({choice,source,label,syncDecorations});
+  function worldSource(which){
+    // Keep the portrait-based selection and its persisted ID unchanged.
+    // Each chosen fox gets their own transparent full-body art layer, not a
+    // replacement for her original onboarding portrait.
+    return which==='girl'?'./assets/fox/girl-braids-blue-dress-v1.webp':'./assets/fox/boy-adventurer-green-vest-v1.webp';
+  }
+  root.LARIA_FOX=Object.freeze({choice,source,worldSource,label,syncDecorations});
 })(window);
