@@ -54,10 +54,7 @@
   function foxChoice(){
     try{return (typeof state!=='undefined'&&state?.profile?.avatar==='girl')?'girl':'boy'}catch(_){return 'boy'}
   }
-  function foxSource(){
-    // Onboarding portraits may contain baked backgrounds. The task companion is world art, not a profile thumbnail.
-    return './lia-fox-explorer.webp';
-  }
+  function foxSource(){return window.LARIA_FOX.source(foxChoice());}
   function reactFox(correct){
     const fox=document.querySelector('#session-screen.task-scene .task-fox-companion');
     if(!fox)return;
