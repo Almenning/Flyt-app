@@ -63,6 +63,11 @@ async function run(engine,label,width,height){
     assert.ok(card.text&&card.text.length>8,label+' card lost HTML labels '+card.action);
     assert.equal(card.progress,mode==='travel',label+' progress was added to free play '+card.action);
    }
+   // Preview is restricted to synthetic QA profiles and never includes real child data.
+   if(process.env.LARIA_PREMIUM_PREVIEW==='1'&&label==='chromium-iphone'){
+    const bytes=await page.locator('.bc13-panel').screenshot({type:'jpeg',quality:58,animations:'disabled'});
+    console.log('LARIA_PREVIEW_'+mode.toUpperCase()+'_START'+bytes.toString('base64')+'LARIA_PREVIEW_'+mode.toUpperCase()+'_END');
+   }
    const layout=await page.evaluate(()=>({width:innerWidth,document:document.documentElement.scrollWidth,
      nav:document.querySelector('.bc12-nav')?.getBoundingClientRect().toJSON()}));
    assert.ok(layout.document<=layout.width+4,label+' '+mode+' horizontal overflow '+JSON.stringify(layout));
