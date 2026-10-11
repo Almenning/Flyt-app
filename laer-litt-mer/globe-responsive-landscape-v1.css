@@ -1,0 +1,221 @@
+/* Læria: learning surface first. Keep iPhone portrait composition intact.
+   Landscape iPhone uses a map-and-controls split; iPad uses a compact chrome
+   and nearly all remaining width/height for the interactive sphere/atlas.
+   The actual geography canvas and its aspect ratio remain authoritative. */
+
+/* Tablet landscape: shrinking chrome creates a real contiguous map viewport.
+   H = viewport height: tabs end at y=114; globe starts at y=123 and ends
+   before country panel at H-149. These are independent of device width. */
+@media (orientation:landscape) and (min-width:700px) and (min-height:541px) and (max-width:1366px){
+ #world-screen.active.globe-v30{
+  --g24-globe:min(74vw,calc(100dvh - 278px),760px)!important;
+  --g24-globe-top:calc(50dvh - 16px)!important;
+ }
+ #world-screen.active .premium-globe-header{
+  left:12px!important;right:12px!important;top:8px!important;
+  width:auto!important;height:62px!important;min-height:0!important;
+  max-height:62px!important;transform:none!important;
+  padding:8px 76px 6px 78px!important;border-radius:20px!important;
+ }
+ #world-screen.active .premium-globe-kicker{
+  font-size:9px!important;letter-spacing:.11em!important;
+ }
+ #world-screen.active .premium-globe-title{
+  margin-top:2px!important;font-size:31px!important;line-height:.95!important;
+ }
+ #world-screen.active .premium-globe-subtitle{display:none!important}
+ #world-screen.active .premium-globe-fox{
+  width:58px!important;max-height:65px!important;right:12px!important;
+ }
+ #world-screen.active #world-back{
+  top:17px!important;left:25px!important;width:44px!important;height:44px!important;
+  border-radius:13px!important;
+ }
+ #world-screen.active #world-back::before{font-size:26px!important}
+ #world-screen.active .globe-mode{
+  top:76px!important;left:50%!important;width:min(460px,66vw)!important;
+  min-width:0!important;height:38px!important;min-height:38px!important;
+  padding:2px!important;
+ }
+ #world-screen.active .globe-mode button{
+  padding:0 4px!important;font-size:12px!important;
+ }
+ #world-screen.active .globe-mode .pg-mode-icon{
+  width:16px!important;height:16px!important;margin-right:3px!important;
+ }
+ #world-screen.active.globe-v30:not(.atlas-perspective-on) .globe-wrap{
+  left:50%!important;top:var(--g24-globe-top)!important;
+  width:var(--g24-globe)!important;height:var(--g24-globe)!important;
+  transform:translate(-50%,-50%)!important;aspect-ratio:1!important;
+ }
+ #world-screen.active.globe-v30:not(.atlas-perspective-on) .globe-zoom{
+  right:-51px!important;top:50%!important;transform:translateY(-50%)!important;
+  gap:10px!important;
+ }
+ #world-screen.active .globe-zoom button{
+  width:44px!important;height:44px!important;min-width:44px!important;
+  min-height:44px!important;
+ }
+ #world-screen.active.globe-v30 .globe-status{
+  left:12px!important;right:12px!important;bottom:69px!important;top:auto!important;
+  transform:none!important;width:auto!important;min-height:80px!important;
+  height:80px!important;max-height:80px!important;
+  padding:6px 12px!important;gap:9px!important;border-radius:18px!important;
+ }
+ #world-screen.active.globe-v30 .globe-status strong{
+  font-size:clamp(20px,2vw,27px)!important;line-height:1.08!important;
+ }
+ #world-screen.active.globe-v30 .premium-country-facts{gap:5px!important;margin-top:3px!important}
+ #world-screen.active.globe-v30 .premium-country-facts span,
+ #world-screen.active.globe-v30 .premium-country-facts .globe-country-tagline{
+  min-height:23px!important;padding:3px 6px!important;font-size:12px!important;
+  line-height:1.12!important;
+ }
+ #world-screen.active.globe-v30 .premium-country-learn{
+  min-width:116px!important;min-height:44px!important;padding:0 10px!important;
+ }
+ #world-screen.active.globe-v30 .globe-actions{
+  left:12px!important;right:12px!important;bottom:10px!important;
+  transform:none!important;width:auto!important;height:46px!important;
+ }
+ #world-screen.active.globe-v30 .globe-actions .secondary{height:46px!important;min-height:44px!important}
+ #world-screen.active.atlas-perspective-on .globe-wrap{
+  /* The atlas width is calculated from the viewport, not the former 850px cap. */
+  max-width:none!important;
+ }
+}
+
+/* iPad portrait also has usable room. Avoid enlarging an upright phone:
+   the top of the sphere stays after the tabs; the bottom before the card. */
+@media (orientation:portrait) and (min-width:700px) and (max-width:1100px){
+ #world-screen.active.globe-v30{
+  --g24-globe:min(91vw,65dvh,calc(100dvh - 378px),760px)!important;
+  --g24-globe-top:52dvh!important;
+ }
+ #world-screen.active.globe-v30:not(.atlas-perspective-on) .globe-wrap{
+  width:var(--g24-globe)!important;height:var(--g24-globe)!important;
+  top:var(--g24-globe-top)!important;aspect-ratio:1!important;
+ }
+}
+
+/* Compact landscape phones: use the horizontal space for country controls.
+   Never stack a full-width land card underneath a compressed tiny globe. */
+@media (orientation:landscape) and (max-height:540px) and (min-width:540px){
+ #world-screen.active.globe-v30{
+  --g24-globe:min(84dvh,56vw,calc(100dvh - 116px))!important;
+  --g24-globe-top:calc(50dvh + 45px)!important;
+ }
+ #world-screen.active .premium-globe-header{
+  top:6px!important;left:max(8px,env(safe-area-inset-left))!important;
+  right:max(8px,env(safe-area-inset-right))!important;
+  width:auto!important;height:44px!important;min-height:0!important;
+  max-height:44px!important;transform:none!important;
+  padding:9px 10px 4px 58px!important;border-radius:14px!important;
+ }
+ #world-screen.active .premium-globe-kicker,
+ #world-screen.active .premium-globe-subtitle,
+ #world-screen.active .premium-globe-fox{display:none!important}
+ #world-screen.active .premium-globe-title{
+  margin:0!important;font-size:23px!important;line-height:1!important;
+ }
+ #world-screen.active #world-back{
+  top:7px!important;left:calc(max(8px,env(safe-area-inset-left)) + 5px)!important;
+  width:42px!important;height:42px!important;min-width:42px!important;
+  min-height:42px!important;border-radius:12px!important;
+ }
+ #world-screen.active #world-back::before{font-size:25px!important}
+ #world-screen.active .globe-mode{
+  top:54px!important;left:50%!important;width:min(425px,72vw)!important;
+  min-width:0!important;height:44px!important;min-height:44px!important;
+  padding:2px!important;z-index:90!important;
+ }
+ #world-screen.active .globe-mode button{
+  padding:0 3px!important;font-size:11px!important;
+ }
+ #world-screen.active .globe-mode .pg-mode-icon{
+  width:14px!important;height:14px!important;margin-right:2px!important;
+ }
+ #world-screen.active.globe-v30:not(.atlas-perspective-on) .globe-wrap{
+  left:29vw!important;top:var(--g24-globe-top)!important;
+  width:var(--g24-globe)!important;height:var(--g24-globe)!important;
+  transform:translate(-50%,-50%)!important;aspect-ratio:1!important;
+ }
+ #world-screen.active.globe-v30:not(.atlas-perspective-on) .globe-zoom{
+  right:-25px!important;top:50%!important;transform:translateY(-50%)!important;
+  gap:8px!important;
+ }
+ #world-screen.active .globe-zoom button{
+  width:44px!important;height:44px!important;min-width:44px!important;
+  min-height:44px!important;border-radius:12px!important;
+ }
+ #world-screen.active .globe-hint{display:none!important}
+ #world-screen.active.globe-v30 .globe-status{
+  left:56%!important;right:max(8px,env(safe-area-inset-right))!important;
+  top:113px!important;bottom:auto!important;transform:none!important;
+  width:auto!important;height:auto!important;min-height:84px!important;
+  max-height:calc(100dvh - 185px)!important;
+  display:grid!important;grid-template-columns:34px minmax(0,1fr) auto!important;
+  gap:6px!important;align-items:center!important;
+  padding:7px 8px!important;border-radius:14px!important;
+  overflow-y:auto!important;overscroll-behavior:contain;
+ }
+ #world-screen.active.globe-v30 .globe-status .flag{
+  width:34px!important;min-width:34px!important;height:38px!important;
+  min-height:38px!important;font-size:21px!important;border-radius:10px!important;
+ }
+ #world-screen.active.globe-v30 .globe-status strong{
+  font-size:clamp(14px,1.9vw,19px)!important;line-height:1.05!important;
+ }
+ #world-screen.active.globe-v30 .globe-status .globe-country-line{
+  gap:3px!important;flex-wrap:wrap!important;
+ }
+ #world-screen.active.globe-v30 .globe-status .globe-country-line>span{
+  font-size:9px!important;margin-top:0!important;
+ }
+ #world-screen.active.globe-v30 .premium-country-facts{
+  gap:3px!important;margin-top:3px!important;flex-wrap:wrap!important;
+ }
+ #world-screen.active.globe-v30 .premium-country-facts span,
+ #world-screen.active.globe-v30 .premium-country-facts .globe-country-tagline{
+  min-height:18px!important;padding:2px 4px!important;
+  font-size:10px!important;line-height:1.12!important;
+ }
+ #world-screen.active.globe-v30 .premium-country-learn{
+  min-width:48px!important;width:56px!important;min-height:44px!important;
+  padding:3px!important;gap:2px!important;border-radius:11px!important;
+ }
+ #world-screen.active.globe-v30 .premium-country-learn svg{
+  width:17px!important;height:17px!important;
+ }
+ #world-screen.active.globe-v30 .premium-country-learn span{
+  font-size:9px!important;white-space:nowrap!important;
+ }
+ #world-screen.active.globe-v30 .premium-country-learn b{display:none!important}
+ #world-screen.active.globe-v30 .globe-actions{
+  left:56%!important;right:max(8px,env(safe-area-inset-right))!important;
+  bottom:max(10px,env(safe-area-inset-bottom))!important;
+  transform:none!important;width:auto!important;height:44px!important;
+  gap:6px!important;
+ }
+ #world-screen.active.globe-v30 .globe-actions .secondary{
+  height:44px!important;min-height:44px!important;
+  padding:0 3px!important;border-radius:12px!important;
+  font-size:clamp(9px,1.3vw,12px)!important;
+ }
+ #world-screen.active.atlas-perspective-on .globe-wrap{
+  left:max(8px,env(safe-area-inset-left))!important;
+  transform:none!important;right:auto!important;
+  border-width:5px!important;border-radius:17px!important;
+ }
+ #world-screen.active.atlas-perspective-on .atlas-region-nav{
+  top:7px!important;left:7px!important;right:52px!important;
+ }
+ #world-screen.active.atlas-perspective-on .globe-zoom{
+  right:7px!important;
+ }
+ #world-screen.active.atlas-perspective-on .atlas-caption{display:none!important}
+ #world-screen.active.atlas-perspective-on[data-premium-globe-mode="mine"] .globe-legend{
+  top:104px!important;left:12px!important;right:auto!important;
+  transform:none!important;max-width:53vw!important;
+ }
+}
