@@ -47,6 +47,8 @@ async function run(engine,label,viewport){
   assert(positions.cards.every(r=>r.bottom<=positions.journey.y+6),label+' journey obscures subject cards '+JSON.stringify(positions));
   assert(positions.journey.bottom<=positions.nav.y+5,label+' primary journey blocked by bottom navigation '+JSON.stringify(positions));
   assert(positions.free.bottom<=positions.nav.y+5,label+' Explore blocked by bottom navigation '+JSON.stringify(positions));
+  if(positions.quest)assert(positions.quest.bottom<=positions.nav.y+3,
+    label+' the fox letter must not be hidden behind bottom navigation '+JSON.stringify(positions));
   assert(positions.cards.every(r=>r.height>=44&&r.width>=44),label+' subject touch target too small');
   await page.screenshot({path:folder+'/'+label+'-home.png',fullPage:true});
   for(const [subject,screen] of [['norwegian','subject'],['math','subject'],['english','subject'],['geography','geography']]){
