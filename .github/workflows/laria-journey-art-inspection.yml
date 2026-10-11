@@ -20,5 +20,9 @@ jobs:
             laer-litt-mer/locked-journeys/tallenga-locked-20261010.png
             laer-litt-mer/locked-journeys/ordlandsbyen-locked-20261010.png
             laer-litt-mer/locked-journeys/nordlysleiren-locked-20261010.png
+            laer-litt-mer/bokskogen-verden.png
+            laer-litt-mer/matte-verden.png
+            laer-litt-mer/engelsk-verden.png
+            laer-litt-mer/geografi-verden.png
           if-no-files-found: error
           retention-days: 7
