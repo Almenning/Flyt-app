@@ -44,10 +44,31 @@ async function run(browser,engine,label,viewport,url){
   assert.ok(firstFold.cakeVisible&&firstFold.fractionVisible&&firstFold.controlsVisible&&firstFold.fractionAboveControls&&firstFold.correctFox&&firstFold.noOverflow,
     label+' first viewport must show cake, 1/4, both controls and personal fox: '+JSON.stringify(firstFold));
   assert.ok(firstFold.controlsHeight>=58,'real controls must remain touchable');
+  const tablet=viewport.width>=700;
+  // The cake is still the whole first interaction on a phone.
+  // iPad uses available space to display equivalent values beside it.
+  assert.equal(await page.locator('.fr7-tablet-equivalents').isVisible(),tablet,label+' iPad equivalent panel');
+  assert.equal(await page.locator('.fr7-equivalents-toggle').isVisible(),!tablet,label+' mobile optional reveal');
+  assert.equal(await page.locator('#fr7-mobile-values').isVisible(),false,label+' do not force decimals on first phone view');
+  if(tablet){
+    assert.deepEqual(await page.locator('.fr7-tablet-equivalents .fr7-equivalent-tile strong').allTextContents(),['0,25','25 %']);
+  }else{
+    await page.locator('.fr7-equivalents-toggle').click();
+    assert.equal(await page.locator('.fr7-equivalents-toggle').getAttribute('aria-expanded'),'true');
+    assert.equal(await page.locator('#fr7-mobile-values').isVisible(),true);
+    assert.deepEqual(await page.locator('#fr7-mobile-values .fr7-equivalent-tile strong').allTextContents(),['0,25','25 %']);
+    await photo(page,label+'-01-decimals-visible');
+  }
   await photo(page,label+'-01-home');
   await page.locator('.fr2-pie-builder [data-fr-action="piece"][data-piece="2"]').click();
   assert.deepEqual((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build)).filled,[0,2],'tap adds the touched sector, not the next one');
   assert.equal(await page.locator('.fr6-result .fr2-fraction').getAttribute('aria-label'),'2 av 4');
+  assert.deepEqual(await page.locator((tablet?'.fr7-tablet-equivalents':'#fr7-mobile-values')+' .fr7-equivalent-tile strong').allTextContents(),['0,5','50 %'],
+    label+' cake and equivalent numbers must change together');
+  if(!tablet){
+    await page.locator('.fr7-equivalents-toggle').click();
+    assert.equal(await page.locator('#fr7-mobile-values').isVisible(),false);
+  }
   assert.deepEqual(await page.locator('.fr6-piece-tray .fr2-spare').evaluateAll(xs=>xs.map(x=>Number(x.dataset.pieceIndex))),[1,3],'placed piece must vanish from tray');
   await page.locator('.fr2-pie-builder [data-fr-action="piece"][data-piece="2"]').click();
   assert.deepEqual((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build)).filled,[0],'same sector removes exactly that sector');
@@ -128,7 +149,17 @@ async function run(browser,engine,label,viewport,url){
   await page.locator('[data-fr-action="adjust"][data-field="n"][data-step="1"]').click();
   await page.locator('.fr6-nav [data-page="build"]').click();
   assert.equal(await page.locator('.fr6-result .fr2-fraction').getAttribute('aria-label'),'1 av 2','changing the view must never reset the same actual cake');
-
+  // Rounded repeating decimals/percentages must never masquerade as exact.
+  await page.locator('[data-fr-action="adjust"][data-field="d"][data-step="1"]').click();
+  assert.equal(await page.locator('.fr6-result .fr2-fraction').getAttribute('aria-label'),'1 av 3');
+  if(!tablet)await page.locator('.fr7-equivalents-toggle').click();
+  const approximate=await page.locator((tablet?'.fr7-tablet-equivalents':'#fr7-mobile-values')+' .fr7-equivalent-tile strong').allTextContents();
+  assert.ok(approximate[0].startsWith('≈ 0,333')&&approximate[1].startsWith('≈ 33,3'),
+    label+' 1/3 is approximate in decimal/percent: '+JSON.stringify(approximate));
+  if(!tablet)await page.locator('.fr7-equivalents-toggle').click();
+  await page.locator('[data-fr-action="adjust"][data-field="d"][data-step="-1"]').click();
+  assert.equal(await page.locator('.fr6-result .fr2-fraction').getAttribute('aria-label'),'1 av 2');
+  
   await page.locator('.fr2-nav-item[data-page="home"]').click();
   await page.locator('.fr2-card-equal').click();
   await page.locator('.fr2-equal').waitFor();
