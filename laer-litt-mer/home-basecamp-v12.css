@@ -613,3 +613,32 @@
  #bc12-dialog .bc12-wardrobe-preview{width:min(100%,190px)}
  #bc12-dialog .bc12-wardrobe-item{padding:10px 9px;min-height:85px}
 }
+
+
+/* Flexible illustrated book, consistent with the approved storybook direction. */
+#bc12-dialog.is-collection{width:min(96vw,660px);max-height:89dvh;padding:24px 20px 19px;background:linear-gradient(155deg,#fff9e9,#f5deb1 85%);border:5px double #95663b}
+#bc12-dialog .bc12-book-heading{display:flex;align-items:center;gap:14px;padding-right:34px}
+#bc12-dialog .bc12-book-heading h2{margin:4px 0 8px;font-size:clamp(23px,5vw,32px);line-height:1.14}
+#bc12-dialog .bc12-book-seal{display:grid;place-items:center;flex:0 0 54px;height:58px;color:#ffdf88;font-size:29px;background:radial-gradient(circle at 35% 26%,#bd7c4b,#79452e);border:3px solid #dfb96f;border-radius:15px;box-shadow:0 4px 0 #704329}
+#bc12-dialog .bc12-collection-tabs{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:8px 0 4px}
+#bc12-dialog .bc12-collection-tabs button{min-height:46px;border:2px solid #d6ae76;border-radius:12px;background:#f6e8ca;color:#755036;font-weight:850}
+#bc12-dialog .bc12-collection-tabs button[aria-current]{background:#b65d48;border-color:#a04f40;color:#fff9e7;box-shadow:0 3px 0 #804334}
+#bc12-dialog .bc12-equipment-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0 16px}
+#bc12-dialog .bc12-equipment-card{min-width:0;min-height:150px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;border:2px solid #d0a66d;border-radius:16px;background:linear-gradient(#fff9e9,#ecd09c);text-align:center;padding:9px}
+#bc12-dialog .bc12-equipment-card[data-owned="false"]{filter:grayscale(.75);opacity:.64}
+#bc12-dialog .bc12-equipment-art{display:block;width:72px;height:72px;border-radius:17px;background:radial-gradient(#fffae6,#e2c18a);padding:6px;border:1px solid #cba371}
+#bc12-dialog .bc12-equipment-art svg{width:100%;height:100%}
+#bc12-dialog .bc12-equipment-card strong{font-size:13px;color:#553b28}
+#bc12-dialog .bc12-equipment-card small{font-size:11px;color:#706048}
+#bc12-dialog .bc12-wardrobe-item-art{display:block;align-self:center;width:56px;height:56px;padding:3px}
+#bc12-dialog .bc12-wardrobe-item-art svg{display:block;width:100%;height:100%}
+#bc12-dialog.is-wardrobe .bc12-wardrobe-item{align-items:center;text-align:center;min-height:144px}
+#bc12-dialog.is-wardrobe .bc12-wardrobe-preview{width:min(62vw,275px)}
+#bc12-dialog .bc12-dialog-go+.bc12-dialog-go{margin-top:10px}
+@media(max-width:375px){
+ #bc12-dialog.is-collection{padding:22px 12px 16px}
+ #bc12-dialog .bc12-book-heading{gap:9px}
+ #bc12-dialog .bc12-book-seal{flex-basis:44px;height:48px}
+ #bc12-dialog .bc12-equipment-card{min-height:130px}
+ #bc12-dialog.is-wardrobe .bc12-wardrobe-item{min-height:126px}
+}
