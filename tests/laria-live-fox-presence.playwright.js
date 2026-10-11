@@ -56,6 +56,12 @@ async function run(engine,name,viewport,avatar){
     assert.equal(await fox.count(),1,name+' must have exactly one movable personal fox');
     await fox.locator('svg.laria-fox-wardrobe-art .laria-fox-pose').waitFor({timeout:12000});
     assert.equal(await fox.getAttribute('data-avatar'),avatar,name+' route changed fox identity');
+    const cameo=map.locator('.locked-journey-profile[data-avatar="'+avatar+'"]');
+    assert.equal(await cameo.count(),1,name+' chosen fox header cameo missing');
+    const cameoArt=await cameo.evaluate(el=>getComputedStyle(el,'::after').backgroundImage);
+    assert.match(cameoArt,avatar==='girl'?/girl-braids-face-v1\.webp/:/boy-adventurer-face-v1\.webp/,
+      name+' header portrait does not match the selected full-body explorer');
+
     assert.equal(await fox.locator('.laria-fox-wardrobe-art [data-gear="oppdagerhatt"]').count(),1,name+' journey lost equipped clothes');
     const initial=await fox.evaluate(el=>({x:el.style.getPropertyValue('--fox-x'),y:el.style.getPropertyValue('--fox-y')}));
     const before=await page.evaluate(()=>JSON.stringify(JSON.parse(localStorage.getItem('laerlittmer-v2')).journey));
