@@ -4,6 +4,14 @@ window.LARIA_BASECAMP_DIAG={loaded:true,init:false,render:false,error:null};
 const PLACES={lyder:'Bokstavporten',ordbilder:'Lesestua',ordlek:'Rimdammen','ordstart-checkpoint':'Skogsporten',setningsrekkefolge:'Ordbrua',ordbetydning:'Ordhagen','setninger-checkpoint':'Ordhagen',detaljer:'Biblioteket',forsta:'Biblioteket',tenkvidere:'Biblioteket','lesedetektiv-checkpoint':'Biblioteket'};
 const svg=paths=>'<svg viewBox="0 0 24 24" aria-hidden="true">'+paths+'</svg>';
 const icons={home:svg('<path d="m3 10 9-7 9 7M5 9v12h5v-7h4v7h5V9"/>'),travel:svg('<path d="m3 5 6-2 6 3 6-2v16l-6 2-6-3-6 2ZM9 3v16m6-13v16"/>'),explore:svg('<circle cx="12" cy="12" r="9"/><path d="m16 8-2 6-6 2 2-6Z"/>'),collection:svg('<path d="M5 9a7 7 0 0 1 14 0v12H5ZM9 3V1h6v2M8 14h8v5H8ZM5 10h14"/>')};
+
+/* Small collectible engravings, not additional illustrated travel scenes. */
+const MEMORY_GLYPHS=Object.freeze({
+  norwegian:'<svg viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="mc-f" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff6d8"/><stop offset=".58" stop-color="#ecd59d"/><stop offset="1" stop-color="#c9955a"/></linearGradient></defs><path d="M13 47Q17 22 38 11Q48 7 54 10Q50 20 42 30Q30 44 13 47Z" fill="url(#mc-f)" stroke="#96683b" stroke-width="2.5"/><path d="M12 53Q25 36 46 17" fill="none" stroke="#a16b33" stroke-width="3" stroke-linecap="round"/><path d="M23 36l-5-9m13 1-5-11m10 5 9-1M19 42l-8-3" stroke="#c19b68" stroke-width="1.7" fill="none"/><circle cx="46" cy="13" r="2" fill="#fffbe0"/></svg>',
+  math:'<svg viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="mc-c" x1=".1" y1="0" x2=".8" y2="1"><stop stop-color="#e8f9e8"/><stop offset=".53" stop-color="#8fc6c2"/><stop offset="1" stop-color="#387d83"/></linearGradient></defs><path d="M32 6 49 21 51 43 32 56 13 43 15 21Z" fill="url(#mc-c)" stroke="#846a43" stroke-width="2.5"/><path d="m32 6-7 18 7 32 12-30-12-20M15 21l17 9 17-9M13 43l19-13 19 13" stroke="#fff8ce" stroke-opacity=".75" stroke-width="2" fill="none"/><path d="m18 17 8-8m-2 2 0-8" stroke="#fff8d4" stroke-width="2" stroke-linecap="round"/></svg>',
+  english:'<svg viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="mc-k" x1=".1" y1=".1" x2=".9" y2="1"><stop stop-color="#fff2af"/><stop offset=".55" stop-color="#dba753"/><stop offset="1" stop-color="#96622d"/></linearGradient></defs><circle cx="24" cy="20" r="12" fill="url(#mc-k)" stroke="#825528" stroke-width="2.5"/><circle cx="24" cy="20" r="5.4" fill="#fbe8bb" stroke="#8a6238" stroke-width="2"/><path d="m32 29 21 21-4 6-6-6-5 4-5-5 4-5-13-12" fill="url(#mc-k)" stroke="#825528" stroke-width="2.5" stroke-linejoin="round"/><circle cx="46" cy="11" r="2" fill="#fff8d0"/><path d="M46 4v4m0 6v4m-7-7h4m7 0h4" stroke="#fff4b5" stroke-width="1.8" stroke-linecap="round"/></svg>',
+  geography:'<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="26" fill="#9d7044" stroke="#6b4c31" stroke-width="2.5"/><circle cx="32" cy="32" r="21" fill="#fff1c7" stroke="#d6ad67" stroke-width="2"/><circle cx="32" cy="32" r="17" fill="#a7d5cd" stroke="#6fa4a0" stroke-width="1.5"/><path d="M32 13v5m0 28v5M13 32h5m28 0h5" stroke="#986b36" stroke-width="2" stroke-linecap="round"/><path d="m22 42 7-16 13-8-7 16-13 8Z" fill="#e7a75d" stroke="#785230" stroke-width="1.7"/><path d="m29 26 13-8-7 16Z" fill="#fff7d4"/><circle cx="32" cy="32" r="2.5" fill="#815e42"/></svg>'
+});
 let mode='home',fromCamp=false,returnFocus=null;
 const QUESTS=[
  {action:'words',eyebrow:'Et lite eventyr, hvis du vil',title:'Ord har gjemt seg i Bokskogen',copy:'Reven har sett ord mellom bokstavene. Hvor mange klarer du å finne?',button:'Start Ordjakt →'},
@@ -75,11 +83,10 @@ function dialog(kind){
   const treasures=(window.LARIA_COLLECTION_CORE?.available?.(state.collectibles)||[])
     .filter(item=>item.kind==='treasure'&&item.realm!=='all');
   const discovered=treasures.filter(item=>item.owned).length;
-  const symbols={norwegian:'🪶',math:'✧',english:'⚿',geography:'🧭'};
   const keepsakes=treasures.map(item=>{
     const owned=item.owned;
     return '<div class="bc12-memory'+(owned?' is-found':' is-hidden')+'" data-collectible-id="'+item.id+'" data-owned="'+owned+'" aria-label="'+(owned?'Funnet: '+item.title:'Uoppdaget minne')+'">'+
-      '<span class="bc12-memory-symbol" aria-hidden="true">'+(symbols[item.realm]||'✦')+'</span>'+
+      '<span class="bc12-memory-symbol" aria-hidden="true">'+(MEMORY_GLYPHS[item.realm]||'✦')+'</span>'+
       '<strong>'+(owned?item.title:'Uoppdaget minne')+'</strong>'+
       '<small>'+(owned?item.description:'Et minne venter på å bli funnet')+'</small>'+
       '<span class="bc12-memory-status">'+(owned?'✦ Funnet':'Ikke funnet ennå')+'</span></div>';
