@@ -51,16 +51,13 @@
     const stops=map.querySelectorAll('.locked-journey-hotspot');
     const stop=stops[Number(index)],fox=map.querySelector('.locked-journey-traveler');
     if(!stop||!fox)return false;
-    // Use the same original painting geometry as the accessible hotspot.
-    const sx=parseFloat(stop.style.left),sy=parseFloat(stop.style.top);
-    const sw=parseFloat(stop.style.width),sh=parseFloat(stop.style.height);
-    if(![sx,sy,sw,sh].every(Number.isFinite))return false;
-    const cx=sx+sw/2;
-    // Stay adjacent to the sign, never over the tappable label.
-    const x=Math.max(9,Math.min(91,cx<49?sx+sw+6:sx-6));
-    const y=Math.max(10,Math.min(86,sy+sh/2+2.0));
-    fox.style.setProperty('--fox-x',x+'%');
-    fox.style.setProperty('--fox-y',y+'%');
+    // Move onto physical stepping stones, grounding at the feet rather
+    // than hovering beside the interactive destination sign.
+    const point=root.LARIA_LOCKED_JOURNEYS?.foxFootAnchor?.(
+      map.dataset.journeySubject,Number(index));
+    if(!point)return false;
+    fox.style.setProperty('--fox-x',point.x+'%');
+    fox.style.setProperty('--fox-y',point.y+'%');
     fox.dataset.lariaFoxStop=String(index);
     fox.dataset.lariaFoxSelected=String(root.LARIA_FOX?.choice?.()||'boy');
     react('walking',fox);
