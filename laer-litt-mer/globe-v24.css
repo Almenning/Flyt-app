@@ -1493,3 +1493,61 @@ html:has(#world-screen.active){
 @media(orientation:portrait) and (min-width:700px){
  #world-screen.active.globe-v30{background-image:url('./globe-storyscape-v36-tablet.webp?v=36b')!important}
 }
+
+
+/* Læria 11 October: learning surface first. Landscape iPad puts the spherical
+   globe beside the country controls, never stretching the real geometry.
+   Phone portrait deliberately retains the established layout. */
+@media (orientation:portrait) and (min-width:700px){
+  #world-screen.active.globe-v30:not(.atlas-perspective-on){
+    --g24-globe:min(80vw,59dvh,820px);
+    --g24-globe-top:47dvh;
+  }
+}
+@media (orientation:landscape) and (min-width:900px) and (min-height:650px){
+  #world-screen.active.globe-v30:not(.atlas-perspective-on){
+    --g24-globe:min(63dvh,53vw,640px);
+    --g24-globe-top:55dvh;
+  }
+  #world-screen.active.globe-v30:not(.atlas-perspective-on) .globe-wrap{
+    left:30.5vw!important;
+  }
+  #world-screen.active.globe-v30:not(.atlas-perspective-on) .globe-status{
+    left:auto!important;right:2vw!important;top:37dvh!important;
+    bottom:auto!important;transform:none!important;
+    width:35vw!important;max-width:430px!important;
+    min-height:0!important;padding:9px 12px!important;
+    grid-template-columns:minmax(0,1fr) auto!important;
+  }
+  #world-screen.active.globe-v30:not(.atlas-perspective-on) .globe-actions{
+    left:auto!important;right:2vw!important;bottom:max(3dvh,env(safe-area-inset-bottom))!important;
+    transform:none!important;width:35vw!important;max-width:430px!important;
+  }
+  #world-screen.active.globe-v30:not(.atlas-perspective-on) .globe-zoom{
+    right:-8%!important;
+  }
+}
+/* Short landscape phones: free vertical space by reducing the title chrome,
+   without promising an impossible tablet-sized circular globe. */
+@media (orientation:landscape) and (max-height:649px){
+  #world-screen.active.globe-v30 .premium-globe-header{
+    min-height:63px!important;max-height:73px!important;
+    padding-top:5px!important;padding-bottom:5px!important;
+  }
+  #world-screen.active.globe-v30 .premium-globe-title{
+    font-size:clamp(23px,4dvh,30px)!important;
+  }
+  #world-screen.active.globe-v30 .premium-globe-subtitle{
+    font-size:9px!important;
+  }
+  #world-screen.active.globe-v30 .globe-mode{
+    top:max(75px,calc(env(safe-area-inset-top) + 72px))!important;
+    height:39px!important;min-height:39px!important;
+  }
+  #world-screen.active.globe-v30:not(.atlas-perspective-on){
+    --g24-globe:min(62dvh,44vw,390px);
+    --g24-globe-top:51dvh;
+  }
+}
+/* In atlas mode the JS layout owns the rectangular map's dimensions;
+   never apply circular-globe overrides to it. */
