@@ -1,0 +1,71 @@
+'use strict';
+/* Real browser regression for the selected fox in existing Explore activities. */
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const {chromium,webkit}=require('playwright');
+const out=process.env.LARIA_FOX_FREEPLAY_SCREENSHOTS||'/tmp/laria-fox-freeplay';
+fs.mkdirSync(out,{recursive:true});
+function seed(which){return {version:7,progressSchemaVersion:3,
+ profile:{grade:2,onboarded:true,name:'MinRev',avatar:which,setupVersion:2},
+ mastery:{},mistakes:{},skillMastery:{},skillMistakes:{},skillLastSeen:{},masteryEvidence:{},skillEvidence:{},
+ preferences:{sound:false,autoRead:false},lastMilestone:null,recentCountryWin:null,lastActivity:null,
+ journey:{nodes:{},gradeWins:{},viewGrades:{}},answerLog:[],sessionLog:[],activeSession:null};}
+async function match(page,selector,which,label){
+ const img=page.locator(selector).first();await img.waitFor({timeout:17000});
+ await page.waitForFunction(([s,c])=>{
+  const node=document.querySelector(s);
+  return !!(node&&node.complete&&node.naturalWidth>0&&node.getAttribute('src')===window.LARIA_FOX.source(c));
+ },[selector,which],{timeout:17000});
+ assert.equal(await img.evaluate(el=>getComputedStyle(el).visibility),'visible',label+' hidden image');
+}
+async function launch(page,url,which){
+ await page.goto(url,{waitUntil:'domcontentloaded'});
+ await page.locator('#home-screen.active .bc14-subject:visible').first().waitFor({timeout:17000});
+ assert.equal(await page.evaluate(()=>state.profile.avatar),which);
+}
+async function run(engine,name,viewport,which){
+ const browser=await engine.launch({headless:true,args:engine===chromium?['--no-sandbox']:[]});
+ try{
+  const context=await browser.newContext({viewport,isMobile:viewport.width<600,hasTouch:true,serviceWorkers:'block',reducedMotion:'reduce'});
+  await context.addInitScript(s=>{if(!localStorage.getItem('laerlittmer-v2'))localStorage.setItem('laerlittmer-v2',JSON.stringify(s));},seed(which));
+  const page=await context.newPage(),errors=[];
+  page.on('pageerror',e=>errors.push(e.message));
+  await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
+  await page.route('https://api.worldbank.org/**',r=>r.abort());
+  const url=(process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria')+'&fox-freeplay='+name;
+  await launch(page,url,which);
+  await page.waitForFunction(()=>typeof openFractionLab==='function');
+  await page.evaluate(()=>openFractionLab());
+  await match(page,'.fr2-guide .fr2-fox',which,name+' Brøklab');
+  await page.screenshot({path:out+'/'+name+'-broklab.png',fullPage:true});
+  await launch(page,url+'&part=mult',which);
+  await page.waitForFunction(()=>typeof window.openMultiplicationLab==='function');
+  await page.evaluate(()=>window.openMultiplicationLab());
+  await match(page,'.mp-avatar img',which,name+' gangetabell header');
+  await match(page,'.mp-mascot img',which,name+' gangetabell guide');
+  await match(page,'.mp-art-practice img',which,name+' gangetabell card');
+  await page.locator('.mp-menu-explore').click();
+  await page.locator('.mp-explore-tab[data-mode="pick"]').click();
+  await match(page,'.mp-pick-easy-intro img',which,name+' Plukk og tell');
+  await page.screenshot({path:out+'/'+name+'-plukk.png',fullPage:true});
+  await launch(page,url+'&part=words',which);
+  await page.waitForFunction(()=>typeof window.openWordHunt==='function');
+  await page.evaluate(()=>window.openWordHunt());
+  await match(page,'.word-hunt-fox',which,name+' Ordjakt');
+  await page.screenshot({path:out+'/'+name+'-ordjakt.png',fullPage:true});
+  await launch(page,url+'&part=globe',which);
+  await page.waitForFunction(()=>typeof openGlobe==='function');
+  await page.evaluate(()=>openGlobe());
+  await match(page,'#world-screen.active .premium-globe-fox',which,name+' globe');
+  assert.equal(await page.locator('#world-screen.active .premium-globe-guide').getAttribute('src'),
+    await page.evaluate(id=>window.LARIA_FOX.source(id),which),name+' globe guide still generic');
+  await page.screenshot({path:out+'/'+name+'-globe.png',fullPage:true});
+  assert.deepEqual(errors,[],name+' runtime exceptions');
+  console.log('Selected fox freeplay',name,which,'all relevant existing activities');
+  await context.close();
+ }finally{await browser.close()}
+}
+(async()=>{
+ await run(chromium,'chromium-iphone-girl',{width:390,height:844},'girl');
+ await run(webkit,'webkit-ipad-boy',{width:820,height:1180},'boy');
+})().catch(e=>{console.error(e);process.exitCode=1});
