@@ -203,6 +203,7 @@ jobs:
       - name: Validate eight premium WebP card scenes across real layouts
         env:
           QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+          LARIA_PREMIUM_PREVIEW: '1'
         run: |
           node --check tests/laria-premium-cards.playwright.js
           node tests/laria-premium-cards.playwright.js
