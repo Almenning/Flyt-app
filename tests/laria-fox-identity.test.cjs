@@ -5,7 +5,12 @@ const path=require('node:path');
 const vm=require('node:vm');
 const root=path.join(__dirname,'..','laer-litt-mer');
 const file=name=>fs.readFileSync(path.join(root,name),'utf8');
-const sandbox={window:{LARIA_PROFILE_AVATARS:{boy:'boy-art',girl:'girl-art'}}};
+const styles={};
+const element={dataset:{},style:{setProperty:(name,value)=>{styles[name]=value;}}};
+const sandbox={state:{profile:{avatar:'girl'}},window:{
+ document:{documentElement:element},
+ LARIA_PROFILE_AVATARS:{boy:'boy-art',girl:'girl-art'}
+}};
 vm.runInNewContext(file('laria-fox-identity.js'),sandbox);
 const api=sandbox.window.LARIA_FOX;
 assert.equal(api.source('girl'),'girl-art');
@@ -13,6 +18,17 @@ assert.equal(api.source('boy'),'boy-art');
 assert.equal(api.source('unknown'),'boy-art');
 assert.equal(api.label('girl'),'Revejente');
 assert.equal(api.label('boy'),'Revegutt');
+api.syncDecorations();
+assert.equal(element.dataset.lariaFoxAvatar,'girl');
+assert.equal(styles['--laria-fox-background'],'url("girl-art")');
+sandbox.state.profile.avatar='boy';
+api.syncDecorations();
+assert.equal(element.dataset.lariaFoxAvatar,'boy');
+assert.equal(styles['--laria-fox-background'],'url("boy-art")');
+const decorativeCss=file('laria-unified-v13.css');
+assert.doesNotMatch(decorativeCss,/url\('\.\/lia-fox-explorer-home\.webp'\)/);
+assert.match(decorativeCss,/var\(--laria-fox-background\)/);
+
 for(const name of ['home-basecamp-v12.js','journey-world-premium.js','laria-task-scene-v15.js']){
  const source=file(name);
  assert.match(source,/LARIA_FOX\.source/,'missing shared identity in '+name);
@@ -33,5 +49,6 @@ assert.match(journey,/locked-journey-traveler/);
 assert.match(journey,/selectedAvatarSource\(\)/);
 const index=file('index.html');
 assert.match(index,/profile-avatars\.js[^\n]+[\s\S]*laria-fox-identity\.js/);
-assert.match(index,/laria-fox-identity\.css/);
+assert.match(index,/laria-fox-identity\\.css/);
+assert.match(index,/LARIA_FOX\\.syncDecorations\\(\\)/);
 console.log('Selected fox identity wiring passed');
