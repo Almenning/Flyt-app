@@ -360,8 +360,15 @@ async function capture(browserType,label,viewport){
         // The previous waitForFunction loop timed out even while diagnostic
         // screenshots proved 195 polygons and actual warm/golden land colours.
         try{
-          await page.locator('#atlas-canvas[data-map-ready="true"][data-render-source="country-geometry"]')
-            .waitFor({state:'attached',timeout:18000});
+          // WebKit can finish a long canvas paint just as Playwright's
+          // locator polling deadline fires. A timeout alone is not proof of
+          // blank geography. Inspect the actual ready/source/pixels below,
+          // and fail unless the full geographic rendering has completed.
+          let locatorDeadlineReached=false;
+          try{
+            await page.locator('#atlas-canvas[data-map-ready="true"][data-render-source="country-geometry"]')
+              .waitFor({state:'attached',timeout:18000});
+          }catch(_){locatorDeadlineReached=true}
           // Inspect an independent, fixed 8x8 spatial grid ONCE, after paint.
           // Blue/cyan-only frames cannot pass; pale highlighted real land can.
           const atlasProbe=await page.evaluate(requestedMode=>{
@@ -389,8 +396,17 @@ async function capture(browserType,label,viewport){
             return {opaque,land,water,source:c.dataset.renderSource,
               ready:c.dataset.mapReady,size:[c.width,c.height],sample};
           },mode);
+          assert.equal(atlasProbe.ready,'true',
+            label+' '+mode+' atlas was not fully painted: '+JSON.stringify(atlasProbe));
+          assert.equal(atlasProbe.source,'country-geometry',
+            label+' '+mode+' atlas did not use real country geometry: '+JSON.stringify(atlasProbe));
           assert.ok(atlasProbe.opaque>=20&&atlasProbe.land>=4,
             label+' '+mode+' atlas must contain visible painted land, not blue ocean alone: '+JSON.stringify(atlasProbe));
+          if(locatorDeadlineReached){
+            console.warn('[atlas delayed painted state]',label,mode,
+              JSON.stringify({ready:atlasProbe.ready,source:atlasProbe.source,
+                opaque:atlasProbe.opaque,land:atlasProbe.land,water:atlasProbe.water}));
+          }
         }catch(error){
           // Preserve a factual diagnostic, never turn an unpainted map into a pass.
           const diagnostic=await page.evaluate(requestedMode=>{
