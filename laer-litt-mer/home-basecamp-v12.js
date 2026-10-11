@@ -14,11 +14,7 @@ const QUESTS=[
 function dailyQuest(){const d=new Date(),seed=d.getFullYear()*400+d.getMonth()*31+d.getDate()+Number(currentGrade()||0);return QUESTS[seed%QUESTS.length]}
 function wordHuntRounds(){try{return Number(JSON.parse(localStorage.getItem('laria-wordhunt-v1')||'{}').rounds||0)}catch(_){return 0}}
 const young=()=>currentGrade()<=2;
-function selectedFoxSource(which){
- // Profile portraits are intentionally not used as scene art: some include a baked rectangular background.
- // Keep the saved avatar choice, but render the dedicated transparent/in-world explorer mascot in Basecamp.
- return './lia-fox-explorer.webp';
-}
+function selectedFoxSource(which){return window.LARIA_FOX.source(which);}
 function activitySubject(scope,last){
  if(scope?.subject==='geography'||String(scope?.type||'').startsWith('geo')||['country','collection','world','grade','geography-theme'].includes(scope?.type))return 'geography';
  if(['norwegian','math','english'].includes(scope?.subject))return scope.subject;
