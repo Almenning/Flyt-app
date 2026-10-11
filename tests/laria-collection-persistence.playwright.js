@@ -48,7 +48,6 @@ async function verify(browserType,label,viewport){
     await page.locator('#bc12-dialog[open].is-collection [data-collection-tab="equipment"]').click();
     assert.equal(await page.locator('#bc12-dialog[open].is-equipment .bc12-equipment-card').count(),4);
     await page.locator('#bc12-dialog[open].is-equipment [data-collection-tab="collection"]').click();
-    await page.locator('.bc12-nav [data-camp="collection"]').click();
     await page.locator('#bc12-dialog[open] .bc12-memory-grid').waitFor({timeout:10000});
     assert.equal(await page.locator('#bc12-dialog[open] .bc12-memory').count(),4);
     assert.equal(await page.locator('#bc12-dialog[open] .bc12-memory-symbol svg').count(),4,
