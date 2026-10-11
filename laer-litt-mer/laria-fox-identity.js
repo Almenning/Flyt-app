@@ -21,7 +21,7 @@
     // Keep the portrait-based selection and its persisted ID unchanged.
     // The braided girl's cutout is a provisional full-body art layer, not a
     // replacement for her original onboarding portrait.
-    return which==='girl'?'./assets/fox/girl-reference-cutout-draft.webp':source('boy');
+    return which==='girl'?'./assets/fox/girl-braids-blue-dress-v1.webp':source('boy');
   }
   root.LARIA_FOX=Object.freeze({choice,source,worldSource,label,syncDecorations});
 })(window);
