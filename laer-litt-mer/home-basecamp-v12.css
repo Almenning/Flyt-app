@@ -643,3 +643,46 @@
  #bc12-dialog .bc12-equipment-card{min-height:130px}
  #bc12-dialog.is-wardrobe .bc12-wardrobe-item{min-height:126px}
 }
+
+/* Visual QA: full 200x272 approved portraits, no amputating silhouette.
+   Cards compact on small phones so the book footer is discoverable. */
+#bc12-dialog .bc12-wardrobe-preview svg{max-height:100%;filter:drop-shadow(0 4px 2px #8b60302a)}
+@media(max-width:700px){
+ #bc12-dialog.is-collection:not(.is-wardrobe){padding:19px 12px 14px}
+ #bc12-dialog .bc12-book-heading{gap:8px}
+ #bc12-dialog .bc12-book-heading h2{margin:1px 0 5px;font-size:25px}
+ #bc12-dialog .bc12-book-seal{height:48px;flex-basis:44px}
+ #bc12-dialog .bc12-collection-tabs{padding:4px 0 2px}
+ #bc12-dialog .bc12-collection-tabs button{min-height:44px}
+ #bc12-dialog .bc12-memory-intro{margin:7px 0 9px;padding:9px 11px}
+ #bc12-dialog .bc12-memory-grid{gap:8px}
+ #bc12-dialog .bc12-memory{min-height:130px;padding:9px 6px 8px;gap:3px}
+ #bc12-dialog .bc12-memory-symbol{width:41px;height:41px;font-size:25px}
+ #bc12-dialog .bc12-memory-symbol svg{width:33px;height:33px}
+ #bc12-dialog .bc12-memory strong{min-height:25px}
+ #bc12-dialog .bc12-memory small{min-height:24px;font-size:9px}
+ #bc12-dialog .bc12-memory-status{padding:3px 7px;font-size:9px}
+ #bc12-dialog.is-collection .bc12-shelf{margin:8px 0;padding-bottom:4px}
+ #bc12-dialog.is-collection .bc12-shelf span{font-size:20px}
+ #bc12-dialog.is-collection .bc12-shelf strong{font-size:17px}
+}
+
+/* Phone visual QA: show both equipment rows and return to book without a hidden scroll.
+   iPad retains its large illustrated portrait. Smaller phones may still scroll. */
+@media(max-width:700px){
+ #bc12-dialog.is-wardrobe{padding:18px 13px 13px}
+ #bc12-dialog.is-wardrobe .bc12-wardrobe-preview{
+   width:min(47vw,184px);aspect-ratio:200/272;
+   margin:3px auto 7px;border-width:3px
+ }
+ #bc12-dialog.is-wardrobe .bc12-wardrobe-item{
+   min-height:114px;padding:7px 5px;gap:3px;font-size:12px
+ }
+ #bc12-dialog.is-wardrobe .bc12-wardrobe-item-art{width:43px;height:43px;padding:1px}
+ #bc12-dialog.is-wardrobe .bc12-wardrobe-item strong{font-size:12px}
+ #bc12-dialog.is-wardrobe .bc12-wardrobe-grid{gap:7px}
+ #bc12-dialog.is-wardrobe .bc12-wardrobe-hint{
+   margin:3px auto 7px;font-size:11px;line-height:1.4
+ }
+ #bc12-dialog.is-wardrobe .bc12-dialog-go{margin-top:8px;padding:9px}
+}

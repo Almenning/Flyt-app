@@ -360,8 +360,10 @@ async function capture(browserType,label,viewport){
         // The previous waitForFunction loop timed out even while diagnostic
         // screenshots proved 195 polygons and actual warm/golden land colours.
         try{
-          // WebKit may finish the canvas paint just as locator polling expires.
-          // Judge real country geometry and pixels independently; never pass blank maps.
+          // WebKit can finish a long canvas paint just as Playwright's
+          // locator polling deadline fires. A timeout alone is not proof of
+          // blank geography. Inspect the actual ready/source/pixels below,
+          // and fail unless the full geographic rendering has completed.
           let locatorDeadlineReached=false;
           try{
             await page.locator('#atlas-canvas[data-map-ready="true"][data-render-source="country-geometry"]')
