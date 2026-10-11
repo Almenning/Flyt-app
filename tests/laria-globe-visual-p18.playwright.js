@@ -164,18 +164,39 @@ async function capture(browserType,label,viewport){
     // frame once BOTH CSS geometry and the underlying bitmap are synchronized.
     // This remains a strict functional check: an actually stretched or hidden
     // globe will time out and fail rather than being silently accepted.
+    try{
     await page.waitForFunction(()=>{
       const screen=document.querySelector('#world-screen.active');
       const c=document.getElementById('globe-canvas'),r=c?.getBoundingClientRect();
       if(!screen||!r||screen.classList.contains('atlas-perspective-on')||
          screen.dataset.mapPerspective!=='globe')return false;
       const dpr=c._dpr||window.devicePixelRatio||1;
-      return r.width>250&&r.height>250&&Math.abs(r.width-r.height)<3&&
+      return r.width>Math.min(250,innerHeight*.55)&&r.height>Math.min(250,innerHeight*.55)&&Math.abs(r.width-r.height)<3&&
         Number(getComputedStyle(c).opacity)>.95&&
         Math.abs(c.width-Math.round(r.width*dpr))<3&&
         Math.abs(c.height-Math.round(r.height*dpr))<3;
     },null,{timeout:16000});
-    const sceneName=viewport.width>viewport.height&&viewport.width>=900?'landscape':viewport.width>=700?'tablet':'mobile';
+    }catch(error){
+      const geometry=await page.evaluate(()=>{
+        const s=document.querySelector('#world-screen.active'),c=document.getElementById('globe-canvas');
+        const wrap=document.querySelector('#world-screen.active .globe-wrap');
+        const r=c?.getBoundingClientRect(),w=wrap?.getBoundingClientRect();
+        const style=wrap&&getComputedStyle(wrap);
+        const dpr=c?c._dpr||devicePixelRatio||1:1;
+        return {viewport:[innerWidth,innerHeight],screenMode:s?.dataset.mapPerspective,
+          atlasClass:s?.classList.contains('atlas-perspective-on'),
+          canvasRect:r?{w:r.width,h:r.height,x:r.x,y:r.y}:null,
+          wrapRect:w?{w:w.width,h:w.height,x:w.x,y:w.y}:null,
+          cssGlobe:style?.getPropertyValue('width'),globeVariable:s?getComputedStyle(s).getPropertyValue('--g24-globe'):null,
+          opacity:c?getComputedStyle(c).opacity:null,bitmap:c?[c.width,c.height]:null,
+          canvasRatio:c&&r?[c.width/(r.width*dpr),c.height/(r.height*dpr)]:null,dpr};
+      }).catch(e=>({error:String(e)}));
+      console.error('[responsive-globe-not-ready]',label,JSON.stringify(geometry));
+      fs.writeFileSync(path.join(out,label+'-initial-globe-failure.json'),JSON.stringify(geometry,null,2));
+      try{await page.screenshot({path:path.join(out,label+'-initial-globe-failure.png'),fullPage:true,timeout:4000})}catch(_){}
+      throw error;
+    }
+    const sceneName=viewport.width>viewport.height?'landscape':viewport.width>=700?'tablet':'mobile';
     const backgroundImage=await page.evaluate(()=>getComputedStyle(document.getElementById('world-screen')).backgroundImage);
     assert.ok(backgroundImage.includes('globe-storyscape-v36-'+sceneName+'.webp'),label+' did not load the correct illustrated nature scene: '+backgroundImage);
     assert.ok(!backgroundImage.includes('basecamp-v11'),label+' incorrectly shows fantasy village behind globe');
@@ -245,8 +266,20 @@ async function capture(browserType,label,viewport){
       label+' zoom pair is not centered on globe: '+JSON.stringify({globeCenter,zoomCenter,layout}));
     assert.ok(layout.zoomIn.top>layout.modes.bottom+7,
       label+' zoom-in collides with mode selector');
-    assert.ok(layout.zoomOut.bottom<layout.country.top-7,
-      label+' zoom-out collides with country card');
+    if(viewport.width>viewport.height&&viewport.height<=649){
+      assert.ok(layout.globe.top>=layout.modes.bottom+6,
+        label+' small-landscape globe covers mode tabs: '+JSON.stringify(layout));
+    }
+    // Country details are beside the globe on wide screens, not below it.
+    // Physical rectangles, not just their Y coordinates, determine overlap.
+    const apart=(a,b,pad=0)=>a.right+pad<=b.left||b.right+pad<=a.left||
+      a.bottom+pad<=b.top||b.bottom+pad<=a.top;
+    if(viewport.width>viewport.height){
+      console.log(label+' responsive globe bounds '+JSON.stringify(layout));
+      await page.screenshot({path:path.join(out,label+'-responsive-layout.png'),fullPage:true,animations:'disabled'});
+    }
+    assert.ok(apart(layout.zoomOut,layout.country,7),
+      label+' zoom-out physically overlaps country card: '+JSON.stringify(layout));
     assert.ok(layout.zoomIn.left>=-1&&layout.zoomOut.right<=viewport.width+1,
       label+' zoom buttons spill beyond viewport');
 
@@ -256,7 +289,8 @@ async function capture(browserType,label,viewport){
     }
     if(viewport.width>=900&&viewport.width>viewport.height){
       assert.ok(layout.modes.bottom+3<=layout.globe.top,label+' mode tabs collide with rotating globe: '+JSON.stringify(layout));
-      assert.ok(layout.globe.bottom+3<=layout.country.top,label+' globe collides with land card: '+JSON.stringify(layout));
+      assert.ok(apart(layout.globe,layout.country,3),
+        label+' globe physically overlaps land card: '+JSON.stringify(layout));
     }
     // Child-facing text must stay legible on the physical country card.
     const readability=await page.evaluate(()=>{
@@ -306,7 +340,7 @@ async function capture(browserType,label,viewport){
     assert.equal(metrics.overflow,false,label+' horizontal overflow');
     const minGlobeWidth=viewport.width<600?viewport.width*.84:(viewport.width>viewport.height?viewport.height*.52:viewport.width*.68);
     assert.ok(metrics.canvas.w+0.75>=minGlobeWidth,label+' globe too narrow for locked composition: '+metrics.canvas.w+' < '+minGlobeWidth);
-    assert.ok(metrics.canvas.h>=300,label+' globe too short: '+metrics.canvas.h);
+    assert.ok(metrics.canvas.h>=Math.min(300,viewport.height*.58),label+' globe too short: '+metrics.canvas.h);
     // A round globe is non-negotiable: CSS and backing bitmap must use the
     // same proportions on iPhone, iPad and landscape desktop Safari.
     assert.ok(Math.abs(metrics.canvas.w-metrics.canvas.h)<=1,
@@ -352,7 +386,7 @@ async function capture(browserType,label,viewport){
       if(mode==='classic'){
         await page.waitForFunction(()=>{
           const c=document.getElementById('globe-canvas'),r=c?.getBoundingClientRect();
-          return r&&r.width>250&&Math.abs(r.width-r.height)<3&&Number(getComputedStyle(c).opacity)>.95;
+          return r&&r.width>Math.min(250,innerHeight*.55)&&Math.abs(r.width-r.height)<3&&Number(getComputedStyle(c).opacity)>.95;
         },null,{timeout:12000});
       }else{
         // First wait for actual country-geometry rendering without repeatedly
@@ -464,6 +498,27 @@ async function capture(browserType,label,viewport){
       }
       assert.equal(modeState.active,true,label+' '+mode+' mode did not activate: '+
         JSON.stringify({modeState,errors,navigation,crashes}));
+      if(viewport.width>viewport.height&&viewport.height<=649&&mode!=='classic'){
+        const rects=await page.evaluate(()=>{
+          const rect=q=>{const r=document.querySelector(q)?.getBoundingClientRect();
+            return r?{left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height}:null};
+          const legend=document.querySelector('#globe-legend');
+          return {atlas:rect('#atlas-canvas'),card:rect('#globe-status'),
+            actions:rect('#world-screen .globe-actions'),
+            legend:legend&&getComputedStyle(legend).display!=='none'?rect('#globe-legend'):null};
+        });
+        assert.ok(rects.atlas&&rects.card,label+' missing landscape atlas/card');
+        assert.ok(rects.atlas.width>viewport.width*.45&&rects.atlas.height>viewport.height*.52,
+          label+' landscape atlas still too small: '+JSON.stringify(rects));
+        assert.ok(apart(rects.atlas,rects.card,6),
+          label+' landscape atlas overlaps country card: '+JSON.stringify(rects));
+        if(mode==='mine'&&rects.legend){
+          assert.ok(apart(rects.atlas,rects.legend,4),
+            label+' Mine legend covers the map: '+JSON.stringify(rects));
+          assert.ok(apart(rects.card,rects.legend,3)&&apart(rects.actions,rects.legend,3),
+            label+' Mine legend covers country information or bottom actions: '+JSON.stringify(rects));
+        }
+      }
       await page.screenshot({path:path.join(out,label+'-'+mode+'.png'),fullPage:true});
     }
     fs.writeFileSync(path.join(out,label+'.json'),JSON.stringify(metrics,null,2));
@@ -487,10 +542,13 @@ async function capture(browserType,label,viewport){
     assert.ok(rendererSource.includes("const borderAlpha=globeZoom>2.5?.48:globeZoom>1.65?.34:.22"),'political borders became visually dominant again');
     assert.equal(rendererSource.includes("const sparks=[[-.95,-.70"),false,'legacy target-ring/spark marker must stay removed');
     await assertProfileFoxSelection(chromium);
+    // Test the largest requested learning surface first to catch a layout
+    // regression quickly before the slower iPhone Safari render matrix.
+    await capture(webkit,'webkit-ipad-landscape',{width:1180,height:820});
     await capture(chromium,'chromium-iphone',{width:390,height:844});
     await capture(webkit,'webkit-iphone',{width:390,height:844});
+    await capture(webkit,'webkit-iphone-landscape',{width:844,height:390});
     await capture(webkit,'webkit-ipad',{width:820,height:1180});
-    await capture(webkit,'webkit-ipad-landscape',{width:1180,height:820});
     await capture(webkit,'webkit-desktop-landscape',{width:1525,height:864});
     console.log('ok - Prompt 18 globe visual evidence captured');
   }finally{s.close()}

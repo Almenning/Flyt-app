@@ -231,10 +231,21 @@ function layout(){
  screen.style.setProperty('--atlas-legend-top',(modeBottom+9)+'px');
  const legend=document.getElementById('globe-legend');
  const legendRect=map.mode==='mine'&&legend?.classList.contains('show')?legend.getBoundingClientRect():null;
- const top=Math.max(110,modeBottom+14,legendRect?.height?legendRect.bottom+11:0);
- const bottom=Math.min(vh-104,(cardRect?.top||vh-164)-14);
- const h=Math.max(185,bottom-top);
- const w=Math.min(vw-24,vw>=1100?1080:vw>=700?850:vw-24);
+ // Preserve the familiar phone-portrait geometry. Wider tablet screens
+ // should not be held to the old 850px atlas cap.
+ const portrait=vh>vw;
+ const shortLandscape=!portrait&&vh<=649&&vw>=600;
+ const tablet=vw>=700&&portrait;
+ const gap=(tablet||!portrait)?9:14;
+ const top=Math.max(110,modeBottom+gap,(!shortLandscape&&legendRect?.height)?legendRect.bottom+9:0);
+ // Short landscape uses a left-hand map and a separate right-hand country card;
+ // the card's vertical top must not artificially shorten the atlas canvas.
+ const bottom=shortLandscape?vh-10:
+   Math.min(vh-(portrait?104:78),(cardRect?.top||vh-164)-(portrait?12:8));
+ const h=Math.max(shortLandscape?165:185,bottom-top);
+ const maxWidth=shortLandscape?Math.min(vw*.52-9,680):
+   tablet?Math.min(vw-20,990):!portrait?Math.min(vw-20,1440):vw-24;
+ const w=Math.min(vw-20,maxWidth);
  screen.style.setProperty('--atlas-top',top+'px');
  screen.style.setProperty('--atlas-height',h+'px');
  screen.style.setProperty('--atlas-width',w+'px');
