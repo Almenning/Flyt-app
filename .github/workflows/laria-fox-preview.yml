@@ -38,6 +38,11 @@ jobs:
           QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
           LARIA_LIVE_FOX_QA: /tmp/laria-live-fox
         run: node tests/laria-live-fox-presence.playwright.js
+      - name: Verify persistent wardrobe with new full-body fox and preserved portrait fallback
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+          LARIA_COLLECTION_QA: /tmp/laria-fox-collection-smoke
+        run: node tests/laria-collection-persistence.playwright.js
       - name: Keep visual evidence even if tests fail
         if: always()
         uses: actions/upload-artifact@v4
