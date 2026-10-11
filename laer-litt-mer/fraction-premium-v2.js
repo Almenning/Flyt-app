@@ -190,15 +190,27 @@ function cardIllustration(type){
  return '<svg class="fr2-illustration fr2-illustration-'+type+'" viewBox="0 0 240 150" role="presentation" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">'+grad+p+'</svg>';
 }
 function loosePieceSvg(denominator,slot){
-  const d=Math.max(2,denominator),index=Number(slot)||0,id='fr2Loose'+d+'-'+index;
-  const cx=57,cy=61,r=44,a0=-Math.PI/2,a1=a0+Math.PI*2/d;
-  const x0=cx+r*Math.cos(a0),y0=cy+r*Math.sin(a0),x1=cx+r*Math.cos(a1),y1=cy+r*Math.sin(a1);
-  const outline='M '+cx+' '+cy+' L '+x0.toFixed(3)+' '+y0.toFixed(3)+' A '+r+' '+r+' 0 0 1 '+x1.toFixed(3)+' '+y1.toFixed(3)+' Z';
-  const rotation=(index*360/d).toFixed(2);
-  return '<svg class="fr2-loose-piece" viewBox="0 0 114 114" aria-hidden="true" focusable="false"><defs><radialGradient id="'+id+'"><stop stop-color="#F8BE99"/><stop offset=".5" stop-color="#DC6B54"/><stop offset="1" stop-color="#A64039"/></radialGradient></defs>'
-    +'<g transform="rotate('+rotation+' 57 61)"><path d="'+outline+'" transform="translate(3 4)" fill="#B27D44" opacity=".3"/>'
-    +'<path d="'+outline+'" fill="url(#'+id+')" stroke="#DAA36A" stroke-width="5" stroke-linejoin="round"/>'
-    +'<path d="M57 61L'+x0.toFixed(1)+' '+y0.toFixed(1)+'" stroke="#F9D6AA" stroke-width="3" opacity=".7"/></g></svg>';
+  const d=clamp(Number(denominator)||4,2,12),index=clamp(Number(slot)||0,0,d-1);
+  const cx=57,cy=61,r=44,arc=Math.PI*2/d,a0=-Math.PI/2+index*arc,a1=a0+arc;
+  const point=t=>({x:cx+r*Math.cos(t),y:cy+r*Math.sin(t)});
+  const p0=point(a0),p1=point(a1),sector=[{x:cx,y:cy},p0,p1];
+  for(let k=-4;k<=8;k++){
+    const angle=k*Math.PI/2;
+    if(angle>a0+1e-7&&angle<a1-1e-7)sector.push(point(angle));
+  }
+  // Crop each cake wedge to its real silhouette. The earlier full-circle
+  // viewBox made the loose pieces tiny red specks on a child's iPhone.
+  const minX=Math.min(...sector.map(p=>p.x)),maxX=Math.max(...sector.map(p=>p.x));
+  const minY=Math.min(...sector.map(p=>p.y)),maxY=Math.max(...sector.map(p=>p.y));
+  const pad=10,side=Math.max(maxX-minX,maxY-minY)+pad*2;
+  const left=(minX+maxX-side)/2,top=(minY+maxY-side)/2,id='fr2Loose'+d+'-'+index;
+  const n=x=>x.toFixed(2);
+  const outline='M '+cx+' '+cy+' L '+n(p0.x)+' '+n(p0.y)+' A '+r+' '+r+' 0 0 1 '+n(p1.x)+' '+n(p1.y)+' Z';
+  return '<svg class="fr2-loose-piece" viewBox="'+n(left)+' '+n(top)+' '+n(side)+' '+n(side)+'" aria-hidden="true" focusable="false">'
+    +'<defs><radialGradient id="'+id+'" cx="28%" cy="20%"><stop stop-color="#F8BE99"/><stop offset=".5" stop-color="#DC6B54"/><stop offset="1" stop-color="#A64039"/></radialGradient></defs>'
+    +'<path d="'+outline+'" transform="translate(2 3)" fill="#B27D44" opacity=".28"/>'
+    +'<path d="'+outline+'" fill="url(#'+id+')" stroke="#DAA36A" stroke-width="4" stroke-linejoin="round"/>'
+    +'<path d="M'+cx+' '+cy+'L'+n(p0.x)+' '+n(p0.y)+'" stroke="#F9D6AA" stroke-width="2.5" opacity=".8"/></svg>';
 }
 
 function miniArt(type){return cardIllustration(type)}
