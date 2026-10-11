@@ -200,6 +200,12 @@ jobs:
           QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
           NAV_QA_SCREENSHOTS: /tmp/laria-navigation-v13
         run: node tests/laria-navigation-v13.playwright.js
+      - name: Validate eight premium WebP card scenes across real layouts
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+        run: |
+          node --check tests/laria-premium-cards.playwright.js
+          node tests/laria-premium-cards.playwright.js
       - name: Verify subject-first Home on iPhone and iPad
         env:
           QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
