@@ -13,6 +13,23 @@ const EXPLORE=[
  ['multiply','Gangetabell','Utforsk tallmønstre','✕']
 ];
 
+/* Approved premium card art. The existing SVG remains a reliable offline fallback.
+   Labels, clicks, grades, progress, saved data and routes remain real HTML/app logic. */
+const PREMIUM_CARD_IMAGES=Object.freeze({
+ norwegian:'./assets/cards/reisen/norwegian-premium.webp',
+ math:'./assets/cards/reisen/math-premium.webp',
+ english:'./assets/cards/reisen/english-premium.webp',
+ geography:'./assets/cards/reisen/geography-premium.webp',
+ globe:'./assets/cards/utforsk/globe-premium.webp',
+ words:'./assets/cards/utforsk/words-premium.webp',
+ fraction:'./assets/cards/utforsk/fraction-premium.webp',
+ multiply:'./assets/cards/utforsk/multiply-premium.webp'
+});
+function premiumArtMarkup(action){
+ const path=PREMIUM_CARD_IMAGES[action];
+ return path?'<img class="bc13-premium-art" data-premium-scene="'+action+'" src="'+path+'?v=20261011-premium1" width="1024" height="704" alt="" loading="lazy" decoding="async" draggable="false">':'';
+}
+
 /* Each destination is a small, self-contained storybook place on the same physical map. 
    No heavy image downloads, and scene artwork has no effect on saved learning state. */
 function sceneMarkup(action){
@@ -38,7 +55,7 @@ function sceneMarkup(action){
   multiply:'<g transform="translate(59 14)"><path d="M0 90L58 103 128 90 67 78Z" fill="#74583e" opacity=".26"/><rect x="0" y="0" width="128" height="89" rx="9" fill="#987044" stroke="#6c4d34" stroke-width="4"/><g fill="#f3d696" stroke="#ac8351" stroke-width="2"><rect x="10" y="8" width="30" height="22" rx="4"/><rect x="49" y="8" width="30" height="22" rx="4"/><rect x="88" y="8" width="30" height="22" rx="4"/><rect x="10" y="35" width="30" height="22" rx="4"/><rect x="49" y="35" width="30" height="22" rx="4"/><rect x="88" y="35" width="30" height="22" rx="4"/><rect x="10" y="62" width="30" height="20" rx="4"/><rect x="49" y="62" width="30" height="20" rx="4"/><rect x="88" y="62" width="30" height="20" rx="4"/></g><g fill="#5a7168" font-size="17" font-weight="900" text-anchor="middle"><text x="25" y="26">2</text><text x="64" y="26">4</text><text x="103" y="26">6</text><text x="25" y="53">3</text><text x="64" y="53">6</text><text x="103" y="53">9</text><text x="25" y="79">4</text><text x="64" y="79">8</text><text x="103" y="79">12</text></g></g>'
  };
  const ground='<path d="M0 80Q55 46 102 72T240 58V110H0Z" fill="'+p[1]+'"/><path d="M0 91Q67 80 117 96T240 89V110H0Z" fill="'+p[2]+'"/><path d="M0 103Q70 89 135 105T240 104V110H0Z" fill="rgba(33,81,67,.19)"/>';
- return '<span class="bc13-scene" aria-hidden="true"><svg viewBox="0 0 240 110" preserveAspectRatio="xMidYMid slice" focusable="false" role="presentation"><rect width="240" height="110" fill="'+p[0]+'"/><circle cx="200" cy="19" r="17" fill="#fff4be" opacity=".72"/><path d="M-5 47Q24 32 58 43T123 41T242 37" fill="none" stroke="#fff8de" stroke-width="9" stroke-linecap="round" opacity=".30"/>'+ground+(marks[action]||'')+'</svg></span>';
+ return '<span class="bc13-scene" aria-hidden="true"><svg viewBox="0 0 240 110" preserveAspectRatio="xMidYMid slice" focusable="false" role="presentation"><rect width="240" height="110" fill="'+p[0]+'"/><circle cx="200" cy="19" r="17" fill="#fff4be" opacity=".72"/><path d="M-5 47Q24 32 58 43T123 41T242 37" fill="none" stroke="#fff8de" stroke-width="9" stroke-linecap="round" opacity=".30"/>'+ground+(marks[action]||'')+'</svg>'+premiumArtMarkup(action)+'</span>';
 }
 
 let panelMode='home';
@@ -64,7 +81,12 @@ function activate(mode){
  let panel=root.querySelector('.bc13-panel');
  if(!panel){panel=document.createElement('section');panel.className='bc13-panel';panel.setAttribute('aria-labelledby','bc13-panel-title');root.appendChild(panel);}
  if(mode==='home'){panel.hidden=true;root.dataset.bc13View='home';}
- else{panel.hidden=false;panel.innerHTML=panelMarkup(mode);root.dataset.bc13View=mode;}
+ else{
+  panel.hidden=false;panel.innerHTML=panelMarkup(mode);root.dataset.bc13View=mode;
+  panel.querySelectorAll('.bc13-premium-art').forEach(img=>{
+    img.addEventListener('error',()=>{img.hidden=true;},{once:true});
+  });
+ }
  root.querySelectorAll('.bc12-nav button').forEach(button=>{
    if(button.dataset.camp===mode)button.setAttribute('aria-current','page');
    else button.removeAttribute('aria-current');
