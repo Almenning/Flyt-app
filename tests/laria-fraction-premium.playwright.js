@@ -59,6 +59,13 @@ async function run(browser,engine,label,viewport,url){
   assert.equal(await page.locator('.fr6-piece-tray .fr2-spare').count(),4);
   await page.locator('.fr6-piece-tray [data-piece-index="3"]').dragTo(page.locator('.fr2-build-target'));
   assert.deepEqual((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build)).filled,[3],'dragging piece 4 must not fill piece 1: '+JSON.stringify(await page.evaluate(()=>LARIA_FRACTION_PREMIUM.dragDiagnostics())));
+  // A denominator change may reshape the cake, but must not erase the
+  // filled piece merely because its prior sector index is out of range.
+  await page.locator('[data-fr-action="adjust"][data-field="d"][data-step="-1"]').click();
+  assert.deepEqual(await page.evaluate(()=>{const x=LARIA_FRACTION_PREMIUM.snapshot().build;return [x.n,x.d,x.filled]}),[1,3,[2]],
+     'splitting the cake into fewer parts must preserve its single filled piece');
+  await page.locator('[data-fr-action="adjust"][data-field="d"][data-step="1"]').click();
+  assert.deepEqual(await page.evaluate(()=>{const x=LARIA_FRACTION_PREMIUM.snapshot().build;return [x.n,x.d,x.filled]}),[1,4,[3]]);
   await page.locator('.fr6-piece-tray [data-piece-index="1"]').click();
   assert.deepEqual((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build)).filled,[1,3]);
   await page.locator('[data-fr-action="adjust"][data-field="d"][data-step="1"]').click();
