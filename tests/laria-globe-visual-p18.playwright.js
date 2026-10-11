@@ -542,11 +542,13 @@ async function capture(browserType,label,viewport){
     assert.ok(rendererSource.includes("const borderAlpha=globeZoom>2.5?.48:globeZoom>1.65?.34:.22"),'political borders became visually dominant again');
     assert.equal(rendererSource.includes("const sparks=[[-.95,-.70"),false,'legacy target-ring/spark marker must stay removed');
     await assertProfileFoxSelection(chromium);
+    // Test the largest requested learning surface first to catch a layout
+    // regression quickly before the slower iPhone Safari render matrix.
+    await capture(webkit,'webkit-ipad-landscape',{width:1180,height:820});
     await capture(chromium,'chromium-iphone',{width:390,height:844});
     await capture(webkit,'webkit-iphone',{width:390,height:844});
     await capture(webkit,'webkit-iphone-landscape',{width:844,height:390});
     await capture(webkit,'webkit-ipad',{width:820,height:1180});
-    await capture(webkit,'webkit-ipad-landscape',{width:1180,height:820});
     await capture(webkit,'webkit-desktop-landscape',{width:1525,height:864});
     console.log('ok - Prompt 18 globe visual evidence captured');
   }finally{s.close()}
