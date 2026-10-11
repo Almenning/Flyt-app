@@ -231,10 +231,22 @@ function layout(){
  screen.style.setProperty('--atlas-legend-top',(modeBottom+9)+'px');
  const legend=document.getElementById('globe-legend');
  const legendRect=map.mode==='mine'&&legend?.classList.contains('show')?legend.getBoundingClientRect():null;
- const top=Math.max(110,modeBottom+14,legendRect?.height?legendRect.bottom+11:0);
- const bottom=Math.min(vh-104,(cardRect?.top||vh-164)-14);
- const h=Math.max(185,bottom-top);
- const w=Math.min(vw-24,vw>=1100?1080:vw>=700?850:vw-24);
+ // Landscape iPhone: the country card sits beside the map, not below it.
+ // Its top is no longer the map's lower boundary.
+ const compactLandscape=vw>=540&&vh<=540&&vw>vh;
+ const tabletLandscape=vw>=700&&vh>540&&vw<=1366&&vw>vh;
+ const top=compactLandscape
+  ?Math.max(105,modeBottom+10,legendRect?.height?legendRect.bottom+11:0)
+  :Math.max(110,modeBottom+14,legendRect?.height?legendRect.bottom+11:0);
+ const bottom=compactLandscape
+  ?vh-10
+  :Math.min(vh-104,(cardRect?.top||vh-164)-14);
+ const h=Math.max(compactLandscape?120:185,bottom-top);
+ // iPad landscape has no old 850px atlas cap.
+ const w=compactLandscape
+  ?Math.min(Math.floor(vw*.56)-18,620)
+  :tabletLandscape?vw-24
+   :Math.min(vw-24,vw>=1100?1080:vw>=700?850:vw-24);
  screen.style.setProperty('--atlas-top',top+'px');
  screen.style.setProperty('--atlas-height',h+'px');
  screen.style.setProperty('--atlas-width',w+'px');
