@@ -3155,6 +3155,7 @@
 <!-- Core local data used by the inline app runtime. -->
 <script src="./profile-avatars.js?v=20261006-assets1" data-boot-sync></script>
 <script src="./laria-fox-identity.js?v=20261011-personalfox2" data-boot-sync></script>
+<script src="./laria-collection-core.js?v=20261011-collection-core1" data-boot-sync></script>
 <script src="./commercial-content-v18.js?v=20261010-math-decimal1" data-boot-sync></script>
 <script src="./commerce-v18.js?v=20261007-p18rc1" data-boot-sync></script>
 <script src="./norwegian-content.js?v=20261006-assets1" defer></script>
@@ -3250,6 +3251,7 @@ const defaultState={
   recentCountryWin:null,
   lastActivity:null,
   journey:{nodes:{},gradeWins:{},viewGrades:{}},
+  collectibles:window.LARIA_COLLECTION_CORE.normalize(null),
   answerLog:[],
   sessionLog:[],
   activeSession:null
@@ -3289,13 +3291,37 @@ function loadState(){
       preferences:{...defaultState.preferences,...(parsed.preferences||{})},
       lastMilestone:parsed.lastMilestone||null,recentCountryWin:parsed.recentCountryWin||null,
       journey:{nodes:{...(parsed.journey?.nodes||{})},gradeWins:{...(parsed.journey?.gradeWins||{})},viewGrades:{...(parsed.journey?.viewGrades||{})}},
+      collectibles:window.LARIA_COLLECTION_CORE.normalize(parsed.collectibles),
       answerLog:Array.isArray(parsed.answerLog)?parsed.answerLog:[],
       sessionLog:Array.isArray(parsed.sessionLog)?parsed.sessionLog:[]
     };
+    // Older saved profiles inherit already-earned treasures; no learning records
+    // or child-selected avatar are changed by this reversible data migration.
+    next.collectibles=window.LARIA_COLLECTION_CORE.reconcile(next.collectibles,next).collection;
     return next;
   }catch(e){return cloneDefault()}
 }
 function saveState(){safeStorageSet(STORAGE_KEY,JSON.stringify(state))}
+// Data-only bridge. Never show a wearable item until matching layered art exists.
+window.LARIA_COLLECTION_STORE=Object.freeze({
+  snapshot:()=>window.LARIA_COLLECTION_CORE.normalize(state.collectibles),
+  refresh:()=>{
+    const resolved=window.LARIA_COLLECTION_CORE.reconcile(state.collectibles,state);
+    state.collectibles=resolved.collection;
+    if(resolved.newlyUnlocked.length)saveState();
+    return resolved.newlyUnlocked.slice();
+  },
+  equip:id=>{
+    const result=window.LARIA_COLLECTION_CORE.equip(state.collectibles,id);
+    if(result.changed){state.collectibles=result.collection;saveState()}
+    return result.changed;
+  },
+  unequip:slot=>{
+    const result=window.LARIA_COLLECTION_CORE.unequip(state.collectibles,slot);
+    if(result.changed){state.collectibles=result.collection;saveState()}
+    return result.changed;
+  }
+});
 
 // Exact questions solved correctly get a long cooldown so a new session actually feels new.
 // Wrong answers may return sooner because spaced retry is useful when the child is still learning.
@@ -6333,7 +6359,9 @@ function finishSession(){
   const result={endedAt:Date.now(),correct:sessionCorrect,learningCorrect,total:sessionQuestions.length,strengthened:practiceOnly?0:sessionStrengthened.size,area:sessionScope.label,practiceOnly,activityKey,duplicateToday,countsTowardGoal:!practiceOnly&&!duplicateToday};
   const newRecord=!practiceOnly&&hadPrevious&&result.correct>previousBest;
   recordJourneySessionResult(result);
-  state.sessionLog.push(result);state.activeSession=null;saveState();renderAll();
+  state.sessionLog.push(result);state.activeSession=null;
+  state.collectibles=window.LARIA_COLLECTION_CORE.reconcile(state.collectibles,state).collection;
+  saveState();renderAll();
   document.getElementById('complete-correct').textContent=`${result.correct}/${result.total}`;
   document.getElementById('complete-learned').textContent=result.strengthened;
   document.getElementById('complete-area').textContent=result.area||'Verden';
