@@ -2,7 +2,7 @@ name: Laria QA
 
 on:
   push:
-    branches: [main, fix/laria-globe-locked-scenery-v36, feat/laria-oct10-locked-journeys-phase1, feat/laria-personal-fox-20261011]
+    branches: [main, fix/laria-globe-locked-scenery-v36, feat/laria-oct10-locked-journeys-phase1, feat/laria-personal-fox-20261011, feat/laria-fox-live-companion-20261011]
     paths:
       - 'laer-litt-mer/**'
       - 'tests/**'
