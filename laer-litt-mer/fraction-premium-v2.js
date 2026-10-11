@@ -215,29 +215,56 @@ function viewIllustration(view){
  return frame+'<path d="M15 7H46L42 45H19Z" fill="#E4F0F2" stroke="#688F9C" stroke-width="3"/><path d="M20 26H43L42 45H23Z" fill="#78B8CC"/><path d="M45 15Q62 15 57 31Q55 38 43 36" fill="none" stroke="#688F9C" stroke-width="5"/><path d="M34 9V43" stroke="#91B5B8" stroke-width="1.5"/>'+end;
 }
 function explore(){
- const x=u.explore;
- const modes=[['circle','Sirkel'],['bar','Stripe'],['grid','Rutenett'],['glass','Målebeger']];
- const caption=x.n===0?'Ingen av '+x.d+' deler er fylt.':x.n===x.d?'Hele figuren er fylt.':x.n+' av '+x.d+' like deler er fylt.';
- const speech=x.n===0?'Trykk på en del. Hva tror du skjer?':x.n===x.d?'Nå er alle delene med. Det er én hel!':'Flott! '+x.n+' av '+x.d+' deler er fargelagt.';
- return '<section class="fr2-explore fr4-explore">'+sign('Utforsk brøker','Se, bygg og skap brøker på flere måter!')
- +'<div class="fr2-views fr4-views" role="group" aria-label="Velg brøkvisning">'+modes.map(([k,label])=>cta('view','<span class="fr4-mode-art">'+viewIllustration(k)+'</span><b>'+label+'</b>','fr2-view '+(x.mode===k?'active':''),'data-view="'+k+'" aria-pressed="'+(x.mode===k)+'"')).join('')+'</div>'
- +'<div class="fr2-stage fr2-explore-stage fr4-explore-stage"><div class="fr2-stage-main fr4-stage-main"><div class="fr2-main-illustration">'+presentation(x.n,x.d,x.mode,x.mode==='circle')+'</div><div class="fr2-main-value">'+frac(x.n,x.d)+'</div></div>'
- +'<div class="fr4-scene-fox">'+fox()+'</div><div class="fr4-scene-speech" role="status" aria-live="polite">'+speech+'<span aria-hidden="true">♥</span></div>'
- +'<div class="fr4-stage-caption">'+caption+'</div></div>'
- +'<div class="fr2-controls fr4-controls">'+adjustField('n')+adjustField('d')+'</div><div class="fr2-soft-section fr4-common"><strong>Vanlige brøker</strong>'+commonFractions()+'</div>'
- +'<div class="fr4-small-discovery" aria-hidden="true"><span>✦</span> Prøv å fylle én del til! <span>✦</span></div></section>';
+  const x=u.explore;
+  const modes=[['circle','Sirkel'],['bar','Stripe'],['grid','Rutenett'],['glass','Målebeger']];
+  const caption=x.n===0?'Ingen av '+x.d+' deler er fylt.':x.n===x.d?'Hele figuren er fylt.':x.n+' av '+x.d+' like deler er fylt.';
+  const speech=x.n===0?'Trykk på en del. Hva tror du skjer?':x.n===x.d?'Nå er alle delene med. Det er én hel!':'Flott! '+x.n+' av '+x.d+' deler er fargelagt.';
+  // The object, its numerical fraction and both controls belong to the first viewport.
+  // The representation picker and presets are secondary and may scroll below.
+  return '<section class="fr2-explore fr4-explore fr5-explore">'+labIntro('Utforsk brøker','Se hva som skjer når du endrer delene!')
+   +'<div class="fr2-stage fr2-explore-stage fr4-explore-stage fr5-explore-stage"><div class="fr2-stage-main fr4-stage-main"><div class="fr2-main-illustration">'+presentation(x.n,x.d,x.mode,x.mode==='circle')+'</div><div class="fr2-main-value">'+frac(x.n,x.d)+'</div></div>'
+   +'<div class="fr4-scene-fox fr5-scene-fox" data-fr-action="fox-help" role="button" tabindex="0" aria-label="Trykk på reven for hjelp og opplesning">'+fox()+'</div><div class="fr4-scene-speech" role="status" aria-live="polite">'+speech+'<span aria-hidden="true">♥</span></div>'
+   +'<div class="fr4-stage-caption">'+caption+'</div></div>'
+   +'<div class="fr2-controls fr4-controls fr5-controls">'+adjustField('n')+adjustField('d')+'</div>'
+   +'<div class="fr2-views fr4-views fr5-view-picker" role="group" aria-label="Velg brøkvisning">'+modes.map(([k,label])=>cta('view','<span class="fr4-mode-art">'+viewIllustration(k)+'</span><b>'+label+'</b>','fr2-view '+(x.mode===k?'active':''),'data-view="'+k+'" aria-pressed="'+(x.mode===k)+'"')).join('')+'</div>'
+   +'<div class="fr2-soft-section fr4-common"><strong>Vanlige brøker</strong>'+commonFractions()+'</div>'
+   +'<div class="fr4-small-discovery" aria-hidden="true"><span>✦</span> Prøv å fylle én del til! <span>✦</span></div></section>';
+}
+function labIntro(title,subtitle){
+ return '<div class="fr5-lab-intro"><h1>'+title+'</h1><p>'+subtitle+'</p></div>';
+}
+function foxHint(){
+ const x=u.page==='build'?u.build:u.explore;
+ if(x.n===0)return 'Du har null av '+x.d+' deler. Trykk på kaken eller på en løs bit for å fylle én del.';
+ if(x.n===x.d)return 'Alle '+x.d+' delene er fylt. Det er én hel!';
+ if(x.d%2===0&&x.n===x.d/2)return 'Du har bygget en halv! '+x.n+' av '+x.d+' deler er akkurat halvparten.';
+ return 'Du har '+x.n+' av '+x.d+' like deler. Telleren er '+x.n+', antallet fargelagte deler. Nevneren er '+x.d+', antallet like deler.';
+}
+function foxSpeak(){
+ // Speech starts only from the child's deliberate tap. The text remains visible
+ // in the lab even on browsers without Norwegian speech synthesis.
+ try{
+  if(!window.speechSynthesis||!window.SpeechSynthesisUtterance)return;
+  window.speechSynthesis.cancel();
+  const utterance=new window.SpeechSynthesisUtterance(foxHint());
+  utterance.lang='nb-NO';utterance.rate=.88;
+  window.speechSynthesis.speak(utterance);
+ }catch(_){}
 }
 
 function build(){
  const x=u.build;
- return '<section class="fr2-build fr4-build">'+sign('Bygg en brøk','Lag din egen brøk med biter du kan flytte.')
- +'<div class="fr2-build-workshop fr4-build-stage"><div class="fr2-wood-tray"><span class="fr2-tray-title">Brøkbiter</span><div class="fr2-spare-pieces">'+Array.from({length:Math.min(x.d,8)},(_,i)=>cta('add',loosePieceSvg(x.d,i),'fr2-spare '+(i===0?'point':'') ,'data-fr-pick="1" aria-label="Legg til én del"')).join('')+'</div><small>Trykk eller dra en bit inn</small></div>'
- +'<div class="fr2-build-target" data-fr-drop="1"><div class="fr4-build-woodhead">Delene dine</div><div class="fr2-fabric">'+fractionSvg(x.n,x.d,'builder',true,x.filled)+'</div><p>Trykk på en del for å fylle eller fjerne den.</p></div></div>'
- +'<div class="fr2-controls fr4-controls">'+adjustField('d')+adjustField('n')+'</div>'
- +'<div class="fr2-result fr4-build-result"><span>Du har bygget</span>'+frac(x.n,x.d)+'<small>'+x.n+' av '+x.d+' like deler.</small></div>'
- +'<div class="fr2-actions">'+cta('reset','Tøm brettet','fr2-secondary')+cta('next-build','Bygg noe nytt ›','fr2-primary')+'</div>'
- +mascot(x.notice||(x.n===x.d?'Du har laget en hel!':x.n===0?'Velg en bit fra kassen for å begynne.':'Flott! Du har bygget '+x.n+' av '+x.d+' deler.'),true)+'</section>';
+ const status=x.n===0?'Prøv en bit!':x.n===x.d?'En hel!':x.n+' av '+x.d+'!';
+ return '<section class="fr2-build fr4-build fr5-build">'+labIntro('Bygg en brøk','Trykk på kaken, eller legg til en brøkbit.')
+ +'<div class="fr2-build-workshop fr4-build-stage fr5-build-stage">'
+ +'<div class="fr2-build-target fr5-build-target" data-fr-drop="1"><div class="fr4-build-woodhead">Delene dine</div><div class="fr2-fabric">'+fractionSvg(x.n,x.d,'builder',true,x.filled)+'</div><p>Trykk på en del for å fylle eller fjerne den.</p></div>'
+ +'<div class="fr5-build-aside"><div class="fr5-live-result" role="status" aria-live="polite" aria-atomic="true"><span>Du har bygget</span>'+frac(x.n,x.d)+'<small>'+x.n+' av '+x.d+' like deler</small></div>'
+ +'<div class="fr2-guide fr5-fox-mentor" data-fr-action="fox-help" role="button" tabindex="0" aria-label="Trykk på reven for hjelp og opplesning">'+fox()+'<span class="fr5-fox-bubble">'+status+' <span aria-hidden="true">🔊</span></span></div></div>'
+ +'<div class="fr2-wood-tray fr5-piece-tray"><span class="fr2-tray-title">Brøkbiter</span><div class="fr2-spare-pieces">'+Array.from({length:Math.min(x.d,8)},(_,i)=>cta('add',loosePieceSvg(x.d,i),'fr2-spare '+(i===0?'point':''),'data-fr-pick="1" aria-label="Legg til én del"')).join('')+'</div><small>Trykk eller dra en bit inn</small></div>'
+ +'</div><div class="fr2-controls fr4-controls fr5-controls">'+adjustField('d')+adjustField('n')+'</div>'
+ +'<div class="fr2-actions">'+cta('reset','Tøm brettet','fr2-secondary')+cta('next-build','Bygg noe nytt ›','fr2-primary')+'</div></section>';
 }
+
 function eqCurrent(){return EQ[u.equal%EQ.length]}
 function equalScreen(){
  const q=eqCurrent(),l=q.a,r=q.b,isEqual=equal(l,r),answered=u.equalGuess!==null,discovered=answered&&isEqual===(u.equalGuess==='equal');
@@ -360,7 +387,8 @@ function actionHandler(e){
   try{openSubject('math')}catch(_){}
   return;
  }
- if(a==='go'){enter(btn.dataset.page);return;}
+ if(a==='fox-help'){foxSpeak();return;}
+  if(a==='go'){enter(btn.dataset.page);return;}
  if(a==='view'){u.explore.mode=btn.dataset.view;mark('explored',key(u.explore.n,u.explore.d));render();return;}
  if(a==='preset'){u.explore.n=Number(btn.dataset.n);u.explore.d=Number(btn.dataset.d);mark('explored',key(u.explore.n,u.explore.d));render();return;}
  if(a==='adjust'){adjust(btn.dataset.field,Number(btn.dataset.step));return;}
@@ -377,7 +405,9 @@ function actionHandler(e){
  if(a==='next-convert'){u.convert=(u.convert+1)%CONVERSIONS.length;const q=CONVERSIONS[u.convert];mark('converted',key(q[0],q[1]));render();return;}
 }
 function keyHandler(e){
- const t=e.target.closest('[data-fr-action="piece"]');if(t&&(e.key==='Enter'||e.key===' ')){e.preventDefault();setPiece(Number(t.dataset.piece))}
+ const foxButton=e.target.closest('[data-fr-action="fox-help"]');
+  if(foxButton&&(e.key==='Enter'||e.key===' ')){e.preventDefault();foxSpeak();return;}
+  const t=e.target.closest('[data-fr-action="piece"]');if(t&&(e.key==='Enter'||e.key===' ')){e.preventDefault();setPiece(Number(t.dataset.piece))}
 }
 function clearDrag(){
  if(drag?.ghost)drag.ghost.remove();
