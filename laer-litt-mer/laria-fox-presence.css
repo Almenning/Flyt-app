@@ -1,0 +1,77 @@
+/* Living fox: one equipped character, animated as part of each location.
+   Movement never creates a second image and never blocks touch targets. */
+.laria-fox-wardrobe-art .laria-fox-pose{
+  transform-box:view-box;transform-origin:50% 80%;
+  animation:laria-fox-breathe 4.7s ease-in-out infinite;
+}
+.laria-fox-wardrobe-anchor[data-laria-fox-mood="greet"] .laria-fox-pose{
+  animation:laria-fox-greet .9s ease-in-out 1;
+}
+.laria-fox-wardrobe-anchor[data-laria-fox-mood="walking"] .laria-fox-pose{
+  animation:laria-fox-walk .45s ease-in-out 2;
+}
+.laria-fox-wardrobe-anchor[data-laria-fox-mood="celebrate"] .laria-fox-pose{
+  animation:laria-fox-celebrate .95s cubic-bezier(.24,.75,.3,1) 1;
+}
+.laria-fox-wardrobe-anchor[data-laria-fox-mood="support"] .laria-fox-pose{
+  animation:laria-fox-support .8s ease-out 1;
+}
+.laria-fox-wardrobe-anchor[data-laria-fox-mood="curious"] .laria-fox-pose{
+  animation:laria-fox-curious .8s ease-in-out 1;
+}
+@keyframes laria-fox-breathe{
+  0%,100%{transform:translateY(0) rotate(-.7deg)}
+  50%{transform:translateY(-2px) rotate(.7deg)}
+}
+@keyframes laria-fox-greet{
+  0%,100%{transform:rotate(0) translateY(0)}
+  25%,70%{transform:rotate(5deg) translateY(-5px)}
+  45%{transform:rotate(-4deg) translateY(-3px)}
+}
+@keyframes laria-fox-walk{
+  0%,100%{transform:translateY(0) rotate(-2deg)}
+  50%{transform:translateY(-6px) rotate(2deg)}
+}
+@keyframes laria-fox-celebrate{
+  0%,100%{transform:translateY(0) scale(1) rotate(0)}
+  30%{transform:translateY(-15px) scale(1.045) rotate(-5deg)}
+  60%{transform:translateY(-5px) rotate(5deg)}
+}
+@keyframes laria-fox-support{
+  0%,100%{transform:rotate(0) translateY(0)}
+  40%{transform:rotate(5deg) translateY(3px)}
+  70%{transform:rotate(-3deg) translateY(0)}
+}
+@keyframes laria-fox-curious{
+  0%,100%{transform:rotate(0)}
+  45%{transform:rotate(8deg) translateY(2px)}
+}
+
+/* The fox walks in the illustration, not inside an additional portrait card.
+   Original 10 October background artwork remains untouched in this draft. */
+.locked-journey-board .locked-journey-traveler{
+  width:clamp(48px,12%,102px);height:auto;aspect-ratio:1;
+  border:0!important;border-radius:0!important;
+  background:none!important;box-shadow:none!important;
+  left:var(--fox-x);top:var(--fox-y);
+  transition:left 1.05s cubic-bezier(.25,.66,.29,1),top 1.05s cubic-bezier(.25,.66,.29,1);
+  filter:drop-shadow(0 4px 4px rgba(16,43,37,.4));
+  pointer-events:none!important;
+}
+.locked-journey-board .locked-journey-traveler>img{
+  object-fit:contain!important;border:0!important;border-radius:0!important;
+  box-shadow:none!important;
+}
+.locked-journey-board .locked-journey-traveler>.locked-fox-label{display:none!important}
+.locked-journey-board .locked-journey-traveler>.laria-fox-wardrobe-placed{
+  z-index:2;overflow:visible;
+}
+#session-screen.task-scene .task-fox-companion{
+  pointer-events:none!important;
+}
+/* Keep guide subtle. No loud loops, flashy sprites or forced attention. */
+@media(prefers-reduced-motion:reduce){
+  .laria-fox-wardrobe-art .laria-fox-pose,
+  .laria-fox-wardrobe-anchor[data-laria-fox-mood] .laria-fox-pose{animation:none!important}
+  .locked-journey-board .locked-journey-traveler{transition:none!important}
+}
