@@ -36,12 +36,15 @@ async function run(engine,name,viewport,avatar){
     assert.equal(await page.evaluate(()=>window.LARIA_FOX_PRESENCE.activeAvatar()),avatar,name+' saved avatar changed');
     assert.equal(await home.locator('svg.laria-fox-wardrobe-art .laria-fox-pose').count(),1,name+' missing single dressed fox rig');
     assert.equal(await home.locator('.laria-fox-wardrobe-art [data-gear="oppdagerhatt"]').count(),1,name+' the chosen fox lost its equipped hat');
-    if(avatar==='girl'){
-      const source=await home.locator('svg.laria-fox-wardrobe-art image').getAttribute('href');
-      assert.match(source,/girl-braids-blue-dress-v1\.webp$/,name+' still renders a portrait instead of approved full-body fox');
-      const geometry=await home.evaluate(el=>{const r=el.getBoundingClientRect();return {width:r.width,height:r.height}});
-      assert(geometry.height>=geometry.width*1.3,name+' tall character was squashed into a portrait circle '+JSON.stringify(geometry));
-    }
+    const source=await home.locator('svg.laria-fox-wardrobe-art image').getAttribute('href');
+    assert.match(source,avatar==='girl'?/girl-braids-blue-dress-v1\.webp$/:/boy-adventurer-green-vest-v1\.webp$/,
+      name+' must render the actual chosen full-body fox, never a portrait photo');
+    const rigType=await home.locator('svg.laria-fox-wardrobe-art').getAttribute('data-fox-art');
+    assert.equal(rigType,avatar+'-fullbody-v1',name+' outfit rig does not match selected full-body fox');
+    const geometry=await home.evaluate(el=>{const r=el.getBoundingClientRect();return {width:r.width,height:r.height}});
+    assert(geometry.height>=geometry.width*1.3,name+' character was squashed into a portrait circle '+JSON.stringify(geometry));
+    assert.equal(await home.evaluate(el=>getComputedStyle(el).borderRadius),'0px',
+      name+' full-body companion should never sit in the old round portrait frame');
     assert.equal(await page.evaluate(()=>window.LARIA_FOX_PRESENCE.react('greet')),true);
     assert.equal(await home.getAttribute('data-laria-fox-mood'),'greet');
     await page.screenshot({path:path.join(dir,name+'-home.png'),animations:'disabled'});
