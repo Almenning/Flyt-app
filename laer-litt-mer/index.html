@@ -5485,7 +5485,7 @@ function renderHomeContinue(){
   const wrap=document.getElementById('home-continue-wrap');if(!wrap)return;
   wrap.hidden=false;
   const eye=document.getElementById('home-continue-eyebrow'),young=currentGrade()<=2;
-  const worldNames={norwegian:'Bokskogen',math:'Tallriket',english:'Ordlandsbyen',geography:'Oppdagelsesriket'};
+  const worldNames={norwegian:'Bokskogen',math:'Tallenga',english:'Ordlandsbyen',geography:'Nordlysleiren'};
   const homeSubject=state.activeSession?.scope?.subject||state.lastActivity?.subject||'geography';
   wrap.dataset.subject=['norwegian','math','english'].includes(homeSubject)?homeSubject:'geography';
   const active=state.activeSession?.scope;
@@ -5516,7 +5516,6 @@ function renderFoxGuide(){
   if(state.activeSession){title.textContent='Jeg holder plassen din';copy.textContent='Økten venter. Du kan fortsette når du er klar.';return}
   const goal=dailyGoal();
   if(goal.done>=goal.target){title.textContent='Dagens lille mål er i boks';copy.textContent='Resten er bonus. Det er lov å være ferdig.';return}
-  if(goal.done>0){title.textContent='Dagens lille mål er i boks';copy.textContent='Resten er bonus. Det er lov å være ferdig.';return}
   const band=gradeBand();
   title.textContent=band==='young'?'Jeg har et lite oppdrag til deg 🦊':band==='middle'?'Klar for et nytt oppdrag? 🧭':'Klar for litt mer?';
   copy.textContent=band==='young'?'Fem små utfordringer. Jeg starter med noe du har god sjanse til å klare.':band==='middle'?'Velg ett fag og ta et kort oppdrag. Du ser fremgangen med en gang.':'Én liten økt er nok. Resten er bonus.';
