@@ -104,6 +104,7 @@ function dialog(kind){
      if(selected.equipped)window.LARIA_COLLECTION_STORE.unequip(selected.slot);
      else window.LARIA_COLLECTION_STORE.equip(id);
      window.LARIA_FOX_WARDROBE.refresh();
+     renderLegacyIdentity();
      dialog('wardrobe');
      d.querySelector('[data-wear="'+id+'"]')?.focus();
    }));
@@ -255,13 +256,26 @@ function bindCampControls(host){
  }
 
 }
+function renderLegacyIdentity(){
+ // Children keep the same elected fox through grade changes; the older
+ // dashboard has no separate mascot identity or reward inventory.
+ if(young())return;
+ const surface=document.querySelector('#home-screen .dashboard-mascot');
+ const wardrobe=window.LARIA_FOX_WARDROBE;
+ if(!surface||!wardrobe?.render)return;
+ const avatar=wardrobe.choice(),collection=wardrobe.inventory();
+ const signature=avatar+'|'+JSON.stringify(collection.equipped||{});
+ if(surface.dataset.lariaIdentitySignature===signature)return;
+ surface.innerHTML=wardrobe.render(avatar,collection);
+ surface.dataset.lariaIdentitySignature=signature;
+}
 function render(){
  window.LARIA_BASECAMP_DIAG.render=true;
  const screen=document.getElementById('home-screen');if(!screen)return;
  let host=screen.querySelector('.bc12');
  if(!host){screen.insertAdjacentHTML('afterbegin',markup());host=screen.querySelector('.bc12');}
  bindCampControls(host);
- host.hidden=!young();if(!young())return;
+ host.hidden=!young();renderLegacyIdentity();if(!young())return;
  host.dataset.mode=mode;
  const profile=(typeof state!=='undefined'&&state?.profile)?state.profile:{};
  const playerName=typeof profile.name==='string'?profile.name.trim():'';
@@ -283,6 +297,11 @@ window.LARIA_OPEN_WARDROBE=()=>{dialog('wardrobe')};
 window.LARIA_OPEN_COLLECTION=()=>{dialog('collection')};
 function init(){
  window.LARIA_BASECAMP_DIAG.init=true;
+ document.querySelectorAll('[data-laria-legacy-collection]').forEach(button=>{
+   if(button.dataset.lariaLegacyBound==='true')return;
+   button.dataset.lariaLegacyBound='true';
+   button.addEventListener('click',()=>dialog(button.dataset.lariaLegacyCollection));
+ });
  if(!document.getElementById('bc12-dialog')){const d=document.createElement('dialog');d.id='bc12-dialog';d.setAttribute('aria-labelledby','bc12-dialog-title');document.body.append(d);d.addEventListener('click',e=>{if(e.target===d){const r=d.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)closeDialog()}});}
  // Capture only returns from activities entered through basecamp. Other routes keep their original behavior.
  // Bind the concrete back controls directly. Safari/WebKit has proven less reliable with delegated closest() touch routes.
