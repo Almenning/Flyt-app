@@ -58,8 +58,14 @@
   function screenFor(geo){return document.getElementById(geo?'geography-screen':'subject-screen')}
   function hostFor(geo){return document.getElementById(geo?'geo-journey-map':'journey-map')}
   function backHome(geo){
+    // Navigate directly rather than simulating a click on a separate, hidden
+    // back button. WebKit at 320px occasionally left the journey active after
+    // the proxy click; the real Basecamp return keeps Explore/Home context.
+    if(typeof window.LARIA_RETURN_TO_BASECAMP==='function'&&
+       window.LARIA_RETURN_TO_BASECAMP())return;
+    if(typeof setTab==='function'){setTab('home');return}
     const btn=document.getElementById(geo?'geography-back':'subject-back');
-    if(btn)btn.click();else if(typeof setTab==='function')setTab('home');
+    btn?.click();
   }
   function notifyLoaded(subject){
     requestAnimationFrame(()=>{

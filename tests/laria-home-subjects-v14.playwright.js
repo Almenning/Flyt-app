@@ -57,7 +57,16 @@ async function run(engine,label,viewport){
    const back=page.locator('#'+screen+'-screen.active .locked-journey-map[data-journey-subject="'+subject+'"] .locked-journey-back');
    await back.waitFor({state:'visible',timeout:16000});
    await back.click();
-   await page.locator('#home-screen.active').waitFor({timeout:12000});
+   try{await page.locator('#home-screen.active').waitFor({timeout:12000})}
+   catch(error){
+     const diagnostic=await page.evaluate(()=>({
+       activeScreens:[...document.querySelectorAll('.screen.active')].map(e=>e.id),
+       visibleHome:!!document.querySelector('#home-screen.active'),
+       journeySubject:document.querySelector('.locked-journey-map')?.dataset.journeySubject||'unknown',
+       viewport:[innerWidth,innerHeight]
+     }));
+     throw new Error(label+' '+subject+' journey back did not return to Basecamp: '+JSON.stringify(diagnostic),{cause:error});
+   }
    await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]:visible').waitFor({timeout:12000});
   }
   await page.locator('.bc14-free').click();
