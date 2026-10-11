@@ -1,0 +1,55 @@
+name: Læria premium card asset compiler
+on:
+  push:
+    branches:
+      - feat/laria-premium-journey-explore-cards-20261011
+    paths:
+      - scripts/generate-laria-premium-card-assets.py
+      - .github/workflows/laria-premium-card-assets.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  compile-card-artwork:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install art renderer
+        run: python -m pip install 'Pillow==11.2.1'
+      - name: Render eight independent WebP card scenes
+        run: python scripts/generate-laria-premium-card-assets.py
+      - name: Confirm dimensions and size before committing
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from PIL import Image
+          root=Path('laer-litt-mer')
+          meta=json.loads((root/'assets/cards/manifest.json').read_text())
+          assert len(meta)==8
+          for name,info in meta.items():
+              p=root/info['path']
+              assert p.is_file(),name
+              with Image.open(p) as image:
+                  assert image.size==(1024,704)
+                  assert image.format=='WEBP'
+              assert 12000<=p.stat().st_size<=500000
+          print('Eight premium illustrations verified')
+          PY
+      - name: Commit generated visual assets to feature branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add laer-litt-mer/assets/cards/
+          if git diff --cached --quiet; then echo "Assets unchanged"; exit 0; fi
+          git commit -m "assets(laria): eight premium storybook card illustrations"
+          git push origin HEAD:feat/laria-premium-journey-explore-cards-20261011
