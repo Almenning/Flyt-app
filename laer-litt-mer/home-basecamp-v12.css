@@ -666,3 +666,23 @@
  #bc12-dialog.is-collection .bc12-shelf span{font-size:20px}
  #bc12-dialog.is-collection .bc12-shelf strong{font-size:17px}
 }
+
+/* Phone visual QA: show both equipment rows and return to book without a hidden scroll.
+   iPad retains its large illustrated portrait. Smaller phones may still scroll. */
+@media(max-width:700px){
+ #bc12-dialog.is-wardrobe{padding:18px 13px 13px}
+ #bc12-dialog.is-wardrobe .bc12-wardrobe-preview{
+   width:min(47vw,184px);aspect-ratio:200/272;
+   margin:3px auto 7px;border-width:3px
+ }
+ #bc12-dialog.is-wardrobe .bc12-wardrobe-item{
+   min-height:114px;padding:7px 5px;gap:3px;font-size:12px
+ }
+ #bc12-dialog.is-wardrobe .bc12-wardrobe-item-art{width:43px;height:43px;padding:1px}
+ #bc12-dialog.is-wardrobe .bc12-wardrobe-item strong{font-size:12px}
+ #bc12-dialog.is-wardrobe .bc12-wardrobe-grid{gap:7px}
+ #bc12-dialog.is-wardrobe .bc12-wardrobe-hint{
+   margin:3px auto 7px;font-size:11px;line-height:1.4
+ }
+ #bc12-dialog.is-wardrobe .bc12-dialog-go{margin-top:8px;padding:9px}
+}

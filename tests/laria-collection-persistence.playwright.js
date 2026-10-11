@@ -79,6 +79,14 @@ async function verify(browserType,label,viewport){
     assert.equal(portrait.imageHeight,'272','original full-body illustration must be uncropped');
     assert.match(portrait.mask||'',/^url\(#laria-wd-/,'soft oval mask required');
     assert.equal(portrait.hardCrop,0,'outdated polygon cutoff must not amputate the fox');
+    if(label==='iphone'){
+      const backButton=await page.locator('#bc12-dialog[open] [data-wardrobe-back]').evaluate(el=>{
+        const rect=el.getBoundingClientRect();
+        return {bottom:rect.bottom,top:rect.top,viewport:window.innerHeight};
+      });
+      assert.ok(backButton.top>=0&&backButton.bottom<=backButton.viewport-7,
+        'On a typical iPhone the wardrobe back button must be visible without scrolling: '+JSON.stringify(backButton));
+    }
     await page.screenshot({path:path.join(evidence,label+'-garderobe-med-hatt.png'),animations:'disabled'});
     await page.locator('#bc12-dialog[open] [data-wear="oppdagerhatt"]').click();
     assert.equal(await page.locator('#bc12-dialog[open] .bc12-wardrobe-preview [data-gear="oppdagerhatt"]').count(),0);
