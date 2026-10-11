@@ -3856,7 +3856,14 @@ function geoJourneyNodeState(node){
   }
   const grade=Number(node.grade||currentGrade()),eligible=node.ids.filter(id=>questionTypesForCountry(id,true,grade).includes(node.geoType)),target=Math.max(1,Math.min(node.target||1,eligible.length));
   const mastered=eligible.filter(id=>typeMastered(id,node.geoType)).length,can=eligible.filter(id=>typeCanNow(id,node.geoType)).length,seen=eligible.filter(id=>stageRank(typeStage(id,node.geoType))>=stageRank('seen')).length;
-  if(mastered>=target)return 'mastered';if(can>=target)return 'can-now';if(seen>0)return 'active';return 'new';
+  // A finished map stop advances the JOURNEY immediately; long-term country
+  // mastery still requires distinct correct retrievals on different occasions.
+  // This mirrors ordinary subject journeys and also recognizes pre-release attempts.
+  const journeyFinished=Number(journeyNodeRecord(node).attempts||0)>0;
+  if(mastered>=target)return 'mastered';
+  if(can>=target||journeyFinished)return 'can-now';
+  if(seen>0)return 'active';
+  return 'new';
 }
 function geoJourneyAreaComplete(area){
   const skills=area.nodes.filter(n=>n.type==='geo-skill'),cp=area.nodes.find(n=>n.type==='checkpoint');
