@@ -75,6 +75,51 @@ async function run(engine,name,viewport,avatar){
     assert.equal(after,before,name+' fox movement must not fake mastery');
     assert.equal(await fox.evaluate(el=>getComputedStyle(el).pointerEvents),'none',name+' fox steals map taps');
     await page.screenshot({path:path.join(dir,name+'-journey.png'),animations:'disabled'});
+    // Visit all twenty painted landmarks without changing the learning state.
+    // There must be only one grounded, equipped traveler on each map.
+    const subjects=['norwegian','math','english','geography'];
+    for(let subjectIndex=0;subjectIndex<subjects.length;subjectIndex++){
+      const subject=subjects[subjectIndex];
+      if(subjectIndex>0){
+        await page.locator('.screen.active .locked-journey-back').click();
+        await page.locator('#home-screen.active .bc14-subject[data-camp="subject-'+subject+'"]').waitFor({timeout:12000});
+        await page.locator('#home-screen.active .bc14-subject[data-camp="subject-'+subject+'"]').click();
+      }
+      const activeMap=page.locator('.screen.active .locked-journey-map[data-journey-subject="'+subject+'"]');
+      await activeMap.waitFor({timeout:15000});
+      const traveler=activeMap.locator('.locked-journey-traveler');
+      await traveler.locator('svg.laria-fox-wardrobe-art').waitFor({timeout:12000});
+      assert.equal(await traveler.count(),1,name+' '+subject+' duplicate traveler');
+      assert.equal(await traveler.getAttribute('data-avatar'),avatar,name+' '+subject+' selected a different fox');
+      assert.equal(await traveler.locator('[data-gear="oppdagerhatt"]').count(),1,name+' '+subject+' lost equipped gear');
+      const cleaned=activeMap.locator('.locked-journey-fox-free');
+      assert.equal(await cleaned.count(),1,name+' '+subject+' has no painted-fox removal');
+      await cleaned.evaluate(img=>img.decode());
+      const beforeMap=await page.evaluate(()=>JSON.stringify(JSON.parse(localStorage.getItem('laerlittmer-v2')).journey));
+      for(let stop=0;stop<5;stop++){
+        await activeMap.locator('.locked-journey-hotspot').nth(stop).click();
+        await page.locator('.locked-journey-overlay:not([hidden])').waitFor({timeout:10000});
+        assert.equal(await traveler.getAttribute('data-laria-fox-stop'),String(stop),
+          name+' '+subject+' traveler missed painted landmark '+stop);
+        const position=await traveler.evaluate(el=>{
+          const fox=el.getBoundingClientRect(),board=el.closest('.locked-journey-board').getBoundingClientRect();
+          return {left:fox.left-board.left,right:board.right-fox.right,
+            top:fox.top-board.top,bottom:board.bottom-fox.bottom,interactive:getComputedStyle(el).pointerEvents};
+        });
+        assert(position.left>=-3&&position.right>=-3&&position.top>=-3&&position.bottom>=-3,
+          name+' '+subject+' fox clipped at stop '+stop+' '+JSON.stringify(position));
+        assert.equal(position.interactive,'none',name+' '+subject+' mascot blocks destination taps');
+        await page.locator('.locked-sheet-close').click();
+      }
+      const afterMap=await page.evaluate(()=>JSON.stringify(JSON.parse(localStorage.getItem('laerlittmer-v2')).journey));
+      assert.equal(afterMap,beforeMap,name+' '+subject+' fox movement changed learning progression');
+      await page.screenshot({path:path.join(dir,name+'-'+subject+'-final-stop.png'),animations:'disabled'});
+    }
+    // Return through ordinary navigation and launch a real task after touring
+    // all four worlds, not via a test-only bypass.
+    await page.locator('.screen.active .locked-journey-back').click();
+    await page.locator('#home-screen.active .bc14-subject[data-camp="subject-norwegian"]').click();
+    await map.waitFor({timeout:15000});
     const current=map.locator('.locked-journey-hotspot.state-current').first();
     await current.click();
     const mission=page.locator('.locked-journey-overlay:not([hidden]) button[data-locked-node]:not([disabled])').first();
