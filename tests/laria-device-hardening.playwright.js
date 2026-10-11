@@ -142,6 +142,18 @@ async function verifyOlderHome(page,label,width,height,grade){
       && !!document.querySelector('.bc12-fox .laria-fox-wardrobe-art');
   });
   assert.equal(srcMatches,true,label+' must show the selected personal fox and its clothing layer');
+  if(width<=700){
+    const placement=await page.evaluate(()=>{
+      const box=sel=>document.querySelector(sel)?.getBoundingClientRect();
+      const fox=box('#home-screen.active .bc12-fox');
+      const signs=['.bc12-globe .bc12-sign','.bc12-words .bc12-sign'].map(box);
+      const overlap=(a,b)=>a&&b?Math.max(0,Math.min(a.right,b.right)-Math.max(a.left,b.left))*Math.max(0,Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top)):0;
+      return {visible:!!fox&&fox.width>=44&&fox.height>=44,areas:signs.map(sign=>overlap(fox,sign)),fox:fox?{left:fox.left,top:fox.top,right:fox.right,bottom:fox.bottom}:null};
+    });
+    assert.equal(placement.visible,true,label+' chosen fox must remain a proper, visible companion');
+    assert.ok(placement.areas.every(a=>a<2),
+      label+' chosen fox must not cover either painted activity sign: '+JSON.stringify(placement));
+  }
   for(const sel of ['.bc14-subject[data-camp="subject-norwegian"]','.bc14-subject[data-camp="subject-math"]',
     '.bc14-subject[data-camp="subject-english"]','.bc14-subject[data-camp="subject-geography"]',
     '.bc12-nav [data-camp="collection"]','.bc12-nav [data-camp="wardrobe"]',

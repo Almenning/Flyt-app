@@ -135,3 +135,14 @@
 @media(prefers-reduced-motion:reduce){
   .bc12[data-grade-band] button{transition:none!important}
 }
+
+/* Mobile visual QA: keep the chosen fox in the clear sky between both painted
+   activity signs. The original left alignment obscured "Kloden" at grades 3-10.
+   Preserve the full-size chosen fox on iPad/landscape and for grades 1-2. */
+@media(max-width:700px) and (orientation:portrait){
+  :is(.grade-band-middle,.grade-band-older,.grade-band-teen)
+  .bc12[data-release="basecamp-rc1"][data-mode="home"] .bc12-fox{
+    left:42%!important;top:16%!important;bottom:auto!important;
+    width:18%!important;max-width:82px!important;
+  }
+}
