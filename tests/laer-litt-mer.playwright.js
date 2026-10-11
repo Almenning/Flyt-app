@@ -1151,8 +1151,9 @@ async function finishSession(page){
       const fox=page.locator('.task-fox-companion');
       assert.equal(await page.locator('#session-screen').getAttribute('data-task-fox-release'),'fox-rc1',label+' missing Prompt 13 fox release');
       assert.equal(await fox.getAttribute('data-avatar'),'girl',label+' TaskScene fox did not follow saved avatar state');
-      assert.match(await fox.locator('img').getAttribute('src'),/lia-fox-explorer\.webp(?:\?|$)/,label+' must use the transparent scene fox');
-      assert.equal(await fox.locator('img').getAttribute('src').then(src=>String(src).startsWith('data:')),false,label+' must not use onboarding portrait data');
+      const foxIsChosen=await fox.locator('img').evaluate(img=>
+        img.getAttribute('src')===window.LARIA_FOX.source(window.LARIA_FOX.choice()));
+      assert.equal(foxIsChosen,true,label+' TaskScene fox must be the saved revejente');
       const layout=await page.evaluate(()=>{
         const rect=s=>document.querySelector(s)?.getBoundingClientRect();
         const f=rect('.task-fox-companion'),q=rect('.question'),a=rect('.task-interaction');
