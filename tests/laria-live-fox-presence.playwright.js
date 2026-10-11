@@ -68,7 +68,7 @@ async function run(engine,name,viewport,avatar){
     assert.equal(await task.getAttribute('data-avatar'),avatar,name+' task changed fox identity');
     for(const mood of ['curious','support','celebrate']){
       assert.equal(await page.evaluate(m=>window.LARIA_FOX_PRESENCE.react(m)),true);
-      assert.equal(await task.getAttribute('data-laria-fox-mood'),m,name+' task mood '+m+' missing');
+      assert.equal(await task.getAttribute('data-laria-fox-mood'),mood,name+' task mood '+mood+' missing');
     }
     await page.screenshot({path:path.join(dir,name+'-task.png'),animations:'disabled'});
     assert.deepEqual(errors,[],name+' browser errors '+JSON.stringify(errors));
