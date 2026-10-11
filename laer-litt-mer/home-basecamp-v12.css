@@ -686,3 +686,107 @@
  }
  #bc12-dialog.is-wardrobe .bc12-dialog-go{margin-top:8px;padding:9px}
 }
+
+
+/* Older-grade Home: the same personal collection, with age-appropriate visual
+   density. Grades 1-2 retain their illustrated five-destination Basecamp. */
+#home-screen .laria-legacy-collection-shortcuts{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  align-items:stretch;
+  gap:12px;
+  margin:14px 0 17px;
+  position:relative;
+  z-index:2
+}
+.grade-band-young #home-screen .laria-legacy-collection-shortcuts{display:none!important}
+#home-screen .laria-legacy-collection-link{
+  appearance:none;
+  -webkit-appearance:none;
+  border:2px solid #cab08d;
+  border-radius:19px;
+  box-shadow:0 3px 0 #ab8f6c,0 8px 18px #41342618;
+  background:linear-gradient(125deg,#fffaea 0%,#f2e2c4 100%);
+  color:#513b2c;
+  padding:11px 14px;
+  min-width:0;
+  min-height:72px;
+  width:100%;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  text-align:left;
+  font:inherit;
+  cursor:pointer;
+  touch-action:manipulation;
+  transition:transform .14s ease,box-shadow .14s ease
+}
+#home-screen .laria-legacy-collection-link:active{
+  transform:translateY(2px);
+  box-shadow:0 1px 0 #ab8f6c,0 3px 8px #41342618
+}
+#home-screen .laria-legacy-collection-link:focus-visible{
+  outline:3px solid #276ba5;
+  outline-offset:3px
+}
+#home-screen .laria-legacy-collection-icon{
+  position:relative;
+  display:grid;
+  flex:0 0 44px;
+  place-items:center;
+  width:44px;
+  height:44px;
+  border-radius:14px;
+  background:radial-gradient(circle at 32% 26%,#edbe7b,#985f3d);
+  color:#fff1bf;
+  border:2px solid #ba8f5c;
+  box-shadow:inset 0 2px 4px #ffffff55;
+  font-size:23px;
+}
+#home-screen .laria-legacy-collection-icon.is-fox{
+  background:linear-gradient(155deg,#eeb97c,#cf7a49);
+  border-color:#a46647;
+  color:#573e31;
+}
+#home-screen .laria-legacy-collection-copy{display:flex;flex-direction:column;gap:3px;min-width:0;line-height:1.2}
+#home-screen .laria-legacy-collection-copy strong{font-size:17px;line-height:1.15;font-weight:900}
+#home-screen .laria-legacy-collection-copy small{font-size:12px;font-weight:600;color:#7a5b43}
+#home-screen .laria-legacy-collection-arrow{font-size:27px;font-weight:600;color:#95694a;line-height:1;margin-left:auto}
+/* The older dashboard no longer displays an independent default mascot. */
+#home-screen .dashboard-mascot .laria-fox-wardrobe-art{width:100%;height:100%;display:block;filter:drop-shadow(0 4px 4px #40506d30)}
+#home-screen .laria-legacy-fox-placeholder{
+  width:100%;height:100%;display:grid;place-items:center;
+  color:#9a6b45;font-size:42px
+}
+.grade-band-middle #home-screen .dashboard-mascot{
+  width:156px;height:190px;right:3px;bottom:-22px;opacity:1
+}
+.grade-band-middle #home-screen .laria-legacy-collection-link{
+  background:linear-gradient(135deg,#fbf9ed,#e5f1ef);border-color:#9dbeb5;box-shadow:0 3px 0 #85a8a0,0 8px 17px #314d4530
+}
+.grade-band-older #home-screen .laria-legacy-collection-link,
+.grade-band-teen #home-screen .laria-legacy-collection-link{
+  min-height:60px;background:#f8fafc;border:1px solid #d5dce5;border-radius:13px;box-shadow:0 3px 9px #1d395011
+}
+.grade-band-older #home-screen .laria-legacy-collection-copy strong,
+.grade-band-teen #home-screen .laria-legacy-collection-copy strong{font-size:15px}
+.grade-band-older #home-screen .laria-legacy-collection-icon,
+.grade-band-teen #home-screen .laria-legacy-collection-icon{width:36px;height:36px;flex-basis:36px;border-radius:9px;font-size:19px}
+.grade-band-teen #home-screen .laria-legacy-collection-link{background:#f0f5fa;color:#203c57}
+@media(max-width:420px){
+  #home-screen .laria-legacy-collection-shortcuts{gap:8px;margin:11px 0 14px}
+  #home-screen .laria-legacy-collection-link{gap:7px;min-height:67px;padding:8px 9px;border-radius:13px}
+  #home-screen .laria-legacy-collection-icon{width:38px;height:38px;flex-basis:38px;font-size:21px;border-radius:11px}
+  #home-screen .laria-legacy-collection-copy strong{font-size:14px}
+  #home-screen .laria-legacy-collection-copy small{font-size:10px}
+  #home-screen .laria-legacy-collection-arrow{font-size:19px}
+  .grade-band-older #home-screen .laria-legacy-collection-icon,
+  .grade-band-teen #home-screen .laria-legacy-collection-icon{width:32px;height:32px;flex-basis:32px;font-size:17px}
+  .grade-band-older #home-screen .laria-legacy-collection-copy strong,
+  .grade-band-teen #home-screen .laria-legacy-collection-copy strong{font-size:13px}
+  .grade-band-older #home-screen .laria-legacy-collection-copy small,
+  .grade-band-teen #home-screen .laria-legacy-collection-copy small{font-size:10px}
+}
+@media(prefers-reduced-motion:reduce){
+  #home-screen .laria-legacy-collection-link{transition:none}
+}
