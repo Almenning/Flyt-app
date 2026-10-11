@@ -34,33 +34,47 @@ og fletter, må være gjenkjennelige på tvers av antrekkene.
 - Nettlesertest `tests/laria-live-fox-presence.playwright.js` og
   dedikert CI-steg for WebKit/iPhone, WebKit/iPad og Chromium.
 
-## IKKE ferdig og IKKE klar for main
+## Teknisk status etter bilde- og kodesluttkontroll 11. oktober
 
-1. **Kun én rev i synsfeltet:** Reisekartene fra 10. oktober inneholder
-   fortsatt en generisk rev som rasterpiksler. Før publisering må en
-   ren bakgrunn **uten figur** lages ved selektiv retusjering av akkurat
-   disse delene av originalillustrasjonene. De fire øvrige landskapene,
-   broene, bygningene, skiltplasseringene og hotspot-kontrakten skal
-   bevares nøyaktig. Tilfeldig helregenerering er uaktuelt.
-2. **Figurkvalitet:** Foreløpig utklipp har ujevne alphakanter ved
-   halefestet, fletter og spesielt støvlene. Det er ikke et ferdig
-   premium-asset. Den må renses manuelt eller erstattes med en
-   godkjent ren kilde i samme positur. Guttefigurens fullkroppsvariant
-   trenger tilsvarende transparent ressurspakke.
-3. **Faktisk animasjon:** CSS-bevegelsen er en førstegenerasjons
-   pust, tilt, lite hopp og posisjonsforflytning. For en virkelig
-   spillkarakter trengs flere godkjente positurer eller en
-   ordentlig rigg, slik at bein, hender, hode og hale kan bevege
-   seg hver for seg. Ikke presenter CSS-tilten som 3D-animasjon.
-4. **Garderobe:** De foreløpige festepunktene er grovt oversatt fra
-   gamle portrettkoordinater. Hvert antrekk og begge figurer må
-   få visuelt kontrollerte ankerpunkt.
-5. **Sammenfletting:** PR #95 er startet fra en eldre commit
-   på PR #90. Integrer endringer fra siste PR #90 og PR #94, og
-   kontroller alle relaterte PR-er samt siste-commit CI.
-6. **Sluttkontroll:** Ekte iPhone- og iPad-bilder i begge retninger,
-   WebKit, 20 kartskilt, hele oppgave/tilbake-prosessen, låst
-   progresjon og alle direkte snarveier skal være testet.
+- **Originalillustrasjonene er urørt.** Hvert av de fire godkjente kartene
+  har et lokalt og reversibelt revefritt bildeutsnitt over den gamle malte
+  eksempelreven. De originale 941 × 1672-PNG-ene er ikke erstattet. Dermed
+  kan barnet nå vises med bare sin personlige rev på reisekartene.
+- **Begge valgene har fullkroppsillustrasjoner** i egen transparens:
+  `assets/fox/girl-braids-blue-dress-v1.webp` og
+  `assets/fox/boy-adventurer-green-vest-v1.webp`, med samsvarende
+  ansiktsutsnitt i karttoppene. Hatt, skjerf, sekk og kappe leses fra
+  barnets eksisterende lagrede garderobe.
+- **Oppgavescenen hadde et annet eksempelrevproblem:** Den innmalte reven
+  nederst i `bokskogen-verden.png`, `matte-verden.png` og
+  `geografi-verden.png` ble synlig utenfor oppgavekortet på stor iPad.
+  Den originale scenekunsten beholdes; oppgavescenen tegner nå bakgrunnen
+  forankret i toppen. I vanlig iPad-visning ligger eksempelreven utenfor
+  det viste utsnittet, og på iPhone bak det dekkende oppgavekortet.
+- **Regresjonstesten** `tests/laria-live-fox-presence.playwright.js`
+  besøker alle fire godkjente kart og samtlige 20 skilt, i tillegg
+  til den reelle reisen videre til oppgavescenen. Den kontrollerer
+  valgt identitet, påkledning, fotplassering, trygg pekeflate,
+  bakgrunnsinnramming og uendret lagret progresjon.
 
-**Sluttstatus:** Implementasjon i arbeidsgren, ikke bekreftet publisert.
-Merk *visuell prototype / teknisk førsteversjon* til alle punktene er lukket.
+## Gjenstående krav før produksjon / main
+
+1. Kontrollér nye Actions-skjermbilder etter siste commit for begge revtyper
+   på iPhone og iPad. Kontroller spesielt fotfeste, oppgavebakgrunn,
+   påkledning og eventuelle uventede beskæringer.
+2. Samtlige tilgjengelige siste-commit QA-, innholds-, smoke- og iOS-jobber
+   må være grønne, ikke bare vellykkede på tidligere commit.
+3. Animationsmotoren er fremdeles CSS-basert (rolig pust, tilt,
+   forflytning, kort feiring), ikke en full skjelettanimert karakter.
+   Mer naturlig gange krever egne gjennomarbeidede animasjonsposer.
+4. Garderoben kan vise opptjente løse utstyrslag. Den blå kjolen og
+   guttens grønne antrekk er ennå fast del av de to fullkroppsspritene.
+   Skifte av grunnantrekk trenger egne grafikkvarianter/lag.
+5. Samordne PR #95 med PR #96 (felles Hjem for alle klassetrinn) før
+   produksjonsmerge; ikke tillat at den ene gjeninnfører gammel Hjem
+   eller fjerner den andre grenens personlige rev.
+6. Verifiser sluttresultatet på fysisk iPhone/iPad i portrett og landskap,
+   med navigasjon, 20 skilt, oppdrag, fullføring og tilbakeflyt.
+
+**Status:** Arbeidsgren i visuell og teknisk sluttkontroll.
+Ingen produksjonsmerge før kravene er verifisert.
