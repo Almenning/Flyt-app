@@ -150,3 +150,31 @@
     top:14%!important;width:clamp(60px,19%,70px)!important;
   }
 }
+
+
+/* True journey staging: the anchor describes where her BOOTS stand.
+   Figure size decreases up the path to simulate the painted 2.5D depth. */
+.locked-journey-board .locked-journey-traveler.laria-fox-wardrobe-anchor[data-avatar="girl"]{
+  transform:translate(-50%,-100%)!important;
+  width:clamp(63px,17%,110px)!important;
+  transition:left 1.05s cubic-bezier(.25,.66,.29,1),
+             top 1.05s cubic-bezier(.25,.66,.29,1),
+             width .9s ease-out!important;
+}
+.locked-journey-board .locked-journey-traveler[data-avatar="girl"][data-laria-fox-stop="1"]{
+  width:clamp(54px,15%,94px)!important;
+}
+.locked-journey-board .locked-journey-traveler[data-avatar="girl"][data-laria-fox-stop="2"]{
+  width:clamp(48px,13%,81px)!important;
+}
+.locked-journey-board .locked-journey-traveler[data-avatar="girl"][data-laria-fox-stop="3"]{
+  width:clamp(42px,12%,72px)!important;
+}
+.locked-journey-board .locked-journey-traveler[data-avatar="girl"][data-laria-fox-stop="4"]{
+  width:clamp(36px,10%,61px)!important;
+}
+@media(prefers-reduced-motion:reduce){
+  .locked-journey-board .locked-journey-traveler.laria-fox-wardrobe-anchor{
+    transition:none!important;
+  }
+}
