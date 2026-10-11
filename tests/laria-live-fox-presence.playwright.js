@@ -137,6 +137,12 @@ async function run(engine,name,viewport,avatar){
         assert.deepEqual(paintedSignOverlap,[],name+' '+subject+
           ' fox covers a real illustrated sign at stop '+stop+': '+JSON.stringify(paintedSignOverlap));
         await page.locator('.locked-sheet-close').click();
+        // Preserve one complete 20-stop visual evidence set in actual WebKit
+        // iPhone mode, beyond the strict non-overlap geometry assertions.
+        if(name==='webkit-girl-iphone')await page.screenshot({
+          path:path.join(dir,name+'-'+subject+'-stop-'+(stop+1)+'.png'),
+          animations:'disabled'
+        });
       }
       const afterMap=await page.evaluate(()=>JSON.stringify(JSON.parse(localStorage.getItem('laerlittmer-v2')).journey));
       assert.equal(afterMap,beforeMap,name+' '+subject+' fox movement changed learning progression');
