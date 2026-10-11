@@ -24,6 +24,15 @@ async function run(browser,engine,label,viewport,url){
   assert.equal(await page.locator('.fr2-home-card').count(),0,'the cake must be playable without navigating a menu');
   assert.equal(await page.locator('.fr6-nav .fr2-nav-item').count(),3);
   assert.equal(await page.locator('.fr6-result .fr2-fraction').getAttribute('aria-label'),'1 av 4');
+
+  const reducedEquivalents=await page.evaluate(()=>[[3,6],[0,3],[3,3],[1,3]].map(([n,d])=>LARIA_FRACTION_PREMIUM.format(n,d)));
+  assert.deepEqual(reducedEquivalents.map(x=>[x.dec,x.pct,x.exact]),[
+    ['0,5','50 %',true],
+    ['0','0 %',true],
+    ['1','100 %',true],
+    ['≈ 0,333…','≈ 33,3 %',false]
+  ],'only genuinely repeating decimals may use approximate values');
+
   assert.deepEqual((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build)).filled,[0]);
   assert.deepEqual(await page.locator('.fr6-piece-tray .fr2-spare').evaluateAll(xs=>xs.map(x=>Number(x.dataset.pieceIndex))),[1,2,3]);
   await page.locator('.fr5-fox-mentor .fr2-fox').evaluate(img=>img.decode());
