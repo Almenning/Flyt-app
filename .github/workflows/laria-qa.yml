@@ -184,6 +184,8 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
+      - name: Verify eight painted premium images against locked manifest
+        run: node tests/laria-premium-art-integrity.cjs
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium webkit
       - name: Start exact-head local server
