@@ -843,10 +843,15 @@ async function finishSession(page){
 
     const mathModules=await page.locator('#subject-modules .subject-module strong').allTextContents();
     assert.deepEqual(mathModules,['Tall og regning']);
-    // Brøklaben premium remains an open discovery experience, never a graded school quiz.
-    assert.equal(await page.locator('#math-lab-entry').isVisible(),true);
+    // Young locked Tallenga has the Brøklaben as an illustrated landmark, not
+    // a duplicate Experiments dashboard below the map. Its actual tap must work.
+    const lockedTallenga=(await page.locator('#subject-screen.active .locked-journey-map').count())===1;
+    assert.equal(await page.locator('#math-lab-entry').isVisible(),!lockedTallenga);
     const labBefore=await page.evaluate(()=>({goal:dailyGoal().done,answers:subjectAnswered('math')}));
-    await page.locator('#open-fraction-lab').click();
+    if(lockedTallenga){
+      await page.locator('#subject-screen.active .locked-journey-hotspot[data-locked-place="2"]').click();
+      await page.locator('.locked-journey-overlay:not([hidden]) [data-locked-existing="fraction-lab"]').click();
+    }else await page.locator('#open-fraction-lab').click();
     await page.locator('#fraction-lab-screen.active').waitFor();
     assert.equal(await page.locator('#fraction-lab-screen').getAttribute('data-explore-release'),'explore-rc1');
     assert.equal((await page.locator('.fr2-sign h1').first().textContent()).trim(),'Brøklaben');
@@ -904,9 +909,12 @@ async function finishSession(page){
 
     // Premium gangetabell: every table remains open, short practice is guided,
     // and free visual exploration never masquerades as a completed school test.
-    assert.equal(await page.locator('#open-multiplication-lab').isVisible(),true);
+    assert.equal(await page.locator('#open-multiplication-lab').isVisible(),!lockedTallenga);
     const multBefore=await page.evaluate(()=>({goal:dailyGoal().done,answers:subjectAnswered('math')}));
-    await page.locator('#open-multiplication-lab').click();
+    // The existing multiplication engine stays available from Utforsk, but
+    // cannot be reached through the intentionally hidden legacy card here.
+    if(lockedTallenga)await page.evaluate(()=>window.openMultiplicationLab());
+    else await page.locator('#open-multiplication-lab').click();
     await page.locator('#multiplication-lab-screen.active').waitFor();
     assert.equal((await page.locator('.mp-heading h1').first().textContent()).trim(),'Gangetabellen');
     const multPortraitFit=await page.evaluate(()=>{

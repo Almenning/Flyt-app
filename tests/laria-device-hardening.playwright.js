@@ -124,115 +124,60 @@ async function verifyBasecamp(page,label,width,height){
   await noOverflow(page,label+' appBack home');
 }
 
-async function verifyOlderHome(page,label,width,height){
-  await page.locator('#home-screen.active').waitFor();
-  await page.waitForFunction(()=>document.documentElement.dataset.safeChallengeRelease==='challenge-rc1');
-  await noOverflow(page,label+' home');
-  // Personal collector is not a young-only feature: 3-10 use the same
-  // persistent fox and book with a more compact, age-appropriate entrance.
-  const entryNav=page.locator('#home-screen.active .laria-legacy-collection-shortcuts');
-  await entryNav.waitFor({state:'visible'});
-  const navChoices=entryNav.locator('button');
-  assert.equal(await page.evaluate(()=>{
-    const img=document.querySelector('#home-screen [data-laria-older-fox]');
-    return !!img&&img.getAttribute('src')===window.LARIA_FOX.source(window.LARIA_FOX.choice());
-  }),true,label+' Min rev shortcut must show the selected fox');
-  assert.deepEqual(await navChoices.locator('.laria-legacy-collection-copy strong').allTextContents(),
-    ['Samleboken','Min rev'],label+' older-grade collection shortcuts must remain accessible');
-  for(const destination of ['collection','wardrobe']){
-    const button=entryNav.locator('[data-laria-legacy-collection="'+destination+'"]');
-    const target=await button.evaluate(el=>{
-      const r=el.getBoundingClientRect();return {w:r.width,h:r.height,x:r.x,y:r.y,right:r.right,bottom:r.bottom};
-    });
-    assertTap(target,label+' '+destination+' shortcut');
-    assert.ok(target.x>=-1&&target.right<=width+1,label+' shortcut spills off screen');
-    await button.tap();
-    await page.locator('#bc12-dialog[open]').waitFor();
-    const expected=destination==='collection'?'.bc12-memory-grid':'.bc12-wardrobe-grid';
-    await page.locator('#bc12-dialog[open] '+expected).waitFor();
-    await noOverflow(page,label+' '+destination+' dialog');
-    if(label.includes('middle-ipad')&&destination==='wardrobe'){
-      const foxArt=page.locator('#bc12-dialog[open] .laria-fox-wardrobe-art');
-      assert.equal(await foxArt.getAttribute('data-avatar'),'boy');
-    }
-    await page.locator('#bc12-dialog[open] .bc12-close').tap();
-    await page.locator('#bc12-dialog[open]').waitFor({state:'hidden'});
+async function verifyOlderHome(page,label,width,height,grade){
+  await page.locator('#home-screen.active .bc12:visible').waitFor();
+  const gradeBand=grade<=4?'middle':grade<=7?'older':'teen';
+  assert.equal(await page.locator('.bc12').getAttribute('data-grade-band'),gradeBand,
+    label+' grade style must come from shared Home');
+  assert.equal(await page.locator('.bc14-subject:visible').count(),4,
+    label+' must use exactly the same four illustrated subject gateways');
+  assert.equal(await page.locator('#home-screen.active .dashboard-main-grid:visible').count(),0,
+    label+' may not show the deprecated dashboard');
+  assert.equal(await page.locator('#bottom-nav:visible').count(),0,
+    label+' may not expose a second Home navigation');
+  await noOverflow(page,label+' unified Home');
+  const srcMatches=await page.evaluate(()=>{
+    const img=document.querySelector('.bc12-fox img');
+    return img?.getAttribute('src')===window.LARIA_FOX.source(state.profile.avatar)
+      && !!document.querySelector('.bc12-fox .laria-fox-wardrobe-art');
+  });
+  assert.equal(srcMatches,true,label+' must show the selected personal fox and its clothing layer');
+  for(const sel of ['.bc14-subject[data-camp="subject-norwegian"]','.bc14-subject[data-camp="subject-math"]',
+    '.bc14-subject[data-camp="subject-english"]','.bc14-subject[data-camp="subject-geography"]',
+    '.bc12-nav [data-camp="collection"]','.bc12-nav [data-camp="wardrobe"]',
+    '.bc12-nav [data-camp="travel"]','.bc12-nav [data-camp="explore"]']){
+    const r=await rect(page,sel);assertTap(r,label+' '+sel);assertInViewport(r,width,height,label+' '+sel);
   }
-  if(label.includes('middle-ipad')){
-    // Grade 3-4 layouts may deliberately hide the large decorative mascot,
-    // but the selected fox in the entry tile must be visible on every Home.
-    assert.equal(await entryNav.locator('[data-laria-older-fox]').isVisible(),true,
-      label+' selected personal fox thumbnail must be visible');
-    const oldHero=page.locator('#home-screen.active .dashboard-mascot .laria-fox-wardrobe-art');
-    await oldHero.waitFor({state:'attached'});
-    assert.equal(await oldHero.getAttribute('data-avatar'),'boy');
-    assert.equal(await page.locator('#home-screen.active .dashboard-mascot #homeFoxFur').count(),0,
-      'grade 3-4 must not show the generic hard-coded mascot');
-    // Changing a child's existing avatar must update the personal fox,
-    // without removing progress or adding a second identity.
-    await page.evaluate(()=>{state.profile.avatar='girl';saveState();renderAll()});
-    assert.equal(await page.locator('#home-screen.active .dashboard-mascot .laria-fox-wardrobe-art').getAttribute('data-avatar'),'girl');
-    assert.equal(await page.evaluate(()=>
-      document.querySelector('[data-laria-older-fox]')?.getAttribute('src')===window.LARIA_FOX.source('girl')),
-      true,'changing avatar must also update the compact fox portrait');
-  }
-  const entry=page.locator('#safe-challenge-entry');
-  await entry.waitFor({state:'visible'});
-  const er=await rect(page,'#safe-challenge-entry');assertInViewport(er,width,height,label+' challenge entry',{allowBottomScroll:true});assertTap(er,label+' challenge entry');
-
-  const bottom=page.locator('#bottom-nav');
-  if(await bottom.isVisible()){
-    const buttons=bottom.locator('button:visible');
-    const n=await buttons.count();
-    assert.ok(n>=3,label+' bottom nav unexpectedly sparse');
-    for(let i=0;i<n;i++){
-      const r=await buttons.nth(i).evaluate(el=>{const b=el.getBoundingClientRect();return {w:b.width,h:b.height,x:b.x,y:b.y,right:b.right,bottom:b.bottom}});
-      assertTap(r,label+' bottom nav '+i);
-      assert.ok(r.right<=width+1&&r.x>=-1,label+' bottom nav button outside viewport: '+JSON.stringify(r));
-    }
-  }
-
-  await entry.tap();
-  const dialog=page.locator('#safe-challenge-dialog[open]');
-  await dialog.waitFor();
-  await noOverflow(page,label+' challenge dialog');
-  const dr=await rect(page,'#safe-challenge-dialog');
-  assert.ok(dr.w<=width-8,label+' challenge dialog wider than viewport: '+JSON.stringify(dr));
-  assert.ok(dr.h<=height-8,label+' challenge dialog taller than viewport: '+JSON.stringify(dr));
-  for(const sel of ['#sc-close','#sc-share','#sc-start','#sc-new']){
-    if(await page.locator(sel).isVisible()){const r=await rect(page,sel);assertTap(r,label+' '+sel)}
-  }
-  await page.locator('#sc-close').tap();
-
-  // Parent area is part of the trust-critical product surface.
-  const adult=page.locator('#adult-entry');
-  await adult.scrollIntoViewIfNeeded();
-  const adultEntryRect=await rect(page,'#adult-entry');assertTap(adultEntryRect,label+' adult entry');
-  await adult.dispatchEvent('pointerdown',{pointerType:'touch',pointerId:17,isPrimary:true,clientX:20,clientY:20});
-  await page.waitForTimeout(1650);
-  await page.locator('#adult-screen.active').waitFor();
-  await adult.dispatchEvent('pointerup',{pointerType:'touch',pointerId:17,isPrimary:true,clientX:20,clientY:20}).catch(()=>{});
-  await noOverflow(page,label+' adult');
-  const adultBack=await rect(page,'#adult-back');assertTap(adultBack,label+' adult back');
-  const select=await rect(page,'#adult-grade');assertTap(select,label+' grade select');
-  await page.locator('#adult-back').tap();
-  await page.locator('#home-screen.active').waitFor();
-
-  // Core subject round-trip.
-  await page.evaluate(()=>openSubject('math'));
+  await page.locator('.bc12-nav [data-camp="collection"]').tap();
+  await page.locator('#bc12-dialog[open].is-collection .bc12-memory-grid').waitFor();
+  await page.locator('#bc12-dialog .bc12-close').tap();
+  await page.locator('#bc12-dialog[open]').waitFor({state:'hidden'});
+  await page.locator('.bc12-nav [data-camp="wardrobe"]').tap();
+  await page.locator('#bc12-dialog[open].is-wardrobe .bc12-wardrobe-preview svg').waitFor();
+  await page.locator('#bc12-dialog .bc12-close').tap();
+  await page.locator('#bc12-dialog[open]').waitFor({state:'hidden'});
+  // A real subject round-trip, without falling back to the obsolete Home.
+  await page.locator('.bc14-subject[data-camp="subject-math"]').tap();
   await page.locator('#subject-screen.active').waitFor();
   await noOverflow(page,label+' math subject');
-  const subjectBack=page.locator('#subject-back');
-  if(await subjectBack.count()&&await subjectBack.isVisible()){
-    const r=await subjectBack.evaluate(el=>{const b=el.getBoundingClientRect();return {w:b.width,h:b.height,x:b.x,y:b.y,right:b.right,bottom:b.bottom}});
-    assertTap(r,label+' subject back');
-    await subjectBack.tap();
-    await page.locator('#home-screen.active').waitFor();
-  }else{
-    await page.evaluate(()=>setTab('home'));
-    await page.locator('#home-screen.active').waitFor();
+  const back=page.locator('#subject-back');
+  if(await back.isVisible())await back.tap();
+  else await page.evaluate(()=>setTab('home'));
+  await page.locator('#home-screen.active .bc12:visible').waitFor();
+  // Progression and avatar remain intact across grade changes.
+  if(grade===4){
+    await page.evaluate(()=>{
+      state.profile.grade=9;
+      state.profile.avatar='girl';
+      saveState();renderAll();
+    });
+    assert.equal(await page.locator('.bc12').getAttribute('data-grade-band'),'teen');
+    assert.equal(await page.locator('.bc12-fox img').getAttribute('src'),
+      await page.evaluate(()=>window.LARIA_FOX.source('girl')),
+      label+' fox identity must survive grade change');
+    assert.equal(await page.locator('.bc14-subject:visible').count(),4);
   }
-  await noOverflow(page,label+' returned home');
+  await noOverflow(page,label+' returned Home');
 }
 
 (async()=>{
@@ -276,7 +221,7 @@ async function verifyOlderHome(page,label,width,height){
           await page.screenshot({path:path.join(screenshots,engineName+'-'+cfg.name+'-home.png'),fullPage:true});
 
           if(cfg.grade<=2)await verifyBasecamp(page,label,cfg.width,cfg.height);
-          else await verifyOlderHome(page,label,cfg.width,cfg.height);
+          else await verifyOlderHome(page,label,cfg.width,cfg.height,cfg.grade);
 
           await page.screenshot({path:path.join(screenshots,engineName+'-'+cfg.name+'-final.png'),fullPage:true});
           await context.close();

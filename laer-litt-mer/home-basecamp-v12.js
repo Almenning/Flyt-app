@@ -65,7 +65,7 @@ function journeyCopy(info){
 function home(view='home'){mode=view;setTab('home');render();}
 window.LARIA_MARK_BASECAMP_ORIGIN=()=>{fromCamp=true};
 window.LARIA_RETURN_TO_BASECAMP=()=>{
- if(!young()||!fromCamp)return false;
+ if(!fromCamp)return false;
  fromCamp=false;home(mode);return true;
 };
 function travel(){const info=next();fromCamp=true;if(info.active){startSession();return}if(info.subject==='geography'){renderGeographyContinue();showScreen('geography')}else openSubject(info.subject);}
@@ -104,7 +104,6 @@ function dialog(kind){
      if(selected.equipped)window.LARIA_COLLECTION_STORE.unequip(selected.slot);
      else window.LARIA_COLLECTION_STORE.equip(id);
      window.LARIA_FOX_WARDROBE.refresh();
-     renderLegacyIdentity();
      dialog('wardrobe');
      d.querySelector('[data-wear="'+id+'"]')?.focus();
    }));
@@ -215,7 +214,7 @@ function markup(){return '<section class="bc12" data-release="basecamp-rc1" aria
  '<div class="bc12-you-are-here" aria-hidden="true"><i></i><span>Du er her</span></div>'+
  '<div class="bc12-next-beacon" aria-hidden="true"><i></i><span>Neste sted</span></div>'+
  '<div class="bc12-fox"><img src="'+window.LARIA_FOX.source(window.LARIA_FOX.choice())+'" alt="Din valgte rev venter på stien" draggable="false"></div><button type="button" class="bc12-fox-call bc14-fox-open" data-camp="wardrobe" aria-label="Åpne Min rev og garderoben" data-camp-fox-call>Min rev · Garderoben ›</button>'+
- '<button class="bc12-journey" data-camp="travel"><span>Fortsett reisen <b aria-hidden="true">→</b></span><small><em>Neste sted</em><strong data-camp-next>Bokskogen</strong><span data-camp-next-copy>Et nytt oppdrag venter.</span></small></button>'+
+ '<button class="bc12-journey" data-camp="travel"><span>Fortsett reisen <b aria-hidden="true">→</b></span><small><em data-camp-next-type>Neste sted</em><strong data-camp-next>Bokskogen</strong><span data-camp-next-copy>Et nytt oppdrag venter.</span></small></button>'+
  '<button type="button" class="bc14-free" data-camp="open-explore"><span class="bc14-free-icon" aria-hidden="true">✧</span><span><strong>Utforsk og lek</strong><small>Prøv det du liker</small></span><b aria-hidden="true">›</b></button>'+ '<button class="bc12-quest" data-camp="quest"><span class="bc12-wax" aria-hidden="true">✦</span><span>Et brev fra reven<small>Vil du bli med?</small></span></button>'+
  '<button class="bc12-treasure" data-camp="collection"><span>Samlingen min</span></button>'+
  '<i class="bc12-spark a" aria-hidden="true"></i><i class="bc12-spark b" aria-hidden="true"></i><i class="bc12-spark c" aria-hidden="true"></i>'+
@@ -256,36 +255,16 @@ function bindCampControls(host){
  }
 
 }
-function renderLegacyIdentity(){
- // Children keep the same elected fox through grade changes; the older
- // dashboard has no separate mascot identity or reward inventory.
- if(young())return;
- const surface=document.querySelector('#home-screen .dashboard-mascot');
- const wardrobe=window.LARIA_FOX_WARDROBE;
- if(!wardrobe?.render)return;
- const avatar=wardrobe.choice(),collection=wardrobe.inventory();
- // The teen dashboard deliberately suppresses the large illustration, but
- // the compact 'Min rev' shortcut still shows the child's actual fox.
- const portrait=document.querySelector('#home-screen [data-laria-older-fox]');
- if(portrait&&portrait.dataset.avatar!==avatar){
-   portrait.src=window.LARIA_FOX.source(avatar);
-   portrait.dataset.avatar=avatar;
-   const placeholder=portrait.parentElement?.querySelector('.laria-legacy-fox-fallback');
-   if(placeholder)placeholder.hidden=true;
- }
- if(!surface)return;
- const signature=avatar+'|'+JSON.stringify(collection.equipped||{});
- if(surface.dataset.lariaIdentitySignature===signature)return;
- surface.innerHTML=wardrobe.render(avatar,collection);
- surface.dataset.lariaIdentitySignature=signature;
-}
 function render(){
  window.LARIA_BASECAMP_DIAG.render=true;
  const screen=document.getElementById('home-screen');if(!screen)return;
  let host=screen.querySelector('.bc12');
  if(!host){screen.insertAdjacentHTML('afterbegin',markup());host=screen.querySelector('.bc12');}
  bindCampControls(host);
- host.hidden=!young();renderLegacyIdentity();if(!young())return;
+ // Every grade uses the same physical Basecamp, journey and collection entry points.
+ host.hidden=false;
+ host.dataset.gradeBand=typeof gradeBand==='function'?gradeBand():(currentGrade()<=2?'young':currentGrade()<=4?'middle':currentGrade()<=7?'older':'teen');
+ host.dataset.grade=String(currentGrade());
  host.dataset.mode=mode;
  const profile=(typeof state!=='undefined'&&state?.profile)?state.profile:{};
  const playerName=typeof profile.name==='string'?profile.name.trim():'';
@@ -293,12 +272,18 @@ function render(){
  const fox=host.querySelector('.bc12-fox');if(fox){fox.dataset.avatar=playerAvatar;fox.setAttribute('aria-label',playerAvatar==='girl'?'Din valgte revejente':'Din valgte revegutt');const img=fox.querySelector('img');if(img){img.src=selectedFoxSource(playerAvatar);img.alt='Læria-reven venter på stien'}}
  host.querySelector('h1').textContent=mode==='explore'?'Hva vil du leke med?':(playerName?'Hei, '+playerName+'!':'Hei, eventyrer!');
  host.querySelector('[data-camp-intro]').textContent=mode==='explore'?'Velg et sted. Bli så lenge du vil.':'Hva har du lyst til å gjøre i dag?';
+ const questCopy=host.querySelector('.bc12-quest > span:nth-child(2)');
+ if(questCopy)questCopy.innerHTML=currentGrade()>=8?
+   'Dagens oppdrag<small>Helt frivillig</small>':
+   'Et brev fra reven<small>Vil du bli med?</small>';
  const foxCall=host.querySelector('[data-camp-fox-call]');if(foxCall)foxCall.textContent='Min rev · Garderoben ›';
  const trip=next(),journeyButton=host.querySelector('.bc12-journey');
  host.dataset.journeySubject=trip.subject||'norwegian';
  host.dataset.journeyComplete=trip.complete?'true':'false';
  host.style.setProperty('--bc12-progress',String(Math.max(0,Math.min(100,trip.pct||0))));
  host.querySelector('[data-camp-next]').textContent=trip.title;
+ const nextType=host.querySelector('[data-camp-next-type]');
+ if(nextType)nextType.textContent=trip.active?'Pågående økt':'Neste sted';
  host.querySelector('[data-camp-next-copy]').textContent=(trip.complete?'Reisen er fullført. Du kan besøke stedene igjen.':journeyCopy(trip));
  if(journeyButton)journeyButton.setAttribute('aria-label',(trip.complete?'Besøk reisen igjen. ':'Fortsett reisen. Neste sted: ')+trip.title+'. '+(trip.complete?'Reisen er fullført, og stedene er fortsatt åpne.':journeyCopy(trip)));
  host.querySelectorAll('.bc12-nav button').forEach(b=>{if(b.dataset.camp===mode)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
@@ -307,11 +292,6 @@ window.LARIA_OPEN_WARDROBE=()=>{dialog('wardrobe')};
 window.LARIA_OPEN_COLLECTION=()=>{dialog('collection')};
 function init(){
  window.LARIA_BASECAMP_DIAG.init=true;
- document.querySelectorAll('[data-laria-legacy-collection]').forEach(button=>{
-   if(button.dataset.lariaLegacyBound==='true')return;
-   button.dataset.lariaLegacyBound='true';
-   button.addEventListener('click',()=>dialog(button.dataset.lariaLegacyCollection));
- });
  if(!document.getElementById('bc12-dialog')){const d=document.createElement('dialog');d.id='bc12-dialog';d.setAttribute('aria-labelledby','bc12-dialog-title');document.body.append(d);d.addEventListener('click',e=>{if(e.target===d){const r=d.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)closeDialog()}});}
  // Capture only returns from activities entered through basecamp. Other routes keep their original behavior.
  // Bind the concrete back controls directly. Safari/WebKit has proven less reliable with delegated closest() touch routes.
@@ -319,7 +299,7 @@ function init(){
   const back=document.getElementById(id);if(!back||back.dataset.bc12ReturnBound==='true')return;
   back.dataset.bc12ReturnBound='true';
   back.addEventListener('click',e=>{
-   if(!young()||!fromCamp)return;
+   if(!fromCamp)return;
    e.preventDefault();e.stopImmediatePropagation();fromCamp=false;home(mode);
   },true);
  });
