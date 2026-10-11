@@ -120,8 +120,8 @@
  }
  #world-screen.active #world-back{
   top:7px!important;left:calc(max(8px,env(safe-area-inset-left)) + 5px)!important;
-  width:42px!important;height:42px!important;min-width:42px!important;
-  min-height:42px!important;border-radius:12px!important;
+  width:44px!important;height:44px!important;min-width:44px!important;
+  min-height:44px!important;border-radius:12px!important;
  }
  #world-screen.active #world-back::before{font-size:25px!important}
  #world-screen.active .globe-mode{
