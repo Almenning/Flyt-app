@@ -2,7 +2,7 @@ name: Laria QA
 
 on:
   push:
-    branches: [main, fix/laria-globe-locked-scenery-v36, feat/laria-oct10-locked-journeys-phase1]
+    branches: [main, fix/laria-globe-locked-scenery-v36, feat/laria-oct10-locked-journeys-phase1, feat/laria-personal-fox-20261011]
     paths:
       - 'laer-litt-mer/**'
       - 'tests/**'
@@ -234,6 +234,32 @@ jobs:
         env:
           QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
         run: node tests/laria-journey-integrated-ux.playwright.js
+      - name: Selected fox across four journeys and tasks (iPhone/iPad WebKit and Chromium)
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+          LARIA_FOX_SCREENSHOTS: /tmp/laria-fox-identity
+        run: node tests/laria-fox-identity.playwright.js
+      - name: Upload selected-fox journey and task evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-fox-identity-${{ github.sha }}
+          path: /tmp/laria-fox-identity
+          if-no-files-found: warn
+          retention-days: 7
+      - name: Selected fox in Brøklab, Plukk og tell, Ordjakt and globe
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+          LARIA_FOX_FREEPLAY_SCREENSHOTS: /tmp/laria-fox-freeplay
+        run: node tests/laria-fox-freeplay.playwright.js
+      - name: Upload selected-fox free-play screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-fox-freeplay-${{ github.sha }}
+          path: /tmp/laria-fox-freeplay
+          if-no-files-found: warn
+          retention-days: 7
       - name: Verify old checkpoint progression survives reload on approved artwork
         env:
           QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria

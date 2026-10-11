@@ -13,9 +13,9 @@
   <link rel="icon" href="./icon.svg" type="image/svg+xml" />
   <link rel="preload" as="image" href="./basecamp-v11-mobile.webp?v=basecamp12d" media="(max-width:700px)" fetchpriority="high" />
   <link rel="preload" as="image" href="./basecamp-v11.webp?v=basecamp12d" media="(min-width:701px)" fetchpriority="high" />
-  <link rel="preload" as="script" href="./home-basecamp-v12.js?v=20261010-subject-first1" />
+  <link rel="preload" as="script" href="./home-basecamp-v12.js?v=20261011-personalfox2" />
   <link rel="preload" as="script" href="./globe-v24-art.js?v=globe36-pigment3" />
-  <link rel="preload" as="script" href="./globe-v25-renderer.js?v=20261010-globe-bitmap-v1" />
+  <link rel="preload" as="script" href="./globe-v25-renderer.js?v=20261011-personalfox2" />
   <title>Læria</title>
   <style>
 
@@ -2376,7 +2376,7 @@
   <!-- Free play -->
   <link rel="stylesheet" href="./word-hunt.css?v=20261006-assets1" />
   <!-- Shared inner screens and task scene; young task styling intentionally extends the shared scene -->
-  <link rel="stylesheet" href="./laria-unified-v13.css?v=20261007-perf2" />
+  <link rel="stylesheet" href="./laria-unified-v13.css?v=20261011-personalfox2" />
   <link rel="stylesheet" href="./laria-navigation-v13.css?v=20261011-premium1" />
   <link rel="stylesheet" href="./home-subjects-v14.css?v=20261010-subject-first1" />
   <link rel="stylesheet" href="./laria-task-scene-v15.css?v=20261007-p15rc1" />
@@ -2386,6 +2386,7 @@
   <link rel="stylesheet" href="./atlas-perspective-v1.css?v=20261009-atlas-story2" />
   <!-- Original approved art: guarded rendering, no substitutions -->
   <link rel="stylesheet" href="./locked-journey-renderer.css?v=20261010-locked-final1" />
+  <link rel="stylesheet" href="./laria-fox-identity.css?v=20261011-personalfox2" />
   <!-- immersive-globe-viewport-2026-10-02 -->
   <!-- globe-hit-test-dateline-fix-2026-10-02 -->
   <!-- parent-info-udir-2026-10-02 -->
@@ -3153,6 +3154,7 @@
 </div>
 <!-- Core local data used by the inline app runtime. -->
 <script src="./profile-avatars.js?v=20261006-assets1" data-boot-sync></script>
+<script src="./laria-fox-identity.js?v=20261011-personalfox2" data-boot-sync></script>
 <script src="./commercial-content-v18.js?v=20261010-math-decimal1" data-boot-sync></script>
 <script src="./commerce-v18.js?v=20261007-p18rc1" data-boot-sync></script>
 <script src="./norwegian-content.js?v=20261006-assets1" defer></script>
@@ -3654,6 +3656,7 @@ syncSwipeBackEdge();
 function renderAll(){
   const grade=currentGrade(),cfg=gradeConfig(),known=knownCountryCount(),nordicPct=pctFor(NORDIC_IDS),young=grade<=2,band=gradeBand();
   applyGradeDesign();
+  window.LARIA_FOX.syncDecorations();
   const tone={
     young:{title:'Hvor skal vi dra i dag?',copy:'Reven er klar! Velg en verden, finn neste sted og lær noe nytt på veien.',subject:'Velg en verden ✨',pEye:'Skattene dine',pTitle:'Se hva du har samlet! ⭐',pCopy:'Hver lille seier gjør samlingen din større.',nav:'Trofeer',explore:'Kloden',avatar:'🦊',icons:{geography:'🌍',norwegian:'📖',math:'🔢',english:'💬'}},
     middle:{title:'Hei! 👋',copy:'Klar for nye utfordringer? Utforsk, løs oppdrag og bygg videre.',subject:'Velg fag',pEye:'Din oppdagelsesreise',pTitle:'Se hva du har lært',pCopy:'Her ser du det du har oppdaget, øvd på og fått bedre tak på.',nav:'Fremgang',explore:'Utforsk',avatar:'🧭',icons:{geography:'🌍',norwegian:'📚',math:'✖️',english:'💬'}},
@@ -6632,29 +6635,29 @@ if(needsProfileSetup||!state.profile.onboarded||!state.profile.grade){
 <!-- Active Læria runtimes. Preserve this order: wrappers intentionally compose in sequence. -->
 <!-- Labs -->
 <script src="./fraction-lab.js?v=20261007-return1" defer></script>
-<script src="./fraction-premium-v2.js?v=20261009-workshop-v4" defer></script>
+<script src="./fraction-premium-v2.js?v=20261011-personalfox2" defer></script>
 <script src="./multiplication-lab.js?v=20261007-return1" defer></script>
 <script src="./multiplication-illustrated-groups-v3.js?v=20261009-pick2" defer></script>
 <script src="./multiplication-pick-engine-v1.js?v=20261009-easy1" defer></script>
 <script src="./multiplication-pick-scenery-v2.js?v=20261009-storybook2" defer></script>
-<script src="./multiplication-pick-play-v1.js?v=20261009-closeup-parity7c" defer></script>
-<script src="./multiplication-premium-v2.js?v=20261009-pick2" defer></script>
+<script src="./multiplication-pick-play-v1.js?v=20261011-personalfox2" defer></script>
+<script src="./multiplication-premium-v2.js?v=20261011-personalfox2" defer></script>
 <!-- Journey / Bokskogen -->
 <script src="./bokskogen-world.js?v=20261007-p15rc1" defer></script>
-<script src="./journey-world-premium.js?v=20261007-p15rc1" defer></script>
+<script src="./journey-world-premium.js?v=20261011-personalfox2" defer></script>
 <script src="./locked-journey-contract.js?v=20261010-locked-final1" defer></script>
-<script src="./locked-journey-renderer.js?v=20261010-locked-final1" defer></script>
+<script src="./locked-journey-renderer.js?v=20261011-personalfox2" defer></script>
 <!-- Free play + Home -->
-<script src="./word-hunt.js?v=20261007-touch1" defer></script>
-<script src="./home-basecamp-v12.js?v=20261010-subject-first1" defer></script>
+<script src="./word-hunt.js?v=20261011-personalfox2" defer></script>
+<script src="./home-basecamp-v12.js?v=20261011-personalfox2" defer></script>
 <!-- Shared inner-screen helpers + task scene -->
 <script src="./laria-unified-v13.js?v=20261006-assets1" defer></script>
 <script src="./laria-navigation-v13.js?v=20261011-premium1" defer></script>
-<script src="./laria-task-scene-v15.js?v=20261010-math-tap1" defer></script>
+<script src="./laria-task-scene-v15.js?v=20261011-personalfox2" defer></script>
 
 <!-- Kloden: art primitives must load before the active renderer. -->
 <script src="./globe-v24-art.js?v=globe36-pigment3" defer></script>
-<script src="./globe-v25-renderer.js?v=20261010-globe-bitmap-v1" defer></script>
+<script src="./globe-v25-renderer.js?v=20261011-personalfox2" defer></script>
 <script src="./atlas-perspective-v1.js?v=20261010-atlas-webkit-paint-v2" defer></script>
 
 <!-- premium-board-v8-2026-10-04 -->
