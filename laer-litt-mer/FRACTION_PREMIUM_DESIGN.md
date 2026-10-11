@@ -180,3 +180,37 @@ brøt med det låste prinsippet om å lære gjennom handling uten forkunnskaper.
 **Status:** Arbeidsutkast, ikke ferdig produktgodkjenning. Låste
 illustrasjoner fra 8. oktober er fortsatt visuell fasit; funksjonalitet
 og grafiske kvaliteter skal gjennomgås i egen sluttkontroll.
+
+
+## UX v7 – vis sammenhengen frivillig (godkjent konsept 11. oktober 2026)
+
+Barnet starter fortsatt med **kaken, brøkverdien og to enkle kontroller**.
+Verken prosent eller desimaltall er forkunnskaper som kreves for å begynne.
+
+- **iPhone stående:** Etter kontrollene vises et valgfritt
+  «Se desimaltall og prosent». Et trykk åpner (og et nytt lukker)
+  to lesbare ekvivalente tallformer for **akkurat den kaken barnet bygger**.
+  Informasjonen er lukket ved hver ny åpning av Brøklaben.
+  Ingen påtvunget oppgave, tale eller nivåskifte.
+- **iPad stående og liggende:** Skjermbredden brukes til å vise brøken,
+  desimaltallet og prosenten ved siden av den store kaken, uten at
+  verdiene blir en egen tvungen aktivitet.
+- Alle tre tallformer oppdateres synkront når barnet fyller/tømmer
+  kakestykker, drar biter eller endrer teller/nevner.
+- Norske tallformer brukes: **3/4 = 0,75 = 75 %**.
+  Ikke-terminerende desimaler/avrundede prosenter skal merkes med
+  **≈** (for eksempel 1/3 ≈ 0,333… og ≈ 33,3 %). Ikke oppgi en
+  tilnærmet verdi som eksakt.
+- Den tidligere aktiviteten for brøk/desimal/prosent beholdes som en
+  frivillig fordypning under «Flere leker». De nye tallformene må bruke
+  den eksisterende formatterings-/brøklogikken, ikke en parallell
+  matematisk modell.
+
+**Godkjenningskriterier:** På liten iPhone er kake, tallbrøk og begge
+teller-/nevnerkontroller synlige før scrolling også når de ekstra
+tallformene er lukket. På iPad er alle tre verdiene synlige ved kaken.
+Barnets valgte, fullkroppsrev er ikke erstattet med et portrett. Ingen
+tapte eller dobbeltregistrerte brøkbiter, ingen layoutkollisjoner.
+
+Konseptet er godkjent for implementering. Ingen endelig UX-vurdering
+uten manuell iPhone/iPad-test med barn som ikke får forklaring.
