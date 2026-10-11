@@ -26,13 +26,23 @@ function activitySubject(scope,last){
  if(['norwegian','math','english'].includes(last?.subject))return last.subject;
  return 'norwegian';
 }
+function approvedNextPlace(subject,progress,node,grade){
+ if(grade>2||!node)return null;
+ const contract=window.LARIA_LOCKED_JOURNEYS;
+ if(!contract?.build||!progress?.model)return null;
+ try{
+  const nodeStatus=subject==='geography'?geoJourneyNodeState:journeyNodeState;
+  const journey=contract.build(subject,progress.model,nodeStatus,node.id);
+  return journey.places.find(place=>place.nodes.some(item=>item.id===node.id))?.title||null;
+ }catch(_){return null}
+}
 function next(){
  const active=state.activeSession?.scope;
  const subject=activitySubject(active,state.lastActivity);
  const grade=Number(active?.journeyGrade||active?.grade||state.lastActivity?.grade||currentGrade());
  const progress=subject==='geography'?geoJourneyProgress(grade):journeyProgress(subject,grade);
  const node=subject==='geography'?geoJourneyRecommendedNode(grade):journeyRecommendedNode(subject,grade);
- return {subject,grade,title:active?.label||(subject==='norwegian'?PLACES[node?.id]:null)||node?.title||'Bokskogen',active:!!active,pct:Number(progress?.pct||0),complete:!!progress?.complete};
+ return {subject,grade,title:active?.label||approvedNextPlace(subject,progress,node,grade)||(subject==='norwegian'?PLACES[node?.id]:null)||node?.title||'Bokskogen',active:!!active,pct:Number(progress?.pct||0),complete:!!progress?.complete};
 }
        
 function journeyCopy(info){
