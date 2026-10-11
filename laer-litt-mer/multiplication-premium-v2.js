@@ -173,7 +173,17 @@ function onClick(event){
  const root=document.getElementById(ROOT),target=event.target.closest('button[data-mp-action]');if(!target||!root?.contains(target))return;
  const action=target.dataset.mpAction,page=target.dataset.page,n=Number(target.dataset.table);
  if(action==='go'){if(page==='practice')return begin();if(page==='explore')stateBox.active='table';stateBox.page=page;render();scrollTop();return}
- if(action==='back'){if(stateBox.page==='home'){try{if(typeof window.LARIA_RETURN_TO_BASECAMP==='function'&&window.LARIA_RETURN_TO_BASECAMP())return}catch(_){}try{openSubject('math')}catch(_){}return}stateBox.page='home';render();scrollTop();return}
+ if(action==='back'){if(stateBox.page==='home'){
+   const screen=document.getElementById('multiplication-lab-screen');
+   if(screen?.dataset.returnToMathSubject==='true'){
+     screen.dataset.returnToMathSubject='false';
+     try{openSubject('math')}catch(_){}
+     return;
+   }
+   try{if(typeof window.LARIA_RETURN_TO_BASECAMP==='function'&&window.LARIA_RETURN_TO_BASECAMP())return}catch(_){}
+   try{openSubject('math')}catch(_){}
+   return;
+  }stateBox.page='home';render();scrollTop();return}
  if(action==='resume')return begin(null,true);
  if(action==='start')return begin(n);
  if(action==='more'){stateBox.showMore=!stateBox.showMore;render();return}
@@ -191,7 +201,9 @@ function onClick(event){
 const root=document.getElementById(ROOT);if(root&&!root.dataset.mpV2Bound){root.addEventListener('click',onClick);root.dataset.mpV2Bound='true'}
 window.LARIA_MULT_PICK_PLAY?.mount(root,render);
 window.openMultiplicationLab=function(){
- document.getElementById('multiplication-lab-screen')?.setAttribute('data-explore-release','explore-rc1');
+ const screen=document.getElementById('multiplication-lab-screen');
+ if(screen)screen.dataset.returnToMathSubject=String(!!document.querySelector('#subject-screen.active'));
+ screen?.setAttribute('data-explore-release','explore-rc1');
  stateBox.page='home';stateBox.showHints=false;stateBox.showSummary=false;render();
  try{showScreen('multiplication-lab')}catch(_){}
 };
