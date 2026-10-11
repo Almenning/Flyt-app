@@ -2,6 +2,21 @@
 
 **Produktgrunnlag:** Bruker har godkjent seks illustrasjoner 8. oktober 2026. Originalene er bevart i brukerens bibliotek under `Læria/Brøklaben/Laria_Broklaben_Laste_Illustrasjoner_2026-10-08.zip`.
 
+## Låst overordnet prinsipp: intuitiv læring gjennom lek (11. oktober 2026)
+
+> Et barn som aldri har lært hva en teller og nevner er, skal kunne åpne Brøklaben, begynne å leke umiddelbart og gradvis forstå hva brøker er gjennom det barnet gjør.
+
+**Dette er Brøklabens øverste UX-kriterium.** Det går foran eldre beslutninger om antall skjermer, inngangsmenyer, kontrollplassering og presentasjon når de kommer i konflikt med prinsippet. Låste illustrasjoner, faglig korrekthet, eksisterende læringsdata og funksjonalitet skal likevel ivaretas ved eventuell ombygging.
+
+Konsekvenser for senere vurderinger og implementering:
+- Barnet skal kunne starte med en konkret brøkmodell og en forståelig handling, uten å måtte velge læringsmetode eller kjenne fagbegrepene.
+- Handlingene skal ha konsekvent, fysisk forståelig betydning, og gi umiddelbar synlig respons i modell og tall.
+- «Teller» og «nevner» skal kunne læres gjennom utforskning; de må ikke være forkunnskapskrav eller dominere første møte.
+- Den personlige reven kan støtte nysgjerrighet, men skal ikke avbryte eller gjøre frilek avhengig av instruksjon.
+- Automatisk QA må suppleres med observasjon av barn som prøver Brøklaben uten forklaring. Teknisk grønt er ikke det samme som intuitivt.
+
+**Status:** Produktprinsippet er låst. Dette dokumenterer retningen, men er ikke i seg selv godkjenning av et nytt skjermdesign eller en kodeendring.
+
 ## Formål
 Brøklaben skal være et morsomt, forståelig, taktilt og faglig korrekt sted barnet selv vil utforske. Udir-tilknytningen skal sikre faglig verdi, ikke presse barn gjennom nivåer. Repetisjon, fri utforsking og mestring er verdifull aktivitet. Alt innhold er åpent. Mestring skal anbefale, ikke låse.
 
