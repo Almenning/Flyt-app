@@ -73,8 +73,35 @@ function activity(name){
 function closeDialog(){const d=document.getElementById('bc12-dialog');if(d?.open)d.close();returnFocus?.focus();}
 function dialog(kind){
  const d=document.getElementById('bc12-dialog');returnFocus=document.activeElement;
- d.classList.toggle('is-collection',kind==='collection');
- if(kind==='quest'){const q=dailyQuest();d.dataset.questAction=q.action;d.innerHTML='<button class="bc12-close" aria-label="Lukk">×</button><span class="bc12-eyebrow">'+q.eyebrow+'</span><h2 id="bc12-dialog-title">'+q.title+'</h2><p>'+q.copy+'</p><button class="bc12-dialog-go" data-quest-go>'+q.button+'</button><button class="bc12-later">Kanskje senere</button>';}
+ d.classList.toggle('is-collection',kind==='collection'||kind==='wardrobe');
+ d.classList.toggle('is-wardrobe',kind==='wardrobe');
+ if(kind==='wardrobe'){
+   const avatar=window.LARIA_FOX.choice(),collection=window.LARIA_COLLECTION_STORE.snapshot(),core=window.LARIA_COLLECTION_CORE;
+   const wearable=core.available(collection).filter(item=>item.kind==='clothing');
+   const slots={head:'Hode',neck:'Hals',back:'Rygg',cape:'Kappe'};
+   d.innerHTML='<button class="bc12-close" aria-label="Lukk">×</button>'+
+    '<span class="bc12-eyebrow">Min rev</span><h2 id="bc12-dialog-title">Garderoben min</h2>'+
+    '<div class="bc12-wardrobe-preview" role="img" aria-label="Din '+window.LARIA_FOX.label(avatar)+' med valgt utstyr">'+
+      window.LARIA_FOX_WARDROBE.render(avatar,collection)+'</div>'+
+    '<p class="bc12-wardrobe-hint">Alt du finner, beholder du. Prøv ulike plagg på reven din!</p>'+
+    '<div class="bc12-wardrobe-grid" role="group" aria-label="Velg klær og utstyr">'+wearable.map(item=>{
+      const active=item.equipped,owned=item.owned;
+      return '<button type="button" class="bc12-wardrobe-item" data-wear="'+item.id+'" data-owned="'+owned+'" aria-pressed="'+active+'" '+(!owned?'disabled':'')+'>'+
+        '<strong>'+item.title+'</strong><small>'+slots[item.slot]+'</small>'+
+        '<span>'+(active?'✓ I bruk':owned?'Ta på':'Ikke funnet ennå')+'</span></button>';
+    }).join('')+'</div>'+
+    '<button type="button" class="bc12-dialog-go" data-wardrobe-back>Tilbake til samleboken</button>';
+   d.querySelectorAll('[data-wear]').forEach(button=>button.addEventListener('click',()=>{
+     const id=button.dataset.wear,selected=wearable.find(item=>item.id===id);
+     if(!selected?.owned)return;
+     if(selected.equipped)window.LARIA_COLLECTION_STORE.unequip(selected.slot);
+     else window.LARIA_COLLECTION_STORE.equip(id);
+     window.LARIA_FOX_WARDROBE.refresh();
+     dialog('wardrobe');
+   }));
+   d.querySelector('[data-wardrobe-back]').addEventListener('click',()=>dialog('collection'));
+ }
+ else if(kind==='quest'){const q=dailyQuest();d.dataset.questAction=q.action;d.innerHTML='<button class="bc12-close" aria-label="Lukk">×</button><span class="bc12-eyebrow">'+q.eyebrow+'</span><h2 id="bc12-dialog-title">'+q.title+'</h2><p>'+q.copy+'</p><button class="bc12-dialog-go" data-quest-go>'+q.button+'</button><button class="bc12-later">Kanskje senere</button>';}
  else {
   const visited=Object.values(state.journey?.nodes||{}).filter(n=>n.passed||Number(n.attempts)>0).length;
   const trophies=Object.keys(state.journey?.gradeWins||{}).length,wordRounds=wordHuntRounds();
@@ -95,12 +122,14 @@ function dialog(kind){
     '<div class="bc12-memory-intro"><b>'+discovered+' av '+treasures.length+' minner funnet</b><span>Utforsk, prøv og øv. Du bestemmer hva du har lyst til.</span></div>'+
     '<div class="bc12-memory-grid" role="group" aria-label="Minner fra de fire fagreisene">'+keepsakes+'</div>'+
     '<div class="bc12-shelf"><div><span aria-hidden="true">✦</span><strong>'+visited+'</strong><small>steder besøkt</small></div><div><span aria-hidden="true">🔤</span><strong>'+wordRounds+'</strong><small>ordjakter</small></div><div><span aria-hidden="true">♜</span><strong>'+trophies+'</strong><small>eventyr fullført</small></div></div>'+
+    '<button class="bc12-dialog-go" data-wardrobe-open>Min rev · Åpne garderoben</button>'+ 
     '<button class="bc12-dialog-go" data-dialog-home>Tilbake til basecamp</button>';
  }
  d.querySelector('.bc12-close').onclick=closeDialog;d.querySelector('.bc12-later')?.addEventListener('click',closeDialog);
  d.querySelector('[data-quest-go]')?.addEventListener('click',()=>{const action=d.dataset.questAction||'words';closeDialog();activity(action)});
+ d.querySelector('[data-wardrobe-open]')?.addEventListener('click',()=>dialog('wardrobe'));
  d.querySelector('[data-dialog-home]')?.addEventListener('click',()=>{closeDialog();home()});
- d.showModal();
+ if(!d.open)d.showModal();
 }
 const SUBJECT_ART={"norwegian":"<svg viewBox=\"0 0 60 60\" aria-hidden=\"true\"><path d=\"M29 15Q18 9 7 13v31q12-4 22 3 10-7 23-3V13Q40 9 29 15Z\" fill=\"#f8e5b7\" stroke=\"#704c2e\" stroke-width=\"3\"/><path d=\"M29 15v32M12 20q8-2 13 1m-13 6q8-2 13 1m10-7q6-3 12-1m-12 8q6-3 12-1\" stroke=\"#9e7147\" stroke-width=\"2.2\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M7 45q12-4 22 3 10-7 23-3\" stroke=\"#d2a970\" stroke-width=\"3\" fill=\"none\"/></svg>","math":"<svg viewBox=\"0 0 60 60\" aria-hidden=\"true\"><rect x=\"8\" y=\"25\" width=\"25\" height=\"25\" rx=\"5\" fill=\"#f7c06e\" stroke=\"#9f6239\" stroke-width=\"3\"/><path d=\"M8 29l12-8 13 5v24H8Z\" fill=\"#e7aa5e\" stroke=\"#9f6239\" stroke-width=\"2\"/><text x=\"20\" y=\"44\" text-anchor=\"middle\" font-size=\"18\" font-weight=\"900\" fill=\"#754122\">2</text><rect x=\"32\" y=\"10\" width=\"21\" height=\"29\" rx=\"4\" fill=\"#a5d4bf\" stroke=\"#4a8778\" stroke-width=\"3\"/><text x=\"42.5\" y=\"31\" text-anchor=\"middle\" font-size=\"17\" font-weight=\"900\" fill=\"#376453\">3</text></svg>","english":"<svg viewBox=\"0 0 60 60\" aria-hidden=\"true\"><path d=\"M8 10h44v30H32L22 50v-10H8Z\" fill=\"#fff1c9\" stroke=\"#895b3d\" stroke-width=\"3\" stroke-linejoin=\"round\"/><text x=\"30\" y=\"31\" text-anchor=\"middle\" font-size=\"16\" font-weight=\"900\" fill=\"#547f91\">Hi!</text><path d=\"M37 8l13 7\" stroke=\"#d48569\" stroke-width=\"3\" stroke-linecap=\"round\"/></svg>","geography":"<svg viewBox=\"0 0 60 60\" aria-hidden=\"true\"><circle cx=\"30\" cy=\"28\" r=\"21\" fill=\"#82cee0\" stroke=\"#497b82\" stroke-width=\"3\"/><path d=\"M17 11l8 5 1 8 7 4-5 11-7 6-2-14-10-9Zm23 1-6 8 8 7-2 9 7 2 3-16Z\" fill=\"#88b98b\" stroke=\"#598d74\" stroke-width=\"1\"/><path d=\"M8 49h44M30 50v5\" stroke=\"#97683e\" stroke-width=\"4\" stroke-linecap=\"round\"/><ellipse cx=\"30\" cy=\"28\" rx=\"10\" ry=\"21\" stroke=\"#fff4d4\" stroke-width=\"1.3\" opacity=\".55\" fill=\"none\"/></svg>"};
 
