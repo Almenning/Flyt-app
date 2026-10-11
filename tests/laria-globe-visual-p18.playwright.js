@@ -164,6 +164,7 @@ async function capture(browserType,label,viewport){
     // frame once BOTH CSS geometry and the underlying bitmap are synchronized.
     // This remains a strict functional check: an actually stretched or hidden
     // globe will time out and fail rather than being silently accepted.
+    try{
     await page.waitForFunction(()=>{
       const screen=document.querySelector('#world-screen.active');
       const c=document.getElementById('globe-canvas'),r=c?.getBoundingClientRect();
@@ -175,6 +176,26 @@ async function capture(browserType,label,viewport){
         Math.abs(c.width-Math.round(r.width*dpr))<3&&
         Math.abs(c.height-Math.round(r.height*dpr))<3;
     },null,{timeout:16000});
+    }catch(error){
+      const geometry=await page.evaluate(()=>{
+        const s=document.querySelector('#world-screen.active'),c=document.getElementById('globe-canvas');
+        const wrap=document.querySelector('#world-screen.active .globe-wrap');
+        const r=c?.getBoundingClientRect(),w=wrap?.getBoundingClientRect();
+        const style=wrap&&getComputedStyle(wrap);
+        const dpr=c?c._dpr||devicePixelRatio||1:1;
+        return {viewport:[innerWidth,innerHeight],screenMode:s?.dataset.mapPerspective,
+          atlasClass:s?.classList.contains('atlas-perspective-on'),
+          canvasRect:r?{w:r.width,h:r.height,x:r.x,y:r.y}:null,
+          wrapRect:w?{w:w.width,h:w.height,x:w.x,y:w.y}:null,
+          cssGlobe:style?.getPropertyValue('width'),globeVariable:s?getComputedStyle(s).getPropertyValue('--g24-globe'):null,
+          opacity:c?getComputedStyle(c).opacity:null,bitmap:c?[c.width,c.height]:null,
+          canvasRatio:c&&r?[c.width/(r.width*dpr),c.height/(r.height*dpr)]:null,dpr};
+      }).catch(e=>({error:String(e)}));
+      console.error('[responsive-globe-not-ready]',label,JSON.stringify(geometry));
+      fs.writeFileSync(path.join(out,label+'-initial-globe-failure.json'),JSON.stringify(geometry,null,2));
+      try{await page.screenshot({path:path.join(out,label+'-initial-globe-failure.png'),fullPage:true,timeout:4000})}catch(_){}
+      throw error;
+    }
     const sceneName=viewport.width>viewport.height?'landscape':viewport.width>=700?'tablet':'mobile';
     const backgroundImage=await page.evaluate(()=>getComputedStyle(document.getElementById('world-screen')).backgroundImage);
     assert.ok(backgroundImage.includes('globe-storyscape-v36-'+sceneName+'.webp'),label+' did not load the correct illustrated nature scene: '+backgroundImage);
