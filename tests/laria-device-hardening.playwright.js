@@ -159,8 +159,12 @@ async function verifyOlderHome(page,label,width,height){
     await page.locator('#bc12-dialog[open]').waitFor({state:'hidden'});
   }
   if(label.includes('middle-ipad')){
+    // Grade 3-4 layouts may deliberately hide the large decorative mascot,
+    // but the selected fox in the entry tile must be visible on every Home.
+    assert.equal(await entryNav.locator('[data-laria-older-fox]').isVisible(),true,
+      label+' selected personal fox thumbnail must be visible');
     const oldHero=page.locator('#home-screen.active .dashboard-mascot .laria-fox-wardrobe-art');
-    await oldHero.waitFor({state:'visible'});
+    await oldHero.waitFor({state:'attached'});
     assert.equal(await oldHero.getAttribute('data-avatar'),'boy');
     assert.equal(await page.locator('#home-screen.active .dashboard-mascot #homeFoxFur').count(),0,
       'grade 3-4 must not show the generic hard-coded mascot');
