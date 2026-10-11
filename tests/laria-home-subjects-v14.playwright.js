@@ -38,6 +38,7 @@ async function run(engine,label,viewport){
    const rect=s=>{const {x,y,width,height,bottom,right}=document.querySelector(s).getBoundingClientRect();return {x,y,width,height,bottom,right}};
    return {cards:[...document.querySelectorAll('.bc14-subject')].map(e=>{const {x,y,width,height,bottom,right}=e.getBoundingClientRect();return {x,y,width,height,bottom,right}}),
     header:rect('.bc12-heading'),nav:rect('.bc12-nav'),journey:rect('.bc12-journey'),free:rect('.bc14-free'),
+    quest:document.querySelector('.bc12-quest')&&getComputedStyle(document.querySelector('.bc12-quest')).display!=='none'?rect('.bc12-quest'):null,
     scroll:document.documentElement.scrollWidth,viewport:innerWidth};
   });
   assert(positions.scroll<=positions.viewport+1,label+' horizontal overflow '+JSON.stringify(positions));
