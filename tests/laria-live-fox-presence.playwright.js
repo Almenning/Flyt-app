@@ -109,8 +109,23 @@ async function run(engine,name,viewport,avatar){
         assert(position.left>=-3&&position.right>=-3&&position.top>=-3&&position.bottom>=-3,
           name+' '+subject+' fox clipped at stop '+stop+' '+JSON.stringify(position));
         assert.equal(position.interactive,'none',name+' '+subject+' mascot blocks destination taps');
+        const visibleCharacter=await traveler.evaluate(el=>{
+          const wrapper=el.getBoundingClientRect();
+          const svg=el.querySelector(':scope > .laria-fox-wardrobe-placed');
+          if(!svg)return {missing:true};
+          const rect=svg.getBoundingClientRect();
+          return {missing:false,width:rect.width,height:rect.height,
+            wrapperWidth:wrapper.width,wrapperHeight:wrapper.height,
+            leftDelta:rect.left-wrapper.left,topDelta:rect.top-wrapper.top};
+        });
+        assert(!visibleCharacter.missing&&
+          Math.abs(visibleCharacter.width-visibleCharacter.wrapperWidth)<=2&&
+          Math.abs(visibleCharacter.height-visibleCharacter.wrapperHeight)<=2&&
+          Math.abs(visibleCharacter.leftDelta)<=2&&Math.abs(visibleCharacter.topDelta)<=2,
+          name+' '+subject+' sprite overflowed its real standing anchor at stop '+stop+
+          ' '+JSON.stringify(visibleCharacter));
         const paintedSignOverlap=await traveler.evaluate(el=>{
-          const fox=el.getBoundingClientRect();
+          const fox=el.querySelector(':scope > .laria-fox-wardrobe-placed').getBoundingClientRect();
           const signs=el.closest('.locked-journey-board').querySelectorAll('.locked-journey-hotspot');
           return [...signs].map((sign,i)=>{
             const box=sign.getBoundingClientRect();

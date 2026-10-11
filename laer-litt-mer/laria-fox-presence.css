@@ -274,3 +274,27 @@
     --task-world:url("./globe-storyscape-v36-mobile.webp");
   }
 }
+
+
+/* Safari could resolve the old hidden avatar <img> from intrinsic portrait
+   dimensions instead of the traveler's 2:3 stage. The outfit SVG was then
+   much taller than its anchor and covered a DIFFERENT painted sign. Make both
+   layers absolute to the traveler's stable box; the feet now coincide with
+   --fox-x / --fox-y on all screen widths. */
+.locked-journey-board .locked-journey-traveler.laria-fox-wardrobe-anchor{
+  box-sizing:border-box!important;
+  overflow:visible!important;
+}
+.locked-journey-board .locked-journey-traveler.laria-fox-wardrobe-anchor>img{
+  position:absolute!important;
+  inset:0!important;
+  width:100%!important;height:100%!important;
+}
+.locked-journey-board .locked-journey-traveler.laria-fox-wardrobe-anchor>.laria-fox-wardrobe-placed{
+  position:absolute!important;
+  inset:0!important;
+  left:0!important;top:0!important;
+  width:100%!important;height:100%!important;
+  max-width:100%!important;max-height:100%!important;
+  overflow:visible!important;
+}
