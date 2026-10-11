@@ -10,12 +10,13 @@ function seed(which){return {version:7,progressSchemaVersion:3,
  mastery:{},mistakes:{},skillMastery:{},skillMistakes:{},skillLastSeen:{},masteryEvidence:{},skillEvidence:{},
  preferences:{sound:false,autoRead:false},lastMilestone:null,recentCountryWin:null,lastActivity:null,
  journey:{nodes:{},gradeWins:{},viewGrades:{}},answerLog:[],sessionLog:[],activeSession:null};}
-async function match(page,selector,which,label){
+async function match(page,selector,which,label,world=false){
  const img=page.locator(selector).first();await img.waitFor({timeout:17000});
- await page.waitForFunction(([s,c])=>{
+ await page.waitForFunction(([s,c,inWorld])=>{
   const node=document.querySelector(s);
-  return !!(node&&node.complete&&node.naturalWidth>0&&node.getAttribute('src')===window.LARIA_FOX.source(c));
- },[selector,which],{timeout:17000});
+  const selected=inWorld?window.LARIA_FOX.worldSource(c):window.LARIA_FOX.source(c);
+  return !!(node&&node.complete&&node.naturalWidth>0&&node.getAttribute('src')===selected);
+ },[selector,which,world],{timeout:17000});
  assert.equal(await img.evaluate(el=>getComputedStyle(el).visibility),'visible',label+' hidden image');
 }
 async function launch(page,url,which){
@@ -36,7 +37,7 @@ async function run(engine,name,viewport,which){
   await launch(page,url,which);
   await page.waitForFunction(()=>typeof openFractionLab==='function');
   await page.evaluate(()=>openFractionLab());
-  await match(page,'.fr2-guide .fr2-fox',which,name+' Brøklab');
+  await match(page,'.fr2-guide .fr2-fox',which,name+' Brøklab',true);
   await page.screenshot({path:out+'/'+name+'-broklab.png',fullPage:true});
   await launch(page,url+'&part=mult',which);
   await page.waitForFunction(()=>typeof window.openMultiplicationLab==='function');
