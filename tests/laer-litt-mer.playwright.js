@@ -636,7 +636,7 @@ async function finishSession(page){
     await page.evaluate(()=>{state.activeSession=null;sessionQuestions=[];currentAnswered=null;saveState();setTab('home')});
 
     assert.equal(await page.locator('.bc14-subject').count(),4);
-    assert.equal(await page.locator('.bc12-nav button').count(),4);
+    assert.equal(await page.locator('.bc12-nav button').count(),5);
     assert.equal(await page.locator('.bc12-nav button[data-camp="explore"]').isVisible(),true);
     assert.equal(await page.locator('#learn-screen').count(),0);
     assert.match(await page.locator('.onboard-step[data-step="0"] .hero-copy').textContent(),/Velg reven din, skriv navnet ditt og start reisen/i);

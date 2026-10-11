@@ -260,6 +260,19 @@ jobs:
           path: /tmp/laria-fox-freeplay
           if-no-files-found: warn
           retention-days: 7
+      - name: Verify magical collection inventory across Safari and Chromium reloads
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+          LARIA_COLLECTION_QA: /tmp/laria-collection-review
+        run: node tests/laria-collection-persistence.playwright.js
+      - name: Upload magical collection book screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-magical-collection-${{ github.sha }}
+          path: /tmp/laria-collection-review
+          if-no-files-found: warn
+          retention-days: 7
       - name: Verify old checkpoint progression survives reload on approved artwork
         env:
           QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria

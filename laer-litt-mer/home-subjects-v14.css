@@ -261,3 +261,27 @@
 @media(prefers-reduced-motion:reduce){
  .bc14-subject{transition:none!important}
 }
+
+
+/* Laria collection navigation: five equal genuine touch targets. */
+.bc12 .bc12-nav{grid-template-columns:repeat(5,minmax(0,1fr));}
+.bc12 .bc12-nav button{min-width:0;gap:4px}
+.bc12 .bc14-nav-fox{
+ display:block;width:27px;height:27px;position:relative;
+ background:linear-gradient(150deg,#f9be77,#cf754a);border:2px solid #76472d;
+ clip-path:polygon(0 0,24% 20%,50% 11%,76% 20%,100% 0,92% 68%,50% 100%,8% 68%);
+}
+.bc12 .bc14-nav-fox:after{content:"";position:absolute;inset:55% 28% 12%;background:#fff2d7;border-radius:50%}
+.bc12[data-mode="home"] .bc14-fox-open{
+ pointer-events:auto!important;touch-action:manipulation;
+ cursor:pointer;border-color:#c38b53;
+ background:linear-gradient(150deg,#fff7dd,#ebc78f);color:#5b3a27;
+ box-shadow:0 3px #9b6b41,0 6px 15px #47362133
+}
+.bc12[data-mode="home"] .bc14-fox-open:focus-visible{outline:3px solid #ffdf94;outline-offset:3px}
+@media(max-width:700px){
+ .bc12 .bc12-nav button{font-size:9px!important;gap:2px}
+ .bc12 .bc12-nav svg{width:23px;height:23px}
+ .bc12 .bc14-nav-fox{width:23px;height:23px}
+ .bc12[data-mode="home"] .bc14-fox-open{top:26%;left:60%;max-width:143px;padding:7px 8px;font-size:10px}
+}

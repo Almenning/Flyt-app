@@ -66,16 +66,26 @@ function assertTap(r,label){
 
 async function verifyBasecamp(page,label,width,height){
   await page.locator('.bc12').waitFor({state:'visible'});
-  assert.equal(await page.locator('.bc12-nav button').count(),4,label+' Basecamp navigation changed');
+  assert.equal(await page.locator('.bc12-nav button').count(),5,label+' Basecamp must show five real navigation targets');
+  assert.deepEqual(await page.locator('.bc12-nav button').allTextContents(),
+    ['Hjem','Reisen','Utforsk','Samlebok','Min rev'],label+' Basecamp navigation labels changed');
   await noOverflow(page,label+' home');
 
   const challenge=await rect(page,'.safe-challenge-young');
   assertInViewport(challenge,width,height,label+' challenge');
   assertTap(challenge,label+' challenge');
 
-  for(const sel of ['.bc12-nav [data-camp="home"]','.bc12-nav [data-camp="travel"]','.bc12-nav [data-camp="explore"]','.bc12-nav [data-camp="collection"]']){
+  for(const sel of ['.bc12-nav [data-camp="home"]','.bc12-nav [data-camp="travel"]','.bc12-nav [data-camp="explore"]','.bc12-nav [data-camp="collection"]','.bc12-nav [data-camp="wardrobe"]']){
     const r=await rect(page,sel);assertInViewport(r,width,height,label+' '+sel);assertTap(r,label+' '+sel);
   }
+
+  // Real child-facing wardrobe is the fifth destination, not a decorative label.
+  await page.locator('.bc12-nav [data-camp="wardrobe"]').tap();
+  await page.locator('#bc12-dialog[open].is-wardrobe .bc12-wardrobe-preview svg').waitFor();
+  const wardrobeClose=await rect(page,'#bc12-dialog .bc12-close');
+  assertTap(wardrobeClose,label+' wardrobe close');
+  await page.locator('#bc12-dialog .bc12-close').tap();
+  await page.locator('#bc12-dialog[open]').waitFor({state:'hidden'});
 
   await page.locator('.safe-challenge-young').tap();
   const dialog=page.locator('#safe-challenge-dialog[open]');
