@@ -245,8 +245,16 @@ async function capture(browserType,label,viewport){
       label+' zoom pair is not centered on globe: '+JSON.stringify({globeCenter,zoomCenter,layout}));
     assert.ok(layout.zoomIn.top>layout.modes.bottom+7,
       label+' zoom-in collides with mode selector');
-    assert.ok(layout.zoomOut.bottom<layout.country.top-7,
-      label+' zoom-out collides with country card');
+    // Country details are beside the globe on wide screens, not below it.
+    // Physical rectangles, not just their Y coordinates, determine overlap.
+    const apart=(a,b,pad=0)=>a.right+pad<=b.left||b.right+pad<=a.left||
+      a.bottom+pad<=b.top||b.bottom+pad<=a.top;
+    if(viewport.width>viewport.height){
+      console.log(label+' responsive globe bounds '+JSON.stringify(layout));
+      await page.screenshot({path:path.join(out,label+'-responsive-layout.png'),fullPage:true,animations:'disabled'});
+    }
+    assert.ok(apart(layout.zoomOut,layout.country,7),
+      label+' zoom-out physically overlaps country card: '+JSON.stringify(layout));
     assert.ok(layout.zoomIn.left>=-1&&layout.zoomOut.right<=viewport.width+1,
       label+' zoom buttons spill beyond viewport');
 
@@ -256,7 +264,8 @@ async function capture(browserType,label,viewport){
     }
     if(viewport.width>=900&&viewport.width>viewport.height){
       assert.ok(layout.modes.bottom+3<=layout.globe.top,label+' mode tabs collide with rotating globe: '+JSON.stringify(layout));
-      assert.ok(layout.globe.bottom+3<=layout.country.top,label+' globe collides with land card: '+JSON.stringify(layout));
+      assert.ok(apart(layout.globe,layout.country,3),
+        label+' globe physically overlaps land card: '+JSON.stringify(layout));
     }
     // Child-facing text must stay legible on the physical country card.
     const readability=await page.evaluate(()=>{
