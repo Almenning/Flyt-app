@@ -1,0 +1,12 @@
+/* Personal fox: the selected onboarding art has a painted background,
+   so show it as a portrait (not a fake transparent sprite). */
+.bc12 .bc12-fox{width:clamp(84px,16%,170px)!important;aspect-ratio:1;max-width:170px;border:4px solid #fff4d9;border-radius:50%;overflow:hidden;background:#fff0d5;box-shadow:0 8px 18px #142b2844;filter:none!important}
+.bc12 .bc12-fox:before{display:none}
+.bc12 .bc12-fox img{width:100%!important;height:100%!important;object-fit:cover!important;object-position:center 33%;border-radius:50%}
+.locked-journey-board .locked-journey-traveler{position:absolute;z-index:6;left:var(--fox-x);top:var(--fox-y);width:clamp(30px,8.5%,68px);aspect-ratio:1;border:3px solid #fff4d6;border-radius:50%;overflow:hidden;background:#fff3d9;box-shadow:0 3px 10px #172f3c88;transform:translate(-50%,-100%);pointer-events:none}
+.locked-journey-traveler img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 32%}
+.premium-traveler .premium-traveler-character{border:3px solid #fff1cb;border-radius:50%;overflow:hidden;background:#ffeed5;box-shadow:0 4px 10px #142c2b66}
+.premium-traveler .premium-traveler-character img{object-fit:cover!important;object-position:center 30%!important}
+#session-screen.task-scene .task-fox-companion img{object-fit:cover!important;object-position:center 26%!important;border:3px solid #fff2d8!important;border-radius:50%!important;box-shadow:0 5px 14px #25362d33}
+#session-screen.task-scene .task-fox-companion{width:clamp(68px,18vw,112px)!important;height:clamp(68px,18vw,112px)!important}
+@media(max-width:600px){.bc12[data-release="basecamp-rc1"] .bc12-fox{width:24%!important;max-width:105px!important;top:50%}}
