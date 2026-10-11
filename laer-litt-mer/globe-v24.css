@@ -1631,9 +1631,9 @@ html:has(#world-screen.active){
      Its compact key stays accessible without covering any country polygon. */
   #world-screen.active.globe-v30.atlas-perspective-on[data-premium-globe-mode="mine"] .globe-legend{
     left:auto!important;right:max(8px,env(safe-area-inset-right))!important;
-    top:auto!important;bottom:calc(55px + env(safe-area-inset-bottom))!important;
+    top:auto!important;bottom:calc(54px + env(safe-area-inset-bottom))!important;
     transform:none!important;width:42vw!important;max-width:42vw!important;
-    padding:4px 6px!important;gap:2px 6px!important;
+    padding:2px 6px!important;gap:1px 6px!important;
     min-height:0!important;z-index:93!important;
   }
   #world-screen.active.globe-v30.atlas-perspective-on[data-premium-globe-mode="mine"] .globe-legend span{
