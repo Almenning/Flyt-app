@@ -362,12 +362,18 @@ async function capture(browserType,label,viewport){
           if(!c||c.dataset.mapReady!=='true'||c.width<150||c.height<150)return false;
           const ctx=c.getContext('2d',{willReadFrequently:true});
           if(!ctx)return false;
+          // WebKit's iPad canvas occasionally stalls when hundreds of 1x1
+          // GPU readbacks are requested during every polling interval. Read
+          // the SAME real canvas ONCE, then sample it in JS. Do not waive
+          // the non-blue, coloured-land requirement.
+          const pixels=ctx.getImageData(0,0,c.width,c.height).data;
           let opaque=0,warmLand=0;
           for(let y=9;y<c.height;y+=Math.max(11,Math.floor(c.height/22)))
            for(let x=9;x<c.width;x+=Math.max(11,Math.floor(c.width/22))){
-            const p=ctx.getImageData(x,y,1,1).data;
-            if(p[3]>200)opaque++;
-            if(p[3]>200&&p[0]>135&&p[0]>p[2]*1.12&&p[0]>p[1]*1.07)warmLand++;
+            const offset=(y*c.width+x)*4,r=pixels[offset],g=pixels[offset+1],
+              b=pixels[offset+2],alpha=pixels[offset+3];
+            if(alpha>200)opaque++;
+            if(alpha>200&&r>135&&r>b*1.12&&r>g*1.07)warmLand++;
            }
           return opaque>25&&warmLand>3;
         },null,{timeout:12000});
