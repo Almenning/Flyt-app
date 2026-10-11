@@ -174,13 +174,17 @@ function cardIllustration(type){
  return '<svg class="fr2-illustration fr2-illustration-'+type+'" viewBox="0 0 240 150" role="presentation" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">'+grad+p+'</svg>';
 }
 function loosePieceSvg(denominator,slot){
- const d=Math.max(2,denominator),id='fr2Loose'+denominator+'-'+slot;
- const cx=57,cy=61,r=44,a0=-Math.PI/2,a1=a0+Math.PI*2/d;
- const x0=cx+r*Math.cos(a0),y0=cy+r*Math.sin(a0);
- const x1=cx+r*Math.cos(a1),y1=cy+r*Math.sin(a1);
- const outline='M '+cx+' '+cy+' L '+x0.toFixed(3)+' '+y0.toFixed(3)+' A '+r+' '+r+' 0 0 1 '+x1.toFixed(3)+' '+y1.toFixed(3)+' Z';
- return '<svg class="fr2-loose-piece" viewBox="0 0 114 114" aria-hidden="true" focusable="false"><defs><radialGradient id="'+id+'"><stop stop-color="#F8BE99"/><stop offset=".5" stop-color="#DC6B54"/><stop offset="1" stop-color="#A64039"/></radialGradient></defs><path d="'+outline+'" transform="translate(3 4)" fill="#B27D44" opacity=".3"/><path d="'+outline+'" fill="url(#'+id+')" stroke="#DAA36A" stroke-width="5" stroke-linejoin="round"/><path d="M57 61L'+x0.toFixed(1)+' '+y0.toFixed(1)+'" stroke="#F9D6AA" stroke-width="3" opacity=".7"/></svg>';
+  const d=Math.max(2,denominator),index=Number(slot)||0,id='fr2Loose'+d+'-'+index;
+  const cx=57,cy=61,r=44,a0=-Math.PI/2,a1=a0+Math.PI*2/d;
+  const x0=cx+r*Math.cos(a0),y0=cy+r*Math.sin(a0),x1=cx+r*Math.cos(a1),y1=cy+r*Math.sin(a1);
+  const outline='M '+cx+' '+cy+' L '+x0.toFixed(3)+' '+y0.toFixed(3)+' A '+r+' '+r+' 0 0 1 '+x1.toFixed(3)+' '+y1.toFixed(3)+' Z';
+  const rotation=(index*360/d).toFixed(2);
+  return '<svg class="fr2-loose-piece" viewBox="0 0 114 114" aria-hidden="true" focusable="false"><defs><radialGradient id="'+id+'"><stop stop-color="#F8BE99"/><stop offset=".5" stop-color="#DC6B54"/><stop offset="1" stop-color="#A64039"/></radialGradient></defs>'
+    +'<g transform="rotate('+rotation+' 57 61)"><path d="'+outline+'" transform="translate(3 4)" fill="#B27D44" opacity=".3"/>'
+    +'<path d="'+outline+'" fill="url(#'+id+')" stroke="#DAA36A" stroke-width="5" stroke-linejoin="round"/>'
+    +'<path d="M57 61L'+x0.toFixed(1)+' '+y0.toFixed(1)+'" stroke="#F9D6AA" stroke-width="3" opacity=".7"/></g></svg>';
 }
+
 function miniArt(type){return cardIllustration(type)}
 function card(type,subtitle){
  return cta('go','<div class="fr2-card-art">'+miniArt(type)+'</div><strong>'+titles[type]+'</strong><small>'+subtitle+'</small><span class="fr2-card-arrow" aria-hidden="true">›</span>','fr2-home-card fr2-card-'+type,'data-page="'+type+'"');
@@ -221,21 +225,18 @@ function viewIllustration(view){
  return frame+'<path d="M15 7H46L42 45H19Z" fill="#E4F0F2" stroke="#688F9C" stroke-width="3"/><path d="M20 26H43L42 45H23Z" fill="#78B8CC"/><path d="M45 15Q62 15 57 31Q55 38 43 36" fill="none" stroke="#688F9C" stroke-width="5"/><path d="M34 9V43" stroke="#91B5B8" stroke-width="1.5"/>'+end;
 }
 function explore(){
-  const x=u.explore;
-  const modes=[['circle','Sirkel'],['bar','Stripe'],['grid','Rutenett'],['glass','Målebeger']];
-  const caption=x.n===0?'Ingen av '+x.d+' deler er fylt.':x.n===x.d?'Hele figuren er fylt.':x.n+' av '+x.d+' like deler er fylt.';
-  const speech=x.n===0?'Trykk på en del. Hva tror du skjer?':x.n===x.d?'Nå er alle delene med. Det er én hel!':'Flott! '+x.n+' av '+x.d+' deler er fargelagt.';
-  // The object, its numerical fraction and both controls belong to the first viewport.
-  // The representation picker and presets are secondary and may scroll below.
-  return '<section class="fr2-explore fr4-explore fr5-explore">'+labIntro('Utforsk brøker','Se hva som skjer når du endrer delene!')
-   +'<div class="fr2-stage fr2-explore-stage fr4-explore-stage fr5-explore-stage"><div class="fr2-stage-main fr4-stage-main"><div class="fr2-main-illustration">'+presentation(x.n,x.d,x.mode,x.mode==='circle')+'</div><div class="fr2-main-value">'+frac(x.n,x.d)+'</div></div>'
-   +'<div class="fr4-scene-fox fr5-scene-fox" data-fr-action="fox-help" role="button" tabindex="0" aria-label="Trykk på reven for hjelp og opplesning">'+fox()+'</div><div class="fr4-scene-speech" role="status" aria-live="polite">'+speech+'<span aria-hidden="true">♥</span></div>'
-   +'<div class="fr4-stage-caption">'+caption+'</div></div>'
-   +'<div class="fr2-controls fr4-controls fr5-controls">'+adjustField('n')+adjustField('d')+'</div>'
-   +'<div class="fr2-views fr4-views fr5-view-picker" role="group" aria-label="Velg brøkvisning">'+modes.map(([k,label])=>cta('view','<span class="fr4-mode-art">'+viewIllustration(k)+'</span><b>'+label+'</b>','fr2-view '+(x.mode===k?'active':''),'data-view="'+k+'" aria-pressed="'+(x.mode===k)+'"')).join('')+'</div>'
-   +'<div class="fr2-soft-section fr4-common"><strong>Vanlige brøker</strong>'+commonFractions()+'</div>'
-   +'<div class="fr4-small-discovery" aria-hidden="true"><span>✦</span> Prøv å fylle én del til! <span>✦</span></div></section>';
+  const x=u.build,modes=[['circle','Kake'],['bar','Stripe'],['grid','Ruter'],['glass','Målebeger']];
+  const caption=x.n===0?'Ingen deler er fylt.':x.n===x.d?'Alt er fylt. En hel!':x.n+' av '+x.d+' like deler er fylt.';
+  const speech=x.n===0?'Trykk på en del!':x.n===x.d?'Det er en hel!':x.n+' av '+x.d+' deler.';
+  return '<section class="fr2-explore fr4-explore fr5-explore fr6-explore">'+labIntro('Se på nye måter','Den samme brøken, flere former!')
+    +'<div class="fr2-stage fr2-explore-stage fr4-explore-stage fr5-explore-stage"><div class="fr2-stage-main fr4-stage-main"><div class="fr2-main-illustration">'+presentation(x.n,x.d,x.mode,true,x.filled)+'</div><div class="fr2-main-value">'+frac(x.n,x.d)+'</div></div>'
+    +'<div class="fr4-scene-fox fr5-scene-fox" data-fr-action="fox-help" role="button" tabindex="0" aria-label="Trykk på reven for hjelp og opplesning">'+fox()+'</div><div class="fr4-scene-speech" role="status" aria-live="polite">'+speech+'<span aria-hidden="true">♥</span></div>'
+    +'<div class="fr4-stage-caption">'+caption+'</div></div>'
+    +'<div class="fr2-controls fr4-controls fr5-controls fr6-controls">'+adjustField('n')+adjustField('d')+'</div>'
+    +'<div class="fr2-views fr4-views fr5-view-picker" role="group" aria-label="Velg brøkvisning">'+modes.map(([k,label])=>cta('view','<span class="fr4-mode-art">'+viewIllustration(k)+'</span><b>'+label+'</b>','fr2-view '+(x.mode===k?'active':''),'data-view="'+k+'" aria-pressed="'+(x.mode===k)+'"')).join('')+'</div>'
+    +'<div class="fr2-soft-section fr4-common"><strong>Prøv disse brøkene</strong>'+commonFractions()+'</div></section>';
 }
+
 function labIntro(title,subtitle){
  return '<div class="fr5-lab-intro"><h1>'+title+'</h1><p>'+subtitle+'</p></div>';
 }
@@ -266,16 +267,20 @@ function foxSpeak(){
 }
 
 function build(){
- const x=u.build;
- const status=x.n===0?'Prøv en bit!':x.n===x.d?'En hel!':x.n+' av '+x.d+'!';
- return '<section class="fr2-build fr4-build fr5-build">'+labIntro('Bygg en brøk','Trykk på kaken, eller legg til en brøkbit.')
- +'<div class="fr2-build-workshop fr4-build-stage fr5-build-stage">'
- +'<div class="fr2-build-target fr5-build-target" data-fr-drop="1"><div class="fr4-build-woodhead">Delene dine</div><div class="fr2-fabric">'+fractionSvg(x.n,x.d,'builder',true,x.filled)+'</div><p>Trykk på en del for å fylle eller fjerne den.</p></div>'
- +'<div class="fr5-build-aside"><div class="fr5-live-result" role="status" aria-live="polite" aria-atomic="true"><span>Du har bygget</span>'+frac(x.n,x.d)+'<small>'+x.n+' av '+x.d+' like deler</small></div>'
- +'<div class="fr2-guide fr5-fox-mentor" data-fr-action="fox-help" role="button" tabindex="0" aria-label="Trykk på reven for hjelp og opplesning">'+fox()+'<span class="fr5-fox-bubble">'+status+' <span aria-hidden="true">🔊</span></span></div></div>'
- +'<div class="fr2-wood-tray fr5-piece-tray"><span class="fr2-tray-title">Brøkbiter</span><div class="fr2-spare-pieces">'+Array.from({length:Math.min(x.d,8)},(_,i)=>cta('add',loosePieceSvg(x.d,i),'fr2-spare '+(i===0?'point':''),'data-fr-pick="1" aria-label="Legg til én del"')).join('')+'</div><small>Trykk eller dra en bit inn</small></div>'
- +'</div><div class="fr2-controls fr4-controls fr5-controls">'+adjustField('d')+adjustField('n')+'</div>'
- +'<div class="fr2-actions">'+cta('reset','Tøm brettet','fr2-secondary')+cta('next-build','Bygg noe nytt ›','fr2-primary')+'</div></section>';
+  const x=u.build,half=x.d%2===0&&x.n*2===x.d;
+  const status=x.n===0?'Trykk på et stykke!':x.n===x.d?'Du har én hel!':half?'Det er en halv!':x.n+' av '+x.d+'!';
+  // A tray wedge represents one exact empty sector, not an infinite generic supply.
+  const remaining=Array.from({length:x.d},(_,i)=>i).filter(i=>!x.filled.includes(i));
+  return '<section class="fr2-build fr4-build fr5-build fr6-workshop">'+labIntro('Brøklaben','Trykk på et kakestykke og se hva som skjer!')
+   +'<div class="fr2-build-workshop fr4-build-stage fr5-build-stage fr6-stage">'
+   +'<div class="fr2-build-target fr5-build-target" data-fr-drop="1"><div class="fr4-build-woodhead">Kaken din</div><div class="fr2-fabric">'+fractionSvg(x.n,x.d,'builder',true,x.filled)+'</div><p>Trykk på et stykke for å fylle eller tømme det.</p></div>'
+   +'<div class="fr5-build-aside"><div class="fr5-live-result fr6-result" role="status" aria-live="polite" aria-atomic="true"><span>Du har fylt</span>'+frac(x.n,x.d)+'<small>'+x.n+' av '+x.d+' like deler</small></div>'
+   +'<div class="fr2-guide fr5-fox-mentor" data-fr-action="fox-help" role="button" tabindex="0" aria-label="Trykk på reven for frivillig hjelp og opplesning">'+fox()+'<span class="fr5-fox-bubble">'+status+' <span aria-hidden="true">🔊</span></span></div></div>'
+   +'<div class="fr2-wood-tray fr5-piece-tray fr6-piece-tray"><span class="fr2-tray-title">Løse biter</span>'
+   +'<div class="fr2-spare-pieces">'+(remaining.length?remaining.map(i=>cta('add',loosePieceSvg(x.d,i),'fr2-spare','data-fr-pick="1" data-piece-index="'+i+'" aria-label="Legg kakestykke '+(i+1)+' av '+x.d+' i kaken"')).join(''):'<span class="fr6-empty-tray">Alle bitene er i kaken!</span>')+'</div>'
+   +'<small>Trykk eller dra en bit inn</small></div>'
+   +'</div><div class="fr2-controls fr4-controls fr5-controls fr6-controls">'+adjustField('n')+adjustField('d')+'</div>'
+   +'<div class="fr2-actions">'+cta('reset','Tøm kaken','fr2-secondary')+cta('next-build','Del kaken på nytt ›','fr2-primary')+'</div></section>';
 }
 
 function eqCurrent(){return EQ[u.equal%EQ.length]}
