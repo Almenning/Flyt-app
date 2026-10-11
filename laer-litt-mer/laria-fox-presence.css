@@ -136,3 +136,17 @@
 #bc12-dialog.is-wardrobe.is-fox-girl .bc12-wardrobe-preview .laria-fox-wardrobe-art[data-fox-art="girl-fullbody-v1"]{
   width:100%;height:100%;max-height:none;overflow:visible;
 }
+
+
+/* WebKit 390x844: the 2:3 girl sprite used to touch the top of the
+   Norwegian card by ~6px. Preserve 12px clear space above all subject taps. */
+@media(max-width:600px){
+  #home-screen .bc12[data-release="basecamp-rc1"] .bc12-fox.laria-fox-wardrobe-anchor[data-avatar="girl"]{
+    top:calc(19.5% - 16px)!important;
+  }
+}
+@media(max-width:360px){
+  #home-screen .bc12[data-release="basecamp-rc1"] .bc12-fox.laria-fox-wardrobe-anchor[data-avatar="girl"]{
+    top:14%!important;width:clamp(60px,19%,70px)!important;
+  }
+}
