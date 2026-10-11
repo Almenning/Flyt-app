@@ -89,7 +89,7 @@ function dialog(kind){
    d.innerHTML='<button class="bc12-close" aria-label="Lukk">×</button>'+
     '<span class="bc12-eyebrow">Min rev · Lærias eventyrverden</span><h2 id="bc12-dialog-title">Kle på din rev</h2>'+
     '<div class="bc12-wardrobe-preview" role="img" aria-label="Din '+window.LARIA_FOX.label(avatar)+' med valgt utstyr">'+
-      window.LARIA_FOX_WARDROBE.render(avatar,collection)+'</div>'+
+      window.LARIA_FOX_WARDROBE.render(avatar,collection,'world')+'</div>'+
     '<p class="bc12-wardrobe-hint">Alt du finner, beholder du. Prøv ulike plagg på reven din!</p>'+
     '<div class="bc12-wardrobe-grid" role="group" aria-label="Velg klær og utstyr">'+wearable.map(item=>{
       const active=item.equipped,owned=item.owned;
