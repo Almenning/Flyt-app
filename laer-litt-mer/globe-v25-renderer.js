@@ -110,13 +110,12 @@ function ensurePremiumShell(){
   if(!guide){
     guide=document.createElement('img');
     guide.className='premium-globe-guide';
-    guide.src=selectedProfileFox();
+    guide.src='./lia-fox-explorer-home.webp';
     guide.alt='';
     guide.setAttribute('aria-hidden','true');
     screen.appendChild(guide);
   }
   guide.dataset.profileAvatar=avatar;
-   if(guide.src!==selectedProfileFox())guide.src=selectedProfileFox();
   const wrap=screen.querySelector('.globe-wrap');
   if(wrap){
     let ring=wrap.querySelector('.premium-globe-ring');
