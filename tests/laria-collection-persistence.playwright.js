@@ -1,6 +1,8 @@
 'use strict';
 /* Persistence contract; no wardrobe artwork or reward overlays are shipped here. */
 const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
 const {chromium,webkit}=require('playwright');
 const seed={
   version:7,progressSchemaVersion:3,profile:{grade:2,onboarded:true,name:'Eventyrbarn',avatar:'boy',setupVersion:2},
@@ -11,6 +13,8 @@ const seed={
   sessionLog:[],activeSession:null
 };
 const url=(process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria');
+const evidence=process.env.LARIA_COLLECTION_QA||'/tmp/laria-collection-review';
+fs.mkdirSync(evidence,{recursive:true});
 async function verify(browserType,label,viewport){
   const browser=await browserType.launch({headless:true,args:browserType===chromium?['--no-sandbox']:[]});
   try{
@@ -39,6 +43,7 @@ async function verify(browserType,label,viewport){
     });
     assert.ok(layout.top>=-2&&layout.bottom<=layout.windowHeight+2,
       label+' collection book overflows viewport: '+JSON.stringify(layout));
+    await page.screenshot({path:path.join(evidence,label+'-magisk-samlebok.png'),animations:'disabled'});
     await page.locator('#bc12-dialog[open] .bc12-close').click();
     assert.equal(await page.locator('#bc12-dialog[open]').count(),0);
     const first=await page.evaluate(()=>({
