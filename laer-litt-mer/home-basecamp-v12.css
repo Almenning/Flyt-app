@@ -790,3 +790,14 @@
 @media(prefers-reduced-motion:reduce){
   #home-screen .laria-legacy-collection-link{transition:none}
 }
+
+/* The compact older-grade shortcut uses the child's selected portrait,
+   not another generic mascot. Also works when the large hero fox is hidden. */
+#home-screen .laria-legacy-collection-icon.is-fox{overflow:hidden;padding:0}
+#home-screen .laria-legacy-collection-icon .laria-legacy-fox-thumb,
+#home-screen .laria-legacy-collection-icon img[data-laria-older-fox]{
+ display:block;width:100%;height:100%;object-fit:cover;object-position:center 26%;
+ background:#f1dab9;border-radius:inherit
+}
+#home-screen .laria-legacy-collection-icon img:not([src]){display:none}
+#home-screen .laria-legacy-collection-icon .laria-legacy-fox-fallback[hidden]{display:none!important}

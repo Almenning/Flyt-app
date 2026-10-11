@@ -262,8 +262,18 @@ function renderLegacyIdentity(){
  if(young())return;
  const surface=document.querySelector('#home-screen .dashboard-mascot');
  const wardrobe=window.LARIA_FOX_WARDROBE;
- if(!surface||!wardrobe?.render)return;
+ if(!wardrobe?.render)return;
  const avatar=wardrobe.choice(),collection=wardrobe.inventory();
+ // The teen dashboard deliberately suppresses the large illustration, but
+ // the compact 'Min rev' shortcut still shows the child's actual fox.
+ const portrait=document.querySelector('#home-screen [data-laria-older-fox]');
+ if(portrait&&portrait.dataset.avatar!==avatar){
+   portrait.src=window.LARIA_FOX.source(avatar);
+   portrait.dataset.avatar=avatar;
+   const placeholder=portrait.parentElement?.querySelector('.laria-legacy-fox-fallback');
+   if(placeholder)placeholder.hidden=true;
+ }
+ if(!surface)return;
  const signature=avatar+'|'+JSON.stringify(collection.equipped||{});
  if(surface.dataset.lariaIdentitySignature===signature)return;
  surface.innerHTML=wardrobe.render(avatar,collection);

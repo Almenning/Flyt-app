@@ -133,6 +133,10 @@ async function verifyOlderHome(page,label,width,height){
   const entryNav=page.locator('#home-screen.active .laria-legacy-collection-shortcuts');
   await entryNav.waitFor({state:'visible'});
   const navChoices=entryNav.locator('button');
+  assert.equal(await page.evaluate(()=>{
+    const img=document.querySelector('#home-screen [data-laria-older-fox]');
+    return !!img&&img.getAttribute('src')===window.LARIA_FOX.source(window.LARIA_FOX.choice());
+  }),true,label+' Min rev shortcut must show the selected fox');
   assert.deepEqual(await navChoices.locator('.laria-legacy-collection-copy strong').allTextContents(),
     ['Samleboken','Min rev'],label+' older-grade collection shortcuts must remain accessible');
   for(const destination of ['collection','wardrobe']){
@@ -164,6 +168,9 @@ async function verifyOlderHome(page,label,width,height){
     // without removing progress or adding a second identity.
     await page.evaluate(()=>{state.profile.avatar='girl';saveState();renderAll()});
     assert.equal(await page.locator('#home-screen.active .dashboard-mascot .laria-fox-wardrobe-art').getAttribute('data-avatar'),'girl');
+    assert.equal(await page.evaluate(()=>
+      document.querySelector('[data-laria-older-fox]')?.getAttribute('src')===window.LARIA_FOX.source('girl')),
+      true,'changing avatar must also update the compact fox portrait');
   }
   const entry=page.locator('#safe-challenge-entry');
   await entry.waitFor({state:'visible'});
