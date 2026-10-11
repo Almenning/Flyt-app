@@ -50,7 +50,7 @@
       gearMarkup(slot,item,avatar);
     return '<svg class="laria-fox-wardrobe-art" viewBox="0 0 200 '+h+'" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" preserveAspectRatio="xMidYMid meet" data-avatar="'+avatar+'" data-fox-art="'+(fullGirl?'reference-girl-draft':'portrait')+'">'+
       '<defs><clipPath id="'+id+'"><path d="'+PATHS[avatar]+'"/></clipPath></defs>'+
-      '<g class="laria-fox-pose" data-fox-gear-rig="'+avatar+'"><g>'+gear('cape',equipped.cape)+'</g><image href="'+src+'" width="200" height="'+h+'" preserveAspectRatio="xMidYMid meet"'+(fullGirl?'':' clip-path="url(#'+id+')"')+'/>'+
+      '<g class="laria-fox-pose" data-fox-gear-rig="'+avatar+'"><g>'+gear('cape',equipped.cape)+'</g><image href="'+src+'" width="200" height="'+h+'" preserveAspectRatio="xMidYMid meet"'+(avatar==='girl'?'':' clip-path="url(#'+id+')"')+'/>'+
       gear('back',equipped.back)+gear('head',equipped.head)+gear('neck',equipped.neck)+
       '</g></svg>';
   }
