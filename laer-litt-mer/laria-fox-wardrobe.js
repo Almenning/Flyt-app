@@ -73,7 +73,8 @@
       if(img.dataset.lariaWardrobeSignature===signature&&parent.querySelector(':scope > .laria-fox-wardrobe-art'))return;
       parent.querySelector(':scope > .laria-fox-wardrobe-art')?.remove();
       var slot=root.document.createElement('div');
-      slot.innerHTML=render(avatar,current);
+      const inWorld=!!img.closest('.bc12-fox,.locked-journey-traveler,.task-fox-companion,.fr2-guide,.mp-mascot,.mp-art-practice,.word-hunt-top,.premium-globe-header');
+      slot.innerHTML=render(avatar,current,inWorld?'world':'portrait');
       var artwork=slot.firstElementChild;
       if(!artwork)return;
       if(root.getComputedStyle?.(parent)?.position==='static')parent.style.position='relative';
