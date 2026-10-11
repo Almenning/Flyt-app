@@ -37,14 +37,21 @@
     }
     return '';
   }
-  function render(which,collection){
+  function render(which,collection,mode='portrait'){
     var avatar=which==='girl'?'girl':'boy',equipped=collection?.equipped||{},id='laria-wd-'+(++counter);
-    var src=root.LARIA_FOX?.source?.(avatar)||'';
-    var cape=gearMarkup('cape',equipped.cape,avatar);
-    return '<svg class="laria-fox-wardrobe-art" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" preserveAspectRatio="xMidYMid meet" data-avatar="'+avatar+'">'+
+    const fullGirl=avatar==='girl'&&mode==='world';
+    // Portraits in headers remain the previously selected avatar. In-world
+    // artwork gets its own transparent, full-body silhouette and gear anchors.
+    var src=(fullGirl?root.LARIA_FOX?.worldSource?.(avatar):root.LARIA_FOX?.source?.(avatar))||'';
+    var h=fullGirl?380:200;
+    const cape=gearMarkup('cape',equipped.cape,avatar);
+    const gear=(slot,item)=>fullGirl&&item?
+      '<g transform="'+({neck:'translate(-2 38)',back:'translate(-10 68)',cape:'translate(-8 78)',head:'translate(2 13)'}[slot]||'')+'">'+gearMarkup(slot,item,avatar)+'</g>':
+      gearMarkup(slot,item,avatar);
+    return '<svg class="laria-fox-wardrobe-art" viewBox="0 0 200 '+h+'" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" preserveAspectRatio="xMidYMid meet" data-avatar="'+avatar+'" data-fox-art="'+(fullGirl?'reference-girl-draft':'portrait')+'">'+
       '<defs><clipPath id="'+id+'"><path d="'+PATHS[avatar]+'"/></clipPath></defs>'+
-      '<g class="laria-fox-pose" data-fox-gear-rig="'+avatar+'"><g>'+cape+'</g><image href="'+src+'" width="200" height="200" preserveAspectRatio="xMidYMid meet" clip-path="url(#'+id+')"/>'+
-      gearMarkup('back',equipped.back,avatar)+gearMarkup('head',equipped.head,avatar)+gearMarkup('neck',equipped.neck,avatar)+
+      '<g class="laria-fox-pose" data-fox-gear-rig="'+avatar+'"><g>'+gear('cape',equipped.cape)+'</g><image href="'+src+'" width="200" height="'+h+'" preserveAspectRatio="xMidYMid meet"'+(fullGirl?'':' clip-path="url(#'+id+')"')+'/>'+
+      gear('back',equipped.back)+gear('head',equipped.head)+gear('neck',equipped.neck)+
       '</g></svg>';
   }
   var SELECTORS=[
