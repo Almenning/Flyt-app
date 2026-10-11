@@ -1,5 +1,5 @@
 'use strict';
-/* Persistence contract; no wardrobe artwork or reward overlays are shipped here. */
+/* Browser contract: real wardrobe artwork, permissions and saved gear. */
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
@@ -38,7 +38,7 @@ async function verify(browserType,label,viewport){
     assert.equal(await page.locator('#bc12-dialog[open] [data-collectible-id="tallkrystall"]').getAttribute('data-owned'),'true');
     assert.equal(await page.locator('#bc12-dialog[open] [data-collectible-id="bokskogens-fjaer"]').getAttribute('data-owned'),'false');
     assert.equal(await page.locator('#bc12-dialog[open] .bc12-memory-intro b').innerText(),'1 av 4 minner funnet');
-    assert.equal(await page.locator('#bc12-dialog[open] [data-action="equip"],#bc12-dialog[open] [data-gear]').count(),0);
+    assert.equal(await page.locator('#bc12-dialog[open] [data-wardrobe-open]').count(),1);
     const layout=await page.locator('#bc12-dialog[open]').evaluate(el=>{
       const r=el.getBoundingClientRect();return {top:r.top,bottom:r.bottom,windowHeight:innerHeight,
         scrollHeight:el.scrollHeight,clientHeight:el.clientHeight}
@@ -46,6 +46,15 @@ async function verify(browserType,label,viewport){
     assert.ok(layout.top>=-2&&layout.bottom<=layout.windowHeight+2,
       label+' collection book overflows viewport: '+JSON.stringify(layout));
     await page.screenshot({path:path.join(evidence,label+'-magisk-samlebok.png'),animations:'disabled'});
+    await page.locator('#bc12-dialog[open] [data-wardrobe-open]').click();
+    assert.equal(await page.locator('#bc12-dialog[open].is-wardrobe .bc12-wardrobe-item').count(),4);
+    assert.equal(await page.locator('#bc12-dialog[open] [data-wear="nordlyskappe"]').isDisabled(),true);
+    await page.locator('#bc12-dialog[open] [data-wear="oppdagerhatt"]').click();
+    assert.equal(await page.locator('#bc12-dialog[open] [data-wear="oppdagerhatt"]').getAttribute('aria-pressed'),'true');
+    assert.equal(await page.locator('#bc12-dialog[open] .bc12-wardrobe-preview [data-gear="oppdagerhatt"]').count(),1);
+    await page.locator('#bc12-dialog[open] [data-wear="oppdagerhatt"]').click();
+    assert.equal(await page.locator('#bc12-dialog[open] .bc12-wardrobe-preview [data-gear="oppdagerhatt"]').count(),0);
+    await page.screenshot({path:path.join(evidence,label+'-garderobe.png'),animations:'disabled'});
     await page.locator('#bc12-dialog[open] .bc12-close').click();
     assert.equal(await page.locator('#bc12-dialog[open]').count(),0);
     const first=await page.evaluate(()=>({
@@ -102,8 +111,8 @@ async function verify(browserType,label,viewport){
     assert.equal(safe.equipped.head,null);
     assert.ok(safe.ownedIds.includes('oppdagerhatt'),
       'previous owned item must be reconstructed from still-present learning');
-    assert.equal(await page.locator('.laria-wardrobe,.laria-gear-preview').count(),0,
-      'must not ship misleading clothes before layered artwork is approved');
+    assert.equal(await page.locator('.bc12-fox .laria-fox-wardrobe-placed').count(),1,
+      'home selected fox must have one composited art layer');
     await context.close();
     console.log('Collection inventory persistent',label,viewport);
   }finally{await browser.close();}
