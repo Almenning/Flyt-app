@@ -75,10 +75,18 @@ async function verify(browserType,label,viewport){
       hardCrop:svg.querySelectorAll('clipPath').length,
       imageHeight:svg.querySelector('image')?.getAttribute('height')
     }));
-    assert.equal(portrait.viewBox,'0 0 200 272','original portrait proportions must be preserved');
-    assert.equal(portrait.imageHeight,'272','original full-body illustration must be uncropped');
-    assert.match(portrait.mask||'',/^url\(#laria-wd-/,'soft oval mask required');
+    assert.equal(portrait.viewBox,'0 0 200 300','Min rev must show a full-body, proportional world character');
+    assert.equal(portrait.imageHeight,'300','the chosen 2.5D full-body fox must not be truncated');
+    assert.equal(portrait.mask,null,'transparent world art must not use a portrait cutoff');
     assert.equal(portrait.hardCrop,0,'outdated polygon cutoff must not amputate the fox');
+    const legacy=await page.evaluate(()=>{
+      const svg=new DOMParser().parseFromString(
+        window.LARIA_FOX_WARDROBE.render('boy',window.LARIA_COLLECTION_STORE.snapshot(),'portrait'),
+        'image/svg+xml').documentElement;
+      return {viewBox:svg.getAttribute('viewBox'),mask:svg.querySelector('image')?.getAttribute('mask')};
+    });
+    assert.equal(legacy.viewBox,'0 0 200 272','portrait fallback keeps its earlier dimensions');
+    assert.match(legacy.mask||'',/^url\(#laria-wd-/,'legacy avatar fallback remains softly masked');
     if(label==='iphone'){
       const backButton=await page.locator('#bc12-dialog[open] [data-wardrobe-back]').evaluate(el=>{
         const rect=el.getBoundingClientRect();
