@@ -1079,7 +1079,12 @@ async function finishSession(page){
       assert.equal(await page.locator('#session-screen').getAttribute('data-task-band'),'young',subject+' grade 2 should use young task specialization');
       assert.equal(await page.locator('.laria-task-card').count(),1,subject+' should render exactly one premium task card');
       assert.equal(await page.locator('.task-fox-companion img').count(),1,subject+' needs one in-world fox companion');
-      assert.match(await page.locator('.task-fox-companion img').getAttribute('src'),/lia-fox-explorer\.webp(?:\?|$)/,subject+' must use the dedicated scene mascot');
+      // The task companion is now the child's chosen profile fox, not the
+      // previously hard-coded mascot. Compare identity without dumping a
+      // large embedded WebP data URI into test logs on failure.
+      const personalFox=await page.locator('.task-fox-companion img').evaluate(img=>
+        img.getAttribute('src')===window.LARIA_FOX.source(window.LARIA_FOX.choice()));
+      assert.equal(personalFox,true,subject+' must use the selected persistent fox');
       assert.ok((await page.locator('.answer,.letter-tile,.word-tile,.sequence-tile,#math-input,#quiz-map-canvas').count())>0,subject+' task scene has no active interaction');
       await page.locator('#close-session').click();
     }
