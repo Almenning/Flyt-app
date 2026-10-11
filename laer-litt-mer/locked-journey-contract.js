@@ -37,10 +37,10 @@
   // FEET positions (not centered avatar badges or click target labels).
   // Progressive stop scales make the companion recede naturally into depth.
   const FOX_FOOT_ANCHORS=Object.freeze({
-    norwegian:Object.freeze([[220,1234],[484,1035],[555,827],[455,510],[665,450]]),
-    math:Object.freeze([[275,1321],[613,1151],[637,870],[539,627],[693,479]]),
-    english:Object.freeze([[260,1330],[542,1185],[609,929],[576,675],[705,463]]),
-    geography:Object.freeze([[265,1338],[637,1139],[637,880],[655,600],[710,444]])
+    norwegian:Object.freeze([[220,1234],[385,1055],[495,860],[455,510],[570,472]]),
+    math:Object.freeze([[275,1280],[450,1160],[535,930],[390,647],[560,490]]),
+    english:Object.freeze([[260,1290],[445,1188],[490,962],[455,700],[570,480]]),
+    geography:Object.freeze([[265,1270],[500,1163],[515,941],[508,641],[600,470]])
   });
   function foxFootAnchor(subject,index){
     const anchor=FOX_FOOT_ANCHORS[subject]?.[index];

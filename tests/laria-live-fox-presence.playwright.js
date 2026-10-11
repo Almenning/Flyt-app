@@ -109,6 +109,18 @@ async function run(engine,name,viewport,avatar){
         assert(position.left>=-3&&position.right>=-3&&position.top>=-3&&position.bottom>=-3,
           name+' '+subject+' fox clipped at stop '+stop+' '+JSON.stringify(position));
         assert.equal(position.interactive,'none',name+' '+subject+' mascot blocks destination taps');
+        const paintedSignOverlap=await traveler.evaluate(el=>{
+          const fox=el.getBoundingClientRect();
+          const signs=el.closest('.locked-journey-board').querySelectorAll('.locked-journey-hotspot');
+          return [...signs].map((sign,i)=>{
+            const box=sign.getBoundingClientRect();
+            const w=Math.max(0,Math.min(fox.right,box.right)-Math.max(fox.left,box.left));
+            const h=Math.max(0,Math.min(fox.bottom,box.bottom)-Math.max(fox.top,box.top));
+            return {sign:i+1,area:Math.round(w*h)};
+          }).filter(hit=>hit.area>8);
+        });
+        assert.deepEqual(paintedSignOverlap,[],name+' '+subject+
+          ' fox covers a real illustrated sign at stop '+stop+': '+JSON.stringify(paintedSignOverlap));
         await page.locator('.locked-sheet-close').click();
       }
       const afterMap=await page.evaluate(()=>JSON.stringify(JSON.parse(localStorage.getItem('laerlittmer-v2')).journey));
