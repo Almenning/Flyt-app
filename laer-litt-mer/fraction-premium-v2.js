@@ -42,7 +42,7 @@ const read=()=>{try{const o=JSON.parse(localStorage.getItem(STORE)||'{}');return
   actions:Number(o.actions)||0,updated:Number(o.updated)||0
  }}catch(_){return {explored:{},built:{},equal:{},sorted:{},converted:{},actions:0,updated:0}}};
 const progress=read();
-const fox=()=>'<img src="'+window.LARIA_FOX.source(window.LARIA_FOX.choice())+'" alt="" class="fr2-fox" loading="lazy">';
+const fox=()=>'<img src="'+window.LARIA_FOX.worldSource(window.LARIA_FOX.choice())+'" alt="" class="fr2-fox" loading="eager" decoding="async">';
 const key=(n,d)=>n+'/'+d;
 const clamp=(x,min,max)=>Math.max(min,Math.min(max,Number(x)||0));
 const equal=(a,b)=>a[0]*b[1]===b[0]*a[1];
