@@ -26,7 +26,9 @@ const SORT=[
 const CONVERSIONS=[[1,2],[1,4],[3,4],[2,5],[1,5],[1,10],[1,3],[2,3],[5,8]];
 const titles={explore:'Utforsk brøker',build:'Bygg en brøk',equal:'Like mye?',sort:'Sorter brøker',convert:'Brøk, prosent og desimal',mastery:'Min mestring'};
 const faces={explore:'Brøker finnes overalt! Trykk på delene og se hva som skjer.',build:'Sett inn en bit. Du bestemmer hvor mye du vil bygge.',equal:'To forskjellige brøker kan vise akkurat like mye!',sort:'Sammenlign hvor stor del som er fargelagt.',convert:'Samme mengde kan skrives på tre måter.',mastery:'Det du har utforsket, kan du alltid utforske igjen.'};
-const u={page:'home',explore:{n:3,d:4,mode:'circle'},build:{n:3,d:4,filled:[0,1,2],notice:''},equal:0,equalGuess:null,sortIndex:0,sortOrder:[0,1,2],sortResult:'',sortSelected:null,convert:0,showConvertExtra:false};
+const sharedCake={n:1,d:4,filled:[0],notice:'',mode:'circle'};
+// Both views manipulate one tangible cake; changing the view never resets its fraction.
+const u={page:'build',explore:sharedCake,build:sharedCake,equal:0,equalGuess:null,sortIndex:0,sortOrder:[0,1,2],sortResult:'',sortSelected:null,convert:0,showConvertExtra:false};
 let svgId=0,drag=null,lastDragUntil=0;
 let returnToLockedJourney=false; // navigation-only context; not persisted
 let returnToMathSubject=false; // nested route, UI only
@@ -96,8 +98,8 @@ function mascot(message,small=false){return '<div class="fr2-guide'+(small?' com
 function topBar(){const n=Object.entries(progress).filter(([k])=>['explored','built','equal','sorted','converted'].includes(k)).reduce((sum,[,v])=>sum+Object.keys(v||{}).length,0);return '<header class="fr2-top fr4-top">'+cta('back','‹','fr2-back','id="fraction-lab-back" aria-label="Tilbake"')+'<div class="fr2-brand">Læria<small>✦</small></div><div class="fr2-charm fr4-earned" aria-label="'+n+' oppdagelser i Brøklaben"><span aria-hidden="true">★</span><b>'+n+'</b></div><div class="fr4-top-token" aria-hidden="true">'+cardIllustration('explore')+'</div></header>'}
 function sign(text,sub){return '<div class="fr2-sign"><span class="fr2-sign-decoration" aria-hidden="true">'+cardIllustration('build')+'</span><h1>'+text+'</h1>'+(sub?'<p>'+sub+'</p>':'')+'</div>'}
 function screenTabs(){
- const items=[['home','⌂','Hjem'],['explore','◔','Utforsk'],['build','▧','Bygg'],['mastery','★','Mestring']];
- return '<nav class="fr2-nav" aria-label="Brøklab"><div class="fr2-nav-row">'+items.map(([p,i,label])=>cta('go','<span aria-hidden="true">'+i+'</span><small>'+label+'</small>','fr2-nav-item '+(u.page===p?'active':''),'data-page="'+p+'" '+(u.page===p?'aria-current="page"':''))).join('')+'</div></nav>';
+  const items=[['build','◕','Kaken'],['home','✦','Flere leker'],['mastery','★','Oppdagelser']];
+  return '<nav class="fr2-nav fr6-nav" aria-label="Brøklab"><div class="fr2-nav-row">'+items.map(([p,i,label])=>cta('go','<span aria-hidden="true">'+i+'</span><small>'+label+'</small>','fr2-nav-item '+(u.page===p?'active':''),'data-page="'+p+'" '+(u.page===p?'aria-current="page"':''))).join('')+'</div></nav>';
 }
 
 /* Six bespoke workshop illustrations replace generic fraction glyphs. These are
@@ -184,23 +186,26 @@ function card(type,subtitle){
  return cta('go','<div class="fr2-card-art">'+miniArt(type)+'</div><strong>'+titles[type]+'</strong><small>'+subtitle+'</small><span class="fr2-card-arrow" aria-hidden="true">›</span>','fr2-home-card fr2-card-'+type,'data-page="'+type+'"');
 }
 function home(){
- return '<section class="fr2-home fr4-home">'+sign('Brøklaben','Utforsk, bygg og lek med brøker!')+'<div class="fr2-intro"><span>✦ Et lite verksted for store oppdagelser ✦</span></div>'
- +'<div class="fr2-home-grid">'
- +card('explore','Se brøker i forskjellige former')
- +card('build','Sett sammen deler selv')
- +card('equal','Oppdag brøker som er like store')
- +card('sort','Fra minst til størst')
- +card('convert','Samme mengde, tre skrivemåter')
- +card('mastery','Se oppdagelsene dine')
- +'</div><div class="fr4-home-foreground" aria-hidden="true"></div>'
- +mascot('Brøker finnes overalt! Skal vi utforske sammen?')+'</section>';
+  return '<section class="fr2-home fr4-home fr6-more">'+sign('Flere leker','Du kan også prøve noe helt annet!')
+    +'<div class="fr2-intro"><span>✦ Du kan alltid gå tilbake til kaken ✦</span></div>'
+    +'<div class="fr2-home-grid">'
+    +card('explore','Se den samme brøken på nye måter')
+    +card('equal','Oppdag når forskjellige brøker er like')
+    +card('sort','Finn den minste og største')
+    +card('convert','Prøv prosent og desimaltall')
+    +card('mastery','Se hva du har utforsket')
+    +'</div><div class="fr4-home-foreground" aria-hidden="true"></div>'
+    +mascot('Det er du som bestemmer hva vi skal leke med!',true)+'</section>';
 }
+
 function adjustField(field){
- const unit=field==='d'?'Nevner':'Teller';
- const explanation=field==='d'?'Hvor mange like deler?':'Hvor mange deler fylles?';
- const val=u[u.page][field],min=field==='d'?2:0,max=field==='d'?12:u[u.page].d;
- return '<div class="fr2-adjust"><div class="fr2-adjust-heading"><b>'+unit+'</b><small>'+explanation+'</small></div><div class="fr2-adjust-row">'+cta('adjust','−','fr2-adjust-btn minus','data-field="'+field+'" data-step="-1" aria-label="Mindre '+unit.toLowerCase()+'" '+(val<=min?'disabled':''))+'<strong>'+val+'</strong>'+cta('adjust','+','fr2-adjust-btn plus','data-field="'+field+'" data-step="1" aria-label="Større '+unit.toLowerCase()+'" '+(val>=max?'disabled':''))+'</div></div>';
+  const count=field==='n',plain=count?'Fylte deler':'Like deler',term=count?'Teller':'Nevner';
+  const val=u.build[field],min=count?0:2,max=count?u.build.d:12;
+  return '<div class="fr2-adjust fr6-adjust fr6-adjust-'+field+'" data-field="'+field+'"><div class="fr2-adjust-heading"><b>'+plain+'</b><small>'+term+'</small></div>'
+    +'<div class="fr2-adjust-row">'+cta('adjust','−','fr2-adjust-btn minus','data-field="'+field+'" data-step="-1" aria-label="Færre '+plain.toLowerCase()+'" '+(val<=min?'disabled':''))+'<strong>'+val+'</strong>'
+    +cta('adjust','+','fr2-adjust-btn plus','data-field="'+field+'" data-step="1" aria-label="Flere '+plain.toLowerCase()+'" '+(val>=max?'disabled':''))+'</div></div>';
 }
+
 function commonFractions(){
  return '<div class="fr2-presets fr4-presets" aria-label="Vanlige brøker">'+PRESETS.map(([n,d])=>cta('preset',
  '<span class="fr4-preset-pie">'+fractionSvg(n,d,'preset')+'</span>'+frac(n,d),
@@ -489,7 +494,7 @@ window.openFractionLab=function(options){
  returnToLockedJourney=!!(options&&options.returnToJourney==='math');
  returnToMathSubject=!returnToLockedJourney&&!!document.querySelector('#subject-screen.active');
  document.getElementById('fraction-lab-screen')?.setAttribute('data-explore-release','explore-rc1');
- u.page='home';render();try{showScreen('fraction-lab')}catch(_){}
+ u.page='build';render();try{showScreen('fraction-lab')}catch(_){}
 };
 const root=document.getElementById(ROOT);
 if(root&&!root.dataset.fr2Bound){root.addEventListener('click',actionHandler);root.addEventListener('keydown',keyHandler);root.addEventListener('pointerdown',pointerDown);document.addEventListener('pointermove',pointerMove);document.addEventListener('pointerup',pointerUp);document.addEventListener('pointercancel',clearDrag);root.dataset.fr2Bound='1'}
