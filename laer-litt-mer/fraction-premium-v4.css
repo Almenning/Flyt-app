@@ -677,3 +677,50 @@
   #fraction-lab-screen .fr7-tablet-equivalents .fr7-equivalent-tile strong{font-size:16px}
   #fraction-lab-screen .fr5-build-aside{gap:5px}
 }
+
+
+/* Brøklaben v7 iPad landscape workspace: broad view, compact side-by-side cards.
+   Only widen .app when the fraction lab is ACTIVE. Other Læria screens retain
+   their locked dimensions and artwork. */
+@media(min-width:1000px) and (orientation:landscape){
+  .app:has(#fraction-lab-screen.active){
+    width:min(100%,1120px)!important;
+    max-width:none!important;
+  }
+  #fraction-lab-screen .fr2-shell{padding-inline:20px}
+  #fraction-lab-screen .fr2-content{max-width:1040px}
+  #fraction-lab-screen .fr6-workshop .fr6-stage{
+    grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);
+    gap:14px;padding:11px 14px;
+  }
+  #fraction-lab-screen .fr6-workshop .fr6-stage .fr5-build-target{
+    min-height:0;padding:7px 5px;
+  }
+  #fraction-lab-screen .fr6-workshop .fr6-stage .fr2-pie-builder{
+    width:min(100%,276px);max-width:276px;
+  }
+  #fraction-lab-screen .fr6-workshop .fr6-stage .fr5-build-aside{
+    display:grid;grid-template-columns:minmax(0,1.02fr) minmax(0,1fr);
+    grid-template-rows:min-content min-content;
+    align-content:center;align-items:center;gap:8px;min-width:0;
+  }
+  #fraction-lab-screen .fr6-workshop .fr6-stage .fr5-live-result{
+    grid-column:1;grid-row:1/3;align-self:stretch;min-height:205px;
+    padding:8px 4px;
+  }
+  #fraction-lab-screen .fr6-workshop .fr6-stage .fr5-live-result .fr2-fraction{
+    font-size:clamp(60px,6vw,78px);
+  }
+  #fraction-lab-screen .fr6-workshop .fr6-stage .fr7-tablet-equivalents{
+    grid-column:2;grid-row:1;align-self:center;
+  }
+  #fraction-lab-screen .fr6-workshop .fr6-stage .fr5-fox-mentor{
+    grid-column:2;grid-row:2;min-width:0;
+  }
+  #fraction-lab-screen .fr6-workshop .fr6-stage .fr5-fox-mentor>.fr2-fox{
+    width:103px;height:110px;
+  }
+  #fraction-lab-screen .fr6-workshop .fr6-stage .fr5-fox-bubble{
+    white-space:normal;text-align:center;min-height:24px;
+  }
+}
