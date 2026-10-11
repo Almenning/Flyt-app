@@ -57,8 +57,12 @@ async function run(engine,name,viewport,which){
   await page.waitForFunction(()=>typeof openGlobe==='function');
   await page.evaluate(()=>openGlobe());
   await match(page,'#world-screen.active .premium-globe-fox',which,name+' globe');
+  // The separate transparent, locked atlas guide is scenic art, not the child's
+  // profile; the visible profile portrait in the globe header must be personal.
   assert.equal(await page.locator('#world-screen.active .premium-globe-guide').getAttribute('src'),
-    await page.evaluate(id=>window.LARIA_FOX.source(id),which),name+' globe guide still generic');
+    './lia-fox-explorer-home.webp',name+' locked physical globe guide must stay intact');
+  assert.equal(await page.locator('#world-screen.active .premium-globe-guide').getAttribute('data-profile-avatar'),
+    which,name+' globe scenery lost the saved profile context');
   await page.screenshot({path:out+'/'+name+'-globe.png',fullPage:true});
   assert.deepEqual(errors,[],name+' runtime exceptions');
   console.log('Selected fox freeplay',name,which,'all relevant existing activities');
