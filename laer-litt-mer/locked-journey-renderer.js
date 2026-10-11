@@ -138,14 +138,11 @@
       (places.length?(()=>{
         // A completed journey still has its personal fox at the last reached stop.
         const here=places.find(p=>p.recommended)||[...places].reverse().find(p=>p.done>0)||places[0];
-        const hit=contract.hotspot(subject,here.index);
-        // The four approved, immutable paintings contain a scenic fox.
-        // Show the child's real choice as a separate named checkpoint marker,
-        // not a portrait pasted onto the already-painted character.
-        const left=parseFloat(hit.left),width=parseFloat(hit.width);
-        const x=Math.max(8,Math.min(92,left+width/2<50?left+width+4:left-4));
-        const y=parseFloat(hit.top)+parseFloat(hit.height)/2;
-        return '<div class="locked-journey-traveler" data-avatar="'+selectedAvatar()+'" style="--fox-x:'+x+'%;--fox-y:'+y+'%" aria-label="Din rev er med på reisen"><img src="'+esc(selectedAvatarSource())+'" alt=""><span class="locked-fox-label">Min rev</span></div>';
+        // Standing spot is a real painted step, not a floating avatar badge.
+        // The reusable character is positioned by its feet. The original
+        // painted generic fox still requires artwork retouch before publishing.
+        const point=contract.foxFootAnchor(subject,here.index);
+        return '<div class="locked-journey-traveler" data-avatar="'+selectedAvatar()+'" data-laria-fox-stop="'+here.index+'" style="--fox-x:'+point.x+'%;--fox-y:'+point.y+'%" aria-label="Din rev er med på reisen"><img src="'+esc(selectedAvatarSource())+'" alt=""><span class="locked-fox-label">Min rev</span></div>';
       })():'')+
       '<div class="locked-journey-hits">'+places.map(p=>placeButton(subject,p,model,s.firstOpen)).join('')+'</div>'+
       '<button type="button" class="locked-journey-back" aria-label="Tilbake til Hjem"></button>'+
