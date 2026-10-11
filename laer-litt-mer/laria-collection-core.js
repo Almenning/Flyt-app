@@ -17,10 +17,10 @@
     {id:'tallkrystall',kind:'treasure',realm:'math',title:'Tallkrystall',description:'En liten skatt fra Tallenga.',unlock:{type:'subject',subject:'math'}},
     {id:'ordlandets-nokkel',kind:'treasure',realm:'english',title:'Ordlandets nøkkel',description:'En nøkkel til nye ord.',unlock:{type:'subject',subject:'english'}},
     {id:'nordlys-kompass',kind:'treasure',realm:'geography',title:'Nordlyskompass',description:'Et minne fra en verden du har utforsket.',unlock:{type:'subject',subject:'geography'}},
-    {id:'eventyrskjerf',kind:'clothing',slot:'neck',realm:'all',title:'Eventyrskjerf',description:'Et varmt skjerf til din rev.',unlock:{type:'correctAnswers',minimum:3}},
-    {id:'oppdagerhatt',kind:'clothing',slot:'head',realm:'all',title:'Oppdagerhatt',description:'En hatt for nysgjerrige oppdagere.',unlock:{type:'correctAnswers',minimum:12}},
-    {id:'stjerneryggsekk',kind:'clothing',slot:'back',realm:'all',title:'Stjerneryggsekk',description:'En ryggsekk til eventyrskatter.',unlock:{type:'correctAnswers',minimum:28}},
-    {id:'nordlyskappe',kind:'clothing',slot:'cape',realm:'all',title:'Nordlyskappe',description:'En kappe til store og små reiser.',unlock:{type:'gradeOrAnswers',minimum:45}}
+    {id:'eventyrskjerf',kind:'clothing',slot:'neck',realm:'all',title:'Eventyrskjerf',description:'Et varmt skjerf til din rev.',unlock:{type:'effort',minimum:3}},
+    {id:'oppdagerhatt',kind:'clothing',slot:'head',realm:'all',title:'Oppdagerhatt',description:'En hatt for nysgjerrige oppdagere.',unlock:{type:'effort',minimum:12}},
+    {id:'stjerneryggsekk',kind:'clothing',slot:'back',realm:'all',title:'Stjerneryggsekk',description:'En ryggsekk til eventyrskatter.',unlock:{type:'effort',minimum:28}},
+    {id:'nordlyskappe',kind:'clothing',slot:'cape',realm:'all',title:'Nordlyskappe',description:'En kappe til store og små reiser.',unlock:{type:'gradeOrEffort',minimum:45}}
   ].map(item=>Object.freeze({...item,unlock:Object.freeze({...item.unlock})})));
   const BY_ID=new Map(CATALOG.map(item=>[item.id,item]));
   const hasOwn=(o,k)=>Object.prototype.hasOwnProperty.call(o,k);
@@ -43,15 +43,24 @@
   function evidence(progress){
     const p=record(progress)?progress:{};
     const bySubject={norwegian:0,math:0,english:0,geography:0};
-    let correctAnswers=0;
+    let correctAnswers=0,meaningfulAttempts=0;
     const answers=Array.isArray(p.answerLog)?p.answerLog:[];
     for(const entry of answers){
-      if(!record(entry)||entry.correct!==true||entry.countsForLearning===false)continue;
-      correctAnswers++;
+      if(!record(entry)||(entry.correct!==true&&entry.correct!==false))continue;
+      if(entry.countsForLearning!==false){
+        meaningfulAttempts++;
+        if(entry.correct===true)correctAnswers++;
+      }
+      // Correct answers are not required to discover the world of a subject.
       const subject=entry.subject==='geography'||hasOwn(bySubject,entry.subject)?entry.subject:
         (entry.country!=null?'geography':null);
       if(subject&&hasOwn(bySubject,subject))bySubject[subject]++;
     }
+    // A completed repeat-practice session is valuable even when the core
+    // mastery engine correctly marks the repeated questions as non-counting.
+    const sessions=Array.isArray(p.sessionLog)?p.sessionLog:[];
+    const completedSessions=sessions.filter(s=>record(s)&&Number(s.endedAt)>0&&Number(s.total)>0).length;
+    const effortUnits=Math.max(meaningfulAttempts,completedSessions*3);
     const nodes=record(p.journey?.nodes)?p.journey.nodes:{};
     for(const [key,node] of Object.entries(nodes)){
       if(!record(node)||!(node.passed===true||Number(node.attempts)>0))continue;
@@ -61,14 +70,14 @@
     const wins=record(p.journey?.gradeWins)?p.journey.gradeWins:{};
     const completedGrades=Object.keys(wins).filter(key=>
       SUBJECTS.includes(key.split(':')[0])&&record(wins[key])).length;
-    return {correctAnswers,bySubject,completedGrades};
+    return {correctAnswers,effortUnits,completedSessions,bySubject,completedGrades};
   }
   function qualifies(item,stats){
     const unlock=item.unlock;
     if(unlock.type==='starter')return true;
     if(unlock.type==='subject')return (stats.bySubject[unlock.subject]||0)>0;
-    if(unlock.type==='correctAnswers')return stats.correctAnswers>=unlock.minimum;
-    if(unlock.type==='gradeOrAnswers')return stats.completedGrades>0||stats.correctAnswers>=unlock.minimum;
+    if(unlock.type==='effort')return stats.effortUnits>=unlock.minimum;
+    if(unlock.type==='gradeOrEffort')return stats.completedGrades>0||stats.effortUnits>=unlock.minimum;
     return false;
   }
   function reconcile(raw,progress){
