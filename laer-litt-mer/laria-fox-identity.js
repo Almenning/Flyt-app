@@ -19,9 +19,9 @@
   }
   function worldSource(which){
     // Keep the portrait-based selection and its persisted ID unchanged.
-    // The braided girl's cutout is a provisional full-body art layer, not a
+    // Each chosen fox gets their own transparent full-body art layer, not a
     // replacement for her original onboarding portrait.
-    return which==='girl'?'./assets/fox/girl-braids-blue-dress-v1.webp':source('boy');
+    return which==='girl'?'./assets/fox/girl-braids-blue-dress-v1.webp':'./assets/fox/boy-adventurer-green-vest-v1.webp';
   }
   root.LARIA_FOX=Object.freeze({choice,source,worldSource,label,syncDecorations});
 })(window);
