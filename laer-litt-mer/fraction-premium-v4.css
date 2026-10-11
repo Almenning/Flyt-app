@@ -473,3 +473,15 @@
 
 #fraction-lab-screen .fr5-fox-bubble.fr5-help-open{white-space:normal;line-height:1.2;overflow-wrap:break-word}
 #fraction-lab-screen .fr4-scene-speech.fr5-help-open{white-space:normal;line-height:1.25}
+
+
+/* Taller phones have room for a proper companion rather than a tiny avatar.
+   Do not enlarge it on the 375 x 667 layout: the fraction and controls win. */
+@media (min-height:760px) and (max-width:600px){
+  #fraction-lab-screen .fr5-build-stage .fr5-fox-mentor>.fr2-fox{
+    width:clamp(80px,23vw,105px);height:clamp(87px,25vw,118px);
+  }
+  #fraction-lab-screen .fr5-build-stage .fr5-fox-bubble{
+    min-height:32px;font-size:clamp(11px,3vw,14px);
+  }
+}
