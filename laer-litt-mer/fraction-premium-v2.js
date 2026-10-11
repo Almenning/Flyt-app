@@ -362,46 +362,44 @@ function applyBuildPieces(parts,notice=''){
  x.filled=[...new Set(parts)].filter(i=>Number.isInteger(i)&&i>=0&&i<x.d).sort((a,b)=>a-b);
  x.n=x.filled.length;
  if(x.n>0)mark('built',key(x.n,x.d));
+  if(u.page==='explore')mark('explored',key(x.n,x.d));
  x.notice=notice;
  render();
 }
-function addBuildPiece(notice='Du la til én del!'){
- const x=u.build,next=Array.from({length:x.d},(_,i)=>i).find(i=>!x.filled.includes(i));
- if(next===undefined){x.notice='Alle delene er allerede fylt!';render();return}
- applyBuildPieces([...x.filled,next],notice);
+function addBuildPiece(notice='Du la til én del!',pieceIndex=null){
+  const x=u.build;
+  const next=pieceIndex===null?Array.from({length:x.d},(_,i)=>i).find(i=>!x.filled.includes(i)):
+    Number.isInteger(pieceIndex)&&pieceIndex>=0&&pieceIndex<x.d&&!x.filled.includes(pieceIndex)?pieceIndex:undefined;
+  if(next===undefined)return;
+  applyBuildPieces([...x.filled,next],notice);
 }
 function adjust(field,step){
- const o=u.page==='build'?u.build:u.explore;
- if(u.page==='build'){
-  if(field==='d'){
-   o.d=clamp(o.d+step,2,12);
-   applyBuildPieces(o.filled.filter(i=>i<o.d));
-  }else{
-   const goal=clamp(o.n+step,0,o.d);
-   if(goal<o.n)applyBuildPieces(o.filled.slice(0,goal));
-   else if(goal>o.n)addBuildPiece();
-   else render();
+  const x=u.build;
+  if(field==='d'){x.d=clamp(x.d+step,2,12);applyBuildPieces(x.filled.filter(i=>i<x.d));}
+  else{
+    const goal=clamp(x.n+step,0,x.d);
+    if(goal<x.n)applyBuildPieces(x.filled.slice(0,goal));
+    else if(goal>x.n)addBuildPiece();
+    else render();
   }
-  return;
- }
- if(field==='d'){o.d=clamp(o.d+step,2,12);o.n=clamp(o.n,0,o.d);}
- else o.n=clamp(o.n+step,0,o.d);
- mark('explored',key(o.n,o.d));
- render();
 }
 function setPiece(index){
- if(u.page==='build'){
+  if(u.page!=='build'&&u.page!=='explore')return;
   const x=u.build;
-  if(index<0||index>=x.d)return;
-  const next=x.filled.includes(index)?x.filled.filter(i=>i!==index):[...x.filled,index];
-  applyBuildPieces(next,'Du har '+next.length+' av '+x.d+' deler.');
-  return;
- }
- const o=u.explore;
- o.n=index<o.n?index:index+1;
- mark('explored',key(o.n,o.d));
- render();
+  if(!Number.isInteger(index)||index<0||index>=x.d)return;
+  const filled=x.filled.includes(index);
+  applyBuildPieces(filled?x.filled.filter(i=>i!==index):[...x.filled,index],
+    filled?'Du tok ut et stykke.':'Du la til ett stykke.');
 }
+function setGlassFill(e,control){
+  const rect=control.getBoundingClientRect();
+  if(!rect.height)return;
+  const visualY=(e.clientY-rect.top)/rect.height*220;
+  const ratio=Math.max(0,Math.min(1,(203-visualY)/175));
+  const goal=clamp(Math.round(ratio*u.build.d),0,u.build.d);
+  applyBuildPieces(Array.from({length:goal},(_,i)=>i));
+}
+
 function moveSort(from,to){to=clamp(to,0,u.sortOrder.length-1);if(from===to)return;const moved=u.sortOrder.splice(from,1)[0];u.sortOrder.splice(to,0,moved);u.sortResult='';render();}
 function nextSort(){u.sortIndex=(u.sortIndex+1)%SORT.length;u.sortOrder=[2,0,1];u.sortResult='';render();}
 function actionHandler(e){
@@ -409,7 +407,7 @@ function actionHandler(e){
  const a=btn.dataset.frAction;
  // Normal taps must always work, including immediately after a drag or reset.
  if(a==='back'){
-  if(u.page!=='home'){enter('home');return;}
+  if(u.page!=='build'){enter('build');return;}
   // The actual premium lab overrides the legacy openFractionLab. Keep the
   // same Tallenga return contract when opened from the painted Brøklaben sign.
   if(returnToLockedJourney||returnToMathSubject){
@@ -423,11 +421,12 @@ function actionHandler(e){
  }
  if(a==='fox-help'){foxSpeak();return;}
   if(a==='go'){enter(btn.dataset.page);return;}
- if(a==='view'){u.explore.mode=btn.dataset.view;mark('explored',key(u.explore.n,u.explore.d));render();return;}
- if(a==='preset'){u.explore.n=Number(btn.dataset.n);u.explore.d=Number(btn.dataset.d);mark('explored',key(u.explore.n,u.explore.d));render();return;}
+ if(a==='view'){u.build.mode=btn.dataset.view;mark('explored',key(u.build.n,u.build.d));render();return;}
+ if(a==='preset'){const n=Number(btn.dataset.n),d=Number(btn.dataset.d);u.build.d=d;applyBuildPieces(Array.from({length:n},(_,i)=>i));mark('explored',key(n,d));return;}
  if(a==='adjust'){adjust(btn.dataset.field,Number(btn.dataset.step));return;}
  if(a==='piece'){setPiece(Number(btn.dataset.piece));return;}
- if(a==='add'){addBuildPiece();return;}
+  if(a==='glass-fill'){setGlassFill(e,btn);return;}
+ if(a==='add'){if(Date.now()<lastDragUntil)return;addBuildPiece('Du la til én del!',Number(btn.dataset.pieceIndex));return;}
  if(a==='reset'){applyBuildPieces([],'Nå kan du bygge helt på nytt.');return;}
  if(a==='next-build'){u.build.d=DENOMS[(DENOMS.indexOf(u.build.d)+1)%DENOMS.length];applyBuildPieces([],'Prøv å bygge en ny brøk!');return;}
  if(a==='guess'){u.equalGuess=btn.dataset.guess;const q=eqCurrent(),correct=equal(q.a,q.b)===(u.equalGuess==='equal');if(correct)mark('equal',key(q.a[0],q.a[1])+'='+key(q.b[0],q.b[1]));render();return;}
@@ -441,6 +440,10 @@ function actionHandler(e){
 function keyHandler(e){
  const foxButton=e.target.closest('[data-fr-action="fox-help"]');
   if(foxButton&&(e.key==='Enter'||e.key===' ')){e.preventDefault();foxSpeak();return;}
+  const glass=e.target.closest('[data-fr-action="glass-fill"]');
+  if(glass&&['ArrowUp','ArrowRight','ArrowDown','ArrowLeft','Enter',' '].includes(e.key)){
+    e.preventDefault();adjust('n',e.key==='ArrowDown'||e.key==='ArrowLeft'?-1:1);return;
+  }
   const t=e.target.closest('[data-fr-action="piece"]');if(t&&(e.key==='Enter'||e.key===' ')){e.preventDefault();setPiece(Number(t.dataset.piece))}
 }
 function clearDrag(){
@@ -455,7 +458,7 @@ function pointerDown(e){
  const btn=e.target.closest('.fr2-spare[data-fr-pick],.fr2-sort-card[data-fr-sort]');
  // One pointer path for mouse, pen and touch avoids incompatible HTML5 drag events.
  if(!btn||e.pointerType==='mouse'&&e.button!==0)return;
- drag={type:btn.hasAttribute('data-fr-pick')?'build':'sort',pointer:e.pointerId,startX:e.clientX,startY:e.clientY,from:Number(btn.dataset.frSort),moved:false,ghost:null,lastX:e.clientX,lastY:e.clientY};
+ drag={type:btn.hasAttribute('data-fr-pick')?'build':'sort',pointer:e.pointerId,startX:e.clientX,startY:e.clientY,from:Number(btn.dataset.frSort),pieceIndex:btn.hasAttribute('data-fr-pick')?Number(btn.dataset.pieceIndex):null,moved:false,ghost:null,lastX:e.clientX,lastY:e.clientY};
  try{btn.setPointerCapture(e.pointerId)}catch(_){}
 }
 function pointerMove(e){
@@ -463,7 +466,7 @@ function pointerMove(e){
  if(!drag||drag.pointer!==e.pointerId)return;
  const dist=Math.hypot(e.clientX-drag.startX,e.clientY-drag.startY);
  if(dist<9&&!drag.moved)return;
- if(!drag.moved){drag.moved=true;drag.ghost=document.createElement('div');drag.ghost.className='fr2-drag-ghost';drag.ghost.innerHTML=drag.type==='build'?loosePieceSvg(u.build.d,'drag'):cardIllustration('sort');document.body.appendChild(drag.ghost);}
+ if(!drag.moved){drag.moved=true;drag.ghost=document.createElement('div');drag.ghost.className='fr2-drag-ghost';drag.ghost.innerHTML=drag.type==='build'?loosePieceSvg(u.build.d,drag.pieceIndex):cardIllustration('sort');document.body.appendChild(drag.ghost);}
  drag.lastX=e.clientX;drag.lastY=e.clientY;
  if(drag.ghost){drag.ghost.style.left=e.clientX+'px';drag.ghost.style.top=e.clientY+'px'}
  const el=document.elementFromPoint(e.clientX,e.clientY)?.closest(drag.type==='build'?'.fr2-build-target':'.fr2-sort-card');
@@ -474,7 +477,7 @@ function pointerMove(e){
 function pointerUp(e){
  dragDiagnostics.pointerUp++;
  if(!drag||drag.pointer!==e.pointerId)return;
- const {moved,type,from,startX,lastX,lastY}=drag;
+ const {moved,type,from,pieceIndex,startX,lastX,lastY}=drag;
  let target=null;
  if(moved&&type==='build'){
   target=[...document.querySelectorAll('#fraction-lab-root .fr2-build-target')].find(el=>{
@@ -503,7 +506,7 @@ function pointerUp(e){
  if(moved){
   lastDragUntil=Date.now()+350;
   if(type==='build'&&target){
-   addBuildPiece('Brikken er på plass!');
+   addBuildPiece('Brikken er på plass!',pieceIndex);
   }else if(type==='sort'&&target){
    moveSort(from,Number(target.dataset.frSort));
   }
