@@ -13,7 +13,7 @@
   <link rel="icon" href="./icon.svg" type="image/svg+xml" />
   <link rel="preload" as="image" href="./basecamp-v11-mobile.webp?v=basecamp12d" media="(max-width:700px)" fetchpriority="high" />
   <link rel="preload" as="image" href="./basecamp-v11.webp?v=basecamp12d" media="(min-width:701px)" fetchpriority="high" />
-  <link rel="preload" as="script" href="./home-basecamp-v12.js?v=20261011-collection-ui4" />
+  <link rel="preload" as="script" href="./home-basecamp-v12.js?v=20261011-allgrades1" />
   <link rel="preload" as="script" href="./globe-v24-art.js?v=globe36-pigment3" />
   <link rel="preload" as="script" href="./globe-v25-renderer.js?v=20261011-personalfox2" />
   <title>Læria</title>
@@ -2372,7 +2372,7 @@
   <link rel="stylesheet" href="./world-atlas.css?v=20261006-assets1" />
   <!-- Home: shared home first, then the 1.–2. trinn Basecamp override -->
   <link rel="stylesheet" href="./home-premium.css?v=20261007-perf2" />
-  <link rel="stylesheet" href="./home-basecamp-v12.css?v=20261011-portraitfade3" />
+  <link rel="stylesheet" href="./home-basecamp-v12.css?v=20261011-allgrades1" />
   <!-- Free play -->
   <link rel="stylesheet" href="./word-hunt.css?v=20261006-assets1" />
   <!-- Shared inner screens and task scene; young task styling intentionally extends the shared scene -->
@@ -2442,26 +2442,7 @@
           </div>
         </div>
         <div class="dashboard-mascot premium-fox" aria-hidden="true">
-          <svg viewBox="0 0 190 190">
-            <defs>
-              <linearGradient id="homeFoxFur" x1=".2" y1="0" x2=".8" y2="1"><stop stop-color="#FFAE5C"/><stop offset=".62" stop-color="#ED7C3F"/><stop offset="1" stop-color="#BE542F"/></linearGradient>
-              <filter id="homeFoxShadow" x="-30%" y="-30%" width="160%" height="180%"><feDropShadow dx="0" dy="7" stdDeviation="5" flood-color="#45506A" flood-opacity=".20"/></filter>
-            </defs>
-            <g filter="url(#homeFoxShadow)">
-              <ellipse cx="96" cy="169" rx="52" ry="9" fill="#536079" opacity=".12"/>
-              <path d="M43 63L55 18l38 31M147 63l-12-45-38 31" fill="url(#homeFoxFur)" stroke="#9A492E" stroke-width="5" stroke-linejoin="round"/>
-              <path d="M55 24l10 31-19 2zM135 24l-10 31 19 2z" fill="#5E3A32"/>
-              <path d="M45 66q50-43 100 0l-8 61q-14 41-42 42-28-1-42-42z" fill="url(#homeFoxFur)" stroke="#9A492E" stroke-width="5"/>
-              <path d="M55 91q40 6 80 0-8 47-40 65-32-18-40-65z" fill="#FFF0D9"/>
-              <ellipse cx="73" cy="91" rx="7" ry="9" fill="#273047"/><ellipse cx="117" cy="91" rx="7" ry="9" fill="#273047"/>
-              <circle cx="70" cy="87" r="2.5" fill="#fff"/><circle cx="114" cy="87" r="2.5" fill="#fff"/>
-              <path d="M86 116q9-8 18 0-9 11-18 0z" fill="#3F3438"/>
-              <path d="M79 128q16 15 32 0" fill="none" stroke="#7C4B3D" stroke-width="5" stroke-linecap="round"/>
-              <path d="M59 132q-29 7-35 27 25 7 45-11M131 132q29 7 35 27-25 7-45-11" fill="#D56839"/>
-              <circle cx="151" cy="42" r="18" fill="#FFD85D" stroke="#fff" stroke-width="4"/>
-              <path d="M151 32v20M141 42h20" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
-            </g>
-          </svg>
+          <span class="laria-legacy-fox-placeholder" aria-hidden="true">✦</span>
         </div>
         <div class="home-progress-banner" id="home-progress-banner" aria-label="Fremgang siste sju dager">
           <div class="home-progress-star" aria-hidden="true">⭐</div>
@@ -2520,6 +2501,19 @@
           <div class="home-subject-progress" id="topic-english-progress">Start</div>
         </button>
       </div>
+
+      <nav class="laria-legacy-collection-shortcuts" aria-label="Samlebok og personlig rev">
+        <button class="laria-legacy-collection-link" data-laria-legacy-collection="collection" type="button">
+          <span class="laria-legacy-collection-icon is-book" aria-hidden="true">✦</span>
+          <span class="laria-legacy-collection-copy"><strong>Samleboken</strong><small>Minner og skatter</small></span>
+          <span class="laria-legacy-collection-arrow" aria-hidden="true">›</span>
+        </button>
+        <button class="laria-legacy-collection-link" data-laria-legacy-collection="wardrobe" type="button">
+          <span class="laria-legacy-collection-icon is-fox" aria-hidden="true">◆</span>
+          <span class="laria-legacy-collection-copy"><strong>Min rev</strong><small>Klær og utstyr</small></span>
+          <span class="laria-legacy-collection-arrow" aria-hidden="true">›</span>
+        </button>
+      </nav>
 
       <div class="dashboard-main-grid">
         <div class="card dashboard-progress-panel">
@@ -6678,7 +6672,7 @@ if(needsProfileSetup||!state.profile.onboarded||!state.profile.grade){
 <script src="./locked-journey-renderer.js?v=20261011-personalfox2" defer></script>
 <!-- Free play + Home -->
 <script src="./word-hunt.js?v=20261011-personalfox2" defer></script>
-<script src="./home-basecamp-v12.js?v=20261011-collection-ui4" defer></script>
+<script src="./home-basecamp-v12.js?v=20261011-allgrades1" defer></script>
 <!-- Shared inner-screen helpers + task scene -->
 <script src="./laria-unified-v13.js?v=20261006-assets1" defer></script>
 <script src="./laria-navigation-v13.js?v=20261011-premium1" defer></script>
