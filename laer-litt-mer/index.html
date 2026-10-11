@@ -3656,6 +3656,7 @@ syncSwipeBackEdge();
 function renderAll(){
   const grade=currentGrade(),cfg=gradeConfig(),known=knownCountryCount(),nordicPct=pctFor(NORDIC_IDS),young=grade<=2,band=gradeBand();
   applyGradeDesign();
+  window.LARIA_FOX.syncDecorations();
   const tone={
     young:{title:'Hvor skal vi dra i dag?',copy:'Reven er klar! Velg en verden, finn neste sted og lær noe nytt på veien.',subject:'Velg en verden ✨',pEye:'Skattene dine',pTitle:'Se hva du har samlet! ⭐',pCopy:'Hver lille seier gjør samlingen din større.',nav:'Trofeer',explore:'Kloden',avatar:'🦊',icons:{geography:'🌍',norwegian:'📖',math:'🔢',english:'💬'}},
     middle:{title:'Hei! 👋',copy:'Klar for nye utfordringer? Utforsk, løs oppdrag og bygg videre.',subject:'Velg fag',pEye:'Din oppdagelsesreise',pTitle:'Se hva du har lært',pCopy:'Her ser du det du har oppdaget, øvd på og fått bedre tak på.',nav:'Fremgang',explore:'Utforsk',avatar:'🧭',icons:{geography:'🌍',norwegian:'📚',math:'✖️',english:'💬'}},
