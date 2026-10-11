@@ -107,9 +107,28 @@ async function onboarding(engine,name,avatar){
  await p.locator('.avatar-choice-card[data-avatar="'+avatar+'"]').click();const n=avatar==='boy'?'Oskar QA':'Ida QA';await p.locator('#profile-name').fill(n);await p.locator('.grade-btn[data-grade="2"]').click();await p.locator('#profile-next').click();await p.locator('#home-screen.active').waitFor();
  let profile=await p.evaluate(k=>JSON.parse(localStorage.getItem(k)).profile,KEY);assert.deepEqual([profile.name,profile.avatar,profile.grade,profile.onboarded],[n,avatar,2,true]);
  await p.reload({waitUntil:'networkidle'});await p.locator('#home-screen.active').waitFor();profile=await p.evaluate(k=>JSON.parse(localStorage.getItem(k)).profile,KEY);assert.deepEqual([profile.name,profile.avatar,profile.grade],[n,avatar,2]);
-  const sceneFox=await p.locator('.bc12-fox img').evaluate(img=>({src:img.getAttribute('src'),naturalWidth:img.naturalWidth,naturalHeight:img.naturalHeight}));
-  assert.match(sceneFox.src,/lia-fox-explorer\.webp(?:\?|$)/,'Basecamp must use the dedicated in-world mascot instead of the rectangular onboarding portrait');
-  assert.ok(sceneFox.naturalWidth>0&&sceneFox.naturalHeight>0,'Basecamp scene mascot must load');
+  // Profile is the source of truth for the Læria fox, including Basecamp.
+  // The old static explorer-file assertion was stale once the chosen fox
+  // gained its own transparent illustrated WebP for boy and girl.
+  // Compare in-page so an assertion never dumps megabytes of base64 into logs.
+  const sceneFox=await p.locator('.bc12-fox').evaluate(holder=>{
+    const img=holder.querySelector('img');
+    const selected=window.LARIA_FOX?.choice();
+    const expected=window.LARIA_FOX?.source(selected)||'';
+    return {
+      chosen:holder.dataset.avatar,selected,
+      matchesSelected:!!img&&img.getAttribute('src')===expected,
+      usesProfileArtwork:expected.startsWith('data:image/webp;base64,'),
+      optionsDistinct:window.LARIA_FOX?.source('boy')!==window.LARIA_FOX?.source('girl'),
+      complete:!!img?.complete,naturalWidth:img?.naturalWidth||0,naturalHeight:img?.naturalHeight||0
+    };
+  });
+  assert.equal(sceneFox.chosen,avatar,'Basecamp lost the saved fox avatar');
+  assert.equal(sceneFox.selected,avatar,'fox identity does not follow current profile');
+  assert.ok(sceneFox.matchesSelected&&sceneFox.usesProfileArtwork,
+    'Basecamp must display the selected transparent fox art, not the old rectangular onboarding portrait');
+  assert.ok(sceneFox.optionsDistinct,'boy and girl must have distinct selectable fox art');
+  assert.ok(sceneFox.complete&&sceneFox.naturalWidth>0&&sceneFox.naturalHeight>0,'Basecamp selected fox image must load');
   assert.equal(profile.avatar,avatar,'saved avatar choice must persist independently of scene artwork');
   assert.deepEqual(errs,[],name+' '+avatar+' onboarding errors');await c.close();await b.close()
 }
