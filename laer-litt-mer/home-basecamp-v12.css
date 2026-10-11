@@ -516,3 +516,60 @@
 }
 .bc12-fox[data-avatar="boy"]::after{content:"✦";color:#3979b7}
 .bc12-fox[data-avatar="girl"]::after{content:"✿";color:#d86f78;background:#fff3ef}
+
+
+/* Læria's magical book: the four earned world keepsakes.
+   World art and travel cards remain untouched. */
+#bc12-dialog.is-collection{
+  max-height:min(89dvh,780px);overflow-y:auto;overscroll-behavior:contain;
+  scrollbar-width:thin;scrollbar-color:#ad8452 transparent;
+}
+#bc12-dialog .bc12-memory-intro{
+  display:grid;gap:5px;margin:14px 0 12px;padding:12px 14px;
+  border:1px solid #d8b37f;border-radius:15px;
+  background:linear-gradient(145deg,#fff9e8,#f6ddb0);
+}
+#bc12-dialog .bc12-memory-intro b{font:850 16px/1.2 ui-rounded,system-ui,sans-serif;color:#76501f}
+#bc12-dialog .bc12-memory-intro span{font:600 12px/1.45 ui-rounded,system-ui,sans-serif;color:#705638}
+#bc12-dialog .bc12-memory-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+#bc12-dialog .bc12-memory{
+  min-width:0;min-height:148px;position:relative;overflow:hidden;
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:4px;
+  padding:12px 9px 11px;border:2px solid #d0a66d;border-radius:15px;
+  background:linear-gradient(155deg,#fffaed,#f6dfba);text-align:center;
+  box-shadow:inset 0 1px #fffdf5,0 4px 10px #6b45201a;
+}
+#bc12-dialog .bc12-memory::before{
+  content:"";position:absolute;inset:5px;pointer-events:none;
+  border:1px solid #d8b77c66;border-radius:10px;
+}
+#bc12-dialog .bc12-memory-symbol{
+  display:grid;place-items:center;width:48px;height:48px;border-radius:50%;
+  font-size:29px;line-height:1;background:radial-gradient(circle at 34% 24%,#fffcdb,#e6bc79);
+  border:2px solid #c7a167;box-shadow:inset 0 2px #fff9da,0 3px #a2773740;
+}
+#bc12-dialog .bc12-memory strong{
+  font:850 12px/1.25 ui-rounded,system-ui,sans-serif;color:#563923;min-height:28px;
+}
+#bc12-dialog .bc12-memory small{
+  display:block;font:600 10px/1.3 ui-rounded,system-ui,sans-serif;
+  color:#856745;min-height:26px;
+}
+#bc12-dialog .bc12-memory-status{
+  margin-top:auto;padding:4px 9px;border:1px solid #b78c51;border-radius:99px;
+  background:#fff2ce;font:850 10px/1.2 ui-rounded,system-ui,sans-serif;color:#805323;
+}
+#bc12-dialog .bc12-memory.is-hidden{
+  border-color:#d3c0a4;background:linear-gradient(#f2eee5,#e8e1d6);
+}
+#bc12-dialog .bc12-memory.is-hidden .bc12-memory-symbol{filter:grayscale(1);opacity:.56}
+#bc12-dialog .bc12-memory.is-hidden .bc12-memory-status{background:#ede8df;color:#746f65;border-color:#c7c0b7}
+#bc12-dialog.is-collection .bc12-shelf{margin:16px 0;padding-bottom:9px}
+#bc12-dialog.is-collection .bc12-shelf span{font-size:24px}
+#bc12-dialog.is-collection .bc12-shelf strong{font-size:19px}
+#bc12-dialog.is-collection .bc12-shelf small{font-size:10px}
+@media(max-width:365px){
+ #bc12-dialog.is-collection{padding:29px 12px 15px;width:calc(100% - 18px)}
+ #bc12-dialog .bc12-memory-grid{gap:7px}
+ #bc12-dialog .bc12-memory{padding:10px 6px;min-height:140px}
+}
