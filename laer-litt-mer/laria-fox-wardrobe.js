@@ -1,15 +1,11 @@
 /* Læria - Min rev: one persistent identity, genuinely layered wearable art.
- * The original profile artwork supplies the figure; an explicit silhouette
- * removes its painted square background in the wardrobe and every companion.
+ * The approved full-height portrait is preserved without hard polygon crop.
+ * Its soft oval mask blends the illustration into all companion scenes.
  * No learned content, saved avatar, reward logic or journey map is rewritten.
  */
 (function(root){
   'use strict';
   var counter=0, scheduled=false, observer=null;
-  var PATHS={
-    boy:'M75 0 Q82 -1 94 13 L105 24 Q119 8 137 1 L142 15 Q154 7 174 10 L182 17 L177 38 Q193 49 190 69 L186 82 Q204 98 189 115 L177 124 Q183 146 178 163 Q190 178 186 200 L142 200 L128 178 L117 175 L108 193 L57 200 Q46 192 58 170 Q44 164 39 160 Q19 174 3 172 Q-2 152 17 136 Q25 122 39 118 L50 89 L31 87 Q18 80 15 65 Q15 54 32 53 L49 60 L62 40 Z',
-    girl:'M62 1 Q84 -5 97 10 Q109 5 121 14 Q136 7 146 13 L144 37 Q169 48 166 78 L169 98 Q185 102 192 120 Q205 139 202 158 Q196 176 183 180 L164 174 Q156 190 142 199 L107 200 L102 180 L89 177 L83 196 L48 200 Q44 184 54 169 L48 141 Q37 126 41 111 L44 88 Q24 79 22 57 L31 29 Q40 16 51 24 Z'
-  };
   function choice(){return root.LARIA_FOX?.choice?.()==='girl'?'girl':'boy';}
   function inventory(){return root.LARIA_COLLECTION_STORE?.snapshot?.()||root.LARIA_COLLECTION_CORE?.normalize?.(null)||{equipped:{}};}
   function gearMarkup(slot,item,avatar){
@@ -41,9 +37,16 @@
     var avatar=which==='girl'?'girl':'boy',equipped=collection?.equipped||{},id='laria-wd-'+(++counter);
     var src=root.LARIA_FOX?.source?.(avatar)||'';
     var cape=gearMarkup('cape',equipped.cape,avatar);
-    return '<svg class="laria-fox-wardrobe-art" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" preserveAspectRatio="xMidYMid meet" data-avatar="'+avatar+'">'+
-      '<defs><clipPath id="'+id+'"><path d="'+PATHS[avatar]+'"/></clipPath></defs>'+
-      '<g>'+cape+'</g><image href="'+src+'" width="200" height="200" preserveAspectRatio="xMidYMid meet" clip-path="url(#'+id+')"/>'+
+    // The approved portraits are 200x272, not 200x200. Cropping them to
+    // a square amputated ears, feet and tail on real Safari screenshots.
+    // Use a soft perimeter mask; it preserves the full character while
+    // gently fading the photographed world at the outer corners.
+    return '<svg class="laria-fox-wardrobe-art" viewBox="0 0 200 272" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" preserveAspectRatio="xMidYMid meet" data-avatar="'+avatar+'">'+
+      '<defs><radialGradient id="'+id+'-fade" cx="50%" cy="50%" r="56%">'+
+      '<stop offset="0%" stop-color="white"/><stop offset="78%" stop-color="white"/><stop offset="100%" stop-color="black"/>'+
+      '</radialGradient><mask id="'+id+'-mask" maskUnits="userSpaceOnUse" maskContentUnits="userSpaceOnUse" style="mask-type:luminance">'+
+      '<rect width="200" height="272" fill="url(#'+id+'-fade)"/></mask></defs>'+
+      '<g>'+cape+'</g><image href="'+src+'" width="200" height="272" preserveAspectRatio="xMidYMid meet" mask="url(#'+id+'-mask)"/>'+
       gearMarkup('back',equipped.back,avatar)+gearMarkup('head',equipped.head,avatar)+gearMarkup('neck',equipped.neck,avatar)+
       '</svg>';
   }

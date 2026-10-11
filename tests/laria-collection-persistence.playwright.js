@@ -69,6 +69,16 @@ async function verify(browserType,label,viewport){
     await page.locator('#bc12-dialog[open] [data-wear="oppdagerhatt"]').click();
     assert.equal(await page.locator('#bc12-dialog[open] [data-wear="oppdagerhatt"]').getAttribute('aria-pressed'),'true');
     assert.equal(await page.locator('#bc12-dialog[open] .bc12-wardrobe-preview [data-gear="oppdagerhatt"]').count(),1);
+    const portrait=await page.locator('#bc12-dialog[open] .bc12-wardrobe-preview svg').evaluate(svg=>({
+      viewBox:svg.getAttribute('viewBox'),
+      mask:svg.querySelector('image')?.getAttribute('mask'),
+      hardCrop:svg.querySelectorAll('clipPath').length,
+      imageHeight:svg.querySelector('image')?.getAttribute('height')
+    }));
+    assert.equal(portrait.viewBox,'0 0 200 272','original portrait proportions must be preserved');
+    assert.equal(portrait.imageHeight,'272','original full-body illustration must be uncropped');
+    assert.match(portrait.mask||'',/^url\(#laria-wd-/,'soft oval mask required');
+    assert.equal(portrait.hardCrop,0,'outdated polygon cutoff must not amputate the fox');
     await page.screenshot({path:path.join(evidence,label+'-garderobe-med-hatt.png'),animations:'disabled'});
     await page.locator('#bc12-dialog[open] [data-wear="oppdagerhatt"]').click();
     assert.equal(await page.locator('#bc12-dialog[open] .bc12-wardrobe-preview [data-gear="oppdagerhatt"]').count(),0);

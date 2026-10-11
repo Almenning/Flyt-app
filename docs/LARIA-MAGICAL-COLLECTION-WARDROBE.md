@@ -1,6 +1,6 @@
 # Læria: Magisk samlebok og Min rev – fase 2A
 
-Status: **Samlekatalog, fire fagminner, interaktiv garderobe og komposittfigur er kodet på PR #90. Visuell godkjenning og full regresjon gjenstår. PR-en skal være utkast til dette er verifisert.**
+Status: **Interaktiv samlebok, to samlefaner, garderobe, fem hovedinnganger og lagret påkledning er implementert på PR #90. Full siste-commit verifisering og visuell Safari/iPad QA kreves før merge.**
 
 ## Produktretning
 
@@ -19,7 +19,7 @@ Samleboken skal etter hvert inneholde minner/skatter fra de fire verdenene, nye 
 - Eksisterende Basecamp-åpning **Samlingen** viser de fire fagminnene, med tydelig skille mellom funnet og uoppdaget. Eksisterende fremgangsteller bevares. Ingen klær fremstilles som påkledd.
 - Statisk og nettleserbasert test på begge revevalg, iPhone, iPad, Safari og lagring; skjermbilder brukes til visuell kontroll.
 
-**NB:** Denne fasen har en enkel synlig samlebok med fire fagminner, men bevisst ingen synlig garderobe, ingen falske «Bruk»-knapper og ingen påkledning av portretter. Det er ikke forsvarlig å kalle et plagg «på» før det faktisk vises på rett figur i alle sammenhenger.
+**Historikk:** Den tidlige fase 2A manglet garderobe, men dette er nå erstattet av den interaktive førsteversjonen. Ingen illustrasjoner er endelig låst.
 
 ## Fase 2B – status og kvalitetskrav før synlig utgivelse
 
@@ -46,3 +46,9 @@ Samleboken skal etter hvert inneholde minner/skatter fra de fire verdenene, nye 
 - Figurkomponenten kobles til Hjem, oppgavescener, reisekart og de relevante lekaktivitetene, med beholdt originalbilde i DOM av hensyn til eksisterende navigasjon og tester.
 - **Kvalitetsmerknad:** Figuren bruker foreløpig en kodet silhuett/klippbane av de godkjente portrettene, og påkledningen bruker skalerbare SVG-lag. Dette er en reell funksjonell førsteversjon, men ikke en kunstnerisk godkjent, transparent fullkroppsillustrasjon med nøyaktig geometri. Den skal ikke omtales som endelig premiumgrafikk.
 - Verifisering krever vellykket siste-commit QA, iOS, smoke, Safari/iPad, visuell kontroll av kroppsklipp og at eventuelle overlegg ikke hindrer klikk eller dekker andre grensesnittelementer.
+
+## 11. oktober: skjermbildebasert rettelse
+
+En gjennomgang av faktisk WebKit-/iPhone-skjermbilde fra Actions-artifakten avslørte at hard kodet SVG-klippbane fjernet ansikt, ører, hale og sko. Portrettkildene er **200×272**, mens den tidligere komposisjonen feilaktig antok 200×200. Renderer er endret til full høyde og myk oval kantmaske, uten den skadelige klippbanen. Dette bruker fortsatt de originale valgte reveportrettene, ingen ny figur er funnet på. Resultatet forblir en illustrert portrettkomposisjon, ikke en godkjent, transparent fullkroppskarakter. Dennes visuelle kvalitet må kontrolleres i nye Safari-skjermbilder. Samleboken komprimeres noe på iPhone, så utstyrslenken blir lettere å finne.
+
+Hovedgren #93 har en reell atlas-testrettelse etter at PR #90 ble opprettet. Den eksakte godkjente testfilen føres inn i arbeidsgrenens merge-commit sammen med ny renderer for å unngå en regresjon og en uavklart merge-konflikt.
