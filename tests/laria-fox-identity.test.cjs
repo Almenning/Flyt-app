@@ -41,7 +41,7 @@ for(const name of ['fraction-premium-v2.js','multiplication-premium-v2.js',
  assert.doesNotMatch(src,/src="\.\/lia-fox-explorer-home\.webp"/,'generic picture survives in '+name);
 }
 const globe=file('globe-v25-renderer.js');
-assert.match(globe,/guide\.src=selectedProfileFox\(\)/);
+assert.match(globe,/guide\.src='\.\/lia-fox-explorer-home\.webp'/);
 const home=file('home-basecamp-v12.js');
 assert.doesNotMatch(home,/src="\.\/lia-fox-explorer-home\.webp"/);
 const journey=file('locked-journey-renderer.js');
