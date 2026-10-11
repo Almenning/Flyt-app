@@ -39,6 +39,15 @@ async function verify(browserType,label,viewport){
 
     // The existing Home 'Samlingen' entry must show actual owned world
     // treasures (no misleading gear preview or click-to-equip placeholder).
+    assert.equal(await page.locator('.bc12-nav [data-camp]').count(),5,'Home must have five child navigation destinations');
+    await page.locator('.bc12-nav [data-camp="wardrobe"]').click();
+    await page.locator('#bc12-dialog[open].is-wardrobe .bc12-wardrobe-grid').waitFor();
+    assert.equal(await page.locator('#bc12-dialog[open] .bc12-wardrobe-preview svg[data-avatar="boy"]').count(),1,
+      'Min rev must show original chosen boy fox');
+    await page.locator('#bc12-dialog[open] [data-wardrobe-back]').click();
+    await page.locator('#bc12-dialog[open].is-collection [data-collection-tab="equipment"]').click();
+    assert.equal(await page.locator('#bc12-dialog[open].is-equipment .bc12-equipment-card').count(),4);
+    await page.locator('#bc12-dialog[open].is-equipment [data-collection-tab="collection"]').click();
     await page.locator('.bc12-nav [data-camp="collection"]').click();
     await page.locator('#bc12-dialog[open] .bc12-memory-grid').waitFor({timeout:10000});
     assert.equal(await page.locator('#bc12-dialog[open] .bc12-memory').count(),4);
