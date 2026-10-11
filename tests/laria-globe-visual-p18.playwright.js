@@ -355,22 +355,37 @@ async function capture(browserType,label,viewport){
           return r&&r.width>250&&Math.abs(r.width-r.height)<3&&Number(getComputedStyle(c).opacity)>.95;
         },null,{timeout:12000});
       }else{
-        // A plain blue frame is NOT a world map. Prove on Safari and Chromium
-        // that the actual 2D canvas contains opaque, coloured land pixels.
-        await page.waitForFunction(()=>{
+        // A blue blank frame is NOT a world map. Check actual canvas pixels,
+        // but match the expected palette for each atlas mode:
+        //   explore: vivid continent colours (including warm Africa)
+        //   mine: unseen countries are intentionally painted muted beige.
+        // Requiring red/orange pixels for mine rejected correctly painted maps.
+        // One canvas readback per poll avoids hundreds of synchronous WebKit
+        // getImageData calls while Safari is finishing a country repaint.
+        await page.waitForFunction(requestedMode=>{
           const c=document.getElementById('atlas-canvas');
           if(!c||c.dataset.mapReady!=='true'||c.width<150||c.height<150)return false;
           const ctx=c.getContext('2d',{willReadFrequently:true});
           if(!ctx)return false;
-          let opaque=0,warmLand=0;
+          const pixels=ctx.getImageData(0,0,c.width,c.height).data;
+          let opaque=0,land=0;
           for(let y=9;y<c.height;y+=Math.max(11,Math.floor(c.height/22)))
            for(let x=9;x<c.width;x+=Math.max(11,Math.floor(c.width/22))){
-            const p=ctx.getImageData(x,y,1,1).data;
-            if(p[3]>200)opaque++;
-            if(p[3]>200&&p[0]>135&&p[0]>p[2]*1.12&&p[0]>p[1]*1.07)warmLand++;
+            const i=(y*c.width+x)*4;
+            const r=pixels[i],g=pixels[i+1],b=pixels[i+2],a=pixels[i+3];
+            if(a<=200)continue;
+            opaque++;
+            if(requestedMode==='mine'){
+              // Includes unseen beige, learned green and mastered gold,
+              // while excluding the blue/cyan ocean gradient.
+              if((r>130&&r>b*1.045&&r>g*.92)||
+                 (g>125&&g>b*1.06&&g>r*1.05))land++;
+            }else if(r>135&&r>b*1.12&&r>g*1.07){
+              land++;
+            }
            }
-          return opaque>25&&warmLand>3;
-        },null,{timeout:12000});
+          return opaque>25&&land>3;
+        },mode,{timeout:18000,polling:250});
       }
       // A WebKit failure has shown the mode control disappearing AFTER
       // a successful atlas pixel check. Never hide that with a 30s locator
