@@ -24,6 +24,23 @@ async function verify(browserType,label,viewport){
     await page.route('https://api.worldbank.org/**',r=>r.abort());
     await page.goto(url+'&collection-qa='+label,{waitUntil:'domcontentloaded'});
     await page.locator('#home-screen.active .bc14-subject').first().waitFor({timeout:18000});
+    // The existing Home 'Samlingen' entry must show actual owned world
+    // treasures (no misleading gear preview or click-to-equip placeholder).
+    await page.locator('.bc12-nav [data-camp="collection"]').click();
+    await page.locator('#bc12-dialog[open] .bc12-memory-grid').waitFor({timeout:10000});
+    assert.equal(await page.locator('#bc12-dialog[open] .bc12-memory').count(),4);
+    assert.equal(await page.locator('#bc12-dialog[open] [data-collectible-id="tallkrystall"]').getAttribute('data-owned'),'true');
+    assert.equal(await page.locator('#bc12-dialog[open] [data-collectible-id="bokskogens-fjaer"]').getAttribute('data-owned'),'false');
+    assert.equal(await page.locator('#bc12-dialog[open] .bc12-memory-intro b').innerText(),'1 av 4 minner funnet');
+    assert.equal(await page.locator('#bc12-dialog[open] [data-action="equip"],#bc12-dialog[open] [data-gear]').count(),0);
+    const layout=await page.locator('#bc12-dialog[open]').evaluate(el=>{
+      const r=el.getBoundingClientRect();return {top:r.top,bottom:r.bottom,windowHeight:innerHeight,
+        scrollHeight:el.scrollHeight,clientHeight:el.clientHeight}
+    });
+    assert.ok(layout.top>=-2&&layout.bottom<=layout.windowHeight+2,
+      label+' collection book overflows viewport: '+JSON.stringify(layout));
+    await page.locator('#bc12-dialog[open] .bc12-close').click();
+    assert.equal(await page.locator('#bc12-dialog[open]').count(),0);
     const first=await page.evaluate(()=>({
       avatar:state.profile.avatar,
       answers:state.answerLog.length,
@@ -55,6 +72,10 @@ async function verify(browserType,label,viewport){
     assert.equal(persisted.profile.avatar,'girl','avatar overwritten by collection migration');
     assert.equal(persisted.source,persisted.expected,'chosen fox missing after save');
     assert.equal(persisted.collection.equipped.head,'oppdagerhatt');
+    await page.locator('.bc12-nav [data-camp="collection"]').click();
+    assert.equal(await page.locator('#bc12-dialog[open] [data-collectible-id="tallkrystall"]').getAttribute('data-owned'),'true',
+      'earned keepsake must remain visible after avatar change and reload');
+    await page.locator('#bc12-dialog[open] .bc12-close').click();
     assert.equal(persisted.collection.equipped.neck,'eventyrskjerf');
     assert.equal(persisted.answers,13);
     assert.equal(persisted.nodes['math:2:talldalen'].attempts,1);
