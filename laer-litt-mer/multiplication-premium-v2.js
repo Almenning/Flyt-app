@@ -2,7 +2,7 @@
 (()=>{
 'use strict';
 const ROOT='multiplication-lab-root',KEY='laria_mult_premium_v1',MAX=10;
-const foxSrc='./lia-fox-explorer-home.webp';
+const foxSrc=()=>window.LARIA_FOX.source(window.LARIA_FOX.choice());
 let illustrationTheme='auto';
 const ILLUSTRATION_THEMES=['strawberry','bun','mushroom','apple'];
 function currentIllustrationTheme(){return illustrationTheme==='auto'?ILLUSTRATION_THEMES[stateBox.idx % ILLUSTRATION_THEMES.length]:illustrationTheme}
@@ -52,8 +52,8 @@ function btn(action,text,classes='',extra=''){return '<button type="button" clas
 function symbolArt(){
  return '<svg class="mp-island" viewBox="0 0 240 140" fill="none" aria-hidden="true"><defs><linearGradient id="mpIslandLand" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#B9D387"/><stop offset="1" stop-color="#548C68"/></linearGradient><linearGradient id="mpIslandWater" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#A0E3EA"/><stop offset="1" stop-color="#579DBD"/></linearGradient></defs><ellipse cx="118" cy="119" rx="106" ry="19" fill="#5c8796" opacity=".17"/><path d="M14 94Q60 115 109 93Q176 70 222 92L209 121Q147 146 29 116Z" fill="url(#mpIslandWater)"/><path d="M22 91Q51 50 106 55Q164 37 222 90Q175 123 96 113Q49 118 22 91Z" fill="url(#mpIslandLand)" stroke="#55865D" stroke-width="3"/><path d="M53 89Q110 66 171 86" stroke="#F5E2A5" stroke-width="9" stroke-linecap="round" stroke-dasharray="11 10"/><path d="M114 57V21" stroke="#8B5A35" stroke-width="4"/><path d="M118 20L150 31L118 39Z" fill="#E77853"/><path d="M48 83L61 38L74 83Z" fill="#4B9764"/><path d="M41 70L61 29L80 70Z" fill="#65A46D"/><path d="M178 96L191 43L205 96Z" fill="#4F8D60"/><path d="M170 78L191 30L214 78Z" fill="#6CA878"/><rect x="89" y="72" width="31" height="26" rx="4" fill="#AB7448" stroke="#70462D" stroke-width="3"/><rect x="94" y="64" width="27" height="18" rx="2" fill="#DCA56B" stroke="#8D5937" stroke-width="3"/><path d="M93 82H116" stroke="#79502F" stroke-width="4"/><circle cx="106" cy="78" r="5" fill="#F7C85D"/></svg>';
 }
-function mascot(message,small=false){return '<div class="mp-mascot '+(small?'mp-mascot-small':'')+'"><img src="'+foxSrc+'" alt="" loading="lazy"><div class="mp-bubble">'+message+'<span class="mp-heart" aria-hidden="true">♥</span></div></div>'}
-function top(){return '<header class="mp-top"><div class="mp-top-left">'+btn('back','‹','mp-back','id="multiplication-lab-back" aria-label="Tilbake"')+'<span class="mp-brand">Læria<span class="mp-brand-star">✦</span></span></div><div class="mp-top-right"><span class="mp-avatar" aria-hidden="true">🦊</span><span class="mp-star-count" aria-label="'+saved.stars+' stjerner">★ <b>'+saved.stars+'</b></span></div></header>'}
+function mascot(message,small=false){return '<div class="mp-mascot '+(small?'mp-mascot-small':'')+'"><img src="'+foxSrc()+'" alt="" loading="lazy"><div class="mp-bubble">'+message+'<span class="mp-heart" aria-hidden="true">♥</span></div></div>'}
+function top(){return '<header class="mp-top"><div class="mp-top-left">'+btn('back','‹','mp-back','id="multiplication-lab-back" aria-label="Tilbake"')+'<span class="mp-brand">Læria<span class="mp-brand-star">✦</span></span></div><div class="mp-top-right"><span class="mp-avatar" aria-hidden="true"><img src="'+foxSrc()+'" alt=""></span><span class="mp-star-count" aria-label="'+saved.stars+' stjerner">★ <b>'+saved.stars+'</b></span></div></header>'}
 function heading(t,s){return '<div class="mp-heading"><h1>'+t+'</h1><p>'+s+'</p></div>'}
 function travel(progressCount=0,total=8){let circles='';for(let i=0;i<total;i++)circles+='<span class="mp-travel-node '+(i<progressCount?'done':'')+'">'+(i<progressCount?'★':'')+'</span>';return '<div class="mp-travel"><div class="mp-travel-scene" aria-hidden="true">🌲 ⛰️</div><div class="mp-travel-main"><span>'+(stateBox.page==='practice'?'Oppgave '+(stateBox.idx+1)+' av 8':'Din læringsreise')+'</span><div class="mp-travel-nodes">'+circles+'</div></div><div class="mp-travel-treasure" aria-hidden="true">🗝️</div></div>'}
 function menuCard(page,titleText,subtitle,art){return btn('go','<span class="mp-menu-copy"><strong>'+titleText+'</strong><small>'+subtitle+'</small></span><span class="mp-menu-art mp-art-'+page+'">'+art+'</span><span class="mp-arrow" aria-hidden="true">›</span>','mp-menu-card mp-menu-'+page,'data-page="'+page+'"')}
@@ -61,7 +61,7 @@ function home(){
  const cont=saved.draft&&Array.isArray(saved.draft.questions)&&saved.draft.questions.length===8&&saved.draft.questions.every(q=>q.a>=1&&q.a<=MAX&&q.b>=1&&q.b<=MAX);
  return '<section class="mp-home-screen">'+travel(Math.min(saved.sessions,8))+heading('Gangetabellen','Små tall. Store eventyr!')+'<p class="mp-intro">Øv, utforsk og bli trygg på gangetabellen.</p>'
  +'<div class="mp-menu-stack">'
- +menuCard('practice','Øv på gangetabellen','Svar på åtte spørsmål og finn nye mønstre.','<img src="'+foxSrc+'" alt="" loading="lazy"><span class="mp-math-plaque">3 × 4<br>= ?</span>')
+ +menuCard('practice','Øv på gangetabellen','Svar på åtte spørsmål og finn nye mønstre.','<img src="'+foxSrc()+'" alt="" loading="lazy"><span class="mp-math-plaque">3 × 4<br>= ?</span>')
  +menuCard('choose','Velg en gangetabell','Øv akkurat på den tabellen du ønsker.','<span class="mp-number-art"><i>2</i><i>5</i><i>3</i><i>4</i><i>6</i><i>10</i></span>')
  +menuCard('explore','Utforsk og lek','Se gangetabellen 1–10 og oppdag sammenhenger.',symbolArt())
  +'</div>'+(cont?btn('resume','▶ Fortsett øvingen der du var','mp-resume'):'')+mascot('Du klarer dette! Hver gang du øver, blir du litt tryggere.')+'</section>';
