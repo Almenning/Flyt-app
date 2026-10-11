@@ -260,7 +260,7 @@ function foxHint(){
  const x=u.page==='build'?u.build:u.explore;
  if(x.n===0)return 'Du har null av '+x.d+' deler. Trykk på kaken eller på en løs bit for å fylle én del.';
  if(x.n===x.d)return 'Alle '+x.d+' delene er fylt. Det er én hel!';
- if(x.d%2===0&&x.n===x.d/2)return 'Du har bygget en halv! '+x.n+' av '+x.d+' deler er akkurat halvparten.';
+ if(x.d%2===0&&x.n===x.d/2)return 'Du har bygget en halv! '+x.n+' av '+x.d+' er like mye som 1 av 2.';
  return 'Du har '+x.n+' av '+x.d+' like deler. Telleren er '+x.n+', antallet fargelagte deler. Nevneren er '+x.d+', antallet like deler.';
 }
 function foxSpeak(){
@@ -268,7 +268,7 @@ function foxSpeak(){
  const x=u.page==='build'?u.build:u.explore,help=foxHint();
  const bubble=document.querySelector('#'+ROOT+' '+(u.page==='build'?'.fr5-fox-bubble':'.fr4-scene-speech'));
  if(bubble){
-  bubble.textContent=u.page==='build'?(x.n===x.d?'En hel!':x.n===0?'Trykk for å fylle!':'Teller '+x.n+', nevner '+x.d):help;
+  bubble.textContent=u.page==='build'?(x.n===x.d?'Du har én hel!':x.n===0?'Trykk på et stykke!':x.d%2===0&&x.n*2===x.d?'Det er en halv!':'Du har fylt '+x.n+' av '+x.d+'!'):help;
   bubble.classList.add('fr5-help-open');
   bubble.setAttribute('role','status');
  }
@@ -358,13 +358,20 @@ function enter(next){
  try{document.getElementById(ROOT)?.scrollIntoView({block:'start',behavior:'instant'})}catch(_){}
 }
 function applyBuildPieces(parts,notice=''){
- const x=u.build;
- x.filled=[...new Set(parts)].filter(i=>Number.isInteger(i)&&i>=0&&i<x.d).sort((a,b)=>a-b);
- x.n=x.filled.length;
- if(x.n>0)mark('built',key(x.n,x.d));
+  const x=u.build,before=x.n;
+  x.filled=[...new Set(parts)].filter(i=>Number.isInteger(i)&&i>=0&&i<x.d).sort((a,b)=>a-b);
+  x.n=x.filled.length;
+  if(x.n>0)mark('built',key(x.n,x.d));
   if(u.page==='explore')mark('explored',key(x.n,x.d));
- x.notice=notice;
- render();
+  x.notice=notice;
+  render();
+  // The selected fox reacts at meaningful discoveries, not after every tap.
+  if(x.n!==before&&x.n>0&&(x.n===x.d||x.d%2===0&&x.n*2===x.d)){
+    try{requestAnimationFrame(()=>{
+      const host=document.querySelector('#fraction-lab-root '+(u.page==='build'?'.fr5-fox-mentor':'.fr5-scene-fox'));
+      window.LARIA_FOX_PRESENCE?.react?.('celebrate',host);
+    })}catch(_){}
+  }
 }
 function addBuildPiece(notice='Du la til én del!',pieceIndex=null){
   const x=u.build;
