@@ -214,7 +214,7 @@ function markup(){return '<section class="bc12" data-release="basecamp-rc1" aria
  '<div class="bc12-you-are-here" aria-hidden="true"><i></i><span>Du er her</span></div>'+
  '<div class="bc12-next-beacon" aria-hidden="true"><i></i><span>Neste sted</span></div>'+
  '<div class="bc12-fox"><img src="'+window.LARIA_FOX.source(window.LARIA_FOX.choice())+'" alt="Din valgte rev venter på stien" draggable="false"></div><button type="button" class="bc12-fox-call bc14-fox-open" data-camp="wardrobe" aria-label="Åpne Min rev og garderoben" data-camp-fox-call>Min rev · Garderoben ›</button>'+
- '<button class="bc12-journey" data-camp="travel"><span>Fortsett reisen <b aria-hidden="true">→</b></span><small><em>Neste sted</em><strong data-camp-next>Bokskogen</strong><span data-camp-next-copy>Et nytt oppdrag venter.</span></small></button>'+
+ '<button class="bc12-journey" data-camp="travel"><span>Fortsett reisen <b aria-hidden="true">→</b></span><small><em data-camp-next-type>Neste sted</em><strong data-camp-next>Bokskogen</strong><span data-camp-next-copy>Et nytt oppdrag venter.</span></small></button>'+
  '<button type="button" class="bc14-free" data-camp="open-explore"><span class="bc14-free-icon" aria-hidden="true">✧</span><span><strong>Utforsk og lek</strong><small>Prøv det du liker</small></span><b aria-hidden="true">›</b></button>'+ '<button class="bc12-quest" data-camp="quest"><span class="bc12-wax" aria-hidden="true">✦</span><span>Et brev fra reven<small>Vil du bli med?</small></span></button>'+
  '<button class="bc12-treasure" data-camp="collection"><span>Samlingen min</span></button>'+
  '<i class="bc12-spark a" aria-hidden="true"></i><i class="bc12-spark b" aria-hidden="true"></i><i class="bc12-spark c" aria-hidden="true"></i>'+
@@ -275,6 +275,8 @@ function render(){
  host.dataset.journeyComplete=trip.complete?'true':'false';
  host.style.setProperty('--bc12-progress',String(Math.max(0,Math.min(100,trip.pct||0))));
  host.querySelector('[data-camp-next]').textContent=trip.title;
+ const nextType=host.querySelector('[data-camp-next-type]');
+ if(nextType)nextType.textContent=trip.active?'Pågående økt':'Neste sted';
  host.querySelector('[data-camp-next-copy]').textContent=(trip.complete?'Reisen er fullført. Du kan besøke stedene igjen.':journeyCopy(trip));
  if(journeyButton)journeyButton.setAttribute('aria-label',(trip.complete?'Besøk reisen igjen. ':'Fortsett reisen. Neste sted: ')+trip.title+'. '+(trip.complete?'Reisen er fullført, og stedene er fortsatt åpne.':journeyCopy(trip)));
  host.querySelectorAll('.bc12-nav button').forEach(b=>{if(b.dataset.camp===mode)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});

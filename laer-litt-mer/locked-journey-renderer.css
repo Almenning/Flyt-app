@@ -215,6 +215,10 @@
 .locked-journey-grade-grid button[aria-current=true]{background:#346b50;color:white}
 /* Young illustrated journeys are the primary subject surface. Never
    show the old module dashboard underneath the approved portrait map. */
+/* 1.-2. trinn: the original journey is the entire subject front page.
+   Brøklaben stays reachable from its painted Tallenga sign and Utforsk;
+   do not duplicate a separate Eksperimenter dashboard below the map. */
+#subject-screen.locked-journey-active #math-lab-entry{display:none!important}
 #subject-screen.locked-journey-active .free-practice-title,
 #subject-screen.locked-journey-active #subject-modules,
 #subject-screen.locked-journey-active .hub-progress-line{display:none!important}
