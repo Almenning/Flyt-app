@@ -43,9 +43,9 @@
     var cape=gearMarkup('cape',equipped.cape,avatar);
     return '<svg class="laria-fox-wardrobe-art" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" preserveAspectRatio="xMidYMid meet" data-avatar="'+avatar+'">'+
       '<defs><clipPath id="'+id+'"><path d="'+PATHS[avatar]+'"/></clipPath></defs>'+
-      '<g>'+cape+'</g><image href="'+src+'" width="200" height="200" preserveAspectRatio="xMidYMid meet" clip-path="url(#'+id+')"/>'+
+      '<g class="laria-fox-pose" data-fox-gear-rig="'+avatar+'"><g>'+cape+'</g><image href="'+src+'" width="200" height="200" preserveAspectRatio="xMidYMid meet" clip-path="url(#'+id+')"/>'+
       gearMarkup('back',equipped.back,avatar)+gearMarkup('head',equipped.head,avatar)+gearMarkup('neck',equipped.neck,avatar)+
-      '</svg>';
+      '</g></svg>';
   }
   var SELECTORS=[
     '.bc12-fox > img','.locked-journey-profile > img',
