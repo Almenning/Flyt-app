@@ -260,6 +260,10 @@ jobs:
           path: /tmp/laria-fox-freeplay
           if-no-files-found: warn
           retention-days: 7
+      - name: Verify magical collection inventory across Safari and Chromium reloads
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+        run: node tests/laria-collection-persistence.playwright.js
       - name: Verify old checkpoint progression survives reload on approved artwork
         env:
           QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
