@@ -238,7 +238,8 @@ async function verifyOlderHome(page,label,width,height){
     {name:'middle-ipad',width:820,height:1180,grade:4},
     {name:'older-iphone',width:390,height:844,grade:7},
     {name:'older-ipad',width:820,height:1180,grade:7},
-    {name:'older-ipad-landscape',width:1180,height:820,grade:7}
+    {name:'older-ipad-landscape',width:1180,height:820,grade:7},
+    {name:'teen-iphone',width:390,height:844,grade:9}
   ];
 
   try{
