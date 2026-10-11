@@ -69,18 +69,18 @@
   }
   function render(which,collection,mode='portrait'){
     var avatar=which==='girl'?'girl':'boy',equipped=collection?.equipped||{},id='laria-wd-'+(++counter);
-    const fullGirl=avatar==='girl'&&mode==='world';
+    const fullBody=mode==='world';
     // Portraits in headers remain the previously selected avatar. In-world
     // artwork gets its own transparent, full-body silhouette and gear anchors.
-    var src=(fullGirl?root.LARIA_FOX?.worldSource?.(avatar):root.LARIA_FOX?.source?.(avatar))||'';
-    var h=fullGirl?300:272;
+    var src=(fullBody?root.LARIA_FOX?.worldSource?.(avatar):root.LARIA_FOX?.source?.(avatar))||'';
+    var h=fullBody?300:272;
     const cape=gearMarkup('cape',equipped.cape,avatar);
-    const gear=(slot,item)=>fullGirl?worldGearMarkup(slot,item):gearMarkup(slot,item,avatar);
-    const mask=fullGirl?'':'<radialGradient id="'+id+'-fade" cx="50%" cy="50%" r="56%"><stop offset="0%" stop-color="white"/><stop offset="78%" stop-color="white"/><stop offset="100%" stop-color="black"/></radialGradient>'+
+    const gear=(slot,item)=>fullBody?worldGearMarkup(slot,item,avatar):gearMarkup(slot,item,avatar);
+    const mask=fullBody?'':'<radialGradient id="'+id+'-fade" cx="50%" cy="50%" r="56%"><stop offset="0%" stop-color="white"/><stop offset="78%" stop-color="white"/><stop offset="100%" stop-color="black"/></radialGradient>'+
       '<mask id="'+id+'-mask" maskUnits="userSpaceOnUse" maskContentUnits="userSpaceOnUse" style="mask-type:luminance"><rect width="200" height="272" fill="url(#'+id+'-fade)"/></mask>';
-    return '<svg class="laria-fox-wardrobe-art" viewBox="0 0 200 '+h+'" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" preserveAspectRatio="xMidYMid meet" data-avatar="'+avatar+'" data-fox-art="'+(fullGirl?'girl-fullbody-v1':'portrait')+'">'+
+    return '<svg class="laria-fox-wardrobe-art" viewBox="0 0 200 '+h+'" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" preserveAspectRatio="xMidYMid meet" data-avatar="'+avatar+'" data-fox-art="'+(fullBody?avatar+'-fullbody-v1':'portrait')+'">'+
       '<defs>'+mask+'</defs>'+
-      '<g class="laria-fox-pose" data-fox-gear-rig="'+avatar+'"><g>'+gear('cape',equipped.cape)+'</g><image href="'+src+'" width="200" height="'+h+'" preserveAspectRatio="xMidYMid meet"'+(fullGirl?'':' mask="url(#'+id+'-mask)"')+'/>'+
+      '<g class="laria-fox-pose" data-fox-gear-rig="'+avatar+'"><g>'+gear('cape',equipped.cape)+'</g><image href="'+src+'" width="200" height="'+h+'" preserveAspectRatio="xMidYMid meet"'+(fullBody?'':' mask="url(#'+id+'-mask)"')+'/>'+
       gear('back',equipped.back)+gear('head',equipped.head)+gear('neck',equipped.neck)+
       '</g></svg>';
   }
@@ -97,7 +97,7 @@
     scheduled=false;
     if(!root.document?.body)return;
     var avatar=choice(),current=inventory();
-    var signature=avatar+'|world-art-v2|'+JSON.stringify(current.equipped||{});
+    var signature=avatar+'|world-art-v3|'+JSON.stringify(current.equipped||{});
     root.document.querySelectorAll(SELECTORS).forEach(function(img){
       var parent=img.parentElement;if(!parent)return;
       if(img.dataset.lariaWardrobeSignature===signature&&parent.querySelector(':scope > .laria-fox-wardrobe-art'))return;
