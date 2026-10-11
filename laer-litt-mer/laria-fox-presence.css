@@ -232,3 +232,23 @@
 @media(prefers-reduced-motion:reduce){
  .locked-journey-board .locked-journey-traveler.laria-fox-wardrobe-anchor[data-avatar="boy"]{transition:none!important}
 }
+
+
+/* The header cameo is a face crop of the SAME full-body fox. Keep existing
+   stored profile IDs and original source images unchanged as a safe fallback,
+   but never show a mismatched portrait or a floating portrait-scale hat. */
+.locked-journey-profile[data-avatar]::after{
+  content:"";position:absolute;inset:0;z-index:5;
+  display:block;border-radius:50%;pointer-events:none;
+  background-color:#fff3dd;
+  background-position:center center;
+  background-repeat:no-repeat;
+  background-size:cover;
+}
+.locked-journey-profile[data-avatar="girl"]::after{
+  background-image:url("./assets/fox/girl-braids-face-v1.webp");
+}
+.locked-journey-profile[data-avatar="boy"]::after{
+  background-image:url("./assets/fox/boy-adventurer-face-v1.webp");
+}
+.locked-journey-profile>.laria-fox-wardrobe-placed{display:none!important}
