@@ -75,3 +75,29 @@
   .laria-fox-wardrobe-anchor[data-laria-fox-mood] .laria-fox-pose{animation:none!important}
   .locked-journey-board .locked-journey-traveler{transition:none!important}
 }
+
+
+/* The in-world fox is not a portrait or a decorative badge. Use the
+   transparent dressed character without the old circular photograph frame. */
+#home-screen .bc12-fox.laria-fox-wardrobe-anchor{
+  overflow:visible!important;border:0!important;border-radius:0!important;
+  background:none!important;box-shadow:none!important;
+}
+#home-screen .bc12-fox.laria-fox-wardrobe-anchor::after{display:none!important}
+#home-screen .bc12-fox[data-avatar="girl"]>.laria-fox-wardrobe-placed{
+  transform:scale(1.33);transform-origin:50% 53%;
+}
+#subject-screen .locked-journey-board .locked-journey-traveler,
+#geography-screen .locked-journey-board .locked-journey-traveler{
+  width:clamp(76px,20%,124px);height:auto;aspect-ratio:1;
+}
+#session-screen .task-fox-companion.laria-fox-wardrobe-anchor{
+  overflow:visible!important;border:0!important;border-radius:0!important;
+  background:none!important;
+}
+#bc12-dialog .bc12-wardrobe-preview .laria-fox-wardrobe-art[data-fox-art="reference-girl-draft"]{
+  height:100%;width:100%;max-height:260px;overflow:visible;
+}
+@media(prefers-reduced-motion:reduce){
+  #home-screen .bc12-fox[data-avatar="girl"]>.laria-fox-wardrobe-placed{animation:none!important}
+}
