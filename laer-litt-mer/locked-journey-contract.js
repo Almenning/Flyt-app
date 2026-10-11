@@ -33,6 +33,23 @@
       ['Basecamp','Kartkroken','Utforskertårnet','Naturstien','Observatoriet'],
       [[83,1315,340,99],[593,1088,289,80],[595,839,325,85],[576,542,267,75],[654,306,260,83]])
   });
+  // Physical standing spots in the approved portrait paintings. These are
+  // FEET positions (not centered avatar badges or click target labels).
+  // Progressive stop scales make the companion recede naturally into depth.
+  const FOX_FOOT_ANCHORS=Object.freeze({
+    norwegian:Object.freeze([[220,1234],[385,1055],[495,860],[455,510],[570,472]]),
+    math:Object.freeze([[275,1280],[450,1160],[535,930],[390,647],[560,490]]),
+    english:Object.freeze([[260,1290],[445,1188],[490,962],[455,700],[570,480]]),
+    geography:Object.freeze([[265,1270],[500,1163],[515,941],[508,641],[600,470]])
+  });
+  function foxFootAnchor(subject,index){
+    const anchor=FOX_FOOT_ANCHORS[subject]?.[index];
+    assert(anchor,'unknown fox standing point');
+    return Object.freeze({
+      x:Number((anchor[0]/DIMENSIONS.width*100).toFixed(5)),
+      y:Number((anchor[1]/DIMENSIONS.height*100).toFixed(5))
+    });
+  }
   const SUBJECTS=Object.freeze(Object.keys(DEFINITIONS));
   const CORE_TYPES=new Set(['skill','geo-skill','checkpoint']);
   const EXTRA_TYPES=new Set(['review','challenge']);
@@ -103,5 +120,5 @@
       max>0&&value<max&&i===filled?'current':'new'));
   }
   function get(subject){return DEFINITIONS[subject]||null}
-  return Object.freeze({DEFINITIONS,DIMENSIONS,SUBJECTS,build,imagePoint,hotspot,milestoneStates,matchesOriginalSize,get});
+  return Object.freeze({DEFINITIONS,DIMENSIONS,SUBJECTS,build,imagePoint,hotspot,milestoneStates,matchesOriginalSize,foxFootAnchor,get});
 });

@@ -102,6 +102,15 @@ async function existing(engine,name){
  await openBack(p,'#open-english','#subject-screen','#subject-back');
  await openBack(p,'#open-math','#subject-screen','#subject-back');
  await checkPublishedFractionWorkshop(p,name);
+ // Return to the immediate Math screen when arriving from a Math module.
+ await openHomeSubject(p,'math');
+ await p.locator('#subject-screen.active').waitFor();
+ await p.locator('#open-multiplication-lab').click();
+ await p.locator('#multiplication-lab-screen.active').waitFor();
+ await p.locator('[data-mp-action="back"]').first().click();
+ await p.locator('#subject-screen.active').waitFor();
+ await p.locator('#subject-back').click();
+ await p.locator('#home-screen.active').waitFor();
  await openBack(p,'#open-geography','#geography-screen','#geography-back');
  await openHomeSubject(p,'norwegian');await p.locator('#subject-screen.active').waitFor();await p.locator('#start-subject-session').click();await p.locator('#session-screen.active').waitFor();await finish(p);
  await p.locator('#complete-home').click();await p.locator('#subject-screen.active').waitFor();await p.locator('#subject-back').click();await p.locator('#home-screen.active').waitFor();

@@ -29,6 +29,7 @@ const faces={explore:'Brøker finnes overalt! Trykk på delene og se hva som skj
 const u={page:'home',explore:{n:3,d:4,mode:'circle'},build:{n:3,d:4,filled:[0,1,2],notice:''},equal:0,equalGuess:null,sortIndex:0,sortOrder:[0,1,2],sortResult:'',sortSelected:null,convert:0,showConvertExtra:false};
 let svgId=0,drag=null,lastDragUntil=0;
 let returnToLockedJourney=false; // navigation-only context; not persisted
+let returnToMathSubject=false; // nested route, UI only
 const dragDiagnostics={pointerDown:0,pointerMove:0,pointerUp:0,nativeStart:0,nativeOver:0,nativeDrop:0};
 const read=()=>{try{const o=JSON.parse(localStorage.getItem(STORE)||'{}');return {
   explored:o.explored&&typeof o.explored==='object'?o.explored:{},
@@ -351,8 +352,8 @@ function actionHandler(e){
   if(u.page!=='home'){enter('home');return;}
   // The actual premium lab overrides the legacy openFractionLab. Keep the
   // same Tallenga return contract when opened from the painted Brøklaben sign.
-  if(returnToLockedJourney){
-   returnToLockedJourney=false;
+  if(returnToLockedJourney||returnToMathSubject){
+   returnToLockedJourney=false;returnToMathSubject=false;
    try{openSubject('math')}catch(_){}
    return;
   }
@@ -449,6 +450,7 @@ window.openFractionLab=function(options){
  // Only the explicit Tallenga entry sets this. Plain Home/Utforsk launches
  // reset the flag, preserving the previously approved Basecamp return route.
  returnToLockedJourney=!!(options&&options.returnToJourney==='math');
+ returnToMathSubject=!returnToLockedJourney&&!!document.querySelector('#subject-screen.active');
  document.getElementById('fraction-lab-screen')?.setAttribute('data-explore-release','explore-rc1');
  u.page='home';render();try{showScreen('fraction-lab')}catch(_){}
 };

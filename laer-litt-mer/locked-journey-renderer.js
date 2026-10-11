@@ -26,6 +26,25 @@
       return window.LARIA_PROFILE_AVATARS?.[which]||'./lia-fox-explorer-home.webp';
     }catch(_){return './lia-fox-explorer-home.webp'}
   }
+  // Reversible transparent cleanup patches. The four approved original
+  // paintings remain byte-for-byte intact and own all hotspots and geometry.
+  // Coordinates are source-image pixels on the unchanged 941x1672 canvas.
+  const FOX_FREE_OVERLAYS=Object.freeze({
+    norwegian:Object.freeze({asset:'bokskogen-fox-free-overlay.png',rect:[56,1012,297,280]}),
+    math:Object.freeze({asset:'tallenga-fox-free-overlay.png',rect:[98,1044,311,342]}),
+    english:Object.freeze({asset:'ordlandsbyen-fox-free-overlay.png',rect:[118,1082,279,317]}),
+    geography:Object.freeze({asset:'nordlysleiren-fox-free-overlay.png',rect:[124,1093,287,313]})
+  });
+  function foxFreeOverlayMarkup(subject){
+    const patch=FOX_FREE_OVERLAYS[subject];
+    if(!patch)return '';
+    const [x,y,w,h]=patch.rect;
+    const px=(n,total)=>(n/total*100).toFixed(6)+'%';
+    return '<img class="locked-journey-fox-free" src="./locked-journeys/fox-free/'+patch.asset+
+      '" alt="" aria-hidden="true" draggable="false" data-fox-free-subject="'+subject+
+      '" width="'+w+'" height="'+h+'" style="left:'+px(x,941)+';top:'+px(y,1672)+
+      ';width:'+px(w,941)+';height:'+px(h,1672)+'">';
+  }
   function liveProfileMarkup(progress){
     const which=selectedAvatar(),label=which==='girl'?'Din valgte revejente':'Din valgte revegutt';
     // The approved painting contains a sample portrait and "127". Cover both
@@ -39,8 +58,14 @@
   function screenFor(geo){return document.getElementById(geo?'geography-screen':'subject-screen')}
   function hostFor(geo){return document.getElementById(geo?'geo-journey-map':'journey-map')}
   function backHome(geo){
+    // Navigate directly rather than simulating a click on a separate, hidden
+    // back button. WebKit at 320px occasionally left the journey active after
+    // the proxy click; the real Basecamp return keeps Explore/Home context.
+    if(typeof window.LARIA_RETURN_TO_BASECAMP==='function'&&
+       window.LARIA_RETURN_TO_BASECAMP())return;
+    if(typeof setTab==='function'){setTab('home');return}
     const btn=document.getElementById(geo?'geography-back':'subject-back');
-    if(btn)btn.click();else if(typeof setTab==='function')setTab('home');
+    btn?.click();
   }
   function notifyLoaded(subject){
     requestAnimationFrame(()=>{
@@ -134,18 +159,16 @@
     host.dataset.lockedIllustration='2026-10-10';
     host.innerHTML='<section class="locked-journey-board" aria-label="'+esc(def.subjectLabel+' – '+def.title+', interaktivt eventyrkart')+'">'+
       '<img class="locked-journey-image" src="./'+esc(def.asset)+'" alt="" draggable="false" width="941" height="1672">'+
+      foxFreeOverlayMarkup(subject)+
       liveProfileMarkup(s.progress)+
       (places.length?(()=>{
         // A completed journey still has its personal fox at the last reached stop.
         const here=places.find(p=>p.recommended)||[...places].reverse().find(p=>p.done>0)||places[0];
-        const hit=contract.hotspot(subject,here.index);
-        // The four approved, immutable paintings contain a scenic fox.
-        // Show the child's real choice as a separate named checkpoint marker,
-        // not a portrait pasted onto the already-painted character.
-        const left=parseFloat(hit.left),width=parseFloat(hit.width);
-        const x=Math.max(8,Math.min(92,left+width/2<50?left+width+4:left-4));
-        const y=parseFloat(hit.top)+parseFloat(hit.height)/2;
-        return '<div class="locked-journey-traveler" data-avatar="'+selectedAvatar()+'" style="--fox-x:'+x+'%;--fox-y:'+y+'%" aria-label="Din rev er med på reisen"><img src="'+esc(selectedAvatarSource())+'" alt=""><span class="locked-fox-label">Min rev</span></div>';
+        // Standing spot is a real painted step, not a floating avatar badge.
+        // The reusable character is positioned by its feet. The original
+        // painted generic fox still requires artwork retouch before publishing.
+        const point=contract.foxFootAnchor(subject,here.index);
+        return '<div class="locked-journey-traveler" data-avatar="'+selectedAvatar()+'" data-laria-fox-stop="'+here.index+'" style="--fox-x:'+point.x+'%;--fox-y:'+point.y+'%" aria-label="Din rev er med på reisen"><img src="'+esc(selectedAvatarSource())+'" alt=""><span class="locked-fox-label">Min rev</span></div>';
       })():'')+
       '<div class="locked-journey-hits">'+places.map(p=>placeButton(subject,p,model,s.firstOpen)).join('')+'</div>'+
       '<button type="button" class="locked-journey-back" aria-label="Tilbake til Hjem"></button>'+
