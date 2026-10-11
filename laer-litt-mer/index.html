@@ -3856,7 +3856,14 @@ function geoJourneyNodeState(node){
   }
   const grade=Number(node.grade||currentGrade()),eligible=node.ids.filter(id=>questionTypesForCountry(id,true,grade).includes(node.geoType)),target=Math.max(1,Math.min(node.target||1,eligible.length));
   const mastered=eligible.filter(id=>typeMastered(id,node.geoType)).length,can=eligible.filter(id=>typeCanNow(id,node.geoType)).length,seen=eligible.filter(id=>stageRank(typeStage(id,node.geoType))>=stageRank('seen')).length;
-  if(mastered>=target)return 'mastered';if(can>=target)return 'can-now';if(seen>0)return 'active';return 'new';
+  // A finished map stop advances the JOURNEY immediately; long-term country
+  // mastery still requires distinct correct retrievals on different occasions.
+  // This mirrors ordinary subject journeys and also recognizes pre-release attempts.
+  const journeyFinished=Number(journeyNodeRecord(node).attempts||0)>0;
+  if(mastered>=target)return 'mastered';
+  if(can>=target||journeyFinished)return 'can-now';
+  if(seen>0)return 'active';
+  return 'new';
 }
 function geoJourneyAreaComplete(area){
   const skills=area.nodes.filter(n=>n.type==='geo-skill'),cp=area.nodes.find(n=>n.type==='checkpoint');
@@ -5485,7 +5492,7 @@ function renderHomeContinue(){
   const wrap=document.getElementById('home-continue-wrap');if(!wrap)return;
   wrap.hidden=false;
   const eye=document.getElementById('home-continue-eyebrow'),young=currentGrade()<=2;
-  const worldNames={norwegian:'Bokskogen',math:'Tallriket',english:'Ordlandsbyen',geography:'Oppdagelsesriket'};
+  const worldNames={norwegian:'Bokskogen',math:'Tallenga',english:'Ordlandsbyen',geography:'Nordlysleiren'};
   const homeSubject=state.activeSession?.scope?.subject||state.lastActivity?.subject||'geography';
   wrap.dataset.subject=['norwegian','math','english'].includes(homeSubject)?homeSubject:'geography';
   const active=state.activeSession?.scope;
@@ -5516,7 +5523,6 @@ function renderFoxGuide(){
   if(state.activeSession){title.textContent='Jeg holder plassen din';copy.textContent='Økten venter. Du kan fortsette når du er klar.';return}
   const goal=dailyGoal();
   if(goal.done>=goal.target){title.textContent='Dagens lille mål er i boks';copy.textContent='Resten er bonus. Det er lov å være ferdig.';return}
-  if(goal.done>0){title.textContent='Dagens lille mål er i boks';copy.textContent='Resten er bonus. Det er lov å være ferdig.';return}
   const band=gradeBand();
   title.textContent=band==='young'?'Jeg har et lite oppdrag til deg 🦊':band==='middle'?'Klar for et nytt oppdrag? 🧭':'Klar for litt mer?';
   copy.textContent=band==='young'?'Fem små utfordringer. Jeg starter med noe du har god sjanse til å klare.':band==='middle'?'Velg ett fag og ta et kort oppdrag. Du ser fremgangen med en gang.':'Én liten økt er nok. Resten er bonus.';
@@ -6338,7 +6344,7 @@ function finishSession(){
   }
   document.getElementById('complete-next').textContent=sessionScope?.previewOnly?'Gå tilbake til hovedreisen når du er klar.':practiceOnly?'Vil du prøve én gang til, kan du gjøre det så mange ganger du vil.':result.gradeCompleted?'Alle verdener på trinnet er fullført. Repetisjon gjør kunnskapen sterkere over tid.':result.journeyReward?'Neste verden er åpnet i hovedreisen.':nextTeaserForScope();
   const backLabel=sessionScope?.subject&&sessionScope.subject!=='geography'?(SUBJECTS[sessionScope.subject]?.title||'faget'):'Geografi';
-  document.getElementById('complete-home').textContent=result.gradeCompleted?'Se troféet 🏆':result.journeyReward?'Se neste verden 🗺️':currentGrade()<=2?'Se hva jeg kan ⭐':'Tilbake til '+backLabel+' ⭐';
+  document.getElementById('complete-home').textContent=(sessionScope?.type==='journey'||sessionScope?.type==='geo-journey')?'Tilbake til reisekartet 🗺️':result.gradeCompleted?'Se troféet 🏆':result.journeyReward?'Se neste verden 🗺️':currentGrade()<=2?'Se hva jeg kan ⭐':'Tilbake til '+backLabel+' ⭐';
   document.getElementById('complete-repeat').style.display=lastCompletedQuestions.length?'block':'none';
   showScreen('complete');
 }

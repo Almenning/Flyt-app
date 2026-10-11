@@ -221,6 +221,10 @@ jobs:
           path: /tmp/laria-locked-journey-geometry
           if-no-files-found: warn
           retention-days: 7
+      - name: Integrated four-journey task and return paths on iPhone and iPad
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+        run: node tests/laria-journey-integrated-ux.playwright.js
       - name: Verify old checkpoint progression survives reload on approved artwork
         env:
           QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
@@ -298,3 +302,36 @@ jobs:
         uses: actions/checkout@v4
       - name: Verify approved original artwork release readiness
         run: node scripts/laria-locked-release-gate.cjs
+
+  # Real course progression, restart and daily goal gate.
+  # Separated from visual map verification so failures have a focused report.
+  laria-journey-progress-recovery:
+    runs-on: ubuntu-latest
+    timeout-minutes: 16
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Check journey recovery test syntax
+        run: node --check tests/laria-journey-progress-recovery.playwright.js
+      - name: Install browsers
+        run: npx playwright install --with-deps chromium webkit
+      - name: Start exact-head local server
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/laria-recovery-http.log 2>&1 &
+          for i in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:8765/laer-litt-mer/?app=laria >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/laria-recovery-http.log
+          exit 1
+      - name: Verify four real course progress and interrupted recovery flows
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+        run: node tests/laria-journey-progress-recovery.playwright.js

@@ -29,6 +29,7 @@ async function run(engine,label,viewport){
   assert.equal(await page.locator('.bc12-journey').isVisible(),true,label+' continue journey is missing');
   const names=await page.locator('.bc14-subject-copy strong').allTextContents();
   assert.deepEqual(names,['Norsk','Matte','Engelsk','Geografi'],label+' subject order');
+  assert.equal((await page.locator('.bc12-journey [data-camp-next]').innerText()).trim(),'Leselyset',label+' Home must point to the first painted Bokskogen landmark');
   assert.equal(await page.locator('.bc14-subject-scene>svg').count(),4,label+' cards must be illustrated not text-only');
   assert.equal(await page.locator('.bc12-place:visible').count(),0,label+' old activity signs must not compete with Home');
   await page.waitForTimeout(100);
