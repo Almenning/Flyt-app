@@ -46,11 +46,12 @@ og fletter, må være gjenkjennelige på tvers av antrekkene.
   ansiktsutsnitt i karttoppene. Hatt, skjerf, sekk og kappe leses fra
   barnets eksisterende lagrede garderobe.
 - **Oppgavescenen hadde et annet eksempelrevproblem:** Den innmalte reven
-  nederst i `bokskogen-verden.png`, `matte-verden.png` og
-  `geografi-verden.png` ble synlig utenfor oppgavekortet på stor iPad.
-  Den originale scenekunsten beholdes; oppgavescenen tegner nå bakgrunnen
-  forankret i toppen. I vanlig iPad-visning ligger eksempelreven utenfor
-  det viste utsnittet, og på iPhone bak det dekkende oppgavekortet.
+  nederst i `bokskogen-verden.png` og `matte-verden.png` kunne bli synlig
+  utenfor oppgavekortet på stor iPad. Originalmaleriene er fortsatt urørt.
+  Den aktive bakgrunnen ligger på `session::after` og forankres nå i
+  toppen. Geografioppgaver bruker det eksisterende, revefrie
+  `globe-storyscape-v36`-landskapet fremfor et bilde av Kloden med
+  generisk rev og statiske skjermknapper. Kontroller alle disse visuelt.
 - **Regresjonstesten** `tests/laria-live-fox-presence.playwright.js`
   besøker alle fire godkjente kart og samtlige 20 skilt, i tillegg
   til den reelle reisen videre til oppgavescenen. Den kontrollerer

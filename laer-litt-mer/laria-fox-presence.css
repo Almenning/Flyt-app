@@ -260,6 +260,17 @@
    animal stays outside the viewport, and on iPhone it sits behind the opaque
    cream task card. This preserves the same approved scenery with no second
    mascot visible. Never crop or stretch the child's own foreground fox. */
-#session-screen.task-scene .session{
+#session-screen.task-scene .session,
+#session-screen.task-scene .session::after{
   background-position:center top!important;
+}
+/* Geography questions use a clean 2.5D world, not a screenshot-like globe UI
+   with a generic illustrated fox in its header. */
+#session-screen.task-scene[data-task-subject="geography"]{
+  --task-world:url("./globe-storyscape-v36-tablet.webp");
+}
+@media(max-width:600px){
+  #session-screen.task-scene[data-task-subject="geography"]{
+    --task-world:url("./globe-storyscape-v36-mobile.webp");
+  }
 }

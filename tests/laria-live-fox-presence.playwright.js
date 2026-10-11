@@ -146,11 +146,11 @@ async function run(engine,name,viewport,avatar){
       assert.equal(await page.evaluate(m=>window.LARIA_FOX_PRESENCE.react(m),mood),true);
       assert.equal(await task.getAttribute('data-laria-fox-mood'),mood,name+' task mood '+mood+' missing');
     }
-    // The old sample mascot is baked into the lower third of three task
-    // backdrop PNGs. The scenery must be top-framed, never exposing that
-    // duplicate outside the task card on a large iPad.
+    // Original sample foxes remain near the bottom of the source
+    // paintings. The *actual* background is rendered by ::after, not the
+    // session element itself: its artwork must be top-framed on iPad.
     const backdropPosition=await page.locator('#session-screen.active .session')
-      .evaluate(el=>getComputedStyle(el).backgroundPosition);
+      .evaluate(el=>getComputedStyle(el,'::after').backgroundPosition);
     assert(backdropPosition.split(',').every(layer=>layer.trim().endsWith('0%')),
       name+' task world exposes original sample fox below the card: '+backdropPosition);
     await page.screenshot({path:path.join(dir,name+'-task.png'),animations:'disabled'});
