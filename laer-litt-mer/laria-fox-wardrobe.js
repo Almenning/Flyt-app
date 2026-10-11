@@ -45,9 +45,7 @@
     var src=(fullGirl?root.LARIA_FOX?.worldSource?.(avatar):root.LARIA_FOX?.source?.(avatar))||'';
     var h=fullGirl?300:200;
     const cape=gearMarkup('cape',equipped.cape,avatar);
-    const gear=(slot,item)=>fullGirl&&item?
-      '<g transform="'+({neck:'translate(-2 38)',back:'translate(-10 68)',cape:'translate(-8 78)',head:'translate(2 13)'}[slot]||'')+'">'+gearMarkup(slot,item,avatar)+'</g>':
-      gearMarkup(slot,item,avatar);
+    const gear=(slot,item)=>fullGirl?worldGearMarkup(slot,item):gearMarkup(slot,item,avatar);
     return '<svg class="laria-fox-wardrobe-art" viewBox="0 0 200 '+h+'" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false" preserveAspectRatio="xMidYMid meet" data-avatar="'+avatar+'" data-fox-art="'+(fullGirl?'girl-fullbody-v1':'portrait')+'">'+
       '<defs><clipPath id="'+id+'"><path d="'+PATHS[avatar]+'"/></clipPath></defs>'+
       '<g class="laria-fox-pose" data-fox-gear-rig="'+avatar+'"><g>'+gear('cape',equipped.cape)+'</g><image href="'+src+'" width="200" height="'+h+'" preserveAspectRatio="xMidYMid meet"'+(avatar==='girl'?'':' clip-path="url(#'+id+')"')+'/>'+
