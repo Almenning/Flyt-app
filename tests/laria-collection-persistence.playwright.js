@@ -28,6 +28,15 @@ async function verify(browserType,label,viewport){
     await page.route('https://api.worldbank.org/**',r=>r.abort());
     await page.goto(url+'&collection-qa='+label,{waitUntil:'domcontentloaded'});
     await page.locator('#home-screen.active .bc14-subject').first().waitFor({timeout:18000});
+    // Preserve exact, already-approved original portraits for manual visual QA,
+    // so a clothing cutout cannot silently replace a child's chosen fox.
+    const originals=await page.evaluate(()=>Object.fromEntries(['boy','girl'].map(id=>[
+      id,window.LARIA_PROFILE_AVATARS[id].split(',')[1]
+    ])));
+    for(const id of ['boy','girl']){
+      fs.writeFileSync(path.join(evidence,id+'-original-portrait.webp'),Buffer.from(originals[id],'base64'));
+    }
+
     // The existing Home 'Samlingen' entry must show actual owned world
     // treasures (no misleading gear preview or click-to-equip placeholder).
     await page.locator('.bc12-nav [data-camp="collection"]').click();
@@ -52,6 +61,7 @@ async function verify(browserType,label,viewport){
     await page.locator('#bc12-dialog[open] [data-wear="oppdagerhatt"]').click();
     assert.equal(await page.locator('#bc12-dialog[open] [data-wear="oppdagerhatt"]').getAttribute('aria-pressed'),'true');
     assert.equal(await page.locator('#bc12-dialog[open] .bc12-wardrobe-preview [data-gear="oppdagerhatt"]').count(),1);
+    await page.screenshot({path:path.join(evidence,label+'-garderobe-med-hatt.png'),animations:'disabled'});
     await page.locator('#bc12-dialog[open] [data-wear="oppdagerhatt"]').click();
     assert.equal(await page.locator('#bc12-dialog[open] .bc12-wardrobe-preview [data-gear="oppdagerhatt"]').count(),0);
     await page.screenshot({path:path.join(evidence,label+'-garderobe.png'),animations:'disabled'});
