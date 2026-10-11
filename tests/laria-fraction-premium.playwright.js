@@ -61,6 +61,11 @@ async function run(browser,engine,label,viewport,url){
   assert.equal(await page.locator('.fr7-tablet-equivalents').isVisible(),tablet,label+' iPad equivalent panel');
   assert.equal(await page.locator('.fr7-equivalents-toggle').isVisible(),!tablet,label+' mobile optional reveal');
   assert.equal(await page.locator('#fr7-mobile-values').isVisible(),false,label+' do not force decimals on first phone view');
+  if(viewport.width>=1000){
+    const usableWidth=await page.locator('.fr2-content').evaluate(el=>el.getBoundingClientRect().width);
+    assert.ok(usableWidth>=900,label+' premium iPad landscape workshop must use its available width: '+usableWidth);
+  }
+  await photo(page,label+'-01-home');
   if(tablet){
     assert.deepEqual(await page.locator('.fr7-tablet-equivalents .fr7-equivalent-tile strong').allTextContents(),['0,25','25 %']);
   }else{
@@ -70,7 +75,6 @@ async function run(browser,engine,label,viewport,url){
     assert.deepEqual(await page.locator('#fr7-mobile-values .fr7-equivalent-tile strong').allTextContents(),['0,25','25 %']);
     await photo(page,label+'-01-decimals-visible');
   }
-  await photo(page,label+'-01-home');
   await page.locator('.fr2-pie-builder [data-fr-action="piece"][data-piece="2"]').click();
   assert.deepEqual((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build)).filled,[0,2],'tap adds the touched sector, not the next one');
   assert.equal(await page.locator('.fr6-result .fr2-fraction').getAttribute('aria-label'),'2 av 4');
