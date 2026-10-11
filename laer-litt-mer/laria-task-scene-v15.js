@@ -37,6 +37,9 @@
     return prompt||((q?.subject==='english')?'Choose the right answer':'Velg riktig svar');
   }
   function sceneName(subject){
+    if(Number(currentGrade())<=2){
+      return subject==='english'?'Ordlandsbyen':subject==='math'?'Tallenga':subject==='geography'?'Nordlysleiren':'Bokskogen';
+    }
     return subject==='english'?'Ordlandsbyen':subject==='math'?'Tallriket':subject==='geography'?'Oppdagelsesriket':'Bokskogen';
   }
   function subjectName(subject){
