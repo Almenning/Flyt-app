@@ -192,6 +192,8 @@ function render(){
  host.dataset.journeyComplete=trip.complete?'true':'false';
  host.style.setProperty('--bc12-progress',String(Math.max(0,Math.min(100,trip.pct||0))));
  host.querySelector('[data-camp-next]').textContent=trip.title;
+ const nextType=host.querySelector('[data-camp-next-type]');
+ if(nextType)nextType.textContent=trip.active?'Pågående økt':'Neste sted';
  host.querySelector('[data-camp-next-copy]').textContent=(trip.complete?'Reisen er fullført. Du kan besøke stedene igjen.':journeyCopy(trip));
  if(journeyButton)journeyButton.setAttribute('aria-label',(trip.complete?'Besøk reisen igjen. ':'Fortsett reisen. Neste sted: ')+trip.title+'. '+(trip.complete?'Reisen er fullført, og stedene er fortsatt åpne.':journeyCopy(trip)));
  host.querySelectorAll('.bc12-nav button').forEach(b=>{if(b.dataset.camp===mode)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
