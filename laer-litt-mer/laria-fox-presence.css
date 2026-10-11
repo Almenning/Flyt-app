@@ -178,3 +178,57 @@
     transition:none!important;
   }
 }
+
+
+/* Both user-selected mascots have the same full-body world presence.
+   The boy is never reduced to the old circular profile photo. */
+#home-screen .bc12-fox.laria-fox-wardrobe-anchor[data-avatar="boy"]{
+  aspect-ratio:2/3!important;height:auto!important;max-height:none!important;
+  overflow:visible!important;border:0!important;border-radius:0!important;
+  box-shadow:none!important;background:none!important;
+}
+#home-screen .bc12-fox.laria-fox-wardrobe-anchor[data-avatar="boy"]>img{
+  width:100%!important;height:100%!important;object-fit:contain!important;
+}
+#home-screen .bc12-fox.laria-fox-wardrobe-anchor[data-avatar="boy"]>.laria-fox-wardrobe-placed{
+  transform:none!important;transform-origin:50% 80%;
+}
+.locked-journey-board .locked-journey-traveler.laria-fox-wardrobe-anchor[data-avatar="boy"]{
+  aspect-ratio:2/3!important;height:auto!important;border:0!important;
+  border-radius:0!important;box-shadow:none!important;background:none!important;
+  transform:translate(-50%,-100%)!important;width:clamp(63px,17%,110px)!important;
+  transition:left 1.05s cubic-bezier(.25,.66,.29,1),
+             top 1.05s cubic-bezier(.25,.66,.29,1),
+             width .9s ease-out!important;
+}
+.locked-journey-board .locked-journey-traveler.laria-fox-wardrobe-anchor[data-avatar="boy"]>img{
+  width:100%!important;height:100%!important;object-fit:contain!important;
+}
+.locked-journey-board .locked-journey-traveler[data-avatar="boy"][data-laria-fox-stop="1"]{width:clamp(54px,15%,94px)!important}
+.locked-journey-board .locked-journey-traveler[data-avatar="boy"][data-laria-fox-stop="2"]{width:clamp(48px,13%,81px)!important}
+.locked-journey-board .locked-journey-traveler[data-avatar="boy"][data-laria-fox-stop="3"]{width:clamp(42px,12%,72px)!important}
+.locked-journey-board .locked-journey-traveler[data-avatar="boy"][data-laria-fox-stop="4"]{width:clamp(36px,10%,61px)!important}
+#session-screen.task-scene .task-fox-companion.laria-fox-wardrobe-anchor[data-avatar="boy"]{
+  width:clamp(68px,17vw,112px)!important;
+  height:clamp(103px,26vw,168px)!important;aspect-ratio:2/3;
+  overflow:visible!important;background:none!important;border:0!important;border-radius:0!important;
+}
+#session-screen.task-scene .task-fox-companion.laria-fox-wardrobe-anchor[data-avatar="boy"]>img{
+  width:100%!important;height:100%!important;object-fit:contain!important;
+}
+#bc12-dialog.is-wardrobe .bc12-wardrobe-preview:has(.laria-fox-wardrobe-art[data-fox-art="boy-fullbody-v1"]){
+  width:min(48vw,185px)!important;max-height:285px;height:auto;aspect-ratio:2/3!important;
+}
+@media(max-width:600px){
+  #home-screen .bc12[data-release="basecamp-rc1"] .bc12-fox.laria-fox-wardrobe-anchor[data-avatar="boy"]{
+    top:calc(19.5% - 16px)!important;
+  }
+}
+@media(max-width:360px){
+  #home-screen .bc12[data-release="basecamp-rc1"] .bc12-fox.laria-fox-wardrobe-anchor[data-avatar="boy"]{
+    top:14%!important;width:clamp(60px,19%,70px)!important;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+ .locked-journey-board .locked-journey-traveler.laria-fox-wardrobe-anchor[data-avatar="boy"]{transition:none!important}
+}
