@@ -170,12 +170,12 @@ async function capture(browserType,label,viewport){
       if(!screen||!r||screen.classList.contains('atlas-perspective-on')||
          screen.dataset.mapPerspective!=='globe')return false;
       const dpr=c._dpr||window.devicePixelRatio||1;
-      return r.width>250&&r.height>250&&Math.abs(r.width-r.height)<3&&
+      return r.width>Math.min(250,innerHeight*.55)&&r.height>Math.min(250,innerHeight*.55)&&Math.abs(r.width-r.height)<3&&
         Number(getComputedStyle(c).opacity)>.95&&
         Math.abs(c.width-Math.round(r.width*dpr))<3&&
         Math.abs(c.height-Math.round(r.height*dpr))<3;
     },null,{timeout:16000});
-    const sceneName=viewport.width>viewport.height&&viewport.width>=900?'landscape':viewport.width>=700?'tablet':'mobile';
+    const sceneName=viewport.width>viewport.height?'landscape':viewport.width>=700?'tablet':'mobile';
     const backgroundImage=await page.evaluate(()=>getComputedStyle(document.getElementById('world-screen')).backgroundImage);
     assert.ok(backgroundImage.includes('globe-storyscape-v36-'+sceneName+'.webp'),label+' did not load the correct illustrated nature scene: '+backgroundImage);
     assert.ok(!backgroundImage.includes('basecamp-v11'),label+' incorrectly shows fantasy village behind globe');
@@ -245,6 +245,10 @@ async function capture(browserType,label,viewport){
       label+' zoom pair is not centered on globe: '+JSON.stringify({globeCenter,zoomCenter,layout}));
     assert.ok(layout.zoomIn.top>layout.modes.bottom+7,
       label+' zoom-in collides with mode selector');
+    if(viewport.width>viewport.height&&viewport.height<=649){
+      assert.ok(layout.globe.top>=layout.modes.bottom+6,
+        label+' small-landscape globe covers mode tabs: '+JSON.stringify(layout));
+    }
     // Country details are beside the globe on wide screens, not below it.
     // Physical rectangles, not just their Y coordinates, determine overlap.
     const apart=(a,b,pad=0)=>a.right+pad<=b.left||b.right+pad<=a.left||
@@ -315,7 +319,7 @@ async function capture(browserType,label,viewport){
     assert.equal(metrics.overflow,false,label+' horizontal overflow');
     const minGlobeWidth=viewport.width<600?viewport.width*.84:(viewport.width>viewport.height?viewport.height*.52:viewport.width*.68);
     assert.ok(metrics.canvas.w+0.75>=minGlobeWidth,label+' globe too narrow for locked composition: '+metrics.canvas.w+' < '+minGlobeWidth);
-    assert.ok(metrics.canvas.h>=300,label+' globe too short: '+metrics.canvas.h);
+    assert.ok(metrics.canvas.h>=Math.min(300,viewport.height*.58),label+' globe too short: '+metrics.canvas.h);
     // A round globe is non-negotiable: CSS and backing bitmap must use the
     // same proportions on iPhone, iPad and landscape desktop Safari.
     assert.ok(Math.abs(metrics.canvas.w-metrics.canvas.h)<=1,
@@ -361,7 +365,7 @@ async function capture(browserType,label,viewport){
       if(mode==='classic'){
         await page.waitForFunction(()=>{
           const c=document.getElementById('globe-canvas'),r=c?.getBoundingClientRect();
-          return r&&r.width>250&&Math.abs(r.width-r.height)<3&&Number(getComputedStyle(c).opacity)>.95;
+          return r&&r.width>Math.min(250,innerHeight*.55)&&Math.abs(r.width-r.height)<3&&Number(getComputedStyle(c).opacity)>.95;
         },null,{timeout:12000});
       }else{
         // First wait for actual country-geometry rendering without repeatedly
@@ -473,6 +477,18 @@ async function capture(browserType,label,viewport){
       }
       assert.equal(modeState.active,true,label+' '+mode+' mode did not activate: '+
         JSON.stringify({modeState,errors,navigation,crashes}));
+      if(viewport.width>viewport.height&&viewport.height<=649&&mode!=='classic'){
+        const rects=await page.evaluate(()=>{
+          const rect=q=>{const r=document.querySelector(q)?.getBoundingClientRect();
+            return r?{left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height}:null};
+          return {atlas:rect('#atlas-canvas'),card:rect('#globe-status'),actions:rect('#world-screen .globe-actions')};
+        });
+        assert.ok(rects.atlas&&rects.card,label+' missing landscape atlas/card');
+        assert.ok(rects.atlas.width>viewport.width*.45&&rects.atlas.height>viewport.height*.52,
+          label+' landscape atlas still too small: '+JSON.stringify(rects));
+        assert.ok(apart(rects.atlas,rects.card,6),
+          label+' landscape atlas overlaps country card: '+JSON.stringify(rects));
+      }
       await page.screenshot({path:path.join(out,label+'-'+mode+'.png'),fullPage:true});
     }
     fs.writeFileSync(path.join(out,label+'.json'),JSON.stringify(metrics,null,2));
@@ -498,6 +514,7 @@ async function capture(browserType,label,viewport){
     await assertProfileFoxSelection(chromium);
     await capture(chromium,'chromium-iphone',{width:390,height:844});
     await capture(webkit,'webkit-iphone',{width:390,height:844});
+    await capture(webkit,'webkit-iphone-landscape',{width:844,height:390});
     await capture(webkit,'webkit-ipad',{width:820,height:1180});
     await capture(webkit,'webkit-ipad-landscape',{width:1180,height:820});
     await capture(webkit,'webkit-desktop-landscape',{width:1525,height:864});
