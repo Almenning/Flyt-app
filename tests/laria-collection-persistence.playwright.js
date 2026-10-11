@@ -33,6 +33,8 @@ async function verify(browserType,label,viewport){
     await page.locator('.bc12-nav [data-camp="collection"]').click();
     await page.locator('#bc12-dialog[open] .bc12-memory-grid').waitFor({timeout:10000});
     assert.equal(await page.locator('#bc12-dialog[open] .bc12-memory').count(),4);
+    assert.equal(await page.locator('#bc12-dialog[open] .bc12-memory-symbol svg').count(),4,
+      'Every keepsake must have a distinct illustrated mark, not a platform-dependent emoji');
     assert.equal(await page.locator('#bc12-dialog[open] [data-collectible-id="tallkrystall"]').getAttribute('data-owned'),'true');
     assert.equal(await page.locator('#bc12-dialog[open] [data-collectible-id="bokskogens-fjaer"]').getAttribute('data-owned'),'false');
     assert.equal(await page.locator('#bc12-dialog[open] .bc12-memory-intro b').innerText(),'1 av 4 minner funnet');
