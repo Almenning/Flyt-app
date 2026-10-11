@@ -502,13 +502,22 @@ async function capture(browserType,label,viewport){
         const rects=await page.evaluate(()=>{
           const rect=q=>{const r=document.querySelector(q)?.getBoundingClientRect();
             return r?{left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height}:null};
-          return {atlas:rect('#atlas-canvas'),card:rect('#globe-status'),actions:rect('#world-screen .globe-actions')};
+          const legend=document.querySelector('#globe-legend');
+          return {atlas:rect('#atlas-canvas'),card:rect('#globe-status'),
+            actions:rect('#world-screen .globe-actions'),
+            legend:legend&&getComputedStyle(legend).display!=='none'?rect('#globe-legend'):null};
         });
         assert.ok(rects.atlas&&rects.card,label+' missing landscape atlas/card');
         assert.ok(rects.atlas.width>viewport.width*.45&&rects.atlas.height>viewport.height*.52,
           label+' landscape atlas still too small: '+JSON.stringify(rects));
         assert.ok(apart(rects.atlas,rects.card,6),
           label+' landscape atlas overlaps country card: '+JSON.stringify(rects));
+        if(mode==='mine'&&rects.legend){
+          assert.ok(apart(rects.atlas,rects.legend,4),
+            label+' Mine legend covers the map: '+JSON.stringify(rects));
+          assert.ok(apart(rects.card,rects.legend,3)&&apart(rects.actions,rects.legend,3),
+            label+' Mine legend covers country information or bottom actions: '+JSON.stringify(rects));
+        }
       }
       await page.screenshot({path:path.join(out,label+'-'+mode+'.png'),fullPage:true});
     }
