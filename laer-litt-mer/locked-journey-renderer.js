@@ -26,6 +26,25 @@
       return window.LARIA_PROFILE_AVATARS?.[which]||'./lia-fox-explorer-home.webp';
     }catch(_){return './lia-fox-explorer-home.webp'}
   }
+  // Reversible transparent cleanup patches. The four approved original
+  // paintings remain byte-for-byte intact and own all hotspots and geometry.
+  // Coordinates are source-image pixels on the unchanged 941x1672 canvas.
+  const FOX_FREE_OVERLAYS=Object.freeze({
+    norwegian:Object.freeze({asset:'bokskogen-fox-free-overlay.png',rect:[56,1012,297,280]}),
+    math:Object.freeze({asset:'tallenga-fox-free-overlay.png',rect:[98,1044,311,342]}),
+    english:Object.freeze({asset:'ordlandsbyen-fox-free-overlay.png',rect:[118,1082,279,317]}),
+    geography:Object.freeze({asset:'nordlysleiren-fox-free-overlay.png',rect:[124,1093,287,313]})
+  });
+  function foxFreeOverlayMarkup(subject){
+    const patch=FOX_FREE_OVERLAYS[subject];
+    if(!patch)return '';
+    const [x,y,w,h]=patch.rect;
+    const px=(n,total)=>(n/total*100).toFixed(6)+'%';
+    return '<img class="locked-journey-fox-free" src="./locked-journeys/fox-free/'+patch.asset+
+      '" alt="" aria-hidden="true" draggable="false" data-fox-free-subject="'+subject+
+      '" width="'+w+'" height="'+h+'" style="left:'+px(x,941)+';top:'+px(y,1672)+
+      ';width:'+px(w,941)+';height:'+px(h,1672)+'">';
+  }
   function liveProfileMarkup(progress){
     const which=selectedAvatar(),label=which==='girl'?'Din valgte revejente':'Din valgte revegutt';
     // The approved painting contains a sample portrait and "127". Cover both
@@ -134,6 +153,7 @@
     host.dataset.lockedIllustration='2026-10-10';
     host.innerHTML='<section class="locked-journey-board" aria-label="'+esc(def.subjectLabel+' – '+def.title+', interaktivt eventyrkart')+'">'+
       '<img class="locked-journey-image" src="./'+esc(def.asset)+'" alt="" draggable="false" width="941" height="1672">'+
+      foxFreeOverlayMarkup(subject)+
       liveProfileMarkup(s.progress)+
       (places.length?(()=>{
         // A completed journey still has its personal fox at the last reached stop.
