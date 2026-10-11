@@ -415,7 +415,8 @@ async function finishSession(page){
     await page.locator('.bc13-card[data-bc13-action="fraction"]').click();
     await page.locator('#fraction-lab-screen.active').waitFor();
     assert.equal(await page.locator('#fraction-lab-screen').getAttribute('data-explore-release'),'explore-rc1');
-    assert.equal(await page.locator('.fr2-home-card.fr2-card-explore').isVisible(),true);
+    assert.equal(await page.locator('.fr6-workshop').isVisible(),true,'Brøklaben must open directly to the cake');
+     assert.equal(await page.locator('.fr2-home-card').count(),0,'no forced menu before free play');
     await page.locator('#fraction-lab-back').click();
     await page.locator('#home-screen.active .bc12').waitFor();
 
@@ -854,8 +855,9 @@ async function finishSession(page){
     }else await page.locator('#open-fraction-lab').click();
     await page.locator('#fraction-lab-screen.active').waitFor();
     assert.equal(await page.locator('#fraction-lab-screen').getAttribute('data-explore-release'),'explore-rc1');
-    assert.equal((await page.locator('.fr2-sign h1').first().textContent()).trim(),'Brøklaben');
-    assert.equal(await page.locator('.fr2-home-card').count(),6);
+    assert.equal((await page.locator('.fr5-lab-intro h1').first().textContent()).trim(),'Brøklaben');
+    assert.equal(await page.locator('.fr2-home-card').count(),0,'child enters the cake, not a menu');
+     assert.equal(await page.locator('.fr6-result .fr2-fraction').getAttribute('aria-label'),'1 av 4');
     const fractionFit=await page.evaluate(()=>{
       const screen=document.querySelector('#fraction-lab-screen'),shell=document.querySelector('.fr2-shell');
       const sr=screen.getBoundingClientRect(),br=shell.getBoundingClientRect();
@@ -863,7 +865,9 @@ async function finishSession(page){
     });
     assert.ok(fractionFit.width<=fractionFit.viewport+1,'Brøklaben horizontal overflow: '+JSON.stringify(fractionFit));
     assert.ok(fractionFit.boardLeft>=fractionFit.screenLeft-1&&fractionFit.boardRight<=fractionFit.viewport+1,'Brøklaben exceeds phone: '+JSON.stringify(fractionFit));
-    await page.locator('.fr2-card-explore').click();
+    await page.locator('.fr6-nav [data-page="home"]').click();
+     assert.equal(await page.locator('.fr2-home-card').count(),5);
+     await page.locator('.fr2-card-explore').click();
     assert.equal(await page.locator('.fr2-view').count(),4);
     await page.locator('[data-fr-action="preset"][data-n="1"][data-d="2"]').click();
     assert.deepEqual(await page.evaluate(()=>[LARIA_FRACTION_PREMIUM.snapshot().explore.n,LARIA_FRACTION_PREMIUM.snapshot().explore.d]),[1,2]);
@@ -875,7 +879,7 @@ async function finishSession(page){
     await page.locator('[data-fr-action="reset"]').click();
     await page.locator('[data-fr-action="add"]').first().click();
     assert.equal((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot())).build.n,1);
-    await page.locator('.fr2-pie-builder path[data-fr-action="piece"][data-piece="2"]').click();
+    await page.locator('.fr2-pie-builder path[data-fr-action="piece"][data-piece="1"]').click();
     assert.equal((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot())).build.n,2,'each tapped piece should change the count by one');
     await page.locator('.fr2-nav-item[data-page="home"]').click();
     await page.locator('.fr2-card-equal').click();
@@ -900,7 +904,7 @@ async function finishSession(page){
     assert.ok(Object.keys((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.progress())).built).length>0);
     const fractionTouchHeights=await page.locator('.fr2-adjust-btn,.fr2-nav-item,.fr2-sort-arrow').evaluateAll(els=>els.map(e=>e.getBoundingClientRect().height));
     assert.ok(fractionTouchHeights.every(h=>h>=44),'small Brøklaben touch target: '+fractionTouchHeights.join(','));
-    await page.locator('.fr2-nav-item[data-page="home"]').click();
+    await page.locator('.fr2-nav-item[data-page="build"]').click();
     await page.locator('#fraction-lab-back').click();
     await page.locator('#subject-screen.active').waitFor();
     const labAfter=await page.evaluate(()=>({goal:dailyGoal().done,answers:subjectAnswered('math')}));
