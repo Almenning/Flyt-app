@@ -49,6 +49,6 @@ assert.match(journey,/locked-journey-traveler/);
 assert.match(journey,/selectedAvatarSource\(\)/);
 const index=file('index.html');
 assert.match(index,/profile-avatars\.js[^\n]+[\s\S]*laria-fox-identity\.js/);
-assert.match(index,/laria-fox-identity\\.css/);
-assert.match(index,/LARIA_FOX\\.syncDecorations\\(\\)/);
+assert.ok(index.includes('laria-fox-identity.css'));
+assert.ok(index.includes('LARIA_FOX.syncDecorations()'));
 console.log('Selected fox identity wiring passed');
