@@ -69,6 +69,7 @@
       slot.innerHTML=render(avatar,current);
       var artwork=slot.firstElementChild;
       if(!artwork)return;
+      if(root.getComputedStyle?.(parent)?.position==='static')parent.style.position='relative';
       parent.classList.add('laria-fox-wardrobe-anchor');
       img.classList.add('laria-fox-base-under-sprite');
       img.dataset.lariaWardrobeSignature=signature;
