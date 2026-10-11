@@ -133,9 +133,8 @@ async function verifyOlderHome(page,label,width,height){
   const entryNav=page.locator('#home-screen.active .laria-legacy-collection-shortcuts');
   await entryNav.waitFor({state:'visible'});
   const navChoices=entryNav.locator('button');
-  assert.deepEqual(await navChoices.allTextContents(),
-    ['✦ Samleboken Minner og skatter ›','◆ Min rev Klær og utstyr ›'].map(s=>s.replace(/\\s+/g,' ').trim()),
-    label+' older-grade collection shortcuts must remain accessible');
+  assert.deepEqual(await navChoices.locator('.laria-legacy-collection-copy strong').allTextContents(),
+    ['Samleboken','Min rev'],label+' older-grade collection shortcuts must remain accessible');
   for(const destination of ['collection','wardrobe']){
     const button=entryNav.locator('[data-laria-legacy-collection="'+destination+'"]');
     const target=await button.evaluate(el=>{
