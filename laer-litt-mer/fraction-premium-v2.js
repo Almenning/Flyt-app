@@ -78,22 +78,38 @@ function fractionSvg(n,d,kind='large',canTap=false,selected=null){
  +'<defs><radialGradient id="fr2-berry'+id+'" cx="28%" cy="23%"><stop stop-color="#F5A18C"/><stop offset=".48" stop-color="#DD6450"/><stop offset="1" stop-color="#A94138"/></radialGradient><radialGradient id="fr2-pastry'+id+'" cx="25%" cy="20%"><stop stop-color="#FFF7E7"/><stop offset=".67" stop-color="#F4DFC0"/><stop offset="1" stop-color="#D6B889"/></radialGradient><linearGradient id="fr2-crust'+id+'" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#F8D18B"/><stop offset="1" stop-color="#B47543"/></linearGradient></defs>'
  +'<ellipse cx="102" cy="182" rx="88" ry="13" fill="#6B4A32" opacity=".16"/><circle cx="100" cy="98" r="94" fill="url(#fr2-crust'+id+')" stroke="#915B36" stroke-width="4"/><circle cx="100" cy="100" r="86" fill="#FAE8C7"/>'+slices+sprinkles+'</svg>';
 }
-function barSvg(n,d){
- let cells='';for(let i=0;i<d;i++){const x=12+i*276/d;cells+='<rect x="'+(x+2).toFixed(2)+'" y="30" width="'+(276/d-4).toFixed(2)+'" height="75" rx="7" fill="'+(i<n?'#D86B55':'#FBECD6')+'" stroke="#BD946C" stroke-width="2"/>'}
- return '<svg viewBox="0 0 300 136" class="fr2-bar" role="img" aria-label="'+n+' av '+d+' deler av en stripe"><rect x="5" y="22" width="290" height="91" rx="19" fill="#E3B989" stroke="#AF7E4F" stroke-width="5"/>'+cells+'</svg>';
+function barSvg(n,d,selected=null){
+  const filled=Array.isArray(selected)?selected:Array.from({length:n},(_,i)=>i);
+  let cells='';
+  for(let i=0;i<d;i++){
+    const x=12+i*276/d,on=filled.includes(i);
+    cells+='<rect x="'+(x+2).toFixed(2)+'" y="30" width="'+(276/d-4).toFixed(2)+'" height="75" rx="7" fill="'+(on?'#D86B55':'#FBECD6')+'" stroke="#BD946C" stroke-width="2" data-fr-action="piece" data-piece="'+i+'" role="button" tabindex="0" aria-pressed="'+on+'" aria-label="'+(on?'Fjern':'Fyll')+' del '+(i+1)+' av '+d+'"/>';
+  }
+  return '<svg viewBox="0 0 300 136" class="fr2-bar fr6-interactive-view" role="group" aria-label="Stripe delt i '+d+' like deler"><rect x="5" y="22" width="290" height="91" rx="19" fill="#E3B989" stroke="#AF7E4F" stroke-width="5"/>'+cells+'</svg>';
 }
-function gridSvg(n,d){
- const cols=Math.ceil(Math.sqrt(d)),rows=Math.ceil(d/cols);let s='<div class="fr2-block-grid" style="--fr2-cols:'+cols+'">';
- for(let i=0;i<d;i++)s+='<span class="'+(i<n?'filled':'')+'"></span>';
- return s+'</div>';
+function gridSvg(n,d,selected=null){
+  const filled=Array.isArray(selected)?selected:Array.from({length:n},(_,i)=>i),cols=Math.ceil(Math.sqrt(d));
+  let out='<div class="fr2-block-grid fr6-interactive-view" style="--fr2-cols:'+cols+'" role="group" aria-label="Rutenett med '+d+' like deler">';
+  for(let i=0;i<d;i++){
+    const on=filled.includes(i);
+    out+='<span class="'+(on?'filled':'')+'" data-fr-action="piece" data-piece="'+i+'" role="button" tabindex="0" aria-pressed="'+on+'" aria-label="'+(on?'Fjern':'Fyll')+' del '+(i+1)+' av '+d+'"></span>';
+  }
+  return out+'</div>';
 }
 function glassSvg(n,d){
- const v=Math.max(0,Math.min(1,n/d));
- return '<svg viewBox="0 0 230 220" class="fr2-glass" role="img" aria-label="Målebeger fylt '+number(v*100)+' prosent"><defs><clipPath id="fr2-glass-clip"><path d="M50 28H175L160 203H66Z"/></clipPath><linearGradient id="fr2-liquid" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#EAC17D"/><stop offset="1" stop-color="#CA6E51"/></linearGradient></defs><path d="M50 28H175L160 203H66Z" fill="#F9F1E8BF" stroke="#709EB2" stroke-width="7" stroke-linejoin="round"/><rect x="50" y="'+(203-v*175)+'" width="125" height="'+(v*175)+'" fill="url(#fr2-liquid)" clip-path="url(#fr2-glass-clip)"/><path d="M175 49C220 49 218 105 173 113" stroke="#709EB2" stroke-width="12" fill="none" stroke-linecap="round"/>'+[0,.25,.5,.75,1].map(t=>'<path d="M148 '+(202-t*173)+'H164" stroke="#5B8090" stroke-width="4"/>').join('')+'</svg>';
+  const v=Math.max(0,Math.min(1,n/d));
+  return '<svg viewBox="0 0 230 220" class="fr2-glass fr6-interactive-view" role="slider" data-fr-action="glass-fill" tabindex="0" aria-valuemin="0" aria-valuemax="'+d+'" aria-valuenow="'+n+'" aria-label="Målebeger. '+n+' av '+d+' deler. Trykk for å endre nivået.">'
+    +'<defs><clipPath id="fr2-glass-clip"><path d="M50 28H175L160 203H66Z"/></clipPath><linearGradient id="fr2-liquid" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#EAC17D"/><stop offset="1" stop-color="#CA6E51"/></linearGradient></defs>'
+    +'<path d="M50 28H175L160 203H66Z" fill="#F9F1E8BF" stroke="#709EB2" stroke-width="7" stroke-linejoin="round"/>'
+    +'<rect x="50" y="'+(203-v*175)+'" width="125" height="'+(v*175)+'" fill="url(#fr2-liquid)" clip-path="url(#fr2-glass-clip)"/>'
+    +'<path d="M175 49C220 49 218 105 173 113" stroke="#709EB2" stroke-width="12" fill="none" stroke-linecap="round"/>'
+    +[0,.25,.5,.75,1].map(t=>'<path d="M148 '+(202-t*173)+'H164" stroke="#5B8090" stroke-width="4"/>').join('')
+    +'<rect x="50" y="28" width="125" height="175" fill="transparent" aria-hidden="true"/></svg>';
 }
-function presentation(n,d,kind='circle',interactive=false){
- return kind==='bar'?barSvg(n,d):kind==='grid'?gridSvg(n,d):kind==='glass'?glassSvg(n,d):fractionSvg(n,d,'large',interactive);
+function presentation(n,d,kind='circle',interactive=false,selected=null){
+  return kind==='bar'?barSvg(n,d,selected):kind==='grid'?gridSvg(n,d,selected):kind==='glass'?glassSvg(n,d):fractionSvg(n,d,'large',interactive,selected);
 }
+
 function mascot(message,small=false){return '<div class="fr2-guide'+(small?' compact':'')+'">'+fox()+'<div class="fr2-fox-speech">'+message+'<span class="fr2-guide-heart" aria-hidden="true">♥</span></div></div>'}
 function topBar(){const n=Object.entries(progress).filter(([k])=>['explored','built','equal','sorted','converted'].includes(k)).reduce((sum,[,v])=>sum+Object.keys(v||{}).length,0);return '<header class="fr2-top fr4-top">'+cta('back','‹','fr2-back','id="fraction-lab-back" aria-label="Tilbake"')+'<div class="fr2-brand">Læria<small>✦</small></div><div class="fr2-charm fr4-earned" aria-label="'+n+' oppdagelser i Brøklaben"><span aria-hidden="true">★</span><b>'+n+'</b></div><div class="fr4-top-token" aria-hidden="true">'+cardIllustration('explore')+'</div></header>'}
 function sign(text,sub){return '<div class="fr2-sign"><span class="fr2-sign-decoration" aria-hidden="true">'+cardIllustration('build')+'</span><h1>'+text+'</h1>'+(sub?'<p>'+sub+'</p>':'')+'</div>'}
