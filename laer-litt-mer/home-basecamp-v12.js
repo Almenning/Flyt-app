@@ -65,7 +65,7 @@ function journeyCopy(info){
 function home(view='home'){mode=view;setTab('home');render();}
 window.LARIA_MARK_BASECAMP_ORIGIN=()=>{fromCamp=true};
 window.LARIA_RETURN_TO_BASECAMP=()=>{
- if(!young()||!fromCamp)return false;
+ if(!fromCamp)return false;
  fromCamp=false;home(mode);return true;
 };
 function travel(){const info=next();fromCamp=true;if(info.active){startSession();return}if(info.subject==='geography'){renderGeographyContinue();showScreen('geography')}else openSubject(info.subject);}
@@ -262,7 +262,10 @@ function render(){
  let host=screen.querySelector('.bc12');
  if(!host){screen.insertAdjacentHTML('afterbegin',markup());host=screen.querySelector('.bc12');}
  bindCampControls(host);
- host.hidden=!young();if(!young())return;
+ // Every grade uses the same physical Basecamp, journey and collection entry points.
+ host.hidden=false;
+ host.dataset.gradeBand=typeof gradeBand==='function'?gradeBand():(currentGrade()<=2?'young':currentGrade()<=4?'middle':currentGrade()<=7?'older':'teen');
+ host.dataset.grade=String(currentGrade());
  host.dataset.mode=mode;
  const profile=(typeof state!=='undefined'&&state?.profile)?state.profile:{};
  const playerName=typeof profile.name==='string'?profile.name.trim():'';
@@ -270,6 +273,10 @@ function render(){
  const fox=host.querySelector('.bc12-fox');if(fox){fox.dataset.avatar=playerAvatar;fox.setAttribute('aria-label',playerAvatar==='girl'?'Din valgte revejente':'Din valgte revegutt');const img=fox.querySelector('img');if(img){img.src=selectedFoxSource(playerAvatar);img.alt='Læria-reven venter på stien'}}
  host.querySelector('h1').textContent=mode==='explore'?'Hva vil du leke med?':(playerName?'Hei, '+playerName+'!':'Hei, eventyrer!');
  host.querySelector('[data-camp-intro]').textContent=mode==='explore'?'Velg et sted. Bli så lenge du vil.':'Hva har du lyst til å gjøre i dag?';
+ const questCopy=host.querySelector('.bc12-quest > span:nth-child(2)');
+ if(questCopy)questCopy.innerHTML=currentGrade()>=8?
+   'Dagens oppdrag<small>Helt frivillig</small>':
+   'Et brev fra reven<small>Vil du bli med?</small>';
  const foxCall=host.querySelector('[data-camp-fox-call]');if(foxCall)foxCall.textContent='Min rev · Garderoben ›';
  const trip=next(),journeyButton=host.querySelector('.bc12-journey');
  host.dataset.journeySubject=trip.subject||'norwegian';
@@ -293,7 +300,7 @@ function init(){
   const back=document.getElementById(id);if(!back||back.dataset.bc12ReturnBound==='true')return;
   back.dataset.bc12ReturnBound='true';
   back.addEventListener('click',e=>{
-   if(!young()||!fromCamp)return;
+   if(!fromCamp)return;
    e.preventDefault();e.stopImmediatePropagation();fromCamp=false;home(mode);
   },true);
  });
