@@ -53,7 +53,7 @@
   var SELECTORS=[
     '.bc12-fox > img','.locked-journey-profile > img',
     '.locked-journey-traveler > img','.task-fox-companion > img',
-    '.fr2-guide > img.fr2-fox','.mp-avatar > img',
+    '.fr2-guide > img.fr2-fox','.fr4-scene-fox > img.fr2-fox','.mp-avatar > img',
     '.mp-mascot > img','.mp-art-practice img',
     '.mp-pick-easy-intro > img','.mp-pick-mentor > img',
     '.word-hunt-top > img.word-hunt-fox',
