@@ -86,6 +86,31 @@ async function run(browser,engine,label,viewport,url){
   await photo(page,label+'-03-build');
   assert.ok((await page.locator('.fr2-spare .fr2-loose-piece').count())>=4,'loose tiles must look like real pastry pieces');
   assert.equal(await page.locator('.fr4-build-woodhead').innerText(),'Delene dine');
+
+  assert.equal(await page.locator('.fr5-live-result .fr2-fraction').getAttribute('aria-label'),'3 av 4','the live numeric fraction must be beside the cake, not below the controls');
+  assert.equal(await page.locator('.fr5-fox-mentor img.fr2-fox').count(),1,'the chosen fox must live on the fraction workbench');
+  assert.equal(await page.locator('.fr5-fox-mentor').getAttribute('role'),'button','tapping the fox should provide optional help');
+  const firstFold=await page.evaluate(()=>{
+    const rect=selector=>document.querySelector(selector)?.getBoundingClientRect();
+    const cake=rect('.fr5-build-target .fr2-pie-builder');
+    const value=rect('.fr5-live-result .fr2-fraction');
+    const controls=rect('.fr5-build .fr5-controls');
+    const avatar=document.querySelector('.fr5-fox-mentor .fr2-fox');
+    const expected=window.LARIA_FOX.source(window.LARIA_FOX.choice());
+    return {
+      cakeVisible:!!cake&&cake.width>100&&cake.top>=0&&cake.bottom<=innerHeight,
+      fractionVisible:!!value&&value.height>70&&value.top>=0&&value.bottom<=innerHeight,
+      controlsVisible:!!controls&&controls.top>=0&&controls.bottom<=innerHeight,
+      fractionAboveControls:!!value&&!!controls&&value.bottom<controls.top,
+      correctFox:!!avatar&&avatar.getAttribute('src')===expected,
+      noOverflow:document.documentElement.scrollWidth<=innerWidth+3,
+      controlsHeight:controls?.height
+    };
+  });
+  assert.ok(firstFold.cakeVisible&&firstFold.fractionVisible&&firstFold.controlsVisible&&firstFold.fractionAboveControls&&firstFold.correctFox&&firstFold.noOverflow,label+' first viewport must show cake + fraction + both controls and selected fox: '+JSON.stringify(firstFold));
+  assert.ok(firstFold.controlsHeight>=58,'controls must remain usable on small phones');
+  await page.locator('.fr5-fox-mentor').click();
+  assert.equal(await page.locator('.fr5-live-result .fr2-fraction').getAttribute('aria-label'),'3 av 4','fox-help must never alter the fraction state');
   await page.locator('[data-fr-action="reset"]').click();
   assert.equal((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot())).build.n,0);
   await page.locator('.fr2-spare').first().dragTo(page.locator('.fr2-build-target'));
@@ -101,6 +126,7 @@ async function run(browser,engine,label,viewport,url){
   await page.locator('[data-fr-action="adjust"][data-field="d"][data-step="1"]').click();
   const build=await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build);
   assert.equal(build.d,5);assert.equal(build.n,2);assert.deepEqual(build.filled,[0,2]);
+  assert.equal(await page.locator('.fr5-live-result .fr2-fraction').getAttribute('aria-label'),'2 av 5','numeric fraction must react immediately to changes');
   await page.locator('[data-fr-action="next-build"]').click();
   assert.equal((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot())).build.n,0);
 
@@ -194,7 +220,7 @@ async function run(browser,engine,label,viewport,url){
  }finally{await ctx.close()}
 }
 (async()=>{const {srv,url}=await server();try{
- for(const [name,type,devices] of [['chromium',chromium,[['iphone',{width:390,height:844}],['ipad',{width:820,height:1180}]]],['webkit',webkit,[['iphone-safari',{width:390,height:844}],['ipad-safari',{width:820,height:1180}]]]]){
+ for(const [name,type,devices] of [['chromium',chromium,[['iphone',{width:390,height:844}],['iphone-small',{width:375,height:667}],['ipad',{width:820,height:1180}]]],['webkit',webkit,[['iphone-safari',{width:390,height:844}],['iphone-small-safari',{width:375,height:667}],['ipad-safari',{width:820,height:1180}],['ipad-landscape-safari',{width:1180,height:820}]]]]){
   const browser=await type.launch({headless:true});try{for(const [label,viewport] of devices)await run(browser,name,label,viewport,url)}finally{await browser.close()}
  }
  console.log('PASS all Læria Brøklaben premium browser tests');

@@ -87,7 +87,7 @@
   var SELECTORS=[
     '.bc12-fox > img','.locked-journey-profile > img',
     '.locked-journey-traveler > img','.task-fox-companion > img',
-    '.fr2-guide > img.fr2-fox','.mp-avatar > img',
+    '.fr2-guide > img.fr2-fox','.fr4-scene-fox > img.fr2-fox','.mp-avatar > img',
     '.mp-mascot > img','.mp-art-practice img',
     '.mp-pick-easy-intro > img','.mp-pick-mentor > img',
     '.word-hunt-top > img.word-hunt-fox',
@@ -103,7 +103,7 @@
       if(img.dataset.lariaWardrobeSignature===signature&&parent.querySelector(':scope > .laria-fox-wardrobe-art'))return;
       parent.querySelector(':scope > .laria-fox-wardrobe-art')?.remove();
       var slot=root.document.createElement('div');
-      const inWorld=!!img.closest('.bc12-fox,.locked-journey-traveler,.task-fox-companion,.fr2-guide,.mp-mascot,.mp-art-practice,.word-hunt-top,.premium-globe-header');
+      const inWorld=!!img.closest('.bc12-fox,.locked-journey-traveler,.task-fox-companion,.fr2-guide,.fr4-scene-fox,.mp-mascot,.mp-art-practice,.word-hunt-top,.premium-globe-header');
       slot.innerHTML=render(avatar,current,inWorld?'world':'portrait');
       var artwork=slot.firstElementChild;
       if(!artwork)return;
