@@ -18,6 +18,16 @@ for(const name of ['home-basecamp-v12.js','journey-world-premium.js','laria-task
  assert.match(source,/LARIA_FOX\.source/,'missing shared identity in '+name);
  assert.doesNotMatch(source,/return '\.\/lia-fox-explorer\.webp';/,'static companion in '+name);
 }
+for(const name of ['fraction-premium-v2.js','multiplication-premium-v2.js',
+ 'multiplication-pick-play-v1.js','word-hunt.js']){
+ const src=file(name);
+ assert.match(src,/LARIA_FOX\.source/,'nonpersonal fox in '+name);
+ assert.doesNotMatch(src,/src="\.\/lia-fox-explorer-home\.webp"/,'generic picture survives in '+name);
+}
+const globe=file('globe-v25-renderer.js');
+assert.match(globe,/guide\.src=selectedProfileFox\(\)/);
+const home=file('home-basecamp-v12.js');
+assert.doesNotMatch(home,/src="\.\/lia-fox-explorer-home\.webp"/);
 const journey=file('locked-journey-renderer.js');
 assert.match(journey,/locked-journey-traveler/);
 assert.match(journey,/selectedAvatarSource\(\)/);
