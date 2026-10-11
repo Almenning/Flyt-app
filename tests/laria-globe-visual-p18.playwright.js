@@ -355,41 +355,42 @@ async function capture(browserType,label,viewport){
           return r&&r.width>250&&Math.abs(r.width-r.height)<3&&Number(getComputedStyle(c).opacity)>.95;
         },null,{timeout:12000});
       }else{
-        // A blue blank frame is NOT a world map. Check actual canvas pixels,
-        // but match the expected palette for each atlas mode:
-        //   explore: vivid countries plus pale golden/storybook highlights
-        //   mine: unseen countries are intentionally painted muted beige.
-        // Requiring strongly red/orange pixels for both modes rejects rendered
-        // land in Safari even with 195 real polygons and a ready country canvas.
-        // One canvas readback per poll avoids hundreds of synchronous WebKit
-        // getImageData calls while Safari is finishing a country repaint.
+        // First wait for actual country-geometry rendering without repeatedly
+        // forcing Safari canvas readbacks on each polling frame.
+        // The previous waitForFunction loop timed out even while diagnostic
+        // screenshots proved 195 polygons and actual warm/golden land colours.
         try{
-          await page.waitForFunction(requestedMode=>{
-          const c=document.getElementById('atlas-canvas');
-          if(!c||c.dataset.mapReady!=='true'||c.dataset.renderSource!=='country-geometry'||
-             c.width<150||c.height<150)return false;
-          const ctx=c.getContext('2d',{willReadFrequently:true});
-          if(!ctx)return false;
-          const pixels=ctx.getImageData(0,0,c.width,c.height).data;
-          let opaque=0,land=0;
-          for(let y=9;y<c.height;y+=Math.max(11,Math.floor(c.height/22)))
-           for(let x=9;x<c.width;x+=Math.max(11,Math.floor(c.width/22))){
-            const i=(y*c.width+x)*4;
-            const r=pixels[i],g=pixels[i+1],b=pixels[i+2],a=pixels[i+3];
-            if(a<=200)continue;
-            opaque++;
-            if(requestedMode==='mine'){
-              // Includes unseen beige, learned green and mastered gold,
-              // while excluding the blue/cyan ocean gradient.
-              if((r>130&&r>b*1.045&&r>g*.92)||
-                 (g>125&&g>b*1.06&&g>r*1.05))land++;
-            }else if(r>130&&r>b*1.04&&r>g*.91){
-              // Pale lit land (#fff5d8) is real terrain, not cyan sea.
-              land++;
+          await page.locator('#atlas-canvas[data-map-ready="true"][data-render-source="country-geometry"]')
+            .waitFor({state:'attached',timeout:18000});
+          // Inspect an independent, fixed 8x8 spatial grid ONCE, after paint.
+          // Blue/cyan-only frames cannot pass; pale highlighted real land can.
+          const atlasProbe=await page.evaluate(requestedMode=>{
+            const c=document.getElementById('atlas-canvas');
+            const ctx=c?.getContext('2d',{willReadFrequently:true});
+            if(!c||!ctx)return {error:'missing rendered atlas context'};
+            const pixels=ctx.getImageData(0,0,c.width,c.height).data;
+            let opaque=0,land=0,water=0;
+            const sample=[];
+            for(let iy=0;iy<8;iy++)for(let ix=0;ix<8;ix++){
+              const x=Math.floor(c.width*(ix+.5)/8);
+              const y=Math.floor(c.height*(iy+.5)/8);
+              const i=(y*c.width+x)*4;
+              const [r,g,b,a]=pixels.slice(i,i+4);
+              if(a<=200)continue;
+              opaque++;
+              // Every scheme intentionally paints the ocean cyan/blue, but
+              // country polygons have cream, gold, ochre or green pigmentation.
+              const colouredLand=requestedMode==='mine'
+                ?(r>130&&r>b*1.045&&r>g*.92)||(g>125&&g>b*1.06&&g>r*1.05)
+                :(r>130&&r>b*1.04&&r>g*.91);
+              if(colouredLand)land++;else water++;
+              if(sample.length<8)sample.push([r,g,b,a]);
             }
-           }
-          return opaque>25&&land>3;
-          },mode,{timeout:18000,polling:250});
+            return {opaque,land,water,source:c.dataset.renderSource,
+              ready:c.dataset.mapReady,size:[c.width,c.height],sample};
+          },mode);
+          assert.ok(atlasProbe.opaque>=20&&atlasProbe.land>=4,
+            label+' '+mode+' atlas must contain visible painted land, not blue ocean alone: '+JSON.stringify(atlasProbe));
         }catch(error){
           // Preserve a factual diagnostic, never turn an unpainted map into a pass.
           const diagnostic=await page.evaluate(requestedMode=>{
