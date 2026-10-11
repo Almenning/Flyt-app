@@ -31,17 +31,19 @@ async function run(browser,engine,label,viewport,url){
     const rect=selector=>document.querySelector(selector)?.getBoundingClientRect();
     const cake=rect('.fr5-build-target .fr2-pie-builder'),value=rect('.fr6-result .fr2-fraction'),controls=rect('.fr6-workshop .fr6-controls');
     const fox=document.querySelector('.fr5-fox-mentor .fr2-fox');
+    const equivalents=rect('.fr7-tablet-equivalents');
     return {
       cakeVisible:!!cake&&cake.width>100&&cake.top>=0&&cake.bottom<=innerHeight,
       fractionVisible:!!value&&value.height>65&&value.top>=0&&value.bottom<=innerHeight,
       controlsVisible:!!controls&&controls.top>=0&&controls.bottom<=innerHeight,
       fractionAboveControls:!!value&&!!controls&&value.bottom<controls.top,
       correctFox:!!fox&&fox.getAttribute('src')===window.LARIA_FOX.worldSource(window.LARIA_FOX.choice())&&fox.complete&&fox.naturalWidth>0,
+      equivalentsBesideCake:innerWidth<700||(!!equivalents&&equivalents.top>=0&&equivalents.bottom<=innerHeight&&equivalents.left>cake.right-3),
       controlsHeight:controls?.height,
       noOverflow:document.documentElement.scrollWidth<=innerWidth+3
     };
   });
-  assert.ok(firstFold.cakeVisible&&firstFold.fractionVisible&&firstFold.controlsVisible&&firstFold.fractionAboveControls&&firstFold.correctFox&&firstFold.noOverflow,
+  assert.ok(firstFold.cakeVisible&&firstFold.fractionVisible&&firstFold.controlsVisible&&firstFold.fractionAboveControls&&firstFold.correctFox&&firstFold.equivalentsBesideCake&&firstFold.noOverflow,
     label+' first viewport must show cake, 1/4, both controls and personal fox: '+JSON.stringify(firstFold));
   assert.ok(firstFold.controlsHeight>=58,'real controls must remain touchable');
   const tablet=viewport.width>=700;
