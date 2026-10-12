@@ -158,6 +158,54 @@ async function run(engine,label,viewport){
   await context.close();
  }finally{await browser.close()}
 }
+/* Landscape iPhone is not a narrow tablet. It needs a map-first left column,
+   a separate country panel, reliable zoom and an unobstructed classic sphere. */
+async function runLandscapePhone(){
+ const label='safari-iphone-landscape',viewport={width:844,height:390};
+ const browser=await webkit.launch({headless:true});
+ try{
+  const context=await browser.newContext({viewport,isMobile:true,hasTouch:true,deviceScaleFactor:1,serviceWorkers:'block'});
+  const page=await context.newPage(),errors=[];
+  page.on('pageerror',e=>errors.push(String(e)));
+  await page.addInitScript(state=>localStorage.setItem('laerlittmer-v2',JSON.stringify(state)),seed);
+  await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
+  await page.route('https://api.worldbank.org/**',r=>r.abort());
+  await page.goto(globalThis.testUrl+'?app=laria&atlas='+label,{waitUntil:'domcontentloaded'});
+  await page.waitForFunction(()=>typeof openGlobe==='function'&&window.LARIA_ATLAS_PERSPECTIVE);
+  await page.evaluate(()=>openGlobe());
+  await page.waitForFunction(()=>window.LARIA_ATLAS_PERSPECTIVE?.snapshot().active===true&&document.querySelector('#atlas-canvas')?.dataset.mapReady==='true');
+  const map=await page.locator('#atlas-canvas').boundingBox();
+  const card=await page.locator('#globe-status').boundingBox();
+  const mode=await page.locator('#globe-mode').boundingBox();
+  assert.ok(map&&card&&mode,label+' interactive regions missing');
+  assert.ok(map.width>=viewport.width*.46&&map.height>=190,label+' atlas did not fill the left landscape learning column: '+JSON.stringify(map));
+  assert.ok(map.y>=mode.y+mode.height+3,label+' atlas overlaps the mode selector');
+  assert.ok(map.x+map.width<=card.x-4,label+' map and country panel collide: '+JSON.stringify({map,card}));
+  assert.ok(card.x+card.width<=viewport.width+2,label+' country panel clips outside landscape screen');
+  await page.evaluate(()=>window.LARIA_ATLAS_PERSPECTIVE.region('norden'));
+  const norway=await page.evaluate(()=>window.LARIA_ATLAS_PERSPECTIVE.project(10.3,61.2));
+  assert.ok(norway.x>0&&norway.x<map.width&&norway.y>65&&norway.y<map.height,label+' Norway cannot be tapped in landscape');
+  await page.locator('#atlas-canvas').click({position:norway});
+  assert.equal(await page.evaluate(()=>globeSelected),'no',label+' landscape tap must select true country polygon');
+  const targets=await page.locator('#globe-zoom-in, #globe-zoom-out').evaluateAll(all=>all.map(el=>({width:el.getBoundingClientRect().width,height:el.getBoundingClientRect().height})));
+  assert.ok(targets.every(b=>b.width>=44&&b.height>=44),label+' landscape map zoom targets are too small');
+  for(let n=0;n<4;n++)await page.locator('#globe-zoom-in').click();
+  assert.ok((await page.evaluate(()=>window.LARIA_ATLAS_PERSPECTIVE.snapshot().zoom))>11,label+' landscape atlas must support deep zoom');
+  await page.screenshot({path:path.join(out,label+'-deep-zoom.png'),fullPage:true});
+  await page.locator('[data-globe-mode="mine"]').click();
+  await page.waitForFunction(()=>window.LARIA_ATLAS_PERSPECTIVE.snapshot().mode==='mine');
+  const legend=await page.locator('#globe-legend').boundingBox();
+  assert.ok(legend&&legend.x>=map.x+map.width-2,label+' progress legend must stay beside the map in phone landscape');
+  await page.screenshot({path:path.join(out,label+'-mine.png'),fullPage:true});
+  await page.locator('[data-globe-mode="classic"]').click();
+  await page.waitForFunction(()=>document.getElementById('world-screen').dataset.mapPerspective==='globe');
+  const sphere=await page.locator('#globe-canvas').boundingBox();
+  assert.ok(sphere&&sphere.width>=220&&Math.abs(sphere.width-sphere.height)<3,label+' classic globe too small or stretched in phone landscape: '+JSON.stringify(sphere));
+  await page.screenshot({path:path.join(out,label+'-sphere.png'),fullPage:true});
+  assert.deepEqual(errors,[],label+' runtime exceptions: '+errors.join(', '));
+  await context.close();
+ }finally{await browser.close()}
+}
 (async()=>{
  const {server,url}=await startServer();globalThis.testUrl=url;
  try{
@@ -165,6 +213,7 @@ async function run(engine,label,viewport){
   await run(webkit,'safari-iphone',{width:390,height:844});
   await run(webkit,'safari-ipad',{width:820,height:1180});
   await run(webkit,'safari-ipad-landscape',{width:1180,height:820});
+  await runLandscapePhone();
   console.log('ok - actual atlas panorama, accurate country hit, zoom, pan and classic globe');
  }finally{server.close()}
 })().catch(e=>{console.error(e);process.exitCode=1});
