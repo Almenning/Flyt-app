@@ -3710,7 +3710,9 @@ if(swipeBackEdge){
   swipeBackEdge.addEventListener('pointerdown',e=>{
     if(e.pointerType==='mouse'&&e.button!==0)return;
     swipeBackGesture={id:e.pointerId,startX:e.clientX,startY:e.clientY,lastX:e.clientX,lastY:e.clientY,active:false};
-    try{swipeBackEdge.setPointerCapture(e.pointerId)}catch(_){}
+    // Avoid setPointerCapture here. WebKit occasionally drops the second
+    // swipe's pointer stream after an edge target is hidden and shown again.
+    // Document-capture listeners below track movement outside the 14px edge.
   });
   // WebKit can stop delivering pointermove/up to a narrow fixed edge after
   // the finger leaves it, even if setPointerCapture was requested. Track the
