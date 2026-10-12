@@ -18,7 +18,7 @@ const CLOTHING_GLYPHS=Object.freeze({
  'stjerneryggsekk':'<svg viewBox="0 0 64 64" aria-hidden="true"><rect x="12" y="17" width="40" height="42" rx="10" fill="#906643" stroke="#63452e" stroke-width="3"/><path d="M23 18v-6q0-8 9-8t9 8v6" fill="none" stroke="#755337" stroke-width="5"/><path d="M18 34q14 7 28 0v14H18Z" fill="#bb8b57" stroke="#7d5837" stroke-width="2"/><path d="m32 29 3 6 7 1-5 5 1 7-6-4-6 4 1-7-5-5 7-1Z" fill="#fbe1a0" stroke="#a8783a" stroke-width="1"/></svg>',
  'nordlyskappe':'<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M18 11Q30 18 44 11Q53 29 58 56Q34 48 10 57Q12 32 18 11Z" fill="#458a99" stroke="#36687f" stroke-width="3"/><path d="M25 20Q33 28 43 20M19 32q12 11 32 0" fill="none" stroke="#9fe2c4" stroke-width="4"/><circle cx="32" cy="14" r="5" fill="#f2d492" stroke="#976f47" stroke-width="2"/></svg>'
 });
-let mode='home',fromCamp=false,returnFocus=null;
+let mode='home',fromCamp=false,returnFocus=null,returnView='home';
 const QUESTS=[
  {action:'words',eyebrow:'Et lite eventyr, hvis du vil',title:'Ord har gjemt seg i Bokskogen',copy:'Reven har sett ord mellom bokstavene. Hvor mange klarer du å finne?',button:'Start Ordjakt →'},
  {action:'globe',eyebrow:'Et lite eventyr, hvis du vil',title:'Finn et nytt sted på Kloden',copy:'Reven lurer på om du kan oppdage et land du ikke har besøkt før.',button:'Åpne Kloden →'},
@@ -63,14 +63,27 @@ function journeyCopy(info){
  return 'Bokskogen har et nytt oppdrag til deg.';
 }
 function home(view='home'){mode=view;setTab('home');render();}
-window.LARIA_MARK_BASECAMP_ORIGIN=()=>{fromCamp=true};
+function basecampView(view){
+ return ['home','travel','explore'].includes(view)?view:'home';
+}
+// The source panel belongs to navigation, not to the destination screen.
+// It is transient UI context and is never written to the child's learning state.
+window.LARIA_MARK_BASECAMP_ORIGIN=view=>{
+ fromCamp=true;
+ returnView=basecampView(view||window.LARIA_ACTIVE_BASECAMP_PANEL?.()||mode);
+};
+window.LARIA_BASECAMP_RETURN_VIEW=()=>fromCamp?returnView:null;
 window.LARIA_RETURN_TO_BASECAMP=()=>{
  if(!fromCamp)return false;
- fromCamp=false;home(mode);return true;
+ const destination=returnView;
+ fromCamp=false;returnView='home';
+ home(destination==='explore'?'explore':'home');
+ window.LARIA_ACTIVATE_BASECAMP_PANEL?.(destination);
+ return true;
 };
-function travel(){const info=next();fromCamp=true;if(info.active){startSession();return}if(info.subject==='geography'){renderGeographyContinue();showScreen('geography')}else openSubject(info.subject);}
+function travel(){const info=next();window.LARIA_MARK_BASECAMP_ORIGIN();if(info.active){startSession();return}if(info.subject==='geography'){renderGeographyContinue();showScreen('geography')}else openSubject(info.subject);}
 function activity(name){
- fromCamp=true;
+ window.LARIA_MARK_BASECAMP_ORIGIN();
  if(name==='globe'){if(typeof window.openGlobe==='function')window.openGlobe('classic');else{showScreen('world');requestAnimationFrame(()=>setGlobeMode('classic'));}}
  else if(name==='fraction')window.openFractionLab();
  else if(name==='multiply')window.openMultiplicationLab();
@@ -198,7 +211,7 @@ function homeSubjects(){return '<div class="bc14-subjects" role="group" aria-lab
  subjectHomeCard('geography','Geografi','Nordlysleiren')+'</div>';}
 function openHomeSubject(subject){
  if(!['norwegian','math','english','geography'].includes(subject))return;
- fromCamp=true;
+ window.LARIA_MARK_BASECAMP_ORIGIN();
  if(subject==='geography'){
   if(typeof renderGeographyContinue==='function')renderGeographyContinue();
   showScreen('geography');
@@ -301,7 +314,7 @@ function init(){
   back.dataset.bc12ReturnBound='true';
   back.addEventListener('click',e=>{
    if(!fromCamp)return;
-   e.preventDefault();e.stopImmediatePropagation();fromCamp=false;home(mode);
+   e.preventDefault();e.stopImmediatePropagation();window.LARIA_RETURN_TO_BASECAMP();
   },true);
  });
  const prior=window.renderAll;window.renderAll=function(){const result=prior.apply(this,arguments);render();return result};render();
