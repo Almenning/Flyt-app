@@ -171,7 +171,7 @@
         return '<div class="locked-journey-traveler" data-avatar="'+selectedAvatar()+'" data-laria-fox-stop="'+here.index+'" style="--fox-x:'+point.x+'%;--fox-y:'+point.y+'%" aria-label="Din rev er med på reisen"><img src="'+esc(selectedAvatarSource())+'" alt=""><span class="locked-fox-label">Min rev</span></div>';
       })():'')+
       '<div class="locked-journey-hits">'+places.map(p=>placeButton(subject,p,model,s.firstOpen)).join('')+'</div>'+
-      '<button type="button" class="locked-journey-back" aria-label="Tilbake til Hjem"></button>'+
+      '<button type="button" class="locked-journey-back" aria-label="Tilbake til '+(window.LARIA_BASECAMP_RETURN_VIEW?.()==='travel'?'Reisen':window.LARIA_BASECAMP_RETURN_VIEW?.()==='explore'?'Utforsk':'Hjem')+'"></button>'+
       '<button type="button" class="locked-journey-options" aria-label="Velg klassetrinn"></button>'+
       progressDots(s.progress)+
       '<span class="locked-journey-progress-text">'+s.progress.done+' / '+s.progress.total+' oppdrag</span>'+
