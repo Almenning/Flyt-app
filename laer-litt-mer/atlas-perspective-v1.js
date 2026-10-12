@@ -279,7 +279,10 @@ function layout(){
  // the card's vertical top must not artificially shorten the atlas canvas.
  const bottom=wideSidePanel?vh-(tabletLandscape?14:8):
    Math.min(vh-(portrait?104:78),(cardRect?.top||vh-164)-(portrait?12:8));
- const h=Math.max(phoneLandscape?165:185,bottom-top);
+ // Small portrait phones can reclaim header space without squeezing the map
+ // below a usable touch surface. The card remains outside the map column.
+ const compactPhone=portrait&&vw<=360&&vh<=650;
+ const h=Math.max(phoneLandscape?165:compactPhone?200:185,bottom-top);
  // In iPad landscape the map owns the wide learning surface.  Its companion
  // country panel is deliberately narrow and lives to the right, so the actual
  // country geometry can stay large enough for direct exploration.
