@@ -1493,3 +1493,150 @@ html:has(#world-screen.active){
 @media(orientation:portrait) and (min-width:700px){
  #world-screen.active.globe-v30{background-image:url('./globe-storyscape-v36-tablet.webp?v=36b')!important}
 }
+
+
+/* Læria 11 October: learning surface first. Landscape iPad puts the spherical
+   globe beside the country controls, never stretching the real geometry.
+   Phone portrait deliberately retains the established layout. */
+@media (orientation:portrait) and (min-width:700px){
+  #world-screen.active.globe-v30:not(.atlas-perspective-on){
+    --g24-globe:min(80vw,59dvh,820px);
+    --g24-globe-top:47dvh;
+  }
+}
+@media (orientation:landscape) and (min-width:900px) and (min-height:650px){
+  #world-screen.active.globe-v30:not(.atlas-perspective-on){
+    --g24-globe:min(63dvh,53vw,640px);
+    --g24-globe-top:56dvh;
+  }
+  #world-screen.active.globe-v30:not(.atlas-perspective-on) .globe-wrap{
+    left:30.5vw!important;
+  }
+  #world-screen.active.globe-v30:not(.atlas-perspective-on) .globe-status{
+    left:auto!important;right:2vw!important;top:37dvh!important;
+    bottom:auto!important;transform:none!important;
+    width:35vw!important;max-width:430px!important;
+    min-height:0!important;padding:9px 12px!important;
+    grid-template-columns:minmax(0,1fr) auto!important;
+  }
+  #world-screen.active.globe-v30:not(.atlas-perspective-on) .globe-actions{
+    left:auto!important;right:2vw!important;bottom:max(3dvh,env(safe-area-inset-bottom))!important;
+    transform:none!important;width:35vw!important;max-width:430px!important;
+  }
+  #world-screen.active.globe-v30:not(.atlas-perspective-on) .globe-zoom{
+    right:-8%!important;
+  }
+}
+/* Short landscape phones: free vertical space by reducing the title chrome,
+   without promising an impossible tablet-sized circular globe. */
+@media (orientation:landscape) and (max-height:649px){
+  #world-screen.active.globe-v30 .premium-globe-header{
+    min-height:63px!important;max-height:73px!important;
+    padding-top:5px!important;padding-bottom:5px!important;
+  }
+  #world-screen.active.globe-v30 .premium-globe-title{
+    font-size:clamp(23px,4dvh,30px)!important;
+  }
+  #world-screen.active.globe-v30 .premium-globe-subtitle{
+    font-size:9px!important;
+  }
+  #world-screen.active.globe-v30 .globe-mode{
+    top:max(75px,calc(env(safe-area-inset-top) + 72px))!important;
+    height:39px!important;min-height:39px!important;
+  }
+  #world-screen.active.globe-v30:not(.atlas-perspective-on){
+    --g24-globe:min(62dvh,44vw,390px);
+    --g24-globe-top:51dvh;
+  }
+}
+/* In atlas mode the JS layout owns the rectangular map's dimensions;
+   never apply circular-globe overrides to it. */
+
+/* Landscape phones have abundant width but little height. Put the learning
+   surface on the left and secondary discovery controls on the right.
+   Keep all touch targets >=44px. Portrait phones are intentionally unchanged. */
+@media (orientation:landscape) and (min-width:600px) and (max-height:649px){
+  #world-screen.active.globe-v30 .premium-globe-header{
+    top:4px!important;min-height:60px!important;max-height:68px!important;
+    padding-top:4px!important;padding-bottom:4px!important;
+  }
+  #world-screen.active.globe-v30 .globe-mode{
+    top:max(73px,calc(env(safe-area-inset-top) + 72px))!important;
+    height:44px!important;min-height:44px!important;
+    width:min(74vw,450px)!important;min-width:0!important;
+  }
+  #world-screen.active.globe-v30:not(.atlas-perspective-on){
+    --g24-globe:min(61dvh,42vw,350px);
+    --g24-globe-top:64dvh;
+  }
+  #world-screen.active.globe-v30:not(.atlas-perspective-on) .globe-wrap{
+    left:27vw!important;
+  }
+  #world-screen.active.globe-v30:not(.atlas-perspective-on) .globe-zoom{
+    right:-8%!important;
+  }
+  #world-screen.active.globe-v30 .globe-status{
+    left:auto!important;right:max(8px,env(safe-area-inset-right))!important;
+    top:35dvh!important;bottom:auto!important;transform:none!important;
+    width:42vw!important;min-width:0!important;max-width:none!important;
+    min-height:0!important;padding:6px 8px!important;
+    grid-template-columns:minmax(0,1fr) auto!important;
+    grid-template-areas:none!important;gap:6px!important;
+  }
+  #world-screen.active.globe-v30 .premium-country-main,
+  #world-screen.active.globe-v30 .premium-country-learn{
+    grid-area:auto!important;
+  }
+  #world-screen.active.globe-v30 .premium-country-scene-wrap{
+    display:none!important;
+  }
+  #world-screen.active.globe-v30 .globe-status strong{
+    font-size:clamp(16px,2vw,21px)!important;
+  }
+  #world-screen.active.globe-v30 .premium-country-facts{
+    gap:3px!important;margin-top:2px!important;
+  }
+  #world-screen.active.globe-v30 .premium-country-facts span,
+  #world-screen.active.globe-v30 .premium-country-facts .globe-country-tagline{
+    font-size:11px!important;min-height:21px!important;padding:3px 5px!important;
+  }
+  #world-screen.active.globe-v30 .globe-actions{
+    left:auto!important;right:max(8px,env(safe-area-inset-right))!important;
+    width:42vw!important;max-width:none!important;transform:none!important;
+    bottom:max(5px,env(safe-area-inset-bottom))!important;
+    height:45px!important;
+  }
+  #world-screen.active.globe-v30.atlas-perspective-on .globe-wrap{
+    left:8px!important;right:auto!important;transform:none!important;
+  }
+}
+
+/* Keep the short-landscape country panel in two purposeful columns.
+   The old auto-grid put "Lær mer" below the facts and wasted the right half. */
+@media (orientation:landscape) and (min-width:600px) and (max-height:649px){
+  #world-screen.active.globe-v30 .globe-status{
+    grid-template-columns:minmax(0,1fr) clamp(108px,13vw,122px)!important;
+    grid-template-areas:"main learn"!important;
+    align-items:center!important;
+  }
+  #world-screen.active.globe-v30 .premium-country-main{
+    grid-area:main!important;
+  }
+  #world-screen.active.globe-v30 .premium-country-learn{
+    grid-area:learn!important;
+    min-width:0!important;width:100%!important;
+    min-height:49px!important;justify-self:stretch!important;
+  }
+  /* "Min verden" legend belongs beside the map, never above it.
+     Its compact key stays accessible without covering any country polygon. */
+  #world-screen.active.globe-v30.atlas-perspective-on[data-premium-globe-mode="mine"] .globe-legend{
+    left:auto!important;right:max(8px,env(safe-area-inset-right))!important;
+    top:auto!important;bottom:calc(54px + env(safe-area-inset-bottom))!important;
+    transform:none!important;width:42vw!important;max-width:42vw!important;
+    padding:2px 6px!important;gap:1px 6px!important;
+    min-height:0!important;z-index:93!important;
+  }
+  #world-screen.active.globe-v30.atlas-perspective-on[data-premium-globe-mode="mine"] .globe-legend span{
+    font-size:9px!important;white-space:nowrap!important;
+  }
+}

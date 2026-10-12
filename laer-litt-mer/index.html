@@ -2382,7 +2382,7 @@
   <link rel="stylesheet" href="./home-grades-v16.css?v=20261011-unified-home2" />
   <link rel="stylesheet" href="./laria-task-scene-v15.css?v=20261007-p15rc1" />
   <!-- Kloden: one active scene stylesheet; art + renderer are loaded below in runtime order -->
-  <link rel="stylesheet" href="./globe-v24.css?v=globe36-pigment3" />
+  <link rel="stylesheet" href="./globe-v24.css?v=20261011-landscape-focus1" />
   <link rel="stylesheet" href="./laria-task-young-v18.css?v=20261010-math-tap2" />
   <link rel="stylesheet" href="./atlas-perspective-v1.css?v=20261009-atlas-story2" />
   <!-- Original approved art: guarded rendering, no substitutions -->
@@ -6163,7 +6163,7 @@ function initGlobe(){const canvas=document.getElementById('globe-canvas');if(!ca
   canvas.addEventListener('wheel',e=>{e.preventDefault();setGlobeZoom(globeZoom+(e.deltaY<0?.42:-.42))},{passive:false});
   window.addEventListener('resize',()=>{if(document.getElementById('world-screen').classList.contains('active')){resizeGlobe();drawGlobe()}});
 }
-function resizeGlobe(){const canvas=document.getElementById('globe-canvas');if(!canvas)return;const rect=canvas.getBoundingClientRect(),w=Math.max(280,Math.round(rect.width||window.innerWidth||360)),h=Math.max(280,Math.round(rect.height||window.innerHeight||w)),dpr=Math.min(2,window.devicePixelRatio||1);canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);canvas._cssW=w;canvas._cssH=h;canvas._cssSize=Math.min(w,h);canvas._dpr=dpr}
+function resizeGlobe(){const canvas=document.getElementById('globe-canvas');if(!canvas)return;const rect=canvas.getBoundingClientRect();/* A short landscape screen can legitimately show a 230px round globe. Never force a 280px bitmap against its smaller CSS bounds: that breaks coordinate-accurate touch and WebKit projection. */const realW=rect.width>=100?rect.width:(window.innerWidth||360),realH=rect.height>=100?rect.height:(window.innerHeight||realW),w=Math.max(1,Math.round(realW)),h=Math.max(1,Math.round(realH)),dpr=Math.min(2,window.devicePixelRatio||1);canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);canvas._cssW=w;canvas._cssH=h;canvas._cssSize=Math.min(w,h);canvas._dpr=dpr}
 function globeProject(lon,lat,w,h){const canvas=document.getElementById('globe-canvas');w=w||canvas?._cssW||360;h=h||canvas?._cssH||w;const rad=Math.PI/180,l=(lon-globeLon)*rad,p=lat*rad,p0=globeLat*rad,cp=Math.cos(p),sp=Math.sin(p),c0=Math.cos(p0),s0=Math.sin(p0),cosc=s0*sp+c0*cp*Math.cos(l);if(cosc<=0)return null;const r=Math.min(w,h)*.455*globeZoom;return [w/2+r*cp*Math.sin(l),h/2-r*(c0*sp-s0*cp*Math.cos(l)),cosc]}
 function drawProjectedLine(ctx,coords,w,h){let started=false,last=null;const moving=window.__lariaGlobeInteracting===true,maxPts=moving?(globeZoom<1.6?72:globeZoom<3?110:170):(globeZoom<1.6?180:globeZoom<3?320:700),step=Math.max(1,Math.floor(coords.length/maxPts)),jump=Math.min(w,h)*.7;for(let i=0;i<coords.length;i+=step){const pt=coords[i],p=globeProject(pt[0],pt[1],w,h);if(!p){started=false;last=null;continue}if(!started||last&&Math.hypot(p[0]-last[0],p[1]-last[1])>jump){ctx.moveTo(p[0],p[1]);started=true}else ctx.lineTo(p[0],p[1]);last=p}if(step>1&&coords.length){const pt=coords[coords.length-1],p=globeProject(pt[0],pt[1],w,h);if(p&&last&&Math.hypot(p[0]-last[0],p[1]-last[1])<=jump)ctx.lineTo(p[0],p[1])}}
 function geometrySpan(c){if(!c?.geometry)return 0;if(Number.isFinite(c._geometrySpan))return c._geometrySpan;let minLat=90,maxLat=-90,minLon=Infinity,maxLon=-Infinity;const ref=Number.isFinite(c.lon)?c.lon:0;for(const poly of geometryPolygons(c.geometry))for(const ring of poly)for(const pt of ring){const lon=normalizeLon(pt[0],ref);minLon=Math.min(minLon,lon);maxLon=Math.max(maxLon,lon);minLat=Math.min(minLat,pt[1]);maxLat=Math.max(maxLat,pt[1])}c._geometrySpan=Math.max(maxLon-minLon,maxLat-minLat);return c._geometrySpan}
@@ -6690,7 +6690,7 @@ if(needsProfileSetup||!state.profile.onboarded||!state.profile.grade){
 <!-- Kloden: art primitives must load before the active renderer. -->
 <script src="./globe-v24-art.js?v=globe36-pigment3" defer></script>
 <script src="./globe-v25-renderer.js?v=20261011-personalfox2" defer></script>
-<script src="./atlas-perspective-v1.js?v=20261010-atlas-webkit-paint-v2" defer></script>
+<script src="./atlas-perspective-v1.js?v=20261011-landscape-focus1" defer></script>
 
 <!-- premium-board-v8-2026-10-04 -->
 <!-- natural-journey-integration-v9-2026-10-04 -->
