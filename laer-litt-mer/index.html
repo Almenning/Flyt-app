@@ -3528,7 +3528,7 @@ function showScreen(name){
   if(name==='world'){
     const label=globeReturnScreen==='basecamp'?backName:globeReturnScreen==='continent'?'Verdensdelen':'Geografi';
     const back=document.getElementById('world-back');
-    if(back){back.textContent='← '+label;back.setAttribute('aria-label','Tilbake til '+label);}
+    if(back){back.textContent='←';back.setAttribute('aria-label','Tilbake til '+label);back.title='Tilbake til '+label;}
   }
   // A subtle entrance, never a delay before the content is interactive.
   // Keep the draggable canvas and hands-on laboratories unanimated.
