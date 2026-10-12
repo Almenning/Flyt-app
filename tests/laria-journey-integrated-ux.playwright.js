@@ -30,7 +30,7 @@ async function run(engine,label,viewport){
    await mission.click();
    await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
    assert.equal((await page.locator('.task-world-chip').innerText()).trim(),world,label+' wrong scene for '+subject);
-   assert.equal((await page.locator('#close-session').getAttribute('aria-label')),'Tilbake til faget');
+   assert.equal((await page.locator('#close-session').getAttribute('aria-label')),'Tilbake til '+({norwegian:'Norsk',math:'Matte',english:'Engelsk',geography:'Geografi'}[subject]),label+' accessible back name must describe the real return destination');
    const sessionState=await page.evaluate(()=>({subject:sessionScope?.subject,scope:sessionScope?.type,question:sessionQuestions[qIndex]?.prompt}));
    assert.equal(sessionState.subject,subject,label+' journey engine lost '+subject);
    assert.ok(sessionState.question,label+' missing question for '+subject);
