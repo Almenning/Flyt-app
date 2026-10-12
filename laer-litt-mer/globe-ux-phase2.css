@@ -101,7 +101,7 @@
     top: 76px !important; right: calc(20vw + 18px) !important; bottom: auto !important;
   }
   #world-screen.active.globe-v30.atlas-perspective-on[data-geo-layout="tablet-landscape"][data-premium-globe-mode="mine"] .globe-legend {
-    left: auto !important; right: 18px !important; top: 286px !important; transform: none !important;
+    left: auto !important; right: 18px !important; top: 70px !important; transform: none !important;
     width: calc(20vw - 4px) !important; max-width: none !important;
   }
 }
