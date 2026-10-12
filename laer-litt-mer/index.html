@@ -3500,8 +3500,11 @@ let globeLon=15,globeLat=18,globeZoom=1,globeSelected=null,globeDrag=null,globeM
 const globePointers=new Map();let globePinch=null;
 const GLOBE_ZOOM_MIN=1,GLOBE_ZOOM_MAX=5;
 
+let globeReturnScreen='geography';
 function showScreen(name){
   const el=document.getElementById(name+'-screen'); if(!el) return;
+  const previous=document.querySelector('.screen.active');
+  const changing=!!previous&&previous!==el;
   if(name!=='session'&&typeof stopSpeech==='function')stopSpeech();
   document.querySelectorAll('.screen').forEach(s=>{
     s.classList.toggle('active',s===el);
@@ -3513,12 +3516,35 @@ function showScreen(name){
   document.getElementById('topbar').style.display=special?'none':'flex';
   window.scrollTo(0,0);
   syncSwipeBackEdge(name);
+  // Match the visible label to the actual return route, including nested geography.
+  const sourcePanel=window.LARIA_BASECAMP_RETURN_VIEW?.();
+  const backName=sourcePanel==='travel'?'Reisen':sourcePanel==='explore'?'Utforsk':'Hjem';
+  const screenBack=name==='subject'?document.getElementById('subject-back'):
+    name==='geography'?document.getElementById('geography-back'):null;
+  if(screenBack){
+    screenBack.textContent='← '+backName;
+    screenBack.setAttribute('aria-label','Tilbake til '+backName);
+  }
+  if(name==='world'){
+    const label=globeReturnScreen==='basecamp'?backName:globeReturnScreen==='continent'?'Verdensdelen':'Geografi';
+    const back=document.getElementById('world-back');
+    if(back){back.textContent='← '+label;back.setAttribute('aria-label','Tilbake til '+label);}
+  }
+  // A subtle entrance, never a delay before the content is interactive.
+  // Keep the draggable canvas and hands-on laboratories unanimated.
+  if(changing&&typeof el.animate==='function'&&!['world','fraction-lab','multiplication-lab'].includes(name)&&
+      !window.matchMedia?.('(prefers-reduced-motion: reduce)').matches){
+    el.animate([{opacity:.86},{opacity:1}],{duration:160,easing:'ease-out'});
+  }
   if(name==='world'){
     el.dataset.exploreRelease='explore-rc1';
     requestAnimationFrame(()=>{initGlobe();setGlobeZoom(globeZoom)});
   }
 }
 function openGlobe(mode='explore'){
+  const origin=activeScreenName();
+  globeReturnScreen=origin==='home'?'basecamp':
+    origin==='geography'||origin==='continent'?origin:'geography';
   const next=mode==='classic'?'classic':(mode==='mine'?'mine':'explore');
   globeMode=next;
   const openedAt=performance.now();
@@ -3641,11 +3667,25 @@ function appBack(){
   const mission=document.getElementById('journey-mission-backdrop');if(mission&&!mission.hidden){closeJourneyMission();return true}
 
   const current=activeScreenName();
-  if(current==='subject'||current==='geography'){setTab('home');return true}
+  // One source of truth: a swipe performs the active screen's own back action.
+  // In the labs this also respects their internal pages before exiting.
+  const visibleBack={
+    subject:'subject-back',geography:'geography-back',world:'world-back',
+    'fraction-lab':'fraction-lab-back','multiplication-lab':'multiplication-lab-back',
+    session:'close-session',complete:'complete-home'
+  }[current];
+  if(visibleBack){
+    const button=document.getElementById(visibleBack);
+    if(button&&!button.disabled){button.click();return true;}
+  }
+  if(current==='subject'||current==='geography'){
+    if(window.LARIA_RETURN_TO_BASECAMP?.())return true;
+    setTab('home');return true
+  }
   if(current==='fraction-lab'||current==='multiplication-lab'){openSubject('math');return true}
   if(current==='world'){
-    if(typeof window.LARIA_RETURN_TO_BASECAMP==='function'&&window.LARIA_RETURN_TO_BASECAMP())return true;
-    showScreen('geography');return true
+    if(globeReturnScreen==='basecamp'&&window.LARIA_RETURN_TO_BASECAMP?.())return true;
+    showScreen(globeReturnScreen==='continent'?'continent':'geography');return true
   }
   if(current==='continent'){showScreen('geography');return true}
   if(current==='detail'){
@@ -4205,6 +4245,10 @@ document.getElementById('start-world-from-globe').onclick=()=>startSession(null,
 document.getElementById('continent-back').onclick=()=>showScreen('geography');
 document.getElementById('open-world').onclick=()=>openGlobe('explore');
 document.getElementById('world-back').onclick=()=>{
+  // A globe opened inside Geografi returns to its parent, not past it to Home.
+  if(globeReturnScreen==='geography'||globeReturnScreen==='continent'){
+    showScreen(globeReturnScreen);return;
+  }
   if(typeof window.LARIA_RETURN_TO_BASECAMP==='function'&&window.LARIA_RETURN_TO_BASECAMP())return;
   showScreen('geography');
 };
