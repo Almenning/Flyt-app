@@ -3664,6 +3664,11 @@ function syncSwipeBackEdge(name=activeScreenName()){
   swipeBackEdge.classList.toggle('hidden',!SWIPE_BACK_SCREENS.has(name));
 }
 function appBack(){
+  // The approved painted journey uses a local mission sheet. Close it before
+  // navigating away, just as the visible X button does.
+  const lockedSheet=document.querySelector('.screen.active .locked-journey-overlay:not([hidden])');
+  const lockedClose=lockedSheet?.querySelector('.locked-sheet-close');
+  if(lockedClose){lockedClose.click();return true;}
   const mission=document.getElementById('journey-mission-backdrop');if(mission&&!mission.hidden){closeJourneyMission();return true}
 
   const current=activeScreenName();
