@@ -51,6 +51,13 @@ async function run(engine,label,width,height){
     await page.goto(root+(root.includes('?')?'&':'?')+'uxphase1='+label,{waitUntil:'domcontentloaded'});
     await page.waitForFunction(()=>document.querySelector('.bc12[data-bc13-bound="true"]')&&typeof window.LARIA_RETURN_TO_BASECAMP==='function',null,{timeout:20000});
 
+    // Legacy Home-to-globe must also return Home even without a chooser origin.
+    await page.evaluate(()=>openGlobe('classic'));
+    await screen(page,'world');
+    assert.match(await page.locator('#world-back').innerText(),/Hjem/,label+' direct globe back label');
+    await edgeBack(page,label+' direct Home globe');
+    await screen(page,'home');
+
     // From Utforsk: the physical globe Back button and edge gesture agree.
     await page.locator('.bc12-nav [data-camp="explore"]').click();
     await page.locator('.bc13-card[data-bc13-action="globe"]').click();
