@@ -1,31 +1,3 @@
-/*
- * Læria UX sprint fase 2 — one layout contract for Kloden and Kartet.
- *
- * The older globe stylesheet contains the visual language. This file owns only
- * viewport geometry for the two wide layouts below. Keeping the breakpoints in
- * one place prevents a phone-sized globe, map, or country card from winning by
- * cascade on iPad landscape.
- */
-
-/* iPad portrait: make the learning surface larger without borrowing space from
-   the country card or action row. iPhone portrait is intentionally untouched. */
-@media (orientation: portrait) and (min-width: 700px) {
-  #world-screen.active.globe-v30:not(.atlas-perspective-on) {
-    --g24-globe: min(87vw, 62dvh, 760px) !important;
-    --g24-globe-top: 48.3dvh !important;
-  }
-}
-
-/* iPad landscape: the globe is the main object; discovery controls occupy a
-   calm, separate right column. This removes the former card-on-top-of-globe
-   collision and gives the circular canvas a real 76%-of-height presentation. */
-@media (orientation: landscape) and (min-width: 900px) and (min-height: 650px) {
-  #world-screen.active.globe-v30[data-geo-layout="tablet-landscape"] {
-    --g24-globe: min(76dvh, 55vw, 680px) !important;
-    --g24-globe-top: 58dvh !important;
-  }
-  #world-screen.active.globe-v30[data-geo-layout="tablet-landscape"] .premium-globe-header {
-    top: 8px !important;
     left: 12px !important;
     right: 12px !important;
     width: auto !important;
@@ -71,6 +43,7 @@
     min-height: 24px !important; padding: 3px 6px !important; font-size: 12px !important;
   }
 
+
   /* Kartet uses the exact same left learning column. The JS layout supplies
      atlas dimensions; these rules only position that rectangle and its chrome. */
   #world-screen.active.globe-v30.atlas-perspective-on[data-geo-layout="tablet-landscape"] .globe-wrap {
@@ -78,7 +51,9 @@
   }
   #world-screen.active.globe-v30.atlas-perspective-on[data-geo-layout="tablet-landscape"] .globe-status,
   #world-screen.active.globe-v30.atlas-perspective-on[data-geo-layout="tablet-landscape"] .globe-actions {
-    width: calc(20vw - 4px) !important; max-width: none !important;
+    /* Leave a real gutter between the atlas frame and country column. The
+       previous 20vw panel met the map's ornamental border in WebKit. */
+    width: calc(20vw - 10px) !important; max-width: none !important;
   }
   #world-screen.active.globe-v30.atlas-perspective-on[data-geo-layout="tablet-landscape"] .globe-status {
     grid-template-columns: minmax(0, 1fr) 52px !important;
@@ -104,6 +79,7 @@
   }
 }
 
+
 /* iPhone landscape has room horizontally, not vertically. Keep its small header
    and route geography left while country information remains an accessible
    right-side panel. Portrait iPhone receives no size change. */
@@ -115,31 +91,3 @@
   #world-screen.active.globe-v30[data-geo-layout="phone-landscape"] .premium-globe-header {
     top: 6px !important; left: 8px !important; right: 8px !important; width: auto !important;
     min-height: 44px !important; max-height: 44px !important; padding: 8px 10px 4px 58px !important;
-    transform: none !important; border-radius: 14px !important;
-  }
-  #world-screen.active.globe-v30[data-geo-layout="phone-landscape"] .premium-globe-kicker,
-  #world-screen.active.globe-v30[data-geo-layout="phone-landscape"] .premium-globe-subtitle,
-  #world-screen.active.globe-v30[data-geo-layout="phone-landscape"] .premium-globe-fox { display: none !important; }
-  #world-screen.active.globe-v30[data-geo-layout="phone-landscape"] .premium-globe-title { margin: 0 !important; font-size: 23px !important; }
-  #world-screen.active.globe-v30[data-geo-layout="phone-landscape"] #world-back { top: 7px !important; left: 13px !important; width: 44px !important; height: 44px !important; }
-  #world-screen.active.globe-v30[data-geo-layout="phone-landscape"] .globe-mode { top: 55px !important; width: min(425px, 72vw) !important; min-width: 0 !important; height: 48px !important; }
-  #world-screen.active.globe-v30[data-geo-layout="phone-landscape"] .globe-wrap { left: 29vw !important; }
-  #world-screen.active.globe-v30[data-geo-layout="phone-landscape"]:not(.atlas-perspective-on) .globe-zoom { right: -30px !important; top: 50% !important; transform: translateY(-50%) !important; }
-  #world-screen.active.globe-v30[data-geo-layout="phone-landscape"] .globe-zoom button { width: 44px !important; height: 44px !important; min-width: 44px !important; min-height: 44px !important; }
-  #world-screen.active.globe-v30[data-geo-layout="phone-landscape"] .globe-status {
-    left: auto !important; right: 8px !important; top: 116px !important; bottom: auto !important;
-    transform: none !important; width: 42vw !important; max-width: none !important; min-height: 82px !important;
-    padding: 7px 8px !important; grid-template-columns: minmax(0, 1fr) 58px !important; grid-template-areas: "main learn" !important;
-  }
-  #world-screen.active.globe-v30[data-geo-layout="phone-landscape"] .globe-status .flag,
-  #world-screen.active.globe-v30[data-geo-layout="phone-landscape"] .premium-country-scene-wrap { display: none !important; }
-  #world-screen.active.globe-v30[data-geo-layout="phone-landscape"] .globe-status strong { font-size: 17px !important; }
-  #world-screen.active.globe-v30[data-geo-layout="phone-landscape"] .premium-country-facts span,
-  #world-screen.active.globe-v30[data-geo-layout="phone-landscape"] .premium-country-facts .globe-country-tagline { min-height: 18px !important; padding: 2px 4px !important; font-size: 8.5px !important; }
-  #world-screen.active.globe-v30[data-geo-layout="phone-landscape"] .premium-country-learn { width: 58px !important; min-width: 58px !important; min-height: 48px !important; padding: 3px !important; }
-  #world-screen.active.globe-v30[data-geo-layout="phone-landscape"] .premium-country-learn b { display: none !important; }
-  #world-screen.active.globe-v30[data-geo-layout="phone-landscape"] .globe-actions { left: auto !important; right: 8px !important; bottom: 7px !important; transform: none !important; width: 42vw !important; height: 44px !important; gap: 6px !important; }
-  #world-screen.active.globe-v30[data-geo-layout="phone-landscape"] .globe-actions .secondary { min-height: 44px !important; padding: 0 3px !important; font-size: 10px !important; }
-  #world-screen.active.globe-v30.atlas-perspective-on[data-geo-layout="phone-landscape"] .globe-wrap { left: var(--atlas-left, 8px) !important; transform: none !important; }
-  #world-screen.active.globe-v30.atlas-perspective-on[data-geo-layout="phone-landscape"] .globe-zoom { right: 7px !important; }
-}
