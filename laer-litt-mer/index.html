@@ -3712,21 +3712,38 @@ if(swipeBackEdge){
     swipeBackGesture={id:e.pointerId,startX:e.clientX,startY:e.clientY,lastX:e.clientX,lastY:e.clientY,active:false};
     try{swipeBackEdge.setPointerCapture(e.pointerId)}catch(_){}
   });
-  swipeBackEdge.addEventListener('pointermove',e=>{
+  // WebKit can stop delivering pointermove/up to a narrow fixed edge after
+  // the finger leaves it, even if setPointerCapture was requested. Track the
+  // gesture on the document in capture phase, but START only inside the edge.
+  document.addEventListener('pointermove',e=>{
     const g=swipeBackGesture;if(!g||g.id!==e.pointerId)return;
     g.lastX=e.clientX;g.lastY=e.clientY;
     const dx=e.clientX-g.startX,dy=e.clientY-g.startY;
-    if(dx>14&&Math.abs(dx)>Math.abs(dy)*1.15){g.active=true;swipeBackIndicator.classList.add('show');e.preventDefault()}
-    else if(Math.abs(dy)>Math.max(18,Math.abs(dx))){g.active=false;swipeBackIndicator.classList.remove('show')}
-  });
+    if(dx>14&&Math.abs(dx)>Math.abs(dy)*1.15){
+      g.active=true;swipeBackIndicator.classList.add('show');
+      if(e.cancelable)e.preventDefault();
+      e.stopPropagation();
+    }else if(Math.abs(dy)>Math.max(18,Math.abs(dx))){
+      g.active=false;swipeBackIndicator.classList.remove('show');
+    }
+  },true);
   const finishSwipeBack=e=>{
     const g=swipeBackGesture;if(!g||g.id!==e.pointerId)return;
     const dx=(e.clientX??g.lastX)-g.startX,dy=(e.clientY??g.lastY)-g.startY;
     swipeBackIndicator.classList.remove('show');swipeBackGesture=null;
-    if(g.active&&dx>=64&&Math.abs(dx)>Math.abs(dy)*1.2)appBack();
+    // Fast physical swipes may deliver only down and up before a move frame.
+    if(dx>=64&&Math.abs(dx)>Math.abs(dy)*1.2){
+      if(e.cancelable)e.preventDefault();
+      e.stopPropagation();
+      appBack();
+    }
   };
-  swipeBackEdge.addEventListener('pointerup',finishSwipeBack);
-  swipeBackEdge.addEventListener('pointercancel',()=>{swipeBackIndicator.classList.remove('show');swipeBackGesture=null});
+  document.addEventListener('pointerup',finishSwipeBack,true);
+  document.addEventListener('pointercancel',e=>{
+    if(swipeBackGesture?.id!==e.pointerId)return;
+    swipeBackIndicator.classList.remove('show');
+    swipeBackGesture=null;
+  },true);
 }
 syncSwipeBackEdge();
 
