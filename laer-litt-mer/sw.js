@@ -1,4 +1,4 @@
-const CACHE='laria-stable-2026-10-12-globe36-pigment3-atlas-webkit-paint-v2-landscape-focus1-iphone-shortportrait1-ux-phase1-globe-ux-phase2';
+const CACHE='laria-stable-2026-10-12-globe36-pigment3-atlas-webkit-paint-v2-landscape-focus1-iphone-shortportrait1-ux-phase1-globe-ux-phase2-deepzoom32';
 const APP_CACHE_PREFIXES=['laer-litt-mer-','laria-'];
 
 // Keep install light. Runtime requests populate the cache as the child actually uses the app.
