@@ -20,6 +20,8 @@ assert.match(atlas,/function refreshGeoLayout\(\)/,'mode transitions must classi
 assert.match(atlas,/screen\.dataset\.geoLayout=next/,'classic globe and atlas must share the same viewport classification');
 assert.match(atlas,/--atlas-left/,'atlas geometry must own its left map column');
 assert.match(atlas,/MAX_ZOOM=32, MIN_ZOOM=1/,'atlas must allow significantly closer map exploration');
+assert.match(atlas,/compactPhone\?200:185/,'small iPhone atlas must have a dedicated minimum interactive area');
+assert.match(css,/max-width: 360px\) and \(max-height: 650px/,'compact iPhone needs a shorter header for a larger map');
 assert.ok(html.indexOf('atlas-perspective-v1.css')<html.indexOf('globe-ux-phase2.css'),'phase 2 geometry must load after atlas base styles');
 assert.match(sw,/globe-ux-phase2/,'PWA cache must refresh when geography geometry changes');
 console.log('ok - ux phase 2 geography geometry contract');
