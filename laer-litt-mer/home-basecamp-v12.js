@@ -77,7 +77,8 @@ window.LARIA_RETURN_TO_BASECAMP=()=>{
  if(!fromCamp)return false;
  const destination=returnView;
  fromCamp=false;returnView='home';
- home(destination==='explore'?'explore':'home');
+ // Basecamp stays on its canonical Home layout underneath each chooser.
+ home('home');
  window.LARIA_ACTIVATE_BASECAMP_PANEL?.(destination);
  return true;
 };
