@@ -54,7 +54,7 @@ async function run(engine,label,width,height){
     // Legacy Home-to-globe must also return Home even without a chooser origin.
     await page.evaluate(()=>openGlobe('classic'));
     await screen(page,'world');
-    assert.match(await page.locator('#world-back').innerText(),/Hjem/,label+' direct globe back label');
+    assert.equal(await page.locator('#world-back').getAttribute('aria-label'),'Tilbake til Hjem',label+' direct globe back label');
     await edgeBack(page,label+' direct Home globe');
     await screen(page,'home');
 
@@ -62,7 +62,7 @@ async function run(engine,label,width,height){
     await page.locator('.bc12-nav [data-camp="explore"]').click();
     await page.locator('.bc13-card[data-bc13-action="globe"]').click();
     await screen(page,'world');
-    assert.match(await page.locator('#world-back').innerText(),/Utforsk/,label+' wrong globe return label');
+    assert.equal(await page.locator('#world-back').getAttribute('aria-label'),'Tilbake til Utforsk',label+' wrong globe return label');
     await screenshot(page,label+'-globe-from-explore');
     await edgeBack(page,label+' globe');
     await panel(page,'globe');
@@ -105,7 +105,7 @@ async function run(engine,label,width,height){
     await screen(page,'geography');
     await page.evaluate(()=>openGlobe('classic'));
     await screen(page,'world');
-    assert.match(await page.locator('#world-back').innerText(),/Geografi/,
+    assert.equal(await page.locator('#world-back').getAttribute('aria-label'),'Tilbake til Geografi',
       label+' nested globe incorrectly advertises Home/Utforsk');
     await edgeBack(page,label+' nested globe');
     await screen(page,'geography');
