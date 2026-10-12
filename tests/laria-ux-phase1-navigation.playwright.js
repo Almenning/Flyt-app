@@ -95,6 +95,13 @@ async function run(engine,label,width,height){
     await painted.waitFor({state:'visible',timeout:20000});
     assert.match(await painted.getAttribute('aria-label'),/Reisen/,label+' wrong journey return destination');
     await screenshot(page,label+'-math-journey');
+    // Edge back first dismisses a chosen stop's sheet, preserving the world.
+    await page.locator('#subject-screen.active .locked-journey-hotspot.state-current').first().click();
+    const missionSheet=page.locator('#subject-screen.active .locked-journey-overlay:not([hidden])');
+    await missionSheet.waitFor({state:'visible',timeout:12000});
+    await edgeBack(page,label+' journey mission sheet');
+    await missionSheet.waitFor({state:'hidden',timeout:12000});
+    await screen(page,'subject');
     await edgeBack(page,label+' journey');
     await panel(page,'math');
     assert.equal(await page.locator('.bc12').getAttribute('data-bc13-view'),'travel',
