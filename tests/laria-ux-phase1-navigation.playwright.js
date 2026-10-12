@@ -19,11 +19,30 @@ async function edgeBack(page,label){
   assert.equal(await edge.isVisible(),true,label+' has no available iOS edge gesture');
   const box=await edge.boundingBox();
   assert.ok(box&&box.width>0,label+' edge region is missing');
+  await page.evaluate(()=>{
+    window.__lariaGestureLog=[];
+    const target=document.getElementById('swipe-back-edge');
+    if(!target.dataset.uxGestureProbe){
+      target.dataset.uxGestureProbe='1';
+      ['pointerdown','pointermove','pointerup','pointercancel'].forEach(type=>
+        target.addEventListener(type,event=>{
+          window.__lariaGestureLog?.push({type,x:Math.round(event.clientX),
+            y:Math.round(event.clientY),id:event.pointerId});
+        },true));
+    }
+  });
   const y=Math.max(125,Math.min(box.height-85,box.height*.42));
   await page.mouse.move(Math.max(2,box.x+5),box.y+y);
   await page.mouse.down();
   await page.mouse.move(box.x+105,box.y+y,{steps:8});
   await page.mouse.up();
+  const result=await page.evaluate(()=>({
+    events:window.__lariaGestureLog||[],
+    active:document.querySelector('.screen.active')?.id,
+    panel:document.querySelector('.bc12')?.dataset.bc13View,
+    returnView:window.LARIA_BASECAMP_RETURN_VIEW?.()
+  }));
+  console.log('[edge UX]',label,JSON.stringify(result));
 }
 async function screen(page,id){
   await page.locator('#'+id+'-screen.active').waitFor({timeout:18000});
