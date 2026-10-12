@@ -257,6 +257,47 @@ async function capture(browserType,label,viewport){
       };
     });
     assert.ok(layout.country&&layout.actions&&layout.globe,label+' missing active globe layout');
+
+    // Regression: a ChatGPT/in-app Safari toolbar can cut the usable iPhone
+    // height to ~610px without changing the actual 390px-wide device.
+    // That must NEVER shrink the globe to 43dvh. Secondary controls may scroll.
+    if(label==='webkit-iphone-embedded'){
+      const screenGeometry=await page.evaluate(()=>{
+        const screen=document.querySelector('#world-screen.active');
+        const r=el=>{const b=el.getBoundingClientRect();return {top:b.top,bottom:b.bottom,left:b.left,right:b.right}};
+        return {overflowY:getComputedStyle(screen).overflowY,
+          scrollHeight:screen.scrollHeight,clientHeight:screen.clientHeight,
+          globe:r(document.getElementById('globe-canvas')),
+          modes:r(document.getElementById('globe-mode')),
+          card:r(document.getElementById('globe-status')),
+          actions:r(document.querySelector('#world-screen .globe-actions'))};
+      });
+      assert.ok(screenGeometry.globe.right-screenGeometry.globe.left>=viewport.width*.90,
+        label+' globe shrank when in-app browser chrome reduced viewport: '+JSON.stringify(screenGeometry));
+      assert.ok(screenGeometry.globe.top>=screenGeometry.modes.bottom+7,
+        label+' globe overlaps the mode selector: '+JSON.stringify(screenGeometry));
+      assert.ok(screenGeometry.card.top>=screenGeometry.globe.bottom+7,
+        label+' country details overlap globe: '+JSON.stringify(screenGeometry));
+      assert.ok(screenGeometry.actions.top>=screenGeometry.card.bottom+7,
+        label+' actions overlap country details: '+JSON.stringify(screenGeometry));
+      assert.equal(screenGeometry.overflowY,'auto',label+' embedded globe must scroll on short viewports');
+      assert.ok(screenGeometry.scrollHeight>screenGeometry.clientHeight+25,
+        label+' browser chrome made bottom actions inaccessible: '+JSON.stringify(screenGeometry));
+      await page.screenshot({path:path.join(out,label+'-initial.png'),animations:'disabled'});
+      const afterScroll=await page.evaluate(()=>{
+        const screen=document.querySelector('#world-screen.active');
+        screen.scrollTop=screen.scrollHeight;
+        const button=document.getElementById('reset-globe');
+        const r=button.getBoundingClientRect();
+        return {scrollTop:screen.scrollTop,bottom:r.bottom,visible:r.top>=0&&r.bottom<=innerHeight+1,
+          hit:document.elementFromPoint((r.left+r.right)/2,(r.top+r.bottom)/2)?.closest('#reset-globe')===button};
+      });
+      assert.ok(afterScroll.scrollTop>25&&afterScroll.visible&&afterScroll.hit,
+        label+' scroll did not expose the reset button: '+JSON.stringify(afterScroll));
+      await page.locator('#reset-globe').click();
+      await page.evaluate(()=>{document.querySelector('#world-screen.active').scrollTop=0});
+    }
+
     // The zoom pair belongs at the globe's visual equator, not in its top
     // quadrant. Verify real pixels in Chromium and Safari on all QA sizes.
     assert.ok(layout.zoomIn&&layout.zoomOut,label+' missing usable zoom buttons');
@@ -547,6 +588,7 @@ async function capture(browserType,label,viewport){
     await capture(webkit,'webkit-ipad-landscape',{width:1180,height:820});
     await capture(chromium,'chromium-iphone',{width:390,height:844});
     await capture(webkit,'webkit-iphone',{width:390,height:844});
+    await capture(webkit,'webkit-iphone-embedded',{width:390,height:610});
     await capture(webkit,'webkit-iphone-landscape',{width:844,height:390});
     await capture(webkit,'webkit-ipad',{width:820,height:1180});
     await capture(webkit,'webkit-desktop-landscape',{width:1525,height:864});
