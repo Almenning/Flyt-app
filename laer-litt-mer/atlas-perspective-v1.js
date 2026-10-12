@@ -5,7 +5,9 @@
 const screen=document.getElementById('world-screen');
 const wrap=screen?.querySelector('.globe-wrap');
 if(!screen||!wrap)return;
-const RAD=Math.PI/180, MAX_ZOOM=11, MIN_ZOOM=1;
+/* Atlas zoom is independent of the spherical globe's 1–5 limit.
+   Its country polygons are redrawn at canvas resolution, not enlarged as pixels. */
+const RAD=Math.PI/180, MAX_ZOOM=32, MIN_ZOOM=1;
 const clamp=(n,a,b)=>Math.min(b,Math.max(a,n));
 const limitLon=n=>((n+540)%360)-180;
 const REGIONS=[
