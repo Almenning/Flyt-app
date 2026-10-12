@@ -68,7 +68,7 @@
   #world-screen.active.globe-v30[data-geo-layout="tablet-landscape"] .premium-country-scene-wrap { display: none !important; }
   #world-screen.active.globe-v30[data-geo-layout="tablet-landscape"] .premium-country-facts span,
   #world-screen.active.globe-v30[data-geo-layout="tablet-landscape"] .premium-country-facts .globe-country-tagline {
-    min-height: 24px !important; padding: 3px 6px !important; font-size: 10px !important;
+    min-height: 24px !important; padding: 3px 6px !important; font-size: 12px !important;
   }
 
   /* Kartet uses the exact same left learning column. The JS layout supplies
@@ -76,12 +76,31 @@
   #world-screen.active.globe-v30.atlas-perspective-on[data-geo-layout="tablet-landscape"] .globe-wrap {
     left: var(--atlas-left, 16px) !important; transform: none !important;
   }
+  #world-screen.active.globe-v30.atlas-perspective-on[data-geo-layout="tablet-landscape"] .globe-status,
+  #world-screen.active.globe-v30.atlas-perspective-on[data-geo-layout="tablet-landscape"] .globe-actions {
+    width: calc(20vw - 4px) !important; max-width: none !important;
+  }
+  #world-screen.active.globe-v30.atlas-perspective-on[data-geo-layout="tablet-landscape"] .globe-status {
+    grid-template-columns: minmax(0, 1fr) 52px !important;
+    min-height: 124px !important;
+  }
+  #world-screen.active.globe-v30.atlas-perspective-on[data-geo-layout="tablet-landscape"] .globe-status .flag,
+  #world-screen.active.globe-v30.atlas-perspective-on[data-geo-layout="tablet-landscape"] .premium-country-scene-wrap {
+    display: none !important;
+  }
+  #world-screen.active.globe-v30.atlas-perspective-on[data-geo-layout="tablet-landscape"] .premium-country-learn {
+    width: 52px !important; min-width: 52px !important; min-height: 52px !important; padding: 3px !important;
+  }
+  #world-screen.active.globe-v30.atlas-perspective-on[data-geo-layout="tablet-landscape"] .premium-country-learn span,
+  #world-screen.active.globe-v30.atlas-perspective-on[data-geo-layout="tablet-landscape"] .premium-country-learn b {
+    display: none !important;
+  }
   #world-screen.active.globe-v30.atlas-perspective-on[data-geo-layout="tablet-landscape"] .globe-zoom {
-    right: 12px !important;
+    top: 76px !important; right: calc(20vw + 18px) !important; bottom: auto !important;
   }
   #world-screen.active.globe-v30.atlas-perspective-on[data-geo-layout="tablet-landscape"][data-premium-globe-mode="mine"] .globe-legend {
     left: auto !important; right: 18px !important; top: 286px !important; transform: none !important;
-    width: 34vw !important; max-width: 430px !important;
+    width: calc(20vw - 4px) !important; max-width: none !important;
   }
 }
 
