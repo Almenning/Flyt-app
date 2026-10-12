@@ -87,6 +87,25 @@ async function run(engine,label,viewport){
   await page.locator('#globe-zoom-out').click();
   const backZoom=await page.evaluate(()=>window.LARIA_ATLAS_PERSPECTIVE.snapshot().zoom);
   assert.ok(backZoom<after.zoom,label+' zoom-out button must reduce atlas scale');
+  // Deeper map zoom must remain geographically accurate and must keep the
+  // exact vector country outlines, not silently fall back to blurry artwork.
+  await page.evaluate(()=>window.LARIA_ATLAS_PERSPECTIVE.region('norden'));
+  for(let n=0;n<4;n++)await page.locator('#globe-zoom-in').click();
+  const deepZoom=await page.evaluate(()=>{
+   const atlas=window.LARIA_ATLAS_PERSPECTIVE,s=atlas.snapshot();
+   const p=atlas.project(s.lon+.15,s.lat-.15),back=atlas.inverse(p.x,p.y);
+   const canvas=document.getElementById('atlas-canvas');
+   return {zoom:s.zoom,lonError:Math.abs(back.lon-(s.lon+.15)),latError:Math.abs(back.lat-(s.lat-.15)),source:canvas.dataset.renderSource};
+  });
+  assert.ok(deepZoom.zoom>11,label+' atlas must allow zoom beyond previous 11x cap: '+deepZoom.zoom);
+  assert.ok(deepZoom.lonError<.0001&&deepZoom.latError<.0001,label+' deep zoom loses geographic pointer accuracy');
+  assert.equal(deepZoom.source,'country-geometry',label+' deep zoom must still render vector country data');
+  await page.evaluate(()=>window.LARIA_ATLAS_PERSPECTIVE.zoom(1000));
+  const cappedZoom=await page.evaluate(()=>window.LARIA_ATLAS_PERSPECTIVE.snapshot().zoom);
+  assert.equal(cappedZoom,32,label+' atlas must retain a bounded maximum zoom');
+  assert.equal(await page.locator('#globe-zoom-in').isEnabled(),false,label+' zoom-in must disable at 32x');
+  await page.locator('#globe-zoom-out').click();
+  assert.equal(await page.locator('#globe-zoom-in').isEnabled(),true,label+' zoom-in must re-enable after zooming out');
   await page.evaluate(()=>window.LARIA_ATLAS_PERSPECTIVE.zoom(1));
   assert.equal(await page.locator('#globe-zoom-out').isEnabled(),false,label+' atlas zoom-out must disable at minimum atlas scale');
   await page.evaluate(()=>window.LARIA_ATLAS_PERSPECTIVE.region('norden'));
