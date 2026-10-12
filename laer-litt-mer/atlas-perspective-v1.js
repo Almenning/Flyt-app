@@ -278,7 +278,10 @@ function layout(){
  const bottom=wideSidePanel?vh-(tabletLandscape?14:8):
    Math.min(vh-(portrait?104:78),(cardRect?.top||vh-164)-(portrait?12:8));
  const h=Math.max(phoneLandscape?165:185,bottom-top);
- const maxWidth=tabletLandscape?Math.min(vw*.62-26,760):phoneLandscape?Math.min(vw*.52-9,680):
+ // In iPad landscape the map owns the wide learning surface.  Its companion
+ // country panel is deliberately narrow and lives to the right, so the actual
+ // country geometry can stay large enough for direct exploration.
+ const maxWidth=tabletLandscape?Math.min(vw*.78,920):phoneLandscape?Math.min(vw*.52-9,680):
    tablet?Math.min(vw-20,990):!portrait?Math.min(vw-20,1440):vw-24;
  const w=Math.min(vw-20,maxWidth);
  screen.style.setProperty('--atlas-left',wideSidePanel?(tabletLandscape?'16px':'8px'):'50%');
