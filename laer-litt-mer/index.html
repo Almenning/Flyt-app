@@ -3684,7 +3684,10 @@ function appBack(){
   }
   if(current==='fraction-lab'||current==='multiplication-lab'){openSubject('math');return true}
   if(current==='world'){
-    if(globeReturnScreen==='basecamp'&&window.LARIA_RETURN_TO_BASECAMP?.())return true;
+    if(globeReturnScreen==='basecamp'){
+      if(window.LARIA_RETURN_TO_BASECAMP?.())return true;
+      setTab('home');return true;
+    }
     showScreen(globeReturnScreen==='continent'?'continent':'geography');return true
   }
   if(current==='continent'){showScreen('geography');return true}
@@ -4250,6 +4253,7 @@ document.getElementById('world-back').onclick=()=>{
     showScreen(globeReturnScreen);return;
   }
   if(typeof window.LARIA_RETURN_TO_BASECAMP==='function'&&window.LARIA_RETURN_TO_BASECAMP())return;
+  if(globeReturnScreen==='basecamp'){setTab('home');return;}
   showScreen('geography');
 };
 document.getElementById('close-session').onclick=()=>{persistActiveSession();returnToLearningHome()};
