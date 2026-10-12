@@ -52,7 +52,7 @@ async function run(engine,label,viewport){
   assert.ok(separateColumns
     ?rect.x+rect.width<=card.x-2
     :rect.y+rect.height<=card.y-2,
-  label+' atlas collides with country card');
+  label+' atlas collides with country card '+JSON.stringify({rect,card,modes}));
   const first=await page.evaluate(()=>window.LARIA_ATLAS_PERSPECTIVE.snapshot());
   assert.equal(first.source,'country-geometry',label+' country surfaces must use real polygon data');
   const regions=await page.locator('.atlas-region-nav button').count();
