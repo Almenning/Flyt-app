@@ -34,8 +34,12 @@ for(const name of ['home-basecamp-v12.js','journey-world-premium.js','laria-task
  assert.match(source,/LARIA_FOX\.source/,'missing shared identity in '+name);
  assert.doesNotMatch(source,/return '\.\/lia-fox-explorer\.webp';/,'static companion in '+name);
 }
-for(const name of ['fraction-premium-v2.js','multiplication-premium-v2.js',
- 'multiplication-pick-play-v1.js','word-hunt.js']){
+const fraction=file('fraction-premium-v2.js');
+assert.match(fraction,/LARIA_FOX\.worldSource/,'Brøklab must start with the chosen full-body fox, not a portrait flash');
+assert.doesNotMatch(fraction,/src="\.\/lia-fox-explorer-home\.webp"/,'generic picture survives in Brøklab');
+assert.match(api.worldSource('girl'),/girl-braids-blue-dress-v1\.webp/);
+assert.match(api.worldSource('boy'),/boy-adventurer-green-vest-v1\.webp/);
+for(const name of ['multiplication-premium-v2.js','multiplication-pick-play-v1.js','word-hunt.js']){
  const src=file(name);
  assert.match(src,/LARIA_FOX\.source/,'nonpersonal fox in '+name);
  assert.doesNotMatch(src,/src="\.\/lia-fox-explorer-home\.webp"/,'generic picture survives in '+name);

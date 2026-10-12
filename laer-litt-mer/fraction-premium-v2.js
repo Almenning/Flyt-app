@@ -26,7 +26,9 @@ const SORT=[
 const CONVERSIONS=[[1,2],[1,4],[3,4],[2,5],[1,5],[1,10],[1,3],[2,3],[5,8]];
 const titles={explore:'Utforsk brøker',build:'Bygg en brøk',equal:'Like mye?',sort:'Sorter brøker',convert:'Brøk, prosent og desimal',mastery:'Min mestring'};
 const faces={explore:'Brøker finnes overalt! Trykk på delene og se hva som skjer.',build:'Sett inn en bit. Du bestemmer hvor mye du vil bygge.',equal:'To forskjellige brøker kan vise akkurat like mye!',sort:'Sammenlign hvor stor del som er fargelagt.',convert:'Samme mengde kan skrives på tre måter.',mastery:'Det du har utforsket, kan du alltid utforske igjen.'};
-const u={page:'home',explore:{n:3,d:4,mode:'circle'},build:{n:3,d:4,filled:[0,1,2],notice:''},equal:0,equalGuess:null,sortIndex:0,sortOrder:[0,1,2],sortResult:'',sortSelected:null,convert:0,showConvertExtra:false};
+const sharedCake={n:1,d:4,filled:[0],notice:'',mode:'circle'};
+// Both views manipulate one tangible cake; changing the view never resets its fraction.
+const u={page:'build',explore:sharedCake,build:sharedCake,equal:0,equalGuess:null,sortIndex:0,sortOrder:[0,1,2],sortResult:'',sortSelected:null,convert:0,showConvertExtra:false,showEquivalents:false};
 let svgId=0,drag=null,lastDragUntil=0;
 let returnToLockedJourney=false; // navigation-only context; not persisted
 let returnToMathSubject=false; // nested route, UI only
@@ -40,7 +42,7 @@ const read=()=>{try{const o=JSON.parse(localStorage.getItem(STORE)||'{}');return
   actions:Number(o.actions)||0,updated:Number(o.updated)||0
  }}catch(_){return {explored:{},built:{},equal:{},sorted:{},converted:{},actions:0,updated:0}}};
 const progress=read();
-const fox=()=>'<img src="'+window.LARIA_FOX.source(window.LARIA_FOX.choice())+'" alt="" class="fr2-fox" loading="lazy">';
+const fox=()=>'<img src="'+window.LARIA_FOX.worldSource(window.LARIA_FOX.choice())+'" alt="" class="fr2-fox" loading="eager" decoding="async">';
 const key=(n,d)=>n+'/'+d;
 const clamp=(x,min,max)=>Math.max(min,Math.min(max,Number(x)||0));
 const equal=(a,b)=>a[0]*b[1]===b[0]*a[1];
@@ -49,9 +51,16 @@ const pair=(o)=>[o.n,o.d];
 const frac=(n,d)=>'<span class="fr2-fraction" role="img" aria-label="'+n+' av '+d+'"><b>'+n+'</b><i aria-hidden="true"></i><b>'+d+'</b></span>';
 const number=(n,max=3)=>new Intl.NumberFormat('nb-NO',{maximumFractionDigits:max}).format(n);
 function formatValue(n,d){
- let x=d;while(x%2===0)x/=2;while(x%5===0)x/=5;const exact=x===1;
- const v=n/d,p=v*100;
- return {dec:(exact?'':'≈ ')+number(v,exact?4:3)+(exact?'':'…'),pct:(exact?'':'≈ ')+number(p,exact?2:1)+' %',exact};
+ // Reduce before checking if the decimal terminates.
+ // 3/6 = 1/2, 0/3 = 0 and 3/3 = 1 are exact values.
+ let a=Math.abs(n),b=Math.abs(d);
+ while(b){const remainder=a%b;a=b;b=remainder;}
+ let reducedDenominator=d/(a||1);
+ while(reducedDenominator%2===0)reducedDenominator/=2;
+ while(reducedDenominator%5===0)reducedDenominator/=5;
+ const exact=reducedDenominator===1,v=n/d,p=v*100;
+ return {dec:(exact?'':'≈ ')+number(v,exact?4:3)+(exact?'':'…'),
+         pct:(exact?'':'≈ ')+number(p,exact?2:1)+' %',exact};
 }
 function mark(kind,item){
  if(!progress[kind]||progress[kind][item])return;
@@ -76,28 +85,44 @@ function fractionSvg(n,d,kind='large',canTap=false,selected=null){
  +'<defs><radialGradient id="fr2-berry'+id+'" cx="28%" cy="23%"><stop stop-color="#F5A18C"/><stop offset=".48" stop-color="#DD6450"/><stop offset="1" stop-color="#A94138"/></radialGradient><radialGradient id="fr2-pastry'+id+'" cx="25%" cy="20%"><stop stop-color="#FFF7E7"/><stop offset=".67" stop-color="#F4DFC0"/><stop offset="1" stop-color="#D6B889"/></radialGradient><linearGradient id="fr2-crust'+id+'" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#F8D18B"/><stop offset="1" stop-color="#B47543"/></linearGradient></defs>'
  +'<ellipse cx="102" cy="182" rx="88" ry="13" fill="#6B4A32" opacity=".16"/><circle cx="100" cy="98" r="94" fill="url(#fr2-crust'+id+')" stroke="#915B36" stroke-width="4"/><circle cx="100" cy="100" r="86" fill="#FAE8C7"/>'+slices+sprinkles+'</svg>';
 }
-function barSvg(n,d){
- let cells='';for(let i=0;i<d;i++){const x=12+i*276/d;cells+='<rect x="'+(x+2).toFixed(2)+'" y="30" width="'+(276/d-4).toFixed(2)+'" height="75" rx="7" fill="'+(i<n?'#D86B55':'#FBECD6')+'" stroke="#BD946C" stroke-width="2"/>'}
- return '<svg viewBox="0 0 300 136" class="fr2-bar" role="img" aria-label="'+n+' av '+d+' deler av en stripe"><rect x="5" y="22" width="290" height="91" rx="19" fill="#E3B989" stroke="#AF7E4F" stroke-width="5"/>'+cells+'</svg>';
+function barSvg(n,d,selected=null){
+  const filled=Array.isArray(selected)?selected:Array.from({length:n},(_,i)=>i);
+  let cells='';
+  for(let i=0;i<d;i++){
+    const x=12+i*276/d,on=filled.includes(i);
+    cells+='<rect x="'+(x+2).toFixed(2)+'" y="30" width="'+(276/d-4).toFixed(2)+'" height="75" rx="7" fill="'+(on?'#D86B55':'#FBECD6')+'" stroke="#BD946C" stroke-width="2" data-fr-action="piece" data-piece="'+i+'" role="button" tabindex="0" aria-pressed="'+on+'" aria-label="'+(on?'Fjern':'Fyll')+' del '+(i+1)+' av '+d+'"/>';
+  }
+  return '<svg viewBox="0 0 300 136" class="fr2-bar fr6-interactive-view" role="group" aria-label="Stripe delt i '+d+' like deler"><rect x="5" y="22" width="290" height="91" rx="19" fill="#E3B989" stroke="#AF7E4F" stroke-width="5"/>'+cells+'</svg>';
 }
-function gridSvg(n,d){
- const cols=Math.ceil(Math.sqrt(d)),rows=Math.ceil(d/cols);let s='<div class="fr2-block-grid" style="--fr2-cols:'+cols+'">';
- for(let i=0;i<d;i++)s+='<span class="'+(i<n?'filled':'')+'"></span>';
- return s+'</div>';
+function gridSvg(n,d,selected=null){
+  const filled=Array.isArray(selected)?selected:Array.from({length:n},(_,i)=>i),cols=Math.ceil(Math.sqrt(d));
+  let out='<div class="fr2-block-grid fr6-interactive-view" style="--fr2-cols:'+cols+'" role="group" aria-label="Rutenett med '+d+' like deler">';
+  for(let i=0;i<d;i++){
+    const on=filled.includes(i);
+    out+='<span class="'+(on?'filled':'')+'" data-fr-action="piece" data-piece="'+i+'" role="button" tabindex="0" aria-pressed="'+on+'" aria-label="'+(on?'Fjern':'Fyll')+' del '+(i+1)+' av '+d+'"></span>';
+  }
+  return out+'</div>';
 }
 function glassSvg(n,d){
- const v=Math.max(0,Math.min(1,n/d));
- return '<svg viewBox="0 0 230 220" class="fr2-glass" role="img" aria-label="Målebeger fylt '+number(v*100)+' prosent"><defs><clipPath id="fr2-glass-clip"><path d="M50 28H175L160 203H66Z"/></clipPath><linearGradient id="fr2-liquid" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#EAC17D"/><stop offset="1" stop-color="#CA6E51"/></linearGradient></defs><path d="M50 28H175L160 203H66Z" fill="#F9F1E8BF" stroke="#709EB2" stroke-width="7" stroke-linejoin="round"/><rect x="50" y="'+(203-v*175)+'" width="125" height="'+(v*175)+'" fill="url(#fr2-liquid)" clip-path="url(#fr2-glass-clip)"/><path d="M175 49C220 49 218 105 173 113" stroke="#709EB2" stroke-width="12" fill="none" stroke-linecap="round"/>'+[0,.25,.5,.75,1].map(t=>'<path d="M148 '+(202-t*173)+'H164" stroke="#5B8090" stroke-width="4"/>').join('')+'</svg>';
+  const v=Math.max(0,Math.min(1,n/d));
+  return '<svg viewBox="0 0 230 220" class="fr2-glass fr6-interactive-view" role="slider" data-fr-action="glass-fill" tabindex="0" aria-valuemin="0" aria-valuemax="'+d+'" aria-valuenow="'+n+'" aria-label="Målebeger. '+n+' av '+d+' deler. Trykk for å endre nivået.">'
+    +'<defs><clipPath id="fr2-glass-clip"><path d="M50 28H175L160 203H66Z"/></clipPath><linearGradient id="fr2-liquid" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#EAC17D"/><stop offset="1" stop-color="#CA6E51"/></linearGradient></defs>'
+    +'<path d="M50 28H175L160 203H66Z" fill="#F9F1E8BF" stroke="#709EB2" stroke-width="7" stroke-linejoin="round"/>'
+    +'<rect x="50" y="'+(203-v*175)+'" width="125" height="'+(v*175)+'" fill="url(#fr2-liquid)" clip-path="url(#fr2-glass-clip)"/>'
+    +'<path d="M175 49C220 49 218 105 173 113" stroke="#709EB2" stroke-width="12" fill="none" stroke-linecap="round"/>'
+    +[0,.25,.5,.75,1].map(t=>'<path d="M148 '+(202-t*173)+'H164" stroke="#5B8090" stroke-width="4"/>').join('')
+    +'<rect x="50" y="28" width="125" height="175" fill="transparent" aria-hidden="true"/></svg>';
 }
-function presentation(n,d,kind='circle',interactive=false){
- return kind==='bar'?barSvg(n,d):kind==='grid'?gridSvg(n,d):kind==='glass'?glassSvg(n,d):fractionSvg(n,d,'large',interactive);
+function presentation(n,d,kind='circle',interactive=false,selected=null){
+  return kind==='bar'?barSvg(n,d,selected):kind==='grid'?gridSvg(n,d,selected):kind==='glass'?glassSvg(n,d):fractionSvg(n,d,'large',interactive,selected);
 }
+
 function mascot(message,small=false){return '<div class="fr2-guide'+(small?' compact':'')+'">'+fox()+'<div class="fr2-fox-speech">'+message+'<span class="fr2-guide-heart" aria-hidden="true">♥</span></div></div>'}
 function topBar(){const n=Object.entries(progress).filter(([k])=>['explored','built','equal','sorted','converted'].includes(k)).reduce((sum,[,v])=>sum+Object.keys(v||{}).length,0);return '<header class="fr2-top fr4-top">'+cta('back','‹','fr2-back','id="fraction-lab-back" aria-label="Tilbake"')+'<div class="fr2-brand">Læria<small>✦</small></div><div class="fr2-charm fr4-earned" aria-label="'+n+' oppdagelser i Brøklaben"><span aria-hidden="true">★</span><b>'+n+'</b></div><div class="fr4-top-token" aria-hidden="true">'+cardIllustration('explore')+'</div></header>'}
 function sign(text,sub){return '<div class="fr2-sign"><span class="fr2-sign-decoration" aria-hidden="true">'+cardIllustration('build')+'</span><h1>'+text+'</h1>'+(sub?'<p>'+sub+'</p>':'')+'</div>'}
 function screenTabs(){
- const items=[['home','⌂','Hjem'],['explore','◔','Utforsk'],['build','▧','Bygg'],['mastery','★','Mestring']];
- return '<nav class="fr2-nav" aria-label="Brøklab"><div class="fr2-nav-row">'+items.map(([p,i,label])=>cta('go','<span aria-hidden="true">'+i+'</span><small>'+label+'</small>','fr2-nav-item '+(u.page===p?'active':''),'data-page="'+p+'" '+(u.page===p?'aria-current="page"':''))).join('')+'</div></nav>';
+  const items=[['build','◕','Kaken'],['home','✦','Flere leker'],['mastery','★','Oppdagelser']];
+  return '<nav class="fr2-nav fr6-nav" aria-label="Brøklab"><div class="fr2-nav-row">'+items.map(([p,i,label])=>cta('go','<span aria-hidden="true">'+i+'</span><small>'+label+'</small>','fr2-nav-item '+(u.page===p?'active':''),'data-page="'+p+'" '+(u.page===p?'aria-current="page"':''))).join('')+'</div></nav>';
 }
 
 /* Six bespoke workshop illustrations replace generic fraction glyphs. These are
@@ -172,35 +197,54 @@ function cardIllustration(type){
  return '<svg class="fr2-illustration fr2-illustration-'+type+'" viewBox="0 0 240 150" role="presentation" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">'+grad+p+'</svg>';
 }
 function loosePieceSvg(denominator,slot){
- const d=Math.max(2,denominator),id='fr2Loose'+denominator+'-'+slot;
- const cx=57,cy=61,r=44,a0=-Math.PI/2,a1=a0+Math.PI*2/d;
- const x0=cx+r*Math.cos(a0),y0=cy+r*Math.sin(a0);
- const x1=cx+r*Math.cos(a1),y1=cy+r*Math.sin(a1);
- const outline='M '+cx+' '+cy+' L '+x0.toFixed(3)+' '+y0.toFixed(3)+' A '+r+' '+r+' 0 0 1 '+x1.toFixed(3)+' '+y1.toFixed(3)+' Z';
- return '<svg class="fr2-loose-piece" viewBox="0 0 114 114" aria-hidden="true" focusable="false"><defs><radialGradient id="'+id+'"><stop stop-color="#F8BE99"/><stop offset=".5" stop-color="#DC6B54"/><stop offset="1" stop-color="#A64039"/></radialGradient></defs><path d="'+outline+'" transform="translate(3 4)" fill="#B27D44" opacity=".3"/><path d="'+outline+'" fill="url(#'+id+')" stroke="#DAA36A" stroke-width="5" stroke-linejoin="round"/><path d="M57 61L'+x0.toFixed(1)+' '+y0.toFixed(1)+'" stroke="#F9D6AA" stroke-width="3" opacity=".7"/></svg>';
+  const d=clamp(Number(denominator)||4,2,12),index=clamp(Number(slot)||0,0,d-1);
+  const cx=57,cy=61,r=44,arc=Math.PI*2/d,a0=-Math.PI/2+index*arc,a1=a0+arc;
+  const point=t=>({x:cx+r*Math.cos(t),y:cy+r*Math.sin(t)});
+  const p0=point(a0),p1=point(a1),sector=[{x:cx,y:cy},p0,p1];
+  for(let k=-4;k<=8;k++){
+    const angle=k*Math.PI/2;
+    if(angle>a0+1e-7&&angle<a1-1e-7)sector.push(point(angle));
+  }
+  // Crop each cake wedge to its real silhouette. The earlier full-circle
+  // viewBox made the loose pieces tiny red specks on a child's iPhone.
+  const minX=Math.min(...sector.map(p=>p.x)),maxX=Math.max(...sector.map(p=>p.x));
+  const minY=Math.min(...sector.map(p=>p.y)),maxY=Math.max(...sector.map(p=>p.y));
+  const pad=10,side=Math.max(maxX-minX,maxY-minY)+pad*2;
+  const left=(minX+maxX-side)/2,top=(minY+maxY-side)/2,id='fr2Loose'+d+'-'+index;
+  const n=x=>x.toFixed(2);
+  const outline='M '+cx+' '+cy+' L '+n(p0.x)+' '+n(p0.y)+' A '+r+' '+r+' 0 0 1 '+n(p1.x)+' '+n(p1.y)+' Z';
+  return '<svg class="fr2-loose-piece" viewBox="'+n(left)+' '+n(top)+' '+n(side)+' '+n(side)+'" aria-hidden="true" focusable="false">'
+    +'<defs><radialGradient id="'+id+'" cx="28%" cy="20%"><stop stop-color="#F8BE99"/><stop offset=".5" stop-color="#DC6B54"/><stop offset="1" stop-color="#A64039"/></radialGradient></defs>'
+    +'<path d="'+outline+'" transform="translate(2 3)" fill="#B27D44" opacity=".28"/>'
+    +'<path d="'+outline+'" fill="url(#'+id+')" stroke="#DAA36A" stroke-width="4" stroke-linejoin="round"/>'
+    +'<path d="M'+cx+' '+cy+'L'+n(p0.x)+' '+n(p0.y)+'" stroke="#F9D6AA" stroke-width="2.5" opacity=".8"/></svg>';
 }
+
 function miniArt(type){return cardIllustration(type)}
 function card(type,subtitle){
  return cta('go','<div class="fr2-card-art">'+miniArt(type)+'</div><strong>'+titles[type]+'</strong><small>'+subtitle+'</small><span class="fr2-card-arrow" aria-hidden="true">›</span>','fr2-home-card fr2-card-'+type,'data-page="'+type+'"');
 }
 function home(){
- return '<section class="fr2-home fr4-home">'+sign('Brøklaben','Utforsk, bygg og lek med brøker!')+'<div class="fr2-intro"><span>✦ Et lite verksted for store oppdagelser ✦</span></div>'
- +'<div class="fr2-home-grid">'
- +card('explore','Se brøker i forskjellige former')
- +card('build','Sett sammen deler selv')
- +card('equal','Oppdag brøker som er like store')
- +card('sort','Fra minst til størst')
- +card('convert','Samme mengde, tre skrivemåter')
- +card('mastery','Se oppdagelsene dine')
- +'</div><div class="fr4-home-foreground" aria-hidden="true"></div>'
- +mascot('Brøker finnes overalt! Skal vi utforske sammen?')+'</section>';
+  return '<section class="fr2-home fr4-home fr6-more">'+sign('Flere leker','Du kan også prøve noe helt annet!')
+    +'<div class="fr2-intro"><span>✦ Du kan alltid gå tilbake til kaken ✦</span></div>'
+    +'<div class="fr2-home-grid">'
+    +card('explore','Se den samme brøken på nye måter')
+    +card('equal','Oppdag når forskjellige brøker er like')
+    +card('sort','Finn den minste og største')
+    +card('convert','Prøv prosent og desimaltall')
+    +card('mastery','Se hva du har utforsket')
+    +'</div><div class="fr4-home-foreground" aria-hidden="true"></div>'
+    +mascot('Det er du som bestemmer hva vi skal leke med!',true)+'</section>';
 }
+
 function adjustField(field){
- const unit=field==='d'?'Nevner':'Teller';
- const explanation=field==='d'?'Hvor mange like deler?':'Hvor mange deler fylles?';
- const val=u[u.page][field],min=field==='d'?2:0,max=field==='d'?12:u[u.page].d;
- return '<div class="fr2-adjust"><div class="fr2-adjust-heading"><b>'+unit+'</b><small>'+explanation+'</small></div><div class="fr2-adjust-row">'+cta('adjust','−','fr2-adjust-btn minus','data-field="'+field+'" data-step="-1" aria-label="Mindre '+unit.toLowerCase()+'" '+(val<=min?'disabled':''))+'<strong>'+val+'</strong>'+cta('adjust','+','fr2-adjust-btn plus','data-field="'+field+'" data-step="1" aria-label="Større '+unit.toLowerCase()+'" '+(val>=max?'disabled':''))+'</div></div>';
+  const count=field==='n',plain=count?'Fylte deler':'Like deler',term=count?'Teller':'Nevner';
+  const val=u.build[field],min=count?0:2,max=count?u.build.d:12;
+  return '<div class="fr2-adjust fr6-adjust fr6-adjust-'+field+'" data-field="'+field+'"><div class="fr2-adjust-heading"><b>'+plain+'</b><small>'+term+'</small></div>'
+    +'<div class="fr2-adjust-row">'+cta('adjust','−','fr2-adjust-btn minus','data-field="'+field+'" data-step="-1" aria-label="Færre '+plain.toLowerCase()+'" '+(val<=min?'disabled':''))+'<strong>'+val+'</strong>'
+    +cta('adjust','+','fr2-adjust-btn plus','data-field="'+field+'" data-step="1" aria-label="Flere '+plain.toLowerCase()+'" '+(val>=max?'disabled':''))+'</div></div>';
 }
+
 function commonFractions(){
  return '<div class="fr2-presets fr4-presets" aria-label="Vanlige brøker">'+PRESETS.map(([n,d])=>cta('preset',
  '<span class="fr4-preset-pie">'+fractionSvg(n,d,'preset')+'</span>'+frac(n,d),
@@ -216,21 +260,18 @@ function viewIllustration(view){
  return frame+'<path d="M15 7H46L42 45H19Z" fill="#E4F0F2" stroke="#688F9C" stroke-width="3"/><path d="M20 26H43L42 45H23Z" fill="#78B8CC"/><path d="M45 15Q62 15 57 31Q55 38 43 36" fill="none" stroke="#688F9C" stroke-width="5"/><path d="M34 9V43" stroke="#91B5B8" stroke-width="1.5"/>'+end;
 }
 function explore(){
-  const x=u.explore;
-  const modes=[['circle','Sirkel'],['bar','Stripe'],['grid','Rutenett'],['glass','Målebeger']];
-  const caption=x.n===0?'Ingen av '+x.d+' deler er fylt.':x.n===x.d?'Hele figuren er fylt.':x.n+' av '+x.d+' like deler er fylt.';
-  const speech=x.n===0?'Trykk på en del. Hva tror du skjer?':x.n===x.d?'Nå er alle delene med. Det er én hel!':'Flott! '+x.n+' av '+x.d+' deler er fargelagt.';
-  // The object, its numerical fraction and both controls belong to the first viewport.
-  // The representation picker and presets are secondary and may scroll below.
-  return '<section class="fr2-explore fr4-explore fr5-explore">'+labIntro('Utforsk brøker','Se hva som skjer når du endrer delene!')
-   +'<div class="fr2-stage fr2-explore-stage fr4-explore-stage fr5-explore-stage"><div class="fr2-stage-main fr4-stage-main"><div class="fr2-main-illustration">'+presentation(x.n,x.d,x.mode,x.mode==='circle')+'</div><div class="fr2-main-value">'+frac(x.n,x.d)+'</div></div>'
-   +'<div class="fr4-scene-fox fr5-scene-fox" data-fr-action="fox-help" role="button" tabindex="0" aria-label="Trykk på reven for hjelp og opplesning">'+fox()+'</div><div class="fr4-scene-speech" role="status" aria-live="polite">'+speech+'<span aria-hidden="true">♥</span></div>'
-   +'<div class="fr4-stage-caption">'+caption+'</div></div>'
-   +'<div class="fr2-controls fr4-controls fr5-controls">'+adjustField('n')+adjustField('d')+'</div>'
-   +'<div class="fr2-views fr4-views fr5-view-picker" role="group" aria-label="Velg brøkvisning">'+modes.map(([k,label])=>cta('view','<span class="fr4-mode-art">'+viewIllustration(k)+'</span><b>'+label+'</b>','fr2-view '+(x.mode===k?'active':''),'data-view="'+k+'" aria-pressed="'+(x.mode===k)+'"')).join('')+'</div>'
-   +'<div class="fr2-soft-section fr4-common"><strong>Vanlige brøker</strong>'+commonFractions()+'</div>'
-   +'<div class="fr4-small-discovery" aria-hidden="true"><span>✦</span> Prøv å fylle én del til! <span>✦</span></div></section>';
+  const x=u.build,modes=[['circle','Kake'],['bar','Stripe'],['grid','Ruter'],['glass','Målebeger']];
+  const caption=x.n===0?'Ingen deler er fylt.':x.n===x.d?'Alt er fylt. En hel!':x.n+' av '+x.d+' like deler er fylt.';
+  const speech=x.n===0?'Trykk på en del!':x.n===x.d?'Det er en hel!':x.n+' av '+x.d+' deler.';
+  return '<section class="fr2-explore fr4-explore fr5-explore fr6-explore">'+labIntro('Se på nye måter','Den samme brøken, flere former!')
+    +'<div class="fr2-stage fr2-explore-stage fr4-explore-stage fr5-explore-stage"><div class="fr2-stage-main fr4-stage-main"><div class="fr2-main-illustration">'+presentation(x.n,x.d,x.mode,true,x.filled)+'</div><div class="fr2-main-value">'+frac(x.n,x.d)+'</div></div>'
+    +'<div class="fr4-scene-fox fr5-scene-fox" data-fr-action="fox-help" role="button" tabindex="0" aria-label="Trykk på reven for hjelp og opplesning">'+fox()+'</div><div class="fr4-scene-speech" role="status" aria-live="polite">'+speech+'<span aria-hidden="true">♥</span></div>'
+    +'<div class="fr4-stage-caption">'+caption+'</div></div>'
+    +'<div class="fr2-controls fr4-controls fr5-controls fr6-controls">'+adjustField('n')+adjustField('d')+'</div>'
+    +'<div class="fr2-views fr4-views fr5-view-picker" role="group" aria-label="Velg brøkvisning">'+modes.map(([k,label])=>cta('view','<span class="fr4-mode-art">'+viewIllustration(k)+'</span><b>'+label+'</b>','fr2-view '+(x.mode===k?'active':''),'data-view="'+k+'" aria-pressed="'+(x.mode===k)+'"')).join('')+'</div>'
+    +'<div class="fr2-soft-section fr4-common"><strong>Prøv disse brøkene</strong>'+commonFractions()+'</div></section>';
 }
+
 function labIntro(title,subtitle){
  return '<div class="fr5-lab-intro"><h1>'+title+'</h1><p>'+subtitle+'</p></div>';
 }
@@ -238,7 +279,7 @@ function foxHint(){
  const x=u.page==='build'?u.build:u.explore;
  if(x.n===0)return 'Du har null av '+x.d+' deler. Trykk på kaken eller på en løs bit for å fylle én del.';
  if(x.n===x.d)return 'Alle '+x.d+' delene er fylt. Det er én hel!';
- if(x.d%2===0&&x.n===x.d/2)return 'Du har bygget en halv! '+x.n+' av '+x.d+' deler er akkurat halvparten.';
+ if(x.d%2===0&&x.n===x.d/2)return 'Du har bygget en halv! '+x.n+' av '+x.d+' er like mye som 1 av 2.';
  return 'Du har '+x.n+' av '+x.d+' like deler. Telleren er '+x.n+', antallet fargelagte deler. Nevneren er '+x.d+', antallet like deler.';
 }
 function foxSpeak(){
@@ -246,7 +287,7 @@ function foxSpeak(){
  const x=u.page==='build'?u.build:u.explore,help=foxHint();
  const bubble=document.querySelector('#'+ROOT+' '+(u.page==='build'?'.fr5-fox-bubble':'.fr4-scene-speech'));
  if(bubble){
-  bubble.textContent=u.page==='build'?(x.n===x.d?'En hel!':x.n===0?'Trykk for å fylle!':'Teller '+x.n+', nevner '+x.d):help;
+  bubble.textContent=u.page==='build'?(x.n===x.d?'Du har én hel!':x.n===0?'Trykk på et stykke!':x.d%2===0&&x.n*2===x.d?'Det er en halv!':'Du har fylt '+x.n+' av '+x.d+'!'):help;
   bubble.classList.add('fr5-help-open');
   bubble.setAttribute('role','status');
  }
@@ -260,17 +301,32 @@ function foxSpeak(){
  }catch(_){}
 }
 
+// The cake, numeric fraction and both equivalent forms share one source of truth.
+function fractionEquivalents(n,d){
+ const fmt=formatValue(n,d);
+ return '<div class="fr7-equivalent-tiles" role="group" aria-label="Samme mengde som '+n+' av '+d+'">'
+  +'<div class="fr7-equivalent-tile"><span>Desimaltall</span><strong>'+fmt.dec+'</strong></div>'
+  +'<div class="fr7-equivalent-tile"><span>Prosent</span><strong>'+fmt.pct+'</strong></div></div>'
+  +(!fmt.exact?'<small class="fr7-approx-note">≈ betyr omtrent. Desimaltallet fortsetter videre.</small>':'');
+}
 function build(){
- const x=u.build;
- const status=x.n===0?'Prøv en bit!':x.n===x.d?'En hel!':x.n+' av '+x.d+'!';
- return '<section class="fr2-build fr4-build fr5-build">'+labIntro('Bygg en brøk','Trykk på kaken, eller legg til en brøkbit.')
- +'<div class="fr2-build-workshop fr4-build-stage fr5-build-stage">'
- +'<div class="fr2-build-target fr5-build-target" data-fr-drop="1"><div class="fr4-build-woodhead">Delene dine</div><div class="fr2-fabric">'+fractionSvg(x.n,x.d,'builder',true,x.filled)+'</div><p>Trykk på en del for å fylle eller fjerne den.</p></div>'
- +'<div class="fr5-build-aside"><div class="fr5-live-result" role="status" aria-live="polite" aria-atomic="true"><span>Du har bygget</span>'+frac(x.n,x.d)+'<small>'+x.n+' av '+x.d+' like deler</small></div>'
- +'<div class="fr2-guide fr5-fox-mentor" data-fr-action="fox-help" role="button" tabindex="0" aria-label="Trykk på reven for hjelp og opplesning">'+fox()+'<span class="fr5-fox-bubble">'+status+' <span aria-hidden="true">🔊</span></span></div></div>'
- +'<div class="fr2-wood-tray fr5-piece-tray"><span class="fr2-tray-title">Brøkbiter</span><div class="fr2-spare-pieces">'+Array.from({length:Math.min(x.d,8)},(_,i)=>cta('add',loosePieceSvg(x.d,i),'fr2-spare '+(i===0?'point':''),'data-fr-pick="1" aria-label="Legg til én del"')).join('')+'</div><small>Trykk eller dra en bit inn</small></div>'
- +'</div><div class="fr2-controls fr4-controls fr5-controls">'+adjustField('d')+adjustField('n')+'</div>'
- +'<div class="fr2-actions">'+cta('reset','Tøm brettet','fr2-secondary')+cta('next-build','Bygg noe nytt ›','fr2-primary')+'</div></section>';
+  const x=u.build,half=x.d%2===0&&x.n*2===x.d;
+  const status=x.n===0?'Trykk på et stykke!':x.n===x.d?'Du har én hel!':half?'Det er en halv!':x.n+' av '+x.d+'!';
+  // A tray wedge represents one exact empty sector, not an infinite generic supply.
+  const remaining=Array.from({length:x.d},(_,i)=>i).filter(i=>!x.filled.includes(i));
+  return '<section class="fr2-build fr4-build fr5-build fr6-workshop">'+labIntro('Brøklaben','Trykk på et kakestykke og se hva som skjer!')
+   +'<div class="fr2-build-workshop fr4-build-stage fr5-build-stage fr6-stage">'
+   +'<div class="fr2-build-target fr5-build-target" data-fr-drop="1"><div class="fr4-build-woodhead">Kaken din</div><div class="fr2-fabric">'+fractionSvg(x.n,x.d,'builder',true,x.filled)+'</div><p>Trykk på et stykke for å fylle eller tømme det.</p></div>'
+   +'<div class="fr5-build-aside"><div class="fr5-live-result fr6-result" role="status" aria-live="polite" aria-atomic="true"><span>Du har fylt</span>'+frac(x.n,x.d)+'<small>'+x.n+' av '+x.d+' like deler</small></div>'
+   +'<div class="fr7-tablet-equivalents"><div class="fr7-values-heading">Samme mengde som</div>'+fractionEquivalents(x.n,x.d)+'</div>'
+   +'<div class="fr2-guide fr5-fox-mentor" data-fr-action="fox-help" role="button" tabindex="0" aria-label="Trykk på reven for frivillig hjelp og opplesning">'+fox()+'<span class="fr5-fox-bubble">'+status+' <span aria-hidden="true">🔊</span></span></div></div>'
+   +'<div class="fr2-wood-tray fr5-piece-tray fr6-piece-tray"><span class="fr2-tray-title">Løse biter</span>'
+   +'<div class="fr2-spare-pieces">'+(remaining.length?remaining.map(i=>cta('add',loosePieceSvg(x.d,i),'fr2-spare','data-fr-pick="1" data-piece-index="'+i+'" aria-label="Legg kakestykke '+(i+1)+' av '+x.d+' i kaken"')).join(''):'<span class="fr6-empty-tray">Alle bitene er i kaken!</span>')+'</div>'
+   +'<small>Trykk eller dra en bit inn</small></div>'
+   +'</div><div class="fr2-controls fr4-controls fr5-controls fr6-controls">'+adjustField('n')+adjustField('d')+'</div>'
+   +'<div class="fr7-mobile-discovery">'+cta('toggle-equivalents',u.showEquivalents?'Skjul desimaltall og prosent':'Se desimaltall og prosent','fr7-equivalents-toggle','aria-expanded="'+u.showEquivalents+'" aria-controls="fr7-mobile-values"')
+   +'<div id="fr7-mobile-values" class="fr7-mobile-equivalents" '+(u.showEquivalents?'':'hidden')+'><div class="fr7-values-heading">Samme mengde som</div>'+fractionEquivalents(x.n,x.d)+'</div></div>'
+   +'<div class="fr2-actions">'+cta('reset','Tøm kaken','fr2-secondary')+cta('next-build','Del kaken på nytt ›','fr2-primary')+'</div></section>';
 }
 
 function eqCurrent(){return EQ[u.equal%EQ.length]}
@@ -332,50 +388,71 @@ function enter(next){
  try{document.getElementById(ROOT)?.scrollIntoView({block:'start',behavior:'instant'})}catch(_){}
 }
 function applyBuildPieces(parts,notice=''){
- const x=u.build;
- x.filled=[...new Set(parts)].filter(i=>Number.isInteger(i)&&i>=0&&i<x.d).sort((a,b)=>a-b);
- x.n=x.filled.length;
- if(x.n>0)mark('built',key(x.n,x.d));
- x.notice=notice;
- render();
+  const x=u.build,before=x.n;
+  x.filled=[...new Set(parts)].filter(i=>Number.isInteger(i)&&i>=0&&i<x.d).sort((a,b)=>a-b);
+  x.n=x.filled.length;
+  if(x.n>0)mark('built',key(x.n,x.d));
+  if(u.page==='explore')mark('explored',key(x.n,x.d));
+  x.notice=notice;
+  render();
+  // The selected fox reacts at meaningful discoveries, not after every tap.
+  if(x.n!==before&&x.n>0&&(x.n===x.d||x.d%2===0&&x.n*2===x.d)){
+    try{requestAnimationFrame(()=>{
+      const host=document.querySelector('#fraction-lab-root '+(u.page==='build'?'.fr5-fox-mentor':'.fr5-scene-fox'));
+      window.LARIA_FOX_PRESENCE?.react?.('celebrate',host);
+    })}catch(_){}
+  }
 }
-function addBuildPiece(notice='Du la til én del!'){
- const x=u.build,next=Array.from({length:x.d},(_,i)=>i).find(i=>!x.filled.includes(i));
- if(next===undefined){x.notice='Alle delene er allerede fylt!';render();return}
- applyBuildPieces([...x.filled,next],notice);
+function addBuildPiece(notice='Du la til én del!',pieceIndex=null){
+  const x=u.build;
+  const next=pieceIndex===null?Array.from({length:x.d},(_,i)=>i).find(i=>!x.filled.includes(i)):
+    Number.isInteger(pieceIndex)&&pieceIndex>=0&&pieceIndex<x.d&&!x.filled.includes(pieceIndex)?pieceIndex:undefined;
+  if(next===undefined)return;
+  applyBuildPieces([...x.filled,next],notice);
+}
+function remapFilledPieces(filled,oldD,newD){
+  // Changing the number of equally-sized pieces should not also silently
+  // change the numerator, except when it now exceeds the total piece count.
+  const count=Math.min(filled.length,newD),mapped=[];
+  for(const i of filled){
+    const target=Math.min(newD-1,Math.floor((i+.5)*newD/oldD));
+    if(!mapped.includes(target))mapped.push(target);
+  }
+  for(let i=0;mapped.length<count&&i<newD;i++)if(!mapped.includes(i))mapped.push(i);
+  return mapped.sort((a,b)=>a-b);
 }
 function adjust(field,step){
- const o=u.page==='build'?u.build:u.explore;
- if(u.page==='build'){
+  const x=u.build;
   if(field==='d'){
-   o.d=clamp(o.d+step,2,12);
-   applyBuildPieces(o.filled.filter(i=>i<o.d));
+    const newD=clamp(x.d+step,2,12);
+    if(newD===x.d)return;
+    const pieces=remapFilledPieces(x.filled,x.d,newD);
+    x.d=newD;
+    applyBuildPieces(pieces);
   }else{
-   const goal=clamp(o.n+step,0,o.d);
-   if(goal<o.n)applyBuildPieces(o.filled.slice(0,goal));
-   else if(goal>o.n)addBuildPiece();
-   else render();
+    const goal=clamp(x.n+step,0,x.d);
+    if(goal<x.n)applyBuildPieces(x.filled.slice(0,goal));
+    else if(goal>x.n)addBuildPiece();
+    else render();
   }
-  return;
- }
- if(field==='d'){o.d=clamp(o.d+step,2,12);o.n=clamp(o.n,0,o.d);}
- else o.n=clamp(o.n+step,0,o.d);
- mark('explored',key(o.n,o.d));
- render();
 }
 function setPiece(index){
- if(u.page==='build'){
+  if(u.page!=='build'&&u.page!=='explore')return;
   const x=u.build;
-  if(index<0||index>=x.d)return;
-  const next=x.filled.includes(index)?x.filled.filter(i=>i!==index):[...x.filled,index];
-  applyBuildPieces(next,'Du har '+next.length+' av '+x.d+' deler.');
-  return;
- }
- const o=u.explore;
- o.n=index<o.n?index:index+1;
- mark('explored',key(o.n,o.d));
- render();
+  if(!Number.isInteger(index)||index<0||index>=x.d)return;
+  const filled=x.filled.includes(index);
+  applyBuildPieces(filled?x.filled.filter(i=>i!==index):[...x.filled,index],
+    filled?'Du tok ut et stykke.':'Du la til ett stykke.');
 }
+function setGlassFill(e,control){
+  const rect=control.getBoundingClientRect();
+  if(!rect.height)return;
+  const visualY=(e.clientY-rect.top)/rect.height*220;
+  const ratio=Math.max(0,Math.min(1,(203-visualY)/175));
+  const goal=clamp(Math.round(ratio*u.build.d),0,u.build.d);
+  applyBuildPieces(Array.from({length:goal},(_,i)=>i));
+}
+
 function moveSort(from,to){to=clamp(to,0,u.sortOrder.length-1);if(from===to)return;const moved=u.sortOrder.splice(from,1)[0];u.sortOrder.splice(to,0,moved);u.sortResult='';render();}
 function nextSort(){u.sortIndex=(u.sortIndex+1)%SORT.length;u.sortOrder=[2,0,1];u.sortResult='';render();}
 function actionHandler(e){
@@ -383,7 +460,7 @@ function actionHandler(e){
  const a=btn.dataset.frAction;
  // Normal taps must always work, including immediately after a drag or reset.
  if(a==='back'){
-  if(u.page!=='home'){enter('home');return;}
+  if(u.page!=='build'){enter('build');return;}
   // The actual premium lab overrides the legacy openFractionLab. Keep the
   // same Tallenga return contract when opened from the painted Brøklaben sign.
   if(returnToLockedJourney||returnToMathSubject){
@@ -396,12 +473,22 @@ function actionHandler(e){
   return;
  }
  if(a==='fox-help'){foxSpeak();return;}
+ if(a==='toggle-equivalents'){
+  u.showEquivalents=!u.showEquivalents;
+  if(u.showEquivalents)mark('converted',key(u.build.n,u.build.d));
+  render();
+  const button=document.querySelector('#'+ROOT+' .fr7-equivalents-toggle');
+  button?.focus({preventScroll:true});
+  if(u.showEquivalents)requestAnimationFrame(()=>document.querySelector('#'+ROOT+' #fr7-mobile-values')?.scrollIntoView({block:'nearest'}));
+  return;
+ }
   if(a==='go'){enter(btn.dataset.page);return;}
- if(a==='view'){u.explore.mode=btn.dataset.view;mark('explored',key(u.explore.n,u.explore.d));render();return;}
- if(a==='preset'){u.explore.n=Number(btn.dataset.n);u.explore.d=Number(btn.dataset.d);mark('explored',key(u.explore.n,u.explore.d));render();return;}
+ if(a==='view'){u.build.mode=btn.dataset.view;mark('explored',key(u.build.n,u.build.d));render();return;}
+ if(a==='preset'){const n=Number(btn.dataset.n),d=Number(btn.dataset.d);u.build.d=d;applyBuildPieces(Array.from({length:n},(_,i)=>i));mark('explored',key(n,d));return;}
  if(a==='adjust'){adjust(btn.dataset.field,Number(btn.dataset.step));return;}
  if(a==='piece'){setPiece(Number(btn.dataset.piece));return;}
- if(a==='add'){addBuildPiece();return;}
+  if(a==='glass-fill'){setGlassFill(e,btn);return;}
+ if(a==='add'){addBuildPiece('Du la til én del!',Number(btn.dataset.pieceIndex));return;}
  if(a==='reset'){applyBuildPieces([],'Nå kan du bygge helt på nytt.');return;}
  if(a==='next-build'){u.build.d=DENOMS[(DENOMS.indexOf(u.build.d)+1)%DENOMS.length];applyBuildPieces([],'Prøv å bygge en ny brøk!');return;}
  if(a==='guess'){u.equalGuess=btn.dataset.guess;const q=eqCurrent(),correct=equal(q.a,q.b)===(u.equalGuess==='equal');if(correct)mark('equal',key(q.a[0],q.a[1])+'='+key(q.b[0],q.b[1]));render();return;}
@@ -415,6 +502,10 @@ function actionHandler(e){
 function keyHandler(e){
  const foxButton=e.target.closest('[data-fr-action="fox-help"]');
   if(foxButton&&(e.key==='Enter'||e.key===' ')){e.preventDefault();foxSpeak();return;}
+  const glass=e.target.closest('[data-fr-action="glass-fill"]');
+  if(glass&&['ArrowUp','ArrowRight','ArrowDown','ArrowLeft','Enter',' '].includes(e.key)){
+    e.preventDefault();adjust('n',e.key==='ArrowDown'||e.key==='ArrowLeft'?-1:1);return;
+  }
   const t=e.target.closest('[data-fr-action="piece"]');if(t&&(e.key==='Enter'||e.key===' ')){e.preventDefault();setPiece(Number(t.dataset.piece))}
 }
 function clearDrag(){
@@ -429,7 +520,7 @@ function pointerDown(e){
  const btn=e.target.closest('.fr2-spare[data-fr-pick],.fr2-sort-card[data-fr-sort]');
  // One pointer path for mouse, pen and touch avoids incompatible HTML5 drag events.
  if(!btn||e.pointerType==='mouse'&&e.button!==0)return;
- drag={type:btn.hasAttribute('data-fr-pick')?'build':'sort',pointer:e.pointerId,startX:e.clientX,startY:e.clientY,from:Number(btn.dataset.frSort),moved:false,ghost:null,lastX:e.clientX,lastY:e.clientY};
+ drag={type:btn.hasAttribute('data-fr-pick')?'build':'sort',pointer:e.pointerId,startX:e.clientX,startY:e.clientY,from:Number(btn.dataset.frSort),pieceIndex:btn.hasAttribute('data-fr-pick')?Number(btn.dataset.pieceIndex):null,moved:false,ghost:null,lastX:e.clientX,lastY:e.clientY};
  try{btn.setPointerCapture(e.pointerId)}catch(_){}
 }
 function pointerMove(e){
@@ -437,7 +528,7 @@ function pointerMove(e){
  if(!drag||drag.pointer!==e.pointerId)return;
  const dist=Math.hypot(e.clientX-drag.startX,e.clientY-drag.startY);
  if(dist<9&&!drag.moved)return;
- if(!drag.moved){drag.moved=true;drag.ghost=document.createElement('div');drag.ghost.className='fr2-drag-ghost';drag.ghost.innerHTML=drag.type==='build'?loosePieceSvg(u.build.d,'drag'):cardIllustration('sort');document.body.appendChild(drag.ghost);}
+ if(!drag.moved){drag.moved=true;drag.ghost=document.createElement('div');drag.ghost.className='fr2-drag-ghost';drag.ghost.innerHTML=drag.type==='build'?loosePieceSvg(u.build.d,drag.pieceIndex):cardIllustration('sort');document.body.appendChild(drag.ghost);}
  drag.lastX=e.clientX;drag.lastY=e.clientY;
  if(drag.ghost){drag.ghost.style.left=e.clientX+'px';drag.ghost.style.top=e.clientY+'px'}
  const el=document.elementFromPoint(e.clientX,e.clientY)?.closest(drag.type==='build'?'.fr2-build-target':'.fr2-sort-card');
@@ -448,7 +539,7 @@ function pointerMove(e){
 function pointerUp(e){
  dragDiagnostics.pointerUp++;
  if(!drag||drag.pointer!==e.pointerId)return;
- const {moved,type,from,startX,lastX,lastY}=drag;
+ const {moved,type,from,pieceIndex,startX,lastX,lastY}=drag;
  let target=null;
  if(moved&&type==='build'){
   target=[...document.querySelectorAll('#fraction-lab-root .fr2-build-target')].find(el=>{
@@ -477,7 +568,7 @@ function pointerUp(e){
  if(moved){
   lastDragUntil=Date.now()+350;
   if(type==='build'&&target){
-   addBuildPiece('Brikken er på plass!');
+   addBuildPiece('Brikken er på plass!',pieceIndex);
   }else if(type==='sort'&&target){
    moveSort(from,Number(target.dataset.frSort));
   }
@@ -489,7 +580,7 @@ window.openFractionLab=function(options){
  returnToLockedJourney=!!(options&&options.returnToJourney==='math');
  returnToMathSubject=!returnToLockedJourney&&!!document.querySelector('#subject-screen.active');
  document.getElementById('fraction-lab-screen')?.setAttribute('data-explore-release','explore-rc1');
- u.page='home';render();try{showScreen('fraction-lab')}catch(_){}
+ u.page='build';u.showEquivalents=false;render();try{showScreen('fraction-lab')}catch(_){}
 };
 const root=document.getElementById(ROOT);
 if(root&&!root.dataset.fr2Bound){root.addEventListener('click',actionHandler);root.addEventListener('keydown',keyHandler);root.addEventListener('pointerdown',pointerDown);document.addEventListener('pointermove',pointerMove);document.addEventListener('pointerup',pointerUp);document.addEventListener('pointercancel',clearDrag);root.dataset.fr2Bound='1'}

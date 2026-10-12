@@ -46,14 +46,18 @@ async function checkPublishedFractionWorkshop(p,name){
  await p.locator('#subject-screen.active').waitFor();
  await p.locator('#open-fraction-lab').click();
  await p.locator('#fraction-lab-screen.active').waitFor();
- await p.locator('.fr2-home').waitFor();
+ await p.locator('.fr6-workshop').waitFor();
  assert.equal(await p.evaluate(()=>window.LARIA_FRACTION_PREMIUM?.version),'workshop-v1',name+' still has old Brøklab code');
- assert.equal(await p.locator('.fr2-home-card').count(),6,name+' incomplete premium fraction menu');
+ assert.equal(await p.locator('.fr2-home-card').count(),0,name+' the first action should be touching a cake, not choosing a lesson');
+ assert.equal(await p.locator('.fr6-result .fr2-fraction').getAttribute('aria-label'),'1 av 4',name+' expected the numerical fraction beside the cake');
+ assert.equal(await p.locator('.fr6-nav .fr2-nav-item').count(),3,name+' child-first navigation has changed');
  const homeWidth=await p.evaluate(()=>[document.documentElement.scrollWidth,innerWidth]);
  assert.ok(homeWidth[0]<=homeWidth[1]+2,name+' Brøklaben home overflows phone: '+homeWidth);
  const fox=await p.locator('.fr2-guide .fr2-fox').first().evaluate(img=>({complete:img.complete,width:img.naturalWidth}));
  assert.ok(fox.complete&&fox.width>0,name+' Brøklaben fox image failed to load');
 
+ await p.locator('.fr6-nav [data-page="home"]').click();
+ assert.equal(await p.locator('.fr2-home-card').count(),5,name+' supplementary games must remain available');
  await p.locator('.fr2-card-explore').click();
  assert.equal(await p.locator('.fr2-view').count(),4,name+' missing fraction representations');
  await p.locator('[data-fr-action="preset"][data-n="1"][data-d="2"]').click();
@@ -84,12 +88,12 @@ async function checkPublishedFractionWorkshop(p,name){
  await p.locator('.fr2-nav-item[data-page="mastery"]').click();
  assert.equal(await p.locator('.fr2-master-tile').count(),5);
  assert.ok(Object.keys((await p.evaluate(()=>LARIA_FRACTION_PREMIUM.progress())).built).length>0,name+' mastery did not save a built fraction');
- await p.locator('.fr2-nav-item[data-page="home"]').click();
+ await p.locator('.fr2-nav-item[data-page="build"]').click();
  await p.locator('#fraction-lab-back').click();
  await p.locator('#subject-screen.active').waitFor();
  await p.locator('#subject-back').click();
  await p.locator('#home-screen.active').waitFor();
- console.log('PASS published Brøklaben in '+name+': seven screens, visual assets, 1/2, conversions, discovery storage, back navigation');
+ console.log('PASS child-first Brøklaben in '+name+': instant cake, supplementary experiments, 1/2, conversions, progress, back navigation');
 }
 async function existing(engine,name){
  const b=await engine.launch({headless:true}),c=await b.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,serviceWorkers:'block'});

@@ -507,3 +507,220 @@
   #fraction-lab-screen .fr5-build .fr5-controls{margin:8px 0}
   #fraction-lab-screen .fr5-build .fr5-controls .fr2-adjust{padding:5px 6px}
 }
+
+/* Brøklaben UX v6: one tactile workshop first; optional games second.
+   The 11 October product contract prioritizes comprehension over menus. */
+#fraction-lab-screen .fr6-nav .fr2-nav-row{
+  grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;
+}
+#fraction-lab-screen .fr6-nav .fr2-nav-item{min-width:0;min-height:56px}
+#fraction-lab-screen .fr6-nav .fr2-nav-item span{font-size:23px}
+#fraction-lab-screen .fr6-nav .fr2-nav-item small{
+  font-size:clamp(10px,3vw,13px);white-space:nowrap;
+}
+#fraction-lab-screen .fr6-workshop .fr5-lab-intro{margin-top:5px}
+#fraction-lab-screen .fr6-workshop .fr5-lab-intro h1{
+  font-size:clamp(24px,5.7vw,34px);
+}
+#fraction-lab-screen .fr6-workshop .fr5-lab-intro p{
+  max-width:38ch;margin-inline:auto;font-size:clamp(11px,3.1vw,15px);
+}
+#fraction-lab-screen .fr6-workshop .fr6-stage .fr5-build-target{
+  border-style:solid;border-color:#E8C69C;
+}
+#fraction-lab-screen .fr6-workshop .fr6-stage .fr2-pie-builder{
+  cursor:pointer;touch-action:manipulation;
+}
+#fraction-lab-screen .fr6-controls .fr6-adjust-n{
+  border-color:#E7B09A;
+  background:linear-gradient(#FFF9EE,#FFE3D7);
+}
+#fraction-lab-screen .fr6-controls .fr6-adjust-d{
+  border-color:#EACF96;
+  background:linear-gradient(#FFF9ED,#FFF0D4);
+}
+#fraction-lab-screen .fr6-controls .fr6-adjust-heading b{
+  font-size:clamp(13px,3.5vw,18px);letter-spacing:-.015em;
+}
+#fraction-lab-screen .fr6-controls .fr6-adjust-row{justify-content:space-between}
+#fraction-lab-screen .fr6-controls .fr6-adjust-btn:focus-visible,
+#fraction-lab-screen .fr6-interactive-view [role="button"]:focus-visible,
+#fraction-lab-screen .fr6-piece-tray button:focus-visible{
+  outline:3px solid #165C98;outline-offset:2px;
+}
+#fraction-lab-screen .fr6-piece-tray{
+  border-color:#A97B50;background:linear-gradient(115deg,#D4A06B,#EDC695);
+}
+#fraction-lab-screen .fr6-piece-tray .fr2-spare{
+  border-color:#FAE7C2;background:linear-gradient(#FFF1D8,#E9B988);
+  box-shadow:inset 0 2px 5px #FFF9E8,0 3px 0 #B98354;
+}
+#fraction-lab-screen .fr6-piece-tray .fr2-spare:active{transform:translateY(2px)}
+#fraction-lab-screen .fr6-empty-tray{
+  display:flex;align-items:center;min-height:44px;padding:5px 9px;
+  color:#65422C;font-size:clamp(11px,2.8vw,14px);
+  font-weight:900;line-height:1.12;
+}
+#fraction-lab-screen .fr6-interactive-view [data-fr-action="piece"]{
+  cursor:pointer;touch-action:manipulation;
+}
+#fraction-lab-screen .fr6-interactive-view.fr2-bar [data-fr-action="piece"]:hover{
+  stroke:#EDCA93;stroke-width:4px;
+}
+#fraction-lab-screen .fr6-interactive-view.fr2-glass{
+  cursor:pointer;touch-action:manipulation;
+}
+#fraction-lab-screen .fr6-explore .fr2-block-grid span[role="button"]{
+  cursor:pointer;touch-action:manipulation;
+}
+#fraction-lab-screen .fr6-more .fr2-home-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+#fraction-lab-screen .fr6-more .fr2-home-card{
+  min-height:286px;padding-bottom:56px;
+  justify-content:flex-start;
+}
+#fraction-lab-screen .fr6-more .fr2-home-card strong,
+#fraction-lab-screen .fr6-more .fr2-home-card small{max-width:100%;overflow-wrap:break-word}
+#fraction-lab-screen .fr6-more .fr2-card-arrow{bottom:12px;right:13px}
+
+@media(min-width:700px){
+  #fraction-lab-screen .fr6-more .fr2-home-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  #fraction-lab-screen .fr6-workshop .fr6-stage .fr2-pie-builder{max-width:310px}
+  #fraction-lab-screen .fr6-controls .fr6-adjust-heading small{
+    position:static;width:auto;height:auto;clip:auto;overflow:visible;
+    display:block;margin-top:3px;font-size:12px;
+  }
+}
+@media(max-width:390px){
+  #fraction-lab-screen .fr6-workshop .fr5-lab-intro p{font-size:11px}
+  #fraction-lab-screen .fr6-workshop .fr5-lab-intro{padding:7px 12px 9px}
+  #fraction-lab-screen .fr6-workshop .fr6-stage{gap:5px}
+  #fraction-lab-screen .fr6-controls .fr6-adjust{padding-inline:4px}
+}
+@media(max-height:710px) and (max-width:600px){
+  #fraction-lab-screen .fr6-workshop .fr5-lab-intro{padding:6px 10px}
+  #fraction-lab-screen .fr6-controls{margin:6px 0}
+}
+
+
+/* Brøklaben v7 (approved concept 11 October): the cake is the first action.
+   On phones, decimal and percent are a voluntary second layer AFTER the
+   teller/nevner controls. On iPad, equivalent forms accompany the cake. */
+#fraction-lab-screen .fr7-tablet-equivalents{display:none}
+#fraction-lab-screen .fr7-mobile-discovery{display:flex;flex-direction:column;gap:8px;margin:7px 0 13px;min-width:0}
+#fraction-lab-screen .fr7-equivalents-toggle{
+  display:flex;align-items:center;justify-content:center;min-height:44px;width:100%;
+  padding:8px 12px;border:2px solid #FCEBCB;border-radius:17px;
+  background:linear-gradient(155deg,#FFF9EC,#F4D8B7);color:#72422C;
+  box-shadow:0 3px 0 #CBA57E;cursor:pointer;text-align:center;
+  font-family:inherit;font-size:clamp(12px,3.5vw,16px);font-weight:950;
+}
+#fraction-lab-screen .fr7-equivalents-toggle:before{content:"✦";color:#D6953D;margin-right:8px}
+#fraction-lab-screen .fr7-equivalents-toggle[aria-expanded="true"]{background:linear-gradient(#FFE5C5,#F0CDA9)}
+#fraction-lab-screen .fr7-equivalents-toggle:focus-visible{outline:3px solid #1B6999;outline-offset:3px}
+#fraction-lab-screen .fr7-mobile-equivalents{
+  min-width:0;padding:10px 12px;border:2px solid #F9E1B7;border-radius:19px;
+  background:linear-gradient(150deg,#FFF7E9,#F0D9B9);box-shadow:0 3px 0 #BE916A;
+}
+#fraction-lab-screen .fr7-mobile-equivalents[hidden]{display:none!important}
+#fraction-lab-screen .fr7-values-heading{
+  margin:0 0 6px;text-align:center;font-weight:950;font-size:clamp(11px,2.9vw,14px);color:#745037;
+}
+#fraction-lab-screen .fr7-equivalent-tiles{
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;min-width:0;
+}
+#fraction-lab-screen .fr7-equivalent-tile{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-width:0;min-height:60px;gap:3px;padding:9px 5px;
+  border:2px solid #FFF2D9;border-radius:15px;
+  background:linear-gradient(160deg,#FFFDF4,#FFEBD0);
+  box-shadow:inset 0 2px 4px #FFF9EC,0 2px 0 #D5B491;
+  color:#663A28;text-align:center;overflow-wrap:anywhere;
+}
+#fraction-lab-screen .fr7-equivalent-tile span{
+  font-size:clamp(10px,2.65vw,13px);font-weight:850;line-height:1.12;
+}
+#fraction-lab-screen .fr7-equivalent-tile strong{
+  font-weight:1000;font-size:clamp(17px,4.3vw,24px);line-height:1.05;
+  font-variant-numeric:tabular-nums;letter-spacing:-.025em;white-space:normal;
+}
+#fraction-lab-screen .fr7-equivalent-tile:last-child strong{color:#58874A}
+#fraction-lab-screen .fr7-approx-note{
+  display:block;margin:8px 1px 1px;font-size:11px;font-weight:760;
+  line-height:1.2;color:#7B5540;text-align:center;
+}
+@media(min-width:700px){
+  #fraction-lab-screen .fr7-mobile-discovery{display:none}
+  #fraction-lab-screen .fr7-tablet-equivalents{
+    display:block;min-width:0;padding:8px 5px 6px;
+    border:2px solid #FFF1DA;border-radius:17px;
+    background:linear-gradient(145deg,#FFF5E2,#EFD1AA);
+    box-shadow:0 2px 0 #CAA781;
+  }
+  #fraction-lab-screen .fr7-tablet-equivalents .fr7-values-heading{
+    margin-bottom:5px;font-size:12px;
+  }
+  #fraction-lab-screen .fr7-tablet-equivalents .fr7-equivalent-tiles{gap:5px;padding:0 4px}
+  #fraction-lab-screen .fr7-tablet-equivalents .fr7-equivalent-tile{
+    min-height:49px;padding:7px 2px;gap:2px;border-radius:12px;
+  }
+  #fraction-lab-screen .fr7-tablet-equivalents .fr7-equivalent-tile span{font-size:10px}
+  #fraction-lab-screen .fr7-tablet-equivalents .fr7-equivalent-tile strong{
+    font-size:clamp(15px,2vw,22px);
+  }
+  #fraction-lab-screen .fr7-tablet-equivalents .fr7-approx-note{
+    font-size:10px;margin:5px 3px 0;
+  }
+}
+@media(min-width:700px) and (max-height:900px){
+  #fraction-lab-screen .fr7-tablet-equivalents{padding:4px 4px}
+  #fraction-lab-screen .fr7-tablet-equivalents .fr7-equivalent-tile{min-height:43px;padding:5px 2px}
+  #fraction-lab-screen .fr7-tablet-equivalents .fr7-equivalent-tile strong{font-size:16px}
+  #fraction-lab-screen .fr5-build-aside{gap:5px}
+}
+
+
+/* Brøklaben v7 iPad landscape workspace: broad view, compact side-by-side cards.
+   Only widen .app when the fraction lab is ACTIVE. Other Læria screens retain
+   their locked dimensions and artwork. */
+@media(min-width:1000px) and (orientation:landscape){
+  .app:has(#fraction-lab-screen.active){
+    width:min(100%,1120px)!important;
+    max-width:none!important;
+  }
+  #fraction-lab-screen .fr2-shell{padding-inline:20px}
+  #fraction-lab-screen .fr2-content{max-width:1040px}
+  #fraction-lab-screen .fr6-workshop .fr6-stage{
+    grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);
+    gap:14px;padding:11px 14px;
+  }
+  #fraction-lab-screen .fr6-workshop .fr6-stage .fr5-build-target{
+    min-height:0;padding:7px 5px;
+  }
+  #fraction-lab-screen .fr6-workshop .fr6-stage .fr2-pie-builder{
+    width:min(100%,276px);max-width:276px;
+  }
+  #fraction-lab-screen .fr6-workshop .fr6-stage .fr5-build-aside{
+    display:grid;grid-template-columns:minmax(0,1.02fr) minmax(0,1fr);
+    grid-template-rows:min-content min-content;
+    align-content:center;align-items:center;gap:8px;min-width:0;
+  }
+  #fraction-lab-screen .fr6-workshop .fr6-stage .fr5-live-result{
+    grid-column:1;grid-row:1/3;align-self:stretch;min-height:205px;
+    padding:8px 4px;
+  }
+  #fraction-lab-screen .fr6-workshop .fr6-stage .fr5-live-result .fr2-fraction{
+    font-size:clamp(60px,6vw,78px);
+  }
+  #fraction-lab-screen .fr6-workshop .fr6-stage .fr7-tablet-equivalents{
+    grid-column:2;grid-row:1;align-self:center;
+  }
+  #fraction-lab-screen .fr6-workshop .fr6-stage .fr5-fox-mentor{
+    grid-column:2;grid-row:2;min-width:0;
+  }
+  #fraction-lab-screen .fr6-workshop .fr6-stage .fr5-fox-mentor>.fr2-fox{
+    width:103px;height:110px;
+  }
+  #fraction-lab-screen .fr6-workshop .fr6-stage .fr5-fox-bubble{
+    white-space:normal;text-align:center;min-height:24px;
+  }
+}
