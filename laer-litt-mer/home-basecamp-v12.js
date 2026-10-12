@@ -308,8 +308,9 @@ function init(){
  window.LARIA_BASECAMP_DIAG.init=true;
  if(!document.getElementById('bc12-dialog')){const d=document.createElement('dialog');d.id='bc12-dialog';d.setAttribute('aria-labelledby','bc12-dialog-title');document.body.append(d);d.addEventListener('click',e=>{if(e.target===d){const r=d.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)closeDialog()}});}
  // Capture only returns from activities entered through basecamp. Other routes keep their original behavior.
- // Bind the concrete back controls directly. Safari/WebKit has proven less reliable with delegated closest() touch routes.
- ['fraction-lab-back','multiplication-lab-back','world-back','subject-back','geography-back'].forEach(id=>{
+ // Subject and geography back buttons need a Basecamp-origin capture.
+ // The globe and laboratories manage nested return routes themselves.
+ ['subject-back','geography-back'].forEach(id=>{
   const back=document.getElementById(id);if(!back||back.dataset.bc12ReturnBound==='true')return;
   back.dataset.bc12ReturnBound='true';
   back.addEventListener('click',e=>{
