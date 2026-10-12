@@ -209,6 +209,7 @@ async function runLandscapePhone(){
 (async()=>{
  const {server,url}=await startServer();globalThis.testUrl=url;
  try{
+  await run(webkit,'safari-iphone-small',{width:320,height:568});
   await run(chromium,'chromium-iphone',{width:390,height:844});
   await run(webkit,'safari-iphone',{width:390,height:844});
   await run(webkit,'safari-ipad',{width:820,height:1180});
