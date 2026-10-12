@@ -48,7 +48,11 @@ async function run(engine,label,viewport){
   assert.ok(rect.width>=viewport.width*.76,label+' atlas too narrow '+JSON.stringify(rect));
   assert.ok(rect.height>180,label+' atlas too shallow '+JSON.stringify(rect));
   assert.ok(rect.y>=modes.y+modes.height+4,label+' atlas overlaps mode selector');
-  assert.ok(rect.y+rect.height<=card.y-2,label+' atlas collides with country card');
+  const separateColumns=viewport.width>=900&&viewport.width>viewport.height;
+  assert.ok(separateColumns
+    ?rect.x+rect.width<=card.x-2
+    :rect.y+rect.height<=card.y-2,
+  label+' atlas collides with country card');
   const first=await page.evaluate(()=>window.LARIA_ATLAS_PERSPECTIVE.snapshot());
   assert.equal(first.source,'country-geometry',label+' country surfaces must use real polygon data');
   const regions=await page.locator('.atlas-region-nav button').count();
