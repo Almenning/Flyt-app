@@ -144,7 +144,8 @@ function ensurePremiumShell(){
   }
 
   const back=document.getElementById('world-back');
-  if(back){back.textContent='←';back.setAttribute('aria-label','Tilbake til Utforsk')}
+  // The actual route is selected by showScreen/openGlobe, not hardcoded here.
+  if(back){back.textContent='←';if(!back.hasAttribute('aria-label'))back.setAttribute('aria-label','Tilbake til Geografi')}
 }
 
 function syncPremiumChrome(mode){

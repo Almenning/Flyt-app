@@ -173,8 +173,9 @@
     screen.dataset.taskIllustrationRelease='illustrations-rc1';
     screen.dataset.taskFoxRelease='fox-rc1';
     document.body.classList.add('laria-task-scene-open');
-    closeButton.innerHTML='<span aria-hidden="true">‹</span><span>Hjem</span>';
-    closeButton.setAttribute('aria-label','Tilbake til faget');
+    const subjectNameForBack={norwegian:'Norsk',math:'Matte',english:'Engelsk',geography:'Geografi'}[subject]||'faget';
+    closeButton.innerHTML='<span aria-hidden="true">‹</span><span>Tilbake</span>';
+    closeButton.setAttribute('aria-label','Tilbake til '+subjectNameForBack);
   }
   function clearScene(){
     screen.classList.remove('task-scene');

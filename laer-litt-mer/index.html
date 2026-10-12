@@ -13,9 +13,9 @@
   <link rel="icon" href="./icon.svg" type="image/svg+xml" />
   <link rel="preload" as="image" href="./basecamp-v11-mobile.webp?v=basecamp12d" media="(max-width:700px)" fetchpriority="high" />
   <link rel="preload" as="image" href="./basecamp-v11.webp?v=basecamp12d" media="(min-width:701px)" fetchpriority="high" />
-  <link rel="preload" as="script" href="./home-basecamp-v12.js?v=20261011-unified-livefox3" />
+  <link rel="preload" as="script" href="./home-basecamp-v12.js?v=20261012-ux-phase1" />
   <link rel="preload" as="script" href="./globe-v24-art.js?v=globe36-pigment3" />
-  <link rel="preload" as="script" href="./globe-v25-renderer.js?v=20261011-personalfox2" />
+  <link rel="preload" as="script" href="./globe-v25-renderer.js?v=20261012-ux-phase1" />
   <title>Læria</title>
   <style>
 
@@ -281,6 +281,9 @@
 
     .swipe-back-edge{position:fixed;z-index:95;left:0;top:0;width:14px;height:100dvh;touch-action:none;pointer-events:auto}
     .swipe-back-edge.hidden{display:none}
+    /* Continue an edge-started gesture on the same target as it travels over
+       the globe's canvas. No global hit shield exists between gestures. */
+    .swipe-back-edge.tracking{width:100vw}
     .swipe-back-indicator{position:fixed;z-index:96;left:max(10px,env(safe-area-inset-left));top:50%;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.94);color:#5265CC;font-size:25px;font-weight:950;box-shadow:0 8px 24px rgba(49,55,96,.18);transform:translate(-58px,-50%) scale(.86);opacity:0;pointer-events:none;transition:transform .13s ease,opacity .13s ease}
     .swipe-back-indicator.show{opacity:1;transform:translate(0,-50%) scale(1)}
     .topic-card.norwegian{background:linear-gradient(145deg,#FFF0F3,#FFF7F5)}
@@ -3500,8 +3503,11 @@ let globeLon=15,globeLat=18,globeZoom=1,globeSelected=null,globeDrag=null,globeM
 const globePointers=new Map();let globePinch=null;
 const GLOBE_ZOOM_MIN=1,GLOBE_ZOOM_MAX=5;
 
+let globeReturnScreen='geography';
 function showScreen(name){
   const el=document.getElementById(name+'-screen'); if(!el) return;
+  const previous=document.querySelector('.screen.active');
+  const changing=!!previous&&previous!==el;
   if(name!=='session'&&typeof stopSpeech==='function')stopSpeech();
   document.querySelectorAll('.screen').forEach(s=>{
     s.classList.toggle('active',s===el);
@@ -3513,12 +3519,35 @@ function showScreen(name){
   document.getElementById('topbar').style.display=special?'none':'flex';
   window.scrollTo(0,0);
   syncSwipeBackEdge(name);
+  // Match the visible label to the actual return route, including nested geography.
+  const sourcePanel=window.LARIA_BASECAMP_RETURN_VIEW?.();
+  const backName=sourcePanel==='travel'?'Reisen':sourcePanel==='explore'?'Utforsk':'Hjem';
+  const screenBack=name==='subject'?document.getElementById('subject-back'):
+    name==='geography'?document.getElementById('geography-back'):null;
+  if(screenBack){
+    screenBack.textContent='← '+backName;
+    screenBack.setAttribute('aria-label','Tilbake til '+backName);
+  }
+  if(name==='world'){
+    const label=globeReturnScreen==='basecamp'?backName:globeReturnScreen==='continent'?'Verdensdelen':'Geografi';
+    const back=document.getElementById('world-back');
+    if(back){back.textContent='←';back.setAttribute('aria-label','Tilbake til '+label);back.title='Tilbake til '+label;}
+  }
+  // A subtle entrance, never a delay before the content is interactive.
+  // Keep the draggable canvas and hands-on laboratories unanimated.
+  if(changing&&typeof el.animate==='function'&&!['world','fraction-lab','multiplication-lab'].includes(name)&&
+      !window.matchMedia?.('(prefers-reduced-motion: reduce)').matches){
+    el.animate([{opacity:.86},{opacity:1}],{duration:160,easing:'ease-out'});
+  }
   if(name==='world'){
     el.dataset.exploreRelease='explore-rc1';
     requestAnimationFrame(()=>{initGlobe();setGlobeZoom(globeZoom)});
   }
 }
 function openGlobe(mode='explore'){
+  const origin=activeScreenName();
+  globeReturnScreen=origin==='home'?'basecamp':
+    origin==='geography'||origin==='continent'?origin:'geography';
   const next=mode==='classic'?'classic':(mode==='mine'?'mine':'explore');
   globeMode=next;
   const openedAt=performance.now();
@@ -3638,14 +3667,36 @@ function syncSwipeBackEdge(name=activeScreenName()){
   swipeBackEdge.classList.toggle('hidden',!SWIPE_BACK_SCREENS.has(name));
 }
 function appBack(){
+  // The approved painted journey uses a local mission sheet. Close it before
+  // navigating away, just as the visible X button does.
+  const lockedSheet=document.querySelector('.screen.active .locked-journey-overlay:not([hidden])');
+  const lockedClose=lockedSheet?.querySelector('.locked-sheet-close');
+  if(lockedClose){lockedClose.click();return true;}
   const mission=document.getElementById('journey-mission-backdrop');if(mission&&!mission.hidden){closeJourneyMission();return true}
 
   const current=activeScreenName();
-  if(current==='subject'||current==='geography'){setTab('home');return true}
+  // One source of truth: a swipe performs the active screen's own back action.
+  // In the labs this also respects their internal pages before exiting.
+  const visibleBack={
+    subject:'subject-back',geography:'geography-back',world:'world-back',
+    'fraction-lab':'fraction-lab-back','multiplication-lab':'multiplication-lab-back',
+    session:'close-session',complete:'complete-home'
+  }[current];
+  if(visibleBack){
+    const button=document.getElementById(visibleBack);
+    if(button&&!button.disabled){button.click();return true;}
+  }
+  if(current==='subject'||current==='geography'){
+    if(window.LARIA_RETURN_TO_BASECAMP?.())return true;
+    setTab('home');return true
+  }
   if(current==='fraction-lab'||current==='multiplication-lab'){openSubject('math');return true}
   if(current==='world'){
-    if(typeof window.LARIA_RETURN_TO_BASECAMP==='function'&&window.LARIA_RETURN_TO_BASECAMP())return true;
-    showScreen('geography');return true
+    if(globeReturnScreen==='basecamp'){
+      if(window.LARIA_RETURN_TO_BASECAMP?.())return true;
+      setTab('home');return true;
+    }
+    showScreen(globeReturnScreen==='continent'?'continent':'geography');return true
   }
   if(current==='continent'){showScreen('geography');return true}
   if(current==='detail'){
@@ -3659,26 +3710,62 @@ function appBack(){
   return false;
 }
 if(swipeBackEdge){
+  let swipeReleaseTimer=null;
+  const releaseSwipeLayer=()=>{
+    clearTimeout(swipeReleaseTimer);
+    swipeReleaseTimer=null;
+    swipeBackEdge.classList.remove('tracking');
+    swipeBackIndicator.classList.remove('show');
+  };
   swipeBackEdge.addEventListener('pointerdown',e=>{
     if(e.pointerType==='mouse'&&e.button!==0)return;
+    if(swipeBackGesture)return;
     swipeBackGesture={id:e.pointerId,startX:e.clientX,startY:e.clientY,lastX:e.clientX,lastY:e.clientY,active:false};
-    try{swipeBackEdge.setPointerCapture(e.pointerId)}catch(_){}
+    // An edge-started gesture gets a temporary full-width SAME-ELEMENT hitbox.
+    // This prevents pointercancel when crossing the globe canvas in WebKit,
+    // without relying on setPointerCapture's unstable repeat behavior.
+    swipeBackEdge.classList.add('tracking');
+    swipeReleaseTimer=setTimeout(()=>{
+      swipeBackGesture=null;
+      releaseSwipeLayer();
+    },3500);
   });
-  swipeBackEdge.addEventListener('pointermove',e=>{
+  document.addEventListener('pointermove',e=>{
     const g=swipeBackGesture;if(!g||g.id!==e.pointerId)return;
     g.lastX=e.clientX;g.lastY=e.clientY;
     const dx=e.clientX-g.startX,dy=e.clientY-g.startY;
-    if(dx>14&&Math.abs(dx)>Math.abs(dy)*1.15){g.active=true;swipeBackIndicator.classList.add('show');e.preventDefault()}
-    else if(Math.abs(dy)>Math.max(18,Math.abs(dx))){g.active=false;swipeBackIndicator.classList.remove('show')}
-  });
+    if(dx>14&&Math.abs(dx)>Math.abs(dy)*1.15){
+      g.active=true;swipeBackIndicator.classList.add('show');
+      if(e.cancelable)e.preventDefault();
+      e.stopPropagation();
+    }else if(Math.abs(dy)>Math.max(18,Math.abs(dx))){
+      // This was a vertical gesture, not an attempt to go back.
+      swipeBackGesture=null;
+      releaseSwipeLayer();
+    }
+  },true);
   const finishSwipeBack=e=>{
     const g=swipeBackGesture;if(!g||g.id!==e.pointerId)return;
     const dx=(e.clientX??g.lastX)-g.startX,dy=(e.clientY??g.lastY)-g.startY;
-    swipeBackIndicator.classList.remove('show');swipeBackGesture=null;
-    if(g.active&&dx>=64&&Math.abs(dx)>Math.abs(dy)*1.2)appBack();
+    swipeBackGesture=null;
+    releaseSwipeLayer();
+    // Fast physical swipes may deliver only down and up before a move frame.
+    if(dx>=64&&Math.abs(dx)>Math.abs(dy)*1.2){
+      if(e.cancelable)e.preventDefault();
+      e.stopPropagation();
+      appBack();
+    }
   };
-  swipeBackEdge.addEventListener('pointerup',finishSwipeBack);
-  swipeBackEdge.addEventListener('pointercancel',()=>{swipeBackIndicator.classList.remove('show');swipeBackGesture=null});
+  document.addEventListener('pointerup',finishSwipeBack,true);
+  document.addEventListener('pointercancel',e=>{
+    if(swipeBackGesture?.id!==e.pointerId)return;
+    swipeBackGesture=null;
+    releaseSwipeLayer();
+  },true);
+  window.addEventListener('blur',()=>{
+    swipeBackGesture=null;
+    releaseSwipeLayer();
+  });
 }
 syncSwipeBackEdge();
 
@@ -4205,7 +4292,12 @@ document.getElementById('start-world-from-globe').onclick=()=>startSession(null,
 document.getElementById('continent-back').onclick=()=>showScreen('geography');
 document.getElementById('open-world').onclick=()=>openGlobe('explore');
 document.getElementById('world-back').onclick=()=>{
+  // A globe opened inside Geografi returns to its parent, not past it to Home.
+  if(globeReturnScreen==='geography'||globeReturnScreen==='continent'){
+    showScreen(globeReturnScreen);return;
+  }
   if(typeof window.LARIA_RETURN_TO_BASECAMP==='function'&&window.LARIA_RETURN_TO_BASECAMP())return;
+  if(globeReturnScreen==='basecamp'){setTab('home');return;}
   showScreen('geography');
 };
 document.getElementById('close-session').onclick=()=>{persistActiveSession();returnToLearningHome()};
@@ -6677,19 +6769,19 @@ if(needsProfileSetup||!state.profile.onboarded||!state.profile.grade){
 <script src="./bokskogen-world.js?v=20261007-p15rc1" defer></script>
 <script src="./journey-world-premium.js?v=20261011-personalfox2" defer></script>
 <script src="./locked-journey-contract.js?v=20261011-foxbridge2" defer></script>
-<script src="./locked-journey-renderer.js?v=20261011-safari-back3" defer></script>
+<script src="./locked-journey-renderer.js?v=20261012-ux-phase1" defer></script>
 <!-- Free play + Home -->
 <script src="./word-hunt.js?v=20261011-personalfox2" defer></script>
-<script src="./home-basecamp-v12.js?v=20261011-unified-livefox3" defer></script>
+<script src="./home-basecamp-v12.js?v=20261012-ux-phase1" defer></script>
 <!-- Shared inner-screen helpers + task scene -->
 <script src="./laria-unified-v13.js?v=20261006-assets1" defer></script>
-<script src="./laria-navigation-v13.js?v=20261011-premium1" defer></script>
-<script src="./laria-task-scene-v15.js?v=20261011-personalfox2" defer></script>
+<script src="./laria-navigation-v13.js?v=20261012-ux-phase1" defer></script>
+<script src="./laria-task-scene-v15.js?v=20261012-ux-phase1" defer></script>
 <script src="./laria-fox-presence.js?v=20261011-livefoxart1" defer></script>
 
 <!-- Kloden: art primitives must load before the active renderer. -->
 <script src="./globe-v24-art.js?v=globe36-pigment3" defer></script>
-<script src="./globe-v25-renderer.js?v=20261011-personalfox2" defer></script>
+<script src="./globe-v25-renderer.js?v=20261012-ux-phase1" defer></script>
 <script src="./atlas-perspective-v1.js?v=20261011-landscape-focus1" defer></script>
 
 <!-- premium-board-v8-2026-10-04 -->

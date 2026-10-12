@@ -202,6 +202,13 @@ jobs:
           QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
           NAV_QA_SCREENSHOTS: /tmp/laria-navigation-v13
         run: node tests/laria-navigation-v13.playwright.js
+      - name: UX phase 1 - verify button and edge swipe return parity
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+          LARIA_UX_NAV_SHOTS: /tmp/laria-ux-phase1
+        run: |
+          node --check tests/laria-ux-phase1-navigation.playwright.js
+          node tests/laria-ux-phase1-navigation.playwright.js
       - name: Validate eight premium WebP card scenes across real layouts
         env:
           QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
@@ -316,7 +323,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: laria-navigation-v13-${{ github.sha }}
-          path: /tmp/laria-navigation-v13
+          path: |
+            /tmp/laria-navigation-v13
+            /tmp/laria-ux-phase1
           if-no-files-found: warn
           retention-days: 7
 

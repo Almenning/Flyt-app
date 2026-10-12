@@ -92,13 +92,18 @@ function activate(mode){
    else button.removeAttribute('aria-current');
  });
 }
+// Basecamp owns the actual return action; this module owns the active chooser.
+window.LARIA_ACTIVE_BASECAMP_PANEL=()=>panelMode;
+window.LARIA_ACTIVATE_BASECAMP_PANEL=view=>{
+ activate(['home','travel','explore'].includes(view)?view:'home');
+};
 function openSubjectJourney(subject){
  if(subject==='geography'){if(typeof renderGeographyContinue==='function')renderGeographyContinue();showScreen('geography');}
  else if(typeof openSubject==='function')openSubject(subject);
 }
 function clickAction(action){
  if(action==='home'){activate('home');return;}
- if(SUBJECTS.some(x=>x[0]===action)){window.LARIA_MARK_BASECAMP_ORIGIN?.();openSubjectJourney(action);return;}
+ if(SUBJECTS.some(x=>x[0]===action)){window.LARIA_MARK_BASECAMP_ORIGIN?.(panelMode);openSubjectJourney(action);return;}
  const target=host()?.querySelector('.bc12-place[data-camp="'+action+'"]');
  if(target){target.click();return;}
 }
