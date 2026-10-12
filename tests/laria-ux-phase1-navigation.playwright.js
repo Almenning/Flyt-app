@@ -29,8 +29,21 @@ async function screen(page,id){
   await page.locator('#'+id+'-screen.active').waitFor({timeout:18000});
 }
 async function panel(page,id){
-  await screen(page,'home');
-  await page.locator('.bc13-panel:not([hidden]) [data-bc13-action="'+id+'"]').waitFor({timeout:16000});
+  try{
+    await screen(page,'home');
+    await page.locator('.bc13-panel:not([hidden]) [data-bc13-action="'+id+'"]').waitFor({timeout:16000});
+  }catch(error){
+    const snapshot=await page.evaluate(()=>({
+      active:document.querySelector('.screen.active')?.id,
+      chooser:document.querySelector('.bc12')?.dataset.bc13View,
+      from:window.LARIA_BASECAMP_RETURN_VIEW?.(),
+      panel:window.LARIA_ACTIVE_BASECAMP_PANEL?.(),
+      back:document.getElementById('world-back')?.getAttribute('aria-label'),
+      edgeVisible:!!document.getElementById('swipe-back-edge')?.getClientRects().length,
+      url:location.href
+    }));
+    throw new Error('Expected Basecamp '+id+' after back; actual '+JSON.stringify(snapshot)+'; '+error.message);
+  }
 }
 async function screenshot(page,label){
   await page.screenshot({path:out+'/'+label+'.png',animations:'disabled'});
