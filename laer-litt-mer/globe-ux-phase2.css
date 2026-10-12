@@ -126,6 +126,51 @@
     height: 44px !important;
     min-height: 44px !important;
   }
+  /* Keep the flag and Learn More visible. Facts remain swipeable in one row,
+     instead of making the country card taller than the actual map. */
+  #world-screen.active.globe-v30.atlas-perspective-on .globe-status {
+    grid-template-columns: 32px minmax(0, 1fr) 68px !important;
+    grid-template-areas: none !important;
+    gap: 5px !important;
+    padding: 6px !important;
+    min-height: 96px !important;
+  }
+  #world-screen.active.globe-v30.atlas-perspective-on .globe-status .flag {
+    width: 32px !important;
+    min-width: 32px !important;
+    height: 34px !important;
+    font-size: 21px !important;
+    border-radius: 10px !important;
+  }
+  #world-screen.active.globe-v30.atlas-perspective-on .globe-status strong {
+    font-size: 18px !important;
+    line-height: 1.06 !important;
+  }
+  #world-screen.active.globe-v30.atlas-perspective-on .globe-country-line > span {
+    font-size: 9px !important;
+  }
+  #world-screen.active.globe-v30.atlas-perspective-on .premium-country-facts {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    touch-action: pan-x;
+  }
+  #world-screen.active.globe-v30.atlas-perspective-on .premium-country-facts::-webkit-scrollbar {
+    display: none;
+  }
+  #world-screen.active.globe-v30.atlas-perspective-on .premium-country-facts span,
+  #world-screen.active.globe-v30.atlas-perspective-on .premium-country-facts .globe-country-tagline {
+    flex: 0 0 auto !important;
+    white-space: nowrap !important;
+  }
+  #world-screen.active.globe-v30.atlas-perspective-on .premium-country-learn {
+    width: 68px !important;
+    min-width: 68px !important;
+  }
 }
 
 /* iPhone landscape has room horizontally, not vertically. Keep its small header
