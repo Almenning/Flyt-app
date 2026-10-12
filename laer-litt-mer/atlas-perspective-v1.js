@@ -19,8 +19,8 @@ const REGIONS=[
  {id:'oceania',label:'Oseania',lon:151,lat:-24,zoom:3.1}
 ];
 const CONTINENT_TINT={
- 'Europa':'#528ACA','Asia':'#DDB457','Afrika':'#DD926C',
- 'Nord-Amerika':'#6BA984','Sør-Amerika':'#5FAF84','Oseania':'#A293C6'
+ 'Europa':'#5A8FD2','Asia':'#E4B652','Afrika':'#E77F61',
+ 'Nord-Amerika':'#68AD7D','Sør-Amerika':'#52A976','Oseania':'#A88CC5'
 };
 const map={lon:18,lat:15,zoom:3.5,region:'africa',mode:'explore'};
 let canvas,ctx,nav,caption,installed=false,renderPending=false,layoutPending=false;
@@ -28,6 +28,15 @@ let dragDistance=0,hadMulti=false,pinch=null,silentSelection=false,modeSwitching
 const pointers=new Map();
 const geometry=()=>typeof WORLD_COUNTRIES!=='undefined'?WORLD_COUNTRIES:[];
 const isAtlas=()=>screen.classList.contains('active')&&screen.classList.contains('atlas-perspective-on');
+function refreshGeoLayout(){
+ const vw=window.innerWidth,vh=window.innerHeight;
+ const next=vw>=900&&vw>vh&&vh>=650?'tablet-landscape'
+  :vw>=540&&vw>vh&&vh<=649?'phone-landscape'
+  :vw>=700&&vh>vw?'tablet-portrait'
+  :vh>vw?'phone-portrait':'wide-landscape';
+ screen.dataset.geoLayout=next;
+ return next;
+}
 function size(){const w=canvas?.clientWidth||360,h=canvas?.clientHeight||320;return {w,h,scale:Math.min(w/350,h/185)*map.zoom}}
 function screenPoint(lon,lat,g=size()){
  const d=limitLon(lon-map.lon);
@@ -74,6 +83,27 @@ function paintStoryAtlas(g,list){
   ctx.save();ctx.globalAlpha=map.zoom<3.2?.76:.91;
   fn(ctx,p.x,p.y,k,f[4]);ctx.restore();
  }
+}
+/* A restrained, geography-anchored pigment pass keeps the atlas from reading
+   as flat vector fill at world zoom. It is clipped to real country polygons;
+   no decorative scene is allowed to spill into the sea or move independently
+   from the map while the child drags it. */
+function paintAtlasPigment(g,list){
+ const art=window.LariaGlobeArtV24;
+ if(!art)return;
+ const colors={forest:'#2F8254',desert:'#E4AD4C',savanna:'#A4974A',snow:'#E9F7F4'};
+ ctx.save();ctx.beginPath();
+ for(const c of list)if(c.geometry)makePath(c,g);
+ ctx.clip('evenodd');
+ for(const t of (art.TERRAIN||[])){
+  const p=screenPoint(t[1],t[2],g),r=clamp(g.scale*7.1*t[3],13,106);
+  if(p.x<-r||p.x>g.w+r||p.y<-r||p.y>g.h+r)continue;
+  const base=colors[t[0]]||colors.forest;
+  const wash=ctx.createRadialGradient(p.x-r*.18,p.y-r*.22,0,p.x,p.y,r);
+  wash.addColorStop(0,base+'24');wash.addColorStop(.52,base+'12');wash.addColorStop(1,base+'00');
+  ctx.fillStyle=wash;ctx.beginPath();ctx.ellipse(p.x,p.y,r,r*.72,0,0,Math.PI*2);ctx.fill();
+ }
+ ctx.restore();
 }
 function paintMapLabels(g,list,selected){
  if(map.zoom<3.3)return;
@@ -190,6 +220,7 @@ function draw(){
   ctx.lineWidth=clamp(g.scale*.075,.52,1.6);
   ctx.stroke();
  }
+ paintAtlasPigment(g,list);
  paintStoryAtlas(g,list);
  paintMapLabels(g,list,selected);
  for(const c of list){
@@ -234,18 +265,23 @@ function layout(){
  // Preserve the familiar phone-portrait geometry. Wider tablet screens
  // should not be held to the old 850px atlas cap.
  const portrait=vh>vw;
- const shortLandscape=!portrait&&vh<=649&&vw>=600;
+ const phoneLandscape=!portrait&&vh<=649&&vw>=540;
+ const tabletLandscape=!portrait&&vh>=650&&vw>=900;
+ const shortLandscape=phoneLandscape;
  const tablet=vw>=700&&portrait;
+ refreshGeoLayout();
  const gap=(tablet||!portrait)?9:14;
- const top=Math.max(110,modeBottom+gap,(!shortLandscape&&legendRect?.height)?legendRect.bottom+9:0);
+ const wideSidePanel=tabletLandscape||phoneLandscape;
+ const top=Math.max(wideSidePanel?(tabletLandscape?136:108):110,modeBottom+gap,(!wideSidePanel&&legendRect?.height)?legendRect.bottom+9:0);
  // Short landscape uses a left-hand map and a separate right-hand country card;
  // the card's vertical top must not artificially shorten the atlas canvas.
- const bottom=shortLandscape?vh-10:
+ const bottom=wideSidePanel?vh-(tabletLandscape?14:8):
    Math.min(vh-(portrait?104:78),(cardRect?.top||vh-164)-(portrait?12:8));
- const h=Math.max(shortLandscape?165:185,bottom-top);
- const maxWidth=shortLandscape?Math.min(vw*.52-9,680):
+ const h=Math.max(phoneLandscape?165:185,bottom-top);
+ const maxWidth=tabletLandscape?Math.min(vw*.62-26,760):phoneLandscape?Math.min(vw*.52-9,680):
    tablet?Math.min(vw-20,990):!portrait?Math.min(vw-20,1440):vw-24;
  const w=Math.min(vw-20,maxWidth);
+ screen.style.setProperty('--atlas-left',wideSidePanel?(tabletLandscape?'16px':'8px'):'50%');
  screen.style.setProperty('--atlas-top',top+'px');
  screen.style.setProperty('--atlas-height',h+'px');
  screen.style.setProperty('--atlas-width',w+'px');
@@ -358,6 +394,7 @@ function wireGestures(){
  canvas.addEventListener('wheel',e=>{if(!isAtlas())return;e.preventDefault();const p=local(e);zoomTo(map.zoom*(e.deltaY<0?1.14:1/1.14),p.x,p.y)},{passive:false});
 }
 function sync(mode){
+ refreshGeoLayout();
  map.mode=mode==='mine'?'mine':'explore';
  const atlas=mode!=='classic';
  screen.classList.toggle('atlas-perspective-on',atlas);
@@ -480,8 +517,8 @@ function install(){
  if(zin){const old=zin.onclick;zin.onclick=function(){if(isAtlas())zoomTo(map.zoom*1.34);else old?.apply(this,arguments)}}
  if(zout){const old=zout.onclick;zout.onclick=function(){if(isAtlas())zoomTo(map.zoom/1.34);else old?.apply(this,arguments)}}
  if(reset){const old=reset.onclick;reset.onclick=function(){if(isAtlas()){goRegion('africa');return}return old?.apply(this,arguments)}}
- window.addEventListener('resize',queueLayout);
- window.addEventListener('orientationchange',queueLayout);
+ window.addEventListener('resize',()=>{refreshGeoLayout();queueLayout()});
+ window.addEventListener('orientationchange',()=>{refreshGeoLayout();queueLayout()});
  if(typeof ResizeObserver!=='undefined'){
   const ro=new ResizeObserver(queueLayout);
   const card=document.getElementById('globe-status'),mode=document.getElementById('globe-mode');
