@@ -19,6 +19,7 @@ assert.match(css,/orientation: portrait\) and \(min-width: 700px\)/,'iPad portra
 assert.match(atlas,/function refreshGeoLayout\(\)/,'mode transitions must classify the current viewport');
 assert.match(atlas,/screen\.dataset\.geoLayout=next/,'classic globe and atlas must share the same viewport classification');
 assert.match(atlas,/--atlas-left/,'atlas geometry must own its left map column');
+assert.match(atlas,/MAX_ZOOM=32, MIN_ZOOM=1/,'atlas must allow significantly closer map exploration');
 assert.ok(html.indexOf('atlas-perspective-v1.css')<html.indexOf('globe-ux-phase2.css'),'phase 2 geometry must load after atlas base styles');
 assert.match(sw,/globe-ux-phase2/,'PWA cache must refresh when geography geometry changes');
 console.log('ok - ux phase 2 geography geometry contract');
