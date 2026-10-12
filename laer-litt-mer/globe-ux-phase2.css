@@ -106,6 +106,28 @@
   }
 }
 
+/* Compact portrait phones need map space more than a tall ornamental title.
+   This is scoped to the atlas; the classic globe retains its scrollable layout. */
+@media (orientation: portrait) and (max-width: 360px) and (max-height: 650px) {
+  #world-screen.active.globe-v30.atlas-perspective-on .premium-globe-header {
+    min-height: 84px !important;
+    max-height: 88px !important;
+    padding-top: 7px !important;
+    padding-bottom: 5px !important;
+  }
+  #world-screen.active.globe-v30.atlas-perspective-on .premium-globe-title {
+    font-size: 25px !important;
+  }
+  #world-screen.active.globe-v30.atlas-perspective-on .premium-globe-subtitle {
+    display: none !important;
+  }
+  #world-screen.active.globe-v30.atlas-perspective-on .globe-mode {
+    top: 96px !important;
+    height: 44px !important;
+    min-height: 44px !important;
+  }
+}
+
 /* iPhone landscape has room horizontally, not vertically. Keep its small header
    and route geography left while country information remains an accessible
    right-side panel. Portrait iPhone receives no size change. */
