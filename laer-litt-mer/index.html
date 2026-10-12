@@ -281,6 +281,9 @@
 
     .swipe-back-edge{position:fixed;z-index:95;left:0;top:0;width:14px;height:100dvh;touch-action:none;pointer-events:auto}
     .swipe-back-edge.hidden{display:none}
+    /* Continue an edge-started gesture on the same target as it travels over
+       the globe's canvas. No global hit shield exists between gestures. */
+    .swipe-back-edge.tracking{width:100vw}
     .swipe-back-indicator{position:fixed;z-index:96;left:max(10px,env(safe-area-inset-left));top:50%;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.94);color:#5265CC;font-size:25px;font-weight:950;box-shadow:0 8px 24px rgba(49,55,96,.18);transform:translate(-58px,-50%) scale(.86);opacity:0;pointer-events:none;transition:transform .13s ease,opacity .13s ease}
     .swipe-back-indicator.show{opacity:1;transform:translate(0,-50%) scale(1)}
     .topic-card.norwegian{background:linear-gradient(145deg,#FFF0F3,#FFF7F5)}
@@ -3707,16 +3710,26 @@ function appBack(){
   return false;
 }
 if(swipeBackEdge){
+  let swipeReleaseTimer=null;
+  const releaseSwipeLayer=()=>{
+    clearTimeout(swipeReleaseTimer);
+    swipeReleaseTimer=null;
+    swipeBackEdge.classList.remove('tracking');
+    swipeBackIndicator.classList.remove('show');
+  };
   swipeBackEdge.addEventListener('pointerdown',e=>{
     if(e.pointerType==='mouse'&&e.button!==0)return;
+    if(swipeBackGesture)return;
     swipeBackGesture={id:e.pointerId,startX:e.clientX,startY:e.clientY,lastX:e.clientX,lastY:e.clientY,active:false};
-    // Avoid setPointerCapture here. WebKit occasionally drops the second
-    // swipe's pointer stream after an edge target is hidden and shown again.
-    // Document-capture listeners below track movement outside the 14px edge.
+    // An edge-started gesture gets a temporary full-width SAME-ELEMENT hitbox.
+    // This prevents pointercancel when crossing the globe canvas in WebKit,
+    // without relying on setPointerCapture's unstable repeat behavior.
+    swipeBackEdge.classList.add('tracking');
+    swipeReleaseTimer=setTimeout(()=>{
+      swipeBackGesture=null;
+      releaseSwipeLayer();
+    },3500);
   });
-  // WebKit can stop delivering pointermove/up to a narrow fixed edge after
-  // the finger leaves it, even if setPointerCapture was requested. Track the
-  // gesture on the document in capture phase, but START only inside the edge.
   document.addEventListener('pointermove',e=>{
     const g=swipeBackGesture;if(!g||g.id!==e.pointerId)return;
     g.lastX=e.clientX;g.lastY=e.clientY;
@@ -3726,13 +3739,16 @@ if(swipeBackEdge){
       if(e.cancelable)e.preventDefault();
       e.stopPropagation();
     }else if(Math.abs(dy)>Math.max(18,Math.abs(dx))){
-      g.active=false;swipeBackIndicator.classList.remove('show');
+      // This was a vertical gesture, not an attempt to go back.
+      swipeBackGesture=null;
+      releaseSwipeLayer();
     }
   },true);
   const finishSwipeBack=e=>{
     const g=swipeBackGesture;if(!g||g.id!==e.pointerId)return;
     const dx=(e.clientX??g.lastX)-g.startX,dy=(e.clientY??g.lastY)-g.startY;
-    swipeBackIndicator.classList.remove('show');swipeBackGesture=null;
+    swipeBackGesture=null;
+    releaseSwipeLayer();
     // Fast physical swipes may deliver only down and up before a move frame.
     if(dx>=64&&Math.abs(dx)>Math.abs(dy)*1.2){
       if(e.cancelable)e.preventDefault();
@@ -3743,9 +3759,13 @@ if(swipeBackEdge){
   document.addEventListener('pointerup',finishSwipeBack,true);
   document.addEventListener('pointercancel',e=>{
     if(swipeBackGesture?.id!==e.pointerId)return;
-    swipeBackIndicator.classList.remove('show');
     swipeBackGesture=null;
+    releaseSwipeLayer();
   },true);
+  window.addEventListener('blur',()=>{
+    swipeBackGesture=null;
+    releaseSwipeLayer();
+  });
 }
 syncSwipeBackEdge();
 
