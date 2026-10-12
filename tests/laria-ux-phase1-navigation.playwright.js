@@ -24,10 +24,11 @@ async function edgeBack(page,label){
     const target=document.getElementById('swipe-back-edge');
     if(!target.dataset.uxGestureProbe){
       target.dataset.uxGestureProbe='1';
-      ['pointerdown','pointermove','pointerup','pointercancel'].forEach(type=>
-        target.addEventListener(type,event=>{
+      ['pointerdown','pointermove','pointerup','pointercancel','mousedown','mousemove','mouseup'].forEach(type=>
+        document.addEventListener(type,event=>{
           window.__lariaGestureLog?.push({type,x:Math.round(event.clientX),
-            y:Math.round(event.clientY),id:event.pointerId});
+            y:Math.round(event.clientY),id:event.pointerId||0,
+            target:event.target?.id||event.target?.tagName||'unknown'});
         },true));
     }
   });
