@@ -89,6 +89,8 @@ async function run(browser,engine,device,width,height,url){
       };
     });
     assert.ok(layout.scroll<=layout.screen+4,'horizontal overflow: '+JSON.stringify(layout));
+    assert.ok(layout.card?.right<=layout.screen+4&&layout.hud?.right<=layout.screen+4,
+      'HUD and task card must fit the actual device viewport: '+JSON.stringify(layout));
     assert.ok(layout.rects.every(x=>x.height>=58),'tap targets too small: '+JSON.stringify(layout));
     assert.ok(layout.rects[0].y===layout.rects[1].y&&layout.rects[1].y===layout.rects[2].y,
       'choices should be three in one row: '+JSON.stringify(layout));
