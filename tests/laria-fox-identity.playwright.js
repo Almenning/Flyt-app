@@ -98,6 +98,9 @@ async function run(engine,name,viewport,which){
    await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
    assert.equal(await page.locator('.task-fox-companion').getAttribute('data-avatar'),which,name+' '+subject+' question identity');
    await imageIsChosen(page,'#session-screen.active .task-fox-companion img',which,name+' '+subject+' question');
+   // Actual WebKit/Chromium task scenes for visual QA across all four worlds.
+   // The same profile choice must be present on the task, not only on the map.
+   await page.screenshot({path:folder+'/'+name+'-'+subject+'-task.png',fullPage:true,animations:'disabled'});
    await page.locator('#close-session').click();await root.waitFor({timeout:16000});
    await root.locator('.locked-journey-back').click();
    await page.locator('#home-screen.active .bc14-subject[data-camp="subject-'+subject+'"]:visible').waitFor({timeout:12000});
