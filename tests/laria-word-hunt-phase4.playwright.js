@@ -114,7 +114,7 @@ async function testView(browser,engine,label,viewport,url){
   assert.equal(fox.src,fox.expected,label+' did not use child-selected persistent fox');
   await page.locator('.word-hunt-fox').evaluate(img=>img.decode());
   await shot(page,label+'-01-words-and-board');
-  await geometry(page,label,viewport,viewport.width<=700||viewport.height<=500);
+  await geometry(page,label,viewport,viewport.width<=700||viewport.height<=500||label.includes('ipad'));
   const words=await page.locator('.word-hunt-word').allTextContents();
   for(let i=0;i<words.length;i++){
    const word=words[i].replace(/^✓\s*/,'').trim();
