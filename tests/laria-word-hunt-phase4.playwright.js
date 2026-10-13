@@ -36,17 +36,17 @@ async function open(page,url){
  await page.route('https://api.worldbank.org/**',r=>r.abort());
  await page.goto(url,{waitUntil:'domcontentloaded'});
  await page.waitForFunction(()=>typeof window.openWordHunt==='function'&&document.querySelector('.bc12-nav [data-camp="explore"]'),{},{timeout:25000});
- // "Ordjakt" is an Explore destination, not a Home destination.
- // Navigate through the same visible route the child uses.
+ // The actual child-facing Utforsk is the premium BC13 chooser. Its
+ // four storybook cards intentionally cover the retired Basecamp pin buttons.
  await page.locator('.bc12-nav [data-camp="explore"]').first().click();
- await page.locator('.bc12 [data-camp="words"]').first().waitFor({state:'visible'});
- // Subject-first Home intentionally hides the old shortcuts, but the child
- // must regain ALL existing free-play destinations inside Utforsk.
+ const chooser=page.locator('.bc13-panel:not([hidden])');
+ await chooser.waitFor({state:'visible'});
+ assert.equal(await page.locator('.bc12').getAttribute('data-bc13-view'),'explore');
  for(const action of ['words','globe','fraction','multiply']){
-  assert.ok(await page.locator('.bc12 [data-camp="'+action+'"]').first().isVisible(),
-   'Young Utforsk unexpectedly hides existing '+action+' activity');
+  const card=chooser.locator('.bc13-card[data-bc13-action="'+action+'"]');
+  assert.ok(await card.isVisible(),'Young Utforsk hides its premium '+action+' activity card');
  }
- await page.locator('.bc12 [data-camp="words"]').first().click();
+ await chooser.locator('.bc13-card[data-bc13-action="words"]').click();
  await page.locator('#word-hunt-overlay:not([hidden]) .word-hunt-cell').first().waitFor();
 }
 async function geometry(page,label,viewport,firstFold){
@@ -133,9 +133,10 @@ async function testView(browser,engine,label,viewport,url){
   await page.locator('.word-hunt-back').click();
   assert.equal(await page.locator('#word-hunt-overlay:not([hidden])').count(),0,label+' did not close');
   assert.equal(await page.evaluate(()=>document.documentElement.style.overflow),'',label+' scroll lock not restored');
-  await page.locator('.bc12 [data-camp="words"]').first().waitFor({state:'visible'});
-  assert.equal(await page.locator('.bc12').getAttribute('data-mode'),'explore',
-   label+' return must restore Utforsk, not silently reset to Home');
+  const returned=page.locator('.bc13-panel:not([hidden]) .bc13-card[data-bc13-action="words"]');
+  await returned.waitFor({state:'visible'});
+  assert.equal(await page.locator('.bc12').getAttribute('data-bc13-view'),'explore',
+   label+' return must restore actual Utforsk chooser, not silently reset to Home');
   assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('laria-wordhunt-v1')||'{}').rounds),1,label+' completion not saved on return');
   await page.reload({waitUntil:'domcontentloaded'});
   assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('laria-wordhunt-v1')||'{}').rounds),1,label+' completion lost on reload');
