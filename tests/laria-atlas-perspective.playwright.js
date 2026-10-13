@@ -48,7 +48,11 @@ async function run(engine,label,viewport){
   assert.ok(rect.width>=viewport.width*.76,label+' atlas too narrow '+JSON.stringify(rect));
   assert.ok(rect.height>180,label+' atlas too shallow '+JSON.stringify(rect));
   assert.ok(rect.y>=modes.y+modes.height+4,label+' atlas overlaps mode selector');
-  assert.ok(rect.y+rect.height<=card.y-2,label+' atlas collides with country card');
+  const separateColumns=viewport.width>=900&&viewport.width>viewport.height;
+  assert.ok(separateColumns
+    ?rect.x+rect.width<=card.x-2
+    :rect.y+rect.height<=card.y-2,
+  label+' atlas collides with country card '+JSON.stringify({rect,card,modes}));
   const first=await page.evaluate(()=>window.LARIA_ATLAS_PERSPECTIVE.snapshot());
   assert.equal(first.source,'country-geometry',label+' country surfaces must use real polygon data');
   const regions=await page.locator('.atlas-region-nav button').count();
@@ -70,6 +74,30 @@ async function run(engine,label,viewport){
   const selected=await page.evaluate(()=>globeSelected);
   assert.equal(selected,'no',label+' Norway tap must select Norway, not China or a neighbouring country');
   assert.ok((await page.locator('#globe-status strong').allTextContents()).some(x=>x.includes('Norge')),label+' Norway card missing');
+  if(viewport.width>=900&&viewport.width>viewport.height){
+   // Geometry checks for visually verified iPad-landscape defects:
+   // continent chips must not sit beneath the zoom toolbar, and neither
+   // action text nor the country CTA may be icon-only/clipped.
+   const arrangement=await page.evaluate(()=>{
+    const box=selector=>{const e=document.querySelector(selector),r=e?.getBoundingClientRect();return r&&{x:r.x,y:r.y,w:r.width,h:r.height,bottom:r.bottom,right:r.right}};
+    const overflow=selector=>{
+     const e=document.querySelector(selector);if(!e)return null;
+     const r=document.createRange();r.selectNodeContents(e);
+     return {contentWidth:r.getBoundingClientRect().width,innerWidth:e.clientWidth-(parseFloat(getComputedStyle(e).paddingLeft)||0)-(parseFloat(getComputedStyle(e).paddingRight)||0),text:e.textContent.trim()};
+    };
+    return {toolbar:box('.globe-zoom'),regions:box('.atlas-region-nav'),atlas:box('#atlas-canvas'),
+     country:box('#globe-status'),actions:box('.globe-actions'),
+     buttons:[...document.querySelectorAll('.globe-actions button')].map(b=>({x:b.getBoundingClientRect().x,y:b.getBoundingClientRect().y,w:b.getBoundingClientRect().width,h:b.getBoundingClientRect().height,text:b.textContent.trim(),contentWidth:(()=>{const range=document.createRange();range.selectNodeContents(b);return range.getBoundingClientRect().width})()})),
+     cta:overflow('.premium-country-learn'),ctaVisible:getComputedStyle(document.querySelector('.premium-country-learn span')).display!=='none'};
+   });
+   assert.ok(arrangement.toolbar.y>arrangement.regions.bottom+10,label+' zoom toolbar covers atlas region choices '+JSON.stringify(arrangement));
+   assert.ok(arrangement.toolbar.right<=arrangement.atlas.right+3,label+' zoom toolbar leaves map boundary');
+   assert.ok(arrangement.country.bottom+8<=arrangement.actions.y,label+' country card intersects action buttons');
+   assert.equal(arrangement.ctaVisible,true,label+' iPad landscape Learn More text must not be hidden');
+   assert.ok(arrangement.cta.text.includes('Lær mer'),label+' country action must have a readable label');
+   assert.ok(arrangement.buttons.length===2&&arrangement.buttons.every(b=>b.h>=44&&b.contentWidth<=b.w-10),label+' landscape action labels are clipped '+JSON.stringify(arrangement.buttons));
+   assert.ok(arrangement.buttons[1].y>=arrangement.buttons[0].y+arrangement.buttons[0].h+4,label+' landscape actions must have independent full-width rows');
+  }
   if(viewport.width<=430){
    assert.equal(await page.locator('#globe-status .premium-country-learn span').isVisible(),true,label+' Lær mer text must be visible beside the Norwegian country card on iPhone');
    const learnButton=await page.locator('#globe-status .premium-country-learn').boundingBox();
@@ -83,6 +111,25 @@ async function run(engine,label,viewport){
   await page.locator('#globe-zoom-out').click();
   const backZoom=await page.evaluate(()=>window.LARIA_ATLAS_PERSPECTIVE.snapshot().zoom);
   assert.ok(backZoom<after.zoom,label+' zoom-out button must reduce atlas scale');
+  // Deeper map zoom must remain geographically accurate and must keep the
+  // exact vector country outlines, not silently fall back to blurry artwork.
+  await page.evaluate(()=>window.LARIA_ATLAS_PERSPECTIVE.region('norden'));
+  for(let n=0;n<4;n++)await page.locator('#globe-zoom-in').click();
+  const deepZoom=await page.evaluate(()=>{
+   const atlas=window.LARIA_ATLAS_PERSPECTIVE,s=atlas.snapshot();
+   const p=atlas.project(s.lon+.15,s.lat-.15),back=atlas.inverse(p.x,p.y);
+   const canvas=document.getElementById('atlas-canvas');
+   return {zoom:s.zoom,lonError:Math.abs(back.lon-(s.lon+.15)),latError:Math.abs(back.lat-(s.lat-.15)),source:canvas.dataset.renderSource};
+  });
+  assert.ok(deepZoom.zoom>11,label+' atlas must allow zoom beyond previous 11x cap: '+deepZoom.zoom);
+  assert.ok(deepZoom.lonError<.0001&&deepZoom.latError<.0001,label+' deep zoom loses geographic pointer accuracy');
+  assert.equal(deepZoom.source,'country-geometry',label+' deep zoom must still render vector country data');
+  await page.evaluate(()=>window.LARIA_ATLAS_PERSPECTIVE.zoom(1000));
+  const cappedZoom=await page.evaluate(()=>window.LARIA_ATLAS_PERSPECTIVE.snapshot().zoom);
+  assert.equal(cappedZoom,32,label+' atlas must retain a bounded maximum zoom');
+  assert.equal(await page.locator('#globe-zoom-in').isEnabled(),false,label+' zoom-in must disable at 32x');
+  await page.locator('#globe-zoom-out').click();
+  assert.equal(await page.locator('#globe-zoom-in').isEnabled(),true,label+' zoom-in must re-enable after zooming out');
   await page.evaluate(()=>window.LARIA_ATLAS_PERSPECTIVE.zoom(1));
   assert.equal(await page.locator('#globe-zoom-out').isEnabled(),false,label+' atlas zoom-out must disable at minimum atlas scale');
   await page.evaluate(()=>window.LARIA_ATLAS_PERSPECTIVE.region('norden'));
@@ -135,13 +182,63 @@ async function run(engine,label,viewport){
   await context.close();
  }finally{await browser.close()}
 }
+/* Landscape iPhone is not a narrow tablet. It needs a map-first left column,
+   a separate country panel, reliable zoom and an unobstructed classic sphere. */
+async function runLandscapePhone(){
+ const label='safari-iphone-landscape',viewport={width:844,height:390};
+ const browser=await webkit.launch({headless:true});
+ try{
+  const context=await browser.newContext({viewport,isMobile:true,hasTouch:true,deviceScaleFactor:1,serviceWorkers:'block'});
+  const page=await context.newPage(),errors=[];
+  page.on('pageerror',e=>errors.push(String(e)));
+  await page.addInitScript(state=>localStorage.setItem('laerlittmer-v2',JSON.stringify(state)),seed);
+  await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
+  await page.route('https://api.worldbank.org/**',r=>r.abort());
+  await page.goto(globalThis.testUrl+'?app=laria&atlas='+label,{waitUntil:'domcontentloaded'});
+  await page.waitForFunction(()=>typeof openGlobe==='function'&&window.LARIA_ATLAS_PERSPECTIVE);
+  await page.evaluate(()=>openGlobe());
+  await page.waitForFunction(()=>window.LARIA_ATLAS_PERSPECTIVE?.snapshot().active===true&&document.querySelector('#atlas-canvas')?.dataset.mapReady==='true');
+  const map=await page.locator('#atlas-canvas').boundingBox();
+  const card=await page.locator('#globe-status').boundingBox();
+  const mode=await page.locator('#globe-mode').boundingBox();
+  assert.ok(map&&card&&mode,label+' interactive regions missing');
+  assert.ok(map.width>=viewport.width*.46&&map.height>=190,label+' atlas did not fill the left landscape learning column: '+JSON.stringify(map));
+  assert.ok(map.y>=mode.y+mode.height+3,label+' atlas overlaps the mode selector');
+  assert.ok(map.x+map.width<=card.x-4,label+' map and country panel collide: '+JSON.stringify({map,card}));
+  assert.ok(card.x+card.width<=viewport.width+2,label+' country panel clips outside landscape screen');
+  await page.evaluate(()=>window.LARIA_ATLAS_PERSPECTIVE.region('norden'));
+  const norway=await page.evaluate(()=>window.LARIA_ATLAS_PERSPECTIVE.project(10.3,61.2));
+  assert.ok(norway.x>0&&norway.x<map.width&&norway.y>65&&norway.y<map.height,label+' Norway cannot be tapped in landscape');
+  await page.locator('#atlas-canvas').click({position:norway});
+  assert.equal(await page.evaluate(()=>globeSelected),'no',label+' landscape tap must select true country polygon');
+  const targets=await page.locator('#globe-zoom-in, #globe-zoom-out').evaluateAll(all=>all.map(el=>({width:el.getBoundingClientRect().width,height:el.getBoundingClientRect().height})));
+  assert.ok(targets.every(b=>b.width>=44&&b.height>=44),label+' landscape map zoom targets are too small');
+  for(let n=0;n<4;n++)await page.locator('#globe-zoom-in').click();
+  assert.ok((await page.evaluate(()=>window.LARIA_ATLAS_PERSPECTIVE.snapshot().zoom))>11,label+' landscape atlas must support deep zoom');
+  await page.screenshot({path:path.join(out,label+'-deep-zoom.png'),fullPage:true});
+  await page.locator('[data-globe-mode="mine"]').click();
+  await page.waitForFunction(()=>window.LARIA_ATLAS_PERSPECTIVE.snapshot().mode==='mine');
+  const legend=await page.locator('#globe-legend').boundingBox();
+  assert.ok(legend&&legend.x>=map.x+map.width-2,label+' progress legend must stay beside the map in phone landscape');
+  await page.screenshot({path:path.join(out,label+'-mine.png'),fullPage:true});
+  await page.locator('[data-globe-mode="classic"]').click();
+  await page.waitForFunction(()=>document.getElementById('world-screen').dataset.mapPerspective==='globe');
+  const sphere=await page.locator('#globe-canvas').boundingBox();
+  assert.ok(sphere&&sphere.width>=220&&Math.abs(sphere.width-sphere.height)<3,label+' classic globe too small or stretched in phone landscape: '+JSON.stringify(sphere));
+  await page.screenshot({path:path.join(out,label+'-sphere.png'),fullPage:true});
+  assert.deepEqual(errors,[],label+' runtime exceptions: '+errors.join(', '));
+  await context.close();
+ }finally{await browser.close()}
+}
 (async()=>{
  const {server,url}=await startServer();globalThis.testUrl=url;
  try{
+  await run(webkit,'safari-iphone-small',{width:320,height:568});
   await run(chromium,'chromium-iphone',{width:390,height:844});
   await run(webkit,'safari-iphone',{width:390,height:844});
   await run(webkit,'safari-ipad',{width:820,height:1180});
   await run(webkit,'safari-ipad-landscape',{width:1180,height:820});
+  await runLandscapePhone();
   console.log('ok - actual atlas panorama, accurate country hit, zoom, pan and classic globe');
  }finally{server.close()}
 })().catch(e=>{console.error(e);process.exitCode=1});

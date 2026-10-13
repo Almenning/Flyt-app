@@ -15,6 +15,7 @@ Prompt 8 establishes the canonical active layer order. This file documents owner
 10. laria-unified-v13.css — shared fallback/app styling
 11. laria-task-scene-v15.css — shared premium task scene
 12. globe-v24.css — canonical premium globe presentation
+13. globe-ux-phase2.css — sole responsive geometry contract for Kloden/Kartet on wide iPad/iPhone viewports
 13. laria-task-young-v18.css — final grades 1–2 task-scene specialization
 14. locked-journey-renderer.css — guarded, full-aspect Oct 10 visual overlays only when approved original art exists
 
@@ -41,7 +42,7 @@ Deferred presentation/activity modules after inline runtime:
 
 ## Ownership rules
 - Grades 1–2 Home is owned by home-basecamp-v12.css/js. The obsolete LARIA_YOUNG_HOME_HARD_FIX_V8 block has been removed from home-premium.css.
-- Globe presentation is owned by globe-v24.css plus globe-v25-renderer.js; the inline globe CSS is fallback/base structure.
+- Globe presentation is owned by globe-v24.css, globe-ux-phase2.css and globe-v25-renderer.js; the phase-2 stylesheet owns only responsive geometry, while the inline globe CSS is fallback/base structure.
 - Task presentation is layered intentionally: laria-unified-v13 → laria-task-scene-v15 → laria-task-young-v18.
 - Journey presentation keeps the existing progression model; visual renderers do not own progress state.
 - Approved Oct 10 journeys are additive, illustration-first presentation: the image dimensions must match 941×1672; missing/incorrect images trigger the previously tested Norwegian/Math/English/Geography fallback.
