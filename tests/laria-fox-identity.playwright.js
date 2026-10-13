@@ -98,6 +98,23 @@ async function run(engine,name,viewport,which){
    await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
    assert.equal(await page.locator('.task-fox-companion').getAttribute('data-avatar'),which,name+' '+subject+' question identity');
    await imageIsChosen(page,'#session-screen.active .task-fox-companion img',which,name+' '+subject+' question');
+   const taskGeometry=await page.evaluate(()=>{
+    const root=document.querySelector('#session-screen.active');
+    const fox=root?.querySelector('.task-fox-companion');
+    const prompt=root?.querySelector('.task-prompt-fox-stage > .question');
+    const answer=root?.querySelector('.task-interaction button, .task-interaction [role="button"], .letter-tile');
+    const bound=el=>el?.getBoundingClientRect().toJSON()||null;
+    return {foxCount:root?.querySelectorAll('.task-fox-companion').length||0,
+      inline:!!root?.querySelector('.task-inline-fox'),
+      fox:bound(fox),prompt:bound(prompt),answer:bound(answer)};
+   });
+   assert.equal(taskGeometry.foxCount,1,name+' '+subject+' duplicated child's fox');
+   if(taskGeometry.inline&&taskGeometry.answer){
+    assert.ok(taskGeometry.fox?.bottom<=taskGeometry.answer.top+2,
+      name+' '+subject+' fox overlaps first answer: '+JSON.stringify(taskGeometry));
+    assert.ok(taskGeometry.prompt?.right<=taskGeometry.fox.left+3,
+      name+' '+subject+' fox covers question text: '+JSON.stringify(taskGeometry));
+   }
    // Actual WebKit/Chromium task scenes for visual QA across all four worlds.
    // The same profile choice must be present on the task, not only on the map.
    await page.screenshot({path:folder+'/'+name+'-'+subject+'-task.png',fullPage:true,animations:'disabled'});
