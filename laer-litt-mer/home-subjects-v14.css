@@ -1,10 +1,7 @@
 /* Læria Hjem v14. Subject-first layout: locked portrait hierarchy,
    existing rich Basecamp scenery, illustrated subject gateways, one primary CTA.
    All game engines and progress state stay in the existing app. */
-/* The new subject-first design hides old destination pins on Home only.
-   Utforsk is where these already-existing free-play activities belong.
-   Hiding the whole container across all modes made Ordjakt inaccessible. */
-.grade-band-young .bc12[data-mode="home"] .bc12-destinations{visibility:hidden!important;pointer-events:none!important}
+.grade-band-young .bc12 .bc12-destinations{visibility:hidden!important;pointer-events:none!important}
 .bc14-subjects,.bc14-free{display:none}
 .bc12[data-mode="home"] .bc14-subjects{
  position:absolute;z-index:7;left:7%;top:31%;width:86%;height:31%;
