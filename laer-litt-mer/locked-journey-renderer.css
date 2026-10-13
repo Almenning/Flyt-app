@@ -37,6 +37,56 @@
   -webkit-user-select:none;
   pointer-events:none;
 }
+/* First-paint gate: use already-approved subject-card art while the original
+   941x1672 map is loading/decoding. The retired simple map is never painted. */
+.locked-journey-waiting-stage{background:linear-gradient(165deg,#fff6de,#e9c892 68%,#c89965)!important}
+.locked-journey-art-guard{
+  position:absolute;inset:0;z-index:40;box-sizing:border-box;
+  display:flex;justify-content:center;align-items:flex-start;
+  padding:clamp(68px,20%,230px) 7% 30px;
+  background:radial-gradient(ellipse at 50% 28%,#fff9e6 0%,#f1dfb7 47%,#b7c1a2 100%);
+  color:#4b3b2d;pointer-events:auto;
+}
+.locked-journey-art-card{
+  display:flex;flex-direction:column;align-items:center;gap:9px;
+  box-sizing:border-box;width:min(100%,400px);
+  padding:12px 12px 16px;border:3px solid #a67b49;border-radius:20px;
+  background:linear-gradient(#fff8e8,#f2dfb6);
+  box-shadow:0 8px 0 #986f48,0 16px 30px #4d443048;
+  text-align:center;font-family:ui-rounded,system-ui,sans-serif;
+}
+.locked-journey-art-card>img{
+  display:block;width:100%;height:auto;aspect-ratio:1024/704;object-fit:cover;
+  border-radius:12px;border:2px solid #d3ac70;box-sizing:border-box;
+}
+.locked-journey-art-card strong{font-size:clamp(19px,4.8vw,26px);line-height:1.15;color:#315d59}
+.locked-journey-art-card>span{font-size:clamp(12px,2.7vw,15px);font-weight:750;line-height:1.3}
+.locked-journey-art-retry{
+  min-width:120px;min-height:44px;padding:8px 16px;
+  border-radius:12px;border:2px solid #976b44;background:#fff3cf;
+  color:#44382d;font:800 14px ui-rounded,system-ui,sans-serif;
+}
+.locked-journey-waiting-back{
+  position:absolute;z-index:50;top:max(10px,env(safe-area-inset-top));
+  left:max(9px,env(safe-area-inset-left));min-height:44px;min-width:44px;
+  padding:8px 12px;border:2px solid #a17a4d;border-radius:13px;
+  background:#fff4d8;color:#533d2a;
+  font:850 14px ui-rounded,system-ui,sans-serif;box-shadow:0 3px 0 #8a6743;
+  cursor:pointer;
+}
+.locked-journey-waiting-back:focus-visible,.locked-journey-art-retry:focus-visible{
+  outline:3px solid #2f786b;outline-offset:3px;
+}
+@media(orientation:landscape) and (max-height:700px){
+  .locked-journey-art-guard{padding:clamp(8px,3svh,32px) 7% 15px}
+  .locked-journey-art-card{width:min(70%,300px);gap:4px;padding:6px 7px 9px}
+  .locked-journey-art-card strong{font-size:19px}
+  .locked-journey-art-card>span{font-size:11px}
+}
+@media(prefers-reduced-motion:reduce){
+  .locked-journey-art-guard,.locked-journey-art-card{animation:none!important;transition:none!important}
+}
+
 /* Independent reversible fox cleanup: no reflow, no new touch targets.
    Crop coordinates map exactly to the approved 941x1672 original PNG. */
 .locked-journey-board>.locked-journey-fox-free{
