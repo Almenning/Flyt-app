@@ -13,6 +13,48 @@ function serve(){return new Promise((resolve,reject)=>{const srv=http.createServ
 async function screenshot(page,name){await fs.promises.mkdir(screenshots,{recursive:true});await page.screenshot({path:path.join(screenshots,name+'.png'),fullPage:true,animations:'disabled'})}
 async function open(page,url){await page.addInitScript(profile=>localStorage.setItem('laerlittmer-v2',JSON.stringify(profile)),seed);await page.route('https://raw.githubusercontent.com/**',r=>r.abort());await page.route('https://api.worldbank.org/**',r=>r.abort());await page.goto(url,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.LARIA_MULT_PREMIUM&&window.LARIA_MULT_PREMIUM.version==='illustrated-v2');await page.evaluate(()=>window.openMultiplicationLab());await page.locator('.mp-home-screen').waitFor();assert.equal(await page.locator('#multiplication-lab-screen.active').count(),1)}
 async function dimensions(page,width,label){const m=await page.evaluate(()=>({inner:window.innerWidth,scroll:document.documentElement.scrollWidth,screen:document.getElementById('multiplication-lab-screen').getBoundingClientRect().width,buttons:[...document.querySelectorAll('#multiplication-lab-root .mp-answer,#multiplication-lab-root .mp-nav-link')].map(x=>({width:x.getBoundingClientRect().width,height:x.getBoundingClientRect().height}))}));assert.ok(m.scroll<=m.inner+4,label+' page overflow '+JSON.stringify(m));assert.ok(m.buttons.every(x=>x.height>=44&&x.width>=44),label+' touch target too small '+JSON.stringify(m))}
+async function assertPracticeFirstFold(page,label){
+ const layout=await page.evaluate(()=>{
+  const rect=q=>{const x=document.querySelector(q)?.getBoundingClientRect();return x?{top:Math.round(x.top),bottom:Math.round(x.bottom),width:Math.round(x.width),height:Math.round(x.height)}:null};
+  return {viewport:{width:innerWidth,height:innerHeight},scrollWidth:document.documentElement.scrollWidth,
+   question:rect('.mp-practice-screen .mp-task-wood h2'),
+   picture:rect('.mp-practice-screen .mp-task-apples'),
+   answers:rect('.mp-practice-screen .mp-answer-grid'),
+   buttons:[...document.querySelectorAll('.mp-practice-screen .mp-answer')].map(n=>{const x=n.getBoundingClientRect();return {top:Math.round(x.top),bottom:Math.round(x.bottom),width:Math.round(x.width),height:Math.round(x.height)}})};
+ });
+ // Full-page captures can conceal a broken opening viewport. Assert positions
+ // against the actual screen height, not the screenshot's full scroll height.
+ await screenshot(page,label+'-03-firstfold');
+ console.log('MULTIPLICATION_FIRSTFOLD '+label+' '+JSON.stringify(layout));
+ assert.ok(layout.question&&layout.picture&&layout.answers&&layout.buttons.length===4,
+  label+' missing question, picture or four answer choices: '+JSON.stringify(layout));
+ assert.ok(layout.question.top>=0&&layout.question.bottom<=layout.viewport.height,
+  label+' question hidden below viewport: '+JSON.stringify(layout));
+ assert.ok(layout.picture.height>=85&&layout.picture.top>=0&&layout.picture.bottom<=layout.viewport.height,
+  label+' illustrated representation hidden on phone: '+JSON.stringify(layout));
+ assert.ok(layout.answers.top>=0&&layout.answers.bottom<=layout.viewport.height,
+  label+' all four choices must be immediately visible: '+JSON.stringify(layout));
+ assert.ok(layout.buttons.every(x=>x.width>=44&&x.height>=44),
+  label+' insufficient answer touch targets: '+JSON.stringify(layout));
+ assert.ok(layout.scrollWidth<=layout.viewport.width+4,
+  label+' horizontal overflow: '+JSON.stringify(layout));
+}
+async function compactFirstFold(browser,engine,label,viewport,url){
+ const context=await browser.newContext({viewport,deviceScaleFactor:1,serviceWorkers:'block',isMobile:true,hasTouch:true});
+ const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(String(e)));
+ try{
+  await open(page,url);
+  await page.locator('.mp-menu-choose').click();
+  await page.locator('.mp-table-choice[data-table="5"]').click();
+  await page.locator('.mp-practice-screen').waitFor();
+  await assertPracticeFirstFold(page,label);
+  const first=page.locator('.mp-answer').first();
+  await first.click();
+  assert.ok((await page.locator('.mp-answer-feedback').innerText()).length>3,label+' choice did not respond');
+  assert.deepEqual(errors,[],label+' runtime errors');
+  console.log('PASS '+engine+' '+label+': question, illustration and four choices visible without scrolling');
+ }finally{await context.close()}
+}
 async function testView(browser,engine,label,viewport,url){
  const context=await browser.newContext({viewport,deviceScaleFactor:1,serviceWorkers:'block',isMobile:viewport.width<700,hasTouch:true});
  const page=await context.newPage(),errors=[];
@@ -54,6 +96,7 @@ async function testView(browser,engine,label,viewport,url){
   assert.equal(snap.round.length,8);
   assert.ok(snap.round.every(q=>q.a===5),'selected 5-gangen not honored');
   await dimensions(page,viewport.width,label+' practice');
+  if(viewport.width<700)await assertPracticeFirstFold(page,label);
   await screenshot(page,label+'-03-practice');
   const initial=snap.round[0];assert.equal(await page.locator('.mp-apple-basket').count(),initial.a);assert.equal(await page.locator('.mp-apple').count(),initial.a*initial.b,'visual groups disagree with math');
    assert.equal(await page.locator('.mp3-item').count(),initial.a*initial.b,'illustrated objects must match multiplication');
@@ -191,4 +234,4 @@ async function testView(browser,engine,label,viewport,url){
   console.log('PASS '+engine+' '+label+': 6 screens, 8 questions, hints, all exploratory modes, table first, 10x10, persistence, no page errors');
  }finally{await context.close()}
 }
-(async()=>{const {srv,url}=await serve();try{for(const [engine,launcher,views] of [['chromium',chromium,[['iphone', {width:390,height:844}],['ipad',{width:820,height:1180}],['ipad-landscape',{width:1180,height:820}]]],['webkit',webkit,[['iphone-safari',{width:390,height:844}],['ipad-safari',{width:820,height:1180}],['ipad-landscape-safari',{width:1180,height:820}]]]]){const browser=await launcher.launch({headless:true});try{for(const [label,viewport] of views)await testView(browser,engine,label,viewport,url)}finally{await browser.close()}}console.log('PASS Læria illustrated multiplication complete browser matrix')}finally{await new Promise(resolve=>srv.close(resolve))}})().catch(e=>{console.error(e);process.exitCode=1});
+(async()=>{const {srv,url}=await serve();try{for(const [engine,launcher,views] of [['chromium',chromium,[['iphone', {width:390,height:844}],['ipad',{width:820,height:1180}],['ipad-landscape',{width:1180,height:820}]]],['webkit',webkit,[['iphone-safari',{width:390,height:844}],['ipad-safari',{width:820,height:1180}],['ipad-landscape-safari',{width:1180,height:820}]]]]){const browser=await launcher.launch({headless:true});try{for(const [label,viewport] of views)await testView(browser,engine,label,viewport,url);for(const [label,viewport] of [['iphone-small',{width:375,height:667}],['iphone-tiny',{width:320,height:568}]])await compactFirstFold(browser,engine,engine+'-'+label,viewport,url)}finally{await browser.close()}}console.log('PASS Læria illustrated multiplication complete browser matrix')}finally{await new Promise(resolve=>srv.close(resolve))}})().catch(e=>{console.error(e);process.exitCode=1});
