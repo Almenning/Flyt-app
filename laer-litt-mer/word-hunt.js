@@ -177,8 +177,12 @@ function closeWordHunt(){
   if(typeof window.LARIA_RETURN_TO_BASECAMP==='function')window.LARIA_RETURN_TO_BASECAMP();
   const origin=previousFocus;
   previousFocus=null;previousOverflow='';
-  if(origin?.isConnected&&typeof origin.focus==='function'&&origin.getClientRects().length)
-    try{origin.focus({preventScroll:true})}catch(_){}
+  // The illustrated Utforsk chooser is re-rendered on return, so the
+  // original card can be detached. Focus its new accessible replacement.
+  const fallback=document.querySelector('.bc13-panel:not([hidden]) .bc13-card[data-bc13-action="words"]');
+  const target=origin?.isConnected&&origin.getClientRects().length?origin:fallback;
+  if(target&&typeof target.focus==='function')
+    try{target.focus({preventScroll:true})}catch(_){}
 }
 window.openWordHunt=openWordHunt;window.closeWordHunt=closeWordHunt;
 })();
