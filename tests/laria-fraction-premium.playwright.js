@@ -53,6 +53,7 @@ async function run(browser,engine,label,viewport,url){
       noOverflow:document.documentElement.scrollWidth<=innerWidth+3
     };
   });
+  if(label.includes('tiny'))await photo(page,label+'-00-first-fold-diagnostic');
   assert.ok(firstFold.cakeVisible&&firstFold.fractionVisible&&firstFold.controlsVisible&&firstFold.fractionAboveControls&&firstFold.correctFox&&firstFold.equivalentsBesideCake&&firstFold.noOverflow,
     label+' first viewport must show cake, 1/4, both controls and personal fox: '+JSON.stringify(firstFold));
   assert.ok(firstFold.controlsHeight>=58,'real controls must remain touchable');
