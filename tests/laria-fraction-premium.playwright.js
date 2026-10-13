@@ -75,6 +75,18 @@ async function run(browser,engine,label,viewport,url){
     assert.deepEqual(await page.locator('#fr7-mobile-values .fr7-equivalent-tile strong').allTextContents(),['0,25','25 %']);
     await photo(page,label+'-01-decimals-visible');
   }
+  // Keyboard interaction must remain on the same tactile control after
+  // replacing the fraction DOM. Children must be able to press twice.
+  const up=page.locator('.fr6-controls [data-fr-action="adjust"][data-field="n"][data-step="1"]');
+  await up.focus();
+  await page.keyboard.press('Enter');
+  assert.equal(await page.locator('.fr6-result .fr2-fraction').getAttribute('aria-label'),'2 av 4');
+  assert.ok(await up.evaluate(el=>document.activeElement===el),label+' lost focus after teller increase');
+  const down=page.locator('.fr6-controls [data-fr-action="adjust"][data-field="n"][data-step="-1"]');
+  await down.focus();
+  await page.keyboard.press('Enter');
+  assert.equal(await page.locator('.fr6-result .fr2-fraction').getAttribute('aria-label'),'1 av 4');
+  assert.ok(await down.evaluate(el=>document.activeElement===el),label+' lost focus after teller decrease');
   await page.locator('.fr2-pie-builder [data-fr-action="piece"][data-piece="2"]').click();
   assert.deepEqual((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build)).filled,[0,2],'tap adds the touched sector, not the next one');
   assert.equal(await page.locator('.fr6-result .fr2-fraction').getAttribute('aria-label'),'2 av 4');
