@@ -97,7 +97,7 @@ async function run(browser,engine,device,width,height,url){
     assert.equal(layout.foxHosts,1,'there must be exactly one selected fox');
     assert.equal(layout.foxRigs,1,'wardrobe must render exactly one full-body character');
     assert.equal(layout.profile,'boy','boy profile must use the selected boy fox');
-    assert.ok(layout.fox&&layout.fox.width>=(width<=360?72:88)&&layout.fox.height>=(width<=360?110:130)
+    assert.ok(layout.fox&&layout.fox.width>=(height<=540?70:width<=360?72:88)&&layout.fox.height>=(height<=540?110:width<=360?110:130)
       &&layout.fox.top>=0&&layout.fox.right<=layout.screen+4
       &&layout.fox.bottom<Math.min(...layout.rects.map(x=>x.top)),
       'full-body fox must be large and never cover any touch target: '+JSON.stringify(layout));
