@@ -781,10 +781,15 @@
   #fraction-lab-screen .fr4-top .fr4-earned{padding:4px 8px}
   #fraction-lab-screen .fr4-top-token{display:none}
   #fraction-lab-screen .fr5-build .fr5-lab-intro{
-    margin:2px 0 4px;padding:3px 10px;
+    display:flex;align-items:baseline;justify-content:center;gap:12px;
+    flex-wrap:nowrap;margin:2px 0 4px;padding:2px 8px;min-height:0;
   }
-  #fraction-lab-screen .fr5-build .fr5-lab-intro h1{font-size:19px}
-  #fraction-lab-screen .fr5-build .fr5-lab-intro p{font-size:10px;line-height:1}
+  #fraction-lab-screen .fr5-build .fr5-lab-intro h1{
+    font-size:19px;margin:0;white-space:nowrap;
+  }
+  #fraction-lab-screen .fr5-build .fr5-lab-intro p{
+    font-size:10px;line-height:1;margin:0;white-space:nowrap;
+  }
   #fraction-lab-screen .fr6-workshop .fr6-stage{
     grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);
     gap:4px;padding:4px 8px;
@@ -807,7 +812,7 @@
     display:flex;flex:1 1 0;min-width:0;min-height:0;padding:3px;
   }
   #fraction-lab-screen .fr6-workshop .fr6-stage .fr5-live-result .fr2-fraction{
-    font-size:48px;
+    font-size:43px;
   }
   #fraction-lab-screen .fr6-workshop .fr6-stage .fr5-fox-mentor{
     display:flex;flex:0 0 95px;align-self:center;min-width:0;min-height:0;
@@ -828,7 +833,7 @@
   }
   #fraction-lab-screen .fr5-piece-tray .fr2-loose-piece{height:40px}
   #fraction-lab-screen .fr5-controls{
-    margin:4px 0;gap:5px;
+    margin:2px 0;gap:5px;
   }
   #fraction-lab-screen .fr5-controls .fr2-adjust{
     display:flex;flex-direction:row;align-items:center;
