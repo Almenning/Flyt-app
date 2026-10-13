@@ -92,6 +92,10 @@ function preview(path,anchor=false){
 function clearPreview(){ui.drag=null;preview(ui.tapStart?[ui.tapStart]:[],!!ui.tapStart)}
 function pointerDown(e){
   const cell=e.target.closest('.word-hunt-cell');if(!cell)return;
+  // After a swipe, suppress only its synthetic trailing click.
+  // A new real finger contact must never be blocked for 250ms.
+  const root=e.currentTarget.closest('.word-hunt-overlay');
+  if(root)root.dataset.draggedUntil='0';
   ui.drag={id:e.pointerId,start:coord(cell),end:coord(cell),moved:false};try{e.currentTarget.setPointerCapture(e.pointerId)}catch(_){}
 }
 function pointerMove(e){
