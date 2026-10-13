@@ -49,6 +49,7 @@ async function run(browser,engine,label,viewport,url){
       correctFox:!!fox&&fox.getAttribute('src')===window.LARIA_FOX.worldSource(window.LARIA_FOX.choice())&&fox.complete&&fox.naturalWidth>0,
       equivalentsBesideCake:innerWidth<700||(!!equivalents&&equivalents.top>=0&&equivalents.bottom<=innerHeight&&equivalents.left>cake.right-3),
       controlsHeight:controls?.height,
+      viewportHeight:innerHeight,cakeBottom:Math.round(cake?.bottom||0),fractionBottom:Math.round(value?.bottom||0),controlsTop:Math.round(controls?.top||0),controlsBottom:Math.round(controls?.bottom||0),
       noOverflow:document.documentElement.scrollWidth<=innerWidth+3
     };
   });
@@ -309,9 +310,13 @@ async function runLandscape(browser,engine,url){
   assert.deepEqual(errors,[],engine+' landscape page errors');
  }finally{await ctx.close()}
 }
-(async()=>{const {srv,url}=await server();try{
+(async()=>{const {srv,url}=await server(),failures=[];try{
  for(const [name,type,devices] of [['chromium',chromium,[['iphone',{width:390,height:844}],['iphone-small',{width:375,height:667}],['iphone-tiny',{width:320,height:568}],['ipad',{width:820,height:1180}]]],['webkit',webkit,[['iphone-safari',{width:390,height:844}],['iphone-small-safari',{width:375,height:667}],['iphone-tiny-safari',{width:320,height:568}],['ipad-safari',{width:820,height:1180}],['ipad-landscape-safari',{width:1180,height:820}]]]]){
-  const browser=await type.launch({headless:true});try{for(const [label,viewport] of devices)await run(browser,name,label,viewport,url);await runLandscape(browser,name,url)}finally{await browser.close()}
+  const browser=await type.launch({headless:true});try{
+   for(const [label,viewport] of devices){try{await run(browser,name,label,viewport,url)}catch(e){failures.push(name+' '+label+': '+e.message);console.error('FAIL '+name+' '+label+': '+e.stack)}}
+   try{await runLandscape(browser,name,url)}catch(e){failures.push(name+' iphone-landscape: '+e.message);console.error('FAIL '+name+' iphone-landscape: '+e.stack)}
+  }finally{await browser.close()}
  }
+ if(failures.length)throw new Error('Brøklaben device failures:\\n'+failures.join('\\n'));
  console.log('PASS all Læria Brøklaben premium browser tests');
 }finally{await new Promise(resolve=>srv.close(resolve))}})().catch(e=>{console.error(e);process.exitCode=1});
