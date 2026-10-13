@@ -265,7 +265,7 @@ async function run(browser,engine,label,viewport,url){
  }finally{await ctx.close()}
 }
 (async()=>{const {srv,url}=await server();try{
- for(const [name,type,devices] of [['chromium',chromium,[['iphone',{width:390,height:844}],['iphone-small',{width:375,height:667}],['ipad',{width:820,height:1180}]]],['webkit',webkit,[['iphone-safari',{width:390,height:844}],['iphone-small-safari',{width:375,height:667}],['ipad-safari',{width:820,height:1180}],['ipad-landscape-safari',{width:1180,height:820}]]]]){
+ for(const [name,type,devices] of [['chromium',chromium,[['iphone',{width:390,height:844}],['iphone-small',{width:375,height:667}],['iphone-tiny',{width:320,height:568}],['ipad',{width:820,height:1180}]]],['webkit',webkit,[['iphone-safari',{width:390,height:844}],['iphone-small-safari',{width:375,height:667}],['iphone-tiny-safari',{width:320,height:568}],['ipad-safari',{width:820,height:1180}],['ipad-landscape-safari',{width:1180,height:820}]]]]){
   const browser=await type.launch({headless:true});try{for(const [label,viewport] of devices)await run(browser,name,label,viewport,url)}finally{await browser.close()}
  }
  console.log('PASS all Læria Brøklaben premium browser tests');
