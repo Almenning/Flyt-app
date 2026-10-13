@@ -69,12 +69,19 @@ async function run(browser,engine,device,width,height,url){
     assert.deepEqual((await choices.evaluateAll(els=>els.map(x=>x.dataset.answer))).sort(),['8','80','82']);
     assert.equal(await page.locator('#math-input').count(),0,'no typing or mobile keyboard');
     assert.equal(await page.locator('.laria-task-card').count(),1,'preserve premium task scene');
+    await page.waitForFunction(()=>!!document.querySelector('.task-prompt-fox-stage .laria-fox-wardrobe-art[data-fox-art="boy-fullbody-v1"]'));
     const layout=await page.evaluate(()=>{
       const nodes=[...document.querySelectorAll('.young-math-option')];
+      const fox=document.querySelector('.task-prompt-fox-stage > .task-fox-companion');
       return {
         screen:innerWidth,scroll:document.documentElement.scrollWidth,
         rects:nodes.map(n=>n.getBoundingClientRect().toJSON()),
-        fox:document.querySelector('.young-math-choice-layout > .task-fox-companion')?.getBoundingClientRect().toJSON(),
+        fox:fox?.getBoundingClientRect().toJSON(),
+        question:document.querySelector('.task-prompt-fox-stage > .question')?.getBoundingClientRect().toJSON(),
+        read:document.querySelector('.task-card-head .read-aloud')?.getBoundingClientRect().toJSON(),
+        foxHosts:document.querySelectorAll('#session-screen .task-fox-companion').length,
+        foxRigs:fox?.querySelectorAll('.laria-fox-wardrobe-art').length,
+        profile:fox?.dataset.avatar,
         font:nodes.map(n=>parseFloat(getComputedStyle(n).fontSize)),
         columns:getComputedStyle(document.querySelector('.young-math-answers')).gridTemplateColumns
       };
@@ -83,10 +90,28 @@ async function run(browser,engine,device,width,height,url){
     assert.ok(layout.rects.every(x=>x.height>=58),'tap targets too small: '+JSON.stringify(layout));
     assert.ok(layout.rects[0].y===layout.rects[1].y&&layout.rects[1].y===layout.rects[2].y,
       'choices should be three in one row: '+JSON.stringify(layout));
-    assert.ok(layout.fox&&layout.fox.top>=0&&layout.fox.right<=layout.screen+4
+    assert.equal(layout.foxHosts,1,'there must be exactly one selected fox');
+    assert.equal(layout.foxRigs,1,'wardrobe must render exactly one full-body character');
+    assert.equal(layout.profile,'boy','boy profile must use the selected boy fox');
+    assert.ok(layout.fox&&layout.fox.width>=88&&layout.fox.height>=130
+      &&layout.fox.top>=0&&layout.fox.right<=layout.screen+4
       &&layout.fox.bottom<Math.min(...layout.rects.map(x=>x.top)),
-      'the fox must remain visible and never cover any touch target: '+JSON.stringify(layout));
+      'full-body fox must be large and never cover any touch target: '+JSON.stringify(layout));
+    assert.ok(layout.question&&layout.question.right<=layout.fox.left+3,
+      'fox must be beside the question rather than pasted over its text: '+JSON.stringify(layout));
+    assert.ok(!layout.read||layout.read.bottom<=layout.fox.top+4,
+      'fox must not obscure the read-aloud control: '+JSON.stringify(layout));
     await capture(page,engine,device,'01-choices');
+    // The same task is rendered with the other saved profile choice. No
+    // generic companion, extra overlay, duplicated fox or lost answer options.
+    await page.evaluate(()=>{state.profile.avatar='girl';renderQuestion()});
+    await page.waitForFunction(()=>{
+      const fox=document.querySelector('.task-prompt-fox-stage > .task-fox-companion');
+      return fox?.dataset.avatar==='girl'&&!!fox.querySelector('.laria-fox-wardrobe-art[data-fox-art="girl-fullbody-v1"]');
+    });
+    assert.equal(await page.locator('#session-screen .task-fox-companion').count(),1,'changing avatar must not add another mascot');
+    assert.equal(await page.locator('.young-math-option').count(),3,'switching fox must retain all answer choices');
+    await capture(page,engine,device,'01-girl');
     await page.locator('.young-math-option[data-answer="8"]').tap();
     assert.match(await page.locator('#feedback-title').innerText(),/Nesten/);
     assert.equal(await page.locator('#next-question').isVisible(),false);
