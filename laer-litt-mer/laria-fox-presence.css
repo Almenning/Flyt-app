@@ -264,6 +264,17 @@
 #session-screen.task-scene .session::after{
   background-position:center top!important;
 }
+/* The original Tallenga scene contains a painted default fox on the lower
+   path. On portrait iPhone that area was still visible BELOW the cream task
+   card, despite the old top-position rule. Preserve every pixel of the
+   approved painting, but crop its lower quarter only in the young Maths task
+   viewport, where the one selected full-body fox is now on the card. */
+@media (orientation:portrait) and (max-width:430px){
+  #session-screen.task-scene[data-task-band="young"][data-task-subject="math"] .session::after{
+    background-size:auto 137%!important;
+    background-position:center top!important;
+  }
+}
 /* Geography questions use a clean 2.5D world, not a screenshot-like globe UI
    with a generic illustrated fox in its header. */
 #session-screen.task-scene[data-task-subject="geography"]{

@@ -278,15 +278,21 @@
     const readButton=readAloudButton(q);
     const avatar=foxChoice();
     const fox='<div class="task-fox-companion" data-avatar="'+avatar+'" aria-hidden="true"><img src="'+attr(foxSource())+'" alt=""><span class="task-profile-marker">'+(avatar==='girl'?'✿':'✦')+'</span></div>';
+    // A number-choice question has no illustration to stand beside.
+    // Give the ONE selected full-body fox a real place next to the prompt,
+    // not an absolutely positioned thumbnail stuck to the card's corner.
+    // The wardrobe/presence engine still owns its sprite and reactions.
+    const inlineFox=taskBand()==='young'&&!visual&&!passage;
     const visualWithFox=visual?'<div class="task-visual-companion-stage">'+visual+fox+'</div>':fox;
+    const questionScene=inlineFox?
+      '<div class="task-prompt-fox-stage"><div class="question">'+text(prompt)+'</div>'+fox+'</div>':
+      '<div class="question">'+text(prompt)+'</div>'+passage+visualWithFox;
 
     wrap.innerHTML=
-      '<article class="laria-task-card '+mode+' '+layout+' '+taskTypeClass(q)+'">'+
+      '<article class="laria-task-card '+mode+' '+layout+' '+(inlineFox?'task-inline-fox ':'')+taskTypeClass(q)+'">'+
         '<div class="task-world-chip">'+text(sceneName(subject))+'</div>'+
         '<div class="task-card-head"><div class="qtype">'+subjectName(subject)+' · '+text(String(gradeLabel).toUpperCase())+'</div>'+readButton+'</div>'+
-        '<div class="question">'+text(prompt)+'</div>'+
-        passage+
-        visualWithFox+
+        questionScene+
         '<div class="task-interaction">'+(subject==='geography'?geographyInteractionMarkup(q):interactionMarkup(q))+'</div>'+
         '<div class="feedback" id="feedback"><strong id="feedback-title"></strong><p id="feedback-copy"></p></div>'+
         '<button class="primary next" id="next-question" type="button">'+(subject==='english'?'Next':'Neste')+'</button>'+

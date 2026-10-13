@@ -474,6 +474,10 @@
   }
   #session-screen.task-scene[data-task-band="young"] .session-top{
     width:100%!important;
+    min-width:0!important;
+    /* The old minmax(170px,1fr) forced a 348px wide HUD and in turn
+       widened the entire question grid on a 320px phone. */
+    grid-template-columns:auto minmax(0,1fr) auto!important;
     gap:7px!important;
     margin-bottom:11px!important;
   }
@@ -587,24 +591,146 @@
 }
 
 
-/* Number-choice scene: keep the fox perched on the card edge, never in the
-   answer row or the normal document flow. Other question scenes are unchanged. */
-#session-screen.task-scene[data-task-band="young"] .young-math-choice-layout > .task-fox-companion{
-  position:absolute!important;
-  top:-65px!important;
-  left:4px!important;
+/* Fase 3: for text-only tasks, question and the child's SINGLE chosen
+   full-body fox share one real layout row. The old negative-top portrait badge
+   was the root of the tiny, pasted-on character in iPhone/iPad screenshots. */
+#session-screen.task-scene[data-task-band="young"] .task-inline-fox > .task-prompt-fox-stage {
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) clamp(102px,14vw,135px);
+  align-items:center;
+  gap:clamp(8px,1.4vw,18px);
+  width:min(100%,655px);
+  min-height:172px;
+  margin:6px auto 8px;
+  padding:0 8px 0 16px;
+  box-sizing:border-box;
+}
+#session-screen.task-scene[data-task-band="young"] .task-inline-fox .task-prompt-fox-stage > .question {
+  width:100%!important;
+  max-width:none!important;
+  margin:0!important;
+  min-width:0;
+  font-size:clamp(30px,4vw,45px)!important;
+  line-height:1.08!important;
+  text-align:center!important;
+  overflow-wrap:break-word;
+}
+#session-screen.task-scene[data-task-band="young"] .task-inline-fox .task-prompt-fox-stage > .task-fox-companion {
+  position:relative!important;
+  inset:auto!important;
+  top:auto!important;
   right:auto!important;
   bottom:auto!important;
-  width:76px!important;
-  height:96px!important;
+  left:auto!important;
+  transform:none!important;
+  justify-self:center;
+  align-self:end;
+  width:clamp(102px,14vw,130px)!important;
+  height:clamp(153px,21vw,195px)!important;
+  min-width:0!important;
   margin:0!important;
-  z-index:8!important;
+  padding:0!important;
+  aspect-ratio:2/3;
+  background:transparent!important;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  overflow:visible!important;
+  pointer-events:none!important;
+}
+#session-screen.task-scene[data-task-band="young"] .task-inline-fox .task-prompt-fox-stage > .task-fox-companion > img {
+  width:100%!important;height:100%!important;
+  object-fit:contain!important;border:0!important;
+  border-radius:0!important;background:none!important;
+  box-shadow:none!important;
+}
+#session-screen.task-scene[data-task-band="young"] .task-inline-fox .task-prompt-fox-stage .task-fox-companion.laria-fox-wardrobe-anchor > img.laria-fox-base-under-sprite {
+  visibility:hidden!important;
 }
 @media(max-width:430px){
-  #session-screen.task-scene[data-task-band="young"] .young-math-choice-layout > .task-fox-companion{
-    top:-52px!important;
-    left:1px!important;
-    width:64px!important;
-    height:82px!important;
+  #session-screen.task-scene[data-task-band="young"] .task-inline-fox > .task-prompt-fox-stage {
+    grid-template-columns:minmax(0,1fr) 91px;
+    min-height:144px;
+    padding:0 3px 0 4px;
+    gap:6px;
+    margin:4px auto 8px;
+  }
+  #session-screen.task-scene[data-task-band="young"] .task-inline-fox .task-prompt-fox-stage > .question {
+    font-size:clamp(26px,7.5vw,34px)!important;
+  }
+  #session-screen.task-scene[data-task-band="young"] .task-inline-fox .task-prompt-fox-stage > .task-fox-companion {
+    width:91px!important;
+    height:137px!important;
+  }
+}
+@media(max-width:360px){
+  #session-screen.task-scene[data-task-band="young"] .task-inline-fox > .task-prompt-fox-stage {
+    grid-template-columns:minmax(0,1fr) 76px;
+    min-height:118px;
+    gap:4px;
+  }
+  #session-screen.task-scene[data-task-band="young"] .task-inline-fox .task-prompt-fox-stage > .question {
+    font-size:26px!important;
+  }
+  #session-screen.task-scene[data-task-band="young"] .task-inline-fox .task-prompt-fox-stage > .task-fox-companion {
+    width:76px!important;height:114px!important;
+  }
+}
+
+/* A landscape iPhone is wide but only 390 CSS pixels high. Keep the whole
+   number question and its answer row within the initial scene rather than
+   allowing the inherited portrait heights to clip the answer buttons. */
+@media (orientation:landscape) and (min-width:600px) and (max-height:540px){
+  #session-screen.task-scene[data-task-band="young"] .session{
+    padding-top:max(4px,env(safe-area-inset-top))!important;
+    padding-bottom:max(4px,env(safe-area-inset-bottom))!important;
+  }
+  #session-screen.task-scene[data-task-band="young"] .session-top{
+    min-height:38px!important;
+    margin-bottom:6px!important;
+  }
+  #session-screen.task-scene[data-task-band="young"] .close{
+    height:38px!important;
+  }
+  #session-screen.task-scene[data-task-band="young"] #session-count{
+    min-height:36px!important;
+  }
+  #session-screen.task-scene[data-task-band="young"] #question-wrap{
+    width:min(calc(100vw - 36px),800px)!important;
+  }
+  #session-screen.task-scene[data-task-band="young"] .laria-task-card.task-inline-fox{
+    min-height:0!important;
+    padding:9px 18px 12px!important;
+    border-radius:24px!important;
+  }
+  #session-screen.task-scene[data-task-band="young"] .task-inline-fox .task-card-head{
+    min-height:36px!important;
+    flex-direction:row!important;
+    justify-content:center!important;
+    padding:0!important;
+    gap:10px!important;
+  }
+  #session-screen.task-scene[data-task-band="young"] .task-inline-fox > .task-prompt-fox-stage{
+    width:min(100%,690px)!important;
+    grid-template-columns:minmax(0,1fr) 76px;
+    min-height:113px;
+    margin:2px auto 3px!important;
+    padding:0 6px;
+  }
+  #session-screen.task-scene[data-task-band="young"] .task-inline-fox .task-prompt-fox-stage > .question{
+    font-size:clamp(26px,3.4vw,34px)!important;
+    line-height:1.08!important;
+  }
+  #session-screen.task-scene[data-task-band="young"] .task-inline-fox .task-prompt-fox-stage > .task-fox-companion{
+    width:76px!important;height:114px!important;
+  }
+  #session-screen.task-scene[data-task-band="young"] .young-math-choice-layout .task-interaction{
+    margin-top:3px!important;
+  }
+  #session-screen.task-scene[data-task-band="young"] .young-math-choice-layout .young-math-option{
+    /* Keep the young-child 58px answer target even when landscape is short. */
+    min-height:58px!important;
+    padding:8px!important;
+    font-size:22px!important;
   }
 }

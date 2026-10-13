@@ -155,8 +155,15 @@ async function verify(browserType,label,viewport){
     assert.equal(safe.equipped.head,null);
     assert.ok(safe.ownedIds.includes('oppdagerhatt'),
       'previous owned item must be reconstructed from still-present learning');
-    assert.equal(await page.locator('.bc12-fox .laria-fox-wardrobe-placed').count(),1,
-      'home selected fox must have one composited art layer');
+    // Wardrobe composition is intentionally scheduled on requestAnimationFrame
+    // after state recovery. Wait for the real selected character layer rather
+    // than inspecting the DOM before the first post-reload render frame.
+    const homeFox=page.locator('#home-screen.active .bc12-fox');
+    await homeFox.locator(':scope > svg.laria-fox-wardrobe-placed').waitFor({state:'attached',timeout:12000});
+    assert.equal(await homeFox.locator(':scope > svg.laria-fox-wardrobe-placed').count(),1,
+      'home selected fox must have exactly one composited art layer');
+    assert.equal(await homeFox.locator(':scope > svg.laria-fox-wardrobe-placed').getAttribute('data-avatar'),'girl',
+      'reloading recovered inventory must preserve the selected girl fox');
     await context.close();
     console.log('Collection inventory persistent',label,viewport);
   }finally{await browser.close();}

@@ -15,7 +15,10 @@ const makeSeed=which=>({
  journey:{nodes:{},gradeWins:{},viewGrades:{}},answerLog:[],sessionLog:[],activeSession:null
 });
 async function imageIsChosen(page,selector,which,label){
- const img=page.locator(selector);await img.waitFor({timeout:16000});
+ // The selected source <img> remains in DOM as the saved identity.
+ // World scenes may intentionally hide its old portrait pixels in favour of
+ // the SAME selected fox's transparent full-body SVG rig.
+ const img=page.locator(selector);await img.waitFor({state:'attached',timeout:16000});
  await page.waitForFunction(([css,id])=>{
   const el=document.querySelector(css);
   return el?.complete&&el.naturalWidth>0&&
@@ -27,7 +30,19 @@ async function imageIsChosen(page,selector,which,label){
  }));
  assert.ok(info.src.startsWith('data:image/webp;base64,'),label+' uses non-profile asset');
  assert.ok(info.width>50&&info.height>50,label+' profile picture does not decode');
- assert.ok(info.rect.w>0&&info.rect.h>0,label+' profile picture is invisible');
+ assert.ok(info.rect.w>0&&info.rect.h>0,label+' saved identity image has no measured layout');
+ if(selector.includes('.task-fox-companion')){
+  const host=page.locator('#session-screen.active .task-fox-companion');
+  const rig=host.locator(':scope > svg.laria-fox-wardrobe-art[data-fox-art="'+which+'-fullbody-v1"]');
+  await rig.waitFor({state:'visible',timeout:12000});
+  const art=await rig.evaluate(svg=>{
+   const img=svg.querySelector('image'),r=svg.getBoundingClientRect();
+   return {source:img?.getAttribute('href')||'',width:r.width,height:r.height};
+  });
+  assert.ok(art.width>25&&art.height>35,label+' visible full-body chosen fox rig missing');
+  assert.match(art.source,which==='girl'?/girl-braids-blue-dress-v1\.webp$/:/boy-adventurer-green-vest-v1\.webp$/,
+    label+' displayed fox does not match persisted identity');
+ }
 }
 async function run(engine,name,viewport,which){
  const browser=await engine.launch({headless:true,args:engine===chromium?['--no-sandbox']:[]});
@@ -83,6 +98,26 @@ async function run(engine,name,viewport,which){
    await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
    assert.equal(await page.locator('.task-fox-companion').getAttribute('data-avatar'),which,name+' '+subject+' question identity');
    await imageIsChosen(page,'#session-screen.active .task-fox-companion img',which,name+' '+subject+' question');
+   const taskGeometry=await page.evaluate(()=>{
+    const root=document.querySelector('#session-screen.active');
+    const fox=root?.querySelector('.task-fox-companion');
+    const prompt=root?.querySelector('.task-prompt-fox-stage > .question');
+    const answer=root?.querySelector('.task-interaction button, .task-interaction [role="button"], .letter-tile');
+    const bound=el=>el?.getBoundingClientRect().toJSON()||null;
+    return {foxCount:root?.querySelectorAll('.task-fox-companion').length||0,
+      inline:!!root?.querySelector('.task-inline-fox'),
+      fox:bound(fox),prompt:bound(prompt),answer:bound(answer)};
+   });
+   assert.equal(taskGeometry.foxCount,1,name+' '+subject+' duplicated selected fox');
+   if(taskGeometry.inline&&taskGeometry.answer){
+    assert.ok(taskGeometry.fox?.bottom<=taskGeometry.answer.top+2,
+      name+' '+subject+' fox overlaps first answer: '+JSON.stringify(taskGeometry));
+    assert.ok(taskGeometry.prompt?.right<=taskGeometry.fox.left+3,
+      name+' '+subject+' fox covers question text: '+JSON.stringify(taskGeometry));
+   }
+   // Actual WebKit/Chromium task scenes for visual QA across all four worlds.
+   // The same profile choice must be present on the task, not only on the map.
+   await page.screenshot({path:folder+'/'+name+'-'+subject+'-task.png',fullPage:true,animations:'disabled'});
    await page.locator('#close-session').click();await root.waitFor({timeout:16000});
    await root.locator('.locked-journey-back').click();
    await page.locator('#home-screen.active .bc14-subject[data-camp="subject-'+subject+'"]:visible').waitFor({timeout:12000});
