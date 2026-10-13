@@ -43,7 +43,7 @@
     return subject==='english'?'Ordlandsbyen':subject==='math'?'Tallriket':subject==='geography'?'Oppdagelsesriket':'Bokskogen';
   }
   function subjectName(subject){
-    return subject==='english'?'ENGLISH':subject==='math'?'MATTE':subject==='geography'?'GEOGRAFI':'NORSK';
+    return subject==='english'?'ENGELSK':subject==='math'?'MATTE':subject==='geography'?'GEOGRAFI':'NORSK';
   }
   function taskSubject(q){
     if(q?.subject)return q.subject;
@@ -82,7 +82,23 @@
     const art={
       '🏠':'<svg class="task-illustration task-illustration-house" viewBox="0 0 460 300" aria-hidden="true"><defs><linearGradient id="hw" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#FFF0B5"/><stop offset=".55" stop-color="#F0C875"/><stop offset="1" stop-color="#DDA85D"/></linearGradient><linearGradient id="hr" x1=".1" y1=".1" x2=".9" y2="1"><stop stop-color="#B9633E"/><stop offset=".55" stop-color="#934B34"/><stop offset="1" stop-color="#6E382B"/></linearGradient><linearGradient id="tree" x1=".1" y1="0" x2=".8" y2="1"><stop stop-color="#9DC871"/><stop offset=".55" stop-color="#6FA254"/><stop offset="1" stop-color="#4F7E42"/></linearGradient><linearGradient id="grass" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#A7C977"/><stop offset="1" stop-color="#6D9A50"/></linearGradient></defs><ellipse cx="230" cy="262" rx="158" ry="20" fill="rgba(76,79,54,.13)"/><path d="M52 250q31-35 77-14 35-33 72-6 35-28 72-3 42-30 89 5 26-13 49 18z" fill="url(#grass)"/><path d="M91 247q10-27 29-15 11-22 30-3 12-19 31 8" fill="#6E9E54"/><path d="M316 242q12-26 31-11 12-17 27-4 13-14 30 12" fill="#6A984F"/><g fill="#F0A37F"><circle cx="104" cy="240" r="5"/><circle cx="129" cy="247" r="4"/><circle cx="351" cy="239" r="5"/><circle cx="379" cy="247" r="4"/></g><g fill="#F2D369"><circle cx="116" cy="234" r="4"/><circle cx="145" cy="242" r="4"/><circle cx="337" cy="245" r="4"/></g><path d="M325 205h70v36h-70z" fill="#F4E7C8" opacity=".95"/><path d="M325 208v38M348 208v38M372 208v38M395 208v38" stroke="#B68C58" stroke-width="4"/><path d="M322 207h77M322 231h77" stroke="#B68C58" stroke-width="4"/><path d="M156 118L238 58l89 64v117H156z" fill="url(#hw)" stroke="#7A4933" stroke-width="7" stroke-linejoin="round"/><path d="M137 126L238 44l107 81" fill="none" stroke="url(#hr)" stroke-width="19" stroke-linecap="round" stroke-linejoin="round"/><path d="M302 72v49h28V91z" fill="#8F513A" stroke="#6E402F" stroke-width="6"/><path d="M299 68q-3-18 11-26 7-4 8-13" fill="none" stroke="#D8C7B6" stroke-width="9" stroke-linecap="round" opacity=".8"/><path d="M218 176h47v63h-47z" fill="#A9633E" stroke="#72422F" stroke-width="6"/><path d="M228 180q14-11 28 0" fill="none" stroke="#C8875D" stroke-width="4"/><circle cx="256" cy="207" r="4" fill="#F2D277"/><g stroke="#6B4A38" stroke-width="5"><rect x="177" y="153" width="34" height="36" rx="3" fill="#A7DCE8"/><path d="M194 153v36M177 171h34"/><rect x="280" y="153" width="34" height="36" rx="3" fill="#A7DCE8"/><path d="M297 153v36M280 171h34"/></g><path d="M204 239q25-26 51 0" fill="#D5BC85"/><path d="M211 236q-11 10-27 22h117q-17-14-34-22z" fill="#D8C192"/><g fill="#B9A06E"><ellipse cx="205" cy="251" rx="12" ry="6"/><ellipse cx="238" cy="246" rx="14" ry="7"/><ellipse cx="274" cy="253" rx="13" ry="6"/></g><path d="M107 121q-18-36 8-66 22-27 56-9 33-15 52 13-5 32-29 49-27 18-87 13z" fill="url(#tree)" stroke="#4E7742" stroke-width="6"/><path d="M151 103v126" stroke="#7D5335" stroke-width="15" stroke-linecap="round"/><path d="M149 149q-25 22-44 42M153 151q24 22 41 41" stroke="#6E492F" stroke-width="6" stroke-linecap="round"/><g fill="#F2C85D"><circle cx="124" cy="77" r="6"/><circle cx="160" cy="61" r="5"/></g><path d="M126 230q14-21 31-7 13-19 29-2" fill="#77A65C" stroke="#567F49" stroke-width="5" stroke-linecap="round"/><path d="M290 231q14-22 31-7 12-18 30-2" fill="#73A158" stroke="#547B47" stroke-width="5" stroke-linecap="round"/><g fill="#E47C6C"><circle cx="139" cy="230" r="5"/><circle cx="165" cy="235" r="4"/><circle cx="309" cy="232" r="5"/><circle cx="334" cy="237" r="4"/></g><g fill="#FFF1D3" opacity=".95"><ellipse cx="71" cy="91" rx="31" ry="12"/><ellipse cx="97" cy="88" rx="24" ry="10"/><ellipse cx="372" cy="83" rx="29" ry="11"/><ellipse cx="397" cy="87" rx="20" ry="9"/></g></svg>',
       '🐱':'<svg class="task-illustration" viewBox="0 0 260 180" aria-hidden="true">'+common+'<path d="M89 80l11-31 25 20 28-18 9 31" fill="#D88A4D" stroke="#75462E" stroke-width="6" stroke-linejoin="round"/><ellipse cx="128" cy="103" rx="49" ry="44" fill="#E99A55" stroke="#75462E" stroke-width="6"/><path d="M104 101h1M151 101h1" stroke="#2F3940" stroke-width="7" stroke-linecap="round"/><path d="M125 113q5 6 10 0M130 116v9" fill="none" stroke="#75462E" stroke-width="4" stroke-linecap="round"/><path d="M83 113H54M88 122H59M174 113h29M170 122h29" stroke="#75462E" stroke-width="3" stroke-linecap="round"/><path d="M162 132q36 8 28-22" fill="none" stroke="#D88A4D" stroke-width="12" stroke-linecap="round"/></svg>',
-      '🐶':'<svg class="task-illustration" viewBox="0 0 260 180" aria-hidden="true">'+common+'<path d="M91 76Q61 52 63 96q8 27 33 18M166 76q30-24 28 20-8 27-33 18" fill="#9B673E" stroke="#6A442D" stroke-width="6" stroke-linejoin="round"/><ellipse cx="129" cy="104" rx="50" ry="43" fill="#C48753" stroke="#6A442D" stroke-width="6"/><ellipse cx="130" cy="117" rx="18" ry="14" fill="#F6DFC2"/><circle cx="107" cy="101" r="5" fill="#26343B"/><circle cx="151" cy="101" r="5" fill="#26343B"/><path d="M124 113h12l-6 7z" fill="#3B3533"/><path d="M130 120q-5 9-12 5M130 120q5 9 12 5" fill="none" stroke="#6A442D" stroke-width="4" stroke-linecap="round"/></svg>',
+      '🐶':'<svg class="task-illustration task-illustration-dog" viewBox="0 0 260 180" aria-hidden="true">'+common+
+        '<path d="M78 111Q55 113 52 92Q49 83 55 75" fill="none" stroke="#98653D" stroke-width="13" stroke-linecap="round" data-dog-detail="curved-tail"/>'+
+        '<path d="M78 112Q73 96 85 87Q96 78 113 83Q145 90 162 117L171 151Q170 165 152 165H86Q72 157 78 141Z" fill="#C78F59" stroke="#805139" stroke-width="5" stroke-linejoin="round"/>'+
+        '<path d="M89 91Q110 85 126 101Q126 127 94 134Q80 124 89 91Z" fill="#E3B583" opacity=".9"/>'+
+        '<path d="M89 123Q72 124 70 152Q70 165 86 166H100L106 151Q87 148 91 137Z" fill="#A9744A" stroke="#805139" stroke-width="4" stroke-linejoin="round"/>'+
+        '<g data-dog-detail="paws" stroke="#805139" stroke-width="4" stroke-linecap="round"><path d="M125 132L125 160Q125 168 110 168Q100 168 105 158L111 137Z" fill="#D7A16A"/><path d="M141 121L155 125L160 158Q162 168 148 168Q135 167 136 156Z" fill="#E4B884"/></g>'+
+        '<path d="M132 113Q146 118 160 116L170 130Q153 143 130 127Z" fill="#558878" stroke="#36685D" stroke-width="3" stroke-linejoin="round" data-dog-detail="collar"/>'+
+        '<circle cx="153" cy="135" r="7" fill="#EFD17C" stroke="#A4763D" stroke-width="2"/>'+
+        '<path d="M132 84Q140 55 160 52Q185 46 199 69Q204 76 203 92Q220 98 228 110Q235 120 218 128Q199 136 182 123Q168 138 150 127Q129 115 132 84Z" fill="#DEA86F" stroke="#815237" stroke-width="5" stroke-linejoin="round"/>'+
+        '<path d="M148 67Q128 60 127 83Q123 109 132 131Q140 143 152 131Q160 118 156 86Z" fill="#915B3C" stroke="#72462F" stroke-width="4" stroke-linejoin="round" data-dog-detail="floppy-ear"/>'+
+        '<path d="M137 84Q134 108 139 118" fill="none" stroke="#B77D52" stroke-width="6" stroke-linecap="round"/>'+
+        '<ellipse cx="181" cy="86" rx="5" ry="5.5" fill="#2F3A3A"/><circle cx="179.5" cy="84" r="1.8" fill="#FFF7E7"/>'+
+        '<path d="M185 96Q201 94 222 103Q235 110 228 120Q219 132 198 129Q185 125 182 113Z" fill="#F9E6CA" stroke="#BD8A66" stroke-width="3" data-dog-detail="long-muzzle"/>'+
+        '<ellipse cx="224" cy="107" rx="8" ry="6" fill="#403B37"/>'+
+        '<path d="M220 117Q210 123 201 120" fill="none" stroke="#8C5C49" stroke-width="3" stroke-linecap="round"/>'+
+        '<path d="M205 122Q209 130 217 122L216 132Q210 141 206 131Z" fill="#D8797D" stroke="#AF6264" stroke-width="2"/>'+
+        '<path d="M163 72Q175 62 186 67" fill="none" stroke="#F4CB93" stroke-width="5" stroke-linecap="round" opacity=".65"/></svg>',
       '🍎':'<svg class="task-illustration" viewBox="0 0 260 180" aria-hidden="true">'+common+'<path d="M130 63q-8-22 4-36" stroke="#6D4B2F" stroke-width="8" stroke-linecap="round"/><path d="M136 43q20-17 37-4-16 18-37 11z" fill="#68A958" stroke="#467E3D" stroke-width="4"/><path d="M129 64c-23-16-57 0-58 35-1 43 28 63 58 57 31 7 61-14 60-57-1-34-36-51-60-35z" fill="#E66856" stroke="#8C443B" stroke-width="6"/><path d="M96 78q17-12 31-4" fill="none" stroke="#F7A092" stroke-width="7" stroke-linecap="round"/></svg>',
       '📘':'<svg class="task-illustration" viewBox="0 0 260 180" aria-hidden="true">'+common+'<path d="M49 59q40-18 79 7v81q-40-19-79-7z" fill="#5B86D6" stroke="#334F7F" stroke-width="6" stroke-linejoin="round"/><path d="M211 59q-42-18-82 7v81q41-19 82-7z" fill="#79A0E5" stroke="#334F7F" stroke-width="6" stroke-linejoin="round"/><path d="M129 67v80" stroke="#334F7F" stroke-width="5"/><path d="M67 79q24-8 44 2M67 96q25-7 44 2M149 80q23-9 44 1M149 97q24-8 44 1" fill="none" stroke="#DCE9FF" stroke-width="5" stroke-linecap="round"/></svg>',
       '🚗':'<svg class="task-illustration" viewBox="0 0 260 180" aria-hidden="true">'+common+'<path d="M56 101l18-35h86l30 35 16 4v34H48v-31z" fill="#E56F58" stroke="#824437" stroke-width="6" stroke-linejoin="round"/><path d="M86 71h63l22 30H72z" fill="#A6D9E8" stroke="#724B40" stroke-width="5"/><circle cx="82" cy="139" r="17" fill="#39424A" stroke="#20272D" stroke-width="5"/><circle cx="177" cy="139" r="17" fill="#39424A" stroke="#20272D" stroke-width="5"/><circle cx="82" cy="139" r="6" fill="#C8D1D7"/><circle cx="177" cy="139" r="6" fill="#C8D1D7"/></svg>',
@@ -264,6 +280,15 @@
     const position=Math.max(0,Math.min(total,qIndex+1));
     progressBar.style.width=(position/total*100)+'%';
     countLabel.textContent='Oppdrag '+position+' av '+total;
+    const progressTrack=screen.querySelector('.session-progress');
+    if(progressTrack){
+      progressTrack.setAttribute('role','progressbar');
+      progressTrack.setAttribute('aria-label','Fremdrift i oppdraget');
+      progressTrack.setAttribute('aria-valuemin','0');
+      progressTrack.setAttribute('aria-valuemax',String(total));
+      progressTrack.setAttribute('aria-valuenow',String(position));
+      progressTrack.setAttribute('aria-valuetext','Oppdrag '+position+' av '+total);
+    }
 
     const wrap=document.getElementById('question-wrap');
     if(!wrap)return;
@@ -276,6 +301,7 @@
     const visual=taskVisualMarkup(q);
     const passage=q.passage?'<div class="learning-passage">'+text(q.passage)+'</div>':'';
     const readButton=readAloudButton(q);
+    const finalQuestion=position===total;
     const avatar=foxChoice();
     const fox='<div class="task-fox-companion" data-avatar="'+avatar+'" aria-hidden="true"><img src="'+attr(foxSource())+'" alt=""><span class="task-profile-marker">'+(avatar==='girl'?'✿':'✦')+'</span></div>';
     // A number-choice question has no illustration to stand beside.
@@ -294,8 +320,8 @@
         '<div class="task-card-head"><div class="qtype">'+subjectName(subject)+' · '+text(String(gradeLabel).toUpperCase())+'</div>'+readButton+'</div>'+
         questionScene+
         '<div class="task-interaction">'+(subject==='geography'?geographyInteractionMarkup(q):interactionMarkup(q))+'</div>'+
-        '<div class="feedback" id="feedback"><strong id="feedback-title"></strong><p id="feedback-copy"></p></div>'+
-        '<button class="primary next" id="next-question" type="button">'+(subject==='english'?'Next':'Neste')+'</button>'+
+        '<div class="feedback" id="feedback" role="status" aria-live="polite" aria-atomic="true"><strong id="feedback-title"></strong><p id="feedback-copy"></p></div>'+
+        '<button class="primary next" id="next-question" type="button" aria-label="'+(finalQuestion?'Fullfør oppdraget':'Neste oppgave')+'">'+(finalQuestion?'Fullfør':'Neste')+'</button>'+
       '</article>';
 
     if(subject==='geography')bindGeographyInteraction(q,wrap);

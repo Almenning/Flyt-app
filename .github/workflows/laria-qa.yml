@@ -405,3 +405,37 @@ jobs:
         env:
           QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
         run: node tests/laria-journey-progress-recovery.playwright.js
+
+# Focused task-scene quality gate with real device-sized screenshots.
+  laria-task-phase3-polish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact PR source
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Syntax check for shared task engine and premium QA
+        run: |
+          node --check laer-litt-mer/laria-task-scene-v15.js
+          node --check tests/laria-task-phase3-polish.playwright.js
+      - name: Install Chromium and WebKit
+        run: npx playwright install --with-deps chromium webkit
+      - name: Verify four-subject premium task scene on iPhone and iPad
+        env:
+          LARIA_TASK_POLISH_SHOTS: /tmp/laria-task-phase3-polish
+        run: node tests/laria-task-phase3-polish.playwright.js
+      - name: Upload task-scene device screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-task-phase3-polish-${{ github.sha }}
+          path: /tmp/laria-task-phase3-polish
+          if-no-files-found: warn
+          retention-days: 7
+
