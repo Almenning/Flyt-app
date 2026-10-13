@@ -83,22 +83,56 @@
     width: calc(20vw - 10px) !important; max-width: none !important;
   }
   #world-screen.active.globe-v30.atlas-perspective-on[data-geo-layout="tablet-landscape"] .globe-status {
-    grid-template-columns: minmax(0, 1fr) 52px !important;
+    /* A readable child-sized country action belongs below the facts,
+       not in an unlabeled 52px icon squeezed into the card. */
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-areas: none !important;
     min-height: 124px !important;
+    gap: 8px !important;
+  }
+  #world-screen.active.globe-v30.atlas-perspective-on[data-geo-layout="tablet-landscape"] .globe-status.premium-country-selected {
+    grid-template-areas: "main" "learn" !important;
+  }
+  #world-screen.active.globe-v30.atlas-perspective-on[data-geo-layout="tablet-landscape"] .globe-status .globe-country-copy {
+    grid-area: main !important;
   }
   #world-screen.active.globe-v30.atlas-perspective-on[data-geo-layout="tablet-landscape"] .globe-status .flag,
   #world-screen.active.globe-v30.atlas-perspective-on[data-geo-layout="tablet-landscape"] .premium-country-scene-wrap {
     display: none !important;
   }
   #world-screen.active.globe-v30.atlas-perspective-on[data-geo-layout="tablet-landscape"] .premium-country-learn {
-    width: 52px !important; min-width: 52px !important; min-height: 52px !important; padding: 3px !important;
+    grid-area: learn !important;
+    width: 100% !important; min-width: 0 !important; min-height: 50px !important;
+    padding: 8px 12px !important;
+    font-size: 13px !important;
   }
-  #world-screen.active.globe-v30.atlas-perspective-on[data-geo-layout="tablet-landscape"] .premium-country-learn span,
+  #world-screen.active.globe-v30.atlas-perspective-on[data-geo-layout="tablet-landscape"] .premium-country-learn span {
+    display: inline !important;
+    font-size: 13px !important;
+    white-space: nowrap !important;
+  }
   #world-screen.active.globe-v30.atlas-perspective-on[data-geo-layout="tablet-landscape"] .premium-country-learn b {
     display: none !important;
   }
+  #world-screen.active.globe-v30.atlas-perspective-on[data-geo-layout="tablet-landscape"] .globe-actions {
+    /* Two full-width buttons keep their labels and 48px hit targets. */
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: repeat(2, 50px) !important;
+    height: 112px !important;
+    gap: 10px !important;
+  }
+  #world-screen.active.globe-v30.atlas-perspective-on[data-geo-layout="tablet-landscape"] .globe-actions .secondary {
+    width: 100% !important;
+    min-height: 50px !important;
+    font-size: 13px !important;
+    line-height: 1.15 !important;
+    white-space: nowrap !important;
+    padding: 0 8px !important;
+  }
   #world-screen.active.globe-v30.atlas-perspective-on[data-geo-layout="tablet-landscape"] .globe-zoom {
-    top: 76px !important; right: calc(20vw + 18px) !important; bottom: auto !important;
+    /* Zoom lives mid-right INSIDE the atlas, away from continent chips. */
+    top: 50% !important; right: 12px !important; bottom: auto !important;
+    transform: translateY(-50%) !important;
   }
   #world-screen.active.globe-v30.atlas-perspective-on[data-geo-layout="tablet-landscape"][data-premium-globe-mode="mine"] .globe-legend {
     left: auto !important; right: 18px !important; top: 70px !important; transform: none !important;
