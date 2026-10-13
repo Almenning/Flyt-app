@@ -101,7 +101,9 @@
    Its dimensions remain measurable, so the wardrobe compositor still aligns
    correctly and the child's persisted identity remains unchanged. */
 #session-screen.task-scene[data-task-band="young"] .task-visual-companion-stage
-  .task-fox-companion.laria-fox-wardrobe-anchor>img.laria-fox-base-under-sprite{
+  .task-fox-companion>img{
+  /* Keep the original profile in the DOM for identity and sizing only,
+     even during the first frame before the transparent rig arrives. */
   visibility:hidden!important;
 }
 #session-screen.task-scene[data-task-band="young"] .task-visual-companion-stage
