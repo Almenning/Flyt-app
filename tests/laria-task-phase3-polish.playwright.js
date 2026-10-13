@@ -88,7 +88,9 @@ async function run(engine,name,viewport,url){
      dog:document.querySelector('.task-illustration-dog')?{
       ears:document.querySelectorAll('.task-illustration-dog [data-dog-detail*="floppy-ear"]').length,
       muzzle:document.querySelectorAll('.task-illustration-dog [data-dog-detail="long-muzzle"]').length,
-      collar:document.querySelectorAll('.task-illustration-dog [data-dog-detail="collar"]').length
+      collar:document.querySelectorAll('.task-illustration-dog [data-dog-detail="collar"]').length,
+      tail:document.querySelectorAll('.task-illustration-dog [data-dog-detail="curved-tail"]').length,
+      paws:document.querySelectorAll('.task-illustration-dog [data-dog-detail="paws"]').length
      }:null};
    });
    assert.equal(first.subject,subject,label+' wrong course');
@@ -108,7 +110,7 @@ async function run(engine,name,viewport,url){
    assert.ok(first.buttons.length>=2,label+' missing choices');
    assert.ok(first.buttons.every(b=>b.rect.height>=44),label+' too-small answer target');
    if(subject==='english')assert.match(first.label,/ENGELSK/);
-   if(subject==='norwegian')assert.deepEqual(first.dog,{ears:2,muzzle:1,collar:1},label+' dog illustration not recognizable');
+   if(subject==='norwegian')assert.deepEqual(first.dog,{ears:1,muzzle:1,collar:1,tail:1,paws:1},label+' dog silhouette missing recognizable features');
    await fs.promises.mkdir(shots,{recursive:true});
    await page.screenshot({path:path.join(shots,name+'-'+subject+'-01-question.png'),animations:'disabled',fullPage:true});
    await page.locator('#session-screen .answer[data-answer="'+question.answer+'"]').click();
