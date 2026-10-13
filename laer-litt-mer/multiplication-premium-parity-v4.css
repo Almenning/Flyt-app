@@ -3,7 +3,9 @@
 .mp-task-scene{border:2px solid #fffdf2;border-radius:31px;padding:14px 12px 13px;background:linear-gradient(155deg,#fff9ec,#f9e8cf 62%,#f0ebd6);box-shadow:0 6px 0 #dfc4a77a,0 18px 30px #694d382a}
 .mp-task-wood{border-radius:27px;border:3px solid #fffdf5;box-shadow:inset 0 0 0 2px #f0dabb,0 5px 0 #d9b78a80,0 10px 16px #875f3c24;background:radial-gradient(ellipse at 51% 12%,#fffdf5 5%,transparent 80%),repeating-linear-gradient(179deg,transparent 0 17px,#c2935b13 17px 18px),linear-gradient(#fff6e8,#ffebd0)}
 .mp-task-wood h2{text-shadow:0 2px 0 #fbe7ca;letter-spacing:-.045em}
-.mp-task-apples{max-height:none!important;overflow:visible!important;background:linear-gradient(180deg,#fff9e750,#fffff014),url('./matte-verden.png') center 70%/cover no-repeat;border:2px solid #fff8e6;border-radius:22px;box-shadow:0 4px 17px #5b402e23,inset 0 0 0 1px #f8e6cc}
+/* The illustrated baskets may fill the whole desktop scene. Compact phone practice
+   can constrain this region itself: do not lock overflow/height with !important. */
+.mp-task-apples{max-height:none;overflow:visible;background:linear-gradient(180deg,#fff9e750,#fffff014),url('./matte-verden.png') center 70%/cover no-repeat;border:2px solid #fff8e6;border-radius:22px;box-shadow:0 4px 17px #5b402e23,inset 0 0 0 1px #f8e6cc}
 .mp-task-apples:before{background:linear-gradient(180deg,#fffaeb8f,#fff6e629 43%,#fff2dc2e 67%,#fff7e67a)}
 .mp4-collections{isolation:isolate;position:relative;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:end;justify-items:stretch;column-gap:13px;row-gap:31px;width:100%;max-width:840px;margin:auto;padding:38px 20px 35px;overflow:visible}
 .mp4-collections:before{content:"";position:absolute;inset:8px 6px 5px;z-index:-2;border:2px solid #fff4d766;border-radius:27px;pointer-events:none;backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);background:linear-gradient(180deg,#fffaf17d 1%,#fff8e823 55%,#fff3dc39 100%)}
