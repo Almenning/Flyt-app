@@ -45,7 +45,7 @@ async function capture(page,engine,device,stage){
 }
 async function run(browser,engine,device,width,height,url){
   const context=await browser.newContext({
-    viewport:{width,height},deviceScaleFactor:1,hasTouch:true,isMobile:width<700,
+    viewport:{width,height},deviceScaleFactor:1,hasTouch:true,isMobile:device.startsWith('iphone'),
     serviceWorkers:'block'
   });
   const page=await context.newPage(),errors=[];
@@ -93,7 +93,7 @@ async function run(browser,engine,device,width,height,url){
     assert.equal(layout.foxHosts,1,'there must be exactly one selected fox');
     assert.equal(layout.foxRigs,1,'wardrobe must render exactly one full-body character');
     assert.equal(layout.profile,'boy','boy profile must use the selected boy fox');
-    assert.ok(layout.fox&&layout.fox.width>=88&&layout.fox.height>=130
+    assert.ok(layout.fox&&layout.fox.width>=(width<=360?72:88)&&layout.fox.height>=(width<=360?110:130)
       &&layout.fox.top>=0&&layout.fox.right<=layout.screen+4
       &&layout.fox.bottom<Math.min(...layout.rects.map(x=>x.top)),
       'full-body fox must be large and never cover any touch target: '+JSON.stringify(layout));
@@ -101,6 +101,8 @@ async function run(browser,engine,device,width,height,url){
       'fox must be beside the question rather than pasted over its text: '+JSON.stringify(layout));
     assert.ok(!layout.read||layout.read.bottom<=layout.fox.top+4,
       'fox must not obscure the read-aloud control: '+JSON.stringify(layout));
+    assert.ok(layout.rects.every(r=>r.bottom<=height+4),
+      'young child must see the full answer row without scrolling: '+JSON.stringify({device,height,layout}));
     await capture(page,engine,device,'01-choices');
     // The same task is rendered with the other saved profile choice. No
     // generic companion, extra overlay, duplicated fox or lost answer options.
@@ -153,8 +155,11 @@ async function run(browser,engine,device,width,height,url){
     for(const [engine,launcher] of [['chromium',chromium],['webkit',webkit]]){
       const browser=await launcher.launch({headless:true});
       try{
+        await run(browser,engine,'iphone-small',320,568,url);
         await run(browser,engine,'iphone',390,844,url);
+        await run(browser,engine,'iphone-landscape',844,390,url);
         await run(browser,engine,'ipad',820,1180,url);
+        await run(browser,engine,'ipad-landscape',1180,820,url);
       }finally{await browser.close()}
     }
     console.log('PASS Laria Math young-answer browser matrix');
