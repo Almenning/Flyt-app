@@ -109,15 +109,14 @@
     image.src='./assets/cards/reisen/'+subject+'-premium.webp';
     return [subject,image];
   }));
-  // Keep the preloader reachable for the lifetime of the scene module.
-  if(!approvedCardPreviews.math)throw Error('Missing Læria approved card preload');
   // One source of truth for the visible intermediate frame. Never briefly
   // expose the retired world renderer or a blank dark canvas during decoding.
   function artworkGuard(subject,failed,overlay){
     const label=WAITING_ART_TITLES[subject]||'Eventyrreisen';
+    const thumbSrc=approvedCardPreviews[subject]?.src||'./assets/cards/reisen/'+subject+'-premium.webp';
     return '<div class="locked-journey-art-guard" '+(overlay?'aria-hidden="true"':'role="status" aria-live="polite"')+'>'+
       '<div class="locked-journey-art-card">'+
-        '<img src="./assets/cards/reisen/'+subject+'-premium.webp" alt="" draggable="false" decoding="async" width="1024" height="704">'+
+        '<img src="'+thumbSrc+'" alt="" draggable="false" decoding="async" width="1024" height="704">'+
         '<strong>'+label+'</strong><span>'+(failed?'Kartet kunne ikke åpnes.':'Eventyret åpner seg …')+'</span>'+
         (failed?'<button type="button" class="locked-journey-art-retry">Prøv igjen</button>':'')+
       '</div></div>';
