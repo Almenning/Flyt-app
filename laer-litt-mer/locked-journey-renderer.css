@@ -58,6 +58,7 @@
 .locked-journey-art-card>img{
   display:block;width:100%;height:auto;aspect-ratio:1024/704;object-fit:cover;
   border-radius:12px;border:2px solid #d3ac70;box-sizing:border-box;
+  background:radial-gradient(circle at 68% 20%,#fff6d9,#d9e4d5 44%,#9fbfb6);
 }
 .locked-journey-art-card strong{font-size:clamp(19px,4.8vw,26px);line-height:1.15;color:#315d59}
 .locked-journey-art-card>span{font-size:clamp(12px,2.7vw,15px);font-weight:750;line-height:1.3}
