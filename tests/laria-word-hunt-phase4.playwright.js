@@ -40,6 +40,12 @@ async function open(page,url){
  // Navigate through the same visible route the child uses.
  await page.locator('.bc12-nav [data-camp="explore"]').first().click();
  await page.locator('.bc12 [data-camp="words"]').first().waitFor({state:'visible'});
+ // Subject-first Home intentionally hides the old shortcuts, but the child
+ // must regain ALL existing free-play destinations inside Utforsk.
+ for(const action of ['words','globe','fraction','multiply']){
+  assert.ok(await page.locator('.bc12 [data-camp="'+action+'"]').first().isVisible(),
+   'Young Utforsk unexpectedly hides existing '+action+' activity');
+ }
  await page.locator('.bc12 [data-camp="words"]').first().click();
  await page.locator('#word-hunt-overlay:not([hidden]) .word-hunt-cell').first().waitFor();
 }
