@@ -35,7 +35,11 @@ async function open(page,url){
  await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
  await page.route('https://api.worldbank.org/**',r=>r.abort());
  await page.goto(url,{waitUntil:'domcontentloaded'});
- await page.waitForFunction(()=>typeof window.openWordHunt==='function'&&document.querySelector('.bc12 [data-camp="words"]'),{},{timeout:25000});
+ await page.waitForFunction(()=>typeof window.openWordHunt==='function'&&document.querySelector('.bc12-nav [data-camp="explore"]'),{},{timeout:25000});
+ // "Ordjakt" is an Explore destination, not a Home destination.
+ // Navigate through the same visible route the child uses.
+ await page.locator('.bc12-nav [data-camp="explore"]').first().click();
+ await page.locator('.bc12 [data-camp="words"]').first().waitFor({state:'visible'});
  await page.locator('.bc12 [data-camp="words"]').first().click();
  await page.locator('#word-hunt-overlay:not([hidden]) .word-hunt-cell').first().waitFor();
 }
@@ -123,6 +127,8 @@ async function testView(browser,engine,label,viewport,url){
   await page.locator('.word-hunt-back').click();
   assert.equal(await page.locator('#word-hunt-overlay:not([hidden])').count(),0,label+' did not close');
   assert.equal(await page.evaluate(()=>document.documentElement.style.overflow),'',label+' scroll lock not restored');
+  await page.locator('.bc12-nav [data-camp="explore"]').first().waitFor({state:'visible'});
+  await page.locator('.bc12-nav [data-camp="explore"]').first().click();
   await page.locator('.bc12 [data-camp="words"]').first().waitFor({state:'visible'});
   assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('laria-wordhunt-v1')||'{}').rounds),1,label+' completion not saved on return');
   await page.reload({waitUntil:'domcontentloaded'});
