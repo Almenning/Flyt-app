@@ -782,7 +782,7 @@
   #fraction-lab-screen .fr4-top-token{display:none}
   #fraction-lab-screen .fr5-build .fr5-lab-intro{
     display:flex;align-items:baseline;justify-content:center;gap:12px;
-    flex-wrap:nowrap;margin:2px 0 4px;padding:2px 8px;min-height:0;
+    flex-wrap:nowrap;margin:0;padding:2px 8px;min-height:0;
   }
   #fraction-lab-screen .fr5-build .fr5-lab-intro h1{
     font-size:19px;margin:0;white-space:nowrap;
@@ -833,7 +833,7 @@
   }
   #fraction-lab-screen .fr5-piece-tray .fr2-loose-piece{height:40px}
   #fraction-lab-screen .fr5-controls{
-    margin:2px 0;gap:5px;
+    margin:1px 0;gap:5px;
   }
   #fraction-lab-screen .fr5-controls .fr2-adjust{
     display:flex;flex-direction:row;align-items:center;
