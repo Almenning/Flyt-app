@@ -19,6 +19,15 @@ async function assertPracticeFirstFold(page,label){
   return {viewport:{width:innerWidth,height:innerHeight},scrollWidth:document.documentElement.scrollWidth,
    question:rect('.mp-practice-screen .mp-task-wood h2'),
    picture:rect('.mp-practice-screen .mp-task-apples'),
+   picturedGroups:[...document.querySelectorAll('.mp-practice-screen .mp4-basket')].map((el,i)=>({
+     index:i,top:Math.round(el.getBoundingClientRect().top),bottom:Math.round(el.getBoundingClientRect().bottom),
+     width:Math.round(el.getBoundingClientRect().width),fruitCount:el.querySelectorAll('.mp3-item').length,
+     visibleFruitCount:[...el.querySelectorAll('.mp3-item')].filter(f=>{
+       const r=f.getBoundingClientRect(),p=document.querySelector('.mp-practice-screen .mp-task-apples')?.getBoundingClientRect();
+       return p&&Math.max(r.top,p.top,0)<Math.min(r.bottom,p.bottom,innerHeight)-6
+         &&Math.max(r.left,p.left,0)<Math.min(r.right,p.right,innerWidth)-6;
+     }).length
+   })),
    answers:rect('.mp-practice-screen .mp-answer-grid'),
    buttons:[...document.querySelectorAll('.mp-practice-screen .mp-answer')].map(n=>{const x=n.getBoundingClientRect();return {top:Math.round(x.top),bottom:Math.round(x.bottom),width:Math.round(x.width),height:Math.round(x.height)}})};
  });
@@ -34,6 +43,9 @@ async function assertPracticeFirstFold(page,label){
   label+' illustrated representation hidden on phone: '+JSON.stringify(layout));
  assert.ok(layout.answers.top>=0&&layout.answers.bottom<=layout.viewport.height,
   label+' all four choices must be immediately visible: '+JSON.stringify(layout));
+ const visibleGroups=layout.picturedGroups.filter(x=>x.visibleFruitCount>0);
+ assert.ok(visibleGroups.length>=2&&visibleGroups.reduce((n,x)=>n+x.visibleFruitCount,0)>=4,
+  label+' motif buttons may not conceal actual illustrated counted groups: '+JSON.stringify(layout));
  assert.ok(layout.buttons.every(x=>x.width>=44&&x.height>=44),
   label+' insufficient answer touch targets: '+JSON.stringify(layout));
  assert.ok(layout.scrollWidth<=layout.viewport.width+4,
