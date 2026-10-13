@@ -485,7 +485,18 @@ function actionHandler(e){
   if(a==='go'){enter(btn.dataset.page);return;}
  if(a==='view'){u.build.mode=btn.dataset.view;mark('explored',key(u.build.n,u.build.d));render();return;}
  if(a==='preset'){const n=Number(btn.dataset.n),d=Number(btn.dataset.d);u.build.d=d;applyBuildPieces(Array.from({length:n},(_,i)=>i));mark('explored',key(n,d));return;}
- if(a==='adjust'){adjust(btn.dataset.field,Number(btn.dataset.step));return;}
+ if(a==='adjust'){
+  const field=btn.dataset.field,step=Number(btn.dataset.step);
+  // Render recreates the controls; keep keyboard focus on the corresponding
+  // new button so a child can press repeatedly without losing their place.
+  const hadFocus=document.activeElement===btn;
+  adjust(field,step);
+  if(hadFocus){
+   const next=root.querySelector('[data-fr-action="adjust"][data-field="'+field+'"][data-step="'+step+'"]');
+   next?.focus({preventScroll:true});
+  }
+  return;
+ }
  if(a==='piece'){setPiece(Number(btn.dataset.piece));return;}
   if(a==='glass-fill'){setGlassFill(e,btn);return;}
  if(a==='add'){addBuildPiece('Du la til én del!',Number(btn.dataset.pieceIndex));return;}

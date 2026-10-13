@@ -49,9 +49,11 @@ async function run(browser,engine,label,viewport,url){
       correctFox:!!fox&&fox.getAttribute('src')===window.LARIA_FOX.worldSource(window.LARIA_FOX.choice())&&fox.complete&&fox.naturalWidth>0,
       equivalentsBesideCake:innerWidth<700||(!!equivalents&&equivalents.top>=0&&equivalents.bottom<=innerHeight&&equivalents.left>cake.right-3),
       controlsHeight:controls?.height,
+      viewportHeight:innerHeight,cakeBottom:Math.round(cake?.bottom||0),fractionBottom:Math.round(value?.bottom||0),controlsTop:Math.round(controls?.top||0),controlsBottom:Math.round(controls?.bottom||0),
       noOverflow:document.documentElement.scrollWidth<=innerWidth+3
     };
   });
+  if(label.includes('tiny'))await photo(page,label+'-00-first-fold-diagnostic');
   assert.ok(firstFold.cakeVisible&&firstFold.fractionVisible&&firstFold.controlsVisible&&firstFold.fractionAboveControls&&firstFold.correctFox&&firstFold.equivalentsBesideCake&&firstFold.noOverflow,
     label+' first viewport must show cake, 1/4, both controls and personal fox: '+JSON.stringify(firstFold));
   assert.ok(firstFold.controlsHeight>=58,'real controls must remain touchable');
@@ -75,6 +77,18 @@ async function run(browser,engine,label,viewport,url){
     assert.deepEqual(await page.locator('#fr7-mobile-values .fr7-equivalent-tile strong').allTextContents(),['0,25','25 %']);
     await photo(page,label+'-01-decimals-visible');
   }
+  // Keyboard interaction must remain on the same tactile control after
+  // replacing the fraction DOM. Children must be able to press twice.
+  const up=page.locator('.fr6-controls [data-fr-action="adjust"][data-field="n"][data-step="1"]');
+  await up.focus();
+  await page.keyboard.press('Enter');
+  assert.equal(await page.locator('.fr6-result .fr2-fraction').getAttribute('aria-label'),'2 av 4');
+  assert.ok(await up.evaluate(el=>document.activeElement===el),label+' lost focus after teller increase');
+  const down=page.locator('.fr6-controls [data-fr-action="adjust"][data-field="n"][data-step="-1"]');
+  await down.focus();
+  await page.keyboard.press('Enter');
+  assert.equal(await page.locator('.fr6-result .fr2-fraction').getAttribute('aria-label'),'1 av 4');
+  assert.ok(await down.evaluate(el=>document.activeElement===el),label+' lost focus after teller decrease');
   await page.locator('.fr2-pie-builder [data-fr-action="piece"][data-piece="2"]').click();
   assert.deepEqual((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build)).filled,[0,2],'tap adds the touched sector, not the next one');
   assert.equal(await page.locator('.fr6-result .fr2-fraction').getAttribute('aria-label'),'2 av 4');
@@ -264,9 +278,48 @@ async function run(browser,engine,label,viewport,url){
   console.log('PASS '+engine+' '+label+': seven screens, correct fractions, tactile controls, comparison, sorting, conversion, persistence');
  }finally{await ctx.close()}
 }
-(async()=>{const {srv,url}=await server();try{
- for(const [name,type,devices] of [['chromium',chromium,[['iphone',{width:390,height:844}],['iphone-small',{width:375,height:667}],['ipad',{width:820,height:1180}]]],['webkit',webkit,[['iphone-safari',{width:390,height:844}],['iphone-small-safari',{width:375,height:667}],['ipad-safari',{width:820,height:1180}],['ipad-landscape-safari',{width:1180,height:820}]]]]){
-  const browser=await type.launch({headless:true});try{for(const [label,viewport] of devices)await run(browser,name,label,viewport,url)}finally{await browser.close()}
+// iPhone landscape must remain an actual phone viewport, not an iPad.
+// Capture geometry before asserting so a short WebKit screen yields actionable logs.
+async function runLandscape(browser,engine,url){
+ const ctx=await browser.newContext({viewport:{width:844,height:390},deviceScaleFactor:1,serviceWorkers:'block',isMobile:true,hasTouch:true});
+ const page=await ctx.newPage(),errors=[];
+ page.on('pageerror',e=>errors.push(String(e)));
+ try{
+  await page.addInitScript(p=>{localStorage.setItem('laerlittmer-v2',JSON.stringify(p))},profile);
+  await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
+  await page.route('https://api.worldbank.org/**',r=>r.abort());
+  await page.goto(url,{waitUntil:'domcontentloaded'});
+  await page.waitForFunction(()=>window.LARIA_FRACTION_PREMIUM?.version==='workshop-v1',{},{timeout:20000});
+  await page.evaluate(()=>openFractionLab());
+  await page.locator('.fr6-workshop').waitFor();
+  await page.locator('.fr5-fox-mentor .fr2-fox').evaluate(img=>img.decode());
+  const metric=await page.evaluate(()=>{
+   const rect=q=>{const r=document.querySelector(q)?.getBoundingClientRect();return r?{left:Math.round(r.left),right:Math.round(r.right),top:Math.round(r.top),bottom:Math.round(r.bottom),width:Math.round(r.width),height:Math.round(r.height)}:null};
+   return {height:innerHeight,width:innerWidth,scrollWidth:document.documentElement.scrollWidth,
+    cake:rect('.fr5-build-target .fr2-pie-builder'),fraction:rect('.fr6-result .fr2-fraction'),
+    controls:rect('.fr6-workshop .fr6-controls'),fox:rect('.fr5-fox-mentor .fr2-fox')};
+  });
+  console.log('FRACTION_LANDSCAPE_'+engine+': '+JSON.stringify(metric));
+  await photo(page,engine+'-iphone-landscape-01-workshop');
+  assert.ok(metric.cake&&metric.cake.width>=100&&metric.fraction&&metric.fraction.height>=65&&metric.controls&&metric.fox,engine+' phone landscape primary pieces missing');
+  const touches=await page.locator('#fraction-lab-back, .fr6-controls .fr2-adjust-btn').evaluateAll(nodes=>nodes.map(n=>({label:n.getAttribute('aria-label'),width:n.getBoundingClientRect().width,height:n.getBoundingClientRect().height})));
+  assert.ok(touches.every(x=>x.width>=44&&x.height>=44),engine+' landscape touch targets smaller than 44px: '+JSON.stringify(touches));
+  assert.ok(metric.scrollWidth<=metric.width+3,engine+' phone landscape horizontal overflow: '+JSON.stringify(metric));
+  assert.ok([metric.cake,metric.fraction,metric.controls].every(r=>r.top>=0&&r.bottom<=metric.height),
+   engine+' iPhone landscape cake, 1/4 and controls must fit without scrolling: '+JSON.stringify(metric));
+  await page.locator('.fr2-pie-builder [data-fr-action="piece"][data-piece="2"]').click();
+  assert.equal(await page.locator('.fr6-result .fr2-fraction').getAttribute('aria-label'),'2 av 4');
+  await photo(page,engine+'-iphone-landscape-02-response');
+  assert.deepEqual(errors,[],engine+' landscape page errors');
+ }finally{await ctx.close()}
+}
+(async()=>{const {srv,url}=await server(),failures=[];try{
+ for(const [name,type,devices] of [['chromium',chromium,[['iphone',{width:390,height:844}],['iphone-small',{width:375,height:667}],['iphone-tiny',{width:320,height:568}],['ipad',{width:820,height:1180}]]],['webkit',webkit,[['iphone-safari',{width:390,height:844}],['iphone-small-safari',{width:375,height:667}],['iphone-tiny-safari',{width:320,height:568}],['ipad-safari',{width:820,height:1180}],['ipad-landscape-safari',{width:1180,height:820}]]]]){
+  const browser=await type.launch({headless:true});try{
+   for(const [label,viewport] of devices){try{await run(browser,name,label,viewport,url)}catch(e){failures.push(name+' '+label+': '+e.message);console.error('FAIL '+name+' '+label+': '+e.stack)}}
+   try{await runLandscape(browser,name,url)}catch(e){failures.push(name+' iphone-landscape: '+e.message);console.error('FAIL '+name+' iphone-landscape: '+e.stack)}
+  }finally{await browser.close()}
  }
+ if(failures.length)throw new Error('Brøklaben device failures:\\n'+failures.join('\\n'));
  console.log('PASS all Læria Brøklaben premium browser tests');
 }finally{await new Promise(resolve=>srv.close(resolve))}})().catch(e=>{console.error(e);process.exitCode=1});
