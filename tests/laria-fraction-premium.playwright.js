@@ -302,6 +302,8 @@ async function runLandscape(browser,engine,url){
   console.log('FRACTION_LANDSCAPE_'+engine+': '+JSON.stringify(metric));
   await photo(page,engine+'-iphone-landscape-01-workshop');
   assert.ok(metric.cake&&metric.cake.width>=100&&metric.fraction&&metric.fraction.height>=65&&metric.controls&&metric.fox,engine+' phone landscape primary pieces missing');
+  const touches=await page.locator('#fraction-lab-back, .fr6-controls .fr2-adjust-btn').evaluateAll(nodes=>nodes.map(n=>({label:n.getAttribute('aria-label'),width:n.getBoundingClientRect().width,height:n.getBoundingClientRect().height})));
+  assert.ok(touches.every(x=>x.width>=44&&x.height>=44),engine+' landscape touch targets smaller than 44px: '+JSON.stringify(touches));
   assert.ok(metric.scrollWidth<=metric.width+3,engine+' phone landscape horizontal overflow: '+JSON.stringify(metric));
   assert.ok([metric.cake,metric.fraction,metric.controls].every(r=>r.top>=0&&r.bottom<=metric.height),
    engine+' iPhone landscape cake, 1/4 and controls must fit without scrolling: '+JSON.stringify(metric));
