@@ -644,7 +644,9 @@
   border-radius:0!important;background:none!important;
   box-shadow:none!important;
 }
-#session-screen.task-scene[data-task-band="young"] .task-inline-fox .task-prompt-fox-stage .task-fox-companion.laria-fox-wardrobe-anchor > img.laria-fox-base-under-sprite {
+/* Never flash the old profile photo during the animation-frame handoff.
+   The full-body art compositor sizes itself from the hidden <img> box. */
+#session-screen.task-scene[data-task-band="young"] .task-inline-fox .task-prompt-fox-stage .task-fox-companion > img {
   visibility:hidden!important;
 }
 @media(max-width:430px){
