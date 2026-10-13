@@ -2,6 +2,10 @@
 /* WebKit/Chromium first-paint contract for the original October 10 journeys.
  * Force slow artwork fetches: no retired green map or dark empty board may
  * appear between Home and the approved locked paintings. */
+// Playwright/WebKit's screenshotter can wait indefinitely for font readiness
+// while our deliberately held PNG requests are pending. Screenshots must still
+// capture the real unblocked DOM/pixels, not wait for unrelated font promises.
+process.env.PW_TEST_SCREENSHOT_NO_FONTS_READY='1';
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
@@ -94,6 +98,9 @@ async function proof(engine,label,viewport,url){
      label+' '+subject+' premium transition cover is offscreen: '+JSON.stringify(box));
    assert.ok(await pending.locator('img[src*="/cards/reisen/"]').count(),
      label+' '+subject+' approved preview missing');
+   // The approved card artwork is a separate 80-110KB resource. Decode it
+   // for a deterministic visual frame while the multi-MB original remains held.
+   await pending.locator('.locked-journey-art-card img').evaluate(img=>img.decode());
    await shot(page,label+'-'+subject+'-01-waiting');
    held[subject].release();
    await screen.locator('.locked-journey-image').waitFor({state:'attached',timeout:30000});
