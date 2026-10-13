@@ -474,6 +474,10 @@
   }
   #session-screen.task-scene[data-task-band="young"] .session-top{
     width:100%!important;
+    min-width:0!important;
+    /* The old minmax(170px,1fr) forced a 348px wide HUD and in turn
+       widened the entire question grid on a 320px phone. */
+    grid-template-columns:auto minmax(0,1fr) auto!important;
     gap:7px!important;
     margin-bottom:11px!important;
   }
