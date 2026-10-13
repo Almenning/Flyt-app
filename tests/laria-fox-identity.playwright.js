@@ -108,7 +108,7 @@ async function run(engine,name,viewport,which){
       inline:!!root?.querySelector('.task-inline-fox'),
       fox:bound(fox),prompt:bound(prompt),answer:bound(answer)};
    });
-   assert.equal(taskGeometry.foxCount,1,name+' '+subject+' duplicated child's fox');
+   assert.equal(taskGeometry.foxCount,1,name+' '+subject+' duplicated selected fox');
    if(taskGeometry.inline&&taskGeometry.answer){
     assert.ok(taskGeometry.fox?.bottom<=taskGeometry.answer.top+2,
       name+' '+subject+' fox overlaps first answer: '+JSON.stringify(taskGeometry));
