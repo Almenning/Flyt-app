@@ -137,6 +137,8 @@ async function testView(browser,engine,label,viewport,url){
   await returned.waitFor({state:'visible'});
   assert.equal(await page.locator('.bc12').getAttribute('data-bc13-view'),'explore',
    label+' return must restore actual Utforsk chooser, not silently reset to Home');
+  assert.ok(await returned.evaluate(el=>document.activeElement===el),
+   label+' returning child loses keyboard/screen-reader focus instead of receiving new Word Hunt card');
   assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('laria-wordhunt-v1')||'{}').rounds),1,label+' completion not saved on return');
   await page.reload({waitUntil:'domcontentloaded'});
   assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('laria-wordhunt-v1')||'{}').rounds),1,label+' completion lost on reload');
