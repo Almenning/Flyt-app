@@ -181,3 +181,23 @@
   .word-hunt-status strong{font-size:13px}
   .word-hunt-new{min-height:44px}
 }
+
+
+/* phase4c-ipad-firstfold: genuine WebKit evidence showed the last letter row
+   below the screen on 1180x820 iPad, despite correct phone layouts.
+   Keep the full 6x6 or 7x7 board in view; reduce the oversized landscape
+   grid rather than forcing the child to scroll between word and letters. */
+@media (min-width:900px) and (max-width:1400px) and (min-height:701px) and (max-height:900px) and (orientation:landscape){
+  .word-hunt-board-wrap{
+    grid-template-columns:minmax(0,min(550px,calc(100svh - 270px))) 225px;
+    justify-content:center;
+    gap:16px;
+  }
+  .word-hunt-board-card{width:100%;padding:12px}
+  .word-hunt-board{gap:6px}
+}
+/* The tall portrait iPad previously showed a half-screen of empty cream
+   under the puzzle. Let the Bokskogen illustrated world frame the board. */
+@media (min-width:701px) and (max-width:950px) and (orientation:portrait){
+  .word-hunt-shell{min-height:0;padding-bottom:25px}
+}
