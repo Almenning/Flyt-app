@@ -68,6 +68,18 @@ async function run(engine,name,viewport,url){
    const label=name+' '+subject;
    await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:12000});
    assert.equal(await page.locator('#session-screen .task-fox-companion').count(),1,label+' duplicate fox');
+   if(question.visual){
+    await page.waitForFunction(()=>{
+     const fox=document.querySelector('#session-screen.active .task-visual-companion-stage .task-fox-companion');
+     const original=fox?.querySelector('img.laria-fox-base-under-sprite');
+     const rig=fox?.querySelector('svg.laria-fox-wardrobe-placed[data-fox-art="girl-fullbody-v1"]');
+     return original&&rig&&getComputedStyle(original).visibility==='hidden'&&
+      rig.getBoundingClientRect().width>30&&rig.getBoundingClientRect().height>40&&
+      getComputedStyle(fox.querySelector('.task-profile-marker')).display==='none';
+    },undefined,{timeout:15000});
+    assert.equal(await page.locator('#session-screen .task-fox-companion .laria-fox-wardrobe-placed').count(),1,
+      label+' duplicate or missing selected full-body fox');
+   }
    const first=await page.evaluate(()=>{
     const progress=document.querySelector('#session-screen .session-progress');
     const read=document.querySelector('#session-screen .read-aloud');
