@@ -15,7 +15,10 @@ const makeSeed=which=>({
  journey:{nodes:{},gradeWins:{},viewGrades:{}},answerLog:[],sessionLog:[],activeSession:null
 });
 async function imageIsChosen(page,selector,which,label){
- const img=page.locator(selector);await img.waitFor({timeout:16000});
+ // The selected source <img> remains in DOM as the saved identity.
+ // World scenes may intentionally hide its old portrait pixels in favour of
+ // the SAME selected fox's transparent full-body SVG rig.
+ const img=page.locator(selector);await img.waitFor({state:'attached',timeout:16000});
  await page.waitForFunction(([css,id])=>{
   const el=document.querySelector(css);
   return el?.complete&&el.naturalWidth>0&&
@@ -27,7 +30,19 @@ async function imageIsChosen(page,selector,which,label){
  }));
  assert.ok(info.src.startsWith('data:image/webp;base64,'),label+' uses non-profile asset');
  assert.ok(info.width>50&&info.height>50,label+' profile picture does not decode');
- assert.ok(info.rect.w>0&&info.rect.h>0,label+' profile picture is invisible');
+ assert.ok(info.rect.w>0&&info.rect.h>0,label+' saved identity image has no measured layout');
+ if(selector.includes('.task-fox-companion')){
+  const host=page.locator('#session-screen.active .task-fox-companion');
+  const rig=host.locator(':scope > svg.laria-fox-wardrobe-art[data-fox-art="'+which+'-fullbody-v1"]');
+  await rig.waitFor({state:'visible',timeout:12000});
+  const art=await rig.evaluate(svg=>{
+   const img=svg.querySelector('image'),r=svg.getBoundingClientRect();
+   return {source:img?.getAttribute('href')||'',width:r.width,height:r.height};
+  });
+  assert.ok(art.width>25&&art.height>35,label+' visible full-body chosen fox rig missing');
+  assert.match(art.source,which==='girl'?/girl-braids-blue-dress-v1\.webp$/:/boy-adventurer-green-vest-v1\.webp$/,
+    label+' displayed fox does not match persisted identity');
+ }
 }
 async function run(engine,name,viewport,which){
  const browser=await engine.launch({headless:true,args:engine===chromium?['--no-sandbox']:[]});
