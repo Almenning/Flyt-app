@@ -728,7 +728,8 @@
     margin-top:3px!important;
   }
   #session-screen.task-scene[data-task-band="young"] .young-math-choice-layout .young-math-option{
-    min-height:52px!important;
+    /* Keep the young-child 58px answer target even when landscape is short. */
+    min-height:58px!important;
     padding:8px!important;
     font-size:22px!important;
   }
