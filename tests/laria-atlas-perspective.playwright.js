@@ -74,6 +74,30 @@ async function run(engine,label,viewport){
   const selected=await page.evaluate(()=>globeSelected);
   assert.equal(selected,'no',label+' Norway tap must select Norway, not China or a neighbouring country');
   assert.ok((await page.locator('#globe-status strong').allTextContents()).some(x=>x.includes('Norge')),label+' Norway card missing');
+  if(viewport.width>=900&&viewport.width>viewport.height){
+   // Geometry checks for visually verified iPad-landscape defects:
+   // continent chips must not sit beneath the zoom toolbar, and neither
+   // action text nor the country CTA may be icon-only/clipped.
+   const arrangement=await page.evaluate(()=>{
+    const box=selector=>{const e=document.querySelector(selector),r=e?.getBoundingClientRect();return r&&{x:r.x,y:r.y,w:r.width,h:r.height,bottom:r.bottom,right:r.right}};
+    const overflow=selector=>{
+     const e=document.querySelector(selector);if(!e)return null;
+     const r=document.createRange();r.selectNodeContents(e);
+     return {contentWidth:r.getBoundingClientRect().width,innerWidth:e.clientWidth-(parseFloat(getComputedStyle(e).paddingLeft)||0)-(parseFloat(getComputedStyle(e).paddingRight)||0),text:e.textContent.trim()};
+    };
+    return {toolbar:box('.globe-zoom'),regions:box('.atlas-region-nav'),atlas:box('#atlas-canvas'),
+     country:box('#globe-status'),actions:box('.globe-actions'),
+     buttons:[...document.querySelectorAll('.globe-actions button')].map(b=>({x:b.getBoundingClientRect().x,y:b.getBoundingClientRect().y,w:b.getBoundingClientRect().width,h:b.getBoundingClientRect().height,text:b.textContent.trim(),contentWidth:(()=>{const range=document.createRange();range.selectNodeContents(b);return range.getBoundingClientRect().width})()})),
+     cta:overflow('.premium-country-learn'),ctaVisible:getComputedStyle(document.querySelector('.premium-country-learn span')).display!=='none'};
+   });
+   assert.ok(arrangement.toolbar.y>arrangement.regions.bottom+10,label+' zoom toolbar covers atlas region choices '+JSON.stringify(arrangement));
+   assert.ok(arrangement.toolbar.right<=arrangement.atlas.right+3,label+' zoom toolbar leaves map boundary');
+   assert.ok(arrangement.country.bottom+8<=arrangement.actions.y,label+' country card intersects action buttons');
+   assert.equal(arrangement.ctaVisible,true,label+' iPad landscape Learn More text must not be hidden');
+   assert.ok(arrangement.cta.text.includes('Lær mer'),label+' country action must have a readable label');
+   assert.ok(arrangement.buttons.length===2&&arrangement.buttons.every(b=>b.h>=44&&b.contentWidth<=b.w-10),label+' landscape action labels are clipped '+JSON.stringify(arrangement.buttons));
+   assert.ok(arrangement.buttons[1].y>=arrangement.buttons[0].y+arrangement.buttons[0].h+4,label+' landscape actions must have independent full-width rows');
+  }
   if(viewport.width<=430){
    assert.equal(await page.locator('#globe-status .premium-country-learn span').isVisible(),true,label+' Lær mer text must be visible beside the Norwegian country card on iPhone');
    const learnButton=await page.locator('#globe-status .premium-country-learn').boundingBox();
