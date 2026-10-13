@@ -127,9 +127,9 @@ async function testView(browser,engine,label,viewport,url){
   await page.locator('.word-hunt-back').click();
   assert.equal(await page.locator('#word-hunt-overlay:not([hidden])').count(),0,label+' did not close');
   assert.equal(await page.evaluate(()=>document.documentElement.style.overflow),'',label+' scroll lock not restored');
-  await page.locator('.bc12-nav [data-camp="explore"]').first().waitFor({state:'visible'});
-  await page.locator('.bc12-nav [data-camp="explore"]').first().click();
   await page.locator('.bc12 [data-camp="words"]').first().waitFor({state:'visible'});
+  assert.equal(await page.locator('.bc12').getAttribute('data-mode'),'explore',
+   label+' return must restore Utforsk, not silently reset to Home');
   assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('laria-wordhunt-v1')||'{}').rounds),1,label+' completion not saved on return');
   await page.reload({waitUntil:'domcontentloaded'});
   assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('laria-wordhunt-v1')||'{}').rounds),1,label+' completion lost on reload');
@@ -142,7 +142,7 @@ async function testView(browser,engine,label,viewport,url){
  try{
   for(const [engine,launcher,views] of [
    ['chromium',chromium,[['iphone',{width:390,height:844}],['iphone-tiny',{width:320,height:568}],['ipad',{width:820,height:1180}]]],
-   ['webkit',webkit,[['iphone-safari',{width:390,height:844}],['iphone-tiny-safari',{width:320,height:568}],['iphone-landscape-safari',{width:844,height:390}],['ipad-landscape-safari',{width:1180,height:820}]]]
+   ['webkit',webkit,[['iphone-safari',{width:390,height:844}],['iphone-tiny-safari',{width:320,height:568}],['iphone-landscape-safari',{width:844,height:390}],['ipad-safari',{width:820,height:1180}],['ipad-landscape-safari',{width:1180,height:820}]]]
   ]){
    const browser=await launcher.launch({headless:true});
    try{for(const [label,viewport] of views)await testView(browser,engine,label,viewport,url)}
