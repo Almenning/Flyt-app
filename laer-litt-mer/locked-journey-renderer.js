@@ -100,6 +100,17 @@
   const WAITING_ART_TITLES=Object.freeze({
     norwegian:'Bokskogen',math:'Tallenga',english:'Ordlandsbyen',geography:'Nordlysleiren'
   });
+  // Four already-approved card thumbnails total under 400 KB; preload these,
+  // never the four multi-MB original maps. An immediate child tap should show
+  // existing illustrated card art instead of an empty thumbnail frame.
+  const approvedCardPreviews=Object.fromEntries(Object.keys(WAITING_ART_TITLES).map(subject=>{
+    const image=new Image();
+    image.decoding='async';
+    image.src='./assets/cards/reisen/'+subject+'-premium.webp';
+    return [subject,image];
+  }));
+  // Keep the preloader reachable for the lifetime of the scene module.
+  if(!approvedCardPreviews.math)throw Error('Missing Læria approved card preload');
   // One source of truth for the visible intermediate frame. Never briefly
   // expose the retired world renderer or a blank dark canvas during decoding.
   function artworkGuard(subject,failed,overlay){
