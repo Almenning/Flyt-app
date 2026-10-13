@@ -75,6 +75,8 @@ async function run(browser,engine,device,width,height,url){
       const fox=document.querySelector('.task-prompt-fox-stage > .task-fox-companion');
       return {
         screen:innerWidth,scroll:document.documentElement.scrollWidth,
+        hud:document.querySelector('.session-top')?.getBoundingClientRect().toJSON(),
+        card:document.querySelector('.laria-task-card')?.getBoundingClientRect().toJSON(),
         rects:nodes.map(n=>n.getBoundingClientRect().toJSON()),
         fox:fox?.getBoundingClientRect().toJSON(),
         question:document.querySelector('.task-prompt-fox-stage > .question')?.getBoundingClientRect().toJSON(),
