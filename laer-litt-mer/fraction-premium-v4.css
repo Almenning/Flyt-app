@@ -761,3 +761,87 @@
   #fraction-lab-screen .fr5-controls .fr2-adjust-heading b{font-size:12px}
   #fraction-lab-screen .fr5-controls .fr2-adjust-row strong{font-size:23px}
 }
+
+/* phase4-short-landscape: iPhone 844x390 had been taking the tall-iPad
+   workshop breakpoint. Keep primary play on one short landscape screen.
+   The optional conversion panel remains below the main controls. */
+@media (orientation:landscape) and (min-width:700px) and (max-height:500px){
+  #fraction-lab-screen .fr2-shell{
+    padding-top:max(4px,env(safe-area-inset-top));
+    padding-bottom:max(8px,env(safe-area-inset-bottom));
+    padding-left:max(10px,env(safe-area-inset-left));
+    padding-right:max(10px,env(safe-area-inset-right));
+  }
+  #fraction-lab-screen .fr2-content{max-width:none}
+  #fraction-lab-screen .fr2-top.fr4-top{
+    min-height:40px;margin-bottom:3px;padding:0 6px;
+  }
+  #fraction-lab-screen .fr2-top .fr2-back{width:40px;height:40px;font-size:28px!important}
+  #fraction-lab-screen .fr4-top .fr2-brand{font-size:26px}
+  #fraction-lab-screen .fr4-top .fr4-earned{padding:4px 8px}
+  #fraction-lab-screen .fr4-top-token{display:none}
+  #fraction-lab-screen .fr5-build .fr5-lab-intro{
+    margin:2px 0 4px;padding:3px 10px;
+  }
+  #fraction-lab-screen .fr5-build .fr5-lab-intro h1{font-size:19px}
+  #fraction-lab-screen .fr5-build .fr5-lab-intro p{font-size:10px;line-height:1}
+  #fraction-lab-screen .fr6-workshop .fr6-stage{
+    grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);
+    gap:4px;padding:4px 8px;
+  }
+  #fraction-lab-screen .fr6-workshop .fr6-stage .fr5-build-target{
+    min-height:0;padding:3px 5px;
+  }
+  #fraction-lab-screen .fr6-workshop .fr6-stage .fr4-build-woodhead{
+    margin:0 auto 2px;padding:2px 7px;font-size:11px;
+  }
+  #fraction-lab-screen .fr6-workshop .fr6-stage .fr2-pie-builder{
+    width:min(100%,118px);max-width:118px;
+  }
+  #fraction-lab-screen .fr6-workshop .fr6-stage .fr5-build-target p{display:none}
+  #fraction-lab-screen .fr6-workshop .fr6-stage .fr5-build-aside{
+    display:flex;flex-direction:row;align-items:center;justify-content:center;
+    gap:6px;min-height:0;
+  }
+  #fraction-lab-screen .fr6-workshop .fr6-stage .fr5-live-result{
+    display:flex;flex:1 1 0;min-width:0;min-height:0;padding:3px;
+  }
+  #fraction-lab-screen .fr6-workshop .fr6-stage .fr5-live-result .fr2-fraction{
+    font-size:48px;
+  }
+  #fraction-lab-screen .fr6-workshop .fr6-stage .fr5-fox-mentor{
+    display:flex;flex:0 0 95px;align-self:center;min-width:0;min-height:0;
+  }
+  #fraction-lab-screen .fr6-workshop .fr6-stage .fr5-fox-mentor>.fr2-fox{
+    width:62px;height:65px;
+  }
+  #fraction-lab-screen .fr6-workshop .fr6-stage .fr5-fox-bubble{
+    min-height:22px;padding:2px 3px;font-size:10px;
+  }
+  #fraction-lab-screen .fr6-workshop .fr6-stage .fr7-tablet-equivalents{display:none}
+  #fraction-lab-screen .fr7-mobile-discovery{display:flex}
+  #fraction-lab-screen .fr6-workshop .fr6-stage .fr5-piece-tray{
+    min-height:0;padding:2px 5px;
+  }
+  #fraction-lab-screen .fr5-piece-tray .fr2-spare{
+    flex-basis:44px;width:44px;height:44px;min-height:44px;
+  }
+  #fraction-lab-screen .fr5-piece-tray .fr2-loose-piece{height:40px}
+  #fraction-lab-screen .fr5-controls{
+    margin:4px 0;gap:5px;
+  }
+  #fraction-lab-screen .fr5-controls .fr2-adjust{
+    display:flex;flex-direction:row;align-items:center;
+    justify-content:space-between;gap:4px;padding:3px 5px;
+  }
+  #fraction-lab-screen .fr5-controls .fr2-adjust-heading b{font-size:13px}
+  #fraction-lab-screen .fr5-controls .fr2-adjust-row{
+    width:auto;flex:none;gap:2px;
+  }
+  #fraction-lab-screen .fr5-controls .fr2-adjust-row strong{
+    font-size:21px;min-width:22px;
+  }
+  #fraction-lab-screen .fr5-controls .fr2-adjust-btn{
+    width:44px;min-width:44px;height:44px;min-height:44px;
+  }
+}
