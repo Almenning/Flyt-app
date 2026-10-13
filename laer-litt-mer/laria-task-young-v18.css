@@ -591,10 +591,10 @@
 }
 
 
-/* Fase 3: for number-choice tasks, question and the child's SINGLE chosen
+/* Fase 3: for text-only tasks, question and the child's SINGLE chosen
    full-body fox share one real layout row. The old negative-top portrait badge
    was the root of the tiny, pasted-on character in iPhone/iPad screenshots. */
-#session-screen.task-scene[data-task-band="young"] .young-math-choice-layout > .task-prompt-fox-stage {
+#session-screen.task-scene[data-task-band="young"] .task-inline-fox > .task-prompt-fox-stage {
   display:grid!important;
   grid-template-columns:minmax(0,1fr) clamp(102px,14vw,135px);
   align-items:center;
@@ -605,7 +605,7 @@
   padding:0 8px 0 16px;
   box-sizing:border-box;
 }
-#session-screen.task-scene[data-task-band="young"] .young-math-choice-layout .task-prompt-fox-stage > .question {
+#session-screen.task-scene[data-task-band="young"] .task-inline-fox .task-prompt-fox-stage > .question {
   width:100%!important;
   max-width:none!important;
   margin:0!important;
@@ -615,7 +615,7 @@
   text-align:center!important;
   overflow-wrap:break-word;
 }
-#session-screen.task-scene[data-task-band="young"] .young-math-choice-layout .task-prompt-fox-stage > .task-fox-companion {
+#session-screen.task-scene[data-task-band="young"] .task-inline-fox .task-prompt-fox-stage > .task-fox-companion {
   position:relative!important;
   inset:auto!important;
   top:auto!important;
@@ -638,41 +638,41 @@
   overflow:visible!important;
   pointer-events:none!important;
 }
-#session-screen.task-scene[data-task-band="young"] .young-math-choice-layout .task-prompt-fox-stage > .task-fox-companion > img {
+#session-screen.task-scene[data-task-band="young"] .task-inline-fox .task-prompt-fox-stage > .task-fox-companion > img {
   width:100%!important;height:100%!important;
   object-fit:contain!important;border:0!important;
   border-radius:0!important;background:none!important;
   box-shadow:none!important;
 }
-#session-screen.task-scene[data-task-band="young"] .young-math-choice-layout .task-prompt-fox-stage .task-fox-companion.laria-fox-wardrobe-anchor > img.laria-fox-base-under-sprite {
+#session-screen.task-scene[data-task-band="young"] .task-inline-fox .task-prompt-fox-stage .task-fox-companion.laria-fox-wardrobe-anchor > img.laria-fox-base-under-sprite {
   visibility:hidden!important;
 }
 @media(max-width:430px){
-  #session-screen.task-scene[data-task-band="young"] .young-math-choice-layout > .task-prompt-fox-stage {
+  #session-screen.task-scene[data-task-band="young"] .task-inline-fox > .task-prompt-fox-stage {
     grid-template-columns:minmax(0,1fr) 91px;
     min-height:144px;
     padding:0 3px 0 4px;
     gap:6px;
     margin:4px auto 8px;
   }
-  #session-screen.task-scene[data-task-band="young"] .young-math-choice-layout .task-prompt-fox-stage > .question {
+  #session-screen.task-scene[data-task-band="young"] .task-inline-fox .task-prompt-fox-stage > .question {
     font-size:clamp(26px,7.5vw,34px)!important;
   }
-  #session-screen.task-scene[data-task-band="young"] .young-math-choice-layout .task-prompt-fox-stage > .task-fox-companion {
+  #session-screen.task-scene[data-task-band="young"] .task-inline-fox .task-prompt-fox-stage > .task-fox-companion {
     width:91px!important;
     height:137px!important;
   }
 }
 @media(max-width:360px){
-  #session-screen.task-scene[data-task-band="young"] .young-math-choice-layout > .task-prompt-fox-stage {
+  #session-screen.task-scene[data-task-band="young"] .task-inline-fox > .task-prompt-fox-stage {
     grid-template-columns:minmax(0,1fr) 76px;
     min-height:118px;
     gap:4px;
   }
-  #session-screen.task-scene[data-task-band="young"] .young-math-choice-layout .task-prompt-fox-stage > .question {
+  #session-screen.task-scene[data-task-band="young"] .task-inline-fox .task-prompt-fox-stage > .question {
     font-size:26px!important;
   }
-  #session-screen.task-scene[data-task-band="young"] .young-math-choice-layout .task-prompt-fox-stage > .task-fox-companion {
+  #session-screen.task-scene[data-task-band="young"] .task-inline-fox .task-prompt-fox-stage > .task-fox-companion {
     width:76px!important;height:114px!important;
   }
 }
@@ -698,30 +698,30 @@
   #session-screen.task-scene[data-task-band="young"] #question-wrap{
     width:min(calc(100vw - 36px),800px)!important;
   }
-  #session-screen.task-scene[data-task-band="young"] .laria-task-card.young-math-choice-layout{
+  #session-screen.task-scene[data-task-band="young"] .laria-task-card.task-inline-fox{
     min-height:0!important;
     padding:9px 18px 12px!important;
     border-radius:24px!important;
   }
-  #session-screen.task-scene[data-task-band="young"] .young-math-choice-layout .task-card-head{
+  #session-screen.task-scene[data-task-band="young"] .task-inline-fox .task-card-head{
     min-height:36px!important;
     flex-direction:row!important;
     justify-content:center!important;
     padding:0!important;
     gap:10px!important;
   }
-  #session-screen.task-scene[data-task-band="young"] .young-math-choice-layout > .task-prompt-fox-stage{
+  #session-screen.task-scene[data-task-band="young"] .task-inline-fox > .task-prompt-fox-stage{
     width:min(100%,690px)!important;
     grid-template-columns:minmax(0,1fr) 76px;
     min-height:113px;
     margin:2px auto 3px!important;
     padding:0 6px;
   }
-  #session-screen.task-scene[data-task-band="young"] .young-math-choice-layout .task-prompt-fox-stage > .question{
+  #session-screen.task-scene[data-task-band="young"] .task-inline-fox .task-prompt-fox-stage > .question{
     font-size:clamp(26px,3.4vw,34px)!important;
     line-height:1.08!important;
   }
-  #session-screen.task-scene[data-task-band="young"] .young-math-choice-layout .task-prompt-fox-stage > .task-fox-companion{
+  #session-screen.task-scene[data-task-band="young"] .task-inline-fox .task-prompt-fox-stage > .task-fox-companion{
     width:76px!important;height:114px!important;
   }
   #session-screen.task-scene[data-task-band="young"] .young-math-choice-layout .task-interaction{
