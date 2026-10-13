@@ -77,10 +77,8 @@ window.LARIA_RETURN_TO_BASECAMP=()=>{
  if(!fromCamp)return false;
  const destination=returnView;
  fromCamp=false;returnView='home';
- // A child who started free play in Utforsk must return to Utforsk.
- // The optional older-panel hook is not guaranteed to be installed;
- // restoring that view here is the source-of-truth fallback.
- home(destination==='explore'?'explore':'home');
+ // Basecamp stays on its canonical Home layout underneath each chooser.
+ home('home');
  window.LARIA_ACTIVATE_BASECAMP_PANEL?.(destination);
  return true;
 };
