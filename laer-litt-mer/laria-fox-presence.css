@@ -95,6 +95,23 @@
   overflow:visible!important;border:0!important;border-radius:0!important;
   background:none!important;
 }
+/* In illustrated tasks the legacy profile photo was still painted UNDER the
+   full-body wardrobe SVG, creating a square portrait card beside the drawing.
+   Hide only that fallback once the selected full-body rig has been attached.
+   Its dimensions remain measurable, so the wardrobe compositor still aligns
+   correctly and the child's persisted identity remains unchanged. */
+#session-screen.task-scene[data-task-band="young"] .task-visual-companion-stage
+  .task-fox-companion.laria-fox-wardrobe-anchor>img.laria-fox-base-under-sprite{
+  visibility:hidden!important;
+}
+#session-screen.task-scene[data-task-band="young"] .task-visual-companion-stage
+  .task-fox-companion.laria-fox-wardrobe-anchor>.laria-fox-wardrobe-placed{
+  z-index:3!important;overflow:visible!important;
+}
+#session-screen.task-scene[data-task-band="young"] .task-visual-companion-stage
+  .task-fox-companion .task-profile-marker{
+  display:none!important;
+}
 #bc12-dialog .bc12-wardrobe-preview .laria-fox-wardrobe-art[data-fox-art="reference-girl-draft"]{
   height:100%;width:100%;max-height:260px;overflow:visible;
 }
