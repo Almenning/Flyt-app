@@ -59,6 +59,11 @@
   margin-top:12px!important;
   min-height:54px!important;
 }
+/* The living-fox engine animates the selected fox's pose. Do not run
+   the older whole-host success jiggle simultaneously. */
+#session-screen.task-scene .laria-task-card:has(.feedback.success-pop) .task-fox-companion {
+  animation:none!important;
+}
 /* Optional English word audio is a child-controlled replay, not auto-play.
    It uses the existing speech service with en-GB for the target word. */
 #session-screen.task-scene .task-hear-word {
