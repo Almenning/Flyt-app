@@ -312,31 +312,31 @@
    atmosphere.  This removes the generic app canvas and its obsolete nav
    spacing without scaling, cropping, or repainting the locked illustration. */
 @media (max-width:699px), (orientation:landscape) and (max-height:500px){
-  html:has(#subject-screen.active.locked-journey-active .locked-journey-map[data-journey-subject="norwegian"]),
-  body:has(#subject-screen.active.locked-journey-active .locked-journey-map[data-journey-subject="norwegian"]){
+  html:has(body.locked-journey-subject-norwegian),
+  body.locked-journey-subject-norwegian{
     background:#254322;
   }
-  #subject-screen.active.locked-journey-active:has(.locked-journey-map[data-journey-subject="norwegian"]),
-  #subject-screen.active.locked-journey-active:has(.locked-journey-map[data-journey-subject="norwegian"])>#subject-journey-section{
+  #subject-screen.active.locked-journey-active.locked-journey-subject-norwegian,
+  #subject-screen.active.locked-journey-active.locked-journey-subject-norwegian>#subject-journey-section{
     background:
       linear-gradient(180deg,rgba(22,57,27,.18),rgba(30,72,35,.10) 43%,rgba(20,55,29,.34)),
       url('./bokskogen-reference-bg.webp') center/cover no-repeat;
   }
-  .app:has(#subject-screen.active.locked-journey-active .locked-journey-map[data-journey-subject="norwegian"]){
+  body.locked-journey-subject-norwegian .app{
     width:100%;
     min-height:100dvh;
     padding-bottom:0;
   }
-  .app:has(#subject-screen.active.locked-journey-active .locked-journey-map[data-journey-subject="norwegian"])::before,
-  .app:has(#subject-screen.active.locked-journey-active .locked-journey-map[data-journey-subject="norwegian"])::after{
+  body.locked-journey-subject-norwegian .app::before,
+  body.locked-journey-subject-norwegian .app::after{
     display:none;
   }
-  #subject-screen.active.locked-journey-active:has(.locked-journey-map[data-journey-subject="norwegian"]){
+  #subject-screen.active.locked-journey-active.locked-journey-subject-norwegian{
     min-height:100dvh;
     padding-top:0!important;
     padding-bottom:0!important;
   }
-  #subject-screen.active.locked-journey-active:has(.locked-journey-map[data-journey-subject="norwegian"])>#subject-journey-section{
+  #subject-screen.active.locked-journey-active.locked-journey-subject-norwegian>#subject-journey-section{
     min-height:100dvh;
   }
   #subject-screen.active.locked-journey-active .locked-journey-map[data-journey-subject="norwegian"] .locked-journey-board{
