@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'laer-litt-mer/laria-responsive-phaseb.css'
+      - 'laer-litt-mer/locked-journey-renderer.js'
       - 'laer-litt-mer/index.html'
       - 'laer-litt-mer/sw.js'
       - 'tests/laria-responsive-phasec3-iphone-journeys.playwright.js'
@@ -29,7 +30,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Verify test syntax
-        run: node --check tests/laria-responsive-phasec3-iphone-journeys.playwright.js
+        run: |
+          node --check tests/laria-responsive-phasec3-iphone-journeys.playwright.js
+          node --check laer-litt-mer/locked-journey-renderer.js
       - name: Install real WebKit and Chromium browsers
         run: npx playwright install --with-deps webkit chromium
       - name: Test four original maps, safe edges, fox and navigation on iPhone
