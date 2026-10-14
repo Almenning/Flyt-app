@@ -15,7 +15,7 @@ body.laria-task-scene-open {
   height:100dvh!important;
   min-height:100dvh!important;
   max-height:100dvh!important;
-  grid-template-rows:auto max-content!important;
+  grid-template-rows:max-content max-content!important;
   align-content:start!important;
   overflow-x:hidden!important;
   overflow-y:auto!important;
