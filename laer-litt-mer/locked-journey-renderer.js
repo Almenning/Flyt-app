@@ -74,6 +74,12 @@
     document.body.classList.remove(...classes);
     [screenFor(false),screenFor(true)].forEach(screen=>screen?.classList.remove(...classes));
   }
+  function resetJourneyScroll(){
+    // A subject card can be focused while Basecamp is scrolled. Keep the
+    // illustrated first landmark at the viewport edge when the journey opens,
+    // including WebKit after a device rotation.
+    window.scrollTo(0,0);
+  }
   function backHome(geo){
     // Navigate directly rather than simulating a click on a separate, hidden
     // back button. WebKit at 320px occasionally left the journey active after
@@ -154,6 +160,7 @@
       '</section>';
     screen.classList.add('locked-journey-active');
     setJourneyContext(subject);
+    resetJourneyScroll();
     // The original geography HTML puts two retired cards before the journey.
     // Prioritize Nordlysleiren while its approved PNG is still loading, not
     // only after decode. Otherwise Safari briefly shows the legacy cards.
@@ -289,6 +296,7 @@
       '</section><div class="locked-journey-overlay" hidden><div class="locked-journey-dim"></div><section class="locked-journey-sheet" role="dialog" aria-modal="true" aria-label="Oppdragssted"></section></div>';
     screen.classList.add('locked-journey-active');
     setJourneyContext(subject);
+    resetJourneyScroll();
     if(geo){
       screen.classList.add('premium-geo-active');
       const shell=document.getElementById('geo-journey-shell'),globe=document.getElementById('open-world');
