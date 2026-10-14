@@ -29,7 +29,7 @@ concurrency:
 jobs:
   laria-qa:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 38
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -48,6 +48,20 @@ jobs:
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium webkit
+
+      - name: Verify Ordjakt responsive touch in Chromium and WebKit
+        env:
+          WORD_HUNT_QA_SCREENSHOTS: /tmp/laria-wordhunt-phase4
+        run: node tests/laria-word-hunt-phase4.playwright.js
+
+      - name: Upload Ordjakt phone and iPad screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-wordhunt-phase4-${{ github.sha }}
+          path: /tmp/laria-wordhunt-phase4
+          if-no-files-found: warn
+          retention-days: 7
 
       - name: Verify young Maths on iPhone and iPad Chromium and WebKit
         env:

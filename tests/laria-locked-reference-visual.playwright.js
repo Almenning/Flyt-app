@@ -53,7 +53,8 @@ async function check(engine,label,viewport){
     const host=document.querySelector('.screen.active .locked-journey-map');
     const image=host?.querySelector('.locked-journey-image');
     return host?.dataset.journeySubject===s&&image?.complete&&
-      image?.naturalWidth===941&&image?.naturalHeight===1672;
+      image?.naturalWidth===941&&image?.naturalHeight===1672&&
+      !host.querySelector('.locked-journey-art-guard');
    },subject,{timeout:16000});
    const board=page.locator('.screen.active .locked-journey-board');
    const hits=board.locator('.locked-journey-hotspot');

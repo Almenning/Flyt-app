@@ -1474,6 +1474,15 @@ async function finishSession(page){
       saveState();setTab('home');
     });
     await page.evaluate(()=>document.getElementById('open-math').click());
+    // The approved original PNG loads asynchronously. Wait for the completed
+    // interactive scene rather than asserting during its premium loading cover.
+    await page.waitForFunction(()=>{
+      const map=document.querySelector('#subject-screen.active #journey-map');
+      const img=map?.querySelector('.locked-journey-image');
+      return map?.dataset.journeySubject==='math'&&img?.complete&&
+        img.naturalWidth===941&&img.naturalHeight===1672&&
+        !map.querySelector('.locked-journey-art-guard');
+    },null,{timeout:20000});
     assert.equal(await page.locator('#journey-grade-strip [data-journey-grade]').count(),10);
     await page.locator('#journey-map .locked-journey-options').click();
     await page.locator('.locked-journey-overlay:not([hidden]) [data-locked-grade="3"]').click();

@@ -60,7 +60,7 @@ function makeRound(){
 function overlay(){
   let root=document.getElementById('word-hunt-overlay');if(root){const fox=root.querySelector('.word-hunt-fox');if(fox)fox.src=window.LARIA_FOX.source(window.LARIA_FOX.choice());return root;}
   root=document.createElement('section');root.id='word-hunt-overlay';root.className='word-hunt-overlay';root.dataset.exploreRelease='explore-rc1';root.hidden=true;root.setAttribute('role','dialog');root.setAttribute('aria-modal','true');root.setAttribute('aria-label','Ordjakt i Bokskogen');
-  root.innerHTML='<div class="word-hunt-shell"><div class="word-hunt-top"><button type="button" class="word-hunt-back" aria-label="Tilbake til Læria">←</button><div class="word-hunt-title"><small>Lek & utforsk</small><h1>Ordjakt i Bokskogen</h1></div><img class="word-hunt-fox" src="'+window.LARIA_FOX.source(window.LARIA_FOX.choice())+'" alt="" aria-hidden="true"></div><div class="word-hunt-intro">Finn ordene som har gjemt seg mellom bokstavene. Dra over et ord, eller trykk første og siste bokstav.</div><div class="word-hunt-levels" role="group" aria-label="Velg vanskelighetsgrad"><button type="button" class="word-hunt-level" data-word-level="easy">🌱 Rolig</button><button type="button" class="word-hunt-level" data-word-level="hard">✨ Litt lurere</button></div><div class="word-hunt-board-wrap"><div class="word-hunt-board-card"><div class="word-hunt-board" role="grid" aria-label="Bokstavrutenett"></div></div><aside class="word-hunt-side"><div class="word-hunt-targets"><h2>Finn disse</h2><div class="word-hunt-words"></div></div><div class="word-hunt-status" aria-live="polite"></div><div class="word-hunt-actions"><button type="button" class="word-hunt-new">Ny runde</button><div class="word-hunt-rounds"></div></div></aside></div></div>';
+  root.innerHTML='<div class="word-hunt-shell"><div class="word-hunt-top"><button type="button" class="word-hunt-back" aria-label="Tilbake til Læria">←</button><div class="word-hunt-title"><small>Lek & utforsk</small><h1>Ordjakt i Bokskogen</h1></div><img class="word-hunt-fox" src="'+window.LARIA_FOX.source(window.LARIA_FOX.choice())+'" alt="" aria-hidden="true"></div><div class="word-hunt-intro">Finn ordene! Dra over bokstavene, eller trykk på første og siste bokstav.</div><div class="word-hunt-levels" role="group" aria-label="Velg vanskelighetsgrad"><button type="button" class="word-hunt-level" data-word-level="easy">🌱 Rolig</button><button type="button" class="word-hunt-level" data-word-level="hard">✨ Litt lurere</button></div><div class="word-hunt-board-wrap"><div class="word-hunt-board-card"><div class="word-hunt-board" role="grid" aria-label="Bokstavrutenett"></div></div><aside class="word-hunt-side"><div class="word-hunt-targets"><h2>Finn disse</h2><div class="word-hunt-words"></div></div><div class="word-hunt-status" aria-live="polite"></div><div class="word-hunt-actions"><button type="button" class="word-hunt-new">Ny runde</button><div class="word-hunt-rounds"></div></div></aside></div></div>';
   document.body.append(root);
   root.querySelector('.word-hunt-back').onclick=closeWordHunt;
   root.querySelector('.word-hunt-new').onclick=()=>{makeRound();render()};
@@ -92,6 +92,10 @@ function preview(path,anchor=false){
 function clearPreview(){ui.drag=null;preview(ui.tapStart?[ui.tapStart]:[],!!ui.tapStart)}
 function pointerDown(e){
   const cell=e.target.closest('.word-hunt-cell');if(!cell)return;
+  // After a swipe, suppress only its synthetic trailing click.
+  // A new real finger contact must never be blocked for 250ms.
+  const root=e.currentTarget.closest('.word-hunt-overlay');
+  if(root)root.dataset.draggedUntil='0';
   ui.drag={id:e.pointerId,start:coord(cell),end:coord(cell),moved:false};try{e.currentTarget.setPointerCapture(e.pointerId)}catch(_){}
 }
 function pointerMove(e){
@@ -104,9 +108,25 @@ function pointerMove(e){
   ui.drag.end=end;preview(line(ui.drag.start,end))
 }
 function pointerUp(e){
-  if(!ui.drag||ui.drag.id!==e.pointerId)return;const d=ui.drag;ui.drag=null;
-  if(d.moved){e.preventDefault();checkLine(line(d.start,d.end));overlay().dataset.draggedUntil=String(Date.now()+250)}
-  else preview([],false)
+  if(!ui.drag||ui.drag.id!==e.pointerId)return;
+  const d=ui.drag;
+  // On iOS a quick release may have a fresher endpoint than the last move.
+  // Read the final point before releasing pointer capture, rather than
+  // silently treating a real swipe as a tap.
+  const cell=cellFromEvent(e);
+  if(cell&&e.currentTarget.contains(cell)){
+    const end=coord(cell);
+    d.end=end;
+    if(end[0]!==d.start[0]||end[1]!==d.start[1]){
+      d.moved=true;ui.tapStart=null;
+    }
+  }
+  ui.drag=null;
+  if(d.moved){
+    e.preventDefault();
+    checkLine(line(d.start,d.end));
+    overlay().dataset.draggedUntil=String(Date.now()+250);
+  }else preview([],false)
 }
 function tapSelect(e){
   const root=overlay();if(Number(root.dataset.draggedUntil||0)>Date.now())return;
@@ -140,9 +160,29 @@ function render(resetStatus=true){
   root.querySelector('.word-hunt-rounds').textContent=stats().rounds+' ordjakter fullført på denne enheten';
   if(resetStatus)status(ui.level==='easy'?'Fire ord har gjemt seg i rutenettet.':'Nå kan ordene også ligge baklengs og på skrå.');
 }
+let previousOverflow='',previousFocus=null;
 function openWordHunt(){
-  const root=overlay();if(!ui.grid.length)makeRound();render();root.hidden=false;document.documentElement.style.overflow='hidden';root.querySelector('.word-hunt-back').focus({preventScroll:true})
+  const root=overlay();if(!root.hidden)return;
+  previousOverflow=document.documentElement.style.overflow;
+  previousFocus=document.activeElement;
+  if(!ui.grid.length)makeRound();
+  render();root.hidden=false;document.documentElement.style.overflow='hidden';
+  root.querySelector('.word-hunt-back').focus({preventScroll:true});
 }
-function closeWordHunt(){const root=overlay();root.hidden=true;document.documentElement.style.overflow='';ui.drag=null;ui.tapStart=null;if(typeof window.LARIA_RETURN_TO_BASECAMP==='function')window.LARIA_RETURN_TO_BASECAMP()}
+function closeWordHunt(){
+  const root=overlay();if(root.hidden)return;
+  root.hidden=true;
+  document.documentElement.style.overflow=previousOverflow;
+  ui.drag=null;ui.tapStart=null;
+  if(typeof window.LARIA_RETURN_TO_BASECAMP==='function')window.LARIA_RETURN_TO_BASECAMP();
+  const origin=previousFocus;
+  previousFocus=null;previousOverflow='';
+  // The illustrated Utforsk chooser is re-rendered on return, so the
+  // original card can be detached. Focus its new accessible replacement.
+  const fallback=document.querySelector('.bc13-panel:not([hidden]) .bc13-card[data-bc13-action="words"]');
+  const target=origin?.isConnected&&origin.getClientRects().length?origin:fallback;
+  if(target&&typeof target.focus==='function')
+    try{target.focus({preventScroll:true})}catch(_){}
+}
 window.openWordHunt=openWordHunt;window.closeWordHunt=closeWordHunt;
 })();

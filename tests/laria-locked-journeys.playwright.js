@@ -47,7 +47,15 @@ async function run(engine,label,viewport){
    const screen=subject==='geography'?'geography':'subject';
    await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').click();
    await page.locator('#'+screen+'-screen.active').waitFor({timeout:16000});
-   await page.waitForFunction(s=>document.querySelector('.screen.active .locked-journey-map')?.dataset.journeySubject===s,subject,{timeout:16000});
+   // A map host exists immediately for the approved loading frame. Geometry
+   // must be inspected only once the exact 941x1672 interactive map is ready.
+   await page.waitForFunction(s=>{
+     const map=document.querySelector('.screen.active .locked-journey-map');
+     const img=map?.querySelector('.locked-journey-image');
+     return map?.dataset.journeySubject===s&&img?.complete&&
+       img.naturalWidth===941&&img.naturalHeight===1672&&
+       !map.querySelector('.locked-journey-art-guard');
+   },subject,{timeout:20000});
    const base='#'+screen+'-screen.active .locked-journey-map';
    assert.equal(await page.locator(base+' .locked-journey-hotspot').count(),5,label+' '+subject+' landmark count');
    // Cleanup patches are not map replacements: they sit above the exact
