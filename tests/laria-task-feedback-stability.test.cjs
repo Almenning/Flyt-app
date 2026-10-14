@@ -59,7 +59,7 @@ test('Main English bank explicitly asks for the NUMBER three',()=>{
   assert(numbers.every(q=>q.options?.includes(String(q.answer))), 'unanswerable main English number question');
 });
 test('New task card is anchored and scrolls instead of re-centering on feedback',()=>{
-  assert.match(style,/grid-template-rows:auto max-content!important/);
+  assert.match(style,/grid-template-rows:max-content max-content!important/);
   assert.match(style,/align-self:start!important/);
   assert.match(style,/overflow-y:auto!important/);
   assert.match(style,/max-height:100dvh!important/);
