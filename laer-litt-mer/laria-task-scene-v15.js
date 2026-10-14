@@ -272,9 +272,31 @@
     applyAnsweredState(q,currentAnswered);
   }
 
+  // A saved session may still contain one of the old ambiguous number
+  // questions. Repair that model before it is drawn or assessed.
+  function normalizeLegacyYoungEnglish(q){
+    if(!q||q.subject!=='english'||taskBand()!=='young')return;
+    const prompt=String(q.prompt||'').trim();
+    let repair;
+    if(/^What is [“"]fire[”"] in English\?$/.test(prompt))
+      repair={prompt:'Hva heter tallet fire på engelsk?',answer:'four',options:['four','five','three'],englishWord:'four',norwegianMeaning:'fire'};
+    else if(prompt==='What is «tre» in English?')
+      repair={prompt:'Hva heter tallet tre på engelsk?',answer:'three',options:['three','two','ten'],englishWord:'three',norwegianMeaning:'tre'};
+    else if(/^What is [“"]seven[”"] in Norwegian\?$/.test(prompt))
+      repair={prompt:'Hva betyr “seven” på norsk?',answer:'sju',options:['sju','tre','ti'],englishWord:'seven',norwegianMeaning:'sju'};
+    else if(/^What is [“"]two[”"] in Norwegian\?$/.test(prompt))
+      repair={prompt:'Hva betyr “two” på norsk?',answer:'to',options:['to','tolv','tre'],englishWord:'two',norwegianMeaning:'to'};
+    if(repair)Object.assign(q,repair);
+  }
+
   function renderSceneQuestion(q){
+    normalizeLegacyYoungEnglish(q);
     const subject=taskSubject(q);
     activateScene(q,subject);
+    // The previous question may have been scrolled on a short phone.
+    // Every new question starts at the top of its own task scene.
+    const scrollHost=screen.querySelector('.session');
+    if(scrollHost)scrollHost.scrollTop=0;
 
     const total=Math.max(1,sessionQuestions.length);
     const position=Math.max(0,Math.min(total,qIndex+1));
