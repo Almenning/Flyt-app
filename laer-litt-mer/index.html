@@ -6411,7 +6411,9 @@ function speakQuestion(q){
 function englishPronunciationTarget(q){
   if(q?.subject!=='english')return '';
   if(typeof q.englishWord==='string'&&q.englishWord.trim())return q.englishWord.trim();
-  // A Norwegian translation is not an English word to pronounce.
+  // Questions asking for an English word can replay the correct answer.
+  if(/på engelsk\??\s*$/i.test(q.prompt||''))return String(q.answer||'').trim().slice(0,140);
+  // A Norwegian translation must never be spoken with an English voice.
   if(/^(?:Hva|Hvilket|Hvilken)\b/i.test(q.prompt||''))return '';
   return String(q.answer||'').trim().slice(0,140);
 }
