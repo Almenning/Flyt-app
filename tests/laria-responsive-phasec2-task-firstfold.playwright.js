@@ -103,6 +103,10 @@ async function checkQuestion(page,label,large){
   assert(g.answerGrid.left>g.picture.right-4,label+' choices not beside illustration '+JSON.stringify(g));
   assert(g.answers.every(b=>b.top>=0&&b.bottom<=h-5),
    label+' child must scroll to reach the four choices '+JSON.stringify(g));
+  if(q.a===5){
+   assert(g.groups.every(b=>b.top>=g.picture.top-4&&b.bottom<=g.picture.bottom+4),
+    label+' five mathematical baskets must all fit in the visible illustration '+JSON.stringify(g));
+  }
  }else{
   assert.equal(g.workspaceDisplay,'contents',label+' portrait/phone layout was changed');
  }
