@@ -53,6 +53,9 @@ async function run(engine,name,viewport,avatar){
     const map=page.locator('#subject-screen.active .locked-journey-map');
     await map.waitFor({timeout:16000});
     const fox=map.locator('.locked-journey-traveler');
+    // The approved PNG is deliberately decoded before the map's real fox
+    // enters the DOM; the warm loading scene has no synthetic traveler.
+    await fox.waitFor({state:'attached',timeout:20000});
     assert.equal(await fox.count(),1,name+' must have exactly one movable personal fox');
     await fox.locator('svg.laria-fox-wardrobe-art .laria-fox-pose').waitFor({timeout:12000});
     assert.equal(await fox.getAttribute('data-avatar'),avatar,name+' route changed fox identity');
