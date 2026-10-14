@@ -86,7 +86,9 @@ async function validateHome(page,label,view,large){
  const w=view.width;
  assert(g.app&&g.shell&&g.main&&g.cards.length===3,label+' missing premium maths scene '+JSON.stringify(g));
  assert(g.horizontalOverflow<=3,label+' horizontal overflow '+JSON.stringify(g));
- assert(g.cards.every(x=>x.width>=190&&x.height>=150&&x.x>=g.main.x-3&&x.right<=g.main.right+3),
+ // Phone cards deliberately remain compact; the larger landscape iPad
+ // contract must not accidentally impose desktop card heights on iPhone.
+ assert(g.cards.every(x=>x.width>=190&&x.height>=(large?150:120)&&x.x>=g.main.x-3&&x.right<=g.main.right+3),
   label+' menu cards escaped illustration surface '+JSON.stringify(g));
  assert(g.foxCount>=1,label+' chosen fox failed to load '+JSON.stringify(g));
  if(large){
