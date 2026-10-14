@@ -410,6 +410,18 @@
   #multiplication-lab-screen.active .mp-practice-screen .mp4-collections{
     padding:30px 10px 26px;column-gap:10px;row-gap:26px;
   }
+  /* Up to five counted baskets should be seen together, not presented as
+     three complete baskets with two cut off below the fold. Dense six-to-ten
+     group scenes keep the same five-column rhythm and remain scrollable. */
+  #multiplication-lab-screen.active .mp-practice-screen .mp4-collections[data-mp3-groups="4"]{
+    grid-template-columns:repeat(4,minmax(0,1fr));
+  }
+  #multiplication-lab-screen.active .mp-practice-screen .mp4-collections:is(
+    [data-mp3-groups="5"],[data-mp3-groups="6"],[data-mp3-groups="7"],
+    [data-mp3-groups="8"],[data-mp3-groups="9"],[data-mp3-groups="10"]
+  ){
+    grid-template-columns:repeat(5,minmax(0,1fr));
+  }
   #multiplication-lab-screen.active .mp-practice-screen .mp4-collections .mp4-basket{
     min-height:128px!important;padding:21px 5px 31px!important;
   }
