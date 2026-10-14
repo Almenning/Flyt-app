@@ -61,6 +61,27 @@ async function navigateTo(page,subject){
  await page.locator('#'+screen+'-screen.active').waitFor();
  return page.locator('#'+screen+'-screen.active');
 }
+// The original Geografi HTML places its two legacy cards ahead of the journey.
+// While the full PNG is deliberately held, the *waiting scene* must already
+// be the first child-facing geography content. The decoded state must keep it.
+async function assertGeographyPriority(screen,label){
+ const geometry=await screen.evaluate(root=>{
+  const shell=root.querySelector('#geo-journey-shell');
+  const originalGlobeCard=root.querySelector('#open-world');
+  const recommendation=root.querySelector('.geography-continue');
+  const map=root.querySelector('#geo-journey-map');
+  const top=el=>el?Math.round(el.getBoundingClientRect().top):-999;
+  return {
+   ahead:!!shell&&!!originalGlobeCard&&!!recommendation&&
+    Boolean(shell.compareDocumentPosition(originalGlobeCard)&Node.DOCUMENT_POSITION_FOLLOWING)&&
+    Boolean(shell.compareDocumentPosition(recommendation)&Node.DOCUMENT_POSITION_FOLLOWING),
+   journeyTop:top(shell),mapTop:top(map),
+   legacyGlobeTop:top(originalGlobeCard),legacyRecommendationTop:top(recommendation)
+  };
+ });
+ assert.ok(geometry.ahead&&geometry.mapTop<=geometry.legacyGlobeTop,
+  label+' legacy geography cards preceded Nordlysleiren during loading: '+JSON.stringify(geometry));
+}
 async function proof(engine,label,viewport,url){
  const browser=await engine.launch({headless:true,args:engine===chromium?['--no-sandbox']:[]});
  let ctx;
@@ -98,6 +119,7 @@ async function proof(engine,label,viewport,url){
      label+' '+subject+' premium transition cover is offscreen: '+JSON.stringify(box));
    assert.ok(await pending.locator('img[src*="/cards/reisen/"]').count(),
      label+' '+subject+' approved preview missing');
+   if(subject==='geography')await assertGeographyPriority(screen,label+' pending artwork');
    // The approved card artwork is a separate 80-110KB resource. Decode it
    // for a deterministic visual frame while the multi-MB original remains held.
    await pending.locator('.locked-journey-art-card img').evaluate(img=>img.decode());
@@ -120,6 +142,7 @@ async function proof(engine,label,viewport,url){
      label+' '+subject+' chapter grade selector was not initialized');
    assert.equal(await screen.locator('.locked-journey-traveler[data-avatar="girl"]').count(),1,
      label+' '+subject+' chosen companion lost during transition');
+   if(subject==='geography')await assertGeographyPriority(screen,label+' decoded artwork');
    await shot(page,label+'-'+subject+'-02-approved-map');
    await screen.locator('.locked-journey-back').click();
    await page.locator('#home-screen.active .bc14-subject[data-camp="subject-'+subject+'"]').waitFor();

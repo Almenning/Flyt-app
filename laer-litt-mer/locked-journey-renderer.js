@@ -135,6 +135,14 @@
       '<button class="locked-journey-waiting-back" type="button" aria-label="Tilbake fra eventyrreisen">← <span>Tilbake</span></button>'+
       '</section>';
     screen.classList.add('locked-journey-active');
+    // The original geography HTML puts two retired cards before the journey.
+    // Prioritize Nordlysleiren while its approved PNG is still loading, not
+    // only after decode. Otherwise Safari briefly shows the legacy cards.
+    if(geo){
+      const shell=document.getElementById('geo-journey-shell');
+      const globe=document.getElementById('open-world');
+      if(shell&&globe&&shell.nextElementSibling!==globe)screen.insertBefore(shell,globe);
+    }
     if(geo)screen.classList.add('premium-geo-active');
     else{
       screen.classList.add('premium-journey-active');
