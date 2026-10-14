@@ -24,7 +24,7 @@
 #session-screen.task-scene #question-wrap,
 #session-screen.task-scene[data-task-band="young"] #question-wrap {
   align-self:start!important;
-  margin:clamp(12px,calc((100dvh - 760px)/3),88px) auto max(24px,env(safe-area-inset-bottom))!important;
+  margin:clamp(12px,calc(33.333dvh - 253.33px),88px) auto max(24px,env(safe-area-inset-bottom))!important;
   padding-bottom:0!important;
   overflow-anchor:none;
 }
