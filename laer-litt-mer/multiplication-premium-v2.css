@@ -306,3 +306,38 @@
     min-height:0;max-height:124px;
   }
 }
+
+/* Phase C – illustrated Gangetabellen landscape workspace, 14 October 2026.
+   The retired app shell caps this activity at 760px even on a landscape iPad.
+   Scope the override to the ACTIVE lab and tablet/desktop landscape only.
+   The 10x10 exploration, counted objects, personal fox and compact-phone
+   first-fold layout keep their established controls and geometry. */
+@media (min-width:1000px) and (min-height:540px) and (orientation:landscape){
+  .app:has(#multiplication-lab-screen.active){
+    width:100%;
+    max-width:none;
+    padding-bottom:0;
+    background:#fff4dd;
+  }
+  .app:has(#multiplication-lab-screen.active)::before,
+  .app:has(#multiplication-lab-screen.active)::after{display:none}
+  #multiplication-lab-screen.active{
+    padding:0;
+    background:transparent;
+  }
+  #multiplication-lab-screen.active .mp-shell{
+    width:100%;
+    max-width:none;
+    min-height:100dvh;
+    padding:clamp(14px,1.8vw,25px) clamp(20px,3vw,44px) 36px;
+    background:
+      radial-gradient(ellipse at 50% 42%,
+        rgba(255,249,237,.98) 0%,rgba(255,249,237,.96) 43%,
+        rgba(255,249,237,.88) 68%,rgba(255,249,237,.64) 100%),
+      url('./matte-verden.png') center top / cover no-repeat;
+  }
+  #multiplication-lab-screen.active .mp-main{max-width:940px}
+  #multiplication-lab-screen.active .mp-home-screen .mp-menu-stack{
+    gap:clamp(14px,1.7vw,22px);
+  }
+}
