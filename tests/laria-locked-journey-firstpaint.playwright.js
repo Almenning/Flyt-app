@@ -113,6 +113,11 @@ async function proof(engine,label,viewport,url){
    },subject,{timeout:30000});
    assert.equal(await screen.locator('.locked-journey-hotspot').count(),5,
      label+' '+subject+' original five hotspots missing');
+   // The old renderer used to initialize these hidden-but-persistent grade
+   // controls. The exact art must now initialize them without legacy flicker.
+   const gradeStrip=subject==='geography'?'#geo-journey-grade-strip':'#journey-grade-strip';
+   assert.equal(await screen.locator(gradeStrip+' [data-journey-grade]').count(),10,
+     label+' '+subject+' chapter grade selector was not initialized');
    assert.equal(await screen.locator('.locked-journey-traveler[data-avatar="girl"]').count(),1,
      label+' '+subject+' chosen companion lost during transition');
    await shot(page,label+'-'+subject+'-02-approved-map');
