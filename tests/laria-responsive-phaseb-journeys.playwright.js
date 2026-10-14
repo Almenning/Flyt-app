@@ -175,9 +175,12 @@ async function protectPhaseACompactPhone(url){
   const screen=await visit(page,'norwegian');
   const phone=await page.evaluate(()=>{
    const stage=document.querySelector('#subject-screen.active.locked-journey-active');
+   const section=stage.querySelector('#subject-journey-section');
    const app=document.querySelector('.app');
    const board=stage.querySelector('.locked-journey-board').getBoundingClientRect();
-   return {backdrop:getComputedStyle(stage).backgroundImage,
+   // Phase A paints the phone atmosphere on the journey section; the outer
+   // screen itself may be transparent by design.
+   return {backdrop:getComputedStyle(section).backgroundImage,
     appBackdrop:getComputedStyle(app).backgroundImage,
     ratio:board.width/board.height,
     overflow:document.documentElement.scrollWidth-innerWidth};
