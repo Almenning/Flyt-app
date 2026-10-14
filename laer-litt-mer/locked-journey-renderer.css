@@ -305,6 +305,45 @@
 #geography-screen.locked-journey-active .geo-journey-shell .journey-collection,
 #geography-screen.locked-journey-active .detail-back,
 #geography-screen.locked-journey-active .geography-head{display:none!important}
+
+/* Phase A — Bokskogen must remain an adventure scene when a portrait map is
+   shorter than the Safari viewport.  The approved 941×1672 painting keeps its
+   exact geometry; only the surrounding stage borrows the existing Bokskogen
+   atmosphere.  This removes the generic app canvas and its obsolete nav
+   spacing without scaling, cropping, or repainting the locked illustration. */
+@media (max-width:699px), (orientation:landscape) and (max-height:500px){
+  html:has(#subject-screen.active.locked-journey-active .locked-journey-map[data-journey-subject="norwegian"]),
+  body:has(#subject-screen.active.locked-journey-active .locked-journey-map[data-journey-subject="norwegian"]){
+    background:#254322;
+  }
+  .app:has(#subject-screen.active.locked-journey-active .locked-journey-map[data-journey-subject="norwegian"]),
+  #subject-screen.active.locked-journey-active:has(.locked-journey-map[data-journey-subject="norwegian"]),
+  #subject-screen.active.locked-journey-active:has(.locked-journey-map[data-journey-subject="norwegian"])>#subject-journey-section{
+    background:
+      linear-gradient(180deg,rgba(22,57,27,.18),rgba(30,72,35,.10) 43%,rgba(20,55,29,.34)),
+      url('./bokskogen-reference-bg.webp') center/cover no-repeat;
+  }
+  .app:has(#subject-screen.active.locked-journey-active .locked-journey-map[data-journey-subject="norwegian"]){
+    width:100%;
+    min-height:100dvh;
+    padding-bottom:0;
+  }
+  .app:has(#subject-screen.active.locked-journey-active .locked-journey-map[data-journey-subject="norwegian"])::before,
+  .app:has(#subject-screen.active.locked-journey-active .locked-journey-map[data-journey-subject="norwegian"])::after{
+    display:none;
+  }
+  #subject-screen.active.locked-journey-active:has(.locked-journey-map[data-journey-subject="norwegian"]){
+    min-height:100dvh;
+    padding-top:0!important;
+    padding-bottom:0!important;
+  }
+  #subject-screen.active.locked-journey-active:has(.locked-journey-map[data-journey-subject="norwegian"])>#subject-journey-section{
+    min-height:100dvh;
+  }
+  #subject-screen.active.locked-journey-active .locked-journey-map[data-journey-subject="norwegian"] .locked-journey-board{
+    border-radius:0;
+  }
+}
 @media(min-width:700px){
  .locked-journey-map{max-width:min(70vw,780px)!important}
  .locked-journey-sheet{margin:auto 0;max-height:80dvh}
