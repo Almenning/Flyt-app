@@ -230,10 +230,10 @@
 
     if(grade<=2){
       [
-        ['What is “fire” in English?','fire',['water','chair']],
-        ['What is “seven” in Norwegian?','sju',['tre','ti']],
+        ['Hva heter tallet fire på engelsk?','four',['five','three'],{englishWord:'four',norwegianMeaning:'fire'}],
+        ['Hva betyr “seven” på norsk?','sju',['tre','ti'],{englishWord:'seven',norwegianMeaning:'sju'}],
         ['What number comes after eight?','nine',['six','ten']],
-        ['What is “two” in Norwegian?','to',['tolv','tre']],
+        ['Hva betyr “two” på norsk?','to',['tolv','tre'],{englishWord:'two',norwegianMeaning:'to'}],
         ['Which word means 5?','five',['four','nine']],
         ['Which word means 10?','ten',['two','six']]
       ].forEach(x=>add('words','numbers',...x));
