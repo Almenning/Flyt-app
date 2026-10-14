@@ -51,7 +51,10 @@ async function openLab(page,url){
  await page.route('https://api.worldbank.org/**',route=>route.abort());
  await page.goto(url,{waitUntil:'domcontentloaded'});
  await page.waitForFunction(()=>window.LARIA_MULT_PREMIUM?.version==='illustrated-v2',null,{timeout:16000});
- await page.evaluate(()=>window.openMultiplicationLab());
+ // Enter through the real child-facing Basecamp/Utforsk route, so the back
+ // path is the same one a child gets rather than the API's Maths fallback.
+ await page.locator('.bc14-free:visible').click();
+ await page.locator('.bc13-card[data-bc13-action="multiply"]:visible').click();
  await page.locator('#multiplication-lab-screen.active .mp-home-screen').waitFor({timeout:12000});
 }
 async function geometry(page){
