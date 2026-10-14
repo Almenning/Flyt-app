@@ -1,0 +1,35 @@
+'use strict';
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const vm=require('node:vm');
+const base=path.join(__dirname,'..','laer-litt-mer');
+const code=fs.readFileSync(path.join(base,'laria-voice.js'),'utf8');
+const utterances=[],stops=[];
+let avatar='girl';
+function Speech(text){this.text=text;this.lang='';this.rate=1;this.pitch=1;}
+const speechSynthesis={cancel:()=>stops.push(1),speak:utterance=>utterances.push(utterance),getVoices:()=>[
+ {name:'Norwegian system',lang:'nb-NO'}, {name:'British English',lang:'en-GB'}]};
+const window={LARIA_FOX:{choice:()=>avatar},speechSynthesis,SpeechSynthesisUtterance:Speech,addEventListener(){}};
+vm.runInNewContext(code,{window});
+const api=window.LARIA_VOICE;
+assert.equal(api.profile(),'girl');
+assert.equal(api.voices.girl.name,'Mia Starset');
+assert.equal(api.voices.boy.name,'Magnus');
+assert.ok(api.speak('Hva er tre pluss to?'));
+assert.equal(utterances.at(-1).lang,'nb-NO');
+assert.equal(utterances.at(-1).pitch,1.09);
+avatar='boy';
+api.readQuestion('Hva heter hund på engelsk?','en');
+assert.equal(utterances.at(-1).lang,'en-GB');
+assert.equal(utterances.at(-1).pitch,1);
+api.speak('Hei igjen.');
+assert.equal(utterances.at(-1).pitch,.94);
+assert.ok(stops.length>=3,'Speech must cancel before a new utterance');
+api.stop();
+const html=fs.readFileSync(path.join(base,'index.html'),'utf8');
+assert.match(html,/laria-voice\.js\?v=20261014-mia-magnus-router1/);
+assert.match(html,/LARIA_VOICE\.readQuestion\(speechTextForQuestion\(q\)/);
+assert.match(html,/window\.LARIA_VOICE\?\.stop\?\.\(\)/);
+assert.doesNotMatch(html,/new SpeechSynthesisUtterance\(speechTextForQuestion\(q\)\)/);
+console.log('Læria profile voice routing contract passed');
