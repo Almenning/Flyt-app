@@ -75,7 +75,11 @@ async function proof(engine,label,viewport,url){
     })};
   });
   assert.equal(geometry.screen.top,0,label+' journey must start at the viewport edge');
-  assert.ok(geometry.screen.height>=viewport.height,label+' stage must cover the entire viewport '+JSON.stringify(geometry));
+  // WebKit can resolve 100dvh a fraction below the integer viewport after
+  // device-scale rounding (for example 843.984375px for an 844px viewport).
+  // One CSS pixel is below visual precision and avoids treating that rounding
+  // as the white-stage regression this contract guards against.
+  assert.ok(geometry.screen.height>=viewport.height-1,label+' stage must cover the entire viewport '+JSON.stringify(geometry));
   assert.equal(geometry.appPaddingBottom,'0px',label+' obsolete app nav spacing leaked below the map');
   assert.ok(await screen.evaluate(node=>node.classList.contains('locked-journey-subject-norwegian')),
     label+' Bokskogen stage context is missing');
