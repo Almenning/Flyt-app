@@ -92,12 +92,25 @@ function activity(name){
 }
 function closeDialog(){const d=document.getElementById('bc12-dialog');if(d?.open)d.close();returnFocus?.focus();}
 function dialog(kind){
+ const gearPreviewEnabled=window.LARIA_FOX_WARDROBE?.gearPreviewEnabled===true;
+ // Deferred outfit art is not a child-facing activity. The underlying
+ // collection still records earned clothing and equipped slots unchanged.
+ if(kind==='equipment'&&!gearPreviewEnabled)kind='collection';
  const d=document.getElementById('bc12-dialog');if(!d.open)returnFocus=document.activeElement;
  d.classList.toggle('is-collection',kind==='collection'||kind==='wardrobe'||kind==='equipment');
  d.classList.toggle('is-wardrobe',kind==='wardrobe');
  d.classList.toggle('is-fox-girl',kind==='wardrobe'&&window.LARIA_FOX?.choice?.()==='girl');
  d.classList.toggle('is-equipment',kind==='equipment');
- if(kind==='wardrobe'){
+ if(kind==='wardrobe'&&!gearPreviewEnabled){
+   const avatar=window.LARIA_FOX.choice();
+   d.innerHTML='<button class="bc12-close" aria-label="Lukk">×</button>'+
+     '<span class="bc12-eyebrow">Lærias eventyrverden</span><h2 id="bc12-dialog-title">Min rev</h2>'+
+     '<div class="bc12-wardrobe-preview" role="img" aria-label="Din '+window.LARIA_FOX.label(avatar)+'">'+
+       window.LARIA_FOX_WARDROBE.render(avatar,window.LARIA_COLLECTION_STORE.snapshot(),'world')+'</div>'+
+     '<p class="bc12-wardrobe-hint">Reven din blir med på alle eventyrene, akkurat slik du valgte den.</p>'+
+     '<button type="button" class="bc12-dialog-go" data-dialog-home>Tilbake til Læria</button>';
+ }
+ else if(kind==='wardrobe'){
    const avatar=window.LARIA_FOX.choice(),collection=window.LARIA_COLLECTION_STORE.snapshot(),core=window.LARIA_COLLECTION_CORE;
    const wearable=core.available(collection).filter(item=>item.kind==='clothing');
    const slots={head:'Hode',neck:'Hals',back:'Rygg',cape:'Kappe'};
@@ -158,13 +171,12 @@ function dialog(kind){
   }).join('');
   d.innerHTML='<button class="bc12-close" aria-label="Lukk">×</button>'+
     '<div class="bc12-book-heading"><span class="bc12-book-seal" aria-hidden="true">✦</span><div><span class="bc12-eyebrow">Lærias magiske samlebok</span><h2 id="bc12-dialog-title">Samlingen min</h2></div></div>'+
-    '<div class="bc12-collection-tabs" role="group" aria-label="Bla i samleboken">'+
-    '<button type="button" aria-current="page" data-collection-tab="collection">Minner</button>'+
-    '<button type="button" data-collection-tab="equipment">Utstyr</button></div>'+
+    // Equipment tab is unpublished until its 2.5D assets meet quality bar.
+
     '<div class="bc12-memory-intro"><b>'+discovered+' av '+treasures.length+' minner funnet</b><span>Utforsk, prøv og øv. Du bestemmer hva du har lyst til.</span></div>'+
     '<div class="bc12-memory-grid" role="group" aria-label="Minner fra de fire fagreisene">'+keepsakes+'</div>'+
     '<div class="bc12-shelf"><div><span aria-hidden="true">✦</span><strong>'+visited+'</strong><small>steder besøkt</small></div><div><span aria-hidden="true">🔤</span><strong>'+wordRounds+'</strong><small>ordjakter</small></div><div><span aria-hidden="true">♜</span><strong>'+trophies+'</strong><small>eventyr fullført</small></div></div>'+
-    '<button class="bc12-dialog-go" data-wardrobe-open>Min rev · Åpne garderoben</button>'+ 
+    '<button class="bc12-dialog-go" data-wardrobe-open>Min rev · Se reven din</button>'+ 
     '<button class="bc12-dialog-go" data-dialog-home>Tilbake til basecamp</button>';
  }
  d.querySelector('.bc12-close').onclick=closeDialog;d.querySelector('.bc12-later')?.addEventListener('click',closeDialog);
@@ -228,7 +240,7 @@ function markup(){return '<section class="bc12" data-release="basecamp-rc1" aria
  '<div class="bc12-journey-route" aria-hidden="true"><svg viewBox="0 0 100 100" preserveAspectRatio="none"><path class="bc12-route-edge" d="M5 88 C25 82 27 62 46 64 S72 43 95 16"></path><path class="bc12-route-main" pathLength="100" d="M5 88 C25 82 27 62 46 64 S72 43 95 16"></path><path class="bc12-route-progress" pathLength="100" d="M5 88 C25 82 27 62 46 64 S72 43 95 16"></path></svg><span class="bc12-route-bridge"></span></div>'+
  '<div class="bc12-you-are-here" aria-hidden="true"><i></i><span>Du er her</span></div>'+
  '<div class="bc12-next-beacon" aria-hidden="true"><i></i><span>Neste sted</span></div>'+
- '<div class="bc12-fox"><img src="'+window.LARIA_FOX.source(window.LARIA_FOX.choice())+'" alt="Din valgte rev venter på stien" draggable="false"></div><button type="button" class="bc12-fox-call bc14-fox-open" data-camp="wardrobe" aria-label="Åpne Min rev og garderoben" data-camp-fox-call>Min rev · Garderoben ›</button>'+
+ '<div class="bc12-fox"><img src="'+window.LARIA_FOX.source(window.LARIA_FOX.choice())+'" alt="Din valgte rev venter på stien" draggable="false"></div><button type="button" class="bc12-fox-call bc14-fox-open" data-camp="wardrobe" aria-label="Åpne Min rev" data-camp-fox-call>Min rev · Se reven din ›</button>'+
  '<button class="bc12-journey" data-camp="travel"><span>Fortsett reisen <b aria-hidden="true">→</b></span><small><em data-camp-next-type>Neste sted</em><strong data-camp-next>Bokskogen</strong><span data-camp-next-copy>Et nytt oppdrag venter.</span></small></button>'+
  '<button type="button" class="bc14-free" data-camp="open-explore"><span class="bc14-free-icon" aria-hidden="true">✧</span><span><strong>Utforsk og lek</strong><small>Prøv det du liker</small></span><b aria-hidden="true">›</b></button>'+ '<button class="bc12-quest" data-camp="quest"><span class="bc12-wax" aria-hidden="true">✦</span><span>Et brev fra reven<small>Vil du bli med?</small></span></button>'+
  '<button class="bc12-treasure" data-camp="collection"><span>Samlingen min</span></button>'+
@@ -291,7 +303,7 @@ function render(){
  if(questCopy)questCopy.innerHTML=currentGrade()>=8?
    'Dagens oppdrag<small>Helt frivillig</small>':
    'Et brev fra reven<small>Vil du bli med?</small>';
- const foxCall=host.querySelector('[data-camp-fox-call]');if(foxCall)foxCall.textContent='Min rev · Garderoben ›';
+ const foxCall=host.querySelector('[data-camp-fox-call]');if(foxCall)foxCall.textContent='Min rev · Se reven din ›';
  const trip=next(),journeyButton=host.querySelector('.bc12-journey');
  host.dataset.journeySubject=trip.subject||'norwegian';
  host.dataset.journeyComplete=trip.complete?'true':'false';
