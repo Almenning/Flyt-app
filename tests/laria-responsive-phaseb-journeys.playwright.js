@@ -163,6 +163,41 @@ async function verifyTapAndBack(page,screen,subject,label){
  assert(restored.home&&!restored.activeJourney&&!restored.background.includes(subject+'-premium.webp'),
   label+' journey scenery visually leaked into Basecamp '+JSON.stringify(restored));
 }
+async function protectPhaseACompactPhone(url){
+ const browser=await webkit.launch({headless:true});
+ let context;
+ try{
+  context=await browser.newContext({viewport:{width:844,height:390},
+   hasTouch:true,isMobile:true,deviceScaleFactor:1,serviceWorkers:'block'});
+  await context.addInitScript(value=>localStorage.setItem('laerlittmer-v2',JSON.stringify(value)),seed);
+  const page=await context.newPage();
+  await page.goto(url+'&phaseb-iphone-landscape-guard=1',{waitUntil:'domcontentloaded'});
+  const screen=await visit(page,'norwegian');
+  const phone=await page.evaluate(()=>{
+   const stage=document.querySelector('#subject-screen.active.locked-journey-active');
+   const app=document.querySelector('.app');
+   const board=stage.querySelector('.locked-journey-board').getBoundingClientRect();
+   return {backdrop:getComputedStyle(stage).backgroundImage,
+    appBackdrop:getComputedStyle(app).backgroundImage,
+    ratio:board.width/board.height,
+    overflow:document.documentElement.scrollWidth-innerWidth};
+  });
+  assert(phone.backdrop.includes('bokskogen-reference-bg.webp'),
+   'Phase A compact-landscape story background was replaced '+JSON.stringify(phone));
+  assert(!phone.appBackdrop.includes('norwegian-premium.webp'),
+   'Phase B tablet scenery accidentally styled a landscape phone');
+  assert(near(phone.ratio,941/1672,.002)&&phone.overflow<=2,
+   'iPhone landscape artwork geometry changed '+JSON.stringify(phone));
+  await page.evaluate(()=>window.scrollTo(0,0));
+  await fs.promises.mkdir(out,{recursive:true});
+  await page.screenshot({path:path.join(out,'webkit-iphone-landscape-phasea-preserved.png'),
+   animations:'disabled',timeout:15000});
+  await screen.locator('.locked-journey-back').scrollIntoViewIfNeeded();
+  await screen.locator('.locked-journey-back').click();
+  await page.locator('#home-screen.active').waitFor({timeout:12000});
+  console.log('PASS WebKit iPhone landscape remains on the approved phase A stage');
+ }finally{if(context)await context.close();await browser.close();}
+}
 async function run(engine,label,viewport,url){
  const browser=await engine.launch({headless:true,args:engine===chromium?['--no-sandbox']:[]});
  let context;
@@ -197,6 +232,7 @@ async function run(engine,label,viewport,url){
 (async()=>{
  const {server,url}=await serve();
  try{
+  await protectPhaseACompactPhone(url);
   await run(webkit,'webkit-ipad-portrait',{width:820,height:1180,tablet:true,minimumWidth:720},url);
   await run(webkit,'webkit-ipad-landscape',{width:1180,height:820,tablet:true,minimumWidth:800},url);
   await run(webkit,'webkit-small-ipad-landscape',{width:1024,height:768,tablet:true,minimumWidth:700},url);
