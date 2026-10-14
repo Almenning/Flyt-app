@@ -322,7 +322,6 @@
       ...(hasLab?['<button type="button" class="mission-activity mission-lab" data-locked-existing="fraction-lab"><span><strong>Utforsk Brøklaben</strong><small>Fri lek uten krav til progresjon</small></span><b aria-hidden="true">›</b></button>']:[]),
       ...extras.map(row),
       ...replay.map(row),
-      ...(lead?[]:core.filter(n=>!n.locked&&n.complete).map(row)),
       ...locked.map(row),
       ...(canPeek?['<button type="button" class="mission-activity mission-preview" data-locked-preview><span><strong>Ta en sniktitt</strong><small>Prøv en smakebit uten å endre reisen.</small></span><b aria-hidden="true">›</b></button>']:[])
     ];
