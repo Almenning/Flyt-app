@@ -250,6 +250,99 @@
     return '<button type="button" class="locked-journey-hotspot state-'+state+'" data-locked-place="'+place.index+'" style="'+style+'" aria-label="'+esc('Sted '+(place.index+1)+': '+place.title+'. '+progress+(locked?'. Fremtidig etappe':place.recommended?'. Neste oppdrag':''))+'">'+
       '<span class="locked-journey-hotspot-mark" aria-hidden="true">'+(place.complete?'✓':place.recommended?'✦':'')+'</span></button>';
   }
+  // The five painted places must remain mapped to their original learning
+  // nodes. Presentation can recommend, but NEVER unlock or complete a node.
+  const CORE_MISSIONS=new Set(['skill','geo-skill','checkpoint']);
+  function nextJourneyPlace(current,places,model,firstOpen){
+    const ahead=places.filter(place=>place.index>current.index&&
+      place.nodes.some(n=>CORE_MISSIONS.has(n.type)&&!n.complete)&&
+      !placeLocked(place,model,firstOpen));
+    return ahead.find(place=>place.recommended)||ahead[0]||null;
+  }
+  function journeyMissionSheet(place,nodes,stage){
+    const core=nodes.filter(n=>CORE_MISSIONS.has(n.type));
+    const pending=core.filter(n=>!n.complete&&!n.locked);
+    const finished=place.total>0&&place.done===place.total;
+    const next=finished&&!stage.progress.complete?
+      nextJourneyPlace(place,stage.contract.places,stage.progress.model,stage.firstOpen):null;
+    const lead=pending.find(n=>n.id===stage.recommended?.id)||pending[0]||null;
+    const other=nodes.filter(n=>n!==lead);
+    const subject=stage.progress.model.subject;
+    const hasLab=subject==='math'&&place.index===2&&typeof window.openFractionLab==='function';
+    const possiblePeek=!stage.progress.complete?nodes.find(n=>n.locked&&
+      n.original?.type===(subject==='geography'?'geo-skill':'skill')&&
+      stage.progress.model.areas.findIndex(a=>a.id===n.areaId)===stage.firstOpen+1):null;
+    const canPeek=Boolean(possiblePeek&&typeof (subject==='geography'?
+      startGeoWorldPreview:startJourneyWorldPreview)==='function');
+    function row(n){
+      const textLabel=n.locked?'Kommer senere':n.complete?'Spill igjen':
+        n.type==='challenge'?'Frivillig utfordring':
+        n.type==='review'?'Frivillig repetisjon':'Start oppdraget';
+      const marker=n.locked?'🔒':n.complete?'★':'›';
+      return '<button type="button" class="mission-activity'+(n.complete?' is-replay':'')+
+        '" data-locked-node="'+escapeId(n.id)+'"'+(n.locked?' disabled':'')+'>'+
+        '<span><strong>'+esc(n.title)+'</strong><small>'+esc(textLabel)+'</small></span>'+
+        '<b aria-hidden="true">'+marker+'</b></button>';
+    }
+    const nextPrimary=next?
+      '<button type="button" class="mission-primary mission-continue" data-locked-continue="'+next.index+
+        '" aria-label="'+esc('Fortsett reisen til '+next.title)+'">'+
+        '<span><strong>Fortsett reisen</strong><small>Videre til '+esc(next.title)+'</small></span>'+
+        '<b aria-hidden="true">➜</b></button>':'';
+    const leadPrimary=lead?
+      '<button type="button" class="mission-primary" data-locked-node="'+escapeId(lead.id)+'">'+
+        '<span><strong>'+esc(lead.title)+'</strong><small>Start oppdraget</small></span>'+
+        '<b aria-hidden="true">➜</b></button>':'';
+    const fallbackPrimary=(!lead&&!next)?
+      '<button type="button" class="mission-primary mission-map" data-locked-map>'+
+        '<span><strong>Tilbake til kartet</strong><small>'+
+        esc(stage.progress.complete?'Du kan utforske hele reisen igjen.':
+          'Se hvor eventyret fortsetter.')+
+        '</small></span><b aria-hidden="true">➜</b></button>':'';
+    const intro=stage.progress.complete&&finished?'Hele reisen er fullført!':
+      finished?'Du klarte oppdraget!':
+      lead?'Reven er klar. Er du?':
+      place.total===0?'Et nytt sted å utforske.':
+      'Dette stedet venter på deg.';
+    const support=stage.progress.complete&&finished?'Alle hovedoppdrag er gjennomført. Du kan alltid spille igjen.':
+      finished?(next?'Neste stopp venter på deg. Du kan også spille dette om igjen.':
+        'Du kan utforske kartet eller spille favorittene dine igjen.'):
+      lead?'Velg det du har lyst til å gjøre.':
+      'Se deg rundt, eller prøv et frivillig oppdrag.';
+    const reward=finished?
+      '<div class="mission-complete" role="status"><span class="mission-earned-star" aria-hidden="true">★</span>'+
+      '<span><strong>'+esc(intro)+'</strong><small>'+esc(support)+'</small></span></div>':'';
+    const headline=finished?'Velkommen videre!':intro;
+    const replay=other.filter(n=>!n.locked&&CORE_MISSIONS.has(n.type)&&n.complete);
+    const extras=other.filter(n=>!n.locked&&!CORE_MISSIONS.has(n.type));
+    const otherOpen=other.filter(n=>!n.locked&&CORE_MISSIONS.has(n.type)&&!n.complete);
+    const locked=other.filter(n=>n.locked);
+    const activityRows=[
+      ...otherOpen.map(row),
+      ...(hasLab?['<button type="button" class="mission-activity mission-lab" data-locked-existing="fraction-lab"><span><strong>Utforsk Brøklaben</strong><small>Fri lek uten krav til progresjon</small></span><b aria-hidden="true">›</b></button>']:[]),
+      ...extras.map(row),
+      ...replay.map(row),
+      ...(lead?[]:core.filter(n=>!n.locked&&n.complete).map(row)),
+      ...locked.map(row),
+      ...(canPeek?['<button type="button" class="mission-activity mission-preview" data-locked-preview><span><strong>Ta en sniktitt</strong><small>Prøv en smakebit uten å endre reisen.</small></span><b aria-hidden="true">›</b></button>']:[])
+    ];
+    const secondary=activityRows.length?
+      '<div class="mission-other"><h3>Spill og utforsk</h3>'+
+      activityRows.join('')+'</div>':
+      '<p class="locked-journey-no-missions">Du kan alltid besøke dette stedet igjen.</p>';
+    const markup=
+      '<header class="mission-sheet-head"><div class="mission-head-copy">'+
+      '<small class="mission-place-label">STED '+(place.index+1)+' AV 5</small>'+
+      '<h2>'+esc(place.title)+'</h2>'+
+      '<p>'+esc(headline)+'</p></div>'+
+      '<div class="mission-fox-stage" aria-hidden="true">'+
+      '<i class="mission-fox-spark" aria-hidden="true">✦</i></div></header>'+
+      reward+
+      '<div class="locked-journey-missions">'+
+      '<div class="mission-feature">'+(nextPrimary||leadPrimary||fallbackPrimary)+'</div>'+
+      secondary+'</div>';
+    return {markup,previewNode:possiblePeek,complete:finished,next};
+  }
   function progressDots(progress){
     const states=contract.milestoneStates(progress.done,progress.total);
     return '<div class="locked-journey-milestones" role="progressbar" aria-label="Hovedoppdrag fullført" aria-valuemin="0" aria-valuemax="'+progress.total+'" aria-valuenow="'+progress.done+'">'+
@@ -319,15 +412,42 @@
     const overlay=host.querySelector('.locked-journey-overlay');
     const dialog=overlay.querySelector('.locked-journey-sheet');
     const lastFocus={element:null};
+    const board=host.querySelector('.locked-journey-board');
+    const traveler=board?.querySelector('.locked-journey-traveler');
+    const hitLayer=board?.querySelector('.locked-journey-hits');
+    // Move the EXISTING selected fox into the sheet, never clone the avatar.
+    // Return the same node to its painted standing spot before clearing dialog.
+    function restoreTraveler(){
+      if(!traveler||!board||traveler.parentElement===board)return;
+      if(hitLayer)board.insertBefore(traveler,hitLayer);
+      else board.appendChild(traveler);
+      window.LARIA_FOX_PRESENCE?.react?.('idle',traveler);
+      window.LARIA_FOX_WARDROBE?.refresh?.();
+    }
     function close(){
+      restoreTraveler();
       overlay.hidden=true;
       dialog.replaceChildren();
+      dialog.classList.remove('is-mission');
       if(lastFocus.element?.isConnected)lastFocus.element.focus({preventScroll:true});
     }
-    function open(markup,origin){
+    function open(markup,origin,mode){
+      restoreTraveler();
       lastFocus.element=origin||document.activeElement;
+      dialog.classList.toggle('is-mission',mode==='mission');
       dialog.innerHTML='<button class="locked-sheet-close" type="button" aria-label="Lukk">×</button>'+markup;
       overlay.hidden=false;
+      if(mode==='mission'&&traveler){
+        const stage=dialog.querySelector('.mission-fox-stage');
+        if(stage){
+          stage.appendChild(traveler);
+          window.LARIA_FOX_WARDROBE?.refresh?.();
+          requestAnimationFrame(()=>{
+            if(overlay.hidden||traveler.parentElement!==stage)return;
+            window.LARIA_FOX_PRESENCE?.react?.(mode==='mission'&&dialog.querySelector('.mission-complete')?'celebrate':'curious',traveler);
+          });
+        }
+      }
       dialog.querySelector('.locked-sheet-close').onclick=close;
       dialog.querySelector('.locked-sheet-close').focus({preventScroll:true});
     }
@@ -356,58 +476,38 @@
     }
     host.querySelectorAll('[data-locked-place]').forEach(hit=>hit.onclick=()=>{
       const place=places[Number(hit.dataset.lockedPlace)];
-      const here=place.nodes;
-      const safeNodes=here.map(n=>{
+      const safeNodes=place.nodes.map(n=>{
         const original=model.nodes.find(x=>x.id===n.id);
         const areaIndex=model.areas.findIndex(a=>a.id===original?.areaId);
         const locked=areaIndex>s.firstOpen&&!completed(original,geo);
         return {...n,locked,original};
       });
-      // Reuse the pre-existing, progress-neutral "Sniktitt" flow from the
-      // original journey. Future worlds must never lose their preview simply
-      // because the approved illustration has only five painted landmarks.
-      // Match the original journey: previews are for the *next* area only.
-      // Later worlds must not become prematurely available through a painted
-      // hotspot, even though preview sessions never write mastery.
-      const previewNode=!s.progress.complete?safeNodes.find(n=>
-        n.locked&&n.original?.type===(geo?'geo-skill':'skill')&&
-        model.areas.findIndex(a=>a.id===n.areaId)===s.firstOpen+1):null;
-      const previewMarkup=previewNode&&typeof (geo?startGeoWorldPreview:startJourneyWorldPreview)==='function'?
-        '<button type="button" data-locked-preview><span><strong>Ta en sniktitt</strong><small>Prøv en smakebit uten å endre reiseprogresjonen.</small></span><b aria-hidden="true">›</b></button>':'';
-
-      // The painted Brøklaben sign is a doorway to the ALREADY existing
-      // exploratory fraction laboratory, not a synthetic quiz or new node.
-      // Keep its free access independent from the core journey progression.
-      const existingFractionLab=subject==='math'&&place.index===2&&typeof window.openFractionLab==='function';
-      const existingActivity=existingFractionLab?
-        '<button type="button" class="locked-journey-existing-activity" data-locked-existing="fraction-lab">'+
-          '<span><strong>Utforsk Brøklaben</strong><small>Åpne den eksisterende Brøklaben. Fri utforskning uten nye reiseoppdrag.</small></span>'+
-          '<b aria-hidden="true">›</b></button>':'';
-      const content='<small>STED '+(place.index+1)+' AV 5</small><h2>'+esc(place.title)+'</h2>'+
-        '<p>'+esc(place.total?('Velg et oppdrag. '+place.done+' av '+place.total+' hovedoppdrag fullført.'):'Her kan du følge reisen videre uten å miste tidligere oppdrag.')+'</p>'+
-        '<div class="locked-journey-missions">'+existingActivity+
-        (safeNodes.length?safeNodes.map(n=>'<button type="button" data-locked-node="'+escapeId(n.id)+'"'+(n.locked?' disabled':'')+'>'+
-          '<span><strong>'+esc(n.title)+'</strong><small>'+esc(n.locked?'Kommer senere':n.complete?'Fullført, kan spilles igjen':n.type==='review'?'Frivillig repetisjon':n.type==='challenge'?'Ekstra utfordring':n.id===s.recommended?.id?'Neste oppdrag':'Åpent oppdrag')+'</small></span>'+
-          '<b aria-hidden="true">'+(n.complete?'✓':n.locked?'🔒':'›')+'</b></button>').join(''):
-          '<p class="locked-journey-no-missions" role="status">Dette stedet har ingen egne reiseoppdrag på klassetrinnet ditt. Du kan fortsatt besøke det på kartet.</p>')+
-        previewMarkup+'</div>';
-      open(content,hit);
+      const menu=journeyMissionSheet(place,safeNodes,s);
+      open(menu.markup,hit,'mission');
       dialog.querySelectorAll('[data-locked-node]').forEach(btn=>btn.onclick=()=>{
         const node=safeNodes.find(n=>n.id===btn.dataset.lockedNode);
         if(node&&!node.locked)launch(node.id);
       });
+      dialog.querySelector('[data-locked-map]')?.addEventListener('click',close);
+      dialog.querySelector('[data-locked-continue]')?.addEventListener('click',()=>{
+        const next=menu.next;
+        if(!next||placeLocked(next,model,s.firstOpen))return;
+        close();
+        const nextHit=host.querySelector('[data-locked-place="'+next.index+'"]');
+        window.LARIA_FOX_PRESENCE?.travelTo?.(next.index);
+        nextHit?.click();
+      });
       dialog.querySelector('[data-locked-existing="fraction-lab"]')?.addEventListener('click',()=>{
         close();
-        // Return to Tallenga, not straight to Basecamp. No new node is run,
-        // and no learning record is written on this navigation.
+        // Brøklaben is free exploration: no synthetic skill node or score.
         window.openFractionLab({returnToJourney:'math'});
       });
       dialog.querySelector('[data-locked-preview]')?.addEventListener('click',()=>{
-        if(!previewNode)return;
+        if(!menu.previewNode)return;
         close();
-        // Original preview sessions are tagged previewOnly/practiceOnly.
-        if(geo)startGeoWorldPreview(previewNode.areaId,s.grade);
-        else startJourneyWorldPreview(subject,previewNode.areaId,s.grade);
+        // Preview never writes completion/mastery or unlocks the next area.
+        if(geo)startGeoWorldPreview(menu.previewNode.areaId,s.grade);
+        else startJourneyWorldPreview(subject,menu.previewNode.areaId,s.grade);
       });
     });
     requestAnimationFrame(()=>requestAnimationFrame(()=>showCurrentIllustratedStop(host,geo)));
