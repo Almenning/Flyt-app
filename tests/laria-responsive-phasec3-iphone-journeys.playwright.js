@@ -81,6 +81,7 @@ function measure(page){
    appBottom:getComputedStyle(app).paddingBottom,
    appBackground:getComputedStyle(app).backgroundImage,
    screenBg:getComputedStyle(screen).backgroundImage,
+   journeyBg:getComputedStyle(screen.querySelector('#subject-journey-section')||screen.querySelector('#geo-journey-shell')).backgroundImage,
    boardRadius:getComputedStyle(board).borderTopLeftRadius,
    imageFit:getComputedStyle(img).objectFit,
    imageOriginal:[img.naturalWidth,img.naturalHeight],
@@ -113,7 +114,7 @@ async function validate(page,subject,label,view,screen){
  assert(g.app.width>=view.width-2,label+' narrow app in phone viewport '+JSON.stringify(g));
  assert(g.appBottom==='0px',label+' leftover white bottom navigation padding');
  assert(g.appBackground.includes(slug)||
-  (subject==='norwegian'&&g.screenBg.includes(slug)),
+  (subject==='norwegian'&&g.journeyBg.includes(slug)),
   label+' wrong or blank background '+JSON.stringify({slug,app:g.appBackground,screen:g.screenBg}));
  assert(g.horizontalOverflow<=2,label+' horizontal overflow '+g.horizontalOverflow);
  assert(g.hits.length===5&&g.hits.every(x=>x.width>=44&&x.height>=44),
