@@ -61,13 +61,14 @@ async function proof(engine,label,viewport,url){
   const geometry=await page.evaluate(()=>{
    const screen=document.querySelector('#subject-screen.active');
    const app=document.querySelector('.app');
+   const journeySection=document.querySelector('#subject-screen.active>#subject-journey-section');
    const board=document.querySelector('#subject-screen.active .locked-journey-board');
    const image=document.querySelector('#subject-screen.active .locked-journey-image');
    const sb=screen.getBoundingClientRect(),bb=board.getBoundingClientRect(),ib=image.getBoundingClientRect();
-   const style=getComputedStyle(screen),appStyle=getComputedStyle(app),boardStyle=getComputedStyle(board);
+   const style=getComputedStyle(screen),journeyStyle=getComputedStyle(journeySection),appStyle=getComputedStyle(app),boardStyle=getComputedStyle(board);
    return {screen:{top:sb.top,height:sb.height},board:{top:bb.top,width:bb.width,height:bb.height},
     imageRatio:ib.width/ib.height,boardRatio:bb.width/bb.height,appPaddingBottom:appStyle.paddingBottom,
-    screenBackground:style.backgroundImage,appBackground:appStyle.backgroundImage,borderRadius:boardStyle.borderTopLeftRadius,
+    screenBackground:style.backgroundImage,journeyBackground:journeyStyle.backgroundImage,appBackground:appStyle.backgroundImage,borderRadius:boardStyle.borderTopLeftRadius,
     overflow:document.documentElement.scrollWidth-innerWidth,
     hotspots:[...document.querySelectorAll('#subject-screen.active .locked-journey-hotspot')].map(node=>{
      const r=node.getBoundingClientRect();return {w:r.width,h:r.height};
@@ -78,7 +79,7 @@ async function proof(engine,label,viewport,url){
   assert.equal(geometry.appPaddingBottom,'0px',label+' obsolete app nav spacing leaked below the map');
   assert.ok(await screen.evaluate(node=>node.classList.contains('locked-journey-subject-norwegian')),
     label+' Bokskogen stage context is missing');
-  assert.match(geometry.screenBackground,/bokskogen-reference-bg/,label+' empty stage lost Bokskogen atmosphere');
+  assert.match(geometry.journeyBackground,/bokskogen-reference-bg/,label+' empty stage lost Bokskogen atmosphere');
   assert.equal(geometry.borderRadius,'0px',label+' map edge introduced a pale rounded seam');
   assert.ok(Math.abs(geometry.boardRatio-941/1672)<.003&&Math.abs(geometry.imageRatio-941/1672)<.003,
     label+' approved map was stretched or cropped '+JSON.stringify(geometry));
