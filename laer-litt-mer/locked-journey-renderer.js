@@ -85,13 +85,94 @@
     const record={status:'pending',image:img};
     assets.set(subject,record);
     img.onload=()=>{
-      record.status=contract.matchesOriginalSize(subject,img.naturalWidth,img.naturalHeight)?'ready':'invalid';
-      if(record.status==='ready')notifyLoaded(subject);
+      if(!contract.matchesOriginalSize(subject,img.naturalWidth,img.naturalHeight)){
+        record.status='invalid';notifyLoaded(subject);return;
+      }
+      const ready=()=>{record.status='ready';notifyLoaded(subject);};
+      if(typeof img.decode==='function')img.decode().then(ready,ready);
+      else ready();
     };
-    img.onerror=()=>{record.status='missing'};
+    img.onerror=()=>{record.status='missing';notifyLoaded(subject)};
     img.decoding='async';
     img.src='./'+definition.asset;
     return false;
+  }
+  const WAITING_ART_TITLES=Object.freeze({
+    norwegian:'Bokskogen',math:'Tallenga',english:'Ordlandsbyen',geography:'Nordlysleiren'
+  });
+  // Four already-approved card thumbnails total under 400 KB; preload these,
+  // never the four multi-MB original maps. An immediate child tap should show
+  // existing illustrated card art instead of an empty thumbnail frame.
+  const approvedCardPreviews=Object.fromEntries(Object.keys(WAITING_ART_TITLES).map(subject=>{
+    const image=new Image();
+    image.decoding='async';
+    image.src='./assets/cards/reisen/'+subject+'-premium.webp';
+    return [subject,image];
+  }));
+  // One source of truth for the visible intermediate frame. Never briefly
+  // expose the retired world renderer or a blank dark canvas during decoding.
+  function artworkGuard(subject,failed,overlay){
+    const label=WAITING_ART_TITLES[subject]||'Eventyrreisen';
+    const thumbSrc=approvedCardPreviews[subject]?.src||'./assets/cards/reisen/'+subject+'-premium.webp';
+    return '<div class="locked-journey-art-guard" '+(overlay?'aria-hidden="true"':'role="status" aria-live="polite"')+'>'+
+      '<div class="locked-journey-art-card">'+
+        '<img src="'+thumbSrc+'" alt="" draggable="false" decoding="async" width="1024" height="704">'+
+        '<strong>'+label+'</strong><span>'+(failed?'Kartet kunne ikke åpnes.':'Eventyret åpner seg …')+'</span>'+
+        (failed?'<button type="button" class="locked-journey-art-retry">Prøv igjen</button>':'')+
+      '</div></div>';
+  }
+  function renderWaiting(subject,geo,failed){
+    const host=hostFor(geo),screen=screenFor(geo);
+    if(!host||!screen)return;
+    if(host.dataset.journeyWaiting===subject&&host.dataset.journeyFailed===String(!!failed))return;
+    host.className='journey-map locked-journey-map';
+    host.dataset.journeySubject=subject;
+    host.dataset.journeyWaiting=subject;
+    host.dataset.journeyFailed=String(!!failed);
+    host.innerHTML='<section class="locked-journey-board locked-journey-waiting-stage" aria-label="'+
+      esc((WAITING_ART_TITLES[subject]||'Reisen')+' åpnes')+'">'+
+      artworkGuard(subject,failed,false)+
+      '<button class="locked-journey-waiting-back" type="button" aria-label="Tilbake fra eventyrreisen">← <span>Tilbake</span></button>'+
+      '</section>';
+    screen.classList.add('locked-journey-active');
+    if(geo)screen.classList.add('premium-geo-active');
+    else{
+      screen.classList.add('premium-journey-active');
+      screen.classList.remove('bokskogen-v10-active','bokskogen-v2-active','bokskogen-v3-active');
+    }
+    host.querySelector('.locked-journey-waiting-back').onclick=()=>backHome(geo);
+    host.querySelector('.locked-journey-art-retry')?.addEventListener('click',()=>{
+      assets.delete(subject);
+      if(geo)renderGeoJourney();
+      else renderSubjectJourney();
+    });
+  }
+  // The NEW DOM image must itself decode before the warm approved-art cover is
+  // removed. Preloading alone is not proof that WebKit painted the new element.
+  function revealDecodedArtwork(host,subject,geo){
+    const original=host.querySelector('.locked-journey-image');
+    const guard=host.querySelector('.locked-journey-art-guard');
+    if(!original||!guard)return;
+    let done=false;
+    const reveal=()=>{
+      if(done||!original.isConnected||!guard.isConnected)return;
+      if(original.naturalWidth!==941||original.naturalHeight!==1672)return;
+      done=true;
+      requestAnimationFrame(()=>{
+        if(original.isConnected&&guard.isConnected)guard.remove();
+      });
+    };
+    const afterLoad=()=>{
+      if(typeof original.decode==='function')original.decode().then(reveal,reveal);
+      else reveal();
+    };
+    original.addEventListener('load',afterLoad,{once:true});
+    original.addEventListener('error',()=>{
+      if(!original.isConnected)return;
+      assets.delete(subject);
+      renderWaiting(subject,geo,true);
+    },{once:true});
+    if(original.complete&&original.naturalWidth>0)afterLoad();
   }
   function statusFor(node,geo){return geo?geoJourneyNodeState(node):journeyNodeState(node)}
   function completed(node,geo){
@@ -153,6 +234,8 @@
     const def=contract.get(subject),model=s.progress.model;
     const places=s.contract.places;
     host.className='journey-map locked-journey-map';
+    delete host.dataset.journeyWaiting;
+    delete host.dataset.journeyFailed;
     host.dataset.journeyRelease='journey-rc1';
     host.dataset.journeySubject=subject;
     host.dataset.journeyCoreStops=String(s.progress.total);
@@ -174,7 +257,8 @@
       '<button type="button" class="locked-journey-back" aria-label="Tilbake til '+(window.LARIA_BASECAMP_RETURN_VIEW?.()==='travel'?'Reisen':window.LARIA_BASECAMP_RETURN_VIEW?.()==='explore'?'Utforsk':'Hjem')+'"></button>'+
       '<button type="button" class="locked-journey-options" aria-label="Velg klassetrinn"></button>'+
       progressDots(s.progress)+
-      '<span class="locked-journey-progress-text">'+s.progress.done+' / '+s.progress.total+' oppdrag</span>'+
+      '<span class="locked-journey-progress-text">'+s.progress.done+' / '+s.progress.total+' oppdrag</span>'+ 
+      artworkGuard(subject,false,true)+
       '</section><div class="locked-journey-overlay" hidden><div class="locked-journey-dim"></div><section class="locked-journey-sheet" role="dialog" aria-modal="true" aria-label="Oppdragssted"></section></div>';
     screen.classList.add('locked-journey-active');
     if(geo){
@@ -185,8 +269,17 @@
       screen.classList.add('premium-journey-active');
       screen.classList.remove('bokskogen-v10-active','bokskogen-v2-active','bokskogen-v3-active');
     }
+    // The retired renderer used to populate grade controls as a side effect.
+    // Since the approved painting now loads without that renderer, preserve
+    // the SAME grade selector, chapter note and displayed grade explicitly.
+    // This touches presentation only: profile grade and child progress stay put.
+    const gradeLabel=document.getElementById(geo?'geo-journey-grade':'journey-grade-chip');
+    if(gradeLabel)gradeLabel.textContent=GRADE_CONFIG[s.grade].label;
+    renderJourneyGradeStrip(subject,geo?'geo-journey-grade-strip':'journey-grade-strip',
+      geo?'geo-journey-grade-note':'journey-grade-note',s.grade);
     const finish=document.getElementById(geo?'geo-journey-finish':'journey-finish');
     if(finish)finish.hidden=true;
+    revealDecodedArtwork(host,subject,geo);
     const overlay=host.querySelector('.locked-journey-overlay');
     const dialog=overlay.querySelector('.locked-journey-sheet');
     const lastFocus={element:null};
@@ -285,21 +378,35 @@
     setTimeout(()=>showCurrentIllustratedStop(host,geo),180);
     return true;
   }
-  function canUse(subject){
+  function usesApprovedArt(subject){
     if(!ORIGINAL_SOURCE_IMAGES_VERIFIED&&window.LARIA_LOCKED_JOURNEY_QA_ART!==true)return false;
-    return !!contract.get(subject)&&journeyViewGrade(subject)<=2&&ensureOriginalArt(subject);
+    return !!contract.get(subject)&&journeyViewGrade(subject)<=2;
   }
   renderSubjectJourney=function(){
-    const screen=screenFor(false);
-    if(canUse(activeSubject)&&renderLocked(activeSubject,false))return;
-    // Remove all opt-in art classes BEFORE delegating to the established
-    // renderer. Otherwise a grade change can leave older grade screens hidden.
+    const screen=screenFor(false),subject=activeSubject;
+    if(usesApprovedArt(subject)){
+      if(ensureOriginalArt(subject)){
+        if(renderLocked(subject,false))return;
+      }else{
+        // Pending/failed original art must NEVER reveal the older green map.
+        renderWaiting(subject,false,['missing','invalid'].includes(assets.get(subject)?.status));
+        return;
+      }
+    }
+    // Other grades retain the established journey renderer unchanged.
     screen?.classList.remove('locked-journey-active','premium-journey-active');
     return previousSubject.apply(this,arguments);
   };
   renderGeoJourney=function(){
-    const screen=screenFor(true);
-    if(canUse('geography')&&renderLocked('geography',true))return;
+    const screen=screenFor(true),subject='geography';
+    if(usesApprovedArt(subject)){
+      if(ensureOriginalArt(subject)){
+        if(renderLocked(subject,true))return;
+      }else{
+        renderWaiting(subject,true,['missing','invalid'].includes(assets.get(subject)?.status));
+        return;
+      }
+    }
     screen?.classList.remove('locked-journey-active','premium-geo-active');
     return previousGeo.apply(this,arguments);
   };
