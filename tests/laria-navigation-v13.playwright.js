@@ -60,7 +60,20 @@ async function run(engine,label,viewport){
    const journeyBack=page.locator('#'+screen+'-screen.active .locked-journey-map[data-journey-subject="'+subject+'"] .locked-journey-back');
    await journeyBack.waitFor({state:'visible',timeout:16000});
    await journeyBack.click();
-   await page.locator('#home-screen.active').waitFor({timeout:10000});
+   try{
+     await page.locator('#home-screen.active').waitFor({timeout:10000});
+   }catch(error){
+     const debug=await page.evaluate(()=>({
+       active:[...document.querySelectorAll('.screen.active')].map(s=>({id:s.id,display:getComputedStyle(s).display})),
+       journeySubject:document.querySelector('.locked-journey-map')?.dataset.journeySubject,
+       fromBasecamp:window.LARIA_BASECAMP_RETURN_VIEW?.(),
+       panel:window.LARIA_ACTIVE_BASECAMP_PANEL?.(),
+       bodyClasses:document.body.className,
+       overlayVisible:!!document.querySelector('.locked-journey-overlay:not([hidden])'),
+       backRect:(()=>{const b=document.querySelector('.screen.active .locked-journey-back');return b?.getBoundingClientRect().toJSON()||null})()
+     }));
+     throw new Error(label+' failed return from '+subject+': '+JSON.stringify(debug)+'; '+error.message);
+   }
    await page.locator('.bc13-panel:not([hidden]) [data-bc13-action="'+subject+'"]').waitFor({timeout:10000});
   }
   await page.locator('.bc12-nav [data-camp="explore"]').click();
