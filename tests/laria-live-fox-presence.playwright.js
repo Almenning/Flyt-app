@@ -105,6 +105,21 @@ async function run(engine,name,viewport,avatar){
         await page.locator('.locked-journey-overlay:not([hidden])').waitFor({timeout:10000});
         assert.equal(await traveler.getAttribute('data-laria-fox-stop'),String(stop),
           name+' '+subject+' traveler missed painted landmark '+stop);
+        // The premium sheet temporarily PORTALS the actual map fox, not a
+        // duplicate mascot. Check its only rig in the sheet first, then its
+        // grounded physical map position after the sheet closes.
+        const sheetFox=await traveler.evaluate(el=>{
+          const stage=el.closest('.mission-fox-stage');
+          return {stage:!!stage,oneRig:el.querySelectorAll(':scope > .laria-fox-wardrobe-placed').length,
+            width:el.getBoundingClientRect().width,interactive:getComputedStyle(el).pointerEvents};
+        });
+        assert.equal(sheetFox.stage,true,name+' '+subject+' fox not integrated in premium mission sheet');
+        assert.equal(sheetFox.oneRig,1,name+' '+subject+' duplicated full-body rig in mission sheet');
+        assert(sheetFox.width>=35,name+' '+subject+' fox hidden or too small in mission sheet');
+        assert.equal(sheetFox.interactive,'none',name+' '+subject+' fox blocks menu taps');
+        await page.locator('.locked-sheet-close').click();
+        assert.equal(await traveler.evaluate(el=>!!el.closest('.locked-journey-board')),true,
+          name+' '+subject+' original fox was not returned to its map');
         const position=await traveler.evaluate(el=>{
           const fox=el.getBoundingClientRect(),board=el.closest('.locked-journey-board').getBoundingClientRect();
           return {left:fox.left-board.left,right:board.right-fox.right,
@@ -140,7 +155,6 @@ async function run(engine,name,viewport,avatar){
         });
         assert.deepEqual(paintedSignOverlap,[],name+' '+subject+
           ' fox covers a real illustrated sign at stop '+stop+': '+JSON.stringify(paintedSignOverlap));
-        await page.locator('.locked-sheet-close').click();
         // Preserve one complete 20-stop visual evidence set in actual WebKit
         // iPhone mode, beyond the strict non-overlap geometry assertions.
         if(name==='webkit-girl-iphone')await page.screenshot({
