@@ -128,12 +128,27 @@ async function run(engine,name,viewport,url){
    if(subject==='norwegian')assert.deepEqual(first.dog,{ears:1,muzzle:1,collar:1,tail:1,paws:1},label+' dog silhouette missing recognizable features');
    await fs.promises.mkdir(shots,{recursive:true});
    await page.screenshot({path:path.join(shots,name+'-'+subject+'-01-question.png'),animations:'disabled',fullPage:true});
+   const cardY=()=>page.evaluate(()=>{
+     const session=document.querySelector('#session-screen .session');
+     const card=document.querySelector('#session-screen .laria-task-card');
+     return card.getBoundingClientRect().top+session.scrollTop;
+   });
+   const anchoredBefore=await cardY();
    await page.locator('#session-screen .answer[data-answer="'+question.answer+'"]').click();
+   const anchoredAfter=await cardY();
+   assert(Math.abs(anchoredAfter-anchoredBefore)<=3,
+     label+' response recentered the task by '+(anchoredAfter-anchoredBefore)+' pixels');
+   assert(!/🦊/.test(await page.locator('#feedback-title').innerText()),label+' duplicated mascot in feedback');
+   if(subject==='english'&&first.read){
+     assert(await page.locator('#task-hear-word').isVisible(),label+' missing English word replay');
+   }
    assert.equal(await page.locator('#feedback').getAttribute('role'),'status');
    assert.match(await page.locator('#feedback-title').innerText(),/Riktig/);
    assert.ok(await page.locator('#next-question').isVisible(),label+' next hidden after answer');
    await page.locator('#next-question').click();
    assert.equal(await page.locator('#session-count').innerText(),'Oppdrag 2 av 2');
+   assert.equal(await page.evaluate(()=>document.querySelector('#session-screen .session').scrollTop),0,
+     label+' new question retained an old scroll offset');
    assert.equal(await page.locator('#session-screen .session-progress').getAttribute('aria-valuenow'),'2');
    assert.equal(await page.locator('#next-question').innerText(),'Fullfør');
    assert.equal(await page.locator('#next-question').getAttribute('aria-label'),'Fullfør oppdraget');
