@@ -76,7 +76,6 @@ async function proof(engine,label,viewport,url){
   assert.equal(geometry.screen.top,0,label+' journey must start at the viewport edge');
   assert.ok(geometry.screen.height>=viewport.height,label+' stage must cover the entire viewport '+JSON.stringify(geometry));
   assert.equal(geometry.appPaddingBottom,'0px',label+' obsolete app nav spacing leaked below the map');
-  assert.match(geometry.appBackground,/bokskogen-reference-bg/,label+' app shell lost Bokskogen atmosphere');
   assert.match(geometry.screenBackground,/bokskogen-reference-bg/,label+' empty stage lost Bokskogen atmosphere');
   assert.equal(geometry.borderRadius,'0px',label+' map edge introduced a pale rounded seam');
   assert.ok(Math.abs(geometry.boardRatio-941/1672)<.003&&Math.abs(geometry.imageRatio-941/1672)<.003,

@@ -316,7 +316,6 @@
   body:has(#subject-screen.active.locked-journey-active .locked-journey-map[data-journey-subject="norwegian"]){
     background:#254322;
   }
-  .app:has(#subject-screen.active.locked-journey-active .locked-journey-map[data-journey-subject="norwegian"]),
   #subject-screen.active.locked-journey-active:has(.locked-journey-map[data-journey-subject="norwegian"]),
   #subject-screen.active.locked-journey-active:has(.locked-journey-map[data-journey-subject="norwegian"])>#subject-journey-section{
     background:
