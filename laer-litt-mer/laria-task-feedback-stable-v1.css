@@ -2,6 +2,14 @@
    Keep the approved scenery, card, and personal fox. A response must never
    recenter the question. Short viewports scroll inside the scene instead
    of clipping Next / Fullfør. */
+/* iOS landscape would still move the root document when focusing an answer.
+   The task scene owns vertical scrolling; the document itself does not. */
+body.laria-task-scene-open {
+  height:100dvh!important;
+  max-height:100dvh!important;
+  overflow:hidden!important;
+  overscroll-behavior:none;
+}
 #session-screen.task-scene .session,
 #session-screen.task-scene[data-task-band="young"] .session {
   height:100dvh!important;
