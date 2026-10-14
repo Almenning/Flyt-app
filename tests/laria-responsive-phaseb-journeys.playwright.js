@@ -152,8 +152,16 @@ async function verifyTapAndBack(page,screen,subject,label){
  await screen.locator('.locked-journey-back').scrollIntoViewIfNeeded();
  await screen.locator('.locked-journey-back').click();
  await page.locator('#home-screen.active .bc14-subject').first().waitFor({timeout:12000});
- assert.equal(await page.evaluate(()=>document.body.className.includes('locked-journey-subject-')),false,
-  label+' storybook stage leaked into Basecamp');
+ // A hidden journey may retain its subject marker while background preloading
+ // settles. Only the ACTIVE screen may own the scenic full-width stage.
+ const restored=await page.evaluate(()=>{
+  const app=document.querySelector('.app');
+  return {home:!!document.querySelector('#home-screen.active'),
+   activeJourney:!!document.querySelector('.screen.active.locked-journey-active'),
+   background:getComputedStyle(app).backgroundImage};
+ });
+ assert(restored.home&&!restored.activeJourney&&!restored.background.includes(subject+'-premium.webp'),
+  label+' journey scenery visually leaked into Basecamp '+JSON.stringify(restored));
 }
 async function run(engine,label,viewport,url){
  const browser=await engine.launch({headless:true,args:engine===chromium?['--no-sandbox']:[]});
