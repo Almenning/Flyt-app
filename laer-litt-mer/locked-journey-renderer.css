@@ -344,6 +344,17 @@
   #subject-screen.active.locked-journey-active.locked-journey-subject-norwegian > :not(#subject-journey-section){
     display:none!important;
   }
+  /* This must include the journey section's id.  The legacy premium shell
+     uses an equally named, more specific selector for its heading and can
+     otherwise resurrect it only in landscape. */
+  #subject-screen.active.locked-journey-active.locked-journey-subject-norwegian #subject-journey-section > .journey-heading,
+  #subject-screen.active.locked-journey-active.locked-journey-subject-norwegian #subject-journey-section > .journey-grade-picker,
+  #subject-screen.active.locked-journey-active.locked-journey-subject-norwegian #subject-journey-section > .journey-summary,
+  #subject-screen.active.locked-journey-active.locked-journey-subject-norwegian #subject-journey-section > .journey-now-card,
+  #subject-screen.active.locked-journey-active.locked-journey-subject-norwegian #subject-journey-section > .journey-collection,
+  #subject-screen.active.locked-journey-active.locked-journey-subject-norwegian #subject-journey-section > .journey-sidequests{
+    display:none!important;
+  }
   #subject-screen.active.locked-journey-active.locked-journey-subject-norwegian>#subject-journey-section{
     min-height:100dvh;
     display:block!important;
