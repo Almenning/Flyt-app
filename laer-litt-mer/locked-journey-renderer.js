@@ -255,7 +255,8 @@
   const CORE_MISSIONS=new Set(['skill','geo-skill','checkpoint']);
   function nextJourneyPlace(current,places,model,firstOpen){
     const ahead=places.filter(place=>place.index>current.index&&
-      place.nodes.some(n=>CORE_MISSIONS.has(n.type)&&!n.complete)&&
+      place.nodes.some(n=>CORE_MISSIONS.has(n.type)&&!n.complete&&
+        model.areas.findIndex(area=>area.id===n.areaId)<=firstOpen)&&
       !placeLocked(place,model,firstOpen));
     return ahead.find(place=>place.recommended)||ahead[0]||null;
   }
