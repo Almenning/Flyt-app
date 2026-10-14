@@ -108,8 +108,19 @@ async function validate(page,subject,label,view,screen){
  assert.deepEqual(g.imageOriginal,[941,1672],label+' approved art missing');
  assert(g.imageFit==='contain',label+' approved art cropped');
  assert(g.boardRadius==='0px',label+' image has pale rounded edge '+JSON.stringify(g));
- assert(g.screen.y>=-1&&g.screen.y<=1,label+' empty strip above art '+JSON.stringify(g));
- assert(g.board.y>=-1&&g.board.y<=1,label+' map offset by legacy dashboard '+JSON.stringify(g));
+ // Geography intentionally auto-scrolls to the next mission; the first
+ // stop lies near the map bottom on small phones. Validate the actual opening
+ // view, then separately take a top-of-art screenshot after scrollTo(0,0).
+ assert(g.screen.y<=1&&g.board.y<=1,
+  label+' empty strip above the illustrated stage '+JSON.stringify(g));
+ if(subject==='geography'&&g.board.y< -1){
+  const first=g.hits[0];
+  assert(first.y>=0&&first.bottom<=view.height,
+   label+' auto-scroll hid rather than focused the next geography mission '+JSON.stringify(g));
+ }else{
+  assert(g.screen.y>=-1&&g.board.y>=-1,
+   label+' unexpected map offset '+JSON.stringify(g));
+ }
  assert(g.screen.height>=view.height-1,label+' lower phone stage exposed '+JSON.stringify(g));
  assert(g.app.width>=view.width-2,label+' narrow app in phone viewport '+JSON.stringify(g));
  assert(g.appBottom==='0px',label+' leftover white bottom navigation padding');
