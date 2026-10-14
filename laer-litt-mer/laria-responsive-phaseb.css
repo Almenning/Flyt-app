@@ -6,7 +6,8 @@
  * The base app is 480px wide, and the old journey cap is 70vw. Both must be
  * overridden only while an original 1st/2nd-grade journey is the active view.
  */
-@media (min-width:700px) {
+/* A 844×390 iPhone is wide but still a phone. Never override Phase A. */
+@media (min-width:700px) and (min-height:541px) {
   body.locked-journey-subject-norwegian{
     --ljb-scenery:url('./assets/cards/reisen/norwegian-premium.webp');
     --ljb-ground:#1c3e34;
