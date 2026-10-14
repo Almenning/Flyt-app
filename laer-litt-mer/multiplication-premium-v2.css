@@ -341,3 +341,106 @@
     gap:clamp(14px,1.7vw,22px);
   }
 }
+
+/* Phase C2: real tablet-landscape maths task, not a stretched phone column.
+   The original learning artwork and countable DOM objects remain untouched.
+   The wrapper acts as contents at all other widths/orientations, preserving
+   the existing first-fold iPhone contract and portrait iPad layout. */
+.mp-practice-workspace,.mp-practice-answers{display:contents}
+@media (min-width:1000px) and (min-height:700px) and (orientation:landscape){
+  #multiplication-lab-screen.active .mp-practice-screen .mp-travel{
+    min-height:58px;margin:3px auto 6px;padding:5px 10px;
+  }
+  #multiplication-lab-screen.active .mp-practice-screen .mp-heading{
+    padding:6px 6px 10px;margin:0 0 8px;
+  }
+  #multiplication-lab-screen.active .mp-practice-screen .mp-heading h1{
+    font-size:clamp(29px,3vw,36px);margin:1px 0 4px;
+  }
+  #multiplication-lab-screen.active .mp-practice-screen .mp-heading p{font-size:13px}
+  #multiplication-lab-screen.active .mp-practice-workspace{
+    display:grid;grid-template-columns:minmax(0,1.52fr) minmax(0,.95fr);
+    align-items:start;gap:clamp(12px,1.5vw,20px);min-width:0;
+  }
+  #multiplication-lab-screen.active .mp-practice-answers{
+    display:flex;flex-direction:column;gap:8px;min-width:0;
+    padding:11px 13px 13px;
+    border:2px solid #fffdf1;border-radius:25px;
+    background:linear-gradient(165deg,#fff7e9ee,#f5e6cced);
+    box-shadow:0 6px 0 #d9bd9b55,0 14px 24px #67462b20;
+  }
+  #multiplication-lab-screen.active .mp-practice-screen .mp-task-scene{
+    max-width:none;width:100%;min-width:0;margin:0;padding:8px 9px 11px;
+    overflow:hidden;
+  }
+  #multiplication-lab-screen.active .mp-practice-screen .mp-task-wood{
+    margin:0 0 8px;padding:8px 7px 7px;border-radius:18px;
+  }
+  #multiplication-lab-screen.active .mp-practice-screen .mp-task-pretitle{
+    font-size:13px;
+  }
+  #multiplication-lab-screen.active .mp-practice-screen .mp-task-wood h2{
+    font-size:clamp(38px,4vw,47px);margin:2px 0 3px;
+  }
+  #multiplication-lab-screen.active .mp-practice-screen .mp-task-wood p{
+    font-size:12px;
+  }
+  /* A dense 5×10 or 10×10 illustration remains fully reachable by scrolling
+     ONLY the picture. The question and all four answers stay in view. */
+  #multiplication-lab-screen.active .mp-practice-screen .mp-task-apples{
+    min-height:190px;max-height:min(40dvh,322px);
+    overflow-y:auto;overflow-x:hidden;
+    overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
+    scrollbar-width:thin;
+  }
+  #multiplication-lab-screen.active .mp-practice-screen .mp3-picker{
+    gap:4px;padding:5px 6px 7px;max-width:none;
+  }
+  #multiplication-lab-screen.active .mp-practice-screen .mp3-picker>span{
+    font-size:11px;line-height:1.1;
+  }
+  #multiplication-lab-screen.active .mp-practice-screen .mp3-theme{
+    min-height:51px;grid-template-rows:24px auto;
+    gap:1px;padding:3px 2px;font-size:11px!important;
+  }
+  #multiplication-lab-screen.active .mp-practice-screen .mp3-theme-art,
+  #multiplication-lab-screen.active .mp-practice-screen .mp3-theme-art .mp3-object{
+    width:24px;height:24px;
+  }
+  #multiplication-lab-screen.active .mp-practice-screen .mp4-collections{
+    padding:30px 10px 26px;column-gap:10px;row-gap:26px;
+  }
+  #multiplication-lab-screen.active .mp-practice-screen .mp4-collections .mp4-basket{
+    min-height:128px!important;padding:21px 5px 31px!important;
+  }
+  #multiplication-lab-screen.active .mp-practice-screen .mp4-basket .mp3-item{
+    max-width:43px!important;max-height:43px!important;
+  }
+  #multiplication-lab-screen.active .mp-practice-answers .mp-answer-head{
+    max-width:none;width:100%;margin:0;min-height:44px;
+  }
+  #multiplication-lab-screen.active .mp-practice-answers .mp-answer-grid{
+    width:100%;max-width:none;margin:0;gap:10px;
+  }
+  #multiplication-lab-screen.active .mp-practice-answers .mp-answer{
+    min-height:83px;font-size:clamp(31px,3.5vw,43px)!important;
+  }
+  #multiplication-lab-screen.active .mp-practice-answers .mp-hint-toggle{
+    margin:4px auto 2px;width:100%;
+  }
+  #multiplication-lab-screen.active .mp-practice-answers .mp-answer-feedback{
+    margin:0;min-height:24px;
+  }
+  #multiplication-lab-screen.active .mp-practice-answers .mp-next{
+    min-height:54px;
+  }
+  #multiplication-lab-screen.active .mp-practice-answers .mp-mascot-small{
+    margin:1px 0 0;min-height:72px;width:100%;
+  }
+  #multiplication-lab-screen.active .mp-practice-answers .mp-mascot-small>img{
+    width:80px;height:80px;
+  }
+  #multiplication-lab-screen.active .mp-practice-answers .mp-mascot-small .mp-bubble{
+    min-height:58px;padding:8px 9px;
+  }
+}
