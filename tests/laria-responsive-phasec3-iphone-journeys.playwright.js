@@ -124,6 +124,19 @@ async function validate(page,subject,label,view,screen){
   assert(g.screen.y>=-1&&g.board.y>=-1,
    label+' unexpected map offset '+JSON.stringify(g));
  }
+ // Regression for the 320px Nordlysleiren case: a current mission that
+ // already fits above the bottom safe-touch zone must not force the child to
+ // enter halfway down the illustrated journey and miss its painted header.
+ if(view.height>view.width&&g.hits.length){
+  const first=g.hits[0],naturalTop=first.y-g.board.y;
+  const naturalBottom=first.bottom-g.board.y;
+  const topLimit=Math.max(48,view.height*.12);
+  if(naturalTop>=topLimit&&naturalBottom<=view.height-48){
+   assert(g.board.y>=-1,
+    label+' scrolled past header although next mission was already visible '+
+     JSON.stringify({naturalTop,naturalBottom,board:g.board,first}));
+  }
+ }
  assert(g.screen.height>=view.height-1,label+' lower phone stage exposed '+JSON.stringify(g));
  assert(g.app.width>=view.width-2,label+' narrow app in phone viewport '+JSON.stringify(g));
  assert(g.appBottom==='0px',label+' leftover white bottom navigation padding');
