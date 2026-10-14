@@ -220,7 +220,13 @@
     const box=target.getBoundingClientRect();
     // On iPad/landscape the uncropped portrait art may be taller than the
     // viewport. Enter near the next stop rather than hiding the fox far below.
-    const topLimit=Math.max(48,viewport*.12),bottomLimit=viewport*.81;
+    // A portrait phone can show the first mission near the lower edge without
+    // hiding its painted header. Only scroll when the mission would actually
+    // enter the bottom 48px safe-touch zone; retain the established centering
+    // for landscape/tall art and subsequent steps that are off screen.
+    const portraitPhone=window.innerWidth<700&&viewport>window.innerWidth;
+    const topLimit=Math.max(48,viewport*.12);
+    const bottomLimit=portraitPhone?viewport-48:viewport*.81;
     if(box.top>=topLimit&&box.bottom<=bottomLimit)return;
     const desired=viewport*.57;
     const scrollY=Math.max(0,window.scrollY+box.top+box.height*.5-desired);
