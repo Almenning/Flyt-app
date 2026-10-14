@@ -108,15 +108,18 @@ async function validate(page,subject,label,view,screen){
  assert.deepEqual(g.imageOriginal,[941,1672],label+' approved art missing');
  assert(g.imageFit==='contain',label+' approved art cropped');
  assert(g.boardRadius==='0px',label+' image has pale rounded edge '+JSON.stringify(g));
- // Geography intentionally auto-scrolls to the next mission; the first
- // stop lies near the map bottom on small phones. Validate the actual opening
- // view, then separately take a top-of-art screenshot after scrollTo(0,0).
+ // The approved renderer intentionally auto-scrolls to the NEXT mission,
+ // especially on landscape phones where the portrait map is much taller.
+ // A negative top is acceptable only if the first/current mission is visibly
+ // focused; explicitly scroll to y=0 for the separate top-edge art capture.
  assert(g.screen.y<=1&&g.board.y<=1,
   label+' empty strip above the illustrated stage '+JSON.stringify(g));
- if(subject==='geography'&&g.board.y< -1){
+ assert(g.app.bottom>=view.height-1,
+  label+' scenic stage does not cover the full opening viewport '+JSON.stringify(g));
+ if(g.board.y< -1){
   const first=g.hits[0];
   assert(first.y>=0&&first.bottom<=view.height,
-   label+' auto-scroll hid rather than focused the next geography mission '+JSON.stringify(g));
+   label+' auto-scroll hid rather than focused the next mission '+JSON.stringify(g));
  }else{
   assert(g.screen.y>=-1&&g.board.y>=-1,
    label+' unexpected map offset '+JSON.stringify(g));
