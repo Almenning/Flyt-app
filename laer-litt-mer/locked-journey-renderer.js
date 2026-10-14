@@ -444,7 +444,10 @@
           window.LARIA_FOX_WARDROBE?.refresh?.();
           requestAnimationFrame(()=>{
             if(overlay.hidden||traveler.parentElement!==stage)return;
-            window.LARIA_FOX_PRESENCE?.react?.(mode==='mission'&&dialog.querySelector('.mission-complete')?'celebrate':'curious',traveler);
+            // Preserve the walking reaction started by the tapped painted
+            // landmark. Only a completed mission replaces it with celebration.
+            if(dialog.querySelector('.mission-complete'))
+              window.LARIA_FOX_PRESENCE?.react?.('celebrate',traveler);
           });
         }
       }
