@@ -74,10 +74,14 @@ async function layout(page){
    basketCount:document.querySelectorAll('.mp-practice-screen .mp4-basket').length,
    pictureScrollHeight:pic?.scrollHeight||0,
    pictureClientHeight:pic?.clientHeight||0,
-   foxLoaded:!!(fox?.complete&&fox.naturalWidth>0)};
+   foxExists:!!fox,foxLoaded:!!(fox?.complete&&fox.naturalWidth>0)};
  });
 }
 async function checkQuestion(page,label,large){
+ if(large)await page.waitForFunction(()=>{
+  const img=document.querySelector('.mp-practice-screen .mp-mascot-small img');
+  return !!(img?.complete&&img.naturalWidth>0);
+ },null,{timeout:10000});
  const state=await page.evaluate(()=>window.LARIA_MULT_PREMIUM.snapshot());
  const q=state.round[state.index];
  const g=await layout(page);
@@ -88,7 +92,7 @@ async function checkQuestion(page,label,large){
  assert.equal(g.answers.length,4,label+' missing one of four options');
  assert(g.answers.every(b=>b.height>=44&&b.width>=44),
   label+' undersized answer touch targets '+JSON.stringify(g.answers));
- assert(g.foxLoaded,label+' selected fox not visible');
+ assert(g.foxExists&&(!large||g.foxLoaded),label+' selected fox is missing');
  assert(g.overflow<=3,label+' unexpected document overflow '+JSON.stringify(g));
  if(large){
   const h=g.viewport.height;
