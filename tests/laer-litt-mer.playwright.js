@@ -665,7 +665,7 @@ async function finishSession(page){
 
     await page.locator('#journey-map .locked-journey-hotspot.state-current').click();
     assert.equal(await page.locator('#journey-mission-backdrop').isVisible(),false,'map click must open the exercise directly');
-    await page.locator('.locked-journey-overlay:not([hidden]) [data-locked-node]:not([disabled])').filter({hasText:'Neste oppdrag'}).first().click();
+    await page.locator('.locked-journey-overlay:not([hidden]) .mission-primary[data-locked-node]:not([disabled])').first().click();
     await page.locator('#session-screen.active').waitFor();
     assert.equal(await page.evaluate(()=>sessionScope.type),'journey');
     assert.equal(await page.evaluate(()=>sessionScope.subject),'norwegian');
