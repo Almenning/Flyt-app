@@ -57,10 +57,34 @@
   }
   function screenFor(geo){return document.getElementById(geo?'geography-screen':'subject-screen')}
   function hostFor(geo){return document.getElementById(geo?'geo-journey-map':'journey-map')}
+  // Keep the active illustrated journey explicit in the DOM.  Presentation
+  // rules must not infer it from a nested map with :has(): WebKit and
+  // Chromium may evaluate that relationship at different points while the
+  // original PNG is decoding.
+  function setJourneyContext(subject){
+    const names=['norwegian','math','english','geography'];
+    const classes=names.map(name=>'locked-journey-subject-'+name);
+    document.body.classList.remove(...classes);
+    document.body.classList.add('locked-journey-subject-'+subject);
+    [screenFor(false),screenFor(true)].forEach(screen=>screen?.classList.remove(...classes));
+    screenFor(subject==='geography')?.classList.add('locked-journey-subject-'+subject);
+  }
+  function clearJourneyContext(){
+    const classes=['norwegian','math','english','geography'].map(name=>'locked-journey-subject-'+name);
+    document.body.classList.remove(...classes);
+    [screenFor(false),screenFor(true)].forEach(screen=>screen?.classList.remove(...classes));
+  }
+  function resetJourneyScroll(){
+    // A subject card can be focused while Basecamp is scrolled. Keep the
+    // illustrated first landmark at the viewport edge when the journey opens,
+    // including WebKit after a device rotation.
+    window.scrollTo(0,0);
+  }
   function backHome(geo){
     // Navigate directly rather than simulating a click on a separate, hidden
     // back button. WebKit at 320px occasionally left the journey active after
     // the proxy click; the real Basecamp return keeps Explore/Home context.
+    clearJourneyContext();
     if(typeof window.LARIA_RETURN_TO_BASECAMP==='function'&&
        window.LARIA_RETURN_TO_BASECAMP())return;
     if(typeof setTab==='function'){setTab('home');return}
@@ -135,6 +159,8 @@
       '<button class="locked-journey-waiting-back" type="button" aria-label="Tilbake fra eventyrreisen">← <span>Tilbake</span></button>'+
       '</section>';
     screen.classList.add('locked-journey-active');
+    setJourneyContext(subject);
+    resetJourneyScroll();
     // The original geography HTML puts two retired cards before the journey.
     // Prioritize Nordlysleiren while its approved PNG is still loading, not
     // only after decode. Otherwise Safari briefly shows the legacy cards.
@@ -269,6 +295,8 @@
       artworkGuard(subject,false,true)+
       '</section><div class="locked-journey-overlay" hidden><div class="locked-journey-dim"></div><section class="locked-journey-sheet" role="dialog" aria-modal="true" aria-label="Oppdragssted"></section></div>';
     screen.classList.add('locked-journey-active');
+    setJourneyContext(subject);
+    resetJourneyScroll();
     if(geo){
       screen.classList.add('premium-geo-active');
       const shell=document.getElementById('geo-journey-shell'),globe=document.getElementById('open-world');

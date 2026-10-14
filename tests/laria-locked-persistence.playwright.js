@@ -68,14 +68,22 @@ async function verify(engine,label,viewport){
    assert.equal(await root.locator('.locked-journey-hotspot').count(),5);
    let replayable=false;
    for(let i=0;i<5;i++){
-    await root.locator('.locked-journey-hotspot').nth(i).click();
+    const hotspot=root.locator('.locked-journey-hotspot').nth(i);
+    // The persisted-checkpoint assertion is about the existing mission
+    // sheet, not Playwright's synthetic auto-scroll through a tall portrait
+    // map.  WebKit can otherwise finish a scroll after the pointer sequence
+    // and leave this test waiting for a close button that was never opened.
+    await hotspot.scrollIntoViewIfNeeded();
+    await hotspot.click({force:true});
+    const overlay=page.locator('.locked-journey-overlay:not([hidden])');
+    await overlay.waitFor({state:'visible',timeout:5000});
     const item=page.locator('.locked-journey-overlay:not([hidden]) [data-locked-node="'+marked[subject].id+'"]');
     if(await item.count()){
      assert.equal(await item.isEnabled(),true,label+' '+title+' completed checkpoint was locked');
      assert.match(await item.innerText(),/Fullført, kan spilles igjen/);
      replayable=true;
     }
-    await page.locator('.locked-sheet-close').click();
+    await overlay.locator('.locked-sheet-close').click();
     if(replayable)break;
    }
    assert(replayable,label+' '+title+' lost checkpoint ID '+marked[subject].id);

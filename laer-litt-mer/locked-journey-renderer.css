@@ -305,6 +305,68 @@
 #geography-screen.locked-journey-active .geo-journey-shell .journey-collection,
 #geography-screen.locked-journey-active .detail-back,
 #geography-screen.locked-journey-active .geography-head{display:none!important}
+
+/* Phase A — Bokskogen must remain an adventure scene when a portrait map is
+   shorter than the Safari viewport.  The approved 941×1672 painting keeps its
+   exact geometry; only the surrounding stage borrows the existing Bokskogen
+   atmosphere.  This removes the generic app canvas and its obsolete nav
+   spacing without scaling, cropping, or repainting the locked illustration. */
+@media (max-width:699px), (orientation:landscape) and (max-height:500px){
+  html:has(body.locked-journey-subject-norwegian),
+  body.locked-journey-subject-norwegian{
+    background:#254322;
+  }
+  #subject-screen.active.locked-journey-active.locked-journey-subject-norwegian,
+  #subject-screen.active.locked-journey-active.locked-journey-subject-norwegian>#subject-journey-section{
+    background:
+      linear-gradient(180deg,rgba(22,57,27,.18),rgba(30,72,35,.10) 43%,rgba(20,55,29,.34)),
+      url('./bokskogen-reference-bg.webp') center/cover no-repeat;
+  }
+  body.locked-journey-subject-norwegian .app{
+    width:100%;
+    min-height:100dvh;
+    padding-bottom:0;
+  }
+  body.locked-journey-subject-norwegian .app::before,
+  body.locked-journey-subject-norwegian .app::after{
+    display:none;
+  }
+  #subject-screen.active.locked-journey-active.locked-journey-subject-norwegian{
+    min-height:100dvh;
+    padding-top:0!important;
+    padding-bottom:0!important;
+  }
+  /* The locked map has its own back and settings targets.  In compact
+     landscape, an older subject-page sibling can otherwise keep a 55px
+     layout row even after its contents are hidden.  Make the map section
+     the explicit screen surface instead of relying on each retired card's
+     individual visibility rule. */
+  #subject-screen.active.locked-journey-active.locked-journey-subject-norwegian > :not(#subject-journey-section){
+    display:none!important;
+  }
+  /* This must include the journey section's id.  The legacy premium shell
+     uses an equally named, more specific selector for its heading and can
+     otherwise resurrect it only in landscape. */
+  #subject-screen.active.locked-journey-active.locked-journey-subject-norwegian #subject-journey-section > .journey-heading,
+  #subject-screen.active.locked-journey-active.locked-journey-subject-norwegian #subject-journey-section > .journey-grade-picker,
+  #subject-screen.active.locked-journey-active.locked-journey-subject-norwegian #subject-journey-section > .journey-summary,
+  #subject-screen.active.locked-journey-active.locked-journey-subject-norwegian #subject-journey-section > .journey-now-card,
+  #subject-screen.active.locked-journey-active.locked-journey-subject-norwegian #subject-journey-section > .journey-collection,
+  #subject-screen.active.locked-journey-active.locked-journey-subject-norwegian #subject-journey-section > .journey-sidequests{
+    display:none!important;
+  }
+  #subject-screen.active.locked-journey-active.locked-journey-subject-norwegian>#subject-journey-section{
+    min-height:100dvh;
+    display:block!important;
+    gap:0!important;
+  }
+  #subject-screen.active.locked-journey-active.locked-journey-subject-norwegian #journey-map{
+    margin:0!important;
+  }
+  #subject-screen.active.locked-journey-active .locked-journey-map[data-journey-subject="norwegian"] .locked-journey-board{
+    border-radius:0;
+  }
+}
 @media(min-width:700px){
  .locked-journey-map{max-width:min(70vw,780px)!important}
  .locked-journey-sheet{margin:auto 0;max-height:80dvh}
