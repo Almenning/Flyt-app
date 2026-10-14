@@ -142,13 +142,11 @@
     background:#25423e;
   }
   body:is(.locked-journey-subject-math,
-    .locked-journey-subject-english,.locked-journey-subject-geography)
-    :has(.screen.active.locked-journey-active) {
+    .locked-journey-subject-english,.locked-journey-subject-geography):has(.screen.active.locked-journey-active) {
     background:var(--ljc-phone-base);
   }
   body:is(.locked-journey-subject-math,
-    .locked-journey-subject-english,.locked-journey-subject-geography)
-    :has(.screen.active.locked-journey-active) .app {
+    .locked-journey-subject-english,.locked-journey-subject-geography):has(.screen.active.locked-journey-active) .app {
     width:100%;
     max-width:none;
     min-height:100dvh;
@@ -161,11 +159,9 @@
       var(--ljc-phone-art) center top/cover no-repeat var(--ljc-phone-base)!important;
   }
   body:is(.locked-journey-subject-math,
-    .locked-journey-subject-english,.locked-journey-subject-geography)
-    :has(.screen.active.locked-journey-active) .app::before,
+    .locked-journey-subject-english,.locked-journey-subject-geography):has(.screen.active.locked-journey-active) .app::before,
   body:is(.locked-journey-subject-math,
-    .locked-journey-subject-english,.locked-journey-subject-geography)
-    :has(.screen.active.locked-journey-active) .app::after {
+    .locked-journey-subject-english,.locked-journey-subject-geography):has(.screen.active.locked-journey-active) .app::after {
     display:none!important;
   }
 
