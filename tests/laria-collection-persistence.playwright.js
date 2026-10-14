@@ -37,24 +37,40 @@ async function verify(browserType,label,viewport){
       fs.writeFileSync(path.join(evidence,id+'-original-portrait.webp'),Buffer.from(originals[id],'base64'));
     }
 
-    // The existing Home 'Samlingen' entry must show actual owned world
-    // treasures (no misleading gear preview or click-to-equip placeholder).
-    assert.equal(await page.locator('.bc12-nav [data-camp]').count(),5,'Home must have five child navigation destinations');
+    // Child-facing release contract: only the chosen premium fox and earned
+    // keepsakes are visible. Previous outfit artwork is deliberately hidden.
+    assert.equal(await page.locator('.bc12-nav [data-camp]').count(),5,'Keep the five main destinations');
+    assert.equal(await page.evaluate(()=>window.LARIA_FOX_WARDROBE.gearPreviewEnabled),false);
     await page.locator('.bc12-nav [data-camp="wardrobe"]').click();
-    await page.locator('#bc12-dialog[open].is-wardrobe .bc12-wardrobe-grid').waitFor();
-    assert.equal(await page.locator('#bc12-dialog[open] .bc12-wardrobe-preview svg[data-avatar="boy"]').count(),1,
-      'Min rev must show original chosen boy fox');
-    await page.locator('#bc12-dialog[open] [data-wardrobe-back]').click();
-    await page.locator('#bc12-dialog[open].is-collection [data-collection-tab="equipment"]').click();
-    assert.equal(await page.locator('#bc12-dialog[open].is-equipment .bc12-equipment-card').count(),4);
-    await page.locator('#bc12-dialog[open].is-equipment [data-collection-tab="collection"]').click();
-    await page.locator('#bc12-dialog[open] .bc12-memory-grid').waitFor({timeout:10000});
+    const foxPreview=page.locator('#bc12-dialog[open].is-wardrobe .bc12-wardrobe-preview svg[data-avatar="boy"]');
+    await foxPreview.waitFor();
+    assert.equal(await page.locator('#bc12-dialog[open] [data-wear],#bc12-dialog[open] [data-gear],#bc12-dialog[open] .bc12-wardrobe-grid').count(),0,'Unfinished clothing UI leaked');
+    const portrait=await foxPreview.evaluate(svg=>({
+      viewBox:svg.getAttribute('viewBox'),mask:svg.querySelector('image')?.getAttribute('mask'),
+      hardCrop:svg.querySelectorAll('clipPath').length,imageHeight:svg.querySelector('image')?.getAttribute('height')
+    }));
+    assert.equal(portrait.viewBox,'0 0 200 300','Min rev must retain original full-body composition');
+    assert.equal(portrait.imageHeight,'300');
+    assert.equal(portrait.mask,null);
+    assert.equal(portrait.hardCrop,0);
+    const legacy=await page.evaluate(()=>{
+      const svg=new DOMParser().parseFromString(
+        window.LARIA_FOX_WARDROBE.render('boy',window.LARIA_COLLECTION_STORE.snapshot(),'portrait'),
+        'image/svg+xml').documentElement;
+      return {viewBox:svg.getAttribute('viewBox'),mask:svg.querySelector('image')?.getAttribute('mask')};
+    });
+    assert.equal(legacy.viewBox,'0 0 200 272');
+    assert.match(legacy.mask||'',/^url\(#laria-wd-/);
+    await page.screenshot({path:path.join(evidence,label+'-min-rev-uten-utstyr.png'),animations:'disabled'});
+    await page.locator('#bc12-dialog[open] .bc12-close').click();
+    await page.locator('.bc12-nav [data-camp="collection"]').click();
+    await page.locator('#bc12-dialog[open].is-collection .bc12-memory-grid').waitFor();
     assert.equal(await page.locator('#bc12-dialog[open] .bc12-memory').count(),4);
-    assert.equal(await page.locator('#bc12-dialog[open] .bc12-memory-symbol svg').count(),4,
-      'Every keepsake must have a distinct illustrated mark, not a platform-dependent emoji');
+    assert.equal(await page.locator('#bc12-dialog[open] .bc12-memory-symbol svg').count(),4);
     assert.equal(await page.locator('#bc12-dialog[open] [data-collectible-id="tallkrystall"]').getAttribute('data-owned'),'true');
     assert.equal(await page.locator('#bc12-dialog[open] [data-collectible-id="bokskogens-fjaer"]').getAttribute('data-owned'),'false');
     assert.equal(await page.locator('#bc12-dialog[open] .bc12-memory-intro b').innerText(),'1 av 4 minner funnet');
+    assert.equal(await page.locator('#bc12-dialog[open] .bc12-collection-tabs,#bc12-dialog[open] .bc12-equipment-card').count(),0);
     assert.equal(await page.locator('#bc12-dialog[open] [data-wardrobe-open]').count(),1);
     const layout=await page.locator('#bc12-dialog[open]').evaluate(el=>{
       const r=el.getBoundingClientRect();return {top:r.top,bottom:r.bottom,windowHeight:innerHeight,
@@ -64,41 +80,8 @@ async function verify(browserType,label,viewport){
       label+' collection book overflows viewport: '+JSON.stringify(layout));
     await page.screenshot({path:path.join(evidence,label+'-magisk-samlebok.png'),animations:'disabled'});
     await page.locator('#bc12-dialog[open] [data-wardrobe-open]').click();
-    assert.equal(await page.locator('#bc12-dialog[open].is-wardrobe .bc12-wardrobe-item').count(),4);
-    assert.equal(await page.locator('#bc12-dialog[open] [data-wear="nordlyskappe"]').isDisabled(),true);
-    await page.locator('#bc12-dialog[open] [data-wear="oppdagerhatt"]').click();
-    assert.equal(await page.locator('#bc12-dialog[open] [data-wear="oppdagerhatt"]').getAttribute('aria-pressed'),'true');
-    assert.equal(await page.locator('#bc12-dialog[open] .bc12-wardrobe-preview [data-gear="oppdagerhatt"]').count(),1);
-    const portrait=await page.locator('#bc12-dialog[open] .bc12-wardrobe-preview svg').evaluate(svg=>({
-      viewBox:svg.getAttribute('viewBox'),
-      mask:svg.querySelector('image')?.getAttribute('mask'),
-      hardCrop:svg.querySelectorAll('clipPath').length,
-      imageHeight:svg.querySelector('image')?.getAttribute('height')
-    }));
-    assert.equal(portrait.viewBox,'0 0 200 300','Min rev must show a full-body, proportional world character');
-    assert.equal(portrait.imageHeight,'300','the chosen 2.5D full-body fox must not be truncated');
-    assert.equal(portrait.mask,null,'transparent world art must not use a portrait cutoff');
-    assert.equal(portrait.hardCrop,0,'outdated polygon cutoff must not amputate the fox');
-    const legacy=await page.evaluate(()=>{
-      const svg=new DOMParser().parseFromString(
-        window.LARIA_FOX_WARDROBE.render('boy',window.LARIA_COLLECTION_STORE.snapshot(),'portrait'),
-        'image/svg+xml').documentElement;
-      return {viewBox:svg.getAttribute('viewBox'),mask:svg.querySelector('image')?.getAttribute('mask')};
-    });
-    assert.equal(legacy.viewBox,'0 0 200 272','portrait fallback keeps its earlier dimensions');
-    assert.match(legacy.mask||'',/^url\(#laria-wd-/,'legacy avatar fallback remains softly masked');
-    if(label==='iphone'){
-      const backButton=await page.locator('#bc12-dialog[open] [data-wardrobe-back]').evaluate(el=>{
-        const rect=el.getBoundingClientRect();
-        return {bottom:rect.bottom,top:rect.top,viewport:window.innerHeight};
-      });
-      assert.ok(backButton.top>=0&&backButton.bottom<=backButton.viewport-7,
-        'On a typical iPhone the wardrobe back button must be visible without scrolling: '+JSON.stringify(backButton));
-    }
-    await page.screenshot({path:path.join(evidence,label+'-garderobe-med-hatt.png'),animations:'disabled'});
-    await page.locator('#bc12-dialog[open] [data-wear="oppdagerhatt"]').click();
-    assert.equal(await page.locator('#bc12-dialog[open] .bc12-wardrobe-preview [data-gear="oppdagerhatt"]').count(),0);
-    await page.screenshot({path:path.join(evidence,label+'-garderobe.png'),animations:'disabled'});
+    assert.equal(await page.locator('#bc12-dialog[open].is-wardrobe .bc12-wardrobe-preview svg[data-avatar="boy"]').count(),1);
+    assert.equal(await page.locator('#bc12-dialog[open] [data-gear],#bc12-dialog[open] [data-wear]').count(),0);
     await page.locator('#bc12-dialog[open] .bc12-close').click();
     assert.equal(await page.locator('#bc12-dialog[open]').count(),0);
     const first=await page.evaluate(()=>({
@@ -132,6 +115,13 @@ async function verify(browserType,label,viewport){
     assert.equal(persisted.profile.avatar,'girl','avatar overwritten by collection migration');
     assert.equal(persisted.source,persisted.expected,'chosen fox missing after save');
     assert.equal(persisted.collection.equipped.head,'oppdagerhatt');
+    // Existing saves still remember equipped items. The unpublished
+    // accessory graphics must remain absent even after reload.
+    await page.locator('#home-screen.active .bc12-fox svg.laria-fox-wardrobe-placed').waitFor({state:'attached',timeout:12000});
+    assert.equal(await page.locator('#home-screen.active .bc12-fox [data-gear]').count(),0);
+    await page.locator('.bc12-nav [data-camp="wardrobe"]').click();
+    assert.equal(await page.locator('#bc12-dialog[open] [data-gear],#bc12-dialog[open] [data-wear]').count(),0);
+    await page.locator('#bc12-dialog[open] .bc12-close').click();
     await page.locator('.bc12-nav [data-camp="collection"]').click();
     assert.equal(await page.locator('#bc12-dialog[open] [data-collectible-id="tallkrystall"]').getAttribute('data-owned'),'true',
       'earned keepsake must remain visible after avatar change and reload');

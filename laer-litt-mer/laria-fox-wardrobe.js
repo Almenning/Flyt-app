@@ -5,6 +5,9 @@
  */
 (function(root){
   'use strict';
+  // Release gate: retain owned items and equipped slots, but never render
+  // unfinished clothing onto the child's permanent personal fox.
+  const GEAR_PREVIEW_ENABLED=false;
   var counter=0, scheduled=false, observer=null;
   function choice(){return root.LARIA_FOX?.choice?.()==='girl'?'girl':'boy';}
   function inventory(){return root.LARIA_COLLECTION_STORE?.snapshot?.()||root.LARIA_COLLECTION_CORE?.normalize?.(null)||{equipped:{}};}
@@ -68,7 +71,7 @@
     return '';
   }
   function render(which,collection,mode='portrait'){
-    var avatar=which==='girl'?'girl':'boy',equipped=collection?.equipped||{},id='laria-wd-'+(++counter);
+    var avatar=which==='girl'?'girl':'boy',equipped=GEAR_PREVIEW_ENABLED?(collection?.equipped||{}):{},id='laria-wd-'+(++counter);
     const fullBody=mode==='world';
     // Portraits in headers remain the previously selected avatar. In-world
     // artwork gets its own transparent, full-body silhouette and gear anchors.
@@ -147,7 +150,7 @@
     root.addEventListener('resize',refresh,{passive:true});
     refresh();
   }
-  root.LARIA_FOX_WARDROBE=Object.freeze({render,refresh,choice,inventory});
+  root.LARIA_FOX_WARDROBE=Object.freeze({render,refresh,choice,inventory,gearPreviewEnabled:GEAR_PREVIEW_ENABLED});
   if(root.document?.readyState==='loading')root.document.addEventListener('DOMContentLoaded',init,{once:true});
   else init();
 })(window);
