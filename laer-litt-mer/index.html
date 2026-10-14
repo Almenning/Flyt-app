@@ -6351,31 +6351,94 @@ function renderQuizMap(q,answered=currentAnswered){const canvas=document.getElem
 
 
 function canSpeak(){return typeof window!=='undefined'&&'speechSynthesis' in window&&typeof SpeechSynthesisUtterance!=='undefined'}
-function speechTextForQuestion(q){
-  const parts=[];if(q.passage)parts.push(q.passage);if(q.prompt)parts.push(q.prompt);
-  if(Array.isArray(q.options)&&q.options.length&&currentGrade()<=2)parts.push((q.subject==='english'?'Answers: ':'Svar: ')+q.options.join(', '));
-  return parts.join('. ');
+let lariaSpeechRun=0;
+function stopSpeech(){
+  lariaSpeechRun++;
+  try{if(canSpeak())window.speechSynthesis.cancel()}catch(_){}
+  const b=document.getElementById('read-aloud');
+  if(b){b.classList.remove('is-speaking');b.setAttribute('aria-pressed','false')}
 }
-function stopSpeech(){try{if(canSpeak())window.speechSynthesis.cancel()}catch(_){}}
+function speechSegmentsForQuestion(q){
+  const segments=[];
+  const add=(value,lang)=>{
+    const spoken=String(value||'').trim();
+    if(spoken)segments.push({text:spoken,lang});
+  };
+  const english=q.subject==='english',prompt=String(q.prompt||'');
+  const norwegianInstruction=english&&/^(?:Hva|Hvilket|Hvilken|Velg|Finn|Hvor)\b/i.test(prompt);
+  if(q.passage)add(q.passage,english?'en-GB':'nb-NO');
+  if(norwegianInstruction){
+    const quoted=/(?:“([^”]+)”|«([^»]+)»)/g;
+    let from=0,match;
+    while((match=quoted.exec(prompt))){
+      add(prompt.slice(from,match.index),'nb-NO');
+      const word=match[1]||match[2];
+      const isEnglishWord=q.englishWord&&word.toLocaleLowerCase('nb-NO')===String(q.englishWord).toLocaleLowerCase('nb-NO');
+      add(word,isEnglishWord?'en-GB':'nb-NO');
+      from=match.index+match[0].length;
+    }
+    add(prompt.slice(from),'nb-NO');
+  }else add(prompt,english?'en-GB':'nb-NO');
+  if(Array.isArray(q.options)&&q.options.length&&currentGrade()<=2){
+    const norwegianAnswers=english&&norwegianInstruction&&/på norsk\??\s*$/i.test(prompt);
+    add(norwegianInstruction||!english?'Svaralternativer':'Answers',
+      norwegianInstruction||!english?'nb-NO':'en-GB');
+    add(q.options.join(', '),norwegianAnswers||!english?'nb-NO':'en-GB');
+  }
+  return segments;
+}
 function speakQuestion(q){
   if(!canSpeak()||!q)return;
-  try{
-    stopSpeech();
-    const u=new SpeechSynthesisUtterance(speechTextForQuestion(q));
-    u.lang=q.subject==='english'?'en-GB':'nb-NO';u.rate=currentGrade()<=2?.88:.96;u.pitch=1;
-    const b=document.getElementById('read-aloud');
-    if(b){b.classList.add('is-speaking');b.setAttribute('aria-pressed','true')}
-    const done=()=>{const now=document.getElementById('read-aloud');if(now){now.classList.remove('is-speaking');now.setAttribute('aria-pressed','false')}};
-    u.onend=done;u.onerror=done;
-    window.speechSynthesis.speak(u);
-  }catch(_){}
+  stopSpeech();
+  const segments=speechSegmentsForQuestion(q),run=lariaSpeechRun;
+  const b=document.getElementById('read-aloud');
+  if(b){b.classList.add('is-speaking');b.setAttribute('aria-pressed','true')}
+  let index=0;
+  const next=()=>{
+    if(run!==lariaSpeechRun)return;
+    const part=segments[index++];
+    if(!part){
+      if(b&&b.isConnected){b.classList.remove('is-speaking');b.setAttribute('aria-pressed','false')}
+      return;
+    }
+    const u=new SpeechSynthesisUtterance(part.text);
+    u.lang=part.lang;u.rate=currentGrade()<=2?.88:.96;u.pitch=1;
+    u.onend=next;u.onerror=next;
+    try{window.speechSynthesis.speak(u)}catch(_){next()}
+  };
+  next();
+}
+function englishPronunciationTarget(q){
+  if(q?.subject!=='english')return '';
+  if(typeof q.englishWord==='string'&&q.englishWord.trim())return q.englishWord.trim();
+  // A Norwegian translation is not an English word to pronounce.
+  if(/^(?:Hva|Hvilket|Hvilken)\b/i.test(q.prompt||''))return '';
+  return String(q.answer||'').trim().slice(0,140);
+}
+function speakEnglishWord(word){
+  if(!canSpeak()||!word)return;
+  stopSpeech();
+  const u=new SpeechSynthesisUtterance(String(word));
+  u.lang='en-GB';u.rate=.84;u.pitch=1;
+  window.speechSynthesis.speak(u);
+}
+function updateAnswerPronunciation(q,correct){
+  const button=document.getElementById('task-hear-word');
+  if(!button)return;
+  const word=correct?englishPronunciationTarget(q):'';
+  const available=Boolean(word)&&canSpeak();
+  button.hidden=!available;
+  button.onclick=available?()=>speakEnglishWord(word):null;
 }
 function readAloudButton(q){
-  return currentGrade()<=2&&canSpeak()?'<button type="button" class="read-aloud" id="read-aloud">🔊 Les opp</button>':'';
+  return currentGrade()<=2&&canSpeak()?'<button type="button" class="read-aloud" id="read-aloud" aria-pressed="false" aria-label="Les opp spørsmålet">🔊 Les opp</button>':'';
 }
 function bindReadAloud(q){
-  const b=document.getElementById('read-aloud');if(b)b.onclick=()=>speakQuestion(q);
-  if(currentGrade()<=2&&state.preferences?.autoRead&&canSpeak())setTimeout(()=>speakQuestion(q),90);
+  const b=document.getElementById('read-aloud');
+  if(b)b.onclick=()=>speakQuestion(q);
+  if(currentGrade()<=2&&state.preferences?.autoRead&&canSpeak()){
+    setTimeout(()=>{if(sessionQuestions[qIndex]===q)speakQuestion(q)},90);
+  }
 }
 function renderQuestion(){
   const q=sessionQuestions[qIndex];if(!q){finishSession();return}
