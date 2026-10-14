@@ -86,15 +86,15 @@ function practice(){
  const expression=q.a+' × '+q.b;
  const repetition=Array.from({length:q.a},()=>q.b).join(' + ')+' = '+(q.a*q.b);
  return '<section class="mp-practice-screen">'+travel(stateBox.idx,8)+heading('Øv på gangetabellen','Finn svaret, ett lite steg om gangen.')
- +'<article class="mp-task-scene"><div class="mp-task-wood"><span class="mp-task-pretitle">Hvor mange blir det?</span><h2>'+expression+' <span>?</span></h2><p>'+q.a+' grupper med '+q.b+' i hver</p></div>'
+ +'<div class="mp-practice-workspace"><article class="mp-task-scene"><div class="mp-task-wood"><span class="mp-task-pretitle">Hvor mange blir det?</span><h2>'+expression+' <span>?</span></h2><p>'+q.a+' grupper med '+q.b+' i hver</p></div>'
  +'<div class="mp-task-apples">'+(window.LARIA_MULT_ILLUSTRATED_V3?window.LARIA_MULT_ILLUSTRATED_V3.picker(currentIllustrationTheme()):'')+apples(q.a,q.b)+'</div></article>'
- +'<div class="mp-answer-head"><span>Velg riktig svar</span>'+btn('read','🔊 Les opp','mp-read')+'</div>'
+ +'<div class="mp-practice-answers"><div class="mp-answer-head"><span>Velg riktig svar</span>'+btn('read','🔊 Les opp','mp-read')+'</div>'
  +'<div class="mp-answer-grid">'+stateBox.options.map((v,i)=>btn('answer',String(v),'mp-answer mp-answer-'+i+' '+(stateBox.answer===v?(solved?'correct':'incorrect'):''),'data-value="'+v+'" '+(solved?'disabled':'')+' aria-label="Svar '+v+'"')).join('')+'</div>'
  +btn('hint','💡 '+(stateBox.showHints?'Skjul forklaringen':'Vis meg hvordan'),'mp-hint-toggle','aria-expanded="'+stateBox.showHints+'"')
  +(stateBox.showHints?'<div class="mp-explain"><b>Se på gruppene:</b><p>'+q.a+' like grupper med '+q.b+' i hver.</p><strong>'+repetition+'</strong></div>':'')
  +'<div class="mp-answer-feedback '+(solved?'success':stateBox.feedback?'try':'')+'" role="status" aria-live="polite">'+(stateBox.feedback||'Trykk på et av tallene.')+'</div>'
  +(solved?btn('next',stateBox.idx===7?'Se resultatet ›':'Neste oppgave ›','mp-next'):'')
- +mascot(solved?'Bra! Du fant svaret.':stateBox.feedback?'Prøv igjen. Du kan bruke forklaringen.':'Vi finner svaret sammen!',true)+'</section>';
+ +mascot(solved?'Bra! Du fant svaret.':stateBox.feedback?'Prøv igjen. Du kan bruke forklaringen.':'Vi finner svaret sammen!',true)+'</div></div></section>';
 }
 function exploreTabs(){
  const modes=[['table','▦','Tabellen'],['pick','✋','Plukk og tell'],['groups','🍓','Grupper'],['array','▥','Rutenett'],['line','↝','Tallinje'],['swap','⇄','Bytt plass'],['patterns','✳','Mønstre']];
