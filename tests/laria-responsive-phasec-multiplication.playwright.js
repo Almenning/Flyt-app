@@ -143,6 +143,10 @@ async function run(engine,label,view,url){
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+3),
    label+' exploration has horizontal overflow');
   await photo(page,label+'-03-explore');
+  // The header back button first returns from free exploration to the
+  // Gangetabellen hub, then from that hub to Læria Basecamp.
+  await page.locator('.mp-back').click();
+  await page.locator('.mp-home-screen').waitFor({timeout:10000});
   await page.locator('#multiplication-lab-back').click();
   await page.locator('#home-screen.active').waitFor({timeout:10000});
   assert.deepEqual(errors,[],label+' runtime errors');
