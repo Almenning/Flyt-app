@@ -269,6 +269,14 @@
       screen.classList.add('premium-journey-active');
       screen.classList.remove('bokskogen-v10-active','bokskogen-v2-active','bokskogen-v3-active');
     }
+    // The retired renderer used to populate grade controls as a side effect.
+    // Since the approved painting now loads without that renderer, preserve
+    // the SAME grade selector, chapter note and displayed grade explicitly.
+    // This touches presentation only: profile grade and child progress stay put.
+    const gradeLabel=document.getElementById(geo?'geo-journey-grade':'journey-grade-chip');
+    if(gradeLabel)gradeLabel.textContent=GRADE_CONFIG[s.grade].label;
+    renderJourneyGradeStrip(subject,geo?'geo-journey-grade-strip':'journey-grade-strip',
+      geo?'geo-journey-grade-note':'journey-grade-note',s.grade);
     const finish=document.getElementById(geo?'geo-journey-finish':'journey-finish');
     if(finish)finish.hidden=true;
     revealDecodedArtwork(host,subject,geo);
