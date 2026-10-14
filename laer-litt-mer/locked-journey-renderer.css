@@ -336,8 +336,21 @@
     padding-top:0!important;
     padding-bottom:0!important;
   }
+  /* The locked map has its own back and settings targets.  In compact
+     landscape, an older subject-page sibling can otherwise keep a 55px
+     layout row even after its contents are hidden.  Make the map section
+     the explicit screen surface instead of relying on each retired card's
+     individual visibility rule. */
+  #subject-screen.active.locked-journey-active.locked-journey-subject-norwegian > :not(#subject-journey-section){
+    display:none!important;
+  }
   #subject-screen.active.locked-journey-active.locked-journey-subject-norwegian>#subject-journey-section{
     min-height:100dvh;
+    display:block!important;
+    gap:0!important;
+  }
+  #subject-screen.active.locked-journey-active.locked-journey-subject-norwegian #journey-map{
+    margin:0!important;
   }
   #subject-screen.active.locked-journey-active .locked-journey-map[data-journey-subject="norwegian"] .locked-journey-board{
     border-radius:0;
