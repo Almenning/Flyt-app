@@ -2395,6 +2395,7 @@
   <link rel="stylesheet" href="./laria-responsive-phaseb.css?v=20261014-ipad-mac-stage1" />
   <link rel="stylesheet" href="./laria-fox-identity.css?v=20261011-personalfox2" />
   <link rel="stylesheet" href="./laria-fox-presence.css?v=20261013-task-world-sprite3-noflash" />
+  <link rel="stylesheet" href="./laria-task-feedback-stable-v1.css?v=20261014-stable1" />
   <!-- immersive-globe-viewport-2026-10-02 -->
   <!-- globe-hit-test-dateline-fix-2026-10-02 -->
   <!-- parent-info-udir-2026-10-02 -->
@@ -3165,7 +3166,7 @@
 <script src="./laria-fox-identity.js?v=20261011-livefoxart1" data-boot-sync></script>
 <script src="./laria-collection-core.js?v=20261011-collectionbook2" data-boot-sync></script>
 <script src="./laria-fox-wardrobe.js?v=20261014-phase4d-fox-only1" data-boot-sync></script>
-<script src="./commercial-content-v18.js?v=20261010-math-decimal1" data-boot-sync></script>
+<script src="./commercial-content-v18.js?v=20261014-bilingual-qa1" data-boot-sync></script>
 <script src="./commerce-v18.js?v=20261007-p18rc1" data-boot-sync></script>
 <script src="./norwegian-content.js?v=20261006-assets1" defer></script>
 <script>
@@ -4805,7 +4806,7 @@ function englishPool(grade,module){
   const add=(skill,prompt,answer,options,extra={})=>q.push(choiceQuestion('english',skill,prompt,answer,options,extra));
   const sent=(answer,words)=>q.push({subject:'english',skill:'sentence',type:'sentence-order',prompt:'Build the sentence',answer,words:shuffle(words),curriculum:CURRICULUM.english});
   if(grade<=2){
-    add('words','🐱 What is this?','cat',['cat','dog','sun'],{visual:'🐱'});add('words','What colour is grass?','green',['green','blue','red']);add('numbers','What is «tre» in English?','three',['three','tree','ten']);add('words','🍎 What is this?','apple',['apple','chair','fish'],{visual:'🍎'});add('words','🏠 What is this?','house',['house','mouse','horse'],{visual:'🏠'});q.push(makeEnglishBuild('DOG','🐶'));
+    add('words','🐱 What is this?','cat',['cat','dog','sun'],{visual:'🐱'});add('words','What colour is grass?','green',['green','blue','red']);add('numbers','Hva heter tallet tre på engelsk?','three',['three','two','ten'],{englishWord:'three',norwegianMeaning:'tre'});add('words','🍎 What is this?','apple',['apple','chair','fish'],{visual:'🍎'});add('words','🏠 What is this?','house',['house','mouse','horse'],{visual:'🏠'});q.push(makeEnglishBuild('DOG','🐶'));
     add('words','What is this?','fish',['fish','book','car'],{visual:'🐟'});add('words','What is this?','car',['car','boat','house'],{visual:'🚗'});add('words','What is this?','boat',['boat','book','ball'],{visual:'⛵'});add('words','What is this?','book',['book','fish','sun'],{visual:'📘'});add('words','What colour is the sun?','yellow',['yellow','green','blue'],{visual:'☀️'});
     q.push(makeEnglishBuild('CAT','🐱'));q.push(makeEnglishBuild('SUN','☀️'));q.push(makeEnglishBuild('FISH','🐟'));
     add('phrases','How are you?','I am fine.',['I am fine.','Seven.','Blue.']);add('phrases','What do you say in the morning?','Good morning!',['Good morning!','Good night!','Thank you!']);add('sentence','Choose the correct sentence.','I have a red ball.',['I have a red ball.','I red have ball.','Have I ball red.']);add('sentence','Choose the correct sentence.','The dog is big.',['The dog is big.','Dog the big is.','The dog big are.']);sent('I like apples.',['I','like','apples.']);sent('She has a book.',['She','has','a','book.']);sent('This is my dog.',['This','is','my','dog.']);sent('The sun is yellow.',['The','sun','is','yellow.']);sent('I can see a boat.',['I','can','see','a','boat.']);
@@ -5713,7 +5714,11 @@ function celebrateCorrect(){
   requestAnimationFrame(()=>{const box=document.getElementById('feedback');if(!box)return;box.classList.remove('success-pop');void box.offsetWidth;box.classList.add('success-pop')});
 }
 function learningFeedbackText(q,correct){
-  if(correct)return q.subject==='english'?'Nice! You got it.':'Bra! Denne satt.';
+  if(correct){
+    if(q.subject==='english'&&q.englishWord&&q.norwegianMeaning)
+      return q.englishWord+' betyr '+q.norwegianMeaning+'.';
+    return q.subject==='english'?'Du fant riktig svar.':'Bra! Denne satt.';
+  }
   if(q.type==='build-word')return 'Se på bokstavene og prøv ordet en gang til neste gang det dukker opp.';
   if(q.subject==='math')return 'Se på tallene på nytt. Feilen brukes til å gi deg en bedre neste oppgave.';
   return 'Nesten. Oppgaven kommer tilbake senere, med litt mer støtte.';
@@ -5755,15 +5760,16 @@ function showLearningFeedback(q,correct,options={}){
   box.classList.toggle('bad',!correct);
   box.classList.toggle('success-pop',!!correct);
   box.classList.toggle('retry',!!options.retry);
-  document.getElementById('feedback-title').textContent=correct?(currentGrade()<=2?'🦊 ⭐ Riktig!':'⭐ Riktig!'):'💪 Nesten!';
+  document.getElementById('feedback-title').textContent=correct?'Riktig!':'Nesten!';
   let copy=correct&&currentAnswered?.corrected
-    ?(q.subject==='english'?'You found it after another try!':'Du fant det etter et nytt forsøk!')
+    ?'Du fant det etter et nytt forsøk! '+learningFeedbackText(q,true)
     :learningFeedbackText(q,correct);
-  if(options.retry)copy+=(q.subject==='english'?' Try again.':' Prøv en gang til.');
+  if(options.retry)copy+=' Prøv en gang til.';
   const last=state.answerLog[state.answerLog.length-1];
   if(correct&&!currentAnswered?.corrected&&last?.correct===true&&currentGrade()<=2&&last.strengthened)
     copy+=' ⭐ Dette ble sterkere i samlingen din.';
   document.getElementById('feedback-copy').textContent=copy;
+  updateAnswerPronunciation(q,correct&&!options.retry);
   document.getElementById('next-question').style.display=options.retry?'none':'block';
 }
 function renderBuildWord(q,wrap){
@@ -6415,7 +6421,7 @@ function applyAnsweredState(q,answered){
 }
 function showFeedback(q,correct){
   const c=countries[q.k],box=document.getElementById('feedback');box.style.display='block';box.classList.toggle('bad',!correct);
-  document.getElementById('feedback-title').textContent=correct?(currentGrade()<=2?'🦊 ⭐ Riktig!':'⭐ Riktig!'):'💪 Nesten!';
+  document.getElementById('feedback-title').textContent=correct?'Riktig!':'Nesten!';
   let copy='';
   if(q.type==='capital')copy=`${c.name} har hovedstaden ${c.capital}.`;
   else if(q.type==='flag')copy=`Dette er flagget til ${c.name}.`;
@@ -6779,7 +6785,7 @@ if(needsProfileSetup||!state.profile.onboarded||!state.profile.grade){
 <!-- Shared inner-screen helpers + task scene -->
 <script src="./laria-unified-v13.js?v=20261006-assets1" defer></script>
 <script src="./laria-navigation-v13.js?v=20261012-ux-phase1" defer></script>
-<script src="./laria-task-scene-v15.js?v=20261013-phase3-puppy-final2" defer></script>
+<script src="./laria-task-scene-v15.js?v=20261014-feedback-voice1" defer></script>
 <script src="./laria-fox-presence.js?v=20261011-livefoxart1" defer></script>
 
 <!-- Kloden: art primitives must load before the active renderer. -->
