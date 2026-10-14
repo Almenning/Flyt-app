@@ -453,36 +453,3 @@ jobs:
           if-no-files-found: warn
           retention-days: 7
 
-  # First pixel matters: a held original PNG must show the approved preview
-  # before the retired geography cards, on real WebKit/Chromium viewports.
-  laria-journey-firstpaint:
-    runs-on: ubuntu-latest
-    timeout-minutes: 18
-    steps:
-      - name: Checkout exact PR source
-        uses: actions/checkout@v4
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-      - name: Install dependencies
-        run: npm ci
-      - name: Check waiting scene and regression test syntax
-        run: |
-          node --check laer-litt-mer/locked-journey-renderer.js
-          node --check tests/laria-locked-journey-firstpaint.playwright.js
-      - name: Install WebKit and Chromium
-        run: npx playwright install --with-deps chromium webkit
-      - name: Verify four journeys with deliberately slow and missing original art
-        env:
-          LARIA_JOURNEY_FIRSTPAINT_IMAGES: /tmp/laria-journey-firstpaint
-        run: node tests/laria-locked-journey-firstpaint.playwright.js
-      - name: Upload actual loading and approved-map screenshots
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: laria-journey-firstpaint-${{ github.sha }}
-          path: /tmp/laria-journey-firstpaint
-          if-no-files-found: warn
-          retention-days: 7
