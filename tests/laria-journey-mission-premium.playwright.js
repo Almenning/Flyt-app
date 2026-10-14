@@ -97,7 +97,7 @@ async function run(engine,label,viewport,url){
     const places=LARIA_LOCKED_JOURNEYS.build(subject,model,
       n=>geo?geoJourneyNodeState(n):journeyNodeState(n),rec?.id).places;
     const core=places[0].nodes.filter(n=>['skill','geo-skill','checkpoint'].includes(n.type));
-    assert(core.length>0,'first landmark must contain original core mission');
+    if(core.length===0)throw Error('first landmark must contain original core mission');
     for(const item of core){
       state.journey.nodes[journeyNodeKey(subject,2,item.id)]={
         passed:true,attempts:2,best:5,lastAt:Date.now(),passedAt:Date.now()};
