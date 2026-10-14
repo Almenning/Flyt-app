@@ -41,13 +41,11 @@
     max-width:none;
     min-height:100dvh;
     padding:0;
-    background-color:var(--ljb-ground);
-    background-image:
-      linear-gradient(90deg,var(--ljb-wash),rgba(15,35,35,.53) 45%,rgba(15,35,35,.53) 55%,var(--ljb-wash)),
-      var(--ljb-scenery);
-    background-size:cover,cover;
-    background-position:center top;
-    background-repeat:no-repeat;
+    /* Inline legacy .grade-band-young sets background !important. One
+       scoped shorthand wins that obsolete app canvas only on the active map. */
+    background:
+      linear-gradient(90deg,var(--ljb-wash),rgba(15,35,35,.53) 45%,rgba(15,35,35,.53) 55%,var(--ljb-wash)) center top / cover no-repeat,
+      var(--ljb-scenery) center top / cover no-repeat var(--ljb-ground) !important;
     overflow-x:clip;
   }
   body[class*="locked-journey-subject-"]:has(.screen.active.locked-journey-active) .app::before,
