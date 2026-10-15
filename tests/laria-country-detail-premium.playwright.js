@@ -246,6 +246,12 @@ async function run(engine,label,viewport,url,avatar='girl'){
         assert(g.title.left>=g.board.left-2&&g.title.right<=g.board.right+2,
           label+' '+id+' title crosses scene edges '+JSON.stringify(g));
         assert(g.scrollWidth<=g.viewport+2,label+' '+id+' causes horizontal scrolling '+JSON.stringify(g));
+        if(viewport.width<=340&&viewport.height>=600){
+          assert(g.title.top-g.board.top<=125,
+            label+' '+id+' wastes the small iPhone hero above the title '+JSON.stringify(g));
+          assert(g.content.top<=viewport.height*.74,
+            label+' '+id+' pushes all country facts below the first fold '+JSON.stringify(g));
+        }
         if(label==='webkit-iphone-small'&&id==='cf'){
           await page.screenshot({path:path.join(screenshotDir,'webkit-iphone-small-long-name.png'),
             animations:'disabled',fullPage:false});
