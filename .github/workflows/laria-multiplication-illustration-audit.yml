@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: a5f34eb07c7f96c223687b179eaf9be98eaf9b69
+          ref: 8b89be7f423008316bf3327b91ebe590705d8044
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
@@ -52,10 +52,12 @@ jobs:
                 }return false;
               };
               const groups=[...el.querySelectorAll('.mp3-basket')],items=[...el.querySelectorAll('.mp3-item')],foxes=[...document.querySelectorAll('#multiplication-lab-screen.active .mp-mascot img')].filter(x=>R(x).width>0).map(R);
+              const area=el.closest('.mp-task-apples')||el,visibleArea=R(area);
+              const inside=r=>r.left>=visibleArea.left-1&&r.right<=visibleArea.right+1&&r.top>=visibleArea.top-1&&r.bottom<=visibleArea.bottom+1;
               return {
                 width:innerWidth,height:innerHeight,pageScrollWidth:document.documentElement.scrollWidth,
-                stage:R(el),groups:groups.map(g=>R(g)),groupItemCounts:groups.map(g=>g.querySelectorAll('.mp3-item').length),
-                items:items.map(x=>({...R(x),clipped:clippedByHidden(x),visible:getComputedStyle(x).visibility!=='hidden'&&getComputedStyle(x).display!=='none'})),
+                stage:R(el),visibleArea,groups:groups.map(g=>R(g)),groupItemCounts:groups.map(g=>g.querySelectorAll('.mp3-item').length),
+                items:items.map(x=>{const r=R(x);return {...r,insideVisibleArea:inside(r),clipped:clippedByHidden(x),visible:getComputedStyle(x).visibility!=='hidden'&&getComputedStyle(x).display!=='none'}}),
                 foxes
               };
             });
@@ -64,7 +66,7 @@ jobs:
             assert.equal(g.groups.length,a,label+' wrong number of groups');
             assert.equal(g.items.length,a*b,label+' wrong number of countable objects');
             assert(g.groupItemCounts.every(n=>n===b),label+' a group does not contain exactly '+b+' objects: '+g.groupItemCounts);
-            assert(g.items.every(x=>x.visible&&x.width>3&&x.height>3&&!x.clipped),label+' hidden or clipped countable object');
+            assert(g.items.every(x=>x.visible&&x.width>3&&x.height>3&&!x.clipped&&x.insideVisibleArea),label+' hidden, clipped or outside the visible counting area');
             assert(g.groups.every(x=>x.width>20&&x.height>20),label+' collapsed group');
             assert(g.pageScrollWidth<=g.width+1,label+' horizontal page overflow '+g.pageScrollWidth+' > '+g.width);
             for(const item of g.items)for(const fox of g.foxes)assert.equal(intersect(item,fox),0,label+' selected fox covers a countable object');
@@ -87,25 +89,36 @@ jobs:
                 for(const [width,height] of formats){
                   const label=name+'-'+width+'x'+height,entry={label,engine:name,width,height,checks:[],errors:[]};report.push(entry);
                   const context=await browser.newContext({viewport:{width,height},hasTouch:true,isMobile:width<600,reducedMotion:'reduce',serviceWorkers:'block'});
-                  await context.addInitScript(s=>{localStorage.setItem('laerlittmer-v2',JSON.stringify(s));localStorage.removeItem('laria_mult_premium_v1');let n=712;Math.random=()=>((n=Math.imul(1664525,n)+1013904223>>>0)/4294967296);},seed);
+                  await context.addInitScript(s=>{localStorage.setItem('laerlittmer-v2',JSON.stringify(s));const tries={};for(const a of [5,10])for(let b=1;b<=9;b++)tries[a+'x'+b]={right:10,wrong:0,last:1};localStorage.setItem('laria_mult_premium_v1',JSON.stringify({tries,sessions:0,days:{},stars:0,draft:null}));let n=712;Math.random=()=>((n=Math.imul(1664525,n)+1013904223>>>0)/4294967296);},seed);
                   const page=await context.newPage();page.setDefaultTimeout(12000);page.on('pageerror',e=>entry.errors.push(String(e)));
                   await page.route(/https:\/\/(raw\.githubusercontent\.com|api\.worldbank\.org)\//,r=>r.abort());
                   try{
                     await page.goto(url,{waitUntil:'domcontentloaded'});await openLab(page);
-                    // Real practice task: actual generated question must draw every group and object.
-                    await page.locator('[data-mp-action="go"][data-page="practice"]').click();
-                    await page.locator('.mp-practice-screen .mp3-collections').waitFor();
-                    const snap=await page.evaluate(()=>window.LARIA_MULT_PREMIUM.snapshot()),q=snap.round[snap.index];
-                    const pg=await geometry(page,'.mp-practice-screen .mp3-collections');verifyGeometry(pg,q.a,q.b,label+' practice '+q.a+'x'+q.b);
-                    entry.checks.push({kind:'practice',a:q.a,b:q.b,objects:pg.items.length,groups:pg.groups.length,pageScrollWidth:pg.pageScrollWidth});
-                    await page.locator('.mp-practice-workspace').screenshot({path:path.join(out,label+'-practice-'+q.a+'x'+q.b+'.png'),animations:'disabled'});
+                    // Use the real table chooser. Prior evidence makes ×10 the first
+                    // generated question, so we inspect the densest 5×10 and 10×10
+                    // practice scenes without replacing learning content.
+                    for(const table of [5,10]){
+                      await page.locator('[data-mp-action="go"][data-page="choose"]').click();
+                      await page.locator('.mp-table-choice[data-table="'+table+'"]').first().click();
+                      await page.locator('.mp-practice-screen .mp3-collections').waitFor();
+                      const snap=await page.evaluate(()=>window.LARIA_MULT_PREMIUM.snapshot()),q=snap.round[snap.index];
+                      assert.equal(q.a,table,label+' selected table changed');
+                      assert.equal(q.b,10,label+' audit evidence did not surface the densest ×10 question first');
+                      const pg=await geometry(page,'.mp-practice-screen .mp3-collections');
+                      await page.screenshot({path:path.join(out,label+'-practice-'+q.a+'x'+q.b+'.png'),fullPage:true,animations:'disabled'});
+                      verifyGeometry(pg,q.a,q.b,label+' practice '+q.a+'x'+q.b);
+                      entry.checks.push({kind:'practice',a:q.a,b:q.b,objects:pg.items.length,groups:pg.groups.length,pageScrollWidth:pg.pageScrollWidth,visibleArea:pg.visibleArea,stage:pg.stage});
+                      await page.locator('.mp-back').click();
+                      await page.locator('.mp-home-screen').waitFor();
+                    }
                     // Real explore route, maximum supported premium factors: 10 x 10 = 100 objects.
                     await page.locator('[data-mp-action="go"][data-page="explore"]').click();
                     await page.locator('[data-mp-action="mode"][data-mode="groups"]').click();
                     await setFactor(page,'a',10);await setFactor(page,'b',10);
-                    const eg=await geometry(page,'.mp-explore-screen .mp3-collections');verifyGeometry(eg,10,10,label+' explore 10x10');
+                    const eg=await geometry(page,'.mp-explore-screen .mp3-collections');
+                    await page.screenshot({path:path.join(out,label+'-groups-10x10.png'),fullPage:true,animations:'disabled'});
+                    verifyGeometry(eg,10,10,label+' explore 10x10');
                     entry.checks.push({kind:'explore-groups',a:10,b:10,objects:eg.items.length,groups:eg.groups.length,pageScrollWidth:eg.pageScrollWidth,stageHeight:eg.stage.height});
-                    await page.locator('.mp-explore-screen .mp3-collections').screenshot({path:path.join(out,label+'-groups-10x10.png'),animations:'disabled'});
                     // Active premium table is intentionally 10 x 10, not the dormant 12 x 12 legacy lab.
                     await page.locator('[data-mp-action="mode"][data-mode="table"]').click();
                     const cells=await page.locator('.mp-times-grid tbody .mp-grid-cell').count();
