@@ -143,8 +143,11 @@ function checkLine(path){
   try{navigator.vibrate?.(22)}catch(_){}
   try{typeof playSuccessTone==='function'&&playSuccessTone()}catch(_){}
   if(ui.found.size===ui.words.length){
-    ui.completed=true;saveRound();status('Du fant alle ordene! 🌟 Du kan ta en ny runde, eller gå tilbake til basecamp.',true);
-  }else status('Fant '+hit+'! '+(ui.words.length-ui.found.size)+' igjen.');
+    ui.completed=true;saveRound();status('Du fant alle ordene! 🌟 Klar for en ny runde.',true);
+  }else{
+    const left=ui.words.length-ui.found.size;
+    status('Du fant '+hit+'! '+(left===1?'Ett ord igjen.':left+' ord igjen.'));
+  }
   render(false)
 }
 function status(message,success=false){
@@ -152,13 +155,16 @@ function status(message,success=false){
   if(success){s.classList.remove('word-hunt-success');void s.offsetWidth;s.classList.add('word-hunt-success')}
 }
 function render(resetStatus=true){
-  const root=overlay(),board=root.querySelector('.word-hunt-board');board.style.setProperty('--size',ui.size);
+  const root=overlay(),board=root.querySelector('.word-hunt-board');
+  root.classList.toggle('word-hunt-complete',ui.completed);
+  board.style.setProperty('--size',ui.size);
   board.innerHTML=ui.grid.flatMap((row,r)=>row.map((ch,c)=>'<button type="button" class="word-hunt-cell" role="gridcell" data-r="'+r+'" data-c="'+c+'" aria-label="'+ch+'">'+ch+'</button>')).join('');
   for(const path of ui.found.values())for(const [r,c] of path)board.querySelector('[data-r="'+r+'"][data-c="'+c+'"]')?.classList.add('found');
   root.querySelector('.word-hunt-words').innerHTML=ui.words.map(w=>'<span class="word-hunt-word '+(ui.found.has(w)?'found':'')+'">'+(ui.found.has(w)?'✓ ':'')+w+'</span>').join('');
   root.querySelectorAll('[data-word-level]').forEach(b=>b.classList.toggle('active',b.dataset.wordLevel===ui.level));
-  root.querySelector('.word-hunt-rounds').textContent=stats().rounds+' ordjakter fullført på denne enheten';
-  if(resetStatus)status(ui.level==='easy'?'Fire ord har gjemt seg i rutenettet.':'Nå kan ordene også ligge baklengs og på skrå.');
+  const rounds=Number(stats().rounds||0);
+  root.querySelector('.word-hunt-rounds').textContent=rounds===1?'Du har fullført 1 ordjakt':'Du har fullført '+rounds+' ordjakter';
+  if(resetStatus)status(ui.level==='easy'?'Se etter ord bortover og nedover.':'Ordene kan også ligge baklengs og på skrå.');
 }
 let previousOverflow='',previousFocus=null;
 function openWordHunt(){
