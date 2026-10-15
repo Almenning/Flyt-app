@@ -5,12 +5,22 @@
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
+const crypto=require('node:crypto');
 const root=path.resolve(__dirname,'..','laer-litt-mer');
 const images={
  norwegian:'bokskogen',math:'tallenga',
  english:'ordlandsbyen',geography:'nordlysleiren'
 };
 const errors=[];
+const approvalPath=path.join(root,'assets','locked-journey-ground-approval.json');
+const approval=JSON.parse(fs.readFileSync(approvalPath,'utf8'));
+if(approval.schemaVersion!==1||approval.releaseStatus!=='approved_for_integration'){
+ errors.push('Release approval is pending. Artwork dimensions alone are NOT premium signoff.');
+}
+function githubBlobSha(buffer){
+ return crypto.createHash('sha1').update('blob '+buffer.length+'\\0').update(buffer).digest('hex');
+}
+
 function dimensions(buffer){
  if(buffer.toString('ascii',0,4)!=='RIFF'||buffer.toString('ascii',8,12)!=='WEBP')throw Error('not a WebP image');
  let pos=12;
@@ -39,18 +49,31 @@ for(const [subject,name] of Object.entries(images)){
  const original=path.join(root,'locked-journeys',name+'-locked-20261010.png');
  const asset=path.join(root,'assets','locked-journey-ground',name+'-ground-v1.webp');
  assert(fs.existsSync(original),subject+' approved original removed');
+ const entry=approval.subjects?.[subject];
+ assert(entry&&entry.lockedOriginal===name+'-locked-20261010.png'&&entry.asset===name+'-ground-v1.webp',
+  subject+' approved image identity is inconsistent');
+ const originalBlob=githubBlobSha(fs.readFileSync(original));
+ if(originalBlob!==entry.lockedOriginalGitBlob){
+  errors.push(subject+': ORIGINAL MAP CHANGED! Expected git blob '+entry.lockedOriginalGitBlob+', got '+originalBlob);
+ }
+
  if(!fs.existsSync(asset)){
   errors.push(subject+': MISSING artist-approved extension '+path.relative(root,asset));
   continue;
  }
  try{
-  const {width,height}=dimensions(fs.readFileSync(asset));
+  const bytes=fs.readFileSync(asset),{width,height}=dimensions(bytes);
   if(width!==941||height<425)errors.push(subject+': required width 941px, height at least 425px; got '+width+'x'+height);
+  const sha256=crypto.createHash('sha256').update(bytes).digest('hex');
+  if(!entry.visualApproval||!entry.assetSha256||sha256!==entry.assetSha256){
+   errors.push(subject+': artwork has not passed explicit, checksum-bound visual approval');
+  }
+
  }catch(e){errors.push(subject+': '+e.message);}
 }
 if(errors.length){
  console.error('LÆRIA D2 ART QUALITY GATE NOT READY. The four original maps are intact. Do not merge this draft PR.\n'+errors.join('\n'));
  process.exitCode=1;
 }else{
- console.log('D2 art dimensions present. This is not visual approval: inspect actual WebKit map-edge screenshots before merging.');
+ console.log('D2 four original paintings are immutable. Four new 941px assets have visual approval and exact checksum matches. Still recheck latest head WebKit screenshots before merge.');
 }
