@@ -290,3 +290,43 @@ body:has(#detail-screen.active) .app::after{display:none!important}
   .country-story-fox{animation:none!important}
   .country-story-practice{transition:none!important}
 }
+/* Curated story worlds (Egypt and Tsjad only). CSS preserves the generic
+   painted canvas until the real country art has loaded successfully. */
+.country-story-board>.country-story-hero-art{
+  position:absolute;inset:0;z-index:0;
+  display:block;width:100%;height:100%;object-fit:cover;
+  object-position:60% 53%;
+  opacity:0;transition:opacity .24s ease-out;
+  pointer-events:none;-webkit-user-select:none;user-select:none;
+}
+.country-story.has-landscape-art .country-story-hero-art{opacity:1}
+.country-story.has-landscape-art .country-story-board>canvas{
+  opacity:0;pointer-events:none
+}
+.country-story.has-landscape-art .country-story-board::before{
+  background:
+    linear-gradient(95deg,rgba(255,250,221,.96) 0%,rgba(255,246,214,.78) 26%,rgba(255,247,214,.18) 68%),
+    linear-gradient(0deg,rgba(43,44,27,.24),transparent 42%);
+}
+.country-story.has-landscape-art[data-tone="desert"] .country-story-title h1{
+  color:#503723;text-shadow:0 2px 0 rgba(255,252,237,.45)
+}
+@media(min-width:980px) and (orientation:landscape){
+  .country-story-board>.country-story-hero-art{object-position:65% center}
+  .country-story.has-landscape-art .country-story-board::before{
+    background:
+      linear-gradient(98deg,rgba(255,248,215,.97),rgba(255,246,207,.80) 28%,rgba(255,247,211,.07) 76%),
+      linear-gradient(0deg,rgba(37,51,37,.19),transparent 40%);
+  }
+}
+@media(max-width:699px){
+  .country-story-board>.country-story-hero-art{object-position:59% 52%}
+  .country-story.has-landscape-art .country-story-board::before{
+    background:
+      linear-gradient(90deg,rgba(255,249,217,.94),rgba(255,246,214,.72) 36%,rgba(255,248,219,.06) 82%),
+      linear-gradient(0deg,rgba(39,46,29,.22),transparent 32%);
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .country-story-board>.country-story-hero-art{transition:none!important}
+}
