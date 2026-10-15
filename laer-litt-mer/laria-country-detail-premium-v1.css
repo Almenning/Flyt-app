@@ -290,3 +290,88 @@ body:has(#detail-screen.active) .app::after{display:none!important}
   .country-story-fox{animation:none!important}
   .country-story-practice{transition:none!important}
 }
+/* Curated story worlds (Egypt and Tsjad only). CSS preserves the generic
+   painted canvas until the real country art has loaded successfully. */
+.country-story-board>.country-story-hero-art{
+  position:absolute;inset:0;z-index:0;
+  display:block;width:100%;height:100%;object-fit:cover;
+  object-position:60% 53%;
+  opacity:0;transition:opacity .24s ease-out;
+  pointer-events:none;-webkit-user-select:none;user-select:none;
+}
+.country-story.has-landscape-art .country-story-hero-art{opacity:1}
+.country-story.has-landscape-art .country-story-board>canvas{
+  opacity:0;pointer-events:none
+}
+.country-story.has-landscape-art .country-story-board::before{
+  background:
+    linear-gradient(95deg,rgba(255,250,221,.96) 0%,rgba(255,246,214,.78) 26%,rgba(255,247,214,.18) 68%),
+    linear-gradient(0deg,rgba(43,44,27,.24),transparent 42%);
+}
+.country-story.has-landscape-art[data-tone="desert"] .country-story-title h1{
+  color:#503723;text-shadow:0 2px 0 rgba(255,252,237,.45)
+}
+@media(min-width:980px) and (orientation:landscape){
+  .country-story-board>.country-story-hero-art{object-position:65% center}
+  .country-story.has-landscape-art .country-story-board::before{
+    background:
+      linear-gradient(98deg,rgba(255,248,215,.97),rgba(255,246,207,.80) 28%,rgba(255,247,211,.07) 76%),
+      linear-gradient(0deg,rgba(37,51,37,.19),transparent 40%);
+  }
+}
+@media(max-width:699px){
+  .country-story-board>.country-story-hero-art{object-position:59% 52%}
+  .country-story.has-landscape-art .country-story-board::before{
+    background:
+      linear-gradient(90deg,rgba(255,249,217,.94),rgba(255,246,214,.72) 36%,rgba(255,248,219,.06) 82%),
+      linear-gradient(0deg,rgba(39,46,29,.22),transparent 32%);
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .country-story-board>.country-story-hero-art{transition:none!important}
+}
+
+/* Visual QA correction: a whole-hero parchment wash hid the landmark scenes.
+   Protect reading contrast LOCALLY, and let the artwork actually be seen. */
+.country-story.has-landscape-art .country-story-board::before{
+  background:linear-gradient(0deg,rgba(44,42,29,.20),transparent 42%)!important;
+}
+.country-story.has-landscape-art .country-story-title{
+  top:51%;transform:translateY(-30%);left:clamp(15px,3vw,30px);
+  width:min(61%,360px);max-width:calc(100% - 32px);
+  padding:clamp(14px,2.2vw,23px);
+  border:1.5px solid rgba(255,247,222,.84);
+  border-radius:clamp(18px,2.4vw,27px);
+  background:linear-gradient(135deg,rgba(255,250,232,.95),rgba(255,242,209,.77));
+  box-shadow:0 11px 28px rgba(54,48,31,.19),inset 0 1px 0 #fff;
+  -webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);
+}
+.country-story.has-landscape-art .country-story-tagline{
+  max-width:100%;background:rgba(255,245,217,.56);
+}
+.country-story.has-landscape-art .country-story-fox{
+  right:0;bottom:-2%;max-height:71%;
+  filter:drop-shadow(0 12px 12px rgba(50,40,25,.31));
+}
+@media (min-width:980px) and (orientation:landscape){
+ .country-story.has-landscape-art .country-story-title{
+    top:53%;left:clamp(13px,2.4vw,26px);transform:translateY(-29%);
+    width:min(61%,365px);
+ }
+ .country-story.has-landscape-art .country-story-hero-art{
+    object-position:59% center;
+ }
+}
+@media(max-width:699px){
+ .country-story.has-landscape-art .country-story-title{
+    width:64%;left:12px;top:53%;transform:translateY(-37%);
+    padding:11px 12px;border-radius:17px;
+ }
+ .country-story.has-landscape-art .country-story-hero-art{object-position:61% 50%}
+ .country-story.has-landscape-art .country-story-title h1{
+    font-size:clamp(29px,8.5vw,45px)
+ }
+ .country-story.has-landscape-art .country-story-tagline{
+    font-size:11px;padding:7px 9px;line-height:1.3
+ }
+}
