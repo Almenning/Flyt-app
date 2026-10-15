@@ -37,13 +37,66 @@
       '<span class="country-story-icon" aria-hidden="true">'+icon+'</span>'+
       esc(title)+'</dt><dd>'+esc(value)+'</dd></div>';
   }
+  // A small, real country silhouette from the geometry already used by the
+  // atlas. Never synthesize a contour when a country has no reliable geometry.
+  function outerRings(country){
+    const geometry=country.geometry;
+    const polygons=geometry?.type==='Polygon'?[geometry.coordinates]:
+      geometry?.type==='MultiPolygon'?geometry.coordinates:[];
+    return polygons.map(p=>p?.[0]).filter(r=>Array.isArray(r)&&r.length>=3&&
+      r.every(x=>Array.isArray(x)&&Number.isFinite(Number(x[0]))&&Number.isFinite(Number(x[1]))));
+  }
+  function paintOutline(canvas,country){
+    const rings=outerRings(country);if(!canvas||!rings.length)return;
+    const points=rings.flat();
+    const lon=points.map(p=>Number(p[0]));
+    const lat=points.map(p=>Number(p[1]));
+    const wrap=Math.max(...lon)-Math.min(...lon)>180;
+    const xLon=p=>wrap&&Number(p[0])<0?Number(p[0])+360:Number(p[0]);
+    const midLat=(Math.max(...lat)+Math.min(...lat))/2;
+    const scaleLon=Math.max(.20,Math.cos(midLat*Math.PI/180));
+    const x=points.map(p=>xLon(p)*scaleLon);
+    const minX=Math.min(...x),maxX=Math.max(...x);
+    const minY=Math.min(...lat),maxY=Math.max(...lat);
+    const rect=canvas.getBoundingClientRect();
+    const w=Math.max(108,Math.round(rect.width||150));
+    const h=Math.max(90,Math.round(rect.height||125));
+    const dpr=Math.min(2,root.devicePixelRatio||1);
+    canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);
+    const ctx=canvas.getContext('2d');if(!ctx)return;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    ctx.clearRect(0,0,w,h);
+    ctx.strokeStyle='rgba(160,122,72,.15)';ctx.lineWidth=1;
+    for(let i=1;i<=3;i++){
+      const gx=w*i/4,gy=h*i/4;
+      ctx.beginPath();ctx.moveTo(gx,6);ctx.lineTo(gx,h-6);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(6,gy);ctx.lineTo(w-6,gy);ctx.stroke();
+    }
+    const spanX=Math.max(.001,maxX-minX),spanY=Math.max(.001,maxY-minY);
+    const fit=Math.min((w-38)/spanX,(h-29)/spanY);
+    const ox=(w-spanX*fit)/2,oy=(h-spanY*fit)/2;
+    ctx.beginPath();
+    for(const ring of rings){
+      ring.forEach((p,i)=>{
+        const px=ox+(xLon(p)*scaleLon-minX)*fit;
+        const py=oy+(maxY-Number(p[1]))*fit;
+        if(i===0)ctx.moveTo(px,py);else ctx.lineTo(px,py);
+      });
+      ctx.closePath();
+    }
+    ctx.shadowColor='rgba(108,74,39,.24)';ctx.shadowBlur=8;ctx.shadowOffsetY=4;
+    ctx.fillStyle='#c99d5d';ctx.fill();
+    ctx.shadowColor='transparent';ctx.shadowBlur=0;ctx.shadowOffsetY=0;
+    ctx.lineWidth=1.9;ctx.strokeStyle='#825b35';ctx.stroke();
+  }
   function redraw(country){
     if(paintFrame)cancelAnimationFrame(paintFrame);
     paintFrame=requestAnimationFrame(()=>{
       paintFrame=0;
       const canvas=document.querySelector('#detail-screen.active .country-story-board canvas');
-      if(!canvas||!root.LARIA_GLOBE_COUNTRY_SCENE_V25?.paint)return;
-      root.LARIA_GLOBE_COUNTRY_SCENE_V25.paint(canvas,country);
+      if(canvas&&root.LARIA_GLOBE_COUNTRY_SCENE_V25?.paint)
+        root.LARIA_GLOBE_COUNTRY_SCENE_V25.paint(canvas,country);
+      paintOutline(document.querySelector('#detail-screen.active .country-story-outline'),country);
     });
   }
   function render(id,country,statusLabel){
@@ -55,6 +108,15 @@
     const foxSrc=root.LARIA_FOX?.worldSource?.(avatar)||'';
     const foxMarkup=foxSrc?
       '<img class="country-story-fox" src="'+esc(foxSrc)+'" alt="" aria-hidden="true" draggable="false" decoding="async">':'';
+    const outline=outerRings(country).length?
+      '<div class="country-story-map">'+
+        '<div class="country-story-map-copy">'+
+          '<span class="country-story-section-label">Et lite kartspor</span>'+
+          '<strong>Landets omriss</strong>'+
+          '<small>Kjenner du igjen formen?</small>'+
+        '</div>'+
+        '<canvas class="country-story-outline" aria-hidden="true"></canvas>'+
+      '</div>':'';
     const note=country.note?
       '<p class="country-story-note">'+esc(country.note)+'</p>':'';
     target.innerHTML=
@@ -86,6 +148,7 @@
             fact('✦','Innbyggere · ca.',population(country.population))+
           '</dl>'+
           note+
+          outline+
           '<div class="country-story-bottom">'+
             '<button type="button" class="country-story-practice" data-country-story-practice="'+esc(id)+'">'+
               '<span aria-hidden="true">✦</span> Øv på '+esc(country.name)+
