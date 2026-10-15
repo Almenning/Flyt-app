@@ -115,6 +115,94 @@ async function scenario(browser,label,url,flag,missing,viewport){
   console.log('PASS '+label+' all-or-nothing, original geometry, no 404 leakage');
  }finally{await context.close();}
 }
+/* The mocked artwork checks DOM geometry and navigation, never aesthetics.
+ * This uses the SAME approved map/fox/mission renderer for all four worlds.
+ * A terrain extension must not cover Geografi's next Kloden entry. */
+async function verifyFourWorldLayouts(browser,label,url){
+ const context=await browser.newContext({
+  viewport:{width:390,height:844},isMobile:true,hasTouch:true,
+  serviceWorkers:'block',deviceScaleFactor:1,reducedMotion:'reduce'
+ });
+ const page=await context.newPage(),calls=[],errors=[];
+ page.on('pageerror',error=>errors.push(error.message));
+ await context.addInitScript(seed=>{
+  localStorage.setItem('laerlittmer-v2',JSON.stringify(seed));
+  window.LARIA_D2_ART_APPROVED=true;
+ },seed);
+ await page.route('**/assets/locked-journey-ground/*.webp',async route=>{
+  calls.push(route.request().url());
+  await route.fulfill({status:200,contentType:'image/webp',body:fixture});
+ });
+ await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
+ await page.route('https://api.worldbank.org/**',r=>r.abort());
+ try{
+  await page.goto(url+'&d2-four-subjects='+label,{waitUntil:'domcontentloaded'});
+  await page.locator('.bc14-subject[data-camp="subject-norwegian"]:visible').waitFor({timeout:20000});
+  for(const subject of ['norwegian','math','english','geography']){
+   await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]:visible').click();
+   const screen=page.locator('.screen.active.locked-journey-active');
+   const map=screen.locator('.locked-journey-map[data-journey-subject="'+subject+'"]');
+   await map.waitFor({timeout:20000});
+   await page.waitForFunction(which=>{
+    const map=document.querySelector('.screen.active .locked-journey-map');
+    const art=map?.querySelector('.locked-journey-image');
+    return map?.dataset.journeySubject===which&&art?.complete&&
+     art.naturalWidth===941&&art.naturalHeight===1672&&
+     !map.querySelector('.locked-journey-art-guard')&&
+     map.classList.contains('laria-d2-terrain-ready');
+   },subject,{timeout:20000});
+   const g=await page.evaluate(()=>{
+    const map=document.querySelector('.screen.active.locked-journey-active .locked-journey-map');
+    const board=map.querySelector('.locked-journey-board'),cover=getComputedStyle(map,'::after');
+    const box=board.getBoundingClientRect(),extra=parseFloat(getComputedStyle(map).marginBottom);
+    const globe=document.getElementById('open-world'),globeRect=globe?.getBoundingClientRect();
+    return {
+     boardWidth:box.width,boardHeight:box.height,boardBottom:box.bottom,
+     extra,coverImage:cover.backgroundImage,coverPointer:cover.pointerEvents,
+     coverHeight:parseFloat(cover.height),coverTop:parseFloat(cover.top),
+     globeTop:globeRect?.top,globeVisible:globe?getComputedStyle(globe).display!=='none':false,
+     screenWidth:document.querySelector('.screen.active').getBoundingClientRect().width,
+     overflow:document.documentElement.scrollWidth-innerWidth,
+     fox:map.querySelectorAll('.locked-journey-traveler[data-avatar="girl"]').length,
+     hitRects:[...map.querySelectorAll('.locked-journey-hotspot')].map(node=>{
+      const r=node.getBoundingClientRect();
+      return {width:r.width,height:r.height};
+     })
+    };
+   });
+   const expectedRoom=844-g.boardHeight;
+   assert(Math.abs(g.extra-expectedRoom)<3,
+    label+' '+subject+' missing reserved map tail '+JSON.stringify(g));
+   assert(g.boardWidth>=389&&Math.abs(g.boardWidth/g.boardHeight-941/1672)<.004,
+    label+' '+subject+' artwork resized or cropped');
+   assert(Math.abs(g.coverTop-(g.boardHeight-18))<2&&
+    Math.abs(g.coverHeight-(g.extra+18))<3,
+    label+' '+subject+' illustrated tail overlaps painted UI incorrectly '+JSON.stringify(g));
+   assert(g.coverImage.includes(subject==='norwegian'?'bokskogen-ground-v1.webp':
+    subject==='math'?'tallenga-ground-v1.webp':
+    subject==='english'?'ordlandsbyen-ground-v1.webp':'nordlysleiren-ground-v1.webp'),
+    label+' '+subject+' wrong art URL '+g.coverImage);
+   assert(g.coverPointer==='none',label+' '+subject+' extension intercepts interaction');
+   assert(g.hitRects.length===5&&g.hitRects.every(p=>p.width>=44&&p.height>=44),
+    label+' '+subject+' hotspots no longer usable '+JSON.stringify(g));
+   assert(g.fox===1,label+' '+subject+' duplicated/missing personal fox');
+   assert(g.overflow<=2,label+' '+subject+' horizontal scrolling detected');
+   if(subject==='geography'){
+    assert(g.globeVisible&&g.globeTop>=g.boardBottom+g.extra-3,
+     label+' Kloden entry is covered by scene tail '+JSON.stringify(g));
+    await page.locator('#open-world:visible').click({timeout:12000});
+    await page.locator('#world-screen.active').waitFor({timeout:12000});
+   }else{
+    await screen.locator('.locked-journey-back').click();
+    await page.locator('#home-screen.active .bc14-subject').first().waitFor({timeout:12000});
+   }
+   console.log('PASS '+label+' '+subject+' mobile tail geometry and navigation');
+  }
+  assert(calls.length>=4,label+' did not preflight all four assets');
+  assert.deepEqual(errors,[],label+' unexpected JavaScript errors');
+ }finally{await context.close()}
+}
+
 (async()=>{
  const {server,url}=await serve();
  try{
@@ -127,6 +215,7 @@ async function scenario(browser,label,url,flag,missing,viewport){
     await scenario(browser,label+'-all-four-mocked',url,true,null,phone);
     await scenario(browser,label+'-landscape-stays-off',url,true,null,{width:844,height:390});
     await scenario(browser,label+'-ipad-stays-off',url,true,null,{width:820,height:1180});
+    await verifyFourWorldLayouts(browser,label+'-all-four-worlds',url);
    }finally{await browser.close();}
   }
  }finally{await new Promise(resolve=>server.close(resolve));}
