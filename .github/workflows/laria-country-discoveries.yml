@@ -33,7 +33,7 @@ jobs:
           node --check laer-litt-mer/country-discoveries-ui-v1.js
           node --check laer-litt-mer/laria-country-detail-premium-v1.js
           node --check laer-litt-mer/globe-v25-renderer.js
-          node --test tests/laria-country-discoveries.test.cjs
+          node --test tests/laria-country-discoveries*.cjs
       - run: npm ci
       - run: npx playwright install --with-deps chromium webkit
       - name: Country discoveries, speech and six responsive configurations
