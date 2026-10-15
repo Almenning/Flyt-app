@@ -77,6 +77,15 @@ async function run(engine,label,viewport,url,avatar='girl'){
       label+' lost existing country-specific illustration summary');
     assert.match(await card.locator('.country-story-facts').innerText(),/Kairo/);
     assert.match(await card.locator('.country-story-facts').innerText(),/Afrika/);
+    // The new detail mounts before the next browser paint; validate rendered
+    // pixels only after the shared globe illustrator has drawn the canvas.
+    await page.waitForFunction(()=>{
+      const c=document.querySelector('#detail-screen.active .country-story-board canvas');
+      if(!c||c.width<=0||c.height<=0)return false;
+      const pixel=c.getContext('2d').getImageData(Math.floor(c.width*.5),
+        Math.floor(c.height*.5),1,1).data;
+      return pixel[3]>0;
+    },null,{timeout:12000});
     const details=await page.evaluate(()=>{
       const card=document.querySelector('#detail-screen.active .country-story');
       const frame=card.getBoundingClientRect();
