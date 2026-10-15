@@ -72,10 +72,28 @@ async function run(engine,label,viewport,url){
    assert(metrics.left>=-1&&metrics.right<=metrics.viewport+1,label+' '+subject+' sheet overflows phone width');
    assert(metrics.primary?.height>=44&&metrics.primary?.left>=-1&&metrics.primary?.right<=metrics.viewport+1,
      label+' '+subject+' primary action clipped or too small');
+   // The main action must be within the first visible panel, not hidden below a scroll.
+   const firstFold=await sheet.evaluate(el=>{
+     const panel=el.getBoundingClientRect(),action=el.querySelector('.mission-primary')?.getBoundingClientRect();
+     return Boolean(action&&action.top>=panel.top-1&&action.bottom<=panel.bottom+1);
+   });
+   assert(firstFold,label+' '+subject+' main mission is hidden below the first panel');
    assert(metrics.close?.height>=44&&metrics.close?.width>=44,label+' '+subject+' close target is too small');
    assert.equal(await map.locator('.locked-journey-traveler').count(),1,label+' '+subject+' cloned the personal fox');
    assert.equal(await sheet.locator('.mission-fox-stage .locked-journey-traveler').getAttribute('data-avatar'),'girl',
      label+' '+subject+' selected avatar changed');
+   // The same DOM fox must also have visible, actual illustrated art.
+   const liveArt=sheet.locator('.mission-fox-stage .laria-fox-wardrobe-placed');
+   await liveArt.waitFor({state:'visible',timeout:5000});
+   const visibleFox=await liveArt.evaluate(el=>{
+     const box=el.getBoundingClientRect(),style=getComputedStyle(el);
+     return box.width>20&&box.height>20&&style.visibility!=='hidden'&&style.display!=='none'&&Number(style.opacity)>0;
+   });
+   assert(visibleFox,label+' '+subject+' personalized fox artwork did not render');
+   if(process.env.MISSION_QA_SCREENSHOTS&&['webkit-iphone','webkit-ipad-landscape'].includes(label)){
+     fs.mkdirSync(process.env.MISSION_QA_SCREENSHOTS,{recursive:true});
+     await page.screenshot({path:path.join(process.env.MISSION_QA_SCREENSHOTS,label+'-'+subject+'-before.png'),animations:'disabled'});
+   }
    const overlayBefore=await page.evaluate(()=>JSON.stringify(state.journey));
    assert.equal(await sheet.locator('.mission-complete').count(),0,label+' '+subject+' falsely rewarded unfinished step');
    const main=sheet.locator('.mission-primary[data-locked-node]');
@@ -134,6 +152,9 @@ async function run(engine,label,viewport,url){
    const completed=page.locator('.locked-journey-overlay:not([hidden]) .locked-journey-sheet.is-mission');
    await completed.waitFor({timeout:8000});
    assert.equal(await completed.locator('.mission-complete').count(),1,label+' '+subject+' no completion celebration');
+   if(process.env.MISSION_QA_SCREENSHOTS&&['webkit-iphone','webkit-ipad-landscape'].includes(label)){
+     await page.screenshot({path:path.join(process.env.MISSION_QA_SCREENSHOTS,label+'-'+subject+'-after.png'),animations:'disabled'});
+   }
    assert.match(await completed.locator('.mission-complete').innerText(),/Du klarte oppdraget|Hele reisen er fullført/);
    assert.equal(await completed.locator('.mission-fox-stage .locked-journey-traveler').count(),1,
     label+' '+subject+' lost selected fox after completion');
