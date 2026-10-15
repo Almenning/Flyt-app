@@ -63,3 +63,46 @@
     background:linear-gradient(180deg,transparent 0%,color-mix(in srgb,var(--ljd2-ground) 45%,transparent) 35%,var(--ljd2-ground) 100%);
   }
 }
+
+/* Prepared integration for four genuinely illustrated continuations.
+ * Deliberately dormant until all art is supplied, inspected and enabled in
+ * the original renderer. The matte D2 stage above is a temporary fallback.
+ * Only original-ratio painting can be rendered here: never repeat/mirror UI.
+ */
+@media (max-width:699px) and (orientation:portrait) {
+  .locked-journey-map[data-journey-subject="norwegian"]{
+    --ljd2-terrain-art:url('./assets/locked-journey-ground/bokskogen-ground-v1.webp');
+  }
+  .locked-journey-map[data-journey-subject="math"]{
+    --ljd2-terrain-art:url('./assets/locked-journey-ground/tallenga-ground-v1.webp');
+  }
+  .locked-journey-map[data-journey-subject="english"]{
+    --ljd2-terrain-art:url('./assets/locked-journey-ground/ordlandsbyen-ground-v1.webp');
+  }
+  .locked-journey-map[data-journey-subject="geography"]{
+    --ljd2-terrain-art:url('./assets/locked-journey-ground/nordlysleiren-ground-v1.webp');
+  }
+
+  /* With a 941/1672 original fitting a 100vw iPhone, this is the genuine
+     shortfall below the board. The max() gives short phones zero extra space. */
+  #subject-screen.active.locked-journey-active .locked-journey-map.laria-d2-terrain-ready,
+  #geography-screen.active.locked-journey-active .locked-journey-map.laria-d2-terrain-ready{
+    --ljd2-room:max(0px,calc(100dvh - 177.683vw));
+    margin-bottom:var(--ljd2-room)!important;
+  }
+
+  /* Artwork sits OUTSIDE the protected map board, not over a touch target.
+     The last 18px crossfade with natural vegetation below painted progress.
+     background-size 100% auto preserves exact source proportions. */
+  .screen.active.locked-journey-active
+    .locked-journey-map.laria-d2-terrain-ready[data-journey-subject]::after{
+    top:calc(100% - 18px);
+    bottom:auto;
+    height:calc(var(--ljd2-room) + 18px);
+    pointer-events:none;
+    z-index:15;
+    background:var(--ljd2-terrain-art) center top / 100% auto no-repeat;
+    -webkit-mask-image:linear-gradient(180deg,transparent 0px,#000 18px);
+    mask-image:linear-gradient(180deg,transparent 0px,#000 18px);
+  }
+}
