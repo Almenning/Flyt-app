@@ -79,9 +79,9 @@ def inspect_candidate(root: Path, subject: str, input_image: Path, output: Path,
     exact_context = original.crop((0, SIZE[1] - CONTEXT, SIZE[0], SIZE[1]))
     delta = ImageChops.difference(supplied_context, exact_context)
     context_mae = sum(ImageStat.Stat(delta).mean) / 3
-    if context_mae > 1.25:
-        raise ArtError(f"Source art was repainted (context MAE={context_mae:.2f}); "
-                       "use masked editing preserving all first 300 rows")
+    if delta.getbbox() is not None:
+        raise ArtError(f"Source art was repainted (context MAE={context_mae:.5f}); "
+                       "all first 300 pixel rows must be EXACT locked PNG pixels")
     new_paint = candidate.crop((0, CONTEXT, SIZE[0], CONTEXT + PAINTED))
     last = original.crop((0, SIZE[1] - 1, SIZE[0], SIZE[1]))
     first = new_paint.crop((0, 0, SIZE[0], 1))
