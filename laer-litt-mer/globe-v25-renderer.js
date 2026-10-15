@@ -20,7 +20,7 @@ const globeSvg='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="
 const bookSvg='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.4c2.7-.7 5.2-.2 8 1.5v12c-2.8-1.7-5.3-2.2-8-1.5v-12zm16 0c-2.7-.7-5.2-.2-8 1.5v12c2.8-1.7 5.3-2.2 8-1.5v-12z" fill="currentColor"/><path d="M12 6.9v12" stroke="#fff" stroke-opacity=".55" stroke-width="1"/></svg>';
 
 const COUNTRY_SCENES={
-  'tsjad':{tone:'desert',features:[['camel',.50,.63,.40],['trees',.18,.56,.26]],tag:'Sahel, savanne og store landskap'},
+  'tsjad':{tone:'desert',features:[['camel',.50,.63,.40],['camel',.18,.70,.26]],tag:'Sahel, savanne og store landskap'},
   'norge':{tone:'north',features:[['mountains',.68,.46,.45],['trees',.25,.60,.30],['village',.48,.65,.23]],tag:'Fjorder, fjell og nordlig natur'},
   'egypt':{tone:'desert',features:[['pyramids',.63,.58,.42],['camel',.28,.66,.30]],tag:'Nilen, ørken og pyramider'},
   'japan':{tone:'green',features:[['mountains',.65,.42,.40],['village',.40,.65,.25],['trees',.18,.61,.24]],tag:'Øyer, fjell og levende bykultur'},
