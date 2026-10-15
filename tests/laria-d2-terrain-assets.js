@@ -6,11 +6,21 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
 const crypto=require('node:crypto');
+const crypto=require('node:crypto');
 const root=path.resolve(__dirname,'..','laer-litt-mer');
 const images={
  norwegian:'bokskogen',math:'tallenga',
  english:'ordlandsbyen',geography:'nordlysleiren'
 };
+// Git blob SHA-1 of the four ORIGINAL 941x1672 locked paintings.
+// These are intentionally stronger invariants than dimensions alone: new
+// D2 scenery must never repaint, crop or quietly swap the approved maps.
+const approvedBlobSha=Object.freeze({
+ norwegian:'656a03c23290677d3593e38753589fe36ce3ef69',
+ math:'0c217b725476470b50defd6e51cc90c8cd1a1e37',
+ english:'0a1942daae282a4a9681140b72cc8c64efa88884',
+ geography:'41c7d83eec9a37e6681ef805f982127fcdd9ed96'
+});
 const errors=[];
 const approvalPath=path.join(root,'assets','locked-journey-ground-approval.json');
 const approval=JSON.parse(fs.readFileSync(approvalPath,'utf8'));
@@ -49,6 +59,13 @@ for(const [subject,name] of Object.entries(images)){
  const original=path.join(root,'locked-journeys',name+'-locked-20261010.png');
  const asset=path.join(root,'assets','locked-journey-ground',name+'-ground-v1.webp');
  assert(fs.existsSync(original),subject+' approved original removed');
+ const bytes=fs.readFileSync(original);
+ const sha=crypto.createHash('sha1')
+  .update('blob '+bytes.length+'\\0')
+  .update(bytes).digest('hex');
+ if(sha!==approvedBlobSha[subject])errors.push(
+  subject+': original October 10 painting was altered. Expected git blob '+approvedBlobSha[subject]+', got '+sha
+ );
  const entry=approval.subjects?.[subject];
  assert(entry&&entry.lockedOriginal===name+'-locked-20261010.png'&&entry.asset===name+'-ground-v1.webp',
   subject+' approved image identity is inconsistent');
