@@ -1177,14 +1177,27 @@ async function finishSession(page){
       assert.equal(layout.answerOverlap,0,label+' fox overlaps answer controls');
       assert.ok(layout.fox.left>=-1&&layout.fox.right<=width+1,label+' fox is cropped horizontally');
       assert.ok(layout.scrollWidth<=layout.clientWidth,label+' fox creates horizontal overflow');
+      // The single personalised fox now reacts through LARIA_FOX_PRESENCE,
+      // not the retired fox-correct CSS class. Assert the visible companion's
+      // actual mood and that it settles without duplicating its artwork.
+      await fox.locator('svg.laria-fox-wardrobe-art .laria-fox-pose').waitFor({timeout:12000});
       const beforeCount=await page.evaluate(()=>state.answerLog.length);
       await page.locator('.answer[data-answer="katt"]').click();
-      assert.equal(await fox.evaluate(el=>el.classList.contains('fox-correct')),true,label+' fox did not react to correct answer');
+      await page.waitForFunction(()=>
+        document.querySelector('#session-screen.active .task-fox-companion')?.dataset.lariaFoxMood==='celebrate',
+        null,{polling:25,timeout:1500});
+      assert.equal(await fox.getAttribute('data-laria-fox-mood'),'celebrate',
+        label+' selected fox did not celebrate the correct answer');
+      assert.equal(await fox.locator('svg.laria-fox-wardrobe-art .laria-fox-pose').count(),1,
+        label+' correct answer created a duplicate fox pose');
       const answerResult=await page.evaluate(()=>({count:state.answerLog.length,last:state.answerLog[state.answerLog.length-1]}));
       assert.equal(answerResult.count,beforeCount+1,label+' correct answer should create exactly one normal progress record');
       assert.equal(answerResult.last.correct,true,label+' correct answer progress record changed');
-      await page.waitForTimeout(700);
-      assert.equal(await fox.evaluate(el=>el.classList.contains('fox-correct')),false,label+' fox reaction should settle quickly');
+      await page.waitForFunction(()=>
+        document.querySelector('#session-screen.active .task-fox-companion')?.dataset.lariaFoxMood==='idle',
+        null,{polling:50,timeout:3000});
+      assert.equal(await fox.getAttribute('data-laria-fox-mood'),'idle',
+        label+' fox reaction did not settle');
       await page.locator('#close-session').click();
     }
     await assertPrompt13Fox(390,844,'phone');

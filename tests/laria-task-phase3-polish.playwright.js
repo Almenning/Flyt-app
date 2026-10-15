@@ -128,12 +128,46 @@ async function run(engine,name,viewport,url){
    if(subject==='norwegian')assert.deepEqual(first.dog,{ears:1,muzzle:1,collar:1,tail:1,paws:1},label+' dog silhouette missing recognizable features');
    await fs.promises.mkdir(shots,{recursive:true});
    await page.screenshot({path:path.join(shots,name+'-'+subject+'-01-question.png'),animations:'disabled',fullPage:true});
+   const geometry=()=>page.evaluate(()=>{
+     const find=selector=>document.querySelector(selector);
+     const rect=selector=>{const r=find(selector)?.getBoundingClientRect();return r?{top:r.top,height:r.height}:null};
+     const session=find('#session-screen .session');
+     const card=find('#session-screen .laria-task-card');
+     return {
+       cardY:card.getBoundingClientRect().top+session.scrollTop,
+       scrollHost:session.scrollTop,rootScroll:window.scrollY,
+       docScroll:document.scrollingElement?.scrollTop,
+       viewportHeight:window.innerHeight,
+       visualViewport:window.visualViewport?{
+         offsetTop:window.visualViewport.offsetTop,height:window.visualViewport.height}:null,
+       session:rect('#session-screen .session'),
+       header:rect('#session-screen .session-top'),
+       wrap:rect('#session-screen #question-wrap'),
+       card:rect('#session-screen .laria-task-card'),
+       computed:{sessionRows:getComputedStyle(session).gridTemplateRows,
+         sessionAlign:getComputedStyle(session).alignContent,
+         wrapAlign:getComputedStyle(find('#session-screen #question-wrap')).alignSelf,
+         wrapMargin:getComputedStyle(find('#session-screen #question-wrap')).marginTop,
+         bodyOverflow:getComputedStyle(document.body).overflow}
+     };
+   });
+   const anchoredBefore=await geometry();
    await page.locator('#session-screen .answer[data-answer="'+question.answer+'"]').click();
+   const anchoredAfter=await geometry();
+   assert(Math.abs(anchoredAfter.cardY-anchoredBefore.cardY)<=3,
+     label+' response recentered task by '+(anchoredAfter.cardY-anchoredBefore.cardY)+
+     'px before='+JSON.stringify(anchoredBefore)+' after='+JSON.stringify(anchoredAfter));
+   assert(!/🦊/.test(await page.locator('#feedback-title').innerText()),label+' duplicated mascot in feedback');
+   if(subject==='english'&&first.read){
+     assert(await page.locator('#task-hear-word').isVisible(),label+' missing English word replay');
+   }
    assert.equal(await page.locator('#feedback').getAttribute('role'),'status');
    assert.match(await page.locator('#feedback-title').innerText(),/Riktig/);
    assert.ok(await page.locator('#next-question').isVisible(),label+' next hidden after answer');
    await page.locator('#next-question').click();
    assert.equal(await page.locator('#session-count').innerText(),'Oppdrag 2 av 2');
+   assert.equal(await page.evaluate(()=>document.querySelector('#session-screen .session').scrollTop),0,
+     label+' new question retained an old scroll offset');
    assert.equal(await page.locator('#session-screen .session-progress').getAttribute('aria-valuenow'),'2');
    assert.equal(await page.locator('#next-question').innerText(),'Fullfør');
    assert.equal(await page.locator('#next-question').getAttribute('aria-label'),'Fullfør oppdraget');
