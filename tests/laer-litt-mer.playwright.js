@@ -665,7 +665,7 @@ async function finishSession(page){
 
     await page.locator('#journey-map .locked-journey-hotspot.state-current').click();
     assert.equal(await page.locator('#journey-mission-backdrop').isVisible(),false,'map click must open the exercise directly');
-    await page.locator('.locked-journey-overlay:not([hidden]) [data-locked-node]:not([disabled])').filter({hasText:'Neste oppdrag'}).first().click();
+    await page.locator('.locked-journey-overlay:not([hidden]) .mission-primary[data-locked-node]:not([disabled])').first().click();
     await page.locator('#session-screen.active').waitFor();
     assert.equal(await page.evaluate(()=>sessionScope.type),'journey');
     assert.equal(await page.evaluate(()=>sessionScope.subject),'norwegian');
@@ -751,7 +751,7 @@ async function finishSession(page){
     const mathNextPosition=await page.locator('#journey-map .locked-journey-hotspot.state-current').evaluate(el=>el.getBoundingClientRect().top);
     assert.ok(mathNextPosition>=0&&mathNextPosition<844,'Tallenga should show the next mission in the mobile viewport');
     await page.locator('#journey-map .locked-journey-hotspot.state-current').click();
-    await page.locator('.locked-journey-overlay:not([hidden]) [data-locked-node]:not([disabled])').filter({hasText:'Neste oppdrag'}).first().click();
+    await page.locator('.locked-journey-overlay:not([hidden]) .mission-primary[data-locked-node]:not([disabled])').first().click();
     await page.locator('#session-screen.active').waitFor();
     assert.equal(await page.locator('#journey-mission-backdrop').isVisible(),false);
     assert.equal(await page.locator('#geography-screen').isVisible(),false);
@@ -1010,7 +1010,7 @@ async function finishSession(page){
     assert.ok(geoWorldTop<geoGlobeTop,'Nordlysleiren must precede globe/free exploration');
     assert.equal(await page.locator('#geography-screen > .geography-head').isVisible(),false);
     await page.locator('#geo-journey-map .locked-journey-hotspot.state-current').click();
-    await page.locator('.locked-journey-overlay:not([hidden]) [data-locked-node]:not([disabled])').filter({hasText:'Neste oppdrag'}).first().click();
+    await page.locator('.locked-journey-overlay:not([hidden]) .mission-primary[data-locked-node]:not([disabled])').first().click();
     await page.locator('#session-screen.active').waitFor();
     assert.equal(await page.locator('#journey-mission-backdrop').isVisible(),false);
     assert.equal(await page.locator('#geography-screen').isVisible(),false);
