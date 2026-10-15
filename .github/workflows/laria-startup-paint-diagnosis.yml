@@ -1,0 +1,67 @@
+name: Laria startup paint isolation
+on:
+  push:
+    branches: [qa/laria-premium-snapshot-20261015]
+    paths: [.github/workflows/laria-startup-paint-diagnosis.yml]
+permissions:
+  contents: read
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 12163f86282ff1e924d8047005f46f8bbf2143bf
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps webkit
+      - name: Isolate paint cost without editing production files
+        run: |
+          mkdir -p /tmp/laria-paint-diagnosis
+          git rev-parse HEAD > /tmp/laria-paint-diagnosis/REVISION.txt
+          cat > tests/paint-profile.cjs <<'JS'
+          const fs=require('node:fs'),path=require('node:path'),http=require('node:http'),{webkit}=require('playwright');
+          const root=process.cwd(),out='/tmp/laria-paint-diagnosis',report=[];
+          const source=fs.readFileSync('tests/laria-premium-retry-flow.playwright.js','utf8'),seed=Function('return '+source.match(/const seed=(.+);\nconst mime/)[1])();
+          let css='';
+          const variants=[['baseline',''],['no-filters','*{filter:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}'],['no-text-shadows','*{text-shadow:none!important;-webkit-text-stroke-width:0!important}'],['baseline-repeat','']];
+          const mime={'.html':'text/html','.js':'text/javascript','.css':'text/css','.webp':'image/webp','.svg':'image/svg+xml','.png':'image/png'};
+          const server=http.createServer((req,res)=>{let u=new URL(req.url,'http://localhost').pathname;if(u.endsWith('/'))u+='index.html';const f=path.resolve(root,'.'+u);if(!f.startsWith(root+path.sep)){res.writeHead(403);return res.end()}fs.readFile(f,(err,b)=>{if(err){res.writeHead(404);return res.end()}if(u.endsWith('/laer-litt-mer/index.html'))b=Buffer.from(b.toString().replace('</head>','<style>'+css+'</style></head>'));res.writeHead(200,{'Content-Type':mime[path.extname(f)]||'application/octet-stream','Cache-Control':'no-store'});res.end(b);})});
+          (async()=>{
+            await new Promise(r=>server.listen(0,'127.0.0.1',r));const url='http://127.0.0.1:'+server.address().port+'/laer-litt-mer/?app=laria';
+            for(const [name,style] of variants){
+              css=style;const browser=await webkit.launch({headless:false});
+              try{
+                const context=await browser.newContext({viewport:{width:320,height:568},hasTouch:true,isMobile:true,reducedMotion:'reduce',serviceWorkers:'block'});
+                await context.addInitScript(s=>{
+                  localStorage.setItem('laerlittmer-v2',JSON.stringify(s));let seed=9321;Math.random=()=>((seed=(seed*16807)%2147483647)-1)/2147483646;
+                  window.__trace={slow:[],frames:[],marks:[]};
+                  const measured=(kind,fn)=>{const where=new Error().stack;return function(...args){const t=performance.now();try{return fn.apply(this,args)}finally{const duration=performance.now()-t;if(duration>20)window.__trace.slow.push({kind,name:fn.name,duration,at:t,where})}}};
+                  for(const key of ['setTimeout','setInterval','requestAnimationFrame']){const original=window[key];window[key]=function(fn,...args){return original.call(this,typeof fn==='function'?measured(key,fn):fn,...args)}}
+                  const Observer=window.MutationObserver;window.MutationObserver=class extends Observer{constructor(fn){super(measured('mutation',fn))}};
+                  const resize=window.ResizeObserver;window.ResizeObserver=class extends resize{constructor(fn){super(measured('resize',fn))}};
+                  const add=EventTarget.prototype.addEventListener;EventTarget.prototype.addEventListener=function(type,fn,...args){return add.call(this,type,(type==='DOMContentLoaded'&&typeof fn==='function')?measured(type,fn):fn,...args)};
+                  let ticks=0;function tick(t){window.__trace.frames.push(t);if(ticks++<80&&t<20000)requestAnimationFrame(tick)}requestAnimationFrame(tick);
+                  document.addEventListener('DOMContentLoaded',()=>window.__trace.marks.push(['dom',performance.now()]));window.addEventListener('load',()=>window.__trace.marks.push(['load',performance.now()]));
+                },seed);
+                const page=await context.newPage(),entry={variant:name};report.push(entry);page.setDefaultTimeout(12000);
+                await page.route(/https:\/\/(raw\.githubusercontent\.com|api\.worldbank\.org)\//,r=>r.abort());const t=Date.now();
+                try{await page.goto(url,{waitUntil:'domcontentloaded'});entry.domMs=Date.now()-t;await page.locator('.bc14-subject[data-camp="subject-norwegian"]').click();entry.openMs=Date.now()-t;}catch(e){entry.failure=String(e)}
+                entry.trace=await page.evaluate(()=>window.__trace);fs.writeFileSync(out+'/report.json',JSON.stringify(report,null,2));console.log(name,entry.domMs,entry.openMs,entry.failure||'');
+                await context.close();
+              }finally{await browser.close()}
+            }
+            server.closeAllConnections();server.close();
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
+          xvfb-run -a node tests/paint-profile.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: laria-startup-paint-isolation
+          path: /tmp/laria-paint-diagnosis/
+          retention-days: 7
