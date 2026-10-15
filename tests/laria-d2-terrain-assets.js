@@ -18,7 +18,7 @@ if(approval.schemaVersion!==1||approval.releaseStatus!=='approved_for_integratio
  errors.push('Release approval is pending. Artwork dimensions alone are NOT premium signoff.');
 }
 function githubBlobSha(buffer){
- return crypto.createHash('sha1').update('blob '+buffer.length+'\\0').update(buffer).digest('hex');
+ return crypto.createHash('sha1').update('blob '+buffer.length+String.fromCharCode(0)).update(buffer).digest('hex');
 }
 
 function dimensions(buffer){
