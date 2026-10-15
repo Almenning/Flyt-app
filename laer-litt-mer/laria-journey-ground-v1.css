@@ -22,7 +22,7 @@
     background-repeat:no-repeat;
     background-size:100% auto;
     transform:scaleY(-1);
-    transform-origin:center top;
+    transform-origin:center center;
     -webkit-mask-image:linear-gradient(to top,transparent,black);
     mask-image:linear-gradient(to top,transparent,black);
   }
