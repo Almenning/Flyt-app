@@ -1,47 +1,65 @@
-/* Phase D2: a narrow, non-interactive continuation of the four locked
- * original paintings. The mirrored LAST pixels, not an unrelated card
- * illustration, prevent a hard visual seam when the map ends before the
- * Safari viewport. The 941x1672 image and hotspot coordinates are unchanged.
- * Do not cover the board or put any layer above the five touch targets. */
-@media (max-width:699px), (orientation:landscape) and (max-height:500px) {
-  .screen.active.locked-journey-active .locked-journey-map[data-journey-subject] {
+/* Læria D2 | Intentional illustrated-scene finish on portrait phones.
+ *
+ * The four approved 941x1672 PNG maps must remain intact and uncropped.
+ * On a taller iPhone viewport the actual painting ends above the home
+ * indicator. C3 previously revealed a DIFFERENT, blurred landscape card
+ * underneath. Mirroring/elongating the last pixels also reproduced the
+ * illustrated progress bar and introduced vertical smears.
+ *
+ * Only the vegetation UNDER the progress bar is gently shaded into a
+ * subject-specific, matte ground color. No source art, artwork coordinates,
+ * markers, mission buttons or personal fox are changed. No duplicated
+ * image, blurred photo, repeating texture, clipping or hit-area overlays.
+ *
+ * In landscape the existing scenic side backdrop is intentionally retained.
+ */
+@media (max-width:699px) and (orientation:portrait) {
+  body.locked-journey-subject-norwegian{--ljd2-ground:#193127}
+  body.locked-journey-subject-math{--ljd2-ground:#193027}
+  body.locked-journey-subject-english{--ljd2-ground:#1c302c}
+  body.locked-journey-subject-geography{--ljd2-ground:#172d3b}
+
+  body:is(.locked-journey-subject-norwegian,
+          .locked-journey-subject-math,
+          .locked-journey-subject-english,
+          .locked-journey-subject-geography):has(.screen.active.locked-journey-active){
+    background:var(--ljd2-ground)!important;
+  }
+
+  /* The correct painting owns the journey viewport. The empty stage below
+     must not be filled by an unrelated full-bleed journey-card image. */
+  body:is(.locked-journey-subject-norwegian,
+          .locked-journey-subject-math,
+          .locked-journey-subject-english,
+          .locked-journey-subject-geography):has(.screen.active.locked-journey-active) .app{
+    background:var(--ljd2-ground)!important;
+  }
+
+  /* Phase A painted an unrelated reference landscape on the Norwegian
+     screen and journey section rather than on .app. Remove it only while
+     the locked, real Bokskogen painting is active. */
+  #subject-screen.active.locked-journey-active.locked-journey-subject-norwegian,
+  #subject-screen.active.locked-journey-active.locked-journey-subject-norwegian > #subject-journey-section{
+    background:transparent!important;
+  }
+
+  /* The last ~12 CSS px of each original contain natural vegetation AFTER
+     the illustrated progress panel. Fade only these pixels to the matte
+     scene, so the map boundary becomes intentional rather than a second
+     blurry painting. The pseudo-element never intercepts touches. */
+  .screen.active.locked-journey-active .locked-journey-map[data-journey-subject]{
     position:relative;
     isolation:isolate;
   }
-  .screen.active.locked-journey-active .locked-journey-map[data-journey-subject]::after {
+  .screen.active.locked-journey-active .locked-journey-map[data-journey-subject]::after{
     content:"";
     position:absolute;
-    z-index:-1;
+    z-index:20;
     left:0;
     right:0;
-    top:calc(100% - clamp(8px,3vw,12px));
-    height:clamp(8px,3vw,12px);
+    bottom:0;
+    height:clamp(9px,3.2vw,14px);
     pointer-events:none;
-    background-image:var(--laria-journey-ground-image);
-    background-position:center bottom;
-    background-repeat:no-repeat;
-    background-size:100% auto;
-    /* Reflect and elongate only the final ground pixels, never the progress bar.
-       Bottom-origin reflection starts exactly at the board edge. */
-    transform:scaleY(-7);
-    transform-origin:center bottom;
-    -webkit-mask-image:linear-gradient(to top,transparent,black);
-    mask-image:linear-gradient(to top,transparent,black);
-  }
-  .screen.active.locked-journey-active
-    .locked-journey-map[data-journey-subject="norwegian"] {
-    --laria-journey-ground-image:url('./locked-journeys/bokskogen-locked-20261010.png');
-  }
-  .screen.active.locked-journey-active
-    .locked-journey-map[data-journey-subject="math"] {
-    --laria-journey-ground-image:url('./locked-journeys/tallenga-locked-20261010.png');
-  }
-  .screen.active.locked-journey-active
-    .locked-journey-map[data-journey-subject="english"] {
-    --laria-journey-ground-image:url('./locked-journeys/ordlandsbyen-locked-20261010.png');
-  }
-  .screen.active.locked-journey-active
-    .locked-journey-map[data-journey-subject="geography"] {
-    --laria-journey-ground-image:url('./locked-journeys/nordlysleiren-locked-20261010.png');
+    background:linear-gradient(180deg,transparent 0%,color-mix(in srgb,var(--ljd2-ground) 45%,transparent) 35%,var(--ljd2-ground) 100%);
   }
 }
