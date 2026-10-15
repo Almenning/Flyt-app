@@ -91,6 +91,11 @@ async function validateHome(page,label,view,large){
  assert(g.cards.every(x=>x.width>=190&&x.height>=(large?150:120)&&x.x>=g.main.x-3&&x.right<=g.main.right+3),
   label+' menu cards escaped illustration surface '+JSON.stringify(g));
  assert(g.foxCount>=1,label+' chosen fox failed to load '+JSON.stringify(g));
+ // Phase D1: the old compact-phone override reduced the back target to
+ // 41px even though the base Maths interface correctly defines 44px.
+ // Measure the rendered WebKit/Chromium box, not merely the CSS declaration.
+ assert(g.back&&g.back.width>=44&&g.back.height>=44,
+  label+' Maths back target smaller than 44px '+JSON.stringify(g.back));
  if(large){
   assert(g.app.width>=w-2&&g.screen.width>=w-2&&g.shell.width>=w-2,
    label+' still displaying the old narrow app shell '+JSON.stringify(g));
@@ -147,6 +152,16 @@ async function run(engine,label,view,url){
    label+' 10x10 exploration is missing');
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+3),
    label+' exploration has horizontal overflow');
+  // Phase D1: exercise the actual factor +/- controls on all tested phones.
+  await page.locator('[data-mp-action="mode"][data-mode="groups"]').click();
+  const factorButtons=await page.locator('.mp-factor-adjust button').evaluateAll(nodes=>nodes.map(node=>{
+   const r=node.getBoundingClientRect();
+   return {width:r.width,height:r.height};
+  }));
+  assert(factorButtons.length>=2&&factorButtons.every(r=>r.width>=44&&r.height>=44),
+   label+' multiplication factor adjustments under 44px '+JSON.stringify(factorButtons));
+  assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+3),
+   label+' factor controls introduced overflow');
   await photo(page,label+'-03-explore');
   // The header back button first returns from free exploration to the
   // Gangetabellen hub, then from that hub to Læria Basecamp.
@@ -172,7 +187,11 @@ async function run(engine,label,view,url){
   await run(webkit,'webkit-mac',{width:1440,height:900},url);
   await run(chromium,'chromium-mac',{width:1440,height:900},url);
   await run(webkit,'webkit-ipad-portrait',{width:820,height:1180},url);
+  await run(webkit,'webkit-iphone-small',{width:320,height:568,mobile:true},url);
+  await run(webkit,'webkit-iphone-375',{width:375,height:667,mobile:true},url);
   await run(webkit,'webkit-iphone-portrait',{width:390,height:844,mobile:true},url);
+  await run(webkit,'webkit-iphone-large',{width:430,height:932,mobile:true},url);
+  await run(chromium,'chromium-iphone-portrait',{width:390,height:844,mobile:true},url);
   await run(webkit,'webkit-iphone-landscape',{width:844,height:390,mobile:true},url);
  }finally{await new Promise(resolve=>server.close(resolve));}
 })().catch(error=>{console.error(error);process.exitCode=1});
