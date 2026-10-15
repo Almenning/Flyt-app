@@ -1,0 +1,24 @@
+name: Laria country workspace
+on:
+  push:
+    branches: [feat/laria-country-discoveries-20261015]
+    paths: ['.github/workflows/laria-country-workspace.yml']
+permissions:
+  contents: read
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Export existing app and tests for isolated verification
+        uses: actions/upload-artifact@v4
+        with:
+          name: country-workspace-${{ github.sha }}
+          path: |
+            laer-litt-mer/
+            tests/
+            package.json
+            package-lock.json
+          retention-days: 1
+          if-no-files-found: error
