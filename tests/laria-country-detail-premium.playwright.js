@@ -117,6 +117,21 @@ async function run(engine,label,viewport,url,avatar='girl'){
       label+' wrong or missing selected fox '+JSON.stringify(details));
     assert(details.actionHeight>=48&&details.actionWidth>140,label+' practice button too small');
     assert(details.factCount===3,label+' facts missing or duplicated');
+    if(viewport.width>=700&&viewport.height>520){
+      const outline=page.locator('#detail-screen.active .country-story-map');
+      assert(await outline.isVisible(),label+' iPad still has empty space instead of country contour');
+      const outlinePixels=await outline.locator('canvas').evaluate(canvas=>{
+        const ctx=canvas.getContext('2d');
+        const pixels=ctx.getImageData(0,0,canvas.width,canvas.height).data;
+        let ink=0;
+        for(let i=3;i<pixels.length;i+=4)if(pixels[i]>0)ink++;
+        return ink;
+      });
+      assert(outlinePixels>120,label+' country contour did not use real geometry');
+      const rect=await page.locator('.country-story-practice').boundingBox();
+      assert(rect&&rect.y+rect.height<=viewport.height-7,
+        label+' practice button pushed off the tablet screen');
+    }
     assert(details.scrollWidth<=details.viewport+2,label+' horizontal scroll on country page '+JSON.stringify(details));
     assert(details.background.includes('basecamp-v11'),label+' missing Læria illustrated world');
     assert.equal(await page.evaluate(()=>JSON.stringify({
