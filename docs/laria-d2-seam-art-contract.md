@@ -26,7 +26,7 @@ For hver ressurs: bredde **941px**, minimumshøyde **425px**, WebP (sRGB), med m
 ## Implementeringskontrakt
 
 1. Vis originale 941×1672-PNG i sin eksisterende `.locked-journey-board` med `object-fit:contain` og uendrede hotspot-koordinater. Ingenting skal skaleres forskjellig mellom x/y.
-2. Plasser ny terrengressurs **utenfor** brettet (under det), i samme map-bredde og med naturlig 941px-bildeskala. Bruk en kort maskert overgang på ca. 12–18 CSS-px i den siste vegetasjonen **under den malte progresslinjen**. Ikke legg et nytt progresspanel under originalen.
+2. Plasser ny terrengressurs **utenfor** brettet (under det), i samme map-bredde og med naturlig 941px-bildeskala. Bruk en kort maskert overgang som er **43 av originalens 941 bildepiksler** (4,5696 % av kartbredden) i den siste vegetasjonen **under den malte progresslinjen**. Første 43 piksler i den ferdige forlengelsesfilen skal være de nøyaktige, låste originalpikslene fra bildets nederkant; nymalt terreng starter umiddelbart etter disse. Da møtes pikslene på samme sted også på forskjellige iPhone-bredder. Ikke legg et nytt progresspanel under originalen.
 3. Beregn faktisk ekstra høyde med `max(0, viewportHeight - boardHeight)`. På små iPhone-skjermer der originalen fyller skjermen, vis ingen kunstig, separat hale.
 4. Hold teknikken dekorativ med `pointer-events:none` og uten å skjule eller forflytte hotspotmål (minst 44×44 CSS-px), innhold, fremdrift eller rev.
 5. Reservér faktisk layoutplass for forlengelsen før elementer nedenfor. **Nordlysleirens eksisterende inngang til Kloden skal fortsatt være synlig og klikkbar** etter forlengelsen, aldri dekkes av et absolutt plassert bildefelt.
