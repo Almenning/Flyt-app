@@ -21,7 +21,7 @@ Lag **ett ekte illustrert terrengfortsettelsesbilde per fag**, tilpasset bunnen 
 
 **Oppdrag til illustratør / AI-utmalingsverktøy:** Lag en naturlig fortsettelse av vegetasjonen, steinene, stien eller vannkanten **nedenfor den malte fremdriftslinjen** på hvert kart. Originalkartet skal brukes som eksakt forankring ved sammenføyningen. Fortsett scenen nedover uten kopiert UI, skilt, tall, oppdrag, rev eller gjentatte gjenstander. Behold originalens utsnitt, lysretning, dybde, perspektiv, farger, detaljgrad og 2.5D-eventyrstil. Ingen flate vektorplanter, speilvendte piksler, oppstrukne striper eller uskarp bakgrunn.
 
-For hver ressurs: bredde **941px**, minimumshøyde **425px**, WebP (sRGB), med minst 24px kontrollert overlapp med kartets nederste naturlige terreng. Høydebehov er beregnet fra 390×844 og 430×932; kunst bør gi rom for senere iPhone-format uten ny generering. Alt du trenger er original PNG og en separat forlengelse, *aldri en endret original*.
+For hver ressurs: bredde **941px**, totalhøyde **minst 468px** (43 piksler eksakt originaloverlapp + 425 nye piksler), **lossless WebP (sRGB)**, med 43px kildeforankret overlapp med kartets nederste naturlige terreng. Høydebehov er beregnet fra 390×844 og 430×932; kunst bør gi rom for senere iPhone-format uten ny generering. Alt du trenger er original PNG og en separat forlengelse, *aldri en endret original*.
 
 ## Implementeringskontrakt
 

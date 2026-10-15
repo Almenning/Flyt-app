@@ -25,7 +25,7 @@
   function preloadD2Terrain(path){
     return new Promise(resolve=>{
       const art=new Image();
-      art.onload=()=>resolve(art.naturalWidth===941&&art.naturalHeight>=425);
+      art.onload=()=>resolve(art.naturalWidth===941&&art.naturalHeight>=468);
       art.onerror=()=>resolve(false);
       art.src=path;
     });

@@ -14,6 +14,9 @@ const images={
 const errors=[];
 const approvalPath=path.join(root,'assets','locked-journey-ground-approval.json');
 const approval=JSON.parse(fs.readFileSync(approvalPath,'utf8'));
+if(approval.width!==941||approval.minHeight!==468||approval.overlapSourceRows!==43||approval.newTerrainRows!==425||approval.contextSourceRows!==300){
+ errors.push('D2 artwork dimensions/overlap specification has drifted from exact-source image contract');
+}
 if(approval.schemaVersion!==1||approval.releaseStatus!=='approved_for_integration'){
  errors.push('Release approval is pending. Artwork dimensions alone are NOT premium signoff.');
 }
@@ -63,7 +66,7 @@ for(const [subject,name] of Object.entries(images)){
  }
  try{
   const bytes=fs.readFileSync(asset),{width,height}=dimensions(bytes);
-  if(width!==941||height<425)errors.push(subject+': required width 941px, height at least 425px; got '+width+'x'+height);
+  if(width!==approval.width||height<approval.minHeight)errors.push(subject+': required width '+approval.width+'px, height at least '+approval.minHeight+'px; got '+width+'x'+height);
   const sha256=crypto.createHash('sha256').update(bytes).digest('hex');
   if(!entry.visualApproval||!entry.assetSha256||sha256!==entry.assetSha256){
    errors.push(subject+': artwork has not passed explicit, checksum-bound visual approval');

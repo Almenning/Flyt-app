@@ -3,7 +3,7 @@
   "purpose": "Exact original painting + independent, manually approved natural terrain continuation",
   "releaseStatus": "pending_artwork_and_visual_approval",
   "width": 941,
-  "minHeight": 425,
+  "minHeight": 468,
   "sourceAspect": [
     941,
     1672
@@ -38,5 +38,8 @@
       "visualApproval": false
     }
   },
-  "manualReview": "Actual 1:1 and Retina WebKit map-edge screenshots, four worlds; natural color, perspective, visible art seam, no repeated UI or distorted flora; Globe entry visible, no hit-target obstruction."
+  "manualReview": "Actual 1:1 and Retina WebKit map-edge screenshots, four worlds; natural color, perspective, visible art seam, no repeated UI or distorted flora; Globe entry visible, no hit-target obstruction.",
+  "overlapSourceRows": 43,
+  "newTerrainRows": 425,
+  "contextSourceRows": 300
 }

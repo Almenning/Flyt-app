@@ -26,5 +26,34 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Python 3.12 for pixel-by-pixel overlap verification
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Reject new terrain that cannot join the exact locked PNG
+        run: |
+          python -m pip install 'Pillow>=10,<12'
+          python - <<'PY'
+          from pathlib import Path
+          from PIL import Image, ImageChops
+          root=Path('laer-litt-mer')
+          names=('bokskogen','tallenga','ordlandsbyen','nordlysleiren')
+          for name in names:
+              asset=root/'assets'/'locked-journey-ground'/(name+'-ground-v1.webp')
+              if not asset.exists():
+                  print('PENDING '+name+': painterly extension not supplied; Node approval gate will block merge')
+                  continue
+              original=root/'locked-journeys'/(name+'-locked-20261010.png')
+              with Image.open(original) as src, Image.open(asset) as art:
+                  assert src.size==(941,1672), 'locked original changed: '+name
+                  assert art.width==941 and art.height>=468, 'outpainting geometry changed: '+name
+                  if 'A' in art.getbands():
+                      assert art.getchannel('A').getextrema()==(255,255), 'transparent pixels in '+name
+                  expected=src.convert('RGB').crop((0,1629,941,1672))
+                  actual=art.convert('RGB').crop((0,0,941,43))
+                  assert ImageChops.difference(expected,actual).getbbox() is None, (
+                      'pixel seam mismatch in '+name+': top 43 pixels MUST be exact original PNG')
+              print('PASS '+name+': 43 exact source rows and at least 425 new terrain rows')
+          PY
       - name: Require genuine terrain resources and correct WebP dimensions
         run: node tests/laria-d2-terrain-assets.js
