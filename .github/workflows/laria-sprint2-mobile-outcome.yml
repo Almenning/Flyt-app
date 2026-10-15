@@ -1,0 +1,98 @@
+name: Laria sprint 2 unclipped feedback
+on:
+  push:
+    branches: [qa/laria-premium-snapshot-20261015]
+    paths: [.github/workflows/laria-sprint2-mobile-outcome.yml]
+permissions:
+  contents: read
+jobs:
+  apply:
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    outputs:
+      revision: ${{ steps.apply.outputs.revision }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/laria-premium-retry-flow-20261015
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - id: apply
+        name: Correct intrinsic mobile feedback size and strengthen content assertions
+        run: |
+          test "$(git rev-parse HEAD)" = ee67eb845c2846aeb19dbdb0242e4367c77d528d
+          python3 - <<'PY'
+          from pathlib import Path
+          def replace(file, old, new):
+              p=Path(file);s=p.read_text();assert s.count(old)==1,(file,old,s.count(old));p.write_text(s.replace(old,new))
+          replace('laer-litt-mer/laria-task-feedback-stable-v1.css', '    flex-direction:column;\n    align-items:stretch;', '    /* Intrinsic grid rows keep long help text intact on narrow screens. */\n    display:grid;\n    grid-template-columns:minmax(0,1fr);\n    align-items:stretch;')
+          t='tests/laria-premium-retry-flow.playwright.js'
+          replace(t, ' return {scrollWidth:document.documentElement.scrollWidth,width:innerWidth,card:rect(card),', ''' const feedback=card.querySelector('#feedback'),bounds=feedback.getBoundingClientRect();
+           const clippedFeedback=feedback.getClientRects().length>0&&[...feedback.querySelectorAll('strong,p,button:not([hidden])')].some(e=>{
+            const r=e.getBoundingClientRect();return r.top<bounds.top-1||r.bottom>bounds.bottom+1||r.left<bounds.left-1||r.right>bounds.right+1;
+           });
+           return {clippedFeedback,scrollWidth:document.documentElement.scrollWidth,width:innerWidth,card:rect(card),''')
+          replace(t, "const g=await geometry(page);assert(g.scrollWidth", "const g=await geometry(page);assert(!g.clippedFeedback,label+' feedback text clipped');assert(g.scrollWidth")
+          replace(t, "const attempted=await answer(page,true);await capture('retry');", "const attempted=await answer(page,true);await capture('retry');await verify(page,label+' retry');")
+          replace('laer-litt-mer/index.html','laria-task-feedback-stable-v1.css?v=20261015-outcome2','laria-task-feedback-stable-v1.css?v=20261015-outcome3')
+          replace('laer-litt-mer/sw.js','-outcome2','-outcome3')
+          PY
+          git diff --check
+          node --check tests/laria-premium-retry-flow.playwright.js
+          npm ci --no-audit --no-fund
+          npm run test:node
+          git add laer-litt-mer/index.html laer-litt-mer/sw.js laer-litt-mer/laria-task-feedback-stable-v1.css tests/laria-premium-retry-flow.playwright.js
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'fix(laria): preserve readable feedback height on narrow phones'
+          git push origin HEAD:refs/heads/fix/laria-premium-retry-flow-20261015
+          echo "revision=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+  browser:
+    needs: apply
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [chromium, webkit]
+        formats: ['320x568,390x844,430x932,844x390', '820x1180,1180x820', '1440x900']
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.apply.outputs.revision }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps ${{ matrix.engine }}
+      - name: Verify unchanged scoring and complete readable feedback through real actions
+        env:
+          LARIA_RETRY_ENGINE: ${{ matrix.engine }}
+          LARIA_RETRY_FORMATS: ${{ matrix.formats }}
+          LARIA_RETRY_EVIDENCE: /tmp/sprint2-final/grade2
+        run: |
+          mkdir -p /tmp/sprint2-final/grade2
+          git rev-parse HEAD > /tmp/sprint2-final/REVISION.txt
+          set -o pipefail
+          node tests/laria-premium-retry-flow.playwright.js 2>&1 | tee /tmp/sprint2-final/grade2/browser.log
+      - name: Verify grade one on phone including real number ordering
+        if: always() && matrix.formats == '320x568,390x844,430x932,844x390'
+        env:
+          LARIA_RETRY_ENGINE: ${{ matrix.engine }}
+          LARIA_RETRY_FORMATS: 390x844
+          LARIA_RETRY_GRADE: '1'
+          LARIA_RETRY_EVIDENCE: /tmp/sprint2-final/grade1
+        run: |
+          mkdir -p /tmp/sprint2-final/grade1
+          set -o pipefail
+          node tests/laria-premium-retry-flow.playwright.js 2>&1 | tee /tmp/sprint2-final/grade1/browser.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: laria-sprint2-final-${{ matrix.engine }}-${{ matrix.formats }}
+          path: /tmp/sprint2-final/
+          retention-days: 7
