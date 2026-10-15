@@ -51,6 +51,15 @@ function sceneForCountry(c){
   const key=countryKey(c?.name);
   return COUNTRY_SCENES[key]||CONTINENT_SCENES[c?.continent]||{tone:'green',features:[['mountains',.68,.45,.34],['trees',.22,.62,.26]],tag:'Oppdag landskapet og kulturen'};
 }
+/* Share the already approved country mini-landscapes with the encyclopedia.
+   The globe remains authoritative; no second country-art system. */
+window.LARIA_GLOBE_COUNTRY_SCENE_V25=Object.freeze({
+  describe:country=>{
+    const scene=sceneForCountry(country);
+    return {tag:scene.tag,tone:scene.tone};
+  },
+  paint:paintCountryScene
+});
 function paintCountryScene(canvas,c){
   if(!canvas||!c)return;
   const rect=canvas.getBoundingClientRect();
