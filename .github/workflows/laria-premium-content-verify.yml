@@ -1,0 +1,103 @@
+name: Laria faithful task content verification
+on:
+  push:
+    branches: [qa/laria-premium-snapshot-20261015]
+    paths: [.github/workflows/laria-premium-content-verify.yml]
+permissions:
+  contents: read
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    outputs:
+      revision: ${{ steps.apply.outputs.revision }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/laria-premium-retry-flow-20261015
+      - run: test "$(git rev-parse HEAD)" = ad64daeb52f0ef61ad18d2cee23ea300dba5e182
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - name: Capture the existing spelling task and completion before changes
+        env:
+          LARIA_RETRY_ENGINE: chromium
+          LARIA_RETRY_FORMATS: 390x844,1180x820
+          LARIA_RETRY_SUBJECTS: norwegian
+          LARIA_RETRY_EVIDENCE: /tmp/content-before
+        run: |
+          mkdir -p /tmp/content-before
+          git rev-parse HEAD > /tmp/content-before/REVISION.txt
+          node tests/laria-premium-retry-flow.playwright.js
+      - name: Apply exact locally verified patch without touching main or D2
+        id: apply
+        env:
+          PATCH: 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
+        run: |
+          python3 - <<'PY'
+          import os,base64,zlib,hashlib,pathlib
+          patch=zlib.decompress(base64.b64decode(os.environ['PATCH']))
+          assert hashlib.sha256(patch).hexdigest()=='d988f49f169812d0d1a1f814a30fe9e826db06dc1bae65f5e3ea231add775a54'
+          pathlib.Path('/tmp/faithful-content.patch').write_bytes(patch)
+          PY
+          git apply --check /tmp/faithful-content.patch
+          git apply /tmp/faithful-content.patch
+          npm run test:node > /tmp/content-before/node-tests-after.log
+          node --check laer-litt-mer/laria-task-scene-v15.js
+          node --check tests/laria-premium-retry-flow.playwright.js
+          git add laer-litt-mer/index.html laer-litt-mer/laria-task-scene-v15.js laer-litt-mer/sw.js tests/laria-premium-content-integrity.test.cjs tests/laria-premium-retry-flow.playwright.js
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'fix(laria): match plural artwork and completion messages to the actual round'
+          git push origin HEAD:refs/heads/fix/laria-premium-retry-flow-20261015
+          echo "revision=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          git rev-parse HEAD > /tmp/content-before/AFTER_REVISION.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: laria-faithful-content-before
+          path: /tmp/content-before/
+          retention-days: 7
+  browser:
+    needs: apply
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [chromium, webkit]
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.apply.outputs.revision }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps ${{ matrix.engine }}
+      - name: Verify unchanged real journeys and the changed content in both engines
+        env:
+          LARIA_RETRY_ENGINE: ${{ matrix.engine }}
+          LARIA_RETRY_FORMATS: 320x568,390x844,1180x820
+          LARIA_RETRY_EVIDENCE: /tmp/content-after
+        run: |
+          set -o pipefail
+          mkdir -p /tmp/content-after
+          git rev-parse HEAD > /tmp/content-after/REVISION.txt
+          if [ "$LARIA_RETRY_ENGINE" = webkit ]; then
+            printf '%s\n' "const {webkit}=require('./node_modules/playwright');const launch=webkit.launch.bind(webkit);webkit.launch=o=>launch({...o,headless:false});" > .content-browser-mode.cjs
+            xvfb-run -a node -r ./.content-browser-mode.cjs tests/laria-premium-retry-flow.playwright.js 2>&1 | tee /tmp/content-after/browser.log
+          else
+            node tests/laria-premium-retry-flow.playwright.js 2>&1 | tee /tmp/content-after/browser.log
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: laria-faithful-content-${{ matrix.engine }}
+          path: /tmp/content-after/
+          retention-days: 7
