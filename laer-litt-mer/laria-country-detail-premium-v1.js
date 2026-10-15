@@ -77,9 +77,8 @@
         '<div class="country-story-main">'+
           '<header>'+
             '<span class="country-story-section-label">Oppdag landet</span>'+
-            '<h2>Tre ting å lære</h2>'+
-            '<p class="country-story-summary">Se hva du finner ut om '+esc(country.name)+
-              '. Her er noen fakta du kan ta med deg videre.</p>'+
+            '<h2>Tre spennende spor</h2>'+
+            '<p class="country-story-summary">Hvert land har noe å fortelle. Her er tre små oppdagelser fra '+esc(country.name)+'.</p>'+
           '</header>'+
           '<dl class="country-story-facts">'+
             fact('📍','Hovedstad',country.capitalDisplay||country.capital||'Ikke oppgitt')+
