@@ -191,14 +191,14 @@
   z-index:2;
 }
 
-/* Reference composition: label centered, read-aloud below it, then title. */
+/* Metadata and read-aloud share one row, leaving room for the task and its outcome. */
 #session-screen.task-scene[data-task-band="young"] .task-card-head{
   min-height:0!important;
-  padding:0 116px!important;
+  padding:0!important;
   display:flex!important;
-  flex-direction:column!important;
+  flex-direction:row!important;
   align-items:center!important;
-  justify-content:center!important;
+  justify-content:space-between!important;
   gap:9px!important;
 }
 #session-screen.task-scene[data-task-band="young"] .qtype{
@@ -501,7 +501,7 @@
     border-radius:25px!important;
   }
   #session-screen.task-scene[data-task-band="young"] .task-card-head{
-    padding:0 70px!important;
+    padding:0!important;
     gap:7px!important;
   }
   #session-screen.task-scene[data-task-band="young"] .qtype{
@@ -553,7 +553,7 @@
     grid-template-columns:1fr!important;
   }
   #session-screen.task-scene[data-task-band="young"] .task-card-head{
-    padding:0 56px!important;
+    padding:0!important;
   }
 }
 

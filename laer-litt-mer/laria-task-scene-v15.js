@@ -340,8 +340,8 @@
         '<div class="task-card-head"><div class="qtype">'+subjectName(subject)+' · '+text(String(gradeLabel).toUpperCase())+'</div>'+readButton+'</div>'+
         questionScene+
         '<div class="task-interaction">'+(subject==='geography'?geographyInteractionMarkup(q):interactionMarkup(q))+'</div>'+
-        '<div class="feedback" id="feedback" role="status" aria-live="polite" aria-atomic="true"><strong id="feedback-title"></strong><p id="feedback-copy"></p>'+(subject==='english'?'<button class="task-hear-word" id="task-hear-word" type="button" hidden aria-label="Hør engelsk uttale">🔊 Hør engelsk</button>':'')+'</div>'+
-        '<button class="primary next" id="next-question" type="button" aria-label="'+(finalQuestion?'Fullfør oppdraget':'Neste oppgave')+'">'+(finalQuestion?'Fullfør':'Neste')+'</button>'+
+        '<div class="task-outcome"><div class="feedback" id="feedback" role="status" aria-live="polite" aria-atomic="true"><strong id="feedback-title"></strong><p id="feedback-copy"></p>'+(subject==='english'?'<button class="task-hear-word" id="task-hear-word" type="button" hidden aria-label="Hør engelsk uttale">🔊 Hør engelsk</button>':'')+'</div>'+
+        '<button class="primary next" id="next-question" type="button" aria-label="'+(finalQuestion?'Fullfør oppdraget':'Neste oppgave')+'">'+(finalQuestion?'Fullfør':'Neste')+'</button></div>'+
       '</article>';
 
     if(subject==='geography')bindGeographyInteraction(q,wrap);

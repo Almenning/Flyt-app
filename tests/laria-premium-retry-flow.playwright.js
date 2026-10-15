@@ -11,6 +11,9 @@ const matrix=process.env.LARIA_RETRY_FORMATS?process.env.LARIA_RETRY_FORMATS.spl
 assert(matrix.every(v=>v.length===2&&v.every(n=>Number.isFinite(n)&&n>0)),'Invalid viewport filter');
 const engines=[[chromium,'chromium'],[webkit,'webkit']].filter(([,name])=>!process.env.LARIA_RETRY_ENGINE||process.env.LARIA_RETRY_ENGINE===name);
 assert(engines.length,'Invalid browser filter');
+const subjects=(process.env.LARIA_RETRY_SUBJECTS||'norwegian,math,english,geography').split(',');
+assert(subjects.every(s=>['norwegian','math','english','geography'].includes(s)),'Invalid subject filter');
+const baseline=process.env.LARIA_OUTCOME_BASELINE==='1';
 seed.profile.grade=Number(process.env.LARIA_RETRY_GRADE||2);
 assert([1,2].includes(seed.profile.grade),'This flow tests the two youngest grades');
 async function question(page){return page.evaluate(()=>sessionQuestions[qIndex]);}
@@ -65,12 +68,20 @@ async function geometry(page){return page.evaluate(()=>{
  return {scrollWidth:document.documentElement.scrollWidth,width:innerWidth,card:rect(card),
   prompt:rect(card?.querySelector('.question')),scrollTop:host.scrollTop,
   controls:[...document.querySelectorAll('#session-screen button')].filter(b=>b.getClientRects().length).map(b=>({label:b.innerText,...rect(b)})),
-  foxes:card.querySelectorAll('.task-fox-companion').length,avatar:card.querySelector('.task-fox-companion')?.dataset.avatar};
+  foxes:card.querySelectorAll('.task-fox-companion').length,avatar:card.querySelector('.task-fox-companion')?.dataset.avatar,
+  outcome:rect(card.querySelector('.task-outcome')),feedback:rect(card.querySelector('#feedback')),next:rect(card.querySelector('#next-question')),
+  illustration:rect(card.querySelector('.task-illustration')),height:innerHeight,
+  visibleIllustrations:[...card.querySelectorAll('.task-illustration')].map(e=>{
+   const r=e.getBoundingClientRect();let p=e.parentElement,clipped=false;
+   while(p&&p!==host){const c=getComputedStyle(p),b=p.getBoundingClientRect();if(/hidden|clip/.test(c.overflowY)&&(r.top<b.top-1||r.bottom>b.bottom+1))clipped=true;p=p.parentElement;}
+   return {clipped,width:r.width,height:r.height};
+  })};
  });}
 async function verify(page,label){
  const g=await geometry(page);assert(g.scrollWidth<=g.width+1,label+' horizontal overflow');
  assert(g.card.left>=-1&&g.card.right<=g.width+1,label+' card outside viewport');
  assert(g.controls.every(r=>r.width>=43.9&&r.height>=43.9),label+' touch target smaller than 44px: '+JSON.stringify(g.controls));
+ assert(g.visibleIllustrations.every(i=>!i.clipped&&i.width>0&&i.height>0),label+' illustration clipped');
  assert.equal(g.foxes,1,label+' duplicate fox');assert.equal(g.avatar,'girl',label+' wrong identity');
  return g;
 }
@@ -79,21 +90,32 @@ async function verify(page,label){
  for(const [engine,name] of engines){
  const browser=await engine.launch({headless:true,args:name==='chromium'?['--no-sandbox']:[]});
  try{
- for(const [width,height] of matrix)for(const subject of ['norwegian','math','english','geography']){
+ for(const [width,height] of matrix)for(const subject of subjects){
   const label=name+'-'+width+'x'+height+'-'+subject,entry={label,width,height,subject,grade:seed.profile.grade,engine:name,errors:[],stages:[]};report.push(entry);
   const context=await browser.newContext({viewport:{width,height},hasTouch:true,isMobile:[320,390,430,844].includes(width),reducedMotion:'reduce',serviceWorkers:'block'});
-  await context.addInitScript(s=>{if(!localStorage.getItem('laerlittmer-v2'))localStorage.setItem('laerlittmer-v2',JSON.stringify(s))},seed);
+  await context.addInitScript(s=>{
+   if(!localStorage.getItem('laerlittmer-v2'))localStorage.setItem('laerlittmer-v2',JSON.stringify(s));
+   // The same bank selection makes before/after captures comparable. No question or score is mocked.
+   let n=712;Math.random=()=>((n=Math.imul(1664525,n)+1013904223>>>0)/4294967296);
+   window.__qaFrames={ticks:0,maxGap:0,last:0};
+   const tick=t=>{const f=window.__qaFrames;if(f.last)f.maxGap=Math.max(f.maxGap,t-f.last);f.last=t;f.ticks++;if(t<18000)requestAnimationFrame(tick)};
+   requestAnimationFrame(tick);
+  },seed);
   const page=await context.newPage();page.setDefaultTimeout(12000);page.on('pageerror',e=>entry.errors.push(String(e)));
   await page.route(/https:\/\/(raw\.githubusercontent\.com|api\.worldbank\.org)\//,r=>r.abort());
   const capture=async stage=>{
    const state=await page.evaluate(()=>({text:document.querySelector('.screen.active')?.innerText,answered:currentAnswered,correct:sessionCorrect,logs:state.answerLog.length,sessions:state.sessionLog.length}));
-   entry.stages.push({stage,...state});
+   const layout=await page.locator('#session-screen.active').count()?await geometry(page):null;
+   entry.stages.push({stage,...state,layout});
    fs.writeFileSync(path.join(out,'report.json'),JSON.stringify(report,null,2));
    if([390,1180].includes(width)||(width===320&&subject==='math'))await page.screenshot({path:path.join(out,label+'-'+stage+'.png'),animations:'disabled'});
   };
   try{
+   const opened=Date.now();
    await page.goto(url,{waitUntil:'domcontentloaded'});
+   entry.domReadyMs=Date.now()-opened;
    await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').click();
+   entry.homeOpenedMs=Date.now()-opened;
    await page.locator('.screen.active .locked-journey-map[data-journey-subject="'+subject+'"] .locked-journey-hotspot').first().click();
    await page.locator('.locked-journey-overlay:not([hidden]) .mission-primary').click();
    await page.locator('#session-screen.active .laria-task-card').waitFor();
@@ -107,7 +129,7 @@ async function verify(page,label){
     const after=await geometry(page);
     assert(Math.abs(before.prompt.y+before.scrollTop-after.prompt.y-after.scrollTop)<2,label+' prompt jumped on feedback');
     await page.locator('#session-screen .answer').evaluateAll((bs,value)=>bs.find(b=>b.dataset.answer===value).dispatchEvent(new MouseEvent('click',{bubbles:true})),attempted.selected);
-   }else await page.locator('#check-build').click();
+   }else await page.locator(attempted.kind==='sequence'?'#check-sequence':'#check-build').click();
    assert.equal(await page.evaluate(()=>state.answerLog.length),1,label+' duplicate wrong tap was counted');
    // A real reload, then the existing Home continue button restores the saved round.
    await page.reload({waitUntil:'domcontentloaded'});
@@ -123,7 +145,12 @@ async function verify(page,label){
    const corrected=await page.evaluate(()=>({answered:currentAnswered,logs:state.answerLog.length,score:sessionCorrect,keys:sessionQuestions.map(questionIdentity)}));
    assert.equal(corrected.logs,1,label+' correction counted twice');assert.equal(corrected.score,0,label+' correction inflated first-try score');
    assert.equal(corrected.answered.corrected,true);assert.deepEqual(corrected.keys,initial.keys,label+' question identity changed');
-   await verify(page,label);
+   const finalLayout=await verify(page,label);
+   if(!baseline&&['build-word'].includes(initial.questions[0].type)&&width>=760&&height>=820){
+    assert(finalLayout.next.bottom+finalLayout.scrollTop<=height-12,label+' Next below first viewport');
+    assert(finalLayout.feedback.bottom+finalLayout.scrollTop<=height-12,label+' explanation below first viewport');
+    assert(Math.abs(before.prompt.y+before.scrollTop-finalLayout.prompt.y-finalLayout.scrollTop)<2,label+' prompt moved on correct answer');
+   }
    // Queue two clicks on the SAME old Next button. Only one question may advance.
    await page.locator('#next-question').evaluate(b=>{b.click();b.click()});
    assert.equal(await page.evaluate(()=>qIndex),1,label+' double Next skipped a task');
@@ -155,12 +182,18 @@ async function verify(page,label){
    assert.equal(await page.evaluate(()=>state.activeSession),null,label+' completed round was resurrected');
    assert.deepEqual(entry.errors,[],label+' JS errors');entry.passed=true;
    console.log('PASS '+label);
-  }catch(e){entry.failure=e.stack;await page.screenshot({path:path.join(out,label+'-FAILED.png'),animations:'disabled'}).catch(()=>{});console.error('FAIL '+label+' '+e.message);}
+  }catch(e){entry.failure=e.stack;
+   entry.diagnostic=await page.evaluate(()=>({ready:document.readyState,visibility:document.visibilityState,frames:window.__qaFrames,
+    home:document.querySelector('#home-screen')?.className,active:document.querySelector('.screen.active')?.id,
+    card:[...document.querySelectorAll('.bc14-subject')].map(b=>({rect:b.getBoundingClientRect().toJSON(),display:getComputedStyle(b).display,visibility:getComputedStyle(b).visibility,transform:getComputedStyle(b).transform})),
+    animations:document.getAnimations().map(a=>({state:a.playState,time:a.currentTime,name:a.animationName})),
+    resources:performance.getEntriesByType('resource').filter(e=>e.duration>500).map(e=>({url:e.name,duration:e.duration}))
+   })).catch(error=>({unavailable:String(error)}));await page.screenshot({path:path.join(out,label+'-FAILED.png'),animations:'disabled'}).catch(()=>{});console.error('FAIL '+label+' '+e.message);}
   finally{await context.close();fs.writeFileSync(path.join(out,'report.json'),JSON.stringify(report,null,2));}
  }
  }finally{await browser.close();}
  }
- assert.equal(report.length,matrix.length*4*engines.length,'Not all selected flows ran');
+ assert.equal(report.length,matrix.length*subjects.length*engines.length,'Not all selected flows ran');
  const failures=report.filter(r=>!r.passed);console.log(JSON.stringify({total:report.length,passed:report.length-failures.length,failures:failures.map(r=>({label:r.label,failure:r.failure}))},null,2));
  if(failures.length)process.exitCode=1;
 })().catch(e=>{console.error(e);process.exitCode=1}).finally(()=>server.close());
