@@ -27,6 +27,38 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  country-story:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Install browsers
+        run: npx playwright install --with-deps chromium webkit
+      - name: Verify illustrated country detail on iPhone and iPad
+        env:
+          COUNTRY_STORY_QA_SCREENSHOTS: /tmp/laria-country-story
+        run: |
+          node --check laer-litt-mer/laria-country-detail-premium-v1.js
+          node --check laer-litt-mer/globe-v25-renderer.js
+          node --check tests/laria-country-detail-premium.playwright.js
+          node tests/laria-country-detail-premium.playwright.js
+      - name: Upload country-story visual evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-country-story-${{ github.sha }}
+          path: /tmp/laria-country-story
+          if-no-files-found: warn
+          retention-days: 7
+
   laria-qa:
     runs-on: ubuntu-latest
     timeout-minutes: 38
@@ -187,7 +219,9 @@ jobs:
 
   laria-mapboard:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    # Full WebKit phone + tablet mission matrix added; the previous 12-minute
+    # budget cancelled the job after tests passed, before persistence checks.
+    timeout-minutes: 20
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -256,10 +290,20 @@ jobs:
           QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
         run: node tests/laria-journey-integrated-ux.playwright.js
       - name: Unified premium mission menus before and after completion
+        env:
+          MISSION_QA_SCREENSHOTS: /tmp/laria-mission-visual
         run: |
           node --check laer-litt-mer/locked-journey-renderer.js
           node --check tests/laria-journey-mission-premium.playwright.js
           node tests/laria-journey-mission-premium.playwright.js
+      - name: Upload mission cards before and after completion
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-mission-panels-${{ github.sha }}
+          path: /tmp/laria-mission-visual
+          if-no-files-found: warn
+          retention-days: 7
       - name: Selected fox across four journeys and tasks (iPhone/iPad WebKit and Chromium)
         env:
           QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria

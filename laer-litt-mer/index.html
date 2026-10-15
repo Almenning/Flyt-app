@@ -2391,13 +2391,14 @@
   <!-- UX phase 2 owns the responsive geography geometry in one place. -->
   <link rel="stylesheet" href="./globe-ux-phase2.css?v=20261013-ipad-controls" />
   <!-- Original approved art: guarded rendering, no substitutions -->
-  <link rel="stylesheet" href="./locked-journey-renderer.css?v=20261014-bokskogen-stage2" />
+  <link rel="stylesheet" href="./locked-journey-renderer.css?v=20261015-floating-back1" />
   <link rel="stylesheet" href="./laria-responsive-phaseb.css?v=20261015-ipad-mac-stage1-iphone-c3" />
-  <link rel="stylesheet" href="./laria-journey-ground-v1.css?v=20261015-phase-d2-artslot4" />
+  <link rel="stylesheet" href="./laria-journey-ground-v1.css?v=20261015-phase-d2-allornone5" />
   <link rel="stylesheet" href="./laria-fox-identity.css?v=20261011-personalfox2" />
   <link rel="stylesheet" href="./laria-fox-presence.css?v=20261013-task-world-sprite3-noflash" />
   <link rel="stylesheet" href="./laria-task-feedback-stable-v1.css?v=20261014-stable1" />
   <link rel="stylesheet" href="./locked-journey-mission-premium-v1.css?v=20261015-missions-v1" />
+  <link rel="stylesheet" href="./laria-country-detail-premium-v1.css?v=20261015-story2" />
   <!-- immersive-globe-viewport-2026-10-02 -->
   <!-- globe-hit-test-dateline-fix-2026-10-02 -->
   <!-- parent-info-udir-2026-10-02 -->
@@ -3927,6 +3928,11 @@ function renderAdult(){
 function openDetail(k,source=null){
   const active=document.querySelector('.screen.active')?.id?.replace('-screen','');
   returnScreen=source||active||'home';const c=countries[k],st=countryStatus(k),label=st==='mastered'?'★ Fullført':st==='known'?'● Kan nå':st==='learning'?'◐ Under arbeid':st==='seen'?'• Sett':'Ikke startet';
+  // Child-facing Lær mer uses the premium country story. Keep legacy fallback
+  // if the independent presentation file has not loaded.
+  if(window.LARIA_COUNTRY_DETAIL_PREMIUM?.render?.(k,c,label)){
+    showScreen('detail');return;
+  }
   const capitalHtml=c.capital?`<div class="fact"><span>Hovedstad</span><strong>${c.capital}</strong></div>`:'';
   const note=c.note?`<div class="small-note">${c.note}</div>`:'';
   document.getElementById('detail-content').innerHTML=`<div class="eyebrow">${label}</div><div class="detail-flag">${c.flag}</div><h1>${c.name}</h1><div class="fact-grid">${capitalHtml}<div class="fact"><span>Verdensdel</span><strong>${c.continent}</strong></div><div class="fact"><span>Innbyggere · anslag</span><strong>${formatPopulation(c.population)}</strong></div></div>${note}<button class="primary" onclick="startCountryPractice('${k}')">Øv på ${c.name}</button><div class="small-note">Befolkningstall vises som avrundede anslag. Kart og fakta er forenklet for læring på mobil.</div>`;
@@ -6845,7 +6851,7 @@ if(needsProfileSetup||!state.profile.onboarded||!state.profile.grade){
 <script src="./bokskogen-world.js?v=20261007-p15rc1" defer></script>
 <script src="./journey-world-premium.js?v=20261011-personalfox2" defer></script>
 <script src="./locked-journey-contract.js?v=20261011-foxbridge2" defer></script>
-<script src="./locked-journey-renderer.js?v=20261015-premium-missions-v1-d2-artslot4" defer></script>
+<script src="./locked-journey-renderer.js?v=20261015-floating-back1-phase-d2-allornone5" defer></script>
 <!-- Free play + Home -->
 <script src="./word-hunt.js?v=20261013-phase4c-pointer1" defer></script>
 <script src="./home-basecamp-v12.js?v=20261014-phase4d-fox-only1" defer></script>
@@ -6858,6 +6864,7 @@ if(needsProfileSetup||!state.profile.onboarded||!state.profile.grade){
 <!-- Kloden: art primitives must load before the active renderer. -->
 <script src="./globe-v24-art.js?v=globe36-pigment3" defer></script>
 <script src="./globe-v25-renderer.js?v=20261012-ux-phase1" defer></script>
+<script src="./laria-country-detail-premium-v1.js?v=20261015-story2" defer></script>
 <script src="./atlas-perspective-v1.js?v=20261012-deepzoom32" defer></script>
 
 <!-- premium-board-v8-2026-10-04 -->

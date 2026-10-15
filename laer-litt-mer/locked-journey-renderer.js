@@ -12,9 +12,6 @@
   // Only the automated decoder test opts in with a page-init flag.
   const ORIGINAL_SOURCE_IMAGES_VERIFIED=true;
   const assets=new Map();
-  // D2 is explicitly OFF while premium painted extensions are still missing.
-  // When all four have passed the separate art gate, a versioned launch flag
-  // may enable the following decoder. A failed decode changes nothing.
   const D2_TERRAIN_FILES=Object.freeze({
     norwegian:'./assets/locked-journey-ground/bokskogen-ground-v1.webp',
     math:'./assets/locked-journey-ground/tallenga-ground-v1.webp',
@@ -303,6 +300,7 @@
   // The five painted places must remain mapped to their original learning
   // nodes. Presentation can recommend, but NEVER unlock or complete a node.
   const CORE_MISSIONS=new Set(['skill','geo-skill','checkpoint']);
+  let floatingBackObserver=null;
   function nextJourneyPlace(current,places,model,firstOpen){
     const ahead=places.filter(place=>place.index>current.index&&
       place.nodes.some(n=>CORE_MISSIONS.has(n.type)&&!n.complete&&
@@ -436,7 +434,9 @@
       progressDots(s.progress)+
       '<span class="locked-journey-progress-text">'+s.progress.done+' / '+s.progress.total+' oppdrag</span>'+ 
       artworkGuard(subject,false,true)+
-      '</section><div class="locked-journey-overlay" hidden><div class="locked-journey-dim"></div><section class="locked-journey-sheet" role="dialog" aria-modal="true" aria-label="Oppdragssted"></section></div>';
+      '</section><button type="button" class="locked-journey-floating-back" aria-label="Tilbake til reisen eller Hjem" hidden>'+ 
+      '<span aria-hidden="true">←</span><span>Tilbake</span></button>'+ 
+      '<div class="locked-journey-overlay" hidden><div class="locked-journey-dim"></div><section class="locked-journey-sheet" role="dialog" aria-modal="true" aria-label="Oppdragssted"></section></div>';
     screen.classList.add('locked-journey-active');
     setJourneyContext(subject);
     resetJourneyScroll();
@@ -516,7 +516,27 @@
       if(e.shiftKey&&(focused===first||!dialog.contains(focused))){e.preventDefault();last.focus()}
       else if(!e.shiftKey&&(focused===last||!dialog.contains(focused))){e.preventDefault();first.focus()}
     };
-    host.querySelector('.locked-journey-back').onclick=()=>backHome(geo);
+    const nativeBack=host.querySelector('.locked-journey-back');
+    const floatingBack=host.querySelector('.locked-journey-floating-back');
+    nativeBack.onclick=()=>backHome(geo);
+    floatingBack.onclick=()=>backHome(geo);
+    // On tall illustrated journeys the painted top-left back control can be
+    // hundreds of pixels above an iPad landscape viewport. Keep the original
+    // hit target on the map, but show a separate touch-safe back action when
+    // it is mostly out of view. No change to map art, node IDs or scroll.
+    floatingBackObserver?.disconnect();
+    floatingBackObserver=null;
+    if(typeof IntersectionObserver==='function'){
+      floatingBackObserver=new IntersectionObserver(entries=>{
+        const entry=entries[0];
+        if(!floatingBack.isConnected||!entry)return;
+        floatingBack.hidden=!screen.classList.contains('active')||entry.intersectionRatio>=.5;
+      },{threshold:[0,.5,1]});
+      floatingBackObserver.observe(nativeBack);
+    }else{
+      // Unsupported observers must not strand a child in a long journey.
+      floatingBack.hidden=false;
+    }
     host.querySelector('.locked-journey-options').onclick=e=>{
       open('<h2>Reiseinnstillinger</h2>'+gradeChoices(s.grade),e.currentTarget);
       dialog.querySelectorAll('[data-locked-grade]').forEach(btn=>btn.onclick=()=>{

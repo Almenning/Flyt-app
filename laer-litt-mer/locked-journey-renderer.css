@@ -195,6 +195,44 @@
 .locked-journey-back:focus-visible,.locked-journey-options:focus-visible{
   outline:3px solid #fff0a6!important;outline-offset:2px
 }
+/* iPad landscape and long maps: the original painted arrow scrolls away.
+   This only appears once that map arrow is mostly outside the viewport. */
+.locked-journey-floating-back[hidden]{display:none!important}
+.locked-journey-floating-back{
+  position:fixed!important;
+  z-index:990!important;
+  top:max(12px,env(safe-area-inset-top));
+  left:max(12px,calc(50vw - 388px));
+  display:flex!important;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  min-width:110px;
+  min-height:48px;
+  padding:9px 16px;
+  margin:0;
+  box-sizing:border-box;
+  border:2px solid #b98d56;
+  border-radius:999px;
+  background:linear-gradient(165deg,#fff9e9,#efdbb1);
+  box-shadow:0 3px 0 #966b45,0 8px 22px #10262170;
+  color:#513923;
+  font:850 14px/1.1 ui-rounded,system-ui,sans-serif;
+  cursor:pointer;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+}
+.locked-journey-floating-back span:first-child{
+  font-size:23px;line-height:1;
+}
+.locked-journey-floating-back:focus-visible{
+  outline:3px solid #fff1a3;outline-offset:3px;
+}
+.locked-journey-floating-back:active{
+  transform:translateY(2px);
+  box-shadow:0 1px 0 #966b45;
+}
+
 .locked-journey-milestones{position:absolute;inset:0;z-index:6;pointer-events:none}
 .locked-journey-milestone{
   position:absolute;
