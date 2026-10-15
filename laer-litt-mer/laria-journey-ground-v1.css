@@ -70,19 +70,9 @@
  * Only original-ratio painting can be rendered here: never repeat/mirror UI.
  */
 @media (max-width:699px) and (orientation:portrait) {
-  .locked-journey-map[data-journey-subject="norwegian"]{
-    --ljd2-terrain-art:url('./assets/locked-journey-ground/bokskogen-ground-v1.webp');
-  }
-  .locked-journey-map[data-journey-subject="math"]{
-    --ljd2-terrain-art:url('./assets/locked-journey-ground/tallenga-ground-v1.webp');
-  }
-  .locked-journey-map[data-journey-subject="english"]{
-    --ljd2-terrain-art:url('./assets/locked-journey-ground/ordlandsbyen-ground-v1.webp');
-  }
-  .locked-journey-map[data-journey-subject="geography"]{
-    --ljd2-terrain-art:url('./assets/locked-journey-ground/nordlysleiren-ground-v1.webp');
-  }
-
+  /* The approved file URL is applied by JavaScript only AFTER all four
+     decoded images have passed the D2 release gate. Unavailable, unreleased
+     filenames must never appear as active CSS url() dependencies. */
   /* With a 941/1672 original fitting a 100vw iPhone, this is the genuine
      shortfall below the board. The max() gives short phones zero extra space. */
   #subject-screen.active.locked-journey-active .locked-journey-map.laria-d2-terrain-ready,
@@ -101,7 +91,7 @@
     height:calc(var(--ljd2-room) + 18px);
     pointer-events:none;
     z-index:15;
-    background:var(--ljd2-terrain-art) center top / 100% auto no-repeat;
+    background:var(--ljd2-terrain-art,none) center top / 100% auto no-repeat;
     -webkit-mask-image:linear-gradient(180deg,transparent 0px,#000 18px);
     mask-image:linear-gradient(180deg,transparent 0px,#000 18px);
   }
