@@ -57,6 +57,7 @@ async function geometry(page,label,viewport,firstFold){
   const overlay=document.querySelector('.word-hunt-overlay');
   return {width:innerWidth,height:innerHeight,scrollWidth:document.documentElement.scrollWidth,
    targets:rect('.word-hunt-targets'),board:rect('.word-hunt-board-card'),grid:rect('.word-hunt-board'),
+   status:rect('.word-hunt-status'),newRound:rect('.word-hunt-new'),
    back:rect('.word-hunt-back'),cells,fox:rect('.word-hunt-fox'),
    environment:overlay?getComputedStyle(overlay).backgroundImage:''};
  });
@@ -70,8 +71,11 @@ async function geometry(page,label,viewport,firstFold){
  }
  if(viewport.width<=700 && m.cells.length===36){
   assert.ok(m.cells.every(x=>x.width>=44&&x.height>=44),label+' easy cells under 44px: '+JSON.stringify(m));
-  if(viewport.height>viewport.width)
+  if(viewport.height>viewport.width){
    assert.ok(m.board.width>=viewport.width*.90,label+' premium frame shrank the portrait puzzle too much: '+JSON.stringify(m.board));
+   assert.ok(m.status&&m.status.width>=viewport.width*.90,label+' mobile fox response is not intentionally aligned with the puzzle');
+   assert.ok(m.newRound&&m.newRound.width>=viewport.width*.60,label+' new-round action is too small on portrait mobile');
+  }
  }
  assert.match(m.environment,/bokskogen-atlas32\.webp/,label+' no Bokskogen environment behind the puzzle');
 }
