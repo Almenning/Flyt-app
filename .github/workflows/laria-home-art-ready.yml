@@ -1,0 +1,149 @@
+name: Laria immediately requested Home art
+on:
+  push:
+    branches: [qa/laria-premium-snapshot-20261015]
+    paths: [.github/workflows/laria-home-art-ready.yml]
+permissions:
+  contents: read
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    permissions:
+      contents: write
+    outputs:
+      revision: ${{ steps.commit.outputs.revision }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/laria-premium-retry-flow-20261015
+      - run: test "$(git rev-parse HEAD)" = 12163f86282ff1e924d8047005f46f8bbf2143bf
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - name: Apply the locally checked loading correction only
+        id: commit
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('laer-litt-mer/home-basecamp-v12.js');s=p.read_text();old='<img loading="lazy" decoding="async" fetchpriority="low" src="./home-';assert s.count(old)==1;s=s.replace(old,'<img loading="eager" decoding="async" src="./home-');p.write_text(s)
+          p=Path('laer-litt-mer/index.html');s=p.read_text();old='home-basecamp-v12.js?v=20261014-phase4d-fox-only1';assert s.count(old)==2;s=s.replace(old,'home-basecamp-v12.js?v=20261015-home-art-ready1');p.write_text(s)
+          p=Path('laer-litt-mer/sw.js');s=p.read_text();old="-outcome3-plural2';";assert s.count(old)==1;s=s.replace(old,"-outcome3-plural2-home-art-ready1';");p.write_text(s)
+          PY
+          cat > tests/laria-home-critical-art.test.cjs <<'JS'
+          'use strict';
+          const test=require('node:test'),assert=require('node:assert/strict');
+          const fs=require('node:fs'),path=require('node:path');
+          const source=fs.readFileSync(path.join(__dirname,'../laer-litt-mer/home-basecamp-v12.js'),'utf8');
+          test('Visible subject artwork is requested eagerly without competing high-priority downloads',()=>{
+           const tag=source.match(/<img[^>]+src="\.\/home-[^>]+>/)?.[0];
+           assert(tag,'The four subject cards must keep their existing image template');
+           assert.match(tag,/loading="eager"/);
+           assert.match(tag,/decoding="async"/);
+           assert.doesNotMatch(tag,/fetchpriority="(?:low|high)"/);
+           assert.match(tag,/-v14\.webp\?v=20261010-scene1/);
+          });
+          test('Preloaded Home script and runtime script use the same new asset revision',()=>{
+           const html=fs.readFileSync(path.join(__dirname,'../laer-litt-mer/index.html'),'utf8');
+           const urls=[...html.matchAll(/(?:href|src)="\.\/(home-basecamp-v12\.js\?v=[^"]+)"/g)].map(m=>m[1]);
+           assert.equal(urls.length,2);
+           assert.equal(urls[0],urls[1]);
+           assert.match(urls[0],/home-art-ready1$/);
+           const sw=fs.readFileSync(path.join(__dirname,'../laer-litt-mer/sw.js'),'utf8');
+           assert.match(sw.split('\n')[0],/home-art-ready1/);
+          });
+          JS
+          mkdir -p /tmp/laria-art-node
+          node --check laer-litt-mer/home-basecamp-v12.js
+          npm run test:node > /tmp/laria-art-node/node.log 2>&1
+          git diff --check
+          git diff > /tmp/laria-art-node/product.patch
+          git add laer-litt-mer/home-basecamp-v12.js laer-litt-mer/index.html laer-litt-mer/sw.js tests/laria-home-critical-art.test.cjs
+          git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'fix(laria): load visible Home subject artwork without lazy or low-priority delay'
+          git push origin HEAD:refs/heads/fix/laria-premium-retry-flow-20261015
+          echo "revision=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          git rev-parse HEAD > /tmp/laria-art-node/REVISION.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: laria-home-art-node
+          path: /tmp/laria-art-node/
+          retention-days: 7
+  browser:
+    needs: apply
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [chromium, webkit]
+        version: [before, after]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ matrix.version == 'before' && '12163f86282ff1e924d8047005f46f8bbf2143bf' || needs.apply.outputs.revision }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps ${{ matrix.engine }}
+      - name: Verify unchanged actual artwork, first requests and genuine Home return
+        env:
+          ENGINE: ${{ matrix.engine }}
+          VERSION: ${{ matrix.version }}
+        run: |
+          mkdir -p /tmp/laria-home-art
+          git rev-parse HEAD > /tmp/laria-home-art/REVISION.txt
+          cat > tests/home-art-probe.cjs <<'JS'
+          const fs=require('node:fs'),path=require('node:path'),http=require('node:http'),assert=require('node:assert/strict'),engines=require('playwright');
+          const root=process.cwd(),out='/tmp/laria-home-art',engine=process.env.ENGINE,version=process.env.VERSION,report=[];
+          const code=fs.readFileSync('tests/laria-premium-retry-flow.playwright.js','utf8'),seed=Function('return '+code.match(/const seed=(.+);\nconst mime/)[1])();
+          const mime={'.html':'text/html','.js':'text/javascript','.css':'text/css','.webp':'image/webp','.svg':'image/svg+xml','.png':'image/png'};
+          const server=http.createServer((req,res)=>{let u=new URL(req.url,'http://localhost').pathname;if(u.endsWith('/'))u+='index.html';const f=path.resolve(root,'.'+u);if(!f.startsWith(root+path.sep)){res.writeHead(403);return res.end()}fs.readFile(f,(err,b)=>{res.writeHead(err?404:200,{'Content-Type':mime[path.extname(f)]||'application/octet-stream','Cache-Control':'no-store'});res.end(err?'Missing':b)})});
+          (async()=>{await new Promise(r=>server.listen(0,'127.0.0.1',r));const browser=await engines[engine].launch({headless:false,args:engine==='chromium'?['--no-sandbox']:[]});try{
+           for(const [width,height] of [[320,568],[390,844],[1180,820]]){
+            const context=await browser.newContext({viewport:{width,height},hasTouch:true,isMobile:width<500,reducedMotion:'reduce',serviceWorkers:'block'});
+            await context.addInitScript(s=>{localStorage.setItem('laerlittmer-v2',JSON.stringify(s));window.__frames=[];let n=0;function tick(t){window.__frames.push(t);if(n++<20)requestAnimationFrame(tick)}requestAnimationFrame(tick)},seed);
+            const page=await context.newPage();page.setDefaultTimeout(12000);const entry={width,height,engine,version,requests:[],errors:[]};report.push(entry);const start=Date.now();page.on('pageerror',e=>entry.errors.push(String(e)));page.on('request',r=>{if(/\/home-(norwegian|math|english|geography)-v14\.webp/.test(r.url()))entry.requests.push({url:r.url().split('/').pop(),atMs:Date.now()-start})});
+            await page.route(/https:\/\/(raw\.githubusercontent\.com|api\.worldbank\.org)\//,r=>r.abort());
+            try{
+             await page.goto('http://127.0.0.1:'+server.address().port+'/laer-litt-mer/?app=laria',{waitUntil:'domcontentloaded'});entry.domMs=Date.now()-start;
+             await page.waitForFunction(()=>{const images=[...document.querySelectorAll('.bc14-subject-scene img')];return images.length===4&&images.every(i=>i.complete&&i.naturalWidth>0)},null,{polling:100,timeout:12000});
+             entry.artReadyMs=Date.now()-start;
+             entry.images=await page.locator('.bc14-subject-scene img').evaluateAll(images=>images.map(i=>({src:i.getAttribute('src'),loading:i.loading,priority:i.fetchPriority,naturalWidth:i.naturalWidth,naturalHeight:i.naturalHeight})));
+             assert(entry.images.every(i=>i.loading===(version==='after'?'eager':'lazy')),'Wrong loading contract');assert.equal(entry.requests.length,4,'Expected one request for each existing subject image');
+             assert.equal(await page.locator('.bc14-subject:visible').count(),4);assert.equal(await page.evaluate(()=>state.profile.avatar),'girl');assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Horizontal overflow');
+             await page.screenshot({path:out+'/'+engine+'-'+width+'x'+height+'-home.png',animations:'disabled'});
+             await page.locator('.bc14-subject[data-camp="subject-norwegian"]').tap();
+             const floating=page.locator('#subject-screen .locked-journey-floating-back:visible');
+             if(await floating.count())await floating.tap();else await page.locator('#subject-screen .locked-journey-back').tap();
+             await page.locator('#home-screen.active').waitFor();entry.returned=true;assert.equal(entry.errors.length,0);entry.passed=true;
+            }catch(e){entry.failure=String(e);entry.passed=false;await page.screenshot({path:out+'/'+engine+'-'+width+'x'+height+'-failure.png',animations:'disabled'}).catch(()=>{});}
+            entry.frames=await page.evaluate(()=>window.__frames);fs.writeFileSync(out+'/home-report.json',JSON.stringify(report,null,2));await context.close();
+           }
+          }finally{await browser.close();server.closeAllConnections();server.close()}
+          console.log(report.map(e=>({width:e.width,artReadyMs:e.artReadyMs,requests:e.requests,passed:e.passed,failure:e.failure})));if(report.some(e=>!e.passed))process.exitCode=1;
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
+          xvfb-run -a node tests/home-art-probe.cjs
+      - name: Actual four-subject retry, completion, replay and return
+        if: always() && matrix.version == 'after'
+        env:
+          LARIA_RETRY_ENGINE: ${{ matrix.engine }}
+          LARIA_RETRY_FORMATS: 320x568,390x844,1180x820
+          LARIA_RETRY_EVIDENCE: /tmp/laria-home-art/flows
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('tests/laria-premium-retry-flow.playwright.js');s=p.read_text();assert s.count('headless:true')==1;p.write_text(s.replace('headless:true','headless:false'))
+          PY
+          git diff -- tests/laria-premium-retry-flow.playwright.js > /tmp/laria-home-art/launch-only.diff
+          xvfb-run -a node tests/laria-premium-retry-flow.playwright.js
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: laria-home-art-${{ matrix.version }}-${{ matrix.engine }}
+          path: /tmp/laria-home-art/
+          retention-days: 7
