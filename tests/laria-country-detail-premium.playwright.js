@@ -64,13 +64,27 @@ async function run(engine,label,viewport,url,avatar='girl'){
     await page.waitForFunction(()=>typeof openDetail==='function'&&
       !!window.LARIA_COUNTRY_DETAIL_PREMIUM&&!!window.LARIA_GLOBE_COUNTRY_SCENE_V25,
       null,{timeout:22000});
+    // A callable runtime is not necessarily a navigable app: asynchronous
+    // Basecamp startup may still own the active screen in busy CI WebKit.
+    await page.locator('#home-screen.active .bc12').waitFor({timeout:20000});
     const before=await page.evaluate(()=>JSON.stringify({
       journey:state.journey,answerLog:state.answerLog,mastery:state.mastery
     }));
     // The product still navigates through the SAME openDetail() as the globe card.
     await page.evaluate(()=>openDetail('eg','world'));
     const card=page.locator('#detail-screen.active .country-story[data-country-detail="eg"]');
-    await card.waitFor({timeout:9000});
+    try{await card.waitFor({timeout:16000});}
+    catch(error){
+      const info=await page.evaluate(()=>({
+        active:[...document.querySelectorAll('.screen.active')].map(x=>x.id),
+        detail:document.getElementById('detail-screen')?.getAttribute('style'),
+        country:document.getElementById('detail-content')?.firstElementChild?.outerHTML.slice(0,280),
+        ready:window.LARIA_BASECAMP_DIAG,
+        canRender:typeof window.LARIA_COUNTRY_DETAIL_PREMIUM?.render,
+        jsErrors:window.__lariaCountryErrors||[]
+      }));
+      throw new Error(label+' Egypt story failed to open after Basecamp readiness: '+JSON.stringify(info)+'; '+error.message);
+    }
     await card.locator('h1').waitFor();
     assert.equal((await card.locator('h1').innerText()).trim(),'Egypt',label+' wrong country');
     assert.match(await card.locator('.country-story-tagline').innerText(),/Nilen.*pyramider/,
