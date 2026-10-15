@@ -117,7 +117,16 @@
     const key=String(q.visual).trim();
     const premium=premiumIllustrationSvg(key);
     if(premium){
-      return '<div class="task-visual-row premium-visual" data-task-visual-kind="premium" data-task-visual-release="illustrations-rc1" data-task-visual-key="'+attr(key)+'"><div class="task-object-stage">'+premium+'</div></div>';
+      // This saved spelling task asks for the plural. Reuse the existing apple
+      // artwork twice; changing q.visual would change the persisted question key.
+      // The trailing canvas reserves space for the companion on narrow phones.
+      const pluralApples=q.subject==='norwegian'&&q.type==='build-word'&&q.answer==='EPLER'&&key==='\u{1F34E}';
+      const apple=pluralApples?premium.replace(/^<svg[^>]*>/,'').replace(/<\/svg>$/,''):'';
+      const illustration=pluralApples?
+        '<svg class="task-illustration" viewBox="0 0 600 180" aria-hidden="true">'+
+          '<g data-task-object="apple">'+apple+'</g>'+
+          '<g data-task-object="apple" transform="translate(180 0)">'+apple+'</g></svg>':premium;
+      return '<div class="task-visual-row premium-visual" data-task-visual-kind="premium" data-task-visual-release="illustrations-rc1" data-task-visual-key="'+attr(key)+'"><div class="task-object-stage">'+illustration+'</div></div>';
     }
     return '<div class="task-visual-row" data-task-visual-kind="fallback" data-task-visual-key="'+attr(key)+'"><div class="task-object-stage"><div class="task-emoji-sticker" aria-hidden="true">'+text(q.visual)+'</div></div></div>';
   }
@@ -253,14 +262,11 @@
     else wrap.querySelectorAll('.answer').forEach(b=>b.onclick=()=>answerLearningChoice(b.dataset.answer));
   }
   function restoreAnswered(q,wrap){
-    if(!currentAnswered)return;
     if(q.type==='learning-choice'||youngMathChoice(q)){
-      wrap.querySelectorAll('.answer').forEach(b=>{
-        b.disabled=true;
-        if(b.dataset.answer===String(q.answer))b.classList.add('correct');
-        else if(b.dataset.answer===String(currentAnswered.selected))b.classList.add('wrong');
-      });
+      applyChoiceAnswerState(q,currentAnswered);
+      return;
     }
+    if(!currentAnswered)return;
     const input=wrap.querySelector('#math-input');
     if(input){input.value=currentAnswered.selected??'';input.disabled=true}
     wrap.querySelectorAll('#check-number,#check-sequence').forEach(b=>b.disabled=true);
@@ -268,6 +274,7 @@
   }
 
   function restoreGeographyAnswered(q){
+    if(currentGrade()<=2&&q.type!=='map'){applyChoiceAnswerState(q,currentAnswered);return}
     if(!currentAnswered)return;
     applyAnsweredState(q,currentAnswered);
   }
@@ -342,8 +349,8 @@
         '<div class="task-card-head"><div class="qtype">'+subjectName(subject)+' · '+text(String(gradeLabel).toUpperCase())+'</div>'+readButton+'</div>'+
         questionScene+
         '<div class="task-interaction">'+(subject==='geography'?geographyInteractionMarkup(q):interactionMarkup(q))+'</div>'+
-        '<div class="feedback" id="feedback" role="status" aria-live="polite" aria-atomic="true"><strong id="feedback-title"></strong><p id="feedback-copy"></p>'+(subject==='english'?'<button class="task-hear-word" id="task-hear-word" type="button" hidden aria-label="Hør engelsk uttale">🔊 Hør engelsk</button>':'')+'</div>'+
-        '<button class="primary next" id="next-question" type="button" aria-label="'+(finalQuestion?'Fullfør oppdraget':'Neste oppgave')+'">'+(finalQuestion?'Fullfør':'Neste')+'</button>'+
+        '<div class="task-outcome"><div class="feedback" id="feedback" role="status" aria-live="polite" aria-atomic="true"><strong id="feedback-title"></strong><p id="feedback-copy"></p>'+(subject==='english'?'<button class="task-hear-word" id="task-hear-word" type="button" hidden aria-label="Hør engelsk uttale">🔊 Hør engelsk</button>':'')+'</div>'+
+        '<button class="primary next" id="next-question" type="button" aria-label="'+(finalQuestion?'Fullfør oppdraget':'Neste oppgave')+'">'+(finalQuestion?'Fullfør':'Neste')+'</button></div>'+
       '</article>';
 
     if(subject==='geography')bindGeographyInteraction(q,wrap);

@@ -2361,7 +2361,7 @@
   <link rel="stylesheet" href="./multiplication-lab.css?v=20261006-assets1" />
   <link rel="stylesheet" href="./multiplication-premium-v2.css?v=20261015-phase-d1-44px-touches1" />
   <link rel="stylesheet" href="./multiplication-illustrated-groups-v3.css?v=20261009-mp3a" />
-  <link rel="stylesheet" href="./multiplication-premium-parity-v4.css?v=20261013-phase4b-heightfix1" />
+  <link rel="stylesheet" href="./multiplication-premium-parity-v4.css?v=20261015-full-count2" />
   <link rel="stylesheet" href="./multiplication-pick-play-v1.css?v=20261009-pick2" />
   <link rel="stylesheet" href="./multiplication-pick-storybook-v2.css?v=20261009-storybook2" />
   <link rel="stylesheet" href="./multiplication-pick-closeup-v3.css?v=20261009-scenic-easy-v5" />
@@ -2386,7 +2386,7 @@
   <link rel="stylesheet" href="./laria-task-scene-v15.css?v=20261007-p15rc1" />
   <!-- Kloden: one active scene stylesheet; art + renderer are loaded below in runtime order -->
   <link rel="stylesheet" href="./globe-v24.css?v=20261011-iphone-shortportrait1" />
-  <link rel="stylesheet" href="./laria-task-young-v18.css?v=20261013-phase3-read44-noflash2" />
+  <link rel="stylesheet" href="./laria-task-young-v18.css?v=20261015-outcome2" />
   <link rel="stylesheet" href="./atlas-perspective-v1.css?v=20261009-atlas-story2" />
   <!-- UX phase 2 owns the responsive geography geometry in one place. -->
   <link rel="stylesheet" href="./globe-ux-phase2.css?v=20261013-ipad-controls" />
@@ -2395,7 +2395,7 @@
   <link rel="stylesheet" href="./laria-responsive-phaseb.css?v=20261015-ipad-mac-stage1-iphone-c3" />
   <link rel="stylesheet" href="./laria-fox-identity.css?v=20261011-personalfox2" />
   <link rel="stylesheet" href="./laria-fox-presence.css?v=20261013-task-world-sprite3-noflash" />
-  <link rel="stylesheet" href="./laria-task-feedback-stable-v1.css?v=20261014-stable1" />
+  <link rel="stylesheet" href="./laria-task-feedback-stable-v1.css?v=20261015-outcome3" />
   <link rel="stylesheet" href="./locked-journey-mission-premium-v1.css?v=20261015-missions-v1" />
   <link rel="stylesheet" href="./laria-country-detail-premium-v1.css?v=20261015-story3-curated1" />
   <link rel="stylesheet" href="./country-discoveries-v1.css?v=20261015-discoveries1" />
@@ -2891,12 +2891,12 @@
           </div>
         </div>
         <div class="card summary">
-          <div class="summary-row"><span>Riktige</span><span id="complete-correct">0/5</span></div>
+          <div class="summary-row"><span>Riktige på første forsøk</span><span id="complete-correct">0/5</span></div>
           <div class="summary-row"><span>Nye ting styrket</span><span id="complete-learned">0</span></div>
           <div class="summary-row"><span>Område</span><span id="complete-area">Norden</span></div>
         </div>
         <div class="complete-next" id="complete-next">Neste gang venter en ny liten utfordring.</div>
-        <button class="secondary" id="complete-repeat" type="button">↻ Ta samme test igjen</button>
+        <button class="secondary" id="complete-repeat" type="button">Spill igjen</button>
         <button class="primary" id="complete-home">Ferdig! ⭐</button>
       </div>
     </section>
@@ -5724,45 +5724,72 @@ function celebrateCorrect(){
   requestAnimationFrame(()=>{const box=document.getElementById('feedback');if(!box)return;box.classList.remove('success-pop');void box.offsetWidth;box.classList.add('success-pop')});
 }
 function learningFeedbackText(q,correct){
+  const country=q.k&&countries[q.k];
+  if(country){
+    const fact=q.type==='capital'?country.name+' har hovedstaden '+country.capital+'.':
+      q.type==='flag'?'Dette er flagget til '+country.name+'.':
+      q.type==='continent'?country.name+' ligger i '+country.continent+'.':
+      country.capital+' er hovedstaden i '+country.name+'.';
+    return correct?fact:fact+' Finn svaret blant valgene.';
+  }
   if(correct){
     if(q.subject==='english'&&q.englishWord&&q.norwegianMeaning)
       return q.englishWord+' betyr '+q.norwegianMeaning+'.';
     return q.subject==='english'?'Du fant riktig svar.':'Bra! Denne satt.';
   }
-  if(q.type==='build-word')return 'Se på bokstavene og prøv ordet en gang til neste gang det dukker opp.';
-  if(q.subject==='math')return 'Se på tallene på nytt. Feilen brukes til å gi deg en bedre neste oppgave.';
-  return 'Nesten. Oppgaven kommer tilbake senere, med litt mer støtte.';
+  if(q.type==='build-word')return 'Si ordet langsomt. Se på bokstavene og flytt dem som står feil.';
+  if(q.subject==='math'){
+    const place=String(q.prompt).match(/verdien til\s+(\d)\s+i tallet\s+(\d+)/i);
+    if(q.skill==='place-value'&&place&&Math.floor(Number(place[2])/10)===Number(place[1]))
+      return place[1]+' står på tierplassen. Hver tier er verdt 10.';
+    const sum=String(q.prompt).match(/^(\d+)\s*([+−-])\s*(\d+)\s*=/);
+    if(sum)return 'Start på '+sum[1]+', og tell '+sum[3]+(sum[2]==='+'?' videre.':' bakover.');
+    if(q.skill==='number-order'&&/kommer videre/i.test(String(q.prompt)))
+      return 'Se etter hvor mye tallet endrer seg fra ett steg til det neste.';
+    if(q.skill==='number-order')return currentGrade()<=1?
+      'Tenk på tallrekken. Hvilket tall kommer sist?':
+      'Sammenlign tierne først. Er de like, sammenlign enerne.';
+    return 'Se på tallene og regnetegnet. Ta ett steg om gangen.';
+  }
+  if(q.passage)return 'Les eller lytt til teksten igjen. Se etter delen spørsmålet handler om.';
+  if(q.visual)return 'Se på bildet. Les eller lytt til ordene, og finn det som passer.';
+  return 'Les eller lytt til spørsmålet igjen, og prøv et annet svar.';
+}
+// Attempt state travels with the existing saved session, not with a new score system.
+function rememberWrongAttempt(q,answer){
+  q._youngFirstAttemptWrong=true;
+  const rejected=Array.isArray(q._youngWrongAnswers)?q._youngWrongAnswers:[];
+  q._youngWrongAnswers=[...new Set([...rejected,String(answer)])];
+}
+function applyChoiceAnswerState(q,answered=currentAnswered){
+  const rejected=Array.isArray(q._youngWrongAnswers)?q._youngWrongAnswers:[];
+  const complete=!!answered,correct=!!(answered?.correct||answered?.corrected);
+  document.querySelectorAll('#session-screen .answer').forEach(b=>{
+    const wrong=rejected.includes(b.dataset.answer);
+    b.disabled=complete||wrong;
+    b.classList.toggle('correct',complete&&b.dataset.answer===String(q.answer));
+    b.classList.toggle('wrong',complete?(!correct&&b.dataset.answer===String(answered.selected)):wrong);
+  });
+  if(complete)showLearningFeedback(q,correct);
+  else if(q._youngFirstAttemptWrong)showLearningFeedback(q,false,{retry:true});
 }
 function answerLearningChoice(answer){
   if(currentAnswered)return;
-  const q=sessionQuestions[qIndex],correct=String(answer)===String(q.answer),young=currentGrade()<=2;
-  // On young screens a wrong first tap is the one assessed attempt.
-  // Later retries teach the answer but must not manufacture a second scored attempt.
+  const q=sessionQuestions[qIndex];if(!q)return;
+  const rejected=Array.isArray(q._youngWrongAnswers)?q._youngWrongAnswers:[];
+  if(rejected.includes(String(answer)))return;
+  const correct=String(answer)===String(q.answer),young=currentGrade()<=2;
+  // Only the first attempt is assessed. A correction is celebrated, not scored twice.
   const alreadyFailed=young&&q._youngFirstAttemptWrong===true;
   if(!alreadyFailed){
-    recordLearningAnswer(q,correct,answer);
-    if(young&&!correct)q._youngFirstAttemptWrong=true;
+    if(q.k&&countries[q.k])recordAnswer(q,correct,answer);
+    else recordLearningAnswer(q,correct,answer);
   }else if(correct){
-    currentAnswered={selected:answer,correct:false,corrected:true,practiceRepeat:!!q.practiceRepeat};
-    persistActiveSession();
+    currentAnswered={selected:answer,correct:false,corrected:true,practiceRepeat:isPracticeRepeat(q)};
   }
-  const buttons=[...document.querySelectorAll('.answer')];
-  buttons.forEach(b=>{
-    b.classList.remove('correct','wrong');
-    if(correct){
-      b.disabled=true;
-      if(b.dataset.answer===String(q.answer))b.classList.add('correct');
-    }else if(b.dataset.answer===String(answer)){
-      b.classList.add('wrong');
-      b.disabled=true;
-    }
-  });
-  showLearningFeedback(q,correct,{retry:young&&!correct});
-  if(young&&!correct){
-    currentAnswered=null;
-    persistActiveSession();
-    buttons.forEach(b=>{if(!b.classList.contains('wrong'))b.disabled=false});
-  }
+  if(young&&!correct){rememberWrongAttempt(q,answer);currentAnswered=null;}
+  persistActiveSession();
+  applyChoiceAnswerState(q,currentAnswered);
 }
 function showLearningFeedback(q,correct,options={}){
   const box=document.getElementById('feedback');
@@ -5785,7 +5812,15 @@ function showLearningFeedback(q,correct,options={}){
 function renderBuildWord(q,wrap){
   const letters=q.letters.map((x,i)=>Object.assign({},x,{idx:i}));
   const slots=Array(q.answer.length).fill(null);
-  let selectedLetterIdx=null,selectedSlotIdx=null,wrongAttempt=false,mistakeRecorded=false,suppressTapUntil=0;
+  let selectedLetterIdx=null,selectedSlotIdx=null,wrongAttempt=!currentAnswered&&q._youngFirstAttemptWrong===true,mistakeRecorded=q._youngFirstAttemptWrong===true,suppressTapUntil=0;
+  const saved=currentAnswered?.selected||(mistakeRecorded?q._youngWrongAnswers?.at(-1):null);
+  if(typeof saved==='string'&&saved.length===slots.length){
+    const available=letters.slice();
+    Array.from(saved).forEach((letter,i)=>{
+      const found=available.findIndex(item=>item.l===letter);
+      if(found>=0)slots[i]=available.splice(found,1)[0];
+    });
+  }
   const slotBox=wrap.querySelector('#letter-slots'),bankBox=wrap.querySelector('.letter-bank'),helper=wrap.querySelector('#letter-helper'),check=wrap.querySelector('#check-build');
 
   const usedLetter=idx=>slots.some(x=>x&&x.idx===idx);
@@ -5935,14 +5970,16 @@ function renderBuildWord(q,wrap){
     }).join('');
     wrap.querySelectorAll('.letter-tile').forEach(b=>{
       const idx=Number(b.dataset.idx),used=usedLetter(idx);
+      b.disabled=!!currentAnswered;
       b.classList.toggle('used',used);b.classList.toggle('selected',selectedLetterIdx===idx);
       b.setAttribute('aria-pressed',selectedLetterIdx===idx?'true':'false');
     });
-    check.disabled=!slots.every(Boolean);
+    check.disabled=!!currentAnswered||!slots.every(Boolean);
     helper.textContent=helperText();
 
     wrap.querySelectorAll('.letter-slot').forEach(slot=>{
       const slotIdx=Number(slot.dataset.slot);
+      slot.disabled=!!currentAnswered;
       slot.onclick=()=>{
         if(Date.now()<suppressTapUntil)return;
         if(slots[slotIdx]){returnLetter(slotIdx);return}
@@ -5969,30 +6006,27 @@ function renderBuildWord(q,wrap){
     if(correct){
       if(!mistakeRecorded)recordLearningAnswer(q,true,answer);
       else{
-        const repeatPractice=isPracticeRepeat(q);
-        if(!repeatPractice)bumpSkill(q.subject,q.skill,true);
-        state.answerLog.push({at:Date.now(),subject:q.subject,skill:q.skill,type:q.type,grade:Number(sessionScope?.journeyGrade||sessionScope?.grade||currentGrade()),questionKey:questionIdentity(q),correct:true,corrected:true,newlyMastered:false,practiceRepeat:repeatPractice,countsForLearning:!repeatPractice,curriculum:q.curriculum||null});
-        currentAnswered={selected:answer,correct:true,corrected:true};
+        currentAnswered={selected:answer,correct:false,corrected:true,practiceRepeat:isPracticeRepeat(q)};
         persistActiveSession();
       }
       wrap.querySelectorAll('.letter-tile,.letter-slot').forEach(b=>b.disabled=true);
+      check.disabled=true;
       showLearningFeedback(q,true);
       if(mistakeRecorded)document.getElementById('feedback-copy').textContent='Der satt den! Du rettet ordet selv.';
       return;
     }
     if(!mistakeRecorded){
-      const repeatPractice=isPracticeRepeat(q),result=repeatPractice?{newlyMastered:false}:bumpSkill(q.subject,q.skill,false);
-      state.answerLog.push({at:Date.now(),subject:q.subject,skill:q.skill,type:q.type,grade:Number(sessionScope?.journeyGrade||sessionScope?.grade||currentGrade()),questionKey:questionIdentity(q),correct:false,newlyMastered:result.newlyMastered,practiceRepeat:repeatPractice,countsForLearning:!repeatPractice,curriculum:q.curriculum||null});
-      mistakeRecorded=true;saveState();
+      recordLearningAnswer(q,false,answer);
+      mistakeRecorded=true;
     }
+    rememberWrongAttempt(q,answer);currentAnswered=null;persistActiveSession();
     wrongAttempt=true;paint();
-    const box=wrap.querySelector('#feedback');box.style.display='block';box.classList.add('bad');
-    wrap.querySelector('#feedback-title').textContent='Prøv igjen';
-    wrap.querySelector('#feedback-copy').textContent='Noen bokstaver står feil. Flytt dem, trykk dem tilbake, eller dra dem ned til bokstavene igjen.';
-    wrap.querySelector('#next-question').style.display='none';
+    showLearningFeedback(q,false,{retry:true});
   };
   paint();
+  if(wrongAttempt)showLearningFeedback(q,false,{retry:true});
 }
+
 function renderSentenceOrder(q,wrap){
   let chosen=[];
   const words=q.words.map((w,i)=>({w,i}));
@@ -6450,7 +6484,10 @@ function bindReadAloud(q){
   const b=document.getElementById('read-aloud');
   if(b)b.onclick=()=>speakQuestion(q);
   if(currentGrade()<=2&&state.preferences?.autoRead&&canSpeak()){
-    setTimeout(()=>{if(sessionQuestions[qIndex]===q)speakQuestion(q)},90);
+    const run=lariaSpeechRun;
+    setTimeout(()=>{
+      if(run===lariaSpeechRun&&sessionQuestions[qIndex]===q&&document.getElementById('session-screen')?.classList.contains('active'))speakQuestion(q);
+    },90);
   }
 }
 function renderQuestion(){
@@ -6471,7 +6508,7 @@ function renderQuestion(){
   if(currentAnswered)applyAnsweredState(q,currentAnswered);
 }
 function escapeAttr(s){return String(s).replaceAll('&','&amp;').replaceAll('"','&quot;').replaceAll('<','&lt;').replaceAll('>','&gt;')}
-function answerText(answer){if(currentAnswered)return;const q=sessionQuestions[qIndex],correct=answer===q.answer;recordAnswer(q,correct,answer);applyAnsweredState(q,currentAnswered)}
+function answerText(answer){if(currentGrade()<=2){answerLearningChoice(answer);return}if(currentAnswered)return;const q=sessionQuestions[qIndex],correct=answer===q.answer;recordAnswer(q,correct,answer);applyAnsweredState(q,currentAnswered)}
 function answerMap(answer){if(currentAnswered)return;const q=sessionQuestions[qIndex],correct=answer===q.answer;recordAnswer(q,correct,answer);applyAnsweredState(q,currentAnswered)}
 function recordAnswer(q,correct,selected){
   if(currentAnswered)return;
@@ -6491,6 +6528,7 @@ function recordAnswer(q,correct,selected){
   if(correct)celebrateCorrect();
 }
 function applyAnsweredState(q,answered){
+  if(currentGrade()<=2&&q.type!=='map'){applyChoiceAnswerState(q,answered);return}
   if(q.type==='map')renderQuizMap(q,answered);
   else document.querySelectorAll('.answer').forEach(b=>{b.disabled=true;if(b.dataset.answer===q.answer)b.classList.add('correct');else if(b.dataset.answer===answered.selected)b.classList.add('wrong')});
   showFeedback(q,answered.correct);
@@ -6517,17 +6555,12 @@ function nextQuestion(){
   persistActiveSession();renderQuestion();
 }
 function nextTeaserForScope(){
-  const subject=sessionScope?.subject;
-  if(!subject||subject==='geography'||['country','collection','world','grade'].includes(sessionScope?.type)){
-    const ids=(sessionScope?.ids||gradeScopeIds()).filter(id=>countries[id]);
-    const next=ids.find(id=>!['known','mastered'].includes(countryStatus(id)));
-    return next?'Neste gang: Klarer du å gi '+countries[next].name+' mer farge på kloden?':'Neste gang: Klarer du full pott på et nytt område?';
-  }
-  if(subject==='math')return 'Neste gang: Klarer du én oppgave mer uten hjelp?';
-  if(subject==='english')return 'Next time: can you beat your own score?';
-  return 'Neste gang: Klarer du å styrke én ny ferdighet?';
+  if(sessionScope?.type==='journey'||sessionScope?.type==='geo-journey')
+    return 'Du kan besøke reisekartet eller spille oppdraget igjen.';
+  return 'Du kan spille igjen eller velge noe annet å utforske.';
 }
 function finishSession(){
+  if(!state.activeSession)return; // A completed session cannot award a second result.
   const practiceOnly=!!sessionScope?.practiceOnly;
   lastCompletedQuestions=JSON.parse(JSON.stringify(sessionQuestions));
   lastCompletedScope=JSON.parse(JSON.stringify(sessionScope||{}));
@@ -6545,15 +6578,17 @@ function finishSession(){
   document.getElementById('complete-correct').textContent=`${result.correct}/${result.total}`;
   document.getElementById('complete-learned').textContent=result.strengthened;
   document.getElementById('complete-area').textContent=result.area||'Verden';
-  document.getElementById('complete-copy').textContent=sessionScope?.previewOnly?'Sniktitt fullført! Dette var en forhåndstitt og endrer ikke progresjonen i hovedreisen.':practiceOnly?'Repetisjon fullført! Denne runden trener hukommelsen, men påvirker ikke dagens mål eller mestring.':result.gradeCompleted?'🏆 Du har rundet hele '+GRADE_CONFIG[result.gradeCompleted.grade].label+' i dette faget!':result.journeyReward?(result.journeyReward.emoji+' Verden fullført! Du vant '+result.journeyReward.label+'.'):newRecord?'Ny personlig rekord: '+result.correct+' riktige! 🌟':result.correct===result.total?'Full pott! Du klarte hele oppdraget. 🌟':result.correct>=3?'Bra jobbet! Det vanskelige får du møte igjen senere.':'God innsats! Nå vet appen hva du skal øve mer på.';
+  document.getElementById('complete-copy').textContent=sessionScope?.previewOnly?'Du har utforsket et nytt oppdrag.':practiceOnly?'Du har øvd på '+result.total+' oppgaver igjen.':result.gradeCompleted?'Du har fullført reisen i '+GRADE_CONFIG[result.gradeCompleted.grade].label+' i dette faget!':result.journeyReward?'Du fullførte '+result.journeyReward.areaTitle+' og fikk '+result.journeyReward.label+'.':newRecord?'Du klarte '+result.correct+' oppgaver på første forsøk!':result.correct===result.total?'Du fant riktig svar på alle '+result.total+' oppgavene.':'Du jobbet deg gjennom '+result.total+' oppgaver.';
   const rewardTitle=document.getElementById('young-reward-title'),rewardCopy=document.getElementById('young-reward-copy'),rewardIcon=document.getElementById('young-reward-icon');
   if(rewardTitle&&rewardCopy&&rewardIcon){
-    const milestone=state.lastMilestone&&Date.now()-Number(state.lastMilestone.at||0)<10*60*1000?state.lastMilestone:null;
+    // A previous round's milestone is not a reward from this completion.
+    const milestoneAt=Number(state.lastMilestone?.at||0);
+    const milestone=milestoneAt>=startedAt&&milestoneAt<=result.endedAt&&result.strengthened>0?state.lastMilestone:null;
     rewardIcon.textContent=result.gradeCompleted?'🏆':result.journeyReward?.emoji||(result.correct===result.total?'🏆':result.strengthened>0?'⭐':'🌱');
-    rewardTitle.textContent=sessionScope?.previewOnly?'Du prøvde noe vanskeligere! ⚡':practiceOnly?'God repetisjon!':result.gradeCompleted?GRADE_CONFIG[result.gradeCompleted.grade].label+' er rundet! 🏆':result.journeyReward?result.journeyReward.emoji+' Du vant '+result.journeyReward.label+'!':milestone?.title||'Du klarte oppdraget!';
-    rewardCopy.textContent=sessionScope?.previewOnly?'Dette var bare en smakebit. Fremgangen på ditt eget trinn er uendret.':practiceOnly?'Du trente hukommelsen uten at fremgangen ble kunstig blåst opp.':result.gradeCompleted?'Alle hovedverdenene og checkpointene i dette faget er fullført.':result.journeyReward?result.journeyReward.areaTitle+' er ferdig. Neste verden er nå åpnet.':milestone?.copy||(result.strengthened>0?result.strengthened+' ting ble litt sterkere i dag.':'Du fullførte hele økten. Det teller.');
+    rewardTitle.textContent=sessionScope?.previewOnly?'Nytt sted utforsket!':practiceOnly?'Godt øvd!':result.gradeCompleted?'Hele reisen er fullført!':result.journeyReward?'Du fikk '+result.journeyReward.label+'!':milestone?.title||'Oppdrag fullført!';
+    rewardCopy.textContent=sessionScope?.previewOnly?'Din egen reise ligger klar når du kommer tilbake.':practiceOnly?'Kjente oppgaver er fine å besøke igjen.':result.gradeCompleted?'Du kan fortsatt besøke alle favorittstedene dine.':result.journeyReward?result.journeyReward.areaTitle+' er fullført.':milestone?'Du har øvd på noe som sitter litt bedre nå.':'Du kan spille igjen når du vil.';
   }
-  document.getElementById('complete-next').textContent=sessionScope?.previewOnly?'Gå tilbake til hovedreisen når du er klar.':practiceOnly?'Vil du prøve én gang til, kan du gjøre det så mange ganger du vil.':result.gradeCompleted?'Alle verdener på trinnet er fullført. Repetisjon gjør kunnskapen sterkere over tid.':result.journeyReward?'Neste verden er åpnet i hovedreisen.':nextTeaserForScope();
+  document.getElementById('complete-next').textContent=nextTeaserForScope();
   const backLabel=sessionScope?.subject&&sessionScope.subject!=='geography'?(SUBJECTS[sessionScope.subject]?.title||'faget'):'Geografi';
   document.getElementById('complete-home').textContent=(sessionScope?.type==='journey'||sessionScope?.type==='geo-journey')?'Tilbake til reisekartet 🗺️':result.gradeCompleted?'Se troféet 🏆':result.journeyReward?'Se neste verden 🗺️':currentGrade()<=2?'Se hva jeg kan ⭐':'Tilbake til '+backLabel+' ⭐';
   document.getElementById('complete-repeat').style.display=lastCompletedQuestions.length?'block':'none';
@@ -6561,7 +6596,12 @@ function finishSession(){
 }
 function repeatCompletedSession(){
   if(!lastCompletedQuestions.length)return;
-  sessionQuestions=JSON.parse(JSON.stringify(lastCompletedQuestions)).map(q=>({...q,practiceRepeat:true}));
+  sessionQuestions=JSON.parse(JSON.stringify(lastCompletedQuestions)).map(q=>{
+    // Retry evidence belongs to the completed round. Keep question identity/content intact.
+    delete q._youngFirstAttemptWrong;
+    delete q._youngWrongAnswers;
+    return {...q,practiceRepeat:true};
+  });
   sessionScope={...(lastCompletedScope||{}),practiceOnly:true,label:(lastCompletedScope?.label||'Test')};
   qIndex=0;sessionCorrect=0;sessionStrengthened=new Set();currentAnswered=null;
   state.activeSession={startedAt:Date.now()};persistActiveSession();showScreen('session');renderQuestion();
@@ -6861,7 +6901,7 @@ if(needsProfileSetup||!state.profile.onboarded||!state.profile.grade){
 <!-- Shared inner-screen helpers + task scene -->
 <script src="./laria-unified-v13.js?v=20261006-assets1" defer></script>
 <script src="./laria-navigation-v13.js?v=20261012-ux-phase1" defer></script>
-<script src="./laria-task-scene-v15.js?v=20261014-feedback-voice1" defer></script>
+<script src="./laria-task-scene-v15.js?v=20261015-plural2" defer></script>
 <script src="./laria-fox-presence.js?v=20261011-livefoxart1" defer></script>
 
 <!-- Kloden: art primitives must load before the active renderer. -->
