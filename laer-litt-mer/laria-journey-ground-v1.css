@@ -1,0 +1,45 @@
+/* Phase D2: a narrow, non-interactive continuation of the four locked
+ * original paintings. The mirrored LAST pixels, not an unrelated card
+ * illustration, prevent a hard visual seam when the map ends before the
+ * Safari viewport. The 941x1672 image and hotspot coordinates are unchanged.
+ * Do not cover the board or put any layer above the five touch targets. */
+@media (max-width:699px), (orientation:landscape) and (max-height:500px) {
+  .screen.active.locked-journey-active .locked-journey-map[data-journey-subject] {
+    position:relative;
+    isolation:isolate;
+  }
+  .screen.active.locked-journey-active .locked-journey-map[data-journey-subject]::after {
+    content:"";
+    position:absolute;
+    z-index:-1;
+    left:0;
+    right:0;
+    top:100%;
+    height:clamp(24px,10vw,46px);
+    pointer-events:none;
+    background-image:var(--laria-journey-ground-image);
+    background-position:center bottom;
+    background-repeat:no-repeat;
+    background-size:100% auto;
+    transform:scaleY(-1);
+    transform-origin:center top;
+    -webkit-mask-image:linear-gradient(to top,transparent,black);
+    mask-image:linear-gradient(to top,transparent,black);
+  }
+  .screen.active.locked-journey-active
+    .locked-journey-map[data-journey-subject="norwegian"] {
+    --laria-journey-ground-image:url('./locked-journeys/bokskogen-locked-20261010.png');
+  }
+  .screen.active.locked-journey-active
+    .locked-journey-map[data-journey-subject="math"] {
+    --laria-journey-ground-image:url('./locked-journeys/tallenga-locked-20261010.png');
+  }
+  .screen.active.locked-journey-active
+    .locked-journey-map[data-journey-subject="english"] {
+    --laria-journey-ground-image:url('./locked-journeys/ordlandsbyen-locked-20261010.png');
+  }
+  .screen.active.locked-journey-active
+    .locked-journey-map[data-journey-subject="geography"] {
+    --laria-journey-ground-image:url('./locked-journeys/nordlysleiren-locked-20261010.png');
+  }
+}
