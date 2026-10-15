@@ -40,7 +40,11 @@ async function run(engine,label,viewport,url){
  try{
   const context=await browser.newContext({viewport,hasTouch:true,
    isMobile:viewport.width<=430,reducedMotion:'reduce',serviceWorkers:'block'});
-  await context.addInitScript(s=>localStorage.setItem('laerlittmer-v2',JSON.stringify(s)),seed);
+  // Seed only a new profile. A reload must read progress saved by the app.
+  await context.addInitScript(s=>{
+   if(!localStorage.getItem('laerlittmer-v2'))
+     localStorage.setItem('laerlittmer-v2',JSON.stringify(s));
+  },seed);
   const page=await context.newPage(),errors=[];
   page.on('pageerror',e=>errors.push(String(e)));
   await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
