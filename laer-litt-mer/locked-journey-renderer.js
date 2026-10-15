@@ -51,6 +51,10 @@
       if(!window.matchMedia?.(mobilePortrait).matches)return;
       if(host.dataset.journeySubject!==subject||board!==host.querySelector('.locked-journey-board'))return;
       if(!host.isConnected||!board.isConnected)return;
+      // The CSS must contain no unresolved local url() until artwork is
+      // approved, decoded and ready for THIS exact subject/map instance.
+      host.style.setProperty('--ljd2-terrain-art',
+        'url("'+D2_TERRAIN_FILES[subject]+'")');
       host.classList.add('laria-d2-terrain-ready');
     });
   }
@@ -192,6 +196,7 @@
     if(!host||!screen)return;
     if(host.dataset.journeyWaiting===subject&&host.dataset.journeyFailed===String(!!failed))return;
     host.className='journey-map locked-journey-map';
+    host.style.removeProperty('--ljd2-terrain-art');
     host.dataset.journeySubject=subject;
     host.dataset.journeyWaiting=subject;
     host.dataset.journeyFailed=String(!!failed);
@@ -409,6 +414,7 @@
     const def=contract.get(subject),model=s.progress.model;
     const places=s.contract.places;
     host.className='journey-map locked-journey-map';
+    host.style.removeProperty('--ljd2-terrain-art');
     delete host.dataset.journeyWaiting;
     delete host.dataset.journeyFailed;
     host.dataset.journeyRelease='journey-rc1';
