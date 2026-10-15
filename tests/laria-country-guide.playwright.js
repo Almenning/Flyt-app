@@ -55,6 +55,7 @@ async function run(engine,label,viewport,url){
     await page.goto(url+'&country-guide-qa='+label,{waitUntil:'domcontentloaded'});
     await page.locator('.bc14-subject[data-camp="subject-norwegian"]').waitFor({timeout:20000});
     for(const name of ['Egypt','Tsjad']){
+      const progressBefore=await page.evaluate(()=>JSON.stringify(state.journey));
       await page.evaluate(countryName=>{
         const key=Object.keys(countries).find(id=>countries[id].name===countryName);
         if(!key)throw Error('Missing original country: '+countryName);
@@ -63,6 +64,10 @@ async function run(engine,label,viewport,url){
       },name);
       const guide=page.locator('#detail-screen.active .laria-country-guide');
       await guide.waitFor({timeout:14000});
+      assert.equal(await page.evaluate(()=>JSON.stringify(state.journey)),progressBefore,
+        label+' country detail wrote journey progression');
+      assert.equal(await guide.locator('.laria-country-guide-fox').count(),1,
+        label+' selected personal fox missing from country guide');
       assert.equal((await guide.locator('.laria-country-guide-title').innerText()).trim(),name,
         label+' wrong country displayed');
       assert.equal(await guide.locator('.laria-country-guide-flag').count(),1,
@@ -116,9 +121,7 @@ async function run(engine,label,viewport,url){
       const key=Object.keys(countries).find(id=>countries[id].name==='Egypt');
       openDetail(key,'world');
     });
-    const before=await page.evaluate(()=>JSON.stringify(state.journey));
-    assert.equal(await page.evaluate(()=>JSON.stringify(state.journey)),before,
-      label+' country detail wrote progression');
+
     await page.locator('.laria-country-guide-practice').click();
     await page.locator('#session-screen.active').waitFor({timeout:16000});
     assert.deepEqual(errors,[],label+' javascript errors');
