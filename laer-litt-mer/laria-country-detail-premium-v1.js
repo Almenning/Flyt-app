@@ -18,6 +18,20 @@
     'Sør-Amerika':'Regnskog, fjell og lange kystlinjer',
     'Oseania':'Øyer, kyst og særegen natur'
   };
+  // Editorial, country-specific art. Never infer or swap art based on
+  // continent alone: uncurated countries keep the original atlas scene.
+  const FEATURED_SCENES=Object.freeze({
+    eg:Object.freeze({
+      file:'./assets/country-stories/egypt-nile-v2.svg',
+      summary:'Se Nilen, ørkenen og pyramidene i Giza. De store pyramidene ble bygget for mer enn 4 500 år siden.',
+      title:'Nilen og pyramidene i Giza'
+    }),
+    td:Object.freeze({
+      file:'./assets/country-stories/chad-sahel-ennedi-v2.svg',
+      summary:'I Tsjad møter Sahara Sahel. Ennedi er kjent for høye sandsteinsformasjoner og naturlige steinbuer.',
+      title:'Sahel og Ennedi'
+    })
+  });
   let paintFrame=0,lastCountry=null,lastId=null;
   function sceneFor(country){
     const source=root.LARIA_GLOBE_COUNTRY_SCENE_V25?.describe?.(country);
@@ -104,6 +118,7 @@
     if(!target||!country)return false;
     lastCountry=country;lastId=id;
     const scene=sceneFor(country);
+    const featured=FEATURED_SCENES[id]||null;
     const avatar=root.LARIA_FOX?.choice?.()||'boy';
     const foxSrc=root.LARIA_FOX?.worldSource?.(avatar)||'';
     const foxMarkup=foxSrc?
@@ -123,6 +138,8 @@
       '<article class="country-story'+(country.name.length>18?' is-long-name':'')+'" data-country-detail="'+esc(id)+
       '" data-tone="'+esc(scene.tone)+'" aria-label="'+esc('Oppdag '+country.name)+'">'+
         '<div class="country-story-board">'+
+          (featured?'<img class="country-story-hero-art" src="'+esc(featured.file)+
+            '" alt="" aria-hidden="true" decoding="async" draggable="false">':'')+
           '<canvas aria-hidden="true"></canvas>'+
           '<div class="country-story-topline">'+
             '<span class="country-story-kicker">✦ Lærias verdensreise</span>'+
@@ -140,7 +157,9 @@
           '<header>'+
             '<span class="country-story-section-label">Oppdag landet</span>'+
             '<h2>Tre spennende spor</h2>'+
-            '<p class="country-story-summary">Hvert land har noe å fortelle. Her er tre små oppdagelser fra '+esc(country.name)+'.</p>'+
+            '<p class="country-story-summary">'+(featured?
+              esc(featured.summary):
+              'Hvert land har noe å fortelle. Her er tre små oppdagelser fra '+esc(country.name)+'.')+'</p>'+
           '</header>'+
           '<dl class="country-story-facts">'+
             fact('📍','Hovedstad',country.capitalDisplay||country.capital||'Ikke oppgitt')+
@@ -157,6 +176,22 @@
           '</div>'+
         '</div>'+
       '</article>';
+    const featuredImage=target.querySelector('.country-story-hero-art');
+    if(featuredImage){
+      const reveal=()=>{
+        // The original painted canvas remains available if an asset is
+        // missing, cached incorrectly or fails to decode on Safari.
+        if(featuredImage.naturalWidth>0)
+          target.querySelector('.country-story')?.classList.add('has-landscape-art');
+        else featuredImage.remove();
+      };
+      featuredImage.addEventListener('load',reveal,{once:true});
+      featuredImage.addEventListener('error',()=>{
+        featuredImage.remove();
+        target.querySelector('.country-story')?.classList.remove('has-landscape-art');
+      },{once:true});
+      if(featuredImage.complete)reveal();
+    }
     const button=target.querySelector('[data-country-story-practice]');
     button?.addEventListener('click',()=>{
       if(typeof root.startCountryPractice==='function')root.startCountryPractice(id);
