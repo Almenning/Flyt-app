@@ -86,6 +86,17 @@ async function run(engine,label,viewport,url,avatar='girl'){
         Math.floor(c.height*.5),1,1).data;
       return pixel[3]>0;
     },null,{timeout:12000});
+    // A true country-specific 2.5D scene must have decoded and replaced the
+    // original mini-canvas, not merely changed a CSS background color.
+    await page.waitForFunction(()=>{
+      const card=document.querySelector('#detail-screen.active .country-story');
+      const art=card?.querySelector('.country-story-hero-art');
+      return card?.classList.contains('has-landscape-art')&&art?.naturalWidth>0&&
+        getComputedStyle(art).opacity==='1';
+    },null,{timeout:15000});
+    const egyptArt=await page.locator('.country-story-hero-art').getAttribute('src');
+    assert.equal(egyptArt,'./assets/country-stories/egypt-nile-v2.svg',
+      label+' Egypt did not receive the curated Nile/Giza artwork');
     const details=await page.evaluate(()=>{
       const card=document.querySelector('#detail-screen.active .country-story');
       const frame=card.getBoundingClientRect();
@@ -146,10 +157,31 @@ async function run(engine,label,viewport,url,avatar='girl'){
 
     await page.locator('#detail-back').click();
     await page.locator('#world-screen.active').waitFor({timeout:9000});
+    await page.evaluate(()=>openDetail('td','world'));
+    await page.locator('#detail-screen.active .country-story[data-country-detail="td"]').waitFor({timeout:9000});
+    await page.waitForFunction(()=>{
+      const card=document.querySelector('#detail-screen.active .country-story');
+      const art=card?.querySelector('.country-story-hero-art');
+      return card?.classList.contains('has-landscape-art')&&art?.naturalWidth>0&&
+        getComputedStyle(art).opacity==='1';
+    },null,{timeout:15000});
+    assert.equal(await page.locator('.country-story-hero-art').getAttribute('src'),
+      './assets/country-stories/chad-sahel-ennedi-v2.svg',
+      label+' Tsjad reused Egyptian pyramids');
+    assert.match(await page.locator('.country-story-summary').innerText(),/Ennedi/,
+      label+' Tsjad-specific Sahel explanation missing');
+    if(['webkit-iphone','webkit-ipad-portrait','webkit-ipad-landscape'].includes(label)){
+      await page.screenshot({path:path.join(screenshotDir,label+'-tsjad.png'),
+        animations:'disabled',fullPage:false});
+    }
+    await page.locator('#detail-back').click();
+    await page.locator('#world-screen.active').waitFor({timeout:9000});
     await page.evaluate(()=>openDetail('no','world'));
     await page.locator('#detail-screen.active .country-story[data-country-detail="no"]').waitFor();
     assert.equal((await page.locator('#detail-screen.active .country-story h1').innerText()).trim(),
       'Norge',label+' country data was cached incorrectly');
+    assert.equal(await page.locator('#detail-screen.active .country-story-hero-art').count(),0,
+      label+' generic countries must not receive wrong curated artwork');
 
     // Original practice action continues through startCountryPractice(), not a
     // synthetic mini-quiz added by the visual redesign.
