@@ -102,6 +102,7 @@
     ctx.fillStyle='#c99d5d';ctx.fill();
     ctx.shadowColor='transparent';ctx.shadowBlur=0;ctx.shadowOffsetY=0;
     ctx.lineWidth=1.9;ctx.strokeStyle='#825b35';ctx.stroke();
+    canvas.dataset.outlineReady='true';
   }
   function redraw(country){
     if(paintFrame)cancelAnimationFrame(paintFrame);
@@ -164,7 +165,7 @@
           '<dl class="country-story-facts">'+
             fact('📍','Hovedstad',country.capitalDisplay||country.capital||'Ikke oppgitt')+
             fact('🌍','Verdensdel',country.continent||'Ikke oppgitt')+
-            fact('✦','Innbyggere · ca.',population(country.population))+
+            fact('✦',country.populationYear?'Innbyggere · ca. '+country.populationYear:'Innbyggere · ca.',population(country.population))+
           '</dl>'+
           note+
           outline+
@@ -176,6 +177,9 @@
           '</div>'+
         '</div>'+
       '</article>';
+    // Paint the silhouette before the page becomes visible, avoiding an empty
+    // parchment panel on first paint in WebKit. Redraw at full size next frame.
+    paintOutline(target.querySelector('.country-story-outline'),country);
     const featuredImage=target.querySelector('.country-story-hero-art');
     if(featuredImage){
       const reveal=()=>{
