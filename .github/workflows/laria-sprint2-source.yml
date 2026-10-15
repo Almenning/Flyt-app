@@ -1,0 +1,26 @@
+name: Laria sprint 2 pinned branch source
+on:
+  push:
+    branches: [qa/laria-premium-snapshot-20261015]
+    paths: [.github/workflows/laria-sprint2-source.yml]
+permissions:
+  contents: read
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 3ef79e86388b15b54fdb947343f7e2c6534f0992
+          persist-credentials: false
+      - name: Package only the current PR files
+        run: |
+          mkdir -p /tmp/laria-sprint2-source
+          git rev-parse HEAD > /tmp/laria-sprint2-source/REVISION.txt
+          tar -czf /tmp/laria-sprint2-source/pr-source.tar.gz laer-litt-mer/index.html laer-litt-mer/laria-task-scene-v15.js laer-litt-mer/sw.js tests/laria-premium-retry-flow.playwright.js tests/laria-premium-retry-flow.test.cjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: laria-sprint2-pr-source
+          path: /tmp/laria-sprint2-source/
+          retention-days: 2
