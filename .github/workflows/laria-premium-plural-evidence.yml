@@ -1,0 +1,81 @@
+name: Laria existing plural task evidence
+on:
+  push:
+    branches: [qa/laria-premium-snapshot-20261015]
+    paths: [.github/workflows/laria-premium-plural-evidence.yml]
+permissions:
+  contents: read
+jobs:
+  plural:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - revision: ad64daeb52f0ef61ad18d2cee23ea300dba5e182
+            label: before
+            engine: chromium
+          - revision: eb10e5c5ea81cd0f4c32a15b61fa2103845a03be
+            label: after-chromium
+            engine: chromium
+          - revision: eb10e5c5ea81cd0f4c32a15b61fa2103845a03be
+            label: after-webkit
+            engine: webkit
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ matrix.revision }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps ${{ matrix.engine }}
+      - name: Select exact unmodified bank entry as an interrupted-session fixture
+        run: |
+          mkdir -p /tmp/plural-evidence
+          git rev-parse HEAD > /tmp/plural-evidence/REVISION.txt
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('tests/laria-premium-retry-flow.playwright.js')
+          s=p.read_text()
+          marker='   const initial=await page.evaluate(()=>({keys:sessionQuestions.map(questionIdentity),questions:sessionQuestions,scope:sessionScope}));entry.initial=initial;'
+          assert s.count(marker)==1
+          fixture='''   // Focused renderer/persistence check, not evidence that the random journey selected EPLER.
+             entry.fixture=await page.evaluate(()=>{
+              const q=norwegianPool(2,null).find(q=>q.type==='build-word'&&q.answer==='EPLER');
+              if(!q)throw Error('Existing EPLER bank entry is missing');
+              const key=questionIdentity(q),content=JSON.stringify(q);
+              sessionQuestions[0]=q;
+              persistActiveSession();renderQuestion();
+              if(questionIdentity(sessionQuestions[0])!==key||JSON.stringify(q)!==content)throw Error('Fixture identity/content changed');
+              return {source:'norwegianPool(2,null)',key,content};
+             });
+          '''
+          s=s.replace(marker,fixture+marker)
+          s=s.replace("if([390,1180].includes(width)||(width===320&&subject==='math'))",'if(true)')
+          p.write_text(s)
+          Path('/tmp/plural-evidence/driver.js').write_text(s)
+          PY
+          git diff -- tests/laria-premium-retry-flow.playwright.js > /tmp/plural-evidence/fixture-only.diff
+      - name: Interact with the real bank task, reload, correct, replay and return
+        env:
+          LARIA_RETRY_ENGINE: ${{ matrix.engine }}
+          LARIA_RETRY_FORMATS: 320x568,390x844,1180x820
+          LARIA_RETRY_SUBJECTS: norwegian
+          LARIA_RETRY_EVIDENCE: /tmp/plural-evidence
+        run: |
+          set -o pipefail
+          if [ "$LARIA_RETRY_ENGINE" = webkit ]; then
+            printf '%s\n' "const {webkit}=require('./node_modules/playwright');const launch=webkit.launch.bind(webkit);webkit.launch=o=>launch({...o,headless:false});" > .plural-browser-mode.cjs
+            xvfb-run -a node -r ./.plural-browser-mode.cjs tests/laria-premium-retry-flow.playwright.js 2>&1 | tee /tmp/plural-evidence/browser.log
+          else
+            node tests/laria-premium-retry-flow.playwright.js 2>&1 | tee /tmp/plural-evidence/browser.log
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: laria-plural-${{ matrix.label }}
+          path: /tmp/plural-evidence/
+          retention-days: 7
