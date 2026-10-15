@@ -206,6 +206,58 @@ async function verifyFourWorldLayouts(browser,label,url){
  }finally{await context.close()}
 }
 
+// Geography has an existing Kloden entry BELOW the illustrated journey.
+// A future terrain slot must reserve layout space rather than sit over it.
+async function geographyNavigation(browser,label,url){
+ const context=await browser.newContext({
+  viewport:{width:390,height:844},isMobile:true,hasTouch:true,
+  serviceWorkers:'block',deviceScaleFactor:1,reducedMotion:'reduce'
+ });
+ const page=await context.newPage(),errors=[];
+ page.on('pageerror',e=>errors.push(e.message));
+ await context.addInitScript(s=>{
+  localStorage.setItem('laerlittmer-v2',JSON.stringify(s));
+  window.LARIA_D2_ART_APPROVED=true;
+ },seed);
+ await page.route('**/assets/locked-journey-ground/*.webp',r=>
+  r.fulfill({status:200,contentType:'image/webp',body:fixture}));
+ await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
+ await page.route('https://api.worldbank.org/**',r=>r.abort());
+ try{
+  await page.goto(url+'&d2-geo-layout=1',{waitUntil:'domcontentloaded'});
+  await page.locator('.bc14-subject[data-camp="subject-geography"]:visible').click();
+  const map=page.locator('#geography-screen.active .locked-journey-map[data-journey-subject="geography"]');
+  await map.waitFor();
+  await page.waitForFunction(()=>{
+   const map=document.querySelector('#geography-screen.active .locked-journey-map');
+   return map?.classList.contains('laria-d2-terrain-ready')&&
+    map.querySelector('.locked-journey-image')?.naturalWidth===941;
+  },{timeout:18000});
+  const geom=await page.evaluate(()=>{
+   const map=document.querySelector('#geography-screen.active .locked-journey-map');
+   const board=map.querySelector('.locked-journey-board');
+   const globe=document.getElementById('open-world');
+   const mr=map.getBoundingClientRect(),br=board.getBoundingClientRect();
+   const gr=globe.getBoundingClientRect();
+   return {boardBottom:br.bottom+scrollY,globeTop:gr.top+scrollY,
+    mapWidth:mr.width,mapHeight:mr.height,margin:parseFloat(getComputedStyle(map).marginBottom),
+    globeVisible:getComputedStyle(globe).display!=='none',
+    globeDisabled:globe.disabled,fox:map.querySelectorAll('.locked-journey-traveler[data-avatar="girl"]').length,
+    hits:map.querySelectorAll('.locked-journey-hotspot').length};
+  });
+  assert(geom.globeVisible&&!geom.globeDisabled,label+' Kloden entry is inaccessible');
+  assert(geom.globeTop>=geom.boardBottom+geom.margin-3,
+   label+' illustrated terrain overlaps Kloden access '+JSON.stringify(geom));
+  assert.equal(geom.fox,1,label+' personal fox was duplicated');
+  assert.equal(geom.hits,5,label+' original map destinations lost');
+  await page.locator('#open-world').scrollIntoViewIfNeeded();
+  await page.locator('#open-world').click({timeout:9000});
+  await page.locator('#world-screen.active').waitFor({timeout:15000});
+  assert.deepEqual(errors,[],label+' page errors '+errors);
+  console.log('PASS '+label+' Nordlysleiren terrain reserves space and Kloden opens');
+ }finally{await context.close();}
+}
+
 (async()=>{
  const {server,url}=await serve();
  try{
@@ -221,6 +273,7 @@ async function verifyFourWorldLayouts(browser,label,url){
     await scenario(browser,label+'-tall-iphone-430-terrain',url,true,null,{width:430,height:932});
     await scenario(browser,label+'-landscape-stays-off',url,true,null,{width:844,height:390});
     await scenario(browser,label+'-ipad-stays-off',url,true,null,{width:820,height:1180});
+    await geographyNavigation(browser,label+'-geography-to-globe',url);
     await verifyFourWorldLayouts(browser,label+'-all-four-worlds',url);
    }finally{await browser.close();}
   }
