@@ -1,0 +1,30 @@
+name: Laria premium source snapshot
+on:
+  push:
+    branches: [qa/laria-premium-snapshot-20261015]
+    paths: [.github/workflows/laria-premium-snapshot.yml]
+permissions:
+  contents: read
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 3e0e87a9f7e78e5003829bfcd82c3e3c13e60114
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          mkdir -p /tmp/laria-snapshot
+          git archive --format=tar.gz HEAD > /tmp/laria-snapshot/source.tar.gz
+          git rev-parse HEAD > /tmp/laria-snapshot/REVISION.txt
+          npm ci --ignore-scripts --no-audit --no-fund
+          tar -czf /tmp/laria-snapshot/node-modules.tar.gz node_modules
+      - uses: actions/upload-artifact@v4
+        with:
+          name: laria-premium-pinned-source
+          path: /tmp/laria-snapshot/
+          retention-days: 2
