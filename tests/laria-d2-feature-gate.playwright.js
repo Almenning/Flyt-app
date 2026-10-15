@@ -83,7 +83,10 @@ async function scenario(browser,label,url,flag,missing,viewport){
  await page.route('https://api.worldbank.org/**',r=>r.abort());
  try{
   await openMath(page,url);
-  if(flag&&viewport.width<700&&viewport.height>viewport.width){
+  const naturalBoardHeight=viewport.width*1672/941;
+  const canUseTerrain=viewport.width<700&&viewport.height>viewport.width
+    &&viewport.height-naturalBoardHeight>12;
+  if(flag&&canUseTerrain){
    await page.waitForFunction(()=>performance.getEntriesByType('resource')
     .filter(x=>x.name.includes('/assets/locked-journey-ground/')).length>=4,
     {timeout:12000}).catch(()=>{});
@@ -93,7 +96,7 @@ async function scenario(browser,label,url,flag,missing,viewport){
    else await page.waitForTimeout(450);
   }
   const g=await inspect(page);
-  const shouldActivate=flag&&!missing&&viewport.width<700&&viewport.height>viewport.width;
+  const shouldActivate=flag&&!missing&&canUseTerrain;
   assert.equal(g.ready,shouldActivate,label+' wrong all-or-nothing art state '+JSON.stringify({g,calls}));
   assert(Math.abs(g.boardRatio-941/1672)<.003,label+' original artwork proportions changed');
   assert.equal(g.hits,5,label+' hotspots changed');
@@ -108,7 +111,7 @@ async function scenario(browser,label,url,flag,missing,viewport){
     label+' wrong painted asset '+g.after);
    assert(artNames.every(n=>calls.includes(n)),label+' not all four files checked '+calls);
   }
-  if(!flag||viewport.width>=700||viewport.height<viewport.width){
+  if(!flag||!canUseTerrain){
    assert.equal(calls.length,0,label+' unused terrain requested');
   }
   assert.deepEqual(errors,[],label+' page JS error '+errors);
@@ -213,6 +216,9 @@ async function verifyFourWorldLayouts(browser,label,url){
     await scenario(browser,label+'-flag-off',url,false,null,phone);
     await scenario(browser,label+'-one-of-four-missing',url,true,'nordlysleiren',phone);
     await scenario(browser,label+'-all-four-mocked',url,true,null,phone);
+    await scenario(browser,label+'-short-iphone-320-no-tail',url,true,null,{width:320,height:568});
+    await scenario(browser,label+'-short-iphone-375-no-tail',url,true,null,{width:375,height:667});
+    await scenario(browser,label+'-tall-iphone-430-terrain',url,true,null,{width:430,height:932});
     await scenario(browser,label+'-landscape-stays-off',url,true,null,{width:844,height:390});
     await scenario(browser,label+'-ipad-stays-off',url,true,null,{width:820,height:1180});
     await verifyFourWorldLayouts(browser,label+'-all-four-worlds',url);
