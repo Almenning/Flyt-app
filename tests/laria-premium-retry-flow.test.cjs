@@ -85,3 +85,10 @@ test('Pending automatic reading respects explicit cancellation and screen naviga
  active=true;c.bindReadAloud(q);c.lariaSpeechRun++;queued();assert.equal(speaks,0);
  c.bindReadAloud(q);queued();assert.equal(speaks,1);
 });
+
+test('Number-pattern help does not tell the child to compare place values',()=>{
+ const c=harness({...math,skill:'number-order',prompt:'Hva kommer videre? 2, 5, 8, ...',answer:'11',options:['9','11','12']});
+ c.answerLearningChoice('9');
+ assert.match(c.elements.get('feedback-copy').textContent,/endrer seg/);
+ assert.doesNotMatch(c.elements.get('feedback-copy').textContent,/tierne|enerne/);
+});

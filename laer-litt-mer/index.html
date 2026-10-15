@@ -5744,6 +5744,8 @@ function learningFeedbackText(q,correct){
       return place[1]+' står på tierplassen. Hver tier er verdt 10.';
     const sum=String(q.prompt).match(/^(\d+)\s*([+−-])\s*(\d+)\s*=/);
     if(sum)return 'Start på '+sum[1]+', og tell '+sum[3]+(sum[2]==='+'?' videre.':' bakover.');
+    if(q.skill==='number-order'&&/kommer videre/i.test(String(q.prompt)))
+      return 'Se etter hvor mye tallet endrer seg fra ett steg til det neste.';
     if(q.skill==='number-order')return currentGrade()<=1?
       'Tenk på tallrekken. Hvilket tall kommer sist?':
       'Sammenlign tierne først. Er de like, sammenlign enerne.';
@@ -6008,6 +6010,7 @@ function renderBuildWord(q,wrap){
         persistActiveSession();
       }
       wrap.querySelectorAll('.letter-tile,.letter-slot').forEach(b=>b.disabled=true);
+      check.disabled=true;
       showLearningFeedback(q,true);
       if(mistakeRecorded)document.getElementById('feedback-copy').textContent='Der satt den! Du rettet ordet selv.';
       return;

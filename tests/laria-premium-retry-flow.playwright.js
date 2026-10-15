@@ -7,10 +7,18 @@ fs.mkdirSync(out,{recursive:true});
 const seed={version:7,progressSchemaVersion:3,profile:{grade:2,onboarded:true,name:'EventyrQA',avatar:'girl',setupVersion:2},mastery:{},mistakes:{},skillMastery:{},skillMistakes:{},skillLastSeen:{},masteryEvidence:{},skillEvidence:{},preferences:{sound:false,autoRead:false},lastMilestone:null,recentCountryWin:null,lastActivity:null,journey:{nodes:{},gradeWins:{},viewGrades:{}},answerLog:[],sessionLog:[],activeSession:null};
 const mime={'.html':'text/html; charset=utf-8','.css':'text/css','.js':'application/javascript','.json':'application/json','.svg':'image/svg+xml','.webp':'image/webp','.png':'image/png'};
 const server=http.createServer((req,res)=>{let u=new URL(req.url,'http://localhost').pathname;if(u.endsWith('/'))u+='index.html';const f=path.resolve(root,'.'+decodeURIComponent(u));if(!f.startsWith(root+path.sep)){res.writeHead(403);return res.end()}fs.readFile(f,(e,b)=>{res.writeHead(e?404:200,{'Content-Type':mime[path.extname(f)]||'application/octet-stream','Cache-Control':'no-store'});res.end(e?'Missing':b)})});
-const matrix=[[320,568],[390,844],[430,932],[844,390],[820,1180],[1180,820],[1440,900]],report=[];
+const matrix=process.env.LARIA_RETRY_FORMATS?process.env.LARIA_RETRY_FORMATS.split(',').map(v=>v.split('x').map(Number)):[[320,568],[390,844],[430,932],[844,390],[820,1180],[1180,820],[1440,900]],report=[];
+assert(matrix.every(v=>v.length===2&&v.every(n=>Number.isFinite(n)&&n>0)),'Invalid viewport filter');
+const engines=[[chromium,'chromium'],[webkit,'webkit']].filter(([,name])=>!process.env.LARIA_RETRY_ENGINE||process.env.LARIA_RETRY_ENGINE===name);
+assert(engines.length,'Invalid browser filter');
+seed.profile.grade=Number(process.env.LARIA_RETRY_GRADE||2);
+assert([1,2].includes(seed.profile.grade),'This flow tests the two youngest grades');
 async function question(page){return page.evaluate(()=>sessionQuestions[qIndex]);}
 async function build(page,word){
- while(await page.locator('#letter-slots .letter-slot.filled:not([disabled])').count())await page.locator('#letter-slots .letter-slot.filled:not([disabled])').first().click();
+ for(let clear=0;await page.locator('#letter-slots .letter-slot.filled:not([disabled])').count();clear++){
+  assert(clear<word.length+2,'Letter clearing did not change the task');
+  await page.locator('#letter-slots .letter-slot.filled:not([disabled])').first().click();
+ }
  for(let i=0;i<word.length;i++){
   await page.locator('#letter-slots .letter-slot').nth(i).click();
   const tiles=page.locator('.letter-bank .letter-tile:not(.used)');
@@ -52,11 +60,11 @@ async function verify(page,label){
 }
 (async()=>{
  await new Promise(r=>server.listen(0,'127.0.0.1',r));const url='http://127.0.0.1:'+server.address().port+'/laer-litt-mer/?app=laria';
- for(const [engine,name] of [[chromium,'chromium'],[webkit,'webkit']]){
+ for(const [engine,name] of engines){
  const browser=await engine.launch({headless:true,args:name==='chromium'?['--no-sandbox']:[]});
  try{
  for(const [width,height] of matrix)for(const subject of ['norwegian','math','english','geography']){
-  const label=name+'-'+width+'x'+height+'-'+subject,entry={label,width,height,subject,engine:name,errors:[],stages:[]};report.push(entry);
+  const label=name+'-'+width+'x'+height+'-'+subject,entry={label,width,height,subject,grade:seed.profile.grade,engine:name,errors:[],stages:[]};report.push(entry);
   const context=await browser.newContext({viewport:{width,height},hasTouch:true,isMobile:[320,390,430,844].includes(width),reducedMotion:'reduce',serviceWorkers:'block'});
   await context.addInitScript(s=>{if(!localStorage.getItem('laerlittmer-v2'))localStorage.setItem('laerlittmer-v2',JSON.stringify(s))},seed);
   const page=await context.newPage();page.setDefaultTimeout(12000);page.on('pageerror',e=>entry.errors.push(String(e)));
@@ -64,6 +72,7 @@ async function verify(page,label){
   const capture=async stage=>{
    const state=await page.evaluate(()=>({text:document.querySelector('.screen.active')?.innerText,answered:currentAnswered,correct:sessionCorrect,logs:state.answerLog.length,sessions:state.sessionLog.length}));
    entry.stages.push({stage,...state});
+   fs.writeFileSync(path.join(out,'report.json'),JSON.stringify(report,null,2));
    if([390,1180].includes(width)||(width===320&&subject==='math'))await page.screenshot({path:path.join(out,label+'-'+stage+'.png'),animations:'disabled'});
   };
   try{
@@ -102,7 +111,8 @@ async function verify(page,label){
    // Queue two clicks on the SAME old Next button. Only one question may advance.
    await page.locator('#next-question').evaluate(b=>{b.click();b.click()});
    assert.equal(await page.evaluate(()=>qIndex),1,label+' double Next skipped a task');
-   while(await page.locator('#session-screen.active').count()){
+   for(let guard=0;await page.locator('#session-screen.active').count();guard++){
+    assert(guard<initial.questions.length,'Task loop did not complete');
     await answer(page);await page.locator('#next-question').click();
    }
    await page.locator('#complete-screen.active').waitFor();await capture('complete');
@@ -111,7 +121,8 @@ async function verify(page,label){
    const logCount=await page.evaluate(()=>{finishSession();finishSession();return state.sessionLog.length});
    assert.equal(logCount,1,label+' repeated completion awarded another result');
    await page.locator('#complete-repeat').click();
-   while(await page.locator('#session-screen.active').count()){
+   for(let guard=0;await page.locator('#session-screen.active').count();guard++){
+    assert(guard<initial.questions.length,'Task loop did not complete');
     await answer(page);assert.equal(await page.evaluate(()=>currentAnswered.correct),true,label+' replay retained a previous error');
     await page.locator('#next-question').click();
    }
@@ -133,6 +144,7 @@ async function verify(page,label){
  }
  }finally{await browser.close();}
  }
+ assert.equal(report.length,matrix.length*4*engines.length,'Not all selected flows ran');
  const failures=report.filter(r=>!r.passed);console.log(JSON.stringify({total:report.length,passed:report.length-failures.length,failures:failures.map(r=>({label:r.label,failure:r.failure}))},null,2));
  if(failures.length)process.exitCode=1;
 })().catch(e=>{console.error(e);process.exitCode=1}).finally(()=>server.close());
