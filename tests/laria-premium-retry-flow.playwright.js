@@ -65,7 +65,11 @@ async function answer(page,wrong=false){
 async function geometry(page){return page.evaluate(()=>{
  const host=document.querySelector('#session-screen .session'),card=document.querySelector('#session-screen .laria-task-card');
  const rect=e=>e?.getBoundingClientRect().toJSON();
- return {scrollWidth:document.documentElement.scrollWidth,width:innerWidth,card:rect(card),
+ const feedback=card.querySelector('#feedback'),bounds=feedback.getBoundingClientRect();
+ const clippedFeedback=feedback.getClientRects().length>0&&[...feedback.querySelectorAll('strong,p,button:not([hidden])')].some(e=>{
+  const r=e.getBoundingClientRect();return r.top<bounds.top-1||r.bottom>bounds.bottom+1||r.left<bounds.left-1||r.right>bounds.right+1;
+ });
+ return {clippedFeedback,scrollWidth:document.documentElement.scrollWidth,width:innerWidth,card:rect(card),
   prompt:rect(card?.querySelector('.question')),scrollTop:host.scrollTop,
   controls:[...document.querySelectorAll('#session-screen button')].filter(b=>b.getClientRects().length).map(b=>({label:b.innerText,...rect(b)})),
   foxes:card.querySelectorAll('.task-fox-companion').length,avatar:card.querySelector('.task-fox-companion')?.dataset.avatar,
@@ -78,7 +82,7 @@ async function geometry(page){return page.evaluate(()=>{
   })};
  });}
 async function verify(page,label){
- const g=await geometry(page);assert(g.scrollWidth<=g.width+1,label+' horizontal overflow');
+ const g=await geometry(page);assert(!g.clippedFeedback,label+' feedback text clipped');assert(g.scrollWidth<=g.width+1,label+' horizontal overflow');
  assert(g.card.left>=-1&&g.card.right<=g.width+1,label+' card outside viewport');
  assert(g.controls.every(r=>r.width>=43.9&&r.height>=43.9),label+' touch target smaller than 44px: '+JSON.stringify(g.controls));
  assert(g.visibleIllustrations.every(i=>!i.clipped&&i.width>0&&i.height>0),label+' illustration clipped');
@@ -122,7 +126,7 @@ async function verify(page,label){
    await page.waitForFunction(()=>!!document.querySelector('#session-screen.active .task-fox-companion .laria-fox-wardrobe-placed'));
    const initial=await page.evaluate(()=>({keys:sessionQuestions.map(questionIdentity),questions:sessionQuestions,scope:sessionScope}));entry.initial=initial;
    const before=await verify(page,label);await capture('question');
-   const attempted=await answer(page,true);await capture('retry');
+   const attempted=await answer(page,true);await capture('retry');await verify(page,label+' retry');
    assert.equal(await page.locator('#next-question').isVisible(),false,label+' advances on error');
    assert.equal(await page.evaluate(()=>state.answerLog.length),1,label+' first error not assessed once');
    if(attempted.kind==='choice'){

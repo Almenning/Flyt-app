@@ -118,7 +118,9 @@ body.laria-task-scene-open {
 }
 @media (max-width:430px) {
   #session-screen.task-scene .task-outcome {
-    flex-direction:column;
+    /* Intrinsic grid rows keep long help text intact on narrow screens. */
+    display:grid;
+    grid-template-columns:minmax(0,1fr);
     align-items:stretch;
   }
   #session-screen.task-scene[data-task-band="young"] .task-card-head {
