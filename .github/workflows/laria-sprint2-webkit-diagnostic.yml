@@ -1,0 +1,60 @@
+name: Laria WebKit cold-frame diagnostic
+on:
+  push:
+    branches: [qa/laria-premium-snapshot-20261015]
+    paths: [.github/workflows/laria-sprint2-webkit-diagnostic.yml]
+permissions:
+  contents: read
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ad64daeb52f0ef61ad18d2cee23ea300dba5e182
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps webkit
+      - name: Run cold Home interaction with the same assertions in headless and visible WebKit
+        env:
+          LARIA_RETRY_ENGINE: webkit
+          LARIA_RETRY_FORMATS: 1440x900,1180x820
+          LARIA_RETRY_SUBJECTS: norwegian
+        run: |
+          mkdir -p /tmp/webkit-cold
+          git rev-parse HEAD > /tmp/webkit-cold/REVISION.txt
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('tests/laria-premium-retry-flow.playwright.js');s=p.read_text()
+          assert 'headless:true' in s
+          s=s.replace('headless:true',"headless:process.env.LARIA_HEADED!=='1'")
+          old="entry.homeOpenedMs=Date.now()-opened;"
+          assert old in s
+          s=s.replace(old,old+"entry.homeFrames=await page.evaluate(()=>window.__qaFrames);")
+          p.write_text(s)
+          PY
+          set +e
+          LARIA_RETRY_EVIDENCE=/tmp/webkit-cold/headless node tests/laria-premium-retry-flow.playwright.js > /tmp/webkit-cold/headless.log 2>&1
+          echo $? > /tmp/webkit-cold/headless-exit.txt
+          LARIA_RETRY_EVIDENCE=/tmp/webkit-cold/headed LARIA_HEADED=1 xvfb-run -a node tests/laria-premium-retry-flow.playwright.js > /tmp/webkit-cold/headed.log 2>&1
+          echo $? > /tmp/webkit-cold/headed-exit.txt
+          python3 - <<'PY'
+          import json,pathlib
+          out=pathlib.Path('/tmp/webkit-cold')
+          for mode in ['headless','headed']:
+              p=out/mode/'report.json'
+              if not p.exists(): print(mode,'NO REPORT');continue
+              r=json.loads(p.read_text())
+              print(mode,[(e['label'],bool(e.get('passed')),e.get('homeOpenedMs'),e.get('homeFrames'),e.get('diagnostic',{}).get('frames')) for e in r])
+          PY
+          test "$(cat /tmp/webkit-cold/headless-exit.txt)" = 0 && test "$(cat /tmp/webkit-cold/headed-exit.txt)" = 0
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: laria-webkit-cold-frame-diagnostic
+          path: /tmp/webkit-cold/
+          retention-days: 7
