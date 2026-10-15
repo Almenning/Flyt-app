@@ -253,14 +253,11 @@
     else wrap.querySelectorAll('.answer').forEach(b=>b.onclick=()=>answerLearningChoice(b.dataset.answer));
   }
   function restoreAnswered(q,wrap){
-    if(!currentAnswered)return;
     if(q.type==='learning-choice'||youngMathChoice(q)){
-      wrap.querySelectorAll('.answer').forEach(b=>{
-        b.disabled=true;
-        if(b.dataset.answer===String(q.answer))b.classList.add('correct');
-        else if(b.dataset.answer===String(currentAnswered.selected))b.classList.add('wrong');
-      });
+      applyChoiceAnswerState(q,currentAnswered);
+      return;
     }
+    if(!currentAnswered)return;
     const input=wrap.querySelector('#math-input');
     if(input){input.value=currentAnswered.selected??'';input.disabled=true}
     wrap.querySelectorAll('#check-number,#check-sequence').forEach(b=>b.disabled=true);
@@ -268,6 +265,7 @@
   }
 
   function restoreGeographyAnswered(q){
+    if(currentGrade()<=2&&q.type!=='map'){applyChoiceAnswerState(q,currentAnswered);return}
     if(!currentAnswered)return;
     applyAnsweredState(q,currentAnswered);
   }
