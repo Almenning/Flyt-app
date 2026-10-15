@@ -1,0 +1,79 @@
+name: Laria home paint candidate
+on:
+  push:
+    branches: [qa/laria-premium-snapshot-20261015]
+    paths: [.github/workflows/laria-home-paint-check.yml]
+permissions:
+  contents: read
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    strategy:
+      fail-fast: false
+      matrix:
+        version: [before, after]
+        engine: [chromium, webkit]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 12163f86282ff1e924d8047005f46f8bbf2143bf
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps ${{ matrix.engine }}
+      - name: Apply the exact scoped candidate only in after jobs
+        if: matrix.version == 'after'
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('laer-litt-mer/home-basecamp-v12.css');s=p.read_text();old='text-align:center;filter:drop-shadow(0 2px 2px #fff9)';assert s.count(old)==1;s=s.replace(old,'text-align:center');p.write_text(s)
+          p=Path('laer-litt-mer/home-subjects-v14.css');s=p.read_text()
+          for old,new in [('object-fit:cover;object-position:center 46%;\n filter:saturate(.93) contrast(1.02)','object-fit:cover;object-position:center 46%'),('.bc14-emblem svg{width:76%;height:76%;filter:drop-shadow(0 1px 1px #79563f44)}','.bc14-emblem svg{width:76%;height:76%}'),('padding:0 0 8px;filter:drop-shadow(0 6px 8px #24372a77)','padding:0 0 8px;filter:none'),('top:70%;left:4%;width:57%;padding:0;transform:none;filter:drop-shadow(0 4px 5px #24372a70)','top:70%;left:4%;width:57%;padding:0;transform:none')]:
+            assert s.count(old)==1;s=s.replace(old,new)
+          s=s.replace('/* Parents remain reachable, but their entry must not sit on top of the brand. */','/* Painted portals retain their source colors. Card frames and their existing\n   box shadows provide depth without filtering the complete image or text layer. */\n\n/* Parents remain reachable, but their entry must not sit on top of the brand. */')
+          p.write_text(s)
+          PY
+      - name: Measure real first taps before taking any screenshots
+        env:
+          ENGINE: ${{ matrix.engine }}
+          VERSION: ${{ matrix.version }}
+        run: |
+          mkdir -p /tmp/laria-home-paint
+          git rev-parse HEAD > /tmp/laria-home-paint/BASE.txt
+          git diff -- laer-litt-mer > /tmp/laria-home-paint/product.patch
+          sha256sum laer-litt-mer/home-basecamp-v12.css laer-litt-mer/home-subjects-v14.css > /tmp/laria-home-paint/HASHES.txt
+          cat > tests/home-paint-measure.cjs <<'JS'
+          const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),http=require('node:http'),engines=require('playwright');
+          const root=process.cwd(),out='/tmp/laria-home-paint',engine=process.env.ENGINE,report=[];
+          const code=fs.readFileSync('tests/laria-premium-retry-flow.playwright.js','utf8'),seed=Function('return '+code.match(/const seed=(.+);\nconst mime/)[1])();
+          const mime={'.html':'text/html','.js':'text/javascript','.css':'text/css','.webp':'image/webp','.svg':'image/svg+xml','.png':'image/png'};
+          const server=http.createServer((req,res)=>{let u=new URL(req.url,'http://localhost').pathname;if(u.endsWith('/'))u+='index.html';const f=path.resolve(root,'.'+u);if(!f.startsWith(root+path.sep)){res.writeHead(403);return res.end()}fs.readFile(f,(err,b)=>{res.writeHead(err?404:200,{'Content-Type':mime[path.extname(f)]||'application/octet-stream','Cache-Control':'no-store'});res.end(err?'Missing':b)})});
+          (async()=>{await new Promise(r=>server.listen(0,'127.0.0.1',r));const url='http://127.0.0.1:'+server.address().port+'/laer-litt-mer/?app=laria';
+            for(const [trial,width,height] of [[0,320,568],[1,320,568],[2,390,844],[3,1180,820]]){
+              const browser=await engines[engine].launch({headless:false,args:engine==='chromium'?['--no-sandbox']:[]});
+              try{const context=await browser.newContext({viewport:{width,height},hasTouch:true,isMobile:width<500,reducedMotion:'reduce',serviceWorkers:'block'});await context.addInitScript(s=>{localStorage.setItem('laerlittmer-v2',JSON.stringify(s));let seed=9321;Math.random=()=>((seed=(seed*16807)%2147483647)-1)/2147483646;window.__frames=[];let n=0;function tick(t){window.__frames.push(t);if(n++<60)requestAnimationFrame(tick)}requestAnimationFrame(tick)},seed);const page=await context.newPage();page.setDefaultTimeout(12000);const e={trial,width,height,engine,version:process.env.VERSION,errors:[]};report.push(e);page.on('pageerror',err=>e.errors.push(String(err)));await page.route(/https:\/\/(raw\.githubusercontent\.com|api\.worldbank\.org)\//,r=>r.abort());const start=Date.now();try{await page.goto(url,{waitUntil:'domcontentloaded'});e.domMs=Date.now()-start;await page.locator('.bc14-subject[data-camp="subject-norwegian"]').click();e.openMs=Date.now()-start;await page.locator('#subject-back').click();await page.locator('#home-screen.active').waitFor();assert.equal(await page.locator('.bc14-subject:visible').count(),4);assert.equal(await page.evaluate(()=>state.profile.avatar),'girl');assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));}catch(err){e.failure=String(err)}e.frames=await page.evaluate(()=>window.__frames);await page.screenshot({path:out+'/'+engine+'-'+width+'x'+height+'-'+trial+'.png',animations:'disabled'});fs.writeFileSync(out+'/timing.json',JSON.stringify(report,null,2));console.log(JSON.stringify({trial,width,domMs:e.domMs,openMs:e.openMs,failure:e.failure}));await context.close();}finally{await browser.close()}
+            }server.closeAllConnections();server.close();
+          })().catch(e=>{console.error(e);process.exit(1)});
+          JS
+          xvfb-run -a node tests/home-paint-measure.cjs
+      - name: Unchanged four-subject regression on the candidate
+        if: matrix.version == 'after'
+        env:
+          LARIA_RETRY_ENGINE: ${{ matrix.engine }}
+          LARIA_RETRY_EVIDENCE: /tmp/laria-home-paint/flows
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('tests/laria-premium-retry-flow.playwright.js');s=p.read_text();assert s.count('headless:true')==1;p.write_text(s.replace('headless:true','headless:false'))
+          PY
+          git diff -- tests/laria-premium-retry-flow.playwright.js > /tmp/laria-home-paint/launch-only.diff
+          xvfb-run -a node tests/laria-premium-retry-flow.playwright.js
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: laria-home-paint-${{ matrix.version }}-${{ matrix.engine }}
+          path: /tmp/laria-home-paint/
+          retention-days: 7
