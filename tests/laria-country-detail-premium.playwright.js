@@ -258,7 +258,10 @@ async function run(engine,label,viewport,url,avatar='girl'){
         assert(g.isLong,label+' '+id+' was not classified as a long title');
         assert(g.title.top>=g.topLine.bottom-8,label+' '+id+' title collides with status pills '+JSON.stringify(g));
         assert(g.title.bottom<=g.board.bottom-6,label+' '+id+' title escapes painted scene '+JSON.stringify(g));
-        assert(g.board.bottom<=g.content.top+3,label+' '+id+' painted scene overlaps facts '+JSON.stringify(g));
+        // Portrait stacks the facts below the scene; short landscape uses two
+        // columns. Check real separation on either axis, not vertical order alone.
+        assert(g.board.bottom<=g.content.top+3||g.board.right<=g.content.left+3,
+          label+' '+id+' painted scene overlaps facts '+JSON.stringify(g));
         assert(g.title.left>=g.board.left-2&&g.title.right<=g.board.right+2,
           label+' '+id+' title crosses scene edges '+JSON.stringify(g));
         assert(g.scrollWidth<=g.viewport+2,label+' '+id+' causes horizontal scrolling '+JSON.stringify(g));
