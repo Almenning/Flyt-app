@@ -156,10 +156,10 @@
 }
 @media(max-width:390px){
  .mp-shell{padding-left:max(9px,env(safe-area-inset-left));padding-right:max(9px,env(safe-area-inset-right))}
- .mp-top{min-height:47px}.mp-brand{font-size:25px}.mp-avatar{width:35px;height:35px}.mp-back{width:41px;height:41px}
+ .mp-top{min-height:47px}.mp-brand{font-size:25px}.mp-avatar{width:35px;height:35px}/* Keep the base 44×44px back target on compact iPhone. */
  .mp-menu-card{min-height:138px;padding:16px 13px 17px 15px;border-radius:25px}.mp-menu-art{right:16px;width:43%}.mp-menu-copy strong{font-size:20px}.mp-math-plaque{min-width:56px;font-size:20px}.mp-art-practice img{max-height:123px}.mp-number-art{grid-template-columns:repeat(3,30px)}.mp-number-art i{width:30px;height:30px;font-size:17px}
  .mp-table-choice{min-height:122px}.mp-tile-symbol{width:54px;height:56px;font-size:32px}.mp-answer{min-height:80px}.mp-apple-basket{width:83px}.mp-apple{width:12px;height:12px}
- .mp-factor-controls label{font-size:11px}.mp-factor-adjust button{min-width:43px;width:43px}
+ .mp-factor-controls label{font-size:11px}/* Keep the base 44×48px + / − controls touch-safe. */
  .mp-nav-link small{font-size:10px}
 }
 @media(prefers-reduced-motion:reduce){.mp-shell *{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
