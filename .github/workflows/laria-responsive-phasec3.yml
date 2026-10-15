@@ -11,6 +11,7 @@ on:
       - 'laer-litt-mer/sw.js'
       - 'tests/laria-responsive-phasec3-iphone-journeys.playwright.js'
       - 'tests/laria-d2-feature-gate.playwright.js'
+      - 'scripts/laria_d2_outpaint.py'
       - 'tests/laria-responsive-phasea-bokskogen.playwright.js'
       - 'docs/laria-d2-seam-art-contract.md'
       - '.github/workflows/laria-responsive-phasec3.yml'
@@ -66,3 +67,41 @@ jobs:
             laer-litt-mer/locked-journeys/nordlysleiren-fox-free-20261011.webp
           if-no-files-found: error
           retention-days: 7
+
+      - name: Set up Python 3.12 for exact-source D2 masters
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Build masks from the four unchanged locked PNGs
+        run: |
+          python -m pip install 'Pillow>=10,<12'
+          python scripts/laria_d2_outpaint.py templates --output /tmp/laria-d2-exact-masters
+          python - <<'PY'
+          import importlib.util
+          from pathlib import Path
+          from PIL import Image, ImageChops
+          spec=importlib.util.spec_from_file_location('d2','scripts/laria_d2_outpaint.py')
+          module=importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(module)
+          base=Path('/tmp/laria-d2-exact-masters')
+          for subject,name in module.SUBJECTS.items():
+              original=module.original_image(module.ROOT,subject)
+              art=Image.open(base/(name+'-outpaint-exact.png')).convert('RGBA')
+              mask=Image.open(base/(name+'-paint-mask-white.png'))
+              anchor=Image.open(base/(name+'-43px-exact-anchor.png')).convert('RGBA')
+              assert art.size==(941,725) and anchor.size==(941,468)
+              assert ImageChops.difference(art.convert('RGB').crop((0,0,941,300)),
+                  original.crop((0,1372,941,1672))).getbbox() is None
+              assert ImageChops.difference(anchor.convert('RGB').crop((0,0,941,43)),
+                  original.crop((0,1629,941,1672))).getbbox() is None
+              assert mask.getpixel((500,100))==0 and mask.getpixel((500,500))==255
+              assert anchor.getpixel((500,100))[3]==0
+              print('PASS '+subject+' exact 300px context, original 43px anchor, 425px paint mask')
+          PY
+      - name: Upload D2 pixel-exact outpainting masters
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-d2-exact-masters-${{ github.sha }}
+          path: /tmp/laria-d2-exact-masters
+          if-no-files-found: error
+          retention-days: 14
