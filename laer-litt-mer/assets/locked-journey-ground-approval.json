@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Exact original painting + independent, manually approved natural terrain continuation",
+  "releaseStatus": "pending_artwork_and_visual_approval",
+  "width": 941,
+  "minHeight": 468,
+  "sourceAspect": [
+    941,
+    1672
+  ],
+  "subjects": {
+    "norwegian": {
+      "lockedOriginal": "bokskogen-locked-20261010.png",
+      "lockedOriginalGitBlob": "656a03c23290677d3593e38753589fe36ce3ef69",
+      "asset": "bokskogen-ground-v1.webp",
+      "assetSha256": null,
+      "visualApproval": false
+    },
+    "math": {
+      "lockedOriginal": "tallenga-locked-20261010.png",
+      "lockedOriginalGitBlob": "0c217b725476470b50defd6e51cc90c8cd1a1e37",
+      "asset": "tallenga-ground-v1.webp",
+      "assetSha256": null,
+      "visualApproval": false
+    },
+    "english": {
+      "lockedOriginal": "ordlandsbyen-locked-20261010.png",
+      "lockedOriginalGitBlob": "0a1942daae282a4a9681140b72cc8c64efa88884",
+      "asset": "ordlandsbyen-ground-v1.webp",
+      "assetSha256": null,
+      "visualApproval": false
+    },
+    "geography": {
+      "lockedOriginal": "nordlysleiren-locked-20261010.png",
+      "lockedOriginalGitBlob": "41c7d83eec9a37e6681ef805f982127fcdd9ed96",
+      "asset": "nordlysleiren-ground-v1.webp",
+      "assetSha256": null,
+      "visualApproval": false
+    }
+  },
+  "manualReview": "Actual 1:1 and Retina WebKit map-edge screenshots, four worlds; natural color, perspective, visible art seam, no repeated UI or distorted flora; Globe entry visible, no hit-target obstruction.",
+  "overlapSourceRows": 43,
+  "newTerrainRows": 425,
+  "contextSourceRows": 300
+}

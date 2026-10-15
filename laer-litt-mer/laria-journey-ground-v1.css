@@ -1,0 +1,104 @@
+/* Læria D2 | Intentional illustrated-scene finish on portrait phones.
+ *
+ * The four approved 941x1672 PNG maps must remain intact and uncropped.
+ * On a taller iPhone viewport the actual painting ends above the home
+ * indicator. C3 previously revealed a DIFFERENT, blurred landscape card
+ * underneath. Mirroring/elongating the last pixels also reproduced the
+ * illustrated progress bar and introduced vertical smears.
+ *
+ * Only the vegetation UNDER the progress bar is gently shaded into a
+ * subject-specific, matte ground color. No source art, artwork coordinates,
+ * markers, mission buttons or personal fox are changed. No duplicated
+ * image, blurred photo, repeating texture, clipping or hit-area overlays.
+ *
+ * In landscape the existing scenic side backdrop is intentionally retained.
+ */
+@media (max-width:699px) and (orientation:portrait) {
+  body.locked-journey-subject-norwegian{--ljd2-ground:#193127}
+  body.locked-journey-subject-math{--ljd2-ground:#193027}
+  body.locked-journey-subject-english{--ljd2-ground:#1c302c}
+  body.locked-journey-subject-geography{--ljd2-ground:#172d3b}
+
+  body:is(.locked-journey-subject-norwegian,
+          .locked-journey-subject-math,
+          .locked-journey-subject-english,
+          .locked-journey-subject-geography):has(.screen.active.locked-journey-active){
+    background:var(--ljd2-ground)!important;
+  }
+
+  /* The correct painting owns the journey viewport. The empty stage below
+     must not be filled by an unrelated full-bleed journey-card image. */
+  body:is(.locked-journey-subject-norwegian,
+          .locked-journey-subject-math,
+          .locked-journey-subject-english,
+          .locked-journey-subject-geography):has(.screen.active.locked-journey-active) .app{
+    background:var(--ljd2-ground)!important;
+  }
+
+  /* Phase A painted an unrelated reference landscape on the Norwegian
+     screen and journey section rather than on .app. Remove it only while
+     the locked, real Bokskogen painting is active. */
+  #subject-screen.active.locked-journey-active.locked-journey-subject-norwegian,
+  #subject-screen.active.locked-journey-active.locked-journey-subject-norwegian > #subject-journey-section{
+    background:transparent!important;
+  }
+
+  /* The last ~12 CSS px of each original contain natural vegetation AFTER
+     the illustrated progress panel. Fade only these pixels to the matte
+     scene, so the map boundary becomes intentional rather than a second
+     blurry painting. The pseudo-element never intercepts touches. */
+  .screen.active.locked-journey-active .locked-journey-map[data-journey-subject]{
+    position:relative;
+    isolation:isolate;
+  }
+  .screen.active.locked-journey-active .locked-journey-map[data-journey-subject]::after{
+    content:"";
+    position:absolute;
+    z-index:20;
+    left:0;
+    right:0;
+    bottom:0;
+    height:clamp(9px,3.2vw,14px);
+    pointer-events:none;
+    background:linear-gradient(180deg,transparent 0%,color-mix(in srgb,var(--ljd2-ground) 45%,transparent) 35%,var(--ljd2-ground) 100%);
+  }
+}
+
+/* Prepared integration for four genuinely illustrated continuations.
+ * Deliberately dormant until all art is supplied, inspected and enabled in
+ * the original renderer. The matte D2 stage above is a temporary fallback.
+ * Only original-ratio painting can be rendered here: never repeat/mirror UI.
+ */
+@media (max-width:699px) and (orientation:portrait) {
+  /* The approved file URL is applied by JavaScript only AFTER all four
+     decoded images have passed the D2 release gate. Unavailable, unreleased
+     filenames must never appear as active CSS url() dependencies. */
+  /* With a 941/1672 original fitting a 100vw iPhone, this is the genuine
+     shortfall below the board. The max() gives short phones zero extra space. */
+  /* IDs intentionally outrank the legacy Norwegian rule
+     #subject-screen... #journey-map { margin:0!important }. Without this,
+     the scene appears but its reserved tail is 0px and overlaps the page. */
+  #subject-screen.active.locked-journey-active #journey-map.locked-journey-map.laria-d2-terrain-ready,
+  #geography-screen.active.locked-journey-active #geo-journey-map.locked-journey-map.laria-d2-terrain-ready{
+    --ljd2-room:max(0px,calc(100dvh - 177.683vw));
+    /* 43 SOURCE image pixels on the 941px original, scaled proportionately.
+       A fixed 18 CSS-px overlap changes its source location across iPhones. */
+    --ljd2-overlap:4.5696vw;
+    margin-bottom:var(--ljd2-room)!important;
+  }
+
+  /* Artwork sits OUTSIDE the protected map board, not over a touch target.
+     The last 18px crossfade with natural vegetation below painted progress.
+     background-size 100% auto preserves exact source proportions. */
+  .screen.active.locked-journey-active
+    .locked-journey-map.laria-d2-terrain-ready[data-journey-subject]::after{
+    top:calc(100% - var(--ljd2-overlap));
+    bottom:auto;
+    height:calc(var(--ljd2-room) + var(--ljd2-overlap));
+    pointer-events:none;
+    z-index:15;
+    background:var(--ljd2-terrain-art,none) center top / 100% auto no-repeat;
+    -webkit-mask-image:linear-gradient(180deg,transparent 0px,#000 var(--ljd2-overlap));
+    mask-image:linear-gradient(180deg,transparent 0px,#000 var(--ljd2-overlap));
+  }
+}

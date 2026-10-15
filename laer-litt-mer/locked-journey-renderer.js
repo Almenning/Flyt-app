@@ -12,6 +12,52 @@
   // Only the automated decoder test opts in with a page-init flag.
   const ORIGINAL_SOURCE_IMAGES_VERIFIED=true;
   const assets=new Map();
+  const D2_TERRAIN_FILES=Object.freeze({
+    norwegian:'./assets/locked-journey-ground/bokskogen-ground-v1.webp',
+    math:'./assets/locked-journey-ground/tallenga-ground-v1.webp',
+    english:'./assets/locked-journey-ground/ordlandsbyen-ground-v1.webp',
+    geography:'./assets/locked-journey-ground/nordlysleiren-ground-v1.webp'
+  });
+  // A single failed/missing art file must not make only one world look
+  // unfinished. The four visual worlds are a single all-or-nothing release.
+  // Nothing is fetched while the D2 launch flag is disabled.
+  let d2TerrainPreflight=null;
+  function preloadD2Terrain(path){
+    return new Promise(resolve=>{
+      const art=new Image();
+      art.onload=()=>resolve(art.naturalWidth===941&&art.naturalHeight>=468);
+      art.onerror=()=>resolve(false);
+      art.src=path;
+    });
+  }
+  function d2AllTerrainArtReady(){
+    if(window.LARIA_D2_ART_APPROVED!==true)return Promise.resolve(false);
+    if(!d2TerrainPreflight){
+      d2TerrainPreflight=Promise.all(
+        Object.values(D2_TERRAIN_FILES).map(preloadD2Terrain)
+      ).then(ok=>ok.every(Boolean)).catch(()=>false);
+    }
+    return d2TerrainPreflight;
+  }
+  function prepareD2Terrain(host,subject){
+    if(window.LARIA_D2_ART_APPROVED!==true)return;
+    const mobilePortrait='(max-width:699px) and (orientation:portrait)';
+    if(!window.matchMedia?.(mobilePortrait).matches)return;
+    const board=host.querySelector('.locked-journey-board');
+    if(!board||window.innerHeight<=board.getBoundingClientRect().height+12)return;
+    if(!Object.prototype.hasOwnProperty.call(D2_TERRAIN_FILES,subject))return;
+    d2AllTerrainArtReady().then(ready=>{
+      if(!ready||window.LARIA_D2_ART_APPROVED!==true)return;
+      if(!window.matchMedia?.(mobilePortrait).matches)return;
+      if(host.dataset.journeySubject!==subject||board!==host.querySelector('.locked-journey-board'))return;
+      if(!host.isConnected||!board.isConnected)return;
+      // The CSS must contain no unresolved local url() until artwork is
+      // approved, decoded and ready for THIS exact subject/map instance.
+      host.style.setProperty('--ljd2-terrain-art',
+        'url("'+D2_TERRAIN_FILES[subject]+'")');
+      host.classList.add('laria-d2-terrain-ready');
+    });
+  }
   const esc=value=>String(value??'').replace(/[&<>"']/g,ch=>({
     '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
   })[ch]);
@@ -150,6 +196,7 @@
     if(!host||!screen)return;
     if(host.dataset.journeyWaiting===subject&&host.dataset.journeyFailed===String(!!failed))return;
     host.className='journey-map locked-journey-map';
+    host.style.removeProperty('--ljd2-terrain-art');
     host.dataset.journeySubject=subject;
     host.dataset.journeyWaiting=subject;
     host.dataset.journeyFailed=String(!!failed);
@@ -367,6 +414,7 @@
     const def=contract.get(subject),model=s.progress.model;
     const places=s.contract.places;
     host.className='journey-map locked-journey-map';
+    host.style.removeProperty('--ljd2-terrain-art');
     delete host.dataset.journeyWaiting;
     delete host.dataset.journeyFailed;
     host.dataset.journeyRelease='journey-rc1';
@@ -417,6 +465,7 @@
     const finish=document.getElementById(geo?'geo-journey-finish':'journey-finish');
     if(finish)finish.hidden=true;
     revealDecodedArtwork(host,subject,geo);
+    prepareD2Terrain(host,subject);
     const overlay=host.querySelector('.locked-journey-overlay');
     const dialog=overlay.querySelector('.locked-journey-sheet');
     const lastFocus={element:null};
