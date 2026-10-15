@@ -1,5 +1,5 @@
 'use strict';
-const assert=require('node:assert/strict'),fs=require('node:fs'),http=require('node:http'),path=require('node:path');
+const assert=require('node:assert/strict'),fs=require('node:fs'),http=require('node:http'),path=require('node:path'),crypto=require('node:crypto');
 const {webkit,chromium}=require('playwright');
 const root=path.resolve(__dirname,'..','laer-litt-mer');
 const screenshots=process.env.COUNTRY_DISCOVERY_SCREENSHOTS||'/tmp/laria-country-discoveries';
@@ -92,11 +92,55 @@ async function run(engine,label,viewport,url,avatar){
   assert.equal(await page.locator('.country-read-aloud').getAttribute('aria-pressed'),'false','Switch country left reader active');
   await page.evaluate(()=>openDetail('cz','world'));
   await page.screenshot({path:path.join(screenshots,label+'-czechia.png'),fullPage:true,animations:'disabled'});
-  await page.evaluate(()=>openDetail('al','world'));
+
+  // Newly curated countries exercise a long name, a microstate and a large
+  // country. The production reader and the selected locked fox stay in use.
+  for(const [id,keyword] of [['nl','planetarium'],['li','brodert'],['ba','Vjetrenica']]){
+    await page.evaluate(id=>openDetail(id,'world'),id);
+    const record=await page.evaluate(id=>LARIA_COUNTRY_DISCOVERIES.get(id),id);
+    assert.equal(await page.locator('.country-story').getAttribute('data-country-content'),'ready',label+' '+id);
+    assert.equal(await page.locator('.country-story-tagline').innerText(),record.tagline);
+    assert.equal(await page.locator('.country-discovery').count(),3);
+    assert((await page.locator('.country-discoveries').innerText()).includes(keyword));
+    assert.equal(await page.locator('.country-story-fox').getAttribute('src'),await page.evaluate(()=>LARIA_FOX.worldSource(LARIA_FOX.choice())));
+    assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+2),label+' '+id+' overflow');
+    assert(await page.locator('.country-discovery p').evaluateAll(nodes=>nodes.every(el=>parseFloat(getComputedStyle(el).fontSize)>=16)));
+    await page.locator('.country-read-aloud').click();
+    assert.equal(await page.evaluate(()=>__countrySpeech.items.at(-1).text),record.discoveries[0].title+'. '+record.discoveries[0].text);
+    await page.locator('.country-read-aloud').click();
+    await page.locator('.country-story-practice').scrollIntoViewIfNeeded();
+    const action=await page.locator('.country-story-practice').boundingBox();
+    assert(action&&action.height>=48&&action.y+action.height<=viewport.height+2,label+' '+id+' unreachable practice');
+    await page.evaluate(()=>window.scrollTo(0,0));
+    await page.waitForFunction(()=>{
+      const fox=document.querySelector('.country-story-fox');
+      return fox?.complete&&fox.naturalWidth>0;
+    });
+    await page.screenshot({path:path.join(screenshots,label+'-'+id+'.png'),fullPage:true,animations:'disabled'});
+  }
+  if(engine===chromium){
+    const results=await page.evaluate(()=>WORLD_COUNTRIES.filter(c=>c.continent==='Europa').map(country=>{
+      openDetail(country.id,'world');
+      const article=document.querySelector('#detail-screen.active .country-story');
+      return {id:country.id,ready:article.dataset.countryContent==='ready',count:article.querySelectorAll('.country-discovery').length,
+        selectedFox:article.querySelector('.country-story-fox')?.getAttribute('src')===LARIA_FOX.worldSource(LARIA_FOX.choice())};
+    }));
+    assert.equal(results.length,45);
+    assert(results.every(r=>r.ready&&r.count===3&&r.selectedFox),'Europe runtime mismatch: '+JSON.stringify(results.filter(r=>!r.ready||r.count!==3||!r.selectedFox)));
+    const bankBytes=fs.readFileSync(path.join(root,'country-discoveries-v1.js'));
+    // Archive the exact public editorial source with the screenshots, so the
+    // evidence can be independently checked without relying on a later branch.
+    fs.writeFileSync(path.join(screenshots,'verified-country-bank.js'),bankBytes);
+    fs.writeFileSync(path.join(screenshots,'europe-runtime-evidence.json'),JSON.stringify({
+      version:'20261015.2',total:195,covered:57,missing:138,results,
+      bankSha256:crypto.createHash('sha256').update(bankBytes).digest('hex')
+    },null,2)+'\n');
+  }
+  await page.evaluate(()=>openDetail('af','world'));
   assert.equal(await page.locator('.country-story').getAttribute('data-country-content'),'missing');
   assert.equal(await page.locator('.country-discovery').count(),0,'Fallback invented discoveries');
   assert.equal(await page.locator('.country-story-fact').count(),3);
-  assert.match(await page.locator('.country-story h2').innerText(),/Kort om Albania/);
+  assert.match(await page.locator('.country-story h2').innerText(),/Kort om Afghanistan/);
   assert(!/Tre|spennende spor/.test(await page.locator('.country-story h2').innerText()));
   assert.equal(await page.evaluate(()=>JSON.stringify({journey:state.journey,answerLog:state.answerLog,mastery:state.mastery})),before,'Reading changed learning data');
   await page.evaluate(()=>openDetail('cz','world'));
