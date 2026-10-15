@@ -10,6 +10,7 @@ on:
       - 'laer-litt-mer/index.html'
       - 'laer-litt-mer/sw.js'
       - 'tests/laria-responsive-phasec3-iphone-journeys.playwright.js'
+      - 'tests/laria-d2-feature-gate.playwright.js'
       - 'tests/laria-responsive-phasea-bokskogen.playwright.js'
       - 'docs/laria-d2-seam-art-contract.md'
       - '.github/workflows/laria-responsive-phasec3.yml'
@@ -42,6 +43,8 @@ jobs:
         env:
           LARIA_RESPONSIVE_C3_IMAGES: /tmp/laria-responsive-c3
         run: node tests/laria-responsive-phasec3-iphone-journeys.playwright.js
+      - name: Verify D2 art gate in WebKit and Chromium
+        run: node tests/laria-d2-feature-gate.playwright.js
       - name: Upload actual browser screenshots and layout geometry
         if: always()
         uses: actions/upload-artifact@v4
