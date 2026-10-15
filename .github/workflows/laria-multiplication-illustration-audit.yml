@@ -7,8 +7,14 @@ permissions:
   contents: read
 jobs:
   audit:
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [chromium, webkit]
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      ENGINE: ${{ matrix.engine }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -18,7 +24,7 @@ jobs:
         with:
           node-version: '22'
       - run: npm ci --no-audit --no-fund
-      - run: npx playwright install --with-deps chromium webkit
+      - run: npx playwright install --with-deps ${{ matrix.engine }}
       - name: Audit actual countable multiplication artwork
         run: |
           mkdir -p /tmp/laria-multiplication-audit
@@ -83,7 +89,8 @@ jobs:
           (async()=>{
             await new Promise(r=>server.listen(0,'127.0.0.1',r));
             const url='http://127.0.0.1:'+server.address().port+'/laer-litt-mer/?app=laria';
-            for(const [engine,name] of [[chromium,'chromium'],[webkit,'webkit']]){
+            const selectedName=process.env.ENGINE,selectedEngine=selectedName==='webkit'?webkit:chromium;
+            for(const [engine,name] of [[selectedEngine,selectedName]]){
               const browser=await engine.launch({headless:name==='chromium',args:name==='chromium'?['--no-sandbox']:[]});
               try{
                 for(const [width,height] of formats){
@@ -142,6 +149,6 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: laria-multiplication-illustration-audit
+          name: laria-multiplication-illustration-audit-${{ matrix.engine }}
           path: /tmp/laria-multiplication-audit/
           retention-days: 7
