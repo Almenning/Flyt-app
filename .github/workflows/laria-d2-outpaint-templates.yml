@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'scripts/laria_d2_outpaint.py'
+      - 'tests/test_laria_d2_outpaint.py'
       - 'laer-litt-mer/locked-journeys/*-locked-20261010.png'
       - '.github/workflows/laria-d2-outpaint-templates.yml'
   workflow_dispatch:
@@ -25,6 +26,8 @@ jobs:
           python-version: '3.12'
       - name: Install Pillow for OFFLINE image processing
         run: python -m pip install 'Pillow>=10,<12'
+      - name: Verify candidate checks reject altered originals and bad image inputs
+        run: python -m unittest discover -s tests -p 'test_laria_d2_outpaint.py' -v
       - name: Generate masks from the actual locked October 10 PNG paintings
         run: python scripts/laria_d2_outpaint.py templates --output /tmp/laria-d2-exact-templates
       - name: Verify all original image anchors and masks
