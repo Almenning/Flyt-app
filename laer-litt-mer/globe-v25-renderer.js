@@ -757,6 +757,13 @@ function premiumDraw(){
 
   if(pulsing||selectionAnimating)requestAnimationFrame(()=>window.drawGlobe?.());
 }
+// One shared source for Kloden's country illustrations and Lær mer pages.
+// The detail page only paints the existing illustration; it never changes
+// selection, globe position, learning progress or quiz data.
+window.LARIA_GLOBE_COUNTRY_SCENE=Object.freeze({
+  paint:(canvas,country)=>paintCountryScene(canvas,country),
+  description:country=>sceneForCountry(country).tag
+});
 function install(){
   if(window.__lariaGlobeV25Installed||typeof window.drawGlobe!=='function'||typeof window.globeProject!=='function'||typeof window.setGlobeMode!=='function'||typeof window.selectGlobeCountry!=='function')return false;
   ensurePremiumShell();
