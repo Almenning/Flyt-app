@@ -1,0 +1,29 @@
+name: Laria D2 original terrain art gate
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'laer-litt-mer/assets/locked-journey-ground/**'
+      - 'laer-litt-mer/laria-journey-ground-v1.css'
+      - 'tests/laria-d2-terrain-assets.js'
+      - 'docs/laria-d2-seam-art-contract.md'
+      - '.github/workflows/laria-d2-terrain-art.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  four-painted-extensions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - name: Checkout exact PR revision
+        uses: actions/checkout@v4
+      - name: Set up Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Require genuine terrain resources and correct WebP dimensions
+        run: node tests/laria-d2-terrain-assets.js
