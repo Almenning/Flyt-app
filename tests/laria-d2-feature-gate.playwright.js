@@ -178,8 +178,11 @@ async function verifyFourWorldLayouts(browser,label,url){
     label+' '+subject+' missing reserved map tail '+JSON.stringify(g));
    assert(g.boardWidth>=389&&Math.abs(g.boardWidth/g.boardHeight-941/1672)<.004,
     label+' '+subject+' artwork resized or cropped');
-   assert(Math.abs(g.coverTop-(g.boardHeight-18))<2&&
-    Math.abs(g.coverHeight-(g.extra+18))<3,
+   // 43 original-image px of overlap should scale in both dimensions with
+   // the displayed 941px-wide illustration, never remain fixed at 18 CSS px.
+   const overlap=g.boardWidth*43/941;
+   assert(Math.abs(g.coverTop-(g.boardHeight-overlap))<2&&
+    Math.abs(g.coverHeight-(g.extra+overlap))<3,
     label+' '+subject+' illustrated tail overlaps painted UI incorrectly '+JSON.stringify(g));
    assert(g.coverImage.includes(subject==='norwegian'?'bokskogen-ground-v1.webp':
     subject==='math'?'tallenga-ground-v1.webp':
