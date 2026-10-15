@@ -1,0 +1,56 @@
+name: Laria country guide
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'laer-litt-mer/index.html'
+      - 'laer-litt-mer/country-guide-premium-v1.*'
+      - 'laer-litt-mer/globe-v25-renderer.js'
+      - 'tests/laria-country-guide.playwright.js'
+      - '.github/workflows/laria-country-guide.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'laer-litt-mer/index.html'
+      - 'laer-litt-mer/country-guide-premium-v1.*'
+      - 'laer-litt-mer/globe-v25-renderer.js'
+      - 'tests/laria-country-guide.playwright.js'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  country-guide:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Check syntax
+        run: |
+          node --check laer-litt-mer/country-guide-premium-v1.js
+          node --check laer-litt-mer/globe-v25-renderer.js
+          node --check tests/laria-country-guide.playwright.js
+      - name: Install Chromium and WebKit
+        run: npx playwright install --with-deps chromium webkit
+      - name: Test iPhone and iPad country pages
+        env:
+          COUNTRY_GUIDE_SCREENSHOTS: /tmp/laria-country-guide
+        run: node tests/laria-country-guide.playwright.js
+      - name: Save visual country evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-country-guide-previews
+          path: /tmp/laria-country-guide
+          if-no-files-found: warn
+          retention-days: 7
