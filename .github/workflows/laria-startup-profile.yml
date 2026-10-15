@@ -1,0 +1,81 @@
+name: Laria measured startup diagnosis
+on:
+  push:
+    branches: [qa/laria-premium-snapshot-20261015]
+    paths: [.github/workflows/laria-startup-profile.yml]
+permissions:
+  contents: read
+jobs:
+  profile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 12163f86282ff1e924d8047005f46f8bbf2143bf
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium webkit
+      - name: Profile unchanged startup and first subject interaction
+        run: |
+          mkdir -p /tmp/laria-startup-profile
+          git rev-parse HEAD > /tmp/laria-startup-profile/REVISION.txt
+          cat > tests/startup-profile.cjs <<'JS'
+          const fs=require('node:fs'),path=require('node:path'),http=require('node:http');
+          const {chromium,webkit}=require('playwright');
+          const root=process.cwd(),out='/tmp/laria-startup-profile';
+          const code=fs.readFileSync('tests/laria-premium-retry-flow.playwright.js','utf8');
+          const seed=Function('return '+code.match(/const seed=(.+);\nconst mime/)[1])();
+          const functions=['renderAll','renderSubjectProgress','renderGradeJourneyOverview','gradeJourneyOverview','journeyModel','subjectPoolForGrade','norwegianPool','mathPool','englishPool','journeyProgress','geoJourneyProgress','renderGeographyContinue','renderHomeContinue','renderAdult','renderContinentCards','renderFoxGuide','journeyRecommendedNode'];
+          const hook=functions.map(n=>'if(typeof window.'+n+'==="function")window.'+n+'=window.__measure('+JSON.stringify(n)+',window.'+n+');').join('\n');
+          const mime={'.html':'text/html','.js':'text/javascript','.css':'text/css','.json':'application/json','.svg':'image/svg+xml','.webp':'image/webp','.png':'image/png'};
+          const server=http.createServer((req,res)=>{
+            let u=new URL(req.url,'http://localhost').pathname;if(u.endsWith('/'))u+='index.html';
+            const f=path.resolve(root,'.'+u);if(!f.startsWith(root+path.sep)){res.writeHead(403);return res.end();}
+            fs.readFile(f,(err,b)=>{
+              if(err){res.writeHead(404);return res.end();}
+              if(u.endsWith('/laer-litt-mer/index.html'))b=Buffer.from(b.toString().replace('// Initial render / recovery',hook+'\nwindow.__mark("initial-render");\n// Initial render / recovery').replace('</script>\n<!-- Prompt 18','window.__mark("inline-end");\n</script>\n<!-- Prompt 18'));
+              if(u.endsWith('.js'))b=Buffer.from('window.__mark?.('+JSON.stringify('start:'+u)+');\n'+b.toString()+'\nwindow.__mark?.('+JSON.stringify('end:'+u)+');');
+              res.writeHead(200,{'Content-Type':mime[path.extname(f)]||'application/octet-stream','Cache-Control':'no-store'});res.end(b);
+            });
+          });
+          (async()=>{
+            await new Promise(r=>server.listen(0,'127.0.0.1',r));
+            const url='http://127.0.0.1:'+server.address().port+'/laer-litt-mer/?app=laria',report=[];
+            for(const [engine,name] of [[webkit,'webkit'],[chromium,'chromium']]){
+              const browser=await engine.launch({headless:false,args:name==='chromium'?['--no-sandbox']:[]});
+              try{for(let trial=0;trial<2;trial++){
+                const context=await browser.newContext({viewport:{width:320,height:568},hasTouch:true,isMobile:true,reducedMotion:'reduce',serviceWorkers:'block'});
+                await context.addInitScript(s=>{
+                  localStorage.setItem('laerlittmer-v2',JSON.stringify(s));let randomSeed=9321;Math.random=()=>((randomSeed=(randomSeed*16807)%2147483647)-1)/2147483646;
+                  window.__profile={marks:[],calls:{},slowCallbacks:[],frames:[]};
+                  window.__mark=name=>window.__profile.marks.push({name,at:performance.now()});
+                  window.__measure=(name,fn)=>function(...args){const t=performance.now();try{return fn.apply(this,args);}finally{const d=performance.now()-t,p=window.__profile.calls[name]||(window.__profile.calls[name]={count:0,total:0,max:0});p.count++;p.total+=d;p.max=Math.max(p.max,d);}};
+                  const raf=window.requestAnimationFrame;window.requestAnimationFrame=fn=>raf.call(window,window.__measure('raf:'+fn.name,fn));
+                  let count=0;function frame(t){window.__profile.frames.push(t);if(count++<90&&t<22000)raf.call(window,frame);}raf.call(window,frame);
+                  document.addEventListener('DOMContentLoaded',()=>window.__mark('DOMContentLoaded'));
+                  window.addEventListener('load',()=>window.__mark('load'));
+                },seed);
+                const page=await context.newPage(),entry={engine:name,trial};report.push(entry);page.setDefaultTimeout(12000);
+                await page.route(/https:\/\/(raw\.githubusercontent\.com|api\.worldbank\.org)\//,r=>r.abort());
+                const start=Date.now();
+                try{await page.goto(url,{waitUntil:'domcontentloaded'});entry.domReadyMs=Date.now()-start;await page.locator('.bc14-subject[data-camp="subject-norwegian"]').click();entry.subjectMs=Date.now()-start;}catch(e){entry.failure=String(e);}
+                entry.profile=await page.evaluate(()=>window.__profile);entry.active=await page.locator('.screen.active').getAttribute('id');
+                await page.screenshot({path:out+'/'+name+'-'+trial+'.png',animations:'disabled'});
+                fs.writeFileSync(out+'/report.json',JSON.stringify(report,null,2));console.log(name,trial,entry.domReadyMs,entry.subjectMs,entry.failure||'');
+                await context.close();
+              }}finally{await browser.close();}
+            }
+            server.closeAllConnections();server.close();
+          })().catch(e=>{console.error(e);process.exit(1);});
+          JS
+          xvfb-run -a node tests/startup-profile.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: laria-startup-profile
+          path: /tmp/laria-startup-profile/
+          retention-days: 7
