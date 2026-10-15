@@ -121,9 +121,9 @@ async function scenario(browser,label,url,flag,missing,viewport){
 /* The mocked artwork checks DOM geometry and navigation, never aesthetics.
  * This uses the SAME approved map/fox/mission renderer for all four worlds.
  * A terrain extension must not cover Geografi's next Kloden entry. */
-async function verifyFourWorldLayouts(browser,label,url){
+async function verifyFourWorldLayouts(browser,label,url,viewport){
  const context=await browser.newContext({
-  viewport:{width:390,height:844},isMobile:true,hasTouch:true,
+  viewport,isMobile:true,hasTouch:true,
   serviceWorkers:'block',deviceScaleFactor:1,reducedMotion:'reduce'
  });
  const page=await context.newPage(),calls=[],errors=[];
@@ -173,10 +173,10 @@ async function verifyFourWorldLayouts(browser,label,url){
      })
     };
    });
-   const expectedRoom=844-g.boardHeight;
+   const expectedRoom=viewport.height-g.boardHeight;
    assert(Math.abs(g.extra-expectedRoom)<3,
     label+' '+subject+' missing reserved map tail '+JSON.stringify(g));
-   assert(g.boardWidth>=389&&Math.abs(g.boardWidth/g.boardHeight-941/1672)<.004,
+   assert(g.boardWidth>=viewport.width-1&&Math.abs(g.boardWidth/g.boardHeight-941/1672)<.004,
     label+' '+subject+' artwork resized or cropped');
    // 43 original-image px of overlap should scale in both dimensions with
    // the displayed 941px-wide illustration, never remain fixed at 18 CSS px.
@@ -277,7 +277,8 @@ async function geographyNavigation(browser,label,url){
     await scenario(browser,label+'-landscape-stays-off',url,true,null,{width:844,height:390});
     await scenario(browser,label+'-ipad-stays-off',url,true,null,{width:820,height:1180});
     await geographyNavigation(browser,label+'-geography-to-globe',url);
-    await verifyFourWorldLayouts(browser,label+'-all-four-worlds',url);
+    await verifyFourWorldLayouts(browser,label+'-all-four-worlds-390',url,phone);
+    await verifyFourWorldLayouts(browser,label+'-all-four-worlds-430',url,{width:430,height:932});
    }finally{await browser.close();}
   }
  }finally{await new Promise(resolve=>server.close(resolve));}
