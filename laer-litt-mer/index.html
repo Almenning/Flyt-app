@@ -15,7 +15,7 @@
   <link rel="preload" as="image" href="./basecamp-v11.webp?v=basecamp12d" media="(min-width:701px)" fetchpriority="high" />
   <link rel="preload" as="script" href="./home-basecamp-v12.js?v=20261014-phase4d-fox-only1" />
   <link rel="preload" as="script" href="./globe-v24-art.js?v=globe36-pigment3" />
-  <link rel="preload" as="script" href="./globe-v25-renderer.js?v=20261012-ux-phase1" />
+  <link rel="preload" as="script" href="./globe-v25-renderer.js?v=20261015-country-shared1" />
   <title>Læria</title>
   <style>
 
@@ -2397,6 +2397,7 @@
   <link rel="stylesheet" href="./laria-fox-presence.css?v=20261013-task-world-sprite3-noflash" />
   <link rel="stylesheet" href="./laria-task-feedback-stable-v1.css?v=20261014-stable1" />
   <link rel="stylesheet" href="./locked-journey-mission-premium-v1.css?v=20261015-missions-v1" />
+  <link rel="stylesheet" href="./country-guide-premium-v1.css?v=20261015-country1" />
   <!-- immersive-globe-viewport-2026-10-02 -->
   <!-- globe-hit-test-dateline-fix-2026-10-02 -->
   <!-- parent-info-udir-2026-10-02 -->
@@ -3928,7 +3929,11 @@ function openDetail(k,source=null){
   returnScreen=source||active||'home';const c=countries[k],st=countryStatus(k),label=st==='mastered'?'★ Fullført':st==='known'?'● Kan nå':st==='learning'?'◐ Under arbeid':st==='seen'?'• Sett':'Ikke startet';
   const capitalHtml=c.capital?`<div class="fact"><span>Hovedstad</span><strong>${c.capital}</strong></div>`:'';
   const note=c.note?`<div class="small-note">${c.note}</div>`:'';
-  document.getElementById('detail-content').innerHTML=`<div class="eyebrow">${label}</div><div class="detail-flag">${c.flag}</div><h1>${c.name}</h1><div class="fact-grid">${capitalHtml}<div class="fact"><span>Verdensdel</span><strong>${c.continent}</strong></div><div class="fact"><span>Innbyggere · anslag</span><strong>${formatPopulation(c.population)}</strong></div></div>${note}<button class="primary" onclick="startCountryPractice('${k}')">Øv på ${c.name}</button><div class="small-note">Befolkningstall vises som avrundede anslag. Kart og fakta er forenklet for læring på mobil.</div>`;
+  // Presentation upgrade only: preserve existing country data, progress and quiz route.
+  const premium=window.LARIA_COUNTRY_GUIDE_V1?.render?.({
+    id:k,country:c,label,populationText:formatPopulation(c.population)
+  });
+  if(!premium)document.getElementById('detail-content').innerHTML=`<div class="eyebrow">${label}</div><div class="detail-flag">${c.flag}</div><h1>${c.name}</h1><div class="fact-grid">${capitalHtml}<div class="fact"><span>Verdensdel</span><strong>${c.continent}</strong></div><div class="fact"><span>Innbyggere · anslag</span><strong>${formatPopulation(c.population)}</strong></div></div>${note}<button class="primary" onclick="startCountryPractice('${k}')">Øv på ${c.name}</button><div class="small-note">Befolkningstall vises som avrundede anslag. Kart og fakta er forenklet for læring på mobil.</div>`;
   showScreen('detail');
 }
 document.getElementById('detail-back').onclick=()=>{if(['home','progress'].includes(returnScreen))setTab(returnScreen);else showScreen(returnScreen||'home')};
@@ -6856,8 +6861,9 @@ if(needsProfileSetup||!state.profile.onboarded||!state.profile.grade){
 
 <!-- Kloden: art primitives must load before the active renderer. -->
 <script src="./globe-v24-art.js?v=globe36-pigment3" defer></script>
-<script src="./globe-v25-renderer.js?v=20261012-ux-phase1" defer></script>
+<script src="./globe-v25-renderer.js?v=20261015-country-shared1" defer></script>
 <script src="./atlas-perspective-v1.js?v=20261012-deepzoom32" defer></script>
+<script src="./country-guide-premium-v1.js?v=20261015-country1" defer></script>
 
 <!-- premium-board-v8-2026-10-04 -->
 <!-- natural-journey-integration-v9-2026-10-04 -->
