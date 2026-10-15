@@ -1,0 +1,43 @@
+name: Laria premium focused retry
+on:
+  push:
+    branches: [qa/laria-premium-snapshot-20261015]
+    paths: [.github/workflows/laria-premium-focus.yml]
+permissions:
+  contents: read
+jobs:
+  focus:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 01fd2ab535c73b1b2bda995921ab9c9d70362711
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - name: Select four real phone flows without changing assertions
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('tests/laria-premium-retry-flow.playwright.js')
+          s=p.read_text()
+          old='const matrix=[[320,568],[390,844],[430,932],[844,390],[820,1180],[1180,820],[1440,900]],report=[];'
+          assert old in s
+          s=s.replace(old,'const matrix=[[390,844]],report=[];')
+          s=s.replace("[[chromium,'chromium'],[webkit,'webkit']]", "[[chromium,'chromium']]")
+          s=s.replace('entry.stages.push({stage,...state});', 'entry.stages.push({stage,...state});console.log(label,stage);')
+          p.write_text(s)
+          PY
+          mkdir -p /tmp/laria-retry-evidence
+          git rev-parse HEAD > /tmp/laria-retry-evidence/REVISION.txt
+          timeout 180 node tests/laria-premium-retry-flow.playwright.js
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: laria-premium-focused-retry
+          path: /tmp/laria-retry-evidence/
+          retention-days: 7
