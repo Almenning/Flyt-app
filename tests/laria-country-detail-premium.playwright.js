@@ -77,6 +77,10 @@ async function run(engine,label,viewport,url,avatar='girl'){
       label+' lost existing country-specific illustration summary');
     assert.match(await card.locator('.country-story-facts').innerText(),/Kairo/);
     assert.match(await card.locator('.country-story-facts').innerText(),/Afrika/);
+    assert.match(await card.locator('.country-story-facts').innerText(),/116,5\s+mill/,
+      label+' offline Egypt population is outdated');
+    assert.match(await card.locator('.country-story-facts').innerText(),/2024/,
+      label+' Egypt population source year missing');
     // The new detail mounts before the next browser paint; validate rendered
     // pixels only after the shared globe illustrator has drawn the canvas.
     await page.waitForFunction(()=>{
@@ -170,6 +174,19 @@ async function run(engine,label,viewport,url,avatar='girl'){
       label+' Tsjad reused Egyptian pyramids');
     assert.match(await page.locator('.country-story-summary').innerText(),/Ennedi/,
       label+' Tsjad-specific Sahel explanation missing');
+    assert.match(await page.locator('.country-story-facts').innerText(),/20,3\s+mill/,
+      label+' offline Tsjad population is outdated');
+    if(viewport.width>=700&&viewport.height>520){
+      // Previously the Chad contour could appear as an empty beige panel
+      // even while the country hero image was fully visible.
+      await page.waitForFunction(()=>{
+        const canvas=document.querySelector('#detail-screen.active .country-story-outline');
+        if(!canvas||canvas.width<140||canvas.dataset.outlineReady!=='true')return false;
+        const data=canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height).data;
+        let ink=0;for(let i=3;i<data.length;i+=4)if(data[i]>0)ink++;
+        return ink>120;
+      },null,{timeout:9000});
+    }
     if(['webkit-iphone','webkit-ipad-portrait','webkit-ipad-landscape'].includes(label)){
       await page.screenshot({path:path.join(screenshotDir,label+'-tsjad.png'),
         animations:'disabled',fullPage:false});
