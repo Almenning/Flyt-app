@@ -196,6 +196,24 @@ body:has(#detail-screen.active) .app::after{display:none!important}
   background:rgba(252,232,191,.54);
   color:#5c482f!important;font:700 13px/1.5 ui-rounded,system-ui,sans-serif!important;
 }
+.country-story-map{
+  display:grid;grid-template-columns:minmax(0,1fr) 150px;
+  align-items:center;gap:8px;
+  min-height:142px;padding:12px 17px;
+  border:1.5px solid #d4b07a;border-radius:20px;
+  background:
+    radial-gradient(circle at 80% 48%,rgba(228,190,117,.24),transparent 43%),
+    linear-gradient(150deg,#fff9eb,#ead5ac);
+  box-shadow:0 3px 0 #d6b37e,inset 0 1px 0 #fff;
+}
+.country-story-map-copy{display:flex;flex-direction:column;align-items:flex-start;gap:6px}
+.country-story-map-copy strong{
+  font:900 clamp(18px,2vw,23px)/1.15 Georgia,serif;color:#523924
+}
+.country-story-map-copy small{
+  font:700 12px/1.4 ui-rounded,system-ui,sans-serif;color:#80674a
+}
+.country-story-outline{display:block;width:150px;height:118px;max-width:100%}
 .country-story-bottom{margin-top:auto;display:grid;gap:9px}
 .country-story-practice{
   display:flex;align-items:center;justify-content:center;gap:11px;
@@ -251,6 +269,7 @@ body:has(#detail-screen.active) .app::after{display:none!important}
   .country-story-fact dd{font-size:18px;margin-top:5px}
   .country-story-practice{min-height:58px;border-radius:16px}
   .country-story-note{font-size:12px!important}
+  .country-story-map{display:none}
 }
 @media (orientation:landscape) and (max-height:520px){
   #detail-screen.active{padding:8px 15px 18px!important}
@@ -265,6 +284,7 @@ body:has(#detail-screen.active) .app::after{display:none!important}
   .country-story-fact{min-height:68px}
   .country-story-fact:nth-child(3){grid-column:span 2}
   .country-story-practice{min-height:50px}
+  .country-story-map{display:none}
 }
 @media (prefers-reduced-motion:reduce){
   .country-story-fox{animation:none!important}
