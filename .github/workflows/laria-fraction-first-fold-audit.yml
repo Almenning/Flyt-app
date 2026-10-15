@@ -1,0 +1,108 @@
+name: Laria fraction first-fold audit
+on:
+  push:
+    branches: [qa/laria-premium-snapshot-20261015]
+    paths: [.github/workflows/laria-fraction-first-fold-audit.yml]
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: a5f34eb07c7f96c223687b179eaf9be98eaf9b69
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium webkit
+      - name: Verify cake, fraction and controls stay together
+        run: |
+          mkdir -p /tmp/laria-fraction-audit
+          git rev-parse HEAD > /tmp/laria-fraction-audit/REVISION.txt
+          cat > /tmp/fraction-audit.cjs <<'JS'
+          'use strict';
+          const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),http=require('node:http');
+          const {chromium,webkit}=require('playwright');
+          const root=process.cwd(),out='/tmp/laria-fraction-audit';
+          const seed={version:7,progressSchemaVersion:3,profile:{grade:2,onboarded:true,name:'EventyrQA',avatar:'girl',setupVersion:2},mastery:{},mistakes:{},skillMastery:{},skillMistakes:{},skillLastSeen:{},masteryEvidence:{},skillEvidence:{},preferences:{sound:false,autoRead:false},lastMilestone:null,recentCountryWin:null,lastActivity:null,journey:{nodes:{},gradeWins:{},viewGrades:{}},answerLog:[],sessionLog:[],activeSession:null};
+          const mime={'.html':'text/html; charset=utf-8','.css':'text/css','.js':'application/javascript','.json':'application/json','.svg':'image/svg+xml','.webp':'image/webp','.png':'image/png'};
+          const server=http.createServer((req,res)=>{let u=new URL(req.url,'http://localhost').pathname;if(u.endsWith('/'))u+='index.html';const f=path.resolve(root,'.'+decodeURIComponent(u));if(!f.startsWith(root+path.sep)){res.writeHead(403);return res.end()}fs.readFile(f,(e,b)=>{res.writeHead(e?404:200,{'Content-Type':mime[path.extname(f)]||'application/octet-stream','Cache-Control':'no-store'});res.end(e?'Missing':b)})});
+          const formats=[[390,844],[320,568],[1180,820]],report=[];let failed=false;
+          const rect=async(loc)=>loc.evaluate(e=>{const r=e.getBoundingClientRect();return {left:r.left,top:r.top,right:r.right,bottom:r.bottom,width:r.width,height:r.height}});
+          async function openLab(page){
+            await page.locator('.bc14-subject[data-camp="subject-math"]').click();
+            await page.locator('#subject-screen.active #open-fraction-lab').click();
+            await page.locator('#fraction-lab-screen.active .fr2-shell').waitFor();
+            assert.equal(await page.evaluate(()=>window.LARIA_FRACTION_PREMIUM?.version),'workshop-v1');
+          }
+          async function snapshot(page,label){
+            const cake=await rect(page.locator('#fraction-lab-screen.active .fr5-build-target .fr2-pie-builder'));
+            const value=await rect(page.locator('#fraction-lab-screen.active .fr5-live-result .fr2-fraction'));
+            const controls=await rect(page.locator('#fraction-lab-screen.active .fr5-controls'));
+            const nButtons=page.locator('#fraction-lab-screen.active [data-fr-action="adjust"][data-field="n"]');
+            const dButtons=page.locator('#fraction-lab-screen.active [data-fr-action="adjust"][data-field="d"]');
+            const all=[cake,value,controls],viewport=await page.evaluate(()=>({width:innerWidth,height:innerHeight,scrollY,scrollWidth:document.documentElement.scrollWidth}));
+            assert.equal(viewport.scrollY,0,label+' opened scrolled');
+            assert(all.every(r=>r.left>=-1&&r.right<=viewport.width+1),label+' required first-fold element outside horizontally');
+            assert(cake.top>=0&&cake.bottom<=viewport.height+1,label+' cake outside first viewport: '+JSON.stringify(cake));
+            assert(value.top>=0&&value.bottom<=viewport.height+1,label+' numeric fraction outside first viewport: '+JSON.stringify(value));
+            assert(controls.top>=0&&controls.bottom<=viewport.height+1,label+' teller/nevner controls outside first viewport: '+JSON.stringify(controls));
+            assert(viewport.scrollWidth<=viewport.width+1,label+' horizontal page overflow');
+            for(const buttons of [nButtons,dButtons]){
+              assert.equal(await buttons.count(),2,label+' missing adjustment controls');
+              for(let i=0;i<2;i++){const r=await rect(buttons.nth(i));assert(r.width>=43.9&&r.height>=43.9,label+' adjustment target below 44px: '+JSON.stringify(r));}
+            }
+            const fox=page.locator('#fraction-lab-screen.active .fr5-fox-mentor .fr2-fox');
+            const fr=await rect(fox),overlap=Math.max(0,Math.min(fr.right,cake.right)-Math.max(fr.left,cake.left))*Math.max(0,Math.min(fr.bottom,cake.bottom)-Math.max(fr.top,cake.top));
+            assert.equal(overlap,0,label+' fox covers cake');
+            return {cake,value,controls,viewport,fox:fr};
+          }
+          async function setDenom(page,target){
+            for(let guard=0;guard<15;guard++){
+              const s=await page.evaluate(()=>window.LARIA_FRACTION_PREMIUM.snapshot()),now=s.build.d;
+              if(now===target)return;
+              await page.locator('[data-fr-action="adjust"][data-field="d"][data-step="'+(now<target?1:-1)+'"]').click();
+            }throw Error('Could not set denominator to '+target);
+          }
+          (async()=>{
+            await new Promise(r=>server.listen(0,'127.0.0.1',r));const url='http://127.0.0.1:'+server.address().port+'/laer-litt-mer/?app=laria';
+            for(const [engine,name] of [[chromium,'chromium'],[webkit,'webkit']]){
+              const browser=await engine.launch({headless:name==='chromium',args:name==='chromium'?['--no-sandbox']:[]});
+              try{for(const [width,height] of formats){
+                const label=name+'-'+width+'x'+height,entry={label,engine:name,width,height,errors:[]};report.push(entry);
+                const context=await browser.newContext({viewport:{width,height},hasTouch:true,isMobile:width<600,reducedMotion:'reduce',serviceWorkers:'block'});
+                await context.addInitScript(s=>{localStorage.setItem('laerlittmer-v2',JSON.stringify(s));localStorage.removeItem('laria_fraction_premium_v1');},seed);
+                const page=await context.newPage();page.setDefaultTimeout(12000);page.on('pageerror',e=>entry.errors.push(String(e)));await page.route(/https:\/\/(raw\.githubusercontent\.com|api\.worldbank\.org)\//,r=>r.abort());
+                try{
+                  await page.goto(url,{waitUntil:'domcontentloaded'});await openLab(page);
+                  entry.initial=await snapshot(page,label+' initial');
+                  await page.screenshot({path:path.join(out,label+'-initial.png'),animations:'disabled'});
+                  await setDenom(page,12);
+                  const state=await page.evaluate(()=>window.LARIA_FRACTION_PREMIUM.snapshot());
+                  assert.equal(state.build.d,12);assert(state.build.n<=state.build.d,label+' numerator exceeds denominator');
+                  const slices=page.locator('.fr5-build-target .fr2-pie-builder [data-fr-action="piece"]');
+                  assert.equal(await slices.count(),12,label+' 12-part cake does not contain 12 real sectors');
+                  const svg=await rect(page.locator('.fr5-build-target .fr2-pie-builder'));
+                  const sliceRects=await slices.evaluateAll(xs=>xs.map(x=>{const r=x.getBoundingClientRect();return {left:r.left,top:r.top,right:r.right,bottom:r.bottom,width:r.width,height:r.height}}));
+                  assert(sliceRects.every(r=>r.width>2&&r.height>2&&r.left>=svg.left-1&&r.right<=svg.right+1&&r.top>=svg.top-1&&r.bottom<=svg.bottom+1),label+' fraction sector clipped');
+                  entry.twelve=await snapshot(page,label+' denominator12');entry.twelve.slices=sliceRects.length;
+                  await page.screenshot({path:path.join(out,label+'-denom12.png'),animations:'disabled'});
+                  assert.equal(entry.errors.length,0,label+' page errors: '+entry.errors.join(' | '));entry.ok=true;
+                }catch(e){entry.ok=false;entry.failure=String(e);failed=true;}
+                fs.writeFileSync(path.join(out,'report.json'),JSON.stringify(report,null,2));await context.close();
+              }}finally{await browser.close();}
+            }
+            server.closeAllConnections();server.close();console.log(JSON.stringify(report,null,2));if(failed)process.exitCode=1;
+          })().catch(e=>{console.error(e);process.exit(1);});
+          JS
+          xvfb-run -a node /tmp/fraction-audit.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: laria-fraction-first-fold-audit
+          path: /tmp/laria-fraction-audit/
+          retention-days: 7
