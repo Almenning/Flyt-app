@@ -200,6 +200,48 @@ async function run(engine,label,viewport,url,avatar='girl'){
     assert.equal(await page.locator('#detail-screen.active .country-story-hero-art').count(),0,
       label+' generic countries must not receive wrong curated artwork');
 
+    // Real long names must not escape the illustrated panel at 320px, 390px
+    // or on short landscape phones. The country's original data and practice
+    // route remain unchanged.
+    if(viewport.width<=430||viewport.height<=520){
+      for(const [id,expected] of [
+        ['cf','Den sentralafrikanske republikk'],
+        ['ae','De forente arabiske emirater'],
+        ['do','Den dominikanske republikk']
+      ]){
+        await page.evaluate(k=>openDetail(k,'world'),id);
+        const story=page.locator('#detail-screen.active .country-story[data-country-detail="'+id+'"]');
+        await story.waitFor({timeout:9000});
+        assert.equal((await story.locator('h1').innerText()).trim(),expected);
+        const g=await story.evaluate(el=>{
+          const rect=selector=>{
+            const r=el.querySelector(selector).getBoundingClientRect();
+            return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,height:r.height};
+          };
+          return {board:rect('.country-story-board'),
+            title:rect('.country-story-title'),
+            topLine:rect('.country-story-topline'),
+            content:rect('.country-story-main'),
+            viewport:innerWidth,scrollWidth:document.documentElement.scrollWidth,
+            isLong:el.classList.contains('is-long-name')};
+        });
+        assert(g.isLong,label+' '+id+' was not classified as a long title');
+        assert(g.title.top>=g.topLine.bottom-8,label+' '+id+' title collides with status pills '+JSON.stringify(g));
+        assert(g.title.bottom<=g.board.bottom-6,label+' '+id+' title escapes painted scene '+JSON.stringify(g));
+        assert(g.board.bottom<=g.content.top+3,label+' '+id+' painted scene overlaps facts '+JSON.stringify(g));
+        assert(g.title.left>=g.board.left-2&&g.title.right<=g.board.right+2,
+          label+' '+id+' title crosses scene edges '+JSON.stringify(g));
+        assert(g.scrollWidth<=g.viewport+2,label+' '+id+' causes horizontal scrolling '+JSON.stringify(g));
+        if(label==='webkit-iphone-small'&&id==='cf'){
+          await page.screenshot({path:path.join(screenshotDir,'webkit-iphone-small-long-name.png'),
+            animations:'disabled',fullPage:false});
+        }
+      }
+      // Practice from the generic page must still launch its actual country.
+      await page.evaluate(()=>openDetail('no','world'));
+      await page.locator('#detail-screen.active .country-story[data-country-detail="no"]').waitFor();
+    }
+
     // Original practice action continues through startCountryPractice(), not a
     // synthetic mini-quiz added by the visual redesign.
     await page.locator('.country-story-practice').click();
