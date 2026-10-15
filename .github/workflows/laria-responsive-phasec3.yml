@@ -10,6 +10,8 @@ on:
       - 'laer-litt-mer/index.html'
       - 'laer-litt-mer/sw.js'
       - 'tests/laria-responsive-phasec3-iphone-journeys.playwright.js'
+      - 'tests/laria-responsive-phasea-bokskogen.playwright.js'
+      - 'docs/laria-d2-seam-art-contract.md'
       - '.github/workflows/laria-responsive-phasec3.yml'
   workflow_dispatch:
 
