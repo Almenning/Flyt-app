@@ -214,3 +214,83 @@
  }
 }
 
+/* Full-count tablet-landscape release.
+   Dense practice questions must show every mathematical object at once.
+   Replace the older 6–10-group internal-scroll presentation with two
+   compact rows of five baskets; decorative art scales, the count does not. */
+@media(min-width:1000px) and (min-height:700px) and (orientation:landscape){
+ #multiplication-lab-screen.active .mp-practice-screen .mp-task-apples:has(
+   .mp4-collections:is([data-mp3-groups="6"],[data-mp3-groups="7"],
+   [data-mp3-groups="8"],[data-mp3-groups="9"],[data-mp3-groups="10"])
+ ){
+   overflow-y:hidden;
+ }
+ #multiplication-lab-screen.active .mp-practice-screen .mp4-collections:is(
+   [data-mp3-groups="6"],[data-mp3-groups="7"],[data-mp3-groups="8"],
+   [data-mp3-groups="9"],[data-mp3-groups="10"]
+ ){
+   grid-template-columns:repeat(5,minmax(0,1fr));
+   column-gap:6px;row-gap:14px;
+   padding:18px 6px 17px;
+ }
+ #multiplication-lab-screen.active .mp-practice-screen .mp4-collections:is(
+   [data-mp3-groups="6"],[data-mp3-groups="7"],[data-mp3-groups="8"],
+   [data-mp3-groups="9"],[data-mp3-groups="10"]
+ )>.mp4-basket{
+   grid-column:auto!important;
+   min-height:78px!important;
+   padding:10px 2px 20px!important;
+   border-width:3px;border-bottom-width:6px;
+   border-radius:14px 14px 22px 22px;
+ }
+ #multiplication-lab-screen.active .mp-practice-screen .mp4-collections:is(
+   [data-mp3-groups="6"],[data-mp3-groups="7"],[data-mp3-groups="8"],
+   [data-mp3-groups="9"],[data-mp3-groups="10"]
+ ) .mp3-fruits{
+   gap:0!important;padding:0!important;overflow:visible!important;
+ }
+ #multiplication-lab-screen.active .mp-practice-screen .mp4-collections:is(
+   [data-mp3-groups="6"],[data-mp3-groups="7"],[data-mp3-groups="8"],
+   [data-mp3-groups="9"],[data-mp3-groups="10"]
+ ) .mp3-item{
+   max-width:18px!important;max-height:18px!important;
+ }
+ #multiplication-lab-screen.active .mp-practice-screen .mp4-collections:is(
+   [data-mp3-groups="6"],[data-mp3-groups="7"],[data-mp3-groups="8"],
+   [data-mp3-groups="9"],[data-mp3-groups="10"]
+ ) .mp4-handle{
+   height:36px;top:-18px;
+ }
+ #multiplication-lab-screen.active .mp-practice-screen .mp4-collections:is(
+   [data-mp3-groups="6"],[data-mp3-groups="7"],[data-mp3-groups="8"],
+   [data-mp3-groups="9"],[data-mp3-groups="10"]
+ ) .mp4-basket-liner{
+   inset:3px 2px 10px;
+ }
+ #multiplication-lab-screen.active .mp-practice-screen .mp4-collections:is(
+   [data-mp3-groups="6"],[data-mp3-groups="7"],[data-mp3-groups="8"],
+   [data-mp3-groups="9"],[data-mp3-groups="10"]
+ ) .mp4-basket-front{
+   height:14px;border-top-width:2px;border-radius:0 0 16px 16px;
+ }
+ #multiplication-lab-screen.active .mp-practice-screen .mp4-collections:is(
+   [data-mp3-groups="6"],[data-mp3-groups="7"],[data-mp3-groups="8"],
+   [data-mp3-groups="9"],[data-mp3-groups="10"]
+ ) .mp4-floral{
+   width:30px;height:16px;top:-7px;left:-3px;
+ }
+ #multiplication-lab-screen.active .mp-practice-screen .mp4-collections:is(
+   [data-mp3-groups="6"],[data-mp3-groups="7"],[data-mp3-groups="8"],
+   [data-mp3-groups="9"],[data-mp3-groups="10"]
+ ) .mp4-basket:nth-child(even) .mp4-floral{
+   right:-3px;
+ }
+ #multiplication-lab-screen.active .mp-practice-screen .mp4-collections:is(
+   [data-mp3-groups="6"],[data-mp3-groups="7"],[data-mp3-groups="8"],
+   [data-mp3-groups="9"],[data-mp3-groups="10"]
+ ) .mp-basket-number{
+   min-width:22px;min-height:22px;height:22px;
+   bottom:-11px!important;font-size:10px;border-width:1px;border-radius:6px;
+ }
+}
+
