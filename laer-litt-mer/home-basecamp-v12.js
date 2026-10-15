@@ -214,7 +214,7 @@ function subjectScene(subject){
 }
 function subjectHomeCard(subject,label,world){
  return '<button type="button" class="bc14-subject bc14-'+subject+'" data-camp="subject-'+subject+'" aria-label="Åpne '+label+', '+world+'">'+
- '<span class="bc14-subject-scene" aria-hidden="true">'+subjectScene(subject)+'<img loading="eager" decoding="async" src="./home-'+subject+'-v14.webp?v=20261010-scene1" alt=""><span class="bc14-vignette"></span><span class="bc14-emblem">'+SUBJECT_ART[subject]+'</span></span>'+
+ '<span class="bc14-subject-scene" aria-hidden="true">'+subjectScene(subject)+'<img loading="lazy" decoding="async" fetchpriority="low" src="./home-'+subject+'-v14.webp?v=20261010-scene1" alt=""><span class="bc14-vignette"></span><span class="bc14-emblem">'+SUBJECT_ART[subject]+'</span></span>'+
  '<span class="bc14-subject-copy"><strong>'+label+'</strong><small>'+world+'</small><span class="bc14-entry">Utforsk <b aria-hidden="true">›</b></span></span></button>';
 }
 function homeSubjects(){return '<div class="bc14-subjects" role="group" aria-label="Velg et fag">'+
