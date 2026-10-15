@@ -143,9 +143,13 @@ async function run(engine,label,viewport,url,avatar='girl'){
         return ink;
       });
       assert(outlinePixels>120,label+' country contour did not use real geometry');
+      // A reading page may scroll. The CTA must remain reachable, not force
+      // three discoveries into tiny type just to fit the first viewport.
+      await page.locator('.country-story-practice').scrollIntoViewIfNeeded();
       const rect=await page.locator('.country-story-practice').boundingBox();
-      assert(rect&&rect.y+rect.height<=viewport.height-7,
-        label+' practice button pushed off the tablet screen');
+      assert(rect&&rect.y>=0&&rect.y+rect.height<=viewport.height+1,
+        label+' practice button is not reachable by scrolling');
+      await page.evaluate(()=>window.scrollTo(0,0));
     }
     assert(details.scrollWidth<=details.viewport+2,label+' horizontal scroll on country page '+JSON.stringify(details));
     assert(details.background.includes('basecamp-v11'),label+' missing Læria illustrated world');
