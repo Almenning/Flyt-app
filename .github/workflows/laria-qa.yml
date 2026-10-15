@@ -187,7 +187,9 @@ jobs:
 
   laria-mapboard:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    # Full WebKit phone + tablet mission matrix added; the previous 12-minute
+    # budget cancelled the job after tests passed, before persistence checks.
+    timeout-minutes: 20
     steps:
       - name: Checkout
         uses: actions/checkout@v4
