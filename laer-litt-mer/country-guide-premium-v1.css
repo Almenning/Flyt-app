@@ -329,6 +329,23 @@ body:has(#detail-screen.active) .app::after{
   font:650 11px/1.4 ui-rounded,system-ui,sans-serif;
   text-align:center;
 }
+/* Tall iPad: continue the fox-free upper scenery into the lower canvas.
+   A separate crop of the UPPER landscape never includes its painted old fox. */
+@media(min-width:700px) and (orientation:portrait) and (min-height:1000px){
+  #detail-screen.active::after{
+    content:"";
+    position:absolute;
+    inset:56% 0 0;
+    z-index:-1;
+    pointer-events:none;
+    background:
+      linear-gradient(180deg,rgba(246,248,221,.34),rgba(207,231,207,.44)),
+      url('./geografi-verden.png') center 14% / auto 285% no-repeat;
+    opacity:.45;
+    -webkit-mask-image:linear-gradient(to bottom,transparent 0%,#000 32%);
+    mask-image:linear-gradient(to bottom,transparent 0%,#000 32%);
+  }
+}
 @media(max-width:760px){
   #detail-screen.active .laria-country-guide-main{
     grid-template-columns:minmax(0,1fr);
