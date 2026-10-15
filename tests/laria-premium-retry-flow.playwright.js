@@ -75,7 +75,7 @@ async function geometry(page){return page.evaluate(()=>{
   const r=e.getBoundingClientRect(),svg=e.ownerSVGElement.getBoundingClientRect();
   return {...rect(e),insideSvg:r.top>=svg.top-1&&r.bottom<=svg.bottom+1&&r.left>=svg.left-1&&r.right<=svg.right+1};
  });
- return {pluralApples,objects,clippedFeedback,scrollWidth:document.documentElement.scrollWidth,width:innerWidth,card:rect(card),
+ return {foxBounds:rect(card.querySelector('.laria-fox-wardrobe-placed')),pluralApples,objects,clippedFeedback,scrollWidth:document.documentElement.scrollWidth,width:innerWidth,card:rect(card),
   prompt:rect(card?.querySelector('.question')),scrollTop:host.scrollTop,
   controls:[...document.querySelectorAll('#session-screen button')].filter(b=>b.getClientRects().length).map(b=>({label:b.innerText,...rect(b)})),
   foxes:card.querySelectorAll('.task-fox-companion').length,avatar:card.querySelector('.task-fox-companion')?.dataset.avatar,
@@ -93,6 +93,7 @@ async function verify(page,label){
   assert.equal(g.objects.length,2,label+' plural word needs two visible apples');
   assert(g.objects.every(r=>r.width>0&&r.height>0&&r.insideSvg),label+' actual apple content clipped');
   assert(g.objects[0].right<=g.objects[1].left+1,label+' apples overlap');
+  assert(g.foxBounds&&g.objects.every(r=>r.right+4<=g.foxBounds.left||r.left>=g.foxBounds.right+4||r.bottom+4<=g.foxBounds.top||r.top>=g.foxBounds.bottom+4),label+' companion covers a learning object');
  }
  assert(g.card.left>=-1&&g.card.right<=g.width+1,label+' card outside viewport');
  assert(g.controls.every(r=>r.width>=43.9&&r.height>=43.9),label+' touch target smaller than 44px: '+JSON.stringify(g.controls));

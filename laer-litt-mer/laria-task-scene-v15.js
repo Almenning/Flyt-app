@@ -119,10 +119,11 @@
     if(premium){
       // This saved spelling task asks for the plural. Reuse the existing apple
       // artwork twice; changing q.visual would change the persisted question key.
+      // The trailing canvas reserves space for the companion on narrow phones.
       const pluralApples=q.subject==='norwegian'&&q.type==='build-word'&&q.answer==='EPLER'&&key==='\u{1F34E}';
       const apple=pluralApples?premium.replace(/^<svg[^>]*>/,'').replace(/<\/svg>$/,''):'';
       const illustration=pluralApples?
-        '<svg class="task-illustration" viewBox="0 0 440 180" aria-hidden="true">'+
+        '<svg class="task-illustration" viewBox="0 0 600 180" aria-hidden="true">'+
           '<g data-task-object="apple">'+apple+'</g>'+
           '<g data-task-object="apple" transform="translate(180 0)">'+apple+'</g></svg>':premium;
       return '<div class="task-visual-row premium-visual" data-task-visual-kind="premium" data-task-visual-release="illustrations-rc1" data-task-visual-key="'+attr(key)+'"><div class="task-object-stage">'+illustration+'</div></div>';
