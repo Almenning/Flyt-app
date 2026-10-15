@@ -1,0 +1,97 @@
+name: Laria sprint 2 task outcome
+on:
+  push:
+    branches: [qa/laria-premium-snapshot-20261015]
+    paths: [.github/workflows/laria-sprint2-outcome.yml]
+permissions:
+  contents: read
+jobs:
+  apply:
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    outputs:
+      revision: ${{ steps.apply.outputs.revision }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/laria-premium-retry-flow-20261015
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - id: apply
+        name: Apply locally reviewed changes with a branch lease
+        env:
+          SOURCE: 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
+        run: |
+          test "$(git rev-parse HEAD)" = 3ef79e86388b15b54fdb947343f7e2c6534f0992
+          python3 - <<'PY'
+          import os,base64,zlib,hashlib
+          encoded=os.environ['SOURCE'].replace('539Lh0+s5bfBeOt+c5bfBeOt+c83R','539Lh0+s5bfBeOt+c83R')
+          source=zlib.decompress(base64.b64decode(encoded))
+          assert hashlib.sha256(source).hexdigest()=='b52399b7b66b5acb0f7e61774382d4a3b3b16cc1f10f2743d873ef8724013d23'
+          exec(compile(source,'reviewed-sprint2.py','exec'))
+          PY
+          git diff --check
+          node --check laer-litt-mer/laria-task-scene-v15.js
+          node --check tests/laria-premium-retry-flow.playwright.js
+          npm ci --no-audit --no-fund
+          npm run test:node
+          git add laer-litt-mer/index.html laer-litt-mer/sw.js laer-litt-mer/laria-task-scene-v15.js laer-litt-mer/laria-task-young-v18.css laer-litt-mer/laria-task-feedback-stable-v1.css tests/laria-premium-retry-flow.playwright.js
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'fix(laria): keep task feedback and Next together without clipping artwork'
+          git push origin HEAD:refs/heads/fix/laria-premium-retry-flow-20261015
+          echo "revision=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+  browser:
+    needs: apply
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [chromium, webkit]
+        formats: ['320x568,390x844,430x932,844x390', '820x1180,1180x820', '1440x900']
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.apply.outputs.revision }}
+          fetch-depth: 2
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps ${{ matrix.engine }}
+      - name: Capture matching before state on landscape iPad
+        if: matrix.formats == '820x1180,1180x820'
+        env:
+          LARIA_RETRY_ENGINE: ${{ matrix.engine }}
+          LARIA_RETRY_FORMATS: 1180x820
+          LARIA_RETRY_SUBJECTS: norwegian
+          LARIA_OUTCOME_BASELINE: '1'
+          LARIA_RETRY_EVIDENCE: /tmp/sprint2/before
+        run: |
+          mkdir -p /tmp/sprint2/before
+          for f in laer-litt-mer/index.html laer-litt-mer/sw.js laer-litt-mer/laria-task-scene-v15.js laer-litt-mer/laria-task-young-v18.css laer-litt-mer/laria-task-feedback-stable-v1.css; do git show 3ef79e86388b15b54fdb947343f7e2c6534f0992:$f > "$f"; done
+          echo 3ef79e86388b15b54fdb947343f7e2c6534f0992 > /tmp/sprint2/before/REVISION.txt
+          node tests/laria-premium-retry-flow.playwright.js > /tmp/sprint2/before/browser.log 2>&1
+      - name: Verify exact changed revision through real child actions
+        if: always()
+        env:
+          LARIA_RETRY_ENGINE: ${{ matrix.engine }}
+          LARIA_RETRY_FORMATS: ${{ matrix.formats }}
+          LARIA_RETRY_EVIDENCE: /tmp/sprint2/after
+        run: |
+          git restore laer-litt-mer
+          mkdir -p /tmp/sprint2/after
+          git rev-parse HEAD > /tmp/sprint2/after/REVISION.txt
+          set -o pipefail
+          node tests/laria-premium-retry-flow.playwright.js 2>&1 | tee /tmp/sprint2/after/browser.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: laria-sprint2-${{ matrix.engine }}-${{ matrix.formats }}
+          path: /tmp/sprint2/
+          retention-days: 7
