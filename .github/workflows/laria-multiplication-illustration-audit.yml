@@ -18,7 +18,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: 8b89be7f423008316bf3327b91ebe590705d8044
+          ref: 4822da47e878d9b89a4d57ef75a05cbb2d38c10e
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
@@ -119,7 +119,7 @@ jobs:
                       await page.locator('.mp-home-screen').waitFor();
                     }
                     // Real explore route, maximum supported premium factors: 10 x 10 = 100 objects.
-                    await page.locator('[data-mp-action="go"][data-page="explore"]').click();
+                    await page.locator('.mp-home-screen .mp-menu-explore').click();
                     await page.locator('[data-mp-action="mode"][data-mode="groups"]').click();
                     await setFactor(page,'a',10);await setFactor(page,'b',10);
                     const eg=await geometry(page,'.mp-explore-screen .mp3-collections');
