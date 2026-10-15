@@ -227,6 +227,22 @@ async function run(engine,label,viewport,url,avatar='girl'){
         const story=page.locator('#detail-screen.active .country-story[data-country-detail="'+id+'"]');
         await story.waitFor({timeout:9000});
         assert.equal((await story.locator('h1').innerText()).trim(),expected);
+        // Panel bounds alone missed a lone final letter on the next line.
+        // Inspect real word rectangles, not just computed CSS declarations.
+        const words=await story.locator('h1').evaluate(el=>{
+          const node=el.firstChild,box=el.getBoundingClientRect();
+          if(!node||node.nodeType!==Node.TEXT_NODE)throw Error('Expected text-only country heading');
+          return [...node.textContent.matchAll(/\S+/gu)].map(match=>{
+            const range=document.createRange();
+            range.setStart(node,match.index);
+            range.setEnd(node,match.index+match[0].length);
+            const rects=[...range.getClientRects()].filter(r=>r.width>.5&&r.height>0);
+            return {word:match[0],lines:new Set(rects.map(r=>Math.round(r.top))).size,
+              fits:rects.every(r=>r.left>=box.left-1&&r.right<=box.right+1)};
+          });
+        });
+        assert(words.length>0&&words.every(word=>word.lines===1&&word.fits),
+          label+' '+id+' has broken or overflowing country-title words '+JSON.stringify(words));
         const g=await story.evaluate(el=>{
           const rect=selector=>{
             const r=el.querySelector(selector).getBoundingClientRect();
@@ -252,8 +268,8 @@ async function run(engine,label,viewport,url,avatar='girl'){
           assert(g.content.top<=viewport.height*.74,
             label+' '+id+' pushes all country facts below the first fold '+JSON.stringify(g));
         }
-        if(label==='webkit-iphone-small'&&id==='cf'){
-          await page.screenshot({path:path.join(screenshotDir,'webkit-iphone-small-long-name.png'),
+        if(['webkit-iphone-small','webkit-iphone-landscape'].includes(label)&&id==='cf'){
+          await page.screenshot({path:path.join(screenshotDir,label+'-long-name.png'),
             animations:'disabled',fullPage:false});
         }
       }
@@ -279,6 +295,7 @@ async function run(engine,label,viewport,url,avatar='girl'){
     for(const [engine,label,viewport,avatar] of [
       [webkit,'webkit-iphone',{width:390,height:844},'girl'],
       [webkit,'webkit-iphone-small',{width:320,height:640},'boy'],
+      [webkit,'webkit-iphone-landscape',{width:844,height:390},'girl'],
       [webkit,'webkit-ipad-portrait',{width:820,height:1180},'girl'],
       [webkit,'webkit-ipad-landscape',{width:1180,height:820},'boy'],
       [chromium,'chromium-iphone',{width:390,height:844},'girl']
