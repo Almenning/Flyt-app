@@ -80,11 +80,29 @@ async function verify(engine,label,viewport){
     const item=page.locator('.locked-journey-overlay:not([hidden]) [data-locked-node="'+marked[subject].id+'"]');
     if(await item.count()){
      assert.equal(await item.isEnabled(),true,label+' '+title+' completed checkpoint was locked');
-     assert.match(await item.innerText(),/Fullført, kan spilles igjen/);
+     assert.match(await item.innerText(),/Spill igjen/,
+       label+' '+title+' old checkpoint no longer offered voluntary replay');
+     const beforeReplay=await page.evaluate(()=>JSON.stringify(state.journey.nodes));
+     // Validate that the enabled replay button REALLY launches the exact
+     // persisted checkpoint and grade, not merely a changed text label.
+     await page.evaluate(()=>{
+      window.__replayedCheckpoint=null;
+      window.startJourneyNode=(...args)=>{window.__replayedCheckpoint={kind:'subject',args}};
+      window.startGeoJourneyNode=(...args)=>{window.__replayedCheckpoint={kind:'geo',args}};
+     });
+     await item.click();
+     const launch=await page.evaluate(()=>window.__replayedCheckpoint);
+     assert.deepEqual(launch?.args,subject==='geography'?[marked[subject].id,2]:
+       [subject,marked[subject].id,2],
+       label+' '+title+' completed checkpoint replay routed to wrong lesson');
+     assert.equal(await overlay.isVisible(),false,
+       label+' '+title+' overlay stayed open after replay launch');
+     assert.equal(await page.evaluate(()=>JSON.stringify(state.journey.nodes)),beforeReplay,
+       label+' '+title+' opening repeat mutated learning evidence');
      replayable=true;
+     break;
     }
     await overlay.locator('.locked-sheet-close').click();
-    if(replayable)break;
    }
    assert(replayable,label+' '+title+' lost checkpoint ID '+marked[subject].id);
    await root.locator('.locked-journey-back').click();
