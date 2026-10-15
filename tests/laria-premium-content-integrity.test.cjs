@@ -75,3 +75,15 @@ test('Only recorded journey rewards and completions are named; replay remains av
   assert.equal(state.nodes.get('complete-repeat').style.display,'block');
  }
 });
+
+test('Young multiplication keeps all five or ten counted groups in the compact picture',()=>{
+ const css=fs.readFileSync(path.join(root,'multiplication-premium-parity-v4.css'),'utf8');
+ assert.match(css,/data-mp3-groups="5"[\s\S]*grid-template-columns:repeat\(5/);
+ assert.match(css,/data-mp3-groups="10"[\s\S]*grid-template-columns:repeat\(5/);
+ assert.match(css,/data-mp3-groups="10"[\s\S]*max-width:11px!important/);
+ assert.match(css,/grid-column:auto!important/);
+ const app=fs.readFileSync(path.join(root,'index.html'),'utf8');
+ assert.match(app,/multiplication-premium-parity-v4\.css\?v=20261015-full-count1/);
+ const sw=fs.readFileSync(path.join(root,'sw.js'),'utf8');
+ assert.match(sw.split('\n')[0],/mult-full-count1/);
+});
