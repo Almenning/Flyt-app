@@ -188,9 +188,18 @@ async function validate(page,subject,label,view,screen){
  await fs.promises.writeFile(path.join(out,label+'-'+subject+'-geometry.json'),JSON.stringify(g,null,2));
  await page.evaluate(()=>window.scrollTo(0,0));
  await photo(page,label+'-'+subject+'-top');
+ // Map-bottom evidence must not be confused with the bottom of the entire
+ // Geography document, where older exploration controls can live.
+ await page.evaluate(()=>{
+  const board=document.querySelector('.screen.active.locked-journey-active .locked-journey-board');
+  const bottom=board.getBoundingClientRect().bottom+scrollY;
+  const room=innerHeight*.14;
+  scrollTo(0,Math.max(0,bottom-innerHeight+room));
+ });
+ await photo(page,label+'-'+subject+'-map-edge');
  if((view.width===320||view.width===390)&&view.height>view.width){
   await page.evaluate(()=>window.scrollTo(0,document.documentElement.scrollHeight));
-  await photo(page,label+'-'+subject+'-bottom');
+  await photo(page,label+'-'+subject+'-document-bottom');
  }
  const current=screen.locator('.locked-journey-hotspot.state-current').first();
  await current.scrollIntoViewIfNeeded();
