@@ -7,7 +7,7 @@ permissions:
   contents: write
 concurrency:
   group: laria-country-discoveries-integration
-  cancel-in-progress: false
+  cancel-in-progress: true
 jobs:
   integrate-and-verify:
     if: github.ref == 'refs/heads/feat/laria-country-discoveries-20261015'
@@ -25,10 +25,10 @@ jobs:
         run: |
           if [ -f tests/apply-country-discoveries.cjs ]; then
             node tests/apply-country-discoveries.cjs
-            git add laer-litt-mer/index.html laer-litt-mer/laria-country-detail-premium-v1.js laer-litt-mer/globe-v25-renderer.js laer-litt-mer/sw.js laer-litt-mer/country-population-sources-2024.json laer-litt-mer/country-discoveries-coverage.json tests/laria-country-detail-premium.playwright.js tests/apply-country-discoveries.cjs
+            git add laer-litt-mer/index.html laer-litt-mer/laria-country-detail-premium-v1.js laer-litt-mer/globe-v25-renderer.js laer-litt-mer/sw.js laer-litt-mer/country-population-sources-2024.json laer-litt-mer/country-discoveries-coverage.json tests/laria-country-detail-premium.playwright.js tests/laria-country-discoveries.playwright.js tests/apply-country-discoveries.cjs
             git config user.name 'github-actions[bot]'
             git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-            git commit -m 'feat(laria): connect country discoveries, globe teasers and reader lifecycle'
+            git commit -m 'fix(laria): clarify population year and verify speech hand-off'
             git push origin HEAD:feat/laria-country-discoveries-20261015
           fi
       - name: Verify country syntax and content contracts
@@ -37,7 +37,7 @@ jobs:
           node --check laer-litt-mer/country-discoveries-ui-v1.js
           node --check laer-litt-mer/laria-country-detail-premium-v1.js
           node --check laer-litt-mer/globe-v25-renderer.js
-          node --test tests/laria-country-discoveries.test.cjs
+          node --test tests/laria-country-discoveries*.cjs
       - run: npm ci
       - run: npx playwright install --with-deps chromium webkit
       - name: Verify country discoveries and reading on six device configurations
