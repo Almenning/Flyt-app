@@ -15,7 +15,7 @@
   <link rel="preload" as="image" href="./basecamp-v11.webp?v=basecamp12d" media="(min-width:701px)" fetchpriority="high" />
   <link rel="preload" as="script" href="./home-basecamp-v12.js?v=20261014-phase4d-fox-only1" />
   <link rel="preload" as="script" href="./globe-v24-art.js?v=globe36-pigment3" />
-  <link rel="preload" as="script" href="./globe-v25-renderer.js?v=20261012-ux-phase1" />
+  <link rel="preload" as="script" href="./globe-v25-renderer.js?v=20261015-discoveries1" />
   <title>Læria</title>
   <style>
 
@@ -2398,6 +2398,7 @@
   <link rel="stylesheet" href="./laria-task-feedback-stable-v1.css?v=20261014-stable1" />
   <link rel="stylesheet" href="./locked-journey-mission-premium-v1.css?v=20261015-missions-v1" />
   <link rel="stylesheet" href="./laria-country-detail-premium-v1.css?v=20261015-story3-curated1" />
+  <link rel="stylesheet" href="./country-discoveries-v1.css?v=20261015-discoveries1" />
   <!-- immersive-globe-viewport-2026-10-02 -->
   <!-- globe-hit-test-dateline-fix-2026-10-02 -->
   <!-- parent-info-udir-2026-10-02 -->
@@ -3177,7 +3178,7 @@ const countries = Object.fromEntries(WORLD_COUNTRIES.map(c=>[c.id,c]));
 
 // Quality-assured Norwegian display overrides and ambiguous-capital handling.
 const COUNTRY_OVERRIDES={
-  at:{capital:'Wien'},be:{capital:'Brussel'},cy:{capital:'Nikosia'},cz:{capital:'Praha'},dk:{capital:'København'},gr:{capital:'Aten'},it:{capital:'Roma'},pl:{capital:'Warszawa'},pt:{capital:'Lisboa'},ro:{capital:'Bucuresti'},ru:{capital:'Moskva'},sm:{capital:'San Marino'},rs:{capital:'Beograd'},ua:{capital:'Kyiv'},gb:{capital:'London',lat:54,lon:-2.5,population:69226000,populationYear:2024},
+  at:{capital:'Wien'},be:{capital:'Brussel'},cy:{capital:'Nikosia'},cz:{capital:'Praha',population:10905028,populationYear:2024},ch:{population:9005582,populationYear:2024},dk:{capital:'København'},gr:{capital:'Aten'},it:{capital:'Roma'},pl:{capital:'Warszawa'},pt:{capital:'Lisboa'},ro:{capital:'Bucuresti'},ru:{capital:'Moskva'},sm:{capital:'San Marino'},rs:{capital:'Beograd'},ua:{capital:'Kyiv'},gb:{capital:'London',lat:54,lon:-2.5,population:69226000,populationYear:2024},
   am:{capital:'Jerevan'},bt:{capital:'Thimpu'},ir:{capital:'Teheran'},iq:{capital:'Bagdad'},kw:{capital:'Kuwait by'},kg:{capital:'Bisjkek'},mn:{capital:'Ulaanbaatar'},np:{capital:'Katmandu'},sy:{capital:'Damaskus'},tj:{capital:'Dusjanbe'},tm:{capital:'Asjkhabad'},uz:{capital:'Tasjkent'},ye:{capital:'Sana'},
   lk:{capital:'Sri Jayawardenepura Kotte',capitalDisplay:'Sri Jayawardenepura Kotte · Colombo',capitalQuiz:false,note:'Sri Jayawardenepura Kotte er den lovgivende hovedstaden. Colombo er landets største by og viktige administrative og kommersielle sentrum.'},
   // World Bank SP.POP.TOTL (2024): accurate offline fallback for featured country stories.
@@ -6363,6 +6364,7 @@ function canSpeak(){return typeof window!=='undefined'&&'speechSynthesis' in win
 let lariaSpeechRun=0;
 function stopSpeech(){
   lariaSpeechRun++;
+  window.LARIA_COUNTRY_DISCOVERY_UI?.stopReading?.();
   try{if(canSpeak())window.speechSynthesis.cancel()}catch(_){}
   const b=document.getElementById('read-aloud');
   if(b){b.classList.remove('is-speaking');b.setAttribute('aria-pressed','false')}
@@ -6864,8 +6866,11 @@ if(needsProfileSetup||!state.profile.onboarded||!state.profile.grade){
 
 <!-- Kloden: art primitives must load before the active renderer. -->
 <script src="./globe-v24-art.js?v=globe36-pigment3" defer></script>
-<script src="./globe-v25-renderer.js?v=20261012-ux-phase1" defer></script>
-<script src="./laria-country-detail-premium-v1.js?v=20261015-story4-popyear-outline1" defer></script>
+<!-- Country discoveries: independent editorial content. -->
+<script src="./country-discoveries-v1.js?v=20261015-discoveries1" defer></script>
+<script src="./country-discoveries-ui-v1.js?v=20261015-discoveries1" defer></script>
+<script src="./globe-v25-renderer.js?v=20261015-discoveries1" defer></script>
+<script src="./laria-country-detail-premium-v1.js?v=20261015-discoveries1" defer></script>
 <script src="./atlas-perspective-v1.js?v=20261012-deepzoom32" defer></script>
 
 <!-- premium-board-v8-2026-10-04 -->

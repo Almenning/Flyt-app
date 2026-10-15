@@ -10,25 +10,15 @@
     'Afrika':'savanna','Europa':'green','Asia':'warm',
     'Nord-Amerika':'north','Sør-Amerika':'tropic','Oseania':'tropic'
   };
-  const DEFAULT_TAGS={
-    'Afrika':'Store landskap og variert natur',
-    'Europa':'Byer, fjell og mange landskap',
-    'Asia':'Store kontraster i natur og byliv',
-    'Nord-Amerika':'Fjell, skog og store byområder',
-    'Sør-Amerika':'Regnskog, fjell og lange kystlinjer',
-    'Oseania':'Øyer, kyst og særegen natur'
-  };
   // Editorial, country-specific art. Never infer or swap art based on
   // continent alone: uncurated countries keep the original atlas scene.
   const FEATURED_SCENES=Object.freeze({
     eg:Object.freeze({
       file:'./assets/country-stories/egypt-nile-v2.svg',
-      summary:'Se Nilen, ørkenen og pyramidene i Giza. De store pyramidene ble bygget for mer enn 4 500 år siden.',
       title:'Nilen og pyramidene i Giza'
     }),
     td:Object.freeze({
       file:'./assets/country-stories/chad-sahel-ennedi-v2.svg',
-      summary:'I Tsjad møter Sahara Sahel. Ennedi er kjent for høye sandsteinsformasjoner og naturlige steinbuer.',
       title:'Sahel og Ennedi'
     })
   });
@@ -37,7 +27,7 @@
     const source=root.LARIA_GLOBE_COUNTRY_SCENE_V25?.describe?.(country);
     return {
       tone:source?.tone||TONES[country.continent]||'green',
-      tag:source?.tag||DEFAULT_TAGS[country.continent]||'Et sted å oppdage'
+      tag:root.LARIA_COUNTRY_DISCOVERIES?.get(country)?.tagline||'Flagg, hovedstad og kart'
     };
   }
   function population(value){
@@ -117,6 +107,7 @@
   function render(id,country,statusLabel){
     const target=byId('detail-content');
     if(!target||!country)return false;
+    root.LARIA_COUNTRY_DISCOVERY_UI?.stopReading?.();
     lastCountry=country;lastId=id;
     const scene=sceneFor(country);
     const featured=FEATURED_SCENES[id]||null;
@@ -155,20 +146,15 @@
           foxMarkup+
         '</div>'+
         '<div class="country-story-main">'+
-          '<header>'+
-            '<span class="country-story-section-label">Oppdag landet</span>'+
-            '<h2>Tre spennende spor</h2>'+
-            '<p class="country-story-summary">'+(featured?
-              esc(featured.summary):
-              'Hvert land har noe å fortelle. Her er tre små oppdagelser fra '+esc(country.name)+'.')+'</p>'+
-          '</header>'+
+          (root.LARIA_COUNTRY_DISCOVERY_UI?.intro(id,country)||'<header><h2>Kort om '+esc(country.name)+'</h2></header>')+
           '<dl class="country-story-facts">'+
             fact('📍','Hovedstad',country.capitalDisplay||country.capital||'Ikke oppgitt')+
             fact('🌍','Verdensdel',country.continent||'Ikke oppgitt')+
-            fact('✦',country.populationYear?'Innbyggere · ca. '+country.populationYear:'Innbyggere · ca.',population(country.population))+
+            fact('✦',country.populationYear?'Innbyggere · ca. '+country.populationYear:'Innbyggere · eldre anslag',population(country.population))+
           '</dl>'+
           note+
           outline+
+          (root.LARIA_COUNTRY_DISCOVERY_UI?.sources(id,country)||'')+
           '<div class="country-story-bottom">'+
             '<button type="button" class="country-story-practice" data-country-story-practice="'+esc(id)+'">'+
               '<span aria-hidden="true">✦</span> Øv på '+esc(country.name)+
@@ -177,6 +163,7 @@
           '</div>'+
         '</div>'+
       '</article>';
+    root.LARIA_COUNTRY_DISCOVERY_UI?.mount(target,id);
     // Paint the silhouette before the page becomes visible, avoiding an empty
     // parchment panel on first paint in WebKit. Redraw at full size next frame.
     paintOutline(target.querySelector('.country-story-outline'),country);
