@@ -59,7 +59,26 @@ async function run(engine,label,viewport){
    // cannot capture a legacy button that becomes hidden between wait/click.
    const journeyBack=page.locator('#'+screen+'-screen.active .locked-journey-map[data-journey-subject="'+subject+'"] .locked-journey-back');
    await journeyBack.waitFor({state:'visible',timeout:16000});
-   await journeyBack.click();
+   // Return from the actual painted mission, which is below the fold on
+   // landscape iPads. The original top-left arrow must not be the only way
+   // back when scrolling has placed it hundreds of pixels above the screen.
+   const currentStop=page.locator('#'+screen+'-screen.active .locked-journey-hotspot.state-current');
+   if(await currentStop.count())await currentStop.scrollIntoViewIfNeeded();
+   const nativeMostlyOut=await journeyBack.evaluate(el=>{
+     const r=el.getBoundingClientRect();
+     const visible=Math.max(0,Math.min(innerHeight,r.bottom)-Math.max(0,r.top));
+     return visible<r.height*.5;
+   });
+   if(nativeMostlyOut){
+     const floatingBack=page.locator('#'+screen+'-screen.active .locked-journey-floating-back');
+     await floatingBack.waitFor({state:'visible',timeout:5000});
+     const size=await floatingBack.boundingBox();
+     assert(size&&size.width>=44&&size.height>=44,label+' '+subject+' floating back touch area is too small');
+     await page.screenshot({path:folder+'/'+label+'-'+subject+'-back-reachable.png',fullPage:false});
+     await floatingBack.click();
+   }else{
+     await journeyBack.click();
+   }
    try{
      await page.locator('#home-screen.active').waitFor({timeout:10000});
    }catch(error){
