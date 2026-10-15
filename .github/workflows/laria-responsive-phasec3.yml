@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'laer-litt-mer/laria-responsive-phaseb.css'
+      - 'laer-litt-mer/laria-journey-ground-v1.css'
       - 'laer-litt-mer/locked-journey-renderer.js'
       - 'laer-litt-mer/index.html'
       - 'laer-litt-mer/sw.js'
