@@ -120,6 +120,11 @@
       next();
     });
   }
+  // Practice switches directly to a session. Cancel before its click handler,
+  // so a country narration cannot overlap the next task's own speech.
+  root.document.addEventListener('click',event=>{
+    if(event.target.closest?.('[data-country-story-practice]'))stopReading();
+  },true);
   root.addEventListener('pagehide',stopReading);
   root.document.addEventListener('visibilitychange',()=>{if(root.document.hidden)stopReading()});
   root.LARIA_COUNTRY_DISCOVERY_UI=Object.freeze({intro,sources,mount,stopReading});
