@@ -75,8 +75,11 @@
      filenames must never appear as active CSS url() dependencies. */
   /* With a 941/1672 original fitting a 100vw iPhone, this is the genuine
      shortfall below the board. The max() gives short phones zero extra space. */
-  #subject-screen.active.locked-journey-active .locked-journey-map.laria-d2-terrain-ready,
-  #geography-screen.active.locked-journey-active .locked-journey-map.laria-d2-terrain-ready{
+  /* IDs intentionally outrank the legacy Norwegian rule
+     #subject-screen... #journey-map { margin:0!important }. Without this,
+     the scene appears but its reserved tail is 0px and overlaps the page. */
+  #subject-screen.active.locked-journey-active #journey-map.locked-journey-map.laria-d2-terrain-ready,
+  #geography-screen.active.locked-journey-active #geo-journey-map.locked-journey-map.laria-d2-terrain-ready{
     --ljd2-room:max(0px,calc(100dvh - 177.683vw));
     margin-bottom:var(--ljd2-room)!important;
   }
