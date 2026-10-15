@@ -121,6 +121,9 @@ body:has(#detail-screen.active) .app::after{display:none!important}
   text-shadow:0 2px 0 rgba(255,252,238,.48);
   overflow-wrap:anywhere;margin:0;
 }
+.country-story.is-long-name .country-story-title h1{
+  font-size:clamp(30px,4.2vw,48px);line-height:1.08
+}
 .country-story-tagline{
   display:inline-block;
   max-width:300px;
@@ -234,6 +237,7 @@ body:has(#detail-screen.active) .app::after{display:none!important}
   .country-story-kicker,.country-story-status{font-size:9px;padding:5px 9px;min-height:28px}
   .country-story-title{left:18px;width:65%;top:53%}
   .country-story-title h1{font-size:clamp(36px,10.4vw,53px)}
+  .country-story.is-long-name .country-story-title h1{font-size:clamp(28px,7.8vw,39px)}
   .country-story-flag{width:54px;height:47px;font-size:29px;margin-bottom:8px;border-radius:12px}
   .country-story-tagline{margin-top:8px;padding:8px 10px;font-size:12px}
   .country-story-fox{width:39%;height:65%;right:0}
