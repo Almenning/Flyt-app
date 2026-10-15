@@ -69,7 +69,7 @@ async function proof(engine,label,viewport,url){
    const style=getComputedStyle(screen),journeyStyle=getComputedStyle(journeySection),mapStyle=getComputedStyle(map),appStyle=getComputedStyle(app),boardStyle=getComputedStyle(board);
    return {screen:{top:sb.top,height:sb.height},board:{top:bb.top,width:bb.width,height:bb.height},
     imageRatio:ib.width/ib.height,boardRatio:bb.width/bb.height,appPaddingBottom:appStyle.paddingBottom,
-    screenBackground:style.backgroundImage,journeyBackground:journeyStyle.backgroundImage,appBackground:appStyle.backgroundImage,borderRadius:boardStyle.borderTopLeftRadius,
+    screenBackground:style.backgroundImage,journeyBackground:journeyStyle.backgroundImage,appBackground:appStyle.backgroundImage,appColor:appStyle.backgroundColor,borderRadius:boardStyle.borderTopLeftRadius,
     journey:{display:journeyStyle.display,marginTop:journeyStyle.marginTop,paddingTop:journeyStyle.paddingTop,gap:journeyStyle.gap},
     map:{display:mapStyle.display,marginTop:mapStyle.marginTop,paddingTop:mapStyle.paddingTop},
     visibleChildren:[...screen.children].filter(node=>getComputedStyle(node).display!=='none').map(node=>({id:node.id,className:node.className,top:node.getBoundingClientRect().top,height:node.getBoundingClientRect().height})),
@@ -87,7 +87,21 @@ async function proof(engine,label,viewport,url){
   assert.equal(geometry.appPaddingBottom,'0px',label+' obsolete app nav spacing leaked below the map');
   assert.ok(await screen.evaluate(node=>node.classList.contains('locked-journey-subject-norwegian')),
     label+' Bokskogen stage context is missing');
-  assert.match(geometry.journeyBackground,/bokskogen-reference-bg/,label+' empty stage lost Bokskogen atmosphere');
+  if(viewport.width<700&&viewport.height>viewport.width){
+    // D2 removes the older unrelated scenery after the genuine 941x1672
+    // painting. Keep the art intact and verify the intentional matte finish.
+    assert.equal(geometry.journeyBackground,'none',
+      label+' old unrelated art was retained behind Bokskogen');
+    assert.equal(geometry.appBackground,'none',
+      label+' unrelated journey-card artwork leaked below the original map');
+    assert.equal(geometry.appColor,'rgb(25, 49, 39)',
+      label+' D2 ground color differs from the Bokskogen finish');
+  }else{
+    // Compact landscape still uses the separate, already verified Phase A
+    // scenery. D2 must not silently change this orientation.
+    assert.match(geometry.journeyBackground,/bokskogen-reference-bg/,
+      label+' landscape lost Bokskogen atmosphere');
+  }
   assert.equal(geometry.borderRadius,'0px',label+' map edge introduced a pale rounded seam');
   assert.ok(Math.abs(geometry.boardRatio-941/1672)<.003&&Math.abs(geometry.imageRatio-941/1672)<.003,
     label+' approved map was stretched or cropped '+JSON.stringify(geometry));
