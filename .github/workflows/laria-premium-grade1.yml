@@ -1,0 +1,73 @@
+name: Laria premium grade-one verification
+on:
+  push:
+    branches: [qa/laria-premium-snapshot-20261015]
+    paths: [.github/workflows/laria-premium-grade1.yml]
+permissions:
+  contents: read
+jobs:
+  grade-one:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 1f29aae85ac90b5003fc526194ced5219542c3ae
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Add missing real-UI sequence solver without changing assertions or app code
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('tests/laria-premium-retry-flow.playwright.js')
+          s=p.read_text()
+          anchor=" throw Error('No UI solver for this first-stop question: '+q.type);"
+          assert s.count(anchor)==1
+          helper=""" if(q.type==='sequence-order'){
+           const order=String(q.answer).split('|');
+           if(wrong)order.reverse();
+           for(let clear=0;await page.locator('#sequence-target [data-seq-chosen]').count();clear++){
+            assert(clear<=order.length,'Sequence clearing did not change the task');
+            await page.locator('#sequence-target [data-seq-chosen]').first().click();
+           }
+           for(const value of order){
+            const tiles=page.locator('#sequence-bank .sequence-tile:not(.used)');
+            const values=await tiles.allTextContents();
+            const index=values.findIndex(text=>text.trim()===value);
+            assert(index>=0,'Missing sequence number '+value);
+            await tiles.nth(index).click();
+           }
+           await page.locator('#check-sequence').click();return {kind:'sequence',selected:order.join('|')};
+          }
+          """
+          p.write_text(s.replace(anchor,helper+anchor))
+          PY
+          node --check tests/laria-premium-retry-flow.playwright.js
+          git diff --check
+          git add tests/laria-premium-retry-flow.playwright.js
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'test(laria): exercise existing number sorting during complete grade-one journeys'
+          git push origin HEAD:refs/heads/fix/laria-premium-retry-flow-20261015
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium webkit
+      - name: Verify only the grade-one addition in both browser engines
+        env:
+          LARIA_RETRY_GRADE: '1'
+          LARIA_RETRY_FORMATS: 390x844
+          LARIA_RETRY_EVIDENCE: /tmp/laria-grade-one
+        run: |
+          mkdir -p /tmp/laria-grade-one
+          git rev-parse HEAD > /tmp/laria-grade-one/REVISION.txt
+          echo 1f29aae85ac90b5003fc526194ced5219542c3ae > /tmp/laria-grade-one/PRODUCT-REVISION.txt
+          set -o pipefail
+          timeout 150 node tests/laria-premium-retry-flow.playwright.js 2>&1 | tee /tmp/laria-grade-one/browser.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: laria-premium-grade-one
+          path: /tmp/laria-grade-one/
+          retention-days: 7
