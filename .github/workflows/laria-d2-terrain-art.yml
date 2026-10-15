@@ -8,6 +8,7 @@ on:
       - 'laer-litt-mer/laria-journey-ground-v1.css'
       - 'tests/laria-d2-terrain-assets.js'
       - 'docs/laria-d2-seam-art-contract.md'
+      - 'laer-litt-mer/assets/locked-journey-ground-approval.json'
       - '.github/workflows/laria-d2-terrain-art.yml'
   workflow_dispatch:
 
