@@ -48,3 +48,16 @@ jobs:
           path: /tmp/laria-responsive-c3
           if-no-files-found: warn
           retention-days: 7
+
+      - name: Archive four approved fox-free paintings for D2 illustration seam QA
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-d2-approved-paintings-${{ github.sha }}
+          path: |
+            laer-litt-mer/locked-journeys/bokskogen-fox-free-20261011.webp
+            laer-litt-mer/locked-journeys/tallenga-fox-free-20261011.webp
+            laer-litt-mer/locked-journeys/ordlandsbyen-fox-free-20261011.webp
+            laer-litt-mer/locked-journeys/nordlysleiren-fox-free-20261011.webp
+          if-no-files-found: error
+          retention-days: 7
