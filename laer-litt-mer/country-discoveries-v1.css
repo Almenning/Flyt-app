@@ -48,6 +48,10 @@
   #detail-screen .country-story-main{gap:14px}
   #detail-screen .country-story-tagline{max-width:100%}
 }
+@media(max-width:360px){
+  /* Stack the decorative icon above the label instead of clipping Verdensdel. */
+  #detail-screen .country-story-fact:not(:nth-child(3)) dt{flex-direction:column;align-items:flex-start;gap:3px}
+}
 @media(min-width:980px) and (orientation:landscape){
   #detail-screen .country-story{grid-template-rows:auto;overflow:clip;align-items:start}
   #detail-screen .country-story-board{position:sticky;top:0;height:clamp(430px,calc(100svh - 130px),730px);min-height:430px}
