@@ -56,6 +56,19 @@ async function run(engine,label,viewport,url){
    const sheet=page.locator('.locked-journey-overlay:not([hidden]) .locked-journey-sheet.is-mission');
    await sheet.waitFor({timeout:8000});
    assert.equal(await sheet.locator('.mission-fox-stage .locked-journey-traveler').count(),1,label+' '+subject+' menu lost personal fox');
+   // Primary action stays reachable without hunting through secondary activities.
+   const metrics=await sheet.evaluate((el)=>{
+     const root=el.getBoundingClientRect();
+     const btn=el.querySelector('.mission-primary')?.getBoundingClientRect();
+     const close=el.querySelector('.locked-sheet-close')?.getBoundingClientRect();
+     return {width:root.width,viewport:innerWidth,left:root.left,right:root.right,
+       primary:btn&&{width:btn.width,height:btn.height,left:btn.left,right:btn.right},
+       close:close&&{width:close.width,height:close.height}};
+   });
+   assert(metrics.left>=-1&&metrics.right<=metrics.viewport+1,label+' '+subject+' sheet overflows phone width');
+   assert(metrics.primary?.height>=44&&metrics.primary?.left>=-1&&metrics.primary?.right<=metrics.viewport+1,
+     label+' '+subject+' primary action clipped or too small');
+   assert(metrics.close?.height>=44&&metrics.close?.width>=44,label+' '+subject+' close target is too small');
    assert.equal(await map.locator('.locked-journey-traveler').count(),1,label+' '+subject+' cloned the personal fox');
    assert.equal(await sheet.locator('.mission-fox-stage .locked-journey-traveler').getAttribute('data-avatar'),'girl',
      label+' '+subject+' selected avatar changed');
@@ -107,8 +120,13 @@ async function run(engine,label,viewport,url){
     return {doneIds:core.map(n=>n.id),stage:progress.done};
    },subject);
    assert(completion.doneIds.length>0,label+' '+subject+' no mission to complete');
-   const rebuilt=page.locator('#'+(subject==='geography'?'geography':'subject')+'-screen.active .locked-journey-map[data-journey-subject="'+subject+'"]');
-   await rebuilt.locator('.locked-journey-hotspot').first().click();
+   // The original persisted progress must survive a real reload, not just a rerender.
+   await page.reload({waitUntil:'domcontentloaded'});
+   await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').waitFor({timeout:20000});
+   await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').click();
+   const afterReload=page.locator('#'+(subject==='geography'?'geography':'subject')+'-screen.active .locked-journey-map[data-journey-subject="'+subject+'"]');
+   await afterReload.waitFor({timeout:14000});
+   await afterReload.locator('.locked-journey-hotspot').first().click();
    const completed=page.locator('.locked-journey-overlay:not([hidden]) .locked-journey-sheet.is-mission');
    await completed.waitFor({timeout:8000});
    assert.equal(await completed.locator('.mission-complete').count(),1,label+' '+subject+' no completion celebration');
@@ -126,16 +144,16 @@ async function run(engine,label,viewport,url){
      await next.click();
      assert.equal((await page.locator('.locked-journey-overlay:not([hidden]) .locked-journey-sheet h2').innerText()).trim(),
        LARIA_NAMES[subject][nextIndex],label+' '+subject+' continue opened wrong place');
-     assert.equal(await rebuilt.locator('.locked-journey-traveler').count(),1,
+     assert.equal(await afterReload.locator('.locked-journey-traveler').count(),1,
        label+' '+subject+' continue duplicated selected fox');
    }else{
      assert.equal(await completed.locator('[data-locked-map]').count(),1,
        label+' '+subject+' missing graceful fallback when no next place is open');
    }
    await page.locator('.locked-sheet-close').click();
-   assert.equal(await rebuilt.locator('.locked-journey-board > .locked-journey-traveler').count(),1,
+   assert.equal(await afterReload.locator('.locked-journey-board > .locked-journey-traveler').count(),1,
       label+' '+subject+' fox was not returned to the illustrated map');
-   await rebuilt.locator('.locked-journey-back').click();
+   await afterReload.locator('.locked-journey-back').click();
    await page.locator('#home-screen.active .bc14-subject').first().waitFor({timeout:12000});
   }
   assert.deepEqual(errors,[],label+' javascript exceptions');
@@ -154,6 +172,9 @@ const LARIA_NAMES={
  try{
   for(const [engine,label,viewport] of [
    [webkit,'webkit-iphone', {width:390,height:844}],
+   [webkit,'webkit-iphone-small', {width:320,height:640}],
+   [webkit,'webkit-iphone-landscape', {width:844,height:390}],
+   [webkit,'webkit-ipad-portrait', {width:820,height:1180}],
    [webkit,'webkit-ipad-landscape', {width:1180,height:820}],
    [chromium,'chromium-iphone', {width:390,height:844}]
   ])await run(engine,label,viewport,url);
