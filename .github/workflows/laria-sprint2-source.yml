@@ -12,15 +12,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: 3ef79e86388b15b54fdb947343f7e2c6534f0992
+          ref: ad64daeb52f0ef61ad18d2cee23ea300dba5e182
           persist-credentials: false
-      - name: Package only the current PR files
+      - name: Package verified source without credentials
         run: |
           mkdir -p /tmp/laria-sprint2-source
           git rev-parse HEAD > /tmp/laria-sprint2-source/REVISION.txt
-          tar -czf /tmp/laria-sprint2-source/pr-source.tar.gz laer-litt-mer/index.html laer-litt-mer/laria-task-scene-v15.js laer-litt-mer/sw.js tests/laria-premium-retry-flow.playwright.js tests/laria-premium-retry-flow.test.cjs
+          tar -czf /tmp/laria-sprint2-source/pr-source.tar.gz laer-litt-mer/index.html laer-litt-mer/laria-task-feedback-stable-v1.css laer-litt-mer/laria-task-scene-v15.js laer-litt-mer/laria-task-young-v18.css laer-litt-mer/sw.js tests/laria-premium-retry-flow.playwright.js tests/laria-premium-retry-flow.test.cjs
+          git diff 3e0e87a9f7e78e5003829bfcd82c3e3c13e60114 HEAD > /tmp/laria-sprint2-source/current.patch || true
       - uses: actions/upload-artifact@v4
         with:
-          name: laria-sprint2-pr-source
+          name: laria-sprint2-pr-source-ad64dae
           path: /tmp/laria-sprint2-source/
           retention-days: 2
