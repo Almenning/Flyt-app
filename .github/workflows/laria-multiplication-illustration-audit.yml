@@ -98,7 +98,7 @@ jobs:
                     // generated question, so we inspect the densest 5×10 and 10×10
                     // practice scenes without replacing learning content.
                     for(const table of [5,10]){
-                      await page.locator('[data-mp-action="go"][data-page="choose"]').click();
+                      await page.locator('.mp-home-screen .mp-menu-choose').click();
                       await page.locator('.mp-table-choice[data-table="'+table+'"]').first().click();
                       await page.locator('.mp-practice-screen .mp3-collections').waitFor();
                       const snap=await page.evaluate(()=>window.LARIA_MULT_PREMIUM.snapshot()),q=snap.round[snap.index];
