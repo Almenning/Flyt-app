@@ -83,7 +83,13 @@ test('Young multiplication keeps all five or ten counted groups in the compact p
  assert.match(css,/data-mp3-groups="10"[\s\S]*max-width:11px!important/);
  assert.match(css,/grid-column:auto!important/);
  const app=fs.readFileSync(path.join(root,'index.html'),'utf8');
- assert.match(app,/multiplication-premium-parity-v4\.css\?v=20261015-full-count1/);
+ assert.match(app,/multiplication-premium-parity-v4\.css\?v=20261015-full-count2/);
  const sw=fs.readFileSync(path.join(root,'sw.js'),'utf8');
- assert.match(sw.split('\n')[0],/mult-full-count1/);
+ assert.match(sw.split('\n')[0],/mult-full-count2/);
+});
+test('Dense iPad multiplication keeps six to ten groups in two visible rows',()=>{
+ const css=fs.readFileSync(path.join(root,'multiplication-premium-parity-v4.css'),'utf8');
+ assert.match(css,/min-width:1000px[\s\S]*data-mp3-groups="10"[\s\S]*grid-template-columns:repeat\(5/);
+ assert.match(css,/data-mp3-groups="10"[\s\S]*min-height:78px!important/);
+ assert.match(css,/mp-task-apples:has\([\s\S]*data-mp3-groups="10"[\s\S]*overflow-y:hidden/);
 });
