@@ -1,0 +1,37 @@
+name: Laria premium remaining WebKit formats
+on:
+  push:
+    branches: [qa/laria-premium-snapshot-20261015]
+    paths: [.github/workflows/laria-premium-webkit-tail.yml]
+permissions:
+  contents: read
+jobs:
+  remaining-formats:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 1f29aae85ac90b5003fc526194ced5219542c3ae
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps webkit
+      - name: Finish landscape iPad and Mac without repeating passed phone formats
+        env:
+          LARIA_RETRY_ENGINE: webkit
+          LARIA_RETRY_FORMATS: 1180x820,1440x900
+          LARIA_RETRY_EVIDENCE: /tmp/laria-webkit-tail
+        run: |
+          mkdir -p /tmp/laria-webkit-tail
+          git rev-parse HEAD > /tmp/laria-webkit-tail/REVISION.txt
+          set -o pipefail
+          timeout 180 node tests/laria-premium-retry-flow.playwright.js 2>&1 | tee /tmp/laria-webkit-tail/browser.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: laria-premium-webkit-tail
+          path: /tmp/laria-webkit-tail/
+          retention-days: 7
