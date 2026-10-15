@@ -403,9 +403,12 @@ body:has(#detail-screen.active) .app::after{display:none!important}
     box-shadow:0 8px 20px rgba(55,41,22,.17);
   }
   .country-story.is-long-name .country-story-title h1{
-    font-size:clamp(23px,7.0vw,33px);
+    /* Keep compound words readable instead of stranding a final letter. */
+    font-size:clamp(21px,6.1vw,29px);
     line-height:1.10;
     letter-spacing:-.055em;
+    overflow-wrap:normal;
+    word-break:normal;
     hyphens:manual;
     text-wrap:balance;
   }
@@ -440,8 +443,10 @@ body:has(#detail-screen.active) .app::after{display:none!important}
     background:linear-gradient(145deg,rgba(255,250,233,.95),rgba(255,239,206,.78));
   }
   .country-story.is-long-name .country-story-title h1{
-    font-size:clamp(25px,4.3vw,33px);
+    font-size:clamp(22px,3.5vw,29px);
     line-height:1.08;
+    overflow-wrap:normal;
+    word-break:normal;
   }
   .country-story.is-long-name .country-story-fox{
     right:0;bottom:0;width:32%;height:62%;
