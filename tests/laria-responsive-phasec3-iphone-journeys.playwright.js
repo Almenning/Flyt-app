@@ -82,6 +82,14 @@ function measure(page){
    appBackground:getComputedStyle(app).backgroundImage,
    screenBg:getComputedStyle(screen).backgroundImage,
    journeyBg:getComputedStyle(screen.querySelector('#subject-journey-section')||screen.querySelector('#geo-journey-shell')).backgroundImage,
+   groundDecoration:{
+    content:getComputedStyle(map,'::after').content,
+    image:getComputedStyle(map,'::after').backgroundImage,
+    height:parseFloat(getComputedStyle(map,'::after').height),
+    pointerEvents:getComputedStyle(map,'::after').pointerEvents,
+    mask:getComputedStyle(map,'::after').maskImage||
+      getComputedStyle(map,'::after').webkitMaskImage
+   },
    boardRadius:getComputedStyle(board).borderTopLeftRadius,
    imageFit:getComputedStyle(img).objectFit,
    imageOriginal:[img.naturalWidth,img.naturalHeight],
@@ -144,6 +152,17 @@ async function validate(page,subject,label,view,screen){
   (subject==='norwegian'&&g.journeyBg.includes(slug)),
   label+' wrong or blank background '+JSON.stringify({slug,app:g.appBackground,screen:g.screenBg}));
  assert(g.horizontalOverflow<=2,label+' horizontal overflow '+g.horizontalOverflow);
+ const groundNames={
+  norwegian:'bokskogen',math:'tallenga',
+  english:'ordlandsbyen',geography:'nordlysleiren'
+ };
+ assert(g.groundDecoration.content!=='none'&&g.groundDecoration.height>=24,
+  label+' seamless ground extension missing '+JSON.stringify(g.groundDecoration));
+ assert(g.groundDecoration.image.includes(groundNames[subject]+'-locked-20261010.png'),
+  label+' stage uses non-original scenery for map edge '+JSON.stringify(g.groundDecoration));
+ assert(g.groundDecoration.pointerEvents==='none',
+  label+' decorative continuation blocks mission touches');
+
  assert(g.hits.length===5&&g.hits.every(x=>x.width>=44&&x.height>=44),
   label+' five usable mission touch targets not retained '+JSON.stringify(g.hits));
  assert(g.fox===1,label+' selected personal fox missing or duplicated');
