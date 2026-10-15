@@ -41,6 +41,22 @@ async function answer(page,wrong=false){
   if(wrong){const j=letters.findIndex(c=>c!==letters[0]);assert(j>0,'Need distinct letters for wrong-order scenario');[letters[0],letters[j]]=[letters[j],letters[0]];}
   await build(page,letters.join(''));return {kind:'build',selected:letters.join('')};
  }
+ if(q.type==='sequence-order'){
+ const order=String(q.answer).split('|');
+ if(wrong)order.reverse();
+ for(let clear=0;await page.locator('#sequence-target [data-seq-chosen]').count();clear++){
+  assert(clear<=order.length,'Sequence clearing did not change the task');
+  await page.locator('#sequence-target [data-seq-chosen]').first().click();
+ }
+ for(const value of order){
+  const tiles=page.locator('#sequence-bank .sequence-tile:not(.used)');
+  const values=await tiles.allTextContents();
+  const index=values.findIndex(text=>text.trim()===value);
+  assert(index>=0,'Missing sequence number '+value);
+  await tiles.nth(index).click();
+ }
+ await page.locator('#check-sequence').click();return {kind:'sequence',selected:order.join('|')};
+}
  throw Error('No UI solver for this first-stop question: '+q.type);
 }
 async function geometry(page){return page.evaluate(()=>{
