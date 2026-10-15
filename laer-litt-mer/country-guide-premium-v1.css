@@ -39,6 +39,10 @@ body:has(#detail-screen.active) .app::after{
     linear-gradient(180deg,rgba(248,246,217,.78),rgba(228,238,211,.66) 54%,rgba(197,223,194,.81)),
     url('./geografi-verden.png') center / cover no-repeat;
   opacity:.57;
+  /* The shared scene has an old painted fox near the bottom. Keep the
+     landscape but fade that region so the child's chosen fox is the only one. */
+  -webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 55%,transparent 78%);
+  mask-image:linear-gradient(to bottom,#000 0%,#000 55%,transparent 78%);
 }
 #detail-screen.active #detail-back{
   display:inline-flex;
