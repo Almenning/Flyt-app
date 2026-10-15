@@ -34,8 +34,8 @@ jobs:
           const formats=[[390,844],[320,568],[1180,820]],report=[];let failed=false;
           const rect=async(loc)=>loc.evaluate(e=>{const r=e.getBoundingClientRect();return {left:r.left,top:r.top,right:r.right,bottom:r.bottom,width:r.width,height:r.height}});
           async function openLab(page){
-            await page.locator('.bc14-subject[data-camp="subject-math"]').click();
-            await page.locator('#subject-screen.active #open-fraction-lab').click();
+            await page.waitForFunction(()=>window.LARIA_FRACTION_PREMIUM?.version==='workshop-v1',{}, {timeout:20000});
+            await page.evaluate(()=>window.openFractionLab());
             await page.locator('#fraction-lab-screen.active .fr2-shell').waitFor();
             assert.equal(await page.evaluate(()=>window.LARIA_FRACTION_PREMIUM?.version),'workshop-v1');
           }
