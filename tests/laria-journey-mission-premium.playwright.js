@@ -38,8 +38,10 @@ function server(){
 async function run(engine,label,viewport,url){
  const browser=await engine.launch({headless:true,args:engine===chromium?['--no-sandbox']:[]});
  try{
+  // A wide viewport can still be an iPhone rotated to landscape.
+  // Use device identity, not width, for WebKit mobile viewport emulation.
   const context=await browser.newContext({viewport,hasTouch:true,
-   isMobile:viewport.width<=430,reducedMotion:'reduce',serviceWorkers:'block'});
+   isMobile:label.includes('iphone'),reducedMotion:'reduce',serviceWorkers:'block'});
   // Seed only a new profile. A reload must read progress saved by the app.
   await context.addInitScript(s=>{
    if(!localStorage.getItem('laerlittmer-v2'))
