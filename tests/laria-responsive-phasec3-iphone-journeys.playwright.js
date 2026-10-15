@@ -80,6 +80,8 @@ function measure(page){
    board:rect(board),image:rect(img),
    appBottom:getComputedStyle(app).paddingBottom,
    appBackground:getComputedStyle(app).backgroundImage,
+   appBackgroundColor:getComputedStyle(app).backgroundColor,
+   subjectGround:getComputedStyle(document.body).getPropertyValue('--ljd2-ground').trim(),
    screenBg:getComputedStyle(screen).backgroundImage,
    journeyBg:getComputedStyle(screen.querySelector('#subject-journey-section')||screen.querySelector('#geo-journey-shell')).backgroundImage,
    groundDecoration:{
@@ -87,8 +89,7 @@ function measure(page){
     image:getComputedStyle(map,'::after').backgroundImage,
     height:parseFloat(getComputedStyle(map,'::after').height),
     pointerEvents:getComputedStyle(map,'::after').pointerEvents,
-    mask:getComputedStyle(map,'::after').maskImage||
-      getComputedStyle(map,'::after').webkitMaskImage
+    gradient:getComputedStyle(map,'::after').backgroundImage
    },
    boardRadius:getComputedStyle(board).borderTopLeftRadius,
    imageFit:getComputedStyle(img).objectFit,
@@ -148,21 +149,30 @@ async function validate(page,subject,label,view,screen){
  assert(g.screen.height>=view.height-1,label+' lower phone stage exposed '+JSON.stringify(g));
  assert(g.app.width>=view.width-2,label+' narrow app in phone viewport '+JSON.stringify(g));
  assert(g.appBottom==='0px',label+' leftover white bottom navigation padding');
- assert(g.appBackground.includes(slug)||
-  (subject==='norwegian'&&g.journeyBg.includes(slug)),
-  label+' wrong or blank background '+JSON.stringify({slug,app:g.appBackground,screen:g.screenBg}));
+ // A subject-matched matte ground now replaces the old unrelated blurred
+ // landscape card ONLY in portrait. Landscape keeps scenic side art.
+ if(view.width<700&&view.height>view.width){
+  const expected={norwegian:'#193127',math:'#193027',english:'#1c302c',geography:'#172d3b'};
+  assert.equal(g.subjectGround,expected[subject],label+' wrong journey ground token');
+  assert.equal(g.appBackground,'none',label+' unrelated painted landscape behind the map');
+  assert.equal(g.journeyBg,'none',label+' obsolete Norwegian landscape still visible');
+  assert.equal(g.groundDecoration.content,'""',label+' map-edge fade not installed');
+  assert(g.groundDecoration.height>=9&&g.groundDecoration.height<=14.1,
+   label+' fade must stay BELOW the painted progress bar '+JSON.stringify(g.groundDecoration));
+  assert(g.groundDecoration.gradient.includes('linear-gradient(')&&
+    !g.groundDecoration.gradient.includes('url('),
+   label+' must never mirror/stretch another bitmap '+JSON.stringify(g.groundDecoration));
+  assert.equal(g.groundDecoration.pointerEvents,'none',label+' fade intercepts touch');
+  const expectedHex=expected[subject].slice(1);
+  const expectedRgb=[0,2,4].map(i=>parseInt(expectedHex.slice(i,i+2),16)).join(', ');
+  assert.equal(g.appBackgroundColor,'rgb('+expectedRgb+')',
+   label+' matte ground and fade colors must match');
+ }else{
+  assert(g.appBackground.includes(slug)||
+   (subject==='norwegian'&&g.journeyBg.includes(slug)),
+   label+' landscape subject scenery was removed unexpectedly');
+ }
  assert(g.horizontalOverflow<=2,label+' horizontal overflow '+g.horizontalOverflow);
- const groundNames={
-  norwegian:'bokskogen',math:'tallenga',
-  english:'ordlandsbyen',geography:'nordlysleiren'
- };
- assert(g.groundDecoration.content!=='none'&&g.groundDecoration.height>=8&&g.groundDecoration.height<=12.1,
-  label+' seamless ground extension missing '+JSON.stringify(g.groundDecoration));
- assert(g.groundDecoration.image.includes(groundNames[subject]+'-locked-20261010.png'),
-  label+' stage uses non-original scenery for map edge '+JSON.stringify(g.groundDecoration));
- assert(g.groundDecoration.pointerEvents==='none',
-  label+' decorative continuation blocks mission touches');
-
  assert(g.hits.length===5&&g.hits.every(x=>x.width>=44&&x.height>=44),
   label+' five usable mission touch targets not retained '+JSON.stringify(g.hits));
  assert(g.fox===1,label+' selected personal fox missing or duplicated');
