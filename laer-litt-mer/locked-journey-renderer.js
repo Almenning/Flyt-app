@@ -12,6 +12,32 @@
   // Only the automated decoder test opts in with a page-init flag.
   const ORIGINAL_SOURCE_IMAGES_VERIFIED=true;
   const assets=new Map();
+  // D2 is explicitly OFF while premium painted extensions are still missing.
+  // When all four have passed the separate art gate, a versioned launch flag
+  // may enable the following decoder. A failed decode changes nothing.
+  const D2_TERRAIN_FILES=Object.freeze({
+    norwegian:'./assets/locked-journey-ground/bokskogen-ground-v1.webp',
+    math:'./assets/locked-journey-ground/tallenga-ground-v1.webp',
+    english:'./assets/locked-journey-ground/ordlandsbyen-ground-v1.webp',
+    geography:'./assets/locked-journey-ground/nordlysleiren-ground-v1.webp'
+  });
+  function prepareD2Terrain(host,subject){
+    if(window.LARIA_D2_ART_APPROVED!==true)return;
+    if(!window.matchMedia?.('(max-width:699px) and (orientation:portrait)').matches)return;
+    const board=host.querySelector('.locked-journey-board');
+    if(!board||window.innerHeight<=board.getBoundingClientRect().height+12)return;
+    const path=D2_TERRAIN_FILES[subject];
+    if(!path)return;
+    const art=new Image();
+    art.onload=()=>{
+      if(art.naturalWidth!==941||art.naturalHeight<425)return;
+      if(host.dataset.journeySubject!==subject||board!==host.querySelector('.locked-journey-board'))return;
+      if(!host.isConnected||!board.isConnected)return;
+      host.classList.add('laria-d2-terrain-ready');
+    };
+    art.onerror=()=>{}; // Remain on matte fallback, never show a broken icon.
+    art.src=path;
+  }
   const esc=value=>String(value??'').replace(/[&<>"']/g,ch=>({
     '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
   })[ch]);
@@ -414,6 +440,7 @@
     const finish=document.getElementById(geo?'geo-journey-finish':'journey-finish');
     if(finish)finish.hidden=true;
     revealDecodedArtwork(host,subject,geo);
+    prepareD2Terrain(host,subject);
     const overlay=host.querySelector('.locked-journey-overlay');
     const dialog=overlay.querySelector('.locked-journey-sheet');
     const lastFocus={element:null};
