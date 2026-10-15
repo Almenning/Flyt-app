@@ -14,15 +14,17 @@
     z-index:-1;
     left:0;
     right:0;
-    top:100%;
-    height:clamp(24px,10vw,46px);
+    top:calc(100% - clamp(8px,3vw,12px));
+    height:clamp(8px,3vw,12px);
     pointer-events:none;
     background-image:var(--laria-journey-ground-image);
     background-position:center bottom;
     background-repeat:no-repeat;
     background-size:100% auto;
-    transform:scaleY(-1);
-    transform-origin:center center;
+    /* Reflect and elongate only the final ground pixels, never the progress bar.
+       Bottom-origin reflection starts exactly at the board edge. */
+    transform:scaleY(-7);
+    transform-origin:center bottom;
     -webkit-mask-image:linear-gradient(to top,transparent,black);
     mask-image:linear-gradient(to top,transparent,black);
   }
