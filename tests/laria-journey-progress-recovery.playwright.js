@@ -97,6 +97,32 @@ async function activeSnapshot(page){
   logCount:state.sessionLog.length
  }));
 }
+// Exercise the reachable return control. Tall journey artwork can leave the
+// original back hotspot offscreen, while the fixed iPad return stays visible.
+async function returnFromJourney(page,root,label,subject){
+ const native=root.locator('.locked-journey-back');
+ const floating=root.locator('.locked-journey-floating-back');
+ const useFloating=await floating.isVisible();
+ await (useFloating?floating:native).click();
+ try{await page.locator('#home-screen.active').waitFor({timeout:16000});}
+ catch(error){
+  const evidence=await page.evaluate(()=>{
+   const box=selector=>{
+    const node=document.querySelector(selector),r=node?.getBoundingClientRect();
+    return {exists:!!node,hidden:node?.hidden,rect:r&&{x:r.x,y:r.y,w:r.width,h:r.height},
+     onclick:typeof node?.onclick,display:node&&getComputedStyle(node).display};
+   };
+   return {screen:document.querySelector('.screen.active')?.id,
+    activeScreens:[...document.querySelectorAll('.screen.active')].map(n=>n.id),
+    returnView:window.LARIA_BASECAMP_RETURN_VIEW?.(),
+    native:box('.locked-journey-back'),
+    floating:box('.locked-journey-floating-back')};
+  });
+  throw new Error(label+' '+subject+' journey back failed (clicked '+(useFloating?'floating':'native')+'): '+
+    JSON.stringify(evidence)+'; '+error.message);
+ }
+}
+
 async function run(engine,label,viewport){
  const browser=await engine.launch({headless:true,args:engine===chromium?['--no-sandbox']:[]});
  try{
@@ -199,8 +225,7 @@ async function run(engine,label,viewport){
    assert.ok(after.done>before.done,label+' '+world+' progress failed to advance: '+JSON.stringify({before,after}));
    assert.equal(after.sessionCount,before.sessionCount+1);
    assert.match((await root.locator('.locked-journey-live-progress').innerText()),new RegExp('\\b'+after.done+'\\s*/\\s*'+after.total+'\\b'));
-   await root.locator('.locked-journey-back').click();
-   await page.locator('#home-screen.active').waitFor({timeout:16000});
+   await returnFromJourney(page,root,label,subject);
    const nextPaintedPlace=await page.evaluate(s=>{
     const p=s==='geography'?geoJourneyProgress(2):journeyProgress(s,2);
     const next=s==='geography'?geoJourneyRecommendedNode(2):journeyRecommendedNode(s,2);
