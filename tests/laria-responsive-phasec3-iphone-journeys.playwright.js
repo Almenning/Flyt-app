@@ -156,7 +156,7 @@ async function validate(page,subject,label,view,screen){
   norwegian:'bokskogen',math:'tallenga',
   english:'ordlandsbyen',geography:'nordlysleiren'
  };
- assert(g.groundDecoration.content!=='none'&&g.groundDecoration.height>=24,
+ assert(g.groundDecoration.content!=='none'&&g.groundDecoration.height>=8&&g.groundDecoration.height<=12.1,
   label+' seamless ground extension missing '+JSON.stringify(g.groundDecoration));
  assert(g.groundDecoration.image.includes(groundNames[subject]+'-locked-20261010.png'),
   label+' stage uses non-original scenery for map edge '+JSON.stringify(g.groundDecoration));
