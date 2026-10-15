@@ -1,0 +1,46 @@
+name: Laria isolated cold rendering
+on:
+  push:
+    branches: [qa/laria-premium-snapshot-20261015]
+    paths: [.github/workflows/laria-cold-isolated.yml]
+permissions:
+  contents: read
+jobs:
+  cold:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        variant: [baseline, home-filters, plain-button]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 12163f86282ff1e924d8047005f46f8bbf2143bf
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps webkit
+      - name: Each variant begins on its own fresh runner
+        env:
+          VARIANT: ${{ matrix.variant }}
+        run: |
+          mkdir -p /tmp/laria-cold
+          git rev-parse HEAD > /tmp/laria-cold/REVISION.txt
+          cat > tests/cold-isolated.cjs <<'JS'
+          const fs=require('node:fs'),path=require('node:path'),http=require('node:http'),{webkit}=require('playwright');
+          const root=process.cwd(),out='/tmp/laria-cold',variant=process.env.VARIANT,report={variant};
+          const testSource=fs.readFileSync('tests/laria-premium-retry-flow.playwright.js','utf8'),seed=Function('return '+testSource.match(/const seed=(.+);\nconst mime/)[1])();
+          const mime={'.html':'text/html','.js':'text/javascript','.css':'text/css','.webp':'image/webp','.svg':'image/svg+xml','.png':'image/png'};
+          const server=http.createServer((req,res)=>{let u=new URL(req.url,'http://localhost').pathname;if(u==='/plain'){res.writeHead(200,{'Content-Type':'text/html'});return res.end('<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"></head><body><button style="width:144px;height:99px;font:24px system-ui" class="bc14-subject" data-camp="subject-norwegian" onclick="this.textContent=\'Clicked\'">Norsk</button></body></html>')}if(u.endsWith('/'))u+='index.html';const f=path.resolve(root,'.'+u);if(!f.startsWith(root+path.sep)){res.writeHead(403);return res.end()}fs.readFile(f,(err,b)=>{if(err){res.writeHead(404);return res.end()}if(variant==='home-filters'&&u.endsWith('/laer-litt-mer/index.html'))b=Buffer.from(b.toString().replace('</head>','<style>.bc12,.bc12 *,.bc12 *::before,.bc12 *::after{filter:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}</style></head>'));res.writeHead(200,{'Content-Type':mime[path.extname(f)]||'application/octet-stream','Cache-Control':'no-store'});res.end(b);})});
+          (async()=>{await new Promise(r=>server.listen(0,'127.0.0.1',r));const browser=await webkit.launch({headless:false});try{const context=await browser.newContext({viewport:{width:320,height:568},hasTouch:true,isMobile:true,reducedMotion:'reduce',serviceWorkers:'block'});await context.addInitScript(s=>{localStorage.setItem('laerlittmer-v2',JSON.stringify(s));window.framesSeen=[];let n=0;function tick(t){window.framesSeen.push(t);if(n++<60)requestAnimationFrame(tick)}requestAnimationFrame(tick)},seed);const page=await context.newPage();page.setDefaultTimeout(12000);await page.route(/https:\/\/(raw\.githubusercontent\.com|api\.worldbank\.org)\//,r=>r.abort());const start=Date.now();try{await page.goto('http://127.0.0.1:'+server.address().port+(variant==='plain-button'?'/plain':'/laer-litt-mer/?app=laria'),{waitUntil:'domcontentloaded'});report.domMs=Date.now()-start;await page.locator('.bc14-subject[data-camp="subject-norwegian"]').click();report.openMs=Date.now()-start;}catch(e){report.failure=String(e)}report.frames=await page.evaluate(()=>window.framesSeen);await page.screenshot({path:out+'/'+variant+'.png',animations:'disabled'});fs.writeFileSync(out+'/report.json',JSON.stringify(report,null,2));console.log(report);await context.close()}finally{await browser.close();server.closeAllConnections();server.close()}})().catch(e=>{console.error(e);process.exit(1)});
+          JS
+          xvfb-run -a node tests/cold-isolated.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: laria-isolated-${{ matrix.variant }}
+          path: /tmp/laria-cold/
+          retention-days: 7
