@@ -69,7 +69,13 @@ async function geometry(page){return page.evaluate(()=>{
  const clippedFeedback=feedback.getClientRects().length>0&&[...feedback.querySelectorAll('strong,p,button:not([hidden])')].some(e=>{
   const r=e.getBoundingClientRect();return r.top<bounds.top-1||r.bottom>bounds.bottom+1||r.left<bounds.left-1||r.right>bounds.right+1;
  });
- return {clippedFeedback,scrollWidth:document.documentElement.scrollWidth,width:innerWidth,card:rect(card),
+ const q=sessionQuestions[qIndex];
+ const pluralApples=q.subject==='norwegian'&&q.type==='build-word'&&q.answer==='EPLER'&&q.visual==='\u{1F34E}';
+ const objects=[...card.querySelectorAll('[data-task-object="apple"]')].map(e=>{
+  const r=e.getBoundingClientRect(),svg=e.ownerSVGElement.getBoundingClientRect();
+  return {...rect(e),insideSvg:r.top>=svg.top-1&&r.bottom<=svg.bottom+1&&r.left>=svg.left-1&&r.right<=svg.right+1};
+ });
+ return {pluralApples,objects,clippedFeedback,scrollWidth:document.documentElement.scrollWidth,width:innerWidth,card:rect(card),
   prompt:rect(card?.querySelector('.question')),scrollTop:host.scrollTop,
   controls:[...document.querySelectorAll('#session-screen button')].filter(b=>b.getClientRects().length).map(b=>({label:b.innerText,...rect(b)})),
   foxes:card.querySelectorAll('.task-fox-companion').length,avatar:card.querySelector('.task-fox-companion')?.dataset.avatar,
@@ -83,6 +89,11 @@ async function geometry(page){return page.evaluate(()=>{
  });}
 async function verify(page,label){
  const g=await geometry(page);assert(!g.clippedFeedback,label+' feedback text clipped');assert(g.scrollWidth<=g.width+1,label+' horizontal overflow');
+ if(g.pluralApples){
+  assert.equal(g.objects.length,2,label+' plural word needs two visible apples');
+  assert(g.objects.every(r=>r.width>0&&r.height>0&&r.insideSvg),label+' actual apple content clipped');
+  assert(g.objects[0].right<=g.objects[1].left+1,label+' apples overlap');
+ }
  assert(g.card.left>=-1&&g.card.right<=g.width+1,label+' card outside viewport');
  assert(g.controls.every(r=>r.width>=43.9&&r.height>=43.9),label+' touch target smaller than 44px: '+JSON.stringify(g.controls));
  assert(g.visibleIllustrations.every(i=>!i.clipped&&i.width>0&&i.height>0),label+' illustration clipped');
@@ -163,6 +174,9 @@ async function verify(page,label){
     await answer(page);await page.locator('#next-question').click();
    }
    await page.locator('#complete-screen.active').waitFor();await capture('complete');
+   assert.equal(await page.locator('#complete-repeat').innerText(),'Spill igjen');
+   assert.doesNotMatch(await page.locator('#complete-copy').innerText(),/vet appen|progresjon|kunstig|checkpoint/i);
+   assert.doesNotMatch(await page.locator('#complete-next').innerText(),/beat your|uten hjelp|neste verden er/i);
    const completed=await page.evaluate(()=>({result:state.sessionLog.at(-1),logs:state.answerLog.length,journey:JSON.stringify(state.journey),mastery:JSON.stringify([state.mastery,state.skillMastery,state.masteryEvidence,state.skillEvidence]),collection:JSON.stringify(state.collectibles)}));
    assert.equal(completed.result.correct,initial.questions.length-1,label+' result disagrees with first attempts');
    const logCount=await page.evaluate(()=>{finishSession();finishSession();return state.sessionLog.length});
@@ -174,6 +188,9 @@ async function verify(page,label){
     await page.locator('#next-question').click();
    }
    await page.locator('#complete-screen.active').waitFor();await capture('replayed');
+   assert.equal(await page.locator('#complete-copy').innerText(),'Du har \u00f8vd p\u00e5 '+initial.questions.length+' oppgaver igjen.');
+   assert.equal(await page.locator('#young-reward-title').innerText(),'Godt \u00f8vd!');
+   assert.doesNotMatch(await page.locator('#young-reward-copy').innerText(),/kunstig|mestring|fremgang|dagens m\u00e5l/i);
    const repeated=await page.evaluate(()=>({result:state.sessionLog.at(-1),logs:state.answerLog,journey:JSON.stringify(state.journey),mastery:JSON.stringify([state.mastery,state.skillMastery,state.masteryEvidence,state.skillEvidence]),collection:JSON.stringify(state.collectibles)}));
    assert.equal(repeated.result.correct,initial.questions.length,label+' perfect replay was not recognized');
    assert.equal(repeated.result.countsTowardGoal,false);assert.equal(repeated.journey,completed.journey);assert.equal(repeated.mastery,completed.mastery);assert.equal(repeated.collection,completed.collection);

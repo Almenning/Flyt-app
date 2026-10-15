@@ -117,7 +117,15 @@
     const key=String(q.visual).trim();
     const premium=premiumIllustrationSvg(key);
     if(premium){
-      return '<div class="task-visual-row premium-visual" data-task-visual-kind="premium" data-task-visual-release="illustrations-rc1" data-task-visual-key="'+attr(key)+'"><div class="task-object-stage">'+premium+'</div></div>';
+      // This saved spelling task asks for the plural. Reuse the existing apple
+      // artwork twice; changing q.visual would change the persisted question key.
+      const pluralApples=q.subject==='norwegian'&&q.type==='build-word'&&q.answer==='EPLER'&&key==='\u{1F34E}';
+      const apple=pluralApples?premium.replace(/^<svg[^>]*>/,'').replace(/<\/svg>$/,''):'';
+      const illustration=pluralApples?
+        '<svg class="task-illustration" viewBox="0 0 440 180" aria-hidden="true">'+
+          '<g data-task-object="apple">'+apple+'</g>'+
+          '<g data-task-object="apple" transform="translate(180 0)">'+apple+'</g></svg>':premium;
+      return '<div class="task-visual-row premium-visual" data-task-visual-kind="premium" data-task-visual-release="illustrations-rc1" data-task-visual-key="'+attr(key)+'"><div class="task-object-stage">'+illustration+'</div></div>';
     }
     return '<div class="task-visual-row" data-task-visual-kind="fallback" data-task-visual-key="'+attr(key)+'"><div class="task-object-stage"><div class="task-emoji-sticker" aria-hidden="true">'+text(q.visual)+'</div></div></div>';
   }
