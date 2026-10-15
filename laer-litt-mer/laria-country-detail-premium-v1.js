@@ -18,7 +18,7 @@
     'Sør-Amerika':'Regnskog, fjell og lange kystlinjer',
     'Oseania':'Øyer, kyst og særegen natur'
   };
-  let paintFrame=0;
+  let paintFrame=0,lastCountry=null,lastId=null;
   function sceneFor(country){
     const source=root.LARIA_GLOBE_COUNTRY_SCENE_V25?.describe?.(country);
     return {
@@ -49,6 +49,7 @@
   function render(id,country,statusLabel){
     const target=byId('detail-content');
     if(!target||!country)return false;
+    lastCountry=country;lastId=id;
     const scene=sceneFor(country);
     const avatar=root.LARIA_FOX?.choice?.()||'boy';
     const foxSrc=root.LARIA_FOX?.worldSource?.(avatar)||'';
@@ -57,7 +58,7 @@
     const note=country.note?
       '<p class="country-story-note">'+esc(country.note)+'</p>':'';
     target.innerHTML=
-      '<article class="country-story" data-country-detail="'+esc(id)+
+      '<article class="country-story'+(country.name.length>18?' is-long-name':'')+'" data-country-detail="'+esc(id)+
       '" data-tone="'+esc(scene.tone)+'" aria-label="'+esc('Oppdag '+country.name)+'">'+
         '<div class="country-story-board">'+
           '<canvas aria-hidden="true"></canvas>'+
@@ -101,7 +102,6 @@
     redraw(country);
     return true;
   }
-  root.LARIA_COUNTRY_DETAIL_PREMIUM=Object.freeze({render});
   root.addEventListener('resize',()=>{
     if(!byId('detail-screen')?.classList.contains('active'))return;
     const id=document.querySelector('#detail-screen.active [data-country-detail]')?.dataset.countryDetail;
@@ -109,12 +109,5 @@
     // re-rendering markup or touching status/progress.
     if(lastCountry&&id===lastId)redraw(lastCountry);
   },{passive:true});
-  let lastCountry=null,lastId=null;
-  const originalRender=render;
-  root.LARIA_COUNTRY_DETAIL_PREMIUM=Object.freeze({
-    render(id,country,statusLabel){
-      lastCountry=country;lastId=id;
-      return originalRender(id,country,statusLabel);
-    }
-  });
+  root.LARIA_COUNTRY_DETAIL_PREMIUM=Object.freeze({render});
 })(window);
