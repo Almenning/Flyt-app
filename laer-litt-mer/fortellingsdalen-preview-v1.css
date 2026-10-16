@@ -493,3 +493,52 @@ body > .fd-dev-launch small{font-size:10px;line-height:1.25}
     font-size:15px!important;
   }
 }
+
+/* Every story opens inside its own part of the same illustrated map.
+ * Keep the live, personal fox above the artwork. Never bake a fox into art.
+ */
+#laria-fortellingsdalen-preview .fd-story-companion{
+  position:relative;isolation:isolate;overflow:hidden;
+  background:#e9d8b8;
+  min-height:88px;
+}
+#laria-fortellingsdalen-preview .fd-story-companion .fd-story-art{
+  position:absolute;inset:0;width:100%;height:100%;
+  object-fit:cover;
+  object-position:var(--fd-scene-x,50%) var(--fd-scene-y,50%);
+  opacity:.75;z-index:-2;
+  filter:saturate(1.12) contrast(.9);
+  pointer-events:none;user-select:none;
+}
+#laria-fortellingsdalen-preview .fd-story-companion:before{
+  content:"";position:absolute;inset:0;z-index:-1;
+  background:linear-gradient(90deg,
+    rgba(255,247,225,.57) 0%,
+    rgba(255,247,225,.89) 28%,
+    rgba(255,247,225,.98) 100%);
+  pointer-events:none;
+}
+#laria-fortellingsdalen-preview .fd-story-companion > :not(.fd-story-art){
+  position:relative;z-index:1;
+}
+#laria-fortellingsdalen-preview .fd-story-companion .fd-fox-portrait{
+  filter:drop-shadow(0 4px 4px rgba(78,53,31,.35));
+}
+#laria-fortellingsdalen-preview .fd-story-companion .fd-eyebrow{
+  letter-spacing:.10em;font-weight:950;
+}
+#laria-fortellingsdalen-preview .fd-next:focus-visible{
+  outline:3px solid #6e4630;outline-offset:3px;
+}
+#laria-fortellingsdalen-preview .fd-question-prompt:focus{
+  outline:none;
+}
+@media(max-width:360px){
+  #laria-fortellingsdalen-preview .fd-story-companion{min-height:72px}
+  #laria-fortellingsdalen-preview .fd-story-companion:before{
+    background:linear-gradient(90deg,
+      rgba(255,247,225,.65) 0%,
+      rgba(255,247,225,.95) 26%,
+      rgba(255,247,225,.99) 100%);
+  }
+}
