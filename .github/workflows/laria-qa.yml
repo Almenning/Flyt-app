@@ -297,8 +297,10 @@ jobs:
           node --check laer-litt-mer/geography-journey-learning-system-v1.js
           node --check tests/laria-journey-learning-system.playwright.js
           node --check tests/laria-geography-journey-learning-system.playwright.js
+          node --check tests/laria-chapter1-completion.playwright.js
           node tests/laria-journey-learning-system.playwright.js
           node tests/laria-geography-journey-learning-system.playwright.js
+          node tests/laria-chapter1-completion.playwright.js
       - name: Unified premium mission menus before and after completion
         env:
           MISSION_QA_SCREENSHOTS: /tmp/laria-mission-visual
