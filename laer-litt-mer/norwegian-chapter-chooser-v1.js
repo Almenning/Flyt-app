@@ -17,6 +17,7 @@
       id:'bokskogen-1',number:1,title:'Bokskogen',
       subtitle:'Bokstaver, ord og små oppdrag',
       art:'./locked-journeys/bokskogen-locked-20261010.png',
+      artWidth:941,artHeight:1672,
       stateKey:'norwegian:2',
       published:true
     }),
@@ -24,6 +25,7 @@
       id:'fortellingsdalen-2',number:2,title:'Fortellingsdalen',
       subtitle:'Brev, ledetråder og små mysterier',
       art:art.ASSET.src,
+      artWidth:art.DIMENSIONS.width,artHeight:art.DIMENSIONS.height,
       stateKey:FULL_ID,published:false
     })
   ]);

@@ -26,10 +26,22 @@ async function openChooser(page){
     /bokskogen-locked-20261010\.png/);
   assert.match(await page.locator('[data-fd-chapter-card="fortellingsdalen-2"] img').getAttribute('src'),
     /fortellingsdalen-map-premium-v3\.png/);
+  // Bokskogen retains the approved 941x1672 original. Only chapter 2 uses
+  // the new 768x1376 illustration. Do not require both images to be alike.
   await page.waitForFunction(()=>{
     const images=[...document.querySelectorAll('#laria-norwegian-chapter-picker .fd-chapter-image')];
-    return images.length===2&&images.every(img=>img.complete&&img.naturalWidth===768&&img.naturalHeight===1376);
+    return images.length===2&&images.every(img=>img.complete);
   },null,{timeout:16000});
+  const imageGeometry=await page.locator('#laria-norwegian-chapter-picker .fd-chapter-image')
+    .evaluateAll(images=>images.map(img=>({
+      chapter:img.closest('[data-fd-chapter-card]')?.dataset.fdChapterCard,
+      width:img.naturalWidth,height:img.naturalHeight,
+      declaredWidth:Number(img.getAttribute('width')),declaredHeight:Number(img.getAttribute('height'))
+    })));
+  assert.deepEqual(imageGeometry,[
+    {chapter:'bokskogen-1',width:941,height:1672,declaredWidth:941,declaredHeight:1672},
+    {chapter:'fortellingsdalen-2',width:768,height:1376,declaredWidth:768,declaredHeight:1376}
+  ],'Both chapter maps must load at their own exact, original dimensions');
   const chooserFits=await page.locator('#laria-norwegian-chapter-picker').evaluate(
     el=>el.scrollWidth<=el.clientWidth+2
   );

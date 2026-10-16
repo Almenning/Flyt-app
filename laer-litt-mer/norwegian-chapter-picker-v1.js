@@ -31,7 +31,7 @@
     return '<article class="fd-chapter-card'+(locked?' is-locked':'')+(completed?' is-complete':'')+
       '" data-fd-chapter-card="'+escapeHtml(chapter.id)+'">'+
       '<div class="fd-chapter-image-wrap">'+
-      '<img class="fd-chapter-image" src="'+escapeHtml(chapter.art)+'" loading="eager" decoding="async" width="941" height="1672" alt="" draggable="false">'+
+      '<img class="fd-chapter-image" src="'+escapeHtml(chapter.art)+'" loading="eager" decoding="async" width="'+chapter.artWidth+'" height="'+chapter.artHeight+'" alt="" draggable="false">'+
       '<span class="fd-chapter-index">EVENTYR '+chapterNumber+'</span>'+
       (completed?'<span class="fd-chapter-award" aria-label="Eventyret er fullført">★ Fullført</span>':'')+
       '</div><div class="fd-chapter-card-content">'+
