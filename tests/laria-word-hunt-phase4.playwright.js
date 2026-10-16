@@ -101,6 +101,28 @@ async function tapWord(page,word){
  await cell(page,p.start).tap();
  await cell(page,p.end).tap();
 }
+async function directionProfile(page){
+ return page.evaluate(()=>{
+  const words=[...document.querySelectorAll('.word-hunt-word')].map(el=>el.textContent.replace(/^✓\s*/,'').trim());
+  const grid=[...document.querySelectorAll('.word-hunt-cell')].reduce((o,el)=>{
+   const r=Number(el.dataset.r),c=Number(el.dataset.c);(o[r]||(o[r]=[]))[c]=el.textContent.trim();return o
+  },[]);
+  const dirs=[[0,1],[1,0],[0,-1],[-1,0],[1,1],[1,-1],[-1,1],[-1,-1]],hits=[];
+  for(const word of words)for(let r=0;r<grid.length;r++)for(let c=0;c<grid[r].length;c++)for(const [dr,dc] of dirs){
+   const er=r+dr*(word.length-1),ec=c+dc*(word.length-1);
+   if(er<0||ec<0||er>=grid.length||ec>=grid[r].length)continue;
+   let made='';for(let i=0;i<word.length;i++)made+=grid[r+dr*i][c+dc*i];
+   if(made===word)hits.push({word,dr,dc});
+  }
+  return {
+   hits,
+   horizontal:hits.some(x=>x.dr===0),
+   vertical:hits.some(x=>x.dc===0),
+   diagonal:hits.some(x=>x.dr!==0&&x.dc!==0),
+   reverse:hits.some(x=>x.dr<0||x.dc<0)
+  };
+ });
+}
 async function dragWord(page,word){
  const p=await pathFor(page,word);
  await cell(page,p.start).scrollIntoViewIfNeeded();
@@ -124,6 +146,8 @@ async function testView(browser,engine,label,viewport,url){
   await page.locator('.word-hunt-fox').evaluate(img=>img.decode());
   await shot(page,label+'-01-words-and-board');
   await geometry(page,label,viewport,viewport.width<=700||viewport.height<=500||label.includes('ipad'));
+  const easyDirections=await directionProfile(page);
+  assert.ok(easyDirections.horizontal&&easyDirections.vertical,label+' easy round lacks horizontal/vertical variety: '+JSON.stringify(easyDirections));
   const words=await page.locator('.word-hunt-word').allTextContents();
   for(let i=0;i<words.length;i++){
    const word=words[i].replace(/^✓\s*/,'').trim();
@@ -138,6 +162,9 @@ async function testView(browser,engine,label,viewport,url){
   await page.locator('.word-hunt-level[data-word-level="hard"]').click();
   assert.equal(await page.locator('.word-hunt-cell').count(),49,label+' harder puzzle not 7x7');
   assert.equal(await page.locator('.word-hunt-word').count(),5,label+' harder puzzle not 5 words');
+  const hardDirections=await directionProfile(page);
+  assert.ok(hardDirections.horizontal&&hardDirections.vertical&&hardDirections.diagonal&&hardDirections.reverse,
+   label+' harder round lacks straight/diagonal/reverse variety: '+JSON.stringify(hardDirections));
   await tapWord(page,(await page.locator('.word-hunt-word').first().innerText()).trim());
   assert.equal(await page.locator('.word-hunt-word.found').count(),1,label+' harder puzzle touch selection failed');
   await shot(page,label+'-03-harder');
