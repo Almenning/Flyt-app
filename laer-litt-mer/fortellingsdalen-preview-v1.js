@@ -15,24 +15,48 @@
       '<span class="fd-preview-tag">FORHÅNDSVISNING · KAPITTEL 2</span></header>'+
       '<main class="fd-panel">'+body+'</main></div>';
   }
+  // Stage markers are positioned on the exact 941x1672 atlas canvas, not
+  // on a cropped background or a set of invented map boxes.
+  const PLACES=Object.freeze({
+    brevhytta:Object.freeze({x:23,y:83}),
+    eventyrbrua:Object.freeze({x:67,y:68}),
+    sporstien:Object.freeze({x:28,y:50}),
+    fortellermolla:Object.freeze({x:72,y:34}),
+    stjernetoppen:Object.freeze({x:57,y:17})
+  });
   function renderIntro(){
     const progress=core.progress(ui.state),draft=core.resume(ui.state);
     const stages=core.STAGES.map((stage,i)=>{
       const p=progress.stages.find(x=>x.id===stage.id);
-      return '<button class="fd-place'+(p.passed?' fd-place-done':'')+'" data-fd-action="stage" data-fd-stage="'+esc(stage.id)+'" type="button">'+
+      const location=PLACES[stage.id];
+      if(!location)throw new Error('Missing original painted atlas stop '+stage.id);
+      return '<button class="fd-place fd-map-place'+(p.passed?' fd-place-done':'')+
+        (progress.recommended===stage.id?' fd-place-next':'')+
+        '" style="--fd-x:'+location.x+'%;--fd-y:'+location.y+'%;" data-fd-action="stage" data-fd-stage="'+esc(stage.id)+
+        '" aria-label="'+esc(stage.title)+': '+esc(stage.focus)+(p.passed?', fullført':'')+'" type="button">'+
         '<span class="fd-place-number">'+(p.passed?'✓':String(i+1))+'</span><span class="fd-place-label"><strong>'+esc(stage.title)+
-        '</strong><small>'+esc(stage.focus)+'</small></span><span class="fd-place-arrow">›</span></button>';
+        '</strong><small>'+esc(p.passed?'Spill igjen':stage.focus)+'</small></span></button>';
     }).join('');
-    return shell('<div class="fd-intro">'+
-      '<div class="fd-intro-hero"><div><span class="fd-eyebrow">ET NYTT EVENTYR VENTER</span>'+
-      '<h1 id="fd-title">Fortellingsdalen</h1><p>Her gjemmer det seg brev, små mysterier og historier med spor. Hvilken sti vil du utforske?</p></div>'+
-      '<div class="fd-fox">'+fox()+'</div></div>'+
-      '<div class="fd-progress"><div><strong>'+progress.done+' av 5 steder utforsket</strong><span>Du velger selv hvor du vil gå</span></div>'+
-      '<div class="fd-progress-track"><span style="width:'+progress.pct+'%"></span></div></div>'+
+    const status=progress.complete?'Alle fem stedene er utforsket. Historiene kan spilles igjen.':
+      progress.done+' av 5 steder utforsket. Du velger selv hvor du vil gå.';
+    return shell('<div class="fd-intro fd-intro-map">'+
+      '<div class="fd-intro-hero fd-map-header"><div><span class="fd-eyebrow">NORSK · KAPITTEL 2</span>'+
+      '<h1 id="fd-title">Fortellingsdalen</h1><p>Fem steder. Mange små fortellinger. Du bestemmer hvor eventyret fortsetter.</p></div>'+
+      '<div class="fd-map-crest" aria-hidden="true">✦</div></div>'+
+      '<div class="fd-visual-layout"><section class="fd-atlas" aria-label="Illustrert kart med fem spillbare oppdrag">'+
+      '<img class="fd-atlas-paint" src="./fortellingsdalen-map-preview.svg?v=20261016-c2map1" alt="" draggable="false" decoding="async">'+
+      '<div class="fd-atlas-shade" aria-hidden="true"></div>'+
+      '<div class="fd-map-caption" aria-hidden="true">FORTELLINGSDALEN <span>✦</span></div>'+
+      '<div class="fd-fox fd-map-fox">'+fox()+'</div>'+
+      '<div class="fd-places fd-map-stages">'+stages+'</div>'+
+      '</section><div class="fd-map-aside">'+
+      '<div class="fd-progress" role="status" aria-label="'+esc(status)+'"><div><strong>'+progress.done+' av 5 steder utforsket</strong>'+
+      '<span>Du velger selv hvor du vil gå</span></div><div class="fd-progress-track"><span style="width:'+progress.pct+'%"></span></div></div>'+
       (draft?'<button class="fd-continue" data-fd-action="resume" type="button">Fortsett historien du begynte på →</button>':'')+
-      '<section class="fd-places" aria-label="De fem stedene i Fortellingsdalen">'+stages+'</section>'+
+      '<div class="fd-map-hint"><strong>Se etter magiske steder</strong><p>Trykk på et skilt i dalen for å finne en historie. Brev, spor og mysterier venter.</p></div>'+
       (progress.complete?'<div class="fd-complete">🏆 Du har oppdaget alle fem stedene! Historiene venter fortsatt på deg.</div>':'')+
-      '<p class="fd-development-note">Intern spillbar prototype. Den endelige illustrerte reisekartscenen er ikke publisert.</p></div>');
+      '<p class="fd-development-note">Intern illustrert kartprototype. Ingen av de fire låste eventyrreisene er endret.</p>'+
+      '</div></div></div>');
   }
   function renderStory(){
     const session=core.resume(ui.state);
