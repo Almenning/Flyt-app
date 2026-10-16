@@ -157,7 +157,7 @@ async function run(engine,label,viewport,url){
    if(process.env.MISSION_QA_SCREENSHOTS&&['webkit-iphone','webkit-ipad-landscape'].includes(label)){
      await page.screenshot({path:path.join(process.env.MISSION_QA_SCREENSHOTS,label+'-'+subject+'-after.png'),animations:'disabled'});
    }
-   assert.match(await completed.locator('.mission-complete').innerText(),/Du klarte oppdraget|Hele reisen er fullført/);
+   assert.match(await completed.locator('.mission-complete').innerText(),/Du klarte oppdraget|Dette eventyret er fullført/);
    assert.equal(await completed.locator('.mission-fox-stage .locked-journey-traveler').count(),1,
     label+' '+subject+' lost selected fox after completion');
    const replayedIds=await completed.locator('button.mission-activity.is-replay[data-locked-node]').evaluateAll(
