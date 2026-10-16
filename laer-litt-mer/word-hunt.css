@@ -860,3 +860,21 @@
 @media(prefers-reduced-motion:reduce){
   .wh-theme-card img{transition:none;animation:none}
 }
+
+
+/* wordhunt-mobile-topic-feedback-20261016 */
+/* Keep the active topic readable on the tiny 320px iPhone without increasing
+   the row height or stealing space from the 6x6 puzzle. */
+.word-hunt-theme-mobile{gap:4px;white-space:nowrap}
+.word-hunt-mobile-icon{font-size:15px;line-height:1;flex:0 0 auto}
+.word-hunt-mobile-label{min-width:0;font-size:11px;font-weight:950;white-space:nowrap}
+.word-hunt-theme-mobile[data-theme]:not([data-theme="mixed"]){
+  border-color:#b89855;
+  background:linear-gradient(180deg,#fff4dc,#e7c890);
+}
+.word-hunt-status.is-sticker-earned{
+  border-color:#b58a43;
+  background:linear-gradient(145deg,#fff9db,#f1dba7);
+  box-shadow:0 5px 0 #947043,0 0 0 3px rgba(255,234,168,.30);
+}
+.word-hunt-status.is-sticker-earned strong{color:#765018}
