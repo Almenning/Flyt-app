@@ -97,8 +97,8 @@ async function run(engine,label){
     assert.deepEqual([...new Set(launch.objectives)],['geography-g2-nordic-capitals']);
     assert.equal(launch.scope.journeyNode,'norden-capital');
 
-    await page.evaluate(()=>{state.activeSession=null;saveState();showScreen('basecamp')});
-    await page.locator('.bc14-subject[data-camp="subject-geography"]').click();
+    await page.locator('#close-session').click();
+    await page.locator('#geography-screen.active').waitFor({timeout:10000});
     const map=page.locator('#geography-screen.active .locked-journey-map[data-journey-subject="geography"]');
     await map.waitFor({timeout:14000});
     await map.locator('[data-locked-place="1"]').click();
