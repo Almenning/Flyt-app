@@ -54,9 +54,12 @@ async function geometry(page,label,viewport,firstFold){
   const rect=q=>{const el=document.querySelector(q);if(!el)return null;
    const r=el.getBoundingClientRect();return {top:Math.round(r.top),bottom:Math.round(r.bottom),left:Math.round(r.left),right:Math.round(r.right),width:Math.round(r.width),height:Math.round(r.height)}};
   const cells=[...document.querySelectorAll('#word-hunt-overlay .word-hunt-cell')].map(el=>{const r=el.getBoundingClientRect();return {width:r.width,height:r.height}});
+  const overlay=document.querySelector('.word-hunt-overlay');
   return {width:innerWidth,height:innerHeight,scrollWidth:document.documentElement.scrollWidth,
    targets:rect('.word-hunt-targets'),board:rect('.word-hunt-board-card'),grid:rect('.word-hunt-board'),
-   back:rect('.word-hunt-back'),cells,fox:rect('.word-hunt-fox')};
+   status:rect('.word-hunt-status'),newRound:rect('.word-hunt-new'),
+   back:rect('.word-hunt-back'),cells,fox:rect('.word-hunt-fox'),
+   environment:overlay?getComputedStyle(overlay).backgroundImage:''};
  });
  console.log('WORD_HUNT_VIEWPORT '+label+': '+JSON.stringify({width:m.width,height:m.height,targets:m.targets,board:m.board,minCell:Math.min(...m.cells.map(c=>c.width)),overflow:m.scrollWidth}));
  assert.ok(m.board&&m.targets&&m.fox,label+' missing board/list/selected fox');
@@ -68,7 +71,13 @@ async function geometry(page,label,viewport,firstFold){
  }
  if(viewport.width<=700 && m.cells.length===36){
   assert.ok(m.cells.every(x=>x.width>=44&&x.height>=44),label+' easy cells under 44px: '+JSON.stringify(m));
+  if(viewport.height>viewport.width){
+   assert.ok(m.board.width>=viewport.width*.90,label+' premium frame shrank the portrait puzzle too much: '+JSON.stringify(m.board));
+   assert.ok(m.status&&m.status.width>=viewport.width*.90,label+' mobile fox response is not intentionally aligned with the puzzle');
+   assert.ok(m.newRound&&m.newRound.width>=viewport.width*.60,label+' new-round action is too small on portrait mobile');
+  }
  }
+ assert.match(m.environment,/bokskogen-atlas32\.webp/,label+' no Bokskogen environment behind the puzzle');
 }
 async function pathFor(page,word){
  const found=await page.evaluate(w=>{
@@ -122,6 +131,8 @@ async function testView(browser,engine,label,viewport,url){
    assert.equal(await page.locator('.word-hunt-word.found').count(),i+1,label+' missed '+word+' by touch or drag');
   }
   assert.match(await page.locator('.word-hunt-status').innerText(),/Ordjakten er løst/);
+  assert.ok(await page.locator('#word-hunt-overlay').evaluate(el=>el.classList.contains('word-hunt-complete')),label+' completion did not promote the new-round action');
+  assert.equal(await page.locator('.word-hunt-rounds').innerText(),'Du har fullført 1 ordjakt',label+' child-facing completion copy is not singular');
   assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('laria-wordhunt-v1')||'{}').rounds),1,label+' no persisted completion');
   await shot(page,label+'-02-complete');
   await page.locator('.word-hunt-level[data-word-level="hard"]').click();

@@ -201,3 +201,177 @@
 @media (min-width:701px) and (max-width:950px) and (orientation:portrait){
   .word-hunt-shell{min-height:0;padding-bottom:25px}
 }
+
+
+/* wordhunt-bokskogen-premium-20261015 */
+/* Keep the puzzle dominant, but let the child feel that it lives inside Bokskogen.
+   All art comes from the existing approved Bokskogen runtime asset; no new journey art
+   or puzzle mechanics are introduced here. */
+.word-hunt-overlay{
+  --wh-cream:rgba(255,249,229,.90);
+  --wh-cream-soft:rgba(255,249,229,.78);
+  --wh-ink:#29425c;
+  --wh-brown:#6f4a2b;
+  --wh-gold:#d3a147;
+  --wh-leaf:#52794d;
+  background:
+    linear-gradient(180deg,rgba(252,244,211,.26),rgba(247,236,199,.46)),
+    url('./bokskogen-atlas32.webp') center/cover fixed no-repeat;
+}
+.word-hunt-overlay::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(circle at 50% 6%,rgba(255,252,229,.66),transparent 28%),
+    linear-gradient(180deg,rgba(255,251,230,.08) 0%,rgba(65,95,63,.06) 100%);
+}
+.word-hunt-shell{
+  position:relative;z-index:1;
+  border-color:rgba(255,245,211,.78);
+  background:
+    linear-gradient(180deg,rgba(255,250,231,.88) 0%,rgba(255,248,222,.83) 53%,rgba(255,249,229,.79) 100%);
+  box-shadow:0 22px 80px rgba(31,46,33,.28),inset 0 1px rgba(255,255,255,.72);
+  backdrop-filter:blur(1.5px) saturate(.96);
+  -webkit-backdrop-filter:blur(1.5px) saturate(.96);
+}
+.word-hunt-top{
+  position:relative;
+  padding:2px 2px 3px;
+}
+.word-hunt-top::after{
+  content:"";position:absolute;left:62px;right:66px;bottom:-3px;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(132,95,51,.24),transparent);
+}
+.word-hunt-back{
+  background:linear-gradient(180deg,#8b5a31,#774823);
+  box-shadow:0 4px 0 #57351f,0 8px 16px rgba(80,52,30,.16),inset 0 1px rgba(255,255,255,.18);
+}
+.word-hunt-title small{color:#8a6b43}
+.word-hunt-title h1{color:var(--wh-ink);text-shadow:0 1px rgba(255,255,255,.55)}
+.word-hunt-fox{
+  filter:drop-shadow(0 7px 6px rgba(64,48,34,.16));
+  transform:translateY(1px);
+}
+.word-hunt-intro{
+  border:1px solid rgba(199,157,85,.38);
+  background:linear-gradient(180deg,rgba(255,249,226,.78),rgba(255,244,207,.72));
+  color:#6a5238;
+  box-shadow:inset 0 1px rgba(255,255,255,.72);
+}
+.word-hunt-levels{gap:10px}
+.word-hunt-level{
+  border:1px solid rgba(156,126,83,.38);
+  background:rgba(255,252,240,.83);
+  color:#6d5d49;
+  box-shadow:0 3px 10px rgba(83,60,35,.07),inset 0 1px rgba(255,255,255,.78);
+}
+.word-hunt-level.active{
+  background:linear-gradient(180deg,rgba(222,241,201,.96),rgba(211,234,185,.95));
+  border-color:#99b67b;color:#345837;
+  box-shadow:0 3px 0 #afc58f,0 7px 14px rgba(72,108,65,.10),inset 0 1px rgba(255,255,255,.7);
+}
+.word-hunt-targets{
+  border:1px solid rgba(177,124,69,.52);
+  background:linear-gradient(180deg,rgba(255,249,228,.94),rgba(255,244,211,.92));
+  box-shadow:0 4px 0 rgba(154,105,55,.82),0 10px 20px rgba(83,58,33,.08),inset 0 1px rgba(255,255,255,.74);
+}
+.word-hunt-targets h2{color:#664b30}
+.word-hunt-word{
+  background:rgba(255,255,255,.88);
+  border-color:rgba(229,204,160,.84);
+  box-shadow:0 2px 5px rgba(92,64,38,.05),inset 0 1px rgba(255,255,255,.9);
+}
+.word-hunt-board-card{
+  border-color:#a9743f;
+  background:
+    repeating-linear-gradient(0deg,rgba(107,62,28,.025) 0 11px,rgba(107,62,28,.065) 12px,transparent 14px),
+    linear-gradient(145deg,#e5b66d,#f3d391);
+  box-shadow:0 7px 0 #784b2a,0 14px 28px rgba(66,49,34,.15),inset 0 1px rgba(255,242,202,.78);
+}
+.word-hunt-cell{
+  border-color:#cfb477;
+  background:linear-gradient(180deg,#fffdf5,#fff8e9);
+  box-shadow:0 4px 0 #c4a568,0 7px 12px rgba(91,63,36,.06),inset 0 1px rgba(255,255,255,.82);
+}
+.word-hunt-cell.preview{
+  background:linear-gradient(180deg,#fff3b6,#ffe88d);
+  border-color:#dfb447;
+  box-shadow:0 4px 0 #cd9e31,0 0 0 3px rgba(255,219,84,.17);
+}
+.word-hunt-cell.found{
+  background:linear-gradient(180deg,#e1f2d4,#d2e9bf);
+  border-color:#88ab6e;color:#315537;
+  box-shadow:0 4px 0 #789d5d,0 7px 12px rgba(60,98,56,.08);
+}
+.word-hunt-status{
+  border:1px solid rgba(128,91,56,.46);
+  background:linear-gradient(180deg,rgba(255,244,214,.88),rgba(244,223,183,.88));
+  color:#5d4832;
+  box-shadow:0 4px 0 rgba(113,80,56,.72),0 9px 18px rgba(66,49,34,.08),inset 0 1px rgba(255,255,255,.62);
+}
+.word-hunt-status strong{color:#3f5144}
+.word-hunt-new{
+  border:1px solid rgba(174,132,62,.32);
+  background:linear-gradient(180deg,rgba(255,250,230,.90),rgba(246,228,185,.92));
+  color:#6a5838;
+  box-shadow:0 4px 0 rgba(170,130,60,.52),0 8px 14px rgba(72,54,31,.08);
+  transition:transform .12s ease,box-shadow .12s ease,background .18s ease,color .18s ease;
+}
+.word-hunt-new:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(170,130,60,.52)}
+.word-hunt-overlay.word-hunt-complete .word-hunt-new{
+  background:linear-gradient(180deg,#ffdb69,#f7c94c);
+  color:#554219;border-color:#e0b245;
+  box-shadow:0 5px 0 #c79b2f,0 10px 18px rgba(109,80,34,.13);
+}
+.word-hunt-rounds{
+  color:#76664f;
+  text-shadow:0 1px rgba(255,255,255,.65);
+}
+@media(max-width:700px){
+  .word-hunt-overlay{
+    background:
+      linear-gradient(180deg,rgba(255,249,224,.34),rgba(246,236,199,.46)),
+      url('./bokskogen-atlas32.webp') center top/auto 100% fixed no-repeat;
+  }
+  .word-hunt-shell{
+    background:
+      linear-gradient(180deg,rgba(255,250,231,.84),rgba(255,247,220,.79) 58%,rgba(255,249,228,.72));
+  }
+}
+@media (max-width:700px) and (orientation:portrait){
+  .word-hunt-shell{
+    padding-top:max(7px,env(safe-area-inset-top));
+    padding-bottom:max(10px,env(safe-area-inset-bottom));
+  }
+  .word-hunt-intro{
+    border-color:rgba(199,157,85,.30);
+    background:rgba(255,248,220,.72);
+  }
+  .word-hunt-targets{
+    background:rgba(255,248,224,.90);
+  }
+  .word-hunt-board-card{
+    width:100%;
+  }
+  .word-hunt-status{
+    width:100%;
+    background:rgba(248,229,193,.90);
+  }
+  .word-hunt-actions{
+    width:100%;
+    justify-items:center;
+  }
+  .word-hunt-new{
+    width:min(270px,72%);
+  }
+  .word-hunt-rounds{
+    width:100%;
+  }
+}
+@media(min-width:701px) and (max-height:500px) and (orientation:landscape){
+  .word-hunt-shell{
+    background:linear-gradient(90deg,rgba(255,249,228,.88),rgba(255,246,216,.80));
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .word-hunt-new{transition:none}
+}
