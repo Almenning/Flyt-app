@@ -69,8 +69,9 @@
         const actual=chooserModel().chapters.find(chapter=>chapter.id===selected);
         if(!actual||!actual.available)return;
         if(selected==='bokskogen-1'){
+          const onBokskogen=view.options.onBokskogen;
           close();
-          view?.options.onBokskogen?.();
+          onBokskogen?.();
           return;
         }
         if(selected==='fortellingsdalen-2'){
