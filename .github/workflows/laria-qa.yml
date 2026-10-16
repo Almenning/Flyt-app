@@ -299,6 +299,12 @@ jobs:
           node --check tests/laria-geography-journey-learning-system.playwright.js
           node tests/laria-journey-learning-system.playwright.js
           node tests/laria-geography-journey-learning-system.playwright.js
+      - name: Verify chapter-one completion semantics
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+        run: |
+          node --check tests/laria-chapter-completion.playwright.js
+          node tests/laria-chapter-completion.playwright.js
       - name: Unified premium mission menus before and after completion
         env:
           MISSION_QA_SCREENSHOTS: /tmp/laria-mission-visual
