@@ -5,7 +5,12 @@ const KEY='laria-wordhunt-v1';
 let ui={level:'easy',theme:'mixed',themeChoice:'mixed',size:6,grid:[],words:[],recentWords:[],found:new Map(),drag:null,tapStart:null,completed:false,magicSeen:false,magicTimer:null,pickerFocus:null};
 function stats(){try{return THEMES.normalizeProgress(JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(_){return THEMES.normalizeProgress(null)}}
 function saveTheme(){const s=stats();s.theme=ui.theme;localStorage.setItem(KEY,JSON.stringify(s))}
-function saveRound(){const s=stats();s.rounds+=1;s.theme=ui.theme;s.themeRounds[ui.theme]+=1;localStorage.setItem(KEY,JSON.stringify(s))}
+function saveRound(){
+  const s=stats(),firstSticker=s.themeRounds[ui.theme]===0;
+  s.rounds+=1;s.theme=ui.theme;s.themeRounds[ui.theme]+=1;
+  localStorage.setItem(KEY,JSON.stringify(s));
+  return firstSticker;
+}
 function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b}
 function dirSet(){return ui.level==='easy'?[[0,1],[1,0]]:[[0,1],[1,0],[0,-1],[-1,0],[1,1],[1,-1],[-1,1],[-1,-1]]}
 function directionPlan(){
@@ -121,6 +126,16 @@ function highlightThemeChoice(){
     button.setAttribute('aria-pressed',String(selected));
   });
 }
+function revealSelectedTheme(){
+  const strip=overlay().querySelector('.wh-theme-cards');
+  const chosen=strip?.querySelector('.wh-theme-card.selected');
+  if(!strip||!chosen||strip.scrollWidth<=strip.clientWidth+2)return;
+  // Preserve the selected topic in the visible part of the narrow horizontal
+  // picker. Do not scroll the whole screen or change keyboard focus.
+  const frame=strip.getBoundingClientRect(),card=chosen.getBoundingClientRect();
+  const center=strip.scrollLeft+(card.left-frame.left)-(strip.clientWidth-card.width)/2;
+  strip.scrollLeft=Math.max(0,Math.min(center,strip.scrollWidth-strip.clientWidth));
+}
 function showThemePicker(){
   const root=overlay(),picker=root.querySelector('.word-hunt-theme-picker');
   if(!picker.hidden)return;
@@ -129,6 +144,7 @@ function showThemePicker(){
   ui.themeChoice=ui.theme;
   highlightThemeChoice();
   picker.hidden=false;
+  revealSelectedTheme();
   root.querySelector('.word-hunt-shell').inert=true;
   picker.querySelector('.wh-theme-close').focus({preventScroll:true});
 }
@@ -168,7 +184,7 @@ function showMagic(word){
 function overlay(){
   let root=document.getElementById('word-hunt-overlay');if(root){const fox=root.querySelector('.word-hunt-fox');if(fox)fox.src=window.LARIA_FOX.source(window.LARIA_FOX.choice());return root;}
   root=document.createElement('section');root.id='word-hunt-overlay';root.className='word-hunt-overlay';root.dataset.exploreRelease='explore-rc1';root.hidden=true;root.setAttribute('role','dialog');root.setAttribute('aria-modal','true');root.setAttribute('aria-label','Ordjakt i Bokskogen');
-  root.innerHTML='<div class="word-hunt-shell"><div class="word-hunt-top"><button type="button" class="word-hunt-back" aria-label="Tilbake til Læria">←</button><div class="word-hunt-title"><small>Lek & utforsk</small><h1>Ordjakt i Bokskogen</h1></div><img class="word-hunt-fox" src="'+window.LARIA_FOX.source(window.LARIA_FOX.choice())+'" alt="" aria-hidden="true"></div><div class="word-hunt-intro">Finn ordene! Dra over bokstavene, eller trykk på første og siste bokstav.</div><div class="word-hunt-levels" role="group" aria-label="Vanskelighetsgrad og ordtema"><button type="button" class="word-hunt-level" data-word-level="easy">🌱 Rolig</button><button type="button" class="word-hunt-level" data-word-level="hard">✨ Litt lurere</button><button type="button" class="word-hunt-theme-mobile" aria-label="Velg ordtema">🎨 Tema</button></div><div class="word-hunt-board-wrap"><div class="word-hunt-board-card"><div class="word-hunt-board" role="grid" aria-label="Bokstavrutenett"></div><div class="word-hunt-magic" hidden aria-hidden="true"><span class="word-hunt-magic-symbol"></span><strong class="word-hunt-magic-message"></strong></div></div><aside class="word-hunt-side"><button type="button" class="word-hunt-theme-open" aria-label="Velg ordtema"><img class="word-hunt-theme-icon" alt="" src="./word-hunt-theme-mixed.svg?v=20261016-premium2"><span><small>ORDTEMA</small><strong class="word-hunt-current-theme">Blandede ord</strong></span><span class="word-hunt-theme-change" aria-hidden="true">Bytt ›</span></button><div class="word-hunt-targets"><h2>Finn disse</h2><div class="word-hunt-words"></div></div><div class="word-hunt-status" aria-live="polite"></div><div class="word-hunt-actions"><button type="button" class="word-hunt-new">Ny runde</button><div class="word-hunt-rounds"></div></div></aside></div></div>';
+  root.innerHTML='<div class="word-hunt-shell"><div class="word-hunt-top"><button type="button" class="word-hunt-back" aria-label="Tilbake til Læria">←</button><div class="word-hunt-title"><small>Lek & utforsk</small><h1>Ordjakt i Bokskogen</h1></div><img class="word-hunt-fox" src="'+window.LARIA_FOX.source(window.LARIA_FOX.choice())+'" alt="" aria-hidden="true"></div><div class="word-hunt-intro">Finn ordene! Dra over bokstavene, eller trykk på første og siste bokstav.</div><div class="word-hunt-levels" role="group" aria-label="Vanskelighetsgrad og ordtema"><button type="button" class="word-hunt-level" data-word-level="easy">🌱 Rolig</button><button type="button" class="word-hunt-level" data-word-level="hard">✨ Litt lurere</button><button type="button" class="word-hunt-theme-mobile" aria-label="Velg ordtema"><span class="word-hunt-mobile-icon" aria-hidden="true">✨</span><span class="word-hunt-mobile-label">Blandet</span></button></div><div class="word-hunt-board-wrap"><div class="word-hunt-board-card"><div class="word-hunt-board" role="grid" aria-label="Bokstavrutenett"></div><div class="word-hunt-magic" hidden aria-hidden="true"><span class="word-hunt-magic-symbol"></span><strong class="word-hunt-magic-message"></strong></div></div><aside class="word-hunt-side"><button type="button" class="word-hunt-theme-open" aria-label="Velg ordtema"><img class="word-hunt-theme-icon" alt="" src="./word-hunt-theme-mixed.svg?v=20261016-premium2"><span><small>ORDTEMA</small><strong class="word-hunt-current-theme">Blandede ord</strong></span><span class="word-hunt-theme-change" aria-hidden="true">Bytt ›</span></button><div class="word-hunt-targets"><h2>Finn disse</h2><div class="word-hunt-words"></div></div><div class="word-hunt-status" aria-live="polite"></div><div class="word-hunt-actions"><button type="button" class="word-hunt-new">Ny runde</button><div class="word-hunt-rounds"></div></div></aside></div></div>';
   root.insertAdjacentHTML('beforeend',themePickerMarkup());
   document.body.append(root);
   root.querySelectorAll('.word-hunt-theme-open,.word-hunt-theme-mobile').forEach(b=>b.onclick=showThemePicker);
@@ -265,15 +281,20 @@ function checkLine(path){
   try{navigator.vibrate?.(22)}catch(_){}
   try{typeof playSuccessTone==='function'&&playSuccessTone()}catch(_){}
   if(ui.found.size===ui.words.length){
-    ui.completed=true;saveRound();status('Du fant alle ordene! 🌟 Klar for en ny runde.',true);
+    ui.completed=true;
+    const earned=saveRound(),pack=THEMES.get(ui.theme);
+    if(earned)status('Du fant alle ordene! «'+pack.title+'» er nå i samleboken på Hjem.',true,true);
+    else status('Du fant alle ordene! 🌟 Klar for en ny runde.',true);
   }else{
     const left=ui.words.length-ui.found.size;
     status('Du fant '+hit+'! '+(left===1?'Ett ord igjen.':left+' ord igjen.'));
   }
   render(false)
 }
-function status(message,success=false){
-  const s=overlay().querySelector('.word-hunt-status');s.innerHTML='<strong>'+(success?'Ordjakten er løst!':'Reven følger med 🦊')+'</strong>'+message;
+function status(message,success=false,newSticker=false){
+  const s=overlay().querySelector('.word-hunt-status');
+  s.classList.toggle('is-sticker-earned',newSticker);
+  s.innerHTML='<strong>'+(newSticker?'✦ Nytt klistremerke!':success?'Ordjakten er løst!':'Reven følger med 🦊')+'</strong>'+message;
   if(success){s.classList.remove('word-hunt-success');void s.offsetWidth;s.classList.add('word-hunt-success')}
 }
 function render(resetStatus=true){
@@ -286,6 +307,11 @@ function render(resetStatus=true){
   root.querySelectorAll('[data-word-level]').forEach(b=>b.classList.toggle('active',b.dataset.wordLevel===ui.level));
   const pack=THEMES.get(ui.theme);
   root.querySelector('.word-hunt-current-theme').textContent=pack.title;
+  const mobile=root.querySelector('.word-hunt-theme-mobile');
+  mobile.querySelector('.word-hunt-mobile-icon').textContent=pack.icon;
+  mobile.querySelector('.word-hunt-mobile-label').textContent=pack.short;
+  mobile.dataset.theme=pack.id;
+  mobile.setAttribute('aria-label','Velg ordtema. Nå: '+pack.title);
   root.querySelector('.word-hunt-theme-icon').setAttribute('src','./word-hunt-theme-'+pack.id+'.svg?v=20261016-premium2');
   root.querySelector('.word-hunt-theme-open').setAttribute('aria-label','Velg ordtema. Nå: '+pack.title);
   const rounds=Number(stats().rounds||0);
