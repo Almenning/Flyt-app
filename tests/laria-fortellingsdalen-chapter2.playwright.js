@@ -103,6 +103,13 @@ async function run(engine,label,viewport){
     await page.goto(url+'&chapter2-preview=1&chapter2-qa='+label,{waitUntil:'domcontentloaded'});
     await page.locator('.bc14-subject[data-camp="subject-norwegian"]').waitFor({timeout:22000});
     await openChooser(page);
+    if(viewport.width<=320){
+      const secondCard=await page.locator('[data-fd-chapter-card="fortellingsdalen-2"]')
+        .evaluate(el=>({top:el.getBoundingClientRect().top,visible:getComputedStyle(el).display!=='none'}));
+      assert.equal(secondCard.visible,true,'second chapter must not be hidden on narrow iPhone');
+      assert.ok(secondCard.top<viewport.height-24,
+        label+' the next adventure must peek into the first screen without scrolling');
+    }
     if(process.env.LARIA_CHAPTER2_SCREENSHOTS){
       const dir=process.env.LARIA_CHAPTER2_SCREENSHOTS;fs.mkdirSync(dir,{recursive:true});
       await page.screenshot({path:path.join(dir,label+'-chapter-picker.png'),fullPage:false,animations:'disabled'});
@@ -143,6 +150,16 @@ async function run(engine,label,viewport){
       assert.ok(size>=580,label+' portrait iPad atlas should use meaningful screen width');
     }
     for(const place of mapGeometry.places){
+      if(viewport.width<600&&['fortellermolla','stjernetoppen'].includes(place.id)){
+        const labelFit=await page.locator('[data-fd-stage="'+place.id+'"] .fd-place-label strong').evaluate(el=>({
+          natural:el.scrollWidth,available:el.clientWidth,height:el.getBoundingClientRect().height,
+          lineHeight:parseFloat(getComputedStyle(el).lineHeight)
+        }));
+        assert.ok(labelFit.natural<=labelFit.available+1,
+          label+' map sign '+place.id+' should never cut or split a word');
+        assert.ok(labelFit.height<=labelFit.lineHeight*1.25,
+          label+' map sign '+place.id+' should read as one whole line');
+      }
       assert.equal(place.visible,true,label+' hidden atlas stop '+place.id);
       assert.equal(place.inside,true,label+' clipped atlas stop '+place.id);
       assert.ok(place.height>=44,label+' undersized tap target '+place.id);

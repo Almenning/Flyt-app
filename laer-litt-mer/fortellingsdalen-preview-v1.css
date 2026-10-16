@@ -581,3 +581,26 @@ body > .fd-dev-launch small{font-size:10px;line-height:1.25}
 @media(prefers-reduced-motion:reduce){
   #laria-fortellingsdalen-preview .fd-letter-actions .fd-find{transition:none}
 }
+
+/* Preserve whole landmark names on narrow maps. These two longer signs may
+ * grow towards the interior of the art, but never beyond its edge or into
+ * hard-to-read mid-word wrapping. The landmarks' map anchors stay the same.
+ */
+@media(max-width:650px){
+  #laria-fortellingsdalen-preview .fd-map-place[data-fd-stage="fortellermolla"],
+  #laria-fortellingsdalen-preview .fd-map-place[data-fd-stage="stjernetoppen"]{
+    width:57%!important;
+  }
+  #laria-fortellingsdalen-preview .fd-map-place[data-fd-stage="fortellermolla"]{
+    transform:translate(-59%,-50%)!important;
+  }
+  #laria-fortellingsdalen-preview .fd-map-place[data-fd-stage="fortellermolla"]:active{
+    transform:translate(-59%,-49%)!important;
+  }
+  #laria-fortellingsdalen-preview .fd-map-place[data-fd-stage="fortellermolla"] .fd-place-label strong,
+  #laria-fortellingsdalen-preview .fd-map-place[data-fd-stage="stjernetoppen"] .fd-place-label strong{
+    font-size:clamp(11px,3.3vw,13px)!important;
+    letter-spacing:-.02em;white-space:nowrap!important;
+    overflow-wrap:normal!important;hyphens:none!important;
+  }
+}

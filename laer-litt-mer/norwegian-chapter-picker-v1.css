@@ -145,3 +145,41 @@
 @media (prefers-reduced-motion:reduce){
   #laria-norwegian-chapter-picker *{animation:none!important;transition:none!important}
 }
+
+/* Child-facing chapter discovery on small phones: keep the next adventure
+ * visible at the fold instead of hiding it beneath a full-screen first card.
+ * The original illustrations and all 44px+ actions remain unchanged.
+ */
+@media(max-width:620px){
+  #laria-norwegian-chapter-picker.fd-chapter-portal{
+    padding-top:calc(7px + env(safe-area-inset-top));
+  }
+  #laria-norwegian-chapter-picker .fd-chapter-dialog{padding:14px}
+  #laria-norwegian-chapter-picker .fd-chapter-header{padding-bottom:11px}
+  #laria-norwegian-chapter-picker .fd-chapter-heading{padding-bottom:12px}
+  #laria-norwegian-chapter-picker .fd-chapter-heading h1{font-size:29px;margin:4px 0}
+  #laria-norwegian-chapter-picker .fd-chapter-heading p{font-size:13px;line-height:1.33}
+  #laria-norwegian-chapter-picker .fd-chapter-fox{width:68px;height:74px}
+  #laria-norwegian-chapter-picker .fd-chapter-image-wrap{height:126px}
+  #laria-norwegian-chapter-picker .fd-chapter-card-content{padding:13px 14px 14px}
+  #laria-norwegian-chapter-picker .fd-chapter-card h2{font-size:24px;margin:4px 0 5px}
+  #laria-norwegian-chapter-picker .fd-chapter-card p{
+    font-size:12px;line-height:1.35;margin-bottom:10px;
+  }
+  #laria-norwegian-chapter-picker .fd-chapter-progress{font-size:11px}
+  #laria-norwegian-chapter-picker .fd-chapter-action{min-height:46px;margin-top:10px}
+  #laria-norwegian-chapter-picker .fd-chapter-footnote{margin-top:15px}
+}
+@media(max-width:360px){
+  #laria-norwegian-chapter-picker .fd-chapter-dialog{padding:12px}
+  #laria-norwegian-chapter-picker .fd-chapter-header{padding-bottom:8px}
+  #laria-norwegian-chapter-picker .fd-chapter-heading{padding-bottom:10px}
+  #laria-norwegian-chapter-picker .fd-chapter-heading h1{font-size:24px}
+  #laria-norwegian-chapter-picker .fd-chapter-heading p{font-size:12px;line-height:1.3}
+  #laria-norwegian-chapter-picker .fd-chapter-fox{width:58px;height:64px}
+  #laria-norwegian-chapter-picker .fd-chapter-choices{gap:11px}
+  #laria-norwegian-chapter-picker .fd-chapter-image-wrap{height:116px}
+  #laria-norwegian-chapter-picker .fd-chapter-card-content{padding:11px 12px 13px}
+  #laria-norwegian-chapter-picker .fd-chapter-card h2{font-size:22px}
+  #laria-norwegian-chapter-picker .fd-chapter-action{min-height:44px;margin-top:9px}
+}
