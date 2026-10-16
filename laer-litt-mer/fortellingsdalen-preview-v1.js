@@ -63,7 +63,7 @@
     if(!r){ui.mode='intro';return renderIntro()}
     const title=r.chapterCompleted?'Hele Fortellingsdalen er utforsket!':r.passed?'Du fant veien videre!':'Du har oppdaget nye spor!';
     return shell('<div class="fd-result"><div class="fd-celebrate">✦</div><span class="fd-eyebrow">HISTORIEN ER FERDIG</span>'+
-      '<h1>'+title+'</h1><p>Du svarte riktig på '+r.correct+' av '+r.total+' spørsmål. +(r.passed?
+      '<h1>'+title+'</h1><p>Du svarte riktig på '+r.correct+' av '+r.total+' spørsmål. '+(r.passed?
         'Dette stedet er nå med i eventyrboken din.':'Historien kan prøves igjen når du har lyst.')+'</p>'+
       '<div class="fd-result-fox">'+fox()+'</div>'+
       '<button class="fd-primary" data-fd-action="intro" type="button">Til stedene i dalen →</button>'+
