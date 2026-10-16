@@ -542,3 +542,42 @@ body > .fd-dev-launch small{font-size:10px;line-height:1.25}
       rgba(255,247,225,.99) 100%);
   }
 }
+
+/* Reading flow: an intentional, accessible jump to the question.
+ * It replaces reliance on discovering offscreen content on small phones.
+ */
+#laria-fortellingsdalen-preview .fd-letter-actions{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:8px;flex-wrap:wrap;
+}
+#laria-fortellingsdalen-preview .fd-letter-actions .fd-read,
+#laria-fortellingsdalen-preview .fd-letter-actions .fd-find{
+  min-height:44px;padding:9px 11px;border-radius:13px;
+  font-size:13px;font-weight:900;
+}
+#laria-fortellingsdalen-preview .fd-letter-actions .fd-find{
+  border:1px solid #e4b78c;
+  background:linear-gradient(160deg,#eec598,#dfac78);
+  box-shadow:0 3px 0 #bd8a5e;color:#61402f;
+}
+#laria-fortellingsdalen-preview .fd-letter-actions .fd-find:active{
+  transform:translateY(2px);box-shadow:0 1px 0 #bd8a5e;
+}
+#laria-fortellingsdalen-preview .fd-story-layout:focus{
+  outline:none;
+}
+#laria-fortellingsdalen-preview .fd-question-prompt{
+  scroll-margin-top:calc(14px + env(safe-area-inset-top));
+}
+@media(max-width:360px){
+  #laria-fortellingsdalen-preview .fd-letter-actions{
+    gap:6px;
+  }
+  #laria-fortellingsdalen-preview .fd-letter-actions .fd-read,
+  #laria-fortellingsdalen-preview .fd-letter-actions .fd-find{
+    font-size:12px;padding:8px 9px;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  #laria-fortellingsdalen-preview .fd-letter-actions .fd-find{transition:none}
+}
