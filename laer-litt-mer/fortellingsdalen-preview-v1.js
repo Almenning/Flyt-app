@@ -75,7 +75,7 @@
         'Les historien i ditt tempo. Jeg kan lese den høyt for deg.')+'</p></div></div>'+
       '<div class="fd-story-banner"><span>SPOR '+n+' AV '+session.total+'</span><div class="fd-story-bar"><span style="width:'+mark(pending?n:n-1,session.total)+'%"></span></div></div>'+
       '<div class="fd-letter"><div class="fd-letter-decoration">✦</div><h2>'+esc(session.story.title)+'</h2><p>'+esc(session.story.passage)+'</p>'+
-      '<button type="button" class="fd-read" data-fd-action="read" aria-label="Les opp historien og spørsmålet">◖)) Les opp</button></div>'+
+      '<button type="button" class="fd-read" data-fd-action="read" aria-label="Les opp historien, spørsmålet og svaralternativene">🔊 Les høyt</button></div>'+
       '<div class="fd-question"><span class="fd-eyebrow">FINN SPORET</span><h3 class="fd-question-prompt" tabindex="-1">'+esc(q.prompt)+'</h3>'+
       '<div class="fd-options">'+options+'</div></div>'+
       (pending?'<div class="fd-feedback" role="status"><strong>'+(pending.correct?'★ Du fant riktig spor!':'Det var ikke helt riktig denne gangen.')+
@@ -110,7 +110,10 @@
     const s=core.resume(ui.state)||ui.pending?.session;if(!s)return;
     window.speechSynthesis.cancel();
     const spokenQuestion=ui.pending?.question||s.story.questions[s.index];
-    const u=new SpeechSynthesisUtterance(s.story.passage+' '+spokenQuestion.prompt);
+    const alternatives=spokenQuestion.options.map((value,i)=>
+      'Svar '+(i+1)+': '+value+'.').join(' ');
+    const u=new SpeechSynthesisUtterance(s.story.passage+'. '+spokenQuestion.prompt+
+      ' Svaralternativer. '+alternatives);
     u.lang='nb-NO';u.rate=0.86;window.speechSynthesis.speak(u);
   }
   function close(){
@@ -127,10 +130,14 @@
     const action=b.dataset.fdAction;
     if(action==='close'){close();return}
     if(action==='read'){speak();return}
-    if(action==='intro'){ui.pending=null;ui.lastResult=null;ui.mode='intro';save();render();return}
+    if(action==='intro'){
+      if('speechSynthesis' in window)window.speechSynthesis.cancel();
+      ui.pending=null;ui.lastResult=null;ui.mode='intro';save();render();return;
+    }
     if(action==='resume'){ui.pending=null;ui.mode='story';render();return}
     if(action==='stage'||action==='replay'){start(b.dataset.fdStage);return}
     if(action==='next'){
+      if('speechSynthesis' in window)window.speechSynthesis.cancel();
       const completed=!!ui.pending?.finished,outcome=ui.pending?.outcome||null;
       ui.pending=null;
       if(completed){ui.lastResult=outcome;ui.mode='result'}else ui.mode='story';
