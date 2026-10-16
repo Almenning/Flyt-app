@@ -222,13 +222,13 @@ test('choosing another chapter never converts both chapters into a finished scho
 
 test('the portrait artwork is a prototype-only, single-source five-stop map contract',()=>{
   assert.equal(artwork.assertContract(),true);
-  assert.deepEqual(artwork.DIMENSIONS,{width:941,height:1672});
+  assert.deepEqual(artwork.DIMENSIONS,{width:768,height:1376});
   assert.equal(artwork.ASSET.publicApproved,false);
   assert.equal(artwork.ASSET.status,'prototype');
   assert.deepEqual(artwork.ORDER,chapters.STAGES.map(stage=>stage.id));
   assert.equal(picker.CHAPTERS[1].art,artwork.ASSET.src);
   assert.equal(artwork.markerStyle('brevhytta'),'--fd-x:23%;--fd-y:83%;');
-  assert.equal(artwork.foxStyle('eventyrbrua'),'--fd-fox-x:43%;--fd-fox-y:78%;--fd-fox-scale:0.84;');
+  assert.equal(artwork.foxStyle('eventyrbrua'),'--fd-fox-x:45%;--fd-fox-y:86%;--fd-fox-scale:0.84;');
   assert.equal(artwork.stop('not-real'),null);
   assert.throws(()=>artwork.markerStyle('not-real'),/unknown map stop/);
   for(const stage of artwork.ORDER){
@@ -236,10 +236,11 @@ test('the portrait artwork is a prototype-only, single-source five-stop map cont
     assert.ok(artwork.stop(stage).foxFoot);
     assert.ok(artwork.markerStyle(stage).includes('--fd-y:'));
   }
-  const svg=fs.readFileSync(path.join(__dirname,'../laer-litt-mer/fortellingsdalen-map-candidate-v2.svg'),'utf8');
-  assert.match(svg,/<svg[^>]*width="941" height="1672"/);
-  assert.doesNotMatch(svg,/<(?:text|foreignObject)\b/i,'No permanent lettering or button UI in the art');
-  assert.doesNotMatch(svg,/<image\b/i,'No fixed mascot or rasterized UI baked into art');
+  const png=fs.readFileSync(path.join(__dirname,'../laer-litt-mer/fortellingsdalen-map-premium-v3.png'));
+  assert.equal(png.subarray(0,8).toString('hex'),'89504e470d0a1a0a','valid PNG signature');
+  assert.equal(png.readUInt32BE(16),768,'portrait map natural width');
+  assert.equal(png.readUInt32BE(20),1376,'portrait map natural height');
+  assert.ok(png.length>1000000,'premium painting should not be a tiny missing placeholder');
 });
 
 test('the same portrait artwork drives chapter card, story map and overlays',()=>{
