@@ -122,7 +122,6 @@
     const candidates=[],seen=new Set();
     const add=(id,type)=>{
       if(!contract.allowedGeoTypes.includes(type))return;
-      if(!root.countries?.[id])return;
       const available=typeof root.questionTypesForCountry==='function'
         ?root.questionTypesForCountry(id,true,node.grade):[];
       if(!available.includes(type))return;
