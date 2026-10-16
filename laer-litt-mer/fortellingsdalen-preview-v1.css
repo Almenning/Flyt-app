@@ -469,3 +469,27 @@ body > .fd-dev-launch small{font-size:10px;line-height:1.25}
     font-size:12px!important;line-height:1.12!important;
   }
 }
+
+/* iPad portrait needs an intentionally large storybook page, not a 480px
+ * phone-width atlas sitting in the middle of unused tablet space.
+ */
+@media(min-width:700px) and (orientation:portrait){
+  #laria-fortellingsdalen-preview .fd-app{
+    width:min(100%,850px)!important;
+    padding-left:clamp(11px,2.2vw,18px);
+    padding-right:clamp(11px,2.2vw,18px);
+  }
+  #laria-fortellingsdalen-preview .fd-atlas{
+    width:min(100%,690px)!important;max-width:690px!important;
+    border-radius:27px!important;
+  }
+  #laria-fortellingsdalen-preview .fd-map-header{
+    padding:1px 5px 13px!important;
+  }
+  #laria-fortellingsdalen-preview .fd-map-place{
+    min-height:53px!important;
+  }
+  #laria-fortellingsdalen-preview .fd-map-place .fd-place-label strong{
+    font-size:15px!important;
+  }
+}
