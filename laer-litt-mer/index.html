@@ -4111,8 +4111,9 @@ function recordGeoJourneyResult(result){
   const prog=geoJourneyProgress(grade),winKey='geography:'+grade;
   if(prog.complete&&!state.journey.gradeWins[winKey]){
     state.journey.gradeWins[winKey]={at:Date.now()};
-    result.gradeCompleted={subject:'geography',grade};
-    state.lastMilestone={title:GRADE_CONFIG[grade].label+' fullført i geografi! 🏆',copy:'Du har rundet geografiens kjerneløp på dette trinnet.',at:Date.now()};
+    const chapter=journeyChapterMeta('geography',grade);
+    result.journeyCompleted={subject:'geography',grade,chapterId:chapter.id,chapter:chapter.chapter,title:chapter.title};
+    state.lastMilestone={title:'🏆 '+chapter.title+' fullført!',copy:'Du har fullført dette eventyret i Geografi. Du kan spille det igjen, utforske fritt eller fortsette når et nytt eventyr åpner.',at:Date.now()};
   }
 }
 
@@ -4137,8 +4138,9 @@ function renderGeoJourney(){
   const viewGrade=journeyViewGrade('geography'),prog=geoJourneyProgress(viewGrade),recommended=geoJourneyRecommendedNode(viewGrade),model=prog.model,recommendedIndex=recommended?model.nodes.findIndex(n=>n.id===recommended.id):-1,currentAreaIndex=journeyFirstOpenArea(model,geoJourneyAreaComplete);
   document.getElementById('geo-journey-grade').textContent=GRADE_CONFIG[viewGrade].label;
   renderJourneyGradeStrip('geography','geo-journey-grade-strip','geo-journey-grade-note',viewGrade);
-  document.getElementById('geo-journey-title').textContent=prog.complete?'Ekspedisjonen er fullført':'Fra det kjente til hele verden';
-  const hud='<div class="journey-game-hud-v5"><span class="hud-level">'+GRADE_CONFIG[viewGrade].label+'</span><div class="hud-quest"><b>'+(prog.complete?'Ekspedisjonen er rundet':'Neste: '+(recommended?.title||'Velg etappe'))+'</b><small>'+prog.pct+' % av ekspedisjonen</small><div class="hud-progress"><i style="width:'+prog.pct+'%"></i></div></div><span class="hud-trophy">'+journeySpecialSvg('checkpoint')+prog.areasDone+'/'+model.areas.length+'</span></div>';
+  const chapter=journeyChapterMeta('geography',viewGrade);
+  document.getElementById('geo-journey-title').textContent=prog.complete?chapter.title+' er fullført':'Fra det kjente til hele verden';
+  const hud='<div class="journey-game-hud-v5"><span class="hud-level">EVENTYR</span><div class="hud-quest"><b>'+(prog.complete?'Eventyret er fullført':'Neste: '+(recommended?.title||'Velg etappe'))+'</b><small>'+prog.pct+' % av '+chapter.title+'</small><div class="hud-progress"><i style="width:'+prog.pct+'%"></i></div></div><span class="hud-trophy">'+journeySpecialSvg('checkpoint')+prog.areasDone+'/'+model.areas.length+'</span></div>';
 
   const chunks=model.areas.map((area,ai)=>{
     const areaDone=geoJourneyAreaComplete(area),areaPct=journeyAreaVisualProgressV7(area,true),growth=journeyGrowthStageV7(areaPct,areaDone),isPreview=!prog.complete&&ai===currentAreaIndex+1,isFuture=!prog.complete&&ai>currentAreaIndex+1,reward=journeyAreaReward('geography',ai);
@@ -4168,7 +4170,7 @@ function renderGeoJourney(){
   host.querySelectorAll('[data-geo-journey-peek]').forEach(b=>b.onclick=()=>startGeoWorldPreview(b.dataset.geoJourneyPeek,viewGrade));
   host.querySelectorAll('[data-geo-journey-replay]').forEach(b=>b.onclick=()=>openJourneyMission('geography',b.dataset.geoJourneyReplay,viewGrade,true));
   const finish=document.getElementById('geo-journey-finish');finish.classList.toggle('complete',prog.complete);
-  finish.innerHTML=prog.complete?'<strong>🏆 Ekspedisjonen er rundet</strong><p>Du har vunnet troféet i alle hovedetappene. Kloden fortsetter å vise hva som sitter over tid.</p>':'<strong>🌍 Ekspedisjonsmålet</strong><p>Følg hovedruten og vinn troféet i hver etappe. Kloden er alltid åpen for fri utforskning.</p>';
+  finish.innerHTML=prog.complete?'<strong>🏆 '+chapter.title+' er fullført</strong><p>Du har fullført dette eventyret. Kloden er fortsatt åpen for fri utforskning, og reisen kan spilles igjen.</p>':'<strong>🌍 Målet i dette eventyret</strong><p>Følg hovedruten og vinn troféet i hver etappe. Kloden er alltid åpen for fri utforskning.</p>';
 }
 function questionTypesForCountry(k,includeMap=false,grade=currentGrade()){
   const allowed=new Set(allowedTypesForGrade(grade)),types=[];
@@ -4999,8 +5001,9 @@ function recordJourneySessionResult(result){
   const prog=journeyProgress(subject,grade),winKey=subject+':'+grade;
   if(prog.complete&&!state.journey.gradeWins[winKey]){
     state.journey.gradeWins[winKey]={at:Date.now()};
-    result.gradeCompleted={subject,grade};
-    state.lastMilestone={title:GRADE_CONFIG[grade].label+' fullført! 🏆',copy:'Du har rundet kjerneløpet i '+(SUBJECTS[subject]?.title||subject)+'.',at:Date.now()};
+    const chapter=journeyChapterMeta(subject,grade);
+    result.journeyCompleted={subject,grade,chapterId:chapter.id,chapter:chapter.chapter,title:chapter.title};
+    state.lastMilestone={title:'🏆 '+chapter.title+' fullført!',copy:'Du har fullført dette eventyret i '+(SUBJECTS[subject]?.title||subject)+'. Du kan spille det igjen, utforske fritt eller fortsette når et nytt eventyr åpner.',at:Date.now()};
   }
 }
 function startJourneyReview(subject,grade=journeyViewGrade(subject)){
