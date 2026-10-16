@@ -71,6 +71,8 @@ async function solveStory(page,stageId){
   }
   const result=page.locator('.fd-result');
   await result.waitFor({timeout:8000});
+  const resultScroll=await page.locator('#laria-fortellingsdalen-preview').evaluate(el=>el.scrollTop);
+  assert.ok(resultScroll<=2,'result view should start at the top, not inherit the question scroll');
   assert.match(await result.innerText(),/fant veien videre|Fortellingsdalen er utforsket/i);
   await page.locator('[data-fd-action="intro"]').click();
   return story;
@@ -152,6 +154,10 @@ async function run(engine,label,viewport){
 
     // Interrupted chapter play must survive a real browser reload.
     await page.locator('[data-fd-stage="brevhytta"]').click();
+    const storyTop=await page.locator('#laria-fortellingsdalen-preview').evaluate(el=>el.scrollTop);
+    assert.ok(storyTop<=2,label+' opening a story must reset scroll inherited from the map');
+    const visibleBack=await page.locator('#laria-fortellingsdalen-preview .fd-back').boundingBox();
+    assert.ok(visibleBack&&visibleBack.y>=0,label+' story must not open with its top navigation cropped');
     const firstStory=await page.locator('.fd-letter h2').innerText();
     const storyFox=page.locator('.fd-story-companion .fd-fox-portrait');
     assert.equal(await storyFox.count(),1,label+' selected fox should join the story scene');
@@ -172,6 +178,11 @@ async function run(engine,label,viewport){
       fs.mkdirSync(dir,{recursive:true});
       await page.screenshot({path:path.join(dir,label+'-story-scene.png'),fullPage:false,animations:'disabled'});
     }
+    const toQuestion=page.locator('[data-fd-action="question"]');
+    assert.equal(await toQuestion.count(),1,label+' no way to jump to offscreen question');
+    await toQuestion.click();
+    assert.equal(await page.locator('.fd-question-prompt').evaluate(el=>document.activeElement===el),
+      true,label+' question jump must place accessible focus');
     const answer=await page.evaluate(()=>{
       const session=window.LARIA_CHAPTER_EXPANSION.resume(state);
       const q=session.story.questions[0];return q.options.indexOf(q.answer);
