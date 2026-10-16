@@ -3,11 +3,14 @@
  * Does not replace Bokskogen's original map, learning engine or progress records.
  */
 (function(root,factory){
-  const api=factory();
+  const art=root?.LARIA_FORTELLINGSDALEN_ART||
+    (typeof require==='function'?require('./fortellingsdalen-art-contract-v1.js'):null);
+  const api=factory(art);
   if(typeof module==='object'&&module.exports)module.exports=api;
   if(root)root.LARIA_NORWEGIAN_CHAPTER_CHOOSER=api;
-})(typeof window!=='undefined'?window:globalThis,function(){
+})(typeof window!=='undefined'?window:globalThis,function(art){
   'use strict';
+  if(!art||!art.assertContract())throw new Error('Fortellingsdalen art contract required');
   const FULL_ID='norwegian:2:fortellingsdalen-2';
   const CHAPTERS=Object.freeze([
     Object.freeze({
@@ -20,7 +23,7 @@
     Object.freeze({
       id:'fortellingsdalen-2',number:2,title:'Fortellingsdalen',
       subtitle:'Brev, ledetråder og små mysterier',
-      art:'./fortellingsdalen-map-preview.svg?v=20261016-c2map1',
+      art:art.ASSET.src,
       stateKey:FULL_ID,published:false
     })
   ]);
