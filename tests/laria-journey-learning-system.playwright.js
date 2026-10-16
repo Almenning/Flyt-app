@@ -43,13 +43,27 @@ async function run(engine,label){
             difficulties:questions.map(q=>q.learning?.difficulty||null)
           };
         }),
-        grade3Decorated:journeyModel('math',3).nodes.some(n=>n.learning)
+        grade3Decorated:journeyModel('math',3).nodes.some(n=>n.learning),
+        places:window.LARIA_LOCKED_JOURNEYS.build('math',model,()=>'new','plassverdi').places.map(place=>({
+          title:place.title,
+          role:place.role?.adventurePrompt||null,
+          ids:place.nodes.map(n=>n.id),
+          core:place.nodes.filter(n=>['skill','checkpoint'].includes(n.type)).map(n=>n.id)
+        }))
       };
     });
     assert.equal(report.installed,true,label+' systematic layer did not install');
     assert.equal(report.chapter,'tallenga-1',label+' wrong chapter contract');
     assert.equal(report.grade3Decorated,false,label+' pilot leaked into grade 3');
     assert(report.core.length>=7,label+' expected existing Tallenga core nodes');
+    assert.deepEqual(report.places.map(p=>p.title),
+      ['Tallverkstedet','Formfabrikken','Brøklaben','Målebroen','Problemtårnet']);
+    assert.deepEqual(report.places[0].core,['plassverdi'],label+' Tallverkstedet has wrong role');
+    assert.deepEqual(report.places[1].core,['rekkefolge','tall100-checkpoint'],label+' Formfabrikken has wrong role');
+    assert.deepEqual(report.places[2].core,[],label+' Brøklaben must stay free exploration');
+    assert.deepEqual(report.places[3].core,['addisjon100','pluss100-checkpoint','sub100'],label+' Målebroen has wrong role');
+    assert.deepEqual(report.places[4].core,['minus100-checkpoint'],label+' Problemtårnet has wrong role');
+    assert.match(report.places[2].role,/brøker/i,label+' Brøklaben missing child-facing role');
     for(const node of report.core){
       assert(node.learning,label+' '+node.id+' missing learning contract');
       assert.equal(node.count,5,label+' '+node.id+' builder should keep a five-question candidate set');
@@ -58,6 +72,20 @@ async function run(engine,label){
       assert(node.objectives.every(id=>id===node.learning.objectiveId),
         label+' '+node.id+' mixed learning objectives inside one mission');
     }
+
+    await page.locator('.bc14-subject[data-camp="subject-math"]').click();
+    const map=page.locator('#subject-screen.active .locked-journey-map[data-journey-subject="math"]');
+    await map.waitFor({timeout:14000});
+    await map.locator('[data-locked-place="2"]').click();
+    const labSheet=page.locator('.locked-journey-overlay:not([hidden]) .locked-journey-sheet.is-mission');
+    await labSheet.waitFor({timeout:8000});
+    assert.equal((await labSheet.locator('h2').innerText()).trim(),'Brøklaben');
+    assert.match(await labSheet.locator('.mission-head-copy p').innerText(),/brøker/i);
+    assert.equal(await labSheet.locator('.mission-primary[data-locked-existing="fraction-lab"]').count(),1,
+      label+' Brøklaben free play is not the primary action');
+    assert.equal(await labSheet.locator('.mission-primary[data-locked-node]').count(),0,
+      label+' Brøklaben fabricated a hidden graded mission');
+    await labSheet.locator('.locked-sheet-close').click();
 
     const launch=await page.evaluate(()=>{
       startJourneyNode('math','addisjon100',2);
