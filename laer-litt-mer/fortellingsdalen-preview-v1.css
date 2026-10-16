@@ -113,11 +113,11 @@
   #laria-fortellingsdalen-preview *{transition:none!important;animation:none!important}
 }
 
-/* The developer-only launcher sits outside the four approved paintings.
- * Legacy practice modules are deliberately hidden in the premium map layout.
+/* Developer-only portal. The approved iPad landscape map intentionally hides
+ * most of its old screen descendants; this stays outside that clipping tree.
  */
-body #subject-screen #subject-journey-section > .fd-dev-launch{
-  display:flex!important;position:fixed!important;right:calc(12px + env(safe-area-inset-right))!important;
+body > .fd-dev-launch{
+  display:none!important;position:fixed!important;right:calc(12px + env(safe-area-inset-right))!important;
   bottom:calc(80px + env(safe-area-inset-bottom))!important;left:auto!important;top:auto!important;
   z-index:9995!important;max-width:calc(100vw - 24px);width:min(310px,calc(100vw - 24px));
   min-height:65px!important;padding:10px 13px!important;border:2px solid #e6bf8c!important;
@@ -125,10 +125,10 @@ body #subject-screen #subject-journey-section > .fd-dev-launch{
   box-shadow:0 5px 0 #c8a880,0 10px 26px rgba(40,27,19,.2)!important;
   color:#5c3f2a!important;
 }
-body #subject-screen #subject-journey-section > .fd-dev-launch .module-icon{font-size:22px;flex:0 0 30px}
-body #subject-screen #subject-journey-section > .fd-dev-launch strong{font-size:13px}
-body #subject-screen #subject-journey-section > .fd-dev-launch small{font-size:10px;line-height:1.25}
-body #subject-screen:not(.active) #subject-journey-section > .fd-dev-launch{display:none!important}
+body.locked-journey-subject-norwegian > .fd-dev-launch{display:flex!important}
+body > .fd-dev-launch .module-icon{font-size:22px;flex:0 0 30px}
+body > .fd-dev-launch strong{font-size:13px}
+body > .fd-dev-launch small{font-size:10px;line-height:1.25}
 @media(min-width:900px) and (orientation:landscape){
-  body #subject-screen #subject-journey-section > .fd-dev-launch{right:26px!important;bottom:23px!important}
+  body > .fd-dev-launch{right:26px!important;bottom:23px!important}
 }
