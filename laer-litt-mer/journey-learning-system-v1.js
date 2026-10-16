@@ -75,19 +75,19 @@
       'math-g2-addition-100-challenge',
       'Bruke addisjon innenfor 100 i flere uttrykksformer.',
       ['addition-100'],
-      {kind:'challenge',questionCount:5,difficultyPattern:[1,1,2,2,2]}
+      {kind:'challenge',questionCount:5,difficultyPattern:[1,1,2,2,2],placeIndex:3}
     ),
     'pluss100-review':nodeContract(
       'math-g2-addition-100-review',
       'Repetere addisjon innenfor 100 med nye tall og situasjoner.',
       ['addition-100'],
-      {kind:'review',questionCount:5,difficultyPattern:[1,1,2,2,2]}
+      {kind:'review',questionCount:5,difficultyPattern:[1,1,2,2,2],placeIndex:3}
     ),
     'pluss100-checkpoint':nodeContract(
       'math-g2-addition-100-checkpoint',
       'Vise trygghet i addisjon innenfor 100.',
       ['addition-100'],
-      {kind:'checkpoint',questionCount:5,difficultyPattern:[1,1,2,2,2]}
+      {kind:'checkpoint',questionCount:5,difficultyPattern:[1,1,2,2,2],placeIndex:3}
     ),
     sub100:nodeContract(
       'math-g2-subtraction-100',
@@ -99,128 +99,19 @@
       'math-g2-subtraction-100-challenge',
       'Bruke subtraksjon innenfor 100 i flere uttrykksformer.',
       ['subtraction-100'],
-      {kind:'challenge',questionCount:5,difficultyPattern:[1,1,2,2,2]}
+      {kind:'challenge',questionCount:5,difficultyPattern:[1,1,2,2,2],placeIndex:4}
     ),
     'minus100-review':nodeContract(
       'math-g2-subtraction-100-review',
       'Repetere subtraksjon innenfor 100 med nye tall og situasjoner.',
       ['subtraction-100'],
-      {kind:'review',questionCount:5,difficultyPattern:[1,1,2,2,2]}
-    ),
-ria: systematic journey learning layer.
- * Pilot: Tallenga, 2. trinn.
- * Macro progression is fixed by explicit learning contracts. Concrete questions
- * vary inside each contract, while recent exact questions are avoided.
- */
-(function(root,factory){
-  const api=factory();
-  if(typeof module==='object'&&module.exports)module.exports=api;
-  if(root){
-    root.LARIA_JOURNEY_LEARNING_SYSTEM=api;
-    if(root.document)api.install(root);
-  }
-})(typeof window!=='undefined'?window:globalThis,function(){
-  'use strict';
-
-  const freezeList=list=>Object.freeze([...(list||[])]);
-  const nodeContract=(objectiveId,learningGoal,skills,options={})=>Object.freeze({
-    objectiveId,
-    learningGoal,
-    allowedSkills:freezeList(skills),
-    allowedTypes:freezeList(options.allowedTypes||['learning-choice']),
-    difficultyPattern:freezeList(options.difficultyPattern||[1,1,2,2,2]),
-    questionCount:Number(options.questionCount||0)||null,
-    kind:options.kind||'skill',
-    chapter:options.chapter||'tallenga-1',
-    placeIndex:Number.isInteger(options.placeIndex)?options.placeIndex:null
-  });
-
-  const MATH_G2_PLACES=Object.freeze([
-    Object.freeze({index:0,title:'Tallverkstedet',adventurePrompt:'Bygg tall og finn hva sifrene egentlig er verdt.',learningFocus:'plassverdi'}),
-    Object.freeze({index:1,title:'Formfabrikken',adventurePrompt:'Finn mønstre og sett tallene i riktig rekkefølge.',learningFocus:'tallrekkefølge og mønster'}),
-    Object.freeze({index:2,title:'Brøklaben',adventurePrompt:'Del, bygg og eksperimenter med brøker i ditt eget tempo.',learningFocus:'fri utforskning av brøk',freePlay:'fraction-lab'}),
-    Object.freeze({index:3,title:'Målebroen',adventurePrompt:'Regn deg over broen med pluss, minus og forskjeller.',learningFocus:'addisjon og subtraksjon i konkrete situasjoner'}),
-    Object.freeze({index:4,title:'Problemtårnet',adventurePrompt:'Bruk det du har oppdaget til å løse den siste utfordringen.',learningFocus:'problemløsning og checkpoint'})
-  ]);
-
-  const MATH_G2_NODES=Object.freeze({
-    plassverdi:nodeContract(
-      'math-g2-place-value',
-      'Forstå at plasseringen til et siffer bestemmer verdien i tosifrede tall.',
-      ['place-value'],
-      {questionCount:4,difficultyPattern:[1,1,1,2,2],placeIndex:0}
-    ),
-    rekkefolge:nodeContract(
-      'math-g2-number-order',
-      'Sammenligne, plassere og fortsette tallrekkefølger innenfor 100.',
-      ['number-order'],
-      {questionCount:4,difficultyPattern:[1,1,2,2,2],placeIndex:1}
-    ),
-    'tall100-challenge':nodeContract(
-      'math-g2-number-sense-mix',
-      'Bruke plassverdi og tallrekkefølge sammen i varierte oppgaver.',
-      ['place-value','number-order'],
-      {kind:'challenge',questionCount:5,difficultyPattern:[1,1,2,2,2],placeIndex:1}
-    ),
-    'tall100-review':nodeContract(
-      'math-g2-number-sense-review',
-      'Repetere plassverdi og tallrekkefølge med nye varianter.',
-      ['place-value','number-order'],
-      {kind:'review',questionCount:5,difficultyPattern:[1,1,2,2,2],placeIndex:1}
-    ),
-    'tall100-checkpoint':nodeContract(
-      'math-g2-number-sense-checkpoint',
-      'Vise trygghet i plassverdi og tallrekkefølge innenfor 100.',
-      ['place-value','number-order'],
-      {kind:'checkpoint',questionCount:5,difficultyPattern:[1,1,2,2,2],placeIndex:1}
-    ),
-    addisjon100:nodeContract(
-      'math-g2-addition-100',
-      'Legge sammen tall innenfor 100 og kjenne igjen addisjon i en enkel situasjon.',
-      ['addition-100'],
-      {questionCount:4,difficultyPattern:[1,1,2,2,2],placeIndex:3}
-    ),
-    'pluss100-challenge':nodeContract(
-      'math-g2-addition-100-challenge',
-      'Bruke addisjon innenfor 100 i flere uttrykksformer.',
-      ['addition-100'],
-      {kind:'challenge',questionCount:5,difficultyPattern:[1,1,2,2,2]}
-    ),
-    'pluss100-review':nodeContract(
-      'math-g2-addition-100-review',
-      'Repetere addisjon innenfor 100 med nye tall og situasjoner.',
-      ['addition-100'],
-      {kind:'review',questionCount:5,difficultyPattern:[1,1,2,2,2]}
-    ),
-    'pluss100-checkpoint':nodeContract(
-      'math-g2-addition-100-checkpoint',
-      'Vise trygghet i addisjon innenfor 100.',
-      ['addition-100'],
-      {kind:'checkpoint',questionCount:5,difficultyPattern:[1,1,2,2,2]}
-    ),
-    sub100:nodeContract(
-      'math-g2-subtraction-100',
-      'Trekke fra tall innenfor 100 og kjenne igjen subtraksjon i en enkel situasjon.',
-      ['subtraction-100'],
-      {questionCount:4,difficultyPattern:[1,1,2,2,2],placeIndex:3}
-    ),
-    'minus100-challenge':nodeContract(
-      'math-g2-subtraction-100-challenge',
-      'Bruke subtraksjon innenfor 100 i flere uttrykksformer.',
-      ['subtraction-100'],
-      {kind:'challenge',questionCount:5,difficultyPattern:[1,1,2,2,2]}
-    ),
-    'minus100-review':nodeContract(
-      'math-g2-subtraction-100-review',
-      'Repetere subtraksjon innenfor 100 med nye tall og situasjoner.',
-      ['subtraction-100'],
-      {kind:'review',questionCount:5,difficultyPattern:[1,1,2,2,2]}
+      {kind:'review',questionCount:5,difficultyPattern:[1,1,2,2,2],placeIndex:4}
     ),
     'minus100-checkpoint':nodeContract(
       'math-g2-subtraction-100-checkpoint',
       'Vise trygghet i subtraksjon innenfor 100.',
       ['subtraction-100'],
-      {kind:'checkpoint',questionCount:5,difficultyPattern:[1,1,2,2,2]}
+      {kind:'checkpoint',questionCount:5,difficultyPattern:[1,1,2,2,2],placeIndex:4}
     )
   });
 
@@ -244,8 +135,7 @@ ria: systematic journey learning layer.
     return CONTRACTS?.[subject]?.[Number(grade)]||null;
   }
   function placeRoleFor(subject,grade,index){
-    const role=CONTRACTS?.[subject]?.[Number(grade)]?.places?.[Number(index)];
-    return role||null;
+    return CONTRACTS?.[subject]?.[Number(grade)]?.places?.[Number(index)]||null;
   }
   function questionCount(node){
     const c=contractFor(node?.subject,node?.grade,node?.id);
