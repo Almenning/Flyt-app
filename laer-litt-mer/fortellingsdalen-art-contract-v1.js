@@ -8,32 +8,32 @@
   if(root)root.LARIA_FORTELLINGSDALEN_ART=api;
 })(typeof window!=='undefined'?window:globalThis,function(){
   'use strict';
-  const DIMENSIONS=Object.freeze({width:941,height:1672});
+  const DIMENSIONS=Object.freeze({width:768,height:1376});
   const ASSET=Object.freeze({
-    src:'./fortellingsdalen-map-candidate-v2.svg?v=20261016-c2map2',
+    src:'./fortellingsdalen-map-premium-v3.png?v=20261016-c2map3',
     status:'prototype',publicApproved:false,
     alt:'Illustrert dal med hytte, bro, sporsti, mølle og stjernetopp.'
   });
   const STOPS=Object.freeze({
     brevhytta:Object.freeze({
       id:'brevhytta',marker:Object.freeze({x:23,y:83}),
-      foxFoot:Object.freeze({x:45,y:91,scale:1})
+      foxFoot:Object.freeze({x:43,y:94,scale:1})
     }),
     eventyrbrua:Object.freeze({
-      id:'eventyrbrua',marker:Object.freeze({x:67,y:68}),
-      foxFoot:Object.freeze({x:43,y:78,scale:.84})
+      id:'eventyrbrua',marker:Object.freeze({x:68,y:78}),
+      foxFoot:Object.freeze({x:45,y:86,scale:.84})
     }),
     sporstien:Object.freeze({
-      id:'sporstien',marker:Object.freeze({x:28,y:50}),
-      foxFoot:Object.freeze({x:46,y:61,scale:.71})
+      id:'sporstien',marker:Object.freeze({x:28,y:51}),
+      foxFoot:Object.freeze({x:49,y:62,scale:.71})
     }),
     fortellermolla:Object.freeze({
-      id:'fortellermolla',marker:Object.freeze({x:72,y:34}),
-      foxFoot:Object.freeze({x:55,y:45,scale:.58})
+      id:'fortellermolla',marker:Object.freeze({x:73,y:38}),
+      foxFoot:Object.freeze({x:54,y:48,scale:.58})
     }),
     stjernetoppen:Object.freeze({
-      id:'stjernetoppen',marker:Object.freeze({x:57,y:17}),
-      foxFoot:Object.freeze({x:46,y:29,scale:.46})
+      id:'stjernetoppen',marker:Object.freeze({x:56,y:13}),
+      foxFoot:Object.freeze({x:44,y:25,scale:.46})
     })
   });
   const ORDER=Object.freeze(Object.keys(STOPS));
@@ -50,7 +50,7 @@
   }
   function assertContract(){
     if(ORDER.length!==5)throw new Error('Exactly five learning places required');
-    if(DIMENSIONS.width!==941||DIMENSIONS.height!==1672)throw new Error('Portrait canvas changed');
+    if(DIMENSIONS.width!==768||DIMENSIONS.height!==1376)throw new Error('Portrait canvas changed');
     const unique=new Set();
     for(const id of ORDER){
       if(unique.has(id))throw new Error('Duplicate stop '+id);
