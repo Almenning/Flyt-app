@@ -29,9 +29,21 @@ function makeRound(){
   const shortWords=fresh.filter(word=>word.length<=ui.size-2);
   const longerWords=fresh.filter(word=>word.length>ui.size-2);
   function chooseWords(){
-    const picked=[...shuffle(longerWords.slice(0,Math.max(count*3,8))).slice(0,1),
-      ...shuffle(shortWords.slice(0,Math.max(count*4,16))).slice(0,count-1)];
-    for(const word of fresh)if(picked.length<count&&!picked.includes(word))picked.push(word);
+    const unusedLong=longerWords.filter(word=>!recent.has(word));
+    const unusedShort=shortWords.filter(word=>!recent.has(word));
+    const picked=[];
+    if(unusedLong.length)picked.push(shuffle(unusedLong)[0]);
+    else if(unusedShort.length<count&&longerWords.length)picked.push(shuffle(longerWords)[0]);
+    for(const word of shuffle(unusedShort)){
+      if(picked.length>=count)break;
+      picked.push(word);
+    }
+    // The child should not see the previous round again while unused choices
+    // exist. Only then permit a repeat, prioritizing shorter diagonals.
+    for(const word of [...shuffle(shortWords),...shuffle(unusedLong),...shuffle(longerWords)]){
+      if(picked.length>=count)break;
+      if(!picked.includes(word))picked.push(word);
+    }
     return picked;
   }
   let requested=chooseWords(),board=null;
