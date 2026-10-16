@@ -157,14 +157,14 @@ body > .fd-dev-launch small{font-size:10px;line-height:1.25}
   display:grid;grid-template-columns:minmax(0,1fr);gap:13px;align-items:start;
 }
 #laria-fortellingsdalen-preview .fd-atlas{
-  position:relative;width:min(100%,480px);aspect-ratio:941/1672;
+  position:relative;width:min(100%,480px);aspect-ratio:768/1376;
   min-width:0;max-width:100%;margin-inline:auto;isolation:isolate;overflow:hidden;
   border:4px solid #e4c395;border-radius:27px;
   background:#446457;box-shadow:0 6px 0 #a9825e,0 13px 29px #3a4f4c55;
 }
 #laria-fortellingsdalen-preview .fd-atlas-paint{
   position:absolute;inset:0;width:100%;height:100%;display:block;
-  object-fit:fill;user-select:none;pointer-events:none;
+  object-fit:contain;user-select:none;pointer-events:none;
 }
 #laria-fortellingsdalen-preview .fd-atlas-shade{
   position:absolute;inset:0;pointer-events:none;

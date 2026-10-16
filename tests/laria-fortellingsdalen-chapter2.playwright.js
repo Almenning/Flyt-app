@@ -93,7 +93,7 @@ async function run(engine,label,viewport){
   const browser=await engine.launch({headless:true,args:engine===chromium?['--no-sandbox']:[]});
   try{
     const context=await browser.newContext({
-      viewport,hasTouch:true,isMobile:viewport.width<600,reducedMotion:'reduce',serviceWorkers:'block'
+      viewport,hasTouch:true,isMobile:viewport.width<600||label==='webkit-iphone-landscape',reducedMotion:'reduce',serviceWorkers:'block'
     });
     await context.addInitScript(data=>{if(!localStorage.getItem('laerlittmer-v2'))localStorage.setItem('laerlittmer-v2',JSON.stringify(data))},seed);
     const page=await context.newPage(),errors=[];
@@ -128,6 +128,14 @@ async function run(engine,label,viewport){
       const img=document.querySelector('.fd-atlas-paint');
       return img?.complete&&img.naturalWidth===768&&img.naturalHeight===1376;
     },null,{timeout:14000});
+    const exactAspect=await page.locator('.fd-atlas').evaluate(el=>{
+      const rect=el.getBoundingClientRect(),img=el.querySelector('.fd-atlas-paint');
+      return {frameRatio:rect.width/rect.height,pictureRatio:img.naturalWidth/img.naturalHeight,
+        imageFit:getComputedStyle(img).objectFit};
+    });
+    assert.ok(Math.abs(exactAspect.frameRatio-exactAspect.pictureRatio)<0.002,
+      label+' map must preserve the approved PNG aspect ratio without stretching');
+    assert.equal(exactAspect.imageFit,'contain',label+' illustrated atlas should not be stretched');
     const mapGeometry=await page.evaluate(()=>{
       const atlas=document.querySelector('.fd-atlas'),bounds=atlas.getBoundingClientRect();
       return {
@@ -310,4 +318,5 @@ async function run(engine,label,viewport){
   await run(webkit,'webkit-ipad-portrait',{width:820,height:1180});
   await run(chromium,'chromium-ipad-landscape',{width:1180,height:820});
   await run(webkit,'webkit-iphone-small',{width:320,height:640});
+  await run(webkit,'webkit-iphone-landscape',{width:844,height:390});
 })().catch(err=>{console.error(err);process.exitCode=1});
