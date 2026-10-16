@@ -161,12 +161,25 @@ async function run(engine,label,viewport){
     assert.equal(await stagePainting.count(),1,label+' every story must have its local painted landmark');
     assert.match(await stagePainting.getAttribute('src'),/fortellingsdalen-map-candidate-v2\.svg/);
     assert.equal(await page.locator('[data-fd-story-place]').getAttribute('data-fd-story-place'),'brevhytta');
+    assert.match(await page.locator('.fd-read').getAttribute('aria-label'),/svaralternativene/,
+      label+' optional read-aloud must include the answer choices');
+    await page.waitForFunction(()=>{
+      const img=document.querySelector('.fd-story-art');
+      return img?.complete&&img.naturalWidth===941;
+    },null,{timeout:12000});
+    if(process.env.LARIA_CHAPTER2_SCREENSHOTS){
+      const dir=process.env.LARIA_CHAPTER2_SCREENSHOTS;
+      fs.mkdirSync(dir,{recursive:true});
+      await page.screenshot({path:path.join(dir,label+'-story-scene.png'),fullPage:false,animations:'disabled'});
+    }
     const answer=await page.evaluate(()=>{
       const session=window.LARIA_CHAPTER_EXPANSION.resume(state);
       const q=session.story.questions[0];return q.options.indexOf(q.answer);
     });
     await page.locator('.fd-option').nth(answer).click();
     await page.locator('.fd-next').waitFor();
+    assert.equal(await page.locator('.fd-next').evaluate(el=>document.activeElement===el),true,
+      label+' answer feedback must focus its next-action button');
     await page.locator('[data-fd-action="close"]').click();
     await page.reload({waitUntil:'domcontentloaded'});
     await page.locator('.bc14-subject[data-camp="subject-norwegian"]').waitFor({timeout:22000});
