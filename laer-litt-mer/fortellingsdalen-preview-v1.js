@@ -19,14 +19,15 @@
   // on a cropped background or a set of invented map boxes.
   // Five child-visible markers and the selected companion belong to the
   // versioned art contract, never an unrelated duplicated geometry table.
-  function foxDestination(progress){return art.foxStyle(progress.recommended)}
+  function foxStage(progress){return progress.complete?'stjernetoppen':progress.recommended}
+  function foxDestination(progress){return art.foxStyle(foxStage(progress))}
   function renderIntro(){
     const progress=core.progress(ui.state),draft=core.resume(ui.state);
     const stages=core.STAGES.map((stage,i)=>{
       const p=progress.stages.find(x=>x.id===stage.id);
       if(!art.stop(stage.id))throw new Error('Missing painted atlas stop '+stage.id);
       return '<button class="fd-place fd-map-place'+(p.passed?' fd-place-done':'')+
-        (progress.recommended===stage.id?' fd-place-next':'')+
+        (!progress.complete&&progress.recommended===stage.id?' fd-place-next':'')+
         '" style="'+art.markerStyle(stage.id)+'" data-fd-action="stage" data-fd-stage="'+esc(stage.id)+
         '" aria-label="'+esc(stage.title)+': '+esc(stage.focus)+(p.passed?', fullført':'')+'" type="button">'+
         '<span class="fd-place-number">'+(p.passed?'✓':String(i+1))+'</span><span class="fd-place-label"><strong>'+esc(stage.title)+
@@ -42,7 +43,7 @@
       '<img class="fd-atlas-paint" src="'+esc(art.ASSET.src)+'" alt="" draggable="false" decoding="async" width="'+art.DIMENSIONS.width+'" height="'+art.DIMENSIONS.height+'">'+
       '<div class="fd-atlas-shade" aria-hidden="true"></div>'+
       '<div class="fd-map-caption" aria-hidden="true">FORTELLINGSDALEN <span>✦</span></div>'+
-      '<div class="fd-fox fd-map-fox" style="'+foxDestination(progress)+'" data-fd-fox-stage="'+esc(progress.recommended)+'">'+fox()+'</div>'+
+      '<div class="fd-fox fd-map-fox" style="'+foxDestination(progress)+'" data-fd-fox-stage="'+esc(foxStage(progress))+'">'+fox()+'</div>'+
       '<div class="fd-places fd-map-stages">'+stages+'</div>'+
       '</section><div class="fd-map-aside">'+
       '<div class="fd-progress" role="status" aria-label="'+esc(status)+'"><div><strong>'+progress.done+' av 5 steder utforsket</strong>'+
