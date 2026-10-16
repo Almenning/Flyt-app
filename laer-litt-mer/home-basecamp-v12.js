@@ -26,7 +26,13 @@ const QUESTS=[
  {action:'multiply',eyebrow:'Et lite eventyr, hvis du vil',title:'Finn et mønster i tallene',copy:'Lek med gangetabellen og se om du oppdager et mønster reven ikke har sett.',button:'Lek med tall →'}
 ];
 function dailyQuest(){const d=new Date(),seed=d.getFullYear()*400+d.getMonth()*31+d.getDate()+Number(currentGrade()||0);return QUESTS[seed%QUESTS.length]}
-function wordHuntRounds(){try{return Number(JSON.parse(localStorage.getItem('laria-wordhunt-v1')||'{}').rounds||0)}catch(_){return 0}}
+function wordHuntThemeProgress(){
+ const rules=window.LARIA_WORD_HUNT_THEMES;
+ if(!rules?.normalizeProgress)return {rounds:0,themeRounds:{}};
+ try{return rules.normalizeProgress(JSON.parse(localStorage.getItem('laria-wordhunt-v1')||'{}'))}
+ catch(_){return rules.normalizeProgress(null)}
+}
+function wordHuntRounds(){return wordHuntThemeProgress().rounds}
 const young=()=>currentGrade()<=2;
 function selectedFoxSource(which){return window.LARIA_FOX.source(which);}
 function activitySubject(scope,last){
@@ -156,6 +162,15 @@ function dialog(kind){
  else {
   const visited=Object.values(state.journey?.nodes||{}).filter(n=>n.passed||Number(n.attempts)>0).length;
   const trophies=Object.keys(state.journey?.gradeWins||{}).length,wordRounds=wordHuntRounds();
+  const themeProgress=wordHuntThemeProgress();
+  const wordPacks=window.LARIA_WORD_HUNT_THEMES?.list?.()||[];
+  const earnedPacks=wordPacks.filter(pack=>(themeProgress.themeRounds[pack.id]||0)>0).length;
+  const themeStickers=wordPacks.map(pack=>{
+    const rounds=themeProgress.themeRounds[pack.id]||0,owned=rounds>0;
+    return '<div class="bc12-wordhunt-sticker'+(owned?' is-earned':' is-locked')+'" data-word-theme="'+pack.id+'" data-owned="'+owned+'" aria-label="'+pack.title+(owned?', klistremerke funnet':', klistremerke ikke funnet')+'">'+
+      '<span class="bc12-wordhunt-sticker-art"><img alt="" loading="lazy" src="./word-hunt-theme-'+pack.id+'.svg"></span>'+
+      '<strong>'+pack.title+'</strong><small>'+(owned?'✦ Funnet':'Ikke funnet ennå')+'</small></div>';
+  }).join('');
   // A world keepsake is visible only when earned; clothing previews wait until
   // the real full-body character and aligned outfit layers are available.
   const treasures=(window.LARIA_COLLECTION_CORE?.available?.(state.collectibles)||[])
@@ -175,6 +190,10 @@ function dialog(kind){
 
     '<div class="bc12-memory-intro"><b>'+discovered+' av '+treasures.length+' minner funnet</b><span>Utforsk, prøv og øv. Du bestemmer hva du har lyst til.</span></div>'+
     '<div class="bc12-memory-grid" role="group" aria-label="Minner fra de fire fagreisene">'+keepsakes+'</div>'+
+    '<section class="bc12-wordhunt-collection" aria-label="Klistremerker fra Ordjakt">'+
+      '<div class="bc12-wordhunt-stickers-heading"><strong>Ordjakts klistremerker</strong><span>'+earnedPacks+' av '+wordPacks.length+' funnet</span></div>'+
+      '<p>Finn alle ordene i en runde for å få et temaklistremerke. Du kan spille favorittene dine så ofte du vil.</p>'+
+      '<div class="bc12-wordhunt-stickers" role="group" aria-label="Mine ordtemaer">'+themeStickers+'</div></section>'+
     '<div class="bc12-shelf"><div><span aria-hidden="true">✦</span><strong>'+visited+'</strong><small>steder besøkt</small></div><div><span aria-hidden="true">🔤</span><strong>'+wordRounds+'</strong><small>ordjakter</small></div><div><span aria-hidden="true">♜</span><strong>'+trophies+'</strong><small>eventyr fullført</small></div></div>'+
     '<button class="bc12-dialog-go" data-wardrobe-open>Min rev · Se reven din</button>'+ 
     '<button class="bc12-dialog-go" data-dialog-home>Tilbake til basecamp</button>';
