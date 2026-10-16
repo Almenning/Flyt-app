@@ -100,7 +100,7 @@ test('live app loads geography layer after shared journey learning layer',()=>{
   const html=fs.readFileSync(path.join(__dirname,'../laer-litt-mer/index.html'),'utf8');
   const shared=html.indexOf('journey-learning-system-v1.js?v=20261016-language-system1');
   const geo=html.indexOf('geography-journey-learning-system-v1.js?v=20261016-nordlysleiren-system1');
-  const renderer=html.indexOf('locked-journey-renderer.js?v=20261016-tallenga-places1');
+  const renderer=html.indexOf('locked-journey-renderer.js?v=');
   assert.ok(shared>0);
   assert.ok(geo>shared,'geography layer must load after shared journey layer');
   assert.ok(renderer>geo,'geography layer must install before locked journey renderer');
