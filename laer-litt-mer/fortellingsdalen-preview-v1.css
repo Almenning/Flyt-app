@@ -325,3 +325,52 @@ body > .fd-dev-launch small{font-size:10px;line-height:1.25}
   }
   #laria-fortellingsdalen-preview .fd-map-place{gap:4px;min-height:46px!important}
 }
+
+/* Personal companion on the painted journey, source-image FOOT coordinates.
+ * Each stop uses its own perspective scale. Map labels remain clickable.
+ */
+#laria-fortellingsdalen-preview .fd-atlas .fd-map-fox{
+  right:auto!important;bottom:auto!important;
+  left:var(--fd-fox-x,45%)!important;top:var(--fd-fox-y,91%)!important;
+  width:clamp(61px,23%,138px)!important;
+  height:clamp(70px,26%,154px)!important;
+  transform:translate(-50%,-100%) scale(var(--fd-fox-scale,1))!important;
+  transform-origin:50% 100%;z-index:3;
+  background:radial-gradient(ellipse at 50% 94%,#fff4ce6b,transparent 66%);
+  border:0!important;box-shadow:none!important;overflow:visible;
+  transition:left .45s ease,top .45s ease,transform .45s ease;
+}
+#laria-fortellingsdalen-preview .fd-atlas .fd-map-fox img{
+  filter:drop-shadow(1px 5px 5px #173831a6);object-fit:contain;
+}
+#laria-fortellingsdalen-preview .fd-story-companion{
+  display:flex;align-items:center;gap:12px;
+  padding:8px 12px 8px 7px;margin:17px 0 6px;
+  border:1px solid #ead1aa;border-radius:17px;
+  background:linear-gradient(130deg,#f1e5c9,#fff7e8);
+  box-shadow:0 3px 0 #e4c9a2;
+}
+#laria-fortellingsdalen-preview .fd-story-companion .fd-fox-portrait{
+  display:block;flex:0 0 66px;width:66px;height:75px;
+  object-fit:contain;object-position:bottom;
+  filter:drop-shadow(0 3px 3px #7e5f3b40);
+}
+#laria-fortellingsdalen-preview .fd-story-companion .fd-eyebrow{
+  font-size:10px;color:#966544;
+}
+#laria-fortellingsdalen-preview .fd-story-companion p{
+  color:#675038;line-height:1.36;
+  font-size:clamp(12px,2.2vw,14px);font-weight:750;
+  margin:6px 0 0;
+}
+@media(max-width:360px){
+  #laria-fortellingsdalen-preview .fd-story-companion{gap:9px;padding:7px;margin:12px 0 3px}
+  #laria-fortellingsdalen-preview .fd-story-companion .fd-fox-portrait{
+    flex-basis:48px;width:48px;height:58px;
+  }
+  #laria-fortellingsdalen-preview .fd-story-companion .fd-eyebrow{font-size:9px}
+  #laria-fortellingsdalen-preview .fd-story-companion p{font-size:12px;margin-top:3px}
+}
+@media(prefers-reduced-motion:reduce){
+  #laria-fortellingsdalen-preview .fd-atlas .fd-map-fox{transition:none!important}
+}
