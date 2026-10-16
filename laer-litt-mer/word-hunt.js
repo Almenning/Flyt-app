@@ -286,7 +286,7 @@ function render(resetStatus=true){
   root.querySelectorAll('[data-word-level]').forEach(b=>b.classList.toggle('active',b.dataset.wordLevel===ui.level));
   const pack=THEMES.get(ui.theme);
   root.querySelector('.word-hunt-current-theme').textContent=pack.title;
-  root.querySelector('.word-hunt-theme-icon').setAttribute('src','./word-hunt-theme-'+pack.id+'.svg');
+  root.querySelector('.word-hunt-theme-icon').setAttribute('src','./word-hunt-theme-'+pack.id+'.svg?v=20261016-premium2');
   root.querySelector('.word-hunt-theme-open').setAttribute('aria-label','Velg ordtema. Nå: '+pack.title);
   const rounds=Number(stats().rounds||0);
   root.querySelector('.word-hunt-rounds').textContent=rounds===1?'Du har fullført 1 ordjakt':'Du har fullført '+rounds+' ordjakter';
