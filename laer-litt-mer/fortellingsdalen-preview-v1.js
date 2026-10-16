@@ -48,7 +48,7 @@
     }).join('');
     return shell('<article class="fd-story-layout">'+
       '<div class="fd-story-top"><button type="button" class="fd-quiet-back" data-fd-action="intro">← Alle stedene</button><span>'+esc(session.stage.title)+'</span></div>'+
-      '<div class="fd-story-banner"><span>HISTORIE '+n+' AV '+session.total+'</span><div class="fd-story-bar"><span style="width:'+mark(n-1,session.total)+'%"></span></div></div>'+
+      '<div class="fd-story-banner"><span>SPOR '+n+' AV '+session.total+'</span><div class="fd-story-bar"><span style="width:'+mark(n-1,session.total)+'%"></span></div></div>'+
       '<div class="fd-letter"><div class="fd-letter-decoration">✦</div><h2>'+esc(session.story.title)+'</h2><p>'+esc(session.story.passage)+'</p>'+
       '<button type="button" class="fd-read" data-fd-action="read" aria-label="Les opp historien og spørsmålet">◖)) Les opp</button></div>'+
       '<div class="fd-question"><span class="fd-eyebrow">FINN SPORET</span><h3 class="fd-question-prompt">'+esc(q.prompt)+'</h3>'+
@@ -63,7 +63,7 @@
     if(!r){ui.mode='intro';return renderIntro()}
     const title=r.chapterCompleted?'Hele Fortellingsdalen er utforsket!':r.passed?'Du fant veien videre!':'Du har oppdaget nye spor!';
     return shell('<div class="fd-result"><div class="fd-celebrate">✦</div><span class="fd-eyebrow">HISTORIEN ER FERDIG</span>'+
-      '<h1>'+title+'</h1><p>Du fant '+r.correct+' av '+r.total+' svar. '+(r.passed?
+      '<h1>'+title+'</h1><p>Du svarte riktig på '+r.correct+' av '+r.total+' spørsmål. +(r.passed?
         'Dette stedet er nå med i eventyrboken din.':'Historien kan prøves igjen når du har lyst.')+'</p>'+
       '<div class="fd-result-fox">'+fox()+'</div>'+
       '<button class="fd-primary" data-fd-action="intro" type="button">Til stedene i dalen →</button>'+
