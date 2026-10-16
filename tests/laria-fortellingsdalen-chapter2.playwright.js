@@ -25,7 +25,7 @@ async function openChooser(page){
   assert.match(await page.locator('[data-fd-chapter-card="bokskogen-1"] img').getAttribute('src'),
     /bokskogen-locked-20261010\.png/);
   assert.match(await page.locator('[data-fd-chapter-card="fortellingsdalen-2"] img').getAttribute('src'),
-    /fortellingsdalen-map-preview\.svg/);
+    /fortellingsdalen-map-candidate-v2\.svg/);
   await page.waitForFunction(()=>{
     const images=[...document.querySelectorAll('#laria-norwegian-chapter-picker .fd-chapter-image')];
     return images.length===2&&images.every(img=>img.complete&&img.naturalWidth===941&&img.naturalHeight===1672);
@@ -113,7 +113,7 @@ async function run(engine,label,viewport){
         })
       };
     });
-    assert.ok(mapGeometry.paint.includes('fortellingsdalen-map-preview.svg'),label+' illustration missing');
+    assert.ok(mapGeometry.paint.includes('fortellingsdalen-map-candidate-v2.svg'),label+' illustration missing');
     assert.equal(mapGeometry.fox,1,label+' personal fox must be an image layer above atlas');
     assert.equal(mapGeometry.places.length,5);
     for(const place of mapGeometry.places){
