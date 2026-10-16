@@ -773,3 +773,87 @@
   .wh-theme-card,.wh-theme-start,.word-hunt-magic{animation:none!important;transition:none!important}
   .wh-theme-cards{scroll-snap-type:none}
 }
+
+
+/* wordhunt-premium-scene-cards-v2 */
+/* Same approved Bokskogen painting behind five transparent layered hero arts.
+   No new downloads for the surrounding world and no change to the game board. */
+.wh-theme-card,
+.word-hunt-theme-open,
+#bc12-dialog .bc12-wordhunt-sticker{isolation:isolate}
+.wh-theme-card img,.word-hunt-theme-icon,#bc12-dialog .bc12-wordhunt-sticker-art img{
+  --wh-scene-position:52% 46%;
+  background-color:#78947a;
+  background-image:
+    linear-gradient(180deg,rgba(255,246,209,.17) 0%,rgba(250,227,173,.08) 40%,rgba(27,54,37,.17) 100%),
+    url('./bokskogen-verden.png');
+  background-position:center,var(--wh-scene-position);
+  background-size:cover,cover;
+  background-repeat:no-repeat;
+}
+.wh-theme-card[data-word-theme="mixed"] img,
+#bc12-dialog [data-word-theme="mixed"] img{--wh-scene-position:48% 72%}
+.wh-theme-card[data-word-theme="animals"] img,
+#bc12-dialog [data-word-theme="animals"] img{--wh-scene-position:19% 52%}
+.wh-theme-card[data-word-theme="magic"] img,
+#bc12-dialog [data-word-theme="magic"] img{--wh-scene-position:75% 18%}
+.wh-theme-card[data-word-theme="food"] img,
+#bc12-dialog [data-word-theme="food"] img{--wh-scene-position:31% 77%}
+.wh-theme-card[data-word-theme="world"] img,
+#bc12-dialog [data-word-theme="world"] img{--wh-scene-position:80% 57%}
+.wh-theme-card{
+  background:linear-gradient(145deg,#fff9e9 0%,#fff4d9 50%,#ecd6a7 100%);
+  border-color:#d4a96e;
+  box-shadow:0 5px 0 #a87942,0 10px 18px #573d2438,inset 0 2px 0 #fffdf3;
+}
+.wh-theme-card img{
+  border:2px solid rgba(249,221,162,.95);
+  box-shadow:0 3px 0 rgba(119,83,45,.38),inset 0 0 0 2px #fff3c8;
+  filter:saturate(1.07);
+}
+.wh-theme-card.selected{
+  border-color:#c18b33;
+  box-shadow:0 0 0 3px #ffe38d,0 6px 0 #97703b,0 12px 25px #6048204b;
+  background:linear-gradient(135deg,#fffdf2,#f8e5b8);
+}
+.wh-theme-card strong{
+  color:#284563;
+  text-shadow:0 1px rgba(255,255,255,.74);
+}
+.wh-theme-card::before{
+  content:'';
+  position:absolute;inset:3px;border:1px solid rgba(255,250,229,.58);
+  border-radius:14px;pointer-events:none;z-index:2;
+}
+.wh-theme-card.selected::after{
+  content:'✦';position:absolute;top:8px;right:9px;z-index:3;
+  font-size:21px;line-height:1;color:#ffefaa;
+  text-shadow:0 0 8px #eeb54f,0 2px 3px #714629;
+  pointer-events:none;
+}
+.wh-theme-card-check{
+  background:linear-gradient(#83b96b,#448147);
+  border-color:#fff4d7;
+}
+.word-hunt-theme-open{
+  background:linear-gradient(135deg,rgba(255,251,226,.96),rgba(246,221,168,.97));
+  box-shadow:0 4px 0 #8c653d,0 9px 17px #513d2823,inset 0 1px #fffdf5;
+}
+.word-hunt-theme-icon{
+  box-shadow:0 3px 0 #95683d,0 5px 10px #76522f35;
+  border-color:#f6d994;
+}
+#bc12-dialog .bc12-wordhunt-sticker.is-earned .bc12-wordhunt-sticker-art{
+  border-color:#d7ac62;
+  box-shadow:0 0 0 2px rgba(255,247,207,.8),0 5px 12px #70502440;
+}
+#bc12-dialog .bc12-wordhunt-sticker-art img{filter:saturate(1.05)}
+#bc12-dialog .bc12-wordhunt-sticker.is-locked .bc12-wordhunt-sticker-art img{
+  filter:grayscale(1);
+}
+@media(hover:hover) and (prefers-reduced-motion:no-preference){
+  .wh-theme-card:hover img{filter:saturate(1.12) brightness(1.045)}
+}
+@media(prefers-reduced-motion:reduce){
+  .wh-theme-card img{transition:none;animation:none}
+}
