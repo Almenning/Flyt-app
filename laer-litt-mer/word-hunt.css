@@ -587,3 +587,27 @@
         rgba(30,48,37,.035));
   }
 }
+
+
+/* wordhunt-desktop-firstfold-20261016 */
+/* Wide Mac windows have enough horizontal room to put instructions and
+   difficulty in the sidebar instead of pushing the last letter row below
+   the fold. Keep the full-size board; do not touch iPhone/iPad geometry. */
+@media (min-width:1401px) and (min-height:700px) and (max-height:1000px) and (orientation:landscape){
+  .word-hunt-shell{
+    display:grid;
+    grid-template-columns:minmax(0,min(630px,calc(100svh - 210px))) 225px;
+    grid-template-rows:auto auto auto 1fr;
+    justify-content:center;
+    align-items:start;
+    column-gap:16px;
+    row-gap:10px;
+  }
+  .word-hunt-top{grid-column:1/-1;grid-row:1}
+  .word-hunt-intro{grid-column:2;grid-row:2;margin:0;padding:9px 11px}
+  .word-hunt-levels{grid-column:2;grid-row:3;gap:6px;margin:0}
+  .word-hunt-level{flex:1 1 0;min-width:0;padding:7px 5px}
+  .word-hunt-board-wrap{display:contents}
+  .word-hunt-board-card{grid-column:1;grid-row:2 / span 3;min-width:0}
+  .word-hunt-side{grid-column:2;grid-row:4;align-self:start}
+}
