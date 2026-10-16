@@ -445,3 +445,27 @@ body > .fd-dev-launch small{font-size:10px;line-height:1.25}
     top:calc(14px + env(safe-area-inset-top))!important;
   }
 }
+
+/* Early-reader accessibility: map signs must be comfortably legible, not
+ * miniature caption typography on a 320px iPhone.
+ */
+@media(max-width:650px){
+  #laria-fortellingsdalen-preview .fd-map-place{
+    min-height:54px!important;padding:5px 7px!important;
+  }
+  #laria-fortellingsdalen-preview .fd-map-place .fd-place-label strong{
+    font-size:13px!important;line-height:1.13!important;
+    hyphens:auto;overflow-wrap:anywhere;white-space:normal;
+  }
+  #laria-fortellingsdalen-preview .fd-map-place .fd-place-label small{
+    display:none!important;
+  }
+}
+@media(max-width:360px){
+  #laria-fortellingsdalen-preview .fd-map-place{
+    min-height:52px!important;padding:5px 5px!important;
+  }
+  #laria-fortellingsdalen-preview .fd-map-place .fd-place-label strong{
+    font-size:12px!important;line-height:1.12!important;
+  }
+}
