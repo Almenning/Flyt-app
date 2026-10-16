@@ -131,7 +131,24 @@
     if(focus?.isConnected)focus.focus({preventScroll:true});
     window.LARIA_NORWEGIAN_CHAPTER_PICKER?.refresh?.();
   }
-  function onKey(e){if(e.key==='Escape'){e.preventDefault();close()}}
+  function onKey(e){
+    if(!ui)return;
+    if(e.key==='Escape'){e.preventDefault();e.stopPropagation();close();return}
+    if(e.key!=='Tab')return;
+    // A modal must never move focus behind the active story. This matters
+    // especially on iPad with hardware keyboard and on desktop Safari.
+    const focusable=[...ui.root.querySelectorAll('button:not([disabled])')]
+      .filter(el=>el.getClientRects().length&&!el.closest('[inert]'));
+    if(!focusable.length){e.preventDefault();ui.root.focus({preventScroll:true});return}
+    const first=focusable[0],last=focusable[focusable.length-1],active=document.activeElement;
+    if(!focusable.includes(active)){
+      e.preventDefault();
+      (e.shiftKey?last:first).focus({preventScroll:true});
+      return;
+    }
+    if(e.shiftKey&&active===first){e.preventDefault();last.focus({preventScroll:true})}
+    else if(!e.shiftKey&&active===last){e.preventDefault();first.focus({preventScroll:true})}
+  }
   function onClick(event){
     const b=event.target.closest('[data-fd-action]');if(!b||!ui)return;
     const action=b.dataset.fdAction;

@@ -54,6 +54,19 @@ async function openPreview(page){
   await second.click();
   await page.locator('#laria-fortellingsdalen-preview[role="dialog"]').waitFor({timeout:12000});
   assert.equal(await page.locator('#laria-norwegian-chapter-picker').getAttribute('aria-hidden'),'true');
+  // The active story is a true modal. Tab and Shift+Tab may not escape
+  // to the page or to the chapter chooser hidden behind it.
+  const tabbables=page.locator('#laria-fortellingsdalen-preview button:not([disabled])');
+  const first=tabbables.first(),last=tabbables.last();
+  await first.focus();
+  await page.keyboard.press('Shift+Tab');
+  assert.equal(await last.evaluate(el=>document.activeElement===el),true,
+    'reverse Tab must wrap to the last active-story control');
+  await page.keyboard.press('Tab');
+  assert.equal(await first.evaluate(el=>document.activeElement===el),true,
+    'forward Tab must wrap to the first active-story control');
+  assert.equal(await page.locator('#laria-norwegian-chapter-picker').evaluate(el=>el.inert),true,
+    'background chapter chooser must remain inert while story is open');
 }
 async function solveStory(page,stageId){
   const btn=page.locator('[data-fd-action="stage"][data-fd-stage="'+stageId+'"]');
