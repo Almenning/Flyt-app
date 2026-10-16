@@ -310,7 +310,7 @@
         esc(stage.progress.complete?'Du kan utforske hele reisen igjen.':
           'Se hvor eventyret fortsetter.')+
         '</small></span><b aria-hidden="true">➜</b></button>':'';
-    const intro=stage.progress.complete&&finished?'Hele reisen er fullført!':
+    const intro=stage.progress.complete&&finished?'Dette eventyret er fullført!':
       finished?'Du klarte oppdraget!':
       lead?'Reven er klar. Er du?':
       place.total===0?'Et nytt sted å utforske.':
