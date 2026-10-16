@@ -103,6 +103,14 @@ async function run(engine,label,viewport){
     await page.goto(url+'&chapter2-preview=1&chapter2-qa='+label,{waitUntil:'domcontentloaded'});
     await page.locator('.bc14-subject[data-camp="subject-norwegian"]').waitFor({timeout:22000});
     await openChooser(page);
+    if(label==='webkit-iphone-landscape'){
+      const buttons=await page.locator('#laria-norwegian-chapter-picker .fd-chapter-action')
+        .evaluateAll(items=>items.map(el=>({top:el.getBoundingClientRect().top,
+          bottom:el.getBoundingClientRect().bottom,height:el.getBoundingClientRect().height})));
+      assert.equal(buttons.length,2);
+      assert.ok(buttons.every(b=>b.top>=0&&b.bottom<=viewport.height+2&&b.height>=44),
+        label+' both adventure buttons should be available without scrolling');
+    }
     if(viewport.width<=320){
       const secondCard=await page.locator('[data-fd-chapter-card="fortellingsdalen-2"]')
         .evaluate(el=>({top:el.getBoundingClientRect().top,visible:getComputedStyle(el).display!=='none'}));
@@ -196,6 +204,11 @@ async function run(engine,label,viewport){
     const visibleBack=await page.locator('#laria-fortellingsdalen-preview .fd-back').boundingBox();
     assert.ok(visibleBack&&visibleBack.y>=0,label+' story must not open with its top navigation cropped');
     const firstStory=await page.locator('.fd-letter h2').innerText();
+    if(label==='webkit-iphone-landscape'){
+      const passageTop=await page.locator('.fd-letter p').evaluate(el=>el.getBoundingClientRect().top);
+      assert.ok(passageTop<viewport.height-45,
+        label+' the first story passage should already be visible');
+    }
     const storyFox=page.locator('.fd-story-companion .fd-fox-portrait');
     assert.equal(await storyFox.count(),1,label+' selected fox should join the story scene');
     assert.ok((await storyFox.getAttribute('src')).includes(rightAvatar),

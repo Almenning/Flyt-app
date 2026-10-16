@@ -604,3 +604,43 @@ body > .fd-dev-launch small{font-size:10px;line-height:1.25}
     overflow-wrap:normal!important;hyphens:none!important;
   }
 }
+
+/* A short landscape iPhone is not a tablet: preserve useful screen height
+ * for the actual story rather than giving it to desktop-sized headers.
+ * The chapter map remains an uncut scrollable portrait illustration.
+ */
+@media (min-width:700px) and (max-height:480px) and (orientation:landscape){
+  #laria-fortellingsdalen-preview .fd-top{padding-bottom:4px!important}
+  #laria-fortellingsdalen-preview .fd-map-header{
+    min-height:57px!important;padding-bottom:6px!important;
+  }
+  #laria-fortellingsdalen-preview .fd-map-header h1{
+    font-size:27px!important;margin:1px 0 2px!important;
+  }
+  #laria-fortellingsdalen-preview .fd-map-header p{
+    font-size:11px!important;line-height:1.2!important;
+  }
+  #laria-fortellingsdalen-preview .fd-map-crest{
+    flex-basis:43px!important;width:43px!important;height:43px!important;
+    font-size:24px!important;border-radius:14px!important;
+  }
+  #laria-fortellingsdalen-preview .fd-story-layout{
+    padding-top:7px!important;
+  }
+  #laria-fortellingsdalen-preview .fd-story-companion{
+    margin:6px 0 3px!important;min-height:62px!important;
+    padding:4px 9px 4px 5px!important;gap:8px!important;
+  }
+  #laria-fortellingsdalen-preview .fd-story-companion .fd-fox-portrait{
+    flex-basis:46px!important;width:46px!important;height:54px!important;
+  }
+  #laria-fortellingsdalen-preview .fd-story-banner{
+    margin:7px 0 8px!important;
+  }
+  #laria-fortellingsdalen-preview .fd-letter{
+    padding:14px 20px 14px!important;
+  }
+  #laria-fortellingsdalen-preview .fd-letter h2{
+    font-size:27px!important;margin-bottom:7px!important;
+  }
+}
