@@ -50,7 +50,7 @@ async function run(engine,label,viewport){
     const context=await browser.newContext({
       viewport,hasTouch:true,isMobile:viewport.width<600,reducedMotion:'reduce',serviceWorkers:'block'
     });
-    await context.addInitScript(data=>localStorage.setItem('laerlittmer-v2',JSON.stringify(data)),seed);
+    await context.addInitScript(data=>{if(!localStorage.getItem('laerlittmer-v2'))localStorage.setItem('laerlittmer-v2',JSON.stringify(data))},seed);
     const page=await context.newPage(),errors=[];
     page.on('pageerror',e=>errors.push(String(e)));
     await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
