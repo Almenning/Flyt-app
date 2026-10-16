@@ -37,15 +37,20 @@
     const secondDone=['brevhytta','eventyrbrua','sporstien','fortellermolla','stjernetoppen']
       .filter(id=>completedStage(stages[id])).length;
     const secondComplete=secondDone===5;
+    // Do not strand an existing child if their first-chapter evidence is
+    // unavailable after a migration or partial storage recovery.
+    const earlierPlay=secondDone>0||!!stored.completedAt||!!stored.draft||
+      Object.values(stages).some(entry=>clamp(obj(entry).attempts,99999)>0);
+    const secondUnlocked=firstComplete||earlierPlay;
     const firstData=Object.freeze({
       ...CHAPTERS[0],done:firstComplete?firstTotal:firstDone,total:firstTotal,
       complete:firstComplete,available:true,locked:false,preview:false,
       status:firstComplete?'Spill igjen':firstDone?'Fortsett eventyret':'Start eventyret'
     });
-    const secondAvailable=firstComplete&&privatePreview===true;
+    const secondAvailable=secondUnlocked&&privatePreview===true;
     const secondData=Object.freeze({
       ...CHAPTERS[1],done:secondDone,total:5,complete:secondComplete,
-      available:secondAvailable,locked:!firstComplete,preview:true,
+      available:secondAvailable,locked:!secondUnlocked,preview:true,
       status:secondComplete?'Spill igjen':secondDone?'Fortsett eventyret':'Utforsk dalen'
     });
     return Object.freeze({
