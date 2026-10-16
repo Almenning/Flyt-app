@@ -157,6 +157,16 @@ async function testView(browser,engine,label,viewport,url){
   assert.match(await page.locator('.word-hunt-status').innerText(),/Ordjakten er løst/);
   assert.ok(await page.locator('#word-hunt-overlay').evaluate(el=>el.classList.contains('word-hunt-complete')),label+' completion did not promote the new-round action');
   assert.equal(await page.locator('.word-hunt-rounds').innerText(),'Du har fullført 1 ordjakt',label+' child-facing completion copy is not singular');
+  const completionDelight=await page.evaluate(()=>({
+   board:getComputedStyle(document.querySelector('.word-hunt-board-card')).animationName,
+   fox:getComputedStyle(document.querySelector('.word-hunt-fox')).animationName,
+   next:getComputedStyle(document.querySelector('.word-hunt-new')).animationName,
+   statusBackground:getComputedStyle(document.querySelector('.word-hunt-status')).backgroundImage
+  }));
+  assert.match(completionDelight.board,/wordHuntBoardCelebrate/,label+' completion lacks board celebration');
+  assert.match(completionDelight.fox,/wordHuntFoxCelebrate/,label+' completion lacks fox reaction');
+  assert.match(completionDelight.next,/wordHuntReadyPulse/,label+' completion lacks next-round emphasis');
+  assert.match(completionDelight.statusBackground,/linear-gradient/,label+' completion status lacks resolved-state treatment');
   assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('laria-wordhunt-v1')||'{}').rounds),1,label+' no persisted completion');
   await shot(page,label+'-02-complete');
   await page.locator('.word-hunt-level[data-word-level="hard"]').click();
