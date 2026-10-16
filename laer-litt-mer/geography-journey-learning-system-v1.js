@@ -20,15 +20,17 @@
     questionCount:Number(options.questionCount||0)||5,
     kind:options.kind||'skill',
     placeIndex:Number.isInteger(options.placeIndex)?options.placeIndex:null,
+    geoType:options.geoType||null,
+    title:options.title||null,
     chapter:'nordlysleiren-1'
   });
 
   const G2_PLACES=Object.freeze([
-    Object.freeze({index:0,title:'Basecamp',adventurePrompt:'Start med landene nærmest oss og lær å kjenne dem igjen.',learningFocus:'land og flagg i Norden'}),
-    Object.freeze({index:1,title:'Kartkroken',adventurePrompt:'Finn landene på kartet og bygg et sikkert mentalt kart.',learningFocus:'kartplassering'}),
-    Object.freeze({index:2,title:'Utforskertårnet',adventurePrompt:'Se utover Norden og koble land til hovedsteder.',learningFocus:'Norden og hovedsteder'}),
-    Object.freeze({index:3,title:'Naturstien',adventurePrompt:'Følg stien videre til nære land i Europa.',learningFocus:'nære europeiske land og verdensdel'}),
-    Object.freeze({index:4,title:'Observatoriet',adventurePrompt:'Samle det du har oppdaget og løs den siste ekspedisjonen.',learningFocus:'blandet geografi og checkpoint'})
+    Object.freeze({index:0,title:'Basecamp',adventurePrompt:'Start i Norden og kjenn igjen flaggene til landene nærmest oss.',learningFocus:'nordiske land og flagg'}),
+    Object.freeze({index:1,title:'Kartkroken',adventurePrompt:'Koble landene i Norden til hovedsteder og riktig plass på kartet.',learningFocus:'nordiske hovedsteder og kartplassering'}),
+    Object.freeze({index:2,title:'Utforskertårnet',adventurePrompt:'Se sørover fra Norden og oppdag flere europeiske land gjennom flaggene.',learningFocus:'utvide landkjennskap i Europa'}),
+    Object.freeze({index:3,title:'Naturstien',adventurePrompt:'Følg stien fra land til hovedstad og bygg flere forbindelser i Europa.',learningFocus:'hovedsteder i Norden og nære europeiske land'}),
+    Object.freeze({index:4,title:'Observatoriet',adventurePrompt:'Se hele ruten ovenfra og finn landene på kartet før ekspedisjonen avsluttes.',learningFocus:'kartplassering og samlet geografiforståelse'})
   ]);
 
   const G2_NODES=Object.freeze({
@@ -40,7 +42,7 @@
     'norden-capital':nodeContract(
       'geography-g2-nordic-capitals',
       'Koble nordiske land til riktig hovedstad.',
-      ['capital'],{placeIndex:2}
+      ['capital'],{placeIndex:1}
     ),
     'norden-map':nodeContract(
       'geography-g2-nordic-map',
@@ -50,47 +52,50 @@
     'norden-challenge':nodeContract(
       'geography-g2-nordic-challenge',
       'Bruke flagg, hovedsteder og kartplassering sammen.',
-      ['flag','capital','map'],{kind:'challenge',placeIndex:2}
+      ['flag','capital','map'],{kind:'challenge',placeIndex:1}
     ),
     'norden-review':nodeContract(
       'geography-g2-nordic-review',
       'Repetere Norden med nye land og representasjoner.',
-      ['flag','capital','map'],{kind:'review',placeIndex:2}
+      ['flag','capital','map'],{kind:'review',placeIndex:1}
     ),
     'norden-checkpoint':nodeContract(
       'geography-g2-nordic-checkpoint',
       'Vise trygghet i Norden før ekspedisjonen går videre.',
-      ['flag','capital','map'],{kind:'checkpoint',placeIndex:2}
+      ['flag','capital','map'],{kind:'checkpoint',placeIndex:1}
     ),
     'naboer-flag':nodeContract(
       'geography-g2-near-europe-flags',
-      'Kjenne igjen flagg fra land nær Norden.',
-      ['flag'],{placeIndex:3}
+      'Kjenne igjen flagg i Norden og noen sentrale land like utenfor Norden.',
+      ['flag'],{placeIndex:2}
     ),
+    // Behold legacy-ID-en for lagret fremgang, men gi stoppet reelt faglig innhold:
+    // alle landene i denne banken ligger allerede i Europa, så verdensdelsspørsmålet
+    // ville ellers hatt samme svar fem ganger.
     'naboer-continent':nodeContract(
-      'geography-g2-near-europe-continent',
-      'Forstå at de aktuelle landene ligger i Europa.',
-      ['continent'],{placeIndex:3}
+      'geography-g2-near-europe-capitals',
+      'Koble Norden, Storbritannia, Tyskland og Frankrike til hovedstedene deres.',
+      ['capital'],{placeIndex:3,geoType:'capital',title:'Hovedsteder'}
     ),
     'naboer-map':nodeContract(
       'geography-g2-near-europe-map',
-      'Finne nære europeiske land på kartet.',
-      ['map'],{placeIndex:3}
+      'Finne Norden, Storbritannia, Tyskland og Frankrike på kartet.',
+      ['map'],{placeIndex:4}
     ),
     'naboer-challenge':nodeContract(
       'geography-g2-near-europe-challenge',
-      'Bruke flagg, verdensdel og kart sammen for nære europeiske land.',
-      ['flag','continent','map'],{kind:'challenge',placeIndex:4}
+      'Veksle mellom flagg, hovedsteder og kart i den utvidede Europa-ruten.',
+      ['flag','capital','map'],{kind:'challenge',placeIndex:4}
     ),
     'naboer-review':nodeContract(
       'geography-g2-near-europe-review',
-      'Repetere nære europeiske land med nye varianter.',
-      ['flag','continent','map'],{kind:'review',placeIndex:4}
+      'Repetere land, hovedsteder, flagg og plassering i den utvidede Europa-ruten.',
+      ['flag','capital','map'],{kind:'review',placeIndex:4}
     ),
     'naboer-checkpoint':nodeContract(
       'geography-g2-near-europe-checkpoint',
-      'Vise trygghet i Nordlysleirens første ekspedisjon.',
-      ['flag','continent','map'],{kind:'checkpoint',placeIndex:4}
+      'Vise trygghet i Norden og de første europeiske landene utenfor Norden.',
+      ['flag','capital','map'],{kind:'checkpoint',placeIndex:4}
     )
   });
 
@@ -100,6 +105,9 @@
     chapter:1,
     philosophy:'systematic-progression-controlled-variation',
     places:G2_PLACES,
+    areaTypeOverrides:Object.freeze({
+      naboer:Object.freeze({continent:'capital'})
+    }),
     nodes:G2_NODES
   });
 
@@ -178,11 +186,21 @@
 
   function decorateModel(model){
     if(!model||Number(model.grade)!==2||!Array.isArray(model.nodes))return model;
-    const decorate=node=>{
-      const learning=contractFor(model.grade,node.id);
-      return learning?{...node,learning}:node;
-    };
-    const areas=(model.areas||[]).map(area=>({...area,nodes:(area.nodes||[]).map(decorate)}));
+    const areas=(model.areas||[]).map(area=>{
+      const replacements=CONTRACT.areaTypeOverrides?.[area.id]||{};
+      const types=(area.types||[]).map(type=>replacements[type]||type);
+      const nodes=(area.nodes||[]).map(node=>{
+        const learning=contractFor(model.grade,node.id);
+        let next={...node,areaTypes:types};
+        if(learning){
+          next={...next,learning};
+          if(learning.geoType)next.geoType=learning.geoType;
+          if(learning.title)next.title=learning.title;
+        }
+        return next;
+      });
+      return {...area,types,nodes};
+    });
     return {...model,areas,nodes:areas.flatMap(a=>a.nodes),learningPlaces:CONTRACT.places};
   }
 
