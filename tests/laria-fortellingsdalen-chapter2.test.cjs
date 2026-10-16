@@ -6,6 +6,7 @@ const path=require('node:path');
 const stories=require('../laer-litt-mer/fortellingsdalen-stories-v1.js');
 const chapters=require('../laer-litt-mer/chapter-expansion-v1.js');
 const picker=require('../laer-litt-mer/norwegian-chapter-chooser-v1.js');
+const artwork=require('../laer-litt-mer/fortellingsdalen-art-contract-v1.js');
 const makeState=()=>({
   profile:{grade:2,avatar:'girl'},
   journey:{nodes:{'norwegian:2:lyder':{attempts:4,passed:true}},gradeWins:{'norwegian:2':{at:99}},viewGrades:{norwegian:2}},
@@ -216,4 +217,40 @@ test('choosing another chapter never converts both chapters into a finished scho
   assert.equal(first.chapters[1].complete,true);
   assert.deepEqual(state.journey.gradeWins,before);
   assert.equal(state.gradeCompleted,undefined);
+});
+
+
+test('the portrait artwork is a prototype-only, single-source five-stop map contract',()=>{
+  assert.equal(artwork.assertContract(),true);
+  assert.deepEqual(artwork.DIMENSIONS,{width:941,height:1672});
+  assert.equal(artwork.ASSET.publicApproved,false);
+  assert.equal(artwork.ASSET.status,'prototype');
+  assert.deepEqual(artwork.ORDER,chapters.STAGES.map(stage=>stage.id));
+  assert.equal(picker.CHAPTERS[1].art,artwork.ASSET.src);
+  assert.equal(artwork.markerStyle('brevhytta'),'--fd-x:23%;--fd-y:83%;');
+  assert.equal(artwork.foxStyle('eventyrbrua'),'--fd-fox-x:43%;--fd-fox-y:78%;--fd-fox-scale:0.84;');
+  assert.equal(artwork.stop('not-real'),null);
+  assert.throws(()=>artwork.markerStyle('not-real'),/unknown map stop/);
+  for(const stage of artwork.ORDER){
+    assert.ok(artwork.stop(stage).marker);
+    assert.ok(artwork.stop(stage).foxFoot);
+    assert.ok(artwork.markerStyle(stage).includes('--fd-y:'));
+  }
+  const svg=fs.readFileSync(path.join(__dirname,'../laer-litt-mer/fortellingsdalen-map-preview.svg'),'utf8');
+  assert.match(svg,/<svg[^>]*width="941" height="1672"/);
+  assert.doesNotMatch(svg,/<(?:text|foreignObject)\b/i,'No permanent lettering or button UI in the art');
+  assert.doesNotMatch(svg,/<image\b/i,'No fixed mascot or rasterized UI baked into art');
+});
+
+test('the same portrait artwork drives chapter card, story map and overlays',()=>{
+  const html=fs.readFileSync(path.join(__dirname,'../laer-litt-mer/index.html'),'utf8');
+  const story=fs.readFileSync(path.join(__dirname,'../laer-litt-mer/fortellingsdalen-preview-v1.js'),'utf8');
+  const pickerSource=fs.readFileSync(path.join(__dirname,'../laer-litt-mer/norwegian-chapter-chooser-v1.js'),'utf8');
+  assert.match(html,/fortellingsdalen-art-contract-v1\.js/);
+  assert.match(story,/art\.ASSET\.src/);
+  assert.match(story,/art\.markerStyle\(stage\.id\)/);
+  assert.match(story,/art\.foxStyle\(progress\.recommended\)/);
+  assert.match(pickerSource,/art:art\.ASSET\.src/);
+  assert.doesNotMatch(story,/const PLACES=Object\.freeze/);
+  assert.doesNotMatch(story,/const FOX_FOOT=Object\.freeze/);
 });
