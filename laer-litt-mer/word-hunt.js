@@ -169,8 +169,8 @@ function hideMagic(){
   const magic=document.querySelector('#word-hunt-overlay .word-hunt-magic');
   if(magic)magic.hidden=true;
 }
-function showMagic(word){
-  const scene=THEMES.reaction(word,ui.theme);
+function showMagic(word,sceneOverride=null){
+  const scene=sceneOverride||THEMES.reaction(word,ui.theme);
   if(!scene)return;
   const magic=overlay().querySelector('.word-hunt-magic');
   if(!magic)return;
@@ -178,7 +178,7 @@ function showMagic(word){
   magic.querySelector('.word-hunt-magic-symbol').textContent=scene.icon;
   magic.querySelector('.word-hunt-magic-message').textContent=scene.message;
   magic.hidden=false;
-  ui.magicTimer=setTimeout(()=>{magic.hidden=true;ui.magicTimer=null},2200);
+  ui.magicTimer=setTimeout(()=>{magic.hidden=true;ui.magicTimer=null},sceneOverride?3600:2200);
 }
 
 function overlay(){
@@ -283,8 +283,12 @@ function checkLine(path){
   if(ui.found.size===ui.words.length){
     ui.completed=true;
     const earned=saveRound(),pack=THEMES.get(ui.theme);
-    if(earned)status('✦ Du fikk et nytt klistremerke for «'+pack.title+'»! Det ligger i samleboken på Hjem.',true,true);
-    else status('Du fant alle ordene! 🌟 Klar for en ny runde.',true);
+    if(earned){
+      status('✦ Du fikk et nytt klistremerke for «'+pack.title+'»! Det ligger i samleboken på Hjem.',true,true);
+      // The sidebar status may be below the fold on small phones. Celebrate
+      // on the board where the child is already looking, without a new modal.
+      showMagic(null,{icon:pack.icon,message:'Nytt klistremerke! «'+pack.title+'» er i samleboken.'});
+    }else status('Du fant alle ordene! 🌟 Klar for en ny runde.',true);
   }else{
     const left=ui.words.length-ui.found.size;
     status('Du fant '+hit+'! '+(left===1?'Ett ord igjen.':left+' ord igjen.'));
