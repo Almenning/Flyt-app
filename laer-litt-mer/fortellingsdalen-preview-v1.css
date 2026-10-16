@@ -599,7 +599,7 @@ body > .fd-dev-launch small{font-size:10px;line-height:1.25}
   }
   #laria-fortellingsdalen-preview .fd-map-place[data-fd-stage="fortellermolla"] .fd-place-label strong,
   #laria-fortellingsdalen-preview .fd-map-place[data-fd-stage="stjernetoppen"] .fd-place-label strong{
-    font-size:clamp(11px,3.3vw,13px)!important;
+    font-size:clamp(12px,3.3vw,13px)!important;
     letter-spacing:-.02em;white-space:nowrap!important;
     overflow-wrap:normal!important;hyphens:none!important;
   }
