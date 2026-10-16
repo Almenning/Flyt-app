@@ -180,10 +180,10 @@ async function run(engine,label,viewport){
     const newStory=await solveStory(page,'brevhytta');
     assert.notEqual(newStory,firstStory,label+' story variant did not rotate');
     assert.equal(await page.evaluate(()=>window.LARIA_CHAPTER_EXPANSION.progress(state).complete),true);
-    const path=process.env.LARIA_CHAPTER2_SCREENSHOTS;
-    if(path){
-      fs.mkdirSync(path,{recursive:true});
-      await page.screenshot({path:require('node:path').join(path,label+'-chapter-complete.png'),fullPage:false,animations:'disabled'});
+    const captureDir=process.env.LARIA_CHAPTER2_SCREENSHOTS;
+    if(captureDir){
+      fs.mkdirSync(captureDir,{recursive:true});
+      await page.screenshot({path:path.join(captureDir,label+'-chapter-complete.png'),fullPage:false,animations:'disabled'});
     }
     assert.deepEqual(errors,[],label+' javascript errors');
     await page.locator('[data-fd-action="close"]').click();
