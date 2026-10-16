@@ -46,7 +46,17 @@ async function selectTopic(page,topic,label){
  const valid=await picker.locator('.wh-theme-card img').evaluateAll(imgs=>imgs.every(img=>img.src.includes('/word-hunt-theme-')&&img.getAttribute('alt')===''));
  assert.ok(valid,label+' broken illustrated topic assets');
  const art=await picker.locator('.wh-theme-card img').evaluateAll(async imgs=>{
-  await Promise.all(imgs.map(img=>img.decode()));
+  // WebKit may keep off-screen horizontal theme cards lazy indefinitely.
+  // Eagerly load each bundled asset and bound the wait to fail clearly.
+  imgs.forEach(img=>{img.loading='eager'});
+  await Promise.all(imgs.map(img=>{
+    if(img.complete)return Promise.resolve();
+    return new Promise((resolve,reject)=>{
+      const limit=setTimeout(()=>reject(new Error('Theme image load exceeded 12 seconds: '+img.src)),12000);
+      img.addEventListener('load',()=>{clearTimeout(limit);resolve()},{once:true});
+      img.addEventListener('error',()=>{clearTimeout(limit);reject(new Error('Theme image failed: '+img.src))},{once:true});
+    });
+  }));
   return imgs.map(img=>({width:img.naturalWidth,height:img.naturalHeight,
    bg:getComputedStyle(img).backgroundImage,complete:img.complete}));
  });
