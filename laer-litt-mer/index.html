@@ -2855,8 +2855,8 @@
         </div>
         <p id="grade-round-copy">Fire fag, fire første eventyr. Spill dem i ditt tempo.</p>
         <div class="grade-round-subjects" id="grade-round-subjects"></div>
-        <div class="grade-round-history-title" id="grade-round-history-title">Utforsk på flere trinn</div>
-        <div class="grade-round-history" id="grade-round-history" aria-label="Fremgang på klassetrinn"></div>
+        <div class="grade-round-history-title" id="grade-round-history-title" hidden aria-hidden="true">Utforsk på flere trinn</div>
+        <div class="grade-round-history" id="grade-round-history" hidden aria-hidden="true" aria-label="Fremgang på klassetrinn"></div>
       </div>
 
       <div class="section-title"><h3>Fag</h3></div>
@@ -4676,13 +4676,9 @@ function renderGradeJourneyOverview(){
     return '<div class="grade-round-pill '+(x.progress.complete?'done':'')+'"><b>'+(x.progress.complete?'✓':x.icon)+'</b><span>'+x.label+' · '+status+'</span></div>';
   }).join('');
   const historyTitle=document.getElementById('grade-round-history-title');
-  if(historyTitle)historyTitle.textContent=chapterMode?'Utforsk på flere trinn':'Klassetrinnene dine';
+  if(historyTitle){historyTitle.hidden=true;historyTitle.setAttribute('aria-hidden','true')}
   const history=document.getElementById('grade-round-history');
-  if(history)history.innerHTML=Array.from({length:10},(_,i)=>i+1).map(g=>{
-    const p=gradeJourneyOverview(g),complete=p.complete,first=Number(g)===2;
-    const status=first?p.done+'/4 første eventyr':p.done+'/4';
-    return '<div class="grade-round-history-item'+(complete?' complete':'')+(g===currentGrade()?' mine':'')+'"><b>'+(complete?'🏆 ':'')+g+'.</b><span>'+status+'</span></div>';
-  }).join('');
+  if(history){history.hidden=true;history.setAttribute('aria-hidden','true');history.innerHTML=''}
 }
 function renderSubjectProgress(){
   renderGradeJourneyOverview();
