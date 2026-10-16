@@ -37,7 +37,7 @@
       progress.done+' av 5 steder utforsket. Du velger selv hvor du vil gå.';
     return shell('<div class="fd-intro fd-intro-map">'+
       '<div class="fd-intro-hero fd-map-header"><div><span class="fd-eyebrow">NORSK · KAPITTEL 2</span>'+
-      '<h1 id="fd-title">Fortellingsdalen</h1><p>Fem steder. Mange små fortellinger. Du bestemmer hvor eventyret fortsetter.</p></div>'+
+      '<h1 id="fd-title" tabindex="-1">Fortellingsdalen</h1><p>Fem steder. Mange små fortellinger. Du bestemmer hvor eventyret fortsetter.</p></div>'+
       '<div class="fd-map-crest" aria-hidden="true">✦</div></div>'+
       '<div class="fd-visual-layout"><section class="fd-atlas" aria-label="Illustrert kart med fem spillbare oppdrag">'+
       '<img class="fd-atlas-paint" src="'+esc(art.ASSET.src)+'" alt="" draggable="false" decoding="async" width="'+art.DIMENSIONS.width+'" height="'+art.DIMENSIONS.height+'">'+
@@ -66,7 +66,7 @@
         '" data-fd-action="answer" data-fd-index="'+i+'"'+(pending?' disabled':'')+'><span class="fd-option-letter">'+String.fromCharCode(65+i)+'</span>'+
         '<span>'+esc(answer)+'</span></button>';
     }).join('');
-    return shell('<article class="fd-story-layout">'+
+    return shell('<article class="fd-story-layout" tabindex="-1">'+
       '<div class="fd-story-top"><button type="button" class="fd-quiet-back" data-fd-action="intro">← Alle stedene</button><span>'+esc(session.stage.title)+'</span></div>'+
       '<div class="fd-story-companion" data-fd-story-place="'+esc(session.stage.id)+'" style="--fd-scene-x:'+art.stop(session.stage.id).marker.x+'%;--fd-scene-y:'+art.stop(session.stage.id).marker.y+'%;" aria-label="Reven din er med på historien">'+
       '<img class="fd-story-art" src="'+esc(art.ASSET.src)+'" alt="" draggable="false" loading="eager" aria-hidden="true">'+fox()+
@@ -75,7 +75,8 @@
         'Les historien i ditt tempo. Jeg kan lese den høyt for deg.')+'</p></div></div>'+
       '<div class="fd-story-banner"><span>SPOR '+n+' AV '+session.total+'</span><div class="fd-story-bar"><span style="width:'+mark(pending?n:n-1,session.total)+'%"></span></div></div>'+
       '<div class="fd-letter"><div class="fd-letter-decoration">✦</div><h2>'+esc(session.story.title)+'</h2><p>'+esc(session.story.passage)+'</p>'+
-      '<button type="button" class="fd-read" data-fd-action="read" aria-label="Les opp historien, spørsmålet og svaralternativene">🔊 Les høyt</button></div>'+
+      '<div class="fd-letter-actions"><button type="button" class="fd-read" data-fd-action="read" aria-label="Les opp historien, spørsmålet og svaralternativene">🔊 Les høyt</button>'+
+      '<button type="button" class="fd-find" data-fd-action="question" aria-label="Gå til spørsmålet">Til spørsmålet ↓</button></div></div>'+
       '<div class="fd-question"><span class="fd-eyebrow">FINN SPORET</span><h3 class="fd-question-prompt" tabindex="-1">'+esc(q.prompt)+'</h3>'+
       '<div class="fd-options">'+options+'</div></div>'+
       (pending?'<div class="fd-feedback" role="status"><strong>'+(pending.correct?'★ Du fant riktig spor!':'Det var ikke helt riktig denne gangen.')+
@@ -100,10 +101,16 @@
     ui.root.innerHTML=ui.mode==='story'?renderStory():ui.mode==='result'?renderResult():renderIntro();
     ui.root.setAttribute('aria-label','Fortellingsdalen, intern forhåndsvisning');
   }
+  function resetSceneScroll(selector){
+    if(!ui)return;
+    ui.root.scrollTop=0;
+    ui.root.querySelector(selector)?.focus({preventScroll:true});
+  }
   function save(){try{ui?.save?.()}catch(_){/* local preview must remain playable */}}
   function start(stageId){
     core.start(ui.state,stageId);
     ui.pending=null;ui.lastResult=null;ui.mode='story';save();render();
+    resetSceneScroll('.fd-story-layout');
   }
   function speak(){
     if(!ui||!('speechSynthesis' in window)||!('SpeechSynthesisUtterance' in window))return;
@@ -132,16 +139,26 @@
     if(action==='read'){speak();return}
     if(action==='intro'){
       if('speechSynthesis' in window)window.speechSynthesis.cancel();
-      ui.pending=null;ui.lastResult=null;ui.mode='intro';save();render();return;
+      ui.pending=null;ui.lastResult=null;ui.mode='intro';save();render();
+      resetSceneScroll('#fd-title');return;
     }
-    if(action==='resume'){ui.pending=null;ui.mode='story';render();return}
+    if(action==='resume'){
+      ui.pending=null;ui.mode='story';render();resetSceneScroll('.fd-story-layout');return;
+    }
     if(action==='stage'||action==='replay'){start(b.dataset.fdStage);return}
+    if(action==='question'){
+      const question=ui.root.querySelector('.fd-question-prompt');
+      question?.scrollIntoView({block:'start',behavior:'smooth'});
+      question?.focus({preventScroll:true});
+      return;
+    }
     if(action==='next'){
       if('speechSynthesis' in window)window.speechSynthesis.cancel();
       const completed=!!ui.pending?.finished,outcome=ui.pending?.outcome||null;
       ui.pending=null;
       if(completed){ui.lastResult=outcome;ui.mode='result'}else ui.mode='story';
       render();
+      if(completed)ui.root.scrollTop=0;
       const destination=ui.root.querySelector(completed?'.fd-result h1':'.fd-question-prompt');
       destination?.focus({preventScroll:true});
       destination?.scrollIntoView({block:'nearest',behavior:'instant'});
@@ -162,7 +179,7 @@
     }
   }
   function open(options={}){
-    if(ui){ui.mode='intro';render();return}
+    if(ui){ui.mode='intro';render();resetSceneScroll('#fd-title');return}
     if(!options.state||typeof options.save!=='function')throw new TypeError('Chapter preview requires the app state and saveState callback');
     const root=document.createElement('div');root.id='laria-fortellingsdalen-preview';
     root.className='fd-overlay';root.setAttribute('role','dialog');root.setAttribute('aria-modal','true');
@@ -172,6 +189,7 @@
     document.body.appendChild(root);
     document.addEventListener('keydown',onKey);
     render();
+    ui.root.scrollTop=0;
     root.querySelector('.fd-back')?.focus({preventScroll:true});
     save();
   }
