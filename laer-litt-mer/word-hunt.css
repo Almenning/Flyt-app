@@ -1114,7 +1114,7 @@
     margin:0;justify-self:start;align-self:start;
   }
   .word-hunt-overlay.is-theme-entry .wh-theme-card[data-word-theme="mixed"] .wh-theme-card-check{
-    top:7px;left:auto;right:8px;bottom:auto;transform:none;
+    top:8px;left:10px;right:auto;bottom:auto;transform:none;
     min-width:0;padding:2px 7px;font-size:9px;
   }
   .word-hunt-overlay.is-theme-entry .wh-theme-card[data-word-theme="mixed"].selected .wh-theme-card-go{
@@ -1130,3 +1130,6 @@
   .word-hunt-overlay.is-theme-entry .wh-theme-card:nth-child(4){grid-column:2/span 2;}
   .word-hunt-overlay.is-theme-entry .wh-theme-card:nth-child(5){grid-column:4/span 2;}
 }
+
+/* Respect the native hidden state after premium entry button display rules. */
+.word-hunt-overlay.is-theme-entry .wh-theme-start[hidden]{display:none!important}
