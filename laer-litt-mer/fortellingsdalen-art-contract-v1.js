@@ -10,7 +10,7 @@
   'use strict';
   const DIMENSIONS=Object.freeze({width:941,height:1672});
   const ASSET=Object.freeze({
-    src:'./fortellingsdalen-map-preview.svg?v=20261016-c2map1',
+    src:'./fortellingsdalen-map-candidate-v2.svg?v=20261016-c2map2',
     status:'prototype',publicApproved:false,
     alt:'Illustrert dal med hytte, bro, sporsti, mølle og stjernetopp.'
   });
