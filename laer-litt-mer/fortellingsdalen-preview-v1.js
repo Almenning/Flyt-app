@@ -24,6 +24,20 @@
     fortellermolla:Object.freeze({x:72,y:34}),
     stjernetoppen:Object.freeze({x:57,y:17})
   });
+  // Fox positions are grounded in the same portrait atlas coordinate system.
+  // These are FOOT coordinates, deliberately separated from sign/tap targets.
+  // The personal avatar is a live layer and never part of the painting.
+  const FOX_FOOT=Object.freeze({
+    brevhytta:Object.freeze({x:45,y:91,scale:1}),
+    eventyrbrua:Object.freeze({x:43,y:78,scale:.84}),
+    sporstien:Object.freeze({x:46,y:61,scale:.71}),
+    fortellermolla:Object.freeze({x:55,y:45,scale:.58}),
+    stjernetoppen:Object.freeze({x:46,y:29,scale:.46})
+  });
+  function foxDestination(progress){
+    const target=FOX_FOOT[progress.recommended]||FOX_FOOT.brevhytta;
+    return '--fd-fox-x:'+target.x+'%;--fd-fox-y:'+target.y+'%;--fd-fox-scale:'+target.scale+';';
+  }
   function renderIntro(){
     const progress=core.progress(ui.state),draft=core.resume(ui.state);
     const stages=core.STAGES.map((stage,i)=>{
@@ -47,7 +61,7 @@
       '<img class="fd-atlas-paint" src="./fortellingsdalen-map-preview.svg?v=20261016-c2map1" alt="" draggable="false" decoding="async">'+
       '<div class="fd-atlas-shade" aria-hidden="true"></div>'+
       '<div class="fd-map-caption" aria-hidden="true">FORTELLINGSDALEN <span>✦</span></div>'+
-      '<div class="fd-fox fd-map-fox">'+fox()+'</div>'+
+      '<div class="fd-fox fd-map-fox" style="'+foxDestination(progress)+'" data-fd-fox-stage="'+esc(progress.recommended)+'">'+fox()+'</div>'+
       '<div class="fd-places fd-map-stages">'+stages+'</div>'+
       '</section><div class="fd-map-aside">'+
       '<div class="fd-progress" role="status" aria-label="'+esc(status)+'"><div><strong>'+progress.done+' av 5 steder utforsket</strong>'+
@@ -72,6 +86,10 @@
     }).join('');
     return shell('<article class="fd-story-layout">'+
       '<div class="fd-story-top"><button type="button" class="fd-quiet-back" data-fd-action="intro">← Alle stedene</button><span>'+esc(session.stage.title)+'</span></div>'+
+      '<div class="fd-story-companion" aria-label="Reven din er med på historien">'+fox()+
+      '<div><span class="fd-eyebrow">REVENS FORTELLERKROK</span><p>'+(pending?(pending.correct?
+        'Et spor funnet! Klar for neste?':'Prøv gjerne en ny historie senere. Vi utforsker videre.'):
+        'Les historien i ditt tempo. Jeg kan lese den høyt for deg.')+'</p></div></div>'+
       '<div class="fd-story-banner"><span>SPOR '+n+' AV '+session.total+'</span><div class="fd-story-bar"><span style="width:'+mark(n-1,session.total)+'%"></span></div></div>'+
       '<div class="fd-letter"><div class="fd-letter-decoration">✦</div><h2>'+esc(session.story.title)+'</h2><p>'+esc(session.story.passage)+'</p>'+
       '<button type="button" class="fd-read" data-fd-action="read" aria-label="Les opp historien og spørsmålet">◖)) Les opp</button></div>'+
