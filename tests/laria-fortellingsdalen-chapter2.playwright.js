@@ -176,7 +176,7 @@ async function run(engine,label,viewport){
       y:el.style.getPropertyValue('--fd-fox-y'),
       scale:el.style.getPropertyValue('--fd-fox-scale')
     }));
-    assert.deepEqual(foxCoords,{x:'43%',y:'78%',scale:'.84'},label+' fox perspective anchor changed unexpectedly');
+    assert.deepEqual(foxCoords,{x:'43%',y:'78%',scale:'0.84'},label+' fox perspective anchor changed unexpectedly');
 
     for(const stage of ['eventyrbrua','sporstien','fortellermolla','stjernetoppen'])await solveStory(page,stage);
     const report=await page.evaluate(()=>({
