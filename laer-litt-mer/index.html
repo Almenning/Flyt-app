@@ -2646,7 +2646,7 @@
         </div>
         <div class="card journey-summary">
           <div>
-            <strong id="journey-summary-title">0 % gjennom kjerneløpet</strong>
+            <strong id="journey-summary-title">0 % av eventyret</strong>
             <span id="journey-summary-copy">Følg stien, eller trykk på et punkt du vil øve på.</span>
           </div>
           <div class="journey-summary-ring" id="journey-summary-ring" style="--journey-pct:0"><span id="journey-summary-pct">0%</span></div>
@@ -2746,7 +2746,7 @@
           <div class="journey-grade-note" id="geo-journey-grade-note"></div>
         </div>
         <div class="card journey-summary">
-          <div><strong id="geo-journey-summary">0 % gjennom kjerneløpet</strong><span>Kloden og stien bruker den samme fremgangen.</span></div>
+          <div><strong id="geo-journey-summary">0 % av eventyret</strong><span>Kloden og stien bruker den samme fremgangen.</span></div>
           <div class="journey-summary-ring" id="geo-journey-ring" style="--journey-pct:0"><span id="geo-journey-pct">0%</span></div>
         </div>
         <div class="journey-now-card geo-now" id="geo-journey-now">
@@ -4453,7 +4453,7 @@ function renderJourneyGradeStrip(subject,hostId,noteId,selectedGrade){
   const mine=currentGrade();
   host.innerHTML=Array.from({length:10},(_,i)=>i+1).map(g=>{
     const complete=subjectGradeComplete(subject,g),active=g===selectedGrade;
-    return '<button type="button" class="journey-grade-choice'+(active?' active':'')+(complete?' complete':'')+(g===mine?' mine':'')+'" data-journey-grade="'+g+'" aria-label="'+g+'. klasse'+(complete?', fullført':'')+(g===mine?', ditt klassetrinn':'')+'"><b>'+(complete?'🏆 ':'')+g+'.</b><small>'+(g===mine?'mitt trinn':complete?'fullført':'')+'</small></button>';
+    return '<button type="button" class="journey-grade-choice'+(active?' active':'')+(complete?' complete':'')+(g===mine?' mine':'')+'" data-journey-grade="'+g+'" aria-label="'+g+'. klasse'+(complete?', eventyret fullført':'')+(g===mine?', ditt klassetrinn':'')+'"><b>'+(complete?'🏆 ':'')+g+'.</b><small>'+(g===mine?'mitt trinn':complete?'eventyr klart':'')+'</small></button>';
   }).join('');
   host.querySelectorAll('[data-journey-grade]').forEach(b=>b.onclick=()=>setJourneyViewGrade(subject,Number(b.dataset.journeyGrade)));
   if(note)note.textContent=selectedGrade===mine
@@ -5508,13 +5508,13 @@ function startSelectedJourneyMission(){
 function renderSubjectJourney(){
   const host=document.getElementById('journey-map');if(!host||!SUBJECTS[activeSubject])return;
   host.className='journey-map journey-map-v5';
-  const viewGrade=journeyViewGrade(activeSubject),prog=journeyProgress(activeSubject,viewGrade),recommended=journeyRecommendedNode(activeSubject,viewGrade),model=prog.model;
+  const viewGrade=journeyViewGrade(activeSubject),prog=journeyProgress(activeSubject,viewGrade),recommended=journeyRecommendedNode(activeSubject,viewGrade),model=prog.model,chapter=journeyChapterMeta(activeSubject,viewGrade);
   const recommendedIndex=recommended?model.nodes.findIndex(n=>n.id===recommended.id):-1,currentAreaIndex=journeyFirstOpenArea(model,journeyAreaComplete);
   document.getElementById('journey-grade-chip').textContent=GRADE_CONFIG[viewGrade].label;
   renderJourneyGradeStrip(activeSubject,'journey-grade-strip','journey-grade-note',viewGrade);
-  document.getElementById('journey-heading-title').textContent=prog.complete?'Du rundet trinnet!':'Reisen gjennom '+GRADE_CONFIG[viewGrade].label.toLowerCase();
+  document.getElementById('journey-heading-title').textContent=prog.complete?chapter.title+' er fullført':'Eventyret '+chapter.title;
 
-  const hud='<div class="journey-game-hud-v5"><span class="hud-level">'+GRADE_CONFIG[viewGrade].label+'</span><div class="hud-quest"><b>'+(prog.complete?'Alle hovedverdenene er vunnet':'Neste: '+(recommended?.title||'Velg oppdrag'))+'</b><small>'+prog.pct+' % av kjerneløpet</small><div class="hud-progress"><i style="width:'+prog.pct+'%"></i></div></div><span class="hud-trophy">'+journeySpecialSvg('checkpoint')+prog.areasDone+'/'+model.areas.length+'</span></div>';
+  const hud='<div class="journey-game-hud-v5"><span class="hud-level">EVENTYR</span><div class="hud-quest"><b>'+(prog.complete?'Eventyret er fullført':'Neste: '+(recommended?.title||'Velg oppdrag'))+'</b><small>'+prog.pct+' % av '+chapter.title+'</small><div class="hud-progress"><i style="width:'+prog.pct+'%"></i></div></div><span class="hud-trophy">'+journeySpecialSvg('checkpoint')+prog.areasDone+'/'+model.areas.length+'</span></div>';
 
   const chunks=model.areas.map((area,areaIndex)=>{
     const areaDone=journeyAreaComplete(area),areaPct=journeyAreaVisualProgressV7(area,false),growth=journeyGrowthStageV7(areaPct,areaDone),isPreview=!prog.complete&&areaIndex===currentAreaIndex+1,isFuture=!prog.complete&&areaIndex>currentAreaIndex+1,reward=journeyAreaReward(activeSubject,areaIndex);
@@ -5546,10 +5546,10 @@ function renderSubjectJourney(){
 
   const finish=document.getElementById('journey-finish');finish.classList.toggle('complete',prog.complete);
   finish.innerHTML=prog.complete
-    ?'<strong>🏆 '+GRADE_CONFIG[viewGrade].label+' er rundet</strong><p>Du har vunnet troféet i alle hovedverdenene. Repetisjon gjør ferdighetene enda mer varige.</p><div class="journey-finish-actions"><button class="secondary" id="journey-repeat-grade">Repeter</button>'+(viewGrade<10?'<button class="secondary" id="journey-next-grade">Utforsk '+GRADE_CONFIG[viewGrade+1].label+'</button>':'')+'</div>'
+    ?'<strong>🏆 '+chapter.title+' er fullført</strong><p>Du har fullført dette eventyret. Spill det igjen, repeter favoritter eller utforsk fritt mens nye eventyr kan komme senere.</p><div class="journey-finish-actions"><button class="secondary" id="journey-repeat-grade">Spill igjen</button><button class="secondary" id="journey-extra-challenge">Ekstra utfordring</button></div>'
     :'<strong>🏁 Én verden om gangen</strong><p>Følg hovedruten. Bonus og repetisjon er små sideveier, ikke hindringer på veien mot troféet.</p>';
   const repeatBtn=document.getElementById('journey-repeat-grade');if(repeatBtn)repeatBtn.onclick=()=>startJourneyReview(activeSubject,viewGrade);
-  const nextBtn=document.getElementById('journey-next-grade');if(nextBtn)nextBtn.onclick=()=>setJourneyViewGrade(activeSubject,viewGrade+1);
+  const challengeBtn=document.getElementById('journey-extra-challenge');if(challengeBtn)challengeBtn.onclick=()=>startJourneyChallenge(activeSubject,viewGrade);
   document.getElementById('journey-review').onclick=()=>startJourneyReview(activeSubject,viewGrade);
   document.getElementById('journey-challenge').onclick=()=>startJourneyChallenge(activeSubject,viewGrade);
 }
