@@ -283,7 +283,7 @@ function checkLine(path){
   if(ui.found.size===ui.words.length){
     ui.completed=true;
     const earned=saveRound(),pack=THEMES.get(ui.theme);
-    if(earned)status('Du fant alle ordene! «'+pack.title+'» er nå i samleboken på Hjem.',true,true);
+    if(earned)status('✦ Du fikk et nytt klistremerke for «'+pack.title+'»! Det ligger i samleboken på Hjem.',true,true);
     else status('Du fant alle ordene! 🌟 Klar for en ny runde.',true);
   }else{
     const left=ui.words.length-ui.found.size;
@@ -294,7 +294,7 @@ function checkLine(path){
 function status(message,success=false,newSticker=false){
   const s=overlay().querySelector('.word-hunt-status');
   s.classList.toggle('is-sticker-earned',newSticker);
-  s.innerHTML='<strong>'+(newSticker?'✦ Nytt klistremerke!':success?'Ordjakten er løst!':'Reven følger med 🦊')+'</strong>'+message;
+  s.innerHTML='<strong>'+(success?'Ordjakten er løst!':'Reven følger med 🦊')+'</strong>'+message;
   if(success){s.classList.remove('word-hunt-success');void s.offsetWidth;s.classList.add('word-hunt-success')}
 }
 function render(resetStatus=true){
