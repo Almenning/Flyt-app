@@ -75,7 +75,15 @@
           return;
         }
         if(selected==='fortellingsdalen-2'){
-          view.options.onFortellingsdalen?.();
+          // Only the topmost story dialog may receive focus and screen-reader
+          // navigation while it is open over this chapter chooser.
+          view.root.setAttribute('aria-hidden','true');
+          view.root.inert=true;
+          try{view.options.onFortellingsdalen?.()}
+          catch(error){
+            view.root.inert=false;view.root.removeAttribute('aria-hidden');
+            throw error;
+          }
           return;
         }
       }
@@ -103,6 +111,8 @@
   }
   function refresh(){
     if(!view)return;
+    view.root.inert=false;
+    view.root.removeAttribute('aria-hidden');
     render();
     // Returning from chapter 2 should keep the child in the chapter picker.
     const second=view.root.querySelector('[data-fd-pick="fortellingsdalen-2"]');
