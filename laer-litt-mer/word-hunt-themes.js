@@ -51,6 +51,13 @@
     VERDEN:['🌍','Hele verden venter på å bli oppdaget.'],
     FJELL:['⛰️','Fjerne fjell blir synlige mellom trærne.']
   });
+  const THEME_MOMENTS=Object.freeze({
+    mixed:['✨','Bokstavene glitrer i Bokskogen.'],
+    animals:['🐾','Et lite dyrespor dukker opp mellom trærne.'],
+    magic:['🌟','En magisk gnist svever over stien.'],
+    food:['🍯','Det lukter noe godt fra skogshytta.'],
+    world:['🧭','Reven oppdager et nytt spor i verden.']
+  });
   const clamp=n=>Number.isFinite(Number(n))?Math.max(0,Math.min(100000,Math.floor(Number(n)))):0;
   function normalizeProgress(raw){
     const source=raw&&typeof raw==='object'&&!Array.isArray(raw)?raw:{};
@@ -62,8 +69,8 @@
     if(!source.themeRounds&&rounds>0)themeRounds.mixed=rounds;
     return {rounds,theme:BY_ID.has(source.theme)?source.theme:'mixed',themeRounds};
   }
-  function reaction(word){
-    const effect=EFFECTS[String(word).toUpperCase()];
+  function reaction(word,theme){
+    const effect=EFFECTS[String(word).toUpperCase()]||THEME_MOMENTS[theme];
     return effect?{icon:effect[0],message:effect[1]}:null;
   }
   return Object.freeze({
