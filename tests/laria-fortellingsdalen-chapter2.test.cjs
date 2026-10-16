@@ -236,7 +236,7 @@ test('the portrait artwork is a prototype-only, single-source five-stop map cont
     assert.ok(artwork.stop(stage).foxFoot);
     assert.ok(artwork.markerStyle(stage).includes('--fd-y:'));
   }
-  const svg=fs.readFileSync(path.join(__dirname,'../laer-litt-mer/fortellingsdalen-map-preview.svg'),'utf8');
+  const svg=fs.readFileSync(path.join(__dirname,'../laer-litt-mer/fortellingsdalen-map-candidate-v2.svg'),'utf8');
   assert.match(svg,/<svg[^>]*width="941" height="1672"/);
   assert.doesNotMatch(svg,/<(?:text|foreignObject)\b/i,'No permanent lettering or button UI in the art');
   assert.doesNotMatch(svg,/<image\b/i,'No fixed mascot or rasterized UI baked into art');
