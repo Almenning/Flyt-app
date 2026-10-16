@@ -1,0 +1,98 @@
+'use strict';
+const assert=require('node:assert/strict');
+const {chromium,webkit}=require('playwright');
+
+const url=process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria';
+const seed={
+  version:7,progressSchemaVersion:3,
+  profile:{grade:2,onboarded:true,name:'TallengaQA',avatar:'girl',setupVersion:2},
+  mastery:{},mistakes:{},skillMastery:{},skillMistakes:{},skillLastSeen:{},
+  masteryEvidence:{},skillEvidence:{},preferences:{sound:false,autoRead:false},
+  lastMilestone:null,recentCountryWin:null,lastActivity:null,
+  journey:{nodes:{},gradeWins:{},viewGrades:{}},answerLog:[],sessionLog:[],activeSession:null
+};
+
+async function run(engine,label){
+  const browser=await engine.launch({headless:true,args:engine===chromium?['--no-sandbox']:[]});
+  try{
+    const context=await browser.newContext({viewport:{width:820,height:1180},hasTouch:true,
+      isMobile:false,reducedMotion:'reduce',serviceWorkers:'block'});
+    await context.addInitScript(s=>localStorage.setItem('laerlittmer-v2',JSON.stringify(s)),seed);
+    const page=await context.newPage(),errors=[];
+    page.on('pageerror',e=>errors.push(String(e)));
+    await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
+    await page.route('https://api.worldbank.org/**',r=>r.abort());
+    await page.goto(url+'&tallenga-system='+label,{waitUntil:'domcontentloaded'});
+    await page.locator('.bc14-subject[data-camp="subject-math"]').waitFor({timeout:20000});
+
+    const report=await page.evaluate(()=>{
+      const system=window.LARIA_JOURNEY_LEARNING_SYSTEM;
+      const model=journeyModel('math',2);
+      const core=model.nodes.filter(n=>['skill','checkpoint'].includes(n.type));
+      return {
+        installed:window.__LARIA_JOURNEY_LEARNING_SYSTEM_INSTALLED===true,
+        chapter:system?.chapterFor?.('math',2)?.id,
+        core:core.map(node=>{
+          const questions=buildJourneyQuestions('math',node,false);
+          return {
+            id:node.id,type:node.type,
+            learning:node.learning||null,
+            count:questions.length,
+            skills:questions.map(q=>q.skill),
+            objectives:questions.map(q=>q.learning?.objectiveId||null),
+            difficulties:questions.map(q=>q.learning?.difficulty||null)
+          };
+        }),
+        grade3Decorated:journeyModel('math',3).nodes.some(n=>n.learning)
+      };
+    });
+    assert.equal(report.installed,true,label+' systematic layer did not install');
+    assert.equal(report.chapter,'tallenga-1',label+' wrong chapter contract');
+    assert.equal(report.grade3Decorated,false,label+' pilot leaked into grade 3');
+    assert(report.core.length>=7,label+' expected existing Tallenga core nodes');
+    for(const node of report.core){
+      assert(node.learning,label+' '+node.id+' missing learning contract');
+      assert.equal(node.count,5,label+' '+node.id+' builder should keep a five-question candidate set');
+      assert(node.skills.every(skill=>node.learning.allowedSkills.includes(skill)),
+        label+' '+node.id+' leaked unrelated skill: '+node.skills.join(', '));
+      assert(node.objectives.every(id=>id===node.learning.objectiveId),
+        label+' '+node.id+' mixed learning objectives inside one mission');
+    }
+
+    const launch=await page.evaluate(()=>{
+      startJourneyNode('math','addisjon100',2);
+      return {
+        count:sessionQuestions.length,
+        skills:sessionQuestions.map(q=>q.skill),
+        objectives:sessionQuestions.map(q=>q.learning?.objectiveId||null),
+        scope:{...sessionScope}
+      };
+    });
+    assert.equal(launch.count,4,label+' ordinary Tallenga mission must contain four questions');
+    assert.deepEqual([...new Set(launch.skills)],['addition-100'],label+' addition mission mixed skills');
+    assert.deepEqual([...new Set(launch.objectives)],['math-g2-addition-100'],label+' addition mission mixed objectives');
+    assert.equal(launch.scope.journeyNode,'addisjon100');
+
+    const variety=await page.evaluate(()=>{
+      const node=journeyModel('math',2).nodes.find(n=>n.id==='addisjon100');
+      const signatures=new Set(),families=new Set();
+      for(let i=0;i<6;i++){
+        for(const q of buildJourneyQuestions('math',node,true)){
+          signatures.add(questionIdentity(q));
+          if(q.learning?.family)families.add(q.learning.family);
+        }
+      }
+      return {signatures:signatures.size,families:[...families]};
+    });
+    assert(variety.signatures>=10,label+' repeated visits do not vary enough');
+    assert(variety.families.length>=3,label+' addition lacks representation variety');
+    assert.deepEqual(errors,[],label+' javascript errors');
+    await context.close();
+    console.log('PASS systematic Tallenga journey',label,report.core.map(n=>n.id).join(','));
+  }finally{await browser.close()}
+}
+
+(async()=>{
+  await run(chromium,'chromium');
+  await run(webkit,'webkit');
+})().catch(error=>{console.error(error);process.exitCode=1});
