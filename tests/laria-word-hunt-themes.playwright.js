@@ -129,6 +129,14 @@ async function verify(engine,launcher,label,viewport,url){
    await checkLayout(page,label+'-original',viewport);
    const animalWords=await selectTopic(page,'animals',label);
    assert.equal(animalWords.length,4);
+   const mobileTopic=page.locator('.word-hunt-theme-mobile:visible');
+   if(await mobileTopic.count()){
+    assert.equal(await mobileTopic.locator('.word-hunt-mobile-label').innerText(),'Dyr',label+' hides its selected topic on the phone');
+    assert.equal(await mobileTopic.getAttribute('aria-label'),'Velg ordtema. Nå: Dyrevenner');
+    const pill=await mobileTopic.evaluate(el=>{const r=el.getBoundingClientRect(),parent=el.parentElement.getBoundingClientRect();return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,parentTop:parent.top,parentBottom:parent.bottom,width:innerWidth}});
+    assert.ok(pill.left>=0&&pill.right<=pill.width+2&&pill.top>=pill.parentTop-2&&pill.bottom<=pill.parentBottom+2,
+      label+' selected topic spills beyond the level controls: '+JSON.stringify(pill));
+   }
    await checkLayout(page,label+'-animals',viewport);
    await shot(page,label+'-animals-game');
    for(let i=0;i<animalWords.length;i++){
@@ -137,6 +145,13 @@ async function verify(engine,launcher,label,viewport,url){
     assert.equal(await page.locator('.word-hunt-word.found').count(),i+1);
    }
    assert.match(await page.locator('.word-hunt-status').innerText(),/Ordjakten er løst/);
+   assert.match(await page.locator('.word-hunt-status').innerText(),/klistremerke.*Dyrevenner/,
+     'First themed completion needs a visible sticker congratulations');
+   assert.equal(await page.locator('.word-hunt-status').evaluate(el=>el.classList.contains('is-sticker-earned')),true);
+   assert.equal(await page.locator('.word-hunt-magic:not([hidden])').count(),1,
+     label+' first sticker must appear over the board, not solely below it');
+   assert.match(await page.locator('.word-hunt-magic-message').innerText(),/Nytt klistremerke.*Dyrevenner/);
+   await shot(page,label+'-first-sticker-celebration');
    const saved=await page.evaluate(()=>JSON.parse(localStorage.getItem('laria-wordhunt-v1')));
    assert.equal(saved.rounds,1);
    assert.equal(saved.themeRounds.animals,1);
@@ -167,6 +182,33 @@ async function verify(engine,launcher,label,viewport,url){
    await open(page,url);
    const current=await page.locator('.word-hunt-current-theme').innerText();
    assert.equal(current,'Verden rundt','selected topic not restored after reload');
+   if(await page.locator('.word-hunt-theme-mobile:visible').count()){
+    assert.equal(await page.locator('.word-hunt-mobile-label').innerText(),'Verden',
+      label+' saved topic missing from visible phone control');
+   }
+   // When Verden rundt is saved, the mobile carousel must reopen at its
+   // selected card rather than hiding the choice off the right edge.
+   const beforeCancelledChoice=await page.locator('.word-hunt-word').allTextContents();
+   await page.locator('.word-hunt-theme-mobile:visible,.word-hunt-theme-open:visible').click();
+   const chooser=page.locator('.word-hunt-theme-picker:not([hidden])');
+   await chooser.waitFor();
+   assert.equal(await chooser.locator('.wh-theme-card.selected').getAttribute('data-word-theme'),'world');
+   const selectedGeometry=await chooser.evaluate(el=>{
+    const scroller=el.querySelector('.wh-theme-cards'),selected=el.querySelector('.wh-theme-card.selected');
+    const a=scroller.getBoundingClientRect(),b=selected.getBoundingClientRect();
+    return {left:b.left,right:b.right,frameLeft:a.left,frameRight:a.right,
+      overflow:scroller.scrollWidth>scroller.clientWidth+2,scrollLeft:scroller.scrollLeft};
+   });
+   if(selectedGeometry.overflow){
+    assert.ok(selectedGeometry.left>=selectedGeometry.frameLeft-4&&selectedGeometry.right<=selectedGeometry.frameRight+4,
+      label+' reopened themed carousel hides the selected card: '+JSON.stringify(selectedGeometry));
+   }
+   await chooser.locator('[data-word-theme="magic"]').click();
+   await chooser.locator('.wh-theme-close').click();
+   assert.equal(await page.locator('.word-hunt-current-theme').innerText(),'Verden rundt',
+      'Cancelling a different topic changed the active choice');
+   assert.deepEqual(await page.locator('.word-hunt-word').allTextContents(),beforeCancelledChoice,
+     'Cancelling a picker selection restarted the puzzle');
    const after=await page.evaluate(()=>JSON.parse(localStorage.getItem('laria-wordhunt-v1')));
    assert.equal(after.rounds,1,'topic selection incorrectly increased completed rounds');
    assert.equal(after.themeRounds.animals,1,'earned sticker disappeared');
@@ -181,6 +223,7 @@ async function verify(engine,launcher,label,viewport,url){
   await verify('chromium',chromium,'mac',{width:1525,height:833},url);
   await verify('webkit',webkit,'ipad',{width:820,height:1180},url);
   await verify('webkit',webkit,'iphone',{width:390,height:844},url);
+  await verify('webkit',webkit,'iphone-compact',{width:320,height:568},url);
  }finally{await new Promise(resolve=>server.close(resolve))}
  console.log('PASS Læria illustrated Ordjakt themes, responsive play and stickers');
 })().catch(error=>{console.error(error);process.exitCode=1});
