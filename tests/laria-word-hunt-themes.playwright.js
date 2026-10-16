@@ -148,6 +148,10 @@ async function verify(engine,launcher,label,viewport,url){
    assert.match(await page.locator('.word-hunt-status').innerText(),/klistremerke.*Dyrevenner/,
      'First themed completion needs a visible sticker congratulations');
    assert.equal(await page.locator('.word-hunt-status').evaluate(el=>el.classList.contains('is-sticker-earned')),true);
+   assert.equal(await page.locator('.word-hunt-magic:not([hidden])').count(),1,
+     label+' first sticker must appear over the board, not solely below it');
+   assert.match(await page.locator('.word-hunt-magic-message').innerText(),/Nytt klistremerke.*Dyrevenner/);
+   await shot(page,label+'-first-sticker-celebration');
    const saved=await page.evaluate(()=>JSON.parse(localStorage.getItem('laria-wordhunt-v1')));
    assert.equal(saved.rounds,1);
    assert.equal(saved.themeRounds.animals,1);
