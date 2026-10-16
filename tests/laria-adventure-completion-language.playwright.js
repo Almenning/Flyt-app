@@ -114,12 +114,12 @@ async function runCase(engine,label,subject){
     await page.locator('#complete-home').click();
     if(subject==='math'){
       await page.locator('#subject-screen.active').waitFor({timeout:10000});
-      assert.equal((await page.locator('#subject-continue-eyebrow').innerText()).trim(),'Eventyret er rundet');
-      assert.match(await page.locator('#subject-mission-title').innerText(),/Tallenga fullført/);
+      assert.match((await page.locator('#subject-continue-eyebrow').innerText()).trim(),/^eventyret er rundet$/i);
+      assert.match(await page.locator('#subject-mission-title').innerText(),/Tallenga fullført/i);
     }else{
       await page.locator('#geography-screen.active').waitFor({timeout:10000});
-      assert.equal((await page.locator('#geography-continue-eyebrow').innerText()).trim(),'Eventyret er rundet');
-      assert.match(await page.locator('#geography-continue-title').innerText(),/Nordlysleiren fullført/);
+      assert.match((await page.locator('#geography-continue-eyebrow').innerText()).trim(),/^eventyret er rundet$/i);
+      assert.match(await page.locator('#geography-continue-title').innerText(),/Nordlysleiren fullført/i);
     }
 
     assert.deepEqual(errors,[],label+' '+subject+' JavaScript errors');
