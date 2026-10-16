@@ -66,13 +66,28 @@
     assert(allIds.size===model.nodes.length,'duplicate original node ids');
     assert(core.length>0,'no original core missions');
     const buckets=Array.from({length:5},()=>[]);
-    // Distribute existing core missions from the FIRST painted place to the
-    // LAST one, even when a grade has fewer than five core missions. A vacant
-    // intermediate place is an exploration landmark, NEVER a synthetic task.
-    // In-order node IDs and the original journey / area sequence do not change.
+    const roles=Array.isArray(model.learningPlaces)?model.learningPlaces:null;
+    if(roles){
+      assert(roles.length===5,'semantic place contract must describe five painted places');
+      roles.forEach((role,index)=>{
+        if(role?.title)assert(role.title===def.places[index],'semantic place title drift at '+index);
+      });
+    }
+    // A systematic learning layer may pin a REAL existing node to a painted
+    // place. Everything else keeps the old proportional fallback. No new IDs,
+    // progress records or synthetic lessons are ever created here.
+    const explicitPlaceIndex=node=>{
+      const index=node?.learning?.placeIndex;
+      return Number.isInteger(index)&&index>=0&&index<5?index:null;
+    };
     const paintedIndex=i=>core.length===1?0:Math.round(i*4/(core.length-1));
-    core.forEach((n,i)=>buckets[paintedIndex(i)].push(n));
+    core.forEach((n,i)=>{
+      const explicit=explicitPlaceIndex(n);
+      buckets[explicit===null?paintedIndex(i):explicit].push(n);
+    });
     extras.forEach(n=>{
+      const explicit=explicitPlaceIndex(n);
+      if(explicit!==null){buckets[explicit].push(n);return}
       const index=core.findIndex(x=>x.areaId===n.areaId);
       buckets[index<0?4:paintedIndex(index)].push(n);
     });
@@ -87,7 +102,7 @@
       });
       const required=nodes.filter(n=>CORE_TYPES.has(n.type));
       const done=required.filter(n=>n.complete).length;
-      return Object.freeze({index,title,nodes:Object.freeze(nodes),done,total:required.length,
+      return Object.freeze({index,title,role:roles?.[index]||null,nodes:Object.freeze(nodes),done,total:required.length,
         complete:required.length>0&&required.every(n=>n.complete),
         recommended:nodes.some(n=>n.id===recommendedId)});
     });
