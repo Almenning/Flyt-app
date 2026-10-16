@@ -785,10 +785,13 @@
   --wh-scene-position:52% 46%;
   background-color:#78947a;
   background-image:
-    linear-gradient(180deg,rgba(255,246,209,.17) 0%,rgba(250,227,173,.08) 40%,rgba(27,54,37,.17) 100%),
+    radial-gradient(ellipse 67% 70% at 50% 53%,
+      rgba(255,250,233,.70) 0%,rgba(255,248,227,.54) 35%,
+      rgba(252,238,212,.30) 72%,rgba(57,71,47,.10) 100%),
+    linear-gradient(180deg,rgba(255,248,231,.15) 0%,rgba(247,227,193,.13) 67%,rgba(29,49,34,.10) 100%),
     url('./bokskogen-verden.png');
-  background-position:center,var(--wh-scene-position);
-  background-size:cover,cover;
+  background-position:center,center,var(--wh-scene-position);
+  background-size:cover,cover,cover;
   background-repeat:no-repeat;
 }
 .wh-theme-card[data-word-theme="mixed"] img,
