@@ -168,7 +168,7 @@ function dialog(kind){
   const themeStickers=wordPacks.map(pack=>{
     const rounds=themeProgress.themeRounds[pack.id]||0,owned=rounds>0;
     return '<div class="bc12-wordhunt-sticker'+(owned?' is-earned':' is-locked')+'" data-word-theme="'+pack.id+'" data-owned="'+owned+'" aria-label="'+pack.title+(owned?', klistremerke funnet':', klistremerke ikke funnet')+'">'+
-      '<span class="bc12-wordhunt-sticker-art"><img alt="" loading="lazy" src="./word-hunt-theme-'+pack.id+'.svg"></span>'+
+      '<span class="bc12-wordhunt-sticker-art"><img alt="" loading="lazy" src="./word-hunt-theme-'+pack.id+'.svg?v=20261016-premium2"></span>'+
       '<strong>'+pack.title+'</strong><small>'+(owned?'✦ Funnet':'Ikke funnet ennå')+'</small></div>';
   }).join('');
   // A world keepsake is visible only when earned; clothing previews wait until
