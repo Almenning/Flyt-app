@@ -26,6 +26,10 @@ async function openChooser(page){
     /bokskogen-locked-20261010\.png/);
   assert.match(await page.locator('[data-fd-chapter-card="fortellingsdalen-2"] img').getAttribute('src'),
     /fortellingsdalen-map-preview\.svg/);
+  await page.waitForFunction(()=>{
+    const images=[...document.querySelectorAll('#laria-norwegian-chapter-picker .fd-chapter-image')];
+    return images.length===2&&images.every(img=>img.complete&&img.naturalWidth===941&&img.naturalHeight===1672);
+  },null,{timeout:16000});
   const chooserFits=await page.locator('#laria-norwegian-chapter-picker').evaluate(
     el=>el.scrollWidth<=el.clientWidth+2
   );
