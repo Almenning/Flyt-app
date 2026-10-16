@@ -212,6 +212,57 @@
       ['reading'],{kind:'checkpoint',questionCount:5,placeIndex:4,chapter:'ordlandsbyen-1'})
   });
 
+  const geoContract=(objectiveId,learningGoal,geoTypes,options={})=>Object.freeze({
+    objectiveId,
+    learningGoal,
+    allowedGeoTypes:freezeList(geoTypes),
+    questionCount:Number(options.questionCount||5),
+    kind:options.kind||'geo-skill',
+    chapter:options.chapter||'nordlysleiren-1',
+    placeIndex:Number.isInteger(options.placeIndex)?options.placeIndex:null,
+    geoType:options.geoType||null,
+    title:options.title||null
+  });
+
+  const GEOGRAPHY_G2_PLACES=Object.freeze([
+    Object.freeze({index:0,title:'Basecamp',adventurePrompt:'Start i Norden og kjenn igjen flaggene til landene nærmest oss.',learningFocus:'nordiske land og flagg'}),
+    Object.freeze({index:1,title:'Kartkroken',adventurePrompt:'Koble landene i Norden til hovedsteder og riktig plass på kartet.',learningFocus:'nordiske hovedsteder og kartplassering'}),
+    Object.freeze({index:2,title:'Utforskertårnet',adventurePrompt:'Se sørover fra Norden og oppdag flere europeiske land gjennom flaggene.',learningFocus:'utvide landkjennskap i Europa'}),
+    Object.freeze({index:3,title:'Naturstien',adventurePrompt:'Følg stien fra land til hovedstad og bygg flere forbindelser i Europa.',learningFocus:'hovedsteder i Norden og nære europeiske land'}),
+    Object.freeze({index:4,title:'Observatoriet',adventurePrompt:'Se hele ruten ovenfra og finn landene på kartet før ekspedisjonen avsluttes.',learningFocus:'kartplassering og samlet geografiforståelse'})
+  ]);
+
+  const GEOGRAPHY_G2_NODES=Object.freeze({
+    'norden-flag':geoContract('geography-g2-nordic-flags','Kjenne igjen flaggene til de nordiske landene.',
+      ['flag'],{placeIndex:0}),
+    'norden-capital':geoContract('geography-g2-nordic-capitals','Koble nordiske land til riktig hovedstad.',
+      ['capital'],{placeIndex:1}),
+    'norden-map':geoContract('geography-g2-nordic-map','Finne de nordiske landene på kartet.',
+      ['map'],{placeIndex:1}),
+    'norden-challenge':geoContract('geography-g2-nordic-challenge','Veksle mellom nordiske flagg, hovedsteder og kartplassering.',
+      ['flag','capital','map'],{kind:'challenge',placeIndex:1}),
+    'norden-review':geoContract('geography-g2-nordic-review','Hente fram nordiske land, flagg, hovedsteder og kartplassering igjen.',
+      ['flag','capital','map'],{kind:'review',placeIndex:1}),
+    'norden-checkpoint':geoContract('geography-g2-nordic-checkpoint','Vise trygghet i grunnleggende Norden-geografi.',
+      ['flag','capital','map'],{kind:'checkpoint',placeIndex:1}),
+
+    'naboer-flag':geoContract('geography-g2-near-europe-flags','Kjenne igjen flagg i Norden og noen sentrale land like utenfor Norden.',
+      ['flag'],{placeIndex:2}),
+    // Keep the legacy node ID so saved journey progress remains valid. Its
+    // grade-2 learning role changes from the trivial all-Europe continent quiz
+    // to capitals, which creates actual retrieval practice.
+    'naboer-continent':geoContract('geography-g2-near-europe-capitals','Koble Norden, Storbritannia, Tyskland og Frankrike til hovedstedene deres.',
+      ['capital'],{placeIndex:3,geoType:'capital',title:'Hovedsteder'}),
+    'naboer-map':geoContract('geography-g2-near-europe-map','Finne Norden, Storbritannia, Tyskland og Frankrike på kartet.',
+      ['map'],{placeIndex:4}),
+    'naboer-challenge':geoContract('geography-g2-near-europe-challenge','Veksle mellom flagg, hovedsteder og kart i den utvidede Europa-ruten.',
+      ['flag','capital','map'],{kind:'challenge',placeIndex:4}),
+    'naboer-review':geoContract('geography-g2-near-europe-review','Repetere land, hovedsteder, flagg og plassering i den utvidede Europa-ruten.',
+      ['flag','capital','map'],{kind:'review',placeIndex:4}),
+    'naboer-checkpoint':geoContract('geography-g2-near-europe-checkpoint','Vise trygghet i Norden og de første europeiske landene utenfor Norden.',
+      ['flag','capital','map'],{kind:'checkpoint',placeIndex:4})
+  });
+
   const CONTRACTS=Object.freeze({
     norwegian:Object.freeze({
       2:Object.freeze({
@@ -235,6 +286,17 @@
         id:'ordlandsbyen-1',title:'Ordlandsbyen',chapter:1,
         philosophy:'systematic-progression-controlled-variation',
         places:ENGLISH_G2_PLACES,nodes:ENGLISH_G2_NODES
+      })
+    }),
+    geography:Object.freeze({
+      2:Object.freeze({
+        id:'nordlysleiren-1',title:'Nordlysleiren',chapter:1,
+        philosophy:'systematic-progression-controlled-variation',
+        places:GEOGRAPHY_G2_PLACES,
+        areaTypeOverrides:Object.freeze({
+          naboer:Object.freeze({continent:'capital'})
+        }),
+        nodes:GEOGRAPHY_G2_NODES
       })
     })
   });
@@ -451,10 +513,43 @@
       learningPlaces:chapter?.places||model.learningPlaces||null};
   }
 
+  function decorateGeoModel(model){
+    if(!model||model.subject!=='geography'||!Array.isArray(model.nodes))return model;
+    const chapter=chapterFor('geography',model.grade);
+    if(!chapter)return model;
+    const areas=(model.areas||[]).map(area=>{
+      const replacements=chapter.areaTypeOverrides?.[area.id]||{};
+      const types=(area.types||[]).map(type=>replacements[type]||type);
+      const nodes=(area.nodes||[]).map(node=>{
+        const learning=contractFor('geography',model.grade,node.id);
+        let next={...node,areaTypes:types};
+        if(learning){
+          next={...next,learning};
+          if(learning.geoType)next.geoType=learning.geoType;
+          if(learning.title)next.title=learning.title;
+        }
+        return next;
+      });
+      return {...area,types,nodes};
+    });
+    return {...model,areas,nodes:areas.flatMap(area=>area.nodes),
+      learningPlaces:chapter.places};
+  }
+
+  function filterGeoQuestions(node,questions){
+    const contract=contractFor('geography',node?.grade,node?.id);
+    if(!contract)return questions;
+    return (questions||[])
+      .filter(q=>contract.allowedGeoTypes.includes(q?.type))
+      .map(q=>({...q,learning:Object.freeze({objectiveId:contract.objectiveId})}));
+  }
+
   function install(root){
     if(root.__LARIA_JOURNEY_LEARNING_SYSTEM_INSTALLED)return true;
     const originalModel=root.journeyModel;
     const originalBuilder=root.buildJourneyQuestions;
+    const originalGeoModel=root.geoJourneyModel;
+    const originalGeoBuilder=root.buildGeoJourneyQuestions;
     if(typeof originalModel!=='function'||typeof originalBuilder!=='function')return false;
 
     root.journeyModel=function(subject,grade){
@@ -464,6 +559,16 @@
       const systematic=buildForNode(root,subject,node,allowCooldown);
       return systematic||originalBuilder(subject,node,allowCooldown);
     };
+    if(typeof originalGeoModel==='function'){
+      root.geoJourneyModel=function(grade){
+        return decorateGeoModel(originalGeoModel(grade));
+      };
+    }
+    if(typeof originalGeoBuilder==='function'){
+      root.buildGeoJourneyQuestions=function(node,allowCooldown=false){
+        return filterGeoQuestions(node,originalGeoBuilder(node,allowCooldown));
+      };
+    }
     root.__LARIA_JOURNEY_LEARNING_SYSTEM_INSTALLED=true;
     return true;
   }
@@ -478,6 +583,8 @@
     chooseSystematic,
     buildForNode,
     decorateModel,
+    decorateGeoModel,
+    filterGeoQuestions,
     install
   });
 });
