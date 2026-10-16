@@ -152,7 +152,10 @@ function showThemePicker(entry=false){
   const back=picker.querySelector('.wh-theme-close');
   back.textContent=entry?'←':'×';
   back.setAttribute('aria-label',entry?'Tilbake til Utforsk':'Lukk temavalget');
-  picker.querySelector('.wh-theme-start').textContent=entry?'Fortsett med '+THEMES.get(ui.theme).title+' ▶':'Spill valgt tema ▶';
+  const continueButton=picker.querySelector('.wh-theme-start');
+  const canResume=ui.grid.length>0&&!ui.completed;
+  continueButton.hidden=Boolean(entry&&!canResume);
+  continueButton.textContent=entry?'Fortsett ordjakten i '+THEMES.get(ui.theme).title+' ▶':'Spill valgt tema ▶';
   picker.querySelector('.wh-theme-close').focus({preventScroll:true});
 }
 function closeThemePicker(){
