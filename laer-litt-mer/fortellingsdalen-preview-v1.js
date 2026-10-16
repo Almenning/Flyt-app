@@ -6,7 +6,7 @@
   let ui=null;
   const esc=x=>String(x??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
   const mark=(n,total)=>Math.min(100,Math.round(n/Math.max(1,total)*100));
-  const safeAvatar=src=>/^(\.\/|\/|https:\/\/)/.test(String(src||''))?String(src):'./lia-fox-explorer-home.webp';
+  const safeAvatar=src=>{const value=String(src||'');return /^(\.\/|\/|https:\/\/)/.test(value)||/^data:image\/(?:webp|png|jpeg);base64,[A-Za-z0-9+/=]+$/i.test(value)?value:'./lia-fox-explorer-home.webp'};
   function fox(){
     return '<img class="fd-fox-portrait" alt="Din rev er med på eventyret" src="'+esc(ui.foxSrc)+'">';
   }
