@@ -57,10 +57,17 @@ async function solveStory(page,stageId){
       return q.options.indexOf(q.answer);
     });
     await page.locator('.fd-option').nth(selected).click();
-    if(i<count-1){
-      await page.locator('.fd-feedback').waitFor();
-      await page.locator('[data-fd-action="next"]').click();
+    const feedback=page.locator('.fd-feedback');
+    await feedback.waitFor({timeout:8000});
+    assert.equal(await page.locator('.fd-story-banner .fd-story-bar span').getAttribute('style'),
+      'width:'+Math.round((i+1)/count*100)+'%',
+      'the clue progress should advance after each answer');
+    if(i===count-1){
+      assert.match(await page.locator('.fd-next').innerText(),/Se hvordan det gikk/);
+      assert.equal(await page.locator('.fd-result').count(),0,
+        'last answer deserves its own feedback before results');
     }
+    await page.locator('[data-fd-action="next"]').click();
   }
   const result=page.locator('.fd-result');
   await result.waitFor({timeout:8000});
@@ -146,10 +153,14 @@ async function run(engine,label,viewport){
     // Interrupted chapter play must survive a real browser reload.
     await page.locator('[data-fd-stage="brevhytta"]').click();
     const firstStory=await page.locator('.fd-letter h2').innerText();
-    const storyFox=page.locator('.fd-story-companion img');
+    const storyFox=page.locator('.fd-story-companion .fd-fox-portrait');
     assert.equal(await storyFox.count(),1,label+' selected fox should join the story scene');
     assert.ok((await storyFox.getAttribute('src')).includes(rightAvatar),
       label+' story fox must match the chosen avatar');
+    const stagePainting=page.locator('.fd-story-companion .fd-story-art');
+    assert.equal(await stagePainting.count(),1,label+' every story must have its local painted landmark');
+    assert.match(await stagePainting.getAttribute('src'),/fortellingsdalen-map-candidate-v2\.svg/);
+    assert.equal(await page.locator('[data-fd-story-place]').getAttribute('data-fd-story-place'),'brevhytta');
     const answer=await page.evaluate(()=>{
       const session=window.LARIA_CHAPTER_EXPANSION.resume(state);
       const q=session.story.questions[0];return q.options.indexOf(q.answer);
@@ -170,7 +181,12 @@ async function run(engine,label,viewport){
         return q.options.indexOf(q.answer);
       });
       await page.locator('.fd-option').nth(idx).click();
-      if(i<3)await page.locator('.fd-next').click();
+      await page.locator('.fd-feedback').waitFor();
+      if(i===3){
+        assert.match(await page.locator('.fd-next').innerText(),/Se hvordan det gikk/);
+        assert.equal(await page.locator('.fd-result').count(),0);
+      }
+      await page.locator('.fd-next').click();
     }
     await page.locator('.fd-result').waitFor();
     await page.locator('[data-fd-action="intro"]').click();
