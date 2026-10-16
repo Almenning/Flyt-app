@@ -42,6 +42,18 @@ test('unknown topics and invalid progress are safely discarded',()=>{
   assert.equal(safe.themeRounds.world,0);
   assert.equal(themes.get('invented').id,'mixed');
 });
+test('each premium themed illustration is a locally bundled layered scene',()=>{
+  const fs=require('node:fs');
+  const path=require('node:path');
+  for(const theme of themes.PACKS){
+    const asset=fs.readFileSync(path.join(__dirname,'../laer-litt-mer/word-hunt-theme-'+theme.id+'.svg'),'utf8');
+    assert.match(asset,/viewBox="0 0 360 250"/,theme.id);
+    assert.match(asset,/id="sunHalo"/,theme.id);
+    assert.match(asset,/id="lift"/,theme.id);
+    assert.match(asset,/url\(#lift\)/,theme.id);
+    assert.ok(!/https?:\/\//.test(asset.replace('http://www.w3.org/2000/svg','')),'No external assets inside '+theme.id);
+  }
+});
 test('the magical moments are short optional responses, not random rewards',()=>{
   const owl=themes.reaction('UGLE');
   assert.equal(owl.icon,'🦉');

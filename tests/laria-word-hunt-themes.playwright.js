@@ -45,6 +45,27 @@ async function selectTopic(page,topic,label){
  await picker.locator('.wh-theme-card img').first().evaluate(img=>img.decode());
  const valid=await picker.locator('.wh-theme-card img').evaluateAll(imgs=>imgs.every(img=>img.src.includes('/word-hunt-theme-')&&img.getAttribute('alt')===''));
  assert.ok(valid,label+' broken illustrated topic assets');
+ const art=await picker.locator('.wh-theme-card img').evaluateAll(async imgs=>{
+  // WebKit may keep off-screen horizontal theme cards lazy indefinitely.
+  // Eagerly load each bundled asset and bound the wait to fail clearly.
+  imgs.forEach(img=>{img.loading='eager'});
+  await Promise.all(imgs.map(img=>{
+    if(img.complete)return Promise.resolve();
+    return new Promise((resolve,reject)=>{
+      const limit=setTimeout(()=>reject(new Error('Theme image load exceeded 12 seconds: '+img.src)),12000);
+      img.addEventListener('load',()=>{clearTimeout(limit);resolve()},{once:true});
+      img.addEventListener('error',()=>{clearTimeout(limit);reject(new Error('Theme image failed: '+img.src))},{once:true});
+    });
+  }));
+  return imgs.map(img=>({width:img.naturalWidth,height:img.naturalHeight,
+   bg:getComputedStyle(img).backgroundImage,complete:img.complete}));
+ });
+ for(const piece of art){
+  assert.ok(piece.complete&&piece.width===360&&piece.height===250,label+' failed to load premium topic illustration: '+JSON.stringify(piece));
+  assert.ok(piece.bg.includes('bokskogen-verden.png'),label+' missing approved Bokskogen scene: '+JSON.stringify(piece));
+ }
+ assert.equal(await picker.locator('.wh-theme-fox').evaluate(img=>img.currentSrc===window.LARIA_FOX.source(window.LARIA_FOX.choice())),true,
+  'chosen fox did not follow child to theme picker');
  await shot(page,label+'-choose-'+topic);
  await picker.locator('[data-word-theme="'+topic+'"]').click();
  assert.equal(await picker.locator('[data-word-theme="'+topic+'"]').getAttribute('aria-pressed'),'true');
