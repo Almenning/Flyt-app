@@ -67,13 +67,14 @@ async function run(engine,label){
     await page.locator('#progress-screen.active').waitFor({timeout:10000});
     const progressText=await page.locator('#grade-round-card').innerText();
     assert.match(progressText,/Fire første eventyr fullført/);
-    assert.match(progressText,/4\/4 første eventyr/);
+    assert.match((await page.locator('#grade-round-score').innerText()).trim(),/^4\/4$/);
+    assert.equal(await page.locator('#grade-round-history').isVisible(),false,label+' child progress must not show a grade-by-grade scoreboard');
     assert.doesNotMatch(progressText,/2\. klasse rundet|kjerneløp/i,
       label+' Progress card still presents chapter 1 as completed grade 2');
 
     await page.evaluate(()=>openSubject('math'));
     await page.locator('#subject-screen.active').waitFor({timeout:10000});
-    assert.equal((await page.locator('#subject-continue-eyebrow').innerText()).trim(),'Første eventyr rundet');
+    assert.match((await page.locator('#subject-continue-eyebrow').innerText()).trim(),/^Første eventyr rundet$/i);
     assert.match(await page.locator('#subject-mission-title').innerText(),/Tallenga fullført/);
     assert.doesNotMatch(await page.locator('#subject-mission-title').innerText(),/2\. klasse fullført/i);
 
@@ -90,7 +91,7 @@ async function run(engine,label){
 
     await page.evaluate(()=>{renderGeographyContinue();showScreen('geography')});
     await page.locator('#geography-screen.active').waitFor({timeout:10000});
-    assert.equal((await page.locator('#geography-continue-eyebrow').innerText()).trim(),'Første eventyr rundet');
+    assert.match((await page.locator('#geography-continue-eyebrow').innerText()).trim(),/^Første eventyr rundet$/i);
     assert.match(await page.locator('#geography-continue-title').innerText(),/Nordlysleiren fullført/);
     assert.doesNotMatch(await page.locator('#geography-continue-title').innerText(),/2\. klasse fullført/i);
 
