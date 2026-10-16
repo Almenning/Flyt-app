@@ -22,6 +22,20 @@ test('Tallenga grade 2 has explicit learning contracts for every journey node',(
   }
 });
 
+test('Tallenga grade 2 has five semantic painted place roles',()=>{
+  const places=system.chapterFor('math',2).places;
+  assert.equal(places.length,5);
+  assert.deepEqual(places.map(p=>p.title),['Tallverkstedet','Formfabrikken','Brøklaben','Målebroen','Problemtårnet']);
+  assert.match(system.placeRoleFor('math',2,0).adventurePrompt,/sifrene/);
+  assert.equal(system.placeRoleFor('math',2,2).freePlay,'fraction-lab');
+  assert.match(system.placeRoleFor('math',2,3).adventurePrompt,/pluss, minus/);
+  assert.equal(system.contractFor('math',2,'plassverdi').placeIndex,0);
+  assert.equal(system.contractFor('math',2,'rekkefolge').placeIndex,1);
+  assert.equal(system.contractFor('math',2,'addisjon100').placeIndex,3);
+  assert.equal(system.contractFor('math',2,'sub100').placeIndex,3);
+  assert.equal(system.contractFor('math',2,'minus100-checkpoint').placeIndex,4);
+});
+
 test('ordinary Tallenga skill missions use four questions, checkpoints five',()=>{
   assert.equal(system.questionCount({subject:'math',grade:2,id:'plassverdi'}),4);
   assert.equal(system.questionCount({subject:'math',grade:2,id:'addisjon100'}),4);
@@ -77,7 +91,7 @@ test('decorateModel adds learning metadata without changing node ids or order',(
 
 test('the live app loads the systematic layer and uses its mission length',()=>{
   const html=fs.readFileSync(path.join(__dirname,'../laer-litt-mer/index.html'),'utf8');
-  const learningScript=html.indexOf('journey-learning-system-v1.js?v=20261016-tallenga-system1');
+  const learningScript=html.indexOf('journey-learning-system-v1.js?v=20261016-tallenga-places1');
   const journeyRenderer=html.indexOf('journey-world-premium.js?v=20261011-personalfox2');
   assert.ok(learningScript>0,'systematic learning script is not loaded');
   assert.ok(journeyRenderer>learningScript,'systematic layer must install before journey presentation scripts');
