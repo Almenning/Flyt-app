@@ -300,7 +300,11 @@
       '<button type="button" class="mission-primary" data-locked-node="'+escapeId(lead.id)+'">'+
         '<span><strong>'+esc(lead.title)+'</strong><small>Start oppdraget</small></span>'+
         '<b aria-hidden="true">➜</b></button>':'';
-    const fallbackPrimary=(!lead&&!next)?
+    const labPrimary=(hasLab&&!lead&&!next)?
+      '<button type="button" class="mission-primary mission-lab" data-locked-existing="fraction-lab">'+
+        '<span><strong>Utforsk Brøklaben</strong><small>Fri lek uten krav til progresjon</small></span>'+
+        '<b aria-hidden="true">➜</b></button>':'';
+    const fallbackPrimary=(!lead&&!next&&!hasLab)?
       '<button type="button" class="mission-primary mission-map" data-locked-map>'+
         '<span><strong>Tilbake til kartet</strong><small>'+
         esc(stage.progress.complete?'Du kan utforske hele reisen igjen.':
@@ -319,14 +323,14 @@
     const reward=finished?
       '<div class="mission-complete" role="status"><span class="mission-earned-star" aria-hidden="true">★</span>'+
       '<span><strong>'+esc(intro)+'</strong><small>'+esc(support)+'</small></span></div>':'';
-    const headline=finished?'Velkommen videre!':intro;
+    const headline=finished?'Velkommen videre!':(place.role?.adventurePrompt||intro);
     const replay=other.filter(n=>!n.locked&&CORE_MISSIONS.has(n.type)&&n.complete);
     const extras=other.filter(n=>!n.locked&&!CORE_MISSIONS.has(n.type));
     const otherOpen=other.filter(n=>!n.locked&&CORE_MISSIONS.has(n.type)&&!n.complete);
     const locked=other.filter(n=>n.locked);
     const activityRows=[
       ...otherOpen.map(row),
-      ...(hasLab?['<button type="button" class="mission-activity mission-lab" data-locked-existing="fraction-lab"><span><strong>Utforsk Brøklaben</strong><small>Fri lek uten krav til progresjon</small></span><b aria-hidden="true">›</b></button>']:[]),
+      ...(hasLab&&!labPrimary?['<button type="button" class="mission-activity mission-lab" data-locked-existing="fraction-lab"><span><strong>Utforsk Brøklaben</strong><small>Fri lek uten krav til progresjon</small></span><b aria-hidden="true">›</b></button>']:[]),
       ...extras.map(row),
       ...replay.map(row),
       ...locked.map(row),
@@ -345,7 +349,7 @@
       '<i class="mission-fox-spark" aria-hidden="true">✦</i></div></header>'+
       reward+
       '<div class="locked-journey-missions">'+
-      '<div class="mission-feature">'+(nextPrimary||leadPrimary||fallbackPrimary)+'</div>'+
+      '<div class="mission-feature">'+(nextPrimary||leadPrimary||labPrimary||fallbackPrimary)+'</div>'+
       secondary+'</div>';
     return {markup,previewNode:possiblePeek,complete:finished,next};
   }
