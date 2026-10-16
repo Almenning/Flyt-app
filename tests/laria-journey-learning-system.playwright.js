@@ -114,9 +114,97 @@ async function run(engine,label){
     });
     assert(variety.signatures>=10,label+' repeated visits do not vary enough');
     assert(variety.families.length>=3,label+' addition lacks representation variety');
+
+    const languages=await page.evaluate(()=>{
+      const inspect=subject=>{
+        const model=journeyModel(subject,2);
+        const stage=window.LARIA_LOCKED_JOURNEYS.build(subject,model,()=>'new',null);
+        return {
+          chapter:window.LARIA_JOURNEY_LEARNING_SYSTEM.chapterFor(subject,2)?.id,
+          places:stage.places.map(place=>({
+            title:place.title,
+            role:place.role?.adventurePrompt||null,
+            core:place.nodes.filter(n=>['skill','checkpoint'].includes(n.type)).map(n=>n.id)
+          })),
+          core:model.nodes.filter(n=>['skill','checkpoint'].includes(n.type)).map(node=>{
+            const questions=buildJourneyQuestions(subject,node,false);
+            return {
+              id:node.id,
+              count:questions.length,
+              skills:questions.map(q=>q.skill),
+              allowed:node.learning?.allowedSkills||[],
+              objectives:questions.map(q=>q.learning?.objectiveId||null),
+              objective:node.learning?.objectiveId||null
+            };
+          })
+        };
+      };
+      return {norwegian:inspect('norwegian'),english:inspect('english')};
+    });
+
+    assert.equal(languages.norwegian.chapter,'bokskogen-1');
+    assert.deepEqual(languages.norwegian.places.map(p=>p.title),
+      ['Leselyset','Ordverkstedet','Historiehytta','Setningsbroen','Fortellingstårnet']);
+    assert.deepEqual(languages.norwegian.places.map(p=>p.core),[
+      ['lyder'],
+      ['ordbilder','ordlek','ordstart-checkpoint'],
+      ['setningsrekkefolge','ordbetydning','setninger-checkpoint'],
+      ['detaljer','forsta'],
+      ['tenkvidere','lesedetektiv-checkpoint']
+    ]);
+    assert(languages.norwegian.places.every(p=>p.role),label+' Bokskogen place role missing');
+
+    assert.equal(languages.english.chapter,'ordlandsbyen-1');
+    assert.deepEqual(languages.english.places.map(p=>p.title),
+      ['Startplassen','Ordhandelen','Grammatikkhuset','Snakkekaféen','Fortellingsslottet']);
+    assert.deepEqual(languages.english.places.map(p=>p.core),[
+      ['words'],
+      ['numbers','firstwords-checkpoint'],
+      ['phrases'],
+      ['sentences','talk-checkpoint'],
+      ['reading','read-checkpoint']
+    ]);
+    assert(languages.english.places.every(p=>p.role),label+' Ordlandsbyen place role missing');
+
+    for(const [subject,data] of Object.entries(languages)){
+      for(const node of data.core){
+        assert.equal(node.count,5,label+' '+subject+' '+node.id+' needs five unique candidates');
+        assert(node.skills.every(skill=>node.allowed.includes(skill)),
+          label+' '+subject+' '+node.id+' leaked skill '+node.skills.join(', '));
+        assert(node.objectives.every(id=>id===node.objective),
+          label+' '+subject+' '+node.id+' mixed learning objectives');
+      }
+    }
+
+    const norwegianLaunch=await page.evaluate(()=>{
+      startJourneyNode('norwegian','lyder',2);
+      return {
+        count:sessionQuestions.length,
+        skills:sessionQuestions.map(q=>q.skill),
+        objectives:sessionQuestions.map(q=>q.learning?.objectiveId||null)
+      };
+    });
+    assert.equal(norwegianLaunch.count,4,label+' Bokskogen skill mission must contain four questions');
+    assert(norwegianLaunch.skills.every(s=>['letter-sound','missing-letter'].includes(s)));
+    assert.deepEqual(new Set(norwegianLaunch.skills),new Set(['letter-sound','missing-letter']));
+    assert.deepEqual([...new Set(norwegianLaunch.objectives)],['norwegian-g2-letter-sound']);
+
+    const englishLaunch=await page.evaluate(()=>{
+      startJourneyNode('english','words',2);
+      return {
+        count:sessionQuestions.length,
+        skills:sessionQuestions.map(q=>q.skill),
+        objectives:sessionQuestions.map(q=>q.learning?.objectiveId||null)
+      };
+    });
+    assert.equal(englishLaunch.count,4,label+' Ordlandsbyen skill mission must contain four questions');
+    assert(englishLaunch.skills.every(s=>['words','spelling'].includes(s)));
+    assert.deepEqual(new Set(englishLaunch.skills),new Set(['words','spelling']));
+    assert.deepEqual([...new Set(englishLaunch.objectives)],['english-g2-first-words']);
+
     assert.deepEqual(errors,[],label+' javascript errors');
     await context.close();
-    console.log('PASS systematic Tallenga journey',label,report.core.map(n=>n.id).join(','));
+    console.log('PASS systematic grade-2 journeys',label,'math+norsk+english');
   }finally{await browser.close()}
 }
 
