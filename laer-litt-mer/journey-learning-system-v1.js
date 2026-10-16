@@ -115,7 +115,112 @@
     )
   });
 
+  const languageContract=(objectiveId,learningGoal,skills,options={})=>
+    nodeContract(objectiveId,learningGoal,skills,{
+      questionCount:options.questionCount||4,
+      difficultyPattern:options.difficultyPattern||[1,1,2,2,2],
+      allowedTypes:options.allowedTypes||['learning-choice'],
+      kind:options.kind||'skill',
+      chapter:options.chapter,
+      placeIndex:options.placeIndex
+    });
+
+  const NORWEGIAN_G2_PLACES=Object.freeze([
+    Object.freeze({index:0,title:'Leselyset',adventurePrompt:'Tenn leselyset og koble bokstaver til lydene du hører.',learningFocus:'bokstavlyd og enkel avkoding'}),
+    Object.freeze({index:1,title:'Ordverkstedet',adventurePrompt:'Bygg, finn og lek med ord som passer sammen.',learningFocus:'ordgjenkjenning, rim og ordforråd'}),
+    Object.freeze({index:2,title:'Historiehytta',adventurePrompt:'Sett ord sammen så små historier begynner å leve.',learningFocus:'setningsbygging og betydning'}),
+    Object.freeze({index:3,title:'Setningsbroen',adventurePrompt:'Les korte tekster og finn det teksten faktisk forteller.',learningFocus:'detaljer og leseforståelse'}),
+    Object.freeze({index:4,title:'Fortellingstårnet',adventurePrompt:'Klatre til toppen ved å lese mellom linjene og tenke videre.',learningFocus:'inferens og samlet leseforståelse'})
+  ]);
+
+  const NORWEGIAN_G2_NODES=Object.freeze({
+    lyder:languageContract('norwegian-g2-letter-sound','Koble bokstaver, lyder og manglende bokstaver i korte kjente ord.',
+      ['letter-sound','missing-letter'],{allowedTypes:['build-word','learning-choice'],placeIndex:0,chapter:'bokskogen-1'}),
+    ordbilder:languageContract('norwegian-g2-word-picture','Kjenne igjen vanlige ord og koble dem til riktig bilde.',
+      ['word-picture'],{placeIndex:1,chapter:'bokskogen-1'}),
+    ordlek:languageContract('norwegian-g2-word-play','Oppdage rim og ord med lik eller nær betydning.',
+      ['rhyme','synonyms'],{placeIndex:1,chapter:'bokskogen-1'}),
+    'ordstart-challenge':languageContract('norwegian-g2-word-start-challenge','Bruke bokstavlyd, ordgjenkjenning og ordlek sammen.',
+      ['letter-sound','missing-letter','word-picture','rhyme','synonyms'],{allowedTypes:['build-word','learning-choice'],kind:'challenge',questionCount:5,placeIndex:1,chapter:'bokskogen-1'}),
+    'ordstart-review':languageContract('norwegian-g2-word-start-review','Hente fram bokstaver og ord igjen gjennom variert repetisjon.',
+      ['letter-sound','missing-letter','word-picture','rhyme','synonyms'],{allowedTypes:['build-word','learning-choice'],kind:'review',questionCount:5,placeIndex:1,chapter:'bokskogen-1'}),
+    'ordstart-checkpoint':languageContract('norwegian-g2-word-start-checkpoint','Vise trygghet i bokstavlyd, ordgjenkjenning og enkel ordlek.',
+      ['letter-sound','missing-letter','word-picture','rhyme','synonyms'],{allowedTypes:['build-word','learning-choice'],kind:'checkpoint',questionCount:5,placeIndex:1,chapter:'bokskogen-1'}),
+
+    setningsrekkefolge:languageContract('norwegian-g2-sentence-order','Sette ord i riktig rekkefølge og bygge en meningsfull enkel setning.',
+      ['sentence-order'],{allowedTypes:['sentence-order'],placeIndex:2,chapter:'bokskogen-1'}),
+    ordbetydning:languageContract('norwegian-g2-word-meaning','Forstå ord gjennom rim, synonym og betydningslikhet.',
+      ['synonyms','rhyme'],{placeIndex:2,chapter:'bokskogen-1'}),
+    'setninger-challenge':languageContract('norwegian-g2-sentence-challenge','Bruke ordforståelse og setningsbygging sammen.',
+      ['sentence-order','synonyms','rhyme'],{allowedTypes:['sentence-order','learning-choice'],kind:'challenge',questionCount:5,placeIndex:2,chapter:'bokskogen-1'}),
+    'setninger-review':languageContract('norwegian-g2-sentence-review','Repetere ordforståelse og setningsbygging med nye eksempler.',
+      ['sentence-order','synonyms','rhyme'],{allowedTypes:['sentence-order','learning-choice'],kind:'review',questionCount:5,placeIndex:2,chapter:'bokskogen-1'}),
+    'setninger-checkpoint':languageContract('norwegian-g2-sentence-checkpoint','Vise trygghet i enkel setningsbygging og ordforståelse.',
+      ['sentence-order','synonyms','rhyme'],{allowedTypes:['sentence-order','learning-choice'],kind:'checkpoint',questionCount:5,placeIndex:2,chapter:'bokskogen-1'}),
+
+    detaljer:languageContract('norwegian-g2-reading-detail','Finne uttrykt informasjon og konkrete detaljer i en kort tekst.',
+      ['reading-detail'],{placeIndex:3,chapter:'bokskogen-1'}),
+    forsta:languageContract('norwegian-g2-reading-comprehension','Forstå hovedinnhold og enkle årsaker i korte tekster.',
+      ['reading-comprehension'],{placeIndex:3,chapter:'bokskogen-1'}),
+    tenkvidere:languageContract('norwegian-g2-reading-inference','Bruke spor i teksten til å trekke en enkel slutning.',
+      ['reading-inference'],{placeIndex:4,chapter:'bokskogen-1'}),
+    'lesedetektiv-challenge':languageContract('norwegian-g2-reading-challenge','Veksle mellom detaljer, forståelse og enkle slutninger i tekst.',
+      ['reading-detail','reading-comprehension','reading-inference'],{kind:'challenge',questionCount:5,placeIndex:4,chapter:'bokskogen-1'}),
+    'lesedetektiv-review':languageContract('norwegian-g2-reading-review','Repetere leseforståelse med andre korte tekster og spørsmål.',
+      ['reading-detail','reading-comprehension','reading-inference'],{kind:'review',questionCount:5,placeIndex:4,chapter:'bokskogen-1'}),
+    'lesedetektiv-checkpoint':languageContract('norwegian-g2-reading-checkpoint','Vise trygghet i å hente mening fra en kort tekst.',
+      ['reading-detail','reading-comprehension','reading-inference'],{kind:'checkpoint',questionCount:5,placeIndex:4,chapter:'bokskogen-1'})
+  });
+
+  const ENGLISH_G2_PLACES=Object.freeze([
+    Object.freeze({index:0,title:'Startplassen',adventurePrompt:'Start reisen med de engelske ordene du møter aller oftest.',learningFocus:'grunnleggende ord'}),
+    Object.freeze({index:1,title:'Ordhandelen',adventurePrompt:'Samle flere engelske ord, tall og stavemønstre.',learningFocus:'ord, tall og staving'}),
+    Object.freeze({index:2,title:'Grammatikkhuset',adventurePrompt:'Se hvordan engelske ord kan bygges til enkle setninger.',learningFocus:'enkel setningsstruktur'}),
+    Object.freeze({index:3,title:'Snakkekaféen',adventurePrompt:'Velg uttrykk og bygg setninger du faktisk kan bruke.',learningFocus:'fraser og enkel kommunikasjon'}),
+    Object.freeze({index:4,title:'Fortellingsslottet',adventurePrompt:'Les små engelske historier og finn ut hva som skjer.',learningFocus:'leseforståelse'})
+  ]);
+
+  const ENGLISH_G2_NODES=Object.freeze({
+    words:languageContract('english-g2-first-words','Kjenne igjen og stave vanlige engelske ord med støtte i bilde og mening.',
+      ['words','spelling'],{allowedTypes:['learning-choice','build-word'],placeIndex:0,chapter:'ordlandsbyen-1'}),
+    numbers:languageContract('english-g2-numbers','Forstå og bruke enkle engelske tallord.',
+      ['numbers'],{placeIndex:1,chapter:'ordlandsbyen-1'}),
+    'firstwords-challenge':languageContract('english-g2-first-words-challenge','Veksle mellom vanlige ord, staving og engelske tallord.',
+      ['words','spelling','numbers'],{allowedTypes:['learning-choice','build-word'],kind:'challenge',questionCount:5,placeIndex:1,chapter:'ordlandsbyen-1'}),
+    'firstwords-review':languageContract('english-g2-first-words-review','Hente fram vanlige ord, staving og tallord igjen.',
+      ['words','spelling','numbers'],{allowedTypes:['learning-choice','build-word'],kind:'review',questionCount:5,placeIndex:1,chapter:'ordlandsbyen-1'}),
+    'firstwords-checkpoint':languageContract('english-g2-first-words-checkpoint','Vise trygghet i første engelske ord, staving og tall.',
+      ['words','spelling','numbers'],{allowedTypes:['learning-choice','build-word'],kind:'checkpoint',questionCount:5,placeIndex:1,chapter:'ordlandsbyen-1'}),
+
+    phrases:languageContract('english-g2-useful-phrases','Forstå og velge enkle engelske fraser i kjente situasjoner.',
+      ['phrases'],{placeIndex:3,chapter:'ordlandsbyen-1'}),
+    sentences:languageContract('english-g2-sentences','Bygge og kjenne igjen enkle engelske setninger.',
+      ['sentence'],{allowedTypes:['learning-choice','sentence-order'],placeIndex:3,chapter:'ordlandsbyen-1'}),
+    'talk-challenge':languageContract('english-g2-talk-challenge','Bruke enkle fraser og setninger i varierte hverdagssituasjoner.',
+      ['phrases','sentence'],{allowedTypes:['learning-choice','sentence-order'],kind:'challenge',questionCount:5,placeIndex:3,chapter:'ordlandsbyen-1'}),
+    'talk-review':languageContract('english-g2-talk-review','Repetere fraser og setninger med nye situasjoner.',
+      ['phrases','sentence'],{allowedTypes:['learning-choice','sentence-order'],kind:'review',questionCount:5,placeIndex:3,chapter:'ordlandsbyen-1'}),
+    'talk-checkpoint':languageContract('english-g2-talk-checkpoint','Vise trygghet i enkel engelsk kommunikasjon og setningsbygging.',
+      ['phrases','sentence'],{allowedTypes:['learning-choice','sentence-order'],kind:'checkpoint',questionCount:5,placeIndex:3,chapter:'ordlandsbyen-1'}),
+
+    reading:languageContract('english-g2-reading','Forstå eksplisitt innhold og enkle sammenhenger i svært korte engelske tekster.',
+      ['reading'],{placeIndex:4,chapter:'ordlandsbyen-1'}),
+    'read-challenge':languageContract('english-g2-reading-challenge','Lese flere korte engelske tekster og svare på varierte spørsmål.',
+      ['reading'],{kind:'challenge',questionCount:5,placeIndex:4,chapter:'ordlandsbyen-1'}),
+    'read-review':languageContract('english-g2-reading-review','Hente fram engelsk leseforståelse igjen med nye korte tekster.',
+      ['reading'],{kind:'review',questionCount:5,placeIndex:4,chapter:'ordlandsbyen-1'}),
+    'read-checkpoint':languageContract('english-g2-reading-checkpoint','Vise trygghet i å forstå en kort engelsk tekst.',
+      ['reading'],{kind:'checkpoint',questionCount:5,placeIndex:4,chapter:'ordlandsbyen-1'})
+  });
+
   const CONTRACTS=Object.freeze({
+    norwegian:Object.freeze({
+      2:Object.freeze({
+        id:'bokskogen-1',title:'Bokskogen',chapter:1,
+        philosophy:'systematic-progression-controlled-variation',
+        places:NORWEGIAN_G2_PLACES,nodes:NORWEGIAN_G2_NODES
+      })
+    }),
     math:Object.freeze({
       2:Object.freeze({
         id:'tallenga-1',
@@ -124,6 +229,13 @@
         philosophy:'systematic-progression-controlled-variation',
         places:MATH_G2_PLACES,
         nodes:MATH_G2_NODES
+      })
+    }),
+    english:Object.freeze({
+      2:Object.freeze({
+        id:'ordlandsbyen-1',title:'Ordlandsbyen',chapter:1,
+        philosophy:'systematic-progression-controlled-variation',
+        places:ENGLISH_G2_PLACES,nodes:ENGLISH_G2_NODES
       })
     })
   });
@@ -246,12 +358,25 @@
     if(!q)return '';
     return [q.subject||'',q.skill||'',q.type||'',String(q.prompt||''),String(q.answer??''),String(q.visual||'')].join('|');
   }
+  function bankDifficulty(q){
+    if(q?.type==='build-word')return 1;
+    if(q?.visual&&q?.type==='learning-choice')return 1;
+    if(q?.type==='sentence-order')return 2;
+    if(q?.passage)return 2;
+    if(q?.type==='learning-choice'&&Array.isArray(q.options)&&q.options.length<=3)return 1;
+    return 2;
+  }
+  function bankFamily(q){
+    if(q?.passage)return 'bank-reading';
+    if(q?.visual)return 'bank-visual-'+String(q.type||'question');
+    return 'bank-'+String(q?.type||'question');
+  }
   function withLearning(q,contract){
     if(q.learning?.objectiveId)return q;
     return {...q,learning:Object.freeze({
       objectiveId:contract.objectiveId,
-      difficulty:2,
-      family:'bank-'+String(q.type||'question')
+      difficulty:bankDifficulty(q),
+      family:bankFamily(q)
     })};
   }
   function collectCandidates(root,node,contract,allowCooldown){
@@ -269,7 +394,9 @@
         pool.forEach(add);
       }
     }
-    for(const skill of contract.allowedSkills)generatedForSkill(skill,contract.objectiveId,22).forEach(add);
+    if(node.subject==='math'){
+      for(const skill of contract.allowedSkills)generatedForSkill(skill,contract.objectiveId,22).forEach(add);
+    }
     return candidates;
   }
   function chooseSystematic(candidates,node,contract,count=5){
