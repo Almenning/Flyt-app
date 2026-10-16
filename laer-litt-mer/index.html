@@ -4726,14 +4726,17 @@ function renderSubjectModules(){
   });
   // Only the explicit developer preview URL enables the unfinished chapter-two prototype.
   // No placeholder map or unapproved illustration is shown to children.
+  document.getElementById('subject-screen')?.querySelector('[data-laria-chapter2-preview]')?.remove();
   if(activeSubject==='norwegian'&&currentGrade()===2&&window.LARIA_CHAPTER_EXPANSION?.previewEnabled(location.search)){
     const preview=document.createElement('button');preview.type='button';preview.className='subject-module';
-    preview.dataset.lariaChapter2Preview='1';
+    preview.dataset.lariaChapter2Preview='1';preview.classList.add('fd-dev-launch');
     preview.innerHTML='<div class="module-icon">✦</div><div><strong>Fortellingsdalen (testversjon)</strong><small>Kapittel 2 · Spillbar intern forhåndsvisning</small></div><div class="topic-arrow">›</div>';
     preview.onclick=()=>window.LARIA_FORTELLINGSDALEN_PREVIEW?.open({
       state,save:saveState,foxSrc:avatarSrc(state.profile?.avatar==='girl'?'girl':'boy')
     });
-    box.prepend(preview);
+    // The regular free-practice modules are hidden behind the approved painted map.
+    // Mount this explicitly private test launcher on the active subject screen instead.
+    document.getElementById('subject-screen')?.appendChild(preview);
   }
   const viewGrade=journeyViewGrade(activeSubject),jp=journeyProgress(activeSubject,viewGrade),chapter=journeyChapterInfo(activeSubject,viewGrade);
   document.getElementById('subject-progress-label').textContent=jp.complete?(chapter?'Eventyr 1 fullført 🏆':'Fullført 🏆'):jp.pct+' %';
