@@ -8,6 +8,14 @@ function stats(){try{return JSON.parse(localStorage.getItem(KEY)||'{"rounds":0}'
 function saveRound(){const s=stats();s.rounds=Number(s.rounds||0)+1;localStorage.setItem(KEY,JSON.stringify(s))}
 function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b}
 function dirSet(){return ui.level==='easy'?[[0,1],[1,0]]:[[0,1],[1,0],[0,-1],[-1,0],[1,1],[1,-1],[-1,1],[-1,-1]]}
+function directionPlan(){
+  // A round should feel intentionally composed, not like four words happened
+  // to fall into the same direction. Easy mixes horizontal and vertical.
+  // Hard adds both diagonal and reverse-reading placements every round.
+  return shuffle(ui.level==='easy'
+    ?[[0,1],[1,0],[0,1],[1,0]]
+    :[[0,1],[1,0],[1,1],[0,-1],[-1,-1]]);
+}
 function makeRound(){
   ui.size=ui.level==='easy'?6:7;
   ui.found=new Map();ui.completed=false;ui.tapStart=null;ui.drag=null;
@@ -18,13 +26,16 @@ function makeRound(){
   const dirs=dirSet();
   let board=null;
   // Rebuild the entire round, never silently drop a word when random placement fails.
+  // Each attempt receives a balanced direction plan so one random round cannot
+  // become "all vertical" or "all horizontal".
   for(let build=0;build<36&&!board;build++){
     const trial=Array.from({length:ui.size},()=>Array(ui.size).fill(''));
+    const planned=directionPlan();
     let fits=true;
-    for(const word of [...requested].sort((a,b)=>b.length-a.length)){
+    for(const [wordIndex,word] of [...requested].sort((a,b)=>b.length-a.length).entries()){
       let placed=false;
       for(let tries=0;tries<160&&!placed;tries++){
-        const [dr,dc]=dirs[Math.floor(Math.random()*dirs.length)];
+        const [dr,dc]=planned[wordIndex]||dirs[Math.floor(Math.random()*dirs.length)];
         const r=Math.floor(Math.random()*ui.size),c=Math.floor(Math.random()*ui.size);
         const er=r+dr*(word.length-1),ec=c+dc*(word.length-1);
         if(er<0||ec<0||er>=ui.size||ec>=ui.size)continue;
