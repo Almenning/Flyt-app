@@ -1,8 +1,8 @@
 /* Private playable chapter-two preview. No new map is published before art approval. */
 (function(){
   'use strict';
-  const core=window.LARIA_CHAPTER_EXPANSION,bank=window.LARIA_FORTELLINGSDALEN_STORIES;
-  if(!core||!bank)return;
+  const core=window.LARIA_CHAPTER_EXPANSION,bank=window.LARIA_FORTELLINGSDALEN_STORIES,art=window.LARIA_FORTELLINGSDALEN_ART;
+  if(!core||!bank||!art)return;
   let ui=null;
   const esc=x=>String(x??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
   const mark=(n,total)=>Math.min(100,Math.round(n/Math.max(1,total)*100));
@@ -17,36 +17,17 @@
   }
   // Stage markers are positioned on the exact 941x1672 atlas canvas, not
   // on a cropped background or a set of invented map boxes.
-  const PLACES=Object.freeze({
-    brevhytta:Object.freeze({x:23,y:83}),
-    eventyrbrua:Object.freeze({x:67,y:68}),
-    sporstien:Object.freeze({x:28,y:50}),
-    fortellermolla:Object.freeze({x:72,y:34}),
-    stjernetoppen:Object.freeze({x:57,y:17})
-  });
-  // Fox positions are grounded in the same portrait atlas coordinate system.
-  // These are FOOT coordinates, deliberately separated from sign/tap targets.
-  // The personal avatar is a live layer and never part of the painting.
-  const FOX_FOOT=Object.freeze({
-    brevhytta:Object.freeze({x:45,y:91,scale:1}),
-    eventyrbrua:Object.freeze({x:43,y:78,scale:.84}),
-    sporstien:Object.freeze({x:46,y:61,scale:.71}),
-    fortellermolla:Object.freeze({x:55,y:45,scale:.58}),
-    stjernetoppen:Object.freeze({x:46,y:29,scale:.46})
-  });
-  function foxDestination(progress){
-    const target=FOX_FOOT[progress.recommended]||FOX_FOOT.brevhytta;
-    return '--fd-fox-x:'+target.x+'%;--fd-fox-y:'+target.y+'%;--fd-fox-scale:'+target.scale+';';
-  }
+  // Five child-visible markers and the selected companion belong to the
+  // versioned art contract, never an unrelated duplicated geometry table.
+  function foxDestination(progress){return art.foxStyle(progress.recommended)}
   function renderIntro(){
     const progress=core.progress(ui.state),draft=core.resume(ui.state);
     const stages=core.STAGES.map((stage,i)=>{
       const p=progress.stages.find(x=>x.id===stage.id);
-      const location=PLACES[stage.id];
-      if(!location)throw new Error('Missing original painted atlas stop '+stage.id);
+      if(!art.stop(stage.id))throw new Error('Missing painted atlas stop '+stage.id);
       return '<button class="fd-place fd-map-place'+(p.passed?' fd-place-done':'')+
         (progress.recommended===stage.id?' fd-place-next':'')+
-        '" style="--fd-x:'+location.x+'%;--fd-y:'+location.y+'%;" data-fd-action="stage" data-fd-stage="'+esc(stage.id)+
+        '" style="'+art.markerStyle(stage.id)+'" data-fd-action="stage" data-fd-stage="'+esc(stage.id)+
         '" aria-label="'+esc(stage.title)+': '+esc(stage.focus)+(p.passed?', fullført':'')+'" type="button">'+
         '<span class="fd-place-number">'+(p.passed?'✓':String(i+1))+'</span><span class="fd-place-label"><strong>'+esc(stage.title)+
         '</strong><small>'+esc(p.passed?'Spill igjen':stage.focus)+'</small></span></button>';
@@ -58,7 +39,7 @@
       '<h1 id="fd-title">Fortellingsdalen</h1><p>Fem steder. Mange små fortellinger. Du bestemmer hvor eventyret fortsetter.</p></div>'+
       '<div class="fd-map-crest" aria-hidden="true">✦</div></div>'+
       '<div class="fd-visual-layout"><section class="fd-atlas" aria-label="Illustrert kart med fem spillbare oppdrag">'+
-      '<img class="fd-atlas-paint" src="./fortellingsdalen-map-preview.svg?v=20261016-c2map1" alt="" draggable="false" decoding="async">'+
+      '<img class="fd-atlas-paint" src="'+esc(art.ASSET.src)+'" alt="" draggable="false" decoding="async" width="'+art.DIMENSIONS.width+'" height="'+art.DIMENSIONS.height+'">'+
       '<div class="fd-atlas-shade" aria-hidden="true"></div>'+
       '<div class="fd-map-caption" aria-hidden="true">FORTELLINGSDALEN <span>✦</span></div>'+
       '<div class="fd-fox fd-map-fox" style="'+foxDestination(progress)+'" data-fd-fox-stage="'+esc(progress.recommended)+'">'+fox()+'</div>'+
