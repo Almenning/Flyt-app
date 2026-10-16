@@ -132,3 +132,145 @@ body > .fd-dev-launch small{font-size:10px;line-height:1.25}
 @media(min-width:900px) and (orientation:landscape){
   body > .fd-dev-launch{right:26px!important;bottom:23px!important}
 }
+
+/* Storybook atlas, only used in the explicit private chapter-two preview.
+ * The painting is a separate 941x1672 asset. Live buttons, fox and progress
+ * are never baked into illustration pixels.
+ */
+#laria-fortellingsdalen-preview .fd-intro-map{
+  padding:clamp(12px,2.5vw,24px);
+}
+#laria-fortellingsdalen-preview .fd-map-header{
+  padding:6px 3px 15px;align-items:center;border-bottom:0;
+}
+#laria-fortellingsdalen-preview .fd-map-header h1{
+  margin:6px 0 7px;font-size:clamp(27px,5vw,38px);
+}
+#laria-fortellingsdalen-preview .fd-map-header p{font-size:13px;line-height:1.45;max-width:440px}
+#laria-fortellingsdalen-preview .fd-map-crest{
+  display:grid;place-items:center;flex:0 0 61px;width:61px;height:61px;
+  font-size:32px;color:#fff0b7;border-radius:22px;
+  background:linear-gradient(145deg,#b88a57,#614e46);
+  border:2px solid #ead1a4;box-shadow:0 5px 0 #b38d65;
+}
+#laria-fortellingsdalen-preview .fd-visual-layout{
+  display:grid;grid-template-columns:minmax(0,1fr);gap:13px;align-items:start;
+}
+#laria-fortellingsdalen-preview .fd-atlas{
+  position:relative;width:min(100%,480px);aspect-ratio:941/1672;
+  min-width:0;max-width:100%;margin-inline:auto;isolation:isolate;overflow:hidden;
+  border:4px solid #e4c395;border-radius:27px;
+  background:#446457;box-shadow:0 6px 0 #a9825e,0 13px 29px #3a4f4c55;
+}
+#laria-fortellingsdalen-preview .fd-atlas-paint{
+  position:absolute;inset:0;width:100%;height:100%;display:block;
+  object-fit:fill;user-select:none;pointer-events:none;
+}
+#laria-fortellingsdalen-preview .fd-atlas-shade{
+  position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(180deg,#1e38475a 0%,transparent 17%,
+    transparent 72%,#1d423e5b 100%);
+}
+#laria-fortellingsdalen-preview .fd-map-caption{
+  position:absolute;z-index:2;top:2.6%;left:50%;transform:translateX(-50%);
+  background:linear-gradient(165deg,#fff6dfed,#eccc96f3);border:2px solid #876344;
+  color:#573a2d;border-radius:15px;padding:9px 12px;white-space:nowrap;
+  font:900 clamp(13px,3vw,22px)/1.05 Georgia,serif;
+  letter-spacing:.035em;box-shadow:0 5px 0 #614933a8,0 9px 15px #122d3150;
+}
+#laria-fortellingsdalen-preview .fd-map-caption span{color:#b77332}
+#laria-fortellingsdalen-preview .fd-map-stages{
+  position:absolute!important;inset:0;z-index:4;
+  display:block!important;pointer-events:none;padding:0;margin:0;
+}
+#laria-fortellingsdalen-preview .fd-map-place{
+  position:absolute!important;left:var(--fd-x);top:var(--fd-y);
+  transform:translate(-50%,-50%);
+  display:flex!important;gap:6px;align-items:center;justify-content:flex-start;
+  pointer-events:auto;text-align:left;
+  width:clamp(126px,44%,185px);height:auto;min-height:49px!important;
+  padding:5px 8px!important;border:2px solid #704b33!important;
+  background:linear-gradient(160deg,#fff6d9f7,#e8c69af4)!important;
+  color:#594033!important;border-radius:15px!important;
+  box-shadow:0 4px 0 #70553bcc,0 9px 13px #102e2ca0!important;
+  transition:box-shadow .14s,filter .14s;
+}
+#laria-fortellingsdalen-preview .fd-map-place:active{
+  transform:translate(-50%,-49%)!important;
+  box-shadow:0 2px 0 #70553bcc,0 6px 11px #102e2c9d!important;
+}
+#laria-fortellingsdalen-preview .fd-map-place:focus-visible{
+  outline:4px solid #fff6a6;outline-offset:5px;
+}
+#laria-fortellingsdalen-preview .fd-map-place .fd-place-number{
+  flex:0 0 31px;width:31px;min-width:31px;height:31px;min-height:31px;
+  background:linear-gradient(165deg,#e5b46b,#8f603b);color:#fff6d3;
+  border:2px solid #69462c;box-shadow:inset 0 2px 0 #fff1c778;
+  font:900 16px Georgia,serif;border-radius:50%;
+}
+#laria-fortellingsdalen-preview .fd-map-place .fd-place-label{min-width:0;flex:1}
+#laria-fortellingsdalen-preview .fd-map-place .fd-place-label strong{
+  font-family:Georgia,serif;line-height:1.04;font-size:clamp(11px,2.3vw,15px);
+  color:#543926;overflow-wrap:anywhere;
+}
+#laria-fortellingsdalen-preview .fd-map-place .fd-place-label small{
+  color:#745843;font-size:clamp(9px,1.8vw,11px);line-height:1.13;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
+#laria-fortellingsdalen-preview .fd-map-place.fd-place-done .fd-place-number{
+  background:linear-gradient(145deg,#a0bc78,#517751);color:#fffaf0;
+  border-color:#3c6548;
+}
+#laria-fortellingsdalen-preview .fd-map-place.fd-place-next{
+  box-shadow:0 4px 0 #70553bcc,0 0 0 4px #fff1b88a,0 9px 15px #122a2aa0!important;
+}
+#laria-fortellingsdalen-preview .fd-map-fox{
+  position:absolute;z-index:3;right:5%;bottom:1.5%;top:auto;
+  width:clamp(52px,24%,127px);height:clamp(65px,29%,154px);
+  border-radius:50% 50% 39% 39%;background:radial-gradient(ellipse at 50% 82%,#fff2caec,#d8ae7b9e 65%,transparent 85%);
+  box-shadow:none;overflow:visible;pointer-events:none;
+}
+#laria-fortellingsdalen-preview .fd-map-fox img{
+  width:100%;height:100%;object-fit:contain;object-position:center bottom;
+  filter:drop-shadow(1px 5px 4px #142e2a8e);
+}
+#laria-fortellingsdalen-preview .fd-map-aside{min-width:0;padding:0 3px}
+#laria-fortellingsdalen-preview .fd-map-aside .fd-progress{margin:10px 0 12px}
+#laria-fortellingsdalen-preview .fd-map-hint{
+  border:1px solid #e7d0ab;border-radius:20px;background:#fffbefe8;
+  padding:13px 15px;margin:12px 0;color:#684d33;
+}
+#laria-fortellingsdalen-preview .fd-map-hint strong{font:900 15px Georgia,serif}
+#laria-fortellingsdalen-preview .fd-map-hint p{font-size:12px;margin:6px 0 0}
+#laria-fortellingsdalen-preview .fd-map-aside .fd-progress-track{
+  width:min(100%,200px);margin-left:auto;
+}
+@media (max-width:399px){
+  #laria-fortellingsdalen-preview .fd-map-header{gap:7px}
+  #laria-fortellingsdalen-preview .fd-map-header .fd-map-crest{flex-basis:43px;width:43px;height:43px;font-size:25px}
+  #laria-fortellingsdalen-preview .fd-map-place{width:45%;padding:4px 5px!important;gap:4px;min-height:46px!important}
+  #laria-fortellingsdalen-preview .fd-map-place .fd-place-number{flex-basis:27px;width:27px;height:27px;font-size:14px}
+  #laria-fortellingsdalen-preview .fd-map-place .fd-place-label strong{font-size:11px}
+  #laria-fortellingsdalen-preview .fd-map-caption{padding:7px 10px;font-size:13px}
+}
+@media (min-width:760px) and (orientation:landscape){
+  #laria-fortellingsdalen-preview .fd-visual-layout{
+    grid-template-columns:minmax(0,1.12fr) minmax(220px,.78fr);
+    gap:21px;align-items:start;
+  }
+  #laria-fortellingsdalen-preview .fd-atlas{
+    width:auto;height:min(76dvh,730px);max-height:730px;justify-self:center;
+  }
+  #laria-fortellingsdalen-preview .fd-map-aside{padding:7px 3px}
+  #laria-fortellingsdalen-preview .fd-map-aside .fd-progress{
+    display:grid;grid-template-columns:1fr;gap:11px;padding:16px;
+  }
+  #laria-fortellingsdalen-preview .fd-map-aside .fd-progress-track{width:100%;margin:0}
+  #laria-fortellingsdalen-preview .fd-map-hint{margin-top:19px;padding:19px}
+  #laria-fortellingsdalen-preview .fd-map-place{width:44%;min-height:50px}
+  #laria-fortellingsdalen-preview .fd-map-place .fd-place-label strong{font-size:12px}
+  #laria-fortellingsdalen-preview .fd-map-place .fd-place-label small{font-size:10px}
+}
+@media(prefers-reduced-motion:reduce){
+  #laria-fortellingsdalen-preview .fd-map-place{transition:none!important}
+}
