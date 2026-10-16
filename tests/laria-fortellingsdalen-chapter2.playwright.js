@@ -179,6 +179,10 @@ async function run(engine,label,viewport){
     assert.deepEqual(foxCoords,{x:'43%',y:'78%',scale:'0.84'},label+' fox perspective anchor changed unexpectedly');
 
     for(const stage of ['eventyrbrua','sporstien','fortellermolla','stjernetoppen'])await solveStory(page,stage);
+    assert.equal(await page.locator('[data-fd-fox-stage]').getAttribute('data-fd-fox-stage'),'stjernetoppen',
+      label+' fully completed journey should keep selected fox at the final summit');
+    assert.equal(await page.locator('.fd-place-next').count(),0,
+      label+' completed chapter should not incorrectly highlight an unfinished next stop');
     const report=await page.evaluate(()=>({
       progress:window.LARIA_CHAPTER_EXPANSION.progress(state),
       gradeWins:state.journey.gradeWins,
