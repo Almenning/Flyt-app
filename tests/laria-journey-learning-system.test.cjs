@@ -91,9 +91,85 @@ test('decorateModel adds learning metadata without changing node ids or order',(
 
 test('the live app loads the systematic layer and uses its mission length',()=>{
   const html=fs.readFileSync(path.join(__dirname,'../laer-litt-mer/index.html'),'utf8');
-  const learningScript=html.indexOf('journey-learning-system-v1.js?v=20261016-tallenga-places1');
+  const learningScript=html.indexOf('journey-learning-system-v1.js?v=20261016-language-system1');
   const journeyRenderer=html.indexOf('journey-world-premium.js?v=20261011-personalfox2');
   assert.ok(learningScript>0,'systematic learning script is not loaded');
   assert.ok(journeyRenderer>learningScript,'systematic layer must install before journey presentation scripts');
   assert.match(html,/LARIA_JOURNEY_LEARNING_SYSTEM\?\.questionCount\?\.\(node\)/);
+});
+
+
+test('Bokskogen grade 2 has explicit contracts and semantic painted places',()=>{
+  const chapter=system.chapterFor('norwegian',2);
+  assert.equal(chapter.id,'bokskogen-1');
+  assert.deepEqual(chapter.places.map(p=>p.title),
+    ['Leselyset','Ordverkstedet','Historiehytta','Setningsbroen','Fortellingstårnet']);
+  const expected=[
+    'lyder','ordbilder','ordlek','ordstart-challenge','ordstart-review','ordstart-checkpoint',
+    'setningsrekkefolge','ordbetydning','setninger-challenge','setninger-review','setninger-checkpoint',
+    'detaljer','forsta','tenkvidere','lesedetektiv-challenge','lesedetektiv-review','lesedetektiv-checkpoint'
+  ];
+  assert.deepEqual(Object.keys(chapter.nodes).sort(),expected.sort());
+  assert.equal(system.contractFor('norwegian',2,'lyder').placeIndex,0);
+  assert.equal(system.contractFor('norwegian',2,'ordbilder').placeIndex,1);
+  assert.equal(system.contractFor('norwegian',2,'setningsrekkefolge').placeIndex,2);
+  assert.equal(system.contractFor('norwegian',2,'detaljer').placeIndex,3);
+  assert.equal(system.contractFor('norwegian',2,'tenkvidere').placeIndex,4);
+  assert.equal(system.questionCount({subject:'norwegian',grade:2,id:'lyder'}),4);
+  assert.equal(system.questionCount({subject:'norwegian',grade:2,id:'lesedetektiv-checkpoint'}),5);
+});
+
+test('Ordlandsbyen grade 2 has explicit contracts and forward semantic places',()=>{
+  const chapter=system.chapterFor('english',2);
+  assert.equal(chapter.id,'ordlandsbyen-1');
+  assert.deepEqual(chapter.places.map(p=>p.title),
+    ['Startplassen','Ordhandelen','Grammatikkhuset','Snakkekaféen','Fortellingsslottet']);
+  const expected=[
+    'words','numbers','firstwords-challenge','firstwords-review','firstwords-checkpoint',
+    'phrases','sentences','talk-challenge','talk-review','talk-checkpoint',
+    'reading','read-challenge','read-review','read-checkpoint'
+  ];
+  assert.deepEqual(Object.keys(chapter.nodes).sort(),expected.sort());
+  assert.equal(system.contractFor('english',2,'words').placeIndex,0);
+  assert.equal(system.contractFor('english',2,'numbers').placeIndex,1);
+  assert.equal(system.contractFor('english',2,'phrases').placeIndex,2);
+  assert.equal(system.contractFor('english',2,'sentences').placeIndex,3);
+  assert.equal(system.contractFor('english',2,'reading').placeIndex,4);
+  assert.equal(system.questionCount({subject:'english',grade:2,id:'words'}),4);
+});
+
+test('language selector keeps Bokskogen inside its learning goal and covers both skills',()=>{
+  const pool=[
+    {subject:'norwegian',skill:'letter-sound',type:'build-word',prompt:'Bygg ordet',answer:'KATT',letters:[{l:'K'},{l:'A'},{l:'T'},{l:'T'}],visual:'🐱'},
+    {subject:'norwegian',skill:'letter-sound',type:'build-word',prompt:'Bygg ordet',answer:'SOL',letters:[{l:'S'},{l:'O'},{l:'L'}],visual:'☀️'},
+    {subject:'norwegian',skill:'letter-sound',type:'build-word',prompt:'Bygg ordet',answer:'MUS',letters:[{l:'M'},{l:'U'},{l:'S'}],visual:'🐭'},
+    {subject:'norwegian',skill:'missing-letter',type:'learning-choice',prompt:'Hvilken bokstav mangler? F _ S K',answer:'I',options:['I','A','O']},
+    {subject:'norwegian',skill:'missing-letter',type:'learning-choice',prompt:'Hvilken bokstav mangler? S _ L',answer:'O',options:['O','A','I']},
+    {subject:'norwegian',skill:'reading-detail',type:'learning-choice',prompt:'Urelatert lesing',answer:'A',options:['A','B']}
+  ];
+  const root={subjectPoolForGrade(){return pool},questionOnCooldown(){return false}};
+  const node={subject:'norwegian',grade:2,id:'lyder',module:'spelling'};
+  const questions=system.buildForNode(root,'norwegian',node,false);
+  assert.equal(questions.length,5);
+  assert.ok(questions.every(q=>['letter-sound','missing-letter'].includes(q.skill)));
+  assert.deepEqual(new Set(questions.map(q=>q.skill)),new Set(['letter-sound','missing-letter']));
+  assert.ok(questions.every(q=>q.learning.objectiveId==='norwegian-g2-letter-sound'));
+});
+
+test('language selector keeps Ordlandsbyen inside words and spelling',()=>{
+  const pool=[
+    {subject:'english',skill:'words',type:'learning-choice',prompt:'🐱 What is this?',answer:'cat',options:['cat','dog','sun'],visual:'🐱'},
+    {subject:'english',skill:'words',type:'learning-choice',prompt:'What colour is grass?',answer:'green',options:['green','blue','red']},
+    {subject:'english',skill:'words',type:'learning-choice',prompt:'🍎 What is this?',answer:'apple',options:['apple','chair','fish'],visual:'🍎'},
+    {subject:'english',skill:'spelling',type:'build-word',prompt:'Build the word',answer:'DOG',letters:[{l:'D'},{l:'O'},{l:'G'}],visual:'🐶'},
+    {subject:'english',skill:'spelling',type:'learning-choice',prompt:'Choose the correct spelling.',answer:'house',options:['house','hous','housse']},
+    {subject:'english',skill:'reading',type:'learning-choice',prompt:'Urelated reading',answer:'A',options:['A','B'],passage:'Text'}
+  ];
+  const root={subjectPoolForGrade(){return pool},questionOnCooldown(){return false}};
+  const node={subject:'english',grade:2,id:'words',module:'words'};
+  const questions=system.buildForNode(root,'english',node,false);
+  assert.equal(questions.length,5);
+  assert.ok(questions.every(q=>['words','spelling'].includes(q.skill)));
+  assert.deepEqual(new Set(questions.map(q=>q.skill)),new Set(['words','spelling']));
+  assert.ok(questions.every(q=>q.learning.objectiveId==='english-g2-first-words'));
 });

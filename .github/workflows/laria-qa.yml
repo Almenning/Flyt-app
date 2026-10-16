@@ -289,7 +289,7 @@ jobs:
         env:
           QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
         run: node tests/laria-journey-integrated-ux.playwright.js
-      - name: Verify systematic Tallenga learning flow
+      - name: Verify systematic grade-2 journey learning flow
         env:
           QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
         run: |
