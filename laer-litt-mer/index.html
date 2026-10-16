@@ -4736,7 +4736,7 @@ function renderSubjectModules(){
     });
     // The regular free-practice modules are hidden behind the approved painted map.
     // Mount this explicitly private test launcher on the active subject screen instead.
-    document.getElementById('subject-screen')?.appendChild(preview);
+    document.getElementById('subject-journey-section')?.appendChild(preview);
   }
   const viewGrade=journeyViewGrade(activeSubject),jp=journeyProgress(activeSubject,viewGrade),chapter=journeyChapterInfo(activeSubject,viewGrade);
   document.getElementById('subject-progress-label').textContent=jp.complete?(chapter?'Eventyr 1 fullført 🏆':'Fullført 🏆'):jp.pct+' %';
