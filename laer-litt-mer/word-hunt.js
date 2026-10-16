@@ -106,6 +106,7 @@ function makeRound(){
 function themePickerMarkup(){
   return '<section class="word-hunt-theme-picker" hidden role="dialog" aria-modal="true" aria-labelledby="wh-theme-heading">'+
     '<div class="wh-theme-panel"><button type="button" class="wh-theme-close" aria-label="Lukk temavalget">×</button>'+
+    '<img class="wh-theme-fox" alt="" aria-hidden="true" src="'+window.LARIA_FOX.source(window.LARIA_FOX.choice())+'">'+
     '<span class="wh-theme-eyebrow">Læria · Bokskogen</span><h2 id="wh-theme-heading">Velg ordtema</h2>'+
     '<p>Hvor vil du lete etter ord i dag?</p><div class="wh-theme-cards" role="group" aria-label="Ordtemaer">'+
     THEMES.list().map(pack=>'<button type="button" class="wh-theme-card" data-word-theme="'+pack.id+'" aria-pressed="false">'+
@@ -124,6 +125,7 @@ function showThemePicker(){
   const root=overlay(),picker=root.querySelector('.word-hunt-theme-picker');
   if(!picker.hidden)return;
   ui.pickerFocus=document.activeElement;
+  root.querySelector('.wh-theme-fox').src=window.LARIA_FOX.source(window.LARIA_FOX.choice());
   ui.themeChoice=ui.theme;
   highlightThemeChoice();
   picker.hidden=false;
