@@ -91,8 +91,8 @@ test('decorateModel adds learning metadata without changing node ids or order',(
 
 test('the live app loads the systematic layer and uses its mission length',()=>{
   const html=fs.readFileSync(path.join(__dirname,'../laer-litt-mer/index.html'),'utf8');
-  const learningScript=html.indexOf('journey-learning-system-v1.js?v=20261016-language-system1');
-  const journeyRenderer=html.indexOf('journey-world-premium.js?v=20261011-personalfox2');
+  const learningScript=html.indexOf('journey-learning-system-v1.js?');
+  const journeyRenderer=html.indexOf('journey-world-premium.js?');
   assert.ok(learningScript>0,'systematic learning script is not loaded');
   assert.ok(journeyRenderer>learningScript,'systematic layer must install before journey presentation scripts');
   assert.match(html,/LARIA_JOURNEY_LEARNING_SYSTEM\?\.questionCount\?\.\(node\)/);

@@ -826,6 +826,7 @@ async function finishSession(page){
     assert.equal(journeyRewardCheck.first.areaComplete,true);
     assert.ok(journeyRewardCheck.first.reward&&journeyRewardCheck.first.reward.label,'world trophy should award a collectible');
     assert.equal(journeyRewardCheck.final.complete,true,'final trophy should round the grade');
+    assert.ok(journeyRewardCheck.final.gradeCompleted,'legacy completion event is required for old clients');
     assert.equal(journeyRewardCheck.final.gradeCompleted.grade,2);
     assert.ok(journeyRewardCheck.final.gradeWin,'grade completion should be persisted');
     assert.ok(journeyRewardCheck.final.visiblePrizes>=1,'finished worlds should show trophies in the landscape');
@@ -1591,7 +1592,7 @@ async function finishSession(page){
     }
 
 
-    // Simulate a fully completed grade-2 core journey and verify the global 4/4 rounded state.
+    // Simulate all four grade-2 chapter-one journeys being finished, without claiming the grade is finished.
     const rounded=await page.evaluate(()=>{
       state.profile.grade=2;ensureJourneyState();
       for(const subject of ['norwegian','math','english']){
@@ -1621,7 +1622,8 @@ async function finishSession(page){
     assert.equal(rounded.complete,true);
     await page.locator('#progress-screen.active').waitFor();
     assert.equal((await page.locator('#grade-round-score').textContent()).trim(),'4/4');
-    assert.match(await page.locator('#grade-round-title').textContent(),/rundet/i);
+    assert.match(await page.locator('#grade-round-title').textContent(),/fire første eventyr fullført/i);
+    assert.doesNotMatch(await page.locator('#grade-round-title').textContent(),/2\. klasse rundet|kjerneløp/i);
 
     assert.deepEqual(errors,[]);
     console.log('laer-litt-mer browser QA passed');

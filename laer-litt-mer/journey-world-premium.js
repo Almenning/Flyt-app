@@ -304,7 +304,7 @@
     const worldBack=host.querySelector('.premium-world-back');
     if(worldBack)worldBack.onclick=()=>returnToJourneyHome(geo);
     const gradeBtn=host.querySelector('.premium-world-grade'),menu=host.querySelector('.premium-world-grade-menu');
-    menu.innerHTML='<strong>Velg klassetrinn</strong>'+Array.from({length:10},(_,i)=>i+1).map(g=>'<button type="button" data-premium-grade="'+g+'"'+(g===grade?' class="selected"':'')+'>'+g+'. klasse'+(subjectGradeComplete(subject,g)?' · 🏆':'')+'</button>').join('');
+    menu.innerHTML='<strong>Velg klassetrinn</strong>'+Array.from({length:10},(_,i)=>i+1).map(g=>'<button type="button" data-premium-grade="'+g+'"'+(g===grade?' class="selected"':'')+'>'+g+'. klasse'+(subjectGradeComplete(subject,g)?(g===2?' · eventyr 1 🏆':' · 🏆'):'')+'</button>').join('');
     gradeBtn.onclick=()=>{menu.hidden=!menu.hidden;gradeBtn.setAttribute('aria-expanded',String(!menu.hidden))};
     menu.querySelectorAll('button').forEach(b=>b.onclick=()=>setJourneyViewGrade(subject,Number(b.dataset.premiumGrade)));
     const sheet=host.querySelector('.premium-world-sheet'),back=host.querySelector('.premium-world-sheet-back');
