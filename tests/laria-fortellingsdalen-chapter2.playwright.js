@@ -13,11 +13,31 @@ const seed={
   journey:{nodes:{'norwegian:2:lyder':{attempts:1,best:4}},gradeWins:{'norwegian:2':{at:123}},viewGrades:{}},
   answerLog:[],sessionLog:[],activeSession:null
 };
-async function openPreview(page){
+async function openChooser(page){
   await page.evaluate(()=>openSubject('norwegian'));
-  await page.locator('[data-laria-chapter2-preview="1"]').waitFor({timeout:12000});
-  await page.locator('[data-laria-chapter2-preview="1"]').click();
+  const launcher=page.locator('[data-laria-chapter2-preview="1"]');
+  await launcher.waitFor({timeout:12000});
+  await launcher.click();
+  await page.locator('#laria-norwegian-chapter-picker [role="dialog"]').waitFor({timeout:12000});
+  assert.equal(await page.locator('[data-fd-chapter-card]').count(),2);
+  assert.match(await page.locator('[data-fd-chapter-card="bokskogen-1"]').innerText(),/Bokskogen/);
+  assert.match(await page.locator('[data-fd-chapter-card="fortellingsdalen-2"]').innerText(),/Fortellingsdalen/);
+  assert.match(await page.locator('[data-fd-chapter-card="bokskogen-1"] img').getAttribute('src'),
+    /bokskogen-locked-20261010\.png/);
+  assert.match(await page.locator('[data-fd-chapter-card="fortellingsdalen-2"] img').getAttribute('src'),
+    /fortellingsdalen-map-preview\.svg/);
+  const chooserFits=await page.locator('#laria-norwegian-chapter-picker').evaluate(
+    el=>el.scrollWidth<=el.clientWidth+2
+  );
+  assert.equal(chooserFits,true,'Chapter selection must not overflow horizontally');
+}
+async function openPreview(page){
+  await openChooser(page);
+  const second=page.locator('[data-fd-pick="fortellingsdalen-2"]');
+  assert.equal(await second.isDisabled(),false,'Legacy Bokskogen winner should retain chapter-two access');
+  await second.click();
   await page.locator('#laria-fortellingsdalen-preview[role="dialog"]').waitFor({timeout:12000});
+  assert.equal(await page.locator('#laria-norwegian-chapter-picker').getAttribute('aria-hidden'),'true');
 }
 async function solveStory(page,stageId){
   const btn=page.locator('[data-fd-action="stage"][data-fd-stage="'+stageId+'"]');
@@ -57,6 +77,16 @@ async function run(engine,label,viewport){
     await page.route('https://api.worldbank.org/**',r=>r.abort());
     await page.goto(url+'&chapter2-preview=1&chapter2-qa='+label,{waitUntil:'domcontentloaded'});
     await page.locator('.bc14-subject[data-camp="subject-norwegian"]').waitFor({timeout:22000});
+    await openChooser(page);
+    if(process.env.LARIA_CHAPTER2_SCREENSHOTS){
+      const dir=process.env.LARIA_CHAPTER2_SCREENSHOTS;fs.mkdirSync(dir,{recursive:true});
+      await page.screenshot({path:path.join(dir,label+'-chapter-picker.png'),fullPage:false,animations:'disabled'});
+    }
+    await page.locator('[data-fd-pick="bokskogen-1"]').click();
+    await page.locator('#laria-norwegian-chapter-picker').waitFor({state:'detached'});
+    await page.locator('#subject-screen.active').waitFor();
+    assert.equal(await page.locator('[data-fd-chapter-card]').count(),0,
+      'returning to original Bokskogen must not leave chapter chooser over its painted map');
     await openPreview(page);
     assert.equal(await page.locator('.fd-place').count(),5);
     assert.match(await page.locator('#fd-title').innerText(),/Fortellingsdalen/);
@@ -157,12 +187,21 @@ async function run(engine,label,viewport){
     }
     assert.deepEqual(errors,[],label+' javascript errors');
     await page.locator('[data-fd-action="close"]').click();
+    await page.locator('#laria-norwegian-chapter-picker [role="dialog"]').waitFor();
+    assert.equal(await page.locator('#laria-norwegian-chapter-picker').getAttribute('aria-hidden'),null);
+    assert.match(await page.locator('[data-fd-chapter-card="fortellingsdalen-2"]').innerText(),
+      /Alle fem steder utforsket|Fullført/i,
+      'chapter picker must reflect a newly completed adventure after closing the story');
+    await page.locator('[data-fd-pick="bokskogen-1"]').click();
+    await page.locator('#laria-norwegian-chapter-picker').waitFor({state:'detached'});
     await page.locator('#subject-screen.active').waitFor();
     await page.goto(url+'&chapter2-preview=0&chapter2-qa='+label,{waitUntil:'domcontentloaded'});
     await page.locator('.bc14-subject[data-camp="subject-norwegian"]').waitFor({timeout:22000});
     await page.evaluate(()=>openSubject('norwegian'));
     assert.equal(await page.locator('[data-laria-chapter2-preview="1"]').count(),0,
       label+' developer preview leaked into normal subject view');
+    assert.equal(await page.locator('#laria-norwegian-chapter-picker').count(),0,
+      label+' unpublished chooser must not be in regular child-facing UI');
     await context.close();
     console.log('PASS Fortellingsdalen chapter-two preview',label);
   }finally{await browser.close()}
