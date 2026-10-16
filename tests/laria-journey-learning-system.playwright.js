@@ -202,9 +202,80 @@ async function run(engine,label){
     assert.deepEqual(new Set(englishLaunch.skills),new Set(['words','spelling']));
     assert.deepEqual([...new Set(englishLaunch.objectives)],['english-g2-first-words']);
 
+    const geography=await page.evaluate(()=>{
+      const model=geoJourneyModel(2);
+      const stage=window.LARIA_LOCKED_JOURNEYS.build('geography',model,()=>'new',null);
+      const neighbourArea=model.areas.find(a=>a.id==='naboer');
+      return {
+        chapter:window.LARIA_JOURNEY_LEARNING_SYSTEM.chapterFor('geography',2)?.id,
+        ids:model.nodes.map(n=>n.id),
+        neighbourTypes:neighbourArea?.types||[],
+        legacyNode:model.nodes.find(n=>n.id==='naboer-continent')||null,
+        grade3Decorated:geoJourneyModel(3).nodes.some(n=>n.learning),
+        places:stage.places.map(place=>({
+          title:place.title,
+          role:place.role?.adventurePrompt||null,
+          core:place.nodes.filter(n=>['geo-skill','checkpoint'].includes(n.type)).map(n=>n.id)
+        })),
+        core:model.nodes.filter(n=>['geo-skill','checkpoint'].includes(n.type)).map(node=>{
+          const questions=buildGeoJourneyQuestions(node,false);
+          return {
+            id:node.id,
+            type:node.type,
+            count:questions.length,
+            questionTypes:questions.map(q=>q.type),
+            allowed:node.learning?.allowedGeoTypes||[],
+            objectives:questions.map(q=>q.learning?.objectiveId||null),
+            objective:node.learning?.objectiveId||null
+          };
+        })
+      };
+    });
+    assert.equal(geography.chapter,'nordlysleiren-1');
+    assert.equal(geography.grade3Decorated,false,label+' geography contract leaked into grade 3');
+    assert(geography.ids.includes('naboer-continent'),label+' legacy geography node id disappeared');
+    assert(!geography.ids.includes('naboer-capital'),label+' geography created a migration-only replacement id');
+    assert.deepEqual(geography.neighbourTypes,['flag','capital','map']);
+    assert.equal(geography.legacyNode.geoType,'capital');
+    assert.equal(geography.legacyNode.title,'Hovedsteder');
+    assert.equal(geography.legacyNode.learning.objectiveId,'geography-g2-near-europe-capitals');
+    assert.deepEqual(geography.places.map(p=>p.title),
+      ['Basecamp','Kartkroken','Utforskertårnet','Naturstien','Observatoriet']);
+    assert.deepEqual(geography.places.map(p=>p.core),[
+      ['norden-flag'],
+      ['norden-capital','norden-map','norden-checkpoint'],
+      ['naboer-flag'],
+      ['naboer-continent'],
+      ['naboer-map','naboer-checkpoint']
+    ]);
+    assert(geography.places.every(p=>p.role),label+' Nordlysleiren place role missing');
+    for(const node of geography.core){
+      assert.equal(node.count,5,label+' geography '+node.id+' needs five unique candidates');
+      assert(node.questionTypes.every(type=>node.allowed.includes(type)),
+        label+' geography '+node.id+' leaked type '+node.questionTypes.join(', '));
+      assert(node.objectives.every(id=>id===node.objective),
+        label+' geography '+node.id+' mixed learning objectives');
+    }
+
+    const geoLaunch=await page.evaluate(()=>{
+      startGeoJourneyNode('naboer-continent',2);
+      return {
+        count:sessionQuestions.length,
+        types:sessionQuestions.map(q=>q.type),
+        objectives:sessionQuestions.map(q=>q.learning?.objectiveId||null),
+        scope:{...sessionScope}
+      };
+    });
+    assert.equal(geoLaunch.count,5,label+' Nordlysleiren skill mission must contain five questions');
+    assert.deepEqual([...new Set(geoLaunch.types)],['capital'],
+      label+' legacy neighbour node must now be a pure capital mission');
+    assert.deepEqual([...new Set(geoLaunch.objectives)],['geography-g2-near-europe-capitals']);
+    assert.equal(geoLaunch.scope.journeyNode,'naboer-continent',
+      label+' saved geography journey id changed during semantic upgrade');
+
     assert.deepEqual(errors,[],label+' javascript errors');
     await context.close();
-    console.log('PASS systematic grade-2 journeys',label,'math+norsk+english');
+    console.log('PASS systematic grade-2 journeys',label,'math+norsk+english+geography');
   }finally{await browser.close()}
 }
 
