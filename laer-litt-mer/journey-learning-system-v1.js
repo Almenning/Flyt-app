@@ -175,8 +175,8 @@
   const ENGLISH_G2_PLACES=Object.freeze([
     Object.freeze({index:0,title:'Startplassen',adventurePrompt:'Start reisen med de engelske ordene du møter aller oftest.',learningFocus:'grunnleggende ord'}),
     Object.freeze({index:1,title:'Ordhandelen',adventurePrompt:'Samle flere engelske ord, tall og stavemønstre.',learningFocus:'ord, tall og staving'}),
-    Object.freeze({index:2,title:'Grammatikkhuset',adventurePrompt:'Se hvordan engelske ord kan bygges til enkle setninger.',learningFocus:'enkel setningsstruktur'}),
-    Object.freeze({index:3,title:'Snakkekaféen',adventurePrompt:'Velg uttrykk og bygg setninger du faktisk kan bruke.',learningFocus:'fraser og enkel kommunikasjon'}),
+    Object.freeze({index:2,title:'Grammatikkhuset',adventurePrompt:'Sett sammen små engelske uttrykk og se hvordan ordene henger sammen.',learningFocus:'nyttige fraser og språkstruktur'}),
+    Object.freeze({index:3,title:'Snakkekaféen',adventurePrompt:'Bygg engelske setninger du faktisk kan bruke når du snakker.',learningFocus:'setningsbygging og enkel kommunikasjon'}),
     Object.freeze({index:4,title:'Fortellingsslottet',adventurePrompt:'Les små engelske historier og finn ut hva som skjer.',learningFocus:'leseforståelse'})
   ]);
 
@@ -193,7 +193,7 @@
       ['words','spelling','numbers'],{allowedTypes:['learning-choice','build-word'],kind:'checkpoint',questionCount:5,placeIndex:1,chapter:'ordlandsbyen-1'}),
 
     phrases:languageContract('english-g2-useful-phrases','Forstå og velge enkle engelske fraser i kjente situasjoner.',
-      ['phrases'],{placeIndex:3,chapter:'ordlandsbyen-1'}),
+      ['phrases'],{placeIndex:2,chapter:'ordlandsbyen-1'}),
     sentences:languageContract('english-g2-sentences','Bygge og kjenne igjen enkle engelske setninger.',
       ['sentence'],{allowedTypes:['learning-choice','sentence-order'],placeIndex:3,chapter:'ordlandsbyen-1'}),
     'talk-challenge':languageContract('english-g2-talk-challenge','Bruke enkle fraser og setninger i varierte hverdagssituasjoner.',
