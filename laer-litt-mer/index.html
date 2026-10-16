@@ -2850,13 +2850,13 @@
 
       <div class="card grade-round-card" id="grade-round-card">
         <div class="grade-round-head">
-          <div><div class="eyebrow" id="grade-round-eyebrow">3. klasse</div><h2 id="grade-round-title">Kjerneløpet</h2></div>
+          <div><div class="eyebrow" id="grade-round-eyebrow">Eventyrene dine</div><h2 id="grade-round-title">Fire første eventyr</h2></div>
           <div class="grade-round-score" id="grade-round-score">0/4</div>
         </div>
         <p id="grade-round-copy">Fullfør fagreisene i ditt tempo.</p>
         <div class="grade-round-subjects" id="grade-round-subjects"></div>
-        <div class="grade-round-history-title">Klassetrinnene dine</div>
-        <div class="grade-round-history" id="grade-round-history" aria-label="Fremgang på klassetrinn"></div>
+        <div class="grade-round-history-title" hidden aria-hidden="true">Klassetrinnene dine</div>
+        <div class="grade-round-history" id="grade-round-history" hidden aria-hidden="true"></div>
       </div>
 
       <div class="section-title"><h3>Fag</h3></div>
@@ -4615,6 +4615,17 @@ function subjectLongTermMasteredSkills(subject,grade=currentGrade()){
 }
 
 
+function journeyChapterMeta(subject,grade=currentGrade()){
+  const meta=window.LARIA_JOURNEY_LEARNING_SYSTEM?.chapterFor?.(subject,grade);
+  const fallback={
+    norwegian:'Bokskogen',
+    math:'Tallenga',
+    english:'Ordlandsbyen',
+    geography:'Nordlysleiren'
+  }[subject]||'Eventyret';
+  return {id:meta?.id||subject+':'+grade+':chapter-1,title:meta?.title||fallback,chapter:Number(meta?.chapter||1)};
+}
+
 function gradeJourneyOverview(grade=currentGrade()){
   const items=[
     {id:'geography',label:'Geografi',icon:'🌍',progress:geoJourneyProgress(grade)},
@@ -4627,32 +4638,35 @@ function gradeJourneyOverview(grade=currentGrade()){
 }
 function renderGradeJourneyOverview(){
   const card=document.getElementById('grade-round-card');if(!card)return;
-  const o=gradeJourneyOverview(),label=GRADE_CONFIG[o.grade].label;
+  const o=gradeJourneyOverview();
   card.classList.toggle('complete',o.complete);
-  document.getElementById('grade-round-eyebrow').textContent=label;
-  document.getElementById('grade-round-title').textContent=o.complete?'🏆 '+label+' rundet i Læria':'Rund '+label;
+  document.getElementById('grade-round-eyebrow').textContent='Eventyrene dine';
+  document.getElementById('grade-round-title').textContent=o.complete?'🏆 Første eventyrrunde fullført':'Fire første eventyr';
   document.getElementById('grade-round-score').textContent=o.done+'/'+o.total;
-  document.getElementById('grade-round-copy').textContent=o.complete?'Du har rundet appens kjerneløp i alle fire fag. Nå handler det om å hente kunnskapen fram igjen og gjøre den varig.':'Fullfør appens kjerneløp i hvert fag. Du trenger ikke gjøre alt på én gang.';
-  document.getElementById('grade-round-subjects').innerHTML=o.items.map(x=>'<div class="grade-round-pill '+(x.progress.complete?'done':'')+'"><b>'+(x.progress.complete?'✓':x.icon)+'</b><span>'+x.label+' · '+(x.progress.complete?'fullført':x.progress.pct+' %')+'</span></div>').join('');
-  const history=document.getElementById('grade-round-history');
-  if(history)history.innerHTML=Array.from({length:10},(_,i)=>i+1).map(g=>{
-    const p=gradeJourneyOverview(g),complete=p.complete;
-    return '<div class="grade-round-history-item'+(complete?' complete':'')+(g===currentGrade()?' mine':'')+'"><b>'+(complete?'🏆 ':'')+g+'.</b><span>'+p.done+'/4</span></div>';
+  document.getElementById('grade-round-copy').textContent=o.complete
+    ?'Du har fullført det første eventyret i alle fire fag. De kan spilles igjen, og Læria kan vokse videre med nye eventyr.'
+    :'Utforsk de fire første eventyrene i ditt tempo. Du kan alltid bli værende i det du liker og spille favoritter igjen.';
+  document.getElementById('grade-round-subjects').innerHTML=o.items.map(x=>{
+    const chapter=journeyChapterMeta(x.id,o.grade);
+    return '<div class="grade-round-pill '+(x.progress.complete?'done':'')+'"><b>'+(x.progress.complete?'✓':x.icon)+'</b><span>'+x.label+' · '+(x.progress.complete?chapter.title+' fullført':x.progress.pct+' % av '+chapter.title)+'</span></div>';
   }).join('');
+  const history=document.getElementById('grade-round-history');
+  if(history){history.hidden=true;history.innerHTML='';history.setAttribute('aria-hidden','true')}
 }
 function renderSubjectProgress(){
   renderGradeJourneyOverview();
   for(const s of Object.keys(SUBJECTS)){
     const el=document.getElementById('topic-'+s+'-progress');if(!el)continue;
     const jp=journeyProgress(s,currentGrade());
-    el.textContent=jp.complete?'Trinnet fullført 🏆':subjectAnswered(s)?jp.pct+' % av reisen':'Start reisen';
+    const chapter=journeyChapterMeta(s,currentGrade());
+    el.textContent=jp.complete?'Eventyret fullført 🏆':subjectAnswered(s)?jp.pct+' % av '+chapter.title:'Start eventyret';
   }
   const grid=document.getElementById('subject-progress-grid');
   if(grid)grid.innerHTML=[
-    ['🌍','Geografi',geoJourneyProgress().complete?'Trinnet fullført 🏆':geoJourneyProgress().pct+' % av reisen'],
-    ['📖','Norsk',journeyProgress('norwegian').complete?'Trinnet fullført 🏆':journeyProgress('norwegian').pct+' % av reisen'],
-    ['➗','Matte',journeyProgress('math').complete?'Trinnet fullført 🏆':journeyProgress('math').pct+' % av reisen'],
-    ['🇬🇧','Engelsk',journeyProgress('english').complete?'Trinnet fullført 🏆':journeyProgress('english').pct+' % av reisen']
+    ['🌍','Geografi',geoJourneyProgress().complete?'Eventyret fullført 🏆':geoJourneyProgress().pct+' % av '+journeyChapterMeta('geography').title],
+    ['📖','Norsk',journeyProgress('norwegian').complete?'Eventyret fullført 🏆':journeyProgress('norwegian').pct+' % av '+journeyChapterMeta('norwegian').title],
+    ['➗','Matte',journeyProgress('math').complete?'Eventyret fullført 🏆':journeyProgress('math').pct+' % av '+journeyChapterMeta('math').title],
+    ['🇬🇧','Engelsk',journeyProgress('english').complete?'Eventyret fullført 🏆':journeyProgress('english').pct+' % av '+journeyChapterMeta('english').title]
   ].map(x=>'<div class="subject-progress-card"><strong>'+x[0]+' '+x[1]+'</strong><span>'+x[2]+'</span></div>').join('');
 }
 const baseRenderAll=renderAll;
@@ -4684,9 +4698,12 @@ function renderSubjectModules(){
     box.appendChild(b);
   });
   const jp=journeyProgress(activeSubject,journeyViewGrade(activeSubject));
-  document.getElementById('subject-progress-label').textContent=jp.complete?'Fullført 🏆':jp.pct+' %';
+  const chapter=journeyChapterMeta(activeSubject,journeyViewGrade(activeSubject));
+  document.getElementById('subject-progress-label').textContent=jp.complete?'Eventyret fullført 🏆':jp.pct+' %';
   document.getElementById('subject-progress-bar').style.width=jp.pct+'%';
-  document.getElementById('subject-progress-copy').textContent=jp.complete?'Kjerneløpet er rundet. Repetisjon bygger varig mestring.':'Stien viser anbefalt rekkefølge. Øv fritt når du vil.';
+  document.getElementById('subject-progress-copy').textContent=jp.complete
+    ?chapter.title+' er fullført. Spill det igjen, utforsk fritt eller ta en ekstra utfordring.'
+    :'Stien viser veien gjennom '+chapter.title+'. Øv fritt når du vil.';
 }
 function renderSubjectContinue(){
   const s=SUBJECTS[activeSubject],a=state.activeSession?.scope,sameActive=a?.subject===activeSubject,viewGrade=journeyViewGrade(activeSubject),prog=journeyProgress(activeSubject,viewGrade),next=journeyRecommendedNode(activeSubject,viewGrade);
