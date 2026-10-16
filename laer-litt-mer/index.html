@@ -4627,7 +4627,7 @@ function journeyChapterMeta(subject,grade=currentGrade()){
     english:'Ordlandsbyen',
     geography:'Nordlysleiren'
   }[subject]||'Eventyret';
-  return {id:meta?.id||subject+':'+grade+':chapter-1,title:meta?.title||fallback,chapter:Number(meta?.chapter||1)};
+  return {id:meta?.id||subject+':'+grade+':chapter-1',title:meta?.title||fallback,chapter:Number(meta?.chapter||1)};
 }
 
 function gradeJourneyOverview(grade=currentGrade()){
