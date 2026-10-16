@@ -289,6 +289,13 @@ jobs:
         env:
           QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
         run: node tests/laria-journey-integrated-ux.playwright.js
+      - name: Verify systematic Tallenga learning flow
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+        run: |
+          node --check laer-litt-mer/journey-learning-system-v1.js
+          node --check tests/laria-journey-learning-system.playwright.js
+          node tests/laria-journey-learning-system.playwright.js
       - name: Unified premium mission menus before and after completion
         env:
           MISSION_QA_SCREENSHOTS: /tmp/laria-mission-visual
