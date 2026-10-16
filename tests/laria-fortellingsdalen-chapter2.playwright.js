@@ -129,6 +129,8 @@ async function run(engine,label,viewport){
       await page.screenshot({path:require('node:path').join(dir,label+'-first-stop.png'),fullPage:false,animations:'disabled'});
     }
     assert.equal(await page.locator('.fd-fox img').count(),1);
+    assert.equal(await page.locator('[data-fd-fox-stage]').getAttribute('data-fd-fox-stage'),'brevhytta',
+      label+' fox should begin at the first unfinished stop');
     const rightAvatar=await page.evaluate(()=>avatarSrc('girl'));
     assert.ok((await page.locator('.fd-fox img').getAttribute('src')).includes(rightAvatar),
       label+' selected personal fox not used');
@@ -138,6 +140,10 @@ async function run(engine,label,viewport){
     // Interrupted chapter play must survive a real browser reload.
     await page.locator('[data-fd-stage="brevhytta"]').click();
     const firstStory=await page.locator('.fd-letter h2').innerText();
+    const storyFox=page.locator('.fd-story-companion img');
+    assert.equal(await storyFox.count(),1,label+' selected fox should join the story scene');
+    assert.ok((await storyFox.getAttribute('src')).includes(rightAvatar),
+      label+' story fox must match the chosen avatar');
     const answer=await page.evaluate(()=>{
       const session=window.LARIA_CHAPTER_EXPANSION.resume(state);
       const q=session.story.questions[0];return q.options.indexOf(q.answer);
@@ -163,6 +169,14 @@ async function run(engine,label,viewport){
     await page.locator('.fd-result').waitFor();
     await page.locator('[data-fd-action="intro"]').click();
     assert.match(await page.locator('.fd-progress').innerText(),/1 av 5/);
+    assert.equal(await page.locator('[data-fd-fox-stage]').getAttribute('data-fd-fox-stage'),'eventyrbrua',
+      label+' fox must move to next suggested map landmark after first story');
+    const foxCoords=await page.locator('[data-fd-fox-stage]').evaluate(el=>({
+      x:el.style.getPropertyValue('--fd-fox-x'),
+      y:el.style.getPropertyValue('--fd-fox-y'),
+      scale:el.style.getPropertyValue('--fd-fox-scale')
+    }));
+    assert.deepEqual(foxCoords,{x:'43%',y:'78%',scale:'.84'},label+' fox perspective anchor changed unexpectedly');
 
     for(const stage of ['eventyrbrua','sporstien','fortellermolla','stjernetoppen'])await solveStory(page,stage);
     const report=await page.evaluate(()=>({
