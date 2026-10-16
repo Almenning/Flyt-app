@@ -835,10 +835,14 @@ async function finishSession(page){
     assert.ok(nextMathNode,'missing recommended math journey node');
     await page.evaluate(id=>startJourneyNode('math',id),nextMathNode);
     await page.locator('#session-screen.active').waitFor();
-    const mathJourneySession=await page.evaluate(()=>({type:sessionScope.type,journeyType:sessionScope.journeyType,grade:sessionScope.journeyGrade,count:sessionQuestions.length,valid:sessionQuestions.every(validLearningQuestion)}));
+    const mathJourneySession=await page.evaluate(()=>{
+      const node=journeyModel('math',sessionScope.journeyGrade).nodes.find(n=>n.id===sessionScope.journeyNode);
+      const expected=window.LARIA_JOURNEY_LEARNING_SYSTEM?.questionCount?.(node)||(sessionScope.journeyType==='skill'?3:5);
+      return {type:sessionScope.type,journeyType:sessionScope.journeyType,grade:sessionScope.journeyGrade,count:sessionQuestions.length,expected,valid:sessionQuestions.every(validLearningQuestion)};
+    });
     assert.equal(mathJourneySession.type,'journey');
     assert.equal(mathJourneySession.grade,2);
-    assert.equal(mathJourneySession.count,mathJourneySession.journeyType==='skill'?3:5);
+    assert.equal(mathJourneySession.count,mathJourneySession.expected);
     assert.equal(mathJourneySession.valid,true);
     await page.locator('#close-session').click();
     await page.locator('#subject-screen.active').waitFor();
