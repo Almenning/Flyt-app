@@ -54,12 +54,14 @@ async function geometry(page,label,viewport,firstFold){
   const rect=q=>{const el=document.querySelector(q);if(!el)return null;
    const r=el.getBoundingClientRect();return {top:Math.round(r.top),bottom:Math.round(r.bottom),left:Math.round(r.left),right:Math.round(r.right),width:Math.round(r.width),height:Math.round(r.height)}};
   const cells=[...document.querySelectorAll('#word-hunt-overlay .word-hunt-cell')].map(el=>{const r=el.getBoundingClientRect();return {width:r.width,height:r.height}});
-  const overlay=document.querySelector('.word-hunt-overlay');
+  const overlay=document.querySelector('.word-hunt-overlay'),shell=document.querySelector('.word-hunt-shell');
   return {width:innerWidth,height:innerHeight,scrollWidth:document.documentElement.scrollWidth,
    targets:rect('.word-hunt-targets'),board:rect('.word-hunt-board-card'),grid:rect('.word-hunt-board'),
    status:rect('.word-hunt-status'),newRound:rect('.word-hunt-new'),
    back:rect('.word-hunt-back'),cells,fox:rect('.word-hunt-fox'),
-   environment:overlay?getComputedStyle(overlay).backgroundImage:''};
+   environment:overlay?getComputedStyle(overlay).backgroundImage:'',
+   shellBackground:shell?getComputedStyle(shell).backgroundImage:'',
+   shellColor:shell?getComputedStyle(shell).backgroundColor:''};
  });
  console.log('WORD_HUNT_VIEWPORT '+label+': '+JSON.stringify({width:m.width,height:m.height,targets:m.targets,board:m.board,minCell:Math.min(...m.cells.map(c=>c.width)),overflow:m.scrollWidth}));
  assert.ok(m.board&&m.targets&&m.fox,label+' missing board/list/selected fox');
@@ -77,7 +79,13 @@ async function geometry(page,label,viewport,firstFold){
    assert.ok(m.newRound&&m.newRound.width>=viewport.width*.60,label+' new-round action is too small on portrait mobile');
   }
  }
- assert.match(m.environment,/bokskogen-atlas32\.webp/,label+' no Bokskogen environment behind the puzzle');
+ if(viewport.width<=700 && viewport.height>viewport.width){
+  assert.match(m.environment,/bokskogen-verden\.png/,label+' portrait Ordjakt does not use the illustrated Bokskogen scene');
+  assert.ok(m.shellBackground==='none'||/rgba\(255, 248, 222, 0\.1/.test(m.shellBackground)===false,
+   label+' portrait shell still behaves like a full cream page: '+m.shellBackground);
+ }else{
+  assert.match(m.environment,/bokskogen-(atlas32\.webp|verden\.png)/,label+' no Bokskogen environment behind the puzzle');
+ }
 }
 async function pathFor(page,word){
  const found=await page.evaluate(w=>{
