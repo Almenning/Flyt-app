@@ -169,7 +169,7 @@ test('live integration keeps chapter two behind the explicit developer preview',
   assert.match(html,/fortellingsdalen-stories-v1\.js/);
   assert.match(html,/chapter-expansion-v1\.js/);
   assert.match(html,/fortellingsdalen-preview-v1\.js/);
-  assert.match(html,/document\.getElementById\('subject-journey-section'\)\?\.appendChild\(preview\)/,
-    'pilot launch must not be inserted into hidden legacy practice modules');
+  assert.match(html,/document\.body\.appendChild\(preview\)/,
+    'developer pilot must live outside landscape-screen clipping');
   assert.equal(html.includes('data-laria-chapter2-preview="visible"'),false);
 });
