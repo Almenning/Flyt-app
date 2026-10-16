@@ -24,41 +24,58 @@ function makeRound(){
   const fresh=[...pool.filter(w=>!recent.has(w)),...pool.filter(w=>recent.has(w))];
   // Long words use straight paths; shorter ones preserve room for diagonal
   // and backward discoveries on the 7×7 board.
-  const requested=ui.level==='easy'?fresh.slice(0,count):[
-    ...fresh.filter(w=>w.length>=6).slice(0,2),
-    ...fresh.filter(w=>w.length<=5).slice(0,3)
-  ];
-  const dirs=dirSet();
-  let board=null;
-  // Rebuild the entire round, never silently drop a word when random placement fails.
-  // Each attempt receives a balanced direction plan so one random round cannot
-  // become "all vertical" or "all horizontal".
-  for(let build=0;build<36&&!board;build++){
-    const trial=Array.from({length:ui.size},()=>Array(ui.size).fill(''));
-    const planned=directionPlan();
-    let fits=true;
-    for(const [wordIndex,word] of [...requested].sort((a,b)=>b.length-a.length).entries()){
-      let placed=false;
-      for(let tries=0;tries<160&&!placed;tries++){
-        const [dr,dc]=planned[wordIndex]||dirs[Math.floor(Math.random()*dirs.length)];
-        const r=Math.floor(Math.random()*ui.size),c=Math.floor(Math.random()*ui.size);
-        const er=r+dr*(word.length-1),ec=c+dc*(word.length-1);
-        if(er<0||ec<0||er>=ui.size||ec>=ui.size)continue;
-        let ok=true;
-        for(let i=0;i<word.length;i++){
-          const rr=r+dr*i,cc=c+dc*i,ch=trial[rr][cc];
-          if(ch&&ch!==word[i]){ok=false;break}
-        }
-        if(!ok)continue;
-        for(let i=0;i<word.length;i++)trial[r+dr*i][c+dc*i]=word[i];
-        placed=true;
-      }
-      if(!placed){fits=false;break}
-    }
-    if(fits)board=trial;
+  // Give every round a mix of word lengths. The harder puzzle stays hard
+  // through its backward/diagonal directions, not five overly long words.
+  const shortWords=fresh.filter(word=>word.length<=ui.size-2);
+  const longerWords=fresh.filter(word=>word.length>ui.size-2);
+  function chooseWords(){
+    const picked=[...shuffle(longerWords.slice(0,Math.max(count*3,8))).slice(0,1),
+      ...shuffle(shortWords.slice(0,Math.max(count*4,16))).slice(0,count-1)];
+    for(const word of fresh)if(picked.length<count&&!picked.includes(word))picked.push(word);
+    return picked;
   }
-  // Guaranteed, still playable fallback with separate rows, even under an
-  // unfavorable random generator or an unusually difficult set of words.
+  let requested=chooseWords(),board=null;
+  function solvePlacement(words,plan){
+    const trial=Array.from({length:ui.size},()=>Array(ui.size).fill(''));
+    const tasks=words.map((word,index)=>{
+      const [dr,dc]=plan[index],starts=[];
+      for(let r=0;r<ui.size;r++)for(let c=0;c<ui.size;c++){
+        const er=r+dr*(word.length-1),ec=c+dc*(word.length-1);
+        if(er>=0&&ec>=0&&er<ui.size&&ec<ui.size)starts.push([r,c]);
+      }
+      return {word,dr,dc,starts:shuffle(starts)};
+    }).sort((a,b)=>a.starts.length-b.starts.length);
+    let checks=0;
+    function place(index){
+      if(index===tasks.length)return true;
+      const {word,dr,dc,starts}=tasks[index];
+      for(const [r,c] of starts){
+        if(++checks>5500)return false;
+        let fits=true;
+        for(let i=0;i<word.length;i++){
+          const existing=trial[r+dr*i][c+dc*i];
+          if(existing&&existing!==word[i]){fits=false;break}
+        }
+        if(!fits)continue;
+        const freshCells=[];
+        for(let i=0;i<word.length;i++){
+          const rr=r+dr*i,cc=c+dc*i;
+          if(!trial[rr][cc]){trial[rr][cc]=word[i];freshCells.push([rr,cc])}
+        }
+        if(place(index+1))return true;
+        for(const [rr,cc] of freshCells)trial[rr][cc]='';
+      }
+      return false;
+    }
+    return place(0)?trial:null;
+  }
+  // A bounded backtracker preserves the requested direction balance rather
+  // than silently losing words when a random long-word crossing does not fit.
+  for(let attempt=0;attempt<16&&!board;attempt++){
+    if(attempt>0&&attempt%4===0)requested=chooseWords();
+    board=solvePlacement(requested,directionPlan());
+  }
+  // Defensive last resort; should not be reached with curated balanced packs.
   if(!board){
     board=Array.from({length:ui.size},()=>Array(ui.size).fill(''));
     requested.forEach((word,row)=>{
