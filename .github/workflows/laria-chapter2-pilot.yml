@@ -5,6 +5,7 @@ on:
     paths:
       - 'laer-litt-mer/chapter-expansion-v1.js'
       - 'laer-litt-mer/fortellingsdalen-*'
+      - 'laer-litt-mer/norwegian-chapter-*'
       - 'laer-litt-mer/index.html'
       - 'tests/laria-fortellingsdalen-chapter2.*'
       - '.github/workflows/laria-chapter2-pilot.yml'
@@ -13,6 +14,7 @@ on:
     paths:
       - 'laer-litt-mer/chapter-expansion-v1.js'
       - 'laer-litt-mer/fortellingsdalen-*'
+      - 'laer-litt-mer/norwegian-chapter-*'
       - 'laer-litt-mer/index.html'
       - 'tests/laria-fortellingsdalen-chapter2.*'
       - '.github/workflows/laria-chapter2-pilot.yml'
@@ -36,7 +38,10 @@ jobs:
         run: |
           node --check laer-litt-mer/fortellingsdalen-stories-v1.js
           node --check laer-litt-mer/chapter-expansion-v1.js
+          node --check laer-litt-mer/fortellingsdalen-art-contract-v1.js
           node --check laer-litt-mer/fortellingsdalen-preview-v1.js
+          node --check laer-litt-mer/norwegian-chapter-chooser-v1.js
+          node --check laer-litt-mer/norwegian-chapter-picker-v1.js
           node --check tests/laria-fortellingsdalen-chapter2.playwright.js
           node --test tests/laria-fortellingsdalen-chapter2.test.cjs
       - name: Install Chromium and WebKit
