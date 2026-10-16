@@ -15,7 +15,7 @@
       hard:['BJØRN','HJORT','EKORN','KANIN','ROVDYR','PANTER','SEBRA','TIGER','PINGVIN','GREVING','GEITER','HVALEN','FUGLER','MAUREN','FROSKE','DYRENE','KATTEN','REVENE','HUNDEN','HESTER','BJØRNER','KRABBE']},
     {id:'magic',title:'Eventyr og magi',short:'Magi',icon:'🪄',description:'Oppdag slott, troll og magiske skatter.',
       easy:['HEKS','MAGI','FE','SKATT','KONGE','DRAGE','BORG','REV','KRONE','TROLL','ALV','STAV','SLOTT','NØKKEL','LYKT','RUNE','HELT','GULL','BOK','SKOG','ÅND'],
-      hard:['DRAGE','TROLL','PORTAL','TRYLLE','STJERNE','EVENTYR','SKYGGE','GROTTE','KONGEN','KRONE','NØKKEL','MONSTER','FANTASI','MAGIEN','RIDDER','SKATTER','MÅNELY','SPØKEL','SVERDET','SKOGEN','SLANGE','RØVEREN']},
+      hard:['DRAGE','TROLL','PORTAL','TRYLLE','STJERNE','EVENTYR','SKYGGE','GROTTE','KONGEN','KRONE','NØKKEL','MONSTER','FANTASI','MAGIEN','RIDDER','SKATTER','MÅNELY','SPØKEL','SVERDET','SKOGEN','SLANGE','RØVEREN','HEKS','GULL','SLOTT','MAGI','BORG','RUNE','STAV']},
     {id:'food',title:'Mat og hverdag',short:'Mat',icon:'🍎',description:'Finn ord fra kjøkkenet og hverdagen.',
       easy:['BRØD','OST','MELK','EPLE','IS','RIS','PÆRE','SAFT','KORN','KAKE','BÆR','SUPPE','FISK','MEL','AGURK','PIZZA','POTET','SMØR','BOLLE','MAT','VANN','BANAN','TOMAT'],
       hard:['PIZZA','BANAN','BOLLER','YOGHURT','TOMAT','AGURK','PAPRIKA','GRØT','SALAT','HAVRE','KJØTT','MIDDAG','DESSERT','HONNING','FRUKT','GULROT','OSTENE','BRØDET','SAFTEN','MATPAKKE','KAKENE','GRØNNSAK']},
