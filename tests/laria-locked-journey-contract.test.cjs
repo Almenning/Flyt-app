@@ -97,3 +97,35 @@ test('four painted milestones show real core missions even for vacant places',()
  assert.deepEqual(journey.milestoneStates(0,0),['new','new','new','new']);
  assert.deepEqual(journey.milestoneStates(30,4),['done','done','done','done']);
 });
+
+
+test('semantic place metadata pins real nodes without creating synthetic missions',()=>{
+ const nodes=[
+  {id:'place',areaId:'numbers',type:'skill',title:'Plassverdi',learning:{placeIndex:0}},
+  {id:'order',areaId:'numbers',type:'skill',title:'Tallrekkefølge',learning:{placeIndex:1}},
+  {id:'numbers-checkpoint',areaId:'numbers',type:'checkpoint',title:'Trofé',learning:{placeIndex:1}},
+  {id:'add',areaId:'addition',type:'skill',title:'Addisjon',learning:{placeIndex:3}},
+  {id:'sub',areaId:'subtraction',type:'skill',title:'Subtraksjon',learning:{placeIndex:3}},
+  {id:'sub-review',areaId:'subtraction',type:'review',title:'Husker du?',learning:{placeIndex:4}},
+  {id:'sub-checkpoint',areaId:'subtraction',type:'checkpoint',title:'Trofé',learning:{placeIndex:4}}
+ ];
+ const roles=['Tallverkstedet','Formfabrikken','Brøklaben','Målebroen','Problemtårnet']
+  .map((title,index)=>({index,title,adventurePrompt:'rolle '+index}));
+ const model={
+  areas:[
+   {id:'numbers',nodes:nodes.slice(0,3)},
+   {id:'addition',nodes:[nodes[3]]},
+   {id:'subtraction',nodes:nodes.slice(4)}
+  ],
+  nodes,
+  learningPlaces:roles
+ };
+ const built=journey.build('math',model,()=>'new','add');
+ assert.deepEqual(built.places.map(p=>p.nodes.map(n=>n.id)),[
+  ['place'],['order','numbers-checkpoint'],[],['add','sub'],['sub-checkpoint','sub-review']
+ ]);
+ assert.equal(built.places[2].title,'Brøklaben');
+ assert.equal(built.places[2].total,0,'Brøklaben stays free exploration with no fabricated core mission');
+ assert.equal(built.places[3].role.adventurePrompt,'rolle 3');
+ assert.deepEqual(built.originalIds,nodes.map(n=>n.id));
+});
