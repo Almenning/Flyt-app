@@ -34,10 +34,14 @@ async function run(engine,label){
       const model=geoJourneyModel(2);
       const stage=window.LARIA_LOCKED_JOURNEYS.build('geography',model,()=>'new',null);
       const core=model.nodes.filter(n=>['geo-skill','checkpoint'].includes(n.type));
+      const neighbour=model.areas.find(a=>a.id==='naboer');
       return {
         installed:window.__LARIA_GEOGRAPHY_JOURNEY_SYSTEM_INSTALLED===true,
         chapter:window.LARIA_GEOGRAPHY_JOURNEY_SYSTEM?.chapterFor?.(2)?.id,
         grade3Decorated:!!geoJourneyModel(3).learningPlaces,
+        ids:model.nodes.map(n=>n.id),
+        neighbourTypes:neighbour?.types||[],
+        legacyNode:model.nodes.find(n=>n.id==='naboer-continent')||null,
         places:stage.places.map(place=>({
           title:place.title,
           role:place.role?.adventurePrompt||null,
@@ -62,12 +66,18 @@ async function run(engine,label){
     assert.equal(report.grade3Decorated,false,label+' geography pilot leaked into grade 3');
     assert.deepEqual(report.places.map(p=>p.title),
       ['Basecamp','Kartkroken','Utforskertårnet','Naturstien','Observatoriet']);
+    assert(report.ids.includes('naboer-continent'),label+' legacy geography node id disappeared');
+    assert(!report.ids.includes('naboer-capital'),label+' migration-only replacement id was created');
+    assert.deepEqual(report.neighbourTypes,['flag','capital','map']);
+    assert.equal(report.legacyNode.geoType,'capital');
+    assert.equal(report.legacyNode.title,'Hovedsteder');
+    assert.equal(report.legacyNode.learning.objectiveId,'geography-g2-near-europe-capitals');
     assert.deepEqual(report.places.map(p=>p.core),[
       ['norden-flag'],
-      ['norden-map'],
-      ['norden-capital','norden-checkpoint'],
-      ['naboer-flag','naboer-continent','naboer-map'],
-      ['naboer-checkpoint']
+      ['norden-capital','norden-map','norden-checkpoint'],
+      ['naboer-flag'],
+      ['naboer-continent'],
+      ['naboer-map','naboer-checkpoint']
     ]);
     assert(report.places.every(p=>p.role),label+' missing Nordlysleiren place role');
 
@@ -83,7 +93,7 @@ async function run(engine,label){
     }
 
     const launch=await page.evaluate(()=>{
-      startGeoJourneyNode('norden-capital',2);
+      startGeoJourneyNode('naboer-continent',2);
       return {
         count:sessionQuestions.length,
         types:sessionQuestions.map(q=>q.type),
@@ -93,9 +103,10 @@ async function run(engine,label){
     });
     assert.equal(launch.count,5);
     assert.deepEqual([...new Set(launch.types)],['capital'],
-      label+' Nordic capitals mission mixed geography representations');
-    assert.deepEqual([...new Set(launch.objectives)],['geography-g2-nordic-capitals']);
-    assert.equal(launch.scope.journeyNode,'norden-capital');
+      label+' legacy neighbour node must now be a pure capital mission');
+    assert.deepEqual([...new Set(launch.objectives)],['geography-g2-near-europe-capitals']);
+    assert.equal(launch.scope.journeyNode,'naboer-continent',
+      label+' saved geography journey id changed during semantic upgrade');
 
     await page.locator('#close-session').click();
     await page.locator('#geography-screen.active').waitFor({timeout:10000});
