@@ -109,6 +109,7 @@ async function run(engine,label,viewport){
           const b=el.getBoundingClientRect(),r=atlas.getBoundingClientRect();
           return {id:el.dataset.fdStage,visible:getComputedStyle(el).display!=='none',
             width:b.width,height:b.height,
+            fontSize:parseFloat(getComputedStyle(el.querySelector('.fd-place-label strong')).fontSize),
             inside:b.left>=r.left-3&&b.right<=r.right+3&&b.top>=r.top-3&&b.bottom<=r.bottom+3};
         })
       };
@@ -120,6 +121,7 @@ async function run(engine,label,viewport){
       assert.equal(place.visible,true,label+' hidden atlas stop '+place.id);
       assert.equal(place.inside,true,label+' clipped atlas stop '+place.id);
       assert.ok(place.height>=44,label+' undersized tap target '+place.id);
+      if(viewport.width<600)assert.ok(place.fontSize>=12,label+' tiny place title for emerging reader '+place.id);
     }
     if(process.env.LARIA_CHAPTER2_SCREENSHOTS){
       const dir=process.env.LARIA_CHAPTER2_SCREENSHOTS;
