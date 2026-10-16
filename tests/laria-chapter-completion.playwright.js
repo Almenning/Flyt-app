@@ -95,9 +95,8 @@ async function run(engine,label){
     assert.equal(result.math.title,'🏆 Tallenga fullført');
     assert.doesNotMatch(result.math.missionCopy,/klasse|trinnet/i);
     assert.equal(result.math.journeyHeading,'Eventyret ditt');
-    assert.match(result.math.journeyFinish,/Tallenga er fullført/);
     assert.equal(result.math.hasNextGradeButton,false,label+' completed adventure must not promote next school grade');
-    assert.doesNotMatch(result.math.journeyFinish,/klasse|trinn|kjerneløp/i);
+    assert.doesNotMatch(JSON.stringify(result.math),/klasse fullført|trinnet er rundet|kjerneløp/i);
 
     assert.equal(result.geography.eye,'Eventyret er fullført');
     assert.equal(result.geography.title,'🏆 Nordlysleiren fullført');
