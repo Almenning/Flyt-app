@@ -95,6 +95,20 @@ jobs:
           if-no-files-found: warn
           retention-days: 7
 
+      - name: Verify illustrated Ordjakt topic cards, magic and collection in Chromium and WebKit
+        env:
+          WORD_HUNT_THEMES_SCREENSHOTS: /tmp/laria-wordhunt-themes
+        run: node tests/laria-word-hunt-themes.playwright.js
+
+      - name: Upload Ordjakt theme picker, board and collection screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-wordhunt-themes-${{ github.sha }}
+          path: /tmp/laria-wordhunt-themes
+          if-no-files-found: warn
+          retention-days: 7
+
       - name: Verify young Maths on iPhone and iPad Chromium and WebKit
         env:
           MATH_TAP_QA_SCREENSHOTS: /tmp/laria-math-tap

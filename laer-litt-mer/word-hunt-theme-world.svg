@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="250" viewBox="0 0 360 250" role="img" aria-label="world">
+<defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#9bdbdf"/><stop offset="1" stop-color="#f2efd0"/></linearGradient><radialGradient id="light"><stop stop-color="#fffbe0" stop-opacity=".77"/><stop offset="1" stop-color="#fffbe0" stop-opacity="0"/></radialGradient></defs>
+<rect width="360" height="250" rx="16" fill="url(#sky)"/><circle cx="291" cy="57" r="116" fill="url(#light)"/>
+<path d="M0 155Q63 119 115 157Q190 119 253 153Q314 114 360 140V250H0Z" fill="#7ba48c" opacity=".60"/>
+<path d="M0 199Q60 169 111 191Q192 156 275 181Q320 164 360 174V250H0Z" fill="#5d9166" opacity=".62"/>
+<g stroke="#745637" stroke-width="13" stroke-linecap="round" opacity=".78"><path d="M15 250V46M345 250V55"/></g>
+<g fill="#4c8658" opacity=".95"><ellipse cx="18" cy="50" rx="74" ry="42"/><ellipse cx="70" cy="21" rx="61" ry="33"/><ellipse cx="339" cy="62" rx="65" ry="43"/><ellipse cx="290" cy="13" rx="73" ry="31"/></g>
+<g fill="#8bb76f" opacity=".9"><ellipse cx="41" cy="48" rx="54" ry="26"/><ellipse cx="321" cy="38" rx="51" ry="25"/></g>
+
+<g transform="translate(89 25)"><circle cx="96" cy="99" r="91" fill="#63b8cb" stroke="#3f7f92" stroke-width="8"/><path d="M19 91H173M31 55H160M32 144H157M96 10q-70 87 0 180M96 10q70 87 0 180" fill="none" stroke="#d3e7d2" stroke-width="3" opacity=".62"/><path d="M37 42l37-12 17 17-10 23 15 14-14 23-30-5-12-20-26-8Z" fill="#86b583" stroke="#4c9381" stroke-width="3"/><path d="M120 71l31-9 17 23-12 30-16 14-7 28-18-24 13-23-16-15Z" fill="#7baf81" stroke="#4c9381" stroke-width="3"/><path d="M28 140l31 10 10 29-19 0Z" fill="#7baf81" stroke="#4c9381" stroke-width="3"/></g><path d="M42 52Q60 19 81 48Q91 72 61 91Q36 70 42 52Z" fill="#e6a45d" stroke="#a66a48" stroke-width="4"/><path d="M53 94l20 0-8 14H61Z" fill="#976843"/><path d="M48 73l10 0M65 73l10 0" stroke="#f5ddac" stroke-width="4"/>
+<g fill="#f8e9b5"><circle cx="23" cy="211" r="4"/><circle cx="301" cy="223" r="4"/><circle cx="339" cy="204" r="5"/><circle cx="55" cy="234" r="5"/></g>
+<rect x="5" y="5" width="350" height="240" rx="15" fill="none" stroke="#fff1c7" stroke-width="7" opacity=".6"/></svg>

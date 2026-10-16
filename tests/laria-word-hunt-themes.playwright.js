@@ -1,0 +1,165 @@
+'use strict';
+/* End-to-end premium Ordjakt themes in Chromium and WebKit.
+ * Tests real navigation, cards, word picking, calm magic and existing book. */
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const http=require('node:http');
+const {chromium,webkit}=require('playwright');
+const themes=require('../laer-litt-mer/word-hunt-themes.js');
+const root=path.resolve(__dirname,'..');
+const out=process.env.WORD_HUNT_THEMES_SCREENSHOTS||'/tmp/laria-wordhunt-themes';
+const mime={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'application/javascript; charset=utf-8','.svg':'image/svg+xml','.webp':'image/webp','.png':'image/png','.json':'application/json'};
+const seed={version:7,progressSchemaVersion:3,profile:{grade:2,onboarded:true,name:'Elev',avatar:'girl',setupVersion:2},mastery:{},mistakes:{},skillMastery:{},skillMistakes:{},skillLastSeen:{},masteryEvidence:{},skillEvidence:{},preferences:{sound:false,autoRead:false},journey:{nodes:{},gradeWins:{},viewGrades:{}},answerLog:[],sessionLog:[],activeSession:null};
+function serve(){return new Promise((resolve,reject)=>{
+ const server=http.createServer((req,res)=>{
+  let pathname=decodeURIComponent(new URL(req.url,'http://localhost').pathname);
+  if(pathname.endsWith('/'))pathname+='index.html';
+  const file=path.resolve(root,'.'+pathname);
+  if(!file.startsWith(root+path.sep)){res.writeHead(403);res.end();return}
+  fs.readFile(file,(error,data)=>{if(error){res.writeHead(404);res.end('Not Found');return}
+   res.setHeader('Content-Type',mime[path.extname(file)]||'application/octet-stream');
+   res.setHeader('Cache-Control','no-store');res.end(data);
+  });
+ });
+ server.once('error',reject);
+ server.listen(0,'127.0.0.1',()=>resolve({server,url:'http://127.0.0.1:'+server.address().port+'/laer-litt-mer/?app=laria'}));
+})}
+async function shot(page,name){fs.mkdirSync(out,{recursive:true});await page.screenshot({path:path.join(out,name+'.png'),animations:'disabled'});}
+async function open(page,url){
+ await page.goto(url,{waitUntil:'domcontentloaded'});
+ await page.waitForFunction(()=>typeof window.openWordHunt==='function'&&document.querySelector('.bc12-nav [data-camp="explore"]'),{},{timeout:30000});
+ await page.locator('.bc12-nav [data-camp="explore"]').click();
+ await page.locator('.bc13-panel:not([hidden]) .bc13-card[data-bc13-action="words"]').click();
+ await page.locator('#word-hunt-overlay:not([hidden]) .word-hunt-cell').first().waitFor();
+}
+async function selectTopic(page,topic,label){
+ const trigger=page.locator('.word-hunt-theme-mobile:visible,.word-hunt-theme-open:visible');
+ assert.equal(await trigger.count(),1,label+' missing single visible theme selection');
+ await trigger.click();
+ const picker=page.locator('.word-hunt-theme-picker:not([hidden])');
+ await picker.waitFor();
+ assert.equal(await picker.locator('.wh-theme-card').count(),5);
+ assert.ok(await picker.locator('.wh-theme-card.selected').count()===1);
+ // Every scene is a locally bundled SVG illustration, not a remote dependency.
+ await picker.locator('.wh-theme-card img').first().evaluate(img=>img.decode());
+ const valid=await picker.locator('.wh-theme-card img').evaluateAll(imgs=>imgs.every(img=>img.src.includes('/word-hunt-theme-')&&img.getAttribute('alt')===''));
+ assert.ok(valid,label+' broken illustrated topic assets');
+ await shot(page,label+'-choose-'+topic);
+ await picker.locator('[data-word-theme="'+topic+'"]').click();
+ assert.equal(await picker.locator('[data-word-theme="'+topic+'"]').getAttribute('aria-pressed'),'true');
+ await picker.locator('.wh-theme-start').click();
+ await picker.waitFor({state:'hidden'});
+ const progress=await page.evaluate(()=>JSON.parse(localStorage.getItem('laria-wordhunt-v1')));
+ assert.equal(progress.theme,topic,'selected theme was not persisted');
+ const rows=await page.locator('.word-hunt-word').allTextContents();
+ const level=await page.locator('.word-hunt-level.active').getAttribute('data-word-level');
+ const allowed=new Set(themes.get(topic)[level]);
+ for(const label of rows)assert.ok(allowed.has(label.trim()),topic+' generated a word outside its bank: '+label);
+ return rows.map(s=>s.trim());
+}
+async function pathFor(page,word){
+ const result=await page.evaluate(w=>{
+  const grid=[...document.querySelectorAll('.word-hunt-cell')].reduce((o,el)=>{
+   const r=Number(el.dataset.r),c=Number(el.dataset.c);(o[r]||(o[r]=[]))[c]=el.textContent.trim();return o;
+  },[]);
+  const dirs=[[0,1],[1,0],[0,-1],[-1,0],[1,1],[1,-1],[-1,1],[-1,-1]];
+  for(let r=0;r<grid.length;r++)for(let c=0;c<grid[r].length;c++)for(const [dr,dc] of dirs){
+   const endR=r+dr*(w.length-1),endC=c+dc*(w.length-1);
+   if(endR<0||endC<0||endR>=grid.length||endC>=grid[r].length)continue;
+   let got='';for(let i=0;i<w.length;i++)got+=grid[r+i*dr][c+i*dc];
+   if(got===w)return [[r,c],[endR,endC]];
+  }
+  return null;
+ },word);
+ assert.ok(result,'Word '+word+' was not placed in the playable board');
+ return result;
+}
+async function tapWord(page,word){
+ const [first,last]=await pathFor(page,word);
+ for(const [r,c] of [first,last])await page.locator('.word-hunt-cell[data-r="'+r+'"][data-c="'+c+'"]').tap();
+}
+async function checkLayout(page,label,viewport){
+ const box=await page.evaluate(()=>{
+  const rect=q=>{const r=document.querySelector(q)?.getBoundingClientRect();return r?{top:r.top,bottom:r.bottom,left:r.left,right:r.right}:null};
+  return {height:innerHeight,width:innerWidth,documentWidth:document.documentElement.scrollWidth,
+    board:rect('.word-hunt-board-card'),targets:rect('.word-hunt-targets'),title:rect('.word-hunt-top')};
+ });
+ assert.ok(box.board&&box.targets&&box.title,label+' missing game elements');
+ assert.ok(box.documentWidth<=box.width+3,label+' page overflow');
+ if(viewport.width>700||viewport.height>=800){
+  assert.ok(box.title.top>=-3&&box.title.bottom<=box.height,label+' title not on initial screen');
+  assert.ok(box.board.top>=0&&box.board.bottom<=box.height+2,label+' puzzle does not fit without scrolling');
+  assert.ok(box.targets.top>=0&&box.targets.bottom<=box.height,label+' word list offscreen');
+ }
+}
+async function verify(engine,launcher,label,viewport,url){
+ const browser=await launcher.launch({headless:true,args:engine==='chromium'?['--no-sandbox']:[]});
+ try{
+  const ctx=await browser.newContext({viewport,hasTouch:true,isMobile:viewport.width<700,serviceWorkers:'block'});
+  await ctx.addInitScript(value=>localStorage.setItem('laerlittmer-v2',JSON.stringify(value)),seed);
+  const page=await ctx.newPage(),errors=[];
+  page.on('pageerror',error=>errors.push(String(error)));
+  await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
+  await page.route('https://api.worldbank.org/**',r=>r.abort());
+  try{
+   await open(page,url);
+   assert.equal(await page.locator('.word-hunt-cell').count(),36);
+   await checkLayout(page,label+'-original',viewport);
+   const animalWords=await selectTopic(page,'animals',label);
+   assert.equal(animalWords.length,4);
+   await checkLayout(page,label+'-animals',viewport);
+   await shot(page,label+'-animals-game');
+   for(let i=0;i<animalWords.length;i++){
+    await tapWord(page,animalWords[i]);
+    if(i===0)assert.equal(await page.locator('.word-hunt-magic:not([hidden])').count(),1,'No calm discovery in animal round');
+    assert.equal(await page.locator('.word-hunt-word.found').count(),i+1);
+   }
+   assert.match(await page.locator('.word-hunt-status').innerText(),/Ordjakten er løst/);
+   const saved=await page.evaluate(()=>JSON.parse(localStorage.getItem('laria-wordhunt-v1')));
+   assert.equal(saved.rounds,1);
+   assert.equal(saved.themeRounds.animals,1);
+   assert.equal(saved.themeRounds.mixed,0);
+   await page.locator('.word-hunt-new').click();
+   const next=await page.locator('.word-hunt-word').allTextContents();
+   assert.equal(next.filter(w=>animalWords.includes(w.trim())).length,0,'The next round repeats the same words');
+   await page.locator('.word-hunt-back').click();
+   await page.locator('.bc12-nav [data-camp="collection"]').click();
+   const book=page.locator('#bc12-dialog[open].is-collection');
+   await book.waitFor();
+   assert.equal(await book.locator('.bc12-memory').count(),4,'Existing four subject keepsakes were changed');
+   assert.equal(await book.locator('.bc12-wordhunt-sticker').count(),5);
+   assert.equal(await book.locator('.bc12-wordhunt-sticker[data-word-theme="animals"]').getAttribute('data-owned'),'true');
+   assert.equal(await book.locator('.bc12-wordhunt-sticker[data-word-theme="mixed"]').getAttribute('data-owned'),'false');
+   await book.locator('.bc12-wordhunt-collection').scrollIntoViewIfNeeded();
+   await shot(page,label+'-themed-collection');
+   await book.locator('.bc12-close').click();
+   await open(page,url);
+   await page.locator('[data-word-level="hard"]').click();
+   assert.equal(await page.locator('.word-hunt-cell').count(),49);
+   const worldWords=await selectTopic(page,'world',label+'-hard');
+   assert.equal(worldWords.length,5);
+   assert.equal(await page.locator('.word-hunt-cell').count(),49);
+   await checkLayout(page,label+'-world-hard',viewport);
+   await shot(page,label+'-world-hard');
+   await page.reload({waitUntil:'domcontentloaded'});
+   await open(page,url);
+   const current=await page.locator('.word-hunt-current-theme').innerText();
+   assert.equal(current,'Verden rundt','selected topic not restored after reload');
+   const after=await page.evaluate(()=>JSON.parse(localStorage.getItem('laria-wordhunt-v1')));
+   assert.equal(after.rounds,1,'topic selection incorrectly increased completed rounds');
+   assert.equal(after.themeRounds.animals,1,'earned sticker disappeared');
+   assert.deepEqual(errors,[],label+' runtime errors');
+   console.log('PASS Ordjakt magical themes '+engine+' '+label);
+  }finally{await ctx.close();}
+ }finally{await browser.close();}
+}
+(async()=>{
+ const {server,url}=await serve();
+ try{
+  await verify('chromium',chromium,'mac',{width:1525,height:833},url);
+  await verify('webkit',webkit,'ipad',{width:820,height:1180},url);
+  await verify('webkit',webkit,'iphone',{width:390,height:844},url);
+ }finally{await new Promise(resolve=>server.close(resolve))}
+ console.log('PASS Læria illustrated Ordjakt themes, responsive play and stickers');
+})().catch(error=>{console.error(error);process.exitCode=1});
