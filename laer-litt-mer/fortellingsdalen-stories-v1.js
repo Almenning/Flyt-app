@@ -105,7 +105,7 @@
         [
           ['Hvorfor måtte Liv gå hjem?',['Hun var trøtt','Hun hadde glemt myntene','Brødet var kaldt'],1,'cause'],
           ['Hva ønsket Liv å kjøpe?',['Brød','En bok','En blomst'],0,'detail'],
-          ['Hva skjedde etter at hun hentet myntene?',['Hun sovnet','Hun mistet skoene','Hun kjøpte brød'],2,'sequence'],
+          ['Hvorfor måtte Liv hente myntene?',['For å kjøpe brød','For å finne sko','For å låne et kart'],0,'cause'],
           ['Hva betyr oppdaget her?',['Hun fant ut noe','Hun gjemte noe','Hun sang høyt'],0,'vocabulary']
         ]),
       story('molle-blomst','fortellermolla','Blomstene ved gjerdet',
