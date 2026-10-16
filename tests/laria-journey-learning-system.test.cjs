@@ -1,6 +1,6 @@
 'use strict';
 const test=require('node:test');
-const assert=require('node:assert/strict');
+const assert=require('node:assert/strict');\nconst fs=require('node:fs');\nconst path=require('node:path');
 const system=require('../laer-litt-mer/journey-learning-system-v1.js');
 
 test('Tallenga grade 2 has explicit learning contracts for every journey node',()=>{
@@ -70,4 +70,14 @@ test('decorateModel adds learning metadata without changing node ids or order',(
   assert.equal(decorated.nodes[1].learning.kind,'checkpoint');
   assert.equal(decorated.nodes[2].learning,undefined);
   assert.equal(model.nodes[0].learning,undefined,'source model must stay untouched');
+});
+
+
+test('the live app loads the systematic layer and uses its mission length',()=>{
+  const html=fs.readFileSync(path.join(__dirname,'../laer-litt-mer/index.html'),'utf8');
+  const learningScript=html.indexOf('journey-learning-system-v1.js?v=20261016-tallenga-system1');
+  const journeyRenderer=html.indexOf('journey-world-premium.js?v=20261011-personalfox2');
+  assert.ok(learningScript>0,'systematic learning script is not loaded');
+  assert.ok(journeyRenderer>learningScript,'systematic layer must install before journey presentation scripts');
+  assert.match(html,/LARIA_JOURNEY_LEARNING_SYSTEM\?\.questionCount\?\.\(node\)/);
 });
