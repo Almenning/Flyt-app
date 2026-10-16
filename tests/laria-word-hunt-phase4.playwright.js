@@ -56,6 +56,7 @@ async function geometry(page,label,viewport,firstFold){
   const cells=[...document.querySelectorAll('#word-hunt-overlay .word-hunt-cell')].map(el=>{const r=el.getBoundingClientRect();return {width:r.width,height:r.height}});
   const overlay=document.querySelector('.word-hunt-overlay'),shell=document.querySelector('.word-hunt-shell');
   return {width:innerWidth,height:innerHeight,scrollWidth:document.documentElement.scrollWidth,
+   top:rect('.word-hunt-top'),intro:rect('.word-hunt-intro'),levels:rect('.word-hunt-levels'),
    targets:rect('.word-hunt-targets'),board:rect('.word-hunt-board-card'),grid:rect('.word-hunt-board'),
    status:rect('.word-hunt-status'),newRound:rect('.word-hunt-new'),
    back:rect('.word-hunt-back'),cells,fox:rect('.word-hunt-fox'),
@@ -70,6 +71,13 @@ async function geometry(page,label,viewport,firstFold){
  if(firstFold){
   assert.ok(m.targets.top>=0&&m.targets.bottom<=m.height,label+' word list must be visible on first screen: '+JSON.stringify(m));
   assert.ok(m.board.top>=0&&m.board.bottom<=m.height,label+' letter board must be visible on first screen: '+JSON.stringify(m));
+  for(const [name,rect] of [['title',m.top],['instructions',m.intro],['levels',m.levels]]){
+   assert.ok(rect&&rect.top>=0&&rect.bottom<=m.height,label+' '+name+' is clipped on first screen: '+JSON.stringify(m));
+  }
+ }
+ if(viewport.width>=1401&&viewport.height>=700&&viewport.height<=1000){
+  assert.ok(m.board.width>=Math.min(590,viewport.height-230),label+' desktop puzzle shrank unnecessarily: '+JSON.stringify(m));
+  assert.ok(m.board.bottom<=m.height-6,label+' bottom row still clips on Mac first screen: '+JSON.stringify(m));
  }
  if(viewport.width<=700 && m.cells.length===36){
   assert.ok(m.cells.every(x=>x.width>=44&&x.height>=44),label+' easy cells under 44px: '+JSON.stringify(m));
@@ -153,7 +161,7 @@ async function testView(browser,engine,label,viewport,url){
   assert.equal(fox.src,fox.expected,label+' did not use child-selected persistent fox');
   await page.locator('.word-hunt-fox').evaluate(img=>img.decode());
   await shot(page,label+'-01-words-and-board');
-  await geometry(page,label,viewport,viewport.width<=700||viewport.height<=500||label.includes('ipad'));
+  await geometry(page,label,viewport,viewport.width<=700||viewport.height<=500||label.includes('ipad')||label.includes('mac'));
   const easyDirections=await directionProfile(page);
   assert.ok(easyDirections.horizontal&&easyDirections.vertical,label+' easy round lacks horizontal/vertical variety: '+JSON.stringify(easyDirections));
   const words=await page.locator('.word-hunt-word').allTextContents();
@@ -180,6 +188,7 @@ async function testView(browser,engine,label,viewport,url){
   await page.locator('.word-hunt-level[data-word-level="hard"]').click();
   assert.equal(await page.locator('.word-hunt-cell').count(),49,label+' harder puzzle not 7x7');
   assert.equal(await page.locator('.word-hunt-word').count(),5,label+' harder puzzle not 5 words');
+  if(viewport.width>=1401)await geometry(page,label+'-hard',viewport,true);
   const hardDirections=await directionProfile(page);
   assert.ok(hardDirections.horizontal&&hardDirections.vertical&&hardDirections.diagonal&&hardDirections.reverse,
    label+' harder round lacks straight/diagonal/reverse variety: '+JSON.stringify(hardDirections));
@@ -206,8 +215,8 @@ async function testView(browser,engine,label,viewport,url){
  const {srv,url}=await serve();
  try{
   for(const [engine,launcher,views] of [
-   ['chromium',chromium,[['iphone',{width:390,height:844}],['iphone-tiny',{width:320,height:568}],['ipad',{width:820,height:1180}]]],
-   ['webkit',webkit,[['iphone-safari',{width:390,height:844}],['iphone-tiny-safari',{width:320,height:568}],['iphone-landscape-safari',{width:844,height:390}],['ipad-safari',{width:820,height:1180}],['ipad-landscape-safari',{width:1180,height:820}]]]
+   ['chromium',chromium,[['iphone',{width:390,height:844}],['iphone-tiny',{width:320,height:568}],['ipad',{width:820,height:1180}],['mac',{width:1525,height:833}]]],
+   ['webkit',webkit,[['iphone-safari',{width:390,height:844}],['iphone-tiny-safari',{width:320,height:568}],['iphone-landscape-safari',{width:844,height:390}],['ipad-safari',{width:820,height:1180}],['ipad-landscape-safari',{width:1180,height:820}],['mac-safari',{width:1525,height:833}]]]
   ]){
    const browser=await launcher.launch({headless:true});
    try{for(const [label,viewport] of views)await testView(browser,engine,label,viewport,url)}
