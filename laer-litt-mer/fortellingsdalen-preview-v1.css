@@ -112,3 +112,23 @@
 @media (prefers-reduced-motion:reduce){
   #laria-fortellingsdalen-preview *{transition:none!important;animation:none!important}
 }
+
+/* The developer-only launcher sits outside the four approved paintings.
+ * Legacy practice modules are deliberately hidden in the premium map layout.
+ */
+body #subject-screen > .fd-dev-launch{
+  display:flex!important;position:fixed!important;right:calc(12px + env(safe-area-inset-right))!important;
+  bottom:calc(80px + env(safe-area-inset-bottom))!important;left:auto!important;top:auto!important;
+  z-index:9995!important;max-width:calc(100vw - 24px);width:min(310px,calc(100vw - 24px));
+  min-height:65px!important;padding:10px 13px!important;border:2px solid #e6bf8c!important;
+  border-radius:19px!important;background:linear-gradient(140deg,#fffaec,#f7e6c9)!important;
+  box-shadow:0 5px 0 #c8a880,0 10px 26px rgba(40,27,19,.2)!important;
+  color:#5c3f2a!important;
+}
+body #subject-screen > .fd-dev-launch .module-icon{font-size:22px;flex:0 0 30px}
+body #subject-screen > .fd-dev-launch strong{font-size:13px}
+body #subject-screen > .fd-dev-launch small{font-size:10px;line-height:1.25}
+body #subject-screen:not(.active) > .fd-dev-launch{display:none!important}
+@media(min-width:900px) and (orientation:landscape){
+  body #subject-screen > .fd-dev-launch{right:26px!important;bottom:23px!important}
+}
