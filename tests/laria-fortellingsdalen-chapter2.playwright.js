@@ -60,6 +60,38 @@ async function run(engine,label,viewport){
     await openPreview(page);
     assert.equal(await page.locator('.fd-place').count(),5);
     assert.match(await page.locator('#fd-title').innerText(),/Fortellingsdalen/);
+    const painted=page.locator('.fd-atlas-paint');
+    await painted.waitFor({state:'visible',timeout:14000});
+    await page.waitForFunction(()=>{
+      const img=document.querySelector('.fd-atlas-paint');
+      return img?.complete&&img.naturalWidth===941&&img.naturalHeight===1672;
+    },null,{timeout:14000});
+    const mapGeometry=await page.evaluate(()=>{
+      const atlas=document.querySelector('.fd-atlas'),bounds=atlas.getBoundingClientRect();
+      return {
+        paint:document.querySelector('.fd-atlas-paint')?.getAttribute('src'),
+        fox:atlas.querySelectorAll('.fd-map-fox img').length,
+        places:[...atlas.querySelectorAll('.fd-map-place')].map(el=>{
+          const b=el.getBoundingClientRect(),r=atlas.getBoundingClientRect();
+          return {id:el.dataset.fdStage,visible:getComputedStyle(el).display!=='none',
+            width:b.width,height:b.height,
+            inside:b.left>=r.left-3&&b.right<=r.right+3&&b.top>=r.top-3&&b.bottom<=r.bottom+3};
+        })
+      };
+    });
+    assert.ok(mapGeometry.paint.includes('fortellingsdalen-map-preview.svg'),label+' illustration missing');
+    assert.equal(mapGeometry.fox,1,label+' personal fox must be an image layer above atlas');
+    assert.equal(mapGeometry.places.length,5);
+    for(const place of mapGeometry.places){
+      assert.equal(place.visible,true,label+' hidden atlas stop '+place.id);
+      assert.equal(place.inside,true,label+' clipped atlas stop '+place.id);
+      assert.ok(place.height>=44,label+' undersized tap target '+place.id);
+    }
+    if(process.env.LARIA_CHAPTER2_SCREENSHOTS){
+      const dir=process.env.LARIA_CHAPTER2_SCREENSHOTS;
+      fs.mkdirSync(dir,{recursive:true});
+      await page.screenshot({path:require('node:path').join(dir,label+'-storybook-map.png'),fullPage:true,animations:'disabled'});
+    }
     assert.equal(await page.locator('.fd-fox img').count(),1);
     const rightAvatar=await page.evaluate(()=>avatarSrc('girl'));
     assert.ok((await page.locator('.fd-fox img').getAttribute('src')).includes(rightAvatar),
@@ -137,4 +169,6 @@ async function run(engine,label,viewport){
   await run(chromium,'chromium-iphone',{width:390,height:844});
   await run(webkit,'webkit-iphone',{width:390,height:844});
   await run(webkit,'webkit-ipad-landscape',{width:1180,height:820});
+  await run(chromium,'chromium-ipad-landscape',{width:1180,height:820});
+  await run(webkit,'webkit-iphone-small',{width:320,height:640});
 })().catch(err=>{console.error(err);process.exitCode=1});
