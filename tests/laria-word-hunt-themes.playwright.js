@@ -73,8 +73,11 @@ async function selectTopic(page,topic,label,fromEntry=false){
  assert.equal(await picker.locator('.wh-theme-fox').evaluate(img=>img.currentSrc===window.LARIA_FOX.source(window.LARIA_FOX.choice())),true,
   'chosen fox did not follow child to theme picker');
  await shot(page,label+'-choose-'+topic);
- await picker.locator('[data-word-theme="'+topic+'"]').click();
- assert.equal(await picker.locator('[data-word-theme="'+topic+'"]').getAttribute('aria-pressed'),'true');
+ const selectedCard=page.locator('.word-hunt-theme-picker [data-word-theme="'+topic+'"]');
+ await selectedCard.click();
+ // A first-entry card directly launches the game. The picker is therefore
+ // hidden when this assertion runs, but the button remains in the DOM.
+ assert.equal(await selectedCard.getAttribute('aria-pressed'),'true');
  if(!fromEntry)await picker.locator('.wh-theme-start').click();
  await picker.waitFor({state:'hidden'});
  assert.equal(await page.locator('.word-hunt-cell:visible').count(),topic==='mixed'?36:36);
