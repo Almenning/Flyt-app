@@ -552,3 +552,38 @@
 @media(prefers-reduced-motion:reduce){
   .word-hunt-overlay{background-attachment:scroll}
 }
+
+
+/* wordhunt-calm-scene-20261016 */
+/* Final visual tuning: keep the illustrated Bokskogen clearly visible, but calm
+   the high-frequency colour/contrast around the actual play area. No blur and
+   no geometry changes. The lower scene stays richer so the world still feels alive. */
+@media(max-width:700px) and (orientation:portrait){
+  .word-hunt-overlay{
+    background:
+      linear-gradient(180deg,
+        rgba(247,239,211,.10) 0%,
+        rgba(247,239,211,.07) 42%,
+        rgba(247,239,211,.025) 72%,
+        rgba(17,39,31,.09) 100%),
+      url('./bokskogen-verden.png') center top/cover scroll no-repeat;
+  }
+  .word-hunt-overlay::before{
+    background:
+      radial-gradient(ellipse at 50% 47%,
+        rgba(255,248,221,.14) 0%,
+        rgba(255,248,221,.11) 38%,
+        rgba(255,248,221,.05) 62%,
+        transparent 78%),
+      linear-gradient(180deg,
+        rgba(250,243,218,.10) 0%,
+        rgba(250,243,218,.08) 58%,
+        rgba(250,243,218,.025) 78%,
+        transparent 100%),
+      linear-gradient(90deg,
+        rgba(30,48,37,.035),
+        transparent 12%,
+        transparent 88%,
+        rgba(30,48,37,.035));
+  }
+}
