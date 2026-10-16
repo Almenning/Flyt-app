@@ -117,6 +117,7 @@
     const focus=ui.focus,root=ui.root;ui=null;
     root.remove();document.removeEventListener('keydown',onKey);
     if(focus?.isConnected)focus.focus({preventScroll:true});
+    window.LARIA_NORWEGIAN_CHAPTER_PICKER?.refresh?.();
   }
   function onKey(e){if(e.key==='Escape'){e.preventDefault();close()}}
   function onClick(event){
