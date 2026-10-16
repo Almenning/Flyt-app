@@ -1,7 +1,6 @@
 /* Læria: systematic journey learning layer.
- * Pilot: Tallenga, 2. trinn.
- * Macro progression is fixed by explicit learning contracts. Concrete questions
- * vary inside each contract, while recent exact questions are avoided.
+ * Chapter 1 contracts for the grade-2 journeys. Macro progression is explicit;
+ * concrete questions vary inside each learning goal, with recent repeats avoided.
  */
 (function(root,factory){
   const api=factory();
@@ -417,7 +416,7 @@
       return true;
     };
 
-    if(contract.kind!=='skill'&&contract.allowedSkills.length>1){
+    if(contract.allowedSkills.length>1){
       for(const skill of contract.allowedSkills){
         if(chosen.length>=count)break;
         take(q=>q.skill===skill);
