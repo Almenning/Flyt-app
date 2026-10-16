@@ -137,6 +137,8 @@ async function verify(engine,launcher,label,viewport,url){
   await page.route('https://api.worldbank.org/**',r=>r.abort());
   try{
    await open(page,url);
+   assert.equal(await page.locator('.word-hunt-theme-picker .wh-theme-start:visible').count(),0,
+     label+' must not advertise resuming a round that was never started');
    await shot(page,label+'-first-topic-gallery');
    const layout=await page.locator('.word-hunt-theme-picker').evaluate(el=>({
     width:innerWidth,scrollWidth:document.documentElement.scrollWidth,
@@ -197,8 +199,12 @@ async function verify(engine,launcher,label,viewport,url){
    await shot(page,label+'-themed-collection');
    await book.locator('.bc12-close').click();
    await open(page,url);
-   await page.locator('.word-hunt-theme-picker [data-word-theme="animals"]').click();
+   const resume=page.locator('.word-hunt-theme-picker .wh-theme-start:visible');
+   assert.match(await resume.innerText(),/Fortsett ordjakten i Dyrevenner/);
+   await resume.click();
    await page.locator('.word-hunt-cell:visible').first().waitFor();
+   assert.deepEqual(await page.locator('.word-hunt-word').allTextContents(),next,
+     'Resuming an unfinished puzzle must preserve its exact target words');
    await page.locator('[data-word-level="hard"]').click();
    assert.equal(await page.locator('.word-hunt-cell').count(),49);
    const worldWords=await selectTopic(page,'world',label+'-hard');
