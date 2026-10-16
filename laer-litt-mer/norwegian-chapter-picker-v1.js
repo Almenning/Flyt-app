@@ -84,7 +84,7 @@
     if(event.target===view.root)close();
   }
   function onKey(event){
-    if(!view)return;
+    if(!view||document.getElementById('laria-fortellingsdalen-preview'))return;
     if(event.key==='Escape'){event.preventDefault();event.stopPropagation();close();return}
     if(event.key!=='Tab')return;
     const focusables=[...view.root.querySelectorAll('button:not([disabled])')].filter(x=>x.getClientRects().length);
