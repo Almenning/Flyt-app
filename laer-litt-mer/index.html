@@ -2377,6 +2377,7 @@
   <link rel="stylesheet" href="./home-premium.css?v=20261007-perf2" />
   <link rel="stylesheet" href="./home-basecamp-v12.css?v=20261011-livefoxart2" />
   <link rel="stylesheet" href="./fortellingsdalen-preview-v1.css?v=20261016-c2pilot1" />
+  <link rel="stylesheet" href="./norwegian-chapter-picker-v1.css?v=20261016-c2chooser1" />
   <!-- Free play -->
   <link rel="stylesheet" href="./word-hunt.css?v=20261016-illustration-parity2" />
   <!-- Shared inner screens and task scene; young task styling intentionally extends the shared scene -->
@@ -4730,9 +4731,15 @@ function renderSubjectModules(){
   if(activeSubject==='norwegian'&&currentGrade()===2&&window.LARIA_CHAPTER_EXPANSION?.previewEnabled(location.search)){
     const preview=document.createElement('button');preview.type='button';preview.className='subject-module';
     preview.dataset.lariaChapter2Preview='1';preview.classList.add('fd-dev-launch');
-    preview.innerHTML='<div class="module-icon">✦</div><div><strong>Fortellingsdalen (testversjon)</strong><small>Kapittel 2 · Spillbar intern forhåndsvisning</small></div><div class="topic-arrow">›</div>';
-    preview.onclick=()=>window.LARIA_FORTELLINGSDALEN_PREVIEW?.open({
-      state,save:saveState,foxSrc:avatarSrc(state.profile?.avatar==='girl'?'girl':'boy')
+    preview.innerHTML='<div class="module-icon">✦</div><div><strong>Mine eventyr (testversjon)</strong><small>Norsk · Velg Bokskogen eller Fortellingsdalen</small></div><div class="topic-arrow">›</div>';
+    preview.onclick=()=>window.LARIA_NORWEGIAN_CHAPTER_PICKER?.open({
+      state,
+      firstProgress:()=>journeyProgress('norwegian',2),
+      foxSrc:avatarSrc(state.profile?.avatar==='girl'?'girl':'boy'),
+      onBokskogen:()=>document.getElementById('journey-map')?.scrollIntoView({block:'start',behavior:'instant'}),
+      onFortellingsdalen:()=>window.LARIA_FORTELLINGSDALEN_PREVIEW?.open({
+        state,save:saveState,foxSrc:avatarSrc(state.profile?.avatar==='girl'?'girl':'boy')
+      })
     });
     // The iPad landscape map can hide ALL legacy screen descendants.
     // Use a body portal, visible only while the approved Norwegian map is active.
@@ -6923,6 +6930,8 @@ if(needsProfileSetup||!state.profile.onboarded||!state.profile.grade){
 <script src="./fortellingsdalen-stories-v1.js?v=20261016-c2pilot1" defer></script>
 <script src="./chapter-expansion-v1.js?v=20261016-c2pilot1" defer></script>
 <script src="./fortellingsdalen-preview-v1.js?v=20261016-c2pilot1" defer></script>
+<script src="./norwegian-chapter-chooser-v1.js?v=20261016-c2chooser1" defer></script>
+<script src="./norwegian-chapter-picker-v1.js?v=20261016-c2chooser1" defer></script>
 <script src="./geography-journey-learning-system-v1.js?v=20261016-nordlysleiren-system1" defer></script>
 <script src="./journey-world-premium.js?v=20261016-chapter1-completion1" defer></script>
 <script src="./locked-journey-contract.js?v=20261016-tallenga-places1" defer></script>
