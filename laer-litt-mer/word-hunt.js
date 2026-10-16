@@ -2,7 +2,7 @@
 const THEMES=window.LARIA_WORD_HUNT_THEMES;
 const LETTERS='ABCDEFGHIJKLMNOPQRSTUVWXYZÆØÅ';
 const KEY='laria-wordhunt-v1';
-let ui={level:'easy',theme:'mixed',themeChoice:'mixed',size:6,grid:[],words:[],recentWords:[],found:new Map(),drag:null,tapStart:null,completed:false,magicTimer:null,pickerFocus:null};
+let ui={level:'easy',theme:'mixed',themeChoice:'mixed',size:6,grid:[],words:[],recentWords:[],found:new Map(),drag:null,tapStart:null,completed:false,magicSeen:false,magicTimer:null,pickerFocus:null};
 function stats(){try{return THEMES.normalizeProgress(JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(_){return THEMES.normalizeProgress(null)}}
 function saveTheme(){const s=stats();s.theme=ui.theme;localStorage.setItem(KEY,JSON.stringify(s))}
 function saveRound(){const s=stats();s.rounds+=1;s.theme=ui.theme;s.themeRounds[ui.theme]+=1;localStorage.setItem(KEY,JSON.stringify(s))}
@@ -12,17 +12,22 @@ function directionPlan(){
   // A round should feel intentionally composed, not like four words happened
   // to fall into the same direction. Easy mixes horizontal and vertical.
   // Hard adds both diagonal and reverse-reading placements every round.
-  return shuffle(ui.level==='easy'
-    ?[[0,1],[1,0],[0,1],[1,0]]
-    :[[0,1],[1,0],[1,1],[0,-1],[-1,-1]]);
+  return ui.level==='easy' ? shuffle([[0,1],[1,0],[0,1],[1,0]]) :
+    [...shuffle([[0,1],[1,0]]),...shuffle([[1,1],[0,-1],[-1,-1]])];
 }
 function makeRound(){
   ui.size=ui.level==='easy'?6:7;
-  ui.found=new Map();ui.completed=false;ui.tapStart=null;ui.drag=null;hideMagic();
+  ui.found=new Map();ui.completed=false;ui.tapStart=null;ui.drag=null;ui.magicSeen=false;hideMagic();
   const pool=shuffle(THEMES.get(ui.theme)[ui.level]).filter(w=>w.length<=ui.size);
   const count=ui.level==='easy'?4:5;
   const recent=new Set(ui.recentWords||[]);
-  const requested=[...pool.filter(w=>!recent.has(w)),...pool.filter(w=>recent.has(w))].slice(0,count);
+  const fresh=[...pool.filter(w=>!recent.has(w)),...pool.filter(w=>recent.has(w))];
+  // Long words use straight paths; shorter ones preserve room for diagonal
+  // and backward discoveries on the 7×7 board.
+  const requested=ui.level==='easy'?fresh.slice(0,count):[
+    ...fresh.filter(w=>w.length>=6).slice(0,2),
+    ...fresh.filter(w=>w.length<=5).slice(0,3)
+  ];
   const dirs=dirSet();
   let board=null;
   // Rebuild the entire round, never silently drop a word when random placement fails.
@@ -118,7 +123,7 @@ function hideMagic(){
   if(magic)magic.hidden=true;
 }
 function showMagic(word){
-  const scene=THEMES.reaction(word);
+  const scene=THEMES.reaction(word,ui.theme);
   if(!scene)return;
   const magic=overlay().querySelector('.word-hunt-magic');
   if(!magic)return;
@@ -223,7 +228,9 @@ function checkLine(path){
   const raw=wordFor(path),rev=[...raw].reverse().join('');let hit=null;
   for(const w of ui.words)if(!ui.found.has(w)&&(w===raw||w===rev)){hit=w;break}
   if(!hit){preview([],false);status('Ikke et av ordene denne gangen. Prøv en annen retning.');return}
-  ui.found.set(hit,path);preview([],false);showMagic(hit);
+  ui.found.set(hit,path);preview([],false);
+  if(!ui.magicSeen||THEMES.reaction(hit))showMagic(hit);
+  ui.magicSeen=true;
   try{navigator.vibrate?.(22)}catch(_){}
   try{typeof playSuccessTone==='function'&&playSuccessTone()}catch(_){}
   if(ui.found.size===ui.words.length){
