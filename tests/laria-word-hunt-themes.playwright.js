@@ -45,6 +45,17 @@ async function selectTopic(page,topic,label){
  await picker.locator('.wh-theme-card img').first().evaluate(img=>img.decode());
  const valid=await picker.locator('.wh-theme-card img').evaluateAll(imgs=>imgs.every(img=>img.src.includes('/word-hunt-theme-')&&img.getAttribute('alt')===''));
  assert.ok(valid,label+' broken illustrated topic assets');
+ const art=await picker.locator('.wh-theme-card img').evaluateAll(async imgs=>{
+  await Promise.all(imgs.map(img=>img.decode()));
+  return imgs.map(img=>({width:img.naturalWidth,height:img.naturalHeight,
+   bg:getComputedStyle(img).backgroundImage,complete:img.complete}));
+ });
+ for(const piece of art){
+  assert.ok(piece.complete&&piece.width===360&&piece.height===250,label+' failed to load premium topic illustration: '+JSON.stringify(piece));
+  assert.ok(piece.bg.includes('bokskogen-verden.png'),label+' missing approved Bokskogen scene: '+JSON.stringify(piece));
+ }
+ assert.equal(await picker.locator('.wh-theme-fox').evaluate(img=>img.currentSrc===window.LARIA_FOX.source(window.LARIA_FOX.choice())),true,
+  'chosen fox did not follow child to theme picker');
  await shot(page,label+'-choose-'+topic);
  await picker.locator('[data-word-theme="'+topic+'"]').click();
  assert.equal(await picker.locator('[data-word-theme="'+topic+'"]').getAttribute('aria-pressed'),'true');
