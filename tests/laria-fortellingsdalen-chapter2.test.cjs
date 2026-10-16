@@ -249,7 +249,8 @@ test('the same portrait artwork drives chapter card, story map and overlays',()=
   assert.match(html,/fortellingsdalen-art-contract-v1\.js/);
   assert.match(story,/art\.ASSET\.src/);
   assert.match(story,/art\.markerStyle\(stage\.id\)/);
-  assert.match(story,/art\.foxStyle\(progress\.recommended\)/);
+  assert.match(story,/art\.foxStyle\(foxStage\(progress\)\)/);
+  assert.match(story,/progress\.complete\?'stjernetoppen':progress\.recommended/);
   assert.match(pickerSource,/art:art\.ASSET\.src/);
   assert.doesNotMatch(story,/const PLACES=Object\.freeze/);
   assert.doesNotMatch(story,/const FOX_FOOT=Object\.freeze/);
