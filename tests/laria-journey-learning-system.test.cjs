@@ -1,6 +1,8 @@
 'use strict';
 const test=require('node:test');
-const assert=require('node:assert/strict');\nconst fs=require('node:fs');\nconst path=require('node:path');
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
 const system=require('../laer-litt-mer/journey-learning-system-v1.js');
 
 test('Tallenga grade 2 has explicit learning contracts for every journey node',()=>{
