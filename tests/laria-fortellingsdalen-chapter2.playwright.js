@@ -90,7 +90,9 @@ async function run(engine,label,viewport){
     if(process.env.LARIA_CHAPTER2_SCREENSHOTS){
       const dir=process.env.LARIA_CHAPTER2_SCREENSHOTS;
       fs.mkdirSync(dir,{recursive:true});
-      await page.screenshot({path:require('node:path').join(dir,label+'-storybook-map.png'),fullPage:true,animations:'disabled'});
+      await page.screenshot({path:require('node:path').join(dir,label+'-storybook-map.png'),fullPage:false,animations:'disabled'});
+      await page.locator('[data-fd-stage="brevhytta"]').scrollIntoViewIfNeeded();
+      await page.screenshot({path:require('node:path').join(dir,label+'-first-stop.png'),fullPage:false,animations:'disabled'});
     }
     assert.equal(await page.locator('.fd-fox img').count(),1);
     const rightAvatar=await page.evaluate(()=>avatarSrc('girl'));
@@ -151,7 +153,7 @@ async function run(engine,label,viewport){
     const path=process.env.LARIA_CHAPTER2_SCREENSHOTS;
     if(path){
       fs.mkdirSync(path,{recursive:true});
-      await page.screenshot({path:require('node:path').join(path,label+'-chapter-complete.png'),fullPage:true,animations:'disabled'});
+      await page.screenshot({path:require('node:path').join(path,label+'-chapter-complete.png'),fullPage:false,animations:'disabled'});
     }
     assert.deepEqual(errors,[],label+' javascript errors');
     await page.locator('[data-fd-action="close"]').click();
