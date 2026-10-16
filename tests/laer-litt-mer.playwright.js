@@ -815,7 +815,7 @@ async function finishSession(page){
       sessionScope={type:'journey',subject:'math',journeyGrade:2,journeyNode:lastCp.id,journeyArea:lastArea.id,journeyType:'checkpoint',practiceOnly:false};
       const finalResult={correct:5,learningCorrect:5,total:5};
       recordJourneySessionResult(finalResult);
-      const final={complete:journeyProgress('math',2).complete,gradeCompleted:finalResult.gradeCompleted||null,gradeWin:state.journey.gradeWins['math:2']||null};
+      const final={complete:journeyProgress('math',2).complete,gradeCompleted:finalResult.gradeCompleted||null,adventureCompleted:finalResult.adventureCompleted||null,gradeWin:state.journey.gradeWins['math:2']||null};
       renderSubjectJourney();
       final.visiblePrizes=document.querySelectorAll('#journey-map .locked-journey-hotspot.state-complete').length;
       final.replayable=document.querySelectorAll('#journey-map .locked-journey-hotspot.state-complete').length;
@@ -825,9 +825,10 @@ async function finishSession(page){
     });
     assert.equal(journeyRewardCheck.first.areaComplete,true);
     assert.ok(journeyRewardCheck.first.reward&&journeyRewardCheck.first.reward.label,'world trophy should award a collectible');
-    assert.equal(journeyRewardCheck.final.complete,true,'final trophy should round the grade');
-    assert.equal(journeyRewardCheck.final.gradeCompleted.grade,2);
-    assert.ok(journeyRewardCheck.final.gradeWin,'grade completion should be persisted');
+    assert.equal(journeyRewardCheck.final.complete,true,'final trophy should complete the first adventure');
+    assert.equal(journeyRewardCheck.final.gradeCompleted.grade,2,'legacy gradeCompleted metadata should stay compatible');
+    assert.equal(journeyRewardCheck.final.adventureCompleted.name,'Tallenga');
+    assert.ok(journeyRewardCheck.final.gradeWin,'legacy grade completion key should stay persisted');
     assert.ok(journeyRewardCheck.final.visiblePrizes>=1,'finished worlds should show trophies in the landscape');
     assert.ok(journeyRewardCheck.final.replayable>=1,'finished places should remain interactive');
 
@@ -1621,7 +1622,8 @@ async function finishSession(page){
     assert.equal(rounded.complete,true);
     await page.locator('#progress-screen.active').waitFor();
     assert.equal((await page.locator('#grade-round-score').textContent()).trim(),'4/4');
-    assert.match(await page.locator('#grade-round-title').textContent(),/rundet/i);
+    assert.match(await page.locator('#grade-round-title').textContent(),/Fire eventyr fullført/i);
+    assert.doesNotMatch(await page.locator('#grade-round-card').innerText(),/2\. klasse|Klassetrinnene dine/i);
 
     assert.deepEqual(errors,[]);
     console.log('laer-litt-mer browser QA passed');
