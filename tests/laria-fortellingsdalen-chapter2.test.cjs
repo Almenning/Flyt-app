@@ -5,6 +5,7 @@ const fs=require('node:fs');
 const path=require('node:path');
 const stories=require('../laer-litt-mer/fortellingsdalen-stories-v1.js');
 const chapters=require('../laer-litt-mer/chapter-expansion-v1.js');
+const picker=require('../laer-litt-mer/norwegian-chapter-chooser-v1.js');
 const makeState=()=>({
   profile:{grade:2,avatar:'girl'},
   journey:{nodes:{'norwegian:2:lyder':{attempts:4,passed:true}},gradeWins:{'norwegian:2':{at:99}},viewGrades:{norwegian:2}},
@@ -169,7 +170,50 @@ test('live integration keeps chapter two behind the explicit developer preview',
   assert.match(html,/fortellingsdalen-stories-v1\.js/);
   assert.match(html,/chapter-expansion-v1\.js/);
   assert.match(html,/fortellingsdalen-preview-v1\.js/);
+  assert.match(html,/norwegian-chapter-chooser-v1\.js/);
+  assert.match(html,/norwegian-chapter-picker-v1\.js/);
+  assert.match(html,/norwegian-chapter-picker-v1\.css/);
+  assert.match(html,/window\.LARIA_NORWEGIAN_CHAPTER_PICKER\?\.open/);
   assert.match(html,/document\.body\.appendChild\(preview\)/,
     'developer pilot must live outside landscape-screen clipping');
   assert.equal(html.includes('data-laria-chapter2-preview="visible"'),false);
+});
+
+
+test('Norsk chooser has exactly two chapters and never changes existing progress',()=>{
+  const state=makeState(),before=structuredClone(state);
+  const view=picker.model(state,{done:3,total:11,complete:false},true);
+  assert.deepEqual(view.chapters.map(x=>x.id),['bokskogen-1','fortellingsdalen-2']);
+  assert.equal(view.chapters[0].available,true);
+  assert.equal(view.chapters[0].complete,true,'legacy grade win still signifies the original journey');
+  assert.equal(view.chapters[1].available,true,'past winners may explore chapter two');
+  assert.equal(view.chapters[1].complete,false);
+  assert.equal(view.chapters[1].total,5);
+  assert.deepEqual(state,before,'opening the chapter chooser is read only');
+});
+test('new child sees Bokskogen first while the next story stays gated',()=>{
+  const state={journey:{nodes:{},gradeWins:{},viewGrades:{}}},snapshot=structuredClone(state);
+  const view=picker.model(state,{done:2,total:11,complete:false},true);
+  assert.equal(view.chapters[0].done,2);
+  assert.equal(view.chapters[0].total,11);
+  assert.equal(view.chapters[0].available,true);
+  assert.equal(view.chapters[1].locked,true);
+  assert.equal(view.chapters[1].available,false);
+  assert.equal(picker.model(state,{done:11,total:11,complete:true},true).chapters[1].available,true);
+  assert.equal(picker.model(state,{done:11,total:11,complete:true},false).chapters[1].available,false,
+    'never publicly expose draft chapter from a completed first chapter');
+  assert.deepEqual(state,snapshot);
+});
+test('choosing another chapter never converts both chapters into a finished school grade',()=>{
+  const state=makeState();
+  const before=structuredClone(state.journey.gradeWins);
+  const progress=chapters.progress(state);
+  assert.equal(progress.complete,false);
+  for(const stage of chapters.STAGES)finishCorrect(state,stage.id);
+  const first=picker.model(state,{done:11,total:11,complete:true},true);
+  assert.equal(first.chapters.length,2);
+  assert.equal(first.completed,2);
+  assert.equal(first.chapters[1].complete,true);
+  assert.deepEqual(state.journey.gradeWins,before);
+  assert.equal(state.gradeCompleted,undefined);
 });
