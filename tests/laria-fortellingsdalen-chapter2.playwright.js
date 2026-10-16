@@ -117,6 +117,10 @@ async function run(engine,label,viewport){
     assert.ok(mapGeometry.paint.includes('fortellingsdalen-map-candidate-v2.svg'),label+' illustration missing');
     assert.equal(mapGeometry.fox,1,label+' personal fox must be an image layer above atlas');
     assert.equal(mapGeometry.places.length,5);
+    if(viewport.width===820&&viewport.height===1180){
+      const size=await page.locator('.fd-atlas').evaluate(el=>el.getBoundingClientRect().width);
+      assert.ok(size>=580,label+' portrait iPad atlas should use meaningful screen width');
+    }
     for(const place of mapGeometry.places){
       assert.equal(place.visible,true,label+' hidden atlas stop '+place.id);
       assert.equal(place.inside,true,label+' clipped atlas stop '+place.id);
@@ -234,6 +238,7 @@ async function run(engine,label,viewport){
   await run(chromium,'chromium-iphone',{width:390,height:844});
   await run(webkit,'webkit-iphone',{width:390,height:844});
   await run(webkit,'webkit-ipad-landscape',{width:1180,height:820});
+  await run(webkit,'webkit-ipad-portrait',{width:820,height:1180});
   await run(chromium,'chromium-ipad-landscape',{width:1180,height:820});
   await run(webkit,'webkit-iphone-small',{width:320,height:640});
 })().catch(err=>{console.error(err);process.exitCode=1});
