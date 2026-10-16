@@ -4618,7 +4618,9 @@ function subjectLongTermMasteredSkills(subject,grade=currentGrade()){
 
 
 function journeyChapterMeta(subject,grade=currentGrade()){
-  const meta=window.LARIA_JOURNEY_LEARNING_SYSTEM?.chapterFor?.(subject,grade);
+  const meta=subject==='geography'
+    ?window.LARIA_GEOGRAPHY_JOURNEY_SYSTEM?.chapterFor?.(grade)
+    :window.LARIA_JOURNEY_LEARNING_SYSTEM?.chapterFor?.(subject,grade);
   const fallback={
     norwegian:'Bokskogen',
     math:'Tallenga',
