@@ -304,18 +304,19 @@
       '<button type="button" class="mission-primary mission-lab" data-locked-existing="fraction-lab">'+
         '<span><strong>Utforsk Brøklaben</strong><small>Fri lek uten krav til progresjon</small></span>'+
         '<b aria-hidden="true">➜</b></button>':'';
+    const chapterOne=Number(stage.progress.model.grade)===2;
     const fallbackPrimary=(!lead&&!next&&!hasLab)?
       '<button type="button" class="mission-primary mission-map" data-locked-map>'+
         '<span><strong>Tilbake til kartet</strong><small>'+
-        esc(stage.progress.complete?'Du kan utforske hele reisen igjen.':
+        esc(stage.progress.complete?(chapterOne?'Du kan utforske første eventyr igjen.':'Du kan utforske hele reisen igjen.'):
           'Se hvor eventyret fortsetter.')+
         '</small></span><b aria-hidden="true">➜</b></button>':'';
-    const intro=stage.progress.complete&&finished?'Hele reisen er fullført!':
+    const intro=stage.progress.complete&&finished?(chapterOne?'Første eventyr er fullført!':'Hele reisen er fullført!'):
       finished?'Du klarte oppdraget!':
       lead?'Reven er klar. Er du?':
       place.total===0?'Et nytt sted å utforske.':
       'Dette stedet venter på deg.';
-    const support=stage.progress.complete&&finished?'Alle hovedoppdrag er gjennomført. Du kan alltid spille igjen.':
+    const support=stage.progress.complete&&finished?(chapterOne?'Alle hovedoppdrag i første eventyr er gjennomført. Du kan alltid spille igjen.':'Alle hovedoppdrag er gjennomført. Du kan alltid spille igjen.'):
       finished?(next?'Neste stopp venter på deg. Du kan også spille dette om igjen.':
         'Du kan utforske kartet eller spille favorittene dine igjen.'):
       lead?'Velg det du har lyst til å gjøre.':
