@@ -826,6 +826,7 @@ async function finishSession(page){
     assert.equal(journeyRewardCheck.first.areaComplete,true);
     assert.ok(journeyRewardCheck.first.reward&&journeyRewardCheck.first.reward.label,'world trophy should award a collectible');
     assert.equal(journeyRewardCheck.final.complete,true,'final trophy should round the grade');
+    assert.ok(journeyRewardCheck.final.gradeCompleted,'legacy completion event is required for old clients');
     assert.equal(journeyRewardCheck.final.gradeCompleted.grade,2);
     assert.ok(journeyRewardCheck.final.gradeWin,'grade completion should be persisted');
     assert.ok(journeyRewardCheck.final.visiblePrizes>=1,'finished worlds should show trophies in the landscape');
