@@ -42,7 +42,7 @@
     const n=pending?pending.number:session.index+1;
     const options=q.options.map((answer,i)=>{
       const chosen=pending?.selected===answer,correct=pending?.answer===answer;
-      return '<button type="button" class="fd-option'+(pending&&(correct?' fd-option-correct':chosen?' fd-option-incorrect':''))+
+      return '<button type="button" class="fd-option'+(pending?(correct?' fd-option-correct':chosen?' fd-option-incorrect':''):'')+
         '" data-fd-action="answer" data-fd-index="'+i+'"'+(pending?' disabled':'')+'><span class="fd-option-letter">'+String.fromCharCode(65+i)+'</span>'+
         '<span>'+esc(answer)+'</span></button>';
     }).join('');
