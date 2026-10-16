@@ -81,7 +81,7 @@ async function run(engine,label,viewport){
     await page.locator('.bc14-subject[data-camp="subject-norwegian"]').waitFor({timeout:22000});
     await openPreview(page);
     assert.equal(await page.locator('.fd-letter h2').innerText(),firstStory,label+' story draft was lost on reload');
-    assert.match(await page.locator('.fd-story-banner').innerText(),/HISTORIE 2 AV 4/);
+    assert.match(await page.locator('.fd-story-banner').innerText(),/SPOR 2 AV 4/);
 
     // Finish the interrupted story, then all remaining places.
     for(let i=1;i<4;i++){
