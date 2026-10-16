@@ -80,7 +80,8 @@ async function selectTopic(page,topic,label,fromEntry=false){
  assert.equal(await selectedCard.getAttribute('aria-pressed'),'true');
  if(!fromEntry)await picker.locator('.wh-theme-start').click();
  await picker.waitFor({state:'hidden'});
- assert.equal(await page.locator('.word-hunt-cell:visible').count(),topic==='mixed'?36:36);
+ const isHard=await page.locator('.word-hunt-level.active').getAttribute('data-word-level')==='hard';
+ assert.equal(await page.locator('.word-hunt-cell:visible').count(),isHard?49:36);
  assert.equal(await page.locator('#word-hunt-overlay').evaluate(el=>el.classList.contains('is-theme-entry')),false);
  const progress=await page.evaluate(()=>JSON.parse(localStorage.getItem('laria-wordhunt-v1')));
  assert.equal(progress.theme,topic,'selected theme was not persisted');
