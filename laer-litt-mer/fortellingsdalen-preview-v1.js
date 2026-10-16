@@ -55,7 +55,7 @@
       '</div></div></div>');
   }
   function renderStory(){
-    const session=core.resume(ui.state);
+    const session=core.resume(ui.state)||ui.pending?.session;
     if(!session){ui.mode='intro';return renderIntro()}
     const q=ui.pending?.question||session.story.questions[session.index];
     const pending=ui.pending;
@@ -68,18 +68,19 @@
     }).join('');
     return shell('<article class="fd-story-layout">'+
       '<div class="fd-story-top"><button type="button" class="fd-quiet-back" data-fd-action="intro">← Alle stedene</button><span>'+esc(session.stage.title)+'</span></div>'+
-      '<div class="fd-story-companion" aria-label="Reven din er med på historien">'+fox()+
+      '<div class="fd-story-companion" data-fd-story-place="'+esc(session.stage.id)+'" style="--fd-scene-x:'+art.stop(session.stage.id).marker.x+'%;--fd-scene-y:'+art.stop(session.stage.id).marker.y+'%;" aria-label="Reven din er med på historien">'+
+      '<img class="fd-story-art" src="'+esc(art.ASSET.src)+'" alt="" draggable="false" loading="eager" aria-hidden="true">'+fox()+
       '<div><span class="fd-eyebrow">REVENS FORTELLERKROK</span><p>'+(pending?(pending.correct?
         'Et spor funnet! Klar for neste?':'Prøv gjerne en ny historie senere. Vi utforsker videre.'):
         'Les historien i ditt tempo. Jeg kan lese den høyt for deg.')+'</p></div></div>'+
-      '<div class="fd-story-banner"><span>SPOR '+n+' AV '+session.total+'</span><div class="fd-story-bar"><span style="width:'+mark(n-1,session.total)+'%"></span></div></div>'+
+      '<div class="fd-story-banner"><span>SPOR '+n+' AV '+session.total+'</span><div class="fd-story-bar"><span style="width:'+mark(pending?n:n-1,session.total)+'%"></span></div></div>'+
       '<div class="fd-letter"><div class="fd-letter-decoration">✦</div><h2>'+esc(session.story.title)+'</h2><p>'+esc(session.story.passage)+'</p>'+
       '<button type="button" class="fd-read" data-fd-action="read" aria-label="Les opp historien og spørsmålet">◖)) Les opp</button></div>'+
-      '<div class="fd-question"><span class="fd-eyebrow">FINN SPORET</span><h3 class="fd-question-prompt">'+esc(q.prompt)+'</h3>'+
+      '<div class="fd-question"><span class="fd-eyebrow">FINN SPORET</span><h3 class="fd-question-prompt" tabindex="-1">'+esc(q.prompt)+'</h3>'+
       '<div class="fd-options">'+options+'</div></div>'+
       (pending?'<div class="fd-feedback" role="status"><strong>'+(pending.correct?'★ Du fant riktig spor!':'Det var ikke helt riktig denne gangen.')+
         '</strong><span>Svaret er: '+esc(pending.answer)+'</span></div>'+
-        '<button class="fd-primary fd-next" type="button" data-fd-action="next">Neste spørsmål →</button>':'')+
+        '<button class="fd-primary fd-next" type="button" data-fd-action="next">'+(pending.finished?'Se hvordan det gikk →':'Neste spørsmål →')+'</button>':'')+
       '</article>');
   }
   function renderResult(){
@@ -87,7 +88,7 @@
     if(!r){ui.mode='intro';return renderIntro()}
     const title=r.chapterCompleted?'Hele Fortellingsdalen er utforsket!':r.passed?'Du fant veien videre!':'Du har oppdaget nye spor!';
     return shell('<div class="fd-result"><div class="fd-celebrate">✦</div><span class="fd-eyebrow">HISTORIEN ER FERDIG</span>'+
-      '<h1>'+title+'</h1><p>Du svarte riktig på '+r.correct+' av '+r.total+' spørsmål. '+(r.passed?
+      '<h1 tabindex="-1">'+title+'</h1><p>Du svarte riktig på '+r.correct+' av '+r.total+' spørsmål. '+(r.passed?
         'Dette stedet er nå med i eventyrboken din.':'Historien kan prøves igjen når du har lyst.')+'</p>'+
       '<div class="fd-result-fox">'+fox()+'</div>'+
       '<button class="fd-primary" data-fd-action="intro" type="button">Til stedene i dalen →</button>'+
@@ -106,9 +107,10 @@
   }
   function speak(){
     if(!ui||!('speechSynthesis' in window)||!('SpeechSynthesisUtterance' in window))return;
-    const s=core.resume(ui.state);if(!s)return;
+    const s=core.resume(ui.state)||ui.pending?.session;if(!s)return;
     window.speechSynthesis.cancel();
-    const u=new SpeechSynthesisUtterance(s.story.passage+' '+s.story.questions[s.index].prompt);
+    const spokenQuestion=ui.pending?.question||s.story.questions[s.index];
+    const u=new SpeechSynthesisUtterance(s.story.passage+' '+spokenQuestion.prompt);
     u.lang='nb-NO';u.rate=0.86;window.speechSynthesis.speak(u);
   }
   function close(){
@@ -128,16 +130,28 @@
     if(action==='intro'){ui.pending=null;ui.lastResult=null;ui.mode='intro';save();render();return}
     if(action==='resume'){ui.pending=null;ui.mode='story';render();return}
     if(action==='stage'||action==='replay'){start(b.dataset.fdStage);return}
-    if(action==='next'){ui.pending=null;ui.mode='story';render();return}
+    if(action==='next'){
+      const completed=!!ui.pending?.finished,outcome=ui.pending?.outcome||null;
+      ui.pending=null;
+      if(completed){ui.lastResult=outcome;ui.mode='result'}else ui.mode='story';
+      render();
+      const destination=ui.root.querySelector(completed?'.fd-result h1':'.fd-question-prompt');
+      destination?.focus({preventScroll:true});
+      destination?.scrollIntoView({block:'nearest',behavior:'instant'});
+      return;
+    }
     if(action==='answer'&&ui.mode==='story'&&!ui.pending){
       const s=core.resume(ui.state);if(!s)return;
       const question=s.story.questions[s.index];
       const response=core.answer(ui.state,Number(b.dataset.fdIndex));
       save();
-      if(response.finished){ui.lastResult=response.outcome;ui.mode='result';render();return}
       ui.pending={question,number:s.index+1,correct:response.correct,
-        answer:response.answer,selected:response.selected};
+        answer:response.answer,selected:response.selected,session:s,
+        finished:response.finished,outcome:response.outcome};
       render();
+      const next=ui.root.querySelector('.fd-next');
+      next?.scrollIntoView({block:'nearest',behavior:'instant'});
+      next?.focus({preventScroll:true});
     }
   }
   function open(options={}){
