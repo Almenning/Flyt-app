@@ -91,7 +91,7 @@ test('decorateModel adds learning metadata without changing node ids or order',(
 
 test('the live app loads the systematic layer and uses its mission length',()=>{
   const html=fs.readFileSync(path.join(__dirname,'../laer-litt-mer/index.html'),'utf8');
-  const learningScript=html.indexOf('journey-learning-system-v1.js?v=20261016-language-system1');
+  const learningScript=html.indexOf('journey-learning-system-v1.js?v=20261016-nordlys-system1');
   const journeyRenderer=html.indexOf('journey-world-premium.js?v=20261011-personalfox2');
   assert.ok(learningScript>0,'systematic learning script is not loaded');
   assert.ok(journeyRenderer>learningScript,'systematic layer must install before journey presentation scripts');
@@ -172,4 +172,75 @@ test('language selector keeps Ordlandsbyen inside words and spelling',()=>{
   assert.ok(questions.every(q=>['words','spelling'].includes(q.skill)));
   assert.deepEqual(new Set(questions.map(q=>q.skill)),new Set(['words','spelling']));
   assert.ok(questions.every(q=>q.learning.objectiveId==='english-g2-first-words'));
+});
+
+
+test('Nordlysleiren grade 2 keeps legacy ids but replaces trivial continent drill with capitals',()=>{
+  const chapter=system.chapterFor('geography',2);
+  assert.equal(chapter.id,'nordlysleiren-1');
+  assert.deepEqual(chapter.places.map(p=>p.title),
+    ['Basecamp','Kartkroken','Utforskertårnet','Naturstien','Observatoriet']);
+  assert.equal(system.contractFor('geography',2,'norden-flag').placeIndex,0);
+  assert.equal(system.contractFor('geography',2,'norden-capital').placeIndex,1);
+  assert.equal(system.contractFor('geography',2,'naboer-flag').placeIndex,2);
+  const legacy=system.contractFor('geography',2,'naboer-continent');
+  assert.equal(legacy.placeIndex,3);
+  assert.equal(legacy.geoType,'capital');
+  assert.equal(legacy.title,'Hovedsteder');
+  assert.deepEqual(legacy.allowedGeoTypes,['capital']);
+  assert.equal(system.contractFor('geography',2,'naboer-map').placeIndex,4);
+});
+
+test('decorateGeoModel preserves geography node ids and replaces only grade-2 neighbour type semantics',()=>{
+  const nordenNodes=[
+    {id:'norden-flag',type:'geo-skill',geoType:'flag',title:'Flagg',subject:'geography',grade:2,areaId:'norden',areaTypes:['flag','capital','map']},
+    {id:'norden-capital',type:'geo-skill',geoType:'capital',title:'Hovedsteder',subject:'geography',grade:2,areaId:'norden',areaTypes:['flag','capital','map']},
+    {id:'norden-map',type:'geo-skill',geoType:'map',title:'Finn på kartet',subject:'geography',grade:2,areaId:'norden',areaTypes:['flag','capital','map']},
+    {id:'norden-checkpoint',type:'checkpoint',title:'Trofé',subject:'geography',grade:2,areaId:'norden',areaTypes:['flag','capital','map']}
+  ];
+  const neighbourNodes=[
+    {id:'naboer-flag',type:'geo-skill',geoType:'flag',title:'Flagg',subject:'geography',grade:2,areaId:'naboer',areaTypes:['flag','continent','map']},
+    {id:'naboer-continent',type:'geo-skill',geoType:'continent',title:'Verdensdeler',subject:'geography',grade:2,areaId:'naboer',areaTypes:['flag','continent','map']},
+    {id:'naboer-map',type:'geo-skill',geoType:'map',title:'Finn på kartet',subject:'geography',grade:2,areaId:'naboer',areaTypes:['flag','continent','map']},
+    {id:'naboer-checkpoint',type:'checkpoint',title:'Trofé',subject:'geography',grade:2,areaId:'naboer',areaTypes:['flag','continent','map']}
+  ];
+  const model={
+    subject:'geography',grade:2,
+    areas:[
+      {id:'norden',types:['flag','capital','map'],nodes:nordenNodes},
+      {id:'naboer',types:['flag','continent','map'],nodes:neighbourNodes}
+    ],
+    nodes:[...nordenNodes,...neighbourNodes]
+  };
+  const decorated=system.decorateGeoModel(model);
+  assert.deepEqual(decorated.nodes.map(n=>n.id),model.nodes.map(n=>n.id));
+  const node=decorated.nodes.find(n=>n.id==='naboer-continent');
+  assert.equal(node.geoType,'capital');
+  assert.equal(node.title,'Hovedsteder');
+  assert.equal(node.learning.objectiveId,'geography-g2-near-europe-capitals');
+  const area=decorated.areas.find(a=>a.id==='naboer');
+  assert.deepEqual(area.types,['flag','capital','map']);
+  assert.ok(area.nodes.every(n=>n.areaTypes.includes('capital')&&!n.areaTypes.includes('continent')));
+  assert.equal(model.nodes.find(n=>n.id==='naboer-continent').geoType,'continent','source model must remain untouched');
+  assert.equal(model.areas[1].types[1],'continent','source area types must remain untouched');
+});
+
+test('geography question filter prevents skill leakage and annotates the objective',()=>{
+  const flagNode={subject:'geography',grade:2,id:'norden-flag'};
+  const filtered=system.filterGeoQuestions(flagNode,[
+    {k:'no',type:'flag',prompt:'flag'},
+    {k:'se',type:'flag',prompt:'flag'},
+    {k:'dk',type:'capital',prompt:'capital'}
+  ]);
+  assert.deepEqual(filtered.map(q=>q.type),['flag','flag']);
+  assert.ok(filtered.every(q=>q.learning.objectiveId==='geography-g2-nordic-flags'));
+
+  const legacyNode={subject:'geography',grade:2,id:'naboer-continent'};
+  const capitals=system.filterGeoQuestions(legacyNode,[
+    {k:'gb',type:'capital',prompt:'capital'},
+    {k:'de',type:'continent',prompt:'continent'},
+    {k:'fr',type:'map',prompt:'map'}
+  ]);
+  assert.deepEqual(capitals.map(q=>q.type),['capital']);
+  assert.equal(capitals[0].learning.objectiveId,'geography-g2-near-europe-capitals');
 });
