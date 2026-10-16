@@ -25,10 +25,10 @@ async function openChooser(page){
   assert.match(await page.locator('[data-fd-chapter-card="bokskogen-1"] img').getAttribute('src'),
     /bokskogen-locked-20261010\.png/);
   assert.match(await page.locator('[data-fd-chapter-card="fortellingsdalen-2"] img').getAttribute('src'),
-    /fortellingsdalen-map-candidate-v2\.svg/);
+    /fortellingsdalen-map-premium-v3\.png/);
   await page.waitForFunction(()=>{
     const images=[...document.querySelectorAll('#laria-norwegian-chapter-picker .fd-chapter-image')];
-    return images.length===2&&images.every(img=>img.complete&&img.naturalWidth===941&&img.naturalHeight===1672);
+    return images.length===2&&images.every(img=>img.complete&&img.naturalWidth===768&&img.naturalHeight===1376);
   },null,{timeout:16000});
   const chooserFits=await page.locator('#laria-norwegian-chapter-picker').evaluate(
     el=>el.scrollWidth<=el.clientWidth+2
@@ -107,7 +107,7 @@ async function run(engine,label,viewport){
     await painted.waitFor({state:'visible',timeout:14000});
     await page.waitForFunction(()=>{
       const img=document.querySelector('.fd-atlas-paint');
-      return img?.complete&&img.naturalWidth===941&&img.naturalHeight===1672;
+      return img?.complete&&img.naturalWidth===768&&img.naturalHeight===1376;
     },null,{timeout:14000});
     const mapGeometry=await page.evaluate(()=>{
       const atlas=document.querySelector('.fd-atlas'),bounds=atlas.getBoundingClientRect();
@@ -123,7 +123,7 @@ async function run(engine,label,viewport){
         })
       };
     });
-    assert.ok(mapGeometry.paint.includes('fortellingsdalen-map-candidate-v2.svg'),label+' illustration missing');
+    assert.ok(mapGeometry.paint.includes('fortellingsdalen-map-premium-v3.png'),label+' illustration missing');
     assert.equal(mapGeometry.fox,1,label+' personal fox must be an image layer above atlas');
     assert.equal(mapGeometry.places.length,5);
     if(viewport.width===820&&viewport.height===1180){
@@ -165,13 +165,13 @@ async function run(engine,label,viewport){
       label+' story fox must match the chosen avatar');
     const stagePainting=page.locator('.fd-story-companion .fd-story-art');
     assert.equal(await stagePainting.count(),1,label+' every story must have its local painted landmark');
-    assert.match(await stagePainting.getAttribute('src'),/fortellingsdalen-map-candidate-v2\.svg/);
+    assert.match(await stagePainting.getAttribute('src'),/fortellingsdalen-map-premium-v3\.png/);
     assert.equal(await page.locator('[data-fd-story-place]').getAttribute('data-fd-story-place'),'brevhytta');
     assert.match(await page.locator('.fd-read').getAttribute('aria-label'),/svaralternativene/,
       label+' optional read-aloud must include the answer choices');
     await page.waitForFunction(()=>{
       const img=document.querySelector('.fd-story-art');
-      return img?.complete&&img.naturalWidth===941;
+      return img?.complete&&img.naturalWidth===768;
     },null,{timeout:12000});
     if(process.env.LARIA_CHAPTER2_SCREENSHOTS){
       const dir=process.env.LARIA_CHAPTER2_SCREENSHOTS;
@@ -222,7 +222,7 @@ async function run(engine,label,viewport){
       y:el.style.getPropertyValue('--fd-fox-y'),
       scale:el.style.getPropertyValue('--fd-fox-scale')
     }));
-    assert.deepEqual(foxCoords,{x:'43%',y:'78%',scale:'0.84'},label+' fox perspective anchor changed unexpectedly');
+    assert.deepEqual(foxCoords,{x:'45%',y:'86%',scale:'0.84'},label+' fox perspective anchor changed unexpectedly');
 
     for(const stage of ['eventyrbrua','sporstien','fortellermolla','stjernetoppen'])await solveStory(page,stage);
     assert.equal(await page.locator('[data-fd-fox-stage]').getAttribute('data-fd-fox-stage'),'stjernetoppen',
