@@ -355,7 +355,7 @@
 
   function identity(q){
     if(!q)return '';
-    return [q.subject||'',q.skill||'',q.type||'',String(q.prompt||''),String(q.answer??''),String(q.visual||'')].join('|');
+    return [q.subject||'',q.skill||'',q.type||'',String(q.prompt||''),String(q.answer??''),String(q.passage||''),String(q.visual||'')].join('|');
   }
   function bankDifficulty(q){
     if(q?.type==='build-word')return 1;
