@@ -70,6 +70,7 @@ async function drawPose(page,pose){
      ecosystems:Number(canvas.dataset.discoveryEcosystems||0),
      relief:Number(canvas.dataset.discoveryRelief||0),
      texture:Number(canvas.dataset.discoveryTexture||0),
+     terrainField:Number(canvas.dataset.discoveryTerrainField||0),
      selected:globeSelected,
      dimensions:[canvas._cssW,canvas._cssH],
      zoom:globeZoom
@@ -242,6 +243,7 @@ async function runDevice(engine,label,viewport,urls){
        assert.equal(result.moving,'false',label+' stale interaction suppressed detail');
        assert.ok(result.illustrations>0,label+' painted zero geographically anchored illustrations for '+pose.name);
        assert.ok(result.ecosystems>=2,label+' missing georeferenced contiguous biome regions: '+pose.name);
+       assert.equal(result.terrainField,1,label+' missing coordinate-anchored continuous landscape shading: '+pose.name);
        assert.ok(result.relief>=1,label+' missing geographic mountain corridors: '+pose.name);
        if(pose.level!=='1')assert.ok(result.texture>=1,label+' missing zoom-responsive terrain texture: '+pose.name);
        assert.equal(result.selected,pose.country,label+' selection was lost at '+pose.name);
