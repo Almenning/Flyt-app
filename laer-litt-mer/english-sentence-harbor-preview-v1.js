@@ -96,12 +96,17 @@
      fox()+'<button type="button" class="sh-next" data-sh-act="intro">Se alle stedene →</button>'+
      '<button type="button" class="sh-quiet" data-sh-act="replay" data-sh-stage="'+esc(r.stageId)+'">Leke mer her</button></section>');
  }
- function render(focus='.sh-heading',preserveScroll=false){
-   const previousScroll=preserveScroll?ui.root.scrollTop:0;
+ function render(focus='.sh-heading',preserveScroll=false,revealFeedback=false){
    if(!ui)return;
+   const previousScroll=preserveScroll?ui.root.scrollTop:0;
    ui.root.innerHTML=ui.mode==='play'?play():ui.mode==='result'?result():intro();
    ui.root.scrollTop=previousScroll;
-   ui.root.querySelector(focus)?.focus({preventScroll:true});
+   const target=ui.root.querySelector(focus);
+   if(target){
+     target.focus({preventScroll:true});
+     // Reveal the response on small phones instead of leaving it below the fold.
+     if(revealFeedback)target.scrollIntoView({behavior:'auto',block:'center',inline:'nearest'});
+   }
  }
  function save(){try{ui?.save?.()}catch(_){/* keep preview playable */}}
  function start(stage){core.start(ui.state,stage);ui.mode='play';ui.result=null;ui.hintShown=false;save();render()}
@@ -140,7 +145,7 @@
    if(cmd==='hint'){ui.hintShown=!ui.hintShown;render('[data-sh-act="hint"]',true);return}
    if(cmd==='answer'){
      const s=core.resume(ui.state);if(!s)return;
-     core.choose(ui.state,s.task.options[Number(b.dataset.shIndex)]);save();render('.sh-feedback',true);return;
+     core.choose(ui.state,s.task.options[Number(b.dataset.shIndex)]);save();render('.sh-feedback',true,true);return;
    }
    if(cmd==='tile'){
      const index=Number(b.dataset.shIndex);
