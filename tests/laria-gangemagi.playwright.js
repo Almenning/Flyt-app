@@ -33,6 +33,10 @@ async function check(engine,label,viewport,url){
   });
   console.log('GANGEMAGI_FIRSTFOLD '+label+' '+JSON.stringify(first));
   assert.ok(first.scrollWidth<=first.screen+4,label+' horizontal overflow '+JSON.stringify(first));
+  if(viewport.width>=700&&viewport.height>=viewport.width){
+    const worldWidth=await page.locator('.gm-world').evaluate(el=>el.getBoundingClientRect().width);
+    assert.ok(worldWidth>=700,label+' iPad portrait should use the full-width Tallenga scene '+worldWidth);
+  }
   assert.ok(first.crate.top>=0&&first.crate.bottom<=first.height,label+' interactive crates not in the first viewport '+JSON.stringify(first));
   assert.ok(first.math.top<first.height,label+' mathematical feedback invisible '+JSON.stringify(first));
   assert.ok(first.read.height>=44,label+' read aloud target too small');
@@ -91,7 +95,7 @@ async function check(engine,label,viewport,url){
  try{
   for(const [type,browserType,devices] of [
    ['chrome',chromium,[['iphone390',{width:390,height:844}],['ipad-landscape',{width:1180,height:820}]]],
-   ['webkit',webkit,[['iphone-small',{width:320,height:568}],['iphone390',{width:390,height:844}],['ipad-landscape',{width:1180,height:820}]]]
+   ['webkit',webkit,[['iphone-small',{width:320,height:568}],['iphone390',{width:390,height:844}],['ipad-portrait',{width:820,height:1180}],['ipad-landscape',{width:1180,height:820}]]]
   ]){
    const browser=await browserType.launch({headless:true});
    try{for(const [device,viewport] of devices)await check(browser,type+'-'+device,viewport,url);}finally{await browser.close();}
