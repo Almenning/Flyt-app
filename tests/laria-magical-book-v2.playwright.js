@@ -37,6 +37,15 @@ async function run(browserType,label,viewport){
   await page.locator('.bc12-nav [data-camp="collection"]').click();
   const d=page.locator('#bc12-dialog[open].is-collection.lmc-expanded');await d.waitFor();
   assert.equal(await d.locator('.lmc-shell[data-lmc-version="2"]').count(),1);
+  if(viewport.width<=620){
+   const tabs=await d.locator('.lmc-tabs [data-book-page]').evaluateAll(nodes=>
+     nodes.map(el=>({title:el.textContent.trim(),left:el.getBoundingClientRect().left,
+       right:el.getBoundingClientRect().right,width:el.getBoundingClientRect().width,
+       height:el.getBoundingClientRect().height})));
+   assert.equal(tabs.length,4,label+' all four chapters must remain visible');
+   assert.ok(tabs.every(t=>t.left>=-2&&t.right<=innerWidth+2&&t.width>=120&&t.height>=44),
+     label+' every collection chapter must be discoverable and touchable '+JSON.stringify(tabs));
+  }
   assert.equal(await d.locator('.bc12-memory').count(),4);
   assert.equal(await d.locator('.bc12-memory-symbol svg').count(),4);
   assert.equal(await d.locator('.bc12-memory-intro b').innerText(),'1 av 4 minner funnet');

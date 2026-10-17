@@ -293,9 +293,12 @@
  #bc12-dialog .lmc-cover-counter strong{font-size:16px}
  #bc12-dialog .lmc-cover-counter small{font-size:9px;margin-top:2px}
  #bc12-dialog .lmc-cover-counter>span{font-size:24px;left:-8px;top:-11px}
- #bc12-dialog .lmc-tabs{justify-content:flex-start;gap:7px;margin:10px auto 12px;
-   padding:0 4px 3px;max-width:100%;overscroll-behavior-x:contain}
- #bc12-dialog .lmc-tabs button{min-height:44px;padding:6px 12px;font-size:11px;gap:5px}
+ /* All four chapters stay visible, even on narrow iPhone screens. */
+ #bc12-dialog .lmc-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+   justify-content:stretch;gap:7px;margin:10px auto 12px;padding:0 4px 3px;
+   max-width:100%;overflow:visible}
+ #bc12-dialog .lmc-tabs button{width:100%;min-width:0;min-height:44px;padding:6px 5px;
+   font-size:11px;gap:5px;white-space:normal;text-align:center}
  #bc12-dialog .lmc-tabs button>span{font-size:14px}
  #bc12-dialog .lmc-content{padding:0 1px;min-height:0}
  #bc12-dialog .lmc-spread{grid-template-columns:1fr;border-radius:16px;border-width:2px;
