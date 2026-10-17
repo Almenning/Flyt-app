@@ -11,26 +11,33 @@
  const shell=body=>'<div class="sh-shell"><header class="sh-top"><button type="button" data-sh-act="close" class="sh-quiet">← Tilbake</button><span class="sh-tag">INTERN TEST · ENGELSK KAPITTEL 2</span></header><main class="sh-main">'+body+'</main></div>';
  function intro(){
    const p=core.progress(ui.state),session=core.resume(ui.state);
+   const positions={hilsenkaia:[27,24],ordbrygga:[75,38],
+     setningsverkstedet:[28,55],samtalebaten:[74,71],historiefyret:[45,87]};
    const stops=core.STAGES.map((stop,i)=>{
-     const status=p.places.find(x=>x.id===stop.id);
-     return '<button class="sh-stop" type="button" data-sh-act="stage" data-sh-stage="'+esc(stop.id)+'"'+
-       ' aria-label="'+esc(stop.title)+' '+(status.visited?'utforsket, spill igjen':'klart for lek')+'">'+
-       '<span class="sh-stop-icon">'+(status.visited?'✓':esc(stop.symbol))+'</span>'+
-       '<span><strong>'+(i+1)+'. '+esc(stop.title)+'</strong><small>'+esc(stop.focus)+'</small></span>'+
-       '<span class="sh-arrow">›</span></button>';
+     const status=p.places.find(x=>x.id===stop.id),point=positions[stop.id];
+     if(!point)throw Error('Setningshavna missing a storybook stop '+stop.id);
+     return '<button class="sh-stop sh-map-stop" type="button" style="--sh-x:'+point[0]+'%;--sh-y:'+point[1]+'%"'+
+       ' data-sh-act="stage" data-sh-stage="'+esc(stop.id)+'"'+
+       ' aria-label="'+esc(stop.title)+'. '+esc(stop.focus)+(status.visited?'. Utforsket, spill igjen':'. Utforsk nå')+'">'+
+       '<span class="sh-stop-icon" aria-hidden="true">'+(status.visited?'✓':String(i+1))+'</span>'+
+       '<span class="sh-map-stop-name">'+esc(stop.title)+'</span></button>';
    }).join('');
-   return shell('<section class="sh-intro"><div class="sh-intro-heading">'+
-     '<div><span class="sh-eyebrow">NY ENGELSK REISE</span><h1 class="sh-heading" tabindex="-1">Setningshavna</h1>'+
-     '<p>Si hei. Finn ord. Bygg en setning selv. Reis med ordene i ditt eget tempo!</p></div>'+fox()+'</div>'+
-     '<div class="sh-harbor" aria-hidden="true"><div class="sh-sky-sun"></div><div class="sh-hill sh-hill-left"></div>'+
-     '<div class="sh-hill sh-hill-right"></div><div class="sh-water"></div><div class="sh-boat"><span class="sh-sail"></span></div>'+
-     '<span class="sh-star sh-star-a">✦</span><span class="sh-star sh-star-b">✦</span></div>'+
+   return shell('<section class="sh-intro">'+
+     '<div class="sh-intro-heading"><div><span class="sh-eyebrow">ENGELSK · KAPITTEL 2</span>'+
+     '<h1 class="sh-heading" tabindex="-1">Setningshavna</h1>'+
+     '<p>Hils på venner, finn ord og bygg egne setninger på en spennende havnereise.</p></div></div>'+
+     '<div class="sh-story-layout"><div class="sh-story-map" role="group" aria-label="Illustrert havnekart med fem eventyrsteder">'+
+     '<img class="sh-map-art" src="./english-sentence-harbor-storymap-v1.svg" draggable="false" loading="eager" alt="">'+
+     '<div class="sh-stops">'+stops+'</div></div>'+
+     '<aside class="sh-story-rail"><div class="sh-story-fox">'+fox()+'<p>Velkommen til havna! Hvor vil du seile i dag?</p></div>'+
      '<div class="sh-progress" role="status"><strong>'+p.done+' av 5 steder utforsket</strong>'+
-     '<small>Spill favorittene igjen så mange ganger du ønsker.</small>'+
+     '<small>Velg fritt, og kom tilbake til et sted du liker.</small>'+
      '<div class="sh-progress-bar"><span style="width:'+p.done*20+'%"></span></div></div>'+
      (session?'<button type="button" class="sh-continue" data-sh-act="resume">Fortsett i '+esc(session.stage.title)+' →</button>':'')+
-     '<div class="sh-stops">'+stops+'</div>'+
-     '<p class="sh-note">Internt, kunstnerisk utkast. De originale fire reisekartene er ikke endret.</p></section>');
+     '<div class="sh-story-guide"><strong>Ord blir små eventyr</strong>'+
+     '<p>Lytt, prat, les og sett sammen setninger. Reisen er din.</p></div>'+
+     '<p class="sh-note">Originalt illustrert havnekart. Intern kandidat, ikke premiumgodkjent eller publisert.</p>'+
+     '</aside></div></section>');
  }
  function sentenceUI(session){
    const task=session.task,selected=session.selected;

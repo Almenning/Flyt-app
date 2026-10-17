@@ -50,6 +50,29 @@ async function verify(type,label,viewport){
    assert.equal(await page.locator('[data-laria-english-chapter2-preview]').count(),0,'unflagged content must be hidden');
    await page.goto(base+'&english-chapter2-preview=1',{waitUntil:'domcontentloaded'});
    await enter(page);
+   const map=page.locator('.sh-story-map');
+   await map.waitFor({state:'visible'});
+   const layout=await map.evaluate(el=>{
+     const region=el.getBoundingClientRect(),img=el.querySelector('.sh-map-art');
+     const stops=[...el.querySelectorAll('.sh-map-stop')].map(b=>{
+       const r=b.getBoundingClientRect();return {x:r.x,y:r.y,right:r.right,bottom:r.bottom,width:r.width,height:r.height};
+     });
+     return {artLoaded:img.complete&&img.naturalWidth===800&&img.naturalHeight===1000,
+       region:{x:region.x,y:region.y,right:region.right,bottom:region.bottom},
+       stops};
+   });
+   assert.equal(layout.artLoaded,true,label+' original illustrated English harbor not loaded');
+   assert.equal(layout.stops.length,5,label+' must show five stops painted onto the harbor');
+   for(const [i,s] of layout.stops.entries()){
+     assert.ok(s.height>=44,label+' stage '+i+' needs a child-sized touch target');
+     assert.ok(s.x>=layout.region.x-2&&s.right<=layout.region.right+2&&s.y>=layout.region.y-2&&s.bottom<=layout.region.bottom+2,
+       label+' stage '+i+' is clipped outside harbor art');
+     for(let j=0;j<i;j++){
+       const b=layout.stops[j],overlap=Math.min(s.right,b.right)-Math.max(s.x,b.x)>5&&
+         Math.min(s.bottom,b.bottom)-Math.max(s.y,b.y)>5;
+       assert.equal(overlap,false,label+' overlapping harbor stages '+j+' and '+i);
+     }
+   }
    const viewportResult=await page.locator('#laria-english-sentence-harbor-preview').evaluate(el=>({scrollWidth:el.scrollWidth,width:el.clientWidth}));
    assert.ok(viewportResult.scrollWidth<=viewportResult.width+2,label+' overflow in port');
    await photo(page,label+'-harbor');
