@@ -154,18 +154,20 @@
       '<div class="lmc-mission-grid lmc-mission-grid-right">'+cards.slice(4).join('')+'</div>'+ 
       '<p class="lmc-note">Trykk på et eventyr for å gå direkte til kurvene. Du mister aldri blomstene dine.</p></section></div>';
   }
-  function placeSpread(data,scene){
+  function placeSpread(data,scene,selectedSlot){
     const items=data.treasures.filter(x=>x.owned);
     const selected=items.map(x=>x.id);
     return '<div class="lmc-spread" data-book-spread="place">'+
       '<section class="lmc-page lmc-page-left"><header class="lmc-page-head"><span class="lmc-page-ornament">⌂</span><div><small>MITT EGET STED</small><h3>Mitt eventyrsted</h3></div></header>'+ 
       '<p class="lmc-page-lead">Bygg din egen lille skattehylle av ting du allerede har oppdaget.</p>'+ 
-      '<div class="lmc-place-scene" aria-label="Skattehyllen din med tre plasser">'+
+      '<div class="lmc-place-scene" role="group" aria-label="Ditt personlige eventyrsted med tre plasser">'+
        '<div class="lmc-place-sky" aria-hidden="true"></div><div class="lmc-place-hill" aria-hidden="true"></div>'+ 
-       '<div class="lmc-place-arch" aria-hidden="true">✧</div>'+ 
+       '<div class="lmc-place-arch" aria-hidden="true">✧</div>'+
+       '<span class="lmc-place-sign" aria-hidden="true">✦ DITT LILLE EVENTYRSTED ✦</span>'+
+       '<div class="lmc-place-fox" aria-hidden="true">'+data.foxMarkup+'</div>'+ 
        '<div class="lmc-display-shelf">'+scene.spots.map((id,i)=>{
          const item=items.find(x=>x.id===id);
-         return '<button type="button" class="lmc-display-slot" data-lmc-slot="'+i+'" aria-pressed="'+(i===0)+'" aria-label="Plass '+(i+1)+': '+escapeHtml(item?item.title:'Tom plass')+'">'+
+         return '<button type="button" class="lmc-display-slot" data-lmc-slot="'+i+'" aria-pressed="'+(i===selectedSlot)+'" aria-label="Plass '+(i+1)+': '+escapeHtml(item?item.title:'Tom plass')+'">'+
            '<span aria-hidden="true">'+(item?iconForRealm(item.realm):'✧')+'</span><small>'+(item?escapeHtml(item.title):'Tom plass')+'</small></button>';
        }).join('')+'</div></div></section>'+ 
       '<section class="lmc-page lmc-page-right"><header class="lmc-page-head"><span class="lmc-page-ornament">❧</span><div><small>DU BESTEMMER</small><h3>Hva vil du stille ut?</h3></div></header>'+ 
@@ -174,10 +176,10 @@
        (items.length?'':'<p class="lmc-note">Besøk et sted i Læria først, så får du en skatt å stille ut.</p>')+
        '<button type="button" class="lmc-small-reset" data-lmc-action="clear-scene">Rydd hyllen</button></section></div>';
   }
-  function spread(page,data,scene){
+  function spread(page,data,scene,selectedSlot){
     if(page==='words')return wordsSpread(data);
     if(page==='berries')return berriesSpread(data);
-    if(page==='place')return placeSpread(data,scene);
+    if(page==='place')return placeSpread(data,scene,selectedSlot);
     return treasuresSpread(data);
   }
   function makeShell(data){
@@ -190,7 +192,7 @@
         '<p>Dette er historien om alt du har oppdaget. Jeg blir med deg!</p></div>'+ 
         '<div class="lmc-cover-counter"><span aria-hidden="true">✦</span><strong>'+found+' / '+data.treasures.length+'</strong><small>fagminner</small></div></header>'+ 
       '<nav class="lmc-tabs" aria-label="Bla i samleboken">'+PAGES.map((p,i)=>'<button type="button" data-book-page="'+p.id+'" '+(i===0?'aria-current="page"':'')+'><span aria-hidden="true">'+p.icon+'</span>'+p.label+'</button>').join('')+'</nav>'+ 
-      '<div class="lmc-content" aria-live="off"></div>'+ 
+      '<div class="lmc-content" aria-live="off"></div><p class="lmc-live-status" role="status" aria-live="polite" aria-atomic="true"></p>'+ 
       '<footer class="lmc-footer"><span class="lmc-footer-copy">✦ Oppdagelser du gjør, blir med videre</span><div class="lmc-page-arrows"><button type="button" data-lmc-action="previous">‹ Forrige</button><span class="lmc-page-number">1 av '+PAGES.length+'</span><button type="button" data-lmc-action="next">Neste ›</button></div><button type="button" data-wardrobe-open>Min rev ›</button></footer>'+ 
       '</div>';
   }
@@ -201,8 +203,8 @@
     const wrapper=host.querySelector('.lmc-shell');
     if(!wrapper)return;
     const content=wrapper.querySelector('.lmc-content');
-    function render(){
-      content.innerHTML=spread(page,data,scene);
+    function render(focusSelector){
+      content.innerHTML=spread(page,data,scene,chosenSlot);
       wrapper.querySelectorAll('[data-book-page]').forEach(el=>{
         if(el.dataset.bookPage===page)el.setAttribute('aria-current','page');
         else el.removeAttribute('aria-current');
@@ -211,6 +213,11 @@
       wrapper.querySelector('[data-lmc-action="previous"]').disabled=page===PAGES[0].id;
       wrapper.querySelector('[data-lmc-action="next"]').disabled=page===PAGES[PAGES.length-1].id;
       wrapper.querySelectorAll('[data-lmc-slot]').forEach(el=>el.setAttribute('aria-pressed',String(Number(el.dataset.lmcSlot)===chosenSlot)));
+      if(focusSelector)wrapper.querySelector(focusSelector)?.focus({preventScroll:true});
+    }
+    function announce(message){
+      const live=wrapper.querySelector('.lmc-live-status');
+      if(live)live.textContent=message;
     }
     wrapper.addEventListener('click',event=>{
       const el=event.target.closest('button');
@@ -231,13 +238,27 @@
         if(Number.isInteger(index)&&data.missions.some(x=>x.index===index))actions.openMission?.(index);
         return;
       }
-      if(el.dataset.lmcSlot!=null){chosenSlot=Number(el.dataset.lmcSlot);render();return;}
+      if(el.dataset.lmcSlot!=null){
+        chosenSlot=Number(el.dataset.lmcSlot);
+        render('[data-lmc-slot="'+chosenSlot+'"]');
+        announce('Plass '+(chosenSlot+1)+' er valgt. Velg et minne.');
+        return;
+      }
       if(el.dataset.lmcPlaceId){
-        scene=placeItem(scene,chosenSlot,el.dataset.lmcPlaceId,data.treasures);
-        savePlace(scene);render();return;
+        const item=data.treasures.find(x=>x.id===el.dataset.lmcPlaceId&&x.owned);
+        if(!item)return;
+        scene=placeItem(scene,chosenSlot,item.id,data.treasures);
+        savePlace(scene);
+        render('[data-lmc-slot="'+chosenSlot+'"]');
+        announce(item.title+' er plassert på plass '+(chosenSlot+1)+'.');
+        return;
       }
       if(el.dataset.lmcAction==='clear-scene'){
-        scene=normalizePlace(null,data.treasures);savePlace(scene);render();return;
+        scene=normalizePlace(null,data.treasures);
+        savePlace(scene);
+        render('.lmc-small-reset');
+        announce('Skattehyllen er ryddet. Alle skattene er fortsatt dine.');
+        return;
       }
     });
     render();

@@ -67,9 +67,23 @@ async function run(browserType,label,viewport){
   await capture(page,label+'-03-market-blossoms');
   await d.locator('.lmc-tabs [data-book-page="place"]').click();
   assert.equal(await d.locator('.lmc-display-slot').count(),3);
+  assert.equal(await d.locator('.lmc-place-fox svg[data-avatar="girl"]').count(),1,
+    label+' the child’s selected fox must be inside the adventure place');
+  const placeBackground=await d.locator('.lmc-place-scene').evaluate(el=>getComputedStyle(el).backgroundImage);
+  assert.match(placeBackground,/basecamp-v11\.webp/,label+' no flat generic gradient');
+  assert.equal((await page.request.get(new URL('./basecamp-v11.webp',url).href)).status(),200,
+    label+' the existing illustrated Læria scenery must load');
+  const plinthDimensions=await d.locator('.lmc-display-slot').evaluateAll(nodes=>
+    nodes.map(el=>({width:el.getBoundingClientRect().width,height:el.getBoundingClientRect().height})));
+  assert.ok(plinthDimensions.every(p=>p.width>=44&&p.height>=44),
+    label+' treasure display targets must be touch-friendly '+JSON.stringify(plinthDimensions));
   await d.locator('[data-lmc-slot="1"]').click();
   await d.locator('[data-lmc-place-id="tallkrystall"]').click();
   assert.match(await d.locator('[data-lmc-slot="1"]').getAttribute('aria-label'),/Tallkrystall/);
+  assert.equal(await d.locator('[data-lmc-slot="1"]').evaluate(el=>document.activeElement===el),true,
+    label+' focus must return to the newly decorated display slot');
+  assert.match(await d.locator('.lmc-live-status').innerText(),/Tallkrystall er plassert/,
+    label+' placement must have spoken confirmation');
   await capture(page,label+'-04-my-story-place');
   await d.locator('.bc12-close').click();
   await page.locator('.bc12-nav [data-camp="collection"]').click();
