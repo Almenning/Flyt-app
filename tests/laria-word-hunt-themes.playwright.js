@@ -172,6 +172,8 @@ async function verify(engine,launcher,label,viewport,url){
       label+' mobile topics still hidden in a horizontal carousel');
    }
    const animalWords=await selectTopic(page,'animals',label,true);
+   assert.equal(await page.locator('.word-hunt-targets-heading h2').innerText(),'Finn disse');
+   assert.equal(await page.locator('.word-hunt-targets-count').innerText(),'0 av 4');
    assert.equal(await page.locator('.word-hunt-status').isVisible(),false,
      label+' redundant idle guide card is still covering the fox');
    // Ordjakt uses the chosen girl's original in-world fox, never a generated lookalike.
@@ -246,8 +248,13 @@ async function verify(engine,launcher,label,viewport,url){
     await tapWord(page,animalWords[i]);
     if(i===0){
      assert.equal(await page.locator('.word-hunt-magic:not([hidden])').count(),1,'No calm discovery in animal round');
-     assert.equal(await page.locator('.word-hunt-status').isVisible(),true,
-       label+' word-found feedback was hidden with the idle status');
+     assert.match(await fox.locator('.word-hunt-companion-speech').innerText(),
+
+      /fant |var riktig|Vi fant /i,label+' the personal fox did not celebrate a found word');
+
+     assert.equal(await page.locator('.word-hunt-targets-count').innerText(),'1 av 4',
+
+      label+' main mission card did not record the discovery');
     }
     assert.equal(await page.locator('.word-hunt-word.found').count(),i+1);
    }

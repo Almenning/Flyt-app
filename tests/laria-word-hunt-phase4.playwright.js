@@ -199,12 +199,55 @@ async function testView(browser,engine,label,viewport,url){
   }
   const easyDirections=await directionProfile(page);
   assert.ok(easyDirections.horizontal&&easyDirections.vertical,label+' easy round lacks horizontal/vertical variety: '+JSON.stringify(easyDirections));
+  // The fox is the live response channel, not a static illustration plus
+  // a detached warning card. A partial prefix counts as friendly near-miss.
+  const firstWord=(await page.locator('.word-hunt-word').first().innerText()).trim();
+  const {start:begin,end}=await pathFor(page,firstWord);
+  const second=[begin[0]+Math.sign(end[0]-begin[0]),begin[1]+Math.sign(end[1]-begin[1])];
+  for(const [r,c] of [begin,second])
+    await page.locator('.word-hunt-cell[data-r="'+r+'"][data-c="'+c+'"]').tap();
+  assert.match(await page.locator('.word-hunt-companion-speech').innerText(),
+    /God start|på sporet/i,label+' fox did not react to a near-miss');
+  assert.equal(await page.locator('.word-hunt-targets-count').innerText(),'0 av 4',
+    label+' incomplete attempt changed the mission count');
+  // A second tap on the same letter is invalid but must not penalize the child.
+  await page.waitForTimeout(950);
+  for(let i=0;i<2;i++)
+    await page.locator('.word-hunt-cell[data-r="'+begin[0]+'"][data-c="'+begin[1]+'"]').tap();
+  assert.match(await page.locator('.word-hunt-companion-speech').innerText(),
+    /Prøv å følge|Velg første/i,label+' fox did not explain an invalid line');
+  assert.equal(await page.locator('.word-hunt-word.found').count(),0,
+    label+' unsuccessful attempts awarded an actual word');
+  const feedbackStyle=await page.locator('.word-hunt-status').evaluate(el=>({
+    position:getComputedStyle(el).position,width:el.getBoundingClientRect().width
+  }));
+  assert.ok(feedbackStyle.position==='absolute'&&feedbackStyle.width<=2,
+    label+' redundant detached status card is still visually dominant');
+  const missionStyle=await page.evaluate(()=>({
+    title:parseFloat(getComputedStyle(document.querySelector('.word-hunt-targets h2')).fontSize),
+    theme:parseFloat(getComputedStyle(document.querySelector('.word-hunt-theme-open strong')).fontSize),
+    word:parseFloat(getComputedStyle(document.querySelector('.word-hunt-word')).fontSize)
+  }));
+  assert.ok(missionStyle.title>missionStyle.theme&&missionStyle.word>=10,
+    label+' the words are not visually prioritized: '+JSON.stringify(missionStyle));
+  if(viewport.width<=700&&viewport.height>viewport.width)
+    await geometry(page,label+'-fox-feedback',viewport,true);
+  await shot(page,label+'-fox-reaction');
   const words=await page.locator('.word-hunt-word').allTextContents();
   for(let i=0;i<words.length;i++){
    const word=words[i].replace(/^✓\s*/,'').trim();
    if(i===1)await dragWord(page,word);else await tapWord(page,word);
    assert.equal(await page.locator('.word-hunt-word.found').count(),i+1,label+' missed '+word+' by touch or drag');
+   if(i===0){
+     assert.match(await page.locator('.word-hunt-companion-speech').innerText(),
+       /fant |var riktig|Vi fant /i,label+' fox stayed silent when a word was found');
+     assert.equal(await page.locator('.word-hunt-targets-count').innerText(),'1 av 4',
+       label+' the mission progress did not update');
+   }
   }
+  assert.match(await page.locator('.word-hunt-companion-speech').innerText(),
+    /Hurra!.*alle ordene/i,label+' fox did not celebrate the completed mission');
+  assert.equal(await page.locator('.word-hunt-targets-count').innerText(),'4 av 4');
   assert.match(await page.locator('.word-hunt-status').innerText(),/Ordjakten er løst/);
   assert.ok(await page.locator('#word-hunt-overlay').evaluate(el=>el.classList.contains('word-hunt-complete')),label+' completion did not promote the new-round action');
   assert.equal(await page.locator('.word-hunt-rounds').innerText(),'Du har fullført 1 ordjakt',label+' child-facing completion copy is not singular');
