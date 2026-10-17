@@ -60,7 +60,7 @@
 .gm-sign-leaf{color:#638e6c}
 .gm-crates{display:grid;grid-template-columns:repeat(var(--gm-groups),minmax(0,1fr));justify-content:center;align-items:end;gap:clamp(4px,1.3vw,14px);
  width:100%;max-width:660px;padding:19px 3px 0;min-width:0}
-.gm-crate-wrap{display:grid;justify-items:center;min-width:0;position:relative;padding-bottom:16px}
+.gm-crate-wrap{display:grid;justify-items:center;min-width:0;position:relative;padding-bottom:27px}
 .gm-crate{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:3px;width:100%;min-width:0;max-width:184px;height:162px;
  border:3px solid #ac754c;border-bottom-width:8px;border-radius:23px 23px 19px 19px;padding:18px 5px 48px;overflow:visible;
  background:linear-gradient(155deg,#f9dfae,#d9ac76 54%,#c58b5e);box-shadow:inset 0 4px 0 #fff2d2,inset 0 -12px 0 #b37d54,0 9px 0 #86613d59,0 12px 18px #65553831;
@@ -82,8 +82,9 @@
  box-shadow:0 3px 0 #9666435c;font-size:13px;font-weight:1000}
 .gm-crate-full{border-color:#638b69;box-shadow:inset 0 4px 0 #fff0d2,0 4px 0 #75956e,0 9px 17px #315a3c35}
 .gm-crate-full .gm-crate-tag{border-color:#7ba076;background:#e9f6cf}
-.gm-remove{position:absolute;z-index:4;bottom:-4px;right:4px;width:44px;height:44px;display:grid;place-items:center;border:2px solid #fff5de;border-radius:50%;background:#fff3dc;
- box-shadow:0 4px 0 #ba997b70;color:#9b6344;font-size:26px;line-height:1;font-weight:1000}
+.gm-remove{position:absolute;z-index:4;bottom:-8px;right:-5px;width:44px;height:44px;display:grid;place-items:center;border:0;border-radius:50%;background:transparent;box-shadow:none;color:#9b6344;font-size:22px;line-height:1;font-weight:1000}
+.gm-remove span{display:grid;place-items:center;width:29px;height:29px;border:2px solid #fff5de;border-radius:50%;background:#fff3dc;box-shadow:0 3px 0 #ba997b70;pointer-events:none}
+.gm-remove:focus-visible span{outline:2px solid #17558a;outline-offset:2px}
 .gm-play-hint{font-size:12px;font-weight:950;text-align:center;margin:6px 0 0;padding:4px 14px;border-radius:13px;background:#fef5e7d9;color:#714d38}
 .gm-math{position:relative;z-index:1;display:grid;grid-template-columns:minmax(180px,1fr) minmax(160px,1.2fr);align-items:center;column-gap:15px;row-gap:5px;margin:4px clamp(13px,2vw,27px) 14px;padding:9px 17px 10px;border:2px solid #fff5db;border-radius:19px;
  background:linear-gradient(135deg,#fff9e8ee,#f8ead0ef);box-shadow:0 4px 12px #715b4027}
@@ -171,7 +172,7 @@
  .gm-market{width:100%;margin-top:0}
  .gm-market-sign{margin:0 auto -5px;font-size:10px;padding:5px 13px}
  .gm-crates{gap:4px;max-width:none;padding:18px 2px 0}
- .gm-crate-wrap{padding-bottom:9px}
+ .gm-crate-wrap{padding-bottom:27px}
  .gm-crate{width:100%;height:145px;padding:13px 2px 35px;border-width:2px;border-bottom-width:6px;border-radius:17px 17px 13px 13px}
  .gm-crate-handle{top:-12px;height:30px;border-width:5px}
  .gm-crate-caption{font-size:9px;padding:1px 4px}
@@ -180,7 +181,7 @@
  .gm-fruit-empty{width:clamp(15px,4.3vw,20px);height:clamp(17px,5vw,22px);margin:1px}
  .gm-crate-front{height:32px;border-top-width:3px}
  .gm-crate-tag{min-width:34px;min-height:25px;font-size:10px;margin-top:-5px;padding:1px 3px;border-width:2px}
- .gm-remove{width:44px;height:44px;bottom:-7px;right:0}
+ .gm-remove{width:44px;height:44px;bottom:-8px;right:-5px}
  .gm-play-hint{font-size:10px;margin:3px auto 0;padding:2px 7px}
  .gm-math{margin:4px 9px 10px;padding:8px 10px 9px;column-gap:7px;grid-template-columns:minmax(105px,.85fr) minmax(150px,1.15fr);border-radius:15px}
  .gm-math-equation{font-size:clamp(17px,5vw,25px)}
@@ -296,7 +297,7 @@
  .gm-actions{display:grid;grid-template-columns:minmax(0,1fr) 67px 67px;gap:5px;margin-top:6px}
  .gm-pick{min-width:0;min-height:51px;max-width:none;padding:3px 5px;gap:2px;font-size:11px;border-radius:14px}
  .gm-pick .gm-pick-fruit{height:33px;width:23px}
- .gm-pick>span:nth-child(2){white-space:nowrap}
+ .gm-pick>span:nth-child(2){white-space:normal;min-width:0;line-height:1.12}
  .gm-tool{min-height:51px;padding:4px 4px;font-size:10px;border-radius:14px;white-space:nowrap}
  .gm-tool>span{font-size:13px;margin-right:0}
  .gm-actions-complete{grid-template-columns:minmax(0,1fr) 83px;max-width:none}
