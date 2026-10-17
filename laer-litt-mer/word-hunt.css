@@ -1402,3 +1402,25 @@
 /* Premium reduction: the fox is the sole idle guide.
    Keep the separate status visible only for attempts, found words, and rewards. */
 .word-hunt-status.is-quiet{display:none!important}
+
+/* Fix intrinsic image overflow on Safari's grid/flex layout. The full-body
+   fox is painted inside a fixed stage; it may never grow into touch controls. */
+.word-hunt-companion-stage{
+  position:relative;
+  display:block;
+  min-height:0;
+}
+.word-hunt-companion-stage>.word-hunt-companion-fox{
+  position:absolute!important;
+  inset:0!important;
+  display:block;
+  width:100%!important;
+  height:100%!important;
+  max-width:100%!important;
+  max-height:100%!important;
+  min-width:0;
+  min-height:0;
+  object-fit:contain!important;
+  object-position:center bottom!important;
+  pointer-events:none;
+}
