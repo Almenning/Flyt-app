@@ -165,6 +165,24 @@ jobs:
           if-no-files-found: warn
           retention-days: 7
 
+      - name: Verify original Gangemagi play on iPhone/iPad in Chromium and WebKit
+        env:
+          QA_SCREENSHOTS: /tmp/laria-gangemagi-v1
+        run: |
+          node --check laer-litt-mer/multiplication-gangemagi-engine-v1.js
+          node --check laer-litt-mer/multiplication-gangemagi-v1.js
+          node --check tests/laria-gangemagi.playwright.js
+          node tests/laria-gangemagi.playwright.js
+
+      - name: Upload Gangemagi first-fold and play screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-gangemagi-v1-${{ github.sha }}
+          path: /tmp/laria-gangemagi-v1
+          if-no-files-found: warn
+          retention-days: 7
+
       - name: Verify Plukk og tell in iPhone and iPad Chromium and WebKit
         env:
           PICK_QA_SCREENSHOTS: /tmp/laria-pick-play
