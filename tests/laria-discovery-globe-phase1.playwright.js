@@ -67,6 +67,11 @@ async function drawPose(page,pose){
      discovery:document.getElementById('world-screen').dataset.discoveryGlobe,
      moving:canvas.dataset.discoveryMoving,
      illustrations:Number(canvas.dataset.discoveryLandmarks||0),
+     ecosystems:Number(canvas.dataset.discoveryEcosystems||0),
+     relief:Number(canvas.dataset.discoveryRelief||0),
+     texture:Number(canvas.dataset.discoveryTexture||0),
+     terrainField:Number(canvas.dataset.discoveryTerrainField||0),
+     terrainMs:Number(canvas.dataset.discoveryTerrainMs||0),
      selected:globeSelected,
      dimensions:[canvas._cssW,canvas._cssH],
      zoom:globeZoom
@@ -84,6 +89,57 @@ async function verifyGeographicTap(page,lon,lat,expected,label){
  },{lon,lat});
  assert.equal(result.country,expected,label+' geographic tap did not select '+expected);
  assert.ok(Math.abs(result.roundtrip.lon-lon)<.001&&Math.abs(result.roundtrip.lat-lat)<.001,label+' longitude/latitude projection lost accuracy');
+}
+async function verifyOffscreenCountryCard(page,label){
+  // The legacy renderer can auto-select Tsjad without aligning the camera.
+  // A normal map repaint must repair the card even without a pointerup.
+  await page.evaluate(()=>{
+    globeLon=15;globeLat=55;setGlobeZoom(2.3);
+    selectGlobeCountry('td');
+    drawGlobe();
+  });
+  await page.waitForFunction(()=>globeSelected===null,null,{timeout:5000});
+  assert.match(await page.locator('#globe-status').innerText(),/Hva vil du oppdage/,
+    label+' legacy offscreen Tsjad card survived ordinary globe repaint');
+  await page.evaluate(()=>{
+    if(!countries.td)throw new Error('Missing canonical country Tsjad');
+    globeLon=18;globeLat=15;globeSelected=null;
+    setGlobeZoom(2.1);selectGlobeCountry('td');
+  });
+  assert.match(await page.locator('#globe-status').innerText(),/Tsjad/,label+' cannot initially select Tsjad');
+  await page.evaluate(()=>{
+    // Simulate a completed drag after moving the real geographic camera.
+    // The original globe input handler owns the pointer; the new view only
+    // reconciles the status card on release, never the click or map geometry.
+    globeLon=15;globeLat=62;setGlobeZoom(3.2);globeMove=35;
+    document.getElementById('globe-canvas').dispatchEvent(new PointerEvent('pointerup',{
+      pointerId:912,pointerType:'touch',clientX:200,clientY:200,bubbles:true
+    }));
+  });
+  await page.waitForFunction(()=>globeSelected===null,null,{timeout:5000});
+  const status=await page.locator('#globe-status').innerText();
+  assert.match(status,/Hva vil du oppdage/,label+' offscreen selection did not become an exploration invitation');
+  assert.doesNotMatch(status,/Tsjad/,label+' stale country card survived after rotating away');
+
+  await page.evaluate(()=>{
+    globeLon=19;globeLat=15;setGlobeZoom(2.1);selectGlobeCountry('td');
+    globeMove=26;
+    document.getElementById('globe-canvas').dispatchEvent(new PointerEvent('pointerup',{
+      pointerId:913,pointerType:'touch',clientX:200,clientY:200,bubbles:true
+    }));
+  });
+  await page.waitForTimeout(180);
+  assert.equal(await page.evaluate(()=>globeSelected),'td',label+' still-visible country was accidentally cleared');
+  assert.match(await page.locator('#globe-status').innerText(),/Tsjad/,label+' still-visible country card disappeared');
+  await page.evaluate(()=>{
+    globeLon=28;globeLat=61;globeSelected=null;setGlobeZoom(2.0);
+    selectGlobeCountry('ru');
+  });
+  await page.waitForTimeout(250);
+  assert.equal(await page.evaluate(()=>globeSelected),'ru',
+    label+' Russia was incorrectly cleared although its European territory is visible');
+  assert.match(await page.locator('#globe-status').innerText(),/Russland/,
+    label+' visible large-country card disappeared');
 }
 async function verifyPointerDrag(page,label,isDiscovery){
  await page.evaluate(()=>{
@@ -163,6 +219,8 @@ async function runDevice(engine,label,viewport,urls){
      for(const key of ['country','lon','lat','zoom'])
        assert.equal(afterDiscovery[key],beforeSwitch[key],label+' entering Oppdag changed '+key);
      assert.equal(afterDiscovery.stored,'discover',label+' Oppdag preference not saved');
+     assert.match(await standard.page.locator('[data-premium-globe-subtitle]').innerText(),
+       /Oppdag fjell, skoger, elver og ørkener/,label+' discovery subtitle still describes simple globe');
      assert.equal(await standard.page.locator('#globe-view-toggle [data-globe-view="discover"]').getAttribute('aria-pressed'),'true');
      await standard.page.locator('#globe-view-toggle [data-globe-view="simple"]').click();
      await standard.page.waitForFunction(()=>window.__lariaDiscoveryGlobePreview===false&&
@@ -174,6 +232,8 @@ async function runDevice(engine,label,viewport,urls){
      for(const key of ['country','lon','lat','zoom'])
        assert.equal(restored[key],beforeSwitch[key],label+' returning to Enkel changed '+key);
      assert.equal(restored.stored,'simple',label+' Enkel preference not saved');
+     assert.match(await standard.page.locator('[data-premium-globe-subtitle]').innerText(),
+       /klassiske snurrbare kloden/,label+' original guidance not restored in simple mode');
      assert.deepEqual(refErrors,[],label+' ordinary globe errors');
    }finally{await standard.ctx.close();}
    const errors=[];
@@ -198,14 +258,22 @@ async function runDevice(engine,label,viewport,urls){
      for(const pose of poses){
        const result=await drawPose(discovery.page,pose);
        assert.equal(result.renderer,true,label+' discovery renderer replaced after mode activation');
-       assert.equal(result.discovery,'phase1',label+' lost preview state');
+       assert.equal(result.discovery,'landscapes-v2',label+' lost integrated landscape engine');
        assert.equal(result.level,pose.level,label+' wrong zoom detail level: '+pose.name);
        assert.equal(result.moving,'false',label+' stale interaction suppressed detail');
        assert.ok(result.illustrations>0,label+' painted zero geographically anchored illustrations for '+pose.name);
+       assert.ok(result.ecosystems>=2,label+' missing georeferenced contiguous biome regions: '+pose.name);
+       assert.equal(result.terrainField,1,label+' missing coordinate-anchored continuous landscape shading: '+pose.name);
+       assert.ok(Number.isFinite(result.terrainMs)&&result.terrainMs>=0&&result.terrainMs<4000,
+         label+' landscape shader stalled the device ('+result.terrainMs+'ms) at '+pose.name);
+       console.log('TERRAIN PERF',label,pose.name,result.terrainMs+'ms');
+       assert.ok(result.relief>=1,label+' missing geographic mountain corridors: '+pose.name);
+       if(pose.level!=='1')assert.ok(result.texture>=1,label+' missing zoom-responsive terrain texture: '+pose.name);
        assert.equal(result.selected,pose.country,label+' selection was lost at '+pose.name);
        assert.notEqual(hash(result.pixels),refs[pose.name],label+' discovery image equals the ordinary globe at '+pose.name);
        await discovery.page.screenshot({path:path.join(out,label+'-discovery-'+pose.name+'.png'),fullPage:viewport.height<500,animations:'disabled'});
      }
+     await verifyOffscreenCountryCard(discovery.page,label+' discovery globe');
      for(const hit of [[8,62,'no'],[138,36,'jp'],[-55,-12,'br']])
        await verifyGeographicTap(discovery.page,hit[0],hit[1],hit[2],label+' discovery globe');
      await verifyPointerDrag(discovery.page,label+' discovery globe',true);

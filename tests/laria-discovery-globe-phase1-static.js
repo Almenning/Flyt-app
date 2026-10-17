@@ -23,6 +23,15 @@ assert.match(preview,/'Sør-Amerika':'#[0-9A-Fa-f]{6}'/,
 assert.doesNotMatch(preview,/SÃ¸r-Amerika/,'preview source has mojibake');
 assert.doesNotMatch(preview,/window\.globeZoom\b/, 'zoom is lexically scoped; window.globeZoom generates NaN drawing coordinates');
 assert.match(preview,/function paintReliefTrails\(/, 'geographic terrain trails must remain active');
+assert.match(preview,/const landscapeZones=\[/,'ecosystems must use contiguous georeferenced corridors');
+assert.match(preview,/const mountainChains=\[/,'landscape engine must have connected mountain chains');
+assert.match(preview,/function paintWorldTerrain\(/,'continuous terrain paint field must remain active');
+assert.match(preview,/terrainSamples\(mountainChains,4\.8\)/,'mountain samples must use geographic anchors');
+assert.match(preview,/function smoothGeoStroke\(/,'all terrain corridors must share map projection');
+assert.match(preview,/canvas\.dataset\.discoveryEcosystems=/,'QA must expose actual painted ecosystem count');
+assert.match(preview,/canvas\.dataset\.discoveryRelief=/,'QA must expose actual painted mountain count');
+assert.doesNotMatch(preview,/const geographicTextureZones=\[/,'no arbitrary map-filling icon rectangles');
+
 assert.match(preview,/landClip\(ctx,w,h\)/, 'land-only illustration clipping must remain active');
 assert.match(preview,/if\(!activated\|\|window\.drawGlobe!==discoveryDraw\)/, 'idle preview must not repaint on every interval tick');
 for(const place of ['8,61','138,36','-61,-3'])assert.ok(preview.includes(place),'missing anchored demonstration area '+place);
