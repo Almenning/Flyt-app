@@ -9,11 +9,10 @@
  * is longitude/latitude, never a screen position.
  */
 if(!new URLSearchParams(location.search).has('discovery-globe-preview'))return;
-window.__lariaDiscoveryGlobePreview=true;
-
 const screen=document.getElementById('world-screen');
 const art=window.LariaGlobeArtV24;
 if(!screen||!art||typeof window.drawGlobe!=='function'||typeof window.globeProject!=='function')return;
+window.__lariaDiscoveryGlobePreview=true;
 
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 const project=(lon,lat,w,h)=>window.globeProject(lon,lat,w,h);
@@ -28,8 +27,8 @@ const mix=(a,b,t)=>{
   return '#'+[m(aa>>16,bb>>16),m((aa>>8)&255,(bb>>8)&255),m(aa&255,bb&255)].map(x=>(x&255).toString(16).padStart(2,'0')).join('');
 };
 const continent={
-  'Europa':'#5A91DB','Asia':'#D9AE55','Afrika':'#D87D56',
-  'Nord-Amerika':'#6BAF74','Sør-Amerika':'#4FA572','Oseania':'#79AC72'
+  'Europa':'#7FB18B','Asia':'#BBAE70','Afrika':'#D7A16A',
+  'Nord-Amerika':'#87B78D','Sør-Amerika':'#59AB80','Oseania':'#A6BA82'
 };
 /* Broad natural regions are deliberately sparse. The land clip is the source
    of truth, so a painterly wash cannot escape across a border or coast. */
@@ -89,7 +88,7 @@ function paintBiomes(ctx,w,h,s){
   ctx.save();if(!landClip(ctx,w,h)){ctx.restore();return;}
   for(const [type,lon,lat,size] of biomes){
     const p=project(lon,lat,w,h);if(!p||p[2]<.10)continue;const r=s*size*clamp(.56+p[2]*.52,.60,1.08);
-    const colors=type==='desert'?['rgba(244,188,70,.52)','rgba(208,130,48,.08)']:type==='ice'?['rgba(255,255,252,.88)','rgba(213,240,243,.10)']:type==='savanna'?['rgba(174,160,62,.42)','rgba(109,116,43,.08)']:['rgba(37,128,65,.46)','rgba(30,91,48,.08)'];
+    const colors=type==='desert'?['rgba(249,196,88,.70)','rgba(204,135,50,.12)']:type==='ice'?['rgba(255,255,252,.88)','rgba(213,240,243,.10)']:type==='savanna'?['rgba(192,172,78,.54)','rgba(109,116,43,.11)']:['rgba(33,129,73,.60)','rgba(31,91,53,.12)'];
     const g=ctx.createRadialGradient(p[0]-r*.18,p[1]-r*.12,1,p[0],p[1],r);g.addColorStop(0,colors[0]);g.addColorStop(.58,colors[1]);g.addColorStop(1,'rgba(255,255,255,0)');ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(p[0],p[1],r,r*.62,-.10,0,Math.PI*2);ctx.fill();
   }
   ctx.restore();
@@ -163,12 +162,16 @@ const wait=()=>{
   /* atlas-perspective is allowed to keep owning its own non-globe views. On
      the isolated classic preview, however, it can reassign drawGlobe during
      its delayed mode transition. Reassert only after that child action. */
+  let activated=false;
   const activate=()=>{
-    if(!screen.classList.contains('active'))return;
+    if(!screen.classList.contains('active')){activated=false;return;}
     const classic=document.querySelector('#globe-mode [data-globe-mode="classic"]');
     if(classic&&!classic.classList.contains('active'))return;
-    if(window.drawGlobe!==discoveryDraw){window.drawGlobe=discoveryDraw;try{drawGlobe=discoveryDraw}catch(_){}}
-    try{window.resizeGlobe();discoveryDraw()}catch(_){}
+    /* Repaint only on a real mode change, not during idle polling. */
+    if(!activated||window.drawGlobe!==discoveryDraw){
+      window.drawGlobe=discoveryDraw;try{drawGlobe=discoveryDraw}catch(_){}
+      try{window.resizeGlobe();discoveryDraw();activated=true}catch(_){}
+    }
   };
   document.addEventListener('click',event=>{
     if(event.target?.closest?.('#globe-mode [data-globe-mode="classic"]')){
@@ -179,8 +182,7 @@ const wait=()=>{
   activate();
   requestAnimationFrame(()=>requestAnimationFrame(activate));
   setTimeout(activate,180);
-  /* The interval does no painting by itself; it only guards the preview from
-     late renderer reassignment during an atlas transition. */
+  /* Detect late atlas reassignment without repeatedly painting while idle. */
   setInterval(activate,240);
 };
 wait();
