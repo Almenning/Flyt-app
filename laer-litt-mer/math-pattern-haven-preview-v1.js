@@ -17,30 +17,32 @@
  }
  function intro(){
    const p=core.progress(ui.state),resume=core.resume(ui.state);
+   // Tactile storybook stops; chapter one remains untouched.
+   const positions={formstien:[26,24],monsterbekken:[75,37],speildammen:[30,54],
+     tallbroen:[74,72],stjernelunden:[44,86]};
    const stages=core.STAGES.map((stage,i)=>{
-     const record=p.places.find(x=>x.id===stage.id);
-     return '<button type="button" class="mh-place'+(record.visited?' mh-done':'')+
-       '" data-mh-act="stage" data-mh-stage="'+escape(stage.id)+'" aria-label="'+escape(stage.title)+
-       '. '+escape(stage.focus)+(record.visited?'. Utforsket, spill igjen.':'. Utforsk nå.')+'">'+
-       '<span class="mh-place-symbol" aria-hidden="true">'+escape(record.visited?'✓':stage.symbol)+'</span>'+
-       '<span><strong>'+(i+1)+'. '+escape(stage.title)+'</strong><small>'+escape(stage.focus)+'</small></span>'+
-       '<span class="mh-place-chevron" aria-hidden="true">›</span></button>';
+     const record=p.places.find(x=>x.id===stage.id),pos=positions[stage.id];
+     if(!pos)throw Error('Mønsterhagen missing storybook stop '+stage.id);
+     return '<button type="button" class="mh-place mh-map-stop'+(record.visited?' mh-done':'')+
+       '" style="--mh-x:'+pos[0]+'%;--mh-y:'+pos[1]+'%" data-mh-act="stage" data-mh-stage="'+escape(stage.id)+'"'+
+       ' aria-label="'+escape(stage.title)+'. '+escape(stage.focus)+(record.visited?'. Utforsket, spill igjen.':'. Utforsk nå.')+'">'+
+       '<span class="mh-place-symbol" aria-hidden="true">'+escape(record.visited?'✓':String(i+1))+'</span>'+
+       '<span class="mh-map-stop-name">'+escape(stage.title)+'</span></button>';
    }).join('');
    return shell('<section class="mh-intro">'+
-     '<div class="mh-intro-header"><div><span class="mh-eyebrow">ET NYTT EVENTYR</span>'+
-     '<h1 tabindex="-1" class="mh-heading">Mønsterhagen</h1><p>Finn formen. Følg rytmen. Bygg et speilbilde. Her får du prøve selv!</p></div>'+
-     fox()+'</div>'+
-     '<div class="mh-landscape" aria-hidden="true"><div class="mh-sun"></div><div class="mh-mountain mh-mountain-left"></div>'+
-     '<div class="mh-mountain mh-mountain-right"></div><div class="mh-pond"></div><div class="mh-walk"></div>'+
-     '<span class="mh-scenery mh-scenery-a">△</span><span class="mh-scenery mh-scenery-b">○</span>'+
-     '<span class="mh-scenery mh-scenery-c">✿</span><span class="mh-scenery mh-scenery-d">✦</span></div>'+
+     '<div class="mh-intro-header"><div><span class="mh-eyebrow">MATTE · KAPITTEL 2</span>'+
+     '<h1 tabindex="-1" class="mh-heading">Mønsterhagen</h1><p>Fem steder å leke. Du velger selv hvor eventyret går!</p></div></div>'+
+     '<div class="mh-story-layout"><div class="mh-story-map" role="group" aria-label="Illustrert eventyrkart med fem steder du kan trykke på">'+
+     '<img class="mh-map-art" src="./math-pattern-haven-storymap-v1.svg" alt="" draggable="false" loading="eager">'+
+     '<div class="mh-places">'+stages+'</div></div>'+
+     '<aside class="mh-story-rail"><div class="mh-story-fox">'+fox()+'<p>Hvor vil du utforske i dag? Jeg blir med deg!</p></div>'+
      '<div class="mh-progress" role="status"><strong>'+p.done+' av 5 steder utforsket</strong>'+
-     '<span>Du kan velge fritt, og favorittene kan spilles igjen.</span>'+
+     '<span>Du kan velge fritt og besøke favorittene igjen.</span>'+
      '<div class="mh-progress-track"><span style="width:'+(p.done*20)+'%"></span></div></div>'+
-     (resume?'<button type="button" class="mh-continue" data-mh-act="resume">Fortsett der du var: '+
-       escape(resume.stage.title)+' →</button>':'')+
-     '<div class="mh-places" aria-label="Velg et av fem eventyrsteder">'+stages+'</div>'+
-     '<p class="mh-note">Kartbildet er en midlertidig utviklingsscene, ikke godkjent premiumillustrasjon. Tallenga er uendret.</p>'+
+     (resume?'<button type="button" class="mh-continue" data-mh-act="resume">Fortsett i '+escape(resume.stage.title)+' →</button>':'')+
+     '<div class="mh-story-guide"><strong>Et magisk mønstereventyr</strong><p>Finn former, oppdag rytmer, bygg speilbilder og prøv talltriks.</p></div>'+
+     '<p class="mh-note">Originalt illustrert kartutkast. Ikke premiumgodkjent eller publisert. Tallenga er uendret.</p>'+
+     '</aside></div>'+
      '</section>');
  }
  function drawMirror(task,session){
