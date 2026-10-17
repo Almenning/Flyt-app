@@ -105,7 +105,11 @@
    if(target){
      target.focus({preventScroll:true});
      // Reveal the response on small phones instead of leaving it below the fold.
-     if(revealFeedback)target.scrollIntoView({behavior:'auto',block:'center',inline:'nearest'});
+     if(revealFeedback){
+       target.scrollIntoView({behavior:'auto',block:'center',inline:'nearest'});
+       // Keep the action to continue visible without hiding the feedback.
+       ui.root.querySelector('[data-sh-act="next"]')?.scrollIntoView({behavior:'auto',block:'nearest',inline:'nearest'});
+     }
    }
  }
  function save(){try{ui?.save?.()}catch(_){/* keep preview playable */}}
