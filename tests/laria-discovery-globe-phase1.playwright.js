@@ -144,8 +144,7 @@ async function runDevice(engine,label,viewport,urls){
        assert.notEqual(result.renderer,true,label+' preview leaked into ordinary globe');
        assert.equal(result.selected,pose.country,label+' standard globe country selection changed');
        refs[pose.name]=hash(result.pixels);
-       if(pose.name==='world'||pose.name==='norway')
-         await standard.page.screenshot({path:path.join(out,label+'-simple-'+pose.name+'.png'),fullPage:viewport.height<500,animations:'disabled'});
+       await standard.page.screenshot({path:path.join(out,label+'-simple-'+pose.name+'.png'),fullPage:viewport.height<500,animations:'disabled'});
      }
      for(const hit of [[8,62,'no'],[138,36,'jp'],[-55,-12,'br']])
        await verifyGeographicTap(standard.page,hit[0],hit[1],hit[2],label+' ordinary globe');
