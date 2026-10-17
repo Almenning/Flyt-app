@@ -603,6 +603,15 @@ const wait=()=>{
     const inClassic=screen.classList.contains('active')&&screen.dataset.mapPerspective==='globe'&&
       (!classic||classic.classList.contains('active'));
     const enabled=inClassic&&desiredView==='discover';
+    /* The premium shell originally described only the simple globe even when
+       Oppdag was selected. Keep guidance in step with the active drawing mode. */
+    const subtitle=screen.querySelector('[data-premium-globe-subtitle]');
+    if(inClassic&&subtitle){
+      const expected=enabled
+        ?'Oppdag fjell, skoger, elver og ørkener på kloden.'
+        :'Den klassiske snurrbare kloden – dra, zoom og finn land.';
+      if(subtitle.textContent!==expected)subtitle.textContent=expected;
+    }
     window.__lariaDiscoveryGlobePreview=enabled;
     if(!enabled){
       const needsRestore=window.drawGlobe===discoveryDraw;
