@@ -24,6 +24,15 @@ async function enter(page){
  await page.locator('#laria-geo-continent-voyage-preview[role="dialog"]').waitFor();
  assert.equal(await page.locator('[data-cv-act="stage"]').count(),5);
 }
+async function assertAnswerInView(page){
+ const feedback=await page.locator('.cv-feedback').boundingBox();
+ const next=await page.locator('[data-cv-act="next"]').boundingBox();
+ const viewportHeight=await page.evaluate(()=>window.innerHeight);
+ assert.ok(feedback&&feedback.y>=-2&&feedback.y+feedback.height<=viewportHeight+2,
+   'Geography feedback must be visible immediately on every test device');
+ assert.ok(next&&next.y<viewportHeight-12&&next.y+next.height>12,
+   'The next discovery must be reachable after a compass or stamp answer');
+}
 async function answer(page){
  const s=await page.evaluate(()=>window.LARIA_GEO_CONTINENT_VOYAGE.resume(state));
  assert.ok(s,'stage did not start');
@@ -31,6 +40,7 @@ async function answer(page){
  await b.click();
  assert.equal(await page.locator('.cv-feedback').count(),1);
  assert.match(await page.locator('.cv-feedback').innerText(),/riktig vei/);
+ await assertAnswerInView(page);
  await page.locator('[data-cv-act="next"]').click();
 }
 async function verify(type,label,viewport){
