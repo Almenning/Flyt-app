@@ -21,7 +21,7 @@
    const stops=core.STAGES.map((stop,i)=>{
      const status=p.places.find(x=>x.id===stop.id),point=positions[stop.id];
      if(!point)throw Error('Setningshavna missing a storybook stop '+stop.id);
-     return '<button class="sh-stop sh-map-stop" type="button" style="--sh-x:'+point[0]+'%;--sh-y:'+point[1]+'%"'+
+     return '<button class="sh-stop sh-map-stop'+(status.visited?' sh-map-stop-visited':'')+(stop.id===recommended.id?' sh-map-stop-recommended':'')+'" type="button" style="--sh-x:'+point[0]+'%;--sh-y:'+point[1]+'%"'+
        ' data-sh-act="stage" data-sh-stage="'+esc(stop.id)+'"'+
        ' aria-label="'+esc(stop.title)+'. '+esc(stop.focus)+(status.visited?'. Utforsket, spill igjen':'. Utforsk nå')+'">'+
        '<span class="sh-stop-icon" aria-hidden="true">'+(status.visited?'✓':String(i+1))+'</span>'+
@@ -31,19 +31,21 @@
      '<div class="sh-intro-heading"><div><span class="sh-eyebrow">ENGELSK · KAPITTEL 2</span>'+
      '<h1 class="sh-heading" tabindex="-1">Setningshavna</h1>'+
      '<p>Hils på venner, finn ord og bygg egne setninger på en spennende havnereise.</p></div></div>'+
-     '<div class="sh-story-layout"><div class="sh-story-hero"><div class="sh-story-fox">'+fox()+'<p>Velkommen til havna! Hvor vil du seile i dag?</p></div>'+quickStart+
+     '<div class="sh-story-layout"><div class="sh-story-aside"><div class="sh-story-hero"><div class="sh-story-fox">'+fox()+'<p>Velkommen til havna! Hvor vil du seile i dag?</p></div>'+quickStart+
      (session?'<button type="button" class="sh-continue" data-sh-act="resume">Fortsett i '+esc(session.stage.title)+' →</button>':'')+
-     '</div><div class="sh-story-map" role="group" aria-label="Illustrert havnekart med fem eventyrsteder">'+
-     '<img class="sh-map-art" src="./english-sentence-harbor-storymap-v1.svg" draggable="false" loading="eager" alt="">'+
-     '<div class="sh-stops">'+stops+'</div></div>'+
-     '<aside class="sh-story-rail">'+
+     '</div>'+
+     '<aside class="sh-story-rail" aria-label="Din reise">'+
      '<div class="sh-progress" role="status"><strong>'+p.done+' av 5 steder utforsket</strong>'+
      '<small>'+(p.places.some(place=>place.attempts===1)?'Nye oppgaver venter på steder du har besøkt.':'Velg fritt, og kom tilbake til et sted du liker.')+'</small>'+
      '<div class="sh-progress-bar"><span style="width:'+p.done*20+'%"></span></div></div>'+
      '<div class="sh-story-guide"><strong>Ord blir små eventyr</strong>'+
      '<p>Lytt, prat, les og sett sammen setninger. Reisen er din.</p></div>'+
      '<p class="sh-note">Originalt illustrert havnekart. Intern kandidat, ikke premiumgodkjent eller publisert.</p>'+
-     '</aside></div></section>');
+     '</aside></div>'+
+     '<div class="sh-story-map" role="group" aria-label="Illustrert havnekart med fem eventyrsteder">'+
+     '<img class="sh-map-art" src="./english-sentence-harbor-storymap-v1.svg" draggable="false" loading="eager" alt="">'+
+     '<div class="sh-stops">'+stops+'</div></div>'+
+     '</div></section>');
  }
  function sentenceUI(session){
    const task=session.task,selected=session.selected,solved=session.feedback?.correct===true;
