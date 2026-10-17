@@ -183,18 +183,27 @@ async function verify(engine,launcher,label,viewport,url){
    assert.equal(await fox.locator('.word-hunt-companion-cheer').count(),1);
    const foxGeometry=await fox.evaluate(host=>{
      const bounds=el=>{const r=el.getBoundingClientRect();return {top:r.top,bottom:r.bottom,left:r.left,right:r.right}};
-     const stage=bounds(host.querySelector('.word-hunt-companion-stage'));
-     const art=bounds(host.querySelector('.word-hunt-companion-fox'));
+     const stageEl=host.querySelector('.word-hunt-companion-stage');
+     const artEl=host.querySelector('.word-hunt-companion-fox');
+     const stage=bounds(stageEl),art=bounds(artEl);
      const controls=bounds(host.querySelector('.word-hunt-companion-controls'));
-     return {stage,art,controls,fit:getComputedStyle(host.querySelector('.word-hunt-companion-fox')).objectFit};
+     // Layout dimensions do not include the fox's brief intentional hopping
+     // and turning animation. Old intrinsic overflow makes these fail.
+     const layout={
+       left:artEl.offsetLeft,top:artEl.offsetTop,width:artEl.offsetWidth,height:artEl.offsetHeight,
+       stageWidth:stageEl.clientWidth,stageHeight:stageEl.clientHeight
+     };
+     return {stage,art,controls,layout,fit:getComputedStyle(artEl).objectFit};
    });
    assert.equal(foxGeometry.fit,'contain',label+' fox art lost contain behavior');
-   assert.ok(foxGeometry.art.top>=foxGeometry.stage.top-1.5&&foxGeometry.art.bottom<=foxGeometry.stage.bottom+1.5&&
-     foxGeometry.art.left>=foxGeometry.stage.left-1.5&&foxGeometry.art.right<=foxGeometry.stage.right+1.5,
-     label+' selected fox escapes its physical stage: '+JSON.stringify(foxGeometry));
+   const stable=foxGeometry.layout;
+   assert.ok(stable.left>=-1.5&&stable.top>=-1.5&&
+     stable.left+stable.width<=stable.stageWidth+1.5&&
+     stable.top+stable.height<=stable.stageHeight+1.5,
+     label+' full-body image grows beyond its fox stage: '+JSON.stringify(foxGeometry));
    if(viewport.width>700){
-     assert.ok(foxGeometry.art.bottom<=foxGeometry.controls.top+2,
-       label+' full-body fox covers the help buttons on iPad/Mac: '+JSON.stringify(foxGeometry));
+     assert.ok(foxGeometry.stage.bottom<=foxGeometry.controls.top+2,
+       label+' fox stage occupies the iPad/Mac help buttons: '+JSON.stringify(foxGeometry));
    }
    const beforeHints=await page.locator('.word-hunt-word.found').count();
    await fox.locator('.word-hunt-companion-hint').click();
