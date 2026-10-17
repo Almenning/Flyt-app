@@ -72,7 +72,7 @@
    const foxPanel='<div class="mh-companion mh-fox-'+foxState.mood+'">'+fox()+
      '<div class="mh-fox-copy"><span class="mh-eyebrow">REVENS VERKSTED</span>'+
      '<p id="mh-fox-message" role="status">'+escape(foxState.text)+'</p></div>'+
-     (foxState.showHint?'<button type="button" class="mh-fox-help" data-mh-act="hint" aria-controls="mh-fox-message" aria-expanded="'+String(foxState.expanded)+'" aria-label="'+(foxState.expanded?'Skjul hint fra reven':'Få hint fra reven')+'">?</button>':'')+'</div>';
+     (foxState.showHint?'<button type="button" class="mh-fox-help" data-mh-act="hint" aria-controls="mh-fox-message" aria-expanded="'+String(foxState.expanded)+'" aria-label="'+(foxState.expanded?'Skjul hint fra reven':'Få hint fra reven')+'">Hint</button>':'')+'</div>';
    const choices=t.kind==='choice'?'<div class="mh-options" role="group" aria-label="Svaralternativer">'+
      t.options.map((opt,i)=>'<button class="mh-option'+(session.feedback&&opt===session.feedback.answer?' mh-right':'')+
        '" type="button" data-mh-act="answer" data-mh-index="'+i+'"'+(session.feedback?' disabled':'')+'>'+

@@ -64,7 +64,7 @@
    const foxPanel='<div class="cv-companion cv-fox-'+foxState.mood+'">'+fox()+
      '<div class="cv-fox-copy"><span class="cv-eyebrow">REVENS KOMPASS</span>'+
      '<p id="cv-fox-message" role="status">'+esc(foxState.text)+'</p></div>'+
-     (foxState.showHint?'<button type="button" class="cv-fox-help" data-cv-act="hint" aria-controls="cv-fox-message" aria-expanded="'+String(foxState.expanded)+'" aria-label="'+(foxState.expanded?'Skjul hint fra reven':'Få hint fra reven')+'">?</button>':'')+'</div>';
+     (foxState.showHint?'<button type="button" class="cv-fox-help" data-cv-act="hint" aria-controls="cv-fox-message" aria-expanded="'+String(foxState.expanded)+'" aria-label="'+(foxState.expanded?'Skjul hint fra reven':'Få hint fra reven')+'">Hint</button>':'')+'</div>';
    return shell('<article class="cv-task"><div class="cv-task-nav"><button class="cv-quiet" data-cv-act="intro" type="button">← Alle stedene</button>'+
      '<span>'+esc(s.place.title)+'</span></div>'+
      foxPanel+

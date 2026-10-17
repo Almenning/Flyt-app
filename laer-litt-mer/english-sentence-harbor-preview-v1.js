@@ -54,7 +54,7 @@
    const foxPanel='<div class="sh-companion sh-fox-'+foxState.mood+'">'+fox()+
      '<div class="sh-fox-copy"><span class="sh-eyebrow">REVENS ENGELSKE KROK</span>'+
      '<p id="sh-fox-message" role="status">'+esc(foxState.text)+'</p></div>'+
-     (foxState.showHint?'<button type="button" class="sh-fox-help" data-sh-act="hint" aria-controls="sh-fox-message" aria-expanded="'+String(foxState.expanded)+'" aria-label="'+(foxState.expanded?'Skjul hint fra reven':'Få hint fra reven')+'">?</button>':'')+'</div>';
+     (foxState.showHint?'<button type="button" class="sh-fox-help" data-sh-act="hint" aria-controls="sh-fox-message" aria-expanded="'+String(foxState.expanded)+'" aria-label="'+(foxState.expanded?'Skjul hint fra reven':'Få hint fra reven')+'">Hint</button>':'')+'</div>';
    const options=t.kind!=='sentence'?'<div class="sh-options" role="group" aria-label="Velg svar">'+
      t.options.map((opt,i)=>'<button type="button" data-sh-act="answer" data-sh-index="'+i+
      '" class="sh-option'+(s.feedback?.answer===opt?' sh-answer':'')+'"'+(s.feedback?' disabled':'')+
