@@ -7,7 +7,7 @@ const {clamp,TERRAIN,FEATURES,draw}=ART;
    Asia sun-gold and the Americas verdant green. Geography stays authoritative. */
 const PALETTE={
   'Europa':'#316FE0','Asia':'#E6B544','Afrika':'#E87455',
-  'Nord-Amerika':'#4DAD60','SÃ¸r-Amerika':'#319F58','Oseania':'#6DB15E'
+  'Nord-Amerika':'#4DAD60','Sør-Amerika':'#319F58','Oseania':'#6DB15E'
 };
 const mix=(a,b,t)=>{
   const pa=parseInt(a.slice(1),16),pb=parseInt(b.slice(1),16),m=(x,y)=>Math.round(x+(y-x)*t);
@@ -22,30 +22,30 @@ const bookSvg='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.4c2.7-.
 const COUNTRY_SCENES={
   'tsjad':{tone:'desert',features:[['camel',.50,.63,.40],['trees',.18,.56,.26]],tag:'Sahel, savanne og store landskap'},
   'norge':{tone:'north',features:[['mountains',.68,.46,.45],['trees',.25,.60,.30],['village',.48,.65,.23]],tag:'Fjorder, fjell og nordlig natur'},
-  'egypt':{tone:'desert',features:[['pyramids',.63,.58,.42],['camel',.28,.66,.30]],tag:'Nilen, Ã¸rken og pyramider'},
-  'japan':{tone:'green',features:[['mountains',.65,.42,.40],['village',.40,.65,.25],['trees',.18,.61,.24]],tag:'Ãyer, fjell og levende bykultur'},
+  'egypt':{tone:'desert',features:[['pyramids',.63,.58,.42],['camel',.28,.66,.30]],tag:'Nilen, ørken og pyramider'},
+  'japan':{tone:'green',features:[['mountains',.65,.42,.40],['village',.40,.65,.25],['trees',.18,.61,.24]],tag:'Øyer, fjell og levende bykultur'},
   'brasil':{tone:'tropic',features:[['jungle',.58,.55,.40],['trees',.24,.63,.28]],tag:'Amazonas, regnskog og enorme landskap'},
-  'australia':{tone:'desert',features:[['mountains',.66,.54,.30],['trees',.24,.64,.25],['island',.46,.72,.24]],tag:'Kyst, Ã¸rken og unik natur'},
+  'australia':{tone:'desert',features:[['mountains',.66,.54,.30],['trees',.24,.64,.25],['island',.46,.72,.24]],tag:'Kyst, ørken og unik natur'},
   'island':{tone:'north',features:[['mountains',.60,.46,.43],['lighthouse',.22,.64,.27]],tag:'Vulkaner, is og dramatisk natur'},
-  'kenya':{tone:'savanna',features:[['giraffe',.66,.58,.32],['elephant',.34,.65,.30],['trees',.17,.55,.25]],tag:'Savanne, hÃ¸yland og rikt dyreliv'},
-  'sÃ¸r-afrika':{tone:'savanna',features:[['giraffe',.66,.58,.30],['mountains',.36,.49,.32],['trees',.18,.64,.25]],tag:'Fjell, kyst og store naturomrÃ¥der'},
+  'kenya':{tone:'savanna',features:[['giraffe',.66,.58,.32],['elephant',.34,.65,.30],['trees',.17,.55,.25]],tag:'Savanne, høyland og rikt dyreliv'},
+  'sør-afrika':{tone:'savanna',features:[['giraffe',.66,.58,.30],['mountains',.36,.49,.32],['trees',.18,.64,.25]],tag:'Fjell, kyst og store naturområder'},
   'india':{tone:'warm',features:[['mountains',.72,.40,.38],['village',.42,.64,.24],['trees',.18,.62,.23]],tag:'Himalaya, storbyer og mangfold'},
-  'kina':{tone:'green',features:[['mountains',.70,.43,.40],['village',.40,.64,.24],['trees',.18,.61,.24]],tag:'Fjell, elver og store byomrÃ¥der'},
+  'kina':{tone:'green',features:[['mountains',.70,.43,.40],['village',.40,.64,.24],['trees',.18,.61,.24]],tag:'Fjell, elver og store byområder'},
   'frankrike':{tone:'green',features:[['village',.53,.61,.28],['mountains',.76,.47,.28],['trees',.20,.64,.23]],tag:'Byer, landskap og kultur'},
   'usa':{tone:'warm',features:[['mountains',.65,.47,.38],['trees',.22,.62,.27],['lighthouse',.86,.62,.18]],tag:'Store landskap, kyst og storbyer'},
-  'canada':{tone:'north',features:[['mountains',.68,.44,.42],['trees',.26,.61,.30]],tag:'Skog, innsjÃ¸er og fjell'},
+  'canada':{tone:'north',features:[['mountains',.68,.44,.42],['trees',.26,.61,.30]],tag:'Skog, innsjøer og fjell'},
   'peru':{tone:'warm',features:[['mountains',.65,.43,.44],['village',.30,.66,.22]],tag:'Andesfjellene og gamle kultursteder'}
 };
 const CONTINENT_SCENES={
   'Afrika':{tone:'savanna',features:[['elephant',.62,.62,.30],['giraffe',.36,.59,.28],['trees',.16,.58,.24]],tag:'Store landskap og variert natur'},
   'Europa':{tone:'green',features:[['village',.52,.63,.27],['mountains',.73,.45,.32],['trees',.18,.62,.24]],tag:'Byer, fjell og mange landskap'},
   'Asia':{tone:'warm',features:[['mountains',.70,.44,.38],['village',.43,.64,.24],['trees',.18,.60,.24]],tag:'Store kontraster i natur og byliv'},
-  'Nord-Amerika':{tone:'north',features:[['mountains',.68,.44,.39],['trees',.25,.61,.29]],tag:'Fjell, skog og store byomrÃ¥der'},
-  'SÃ¸r-Amerika':{tone:'tropic',features:[['jungle',.58,.56,.40],['mountains',.74,.45,.30]],tag:'Regnskog, fjell og lange kystlinjer'},
-  'Oseania':{tone:'tropic',features:[['island',.58,.67,.31],['trees',.25,.60,.28]],tag:'Ãyer, kyst og sÃ¦regen natur'}
+  'Nord-Amerika':{tone:'north',features:[['mountains',.68,.44,.39],['trees',.25,.61,.29]],tag:'Fjell, skog og store byområder'},
+  'Sør-Amerika':{tone:'tropic',features:[['jungle',.58,.56,.40],['mountains',.74,.45,.30]],tag:'Regnskog, fjell og lange kystlinjer'},
+  'Oseania':{tone:'tropic',features:[['island',.58,.67,.31],['trees',.25,.60,.28]],tag:'Øyer, kyst og særegen natur'}
 };
 function countryKey(name=''){
-  return String(name).toLocaleLowerCase('nb').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9Ã¦Ã¸Ã¥-]+/g,'-').replace(/^-|-$/g,'');
+  return String(name).toLocaleLowerCase('nb').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9æøå-]+/g,'-').replace(/^-|-$/g,'');
 }
 function sceneForCountry(c){
   const key=countryKey(c?.name);
@@ -142,19 +142,19 @@ function ensurePremiumShell(){
       classic=document.createElement('button');
       classic.type='button';
       classic.dataset.globeMode='classic';
-      classic.setAttribute('aria-label','Ãpne klassisk interaktiv klode');
+      classic.setAttribute('aria-label','Åpne klassisk interaktiv klode');
       bar.appendChild(classic);
     }
     const explore=bar.querySelector('[data-globe-mode="explore"]');
     const mine=bar.querySelector('[data-globe-mode="mine"]');
     if(explore)explore.innerHTML='<span class="pg-mode-icon">'+compassSvg+'</span>Utforsk';
     if(mine)mine.innerHTML='<span class="pg-mode-icon">'+globeSvg+'</span>Min verden';
-    classic.innerHTML='<span class="pg-mode-icon" aria-hidden="true">â</span>Kloden';
+    classic.innerHTML='<span class="pg-mode-icon" aria-hidden="true">◎</span>Kloden';
   }
 
   const back=document.getElementById('world-back');
   // The actual route is selected by showScreen/openGlobe, not hardcoded here.
-  if(back){back.textContent='â';if(!back.hasAttribute('aria-label'))back.setAttribute('aria-label','Tilbake til Geografi')}
+  if(back){back.textContent='←';if(!back.hasAttribute('aria-label'))back.setAttribute('aria-label','Tilbake til Geografi')}
 }
 
 function syncPremiumChrome(mode){
@@ -166,35 +166,35 @@ function syncPremiumChrome(mode){
 
   const sub=screen.querySelector('[data-premium-globe-subtitle]');
   if(sub)sub.textContent=next==='mine'
-    ?'Min verden â se landene du har oppdaget og lÃ¦rt om!'
+    ?'Min verden – se landene du har oppdaget og lært om!'
     :next==='classic'
-      ?'Den klassiske snurrbare kloden â dra, zoom og finn land.'
+      ?'Den klassiske snurrbare kloden – dra, zoom og finn land.'
       :'Utforsk land, folk, dyr og spennende steder fra hele verden!';
 
   const canvas=document.getElementById('globe-canvas');
   if(canvas)canvas.setAttribute('aria-label',next==='mine'
-    ?'Min verden pÃ¥ interaktiv klode'
+    ?'Min verden på interaktiv klode'
     :next==='classic'
       ?'Klassisk interaktiv klode'
-      :'Utforsk verden pÃ¥ interaktiv klode');
+      :'Utforsk verden på interaktiv klode');
 }
 
 function enhanceSelectedCountryV24(id){
   const box=document.getElementById('globe-status');
   if(!box||!id||typeof countries==='undefined'||!countries[id])return;
   const c=countries[id];
-  const st=typeof globeStatusInfo==='function'?globeStatusInfo(id):{key:'new',symbol:'â',label:'Ikke startet'};
+  const st=typeof globeStatusInfo==='function'?globeStatusInfo(id):{key:'new',symbol:'–',label:'Ikke startet'};
   const scene=sceneForCountry(c);
-  const capital=c.capitalDisplay||c.capital||'â';
+  const capital=c.capitalDisplay||c.capital||'–';
 
   box.classList.add('premium-country-selected');
   box.innerHTML=
     '<div class="flag">'+c.flag+'</div>'+
     '<div class="globe-country-copy">'+
       '<div class="globe-country-line"><strong>'+c.name+'</strong><span class="globe-status-badge '+st.key+'">'+st.symbol+' '+st.label+'</span></div>'+
-      '<div class="premium-country-facts"><span>ð '+c.continent+'</span><span>ð '+capital+'</span><span class="globe-country-tagline"></span></div>'+
+      '<div class="premium-country-facts"><span>🌍 '+c.continent+'</span><span>📍 '+capital+'</span><span class="globe-country-tagline"></span></div>'+
     '</div>'+
-    '<button type="button" class="premium-country-learn" aria-label="LÃ¦r mer om '+c.name+'">'+bookSvg+'<span>LÃ¦r mer</span><b>âº</b></button>';
+    '<button type="button" class="premium-country-learn" aria-label="Lær mer om '+c.name+'">'+bookSvg+'<span>Lær mer</span><b>›</b></button>';
 
   const teaser=box.querySelector('.globe-country-tagline');
   if(teaser)teaser.textContent=window.LARIA_COUNTRY_DISCOVERIES?.get(id)?.teaser||'Se flagget, hovedstaden og kartet.';
@@ -459,7 +459,7 @@ function paintPolarLand(ctx,w,h,s){
   if(typeof WORLD_COUNTRIES==='undefined')return;
   for(const c of WORLD_COUNTRIES){
     const key=countryKey(c?.name||'');
-    if(key!=='gronland'&&key!=='grÃ¸nland'&&key!=='greenland')continue;
+    if(key!=='gronland'&&key!=='grønland'&&key!=='greenland')continue;
     ctx.beginPath();if(!addPath(ctx,c,w,h))continue;
     const g=ctx.createLinearGradient(w*.38,h*.10,w*.58,h*.42);
     g.addColorStop(0,'#FFFFFF');g.addColorStop(.55,'#EAF8FA');g.addColorStop(1,'#CBE5E8');
@@ -703,7 +703,7 @@ function finish(ctx,w,h,s){
   ctx.fillStyle=lowerGlow;ctx.fillRect(0,0,w,h);
 }
 function premiumDraw(){
-  /* The discovery globe is an opt-in paint experiment.  Some legacy resize
+  /* The discovery globe is an opt-in paint experiment. Some legacy resize
      observers call this renderer directly (rather than via window.drawGlobe),
      so honour the isolated preview before touching the shared canvas. */
   if(window.__lariaDiscoveryGlobePreview===true&&typeof window.LARIA_DISCOVERY_GLOBE_DRAW==='function'){
