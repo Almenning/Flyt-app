@@ -878,3 +878,344 @@
   box-shadow:0 5px 0 #947043,0 0 0 3px rgba(255,234,168,.30);
 }
 .word-hunt-status.is-sticker-earned strong{color:#765018}
+
+
+/* wordhunt-first-landing-premium-20261016 */
+/* Child's first tap on Ordjakt opens a real illustrated destination selector,
+   rather than hiding the topics behind a small control above the letter board.
+   The already-approved Bokskogen painting remains the scene foundation. */
+.word-hunt-shell[hidden]{display:none!important}
+.word-hunt-overlay.is-theme-entry{
+  overflow:hidden;
+  background:
+    linear-gradient(180deg,rgba(18,42,36,.18),rgba(12,34,28,.38)),
+    url('./bokskogen-verden.png') center 46%/cover no-repeat;
+}
+.word-hunt-overlay.is-theme-entry .word-hunt-theme-picker{
+  background:linear-gradient(180deg,rgba(16,43,37,.06),rgba(16,43,37,.26));
+  -webkit-backdrop-filter:none;backdrop-filter:none;
+}
+.word-hunt-overlay.is-theme-entry .wh-theme-panel{
+  width:min(1080px,100%);
+  max-height:calc(100svh - max(26px,env(safe-area-inset-top)) - max(16px,env(safe-area-inset-bottom)));
+  border:3px solid #ffe8b5;
+  background:
+    linear-gradient(164deg,rgba(255,252,231,.97) 0%,rgba(255,245,215,.965) 61%,rgba(238,212,164,.97) 100%);
+  box-shadow:0 0 0 4px #78522e73,0 22px 70px #11291dcc,inset 0 2px 0 #fffdf4;
+}
+.word-hunt-overlay.is-theme-entry .wh-theme-panel::before{
+  opacity:.33;
+  background:
+    linear-gradient(180deg,rgba(255,248,222,.05) 0%,rgba(255,248,222,.50) 65%,#fff5dc00),
+    url('./bokskogen-verden.png') center 10%/cover no-repeat;
+}
+.word-hunt-overlay.is-theme-entry .wh-theme-eyebrow{
+  font-size:clamp(10px,1.2vw,13px);letter-spacing:.19em;
+}
+.word-hunt-overlay.is-theme-entry .wh-theme-panel h2{
+  font-size:clamp(25px,3.65vw,40px);margin:8px auto 6px;
+  color:#243f5b;text-shadow:0 2px #fff9e3;
+}
+.word-hunt-overlay.is-theme-entry .wh-theme-panel p{
+  font-size:clamp(12px,1.5vw,15px);margin:0 0 15px;
+  color:#63462f;
+}
+.word-hunt-overlay.is-theme-entry .wh-theme-close{
+  background:linear-gradient(#fff9e8,#f5deb5);
+  color:#5e472f;
+  border:2px solid #d4af7b;
+  box-shadow:0 3px 0 #b58e5f;
+  z-index:2;
+}
+/* These are illustrated destinations, not row of disconnected square logos. */
+.word-hunt-overlay.is-theme-entry .wh-theme-cards{
+  gap:clamp(9px,1.3vw,17px);
+  margin:18px 0 20px;
+}
+.word-hunt-overlay.is-theme-entry .wh-theme-card{
+  --theme-wood:#a87946;
+  min-height:0;
+  padding:6px 6px 12px;
+  border:2px solid #caa375;
+  border-radius:19px;
+  background:linear-gradient(160deg,#fffaf0 0%,#fff2d5 56%,#eedab2 100%);
+  box-shadow:0 5px 0 var(--theme-wood),0 12px 23px #77522d3d,inset 0 1px #fffdf3;
+  overflow:hidden;
+  gap:6px;
+}
+.word-hunt-overlay.is-theme-entry .wh-theme-card img{
+  display:block;
+  width:100%;
+  aspect-ratio:1.12;
+  height:auto;
+  max-height:clamp(126px,17vw,193px);
+  object-fit:cover;
+  border:0;
+  border-radius:12px;
+  box-shadow:0 2px 0 #8b6a4470,inset 0 0 0 2px #fff5d2;
+  filter:saturate(1.06) contrast(1.035);
+}
+.word-hunt-overlay.is-theme-entry .wh-theme-card strong{
+  font-size:clamp(13px,1.35vw,17px);
+  color:#2c4861;
+  line-height:1.16;
+}
+.word-hunt-overlay.is-theme-entry .wh-theme-card small{
+  font-size:clamp(10px,.95vw,12px);
+  color:#72573b;
+  line-height:1.32;
+}
+.wh-theme-card-go{
+  display:block;
+  align-self:center;
+  margin:auto auto 0;
+  color:#477042;
+  font-weight:950;
+  font-size:clamp(11px,1.1vw,14px);
+}
+.wh-theme-card .wh-theme-card-check{
+  width:auto;height:auto;min-width:76px;max-width:95%;
+  padding:3px 9px;
+  bottom:3px;border:1px solid #fff7d9;
+  border-radius:999px;font-size:10px;line-height:1.2;
+  background:linear-gradient(#75a46d,#467a47);
+  white-space:nowrap;box-shadow:0 1px 0 #3c693c;
+}
+.word-hunt-overlay.is-theme-entry .wh-theme-card.selected{
+  border-color:#b98334;
+  background:linear-gradient(165deg,#fffdf2,#f9e6b9);
+  box-shadow:0 0 0 2px #fce59d,0 6px 0 #997242,0 12px 24px #8b692740;
+}
+.word-hunt-overlay.is-theme-entry .wh-theme-card.selected .wh-theme-card-check{
+  bottom:3px;
+}
+.word-hunt-overlay.is-theme-entry .wh-theme-card.selected .wh-theme-card-go{
+  visibility:hidden;
+}
+.word-hunt-overlay.is-theme-entry .wh-theme-start{
+  min-height:51px;padding:9px 22px;
+  border-color:#4e7748;
+  background:linear-gradient(#6f9f61,#326a41);
+  box-shadow:0 4px 0 #2c5b34,0 10px 22px #31422a55;
+  font-size:clamp(13px,1.7vw,18px);
+}
+/* The chooser is a true two-column illustrated gallery on phones.
+   There is no horizontal carousel hiding three of the five topics. */
+@media(max-width:700px){
+  .word-hunt-overlay.is-theme-entry .word-hunt-theme-picker{padding:6px 8px}
+  .word-hunt-overlay.is-theme-entry .wh-theme-panel{
+    width:100%;max-height:calc(100svh - 12px);
+    padding:14px 12px 16px;border-radius:23px;
+  }
+  .word-hunt-overlay.is-theme-entry .wh-theme-fox{
+    top:5px;left:12px;width:44px;height:58px;
+  }
+  .word-hunt-overlay.is-theme-entry .wh-theme-eyebrow{
+    font-size:10px;padding-left:24px;
+  }
+  .word-hunt-overlay.is-theme-entry .wh-theme-panel h2{
+    font-size:clamp(22px,6vw,29px);line-height:1.05;
+    padding:0 16px;max-width:320px;
+  }
+  .word-hunt-overlay.is-theme-entry .wh-theme-panel p{
+    margin:6px 0 12px;font-size:12px;padding:0 18px;
+  }
+  .word-hunt-overlay.is-theme-entry .wh-theme-close{
+    top:7px;right:8px;width:39px;height:39px;font-size:23px;
+  }
+  .word-hunt-overlay.is-theme-entry .wh-theme-cards{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:10px;
+    overflow:visible;overscroll-behavior:initial;
+    margin:8px 0 14px;padding:3px 1px 10px;
+    scroll-snap-type:none;
+  }
+  .word-hunt-overlay.is-theme-entry .wh-theme-card{
+    flex:initial;width:auto;min-height:0;
+    scroll-snap-align:none;
+    padding:5px 5px 12px;
+    gap:4px;border-radius:15px;
+  }
+  .word-hunt-overlay.is-theme-entry .wh-theme-card img{
+    width:100%;aspect-ratio:1.37;max-height:none;border-radius:11px;
+  }
+  .word-hunt-overlay.is-theme-entry .wh-theme-card strong{
+    font-size:clamp(12px,3.45vw,15px);line-height:1.12;
+  }
+  .word-hunt-overlay.is-theme-entry .wh-theme-card small{
+    font-size:clamp(9px,2.6vw,11px);line-height:1.23;
+    min-height:22px;
+  }
+  .word-hunt-overlay.is-theme-entry .wh-theme-card-go{
+    font-size:11px;
+  }
+  .word-hunt-overlay.is-theme-entry .wh-theme-start{
+    min-width:0;width:min(320px,100%);min-height:47px;
+    border-radius:15px;font-size:13px;
+  }
+}
+@media(min-width:701px) and (max-height:500px) and (orientation:landscape){
+  .word-hunt-overlay.is-theme-entry .wh-theme-panel{padding:10px 12px;max-height:calc(100svh - 10px)}
+  .word-hunt-overlay.is-theme-entry .wh-theme-panel h2{font-size:24px;margin:2px auto}
+  .word-hunt-overlay.is-theme-entry .wh-theme-panel p{margin:0 auto 7px;font-size:11px}
+  .word-hunt-overlay.is-theme-entry .wh-theme-cards{
+    display:grid;grid-template-columns:repeat(5,minmax(0,1fr));
+    overflow:visible;margin:5px 0 7px;padding:0;gap:7px;
+  }
+  .word-hunt-overlay.is-theme-entry .wh-theme-card{
+    flex:initial;width:auto;min-height:0;padding:4px 4px 10px;gap:3px;
+  }
+  .word-hunt-overlay.is-theme-entry .wh-theme-card img{max-height:82px;aspect-ratio:1.4}
+  .word-hunt-overlay.is-theme-entry .wh-theme-card small{display:none}
+  .word-hunt-overlay.is-theme-entry .wh-theme-card strong{font-size:12px}
+  .word-hunt-overlay.is-theme-entry .wh-theme-start{min-height:41px;font-size:12px}
+}
+@media(max-width:350px) and (max-height:630px){
+  .word-hunt-overlay.is-theme-entry .wh-theme-panel{padding:12px 9px 13px}
+  .word-hunt-overlay.is-theme-entry .wh-theme-panel h2{font-size:22px}
+  .word-hunt-overlay.is-theme-entry .wh-theme-cards{gap:7px}
+  .word-hunt-overlay.is-theme-entry .wh-theme-card{padding:4px 4px 11px}
+  .word-hunt-overlay.is-theme-entry .wh-theme-card small{font-size:9px}
+}
+
+
+/* wordhunt-entry-balanced-gallery-20261016 */
+/* Portrait phone: one panoramic everyday choice plus four equally prominent
+   new worlds. No empty fifth slot on the right of the final row. */
+@media(max-width:700px) and (orientation:portrait){
+  .word-hunt-overlay.is-theme-entry .wh-theme-card[data-word-theme="mixed"]{
+    grid-column:1/-1;
+    display:grid;
+    grid-template-columns:minmax(0,40%) minmax(0,1fr);
+    grid-template-rows:auto auto auto;
+    align-items:center;align-content:center;
+    column-gap:12px;row-gap:3px;
+    text-align:left;min-height:124px;
+    padding:6px 13px 6px 6px;
+  }
+  .word-hunt-overlay.is-theme-entry .wh-theme-card[data-word-theme="mixed"] img{
+    grid-column:1;grid-row:1/4;
+    width:100%;height:100%;min-height:111px;
+    aspect-ratio:1.22;
+    object-fit:cover;
+    align-self:stretch;
+  }
+  .word-hunt-overlay.is-theme-entry .wh-theme-card[data-word-theme="mixed"] strong{
+    grid-column:2;grid-row:1;
+    text-align:left;font-size:clamp(15px,4vw,19px);
+  }
+  .word-hunt-overlay.is-theme-entry .wh-theme-card[data-word-theme="mixed"] small{
+    grid-column:2;grid-row:2;min-height:0;text-align:left;
+    font-size:clamp(11px,3vw,13px);
+  }
+  .word-hunt-overlay.is-theme-entry .wh-theme-card[data-word-theme="mixed"] .wh-theme-card-go{
+    grid-column:2;grid-row:3;
+    margin:0;justify-self:start;align-self:start;
+  }
+  .word-hunt-overlay.is-theme-entry .wh-theme-card[data-word-theme="mixed"] .wh-theme-card-check{
+    top:8px;left:10px;right:auto;bottom:auto;transform:none;
+    min-width:0;padding:2px 7px;font-size:9px;
+  }
+  .word-hunt-overlay.is-theme-entry .wh-theme-card[data-word-theme="mixed"].selected .wh-theme-card-go{
+    visibility:visible;
+  }
+}
+@media(min-width:701px) and (max-width:970px) and (min-height:501px){
+  /* Six narrow grid tracks allow the two-card last row to be centered. */
+  .word-hunt-overlay.is-theme-entry .wh-theme-cards{
+    grid-template-columns:repeat(6,minmax(0,1fr));
+  }
+  .word-hunt-overlay.is-theme-entry .wh-theme-card{grid-column:span 2;}
+  .word-hunt-overlay.is-theme-entry .wh-theme-card:nth-child(4){grid-column:2/span 2;}
+  .word-hunt-overlay.is-theme-entry .wh-theme-card:nth-child(5){grid-column:4/span 2;}
+}
+
+/* Respect the native hidden state after premium entry button display rules. */
+.word-hunt-overlay.is-theme-entry .wh-theme-start[hidden]{display:none!important}
+
+
+/* wordhunt-painted-themes-20261017 */
+/* Compact, real storybook scenes replace the translucent icon illustrations.
+   No external font, image host or animation dependency; retain the tactile
+   Bokskogen card framing and contrast/lock states. */
+.wh-theme-card img,.word-hunt-theme-icon,
+#bc12-dialog .bc12-wordhunt-sticker-art img{
+  background-color:#e3d6b9;
+  background-image:none!important;
+  background-position:center;
+  background-size:cover;
+  object-position:50% 47%;
+}
+.word-hunt-overlay.is-theme-entry .wh-theme-card img{
+  border:1px solid rgba(251,228,177,.95);
+  filter:none;
+  box-shadow:0 3px 0 rgba(114,79,41,.43),0 5px 11px rgba(85,59,41,.20);
+  object-fit:cover;
+}
+.word-hunt-overlay.is-theme-entry .wh-theme-card[data-word-theme="mixed"] img{
+  object-position:50% 43%;
+}
+.word-hunt-theme-icon{object-fit:cover;filter:none}
+#bc12-dialog .bc12-wordhunt-sticker-art img{object-fit:cover}
+
+
+/* wordhunt-entry-compact-firstfold-20261017 */
+/* 320x568 Safari: title and first theme must be readable without browser
+   auto-scroll into the bottom card. Keep touch areas large, reduce only chrome. */
+.word-hunt-overlay.is-theme-entry .wh-theme-panel{overflow-anchor:none}
+@media(max-width:350px) and (max-height:630px) and (orientation:portrait){
+  .word-hunt-overlay.is-theme-entry .wh-theme-panel{
+    padding:8px 8px 10px;max-height:calc(100svh - 8px);
+    border-radius:18px;
+  }
+  .word-hunt-overlay.is-theme-entry .wh-theme-fox{
+    top:4px;left:7px;width:30px;height:39px;
+  }
+  .word-hunt-overlay.is-theme-entry .wh-theme-eyebrow{
+    font-size:9px;letter-spacing:.12em;padding-left:10px;
+  }
+  .word-hunt-overlay.is-theme-entry .wh-theme-panel h2{
+    max-width:none;font-size:18px;line-height:1.07;
+    padding:0 20px;margin:2px auto 4px;
+  }
+  .word-hunt-overlay.is-theme-entry .wh-theme-panel p{
+    font-size:10px;margin:3px auto 7px;padding:0 12px;
+  }
+  .word-hunt-overlay.is-theme-entry .wh-theme-close{
+    min-width:44px;min-height:44px;width:44px;height:44px;
+    top:4px;right:5px;
+  }
+  .word-hunt-overlay.is-theme-entry .wh-theme-cards{
+    gap:6px;margin:5px 0 6px;padding:0 0 4px;
+  }
+  .word-hunt-overlay.is-theme-entry .wh-theme-card{
+    padding:4px 4px 7px;gap:2px;border-radius:12px;
+  }
+  .word-hunt-overlay.is-theme-entry .wh-theme-card:not([data-word-theme="mixed"]) img{
+    height:75px;aspect-ratio:auto;border-radius:8px;
+  }
+  .word-hunt-overlay.is-theme-entry .wh-theme-card strong{
+    font-size:11px;line-height:1.12;
+  }
+  .word-hunt-overlay.is-theme-entry .wh-theme-card small{
+    font-size:9px;line-height:1.15;min-height:19px;
+  }
+  .word-hunt-overlay.is-theme-entry .wh-theme-card-go{font-size:10px}
+  .word-hunt-overlay.is-theme-entry .wh-theme-card[data-word-theme="mixed"]{
+    min-height:95px;grid-template-columns:minmax(0,37%) minmax(0,1fr);
+    column-gap:8px;padding:4px 8px 4px 4px;row-gap:2px;
+  }
+  .word-hunt-overlay.is-theme-entry .wh-theme-card[data-word-theme="mixed"] img{
+    min-height:86px;aspect-ratio:1.35;border-radius:9px;
+  }
+  .word-hunt-overlay.is-theme-entry .wh-theme-card[data-word-theme="mixed"] strong{
+    font-size:13px;
+  }
+  .word-hunt-overlay.is-theme-entry .wh-theme-card[data-word-theme="mixed"] small{
+    font-size:10px;line-height:1.12;
+  }
+  .word-hunt-overlay.is-theme-entry .wh-theme-start{
+    min-height:43px;padding:6px 12px;
+  }
+}

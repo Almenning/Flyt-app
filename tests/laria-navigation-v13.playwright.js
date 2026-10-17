@@ -113,6 +113,13 @@ async function run(engine,label,viewport){
   }
   await page.locator('[data-bc13-action="words"]').click();
   await page.locator('#word-hunt-overlay').waitFor({state:'visible',timeout:13000});
+  await page.locator('.word-hunt-theme-picker:not([hidden])').waitFor();
+  // Return from the choice scene, then confirm game-to-Explore return too.
+  await page.locator('.wh-theme-close').click();
+  await page.locator('.bc13-panel:not([hidden]) [data-bc13-action="words"]').waitFor();
+  await page.locator('.bc13-panel:not([hidden]) [data-bc13-action="words"]').click();
+  await page.locator('.word-hunt-theme-picker:not([hidden]) [data-word-theme="mixed"]').click();
+  await page.locator('.word-hunt-cell:visible').first().waitFor();
   await page.locator('.word-hunt-back').click();
   await page.locator('.bc13-panel:not([hidden]) [data-bc13-action="words"]').waitFor();
   await page.locator('.bc13-close').click();

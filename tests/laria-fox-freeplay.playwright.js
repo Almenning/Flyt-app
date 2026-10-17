@@ -52,7 +52,11 @@ async function run(engine,name,viewport,which){
   await launch(page,url+'&part=words',which);
   await page.waitForFunction(()=>typeof window.openWordHunt==='function');
   await page.evaluate(()=>window.openWordHunt());
-  await match(page,'.word-hunt-fox',which,name+' Ordjakt');
+  await page.locator('.word-hunt-theme-picker:not([hidden])').waitFor();
+  await match(page,'.wh-theme-fox',which,name+' Ordjakt entrance');
+  await page.locator('.word-hunt-theme-picker [data-word-theme="mixed"]').click();
+  await page.locator('.word-hunt-cell:visible').first().waitFor();
+  await match(page,'.word-hunt-fox',which,name+' Ordjakt game');
   await page.screenshot({path:out+'/'+name+'-ordjakt.png',fullPage:true});
   await launch(page,url+'&part=globe',which);
   await page.waitForFunction(()=>typeof openGlobe==='function');
