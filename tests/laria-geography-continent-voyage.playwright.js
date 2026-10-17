@@ -81,7 +81,7 @@ async function verify(type,label,viewport){
      label+' back button must be a single 44px touch target: '+JSON.stringify(returnButton));
    await page.waitForFunction(()=>{const img=document.querySelector('.cv-map-art');return !!img&&img.complete&&img.naturalWidth>0&&img.naturalHeight>0;},null,{timeout:15000});
    const imageState=await page.locator('.cv-map-art').evaluate(img=>({variant:img.dataset.cvArtVariant,issue:img.dataset.cvArtFailure||null,width:img.naturalWidth,height:img.naturalHeight,src:img.getAttribute('src')}));
-   assert.equal((await page.locator('.cv-top .cv-development').textContent()).trim(),'GEOGRAFI · EVENTYR 2',label+' production header must not show internal debug text');
+   assert.equal((await page.locator('.cv-top .cv-development').textContent()).trim(),'INTERN TEST · GEOGRAFI KAPITTEL 2',label+' production header must not show internal debug text');
    assert.equal(imageState.variant,'production-v3',label+' Geography default painting must render without fallback: '+JSON.stringify(imageState));
    const map=page.locator('.cv-story-map');
    await map.waitFor({state:'visible'});
