@@ -46,7 +46,11 @@ async function verifyDefaultChildNavigation(page,label){
   await page.locator(subject==='geography'?'#geography-screen.active':'#subject-screen.active')
    .waitFor({timeout:18000});
   assert.equal(await page.locator(selector).count(),0,
-   label+' unapproved '+subject+' chapter was exposed without developer flags');
+   label+' unpublished pilot launcher must remain hidden');
+  if(subject==='english'||subject==='geography'){
+   const entry=page.locator(subject==='english'?'#laria-english-chapter2-entry':'#laria-geography-chapter2-entry');
+   assert.equal(await entry.isVisible(),true,label+' published eventyr entry must appear on the child journey');
+  }
   assert.equal(await page.locator('[id$="-chapter2-preview"]').count(),0,
    label+' an unapproved chapter-two dialog opened in the standard journey');
  }
@@ -108,7 +112,7 @@ async function run(type,label,viewport){
   await shot(page,label+'-math');
   await assertWideLandscape(page,'#laria-math-pattern-haven-preview','.mh-companion','.mh-paper',label+' math',viewport);
   await go(page,'english');
-  await page.locator('[data-laria-english-chapter2-preview="1"]').click();
+  await page.locator('#laria-english-chapter2-entry').click();
   await page.locator('[data-sh-act="stage"][data-sh-stage="setningsverkstedet"]').click();
   assert.equal(await page.locator('[data-sh-act="hint"]').getAttribute('aria-expanded'),'false');
   await page.locator('[data-sh-act="hint"]').click();
@@ -129,7 +133,7 @@ async function run(type,label,viewport){
   await shot(page,label+'-english');
   await assertWideLandscape(page,'#laria-english-sentence-harbor-preview','.sh-companion','.sh-paper',label+' english',viewport);
   await go(page,'geography');
-  await page.locator('[data-laria-geography-chapter2-preview="1"]').click();
+  await page.locator('#laria-geography-chapter2-entry').click();
   await page.locator('[data-cv-act="stage"][data-cv-stage="kompassholmen"]').click();
   await page.locator('[data-cv-act="hint"]').click();
   assert.equal(await page.locator('.cv-fox-hint').count(),1);
