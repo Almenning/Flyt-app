@@ -17,9 +17,9 @@ async function geography(page){
 }
 async function enter(page){
  await geography(page);
- const button=page.locator('[data-laria-geography-chapter2-preview="1"]');
+ const button=page.locator('#laria-geography-chapter2-entry');
  await button.waitFor({state:'attached'});
- assert.equal(await button.isVisible(),true,'gated Geography launcher hidden on real map page');
+ assert.equal(await button.isVisible(),true,'published Geography chapter entry hidden on real map page');
  await button.click();
  await page.locator('#laria-geo-continent-voyage-preview[role="dialog"]').waitFor();
  assert.equal(await page.locator('[data-cv-act="stage"]').count(),5);
@@ -59,8 +59,8 @@ async function verify(type,label,viewport){
    await page.goto(base,{waitUntil:'domcontentloaded'});
    await geography(page);
    assert.equal(await page.locator('[data-laria-geography-chapter2-preview]').count(),0,
-     label+' unflagged chapter visible');
-   await page.goto(base+'&geography-chapter2-preview=1',{waitUntil:'domcontentloaded'});
+     label+' developer-only chapter launcher visible');
+   await page.goto(base,{waitUntil:'domcontentloaded'});
    await enter(page);
    const returnButton=await page.locator('.cv-top [data-cv-act="close"]').evaluate(el=>{
      const box=el.getBoundingClientRect();
@@ -69,7 +69,7 @@ async function verify(type,label,viewport){
    assert.equal(returnButton.whiteSpace,'nowrap',label+' back action must never wrap');
    assert.ok(returnButton.height>=44&&returnButton.height<=55,
      label+' back button must be a single 44px touch target: '+JSON.stringify(returnButton));
-   assert.equal(await page.locator('.cv-map-art').getAttribute('data-cv-art-variant'),'default-v1',label+' normal preview must not switch artwork');
+   assert.equal(await page.locator('.cv-map-art').getAttribute('data-cv-art-variant'),'production-v3',label+' published default must use painted map');
    const map=page.locator('.cv-story-map');
    await map.waitFor({state:'visible'});
    const geometry=await map.evaluate(el=>{
@@ -78,7 +78,7 @@ async function verify(type,label,viewport){
        const r=b.getBoundingClientRect();
        return {x:r.x,y:r.y,right:r.right,bottom:r.bottom,width:r.width,height:r.height};
      });
-     return {loaded:img.complete&&img.naturalWidth===800&&img.naturalHeight===1000,
+     return {loaded:img.complete&&img.naturalWidth===960&&img.naturalHeight===1280,
        region:{x:region.x,y:region.y,right:region.right,bottom:region.bottom},stops};
    });
    assert.equal(geometry.loaded,true,label+' illustrated fantasy voyage asset failed to load');
@@ -258,5 +258,5 @@ async function verify(type,label,viewport){
  await verify(webkit,'webkit-ipad-portrait',{width:820,height:1180});
  await verify(webkit,'webkit-compact-iphone',{width:320,height:640});
  await verify(webkit,'webkit-ipad-landscape',{width:1180,height:820});
- console.log('PASS Geography chapter two private gate, compass, passport and reload');
+ console.log('PASS published Geography chapter two, painted map, compass, passport and reload');
 })().catch(err=>{console.error(err);process.exitCode=1});
