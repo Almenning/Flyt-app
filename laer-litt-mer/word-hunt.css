@@ -1466,3 +1466,191 @@
 @media(min-width:701px) and (max-height:500px) and (orientation:landscape){
   .word-hunt-fox-shortcut{flex-basis:44px;width:44px;height:44px}
 }
+
+
+/* Ordjakt editorial premium finish (17 Oct 2026).
+   The assignment is primary, the fox speaks; settings are quiet secondary
+   controls. Preserve the actual puzzle size and the original personal fox. */
+.word-hunt-targets{
+  min-width:0;
+  padding:19px 16px 21px;
+  border:2px solid #bb904e;
+  border-radius:24px;
+  background:linear-gradient(156deg,rgba(255,252,237,.98),rgba(255,241,205,.98));
+  box-shadow:0 5px 0 #a77a45,0 12px 24px #3a382d1c,inset 0 2px #fffdf6;
+}
+.word-hunt-targets-heading{
+  display:flex;align-items:baseline;justify-content:space-between;gap:6px;
+  margin-bottom:15px;
+}
+.word-hunt-targets h2{
+  margin:0;color:#274865;font-size:clamp(20px,1.7vw,25px);
+  font-weight:1000;line-height:1.05;letter-spacing:-.045em;
+}
+.word-hunt-targets-count{
+  flex:0 0 auto;color:#87683d;font:900 11px/1.2 ui-rounded,system-ui,sans-serif;
+  white-space:nowrap;letter-spacing:.02em;
+}
+.word-hunt-words{display:flex;flex-wrap:wrap;gap:10px 8px}
+.word-hunt-word{
+  display:inline-flex;align-items:center;justify-content:center;min-width:0;
+  padding:10px 12px;border:2px solid #dec18d;border-radius:14px;
+  color:#324b60;background:linear-gradient(180deg,#fffefa,#fff5de);
+  font-size:clamp(14px,1.15vw,17px);font-weight:1000;line-height:1.2;
+  letter-spacing:.012em;text-decoration:none;overflow-wrap:anywhere;
+  box-shadow:0 3px 0 #caaa72,0 7px 11px #7a61401b;
+}
+.word-hunt-word.found{
+  color:#335b41;background:linear-gradient(180deg,#e8f4df,#d3e9c7);
+  border-color:#91b07c;text-decoration:none;
+  box-shadow:0 3px 0 #8fab74,0 5px 13px #6394541b;
+}
+.word-hunt-word.just-found{animation:whWordFound .54s cubic-bezier(.2,.72,.26,1)}
+@keyframes whWordFound{
+  0%,100%{transform:scale(1)}
+  42%{transform:scale(1.065)}
+}
+.word-hunt-companion-speech{
+  min-height:54px;padding:10px 11px;
+  color:#27475f;font-size:clamp(12px,1.12vw,14px);
+  font-weight:950;line-height:1.36;
+}
+.word-hunt-companion-speech.is-speaking{animation:whFoxSpeak .42s ease-out}
+.word-hunt-companion[data-fox-reaction="correct"] .word-hunt-companion-speech,
+.word-hunt-companion[data-fox-reaction="complete"] .word-hunt-companion-speech,
+.word-hunt-companion[data-fox-reaction="cheer"] .word-hunt-companion-speech{
+  background:linear-gradient(#f4ffe9,#e8f3dc);border-color:#9ab77b;
+  box-shadow:0 4px 0 #96b478,0 8px 15px #495f3530;
+}
+.word-hunt-companion[data-fox-reaction="wrong"] .word-hunt-companion-speech,
+.word-hunt-companion[data-fox-reaction="near"] .word-hunt-companion-speech,
+.word-hunt-companion[data-fox-reaction="invalid"] .word-hunt-companion-speech,
+.word-hunt-companion[data-fox-reaction="repeated"] .word-hunt-companion-speech{
+  background:linear-gradient(#fffaf0,#fff0d2);border-color:#d6b171;
+}
+.word-hunt-companion[data-fox-reaction="complete"] .word-hunt-companion-sparkles,
+.word-hunt-companion[data-fox-reaction="correct"] .word-hunt-companion-sparkles{
+  opacity:1;animation:whFoxSparkles 1s ease-out both;
+}
+@keyframes whFoxSpeak{
+  0%{opacity:.64;transform:translateY(5px) scale(.975)}
+  100%{opacity:1;transform:translateY(0) scale(1)}
+}
+@keyframes whFoxSparkles{
+  0%{opacity:0;transform:scale(.7) rotate(-10deg)}
+  55%{opacity:1;transform:scale(1.15) rotate(8deg)}
+  100%{opacity:.8;transform:scale(1)}
+}
+/* A semantic fallback for older tests, but no longer a second visible
+   speaker competing with the fox. Award details also appear on the board. */
+.word-hunt-status:not(.is-quiet){
+  position:absolute!important;overflow:hidden!important;clip-path:inset(50%);
+  width:1px!important;height:1px!important;min-width:1px!important;min-height:1px!important;
+  padding:0!important;margin:-1px!important;border:0!important;
+  box-shadow:none!important;white-space:nowrap;
+}
+.word-hunt-side{gap:10px}
+.word-hunt-theme-open{
+  display:flex;align-items:center;gap:8px;min-height:44px;padding:4px 6px;
+  border:1px solid rgba(163,130,88,.22);border-radius:12px;
+  background:rgba(255,248,225,.50);
+  color:#6f5637;box-shadow:none;filter:none;
+}
+.word-hunt-theme-icon{
+  flex:0 0 auto;width:33px;height:33px;border-radius:8px;border:1px solid #e1bf89;
+  box-shadow:none;
+}
+.word-hunt-theme-open small{font-size:9px;color:#876d48}
+.word-hunt-theme-open strong{font-size:12px;color:#4d4d46}
+.word-hunt-theme-change{font-size:11px}
+.word-hunt-levels{gap:6px}
+.word-hunt-level,.word-hunt-level.active{
+  min-height:44px;border-width:1px;border-radius:13px;box-shadow:none;
+}
+.word-hunt-companion-controls{
+  background:none!important;border:0!important;box-shadow:none!important;
+  padding:2px!important;
+}
+.word-hunt-companion-controls button{
+  border-radius:12px;min-height:44px;
+  background:linear-gradient(#fffaf0,#f3e5c7);border-color:#d3b686;
+}
+.word-hunt-actions{gap:5px}
+.word-hunt-new{
+  min-height:44px;border:1px solid #d0ae74;border-radius:14px;
+  box-shadow:0 3px 0 #b4986a;
+}
+@media(min-width:701px){
+  /* Instructions are spoken by the fox. Keep DOM content for assistive
+     technologies/tests without another floating parchment callout. */
+  .word-hunt-intro{position:absolute!important;width:1px!important;height:1px!important;
+    margin:-1px!important;padding:0!important;border:0!important;overflow:hidden!important;
+    clip-path:inset(50%);white-space:nowrap;box-shadow:none!important}
+}
+@media(min-width:1100px) and (min-height:701px) and (max-height:1000px) and (orientation:landscape){
+  /* Primary mission at top right; preserve the previous letter-board track. */
+  .word-hunt-shell{grid-template-rows:auto repeat(5,min-content);row-gap:11px}
+  .word-hunt-board-card{grid-column:1;grid-row:2 / span 5}
+  .word-hunt-targets{grid-column:3;grid-row:2}
+  .word-hunt-levels{grid-column:3;grid-row:3;margin:0}
+  .word-hunt-theme-open{grid-column:3;grid-row:4}
+  .word-hunt-actions{grid-column:3;grid-row:5}
+  .word-hunt-companion{grid-column:2;grid-row:2 / span 5}
+  .word-hunt-targets h2{font-size:23px}
+  .word-hunt-word{font-size:15px}
+}
+@media(min-width:701px) and (max-width:1099px) and (min-height:501px){
+  .word-hunt-side{display:flex;flex-direction:column;gap:9px}
+  .word-hunt-targets{order:0}
+  .word-hunt-companion{order:1}
+  .word-hunt-theme-open{order:2}
+  .word-hunt-actions{order:3}
+  .word-hunt-status{order:4}
+  .word-hunt-targets{padding:13px 10px}
+  .word-hunt-words{gap:7px 6px}
+  .word-hunt-word{font-size:13px;padding:8px 9px}
+}
+@media(min-width:701px) and (max-height:500px) and (orientation:landscape){
+  .word-hunt-side{display:flex;flex-direction:column;gap:6px}
+  .word-hunt-targets{order:0;padding:8px}
+  .word-hunt-targets-heading{margin-bottom:6px}
+  .word-hunt-targets h2{font-size:16px}
+  .word-hunt-targets-count{font-size:10px}
+  .word-hunt-words{gap:5px}
+  .word-hunt-word{font-size:11px;padding:5px 7px;border-radius:9px}
+  .word-hunt-companion{order:1}
+  .word-hunt-theme-open{order:2}
+  .word-hunt-actions{order:3}
+}
+@media(max-width:700px) and (orientation:portrait){
+  /* On small phones, the word list remains before the board and remains
+     compact enough for the entire 6x6 grid to stay on the first screen. */
+  .word-hunt-targets{
+    display:flex;align-items:center;flex-wrap:wrap;gap:4px 7px;
+    width:100%;padding:6px 8px;border-width:1px;border-radius:13px;
+    box-shadow:0 3px 0 #a77a45;
+  }
+  .word-hunt-targets-heading{margin:0;gap:4px;align-items:center}
+  .word-hunt-targets h2{font-size:14px;white-space:nowrap;letter-spacing:-.035em}
+  .word-hunt-targets-count{font-size:10px}
+  .word-hunt-words{display:flex;flex:1 1 auto;flex-wrap:wrap;gap:4px}
+  .word-hunt-word{
+    font-size:clamp(10.5px,3.1vw,12px);padding:4px 6px;
+    border-width:1px;border-radius:10px;box-shadow:0 2px 0 #caaa72;
+  }
+  .word-hunt-companion-speech{font-size:11px;min-height:0}
+  .word-hunt-companion{border-color:#d2b88c}
+  .word-hunt-intro.has-fox-hint{
+    color:#284d63;font-weight:950;line-height:1.2;
+  }
+}
+@media(max-width:350px) and (orientation:portrait){
+  .word-hunt-targets{padding:4px 6px;gap:3px 5px}
+  .word-hunt-targets h2{font-size:13px}
+  .word-hunt-targets-count{font-size:9px}
+  .word-hunt-word{font-size:10px;padding:3px 5px}
+}
+@media(prefers-reduced-motion:reduce){
+  .word-hunt-companion-speech.is-speaking,.word-hunt-word.just-found,
+  .word-hunt-companion .word-hunt-companion-sparkles{animation:none!important}
+}
