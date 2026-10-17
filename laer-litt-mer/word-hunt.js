@@ -2,6 +2,7 @@
 const THEMES=window.LARIA_WORD_HUNT_THEMES;
 const LETTERS='ABCDEFGHIJKLMNOPQRSTUVWXYZÆØÅ';
 const KEY='laria-wordhunt-v1';
+const ROUND_KEY='laria-wordhunt-unfinished-round-v1';
 let ui={level:'easy',theme:'mixed',themeChoice:'mixed',size:6,grid:[],words:[],recentWords:[],found:new Map(),drag:null,tapStart:null,completed:false,magicSeen:false,magicTimer:null,pickerFocus:null,entryPickerActive:false};
 function stats(){try{return THEMES.normalizeProgress(JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(_){return THEMES.normalizeProgress(null)}}
 function saveTheme(){const s=stats();s.theme=ui.theme;localStorage.setItem(KEY,JSON.stringify(s))}
@@ -10,6 +11,65 @@ function saveRound(){
   s.rounds+=1;s.theme=ui.theme;s.themeRounds[ui.theme]+=1;
   localStorage.setItem(KEY,JSON.stringify(s));
   return firstSticker;
+}
+
+// Store the active puzzle separately from the permanent sticker/progress record.
+// This allows a child to return to an unfinished word without granting a win.
+function persistRound(){
+  try{
+    if(!ui.grid.length||ui.completed){localStorage.removeItem(ROUND_KEY);return}
+    localStorage.setItem(ROUND_KEY,JSON.stringify({
+      version:1,theme:ui.theme,level:ui.level,size:ui.size,
+      words:ui.words,grid:ui.grid,found:[...ui.found.entries()],
+      recentWords:ui.recentWords
+    }));
+  }catch(_){/* Continue playing when browser storage is unavailable. */}
+}
+function restoreRound(){
+  let data=null;
+  try{
+    data=JSON.parse(localStorage.getItem(ROUND_KEY)||'null');
+    if(!data)return false;
+    const allowedTheme=THEMES.list().some(p=>p.id===data.theme);
+    const size=data.level==='easy'?6:data.level==='hard'?7:0;
+    const count=data.level==='easy'?4:5;
+    const allowedWords=allowedTheme?new Set(THEMES.get(data.theme)[data.level]||[]):new Set();
+    if(data.version!==1||!allowedTheme||data.theme!==stats().theme||
+       data.size!==size||!Array.isArray(data.grid)||data.grid.length!==size||
+       !data.grid.every(row=>Array.isArray(row)&&row.length===size&&row.every(ch=>typeof ch==='string'&&/^[A-ZÆØÅ]$/.test(ch)))||
+       !Array.isArray(data.words)||data.words.length!==count||
+       new Set(data.words).size!==count||!data.words.every(w=>allowedWords.has(w))||
+       !Array.isArray(data.found)||data.found.length>=count)throw Error('Invalid saved word hunt');
+    const found=new Map();
+    for(const item of data.found){
+      if(!Array.isArray(item)||item.length!==2)throw Error('Invalid found word');
+      const [word,path]=item;
+      if(!data.words.includes(word)||found.has(word)||!Array.isArray(path)||path.length!==word.length)throw Error('Invalid found path');
+      const sequence=[];
+      let dr=0,dc=0;
+      for(let i=0;i<path.length;i++){
+        const cell=path[i];
+        if(!Array.isArray(cell)||cell.length!==2||!cell.every(n=>Number.isInteger(n)&&n>=0&&n<size))throw Error('Invalid found coordinate');
+        const [r,col]=cell;
+        if(i===1){dr=r-path[0][0];dc=col-path[0][1];
+          if(Math.abs(dr)>1||Math.abs(dc)>1||(!dr&&!dc))throw Error('Invalid found direction')}
+        if(i>0&&(r!==path[0][0]+dr*i||col!==path[0][1]+dc*i))throw Error('Invalid found line');
+        sequence.push(data.grid[r][col]);
+      }
+      const text=sequence.join('');
+      if(text!==word&&[...text].reverse().join('')!==word)throw Error('Invalid found spelling');
+      found.set(word,path);
+    }
+    ui.level=data.level;ui.size=size;ui.theme=data.theme;ui.themeChoice=data.theme;
+    ui.words=[...data.words];ui.grid=data.grid.map(row=>[...row]);ui.found=found;
+    ui.recentWords=Array.isArray(data.recentWords)&&data.recentWords.every(w=>typeof w==='string')?
+      data.recentWords.filter(w=>allowedWords.has(w)).slice(0,7):[...data.words];
+    ui.completed=false;ui.magicSeen=false;ui.tapStart=null;ui.drag=null;
+    return true;
+  }catch(_){
+    try{localStorage.removeItem(ROUND_KEY)}catch(__){}
+    return false;
+  }
 }
 function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b}
 function dirSet(){return ui.level==='easy'?[[0,1],[1,0]]:[[0,1],[1,0],[0,-1],[-1,0],[1,1],[1,-1],[-1,1],[-1,-1]]}
@@ -106,6 +166,7 @@ function makeRound(){
   for(let r=0;r<ui.size;r++)for(let c=0;c<ui.size;c++){
     if(!ui.grid[r][c])ui.grid[r][c]=LETTERS[Math.floor(Math.random()*LETTERS.length)];
   }
+  persistRound();
 }
 
 function themePickerMarkup(){
@@ -318,6 +379,7 @@ function checkLine(path){
     const left=ui.words.length-ui.found.size;
     status('Du fant '+hit+'! '+(left===1?'Ett ord igjen.':left+' ord igjen.'));
   }
+  persistRound();
   render(false)
 }
 function status(message,success=false,newSticker=false){
@@ -353,7 +415,8 @@ function openWordHunt(){
   previousOverflow=document.documentElement.style.overflow;
   previousFocus=document.activeElement;
   // Theme selection is the first thing the child sees, every time.
-  // Returning players may resume the last unfinished board.
+  // Returning players may resume the last unfinished board, also after reload.
+  if(!ui.grid.length)restoreRound();
   ui.theme=stats().theme;
   ui.themeChoice=ui.theme;
   root.hidden=false;
