@@ -71,7 +71,7 @@ async function run(browserType,label,viewport){
     label+' the child’s selected fox must be inside the adventure place');
   const placeBackground=await d.locator('.lmc-place-scene').evaluate(el=>getComputedStyle(el).backgroundImage);
   assert.match(placeBackground,/basecamp-v11\.webp/,label+' no flat generic gradient');
-  assert.equal((await page.request.get(new URL('./basecamp-v11.webp',url))).status(),200,
+  assert.equal((await page.request.get(new URL('./basecamp-v11.webp',url).href)).status(),200,
     label+' the existing illustrated Læria scenery must load');
   const plinthDimensions=await d.locator('.lmc-display-slot').evaluateAll(nodes=>
     nodes.map(el=>({width:el.getBoundingClientRect().width,height:el.getBoundingClientRect().height})));
