@@ -210,6 +210,12 @@ async function testView(browser,engine,label,viewport,url){
     /God start|på sporet/i,label+' fox did not react to a near-miss');
   assert.equal(await page.locator('.word-hunt-targets-count').innerText(),'0 av 4',
     label+' incomplete attempt changed the mission count');
+  if(viewport.width<=700&&viewport.height>viewport.width){
+   const animation=await page.locator('.word-hunt-fox-shortcut .word-hunt-fox').evaluate(
+     el=>getComputedStyle(el).animationName);
+   assert.match(animation,/whFoxShortcutSupport/,
+     label+' visible personal fox did not react to a near-miss');
+  }
   // On compact iPhones, the first selected letter and voluntary help offer
   // must be visible above the puzzle, not confined to the below-fold companion.
   if(viewport.width<=700&&viewport.height>viewport.width){
@@ -251,6 +257,12 @@ async function testView(browser,engine,label,viewport,url){
        /fant |var riktig|Vi fant /i,label+' fox stayed silent when a word was found');
      assert.equal(await page.locator('.word-hunt-targets-count').innerText(),'1 av 4',
        label+' the mission progress did not update');
+     if(viewport.width<=700&&viewport.height>viewport.width){
+      const animation=await page.locator('.word-hunt-fox-shortcut .word-hunt-fox').evaluate(
+        el=>getComputedStyle(el).animationName);
+      assert.match(animation,/whFoxShortcutCelebrate/,
+        label+' visible personal fox did not celebrate the correct word');
+     }
    }
   }
   assert.match(await page.locator('.word-hunt-companion-speech').innerText(),
