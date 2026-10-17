@@ -8,15 +8,23 @@
  let ui=null;
  const esc=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
  const fox=()=>'<img class="sh-fox" src="'+esc(ui.foxSrc)+'" alt="Reven din er med til Setningshavna">';
- const shell=body=>'<div class="sh-shell"><header class="sh-top"><button type="button" data-sh-act="close" class="sh-quiet">← Tilbake</button><span class="sh-tag">INTERN TEST · ENGELSK KAPITTEL 2</span></header><main class="sh-main">'+body+'</main></div>';
+ const shell=body=>'<div class="sh-shell"><header class="sh-top"><button type="button" data-sh-act="close" class="sh-quiet">← Tilbake</button><span class="sh-tag">'+(core.CHAPTER.published?'ENGELSK · EVENTYR 2':'INTERN TEST · ENGELSK KAPITTEL 2')+'</span></header><main class="sh-main">'+body+'</main></div>';
  function intro(){
+   // Separate opt-in art review; never replace the tested default map silently.
+   const paintedCandidate=new URLSearchParams(window.location.search).get('english-chapter2-art-v2')==='1';
+   const mapArt=paintedCandidate?'./english-sentence-harbor-art-candidate-v2.svg':'./english-sentence-harbor-painted-v3.png';
    const p=core.progress(ui.state),session=core.resume(ui.state);
    const positions={hilsenkaia:[27,24],ordbrygga:[75,38],
      setningsverkstedet:[28,55],samtalebaten:[74,71],historiefyret:[45,87]};
+   const recommended=core.STAGES.find(stage=>stage.id===p.recommended)||core.STAGES[0];
+   // Keep the fox and voluntary route in the first screen on mobile and iPad.
+   // A paused activity shows Resume in the same place instead of replacing it.
+   const quickStart=!session?'<button type="button" class="sh-quick-start" data-sh-act="quick-start" data-sh-stage="'+esc(recommended.id)+'">'+
+     '✦ '+(p.complete?'Besøk igjen ':'Begynn ved ')+esc(recommended.title)+' →</button>':'';
    const stops=core.STAGES.map((stop,i)=>{
      const status=p.places.find(x=>x.id===stop.id),point=positions[stop.id];
      if(!point)throw Error('Setningshavna missing a storybook stop '+stop.id);
-     return '<button class="sh-stop sh-map-stop" type="button" style="--sh-x:'+point[0]+'%;--sh-y:'+point[1]+'%"'+
+     return '<button class="sh-stop sh-map-stop'+(status.visited?' sh-map-stop-visited':'')+(stop.id===recommended.id?' sh-map-stop-recommended':'')+'" type="button" style="--sh-x:'+point[0]+'%;--sh-y:'+point[1]+'%"'+
        ' data-sh-act="stage" data-sh-stage="'+esc(stop.id)+'"'+
        ' aria-label="'+esc(stop.title)+'. '+esc(stop.focus)+(status.visited?'. Utforsket, spill igjen':'. Utforsk nå')+'">'+
        '<span class="sh-stop-icon" aria-hidden="true">'+(status.visited?'✓':String(i+1))+'</span>'+
@@ -26,31 +34,36 @@
      '<div class="sh-intro-heading"><div><span class="sh-eyebrow">ENGELSK · KAPITTEL 2</span>'+
      '<h1 class="sh-heading" tabindex="-1">Setningshavna</h1>'+
      '<p>Hils på venner, finn ord og bygg egne setninger på en spennende havnereise.</p></div></div>'+
-     '<div class="sh-story-layout"><div class="sh-story-map" role="group" aria-label="Illustrert havnekart med fem eventyrsteder">'+
-     '<img class="sh-map-art" src="./english-sentence-harbor-storymap-v1.svg" draggable="false" loading="eager" alt="">'+
-     '<div class="sh-stops">'+stops+'</div></div>'+
-     '<aside class="sh-story-rail"><div class="sh-story-fox">'+fox()+'<p>Velkommen til havna! Hvor vil du seile i dag?</p></div>'+
+     '<div class="sh-story-layout"><div class="sh-story-aside"><div class="sh-story-hero"><div class="sh-story-fox">'+fox()+'<p>Velkommen til havna! Hvor vil du seile i dag?</p></div>'+quickStart+
+     (session?'<button type="button" class="sh-continue" data-sh-act="resume">Fortsett i '+esc(session.stage.title)+' →</button>':'')+
+     '</div>'+
+     '<aside class="sh-story-rail" aria-label="Din reise">'+
      '<div class="sh-progress" role="status"><strong>'+p.done+' av 5 steder utforsket</strong>'+
      '<small>'+(p.places.some(place=>place.attempts===1)?'Nye oppgaver venter på steder du har besøkt.':'Velg fritt, og kom tilbake til et sted du liker.')+'</small>'+
      '<div class="sh-progress-bar"><span style="width:'+p.done*20+'%"></span></div></div>'+
-     (session?'<button type="button" class="sh-continue" data-sh-act="resume">Fortsett i '+esc(session.stage.title)+' →</button>':'')+
      '<div class="sh-story-guide"><strong>Ord blir små eventyr</strong>'+
      '<p>Lytt, prat, les og sett sammen setninger. Reisen er din.</p></div>'+
-     '<p class="sh-note">Originalt illustrert havnekart. Intern kandidat, ikke premiumgodkjent eller publisert.</p>'+
-     '</aside></div></section>');
+     '<p class="sh-note">Fem steder å oppdage. Du velger selv hvor eventyret begynner.</p>'+
+     '</aside></div>'+
+     '<div class="sh-story-map" role="group" aria-label="Illustrert havnekart med fem eventyrsteder">'+
+     '<img class="sh-map-art" data-sh-art-variant="'+(paintedCandidate?'candidate-v2':'production-v3')+'" src="'+mapArt+'" draggable="false" loading="eager" alt="">'+
+     '<div class="sh-stops">'+stops+'</div></div>'+
+     '</div></section>');
  }
  function sentenceUI(session){
-   const task=session.task,selected=session.selected;
-   return '<p class="sh-instruction">Velg ett og ett ord. Se hvordan setningen vokser.</p>'+
+   const task=session.task,selected=session.selected,solved=session.feedback?.correct===true;
+   return (solved?'':'<p class="sh-instruction">Velg ett og ett ord. Se hvordan setningen vokser.</p>')+
      '<div class="sh-assembled" role="status" aria-label="Setningen du bygger">'+
      (selected.length?selected.map(i=>'<span class="sh-built-word">'+esc(task.tiles[i])+'</span>').join(''):
        '<span class="sh-empty">Setningen din kommer her ✨</span>')+'</div>'+
-     '<div class="sh-tiles" role="group" aria-label="Engelske ordbrikker">'+task.tiles.map((w,i)=>
+     (solved?'':('<div class="sh-tiles" role="group" aria-label="Engelske ordbrikker">'+task.tiles.map((w,i)=>
        '<button type="button" class="sh-tile'+(selected.includes(i)?' sh-picked':'')+'" data-sh-act="tile" data-sh-index="'+i+
-       '" aria-pressed="'+String(selected.includes(i))+'"'+(session.feedback?.correct?' disabled':'')+'>'+esc(w)+'</button>').join('')+'</div>'+
-     '<div class="sh-tools"><button type="button" class="sh-quiet" data-sh-act="clear">Start på nytt</button>'+
+       '" aria-pressed="'+String(selected.includes(i))+'"'+(session.feedback?.correct?' disabled':'')+'>'+esc(w)+'</button>').join('')+'</div>'))+
+     // The child has finished building this sentence: remove redundant controls
+     // so the correct answer and Next fit the phone, instead of relying on scrolling.
+     (solved?'':('<div class="sh-tools"><button type="button" class="sh-quiet" data-sh-act="clear">Start på nytt</button>'+
      '<button type="button" class="sh-check" data-sh-act="check-sentence"'+
-       (selected.length<task.tiles.length?' disabled':'')+'>Sjekk setningen ✦</button></div>';
+       (selected.length<task.tiles.length?' disabled':'')+'>Sjekk setningen ✦</button></div>'));
  }
  function play(){
    const s=core.resume(ui.state);
@@ -90,15 +103,58 @@
      fox()+'<button type="button" class="sh-next" data-sh-act="intro">Se alle stedene →</button>'+
      '<button type="button" class="sh-quiet" data-sh-act="replay" data-sh-stage="'+esc(r.stageId)+'">Leke mer her</button></section>');
  }
- function render(focus='.sh-heading',preserveScroll=false){
-   const previousScroll=preserveScroll?ui.root.scrollTop:0;
+ function render(focus='.sh-heading',preserveScroll=false,revealFeedback=false){
    if(!ui)return;
+   const previousScroll=preserveScroll?ui.root.scrollTop:0;
    ui.root.innerHTML=ui.mode==='play'?play():ui.mode==='result'?result():intro();
+   // Art is a decorative layer; a failed image must never make gameplay unavailable.
+   if(ui.mode==='intro'){
+     const art=ui.root.querySelector('.sh-map-art[data-sh-art-variant]');
+     if(art){
+       const variant=art.getAttribute('data-sh-art-variant');
+       const validArtSize=()=>{
+         const width=art.naturalWidth,height=art.naturalHeight;
+         // The two 3:4 raster exports can be native or browser-scaled.
+         // Keep SVG candidates on their exact 800x1000 coordinate contract.
+         return variant==='candidate-v2'?(width===800&&height===1000):
+           (width>=768&&height>=1024&&width*4===height*3);
+       };
+       const fallback=(reason)=>{
+         if(art.getAttribute('data-sh-art-variant')==='fallback-v1')return;
+         // Keep the reason for WebKit/Chromium diagnostics after the SVG loads.
+         art.dataset.shArtFailure=String(reason)+':'+art.naturalWidth+'x'+art.naturalHeight;
+         art.setAttribute('data-sh-art-variant','fallback-v1');
+         art.src='./english-sentence-harbor-storymap-v1.svg';
+       };
+       const verifyDimensions=()=>{
+         if(art.getAttribute('data-sh-art-variant')==='fallback-v1')return;
+         if(!validArtSize())fallback('dimensions');
+       };
+       art.addEventListener('error',()=>fallback('load-or-decode'),{once:true});
+       art.addEventListener('load',verifyDimensions,{once:true});
+       // An inserted image may report complete before it has decoded. Zero
+       // dimensions are not evidence of a malformed file: await load/error.
+       if(art.complete&&art.naturalWidth>0&&art.naturalHeight>0)verifyDimensions();
+     }
+   }
    ui.root.scrollTop=previousScroll;
-   ui.root.querySelector(focus)?.focus({preventScroll:true});
+   const target=ui.root.querySelector(focus);
+   if(target){
+     target.focus({preventScroll:true});
+     // Reveal the response on small phones instead of leaving it below the fold.
+     if(revealFeedback){
+       target.scrollIntoView({behavior:'auto',block:'center',inline:'nearest'});
+       // Keep the action to continue visible without hiding the feedback.
+       ui.root.querySelector('[data-sh-act="next"]')?.scrollIntoView({behavior:'auto',block:'nearest',inline:'nearest'});
+     }
+   }
  }
  function save(){try{ui?.save?.()}catch(_){/* keep preview playable */}}
- function start(stage){core.start(ui.state,stage);ui.mode='play';ui.result=null;ui.hintShown=false;save();render()}
+ function start(stage){
+   // Tapping the same painted stop must resume an unfinished activity, not erase it.
+   if(core.resume(ui.state)?.stage.id!==stage)core.start(ui.state,stage);
+   ui.mode='play';ui.result=null;ui.hintShown=false;save();render();
+ }
  function speak(){
    const s=core.resume(ui.state);if(!s||!window.speechSynthesis||!window.SpeechSynthesisUtterance)return;
    const spoken=core.spokenEnglish(s.task,s.task.kind==='sentence'?!!s.feedback?.correct:!!s.feedback);
@@ -128,13 +184,13 @@
    const cmd=b.dataset.shAct;
    if(cmd==='close'){close();return}
    if(cmd==='intro'){ui.mode='intro';ui.result=null;ui.hintShown=false;render();return}
-   if(cmd==='stage'||cmd==='replay'){start(b.dataset.shStage);return}
+   if(cmd==='stage'||cmd==='replay'||cmd==='quick-start'){start(b.dataset.shStage);return}
    if(cmd==='resume'){ui.mode='play';ui.result=null;render();return}
    if(cmd==='speak'){speak();return}
    if(cmd==='hint'){ui.hintShown=!ui.hintShown;render('[data-sh-act="hint"]',true);return}
    if(cmd==='answer'){
      const s=core.resume(ui.state);if(!s)return;
-     core.choose(ui.state,s.task.options[Number(b.dataset.shIndex)]);save();render('.sh-feedback',true);return;
+     core.choose(ui.state,s.task.options[Number(b.dataset.shIndex)]);save();render('.sh-feedback',true,true);return;
    }
    if(cmd==='tile'){
      const index=Number(b.dataset.shIndex);
@@ -160,7 +216,7 @@
      foxSrc:allowed?src:'./lia-fox-explorer-home.webp',mode:'intro',result:null,hintShown:false};
    root.id='laria-english-sentence-harbor-preview';root.className='sh-root';
    root.setAttribute('role','dialog');root.setAttribute('aria-modal','true');
-   root.setAttribute('aria-label','Setningshavna, internt engelsk eventyr');root.tabIndex=-1;
+   root.setAttribute('aria-label','Setningshavna, engelsk eventyr');root.tabIndex=-1;
    root.addEventListener('click',handle);document.body.append(root);
    if(app)app.inert=true;document.documentElement.style.overflow='hidden';
    document.addEventListener('keydown',onKey);render();return true;

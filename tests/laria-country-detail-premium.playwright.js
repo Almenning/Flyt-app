@@ -64,13 +64,30 @@ async function run(engine,label,viewport,url,avatar='girl'){
     await page.waitForFunction(()=>typeof openDetail==='function'&&
       !!window.LARIA_COUNTRY_DETAIL_PREMIUM&&!!window.LARIA_GLOBE_COUNTRY_SCENE_V25,
       null,{timeout:22000});
+    // Script functions can exist while Basecamp is still finishing its first
+    // render. Opening a country before navigation is ready can be overwritten
+    // by the final boot render, especially on slower WebKit runners.
+    await page.locator('.bc14-subject[data-camp="subject-geography"]')
+      .waitFor({state:'visible',timeout:22000});
+    await page.locator('#home-screen.active').waitFor({state:'visible',timeout:22000});
     const before=await page.evaluate(()=>JSON.stringify({
       journey:state.journey,answerLog:state.answerLog,mastery:state.mastery
     }));
     // The product still navigates through the SAME openDetail() as the globe card.
     await page.evaluate(()=>openDetail('eg','world'));
     const card=page.locator('#detail-screen.active .country-story[data-country-detail="eg"]');
-    await card.waitFor({timeout:9000});
+    try{
+      await card.waitFor({timeout:12000});
+    }catch(error){
+      const diagnostic=await page.evaluate(()=>({
+        activeScreen:document.querySelector('.screen.active')?.id,
+        countryStoryId:document.querySelector('#detail-content .country-story')?.dataset.countryDetail,
+        detailHtml:document.querySelector('#detail-content')?.innerHTML.slice(0,180),
+        appReady:!!document.querySelector('#home-screen'),
+        countryLoaded:!!window.LARIA_COUNTRY_DETAIL_PREMIUM
+      }));
+      throw new Error('Country detail did not render after Basecamp became ready: '+JSON.stringify(diagnostic),{cause:error});
+    }
     await card.locator('h1').waitFor();
     assert.equal((await card.locator('h1').innerText()).trim(),'Egypt',label+' wrong country');
     assert.match(await card.locator('.country-story-tagline').innerText(),/Nilen.*pyramider/,

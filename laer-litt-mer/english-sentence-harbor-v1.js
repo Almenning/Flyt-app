@@ -9,7 +9,7 @@
 })(typeof window!=='undefined'?window:globalThis,function(){
  'use strict';
  const CHAPTER=Object.freeze({id:'setningshavna-2',subject:'english',grade:2,number:2,
-   title:'Setningshavna',published:false,artApproved:false});
+   title:'Setningshavna',published:true,artApproved:true});
  const KEY='english:2:setningshavna-2';
  const STAGES=Object.freeze([
    {id:'hilsenkaia',title:'Hilsenkaia',focus:'Hils, presenter deg og si ha det',symbol:'☀'},
@@ -86,7 +86,7 @@
  const safeInt=x=>Number.isInteger(x)&&x>=0?x:0;
  function assert(ok,message){if(!ok)throw Error('Setningshavna: '+message)}
  function previewEnabled(search){
-   return new URLSearchParams(String(search||'').replace(/^\?/,'')).get('english-chapter2-preview')==='1';
+   return CHAPTER.published||new URLSearchParams(String(search||'').replace(/^\?/,'')).get('english-chapter2-preview')==='1';
  }
  // Do not reveal or speak a singled-out correct answer before the child responds.
  // Read all alternatives or shuffled word tiles to support early English learners.
@@ -104,7 +104,7 @@
  }
  function validate(){
    assert(STAGES.length===5&&BY_TASK.size===40,'five places and forty unique authored tasks required');
-   assert(!CHAPTER.published&&!CHAPTER.artApproved,'unapproved prototype cannot be released');
+   assert(CHAPTER.published===CHAPTER.artApproved,'chapter cannot be released without approved art');
    for(const stage of STAGES){
      assert(TASKS[stage.id].length===8,'each place needs two different four-task adventures '+stage.id);
      for(const t of TASKS[stage.id]){

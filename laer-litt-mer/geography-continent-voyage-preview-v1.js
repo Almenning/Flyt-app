@@ -10,16 +10,24 @@
  const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const fox=()=>'<img class="cv-fox" alt="Reven din er med på reisen" src="'+esc(ui.foxSrc)+'">';
  const shell=body=>'<div class="cv-shell"><header class="cv-top"><button type="button" data-cv-act="close" class="cv-quiet">← Tilbake</button>'+
-   '<span class="cv-development">INTERN TEST · GEOGRAFI KAPITTEL 2</span></header>'+
+   '<span class="cv-development">'+(core.CHAPTER.published?'GEOGRAFI · EVENTYR 2':'INTERN TEST · GEOGRAFI KAPITTEL 2')+'</span></header>'+
    '<main class="cv-main">'+body+'</main></div>';
  function overview(){
+   // Separate opt-in art review; never replace the tested default map silently.
+   const paintedCandidate=new URLSearchParams(window.location.search).get('geography-chapter2-art-v2')==='1';
+   const mapArt=paintedCandidate?'./geography-continent-voyage-art-candidate-v2.svg':'./geography-continent-voyage-painted-v3.png';
    const p=core.progress(ui.state),session=core.resume(ui.state);
    const positions={kompassholmen:[27,24],passbrygga:[75,39],
      havpassasjen:[28,55],naturøya:[74,71],reisefyret:[45,86]};
+   const recommended=core.STAGES.find(stop=>stop.id===p.recommended)||core.STAGES[0];
+   // Keep a voluntary start beside the fox before the map on small devices.
+   // An unfinished voyage gets Resume rather than a second start.
+   const quickStart=!session?'<button type="button" class="cv-quick-start" data-cv-act="quick-start" data-cv-stage="'+esc(recommended.id)+'">'+
+     '✦ '+(p.complete?'Seil igjen til ':'Seil til ')+esc(recommended.title)+' →</button>':'';
    const places=core.STAGES.map((s,i)=>{
      const visited=p.places.find(x=>x.id===s.id)?.visited,point=positions[s.id];
      if(!point)throw Error('Kontinentseilasen missing storybook stop '+s.id);
-     return '<button type="button" class="cv-place cv-map-stop" data-cv-act="stage" data-cv-stage="'+esc(s.id)+'"'+
+     return '<button type="button" class="cv-place cv-map-stop'+(visited?' cv-map-stop-visited':'')+(s.id===recommended.id?' cv-map-stop-recommended':'')+'" data-cv-act="stage" data-cv-stage="'+esc(s.id)+'"'+
        ' style="--cv-x:'+point[0]+'%;--cv-y:'+point[1]+'%"'+
        ' aria-label="'+esc(s.title)+'. '+esc(s.focus)+(visited?'. Utforsket, spill igjen':'. Utforsk nå')+'">'+
        '<span class="cv-place-symbol" aria-hidden="true">'+(visited?'✓':String(i+1))+'</span>'+
@@ -28,18 +36,21 @@
    return shell('<section class="cv-intro"><div class="cv-intro-header"><div><span class="cv-eyebrow">GEOGRAFI · KAPITTEL 2</span>'+
      '<h1 class="cv-heading" tabindex="-1">Kontinentseilasen</h1>'+
      '<p>Seil på et fantasihav, finn verdenskartets land og samle stempler i reisepasset.</p></div></div>'+
-     '<div class="cv-story-layout"><div class="cv-story-map" role="group" aria-label="Illustrert fantasihav med fem interaktive eventyrsteder">'+
-     '<img class="cv-map-art" src="./geography-continent-voyage-storymap-v1.svg" alt="" draggable="false" loading="eager">'+
-     '<div class="cv-places">'+places+'</div></div>'+
-     '<aside class="cv-story-rail"><div class="cv-story-fox">'+fox()+'<p>Hvor skal vi seile? Jeg følger med på reisen!</p></div>'+
+     '<div class="cv-story-layout"><div class="cv-story-aside"><div class="cv-story-hero"><div class="cv-story-fox">'+fox()+'<p>Hvor skal vi seile? Jeg følger med på reisen!</p></div>'+quickStart+
+     (session?'<button type="button" class="cv-primary" data-cv-act="resume">Fortsett i '+esc(session.place.title)+' →</button>':'')+
+     '</div>'+
+     '<aside class="cv-story-rail" aria-label="Din reise">'+
      '<div class="cv-progress" role="status"><strong>'+p.done+' av 5 steder utforsket</strong>'+
      '<small>'+(p.places.some(place=>place.attempts===1)?'Flere nye oppdagelser venter når du besøker et sted igjen.':'Alle stedene kan gjentas når du vil.')+'</small>'+
      '<div class="cv-bar"><span style="width:'+p.done*20+'%"></span></div></div>'+
-     (session?'<button type="button" class="cv-primary" data-cv-act="resume">Fortsett i '+esc(session.place.title)+' →</button>':'')+
      '<div class="cv-story-guide"><strong>Finn veien til verden</strong>'+
      '<p>Styr med kompass, sett stempler og finn spennende land med den ekte kloden.</p></div>'+
      '<p class="cv-note">Eventyrhavet er fantasi, ikke et verdenskart. Den ekte globusen er uendret.</p>'+
-     '</aside></div></section>');
+     '</aside></div>'+
+     '<div class="cv-story-map" role="group" aria-label="Illustrert fantasihav med fem interaktive eventyrsteder">'+
+     '<img class="cv-map-art" data-cv-art-variant="'+(paintedCandidate?'candidate-v2':'production-v3')+'" src="'+mapArt+'" alt="" draggable="false" loading="eager">'+
+     '<div class="cv-places">'+places+'</div></div>'+
+     '</div></section>');
  }
  function controls(task,feedback){
    if(task.kind==='compass'){
@@ -78,7 +89,7 @@
      '<div class="cv-count">OPPDAGELSE '+(s.step+1)+' AV 4<div class="cv-bar"><span style="width:'+((s.step+(feedback?1:0))*25)+'%"></span></div></div>'+
      '<div class="cv-paper"><span class="cv-eyebrow">'+(s.task.kind==='compass'?'STYR MED KOMPASS':s.task.kind==='stamp'?'FÅ ET REISESTEMPEL':'FINN ET STED I VERDEN')+'</span>'+
      '<h1 class="cv-heading" tabindex="-1">'+esc(s.task.prompt)+'</h1>'+controls(s.task,feedback)+
-     (feedback?'<div class="cv-feedback" role="status"><strong>'+(feedback.correct?'✦ Du fant riktig vei!':'Bra at du prøver!')+
+     (feedback?'<div class="cv-feedback" role="status" tabindex="-1"><strong>'+(feedback.correct?'✦ Du fant riktig vei!':'Bra at du prøver!')+
        '</strong><p>'+esc(feedback.hint)+'</p></div>'+
        '<button type="button" data-cv-act="next" class="cv-primary">'+
        (s.step===3?'Se reisen din →':'Neste oppdagelse →')+'</button>':'')+
@@ -93,14 +104,58 @@
      '<button type="button" data-cv-act="intro" class="cv-primary">Til alle stedene →</button>'+
      '<button type="button" data-cv-act="replay" data-cv-stage="'+esc(s.placeId)+'" class="cv-quiet">Spill dette stedet igjen</button></section>');
  }
- function render(focus='.cv-heading',preserveScroll=false){
-   const previousScroll=preserveScroll?ui.root.scrollTop:0;
+ function render(focus='.cv-heading',preserveScroll=false,revealFeedback=false){
    if(!ui)return;
+   const previousScroll=preserveScroll?ui.root.scrollTop:0;
    ui.root.innerHTML=ui.mode==='challenge'?challenge():ui.mode==='summary'?summary():overview();
-   ui.root.scrollTop=previousScroll;ui.root.querySelector(focus)?.focus({preventScroll:true});
+   // Art is a decorative layer; a failed image must never make gameplay unavailable.
+   if(ui.mode==='intro'){
+     const art=ui.root.querySelector('.cv-map-art[data-cv-art-variant]');
+     if(art){
+       const variant=art.getAttribute('data-cv-art-variant');
+       const validArtSize=()=>{
+         const width=art.naturalWidth,height=art.naturalHeight;
+         // The two 3:4 raster exports can be native or browser-scaled.
+         // Keep SVG candidates on their exact 800x1000 coordinate contract.
+         return variant==='candidate-v2'?(width===800&&height===1000):
+           (width>=768&&height>=1024&&width*4===height*3);
+       };
+       const fallback=(reason)=>{
+         if(art.getAttribute('data-cv-art-variant')==='fallback-v1')return;
+         // Keep the reason for WebKit/Chromium diagnostics after the SVG loads.
+         art.dataset.cvArtFailure=String(reason)+':'+art.naturalWidth+'x'+art.naturalHeight;
+         art.setAttribute('data-cv-art-variant','fallback-v1');
+         art.src='./geography-continent-voyage-storymap-v1.svg';
+       };
+       const verifyDimensions=()=>{
+         if(art.getAttribute('data-cv-art-variant')==='fallback-v1')return;
+         if(!validArtSize())fallback('dimensions');
+       };
+       art.addEventListener('error',()=>fallback('load-or-decode'),{once:true});
+       art.addEventListener('load',verifyDimensions,{once:true});
+       // An inserted image may report complete before it has decoded. Zero
+       // dimensions are not evidence of a malformed file: await load/error.
+       if(art.complete&&art.naturalWidth>0&&art.naturalHeight>0)verifyDimensions();
+     }
+   }
+   ui.root.scrollTop=previousScroll;
+   const target=ui.root.querySelector(focus);
+   if(target){
+     target.focus({preventScroll:true});
+     // Reveal the child's feedback on small screens without extra searching.
+     if(revealFeedback){
+       target.scrollIntoView({behavior:'auto',block:'center',inline:'nearest'});
+       // Keep the action to continue visible without hiding the feedback.
+       ui.root.querySelector('[data-cv-act="next"]')?.scrollIntoView({behavior:'auto',block:'nearest',inline:'nearest'});
+     }
+   }
  }
  function save(){try{ui?.save?.()}catch(_){/* keep draft playable in memory */}}
- function play(id){core.start(ui.state,id);ui.mode='challenge';ui.result=null;ui.hintShown=false;save();render()}
+ function play(id){
+   // A second tap on the child's current stop resumes the saved voyage step.
+   if(core.resume(ui.state)?.place.id!==id)core.start(ui.state,id);
+   ui.mode='challenge';ui.result=null;ui.hintShown=false;save();render();
+ }
  function read(){
    const s=core.resume(ui.state);if(!s||!window.speechSynthesis||!window.SpeechSynthesisUtterance)return;
    const utterance=new SpeechSynthesisUtterance(s.task.prompt);utterance.lang='nb-NO';utterance.rate=.85;
@@ -128,11 +183,11 @@
    const cmd=b.dataset.cvAct;
    if(cmd==='close'){close();return}
    if(cmd==='intro'){ui.mode='intro';ui.result=null;ui.hintShown=false;render();return}
-   if(cmd==='stage'||cmd==='replay'){play(b.dataset.cvStage);return}
+   if(cmd==='stage'||cmd==='replay'||cmd==='quick-start'){play(b.dataset.cvStage);return}
    if(cmd==='resume'){ui.mode='challenge';ui.result=null;render();return}
    if(cmd==='read'){read();return}
    if(cmd==='hint'){ui.hintShown=!ui.hintShown;render('[data-cv-act="hint"]',true);return}
-   if(cmd==='answer'){core.answer(ui.state,b.dataset.cvAnswer);save();render('.cv-feedback',true);return}
+   if(cmd==='answer'){core.answer(ui.state,b.dataset.cvAnswer);save();render('.cv-feedback',true,true);return}
    if(cmd==='next'){
      const result=core.advance(ui.state);ui.hintShown=false;save();
      if(result.finished){ui.result=result;ui.mode='summary'}else ui.mode='challenge';
@@ -151,7 +206,7 @@
      state:args.state,save:args.save,mode:'intro',result:null,hintShown:false};
    root.id='laria-geo-continent-voyage-preview';root.className='cv-root';
    root.setAttribute('role','dialog');root.setAttribute('aria-modal','true');
-   root.setAttribute('aria-label','Kontinentseilasen, intern forhåndsvisning');root.tabIndex=-1;
+   root.setAttribute('aria-label','Kontinentseilasen, geografisk eventyr');root.tabIndex=-1;
    root.addEventListener('click',handle);document.body.append(root);
    if(app)app.inert=true;document.documentElement.style.overflow='hidden';
    document.addEventListener('keydown',onKey);render();return true;

@@ -146,8 +146,9 @@
  * De ekte landgrensene og kontinentene vises fremdeles på Lærias globale klode.
  */
 .cv-root .cv-shell:has(.cv-story-layout){width:min(100%,1110px);max-width:1110px}
-.cv-root .cv-story-layout{display:grid;grid-template-columns:minmax(0,1.66fr) minmax(225px,.87fr);gap:24px;align-items:start;margin-top:14px}
-.cv-root .cv-story-map{position:relative;width:100%;min-width:0;aspect-ratio:800 / 1000;
+.cv-root .cv-story-layout{display:grid;grid-template-columns:minmax(0,1.66fr) minmax(225px,.87fr);grid-template-areas:"map side";gap:24px;align-items:start;margin-top:14px}
+.cv-root .cv-story-aside{grid-area:side;display:flex;flex-direction:column;gap:15px;min-width:0}
+.cv-root .cv-story-map{grid-area:map;position:relative;width:100%;min-width:0;aspect-ratio:800 / 1000;
  border:6px solid #d9bf94;border-radius:26px;overflow:hidden;background:#77b2b4;
  box-shadow:0 7px 0 #b99c79,inset 0 0 0 3px #fbebc9}
 .cv-root .cv-map-art{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;pointer-events:none;user-select:none}
@@ -166,6 +167,7 @@
 .cv-root .cv-story-map .cv-map-stop .cv-chevron,.cv-root .cv-story-map .cv-map-stop small{display:none}
 .cv-root .cv-story-rail{display:flex;flex-direction:column;gap:13px;min-width:0;padding:5px 0}
 .cv-root .cv-story-rail .cv-progress,.cv-root .cv-story-rail .cv-primary{margin:0}
+.cv-root .cv-story-hero{display:flex;flex-direction:column;gap:12px;min-width:0}
 .cv-root .cv-story-fox{display:flex;align-items:center;gap:10px;padding:12px;background:#e1e9de;
  border:2px solid #b8cba9;border-radius:18px;box-shadow:0 4px 0 #b9c9b0}
 .cv-root .cv-story-fox .cv-fox{width:clamp(67px,10vw,109px);height:clamp(82px,12vw,124px)}
@@ -175,13 +177,20 @@
 .cv-root .cv-story-guide p{font-size:13px;line-height:1.45}
 .cv-root .cv-story-rail .cv-note{font-size:11px;line-height:1.45;margin:0}
 @media(max-width:720px){
- .cv-root .cv-story-layout{grid-template-columns:minmax(0,1fr);gap:16px}
+ .cv-root .cv-story-layout{grid-template-columns:minmax(0,1fr);grid-template-areas:"hero" "map" "rail";gap:16px}
+ .cv-root .cv-story-aside{display:contents}
+ .cv-root .cv-story-hero{grid-area:hero}
+ .cv-root .cv-story-rail{grid-area:rail}
  .cv-root .cv-story-map{max-width:540px;margin-inline:auto}
  .cv-root .cv-story-rail{gap:11px;padding:0}
  .cv-root .cv-story-map .cv-map-stop{min-width:91px;min-height:44px;max-width:44%;font-size:clamp(11px,3vw,15px);
    gap:5px;padding:5px 7px}
  .cv-root .cv-story-map .cv-place-symbol{min-width:25px;width:25px;height:25px;font-size:13px}
- .cv-root .cv-story-fox{min-height:96px}
+ .cv-root .cv-story-hero{gap:9px}
+ .cv-root .cv-story-fox{min-height:0;padding:7px 11px}
+ .cv-root .cv-story-fox .cv-fox{height:61px;width:63px}
+ .cv-root .cv-story-fox p{font-size:13px;line-height:1.25}
+ .cv-root .cv-story-hero .cv-quick-start{min-height:48px;padding:10px 12px}
 }
 @media(max-width:365px){
  .cv-root .cv-story-map .cv-map-stop{min-width:0;max-width:46%;font-size:11px;padding:4px 5px;gap:3px}
@@ -212,4 +221,110 @@
  .cv-root .cv-task .cv-passport small{font-size:11px;line-height:1.22}
  .cv-root .cv-task .cv-stamps{gap:7px}
  .cv-root .cv-task .cv-stamp{min-height:48px;padding:8px}
+}
+
+/* The child's personal fox and voluntary next action share a first-screen
+ * entry. The full illustrated map and five tactile stops remain below/alongside. */
+.cv-root .cv-story-hero .cv-quick-start{
+ display:block;width:100%;min-height:50px;margin:0;padding:12px 14px;
+ border:2px solid #987153;border-radius:15px;
+ background:linear-gradient(160deg,#fff0ca,#e7b77d);box-shadow:0 4px 0 #ad8759;
+ color:#523b2b;text-align:center;font:900 15px ui-rounded,system-ui;line-height:1.2;
+ touch-action:manipulation
+}
+.cv-root .cv-story-hero .cv-quick-start:focus-visible{outline:3px solid #247b7e;outline-offset:3px}
+.cv-root .cv-story-hero .cv-quick-start:active{transform:translateY(2px);box-shadow:0 2px 0 #ad8759}
+.cv-root .cv-story-hero .cv-primary{margin:0}
+
+/* Short-height iPhone landscape: preserve an above-the-fold invitation and
+   full 44px touch targets while the child can still explore all five islands. */
+@media (min-width:721px) and (max-width:899px) and (max-height:480px) and (orientation:landscape){
+ .cv-root .cv-top{padding:8px 14px}
+ .cv-root .cv-main:has(.cv-intro){padding:10px 14px}
+ .cv-root .cv-intro .cv-heading{font-size:27px;margin:3px 0 4px}
+ .cv-root .cv-intro-header p{font-size:13px;line-height:1.23}
+ .cv-root .cv-story-layout{margin-top:8px;gap:12px;grid-template-columns:minmax(0,1.55fr) minmax(225px,.9fr)}
+ .cv-root .cv-story-hero{gap:8px}
+ .cv-root .cv-story-fox{padding:6px 8px;gap:6px}
+ .cv-root .cv-story-fox .cv-fox{width:68px;height:66px}
+ .cv-root .cv-story-fox p{font-size:12px;line-height:1.2}
+ .cv-root .cv-story-hero .cv-quick-start,.cv-root .cv-story-hero .cv-primary{
+   min-height:44px;padding:9px 8px;font-size:13px;line-height:1.16
+ }
+}
+
+/* Keep a cohesive fox + next adventure + progress companion, not a dashboard. */
+.cv-root .cv-story-fox{background:transparent;border:0;box-shadow:none;padding:2px 1px}
+.cv-root .cv-story-fox p{padding:13px 14px;border:1px solid #dacba8;border-radius:18px 18px 18px 5px;background:linear-gradient(165deg,#fffdf3,#f6ecd6);box-shadow:0 5px 13px #5f49391c;color:#564431;line-height:1.34}
+.cv-root .cv-story-guide{border:0;background:transparent;padding:0 5px}
+.cv-root .cv-story-guide strong{color:#66503b}
+.cv-root .cv-story-guide p{color:#70624e}
+.cv-root .cv-story-map .cv-map-stop.cv-map-stop-recommended{border-color:#a87850;background:linear-gradient(150deg,#fff9df,#eec795);box-shadow:0 4px 0 #93684e,0 0 0 4px #fff4d4cc,0 9px 16px #274a5444}
+.cv-root .cv-story-map .cv-map-stop.cv-map-stop-visited:not(.cv-map-stop-recommended){background:linear-gradient(150deg,#f0f4dd,#cddbc3);border-color:#799181;color:#42594c}
+@media(min-width:721px) and (max-width:899px) and (max-height:480px) and (orientation:landscape){
+ .cv-root .cv-story-aside{gap:7px}
+ .cv-root .cv-story-fox p{padding:8px;font-size:12px;line-height:1.16}
+ .cv-root .cv-story-rail{gap:7px}
+ .cv-root .cv-story-guide{display:none}
+}
+
+.cv-root .cv-story-map:has(.cv-map-art[data-cv-art-variant="production-v3"]){aspect-ratio:3 / 4}
+
+#laria-geography-chapter2-entry[hidden]{display:none!important}
+#laria-geography-chapter2-entry{display:flex;align-items:center;gap:14px;width:100%;min-height:86px;margin:18px auto;padding:15px 19px;
+ border:2px solid #e9c999;border-radius:22px;cursor:pointer;text-align:left;color:#51432f;
+ background:linear-gradient(115deg,rgba(255,249,220,.98),rgba(230,242,231,.96));box-shadow:0 8px 0 #d4bb95,0 14px 22px #354b6130;
+ font:inherit;touch-action:manipulation}
+#laria-geography-chapter2-entry .chapter-two-icon{display:grid;place-items:center;width:56px;height:56px;flex:none;border-radius:17px;font-size:28px;
+ background:linear-gradient(135deg,#e9c292,#91bdb3)}
+#laria-geography-chapter2-entry .chapter-two-copy{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1}
+#laria-geography-chapter2-entry .chapter-two-copy small{font-size:11px;font-weight:800;letter-spacing:.02em;color:#8a6a49}
+#laria-geography-chapter2-entry .chapter-two-copy strong{font-weight:900;font-size:clamp(17px,3vw,22px)}
+#laria-geography-chapter2-entry .chapter-two-copy span{font-size:13px;line-height:1.34;color:#665844}
+#laria-geography-chapter2-entry:focus-visible{outline:4px solid #3c8d9a;outline-offset:4px}
+#laria-geography-chapter2-entry:active{transform:translateY(2px);box-shadow:0 5px 0 #d4bb95}
+@media(max-width:420px){#laria-geography-chapter2-entry{padding:11px;gap:10px}#laria-geography-chapter2-entry .chapter-two-icon{width:44px;height:44px}}
+
+
+/* iPad PORTRAIT, chapter 2: give the new illustrated journey the stage.
+   The earlier desktop two-column grid leaves an unacceptably large blank
+   area beneath the map at 820x1180. This portrait-only arrangement keeps
+   the personal fox and first action before a larger unaltered map. */
+@media(min-width:721px) and (max-width:899px) and (min-height:900px) and (orientation:portrait){
+ .cv-root .cv-story-layout{
+   grid-template-columns:minmax(0,1fr);
+   grid-template-areas:"hero" "map" "rail";
+   gap:15px;
+   justify-items:center;
+ }
+ .cv-root .cv-story-aside{display:contents}
+ .cv-root .cv-story-hero{
+   grid-area:hero;
+   display:grid;
+   grid-template-columns:minmax(0,1fr) minmax(200px,.75fr);
+   align-items:center;
+   gap:15px;
+   width:min(100%,650px);
+ }
+ .cv-root .cv-story-fox{min-width:0}
+ .cv-root .cv-story-fox .cv-fox{width:79px;height:91px;flex:none}
+ .cv-root .cv-story-fox p{font-size:14px;line-height:1.28;padding:10px 12px}
+ .cv-root .cv-story-hero .cv-quick-start,
+ .cv-root .cv-story-hero .cv-primary,
+ .cv-root .cv-story-hero .cv-continue{
+   min-height:55px;
+   align-self:center;
+ }
+ .cv-root .cv-story-map{width:100%;max-width:620px;margin:0 auto}
+ .cv-root .cv-story-rail{
+   grid-area:rail;
+   display:grid;
+   grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+   gap:12px;
+   width:min(100%,650px);
+   padding:0;
+ }
+ .cv-root .cv-story-rail .cv-progress{grid-column:1}
+ .cv-root .cv-story-rail .cv-story-guide{grid-column:2}
+ .cv-root .cv-story-rail .cv-note{grid-column:1 / -1}
 }

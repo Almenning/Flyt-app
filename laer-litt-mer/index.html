@@ -2356,8 +2356,8 @@
   <!-- Labs -->
   <link rel="stylesheet" href="./laria-foundation-v1.css?v=20261006-p8foundation1" />
   <link rel="stylesheet" href="./math-pattern-haven-preview-v1.css?v=20261017-paintedstudy1" />
-  <link rel="stylesheet" href="./english-sentence-harbor-preview-v1.css?v=20261017-en2a" />
-  <link rel="stylesheet" href="./geography-continent-voyage-preview-v1.css?v=20261017-geo2layout1" />
+  <link rel="stylesheet" href="./english-sentence-harbor-preview-v1.css?v=20261017-ipad-portrait-stage1" />
+  <link rel="stylesheet" href="./geography-continent-voyage-preview-v1.css?v=20261017-ipad-portrait-stage1" />
     <link rel="stylesheet" href="./fraction-lab.css?v=20261006-assets1" />
     <link rel="stylesheet" href="./fraction-premium-v2.css?v=20261009-illustrated3" />
     <link rel="stylesheet" href="./fraction-premium-v4.css?v=20261011-intuitive-equivalents-landscape8" />
@@ -2400,7 +2400,7 @@
   <link rel="stylesheet" href="./globe-ux-phase2.css?v=20261013-ipad-controls" />
   <!-- Original approved art: guarded rendering, no substitutions -->
   <link rel="stylesheet" href="./locked-journey-renderer.css?v=20261015-floating-back1" />
-  <link rel="stylesheet" href="./laria-responsive-phaseb.css?v=20261015-ipad-mac-stage1-iphone-c3" />
+  <link rel="stylesheet" href="./laria-responsive-phaseb.css?v=20261017-ch2-visible-entry1" />
   <link rel="stylesheet" href="./laria-fox-identity.css?v=20261011-personalfox2" />
   <link rel="stylesheet" href="./laria-fox-presence.css?v=20261013-task-world-sprite3-noflash" />
   <link rel="stylesheet" href="./laria-task-feedback-stable-v1.css?v=20261014-stable1" />
@@ -2667,6 +2667,9 @@
         <div class="journey-collection" id="journey-collection" aria-label="Samleobjekter fra reisen"></div>
         <div class="journey-map" id="journey-map" aria-label="Læringssti"></div>
         <div class="card journey-finish" id="journey-finish"></div>
+        <button id="laria-english-chapter2-entry" type="button" hidden aria-label="Åpne Setningshavna, kapittel 2 i engelsk">
+          <span class="chapter-two-icon" aria-hidden="true">⚓</span><span class="chapter-two-copy"><small>ENGELSK · NESTE EVENTYR</small><strong>Setningshavna →</strong><span>Utforsk fem steder, bygg setninger og møt nye ord med reven din.</span></span>
+        </button>
         <div class="journey-sidequests" id="journey-sidequests">
           <div class="section-title"><h3>Sideoppdrag</h3><span>Frivillig</span></div>
           <div class="journey-sidequest-grid">
@@ -2765,6 +2768,9 @@
         <div class="journey-collection" id="geo-journey-collection" aria-label="Stempler fra geografireisen"></div>
         <div class="journey-map" id="geo-journey-map"></div>
         <div class="card journey-finish" id="geo-journey-finish"></div>
+        <button id="laria-geography-chapter2-entry" type="button" hidden aria-label="Åpne Kontinentseilasen, kapittel 2 i geografi">
+          <span class="chapter-two-icon" aria-hidden="true">⛵</span><span class="chapter-two-copy"><small>GEOGRAFI · NESTE EVENTYR</small><strong>Kontinentseilasen →</strong><span>Seil mellom fem øyer, bruk kompasset og samle kontinentstempler.</span></span>
+        </button>
       </div>
 
       <div class="section-title"><h3>Test deg fritt</h3><span>Velg tema</span></div>
@@ -4727,6 +4733,11 @@ function openSubject(subject){
   document.getElementById('subject-grade-label').textContent=GRADE_CONFIG[currentGrade()].label;
   const labEntry=document.getElementById('math-lab-entry');if(labEntry)labEntry.hidden=subject!=='math';
   renderSubjectModules();renderSubjectJourney();renderSubjectContinue();showScreen('subject');
+  const englishChapter=document.getElementById('laria-english-chapter2-entry');
+  englishChapter.hidden=!(subject==='english'&&currentGrade()===2&&window.LARIA_ENGLISH_SENTENCE_HARBOR?.CHAPTER.published);
+  englishChapter.onclick=()=>window.LARIA_ENGLISH_SENTENCE_HARBOR_UI?.open({
+    state,save:saveState,foxSrc:avatarSrc(state.profile?.avatar==='girl'?'girl':'boy')
+  });
   // The approved locked Tallenga journey hides #subject-modules. A private
   // preview launcher must therefore live directly in the visible subject
   // screen, not in the hidden free-practice area.
@@ -4745,7 +4756,7 @@ function openSubject(subject){
   // English adventure two is a private preview. Approved Ordlandsbyen
   // hides the old module list, so this button belongs to the subject screen.
   screen.querySelector(':scope > [data-laria-english-chapter2-preview]')?.remove();
-  if(subject==='english'&&currentGrade()===2&&window.LARIA_ENGLISH_SENTENCE_HARBOR?.previewEnabled(location.search)){
+  if(subject==='english'&&currentGrade()===2&&!window.LARIA_ENGLISH_SENTENCE_HARBOR?.CHAPTER.published&&window.LARIA_ENGLISH_SENTENCE_HARBOR?.previewEnabled(location.search)){
     const preview=document.createElement('button');
     preview.type='button';preview.className='sh-dev-launch';
     preview.dataset.lariaEnglishChapter2Preview='1';
@@ -5788,10 +5799,15 @@ function renderGeographyContinue(){
   if(capitalTheme)capitalTheme.hidden=currentGrade()===1;
   if(currentGrade()===1&&geoTheme==='capital'){geoTheme='country';syncGeoThemeButtons()}
   renderGeoJourney();
-  // Geography chapter 2 stays dev-only and must sit above the real Nordlysleiren painting.
+  const geographyChapter=document.getElementById('laria-geography-chapter2-entry');
+  geographyChapter.hidden=!(currentGrade()===2&&window.LARIA_GEO_CONTINENT_VOYAGE?.CHAPTER.published);
+  geographyChapter.onclick=()=>window.LARIA_GEO_CONTINENT_VOYAGE_UI?.open({
+    state,save:saveState,foxSrc:avatarSrc(state.profile?.avatar==='girl'?'girl':'boy')
+  });
+  // The developer launcher remains exclusively for unreleased chapter variants.
   const geographyScreen=document.getElementById('geography-screen');
   geographyScreen.querySelector(':scope > [data-laria-geography-chapter2-preview]')?.remove();
-  if(currentGrade()===2&&window.LARIA_GEO_CONTINENT_VOYAGE?.previewEnabled(location.search)){
+  if(currentGrade()===2&&!window.LARIA_GEO_CONTINENT_VOYAGE?.CHAPTER.published&&window.LARIA_GEO_CONTINENT_VOYAGE?.previewEnabled(location.search)){
     const preview=document.createElement('button');preview.type='button';
     preview.className='cv-dev-launch';preview.dataset.lariaGeographyChapter2Preview='1';
     preview.textContent='⚓ Kontinentseilasen · test';
@@ -6990,10 +7006,10 @@ if(needsProfileSetup||!state.profile.onboarded||!state.profile.grade){
 <script src="./chapter-fox-buddy-v1.js?v=20261017-c2buddy2" defer></script>
 <script src="./math-pattern-haven-v1.js?v=20261017-c2pilot1" defer></script>
 <script src="./math-pattern-haven-preview-v1.js?v=20261017-paintedstudy1" defer></script>
-<script src="./english-sentence-harbor-v1.js?v=20261017-en2a" defer></script>
-<script src="./english-sentence-harbor-preview-v1.js?v=20261017-en2a" defer></script>
-<script src="./geography-continent-voyage-v1.js?v=20261017-geo2a" defer></script>
-<script src="./geography-continent-voyage-preview-v1.js?v=20261017-geo2a" defer></script>
+<script src="./english-sentence-harbor-v1.js?v=20261017-ch2-release1" defer></script>
+<script src="./english-sentence-harbor-preview-v1.js?v=20261017-painted-dim3" defer></script>
+<script src="./geography-continent-voyage-v1.js?v=20261017-ch2-release1" defer></script>
+<script src="./geography-continent-voyage-preview-v1.js?v=20261017-painted-dim3" defer></script>
 <script src="./journey-world-premium.js?v=20261016-chapter1-completion1" defer></script>
 <script src="./locked-journey-contract.js?v=20261016-tallenga-places1" defer></script>
 <script src="./locked-journey-renderer.js?v=20261016-chapter1-completion1" defer></script>
