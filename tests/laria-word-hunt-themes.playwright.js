@@ -187,6 +187,9 @@ async function verify(engine,launcher,label,viewport,url){
    await page.locator('.word-hunt-new').click();
    const next=await page.locator('.word-hunt-word').allTextContents();
    assert.equal(next.filter(w=>animalWords.includes(w.trim())).length,0,'The next round repeats the same words');
+   // Save one found word to check the child's progress survives reload.
+   await tapWord(page,next[0].trim());
+   assert.equal(await page.locator('.word-hunt-word.found').count(),1);
    await page.locator('.word-hunt-back').click();
    await page.locator('.bc12-nav [data-camp="collection"]').click();
    const book=page.locator('#bc12-dialog[open].is-collection');
@@ -203,8 +206,9 @@ async function verify(engine,launcher,label,viewport,url){
    assert.match(await resume.innerText(),/Fortsett ordjakten i Dyrevenner/);
    await resume.click();
    await page.locator('.word-hunt-cell:visible').first().waitFor();
-   assert.deepEqual(await page.locator('.word-hunt-word').allTextContents(),next,
+   assert.deepEqual(await page.locator('.word-hunt-word').allTextContents().then(items=>items.map(s=>s.replace(/^✓\s*/,'').trim())),next,
      'Resuming an unfinished puzzle must preserve its exact target words');
+   assert.equal(await page.locator('.word-hunt-word.found').count(),1,'Found words must survive a full page reload');
    await page.locator('[data-word-level="hard"]').click();
    assert.equal(await page.locator('.word-hunt-cell').count(),49);
    const worldWords=await selectTopic(page,'world',label+'-hard');
