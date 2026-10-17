@@ -49,6 +49,7 @@
 - Aktiv QA-PR er nå #172. Den erstatter lukket draft-PR #170 for å få en ny merge-snapshot og WebKit-artefakt fra gjeldende hodecommit. Begge er/var draft; ingen er slått sammen eller publisert.
 - Lokalt forsøk på å installere WebKit-avhengigheter ble stoppet av Work-sandkassens systempakkebegrensning (`apt` kan ikke sette den nødvendige `_apt`-gruppen). Dette er en miljøbegrensning, ikke en bestått WebKit-test eller en fysisk enhetstest.
 - En statisk isolasjonskontroll beskytter nå forhåndsvisningsflagget, den UTF-8-kodede geografietiketten, lastrekkefølgen og vakten mot direkte v25-tegnekall også når lokal WebKit ikke kan starte.
+- En transportfeil på draft-grenen hadde tegnkodet deler av den eksisterende `globe-v25-renderer.js` feil og inkludert tre uvedkommende cache-versjonsendringer for Gangetabellen i `index.html`. Begge filene ble gjenopprettet fra `main`, og kun den nødvendige forhåndsvisningsvakten/innlastingen ble lagt tilbake. Den statiske kontrollen avviser nå også denne typen tegnkodingsfeil.
 
 ## Neste arbeidsoppgave
 
