@@ -139,8 +139,18 @@ async function verify(engine,launcher,label,viewport,url){
    await open(page,url);
    assert.equal(await page.locator('.word-hunt-theme-picker .wh-theme-start:visible').count(),0,
      label+' must not advertise resuming a round that was never started');
-   // When resume is hidden, cycle between the last visible card and close.
+   // Capture the genuine child-facing first screen before keyboard focus
+   // tests scroll to the final topic on compact phones.
    const entryModal=page.locator('.word-hunt-theme-picker:not([hidden])');
+   if(viewport.width<=350){
+     const top=await entryModal.locator('#wh-theme-heading').evaluate(el=>{
+       const r=el.getBoundingClientRect();return {top:r.top,bottom:r.bottom,viewport:innerHeight};
+     });
+     assert.ok(top.top>=-1&&top.bottom<=top.viewport,
+       label+' theme title hidden on compact iPhone entry: '+JSON.stringify(top));
+   }
+   await shot(page,label+'-first-topic-gallery');
+   // When resume is hidden, cycle between the last visible card and close.
    await entryModal.locator('.wh-theme-card').last().focus();
    await page.keyboard.press('Tab');
    assert.equal(await entryModal.locator('.wh-theme-close').evaluate(el=>el===document.activeElement),true,
@@ -148,7 +158,6 @@ async function verify(engine,launcher,label,viewport,url){
    await page.keyboard.press('Shift+Tab');
    assert.equal(await entryModal.locator('.wh-theme-card').last().evaluate(el=>el===document.activeElement),true,
      label+' Shift+Tab did not return to the final visible topic');
-   await shot(page,label+'-first-topic-gallery');
    const layout=await page.locator('.word-hunt-theme-picker').evaluate(el=>({
     width:innerWidth,scrollWidth:document.documentElement.scrollWidth,
     cards:[...el.querySelectorAll('.wh-theme-card')].map(card=>{
