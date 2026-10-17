@@ -1,0 +1,60 @@
+name: Laria Dual Globes Release QA
+
+on:
+  push:
+    branches: [feat/laria-two-globes-release-20261017, main]
+    paths:
+      - 'laer-litt-mer/discovery-globe-phase1.js'
+      - 'laer-litt-mer/discovery-globe-view-v1.css'
+      - 'laer-litt-mer/sw.js'
+      - 'laer-litt-mer/globe-v25-renderer.js'
+      - 'laer-litt-mer/index.html'
+      - 'tests/laria-discovery-globe-phase1.playwright.js'
+      - 'tests/laria-discovery-globe-phase1-static.js'
+      - '.github/workflows/laria-discovery-globe-phase1.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'laer-litt-mer/discovery-globe-phase1.js'
+      - 'laer-litt-mer/discovery-globe-view-v1.css'
+      - 'laer-litt-mer/sw.js'
+      - 'laer-litt-mer/globe-v25-renderer.js'
+      - 'laer-litt-mer/index.html'
+      - 'tests/laria-discovery-globe-phase1.playwright.js'
+      - 'tests/laria-discovery-globe-phase1-static.js'
+      - '.github/workflows/laria-discovery-globe-phase1.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  visual-prototype:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Check isolated renderer contract and visual test
+        run: |
+          node --check laer-litt-mer/discovery-globe-phase1.js
+          node --check laer-litt-mer/globe-v25-renderer.js
+          node --check tests/laria-discovery-globe-phase1.playwright.js
+          node tests/laria-discovery-globe-phase1-static.js
+      - name: Install Chromium and WebKit
+        run: npx playwright install --with-deps chromium webkit
+      - name: Capture exact-head iPhone and iPad evidence
+        env:
+          DISCOVERY_GLOBE_SCREENSHOTS: /tmp/laria-discovery-globe-phase1
+        run: node tests/laria-discovery-globe-phase1.playwright.js
+      - name: Upload comparison screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-discovery-globe-phase1-${{ github.sha }}
+          path: /tmp/laria-discovery-globe-phase1
+          if-no-files-found: warn
+          retention-days: 7
