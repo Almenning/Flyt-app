@@ -127,3 +127,19 @@
  .sh-root .sh-tag{min-width:0;max-width:152px;text-align:right;font-size:9px;line-height:1.2;letter-spacing:0}
  .sh-root .sh-fox-copy p{font-size:12px;line-height:1.28}
 }
+
+
+/* A revealed fox hint needs full-width reading room on a 320px phone.
+ * Keep the tactile activity just below it, without cramming text into an 80px column. */
+@media(max-width:360px){
+ .sh-root .sh-companion.sh-fox-hint{
+   display:grid;grid-template-columns:62px minmax(0,1fr) 56px;grid-template-rows:60px auto;
+   gap:5px 7px;padding:8px 9px;align-items:center}
+ .sh-root .sh-companion.sh-fox-hint .sh-fox{
+   grid-column:1;grid-row:1;width:60px;height:60px;object-fit:contain}
+ .sh-root .sh-fox-hint .sh-fox-help{
+   position:static;grid-column:3;grid-row:1;align-self:start;justify-self:end;min-width:54px}
+ .sh-root .sh-fox-hint .sh-fox-copy{grid-column:1/-1;grid-row:2;max-width:none;width:100%}
+ .sh-root .sh-fox-hint .sh-fox-copy .sh-eyebrow{display:none}
+ .sh-root .sh-fox-hint .sh-fox-copy p{max-width:none;margin:0;font-size:13px;line-height:1.28}
+}

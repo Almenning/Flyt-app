@@ -155,3 +155,19 @@
  .mh-root .mh-development{min-width:0;max-width:152px;text-align:right;font-size:9px;line-height:1.2;letter-spacing:0}
  .mh-root .mh-fox-copy p{font-size:12px;line-height:1.28}
 }
+
+
+/* A revealed fox hint needs full-width reading room on a 320px phone.
+ * Keep the tactile activity just below it, without cramming text into an 80px column. */
+@media(max-width:360px){
+ .mh-root .mh-companion.mh-fox-hint{
+   display:grid;grid-template-columns:62px minmax(0,1fr) 56px;grid-template-rows:60px auto;
+   gap:5px 7px;padding:8px 9px;align-items:center}
+ .mh-root .mh-companion.mh-fox-hint .mh-fox{
+   grid-column:1;grid-row:1;width:60px;height:60px;object-fit:contain}
+ .mh-root .mh-fox-hint .mh-fox-help{
+   position:static;grid-column:3;grid-row:1;align-self:start;justify-self:end;min-width:54px}
+ .mh-root .mh-fox-hint .mh-fox-copy{grid-column:1/-1;grid-row:2;max-width:none;width:100%}
+ .mh-root .mh-fox-hint .mh-fox-copy .mh-eyebrow{display:none}
+ .mh-root .mh-fox-hint .mh-fox-copy p{max-width:none;margin:0;font-size:13px;line-height:1.28}
+}
