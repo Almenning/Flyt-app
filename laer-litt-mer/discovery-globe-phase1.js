@@ -361,6 +361,30 @@ function discoveryDraw(){
   canvas.dataset.discoveryPaintCount=String(Number(canvas.dataset.discoveryPaintCount||0)+1);
 }
 
+/* The status card should describe a country the child can actually see.
+   The ordinary globe intentionally keeps its existing selection semantics. */
+function clearOffscreenDiscoverySelection(){
+  if(window.__lariaDiscoveryGlobePreview!==true||typeof globeSelected!=='string'||!globeSelected)return false;
+  const selected=typeof countries==='undefined'?null:countries[globeSelected];
+  const canvas=document.getElementById('globe-canvas');
+  const w=canvas?._cssW||0,h=canvas?._cssH||0;
+  if(!selected||!w||!h||!Number.isFinite(selected.lon)||!Number.isFinite(selected.lat))return false;
+  const p=project(selected.lon,selected.lat,w,h),radius=Math.min(w,h)*.455;
+  if(p&&p[2]>.05&&Math.hypot(p[0]-w/2,p[1]-h/2)<=radius*.975)return false;
+  globeSelected=null;
+  const box=document.getElementById('globe-status');
+  if(box){
+    box.classList.remove('premium-country-selected');
+    box.innerHTML='<div class="flag" aria-hidden="true">🧭</div>'+
+      '<div class="globe-country-copy"><div class="globe-country-line">'+
+      '<strong>Hva vil du oppdage?</strong></div>'+
+      '<span>Snurr på kloden og trykk på et land du vil utforske.</span></div>';
+    box.onclick=null;box.style.cursor='default';
+  }
+  if(typeof window.drawGlobe==='function')window.drawGlobe();
+  return true;
+}
+
 window.LARIA_DISCOVERY_GLOBE_DRAW=discoveryDraw;
 const preferenceKey='laria-globe-view-v1';
 let desiredView='simple';
@@ -429,6 +453,20 @@ const wait=()=>{
     activate();
   };
   window.LARIA_SET_GLOBE_VIEW=chooseView;
+  const canvas=document.getElementById('globe-canvas');
+  if(canvas){
+    // The input owner already updates the rotation before these passive events.
+    // Do not clear selection for a tap: only a completed drag or zoom can
+    // move an old choice off the globe's current visible surface.
+    const afterDrag=()=>{
+      if(typeof globePointers!=='undefined'&&globePointers.size>0)return;
+      if(typeof globeMove==='number'&&globeMove>=8)
+        requestAnimationFrame(clearOffscreenDiscoverySelection);
+    };
+    canvas.addEventListener('pointerup',afterDrag,{passive:true});
+    canvas.addEventListener('pointercancel',afterDrag,{passive:true});
+    canvas.addEventListener('wheel',()=>requestAnimationFrame(clearOffscreenDiscoverySelection),{passive:true});
+  }
   controls.forEach(btn=>btn.addEventListener('click',()=>chooseView(btn.dataset.globeView)));
   document.addEventListener('click',event=>{
     if(event.target?.closest?.('#globe-mode [data-globe-mode]'))
