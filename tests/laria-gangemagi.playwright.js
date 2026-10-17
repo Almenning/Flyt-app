@@ -41,6 +41,20 @@ async function check(engine,label,viewport,url){
   assert.ok(first.math.top<first.height,label+' mathematical feedback invisible '+JSON.stringify(first));
   assert.ok(first.read.height>=44,label+' read aloud target too small');
   if(viewport.height>=750||viewport.width<=360)assert.ok(first.source.bottom<=first.height+3,label+' primary Plukk action must be visible without scrolling '+JSON.stringify(first));
+  // Visual QA: minus glyphs may not obscure numeric basket counts, and
+  // the primary action label must not be clipped on the smallest iPhone.
+  const touchGeometry=await page.evaluate(()=>{
+    const overlaps=(a,b)=>a.left<b.right-1&&a.right>b.left+1&&a.top<b.bottom-1&&a.bottom>b.top+1;
+    const baskets=[...document.querySelectorAll('.gm-crate-wrap')].map(w=>{
+      const tag=w.querySelector('.gm-crate-tag').getBoundingClientRect();
+      const icon=w.querySelector('.gm-remove span').getBoundingClientRect();
+      return overlaps(tag,icon);
+    });
+    const label=document.querySelector('.gm-pick>span:nth-child(2)');
+    return {overlaps:baskets,clipped:label.scrollWidth>label.clientWidth+1,lettering:label.innerText};
+  });
+  assert.deepEqual(touchGeometry.overlaps,Array(touchGeometry.overlaps.length).fill(false),label+' remove affordance must not cover numeric basket label '+JSON.stringify(touchGeometry));
+  assert.equal(touchGeometry.clipped,false,label+' first-fold Plukk action text is clipped '+JSON.stringify(touchGeometry));
   await shot(page,label+'-01-first-look');
   await page.locator('[data-gm-action="basket"][data-gm-basket="0"]').click();
   await page.locator('[data-gm-action="basket"][data-gm-basket="0"]').click();
