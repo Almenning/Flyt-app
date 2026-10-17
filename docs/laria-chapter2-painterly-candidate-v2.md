@@ -31,3 +31,12 @@ Kun `*-art-v2=1` åpner **ikke** et nytt kapittel; selve kapittelet må fremdele
 - Full bredere iPhone/iPad-responsivitet og manuell visuell sammenligning mot de fire låste originalreisene må kontrolleres før kunstgodkjenning.
 - Om en kandidat feiler, fjernes flagget eller filen uten å røre dagens fungerende standardkart.
 - Behold `published:false` og `artApproved:false`. Ingen PR-sammenslåing eller publisering. Kvalitet på v2 er **ikke** fastslått av at SVG lastes og knapper fungerer.
+
+
+## Sikker tilbakefallsflyt og illustrasjonsgodkjenning
+
+Kunst er en utskiftbar dekorativ ressurs. På intern `art-v2`-visning kontrolleres bildefeil og det faktiske deklarerte bildeformatet. Hvis ressursen mangler, feiler under nedlasting eller gir feil dimensjoner, settes `data-*-art-variant="fallback-v1"` og den sist testede `*-storybook-v1.svg` vises igjen. Fem klikkbare HTML-stopp, barnets personlige rev og eksisterende progresjon påvirkes ikke. I ordinær visning brukes alltid standardillustrasjonen.
+
+WebKit-testene fremprovoserer nå en ekte nedlastingsfeil for v2-bildet på både iPhone og iPad, krever automatisk fallback og kontrollerer at alle fem stopp fortsatt er trykkbare og åpner en oppgave. Dette testes i tillegg til normal lasting av korrekt 800 × 1000 SVG. Nye faktiske skjermbilder får suffikset `art-v2-fallback`.
+
+**Viktig illustrasjonskriterium:** AI-genererte hele UI-skjermer med ferdigtegnet rev, bokser, knapper eller ord er ubrukelige som kartbakgrunn og skal ikke integreres. Neste premiumkunst må leveres som **to rene, helmaleriske landskapsbilder uten tekst og grensesnitt**, tilpasset det låste eventyruniverset. Nye rasterbilder krever en separat sikker import, manuell visuell inspeksjon og WebKit-kontroll før en endring i standardressurs eller `artApproved`. Verken eksisterende vektorillustrasjoner eller genererte UI-konseptbilder skal feilaktig omtales som maleriske produksjonsillustrasjoner.
