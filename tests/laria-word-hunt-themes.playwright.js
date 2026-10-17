@@ -194,6 +194,8 @@ async function verify(engine,launcher,label,viewport,url){
    await fox.locator('.word-hunt-companion-cheer').click();
    assert.match(await fox.locator('.word-hunt-companion-speech').innerText(),/Heia deg/);
    assert.equal(await page.locator('.word-hunt-cell').count(),36);
+   await page.locator('.word-hunt-companion').scrollIntoViewIfNeeded();
+   await shot(page,label+'-selected-fox-detail');
    // Clicking a helper placed below the mobile board may scroll the overlay.
    // Restore the actual opening viewport before asserting first-fold geometry.
    await page.evaluate(()=>{document.getElementById('word-hunt-overlay').scrollTop=0});
