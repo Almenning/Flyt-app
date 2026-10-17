@@ -130,6 +130,13 @@ async function run(type,label,viewport){
    assert.equal(paintedGeometry.naturalWidth,768);
    assert.equal(paintedGeometry.naturalHeight,1152);
    assert.equal(paintedGeometry.buttons.length,5);
+   const quickStart=page.locator('[data-mh-quickstart="1"]');
+   assert.equal(await quickStart.count(),1,'tall painted map must offer a recommended start button');
+   if(viewport.width>=900&&viewport.width>viewport.height){
+     const btn=await quickStart.boundingBox();
+     assert.ok(btn&&btn.height>=44&&btn.y+btn.height<=viewport.height+3,
+       label+' first starting action falls below the iPad fold');
+   }
    for(const b of paintedGeometry.buttons){
      assert.ok(b.w>=44&&b.h>=44,label+' painted stop '+b.id+' too small for touch');
      assert.ok(b.x>=-2&&b.y>=-2&&b.x+b.w<=paintedGeometry.map.width+2&&

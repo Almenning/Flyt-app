@@ -25,6 +25,20 @@ test('four second adventures have independent and unpublished contracts',()=>{
  assert.equal(norwegian.STAGES.length,5);
  assert.equal(math.STAGES.length,5);assert.equal(english.STAGES.length,5);assert.equal(geography.STAGES.length,5);
 });
+test('unapproved chapter 2 preview flags are closed by default and require an explicit URL opt-in',()=>{
+ const flags=[
+  [norwegian,'chapter2-preview'],
+  [math,'math-chapter2-preview'],
+  [english,'english-chapter2-preview'],
+  [geography,'geography-chapter2-preview']
+ ];
+ for(const [model,flag] of flags){
+  assert.equal(model.previewEnabled('?app=laria'),false,flag+' must not appear in normal app');
+  assert.equal(model.previewEnabled(''),false,flag+' must default to hidden');
+  assert.equal(model.previewEnabled('?'+flag+'=0'),false,flag+'=0 must not enable the pilot');
+  assert.equal(model.previewEnabled('?app=laria&'+flag+'=1'),true,flag+'=1 should remain QA accessible');
+ }
+});
 test('each subject retains its own unfinished story, painted mirror, word tiles and compass after JSON reload',()=>{
  const s=seed(),oldNodes=JSON.stringify(s.journey.nodes),oldWins=JSON.stringify(s.journey.gradeWins);
  norwegian.start(s,'brevhytta',200);norwegian.answer(s,0,201);

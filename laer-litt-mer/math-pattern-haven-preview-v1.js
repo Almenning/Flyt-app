@@ -34,6 +34,12 @@
        '<span class="mh-place-symbol" aria-hidden="true">'+escape(record.visited?'✓':String(i+1))+'</span>'+
        '<span class="mh-map-stop-name">'+escape(stage.title)+'</span></button>';
    }).join('');
+   const firstNext=core.STAGES.find(s=>s.id===p.recommended)||core.STAGES[0];
+   // Tall portrait art extends below the first iPad fold. Keep the map big,
+   // but let a child follow the recommended route immediately without scrolling.
+   const quickStart=painted&&!resume?'<button class="mh-quick-start" type="button"'+
+     ' data-mh-act="stage" data-mh-quickstart="1" data-mh-stage="'+escape(firstNext.id)+'">'+
+     '✦ Begynn ved '+escape(firstNext.title)+' →</button>':'';
    return shell('<section class="mh-intro">'+
      '<div class="mh-intro-header"><div><span class="mh-eyebrow">MATTE · KAPITTEL 2</span>'+
      '<h1 tabindex="-1" class="mh-heading">Mønsterhagen</h1><p>Fem steder å leke. Du velger selv hvor eventyret går!</p></div></div>'+
@@ -42,7 +48,7 @@
        '<img class="mh-map-art" src="./math-pattern-haven-storymap-v1.svg" alt="" draggable="false" loading="eager"></picture>':
        '<img class="mh-map-art" src="./math-pattern-haven-storymap-v1.svg" alt="" draggable="false" loading="eager">')+
      '<div class="mh-places">'+stages+'</div></div>'+
-     '<aside class="mh-story-rail"><div class="mh-story-fox">'+fox()+'<p>Hvor vil du utforske i dag? Jeg blir med deg!</p></div>'+
+     '<aside class="mh-story-rail"><div class="mh-story-fox">'+fox()+'<p>Hvor vil du utforske i dag? Jeg blir med deg!</p></div>'+quickStart+
      '<div class="mh-progress" role="status"><strong>'+p.done+' av 5 steder utforsket</strong>'+
      '<span>'+(p.places.some(place=>place.attempts===1)?'Nye oppgaver venter på steder du har utforsket!':'Du kan velge fritt og besøke favorittene igjen.')+'</span>'+
      '<div class="mh-progress-track"><span style="width:'+(p.done*20)+'%"></span></div></div>'+
