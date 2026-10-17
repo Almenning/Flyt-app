@@ -84,6 +84,7 @@ async function verify(type,label,viewport){
    await page.locator('[data-cv-act="close"]').click();
    await page.reload({waitUntil:'domcontentloaded'});
    await enter(page);
+   const firstCompassIds=await page.evaluate(()=>window.LARIA_GEO_CONTINENT_VOYAGE.ensure(state).draft.order.slice());
    const saved=await page.evaluate(()=>window.LARIA_GEO_CONTINENT_VOYAGE.resume(state));
    assert.ok(saved&&saved.place.id==='kompassholmen'&&saved.step===1,
      label+' partial compass voyage lost after refresh');
@@ -92,6 +93,13 @@ async function verify(type,label,viewport){
    await page.locator('.cv-summary').waitFor();
    await page.locator('[data-cv-act="intro"]').click();
    assert.equal(await page.evaluate(()=>window.LARIA_GEO_CONTINENT_VOYAGE.progress(state).done),1);
+   assert.match(await page.locator('.cv-progress').innerText(),/Flere nye oppdagelser venter/i);
+   await page.locator('[data-cv-act="stage"][data-cv-stage="kompassholmen"]').click();
+   const secondCompassIds=await page.evaluate(()=>window.LARIA_GEO_CONTINENT_VOYAGE.ensure(state).draft.order.slice());
+   assert.equal(new Set(firstCompassIds.concat(secondCompassIds)).size,8,label+' replay did not change compass challenges');
+   assert.equal(await page.locator('.cv-direction').count(),4,label+' alternate compass must stay tactile');
+   await photo(page,label+'-compass-second-visit');
+   await page.locator('[data-cv-act="intro"]').click();
    await page.locator('[data-cv-act="stage"][data-cv-stage="passbrygga"]').click();
    assert.equal(await page.locator('.cv-stamp').count(),6,'six continent stamps should be available');
    await photo(page,label+'-passport');

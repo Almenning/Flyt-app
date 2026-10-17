@@ -27,31 +27,51 @@
      compass('compass-n','Kapteinen vil seile mot nord. Hvilken pil styrer du etter?','N','Nord er opp på dette kompasset.'),
      compass('compass-s','Nå skal båten sørover. Hvilken retning velger du?','S','Sør er rett ned på kompasset.'),
      compass('compass-e','Sola står opp i øst. Hvilken pil viser øst?','Ø','Øst vises på høyre side av dette kompasset.'),
-     compass('compass-w','Vi skal reise vestover. Hvor peker kompassnåla?','V','Vest ligger til venstre på dette kompasset.')
+     compass('compass-w','Vi skal reise vestover. Hvor peker kompassnåla?','V','Vest ligger til venstre på dette kompasset.'),
+     compass('compass-opposite-s','Båten seiler mot sør. Nå skal reven snu og seile helt motsatt vei. Hvilken retning velger du?','N','Nord er den motsatte retningen av sør.'),
+     compass('compass-opposite-e','Reven har seilt mot øst, men vil tilbake samme vei. Hvor må båten styre?','V','Vest er den motsatte retningen av øst.'),
+     compass('compass-opposite-w','Kapteinen reiste vestover. Nå vender båten helt om. Hvilken retning blir det?','Ø','Øst ligger motsatt av vest på kompasset.'),
+     compass('compass-opposite-n','Dere har seilt nordover. For å komme tilbake må dere snu. Hvor peker kompasset nå?','S','Sør er motsatt av nord, altså rett ned på dette kompasset.')
    ]),
    passbrygga:Object.freeze([
      stamp('stamp-norway','Finn riktig verdensdel og stempl passet for Norge.','Norge','Europa','Norge ligger i den nordlige delen av Europa.'),
      stamp('stamp-japan','Hvilken verdensdel skal få stempelet for Japan?','Japan','Asia','Japan er et øyrike i Asia.'),
      stamp('stamp-kenya','Hvor hører Kenya hjemme i reisepasset?','Kenya','Afrika','Kenya ligger i det østlige Afrika.'),
-     stamp('stamp-brazil','Hvilken verdensdel finner vi Brasil i?','Brasil','Sør-Amerika','Brasil ligger i Sør-Amerika.')
+     stamp('stamp-brazil','Hvilken verdensdel finner vi Brasil i?','Brasil','Sør-Amerika','Brasil ligger i Sør-Amerika.'),
+     stamp('stamp-mexico','Hvilken verdensdel skal få reisestempelet for Mexico?','Mexico','Nord-Amerika','Mexico er et land sør i Nord-Amerika.'),
+     stamp('stamp-spain','Dere besøker Spania. Hvilken verdensdel stempler dere i reisepasset?','Spania','Europa','Spania ligger sørvest i Europa.'),
+     stamp('stamp-thailand','Finn riktig verdensdel for Thailand før du får stempelet.','Thailand','Asia','Thailand ligger sørøst i Asia.'),
+     stamp('stamp-new-zealand','Skipet kommer til New Zealand. Hvilken verdensdel hører landet til?','New Zealand','Oseania','New Zealand er et øyland i Oseania.')
    ]),
    havpassasjen:Object.freeze([
      choice('ocean-atlantic','Hvilket hav ligger mellom Sør-Amerika og Afrika?',['Atlanterhavet','Stillehavet','Nordishavet'],'Atlanterhavet','Atlanterhavet ligger mellom disse kontinentene.'),
      choice('ocean-pacific','Hva heter det største havet på jorda?',['Atlanterhavet','Stillehavet','Indiahavet'],'Stillehavet','Stillehavet er jordas største hav.'),
      choice('ocean-indian','Hvilket stort hav finner vi mellom Afrika, Sør-Asia og Australia?',['Indiahavet','Nordishavet','Atlanterhavet'],'Indiahavet','Indiahavet ligger sør for store deler av Asia.'),
-     choice('ocean-arctic','Hvilket hav ligger rundt Nordpolen?',['Nordishavet','Stillehavet','Indiahavet'],'Nordishavet','Nordishavet ligger rundt Nordpolen.')
+     choice('ocean-arctic','Hvilket hav ligger rundt Nordpolen?',['Nordishavet','Stillehavet','Indiahavet'],'Nordishavet','Nordishavet ligger rundt Nordpolen.'),
+     choice('ocean-southern','Hvilket hav omgir Antarktis rundt Sørpolen?',['Sørishavet','Indiahavet','Nordishavet'],'Sørishavet','Sørishavet er havområdet som omgir Antarktis.'),
+     choice('ocean-europe-america','Hvilket hav seiler du over fra Europa til østkysten av Nord-Amerika?',['Atlanterhavet','Stillehavet','Indiahavet'],'Atlanterhavet','Atlanterhavet ligger mellom Europa og Nord-Amerika.'),
+     choice('ocean-asia-america','Hvilket stort hav finner du mellom Asia og vestkysten av Nord-Amerika?',['Indiahavet','Stillehavet','Sørishavet'],'Stillehavet','Stillehavet ligger mellom Asia og Nord-Amerika.'),
+     choice('ocean-north-pole','Hvilket hav ligger lengst nord på jorden, rundt Nordpolen?',['Nordishavet','Sørishavet','Indiahavet'],'Nordishavet','Nordishavet ligger rundt Nordpolen, langt fra Sørishavet.')
    ]),
    naturøya:Object.freeze([
      choice('nature-sahara','På hvilket kontinent ligger Saharaørkenen?',['Afrika','Europa','Oseania'],'Afrika','Sahara dekker store deler av Nord-Afrika.'),
      choice('nature-amazon','På hvilket kontinent finner vi mesteparten av Amazonasregnskogen?',['Sør-Amerika','Asia','Europa'],'Sør-Amerika','Amazonasregnskogen ligger i Sør-Amerika.'),
      choice('nature-himalaya','Hvor ligger fjellkjeden Himalaya?',['Asia','Afrika','Nord-Amerika'],'Asia','Himalaya er en stor fjellkjede i Asia.'),
-     choice('nature-reef','Hvor finner vi Great Barrier Reef, et stort korallrev?',['Oseania','Europa','Afrika'],'Oseania','Korallrevet ligger utenfor Australia i Oseania.')
+     choice('nature-reef','Hvor finner vi Great Barrier Reef, et stort korallrev?',['Oseania','Europa','Afrika'],'Oseania','Korallrevet ligger utenfor Australia i Oseania.'),
+     choice('nature-antarctica','På hvilken verdensdel finner vi Sørpolen og store områder dekket av is?',['Antarktis','Europa','Oseania'],'Antarktis','Sørpolen ligger på verdensdelen Antarktis, der ingen land har vanlige byer.'),
+     choice('nature-gobi','I hvilken verdensdel ligger den store Gobiørkenen?',['Asia','Afrika','Nord-Amerika'],'Asia','Gobi er en stor ørken i Asia, blant annet i Mongolia.'),
+     choice('nature-grand-canyon','Grand Canyon er en enorm kløft i USA. Hvilken verdensdel ligger den i?',['Nord-Amerika','Sør-Amerika','Europa'],'Nord-Amerika','Grand Canyon ligger i USA, et land i Nord-Amerika.'),
+     choice('nature-norway-fjord','Norge har dype fjorder. Hvilken verdensdel må du reise til for å se dem?',['Europa','Asia','Afrika'],'Europa','Norge ligger i Europa og har mange kjente fjorder.')
    ]),
    reisefyret:Object.freeze([
      stamp('stamp-canada','Hvilken verdensdel hører Canada til?','Canada','Nord-Amerika','Canada ligger i Nord-Amerika.'),
      stamp('stamp-australia','Hvilken verdensdel finner vi Australia i?','Australia','Oseania','Australia er både et land og del av verdensdelen Oseania.'),
      stamp('stamp-chile','Sett riktig stempel for landet Chile.','Chile','Sør-Amerika','Chile ligger langs vestkysten av Sør-Amerika.'),
-     stamp('stamp-india','Finn verdensdelen som India ligger i.','India','Asia','India ligger i den sørlige delen av Asia.')
+     stamp('stamp-india','Finn verdensdelen som India ligger i.','India','Asia','India ligger i den sørlige delen av Asia.'),
+     stamp('stamp-argentina','Reven vil sette riktig kontinentstempel for Argentina. Hvilket velger du?','Argentina','Sør-Amerika','Argentina ligger i den sørlige delen av Sør-Amerika.'),
+     stamp('stamp-ghana','Hvilken verdensdel skal få et nytt stempel når dere besøker Ghana?','Ghana','Afrika','Ghana ligger i Vest-Afrika.'),
+     stamp('stamp-usa','Reisefyret viser veien til USA. Hvilken verdensdel hører landet til?','USA','Nord-Amerika','USA ligger i Nord-Amerika.'),
+     stamp('stamp-nepal','Dere får et nytt reisestempel fra Nepal. Hvilken verdensdel tilhører landet?','Nepal','Asia','Nepal er et land i Asia, ved Himalaya.')
    ])
  });
  const stageIndex=Object.fromEntries(STAGES.map(s=>[s.id,s]));
@@ -64,12 +84,13 @@
  }
  function validate(){
    assert(!CHAPTER.published&&!CHAPTER.artApproved,'unapproved chapter cannot be released');
-   assert(STAGES.length===5&&byId.size===20,'exactly five places, twenty authored tasks');
-   assert(Object.values(TASKS).flat().filter(t=>t.kind==='stamp').length===8,'eight actual passport stamps');
-   assert(Object.values(TASKS).flat().filter(t=>t.kind==='compass').length===4,'four compass moves');
+   assert(STAGES.length===5&&byId.size===40,'exactly five places, forty authored tasks');
+   assert(Object.values(TASKS).flat().filter(t=>t.kind==='stamp').length===16,'sixteen actual passport stamps');
+   assert(Object.values(TASKS).flat().filter(t=>t.kind==='compass').length===8,'eight compass moves');
+   assert(TASKS.naturøya.some(t=>t.answer==='Antarktis'),'teach Antarctica without inventing a country stamp');
    for(const place of STAGES){
      const tasks=TASKS[place.id];
-     assert(tasks.length===4,'four learning activities per place');
+     assert(tasks.length===8,'two independent four-task sets per place');
      for(const t of tasks){
        assert(t.prompt.length>=25&&t.hint.length>=18,'missing geographical context '+t.id);
        assert(t.options.includes(t.answer)&&new Set(t.options).size===t.options.length,'unanswerable activity '+t.id);
@@ -92,7 +113,7 @@
  function validDraft(d){
    if(!isObj(d)||!stageIndex[d.stage]||!Array.isArray(d.order))return false;
    const available=TASKS[d.stage].map(t=>t.id);
-   if(d.order.length!==4||new Set(d.order).size!==4||!available.every(id=>d.order.includes(id)))return false;
+   if(d.order.length!==4||new Set(d.order).size!==4||!d.order.every(id=>available.includes(id)))return false;
    if(!Number.isInteger(d.step)||d.step<0||d.step>=4||
       !Number.isInteger(d.correct)||d.correct<0||d.correct>d.step+1)return false;
    return d.feedback===null||(isObj(d.feedback)&&typeof d.feedback.correct==='boolean'&&typeof d.feedback.hint==='string');
@@ -118,8 +139,10 @@
  }
  function start(state,placeId){
    assert(!!stageIndex[placeId],'unknown place '+placeId);
-   const record=ensure(state),list=TASKS[placeId],offset=nonnegative(record.places[placeId]?.attempts)%4;
-   record.draft={stage:placeId,order:list.slice(offset).concat(list.slice(0,offset)).map(t=>t.id),
+   const record=ensure(state),list=TASKS[placeId];
+   // Finished voyages alternate distinct authored sets; older four-item drafts still resume.
+   const group=nonnegative(record.places[placeId]?.attempts)%(list.length/4);
+   record.draft={stage:placeId,order:list.slice(group*4,group*4+4).map(t=>t.id),
      step:0,correct:0,feedback:null};
    return resume(state);
  }

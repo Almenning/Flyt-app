@@ -33,7 +33,7 @@
      '<div class="cv-places">'+places+'</div></div>'+
      '<aside class="cv-story-rail"><div class="cv-story-fox">'+fox()+'<p>Hvor skal vi seile? Jeg følger med på reisen!</p></div>'+
      '<div class="cv-progress" role="status"><strong>'+p.done+' av 5 steder utforsket</strong>'+
-     '<small>Alle stedene kan gjentas når du vil.</small>'+
+     '<small>'+(p.places.some(place=>place.attempts===1)?'Flere nye oppdagelser venter når du besøker et sted igjen.':'Alle stedene kan gjentas når du vil.')+'</small>'+
      '<div class="cv-bar"><span style="width:'+p.done*20+'%"></span></div></div>'+
      (session?'<button type="button" class="cv-primary" data-cv-act="resume">Fortsett i '+esc(session.place.title)+' →</button>':'')+
      '<div class="cv-story-guide"><strong>Finn veien til verden</strong>'+
