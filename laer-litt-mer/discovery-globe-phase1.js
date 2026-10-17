@@ -29,7 +29,7 @@ const mix=(a,b,t)=>{
 };
 const continent={
   'Europa':'#5A91DB','Asia':'#D9AE55','Afrika':'#D87D56',
-  'Nord-Amerika':'#6BAF74','SÃ¸r-Amerika':'#4FA572','Oseania':'#79AC72'
+  'Nord-Amerika':'#6BAF74','Sør-Amerika':'#4FA572','Oseania':'#79AC72'
 };
 /* Broad natural regions are deliberately sparse. The land clip is the source
    of truth, so a painterly wash cannot escape across a border or coast. */
@@ -109,7 +109,7 @@ function terrainSilhouette(ctx,type,x,y,k){
       const m=k*scale;ctx.save();ctx.translate(k*dx,k*dy);ctx.fillStyle=tone;ctx.beginPath();ctx.moveTo(0,-m*.78);ctx.lineTo(-m*.72,m*.55);ctx.lineTo(m*.72,m*.55);ctx.closePath();ctx.fill();ctx.fillStyle='#FFF7D9';ctx.beginPath();ctx.moveTo(0,-m*.78);ctx.lineTo(-m*.28,-m*.22);ctx.lineTo(-m*.05,-m*.31);ctx.lineTo(m*.26,-m*.05);ctx.closePath();ctx.fill();ctx.restore();
     }
   }else if(type==='forest'){
-    for(const [dx,dy,scale,tone] of [[-.45,.14,.72,'#296B48'],[.04,-.10,1,'#367D4C'],[.52,.16,.64,'#4F9658']]){const m=k*scale;ctx.fillStyle=tone;ctx.beginPath();ctx.moveTo(k*dx,y*0-m*.78);ctx.lineTo(k*(dx-.42*scale),m*.50);ctx.lineTo(k*(dx+.42*scale),m*.50);ctx.closePath();ctx.fill();ctx.fillStyle='#805635';ctx.fillRect(k*dx-m*.06,m*.46,m*.12,m*.28)}
+    for(const [dx,dy,scale,tone] of [[-.45,.14,.72,'#296B48'],[.04,-.10,1,'#367D4C'],[.52,.16,.64,'#4F9658']]){const m=k*scale;ctx.fillStyle=tone;ctx.beginPath();ctx.moveTo(k*dx,-m*.78);ctx.lineTo(k*(dx-.42*scale),m*.50);ctx.lineTo(k*(dx+.42*scale),m*.50);ctx.closePath();ctx.fill();ctx.fillStyle='#805635';ctx.fillRect(k*dx-m*.06,m*.46,m*.12,m*.28)}
   }else{
     ctx.strokeStyle='#CE8E3A';ctx.lineWidth=Math.max(1.2,k*.12);ctx.lineCap='round';for(const off of [-.34,.08,.46]){ctx.beginPath();ctx.arc(k*off,k*.18,k*.48,Math.PI*1.06,Math.PI*1.92);ctx.stroke()}
   }
