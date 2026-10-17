@@ -182,7 +182,12 @@
    if(kind==='read'){speak();return;}
    if(kind==='hint'){hintStep=Math.min(2,hintStep+1);notice='';foxMood='help';render();speak();return;}
    if(kind==='undo'){
-     if(undo.length){state=undo.pop();save();hintStep=0;notice='';foxMood='curious';lastAction='';lastGroup=-1;render();}
+     if(undo.length){
+       const previous=undo.pop();
+       // A collected blossom stays earned even if the child experiments or undoes.
+       state=E.normalize({...previous,wins:[...new Set([...previous.wins,...state.wins])]});
+       save();hintStep=0;notice='';foxMood='curious';lastAction='';lastGroup=-1;render();
+     }
      return;
    }
    if(kind==='restart'){change({type:'reset'});return;}
