@@ -172,7 +172,64 @@ async function verify(engine,launcher,label,viewport,url){
       label+' mobile topics still hidden in a horizontal carousel');
    }
    const animalWords=await selectTopic(page,'animals',label,true);
+   assert.equal(await page.locator('.word-hunt-status').isVisible(),false,
+     label+' redundant idle guide card is still covering the fox');
+   // Ordjakt uses the chosen girl's original in-world fox, never a generated lookalike.
+   const fox=page.locator('.word-hunt-companion');
+   assert.equal(await fox.getAttribute('data-avatar'),'girl');
+   assert.equal(await fox.locator('.word-hunt-companion-fox').getAttribute('src'),
+     await page.evaluate(()=>window.LARIA_FOX.worldSource(window.LARIA_FOX.choice())));
+   assert.equal(await fox.locator('.word-hunt-companion-hint').count(),1);
+   assert.equal(await fox.locator('.word-hunt-companion-cheer').count(),1);
+   const foxGeometry=await fox.evaluate(host=>{
+     const bounds=el=>{const r=el.getBoundingClientRect();return {top:r.top,bottom:r.bottom,left:r.left,right:r.right}};
+     const stageEl=host.querySelector('.word-hunt-companion-stage');
+     const artEl=host.querySelector('.word-hunt-companion-fox');
+     const stage=bounds(stageEl),art=bounds(artEl);
+     const controls=bounds(host.querySelector('.word-hunt-companion-controls'));
+     // Layout dimensions do not include the fox's brief intentional hopping
+     // and turning animation. Old intrinsic overflow makes these fail.
+     const layout={
+       left:artEl.offsetLeft,top:artEl.offsetTop,width:artEl.offsetWidth,height:artEl.offsetHeight,
+       stageWidth:stageEl.clientWidth,stageHeight:stageEl.clientHeight
+     };
+     return {stage,art,controls,layout,fit:getComputedStyle(artEl).objectFit};
+   });
+   assert.equal(foxGeometry.fit,'contain',label+' fox art lost contain behavior');
+   const stable=foxGeometry.layout;
+   const minFoxWidth=viewport.width>700?120:(viewport.width<=350?60:75);
+   assert.ok(stable.stageWidth>=minFoxWidth&&stable.stageHeight>=90&&
+     stable.width>=minFoxWidth&&stable.height>=90,
+     label+' invisible or tiny personal fox stage: '+JSON.stringify(foxGeometry));
+   assert.ok(stable.left>=-1.5&&stable.top>=-1.5&&
+     stable.left+stable.width<=stable.stageWidth+1.5&&
+     stable.top+stable.height<=stable.stageHeight+1.5,
+     label+' full-body image grows beyond its fox stage: '+JSON.stringify(foxGeometry));
+   if(viewport.width>700){
+     assert.ok(foxGeometry.stage.bottom<=foxGeometry.controls.top+2,
+       label+' fox stage occupies the iPad/Mac help buttons: '+JSON.stringify(foxGeometry));
+   }
+   const beforeHints=await page.locator('.word-hunt-word.found').count();
+   await fox.locator('.word-hunt-companion-hint').click();
+   assert.equal(await page.locator('.word-hunt-cell.is-hint-start').count(),1,
+     label+' first voluntary hint must mark exactly one starting cell');
+   await fox.locator('.word-hunt-companion-hint').click();
+   assert.equal(await page.locator('.word-hunt-cell.is-hint-path').count(),2,
+     label+' second hint must mark a direction, not the whole answer');
+   await fox.locator('.word-hunt-companion-hint').click();
+   assert.ok(await page.locator('.word-hunt-cell.is-hint-path').count()>=3,
+     label+' third hint must mark a discoverable word');
+   assert.equal(await page.locator('.word-hunt-word.found').count(),beforeHints,
+     label+' hints must not complete a word or grant an award');
+   await fox.locator('.word-hunt-companion-cheer').click();
+   assert.match(await fox.locator('.word-hunt-companion-speech').innerText(),/Heia deg/);
    assert.equal(await page.locator('.word-hunt-cell').count(),36);
+   await page.locator('.word-hunt-companion').scrollIntoViewIfNeeded();
+   await shot(page,label+'-selected-fox-detail');
+   // Clicking a helper placed below the mobile board may scroll the overlay.
+   // Restore the actual opening viewport before asserting first-fold geometry.
+   await page.evaluate(()=>{document.getElementById('word-hunt-overlay').scrollTop=0});
+   await shot(page,label+'-personal-fox-and-board');
    await checkLayout(page,label+'-original',viewport);
    assert.equal(animalWords.length,4);
    const mobileTopic=page.locator('.word-hunt-theme-mobile:visible');
@@ -187,9 +244,14 @@ async function verify(engine,launcher,label,viewport,url){
    await shot(page,label+'-animals-game');
    for(let i=0;i<animalWords.length;i++){
     await tapWord(page,animalWords[i]);
-    if(i===0)assert.equal(await page.locator('.word-hunt-magic:not([hidden])').count(),1,'No calm discovery in animal round');
+    if(i===0){
+     assert.equal(await page.locator('.word-hunt-magic:not([hidden])').count(),1,'No calm discovery in animal round');
+     assert.equal(await page.locator('.word-hunt-status').isVisible(),true,
+       label+' word-found feedback was hidden with the idle status');
+    }
     assert.equal(await page.locator('.word-hunt-word.found').count(),i+1);
    }
+   assert.match(await fox.locator('.word-hunt-companion-speech').innerText(),/Hurra.*alle ordene/);
    assert.match(await page.locator('.word-hunt-status').innerText(),/Ordjakten er løst/);
    assert.match(await page.locator('.word-hunt-status').innerText(),/klistremerke.*Dyrevenner/,
      'First themed completion needs a visible sticker congratulations');

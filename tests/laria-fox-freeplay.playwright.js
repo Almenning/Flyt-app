@@ -57,7 +57,20 @@ async function run(engine,name,viewport,which){
   await page.locator('.word-hunt-theme-picker [data-word-theme="mixed"]').click();
   await page.locator('.word-hunt-cell:visible').first().waitFor();
   await match(page,'.word-hunt-fox',which,name+' Ordjakt game');
+  await match(page,'.word-hunt-companion-fox',which,name+' Ordjakt personal in-world fox',true);
+  assert.equal(await page.locator('.word-hunt-companion').getAttribute('data-avatar'),which,
+    name+' companion identity does not match the saved child profile');
+  assert.equal(await page.locator('.word-hunt-companion-fox').count(),1,
+    name+' must show one personal fox, not generic duplicates');
+  assert.equal(await page.locator('.word-hunt-companion-hint').count(),1);
+  await page.locator('.word-hunt-companion-hint').click();
+  assert.equal(await page.locator('.word-hunt-cell.is-hint-start').count(),1,
+    name+' child must get first hint without awarding a word');
+  assert.equal(await page.locator('.word-hunt-word.found').count(),0);
+  await page.evaluate(()=>{document.getElementById('word-hunt-overlay').scrollTop=0});
   await page.screenshot({path:out+'/'+name+'-ordjakt.png',fullPage:true});
+  await page.locator('.word-hunt-companion').scrollIntoViewIfNeeded();
+  await page.screenshot({path:out+'/'+name+'-ordjakt-personal-fox.png',fullPage:true});
   await launch(page,url+'&part=globe',which);
   await page.waitForFunction(()=>typeof openGlobe==='function');
   await page.evaluate(()=>openGlobe());
