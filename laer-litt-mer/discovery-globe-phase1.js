@@ -50,6 +50,14 @@ const landmarks=[
   /* level 3: named demonstration areas */
   ['mountains',8,61,.92,3],['trees',8,60,.72,3],['mountains',138,36,.76,3],['village',139,35,.58,3],['jungle',-61,-3,.96,3],['cloud',-2,24,.56,3]
 ];
+/* Large, hand-drawn terrain silhouettes form the readable first layer. They
+   deliberately use the same lon/lat anchoring as the finer art above, but
+   remain legible on a small iPhone globe. */
+const terrainMarks=[
+  ['ridge',10,46,1.00,1],['ridge',79,31,1.18,1],['ridge',-109,40,1.02,1],['ridge',-70,-24,1.10,1],
+  ['forest',55,58,.92,1],['forest',-103,52,.84,1],['dunes',17,25,1.16,1],
+  ['ridge',8,61,1.22,3],['ridge',138,36,1.04,3],['forest',-61,-3,1.18,3]
+];
 const draw=art.draw;
 
 function landClip(ctx,w,h){
@@ -93,6 +101,28 @@ function paintBorders(ctx,w,h,s){
     ctx.strokeStyle=selected?'rgba(255,253,225,.98)':`rgba(255,250,226,${globeZoom>2.4?.48:.29})`;ctx.lineWidth=selected?Math.max(1.7,s*.003):Math.max(.55,s*.0011);ctx.stroke();
   }
 }
+function terrainSilhouette(ctx,type,x,y,k){
+  ctx.save();ctx.translate(x,y);ctx.shadowColor='rgba(29,59,57,.25)';ctx.shadowBlur=Math.max(2,k*.18);ctx.shadowOffsetY=Math.max(1,k*.08);
+  if(type==='ridge'){
+    for(const [dx,dy,scale,tone] of [[-.48,.16,.72,'#7B8D83'],[0,-.06,1,'#73877E'],[.52,.18,.67,'#68857C']]){
+      const m=k*scale;ctx.save();ctx.translate(k*dx,k*dy);ctx.fillStyle=tone;ctx.beginPath();ctx.moveTo(0,-m*.78);ctx.lineTo(-m*.72,m*.55);ctx.lineTo(m*.72,m*.55);ctx.closePath();ctx.fill();ctx.fillStyle='#FFF7D9';ctx.beginPath();ctx.moveTo(0,-m*.78);ctx.lineTo(-m*.28,-m*.22);ctx.lineTo(-m*.05,-m*.31);ctx.lineTo(m*.26,-m*.05);ctx.closePath();ctx.fill();ctx.restore();
+    }
+  }else if(type==='forest'){
+    for(const [dx,dy,scale,tone] of [[-.45,.14,.72,'#296B48'],[.04,-.10,1,'#367D4C'],[.52,.16,.64,'#4F9658']]){const m=k*scale;ctx.fillStyle=tone;ctx.beginPath();ctx.moveTo(k*dx,y*0-m*.78);ctx.lineTo(k*(dx-.42*scale),m*.50);ctx.lineTo(k*(dx+.42*scale),m*.50);ctx.closePath();ctx.fill();ctx.fillStyle='#805635';ctx.fillRect(k*dx-m*.06,m*.46,m*.12,m*.28)}
+  }else{
+    ctx.strokeStyle='#CE8E3A';ctx.lineWidth=Math.max(1.2,k*.12);ctx.lineCap='round';for(const off of [-.34,.08,.46]){ctx.beginPath();ctx.arc(k*off,k*.18,k*.48,Math.PI*1.06,Math.PI*1.92);ctx.stroke()}
+  }
+  ctx.restore();
+}
+function paintTerrainMarks(ctx,w,h,s,level,moving){
+  if(moving)return 0;let painted=0;
+  for(const [type,lon,lat,scale,minLevel] of terrainMarks){
+    if(level<minLevel)continue;const p=project(lon,lat,w,h);if(!p||p[2]<.16)continue;
+    const k=s*.058*scale*clamp(.70+p[2]*.42,.72,1.14)*clamp(Math.pow(globeZoom,.12),1,1.26);
+    terrainSilhouette(ctx,type,p[0],p[1],k);painted++;
+  }
+  return painted;
+}
 function paintLandmarks(ctx,w,h,s,level,moving){
   if(moving)return 0;
   let painted=0;
@@ -118,11 +148,12 @@ function discoveryDraw(){
   /* A stale interaction flag must never suppress the settled illustration
      layer. Pointer ownership is the reliable signal while a drag is active. */
   const moving=window.__lariaGlobeInteracting===true&&typeof globePointers!=='undefined'&&globePointers.size>0;
+  const terrainCount=paintTerrainMarks(ctx,w,h,s,level,moving);
   const landmarkCount=paintLandmarks(ctx,w,h,s,level,moving);paintBorders(ctx,w,h,s);paintSmallCountries(ctx,w,h,s);
   if(typeof drawGlobePulse==='function')drawGlobePulse(ctx,w,h);
   ctx.restore();
   screen.dataset.discoveryGlobeLevel=String(level);screen.dataset.discoveryGlobe='phase1';
-  canvas.dataset.discoveryRenderer='live';canvas.dataset.discoveryLandmarks=String(landmarkCount);canvas.dataset.discoveryMoving=String(moving);
+  canvas.dataset.discoveryRenderer='live';canvas.dataset.discoveryLandmarks=String(landmarkCount+terrainCount);canvas.dataset.discoveryMoving=String(moving);
 }
 window.LARIA_DISCOVERY_GLOBE_DRAW=discoveryDraw;
 const wait=()=>{
