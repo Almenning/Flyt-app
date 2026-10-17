@@ -172,6 +172,8 @@ async function verify(engine,launcher,label,viewport,url){
       label+' mobile topics still hidden in a horizontal carousel');
    }
    const animalWords=await selectTopic(page,'animals',label,true);
+   assert.equal(await page.locator('.word-hunt-status').isVisible(),false,
+     label+' redundant idle guide card is still covering the fox');
    // Ordjakt uses the chosen girl's original in-world fox, never a generated lookalike.
    const fox=page.locator('.word-hunt-companion');
    assert.equal(await fox.getAttribute('data-avatar'),'girl');
@@ -214,7 +216,11 @@ async function verify(engine,launcher,label,viewport,url){
    await shot(page,label+'-animals-game');
    for(let i=0;i<animalWords.length;i++){
     await tapWord(page,animalWords[i]);
-    if(i===0)assert.equal(await page.locator('.word-hunt-magic:not([hidden])').count(),1,'No calm discovery in animal round');
+    if(i===0){
+     assert.equal(await page.locator('.word-hunt-magic:not([hidden])').count(),1,'No calm discovery in animal round');
+     assert.equal(await page.locator('.word-hunt-status').isVisible(),true,
+       label+' word-found feedback was hidden with the idle status');
+    }
     assert.equal(await page.locator('.word-hunt-word.found').count(),i+1);
    }
    assert.match(await fox.locator('.word-hunt-companion-speech').innerText(),/Hurra.*alle ordene/);
