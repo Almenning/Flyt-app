@@ -109,9 +109,19 @@ async function run(engine,label,width,height){
     await panel(page,'fraction');
     await screenshot(page,label+'-returned-explore');
 
-    // Gangetabell: internal back goes to its home, second back exits to Utforsk.
+    // Gangemagi is now the first child screen. Its swipe goes straight
+    // back to the same Explore panel, not to an unrelated subject.
     await page.locator('.bc13-card[data-bc13-action="multiply"]').click();
     await screen(page,'multiplication-lab');
+    await page.locator('#multiplication-lab-screen.active .gm-shell').waitFor();
+    await edgeBack(page,label+' gangemagi exit');
+    await panel(page,'multiply');
+
+    // The old 10x10 suite keeps its own internal Back semantics.
+    await page.locator('.bc13-card[data-bc13-action="multiply"]').click();
+    await screen(page,'multiplication-lab');
+    await page.locator('[data-gm-action="classic"]').click();
+    await page.locator('.mp-home-screen').waitFor();
     await page.locator('[data-mp-action="go"][data-page="choose"]').first().click();
     await edgeBack(page,label+' multiplication internal');
     await screen(page,'multiplication-lab');
