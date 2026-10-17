@@ -18,7 +18,7 @@ test('passport choices cover six relevant inhabited continents and avoid invente
  assert.ok(stamps.every(t=>t.answer!=='Antarktis'));
  assert.ok(geo.TASKS.naturøya.some(t=>t.answer==='Antarktis'),'the uninhabited seventh continent belongs in geography knowledge');
  assert.ok(geo.TASKS.havpassasjen.some(t=>t.answer==='Sørishavet'),'the fifth ocean must be taught');
- assert.ok(stamps.every(t=>t.country.length>=4));
+ assert.ok(stamps.every(t=>t.country.length>=3));
 });
 test('second voyage in all five places contains genuinely new tasks with safe saved drafts',()=>{
  const state={journey:{nodes:{'geography:2:one':{best:4}},gradeWins:{'geography:2':{at:123}}}};

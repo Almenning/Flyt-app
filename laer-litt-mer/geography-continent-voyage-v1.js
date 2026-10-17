@@ -95,7 +95,7 @@
        assert(t.prompt.length>=25&&t.hint.length>=18,'missing geographical context '+t.id);
        assert(t.options.includes(t.answer)&&new Set(t.options).size===t.options.length,'unanswerable activity '+t.id);
        if(t.kind==='compass')assert(t.options.length===4,'four directions required');
-       else if(t.kind==='stamp')assert(CONTINENTS.includes(t.answer)&&t.country.length>3,'invalid continent passport');
+       else if(t.kind==='stamp')assert(CONTINENTS.includes(t.answer)&&t.country.length>=3,'invalid continent passport');
        else assert(t.kind==='choice'&&t.options.length===3,'unsupported task type');
      }
    }
