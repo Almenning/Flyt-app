@@ -44,6 +44,7 @@
 - Fase 1 er fortsatt **ikke godkjent** som premiumopplevelse. Den visuelle gjennomgangen viste at terrengsymbolene var for svake i de fÃ¸rste artefaktene selv om grunnkartet var korrekt.
 - Den konkrete rotÃ¥rsaken var at et hengende bevegelsesflagg undertrykte detaljlaget ogsÃ¥ etter at globusen stod stille. Dette er rettet og verifiseres videre med den skjerpede bildekontrollen.
 - Neste visuelle iterasjon mÃ¥ Ã¸ke den lesbare, illustrerte terrengdybden â sÃ¦rlig fjell, skog, Ã¸rken og dyr â uten Ã¥ endre landgeometri eller gjÃ¸re illustrasjonene skjermforankrede.
+- Iterasjon 2 legger nÃ¥ inn et stÃ¸rre, koordinatfestet terrenglag (fjellrygger, skogklynger og Sahara-dyner) fÃ¸r de mindre detaljene. Hensikten er lesbarhet pÃ¥ verdensnivÃ¥ og iPhone, uten Ã¥ gjÃ¸re kloden til et flatt dekorasjonskart. Ny WebKit-artefakt er fortsatt pÃ¥krevd fÃ¸r visuell vurdering.
 
 ## Neste arbeidsoppgave
 
