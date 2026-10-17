@@ -1219,3 +1219,210 @@
     min-height:43px;padding:6px 12px;
   }
 }
+
+/* Personal Ordjakt fox 20261017: original profile-selected full-body sprite.
+   One companion, not an extra generic mascot or a baked-in illustration. */
+.word-hunt-companion{
+  position:relative;isolation:isolate;min-width:0;
+  padding:8px 8px 10px;border:1px solid rgba(180,130,67,.72);
+  border-radius:20px;background:linear-gradient(155deg,rgba(255,251,226,.94),rgba(243,217,167,.91));
+  box-shadow:0 5px 0 #a47943,0 9px 21px #493e2a28;
+  text-align:center;
+}
+.word-hunt-companion-stage{
+  position:relative;margin:-9px auto 0;max-width:185px;height:clamp(125px,17vw,205px);
+  display:grid;place-items:end center;
+  background:radial-gradient(ellipse at 50% 85%,#9fb77977 0%,#d1d9ad33 42%,transparent 72%);
+  pointer-events:none;
+}
+.word-hunt-companion-fox{
+  display:block;position:relative;z-index:1;max-height:100%;width:100%;
+  object-fit:contain;object-position:center bottom;filter:drop-shadow(0 5px 5px #65452161);
+}
+.word-hunt-companion-sparkles{
+  position:absolute;right:4%;top:11%;color:#d39b31;font-size:24px;
+  text-shadow:0 0 9px #ffdfa6;opacity:.72;pointer-events:none;
+}
+.word-hunt-companion-panel{position:relative;z-index:2}
+.word-hunt-companion-speech{
+  margin:1px 0 8px;min-height:43px;padding:8px 10px;border:2px solid #e2bb78;
+  border-radius:16px;background:#fffae9;color:#334f65;
+  font-size:12px;font-weight:900;line-height:1.3;
+  box-shadow:0 3px 0 #caa26b;
+}
+.word-hunt-companion-controls{display:flex;justify-content:center;flex-wrap:wrap;gap:6px}
+.word-hunt-companion-controls button{
+  flex:1 1 90px;min-height:44px;padding:6px 7px;
+  border:1px solid #cda66b;border-radius:13px;
+  background:linear-gradient(#fffcf2,#f6e8c7);color:#67472d;
+  font:900 11px/1.2 ui-rounded,system-ui,sans-serif;
+  cursor:pointer;touch-action:manipulation;
+}
+.word-hunt-companion-controls button:focus-visible{
+  outline:3px solid #326ca0;outline-offset:2px;
+}
+.word-hunt-cell.is-hint-start,.word-hunt-cell.is-hint-path{
+  outline:3px solid #d69e28;outline-offset:-4px;
+  background:linear-gradient(#fff6c4,#f9e7a4);
+}
+.word-hunt-cell.is-hint-start{box-shadow:0 0 0 3px #ffe294,0 4px 0 #c8a96c}
+.word-hunt-companion[data-laria-fox-mood="celebrate"] .word-hunt-companion-fox{
+  animation:whPersonalFoxCelebrate .94s cubic-bezier(.2,.75,.3,1);
+}
+.word-hunt-companion[data-laria-fox-mood="curious"] .word-hunt-companion-fox{
+  animation:whPersonalFoxCurious .85s ease-in-out;
+}
+.word-hunt-companion[data-laria-fox-mood="greet"] .word-hunt-companion-fox{
+  animation:whPersonalFoxGreet .8s ease-out;
+}
+.word-hunt-companion[data-laria-fox-mood="support"] .word-hunt-companion-fox{
+  animation:whPersonalFoxSupport .8s ease-in-out;
+}
+@keyframes whPersonalFoxCelebrate{0%,100%{transform:translateY(0) rotate(0)}35%{transform:translateY(-8px) rotate(-3deg)}65%{transform:translateY(-2px) rotate(3deg)}}
+@keyframes whPersonalFoxCurious{0%,100%{transform:rotate(0)}50%{transform:rotate(5deg)}}
+@keyframes whPersonalFoxGreet{0%,100%{transform:translateY(0)}45%{transform:translateY(-5px)}}
+@keyframes whPersonalFoxSupport{0%,100%{transform:rotate(0)}50%{transform:rotate(-4deg)}}
+/* iPhone portrait: the board and word list retain priority.
+   Keep companion below the board rather than shrink tappable letters. */
+@media(max-width:700px) and (orientation:portrait){
+  .word-hunt-companion{order:3;width:100%;display:grid;grid-template-columns:90px minmax(0,1fr);align-items:center;gap:9px;padding:7px 9px}
+  .word-hunt-companion-stage{height:122px;max-width:88px;margin:0}
+  .word-hunt-companion-speech{font-size:11px;min-height:0;margin:0 0 6px;text-align:left}
+  .word-hunt-companion-controls button{flex-basis:95px;font-size:10px}
+  .word-hunt-status{order:4}
+  .word-hunt-actions{order:5}
+}
+@media(max-width:350px) and (orientation:portrait){
+  .word-hunt-companion{grid-template-columns:70px minmax(0,1fr);gap:5px}
+  .word-hunt-companion-stage{height:110px;max-width:70px}
+  .word-hunt-companion-controls{gap:4px}
+  .word-hunt-companion-controls button{font-size:10px;padding:5px;flex-basis:72px}
+}
+@media(min-width:701px) and (max-height:500px) and (orientation:landscape){
+  .word-hunt-companion-stage{height:95px}
+  .word-hunt-companion{padding:5px}
+  .word-hunt-companion-speech{font-size:10px;min-height:0}
+}
+@media(prefers-reduced-motion:reduce){
+  .word-hunt-companion-fox,.word-hunt-companion[data-laria-fox-mood] .word-hunt-companion-fox{
+    animation:none!important;transition:none!important;
+  }
+}
+
+/* The approved large-screen mockup has three clear destinations: game,
+   personal explorer, and controls. Only use three columns when space exists.
+   No shrinking the puzzle to put decoration in the center. */
+@media(min-width:1100px) and (min-height:701px) and (max-height:1000px) and (orientation:landscape){
+  .word-hunt-shell{
+    width:min(1160px,calc(100% - 24px));
+    display:grid;
+    grid-template-columns:minmax(0,min(625px,calc(100svh - 205px),calc(100vw - 515px))) 195px 225px;
+    grid-template-rows:repeat(7,auto);
+    justify-content:center;align-items:start;
+    column-gap:14px;row-gap:9px;
+  }
+  .word-hunt-top{grid-column:1 / -1;grid-row:1;margin:0}
+  .word-hunt-board-wrap,.word-hunt-side{display:contents}
+  .word-hunt-board-card{grid-column:1;grid-row:2 / span 6;width:100%;min-width:0}
+  .word-hunt-intro{grid-column:3;grid-row:2;margin:0;padding:10px}
+  .word-hunt-levels{grid-column:3;grid-row:3;position:static;margin:0;gap:6px}
+  .word-hunt-level{min-width:0;flex:1 1 0;padding:7px 5px}
+  .word-hunt-theme-open{grid-column:3;grid-row:4}
+  .word-hunt-targets{grid-column:3;grid-row:5}
+  .word-hunt-status{grid-column:3;grid-row:6;min-height:0}
+  .word-hunt-actions{grid-column:3;grid-row:7}
+  .word-hunt-companion{
+    grid-column:2;grid-row:2 / span 6;
+    align-self:start;min-width:0;padding:9px;
+  }
+  .word-hunt-companion-stage{max-width:193px;height:min(285px,36svh)}
+  .word-hunt-companion-speech{font-size:12px}
+  .word-hunt-companion-controls button{flex:1 1 100%;font-size:11px}
+}
+/* Taller iPad portraits keep the companion in the existing sidebar. The
+   two full-body images must never overlap a word-search tile. */
+@media(min-width:701px) and (max-width:1099px) and (orientation:portrait){
+  .word-hunt-companion-stage{height:clamp(125px,20vw,195px)}
+}
+
+/* Wide screens: actual fox in the painted world, speech bubble above the fox.
+   The mobile version stays a compact accessible card below the word board. */
+@media(min-width:1100px) and (min-height:701px) and (max-height:1000px) and (orientation:landscape){
+  .word-hunt-companion{
+    display:flex;flex-direction:column;align-items:center;
+    overflow:visible;background:none;border:0;box-shadow:none;
+    padding:0;
+  }
+  .word-hunt-companion-panel{display:contents}
+  .word-hunt-companion-speech{
+    order:1;position:relative;z-index:3;overflow:visible;
+    width:100%;min-height:0;margin:0 0 8px;padding:10px 9px;
+    border:2px solid #e2be7f;border-radius:21px;
+    background:linear-gradient(#fffcf2,#fff3d7);
+    box-shadow:0 4px 0 #cba470,0 8px 14px #433a2d21;
+    font-size:12px;
+  }
+  .word-hunt-companion-speech::after{
+    content:"";position:absolute;bottom:-10px;left:50%;transform:translateX(-50%) rotate(45deg);
+    width:16px;height:16px;border-right:2px solid #e2be7f;
+    border-bottom:2px solid #e2be7f;background:#fff3d7;
+  }
+  .word-hunt-companion-stage{order:2;margin:0;max-width:195px;height:min(285px,34svh)}
+  .word-hunt-companion-controls{
+    order:3;width:100%;display:flex;gap:6px;flex-direction:column;
+    padding:9px;border:1px solid #cfa776;border-radius:17px;
+    background:linear-gradient(#fffae8eb,#f8e3bcec);
+    box-shadow:0 4px 0 #9d764a;
+  }
+  .word-hunt-companion-controls button{flex:initial;width:100%;min-height:44px}
+}
+
+/* Real WebKit iPad portrait evidence: the hint speech used to cover the
+   selected fox's waist and boots. Put the bubble ABOVE the full-body fox,
+   with enough room for the entire original character. No board changes. */
+@media(min-width:701px) and (max-width:1099px) and (orientation:portrait){
+  .word-hunt-companion{
+    display:flex;flex-direction:column;align-items:stretch;
+  }
+  .word-hunt-companion-panel{display:contents}
+  .word-hunt-companion-speech{
+    order:0;position:relative;z-index:3;
+    min-height:0;margin:0 0 8px;padding:8px 9px;
+  }
+  .word-hunt-companion-stage{
+    order:1;width:100%;height:clamp(195px,25vw,230px);
+    max-width:205px;align-self:center;margin:0;
+  }
+  .word-hunt-companion-controls{
+    order:2;width:100%;display:flex;gap:6px;flex-wrap:wrap;
+  }
+  .word-hunt-companion-controls button{flex:1 1 85px;min-height:44px}
+}
+
+/* Premium reduction: the fox is the sole idle guide.
+   Keep the separate status visible only for attempts, found words, and rewards. */
+.word-hunt-status.is-quiet{display:none!important}
+
+/* Fix intrinsic image overflow on Safari's grid/flex layout. The full-body
+   fox is painted inside a fixed stage; it may never grow into touch controls. */
+.word-hunt-companion-stage{
+  position:relative;
+  display:block;
+  width:100%;
+  min-width:0;
+  min-height:0;
+}
+.word-hunt-companion-stage>.word-hunt-companion-fox{
+  position:absolute!important;
+  inset:0!important;
+  display:block;
+  width:100%!important;
+  height:100%!important;
+  max-width:100%!important;
+  max-height:100%!important;
+  min-width:0;
+  min-height:0;
+  object-fit:contain!important;
+  object-position:center bottom!important;
+  pointer-events:none;
+}

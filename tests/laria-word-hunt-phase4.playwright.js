@@ -65,7 +65,7 @@ async function geometry(page,label,viewport,firstFold){
   return {width:innerWidth,height:innerHeight,scrollWidth:document.documentElement.scrollWidth,
    top:rect('.word-hunt-top'),intro:rect('.word-hunt-intro'),levels:rect('.word-hunt-levels'),
    targets:rect('.word-hunt-targets'),board:rect('.word-hunt-board-card'),grid:rect('.word-hunt-board'),
-   status:rect('.word-hunt-status'),newRound:rect('.word-hunt-new'),
+   status:rect('.word-hunt-status'),companion:rect('.word-hunt-companion'),newRound:rect('.word-hunt-new'),
    back:rect('.word-hunt-back'),cells,fox:rect('.word-hunt-fox'),
    environment:overlay?getComputedStyle(overlay).backgroundImage:'',
    shellBackground:shell?getComputedStyle(shell).backgroundImage:'',
@@ -90,7 +90,9 @@ async function geometry(page,label,viewport,firstFold){
   assert.ok(m.cells.every(x=>x.width>=44&&x.height>=44),label+' easy cells under 44px: '+JSON.stringify(m));
   if(viewport.height>viewport.width){
    assert.ok(m.board.width>=viewport.width*.90,label+' premium frame shrank the portrait puzzle too much: '+JSON.stringify(m.board));
-   assert.ok(m.status&&m.status.width>=viewport.width*.90,label+' mobile fox response is not intentionally aligned with the puzzle');
+   // Active personal fox is now the guide. The duplicate idle status card is gone.
+   assert.ok(m.companion&&m.companion.width>=viewport.width*.90,
+     label+' personal fox helper is not aligned with the puzzle: '+JSON.stringify(m));
    assert.ok(m.newRound&&m.newRound.width>=viewport.width*.60,label+' new-round action is too small on portrait mobile');
   }
  }
