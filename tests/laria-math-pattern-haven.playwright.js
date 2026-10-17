@@ -39,7 +39,7 @@ async function enter(page){
  assert.equal(await button.isVisible(),true,'Child-facing launcher is hidden: '+JSON.stringify(diag));
  await button.click();
  await page.locator('#laria-math-pattern-haven-preview[role="dialog"]').waitFor();
- assert.equal(await page.locator('[data-mh-act="stage"]').count(),5);
+ assert.equal(await page.locator('.mh-story-map [data-mh-act="stage"]').count(),5,'five map stops; voluntary quick-start is separate');
 }
 async function complete(page,place){
  await page.locator('[data-mh-act="stage"][data-mh-stage="'+place+'"]').click();
