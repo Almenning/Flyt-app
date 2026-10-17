@@ -69,6 +69,7 @@ async function verify(type,label,viewport){
    assert.equal(returnButton.whiteSpace,'nowrap',label+' back action must never wrap');
    assert.ok(returnButton.height>=44&&returnButton.height<=55,
      label+' back button must be a single 44px touch target: '+JSON.stringify(returnButton));
+   assert.equal(await page.locator('.cv-map-art').getAttribute('data-cv-art-variant'),'default-v1',label+' normal preview must not switch artwork');
    const map=page.locator('.cv-story-map');
    await map.waitFor({state:'visible'});
    const geometry=await map.evaluate(el=>{
@@ -184,6 +185,28 @@ async function verify(type,label,viewport){
    await answer(page);
    const legacy=await page.evaluate(()=>({wins:state.journey.gradeWins['geography:2'],node:state.journey.nodes['geography:2:one']}));
    assert.deepEqual(legacy,{wins:{at:111},node:{best:4}},label+' Nordlysleiren progress altered');
+   // Art v2 is an opt-in review, still inside the hidden developer-only preview.
+   if(type===webkit&&(label==='webkit-iphone'||label==='webkit-ipad-landscape')){
+     await page.goto(base+'&geography-chapter2-preview=1&geography-chapter2-art-v2=1',{waitUntil:'domcontentloaded'});
+     await enter(page);
+     await page.waitForFunction(()=>{
+       const img=document.querySelector('.cv-map-art');
+       return !!img&&img.complete&&img.naturalWidth===800&&img.naturalHeight===1000;
+     },null,{timeout:20000});
+     const art=page.locator('.cv-map-art');
+     assert.equal(await art.getAttribute('data-cv-art-variant'),'candidate-v2');
+     const stops=page.locator('.cv-story-map [data-cv-act="stage"]');
+     assert.equal(await stops.count(),5,label+' candidate artwork must retain five independently playable places');
+     const rect=await page.locator('.cv-story-map').boundingBox();
+     for(let n=0;n<5;n++){
+       const stop=await stops.nth(n).boundingBox();
+       assert.ok(stop&&rect&&stop.height>=44&&stop.x>=rect.x-2&&stop.x+stop.width<=rect.x+rect.width+2&&stop.y>=rect.y-2&&stop.y+stop.height<=rect.y+rect.height+2,
+         label+' painterly candidate clipped a child-sized interactive landmark '+n);
+     }
+     await photo(page,label+'-art-v2-candidate');
+     await stops.first().click();
+     assert.ok(await page.locator('.cv-task').count(),label+' candidate map failed to launch playable chapter task');
+   }
    assert.deepEqual(errors,[],label+' unexpected browser exception');
    await ctx.close();
    console.log('PASS Kontinentseilasen '+label);
