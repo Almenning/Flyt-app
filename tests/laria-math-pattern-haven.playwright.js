@@ -39,7 +39,7 @@ async function enter(page){
  assert.equal(await button.isVisible(),true,'Child-facing launcher is hidden: '+JSON.stringify(diag));
  await button.click();
  await page.locator('#laria-math-pattern-haven-preview[role="dialog"]').waitFor();
- assert.equal(await page.locator('[data-mh-act="stage"]').count(),5);
+ assert.equal(await page.locator('.mh-story-map [data-mh-act="stage"]').count(),5,'five map stops; voluntary quick-start is separate');
 }
 async function complete(page,place){
  await page.locator('[data-mh-act="stage"][data-mh-stage="'+place+'"]').click();
@@ -105,6 +105,61 @@ async function run(type,label,viewport){
        label+' stage labels overlap');
    }
    await photo(page,label+'-map');
+   // This optional art mode must actually decode in the browser, not just exist
+   // in GitHub. Its five buttons remain tappable and independent of the artwork.
+   await page.locator('[data-mh-act="close"]').click();
+   await page.goto(url+'&math-chapter2-preview=1&math-chapter2-painted=1',{waitUntil:'domcontentloaded'});
+   await enter(page);
+   const painted=page.locator('.mh-story-map.mh-map-painted');
+   await painted.locator('.mh-map-art').evaluate(img=>img.decode());
+   const paintedGeometry=await painted.evaluate(el=>{
+     const m=el.getBoundingClientRect(),img=el.querySelector('.mh-map-art');
+     return {map:{width:m.width,height:m.height},source:img.currentSrc,
+       loaded:img.complete&&img.naturalWidth>0,
+       naturalWidth:img.naturalWidth,naturalHeight:img.naturalHeight,
+       buttons:[...el.querySelectorAll('button[data-mh-act="stage"]')].map(btn=>{
+         const b=btn.getBoundingClientRect();
+         return {id:btn.dataset.mhStage,x:b.x-m.x,y:b.y-m.y,w:b.width,h:b.height};
+       })};
+   });
+   assert.equal(paintedGeometry.loaded,true,label+' painted image did not decode');
+   assert.ok(paintedGeometry.map.height>=paintedGeometry.map.width*1.45,
+     label+' painted valley is not a portrait story map');
+   assert.ok(paintedGeometry.source.includes('math-pattern-haven-painted-candidate-v2.avif'),
+     label+' painterly asset not used in WebKit/Chromium: '+paintedGeometry.source);
+   assert.equal(paintedGeometry.naturalWidth,768);
+   assert.equal(paintedGeometry.naturalHeight,1152);
+   assert.equal(paintedGeometry.buttons.length,5);
+   const quickStart=page.locator('[data-mh-quickstart="1"]');
+   assert.equal(await quickStart.count(),1,'tall painted map must offer a recommended start button');
+   if(viewport.width>=900&&viewport.width>viewport.height){
+     const btn=await quickStart.boundingBox();
+     assert.ok(btn&&btn.height>=44&&btn.y+btn.height<=viewport.height+3,
+       label+' first starting action falls below the iPad fold');
+   }
+   for(const b of paintedGeometry.buttons){
+     assert.ok(b.w>=44&&b.h>=44,label+' painted stop '+b.id+' too small for touch');
+     assert.ok(b.x>=-2&&b.y>=-2&&b.x+b.w<=paintedGeometry.map.width+2&&
+       b.y+b.h<=paintedGeometry.map.height+2,
+       label+' painted stop '+b.id+' outside the illustrated map');
+   }
+   for(let i=0;i<paintedGeometry.buttons.length;i++)
+     for(let j=i+1;j<paintedGeometry.buttons.length;j++){
+       const a=paintedGeometry.buttons[i],b=paintedGeometry.buttons[j];
+       assert.ok(a.x+a.w<=b.x+1||b.x+b.w<=a.x+1||a.y+a.h<=b.y+1||b.y+b.h<=a.y+1,
+         label+' painted stop labels overlap: '+a.id+', '+b.id);
+     }
+   await photo(page,label+'-painted-map-candidate');
+   // The new recommended-start CTA and the first map stop intentionally launch
+   // the same stage. Verify the CTA explicitly rather than using an ambiguous
+   // selector that matches both buttons.
+   await quickStart.click();
+   assert.equal(await page.locator('.mh-option').count(),3,'painted map must open a real learning activity');
+   const started=await page.evaluate(()=>window.LARIA_MATH_PATTERN_HAVEN.resume(state));
+   assert.equal(started?.stage.id,'formstien',label+' quick-start launched the wrong story stop');
+   await page.locator('[data-mh-act="close"]').click();
+   await page.goto(url+'&math-chapter2-preview=1',{waitUntil:'domcontentloaded'});
+   await enter(page);
    const firstFormIds=await page.evaluate(()=>window.LARIA_MATH_PATTERN_HAVEN.TASKS.formstien.slice(0,4).map(t=>t.id));
    await complete(page,'formstien');
    assert.equal(await page.evaluate(()=>window.LARIA_MATH_PATTERN_HAVEN.progress(state).done),1);

@@ -19,6 +19,11 @@ async function checkBoard(page,mode,tag){
  const actions=await page.locator('.bc13-card').evaluateAll(nodes=>nodes.map(n=>n.dataset.bc13Action));
  assert.deepEqual(actions,mode==='travel'?['norwegian','math','english','geography']:['globe','words','fraction','multiply'],tag+' incorrect destinations');
  assert.equal(await page.locator('.bc13-scene svg').count(),4,tag+' must have four illustrated destinations');
+ if(mode==='explore'){
+  const entry=page.locator('.bc13-card[data-bc13-action="multiply"]');
+  assert.equal((await entry.locator('.bc13-card-copy strong').innerText()).trim(),'Gangemagi',tag+' must brand activity Gangemagi');
+  assert.match(await entry.getAttribute('aria-label'),/^Gangemagi/,tag+' stale accessible title');
+ }
  const positions=await page.evaluate(()=>{
   const bounds=node=>{const {x,y,width,height}=node.getBoundingClientRect();return {x,y,width,height}};
   return {board:bounds(document.querySelector('.bc13-panel')),nav:bounds(document.querySelector('.bc12-nav')),close:bounds(document.querySelector('.bc13-close')),
@@ -103,6 +108,10 @@ async function run(engine,label,viewport){
    ['multiply','multiplication-lab','multiplication-lab-back']]){
    await page.locator('[data-bc13-action="'+action+'"]').click();
    await page.locator('#'+screen+'-screen.active').waitFor({timeout:13000});
+   if(action==='multiply'){
+    assert.equal((await page.locator('#multiplication-lab-screen.active .gm-heading h1').innerText()).trim(),'Gangemagi',label+' should open Gangemagi');
+    assert.equal(await page.locator('#multiplication-lab-screen').getAttribute('aria-label'),'Gangemagi i Tallenga',label+' accessible title mismatch');
+   }
    if(action==='globe'){
     await page.waitForFunction(()=>document.getElementById('world-screen')?.dataset.mapPerspective==='globe'&&document.getElementById('world-screen')?.dataset.premiumGlobeMode==='classic',{timeout:8000});
     assert.equal(await page.locator('#globe-canvas').isVisible(),true,label+' Kloden must show the interactive globe rather than atlas');
