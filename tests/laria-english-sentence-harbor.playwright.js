@@ -60,6 +60,10 @@ async function verify(type,label,viewport){
    await page.goto(base,{waitUntil:'domcontentloaded'});
    await english(page);
    assert.equal(await page.locator('[data-laria-english-chapter2-preview]').count(),0,'developer-only launcher must be hidden');
+   const englishEntry=page.locator('#laria-english-chapter2-entry');
+   const englishEntryBox=await englishEntry.boundingBox();
+   assert.ok(englishEntryBox&&englishEntryBox.width>=200&&englishEntryBox.height>=44,
+     label+' the published English chapter must be visible and touchable below the original map: '+JSON.stringify(englishEntryBox));
    assert.equal(await page.locator('#laria-english-chapter2-entry').isVisible(),true,'English chapter-two must be available from the journey: '+JSON.stringify(await page.evaluate(()=>{const b=document.querySelector('#laria-english-chapter2-entry');return {grade:state?.profile?.grade,chapter:window.LARIA_ENGLISH_SENTENCE_HARBOR?.CHAPTER,hidden:b?.hidden,display:b&&getComputedStyle(b).display,rect:b?.getBoundingClientRect().toJSON(),parentDisplay:b?.parentElement&&getComputedStyle(b.parentElement).display};})));
    await page.goto(base,{waitUntil:'domcontentloaded'});
    await enter(page);
