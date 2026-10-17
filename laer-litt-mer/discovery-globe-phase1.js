@@ -1,14 +1,14 @@
 (()=>{'use strict';
 /*
- * Oppdagelsesglobusen, fase 1.  It is deliberately opt-in while its visual
- * contract is being reviewed: ?discovery-globe-preview=1.
+ * Independent geographic paint layer for Enkel | Oppdag.
+ * ?discovery-globe-preview=1 still selects the QA preview without a user tap.
  *
  * It does not own input, land data, progress, country selection or the base
  * renderer.  It only uses their proven orthographic projection and replaces
  * the paint pass for the isolated preview.  Every non-ocean coordinate below
  * is longitude/latitude, never a screen position.
  */
-if(!new URLSearchParams(location.search).has('discovery-globe-preview'))return;
+const forcedPreview=new URLSearchParams(location.search).has('discovery-globe-preview');
 const screen=document.getElementById('world-screen');
 const art=window.LariaGlobeArtV24;
 if(!screen||!art||typeof window.drawGlobe!=='function'||typeof window.globeProject!=='function'){
@@ -16,7 +16,7 @@ if(!screen||!art||typeof window.drawGlobe!=='function'||typeof window.globeProje
     screen:!!screen,art:!!art,draw:typeof window.drawGlobe,projection:typeof window.globeProject
   });return;
 }
-window.__lariaDiscoveryGlobePreview=true;
+window.__lariaDiscoveryGlobePreview=false;
 
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 const project=(lon,lat,w,h)=>window.globeProject(lon,lat,w,h);
@@ -360,35 +360,89 @@ function discoveryDraw(){
   canvas.dataset.discoveryRenderer='live';canvas.dataset.discoveryLandmarks=String(landmarkCount+terrainCount+reliefCount+textureCount+seaCount);canvas.dataset.discoveryMoving=String(moving);
   canvas.dataset.discoveryPaintCount=String(Number(canvas.dataset.discoveryPaintCount||0)+1);
 }
+
 window.LARIA_DISCOVERY_GLOBE_DRAW=discoveryDraw;
+const preferenceKey='laria-globe-view-v1';
+let desiredView='simple';
+try{if(localStorage.getItem(preferenceKey)==='discover')desiredView='discover'}catch(_){}
+if(forcedPreview)desiredView='discover';
+const controls=[...document.querySelectorAll('#globe-view-toggle [data-globe-view]')];
+function syncButtons(){
+  screen.dataset.globeView=desiredView;
+  for(const btn of controls){
+    const active=btn.dataset.globeView===desiredView;
+    btn.classList.toggle('active',active);
+    btn.setAttribute('aria-pressed',String(active));
+  }
+}
 const wait=()=>{
-  if(typeof window.resizeGlobe!=='function'||!document.getElementById('globe-canvas'))return requestAnimationFrame(wait);
-  window.__lariaDiscoveryGlobeBaseDraw=window.drawGlobe;
-  /* atlas-perspective is allowed to keep owning its own non-globe views. On
-     the isolated classic preview, however, it can reassign drawGlobe during
-     its delayed mode transition. Reassert only after that child action. */
+  if(typeof window.resizeGlobe!=='function'||!document.getElementById('globe-canvas'))
+    return requestAnimationFrame(wait);
+  const baseDraw=window.drawGlobe;
+  window.__lariaDiscoveryGlobeBaseDraw=baseDraw;
   let activated=false;
-  const activate=()=>{
-    if(!screen.classList.contains('active')){activated=false;return;}
-    const classic=document.querySelector('#globe-mode [data-globe-mode="classic"]');
-    if(classic&&!classic.classList.contains('active'))return;
-    /* Repaint only on a real mode change, not during idle polling. */
-    if(!activated||window.drawGlobe!==discoveryDraw){
-      window.drawGlobe=discoveryDraw;try{drawGlobe=discoveryDraw}catch(_){}
-      try{window.resizeGlobe();discoveryDraw();activated=true}
-    catch(error){window.__lariaDiscoveryGlobeLastError=String(error?.stack||error);}
+  const restore=()=>{
+    if(window.drawGlobe===discoveryDraw){
+      window.drawGlobe=baseDraw;
+      try{drawGlobe=baseDraw}catch(_){}
     }
   };
-  document.addEventListener('click',event=>{
-    if(event.target?.closest?.('#globe-mode [data-globe-mode="classic"]')){
-      requestAnimationFrame(()=>requestAnimationFrame(activate));
+  const activate=()=>{
+    const classic=document.querySelector('#globe-mode [data-globe-mode="classic"]');
+    const inClassic=screen.classList.contains('active')&&screen.dataset.mapPerspective==='globe'&&
+      (!classic||classic.classList.contains('active'));
+    const enabled=inClassic&&desiredView==='discover';
+    window.__lariaDiscoveryGlobePreview=enabled;
+    if(!enabled){
+      const needsRestore=window.drawGlobe===discoveryDraw;
+      if(needsRestore)restore();
+      if(desiredView==='simple'){
+        delete screen.dataset.discoveryGlobe;
+        delete screen.dataset.discoveryGlobeLevel;
+      }
+      if(activated&&inClassic&&needsRestore){
+        try{window.resizeGlobe();window.drawGlobe?.()}catch(error){
+          window.__lariaDiscoveryGlobeLastError=String(error?.stack||error);
+        }
+      }
+      activated=false;
+      return;
     }
+    if(!activated||window.drawGlobe!==discoveryDraw){
+      window.drawGlobe=discoveryDraw;
+      try{drawGlobe=discoveryDraw}catch(_){}
+      try{window.resizeGlobe();discoveryDraw();activated=true}
+      catch(error){
+        window.__lariaDiscoveryGlobeLastError=String(error?.stack||error);
+        desiredView='simple';
+        window.__lariaDiscoveryGlobePreview=false;
+        restore();syncButtons();
+        try{window.drawGlobe?.()}catch(_){}
+      }
+    }
+  };
+  const chooseView=view=>{
+    if(view!=='simple'&&view!=='discover')return;
+    desiredView=view;
+    try{localStorage.setItem(preferenceKey,view)}catch(_){}
+    syncButtons();
+    activate();
+  };
+  window.LARIA_SET_GLOBE_VIEW=chooseView;
+  controls.forEach(btn=>btn.addEventListener('click',()=>chooseView(btn.dataset.globeView)));
+  document.addEventListener('click',event=>{
+    if(event.target?.closest?.('#globe-mode [data-globe-mode]'))
+      requestAnimationFrame(()=>requestAnimationFrame(activate));
   },true);
-  new MutationObserver(()=>requestAnimationFrame(activate)).observe(screen,{attributes:true,attributeFilter:['class']});
+  new MutationObserver(()=>requestAnimationFrame(activate)).observe(screen,{
+    attributes:true,attributeFilter:['class','data-map-perspective']
+  });
+  syncButtons();
   activate();
   requestAnimationFrame(()=>requestAnimationFrame(activate));
   setTimeout(activate,180);
-  /* Detect late atlas reassignment without repeatedly painting while idle. */
+  // Does not repaint while idle; only restores the active painter after a
+  // late atlas router reassignment.
   setInterval(activate,240);
 };
 wait();
