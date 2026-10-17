@@ -21,7 +21,18 @@
  const DIRECTIONS=Object.freeze(['N','Ø','S','V']);
  const compass=(id,prompt,answer,hint)=>Object.freeze({id,kind:'compass',prompt,options:DIRECTIONS,answer,hint});
  const stamp=(id,prompt,country,answer,hint)=>Object.freeze({id,kind:'stamp',prompt,country,options:CONTINENTS,answer,hint});
- const choice=(id,prompt,options,answer,hint)=>Object.freeze({id,kind:'choice',prompt,options:Object.freeze(options),answer,hint});
+ // Stable option order per authored question. Avoid answer-at-A bias while
+ // keeping display, speech and saved drafts identical after Safari reload.
+ // Compass directions and passport stamps deliberately use other layouts.
+ function balancedOptions(id,options,answer){
+   let hash=2166136261;
+   for(let i=0;i<id.length;i++)hash=Math.imul(hash^id.charCodeAt(i),16777619);
+   const desired=(hash>>>12)%options.length;
+   const reordered=options.filter(option=>option!==answer);
+   reordered.splice(desired,0,answer);
+   return Object.freeze(reordered);
+ }
+ const choice=(id,prompt,options,answer,hint)=>Object.freeze({id,kind:'choice',prompt,options:balancedOptions(id,options,answer),answer,hint});
  const TASKS=Object.freeze({
    kompassholmen:Object.freeze([
      compass('compass-n','Kapteinen vil seile mot nord. Hvilken pil styrer du etter?','N','Nord er opp på dette kompasset.'),

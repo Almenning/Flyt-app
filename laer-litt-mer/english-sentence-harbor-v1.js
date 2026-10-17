@@ -18,11 +18,22 @@
    {id:'samtalebaten',title:'Samtalebåten',focus:'Svar i en liten engelsk samtale',symbol:'◈'},
    {id:'historiefyret',title:'Historiefyret',focus:'Forstå korte historier og uttrykk',symbol:'✦'}
  ].map(s=>Object.freeze(s)));
+ // Stable option order per authored question. Avoid answer-at-A bias while
+ // keeping display, speech and saved drafts identical after Safari reload.
+ // Compass directions and passport stamps deliberately use other layouts.
+ function balancedOptions(id,options,answer){
+   let hash=2166136261;
+   for(let i=0;i<id.length;i++)hash=Math.imul(hash^id.charCodeAt(i),16777619);
+   const desired=(hash>>>12)%options.length;
+   const reordered=options.filter(option=>option!==answer);
+   reordered.splice(desired,0,answer);
+   return Object.freeze(reordered);
+ }
  const makeChoice=(id,prompt,english,options,answer,hint)=>Object.freeze({
-   id,kind:'choice',prompt,english,options:Object.freeze(options),answer,hint
+   id,kind:'choice',prompt,english,options:balancedOptions(id,options,answer),answer,hint
  });
  const story=(id,passage,prompt,options,answer,hint)=>Object.freeze({
-   id,kind:'story',english:passage,prompt,options:Object.freeze(options),answer,hint
+   id,kind:'story',english:passage,prompt,options:balancedOptions(id,options,answer),answer,hint
  });
  const sentence=(id,prompt,tiles,goal,hint)=>Object.freeze({
    id,kind:'sentence',prompt,english:goal.join(' '),tiles:Object.freeze(tiles),

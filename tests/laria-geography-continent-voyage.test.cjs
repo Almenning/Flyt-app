@@ -99,3 +99,19 @@ test('wrong directions teach rather than auto-completing the route',()=>{
  assert.ok(result.hint.length>=18);
  assert.equal(geo.advance(s).session.correct,0);
 });
+test('Geography ordinary questions cannot be solved by always choosing the first answer',()=>{
+ const choices=Object.values(geo.TASKS).flat().filter(t=>t.kind==='choice');
+ assert.equal(choices.length,16);
+ const positions=[0,0,0];
+ for(const task of choices){
+   const idx=task.options.indexOf(task.answer);
+   assert.ok(idx>=0&&idx<3,'correct answer missing: '+task.id);
+   positions[idx]++;
+ }
+ assert.ok(Math.min(...positions)>=4&&Math.max(...positions)-Math.min(...positions)<=3,
+   'answer placement is biased: '+JSON.stringify(positions));
+ assert.ok(geo.TASKS.kompassholmen.every(t=>t.options===geo.DIRECTIONS),
+   'compass orientation must never be shuffled');
+ assert.ok([...geo.TASKS.passbrygga,...geo.TASKS.reisefyret].every(t=>t.options===geo.CONTINENTS),
+   'passport world-part choices must keep a fixed position');
+});

@@ -128,3 +128,23 @@ test('a tampered draft cannot overwrite earned stage history',()=>{
  assert.equal(english.resume(state),null);
  assert.equal(english.progress(state).done,1);
 });
+test('English choices distribute correct answers across all three positions and speech follows visible order',()=>{
+ const choices=Object.values(english.TASKS).flat().filter(t=>t.kind==='choice'||t.kind==='story');
+ assert.equal(choices.length,32);
+ const positions=[0,0,0];
+ for(const task of choices){
+   const idx=task.options.indexOf(task.answer);
+   assert.ok(idx>=0&&idx<3,'no answer missing: '+task.id);
+   positions[idx]++;
+   if(task.kind==='choice'&&task.english===task.answer){
+     const speech=task.options.map((word,i)=>String.fromCharCode(65+i)+'. '+word).join(' ');
+     assert.equal(english.spokenEnglish(task,false),speech,
+       'spoken A/B/C must follow the visible answer order for '+task.id);
+     assert.equal(english.visibleEnglish(task,false),'','do not leak the correct phrase');
+   }
+ }
+ assert.ok(Math.min(...positions)>=7&&Math.max(...positions)-Math.min(...positions)<=5,
+   'answer position bias would reward tapping A: '+JSON.stringify(positions));
+ const fresh=require('../laer-litt-mer/english-sentence-harbor-v1.js');
+ assert.deepEqual(fresh.TASKS.hilsenkaia.map(t=>t.options),english.TASKS.hilsenkaia.map(t=>t.options));
+});
