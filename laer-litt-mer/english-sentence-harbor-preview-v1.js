@@ -31,7 +31,7 @@
      '<div class="sh-stops">'+stops+'</div></div>'+
      '<aside class="sh-story-rail"><div class="sh-story-fox">'+fox()+'<p>Velkommen til havna! Hvor vil du seile i dag?</p></div>'+
      '<div class="sh-progress" role="status"><strong>'+p.done+' av 5 steder utforsket</strong>'+
-     '<small>Velg fritt, og kom tilbake til et sted du liker.</small>'+
+     '<small>'+(p.places.some(place=>place.attempts===1)?'Nye oppgaver venter på steder du har besøkt.':'Velg fritt, og kom tilbake til et sted du liker.')+'</small>'+
      '<div class="sh-progress-bar"><span style="width:'+p.done*20+'%"></span></div></div>'+
      (session?'<button type="button" class="sh-continue" data-sh-act="resume">Fortsett i '+esc(session.stage.title)+' →</button>':'')+
      '<div class="sh-story-guide"><strong>Ord blir små eventyr</strong>'+

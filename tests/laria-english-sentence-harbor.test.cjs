@@ -1,12 +1,13 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict');
 const english=require('../laer-litt-mer/english-sentence-harbor-v1.js');
-test('second English journey is gated and its 20 questions are editorially valid',()=>{
+test('second English journey is gated and its 40 questions are editorially valid',()=>{
  assert.equal(english.validate(),true);
  assert.equal(english.CHAPTER.id,'setningshavna-2');
  assert.equal(english.CHAPTER.published,false);
  assert.equal(english.CHAPTER.artApproved,false);
- assert.equal(Object.values(english.TASKS).flat().length,20);
+ assert.equal(Object.values(english.TASKS).flat().length,40);
+ for(const stage of english.STAGES)assert.equal(english.TASKS[stage.id].length,8);
  assert.equal(english.previewEnabled('?english-chapter2-preview=1'),true);
  assert.equal(english.previewEnabled('?english-chapter2-preview=true'),false);
  assert.ok(english.TASKS.setningsverkstedet.every(t=>t.kind==='sentence'));
@@ -30,6 +31,47 @@ test('English prompts and read-aloud do not reveal a single answer before a try'
      assert.equal(spokenBefore,task.english);
    }
  }
+});
+test('replay gives each English place four new tasks before anything repeats',()=>{
+ const state={journey:{nodes:{'english:2:words':{best:2}},gradeWins:{'english:2':{at:99}}}};
+ const oldNodes=JSON.stringify(state.journey.nodes),oldWins=JSON.stringify(state.journey.gradeWins);
+ for(const stage of english.STAGES){
+   const visits=[];
+   for(let visit=0;visit<2;visit++){
+     let s=english.start(state,stage.id);
+     const ids=[...english.ensure(state).draft.order];visits.push(ids);
+     assert.equal(ids.length,4);
+     assert.ok(ids.every(id=>english.TASKS[stage.id].some(t=>t.id===id)));
+     const restored=JSON.parse(JSON.stringify(state));
+     assert.equal(english.resume(restored).task.id,ids[0],'four-task draft survives reload');
+     for(let step=0;step<4;step++){
+       assert.equal(s.task.id,ids[step]);
+       if(s.task.kind==='sentence'){
+         for(const word of s.task.goal)english.selectTile(state,s.task.tiles.indexOf(word));
+         assert.equal(english.submitSentence(state).correct,true);
+       }else assert.equal(english.choose(state,s.task.answer).correct,true);
+       const next=english.advance(state,2000+visit);
+       if(step<3)s=next.session;
+       else assert.equal(next.finished,true);
+     }
+   }
+   assert.equal(new Set(visits.flat()).size,8,'second visit must not recycle first four');
+   assert.deepEqual(english.ensure(state).draft,null);
+   english.start(state,stage.id);
+   assert.deepEqual(english.ensure(state).draft.order,visits[0],'third visit cycles to first authored set');
+ }
+ assert.equal(english.progress(state).done,5,'replaying must not erase an explored place');
+ assert.equal(JSON.stringify(state.journey.gradeWins),oldWins);
+ assert.equal(JSON.stringify(state.journey.nodes),oldNodes);
+});
+test('saved first-version four-task draft remains valid after the bank expands',()=>{
+ const s={journey:{gradeWins:{'english:2':{at:1234}}}};
+ const first=english.start(s,'hilsenkaia');
+ assert.equal(first.task.id,'hello');
+ const snapshot=JSON.parse(JSON.stringify(s));
+ assert.deepEqual(snapshot.journey.chapterProgress[english.KEY].draft.order,['hello','how-are-you','my-name','goodbye']);
+ assert.equal(english.resume(snapshot).task.id,'hello');
+ assert.deepEqual(snapshot.journey.gradeWins,s.journey.gradeWins);
 });
 test('sentence making is tactile, reversible and persisted across reloads',()=>{
  const state={journey:{nodes:{'english:2:words':{best:3}},gradeWins:{'english:2':{at:5}}}};

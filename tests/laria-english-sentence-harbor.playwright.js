@@ -99,6 +99,7 @@ async function verify(type,label,viewport){
    const d=await page.evaluate(()=>window.LARIA_ENGLISH_SENTENCE_HARBOR.resume(state));
    assert.ok(d&&d.stage.id==='setningsverkstedet'&&d.selected.includes(chosen),
      label+' unfinished child-built phrase not restored');
+   const firstSentenceIds=await page.evaluate(()=>window.LARIA_ENGLISH_SENTENCE_HARBOR.ensure(state).draft.order.slice());
    await page.locator('[data-sh-act="resume"]').click();
    assert.equal(await page.locator('.sh-built-word').count(),1);
    const nextWords=d.task.goal.slice(1);
@@ -113,6 +114,13 @@ async function verify(type,label,viewport){
    await page.locator('.sh-result').waitFor();
    await page.locator('[data-sh-act="intro"]').click();
    assert.equal(await page.evaluate(()=>window.LARIA_ENGLISH_SENTENCE_HARBOR.progress(state).done),1);
+   assert.match(await page.locator('.sh-progress').innerText(),/Nye oppgaver venter/i);
+   await page.locator('[data-sh-act="stage"][data-sh-stage="setningsverkstedet"]').click();
+   const nextSentenceIds=await page.evaluate(()=>window.LARIA_ENGLISH_SENTENCE_HARBOR.ensure(state).draft.order.slice());
+   assert.equal(new Set(firstSentenceIds.concat(nextSentenceIds)).size,8,label+' second visit must show four genuinely new sentences');
+   assert.equal(await page.locator('.sh-tile').count(),4,label+' new sentence must be playable on touch');
+   await photo(page,label+'-new-sentence-visit');
+   await page.locator('[data-sh-act="intro"]').click();
    await page.locator('[data-sh-act="stage"][data-sh-stage="historiefyret"]').click();
    s=await page.evaluate(()=>window.LARIA_ENGLISH_SENTENCE_HARBOR.resume(state));
    assert.equal(s.task.kind,'story');
