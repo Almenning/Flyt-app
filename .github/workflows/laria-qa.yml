@@ -81,6 +81,20 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium webkit
 
+      - name: Verify Plukk og tell in iPhone and iPad Chromium and WebKit
+        env:
+          PICK_QA_SCREENSHOTS: /tmp/laria-pick-play
+        run: node tests/laria-pick-play.browser.playwright.js
+
+      - name: Upload Plukk og tell storybook evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-pick-play-${{ github.sha }}
+          path: /tmp/laria-pick-play
+          if-no-files-found: warn
+          retention-days: 7
+
       - name: Verify Ordjakt responsive touch in Chromium and WebKit
         env:
           WORD_HUNT_QA_SCREENSHOTS: /tmp/laria-wordhunt-phase4
@@ -180,20 +194,6 @@ jobs:
         with:
           name: laria-gangemagi-v1-${{ github.sha }}
           path: /tmp/laria-gangemagi-v1
-          if-no-files-found: warn
-          retention-days: 7
-
-      - name: Verify Plukk og tell in iPhone and iPad Chromium and WebKit
-        env:
-          PICK_QA_SCREENSHOTS: /tmp/laria-pick-play
-        run: node tests/laria-pick-play.browser.playwright.js
-
-      - name: Upload Plukk og tell storybook evidence
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: laria-pick-play-${{ github.sha }}
-          path: /tmp/laria-pick-play
           if-no-files-found: warn
           retention-days: 7
 
