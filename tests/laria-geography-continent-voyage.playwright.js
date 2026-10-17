@@ -86,6 +86,16 @@ async function verify(type,label,viewport){
    await photo(page,label+'-five-stops');
    const quickStart=page.locator('[data-cv-act="quick-start"]');
    assert.equal(await quickStart.count(),1,label+' needs a voluntary recommended voyage start');
+   // The fox and action must precede the tall illustrated map on a real phone.
+   if(viewport.width<=400){
+     const hero=await page.locator('.cv-story-hero').boundingBox();
+     const mapBox=await page.locator('.cv-story-map').boundingBox();
+     const action=await quickStart.boundingBox();
+     assert.ok(hero&&mapBox&&action&&hero.y<mapBox.y&&action.y+action.height<mapBox.y+4,
+       label+' child-first entry should appear above the map');
+     assert.ok(action.y+action.height<=viewport.height-16,
+       label+' begin action should be visible without scrolling on iPhone');
+   }
    assert.match(await quickStart.innerText(),/Seil til Kompassholmen/i);
    if(viewport.width>=900&&viewport.width>viewport.height){
      const b=await quickStart.boundingBox();
@@ -100,6 +110,12 @@ async function verify(type,label,viewport){
    assert.equal(await page.locator('[data-cv-act="quick-start"]').count(),0,
      label+' paused voyage must offer Resume instead of an overwriting new start');
    assert.equal(await page.locator('[data-cv-act="resume"]').count(),1);
+   if(viewport.width<=400){
+     const resume=await page.locator('[data-cv-act="resume"]').boundingBox();
+     const mapBox=await page.locator('.cv-story-map').boundingBox();
+     assert.ok(resume&&mapBox&&resume.y+resume.height<mapBox.y+4&&resume.y+resume.height<=viewport.height-16,
+       label+' ongoing activity must resume from the first screen');
+   }
    await page.locator('[data-cv-act="stage"][data-cv-stage="kompassholmen"]').click();
    assert.equal(await page.locator('.cv-direction').count(),4,'compass must be tactile, not a quiz card');
    await answer(page);
