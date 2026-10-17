@@ -4715,6 +4715,21 @@ function openSubject(subject){
   document.getElementById('subject-grade-label').textContent=GRADE_CONFIG[currentGrade()].label;
   const labEntry=document.getElementById('math-lab-entry');if(labEntry)labEntry.hidden=subject!=='math';
   renderSubjectModules();renderSubjectJourney();renderSubjectContinue();showScreen('subject');
+  // The approved locked Tallenga journey hides #subject-modules. A private
+  // preview launcher must therefore live directly in the visible subject
+  // screen, not in the hidden free-practice area.
+  screen.querySelector(':scope > [data-laria-math-chapter2-preview]')?.remove();
+  if(subject==='math'&&currentGrade()===2&&window.LARIA_MATH_PATTERN_HAVEN?.previewEnabled(location.search)){
+    const preview=document.createElement('button');
+    preview.type='button';preview.className='mh-dev-launch';
+    preview.dataset.lariaMathChapter2Preview='1';
+    preview.textContent='✿ Mønsterhagen · test';
+    preview.setAttribute('aria-label','Åpne Mønsterhagen, intern test av Mattekappittel 2');
+    preview.onclick=()=>window.LARIA_MATH_PATTERN_HAVEN_UI?.open({
+      state,save:saveState,foxSrc:avatarSrc(state.profile?.avatar==='girl'?'girl':'boy')
+    });
+    screen.appendChild(preview);
+  }
 }
 function renderSubjectModules(){
   const box=document.getElementById('subject-modules');box.innerHTML='';
@@ -4724,17 +4739,6 @@ function renderSubjectModules(){
     b.onclick=()=>{activeModule=m.id;startLearningSession(activeSubject,m.id,m.title)};
     box.appendChild(b);
   });
-  // Math chapter 2 is a private pilot. No child sees it without the dev flag.
-  if(activeSubject==='math'&&currentGrade()===2&&window.LARIA_MATH_PATTERN_HAVEN?.previewEnabled(location.search)){
-    const preview=document.createElement('button');
-    preview.type='button';preview.className='subject-module';
-    preview.dataset.lariaMathChapter2Preview='1';
-    preview.innerHTML='<div class="module-icon">✿</div><div><strong>Mønsterhagen (testversjon)</strong><small>Matte · former, mønstre og speilbilder</small></div><div class="topic-arrow">›</div>';
-    preview.onclick=()=>window.LARIA_MATH_PATTERN_HAVEN_UI?.open({
-      state,save:saveState,foxSrc:avatarSrc(state.profile?.avatar==='girl'?'girl':'boy')
-    });
-    box.appendChild(preview);
-  }
   const viewGrade=journeyViewGrade(activeSubject),jp=journeyProgress(activeSubject,viewGrade),chapter=journeyChapterInfo(activeSubject,viewGrade);
   document.getElementById('subject-progress-label').textContent=jp.complete?(chapter?'Eventyr 1 fullført 🏆':'Fullført 🏆'):jp.pct+' %';
   document.getElementById('subject-progress-bar').style.width=jp.pct+'%';
