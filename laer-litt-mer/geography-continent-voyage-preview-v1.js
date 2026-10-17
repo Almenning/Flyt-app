@@ -17,8 +17,8 @@
    const positions={kompassholmen:[27,24],passbrygga:[75,39],
      havpassasjen:[28,55],naturøya:[74,71],reisefyret:[45,86]};
    const recommended=core.STAGES.find(stop=>stop.id===p.recommended)||core.STAGES[0];
-   // All five painted stops stay independent. A first-fold iPad invitation
-   // avoids the need to scroll to the bottom of a tall voyage map.
+   // Keep a voluntary start beside the fox before the map on small devices.
+   // An unfinished voyage gets Resume rather than a second start.
    const quickStart=!session?'<button type="button" class="cv-quick-start" data-cv-act="quick-start" data-cv-stage="'+esc(recommended.id)+'">'+
      '✦ '+(p.complete?'Seil igjen til ':'Seil til ')+esc(recommended.title)+' →</button>':'';
    const places=core.STAGES.map((s,i)=>{
@@ -33,14 +33,15 @@
    return shell('<section class="cv-intro"><div class="cv-intro-header"><div><span class="cv-eyebrow">GEOGRAFI · KAPITTEL 2</span>'+
      '<h1 class="cv-heading" tabindex="-1">Kontinentseilasen</h1>'+
      '<p>Seil på et fantasihav, finn verdenskartets land og samle stempler i reisepasset.</p></div></div>'+
-     '<div class="cv-story-layout"><div class="cv-story-map" role="group" aria-label="Illustrert fantasihav med fem interaktive eventyrsteder">'+
+     '<div class="cv-story-layout"><div class="cv-story-hero"><div class="cv-story-fox">'+fox()+'<p>Hvor skal vi seile? Jeg følger med på reisen!</p></div>'+quickStart+
+     (session?'<button type="button" class="cv-primary" data-cv-act="resume">Fortsett i '+esc(session.place.title)+' →</button>':'')+
+     '</div><div class="cv-story-map" role="group" aria-label="Illustrert fantasihav med fem interaktive eventyrsteder">'+
      '<img class="cv-map-art" src="./geography-continent-voyage-storymap-v1.svg" alt="" draggable="false" loading="eager">'+
      '<div class="cv-places">'+places+'</div></div>'+
-     '<aside class="cv-story-rail"><div class="cv-story-fox">'+fox()+'<p>Hvor skal vi seile? Jeg følger med på reisen!</p></div>'+quickStart+
+     '<aside class="cv-story-rail">'+
      '<div class="cv-progress" role="status"><strong>'+p.done+' av 5 steder utforsket</strong>'+
      '<small>'+(p.places.some(place=>place.attempts===1)?'Flere nye oppdagelser venter når du besøker et sted igjen.':'Alle stedene kan gjentas når du vil.')+'</small>'+
      '<div class="cv-bar"><span style="width:'+p.done*20+'%"></span></div></div>'+
-     (session?'<button type="button" class="cv-primary" data-cv-act="resume">Fortsett i '+esc(session.place.title)+' →</button>':'')+
      '<div class="cv-story-guide"><strong>Finn veien til verden</strong>'+
      '<p>Styr med kompass, sett stempler og finn spennende land med den ekte kloden.</p></div>'+
      '<p class="cv-note">Eventyrhavet er fantasi, ikke et verdenskart. Den ekte globusen er uendret.</p>'+
