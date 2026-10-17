@@ -16,7 +16,7 @@ async function english(page){
 }
 async function enter(page){
  await english(page);
- const launch=page.locator('[data-laria-english-chapter2-preview="1"]');
+ const launch=page.locator('#laria-english-chapter2-entry');
  await launch.waitFor({timeout:16000});
  await launch.click();
  await page.locator('#laria-english-sentence-harbor-preview[role="dialog"]').waitFor();
@@ -59,10 +59,11 @@ async function verify(type,label,viewport){
    await page.route('https://api.worldbank.org/**',r=>r.abort());
    await page.goto(base,{waitUntil:'domcontentloaded'});
    await english(page);
-   assert.equal(await page.locator('[data-laria-english-chapter2-preview]').count(),0,'unflagged content must be hidden');
-   await page.goto(base+'&english-chapter2-preview=1',{waitUntil:'domcontentloaded'});
+   assert.equal(await page.locator('[data-laria-english-chapter2-preview]').count(),0,'developer-only launcher must be hidden');
+   assert.equal(await page.locator('#laria-english-chapter2-entry').isVisible(),true,'English chapter-two must be available from the journey');
+   await page.goto(base,{waitUntil:'domcontentloaded'});
    await enter(page);
-   assert.equal(await page.locator('.sh-map-art').getAttribute('data-sh-art-variant'),'default-v1',label+' normal preview must not switch artwork');
+   assert.equal(await page.locator('.sh-map-art').getAttribute('data-sh-art-variant'),'production-v3',label+' published default must use painted art');
    const map=page.locator('.sh-story-map');
    await map.waitFor({state:'visible'});
    const layout=await map.evaluate(el=>{
@@ -70,7 +71,7 @@ async function verify(type,label,viewport){
      const stops=[...el.querySelectorAll('.sh-map-stop')].map(b=>{
        const r=b.getBoundingClientRect();return {x:r.x,y:r.y,right:r.right,bottom:r.bottom,width:r.width,height:r.height};
      });
-     return {artLoaded:img.complete&&img.naturalWidth===800&&img.naturalHeight===1000,
+     return {artLoaded:img.complete&&img.naturalWidth===960&&img.naturalHeight===1280,
        region:{x:region.x,y:region.y,right:region.right,bottom:region.bottom},
        stops};
    });
@@ -272,5 +273,5 @@ async function verify(type,label,viewport){
  await verify(webkit,'webkit-ipad-portrait',{width:820,height:1180});
  await verify(webkit,'webkit-compact-iphone',{width:320,height:640});
  await verify(webkit,'webkit-ipad-landscape',{width:1180,height:820});
- console.log('PASS English chapter two hidden gate, sentence tiles, stories and reload');
+ console.log('PASS published English chapter two, painted harbor, sentence tiles and reload');
 })().catch(err=>{console.error(err);process.exitCode=1});
