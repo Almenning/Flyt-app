@@ -18,7 +18,7 @@
    {id:'samtalebaten',title:'Samtalebåten',focus:'Svar i en liten engelsk samtale',symbol:'◈'},
    {id:'historiefyret',title:'Historiefyret',focus:'Forstå korte historier og uttrykk',symbol:'✦'}
  ].map(s=>Object.freeze(s)));
- const choose=(id,prompt,english,options,answer,hint)=>Object.freeze({
+ const makeChoice=(id,prompt,english,options,answer,hint)=>Object.freeze({
    id,kind:'choice',prompt,english,options:Object.freeze(options),answer,hint
  });
  const story=(id,passage,prompt,options,answer,hint)=>Object.freeze({
@@ -30,16 +30,16 @@
  });
  const TASKS=Object.freeze({
    hilsenkaia:Object.freeze([
-     choose('hello','Du møter en ny venn. Hva kan du si?','Hello!',['Hello!','Goodbye!','Good night!'],'Hello!','Hello betyr hei.'),
-     choose('how-are-you','Noen spør «How are you?». Hva passer som svar?','How are you?',['I am fine, thank you.','My cat is blue.','Goodbye forever.'],'I am fine, thank you.','Du kan svare at du har det bra og si takk.'),
-     choose('my-name','Noen spør «What is your name?». Hva kan du svare?','What is your name?',['My name is Mia.','I am seven apples.','It is a book.'],'My name is Mia.','My name is betyr jeg heter.'),
-     choose('goodbye','Du skal gå hjem. Hva sier du til vennen din?','Goodbye!',['Goodbye!','What is this?','I like milk.'],'Goodbye!','Goodbye betyr ha det.')
+     makeChoice('hello','Du møter en ny venn. Hva kan du si?','Hello!',['Hello!','Goodbye!','Good night!'],'Hello!','Hello betyr hei.'),
+     makeChoice('how-are-you','Noen spør «How are you?». Hva passer som svar?','How are you?',['I am fine, thank you.','My cat is blue.','Goodbye forever.'],'I am fine, thank you.','Du kan svare at du har det bra og si takk.'),
+     makeChoice('my-name','Noen spør «What is your name?». Hva kan du svare?','What is your name?',['My name is Mia.','I am seven apples.','It is a book.'],'My name is Mia.','My name is betyr jeg heter.'),
+     makeChoice('goodbye','Du skal gå hjem. Hva sier du til vennen din?','Goodbye!',['Goodbye!','What is this?','I like milk.'],'Goodbye!','Goodbye betyr ha det.')
    ]),
    ordbrygga:Object.freeze([
-     choose('dog-jumps','Hunden hopper. Hvilken engelsk setning passer?','The dog jumps.',['The dog jumps.','The cat sleeps.','The bird sings.'],'The dog jumps.','Dog betyr hund, og jumps betyr hopper.'),
-     choose('bird-sings','Fuglen synger. Hva passer?','The bird sings.',['The bird sings.','The fish runs.','The dog reads.'],'The bird sings.','Bird betyr fugl. Sings betyr synger.'),
-     choose('red-ball','Hvilken setning forteller om en rød ball?','The ball is red.',['The ball is red.','The ball is blue.','The ball is small.'],'The ball is red.','Red betyr rød på engelsk.'),
-     choose('open-door','Du vil be noen åpne døren. Hva sier du?','Open the door, please.',['Open the door, please.','Close the book, please.','I am asleep.'],'Open the door, please.','Open betyr åpne. Please er et høflig ord.')
+     makeChoice('dog-jumps','Hunden hopper. Hvilken engelsk setning passer?','The dog jumps.',['The dog jumps.','The cat sleeps.','The bird sings.'],'The dog jumps.','Dog betyr hund, og jumps betyr hopper.'),
+     makeChoice('bird-sings','Fuglen synger. Hva passer?','The bird sings.',['The bird sings.','The fish runs.','The dog reads.'],'The bird sings.','Bird betyr fugl. Sings betyr synger.'),
+     makeChoice('red-ball','Hvilken setning forteller om en rød ball?','The ball is red.',['The ball is red.','The ball is blue.','The ball is small.'],'The ball is red.','Red betyr rød på engelsk.'),
+     makeChoice('open-door','Du vil be noen åpne døren. Hva sier du?','Open the door, please.',['Open the door, please.','Close the book, please.','I am asleep.'],'Open the door, please.','Open betyr åpne. Please er et høflig ord.')
    ]),
    setningsverkstedet:Object.freeze([
      sentence('build-like','Sett ordene sammen til «Jeg liker epler».',['apples','I','like'],['I','like','apples'],'Vi starter med I, så like, og til slutt apples.'),
@@ -48,10 +48,10 @@
      sentence('build-swim','Bygg setningen «Jeg kan svømme».',['swim','can','I'],['I','can','swim'],'I betyr jeg. Can betyr kan.')
    ]),
    samtalebaten:Object.freeze([
-     choose('ask-colour','En venn spør «What colour is it?». Ballen er blå. Hva svarer du?','What colour is it?',['It is blue.','I am eight.','This is my mother.'],'It is blue.','Blue betyr blå. It is betyr den er.'),
-     choose('ask-like','En venn spør «Do you like apples?». Du liker epler. Hva svarer du?','Do you like apples?',['Yes, I do.','No, thank you.','I am a dog.'],'Yes, I do.','Yes, I do passer når du svarer ja.'),
-     choose('ask-age','En venn spør «How old are you?». Du er åtte år. Hva svarer du?','How old are you?',['I am eight.','It is green.','I have a cat.'],'I am eight.','How old are you spør hvor gammel du er.'),
-     choose('ask-thanks','En venn gir deg en gave. Hva sier du?','Thank you!',['Thank you!','Go away!','What is my name?'],'Thank you!','Thank you betyr takk.')
+     makeChoice('ask-colour','En venn spør «What colour is it?». Ballen er blå. Hva svarer du?','What colour is it?',['It is blue.','I am eight.','This is my mother.'],'It is blue.','Blue betyr blå. It is betyr den er.'),
+     makeChoice('ask-like','En venn spør «Do you like apples?». Du liker epler. Hva svarer du?','Do you like apples?',['Yes, I do.','No, thank you.','I am a dog.'],'Yes, I do.','Yes, I do passer når du svarer ja.'),
+     makeChoice('ask-age','En venn spør «How old are you?». Du er åtte år. Hva svarer du?','How old are you?',['I am eight.','It is green.','I have a cat.'],'I am eight.','How old are you spør hvor gammel du er.'),
+     makeChoice('ask-thanks','En venn gir deg en gave. Hva sier du?','Thank you!',['Thank you!','Go away!','What is my name?'],'Thank you!','Thank you betyr takk.')
    ]),
    historiefyret:Object.freeze([
      story('story-fox','The fox sees a little boat. The boat is red.','Hvilken farge er båten?',['Rød','Blå','Gul'],'Rød','Red betyr rød, og fargen hjelper deg å forstå historien.'),
