@@ -116,7 +116,11 @@
    }
  }
  function save(){try{ui?.save?.()}catch(_){/* keep draft playable in memory */}}
- function play(id){core.start(ui.state,id);ui.mode='challenge';ui.result=null;ui.hintShown=false;save();render()}
+ function play(id){
+   // A second tap on the child's current stop resumes the saved voyage step.
+   if(core.resume(ui.state)?.place.id!==id)core.start(ui.state,id);
+   ui.mode='challenge';ui.result=null;ui.hintShown=false;save();render();
+ }
  function read(){
    const s=core.resume(ui.state);if(!s||!window.speechSynthesis||!window.SpeechSynthesisUtterance)return;
    const utterance=new SpeechSynthesisUtterance(s.task.prompt);utterance.lang='nb-NO';utterance.rate=.85;
