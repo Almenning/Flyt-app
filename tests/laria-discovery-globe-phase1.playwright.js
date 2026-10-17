@@ -91,6 +91,16 @@ async function verifyGeographicTap(page,lon,lat,expected,label){
  assert.ok(Math.abs(result.roundtrip.lon-lon)<.001&&Math.abs(result.roundtrip.lat-lat)<.001,label+' longitude/latitude projection lost accuracy');
 }
 async function verifyOffscreenCountryCard(page,label){
+  // The legacy renderer can auto-select Tsjad without aligning the camera.
+  // A normal map repaint must repair the card even without a pointerup.
+  await page.evaluate(()=>{
+    globeLon=15;globeLat=55;setGlobeZoom(2.3);
+    selectGlobeCountry('td');
+    drawGlobe();
+  });
+  await page.waitForFunction(()=>globeSelected===null,null,{timeout:5000});
+  assert.match(await page.locator('#globe-status').innerText(),/Hva vil du oppdage/,
+    label+' legacy offscreen Tsjad card survived ordinary globe repaint');
   await page.evaluate(()=>{
     if(!countries.td)throw new Error('Missing canonical country Tsjad');
     globeLon=18;globeLat=15;globeSelected=null;
