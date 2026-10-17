@@ -110,7 +110,7 @@
    ui.root.innerHTML=ui.mode==='challenge'?challenge():ui.mode==='summary'?summary():overview();
    // A malformed or unavailable optional art file must not blank the chapter map.
    // Keep all HTML stops and progress intact; fallback only the decorative image.
-   if(ui.mode==='overview'){
+   if(ui.mode==='intro'){
      const art=ui.root.querySelector('.cv-map-art[data-cv-art-variant="candidate-v2"]');
      if(art){
        const fallback=()=>{
