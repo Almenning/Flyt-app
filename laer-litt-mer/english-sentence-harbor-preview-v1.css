@@ -73,3 +73,12 @@
 @media(min-width:640px) and (max-height:480px) and (orientation:landscape){.sh-root .sh-harbor{height:100px}
  .sh-root .sh-intro-heading .sh-fox{height:64px}.sh-root .sh-main{padding:12px 17px}}
 @media(prefers-reduced-motion:reduce){.sh-root *{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+/* Phase-B illustration mode hides all non-map subject children with
+ * a two-ID :not(#subject-journey-section) selector. Deliberately allow ONLY
+ * the developer-gated chapter launcher to appear over the locked original.
+ * This keeps every ordinary legacy module invisible. */
+#subject-screen.active.locked-journey-active > .sh-dev-launch:not(#subject-journey-section){
+  display:inline-flex!important;
+  align-items:center;justify-content:center;
+}
