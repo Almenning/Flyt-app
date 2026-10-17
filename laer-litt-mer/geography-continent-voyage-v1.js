@@ -8,7 +8,7 @@
 })(typeof window!=='undefined'?window:globalThis,function(){
  'use strict';
  const CHAPTER=Object.freeze({id:'kontinentseilasen-2',title:'Kontinentseilasen',
-   subject:'geography',grade:2,number:2,published:true,artApproved:true});
+   subject:'geography',grade:2,number:2,published:false,artApproved:false});
  const KEY='geography:2:kontinentseilasen-2';
  const STAGES=Object.freeze([
    {id:'kompassholmen',title:'Kompassholmen',symbol:'✦',focus:'Styr båten mot nord, sør, øst og vest'},
