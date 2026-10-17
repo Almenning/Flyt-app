@@ -76,7 +76,7 @@ async function verify(type,label,viewport){
    await enter(page);
    await page.waitForFunction(()=>{const img=document.querySelector('.sh-map-art');return !!img&&img.complete&&img.naturalWidth>0&&img.naturalHeight>0;},null,{timeout:15000});
    const imageState=await page.locator('.sh-map-art').evaluate(img=>({variant:img.dataset.shArtVariant,issue:img.dataset.shArtFailure||null,width:img.naturalWidth,height:img.naturalHeight,src:img.getAttribute('src')}));
-   assert.equal((await page.locator('.sh-top .sh-tag').textContent()).trim(),'ENGELSK · EVENTYR 2',label+' production header must not show internal debug text');
+   assert.equal((await page.locator('.sh-top .sh-tag').textContent()).trim(),'INTERN TEST · ENGELSK KAPITTEL 2',label+' production header must not show internal debug text');
    assert.equal(imageState.variant,'production-v3',label+' English default painting must render without fallback: '+JSON.stringify(imageState));
    const map=page.locator('.sh-story-map');
    await map.waitFor({state:'visible'});
