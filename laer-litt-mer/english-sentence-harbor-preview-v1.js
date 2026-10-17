@@ -55,14 +55,14 @@
  function play(){
    const s=core.resume(ui.state);
    if(!s)return intro();
-   const t=s.task,index=s.index+1;
+   const t=s.task,index=s.index+1,displayEnglish=core.visibleEnglish(t,!!s.feedback);
    const foxState=buddy.response({subject:'english',stageId:s.stage.id,kind:t.kind,
      feedback:s.feedback,expanded:ui.hintShown});
    const foxPanel='<div class="sh-companion sh-fox-'+foxState.mood+'">'+fox()+
      '<div class="sh-fox-copy"><span class="sh-eyebrow">REVENS ENGELSKE KROK</span>'+
      '<p id="sh-fox-message" role="status">'+esc(foxState.text)+'</p></div>'+
      (foxState.showHint?'<button type="button" class="sh-fox-help" data-sh-act="hint" aria-controls="sh-fox-message" aria-expanded="'+String(foxState.expanded)+'" aria-label="'+(foxState.expanded?'Skjul hint fra reven':'Få hint fra reven')+'">Hint</button>':'')+'</div>';
-   const options=t.kind!=='sentence'?'<div class="sh-options" role="group" aria-label="Velg svar">'+
+   const options=t.kind!=='sentence'?'<div class="sh-options" role="group" aria-label="Velg svar"'+(t.kind==='choice'?' lang="en"':'')+'>'+
      t.options.map((opt,i)=>'<button type="button" data-sh-act="answer" data-sh-index="'+i+
      '" class="sh-option'+(s.feedback?.answer===opt?' sh-answer':'')+'"'+(s.feedback?' disabled':'')+
      '><span>'+String.fromCharCode(65+i)+'</span>'+esc(opt)+'</button>').join('')+'</div>':'';
@@ -75,10 +75,10 @@
      foxPanel+
      '<div class="sh-step">OPPDAGELSE '+index+' AV 4<div class="sh-progress-bar"><span style="width:'+((index-1+Number(!!s.feedback))*25)+'%"></span></div></div>'+
      '<div class="sh-paper"><span class="sh-eyebrow">'+(t.kind==='sentence'?'BYGG EN SETNING':t.kind==='story'?'LES EN LITEN HISTORIE':'FINN DET RETTE SVARET')+'</span>'+
-     (t.kind!=='sentence'?'<div class="sh-english" lang="en">'+esc(t.english)+'</div>':'')+
+     (displayEnglish?'<div class="sh-english" lang="en">'+esc(displayEnglish)+'</div>':'')+
      '<h1 class="sh-heading" tabindex="-1">'+esc(t.prompt)+'</h1>'+
      (t.kind==='sentence'?sentenceUI(s):options)+
-     '<button type="button" class="sh-speak" data-sh-act="speak">🔊 Hør engelsk</button>'+
+     '<button type="button" class="sh-speak" data-sh-act="speak">'+(t.kind==='sentence'&&!s.feedback?.correct?'🔊 Hør ordbrikkene':t.kind==='choice'&&t.english===t.answer&&!s.feedback?'🔊 Hør alle svarene':'🔊 Hør engelsk')+'</button>'+
      feedback+'</div></article>');
  }
  function result(){
@@ -101,7 +101,9 @@
  function start(stage){core.start(ui.state,stage);ui.mode='play';ui.result=null;ui.hintShown=false;save();render()}
  function speak(){
    const s=core.resume(ui.state);if(!s||!window.speechSynthesis||!window.SpeechSynthesisUtterance)return;
-   const u=new SpeechSynthesisUtterance(s.task.english);u.lang='en-GB';u.rate=.83;
+   const spoken=core.spokenEnglish(s.task,s.task.kind==='sentence'?!!s.feedback?.correct:!!s.feedback);
+   if(!spoken)return;
+   const u=new SpeechSynthesisUtterance(spoken);u.lang='en-GB';u.rate=.83;
    window.speechSynthesis.cancel();window.speechSynthesis.speak(u);
  }
  function close(){

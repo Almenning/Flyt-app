@@ -76,6 +76,16 @@ async function verify(type,label,viewport){
    const viewportResult=await page.locator('#laria-english-sentence-harbor-preview').evaluate(el=>({scrollWidth:el.scrollWidth,width:el.clientWidth}));
    assert.ok(viewportResult.scrollWidth<=viewportResult.width+2,label+' overflow in port');
    await photo(page,label+'-harbor');
+   await page.locator('[data-sh-act="stage"][data-sh-stage="ordbrygga"]').click();
+   const firstTask=await page.evaluate(()=>window.LARIA_ENGLISH_SENTENCE_HARBOR.resume(state).task);
+   assert.equal(firstTask.kind,'choice');
+   assert.equal(firstTask.english,firstTask.answer,'regression exercise must be an answer-cued choice');
+   assert.equal(await page.locator('.sh-english').count(),0,label+' answer leaked as an English prompt');
+   assert.match(await page.locator('[data-sh-act="speak"]').innerText(),/alle svarene/i);
+   assert.equal(await page.locator('.sh-options[lang="en"] .sh-option').count(),3);
+   await page.locator('[data-sh-act="answer"][data-sh-index="'+firstTask.options.indexOf(firstTask.answer)+'"]').click();
+   assert.equal(await page.locator('.sh-english').innerText(),firstTask.answer,'answer may be revealed after a try');
+   await page.locator('[data-sh-act="intro"]').click();
    await page.locator('[data-sh-act="stage"][data-sh-stage="setningsverkstedet"]').click();
    let s=await page.evaluate(()=>window.LARIA_ENGLISH_SENTENCE_HARBOR.resume(state));
    const chosen=s.task.tiles.indexOf(s.task.goal[0]);

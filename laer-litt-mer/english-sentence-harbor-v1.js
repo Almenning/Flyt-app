@@ -68,6 +68,20 @@
  function previewEnabled(search){
    return new URLSearchParams(String(search||'').replace(/^\?/,'')).get('english-chapter2-preview')==='1';
  }
+ // Do not reveal or speak a singled-out correct answer before the child responds.
+ // Read all alternatives or shuffled word tiles to support early English learners.
+ function visibleEnglish(task,answered=false){
+   if(!task||task.kind==='sentence')return '';
+   return task.kind==='choice'&&task.english===task.answer&&!answered?'':task.english;
+ }
+ function spokenEnglish(task,answered=false){
+   if(!task)return '';
+   if(task.kind==='sentence'&&!answered)
+     return task.tiles.map((word,i)=>String.fromCharCode(65+i)+'. '+word).join(' ');
+   if(task.kind==='choice'&&task.english===task.answer&&!answered)
+     return task.options.map((word,i)=>String.fromCharCode(65+i)+'. '+word).join(' ');
+   return task.english;
+ }
  function validate(){
    assert(STAGES.length===5&&BY_TASK.size===20,'five places and twenty unique authored tasks required');
    assert(!CHAPTER.published&&!CHAPTER.artApproved,'unapproved prototype cannot be released');
@@ -181,6 +195,6 @@
    return result;
  }
  validate();
- return Object.freeze({CHAPTER,KEY,STAGES,TASKS,previewEnabled,validate,ensure,progress,
+ return Object.freeze({CHAPTER,KEY,STAGES,TASKS,previewEnabled,validate,visibleEnglish,spokenEnglish,ensure,progress,
    start,resume,selectTile,clearTiles,submitSentence,choose,advance});
 });

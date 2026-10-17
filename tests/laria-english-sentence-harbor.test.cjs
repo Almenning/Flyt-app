@@ -11,6 +11,26 @@ test('second English journey is gated and its 20 questions are editorially valid
  assert.equal(english.previewEnabled('?english-chapter2-preview=true'),false);
  assert.ok(english.TASKS.setningsverkstedet.every(t=>t.kind==='sentence'));
 });
+test('English prompts and read-aloud do not reveal a single answer before a try',()=>{
+ for(const task of Object.values(english.TASKS).flat()){
+   const before=english.visibleEnglish(task);
+   const spokenBefore=english.spokenEnglish(task);
+   if(task.kind==='sentence'){
+     assert.equal(before,'');
+     assert.notEqual(spokenBefore,task.english,'ordered phrase cannot be spoken before building');
+     for(const tile of task.tiles)assert.ok(spokenBefore.includes(tile),'every word tile must be audible');
+     assert.equal(english.spokenEnglish(task,true),task.english);
+   }else if(task.kind==='choice'&&task.english===task.answer){
+     assert.equal(before,'','answer cannot be displayed as a prompt');
+     for(const option of task.options)assert.ok(spokenBefore.includes(option),'all three options must be audible');
+     assert.equal(english.visibleEnglish(task,true),task.english);
+     assert.equal(english.spokenEnglish(task,true),task.english);
+   }else{
+     assert.equal(before,task.english,'dialogue stimuli and short stories remain visible');
+     assert.equal(spokenBefore,task.english);
+   }
+ }
+});
 test('sentence making is tactile, reversible and persisted across reloads',()=>{
  const state={journey:{nodes:{'english:2:words':{best:3}},gradeWins:{'english:2':{at:5}}}};
  english.start(state,'setningsverkstedet');
