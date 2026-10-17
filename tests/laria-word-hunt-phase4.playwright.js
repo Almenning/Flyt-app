@@ -278,7 +278,9 @@ async function testView(browser,engine,label,viewport,url){
    statusBackground:getComputedStyle(document.querySelector('.word-hunt-status')).backgroundImage
   }));
   assert.match(completionDelight.board,/wordHuntBoardCelebrate/,label+' completion lacks board celebration');
-  assert.match(completionDelight.fox,/wordHuntFoxCelebrate/,label+' completion lacks fox reaction');
+  assert.match(completionDelight.fox,viewport.width<=700&&viewport.height>viewport.width?
+    /whFoxShortcutCelebrate/:/wordHuntFoxCelebrate/,
+    label+' completion lacks the correct selected-fox reaction for this viewport');
   assert.match(completionDelight.next,/wordHuntReadyPulse/,label+' completion lacks next-round emphasis');
   assert.match(completionDelight.statusBackground,/linear-gradient/,label+' completion status lacks resolved-state treatment');
   assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('laria-wordhunt-v1')||'{}').rounds),1,label+' no persisted completion');
