@@ -283,6 +283,25 @@ async function testView(browser,engine,label,viewport,url){
   const hardDirections=await directionProfile(page);
   assert.ok(hardDirections.horizontal&&hardDirections.vertical&&hardDirections.diagonal&&hardDirections.reverse,
    label+' harder round lacks straight/diagonal/reverse variety: '+JSON.stringify(hardDirections));
+  // After four misses the fox offers voluntary help, without gifting an answer.
+  // Fresh hard round resets the earlier mobile hint state.
+  const stillMissing=(await page.locator('.word-hunt-word').first().innerText()).trim();
+  const tip=await pathFor(page,stillMissing);
+  const adjacent=[tip.start[0]+Math.sign(tip.end[0]-tip.start[0]),tip.start[1]+Math.sign(tip.end[1]-tip.start[1])];
+  for(let attempt=0;attempt<4;attempt++){
+   for(const [r,c] of [tip.start,adjacent])
+    await page.locator('.word-hunt-cell[data-r="'+r+'"][data-c="'+c+'"]').tap();
+  }
+  assert.match(await page.locator('.word-hunt-companion-speech').innerText(),/Trykk på reven når du vil/,
+    label+' fox did not offer optional help after repeated misses');
+  assert.equal(await page.locator('.word-hunt-word.found').count(),0,
+    label+' offering help awarded a word without the child finding it');
+  if(viewport.width<=700&&viewport.height>viewport.width){
+   assert.match(await page.locator('.word-hunt-intro').innerText(),/Trykk på reven når du vil/,
+     label+' fox optional help is invisible above the phone board');
+   await geometry(page,label+'-help-offer',viewport,true);
+  }
+  await shot(page,label+'-04-optional-help');
   await tapWord(page,(await page.locator('.word-hunt-word').first().innerText()).trim());
   assert.equal(await page.locator('.word-hunt-word.found').count(),1,label+' harder puzzle touch selection failed');
   await shot(page,label+'-03-harder');
