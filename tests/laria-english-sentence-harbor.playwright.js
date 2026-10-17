@@ -7,8 +7,9 @@ const shots=process.env.LARIA_ENGLISH_CHAPTER2_SCREENSHOTS;
 const productionArt=fs.readFileSync(path.join(__dirname,'../laer-litt-mer/english-sentence-harbor-painted-v3.png'));
 assert.ok(productionArt.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10])), 'English production image must be PNG');
 const productionImageSize={width:productionArt.readUInt32BE(16),height:productionArt.readUInt32BE(20)};
-assert.deepEqual(productionImageSize,{width:960,height:1280},
-  'English chapter art dimensions must match the existing HTML hotspot coordinate contract');
+assert.ok(productionImageSize.width>=768&&productionImageSize.height>=1024&&
+  productionImageSize.width*4===productionImageSize.height*3,
+  'English chapter art must be at least 768x1024, portrait 3:4: '+JSON.stringify(productionImageSize));
 const seed={version:7,progressSchemaVersion:3,profile:{grade:2,onboarded:true,name:'HavnQA',avatar:'girl',setupVersion:2},
  mastery:{},mistakes:{},skillMastery:{},skillMistakes:{},skillLastSeen:{},masteryEvidence:{},skillEvidence:{},
  preferences:{sound:false,autoRead:false},lastMilestone:null,recentCountryWin:null,lastActivity:null,
@@ -75,6 +76,7 @@ async function verify(type,label,viewport){
    await enter(page);
    await page.waitForFunction(()=>{const img=document.querySelector('.sh-map-art');return !!img&&img.complete&&img.naturalWidth>0&&img.naturalHeight>0;},null,{timeout:15000});
    const imageState=await page.locator('.sh-map-art').evaluate(img=>({variant:img.dataset.shArtVariant,issue:img.dataset.shArtFailure||null,width:img.naturalWidth,height:img.naturalHeight,src:img.getAttribute('src')}));
+   assert.equal((await page.locator('.sh-top .sh-tag').textContent()).trim(),'ENGELSK · EVENTYR 2',label+' production header must not show internal debug text');
    assert.equal(imageState.variant,'production-v3',label+' English default painting must render without fallback: '+JSON.stringify(imageState));
    const map=page.locator('.sh-story-map');
    await map.waitFor({state:'visible'});
@@ -83,7 +85,7 @@ async function verify(type,label,viewport){
      const stops=[...el.querySelectorAll('.sh-map-stop')].map(b=>{
        const r=b.getBoundingClientRect();return {x:r.x,y:r.y,right:r.right,bottom:r.bottom,width:r.width,height:r.height};
      });
-     return {artLoaded:img.complete&&img.naturalWidth===960&&img.naturalHeight===1280,
+     return {artLoaded:img.complete&&img.naturalWidth>=768&&img.naturalHeight>=1024&&img.naturalWidth*4===img.naturalHeight*3,
        region:{x:region.x,y:region.y,right:region.right,bottom:region.bottom},
        stops};
    });
