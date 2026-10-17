@@ -1158,3 +1158,64 @@
 }
 .word-hunt-theme-icon{object-fit:cover;filter:none}
 #bc12-dialog .bc12-wordhunt-sticker-art img{object-fit:cover}
+
+
+/* wordhunt-entry-compact-firstfold-20261017 */
+/* 320x568 Safari: title and first theme must be readable without browser
+   auto-scroll into the bottom card. Keep touch areas large, reduce only chrome. */
+.word-hunt-overlay.is-theme-entry .wh-theme-panel{overflow-anchor:none}
+@media(max-width:350px) and (max-height:630px) and (orientation:portrait){
+  .word-hunt-overlay.is-theme-entry .wh-theme-panel{
+    padding:8px 8px 10px;max-height:calc(100svh - 8px);
+    border-radius:18px;
+  }
+  .word-hunt-overlay.is-theme-entry .wh-theme-fox{
+    top:4px;left:7px;width:30px;height:39px;
+  }
+  .word-hunt-overlay.is-theme-entry .wh-theme-eyebrow{
+    font-size:9px;letter-spacing:.12em;padding-left:10px;
+  }
+  .word-hunt-overlay.is-theme-entry .wh-theme-panel h2{
+    max-width:none;font-size:18px;line-height:1.07;
+    padding:0 20px;margin:2px auto 4px;
+  }
+  .word-hunt-overlay.is-theme-entry .wh-theme-panel p{
+    font-size:10px;margin:3px auto 7px;padding:0 12px;
+  }
+  .word-hunt-overlay.is-theme-entry .wh-theme-close{
+    min-width:44px;min-height:44px;width:44px;height:44px;
+    top:4px;right:5px;
+  }
+  .word-hunt-overlay.is-theme-entry .wh-theme-cards{
+    gap:6px;margin:5px 0 6px;padding:0 0 4px;
+  }
+  .word-hunt-overlay.is-theme-entry .wh-theme-card{
+    padding:4px 4px 7px;gap:2px;border-radius:12px;
+  }
+  .word-hunt-overlay.is-theme-entry .wh-theme-card:not([data-word-theme="mixed"]) img{
+    height:75px;aspect-ratio:auto;border-radius:8px;
+  }
+  .word-hunt-overlay.is-theme-entry .wh-theme-card strong{
+    font-size:11px;line-height:1.12;
+  }
+  .word-hunt-overlay.is-theme-entry .wh-theme-card small{
+    font-size:9px;line-height:1.15;min-height:19px;
+  }
+  .word-hunt-overlay.is-theme-entry .wh-theme-card-go{font-size:10px}
+  .word-hunt-overlay.is-theme-entry .wh-theme-card[data-word-theme="mixed"]{
+    min-height:95px;grid-template-columns:minmax(0,37%) minmax(0,1fr);
+    column-gap:8px;padding:4px 8px 4px 4px;row-gap:2px;
+  }
+  .word-hunt-overlay.is-theme-entry .wh-theme-card[data-word-theme="mixed"] img{
+    min-height:86px;aspect-ratio:1.35;border-radius:9px;
+  }
+  .word-hunt-overlay.is-theme-entry .wh-theme-card[data-word-theme="mixed"] strong{
+    font-size:13px;
+  }
+  .word-hunt-overlay.is-theme-entry .wh-theme-card[data-word-theme="mixed"] small{
+    font-size:10px;line-height:1.12;
+  }
+  .word-hunt-overlay.is-theme-entry .wh-theme-start{
+    min-height:43px;padding:6px 12px;
+  }
+}
