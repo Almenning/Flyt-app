@@ -70,3 +70,18 @@ test('Each authored mission has a unique ID and a valid bounded target',()=>{
  }
  assert.equal(E.MISSIONS.length,8);
 });
+test('Markedsbok selects any authored mission and preserves collected flowers',()=>{
+ let s=E.initial();
+ for(let i=0;i<3;i++)for(let j=0;j<3;j++)s=E.apply(s,{type:'add',group:i});
+ assert.deepEqual(s.wins,['meadow-3-3']);
+ s=E.apply(s,{type:'mission',index:7});
+ assert.equal(s.mission,7);assert.equal(s.mode,'mission');
+ assert.deepEqual(s.counts,[0,0]);assert.equal(E.equation(s).target,'2 × 10 = 20');
+ assert.deepEqual(s.wins,['meadow-3-3']);
+ assert.deepEqual(E.apply(s,{type:'mission',index:-1}),s);
+ assert.deepEqual(E.apply(s,{type:'mission',index:99}),s);
+ assert.deepEqual(E.apply(s,{type:'mission',index:1.4}),s);
+ s=E.apply(s,{type:'mode',mode:'free'});
+ s=E.apply(s,{type:'mission',index:0});
+ assert.equal(s.mode,'mission');assert.deepEqual(s.wins,['meadow-3-3']);
+});
