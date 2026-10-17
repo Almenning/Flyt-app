@@ -100,3 +100,12 @@
  cursor:pointer;touch-action:manipulation}
 #subject-screen>.mh-dev-launch:focus-visible{outline:3px solid #e8a944;outline-offset:4px}
 @media(max-width:360px){#subject-screen>.mh-dev-launch{right:9px;font-size:12px;padding:8px 10px}}
+
+/* Phase-B illustration mode hides all non-map subject children with
+ * a two-ID :not(#subject-journey-section) selector. Deliberately allow ONLY
+ * the developer-gated chapter launcher to appear over the locked original.
+ * This keeps every ordinary legacy module invisible. */
+#subject-screen.active.locked-journey-active > .mh-dev-launch:not(#subject-journey-section){
+  display:inline-flex!important;
+  align-items:center;justify-content:center;
+}
