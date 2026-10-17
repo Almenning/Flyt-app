@@ -101,10 +101,10 @@ async function verify(type,label,viewport){
        label+' begin action should be visible without scrolling on iPhone');
    }
    assert.match(await quickStart.innerText(),/Begynn ved Hilsenkaia/i);
-   if(viewport.width>=900&&viewport.width>viewport.height){
+   if(viewport.width>viewport.height){
      const b=await quickStart.boundingBox();
      assert.ok(b&&b.height>=44&&b.y+b.height<=viewport.height,
-       label+' harbor recommended start should be visible on landscape iPad');
+       label+' English start should be visible on every landscape screen');
    }
    assert.equal(await page.locator('.sh-story-map [data-sh-act="stage"]').count(),5,
      label+' the quick start must not replace any illustrated stop');
@@ -115,6 +115,11 @@ async function verify(type,label,viewport){
    assert.equal(await page.locator('[data-sh-act="quick-start"]').count(),0,
      label+' an unfinished visit must offer Resume, not a button that overwrites it');
    assert.equal(await page.locator('[data-sh-act="resume"]').count(),1);
+   if(viewport.width>viewport.height){
+     const resumed=await page.locator('[data-sh-act="resume"]').boundingBox();
+     assert.ok(resumed&&resumed.height>=44&&resumed.y>=0&&resumed.y+resumed.height<=viewport.height-8,
+       label+' Resume should remain above the fold in landscape');
+   }
    if(viewport.width<=400){
      const resume=await page.locator('[data-sh-act="resume"]').boundingBox();
      const mapBox=await page.locator('.sh-story-map').boundingBox();

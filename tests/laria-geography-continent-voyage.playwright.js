@@ -110,10 +110,10 @@ async function verify(type,label,viewport){
        label+' begin action should be visible without scrolling on iPhone');
    }
    assert.match(await quickStart.innerText(),/Seil til Kompassholmen/i);
-   if(viewport.width>=900&&viewport.width>viewport.height){
+   if(viewport.width>viewport.height){
      const b=await quickStart.boundingBox();
      assert.ok(b&&b.height>=44&&b.y+b.height<=viewport.height,
-       label+' voyage start should be visible above the iPad landscape fold');
+       label+' Geography start should be visible on every landscape screen');
    }
    assert.equal(await page.locator('.cv-story-map [data-cv-act="stage"]').count(),5);
    await quickStart.click();
@@ -123,6 +123,11 @@ async function verify(type,label,viewport){
    assert.equal(await page.locator('[data-cv-act="quick-start"]').count(),0,
      label+' paused voyage must offer Resume instead of an overwriting new start');
    assert.equal(await page.locator('[data-cv-act="resume"]').count(),1);
+   if(viewport.width>viewport.height){
+     const resumed=await page.locator('[data-cv-act="resume"]').boundingBox();
+     assert.ok(resumed&&resumed.height>=44&&resumed.y>=0&&resumed.y+resumed.height<=viewport.height-8,
+       label+' Resume should remain above the fold in landscape');
+   }
    if(viewport.width<=400){
      const resume=await page.locator('[data-cv-act="resume"]').boundingBox();
      const mapBox=await page.locator('.cv-story-map').boundingBox();

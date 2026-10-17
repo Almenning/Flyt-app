@@ -231,3 +231,20 @@
 .cv-root .cv-story-hero .cv-quick-start:focus-visible{outline:3px solid #247b7e;outline-offset:3px}
 .cv-root .cv-story-hero .cv-quick-start:active{transform:translateY(2px);box-shadow:0 2px 0 #ad8759}
 .cv-root .cv-story-hero .cv-primary{margin:0}
+
+/* Short-height iPhone landscape: preserve an above-the-fold invitation and
+   full 44px touch targets while the child can still explore all five islands. */
+@media (min-width:721px) and (max-width:899px) and (max-height:480px) and (orientation:landscape){
+ .cv-root .cv-top{padding:8px 14px}
+ .cv-root .cv-main:has(.cv-intro){padding:10px 14px}
+ .cv-root .cv-intro .cv-heading{font-size:27px;margin:3px 0 4px}
+ .cv-root .cv-intro-header p{font-size:13px;line-height:1.23}
+ .cv-root .cv-story-layout{margin-top:8px;gap:12px;grid-template-columns:minmax(0,1.55fr) minmax(225px,.9fr)}
+ .cv-root .cv-story-hero{gap:8px}
+ .cv-root .cv-story-fox{padding:6px 8px;gap:6px}
+ .cv-root .cv-story-fox .cv-fox{width:68px;height:66px}
+ .cv-root .cv-story-fox p{font-size:12px;line-height:1.2}
+ .cv-root .cv-story-hero .cv-quick-start,.cv-root .cv-story-hero .cv-primary{
+   min-height:44px;padding:9px 8px;font-size:13px;line-height:1.16
+ }
+}

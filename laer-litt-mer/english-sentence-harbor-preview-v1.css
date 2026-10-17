@@ -210,3 +210,20 @@
 .sh-root .sh-story-hero .sh-quick-start:focus-visible{outline:3px solid #277d83;outline-offset:3px}
 .sh-root .sh-story-hero .sh-quick-start:active{transform:translateY(2px);box-shadow:0 2px 0 #b68e5b}
 .sh-root .sh-story-hero .sh-continue{margin:0}
+
+/* Short-height iPhone landscape: keep the fox and voluntary next action in
+   the first fold, without shrinking child-sized map touch targets. */
+@media (min-width:721px) and (max-width:899px) and (max-height:480px) and (orientation:landscape){
+ .sh-root .sh-top{padding:8px 14px}
+ .sh-root .sh-main:has(.sh-intro){padding:10px 14px}
+ .sh-root .sh-intro .sh-heading{font-size:27px;margin:3px 0 4px}
+ .sh-root .sh-intro-heading p{font-size:13px;line-height:1.23}
+ .sh-root .sh-story-layout{margin-top:8px;gap:12px;grid-template-columns:minmax(0,1.55fr) minmax(225px,.9fr)}
+ .sh-root .sh-story-hero{gap:8px}
+ .sh-root .sh-story-fox{padding:6px 8px;gap:6px}
+ .sh-root .sh-story-fox .sh-fox{width:68px;height:66px}
+ .sh-root .sh-story-fox p{font-size:12px;line-height:1.2}
+ .sh-root .sh-story-hero .sh-quick-start,.sh-root .sh-story-hero .sh-continue{
+   min-height:44px;padding:9px 8px;font-size:13px;line-height:1.16
+ }
+}

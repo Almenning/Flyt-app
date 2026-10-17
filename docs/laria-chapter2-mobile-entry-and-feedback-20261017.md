@@ -43,3 +43,8 @@ Etter et svar må barnet se responsen uten å lete etter den under skjermkanten.
 - Egen WebKit/Chromium-regresjon gjenåpner det aktive kartstoppet og kontrollerer at delvis progresjon ikke blir overskrevet. Ordinær avspilling av et fullført sted er uendret.
 - Besøk på et **annet** sted er fortsatt et bevisst valg som følger kapittelmodellens nåværende én-aktivitet-om-gangen-struktur. Arbeidet påstår ikke å bevare flere samtidige utkast fra forskjellige steder.
 - Begge JS-referansene har fått ny versjon i `index.html` etter denne rettelsen. Kontroller igjen på eksakt siste SHA; tidligere grønne kjøringer kan ikke gjenbrukes som godkjenning.
+
+## Første skjermbilde i liggende iPhone
+- Ekte WebKit-artifakt fra Setningshavna viste at startknappen nesten forsvant under skjermkanten i 844×390. Begge kartintroene har nå en målrettet, kompakt landskaps-layout for 721–899 px bredde og maks 480 px høyde.
+- Playwright krever nå at både «Begynn» og «Fortsett» er fullt synlige og minst 44 px høye på samtlige liggende testformater.
+- Dette er ennå intern QA; ingen kapittel 2-illustrasjon er premiumgodkjent eller publisert.
