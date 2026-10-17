@@ -78,3 +78,11 @@ test('incorrect answers teach and do not force success to advance',()=>{
  assert.equal(next.finished,false);
  assert.equal(next.session.correct,0);
 });
+test('an incorrect mirror can be repainted and checked again',()=>{
+ const state={},s=model.start(state,'speildammen');
+ assert.equal(model.checkMirror(state).correct,false);
+ for(const pos of model.targetMirror(s.task)){
+   const [r,c]=pos.split('-').map(Number);model.toggleMirror(state,r,c);
+ }
+ assert.equal(model.checkMirror(state).correct,true);
+});

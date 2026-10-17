@@ -139,7 +139,9 @@
    const session=resume(state);assert(session&&session.task.kind==='mirror','mirror activity required');
    assert(Number.isInteger(r)&&r>=0&&r<4&&(c===2||c===3),'only right-hand mirror cells');
    const d=ensure(state).draft;
-   if(d.feedback)return session;
+   if(d.feedback?.correct)return session;
+   // A wrong attempt may be repainted and checked again.
+   if(d.feedback&&!d.feedback.correct)d.feedback=null;
    const key=r+'-'+c,index=d.mirror.indexOf(key);
    if(index>=0)d.mirror.splice(index,1);else d.mirror.push(key);
    return resume(state);
