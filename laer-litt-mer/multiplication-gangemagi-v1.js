@@ -72,6 +72,35 @@
  function storyTitle(){
    return state.mode==='mission'?E.MISSIONS[state.mission].heading:'Ditt eget jordbærmarked';
  }
+
+ /* Dagens oppdrag follows the child's real mission and never substitutes an image for play. */
+ const gmBasketArt='<svg viewBox="0 0 64 54" focusable="false" aria-hidden="true"><path d="M13 24Q16 8 31 6Q48 6 51 24" fill="none" stroke="#8d542e" stroke-width="7" stroke-linecap="round"/><path d="M7 22H57L52 47Q32 57 12 47Z" fill="#c98b4c" stroke="#905b34" stroke-width="3"/><path d="M7 30H57M11 40H53M20 23L24 50M32 23V51M44 23L40 50" fill="none" stroke="#f5c886" stroke-width="3.5"/><path d="M9 23H55" stroke="#7f4a29" stroke-width="4" stroke-linecap="round"/></svg>';
+ function questStep(n,art,label){
+   return '<div class="gm-quest-step" role="listitem"><span class="gm-quest-index" aria-hidden="true">'+n+'</span>'+
+     '<span class="gm-quest-icon" aria-hidden="true">'+art+'</span><strong>'+esc(label)+'</strong></div>';
+ }
+ function questBoard(sum,goal){
+   const groups=state.groups,each=state.each,mission=E.MISSIONS[state.mission];
+   const fruitArt='<span class="gm-quest-fruit">'+berrySvg+'</span>';
+   const berries=Array.from({length:Math.min(each,5)},()=>fruitArt).join('')+
+     (each>5?'<span class="gm-quest-extra">+'+(each-5)+'</span>':'');
+   return '<header class="gm-story gm-quest" aria-label="Dagens oppdrag">'+
+     '<div class="gm-quest-head">'+
+       '<span class="gm-quest-flag" aria-hidden="true">⚑</span>'+
+       '<span class="gm-quest-ribbon">Dagens oppdrag</span>'+
+       '<span class="gm-quest-meta">Oppdrag '+(state.mission+1)+' av '+E.MISSIONS.length+' · '+esc(mission.heading)+'</span>'+
+       '<span class="gm-story-progress gm-quest-progress" aria-label="'+sum+' av '+goal+' jordbær pakket"><strong>'+sum+'</strong><span>av '+goal+'</span></span>'+
+     '</div>'+
+     '<h2 class="gm-quest-callout">Fyll <em>'+groups+' '+(groups===1?'kurv':'kurver')+'</em> med <em>'+each+' jordbær</em> i hver.</h2>'+
+     '<div class="gm-quest-steps" role="list" aria-label="Tre steg i oppdraget">'+
+       questStep(1,fruitArt,'Plukk jordbær')+
+       '<span class="gm-quest-arrow" aria-hidden="true">➜</span>'+
+       questStep(2,gmBasketArt,'Legg i '+groups+' '+(groups===1?'kurv':'kurver'))+
+       '<span class="gm-quest-arrow" aria-hidden="true">➜</span>'+
+       questStep(3,'<span class="gm-quest-berries">'+berries+'</span>',each+' i hver kurv')+
+     '</div>'+
+   '</header>';
+ }
  function render(){
    const prevFocus=root.contains(document.activeElement)?document.activeElement:null;
    const focusKey=prevFocus?.dataset?.gmAction?{action:prevFocus.dataset.gmAction,group:prevFocus.dataset.group,basket:prevFocus.dataset.gmBasket}:null;
@@ -95,8 +124,8 @@
       '<button type="button" class="'+(free?'selected':'')+'" data-gm-action="mode" data-mode="free" aria-pressed="'+free+'">Fri lek</button>'+
       '</div></div>'+
       '<section class="gm-world" aria-label="Jordbærmarkedet i Tallenga">'+
-       '<header class="gm-story"><div class="gm-story-main"><span class="gm-story-kicker">'+(free?'DU BESTEMMER':'OPPDRAG '+(state.mission+1)+' AV '+E.MISSIONS.length)+'</span><h2>'+esc(storyTitle())+'</h2><p>'+esc(challengeText())+'</p></div>'+
-       '<span class="gm-story-progress" aria-label="'+sum+' av '+goal+' jordbær pakket"><strong>'+sum+'</strong><span>av '+goal+'</span></span></header>'+
+       (free?'<header class="gm-story"><div class="gm-story-main"><span class="gm-story-kicker">DU BESTEMMER</span><h2>'+esc(storyTitle())+'</h2><p>'+esc(challengeText())+'</p></div>'+
+       '<span class="gm-story-progress" aria-label="'+sum+' av '+goal+' jordbær pakket"><strong>'+sum+'</strong><span>av '+goal+'</span></span></header>':questBoard(sum,goal))+
        '<div class="gm-scene"><div class="gm-fox" data-mood="'+(complete?'celebrate':hintStep?'help':foxMood)+'">'+
          '<div class="gm-fox-art" aria-hidden="true">'+selectedFox()+'</div>'+
          '<div class="gm-fox-bubble"><span class="gm-fox-bubble-label">Din rev sier:</span><span class="gm-fox-message" role="status" aria-live="polite">'+esc(msg)+'</span>'+
