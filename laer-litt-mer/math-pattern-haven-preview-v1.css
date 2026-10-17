@@ -223,3 +223,20 @@
  .mh-root .mh-story-map .mh-place-symbol{min-width:21px;width:21px;height:21px;font-size:12px}
  .mh-root .mh-story-fox .mh-fox{width:70px;height:75px}
 }
+/* Private painted-storybook study only. Both developer flags are necessary;
+   current SVG and all first-chapter maps remain the standard experience. */
+.mh-root .mh-story-map.mh-map-painted{aspect-ratio:2/3}
+.mh-root .mh-art-picture{position:absolute;inset:0;display:block;width:100%;height:100%;pointer-events:none}
+.mh-root .mh-map-painted .mh-map-stop{background:linear-gradient(#fff7dd,#ebd0a4);border-color:#75523c}
+@media(max-width:365px){.mh-root .mh-map-painted .mh-map-stop{min-height:44px}}
+
+/* A visible, voluntary starting point on a tall iPad painting: no forced path. */
+.mh-root .mh-quick-start{
+ display:block;width:100%;min-height:49px;margin:0;padding:11px 15px;
+ border:2px solid #9d6d44;border-radius:15px;
+ background:linear-gradient(165deg,#f1c986,#dea663);color:#503522;
+ box-shadow:0 4px 0 #ad7c4b;font:900 15px ui-rounded,system-ui;
+ text-align:center;touch-action:manipulation;
+}
+.mh-root .mh-quick-start:active{transform:translateY(2px);box-shadow:0 2px 0 #ad7c4b}
+.mh-root .mh-quick-start:focus-visible{outline:3px solid #4b6e5e;outline-offset:3px}
