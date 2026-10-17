@@ -1344,3 +1344,35 @@
 @media(min-width:701px) and (max-width:1099px) and (orientation:portrait){
   .word-hunt-companion-stage{height:clamp(125px,20vw,195px)}
 }
+
+/* Wide screens: actual fox in the painted world, speech bubble above the fox.
+   The mobile version stays a compact accessible card below the word board. */
+@media(min-width:1100px) and (min-height:701px) and (max-height:1000px) and (orientation:landscape){
+  .word-hunt-companion{
+    display:flex;flex-direction:column;align-items:center;
+    overflow:visible;background:none;border:0;box-shadow:none;
+    padding:0;
+  }
+  .word-hunt-companion-panel{display:contents}
+  .word-hunt-companion-speech{
+    order:1;position:relative;z-index:3;overflow:visible;
+    width:100%;min-height:0;margin:0 0 8px;padding:10px 9px;
+    border:2px solid #e2be7f;border-radius:21px;
+    background:linear-gradient(#fffcf2,#fff3d7);
+    box-shadow:0 4px 0 #cba470,0 8px 14px #433a2d21;
+    font-size:12px;
+  }
+  .word-hunt-companion-speech::after{
+    content:"";position:absolute;bottom:-10px;left:50%;transform:translateX(-50%) rotate(45deg);
+    width:16px;height:16px;border-right:2px solid #e2be7f;
+    border-bottom:2px solid #e2be7f;background:#fff3d7;
+  }
+  .word-hunt-companion-stage{order:2;margin:0;max-width:195px;height:min(285px,34svh)}
+  .word-hunt-companion-controls{
+    order:3;width:100%;display:flex;gap:6px;flex-direction:column;
+    padding:9px;border:1px solid #cfa776;border-radius:17px;
+    background:linear-gradient(#fffae8eb,#f8e3bcec);
+    box-shadow:0 4px 0 #9d764a;
+  }
+  .word-hunt-companion-controls button{flex:initial;width:100%;min-height:44px}
+}
