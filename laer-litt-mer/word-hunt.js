@@ -187,7 +187,7 @@ const FOX_RESPONSES={
   invalid:['Prøv å følge bokstavene i en rett eller skrå linje.','Velg første og siste bokstav i samme linje.'],
   repeated:['Dette ordet har du allerede funnet! Finn et nytt.','Den fant vi! Se etter ett av ordene som mangler.'],
   cheer:['Heia deg! Vi finner ordene sammen!','Du får dette til! Jeg heier på deg!'],
-  complete:['Hurra! Du fant alle ordene!','Hurra! Alle ordene er funnet!']
+  complete:['Hurra! Du fant alle ordene!','Hurra! Vi fant alle ordene!']
 };
 function companionSay(message,mood='greet',kind='idle'){
   const root=overlay(),host=root.querySelector('.word-hunt-companion');
