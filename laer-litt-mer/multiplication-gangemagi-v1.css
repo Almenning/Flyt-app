@@ -96,7 +96,7 @@
 .gm-progress-track{grid-column:1;height:9px;min-width:0;overflow:hidden;border-radius:15px;background:#ddc8a4;box-shadow:inset 0 2px 4px #9d815b40}
 .gm-progress-track span{display:block;height:100%;border-radius:15px;min-width:0;background:linear-gradient(90deg,#7cb58a,#438875);transition:width .27s cubic-bezier(.12,.73,.23,1)}
 .gm-math-note{grid-column:2;text-align:right;font-size:10px;font-weight:830;color:#6b5340}
-.gm-celebration{position:relative;z-index:2;display:flex;align-items:center;justify-content:center;gap:9px;width:fit-content;max-width:calc(100% - 26px);margin:0 auto 12px;padding:7px 16px;border-radius:16px;
+.gm-celebration{position:relative;z-index:2;display:flex;align-items:center;justify-content:center;gap:9px;width:fit-content;max-width:calc(100% - 26px);margin:0 auto 9px;padding:7px 16px;border-radius:16px;
  background:linear-gradient(110deg,#fff9e5f7,#f6eccdf8);border:2px solid #fff7df;box-shadow:0 4px 0 #c7a4779e,0 9px 17px #574a3436;color:#52705b;font-weight:950;font-size:13px;text-align:center}
 .gm-celebration span:first-child{font-size:24px;color:#b46a52}
 .gm-celebration span:first-child{font-size:25px;color:#b46a52}
@@ -112,7 +112,7 @@
  background:linear-gradient(180deg,#fff8e7,#eddfbd);color:#654933;padding:8px 17px;font-size:14px;font-weight:950;white-space:nowrap}
 .gm-tool>span{font-size:20px;vertical-align:-1px;color:#976b47;margin-right:2px}
 .gm-next{background:linear-gradient(#8fb78b,#5a936e);color:#fff;flex:1 1 160px;border-bottom-color:#3c7553}
-.gm-actions-complete{display:grid;grid-template-columns:minmax(0,1fr) minmax(110px,.32fr);max-width:620px;margin:13px auto 0}
+.gm-actions-complete{display:grid;grid-template-columns:minmax(0,1fr) minmax(110px,.32fr);max-width:620px;margin:4px auto 0}
 .gm-actions-complete .gm-next{font-size:17px;min-height:66px;white-space:normal}
 .gm-actions-complete .gm-tool{min-height:66px}
 .gm-free-controls{display:flex;justify-content:center;flex-wrap:wrap;gap:11px;margin:14px auto 2px}
