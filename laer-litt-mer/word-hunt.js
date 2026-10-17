@@ -3,7 +3,7 @@ const THEMES=window.LARIA_WORD_HUNT_THEMES;
 const LETTERS='ABCDEFGHIJKLMNOPQRSTUVWXYZÆØÅ';
 const KEY='laria-wordhunt-v1';
 const ROUND_KEY='laria-wordhunt-unfinished-round-v1';
-let ui={level:'easy',theme:'mixed',themeChoice:'mixed',size:6,grid:[],words:[],recentWords:[],found:new Map(),drag:null,tapStart:null,completed:false,magicSeen:false,magicTimer:null,pickerFocus:null,entryPickerActive:false,hintsUsed:0};
+let ui={level:'easy',theme:'mixed',themeChoice:'mixed',size:6,grid:[],words:[],recentWords:[],found:new Map(),drag:null,tapStart:null,completed:false,magicSeen:false,magicTimer:null,pickerFocus:null,entryPickerActive:false,hintsUsed:0,companionTimer:null};
 function stats(){try{return THEMES.normalizeProgress(JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(_){return THEMES.normalizeProgress(null)}}
 function saveTheme(){const s=stats();s.theme=ui.theme;localStorage.setItem(KEY,JSON.stringify(s))}
 function saveRound(){
@@ -205,11 +205,26 @@ function findHintPath(word){
   }
   return null;
 }
+function scheduleCompanionOffer(){
+  if(ui.companionTimer)clearTimeout(ui.companionTimer);
+  ui.companionTimer=null;
+  const root=document.getElementById('word-hunt-overlay');
+  if(!root||root.hidden||ui.completed||!ui.grid.length||
+     !root.querySelector('.word-hunt-theme-picker').hidden)return;
+  // Quiet invitation only: never reveal any letters automatically.
+  ui.companionTimer=setTimeout(()=>{
+    const current=document.getElementById('word-hunt-overlay');
+    ui.companionTimer=null;
+    if(!current||current.hidden||ui.completed||!current.querySelector('.word-hunt-theme-picker').hidden)return;
+    companionSay('Vil du ha en ledetråd? Jeg hjelper når du vil!','curious');
+  },45000);
+}
 function giveHint(){
+  scheduleCompanionOffer();
   if(ui.completed){companionSay('Du fant alle ordene! Klar for en ny jakt?','celebrate');return}
   const target=ui.words.find(word=>!ui.found.has(word)&&findHintPath(word));
   if(!target)return;
-  const path=findHintPath(target),stage=ui.hintsUsed%3;
+  const path=findHintPath(target),stage=Math.min(ui.hintsUsed,2);
   const [r,c]=path[0];
   clearHintMarks();
   if(stage===0){
@@ -267,6 +282,7 @@ function showThemePicker(entry=false){
   ui.themeChoice=ui.theme;
   highlightThemeChoice();
   picker.hidden=false;
+  if(ui.companionTimer){clearTimeout(ui.companionTimer);ui.companionTimer=null}
   revealSelectedTheme();
   root.querySelector('.word-hunt-shell').inert=true;
   const back=picker.querySelector('.wh-theme-close');
@@ -287,6 +303,7 @@ function closeThemePicker(){
   root.classList.remove('is-theme-entry');
   ui.entryPickerActive=false;
   if(ui.pickerFocus?.isConnected)ui.pickerFocus.focus({preventScroll:true});
+  scheduleCompanionOffer();
   ui.pickerFocus=null;
 }
 function startChosenTheme(){
@@ -298,6 +315,7 @@ function startChosenTheme(){
   render();
   closeThemePicker();
   companionSay('Jeg er klar! Skal vi finne ordene sammen?','greet');
+  scheduleCompanionOffer();
   overlay().querySelector('.word-hunt-back').focus({preventScroll:true});
 }
 function hideMagic(){
@@ -352,10 +370,10 @@ function overlay(){
     }
   });
   root.querySelector('.word-hunt-back').onclick=closeWordHunt;
-  root.querySelector('.word-hunt-new').onclick=()=>{makeRound();render();companionSay('Ny jakt! Jeg heier på deg.','greet')};
+  root.querySelector('.word-hunt-new').onclick=()=>{makeRound();render();companionSay('Ny jakt! Jeg heier på deg.','greet');scheduleCompanionOffer()};
   root.querySelector('.word-hunt-companion-hint').onclick=giveHint;
-  root.querySelector('.word-hunt-companion-cheer').onclick=()=>companionSay('Heia deg! Vi finner ordene sammen!','celebrate');
-  root.querySelectorAll('[data-word-level]').forEach(b=>b.onclick=()=>{ui.level=b.dataset.wordLevel;makeRound();render()});
+  root.querySelector('.word-hunt-companion-cheer').onclick=()=>{companionSay('Heia deg! Vi finner ordene sammen!','celebrate');scheduleCompanionOffer()};
+  root.querySelectorAll('[data-word-level]').forEach(b=>b.onclick=()=>{ui.level=b.dataset.wordLevel;makeRound();render();companionSay('Nå prøver vi en ny utfordring!','curious');scheduleCompanionOffer()});
   const board=root.querySelector('.word-hunt-board');
   board.addEventListener('pointerdown',pointerDown);
   board.addEventListener('pointermove',pointerMove);
@@ -387,6 +405,7 @@ function pointerDown(e){
   // A new real finger contact must never be blocked for 250ms.
   const root=e.currentTarget.closest('.word-hunt-overlay');
   if(root)root.dataset.draggedUntil='0';
+  scheduleCompanionOffer();
   ui.drag={id:e.pointerId,start:coord(cell),end:coord(cell),moved:false};try{e.currentTarget.setPointerCapture(e.pointerId)}catch(_){}
 }
 function pointerMove(e){
@@ -451,7 +470,8 @@ function checkLine(path){
     status('Du fant '+hit+'! '+(left===1?'Ett ord igjen.':left+' ord igjen.'));
   }
   persistRound();
-  render(false)
+  render(false);
+  scheduleCompanionOffer();
 }
 function status(message,success=false,newSticker=false){
   const s=overlay().querySelector('.word-hunt-status');
@@ -498,6 +518,7 @@ function openWordHunt(){
 function closeWordHunt(){
   const root=overlay();if(root.hidden)return;
   closeThemePicker();hideMagic();
+  if(ui.companionTimer){clearTimeout(ui.companionTimer);ui.companionTimer=null}
   root.hidden=true;
   document.documentElement.style.overflow=previousOverflow;
   ui.drag=null;ui.tapStart=null;
