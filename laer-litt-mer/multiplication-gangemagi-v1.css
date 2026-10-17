@@ -311,3 +311,94 @@
  .gm-shell *{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
  .gm-drag-fruit{transform:translate(-50%,-50%)}
 }
+/* Gangemagi markedsbok: optional replay without crowding the play scene. */
+.gm-book{max-width:910px;margin:15px auto 0;border:2px solid #e9cda3;border-radius:22px;overflow:hidden;background:#fff5e2;box-shadow:0 5px 0 #bc95634a}
+.gm-book-toggle{width:100%;min-height:67px;display:flex;align-items:center;gap:12px;border:0;background:linear-gradient(120deg,#fff7e8,#f3dfb8);padding:10px 17px;text-align:left;color:#69452e}
+.gm-book-emblem{width:45px;height:45px;display:grid;place-items:center;flex:none;border-radius:50%;background:#e7f0dc;border:2px solid #a3ba8d;color:#668c66;font-size:29px}
+.gm-book-toggle>span:nth-child(2){display:grid;gap:3px;flex:1;min-width:0}
+.gm-book-toggle strong{font-size:17px;font-weight:950}
+.gm-book-toggle small{font-size:12px;line-height:1.3;color:#80624c}
+.gm-book-chevron{font-size:26px;font-weight:900}
+.gm-book-pages{padding:10px 15px 17px;border-top:2px solid #e9d5b4}
+.gm-book-pages>p{margin:2px 2px 11px;font-size:13px;line-height:1.4;color:#735542}
+.gm-book-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.gm-book-mission{display:flex;align-items:center;gap:11px;min-width:0;min-height:91px;padding:10px;border:2px solid #e9d8bb;border-radius:16px;background:#fffaf0;text-align:left;color:#644933;box-shadow:0 3px 0 #d6bc9466}
+.gm-book-mission.gm-book-current{border-color:#b97658;background:#fff0db;box-shadow:inset 0 0 0 2px #f8d4ac}
+.gm-book-mission.gm-book-earned{border-color:#adc798}
+.gm-book-flower{width:43px;height:43px;flex:none;display:grid;place-items:center;border-radius:50%;background:#ecdfc8;color:#9f886a;font-size:31px}
+.gm-book-earned .gm-book-flower{background:#e4efd5;color:#649168}
+.gm-book-copy{min-width:0;display:grid;gap:2px}
+.gm-book-copy small{font-size:10px;color:#80664b;font-weight:800}
+.gm-book-copy strong{font-size:14px;font-weight:950;line-height:1.15}
+@media(max-width:540px){.gm-book-grid{grid-template-columns:1fr}.gm-book{margin-top:12px}.gm-book-toggle{min-height:61px;padding:8px 12px}.gm-book-toggle strong{font-size:15px}.gm-book-toggle small{font-size:11px}.gm-book-mission{min-height:69px}.gm-book-flower{width:38px;height:38px;font-size:27px}}
+
+/* Illustrated, touch-first pages in the optional market journal. Existing
+   Tallenga illustration is reused, not imitated from another learning app. */
+.gm-book-mission{position:relative;min-height:113px;padding:10px 31px 10px 9px;gap:10px;align-items:center;isolation:isolate;background:linear-gradient(130deg,#fff9ed 0%,#fff3da 100%);transition:transform .16s ease,box-shadow .16s ease}
+.gm-book-mission:active{transform:translateY(2px);box-shadow:0 1px 0 #d6bc9466}
+.gm-book-landscape{position:relative;display:block;flex:0 0 106px;height:83px;overflow:hidden;border:3px solid #fff8e8;border-radius:12px;box-shadow:0 4px 0 #a37c5540,0 0 0 1px #d8b992;background-image:linear-gradient(180deg,transparent 48%,#3c6a4b20 100%),url('./gangemagi-tallenga-market-v1.svg');background-size:auto,auto 185%;background-position:center,52% 40%;background-repeat:no-repeat}
+.gm-book-landscape-0{background-position:center,4% 64%}
+.gm-book-landscape-1{background-position:center,26% 38%}
+.gm-book-landscape-2{background-position:center,44% 65%}
+.gm-book-landscape-3{background-position:center,66% 45%}
+.gm-book-landscape-4{background-position:center,87% 60%}
+.gm-book-landscape-5{background-position:center,94% 33%}
+.gm-book-landscape-6{background-position:center,14% 25%}
+.gm-book-landscape-7{background-position:center,74% 72%}
+.gm-book-berry{position:absolute;right:4px;bottom:3px;display:grid;place-items:center;width:29px;height:31px;filter:drop-shadow(0 2px 1px #34472277)}
+.gm-book-berry svg{width:100%;height:100%}
+.gm-book-flower{position:absolute;right:5px;top:5px;width:29px;height:29px;font-size:23px;border:2px solid #e2caa3;background:#f5e6ce;box-shadow:0 2px 0 #c8a77966;color:#9e8165}
+.gm-book-earned .gm-book-flower{border-color:#a7c28d;background:#edf6df;color:#548357}
+.gm-book-copy{flex:1;align-content:center}
+.gm-book-copy strong{font-size:15px;line-height:1.22}
+.gm-book-copy small:first-child{letter-spacing:.08em;color:#9c6d43}
+.gm-book-current:after{content:'VALGT';position:absolute;right:5px;bottom:6px;padding:2px 5px;color:#844931;background:#ffead2;border-radius:7px;font-size:9px;font-weight:950}
+@media(max-width:540px){
+ .gm-book-mission{min-height:99px;padding:8px 33px 8px 8px;gap:11px}
+ .gm-book-landscape{flex-basis:91px;height:73px;border-width:2px}
+ .gm-book-copy strong{font-size:14px}
+}
+@media(max-width:350px){.gm-book-landscape{flex-basis:79px;height:68px}.gm-book-copy strong{font-size:13px}}
+
+/* Markedsbok has a true immersive page when opened: game stays intact underneath.
+   The child's actual chosen fox is rendered with their persistent wardrobe. */
+.gm-book.gm-book-open{position:fixed;inset:0;z-index:900;width:100%;height:100dvh;max-height:100dvh;max-width:none;margin:0;padding:max(10px,env(safe-area-inset-top)) max(12px,env(safe-area-inset-right)) calc(18px + env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;border:0;border-radius:0;box-shadow:none;background:linear-gradient(180deg,#f6eddbad,#f6e6c3df),url('./matte-verden.png') center 50%/cover no-repeat}
+.gm-book-open .gm-book-toggle{position:sticky;top:0;z-index:5;max-width:1090px;margin:0 auto 13px;border:2px solid #ffecc7;border-radius:17px;background:#fffaecf5;box-shadow:0 5px 0 #b38b6266}
+.gm-book-intro{position:relative;display:flex;align-items:center;gap:20px;width:min(100%,1090px);margin:0 auto 13px;padding:9px 18px;border:2px solid #fff6de;border-radius:23px;background:#fff9e4e8;box-shadow:0 8px 23px #6e593b28}
+.gm-book-fox-art{flex:none;display:grid;place-items:center;width:110px;height:126px;filter:drop-shadow(0 6px 5px #68543b32)}
+.gm-book-fox-art svg.laria-fox-wardrobe-art,.gm-book-fox-art img{width:100%;height:100%;object-fit:contain}
+.gm-book-intro-copy{min-width:0;flex:1}
+.gm-book-intro-copy>span{font-size:10px;color:#99724f;font-weight:950;letter-spacing:.11em}
+.gm-book-intro h2{margin:3px 0 6px;color:#66442f;font-size:clamp(23px,4vw,39px);line-height:1;font-weight:1000;letter-spacing:-.045em}
+.gm-book-intro p{max-width:580px;margin:0;color:#6f5842;font-size:clamp(12px,1.5vw,16px);font-weight:700;line-height:1.35}
+.gm-book-trophy{flex:none;display:grid;place-content:center;width:91px;height:80px;text-align:center;border:2px solid #fff6db;border-radius:18px;background:#e8efd6;box-shadow:0 4px 0 #9cb28c70;color:#5d835e}
+.gm-book-trophy strong{font-size:23px;line-height:1;font-weight:1000}
+.gm-book-trophy small{margin-top:5px;font-size:12px;font-weight:900}
+.gm-book-open .gm-book-pages{width:min(100%,1090px);margin:0 auto;padding:16px;border:3px solid #efdaae;border-radius:23px;background:linear-gradient(145deg,#fff5daf7,#f9e5bff5);box-shadow:0 10px 0 #aa865a79,0 19px 50px #69503838}
+.gm-book-open .gm-book-pages>p{text-align:center;font-size:14px;font-weight:800;margin:3px auto 16px;max-width:690px}
+@media(min-width:1000px){
+  .gm-book-open .gm-book-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+  .gm-book-open .gm-book-mission{display:grid;grid-template-columns:1fr;align-content:start;justify-items:center;min-height:178px;padding:9px 8px 20px;text-align:center;gap:7px}
+  .gm-book-open .gm-book-landscape{width:100%;max-width:210px;height:78px;flex:none}
+  .gm-book-open .gm-book-copy{width:100%}
+  .gm-book-open .gm-book-copy strong{font-size:14px}
+}
+@media(max-width:540px){
+  .gm-book.gm-book-open{padding-left:max(7px,env(safe-area-inset-left));padding-right:max(7px,env(safe-area-inset-right))}
+  .gm-book-open .gm-book-toggle{min-height:54px;padding:7px 10px}
+  .gm-book-intro{gap:9px;padding:8px 10px;border-radius:17px;margin-bottom:9px}
+  .gm-book-fox-art{width:73px;height:87px}
+  .gm-book-intro h2{font-size:24px}
+  .gm-book-intro p{font-size:11px;line-height:1.25}
+  .gm-book-intro-copy>span{font-size:8px;letter-spacing:.06em}
+  .gm-book-trophy{width:49px;height:49px;border-radius:11px}
+  .gm-book-trophy strong{font-size:14px}
+  .gm-book-trophy small{font-size:9px}
+  .gm-book-open .gm-book-pages{padding:9px;border-width:2px}
+  .gm-book-open .gm-book-pages>p{text-align:left;margin:1px 3px 9px;font-size:11px}
+}
+@media(max-width:350px){.gm-book-intro{gap:5px}.gm-book-trophy{display:none}}
+
+/* One-tap entry to the journal without pushing berries below the first fold. */
+.gm-book-quick{display:grid;place-items:center;flex:none;width:44px;height:44px;border:2px solid #fff8e8;border-radius:15px;background:linear-gradient(#f8e8cb,#e8d0a2);box-shadow:0 4px 0 #aa876458;color:#8b6041;font-size:27px;font-weight:950;line-height:1}
+@media(max-width:400px){.gm-top{gap:5px}.gm-brand small{display:none}.gm-book-quick{width:44px;height:44px;flex:none}.gm-classic{padding:7px 7px}}
