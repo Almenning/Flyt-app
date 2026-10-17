@@ -158,6 +158,8 @@ async function verify(type,label,viewport){
 (async()=>{
  await verify(chromium,'chromium-desktop',{width:1280,height:840});
  await verify(webkit,'webkit-iphone',{width:390,height:844});
+ await verify(webkit,'webkit-iphone-landscape',{width:844,height:390});
+ await verify(webkit,'webkit-ipad-portrait',{width:820,height:1180});
  await verify(webkit,'webkit-compact-iphone',{width:320,height:640});
  await verify(webkit,'webkit-ipad-landscape',{width:1180,height:820});
  console.log('PASS Geography chapter two private gate, compass, passport and reload');
