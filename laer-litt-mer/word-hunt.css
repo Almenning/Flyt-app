@@ -1661,3 +1661,41 @@
        (min-width:701px) and (max-height:500px) and (orientation:landscape){
   .word-hunt-theme-open{display:none!important}
 }
+
+/* The child sees the original saved fox at the top of a portrait iPhone.
+   Its lightweight, character-specific reaction mirrors the offscreen
+   full-body companion without moving or shrinking the letter grid. */
+@media(max-width:700px) and (orientation:portrait){
+  .word-hunt-fox-shortcut .word-hunt-fox.is-reacting{
+    animation:whFoxShortcutHello .65s ease-out both;
+    transform-origin:50% 82%;
+  }
+  .word-hunt-fox-shortcut[data-fox-reaction="correct"] .word-hunt-fox.is-reacting,
+  .word-hunt-fox-shortcut[data-fox-reaction="complete"] .word-hunt-fox.is-reacting,
+  .word-hunt-fox-shortcut[data-fox-reaction="cheer"] .word-hunt-fox.is-reacting{
+    animation:whFoxShortcutCelebrate .85s cubic-bezier(.2,.72,.3,1) both;
+  }
+  .word-hunt-fox-shortcut[data-fox-reaction="near"] .word-hunt-fox.is-reacting,
+  .word-hunt-fox-shortcut[data-fox-reaction="wrong"] .word-hunt-fox.is-reacting,
+  .word-hunt-fox-shortcut[data-fox-reaction="invalid"] .word-hunt-fox.is-reacting,
+  .word-hunt-fox-shortcut[data-fox-reaction="repeated"] .word-hunt-fox.is-reacting{
+    animation:whFoxShortcutSupport .72s ease-in-out both;
+  }
+}
+@keyframes whFoxShortcutHello{
+  0%,100%{transform:translateY(0) rotate(0)}
+  48%{transform:translateY(-3px) rotate(3deg)}
+}
+@keyframes whFoxShortcutCelebrate{
+  0%,100%{transform:translateY(0) rotate(0) scale(1)}
+  38%{transform:translateY(-5px) rotate(-6deg) scale(1.06)}
+  68%{transform:translateY(-2px) rotate(5deg) scale(1.025)}
+}
+@keyframes whFoxShortcutSupport{
+  0%,100%{transform:rotate(0)}
+  40%{transform:rotate(-5deg)}
+  75%{transform:rotate(3deg)}
+}
+@media(prefers-reduced-motion:reduce){
+  .word-hunt-fox-shortcut .word-hunt-fox.is-reacting{animation:none!important}
+}
