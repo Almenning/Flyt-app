@@ -51,6 +51,13 @@ async function verify(type,label,viewport){
    await enter(page);
    const layout=await page.locator('#laria-geo-continent-voyage-preview').evaluate(el=>({width:el.clientWidth,scrollWidth:el.scrollWidth}));
    assert.ok(layout.scrollWidth<=layout.width+2,label+' horizon overflow');
+   if(viewport.width<=320){
+     const back=await page.locator('.cv-top [data-cv-act="close"]').evaluate(el=>{
+       const r=el.getBoundingClientRect();return {height:r.height,width:r.width,nowrap:getComputedStyle(el).whiteSpace};
+     });
+     assert.ok(back.height<=53&&back.width>=85&&back.nowrap==='nowrap',
+       label+' compact Safari needs Back on one line');
+   }
    const map=page.locator('.cv-story-map');
    await map.waitFor({state:'visible'});
    const geometry=await map.evaluate(el=>{
