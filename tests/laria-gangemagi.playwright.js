@@ -100,6 +100,14 @@ async function check(engine,label,viewport,url){
   assert.equal((await page.locator('.gm-math-equation').innerText()).trim(),'3 × 3 = 9');
   await page.locator('[data-gm-action="book"]').click();
   assert.equal(await page.locator('.gm-book-mission').count(),8,'all market adventures available');
+  const bookLayout=await page.evaluate(()=>{
+    const scenes=[...document.querySelectorAll('.gm-book-landscape')];
+    return {pageWidth:document.documentElement.scrollWidth,screenWidth:innerWidth,count:scenes.length,
+      assets:scenes.every(x=>getComputedStyle(x).backgroundImage.includes('gangemagi-tallenga-market-v1.svg')),
+      touch:[...document.querySelectorAll('.gm-book-mission')].every(x=>x.getBoundingClientRect().height>=44)};
+  });
+  assert.ok(bookLayout.assets&&bookLayout.touch&&bookLayout.pageWidth<=bookLayout.screenWidth+4,
+    label+' market-book illustrations, touch targets and widths '+JSON.stringify(bookLayout));
   assert.equal(await page.locator('.gm-book-earned').count(),1,'one earned flower marked in book');
   await page.locator('[data-gm-action="select-mission"][data-index="7"]').click();
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).mission,7);

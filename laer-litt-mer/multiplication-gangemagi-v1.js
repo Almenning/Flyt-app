@@ -130,7 +130,7 @@
      '<button type="button" class="gm-book-toggle" data-gm-action="book" aria-expanded="'+bookOpen+'" aria-controls="gm-book-pages">'+
      '<span class="gm-book-emblem" aria-hidden="true">✿</span><span><strong>Min markedsbok</strong><small>'+state.wins.length+' av '+E.MISSIONS.length+' blomster samlet · Velg et eventyr</small></span><span class="gm-book-chevron" aria-hidden="true">'+(bookOpen?'⌃':'⌄')+'</span></button>'+
      (bookOpen?'<div class="gm-book-pages" id="gm-book-pages"><p>Velg et oppdrag. Du kan prøve så mange ganger du vil, og blomstene du har samlet blir med videre.</p><div class="gm-book-grid">'+
-       E.MISSIONS.map((m,i)=>'<button type="button" class="gm-book-mission '+(state.mode===\'mission\'&&state.mission===i?'gm-book-current ':'')+(state.wins.includes(m.id)?'gm-book-earned':'')+'" data-gm-action="select-mission" data-index="'+i+'" '+(state.mode===\'mission\'&&state.mission===i?'aria-current="step"':'')+' aria-label="Oppdrag '+(i+1)+': '+esc(m.heading)+'. '+(state.wins.includes(m.id)?'Blomst samlet.':'Blomst ikke samlet ennå.')+'"><span class="gm-book-flower" aria-hidden="true">'+(state.wins.includes(m.id)?'✿':'✧')+'</span><span class="gm-book-copy"><small>OPPDRAG '+(i+1)+'</small><strong>'+esc(m.heading)+'</strong><small>'+m.groups+' kurver med '+m.each+' i hver</small></span></button>').join('')+'</div></div>':'')+'</section>';
+       E.MISSIONS.map((m,i)=>'<button type="button" class="gm-book-mission '+(state.mode==='mission'&&state.mission===i?'gm-book-current ':'')+(state.wins.includes(m.id)?'gm-book-earned':'')+'" data-gm-action="select-mission" data-index="'+i+'" '+(state.mode==='mission'&&state.mission===i?'aria-current="step"':'')+' aria-label="Oppdrag '+(i+1)+': '+esc(m.heading)+'. '+(state.wins.includes(m.id)?'Blomst samlet.':'Blomst ikke samlet ennå.')+'"><span class="gm-book-landscape gm-book-landscape-'+i+'" aria-hidden="true"><span class="gm-book-berry">'+berrySvg+'</span></span><span class="gm-book-flower" aria-hidden="true">'+(state.wins.includes(m.id)?'✿':'✧')+'</span><span class="gm-book-copy"><small>OPPDRAG '+(i+1)+'</small><strong>'+esc(m.heading)+'</strong><small>'+m.groups+' kurver med '+m.each+' i hver</small></span></button>').join('')+'</div></div>':'')+'</section>';
  }
  function factor(key,label,n,min,max){
    return '<div class="gm-free-adjust"><span>'+esc(label)+'</span><div><button type="button" data-gm-action="factor" data-key="'+key+'" data-step="-1" aria-label="Færre '+esc(label.toLowerCase())+'" '+(n<=min?'disabled':'')+'>−</button>'+
@@ -208,9 +208,8 @@
      const index=Number(button.dataset.index);
      if(!Number.isInteger(index)||index<0||index>=E.MISSIONS.length)return;
      bookOpen=false;
-     change({type:'mission',index});
-     render();
-     root.querySelector('.gm-story')?.scrollIntoView({behavior:'instant',block:'start'});
+     if(!change({type:'mission',index}))render();
+     root.querySelector('.gm-top')?.scrollIntoView({behavior:'auto',block:'start'});
      return;
    }
    if(kind==='classic'){nextOpen();return;}

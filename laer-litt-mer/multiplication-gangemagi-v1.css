@@ -331,3 +331,31 @@
 .gm-book-copy small{font-size:10px;color:#80664b;font-weight:800}
 .gm-book-copy strong{font-size:14px;font-weight:950;line-height:1.15}
 @media(max-width:540px){.gm-book-grid{grid-template-columns:1fr}.gm-book{margin-top:12px}.gm-book-toggle{min-height:61px;padding:8px 12px}.gm-book-toggle strong{font-size:15px}.gm-book-toggle small{font-size:11px}.gm-book-mission{min-height:69px}.gm-book-flower{width:38px;height:38px;font-size:27px}}
+
+/* Illustrated, touch-first pages in the optional market journal. Existing
+   Tallenga illustration is reused, not imitated from another learning app. */
+.gm-book-mission{position:relative;min-height:113px;padding:10px 31px 10px 9px;gap:10px;align-items:center;isolation:isolate;background:linear-gradient(130deg,#fff9ed 0%,#fff3da 100%);transition:transform .16s ease,box-shadow .16s ease}
+.gm-book-mission:active{transform:translateY(2px);box-shadow:0 1px 0 #d6bc9466}
+.gm-book-landscape{position:relative;display:block;flex:0 0 106px;height:83px;overflow:hidden;border:3px solid #fff8e8;border-radius:12px;box-shadow:0 4px 0 #a37c5540,0 0 0 1px #d8b992;background-image:linear-gradient(180deg,transparent 48%,#3c6a4b20 100%),url('./gangemagi-tallenga-market-v1.svg');background-size:auto,auto 185%;background-position:center,52% 40%;background-repeat:no-repeat}
+.gm-book-landscape-0{background-position:center,4% 64%}
+.gm-book-landscape-1{background-position:center,26% 38%}
+.gm-book-landscape-2{background-position:center,44% 65%}
+.gm-book-landscape-3{background-position:center,66% 45%}
+.gm-book-landscape-4{background-position:center,87% 60%}
+.gm-book-landscape-5{background-position:center,94% 33%}
+.gm-book-landscape-6{background-position:center,14% 25%}
+.gm-book-landscape-7{background-position:center,74% 72%}
+.gm-book-berry{position:absolute;right:4px;bottom:3px;display:grid;place-items:center;width:29px;height:31px;filter:drop-shadow(0 2px 1px #34472277)}
+.gm-book-berry svg{width:100%;height:100%}
+.gm-book-flower{position:absolute;right:5px;top:5px;width:29px;height:29px;font-size:23px;border:2px solid #e2caa3;background:#f5e6ce;box-shadow:0 2px 0 #c8a77966;color:#9e8165}
+.gm-book-earned .gm-book-flower{border-color:#a7c28d;background:#edf6df;color:#548357}
+.gm-book-copy{flex:1;align-content:center}
+.gm-book-copy strong{font-size:15px;line-height:1.22}
+.gm-book-copy small:first-child{letter-spacing:.08em;color:#9c6d43}
+.gm-book-current:after{content:'VALGT';position:absolute;right:5px;bottom:6px;padding:2px 5px;color:#844931;background:#ffead2;border-radius:7px;font-size:9px;font-weight:950}
+@media(max-width:540px){
+ .gm-book-mission{min-height:99px;padding:8px 33px 8px 8px;gap:11px}
+ .gm-book-landscape{flex-basis:91px;height:73px;border-width:2px}
+ .gm-book-copy strong{font-size:14px}
+}
+@media(max-width:350px){.gm-book-landscape{flex-basis:79px;height:68px}.gm-book-copy strong{font-size:13px}}
