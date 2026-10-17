@@ -703,6 +703,12 @@ function finish(ctx,w,h,s){
   ctx.fillStyle=lowerGlow;ctx.fillRect(0,0,w,h);
 }
 function premiumDraw(){
+  /* The discovery globe is an opt-in paint experiment. Some legacy resize
+     observers call this renderer directly (rather than via window.drawGlobe),
+     so honour the isolated preview before touching the shared canvas. */
+  if(window.__lariaDiscoveryGlobePreview===true&&typeof window.LARIA_DISCOVERY_GLOBE_DRAW==='function'){
+    return window.LARIA_DISCOVERY_GLOBE_DRAW();
+  }
   const canvas=document.getElementById('globe-canvas');if(!canvas)return;
   if(!canvas._cssW||!canvas._cssH){try{resizeGlobe()}catch(_){}}
   if(!canvas._cssW||!canvas._cssH)return;
@@ -778,6 +784,22 @@ function install(){
   window.__lariaGlobeClassicDraw=baseDraw;
 
   const routedDraw=function(){
+    /* The classic-mode router captures the old renderer by closure. It can be
+       called directly by selection, resize and atlas transitions, bypassing
+       window.drawGlobe. Delegate only on the explicit isolated preview. */
+    if(window.__lariaDiscoveryGlobePreview===true&&
+       typeof window.LARIA_DISCOVERY_GLOBE_DRAW==='function'&&
+       screen.dataset.mapPerspective==='globe'){
+      try{
+        const canvas=document.getElementById('globe-canvas');
+        const rect=canvas?.getBoundingClientRect();
+        if(rect&&rect.width>1&&rect.height>1&&
+           (Math.abs((canvas._cssW||0)-Math.round(rect.width))>1||
+            Math.abs((canvas._cssH||0)-Math.round(rect.height))>1))
+          resizeGlobe();
+      }catch(_){}
+      return window.LARIA_DISCOVERY_GLOBE_DRAW();
+    }
     try{
       if(typeof globeMode==='string'&&globeMode==='classic'){
         // Switching from the fullscreen atlas to the square globe changes the
