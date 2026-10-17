@@ -9,6 +9,7 @@
  * is longitude/latitude, never a screen position.
  */
 if(!new URLSearchParams(location.search).has('discovery-globe-preview'))return;
+window.__lariaDiscoveryGlobePreview=true;
 
 const screen=document.getElementById('world-screen');
 const art=window.LariaGlobeArtV24;
