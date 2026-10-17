@@ -181,6 +181,21 @@ async function verify(engine,launcher,label,viewport,url){
      await page.evaluate(()=>window.LARIA_FOX.worldSource(window.LARIA_FOX.choice())));
    assert.equal(await fox.locator('.word-hunt-companion-hint').count(),1);
    assert.equal(await fox.locator('.word-hunt-companion-cheer').count(),1);
+   const foxGeometry=await fox.evaluate(host=>{
+     const bounds=el=>{const r=el.getBoundingClientRect();return {top:r.top,bottom:r.bottom,left:r.left,right:r.right}};
+     const stage=bounds(host.querySelector('.word-hunt-companion-stage'));
+     const art=bounds(host.querySelector('.word-hunt-companion-fox'));
+     const controls=bounds(host.querySelector('.word-hunt-companion-controls'));
+     return {stage,art,controls,fit:getComputedStyle(host.querySelector('.word-hunt-companion-fox')).objectFit};
+   });
+   assert.equal(foxGeometry.fit,'contain',label+' fox art lost contain behavior');
+   assert.ok(foxGeometry.art.top>=foxGeometry.stage.top-1.5&&foxGeometry.art.bottom<=foxGeometry.stage.bottom+1.5&&
+     foxGeometry.art.left>=foxGeometry.stage.left-1.5&&foxGeometry.art.right<=foxGeometry.stage.right+1.5,
+     label+' selected fox escapes its physical stage: '+JSON.stringify(foxGeometry));
+   if(viewport.width>700){
+     assert.ok(foxGeometry.art.bottom<=foxGeometry.controls.top+2,
+       label+' full-body fox covers the help buttons on iPad/Mac: '+JSON.stringify(foxGeometry));
+   }
    const beforeHints=await page.locator('.word-hunt-word.found').count();
    await fox.locator('.word-hunt-companion-hint').click();
    assert.equal(await page.locator('.word-hunt-cell.is-hint-start').count(),1,
