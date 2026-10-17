@@ -4,7 +4,7 @@ const fs=require('node:fs');
 const path=require('node:path');
 const http=require('node:http');
 const {chromium,webkit}=require('playwright');
-const base=path.resolve(__dirname,'../..');
+const base=path.resolve(__dirname,'..');
 const dir=process.env.QA_SCREENSHOTS||'/tmp/laria-magical-book-v2';
 function serve(){return new Promise((resolve,reject)=>{
  const s=http.createServer((req,res)=>{
