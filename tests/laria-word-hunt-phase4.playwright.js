@@ -181,6 +181,7 @@ async function testView(browser,engine,label,viewport,url){
    assert.equal(await shortcut.locator('.word-hunt-fox').count(),1,
      label+' shortcut must use original saved fox, not another mascot');
    const before=await page.locator('.word-hunt-word.found').count();
+   const boardBeforeHint=await page.locator('.word-hunt-board-card').boundingBox();
    await shortcut.click();
    assert.equal(await page.locator('.word-hunt-cell.is-hint-start').count(),1,
      label+' fox shortcut did not mark the first letter');
@@ -188,6 +189,13 @@ async function testView(browser,engine,label,viewport,url){
      label+' fox clue remains below the fold instead of visible over the puzzle');
    assert.equal(await page.locator('.word-hunt-word.found').count(),before,
      label+' shortcut falsely awards a word');
+   const boardAfterHint=await page.locator('.word-hunt-board-card').boundingBox();
+   assert.ok(boardAfterHint&&boardBeforeHint&&
+     boardAfterHint.width>=boardBeforeHint.width-1&&
+     boardAfterHint.height>=boardBeforeHint.height-1&&
+     boardAfterHint.y+boardAfterHint.height<=viewport.height+1,
+     label+' opening the fox hint shrinks or pushes the letter board off the first screen: '+
+     JSON.stringify({before:boardBeforeHint,after:boardAfterHint,viewport}));
   }
   const easyDirections=await directionProfile(page);
   assert.ok(easyDirections.horizontal&&easyDirections.vertical,label+' easy round lacks horizontal/vertical variety: '+JSON.stringify(easyDirections));
