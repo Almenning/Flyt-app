@@ -210,6 +210,14 @@ async function testView(browser,engine,label,viewport,url){
     /God start|på sporet/i,label+' fox did not react to a near-miss');
   assert.equal(await page.locator('.word-hunt-targets-count').innerText(),'0 av 4',
     label+' incomplete attempt changed the mission count');
+  // On compact iPhones, the first selected letter and voluntary help offer
+  // must be visible above the puzzle, not confined to the below-fold companion.
+  if(viewport.width<=700&&viewport.height>viewport.width){
+   await page.locator('.word-hunt-cell[data-r="'+begin[0]+'"][data-c="'+begin[1]+'"]').tap();
+   assert.match(await page.locator('.word-hunt-intro').innerText(),/Velg siste bokstav/,
+     label+' fox first-letter guidance is invisible above the board');
+   await page.locator('.word-hunt-cell[data-r="'+begin[0]+'"][data-c="'+begin[1]+'"]').tap();
+  }
   // A second tap on the same letter is invalid but must not penalize the child.
   await page.waitForTimeout(950);
   for(let i=0;i<2;i++)
