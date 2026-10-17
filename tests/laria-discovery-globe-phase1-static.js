@@ -27,6 +27,11 @@ for(const place of ['8,61','138,36','-61,-3'])assert.ok(preview.includes(place),
 const guard=renderer.indexOf('window.__lariaDiscoveryGlobePreview===true');
 const canvas=renderer.indexOf("const canvas=document.getElementById('globe-canvas')",guard);
 assert.ok(guard>=0&&canvas>guard,'legacy direct redraw must delegate before it paints');
+const route=renderer.indexOf('const routedDraw=function(){');
+const routedGuard=renderer.indexOf('window.__lariaDiscoveryGlobePreview===true',route);
+const classic=renderer.indexOf("if(typeof globeMode==='string'&&globeMode==='classic')",route);
+assert.ok(route>=0&&routedGuard>route&&classic>routedGuard,
+  'classic router must delegate the preview before its captured legacy drawing closure');
 assert.doesNotMatch(renderer,/Ã[\\u0080-\\u00bf]/,
   'the shared renderer must retain valid UTF-8, not transport-corrupted text');
 const atlas=index.indexOf('atlas-perspective-v1.js');
