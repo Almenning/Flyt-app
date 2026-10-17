@@ -167,28 +167,46 @@ function paintLandBase(ctx,w,h,s){
   ctx.save();if(!landClip(ctx,w,h)){ctx.restore();return;}
   const sun=ctx.createRadialGradient(w*.33,h*.22,0,w*.50,h*.50,s*.52);sun.addColorStop(0,'rgba(255,249,211,.34)');sun.addColorStop(.62,'rgba(255,244,194,.04)');sun.addColorStop(1,'rgba(38,81,57,.12)');ctx.fillStyle=sun;ctx.fillRect(0,0,w,h);ctx.restore();
 }
+const colorAlpha=(hex,a)=>{
+  const n=parseInt(hex.slice(1),16);
+  return 'rgba('+((n>>16)&255)+','+((n>>8)&255)+','+(n&255)+','+clamp(a,0,1).toFixed(3)+')';
+};
+/* Radially blended earth pigments avoid artificial continent-length stripes.
+   Soft overlapping washes imitate illustrative terrain without changing
+   authoritative land/sea boundaries. */
 function paintBiomes(ctx,w,h,s,moving){
-  // During a drag prioritize responsive geographic land over expensive
-  // ecosystem clipping; return all detail immediately after pointer release.
   if(moving)return 0;
   ctx.save();if(!landClip(ctx,w,h)){ctx.restore();return 0;}
   let painted=0;
-  // Keep the broad ecosystem strokes even while a child rotates the globe.
-  // The fine brush texture and hand-drawn details are restored on release.
-  for(const zone of landscapeZones){
-    const colors=ecosystemPalette[zone.type];
-    const width=geoBrushWidth(zone,w,h,s);
-    if(!smoothGeoStroke(ctx,zone.route,w,h,s))continue;
-    ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
-    ctx.strokeStyle=colors[0];ctx.globalAlpha=.12;ctx.lineWidth=width*1.85;ctx.stroke();
-    ctx.strokeStyle=colors[1];ctx.globalAlpha=.28;ctx.lineWidth=width*1.25;ctx.stroke();
-    ctx.strokeStyle=colors[0];ctx.globalAlpha=.24;ctx.lineWidth=width*.83;ctx.stroke();
-    ctx.strokeStyle=colors[2];ctx.globalAlpha=zone.type==='ice'?.28:.18;
-    ctx.lineWidth=width*.49;ctx.stroke();
-    ctx.restore();painted++;
+  for(let z=0;z<landscapeZones.length;z++){
+    const zone=landscapeZones[z],colors=ecosystemPalette[zone.type];
+    const size=geoBrushWidth(zone,w,h,s)*.74;
+    let touched=false;
+    for(let j=0;j<zone.route.length-1;j++){
+      const a=zone.route[j],b=zone.route[j+1];
+      const parts=Math.max(1,Math.ceil(Math.max(Math.abs(a[0]-b[0]),Math.abs(a[1]-b[1]))/4.5));
+      for(let i=0;i<=parts;i++){
+        if(j>0&&i===0)continue;
+        const mixT=i/parts,seed=z*743+j*71+i*13;
+        const lon=a[0]+(b[0]-a[0])*mixT+(geoNoise(seed+2)-.5)*zone.width*.15;
+        const lat=a[1]+(b[1]-a[1])*mixT+(geoNoise(seed+5)-.5)*zone.width*.15;
+        const p=project(lon,lat,w,h);if(!p||p[2]<.12)continue;
+        const radius=size*(.78+geoNoise(seed+8)*.45);
+        if(p[0]<-radius||p[0]>w+radius||p[1]<-radius||p[1]>h+radius)continue;
+        const opacity=zone.type==='desert'?.55:zone.type==='ice'?.48:zone.type==='rainforest'?.36:.32;
+        ctx.save();ctx.translate(p[0],p[1]);ctx.rotate((geoNoise(seed+11)-.5)*.55);ctx.scale(1,.72);
+        const g=ctx.createRadialGradient(-radius*.16,-radius*.16,radius*.02,0,0,radius);
+        g.addColorStop(0,colorAlpha(colors[0],opacity*.90));
+        g.addColorStop(.36,colorAlpha(colors[1],opacity*.65));
+        g.addColorStop(.72,colorAlpha(colors[2],opacity*.22));
+        g.addColorStop(1,colorAlpha(colors[2],0));
+        ctx.fillStyle=g;ctx.beginPath();ctx.arc(0,0,radius,0,Math.PI*2);ctx.fill();
+        ctx.restore();touched=true;
+      }
+    }
+    if(touched)painted++;
   }
-  ctx.restore();
-  return painted;
+  ctx.restore();return painted;
 }
 
 function paintBorders(ctx,w,h,s){
