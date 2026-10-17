@@ -173,7 +173,7 @@ function themePickerMarkup(){
   return '<section class="word-hunt-theme-picker" hidden role="dialog" aria-modal="true" aria-labelledby="wh-theme-heading">'+
     '<div class="wh-theme-panel"><button type="button" class="wh-theme-close" aria-label="Lukk temavalget">×</button>'+
     '<img class="wh-theme-fox" alt="" aria-hidden="true" src="'+window.LARIA_FOX.source(window.LARIA_FOX.choice())+'">'+
-    '<span class="wh-theme-eyebrow">Læria · Bokskogen</span><h2 id="wh-theme-heading">Hvor vil du jakte på ord?</h2>'+
+    '<span class="wh-theme-eyebrow">Læria · Bokskogen</span><h2 id="wh-theme-heading">Velg din ordjakt</h2>'+
     '<p>Velg et eventyr. Ett trykk, så er jakten i gang!</p><div class="wh-theme-cards" role="group" aria-label="Velg et av fem ordtemaer">'+
     THEMES.list().map(pack=>'<button type="button" class="wh-theme-card" data-word-theme="'+pack.id+'" aria-pressed="false">'+
       '<img alt="" src="./assets/word-hunt/themes/'+pack.id+'.webp?v=20261017-painted1" loading="lazy">'+
