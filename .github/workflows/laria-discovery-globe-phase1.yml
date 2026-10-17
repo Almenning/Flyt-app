@@ -1,6 +1,15 @@
 name: Laria Discovery Globe Phase 1
 
 on:
+  push:
+    branches: [feat/laria-discovery-globe-phase1-20261017]
+    paths:
+      - 'laer-litt-mer/discovery-globe-phase1.js'
+      - 'laer-litt-mer/globe-v25-renderer.js'
+      - 'laer-litt-mer/index.html'
+      - 'tests/laria-discovery-globe-phase1.playwright.js'
+      - 'tests/laria-discovery-globe-phase1-static.js'
+      - '.github/workflows/laria-discovery-globe-phase1.yml'
   pull_request:
     branches: [main]
     paths:
