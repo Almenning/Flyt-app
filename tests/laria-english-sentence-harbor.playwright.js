@@ -22,6 +22,15 @@ async function enter(page){
  await page.locator('#laria-english-sentence-harbor-preview[role="dialog"]').waitFor();
  assert.equal(await page.locator('[data-sh-act="stage"]').count(),5);
 }
+async function assertAnswerInView(page,label){
+ const feedback=await page.locator('.sh-feedback').boundingBox();
+ const next=await page.locator('[data-sh-act="next"]').boundingBox();
+ const viewportHeight=await page.evaluate(()=>window.innerHeight);
+ assert.ok(feedback&&feedback.y>=-2&&feedback.y+feedback.height<=viewportHeight+2,
+   label+' must reveal the full feedback immediately, without scrolling');
+ assert.ok(next&&next.y<viewportHeight-12&&next.y+next.height>12,
+   label+' should keep the next discovery within reach');
+}
 async function completeSentence(page){
  const s=await page.evaluate(()=>window.LARIA_ENGLISH_SENTENCE_HARBOR.resume(state));
  assert.equal(s.task.kind,'sentence');
@@ -117,6 +126,7 @@ async function verify(type,label,viewport){
    assert.match(await page.locator('[data-sh-act="speak"]').innerText(),/alle svarene/i);
    assert.equal(await page.locator('.sh-options[lang="en"] .sh-option').count(),3);
    await page.locator('[data-sh-act="answer"][data-sh-index="'+firstTask.options.indexOf(firstTask.answer)+'"]').click();
+   await assertAnswerInView(page,label+' choice feedback');
    assert.equal(await page.locator('.sh-english').innerText(),firstTask.answer,'answer may be revealed after a try');
    await page.locator('[data-sh-act="intro"]').click();
    await page.locator('[data-sh-act="stage"][data-sh-stage="setningsverkstedet"]').click();
@@ -141,6 +151,7 @@ async function verify(type,label,viewport){
      await page.locator('[data-sh-act="tile"][data-sh-index="'+at+'"]').click();
    }
    await page.locator('[data-sh-act="check-sentence"]').click();
+   await assertAnswerInView(page,label+' sentence feedback');
    assert.match(await page.locator('.sh-feedback').innerText(),/fant løsningen/i);
    await page.locator('[data-sh-act="next"]').click();
    for(let i=1;i<4;i++)await completeSentence(page);
