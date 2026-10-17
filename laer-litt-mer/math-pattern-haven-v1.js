@@ -31,7 +31,7 @@
    monsterbekken:Object.freeze([
      q('pattern1','Hva kommer etter?','●  ▲  ●  ▲  ●  ?',['▲','●','■'],'▲','Sirkel og trekant bytter på.'),
      q('pattern2','Hvilken figur mangler?','■  ■  ○  ■  ■  ?',['■','○','▲'],'○','To firkanter følges av én sirkel.'),
-     q('pattern3','Fullfør stien.','★  ●  ▲  ★  ●  ?',['▲','★','●'],'▲','Tre ulike figurer gjentar seg.'),
+     q('pattern3','Hvilken figur fortsetter stien?','★  ●  ▲  ★  ●  ?',['▲','★','●'],'▲','Tre ulike figurer gjentar seg.'),
      q('pattern4','Hvilken kommer nå?','○  ▲  ▲  ○  ▲  ▲  ?',['○','▲','■'],'○','Mønsteret er én sirkel og to trekanter.')
    ]),
    speildammen:Object.freeze([
