@@ -25,6 +25,8 @@ assert.doesNotMatch(preview,/window\.globeZoom\b/, 'zoom is lexically scoped; wi
 assert.match(preview,/function paintReliefTrails\(/, 'geographic terrain trails must remain active');
 assert.match(preview,/const landscapeZones=\[/,'ecosystems must use contiguous georeferenced corridors');
 assert.match(preview,/const mountainChains=\[/,'landscape engine must have connected mountain chains');
+assert.match(preview,/function paintWorldTerrain\(/,'continuous terrain paint field must remain active');
+assert.match(preview,/terrainSamples\(mountainChains,4\.8\)/,'mountain samples must use geographic anchors');
 assert.match(preview,/function smoothGeoStroke\(/,'all terrain corridors must share map projection');
 assert.match(preview,/canvas\.dataset\.discoveryEcosystems=/,'QA must expose actual painted ecosystem count');
 assert.match(preview,/canvas\.dataset\.discoveryRelief=/,'QA must expose actual painted mountain count');
