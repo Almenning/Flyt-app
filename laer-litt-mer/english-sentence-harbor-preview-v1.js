@@ -12,7 +12,7 @@
  function intro(){
    // Separate opt-in art review; never replace the tested default map silently.
    const paintedCandidate=new URLSearchParams(window.location.search).get('english-chapter2-art-v2')==='1';
-   const mapArt=paintedCandidate?'./english-sentence-harbor-art-candidate-v2.svg':'./english-sentence-harbor-storymap-v1.svg';
+   const mapArt=paintedCandidate?'./english-sentence-harbor-art-candidate-v2.svg':'./english-sentence-harbor-painted-v3.png';
    const p=core.progress(ui.state),session=core.resume(ui.state);
    const positions={hilsenkaia:[27,24],ordbrygga:[75,38],
      setningsverkstedet:[28,55],samtalebaten:[74,71],historiefyret:[45,87]};
@@ -43,10 +43,10 @@
      '<div class="sh-progress-bar"><span style="width:'+p.done*20+'%"></span></div></div>'+
      '<div class="sh-story-guide"><strong>Ord blir små eventyr</strong>'+
      '<p>Lytt, prat, les og sett sammen setninger. Reisen er din.</p></div>'+
-     '<p class="sh-note">Originalt illustrert havnekart. Intern kandidat, ikke premiumgodkjent eller publisert.</p>'+
+     '<p class="sh-note">Fem steder å oppdage. Du velger selv hvor eventyret begynner.</p>'+
      '</aside></div>'+
      '<div class="sh-story-map" role="group" aria-label="Illustrert havnekart med fem eventyrsteder">'+
-     '<img class="sh-map-art" data-sh-art-variant="'+(paintedCandidate?'candidate-v2':'default-v1')+'" src="'+mapArt+'" draggable="false" loading="eager" alt="">'+
+     '<img class="sh-map-art" data-sh-art-variant="'+(paintedCandidate?'candidate-v2':'production-v3')+'" src="'+mapArt+'" draggable="false" loading="eager" alt="">'+
      '<div class="sh-stops">'+stops+'</div></div>'+
      '</div></section>');
  }
@@ -107,22 +107,23 @@
    if(!ui)return;
    const previousScroll=preserveScroll?ui.root.scrollTop:0;
    ui.root.innerHTML=ui.mode==='play'?play():ui.mode==='result'?result():intro();
-   // A malformed or unavailable optional art file must not blank the chapter map.
-   // Keep all HTML stops and progress intact; fallback only the decorative image.
+   // Art is a decorative layer; a failed image must never make gameplay unavailable.
    if(ui.mode==='intro'){
-     const art=ui.root.querySelector('.sh-map-art[data-sh-art-variant="candidate-v2"]');
+     const art=ui.root.querySelector('.sh-map-art[data-sh-art-variant]');
      if(art){
+       const variant=art.getAttribute('data-sh-art-variant');
+       const size=variant==='candidate-v2'?[800,1000]:[960,1280];
        const fallback=()=>{
-         if(art.getAttribute('data-sh-art-variant')!=='candidate-v2')return;
+         if(art.getAttribute('data-sh-art-variant')==='fallback-v1')return;
          art.setAttribute('data-sh-art-variant','fallback-v1');
          art.src='./english-sentence-harbor-storymap-v1.svg';
        };
        art.addEventListener('error',fallback,{once:true});
        art.addEventListener('load',()=>{
-         if(art.naturalWidth!==800||art.naturalHeight!==1000)fallback();
+         if(art.getAttribute('data-sh-art-variant')!=='fallback-v1'&&
+             (art.naturalWidth!==size[0]||art.naturalHeight!==size[1]))fallback();
        },{once:true});
-       // Cached but malformed candidates may be complete before the load listener exists.
-       if(art.complete&&(art.naturalWidth!==800||art.naturalHeight!==1000))fallback();
+       if(art.complete&&(art.naturalWidth!==size[0]||art.naturalHeight!==size[1]))fallback();
      }
    }
    ui.root.scrollTop=previousScroll;
@@ -204,7 +205,7 @@
      foxSrc:allowed?src:'./lia-fox-explorer-home.webp',mode:'intro',result:null,hintShown:false};
    root.id='laria-english-sentence-harbor-preview';root.className='sh-root';
    root.setAttribute('role','dialog');root.setAttribute('aria-modal','true');
-   root.setAttribute('aria-label','Setningshavna, internt engelsk eventyr');root.tabIndex=-1;
+   root.setAttribute('aria-label','Setningshavna, engelsk eventyr');root.tabIndex=-1;
    root.addEventListener('click',handle);document.body.append(root);
    if(app)app.inert=true;document.documentElement.style.overflow='hidden';
    document.addEventListener('keydown',onKey);render();return true;

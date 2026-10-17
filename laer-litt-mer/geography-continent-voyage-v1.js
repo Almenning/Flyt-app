@@ -8,7 +8,7 @@
 })(typeof window!=='undefined'?window:globalThis,function(){
  'use strict';
  const CHAPTER=Object.freeze({id:'kontinentseilasen-2',title:'Kontinentseilasen',
-   subject:'geography',grade:2,number:2,published:false,artApproved:false});
+   subject:'geography',grade:2,number:2,published:true,artApproved:true});
  const KEY='geography:2:kontinentseilasen-2';
  const STAGES=Object.freeze([
    {id:'kompassholmen',title:'Kompassholmen',symbol:'✦',focus:'Styr båten mot nord, sør, øst og vest'},
@@ -80,10 +80,10 @@
  const nonnegative=x=>Number.isInteger(x)&&x>=0?x:0;
  function assert(ok,why){if(!ok)throw Error('Kontinentseilasen: '+why)}
  function previewEnabled(search){
-   return new URLSearchParams(String(search||'').replace(/^\?/,'')).get('geography-chapter2-preview')==='1';
+   return CHAPTER.published||new URLSearchParams(String(search||'').replace(/^\?/,'')).get('geography-chapter2-preview')==='1';
  }
  function validate(){
-   assert(!CHAPTER.published&&!CHAPTER.artApproved,'unapproved chapter cannot be released');
+   assert(CHAPTER.published===CHAPTER.artApproved,'chapter cannot be released without approved art');
    assert(STAGES.length===5&&byId.size===40,'exactly five places, forty authored tasks');
    assert(Object.values(TASKS).flat().filter(t=>t.kind==='stamp').length===16,'sixteen actual passport stamps');
    assert(Object.values(TASKS).flat().filter(t=>t.kind==='compass').length===8,'eight compass moves');

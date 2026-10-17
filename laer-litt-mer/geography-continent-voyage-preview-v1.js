@@ -15,7 +15,7 @@
  function overview(){
    // Separate opt-in art review; never replace the tested default map silently.
    const paintedCandidate=new URLSearchParams(window.location.search).get('geography-chapter2-art-v2')==='1';
-   const mapArt=paintedCandidate?'./geography-continent-voyage-art-candidate-v2.svg':'./geography-continent-voyage-storymap-v1.svg';
+   const mapArt=paintedCandidate?'./geography-continent-voyage-art-candidate-v2.svg':'./geography-continent-voyage-painted-v3.png';
    const p=core.progress(ui.state),session=core.resume(ui.state);
    const positions={kompassholmen:[27,24],passbrygga:[75,39],
      havpassasjen:[28,55],naturøya:[74,71],reisefyret:[45,86]};
@@ -48,7 +48,7 @@
      '<p class="cv-note">Eventyrhavet er fantasi, ikke et verdenskart. Den ekte globusen er uendret.</p>'+
      '</aside></div>'+
      '<div class="cv-story-map" role="group" aria-label="Illustrert fantasihav med fem interaktive eventyrsteder">'+
-     '<img class="cv-map-art" data-cv-art-variant="'+(paintedCandidate?'candidate-v2':'default-v1')+'" src="'+mapArt+'" alt="" draggable="false" loading="eager">'+
+     '<img class="cv-map-art" data-cv-art-variant="'+(paintedCandidate?'candidate-v2':'production-v3')+'" src="'+mapArt+'" alt="" draggable="false" loading="eager">'+
      '<div class="cv-places">'+places+'</div></div>'+
      '</div></section>');
  }
@@ -108,22 +108,23 @@
    if(!ui)return;
    const previousScroll=preserveScroll?ui.root.scrollTop:0;
    ui.root.innerHTML=ui.mode==='challenge'?challenge():ui.mode==='summary'?summary():overview();
-   // A malformed or unavailable optional art file must not blank the chapter map.
-   // Keep all HTML stops and progress intact; fallback only the decorative image.
+   // Art is a decorative layer; a failed image must never make gameplay unavailable.
    if(ui.mode==='intro'){
-     const art=ui.root.querySelector('.cv-map-art[data-cv-art-variant="candidate-v2"]');
+     const art=ui.root.querySelector('.cv-map-art[data-cv-art-variant]');
      if(art){
+       const variant=art.getAttribute('data-cv-art-variant');
+       const size=variant==='candidate-v2'?[800,1000]:[960,1280];
        const fallback=()=>{
-         if(art.getAttribute('data-cv-art-variant')!=='candidate-v2')return;
+         if(art.getAttribute('data-cv-art-variant')==='fallback-v1')return;
          art.setAttribute('data-cv-art-variant','fallback-v1');
          art.src='./geography-continent-voyage-storymap-v1.svg';
        };
        art.addEventListener('error',fallback,{once:true});
        art.addEventListener('load',()=>{
-         if(art.naturalWidth!==800||art.naturalHeight!==1000)fallback();
+         if(art.getAttribute('data-cv-art-variant')!=='fallback-v1'&&
+             (art.naturalWidth!==size[0]||art.naturalHeight!==size[1]))fallback();
        },{once:true});
-       // Cached but malformed candidates may be complete before the load listener exists.
-       if(art.complete&&(art.naturalWidth!==800||art.naturalHeight!==1000))fallback();
+       if(art.complete&&(art.naturalWidth!==size[0]||art.naturalHeight!==size[1]))fallback();
      }
    }
    ui.root.scrollTop=previousScroll;
@@ -194,7 +195,7 @@
      state:args.state,save:args.save,mode:'intro',result:null,hintShown:false};
    root.id='laria-geo-continent-voyage-preview';root.className='cv-root';
    root.setAttribute('role','dialog');root.setAttribute('aria-modal','true');
-   root.setAttribute('aria-label','Kontinentseilasen, intern forhåndsvisning');root.tabIndex=-1;
+   root.setAttribute('aria-label','Kontinentseilasen, geografisk eventyr');root.tabIndex=-1;
    root.addEventListener('click',handle);document.body.append(root);
    if(app)app.inert=true;document.documentElement.style.overflow='hidden';
    document.addEventListener('keydown',onKey);render();return true;
