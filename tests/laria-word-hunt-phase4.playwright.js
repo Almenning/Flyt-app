@@ -171,6 +171,32 @@ async function testView(browser,engine,label,viewport,url){
   await page.locator('.word-hunt-fox').evaluate(img=>img.decode());
   await shot(page,label+'-01-words-and-board');
   await geometry(page,label,viewport,viewport.width<=700||viewport.height<=500||label.includes('ipad')||label.includes('mac'));
+  const shortcut=page.locator('.word-hunt-fox-shortcut');
+  assert.equal(await shortcut.getAttribute('aria-label'),'Få hint fra reven',
+    label+' selected header fox does not offer an accessible optional hint');
+  if(viewport.width<=700&&viewport.height>viewport.width){
+   const b=await shortcut.boundingBox();
+   assert.ok(b&&b.width>=44&&b.height>=44&&b.x>=0&&b.x+b.width<=viewport.width+1,
+     label+' first-screen fox hint touch target is too small or outside viewport: '+JSON.stringify(b));
+   assert.equal(await shortcut.locator('.word-hunt-fox').count(),1,
+     label+' shortcut must use original saved fox, not another mascot');
+   const before=await page.locator('.word-hunt-word.found').count();
+   const boardBeforeHint=await page.locator('.word-hunt-board-card').boundingBox();
+   await shortcut.click();
+   assert.equal(await page.locator('.word-hunt-cell.is-hint-start').count(),1,
+     label+' fox shortcut did not mark the first letter');
+   assert.match(await page.locator('.word-hunt-intro').innerText(),/Se etter et ord/,
+     label+' fox clue remains below the fold instead of visible over the puzzle');
+   assert.equal(await page.locator('.word-hunt-word.found').count(),before,
+     label+' shortcut falsely awards a word');
+   const boardAfterHint=await page.locator('.word-hunt-board-card').boundingBox();
+   assert.ok(boardAfterHint&&boardBeforeHint&&
+     boardAfterHint.width>=boardBeforeHint.width-1&&
+     boardAfterHint.height>=boardBeforeHint.height-1&&
+     boardAfterHint.y+boardAfterHint.height<=viewport.height+1,
+     label+' opening the fox hint shrinks or pushes the letter board off the first screen: '+
+     JSON.stringify({before:boardBeforeHint,after:boardAfterHint,viewport}));
+  }
   const easyDirections=await directionProfile(page);
   assert.ok(easyDirections.horizontal&&easyDirections.vertical,label+' easy round lacks horizontal/vertical variety: '+JSON.stringify(easyDirections));
   const words=await page.locator('.word-hunt-word').allTextContents();
@@ -195,6 +221,11 @@ async function testView(browser,engine,label,viewport,url){
   assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('laria-wordhunt-v1')||'{}').rounds),1,label+' no persisted completion');
   await shot(page,label+'-02-complete');
   await page.locator('.word-hunt-level[data-word-level="hard"]').click();
+  if(viewport.width<=700&&viewport.height>viewport.width){
+   assert.equal(await page.locator('.word-hunt-intro.has-fox-hint').count(),0,
+     label+' stale fox clue not cleared on a new round');
+   assert.match(await page.locator('.word-hunt-intro').innerText(),/Finn ordene!/);
+  }
   assert.equal(await page.locator('.word-hunt-cell').count(),49,label+' harder puzzle not 7x7');
   assert.equal(await page.locator('.word-hunt-word').count(),5,label+' harder puzzle not 5 words');
   if(viewport.width>=1401)await geometry(page,label+'-hard',viewport,true);

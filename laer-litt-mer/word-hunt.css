@@ -1426,3 +1426,43 @@
   object-position:center bottom!important;
   pointer-events:none;
 }
+
+/* Ordjakt small-screen fox shortcut, post-PR158 usability follow-up.
+   Reuse the child's actual header fox and the same progressive hint handler.
+   Never reduce the six-by-six puzzle to make room for controls. */
+.word-hunt-fox-shortcut{
+  position:relative;display:grid;place-items:center;
+  flex:0 0 76px;width:76px;height:76px;
+  min-width:44px;min-height:44px;padding:0;border:0;border-radius:14px;
+  background:transparent;cursor:pointer;touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+}
+.word-hunt-fox-shortcut>.word-hunt-fox{
+  display:block;max-width:100%;max-height:100%;
+  pointer-events:none;
+}
+.word-hunt-fox-shortcut-label{display:none;pointer-events:none}
+.word-hunt-fox-shortcut:focus-visible{
+  outline:3px solid #2365a1;outline-offset:2px;
+}
+@media(max-width:700px){
+  .word-hunt-fox-shortcut{flex-basis:58px;width:58px;height:58px}
+}
+@media(max-width:700px) and (orientation:portrait){
+  .word-hunt-fox-shortcut{flex-basis:46px;width:46px;height:46px}
+  .word-hunt-fox-shortcut-label{
+    position:absolute;bottom:-2px;left:50%;transform:translateX(-50%);
+    display:block;padding:1px 5px;border:1px solid #cfaa72;border-radius:999px;
+    background:linear-gradient(#fff9e9,#f7e6bb);
+    color:#664b32;font:900 10px/1.15 ui-rounded,system-ui,sans-serif;
+    white-space:nowrap;box-shadow:0 2px 3px #56492f38;
+  }
+  .word-hunt-intro.has-fox-hint{
+    color:#26485e;
+    border-color:#d7b46b;
+    background:linear-gradient(180deg,rgba(255,250,228,.96),rgba(255,240,195,.92));
+  }
+}
+@media(min-width:701px) and (max-height:500px) and (orientation:landscape){
+  .word-hunt-fox-shortcut{flex-basis:44px;width:44px;height:44px}
+}
