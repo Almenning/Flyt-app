@@ -46,7 +46,10 @@ async function completeSentence(page){
 async function verify(type,label,viewport){
  const browser=await type.launch({headless:true,args:type===chromium?['--no-sandbox']:[]});
  try{
-   const ctx=await browser.newContext({viewport,hasTouch:true,isMobile:viewport.width<=400,reducedMotion:'reduce',serviceWorkers:'block'});
+   const appleTouch=type===webkit;
+   const ctx=await browser.newContext({viewport,isMobile:appleTouch,hasTouch:true,
+     deviceScaleFactor:appleTouch?(viewport.width<=400?3:2):1,
+     serviceWorkers:'block',reducedMotion:'reduce'});
    await ctx.addInitScript(value=>{
      if(!localStorage.getItem('laerlittmer-v2'))localStorage.setItem('laerlittmer-v2',JSON.stringify(value));
    },seed);
