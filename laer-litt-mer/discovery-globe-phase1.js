@@ -120,8 +120,26 @@ function discoveryDraw(){
 }
 const wait=()=>{
   if(typeof window.resizeGlobe!=='function'||!document.getElementById('globe-canvas'))return requestAnimationFrame(wait);
-  window.__lariaDiscoveryGlobeBaseDraw=window.drawGlobe;window.drawGlobe=discoveryDraw;try{drawGlobe=discoveryDraw}catch(_){}
-  requestAnimationFrame(()=>{try{window.resizeGlobe();discoveryDraw();}catch(_){}});
+  window.__lariaDiscoveryGlobeBaseDraw=window.drawGlobe;
+  /* atlas-perspective is allowed to keep owning its own non-globe views. On
+     the isolated classic preview, however, it can reassign drawGlobe during
+     its delayed mode transition. Reassert only after that child action. */
+  const activate=()=>{
+    if(!screen.classList.contains('active'))return;
+    const classic=document.querySelector('#globe-mode [data-globe-mode="classic"]');
+    if(classic&&!classic.classList.contains('active'))return;
+    if(window.drawGlobe!==discoveryDraw){window.drawGlobe=discoveryDraw;try{drawGlobe=discoveryDraw}catch(_){}}
+    try{window.resizeGlobe();discoveryDraw()}catch(_){}
+  };
+  document.addEventListener('click',event=>{
+    if(event.target?.closest?.('#globe-mode [data-globe-mode="classic"]')){
+      requestAnimationFrame(()=>requestAnimationFrame(activate));
+    }
+  },true);
+  new MutationObserver(()=>requestAnimationFrame(activate)).observe(screen,{attributes:true,attributeFilter:['class']});
+  activate();
+  requestAnimationFrame(()=>requestAnimationFrame(activate));
+  setTimeout(activate,180);
 };
 wait();
 })();
