@@ -57,3 +57,15 @@
 2. Forsterke første illustrasjonslag der dette trengs, fortsatt kun i forhåndsvisningen.
 3. Kontrollere at samme landvalg fungerer med og uten forhåndsvisningsflagget.
 4. Ikke integrere bryter, slå sammen eller publisere før brukerens uttrykkelige godkjenning.
+
+
+## Videreføring i SuperKlode chat1 – 17. oktober 2026
+
+- Identifiserte aktiv draft-PR #172 og bekreftet at main ikke er oppdatert med prototypen.
+- Den nyeste tilgjengelige tidligere WebKit-kjøringen (`39044389347`) besto og produserte artefakt `12105223568` fra merge-commit `4b16a413...`. Den er **ikke** en visuell godkjenning av senere endringer.
+- Isolert forhåndsvisning: korrigerte paletten bort fra unaturlige blå/lilla kontinentfarger og mot varmere naturtoner.
+- La til tettere, longitude/latitude-forankrede fjell-, skog- og ørkenmarkører samt større terrenglinjer som følger samme projeksjon. Alle landbaserte terrengmarkører klippes nå til eksisterende landgeometri, mens havillustrasjoner tegnes separat.
+- Rettet unødvendig gjentatt resize/tegning i forhåndsvisningens intervalvakthold. Ny tegning skjer ved første aktivering, reell modusendring eller vanlig interaktivitet.
+- Ingen endringer i geografiske data, landvalg, ordinær globus, andre fag eller lagret progresjon. Ingen sammenslåing eller publisering.
+- **Verifisering gjenstår:** GitHub Actions/WebKit må fullføre for commit `68218b25c68d8f724f9149baf9ce40e08499829f`; sammenlign tilhørende artefakt visuelt med de låste referansene før fase 1 eventuelt kan godkjennes. De nye tegningene er ikke påstått fysisk enhetstest.
+- **Neste konkret:** Vurder faktisk WebKit-bilde ved verden, Europa, Norge, Japan og Brasil; forbedre illustrasjonens premiumdybde og sjekk at små land fortsatt er klikkbare. Ikke integrer visningsbryteren før godkjenning.
