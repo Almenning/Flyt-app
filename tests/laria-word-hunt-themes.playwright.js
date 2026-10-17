@@ -172,6 +172,27 @@ async function verify(engine,launcher,label,viewport,url){
       label+' mobile topics still hidden in a horizontal carousel');
    }
    const animalWords=await selectTopic(page,'animals',label,true);
+   // Ordjakt uses the chosen girl's original in-world fox, never a generated lookalike.
+   const fox=page.locator('.word-hunt-companion');
+   assert.equal(await fox.getAttribute('data-avatar'),'girl');
+   assert.equal(await fox.locator('.word-hunt-companion-fox').getAttribute('src'),
+     await page.evaluate(()=>window.LARIA_FOX.worldSource(window.LARIA_FOX.choice())));
+   assert.equal(await fox.locator('.word-hunt-companion-hint').count(),1);
+   assert.equal(await fox.locator('.word-hunt-companion-cheer').count(),1);
+   const beforeHints=await page.locator('.word-hunt-word.found').count();
+   await fox.locator('.word-hunt-companion-hint').click();
+   assert.equal(await page.locator('.word-hunt-cell.is-hint-start').count(),1,
+     label+' first voluntary hint must mark exactly one starting cell');
+   await fox.locator('.word-hunt-companion-hint').click();
+   assert.equal(await page.locator('.word-hunt-cell.is-hint-path').count(),2,
+     label+' second hint must mark a direction, not the whole answer');
+   await fox.locator('.word-hunt-companion-hint').click();
+   assert.ok(await page.locator('.word-hunt-cell.is-hint-path').count()>=3,
+     label+' third hint must mark a discoverable word');
+   assert.equal(await page.locator('.word-hunt-word.found').count(),beforeHints,
+     label+' hints must not complete a word or grant an award');
+   await fox.locator('.word-hunt-companion-cheer').click();
+   assert.match(await fox.locator('.word-hunt-companion-speech').innerText(),/Heia deg/);
    assert.equal(await page.locator('.word-hunt-cell').count(),36);
    await checkLayout(page,label+'-original',viewport);
    assert.equal(animalWords.length,4);
