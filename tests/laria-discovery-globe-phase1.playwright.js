@@ -108,7 +108,22 @@ async function runDevice(engine,label,viewport,urls){
    const errors=[];
    const discovery=await openPage(browser,urls.preview,viewport,errors);
    try{
-     await discovery.page.waitForFunction(()=>window.drawGlobe===window.LARIA_DISCOVERY_GLOBE_DRAW&&document.getElementById('globe-canvas')?.dataset.discoveryRenderer==='live',{timeout:15000});
+     try{
+       await discovery.page.waitForFunction(()=>window.drawGlobe===window.LARIA_DISCOVERY_GLOBE_DRAW&&document.getElementById('globe-canvas')?.dataset.discoveryRenderer==='live',null,{timeout:12000});
+     }catch(error){
+       const diagnostic=await discovery.page.evaluate(()=>({
+         previewEnabled:window.__lariaDiscoveryGlobePreview,
+         startupError:window.__lariaDiscoveryStartupError,
+         paintError:window.__lariaDiscoveryGlobeLastError,
+         drawType:typeof window.LARIA_DISCOVERY_GLOBE_DRAW,
+         active:document.getElementById('world-screen')?.classList.contains('active'),
+         mapPerspective:document.getElementById('world-screen')?.dataset.mapPerspective,
+         rendererMatch:window.drawGlobe===window.LARIA_DISCOVERY_GLOBE_DRAW,
+         canvasData:{...document.getElementById('globe-canvas')?.dataset}
+       }));
+       console.error('DISCOVERY BOOT DIAGNOSTIC',label,JSON.stringify(diagnostic),errors);
+       throw error;
+     }
      for(const pose of poses){
        const result=await drawPose(discovery.page,pose);
        assert.equal(result.renderer,true,label+' discovery renderer replaced after mode activation');
