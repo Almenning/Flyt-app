@@ -161,6 +161,10 @@ async function verify(type,label,viewport){
    }
    await page.locator('[data-sh-act="check-sentence"]').click();
    await photo(page,label+'-sentence-feedback');
+   assert.equal(await page.locator('[data-sh-act="check-sentence"]').count(),0,
+     label+' a solved sentence must hide the redundant Check control');
+   assert.equal(await page.locator('[data-sh-act="clear"]').count(),0,
+     label+' a solved sentence must lead to Next, not Start over');
    await assertAnswerInView(page,label+' sentence feedback');
    assert.match(await page.locator('.sh-feedback').innerText(),/fant løsningen/i);
    await page.locator('[data-sh-act="next"]').click();
