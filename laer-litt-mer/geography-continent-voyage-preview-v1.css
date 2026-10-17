@@ -97,3 +97,22 @@
  .cv-root .cv-direction span{font-size:36px}
  .cv-root .cv-answer,.cv-root .cv-stamp{min-height:56px}
 }
+
+
+/* Active personal fox companion: child-invited hints, subtle success reaction.
+ * Do not increase the height of the tactile task area unless a hint is requested. */
+.cv-root .cv-companion{position:relative;padding-right:70px}
+.cv-root .cv-fox-copy{min-width:0;overflow-wrap:break-word}
+.cv-root .cv-fox-copy p{font-size:clamp(12px,1.45vw,14px);line-height:1.35}
+.cv-root .cv-fox-help{position:absolute;top:8px;right:8px;min-width:54px;min-height:44px;
+ border:1.5px solid #6c927f;border-radius:13px;background:#fdf8e5;color:#3d665a;
+ font-weight:900;font-size:13px;box-shadow:0 3px 0 #b9c4a6;padding:6px 8px}
+.cv-root .cv-fox-help[aria-expanded="true"]{background:#d8e8d3;border-color:#357b66}
+.cv-root .cv-fox-hint .cv-fox-copy p{color:#306d61;font-weight:750}
+.cv-root .cv-fox-celebrate .cv-fox{animation:cv-fox-cheer .65s ease-in-out}
+@keyframes cv-fox-cheer{0%,100%{transform:rotate(0) scale(1)}35%{transform:rotate(-5deg) scale(1.07)}65%{transform:rotate(4deg) scale(1.04)}}
+@media(min-width:900px) and (orientation:landscape){
+ .cv-root .cv-companion{padding:42px 13px 14px}
+ .cv-root .cv-fox-copy p{max-width:230px;margin-inline:auto}
+}
+@media(prefers-reduced-motion:reduce){.cv-root .cv-fox-celebrate .cv-fox{animation:none!important}}

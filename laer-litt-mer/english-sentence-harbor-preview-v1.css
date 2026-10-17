@@ -99,3 +99,22 @@
  .sh-root .sh-tile{min-height:56px;font-size:18px}
  .sh-root .sh-option{min-height:56px}
 }
+
+
+/* Active personal fox companion: child-invited hints, subtle success reaction.
+ * Do not increase the height of the tactile task area unless a hint is requested. */
+.sh-root .sh-companion{position:relative;padding-right:70px}
+.sh-root .sh-fox-copy{min-width:0;overflow-wrap:break-word}
+.sh-root .sh-fox-copy p{font-size:clamp(12px,1.45vw,14px);line-height:1.35}
+.sh-root .sh-fox-help{position:absolute;top:8px;right:8px;min-width:54px;min-height:44px;
+ border:1.5px solid #6c927f;border-radius:13px;background:#fdf8e5;color:#3d665a;
+ font-weight:900;font-size:13px;box-shadow:0 3px 0 #b9c4a6;padding:6px 8px}
+.sh-root .sh-fox-help[aria-expanded="true"]{background:#d8e8d3;border-color:#357b66}
+.sh-root .sh-fox-hint .sh-fox-copy p{color:#306d61;font-weight:750}
+.sh-root .sh-fox-celebrate .sh-fox{animation:sh-fox-cheer .65s ease-in-out}
+@keyframes sh-fox-cheer{0%,100%{transform:rotate(0) scale(1)}35%{transform:rotate(-5deg) scale(1.07)}65%{transform:rotate(4deg) scale(1.04)}}
+@media(min-width:900px) and (orientation:landscape){
+ .sh-root .sh-companion{padding:42px 13px 14px}
+ .sh-root .sh-fox-copy p{max-width:230px;margin-inline:auto}
+}
+@media(prefers-reduced-motion:reduce){.sh-root .sh-fox-celebrate .sh-fox{animation:none!important}}
