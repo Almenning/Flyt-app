@@ -432,6 +432,12 @@ async function finishSession(page){
     const wordHunt=page.locator('#word-hunt-overlay');
     await wordHunt.waitFor({state:'visible'});
     assert.equal(await wordHunt.getAttribute('data-explore-release'),'explore-rc1');
+    const firstThemeChoice=wordHunt.locator('.word-hunt-theme-picker:not([hidden])');
+    await firstThemeChoice.waitFor();
+    assert.equal(await firstThemeChoice.locator('.wh-theme-card').count(),5,'Ordjakt must show themes before the puzzle');
+    assert.equal(await page.locator('.word-hunt-word:visible').count(),0,'topic choice must be visible before the letter board');
+    await firstThemeChoice.locator('[data-word-theme="mixed"]').click();
+    await firstThemeChoice.waitFor({state:'hidden'});
     assert.equal(await page.locator('.word-hunt-word').count(),4);
     const wordHuntFit=await page.evaluate(()=>{
       const root=document.getElementById('word-hunt-overlay'),shell=root.querySelector('.word-hunt-shell'),board=root.querySelector('.word-hunt-board');

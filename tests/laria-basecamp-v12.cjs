@@ -111,6 +111,12 @@ const {chromium,webkit}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
 
   await page.locator('.bc13-card[data-bc13-action="words"]').tap();
   const hunt=page.locator('#word-hunt-overlay');await hunt.waitFor({state:'visible'});
+  const entrance=hunt.locator('.word-hunt-theme-picker:not([hidden])');
+  await entrance.waitFor();
+  assert.equal(await entrance.locator('.wh-theme-card').count(),5,name+' five Ordjakt topics must be visible before game');
+  await entrance.locator('[data-word-theme="mixed"]').tap();
+  await entrance.waitFor({state:'hidden'});
+  await hunt.locator('.word-hunt-cell:visible').first().waitFor();
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),name+' Ordjakt overflow');
   const pick=await page.evaluate(()=>{
     const cells=[...document.querySelectorAll('.word-hunt-cell')];
