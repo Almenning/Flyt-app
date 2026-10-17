@@ -13,6 +13,9 @@
    '<span class="cv-development">INTERN TEST · GEOGRAFI KAPITTEL 2</span></header>'+
    '<main class="cv-main">'+body+'</main></div>';
  function overview(){
+   // Separate opt-in art review; never replace the tested default map silently.
+   const paintedCandidate=new URLSearchParams(window.location.search).get('geography-chapter2-art-v2')==='1';
+   const mapArt=paintedCandidate?'./geography-continent-voyage-art-candidate-v2.svg':'./geography-continent-voyage-storymap-v1.svg';
    const p=core.progress(ui.state),session=core.resume(ui.state);
    const positions={kompassholmen:[27,24],passbrygga:[75,39],
      havpassasjen:[28,55],naturøya:[74,71],reisefyret:[45,86]};
@@ -45,7 +48,7 @@
      '<p class="cv-note">Eventyrhavet er fantasi, ikke et verdenskart. Den ekte globusen er uendret.</p>'+
      '</aside></div>'+
      '<div class="cv-story-map" role="group" aria-label="Illustrert fantasihav med fem interaktive eventyrsteder">'+
-     '<img class="cv-map-art" src="./geography-continent-voyage-storymap-v1.svg" alt="" draggable="false" loading="eager">'+
+     '<img class="cv-map-art" data-cv-art-variant="'+(paintedCandidate?'candidate-v2':'default-v1')+'" src="'+mapArt+'" alt="" draggable="false" loading="eager">'+
      '<div class="cv-places">'+places+'</div></div>'+
      '</div></section>');
  }
