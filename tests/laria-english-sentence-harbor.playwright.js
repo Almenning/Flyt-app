@@ -52,6 +52,13 @@ async function verify(type,label,viewport){
    await enter(page);
    const viewportResult=await page.locator('#laria-english-sentence-harbor-preview').evaluate(el=>({scrollWidth:el.scrollWidth,width:el.clientWidth}));
    assert.ok(viewportResult.scrollWidth<=viewportResult.width+2,label+' overflow in port');
+   if(viewport.width<=320){
+     const back=await page.locator('.sh-top [data-sh-act="close"]').evaluate(el=>{
+       const r=el.getBoundingClientRect();return {height:r.height,width:r.width,nowrap:getComputedStyle(el).whiteSpace};
+     });
+     assert.ok(back.height<=53&&back.width>=85&&back.nowrap==='nowrap',
+       label+' Back must stay readable on one line on compact iPhone');
+   }
    const map=page.locator('.sh-story-map');
    await map.waitFor({state:'visible'});
    const geometry=await map.evaluate(el=>{
