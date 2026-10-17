@@ -709,6 +709,20 @@ function clearOffscreenDiscoverySelection(){
   if(!selected||!w||!h||!Number.isFinite(selected.lon)||!Number.isFinite(selected.lat))return false;
   const p=project(selected.lon,selected.lat,w,h),radius=Math.min(w,h)*.455;
   if(p&&p[2]>.05&&Math.hypot(p[0]-w/2,p[1]-h/2)<=radius*.975)return false;
+  // Large countries can still intersect the visible globe while their
+  // geographic label anchor lies behind the horizon (Russia, Canada, USA).
+  // Check the real polygon's projected vertices before clearing the card.
+  if(selected.geometry&&typeof geometryPolygons==='function'){
+    const r2=(radius*.975)**2;
+    for(const polygon of geometryPolygons(selected.geometry))
+      for(const ring of polygon)
+        for(let k=0;k<ring.length;k+=Math.max(1,Math.floor(ring.length/150))){
+          const v=ring[k];if(!Array.isArray(v)||v.length<2)continue;
+          const q=project(v[0],v[1],w,h);
+          if(q&&q[2]>.05&&(q[0]-w/2)**2+(q[1]-h/2)**2<=r2)
+            return false;
+        }
+  }
   globeSelected=null;
   const box=document.getElementById('globe-status');
   if(box){
