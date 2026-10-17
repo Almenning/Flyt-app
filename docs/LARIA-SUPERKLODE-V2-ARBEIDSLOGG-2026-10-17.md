@@ -38,3 +38,22 @@ Dato: 17. oktober 2026
 Innhent og inspiser bildene fra den oppdaterte WebKit-kjøringen. Forbedre eventuelle fremdeles synlige kunstige naturbånd. Deretter vurderer vi stedsspesifikke oppdagelser og revehint uten å redusere geografisk treffsikkerhet.
 
 **Produktregel:** Hver aktivitet skal gi barnet noe morsomt å gjøre, noe meningsfullt å oppdage og en grunn til å komme tilbake. Læring er en naturlig del av opplevelsen.
+
+## Fortsatt arbeid – visuell kontroll av SuperKlode v2.1
+
+- Oppdatert kode i `e59327c` besto [WebKit/Chromium-kjøring #39058420396](https://github.com/Almenning/Flyt-app/actions/runs/39058420396), inkludert alle fem skjermoppsett. Bilder fra denne kjøringen (artefakt `12111295059`) ble inspisert i faktiske iPad/iPhone-utsnitt.
+- Den nedtonede varianten fjernet de kunstige stripene, **men ble for flat**, særlig i Amazonas, mens Alpene og Skandinavia manglet lesbart fjellrelieff.
+- Ny renderer `8b2954b`: geografisk canopy-tekstur med overlappende tretopper i skogsoner, tydeligere fjelltopper, kraftigere men mykt utfasede naturtoner og moderert isolert jungelikon. Dette er en reell illustrasjonsendring, ikke et nytt fag eller en ny globus.
+- [WebKit/Chromium-kjøring #39059742818](https://github.com/Almenning/Flyt-app/actions/runs/39059742818) **bestått i alle fem skjermoppsett**. Bilder fra artefakt `12109919787` ble visuelt sammenlignet med v2: mer skogtekstur i Brasil og Norden og mer synlig terreng. Fortsatt ikke full premiumgodkjenning, blant annet fordi noen elementer fremstår som separate kartillustrasjoner fremfor én sammenhengende verden.
+- Mobil-skjermbildet avdekket i tillegg feil undertittel: `Oppdag` beholdt teksten om den klassiske globusen. Rettet i `ed7fbdf`, med ny regresjonstest av `Enkel → Oppdag → Enkel` i `6d21f3a`.
+- [Siste QA-kjøring #39060129652](https://github.com/Almenning/Flyt-app/actions/runs/39060129652) kontrollerer tekstbytte sammen med kart, landvalg, zoom og de fem visningene. Denne kjøringen er ikke erklært bestått før et faktisk GitHub-resultat foreligger.
+
+### Revidert kvalitetsbeslutning
+
+**Teknisk funksjon:** verifisert for renderer `8b2954b`. **Visuell premiumfølelse:** forbedret, men fortsatt ikke godkjent. **Publisering:** nei. PR #179 beholdes i draft og bygger fortsatt på PR #178. Originalglobus og landdata er uendret.
+
+### Neste arbeidsoppgaver
+
+1. Kontroller grønt resultat fra QA på siste testcommit `6d21f3a` og at iPad/iPhone-skjermbildene ikke har ny overlapp eller feil undertittel.
+2. Vurder målrettet mer sammenhengende vegetasjon og landskapsmaterialer uten overdekorering; skill visuelt mellom fjell, skog og ørken også i mellomzoom.
+3. Før eventuelt senere publisering: oppdater gren mot gjeldende `main`, håndter avhengigheten til PR #178 og sammenlign mot låste referanseillustrasjoner. Brukerens godkjenning for visuell premium er fortsatt nødvendig.
