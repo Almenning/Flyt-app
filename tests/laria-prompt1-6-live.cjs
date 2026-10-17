@@ -115,6 +115,8 @@ async function existing(engine,name){
  await p.locator('#multiplication-lab-screen.active .mp-home-screen').waitFor();
  await p.locator('.gm-classic-return').click();
  await p.locator('#multiplication-lab-screen.active .gm-shell').waitFor();
+ const gameOrigin=await p.locator('#multiplication-lab-screen').getAttribute('data-gm-return-origin');
+ assert.equal(gameOrigin,'subject',name+' returning from classic should preserve the Maths origin');
  await p.locator('#multiplication-lab-screen.active .gm-back').click();
  await p.locator('#subject-screen.active').waitFor();
  await p.locator('#subject-back').click();
