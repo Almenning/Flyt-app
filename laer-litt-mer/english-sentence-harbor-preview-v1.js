@@ -8,7 +8,7 @@
  let ui=null;
  const esc=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
  const fox=()=>'<img class="sh-fox" src="'+esc(ui.foxSrc)+'" alt="Reven din er med til Setningshavna">';
- const shell=body=>'<div class="sh-shell"><header class="sh-top"><button type="button" data-sh-act="close" class="sh-quiet">← Tilbake</button><span class="sh-tag">INTERN TEST · ENGELSK KAPITTEL 2</span></header><main class="sh-main">'+body+'</main></div>';
+ const shell=body=>'<div class="sh-shell"><header class="sh-top"><button type="button" data-sh-act="close" class="sh-quiet">← Tilbake</button><span class="sh-tag">'+(core.CHAPTER.published?'ENGELSK · EVENTYR 2':'INTERN TEST · ENGELSK KAPITTEL 2')+'</span></header><main class="sh-main">'+body+'</main></div>';
  function intro(){
    // Separate opt-in art review; never replace the tested default map silently.
    const paintedCandidate=new URLSearchParams(window.location.search).get('english-chapter2-art-v2')==='1';
@@ -112,7 +112,13 @@
      const art=ui.root.querySelector('.sh-map-art[data-sh-art-variant]');
      if(art){
        const variant=art.getAttribute('data-sh-art-variant');
-       const size=variant==='candidate-v2'?[800,1000]:[960,1280];
+       const validArtSize=()=>{
+         const width=art.naturalWidth,height=art.naturalHeight;
+         // The two 3:4 raster exports can be native or browser-scaled.
+         // Keep SVG candidates on their exact 800x1000 coordinate contract.
+         return variant==='candidate-v2'?(width===800&&height===1000):
+           (width>=768&&height>=1024&&width*4===height*3);
+       };
        const fallback=(reason)=>{
          if(art.getAttribute('data-sh-art-variant')==='fallback-v1')return;
          // Keep the reason for WebKit/Chromium diagnostics after the SVG loads.
@@ -122,7 +128,7 @@
        };
        const verifyDimensions=()=>{
          if(art.getAttribute('data-sh-art-variant')==='fallback-v1')return;
-         if(art.naturalWidth!==size[0]||art.naturalHeight!==size[1])fallback('dimensions');
+         if(!validArtSize())fallback('dimensions');
        };
        art.addEventListener('error',()=>fallback('load-or-decode'),{once:true});
        art.addEventListener('load',verifyDimensions,{once:true});
