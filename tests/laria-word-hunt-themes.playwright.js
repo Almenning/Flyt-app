@@ -47,12 +47,12 @@ async function selectTopic(page,topic,label,fromEntry=false){
  await picker.waitFor();
  assert.equal(await picker.locator('.wh-theme-card').count(),5);
  assert.ok(await picker.locator('.wh-theme-card.selected').count()===1);
- // Every scene is a locally bundled SVG illustration, not a remote dependency.
+ // Every scene is a local, small painted WebP, not a remote dependency.
  await picker.locator('.wh-theme-card img').first().evaluate(img=>img.decode());
- const valid=await picker.locator('.wh-theme-card img').evaluateAll(imgs=>imgs.every(img=>img.src.includes('/word-hunt-theme-')&&img.getAttribute('alt')===''));
+ const valid=await picker.locator('.wh-theme-card img').evaluateAll(imgs=>imgs.every(img=>img.src.includes('/assets/word-hunt/themes/')&&img.src.includes('.webp?v=20261017-painted1')&&img.getAttribute('alt')===''));
  assert.ok(valid,label+' broken illustrated topic assets');
  const art=await picker.locator('.wh-theme-card img').evaluateAll(async imgs=>{
-  // WebKit may keep off-screen horizontal theme cards lazy indefinitely.
+  // WebKit can defer loading cards in a horizontal mid-game selector.
   // Eagerly load each bundled asset and bound the wait to fail clearly.
   imgs.forEach(img=>{img.loading='eager'});
   await Promise.all(imgs.map(img=>{
@@ -67,8 +67,8 @@ async function selectTopic(page,topic,label,fromEntry=false){
    bg:getComputedStyle(img).backgroundImage,complete:img.complete}));
  });
  for(const piece of art){
-  assert.ok(piece.complete&&piece.width===360&&piece.height===250,label+' failed to load premium topic illustration: '+JSON.stringify(piece));
-  assert.ok(piece.bg.includes('bokskogen-verden.png'),label+' missing approved Bokskogen scene: '+JSON.stringify(piece));
+  assert.ok(piece.complete&&piece.width===160&&piece.height===169,label+' failed to load premium topic illustration: '+JSON.stringify(piece));
+  assert.ok(piece.bg==='none',label+' missing approved Bokskogen scene: '+JSON.stringify(piece));
  }
  assert.equal(await picker.locator('.wh-theme-fox').evaluate(img=>img.currentSrc===window.LARIA_FOX.source(window.LARIA_FOX.choice())),true,
   'chosen fox did not follow child to theme picker');
