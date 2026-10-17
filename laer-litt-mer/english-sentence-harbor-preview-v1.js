@@ -14,8 +14,8 @@
    const positions={hilsenkaia:[27,24],ordbrygga:[75,38],
      setningsverkstedet:[28,55],samtalebaten:[74,71],historiefyret:[45,87]};
    const recommended=core.STAGES.find(stage=>stage.id===p.recommended)||core.STAGES[0];
-   // Voluntary starting point near the fox on landscape iPads. Existing
-   // unfinished sessions retain a prominent Resume button instead.
+   // Keep the fox and voluntary route in the first screen on mobile and iPad.
+   // A paused activity shows Resume in the same place instead of replacing it.
    const quickStart=!session?'<button type="button" class="sh-quick-start" data-sh-act="quick-start" data-sh-stage="'+esc(recommended.id)+'">'+
      '✦ '+(p.complete?'Besøk igjen ':'Begynn ved ')+esc(recommended.title)+' →</button>':'';
    const stops=core.STAGES.map((stop,i)=>{
@@ -31,14 +31,15 @@
      '<div class="sh-intro-heading"><div><span class="sh-eyebrow">ENGELSK · KAPITTEL 2</span>'+
      '<h1 class="sh-heading" tabindex="-1">Setningshavna</h1>'+
      '<p>Hils på venner, finn ord og bygg egne setninger på en spennende havnereise.</p></div></div>'+
-     '<div class="sh-story-layout"><div class="sh-story-map" role="group" aria-label="Illustrert havnekart med fem eventyrsteder">'+
+     '<div class="sh-story-layout"><div class="sh-story-hero"><div class="sh-story-fox">'+fox()+'<p>Velkommen til havna! Hvor vil du seile i dag?</p></div>'+quickStart+
+     (session?'<button type="button" class="sh-continue" data-sh-act="resume">Fortsett i '+esc(session.stage.title)+' →</button>':'')+
+     '</div><div class="sh-story-map" role="group" aria-label="Illustrert havnekart med fem eventyrsteder">'+
      '<img class="sh-map-art" src="./english-sentence-harbor-storymap-v1.svg" draggable="false" loading="eager" alt="">'+
      '<div class="sh-stops">'+stops+'</div></div>'+
-     '<aside class="sh-story-rail"><div class="sh-story-fox">'+fox()+'<p>Velkommen til havna! Hvor vil du seile i dag?</p></div>'+quickStart+
+     '<aside class="sh-story-rail">'+
      '<div class="sh-progress" role="status"><strong>'+p.done+' av 5 steder utforsket</strong>'+
      '<small>'+(p.places.some(place=>place.attempts===1)?'Nye oppgaver venter på steder du har besøkt.':'Velg fritt, og kom tilbake til et sted du liker.')+'</small>'+
      '<div class="sh-progress-bar"><span style="width:'+p.done*20+'%"></span></div></div>'+
-     (session?'<button type="button" class="sh-continue" data-sh-act="resume">Fortsett i '+esc(session.stage.title)+' →</button>':'')+
      '<div class="sh-story-guide"><strong>Ord blir små eventyr</strong>'+
      '<p>Lytt, prat, les og sett sammen setninger. Reisen er din.</p></div>'+
      '<p class="sh-note">Originalt illustrert havnekart. Intern kandidat, ikke premiumgodkjent eller publisert.</p>'+
