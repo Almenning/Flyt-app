@@ -69,6 +69,8 @@ async function run(engine,name,viewport,which){
   assert.equal(await page.locator('.word-hunt-word.found').count(),0);
   await page.evaluate(()=>{document.getElementById('word-hunt-overlay').scrollTop=0});
   await page.screenshot({path:out+'/'+name+'-ordjakt.png',fullPage:true});
+  await page.locator('.word-hunt-companion').scrollIntoViewIfNeeded();
+  await page.screenshot({path:out+'/'+name+'-ordjakt-personal-fox.png',fullPage:true});
   await launch(page,url+'&part=globe',which);
   await page.waitForFunction(()=>typeof openGlobe==='function');
   await page.evaluate(()=>openGlobe());
