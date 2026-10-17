@@ -3,6 +3,7 @@
  */
 (function(){
  'use strict';
+ const buddy=window.LARIA_CHAPTER_FOX_BUDDY;
  const core=window.LARIA_MATH_PATTERN_HAVEN;
  if(!core)return;
  let ui=null;
@@ -66,6 +67,12 @@
    const session=core.resume(ui.state);
    if(!session)return intro();
    const t=session.task,n=session.index+1;
+   const foxState=buddy.response({subject:'math',stageId:session.stage.id,kind:t.kind,
+     feedback:session.feedback,expanded:ui.hintShown});
+   const foxPanel='<div class="mh-companion mh-fox-'+foxState.mood+'">'+fox()+
+     '<div class="mh-fox-copy"><span class="mh-eyebrow">REVENS VERKSTED</span>'+
+     '<p id="mh-fox-message" role="status">'+escape(foxState.text)+'</p></div>'+
+     (foxState.showHint?'<button type="button" class="mh-fox-help" data-mh-act="hint" aria-controls="mh-fox-message" aria-expanded="'+String(foxState.expanded)+'" aria-label="'+(foxState.expanded?'Skjul hint fra reven':'Få hint fra reven')+'">?</button>':'')+'</div>';
    const choices=t.kind==='choice'?'<div class="mh-options" role="group" aria-label="Svaralternativer">'+
      t.options.map((opt,i)=>'<button class="mh-option'+(session.feedback&&opt===session.feedback.answer?' mh-right':'')+
        '" type="button" data-mh-act="answer" data-mh-index="'+i+'"'+(session.feedback?' disabled':'')+'>'+
@@ -77,7 +84,7 @@
    return shell('<article class="mh-task" tabindex="-1">'+
      '<div class="mh-task-nav"><button type="button" data-mh-act="intro" class="mh-quiet">← Alle stedene</button>'+
      '<span>'+escape(session.stage.title)+'</span></div>'+
-     '<div class="mh-companion">'+fox()+'<div><span class="mh-eyebrow">REVENS VERKSTED</span><p>Prøv deg fram. Du kan alltid komme tilbake!</p></div></div>'+
+     foxPanel+
      '<div class="mh-step">OPPDAGELSE '+n+' AV '+session.total+
      '<div class="mh-progress-track"><span style="width:'+((n-1+(session.feedback?1:0))/session.total*100)+'%"></span></div></div>'+
      '<div class="mh-paper"><span class="mh-eyebrow">LEK MED '+(t.kind==='mirror'?'SPEILING':'MØNSTRE')+'</span>'+
@@ -96,15 +103,16 @@
      fox()+'<button type="button" class="mh-next" data-mh-act="intro">Til Mønsterhagen →</button>'+
      '<button type="button" class="mh-quiet" data-mh-act="replay" data-mh-stage="'+escape(r.stageId)+'">Spill dette stedet igjen</button></section>');
  }
- function render(focusSelector='.mh-heading'){
+ function render(focusSelector='.mh-heading',preserveScroll=false){
+   const previousScroll=preserveScroll?ui.root.scrollTop:0;
    if(!ui)return;
    ui.root.innerHTML=ui.view==='task'?taskView():ui.view==='result'?resultView():intro();
-   ui.root.scrollTop=0;
+   ui.root.scrollTop=previousScroll;
    if(focusSelector)ui.root.querySelector(focusSelector)?.focus({preventScroll:true});
  }
  function save(){try{ui?.save?.()}catch(_){/* preview continues when storage is unavailable */}}
  function start(stage){
-   core.start(ui.state,stage);ui.view='task';ui.result=null;save();render();
+   core.start(ui.state,stage);ui.view='task';ui.result=null;ui.hintShown=false;save();render();
  }
  function read(){
    const s=core.resume(ui.state);if(!s||!window.speechSynthesis||!window.SpeechSynthesisUtterance)return;
@@ -137,22 +145,23 @@
    const b=e.target.closest('button[data-mh-act]');if(!b||!ui)return;
    const cmd=b.dataset.mhAct;
    if(cmd==='close'){close();return}
-   if(cmd==='intro'){ui.view='intro';ui.result=null;render();return}
+   if(cmd==='intro'){ui.view='intro';ui.result=null;ui.hintShown=false;render();return}
    if(cmd==='stage'||cmd==='replay'){start(b.dataset.mhStage);return}
    if(cmd==='resume'){ui.view='task';ui.result=null;render();return}
    if(cmd==='read'){read();return}
+   if(cmd==='hint'){ui.hintShown=!ui.hintShown;render('[data-mh-act="hint"]',true);return}
    if(cmd==='answer'){
      const s=core.resume(ui.state);if(!s||s.task.kind!=='choice')return;
      core.submitChoice(ui.state,s.task.options[Number(b.dataset.mhIndex)]);
-     save();render('.mh-feedback');return;
+     save();render('.mh-feedback',true);return;
    }
    if(cmd==='mirror'){
      const r=Number(b.dataset.mhR),c=Number(b.dataset.mhC);
-     core.toggleMirror(ui.state,r,c);save();render('[data-mh-r="'+r+'"][data-mh-c="'+c+'"]');return;
+     core.toggleMirror(ui.state,r,c);save();render('[data-mh-r="'+r+'"][data-mh-c="'+c+'"]',true);return;
    }
    if(cmd==='check-mirror'){core.checkMirror(ui.state);save();render('.mh-feedback');return}
    if(cmd==='next'){
-     const step=core.advance(ui.state);save();
+     const step=core.advance(ui.state);ui.hintShown=false;save();
      if(step.finished){ui.result=step;ui.view='result'}else ui.view='task';
      render();
    }
@@ -167,7 +176,7 @@
    ui={root,app,wasInert:app?.inert||false,focus:document.activeElement,
      overflow:document.documentElement.style.overflow,
      foxSrc:safe?src:'./lia-fox-explorer-home.webp',state:args.state,save:args.save,
-     view:'intro',result:null};
+     view:'intro',result:null,hintShown:false};
    root.id='laria-math-pattern-haven-preview';root.className='mh-root';
    root.setAttribute('role','dialog');root.setAttribute('aria-modal','true');
    root.setAttribute('aria-label','Mønsterhagen, intern test av Mattekappittel 2');root.tabIndex=-1;
