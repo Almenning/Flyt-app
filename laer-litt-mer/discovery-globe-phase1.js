@@ -34,15 +34,76 @@ const continent={
   'Europa':'#7FB18B','Asia':'#BBAE70','Afrika':'#D7A16A',
   'Nord-Amerika':'#87B78D','Sør-Amerika':'#59AB80','Oseania':'#A6BA82'
 };
-/* Broad natural regions are deliberately sparse. The land clip is the source
-   of truth, so a painterly wash cannot escape across a border or coast. */
-const biomes=[
-  ['ice',-42,72,.17],['ice',18,69,.11],['ice',88,68,.16],['ice',-110,68,.13],
-  ['forest',-111,55,.16],['forest',-84,51,.12],['forest',-62,-5,.18],['forest',-71,-12,.13],
-  ['forest',12,55,.12],['forest',52,59,.16],['forest',87,59,.17],['forest',111,55,.14],['forest',23,0,.13],['forest',104,17,.13],
-  ['desert',-7,25,.19],['desert',16,25,.23],['desert',35,25,.20],['desert',51,25,.14],['desert',68,38,.10],['desert',79,27,.10],['desert',134,-24,.16],
-  ['savanna',11,8,.14],['savanna',28,-5,.17],['savanna',25,-22,.15],['savanna',-58,-18,.10]
+/* Painterly, geographically anchored ecosystems.
+   These are approximate biome corridors, not boundaries or scientific landcover
+   datasets. The real country polygons are still the authority for every pixel.
+   A continuous brush follows each geographic spine rather than stamping dots. */
+const landscapeZones=[
+  {name:'Canadian boreal',type:'forest',width:13,route:[[-127,54],[-117,55],[-105,55],[-93,55],[-81,52],[-66,51]]},
+  {name:'Pacific temperate forests',type:'forest',width:9,route:[[-128,57],[-125,52],[-123,46],[-122,42]]},
+  {name:'Amazonas rainforest',type:'rainforest',width:17,route:[[-73,-5],[-66,-4],[-61,-4],[-55,-4],[-49,-3]]},
+  {name:'Atlantic rainforest',type:'rainforest',width:6,route:[[-48,-17],[-45,-22],[-43,-25]]},
+  {name:'Congo rainforest',type:'rainforest',width:13,route:[[12,0],[19,-1],[26,0],[31,0]]},
+  {name:'European woodlands',type:'forest',width:6,route:[[5,50],[12,51],[19,52],[27,54],[34,54]]},
+  {name:'Scandinavian forests',type:'forest',width:9,route:[[7,59],[13,62],[21,65],[28,67]]},
+  {name:'Northern Asian taiga',type:'forest',width:12,route:[[38,60],[52,60],[67,60],[83,61],[100,59],[118,58],[136,55]]},
+  {name:'Southeast Asian forests',type:'rainforest',width:11,route:[[94,23],[101,18],[105,13],[110,8],[115,3]]},
+  {name:'Indonesian rainforest',type:'rainforest',width:7,route:[[99,1],[107,-1],[115,-2],[121,-2]]},
+  {name:'Japan forests',type:'forest',width:4,route:[[135,34],[139,37],[142,41]]},
+  {name:'Sahara dune seas',type:'desert',width:17,route:[[-14,24],[-5,24],[6,24],[17,23],[29,23],[37,23]]},
+  {name:'Sahel grasslands',type:'savanna',width:10,route:[[-14,13],[-4,13],[10,13],[22,13],[34,12]]},
+  {name:'Arabian desert',type:'desert',width:13,route:[[38,25],[44,24],[51,23],[55,23]]},
+  {name:'Kalahari',type:'desert',width:9,route:[[17,-22],[22,-23],[25,-25]]},
+  {name:'Australian outback',type:'desert',width:18,route:[[118,-23],[129,-24],[140,-25]]},
+  {name:'Central Asian steppe',type:'savanna',width:11,route:[[47,44],[60,45],[73,45],[86,45],[99,46]]},
+  {name:'Gobi desert',type:'desert',width:11,route:[[89,42],[98,42],[106,43],[113,44]]},
+  {name:'Great Plains',type:'savanna',width:10,route:[[-104,45],[-101,40],[-100,34]]},
+  {name:'South American grasslands',type:'savanna',width:10,route:[[-62,-30],[-60,-34],[-59,-37]]},
+  {name:'Atacama',type:'desert',width:5,route:[[-69,-17],[-70,-23],[-70,-27]]},
+  {name:'South African savanna',type:'savanna',width:10,route:[[22,-17],[28,-19],[30,-24]]},
+  {name:'Greenland ice',type:'ice',width:22,route:[[-45,64],[-43,70],[-42,76],[-43,80]]},
+  {name:'Canadian Arctic tundra',type:'tundra',width:10,route:[[-113,70],[-99,70],[-86,71],[-75,72]]},
+  {name:'Arctic Siberia',type:'tundra',width:10,route:[[49,70],[64,70],[80,72],[98,72],[117,71],[136,70]]},
+  {name:'North Australian tropics',type:'savanna',width:7,route:[[124,-15],[132,-15],[140,-17]]},
+  {name:'Madagascar eastern forest',type:'forest',width:4,route:[[49,-14],[48,-18],[47,-22]]}
 ];
+const ecosystemPalette={
+  forest:['#296D51','#438A60','#8CB17B'],
+  rainforest:['#1E704F','#298754','#79AD69'],
+  desert:['#D9A45A','#F0C97E','#F9DEA0'],
+  savanna:['#8D9C55','#B3B76C','#D7C989'],
+  tundra:['#9FAF9D','#C0D1B9','#E6E5C9'],
+  ice:['#E3F2EE','#F7FAEE','#FFFFFF']
+};
+/* Sampling longitude/latitude before projection ensures camera rotation,
+   pinch zoom and country hit-testing all describe the same physical world. */
+function smoothGeoStroke(ctx,route,w,h,s){
+  ctx.beginPath();
+  let continuous=false,painted=0,prior=null;
+  for(let j=0;j<route.length-1;j++){
+    const a=route[j],b=route[j+1];
+    const subdivisions=Math.max(2,Math.ceil(Math.max(Math.abs(a[0]-b[0]),Math.abs(a[1]-b[1]))/1.25));
+    for(let k=0;k<=subdivisions;k++){
+      if(j>0&&k===0)continue;
+      const t=k/subdivisions;
+      const p=project(a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,w,h);
+      if(!p||p[2]<.10){continuous=false;prior=null;continue;}
+      if(!continuous||prior&&Math.hypot(p[0]-prior[0],p[1]-prior[1])>s*.27){
+        ctx.moveTo(p[0],p[1]);continuous=true;
+      }else ctx.lineTo(p[0],p[1]);
+      prior=p;painted++;
+    }
+  }
+  return painted>=2;
+}
+function geoBrushWidth(zone,w,h,s){
+  const center=zone.route[Math.floor(zone.route.length/2)];
+  const a=project(center[0],center[1]-zone.width/2,w,h);
+  const b=project(center[0],center[1]+zone.width/2,w,h);
+  const ideal=a&&b?Math.hypot(a[0]-b[0],a[1]-b[1]):s*.455*globeZoom*zone.width*Math.PI/180;
+  return clamp(ideal,s*.018,s*.46);
+}
+
 const landmarks=[
   /* level 1: continental landmarks */
   ['mountains',10,46,.78,1],['mountains',79,31,1.0,1],['mountains',-109,40,.86,1],['mountains',-70,-24,.90,1],
@@ -106,15 +167,27 @@ function paintLandBase(ctx,w,h,s){
   ctx.save();if(!landClip(ctx,w,h)){ctx.restore();return;}
   const sun=ctx.createRadialGradient(w*.33,h*.22,0,w*.50,h*.50,s*.52);sun.addColorStop(0,'rgba(255,249,211,.34)');sun.addColorStop(.62,'rgba(255,244,194,.04)');sun.addColorStop(1,'rgba(38,81,57,.12)');ctx.fillStyle=sun;ctx.fillRect(0,0,w,h);ctx.restore();
 }
-function paintBiomes(ctx,w,h,s){
-  ctx.save();if(!landClip(ctx,w,h)){ctx.restore();return;}
-  for(const [type,lon,lat,size] of biomes){
-    const p=project(lon,lat,w,h);if(!p||p[2]<.10)continue;const r=s*size*clamp(.56+p[2]*.52,.60,1.08);
-    const colors=type==='desert'?['rgba(249,196,88,.70)','rgba(204,135,50,.12)']:type==='ice'?['rgba(255,255,252,.88)','rgba(213,240,243,.10)']:type==='savanna'?['rgba(192,172,78,.54)','rgba(109,116,43,.11)']:['rgba(33,129,73,.60)','rgba(31,91,53,.12)'];
-    const g=ctx.createRadialGradient(p[0]-r*.18,p[1]-r*.12,1,p[0],p[1],r);g.addColorStop(0,colors[0]);g.addColorStop(.58,colors[1]);g.addColorStop(1,'rgba(255,255,255,0)');ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(p[0],p[1],r,r*.62,-.10,0,Math.PI*2);ctx.fill();
+function paintBiomes(ctx,w,h,s,moving){
+  ctx.save();if(!landClip(ctx,w,h)){ctx.restore();return 0;}
+  let painted=0;
+  // Keep the broad ecosystem strokes even while a child rotates the globe.
+  // The fine brush texture and hand-drawn details are restored on release.
+  for(const zone of landscapeZones){
+    const colors=ecosystemPalette[zone.type];
+    const width=geoBrushWidth(zone,w,h,s);
+    if(!smoothGeoStroke(ctx,zone.route,w,h,s))continue;
+    ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
+    ctx.strokeStyle=colors[0];ctx.globalAlpha=.12;ctx.lineWidth=width*1.85;ctx.stroke();
+    ctx.strokeStyle=colors[1];ctx.globalAlpha=.28;ctx.lineWidth=width*1.25;ctx.stroke();
+    ctx.strokeStyle=colors[0];ctx.globalAlpha=.24;ctx.lineWidth=width*.83;ctx.stroke();
+    ctx.strokeStyle=colors[2];ctx.globalAlpha=zone.type==='ice'?.28:.18;
+    ctx.lineWidth=width*.49;ctx.stroke();
+    ctx.restore();painted++;
   }
   ctx.restore();
+  return painted;
 }
+
 function paintBorders(ctx,w,h,s){
   for(const c of land()){
     if(!c.geometry)continue;ctx.beginPath();if(!path(ctx,c,w,h))continue;
@@ -339,11 +412,11 @@ function discoveryDraw(){
   const canvas=document.getElementById('globe-canvas');if(!canvas?._cssW||!canvas?._cssH)return;
   const w=canvas._cssW,h=canvas._cssH,s=Math.min(w,h),dpr=canvas._dpr||1,ctx=canvas.getContext('2d');
   ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);ctx.save();ctx.beginPath();ctx.arc(w/2,h/2,s*.46,0,Math.PI*2);ctx.clip();
-  ocean(ctx,w,h,s);paintLandBase(ctx,w,h,s);paintBiomes(ctx,w,h,s);
   const level=globeZoom<1.7?1:globeZoom<2.8?2:3;
-  /* A stale interaction flag must never suppress the settled illustration
-     layer. Pointer ownership is the reliable signal while a drag is active. */
+  /* Pointer ownership is the reliable signal while a drag is active. */
   const moving=window.__lariaGlobeInteracting===true&&typeof globePointers!=='undefined'&&globePointers.size>0;
+  ocean(ctx,w,h,s);paintLandBase(ctx,w,h,s);
+  const biomeCount=paintBiomes(ctx,w,h,s,moving);
   /* A moving globe uses its base map without the expensive land clip for
      stationary-only detail. This saves an entire geometry pass per frame. */
   ctx.save();const validLand=!moving&&landClip(ctx,w,h);
@@ -356,8 +429,8 @@ function discoveryDraw(){
   paintBorders(ctx,w,h,s);paintSmallCountries(ctx,w,h,s);
   if(typeof drawGlobePulse==='function')drawGlobePulse(ctx,w,h);
   ctx.restore();
-  screen.dataset.discoveryGlobeLevel=String(level);screen.dataset.discoveryGlobe='phase1';
-  canvas.dataset.discoveryRenderer='live';canvas.dataset.discoveryLandmarks=String(landmarkCount+terrainCount+reliefCount+textureCount+seaCount);canvas.dataset.discoveryMoving=String(moving);
+  screen.dataset.discoveryGlobeLevel=String(level);screen.dataset.discoveryGlobe='landscapes-v2';
+  canvas.dataset.discoveryRenderer='live';canvas.dataset.discoveryLandmarks=String(landmarkCount+terrainCount+reliefCount+textureCount+seaCount+biomeCount);canvas.dataset.discoveryMoving=String(moving);
   canvas.dataset.discoveryPaintCount=String(Number(canvas.dataset.discoveryPaintCount||0)+1);
 }
 
