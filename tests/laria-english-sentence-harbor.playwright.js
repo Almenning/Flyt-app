@@ -161,6 +161,8 @@ async function verify(type,label,viewport){
    }
    await page.locator('[data-sh-act="check-sentence"]').click();
    await photo(page,label+'-sentence-feedback');
+   assert.equal(await page.locator('.sh-tiles').count(),0,
+     label+' a solved sentence must not show disabled word tiles below the completed sentence');
    assert.equal(await page.locator('[data-sh-act="check-sentence"]').count(),0,
      label+' a solved sentence must hide the redundant Check control');
    assert.equal(await page.locator('[data-sh-act="clear"]').count(),0,
