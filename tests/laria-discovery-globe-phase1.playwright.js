@@ -149,6 +149,31 @@ async function runDevice(engine,label,viewport,urls){
      for(const hit of [[8,62,'no'],[138,36,'jp'],[-55,-12,'br']])
        await verifyGeographicTap(standard.page,hit[0],hit[1],hit[2],label+' ordinary globe');
      await verifyPointerDrag(standard.page,label+' ordinary globe',false);
+     await standard.page.waitForFunction(()=>typeof window.LARIA_SET_GLOBE_VIEW==='function'&&
+       document.getElementById('globe-view-toggle')?.getBoundingClientRect().width>0,null,{timeout:12000});
+     assert.equal(await standard.page.locator('#globe-view-toggle [data-globe-view="simple"]').getAttribute('aria-pressed'),'true',label+' simple mode not default');
+     const beforeSwitch=await standard.page.evaluate(()=>({country:globeSelected,lon:globeLon,lat:globeLat,zoom:globeZoom}));
+     await standard.page.locator('#globe-view-toggle [data-globe-view="discover"]').click();
+     await standard.page.waitForFunction(()=>window.__lariaDiscoveryGlobePreview===true&&
+       window.drawGlobe===window.LARIA_DISCOVERY_GLOBE_DRAW,null,{timeout:12000});
+     const afterDiscovery=await standard.page.evaluate(()=>({
+       country:globeSelected,lon:globeLon,lat:globeLat,zoom:globeZoom,
+       stored:localStorage.getItem('laria-globe-view-v1')
+     }));
+     for(const key of ['country','lon','lat','zoom'])
+       assert.equal(afterDiscovery[key],beforeSwitch[key],label+' entering Oppdag changed '+key);
+     assert.equal(afterDiscovery.stored,'discover',label+' Oppdag preference not saved');
+     assert.equal(await standard.page.locator('#globe-view-toggle [data-globe-view="discover"]').getAttribute('aria-pressed'),'true');
+     await standard.page.locator('#globe-view-toggle [data-globe-view="simple"]').click();
+     await standard.page.waitForFunction(()=>window.__lariaDiscoveryGlobePreview===false&&
+       window.drawGlobe!==window.LARIA_DISCOVERY_GLOBE_DRAW,null,{timeout:12000});
+     const restored=await standard.page.evaluate(()=>({
+       country:globeSelected,lon:globeLon,lat:globeLat,zoom:globeZoom,
+       stored:localStorage.getItem('laria-globe-view-v1')
+     }));
+     for(const key of ['country','lon','lat','zoom'])
+       assert.equal(restored[key],beforeSwitch[key],label+' returning to Enkel changed '+key);
+     assert.equal(restored.stored,'simple',label+' Enkel preference not saved');
      assert.deepEqual(refErrors,[],label+' ordinary globe errors');
    }finally{await standard.ctx.close();}
    const errors=[];
