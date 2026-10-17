@@ -42,6 +42,8 @@ async function check(engine,label,viewport,url){
   await page.locator('[data-gm-action="basket"][data-gm-basket="0"]').click();
   assert.equal((await page.locator('.gm-math-equation').innerText()).trim(),'2 + 0 + 0 = 2');
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts[0],2);
+  assert.match(await page.locator('.gm-fox-message').innerText(),/2 av 3 i kurv 1/);
+  assert.equal(await page.locator('.gm-fox').getAttribute('data-mood'),'cheer');
   await page.locator('[data-gm-action="undo"]').click();
   assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[1,0,0]);
   await page.locator('[data-gm-action="source"]').click();
