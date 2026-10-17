@@ -154,9 +154,10 @@
    try{openSubject('math');return;}catch(_){}
    try{showScreen('subject');}catch(_){}
  }
- function open(){
-   // Avoid a stale return flag from an earlier session hijacking the Back destination.
-   returnToMath=!!document.querySelector('#subject-screen.active');
+ function open(preserveOrigin=false){
+   // Basecamp and Maths are different parents. Going to the classic submode
+   // and back must retain the same parent rather than reset it.
+   if(!preserveOrigin)returnToMath=!!document.querySelector('#subject-screen.active');
    const screen=document.getElementById('multiplication-lab-screen');
    if(screen)screen.dataset.returnToMathSubject=String(returnToMath);
    hintStep=0;notice='';foxMood='curious';lastAction='';lastGroup=-1;render();
@@ -178,7 +179,7 @@
    const kind=button.dataset.gmAction;
    if(kind==='back'){back();return;}
    if(kind==='classic'){nextOpen();return;}
-   if(kind==='back-from-classic'){open();return;}
+   if(kind==='back-from-classic'){open(true);return;}
    if(kind==='read'){speak();return;}
    if(kind==='hint'){hintStep=Math.min(2,hintStep+1);notice='';foxMood='help';render();speak();return;}
    if(kind==='undo'){
