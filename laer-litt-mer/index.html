@@ -11,6 +11,7 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://raw.githubusercontent.com https://api.worldbank.org; img-src 'self' data:; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'" />
   <link rel="manifest" href="./manifest.webmanifest" />
   <link rel="icon" href="./icon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="./math-pattern-haven-preview-v1.css?v=20261017-c2pilot1" />
   <link rel="preload" as="image" href="./basecamp-v11-mobile.webp?v=basecamp12d" media="(max-width:700px)" fetchpriority="high" />
   <link rel="preload" as="image" href="./basecamp-v11.webp?v=basecamp12d" media="(min-width:701px)" fetchpriority="high" />
   <link rel="preload" as="script" href="./home-basecamp-v12.js?v=20261014-phase4d-fox-only1" />
@@ -4723,6 +4724,17 @@ function renderSubjectModules(){
     b.onclick=()=>{activeModule=m.id;startLearningSession(activeSubject,m.id,m.title)};
     box.appendChild(b);
   });
+  // Math chapter 2 is a private pilot. No child sees it without the dev flag.
+  if(activeSubject==='math'&&currentGrade()===2&&window.LARIA_MATH_PATTERN_HAVEN?.previewEnabled(location.search)){
+    const preview=document.createElement('button');
+    preview.type='button';preview.className='subject-module';
+    preview.dataset.lariaMathChapter2Preview='1';
+    preview.innerHTML='<div class="module-icon">✿</div><div><strong>Mønsterhagen (testversjon)</strong><small>Matte · former, mønstre og speilbilder</small></div><div class="topic-arrow">›</div>';
+    preview.onclick=()=>window.LARIA_MATH_PATTERN_HAVEN_UI?.open({
+      state,save:saveState,foxSrc:avatarSrc(state.profile?.avatar==='girl'?'girl':'boy')
+    });
+    box.appendChild(preview);
+  }
   const viewGrade=journeyViewGrade(activeSubject),jp=journeyProgress(activeSubject,viewGrade),chapter=journeyChapterInfo(activeSubject,viewGrade);
   document.getElementById('subject-progress-label').textContent=jp.complete?(chapter?'Eventyr 1 fullført 🏆':'Fullført 🏆'):jp.pct+' %';
   document.getElementById('subject-progress-bar').style.width=jp.pct+'%';
@@ -6906,6 +6918,8 @@ if(needsProfileSetup||!state.profile.onboarded||!state.profile.grade){
 <script src="./bokskogen-world.js?v=20261007-p15rc1" defer></script>
 <script src="./journey-learning-system-v1.js?v=20261016-language-system1" defer></script>
 <script src="./geography-journey-learning-system-v1.js?v=20261016-nordlysleiren-system1" defer></script>
+<script src="./math-pattern-haven-v1.js?v=20261017-c2pilot1" defer></script>
+<script src="./math-pattern-haven-preview-v1.js?v=20261017-c2pilot1" defer></script>
 <script src="./journey-world-premium.js?v=20261016-chapter1-completion1" defer></script>
 <script src="./locked-journey-contract.js?v=20261016-tallenga-places1" defer></script>
 <script src="./locked-journey-renderer.js?v=20261016-chapter1-completion1" defer></script>

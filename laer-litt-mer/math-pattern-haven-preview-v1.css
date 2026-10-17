@@ -1,0 +1,91 @@
+/* Mønsterhagen internal art exploration. No locked map or released art altered. */
+#laria-math-pattern-haven-preview.mh-root{position:fixed;inset:0;z-index:99999;overflow-y:auto;overscroll-behavior:contain;
+ background:radial-gradient(circle at 30% 2%,#e9dfc5 0,#253e3b 48%,#1c3033 100%);color:#4b3826;
+ font-family:ui-rounded,"SF Pro Rounded",-apple-system,BlinkMacSystemFont,sans-serif;box-sizing:border-box;
+ padding:calc(10px + env(safe-area-inset-top)) max(10px,env(safe-area-inset-right))
+ calc(12px + env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left))}
+.mh-root *{box-sizing:border-box}
+.mh-root .mh-shell{width:min(100%,780px);min-height:calc(100dvh - 24px);margin:0 auto;border-radius:26px;
+ background:linear-gradient(155deg,#fff9e9 0,#f9ecd2 58%,#e4d4b4 100%);
+ box-shadow:0 24px 60px #15252299,inset 0 0 0 2px #fff9e3;overflow:hidden}
+.mh-root .mh-top{display:flex;justify-content:space-between;align-items:center;padding:12px clamp(14px,4vw,24px);
+ gap:9px;border-bottom:1px solid #d9bc91}
+.mh-root button{touch-action:manipulation;cursor:pointer;font:inherit}
+.mh-root button:focus-visible{outline:3px solid #286e72;outline-offset:3px}
+.mh-root .mh-back,.mh-root .mh-quiet{border:1px solid #b88f61;border-radius:14px;background:#fff5dd;color:#61472c;
+ padding:10px 13px;font-weight:850;min-height:44px}
+.mh-root .mh-development,.mh-root .mh-eyebrow{color:#795932;font-weight:900;letter-spacing:.09em;font-size:11px}
+.mh-root .mh-main{padding:clamp(14px,3vw,27px)}
+.mh-root .mh-heading{color:#49351f;font-size:clamp(25px,4vw,38px);line-height:1.08;
+ letter-spacing:-.025em;margin:6px 0 11px}
+.mh-root p{color:#6c553d;font-size:clamp(13px,2.1vw,16px);line-height:1.45;margin:0}
+.mh-root .mh-intro-header{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.mh-root .mh-fox{width:clamp(75px,18vw,110px);height:clamp(83px,20vw,126px);object-fit:contain;flex:none;
+ filter:drop-shadow(0 7px 8px #5b422d44)}
+.mh-root .mh-landscape{position:relative;margin-top:12px;width:100%;height:clamp(145px,25vw,245px);
+ overflow:hidden;border:3px solid #ddbc86;border-radius:24px;background:
+ radial-gradient(circle at 68% 20%,#f9e9b9 0 11%,transparent 12%),
+ linear-gradient(180deg,#93beaf 0,#d2e3c0 48%,#9bb28b 49%,#708a65 100%);
+ box-shadow:inset 0 5px 15px #32574933,0 6px 0 #c4a67d}
+.mh-root .mh-sun{position:absolute;right:22%;top:14%;width:50px;height:50px;border-radius:50%;background:#f9eec1;box-shadow:0 0 28px #fff3bb}
+.mh-root .mh-mountain{position:absolute;bottom:26%;width:75%;height:72%;background:#658d84;clip-path:polygon(0 100%,50% 0,100% 100%);opacity:.75}
+.mh-root .mh-mountain-left{left:-28%}.mh-root .mh-mountain-right{right:-23%;background:#78977d;transform:scale(.82);transform-origin:bottom}
+.mh-root .mh-pond{position:absolute;width:65%;height:30%;bottom:-7%;left:18%;border:8px solid #a9bb93;border-radius:50%;background:#a8d2bf;box-shadow:inset 0 10px 0 #6e9a99}
+.mh-root .mh-walk{position:absolute;bottom:6%;right:1%;width:46%;height:8px;transform:rotate(-13deg);border-radius:50%;background:#dfc591}
+.mh-root .mh-scenery{position:absolute;color:#fff1cc;font-size:clamp(28px,5vw,46px);text-shadow:0 3px 6px #243f3c66}
+.mh-root .mh-scenery-a{left:12%;bottom:12%}.mh-root .mh-scenery-b{left:32%;top:18%}
+.mh-root .mh-scenery-c{right:20%;bottom:17%}.mh-root .mh-scenery-d{right:8%;top:10%}
+.mh-root .mh-progress{margin:19px 0 12px;padding:13px 16px;border-radius:18px;background:#fff7e7;border:1px solid #d5bb91}
+.mh-root .mh-progress strong{font-weight:950;display:block}.mh-root .mh-progress span{display:block;font-size:12px;color:#826b50;margin-top:3px}
+.mh-root .mh-progress-track{height:10px;background:#e2d5bc;border-radius:30px;overflow:hidden;margin-top:9px}
+.mh-root .mh-progress-track span{display:block;height:100%;margin:0;background:linear-gradient(90deg,#6c987e,#c6a66b);border-radius:inherit}
+.mh-root .mh-places{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+.mh-root .mh-place{min-height:92px;border:2px solid #d9bd94;border-radius:18px;
+ background:linear-gradient(170deg,#fff9e9,#efe0be);box-shadow:0 5px 0 #c6a87e;
+ display:flex;align-items:center;text-align:left;gap:10px;padding:12px;color:#503c28}
+.mh-root .mh-place-symbol{min-width:45px;height:45px;border-radius:14px;display:grid;place-items:center;background:#e3ebd8;
+ color:#3e776d;font-size:25px}
+.mh-root .mh-place strong{display:block;font-size:16px;line-height:1.2}.mh-root .mh-place small{display:block;font-size:12px;color:#735d45;margin-top:3px;line-height:1.25}
+.mh-root .mh-place-chevron{margin-left:auto;font-size:25px}.mh-root .mh-place.mh-done .mh-place-symbol{background:#c3dbc7}
+.mh-root .mh-continue,.mh-root .mh-next,.mh-root .mh-check{display:block;border:0;border-radius:15px;min-height:48px;
+ background:linear-gradient(180deg,#547e6b,#386b60);color:#fffcef;font-weight:900;padding:12px 18px;
+ width:100%;margin:13px 0;box-shadow:0 5px 0 #2e5b52}
+.mh-root .mh-note{font-size:11px;margin:15px 2px;color:#80694d}
+.mh-root .mh-task{max-width:660px;margin:0 auto}.mh-root .mh-task-nav{display:flex;align-items:center;justify-content:space-between;gap:10px;color:#735b3e;font-weight:800;font-size:13px}
+.mh-root .mh-companion{display:flex;align-items:center;gap:15px;background:#eee3c8;border:1px solid #d6c29b;border-radius:18px;margin:13px 0;padding:5px 13px}
+.mh-root .mh-companion .mh-fox{width:67px;height:73px}.mh-root .mh-step{font-weight:900;color:#765c39;font-size:12px;margin:11px 0}
+.mh-root .mh-paper{background:linear-gradient(165deg,#fffefa,#fff5dd);border:2px solid #d2b88c;border-radius:24px;padding:clamp(14px,3vw,25px);box-shadow:0 6px 0 #bfa47c}
+.mh-root .mh-paper .mh-heading{font-size:clamp(22px,3.4vw,31px);margin-bottom:18px}
+.mh-root .mh-visual{background:#f0e9d5;border-radius:15px;min-height:73px;display:flex;align-items:center;
+ justify-content:center;font-size:clamp(23px,4vw,37px);font-weight:900;letter-spacing:.10em;color:#4e705f;white-space:nowrap}
+.mh-root .mh-options{display:grid;gap:10px;margin-top:17px}
+.mh-root .mh-option{border:2px solid #d9c29f;background:#fff9ed;border-radius:16px;padding:10px 14px;
+ min-height:52px;text-align:left;font-weight:850;color:#4a3825;display:flex;align-items:center;gap:11px}
+.mh-root .mh-option-marker{border-radius:10px;background:#e1e9d7;min-width:35px;height:35px;display:grid;place-items:center}
+.mh-root .mh-option.mh-right{border-color:#44826b;background:#dbeddf}.mh-root .mh-option:disabled{opacity:1;cursor:default}
+.mh-root .mh-read{border:1px solid #c6a77f;background:#fbebcc;border-radius:13px;min-height:44px;
+ padding:8px 16px;color:#725338;font-weight:800;margin-top:13px}
+.mh-root .mh-feedback{padding:14px;border:1px solid #88aa95;background:#e9f3e9;border-radius:16px;margin-top:15px}
+.mh-root .mh-feedback strong{display:block;margin-bottom:4px;color:#3a6b57}.mh-root .mh-feedback p{font-size:13px}
+.mh-root .mh-mirror-instructions{color:#715d42;font-size:13px;margin:0 0 12px}
+.mh-root .mh-mirror-board{width:min(100%,290px);aspect-ratio:1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+ grid-template-rows:repeat(4,minmax(0,1fr));gap:5px;padding:7px;margin:0 auto;border:3px solid #b5a585;border-radius:17px;background:#e9e0c8}
+.mh-root .mh-cell{border-radius:10px;border:2px solid #d4c29c;background:#fff5df;min-width:0;min-height:0}
+.mh-root .mh-cell-left{display:block}.mh-root .mh-cell-right{cursor:pointer}
+.mh-root .mh-cell.mh-lit{background:linear-gradient(140deg,#6ea194,#397568);border-color:#34695d}
+.mh-root .mh-cell.mh-divider{border-left:4px solid #a87c55}.mh-root .mh-result{max-width:520px;margin:20px auto;text-align:center}
+.mh-root .mh-result .mh-fox{display:block;margin:20px auto}.mh-root .mh-result-symbol{font-size:62px;color:#ba9853}
+@media(max-width:520px){
+ .mh-root .mh-places{grid-template-columns:1fr}.mh-root .mh-main{padding:14px}
+ .mh-root .mh-place{min-height:68px;padding:8px 11px}.mh-root .mh-place-symbol{min-width:39px;height:39px}
+ .mh-root .mh-intro-header .mh-fox{width:75px;height:88px}
+ .mh-root .mh-landscape{height:155px}.mh-root .mh-development{font-size:10px;letter-spacing:0}
+ .mh-root .mh-companion{margin:8px 0}.mh-root .mh-paper{padding:14px}
+ .mh-root .mh-mirror-board{width:min(100%,250px)}
+}
+@media(min-width:640px) and (max-height:480px) and (orientation:landscape){
+ .mh-root .mh-landscape{height:100px}.mh-root .mh-intro-header .mh-fox{height:64px}
+ .mh-root .mh-companion{margin:5px 0;padding:0 10px}.mh-root .mh-companion .mh-fox{height:49px}
+ .mh-root .mh-main{padding:12px 18px}
+}
+@media(prefers-reduced-motion:reduce){.mh-root *{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
