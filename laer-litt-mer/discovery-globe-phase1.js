@@ -685,6 +685,18 @@ function discoveryDraw(){
   screen.dataset.discoveryGlobeLevel=String(level);screen.dataset.discoveryGlobe='landscapes-v2';
   canvas.dataset.discoveryRenderer='live';canvas.dataset.discoveryTerrainField=String(fieldCount);canvas.dataset.discoveryEcosystems=String(biomeCount);canvas.dataset.discoveryRelief=String(reliefCount);canvas.dataset.discoveryTexture=String(textureCount);canvas.dataset.discoveryLandmarks=String(landmarkCount+terrainCount+reliefCount+textureCount+seaCount+biomeCount+fieldCount);canvas.dataset.discoveryMoving=String(moving);
   canvas.dataset.discoveryPaintCount=String(Number(canvas.dataset.discoveryPaintCount||0)+1);
+  // v25 can still seed the old Tsjad showcase after selecting Oppdag.
+  // Reconcile after the card update has completed, not inside its draw call.
+  if(globeSelected)scheduleVisibleCountryReconciliation();
+}
+let pendingCountryReconciliation=false;
+function scheduleVisibleCountryReconciliation(){
+  if(pendingCountryReconciliation)return;
+  pendingCountryReconciliation=true;
+  requestAnimationFrame(()=>{
+    pendingCountryReconciliation=false;
+    clearOffscreenDiscoverySelection();
+  });
 }
 
 /* The status card should describe a country the child can actually see.
