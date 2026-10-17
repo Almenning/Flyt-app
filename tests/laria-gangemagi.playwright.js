@@ -40,7 +40,7 @@ async function check(engine,label,viewport,url){
   assert.ok(first.crate.top>=0&&first.crate.bottom<=first.height,label+' interactive crates not in the first viewport '+JSON.stringify(first));
   assert.ok(first.math.top<first.height,label+' mathematical feedback invisible '+JSON.stringify(first));
   assert.ok(first.read.height>=44,label+' read aloud target too small');
-  if(viewport.height>=750)assert.ok(first.source.bottom<=first.height+3,label+' source action should be in the first viewport '+JSON.stringify(first));
+  if(viewport.height>=750||viewport.width<=360)assert.ok(first.source.bottom<=first.height+3,label+' primary Plukk action must be visible without scrolling '+JSON.stringify(first));
   await shot(page,label+'-01-first-look');
   await page.locator('[data-gm-action="basket"][data-gm-basket="0"]').click();
   await page.locator('[data-gm-action="basket"][data-gm-basket="0"]').click();
@@ -71,7 +71,7 @@ async function check(engine,label,viewport,url){
       nextBottom:r('.gm-actions-complete .gm-next').bottom};
   });
   assert.equal(celebrationOverlap.overlap,false,label+' celebration must not cover the personal fox '+JSON.stringify(celebrationOverlap));
-  if(viewport.height>=750)assert.ok(celebrationOverlap.nextBottom<=viewport.height+3,label+' next action missing from first fold '+JSON.stringify(celebrationOverlap));
+  if(viewport.height>=750||viewport.width<=360)assert.ok(celebrationOverlap.nextBottom<=viewport.height+3,label+' completed-child next action missing from first fold '+JSON.stringify(celebrationOverlap));
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).wins.length,1);
   await page.locator('[data-gm-action="undo"]').click();
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).wins.length,1,'earned blossom survives undo');
