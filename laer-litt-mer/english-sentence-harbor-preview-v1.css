@@ -78,7 +78,7 @@
  * a two-ID :not(#subject-journey-section) selector. Deliberately allow ONLY
  * the developer-gated chapter launcher to appear over the locked original.
  * This keeps every ordinary legacy module invisible. */
-#subject-screen.active.locked-journey-active > .sh-dev-launch:not(#subject-journey-section){
+#subject-screen.active.locked-journey-active.locked-journey-subject-english > .sh-dev-launch:not(#subject-journey-section){
   display:inline-flex!important;
   align-items:center;justify-content:center;
 }
