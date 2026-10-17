@@ -131,6 +131,15 @@ async function verifyOffscreenCountryCard(page,label){
   await page.waitForTimeout(180);
   assert.equal(await page.evaluate(()=>globeSelected),'td',label+' still-visible country was accidentally cleared');
   assert.match(await page.locator('#globe-status').innerText(),/Tsjad/,label+' still-visible country card disappeared');
+  await page.evaluate(()=>{
+    globeLon=28;globeLat=61;globeSelected=null;setGlobeZoom(2.0);
+    selectGlobeCountry('ru');
+  });
+  await page.waitForTimeout(250);
+  assert.equal(await page.evaluate(()=>globeSelected),'ru',
+    label+' Russia was incorrectly cleared although its European territory is visible');
+  assert.match(await page.locator('#globe-status').innerText(),/Russland/,
+    label+' visible large-country card disappeared');
 }
 async function verifyPointerDrag(page,label,isDiscovery){
  await page.evaluate(()=>{
