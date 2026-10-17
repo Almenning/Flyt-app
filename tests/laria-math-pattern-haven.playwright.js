@@ -150,8 +150,13 @@ async function run(type,label,viewport){
          label+' painted stop labels overlap: '+a.id+', '+b.id);
      }
    await photo(page,label+'-painted-map-candidate');
-   await page.locator('[data-mh-act="stage"][data-mh-stage="formstien"]').click();
+   // The new recommended-start CTA and the first map stop intentionally launch
+   // the same stage. Verify the CTA explicitly rather than using an ambiguous
+   // selector that matches both buttons.
+   await quickStart.click();
    assert.equal(await page.locator('.mh-option').count(),3,'painted map must open a real learning activity');
+   const started=await page.evaluate(()=>window.LARIA_MATH_PATTERN_HAVEN.resume(state));
+   assert.equal(started?.stage.id,'formstien',label+' quick-start launched the wrong story stop');
    await page.locator('[data-mh-act="close"]').click();
    await page.goto(url+'&math-chapter2-preview=1',{waitUntil:'domcontentloaded'});
    await enter(page);
