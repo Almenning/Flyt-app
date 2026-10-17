@@ -1398,3 +1398,7 @@
   }
   .word-hunt-companion-controls button{flex:1 1 85px;min-height:44px}
 }
+
+/* Premium reduction: the fox is the sole idle guide.
+   Keep the separate status visible only for attempts, found words, and rewards. */
+.word-hunt-status.is-quiet{display:none!important}
