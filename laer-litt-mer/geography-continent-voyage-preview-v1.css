@@ -225,3 +225,21 @@
 }
 .cv-root .cv-story-rail .cv-quick-start:focus-visible{outline:3px solid #247b7e;outline-offset:3px}
 .cv-root .cv-story-rail .cv-quick-start:active{transform:translateY(2px);box-shadow:0 2px 0 #ad8759}
+
+/* Place the personal fox and child-first action above the full-height map on
+ * phones, while retaining the illustrated map with all five independent stops. */
+.cv-root .cv-story-hero{grid-column:2;grid-row:1;display:flex;flex-direction:column;gap:12px;min-width:0}
+.cv-root .cv-story-layout>.cv-story-map{grid-column:1;grid-row:1 / span 2}
+.cv-root .cv-story-layout>.cv-story-rail{grid-column:2;grid-row:2}
+.cv-root .cv-story-hero .cv-continue,.cv-root .cv-story-hero .cv-primary{margin:0}
+.cv-root .cv-story-hero .cv-quick-start{display:block;width:100%;min-height:50px;margin:0;padding:12px 14px;border:2px solid #987153;border-radius:15px;background:linear-gradient(160deg,#ffefc8,#e8ba7c);box-shadow:0 4px 0 #b68e5b;color:#523e2d;text-align:center;font:900 15px ui-rounded,system-ui;line-height:1.2;touch-action:manipulation}
+.cv-root .cv-story-hero .cv-quick-start:focus-visible{outline:3px solid #277d83;outline-offset:3px}
+@media(max-width:720px){
+ .cv-root .cv-story-layout>.cv-story-hero{grid-column:1;grid-row:1;gap:9px}
+ .cv-root .cv-story-layout>.cv-story-map{grid-column:1;grid-row:2}
+ .cv-root .cv-story-layout>.cv-story-rail{grid-column:1;grid-row:3}
+ .cv-root .cv-story-hero .cv-story-fox{min-height:0;padding:7px 11px}
+ .cv-root .cv-story-hero .cv-story-fox .cv-fox{height:61px;width:63px}
+ .cv-root .cv-story-hero .cv-story-fox p{font-size:13px;line-height:1.25}
+ .cv-root .cv-story-hero .cv-quick-start{min-height:48px;padding:10px 12px}
+}
