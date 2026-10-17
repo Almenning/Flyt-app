@@ -69,3 +69,35 @@
 - Ingen endringer i geografiske data, landvalg, ordinær globus, andre fag eller lagret progresjon. Ingen sammenslåing eller publisering.
 - **Verifisering gjenstår:** GitHub Actions/WebKit må fullføre for commit `68218b25c68d8f724f9149baf9ce40e08499829f`; sammenlign tilhørende artefakt visuelt med de låste referansene før fase 1 eventuelt kan godkjennes. De nye tegningene er ikke påstått fysisk enhetstest.
 - **Neste konkret:** Vurder faktisk WebKit-bilde ved verden, Europa, Norge, Japan og Brasil; forbedre illustrasjonens premiumdybde og sjekk at små land fortsatt er klikkbare. Ikke integrer visningsbryteren før godkjenning.
+
+
+## SuperKlode chat1: viderefort arbeidsokt 17. oktober 2026
+
+**Arbeidsstatus:** Fase 1 visuell prototype pa egen gren; draft-PR #172; ingen integrasjon eller publisering.
+
+### Gjennomfort pa aktiv gren
+
+- Oppdagelsesglobusen bruker eksisterende geometri, input og progresjon, men har eget tegnelag som bare aktiveres med forhåndsvisningsflagget.
+- Varm naturpalett, flere geografisk forankrede fjell-, skog-, sand- og naturmarkorer, narzoomdetaljer i Norge, Japan og Brasil, samt deterministisk geografisk tekstur som kommer frem ved zoom.
+- Markering av valgt land er dempet slik at den ikke skjuler landskapene. Fjernet misvisende, sammenhengende skogstriper mellom regioner.
+- La til stiliserte, geografisk forankrede elvelop for Amazonas og Nilen. Landgeometrien er fortsatt fasit.
+- Rettet tre konkrete feil: (a) gjentatt unodvendig tegning i inaktiv forhåndsvisning, (b) klassisk v25-tegner som gjennom callback overmalte prototypen, og (c) window.globeZoom som var udefinert fordi globeZoom er en toppnivavariabel, og dermed ga NaN i WebKit Canvas.
+- Ny Playwright-QA dekker ordinær og illustrert globus, faktisk muse-/pekerdrag, gjenoppretting av detaljer, tegnestabilitet i hvile, projeksjonsretur, landtreff Norge/Japan/Brasil og visuell forskjell pa canvas.
+- Testet med WebKit iPhone staende/liggende og iPad staende/liggende, samt Chromium iPad liggende. Dette er nettleserskjermstorrelser, ikke fysiske Apple-enheter.
+- Egen GitHub Actions-jobb kjorer pa relevante pushes til utviklingsgrenen. Statisk kontroll krever UTF-8-etiketter, ikke gamle fargekoder.
+
+### Reproduserbar teststatus
+
+- Actions #39049185273: bestatt ved commit c2db52c.
+- Actions #39049853428: bestatt ved commit a407f4b med faktisk pekerdrag og kontroll av idle-tegning.
+- Actions #39049952229: bestatt ved commit b75c9a7 med fjernede skogstriper.
+- Actions #39050110079: bestatt ved commit ec799bf4d2028b940f9c935bb60dc45401d1f0c5 med geografiske narzoomdetaljer. Bildedokumentasjon i artifact 12107915134.
+- Bildene dokumenterer visuelt forskjellig oppdagelsesvisning og intakt ordinær globus. Testene er ikke i seg selv en godkjenning av premiumkvalitet.
+
+### Apen risiko og neste steg
+
+1. Gjennomga faktiske sammenligningsbilder for verden, Europa, Norge, Japan og Brasil opp mot laste referanseillustrasjoner. Fase 1 er ikke visuelt godkjent.
+2. Forbedre storre fjellkjeder, fjorder, skog og regionale detaljer etter vurdering uten feilplassert kartdekor.
+3. Test pa fysiske iPad/iPhone Safari for publisering, og sma land og oyer utover dagens tre karttreff.
+4. Arbeidsgrenen avviker fra gjeldende main og krever oppdaterings-/konfliktvurdering for senere fletting.
+5. IKKE integrer permanent "Enkel | Oppdag"-bryter, flett til main eller publiser uten uttrykkelig godkjenning.
