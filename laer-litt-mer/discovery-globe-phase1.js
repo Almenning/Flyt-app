@@ -229,8 +229,8 @@ const terrainSamples=(features,step)=>features.flatMap((feature,z)=>{
   if(points.length)pts.push({lon:points[points.length-1][0],lat:points[points.length-1][1],width:feature.width,kind:feature.type||'ridge',snow:feature.snow||false,group:z});
   return pts;
 });
-const terrainBiomeAnchors=terrainSamples(landscapeZones,6);
-const terrainRidgeAnchors=terrainSamples(mountainChains,4.8);
+let terrainBiomeAnchors=null;
+let terrainRidgeAnchors=null;
 const terrainTint={
   rainforest:[33,100,67],forest:[61,117,79],desert:[223,183,115],
   savanna:[154,156,91],tundra:[166,182,163],ice:[215,236,232]
@@ -261,6 +261,8 @@ function nearestTerrain(lon,lat,samples){
 let terrainFieldCache=null;
 function paintWorldTerrain(ctx,w,h,s,level,moving){
   if(moving||typeof globeInverse!=='function')return 0;
+  if(!terrainBiomeAnchors)terrainBiomeAnchors=terrainSamples(landscapeZones,6);
+  if(!terrainRidgeAnchors)terrainRidgeAnchors=terrainSamples(mountainChains,4.8);
   const key=[Math.round(globeLon*200)/200,Math.round(globeLat*200)/200,
     Math.round(globeZoom*200)/200,Math.round(s),level].join('|');
   if(!terrainFieldCache||terrainFieldCache.key!==key){
