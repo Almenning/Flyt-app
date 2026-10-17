@@ -61,6 +61,17 @@ async function check(engine,label,viewport,url){
   }
   assert.equal((await page.locator('.gm-math-equation').innerText()).trim(),'3 × 3 = 9');
   assert.match(await page.locator('.gm-celebration').innerText(),/Oppdraget er klart/);
+  assert.equal(await page.locator('.gm-pick').count(),0,'completed tasks must not leave a disabled fruit button');
+  assert.equal(await page.locator('.gm-actions-complete .gm-next').count(),1,'one clear next action');
+  const celebrationOverlap=await page.evaluate(()=>{
+    const r=s=>document.querySelector(s).getBoundingClientRect();
+    const a=r('.gm-celebration'),b=r('.gm-fox-bubble');
+    return {overlap:a.left<b.right&&a.right>b.left&&a.top<b.bottom&&a.bottom>b.top,
+      celebrationTop:a.top,foxBottom:b.bottom,viewportHeight:innerHeight,
+      nextBottom:r('.gm-actions-complete .gm-next').bottom};
+  });
+  assert.equal(celebrationOverlap.overlap,false,label+' celebration must not cover the personal fox '+JSON.stringify(celebrationOverlap));
+  if(viewport.height>=750)assert.ok(celebrationOverlap.nextBottom<=viewport.height+3,label+' next action missing from first fold '+JSON.stringify(celebrationOverlap));
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).wins.length,1);
   await page.locator('[data-gm-action="undo"]').click();
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).wins.length,1,'earned blossom survives undo');
