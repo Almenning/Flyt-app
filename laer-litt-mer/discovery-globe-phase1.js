@@ -248,15 +248,20 @@ function terrainNoise(lon,lat,scale,seed){
   const d=terrainHash(ix,iy+1,seed),e=terrainHash(ix+1,iy+1,seed);
   return ((a+(b-a)*sx)+(d+(e-d)*sx-a-(b-a)*sx)*sy);
 }
-function nearestTerrain(lon,lat,samples){
-  let found=null,best=Infinity;
+function nearestTerrain(lon,lat,samples,limit){
+  // Nothing beyond the local corridor radius affects the brush colour or
+  // relief, so ignore far-away coordinates before expensive wrap maths.
+  let found=null,best=limit*limit;
   const xscale=Math.max(.28,Math.cos(lat*terrainDegree));
   for(const p of samples){
-    const dx=((((lon-p.lon)+540)%360)-180)*xscale,dy=lat-p.lat;
+    const dy=lat-p.lat;
+    if(Math.abs(dy)>=limit)continue;
+    const dx=((((lon-p.lon)+540)%360)-180)*xscale;
+    if(Math.abs(dx)>=limit)continue;
     const distance=dx*dx+dy*dy;
     if(distance<best){best=distance;found=p;}
   }
-  return {point:found,distance:Math.sqrt(best)};
+  return {point:found,distance:found?Math.sqrt(best):Infinity};
 }
 let terrainFieldCache=null;
 function paintWorldTerrain(ctx,w,h,s,level,moving){
@@ -266,7 +271,8 @@ function paintWorldTerrain(ctx,w,h,s,level,moving){
   const key=[Math.round(globeLon*200)/200,Math.round(globeLat*200)/200,
     Math.round(globeZoom*200)/200,Math.round(s),level].join('|');
   if(!terrainFieldCache||terrainFieldCache.key!==key){
-    const pixels=level===1?144:level===2?200:248;
+    const pixels=level===1?128:level===2?172:208;
+    const startedAt=performance.now();
     const surface=document.createElement('canvas');
     surface.width=pixels;surface.height=pixels;
     const off=surface.getContext('2d');
@@ -282,8 +288,8 @@ function paintWorldTerrain(ctx,w,h,s,level,moving){
         const loc=globeInverse(sx,sy);
         if(!loc||!Number.isFinite(loc.lon)||!Number.isFinite(loc.lat))continue;
         const lon=loc.lon,lat=loc.lat;
-        const biome=nearestTerrain(lon,lat,terrainBiomeAnchors);
-        const ridge=nearestTerrain(lon,lat,terrainRidgeAnchors);
+        const biome=nearestTerrain(lon,lat,terrainBiomeAnchors,19);
+        const ridge=nearestTerrain(lon,lat,terrainRidgeAnchors,6);
         const bp=biome.point,rp=ridge.point;
         const warmth=terrainNoise(lon,lat,.18,2)-.5;
         const fine=terrainNoise(lon,lat,level===1?.48:.96,7)-.5;
@@ -319,12 +325,14 @@ function paintWorldTerrain(ctx,w,h,s,level,moving){
       }
     }
     off.putImageData(img,0,0);
-    terrainFieldCache={key,surface};
+    terrainFieldCache={key,surface,ms:performance.now()-startedAt};
   }
   ctx.save();
   if(landClip(ctx,w,h)){
     ctx.imageSmoothingEnabled=true;
     ctx.drawImage(terrainFieldCache.surface,(w-s)/2,(h-s)/2,s,s);
+    const canvas=document.getElementById('globe-canvas');
+    if(canvas)canvas.dataset.discoveryTerrainMs=String(Math.round(terrainFieldCache.ms));
     ctx.restore();return 1;
   }
   ctx.restore();return 0;
