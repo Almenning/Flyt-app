@@ -52,6 +52,30 @@ async function verify(type,label,viewport){
    await enter(page);
    const viewportResult=await page.locator('#laria-english-sentence-harbor-preview').evaluate(el=>({scrollWidth:el.scrollWidth,width:el.clientWidth}));
    assert.ok(viewportResult.scrollWidth<=viewportResult.width+2,label+' overflow in port');
+   const map=page.locator('.sh-story-map');
+   await map.waitFor({state:'visible'});
+   const geometry=await map.evaluate(el=>{
+     const r=el.getBoundingClientRect(),img=el.querySelector('.sh-map-art');
+     return {width:r.width,height:r.height,loaded:img.complete&&img.naturalWidth>0,
+       file:img.getAttribute('src'),
+       stops:[...el.querySelectorAll('button[data-sh-act="stage"]')].map(button=>{
+         const b=button.getBoundingClientRect();return {x:b.x-r.x,y:b.y-r.y,w:b.width,h:b.height};
+       })};
+   });
+   assert.equal(geometry.file,'./english-sentence-harbor-storymap-v1.svg');
+   assert.equal(geometry.loaded,true,label+' harbor illustration did not load');
+   assert.ok(geometry.height>geometry.width,label+' harbor should be tall');
+   assert.equal(geometry.stops.length,5);
+   for(const stop of geometry.stops){
+     assert.ok(stop.w>=44&&stop.h>=44,label+' stop not touch-friendly');
+     assert.ok(stop.x>=-2&&stop.y>=-2&&stop.x+stop.w<=geometry.width+2&&stop.y+stop.h<=geometry.height+2,
+       label+' harbor stage is clipped');
+   }
+   for(let i=0;i<geometry.stops.length;i++)for(let j=i+1;j<geometry.stops.length;j++){
+     const a=geometry.stops[i],b=geometry.stops[j];
+     assert.ok(a.x+a.w<=b.x+1||b.x+b.w<=a.x+1||a.y+a.h<=b.y+1||b.y+b.h<=a.y+1,
+       label+' harbor labels overlap');
+   }
    await photo(page,label+'-harbor');
    await page.locator('[data-sh-act="stage"][data-sh-stage="setningsverkstedet"]').click();
    let s=await page.evaluate(()=>window.LARIA_ENGLISH_SENTENCE_HARBOR.resume(state));
