@@ -9,7 +9,7 @@
 })(typeof window!=='undefined'?window:globalThis,function(){
  'use strict';
  const CHAPTER=Object.freeze({id:'setningshavna-2',subject:'english',grade:2,number:2,
-   title:'Setningshavna',published:true,artApproved:true});
+   title:'Setningshavna',published:false,artApproved:false});
  const KEY='english:2:setningshavna-2';
  const STAGES=Object.freeze([
    {id:'hilsenkaia',title:'Hilsenkaia',focus:'Hils, presenter deg og si ha det',symbol:'☀'},
