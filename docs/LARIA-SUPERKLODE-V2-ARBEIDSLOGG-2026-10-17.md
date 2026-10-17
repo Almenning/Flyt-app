@@ -57,3 +57,13 @@ Innhent og inspiser bildene fra den oppdaterte WebKit-kjøringen. Forbedre event
 1. Kontroller grønt resultat fra QA på siste testcommit `6d21f3a` og at iPad/iPhone-skjermbildene ikke har ny overlapp eller feil undertittel.
 2. Vurder målrettet mer sammenhengende vegetasjon og landskapsmaterialer uten overdekorering; skill visuelt mellom fjell, skog og ørken også i mellomzoom.
 3. Før eventuelt senere publisering: oppdater gren mot gjeldende `main`, håndter avhengigheten til PR #178 og sammenlign mot låste referanseillustrasjoner. Brukerens godkjenning for visuell premium er fortsatt nødvendig.
+
+## SuperKlode v3 – kontinuerlig terreng, bedre visuell kvalitet og feilretting
+
+- Geografisk, cachet terrengraster på landflatene, avledet fra eksisterende globeInverse og verifiserte lon/lat-ruter for 27 biomer og 18 fjellkjeder. Dette er stilisert illustrasjon, ikke et faktisk globalt høyde- eller vegetasjonsdatasett.
+- To visuelle iterasjoner gjennomført. Første shader ble for subtil; korrigert canopy-kontrast gir klart tettere regnskog og tydeligere fjellmassiver på WebKit iPad-bilder.
+- Tidligere WebKit-test #39060983731 viste terrengberegninger vanligvis 40–200 ms, med noen større verdier. Terrengbufferen caches og beregnes ikke i hver stillestående frame.
+- Årsaken til Tsjad-kortet ble funnet i eldre v25 `seed()`: Tsjad velges automatisk uten å snu kloden dit. Den nye Oppdag-rendereren kontrollerer synlig land etter tegning, men bevarer store land når synlige deler av polygonet fortsatt er innenfor globusen.
+- Tester omfatter normal omtegning med Tsjad bak horisonten, Tsjad som er synlig, Russland med synlig europeisk polygon, landskapsfeltet, trykk, drag, zoom og bytte mellom Enkel/Oppdag.
+- Nyeste `main` er inkludert uten å bytte ut annen utvikling. PWA-versjon er økt så Safari laster det nye JavaScript-feltet.
+- **Release-gate:** Ingen publisering før siste eksakte PR-head WebKit, generell smoke, kontroll av landskapsbilder og vellykket GitHub Pages-deploy.
