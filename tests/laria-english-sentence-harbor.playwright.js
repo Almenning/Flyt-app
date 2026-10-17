@@ -228,6 +228,20 @@ async function verify(type,label,viewport){
      await photo(page,label+'-art-v2-candidate');
      await stops.first().click();
      assert.ok(await page.locator('.sh-task').count(),label+' candidate map failed to launch playable chapter task');
+     // Force a missing art resource. The five playable map stops must survive.
+     await page.route('**/english-sentence-harbor-art-candidate-v2.svg',route=>route.abort('failed'));
+     await page.goto(base+'&english-chapter2-preview=1&english-chapter2-art-v2=1',{waitUntil:'domcontentloaded'});
+     await enter(page);
+     await page.waitForFunction(()=>{
+       const img=document.querySelector('.sh-map-art');
+       return !!img&&img.getAttribute('data-sh-art-variant')==='fallback-v1'&&img.complete&&img.naturalWidth===800;
+     },null,{timeout:20000});
+     assert.equal(await page.locator('.sh-story-map [data-sh-act="stage"]').count(),5,
+       label+' fallback must retain all five independently playable places');
+     await photo(page,label+'-art-v2-fallback');
+     await page.locator('.sh-story-map [data-sh-act="stage"]').first().click();
+     assert.ok(await page.locator('.sh-task').count(),
+       label+' broken optional art must never prevent opening the adventure');
    }
    assert.deepEqual(errors,[],label+' runtime exception');
    await ctx.close();
