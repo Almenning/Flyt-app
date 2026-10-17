@@ -215,26 +215,90 @@
  border:1px solid #cb9e62;border-radius:20px;background:#f5d7a4;color:#8a623f;font:900 9px Georgia,serif;letter-spacing:.08em}
 #bc12-dialog .lmc-mission strong{color:#5e3c29;font:900 14px/1.09 Georgia,serif}
 #bc12-dialog .lmc-mission small{color:#826044;font:650 11px/1.1 Georgia,serif}
-#bc12-dialog .lmc-place-scene{position:relative;display:flex;flex-direction:column;justify-content:flex-end;
- min-height:278px;margin-top:auto;overflow:hidden;border:5px solid #fff2d0;border-radius:22px;
- background:linear-gradient(#a6d5c2,#d7eac1 46%,#88b08d 47%,#628d76);
- box-shadow:0 6px 0 #b4976a,0 0 0 2px #d1ab78}
-#bc12-dialog .lmc-place-sky{position:absolute;left:8%;top:8%;width:62px;height:62px;
- border-radius:50%;background:#fff2af;filter:blur(2px);box-shadow:0 0 28px #ffedb0}
-#bc12-dialog .lmc-place-hill{position:absolute;left:-5%;right:-5%;bottom:18%;height:35%;border-radius:50% 50% 0 0;
- background:linear-gradient(#8aad73,#61936b)}
-#bc12-dialog .lmc-place-arch{position:absolute;top:13%;left:50%;transform:translateX(-50%);
- color:#fff0b1;font-size:70px;text-shadow:0 0 12px #fff5a8}
-#bc12-dialog .lmc-display-shelf{position:relative;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
- gap:10px;align-items:end;padding:0 16px 24px}
-#bc12-dialog .lmc-display-slot{display:flex;flex-direction:column;align-items:center;justify-content:center;
- gap:7px;min-width:0;min-height:101px;padding:8px 6px;border:3px solid #e9d0a2;border-bottom:8px solid #9b6e48;
- border-radius:17px 17px 7px 7px;background:#fff1d8d9;color:#64482d;
- box-shadow:0 8px 0 #654f3694;cursor:pointer}
-#bc12-dialog .lmc-display-slot[aria-pressed='true']{border-color:#e9f4b7;outline:3px solid #5e916d;outline-offset:1px}
-#bc12-dialog .lmc-display-slot>span{height:49px;width:49px;display:grid;place-items:center;font-size:34px;color:#a1855a}
-#bc12-dialog .lmc-display-slot svg{width:48px;height:48px}
-#bc12-dialog .lmc-display-slot small{font:850 10px/1.13 Georgia,serif}
+/* Personal adventure place: reuse Læria's existing approved Basecamp painting.
+ * Objects remain accessible native buttons, not click regions on a flat image. */
+#bc12-dialog .lmc-place-scene{
+ position:relative;isolation:isolate;display:flex;flex-direction:column;justify-content:flex-end;
+ min-height:316px;margin-top:auto;overflow:hidden;
+ border:5px solid #fff2d0;border-radius:22px;
+ background:linear-gradient(180deg,#fff8db19 0%,#496b5230 48%,#20392fb0 100%),
+   url('./basecamp-v11.webp') center 57%/cover no-repeat #749e8e;
+ box-shadow:0 6px 0 #b4976a,0 0 0 2px #d1ab78,inset 0 0 0 1px #fffad9a8;
+}
+#bc12-dialog .lmc-place-scene:before{
+ content:'';position:absolute;z-index:1;inset:0;pointer-events:none;
+ background:radial-gradient(ellipse at 50% 28%,transparent 16%,#173b2833 100%);
+}
+#bc12-dialog .lmc-place-sky{display:none}
+#bc12-dialog .lmc-place-hill{
+ position:absolute;z-index:1;left:-5%;right:-5%;bottom:-27px;height:37%;
+ border-radius:44% 44% 7px 7px / 32% 32% 7px 7px;
+ background:linear-gradient(180deg,#72986c77,#264f3dbb 65%,#244431df);
+ box-shadow:inset 0 6px 0 #d3d79729
+}
+#bc12-dialog .lmc-place-arch{
+ position:absolute;top:25%;left:50%;z-index:2;transform:translateX(-50%);
+ color:#fff3ac;font:800 48px Georgia,serif;text-shadow:0 0 12px #fffbd5,0 0 30px #ffeac3;
+ pointer-events:none
+}
+#bc12-dialog .lmc-place-sign{
+ position:absolute;top:13px;left:13px;z-index:4;
+ padding:6px 13px;border:2px solid #e4cc9c;border-radius:99px;
+ background:linear-gradient(135deg,#fff4d9f0,#e8c99deb);color:#684a33;
+ box-shadow:0 3px 0 #8b654796,0 4px 10px #233e3438;
+ font:900 10px/1.2 Georgia,serif;letter-spacing:.08em;text-shadow:0 1px #fff8e9;
+ pointer-events:none
+}
+#bc12-dialog .lmc-place-fox{
+ position:absolute;z-index:2;right:5%;bottom:108px;
+ display:grid;place-items:center;width:94px;height:137px;
+ filter:drop-shadow(0 8px 5px #163927b0);
+ pointer-events:none;animation:lmc-place-fox-bob 4.6s ease-in-out infinite
+}
+#bc12-dialog .lmc-place-fox svg{
+ display:block;width:100%;height:100%;overflow:visible
+}
+#bc12-dialog .lmc-display-shelf{
+ position:relative;z-index:3;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+ gap:10px;align-items:end;min-height:135px;padding:5px 14px 19px
+}
+#bc12-dialog .lmc-display-shelf:before{
+ content:'';position:absolute;z-index:0;left:6px;right:6px;bottom:12px;height:26px;
+ border:2px solid #ddb67a;border-radius:10px 10px 16px 16px;
+ background:linear-gradient(#ca9c63,#865531 52%,#583a25);
+ box-shadow:0 8px 0 #3a291a9e,0 12px 12px #19392d80;
+ pointer-events:none
+}
+#bc12-dialog .lmc-display-slot{
+ position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+ gap:7px;min-width:0;min-height:109px;padding:8px 6px;
+ border:3px solid #f7e0b2;border-bottom:9px solid #7a4e31;
+ border-radius:19px 19px 7px 7px;
+ background:linear-gradient(145deg,#fff9e5f5,#f1d49fee 76%,#d8b17aec);
+ color:#67432d;box-shadow:inset 0 2px 0 #fff9e9,0 7px 0 #4b3824c4,0 11px 11px #153b2b87;
+ transform:perspective(600px) rotateX(3deg);
+ cursor:pointer;touch-action:manipulation;
+ transition:transform .17s ease,box-shadow .17s ease,border-color .17s ease
+}
+#bc12-dialog .lmc-display-slot:hover{transform:translateY(-3px) perspective(600px) rotateX(2deg)}
+#bc12-dialog .lmc-display-slot[aria-pressed='true']{
+ border-color:#f4edb1;outline:3px solid #2e835e;outline-offset:2px;
+ box-shadow:inset 0 2px 0 #fff9e9,0 8px 0 #497a4fc9,0 12px 16px #dfffbb80
+}
+#bc12-dialog .lmc-display-slot>span{
+ height:54px;width:54px;display:grid;place-items:center;
+ font:34px Georgia,serif;color:#ab854e;filter:drop-shadow(0 3px 2px #73532a73)
+}
+#bc12-dialog .lmc-display-slot svg{width:51px;height:51px}
+#bc12-dialog .lmc-display-slot small{
+ color:#61422e;font:900 11px/1.13 Georgia,serif;
+ text-shadow:0 1px #fff9db
+}
+#bc12-dialog .lmc-live-status{
+ position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);
+ white-space:nowrap;clip-path:inset(50%);margin:0;padding:0;border:0
+}
+@keyframes lmc-place-fox-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
 #bc12-dialog .lmc-scene-choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
 #bc12-dialog .lmc-scene-choice{display:flex;align-items:center;flex-direction:column;gap:4px;
  min-height:118px;padding:9px 8px;border:2px solid #d8b17e;border-radius:15px;
@@ -322,7 +386,7 @@
  #bc12-dialog .lmc-mission-grid{gap:8px}
  #bc12-dialog .lmc-mission strong{font-size:13px}
  #bc12-dialog .lmc-display-shelf{padding:0 7px 17px;gap:5px}
- #bc12-dialog .lmc-display-slot{min-height:87px;padding:6px 2px}
+ #bc12-dialog .lmc-display-slot{min-height:94px;padding:6px 2px}
  #bc12-dialog .lmc-footer{grid-template-columns:1fr auto;gap:7px}
  #bc12-dialog .lmc-footer-copy{display:none}
  #bc12-dialog .lmc-page-arrows{gap:5px}
@@ -347,4 +411,4 @@
  #bc12-dialog .lmc-page-arrows{gap:3px}
  #bc12-dialog .lmc-footer button{padding:5px 7px;font-size:10px}
 }
-@media(prefers-reduced-motion:reduce){#bc12-dialog .lmc-fox{animation:none}#bc12-dialog .lmc-shell *{transition:none!important}}
+@media(prefers-reduced-motion:reduce){#bc12-dialog .lmc-fox,#bc12-dialog .lmc-place-fox{animation:none}#bc12-dialog .lmc-shell *{transition:none!important}}
