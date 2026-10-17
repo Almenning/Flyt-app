@@ -60,7 +60,7 @@ async function verify(type,label,viewport){
    await page.goto(base,{waitUntil:'domcontentloaded'});
    await english(page);
    assert.equal(await page.locator('[data-laria-english-chapter2-preview]').count(),0,'developer-only launcher must be hidden');
-   assert.equal(await page.locator('#laria-english-chapter2-entry').isVisible(),true,'English chapter-two must be available from the journey');
+   assert.equal(await page.locator('#laria-english-chapter2-entry').isVisible(),true,'English chapter-two must be available from the journey: '+JSON.stringify(await page.evaluate(()=>{const b=document.querySelector('#laria-english-chapter2-entry');return {grade:state?.profile?.grade,chapter:window.LARIA_ENGLISH_SENTENCE_HARBOR?.CHAPTER,hidden:b?.hidden,display:b&&getComputedStyle(b).display,rect:b?.getBoundingClientRect().toJSON(),parentDisplay:b?.parentElement&&getComputedStyle(b.parentElement).display};})));
    await page.goto(base,{waitUntil:'domcontentloaded'});
    await enter(page);
    assert.equal(await page.locator('.sh-map-art').getAttribute('data-sh-art-variant'),'production-v3',label+' published default must use painted art');
