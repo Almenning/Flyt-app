@@ -33,7 +33,7 @@
 }
 .gm-quest-progress strong{font-size:21px}
 .gm-quest-progress span{font-size:9px}
-.gm-quest-callout{
+.gm-story.gm-quest h2.gm-quest-callout{
   margin:8px auto 9px;max-width:970px;text-align:center;
   color:#583123;font-size:clamp(26px,3.35vw,40px);line-height:1.1;
   font-weight:1000;letter-spacing:-.048em;text-wrap:balance;
@@ -72,7 +72,7 @@
   .gm-story.gm-quest{margin-top:6px;padding:5px 16px 8px}
   .gm-quest-head{min-height:25px}
   .gm-quest-ribbon{font-size:15px;padding:4px 12px}
-  .gm-quest-callout{font-size:clamp(25px,3vw,34px);margin:3px auto 5px}
+  .gm-story.gm-quest h2.gm-quest-callout{font-size:clamp(25px,3vw,34px);margin:3px auto 5px}
   .gm-quest-steps{gap:5px}
   .gm-quest-step{min-height:46px;padding:4px 8px}
   .gm-quest-icon{height:30px}
@@ -96,7 +96,7 @@
   .gm-quest-progress{top:0;width:38px;height:33px;border-width:1px;border-radius:8px}
   .gm-quest-progress strong{font-size:14px}
   .gm-quest-progress span{font-size:8px}
-  .gm-quest-callout{font-size:clamp(21px,5.4vw,27px);line-height:1.06;margin:5px 0 7px;letter-spacing:-.04em}
+  .gm-story.gm-quest h2.gm-quest-callout{font-size:clamp(21px,5.4vw,27px);line-height:1.06;margin:5px 0 7px;letter-spacing:-.04em}
   .gm-quest-steps{grid-template-columns:minmax(0,1fr) 11px minmax(0,1fr) 11px minmax(0,1fr);gap:2px}
   .gm-quest-step{
     display:flex;flex-direction:column;justify-content:center;gap:1px;
@@ -126,7 +126,7 @@
   .gm-quest-progress{height:27px;width:30px;right:0;top:0}
   .gm-quest-progress strong{font-size:12px}
   .gm-quest-progress span{font-size:7px}
-  .gm-quest-callout{font-size:clamp(17px,5.4vw,20px);margin:2px 0 4px;line-height:1.02}
+  .gm-story.gm-quest h2.gm-quest-callout{font-size:clamp(17px,5.4vw,20px);margin:2px 0 4px;line-height:1.02}
   .gm-quest-step{min-height:29px;padding:2px 1px 1px;gap:0}
   .gm-quest-icon{height:15px}
   .gm-quest-icon>svg{height:15px;width:24px}
