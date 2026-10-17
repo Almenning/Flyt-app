@@ -1,8 +1,8 @@
 /* Optional classic globe paint layer. The geography mode bar remains separate. */
 #globe-view-toggle{display:none}
 #world-screen.active[data-map-perspective="globe"] #globe-view-toggle{
-  position:absolute;top:calc(max(16px,env(safe-area-inset-top)) + 54px);
-  left:50%;transform:translateX(-50%);z-index:29;display:flex;
+  position:absolute;top:calc(max(16px,env(safe-area-inset-top)) + 118px);
+  left:50%;transform:translateX(-50%);z-index:42;display:flex;
   align-items:center;gap:3px;padding:4px;border:1px solid rgba(255,255,255,.92);
   border-radius:999px;background:rgba(251,250,242,.95);
   box-shadow:0 6px 20px rgba(33,64,88,.14);
@@ -21,9 +21,14 @@
 #globe-view-toggle button:focus-visible{
   outline:3px solid #F0A841;outline-offset:3px
 }
+@media(max-width:650px) and (min-height:501px){
+  #world-screen.active[data-map-perspective="globe"] #globe-view-toggle{
+    top:calc(max(12px,env(safe-area-inset-top)) + 150px)
+  }
+}
 @media(max-height:500px){
   #world-screen.active[data-map-perspective="globe"] #globe-view-toggle{
-    top:calc(max(8px,env(safe-area-inset-top)) + 48px);padding:2px
+    top:auto;bottom:78px;left:65%;z-index:42;padding:2px
   }
   #globe-view-toggle button{min-height:38px;padding:5px 11px;min-width:72px}
 }
