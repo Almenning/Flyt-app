@@ -42,7 +42,19 @@ async function run(engine,name,viewport,which){
   await launch(page,url+'&part=mult',which);
   await page.waitForFunction(()=>typeof window.openMultiplicationLab==='function');
   await page.evaluate(()=>window.openMultiplicationLab());
-  await match(page,'.mp-avatar img',which,name+' gangetabell header');
+  // The child's chosen full-body fox appears in the new game. Enter the
+  // retained classic mode before verifying its own older fox placements.
+  const companion=page.locator('#multiplication-lab-screen.active .gm-fox-art svg.laria-fox-wardrobe-art[data-avatar]');
+  await companion.waitFor({state:'visible'});
+  assert.equal(await companion.getAttribute('data-avatar'),which,name+' Gangemagi uses wrong personal fox');
+  assert.equal(await companion.getAttribute('data-fox-art'),which+'-fullbody-v1',name+' Gangemagi should display the original full-body fox');
+  const fullBodySource=await companion.locator('image').getAttribute('href');
+  const expectedSource=await page.evaluate(w=>window.LARIA_FOX.worldSource(w),which);
+  assert.equal(fullBodySource,expectedSource,name+' Gangemagi fox image must match user choice');
+  await page.screenshot({path:out+'/'+name+'-gangemagi.png',fullPage:true});
+  await page.locator('#multiplication-lab-screen.active [data-gm-action="classic"]').click();
+  await page.locator('#multiplication-lab-screen.active .mp-home-screen').waitFor();
+  await match(page,'.mp-avatar img',which,name+' classic gangetabell header');
   await match(page,'.mp-mascot img',which,name+' gangetabell guide');
   await match(page,'.mp-art-practice img',which,name+' gangetabell card');
   await page.locator('.mp-menu-explore').click();

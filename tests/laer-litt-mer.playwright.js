@@ -424,7 +424,11 @@ async function finishSession(page){
     await page.locator('.bc13-card[data-bc13-action="multiply"]').click();
     await page.locator('#multiplication-lab-screen.active').waitFor();
     assert.equal(await page.locator('#multiplication-lab-screen').getAttribute('data-explore-release'),'explore-rc1');
-    assert.equal(await page.locator('.mp-menu-explore').isVisible(),true);
+    assert.equal(await page.locator('.gm-shell').isVisible(),true,'Gangemagi should open first');
+    await page.locator('[data-gm-action="classic"]').click();
+    assert.equal(await page.locator('.mp-menu-explore').isVisible(),true,'The preserved 10x10 table should still open');
+    await page.locator('.gm-classic-return').click();
+    await page.locator('#multiplication-lab-screen.active .gm-shell').waitFor();
     await page.locator('#multiplication-lab-back').click();
     await page.locator('#home-screen.active .bc12').waitFor();
 
@@ -932,6 +936,8 @@ async function finishSession(page){
     if(lockedTallenga)await page.evaluate(()=>window.openMultiplicationLab());
     else await page.locator('#open-multiplication-lab').click();
     await page.locator('#multiplication-lab-screen.active').waitFor();
+    await page.locator('[data-gm-action="classic"]').click();
+    await page.locator('#multiplication-lab-screen.active .mp-home-screen').waitFor();
     assert.equal((await page.locator('.mp-heading h1').first().textContent()).trim(),'Gangetabellen');
     const multPortraitFit=await page.evaluate(()=>{
       const screen=document.querySelector('#multiplication-lab-screen');
