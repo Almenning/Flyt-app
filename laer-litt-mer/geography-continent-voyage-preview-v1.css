@@ -146,8 +146,8 @@
  * De ekte landgrensene og kontinentene vises fremdeles på Lærias globale klode.
  */
 .cv-root .cv-shell:has(.cv-story-layout){width:min(100%,1110px);max-width:1110px}
-.cv-root .cv-story-layout{display:grid;grid-template-columns:minmax(0,1.66fr) minmax(225px,.87fr);gap:24px;align-items:start;margin-top:14px}
-.cv-root .cv-story-map{position:relative;width:100%;min-width:0;aspect-ratio:800 / 1000;
+.cv-root .cv-story-layout{display:grid;grid-template-columns:minmax(0,1.66fr) minmax(225px,.87fr);grid-template-areas:"map hero" "map rail";gap:24px;align-items:start;margin-top:14px}
+.cv-root .cv-story-map{grid-area:map;position:relative;width:100%;min-width:0;aspect-ratio:800 / 1000;
  border:6px solid #d9bf94;border-radius:26px;overflow:hidden;background:#77b2b4;
  box-shadow:0 7px 0 #b99c79,inset 0 0 0 3px #fbebc9}
 .cv-root .cv-map-art{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;pointer-events:none;user-select:none}
@@ -164,8 +164,9 @@
  border-radius:50%;border:2px solid #b0865f;background:#f8e0b6;color:#5a4837;font-size:15px;flex:none}
 .cv-root .cv-story-map .cv-map-stop-name{display:block;overflow-wrap:break-word}
 .cv-root .cv-story-map .cv-map-stop .cv-chevron,.cv-root .cv-story-map .cv-map-stop small{display:none}
-.cv-root .cv-story-rail{display:flex;flex-direction:column;gap:13px;min-width:0;padding:5px 0}
+.cv-root .cv-story-rail{grid-area:rail;display:flex;flex-direction:column;gap:13px;min-width:0;padding:5px 0}
 .cv-root .cv-story-rail .cv-progress,.cv-root .cv-story-rail .cv-primary{margin:0}
+.cv-root .cv-story-hero{grid-area:hero;display:flex;flex-direction:column;gap:12px;min-width:0}
 .cv-root .cv-story-fox{display:flex;align-items:center;gap:10px;padding:12px;background:#e1e9de;
  border:2px solid #b8cba9;border-radius:18px;box-shadow:0 4px 0 #b9c9b0}
 .cv-root .cv-story-fox .cv-fox{width:clamp(67px,10vw,109px);height:clamp(82px,12vw,124px)}
@@ -175,13 +176,17 @@
 .cv-root .cv-story-guide p{font-size:13px;line-height:1.45}
 .cv-root .cv-story-rail .cv-note{font-size:11px;line-height:1.45;margin:0}
 @media(max-width:720px){
- .cv-root .cv-story-layout{grid-template-columns:minmax(0,1fr);gap:16px}
+ .cv-root .cv-story-layout{grid-template-columns:minmax(0,1fr);grid-template-areas:"hero" "map" "rail";gap:16px}
  .cv-root .cv-story-map{max-width:540px;margin-inline:auto}
  .cv-root .cv-story-rail{gap:11px;padding:0}
  .cv-root .cv-story-map .cv-map-stop{min-width:91px;min-height:44px;max-width:44%;font-size:clamp(11px,3vw,15px);
    gap:5px;padding:5px 7px}
  .cv-root .cv-story-map .cv-place-symbol{min-width:25px;width:25px;height:25px;font-size:13px}
- .cv-root .cv-story-fox{min-height:96px}
+ .cv-root .cv-story-hero{gap:9px}
+ .cv-root .cv-story-fox{min-height:0;padding:7px 11px}
+ .cv-root .cv-story-fox .cv-fox{height:61px;width:63px}
+ .cv-root .cv-story-fox p{font-size:13px;line-height:1.25}
+ .cv-root .cv-story-hero .cv-quick-start{min-height:48px;padding:10px 12px}
 }
 @media(max-width:365px){
  .cv-root .cv-story-map .cv-map-stop{min-width:0;max-width:46%;font-size:11px;padding:4px 5px;gap:3px}
@@ -214,32 +219,15 @@
  .cv-root .cv-task .cv-stamp{min-height:48px;padding:8px}
 }
 
-/* Child-first, voluntary next-stop invitation beside the personal fox. */
-.cv-root .cv-story-rail .cv-quick-start{
+/* The child's personal fox and voluntary next action share a first-screen
+ * entry. The full illustrated map and five tactile stops remain below/alongside. */
+.cv-root .cv-story-hero .cv-quick-start{
  display:block;width:100%;min-height:50px;margin:0;padding:12px 14px;
  border:2px solid #987153;border-radius:15px;
- background:linear-gradient(160deg,#fff0ca,#e7b77d);
- box-shadow:0 4px 0 #ad8759;
- color:#523b2b;text-align:center;font:900 15px ui-rounded,system-ui;
- line-height:1.2;touch-action:manipulation;
+ background:linear-gradient(160deg,#fff0ca,#e7b77d);box-shadow:0 4px 0 #ad8759;
+ color:#523b2b;text-align:center;font:900 15px ui-rounded,system-ui;line-height:1.2;
+ touch-action:manipulation
 }
-.cv-root .cv-story-rail .cv-quick-start:focus-visible{outline:3px solid #247b7e;outline-offset:3px}
-.cv-root .cv-story-rail .cv-quick-start:active{transform:translateY(2px);box-shadow:0 2px 0 #ad8759}
-
-/* Place the personal fox and child-first action above the full-height map on
- * phones, while retaining the illustrated map with all five independent stops. */
-.cv-root .cv-story-hero{grid-column:2;grid-row:1;display:flex;flex-direction:column;gap:12px;min-width:0}
-.cv-root .cv-story-layout>.cv-story-map{grid-column:1;grid-row:1 / span 2}
-.cv-root .cv-story-layout>.cv-story-rail{grid-column:2;grid-row:2}
-.cv-root .cv-story-hero .cv-continue,.cv-root .cv-story-hero .cv-primary{margin:0}
-.cv-root .cv-story-hero .cv-quick-start{display:block;width:100%;min-height:50px;margin:0;padding:12px 14px;border:2px solid #987153;border-radius:15px;background:linear-gradient(160deg,#ffefc8,#e8ba7c);box-shadow:0 4px 0 #b68e5b;color:#523e2d;text-align:center;font:900 15px ui-rounded,system-ui;line-height:1.2;touch-action:manipulation}
-.cv-root .cv-story-hero .cv-quick-start:focus-visible{outline:3px solid #277d83;outline-offset:3px}
-@media(max-width:720px){
- .cv-root .cv-story-layout>.cv-story-hero{grid-column:1;grid-row:1;gap:9px}
- .cv-root .cv-story-layout>.cv-story-map{grid-column:1;grid-row:2}
- .cv-root .cv-story-layout>.cv-story-rail{grid-column:1;grid-row:3}
- .cv-root .cv-story-hero .cv-story-fox{min-height:0;padding:7px 11px}
- .cv-root .cv-story-hero .cv-story-fox .cv-fox{height:61px;width:63px}
- .cv-root .cv-story-hero .cv-story-fox p{font-size:13px;line-height:1.25}
- .cv-root .cv-story-hero .cv-quick-start{min-height:48px;padding:10px 12px}
-}
+.cv-root .cv-story-hero .cv-quick-start:focus-visible{outline:3px solid #247b7e;outline-offset:3px}
+.cv-root .cv-story-hero .cv-quick-start:active{transform:translateY(2px);box-shadow:0 2px 0 #ad8759}
+.cv-root .cv-story-hero .cv-primary{margin:0}
