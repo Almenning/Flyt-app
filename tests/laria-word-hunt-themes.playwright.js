@@ -194,6 +194,10 @@ async function verify(engine,launcher,label,viewport,url){
    await fox.locator('.word-hunt-companion-cheer').click();
    assert.match(await fox.locator('.word-hunt-companion-speech').innerText(),/Heia deg/);
    assert.equal(await page.locator('.word-hunt-cell').count(),36);
+   // Clicking a helper placed below the mobile board may scroll the overlay.
+   // Restore the actual opening viewport before asserting first-fold geometry.
+   await page.evaluate(()=>{document.getElementById('word-hunt-overlay').scrollTop=0});
+   await shot(page,label+'-personal-fox-and-board');
    await checkLayout(page,label+'-original',viewport);
    assert.equal(animalWords.length,4);
    const mobileTopic=page.locator('.word-hunt-theme-mobile:visible');
@@ -211,6 +215,7 @@ async function verify(engine,launcher,label,viewport,url){
     if(i===0)assert.equal(await page.locator('.word-hunt-magic:not([hidden])').count(),1,'No calm discovery in animal round');
     assert.equal(await page.locator('.word-hunt-word.found').count(),i+1);
    }
+   assert.match(await fox.locator('.word-hunt-companion-speech').innerText(),/Hurra.*alle ordene/);
    assert.match(await page.locator('.word-hunt-status').innerText(),/Ordjakten er løst/);
    assert.match(await page.locator('.word-hunt-status').innerText(),/klistremerke.*Dyrevenner/,
      'First themed completion needs a visible sticker congratulations');
