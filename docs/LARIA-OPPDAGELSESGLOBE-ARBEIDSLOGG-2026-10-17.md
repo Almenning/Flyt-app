@@ -45,6 +45,8 @@
 - Den konkrete rotÃ¥rsaken var at et hengende bevegelsesflagg undertrykte detaljlaget ogsÃ¥ etter at globusen stod stille. Dette er rettet og verifiseres videre med den skjerpede bildekontrollen.
 - Neste visuelle iterasjon mÃ¥ Ã¸ke den lesbare, illustrerte terrengdybden â sÃ¦rlig fjell, skog, Ã¸rken og dyr â uten Ã¥ endre landgeometri eller gjÃ¸re illustrasjonene skjermforankrede.
 - Iterasjon 2 legger nÃ¥ inn et stÃ¸rre, koordinatfestet terrenglag (fjellrygger, skogklynger og Sahara-dyner) fÃ¸r de mindre detaljene. Hensikten er lesbarhet pÃ¥ verdensnivÃ¥ og iPhone, uten Ã¥ gjÃ¸re kloden til et flatt dekorasjonskart. Ny WebKit-artefakt er fortsatt pÃ¥krevd fÃ¸r visuell vurdering.
+- RotÃ¥rsaken til at tidligere bilder fortsatt kunne vise den ordinÃ¦re rendereren er funnet: `globe-v25-renderer.js` hadde direkte tegnekall fra resize-/modusobservatÃ¸rer, utenom `window.drawGlobe`. En snever forhÃ¥ndsvisningsvakt sender bare disse kallene til Oppdagelsesglobusen nÃ¥r URL-flagget er satt. Uten flagget er koden uendret.
+- Aktiv QA-PR er nÃ¥ #172. Den erstatter lukket draft-PR #170 for Ã¥ fÃ¥ en ny merge-snapshot og WebKit-artefakt fra gjeldende hodecommit. Begge er/var draft; ingen er slÃ¥tt sammen eller publisert.
 
 ## Neste arbeidsoppgave
 
