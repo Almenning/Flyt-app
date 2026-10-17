@@ -18,14 +18,14 @@ test('four second adventures have independent release contracts',()=>{
  const ids=new Set(),keys=new Set();
  for(const [name,key] of engines){assert.ok(key.startsWith(name+':2:'));assert.ok(!keys.has(key));keys.add(key)}
  for(const c of [math.CHAPTER,english.CHAPTER,geography.CHAPTER]){
-  assert.equal(c.grade,2);assert.equal(c.number,2);assert.equal(c.published,c===english.CHAPTER||c===geography.CHAPTER);
+  assert.equal(c.grade,2);assert.equal(c.number,2);assert.equal(c.published,false,'chapter 2 must remain unpublished until art approval');
   assert.equal(c.artApproved,c.published);assert.ok(!ids.has(c.id));ids.add(c.id);
  }
  assert.equal(norwegian.CHAPTERS.find(c=>c.id===norwegian.CHAPTER_ID).published,false);
  assert.equal(norwegian.STAGES.length,5);
  assert.equal(math.STAGES.length,5);assert.equal(english.STAGES.length,5);assert.equal(geography.STAGES.length,5);
 });
-test('draft chapter pilots remain gated while approved adventures are accessible',()=>{
+test('all draft chapter pilots remain gated until release approval',()=>{
  const flags=[
   [norwegian,'chapter2-preview'],
   [math,'math-chapter2-preview'],
@@ -33,9 +33,9 @@ test('draft chapter pilots remain gated while approved adventures are accessible
   [geography,'geography-chapter2-preview']
  ];
  for(const [model,flag] of flags){
-  assert.equal(model.previewEnabled('?app=laria'),model===english||model===geography,flag+' must not appear in normal app');
-  assert.equal(model.previewEnabled(''),model===english||model===geography,flag+' must default to hidden');
-  assert.equal(model.previewEnabled('?'+flag+'=0'),model===english||model===geography,flag+'=0 must not enable the pilot');
+  assert.equal(model.previewEnabled('?app=laria'),false,flag+' must not appear in normal app');
+  assert.equal(model.previewEnabled(''),false,flag+' must default to hidden');
+  assert.equal(model.previewEnabled('?'+flag+'=0'),false,flag+'=0 must not enable the pilot');
   assert.equal(model.previewEnabled('?app=laria&'+flag+'=1'),true,flag+'=1 should remain QA accessible');
  }
 });
@@ -72,7 +72,7 @@ test('a damaged draft in one chapter cannot erase saved work in three other subj
  assert.ok(norwegian.resume(s));assert.ok(english.resume(s));assert.ok(geography.resume(s));
  assert.equal(JSON.stringify(s.journey.gradeWins),old);
 });
-test('the integrated app retains development gates and publishes two independent adventures',()=>{
+test('the integrated app retains four gated chapter previews',()=>{
  const html=fs.readFileSync(path.join(__dirname,'../laer-litt-mer/index.html'),'utf8');
  for(const flag of ['chapter2-preview','math-chapter2-preview','english-chapter2-preview','geography-chapter2-preview'])
   assert.ok(html.includes(flag),'missing gated pilot '+flag);
