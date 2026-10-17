@@ -171,3 +171,55 @@
  .mh-root .mh-fox-hint .mh-fox-copy .mh-eyebrow{display:none}
  .mh-root .mh-fox-hint .mh-fox-copy p{max-width:none;margin:0;font-size:13px;line-height:1.28}
 }
+
+
+/* Chapter-two original illustrated map pilot. Tallenga and other locked maps untouched. */
+.mh-root .mh-shell:has(.mh-story-layout){width:min(100%,1110px)}
+.mh-root .mh-story-layout{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(220px,.85fr);
+ gap:clamp(14px,2.5vw,27px);align-items:start;margin-top:14px}
+.mh-root .mh-story-map{position:relative;width:100%;min-width:0;aspect-ratio:800 / 980;
+ background:#87ae8b;border:6px solid #d6ba8c;border-radius:27px;overflow:hidden;
+ box-shadow:inset 0 0 0 2px #fff5d9,0 8px 0 #b99b70,0 16px 31px #345c4640}
+.mh-root .mh-map-art{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;
+ user-select:none;pointer-events:none}
+.mh-root .mh-story-map .mh-places{position:absolute;inset:0;display:block;pointer-events:none}
+.mh-root .mh-story-map .mh-map-stop{position:absolute;left:var(--mh-x);top:var(--mh-y);
+ transform:translate(-50%,-50%);width:max-content;max-width:46%;min-height:51px;
+ display:flex;align-items:center;justify-content:center;gap:7px;padding:6px 11px 6px 7px;
+ background:linear-gradient(180deg,#fff4d9,#edcda1);border:2px solid #79563d;
+ border-radius:15px;color:#503725;box-shadow:0 4px 0 #77573d,0 7px 13px #234b4273;
+ text-shadow:0 1px #fff8e5;text-align:left;font-size:clamp(12px,1.5vw,16px);
+ font-weight:950;letter-spacing:-.02em;line-height:1.12;pointer-events:auto;z-index:2}
+.mh-root .mh-story-map .mh-map-stop:hover{filter:brightness(1.05)}
+.mh-root .mh-story-map .mh-map-stop:focus-visible{outline:4px solid #fff3a1;outline-offset:3px}
+.mh-root .mh-story-map .mh-place-symbol{min-width:30px;width:30px;height:30px;
+ display:grid;place-items:center;border-radius:50%;border:2px solid #a07350;
+ background:linear-gradient(180deg,#ebc78b,#bf8b5b);color:#fffaf0;
+ font:900 15px ui-rounded,system-ui;text-shadow:0 1px 2px #77543d}
+.mh-root .mh-story-map .mh-map-stop.mh-done{border-color:#4d8069;
+ background:linear-gradient(180deg,#f2f6e0,#beddbb)}
+.mh-root .mh-story-map .mh-map-stop.mh-done .mh-place-symbol{background:#55816b;border-color:#40715a}
+.mh-root .mh-story-rail{display:flex;flex-direction:column;gap:13px;min-width:0;padding:6px 0}
+.mh-root .mh-story-rail .mh-progress,.mh-root .mh-story-rail .mh-continue{margin:0}
+.mh-root .mh-story-fox{display:flex;align-items:center;gap:10px;padding:12px 9px;
+ border:2px solid #d9be95;border-radius:19px;background:#eae7ce;box-shadow:0 4px 0 #ccb58d}
+.mh-root .mh-story-fox .mh-fox{width:clamp(68px,10vw,105px);height:clamp(82px,12vw,119px)}
+.mh-root .mh-story-fox p{font-size:clamp(13px,1.45vw,16px);line-height:1.35;font-weight:800}
+.mh-root .mh-story-guide{background:#fff9ea;border:1px solid #ddc5a1;border-radius:18px;padding:16px}
+.mh-root .mh-story-guide strong{color:#64492f;display:block;font-size:16px;margin-bottom:6px}
+.mh-root .mh-story-guide p{font-size:13px;line-height:1.55}
+.mh-root .mh-story-rail .mh-note{margin:0;font-size:11px;line-height:1.4}
+@media(max-width:720px){
+ .mh-root .mh-story-layout{grid-template-columns:minmax(0,1fr);gap:16px}
+ .mh-root .mh-story-map{max-width:540px;margin-inline:auto}
+ .mh-root .mh-story-rail{gap:11px;padding:0}
+ .mh-root .mh-story-map .mh-map-stop{font-size:clamp(11px,3.2vw,15px);
+  min-height:44px;padding:4px 7px 4px 5px;gap:5px;border-radius:11px;max-width:46%}
+ .mh-root .mh-story-map .mh-place-symbol{min-width:24px;width:24px;height:24px;font-size:13px}
+ .mh-root .mh-story-fox{min-height:96px}
+}
+@media(max-width:365px){
+ .mh-root .mh-story-map .mh-map-stop{font-size:11px;max-width:48%;padding:4px 5px;gap:3px;letter-spacing:-.03em}
+ .mh-root .mh-story-map .mh-place-symbol{min-width:21px;width:21px;height:21px;font-size:12px}
+ .mh-root .mh-story-fox .mh-fox{width:70px;height:75px}
+}
