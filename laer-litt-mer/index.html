@@ -2355,6 +2355,7 @@
   <!-- Active Læria styles. Order is dependency-sensitive; shared layers load before scoped overrides. -->
   <!-- Labs -->
   <link rel="stylesheet" href="./laria-foundation-v1.css?v=20261006-p8foundation1" />
+  <link rel="stylesheet" href="./geography-continent-voyage-preview-v1.css?v=20261017-geo2a" />
     <link rel="stylesheet" href="./fraction-lab.css?v=20261006-assets1" />
     <link rel="stylesheet" href="./fraction-premium-v2.css?v=20261009-illustrated3" />
     <link rel="stylesheet" href="./fraction-premium-v4.css?v=20261011-intuitive-equivalents-landscape8" />
@@ -3305,7 +3306,10 @@ function loadState(){
       masteryEvidence:parsed.masteryEvidence||{},skillEvidence:parsed.skillEvidence||{},
       preferences:{...defaultState.preferences,...(parsed.preferences||{})},
       lastMilestone:parsed.lastMilestone||null,recentCountryWin:parsed.recentCountryWin||null,
-      journey:{nodes:{...(parsed.journey?.nodes||{})},gradeWins:{...(parsed.journey?.gradeWins||{})},viewGrades:{...(parsed.journey?.viewGrades||{})}},
+      journey:{nodes:{...(parsed.journey?.nodes||{})},gradeWins:{...(parsed.journey?.gradeWins||{})},viewGrades:{...(parsed.journey?.viewGrades||{})},
+        // Preserve independently persisted adventures without changing legacy grade wins.
+        chapterProgress:parsed.journey?.chapterProgress&&typeof parsed.journey.chapterProgress==='object'&&!Array.isArray(parsed.journey.chapterProgress)?
+          {...parsed.journey.chapterProgress}:{}},
       collectibles:window.LARIA_COLLECTION_CORE.normalize(parsed.collectibles),
       answerLog:Array.isArray(parsed.answerLog)?parsed.answerLog:[],
       sessionLog:Array.isArray(parsed.sessionLog)?parsed.sessionLog:[]
@@ -5727,6 +5731,18 @@ function renderGeographyContinue(){
   if(capitalTheme)capitalTheme.hidden=currentGrade()===1;
   if(currentGrade()===1&&geoTheme==='capital'){geoTheme='country';syncGeoThemeButtons()}
   renderGeoJourney();
+  // Geography chapter 2 stays dev-only and must sit above the real Nordlysleiren painting.
+  const geographyScreen=document.getElementById('geography-screen');
+  geographyScreen.querySelector(':scope > [data-laria-geography-chapter2-preview]')?.remove();
+  if(currentGrade()===2&&window.LARIA_GEO_CONTINENT_VOYAGE?.previewEnabled(location.search)){
+    const preview=document.createElement('button');preview.type='button';
+    preview.className='cv-dev-launch';preview.dataset.lariaGeographyChapter2Preview='1';
+    preview.textContent='⚓ Kontinentseilasen · test';
+    preview.onclick=()=>window.LARIA_GEO_CONTINENT_VOYAGE_UI?.open({
+      state,save:saveState,foxSrc:avatarSrc(state.profile?.avatar==='girl'?'girl':'boy')
+    });
+    geographyScreen.append(preview);
+  }
   const active=state.activeSession?.scope,viewGrade=journeyViewGrade('geography'),prog=geoJourneyProgress(viewGrade),next=geoJourneyRecommendedNode(viewGrade),geoActive=!!active&&(active.subject==='geography'||!active.subject);
   const title=document.getElementById('geography-continue-title'),copy=document.getElementById('geography-continue-copy'),eye=document.getElementById('geography-continue-eyebrow'),btn=document.getElementById('geography-continue-button');
   if(!title||!btn)return;
@@ -6906,6 +6922,8 @@ if(needsProfileSetup||!state.profile.onboarded||!state.profile.grade){
 <script src="./bokskogen-world.js?v=20261007-p15rc1" defer></script>
 <script src="./journey-learning-system-v1.js?v=20261016-language-system1" defer></script>
 <script src="./geography-journey-learning-system-v1.js?v=20261016-nordlysleiren-system1" defer></script>
+<script src="./geography-continent-voyage-v1.js?v=20261017-geo2a" defer></script>
+<script src="./geography-continent-voyage-preview-v1.js?v=20261017-geo2a" defer></script>
 <script src="./journey-world-premium.js?v=20261016-chapter1-completion1" defer></script>
 <script src="./locked-journey-contract.js?v=20261016-tallenga-places1" defer></script>
 <script src="./locked-journey-renderer.js?v=20261016-chapter1-completion1" defer></script>
