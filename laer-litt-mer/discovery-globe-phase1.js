@@ -376,7 +376,7 @@ function syncButtons(){
   }
 }
 const wait=()=>{
-  if(typeof window.resizeGlobe!=='function'||!document.getElementById('globe-canvas'))
+  if(!window.__lariaGlobeV25Installed||typeof window.resizeGlobe!=='function'||!document.getElementById('globe-canvas'))
     return requestAnimationFrame(wait);
   const baseDraw=window.drawGlobe;
   window.__lariaDiscoveryGlobeBaseDraw=baseDraw;
