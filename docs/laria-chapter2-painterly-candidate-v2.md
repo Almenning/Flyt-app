@@ -45,3 +45,11 @@ WebKit-testene fremprovoserer nå en ekte nedlastingsfeil for v2-bildet på båd
 Den nye feilhåndteringen kontrolleres nå på *to ulike måter* i hver fagpilot på WebKit iPhone og iPad: (1) nettverksfeil ved nedlasting og (2) HTTP 200 med en syntaktisk gyldig SVG som bare er 32 × 32 i stedet for de forventede 800 × 1000. Begge skal automatisk falle tilbake til det eksisterende kartet med `data-*-art-variant="fallback-v1"`, vise fem kartstopp og kunne åpne en faktisk oppgave. Nytt skjermbilde-artifakt: `*-art-v2-wrong-size-fallback.png`.
 
 Ingen test av bildeinnlasting eller geometri er i seg selv en illustrasjonsgodkjenning. Godkjent produksjonskunst krever egen vurdering mot de fire låste originalreisene.
+
+## Sluttkontroll og åpne sperrer (17. oktober 2026)
+- Den siste komplette tekniske testpakken før reservekart-testutvidelsen hadde **16 av 16 bestått**. Dette er ikke en release-godkjenning for ny illustrasjon.
+- Første utvidede test med nettverksfeil for kandidatbildet avdekket en timeout på WebKit iPhone i geografi. Testen er instrumentert med bildekilde, kandidatstatus og naturalWidth/naturalHeight for å identifisere rotårsak. Ny CI på etterfølgende commit må bestå på eksakt tree før kvalitetskravet kan lukkes.
+- Det finnes nå et eget malerisk bildeutkast i Figma: https://www.figma.com/design/t5aNOJe18rbdsKDVet9d48 (internt arbeidsmateriale). Den genererte bildefilen er ennå **ikke sikkert eksportert til versjonert GitHub-ressurs** og er heller ikke visuelt godkjent. Ingen midlertidig Figma-URL legges inn i produksjonskode.
+- En annen generering leverte hele UI-mockups med innbakt rev, titler og knapper; disse ble avvist. Verken disse mockupene eller v2-SVG skal merkes som godkjent malerisk produksjonskunst.
+- **Publisering er sperret** inntil originale og godkjente bakgrunnsbilder foreligger, riktige kartmarkører er visuelt kontrollert på ekte WebKit-skjermbilder iPhone/iPad, og siste fullstendige testmatrise er grønn.
+- Behold `published:false`, `artApproved:false` og Draft PR. Beskytt nylig publiserte Ordjakt, Gangemagi og Mitt eventyrsted fra urelaterte endringer.
