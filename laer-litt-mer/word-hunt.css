@@ -1308,3 +1308,39 @@
     animation:none!important;transition:none!important;
   }
 }
+
+/* The approved large-screen mockup has three clear destinations: game,
+   personal explorer, and controls. Only use three columns when space exists.
+   No shrinking the puzzle to put decoration in the center. */
+@media(min-width:1100px) and (min-height:701px) and (max-height:1000px) and (orientation:landscape){
+  .word-hunt-shell{
+    width:min(1160px,calc(100% - 24px));
+    display:grid;
+    grid-template-columns:minmax(0,min(625px,calc(100svh - 205px),calc(100vw - 515px))) 195px 225px;
+    grid-template-rows:repeat(7,auto);
+    justify-content:center;align-items:start;
+    column-gap:14px;row-gap:9px;
+  }
+  .word-hunt-top{grid-column:1 / -1;grid-row:1;margin:0}
+  .word-hunt-board-wrap,.word-hunt-side{display:contents}
+  .word-hunt-board-card{grid-column:1;grid-row:2 / span 6;width:100%;min-width:0}
+  .word-hunt-intro{grid-column:3;grid-row:2;margin:0;padding:10px}
+  .word-hunt-levels{grid-column:3;grid-row:3;position:static;margin:0;gap:6px}
+  .word-hunt-level{min-width:0;flex:1 1 0;padding:7px 5px}
+  .word-hunt-theme-open{grid-column:3;grid-row:4}
+  .word-hunt-targets{grid-column:3;grid-row:5}
+  .word-hunt-status{grid-column:3;grid-row:6;min-height:0}
+  .word-hunt-actions{grid-column:3;grid-row:7}
+  .word-hunt-companion{
+    grid-column:2;grid-row:2 / span 6;
+    align-self:start;min-width:0;padding:9px;
+  }
+  .word-hunt-companion-stage{max-width:193px;height:min(285px,36svh)}
+  .word-hunt-companion-speech{font-size:12px}
+  .word-hunt-companion-controls button{flex:1 1 100%;font-size:11px}
+}
+/* Taller iPad portraits keep the companion in the existing sidebar. The
+   two full-body images must never overlap a word-search tile. */
+@media(min-width:701px) and (max-width:1099px) and (orientation:portrait){
+  .word-hunt-companion-stage{height:clamp(125px,20vw,195px)}
+}
