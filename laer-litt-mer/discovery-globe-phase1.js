@@ -156,6 +156,58 @@ function paintReliefTrails(ctx,w,h,s,level,moving){
 }
 /* Painterly vector silhouettes. All positions are already projected from
    longitude/latitude, and the caller clips them to real land geometry. */
+
+/* Deterministic small-scale texture: geographical sampling, not screen-fixed
+   noise. The existing land clip protects coastlines. Increasing density with
+   zoom makes the scene reveal something new without zooming a static bitmap. */
+const geographicTextureZones=[
+ ['forest',-109,56,34,14,18],['forest',-85,45,17,12,10],
+ ['forest',16,62,22,10,16],['forest',82,59,56,14,24],
+ ['forest',-62,-5,26,15,26],['forest',22,0,18,13,15],
+ ['forest',104,14,22,13,15],['forest',135,36,8,6,10],
+ ['dune',13,24,42,13,25],['dune',47,24,20,10,10],
+ ['dune',135,-24,26,14,15],['dune',104,42,19,10,7],
+ ['rock',-113,43,13,19,12],['rock',-72,-22,9,31,13],
+ ['rock',86,31,20,7,15],['rock',10,46,9,3,7],
+ ['rock',10,64,11,13,14],['rock',139,37,7,7,10]
+];
+const geoNoise=n=>{const x=Math.sin(n*78.233+19.192)*43758.5453;return x-Math.floor(x);};
+function paintGeographicTexture(ctx,w,h,s,level,moving){
+ if(moving)return 0;
+ let painted=0;
+ for(let z=0;z<geographicTextureZones.length;z++){
+   const [kind,centerLon,centerLat,lonSpan,latSpan,total]=geographicTextureZones[z];
+   const density=level===1?.22:level===2?.54:1;
+   for(let i=0;i<Math.ceil(total*density);i++){
+     const lon=centerLon+(geoNoise(z*271+i*17+1)-.5)*lonSpan;
+     const lat=centerLat+(geoNoise(z*319+i*19+4)-.5)*latSpan;
+     const p=project(lon,lat,w,h);
+     if(!p||p[2]<.18)continue;
+     const k=s*.0055*clamp(.68+p[2]*.42,.68,1.10)*(level===3?1.15:1);
+     ctx.save();ctx.translate(p[0],p[1]);ctx.lineCap='round';
+     if(kind==='forest'){
+       ctx.fillStyle='rgba(25,98,55,.48)';
+       ctx.beginPath();ctx.ellipse(-k*.45,k*.17,k*.44,k*.65,-.3,0,Math.PI*2);
+       ctx.ellipse(k*.37,-k*.10,k*.49,k*.78,.28,0,Math.PI*2);ctx.fill();
+       ctx.strokeStyle='rgba(211,239,167,.38)';ctx.lineWidth=Math.max(.5,k*.23);
+       ctx.beginPath();ctx.moveTo(-k*.48,-k*.38);ctx.lineTo(-k*.51,k*.20);ctx.stroke();
+     }else if(kind==='dune'){
+       ctx.strokeStyle='rgba(255,242,184,.69)';ctx.lineWidth=Math.max(.65,k*.38);
+       ctx.beginPath();ctx.moveTo(-k*1.06,k*.34);ctx.quadraticCurveTo(0,-k*.79,k*1.13,k*.24);ctx.stroke();
+       ctx.strokeStyle='rgba(180,109,46,.39)';ctx.lineWidth=Math.max(.55,k*.22);
+       ctx.beginPath();ctx.moveTo(-k*.50,k*.42);ctx.lineTo(k*.70,k*.59);ctx.stroke();
+     }else{
+       ctx.fillStyle='rgba(248,248,222,.65)';ctx.beginPath();
+       ctx.moveTo(0,-k*.92);ctx.lineTo(-k*.75,k*.48);ctx.lineTo(k*.72,k*.48);ctx.closePath();ctx.fill();
+       ctx.strokeStyle='rgba(54,95,79,.45)';ctx.lineWidth=Math.max(.5,k*.23);
+       ctx.beginPath();ctx.moveTo(0,-k*.93);ctx.lineTo(k*.18,k*.30);ctx.stroke();
+     }
+     ctx.restore();painted++;
+   }
+ }
+ return painted;
+}
+
 function terrainSilhouette(ctx,type,x,y,k){
   ctx.save();ctx.translate(x,y);ctx.lineCap='round';ctx.lineJoin='round';
   ctx.shadowColor='rgba(26,50,38,.28)';ctx.shadowBlur=Math.max(2,k*.16);ctx.shadowOffsetY=Math.max(1,k*.07);
@@ -284,8 +336,11 @@ function discoveryDraw(){
   /* A stale interaction flag must never suppress the settled illustration
      layer. Pointer ownership is the reliable signal while a drag is active. */
   const moving=window.__lariaGlobeInteracting===true&&typeof globePointers!=='undefined'&&globePointers.size>0;
-  ctx.save();const validLand=landClip(ctx,w,h);
+  /* A moving globe uses its base map without the expensive land clip for
+     stationary-only detail. This saves an entire geometry pass per frame. */
+  ctx.save();const validLand=!moving&&landClip(ctx,w,h);
   const reliefCount=validLand?paintReliefTrails(ctx,w,h,s,level,moving):0;
+  const textureCount=validLand?paintGeographicTexture(ctx,w,h,s,level,moving):0;
   const terrainCount=validLand?paintTerrainMarks(ctx,w,h,s,level,moving):0;
   const landmarkCount=validLand?paintLandmarks(ctx,w,h,s,level,moving,false):0;
   ctx.restore();
@@ -294,7 +349,7 @@ function discoveryDraw(){
   if(typeof drawGlobePulse==='function')drawGlobePulse(ctx,w,h);
   ctx.restore();
   screen.dataset.discoveryGlobeLevel=String(level);screen.dataset.discoveryGlobe='phase1';
-  canvas.dataset.discoveryRenderer='live';canvas.dataset.discoveryLandmarks=String(landmarkCount+terrainCount+reliefCount+seaCount);canvas.dataset.discoveryMoving=String(moving);
+  canvas.dataset.discoveryRenderer='live';canvas.dataset.discoveryLandmarks=String(landmarkCount+terrainCount+reliefCount+textureCount+seaCount);canvas.dataset.discoveryMoving=String(moving);
 }
 window.LARIA_DISCOVERY_GLOBE_DRAW=discoveryDraw;
 const wait=()=>{
