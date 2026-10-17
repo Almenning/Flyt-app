@@ -78,7 +78,7 @@ async function check(engine,label,viewport,url){
    for(let i=0;i<count;i++)await page.locator('[data-gm-action="basket"][data-gm-basket="'+group+'"]').click();
   }
   assert.equal((await page.locator('.gm-math-equation').innerText()).trim(),'3 × 3 = 9');
-  assert.match(await page.locator('.gm-math-discovery').innerText(),/3 like grupper med 3 i hver = 9/,'multiplication has a child-readable explanation');
+  assert.match(await page.locator('.gm-math-discovery').innerText(),/Like grupper: 3 kurver med 3 bær = 9/,'multiplication has a child-readable explanation');
   assert.match(await page.locator('.gm-book-quick').innerText(),/1\/8/,'earned flowers remain visible during play');
   assert.match(await page.locator('.gm-celebration').innerText(),/Oppdraget er klart/);
   assert.equal(await page.locator('.gm-pick').count(),0,'completed tasks must not leave a disabled fruit button');
