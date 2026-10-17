@@ -116,3 +116,12 @@
  .cv-root .cv-fox-copy p{max-width:230px;margin-inline:auto}
 }
 @media(prefers-reduced-motion:reduce){.cv-root .cv-fox-celebrate .cv-fox{animation:none!important}}
+
+
+/* Compact iPhone: protect the return target and give the child's activity room. */
+@media(max-width:360px){
+ .cv-root .cv-top{gap:6px;padding-inline:10px}
+ .cv-root .cv-quiet{flex:0 0 auto;white-space:nowrap;padding-inline:10px;font-size:12px}
+ .cv-root .cv-development{min-width:0;max-width:152px;text-align:right;font-size:9px;line-height:1.2;letter-spacing:0}
+ .cv-root .cv-fox-copy p{font-size:12px;line-height:1.28}
+}

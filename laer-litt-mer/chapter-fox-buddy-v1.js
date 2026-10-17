@@ -33,9 +33,9 @@
    })
  });
  const BASE=Object.freeze({
-   math:'Prøv deg fram. Jeg har et lite hint om du ønsker det.',
-   english:'Du kan lese, lytte og prøve. Jeg kan hjelpe litt.',
-   geography:'Du styrer reisen. Jeg kan hjelpe hvis du spør.'
+   math:'Prøv selv. Jeg hjelper gjerne.',
+   english:'Prøv, les og lytt. Jeg er her.',
+   geography:'Du styrer. Spør meg om hint.'
  });
  const CHEER=Object.freeze({
    math:'Du fant sammenhengen! Reven jubler med deg.',
