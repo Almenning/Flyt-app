@@ -1,16 +1,16 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict');
 const geo=require('../laer-litt-mer/geography-continent-voyage-v1.js');
-test('published second Geography adventure has approved art and 40 authored tasks',()=>{
+test('preview-only second Geography adventure has authored tasks and 40 authored tasks',()=>{
  assert.equal(geo.validate(),true);
- assert.equal(geo.CHAPTER.published,true);assert.equal(geo.CHAPTER.artApproved,true);
+ assert.equal(geo.CHAPTER.published,false);assert.equal(geo.CHAPTER.artApproved,false);
  assert.equal(geo.STAGES.length,5);assert.equal(Object.values(geo.TASKS).flat().length,40);
  for(const place of geo.STAGES)assert.equal(geo.TASKS[place.id].length,8);
  assert.equal(Object.values(geo.TASKS).flat().filter(x=>x.kind==='stamp').length,16);
  assert.equal(Object.values(geo.TASKS).flat().filter(x=>x.kind==='compass').length,8);
  assert.equal(geo.previewEnabled('?geography-chapter2-preview=1'),true);
- assert.equal(geo.previewEnabled('?geography-chapter2-preview=0'),true);
- assert.equal(geo.previewEnabled(''),true);
+ assert.equal(geo.previewEnabled('?geography-chapter2-preview=0'),false);
+ assert.equal(geo.previewEnabled(''),false);
 });
 test('passport choices cover six relevant inhabited continents and avoid invented country in Antarctica',()=>{
  const stamps=Object.values(geo.TASKS).flat().filter(t=>t.kind==='stamp');
