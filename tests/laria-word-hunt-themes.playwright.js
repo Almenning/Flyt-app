@@ -197,6 +197,10 @@ async function verify(engine,launcher,label,viewport,url){
    });
    assert.equal(foxGeometry.fit,'contain',label+' fox art lost contain behavior');
    const stable=foxGeometry.layout;
+   const minFoxWidth=viewport.width>700?120:(viewport.width<=350?60:75);
+   assert.ok(stable.stageWidth>=minFoxWidth&&stable.stageHeight>=90&&
+     stable.width>=minFoxWidth&&stable.height>=90,
+     label+' invisible or tiny personal fox stage: '+JSON.stringify(foxGeometry));
    assert.ok(stable.left>=-1.5&&stable.top>=-1.5&&
      stable.left+stable.width<=stable.stageWidth+1.5&&
      stable.top+stable.height<=stable.stageHeight+1.5,
