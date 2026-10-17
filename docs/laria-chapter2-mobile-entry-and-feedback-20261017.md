@@ -37,3 +37,9 @@ Etter et svar må barnet se responsen uten å lete etter den under skjermkanten.
 - Etter omleggingen er alle fire CSS/JS-referansene for disse to kapitlene versjonsoppdatert i `index.html`, slik at Safari ikke gjenbruker gamle ressurser fra tidligere implementeringer.
 - `main` med den godkjente Markedsbok og den magiske samleboken er integrert i PR-grenen via en ekte merge-commit, uten å publisere kapittel 2.
 - **Åpen testport:** alt må kontrolleres på siste SHA etter disse rettelsene. Ingen påstand om grønn test før GitHub Actions bekrefter det.
+
+## Gjentatt karttrykk uten tap av utkast
+- Det ble avdekket at et nytt trykk på **samme** stopp i kartet startet det aktive oppdraget på nytt. Dette er rettet i både Setningshavna og Kontinentseilasen: en påbegynt aktivitet gjenopptas, med valgte ordbrikker eller kompass-steg bevart.
+- Egen WebKit/Chromium-regresjon gjenåpner det aktive kartstoppet og kontrollerer at delvis progresjon ikke blir overskrevet. Ordinær avspilling av et fullført sted er uendret.
+- Besøk på et **annet** sted er fortsatt et bevisst valg som følger kapittelmodellens nåværende én-aktivitet-om-gangen-struktur. Arbeidet påstår ikke å bevare flere samtidige utkast fra forskjellige steder.
+- Begge JS-referansene har fått ny versjon i `index.html` etter denne rettelsen. Kontroller igjen på eksakt siste SHA; tidligere grønne kjøringer kan ikke gjenbrukes som godkjenning.
