@@ -196,39 +196,97 @@ function paintBorders(ctx,w,h,s){
     ctx.strokeStyle=selected?'rgba(255,253,225,.98)':`rgba(255,250,226,${globeZoom>2.4?.48:.29})`;ctx.lineWidth=selected?Math.max(1.7,s*.003):Math.max(.55,s*.0011);ctx.stroke();
   }
 }
-/* Every geographic trail is a sequence of longitude/latitude anchors. */
-const reliefTrails=[
- ['ridge',1,[[-124,51],[-119,47],[-115,43],[-110,39],[-106,35]]],
- ['ridge',1,[[-78,3],[-76,-5],[-73,-13],[-70,-23],[-70,-32],[-72,-42]]],
- ['ridge',1,[[73,35],[79,32],[85,29],[91,28],[98,29]]],
- ['dunes',1,[[-15,24],[-8,25],[0,25],[10,24],[20,23],[30,23]]],
- ['ridge',2,[[5,47],[9,46],[13,47]]],
- ['ridge',2,[[6,59],[9,63],[14,67]]],
- ['ridge',2,[[139,35],[140,38],[142,41]]],
- ['dunes',2,[[120,-23],[129,-24],[136,-24],[142,-25]]],
- ['river',2,[[-72,-4],[-68,-4.1],[-64,-3.5],[-60,-3.1],[-56.5,-2.6],[-53.5,-2.4],[-50,-1.8]]],
- ['river',2,[[31,30],[31,25],[32,20],[33,14],[32,8]]]
+/* Real-world mountain corridors in approximate geographic order.
+   No isolated screen-space mountain stamps in this paint pass. Each chain
+   is projected point-by-point through the exact globe geometry. */
+const mountainChains=[
+ {name:'Scandes',width:1.9,snow:true,route:[[5.4,59.8],[7.1,61.6],[8.5,63.5],[12.2,65.6],[16.6,68.0],[19.5,69.6]]},
+ {name:'Alps',width:2.3,snow:true,route:[[5.6,45.7],[7.8,46.2],[10.3,46.6],[12.9,47.0],[15.9,46.8]]},
+ {name:'Pyrenees',width:1.5,snow:true,route:[[-1.9,43.0],[.2,42.8],[2.9,42.6]]},
+ {name:'Carpathians',width:1.8,snow:true,route:[[17.1,48.8],[19.5,49.2],[22.7,48.8],[25.0,47.5]]},
+ {name:'Atlas',width:2.6,snow:false,route:[[-10,30.7],[-7,31.2],[-4.5,32.1],[0.3,34.1],[6.3,35.1]]},
+ {name:'Caucasus',width:1.7,snow:true,route:[[40.8,43.3],[43.7,43.1],[46.5,42.8]]},
+ {name:'Urals',width:1.6,snow:false,route:[[58.6,52.8],[59.9,57],[61.2,61],[65.2,67]]},
+ {name:'Rockies',width:3.2,snow:true,route:[[-124.0,51.2],[-119.1,47.3],[-115.2,43.3],[-110,39.3],[-106.4,35.0]]},
+ {name:'Andes',width:2.9,snow:true,route:[[-76.0,8],[-76.3,1],[-75.7,-5],[-73.5,-11],[-70.8,-18],[-69.1,-26],[-70.4,-33],[-72.1,-41],[-73.0,-50]]},
+ {name:'Himalaya',width:3.1,snow:true,route:[[73.2,35],[78.1,32.6],[82.0,30.1],[87.0,28.4],[92.8,28.3],[98.1,28.5]]},
+ {name:'Kunlun',width:2.3,snow:true,route:[[79,36.5],[84,36.2],[91,35.9],[97,35.5]]},
+ {name:'Tian Shan',width:2.1,snow:true,route:[[70.3,41.5],[76.7,42.3],[82.6,43.3]]},
+ {name:'Japanese Alps',width:1.1,snow:true,route:[[136.1,35.0],[137.5,36.2],[139.2,37.7],[140.3,39.5]]},
+ {name:'Australian ranges',width:1.8,snow:false,route:[[145.9,-18.2],[148.7,-25.1],[150,-31],[148.1,-36.1]]},
+ {name:'Drakensberg',width:1.7,snow:false,route:[[29.1,-28.6],[29.8,-30.5],[29.4,-32.3]]},
+ {name:'Southern Alps NZ',width:1.2,snow:true,route:[[168.2,-44.8],[169.5,-43.6],[171.3,-42.6]]},
+ {name:'Ethiopian Highlands',width:2.4,snow:false,route:[[37.6,7.1],[38.6,10.6],[39.6,13.4]]},
+ {name:'Appalachians',width:2,snow:false,route:[[-84.3,34],[-82.8,37],[-79,40],[-75.6,43.5]]}
 ];
-function paintReliefTrails(ctx,w,h,s,level,moving){
- if(moving)return 0;let count=0;
- for(const [kind,minLevel,coords] of reliefTrails){
-   if(level<minLevel)continue;
-   ctx.beginPath();let started=false,visible=0;
-   for(const [lon,lat] of coords){
-     const p=project(lon,lat,w,h);
-     if(!p||p[2]<.12){started=false;continue;}
-     if(!started){ctx.moveTo(p[0],p[1]);started=true;}else ctx.lineTo(p[0],p[1]);
-     visible++;
-   }
-   if(visible<2)continue;
-   const width=s*(kind==='ridge'?.017:kind==='river'?.008:.025);
-   ctx.save();ctx.lineCap='round';ctx.lineJoin='round';ctx.lineWidth=width*1.9;
-   ctx.strokeStyle=kind==='ridge'?'rgba(54,83,70,.23)':kind==='river'?'rgba(33,116,146,.40)':kind==='dunes'?'rgba(206,144,62,.22)':'rgba(27,100,57,.20)';ctx.stroke();
-   ctx.lineWidth=width;
-   ctx.strokeStyle=kind==='ridge'?'rgba(221,223,177,.75)':kind==='river'?'rgba(127,212,216,.85)':kind==='dunes'?'rgba(252,216,134,.74)':'rgba(44,131,77,.64)';ctx.stroke();ctx.restore();count++;
- }
- return count;
+const riverWays=[
+  {name:'Amazonas',route:[[-72,-4],[-68,-4.1],[-64,-3.6],[-61,-3.4],[-58,-3],[-55,-2.8],[-52,-2],[-49.5,-1.3]]},
+  {name:'Nile',route:[[31,30.5],[31.3,26],[32.1,21],[33,17],[32.4,12],[31.8,8]]},
+  {name:'Mississippi',route:[[-93.3,47.1],[-92.7,43.3],[-91.1,39],[-90.1,34.5],[-90.2,30.1]]},
+  {name:'Danube',route:[[8.2,48],[12.5,48.4],[16.8,48.1],[20.6,45.5],[25.6,44.3],[29.6,45.2]]},
+  {name:'Yangtze',route:[[97,33.3],[102,30.7],[107,29.8],[112,30.2],[117,30.9],[121,31.1]]}
+];
+function paintMountainCrests(ctx,chain,w,h,s,level,width){
+  if(level<2)return 0;
+  let drawn=0;
+  for(let j=0;j<chain.route.length-1;j++){
+    const a=chain.route[j],b=chain.route[j+1];
+    const steps=Math.max(2,Math.round(Math.max(Math.abs(a[0]-b[0]),Math.abs(a[1]-b[1]))/(level===2?2.8:1.9)));
+    for(let k=0;k<steps;k++){
+      const t=(k+.42)/steps,lon=a[0]+(b[0]-a[0])*t,lat=a[1]+(b[1]-a[1])*t;
+      const p=project(lon,lat,w,h);if(!p||p[2]<.2)continue;
+      const seed=Math.abs(Math.sin((j*31+k*7+lat)*1.23));
+      const height=clamp(width*(.36+seed*.24),2.8,s*.033)*(level===3?1.06:.65);
+      const x=p[0],y=p[1];
+      ctx.save();
+      ctx.fillStyle='rgba(37,85,74,.27)';
+      ctx.beginPath();ctx.moveTo(x-height*.98,y+height*.48);
+      ctx.lineTo(x,y-height*.97);ctx.lineTo(x+height*.95,y+height*.55);
+      ctx.closePath();ctx.fill();
+      ctx.fillStyle='rgba(165,186,153,.72)';
+      ctx.beginPath();ctx.moveTo(x-height*.94,y+height*.48);
+      ctx.lineTo(x,y-height*.94);ctx.lineTo(x-height*.12,y+height*.46);
+      ctx.closePath();ctx.fill();
+      if(chain.snow){
+        ctx.fillStyle='rgba(255,253,233,.89)';ctx.beginPath();
+        ctx.moveTo(x,y-height*.95);ctx.lineTo(x-height*.25,y-height*.41);
+        ctx.lineTo(x-height*.07,y-height*.51);ctx.lineTo(x+height*.15,y-height*.43);
+        ctx.closePath();ctx.fill();
+      }else{
+        ctx.strokeStyle='rgba(230,219,163,.58)';ctx.lineWidth=Math.max(.6,height*.11);
+        ctx.beginPath();ctx.moveTo(x-height*.16,y-height*.52);ctx.lineTo(x-height*.45,y+height*.15);ctx.stroke();
+      }
+      ctx.restore();drawn++;
+    }
+  }
+  return drawn;
 }
+function paintReliefTrails(ctx,w,h,s,level,moving){
+  if(moving)return 0;
+  let count=0;
+  for(const chain of mountainChains){
+    const zone={route:chain.route,width:chain.width};
+    if(!smoothGeoStroke(ctx,chain.route,w,h,s))continue;
+    const width=clamp(geoBrushWidth(zone,w,h,s),2,s*.09);
+    ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
+    ctx.strokeStyle='rgba(39,76,69,.30)';ctx.lineWidth=width*2.15;ctx.stroke();
+    ctx.strokeStyle='rgba(67,104,87,.55)';ctx.lineWidth=width*1.45;ctx.stroke();
+    ctx.strokeStyle='rgba(143,168,138,.83)';ctx.lineWidth=width*.88;ctx.stroke();
+    ctx.strokeStyle=chain.snow?'rgba(247,247,218,.72)':'rgba(226,205,149,.57)';
+    ctx.lineWidth=width*.30;ctx.stroke();ctx.restore();
+    count+=1+paintMountainCrests(ctx,chain,w,h,s,level,width);
+  }
+  if(level>=2)for(const river of riverWays){
+    if(!smoothGeoStroke(ctx,river.route,w,h,s))continue;
+    ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
+    const k=s*.0055*clamp(Math.pow(globeZoom,.20),1,1.37);
+    ctx.strokeStyle='rgba(15,90,113,.39)';ctx.lineWidth=k*2.2;ctx.stroke();
+    ctx.strokeStyle='rgba(152,235,224,.86)';ctx.lineWidth=k*.97;ctx.stroke();
+    ctx.restore();count++;
+  }
+  return count;
+}
+
 /* Painterly vector silhouettes. All positions are already projected from
    longitude/latitude, and the caller clips them to real land geometry. */
 
