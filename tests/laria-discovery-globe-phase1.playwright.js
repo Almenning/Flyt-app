@@ -67,6 +67,9 @@ async function drawPose(page,pose){
      discovery:document.getElementById('world-screen').dataset.discoveryGlobe,
      moving:canvas.dataset.discoveryMoving,
      illustrations:Number(canvas.dataset.discoveryLandmarks||0),
+     ecosystems:Number(canvas.dataset.discoveryEcosystems||0),
+     relief:Number(canvas.dataset.discoveryRelief||0),
+     texture:Number(canvas.dataset.discoveryTexture||0),
      selected:globeSelected,
      dimensions:[canvas._cssW,canvas._cssH],
      zoom:globeZoom
@@ -230,10 +233,13 @@ async function runDevice(engine,label,viewport,urls){
      for(const pose of poses){
        const result=await drawPose(discovery.page,pose);
        assert.equal(result.renderer,true,label+' discovery renderer replaced after mode activation');
-       assert.equal(result.discovery,'phase1',label+' lost preview state');
+       assert.equal(result.discovery,'landscapes-v2',label+' lost integrated landscape engine');
        assert.equal(result.level,pose.level,label+' wrong zoom detail level: '+pose.name);
        assert.equal(result.moving,'false',label+' stale interaction suppressed detail');
        assert.ok(result.illustrations>0,label+' painted zero geographically anchored illustrations for '+pose.name);
+       assert.ok(result.ecosystems>=2,label+' missing georeferenced contiguous biome regions: '+pose.name);
+       assert.ok(result.relief>=1,label+' missing geographic mountain corridors: '+pose.name);
+       if(pose.level!=='1')assert.ok(result.texture>=1,label+' missing zoom-responsive terrain texture: '+pose.name);
        assert.equal(result.selected,pose.country,label+' selection was lost at '+pose.name);
        assert.notEqual(hash(result.pixels),refs[pose.name],label+' discovery image equals the ordinary globe at '+pose.name);
        await discovery.page.screenshot({path:path.join(out,label+'-discovery-'+pose.name+'.png'),fullPage:viewport.height<500,animations:'disabled'});
