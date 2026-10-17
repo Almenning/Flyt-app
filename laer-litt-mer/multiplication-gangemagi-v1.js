@@ -100,7 +100,7 @@
          '<button type="button" data-gm-action="read" class="gm-read" aria-label="Les opp det reven sier">◖))</button></div>'+
        '</div>'+
        '<div class="gm-market"><div class="gm-market-sign" aria-hidden="true"><span class="gm-sign-leaf">✿</span> Fra Tallengas hage <span class="gm-sign-leaf">✿</span></div>'+
-       '<div class="gm-crates" style="--gm-groups:'+state.groups+'" role="group" aria-label="'+state.groups+' kurver som kan fylles med jordbær">'+state.counts.map((n,i)=>crate(i)).join('')+'</div>'+
+       '<div class="gm-crates" style="--gm-groups:'+state.groups+';--gm-cols:'+(state.each<=5?state.each:Math.ceil(state.each/2))+'" role="group" aria-label="'+state.groups+' kurver som kan fylles med jordbær">'+state.counts.map((n,i)=>crate(i)).join('')+'</div>'+
        '<p class="gm-play-hint">'+(complete?'Se hva du har laget! Du kan endre kurvene eller fortsette.':'Trykk på en kurv for å legge i et jordbær')+'</p></div>'+
        '</div>'+
        '<div class="gm-math"><div class="gm-math-label"><span>Dette har du laget</span><span class="gm-goal">Målet: '+state.groups+' × '+state.each+'</span></div>'+
