@@ -85,6 +85,51 @@ async function verifyGeographicTap(page,lon,lat,expected,label){
  assert.equal(result.country,expected,label+' geographic tap did not select '+expected);
  assert.ok(Math.abs(result.roundtrip.lon-lon)<.001&&Math.abs(result.roundtrip.lat-lat)<.001,label+' longitude/latitude projection lost accuracy');
 }
+async function verifyPointerDrag(page,label,isDiscovery){
+ await page.evaluate(()=>{
+   globeLon=18;globeLat=36;globeSelected=null;setGlobeZoom(2.2);
+   if(typeof globePointers!=='undefined')globePointers.clear();
+   window.__lariaGlobeInteracting=false;
+   const canvas=document.getElementById('globe-canvas'),rect=canvas.getBoundingClientRect();
+   const x=rect.left+rect.width*.50,y=rect.top+rect.height*.50;
+   canvas.dataset.dragStartLon=String(globeLon);
+   const evt=(type,cx,cy)=>new PointerEvent(type,{pointerId:831,pointerType:'touch',isPrimary:true,bubbles:true,clientX:cx,clientY:cy});
+   canvas.dispatchEvent(evt('pointerdown',x,y));
+   canvas.dispatchEvent(evt('pointermove',x+52,y+12));
+   canvas.dataset.dragMovedLon=String(globeLon);
+ });
+ await page.waitForTimeout(120);
+ const during=await page.evaluate(()=>({
+   moving:window.__lariaGlobeInteracting,
+   pointerCount:globePointers.size,
+   marked:document.getElementById('globe-canvas').dataset.discoveryMoving,
+   before:Number(document.getElementById('globe-canvas').dataset.dragStartLon),
+   after:Number(document.getElementById('globe-canvas').dataset.dragMovedLon)
+ }));
+ assert.ok(Math.abs(during.after-during.before)>1,label+' pointer drag did not rotate the globe');
+ assert.equal(during.moving,true,label+' dragging state never activated');
+ assert.equal(during.pointerCount,1,label+' active pointer was lost');
+ if(isDiscovery)assert.equal(during.marked,'true',label+' discovery detail not suppressed while dragging');
+ await page.evaluate(()=>{
+   const canvas=document.getElementById('globe-canvas'),rect=canvas.getBoundingClientRect();
+   const x=rect.left+rect.width*.50,y=rect.top+rect.height*.50;
+   canvas.dispatchEvent(new PointerEvent('pointerup',{pointerId:831,pointerType:'touch',isPrimary:true,bubbles:true,clientX:x+52,clientY:y+12}));
+ });
+ await page.waitForTimeout(160);
+ const after=await page.evaluate(()=>({
+   moving:window.__lariaGlobeInteracting,
+   pointerCount:globePointers.size,
+   marked:document.getElementById('globe-canvas').dataset.discoveryMoving,
+   illustrations:Number(document.getElementById('globe-canvas').dataset.discoveryLandmarks||0)
+ }));
+ assert.equal(after.moving,false,label+' pointer movement flag remained set after release');
+ assert.equal(after.pointerCount,0,label+' pointer not released');
+ if(isDiscovery){
+   assert.equal(after.marked,'false',label+' high detail did not return after pointer release');
+   assert.ok(after.illustrations>0,label+' geography illustration missing after pointer release');
+ }
+}
+
 async function runDevice(engine,label,viewport,urls){
  const browser=await engine.launch({headless:true,args:engine===chromium?['--no-sandbox']:[]});
  try{
@@ -103,6 +148,7 @@ async function runDevice(engine,label,viewport,urls){
      }
      for(const hit of [[8,62,'no'],[138,36,'jp'],[-55,-12,'br']])
        await verifyGeographicTap(standard.page,hit[0],hit[1],hit[2],label+' ordinary globe');
+     await verifyPointerDrag(standard.page,label+' ordinary globe',false);
      assert.deepEqual(refErrors,[],label+' ordinary globe errors');
    }finally{await standard.ctx.close();}
    const errors=[];
@@ -137,6 +183,7 @@ async function runDevice(engine,label,viewport,urls){
      }
      for(const hit of [[8,62,'no'],[138,36,'jp'],[-55,-12,'br']])
        await verifyGeographicTap(discovery.page,hit[0],hit[1],hit[2],label+' discovery globe');
+     await verifyPointerDrag(discovery.page,label+' discovery globe',true);
      assert.deepEqual(errors,[],label+' discovery page errors');
    }finally{await discovery.ctx.close();}
    console.log('PASS geographically correct, visually distinct ordinary/discovery globes: '+label);
