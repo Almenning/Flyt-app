@@ -350,6 +350,7 @@ function discoveryDraw(){
   ctx.restore();
   screen.dataset.discoveryGlobeLevel=String(level);screen.dataset.discoveryGlobe='phase1';
   canvas.dataset.discoveryRenderer='live';canvas.dataset.discoveryLandmarks=String(landmarkCount+terrainCount+reliefCount+textureCount+seaCount);canvas.dataset.discoveryMoving=String(moving);
+  canvas.dataset.discoveryPaintCount=String(Number(canvas.dataset.discoveryPaintCount||0)+1);
 }
 window.LARIA_DISCOVERY_GLOBE_DRAW=discoveryDraw;
 const wait=()=>{
