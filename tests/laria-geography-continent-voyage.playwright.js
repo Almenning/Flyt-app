@@ -49,6 +49,31 @@ async function verify(type,label,viewport){
      label+' unflagged chapter visible');
    await page.goto(base+'&geography-chapter2-preview=1',{waitUntil:'domcontentloaded'});
    await enter(page);
+   const map=page.locator('.cv-story-map');
+   await map.waitFor({state:'visible'});
+   const geometry=await map.evaluate(el=>{
+     const img=el.querySelector('.cv-map-art'),region=el.getBoundingClientRect();
+     const stops=[...el.querySelectorAll('.cv-map-stop')].map(b=>{
+       const r=b.getBoundingClientRect();
+       return {x:r.x,y:r.y,right:r.right,bottom:r.bottom,width:r.width,height:r.height};
+     });
+     return {loaded:img.complete&&img.naturalWidth===800&&img.naturalHeight===1000,
+       region:{x:region.x,y:region.y,right:region.right,bottom:region.bottom},stops};
+   });
+   assert.equal(geometry.loaded,true,label+' illustrated fantasy voyage asset failed to load');
+   assert.equal(geometry.stops.length,5,label+' must have five tactile illustrated stops');
+   for(const [i,r] of geometry.stops.entries()){
+     assert.ok(r.height>=44,label+' stop '+i+' too short for a child');
+     assert.ok(r.x>=geometry.region.x-2&&r.right<=geometry.region.right+2&&
+       r.y>=geometry.region.y-2&&r.bottom<=geometry.region.bottom+2,
+       label+' stop '+i+' clipped outside voyage art');
+     for(let j=0;j<i;j++){
+       const other=geometry.stops[j];
+       const overlap=Math.min(r.right,other.right)-Math.max(r.x,other.x)>5&&
+         Math.min(r.bottom,other.bottom)-Math.max(r.y,other.y)>5;
+       assert.equal(overlap,false,label+' voyage stops '+j+' and '+i+' overlap');
+     }
+   }
    const layout=await page.locator('#laria-geo-continent-voyage-preview').evaluate(el=>({width:el.clientWidth,scrollWidth:el.scrollWidth}));
    assert.ok(layout.scrollWidth<=layout.width+2,label+' horizon overflow');
    await photo(page,label+'-five-stops');

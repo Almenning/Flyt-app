@@ -14,25 +14,32 @@
    '<main class="cv-main">'+body+'</main></div>';
  function overview(){
    const p=core.progress(ui.state),session=core.resume(ui.state);
+   const positions={kompassholmen:[27,24],passbrygga:[75,39],
+     havpassasjen:[28,55],naturøya:[74,71],reisefyret:[45,86]};
    const places=core.STAGES.map((s,i)=>{
-     const visited=p.places.find(x=>x.id===s.id)?.visited;
-     return '<button type="button" class="cv-place" data-cv-act="stage" data-cv-stage="'+esc(s.id)+'"'+
-       ' aria-label="'+esc(s.title)+'. '+esc(s.focus)+(visited?'. Utforsket, spill igjen':'')+'">'+
-       '<span class="cv-place-symbol" aria-hidden="true">'+(visited?'✓':esc(s.symbol))+'</span>'+
-       '<span><strong>'+(i+1)+'. '+esc(s.title)+'</strong><small>'+esc(s.focus)+'</small></span>'+
-       '<span class="cv-chevron" aria-hidden="true">›</span></button>';
+     const visited=p.places.find(x=>x.id===s.id)?.visited,point=positions[s.id];
+     if(!point)throw Error('Kontinentseilasen missing storybook stop '+s.id);
+     return '<button type="button" class="cv-place cv-map-stop" data-cv-act="stage" data-cv-stage="'+esc(s.id)+'"'+
+       ' style="--cv-x:'+point[0]+'%;--cv-y:'+point[1]+'%"'+
+       ' aria-label="'+esc(s.title)+'. '+esc(s.focus)+(visited?'. Utforsket, spill igjen':'. Utforsk nå')+'">'+
+       '<span class="cv-place-symbol" aria-hidden="true">'+(visited?'✓':String(i+1))+'</span>'+
+       '<span class="cv-map-stop-name">'+esc(s.title)+'</span></button>';
    }).join('');
-   return shell('<section class="cv-intro"><div class="cv-intro-header"><div><span class="cv-eyebrow">NYTT EVENTYR</span>'+
+   return shell('<section class="cv-intro"><div class="cv-intro-header"><div><span class="cv-eyebrow">GEOGRAFI · KAPITTEL 2</span>'+
      '<h1 class="cv-heading" tabindex="-1">Kontinentseilasen</h1>'+
-     '<p>Sett stempler i passet. Styr båten med kompass. Utforsk verden i ditt eget tempo.</p></div>'+
-     fox()+'</div>'+
-     '<div class="cv-harbor" aria-hidden="true"><div class="cv-sun"></div><div class="cv-cliff cv-cliff-a"></div>'+
-     '<div class="cv-cliff cv-cliff-b"></div><div class="cv-ocean"></div><div class="cv-boat">⛵</div></div>'+
-     '<div class="cv-progress"><strong>'+p.done+' av 5 steder utforsket</strong><small>Alle stedene kan gjentas når du vil.</small>'+
+     '<p>Seil på et fantasihav, finn verdenskartets land og samle stempler i reisepasset.</p></div></div>'+
+     '<div class="cv-story-layout"><div class="cv-story-map" role="group" aria-label="Illustrert fantasihav med fem interaktive eventyrsteder">'+
+     '<img class="cv-map-art" src="./geography-continent-voyage-storymap-v1.svg" alt="" draggable="false" loading="eager">'+
+     '<div class="cv-places">'+places+'</div></div>'+
+     '<aside class="cv-story-rail"><div class="cv-story-fox">'+fox()+'<p>Hvor skal vi seile? Jeg følger med på reisen!</p></div>'+
+     '<div class="cv-progress" role="status"><strong>'+p.done+' av 5 steder utforsket</strong>'+
+     '<small>Alle stedene kan gjentas når du vil.</small>'+
      '<div class="cv-bar"><span style="width:'+p.done*20+'%"></span></div></div>'+
      (session?'<button type="button" class="cv-primary" data-cv-act="resume">Fortsett i '+esc(session.place.title)+' →</button>':'')+
-     '<div class="cv-places">'+places+'</div>'+
-     '<p class="cv-note">Dette er et kunstutkast. Den ekte kloden med landgrenser er ikke endret.</p></section>');
+     '<div class="cv-story-guide"><strong>Finn veien til verden</strong>'+
+     '<p>Styr med kompass, sett stempler og finn spennende land med den ekte kloden.</p></div>'+
+     '<p class="cv-note">Eventyrhavet er fantasi, ikke et verdenskart. Den ekte globusen er uendret.</p>'+
+     '</aside></div></section>');
  }
  function controls(task,feedback){
    if(task.kind==='compass'){

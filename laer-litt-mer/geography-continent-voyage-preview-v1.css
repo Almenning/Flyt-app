@@ -141,3 +141,50 @@
  .cv-root .cv-fox-hint .cv-fox-copy .cv-eyebrow{display:none}
  .cv-root .cv-fox-hint .cv-fox-copy p{max-width:none;margin:0;font-size:13px;line-height:1.28}
 }
+
+/* Kontinentseilasens originalillustrerte FANTASI-hav, ikke et erstatningskart.
+ * De ekte landgrensene og kontinentene vises fremdeles på Lærias globale klode.
+ */
+.cv-root .cv-shell:has(.cv-story-layout){width:min(100%,1110px);max-width:1110px}
+.cv-root .cv-story-layout{display:grid;grid-template-columns:minmax(0,1.66fr) minmax(225px,.87fr);gap:24px;align-items:start;margin-top:14px}
+.cv-root .cv-story-map{position:relative;width:100%;min-width:0;aspect-ratio:800 / 1000;
+ border:6px solid #d9bf94;border-radius:26px;overflow:hidden;background:#77b2b4;
+ box-shadow:0 7px 0 #b99c79,inset 0 0 0 3px #fbebc9}
+.cv-root .cv-map-art{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;pointer-events:none;user-select:none}
+.cv-root .cv-story-map .cv-places{position:absolute;inset:0;display:block;pointer-events:none;margin:0}
+.cv-root .cv-story-map .cv-map-stop{position:absolute;left:var(--cv-x);top:var(--cv-y);
+ transform:translate(-50%,-50%);min-width:112px;width:max-content;max-width:43%;min-height:48px;
+ display:inline-flex;align-items:center;gap:7px;justify-content:flex-start;padding:6px 9px;
+ border:2.5px solid #916e55;border-radius:15px;background:linear-gradient(160deg,#fff5d8,#ddbc91);
+ box-shadow:0 4px 0 #a07956,0 8px 14px #2348616b;color:#483729;font-weight:900;
+ font-size:clamp(12px,1.3vw,16px);line-height:1.14;text-align:left;pointer-events:auto;z-index:2}
+.cv-root .cv-story-map .cv-map-stop:focus-visible{outline:4px solid #fff7c4;outline-offset:3px}
+.cv-root .cv-story-map .cv-map-stop:hover{filter:brightness(1.04)}
+.cv-root .cv-story-map .cv-place-symbol{min-width:29px;width:29px;height:29px;display:grid;place-items:center;
+ border-radius:50%;border:2px solid #b0865f;background:#f8e0b6;color:#5a4837;font-size:15px;flex:none}
+.cv-root .cv-story-map .cv-map-stop-name{display:block;overflow-wrap:break-word}
+.cv-root .cv-story-map .cv-map-stop .cv-chevron,.cv-root .cv-story-map .cv-map-stop small{display:none}
+.cv-root .cv-story-rail{display:flex;flex-direction:column;gap:13px;min-width:0;padding:5px 0}
+.cv-root .cv-story-rail .cv-progress,.cv-root .cv-story-rail .cv-primary{margin:0}
+.cv-root .cv-story-fox{display:flex;align-items:center;gap:10px;padding:12px;background:#e1e9de;
+ border:2px solid #b8cba9;border-radius:18px;box-shadow:0 4px 0 #b9c9b0}
+.cv-root .cv-story-fox .cv-fox{width:clamp(67px,10vw,109px);height:clamp(82px,12vw,124px)}
+.cv-root .cv-story-fox p{font-size:clamp(13px,1.45vw,16px);font-weight:900;line-height:1.4}
+.cv-root .cv-story-guide{background:#fff8ec;border:1px solid #d6bf9e;border-radius:17px;padding:15px}
+.cv-root .cv-story-guide strong{font-size:16px;color:#654832;display:block;margin-bottom:5px}
+.cv-root .cv-story-guide p{font-size:13px;line-height:1.45}
+.cv-root .cv-story-rail .cv-note{font-size:11px;line-height:1.45;margin:0}
+@media(max-width:720px){
+ .cv-root .cv-story-layout{grid-template-columns:minmax(0,1fr);gap:16px}
+ .cv-root .cv-story-map{max-width:540px;margin-inline:auto}
+ .cv-root .cv-story-rail{gap:11px;padding:0}
+ .cv-root .cv-story-map .cv-map-stop{min-width:91px;min-height:44px;max-width:44%;font-size:clamp(11px,3vw,15px);
+   gap:5px;padding:5px 7px}
+ .cv-root .cv-story-map .cv-place-symbol{min-width:25px;width:25px;height:25px;font-size:13px}
+ .cv-root .cv-story-fox{min-height:96px}
+}
+@media(max-width:365px){
+ .cv-root .cv-story-map .cv-map-stop{min-width:0;max-width:46%;font-size:11px;padding:4px 5px;gap:3px}
+ .cv-root .cv-story-map .cv-place-symbol{min-width:21px;width:21px;height:21px;font-size:12px}
+ .cv-root .cv-story-fox .cv-fox{width:70px;height:72px}
+}
