@@ -48,3 +48,13 @@ Etter et svar må barnet se responsen uten å lete etter den under skjermkanten.
 - Ekte WebKit-artifakt fra Setningshavna viste at startknappen nesten forsvant under skjermkanten i 844×390. Begge kartintroene har nå en målrettet, kompakt landskaps-layout for 721–899 px bredde og maks 480 px høyde.
 - Playwright krever nå at både «Begynn» og «Fortsett» er fullt synlige og minst 44 px høye på samtlige liggende testformater.
 - Dette er ennå intern QA; ingen kapittel 2-illustrasjon er premiumgodkjent eller publisert.
+
+
+## Kartopplevelse: samlet ledsagerdel og synlige oppdagelser
+- Rotårsak: Det høye kartet strakk seg over to automatiske CSS-grid-rader, mens reven og fremdriften lå i hver sin rad i sidekolonnen. Det gav et stort tomrom mellom dem på iPad.
+- Engelsk og geografi har nå ett sammenhengende `story-aside` med personlig rev, frivillig start/fortsett, progresjon og rolig veiledning. Mobil beholder visuell rekkefølge rev → kart → fremdrift, ved `display:contents` på en nøytral wrapper.
+- Reven snakker i en lysere og enklere boble, mens veiledningen er roligere uten enda et stort innrammet infokort.
+- Kun ett av fem kartstopp får en subtil anbefalingsmarkering. Besøkte stopp får et eget uttrykk. Dette er kun veiledning, og alle fem stedene kan velges eller gjentas fritt.
+- Nye Playwright-sjekker krever én sammenhengende ledsagerkolonne, ett anbefalt sted, mobilrekkefølge og fremdrift synlig ved reven på iPad-landskap.
+- Arbeidet endrer **ikke** originalkartene, SVG-kartillustrasjonene, den klassiske globusen eller arbeidet med Oppdagelsesglobusen. `published:false` / `artApproved:false` beholdes.
+- Ingen lanseringsgodkjenning før CI på ny commit og manuell kontroll av faktiske WebKit-skjermbilder. Grafikken er fortsatt en intern kandidat og trenger egen premiumgodkjenning.
