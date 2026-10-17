@@ -100,6 +100,14 @@ async function check(engine,label,viewport,url){
   assert.equal((await page.locator('.gm-math-equation').innerText()).trim(),'3 × 3 = 9');
   await page.locator('[data-gm-action="book"]').click();
   assert.equal(await page.locator('.gm-book-mission').count(),8,'all market adventures available');
+  assert.equal(await page.locator('.gm-book-open[role="dialog"][aria-modal="true"]').count(),1,'open journal is a real immersive view');
+  assert.equal(await page.locator('.gm-book-fox-art [data-avatar="girl"]').count(),1,'journal keeps the chosen fox');
+  assert.equal(await page.locator('.gm-book-open .gm-book-pages').count(),1,'mission pages appear in the book');
+  assert.equal(await page.locator('.gm-world').evaluate(el=>el.inert),true,'underlying math actions inaccessible while choosing a mission');
+  await shot(page,label+'-04-market-book');
+  await page.keyboard.press('Escape');
+  assert.equal(await page.locator('.gm-book-open').count(),0,'Escape returns child to gameplay');
+  await page.locator('[data-gm-action="book"]').click();
   const bookLayout=await page.evaluate(()=>{
     const scenes=[...document.querySelectorAll('.gm-book-landscape')];
     return {pageWidth:document.documentElement.scrollWidth,screenWidth:innerWidth,count:scenes.length,
@@ -111,6 +119,7 @@ async function check(engine,label,viewport,url){
   assert.equal(await page.locator('.gm-book-earned').count(),1,'one earned flower marked in book');
   await page.locator('[data-gm-action="select-mission"][data-index="7"]').click();
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).mission,7);
+  assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).undo,0,'switching adventures clears only action history');
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).wins.length,1);
   assert.equal(await page.locator('.gm-book-mission').count(),0,'book should close after selection');
   await page.locator('[data-gm-action="book"]').click();

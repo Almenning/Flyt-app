@@ -120,16 +120,20 @@
        (free?'<div class="gm-free-controls" aria-label="Lag ditt eget gangestykke">'+factor('groups','Antall kurver',state.groups,1,E.MAX_GROUPS)+factor('each','Jordbær i hver',state.each,1,E.MAX_EACH)+'</div>':'')+
        '<footer class="gm-footer"><span>✿ Blomster som du har samlet, er dine for alltid</span><button type="button" data-gm-action="restart">Begynn på nytt ↻</button></footer>'+book()+
        '</div></main>';
+   if(bookOpen){
+     const journal=root.querySelector('.gm-book');
+     if(journal)for(const sibling of journal.parentElement.children)if(sibling!==journal)sibling.inert=true;
+   }
    if(focusKey){
      const old=Array.from(root.querySelectorAll('button[data-gm-action]')).find(el=>el.dataset.gmAction===focusKey.action&&(el.dataset.group||'')===(focusKey.group||'')&&(el.dataset.gmBasket||'')===(focusKey.basket||''));
      if(old&&!old.disabled)try{old.focus({preventScroll:true});}catch(_){}
    }
  }
  function book(){
-   return '<section class="gm-book" aria-label="Markedsboken">'+
+   return '<section class="gm-book '+(bookOpen?'gm-book-open':'')+'" '+(bookOpen?'role="dialog" aria-modal="true" ':'')+'aria-label="Min markedsbok">'+
      '<button type="button" class="gm-book-toggle" data-gm-action="book" aria-expanded="'+bookOpen+'" aria-controls="gm-book-pages">'+
-     '<span class="gm-book-emblem" aria-hidden="true">✿</span><span><strong>Min markedsbok</strong><small>'+state.wins.length+' av '+E.MISSIONS.length+' blomster samlet · Velg et eventyr</small></span><span class="gm-book-chevron" aria-hidden="true">'+(bookOpen?'⌃':'⌄')+'</span></button>'+
-     (bookOpen?'<div class="gm-book-pages" id="gm-book-pages"><p>Velg et oppdrag. Du kan prøve så mange ganger du vil, og blomstene du har samlet blir med videre.</p><div class="gm-book-grid">'+
+     '<span class="gm-book-emblem" aria-hidden="true">✿</span><span><strong>'+(bookOpen?'‹ Tilbake til Gangemagi':'Min markedsbok')+'</strong><small>'+state.wins.length+' av '+E.MISSIONS.length+' blomster samlet · '+(bookOpen?'Utforsk oppdragene':'Åpne eventyrboken')+'</small></span><span class="gm-book-chevron" aria-hidden="true">'+(bookOpen?'✕':'⌄')+'</span></button>'+
+     (bookOpen?'<header class="gm-book-intro"><div class="gm-book-fox-art" aria-hidden="true">'+selectedFox()+'</div><div class="gm-book-intro-copy"><span>✿ EVENTYRBOK FRA TALLENGA</span><h2>Min markedsbok</h2><p>Her kan du velge et eventyr og spille det så mange ganger du vil. Jeg blir med deg!</p></div><div class="gm-book-trophy"><strong>'+state.wins.length+' / '+E.MISSIONS.length+'</strong><small>blomster</small></div></header><div class="gm-book-pages" id="gm-book-pages"><p>Trykk på et oppdrag for å gå til kurvene. Alle blomstene du har samlet, er dine for alltid.</p><div class="gm-book-grid">'+
        E.MISSIONS.map((m,i)=>'<button type="button" class="gm-book-mission '+(state.mode==='mission'&&state.mission===i?'gm-book-current ':'')+(state.wins.includes(m.id)?'gm-book-earned':'')+'" data-gm-action="select-mission" data-index="'+i+'" '+(state.mode==='mission'&&state.mission===i?'aria-current="step"':'')+' aria-label="Oppdrag '+(i+1)+': '+esc(m.heading)+'. '+(state.wins.includes(m.id)?'Blomst samlet.':'Blomst ikke samlet ennå.')+'"><span class="gm-book-landscape gm-book-landscape-'+i+'" aria-hidden="true"><span class="gm-book-berry">'+berrySvg+'</span></span><span class="gm-book-flower" aria-hidden="true">'+(state.wins.includes(m.id)?'✿':'✧')+'</span><span class="gm-book-copy"><small>OPPDRAG '+(i+1)+'</small><strong>'+esc(m.heading)+'</strong><small>'+m.groups+' kurver med '+m.each+' i hver</small></span></button>').join('')+'</div></div>':'')+'</section>';
  }
  function factor(key,label,n,min,max){
@@ -203,12 +207,15 @@
    event.preventDefault();event.stopPropagation();
    const kind=button.dataset.gmAction;
    if(kind==='back'){back();return;}
-   if(kind==='book'){bookOpen=!bookOpen;render();return;}
+   if(kind==='book'){bookOpen=!bookOpen;render();if(!bookOpen)root.querySelector('.gm-top')?.scrollIntoView({behavior:'auto',block:'start'});return;}
    if(kind==='select-mission'){
      const index=Number(button.dataset.index);
      if(!Number.isInteger(index)||index<0||index>=E.MISSIONS.length)return;
-     bookOpen=false;
-     if(!change({type:'mission',index}))render();
+     // Each selected adventure begins fresh. Undo stays inside one adventure;
+     // already earned flowers remain attached to the child's saved progress.
+     state=E.apply(state,{type:'mission',index});
+     undo=[];hintStep=0;notice='';foxMood='curious';lastAction='';lastGroup=-1;
+     bookOpen=false;save();render();
      root.querySelector('.gm-top')?.scrollIntoView({behavior:'auto',block:'start'});
      return;
    }
@@ -270,6 +277,22 @@
    }
    clearDrag();
  }
+ function onJournalKey(event){
+   if(!bookOpen)return;
+   if(event.key==='Escape'){
+     event.preventDefault();bookOpen=false;render();
+     root.querySelector('.gm-top')?.scrollIntoView({behavior:'auto',block:'start'});
+     root.querySelector('.gm-book-toggle')?.focus({preventScroll:true});
+     return;
+   }
+   if(event.key!=='Tab')return;
+   const items=[...root.querySelectorAll('.gm-book-open button:not(:disabled)')];
+   if(!items.length)return;
+   const first=items[0],last=items[items.length-1];
+   if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}
+   else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}
+ }
+ root.addEventListener('keydown',onJournalKey);
  root.addEventListener('click',onClick);
  root.addEventListener('pointerdown',onPointerDown);
  window.addEventListener('pointermove',onPointerMove,{passive:false});
