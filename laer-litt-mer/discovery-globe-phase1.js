@@ -11,7 +11,11 @@
 if(!new URLSearchParams(location.search).has('discovery-globe-preview'))return;
 const screen=document.getElementById('world-screen');
 const art=window.LariaGlobeArtV24;
-if(!screen||!art||typeof window.drawGlobe!=='function'||typeof window.globeProject!=='function')return;
+if(!screen||!art||typeof window.drawGlobe!=='function'||typeof window.globeProject!=='function'){
+  window.__lariaDiscoveryStartupError='Missing prerequisite: '+JSON.stringify({
+    screen:!!screen,art:!!art,draw:typeof window.drawGlobe,projection:typeof window.globeProject
+  });return;
+}
 window.__lariaDiscoveryGlobePreview=true;
 
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
@@ -307,7 +311,8 @@ const wait=()=>{
     /* Repaint only on a real mode change, not during idle polling. */
     if(!activated||window.drawGlobe!==discoveryDraw){
       window.drawGlobe=discoveryDraw;try{drawGlobe=discoveryDraw}catch(_){}
-      try{window.resizeGlobe();discoveryDraw();activated=true}catch(_){}
+      try{window.resizeGlobe();discoveryDraw();activated=true}
+    catch(error){window.__lariaDiscoveryGlobeLastError=String(error?.stack||error);}
     }
   };
   document.addEventListener('click',event=>{
