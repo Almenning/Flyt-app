@@ -151,7 +151,8 @@
    if(world){world.classList.remove('gm-bloom');void world.offsetWidth;world.classList.add('gm-bloom');}
  }
  function back(){
-   if(returnToMath){
+   const origin=document.getElementById('multiplication-lab-screen')?.dataset.gmReturnOrigin;
+   if(returnToMath||origin==='subject'){
      // The Maths screen already exists beneath Gangemagi. Returning to that
      // exact screen avoids rerunning journey navigation and losing the parent.
      const subject=document.getElementById('subject-screen');
@@ -171,6 +172,7 @@
    const screen=document.getElementById('multiplication-lab-screen');
    if(screen){
      screen.dataset.returnToMathSubject=String(returnToMath);
+     screen.dataset.gmReturnOrigin=returnToMath?'subject':'basecamp';
      screen.setAttribute('data-explore-release','explore-rc1');
    }
    hintStep=0;notice='';foxMood='curious';lastAction='';lastGroup=-1;render();
@@ -189,6 +191,9 @@
  function onClick(event){
    const button=event.target.closest('button[data-gm-action]');
    if(!button||!root.contains(button))return;
+   // This is a standalone child game. Do not let old document-level
+   // lab/back delegates also act on the same click.
+   event.preventDefault();event.stopPropagation();
    const kind=button.dataset.gmAction;
    if(kind==='back'){back();return;}
    if(kind==='classic'){nextOpen();return;}
