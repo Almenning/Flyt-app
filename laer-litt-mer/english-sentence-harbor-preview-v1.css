@@ -171,6 +171,40 @@
 .sh-root .sh-story-map .sh-map-stop .sh-arrow,.sh-root .sh-story-map .sh-map-stop small{display:none}
 .sh-root .sh-story-rail{display:flex;flex-direction:column;min-width:0;gap:13px;padding:5px 0}
 .sh-root .sh-story-rail .sh-progress,.sh-root .sh-story-rail .sh-continue{margin:0}
+ /* Adventure trail: five small discoveries echo the original journey maps.
+    This replaces the old dashboard-like progress card and redundant sidebar. */
+ .sh-root .sh-story-rail .sh-progress{
+   padding:4px 2px;background:transparent;border:0;border-radius:0;
+   box-shadow:none;text-align:center;
+ }
+ .sh-root .sh-story-rail .sh-progress strong{
+   color:#644b32;font-size:clamp(13px,1.65vw,16px);
+ }
+ .sh-root .sh-story-rail .sh-progress small{
+   color:#7b6952;font-size:12px;line-height:1.35;
+ }
+ .sh-root .sh-journey-stars{
+   display:flex;justify-content:center;gap:clamp(9px,1.45vw,17px);
+   margin-top:11px;align-items:center;
+ }
+ .sh-root .sh-journey-stars span{
+   width:clamp(20px,3vw,27px);height:clamp(20px,3vw,27px);
+   display:grid;place-items:center;border-radius:50%;
+   color:#9f835d;border:2px solid #bfa57b;
+   background:linear-gradient(165deg,#fff8e6,#eee3c8);
+   box-shadow:inset 0 1px 1px #fff9e9,0 2px 3px #55391d26;
+ }
+ .sh-root .sh-journey-stars span::after{content:"✧";font-size:17px;line-height:1}
+ .sh-root .sh-journey-stars span.is-visited{
+   color:#6d421b;border-color:#ad752d;
+   background:linear-gradient(155deg,#ffe8a5,#dcad56);
+   box-shadow:0 2px 5px #a5794380;
+ }
+ .sh-root .sh-journey-stars span.is-visited::after{content:"✦"}
+ .sh-root .sh-journey-stars span.is-next{
+   outline:2px solid #e1c074;outline-offset:3px;
+ }
+
 .sh-root .sh-story-hero{display:flex;flex-direction:column;gap:12px;min-width:0}
 .sh-root .sh-story-fox{display:flex;align-items:center;gap:10px;padding:12px;
  background:#e5ebdf;border:2px solid #b8caaa;border-radius:18px;box-shadow:0 4px 0 #bfcaab}
@@ -298,14 +332,17 @@
  .sh-root .sh-story-rail{
    grid-area:rail;
    display:grid;
-   grid-template-columns:minmax(0,1fr) minmax(0,1fr);
-   gap:12px;
+   grid-template-columns:minmax(0,1fr);
+   justify-items:center;
+   gap:9px;
    width:min(100%,650px);
    padding:0;
  }
- .sh-root .sh-story-rail .sh-progress{grid-column:1}
- .sh-root .sh-story-rail .sh-story-guide{grid-column:2}
- .sh-root .sh-story-rail .sh-note{grid-column:1 / -1}
+ .sh-root .sh-story-rail .sh-progress{
+   grid-column:1;
+   width:min(100%,460px);
+ }
+ 
 }
 
 /* Mobile painterly map labels: the 320px Setningsverkstedet sign must

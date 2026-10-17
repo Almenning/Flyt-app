@@ -42,9 +42,10 @@
      '<aside class="cv-story-rail" aria-label="Din reise">'+
      '<div class="cv-progress" role="status"><strong>'+p.done+' av 5 steder utforsket</strong>'+
      '<small>'+(p.places.some(place=>place.attempts===1)?'Flere nye oppdagelser venter når du besøker et sted igjen.':'Alle stedene kan gjentas når du vil.')+'</small>'+
-     '<div class="cv-bar"><span style="width:'+p.done*20+'%"></span></div></div>'+
-     '<div class="cv-story-guide"><strong>Finn veien til verden</strong>'+
-     '<p>Styr med kompass, sett stempler og finn spennende land med den ekte kloden.</p></div>'+
+     '<div class="cv-journey-stars" aria-hidden="true">'+
+       Array.from({length:5},(_,i)=>'<span class="'+(i<p.done?'is-visited':i===p.done?'is-next':'')+'"></span>').join('')+
+       '</div></div>'+
+
      '<p class="cv-note">Eventyrhavet er fantasi, ikke et verdenskart. Den ekte globusen er uendret.</p>'+
      '</aside></div>'+
      '<div class="cv-story-map" role="group" aria-label="Illustrert fantasihav med fem interaktive eventyrsteder">'+

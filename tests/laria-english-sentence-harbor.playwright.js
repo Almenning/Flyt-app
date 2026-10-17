@@ -80,6 +80,11 @@ async function verify(type,label,viewport){
    assert.equal(imageState.variant,'production-v3',label+' English default painting must render without fallback: '+JSON.stringify(imageState));
    const map=page.locator('.sh-story-map');
    await map.waitFor({state:'visible'});
+   const discoveries=page.locator('.sh-story-rail .sh-journey-stars > span');
+   assert.equal(await discoveries.count(),5,
+     label+' should express progress as five in-world discoveries');
+   assert.equal(await page.locator('.sh-story-guide').count(),0,
+     label+' must not recreate the redundant school-style information panel');
    if(viewport.width<=390){
      const signs=await page.locator('.sh-story-map .sh-map-stop').evaluateAll(buttons=>
        buttons.map(button=>{

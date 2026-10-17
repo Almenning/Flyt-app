@@ -85,6 +85,11 @@ async function verify(type,label,viewport){
    assert.equal(imageState.variant,'production-v3',label+' Geography default painting must render without fallback: '+JSON.stringify(imageState));
    const map=page.locator('.cv-story-map');
    await map.waitFor({state:'visible'});
+   const discoveries=page.locator('.cv-story-rail .cv-journey-stars > span');
+   assert.equal(await discoveries.count(),5,
+     label+' should express progress as five in-world discoveries');
+   assert.equal(await page.locator('.cv-story-guide').count(),0,
+     label+' must not recreate the redundant school-style information panel');
    // Visual acceptance: on a portrait iPad the painting itself must become
    // a generous scene rather than a narrow desktop column with blank canvas.
    if(viewport.width===820&&viewport.height===1180){

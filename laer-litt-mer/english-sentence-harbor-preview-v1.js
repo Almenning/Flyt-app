@@ -40,10 +40,10 @@
      '<aside class="sh-story-rail" aria-label="Din reise">'+
      '<div class="sh-progress" role="status"><strong>'+p.done+' av 5 steder utforsket</strong>'+
      '<small>'+(p.places.some(place=>place.attempts===1)?'Nye oppgaver venter på steder du har besøkt.':'Velg fritt, og kom tilbake til et sted du liker.')+'</small>'+
-     '<div class="sh-progress-bar"><span style="width:'+p.done*20+'%"></span></div></div>'+
-     '<div class="sh-story-guide"><strong>Ord blir små eventyr</strong>'+
-     '<p>Lytt, prat, les og sett sammen setninger. Reisen er din.</p></div>'+
-     '<p class="sh-note">Fem steder å oppdage. Du velger selv hvor eventyret begynner.</p>'+
+     '<div class="sh-journey-stars" aria-hidden="true">'+
+       Array.from({length:5},(_,i)=>'<span class="'+(i<p.done?'is-visited':i===p.done?'is-next':'')+'"></span>').join('')+
+       '</div></div>'+
+
      '</aside></div>'+
      '<div class="sh-story-map" role="group" aria-label="Illustrert havnekart med fem eventyrsteder">'+
      '<img class="sh-map-art" data-sh-art-variant="'+(paintedCandidate?'candidate-v2':'production-v3')+'" src="'+mapArt+'" draggable="false" loading="eager" alt="">'+
