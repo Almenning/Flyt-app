@@ -21,9 +21,11 @@
 #globe-view-toggle button:focus-visible{
   outline:3px solid #F0A841;outline-offset:3px
 }
-@media(max-width:650px) and (min-height:501px){
+/* Portrait has a dedicated space between the globe and the country card.
+   Do not place the view selector under the existing top geography mode bar. */
+@media(orientation:portrait) and (min-height:501px){
   #world-screen.active[data-map-perspective="globe"] #globe-view-toggle{
-    top:calc(max(12px,env(safe-area-inset-top)) + 150px)
+    top:auto;bottom:200px;left:50%
   }
 }
 @media(max-height:500px){
