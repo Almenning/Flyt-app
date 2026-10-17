@@ -285,24 +285,44 @@ function paintMountainCrests(ctx,chain,w,h,s,level,width){
 function paintReliefTrails(ctx,w,h,s,level,moving){
   if(moving)return 0;
   let count=0;
-  for(const chain of mountainChains){
-    const zone={route:chain.route,width:chain.width};
-    if(!smoothGeoStroke(ctx,chain.route,w,h,s))continue;
-    const width=clamp(geoBrushWidth(zone,w,h,s),2,s*.09);
-    ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
-    ctx.strokeStyle='rgba(39,76,69,.30)';ctx.lineWidth=width*2.15;ctx.stroke();
-    ctx.strokeStyle='rgba(67,104,87,.55)';ctx.lineWidth=width*1.45;ctx.stroke();
-    ctx.strokeStyle='rgba(143,168,138,.83)';ctx.lineWidth=width*.88;ctx.stroke();
-    ctx.strokeStyle=chain.snow?'rgba(247,247,218,.72)':'rgba(226,205,149,.57)';
-    ctx.lineWidth=width*.30;ctx.stroke();ctx.restore();
-    count+=1+paintMountainCrests(ctx,chain,w,h,s,level,width);
+  for(let c=0;c<mountainChains.length;c++){
+    const chain=mountainChains[c],zone={route:chain.route,width:chain.width};
+    const radius=clamp(geoBrushWidth(zone,w,h,s)*1.12,s*.008,s*.12);
+    let visible=false;
+    for(let j=0;j<chain.route.length-1;j++){
+      const a=chain.route[j],b=chain.route[j+1];
+      const countSegments=Math.max(1,Math.ceil(Math.max(Math.abs(a[0]-b[0]),Math.abs(a[1]-b[1]))/3.5));
+      for(let i=0;i<=countSegments;i++){
+        if(j>0&&i===0)continue;
+        const t=i/countSegments,lon=a[0]+(b[0]-a[0])*t,lat=a[1]+(b[1]-a[1])*t;
+        const p=project(lon,lat,w,h);if(!p||p[2]<.10)continue;
+        if(p[0]<-radius||p[0]>w+radius||p[1]<-radius||p[1]>h+radius)continue;
+        const seed=c*79+j*13+i*19,r=radius*(.77+geoNoise(seed+21)*.41);
+        ctx.save();ctx.translate(p[0],p[1]);ctx.rotate(-.32);ctx.scale(1,.72);
+        const g=ctx.createRadialGradient(-r*.18,-r*.22,r*.01,0,0,r);
+        g.addColorStop(0,'rgba(57,93,79,.40)');
+        g.addColorStop(.38,'rgba(104,138,113,.31)');
+        g.addColorStop(.68,chain.snow?'rgba(208,220,192,.17)':'rgba(183,159,112,.13)');
+        g.addColorStop(1,'rgba(81,106,78,0)');
+        ctx.fillStyle=g;ctx.beginPath();ctx.arc(0,0,r,0,Math.PI*2);ctx.fill();
+        ctx.restore();visible=true;
+      }
+    }
+    if(!visible)continue;
+    // Fine sunlight on geographic crest, not an outlined highway.
+    if(smoothGeoStroke(ctx,chain.route,w,h,s)){
+      ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
+      ctx.strokeStyle=chain.snow?'rgba(241,247,222,.23)':'rgba(231,211,156,.21)';
+      ctx.lineWidth=Math.max(.60,s*.0015);ctx.stroke();ctx.restore();
+    }
+    count+=1+paintMountainCrests(ctx,chain,w,h,s,level,radius*.72);
   }
   if(level>=2)for(const river of riverWays){
     if(!smoothGeoStroke(ctx,river.route,w,h,s))continue;
     ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
-    const k=s*.0055*clamp(Math.pow(globeZoom,.20),1,1.37);
-    ctx.strokeStyle='rgba(15,90,113,.39)';ctx.lineWidth=k*2.2;ctx.stroke();
-    ctx.strokeStyle='rgba(152,235,224,.86)';ctx.lineWidth=k*.97;ctx.stroke();
+    const k=s*.0022*clamp(Math.pow(globeZoom,.14),1,1.25);
+    ctx.strokeStyle='rgba(26,110,132,.46)';ctx.lineWidth=Math.max(1,k*2.1);ctx.stroke();
+    ctx.strokeStyle='rgba(172,232,219,.73)';ctx.lineWidth=Math.max(.68,k*.88);ctx.stroke();
     ctx.restore();count++;
   }
   return count;
