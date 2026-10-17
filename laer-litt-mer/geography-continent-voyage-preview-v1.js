@@ -108,7 +108,11 @@
    if(target){
      target.focus({preventScroll:true});
      // Reveal the child's feedback on small screens without extra searching.
-     if(revealFeedback)target.scrollIntoView({behavior:'auto',block:'center',inline:'nearest'});
+     if(revealFeedback){
+       target.scrollIntoView({behavior:'auto',block:'center',inline:'nearest'});
+       // Keep the action to continue visible without hiding the feedback.
+       ui.root.querySelector('[data-cv-act="next"]')?.scrollIntoView({behavior:'auto',block:'nearest',inline:'nearest'});
+     }
    }
  }
  function save(){try{ui?.save?.()}catch(_){/* keep draft playable in memory */}}
