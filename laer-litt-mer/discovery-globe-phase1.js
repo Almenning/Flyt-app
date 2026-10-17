@@ -28,7 +28,7 @@ const mix=(a,b,t)=>{
 };
 const continent={
   'Europa':'#5A91DB','Asia':'#D9AE55','Afrika':'#D87D56',
-  'Nord-Amerika':'#6BAF74','Sør-Amerika':'#4FA572','Oseania':'#79AC72'
+  'Nord-Amerika':'#6BAF74','SÃ¸r-Amerika':'#4FA572','Oseania':'#79AC72'
 };
 /* Broad natural regions are deliberately sparse. The land clip is the source
    of truth, so a painterly wash cannot escape across a border or coast. */
@@ -94,12 +94,14 @@ function paintBorders(ctx,w,h,s){
   }
 }
 function paintLandmarks(ctx,w,h,s,level,moving){
-  if(moving)return;
+  if(moving)return 0;
+  let painted=0;
   for(const [kind,lon,lat,scale,minLevel] of landmarks){
     if(level<minLevel)continue;const p=project(lon,lat,w,h);if(!p||p[2]<.18)continue;
     const fn=draw[kind];if(!fn)continue;const k=s*.036*scale*clamp(.60+p[2]*.46,.64,1.06)*clamp(Math.pow(window.globeZoom,.16),1,1.30);
-    ctx.save();ctx.globalAlpha=level===minLevel?1:.92;fn(ctx,p[0],p[1],k,false);ctx.restore();
+    ctx.save();ctx.globalAlpha=level===minLevel?1:.92;fn(ctx,p[0],p[1],k,false);ctx.restore();painted++;
   }
+  return painted;
 }
 function paintSmallCountries(ctx,w,h,s){
   if(typeof isTinyCountry!=='function')return;
@@ -113,11 +115,14 @@ function discoveryDraw(){
   ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);ctx.save();ctx.beginPath();ctx.arc(w/2,h/2,s*.46,0,Math.PI*2);ctx.clip();
   ocean(ctx,w,h,s);paintLandBase(ctx,w,h,s);paintBiomes(ctx,w,h,s);
   const level=globeZoom<1.7?1:globeZoom<2.8?2:3;
-  paintLandmarks(ctx,w,h,s,level,window.__lariaGlobeInteracting===true);paintBorders(ctx,w,h,s);paintSmallCountries(ctx,w,h,s);
+  /* A stale interaction flag must never suppress the settled illustration
+     layer. Pointer ownership is the reliable signal while a drag is active. */
+  const moving=window.__lariaGlobeInteracting===true&&typeof globePointers!=='undefined'&&globePointers.size>0;
+  const landmarkCount=paintLandmarks(ctx,w,h,s,level,moving);paintBorders(ctx,w,h,s);paintSmallCountries(ctx,w,h,s);
   if(typeof drawGlobePulse==='function')drawGlobePulse(ctx,w,h);
   ctx.restore();
   screen.dataset.discoveryGlobeLevel=String(level);screen.dataset.discoveryGlobe='phase1';
-  canvas.dataset.discoveryRenderer='live';
+  canvas.dataset.discoveryRenderer='live';canvas.dataset.discoveryLandmarks=String(landmarkCount);canvas.dataset.discoveryMoving=String(moving);
 }
 window.LARIA_DISCOVERY_GLOBE_DRAW=discoveryDraw;
 const wait=()=>{
