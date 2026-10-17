@@ -398,3 +398,7 @@
   .gm-book-open .gm-book-pages>p{text-align:left;margin:1px 3px 9px;font-size:11px}
 }
 @media(max-width:350px){.gm-book-intro{gap:5px}.gm-book-trophy{display:none}}
+
+/* One-tap entry to the journal without pushing berries below the first fold. */
+.gm-book-quick{display:grid;place-items:center;flex:none;width:44px;height:44px;border:2px solid #fff8e8;border-radius:15px;background:linear-gradient(#f8e8cb,#e8d0a2);box-shadow:0 4px 0 #aa876458;color:#8b6041;font-size:27px;font-weight:950;line-height:1}
+@media(max-width:400px){.gm-top{gap:5px}.gm-brand small{display:none}.gm-book-quick{width:44px;height:44px;flex:none}.gm-classic{padding:7px 7px}}

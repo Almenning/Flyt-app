@@ -24,6 +24,9 @@ async function check(engine,label,viewport,url){
   await page.evaluate(()=>window.openMultiplicationLab());
   await page.locator('#multiplication-lab-screen.active .gm-shell').waitFor();
   assert.equal(await page.locator('.gm-crate').count(),3);
+  const bookQuickBox=await page.locator('.gm-book-quick').boundingBox();
+  assert.ok(bookQuickBox&&bookQuickBox.width>=44&&bookQuickBox.height>=44&&bookQuickBox.y>=0&&bookQuickBox.y+bookQuickBox.height<=viewport.height,
+    label+' book shortcut should be touch-safe and visible on the first fold');
   assert.equal((await page.locator('.gm-math-equation').innerText()).trim(),'0 + 0 + 0 = 0');
   assert.match(await page.locator('.gm-story').innerText(),/3 kurver med 3 jordbær/);
   assert.equal(await page.locator('.gm-fox-art [data-avatar="girl"]').count(),1,'must render chosen full-body girl fox');
@@ -98,7 +101,7 @@ async function check(engine,label,viewport,url){
   await page.evaluate(()=>window.openMultiplicationLab());
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).wins.length,1);
   assert.equal((await page.locator('.gm-math-equation').innerText()).trim(),'3 × 3 = 9');
-  await page.locator('[data-gm-action="book"]').click();
+  await page.locator('[data-gm-action="open-book"]').click();
   assert.equal(await page.locator('.gm-book-mission').count(),8,'all market adventures available');
   assert.equal(await page.locator('.gm-book-open[role="dialog"][aria-modal="true"]').count(),1,'open journal is a real immersive view');
   assert.equal(await page.locator('.gm-book-fox-art [data-avatar="girl"]').count(),1,'journal keeps the chosen fox');

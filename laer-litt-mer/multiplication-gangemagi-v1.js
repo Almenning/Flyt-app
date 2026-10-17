@@ -84,6 +84,7 @@
       '<div class="gm-layout"><header class="gm-top">'+
       '<button type="button" class="gm-back" id="multiplication-lab-back" data-gm-action="back" aria-label="Tilbake til matte">‹</button>'+
       '<div class="gm-brand"><span class="gm-brand-mark">Læ<span>ria</span> ✦</span><small>TALLENGA / GANGEMAGI</small></div>'+
+      '<button type="button" class="gm-book-quick" data-gm-action="open-book" aria-label="Åpne Min markedsbok" title="Min markedsbok">✿</button>'+
       '<button type="button" class="gm-classic" data-gm-action="classic" aria-label="Åpne gangetabell og øving">Tabellen <span aria-hidden="true">↗</span></button>'+
       '</header>'+
       '<div class="gm-heading"><div><span class="gm-eyebrow">✿ ET LITE MATTEEVENTYR</span><h1>Gangemagi</h1><p>Plukk, pakk og oppdag hva gange betyr.</p></div>'+
@@ -207,7 +208,8 @@
    event.preventDefault();event.stopPropagation();
    const kind=button.dataset.gmAction;
    if(kind==='back'){back();return;}
-   if(kind==='book'){bookOpen=!bookOpen;render();if(!bookOpen)root.querySelector('.gm-top')?.scrollIntoView({behavior:'auto',block:'start'});return;}
+   if(kind==='open-book'){bookOpen=true;render();root.querySelector('.gm-book-open .gm-book-toggle')?.focus({preventScroll:true});return;}
+   if(kind==='book'){bookOpen=!bookOpen;render();if(!bookOpen){root.querySelector('.gm-book-quick')?.focus({preventScroll:true});root.querySelector('.gm-top')?.scrollIntoView({behavior:'auto',block:'start'});}return;}
    if(kind==='select-mission'){
      const index=Number(button.dataset.index);
      if(!Number.isInteger(index)||index<0||index>=E.MISSIONS.length)return;
@@ -282,7 +284,7 @@
    if(event.key==='Escape'){
      event.preventDefault();bookOpen=false;render();
      root.querySelector('.gm-top')?.scrollIntoView({behavior:'auto',block:'start'});
-     root.querySelector('.gm-book-toggle')?.focus({preventScroll:true});
+     root.querySelector('.gm-book-quick')?.focus({preventScroll:true});
      return;
    }
    if(event.key!=='Tab')return;
