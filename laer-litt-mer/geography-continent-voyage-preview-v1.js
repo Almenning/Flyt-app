@@ -108,6 +108,23 @@
    if(!ui)return;
    const previousScroll=preserveScroll?ui.root.scrollTop:0;
    ui.root.innerHTML=ui.mode==='challenge'?challenge():ui.mode==='summary'?summary():overview();
+   // A malformed or unavailable optional art file must not blank the chapter map.
+   // Keep all HTML stops and progress intact; fallback only the decorative image.
+   if(ui.mode==='overview'){
+     const art=ui.root.querySelector('.cv-map-art[data-cv-art-variant="candidate-v2"]');
+     if(art){
+       const fallback=()=>{
+         if(art.getAttribute('data-cv-art-variant')!=='candidate-v2')return;
+         art.setAttribute('data-cv-art-variant','fallback-v1');
+         art.src='./geography-continent-voyage-storymap-v1.svg';
+       };
+       art.addEventListener('error',fallback,{once:true});
+       art.addEventListener('load',()=>{
+         if(art.naturalWidth!==800||art.naturalHeight!==1000)fallback();
+       },{once:true});
+       if(art.complete&&(!art.naturalWidth||!art.naturalHeight))fallback();
+     }
+   }
    ui.root.scrollTop=previousScroll;
    const target=ui.root.querySelector(focus);
    if(target){
