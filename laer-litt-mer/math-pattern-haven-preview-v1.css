@@ -109,3 +109,21 @@
   display:inline-flex!important;
   align-items:center;justify-content:center;
 }
+
+
+/* Wide iPad/Mac adventure workspace: learning paper and fox companion
+   share the landscape instead of leaving empty side gutters. Mobile stays
+   one-column. The original Tallenga map is never modified. */
+@media (min-width:900px) and (min-height:600px) and (orientation:landscape){
+ .mh-root .mh-shell{width:min(100%,1100px);max-width:1100px}
+ .mh-root .mh-main{padding:22px clamp(24px,3vw,34px)}
+ .mh-root .mh-task{max-width:none;display:grid;grid-template-columns:minmax(230px,320px) minmax(0,1fr);column-gap:24px;row-gap:12px;align-items:start}
+ .mh-root .mh-task-nav{grid-column:1/-1;min-height:46px}
+ .mh-root .mh-companion{grid-column:1;grid-row:2;margin:0;min-height:215px;padding:18px 16px;flex-direction:column;justify-content:center;gap:11px;text-align:center}
+ .mh-root .mh-companion .mh-fox{width:132px;height:150px}
+ .mh-root .mh-companion p{max-width:260px;margin-inline:auto}
+ .mh-root .mh-step{grid-column:1;grid-row:3;margin:8px 0}
+ .mh-root .mh-paper{grid-column:2;grid-row:2/span 3;min-width:0;min-height:490px}
+ .mh-root .mh-mirror-board{width:min(100%,340px)}
+ .mh-root .mh-option{min-height:56px}
+}

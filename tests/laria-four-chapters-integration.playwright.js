@@ -18,6 +18,20 @@ async function go(page,subject){await page.goto(base+flags,{waitUntil:'domconten
  const root=subject==='geography'?'#geography-screen.active':'#subject-screen.active';
  await page.locator(root).waitFor({timeout:18000});
 }
+async function assertWideLandscape(page,selector,companion,paper,label,viewport){
+ if(viewport.width<900||viewport.width<=viewport.height)return;
+ const geometry=await page.locator(selector).evaluate((root,args)=>{
+   const bounds=sel=>{const el=root.querySelector(sel);if(!el)return null;const r=el.getBoundingClientRect();return {x:r.x,right:r.right,width:r.width,top:r.top};};
+   const shell=root.querySelector('[class$="-shell"]');
+   return {shell:shell?.getBoundingClientRect().width||0,fox:bounds(args.companion),paper:bounds(args.paper),
+     viewport:root.ownerDocument.documentElement.clientWidth};
+ },{companion,paper});
+ assert.ok(geometry.fox&&geometry.paper,label+' missing two-column companion or task paper');
+ assert.ok(geometry.shell>=viewport.width*0.78,label+' iPad workspace remains a narrow centered phone sheet');
+ assert.ok(geometry.paper.x>=geometry.fox.right+8,label+' paper does not sit beside fox companion');
+ assert.ok(geometry.paper.width>=370,label+' activity paper too narrow on landscape iPad');
+ assert.ok(geometry.paper.right<=viewport.width+2,label+' activity paper clipped to the right');
+}
 async function run(type,label,viewport){
  const browser=await type.launch({headless:true,args:type===chromium?['--no-sandbox']:[]});
  try{
@@ -41,6 +55,7 @@ async function run(type,label,viewport){
   await cell.click();
   assert.equal(await cell.getAttribute('aria-pressed'),'true');
   await shot(page,label+'-math');
+  await assertWideLandscape(page,'#laria-math-pattern-haven-preview','.mh-companion','.mh-paper',label+' math',viewport);
   await go(page,'english');
   await page.locator('[data-laria-english-chapter2-preview="1"]').click();
   await page.locator('[data-sh-act="stage"][data-sh-stage="setningsverkstedet"]').click();
@@ -48,6 +63,7 @@ async function run(type,label,viewport){
   await page.locator('[data-sh-act="tile"][data-sh-index="'+tile+'"]').click();
   assert.equal(await page.locator('.sh-built-word').count(),1);
   await shot(page,label+'-english');
+  await assertWideLandscape(page,'#laria-english-sentence-harbor-preview','.sh-companion','.sh-paper',label+' english',viewport);
   await go(page,'geography');
   await page.locator('[data-laria-geography-chapter2-preview="1"]').click();
   await page.locator('[data-cv-act="stage"][data-cv-stage="kompassholmen"]').click();
@@ -55,6 +71,7 @@ async function run(type,label,viewport){
   await page.locator('[data-cv-act="answer"][data-cv-answer="'+answer+'"]').click();
   await page.locator('[data-cv-act="next"]').click();
   await shot(page,label+'-geography');
+  await assertWideLandscape(page,'#laria-geo-continent-voyage-preview','.cv-companion','.cv-paper',label+' geography',viewport);
   await page.reload({waitUntil:'domcontentloaded'});
   const data=await page.evaluate(()=>{
    const all=state.journey.chapterProgress||{};

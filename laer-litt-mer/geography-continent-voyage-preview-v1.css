@@ -79,3 +79,21 @@
 @media(min-width:640px) and (max-height:480px) and (orientation:landscape){.cv-root .cv-harbor{height:100px}
  .cv-root .cv-main{padding:12px 17px}.cv-root .cv-intro-header .cv-fox{height:64px}}
 @media(prefers-reduced-motion:reduce){.cv-root *{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+
+/* Landscape iPad geography scene: compass stays large beside the selected
+   companion; no false geographic map is introduced by this layout. */
+@media (min-width:900px) and (min-height:600px) and (orientation:landscape){
+ .cv-root .cv-shell{width:min(100%,1100px);max-width:1100px}
+ .cv-root .cv-main{padding:22px clamp(24px,3vw,34px)}
+ .cv-root .cv-task{max-width:none;display:grid;grid-template-columns:minmax(230px,320px) minmax(0,1fr);column-gap:24px;row-gap:12px;align-items:start}
+ .cv-root .cv-task-nav{grid-column:1/-1;min-height:46px}
+ .cv-root .cv-companion{grid-column:1;grid-row:2;margin:0;min-height:215px;padding:18px 16px;flex-direction:column;justify-content:center;gap:11px;text-align:center}
+ .cv-root .cv-companion .cv-fox{width:135px;height:155px}
+ .cv-root .cv-companion p{max-width:260px;margin-inline:auto}
+ .cv-root .cv-count{grid-column:1;grid-row:3;margin:8px 0}
+ .cv-root .cv-paper{grid-column:2;grid-row:2/span 3;min-width:0;min-height:490px}
+ .cv-root .cv-compass{width:min(100%,350px);max-width:350px}
+ .cv-root .cv-direction span{font-size:36px}
+ .cv-root .cv-answer,.cv-root .cv-stamp{min-height:56px}
+}
