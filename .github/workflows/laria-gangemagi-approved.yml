@@ -1,0 +1,62 @@
+name: Laria Gangemagi approved Markedsbok visual QA
+
+on:
+  push:
+    paths:
+      - 'laer-litt-mer/gangemagi-markedsbok-approved-v2.css'
+      - 'laer-litt-mer/gangemagi-approved-eight-scenes-20261017.webp'
+      - 'laer-litt-mer/multiplication-gangemagi-v1.js'
+      - 'laer-litt-mer/multiplication-gangemagi-engine-v1.js'
+      - 'laer-litt-mer/index.html'
+      - 'tests/laria-gangemagi.playwright.js'
+      - '.github/workflows/laria-gangemagi-approved.yml'
+  pull_request:
+    paths:
+      - 'laer-litt-mer/gangemagi-markedsbok-approved-v2.css'
+      - 'laer-litt-mer/gangemagi-approved-eight-scenes-20261017.webp'
+      - 'laer-litt-mer/multiplication-gangemagi-v1.js'
+      - 'laer-litt-mer/multiplication-gangemagi-engine-v1.js'
+      - 'laer-litt-mer/index.html'
+      - 'tests/laria-gangemagi.playwright.js'
+      - '.github/workflows/laria-gangemagi-approved.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: laria-gangemagi-art-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  markedsbok-visual:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install pinned dependencies
+        run: npm ci
+      - name: Validate original image and JavaScript
+        run: |
+          test -s laer-litt-mer/gangemagi-approved-eight-scenes-20261017.webp
+          node --check laer-litt-mer/multiplication-gangemagi-v1.js
+          node --check tests/laria-gangemagi.playwright.js
+          node --test tests/laria-gangemagi-engine.test.cjs
+      - name: Install Chromium and WebKit
+        run: npx playwright install --with-deps chromium webkit
+      - name: Test six real viewport sizes and render book screenshots
+        env:
+          QA_SCREENSHOTS: /tmp/laria-gangemagi-approved-visual
+        run: node tests/laria-gangemagi.playwright.js
+      - name: Preserve visual proof for child-first layout review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-gangemagi-approved-art-${{ github.sha }}
+          path: /tmp/laria-gangemagi-approved-visual
+          retention-days: 14
+          if-no-files-found: warn
