@@ -3,7 +3,7 @@ const THEMES=window.LARIA_WORD_HUNT_THEMES;
 const LETTERS='ABCDEFGHIJKLMNOPQRSTUVWXYZÆØÅ';
 const KEY='laria-wordhunt-v1';
 const ROUND_KEY='laria-wordhunt-unfinished-round-v1';
-let ui={level:'easy',theme:'mixed',themeChoice:'mixed',size:6,grid:[],words:[],recentWords:[],found:new Map(),drag:null,tapStart:null,completed:false,magicSeen:false,magicTimer:null,pickerFocus:null,entryPickerActive:false,hintsUsed:0,companionTimer:null,feedbackTimer:null,foxSequence:0,lastMissAt:0,lastFoundWord:null};
+let ui={level:'easy',theme:'mixed',themeChoice:'mixed',size:6,grid:[],words:[],recentWords:[],found:new Map(),drag:null,tapStart:null,completed:false,magicSeen:false,magicTimer:null,pickerFocus:null,entryPickerActive:false,hintsUsed:0,companionTimer:null,feedbackTimer:null,foxSequence:0,lastMissAt:0,lastFoundWord:null,missCount:0,helpOffered:false};
 function stats(){try{return THEMES.normalizeProgress(JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(_){return THEMES.normalizeProgress(null)}}
 function saveTheme(){const s=stats();s.theme=ui.theme;localStorage.setItem(KEY,JSON.stringify(s))}
 function saveRound(){
@@ -61,7 +61,7 @@ function restoreRound(){
       found.set(word,path);
     }
     ui.level=data.level;ui.size=size;ui.theme=data.theme;ui.themeChoice=data.theme;
-    ui.words=[...data.words];ui.grid=data.grid.map(row=>[...row]);ui.found=found;ui.hintsUsed=0;ui.lastFoundWord=null;
+    ui.words=[...data.words];ui.grid=data.grid.map(row=>[...row]);ui.found=found;ui.hintsUsed=0;ui.lastFoundWord=null;ui.missCount=0;ui.helpOffered=false;
     ui.recentWords=Array.isArray(data.recentWords)&&data.recentWords.every(w=>typeof w==='string')?
       data.recentWords.filter(w=>allowedWords.has(w)).slice(0,7):[...data.words];
     ui.completed=false;ui.magicSeen=false;ui.tapStart=null;ui.drag=null;
@@ -82,7 +82,7 @@ function directionPlan(){
 }
 function makeRound(){
   ui.size=ui.level==='easy'?6:7;
-  ui.found=new Map();ui.completed=false;ui.tapStart=null;ui.drag=null;ui.magicSeen=false;ui.hintsUsed=0;ui.lastFoundWord=null;hideMagic();
+  ui.found=new Map();ui.completed=false;ui.tapStart=null;ui.drag=null;ui.magicSeen=false;ui.hintsUsed=0;ui.lastFoundWord=null;ui.missCount=0;ui.helpOffered=false;hideMagic();
   const pool=shuffle(THEMES.get(ui.theme)[ui.level]).filter(w=>w.length<=ui.size);
   const count=ui.level==='easy'?4:5;
   const recent=new Set(ui.recentWords||[]);
@@ -199,6 +199,16 @@ function companionSay(message,mood='greet',kind='idle'){
   bubble.classList.remove('is-speaking');
   void bubble.offsetWidth;
   bubble.classList.add('is-speaking');
+  // Animate the same saved fox in the phone header too: the large companion
+  // sits below the puzzle on small screens, where the child cannot see it.
+  const shortcut=root.querySelector('.word-hunt-fox-shortcut');
+  if(shortcut){
+    shortcut.dataset.foxReaction=kind;
+    const tinyFox=shortcut.querySelector('.word-hunt-fox');
+    tinyFox.classList.remove('is-reacting');
+    void tinyFox.offsetWidth;
+    tinyFox.classList.add('is-reacting');
+  }
   // The full-size personal fox stays below the puzzle on compact phones.
   // Mirror reactions in the existing thin, first-fold strip, not a new card.
   const intro=root.querySelector('.word-hunt-intro');
@@ -265,7 +275,7 @@ function scheduleCompanionOffer(){
     const current=document.getElementById('word-hunt-overlay');
     ui.companionTimer=null;
     if(!current||current.hidden||ui.completed||!current.querySelector('.word-hunt-theme-picker').hidden)return;
-    companionSay('Vil du ha en ledetråd? Jeg hjelper når du vil!','curious');
+    if(!ui.hintsUsed)companionSay('Vil du ha en ledetråd? Trykk på reven for et hint!','curious','offer');
   },45000);
 }
 function hintSay(message,mood){
@@ -296,6 +306,7 @@ function giveHint(){
     hintSay('Der er ordet '+target+'! Prøv å velge bokstavene.','greet');
   }
   ui.hintsUsed++;
+  ui.helpOffered=true;
 }
 
 function themePickerMarkup(){
@@ -497,7 +508,7 @@ function pointerUp(e){
 function tapSelect(e){
   const root=overlay();if(Number(root.dataset.draggedUntil||0)>Date.now())return;
   const cell=e.target.closest('.word-hunt-cell');if(!cell)return;const p=coord(cell);
-  if(!ui.tapStart){ui.tapStart=p;preview([p],true);status('Velg siste bokstav i ordet.');return}
+  if(!ui.tapStart){ui.tapStart=p;preview([p],true);companionSay('God start! Velg siste bokstav i ordet.','curious','start');return}
   const start=ui.tapStart;ui.tapStart=null;checkLine(line(start,p))
 }
 function checkLine(path){
@@ -515,11 +526,15 @@ function checkLine(path){
     const repeated=ui.words.some(w=>ui.found.has(w)&&(w===raw||w===rev));
     const near=!repeated&&ui.words.some(w=>!ui.found.has(w)&&
       [raw,rev].some(candidate=>candidate.length>=2&&w.startsWith(candidate.slice(0,2))));
-    foxReact(repeated?'repeated':near?'near':'wrong');
+    ui.missCount++;
+    if(ui.missCount>=4&&!ui.helpOffered){
+      ui.helpOffered=true;
+      companionSay('Skal vi prøve et hint sammen? Trykk på reven når du vil!','curious','offer');
+    }else foxReact(repeated?'repeated':near?'near':'wrong');
     status('Ikke et av ordene denne gangen. Prøv en annen retning.');
     return;
   }
-  ui.found.set(hit,path);ui.lastFoundWord=hit;
+  ui.found.set(hit,path);ui.lastFoundWord=hit;ui.missCount=0;ui.helpOffered=false;
   preview([],false);clearHintMarks();ui.hintsUsed=0;
   if(!ui.magicSeen||THEMES.reaction(hit))showMagic(hit);
   ui.magicSeen=true;
