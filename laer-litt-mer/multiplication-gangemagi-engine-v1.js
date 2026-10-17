@@ -58,6 +58,11 @@
       st.counts[i]=clamp(st.counts[i]+delta,0,st.each);
     }else if(a.type==='reset'){
       st.counts=Array(st.groups).fill(0);
+    }else if(a.type==='mission'){
+      if(!Number.isInteger(a.index)||a.index<0||a.index>=MISSIONS.length)return st;
+      st.mode='mission';st.mission=a.index;
+      const spec=MISSIONS[st.mission];st.groups=spec.groups;st.each=spec.each;
+      st.counts=Array(st.groups).fill(0);
     }else if(a.type==='next'){
       st.mode='mission';st.mission=(st.mission+1)%MISSIONS.length;
       const spec=MISSIONS[st.mission];st.groups=spec.groups;st.each=spec.each;
