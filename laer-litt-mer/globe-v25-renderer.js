@@ -703,6 +703,12 @@ function finish(ctx,w,h,s){
   ctx.fillStyle=lowerGlow;ctx.fillRect(0,0,w,h);
 }
 function premiumDraw(){
+  /* The discovery globe is an opt-in paint experiment. Some legacy resize
+     observers call this renderer directly (rather than via window.drawGlobe),
+     so honour the isolated preview before touching the shared canvas. */
+  if(window.__lariaDiscoveryGlobePreview===true&&typeof window.LARIA_DISCOVERY_GLOBE_DRAW==='function'){
+    return window.LARIA_DISCOVERY_GLOBE_DRAW();
+  }
   const canvas=document.getElementById('globe-canvas');if(!canvas)return;
   if(!canvas._cssW||!canvas._cssH){try{resizeGlobe()}catch(_){}}
   if(!canvas._cssW||!canvas._cssH)return;
