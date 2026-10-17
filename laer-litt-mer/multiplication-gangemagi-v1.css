@@ -267,6 +267,45 @@
  .gm-market-sign{display:flex}
  .gm-actions{margin-top:8px}
 }
+/* First-fold child interaction on small iPhones: keep fox, all maths and the
+ * primary touch action together instead of hiding "Plukk" below the screen. */
+@media(max-width:360px) and (max-height:650px){
+ .gm-layout{padding-top:3px}
+ .gm-top{min-height:44px}
+ .gm-heading{margin:0 2px 5px}
+ .gm-heading>div:first-child{display:none}
+ .gm-modes{display:flex;flex-direction:row;align-self:stretch;width:100%;gap:4px;padding:2px}
+ .gm-modes button{flex:1 1 0;min-height:44px;font-size:12px;padding:4px 5px}
+ .gm-world{min-height:0}
+ .gm-story{margin:6px 8px 0;min-height:53px;padding:4px 8px}
+ .gm-story h2{font-size:15px}
+ .gm-story p{font-size:10px}
+ .gm-story-progress{height:42px}
+ .gm-scene{margin:1px 5px 0;gap:0}
+ .gm-fox{min-height:55px;padding:0 4px}
+ .gm-fox-art{width:50px;height:57px}
+ .gm-fox-bubble{min-height:51px;padding:5px 5px 5px 8px;width:calc(100% - 56px)}
+ .gm-fox-message{font-size:10px}
+ .gm-crates{padding:10px 2px 0}
+ .gm-crate{height:103px;padding:6px 2px 29px}
+ .gm-fruit{width:16px;height:19px}
+ .gm-fruit-empty{width:14px;height:16px;margin:0}
+ .gm-market{margin:0}
+ .gm-math{margin:3px 8px 5px;padding:4px 8px;row-gap:1px}
+ .gm-math-equation{font-size:17px}
+ .gm-actions{display:grid;grid-template-columns:minmax(0,1fr) 67px 67px;gap:5px;margin-top:6px}
+ .gm-pick{min-width:0;min-height:51px;max-width:none;padding:3px 5px;gap:2px;font-size:11px;border-radius:14px}
+ .gm-pick .gm-pick-fruit{height:33px;width:23px}
+ .gm-pick>span:nth-child(2){white-space:nowrap}
+ .gm-tool{min-height:51px;padding:4px 4px;font-size:10px;border-radius:14px;white-space:nowrap}
+ .gm-tool>span{font-size:13px;margin-right:0}
+ .gm-actions-complete{grid-template-columns:minmax(0,1fr) 83px;max-width:none}
+ .gm-actions-complete .gm-next{min-height:51px;font-size:12px}
+ .gm-actions-complete .gm-tool{min-height:51px}
+ .gm-celebration{margin-bottom:4px;padding:3px 8px;font-size:10px;gap:4px}
+ .gm-celebration span:first-child{font-size:17px}
+ .gm-footer{margin-top:6px}
+}
 @media(prefers-reduced-motion:reduce){
  .gm-shell *{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
  .gm-drag-fruit{transform:translate(-50%,-50%)}
