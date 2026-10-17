@@ -62,6 +62,7 @@ async function verify(type,label,viewport){
    assert.equal(await page.locator('[data-laria-english-chapter2-preview]').count(),0,'unflagged content must be hidden');
    await page.goto(base+'&english-chapter2-preview=1',{waitUntil:'domcontentloaded'});
    await enter(page);
+   assert.equal(await page.locator('.sh-map-art').getAttribute('data-sh-art-variant'),'default-v1',label+' normal preview must not switch artwork');
    const map=page.locator('.sh-story-map');
    await map.waitFor({state:'visible'});
    const layout=await map.evaluate(el=>{
@@ -206,6 +207,28 @@ async function verify(type,label,viewport){
    const legacy=await page.evaluate(()=>({wins:state.journey.gradeWins['english:2'],node:state.journey.nodes['english:2:words']}));
    assert.deepEqual(legacy,{wins:{at:144},node:{best:4}},label+' changed Ordlandsbyen progress');
    await photo(page,label+'-story');
+   // Art v2 is an opt-in review, still inside the hidden developer-only preview.
+   if(type===webkit&&(label==='webkit-iphone'||label==='webkit-ipad-landscape')){
+     await page.goto(base+'&english-chapter2-preview=1&english-chapter2-art-v2=1',{waitUntil:'domcontentloaded'});
+     await enter(page);
+     await page.waitForFunction(()=>{
+       const img=document.querySelector('.sh-map-art');
+       return !!img&&img.complete&&img.naturalWidth===800&&img.naturalHeight===1000;
+     },null,{timeout:20000});
+     const art=page.locator('.sh-map-art');
+     assert.equal(await art.getAttribute('data-sh-art-variant'),'candidate-v2');
+     const stops=page.locator('.sh-story-map [data-sh-act="stage"]');
+     assert.equal(await stops.count(),5,label+' candidate artwork must retain five independently playable places');
+     const rect=await page.locator('.sh-story-map').boundingBox();
+     for(let n=0;n<5;n++){
+       const stop=await stops.nth(n).boundingBox();
+       assert.ok(stop&&rect&&stop.height>=44&&stop.x>=rect.x-2&&stop.x+stop.width<=rect.x+rect.width+2&&stop.y>=rect.y-2&&stop.y+stop.height<=rect.y+rect.height+2,
+         label+' painterly candidate clipped a child-sized interactive landmark '+n);
+     }
+     await photo(page,label+'-art-v2-candidate');
+     await stops.first().click();
+     assert.ok(await page.locator('.sh-task').count(),label+' candidate map failed to launch playable chapter task');
+   }
    assert.deepEqual(errors,[],label+' runtime exception');
    await ctx.close();
    console.log('PASS Setningshavna '+label);
