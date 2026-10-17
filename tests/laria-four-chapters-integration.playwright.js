@@ -12,6 +12,17 @@ const seed={version:7,progressSchemaVersion:3,profile:{grade:2,onboarded:true,na
  gradeWins:{'norwegian:2':{at:11},'math:2':{at:12},'english:2':{at:13},'geography:2':{at:14}},viewGrades:{}},
  answerLog:[],sessionLog:[],activeSession:null};
 async function shot(page,name){if(!shots)return;fs.mkdirSync(shots,{recursive:true});await page.screenshot({path:path.join(shots,name+'.png'),animations:'disabled'})}
+async function assertCompactHint(page,textSelector,backSelector,viewport,label){
+ if(viewport.width>360)return;
+ const width=await page.locator(textSelector).evaluate(el=>el.getBoundingClientRect().width);
+ assert.ok(width>=190,label+' hint squeezed to '+width+'px, expected full-width reading room');
+ const button=await page.locator(backSelector).evaluate(el=>({
+   whiteSpace:getComputedStyle(el).whiteSpace,
+   height:el.getBoundingClientRect().height
+ }));
+ assert.equal(button.whiteSpace,'nowrap',label+' Back wraps into two lines');
+ assert.ok(button.height<=55,label+' Back button got too tall');
+}
 async function go(page,subject){await page.goto(base+flags,{waitUntil:'domcontentloaded'});
  const button=page.locator('.bc14-subject[data-camp="subject-'+subject+'"]');
  await button.waitFor({timeout:22000});await button.click();
@@ -56,6 +67,7 @@ async function run(type,label,viewport){
   await mhHint.click();
   assert.equal(await page.locator('.mh-fox-hint').count(),1);
   assert.match(await page.locator('#mh-fox-message').innerText(),/samme rad/);
+  await assertCompactHint(page,'#mh-fox-message','.mh-back',viewport,label+' math');
   await shot(page,label+'-math-fox-hint');
   const expectedFox=await page.evaluate(()=>avatarSrc('girl'));
   const mathFox=await page.locator('.mh-companion .mh-fox').getAttribute('src');
@@ -78,6 +90,7 @@ async function run(type,label,viewport){
   assert.equal(await page.locator('[data-sh-act="hint"]').getAttribute('aria-expanded'),'false');
   await page.locator('[data-sh-act="hint"]').click();
   assert.match(await page.locator('#sh-fox-message').innerText(),/først/);
+  await assertCompactHint(page,'#sh-fox-message','.sh-top .sh-quiet',viewport,label+' english');
   assert.equal(await page.locator('.sh-fox-hint').count(),1);
   await shot(page,label+'-english-fox-hint');
   const englishFox=await page.locator('.sh-companion .sh-fox').getAttribute('src');
@@ -98,6 +111,7 @@ async function run(type,label,viewport){
   await page.locator('[data-cv-act="hint"]').click();
   assert.equal(await page.locator('.cv-fox-hint').count(),1);
   assert.match(await page.locator('#cv-fox-message').innerText(),/nord/);
+  await assertCompactHint(page,'#cv-fox-message','.cv-top .cv-quiet',viewport,label+' geography');
   await shot(page,label+'-geography-fox-hint');
   const geographyFox=await page.locator('.cv-companion .cv-fox').getAttribute('src');
   assert.equal(geographyFox,expectedFox,label+' Geography changed the selected fox');
