@@ -79,6 +79,31 @@ async function run(type,label,viewport){
    await enter(page);
    const g=await page.locator('#laria-math-pattern-haven-preview').evaluate(el=>({width:el.clientWidth,scroll:el.scrollWidth}));
    assert.ok(g.scroll<=g.width+3,label+' map overflow');
+   const storyMap=page.locator('.mh-story-map');
+   await storyMap.waitFor({state:'visible'});
+   const geometry=await storyMap.evaluate(el=>{
+     const r=el.getBoundingClientRect(),img=el.querySelector('.mh-map-art');
+     return {width:r.width,height:r.height,loaded:img.complete&&img.naturalWidth>0,
+       art:img.getAttribute('src'),
+       buttons:[...el.querySelectorAll('button[data-mh-act="stage"]')].map(btn=>{
+         const b=btn.getBoundingClientRect();
+         return {x:b.x-r.x,y:b.y-r.y,w:b.width,h:b.height};
+       })};
+   });
+   assert.equal(geometry.art,'./math-pattern-haven-storymap-v1.svg');
+   assert.equal(geometry.loaded,true,label+' illustrated background not loaded');
+   assert.equal(geometry.buttons.length,5,label+' painted map lost a stop');
+   assert.ok(geometry.height>geometry.width,label+' artwork must be portrait');
+   for(const b of geometry.buttons){
+     assert.ok(b.w>=44&&b.h>=44,label+' stop too small for touch');
+     assert.ok(b.x>=-2&&b.y>=-2&&b.x+b.w<=geometry.width+2&&b.y+b.h<=geometry.height+2,
+       label+' a stop label is clipped outside the illustrated map');
+   }
+   for(let i=0;i<geometry.buttons.length;i++)for(let j=i+1;j<geometry.buttons.length;j++){
+     const b=geometry.buttons[i],c=geometry.buttons[j];
+     assert.ok(b.x+b.w<=c.x+1||c.x+c.w<=b.x+1||b.y+b.h<=c.y+1||c.y+c.h<=b.y+1,
+       label+' stage labels overlap');
+   }
    await photo(page,label+'-map');
    await complete(page,'formstien');
    assert.equal(await page.evaluate(()=>window.LARIA_MATH_PATTERN_HAVEN.progress(state).done),1);
