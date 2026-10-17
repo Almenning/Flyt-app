@@ -2355,6 +2355,9 @@
   <!-- Active Læria styles. Order is dependency-sensitive; shared layers load before scoped overrides. -->
   <!-- Labs -->
   <link rel="stylesheet" href="./laria-foundation-v1.css?v=20261006-p8foundation1" />
+  <link rel="stylesheet" href="./math-pattern-haven-preview-v1.css?v=20261017-c2pilot1" />
+  <link rel="stylesheet" href="./english-sentence-harbor-preview-v1.css?v=20261017-en2a" />
+  <link rel="stylesheet" href="./geography-continent-voyage-preview-v1.css?v=20261017-geo2a" />
     <link rel="stylesheet" href="./fraction-lab.css?v=20261006-assets1" />
     <link rel="stylesheet" href="./fraction-premium-v2.css?v=20261009-illustrated3" />
     <link rel="stylesheet" href="./fraction-premium-v4.css?v=20261011-intuitive-equivalents-landscape8" />
@@ -2376,6 +2379,8 @@
   <!-- Home: one premium Basecamp for all grades; presentation matures by grade band -->
   <link rel="stylesheet" href="./home-premium.css?v=20261007-perf2" />
   <link rel="stylesheet" href="./home-basecamp-v12.css?v=20261016-wordhunt-stickers1" />
+  <link rel="stylesheet" href="./fortellingsdalen-preview-v1.css?v=20261016-c2readingflow2" />
+  <link rel="stylesheet" href="./norwegian-chapter-picker-v1.css?v=20261016-c2chooser1" />
   <!-- Free play -->
   <link rel="stylesheet" href="./word-hunt.css?v=20261017-premium-painted1" />
   <!-- Shared inner screens and task scene; young task styling intentionally extends the shared scene -->
@@ -3265,7 +3270,7 @@ const defaultState={
   lastMilestone:null,
   recentCountryWin:null,
   lastActivity:null,
-  journey:{nodes:{},gradeWins:{},viewGrades:{}},
+  journey:{nodes:{},gradeWins:{},viewGrades:{},chapterProgress:{}},
   collectibles:window.LARIA_COLLECTION_CORE.normalize(null),
   answerLog:[],
   sessionLog:[],
@@ -3305,7 +3310,7 @@ function loadState(){
       masteryEvidence:parsed.masteryEvidence||{},skillEvidence:parsed.skillEvidence||{},
       preferences:{...defaultState.preferences,...(parsed.preferences||{})},
       lastMilestone:parsed.lastMilestone||null,recentCountryWin:parsed.recentCountryWin||null,
-      journey:{nodes:{...(parsed.journey?.nodes||{})},gradeWins:{...(parsed.journey?.gradeWins||{})},viewGrades:{...(parsed.journey?.viewGrades||{})}},
+      journey:{nodes:{...(parsed.journey?.nodes||{})},gradeWins:{...(parsed.journey?.gradeWins||{})},viewGrades:{...(parsed.journey?.viewGrades||{})},chapterProgress:{...(parsed.journey?.chapterProgress||{})}},
       collectibles:window.LARIA_COLLECTION_CORE.normalize(parsed.collectibles),
       answerLog:Array.isArray(parsed.answerLog)?parsed.answerLog:[],
       sessionLog:Array.isArray(parsed.sessionLog)?parsed.sessionLog:[]
@@ -4714,6 +4719,34 @@ function openSubject(subject){
   document.getElementById('subject-grade-label').textContent=GRADE_CONFIG[currentGrade()].label;
   const labEntry=document.getElementById('math-lab-entry');if(labEntry)labEntry.hidden=subject!=='math';
   renderSubjectModules();renderSubjectJourney();renderSubjectContinue();showScreen('subject');
+  // The approved locked Tallenga journey hides #subject-modules. A private
+  // preview launcher must therefore live directly in the visible subject
+  // screen, not in the hidden free-practice area.
+  screen.querySelector(':scope > [data-laria-math-chapter2-preview]')?.remove();
+  if(subject==='math'&&currentGrade()===2&&window.LARIA_MATH_PATTERN_HAVEN?.previewEnabled(location.search)){
+    const preview=document.createElement('button');
+    preview.type='button';preview.className='mh-dev-launch';
+    preview.dataset.lariaMathChapter2Preview='1';
+    preview.textContent='✿ Mønsterhagen · test';
+    preview.setAttribute('aria-label','Åpne Mønsterhagen, intern test av Mattekappittel 2');
+    preview.onclick=()=>window.LARIA_MATH_PATTERN_HAVEN_UI?.open({
+      state,save:saveState,foxSrc:avatarSrc(state.profile?.avatar==='girl'?'girl':'boy')
+    });
+    screen.appendChild(preview);
+  }
+  // English adventure two is a private preview. Approved Ordlandsbyen
+  // hides the old module list, so this button belongs to the subject screen.
+  screen.querySelector(':scope > [data-laria-english-chapter2-preview]')?.remove();
+  if(subject==='english'&&currentGrade()===2&&window.LARIA_ENGLISH_SENTENCE_HARBOR?.previewEnabled(location.search)){
+    const preview=document.createElement('button');
+    preview.type='button';preview.className='sh-dev-launch';
+    preview.dataset.lariaEnglishChapter2Preview='1';
+    preview.textContent='⚓ Setningshavna · test';
+    preview.onclick=()=>window.LARIA_ENGLISH_SENTENCE_HARBOR_UI?.open({
+      state,save:saveState,foxSrc:avatarSrc(state.profile?.avatar==='girl'?'girl':'boy')
+    });
+    screen.appendChild(preview);
+  }
 }
 function renderSubjectModules(){
   const box=document.getElementById('subject-modules');box.innerHTML='';
@@ -4723,6 +4756,26 @@ function renderSubjectModules(){
     b.onclick=()=>{activeModule=m.id;startLearningSession(activeSubject,m.id,m.title)};
     box.appendChild(b);
   });
+  // Only the explicit developer preview URL enables the unfinished chapter-two prototype.
+  // No placeholder map or unapproved illustration is shown to children.
+  document.body.querySelector(':scope > [data-laria-chapter2-preview]')?.remove();
+  if(activeSubject==='norwegian'&&currentGrade()===2&&window.LARIA_CHAPTER_EXPANSION?.previewEnabled(location.search)){
+    const preview=document.createElement('button');preview.type='button';preview.className='subject-module';
+    preview.dataset.lariaChapter2Preview='1';preview.classList.add('fd-dev-launch');
+    preview.innerHTML='<div class="module-icon">✦</div><div><strong>Mine eventyr (testversjon)</strong><small>Norsk · Velg Bokskogen eller Fortellingsdalen</small></div><div class="topic-arrow">›</div>';
+    preview.onclick=()=>window.LARIA_NORWEGIAN_CHAPTER_PICKER?.open({
+      state,
+      firstProgress:()=>journeyProgress('norwegian',2),
+      foxSrc:avatarSrc(state.profile?.avatar==='girl'?'girl':'boy'),
+      onBokskogen:()=>document.getElementById('journey-map')?.scrollIntoView({block:'start',behavior:'instant'}),
+      onFortellingsdalen:()=>window.LARIA_FORTELLINGSDALEN_PREVIEW?.open({
+        state,save:saveState,foxSrc:avatarSrc(state.profile?.avatar==='girl'?'girl':'boy')
+      })
+    });
+    // The iPad landscape map can hide ALL legacy screen descendants.
+    // Use a body portal, visible only while the approved Norwegian map is active.
+    document.body.appendChild(preview);
+  }
   const viewGrade=journeyViewGrade(activeSubject),jp=journeyProgress(activeSubject,viewGrade),chapter=journeyChapterInfo(activeSubject,viewGrade);
   document.getElementById('subject-progress-label').textContent=jp.complete?(chapter?'Eventyr 1 fullført 🏆':'Fullført 🏆'):jp.pct+' %';
   document.getElementById('subject-progress-bar').style.width=jp.pct+'%';
@@ -5727,6 +5780,18 @@ function renderGeographyContinue(){
   if(capitalTheme)capitalTheme.hidden=currentGrade()===1;
   if(currentGrade()===1&&geoTheme==='capital'){geoTheme='country';syncGeoThemeButtons()}
   renderGeoJourney();
+  // Geography chapter 2 stays dev-only and must sit above the real Nordlysleiren painting.
+  const geographyScreen=document.getElementById('geography-screen');
+  geographyScreen.querySelector(':scope > [data-laria-geography-chapter2-preview]')?.remove();
+  if(currentGrade()===2&&window.LARIA_GEO_CONTINENT_VOYAGE?.previewEnabled(location.search)){
+    const preview=document.createElement('button');preview.type='button';
+    preview.className='cv-dev-launch';preview.dataset.lariaGeographyChapter2Preview='1';
+    preview.textContent='⚓ Kontinentseilasen · test';
+    preview.onclick=()=>window.LARIA_GEO_CONTINENT_VOYAGE_UI?.open({
+      state,save:saveState,foxSrc:avatarSrc(state.profile?.avatar==='girl'?'girl':'boy')
+    });
+    geographyScreen.append(preview);
+  }
   const active=state.activeSession?.scope,viewGrade=journeyViewGrade('geography'),prog=geoJourneyProgress(viewGrade),next=geoJourneyRecommendedNode(viewGrade),geoActive=!!active&&(active.subject==='geography'||!active.subject);
   const title=document.getElementById('geography-continue-title'),copy=document.getElementById('geography-continue-copy'),eye=document.getElementById('geography-continue-eyebrow'),btn=document.getElementById('geography-continue-button');
   if(!title||!btn)return;
@@ -6905,7 +6970,19 @@ if(needsProfileSetup||!state.profile.onboarded||!state.profile.grade){
 <!-- Journey / Bokskogen -->
 <script src="./bokskogen-world.js?v=20261007-p15rc1" defer></script>
 <script src="./journey-learning-system-v1.js?v=20261016-language-system1" defer></script>
+<script src="./fortellingsdalen-stories-v1.js?v=20261016-c2pilot1" defer></script>
+<script src="./chapter-expansion-v1.js?v=20261016-c2pilot1" defer></script>
+<script src="./fortellingsdalen-art-contract-v1.js?v=20261016-c2premium3" defer></script>
+<script src="./fortellingsdalen-preview-v1.js?v=20261016-c2readingflow2" defer></script>
+<script src="./norwegian-chapter-chooser-v1.js?v=20261016-c2chooser1" defer></script>
+<script src="./norwegian-chapter-picker-v1.js?v=20261016-c2chooser1" defer></script>
 <script src="./geography-journey-learning-system-v1.js?v=20261016-nordlysleiren-system1" defer></script>
+<script src="./math-pattern-haven-v1.js?v=20261017-c2pilot1" defer></script>
+<script src="./math-pattern-haven-preview-v1.js?v=20261017-c2pilot1" defer></script>
+<script src="./english-sentence-harbor-v1.js?v=20261017-en2a" defer></script>
+<script src="./english-sentence-harbor-preview-v1.js?v=20261017-en2a" defer></script>
+<script src="./geography-continent-voyage-v1.js?v=20261017-geo2a" defer></script>
+<script src="./geography-continent-voyage-preview-v1.js?v=20261017-geo2a" defer></script>
 <script src="./journey-world-premium.js?v=20261016-chapter1-completion1" defer></script>
 <script src="./locked-journey-contract.js?v=20261016-tallenga-places1" defer></script>
 <script src="./locked-journey-renderer.js?v=20261016-chapter1-completion1" defer></script>

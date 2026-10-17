@@ -1,0 +1,81 @@
+/* Kontinentseilasen, painted world study mockup, NOT approved premium art. */
+#laria-geo-continent-voyage-preview.cv-root{position:fixed;inset:0;z-index:99999;overflow-y:auto;overscroll-behavior:contain;
+ padding:calc(10px + env(safe-area-inset-top)) max(10px,env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left));
+ color:#493922;background:radial-gradient(circle at 20% 8%,#527a88,#1c384d 65%,#162b38);
+ font-family:ui-rounded,"SF Pro Rounded",-apple-system,BlinkMacSystemFont,sans-serif}
+.cv-root *{box-sizing:border-box}.cv-root button{font:inherit;touch-action:manipulation;cursor:pointer}
+.cv-root button:focus-visible{outline:3px solid #d8a74b;outline-offset:3px}
+.cv-root .cv-shell{max-width:780px;min-height:calc(100dvh - 25px);margin:auto;background:linear-gradient(160deg,#fffae8,#f2e2c1 65%,#ddd0ad);
+ border:2px solid #fff3d3;border-radius:26px;overflow:hidden;box-shadow:0 24px 58px #112e4099}
+.cv-root .cv-top{display:flex;justify-content:space-between;align-items:center;gap:8px;border-bottom:1px solid #d8bd92;padding:13px 18px}
+.cv-root .cv-quiet{min-height:44px;padding:9px 14px;border:1px solid #c1a37a;border-radius:12px;background:#fff7e1;color:#6b5233;font-weight:800}
+.cv-root .cv-eyebrow,.cv-root .cv-development{font-size:11px;letter-spacing:.08em;font-weight:900;color:#846544}
+.cv-root .cv-main{padding:clamp(14px,3vw,27px)}
+.cv-root .cv-heading{font-size:clamp(25px,4vw,38px);line-height:1.08;margin:9px 0 11px;color:#493723}
+.cv-root p{margin:0;color:#695740;font-size:clamp(13px,2vw,16px);line-height:1.5}
+.cv-root .cv-intro-header{display:flex;justify-content:space-between;align-items:center;gap:14px}
+.cv-root .cv-fox{width:clamp(74px,15vw,110px);height:clamp(82px,18vw,125px);object-fit:contain;flex:none;filter:drop-shadow(0 8px 8px #3a473d55)}
+.cv-root .cv-harbor{height:clamp(145px,24vw,225px);border-radius:22px;border:3px solid #c9ad7e;position:relative;overflow:hidden;
+ margin:13px 0 18px;background:linear-gradient(180deg,#aacfd1,#d8e8d7 48%,#7caaac 49%,#5b929b 100%);box-shadow:0 6px 0 #b39b78}
+.cv-root .cv-sun{position:absolute;top:12%;right:20%;width:50px;height:50px;border-radius:50%;background:#fff4d0;box-shadow:0 0 29px #fff3c2}
+.cv-root .cv-cliff{position:absolute;bottom:45%;height:53%;width:60%;background:#709b87;border-radius:50% 50% 0 0}
+.cv-root .cv-cliff-a{left:-19%}.cv-root .cv-cliff-b{right:-18%;background:#89ad94}
+.cv-root .cv-ocean{position:absolute;inset:50% 0 0;background:repeating-linear-gradient(0deg,#619aa7,#619aa7 8px,#6da6b0 10px,#6b9ea8 15px);opacity:.9}
+.cv-root .cv-boat{position:absolute;bottom:13%;left:44%;font-size:58px;filter:drop-shadow(0 6px 6px #24414b77)}
+.cv-root .cv-progress{padding:14px;border-radius:16px;background:#fff7e9;border:1px solid #d5bc90;margin-bottom:13px}
+.cv-root .cv-progress strong,.cv-root .cv-progress small{display:block}.cv-root .cv-progress small{color:#7b644b;margin-top:5px;font-size:12px}
+.cv-root .cv-bar{height:9px;background:#e6dbc3;border-radius:30px;overflow:hidden;margin-top:9px}
+.cv-root .cv-bar span{display:block;height:100%;background:linear-gradient(90deg,#4c8194,#9db28a);border-radius:inherit}
+.cv-root .cv-places{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+.cv-root .cv-place{display:flex;gap:12px;align-items:center;text-align:left;padding:12px;color:#51412d;
+ background:linear-gradient(145deg,#fff9e9,#eae0c6);border:2px solid #d5b68a;border-radius:17px;
+ min-height:91px;box-shadow:0 5px 0 #c2a57e}
+.cv-root .cv-place-symbol{display:grid;place-items:center;min-width:43px;height:43px;border-radius:13px;font-size:25px;color:#396b7a;background:#d8e7dc}
+.cv-root .cv-place strong,.cv-root .cv-place small{display:block}.cv-root .cv-place strong{font-size:16px}
+.cv-root .cv-place small{font-size:12px;line-height:1.3;color:#766049;margin-top:4px}
+.cv-root .cv-chevron{margin-left:auto;font-size:24px}.cv-root .cv-note{font-size:11px;margin:16px 2px}
+.cv-root .cv-primary{display:block;width:100%;border:0;border-radius:15px;min-height:48px;margin:13px 0;padding:11px 16px;color:#fff;
+ background:linear-gradient(180deg,#548c94,#2b6b7c);font-weight:900;box-shadow:0 5px 0 #255968}
+.cv-root .cv-task{max-width:650px;margin:0 auto}
+.cv-root .cv-task-nav{display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:13px;font-weight:800;color:#725b3f}
+.cv-root .cv-companion{display:flex;gap:10px;align-items:center;padding:4px 12px;background:#e4e4d1;border:1px solid #d0c8a6;border-radius:15px;margin:13px 0}
+.cv-root .cv-companion .cv-fox{width:65px;height:73px}.cv-root .cv-count{margin:12px 0;font-weight:900;font-size:12px;color:#6f5a40}
+.cv-root .cv-paper{background:linear-gradient(160deg,#fffef8,#fff3d8);border:2px solid #d0b58a;border-radius:22px;padding:clamp(14px,3vw,25px);box-shadow:0 6px 0 #baa17a}
+.cv-root .cv-paper .cv-heading{font-size:clamp(22px,3.3vw,30px);margin:12px 0 17px}
+.cv-root .cv-passport{margin:8px 0 15px;border:2px solid #bf9f70;border-radius:17px;padding:20px;background:#ebddba;display:grid;gap:8px;text-align:center}
+.cv-root .cv-passport strong{font-size:29px;font-weight:900;color:#4c6f7b}.cv-root .cv-passport small{font-size:12px;color:#745e46}
+.cv-root .cv-stamps{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.cv-root .cv-stamp{min-height:56px;padding:10px 12px;background:#fff8e9;border:2px dashed #b59f7e;border-radius:14px;color:#614d34;font-weight:850}
+.cv-root .cv-stamp.cv-selected,.cv-root .cv-answer.cv-selected{background:#d4e8de;border-color:#518e86}
+.cv-root .cv-compass{display:grid;position:relative;max-width:300px;aspect-ratio:1;margin:8px auto;padding:12px;gap:10px;
+ grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));
+ background:#e9e0c9;border:3px solid #b8a17e;border-radius:50%}
+.cv-root .cv-direction{display:grid;place-items:center;align-content:center;border:2px solid #9ab5aa;border-radius:50%;
+ background:#f9f5e7;color:#486e72;font-weight:950}
+.cv-root .cv-direction span{font-size:30px}.cv-root .cv-direction strong{font-size:14px}
+.cv-root .cv-dir-n{grid-column:2;grid-row:1}.cv-root .cv-dir-v{grid-column:1;grid-row:2}
+.cv-root .cv-dir-ø{grid-column:3;grid-row:2}.cv-root .cv-dir-s{grid-column:2;grid-row:3}
+.cv-root .cv-compass-center{grid-column:2;grid-row:2;display:grid;place-items:center;font-size:30px;color:#ae8d59}
+.cv-root .cv-answers{display:grid;gap:9px}.cv-root .cv-answer{display:flex;align-items:center;gap:10px;min-height:53px;
+ border-radius:14px;background:#fff9ec;border:2px solid #d4bc95;text-align:left;padding:9px 12px;color:#57432b;font-weight:850}
+.cv-root .cv-answer span{display:grid;place-items:center;width:34px;height:34px;border-radius:10px;background:#e0eae6}
+.cv-root button:disabled{opacity:.75;cursor:default}
+.cv-root .cv-feedback{padding:13px;border-radius:15px;background:#e3f0e4;border:1px solid #85ae9b;margin-top:14px}
+.cv-root .cv-feedback strong{color:#36746b}.cv-root .cv-feedback p{margin-top:5px;font-size:13px}
+.cv-root .cv-read{min-height:44px;padding:9px 14px;margin-top:12px;border:1px solid #c6a67b;border-radius:12px;background:#ffedc9;color:#745337;font-weight:800}
+.cv-root .cv-summary{max-width:520px;margin:20px auto;text-align:center}
+.cv-root .cv-final-symbol{font-size:65px;color:#a28f5a;display:block}.cv-root .cv-summary .cv-fox{display:block;margin:20px auto}
+#geography-screen>.cv-dev-launch{position:fixed;z-index:9000;top:calc(env(safe-area-inset-top) + 10px);
+ right:calc(env(safe-area-inset-right) + 12px);border:2px solid #f3d8a0;min-height:46px;
+ background:linear-gradient(180deg,#4f8294,#2b6376);color:white;border-radius:15px;padding:9px 13px;
+ box-shadow:0 5px 0 #235367;font:850 13px ui-rounded,system-ui,sans-serif}
+#geography-screen.active.locked-journey-active.locked-journey-subject-geography > .cv-dev-launch:not(#geo-journey-shell){display:inline-flex!important;align-items:center;justify-content:center}
+@media(max-width:520px){.cv-root .cv-places{grid-template-columns:1fr}.cv-root .cv-main{padding:13px}
+ .cv-root .cv-place{min-height:65px;padding:9px}.cv-root .cv-place-symbol{min-width:38px;height:38px}
+ .cv-root .cv-harbor{height:145px}.cv-root .cv-intro-header .cv-fox{width:76px;height:88px}
+ .cv-root .cv-paper{padding:14px}.cv-root .cv-compass{width:min(100%,250px)}
+ .cv-root .cv-development{font-size:10px;letter-spacing:0}
+}
+@media(min-width:640px) and (max-height:480px) and (orientation:landscape){.cv-root .cv-harbor{height:100px}
+ .cv-root .cv-main{padding:12px 17px}.cv-root .cv-intro-header .cv-fox{height:64px}}
+@media(prefers-reduced-motion:reduce){.cv-root *{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
