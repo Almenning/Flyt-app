@@ -34,3 +34,10 @@ Det finnes også en egen dokumentert kunstport i `docs/laria-chapter2-painterly-
 Faktiske WebKit-skjermbilder fra Geography Chapter 2 Pilot på `e6625fa` bekreftet at det maleriske produksjonskartet fungerer og er tydelig på iPhone og iPad landskap, men på iPad stående 820×1180 var den gamle sidekolonnen og et stort ubrukt område nederst synlig. Dette er et visuelt produktavvik selv om funksjonstestene var grønne.
 
 En isolert portrett-layout for **begge** nye kapitler gir først barnets personlige rev og frivillig start/fortsett, deretter et sentrert 620px bredt 3:4-kart med fem uendrede interaktive DOM-stopp, deretter progresjon. iPhone og iPad liggende er uendret. Playwright/WebKit-testene krever nå faktisk bredde minst 580px og høyde minst 750px i 820×1180, riktig rekkefølge, og ingen horisontal overflyt. Disse nye kravene er ikke erklært bestått før CI på eksakt ny head.
+
+## Endelig portrett- og regresjonskontroll etter 762d316
+Både Setningshavna og Kontinentseilasen bestod dedikerte Chromium- og WebKit-tester på commit `762d316`. Faktiske WebKit-skjermbilder viser at de nye maleriske kartene fungerer på iPad stående 820×1180 uten tidligere stort ubrukt areal. På smal iPhone ble derimot «Setningsverkstedet» for langt for sitt malte skilt. Knappen får kontrollert mobillinje-bryting og eksplisitt visuelt ordbrudd, mens tilgjengelig navn og steds-ID beholdes. En ny 320/390px-regresjon måler faktisk tekstoverløp.
+
+Den bredere `laria-mapboard`-kontrollen var rød på `762d316` fordi oppdragsmenyen ikke ble synlig ved navigasjon på iPad liggende gjennom de opprinnelige reisekartene. Alle isolerte tester av de låste kartene og berøringsflatene bestod. Den integrerte testen loggfører nå fag, aktiv skjerm, modal- og knappgeometri ved eventuell ny feil. Den forsøker *ikke* et ekstra trykk som skjuler problemet.
+
+Publisert Gangemagi-oppdatering fra `main` PR #177 er tatt med ved samkjøring. Ny CI på siste eksakte head, faktisk visuell gjennomgang og godkjenning kreves før Draft oppheves.

@@ -30,6 +30,7 @@ async function check(engine,label,viewport,url){
   assert.equal((await page.locator('.gm-math-equation').innerText()).trim(),'0 + 0 + 0 = 0');
   assert.match(await page.locator('.gm-story').innerText(),/3 kurver med 3 jordbær/);
   assert.equal(await page.locator('.gm-fox-art [data-avatar="girl"]').count(),1,'must render chosen full-body girl fox');
+  assert.match(await page.locator('.gm-book-quick').innerText(),/0\/8/,'flower progress visible from the main scene');
   const first=await page.evaluate(()=>{
    const rect=s=>{const n=document.querySelector(s)?.getBoundingClientRect();return n?{top:n.top,bottom:n.bottom,width:n.width,height:n.height}:null;};
    return {screen:innerWidth,height:innerHeight,scrollWidth:document.documentElement.scrollWidth,story:rect('.gm-story'),crate:rect('.gm-crate'),source:rect('.gm-pick'),math:rect('.gm-math'),read:rect('.gm-read')};
@@ -77,6 +78,8 @@ async function check(engine,label,viewport,url){
    for(let i=0;i<count;i++)await page.locator('[data-gm-action="basket"][data-gm-basket="'+group+'"]').click();
   }
   assert.equal((await page.locator('.gm-math-equation').innerText()).trim(),'3 × 3 = 9');
+  assert.match(await page.locator('.gm-math-discovery').innerText(),/Like grupper: 3 kurver med 3 bær = 9/,'multiplication has a child-readable explanation');
+  assert.match(await page.locator('.gm-book-quick').innerText(),/1\/8/,'earned flowers remain visible during play');
   assert.match(await page.locator('.gm-celebration').innerText(),/Oppdraget er klart/);
   assert.equal(await page.locator('.gm-pick').count(),0,'completed tasks must not leave a disabled fruit button');
   assert.equal(await page.locator('.gm-actions-complete .gm-next').count(),1,'one clear next action');

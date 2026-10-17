@@ -80,6 +80,21 @@ async function verify(type,label,viewport){
    assert.equal(imageState.variant,'production-v3',label+' English default painting must render without fallback: '+JSON.stringify(imageState));
    const map=page.locator('.sh-story-map');
    await map.waitFor({state:'visible'});
+   if(viewport.width<=390){
+     const signs=await page.locator('.sh-story-map .sh-map-stop').evaluateAll(buttons=>
+       buttons.map(button=>{
+         const name=button.querySelector('.sh-map-stop-name');
+         return {id:button.dataset.shStage,width:button.clientWidth,scrollWidth:button.scrollWidth,
+           labelWidth:name?.clientWidth??0,labelScrollWidth:name?.scrollWidth??0};
+       }));
+     for(const sign of signs){
+       assert.ok(sign.width>0&&sign.scrollWidth<=sign.width+2&&
+         sign.labelWidth>0&&sign.labelScrollWidth<=sign.labelWidth+2,
+         label+' map-place name spills outside sign: '+JSON.stringify(sign));
+     }
+     assert.equal(await page.locator('.sh-map-stop[data-sh-stage="setningsverkstedet"] .sh-map-stop-name').textContent(),
+       'Setningsverkstedet',label+' full name must remain intact for child and assistive technology');
+   }
    // Visual acceptance: on a portrait iPad the painting itself must become
    // a generous scene rather than a narrow desktop column with blank canvas.
    if(viewport.width===820&&viewport.height===1180){

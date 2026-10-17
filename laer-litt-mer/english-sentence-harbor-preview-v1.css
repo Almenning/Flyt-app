@@ -307,3 +307,19 @@
  .sh-root .sh-story-rail .sh-story-guide{grid-column:2}
  .sh-root .sh-story-rail .sh-note{grid-column:1 / -1}
 }
+
+/* Mobile painterly map labels: the 320px Setningsverkstedet sign must
+   wrap within its button without hiding any part of the place name. */
+@media(max-width:720px){
+ .sh-root .sh-story-map .sh-map-stop-name{
+   min-width:0;max-width:100%;overflow-wrap:anywhere;hyphens:manual;
+ }
+ .sh-root .sh-story-map .sh-map-stop[data-sh-stage="setningsverkstedet"]{
+   max-width:52%;gap:4px;
+ }
+}
+@media(max-width:365px){
+ .sh-root .sh-story-map .sh-map-stop[data-sh-stage="setningsverkstedet"]{
+   font-size:10px;
+ }
+}

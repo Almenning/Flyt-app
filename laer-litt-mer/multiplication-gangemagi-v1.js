@@ -36,6 +36,8 @@
    if(E.filled(state))return state.mode==='mission'?E.MISSIONS[state.mission].celebrate:
      'Du laget '+state.groups+' like grupper med '+state.each+' i hver!';
    if(notice)return notice;
+   const same=state.counts.length>0&&state.counts[0]>0&&state.counts.every(n=>n===state.counts[0]);
+   if(same)return 'Se! '+state.groups+' kurver med '+state.counts[0]+' i hver. '+state.groups+' ganger '+state.counts[0]+' er '+amount+'!';
    if(!amount)return state.mode==='mission'?'Trykk på en kurv! Hvert trykk legger i ett jordbær.':
      'Lag ditt eget gangestykke. Du bestemmer hvor mange som skal i hver kurv.';
    if(left===1)return 'Bare ett jordbær igjen!';
@@ -84,7 +86,7 @@
       '<div class="gm-layout"><header class="gm-top">'+
       '<button type="button" class="gm-back" id="multiplication-lab-back" data-gm-action="back" aria-label="Tilbake til matte">‹</button>'+
       '<div class="gm-brand"><span class="gm-brand-mark">Læ<span>ria</span> ✦</span><small>TALLENGA / GANGEMAGI</small></div>'+
-      '<button type="button" class="gm-book-quick" data-gm-action="open-book" aria-label="Åpne Min markedsbok" title="Min markedsbok">✿</button>'+
+      '<button type="button" class="gm-book-quick" data-gm-action="open-book" aria-label="Åpne Min markedsbok. '+state.wins.length+' av '+E.MISSIONS.length+' blomster samlet" title="Min markedsbok">✿ <span class="gm-book-quick-count">'+state.wins.length+'/'+E.MISSIONS.length+'</span></button>'+
       '<button type="button" class="gm-classic" data-gm-action="classic" aria-label="Åpne gangetabell og øving">Tabellen <span aria-hidden="true">↗</span></button>'+
       '</header>'+
       '<div class="gm-heading"><div><span class="gm-eyebrow">✿ ET LITE MATTEEVENTYR</span><h1>Gangemagi</h1><p>Plukk, pakk og oppdag hva gange betyr.</p></div>'+
@@ -107,7 +109,7 @@
        '<div class="gm-math"><div class="gm-math-label"><span>Dette har du laget</span><span class="gm-goal">Målet: '+state.groups+' × '+state.each+'</span></div>'+
          '<div class="gm-math-equation '+(complete?'gm-equation-win':'')+'" aria-label="'+esc(equation)+'">'+esc(equation)+'</div>'+
          '<div class="gm-progress-track" role="progressbar" aria-label="Jordbær pakket" aria-valuemin="0" aria-valuemax="'+goal+'" aria-valuenow="'+sum+'"><span style="width:'+progress+'%"></span></div>'+
-         '<div class="gm-math-note">'+(result.multiplication?'Like mange i hver kurv betyr at vi kan gange.':'Når kurvene har ulikt antall, legger vi sammen.')+'</div></div>'+
+         '<div class="gm-math-note'+(result.multiplication?' gm-math-discovery':'')+'"'+(result.multiplication?' role="status"':'')+'>'+(result.multiplication?'✦ Like grupper: '+state.groups+' kurver med '+state.counts[0]+' bær = '+sum+'!':'Når kurvene har ulikt antall, legger vi sammen.')+'</div></div>'+
        (complete?'<div class="gm-celebration" role="status"><span aria-hidden="true">✿</span><strong>'+esc(free?'Så fint du laget det!':'Oppdraget er klart!')+'</strong><span>Du fant '+goal+' jordbær.</span></div>':'')+
        '</section>'+
        '<div class="gm-actions '+(complete?'gm-actions-complete':'')+'">'+

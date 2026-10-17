@@ -24,9 +24,31 @@ async function run(engine,label,viewport){
    await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').click();
    const root=page.locator('#'+screen+'-screen.active .locked-journey-map[data-journey-subject="'+subject+'"]');
    await root.waitFor({timeout:16000});
+   console.log('[journey integrated UX] opening',label,subject);
    await root.locator('.locked-journey-hotspot.state-current').first().click();
    const mission=page.locator('.locked-journey-overlay:not([hidden]) button[data-locked-node]:not([disabled])').first();
-   await mission.waitFor({timeout:10000});
+   try{
+     await mission.waitFor({timeout:10000});
+   }catch(err){
+     // Do not retry or hide a missed first touch: report exact UI state.
+     const diagnostics=await page.evaluate(subject=>{
+       const screen=document.querySelector(subject==='geography'?'#geography-screen':'#subject-screen');
+       const active=document.querySelector('.screen.active');
+       const overlays=[...document.querySelectorAll('.locked-journey-overlay')].map(o=>({
+         hidden:o.hidden,display:getComputedStyle(o).display,rect:o.getBoundingClientRect().toJSON(),
+         buttons:[...o.querySelectorAll('button[data-locked-node]')].map(b=>({
+           id:b.dataset.lockedNode,disabled:b.disabled,display:getComputedStyle(b).display,
+           rect:b.getBoundingClientRect().toJSON()
+         }))
+       }));
+       return {subject,activeScreen:active?.id,screenClass:screen?.className,overlays,
+         currentHotspots:[...screen?.querySelectorAll('.locked-journey-hotspot.state-current')||[]].map(b=>({
+           name:b.getAttribute('aria-label'),rect:b.getBoundingClientRect().toJSON()
+         })),focus:document.activeElement?.outerHTML?.slice(0,350)};
+     },subject).catch(e=>({error:String(e)}));
+     console.error('[journey integrated UX] missing mission menu',JSON.stringify({label,subject,diagnostics,pageErrors:errors}));
+     throw err;
+   }
    await mission.click();
    await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
    assert.equal((await page.locator('.task-world-chip').innerText()).trim(),world,label+' wrong scene for '+subject);

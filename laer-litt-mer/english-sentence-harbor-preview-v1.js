@@ -28,7 +28,7 @@
        ' data-sh-act="stage" data-sh-stage="'+esc(stop.id)+'"'+
        ' aria-label="'+esc(stop.title)+'. '+esc(stop.focus)+(status.visited?'. Utforsket, spill igjen':'. Utforsk nå')+'">'+
        '<span class="sh-stop-icon" aria-hidden="true">'+(status.visited?'✓':String(i+1))+'</span>'+
-       '<span class="sh-map-stop-name">'+esc(stop.title)+'</span></button>';
+       '<span class="sh-map-stop-name">'+(stop.id==='setningsverkstedet'?'Setnings<wbr>verkstedet':esc(stop.title))+'</span></button>';
    }).join('');
    return shell('<section class="sh-intro">'+
      '<div class="sh-intro-heading"><div><span class="sh-eyebrow">ENGELSK · KAPITTEL 2</span>'+
