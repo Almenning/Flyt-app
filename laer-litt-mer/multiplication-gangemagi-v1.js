@@ -108,9 +108,8 @@
        '</div>'+
        '<div class="gm-math"><div class="gm-math-label"><span>Dette har du laget</span><span class="gm-goal">Målet: '+state.groups+' × '+state.each+'</span></div>'+
          '<div class="gm-math-equation '+(complete?'gm-equation-win':'')+'" aria-label="'+esc(equation)+'">'+esc(equation)+'</div>'+
-         (result.multiplication?'<div class="gm-math-discovery" role="status">✦ '+state.groups+' like grupper med '+state.counts[0]+' i hver = '+sum+' til sammen!</div>':'')
          '<div class="gm-progress-track" role="progressbar" aria-label="Jordbær pakket" aria-valuemin="0" aria-valuemax="'+goal+'" aria-valuenow="'+sum+'"><span style="width:'+progress+'%"></span></div>'+
-         '<div class="gm-math-note">'+(result.multiplication?'Like mange i hver kurv betyr at vi kan gange.':'Når kurvene har ulikt antall, legger vi sammen.')+'</div></div>'+
+         '<div class="gm-math-note'+(result.multiplication?' gm-math-discovery':'')+'"'+(result.multiplication?' role="status"':'')+'>'+(result.multiplication?'✦ Like grupper: '+state.groups+' kurver med '+state.counts[0]+' bær = '+sum+'!':'Når kurvene har ulikt antall, legger vi sammen.')+'</div></div>'+
        (complete?'<div class="gm-celebration" role="status"><span aria-hidden="true">✿</span><strong>'+esc(free?'Så fint du laget det!':'Oppdraget er klart!')+'</strong><span>Du fant '+goal+' jordbær.</span></div>':'')+
        '</section>'+
        '<div class="gm-actions '+(complete?'gm-actions-complete':'')+'">'+
