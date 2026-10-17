@@ -6,11 +6,55 @@ test('Matte chapter 2 is a separate unpublished world with authored play',()=>{
  assert.equal(model.CHAPTER.published,false);
  assert.equal(model.CHAPTER.artApproved,false);
  assert.equal(model.STAGES.length,5);
- assert.equal(Object.values(model.TASKS).flat().length,20);
+ assert.equal(Object.values(model.TASKS).flat().length,40);
+ for(const stage of model.STAGES)assert.equal(model.TASKS[stage.id].length,8);
  assert.ok(model.TASKS.speildammen.every(task=>task.kind==='mirror'));
  assert.equal(model.previewEnabled('?math-chapter2-preview=1'),true);
  for(const flag of ['','?math-chapter2-preview=0','?chapter2-preview=1','?math-chapter2-preview=true'])
    assert.equal(model.previewEnabled(flag),false);
+});
+test('each math place has four fresh activities on its second complete visit',()=>{
+ const state={journey:{nodes:{'math:2:plassverdi':{best:4}},gradeWins:{'math:2':{at:88}}}};
+ const oldNodes=JSON.stringify(state.journey.nodes),oldWins=JSON.stringify(state.journey.gradeWins);
+ for(const place of model.STAGES){
+   const sets=[];
+   for(let visit=0;visit<2;visit++){
+     let session=model.start(state,place.id);
+     const ids=[...model.ensure(state).draft.order];sets.push(ids);
+     assert.equal(ids.length,4);
+     assert.ok(ids.every(id=>model.TASKS[place.id].some(t=>t.id===id)));
+     const restored=JSON.parse(JSON.stringify(state));
+     assert.equal(model.resume(restored).task.id,ids[0]);
+     for(let step=0;step<4;step++){
+       const task=session.task;assert.equal(task.id,ids[step]);
+       if(task.kind==='mirror'){
+         for(const key of model.targetMirror(task)){
+           const [r,c]=key.split('-').map(Number);
+           model.toggleMirror(state,r,c);
+         }
+         assert.equal(model.checkMirror(state).correct,true);
+       }else assert.equal(model.submitChoice(state,task.answer).correct,true);
+       const next=model.advance(state,2048+visit);
+       if(step<3)session=next.session;
+       else assert.equal(next.finished,true);
+     }
+   }
+   assert.equal(new Set(sets.flat()).size,8,'replays need fresh tasks, not permutations');
+   model.start(state,place.id);
+   assert.deepEqual(model.ensure(state).draft.order,sets[0],'a later replay can deliberately cycle');
+ }
+ assert.equal(model.progress(state).done,5);
+ assert.equal(JSON.stringify(state.journey.nodes),oldNodes);
+ assert.equal(JSON.stringify(state.journey.gradeWins),oldWins);
+});
+test('four-task mirror draft from original pilot remains playable',()=>{
+ const s={journey:{gradeWins:{'math:2':{at:45}}}};
+ model.start(s,'speildammen');
+ model.toggleMirror(s,0,2);
+ const saved=JSON.parse(JSON.stringify(s));
+ assert.deepEqual(model.ensure(saved).draft.order,['mirror1','mirror2','mirror3','mirror4']);
+ assert.deepEqual(model.resume(saved).mirror,['0-2']);
+ assert.deepEqual(saved.journey.gradeWins,s.journey.gradeWins);
 });
 test('new chapter does not rewrite Tallenga progress or gradeWins',()=>{
  const state={journey:{nodes:{'math:2:plassverdi':{best:4}},gradeWins:{'math:2':{at:5}}}};

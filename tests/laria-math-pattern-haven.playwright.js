@@ -105,8 +105,16 @@ async function run(type,label,viewport){
        label+' stage labels overlap');
    }
    await photo(page,label+'-map');
+   const firstFormIds=await page.evaluate(()=>window.LARIA_MATH_PATTERN_HAVEN.TASKS.formstien.slice(0,4).map(t=>t.id));
    await complete(page,'formstien');
    assert.equal(await page.evaluate(()=>window.LARIA_MATH_PATTERN_HAVEN.progress(state).done),1);
+   assert.match(await page.locator('.mh-progress').innerText(),/Nye oppgaver venter/i);
+   await page.locator('[data-mh-act="stage"][data-mh-stage="formstien"]').click();
+   const otherFormIds=await page.evaluate(()=>window.LARIA_MATH_PATTERN_HAVEN.ensure(state).draft.order.slice());
+   assert.equal(new Set(firstFormIds.concat(otherFormIds)).size,8,label+' math replay repeated old problems');
+   assert.equal(await page.locator('.mh-options .mh-option').count(),3,label+' new tasks require full tactile choices');
+   await photo(page,label+'-new-shapes-visit');
+   await page.locator('[data-mh-act="intro"]').click();
    await page.locator('[data-mh-act="stage"][data-mh-stage="speildammen"]').click();
    assert.equal(await page.locator('.mh-cell').count(),16);
    assert.equal(await page.locator('[data-mh-act="mirror"]').count(),8);

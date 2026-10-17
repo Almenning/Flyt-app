@@ -37,7 +37,7 @@
      '<div class="mh-places">'+stages+'</div></div>'+
      '<aside class="mh-story-rail"><div class="mh-story-fox">'+fox()+'<p>Hvor vil du utforske i dag? Jeg blir med deg!</p></div>'+
      '<div class="mh-progress" role="status"><strong>'+p.done+' av 5 steder utforsket</strong>'+
-     '<span>Du kan velge fritt og besøke favorittene igjen.</span>'+
+     '<span>'+(p.places.some(place=>place.attempts===1)?'Nye oppgaver venter på steder du har utforsket!':'Du kan velge fritt og besøke favorittene igjen.')+'</span>'+
      '<div class="mh-progress-track"><span style="width:'+(p.done*20)+'%"></span></div></div>'+
      (resume?'<button type="button" class="mh-continue" data-mh-act="resume">Fortsett i '+escape(resume.stage.title)+' →</button>':'')+
      '<div class="mh-story-guide"><strong>Et magisk mønstereventyr</strong><p>Finn former, oppdag rytmer, bygg speilbilder og prøv talltriks.</p></div>'+

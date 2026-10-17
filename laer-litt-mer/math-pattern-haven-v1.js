@@ -26,31 +26,51 @@
      q('form1','Hvilken form har tre hjørner?','△   ○   □',['Trekant','Sirkel','Kvadrat'],'Trekant','En trekant har tre sider og tre hjørner.'),
      q('form2','Hvilken form kan rulle uten hjørner?','□   ○   △',['Sirkel','Trekant','Kvadrat'],'Sirkel','En sirkel er rund og har ingen hjørner.'),
      q('form3','Hvilken form har fire like lange sider?','△   □   ○',['Rektangel','Sirkel','Kvadrat'],'Kvadrat','Et kvadrat har fire like lange sider.'),
-     q('form4','Hvilken form kan ha to lange og to korte sider?','▭   △   ○',['Rektangel','Trekant','Sirkel'],'Rektangel','Et rektangel har fire hjørner og parvis like lange sider.')
+     q('form4','Hvilken form kan ha to lange og to korte sider?','▭   △   ○',['Rektangel','Trekant','Sirkel'],'Rektangel','Et rektangel har fire hjørner og parvis like lange sider.'),
+     q('form5','Hvor mange hjørner har en femkant?','⬟   △   □',['3','4','5'],'5','En femkant har fem hjørner og fem rette sider.'),
+     q('form6','Hvilken figur har seks hjørner?','⬡   △   ○',['Sekskant','Sirkel','Trekant'],'Sekskant','En sekskant har seks hjørner og seks sider.'),
+     q('form7','Hvor mange hjørner finner du i en trekant?','△',['3','4','5'],'3','Du kan telle de tre spissene på trekanten.'),
+     q('form8','Hvor mange rette sider har en sirkel?','○',['0','2','4'],'0','Sirkelen er rund hele veien og har ingen rette sider.')
    ]),
    monsterbekken:Object.freeze([
      q('pattern1','Hva kommer etter?','●  ▲  ●  ▲  ●  ?',['▲','●','■'],'▲','Sirkel og trekant bytter på.'),
      q('pattern2','Hvilken figur mangler?','■  ■  ○  ■  ■  ?',['■','○','▲'],'○','To firkanter følges av én sirkel.'),
      q('pattern3','Hvilken figur fortsetter stien?','★  ●  ▲  ★  ●  ?',['▲','★','●'],'▲','Tre ulike figurer gjentar seg.'),
-     q('pattern4','Hvilken kommer nå?','○  ▲  ▲  ○  ▲  ▲  ?',['○','▲','■'],'○','Mønsteret er én sirkel og to trekanter.')
+     q('pattern4','Hvilken kommer nå?','○  ▲  ▲  ○  ▲  ▲  ?',['○','▲','■'],'○','Mønsteret er én sirkel og to trekanter.'),
+     q('pattern5','Hvilken figur fortsetter den nye stien?','▲  ▲  ●  ▲  ▲  ●  ▲  ?',['▲','●','□'],'▲','To trekanter kommer før hver sirkel.'),
+     q('pattern6','Hva kommer etter tre ulike figurer?','■  ○  ▲  ■  ○  ?',['▲','■','○'],'▲','Firkant, sirkel og trekant gjentas i samme rekkefølge.'),
+     q('pattern7','Hvilken figur mangler helt til slutt?','★  ★  ○  ★  ★  ○  ★  ★  ?',['○','★','▲'],'○','To stjerner følges alltid av én sirkel.'),
+     q('pattern8','Hva blir den neste figuren ved bekken?','▲  □  ○  ○  ▲  □  ?',['○','□','▲'],'○','Fire figurer utgjør mønsteret: trekant, firkant og to sirkler.')
    ]),
    speildammen:Object.freeze([
      m('mirror1','Trykk på rutene til høyre for å speile det blå mønsteret.',[[1,0],[0,1],[1,1],[0,1]],'Hver rute har en tvilling på motsatt side av midten.'),
      m('mirror2','Kan du lage den lille trappen på høyre side?',[[1,0],[1,1],[0,1],[0,0]],'Speilbildet snur trappen mot midtstreken.'),
      m('mirror3','Speil stjernestien på den andre siden.',[[0,1],[1,0],[0,1],[1,0]],'Mønsteret vendes vannrett, ikke opp ned.'),
-     m('mirror4','Bygg to halvdeler som ser mot hverandre.',[[1,1],[0,1],[0,1],[1,1]],'Høyre side viser venstre side i et speil.')
+     m('mirror4','Bygg to halvdeler som ser mot hverandre.',[[1,1],[0,1],[0,1],[1,1]],'Høyre side viser venstre side i et speil.'),
+     m('mirror5','Bygg et speilbilde av hjørnet som er malt.',[[1,1],[1,0],[0,0],[0,0]],'Se på hvilke ruter som er nærmest den loddrette midtstreken.'),
+     m('mirror6','Speil den skjeve trappen i vannet.',[[0,0],[0,1],[1,1],[1,0]],'Rutene skal snus mot høyre, men beholde sin rad.'),
+     m('mirror7','Fyll inn rutene som gjør stripemønsteret symmetrisk.',[[1,0],[1,1],[1,0],[1,1]],'Hver fargelagte rute får en tvilling på andre siden.'),
+     m('mirror8','Kan du speile de to små søylene?',[[0,1],[0,1],[1,0],[1,0]],'De øverste og nederste rutene speiles hver for seg.')
    ]),
    tallbroen:Object.freeze([
      q('number1','Hvilket tall bygger neste brostein?','2 · 4 · 6 · 8 · ?',['9','10','12'],'10','Vi legger til to hver gang.'),
      q('number2','Hvilket tall kommer nå?','5 · 10 · 15 · ?',['20','25','18'],'20','Vi teller fem om gangen.'),
      q('number3','Hvilket tall mangler?','30 · 27 · 24 · ?',['20','21','22'],'21','Vi går tre ned for hvert steg.'),
-     q('number4','Hva kommer etter?','11 · 21 · 31 · ?',['40','41','42'],'41','Vi legger til ti hver gang.')
+     q('number4','Hva kommer etter?','11 · 21 · 31 · ?',['40','41','42'],'41','Vi legger til ti hver gang.'),
+     q('number5','Hvilket tall blir neste steg på broen?','1 · 3 · 5 · 7 · ?',['8','9','10'],'9','Vi hopper to tall videre hver gang.'),
+     q('number6','Hvilket tall mangler når vi teller bakover?','100 · 90 · 80 · ?',['60','70','75'],'70','For hvert steg trekker vi fra ti.'),
+     q('number7','Hva blir den neste brosteinen?','4 · 8 · 12 · 16 · ?',['18','20','24'],'20','Vi legger til fire på hvert trinn.'),
+     q('number8','Hvilket tall kommer nå?','25 · 20 · 15 · ?',['5','10','12'],'10','Denne gangen tar vi bort fem for hvert steg.')
    ]),
    stjernelunden:Object.freeze([
      q('star1','Hva mangler i figurmønsteret?','▲  ○  ○  ▲  ○  ○  ?',['▲','○','□'],'▲','Én trekant og to sirkler gjentar seg.'),
      m('star2','Kan du speile den lille stjernen?',[[0,1],[1,1],[1,0],[0,1]],'Det nær midten speiles nær midten.'),
      q('star3','Hvilket tall finner veien videre?','3 · 6 · 9 · 12 · ?',['14','15','16'],'15','Vi legger til tre om gangen.'),
-     q('star4','Hvilken figur har ingen rette sider?','◯   △   □',['Sirkel','Trekant','Kvadrat'],'Sirkel','En sirkel er rund hele veien.')
+     q('star4','Hvilken figur har ingen rette sider?','◯   △   □',['Sirkel','Trekant','Kvadrat'],'Sirkel','En sirkel er rund hele veien.'),
+     q('star5','Hvilken figur fortsetter stjernemønsteret?','▲  ▲  ▲  ○  ▲  ▲  ▲  ?',['○','▲','□'],'○','Tre trekanter følges av én sirkel hver gang.'),
+     m('star6','Speil de lysende rutene i stjernelunden.',[[0,1],[1,0],[1,0],[0,1]],'De ytterste rutene i mønsteret blir ytterst også på speilsiden.'),
+     q('star7','Hvilket tall finner veien videre?','50 · 45 · 40 · ?',['35','30','36'],'35','Tallene synker med fem for hvert steg.'),
+     q('star8','Hvilken figur har seks rette sider?','⬡   △   ○',['Sekskant','Sirkel','Trekant'],'Sekskant','En sekskant har seks rette sider og seks hjørner.')
    ])
  });
  const STAGE_BY_ID=Object.fromEntries(STAGES.map(s=>[s.id,s]));
@@ -63,9 +83,9 @@
  }
  function validate(){
    assert(CHAPTER.published===false&&CHAPTER.artApproved===false,'unapproved adventure');
-   assert(STAGES.length===5&&taskById.size===20,'exactly five places and twenty unique challenges');
+   assert(STAGES.length===5&&taskById.size===40,'exactly five places and forty unique challenges');
    for(const stage of STAGES){
-     const questions=TASKS[stage.id];assert(questions.length===4,'incomplete stage '+stage.id);
+     const questions=TASKS[stage.id];assert(questions.length===8,'missing a second independent task set in '+stage.id);
      for(const x of questions){
        assert(x.prompt.length>14&&x.hint.length>15,'missing editorial learning text');
        if(x.kind==='choice')assert(x.options.length===3&&new Set(x.options).size===3&&x.options.includes(x.answer),'invalid choices '+x.id);
@@ -87,7 +107,7 @@
  function validDraft(d){
    if(!isObj(d)||!STAGE_BY_ID[d.stageId]||!Array.isArray(d.order))return false;
    const ids=TASKS[d.stageId].map(t=>t.id);
-   if(d.order.length!==4||new Set(d.order).size!==4||!ids.every(id=>d.order.includes(id)))return false;
+   if(d.order.length!==4||new Set(d.order).size!==4||!d.order.every(id=>ids.includes(id)))return false;
    if(!Number.isInteger(d.index)||d.index<0||d.index>=4||!Number.isInteger(d.correct)||d.correct<0||d.correct>d.index+1)return false;
    if(!Array.isArray(d.mirror)||d.mirror.length>8||new Set(d.mirror).size!==d.mirror.length||
       d.mirror.some(key=>!/^[0-3]-[23]$/.test(key)))return false;
@@ -120,8 +140,11 @@
  }
  function start(state,stageId){
    assert(!!STAGE_BY_ID[stageId],'unknown stage '+stageId);
-   const rec=ensure(state),items=TASKS[stageId],offset=positive(rec.places[stageId]?.attempts)%items.length;
-   rec.draft={stageId,order:items.slice(offset).concat(items.slice(0,offset)).map(x=>x.id),
+   const rec=ensure(state),items=TASKS[stageId];
+   // The next finished visit explores a different set, rather than rearranging old tasks.
+   // Old four-item mirror drafts remain valid and are never silently migrated.
+   const group=positive(rec.places[stageId]?.attempts)%(items.length/4);
+   rec.draft={stageId,order:items.slice(group*4,group*4+4).map(x=>x.id),
      index:0,correct:0,mirror:[],feedback:null};
    return resume(state);
  }
