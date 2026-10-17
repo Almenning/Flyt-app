@@ -13,7 +13,7 @@
     {id:'meadow-4-2',groups:4,each:2,heading:'Til skogsvennene',text:'Fire venner ønsker 2 jordbær hver. Fyll 4 kurver!',celebrate:'Alle fire vennene får like mye.'},
     {id:'meadow-3-4',groups:3,each:4,heading:'En stor markedsdag',text:'Lag 3 kurver med 4 jordbær i hver.',celebrate:'Du fant tolv jordbær, fordelt helt likt!'},
     {id:'meadow-5-2',groups:5,each:2,heading:'Fem små leveranser',text:'Fyll 5 kurver med 2 jordbær i hver.',celebrate:'Fem kurver er klare for levering!'},
-    {id:'meadow-3-6',groups:3,each:6,heading:'Bærtoget',text:'Tre vogner trenger 6 jordbær hver.',celebrate:'Bærtoget er lastet og klar for avgang!'},
+    {id:'meadow-3-6',groups:3,each:6,heading:'Bærtoget',text:'Pakk 3 kurver med 6 jordbær til bærtoget.',celebrate:'Bærtoget er lastet og klar for avgang!'},
     {id:'meadow-4-4',groups:4,each:4,heading:'Blomsterfesten',text:'Lag 4 like kurver med 4 jordbær i hver.',celebrate:'Nå kan blomsterfesten begynne!'},
     {id:'meadow-2-10',groups:2,each:10,heading:'Den store høstingen',text:'Kan du pakke 2 kurver med 10 jordbær i hver?',celebrate:'En hel høstkurvfest!'}
   ]);
