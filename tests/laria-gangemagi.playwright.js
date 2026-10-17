@@ -81,6 +81,22 @@ async function check(engine,label,viewport,url){
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).groups,3);
   await page.locator('[data-gm-action="basket"][data-gm-basket="0"]').click();
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).equation.multiplication,null);
+  // Maximal load: every real item remains visible even with five small baskets.
+  await page.locator('[data-gm-action="factor"][data-key="groups"][data-step="1"]').click();
+  await page.locator('[data-gm-action="factor"][data-key="groups"][data-step="1"]').click();
+  for(let i=0;i<5;i++)await page.locator('[data-gm-action="factor"][data-key="each"][data-step="1"]').click();
+  const dense=await page.locator('.gm-fruit-bed').first().evaluate(el=>{
+    const bed=el.getBoundingClientRect(),front=el.closest('.gm-crate').querySelector('.gm-crate-front').getBoundingClientRect();
+    const fruits=[...el.querySelectorAll('.gm-fruit')].map(f=>f.getBoundingClientRect());
+    return {count:fruits.length,columns:getComputedStyle(el).gridTemplateColumns.split(' ').length,
+      inside:fruits.every(f=>f.width>=11&&f.height>=16&&f.top>=bed.top-1&&f.bottom<=bed.bottom+1),
+      aboveFront:fruits.every(f=>f.bottom<=front.top+3),
+      scrollWidth:document.documentElement.scrollWidth,innerWidth:innerWidth};
+  });
+  assert.equal(dense.count,10,label+' dense basket must show ten individual slots');
+  assert.equal(dense.columns,5,label+' dense basket needs an even 5x2 arrangement');
+  assert.ok(dense.inside&&dense.aboveFront,label+' fruit hidden behind a basket front '+JSON.stringify(dense));
+  assert.ok(dense.scrollWidth<=dense.innerWidth+4,label+' five baskets overflow the page');
   await shot(page,label+'-03-free-play');
   await page.locator('[data-gm-action="classic"]').click();
   await page.locator('.mp-home-screen').waitFor();
