@@ -117,7 +117,9 @@ function discoveryDraw(){
   if(typeof drawGlobePulse==='function')drawGlobePulse(ctx,w,h);
   ctx.restore();
   screen.dataset.discoveryGlobeLevel=String(level);screen.dataset.discoveryGlobe='phase1';
+  canvas.dataset.discoveryRenderer='live';
 }
+window.LARIA_DISCOVERY_GLOBE_DRAW=discoveryDraw;
 const wait=()=>{
   if(typeof window.resizeGlobe!=='function'||!document.getElementById('globe-canvas'))return requestAnimationFrame(wait);
   window.__lariaDiscoveryGlobeBaseDraw=window.drawGlobe;
@@ -140,6 +142,9 @@ const wait=()=>{
   activate();
   requestAnimationFrame(()=>requestAnimationFrame(activate));
   setTimeout(activate,180);
+  /* The interval does no painting by itself; it only guards the preview from
+     late renderer reassignment during an atlas transition. */
+  setInterval(activate,240);
 };
 wait();
 })();
