@@ -54,9 +54,11 @@
      '<div class="sh-tiles" role="group" aria-label="Engelske ordbrikker">'+task.tiles.map((w,i)=>
        '<button type="button" class="sh-tile'+(selected.includes(i)?' sh-picked':'')+'" data-sh-act="tile" data-sh-index="'+i+
        '" aria-pressed="'+String(selected.includes(i))+'"'+(session.feedback?.correct?' disabled':'')+'>'+esc(w)+'</button>').join('')+'</div>'+
-     '<div class="sh-tools"><button type="button" class="sh-quiet" data-sh-act="clear">Start på nytt</button>'+
+     // The child has finished building this sentence: remove redundant controls
+     // so the correct answer and Next fit the phone, instead of relying on scrolling.
+     (session.feedback?.correct?'':('<div class="sh-tools"><button type="button" class="sh-quiet" data-sh-act="clear">Start på nytt</button>'+
      '<button type="button" class="sh-check" data-sh-act="check-sentence"'+
-       (selected.length<task.tiles.length?' disabled':'')+'>Sjekk setningen ✦</button></div>';
+       (selected.length<task.tiles.length?' disabled':'')+'>Sjekk setningen ✦</button></div>'));
  }
  function play(){
    const s=core.resume(ui.state);
