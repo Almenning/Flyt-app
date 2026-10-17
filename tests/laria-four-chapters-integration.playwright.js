@@ -29,6 +29,28 @@ async function go(page,subject){await page.goto(base+flags,{waitUntil:'domconten
  const root=subject==='geography'?'#geography-screen.active':'#subject-screen.active';
  await page.locator(root).waitFor({timeout:18000});
 }
+async function verifyDefaultChildNavigation(page,label){
+ // This is the deployed URL without any chapter-two developer flags.
+ // Each subject must keep its original approved journey and hide the draft pilots.
+ const entries=[
+  ['norwegian','[data-laria-chapter2-preview]'],
+  ['math','[data-laria-math-chapter2-preview]'],
+  ['english','[data-laria-english-chapter2-preview]'],
+  ['geography','[data-laria-geography-chapter2-preview]']
+ ];
+ for(const [subject,selector] of entries){
+  await page.goto(base,{waitUntil:'domcontentloaded'});
+  const home=page.locator('.bc14-subject[data-camp="subject-'+subject+'"]');
+  await home.waitFor({timeout:22000});
+  await home.click();
+  await page.locator(subject==='geography'?'#geography-screen.active':'#subject-screen.active')
+   .waitFor({timeout:18000});
+  assert.equal(await page.locator(selector).count(),0,
+   label+' unapproved '+subject+' chapter was exposed without developer flags');
+  assert.equal(await page.locator('[id$="-chapter2-preview"]').count(),0,
+   label+' an unapproved chapter-two dialog opened in the standard journey');
+ }
+}
 async function assertWideLandscape(page,selector,companion,paper,label,viewport){
  if(viewport.width<900||viewport.width<=viewport.height)return;
  const geometry=await page.locator(selector).evaluate((root,args)=>{
@@ -52,6 +74,7 @@ async function run(type,label,viewport){
   page.on('pageerror',e=>errors.push(e.message));
   await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
   await page.route('https://api.worldbank.org/**',r=>r.abort());
+  if(label==='chromium-desktop'||label==='webkit-iphone')await verifyDefaultChildNavigation(page,label);
   await go(page,'norwegian');
   await page.locator('[data-laria-chapter2-preview="1"]').click();
   await page.locator('[data-fd-pick="fortellingsdalen-2"]').click();
