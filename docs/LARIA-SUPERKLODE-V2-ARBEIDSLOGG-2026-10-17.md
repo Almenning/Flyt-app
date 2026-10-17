@@ -67,3 +67,12 @@ Innhent og inspiser bildene fra den oppdaterte WebKit-kjøringen. Forbedre event
 - Tester omfatter normal omtegning med Tsjad bak horisonten, Tsjad som er synlig, Russland med synlig europeisk polygon, landskapsfeltet, trykk, drag, zoom og bytte mellom Enkel/Oppdag.
 - Nyeste `main` er inkludert uten å bytte ut annen utvikling. PWA-versjon er økt så Safari laster det nye JavaScript-feltet.
 - **Release-gate:** Ingen publisering før siste eksakte PR-head WebKit, generell smoke, kontroll av landskapsbilder og vellykket GitHub Pages-deploy.
+
+## Videreføring 17. oktober kl. 21:33: ytelse og siste kontroll
+
+- Kontrollert PR #179 og gjeldende `main`: den aktive grenen var 31 commits foran, null bak, og opprinnelig Enkel-renderer er ikke berørt av denne økten.
+- WebKit/Chromium-run #39060983731 for forrige terrengrenderer er bekreftet **grønn**, med skjermbildeartefakt #12111168595. Dette resultatet godkjenner ikke den nyeste koden automatisk.
+- Siste eksakte pre-endrings-PR-commit `1504defc` hadde WebKit-run #39062149395 fortsatt i kø ved kontrollen. Den er **ikke** regnet som bestått.
+- Ny optimalisering `4d3c98b`: bygget geografisk breddegradsindeks for biomer og fjellkjeder, slik at hvert terrengpiksel bare vurderer nærliggende kartankre. Indeksbånd overlapper med full søkeavstand; nøyaktig samme nærmeste-anker-beregning, datagrunnlag, landklipp og zoomberegning brukes fortsatt. Ingen endringer i Enkel.
+- Statisk regresjonskontroll lagt til i `b234f45` som krever indeks og begge søkeavstander.
+- **Ny release-gate:** Kontroller eksakt oppdatert PR-head i WebKit iPhone/iPad stående og liggende samt Chromium, faktisk rendertid og screenshot-forskjell, ordinær smoke og grønn Pages-deploy. Kun tidligere commits er hittil bekreftet. Ikke flett PR #179 før disse er grønne og visuell kvalitet vurdert.
