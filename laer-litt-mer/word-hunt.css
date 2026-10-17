@@ -1654,3 +1654,10 @@
   .word-hunt-companion-speech.is-speaking,.word-hunt-word.just-found,
   .word-hunt-companion .word-hunt-companion-sparkles{animation:none!important}
 }
+
+/* The premium theme control is for tablet/desktop. On compact playfields the
+   dedicated mobile theme selector is the only one allowed to appear. */
+@media(max-width:700px) and (orientation:portrait),
+       (min-width:701px) and (max-height:500px) and (orientation:landscape){
+  .word-hunt-theme-open{display:none!important}
+}
