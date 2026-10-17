@@ -1,6 +1,7 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict');
 const model=require('../laer-litt-mer/math-pattern-haven-v1.js');
+const fs=require('node:fs'),path=require('node:path');
 test('Matte chapter 2 is a separate unpublished world with authored play',()=>{
  assert.equal(model.validate(),true);
  assert.equal(model.CHAPTER.published,false);
@@ -12,6 +13,16 @@ test('Matte chapter 2 is a separate unpublished world with authored play',()=>{
  assert.equal(model.previewEnabled('?math-chapter2-preview=1'),true);
  for(const flag of ['','?math-chapter2-preview=0','?chapter2-preview=1','?math-chapter2-preview=true'])
    assert.equal(model.previewEnabled(flag),false);
+});
+test('the private painted map is bundled locally, accessible, and not marked approved',()=>{
+ const image=fs.readFileSync(path.join(__dirname,'../laer-litt-mer/math-pattern-haven-painted-candidate-v2.avif'));
+ assert.ok(image.length>70000,'must be an actual illustrated image, not a placeholder');
+ assert.equal(image.toString('ascii',4,12),'ftypavif');
+ const ui=fs.readFileSync(path.join(__dirname,'../laer-litt-mer/math-pattern-haven-preview-v1.js'),'utf8');
+ assert.ok(ui.includes('math-chapter2-painted'));
+ assert.ok(ui.includes('math-pattern-haven-painted-candidate-v2.avif'));
+ assert.equal(model.CHAPTER.artApproved,false);
+ assert.equal(model.CHAPTER.published,false);
 });
 test('each math place has four fresh activities on its second complete visit',()=>{
  const state={journey:{nodes:{'math:2:plassverdi':{best:4}},gradeWins:{'math:2':{at:88}}}};
