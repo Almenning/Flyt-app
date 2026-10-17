@@ -85,6 +85,38 @@ async function verifyGeographicTap(page,lon,lat,expected,label){
  assert.equal(result.country,expected,label+' geographic tap did not select '+expected);
  assert.ok(Math.abs(result.roundtrip.lon-lon)<.001&&Math.abs(result.roundtrip.lat-lat)<.001,label+' longitude/latitude projection lost accuracy');
 }
+async function verifyOffscreenCountryCard(page,label){
+  await page.evaluate(()=>{
+    if(!countries.td)throw new Error('Missing canonical country Tsjad');
+    globeLon=18;globeLat=15;globeSelected=null;
+    setGlobeZoom(2.1);selectGlobeCountry('td');
+  });
+  assert.match(await page.locator('#globe-status').innerText(),/Tsjad/,label+' cannot initially select Tsjad');
+  await page.evaluate(()=>{
+    // Simulate a completed drag after moving the real geographic camera.
+    // The original globe input handler owns the pointer; the new view only
+    // reconciles the status card on release, never the click or map geometry.
+    globeLon=15;globeLat=62;setGlobeZoom(3.2);globeMove=35;
+    document.getElementById('globe-canvas').dispatchEvent(new PointerEvent('pointerup',{
+      pointerId:912,pointerType:'touch',clientX:200,clientY:200,bubbles:true
+    }));
+  });
+  await page.waitForFunction(()=>globeSelected===null,null,{timeout:5000});
+  const status=await page.locator('#globe-status').innerText();
+  assert.match(status,/Hva vil du oppdage/,label+' offscreen selection did not become an exploration invitation');
+  assert.doesNotMatch(status,/Tsjad/,label+' stale country card survived after rotating away');
+
+  await page.evaluate(()=>{
+    globeLon=19;globeLat=15;setGlobeZoom(2.1);selectGlobeCountry('td');
+    globeMove=26;
+    document.getElementById('globe-canvas').dispatchEvent(new PointerEvent('pointerup',{
+      pointerId:913,pointerType:'touch',clientX:200,clientY:200,bubbles:true
+    }));
+  });
+  await page.waitForTimeout(180);
+  assert.equal(await page.evaluate(()=>globeSelected),'td',label+' still-visible country was accidentally cleared');
+  assert.match(await page.locator('#globe-status').innerText(),/Tsjad/,label+' still-visible country card disappeared');
+}
 async function verifyPointerDrag(page,label,isDiscovery){
  await page.evaluate(()=>{
    globeLon=18;globeLat=36;globeSelected=null;setGlobeZoom(2.2);
@@ -206,6 +238,7 @@ async function runDevice(engine,label,viewport,urls){
        assert.notEqual(hash(result.pixels),refs[pose.name],label+' discovery image equals the ordinary globe at '+pose.name);
        await discovery.page.screenshot({path:path.join(out,label+'-discovery-'+pose.name+'.png'),fullPage:viewport.height<500,animations:'disabled'});
      }
+     await verifyOffscreenCountryCard(discovery.page,label+' discovery globe');
      for(const hit of [[8,62,'no'],[138,36,'jp'],[-55,-12,'br']])
        await verifyGeographicTap(discovery.page,hit[0],hit[1],hit[2],label+' discovery globe');
      await verifyPointerDrag(discovery.page,label+' discovery globe',true);
