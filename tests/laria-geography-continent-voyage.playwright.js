@@ -8,8 +8,9 @@ const shots=process.env.LARIA_GEO_CHAPTER2_SCREENSHOTS;
 const productionArt=fs.readFileSync(path.join(__dirname,'../laer-litt-mer/geography-continent-voyage-painted-v3.png'));
 assert.ok(productionArt.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10])), 'Geography production image must be PNG');
 const productionImageSize={width:productionArt.readUInt32BE(16),height:productionArt.readUInt32BE(20)};
-assert.deepEqual(productionImageSize,{width:960,height:1280},
-  'Geography chapter art dimensions must match the existing HTML hotspot coordinate contract');
+assert.ok(productionImageSize.width>=768&&productionImageSize.height>=1024&&
+  productionImageSize.width*4===productionImageSize.height*3,
+  'Geography chapter art must be at least 768x1024, portrait 3:4: '+JSON.stringify(productionImageSize));
 const seed={version:7,progressSchemaVersion:3,profile:{grade:2,onboarded:true,name:'SjøfarerQA',avatar:'girl',setupVersion:2},
  mastery:{},mistakes:{},skillMastery:{},skillMistakes:{},skillLastSeen:{},masteryEvidence:{},skillEvidence:{},
  preferences:{sound:false,autoRead:false},lastMilestone:null,recentCountryWin:null,lastActivity:null,
@@ -80,6 +81,7 @@ async function verify(type,label,viewport){
      label+' back button must be a single 44px touch target: '+JSON.stringify(returnButton));
    await page.waitForFunction(()=>{const img=document.querySelector('.cv-map-art');return !!img&&img.complete&&img.naturalWidth>0&&img.naturalHeight>0;},null,{timeout:15000});
    const imageState=await page.locator('.cv-map-art').evaluate(img=>({variant:img.dataset.cvArtVariant,issue:img.dataset.cvArtFailure||null,width:img.naturalWidth,height:img.naturalHeight,src:img.getAttribute('src')}));
+   assert.equal((await page.locator('.cv-top .cv-development').textContent()).trim(),'GEOGRAFI · EVENTYR 2',label+' production header must not show internal debug text');
    assert.equal(imageState.variant,'production-v3',label+' Geography default painting must render without fallback: '+JSON.stringify(imageState));
    const map=page.locator('.cv-story-map');
    await map.waitFor({state:'visible'});
@@ -89,7 +91,7 @@ async function verify(type,label,viewport){
        const r=b.getBoundingClientRect();
        return {x:r.x,y:r.y,right:r.right,bottom:r.bottom,width:r.width,height:r.height};
      });
-     return {loaded:img.complete&&img.naturalWidth===960&&img.naturalHeight===1280,
+     return {loaded:img.complete&&img.naturalWidth>=768&&img.naturalHeight>=1024&&img.naturalWidth*4===img.naturalHeight*3,
        region:{x:region.x,y:region.y,right:region.right,bottom:region.bottom},stops};
    });
    assert.equal(geometry.loaded,true,label+' illustrated fantasy voyage asset failed to load');
