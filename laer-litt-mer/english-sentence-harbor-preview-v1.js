@@ -46,17 +46,17 @@
      '</aside></div></section>');
  }
  function sentenceUI(session){
-   const task=session.task,selected=session.selected;
-   return '<p class="sh-instruction">Velg ett og ett ord. Se hvordan setningen vokser.</p>'+
+   const task=session.task,selected=session.selected,solved=session.feedback?.correct===true;
+   return (solved?'':'<p class="sh-instruction">Velg ett og ett ord. Se hvordan setningen vokser.</p>')+
      '<div class="sh-assembled" role="status" aria-label="Setningen du bygger">'+
      (selected.length?selected.map(i=>'<span class="sh-built-word">'+esc(task.tiles[i])+'</span>').join(''):
        '<span class="sh-empty">Setningen din kommer her ✨</span>')+'</div>'+
-     '<div class="sh-tiles" role="group" aria-label="Engelske ordbrikker">'+task.tiles.map((w,i)=>
+     (solved?'':('<div class="sh-tiles" role="group" aria-label="Engelske ordbrikker">'+task.tiles.map((w,i)=>
        '<button type="button" class="sh-tile'+(selected.includes(i)?' sh-picked':'')+'" data-sh-act="tile" data-sh-index="'+i+
-       '" aria-pressed="'+String(selected.includes(i))+'"'+(session.feedback?.correct?' disabled':'')+'>'+esc(w)+'</button>').join('')+'</div>'+
+       '" aria-pressed="'+String(selected.includes(i))+'"'+(session.feedback?.correct?' disabled':'')+'>'+esc(w)+'</button>').join('')+'</div>'))+
      // The child has finished building this sentence: remove redundant controls
      // so the correct answer and Next fit the phone, instead of relying on scrolling.
-     (session.feedback?.correct?'':('<div class="sh-tools"><button type="button" class="sh-quiet" data-sh-act="clear">Start på nytt</button>'+
+     (solved?'':('<div class="sh-tools"><button type="button" class="sh-quiet" data-sh-act="clear">Start på nytt</button>'+
      '<button type="button" class="sh-check" data-sh-act="check-sentence"'+
        (selected.length<task.tiles.length?' disabled':'')+'>Sjekk setningen ✦</button></div>'));
  }
