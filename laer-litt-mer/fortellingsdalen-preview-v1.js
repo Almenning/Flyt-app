@@ -60,6 +60,10 @@
     const q=ui.pending?.question||session.story.questions[session.index];
     const pending=ui.pending;
     const n=pending?pending.number:session.index+1;
+    const foxState=window.LARIA_CHAPTER_FOX_BUDDY?.response({
+      subject:'norwegian',stageId:session.stage.id,kind:q.skill||session.stage.type,
+      feedback:pending?{correct:pending.correct}:null,expanded:!!ui.hintShown
+    })||{text:'Jeg leser sammen med deg.',mood:'ready',showHint:!pending,expanded:false};
     const options=q.options.map((answer,i)=>{
       const chosen=pending?.selected===answer,correct=pending?.answer===answer;
       return '<button type="button" class="fd-option'+(pending?(correct?' fd-option-correct':chosen?' fd-option-incorrect':''):'')+
@@ -68,11 +72,10 @@
     }).join('');
     return shell('<article class="fd-story-layout" tabindex="-1">'+
       '<div class="fd-story-top"><button type="button" class="fd-quiet-back" data-fd-action="intro">← Alle stedene</button><span>'+esc(session.stage.title)+'</span></div>'+
-      '<div class="fd-story-companion" data-fd-story-place="'+esc(session.stage.id)+'" style="--fd-scene-x:'+art.stop(session.stage.id).marker.x+'%;--fd-scene-y:'+art.stop(session.stage.id).marker.y+'%;" aria-label="Reven din er med på historien">'+
+      '<div class="fd-story-companion" data-fd-fox-mood="'+esc(foxState.mood)+'" data-fd-story-place="'+esc(session.stage.id)+'" style="--fd-scene-x:'+art.stop(session.stage.id).marker.x+'%;--fd-scene-y:'+art.stop(session.stage.id).marker.y+'%;" aria-label="Reven din er med på historien">'+
       '<img class="fd-story-art" src="'+esc(art.ASSET.src)+'" alt="" draggable="false" loading="eager" aria-hidden="true">'+fox()+
-      '<div><span class="fd-eyebrow">REVENS FORTELLERKROK</span><p>'+(pending?(pending.correct?
-        'Et spor funnet! Klar for neste?':'Prøv gjerne en ny historie senere. Vi utforsker videre.'):
-        'Les historien i ditt tempo. Jeg kan lese den høyt for deg.')+'</p></div></div>'+
+      '<div class="fd-story-fox-copy"><span class="fd-eyebrow">REVENS FORTELLERKROK</span><p id="fd-fox-message" role="status">'+esc(foxState.text)+'</p></div>'+
+      (foxState.showHint?'<button class="fd-fox-help" type="button" data-fd-action="hint" aria-controls="fd-fox-message" aria-expanded="'+String(foxState.expanded)+'" aria-label="'+(foxState.expanded?'Skjul hint fra reven':'Få hint fra reven')+'">Hint</button>':'')+'</div>'+
       '<div class="fd-story-banner"><span>SPOR '+n+' AV '+session.total+'</span><div class="fd-story-bar"><span style="width:'+mark(pending?n:n-1,session.total)+'%"></span></div></div>'+
       '<div class="fd-letter"><div class="fd-letter-decoration">✦</div><h2>'+esc(session.story.title)+'</h2><p>'+esc(session.story.passage)+'</p>'+
       '<div class="fd-letter-actions"><button type="button" class="fd-read" data-fd-action="read" aria-label="Les opp historien, spørsmålet og svaralternativene">🔊 Les høyt</button>'+
@@ -109,7 +112,7 @@
   function save(){try{ui?.save?.()}catch(_){/* local preview must remain playable */}}
   function start(stageId){
     core.start(ui.state,stageId);
-    ui.pending=null;ui.lastResult=null;ui.mode='story';save();render();
+    ui.pending=null;ui.lastResult=null;ui.hintShown=false;ui.mode='story';save();render();
     resetSceneScroll('.fd-story-layout');
   }
   function speak(){
@@ -156,13 +159,20 @@
     if(action==='read'){speak();return}
     if(action==='intro'){
       if('speechSynthesis' in window)window.speechSynthesis.cancel();
-      ui.pending=null;ui.lastResult=null;ui.mode='intro';save();render();
+      ui.pending=null;ui.lastResult=null;ui.hintShown=false;ui.mode='intro';save();render();
       resetSceneScroll('#fd-title');return;
     }
     if(action==='resume'){
-      ui.pending=null;ui.mode='story';render();resetSceneScroll('.fd-story-layout');return;
+      ui.pending=null;ui.hintShown=false;ui.mode='story';render();resetSceneScroll('.fd-story-layout');return;
     }
     if(action==='stage'||action==='replay'){start(b.dataset.fdStage);return}
+    if(action==='hint'&&ui.mode==='story'&&!ui.pending){
+      ui.hintShown=!ui.hintShown;
+      const scrollTop=ui.root.scrollTop;
+      render();ui.root.scrollTop=scrollTop;
+      ui.root.querySelector('[data-fd-action="hint"]')?.focus({preventScroll:true});
+      return;
+    }
     if(action==='question'){
       const question=ui.root.querySelector('.fd-question-prompt');
       question?.scrollIntoView({block:'start',behavior:'smooth'});
@@ -172,7 +182,7 @@
     if(action==='next'){
       if('speechSynthesis' in window)window.speechSynthesis.cancel();
       const completed=!!ui.pending?.finished,outcome=ui.pending?.outcome||null;
-      ui.pending=null;
+      ui.pending=null;ui.hintShown=false;
       if(completed){ui.lastResult=outcome;ui.mode='result'}else ui.mode='story';
       render();
       if(completed)ui.root.scrollTop=0;
@@ -186,6 +196,7 @@
       const question=s.story.questions[s.index];
       const response=core.answer(ui.state,Number(b.dataset.fdIndex));
       save();
+      ui.hintShown=false;
       ui.pending={question,number:s.index+1,correct:response.correct,
         answer:response.answer,selected:response.selected,session:s,
         finished:response.finished,outcome:response.outcome};
@@ -201,7 +212,7 @@
     const root=document.createElement('div');root.id='laria-fortellingsdalen-preview';
     root.className='fd-overlay';root.setAttribute('role','dialog');root.setAttribute('aria-modal','true');
     ui={root,state:options.state,save:options.save,foxSrc:safeAvatar(options.foxSrc),focus:document.activeElement,
-      mode:core.resume(options.state)?'story':'intro',pending:null,lastResult:null};
+      mode:core.resume(options.state)?'story':'intro',pending:null,lastResult:null,hintShown:false};
     root.addEventListener('click',onClick);
     document.body.appendChild(root);
     document.addEventListener('keydown',onKey);

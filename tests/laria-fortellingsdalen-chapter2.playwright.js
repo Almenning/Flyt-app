@@ -226,6 +226,20 @@ async function run(engine,label,viewport){
     assert.equal(await storyFox.count(),1,label+' selected fox should join the story scene');
     assert.ok((await storyFox.getAttribute('src')).includes(rightAvatar),
       label+' story fox must match the chosen avatar');
+    const hintButton=page.locator('[data-fd-action="hint"]');
+    assert.equal(await hintButton.count(),1,label+' fox must offer a child-controlled hint');
+    const initialFoxLine=await page.locator('#fd-fox-message').innerText();
+    const statusBefore=await page.evaluate(()=>JSON.stringify(state.journey.chapterProgress));
+    await hintButton.click();
+    assert.equal(await page.locator('[data-fd-action="hint"]').getAttribute('aria-expanded'),'true');
+    assert.match(await page.locator('#fd-fox-message').innerText(),/brev|hvem|tid|sted/i);
+    assert.notEqual(await page.locator('#fd-fox-message').innerText(),initialFoxLine);
+    assert.equal(await page.evaluate(()=>JSON.stringify(state.journey.chapterProgress)),statusBefore,
+      label+' a hint must not alter the story answer or score');
+    const helpBox=await page.locator('#fd-fox-message').boundingBox();
+    assert.ok(helpBox&&helpBox.width>=94,label+' fox hint is not readable at this device size');
+    await page.locator('[data-fd-action="hint"]').click();
+    assert.equal(await page.locator('[data-fd-action="hint"]').getAttribute('aria-expanded'),'false');
     const stagePainting=page.locator('.fd-story-companion .fd-story-art');
     assert.equal(await stagePainting.count(),1,label+' every story must have its local painted landmark');
     assert.match(await stagePainting.getAttribute('src'),/fortellingsdalen-map-premium-v3\.png/);
@@ -252,6 +266,10 @@ async function run(engine,label,viewport){
     });
     await page.locator('.fd-option').nth(answer).click();
     await page.locator('.fd-next').waitFor();
+    assert.equal(await page.locator('.fd-story-companion').getAttribute('data-fd-fox-mood'),'celebrate',
+      label+' personal fox must celebrate a correct reading answer');
+    assert.equal(await page.locator('[data-fd-action="hint"]').count(),0,
+      label+' a hint should disappear after answering');
     assert.equal(await page.locator('.fd-next').evaluate(el=>document.activeElement===el),true,
       label+' answer feedback must focus its next-action button');
     await page.locator('[data-fd-action="close"]').click();

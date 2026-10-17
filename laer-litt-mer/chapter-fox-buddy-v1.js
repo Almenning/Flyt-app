@@ -23,6 +23,13 @@
      samtalebaten:'Hva spør vennen om? Svar på akkurat det spørsmålet.',
      historiefyret:'Les én setning om gangen. Finn ordet som passer til spørsmålet.'
    }),
+   norwegian:Object.freeze({
+     brevhytta:'Finn ut hvem som skriver, og se etter viktige ord om tid og sted.',
+     eventyrbrua:'Hva skjedde først? Let etter ord som før, så og til slutt.',
+     sporstien:'Se etter små spor i teksten. Hva kan du finne ut uten at det står rett ut?',
+     fortellermolla:'Tenk på hva som skjedde før, og hva som kan være grunnen til det.',
+     stjernetoppen:'Les en bit om gangen. Finn hvem, hvor og hvorfor før du svarer.'
+   }),
    geography:Object.freeze({
      kompassholmen:'Toppen av kompasset er nord. Finn deretter retningen båten trenger.',
      passbrygga:'Tenk på hvor landet ligger på den ekte kloden.',
@@ -33,16 +40,19 @@
    })
  });
  const BASE=Object.freeze({
+   norwegian:'Jeg leser og leter etter spor sammen med deg.',
    math:'Prøv selv. Jeg hjelper gjerne.',
    english:'Prøv, les og lytt. Jeg er her.',
    geography:'Du styrer. Spør meg om hint.'
  });
  const CHEER=Object.freeze({
+   norwegian:'Du fant et viktig spor! Reven feirer sammen med deg.',
    math:'Du fant sammenhengen! Reven jubler med deg.',
    english:'Well done! Reven heier på de engelske ordene dine.',
    geography:'God kurs! Reven heier på reisen din.'
  });
  const RETRY=Object.freeze({
+   norwegian:'Fint forsøk! Vi kan lese den delen en gang til.',
    math:'Bra at du prøvde! Se på mønsteret én gang til.',
    english:'Bra forsøk! Les eller lytt én gang til. Vi kan prøve igjen.',
    geography:'Spennende forsøk! Vi finner veien sammen.'

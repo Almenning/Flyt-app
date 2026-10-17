@@ -4,8 +4,9 @@ const buddy=require('../laer-litt-mer/chapter-fox-buddy-v1.js');
 const math=require('../laer-litt-mer/math-pattern-haven-v1.js');
 const english=require('../laer-litt-mer/english-sentence-harbor-v1.js');
 const geography=require('../laer-litt-mer/geography-continent-voyage-v1.js');
-const chapters={math,english,geography};
-test('every place in the three private adventures has a contextual, optional hint',()=>{
+const norwegian=require('../laer-litt-mer/chapter-expansion-v1.js');
+const chapters={math,english,geography,norwegian};
+test('every place in all four private adventures has a contextual, optional hint',()=>{
  const stages=Object.fromEntries(Object.entries(chapters).map(([k,v])=>[k,v.STAGES.map(s=>s.id)]));
  assert.equal(buddy.validate(stages),true);
  for(const [subject,model] of Object.entries(chapters)){

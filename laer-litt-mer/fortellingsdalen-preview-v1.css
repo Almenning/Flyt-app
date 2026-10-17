@@ -644,3 +644,41 @@ body > .fd-dev-launch small{font-size:10px;line-height:1.25}
     font-size:27px!important;margin-bottom:7px!important;
   }
 }
+
+/* Personal fox is an actual learning partner: optional clues and contextual reactions. */
+#laria-fortellingsdalen-preview .fd-story-companion .fd-story-fox-copy{
+  flex:1 1 auto;min-width:0;max-width:100%;overflow-wrap:break-word;
+}
+#laria-fortellingsdalen-preview .fd-story-companion .fd-fox-help{
+  flex:0 0 auto;min-width:54px;min-height:44px;padding:7px 8px;
+  border:2px solid #a77651;border-radius:12px;color:#68452b;
+  font-size:13px;font-weight:900;background:linear-gradient(#fff8df,#f2dcb3);
+  box-shadow:0 3px 0 #c5a47a;
+}
+#laria-fortellingsdalen-preview .fd-story-companion .fd-fox-help:active{
+  transform:translateY(2px);box-shadow:0 1px 0 #c5a47a;
+}
+#laria-fortellingsdalen-preview .fd-story-companion[data-fd-fox-mood="hint"]{
+  border-color:#ae8d57;background:#faedd1;
+}
+#laria-fortellingsdalen-preview .fd-story-companion[data-fd-fox-mood="celebrate"] .fd-fox-portrait{
+  animation:fd-fox-cheer .65s ease-out 1;
+}
+@keyframes fd-fox-cheer{
+  0%,100%{transform:translateY(0) rotate(0)}
+  40%{transform:translateY(-6px) rotate(-5deg)}
+  75%{transform:rotate(4deg)}
+}
+@media(max-width:360px){
+  #laria-fortellingsdalen-preview .fd-story-companion .fd-fox-help{
+    min-width:48px;padding:6px 5px;font-size:12px;
+  }
+  #laria-fortellingsdalen-preview .fd-story-companion .fd-story-fox-copy p{
+    font-size:12px;line-height:1.28;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  #laria-fortellingsdalen-preview .fd-story-companion[data-fd-fox-mood="celebrate"] .fd-fox-portrait{
+    animation:none!important;
+  }
+}
