@@ -248,9 +248,22 @@ function terrainNoise(lon,lat,scale,seed){
   const d=terrainHash(ix,iy+1,seed),e=terrainHash(ix+1,iy+1,seed);
   return ((a+(b-a)*sx)+(d+(e-d)*sx-a-(b-a)*sx)*sy);
 }
-function nearestTerrain(lon,lat,samples,limit){
-  // Nothing beyond the local corridor radius affects the brush colour or
-  // relief, so ignore far-away coordinates before expensive wrap maths.
+/* An iPad terrain frame contains tens of thousands of pixel samples.
+   Group geographic anchors by latitude once so each pixel scans only nearby
+   candidates. The bands deliberately overlap by the full search radius and
+   preserve original anchor order: the final pixels stay identical to a full
+   search, including across zoom levels and the 180-degree longitude seam. */
+function terrainLatitudeIndex(samples,limit){
+  const bands=Array.from({length:180},(_,row)=>{
+    const south=row-90;
+    return samples.filter(p=>p.lat>=south-limit&&p.lat<=south+1+limit);
+  });
+  return {bands};
+}
+function nearestTerrain(lon,lat,index,limit){
+  // Latitude bands are a superset of all potentially relevant samples.
+  // Distance and wrapped-longitude checks below remain the source of truth.
+  const samples=Array.isArray(index)?index:index.bands[clamp(Math.floor(lat+90),0,179)];
   let found=null,best=limit*limit;
   const xscale=Math.max(.28,Math.cos(lat*terrainDegree));
   for(const p of samples){
@@ -266,8 +279,8 @@ function nearestTerrain(lon,lat,samples,limit){
 let terrainFieldCache=null;
 function paintWorldTerrain(ctx,w,h,s,level,moving){
   if(moving||typeof globeInverse!=='function')return 0;
-  if(!terrainBiomeAnchors)terrainBiomeAnchors=terrainSamples(landscapeZones,6);
-  if(!terrainRidgeAnchors)terrainRidgeAnchors=terrainSamples(mountainChains,4.8);
+  if(!terrainBiomeAnchors)terrainBiomeAnchors=terrainLatitudeIndex(terrainSamples(landscapeZones,6),19);
+  if(!terrainRidgeAnchors)terrainRidgeAnchors=terrainLatitudeIndex(terrainSamples(mountainChains,4.8),6);
   const key=[Math.round(globeLon*200)/200,Math.round(globeLat*200)/200,
     Math.round(globeZoom*200)/200,Math.round(s),level].join('|');
   if(!terrainFieldCache||terrainFieldCache.key!==key){
