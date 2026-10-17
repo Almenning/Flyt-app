@@ -43,7 +43,7 @@ async function run(browserType,label,viewport){
        right:el.getBoundingClientRect().right,width:el.getBoundingClientRect().width,
        height:el.getBoundingClientRect().height})));
    assert.equal(tabs.length,4,label+' all four chapters must remain visible');
-   assert.ok(tabs.every(t=>t.left>=-2&&t.right<=innerWidth+2&&t.width>=120&&t.height>=44),
+   assert.ok(tabs.every(t=>t.left>=-2&&t.right<=viewport.width+2&&t.width>=120&&t.height>=44),
      label+' every collection chapter must be discoverable and touchable '+JSON.stringify(tabs));
   }
   assert.equal(await d.locator('.bc12-memory').count(),4);
