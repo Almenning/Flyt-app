@@ -279,10 +279,17 @@ function overlay(){
   });
   root.querySelector('.word-hunt-theme-picker').addEventListener('keydown',e=>{
     if(e.key!=='Tab')return;
-    const all=[...e.currentTarget.querySelectorAll('button:not([disabled])')];
-    const first=all[0],last=all[all.length-1];
-    if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus()}
-    else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus()}
+    // A first-time player has no resume action. Hidden controls must not
+    // become tab stops or let focus escape this modal on Safari/iPad.
+    const visible=[...e.currentTarget.querySelectorAll('button:not([disabled])')]
+      .filter(button=>!button.hidden&&button.getClientRects().length&&getComputedStyle(button).visibility!=='hidden');
+    if(!visible.length){e.preventDefault();return}
+    const first=visible[0],last=visible[visible.length-1],active=document.activeElement;
+    if(e.shiftKey&&(active===first||!visible.includes(active))){
+      e.preventDefault();last.focus({preventScroll:true});
+    }else if(!e.shiftKey&&(active===last||!visible.includes(active))){
+      e.preventDefault();first.focus({preventScroll:true});
+    }
   });
   root.querySelector('.word-hunt-back').onclick=closeWordHunt;
   root.querySelector('.word-hunt-new').onclick=()=>{makeRound();render()};

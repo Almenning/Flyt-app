@@ -139,6 +139,15 @@ async function verify(engine,launcher,label,viewport,url){
    await open(page,url);
    assert.equal(await page.locator('.word-hunt-theme-picker .wh-theme-start:visible').count(),0,
      label+' must not advertise resuming a round that was never started');
+   // When resume is hidden, cycle between the last visible card and close.
+   const entryModal=page.locator('.word-hunt-theme-picker:not([hidden])');
+   await entryModal.locator('.wh-theme-card').last().focus();
+   await page.keyboard.press('Tab');
+   assert.equal(await entryModal.locator('.wh-theme-close').evaluate(el=>el===document.activeElement),true,
+     label+' Tab escaped the first-entry theme dialog');
+   await page.keyboard.press('Shift+Tab');
+   assert.equal(await entryModal.locator('.wh-theme-card').last().evaluate(el=>el===document.activeElement),true,
+     label+' Shift+Tab did not return to the final visible topic');
    await shot(page,label+'-first-topic-gallery');
    const layout=await page.locator('.word-hunt-theme-picker').evaluate(el=>({
     width:innerWidth,scrollWidth:document.documentElement.scrollWidth,
@@ -204,6 +213,14 @@ async function verify(engine,launcher,label,viewport,url){
    await open(page,url);
    const resume=page.locator('.word-hunt-theme-picker .wh-theme-start:visible');
    assert.match(await resume.innerText(),/Fortsett ordjakten i Dyrevenner/);
+   // On return the real resume action is visible and is the last tab stop.
+   await resume.focus();
+   await page.keyboard.press('Tab');
+   assert.equal(await page.locator('.word-hunt-theme-picker .wh-theme-close').evaluate(el=>el===document.activeElement),true,
+     label+' Tab escaped picker with a genuine saved round');
+   await page.keyboard.press('Shift+Tab');
+   assert.equal(await resume.evaluate(el=>el===document.activeElement),true,
+     label+' Shift+Tab skipped the saved-round resume action');
    await resume.click();
    await page.locator('.word-hunt-cell:visible').first().waitFor();
    assert.deepEqual(await page.locator('.word-hunt-word').allTextContents().then(items=>items.map(s=>s.replace(/^✓\s*/,'').trim())),next,
