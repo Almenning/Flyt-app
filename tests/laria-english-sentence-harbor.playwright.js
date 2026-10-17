@@ -140,6 +140,11 @@ async function verify(type,label,viewport){
    assert.equal(await page.locator('[data-sh-act="tile"][data-sh-index="'+chosen+'"]').getAttribute('aria-pressed'),'true');
    await photo(page,label+'-sentence-start');
    await page.locator('[data-sh-act="intro"]').click();
+   // Reopening the same map stop must retain the partially built sentence.
+   await page.locator('[data-sh-act="stage"][data-sh-stage="setningsverkstedet"]').click();
+   assert.equal((await page.evaluate(()=>window.LARIA_ENGLISH_SENTENCE_HARBOR.resume(state)))?.selected.includes(chosen),true,
+     label+' tapping the same active stage erased the draft');
+   await page.locator('[data-sh-act="intro"]').click();
    await page.locator('[data-sh-act="close"]').click();
    await page.reload({waitUntil:'domcontentloaded'});
    await enter(page);
