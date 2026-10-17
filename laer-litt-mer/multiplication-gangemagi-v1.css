@@ -204,8 +204,10 @@
  .gm-heading p{max-width:190px;line-height:1.2}
  .gm-story p{line-height:1.16}
  .gm-fruit-bed{max-width:105px}
- .gm-crates[style*="--gm-groups:4"],.gm-crates[style*="--gm-groups:5"]{overflow-x:auto;justify-content:start;grid-template-columns:repeat(var(--gm-groups),minmax(85px,1fr));padding-bottom:10px;overscroll-behavior-inline:contain;scroll-snap-type:x proximity}
+ .gm-crates[style*="--gm-groups:4"],.gm-crates[style*="--gm-groups:5"]{overflow-x:auto;justify-content:start;grid-template-columns:repeat(var(--gm-groups),minmax(124px,1fr));padding-bottom:13px;overscroll-behavior-inline:contain;scroll-snap-type:x proximity}
  .gm-crates[style*="--gm-groups:4"] .gm-crate-wrap,.gm-crates[style*="--gm-groups:5"] .gm-crate-wrap{scroll-snap-align:center}
+ .gm-crates[style*="--gm-groups:4"] .gm-crate,.gm-crates[style*="--gm-groups:5"] .gm-crate{height:158px}
+ .gm-crates[style*="--gm-groups:4"] .gm-fruit-bed,.gm-crates[style*="--gm-groups:5"] .gm-fruit-bed{min-height:56px}
  .gm-math{grid-template-columns:minmax(80px,.76fr) minmax(152px,1.24fr)}
  .gm-next{font-size:10px}
  .gm-footer{font-size:10px}
