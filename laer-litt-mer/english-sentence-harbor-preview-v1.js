@@ -13,6 +13,11 @@
    const p=core.progress(ui.state),session=core.resume(ui.state);
    const positions={hilsenkaia:[27,24],ordbrygga:[75,38],
      setningsverkstedet:[28,55],samtalebaten:[74,71],historiefyret:[45,87]};
+   const recommended=core.STAGES.find(stage=>stage.id===p.recommended)||core.STAGES[0];
+   // Voluntary starting point near the fox on landscape iPads. Existing
+   // unfinished sessions retain a prominent Resume button instead.
+   const quickStart=!session?'<button type="button" class="sh-quick-start" data-sh-act="quick-start" data-sh-stage="'+esc(recommended.id)+'">'+
+     '✦ '+(p.complete?'Besøk igjen ':'Begynn ved ')+esc(recommended.title)+' →</button>':'';
    const stops=core.STAGES.map((stop,i)=>{
      const status=p.places.find(x=>x.id===stop.id),point=positions[stop.id];
      if(!point)throw Error('Setningshavna missing a storybook stop '+stop.id);
@@ -29,7 +34,7 @@
      '<div class="sh-story-layout"><div class="sh-story-map" role="group" aria-label="Illustrert havnekart med fem eventyrsteder">'+
      '<img class="sh-map-art" src="./english-sentence-harbor-storymap-v1.svg" draggable="false" loading="eager" alt="">'+
      '<div class="sh-stops">'+stops+'</div></div>'+
-     '<aside class="sh-story-rail"><div class="sh-story-fox">'+fox()+'<p>Velkommen til havna! Hvor vil du seile i dag?</p></div>'+
+     '<aside class="sh-story-rail"><div class="sh-story-fox">'+fox()+'<p>Velkommen til havna! Hvor vil du seile i dag?</p></div>'+quickStart+
      '<div class="sh-progress" role="status"><strong>'+p.done+' av 5 steder utforsket</strong>'+
      '<small>'+(p.places.some(place=>place.attempts===1)?'Nye oppgaver venter på steder du har besøkt.':'Velg fritt, og kom tilbake til et sted du liker.')+'</small>'+
      '<div class="sh-progress-bar"><span style="width:'+p.done*20+'%"></span></div></div>'+
@@ -128,7 +133,7 @@
    const cmd=b.dataset.shAct;
    if(cmd==='close'){close();return}
    if(cmd==='intro'){ui.mode='intro';ui.result=null;ui.hintShown=false;render();return}
-   if(cmd==='stage'||cmd==='replay'){start(b.dataset.shStage);return}
+   if(cmd==='stage'||cmd==='replay'||cmd==='quick-start'){start(b.dataset.shStage);return}
    if(cmd==='resume'){ui.mode='play';ui.result=null;render();return}
    if(cmd==='speak'){speak();return}
    if(cmd==='hint'){ui.hintShown=!ui.hintShown;render('[data-sh-act="hint"]',true);return}

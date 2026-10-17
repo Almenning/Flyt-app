@@ -213,3 +213,15 @@
  .cv-root .cv-task .cv-stamps{gap:7px}
  .cv-root .cv-task .cv-stamp{min-height:48px;padding:8px}
 }
+
+/* Child-first, voluntary next-stop invitation beside the personal fox. */
+.cv-root .cv-story-rail .cv-quick-start{
+ display:block;width:100%;min-height:50px;margin:0;padding:12px 14px;
+ border:2px solid #987153;border-radius:15px;
+ background:linear-gradient(160deg,#fff0ca,#e7b77d);
+ box-shadow:0 4px 0 #ad8759;
+ color:#523b2b;text-align:center;font:900 15px ui-rounded,system-ui;
+ line-height:1.2;touch-action:manipulation;
+}
+.cv-root .cv-story-rail .cv-quick-start:focus-visible{outline:3px solid #247b7e;outline-offset:3px}
+.cv-root .cv-story-rail .cv-quick-start:active{transform:translateY(2px);box-shadow:0 2px 0 #ad8759}

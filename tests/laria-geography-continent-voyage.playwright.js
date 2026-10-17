@@ -84,6 +84,22 @@ async function verify(type,label,viewport){
    const layout=await page.locator('#laria-geo-continent-voyage-preview').evaluate(el=>({width:el.clientWidth,scrollWidth:el.scrollWidth}));
    assert.ok(layout.scrollWidth<=layout.width+2,label+' horizon overflow');
    await photo(page,label+'-five-stops');
+   const quickStart=page.locator('[data-cv-act="quick-start"]');
+   assert.equal(await quickStart.count(),1,label+' needs a voluntary recommended voyage start');
+   assert.match(await quickStart.innerText(),/Seil til Kompassholmen/i);
+   if(viewport.width>=900&&viewport.width>viewport.height){
+     const b=await quickStart.boundingBox();
+     assert.ok(b&&b.height>=44&&b.y+b.height<=viewport.height,
+       label+' voyage start should be visible above the iPad landscape fold');
+   }
+   assert.equal(await page.locator('.cv-story-map [data-cv-act="stage"]').count(),5);
+   await quickStart.click();
+   assert.equal((await page.evaluate(()=>window.LARIA_GEO_CONTINENT_VOYAGE.resume(state)))?.place.id,
+     'kompassholmen',label+' voyage quick start opened the wrong place');
+   await page.locator('[data-cv-act="intro"]').click();
+   assert.equal(await page.locator('[data-cv-act="quick-start"]').count(),0,
+     label+' paused voyage must offer Resume instead of an overwriting new start');
+   assert.equal(await page.locator('[data-cv-act="resume"]').count(),1);
    await page.locator('[data-cv-act="stage"][data-cv-stage="kompassholmen"]').click();
    assert.equal(await page.locator('.cv-direction').count(),4,'compass must be tactile, not a quiz card');
    await answer(page);

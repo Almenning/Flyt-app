@@ -76,6 +76,23 @@ async function verify(type,label,viewport){
    const viewportResult=await page.locator('#laria-english-sentence-harbor-preview').evaluate(el=>({scrollWidth:el.scrollWidth,width:el.clientWidth}));
    assert.ok(viewportResult.scrollWidth<=viewportResult.width+2,label+' overflow in port');
    await photo(page,label+'-harbor');
+   const quickStart=page.locator('[data-sh-act="quick-start"]');
+   assert.equal(await quickStart.count(),1,label+' needs a voluntary first-fold harbor invitation');
+   assert.match(await quickStart.innerText(),/Begynn ved Hilsenkaia/i);
+   if(viewport.width>=900&&viewport.width>viewport.height){
+     const b=await quickStart.boundingBox();
+     assert.ok(b&&b.height>=44&&b.y+b.height<=viewport.height,
+       label+' harbor recommended start should be visible on landscape iPad');
+   }
+   assert.equal(await page.locator('.sh-story-map [data-sh-act="stage"]').count(),5,
+     label+' the quick start must not replace any illustrated stop');
+   await quickStart.click();
+   assert.equal((await page.evaluate(()=>window.LARIA_ENGLISH_SENTENCE_HARBOR.resume(state)))?.stage.id,
+     'hilsenkaia',label+' harbor quick start opened the wrong stage');
+   await page.locator('[data-sh-act="intro"]').click();
+   assert.equal(await page.locator('[data-sh-act="quick-start"]').count(),0,
+     label+' an unfinished visit must offer Resume, not a button that overwrites it');
+   assert.equal(await page.locator('[data-sh-act="resume"]').count(),1);
    await page.locator('[data-sh-act="stage"][data-sh-stage="ordbrygga"]').click();
    const firstTask=await page.evaluate(()=>window.LARIA_ENGLISH_SENTENCE_HARBOR.resume(state).task);
    assert.equal(firstTask.kind,'choice');

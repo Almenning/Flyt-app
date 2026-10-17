@@ -16,6 +16,11 @@
    const p=core.progress(ui.state),session=core.resume(ui.state);
    const positions={kompassholmen:[27,24],passbrygga:[75,39],
      havpassasjen:[28,55],naturøya:[74,71],reisefyret:[45,86]};
+   const recommended=core.STAGES.find(stop=>stop.id===p.recommended)||core.STAGES[0];
+   // All five painted stops stay independent. A first-fold iPad invitation
+   // avoids the need to scroll to the bottom of a tall voyage map.
+   const quickStart=!session?'<button type="button" class="cv-quick-start" data-cv-act="quick-start" data-cv-stage="'+esc(recommended.id)+'">'+
+     '✦ '+(p.complete?'Seil igjen til ':'Seil til ')+esc(recommended.title)+' →</button>':'';
    const places=core.STAGES.map((s,i)=>{
      const visited=p.places.find(x=>x.id===s.id)?.visited,point=positions[s.id];
      if(!point)throw Error('Kontinentseilasen missing storybook stop '+s.id);
@@ -31,7 +36,7 @@
      '<div class="cv-story-layout"><div class="cv-story-map" role="group" aria-label="Illustrert fantasihav med fem interaktive eventyrsteder">'+
      '<img class="cv-map-art" src="./geography-continent-voyage-storymap-v1.svg" alt="" draggable="false" loading="eager">'+
      '<div class="cv-places">'+places+'</div></div>'+
-     '<aside class="cv-story-rail"><div class="cv-story-fox">'+fox()+'<p>Hvor skal vi seile? Jeg følger med på reisen!</p></div>'+
+     '<aside class="cv-story-rail"><div class="cv-story-fox">'+fox()+'<p>Hvor skal vi seile? Jeg følger med på reisen!</p></div>'+quickStart+
      '<div class="cv-progress" role="status"><strong>'+p.done+' av 5 steder utforsket</strong>'+
      '<small>'+(p.places.some(place=>place.attempts===1)?'Flere nye oppdagelser venter når du besøker et sted igjen.':'Alle stedene kan gjentas når du vil.')+'</small>'+
      '<div class="cv-bar"><span style="width:'+p.done*20+'%"></span></div></div>'+
@@ -128,7 +133,7 @@
    const cmd=b.dataset.cvAct;
    if(cmd==='close'){close();return}
    if(cmd==='intro'){ui.mode='intro';ui.result=null;ui.hintShown=false;render();return}
-   if(cmd==='stage'||cmd==='replay'){play(b.dataset.cvStage);return}
+   if(cmd==='stage'||cmd==='replay'||cmd==='quick-start'){play(b.dataset.cvStage);return}
    if(cmd==='resume'){ui.mode='challenge';ui.result=null;render();return}
    if(cmd==='read'){read();return}
    if(cmd==='hint'){ui.hintShown=!ui.hintShown;render('[data-cv-act="hint"]',true);return}
