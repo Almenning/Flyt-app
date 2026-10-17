@@ -475,8 +475,15 @@ function checkLine(path){
 }
 function status(message,success=false,newSticker=false){
   const s=overlay().querySelector('.word-hunt-status');
+  const quiet=!success&&!newSticker&&(
+    message==='Se etter ord bortover og nedover.'||
+    message==='Ordene kan også ligge baklengs og på skrå.'
+  );
+  // The fox already guides the child: do not repeat its idle instructions
+  // in a second big card. Keep meaningful progress and reward feedback.
+  s.classList.toggle('is-quiet',quiet);
   s.classList.toggle('is-sticker-earned',newSticker);
-  s.innerHTML='<strong>'+(success?'Ordjakten er løst!':'Reven følger med 🦊')+'</strong>'+message;
+  s.innerHTML='<strong>'+(success?'Ordjakten er løst!':'På sporet!')+'</strong>'+message;
   if(success){s.classList.remove('word-hunt-success');void s.offsetWidth;s.classList.add('word-hunt-success')}
 }
 function render(resetStatus=true){
