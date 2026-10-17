@@ -2407,6 +2407,7 @@
   <link rel="stylesheet" href="./locked-journey-mission-premium-v1.css?v=20261015-missions-v1" />
   <link rel="stylesheet" href="./laria-country-detail-premium-v1.css?v=20261015-story3-curated1" />
   <link rel="stylesheet" href="./country-discoveries-v1.css?v=20261015-discoveries1" />
+<link rel="stylesheet" href="./discovery-globe-view-v1.css?v=20261017-release1" />
   <!-- immersive-globe-viewport-2026-10-02 -->
   <!-- globe-hit-test-dateline-fix-2026-10-02 -->
   <!-- parent-info-udir-2026-10-02 -->
@@ -2803,6 +2804,10 @@
       <div class="globe-mode" id="globe-mode" aria-label="Visning av kloden">
         <button type="button" class="active" data-globe-mode="explore">Utforsk</button>
         <button type="button" data-globe-mode="mine">Min verden</button>
+      </div>
+      <div id="globe-view-toggle" role="group" aria-label="Velg globusvisning">
+        <button type="button" data-globe-view="simple" class="active" aria-pressed="true">Enkel</button>
+        <button type="button" data-globe-view="discover" aria-pressed="false">Oppdag</button>
       </div>
       <div class="globe-legend" id="globe-legend" aria-label="Forklaring av fremgang på kloden">
         <span class="mastered"><b>★</b> Fullført</span>
@@ -7027,6 +7032,7 @@ if(needsProfileSetup||!state.profile.onboarded||!state.profile.grade){
 <script src="./globe-v25-renderer.js?v=20261015-discoveries1" defer></script>
 <script src="./laria-country-detail-premium-v1.js?v=20261015-discoveries1" defer></script>
 <script src="./atlas-perspective-v1.js?v=20261012-deepzoom32" defer></script>
+<script src="./discovery-globe-phase1.js?v=20261017-release1" defer></script>
 
 <!-- premium-board-v8-2026-10-04 -->
 <!-- natural-journey-integration-v9-2026-10-04 -->
