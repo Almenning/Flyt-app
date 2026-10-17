@@ -97,6 +97,17 @@ async function verify(type,label,viewport){
    const layout=await page.locator('#laria-geo-continent-voyage-preview').evaluate(el=>({width:el.clientWidth,scrollWidth:el.scrollWidth}));
    assert.ok(layout.scrollWidth<=layout.width+2,label+' horizon overflow');
    await photo(page,label+'-five-stops');
+   assert.equal(await page.locator('.cv-story-aside').count(),1,label+' needs a single companion rail');
+   assert.equal(await page.locator('.cv-story-map .cv-map-stop-recommended').count(),1,label+' needs exactly one optional next stop');
+   if(viewport.width<=400){
+     const display=await page.locator('.cv-story-aside').evaluate(el=>getComputedStyle(el).display);
+     assert.equal(display,'contents',label+' phone layout must keep the map between the fox and progress');
+   }
+   if(viewport.width>=900&&viewport.width>viewport.height){
+     const progress=await page.locator('.cv-story-rail .cv-progress').boundingBox();
+     assert.ok(progress&&progress.y>=0&&progress.y+progress.height<=viewport.height-12,
+       label+' iPad should show progress near fox, not at bottom of an empty rail');
+   }
    const quickStart=page.locator('[data-cv-act="quick-start"]');
    assert.equal(await quickStart.count(),1,label+' needs a voluntary recommended voyage start');
    // The fox and action must precede the tall illustrated map on a real phone.
