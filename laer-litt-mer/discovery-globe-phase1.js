@@ -53,7 +53,9 @@ const landmarks=[
   ['lighthouse',-9,38,.48,2],['lighthouse',-71,42,.46,2],['dolphin',112,-22,.55,2],
   /* level 3: named demonstration areas */
   ['mountains',8,61,.92,3],['trees',8,60,.72,3],['mountains',138.7,35.36,.90,3],['village',139,35,.58,3],['jungle',-61,-3,.96,3],['cloud',-2,24,.56,3],
-  ['sakura',139.7,35.7,.75,3],['sakura',135.8,35.1,.68,3],['fjord',6.9,61.3,.75,3],['fjord',7.4,62.5,.62,3],['jungle',-54,-5,.65,3]
+  ['sakura',139.7,35.7,.75,3],['sakura',135.8,35.1,.68,3],
+  ['fjord',6.9,61.3,.75,3],['fjord',7.4,62.5,.62,3],['fjord',13.2,66.4,.48,3],
+  ['jungle',-54,-5,.65,3],['wetlands',-56.8,-18.2,.62,3]
 ];
 /* Large, hand-drawn terrain silhouettes form the readable first layer. They
    deliberately use the same lon/lat anchoring as the finer art above, but
@@ -73,7 +75,10 @@ const terrainMarks=[
   ['ridge',10,47,.42,3],['ridge',6,62,.41,3],['ridge',12,64,.42,3],
   ['ridge',78,32,.44,3],['ridge',84,29,.45,3],['ridge',-72,-16,.45,3],
   ['forest',-60,-7,.45,3],['forest',-54,-4,.46,3],['forest',139,37,.40,3],
-  ['dunes',4,22,.47,3],['dunes',11,24,.47,3]
+  ['dunes',4,22,.47,3],['dunes',11,24,.47,3],
+  ['ridge',12,65,.58,2],['ridge',15.4,67.4,.57,2],['ridge',18.4,69.1,.52,3],
+  ['forest',11,61,.49,2],['forest',-64,-5,.52,2],['forest',-56,-5,.49,2],
+  ['forest',-45,-23,.56,3],['forest',-52,-9,.52,3]
 ];
 const draw=art.draw;
 
@@ -127,7 +132,9 @@ const reliefTrails=[
  ['ridge',2,[[5,47],[9,46],[13,47]]],
  ['ridge',2,[[6,59],[9,63],[14,67]]],
  ['ridge',2,[[139,35],[140,38],[142,41]]],
- ['dunes',2,[[120,-23],[129,-24],[136,-24],[142,-25]]]
+ ['dunes',2,[[120,-23],[129,-24],[136,-24],[142,-25]]],
+ ['river',2,[[-72,-4],[-68,-4.1],[-64,-3.5],[-60,-3.1],[-56.5,-2.6],[-53.5,-2.4],[-50,-1.8]]],
+ ['river',2,[[31,30],[31,25],[32,20],[33,14],[32,8]]]
 ];
 function paintReliefTrails(ctx,w,h,s,level,moving){
  if(moving)return 0;let count=0;
@@ -141,11 +148,11 @@ function paintReliefTrails(ctx,w,h,s,level,moving){
      visible++;
    }
    if(visible<2)continue;
-   const width=s*(kind==='ridge'?.017:.025);
+   const width=s*(kind==='ridge'?.017:kind==='river'?.008:.025);
    ctx.save();ctx.lineCap='round';ctx.lineJoin='round';ctx.lineWidth=width*1.9;
-   ctx.strokeStyle=kind==='ridge'?'rgba(54,83,70,.23)':kind==='dunes'?'rgba(206,144,62,.22)':'rgba(27,100,57,.20)';ctx.stroke();
+   ctx.strokeStyle=kind==='ridge'?'rgba(54,83,70,.23)':kind==='river'?'rgba(33,116,146,.40)':kind==='dunes'?'rgba(206,144,62,.22)':'rgba(27,100,57,.20)';ctx.stroke();
    ctx.lineWidth=width;
-   ctx.strokeStyle=kind==='ridge'?'rgba(221,223,177,.75)':kind==='dunes'?'rgba(252,216,134,.74)':'rgba(44,131,77,.64)';ctx.stroke();ctx.restore();count++;
+   ctx.strokeStyle=kind==='ridge'?'rgba(221,223,177,.75)':kind==='river'?'rgba(127,212,216,.85)':kind==='dunes'?'rgba(252,216,134,.74)':'rgba(44,131,77,.64)';ctx.stroke();ctx.restore();count++;
  }
  return count;
 }
@@ -280,6 +287,12 @@ function paintCloseupDiscovery(ctx,kind,x,y,k){
         ctx.fillStyle=g;ctx.beginPath();ctx.arc(k*cx,k*cy,k*r,0,Math.PI*2);ctx.fill();
       }ctx.restore();
     }
+  }else if(kind==='wetlands'){
+    ctx.fillStyle='rgba(74,167,151,.38)';ctx.beginPath();ctx.ellipse(0,k*.10,k*.74,k*.32,-.14,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle='rgba(192,237,207,.82)';ctx.lineWidth=Math.max(.8,k*.085);
+    for(const y of [-.08,.16]){ctx.beginPath();ctx.moveTo(-k*.60,k*y);ctx.quadraticCurveTo(0,k*(y-.17),k*.54,k*y);ctx.stroke();}
+    ctx.strokeStyle='#427D50';ctx.lineWidth=Math.max(.9,k*.10);
+    for(const x of [-.50,.45]){ctx.beginPath();ctx.moveTo(k*x,k*.13);ctx.lineTo(k*(x-.10),-k*.44);ctx.stroke();}
   }else if(kind==='fjord'){
     /* Narrow water and steep banks all remain within the real land clip. */
     ctx.strokeStyle='rgba(32,104,126,.38)';ctx.lineWidth=Math.max(1,k*.38);
@@ -306,7 +319,7 @@ function paintLandmarks(ctx,w,h,s,level,moving,waterOnly=false){
   for(const [kind,lon,lat,scale,minLevel] of landmarks){
     if(level<minLevel)continue;const water=['ship','whale','dolphin','cloud'].includes(kind);if(water!==waterOnly)continue;
     const p=project(lon,lat,w,h);if(!p||p[2]<.18)continue;
-    const fn=draw[kind],terrainKind=kind==='mountains'?'ridge':kind==='trees'?'forest':null,closeup=kind==='sakura'||kind==='fjord';
+    const fn=draw[kind],terrainKind=kind==='mountains'?'ridge':kind==='trees'?'forest':null,closeup=['sakura','fjord','wetlands'].includes(kind);
     if(!fn&&!terrainKind&&!closeup)continue;const k=s*.036*scale*clamp(.60+p[2]*.46,.64,1.06)*clamp(Math.pow(globeZoom,.16),1,1.30);
     ctx.save();ctx.globalAlpha=level===minLevel?1:.92;
     if(closeup)paintCloseupDiscovery(ctx,kind,p[0],p[1],k*1.65);
