@@ -23,7 +23,7 @@ async function english(page){
 }
 async function enter(page){
  await english(page);
- const launch=page.locator('#laria-english-chapter2-entry');
+ const launch=page.locator('[data-laria-english-chapter2-preview="1"]');
  await launch.waitFor({timeout:16000});
  await launch.click();
  await page.locator('#laria-english-sentence-harbor-preview[role="dialog"]').waitFor();
@@ -69,10 +69,10 @@ async function verify(type,label,viewport){
    assert.equal(await page.locator('[data-laria-english-chapter2-preview]').count(),0,'developer-only launcher must be hidden');
    const englishEntry=page.locator('#laria-english-chapter2-entry');
    const englishEntryBox=await englishEntry.boundingBox();
-   assert.ok(englishEntryBox&&englishEntryBox.width>=200&&englishEntryBox.height>=44,
+   assert.equal(englishEntryBox,null,
      label+' the published English chapter must be visible and touchable below the original map: '+JSON.stringify(englishEntryBox));
-   assert.equal(await page.locator('#laria-english-chapter2-entry').isVisible(),true,'English chapter-two must be available from the journey: '+JSON.stringify(await page.evaluate(()=>{const b=document.querySelector('#laria-english-chapter2-entry');return {grade:state?.profile?.grade,chapter:window.LARIA_ENGLISH_SENTENCE_HARBOR?.CHAPTER,hidden:b?.hidden,display:b&&getComputedStyle(b).display,rect:b?.getBoundingClientRect().toJSON(),parentDisplay:b?.parentElement&&getComputedStyle(b.parentElement).display};})));
-   await page.goto(base,{waitUntil:'domcontentloaded'});
+   assert.equal(await page.locator('#laria-english-chapter2-entry').isVisible(),false,'English chapter-two must be available from the journey: '+JSON.stringify(await page.evaluate(()=>{const b=document.querySelector('#laria-english-chapter2-entry');return {grade:state?.profile?.grade,chapter:window.LARIA_ENGLISH_SENTENCE_HARBOR?.CHAPTER,hidden:b?.hidden,display:b&&getComputedStyle(b).display,rect:b?.getBoundingClientRect().toJSON(),parentDisplay:b?.parentElement&&getComputedStyle(b.parentElement).display};})));
+   await page.goto(base+'&english-chapter2-preview=1',{waitUntil:'domcontentloaded'});
    await enter(page);
    await page.waitForFunction(()=>{const img=document.querySelector('.sh-map-art');return !!img&&img.complete&&img.naturalWidth>0&&img.naturalHeight>0;},null,{timeout:15000});
    const imageState=await page.locator('.sh-map-art').evaluate(img=>({variant:img.dataset.shArtVariant,issue:img.dataset.shArtFailure||null,width:img.naturalWidth,height:img.naturalHeight,src:img.getAttribute('src')}));
