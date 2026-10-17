@@ -163,7 +163,9 @@
 .cv-root .cv-story-map .cv-map-stop:hover{filter:brightness(1.04)}
 .cv-root .cv-story-map .cv-place-symbol{min-width:29px;width:29px;height:29px;display:grid;place-items:center;
  border-radius:50%;border:2px solid #b0865f;background:#f8e0b6;color:#5a4837;font-size:15px;flex:none}
-.cv-root .cv-story-map .cv-map-stop-name{display:block;overflow-wrap:break-word}
+.cv-root .cv-story-map .cv-map-stop-name{
+  display:block;min-width:0;max-width:100%;overflow-wrap:anywhere;hyphens:manual;
+}
 .cv-root .cv-story-map .cv-map-stop .cv-chevron,.cv-root .cv-story-map .cv-map-stop small{display:none}
 .cv-root .cv-story-rail{display:flex;flex-direction:column;gap:13px;min-width:0;padding:5px 0}
 .cv-root .cv-story-rail .cv-progress,.cv-root .cv-story-rail .cv-primary{margin:0}

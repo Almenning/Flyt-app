@@ -31,7 +31,7 @@
        ' style="--cv-x:'+point[0]+'%;--cv-y:'+point[1]+'%"'+
        ' aria-label="'+esc(s.title)+'. '+esc(s.focus)+(visited?'. Utforsket, spill igjen':'. Utforsk nå')+'">'+
        '<span class="cv-place-symbol" aria-hidden="true">'+(visited?'✓':String(i+1))+'</span>'+
-       '<span class="cv-map-stop-name">'+esc(s.title)+'</span></button>';
+       '<span class="cv-map-stop-name">'+(s.id==='kompassholmen'?'Kompass<wbr>holmen':esc(s.title))+'</span></button>';
    }).join('');
    return shell('<section class="cv-intro"><div class="cv-intro-header"><div><span class="cv-eyebrow">GEOGRAFI · KAPITTEL 2</span>'+
      '<h1 class="cv-heading" tabindex="-1">Kontinentseilasen</h1>'+

@@ -152,6 +152,23 @@ async function verify(type,label,viewport){
        assert.equal(overlap,false,label+' voyage stops '+j+' and '+i+' overlap');
      }
    }
+   // A label may escape a painted sign even when the HTML button itself
+   // is inside the map. Check text overflow for all five places in WebKit.
+   const labelBoxes=await page.locator('.cv-story-map .cv-map-stop').evaluateAll(stops=>
+     stops.map(button=>{
+       const label=button.querySelector('.cv-map-stop-name');
+       return {name:label?.textContent?.trim(),buttonWidth:button.clientWidth,
+         buttonScrollWidth:button.scrollWidth,labelWidth:label?.clientWidth??0,
+         labelScrollWidth:label?.scrollWidth??0};
+     }));
+   assert.equal(labelBoxes.length,5);
+   for(const sign of labelBoxes){
+     assert.ok(sign.buttonScrollWidth<=sign.buttonWidth+2&&
+       sign.labelWidth>0&&sign.labelScrollWidth<=sign.labelWidth+2,
+       label+' map label escapes its painted sign: '+JSON.stringify(sign));
+   }
+   assert.ok(labelBoxes.some(sign=>sign.name==='Kompassholmen'),
+     label+' preserve the full child-readable Kompassholmen name');
    const layout=await page.locator('#laria-geo-continent-voyage-preview').evaluate(el=>({width:el.clientWidth,scrollWidth:el.scrollWidth}));
    assert.ok(layout.scrollWidth<=layout.width+2,label+' horizon overflow');
    await photo(page,label+'-five-stops');

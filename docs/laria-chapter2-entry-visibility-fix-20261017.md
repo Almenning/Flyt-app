@@ -48,3 +48,8 @@ Den faktiske WebKit-illustrasjonen på 1180×820 viste at map-elementet for båd
 En bevisst avgrenset CSS-layout i hvert kapittels egne filer benytter tilgjengelig viewport-høyde i intervallet 1024px+ liggende og 740–860px høyt, holder map-overleggets relative stedskoordinater uendret, viser et lesbart kart og bevarer minst 44px knapper. CSS fungerer kun i dette vinduet; på iPhone og iPad stående brukes den allerede QA-verifiserte løsningen.
 
 To dedikerte Chromium/WebKit-regresjoner tester på **1180×820** at selve kartet og alle fem stedene er innenfor viewport før scrolling. Merk at endringen må bekreftes med faktisk nytt WebKit-skjermbilde; ingen release/merge før disse testene er grønne på eksakt ny commit.
+
+## Visuell kartskiltkontroll etter at alle fem øyer ble synlige
+Ekte WebKit-bilde `webkit-ipad-landscape-five-stops.png` fra `e82fe9b` bekreftet fem synlige kartstopp uten scrolling. Et forstørret skjermutsnitt viste samtidig at navnet «Kompassholmen» gikk ut over skiltets høyre ytterkant. Rotårsaken var automatisk min-bredde på det fleksible tekstbarnet, ikke feil i den geografiske markørens posisjon.
+
+Et lesbart linjebruddssted `Kompass<wbr>holmen` og `min-width:0;overflow-wrap:anywhere` lar hele stedsnavnet holdes innenfor knappens maleriske skilt, uten å endre tilgjengelig navn, steds-ID, kartkunst eller minstekravet 44px. De dedikerte Chromium/WebKit-testene måler nå scrollWidth på både knapp og innvendig stedsnavn for **alle fem** kartstopp og bevarer tekstinnholdet nøyaktig «Kompassholmen». Ny QA på eksakt ny commit er nødvendig før release.
