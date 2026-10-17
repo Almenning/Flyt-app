@@ -24,6 +24,8 @@ for(const place of ['8,61','138,36','-61,-3'])assert.ok(preview.includes(place),
 const guard=renderer.indexOf('window.__lariaDiscoveryGlobePreview===true');
 const canvas=renderer.indexOf("const canvas=document.getElementById('globe-canvas')",guard);
 assert.ok(guard>=0&&canvas>guard,'legacy direct redraw must delegate before it paints');
+assert.doesNotMatch(renderer,/Ã[\\u0080-\\u00bf]/,
+  'the shared renderer must retain valid UTF-8, not transport-corrupted text');
 const atlas=index.indexOf('atlas-perspective-v1.js');
 const discovery=index.indexOf('discovery-globe-phase1.js');
 assert.ok(atlas>=0&&discovery>atlas,'preview must load after the existing atlas renderer');
