@@ -24,7 +24,7 @@
    const places=core.STAGES.map((s,i)=>{
      const visited=p.places.find(x=>x.id===s.id)?.visited,point=positions[s.id];
      if(!point)throw Error('Kontinentseilasen missing storybook stop '+s.id);
-     return '<button type="button" class="cv-place cv-map-stop" data-cv-act="stage" data-cv-stage="'+esc(s.id)+'"'+
+     return '<button type="button" class="cv-place cv-map-stop'+(visited?' cv-map-stop-visited':'')+(s.id===recommended.id?' cv-map-stop-recommended':'')+'" data-cv-act="stage" data-cv-stage="'+esc(s.id)+'"'+
        ' style="--cv-x:'+point[0]+'%;--cv-y:'+point[1]+'%"'+
        ' aria-label="'+esc(s.title)+'. '+esc(s.focus)+(visited?'. Utforsket, spill igjen':'. Utforsk nå')+'">'+
        '<span class="cv-place-symbol" aria-hidden="true">'+(visited?'✓':String(i+1))+'</span>'+
@@ -33,19 +33,21 @@
    return shell('<section class="cv-intro"><div class="cv-intro-header"><div><span class="cv-eyebrow">GEOGRAFI · KAPITTEL 2</span>'+
      '<h1 class="cv-heading" tabindex="-1">Kontinentseilasen</h1>'+
      '<p>Seil på et fantasihav, finn verdenskartets land og samle stempler i reisepasset.</p></div></div>'+
-     '<div class="cv-story-layout"><div class="cv-story-hero"><div class="cv-story-fox">'+fox()+'<p>Hvor skal vi seile? Jeg følger med på reisen!</p></div>'+quickStart+
+     '<div class="cv-story-layout"><div class="cv-story-aside"><div class="cv-story-hero"><div class="cv-story-fox">'+fox()+'<p>Hvor skal vi seile? Jeg følger med på reisen!</p></div>'+quickStart+
      (session?'<button type="button" class="cv-primary" data-cv-act="resume">Fortsett i '+esc(session.place.title)+' →</button>':'')+
-     '</div><div class="cv-story-map" role="group" aria-label="Illustrert fantasihav med fem interaktive eventyrsteder">'+
-     '<img class="cv-map-art" src="./geography-continent-voyage-storymap-v1.svg" alt="" draggable="false" loading="eager">'+
-     '<div class="cv-places">'+places+'</div></div>'+
-     '<aside class="cv-story-rail">'+
+     '</div>'+
+     '<aside class="cv-story-rail" aria-label="Din reise">'+
      '<div class="cv-progress" role="status"><strong>'+p.done+' av 5 steder utforsket</strong>'+
      '<small>'+(p.places.some(place=>place.attempts===1)?'Flere nye oppdagelser venter når du besøker et sted igjen.':'Alle stedene kan gjentas når du vil.')+'</small>'+
      '<div class="cv-bar"><span style="width:'+p.done*20+'%"></span></div></div>'+
      '<div class="cv-story-guide"><strong>Finn veien til verden</strong>'+
      '<p>Styr med kompass, sett stempler og finn spennende land med den ekte kloden.</p></div>'+
      '<p class="cv-note">Eventyrhavet er fantasi, ikke et verdenskart. Den ekte globusen er uendret.</p>'+
-     '</aside></div></section>');
+     '</aside></div>'+
+     '<div class="cv-story-map" role="group" aria-label="Illustrert fantasihav med fem interaktive eventyrsteder">'+
+     '<img class="cv-map-art" src="./geography-continent-voyage-storymap-v1.svg" alt="" draggable="false" loading="eager">'+
+     '<div class="cv-places">'+places+'</div></div>'+
+     '</div></section>');
  }
  function controls(task,feedback){
    if(task.kind==='compass'){
