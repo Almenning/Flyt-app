@@ -29,6 +29,18 @@ async function check(engine,label,viewport,url){
     label+' book shortcut should be touch-safe and visible on the first fold');
   assert.equal((await page.locator('.gm-math-equation').innerText()).trim(),'0 + 0 + 0 = 0');
   assert.match(await page.locator('.gm-story').innerText(),/3 kurver med 3 jordbær/);
+  assert.equal(await page.locator('.gm-quest').count(),1,label+' mission has a prominent quest panel');
+  assert.match(await page.locator('.gm-quest-ribbon').innerText(),/Dagens oppdrag/);
+  assert.match(await page.locator('.gm-quest-callout').innerText(),/Fyll 3 kurver med 3 jordbær i hver/);
+  assert.deepEqual(await page.locator('.gm-quest-step strong').allInnerTexts(),
+    ['Plukk jordbær','Legg i 3 kurver','3 i hver kurv'],'instructions are three real readable DOM steps');
+  assert.equal(await page.locator('.gm-quest-steps[role="list"] [role="listitem"]').count(),3,
+    'screen-reader and touch-friendly three-step instructions');
+  const missionHeading=await page.locator('.gm-quest-callout').evaluate(el=>({
+    size:parseFloat(getComputedStyle(el).fontSize),bounds:el.getBoundingClientRect().toJSON(),
+    panel:el.closest('.gm-quest').getBoundingClientRect().toJSON()}));
+  assert.ok(missionHeading.size>=17&&missionHeading.bounds.width>viewport.width*.65,
+    label+' child-sized assignment heading '+JSON.stringify(missionHeading));
   assert.equal(await page.locator('.gm-fox-art [data-avatar="girl"]').count(),1,'must render chosen full-body girl fox');
   assert.match(await page.locator('.gm-book-quick').innerText(),/0\/8/,'flower progress visible from the main scene');
   const first=await page.evaluate(()=>{
@@ -134,6 +146,10 @@ async function check(engine,label,viewport,url){
   assert.equal(await page.locator('.gm-book-earned').count(),1,'one earned flower marked in book');
   await page.locator('[data-gm-action="select-mission"][data-index="7"]').click();
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).mission,7);
+  assert.match(await page.locator('.gm-quest-callout').innerText(),/Fyll 2 kurver med 10 jordbær i hver/,
+    'quest text and numbers follow selected authored mission');
+  assert.deepEqual(await page.locator('.gm-quest-step strong').allInnerTexts(),
+    ['Plukk jordbær','Legg i 2 kurver','10 i hver kurv'],'step counts match actual mission, not a screenshot');
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).undo,0,'switching adventures clears only action history');
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).wins.length,1);
   assert.equal(await page.locator('.gm-book-mission').count(),0,'book should close after selection');
@@ -147,6 +163,8 @@ async function check(engine,label,viewport,url){
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).groups,2);
   await page.locator('[data-gm-action="mode"][data-mode="free"]').click();
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).mode,'free');
+  assert.equal(await page.locator('.gm-quest').count(),0,'free play keeps its existing independent controls');
+  assert.match(await page.locator('.gm-story').innerText(),/Ditt eget jordbærmarked/);
   await page.locator('[data-gm-action="factor"][data-key="groups"][data-step="1"]').click();
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).groups,3);
   await page.locator('[data-gm-action="basket"][data-gm-basket="0"]').click();
