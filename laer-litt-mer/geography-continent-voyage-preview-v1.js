@@ -10,7 +10,7 @@
  const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const fox=()=>'<img class="cv-fox" alt="Reven din er med på reisen" src="'+esc(ui.foxSrc)+'">';
  const shell=body=>'<div class="cv-shell"><header class="cv-top"><button type="button" data-cv-act="close" class="cv-quiet">← Tilbake</button>'+
-   '<span class="cv-development">INTERN TEST · GEOGRAFI KAPITTEL 2</span></header>'+
+   '<span class="cv-development">'+(core.CHAPTER.published?'GEOGRAFI · EVENTYR 2':'INTERN TEST · GEOGRAFI KAPITTEL 2')+'</span></header>'+
    '<main class="cv-main">'+body+'</main></div>';
  function overview(){
    // Separate opt-in art review; never replace the tested default map silently.
@@ -113,7 +113,13 @@
      const art=ui.root.querySelector('.cv-map-art[data-cv-art-variant]');
      if(art){
        const variant=art.getAttribute('data-cv-art-variant');
-       const size=variant==='candidate-v2'?[800,1000]:[960,1280];
+       const validArtSize=()=>{
+         const width=art.naturalWidth,height=art.naturalHeight;
+         // The two 3:4 raster exports can be native or browser-scaled.
+         // Keep SVG candidates on their exact 800x1000 coordinate contract.
+         return variant==='candidate-v2'?(width===800&&height===1000):
+           (width>=768&&height>=1024&&width*4===height*3);
+       };
        const fallback=(reason)=>{
          if(art.getAttribute('data-cv-art-variant')==='fallback-v1')return;
          // Keep the reason for WebKit/Chromium diagnostics after the SVG loads.
@@ -123,7 +129,7 @@
        };
        const verifyDimensions=()=>{
          if(art.getAttribute('data-cv-art-variant')==='fallback-v1')return;
-         if(art.naturalWidth!==size[0]||art.naturalHeight!==size[1])fallback('dimensions');
+         if(!validArtSize())fallback('dimensions');
        };
        art.addEventListener('error',()=>fallback('load-or-decode'),{once:true});
        art.addEventListener('load',verifyDimensions,{once:true});
