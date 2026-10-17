@@ -78,6 +78,16 @@ async function verify(type,label,viewport){
    await photo(page,label+'-harbor');
    const quickStart=page.locator('[data-sh-act="quick-start"]');
    assert.equal(await quickStart.count(),1,label+' needs a voluntary first-fold harbor invitation');
+   // The fox and action must precede the tall illustrated map on a real phone.
+   if(viewport.width<=400){
+     const hero=await page.locator('.sh-story-hero').boundingBox();
+     const mapBox=await page.locator('.sh-story-map').boundingBox();
+     const action=await quickStart.boundingBox();
+     assert.ok(hero&&mapBox&&action&&hero.y<mapBox.y&&action.y+action.height<mapBox.y+4,
+       label+' child-first entry should appear above the map');
+     assert.ok(action.y+action.height<=viewport.height-16,
+       label+' begin action should be visible without scrolling on iPhone');
+   }
    assert.match(await quickStart.innerText(),/Begynn ved Hilsenkaia/i);
    if(viewport.width>=900&&viewport.width>viewport.height){
      const b=await quickStart.boundingBox();
@@ -93,6 +103,12 @@ async function verify(type,label,viewport){
    assert.equal(await page.locator('[data-sh-act="quick-start"]').count(),0,
      label+' an unfinished visit must offer Resume, not a button that overwrites it');
    assert.equal(await page.locator('[data-sh-act="resume"]').count(),1);
+   if(viewport.width<=400){
+     const resume=await page.locator('[data-sh-act="resume"]').boundingBox();
+     const mapBox=await page.locator('.sh-story-map').boundingBox();
+     assert.ok(resume&&mapBox&&resume.y+resume.height<mapBox.y+4&&resume.y+resume.height<=viewport.height-16,
+       label+' ongoing activity must resume from the first screen');
+   }
    await page.locator('[data-sh-act="stage"][data-sh-stage="ordbrygga"]').click();
    const firstTask=await page.evaluate(()=>window.LARIA_ENGLISH_SENTENCE_HARBOR.resume(state).task);
    assert.equal(firstTask.kind,'choice');
