@@ -10,7 +10,7 @@ const EXPLORE=[
  ['globe','Kloden','Snurr og oppdag land','🌍'],
  ['words','Ordjakt','Finn ord i Bokskogen','🔤'],
  ['fraction','Brøklab','Del og bygg brøker','◒'],
- ['multiply','Gangetabell','Utforsk tallmønstre','✕']
+ ['multiply','Gangemagi','Pakk jordbær og oppdag gange','✕']
 ];
 
 /* Approved premium card art. The existing SVG remains a reliable offline fallback.
