@@ -88,6 +88,17 @@ async function verify(type,label,viewport){
    const viewportResult=await page.locator('#laria-english-sentence-harbor-preview').evaluate(el=>({scrollWidth:el.scrollWidth,width:el.clientWidth}));
    assert.ok(viewportResult.scrollWidth<=viewportResult.width+2,label+' overflow in port');
    await photo(page,label+'-harbor');
+   assert.equal(await page.locator('.sh-story-aside').count(),1,label+' needs a single companion rail');
+   assert.equal(await page.locator('.sh-story-map .sh-map-stop-recommended').count(),1,label+' needs exactly one optional next stop');
+   if(viewport.width<=400){
+     const display=await page.locator('.sh-story-aside').evaluate(el=>getComputedStyle(el).display);
+     assert.equal(display,'contents',label+' phone layout must keep the map between the fox and progress');
+   }
+   if(viewport.width>=900&&viewport.width>viewport.height){
+     const progress=await page.locator('.sh-story-rail .sh-progress').boundingBox();
+     assert.ok(progress&&progress.y>=0&&progress.y+progress.height<=viewport.height-12,
+       label+' iPad should show progress near fox, not at bottom of an empty rail');
+   }
    const quickStart=page.locator('[data-sh-act="quick-start"]');
    assert.equal(await quickStart.count(),1,label+' needs a voluntary first-fold harbor invitation');
    // The fox and action must precede the tall illustrated map on a real phone.
