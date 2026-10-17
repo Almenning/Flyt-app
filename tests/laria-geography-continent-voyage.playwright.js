@@ -220,6 +220,23 @@ async function verify(type,label,viewport){
      await page.locator('.cv-story-map [data-cv-act="stage"]').first().click();
      assert.ok(await page.locator('.cv-task').count(),
        label+' broken optional art must never prevent opening the adventure');
+     // A successful image response can still carry a wrong-sized SVG.
+     await page.unroute('**/geography-continent-voyage-art-candidate-v2.svg');
+     await page.route('**/geography-continent-voyage-art-candidate-v2.svg',route=>route.fulfill({
+       status:200,contentType:'image/svg+xml',
+       body:'<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><rect width="32" height="32" fill="#fff"/></svg>'
+     }));
+     await page.goto(base+'&geography-chapter2-preview=1&geography-chapter2-art-v2=1',{waitUntil:'domcontentloaded'});
+     await enter(page);
+     await page.waitForFunction(()=>{
+       const img=document.querySelector('.cv-map-art');
+       return !!img&&img.getAttribute('data-cv-art-variant')==='fallback-v1'&&img.complete&&img.naturalWidth===800&&img.naturalHeight===1000;
+     },null,{timeout:20000});
+     const recovered=page.locator('.cv-story-map [data-cv-act="stage"]');
+     assert.equal(await recovered.count(),5,label+' malformed art replaced or lost a stage');
+     await photo(page,label+'-art-v2-wrong-size-fallback');
+     await recovered.last().click();
+     assert.ok(await page.locator('.cv-task').count(),label+' fallback after malformed art was not playable');
    }
    assert.deepEqual(errors,[],label+' unexpected browser exception');
    await ctx.close();

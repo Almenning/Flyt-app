@@ -40,3 +40,8 @@ Kunst er en utskiftbar dekorativ ressurs. På intern `art-v2`-visning kontroller
 WebKit-testene fremprovoserer nå en ekte nedlastingsfeil for v2-bildet på både iPhone og iPad, krever automatisk fallback og kontrollerer at alle fem stopp fortsatt er trykkbare og åpner en oppgave. Dette testes i tillegg til normal lasting av korrekt 800 × 1000 SVG. Nye faktiske skjermbilder får suffikset `art-v2-fallback`.
 
 **Viktig illustrasjonskriterium:** AI-genererte hele UI-skjermer med ferdigtegnet rev, bokser, knapper eller ord er ubrukelige som kartbakgrunn og skal ikke integreres. Neste premiumkunst må leveres som **to rene, helmaleriske landskapsbilder uten tekst og grensesnitt**, tilpasset det låste eventyruniverset. Nye rasterbilder krever en separat sikker import, manuell visuell inspeksjon og WebKit-kontroll før en endring i standardressurs eller `artApproved`. Verken eksisterende vektorillustrasjoner eller genererte UI-konseptbilder skal feilaktig omtales som maleriske produksjonsillustrasjoner.
+
+## Kontroll av feilaktig format
+Den nye feilhåndteringen kontrolleres nå på *to ulike måter* i hver fagpilot på WebKit iPhone og iPad: (1) nettverksfeil ved nedlasting og (2) HTTP 200 med en syntaktisk gyldig SVG som bare er 32 × 32 i stedet for de forventede 800 × 1000. Begge skal automatisk falle tilbake til det eksisterende kartet med `data-*-art-variant="fallback-v1"`, vise fem kartstopp og kunne åpne en faktisk oppgave. Nytt skjermbilde-artifakt: `*-art-v2-wrong-size-fallback.png`.
+
+Ingen test av bildeinnlasting eller geometri er i seg selv en illustrasjonsgodkjenning. Godkjent produksjonskunst krever egen vurdering mot de fire låste originalreisene.
