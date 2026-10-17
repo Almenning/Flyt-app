@@ -121,6 +121,7 @@
        (free?'<div class="gm-free-controls" aria-label="Lag ditt eget gangestykke">'+factor('groups','Antall kurver',state.groups,1,E.MAX_GROUPS)+factor('each','Jordbær i hver',state.each,1,E.MAX_EACH)+'</div>':'')+
        '<footer class="gm-footer"><span>✿ Blomster som du har samlet, er dine for alltid</span><button type="button" data-gm-action="restart">Begynn på nytt ↻</button></footer>'+book()+
        '</div></main>';
+   document.body.classList.toggle('laria-markedsbok-open',bookOpen);
    if(bookOpen){
      const journal=root.querySelector('.gm-book');
      if(journal)for(const sibling of journal.parentElement.children)if(sibling!==journal)sibling.inert=true;
@@ -130,12 +131,45 @@
      if(old&&!old.disabled)try{old.focus({preventScroll:true});}catch(_){}
    }
  }
+ function bookFoxMessage(){
+   const n=state.wins.length;
+   if(!n)return 'Vi kan begynne hvor du vil. Jeg blir med og hjelper deg!';
+   if(n===E.MISSIONS.length)return 'Se! Vi fant alle markedsblomstene. Skal vi leke favoritten vår igjen?';
+   return 'Vi har samlet '+n+' '+(n===1?'magisk blomst':'magiske blomster')+'! Hvor vil du dra videre?';
+ }
  function book(){
-   return '<section class="gm-book '+(bookOpen?'gm-book-open':'')+'" '+(bookOpen?'role="dialog" aria-modal="true" ':'')+'aria-label="Min markedsbok">'+
-     '<button type="button" class="gm-book-toggle" data-gm-action="book" aria-expanded="'+bookOpen+'" aria-controls="gm-book-pages">'+
-     '<span class="gm-book-emblem" aria-hidden="true">✿</span><span><strong>'+(bookOpen?'‹ Tilbake til Gangemagi':'Min markedsbok')+'</strong><small>'+state.wins.length+' av '+E.MISSIONS.length+' blomster samlet · '+(bookOpen?'Utforsk oppdragene':'Åpne eventyrboken')+'</small></span><span class="gm-book-chevron" aria-hidden="true">'+(bookOpen?'✕':'⌄')+'</span></button>'+
-     (bookOpen?'<header class="gm-book-intro"><div class="gm-book-fox-art" aria-hidden="true">'+selectedFox()+'</div><div class="gm-book-intro-copy"><span>✿ EVENTYRBOK FRA TALLENGA</span><h2>Min markedsbok</h2><p>Her kan du velge et eventyr og spille det så mange ganger du vil. Jeg blir med deg!</p></div><div class="gm-book-trophy"><strong>'+state.wins.length+' / '+E.MISSIONS.length+'</strong><small>blomster</small></div></header><div class="gm-book-pages" id="gm-book-pages"><p>Trykk på et oppdrag for å gå til kurvene. Alle blomstene du har samlet, er dine for alltid.</p><div class="gm-book-grid">'+
-       E.MISSIONS.map((m,i)=>'<button type="button" class="gm-book-mission '+(state.mode==='mission'&&state.mission===i?'gm-book-current ':'')+(state.wins.includes(m.id)?'gm-book-earned':'')+'" data-gm-action="select-mission" data-index="'+i+'" '+(state.mode==='mission'&&state.mission===i?'aria-current="step"':'')+' aria-label="Oppdrag '+(i+1)+': '+esc(m.heading)+'. '+(state.wins.includes(m.id)?'Blomst samlet.':'Blomst ikke samlet ennå.')+'"><span class="gm-book-landscape gm-book-landscape-'+i+'" aria-hidden="true"><span class="gm-book-berry">'+berrySvg+'</span></span><span class="gm-book-flower" aria-hidden="true">'+(state.wins.includes(m.id)?'✿':'✧')+'</span><span class="gm-book-copy"><small>OPPDRAG '+(i+1)+'</small><strong>'+esc(m.heading)+'</strong><small>'+m.groups+' kurver med '+m.each+' i hver</small></span></button>').join('')+'</div></div>':'')+'</section>';
+   const n=state.wins.length,total=E.MISSIONS.length;
+   if(!bookOpen)return '<section class="gm-book gm-book-collapsed" aria-label="Markedsboken"><button type="button" class="gm-book-toggle" data-gm-action="book" aria-expanded="false"><span class="gm-book-emblem" aria-hidden="true">✿</span><span><strong>Min markedsbok</strong><small>'+n+' av '+total+' blomster samlet · Åpne eventyrboken</small></span><span class="gm-book-chevron" aria-hidden="true">⌄</span></button></section>';
+   const cards=E.MISSIONS.map((m,i)=>{
+     const earned=state.wins.includes(m.id),selected=state.mode==='mission'&&state.mission===i;
+     return '<button type="button" class="gm-book-mission '+(earned?'gm-book-earned ':'')+(selected?'gm-book-current':'')+
+       '" data-gm-action="select-mission" data-index="'+i+'" '+(selected?'aria-current="step" ':'')+
+       'aria-label="Oppdrag '+(i+1)+': '+esc(m.heading)+'. '+m.groups+' kurver med '+m.each+' i hver. '+(earned?'Blomst samlet.':'Blomsten kan samles.')+'">'+
+       '<span class="gm-book-landscape gm-book-landscape-'+i+'" data-gm-art-index="'+i+'" aria-hidden="true"></span>'+
+       '<span class="gm-book-flower" aria-hidden="true">'+(earned?'✿':'✧')+'</span>'+
+       '<span class="gm-book-number" aria-hidden="true">OPPDRAG '+(i+1)+'</span>'+
+       '<span class="gm-book-copy"><strong>'+esc(m.heading)+'</strong><small>'+m.groups+' kurver med '+m.each+' i hver</small></span>'+
+       '</button>';
+   }).join('');
+   return '<section class="gm-book gm-book-open gm-book-v2" role="dialog" aria-modal="true" aria-label="Min markedsbok">'+
+     '<button type="button" class="gm-book-back" data-gm-action="book" aria-label="Tilbake til Gangemagi"><span aria-hidden="true">‹</span> Tilbake til Gangemagi</button>'+
+     '<div class="gm-book-v2-world"><div class="gm-book-v2-inner">'+
+       '<header class="gm-book-intro">'+
+         '<div class="gm-book-fox-art" aria-hidden="true">'+selectedFox()+'</div>'+
+         '<div class="gm-book-intro-copy"><span class="gm-book-overline">✦ EVENTYRBOK FRA TALLENGA ✦</span>'+
+         '<h2>Min markedsbok</h2><p>Her kan du velge et eventyr og spille det så mange ganger du vil. Jeg blir med deg!</p></div>'+
+         '<div class="gm-book-trophy" role="img" aria-label="'+n+' av '+total+' magiske blomster samlet">'+
+           '<span class="gm-book-trophy-flower" aria-hidden="true">✿</span>'+
+           '<strong>'+n+' / '+total+'</strong><span>blomster</span></div>'+
+       '</header>'+
+       '<div class="gm-book-fox-line"><span class="gm-book-fox-sparkle" aria-hidden="true">✦</span>'+
+         '<span>'+esc(bookFoxMessage())+'</span>'+
+         '<button type="button" data-gm-action="book-read" aria-label="Hør hva reven sier" title="Hør reven">◖))</button></div>'+
+       '<div class="gm-book-pages" id="gm-book-pages">'+
+         '<p class="gm-book-invite">Trykk på et oppdrag for å gå til kurvene. Blomstene du samler er dine for alltid.</p>'+
+         '<div class="gm-book-grid">'+cards+'</div>'+
+       '</div></div><div class="gm-book-ribbon" aria-hidden="true">✦</div></div>'+
+     '</section>';
  }
  function factor(key,label,n,min,max){
    return '<div class="gm-free-adjust"><span>'+esc(label)+'</span><div><button type="button" data-gm-action="factor" data-key="'+key+'" data-step="-1" aria-label="Færre '+esc(label.toLowerCase())+'" '+(n<=min?'disabled':'')+'>−</button>'+
@@ -208,7 +242,7 @@
    event.preventDefault();event.stopPropagation();
    const kind=button.dataset.gmAction;
    if(kind==='back'){back();return;}
-   if(kind==='open-book'){bookOpen=true;render();root.querySelector('.gm-book-open .gm-book-toggle')?.focus({preventScroll:true});return;}
+   if(kind==='open-book'){bookOpen=true;render();root.querySelector('.gm-book-open .gm-book-back')?.focus({preventScroll:true});return;}
    if(kind==='book'){bookOpen=!bookOpen;render();if(!bookOpen){root.querySelector('.gm-book-quick')?.focus({preventScroll:true});root.querySelector('.gm-top')?.scrollIntoView({behavior:'auto',block:'start'});}return;}
    if(kind==='select-mission'){
      const index=Number(button.dataset.index);
@@ -219,6 +253,12 @@
      undo=[];hintStep=0;notice='';foxMood='curious';lastAction='';lastGroup=-1;
      bookOpen=false;save();render();
      root.querySelector('.gm-top')?.scrollIntoView({behavior:'auto',block:'start'});
+     return;
+   }
+   if(kind==='book-read'){
+     if('speechSynthesis' in window){
+       try{window.speechSynthesis.cancel();const voice=new SpeechSynthesisUtterance(bookFoxMessage());voice.lang='nb-NO';voice.rate=.86;window.speechSynthesis.speak(voice);}catch(_){}
+     }
      return;
    }
    if(kind==='classic'){nextOpen();return;}
@@ -316,7 +356,13 @@
  const entry=document.getElementById('open-multiplication-lab');
  // A DOM click passes an Event argument; it must not become preserveOrigin.
  if(entry)entry.onclick=()=>open(false);
- window.LARIA_GANGEMAGI=Object.freeze({version:'playable-v1',open,
+ function openMission(index){
+   if(!Number.isInteger(index)||index<0||index>=E.MISSIONS.length)return false;
+   state=E.apply(state,{type:'mission',index});
+   undo=[];hintStep=0;notice='';foxMood='curious';lastAction='';lastGroup=-1;
+   bookOpen=false;save();open(false);return true;
+ }
+ window.LARIA_GANGEMAGI=Object.freeze({version:'playable-v1',open,openMission,
    snapshot:()=>({...E.normalize(state),equation:E.equation(state),undo:undo.length}),
    reset:()=>{state=E.initial();save();hintStep=0;undo=[];render();}});
 })();
