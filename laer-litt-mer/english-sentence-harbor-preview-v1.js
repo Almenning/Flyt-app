@@ -121,7 +121,8 @@
        art.addEventListener('load',()=>{
          if(art.naturalWidth!==800||art.naturalHeight!==1000)fallback();
        },{once:true});
-       if(art.complete&&(!art.naturalWidth||!art.naturalHeight))fallback();
+       // Cached but malformed candidates may be complete before the load listener exists.
+       if(art.complete&&(art.naturalWidth!==800||art.naturalHeight!==1000))fallback();
      }
    }
    ui.root.scrollTop=previousScroll;
