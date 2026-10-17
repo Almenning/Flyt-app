@@ -1133,3 +1133,28 @@
 
 /* Respect the native hidden state after premium entry button display rules. */
 .word-hunt-overlay.is-theme-entry .wh-theme-start[hidden]{display:none!important}
+
+
+/* wordhunt-painted-themes-20261017 */
+/* Compact, real storybook scenes replace the translucent icon illustrations.
+   No external font, image host or animation dependency; retain the tactile
+   Bokskogen card framing and contrast/lock states. */
+.wh-theme-card img,.word-hunt-theme-icon,
+#bc12-dialog .bc12-wordhunt-sticker-art img{
+  background-color:#e3d6b9;
+  background-image:none!important;
+  background-position:center;
+  background-size:cover;
+  object-position:50% 47%;
+}
+.word-hunt-overlay.is-theme-entry .wh-theme-card img{
+  border:1px solid rgba(251,228,177,.95);
+  filter:none;
+  box-shadow:0 3px 0 rgba(114,79,41,.43),0 5px 11px rgba(85,59,41,.20);
+  object-fit:cover;
+}
+.word-hunt-overlay.is-theme-entry .wh-theme-card[data-word-theme="mixed"] img{
+  object-position:50% 43%;
+}
+.word-hunt-theme-icon{object-fit:cover;filter:none}
+#bc12-dialog .bc12-wordhunt-sticker-art img{object-fit:cover}
