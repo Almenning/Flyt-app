@@ -2355,6 +2355,7 @@
   <!-- Active Læria styles. Order is dependency-sensitive; shared layers load before scoped overrides. -->
   <!-- Labs -->
   <link rel="stylesheet" href="./laria-foundation-v1.css?v=20261006-p8foundation1" />
+  <link rel="stylesheet" href="./english-sentence-harbor-preview-v1.css?v=20261017-en2a" />
     <link rel="stylesheet" href="./fraction-lab.css?v=20261006-assets1" />
     <link rel="stylesheet" href="./fraction-premium-v2.css?v=20261009-illustrated3" />
     <link rel="stylesheet" href="./fraction-premium-v4.css?v=20261011-intuitive-equivalents-landscape8" />
@@ -3305,7 +3306,11 @@ function loadState(){
       masteryEvidence:parsed.masteryEvidence||{},skillEvidence:parsed.skillEvidence||{},
       preferences:{...defaultState.preferences,...(parsed.preferences||{})},
       lastMilestone:parsed.lastMilestone||null,recentCountryWin:parsed.recentCountryWin||null,
-      journey:{nodes:{...(parsed.journey?.nodes||{})},gradeWins:{...(parsed.journey?.gradeWins||{})},viewGrades:{...(parsed.journey?.viewGrades||{})}},
+      journey:{nodes:{...(parsed.journey?.nodes||{})},gradeWins:{...(parsed.journey?.gradeWins||{})},viewGrades:{...(parsed.journey?.viewGrades||{})},
+        // Later story chapters live alongside legacy journey nodes. Never
+        // discard saved drafts or chapter progress on reload.
+        chapterProgress:parsed.journey?.chapterProgress&&typeof parsed.journey.chapterProgress==='object'&&!Array.isArray(parsed.journey.chapterProgress)?
+          {...parsed.journey.chapterProgress}:{}},
       collectibles:window.LARIA_COLLECTION_CORE.normalize(parsed.collectibles),
       answerLog:Array.isArray(parsed.answerLog)?parsed.answerLog:[],
       sessionLog:Array.isArray(parsed.sessionLog)?parsed.sessionLog:[]
@@ -4714,6 +4719,19 @@ function openSubject(subject){
   document.getElementById('subject-grade-label').textContent=GRADE_CONFIG[currentGrade()].label;
   const labEntry=document.getElementById('math-lab-entry');if(labEntry)labEntry.hidden=subject!=='math';
   renderSubjectModules();renderSubjectJourney();renderSubjectContinue();showScreen('subject');
+  // English adventure two is a private preview. Approved Ordlandsbyen
+  // hides the old module list, so this button belongs to the subject screen.
+  screen.querySelector(':scope > [data-laria-english-chapter2-preview]')?.remove();
+  if(subject==='english'&&currentGrade()===2&&window.LARIA_ENGLISH_SENTENCE_HARBOR?.previewEnabled(location.search)){
+    const preview=document.createElement('button');
+    preview.type='button';preview.className='sh-dev-launch';
+    preview.dataset.lariaEnglishChapter2Preview='1';
+    preview.textContent='⚓ Setningshavna · test';
+    preview.onclick=()=>window.LARIA_ENGLISH_SENTENCE_HARBOR_UI?.open({
+      state,save:saveState,foxSrc:avatarSrc(state.profile?.avatar==='girl'?'girl':'boy')
+    });
+    screen.appendChild(preview);
+  }
 }
 function renderSubjectModules(){
   const box=document.getElementById('subject-modules');box.innerHTML='';
@@ -6906,6 +6924,8 @@ if(needsProfileSetup||!state.profile.onboarded||!state.profile.grade){
 <script src="./bokskogen-world.js?v=20261007-p15rc1" defer></script>
 <script src="./journey-learning-system-v1.js?v=20261016-language-system1" defer></script>
 <script src="./geography-journey-learning-system-v1.js?v=20261016-nordlysleiren-system1" defer></script>
+<script src="./english-sentence-harbor-v1.js?v=20261017-en2a" defer></script>
+<script src="./english-sentence-harbor-preview-v1.js?v=20261017-en2a" defer></script>
 <script src="./journey-world-premium.js?v=20261016-chapter1-completion1" defer></script>
 <script src="./locked-journey-contract.js?v=20261016-tallenga-places1" defer></script>
 <script src="./locked-journey-renderer.js?v=20261016-chapter1-completion1" defer></script>
