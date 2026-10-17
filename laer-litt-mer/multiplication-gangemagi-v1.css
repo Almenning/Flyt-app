@@ -9,6 +9,10 @@
 .gm-shell button{font:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 .gm-shell button:focus-visible,.gm-classic-return:focus-visible{outline:3px solid #17558a;outline-offset:3px}
 .gm-shell button:disabled{opacity:.46;cursor:default}
+/* Unlike the legacy centred lab, Gangemagi uses the real iPad canvas. */
+@media(min-width:700px){
+  .app:has(#multiplication-lab-screen.active .gm-shell){width:100%;max-width:none;padding-bottom:0}
+}
 .gm-layout{max-width:1100px;margin:auto;padding:max(12px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) calc(18px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
 .gm-top{display:flex;align-items:center;justify-content:space-between;min-height:55px;gap:9px}
 .gm-back{width:47px;height:47px;border-radius:50%;border:2px solid #fff9e9;background:#fff7e9;box-shadow:0 4px 0 #cba87975;font-weight:800;font-size:38px;color:#56392c;line-height:1;display:grid;place-items:center;padding-bottom:8px;flex-shrink:0}
