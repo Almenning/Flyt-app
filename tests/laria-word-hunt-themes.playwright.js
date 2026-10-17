@@ -31,22 +31,28 @@ async function open(page,url){
  await page.waitForFunction(()=>typeof window.openWordHunt==='function'&&document.querySelector('.bc12-nav [data-camp="explore"]'),{},{timeout:30000});
  await page.locator('.bc12-nav [data-camp="explore"]').click();
  await page.locator('.bc13-panel:not([hidden]) .bc13-card[data-bc13-action="words"]').click();
- await page.locator('#word-hunt-overlay:not([hidden]) .word-hunt-cell').first().waitFor();
+ const first=page.locator('#word-hunt-overlay:not([hidden]) .word-hunt-theme-picker:not([hidden])');
+ await first.waitFor();
+ assert.equal(await first.locator('.wh-theme-card').count(),5,'Ordjakt must show all five topics on entry');
+ assert.equal(await page.locator('.word-hunt-cell:visible').count(),0,'letter board must stay hidden until a topic is selected');
+ assert.equal(await page.locator('#word-hunt-overlay').evaluate(el=>el.classList.contains('is-theme-entry')),true);
 }
-async function selectTopic(page,topic,label){
- const trigger=page.locator('.word-hunt-theme-mobile:visible,.word-hunt-theme-open:visible');
- assert.equal(await trigger.count(),1,label+' missing single visible theme selection');
- await trigger.click();
+async function selectTopic(page,topic,label,fromEntry=false){
+ if(!fromEntry){
+  const trigger=page.locator('.word-hunt-theme-mobile:visible,.word-hunt-theme-open:visible');
+  assert.equal(await trigger.count(),1,label+' missing single visible theme selection');
+  await trigger.click();
+ }
  const picker=page.locator('.word-hunt-theme-picker:not([hidden])');
  await picker.waitFor();
  assert.equal(await picker.locator('.wh-theme-card').count(),5);
  assert.ok(await picker.locator('.wh-theme-card.selected').count()===1);
- // Every scene is a locally bundled SVG illustration, not a remote dependency.
+ // Every scene is a local, small painted WebP, not a remote dependency.
  await picker.locator('.wh-theme-card img').first().evaluate(img=>img.decode());
- const valid=await picker.locator('.wh-theme-card img').evaluateAll(imgs=>imgs.every(img=>img.src.includes('/word-hunt-theme-')&&img.getAttribute('alt')===''));
+ const valid=await picker.locator('.wh-theme-card img').evaluateAll(imgs=>imgs.every(img=>img.src.includes('/assets/word-hunt/themes/')&&img.src.includes('.webp?v=20261017-painted1')&&img.getAttribute('alt')===''));
  assert.ok(valid,label+' broken illustrated topic assets');
  const art=await picker.locator('.wh-theme-card img').evaluateAll(async imgs=>{
-  // WebKit may keep off-screen horizontal theme cards lazy indefinitely.
+  // WebKit can defer loading cards in a horizontal mid-game selector.
   // Eagerly load each bundled asset and bound the wait to fail clearly.
   imgs.forEach(img=>{img.loading='eager'});
   await Promise.all(imgs.map(img=>{
@@ -61,16 +67,22 @@ async function selectTopic(page,topic,label){
    bg:getComputedStyle(img).backgroundImage,complete:img.complete}));
  });
  for(const piece of art){
-  assert.ok(piece.complete&&piece.width===360&&piece.height===250,label+' failed to load premium topic illustration: '+JSON.stringify(piece));
-  assert.ok(piece.bg.includes('bokskogen-verden.png'),label+' missing approved Bokskogen scene: '+JSON.stringify(piece));
+  assert.ok(piece.complete&&piece.width===160&&piece.height===169,label+' failed to load premium topic illustration: '+JSON.stringify(piece));
+  assert.ok(piece.bg==='none',label+' missing approved Bokskogen scene: '+JSON.stringify(piece));
  }
  assert.equal(await picker.locator('.wh-theme-fox').evaluate(img=>img.currentSrc===window.LARIA_FOX.source(window.LARIA_FOX.choice())),true,
   'chosen fox did not follow child to theme picker');
  await shot(page,label+'-choose-'+topic);
- await picker.locator('[data-word-theme="'+topic+'"]').click();
- assert.equal(await picker.locator('[data-word-theme="'+topic+'"]').getAttribute('aria-pressed'),'true');
- await picker.locator('.wh-theme-start').click();
+ const selectedCard=page.locator('.word-hunt-theme-picker [data-word-theme="'+topic+'"]');
+ await selectedCard.click();
+ // A first-entry card directly launches the game. The picker is therefore
+ // hidden when this assertion runs, but the button remains in the DOM.
+ assert.equal(await selectedCard.getAttribute('aria-pressed'),'true');
+ if(!fromEntry)await picker.locator('.wh-theme-start').click();
  await picker.waitFor({state:'hidden'});
+ const isHard=await page.locator('.word-hunt-level.active').getAttribute('data-word-level')==='hard';
+ assert.equal(await page.locator('.word-hunt-cell:visible').count(),isHard?49:36);
+ assert.equal(await page.locator('#word-hunt-overlay').evaluate(el=>el.classList.contains('is-theme-entry')),false);
  const progress=await page.evaluate(()=>JSON.parse(localStorage.getItem('laria-wordhunt-v1')));
  assert.equal(progress.theme,topic,'selected theme was not persisted');
  const rows=await page.locator('.word-hunt-word').allTextContents();
@@ -125,9 +137,43 @@ async function verify(engine,launcher,label,viewport,url){
   await page.route('https://api.worldbank.org/**',r=>r.abort());
   try{
    await open(page,url);
+   assert.equal(await page.locator('.word-hunt-theme-picker .wh-theme-start:visible').count(),0,
+     label+' must not advertise resuming a round that was never started');
+   // Capture the genuine child-facing first screen before keyboard focus
+   // tests scroll to the final topic on compact phones.
+   const entryModal=page.locator('.word-hunt-theme-picker:not([hidden])');
+   if(viewport.width<=350){
+     const top=await entryModal.locator('#wh-theme-heading').evaluate(el=>{
+       const r=el.getBoundingClientRect();return {top:r.top,bottom:r.bottom,viewport:innerHeight};
+     });
+     assert.ok(top.top>=-1&&top.bottom<=top.viewport,
+       label+' theme title hidden on compact iPhone entry: '+JSON.stringify(top));
+   }
+   await shot(page,label+'-first-topic-gallery');
+   // When resume is hidden, cycle between the last visible card and close.
+   await entryModal.locator('.wh-theme-card').last().focus();
+   await page.keyboard.press('Tab');
+   assert.equal(await entryModal.locator('.wh-theme-close').evaluate(el=>el===document.activeElement),true,
+     label+' Tab escaped the first-entry theme dialog');
+   await page.keyboard.press('Shift+Tab');
+   assert.equal(await entryModal.locator('.wh-theme-card').last().evaluate(el=>el===document.activeElement),true,
+     label+' Shift+Tab did not return to the final visible topic');
+   const layout=await page.locator('.word-hunt-theme-picker').evaluate(el=>({
+    width:innerWidth,scrollWidth:document.documentElement.scrollWidth,
+    cards:[...el.querySelectorAll('.wh-theme-card')].map(card=>{
+      const r=card.getBoundingClientRect();return {left:r.left,right:r.right,top:r.top,bottom:r.bottom};
+    })
+   }));
+   assert.ok(layout.scrollWidth<=layout.width+3,label+' first-entry gallery overflows horizontally');
+   if(viewport.width<=700){
+    assert.ok(layout.cards[0].left>=0&&layout.cards[1].right<=layout.width+2,
+      label+' two storybook topics are not visible on phone first row');
+    assert.ok(layout.cards[2].top>layout.cards[0].top,
+      label+' mobile topics still hidden in a horizontal carousel');
+   }
+   const animalWords=await selectTopic(page,'animals',label,true);
    assert.equal(await page.locator('.word-hunt-cell').count(),36);
    await checkLayout(page,label+'-original',viewport);
-   const animalWords=await selectTopic(page,'animals',label);
    assert.equal(animalWords.length,4);
    const mobileTopic=page.locator('.word-hunt-theme-mobile:visible');
    if(await mobileTopic.count()){
@@ -159,6 +205,9 @@ async function verify(engine,launcher,label,viewport,url){
    await page.locator('.word-hunt-new').click();
    const next=await page.locator('.word-hunt-word').allTextContents();
    assert.equal(next.filter(w=>animalWords.includes(w.trim())).length,0,'The next round repeats the same words');
+   // Save one found word to check the child's progress survives reload.
+   await tapWord(page,next[0].trim());
+   assert.equal(await page.locator('.word-hunt-word.found').count(),1);
    await page.locator('.word-hunt-back').click();
    await page.locator('.bc12-nav [data-camp="collection"]').click();
    const book=page.locator('#bc12-dialog[open].is-collection');
@@ -171,6 +220,21 @@ async function verify(engine,launcher,label,viewport,url){
    await shot(page,label+'-themed-collection');
    await book.locator('.bc12-close').click();
    await open(page,url);
+   const resume=page.locator('.word-hunt-theme-picker .wh-theme-start:visible');
+   assert.match(await resume.innerText(),/Fortsett ordjakten i Dyrevenner/);
+   // On return the real resume action is visible and is the last tab stop.
+   await resume.focus();
+   await page.keyboard.press('Tab');
+   assert.equal(await page.locator('.word-hunt-theme-picker .wh-theme-close').evaluate(el=>el===document.activeElement),true,
+     label+' Tab escaped picker with a genuine saved round');
+   await page.keyboard.press('Shift+Tab');
+   assert.equal(await resume.evaluate(el=>el===document.activeElement),true,
+     label+' Shift+Tab skipped the saved-round resume action');
+   await resume.click();
+   await page.locator('.word-hunt-cell:visible').first().waitFor();
+   assert.deepEqual(await page.locator('.word-hunt-word').allTextContents().then(items=>items.map(s=>s.replace(/^✓\s*/,'').trim())),next,
+     'Resuming an unfinished puzzle must preserve its exact target words');
+   assert.equal(await page.locator('.word-hunt-word.found').count(),1,'Found words must survive a full page reload');
    await page.locator('[data-word-level="hard"]').click();
    assert.equal(await page.locator('.word-hunt-cell').count(),49);
    const worldWords=await selectTopic(page,'world',label+'-hard');
@@ -180,6 +244,9 @@ async function verify(engine,launcher,label,viewport,url){
    await shot(page,label+'-world-hard');
    await page.reload({waitUntil:'domcontentloaded'});
    await open(page,url);
+   assert.equal(await page.locator('.word-hunt-theme-picker .wh-theme-card.selected').getAttribute('data-word-theme'),'world');
+   await page.locator('.word-hunt-theme-picker [data-word-theme="world"]').click();
+   await page.locator('.word-hunt-cell:visible').first().waitFor();
    const current=await page.locator('.word-hunt-current-theme').innerText();
    assert.equal(current,'Verden rundt','selected topic not restored after reload');
    if(await page.locator('.word-hunt-theme-mobile:visible').count()){

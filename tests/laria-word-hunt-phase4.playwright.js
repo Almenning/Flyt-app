@@ -47,7 +47,14 @@ async function open(page,url){
   assert.ok(await card.isVisible(),'Young Utforsk hides its premium '+action+' activity card');
  }
  await chooser.locator('.bc13-card[data-bc13-action="words"]').click();
- await page.locator('#word-hunt-overlay:not([hidden]) .word-hunt-cell').first().waitFor();
+ // First screen must be the five-theme gallery, never a surprise puzzle.
+ const entry=page.locator('#word-hunt-overlay:not([hidden]) .word-hunt-theme-picker:not([hidden])');
+ await entry.waitFor();
+ assert.equal(await entry.locator('.wh-theme-card').count(),5,'child does not see all five topic choices');
+ assert.equal(await page.locator('.word-hunt-cell:visible').count(),0,'puzzle is visible before a theme is chosen');
+ await entry.locator('[data-word-theme="mixed"]').click();
+ await entry.waitFor({state:'hidden'});
+ await page.locator('#word-hunt-overlay:not([hidden]) .word-hunt-cell:visible').first().waitFor();
 }
 async function geometry(page,label,viewport,firstFold){
  const m=await page.evaluate(()=>{
