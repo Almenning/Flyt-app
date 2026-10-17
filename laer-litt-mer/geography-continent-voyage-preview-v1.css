@@ -146,7 +146,8 @@
  * De ekte landgrensene og kontinentene vises fremdeles på Lærias globale klode.
  */
 .cv-root .cv-shell:has(.cv-story-layout){width:min(100%,1110px);max-width:1110px}
-.cv-root .cv-story-layout{display:grid;grid-template-columns:minmax(0,1.66fr) minmax(225px,.87fr);grid-template-areas:"map hero" "map rail";gap:24px;align-items:start;margin-top:14px}
+.cv-root .cv-story-layout{display:grid;grid-template-columns:minmax(0,1.66fr) minmax(225px,.87fr);grid-template-areas:"map side";gap:24px;align-items:start;margin-top:14px}
+.cv-root .cv-story-aside{grid-area:side;display:flex;flex-direction:column;gap:15px;min-width:0}
 .cv-root .cv-story-map{grid-area:map;position:relative;width:100%;min-width:0;aspect-ratio:800 / 1000;
  border:6px solid #d9bf94;border-radius:26px;overflow:hidden;background:#77b2b4;
  box-shadow:0 7px 0 #b99c79,inset 0 0 0 3px #fbebc9}
@@ -164,9 +165,9 @@
  border-radius:50%;border:2px solid #b0865f;background:#f8e0b6;color:#5a4837;font-size:15px;flex:none}
 .cv-root .cv-story-map .cv-map-stop-name{display:block;overflow-wrap:break-word}
 .cv-root .cv-story-map .cv-map-stop .cv-chevron,.cv-root .cv-story-map .cv-map-stop small{display:none}
-.cv-root .cv-story-rail{grid-area:rail;display:flex;flex-direction:column;gap:13px;min-width:0;padding:5px 0}
+.cv-root .cv-story-rail{display:flex;flex-direction:column;gap:13px;min-width:0;padding:5px 0}
 .cv-root .cv-story-rail .cv-progress,.cv-root .cv-story-rail .cv-primary{margin:0}
-.cv-root .cv-story-hero{grid-area:hero;display:flex;flex-direction:column;gap:12px;min-width:0}
+.cv-root .cv-story-hero{display:flex;flex-direction:column;gap:12px;min-width:0}
 .cv-root .cv-story-fox{display:flex;align-items:center;gap:10px;padding:12px;background:#e1e9de;
  border:2px solid #b8cba9;border-radius:18px;box-shadow:0 4px 0 #b9c9b0}
 .cv-root .cv-story-fox .cv-fox{width:clamp(67px,10vw,109px);height:clamp(82px,12vw,124px)}
@@ -177,6 +178,9 @@
 .cv-root .cv-story-rail .cv-note{font-size:11px;line-height:1.45;margin:0}
 @media(max-width:720px){
  .cv-root .cv-story-layout{grid-template-columns:minmax(0,1fr);grid-template-areas:"hero" "map" "rail";gap:16px}
+ .cv-root .cv-story-aside{display:contents}
+ .cv-root .cv-story-hero{grid-area:hero}
+ .cv-root .cv-story-rail{grid-area:rail}
  .cv-root .cv-story-map{max-width:540px;margin-inline:auto}
  .cv-root .cv-story-rail{gap:11px;padding:0}
  .cv-root .cv-story-map .cv-map-stop{min-width:91px;min-height:44px;max-width:44%;font-size:clamp(11px,3vw,15px);
@@ -247,4 +251,19 @@
  .cv-root .cv-story-hero .cv-quick-start,.cv-root .cv-story-hero .cv-primary{
    min-height:44px;padding:9px 8px;font-size:13px;line-height:1.16
  }
+}
+
+/* Keep a cohesive fox + next adventure + progress companion, not a dashboard. */
+.cv-root .cv-story-fox{background:transparent;border:0;box-shadow:none;padding:2px 1px}
+.cv-root .cv-story-fox p{padding:13px 14px;border:1px solid #dacba8;border-radius:18px 18px 18px 5px;background:linear-gradient(165deg,#fffdf3,#f6ecd6);box-shadow:0 5px 13px #5f49391c;color:#564431;line-height:1.34}
+.cv-root .cv-story-guide{border:0;background:transparent;padding:0 5px}
+.cv-root .cv-story-guide strong{color:#66503b}
+.cv-root .cv-story-guide p{color:#70624e}
+.cv-root .cv-story-map .cv-map-stop.cv-map-stop-recommended{border-color:#a87850;background:linear-gradient(150deg,#fff9df,#eec795);box-shadow:0 4px 0 #93684e,0 0 0 4px #fff4d4cc,0 9px 16px #274a5444}
+.cv-root .cv-story-map .cv-map-stop.cv-map-stop-visited:not(.cv-map-stop-recommended){background:linear-gradient(150deg,#f0f4dd,#cddbc3);border-color:#799181;color:#42594c}
+@media(min-width:721px) and (max-width:899px) and (max-height:480px) and (orientation:landscape){
+ .cv-root .cv-story-aside{gap:7px}
+ .cv-root .cv-story-fox p{padding:8px;font-size:12px;line-height:1.16}
+ .cv-root .cv-story-rail{gap:7px}
+ .cv-root .cv-story-guide{display:none}
 }
