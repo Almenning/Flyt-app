@@ -107,6 +107,23 @@
    if(!ui)return;
    const previousScroll=preserveScroll?ui.root.scrollTop:0;
    ui.root.innerHTML=ui.mode==='play'?play():ui.mode==='result'?result():intro();
+   // A malformed or unavailable optional art file must not blank the chapter map.
+   // Keep all HTML stops and progress intact; fallback only the decorative image.
+   if(ui.mode==='intro'){
+     const art=ui.root.querySelector('.sh-map-art[data-sh-art-variant="candidate-v2"]');
+     if(art){
+       const fallback=()=>{
+         if(art.getAttribute('data-sh-art-variant')!=='candidate-v2')return;
+         art.setAttribute('data-sh-art-variant','fallback-v1');
+         art.src='./english-sentence-harbor-storymap-v1.svg';
+       };
+       art.addEventListener('error',fallback,{once:true});
+       art.addEventListener('load',()=>{
+         if(art.naturalWidth!==800||art.naturalHeight!==1000)fallback();
+       },{once:true});
+       if(art.complete&&(!art.naturalWidth||!art.naturalHeight))fallback();
+     }
+   }
    ui.root.scrollTop=previousScroll;
    const target=ui.root.querySelector(focus);
    if(target){
