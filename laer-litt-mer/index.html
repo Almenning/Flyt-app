@@ -3306,7 +3306,11 @@ function loadState(){
       masteryEvidence:parsed.masteryEvidence||{},skillEvidence:parsed.skillEvidence||{},
       preferences:{...defaultState.preferences,...(parsed.preferences||{})},
       lastMilestone:parsed.lastMilestone||null,recentCountryWin:parsed.recentCountryWin||null,
-      journey:{nodes:{...(parsed.journey?.nodes||{})},gradeWins:{...(parsed.journey?.gradeWins||{})},viewGrades:{...(parsed.journey?.viewGrades||{})}},
+      journey:{nodes:{...(parsed.journey?.nodes||{})},gradeWins:{...(parsed.journey?.gradeWins||{})},viewGrades:{...(parsed.journey?.viewGrades||{})},
+        // Later story chapters live alongside legacy journey nodes. Never
+        // discard saved drafts or chapter progress on reload.
+        chapterProgress:parsed.journey?.chapterProgress&&typeof parsed.journey.chapterProgress==='object'&&!Array.isArray(parsed.journey.chapterProgress)?
+          {...parsed.journey.chapterProgress}:{}},
       collectibles:window.LARIA_COLLECTION_CORE.normalize(parsed.collectibles),
       answerLog:Array.isArray(parsed.answerLog)?parsed.answerLog:[],
       sessionLog:Array.isArray(parsed.sessionLog)?parsed.sessionLog:[]
