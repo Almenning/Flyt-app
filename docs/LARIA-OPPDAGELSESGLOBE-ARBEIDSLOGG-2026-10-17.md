@@ -33,6 +33,7 @@
 
 - `node --check laer-litt-mer/discovery-globe-phase1.js`: bestått.
 - Det er lagt til en egen Playwright-kontroll (`tests/laria-discovery-globe-phase1.playwright.js`) som tar bilder av verden, Europa, Norge, Japan og Brasil og bekrefter tre detaljnivåer og landvalg.
+- Egen GitHub Actions-jobb installerer Chromium og WebKit med systemavhengigheter, kjører eksakt PR-head og laster opp bildene som artefakt. Dette erstatter ikke fysisk enhetstest, men gir reproduserbar WebKit-kontroll.
 - Playwright WebKit ble lastet ned, men kan ikke startes i dette Work-miljøet: nødvendige systembiblioteker (blant annet GTK/GStreamer) mangler. Forsøk på `playwright install --with-deps` ble avvist av miljøets systemrettigheter. Chromium-binary ble heller ikke ferdigstilt før økten stoppet nedlastingen.
 - Derfor finnes det **ingen påståtte WebKit-skjermbilder eller godkjent visuell QA fra denne økten**. Testen og bildestien er klare for et miljø som kan starte Playwright WebKit.
 
