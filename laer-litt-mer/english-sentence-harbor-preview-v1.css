@@ -149,7 +149,8 @@
  * independent of the approved Ordlandsbyen painting. Unpublished pilot only.
  */
 .sh-root .sh-shell:has(.sh-story-layout){width:min(100%,1110px);max-width:1110px}
-.sh-root .sh-story-layout{display:grid;grid-template-columns:minmax(0,1.66fr) minmax(225px,.87fr);grid-template-areas:"map hero" "map rail";gap:24px;align-items:start;margin-top:14px}
+.sh-root .sh-story-layout{display:grid;grid-template-columns:minmax(0,1.66fr) minmax(225px,.87fr);grid-template-areas:"map side";gap:24px;align-items:start;margin-top:14px}
+.sh-root .sh-story-aside{grid-area:side;display:flex;flex-direction:column;gap:15px;min-width:0}
 .sh-root .sh-story-map{grid-area:map;position:relative;width:100%;min-width:0;aspect-ratio:800 / 1000;
  border:6px solid #e0c79d;border-radius:26px;overflow:hidden;
  background:#9bb9b5;box-shadow:0 7px 0 #bb9e77,inset 0 0 0 3px #f7eacf}
@@ -168,9 +169,9 @@
  color:#5c4535;background:#f9e1b9;border:2px solid #b18460;font-size:15px;flex:none}
 .sh-root .sh-story-map .sh-map-stop-name{display:block;overflow-wrap:break-word}
 .sh-root .sh-story-map .sh-map-stop .sh-arrow,.sh-root .sh-story-map .sh-map-stop small{display:none}
-.sh-root .sh-story-rail{grid-area:rail;display:flex;flex-direction:column;min-width:0;gap:13px;padding:5px 0}
+.sh-root .sh-story-rail{display:flex;flex-direction:column;min-width:0;gap:13px;padding:5px 0}
 .sh-root .sh-story-rail .sh-progress,.sh-root .sh-story-rail .sh-continue{margin:0}
-.sh-root .sh-story-hero{grid-area:hero;display:flex;flex-direction:column;gap:12px;min-width:0}
+.sh-root .sh-story-hero{display:flex;flex-direction:column;gap:12px;min-width:0}
 .sh-root .sh-story-fox{display:flex;align-items:center;gap:10px;padding:12px;
  background:#e5ebdf;border:2px solid #b8caaa;border-radius:18px;box-shadow:0 4px 0 #bfcaab}
 .sh-root .sh-story-fox .sh-fox{width:clamp(67px,10vw,109px);height:clamp(82px,12vw,124px)}
@@ -181,6 +182,9 @@
 .sh-root .sh-story-rail .sh-note{font-size:11px;line-height:1.4;margin:0}
 @media(max-width:720px){
  .sh-root .sh-story-layout{grid-template-columns:minmax(0,1fr);grid-template-areas:"hero" "map" "rail";gap:16px}
+ .sh-root .sh-story-aside{display:contents}
+ .sh-root .sh-story-hero{grid-area:hero}
+ .sh-root .sh-story-rail{grid-area:rail}
  .sh-root .sh-story-map{max-width:540px;margin-inline:auto}
  .sh-root .sh-story-rail{gap:11px;padding:0}
  .sh-root .sh-story-map .sh-map-stop{min-height:44px;min-width:91px;max-width:44%;gap:5px;
@@ -226,4 +230,19 @@
  .sh-root .sh-story-hero .sh-quick-start,.sh-root .sh-story-hero .sh-continue{
    min-height:44px;padding:9px 8px;font-size:13px;line-height:1.16
  }
+}
+
+/* Keep a cohesive fox + next adventure + progress companion, not a dashboard. */
+.sh-root .sh-story-fox{background:transparent;border:0;box-shadow:none;padding:2px 1px}
+.sh-root .sh-story-fox p{padding:13px 14px;border:1px solid #dacba8;border-radius:18px 18px 18px 5px;background:linear-gradient(165deg,#fffdf3,#f6ecd6);box-shadow:0 5px 13px #5f49391c;color:#564431;line-height:1.34}
+.sh-root .sh-story-guide{border:0;background:transparent;padding:0 5px}
+.sh-root .sh-story-guide strong{color:#66503b}
+.sh-root .sh-story-guide p{color:#70624e}
+.sh-root .sh-story-map .sh-map-stop.sh-map-stop-recommended{border-color:#a87850;background:linear-gradient(150deg,#fff9df,#eec795);box-shadow:0 4px 0 #93684e,0 0 0 4px #fff4d4cc,0 9px 16px #274a5444}
+.sh-root .sh-story-map .sh-map-stop.sh-map-stop-visited:not(.sh-map-stop-recommended){background:linear-gradient(150deg,#f0f4dd,#cddbc3);border-color:#799181;color:#42594c}
+@media(min-width:721px) and (max-width:899px) and (max-height:480px) and (orientation:landscape){
+ .sh-root .sh-story-aside{gap:7px}
+ .sh-root .sh-story-fox p{padding:8px;font-size:12px;line-height:1.16}
+ .sh-root .sh-story-rail{gap:7px}
+ .sh-root .sh-story-guide{display:none}
 }
