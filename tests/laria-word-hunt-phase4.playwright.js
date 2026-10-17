@@ -202,7 +202,7 @@ async function testView(browser,engine,label,viewport,url){
   // The fox is the live response channel, not a static illustration plus
   // a detached warning card. A partial prefix counts as friendly near-miss.
   const firstWord=(await page.locator('.word-hunt-word').first().innerText()).trim();
-  const [begin,end]=await pathFor(page,firstWord);
+  const {start:begin,end}=await pathFor(page,firstWord);
   const second=[begin[0]+Math.sign(end[0]-begin[0]),begin[1]+Math.sign(end[1]-begin[1])];
   for(const [r,c] of [begin,second])
     await page.locator('.word-hunt-cell[data-r="'+r+'"][data-c="'+c+'"]').tap();
