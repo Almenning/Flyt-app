@@ -20,6 +20,7 @@ assert.match(preview,/window\.__lariaDiscoveryGlobePreview=true;/,
 assert.match(preview,/'Sør-Amerika':'#[0-9A-Fa-f]{6}'/,
   'Norwegian geography labels must retain UTF-8 encoding');
 assert.doesNotMatch(preview,/SÃ¸r-Amerika/,'preview source has mojibake');
+assert.doesNotMatch(preview,/window\.globeZoom\b/, 'zoom is lexically scoped; window.globeZoom generates NaN drawing coordinates');
 assert.match(preview,/function paintReliefTrails\(/, 'geographic terrain trails must remain active');
 assert.match(preview,/landClip\(ctx,w,h\)/, 'land-only illustration clipping must remain active');
 assert.match(preview,/if\(!activated\|\|window\.drawGlobe!==discoveryDraw\)/, 'idle preview must not repaint on every interval tick');
