@@ -29,7 +29,7 @@ async function assertAnswerInView(page,label){
  assert.ok(feedback&&feedback.y>=-2&&feedback.y+feedback.height<=viewportHeight+2,
    label+' must reveal the full feedback immediately, without scrolling');
  assert.ok(next&&next.y<viewportHeight-12&&next.y+next.height>12,
-   label+' should keep the next discovery within reach');
+   label+' should keep the next discovery within reach: '+JSON.stringify({viewportHeight,feedback,next}));
 }
 async function completeSentence(page){
  const s=await page.evaluate(()=>window.LARIA_ENGLISH_SENTENCE_HARBOR.resume(state));
@@ -126,6 +126,7 @@ async function verify(type,label,viewport){
    assert.match(await page.locator('[data-sh-act="speak"]').innerText(),/alle svarene/i);
    assert.equal(await page.locator('.sh-options[lang="en"] .sh-option').count(),3);
    await page.locator('[data-sh-act="answer"][data-sh-index="'+firstTask.options.indexOf(firstTask.answer)+'"]').click();
+   await photo(page,label+'-choice-feedback');
    await assertAnswerInView(page,label+' choice feedback');
    assert.equal(await page.locator('.sh-english').innerText(),firstTask.answer,'answer may be revealed after a try');
    await page.locator('[data-sh-act="intro"]').click();
@@ -151,6 +152,7 @@ async function verify(type,label,viewport){
      await page.locator('[data-sh-act="tile"][data-sh-index="'+at+'"]').click();
    }
    await page.locator('[data-sh-act="check-sentence"]').click();
+   await photo(page,label+'-sentence-feedback');
    await assertAnswerInView(page,label+' sentence feedback');
    assert.match(await page.locator('.sh-feedback').innerText(),/fant løsningen/i);
    await page.locator('[data-sh-act="next"]').click();
