@@ -111,7 +111,7 @@ async function existing(engine,name){
  await p.locator('#subject-screen.active').waitFor();
  await p.locator('#open-multiplication-lab').click();
  await p.locator('#multiplication-lab-screen.active').waitFor();
- await p.locator('[data-mp-action="back"]').first().click();
+ await p.locator('#multiplication-lab-screen.active .gm-back').click();
  await p.locator('#subject-screen.active').waitFor();
  await p.locator('#subject-back').click();
  await p.locator('#home-screen.active').waitFor();
