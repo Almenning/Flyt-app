@@ -109,7 +109,10 @@ async function verifyPointerDrag(page,label,isDiscovery){
  assert.ok(Math.abs(during.after-during.before)>1,label+' pointer drag did not rotate the globe');
  assert.equal(during.moving,true,label+' dragging state never activated');
  assert.equal(during.pointerCount,1,label+' active pointer was lost');
- if(isDiscovery)assert.equal(during.marked,'true',label+' discovery detail not suppressed while dragging');
+ if(isDiscovery){
+   assert.equal(during.marked,'true',label+' discovery detail not suppressed while dragging');
+   await page.screenshot({path:path.join(out,label.replace(/[^a-z0-9-]/gi,'-')+'-moving.png'),fullPage:true,animations:'disabled'});
+ }
  await page.evaluate(()=>{
    const canvas=document.getElementById('globe-canvas'),rect=canvas.getBoundingClientRect();
    const x=rect.left+rect.width*.50,y=rect.top+rect.height*.50;
@@ -184,6 +187,11 @@ async function runDevice(engine,label,viewport,urls){
      for(const hit of [[8,62,'no'],[138,36,'jp'],[-55,-12,'br']])
        await verifyGeographicTap(discovery.page,hit[0],hit[1],hit[2],label+' discovery globe');
      await verifyPointerDrag(discovery.page,label+' discovery globe',true);
+     await discovery.page.waitForTimeout(360);
+     const idleStart=await discovery.page.evaluate(()=>Number(document.getElementById('globe-canvas').dataset.discoveryPaintCount||0));
+     await discovery.page.waitForTimeout(720);
+     const idleEnd=await discovery.page.evaluate(()=>Number(document.getElementById('globe-canvas').dataset.discoveryPaintCount||0));
+     assert.ok(idleEnd-idleStart<=1,label+' idle preview repainted '+(idleEnd-idleStart)+' times without input');
      assert.deepEqual(errors,[],label+' discovery page errors');
    }finally{await discovery.ctx.close();}
    console.log('PASS geographically correct, visually distinct ordinary/discovery globes: '+label);
