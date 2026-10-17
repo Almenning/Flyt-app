@@ -204,3 +204,21 @@
 }
 .sh-root .sh-story-rail .sh-quick-start:focus-visible{outline:3px solid #277d83;outline-offset:3px}
 .sh-root .sh-story-rail .sh-quick-start:active{transform:translateY(2px);box-shadow:0 2px 0 #b68e5b}
+
+/* Place the personal fox and child-first action above the full-height map on
+ * phones, while retaining the illustrated map with all five independent stops. */
+.sh-root .sh-story-hero{grid-column:2;grid-row:1;display:flex;flex-direction:column;gap:12px;min-width:0}
+.sh-root .sh-story-layout>.sh-story-map{grid-column:1;grid-row:1 / span 2}
+.sh-root .sh-story-layout>.sh-story-rail{grid-column:2;grid-row:2}
+.sh-root .sh-story-hero .sh-continue,.sh-root .sh-story-hero .sh-primary{margin:0}
+.sh-root .sh-story-hero .sh-quick-start{display:block;width:100%;min-height:50px;margin:0;padding:12px 14px;border:2px solid #987153;border-radius:15px;background:linear-gradient(160deg,#ffefc8,#e8ba7c);box-shadow:0 4px 0 #b68e5b;color:#523e2d;text-align:center;font:900 15px ui-rounded,system-ui;line-height:1.2;touch-action:manipulation}
+.sh-root .sh-story-hero .sh-quick-start:focus-visible{outline:3px solid #277d83;outline-offset:3px}
+@media(max-width:720px){
+ .sh-root .sh-story-layout>.sh-story-hero{grid-column:1;grid-row:1;gap:9px}
+ .sh-root .sh-story-layout>.sh-story-map{grid-column:1;grid-row:2}
+ .sh-root .sh-story-layout>.sh-story-rail{grid-column:1;grid-row:3}
+ .sh-root .sh-story-hero .sh-story-fox{min-height:0;padding:7px 11px}
+ .sh-root .sh-story-hero .sh-story-fox .sh-fox{height:61px;width:63px}
+ .sh-root .sh-story-hero .sh-story-fox p{font-size:13px;line-height:1.25}
+ .sh-root .sh-story-hero .sh-quick-start{min-height:48px;padding:10px 12px}
+}
