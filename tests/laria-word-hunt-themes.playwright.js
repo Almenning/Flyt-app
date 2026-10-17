@@ -282,6 +282,7 @@ async function verify(engine,launcher,label,viewport,url){
    const book=page.locator('#bc12-dialog[open].is-collection');
    await book.waitFor();
    assert.equal(await book.locator('.bc12-memory').count(),4,'Existing four subject keepsakes were changed');
+   await book.locator('.lmc-tabs [data-book-page="words"]').click();
    assert.equal(await book.locator('.bc12-wordhunt-sticker').count(),5);
    assert.equal(await book.locator('.bc12-wordhunt-sticker[data-word-theme="animals"]').getAttribute('data-owned'),'true');
    assert.equal(await book.locator('.bc12-wordhunt-sticker[data-word-theme="mixed"]').getAttribute('data-owned'),'false');
