@@ -10,6 +10,7 @@
  const KEY='laria-gangemagi-v1';
  const originalOpen=window.openMultiplicationLab;
  let state=load(),undo=[],hintStep=0,notice='',suppressClickUntil=0,drag=null;
+ let foxMood='curious',lastAction='',lastGroup=-1;
  let returnToMath=false;
  const esc=x=>String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const berrySvg='<svg viewBox="0 0 48 56" aria-hidden="true" focusable="false"><defs><linearGradient id="gmB" x1=".2" x2=".85" y2="1"><stop stop-color="#ff9780"/><stop offset=".42" stop-color="#d94855"/><stop offset="1" stop-color="#9c3547"/></linearGradient></defs><path d="M24 14C11 5 2 19 6 33C10 46 19 52 24 54C30 51 41 43 43 29C45 16 34 8 24 14Z" fill="url(#gmB)" stroke="#963a46" stroke-width="2"/><path d="M24 12C14 4 9 4 7 8L15 17L4 14L9 22L23 18L38 21L44 13L31 16L40 9C36 5 29 6 24 12Z" fill="#5c9867" stroke="#407e60" stroke-width="1.4"/><path d="M24 12Q24 6 28 3" stroke="#4a7650" stroke-width="2.5" fill="none" stroke-linecap="round"/><g fill="#ffe8ac"><ellipse cx="16" cy="28" rx="1.9" ry="3.1" transform="rotate(-24 16 28)"/><ellipse cx="30" cy="27" rx="1.8" ry="3" transform="rotate(16 30 27)"/><ellipse cx="23" cy="37" rx="1.8" ry="3"/><ellipse cx="13" cy="36" rx="1.5" ry="2.5"/><ellipse cx="33" cy="37" rx="1.5" ry="2.5"/></g><path d="M11 24Q11 18 18 18" stroke="#ffb2a0" stroke-width="3" fill="none" opacity=".8" stroke-linecap="round"/></svg>';
@@ -38,6 +39,12 @@
    if(!amount)return state.mode==='mission'?'Trykk på en kurv! Hvert trykk legger i ett jordbær.':
      'Lag ditt eget gangestykke. Du bestemmer hvor mange som skal i hver kurv.';
    if(left===1)return 'Bare ett jordbær igjen!';
+   if(lastAction==='add'&&lastGroup>=0&&lastGroup<state.groups){
+     const count=state.counts[lastGroup];
+     if(count===state.each)return 'Kurv '+(lastGroup+1)+' er full! Du har '+amount+' jordbær i alt.';
+     return count+' av '+state.each+' i kurv '+(lastGroup+1)+'. Nå har vi '+amount+' jordbær!';
+   }
+   if(lastAction==='remove')return 'Du tok ut ett jordbær. Nå er det '+amount+' igjen. Prøv videre!';
    const ix=state.counts.findIndex(n=>n<state.each);
    return 'Det går fint! Prøv kurv '+(ix+1)+' nå.';
  }
@@ -77,7 +84,7 @@
       '<div class="gm-layout"><header class="gm-top">'+
       '<button type="button" class="gm-back" id="multiplication-lab-back" data-gm-action="back" aria-label="Tilbake til matte">‹</button>'+
       '<div class="gm-brand"><span class="gm-brand-mark">Læ<span>ria</span> ✦</span><small>TALLENGA / GANGEMAGI</small></div>'+
-      '<button type="button" class="gm-classic" data-gm-action="classic" aria-label="Åpne gangetabell og øving">10 × 10 <span aria-hidden="true">↗</span></button>'+
+      '<button type="button" class="gm-classic" data-gm-action="classic" aria-label="Åpne gangetabell og øving">Tabellen <span aria-hidden="true">↗</span></button>'+
       '</header>'+
       '<div class="gm-heading"><div><span class="gm-eyebrow">✿ ET LITE MATTEEVENTYR</span><h1>Gangemagi</h1><p>Plukk, pakk og oppdag hva gange betyr.</p></div>'+
       '<div class="gm-modes" role="group" aria-label="Velg spillmåte">'+
@@ -87,7 +94,7 @@
       '<section class="gm-world" aria-label="Jordbærmarkedet i Tallenga">'+
        '<header class="gm-story"><div class="gm-story-main"><span class="gm-story-kicker">'+(free?'DU BESTEMMER':'OPPDRAG '+(state.mission+1)+' AV '+E.MISSIONS.length)+'</span><h2>'+esc(storyTitle())+'</h2><p>'+esc(challengeText())+'</p></div>'+
        '<span class="gm-story-progress" aria-label="'+sum+' av '+goal+' jordbær pakket"><strong>'+sum+'</strong><span>av '+goal+'</span></span></header>'+
-       '<div class="gm-scene"><div class="gm-fox" data-mood="'+(complete?'celebrate':hintStep?'help':'curious')+'">'+
+       '<div class="gm-scene"><div class="gm-fox" data-mood="'+(complete?'celebrate':hintStep?'help':foxMood)+'">'+
          '<div class="gm-fox-art" aria-hidden="true">'+selectedFox()+'</div>'+
          '<div class="gm-fox-bubble"><span class="gm-fox-bubble-label">Din rev sier:</span><span class="gm-fox-message" role="status" aria-live="polite">'+esc(msg)+'</span>'+
          '<button type="button" data-gm-action="read" class="gm-read" aria-label="Les opp det reven sier">◖))</button></div>'+
@@ -128,6 +135,9 @@
    undo.push(E.normalize(state));if(undo.length>50)undo.shift();
    const wasComplete=E.filled(state);
    state=next;hintStep=0;notice='';
+   lastAction=action.type;
+   lastGroup=action.group!==undefined&&Number.isInteger(Number(action.group))?Number(action.group):-1;
+   foxMood=E.filled(state)?'celebrate':action.type==='add'?'cheer':action.type==='remove'?'think':'curious';
    save();render();
    if(!wasComplete&&E.filled(state))celebrate();
    return true;
@@ -145,10 +155,11 @@
    try{showScreen('subject');}catch(_){}
  }
  function open(){
-   returnToMath=!!document.querySelector('#subject-screen.active')||document.getElementById('multiplication-lab-screen')?.dataset?.returnToMathSubject==='true';
+   // Avoid a stale return flag from an earlier session hijacking the Back destination.
+   returnToMath=!!document.querySelector('#subject-screen.active');
    const screen=document.getElementById('multiplication-lab-screen');
    if(screen)screen.dataset.returnToMathSubject=String(returnToMath);
-   hintStep=0;notice='';render();
+   hintStep=0;notice='';foxMood='curious';lastAction='';lastGroup=-1;render();
    try{showScreen('multiplication-lab');}catch(_){}
  }
  function speak(){
@@ -169,9 +180,9 @@
    if(kind==='classic'){nextOpen();return;}
    if(kind==='back-from-classic'){open();return;}
    if(kind==='read'){speak();return;}
-   if(kind==='hint'){hintStep=Math.min(2,hintStep+1);notice='';render();speak();return;}
+   if(kind==='hint'){hintStep=Math.min(2,hintStep+1);notice='';foxMood='help';render();speak();return;}
    if(kind==='undo'){
-     if(undo.length){state=undo.pop();save();hintStep=0;notice='';render();}
+     if(undo.length){state=undo.pop();save();hintStep=0;notice='';foxMood='curious';lastAction='';lastGroup=-1;render();}
      return;
    }
    if(kind==='restart'){change({type:'reset'});return;}
