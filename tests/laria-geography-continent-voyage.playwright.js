@@ -85,6 +85,23 @@ async function verify(type,label,viewport){
    assert.equal(imageState.variant,'production-v3',label+' Geography default painting must render without fallback: '+JSON.stringify(imageState));
    const map=page.locator('.cv-story-map');
    await map.waitFor({state:'visible'});
+   // Visual acceptance: on a portrait iPad the painting itself must become
+   // a generous scene rather than a narrow desktop column with blank canvas.
+   if(viewport.width===820&&viewport.height===1180){
+     const painting=await map.boundingBox();
+     const hero=await page.locator('.cv-story-hero').boundingBox();
+     const rail=await page.locator('.cv-story-rail').boundingBox();
+     const action=await page.locator('.cv-story-hero [data-cv-act="quick-start"], .cv-story-hero [data-cv-act="resume"]').boundingBox();
+     assert.ok(painting&&painting.width>=580&&painting.height>=750,
+       label+' iPad portrait painting must have a large stage: '+JSON.stringify(painting));
+     assert.ok(hero&&action&&hero.y+hero.height<=painting.y+5&&
+       action.y+action.height<=painting.y+5,
+       label+' iPad portrait must introduce the child and show first action before the painting');
+     assert.ok(rail&&rail.y>=painting.y+painting.height-5,
+       label+' iPad portrait progress should follow the large painting instead of shrinking it');
+     assert.ok(painting.x>=-2&&painting.x+painting.width<=viewport.width+2,
+       label+' enlarged portrait painting must not cause horizontal overflow');
+   }
    const geometry=await map.evaluate(el=>{
      const img=el.querySelector('.cv-map-art'),region=el.getBoundingClientRect();
      const stops=[...el.querySelectorAll('.cv-map-stop')].map(b=>{

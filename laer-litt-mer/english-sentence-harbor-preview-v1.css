@@ -263,3 +263,47 @@
 #laria-english-chapter2-entry:focus-visible{outline:4px solid #3c8d9a;outline-offset:4px}
 #laria-english-chapter2-entry:active{transform:translateY(2px);box-shadow:0 5px 0 #d4bb95}
 @media(max-width:420px){#laria-english-chapter2-entry{padding:11px;gap:10px}#laria-english-chapter2-entry .chapter-two-icon{width:44px;height:44px}}
+
+
+/* iPad PORTRAIT, chapter 2: give the new illustrated journey the stage.
+   The earlier desktop two-column grid leaves an unacceptably large blank
+   area beneath the map at 820x1180. This portrait-only arrangement keeps
+   the personal fox and first action before a larger unaltered map. */
+@media(min-width:721px) and (max-width:899px) and (min-height:900px) and (orientation:portrait){
+ .sh-root .sh-story-layout{
+   grid-template-columns:minmax(0,1fr);
+   grid-template-areas:"hero" "map" "rail";
+   gap:15px;
+   justify-items:center;
+ }
+ .sh-root .sh-story-aside{display:contents}
+ .sh-root .sh-story-hero{
+   grid-area:hero;
+   display:grid;
+   grid-template-columns:minmax(0,1fr) minmax(200px,.75fr);
+   align-items:center;
+   gap:15px;
+   width:min(100%,650px);
+ }
+ .sh-root .sh-story-fox{min-width:0}
+ .sh-root .sh-story-fox .sh-fox{width:79px;height:91px;flex:none}
+ .sh-root .sh-story-fox p{font-size:14px;line-height:1.28;padding:10px 12px}
+ .sh-root .sh-story-hero .sh-quick-start,
+ .sh-root .sh-story-hero .sh-primary,
+ .sh-root .sh-story-hero .sh-continue{
+   min-height:55px;
+   align-self:center;
+ }
+ .sh-root .sh-story-map{width:100%;max-width:620px;margin:0 auto}
+ .sh-root .sh-story-rail{
+   grid-area:rail;
+   display:grid;
+   grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+   gap:12px;
+   width:min(100%,650px);
+   padding:0;
+ }
+ .sh-root .sh-story-rail .sh-progress{grid-column:1}
+ .sh-root .sh-story-rail .sh-story-guide{grid-column:2}
+ .sh-root .sh-story-rail .sh-note{grid-column:1 / -1}
+}

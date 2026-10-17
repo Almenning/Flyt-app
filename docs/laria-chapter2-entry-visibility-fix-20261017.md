@@ -29,3 +29,8 @@ Det finnes også en egen dokumentert kunstport i `docs/laria-chapter2-painterly-
 - Safari-kildehenvisninger i `index.html` er versjonsoppdatert. Eksakt siste kode-head ved denne loggføringen er `b0dab47743d023d4c6de86a04f94058c40a4df18`.
 
 **Fortsatt sperret:** Ingen flette/publisering før den nye CI er grønn på eksakt kode, kunstfilene er vurdert i faktisk WebKit-skjermbilde mot Lærias fire låste originalreiser, og appens øvrige tester er grønne. `CHAPTER.published=true` og `artApproved=true` inne i en **Draft**-gren er ikke en reell produksjonsgodkjenning.
+
+## Premium QA: iPad portrait stage layout
+Faktiske WebKit-skjermbilder fra Geography Chapter 2 Pilot på `e6625fa` bekreftet at det maleriske produksjonskartet fungerer og er tydelig på iPhone og iPad landskap, men på iPad stående 820×1180 var den gamle sidekolonnen og et stort ubrukt område nederst synlig. Dette er et visuelt produktavvik selv om funksjonstestene var grønne.
+
+En isolert portrett-layout for **begge** nye kapitler gir først barnets personlige rev og frivillig start/fortsett, deretter et sentrert 620px bredt 3:4-kart med fem uendrede interaktive DOM-stopp, deretter progresjon. iPhone og iPad liggende er uendret. Playwright/WebKit-testene krever nå faktisk bredde minst 580px og høyde minst 750px i 820×1180, riktig rekkefølge, og ingen horisontal overflyt. Disse nye kravene er ikke erklært bestått før CI på eksakt ny head.
