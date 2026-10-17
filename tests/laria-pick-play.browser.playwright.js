@@ -6,7 +6,20 @@ const seed={version:7,progressSchemaVersion:3,profile:{grade:2,onboarded:true,na
 const mime={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'application/javascript; charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.webp':'image/webp','.json':'application/json'};
 function serve(){return new Promise((resolve,reject)=>{const server=http.createServer((req,res)=>{let url=new URL(req.url,'http://localhost').pathname;if(url.endsWith('/'))url+='index.html';const file=path.resolve(base,'.'+decodeURIComponent(url));if(!file.startsWith(base+path.sep)){res.writeHead(403);res.end();return}fs.readFile(file,(err,content)=>{if(err){res.writeHead(404);res.end('Missing');return}res.setHeader('Content-Type',mime[path.extname(file)]||'application/octet-stream');res.setHeader('Cache-Control','no-store');res.end(content)})});server.once('error',reject);server.listen(0,'127.0.0.1',()=>resolve({server,url:'http://127.0.0.1:'+server.address().port+'/laer-litt-mer/?app=laria'}))})}
 async function image(page,id){await fs.promises.mkdir(screens,{recursive:true});await page.screenshot({path:path.join(screens,id+'.png'),fullPage:true,animations:'disabled'})}
-async function open(page,url){await page.goto(url,{waitUntil:'domcontentloaded'});await page.waitForFunction(()=>window.LARIA_MULT_PREMIUM&&window.LARIA_MULT_PICK_PLAY&&window.LARIA_MULT_PICK_ENGINE);await page.evaluate(()=>window.openMultiplicationLab());await page.locator('.mp-menu-explore').click();await page.locator('.mp-explore-screen').waitFor()}
+async function openClassicPick(page){
+  // Every entry, including after reload, must follow the same child-visible route.
+  await page.evaluate(()=>window.openMultiplicationLab());
+  await page.locator('#multiplication-lab-screen.active .gm-shell').waitFor();
+  await page.locator('[data-gm-action="classic"]').click();
+  await page.locator('#multiplication-lab-screen.active .mp-home-screen').waitFor();
+  await page.locator('.mp-menu-explore').click();
+  await page.locator('.mp-explore-screen').waitFor();
+}
+async function open(page,url){
+  await page.goto(url,{waitUntil:'domcontentloaded'});
+  await page.waitForFunction(()=>window.LARIA_MULT_PREMIUM&&window.LARIA_MULT_PICK_PLAY&&window.LARIA_MULT_PICK_ENGINE);
+  await openClassicPick(page);
+}
 async function pickMode(page){await page.locator('.mp-explore-tab[data-mode="pick"]').click();await page.locator('.mp-pick-screen').waitFor()}
 async function snapshot(page){return await page.evaluate(()=>window.LARIA_MULT_PICK_PLAY.snapshot())}
 async function layout(page,label){const v=await page.evaluate(()=>({screen:innerWidth,scroll:document.documentElement.scrollWidth,groups:[...document.querySelectorAll('.mp-pick-vessel')].map(x=>({rect:x.getBoundingClientRect().toJSON(),count:x.querySelectorAll('.mp-pick-object').length})),buttons:[...document.querySelectorAll('.mp-pick-vessel-actions button, .mp-pick-main-actions button,.mp-pick-secondary-actions button,.mp-pick-check,.mp-pick-easy-actions button')].map(x=>({size:x.getBoundingClientRect().height,disabled:x.disabled}))}));assert.ok(v.scroll<=v.screen+4,label+' horizontal page overflow: '+JSON.stringify(v));assert.ok(v.buttons.filter(x=>!x.disabled).every(x=>x.size>=44),label+' undersized primary touch buttons '+JSON.stringify(v.buttons));return v}
@@ -243,8 +256,8 @@ async function run(browser,engine,label,viewport,url){
   if(engine==='webkit'&&label==='iphone-safari')assert.equal(new Set(nearviewFamilies.values()).size,10,label+' all ten near views need distinct illustrated foreground materials');
   await page.reload({waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>window.LARIA_MULT_PICK_PLAY&&window.LARIA_MULT_PREMIUM);
-  await page.evaluate(()=>window.openMultiplicationLab());
-  await page.locator('.mp-menu-explore').click();await pickMode(page);
+  await openClassicPick(page);
+  await pickMode(page);
   assert.equal(await page.locator('.mp-pick-mission').count(),0,'every new visit stays simple until the child asks for more');
   await page.locator('[data-pick-action="toggleMore"]').click();
   assert.equal((await snapshot(page)).world,'balloon','world did not persist across reload');

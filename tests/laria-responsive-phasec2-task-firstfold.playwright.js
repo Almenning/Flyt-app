@@ -48,6 +48,9 @@ async function open(page,url){
  // Real entry route, matching the child-facing navigation contract.
  await page.locator('.bc14-free:visible').click();
  await page.locator('.bc13-card[data-bc13-action="multiply"]:visible').click();
+ await page.locator('#multiplication-lab-screen.active .gm-shell').waitFor({state:'visible'});
+ // Validate the retained full classic practice in its own mode, not via the new child start screen.
+ await page.evaluate(()=>window.LARIA_MULT_CLASSIC_OPEN());
  await page.locator('.mp-menu-choose').waitFor({state:'visible'});
 }
 async function layout(page){
