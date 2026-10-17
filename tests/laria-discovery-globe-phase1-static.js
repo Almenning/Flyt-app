@@ -13,10 +13,11 @@ const preview=read('laer-litt-mer/discovery-globe-phase1.js');
 const renderer=read('laer-litt-mer/globe-v25-renderer.js');
 const index=read('laer-litt-mer/index.html');
 
-assert.match(preview,/if\(!new URLSearchParams\(location\.search\)\.has\('discovery-globe-preview'\)\)return;/,
-  'preview must remain explicitly opt-in');
-assert.match(preview,/window\.__lariaDiscoveryGlobePreview=true;/,
-  'preview must declare its isolated runtime state');
+assert.match(preview,/const forcedPreview=new URLSearchParams/, 'QA preview remains opt-in by URL');
+assert.match(preview,/window\.LARIA_SET_GLOBE_VIEW=chooseView;/,'the view switch must be live');
+assert.match(index,/id="globe-view-toggle"/,'accessible view buttons must be in the globe');
+assert.match(preview,/window\.__lariaDiscoveryGlobePreview=false;/,
+  'ordinary globe must remain the default');
 assert.match(preview,/'Sør-Amerika':'#[0-9A-Fa-f]{6}'/,
   'Norwegian geography labels must retain UTF-8 encoding');
 assert.doesNotMatch(preview,/SÃ¸r-Amerika/,'preview source has mojibake');
@@ -38,4 +39,8 @@ assert.doesNotMatch(renderer,/Ã[\\u0080-\\u00bf]/,
 const atlas=index.indexOf('atlas-perspective-v1.js');
 const discovery=index.indexOf('discovery-globe-phase1.js');
 assert.ok(atlas>=0&&discovery>atlas,'preview must load after the existing atlas renderer');
-console.log('PASS discovery globe static isolation contract');
+assert.match(index,/discovery-globe-view-v1\.css/,'switch styling must be loaded');
+assert.match(index,/data-globe-view="simple"/,'simple view switch missing');
+assert.match(index,/data-globe-view="discover"/,'discovery view switch missing');
+assert.match(preview,/screen\.dataset\.mapPerspective==='globe'/,'switch cannot take over the atlas map');
+console.log('PASS dual globe static isolation and controls');
