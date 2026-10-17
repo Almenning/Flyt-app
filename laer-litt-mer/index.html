@@ -2376,6 +2376,8 @@
   <!-- Home: one premium Basecamp for all grades; presentation matures by grade band -->
   <link rel="stylesheet" href="./home-premium.css?v=20261007-perf2" />
   <link rel="stylesheet" href="./home-basecamp-v12.css?v=20261016-wordhunt-stickers1" />
+  <link rel="stylesheet" href="./fortellingsdalen-preview-v1.css?v=20261016-c2readingflow2" />
+  <link rel="stylesheet" href="./norwegian-chapter-picker-v1.css?v=20261016-c2chooser1" />
   <!-- Free play -->
   <link rel="stylesheet" href="./word-hunt.css?v=20261017-premium-painted1" />
   <!-- Shared inner screens and task scene; young task styling intentionally extends the shared scene -->
@@ -3265,7 +3267,7 @@ const defaultState={
   lastMilestone:null,
   recentCountryWin:null,
   lastActivity:null,
-  journey:{nodes:{},gradeWins:{},viewGrades:{}},
+  journey:{nodes:{},gradeWins:{},viewGrades:{},chapterProgress:{}},
   collectibles:window.LARIA_COLLECTION_CORE.normalize(null),
   answerLog:[],
   sessionLog:[],
@@ -3305,7 +3307,7 @@ function loadState(){
       masteryEvidence:parsed.masteryEvidence||{},skillEvidence:parsed.skillEvidence||{},
       preferences:{...defaultState.preferences,...(parsed.preferences||{})},
       lastMilestone:parsed.lastMilestone||null,recentCountryWin:parsed.recentCountryWin||null,
-      journey:{nodes:{...(parsed.journey?.nodes||{})},gradeWins:{...(parsed.journey?.gradeWins||{})},viewGrades:{...(parsed.journey?.viewGrades||{})}},
+      journey:{nodes:{...(parsed.journey?.nodes||{})},gradeWins:{...(parsed.journey?.gradeWins||{})},viewGrades:{...(parsed.journey?.viewGrades||{})},chapterProgress:{...(parsed.journey?.chapterProgress||{})}},
       collectibles:window.LARIA_COLLECTION_CORE.normalize(parsed.collectibles),
       answerLog:Array.isArray(parsed.answerLog)?parsed.answerLog:[],
       sessionLog:Array.isArray(parsed.sessionLog)?parsed.sessionLog:[]
@@ -4723,6 +4725,26 @@ function renderSubjectModules(){
     b.onclick=()=>{activeModule=m.id;startLearningSession(activeSubject,m.id,m.title)};
     box.appendChild(b);
   });
+  // Only the explicit developer preview URL enables the unfinished chapter-two prototype.
+  // No placeholder map or unapproved illustration is shown to children.
+  document.body.querySelector(':scope > [data-laria-chapter2-preview]')?.remove();
+  if(activeSubject==='norwegian'&&currentGrade()===2&&window.LARIA_CHAPTER_EXPANSION?.previewEnabled(location.search)){
+    const preview=document.createElement('button');preview.type='button';preview.className='subject-module';
+    preview.dataset.lariaChapter2Preview='1';preview.classList.add('fd-dev-launch');
+    preview.innerHTML='<div class="module-icon">✦</div><div><strong>Mine eventyr (testversjon)</strong><small>Norsk · Velg Bokskogen eller Fortellingsdalen</small></div><div class="topic-arrow">›</div>';
+    preview.onclick=()=>window.LARIA_NORWEGIAN_CHAPTER_PICKER?.open({
+      state,
+      firstProgress:()=>journeyProgress('norwegian',2),
+      foxSrc:avatarSrc(state.profile?.avatar==='girl'?'girl':'boy'),
+      onBokskogen:()=>document.getElementById('journey-map')?.scrollIntoView({block:'start',behavior:'instant'}),
+      onFortellingsdalen:()=>window.LARIA_FORTELLINGSDALEN_PREVIEW?.open({
+        state,save:saveState,foxSrc:avatarSrc(state.profile?.avatar==='girl'?'girl':'boy')
+      })
+    });
+    // The iPad landscape map can hide ALL legacy screen descendants.
+    // Use a body portal, visible only while the approved Norwegian map is active.
+    document.body.appendChild(preview);
+  }
   const viewGrade=journeyViewGrade(activeSubject),jp=journeyProgress(activeSubject,viewGrade),chapter=journeyChapterInfo(activeSubject,viewGrade);
   document.getElementById('subject-progress-label').textContent=jp.complete?(chapter?'Eventyr 1 fullført 🏆':'Fullført 🏆'):jp.pct+' %';
   document.getElementById('subject-progress-bar').style.width=jp.pct+'%';
@@ -6905,6 +6927,12 @@ if(needsProfileSetup||!state.profile.onboarded||!state.profile.grade){
 <!-- Journey / Bokskogen -->
 <script src="./bokskogen-world.js?v=20261007-p15rc1" defer></script>
 <script src="./journey-learning-system-v1.js?v=20261016-language-system1" defer></script>
+<script src="./fortellingsdalen-stories-v1.js?v=20261016-c2pilot1" defer></script>
+<script src="./chapter-expansion-v1.js?v=20261016-c2pilot1" defer></script>
+<script src="./fortellingsdalen-art-contract-v1.js?v=20261016-c2premium3" defer></script>
+<script src="./fortellingsdalen-preview-v1.js?v=20261016-c2readingflow2" defer></script>
+<script src="./norwegian-chapter-chooser-v1.js?v=20261016-c2chooser1" defer></script>
+<script src="./norwegian-chapter-picker-v1.js?v=20261016-c2chooser1" defer></script>
 <script src="./geography-journey-learning-system-v1.js?v=20261016-nordlysleiren-system1" defer></script>
 <script src="./journey-world-premium.js?v=20261016-chapter1-completion1" defer></script>
 <script src="./locked-journey-contract.js?v=20261016-tallenga-places1" defer></script>
