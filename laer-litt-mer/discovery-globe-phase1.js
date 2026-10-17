@@ -232,8 +232,8 @@ const terrainSamples=(features,step)=>features.flatMap((feature,z)=>{
 let terrainBiomeAnchors=null;
 let terrainRidgeAnchors=null;
 const terrainTint={
-  rainforest:[33,100,67],forest:[61,117,79],desert:[223,183,115],
-  savanna:[154,156,91],tundra:[166,182,163],ice:[215,236,232]
+  rainforest:[20,88,57],forest:[49,110,76],desert:[228,177,101],
+  savanna:[166,158,85],tundra:[156,181,165],ice:[225,243,232]
 };
 function terrainHash(x,y,salt){
   let n=(Math.imul(x,374761393)+Math.imul(y,668265263)+Math.imul(salt,1442695041))|0;
@@ -294,22 +294,31 @@ function paintWorldTerrain(ctx,w,h,s,level,moving){
         const warmth=terrainNoise(lon,lat,.18,2)-.5;
         const fine=terrainNoise(lon,lat,level===1?.48:.96,7)-.5;
         const micro=terrainNoise(lon,lat,level===3?2.8:1.6,11)-.5;
-        const shade=(warmth*.42+fine*.38+micro*.20)*55;
+        // Painterly canopy/chiaroscuro: broad masses plus leaf-size facets.
+        const canopy=terrainNoise(lon,lat,level===1?1.1:level===2?3.5:7.5,29)-.5;
+        const shade=(warmth*.33+fine*.26+micro*.16+canopy*.25)*145;
         const biomeReach=bp?Math.max(0,1-biome.distance/Math.max(1.7,bp.width*.69)):0;
         const mountainReach=rp?Math.max(0,1-ridge.distance/Math.max(1,rp.width*1.35)):0;
         const mountainCut=Math.max(0,(terrainNoise(lon,lat,1.15,23)-.34)*mountainReach);
         const tint=bp?terrainTint[bp.kind]:null;
         // The base polygon's established light and colour always remain
         // visible. High relief shifts shadows, but never recolours borders.
-        const base=shade+mountainCut*46-mountainReach*20;
-        const neutral=[127+base*.47,157+base*.62,114+base*.41];
-        const alpha=clamp(.08+biomeReach*.40+mountainReach*.13,.08,.56);
-        const mixT=clamp(biomeReach*.88,0,.9);
+        const leafy=bp&&(bp.kind==='rainforest'||bp.kind==='forest');
+        const base=shade+mountainCut*85-mountainReach*28;
+        const neutral=[118+base*.64,161+base*.75,115+base*.49];
+        const alpha=clamp(.17+biomeReach*.56+mountainReach*.18,.17,.79);
+        const mixT=clamp(biomeReach*.94,0,.96);
         let red=neutral[0],green=neutral[1],blue=neutral[2];
         if(tint){
           red=red*(1-mixT)+tint[0]*mixT;
           green=green*(1-mixT)+tint[1]*mixT;
           blue=blue*(1-mixT)+tint[2]*mixT;
+          if(leafy){
+            const crown=canopy*(level===3?92:level===2?77:52)*biomeReach;
+            red+=crown*.52;
+            green+=crown*.76;
+            blue+=crown*.48;
+          }
         }
         if(mountainReach>.06){
           const light=mountainCut*48;
