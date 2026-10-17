@@ -114,17 +114,22 @@
      if(art){
        const variant=art.getAttribute('data-cv-art-variant');
        const size=variant==='candidate-v2'?[800,1000]:[960,1280];
-       const fallback=()=>{
+       const fallback=(reason)=>{
          if(art.getAttribute('data-cv-art-variant')==='fallback-v1')return;
+         // Keep the reason for WebKit/Chromium diagnostics after the SVG loads.
+         art.dataset.cvArtFailure=String(reason)+':'+art.naturalWidth+'x'+art.naturalHeight;
          art.setAttribute('data-cv-art-variant','fallback-v1');
          art.src='./geography-continent-voyage-storymap-v1.svg';
        };
-       art.addEventListener('error',fallback,{once:true});
-       art.addEventListener('load',()=>{
-         if(art.getAttribute('data-cv-art-variant')!=='fallback-v1'&&
-             (art.naturalWidth!==size[0]||art.naturalHeight!==size[1]))fallback();
-       },{once:true});
-       if(art.complete&&(art.naturalWidth!==size[0]||art.naturalHeight!==size[1]))fallback();
+       const verifyDimensions=()=>{
+         if(art.getAttribute('data-cv-art-variant')==='fallback-v1')return;
+         if(art.naturalWidth!==size[0]||art.naturalHeight!==size[1])fallback('dimensions');
+       };
+       art.addEventListener('error',()=>fallback('load-or-decode'),{once:true});
+       art.addEventListener('load',verifyDimensions,{once:true});
+       // An inserted image may report complete before it has decoded. Zero
+       // dimensions are not evidence of a malformed file: await load/error.
+       if(art.complete&&art.naturalWidth>0&&art.naturalHeight>0)verifyDimensions();
      }
    }
    ui.root.scrollTop=previousScroll;
