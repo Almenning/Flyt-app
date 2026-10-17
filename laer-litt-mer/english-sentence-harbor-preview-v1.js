@@ -10,6 +10,9 @@
  const fox=()=>'<img class="sh-fox" src="'+esc(ui.foxSrc)+'" alt="Reven din er med til Setningshavna">';
  const shell=body=>'<div class="sh-shell"><header class="sh-top"><button type="button" data-sh-act="close" class="sh-quiet">← Tilbake</button><span class="sh-tag">INTERN TEST · ENGELSK KAPITTEL 2</span></header><main class="sh-main">'+body+'</main></div>';
  function intro(){
+   // Separate opt-in art review; never replace the tested default map silently.
+   const paintedCandidate=new URLSearchParams(window.location.search).get('english-chapter2-art-v2')==='1';
+   const mapArt=paintedCandidate?'./english-sentence-harbor-art-candidate-v2.svg':'./english-sentence-harbor-storymap-v1.svg';
    const p=core.progress(ui.state),session=core.resume(ui.state);
    const positions={hilsenkaia:[27,24],ordbrygga:[75,38],
      setningsverkstedet:[28,55],samtalebaten:[74,71],historiefyret:[45,87]};
@@ -43,7 +46,7 @@
      '<p class="sh-note">Originalt illustrert havnekart. Intern kandidat, ikke premiumgodkjent eller publisert.</p>'+
      '</aside></div>'+
      '<div class="sh-story-map" role="group" aria-label="Illustrert havnekart med fem eventyrsteder">'+
-     '<img class="sh-map-art" src="./english-sentence-harbor-storymap-v1.svg" draggable="false" loading="eager" alt="">'+
+     '<img class="sh-map-art" data-sh-art-variant="'+(paintedCandidate?'candidate-v2':'default-v1')+'" src="'+mapArt+'" draggable="false" loading="eager" alt="">'+
      '<div class="sh-stops">'+stops+'</div></div>'+
      '</div></section>');
  }
