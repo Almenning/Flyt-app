@@ -14,18 +14,18 @@ function seed(){return {profile:{grade:2,avatar:'girl'},journey:{
  nodes:{'norwegian:2:lyder':{best:4},'math:2:plassverdi':{best:4},'english:2:words':{best:4},'geography:2:one':{best:4}},
  gradeWins:{'norwegian:2':{at:11},'math:2':{at:12},'english:2':{at:13},'geography:2':{at:14}},
  viewGrades:{math:2,english:2}}}}
-test('four second adventures have independent and unpublished contracts',()=>{
+test('four second adventures have independent release contracts',()=>{
  const ids=new Set(),keys=new Set();
  for(const [name,key] of engines){assert.ok(key.startsWith(name+':2:'));assert.ok(!keys.has(key));keys.add(key)}
  for(const c of [math.CHAPTER,english.CHAPTER,geography.CHAPTER]){
-  assert.equal(c.grade,2);assert.equal(c.number,2);assert.equal(c.published,false);
-  assert.equal(c.artApproved,false);assert.ok(!ids.has(c.id));ids.add(c.id);
+  assert.equal(c.grade,2);assert.equal(c.number,2);assert.equal(c.published,c===english.CHAPTER||c===geography.CHAPTER);
+  assert.equal(c.artApproved,c.published);assert.ok(!ids.has(c.id));ids.add(c.id);
  }
  assert.equal(norwegian.CHAPTERS.find(c=>c.id===norwegian.CHAPTER_ID).published,false);
  assert.equal(norwegian.STAGES.length,5);
  assert.equal(math.STAGES.length,5);assert.equal(english.STAGES.length,5);assert.equal(geography.STAGES.length,5);
 });
-test('unapproved chapter 2 preview flags are closed by default and require an explicit URL opt-in',()=>{
+test('draft chapter pilots remain gated while approved adventures are accessible',()=>{
  const flags=[
   [norwegian,'chapter2-preview'],
   [math,'math-chapter2-preview'],
@@ -33,9 +33,9 @@ test('unapproved chapter 2 preview flags are closed by default and require an ex
   [geography,'geography-chapter2-preview']
  ];
  for(const [model,flag] of flags){
-  assert.equal(model.previewEnabled('?app=laria'),false,flag+' must not appear in normal app');
-  assert.equal(model.previewEnabled(''),false,flag+' must default to hidden');
-  assert.equal(model.previewEnabled('?'+flag+'=0'),false,flag+'=0 must not enable the pilot');
+  assert.equal(model.previewEnabled('?app=laria'),model===english||model===geography,flag+' must not appear in normal app');
+  assert.equal(model.previewEnabled(''),model===english||model===geography,flag+' must default to hidden');
+  assert.equal(model.previewEnabled('?'+flag+'=0'),model===english||model===geography,flag+'=0 must not enable the pilot');
   assert.equal(model.previewEnabled('?app=laria&'+flag+'=1'),true,flag+'=1 should remain QA accessible');
  }
 });
@@ -72,11 +72,13 @@ test('a damaged draft in one chapter cannot erase saved work in three other subj
  assert.ok(norwegian.resume(s));assert.ok(english.resume(s));assert.ok(geography.resume(s));
  assert.equal(JSON.stringify(s.journey.gradeWins),old);
 });
-test('the integrated app uses all four developer gates without a public chapter launcher',()=>{
+test('the integrated app retains development gates and publishes two independent adventures',()=>{
  const html=fs.readFileSync(path.join(__dirname,'../laer-litt-mer/index.html'),'utf8');
  for(const flag of ['chapter2-preview','math-chapter2-preview','english-chapter2-preview','geography-chapter2-preview'])
   assert.ok(html.includes(flag),'missing gated pilot '+flag);
- for(const file of ['chapter-expansion-v1','math-pattern-haven-v1','english-sentence-harbor-v1','geography-continent-voyage-v1'])
+ for(const id of ['laria-english-chapter2-entry','laria-geography-chapter2-entry'])
+   assert.ok(html.includes(id),'published chapter button not found '+id);
+  for(const file of ['chapter-expansion-v1','math-pattern-haven-v1','english-sentence-harbor-v1','geography-continent-voyage-v1'])
   assert.ok(html.includes('<script src="./'+file+'.js'),'unloaded module '+file);
  assert.match(html,/word-hunt\.js\?v=20261017-[a-z0-9-]+/);
  assert.match(html,/word-hunt\.css\?v=20261017-[a-z0-9-]+/);
