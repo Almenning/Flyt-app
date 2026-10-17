@@ -101,7 +101,7 @@
        '</div>'+
        '<div class="gm-market"><div class="gm-market-sign" aria-hidden="true"><span class="gm-sign-leaf">✿</span> Fra Tallengas hage <span class="gm-sign-leaf">✿</span></div>'+
        '<div class="gm-crates" style="--gm-groups:'+state.groups+';--gm-cols:'+(state.each<=5?state.each:Math.ceil(state.each/2))+'" role="group" aria-label="'+state.groups+' kurver som kan fylles med jordbær">'+state.counts.map((n,i)=>crate(i)).join('')+'</div>'+
-       '<p class="gm-play-hint">'+(complete?'Se hva du har laget! Du kan endre kurvene eller fortsette.':'Trykk på en kurv for å legge i et jordbær')+'</p></div>'+
+       '<p class="gm-play-hint">'+(complete?'Se hva du har laget! Du kan endre kurvene eller fortsette.':state.groups>=4?'Trykk på kurvene. Sveip sidelengs for å se alle.':'Trykk på en kurv for å legge i et jordbær')+'</p></div>'+
        '</div>'+
        '<div class="gm-math"><div class="gm-math-label"><span>Dette har du laget</span><span class="gm-goal">Målet: '+state.groups+' × '+state.each+'</span></div>'+
          '<div class="gm-math-equation '+(complete?'gm-equation-win':'')+'" aria-label="'+esc(equation)+'">'+esc(equation)+'</div>'+
@@ -149,7 +149,15 @@
    if(world){world.classList.remove('gm-bloom');void world.offsetWidth;world.classList.add('gm-bloom');}
  }
  function back(){
-   if(returnToMath){try{openSubject('math');return;}catch(_){}}
+   if(returnToMath){
+     // The Maths screen already exists beneath Gangemagi. Returning to that
+     // exact screen avoids rerunning journey navigation and losing the parent.
+     const subject=document.getElementById('subject-screen');
+     if(subject?.dataset.subject==='math'){
+       try{showScreen('subject');return;}catch(_){}
+     }
+     try{openSubject('math');return;}catch(_){}
+   }
    try{if(typeof window.LARIA_RETURN_TO_BASECAMP==='function'&&window.LARIA_RETURN_TO_BASECAMP())return;}catch(_){}
    try{openSubject('math');return;}catch(_){}
    try{showScreen('subject');}catch(_){}
@@ -159,7 +167,10 @@
    // and back must retain the same parent rather than reset it.
    if(!preserveOrigin)returnToMath=!!document.querySelector('#subject-screen.active');
    const screen=document.getElementById('multiplication-lab-screen');
-   if(screen)screen.dataset.returnToMathSubject=String(returnToMath);
+   if(screen){
+     screen.dataset.returnToMathSubject=String(returnToMath);
+     screen.setAttribute('data-explore-release','explore-rc1');
+   }
    hintStep=0;notice='';foxMood='curious';lastAction='';lastGroup=-1;render();
    try{showScreen('multiplication-lab');}catch(_){}
  }
