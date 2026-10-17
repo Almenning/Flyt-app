@@ -111,6 +111,10 @@ async function existing(engine,name){
  await p.locator('#subject-screen.active').waitFor();
  await p.locator('#open-multiplication-lab').click();
  await p.locator('#multiplication-lab-screen.active').waitFor();
+ await p.locator('#multiplication-lab-screen.active [data-gm-action="classic"]').click();
+ await p.locator('#multiplication-lab-screen.active .mp-home-screen').waitFor();
+ await p.locator('.gm-classic-return').click();
+ await p.locator('#multiplication-lab-screen.active .gm-shell').waitFor();
  await p.locator('#multiplication-lab-screen.active .gm-back').click();
  await p.locator('#subject-screen.active').waitFor();
  await p.locator('#subject-back').click();
