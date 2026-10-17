@@ -109,11 +109,13 @@
          '<div class="gm-math-note">'+(result.multiplication?'Like mange i hver kurv betyr at vi kan gange.':'Når kurvene har ulikt antall, legger vi sammen.')+'</div></div>'+
        (complete?'<div class="gm-celebration" role="status"><span aria-hidden="true">✿</span><strong>'+esc(free?'Så fint du laget det!':'Oppdraget er klart!')+'</strong><span>Du fant '+goal+' jordbær.</span></div>':'')+
        '</section>'+
-       '<div class="gm-actions">'+
-         '<button type="button" class="gm-pick" data-gm-action="source" '+(complete?'disabled':'')+' aria-label="Plukk et jordbær og legg det i neste ledige kurv"><span class="gm-pick-fruit">'+berrySvg+'</span><span>'+(complete?'Alle kurver er fulle':'Plukk et jordbær')+'</span><small>Trykk eller dra</small></button>'+
-         '<button type="button" class="gm-tool" data-gm-action="hint"><span aria-hidden="true">✧</span> Hint</button>'+
+       '<div class="gm-actions '+(complete?'gm-actions-complete':'')+'">'+
+         (complete?
+           (free?'<button type="button" class="gm-next" data-gm-action="restart">Pakk kurvene på nytt <span aria-hidden="true">↻</span></button>':
+              '<button type="button" class="gm-next" data-gm-action="next">Neste oppdrag <span aria-hidden="true">➜</span></button>'):
+           '<button type="button" class="gm-pick" data-gm-action="source" aria-label="Plukk et jordbær og legg det i neste ledige kurv"><span class="gm-pick-fruit">'+berrySvg+'</span><span>Plukk et jordbær</span><small>Trykk eller dra</small></button>'+
+           '<button type="button" class="gm-tool" data-gm-action="hint"><span aria-hidden="true">✧</span> Hint</button>')+
          '<button type="button" class="gm-tool" data-gm-action="undo" '+(!undo.length?'disabled':'')+'><span aria-hidden="true">↶</span> Angre</button>'+
-         (complete&&!free?'<button type="button" class="gm-next" data-gm-action="next">Neste oppdrag <span aria-hidden="true">➜</span></button>':'')+
        '</div>'+
        (free?'<div class="gm-free-controls" aria-label="Lag ditt eget gangestykke">'+factor('groups','Antall kurver',state.groups,1,E.MAX_GROUPS)+factor('each','Jordbær i hver',state.each,1,E.MAX_EACH)+'</div>':'')+
        '<footer class="gm-footer"><span>✿ '+state.wins.length+' av '+E.MISSIONS.length+' markedsblomster samlet</span><button type="button" data-gm-action="restart">Begynn på nytt ↻</button></footer>'+
