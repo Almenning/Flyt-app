@@ -113,7 +113,11 @@
    }
  }
  function save(){try{ui?.save?.()}catch(_){/* keep preview playable */}}
- function start(stage){core.start(ui.state,stage);ui.mode='play';ui.result=null;ui.hintShown=false;save();render()}
+ function start(stage){
+   // Tapping the same painted stop must resume an unfinished activity, not erase it.
+   if(core.resume(ui.state)?.stage.id!==stage)core.start(ui.state,stage);
+   ui.mode='play';ui.result=null;ui.hintShown=false;save();render();
+ }
  function speak(){
    const s=core.resume(ui.state);if(!s||!window.speechSynthesis||!window.SpeechSynthesisUtterance)return;
    const spoken=core.spokenEnglish(s.task,s.task.kind==='sentence'?!!s.feedback?.correct:!!s.feedback);
