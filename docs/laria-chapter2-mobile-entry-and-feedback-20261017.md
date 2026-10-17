@@ -28,3 +28,12 @@ Etter et svar må barnet se responsen uten å lete etter den under skjermkanten.
 ## Siste kjente status ved opprettelse
 - De dedikerte English/Geography-testene på forrige commit `e304b9f` var grønne, sammen med de øvrige ferdige løpene; QA og smoke kjørte fortsatt.
 - Nye tester for tilbakemelding er startet på nyere commit `12901f9`. De regnes ikke som bestått før GitHub Actions bekrefter det.
+
+## Oppfølging etter faktisk CI-feil (samme arbeidsøkt)
+- På merge-commit `50289b3` fant den dedikerte Setningshavna-testen en reell mangel: responsen var synlig, men «Neste oppdagelse» falt utenfor iPhone-skjermen etter setningsbygging.
+- Begge visningene retter nå først fokus og scroll på responsen, og sørger deretter for at neste-handlingen også scrolles inn med minimal bevegelse (`block: nearest`).
+- Nye WebKit-skjermbilder av engelsk svar/tilbakemelding inngår i CI-artifaktene for å verifisere den reelle plasseringen.
+- Playwrights iPhone/iPad-kontekster er endret til `isMobile:true` med touch og enhetsnær pikselratio. Dette kontrollerer mer enn bare størrelsen til et desktopvindu.
+- Etter omleggingen er alle fire CSS/JS-referansene for disse to kapitlene versjonsoppdatert i `index.html`, slik at Safari ikke gjenbruker gamle ressurser fra tidligere implementeringer.
+- `main` med den godkjente Markedsbok og den magiske samleboken er integrert i PR-grenen via en ekte merge-commit, uten å publisere kapittel 2.
+- **Åpen testport:** alt må kontrolleres på siste SHA etter disse rettelsene. Ingen påstand om grønn test før GitHub Actions bekrefter det.
