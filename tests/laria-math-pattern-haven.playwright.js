@@ -10,7 +10,14 @@ const seed={version:7,progressSchemaVersion:3,profile:{grade:2,onboarded:true,na
 const url=process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria';
 const shots=process.env.LARIA_MATH_CHAPTER2_SCREENSHOTS;
 async function photo(page,file){if(!shots)return;fs.mkdirSync(shots,{recursive:true});await page.screenshot({path:path.join(shots,file+'.png'),animations:'disabled'})}
-async function math(page){await page.locator('.bc14-subject[data-camp="subject-math"]').waitFor({timeout:18000});await page.evaluate(()=>openSubject('math'))}
+async function math(page){
+ const tile=page.locator('.bc14-subject[data-camp="subject-math"]');
+ await tile.waitFor({timeout:18000});
+ // Navigate as a real child does. Direct openSubject() leaves the
+ // separate Basecamp overlay active and makes otherwise valid buttons hidden.
+ await tile.click();
+ await page.locator('#subject-screen.active').waitFor({timeout:15000});
+}
 async function enter(page){
  await math(page);
  await page.locator('[data-laria-math-chapter2-preview="1"]').click();
