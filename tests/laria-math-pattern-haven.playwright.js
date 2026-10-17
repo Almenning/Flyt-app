@@ -20,7 +20,24 @@ async function math(page){
 }
 async function enter(page){
  await math(page);
- await page.locator('[data-laria-math-chapter2-preview="1"]').click();
+ const button=page.locator('[data-laria-math-chapter2-preview="1"]');
+ await button.waitFor({state:'attached'});
+ const diag=await button.evaluate(el=>{
+   const nodes=[];let item=el;
+   while(item&&nodes.length<10){
+     const c=getComputedStyle(item),r=item.getBoundingClientRect();
+     nodes.push({node:item.tagName.toLowerCase(),id:item.id,className:item.className,
+       display:c.display,visibility:c.visibility,opacity:c.opacity,
+       width:r.width,height:r.height,hidden:item.hidden,inert:item.inert});
+     item=item.parentElement;
+   }
+   return {nodes,htmlClasses:document.documentElement.className,bodyClasses:document.body.className,
+     activeScreen:document.querySelector('.screen.active')?.id,
+     overlays:[...document.querySelectorAll('[role="dialog"]:not([hidden])')].map(x=>x.id)};
+ });
+ console.log('Mønsterhagen preview launcher diagnostic: '+JSON.stringify(diag));
+ assert.equal(await button.isVisible(),true,'Child-facing launcher is hidden: '+JSON.stringify(diag));
+ await button.click();
  await page.locator('#laria-math-pattern-haven-preview[role="dialog"]').waitFor();
  assert.equal(await page.locator('[data-mh-act="stage"]').count(),5);
 }
