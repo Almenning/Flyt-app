@@ -210,6 +210,20 @@ async function testView(browser,engine,label,viewport,url){
     /God start|på sporet/i,label+' fox did not react to a near-miss');
   assert.equal(await page.locator('.word-hunt-targets-count').innerText(),'0 av 4',
     label+' incomplete attempt changed the mission count');
+  if(viewport.width<=700&&viewport.height>viewport.width){
+   const animation=await page.locator('.word-hunt-fox-shortcut .word-hunt-fox').evaluate(
+     el=>getComputedStyle(el).animationName);
+   assert.match(animation,/whFoxShortcutSupport/,
+     label+' visible personal fox did not react to a near-miss');
+  }
+  // On compact iPhones, the first selected letter and voluntary help offer
+  // must be visible above the puzzle, not confined to the below-fold companion.
+  if(viewport.width<=700&&viewport.height>viewport.width){
+   await page.locator('.word-hunt-cell[data-r="'+begin[0]+'"][data-c="'+begin[1]+'"]').tap();
+   assert.match(await page.locator('.word-hunt-intro').innerText(),/Velg siste bokstav/,
+     label+' fox first-letter guidance is invisible above the board');
+   await page.locator('.word-hunt-cell[data-r="'+begin[0]+'"][data-c="'+begin[1]+'"]').tap();
+  }
   // A second tap on the same letter is invalid but must not penalize the child.
   await page.waitForTimeout(950);
   for(let i=0;i<2;i++)
@@ -243,6 +257,12 @@ async function testView(browser,engine,label,viewport,url){
        /fant |var riktig|Vi fant /i,label+' fox stayed silent when a word was found');
      assert.equal(await page.locator('.word-hunt-targets-count').innerText(),'1 av 4',
        label+' the mission progress did not update');
+     if(viewport.width<=700&&viewport.height>viewport.width){
+      const animation=await page.locator('.word-hunt-fox-shortcut .word-hunt-fox').evaluate(
+        el=>getComputedStyle(el).animationName);
+      assert.match(animation,/whFoxShortcutCelebrate/,
+        label+' visible personal fox did not celebrate the correct word');
+     }
    }
   }
   assert.match(await page.locator('.word-hunt-companion-speech').innerText(),
@@ -258,7 +278,9 @@ async function testView(browser,engine,label,viewport,url){
    statusBackground:getComputedStyle(document.querySelector('.word-hunt-status')).backgroundImage
   }));
   assert.match(completionDelight.board,/wordHuntBoardCelebrate/,label+' completion lacks board celebration');
-  assert.match(completionDelight.fox,/wordHuntFoxCelebrate/,label+' completion lacks fox reaction');
+  assert.match(completionDelight.fox,viewport.width<=700&&viewport.height>viewport.width?
+    /whFoxShortcutCelebrate/:/wordHuntFoxCelebrate/,
+    label+' completion lacks the correct selected-fox reaction for this viewport');
   assert.match(completionDelight.next,/wordHuntReadyPulse/,label+' completion lacks next-round emphasis');
   assert.match(completionDelight.statusBackground,/linear-gradient/,label+' completion status lacks resolved-state treatment');
   assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('laria-wordhunt-v1')||'{}').rounds),1,label+' no persisted completion');
@@ -275,6 +297,25 @@ async function testView(browser,engine,label,viewport,url){
   const hardDirections=await directionProfile(page);
   assert.ok(hardDirections.horizontal&&hardDirections.vertical&&hardDirections.diagonal&&hardDirections.reverse,
    label+' harder round lacks straight/diagonal/reverse variety: '+JSON.stringify(hardDirections));
+  // After four misses the fox offers voluntary help, without gifting an answer.
+  // Fresh hard round resets the earlier mobile hint state.
+  const stillMissing=(await page.locator('.word-hunt-word').first().innerText()).trim();
+  const tip=await pathFor(page,stillMissing);
+  const adjacent=[tip.start[0]+Math.sign(tip.end[0]-tip.start[0]),tip.start[1]+Math.sign(tip.end[1]-tip.start[1])];
+  for(let attempt=0;attempt<4;attempt++){
+   for(const [r,c] of [tip.start,adjacent])
+    await page.locator('.word-hunt-cell[data-r="'+r+'"][data-c="'+c+'"]').tap();
+  }
+  assert.match(await page.locator('.word-hunt-companion-speech').innerText(),/Trykk på reven når du vil/,
+    label+' fox did not offer optional help after repeated misses');
+  assert.equal(await page.locator('.word-hunt-word.found').count(),0,
+    label+' offering help awarded a word without the child finding it');
+  if(viewport.width<=700&&viewport.height>viewport.width){
+   assert.match(await page.locator('.word-hunt-intro').innerText(),/Trykk på reven når du vil/,
+     label+' fox optional help is invisible above the phone board');
+   await geometry(page,label+'-help-offer',viewport,true);
+  }
+  await shot(page,label+'-04-optional-help');
   await tapWord(page,(await page.locator('.word-hunt-word').first().innerText()).trim());
   assert.equal(await page.locator('.word-hunt-word.found').count(),1,label+' harder puzzle touch selection failed');
   await shot(page,label+'-03-harder');
