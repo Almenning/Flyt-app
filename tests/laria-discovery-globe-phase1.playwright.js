@@ -90,35 +90,33 @@ async function verifyPointerDrag(page,label,isDiscovery){
    globeLon=18;globeLat=36;globeSelected=null;setGlobeZoom(2.2);
    if(typeof globePointers!=='undefined')globePointers.clear();
    window.__lariaGlobeInteracting=false;
-   const canvas=document.getElementById('globe-canvas'),rect=canvas.getBoundingClientRect();
-   const x=rect.left+rect.width*.50,y=rect.top+rect.height*.50;
-   canvas.dataset.dragStartLon=String(globeLon);
-   const evt=(type,cx,cy)=>new PointerEvent(type,{pointerId:831,pointerType:'touch',isPrimary:true,bubbles:true,clientX:cx,clientY:cy});
-   canvas.dispatchEvent(evt('pointerdown',x,y));
-   canvas.dispatchEvent(evt('pointermove',x+52,y+12));
-   canvas.dataset.dragMovedLon=String(globeLon);
+   document.getElementById('globe-canvas').dataset.dragStartLon=String(globeLon);
  });
- await page.waitForTimeout(120);
+ const canvas=page.locator('#globe-canvas');
+ await canvas.scrollIntoViewIfNeeded();
+ const rect=await canvas.boundingBox();
+ assert.ok(rect&&rect.width>100&&rect.height>100,label+' canvas has no visible drag target');
+ const x=rect.x+rect.width*.48,y=rect.y+rect.height*.48;
+ await page.mouse.move(x,y);
+ await page.mouse.down();
+ await page.mouse.move(x+52,y+12,{steps:5});
+ await page.waitForTimeout(130);
  const during=await page.evaluate(()=>({
    moving:window.__lariaGlobeInteracting,
    pointerCount:globePointers.size,
    marked:document.getElementById('globe-canvas').dataset.discoveryMoving,
    before:Number(document.getElementById('globe-canvas').dataset.dragStartLon),
-   after:Number(document.getElementById('globe-canvas').dataset.dragMovedLon)
+   after:globeLon
  }));
- assert.ok(Math.abs(during.after-during.before)>1,label+' pointer drag did not rotate the globe');
+ assert.ok(Math.abs(during.after-during.before)>1,label+' pointer drag did not rotate the globe: '+JSON.stringify(during));
  assert.equal(during.moving,true,label+' dragging state never activated');
  assert.equal(during.pointerCount,1,label+' active pointer was lost');
  if(isDiscovery){
    assert.equal(during.marked,'true',label+' discovery detail not suppressed while dragging');
    await page.screenshot({path:path.join(out,label.replace(/[^a-z0-9-]/gi,'-')+'-moving.png'),fullPage:true,animations:'disabled'});
  }
- await page.evaluate(()=>{
-   const canvas=document.getElementById('globe-canvas'),rect=canvas.getBoundingClientRect();
-   const x=rect.left+rect.width*.50,y=rect.top+rect.height*.50;
-   canvas.dispatchEvent(new PointerEvent('pointerup',{pointerId:831,pointerType:'touch',isPrimary:true,bubbles:true,clientX:x+52,clientY:y+12}));
- });
- await page.waitForTimeout(160);
+ await page.mouse.up();
+ await page.waitForTimeout(180);
  const after=await page.evaluate(()=>({
    moving:window.__lariaGlobeInteracting,
    pointerCount:globePointers.size,
