@@ -58,6 +58,11 @@ async function check(engine,label,viewport,url){
   assert.equal((await page.locator('.gm-math-equation').innerText()).trim(),'3 × 3 = 9');
   assert.match(await page.locator('.gm-celebration').innerText(),/Oppdraget er klart/);
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).wins.length,1);
+  await page.locator('[data-gm-action="undo"]').click();
+  assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).wins.length,1,'earned blossom survives undo');
+  assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).equation.complete,false);
+  await page.locator('[data-gm-action="basket"][data-gm-basket="2"]').click();
+  assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).wins.length,1,'replaying must not duplicate blossom');
   await shot(page,label+'-02-all-baskets-full');
   await page.reload({waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>window.LARIA_GANGEMAGI?.version==='playable-v1');
