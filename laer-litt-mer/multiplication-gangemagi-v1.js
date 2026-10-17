@@ -75,7 +75,7 @@
    const active=state.mode==='mission'?'Oppdrag':'Fri lek';
    root.innerHTML='<main class="gm-shell" data-gm-mode="'+modeClass+'" data-gm-complete="'+complete+'">'+
       '<div class="gm-layout"><header class="gm-top">'+
-      '<button type="button" class="gm-back" data-gm-action="back" aria-label="Tilbake til matte">‹</button>'+
+      '<button type="button" class="gm-back" id="multiplication-lab-back" data-gm-action="back" aria-label="Tilbake til matte">‹</button>'+
       '<div class="gm-brand"><span class="gm-brand-mark">Læ<span>ria</span> ✦</span><small>TALLENGA / GANGEMAGI</small></div>'+
       '<button type="button" class="gm-classic" data-gm-action="classic" aria-label="Åpne gangetabell og øving">10 × 10 <span aria-hidden="true">↗</span></button>'+
       '</header>'+
