@@ -17,9 +17,12 @@ assert.match(preview,/if\(!new URLSearchParams\(location\.search\)\.has\('discov
   'preview must remain explicitly opt-in');
 assert.match(preview,/window\.__lariaDiscoveryGlobePreview=true;/,
   'preview must declare its isolated runtime state');
-assert.match(preview,/'Sør-Amerika':'#4FA572'/,
+assert.match(preview,/'Sør-Amerika':'#[0-9A-Fa-f]{6}'/,
   'Norwegian geography labels must retain UTF-8 encoding');
 assert.doesNotMatch(preview,/SÃ¸r-Amerika/,'preview source has mojibake');
+assert.match(preview,/function paintReliefTrails\(/, 'geographic terrain trails must remain active');
+assert.match(preview,/landClip\(ctx,w,h\)/, 'land-only illustration clipping must remain active');
+assert.match(preview,/if\(!activated\|\|window\.drawGlobe!==discoveryDraw\)/, 'idle preview must not repaint on every interval tick');
 for(const place of ['8,61','138,36','-61,-3'])assert.ok(preview.includes(place),'missing anchored demonstration area '+place);
 const guard=renderer.indexOf('window.__lariaDiscoveryGlobePreview===true');
 const canvas=renderer.indexOf("const canvas=document.getElementById('globe-canvas')",guard);
