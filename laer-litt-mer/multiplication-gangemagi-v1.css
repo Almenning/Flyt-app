@@ -23,7 +23,7 @@
 .gm-heading h1{font-size:clamp(34px,5.3vw,50px);margin:3px 0 0;font-weight:1000;letter-spacing:-.07em;color:#55362a;line-height:1.02}
 .gm-heading p{font-size:clamp(12px,1.6vw,15px);font-weight:750;color:#795c4b;margin:5px 0 0}
 .gm-modes{display:flex;align-self:end;gap:3px;background:#e7d8b9;padding:4px;border:2px solid #fff9e8;border-radius:19px;box-shadow:0 5px 0 #b99c7940;white-space:nowrap}
-.gm-modes button{min-height:43px;border:0;background:transparent;border-radius:14px;padding:8px 16px;font-size:13px;font-weight:950;color:#725748}
+.gm-modes button{min-height:44px;border:0;background:transparent;border-radius:14px;padding:8px 16px;font-size:13px;font-weight:950;color:#725748}
 .gm-modes button.selected{background:linear-gradient(180deg,#fff9e9,#f6dba6);color:#593c2f;box-shadow:0 3px 6px #aa865d57,inset 0 1px 0 #fff}
 .gm-world{position:relative;isolation:isolate;min-height:420px;background:#abc8aa url('./gangemagi-tallenga-market-v1.svg') center 54%/cover no-repeat;overflow:hidden;
  border:5px solid #fff5dc;border-radius:30px;box-shadow:0 8px 0 #cda97b99,0 23px 49px #67584324,inset 0 0 0 2px #f4e4c4}
@@ -115,7 +115,7 @@
 .gm-free-adjust button{min-width:44px;height:44px;border:0;border-radius:13px;background:#7ea78d;color:#fff;font-size:28px;font-weight:900;box-shadow:0 3px 0 #4f755c}
 .gm-free-adjust button:disabled{opacity:.34}
 .gm-footer{display:flex;gap:12px;justify-content:space-between;align-items:center;margin:14px 3px 0;color:#82634b;font-size:12px;font-weight:850}
-.gm-footer button{border:0;background:transparent;padding:9px;color:#7c573d;font-size:12px;font-weight:950;text-decoration:underline}
+.gm-footer button{min-height:44px;border:0;background:transparent;padding:9px;color:#7c573d;font-size:12px;font-weight:950;text-decoration:underline}
 .gm-classic-return{display:block;margin:12px auto;padding:10px 17px;min-height:44px;border:2px solid white;border-radius:18px;
  background:#fff3d7;color:#714b37;font-size:15px;font-weight:900;box-shadow:0 4px 0 #bba07b}
 .gm-drag-fruit{position:fixed;z-index:99999;left:0;top:0;width:60px;height:70px;pointer-events:none;transform:translate(-50%,-50%) rotate(-10deg);filter:drop-shadow(0 8px 8px #4e463453)}
@@ -139,7 +139,7 @@
  .gm-heading h1{font-size:clamp(30px,8vw,38px)}
  .gm-heading p{font-size:12px}
  .gm-modes{flex-direction:column;gap:2px;align-self:center;padding:3px;border-radius:15px}
- .gm-modes button{min-height:33px;padding:5px 10px;border-radius:11px;font-size:11px}
+ .gm-modes button{min-height:44px;padding:5px 10px;border-radius:11px;font-size:11px}
  .gm-world{border-radius:24px;border-width:4px;background-position:center 57%}
  .gm-story{margin:10px 9px 0;padding:9px 11px;min-height:66px;border-radius:15px}
  .gm-story h2{font-size:17px}
