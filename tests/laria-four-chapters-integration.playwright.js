@@ -142,6 +142,7 @@ async function run(type,label,viewport){
 (async()=>{
  await run(chromium,'chromium-desktop',{width:1280,height:840});
  await run(webkit,'webkit-iphone',{width:390,height:844});
+ await run(webkit,'webkit-compact-iphone',{width:320,height:640});
  await run(webkit,'webkit-ipad-landscape',{width:1180,height:820});
  console.log('PASS cross-chapter persistence, interactive stages and legacy progress');
 })().catch(e=>{console.error(e);process.exitCode=1});
