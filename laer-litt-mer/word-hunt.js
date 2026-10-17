@@ -517,7 +517,7 @@ function checkLine(path){
     const near=!repeated&&ui.words.some(w=>!ui.found.has(w)&&
       [raw,rev].some(candidate=>candidate.length>=2&&w.startsWith(candidate.slice(0,2))));
     ui.missCount++;
-    if(ui.missCount>=3&&!ui.helpOffered){
+    if(ui.missCount>=4&&!ui.helpOffered){
       ui.helpOffered=true;
       companionSay('Skal vi prøve et hint sammen? Trykk på reven når du vil!','curious','offer');
     }else foxReact(repeated?'repeated':near?'near':'wrong');
