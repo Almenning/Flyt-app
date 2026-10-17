@@ -210,10 +210,18 @@ async function verify(type,label,viewport){
      await page.route('**/geography-continent-voyage-art-candidate-v2.svg',route=>route.abort('failed'));
      await page.goto(base+'&geography-chapter2-preview=1&geography-chapter2-art-v2=1',{waitUntil:'domcontentloaded'});
      await enter(page);
-     await page.waitForFunction(()=>{
-       const img=document.querySelector('.cv-map-art');
-       return !!img&&img.getAttribute('data-cv-art-variant')==='fallback-v1'&&img.complete&&img.naturalWidth===800;
-     },null,{timeout:20000});
+     try{
+       await page.waitForFunction(()=>{
+         const img=document.querySelector('.cv-map-art');
+         return !!img&&img.getAttribute('data-cv-art-variant')==='fallback-v1'&&img.complete&&img.naturalWidth===800;
+       },null,{timeout:20000});
+     }catch(error){
+       const debug=await page.evaluate(()=>{
+         const img=document.querySelector('.cv-map-art');
+         return {url:location.href,src:img?.currentSrc,variant:img?.getAttribute('data-cv-art-variant'),complete:img?.complete,width:img?.naturalWidth,height:img?.naturalHeight,images:document.images.length};
+       });
+       throw new Error('Geography art network-failure fallback did not resolve: '+JSON.stringify(debug),{cause:error});
+     }
      assert.equal(await page.locator('.cv-story-map [data-cv-act="stage"]').count(),5,
        label+' fallback must retain all five independently playable places');
      await photo(page,label+'-art-v2-fallback');
