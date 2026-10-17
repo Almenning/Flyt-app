@@ -51,6 +51,32 @@ async function verify(type,label,viewport){
    await enter(page);
    const layout=await page.locator('#laria-geo-continent-voyage-preview').evaluate(el=>({width:el.clientWidth,scrollWidth:el.scrollWidth}));
    assert.ok(layout.scrollWidth<=layout.width+2,label+' horizon overflow');
+   const map=page.locator('.cv-story-map');
+   await map.waitFor({state:'visible'});
+   const geometry=await map.evaluate(el=>{
+     const r=el.getBoundingClientRect(),img=el.querySelector('.cv-map-art');
+     return {width:r.width,height:r.height,loaded:img.complete&&img.naturalWidth>0,
+       file:img.getAttribute('src'),
+       buttons:[...el.querySelectorAll('button[data-cv-act="stage"]')].map(btn=>{
+         const b=btn.getBoundingClientRect();return {x:b.x-r.x,y:b.y-r.y,w:b.width,h:b.height};
+       })};
+   });
+   assert.equal(geometry.file,'./geography-continent-voyage-storymap-v1.svg');
+   assert.equal(geometry.loaded,true,label+' fantasy voyage illustration did not load');
+   assert.equal(geometry.buttons.length,5);
+   assert.ok(geometry.height>geometry.width,label+' art must remain portrait');
+   for(const b of geometry.buttons){
+     assert.ok(b.w>=44&&b.h>=44,label+' geography stop is too small');
+     assert.ok(b.x>=-2&&b.y>=-2&&b.x+b.w<=geometry.width+2&&b.y+b.h<=geometry.height+2,
+       label+' geography stop clipped off map');
+   }
+   for(let i=0;i<geometry.buttons.length;i++)for(let j=i+1;j<geometry.buttons.length;j++){
+     const a=geometry.buttons[i],b=geometry.buttons[j];
+     assert.ok(a.x+a.w<=b.x+1||b.x+b.w<=a.x+1||a.y+a.h<=b.y+1||b.y+b.h<=a.y+1,
+       label+' geography stops overlap');
+   }
+   assert.match(await page.locator('.cv-note').innerText(),/ikke et verdenskart/,
+     'The fantasy art must not pretend to be an accurate world map');
    await photo(page,label+'-five-stops');
    await page.locator('[data-cv-act="stage"][data-cv-stage="kompassholmen"]').click();
    assert.equal(await page.locator('.cv-direction').count(),4,'compass must be tactile, not a quiz card');
