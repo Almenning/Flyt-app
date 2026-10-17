@@ -136,7 +136,7 @@ async function verify(type,label,viewport){
    // Tapping the same island again must keep the unfinished compass step.
    await page.locator('[data-cv-act="stage"][data-cv-stage="kompassholmen"]').click();
    assert.equal((await page.evaluate(()=>window.LARIA_GEO_CONTINENT_VOYAGE.resume(state)))?.step,1,
-     label+' reopening the compass stop erased the child's progress');
+     label+' reopening the compass stop erased the saved progress');
    await page.locator('[data-cv-act="intro"]').click();
    await page.locator('[data-cv-act="close"]').click();
    await page.reload({waitUntil:'domcontentloaded'});
