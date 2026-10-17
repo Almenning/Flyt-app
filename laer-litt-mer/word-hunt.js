@@ -199,6 +199,16 @@ function companionSay(message,mood='greet',kind='idle'){
   bubble.classList.remove('is-speaking');
   void bubble.offsetWidth;
   bubble.classList.add('is-speaking');
+  // Animate the same saved fox in the phone header too: the large companion
+  // sits below the puzzle on small screens, where the child cannot see it.
+  const shortcut=root.querySelector('.word-hunt-fox-shortcut');
+  if(shortcut){
+    shortcut.dataset.foxReaction=kind;
+    const tinyFox=shortcut.querySelector('.word-hunt-fox');
+    tinyFox.classList.remove('is-reacting');
+    void tinyFox.offsetWidth;
+    tinyFox.classList.add('is-reacting');
+  }
   // The full-size personal fox stays below the puzzle on compact phones.
   // Mirror reactions in the existing thin, first-fold strip, not a new card.
   const intro=root.querySelector('.word-hunt-intro');
