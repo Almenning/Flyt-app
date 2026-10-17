@@ -11,6 +11,7 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://raw.githubusercontent.com https://api.worldbank.org; img-src 'self' data:; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'" />
   <link rel="manifest" href="./manifest.webmanifest" />
   <link rel="icon" href="./icon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="./english-sentence-harbor-preview-v1.css?v=20261017-en2a" />
   <link rel="preload" as="image" href="./basecamp-v11-mobile.webp?v=basecamp12d" media="(max-width:700px)" fetchpriority="high" />
   <link rel="preload" as="image" href="./basecamp-v11.webp?v=basecamp12d" media="(min-width:701px)" fetchpriority="high" />
   <link rel="preload" as="script" href="./home-basecamp-v12.js?v=20261014-phase4d-fox-only1" />
@@ -4714,6 +4715,19 @@ function openSubject(subject){
   document.getElementById('subject-grade-label').textContent=GRADE_CONFIG[currentGrade()].label;
   const labEntry=document.getElementById('math-lab-entry');if(labEntry)labEntry.hidden=subject!=='math';
   renderSubjectModules();renderSubjectJourney();renderSubjectContinue();showScreen('subject');
+  // English adventure two is a private preview. Approved Ordlandsbyen
+  // hides the old module list, so this button belongs to the subject screen.
+  screen.querySelector(':scope > [data-laria-english-chapter2-preview]')?.remove();
+  if(subject==='english'&&currentGrade()===2&&window.LARIA_ENGLISH_SENTENCE_HARBOR?.previewEnabled(location.search)){
+    const preview=document.createElement('button');
+    preview.type='button';preview.className='sh-dev-launch';
+    preview.dataset.lariaEnglishChapter2Preview='1';
+    preview.textContent='⚓ Setningshavna · test';
+    preview.onclick=()=>window.LARIA_ENGLISH_SENTENCE_HARBOR_UI?.open({
+      state,save:saveState,foxSrc:avatarSrc(state.profile?.avatar==='girl'?'girl':'boy')
+    });
+    screen.appendChild(preview);
+  }
 }
 function renderSubjectModules(){
   const box=document.getElementById('subject-modules');box.innerHTML='';
@@ -6906,6 +6920,8 @@ if(needsProfileSetup||!state.profile.onboarded||!state.profile.grade){
 <script src="./bokskogen-world.js?v=20261007-p15rc1" defer></script>
 <script src="./journey-learning-system-v1.js?v=20261016-language-system1" defer></script>
 <script src="./geography-journey-learning-system-v1.js?v=20261016-nordlysleiren-system1" defer></script>
+<script src="./english-sentence-harbor-v1.js?v=20261017-en2a" defer></script>
+<script src="./english-sentence-harbor-preview-v1.js?v=20261017-en2a" defer></script>
 <script src="./journey-world-premium.js?v=20261016-chapter1-completion1" defer></script>
 <script src="./locked-journey-contract.js?v=20261016-tallenga-places1" defer></script>
 <script src="./locked-journey-renderer.js?v=20261016-chapter1-completion1" defer></script>

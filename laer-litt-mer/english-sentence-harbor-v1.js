@@ -54,7 +54,7 @@
      choose('ask-thanks','En venn gir deg en gave. Hva sier du?','Thank you!',['Thank you!','Go away!','What is my name?'],'Thank you!','Thank you betyr takk.')
    ]),
    historiefyret:Object.freeze([
-     story('story-fox','The fox sees a little boat. The boat is red.','Hvilken farge er båten?',['Rød','Blå','Gul'],'Rød','Red betyr rød.'),
+     story('story-fox','The fox sees a little boat. The boat is red.','Hvilken farge er båten?',['Rød','Blå','Gul'],'Rød','Red betyr rød, og fargen hjelper deg å forstå historien.'),
      story('story-rain','Emma has a yellow coat. It is raining. She goes outside.','Hva slags vær er det?',['Det regner','Det snør','Det er sol'],'Det regner','It is raining betyr det regner.'),
      story('story-shop','Sam buys two apples. He gives one apple to Mia.','Hva gir Sam til Mia?',['Et eple','En bok','En ball'],'Et eple','Apple er eple. One betyr én.'),
      story('story-friend','Lily is happy. Her friend Ben is here. They play in the garden.','Hvor leker Lily og Ben?',['I hagen','På kjøkkenet','På skolen'],'I hagen','Garden betyr hage.')
