@@ -29,7 +29,7 @@
 .gm-modes{display:flex;align-self:end;gap:3px;background:#e7d8b9;padding:4px;border:2px solid #fff9e8;border-radius:19px;box-shadow:0 5px 0 #b99c7940;white-space:nowrap}
 .gm-modes button{min-height:44px;border:0;background:transparent;border-radius:14px;padding:8px 16px;font-size:13px;font-weight:950;color:#725748}
 .gm-modes button.selected{background:linear-gradient(180deg,#fff9e9,#f6dba6);color:#593c2f;box-shadow:0 3px 6px #aa865d57,inset 0 1px 0 #fff}
-.gm-world{position:relative;isolation:isolate;min-height:420px;background:#abc8aa url('./gangemagi-tallenga-market-v1.svg') center 54%/cover no-repeat;overflow:hidden;
+.gm-world{position:relative;isolation:isolate;min-height:420px;background:linear-gradient(180deg,rgba(255,248,228,.26),rgba(244,227,192,.10) 48%,rgba(239,225,198,.30)),url('./matte-verden.png') center 59%/cover no-repeat;overflow:hidden;
  border:5px solid #fff5dc;border-radius:30px;box-shadow:0 8px 0 #cda97b99,0 23px 49px #67584324,inset 0 0 0 2px #f4e4c4}
 .gm-world:before{content:"";position:absolute;z-index:-1;inset:0;background:linear-gradient(180deg,#fff8e84a 0,#f8e7c000 32%,#f5e5c62b 63%,#f6edd2bc 100%);pointer-events:none}
 .gm-world:after{content:"";position:absolute;inset:8px;z-index:-1;border:1px solid #fffae573;border-radius:24px;pointer-events:none}
@@ -95,8 +95,9 @@
 .gm-progress-track{grid-column:1;height:9px;min-width:0;overflow:hidden;border-radius:15px;background:#ddc8a4;box-shadow:inset 0 2px 4px #9d815b40}
 .gm-progress-track span{display:block;height:100%;border-radius:15px;min-width:0;background:linear-gradient(90deg,#7cb58a,#438875);transition:width .27s cubic-bezier(.12,.73,.23,1)}
 .gm-math-note{grid-column:2;text-align:right;font-size:10px;font-weight:830;color:#6b5340}
-.gm-celebration{position:absolute;z-index:4;right:25px;top:101px;display:flex;align-items:center;gap:8px;max-width:min(73%,420px);padding:8px 13px;border-radius:15px;
- background:#fff7d8f3;border:3px solid #d1a65c;box-shadow:0 7px 14px #574a3451;color:#56775d;transform:rotate(1deg);font-weight:950;font-size:12px}
+.gm-celebration{position:relative;z-index:2;display:flex;align-items:center;justify-content:center;gap:9px;width:fit-content;max-width:calc(100% - 26px);margin:0 auto 12px;padding:7px 16px;border-radius:16px;
+ background:linear-gradient(110deg,#fff9e5f7,#f6eccdf8);border:2px solid #fff7df;box-shadow:0 4px 0 #c7a4779e,0 9px 17px #574a3436;color:#52705b;font-weight:950;font-size:13px;text-align:center}
+.gm-celebration span:first-child{font-size:24px;color:#b46a52}
 .gm-celebration span:first-child{font-size:25px;color:#b46a52}
 .gm-actions{display:flex;gap:10px;align-items:stretch;flex-wrap:wrap;justify-content:center;margin:15px 0 0}
 .gm-pick{flex:1 1 260px;max-width:395px;min-height:65px;border:3px solid #ffefd2;border-bottom:7px solid #966545;
@@ -110,6 +111,9 @@
  background:linear-gradient(180deg,#fff8e7,#eddfbd);color:#654933;padding:8px 17px;font-size:14px;font-weight:950;white-space:nowrap}
 .gm-tool>span{font-size:20px;vertical-align:-1px;color:#976b47;margin-right:2px}
 .gm-next{background:linear-gradient(#8fb78b,#5a936e);color:#fff;flex:1 1 160px;border-bottom-color:#3c7553}
+.gm-actions-complete{display:grid;grid-template-columns:minmax(0,1fr) minmax(110px,.32fr);max-width:620px;margin:13px auto 0}
+.gm-actions-complete .gm-next{font-size:17px;min-height:66px;white-space:normal}
+.gm-actions-complete .gm-tool{min-height:66px}
 .gm-free-controls{display:flex;justify-content:center;flex-wrap:wrap;gap:11px;margin:14px auto 2px}
 .gm-free-adjust{display:flex;align-items:center;justify-content:space-between;gap:15px;min-width:220px;min-height:63px;border:2px solid #fff8e8;border-radius:17px;
  background:#fff3dce9;padding:7px 9px 7px 14px;box-shadow:0 4px 0 #baa07e54}
@@ -196,7 +200,10 @@
  .gm-free-adjust>div{gap:4px}
  .gm-free-adjust strong{font-size:19px}
  .gm-free-controls{gap:8px}
- .gm-celebration{top:83px;right:10px;max-width:70%;font-size:11px}
+ .gm-celebration{max-width:calc(100% - 18px);margin-bottom:9px;padding:5px 9px;font-size:11px;gap:5px}
+ .gm-actions-complete{grid-template-columns:minmax(0,1fr) minmax(94px,.35fr);gap:8px}
+ .gm-actions-complete .gm-next{font-size:15px;min-height:58px}
+ .gm-actions-complete .gm-tool{min-height:58px}
 }
 @media(max-width:400px){
  .gm-classic{font-size:11px;padding:7px 9px}
@@ -211,6 +218,10 @@
  .gm-math{grid-template-columns:minmax(80px,.76fr) minmax(152px,1.24fr)}
  .gm-next{font-size:10px}
  .gm-footer{font-size:10px}
+ .gm-crates[style*="--gm-groups:3"] .gm-fruit{width:clamp(22px,6.2vw,29px);height:clamp(26px,7vw,33px)}
+ .gm-crates[style*="--gm-groups:3"] .gm-fruit-empty{width:clamp(18px,5.6vw,24px);height:clamp(22px,6.2vw,29px)}
+ .gm-crates[style*="--gm-groups:4"] .gm-fruit,.gm-crates[style*="--gm-groups:5"] .gm-fruit{width:21px;height:25px}
+ .gm-crates[style*="--gm-groups:4"] .gm-fruit-empty,.gm-crates[style*="--gm-groups:5"] .gm-fruit-empty{width:19px;height:23px}
 }
 @media(max-height:700px){
  .gm-layout{padding-top:5px}
@@ -239,6 +250,8 @@
  .gm-actions{margin-top:10px}
  .gm-pick,.gm-tool,.gm-next{min-height:52px}
  .gm-footer{margin-top:8px}
+ .gm-celebration{padding:4px 9px;margin-bottom:6px;font-size:10px}
+ .gm-actions-complete .gm-next,.gm-actions-complete .gm-tool{min-height:48px}
 }
 @media(min-width:700px) and (max-height:690px){
  .gm-layout{padding:8px 20px 16px}
