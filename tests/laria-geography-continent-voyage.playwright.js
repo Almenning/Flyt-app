@@ -24,12 +24,12 @@ async function geography(page){
 }
 async function enter(page){
  await geography(page);
- const button=page.locator('#laria-geography-chapter2-entry');
- await button.waitFor({state:'attached'});
+ const button=page.locator('[data-laria-geography-chapter2-preview="1"]');
+ await button.waitFor({state:'visible'});
  const geographyEntryBox=await button.boundingBox();
  assert.ok(geographyEntryBox&&geographyEntryBox.width>=200&&geographyEntryBox.height>=44,
    'published Geography chapter must be visible and touchable below the original map: '+JSON.stringify(geographyEntryBox));
- assert.equal(await button.isVisible(),true,'published Geography chapter entry hidden on real map page: '+JSON.stringify(await page.evaluate(()=>{const b=document.querySelector('#laria-geography-chapter2-entry');return {grade:state?.profile?.grade,chapter:window.LARIA_GEO_CONTINENT_VOYAGE?.CHAPTER,hidden:b?.hidden,display:b&&getComputedStyle(b).display,rect:b?.getBoundingClientRect().toJSON(),parentDisplay:b?.parentElement&&getComputedStyle(b.parentElement).display};})));
+ assert.equal(await button.isVisible(),true,'preview-only Geography chapter entry hidden on preview URL: '+JSON.stringify(await page.evaluate(()=>{const b=document.querySelector('#laria-geography-chapter2-entry');return {grade:state?.profile?.grade,chapter:window.LARIA_GEO_CONTINENT_VOYAGE?.CHAPTER,hidden:b?.hidden,display:b&&getComputedStyle(b).display,rect:b?.getBoundingClientRect().toJSON(),parentDisplay:b?.parentElement&&getComputedStyle(b.parentElement).display};})));
  await button.click();
  await page.locator('#laria-geo-continent-voyage-preview[role="dialog"]').waitFor();
  assert.equal(await page.locator('[data-cv-act="stage"]').count(),5);
@@ -70,7 +70,7 @@ async function verify(type,label,viewport){
    await geography(page);
    assert.equal(await page.locator('[data-laria-geography-chapter2-preview]').count(),0,
      label+' developer-only chapter launcher visible');
-   await page.goto(base,{waitUntil:'domcontentloaded'});
+   await page.goto(base+'&geography-chapter2-preview=1',{waitUntil:'domcontentloaded'});
    await enter(page);
    const returnButton=await page.locator('.cv-top [data-cv-act="close"]').evaluate(el=>{
      const box=el.getBoundingClientRect();
