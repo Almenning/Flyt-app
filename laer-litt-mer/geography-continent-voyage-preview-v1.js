@@ -84,7 +84,7 @@
      '<div class="cv-count">OPPDAGELSE '+(s.step+1)+' AV 4<div class="cv-bar"><span style="width:'+((s.step+(feedback?1:0))*25)+'%"></span></div></div>'+
      '<div class="cv-paper"><span class="cv-eyebrow">'+(s.task.kind==='compass'?'STYR MED KOMPASS':s.task.kind==='stamp'?'FÅ ET REISESTEMPEL':'FINN ET STED I VERDEN')+'</span>'+
      '<h1 class="cv-heading" tabindex="-1">'+esc(s.task.prompt)+'</h1>'+controls(s.task,feedback)+
-     (feedback?'<div class="cv-feedback" role="status"><strong>'+(feedback.correct?'✦ Du fant riktig vei!':'Bra at du prøver!')+
+     (feedback?'<div class="cv-feedback" role="status" tabindex="-1"><strong>'+(feedback.correct?'✦ Du fant riktig vei!':'Bra at du prøver!')+
        '</strong><p>'+esc(feedback.hint)+'</p></div>'+
        '<button type="button" data-cv-act="next" class="cv-primary">'+
        (s.step===3?'Se reisen din →':'Neste oppdagelse →')+'</button>':'')+
@@ -99,11 +99,17 @@
      '<button type="button" data-cv-act="intro" class="cv-primary">Til alle stedene →</button>'+
      '<button type="button" data-cv-act="replay" data-cv-stage="'+esc(s.placeId)+'" class="cv-quiet">Spill dette stedet igjen</button></section>');
  }
- function render(focus='.cv-heading',preserveScroll=false){
-   const previousScroll=preserveScroll?ui.root.scrollTop:0;
+ function render(focus='.cv-heading',preserveScroll=false,revealFeedback=false){
    if(!ui)return;
+   const previousScroll=preserveScroll?ui.root.scrollTop:0;
    ui.root.innerHTML=ui.mode==='challenge'?challenge():ui.mode==='summary'?summary():overview();
-   ui.root.scrollTop=previousScroll;ui.root.querySelector(focus)?.focus({preventScroll:true});
+   ui.root.scrollTop=previousScroll;
+   const target=ui.root.querySelector(focus);
+   if(target){
+     target.focus({preventScroll:true});
+     // Reveal the child's feedback on small screens without extra searching.
+     if(revealFeedback)target.scrollIntoView({behavior:'auto',block:'center',inline:'nearest'});
+   }
  }
  function save(){try{ui?.save?.()}catch(_){/* keep draft playable in memory */}}
  function play(id){core.start(ui.state,id);ui.mode='challenge';ui.result=null;ui.hintShown=false;save();render()}
@@ -138,7 +144,7 @@
    if(cmd==='resume'){ui.mode='challenge';ui.result=null;render();return}
    if(cmd==='read'){read();return}
    if(cmd==='hint'){ui.hintShown=!ui.hintShown;render('[data-cv-act="hint"]',true);return}
-   if(cmd==='answer'){core.answer(ui.state,b.dataset.cvAnswer);save();render('.cv-feedback',true);return}
+   if(cmd==='answer'){core.answer(ui.state,b.dataset.cvAnswer);save();render('.cv-feedback',true,true);return}
    if(cmd==='next'){
      const result=core.advance(ui.state);ui.hintShown=false;save();
      if(result.finished){ui.result=result;ui.mode='summary'}else ui.mode='challenge';
