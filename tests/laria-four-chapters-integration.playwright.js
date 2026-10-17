@@ -56,6 +56,10 @@ async function run(type,label,viewport){
   await mhHint.click();
   assert.equal(await page.locator('.mh-fox-hint').count(),1);
   assert.match(await page.locator('#mh-fox-message').innerText(),/samme rad/);
+  await shot(page,label+'-math-fox-hint');
+  const expectedFox=await page.evaluate(()=>avatarSrc('girl'));
+  const mathFox=await page.locator('.mh-companion .mh-fox').getAttribute('src');
+  assert.equal(mathFox,expectedFox,label+' Math lost the selected personal fox');
   await page.locator('[data-mh-act="hint"]').click();
   assert.equal(await page.locator('[data-mh-act="hint"]').getAttribute('aria-expanded'),'false');
   const beforeMathScroll=await page.locator('#laria-math-pattern-haven-preview').evaluate(el=>{
@@ -75,6 +79,9 @@ async function run(type,label,viewport){
   await page.locator('[data-sh-act="hint"]').click();
   assert.match(await page.locator('#sh-fox-message').innerText(),/først/);
   assert.equal(await page.locator('.sh-fox-hint').count(),1);
+  await shot(page,label+'-english-fox-hint');
+  const englishFox=await page.locator('.sh-companion .sh-fox').getAttribute('src');
+  assert.equal(englishFox,expectedFox,label+' English changed the selected fox');
   const beforeEnglishScroll=await page.locator('#laria-english-sentence-harbor-preview').evaluate(el=>{
     el.scrollTop=Math.min(50,Math.max(0,el.scrollHeight-el.clientHeight));return el.scrollTop;
   });
@@ -91,6 +98,9 @@ async function run(type,label,viewport){
   await page.locator('[data-cv-act="hint"]').click();
   assert.equal(await page.locator('.cv-fox-hint').count(),1);
   assert.match(await page.locator('#cv-fox-message').innerText(),/nord/);
+  await shot(page,label+'-geography-fox-hint');
+  const geographyFox=await page.locator('.cv-companion .cv-fox').getAttribute('src');
+  assert.equal(geographyFox,expectedFox,label+' Geography changed the selected fox');
   const answer=await page.evaluate(()=>window.LARIA_GEO_CONTINENT_VOYAGE.resume(state).task.answer);
   await page.locator('[data-cv-act="answer"][data-cv-answer="'+answer+'"]').click();
   assert.equal(await page.locator('.cv-fox-celebrate').count(),1,'correct compass answer should make the fox cheer');
