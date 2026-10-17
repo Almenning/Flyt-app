@@ -69,9 +69,15 @@ async function run(engine,label,viewport){
    }
    await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]:visible').waitFor({timeout:12000});
   }
+  // Home's dormant activity sign also carries the name used by screen readers.
+  assert.equal((await page.locator('.bc12-place[data-camp="multiply"] .bc12-sign').textContent()).trim(),'Gangemagi',label+' stale Home activity name');
+  assert.match(await page.locator('.bc12-place[data-camp="multiply"]').getAttribute('aria-label'),/^Gangemagi/,label+' stale Home aria-label');
   await page.locator('.bc14-free').click();
   await page.locator('.bc13-panel:not([hidden]) [data-bc13-action="globe"]').waitFor({timeout:12000});
   assert.equal(await page.locator('.bc13-card:visible').count(),4,label+' free play must keep four destinations');
+  const gangemagiEntry=page.locator('.bc13-card[data-bc13-action="multiply"]');
+  assert.equal((await gangemagiEntry.locator('.bc13-card-copy strong').textContent()).trim(),'Gangemagi',label+' Explore card still says Gangetabell');
+  assert.match(await gangemagiEntry.getAttribute('aria-label'),/^Gangemagi/,label+' stale Explore accessible name');
   assert.equal(await page.locator('.bc14-subject:visible').count(),0,label+' subject cards should disappear behind Explore');
   await page.locator('.bc13-close').click();
   assert.equal(await page.locator('.bc14-subject:visible').count(),4,label+' Home should restore subject gateways');
