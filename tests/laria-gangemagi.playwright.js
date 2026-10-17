@@ -106,6 +106,13 @@ async function check(engine,label,viewport,url){
   assert.equal(await page.locator('.gm-book-open[role="dialog"][aria-modal="true"]').count(),1,'open journal is a real immersive view');
   assert.equal(await page.locator('.gm-book-fox-art [data-avatar="girl"]').count(),1,'journal keeps the chosen fox');
   assert.equal(await page.locator('.gm-book-open .gm-book-pages').count(),1,'mission pages appear in the book');
+   assert.equal(await page.locator('.gm-book-back').count(),1,'only one visible return control');
+   assert.equal(await page.locator('.gm-book-open .gm-book-toggle').count(),0,'do not show a duplicate close control');
+   assert.equal(await page.locator('.gm-book-fox-line').count(),1,'personal fox gives context');
+   assert.equal(await page.locator('.gm-book-trophy').count(),1,'visible flower collection');
+   const approvedImage=await page.request.get(new URL('gangemagi-approved-eight-scenes-20261017.webp',url).href);
+   assert.equal(approvedImage.status(),200,'the approved original art must load');
+   assert.match(approvedImage.headers()['content-type'],/image\/webp/,'original art has WebP MIME type');
   assert.equal(await page.locator('.gm-world').evaluate(el=>el.inert),true,'underlying math actions inaccessible while choosing a mission');
   await shot(page,label+'-04-market-book');
   await page.keyboard.press('Escape');
@@ -114,10 +121,12 @@ async function check(engine,label,viewport,url){
   const bookLayout=await page.evaluate(()=>{
     const scenes=[...document.querySelectorAll('.gm-book-landscape')];
     return {pageWidth:document.documentElement.scrollWidth,screenWidth:innerWidth,count:scenes.length,
-      assets:scenes.every(x=>getComputedStyle(x).backgroundImage.includes('gangemagi-tallenga-market-v1.svg')),
+      assets:scenes.every(x=>getComputedStyle(x).backgroundImage.includes('gangemagi-approved-eight-scenes-20261017.webp')),
+      distinct:new Set(scenes.map(x=>getComputedStyle(x).backgroundPosition)).size===8,
+      rightOrder:scenes.every((x,i)=>Number(x.dataset.gmArtIndex)===i),
       touch:[...document.querySelectorAll('.gm-book-mission')].every(x=>x.getBoundingClientRect().height>=44)};
   });
-  assert.ok(bookLayout.assets&&bookLayout.touch&&bookLayout.pageWidth<=bookLayout.screenWidth+4,
+  assert.ok(bookLayout.assets&&bookLayout.distinct&&bookLayout.rightOrder&&bookLayout.touch&&bookLayout.pageWidth<=bookLayout.screenWidth+4,
     label+' market-book illustrations, touch targets and widths '+JSON.stringify(bookLayout));
   assert.equal(await page.locator('.gm-book-earned').count(),1,'one earned flower marked in book');
   await page.locator('[data-gm-action="select-mission"][data-index="7"]').click();
