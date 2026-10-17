@@ -49,6 +49,13 @@ async function verify(type,label,viewport){
      label+' unflagged chapter visible');
    await page.goto(base+'&geography-chapter2-preview=1',{waitUntil:'domcontentloaded'});
    await enter(page);
+   const returnButton=await page.locator('.cv-top [data-cv-act="close"]').evaluate(el=>{
+     const box=el.getBoundingClientRect();
+     return {height:box.height,width:box.width,whiteSpace:getComputedStyle(el).whiteSpace};
+   });
+   assert.equal(returnButton.whiteSpace,'nowrap',label+' back action must never wrap');
+   assert.ok(returnButton.height>=44&&returnButton.height<=55,
+     label+' back button must be a single 44px touch target: '+JSON.stringify(returnButton));
    const map=page.locator('.cv-story-map');
    await map.waitFor({state:'visible'});
    const geometry=await map.evaluate(el=>{
@@ -102,6 +109,11 @@ async function verify(type,label,viewport){
    await page.locator('[data-cv-act="intro"]').click();
    await page.locator('[data-cv-act="stage"][data-cv-stage="passbrygga"]').click();
    assert.equal(await page.locator('.cv-stamp').count(),6,'six continent stamps should be available');
+   if(viewport.width===320){
+     const firstStamp=await page.locator('.cv-stamp').first().boundingBox();
+     assert.ok(firstStamp&&firstStamp.y<viewport.height-75,
+       label+' a compact phone must reveal the first passport choice without aimless scrolling');
+   }
    await photo(page,label+'-passport');
    await answer(page);
    const legacy=await page.evaluate(()=>({wins:state.journey.gradeWins['geography:2'],node:state.journey.nodes['geography:2:one']}));
