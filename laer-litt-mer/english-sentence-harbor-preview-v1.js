@@ -3,6 +3,7 @@
  */
 (function(){
  'use strict';
+ const buddy=window.LARIA_CHAPTER_FOX_BUDDY;
  const core=window.LARIA_ENGLISH_SENTENCE_HARBOR;if(!core)return;
  let ui=null;
  const esc=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
@@ -48,6 +49,12 @@
    const s=core.resume(ui.state);
    if(!s)return intro();
    const t=s.task,index=s.index+1;
+   const foxState=buddy.response({subject:'english',stageId:s.stage.id,kind:t.kind,
+     feedback:s.feedback,expanded:ui.hintShown});
+   const foxPanel='<div class="sh-companion sh-fox-'+foxState.mood+'">'+fox()+
+     '<div class="sh-fox-copy"><span class="sh-eyebrow">REVENS ENGELSKE KROK</span>'+
+     '<p id="sh-fox-message" role="status">'+esc(foxState.text)+'</p></div>'+
+     (foxState.showHint?'<button type="button" class="sh-fox-help" data-sh-act="hint" aria-controls="sh-fox-message" aria-expanded="'+String(foxState.expanded)+'" aria-label="'+(foxState.expanded?'Skjul hint fra reven':'Få hint fra reven')+'">?</button>':'')+'</div>';
    const options=t.kind!=='sentence'?'<div class="sh-options" role="group" aria-label="Velg svar">'+
      t.options.map((opt,i)=>'<button type="button" data-sh-act="answer" data-sh-index="'+i+
      '" class="sh-option'+(s.feedback?.answer===opt?' sh-answer':'')+'"'+(s.feedback?' disabled':'')+
@@ -58,7 +65,7 @@
      '<button type="button" data-sh-act="next" class="sh-next">'+
      (index===4?'Se hvordan det gikk →':'Neste oppdagelse →')+'</button>':'';
    return shell('<article class="sh-task"><div class="sh-task-top"><button type="button" class="sh-quiet" data-sh-act="intro">← Alle stedene</button><span>'+esc(s.stage.title)+'</span></div>'+
-     '<div class="sh-companion">'+fox()+'<div><span class="sh-eyebrow">REVENS ENGELSKE KROK</span><p>Du kan lese, lytte og prøve. Det er lov å gjøre feil!</p></div></div>'+
+     foxPanel+
      '<div class="sh-step">OPPDAGELSE '+index+' AV 4<div class="sh-progress-bar"><span style="width:'+((index-1+Number(!!s.feedback))*25)+'%"></span></div></div>'+
      '<div class="sh-paper"><span class="sh-eyebrow">'+(t.kind==='sentence'?'BYGG EN SETNING':t.kind==='story'?'LES EN LITEN HISTORIE':'FINN DET RETTE SVARET')+'</span>'+
      (t.kind!=='sentence'?'<div class="sh-english" lang="en">'+esc(t.english)+'</div>':'')+
@@ -76,14 +83,15 @@
      fox()+'<button type="button" class="sh-next" data-sh-act="intro">Se alle stedene →</button>'+
      '<button type="button" class="sh-quiet" data-sh-act="replay" data-sh-stage="'+esc(r.stageId)+'">Leke mer her</button></section>');
  }
- function render(focus='.sh-heading'){
+ function render(focus='.sh-heading',preserveScroll=false){
+   const previousScroll=preserveScroll?ui.root.scrollTop:0;
    if(!ui)return;
    ui.root.innerHTML=ui.mode==='play'?play():ui.mode==='result'?result():intro();
-   ui.root.scrollTop=0;
+   ui.root.scrollTop=previousScroll;
    ui.root.querySelector(focus)?.focus({preventScroll:true});
  }
  function save(){try{ui?.save?.()}catch(_){/* keep preview playable */}}
- function start(stage){core.start(ui.state,stage);ui.mode='play';ui.result=null;save();render()}
+ function start(stage){core.start(ui.state,stage);ui.mode='play';ui.result=null;ui.hintShown=false;save();render()}
  function speak(){
    const s=core.resume(ui.state);if(!s||!window.speechSynthesis||!window.SpeechSynthesisUtterance)return;
    const u=new SpeechSynthesisUtterance(s.task.english);u.lang='en-GB';u.rate=.83;
@@ -110,22 +118,23 @@
    const b=e.target.closest('button[data-sh-act]');if(!b||!ui)return;
    const cmd=b.dataset.shAct;
    if(cmd==='close'){close();return}
-   if(cmd==='intro'){ui.mode='intro';ui.result=null;render();return}
+   if(cmd==='intro'){ui.mode='intro';ui.result=null;ui.hintShown=false;render();return}
    if(cmd==='stage'||cmd==='replay'){start(b.dataset.shStage);return}
    if(cmd==='resume'){ui.mode='play';ui.result=null;render();return}
    if(cmd==='speak'){speak();return}
+   if(cmd==='hint'){ui.hintShown=!ui.hintShown;render('[data-sh-act="hint"]',true);return}
    if(cmd==='answer'){
      const s=core.resume(ui.state);if(!s)return;
-     core.choose(ui.state,s.task.options[Number(b.dataset.shIndex)]);save();render('.sh-feedback');return;
+     core.choose(ui.state,s.task.options[Number(b.dataset.shIndex)]);save();render('.sh-feedback',true);return;
    }
    if(cmd==='tile'){
      const index=Number(b.dataset.shIndex);
-     core.selectTile(ui.state,index);save();render('[data-sh-index="'+index+'"]');return;
+     core.selectTile(ui.state,index);save();render('[data-sh-index="'+index+'"]',true);return;
    }
-   if(cmd==='clear'){core.clearTiles(ui.state);save();render('.sh-tile');return}
-   if(cmd==='check-sentence'){core.submitSentence(ui.state);save();render('.sh-feedback');return}
+   if(cmd==='clear'){core.clearTiles(ui.state);save();render('.sh-tile',true);return}
+   if(cmd==='check-sentence'){core.submitSentence(ui.state);save();render('.sh-feedback',true);return}
    if(cmd==='next'){
-     const step=core.advance(ui.state);save();
+     const step=core.advance(ui.state);ui.hintShown=false;save();
      if(step.finished){ui.mode='result';ui.result=step}else ui.mode='play';
      render();
    }
@@ -139,7 +148,7 @@
    const app=document.querySelector('.app'),root=document.createElement('section');
    ui={root,state:args.state,save:args.save,app,wasInert:app?.inert||false,
      focus:document.activeElement,overflow:document.documentElement.style.overflow,
-     foxSrc:allowed?src:'./lia-fox-explorer-home.webp',mode:'intro',result:null};
+     foxSrc:allowed?src:'./lia-fox-explorer-home.webp',mode:'intro',result:null,hintShown:false};
    root.id='laria-english-sentence-harbor-preview';root.className='sh-root';
    root.setAttribute('role','dialog');root.setAttribute('aria-modal','true');
    root.setAttribute('aria-label','Setningshavna, internt engelsk eventyr');root.tabIndex=-1;
