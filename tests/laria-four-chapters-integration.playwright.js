@@ -49,7 +49,7 @@ async function verifyDefaultChildNavigation(page,label){
    label+' unpublished pilot launcher must remain hidden');
   if(subject==='english'||subject==='geography'){
    const entry=page.locator(subject==='english'?'#laria-english-chapter2-entry':'#laria-geography-chapter2-entry');
-   assert.equal(await entry.isVisible(),true,label+' published eventyr entry must appear on the child journey');
+   assert.equal(await entry.isVisible(),true,label+' published eventyr entry must appear on the child journey: '+JSON.stringify(await page.evaluate(({subject})=>{const b=document.querySelector(subject==='english'?'#laria-english-chapter2-entry':'#laria-geography-chapter2-entry');return {grade:state?.profile?.grade,hidden:b?.hidden,display:b&&getComputedStyle(b).display,subject:document.querySelector('#subject-screen')?.dataset?.subject,english:window.LARIA_ENGLISH_SENTENCE_HARBOR?.CHAPTER,geography:window.LARIA_GEO_CONTINENT_VOYAGE?.CHAPTER};},{subject})));
   }
   assert.equal(await page.locator('[id$="-chapter2-preview"]').count(),0,
    label+' an unapproved chapter-two dialog opened in the standard journey');
