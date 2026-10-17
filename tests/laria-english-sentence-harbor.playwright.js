@@ -3,6 +3,12 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
 const {chromium,webkit}=require('playwright');
 const base=process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria';
 const shots=process.env.LARIA_ENGLISH_CHAPTER2_SCREENSHOTS;
+
+const productionArt=fs.readFileSync(path.join(__dirname,'../laer-litt-mer/english-sentence-harbor-painted-v3.png'));
+assert.ok(productionArt.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10])), 'English production image must be PNG');
+const productionImageSize={width:productionArt.readUInt32BE(16),height:productionArt.readUInt32BE(20)};
+assert.deepEqual(productionImageSize,{width:960,height:1280},
+  'English chapter art dimensions must match the existing HTML hotspot coordinate contract');
 const seed={version:7,progressSchemaVersion:3,profile:{grade:2,onboarded:true,name:'HavnQA',avatar:'girl',setupVersion:2},
  mastery:{},mistakes:{},skillMastery:{},skillMistakes:{},skillLastSeen:{},masteryEvidence:{},skillEvidence:{},
  preferences:{sound:false,autoRead:false},lastMilestone:null,recentCountryWin:null,lastActivity:null,
@@ -67,7 +73,9 @@ async function verify(type,label,viewport){
    assert.equal(await page.locator('#laria-english-chapter2-entry').isVisible(),true,'English chapter-two must be available from the journey: '+JSON.stringify(await page.evaluate(()=>{const b=document.querySelector('#laria-english-chapter2-entry');return {grade:state?.profile?.grade,chapter:window.LARIA_ENGLISH_SENTENCE_HARBOR?.CHAPTER,hidden:b?.hidden,display:b&&getComputedStyle(b).display,rect:b?.getBoundingClientRect().toJSON(),parentDisplay:b?.parentElement&&getComputedStyle(b.parentElement).display};})));
    await page.goto(base,{waitUntil:'domcontentloaded'});
    await enter(page);
-   assert.equal(await page.locator('.sh-map-art').getAttribute('data-sh-art-variant'),'production-v3',label+' published default must use painted art');
+   await page.waitForFunction(()=>{const img=document.querySelector('.sh-map-art');return !!img&&img.complete&&img.naturalWidth>0&&img.naturalHeight>0;},null,{timeout:15000});
+   const imageState=await page.locator('.sh-map-art').evaluate(img=>({variant:img.dataset.shArtVariant,issue:img.dataset.shArtFailure||null,width:img.naturalWidth,height:img.naturalHeight,src:img.getAttribute('src')}));
+   assert.equal(imageState.variant,'production-v3',label+' English default painting must render without fallback: '+JSON.stringify(imageState));
    const map=page.locator('.sh-story-map');
    await map.waitFor({state:'visible'});
    const layout=await map.evaluate(el=>{
