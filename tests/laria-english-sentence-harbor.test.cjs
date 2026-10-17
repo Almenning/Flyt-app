@@ -1,15 +1,16 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict');
 const english=require('../laer-litt-mer/english-sentence-harbor-v1.js');
-test('published English journey has approved art and 40 editorially valid tasks',()=>{
+test('unpublished English journey requires preview and approved art before release and 40 editorially valid tasks',()=>{
  assert.equal(english.validate(),true);
  assert.equal(english.CHAPTER.id,'setningshavna-2');
- assert.equal(english.CHAPTER.published,true);
- assert.equal(english.CHAPTER.artApproved,true);
+ assert.equal(english.CHAPTER.published,false);
+ assert.equal(english.CHAPTER.artApproved,false);
  assert.equal(Object.values(english.TASKS).flat().length,40);
  for(const stage of english.STAGES)assert.equal(english.TASKS[stage.id].length,8);
  assert.equal(english.previewEnabled('?english-chapter2-preview=1'),true);
- assert.equal(english.previewEnabled('?english-chapter2-preview=true'),true);
+ assert.equal(english.previewEnabled('?english-chapter2-preview=true'),false);
+ assert.equal(english.previewEnabled(''),false);
  assert.ok(english.TASKS.setningsverkstedet.every(t=>t.kind==='sentence'));
 });
 test('English prompts and read-aloud do not reveal a single answer before a try',()=>{
