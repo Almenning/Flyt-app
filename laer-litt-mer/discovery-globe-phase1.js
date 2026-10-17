@@ -110,10 +110,10 @@ const landmarks=[
   ['trees',20,61,.72,1],['trees',55,58,.80,1],['trees',-103,52,.74,1],
   ['pyramids',30,27,.67,1],['ship',-29,24,.78,1],['whale',-27,-31,.82,1],
   /* level 2: geographic regions */
-  ['elephant',28,-3,.70,2],['giraffe',23,-25,.68,2],['camel',11,24,.62,2],['jungle',-61,-5,.85,2],['jungle',23,0,.72,2],['village',16,50,.64,2],
+  ['elephant',28,-3,.70,2],['giraffe',23,-25,.68,2],['camel',11,24,.62,2],['jungle',-61,-5,.58,2],['jungle',23,0,.72,2],['village',16,50,.64,2],
   ['lighthouse',-9,38,.48,2],['lighthouse',-71,42,.46,2],['dolphin',112,-22,.55,2],
   /* level 3: named demonstration areas */
-  ['mountains',8,61,.92,3],['trees',8,60,.72,3],['mountains',138.7,35.36,.90,3],['village',139,35,.58,3],['jungle',-61,-3,.96,3],['cloud',-2,24,.56,3],
+  ['mountains',8,61,.92,3],['trees',8,60,.72,3],['mountains',138.7,35.36,.90,3],['village',139,35,.58,3],['jungle',-61,-3,.67,3],['cloud',-2,24,.56,3],
   ['sakura',139.7,35.7,.75,3],['sakura',135.8,35.1,.68,3],
   ['fjord',6.9,61.3,.75,3],['fjord',7.4,62.5,.62,3],['fjord',13.2,66.4,.48,3],
   ['jungle',-54,-5,.65,3],['wetlands',-56.8,-18.2,.62,3]
@@ -180,7 +180,7 @@ function paintBiomes(ctx,w,h,s,moving){
   let painted=0;
   for(let z=0;z<landscapeZones.length;z++){
     const zone=landscapeZones[z],colors=ecosystemPalette[zone.type];
-    const size=geoBrushWidth(zone,w,h,s)*.74;
+    const size=geoBrushWidth(zone,w,h,s)*.98;
     let touched=false;
     for(let j=0;j<zone.route.length-1;j++){
       const a=zone.route[j],b=zone.route[j+1];
@@ -193,7 +193,7 @@ function paintBiomes(ctx,w,h,s,moving){
         const p=project(lon,lat,w,h);if(!p||p[2]<.12)continue;
         const radius=size*(.78+geoNoise(seed+8)*.45);
         if(p[0]<-radius||p[0]>w+radius||p[1]<-radius||p[1]>h+radius)continue;
-        const opacity=zone.type==='desert'?.55:zone.type==='ice'?.48:zone.type==='rainforest'?.36:.32;
+        const opacity=zone.type==='rainforest'?.59:zone.type==='forest'?.46:zone.type==='desert'?.55:zone.type==='savanna'?.43:zone.type==='ice'?.48:.38;
         ctx.save();ctx.translate(p[0],p[1]);ctx.rotate((geoNoise(seed+11)-.5)*.55);ctx.scale(1,.72);
         const g=ctx.createRadialGradient(-radius*.16,-radius*.16,radius*.02,0,0,radius);
         g.addColorStop(0,colorAlpha(colors[0],opacity*.90));
@@ -257,14 +257,14 @@ function paintMountainCrests(ctx,chain,w,h,s,level,width){
       const t=(k+.42)/steps,lon=a[0]+(b[0]-a[0])*t,lat=a[1]+(b[1]-a[1])*t;
       const p=project(lon,lat,w,h);if(!p||p[2]<.2)continue;
       const seed=Math.abs(Math.sin((j*31+k*7+lat)*1.23));
-      const height=clamp(width*(.36+seed*.24),2.8,s*.033)*(level===3?1.06:.65);
+      const height=clamp(Math.max(width*(.42+seed*.22),s*(level===2?.0085:.012)),s*.007,s*.024)*(level===3?1.08:.95);
       const x=p[0],y=p[1];
       ctx.save();
-      ctx.fillStyle='rgba(37,85,74,.27)';
+      ctx.fillStyle='rgba(37,85,74,.40)';
       ctx.beginPath();ctx.moveTo(x-height*.98,y+height*.48);
       ctx.lineTo(x,y-height*.97);ctx.lineTo(x+height*.95,y+height*.55);
       ctx.closePath();ctx.fill();
-      ctx.fillStyle='rgba(165,186,153,.72)';
+      ctx.fillStyle='rgba(165,186,153,.86)';
       ctx.beginPath();ctx.moveTo(x-height*.94,y+height*.48);
       ctx.lineTo(x,y-height*.94);ctx.lineTo(x-height*.12,y+height*.46);
       ctx.closePath();ctx.fill();
@@ -338,48 +338,57 @@ const geoNoise=n=>{const x=Math.sin(n*78.233+19.192)*43758.5453;return x-Math.fl
 function paintGeographicTexture(ctx,w,h,s,level,moving){
   if(moving||level===1)return 0;
   let drawn=0;
-  const perZone=level===2?9:24;
+  /* Small overlapping canopy crowns create one coherent forest, not a few
+     giant decorative trees. Density is tied to geographic forest corridors. */
   for(let z=0;z<landscapeZones.length;z++){
     const zone=landscapeZones[z],segments=zone.route.length-1;
+    const leafy=zone.type==='rainforest'||zone.type==='forest';
+    const perZone=leafy?(level===2?33:82):(level===2?18:43);
     for(let i=0;i<perZone;i++){
-      const t=geoNoise(z*109+i*29+9)*segments,j=Math.min(segments-1,Math.floor(t)),f=t-j;
+      const t=geoNoise(z*109+i*29+9)*segments;
+      const j=Math.min(segments-1,Math.floor(t)),f=t-j;
       const a=zone.route[j],b=zone.route[j+1];
-      const lon=a[0]+(b[0]-a[0])*f+(geoNoise(z*307+i*17+1)-.5)*zone.width*.68;
-      const lat=a[1]+(b[1]-a[1])*f+(geoNoise(z*127+i*43+4)-.5)*zone.width*.70;
-      const p=project(lon,lat,w,h);if(!p||p[2]<.16)continue;
-      const k=s*(level===2?.005:.0075)*clamp(Math.pow(globeZoom,.16),1,1.30)*
-        clamp(p[2]+.18,.48,1.1)*(0.6+geoNoise(i*7+z*19)*.6);
+      const lon=a[0]+(b[0]-a[0])*f+(geoNoise(z*307+i*17+1)-.5)*zone.width*.80;
+      const lat=a[1]+(b[1]-a[1])*f+(geoNoise(z*127+i*43+4)-.5)*zone.width*.80;
+      const p=project(lon,lat,w,h);if(!p||p[2]<.18)continue;
+      const k=s*(leafy?(level===2?.0078:.0105):(level===2?.005:.0075))*
+        clamp(Math.pow(globeZoom,.13),1,1.27)*
+        clamp(p[2]+.21,.55,1.1)*(0.67+geoNoise(i*7+z*19)*.49);
+      if(p[0]<-k*3||p[0]>w+k*3||p[1]<-k*3||p[1]>h+k*3)continue;
       ctx.save();ctx.translate(p[0],p[1]);ctx.lineCap='round';ctx.lineJoin='round';
-      if(zone.type==='forest'||zone.type==='rainforest'){
-        ctx.fillStyle=zone.type==='rainforest'?'rgba(25,96,63,.30)':'rgba(44,103,66,.28)';
-        ctx.beginPath();ctx.ellipse(0,k*.32,k*1.52,k*.62,.16,0,Math.PI*2);ctx.fill();
-        for(const [dx,dy,scale] of [[-.7,.09,.69],[.52,-.13,.83],[-.07,-.38,1.04]]){
+      if(leafy){
+        const tropical=zone.type==='rainforest';
+        ctx.fillStyle=tropical?'rgba(23,77,56,.31)':'rgba(39,87,58,.26)';
+        ctx.beginPath();ctx.ellipse(0,k*.40,k*1.38,k*.60,.12,0,Math.PI*2);ctx.fill();
+        for(const [dx,dy,scale] of [[-.65,.08,.77],[.50,.04,.82],[-.12,-.35,.98],[.35,-.38,.61]]){
           const x=k*dx,y=k*dy,r=k*scale;
-          ctx.fillStyle=zone.type==='rainforest'?'rgba(31,119,69,.65)':'rgba(67,127,75,.63)';
-          ctx.beginPath();ctx.ellipse(x,y,r*.60,r*.82,.12,0,Math.PI*2);ctx.fill();
-          ctx.fillStyle='rgba(189,211,129,.41)';ctx.beginPath();ctx.ellipse(x-r*.17,y-r*.27,r*.24,r*.29,-.3,0,Math.PI*2);ctx.fill();
+          ctx.fillStyle=tropical?'rgba(31,103,65,.75)':'rgba(56,111,69,.73)';
+          ctx.beginPath();ctx.ellipse(x,y,r*.71,r*.72,-.16,0,Math.PI*2);ctx.fill();
+          ctx.fillStyle=tropical?'rgba(112,179,94,.67)':'rgba(165,194,115,.61)';
+          ctx.beginPath();ctx.ellipse(x-r*.22,y-r*.23,r*.38,r*.28,-.26,0,Math.PI*2);ctx.fill();
         }
       }else if(zone.type==='desert'){
+        ctx.fillStyle='rgba(242,207,136,.28)';
+        ctx.beginPath();ctx.ellipse(0,k*.42,k*1.14,k*.36,0,0,Math.PI*2);ctx.fill();
         for(let t=0;t<3;t++){
-          ctx.strokeStyle=t===1?'rgba(244,210,138,.71)':'rgba(155,106,59,.33)';
-          ctx.lineWidth=Math.max(.55,k*.22);
-          ctx.beginPath();ctx.moveTo(-k*1.08,k*(t*.31-.4));
-          ctx.quadraticCurveTo(-k*.04,k*(t*.31-1.0),k*1.13,k*(t*.31-.3));
-          ctx.stroke();
+          ctx.strokeStyle=t===1?'rgba(254,239,174,.75)':'rgba(163,109,52,.42)';
+          ctx.lineWidth=Math.max(.55,k*.16);
+          ctx.beginPath();ctx.moveTo(-k*1.06,k*(t*.29-.30));
+          ctx.quadraticCurveTo(-k*.05,k*(t*.29-.90),k*1.07,k*(t*.29-.20));ctx.stroke();
         }
       }else if(zone.type==='savanna'){
-        ctx.strokeStyle='rgba(91,110,67,.41)';ctx.lineWidth=Math.max(.65,k*.21);
+        ctx.strokeStyle='rgba(89,100,48,.56)';ctx.lineWidth=Math.max(.6,k*.17);
         for(let t=0;t<3;t++){
-          const dx=(t-1)*k*.55;
-          ctx.beginPath();ctx.moveTo(dx,k*.47);
-          ctx.quadraticCurveTo(dx-k*.22,-k*.21,dx-k*.30,-k*.60);ctx.stroke();
+          const dx=(t-1)*k*.46;ctx.beginPath();ctx.moveTo(dx,k*.47);
+          ctx.quadraticCurveTo(dx-k*.18,-k*.18,dx-k*.27,-k*.59);ctx.stroke();
         }
-        ctx.fillStyle='rgba(235,223,144,.41)';ctx.beginPath();ctx.ellipse(0,k*.43,k*1.04,k*.21,0,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle='rgba(234,218,138,.52)';
+        ctx.beginPath();ctx.ellipse(0,k*.43,k*.98,k*.18,0,0,Math.PI*2);ctx.fill();
       }else{
-        ctx.fillStyle=zone.type==='ice'?'rgba(251,254,246,.74)':'rgba(231,234,199,.40)';
-        ctx.beginPath();ctx.moveTo(-k*.9,k*.38);ctx.lineTo(-k*.1,-k*.65);ctx.lineTo(k*.65,k*.18);
-        ctx.lineTo(k*.95,k*.32);ctx.closePath();ctx.fill();
-        ctx.strokeStyle='rgba(105,155,144,.32)';ctx.lineWidth=Math.max(.5,k*.15);
+        ctx.fillStyle=zone.type==='ice'?'rgba(251,254,246,.76)':'rgba(231,234,199,.46)';
+        ctx.beginPath();ctx.moveTo(-k*.9,k*.38);ctx.lineTo(-k*.1,-k*.66);
+        ctx.lineTo(k*.65,k*.18);ctx.lineTo(k*.95,k*.32);ctx.closePath();ctx.fill();
+        ctx.strokeStyle='rgba(105,155,144,.39)';ctx.lineWidth=Math.max(.5,k*.15);
         ctx.beginPath();ctx.moveTo(-k*.12,-k*.39);ctx.lineTo(k*.40,k*.21);ctx.stroke();
       }
       ctx.restore();drawn++;
@@ -525,8 +534,8 @@ function discoveryDraw(){
   /* A moving globe uses its base map without the expensive land clip for
      stationary-only detail. This saves an entire geometry pass per frame. */
   ctx.save();const validLand=!moving&&landClip(ctx,w,h);
-  const reliefCount=validLand?paintReliefTrails(ctx,w,h,s,level,moving):0;
   const textureCount=validLand?paintGeographicTexture(ctx,w,h,s,level,moving):0;
+  const reliefCount=validLand?paintReliefTrails(ctx,w,h,s,level,moving):0;
   const terrainCount=validLand?paintTerrainMarks(ctx,w,h,s,level,moving):0;
   const landmarkCount=validLand?paintLandmarks(ctx,w,h,s,level,moving,false):0;
   ctx.restore();
