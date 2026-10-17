@@ -1376,3 +1376,25 @@
   }
   .word-hunt-companion-controls button{flex:initial;width:100%;min-height:44px}
 }
+
+/* Real WebKit iPad portrait evidence: the hint speech used to cover the
+   selected fox's waist and boots. Put the bubble ABOVE the full-body fox,
+   with enough room for the entire original character. No board changes. */
+@media(min-width:701px) and (max-width:1099px) and (orientation:portrait){
+  .word-hunt-companion{
+    display:flex;flex-direction:column;align-items:stretch;
+  }
+  .word-hunt-companion-panel{display:contents}
+  .word-hunt-companion-speech{
+    order:0;position:relative;z-index:3;
+    min-height:0;margin:0 0 8px;padding:8px 9px;
+  }
+  .word-hunt-companion-stage{
+    order:1;width:100%;height:clamp(195px,25vw,230px);
+    max-width:205px;align-self:center;margin:0;
+  }
+  .word-hunt-companion-controls{
+    order:2;width:100%;display:flex;gap:6px;flex-wrap:wrap;
+  }
+  .word-hunt-companion-controls button{flex:1 1 85px;min-height:44px}
+}
