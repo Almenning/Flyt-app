@@ -2,7 +2,7 @@ name: Laria Dual Globes Release QA
 
 on:
   push:
-    branches: [feat/laria-two-globes-release-20261017, main]
+    branches: [feat/laria-two-globes-release-20261017, feat/laria-discovery-landscapes-v2-20261017, main]
     paths:
       - 'laer-litt-mer/discovery-globe-phase1.js'
       - 'laer-litt-mer/discovery-globe-view-v1.css'
