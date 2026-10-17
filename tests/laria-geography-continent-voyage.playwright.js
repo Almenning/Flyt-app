@@ -4,6 +4,12 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
 const {chromium,webkit}=require('playwright');
 const base=process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria';
 const shots=process.env.LARIA_GEO_CHAPTER2_SCREENSHOTS;
+
+const productionArt=fs.readFileSync(path.join(__dirname,'../laer-litt-mer/geography-continent-voyage-painted-v3.png'));
+assert.ok(productionArt.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10])), 'Geography production image must be PNG');
+const productionImageSize={width:productionArt.readUInt32BE(16),height:productionArt.readUInt32BE(20)};
+assert.deepEqual(productionImageSize,{width:960,height:1280},
+  'Geography chapter art dimensions must match the existing HTML hotspot coordinate contract');
 const seed={version:7,progressSchemaVersion:3,profile:{grade:2,onboarded:true,name:'SjøfarerQA',avatar:'girl',setupVersion:2},
  mastery:{},mistakes:{},skillMastery:{},skillMistakes:{},skillLastSeen:{},masteryEvidence:{},skillEvidence:{},
  preferences:{sound:false,autoRead:false},lastMilestone:null,recentCountryWin:null,lastActivity:null,
@@ -72,7 +78,9 @@ async function verify(type,label,viewport){
    assert.equal(returnButton.whiteSpace,'nowrap',label+' back action must never wrap');
    assert.ok(returnButton.height>=44&&returnButton.height<=55,
      label+' back button must be a single 44px touch target: '+JSON.stringify(returnButton));
-   assert.equal(await page.locator('.cv-map-art').getAttribute('data-cv-art-variant'),'production-v3',label+' published default must use painted map');
+   await page.waitForFunction(()=>{const img=document.querySelector('.cv-map-art');return !!img&&img.complete&&img.naturalWidth>0&&img.naturalHeight>0;},null,{timeout:15000});
+   const imageState=await page.locator('.cv-map-art').evaluate(img=>({variant:img.dataset.cvArtVariant,issue:img.dataset.cvArtFailure||null,width:img.naturalWidth,height:img.naturalHeight,src:img.getAttribute('src')}));
+   assert.equal(imageState.variant,'production-v3',label+' Geography default painting must render without fallback: '+JSON.stringify(imageState));
    const map=page.locator('.cv-story-map');
    await map.waitFor({state:'visible'});
    const geometry=await map.evaluate(el=>{
