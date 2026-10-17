@@ -1,7 +1,7 @@
 'use strict';
 const test=require('node:test');
 const assert=require('node:assert/strict');
-const book=require('../laria-magical-collection-v2.js');
+const book=require('../laer-litt-mer/laria-magical-collection-v2.js');
 const worlds=[
   {id:'bokskogens-fjaer',realm:'norwegian',title:'Fjær',owned:true},
   {id:'tallkrystall',realm:'math',title:'Krystall',owned:true},
