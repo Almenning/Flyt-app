@@ -356,7 +356,13 @@
  const entry=document.getElementById('open-multiplication-lab');
  // A DOM click passes an Event argument; it must not become preserveOrigin.
  if(entry)entry.onclick=()=>open(false);
- window.LARIA_GANGEMAGI=Object.freeze({version:'playable-v1',open,
+ function openMission(index){
+   if(!Number.isInteger(index)||index<0||index>=E.MISSIONS.length)return false;
+   state=E.apply(state,{type:'mission',index});
+   undo=[];hintStep=0;notice='';foxMood='curious';lastAction='';lastGroup=-1;
+   bookOpen=false;save();open(false);return true;
+ }
+ window.LARIA_GANGEMAGI=Object.freeze({version:'playable-v1',open,openMission,
    snapshot:()=>({...E.normalize(state),equation:E.equation(state),undo:undo.length}),
    reset:()=>{state=E.initial();save();hintStep=0;undo=[];render();}});
 })();
