@@ -41,3 +41,10 @@ Både Setningshavna og Kontinentseilasen bestod dedikerte Chromium- og WebKit-te
 Den bredere `laria-mapboard`-kontrollen var rød på `762d316` fordi oppdragsmenyen ikke ble synlig ved navigasjon på iPad liggende gjennom de opprinnelige reisekartene. Alle isolerte tester av de låste kartene og berøringsflatene bestod. Den integrerte testen loggfører nå fag, aktiv skjerm, modal- og knappgeometri ved eventuell ny feil. Den forsøker *ikke* et ekstra trykk som skjuler problemet.
 
 Publisert Gangemagi-oppdatering fra `main` PR #177 er tatt med ved samkjøring. Ny CI på siste eksakte head, faktisk visuell gjennomgang og godkjenning kreves før Draft oppheves.
+
+## iPad liggende: alle fem stopp synlige uten rulling
+Den faktiske WebKit-illustrasjonen på 1180×820 viste at map-elementet for både Setningshavna og Kontinentseilasen gikk under nederste skjermkant fordi 3:4-bildets høyde ble styrt av den brede venstre grid-kolonnen. De låste kapittel-1-reisene viser derimot alle fem oppdrag innenfor første skjermbilde. Dette var en konkret svakhet i barnets utforsking, selv om de gamle testene ikke krevde full kartoversikt.
+
+En bevisst avgrenset CSS-layout i hvert kapittels egne filer benytter tilgjengelig viewport-høyde i intervallet 1024px+ liggende og 740–860px høyt, holder map-overleggets relative stedskoordinater uendret, viser et lesbart kart og bevarer minst 44px knapper. CSS fungerer kun i dette vinduet; på iPhone og iPad stående brukes den allerede QA-verifiserte løsningen.
+
+To dedikerte Chromium/WebKit-regresjoner tester på **1180×820** at selve kartet og alle fem stedene er innenfor viewport før scrolling. Merk at endringen må bekreftes med faktisk nytt WebKit-skjermbilde; ingen release/merge før disse testene er grønne på eksakt ny commit.

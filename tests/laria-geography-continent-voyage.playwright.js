@@ -107,6 +107,28 @@ async function verify(type,label,viewport){
      assert.ok(painting.x>=-2&&painting.x+painting.width<=viewport.width+2,
        label+' enlarged portrait painting must not cause horizontal overflow');
    }
+
+    // The classic Læria journeys show all nodes on iPad landscape. The new
+    // 3:4 map must do the same, with touchable hotspots and no scrolling.
+    if(viewport.width===1180&&viewport.height===820){
+      const firstFold=await page.locator('.cv-story-map').evaluate(map=>{
+        const box=map.getBoundingClientRect();
+        const points=[...map.querySelectorAll('.cv-map-stop')].map(stop=>{
+          const rect=stop.getBoundingClientRect();
+          return {name:stop.textContent,top:rect.top,bottom:rect.bottom,height:rect.height};
+        });
+        return {map:{top:box.top,bottom:box.bottom,width:box.width,height:box.height},points};
+      });
+      assert.ok(firstFold.map.top>=0&&firstFold.map.bottom<=viewport.height-12,
+        label+' full Geography painted scene must fit iPad landscape first fold: '+JSON.stringify(firstFold));
+      assert.ok(firstFold.map.width>=375,
+        label+' iPad landscape painting must remain a generous, readable scene');
+      assert.equal(firstFold.points.length,5);
+      for(const point of firstFold.points){
+        assert.ok(point.top>=0&&point.bottom<=viewport.height-12&&point.height>=44,
+          label+' iPad landscape stage must be reachable without scrolling: '+JSON.stringify(point));
+      }
+    }
    const geometry=await map.evaluate(el=>{
      const img=el.querySelector('.cv-map-art'),region=el.getBoundingClientRect();
      const stops=[...el.querySelectorAll('.cv-map-stop')].map(b=>{
