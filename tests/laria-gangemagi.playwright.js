@@ -24,6 +24,9 @@ async function check(engine,label,viewport,url){
   await page.evaluate(()=>window.openMultiplicationLab());
   await page.locator('#multiplication-lab-screen.active .gm-shell').waitFor();
   assert.equal(await page.locator('.gm-crate').count(),3);
+  const bookQuickBox=await page.locator('.gm-book-quick').boundingBox();
+  assert.ok(bookQuickBox&&bookQuickBox.width>=44&&bookQuickBox.height>=44&&bookQuickBox.y>=0&&bookQuickBox.y+bookQuickBox.height<=viewport.height,
+    label+' book shortcut should be touch-safe and visible on the first fold');
   assert.equal((await page.locator('.gm-math-equation').innerText()).trim(),'0 + 0 + 0 = 0');
   assert.match(await page.locator('.gm-story').innerText(),/3 kurver med 3 jordbær/);
   assert.equal(await page.locator('.gm-fox-art [data-avatar="girl"]').count(),1,'must render chosen full-body girl fox');
@@ -98,6 +101,36 @@ async function check(engine,label,viewport,url){
   await page.evaluate(()=>window.openMultiplicationLab());
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).wins.length,1);
   assert.equal((await page.locator('.gm-math-equation').innerText()).trim(),'3 × 3 = 9');
+  await page.locator('[data-gm-action="open-book"]').click();
+  assert.equal(await page.locator('.gm-book-mission').count(),8,'all market adventures available');
+  assert.equal(await page.locator('.gm-book-open[role="dialog"][aria-modal="true"]').count(),1,'open journal is a real immersive view');
+  assert.equal(await page.locator('.gm-book-fox-art [data-avatar="girl"]').count(),1,'journal keeps the chosen fox');
+  assert.equal(await page.locator('.gm-book-open .gm-book-pages').count(),1,'mission pages appear in the book');
+  assert.equal(await page.locator('.gm-world').evaluate(el=>el.inert),true,'underlying math actions inaccessible while choosing a mission');
+  await shot(page,label+'-04-market-book');
+  await page.keyboard.press('Escape');
+  assert.equal(await page.locator('.gm-book-open').count(),0,'Escape returns child to gameplay');
+  await page.locator('[data-gm-action="book"]').click();
+  const bookLayout=await page.evaluate(()=>{
+    const scenes=[...document.querySelectorAll('.gm-book-landscape')];
+    return {pageWidth:document.documentElement.scrollWidth,screenWidth:innerWidth,count:scenes.length,
+      assets:scenes.every(x=>getComputedStyle(x).backgroundImage.includes('gangemagi-tallenga-market-v1.svg')),
+      touch:[...document.querySelectorAll('.gm-book-mission')].every(x=>x.getBoundingClientRect().height>=44)};
+  });
+  assert.ok(bookLayout.assets&&bookLayout.touch&&bookLayout.pageWidth<=bookLayout.screenWidth+4,
+    label+' market-book illustrations, touch targets and widths '+JSON.stringify(bookLayout));
+  assert.equal(await page.locator('.gm-book-earned').count(),1,'one earned flower marked in book');
+  await page.locator('[data-gm-action="select-mission"][data-index="7"]').click();
+  assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).mission,7);
+  assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).undo,0,'switching adventures clears only action history');
+  assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).wins.length,1);
+  assert.equal(await page.locator('.gm-book-mission').count(),0,'book should close after selection');
+  await page.locator('[data-gm-action="book"]').click();
+  await page.locator('[data-gm-action="select-mission"][data-index="0"]').click();
+  assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).mission,0);
+  assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).equation.complete,false);
+  for(let group=0;group<3;group++)for(let j=0;j<3;j++)await page.locator('[data-gm-action="basket"][data-gm-basket="'+group+'"]').click();
+  assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).wins.length,1,'replay keeps unique flower');
   await page.locator('[data-gm-action="next"]').click();
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).groups,2);
   await page.locator('[data-gm-action="mode"][data-mode="free"]').click();

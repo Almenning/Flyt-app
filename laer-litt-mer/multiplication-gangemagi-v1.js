@@ -11,7 +11,7 @@
  const originalOpen=window.openMultiplicationLab;
  let state=load(),undo=[],hintStep=0,notice='',suppressClickUntil=0,drag=null;
  let foxMood='curious',lastAction='',lastGroup=-1;
- let returnToMath=false;
+ let returnToMath=false,bookOpen=false;
  const esc=x=>String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const berrySvg='<svg viewBox="0 0 48 56" aria-hidden="true" focusable="false"><defs><linearGradient id="gmB" x1=".2" x2=".85" y2="1"><stop stop-color="#ff9780"/><stop offset=".42" stop-color="#d94855"/><stop offset="1" stop-color="#9c3547"/></linearGradient></defs><path d="M24 14C11 5 2 19 6 33C10 46 19 52 24 54C30 51 41 43 43 29C45 16 34 8 24 14Z" fill="url(#gmB)" stroke="#963a46" stroke-width="2"/><path d="M24 12C14 4 9 4 7 8L15 17L4 14L9 22L23 18L38 21L44 13L31 16L40 9C36 5 29 6 24 12Z" fill="#5c9867" stroke="#407e60" stroke-width="1.4"/><path d="M24 12Q24 6 28 3" stroke="#4a7650" stroke-width="2.5" fill="none" stroke-linecap="round"/><g fill="#ffe8ac"><ellipse cx="16" cy="28" rx="1.9" ry="3.1" transform="rotate(-24 16 28)"/><ellipse cx="30" cy="27" rx="1.8" ry="3" transform="rotate(16 30 27)"/><ellipse cx="23" cy="37" rx="1.8" ry="3"/><ellipse cx="13" cy="36" rx="1.5" ry="2.5"/><ellipse cx="33" cy="37" rx="1.5" ry="2.5"/></g><path d="M11 24Q11 18 18 18" stroke="#ffb2a0" stroke-width="3" fill="none" opacity=".8" stroke-linecap="round"/></svg>';
  function load(){try{return E.normalize(JSON.parse(localStorage.getItem(KEY)||'null'));}catch(_){return E.initial();}}
@@ -84,6 +84,7 @@
       '<div class="gm-layout"><header class="gm-top">'+
       '<button type="button" class="gm-back" id="multiplication-lab-back" data-gm-action="back" aria-label="Tilbake til matte">‹</button>'+
       '<div class="gm-brand"><span class="gm-brand-mark">Læ<span>ria</span> ✦</span><small>TALLENGA / GANGEMAGI</small></div>'+
+      '<button type="button" class="gm-book-quick" data-gm-action="open-book" aria-label="Åpne Min markedsbok" title="Min markedsbok">✿</button>'+
       '<button type="button" class="gm-classic" data-gm-action="classic" aria-label="Åpne gangetabell og øving">Tabellen <span aria-hidden="true">↗</span></button>'+
       '</header>'+
       '<div class="gm-heading"><div><span class="gm-eyebrow">✿ ET LITE MATTEEVENTYR</span><h1>Gangemagi</h1><p>Plukk, pakk og oppdag hva gange betyr.</p></div>'+
@@ -118,12 +119,23 @@
          '<button type="button" class="gm-tool" data-gm-action="undo" '+(!undo.length?'disabled':'')+'><span aria-hidden="true">↶</span> Angre</button>'+
        '</div>'+
        (free?'<div class="gm-free-controls" aria-label="Lag ditt eget gangestykke">'+factor('groups','Antall kurver',state.groups,1,E.MAX_GROUPS)+factor('each','Jordbær i hver',state.each,1,E.MAX_EACH)+'</div>':'')+
-       '<footer class="gm-footer"><span>✿ '+state.wins.length+' av '+E.MISSIONS.length+' markedsblomster samlet</span><button type="button" data-gm-action="restart">Begynn på nytt ↻</button></footer>'+
+       '<footer class="gm-footer"><span>✿ Blomster som du har samlet, er dine for alltid</span><button type="button" data-gm-action="restart">Begynn på nytt ↻</button></footer>'+book()+
        '</div></main>';
+   if(bookOpen){
+     const journal=root.querySelector('.gm-book');
+     if(journal)for(const sibling of journal.parentElement.children)if(sibling!==journal)sibling.inert=true;
+   }
    if(focusKey){
      const old=Array.from(root.querySelectorAll('button[data-gm-action]')).find(el=>el.dataset.gmAction===focusKey.action&&(el.dataset.group||'')===(focusKey.group||'')&&(el.dataset.gmBasket||'')===(focusKey.basket||''));
      if(old&&!old.disabled)try{old.focus({preventScroll:true});}catch(_){}
    }
+ }
+ function book(){
+   return '<section class="gm-book '+(bookOpen?'gm-book-open':'')+'" '+(bookOpen?'role="dialog" aria-modal="true" ':'')+'aria-label="Min markedsbok">'+
+     '<button type="button" class="gm-book-toggle" data-gm-action="book" aria-expanded="'+bookOpen+'" aria-controls="gm-book-pages">'+
+     '<span class="gm-book-emblem" aria-hidden="true">✿</span><span><strong>'+(bookOpen?'‹ Tilbake til Gangemagi':'Min markedsbok')+'</strong><small>'+state.wins.length+' av '+E.MISSIONS.length+' blomster samlet · '+(bookOpen?'Utforsk oppdragene':'Åpne eventyrboken')+'</small></span><span class="gm-book-chevron" aria-hidden="true">'+(bookOpen?'✕':'⌄')+'</span></button>'+
+     (bookOpen?'<header class="gm-book-intro"><div class="gm-book-fox-art" aria-hidden="true">'+selectedFox()+'</div><div class="gm-book-intro-copy"><span>✿ EVENTYRBOK FRA TALLENGA</span><h2>Min markedsbok</h2><p>Her kan du velge et eventyr og spille det så mange ganger du vil. Jeg blir med deg!</p></div><div class="gm-book-trophy"><strong>'+state.wins.length+' / '+E.MISSIONS.length+'</strong><small>blomster</small></div></header><div class="gm-book-pages" id="gm-book-pages"><p>Trykk på et oppdrag for å gå til kurvene. Alle blomstene du har samlet, er dine for alltid.</p><div class="gm-book-grid">'+
+       E.MISSIONS.map((m,i)=>'<button type="button" class="gm-book-mission '+(state.mode==='mission'&&state.mission===i?'gm-book-current ':'')+(state.wins.includes(m.id)?'gm-book-earned':'')+'" data-gm-action="select-mission" data-index="'+i+'" '+(state.mode==='mission'&&state.mission===i?'aria-current="step"':'')+' aria-label="Oppdrag '+(i+1)+': '+esc(m.heading)+'. '+(state.wins.includes(m.id)?'Blomst samlet.':'Blomst ikke samlet ennå.')+'"><span class="gm-book-landscape gm-book-landscape-'+i+'" aria-hidden="true"><span class="gm-book-berry">'+berrySvg+'</span></span><span class="gm-book-flower" aria-hidden="true">'+(state.wins.includes(m.id)?'✿':'✧')+'</span><span class="gm-book-copy"><small>OPPDRAG '+(i+1)+'</small><strong>'+esc(m.heading)+'</strong><small>'+m.groups+' kurver med '+m.each+' i hver</small></span></button>').join('')+'</div></div>':'')+'</section>';
  }
  function factor(key,label,n,min,max){
    return '<div class="gm-free-adjust"><span>'+esc(label)+'</span><div><button type="button" data-gm-action="factor" data-key="'+key+'" data-step="-1" aria-label="Færre '+esc(label.toLowerCase())+'" '+(n<=min?'disabled':'')+'>−</button>'+
@@ -175,7 +187,7 @@
      screen.dataset.gmReturnOrigin=returnToMath?'subject':'basecamp';
      screen.setAttribute('data-explore-release','explore-rc1');
    }
-   hintStep=0;notice='';foxMood='curious';lastAction='';lastGroup=-1;render();
+   hintStep=0;notice='';foxMood='curious';lastAction='';lastGroup=-1;bookOpen=false;render();
    try{showScreen('multiplication-lab');}catch(_){}
  }
  function speak(){
@@ -196,6 +208,19 @@
    event.preventDefault();event.stopPropagation();
    const kind=button.dataset.gmAction;
    if(kind==='back'){back();return;}
+   if(kind==='open-book'){bookOpen=true;render();root.querySelector('.gm-book-open .gm-book-toggle')?.focus({preventScroll:true});return;}
+   if(kind==='book'){bookOpen=!bookOpen;render();if(!bookOpen){root.querySelector('.gm-book-quick')?.focus({preventScroll:true});root.querySelector('.gm-top')?.scrollIntoView({behavior:'auto',block:'start'});}return;}
+   if(kind==='select-mission'){
+     const index=Number(button.dataset.index);
+     if(!Number.isInteger(index)||index<0||index>=E.MISSIONS.length)return;
+     // Each selected adventure begins fresh. Undo stays inside one adventure;
+     // already earned flowers remain attached to the child's saved progress.
+     state=E.apply(state,{type:'mission',index});
+     undo=[];hintStep=0;notice='';foxMood='curious';lastAction='';lastGroup=-1;
+     bookOpen=false;save();render();
+     root.querySelector('.gm-top')?.scrollIntoView({behavior:'auto',block:'start'});
+     return;
+   }
    if(kind==='classic'){nextOpen();return;}
    if(kind==='back-from-classic'){open(true);return;}
    if(kind==='read'){speak();return;}
@@ -254,6 +279,22 @@
    }
    clearDrag();
  }
+ function onJournalKey(event){
+   if(!bookOpen)return;
+   if(event.key==='Escape'){
+     event.preventDefault();bookOpen=false;render();
+     root.querySelector('.gm-top')?.scrollIntoView({behavior:'auto',block:'start'});
+     root.querySelector('.gm-book-quick')?.focus({preventScroll:true});
+     return;
+   }
+   if(event.key!=='Tab')return;
+   const items=[...root.querySelectorAll('.gm-book-open button:not(:disabled)')];
+   if(!items.length)return;
+   const first=items[0],last=items[items.length-1];
+   if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}
+   else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}
+ }
+ root.addEventListener('keydown',onJournalKey);
  root.addEventListener('click',onClick);
  root.addEventListener('pointerdown',onPointerDown);
  window.addEventListener('pointermove',onPointerMove,{passive:false});
