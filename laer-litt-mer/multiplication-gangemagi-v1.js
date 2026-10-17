@@ -273,7 +273,8 @@
  window.LARIA_MULT_CLASSIC_OPEN=originalOpen;
  window.openMultiplicationLab=open;
  const entry=document.getElementById('open-multiplication-lab');
- if(entry)entry.onclick=open;
+ // A DOM click passes an Event argument; it must not become preserveOrigin.
+ if(entry)entry.onclick=()=>open(false);
  window.LARIA_GANGEMAGI=Object.freeze({version:'playable-v1',open,
    snapshot:()=>({...E.normalize(state),equation:E.equation(state),undo:undo.length}),
    reset:()=>{state=E.initial();save();hintStep=0;undo=[];render();}});
