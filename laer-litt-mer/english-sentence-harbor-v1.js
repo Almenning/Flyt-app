@@ -81,7 +81,7 @@
          assert(t.tiles.slice().sort().join('|')===t.goal.slice().sort().join('|'),'sentence goal not represented by tiles '+t.id);
        }else if(t.kind==='choice'||t.kind==='story'){
          assert(t.options.length===3&&new Set(t.options).size===3&&t.options.includes(t.answer),'bad choice '+t.id);
-         assert(t.english.length>=7,'missing spoken English '+t.id);
+         assert(typeof t.english==='string'&&/[A-Za-z]{2,}/.test(t.english)&&t.english.trim().length>=5,'missing spoken English '+t.id);
        }else assert(false,'unknown play type');
      }
    }
