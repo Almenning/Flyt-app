@@ -4,6 +4,7 @@
  */
 (function(){
  'use strict';
+ const buddy=window.LARIA_CHAPTER_FOX_BUDDY;
  const core=window.LARIA_GEO_CONTINENT_VOYAGE;if(!core)return;
  let ui=null;
  const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -58,9 +59,15 @@
  function challenge(){
    const s=core.resume(ui.state);if(!s)return overview();
    const feedback=s.feedback;
+   const foxState=buddy.response({subject:'geography',stageId:s.place.id,kind:s.task.kind,
+     feedback,expanded:ui.hintShown});
+   const foxPanel='<div class="cv-companion cv-fox-'+foxState.mood+'">'+fox()+
+     '<div class="cv-fox-copy"><span class="cv-eyebrow">REVENS KOMPASS</span>'+
+     '<p id="cv-fox-message" role="status">'+esc(foxState.text)+'</p></div>'+
+     (foxState.showHint?'<button type="button" class="cv-fox-help" data-cv-act="hint" aria-controls="cv-fox-message" aria-expanded="'+String(foxState.expanded)+'" aria-label="'+(foxState.expanded?'Skjul hint fra reven':'Få hint fra reven')+'">?</button>':'')+'</div>';
    return shell('<article class="cv-task"><div class="cv-task-nav"><button class="cv-quiet" data-cv-act="intro" type="button">← Alle stedene</button>'+
      '<span>'+esc(s.place.title)+'</span></div>'+
-     '<div class="cv-companion">'+fox()+'<p>Du kan prøve deg fram. Passet og kartet venter her!</p></div>'+
+     foxPanel+
      '<div class="cv-count">OPPDAGELSE '+(s.step+1)+' AV 4<div class="cv-bar"><span style="width:'+((s.step+(feedback?1:0))*25)+'%"></span></div></div>'+
      '<div class="cv-paper"><span class="cv-eyebrow">'+(s.task.kind==='compass'?'STYR MED KOMPASS':s.task.kind==='stamp'?'FÅ ET REISESTEMPEL':'FINN ET STED I VERDEN')+'</span>'+
      '<h1 class="cv-heading" tabindex="-1">'+esc(s.task.prompt)+'</h1>'+controls(s.task,feedback)+
@@ -79,13 +86,14 @@
      '<button type="button" data-cv-act="intro" class="cv-primary">Til alle stedene →</button>'+
      '<button type="button" data-cv-act="replay" data-cv-stage="'+esc(s.placeId)+'" class="cv-quiet">Spill dette stedet igjen</button></section>');
  }
- function render(focus='.cv-heading'){
+ function render(focus='.cv-heading',preserveScroll=false){
+   const previousScroll=preserveScroll?ui.root.scrollTop:0;
    if(!ui)return;
    ui.root.innerHTML=ui.mode==='challenge'?challenge():ui.mode==='summary'?summary():overview();
-   ui.root.scrollTop=0;ui.root.querySelector(focus)?.focus({preventScroll:true});
+   ui.root.scrollTop=previousScroll;ui.root.querySelector(focus)?.focus({preventScroll:true});
  }
  function save(){try{ui?.save?.()}catch(_){/* keep draft playable in memory */}}
- function play(id){core.start(ui.state,id);ui.mode='challenge';ui.result=null;save();render()}
+ function play(id){core.start(ui.state,id);ui.mode='challenge';ui.result=null;ui.hintShown=false;save();render()}
  function read(){
    const s=core.resume(ui.state);if(!s||!window.speechSynthesis||!window.SpeechSynthesisUtterance)return;
    const utterance=new SpeechSynthesisUtterance(s.task.prompt);utterance.lang='nb-NO';utterance.rate=.85;
@@ -112,13 +120,14 @@
    const b=e.target.closest('button[data-cv-act]');if(!b||!ui)return;
    const cmd=b.dataset.cvAct;
    if(cmd==='close'){close();return}
-   if(cmd==='intro'){ui.mode='intro';ui.result=null;render();return}
+   if(cmd==='intro'){ui.mode='intro';ui.result=null;ui.hintShown=false;render();return}
    if(cmd==='stage'||cmd==='replay'){play(b.dataset.cvStage);return}
    if(cmd==='resume'){ui.mode='challenge';ui.result=null;render();return}
    if(cmd==='read'){read();return}
-   if(cmd==='answer'){core.answer(ui.state,b.dataset.cvAnswer);save();render('.cv-feedback');return}
+   if(cmd==='hint'){ui.hintShown=!ui.hintShown;render('[data-cv-act="hint"]',true);return}
+   if(cmd==='answer'){core.answer(ui.state,b.dataset.cvAnswer);save();render('.cv-feedback',true);return}
    if(cmd==='next'){
-     const result=core.advance(ui.state);save();
+     const result=core.advance(ui.state);ui.hintShown=false;save();
      if(result.finished){ui.result=result;ui.mode='summary'}else ui.mode='challenge';
      render();
    }
@@ -132,7 +141,7 @@
    const app=document.querySelector('.app'),root=document.createElement('section');
    ui={root,app,wasInert:app?.inert||false,focus:document.activeElement,
      overflow:document.documentElement.style.overflow,foxSrc:safe?src:'./lia-fox-explorer-home.webp',
-     state:args.state,save:args.save,mode:'intro',result:null};
+     state:args.state,save:args.save,mode:'intro',result:null,hintShown:false};
    root.id='laria-geo-continent-voyage-preview';root.className='cv-root';
    root.setAttribute('role','dialog');root.setAttribute('aria-modal','true');
    root.setAttribute('aria-label','Kontinentseilasen, intern forhåndsvisning');root.tabIndex=-1;
