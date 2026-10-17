@@ -145,7 +145,7 @@ const {chromium,webkit}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
   await page.locator('#subject-screen.active .locked-journey-back').tap();
   await page.locator('[data-camp="quest"]').tap();assert(await page.locator('#bc12-dialog').isVisible());await page.getByRole('button',{name:'Kanskje senere'}).tap();
   await page.locator('.bc12-nav [data-camp="collection"]').tap();
-  await page.getByRole('heading',{name:'Samlingen min'}).waitFor();
+  await page.getByRole('heading',{name:'Lærias magiske samlebok'}).waitFor();
   assert.equal(await page.locator('#bc12-dialog [data-collection-tab],#bc12-dialog .bc12-equipment-card').count(),0,name+' must hide unpublished equipment');
   await page.locator('#bc12-dialog [data-wardrobe-open]').tap();
   assert.equal(await page.locator('#bc12-dialog.is-wardrobe .bc12-wardrobe-preview svg').count(),1,name+' must retain selected fox');

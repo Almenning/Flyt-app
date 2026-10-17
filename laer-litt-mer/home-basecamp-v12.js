@@ -104,6 +104,7 @@ function dialog(kind){
  if(kind==='equipment'&&!gearPreviewEnabled)kind='collection';
  const d=document.getElementById('bc12-dialog');if(!d.open)returnFocus=document.activeElement;
  d.classList.toggle('is-collection',kind==='collection'||kind==='wardrobe'||kind==='equipment');
+ d.classList.toggle('lmc-expanded',kind==='collection'&&!!window.LARIA_MAGICAL_BOOK?.open);
  d.classList.toggle('is-wardrobe',kind==='wardrobe');
  d.classList.toggle('is-fox-girl',kind==='wardrobe'&&window.LARIA_FOX?.choice?.()==='girl');
  d.classList.toggle('is-equipment',kind==='equipment');
@@ -159,6 +160,33 @@ function dialog(kind){
     '<button class="bc12-dialog-go" data-wardrobe-open>🦊 Åpne Min rev og garderoben</button>';
  }
  else if(kind==='quest'){const q=dailyQuest();d.dataset.questAction=q.action;d.innerHTML='<button class="bc12-close" aria-label="Lukk">×</button><span class="bc12-eyebrow">'+q.eyebrow+'</span><h2 id="bc12-dialog-title">'+q.title+'</h2><p>'+q.copy+'</p><button class="bc12-dialog-go" data-quest-go>'+q.button+'</button><button class="bc12-later">Kanskje senere</button>';}
+ else if(kind==='collection'&&window.LARIA_MAGICAL_BOOK?.open){
+   const inventory=window.LARIA_COLLECTION_STORE.snapshot();
+   const store=window.LARIA_COLLECTION_CORE.available(inventory);
+   const themes=window.LARIA_WORD_HUNT_THEMES?.list?.()||[];
+   const progress=wordHuntThemeProgress();
+   const engine=window.LARIA_GANGEMAGI_ENGINE;
+   let savedMarket=null;
+   try{savedMarket=JSON.parse(localStorage.getItem('laria-gangemagi-v1')||'null');}catch(_){}
+   const market=engine?.normalize?.(savedMarket)||{wins:[]};
+   const avatar=window.LARIA_FOX.choice();
+   window.LARIA_MAGICAL_BOOK.open(d,{
+     treasures:store.filter(item=>item.kind==='treasure'&&item.realm!=='all'),
+     wordPacks:themes,themeRounds:progress.themeRounds,
+     missions:engine?.MISSIONS||[],wins:market.wins||[],
+     avatar,foxMarkup:window.LARIA_FOX_WARDROBE.render(avatar,inventory,'world'),
+     wordRounds:wordHuntRounds(),
+     placesVisited:Object.values(state.journey?.nodes||{}).filter(n=>n?.passed||Number(n?.attempts)>0).length,
+     trophies:Object.keys(state.journey?.gradeWins||{}).length
+   },{
+     openWords:()=>{closeDialog();activity('words');},
+     openMission:index=>{
+       closeDialog();
+       window.LARIA_MARK_BASECAMP_ORIGIN();
+       window.LARIA_GANGEMAGI?.openMission?.(index);
+     }
+   });
+ }
  else {
   const visited=Object.values(state.journey?.nodes||{}).filter(n=>n.passed||Number(n.attempts)>0).length;
   const trophies=Object.keys(state.journey?.gradeWins||{}).length,wordRounds=wordHuntRounds();
