@@ -260,7 +260,7 @@ function paintLandmarks(ctx,w,h,s,level,moving,waterOnly=false){
     if(level<minLevel)continue;const water=['ship','whale','dolphin','cloud'].includes(kind);if(water!==waterOnly)continue;
     const p=project(lon,lat,w,h);if(!p||p[2]<.18)continue;
     const fn=draw[kind],terrainKind=kind==='mountains'?'ridge':kind==='trees'?'forest':null,closeup=kind==='sakura'||kind==='fjord';
-    if(!fn&&!terrainKind&&!closeup)continue;const k=s*.036*scale*clamp(.60+p[2]*.46,.64,1.06)*clamp(Math.pow(window.globeZoom,.16),1,1.30);
+    if(!fn&&!terrainKind&&!closeup)continue;const k=s*.036*scale*clamp(.60+p[2]*.46,.64,1.06)*clamp(Math.pow(globeZoom,.16),1,1.30);
     ctx.save();ctx.globalAlpha=level===minLevel?1:.92;
     if(closeup)paintCloseupDiscovery(ctx,kind,p[0],p[1],k*1.65);
     else if(terrainKind)terrainSilhouette(ctx,terrainKind,p[0],p[1],k*1.80);
