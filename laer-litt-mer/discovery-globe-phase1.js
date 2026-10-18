@@ -199,9 +199,13 @@ function paintAntarcticIce(ctx,w,h,s){
   ctx.save();
   ctx.beginPath();
   if(!path(ctx,antarcticaOutline,w,h)){ctx.restore();return 0;}
-  const ice=ctx.createRadialGradient(w*.34,h*.29,s*.03,w*.55,h*.55,s*.66);
-  ice.addColorStop(0,'#FCFDF2');ice.addColorStop(.45,'#E4F0E9');
-  ice.addColorStop(.79,'#C8E2DE');ice.addColorStop(1,'#96BCC5');
+  /* Antarctica needs the same readable depth as every other continent.
+     Keep the true Natural Earth outline, but let blue-green shelf shadow and
+     warm snow-light define a large ice mass at continent scale. */
+  const ice=ctx.createRadialGradient(w*.38,h*.24,s*.03,w*.55,h*.55,s*.68);
+  ice.addColorStop(0,'#FFFDF0');ice.addColorStop(.31,'#EDF5EC');
+  ice.addColorStop(.63,'#CBE3DF');ice.addColorStop(.83,'#9DC8CF');
+  ice.addColorStop(1,'#639EAE');
   ctx.fillStyle=ice;ctx.fill();
   ctx.clip();
   // Subtle geographically anchored snow/ice-shadow bands, not arbitrary
@@ -215,10 +219,25 @@ function paintAntarcticIce(ctx,w,h,s){
   for(const route of iceRoutes){
     if(!smoothGeoStroke(ctx,route,w,h,s))continue;
     ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
-    ctx.strokeStyle='rgba(91,150,165,.21)';
-    ctx.lineWidth=Math.max(2,s*.010);ctx.stroke();
-    ctx.strokeStyle='rgba(254,254,237,.64)';
-    ctx.lineWidth=Math.max(1,s*.0036);ctx.stroke();
+    ctx.strokeStyle='rgba(67,132,151,.34)';
+    ctx.lineWidth=Math.max(3,s*.015);ctx.stroke();
+    ctx.strokeStyle='rgba(247,252,239,.82)';
+    ctx.lineWidth=Math.max(1.2,s*.0046);ctx.stroke();
+    ctx.restore();
+  }
+  /* Wide ice shelves are geographic meridian corridors, not screen-space
+     decoration. Their translucent shadows keep the polar world legible on
+     a small phone as well as on a large iPad. */
+  for(const route of [
+    [[-176,-78],[-164,-80],[-150,-81]],
+    [[-43,-76],[-28,-79],[-12,-80]],
+    [[27,-72],[41,-75],[57,-78]],
+    [[74,-68],[90,-72],[104,-76]]
+  ]){
+    if(!smoothGeoStroke(ctx,route,w,h,s))continue;
+    ctx.save();ctx.lineCap='round';
+    ctx.strokeStyle='rgba(89,163,179,.23)';ctx.lineWidth=Math.max(5,s*.030);ctx.stroke();
+    ctx.strokeStyle='rgba(250,253,240,.46)';ctx.lineWidth=Math.max(2,s*.010);ctx.stroke();
     ctx.restore();
   }
   ctx.restore();
