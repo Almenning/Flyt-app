@@ -6,6 +6,7 @@ on:
     paths:
       - 'laer-litt-mer/discovery-globe-phase1.js'
       - 'laer-litt-mer/discovery-natural-relief-data-v1.js'
+      - 'laer-litt-mer/discovery-ne-shaded-data-v1.js'
       - 'laer-litt-mer/discovery-globe-view-v1.css'
       - 'laer-litt-mer/sw.js'
       - 'laer-litt-mer/globe-v25-renderer.js'
@@ -18,6 +19,7 @@ on:
     paths:
       - 'laer-litt-mer/discovery-globe-phase1.js'
       - 'laer-litt-mer/discovery-natural-relief-data-v1.js'
+      - 'laer-litt-mer/discovery-ne-shaded-data-v1.js'
       - 'laer-litt-mer/discovery-globe-view-v1.css'
       - 'laer-litt-mer/sw.js'
       - 'laer-litt-mer/globe-v25-renderer.js'
@@ -54,8 +56,8 @@ jobs:
       - name: Capture exact-head iPhone and iPad evidence
         env:
           DISCOVERY_GLOBE_SCREENSHOTS: /tmp/laria-discovery-globe-phase1
-          SUPERKLODE_NASA_TRIAL: '1'
-          SUPERKLODE_CARVED_TRIAL: '1'
+          # Run only the current real-shaded-relief candidate
+          SUPERKLODE_NE_TRIAL: '1'
         run: node tests/laria-discovery-globe-phase1.playwright.js
       - name: Upload comparison screenshots
         if: always()
