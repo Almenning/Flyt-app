@@ -121,6 +121,7 @@
 .fw-bottom{display:flex;align-items:center;justify-content:space-between;gap:16px;
  min-height:94px;padding:7px 8px 0;border-top:1px solid rgba(143,107,62,.27)}
 .fw-companion{display:flex;align-items:center;gap:9px;min-width:0;max-width:69%}
+ .fw-fox-button{display:grid;place-items:center;min-width:44px;min-height:44px;flex:none;padding:0;border:0;background:transparent;cursor:pointer;touch-action:manipulation}
 .fw-fox{width:88px;height:91px;object-fit:contain;object-position:center bottom;flex:none;
  filter:drop-shadow(0 4px 4px rgba(80,56,41,.3));transform-origin:50% 85%}
 .fw-speech{
