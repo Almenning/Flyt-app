@@ -57,7 +57,14 @@ assert.match(preview,/const landscapeZones=\[/,'ecosystems must use contiguous g
 for(const zone of ['Norwegian fjord forests','Alpine valleys','Mediterranean hills'])
   assert.ok(preview.includes(zone),'Europe needs its authored geographic corridor: '+zone);
 assert.match(preview,/const mountainChains=\[/,'landscape engine must have connected mountain chains');
-assert.match(preview,/const europeHero=chain\.name==='Scandes'\|\|chain\.name==='Alps';/,'Europe needs a sparse continent-scale ridge silhouette');
+assert.match(preview,/const continentCrestChains=new Set\(\[/,'continent-defining mountains must appear at overview zoom');
+for(const chain of ['Scandes','Alps','Atlas','Rockies','Andes','Himalaya','Japanese Alps','Australian ranges','Drakensberg','Southern Alps NZ'])
+  assert.ok(preview.includes("'"+chain+"'"),'missing continent-defining ridge: '+chain);
+assert.match(preview,/const continentRiverNames=new Set\(\[/,'major rivers must be visible at continent zoom');
+for(const name of ['Amazonas','Nile','Mississippi','Yangtze'])
+  assert.ok(preview.includes("'"+name+"'"),'missing world-level river: '+name);
+assert.match(preview,/canvas\.dataset\.discoveryContinentCrests=/,'QA needs verified overview ridge counts');
+assert.match(preview,/canvas\.dataset\.discoveryContinentRivers=/,'QA needs verified overview river counts');
 assert.match(preview,/function paintWorldTerrain\(/,'continuous terrain paint field must remain active');
 assert.match(preview,/function paintGeographicTexture\(/,'geographic canopy and dune material must remain active');
 assert.doesNotMatch(preview,/function paintGeographicTexture\([^)]*\)\s*\{\s*if\(moving\|\|level===1\)/,
