@@ -54,7 +54,7 @@
 #world-screen.active.globe-v30[data-discovery-globe="painted-atlas-v1"] .discovery-intro-kicker{color:#9B6930!important;font-size:10px!important;font-weight:950!important;letter-spacing:.10em!important}
 #world-screen.active.globe-v30[data-discovery-globe="painted-atlas-v1"] .discovery-continent-intro strong{color:#294F48!important;font:950 clamp(20px,2.3vw,31px)/1.02 system-ui,-apple-system,sans-serif!important}
 #world-screen.active.globe-v30[data-discovery-globe="painted-atlas-v1"] .discovery-continent-intro span:not(.discovery-intro-kicker){color:#5D705C!important;font-size:clamp(11px,1.2vw,15px)!important;line-height:1.25!important}
-#world-screen.active.globe-v30[data-discovery-globe="painted-atlas-v1"] .discovery-continent-button{justify-self:start;border:0;border-radius:999px;padding:8px 13px;background:#31756A;color:#FFFDF2;font:900 12px/1 system-ui,-apple-system,sans-serif;box-shadow:0 3px 0 #20564E;cursor:pointer}
+#world-screen.active.globe-v30[data-discovery-globe="painted-atlas-v1"] .discovery-continent-button{justify-self:start;min-height:44px;border:0;border-radius:999px;padding:10px 15px;background:#31756A;color:#FFFDF2;font:900 13px/1.1 system-ui,-apple-system,sans-serif;box-shadow:0 3px 0 #20564E;cursor:pointer;touch-action:manipulation}
 #world-screen.active.globe-v30[data-discovery-globe="painted-atlas-v1"] .discovery-continent-button:active{transform:translateY(2px);box-shadow:0 1px 0 #20564E}
 #world-screen.active.globe-v30[data-discovery-globe="painted-atlas-v1"] .discovery-intro-fox{width:100%;max-height:104px;object-fit:contain;object-position:bottom right;align-self:end;filter:drop-shadow(0 5px 4px rgba(52,43,27,.18))}
 #world-screen.active.globe-v30[data-discovery-globe="painted-atlas-v1"] .discovery-country-companion{
@@ -66,7 +66,7 @@
 @media(max-width:700px){
   #world-screen.active.globe-v30[data-discovery-globe="painted-atlas-v1"] .globe-status.discovery-continent-intro{grid-template-columns:minmax(0,1fr) 72px!important}
   #world-screen.active.globe-v30[data-discovery-globe="painted-atlas-v1"] .discovery-intro-fox{max-height:72px}
-  #world-screen.active.globe-v30[data-discovery-globe="painted-atlas-v1"] .discovery-continent-button{padding:7px 10px;font-size:11px}
+  #world-screen.active.globe-v30[data-discovery-globe="painted-atlas-v1"] .discovery-continent-button{min-height:44px;padding:9px 12px;font-size:12px}
   #world-screen.active.globe-v30[data-discovery-globe="painted-atlas-v1"] .discovery-country-companion{font-size:9.5px;margin-top:3px}
   #world-screen.active.globe-v30[data-discovery-globe="painted-atlas-v1"] .discovery-country-companion img{width:24px;height:24px}
 }
