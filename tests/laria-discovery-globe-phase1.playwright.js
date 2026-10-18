@@ -563,6 +563,54 @@ async function runDevice(engine,label,viewport,urls){
        await trial.ctx.close();
      }
    }
+   if(process.env.SUPERKLODE_CARVED_TRIAL==='1'&&
+     (label==='webkit-ipad-landscape'||label==='webkit-iphone-portrait')){
+     const carvedErrors=[],baseErrors=[];
+     const carved=await openPage(browser,urls.preview+'&discovery-art=carved',viewport,carvedErrors);
+     const baseline=await openPage(browser,urls.preview,viewport,baseErrors);
+     try{
+       await carved.page.waitForFunction(()=>{
+         const c=document.getElementById('globe-canvas');
+         return window.__lariaDiscoveryGlobePreview===true&&
+           c?.dataset.discoveryCarvedRelief==='true';
+       },null,{timeout:12000});
+       for(const pose of [
+         {name:'afrika',lon:19,lat:3},
+         {name:'himalaya',lon:85,lat:30},
+         {name:'amazonas',lon:-61,lat:-7},
+         {name:'skandinavia',lon:15,lat:63}]){
+         const reposition=({lon,lat})=>{
+           globeLon=lon;globeLat=lat;globeSelected=null;
+           setGlobeZoom(1.38);drawGlobe();
+         };
+         await carved.page.evaluate(reposition,pose);
+         await baseline.page.evaluate(reposition,pose);
+         const modified=await carved.page.locator('#globe-canvas').evaluate(c=>({
+           image:c.toDataURL('image/png'),
+           elapsed:Number(c.dataset.discoveryTerrainMs||0),
+           detail:Number(c.dataset.discoveryTerrainPixels||0)}));
+         const original=await baseline.page.locator('#globe-canvas').evaluate(c=>c.toDataURL('image/png'));
+         assert.notEqual(hash(modified.image),hash(original),
+           label+' 2.5D illustration did not affect '+pose.name);
+         assert.ok(modified.elapsed<1200,
+           label+' 2.5D illustration stalled geography rendering: '+JSON.stringify(modified));
+         assert.ok(modified.detail>=128,
+           label+' geography detail disappeared in trial: '+pose.name);
+         console.log('CARVED ART PERF',label,pose.name,modified.detail+'px',modified.elapsed+'ms');
+         await baseline.page.screenshot({
+           path:path.join(out,label+'-carved-baseline-'+pose.name+'.png'),
+           fullPage:false,animations:'disabled'});
+         await carved.page.screenshot({
+           path:path.join(out,label+'-carved-study-'+pose.name+'.png'),
+           fullPage:false,animations:'disabled'});
+       }
+       assert.deepEqual(carvedErrors,[],label+' carved scene generated page errors');
+       assert.deepEqual(baseErrors,[],label+' baseline generated page errors');
+     }finally{
+       await carved.ctx.close();
+       await baseline.ctx.close();
+     }
+   }
    console.log('PASS geographically correct, visually distinct ordinary/discovery globes: '+label);
  }finally{await browser.close();}
 }
