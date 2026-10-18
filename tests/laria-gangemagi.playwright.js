@@ -95,6 +95,17 @@ async function check(engine,label,viewport,url){
     const worldWidth=await page.locator('.gm-world').evaluate(el=>el.getBoundingClientRect().width);
     assert.ok(worldWidth>=700,label+' iPad portrait should use the full-width Tallenga scene '+worldWidth);
   }
+  if(viewport.width>=700&&viewport.width<=899&&viewport.height>=1000){
+    const sceneLayers=await page.evaluate(()=>({
+      math:Number(getComputedStyle(document.querySelector('.gm-math')).zIndex),
+      fox:Number(getComputedStyle(document.querySelector('.gm-fox')).zIndex),
+      mathLabel:document.querySelector('.gm-math-label>span')?.textContent.trim()
+    }));
+    assert.ok(sceneLayers.math>sceneLayers.fox,
+      label+' illustrated fox must not be painted over math labels '+JSON.stringify(sceneLayers));
+    assert.match(sceneLayers.mathLabel,/Dette lager du/,
+      'math label remains readable below the enlarged personal fox');
+  }
   assert.ok(first.crate.top>=0&&first.crate.bottom<=first.height,label+' interactive crates not in the first viewport '+JSON.stringify(first));
   assert.ok(first.math.top<first.height,label+' mathematical feedback invisible '+JSON.stringify(first));
   assert.ok(first.read.height>=44,label+' read aloud target too small');
