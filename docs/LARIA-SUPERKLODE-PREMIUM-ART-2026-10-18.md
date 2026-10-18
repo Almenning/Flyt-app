@@ -160,3 +160,11 @@ Node-statusen alene er ikke visuell premiumgodkjenning.
 - «Se [verdensdel]»-handlingene har nå minst 44 piksler treffhøyde for barn. WebKit-testene kontrollerer størrelsen og at knappen forblir innenfor kortet.
 - Skript, stilark og service worker har fått ny versjonsidentifikator for å hindre at PWA-klienter får en blanding av gammel og ny Oppdag ved en eventuell release.
 - **Ny release-port:** Verifiser grønn GitHub QA på den nyeste committen, sammenlikn alle seks regionbilder (særlig regnskog, Sahara og Skandinavia), kontroller 320 px iPhone og tilgjengelighet på faktiske enheter før flette/publisering. Enkel og dagens kart skal aldri endres.
+
+### Kort iPhone: tilgjengelig landkort uten endring av Enkel
+
+- Reell WebKit 320 × 568 viste at den eldre globale Kloden-layouten bevisst bruker vertikal rulling for å bevare stor berøringsflate på kloden. Skjermbildet av første skjermhøyde viser derfor ikke hele landkortet eller bunnknappene. Dette gjelder også Enkel, som ikke endres i denne PR-en.
+- Oppdag får en avgrenset navigasjonsforbedring på korte, smale iPhone-skjermer: etter barnets faktiske trykk på et land ruller skjermen mykt ned til hele landkortet og handlingene; når barnet trykker «Se [verdensdel]», ruller den tilbake til globusen.
+- Funksjonen gjelder bare når Oppdag er aktiv, skjermen er i stående format på høyst 350 × 700, og innholdet faktisk er høyere enn skjermen. Programmatisk landfokus eller QA-oppsett skal ikke utløse rulling.
+- Ny Playwright-regresjonstest bruker et ekte browser-trykk på Frankrike ved 320 × 568 og krever at både landkort og handlinger kan leses etter automatisk rulling. Den dokumenterer også skjermbildet etter trykk.
+- **Release-port:** siste WebKit-resultat og visuelle bilder for dette passet mangler ennå; ingen merge eller publisering før de foreligger.
