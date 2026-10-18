@@ -36,7 +36,17 @@ async function check(engine,label,viewport,url){
   assert.match(await page.locator('.gm-story').innerText(),/3 kurver med 3 jordbær/);
   assert.equal(await page.locator('.gm-quest').count(),1,label+' mission has a prominent quest panel');
   assert.match(await page.locator('.gm-quest-ribbon').innerText(),/Dagens oppdrag/);
-  assert.match(await page.locator('.gm-quest-callout').innerText(),/Fyll 3 kurver med 3 jordbær i hver/);
+  assert.equal(await page.locator('.gm-quest-callout>span').count(),2,
+    label+' children need a deliberate two-line mission instruction');
+  assert.match((await page.locator('.gm-quest-callout').innerText()).replace(/\s+/g,' '),
+    /Fyll 3 kurver med 3 jordbær i hver/);
+  const calloutLayout=await page.locator('.gm-quest-callout').evaluate(el=>({
+    overflow:[...el.querySelectorAll(':scope>span')].some(span=>span.scrollWidth>span.clientWidth+1),
+    insidePanel:el.getBoundingClientRect().left>=el.closest('.gm-quest').getBoundingClientRect().left-1&&
+      el.getBoundingClientRect().right<=el.closest('.gm-quest').getBoundingClientRect().right+1
+  }));
+  assert.equal(calloutLayout.overflow,false,label+' mission heading must never overflow painted wood');
+  assert.equal(calloutLayout.insidePanel,true,label+' headline stays inside the illustrated board');
   assert.equal(await page.locator('.gm-quest-filled-preview .gm-quest-mini-basket').count(),3,
     'final instructional illustration previews one filled basket per real group');
   assert.equal(await page.locator('.gm-quest-filled-preview .gm-quest-mini-berries i').count(),9,
@@ -251,7 +261,7 @@ async function check(engine,label,viewport,url){
     'final instructional art must follow the selected two-group mission');
   assert.equal(await page.locator('.gm-quest-filled-preview .gm-quest-mini-berries i').count(),20,
     label+' the last adventure visibly represents two baskets of TEN berries');
-  assert.match(await page.locator('.gm-quest-callout').innerText(),/Fyll 2 kurver med 10 jordbær i hver/,
+  assert.match((await page.locator('.gm-quest-callout').innerText()).replace(/\s+/g,' '),/Fyll 2 kurver med 10 jordbær i hver/,
     'quest text and numbers follow selected authored mission');
   assert.deepEqual(await page.locator('.gm-quest-step strong').allInnerTexts(),
     ['Velg en kurv','Legg i jordbær','Se at 2 × 10 = 20'],'step counts match actual mission, not a screenshot');
