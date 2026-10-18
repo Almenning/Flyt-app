@@ -168,7 +168,18 @@
   justify-content:center;align-items:end;gap:clamp(3px,1.7vw,20px);
   width:min(100%,1000px);max-width:none;padding:18px 2px 0;min-width:0;margin:auto;
 }
-.gm-shell[data-gm-mode="mission"] .gm-crate-wrap{padding-bottom:16px;min-width:0}
+/* Painted countercloth is scenery behind the baskets, not a screen image.
+   It anchors the interactive wicker props physically in Tallenga's market. */
+.gm-shell[data-gm-mode="mission"] .gm-crates{position:relative;isolation:isolate}
+.gm-shell[data-gm-mode="mission"] .gm-crates:before{
+  content:"";position:absolute;z-index:0;left:-1%;right:-1%;
+  bottom:14px;height:clamp(43px,6.2vw,84px);
+  background:url('./gangemagi-market-table-premium.svg') center bottom /100% 100% no-repeat;
+  pointer-events:none;filter:drop-shadow(0 8px 6px #402d2055);
+}
+.gm-shell[data-gm-mode="mission"] .gm-crate-wrap{
+  padding-bottom:16px;min-width:0;z-index:1;
+}
 .gm-shell[data-gm-mode="mission"] .gm-crate{
   position:relative;display:block;width:100%;max-width:258px;
   height:clamp(132px,17vw,236px);padding:0;margin:auto;
