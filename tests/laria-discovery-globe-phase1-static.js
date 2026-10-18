@@ -23,6 +23,8 @@ assert.match(preview,/screen\.dataset\.discoveryZoom='continent-v1'/,'Oppdag mus
 assert.match(preview,/knip for kontinentnivå/,'child-facing zoom guidance must explain the discovery scope');
 assert.match(preview,/function renderDiscoveryWelcome\(/,'Oppdag must present a continent invitation before a country is chosen');
 assert.match(preview,/function discoveryContinentForCamera\(/,'the invitation must follow the globe camera');
+assert.match(preview,/function scrollShortDiscovery\(/,'the small-phone flow must reveal the country card');
+assert.match(preview,/event\.isTrusted&&globeSelected/,'only real child taps may auto-scroll the discovery screen');
 assert.match(preview,/const discoveryContinentStops=\[/,'Oppdag must define grounded continent destinations');
 for(const name of ['Europa','Afrika','Asia','Nord-Amerika','Sør-Amerika','Oseania'])
   assert.ok(preview.includes("name:'"+name+"'"),'missing continent destination: '+name);
