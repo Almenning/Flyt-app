@@ -168,6 +168,12 @@ async function verifyContinentInvitation(page,label){
   assert.match(card,new RegExp(stop.name+' venter'),label+' showed the wrong continent invitation');
   const button=page.locator('.discovery-continent-button');
   assert.equal(await button.innerText(),'Se '+stop.name,label+' continent destination button mismatch');
+  const cardBounds=await page.locator('#globe-status').boundingBox();
+  const buttonBounds=await button.boundingBox();
+  assert.ok(cardBounds&&buttonBounds&&buttonBounds.height>=43.5,
+   label+' continent button is too small for child touch input: '+stop.name);
+  assert.ok(buttonBounds.x>=cardBounds.x-1&&buttonBounds.x+buttonBounds.width<=cardBounds.x+cardBounds.width+1,
+   label+' continent action extends outside its card: '+stop.name);
   if(label==='webkit-ipad-landscape'||label==='webkit-iphone-portrait'){
    await page.waitForTimeout(140);
    await page.screenshot({
@@ -336,6 +342,8 @@ async function runDevice(engine,label,viewport,urls){
        assert.equal(result.level,result.zoom<1.7?'1':'2',label+' continent-first renderer exposed the wrong terrain tier: '+pose.name);
        assert.equal(result.moving,'false',label+' stale interaction suppressed detail');
        assert.ok(result.illustrations>0,label+' painted zero geographically anchored illustrations for '+pose.name);
+       if(pose.name==='world')assert.ok(result.texture>0,
+         label+' continent overview lost all geographically anchored canopy/dune material');
        assert.equal(result.ecosystems,0,label+' separate biome washes must not return: '+pose.name);
        assert.equal(result.terrainField,1,label+' missing coordinate-anchored continuous landscape shading: '+pose.name);
        assert.ok(Number.isFinite(result.terrainMs)&&result.terrainMs>=0&&result.terrainMs<4000,
