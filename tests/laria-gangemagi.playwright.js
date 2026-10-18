@@ -97,6 +97,19 @@ async function check(engine,label,viewport,url){
   assert.equal((await page.locator('.gm-crate-selected').count()),1,'one glowing chosen basket');
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).selectedBasket,0);
   await page.locator('[data-gm-action="source"]').click();
+  const firstBerryGeometry=await page.locator('[data-gm-basket="0"]').evaluate(basket=>{
+    const berry=basket.querySelector('.gm-fruit:not(.gm-fruit-empty)');
+    const b=basket.getBoundingClientRect(),f=berry?.getBoundingClientRect();
+    return {basketWidth:b.width,
+      horizontalDelta:f?Math.abs((f.left+f.right)/2-(b.left+b.right)/2):Infinity,
+      berryTop:f?.top,basketTop:b.top,basketBottom:b.bottom,
+      extraEmptyFruitSlots:basket.querySelectorAll('.gm-fruit-empty').length};
+  });
+  assert.equal(firstBerryGeometry.extraEmptyFruitSlots,0,'empty basket must not render ghost placeholders');
+  assert.ok(firstBerryGeometry.horizontalDelta<firstBerryGeometry.basketWidth*.15,
+    label+' first strawberry should sit inside the CENTER of the basket, not on one edge '+JSON.stringify(firstBerryGeometry));
+  assert.ok(firstBerryGeometry.berryTop>firstBerryGeometry.basketTop,
+    label+' strawberry must be inside the illustrated basket '+JSON.stringify(firstBerryGeometry));
   await shot(page,label+'-02-one-berry');
   await page.locator('[data-gm-action="source"]').click();
   assert.equal((await page.locator('.gm-math-equation').innerText()).trim(),'2 + 0 + 0 = 2');
