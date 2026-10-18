@@ -11,7 +11,7 @@
     vann:{label:'vann',clue:'Se etter det blå som glitrer mellom fjellene.',x:34,y:63,w:31,h:28},
     rev:{label:'rev',clue:'En liten skogsvenn hviler ved steinene.',x:62,y:73,w:13,h:18},
     sekk:{label:'sekk',clue:'Se ved stien, i nærheten av treet.',x:19,y:72,w:13,h:19},
-    bat:{label:'båt',clue:'Noe flyter ved bryggen.',x:47,y:67,w:15,h:17},
+    bat:{label:'båt',clue:'Noe flyter ved bryggen.',x:47,y:75,w:15,h:18},
     fugl:{label:'fugl',clue:'Noe med vinger sitter i et tre.',x:70,y:37,w:13,h:17}
   });
   const ROUNDS=[
@@ -89,7 +89,7 @@
       const item=OBJECTS[word],found=active.found.has(word);
       return '<div class="fw-list-item" role="listitem"><button type="button" class="fw-word'+
         (found?' is-found':'')+'" data-fw-read="'+word+'" aria-label="'+item.label+(found?', funnet':'')+'">'+
-        '<span class="fw-word-icon" aria-hidden="true">'+({sol:'☀',tre:'♣',telt:'⌂',vann:'≈',rev:'✦',sekk:'▣',bat:'⛵',fugl:'♪'}[word])+
+        '<span class="fw-word-icon" aria-hidden="true">'+({sol:'☀️',tre:'🌳',telt:'⛺',vann:'💧',rev:'🦊',sekk:'🎒',bat:'⛵',fugl:'🐦'}[word])+
         '</span><strong>'+item.label+'</strong><span class="fw-word-check" aria-hidden="true">'+(found?'✓':'◦')+
         '</span></button></div>';
     }).join('');
@@ -207,6 +207,11 @@
       overlay.setAttribute('aria-modal','true');overlay.setAttribute('aria-labelledby','fw-title');
       DOC.body.appendChild(overlay);
       overlay.addEventListener('click',onClick);
+      // Empty scenery taps get calm fox feedback; never deduct points or reveal a word.
+      overlay.addEventListener('click',event=>{
+        if(event.target.closest('.fw-art')&&!event.target.closest('.fw-object'))
+          react('support','Se nøye etter! Prøv en av tingene fra ordlisten.');
+      });
       overlay.addEventListener('keydown',onKeydown);
     }
     if(!overlay.hidden)return;
