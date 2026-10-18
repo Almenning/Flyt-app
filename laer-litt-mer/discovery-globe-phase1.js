@@ -874,12 +874,13 @@ const discoveryContinentStops=[
   {name:'Asia',lon:104,lat:38,zoom:1.30,teaser:'Høye fjell, store skoger og spennende øyer.'},
   {name:'Nord-Amerika',lon:-105,lat:43,zoom:1.30,teaser:'Store skoger, høye fjell og lange elver.'},
   {name:'Sør-Amerika',lon:-62,lat:-14,zoom:1.30,teaser:'Amazonas, Andesfjellene og grønn regnskog.'},
-  {name:'Oseania',lon:135,lat:-25,zoom:1.30,teaser:'Australia, store hav og mange øyer.'}
+  {name:'Oseania',lon:135,lat:-25,zoom:1.30,teaser:'Australia, store hav og mange øyer.'},
+  {name:'Antarktis',lon:0,lat:-82,zoom:1.28,teaser:'Is, forskere og mange pingviner.'}
 ];
 /* Child-directed discoveries at real longitude/latitude. A tap reveals a
    fresh, optional place to explore, never a mandatory quiz or progression
-   gate. Stories are limited to the same six continents whose outlines exist
-   in the current verified country data. */
+   gate. Antarktis uses its own public-domain coastlines, not a country or
+   shared-map record. */
 const discoveryContinentStories={
  'Europa':{
    intro:'I Europa finner du fjorder, fjell, skoger og store hav.',
@@ -927,6 +928,14 @@ const discoveryContinentStories={
      {title:'Korallrevet',text:'Great Barrier Reef ligger utenfor Australia.',lon:146,lat:-19},
      {title:'Australias indre',text:'Store deler av det indre Australia er tørre.',lon:134,lat:-25},
      {title:'New Zealand',text:'Her finnes høye fjell og store isbreer.',lon:170,lat:-42}
+   ]
+ },
+ 'Antarktis':{
+   intro:'Det isdekte kontinentet er et sted mennesker reiser for å forske.',
+   places:[
+     {title:'Antarktishalvøya',text:'Halvøya strekker seg nordover mot Sør-Amerika.',lon:-64,lat:-68},
+     {title:'Rossisen',text:'En enorm isplattform flyter på havet ved Antarktis.',lon:173,lat:-81},
+     {title:'Sørpolen',text:'Ved Sørpolen er det vinter i et halvt år.',lon:0,lat:-90}
    ]
  }
 };
@@ -983,6 +992,10 @@ function showContinentDiscovery(stop,box,button){
   scrollShortDiscovery(false);
 }
 function discoveryContinentForCamera(){
+  // Antarctica is land, not the nearest inhabited continent. Without this
+  // polar rule, rotating south misleadingly labels its ice as Oseania.
+  if(antarcticaOutline&&globeLat<=-61)
+    return discoveryContinentStops[discoveryContinentStops.length-1];
   const rad=Math.PI/180,latitude=globeLat*rad;
   let closest=discoveryContinentStops[0],best=-2;
   for(const stop of discoveryContinentStops){
