@@ -39,6 +39,37 @@
 #world-screen.active.globe-v30[data-discovery-globe="painted-atlas-v1"] #globe-canvas{
   filter:saturate(1.08) contrast(1.035) drop-shadow(0 12px 19px rgba(18,51,48,.19))!important;
 }
+/* The old shell guide is a generic fox image. In Oppdag the meaningful,
+   selected fox belongs to the continent invitation instead. */
+#world-screen.active.globe-v30[data-discovery-globe="painted-atlas-v1"] .premium-globe-guide{display:none!important}
+/* The first card is an invitation into a continent, not a fact panel. It is
+   scoped to Oppdag and uses the real selected fox source supplied by JS. */
+#world-screen.active.globe-v30[data-discovery-globe="painted-atlas-v1"] .globe-status.discovery-continent-intro{
+  display:grid!important;grid-template-columns:minmax(0,1fr) clamp(74px,9vw,118px)!important;
+  align-items:end!important;overflow:hidden!important;
+  background:linear-gradient(135deg,rgba(255,252,237,.98),rgba(242,231,189,.97))!important;
+  border-color:rgba(177,133,66,.58)!important;
+}
+#world-screen.active.globe-v30[data-discovery-globe="painted-atlas-v1"] .discovery-intro-copy{display:grid;gap:4px;align-content:center;min-width:0}
+#world-screen.active.globe-v30[data-discovery-globe="painted-atlas-v1"] .discovery-intro-kicker{color:#9B6930!important;font-size:10px!important;font-weight:950!important;letter-spacing:.10em!important}
+#world-screen.active.globe-v30[data-discovery-globe="painted-atlas-v1"] .discovery-continent-intro strong{color:#294F48!important;font:950 clamp(20px,2.3vw,31px)/1.02 system-ui,-apple-system,sans-serif!important}
+#world-screen.active.globe-v30[data-discovery-globe="painted-atlas-v1"] .discovery-continent-intro span:not(.discovery-intro-kicker){color:#5D705C!important;font-size:clamp(11px,1.2vw,15px)!important;line-height:1.25!important}
+#world-screen.active.globe-v30[data-discovery-globe="painted-atlas-v1"] .discovery-europe-button{justify-self:start;border:0;border-radius:999px;padding:8px 13px;background:#31756A;color:#FFFDF2;font:900 12px/1 system-ui,-apple-system,sans-serif;box-shadow:0 3px 0 #20564E;cursor:pointer}
+#world-screen.active.globe-v30[data-discovery-globe="painted-atlas-v1"] .discovery-europe-button:active{transform:translateY(2px);box-shadow:0 1px 0 #20564E}
+#world-screen.active.globe-v30[data-discovery-globe="painted-atlas-v1"] .discovery-intro-fox{width:100%;max-height:104px;object-fit:contain;object-position:bottom right;align-self:end;filter:drop-shadow(0 5px 4px rgba(52,43,27,.18))}
+#world-screen.active.globe-v30[data-discovery-globe="painted-atlas-v1"] .discovery-country-companion{
+  display:flex;align-items:center;gap:5px;margin-top:5px;color:#536B54;font-size:11px;line-height:1.18
+}
+#world-screen.active.globe-v30[data-discovery-globe="painted-atlas-v1"] .discovery-country-companion img{
+  width:31px;height:31px;object-fit:contain;object-position:bottom center;filter:drop-shadow(0 2px 2px rgba(43,47,30,.18))
+}
+@media(max-width:700px){
+  #world-screen.active.globe-v30[data-discovery-globe="painted-atlas-v1"] .globe-status.discovery-continent-intro{grid-template-columns:minmax(0,1fr) 72px!important}
+  #world-screen.active.globe-v30[data-discovery-globe="painted-atlas-v1"] .discovery-intro-fox{max-height:72px}
+  #world-screen.active.globe-v30[data-discovery-globe="painted-atlas-v1"] .discovery-europe-button{padding:7px 10px;font-size:11px}
+  #world-screen.active.globe-v30[data-discovery-globe="painted-atlas-v1"] .discovery-country-companion{font-size:9.5px;margin-top:3px}
+  #world-screen.active.globe-v30[data-discovery-globe="painted-atlas-v1"] .discovery-country-companion img{width:24px;height:24px}
+}
 /* Portrait has a dedicated space between the globe and the country card.
    Do not place the view selector under the existing top geography mode bar. */
 @media(orientation:portrait) and (min-height:501px){
