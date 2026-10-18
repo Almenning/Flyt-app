@@ -74,3 +74,11 @@ Det var 24 åpne PR-er ved morgenkontroll. Etter disse fem lukkes antallet til 1
 1. Bekreft nøyaktig PR-head og alle relevante testresultater for #183 før eventuell review/merge.
 2. Bevar #169 og #179 som egne utviklingsspor; publiser ikke kapittel 2 eller ny SuperKlode uten godkjent kunst og egne releaseporter.
 3. Gå gjennom #131 og #129 som unikt arbeid, ikke lukk dem for å redusere PR-tallet.
+
+## Oppfølging: ytterligere tre gamle PR-er dokumentert lukket
+
+- [#61](https://github.com/Almenning/Flyt-app/pull/61): gammel cacheoppdatering for Brøklab og tester med foreldet nøyaktig cache-ID; main har nyhets- og Safari/PWA-versjoner datert senere enn PR-en. Lukket uten merge.
+- [#38](https://github.com/Almenning/Flyt-app/pull/38): opprinnelig Basecamp/WebKit venting er teknisk erstattet av aktiv start-, fag-, klode- og navigasjonskontroll i nyere Basecamp-test. Lukket uten merge.
+- [#36](https://github.com/Almenning/Flyt-app/pull/36): gammel test- og profilmarkørendring. Dagens WebKit/Basecamp-test og matematikkreisens tester dekker oppstarts- og revkrav; gammel markør er nå bevisst skjult når fullkroppsrev brukes. Lukket uten merge.
+
+Alle tre fikk skriftlig forklaring i GitHub før statusendring, og eksakt head ble kontrollert igjen. Totalt **åtte** gamle PR-er er lukket i denne arbeidsøkten, uten merge og uten produksjonsendringer. Når #183 (Ordjakt testdiagnostikk) også er telt som ny åpen draft, er antallet **17 åpne PR-er** ved denne kontrollen. Andre eldre PR-er er fortsatt åpne dersom unik funksjonalitet eller bevis for ekvivalens mangler. 
