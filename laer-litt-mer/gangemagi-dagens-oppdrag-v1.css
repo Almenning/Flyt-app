@@ -432,6 +432,37 @@
  .gm-shell[data-gm-mode="mission"] .gm-modes{flex-direction:row}
  .gm-shell[data-gm-mode="mission"] .gm-modes button{font-size:11px;min-height:44px;padding:4px 8px}
  .gm-shell[data-gm-mode="mission"] .gm-classic{font-size:11px;padding:4px 8px}
+
+ /* Four or five groups do not fit beside a separate progress panel on mobile.
+    The LIVE addition gets the full card width; strawberry progress becomes a
+    compact illustrated row below, not an overlapping floating panel. */
+ .gm-shell[data-gm-mode="mission"]:is([data-gm-groups="4"],[data-gm-groups="5"]) .gm-math{
+   grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto auto;
+   gap:2px;min-height:79px;padding:5px 8px;
+ }
+ .gm-shell[data-gm-mode="mission"]:is([data-gm-groups="4"],[data-gm-groups="5"]) .gm-math-label{
+   grid-row:1;grid-column:1;
+ }
+ .gm-shell[data-gm-mode="mission"]:is([data-gm-groups="4"],[data-gm-groups="5"]) .gm-math-equation{
+   grid-row:2;grid-column:1;min-width:0;max-width:100%;
+   font-size:clamp(17px,4.6vw,22px);letter-spacing:-.045em;
+   line-height:1.16;text-align:center;white-space:nowrap;
+ }
+ .gm-shell[data-gm-mode="mission"]:is([data-gm-groups="4"],[data-gm-groups="5"]) .gm-progress-track{display:none}
+ .gm-shell[data-gm-mode="mission"]:is([data-gm-groups="4"],[data-gm-groups="5"]) .gm-berry-progress{
+   grid-row:3;grid-column:1;display:flex;flex-direction:row;align-items:center;
+   justify-content:center;gap:7px;min-width:0;min-height:16px;
+   padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;
+ }
+ .gm-shell[data-gm-mode="mission"]:is([data-gm-groups="4"],[data-gm-groups="5"]) .gm-berry-progress strong{
+   font-size:11px;white-space:nowrap;
+ }
+ .gm-shell[data-gm-mode="mission"]:is([data-gm-groups="4"],[data-gm-groups="5"]) .gm-berry-progress>div{
+   display:flex;justify-content:center;align-items:center;flex-wrap:nowrap;gap:2px;min-width:0;
+ }
+ .gm-shell[data-gm-mode="mission"]:is([data-gm-groups="4"],[data-gm-groups="5"]) .gm-berry-slot{
+   flex:0 0 10px;width:10px;height:12px;
+ }
 }
 /* Tiny iPhone: a distinct 36px branding/progress row followed by a 34px title
    row. The former 25px first row painted Gangemagi over the progress badge.
