@@ -237,8 +237,8 @@ const terrainSamples=(features,step)=>features.flatMap((feature,z)=>{
 let terrainBiomeAnchors=null;
 let terrainRidgeAnchors=null;
 const terrainTint={
-  rainforest:[20,88,57],forest:[49,110,76],desert:[228,177,101],
-  savanna:[166,158,85],tundra:[156,181,165],ice:[225,243,232]
+  rainforest:[18,85,54],forest:[45,106,70],desert:[230,180,107],
+  savanna:[163,159,88],tundra:[156,181,165],ice:[225,243,232]
 };
 function terrainHash(x,y,salt){
   let n=(Math.imul(x,374761393)+Math.imul(y,668265263)+Math.imul(salt,1442695041))|0;
@@ -326,17 +326,28 @@ function paintWorldTerrain(ctx,w,h,s,level,moving){
         const base=shade+mountainCut*85-mountainReach*28;
         const neutral=[118+base*.64,161+base*.75,115+base*.49];
         const alpha=clamp(.30+biomeReach*.61+mountainReach*.45,.28,.94);
-        const mixT=clamp(biomeReach*1.04,0,.985);
+        const mixT=clamp(biomeReach*1.19,0,.99);
         let red=neutral[0],green=neutral[1],blue=neutral[2];
         if(tint){
           red=red*(1-mixT)+tint[0]*mixT;
           green=green*(1-mixT)+tint[1]*mixT;
           blue=blue*(1-mixT)+tint[2]*mixT;
           if(leafy){
-            const crown=canopy*(level===3?92:level===2?77:52)*biomeReach;
-            red+=crown*.52;
-            green+=crown*.76;
-            blue+=crown*.48;
+            // Overlapping sunlit crowns and shaded canopy are continuous
+            // land material in geographic space, not repeated tree symbols.
+            const crown=canopy*(level===3?92:level===2?81:67)*biomeReach;
+            const grove=terrainNoise(lon-.23,lat+.19,level===1?2.2:4.4,43)-.5;
+            const forestShade=grove*42*biomeReach;
+            red+=crown*.48+forestShade*.80;
+            green+=crown*.80+forestShade*.92;
+            blue+=crown*.43+forestShade*.49;
+          }else if(bp.kind==='desert'){
+            // Soft, angled dunes use geographic pigment variation, not a
+            // dotted icon pattern. The warm ochre remains land-clipped.
+            const dunes=terrainNoise(lon+.35,lat-.27,level===1?1.1:2.1,59)-.5;
+            const ridges=terrainNoise(lon,lat,level===1?2.1:3.7,61)-.5;
+            const sand=(dunes*.66+ridges*.34)*51*biomeReach;
+            red+=sand*.83;green+=sand*.61;blue+=sand*.30;
           }
         }
         if(mountainReach>.06&&rp){
@@ -428,11 +439,31 @@ const riverWays=[
   {name:'Danube',route:[[8.2,48],[12.5,48.4],[16.8,48.1],[20.6,45.5],[25.6,44.3],[29.6,45.2]]},
   {name:'Yangtze',route:[[97,33.3],[102,30.7],[107,29.8],[112,30.2],[117,30.9],[121,31.1]]}
 ];
+/* Connected relief replaces the tiny repeated ridge glyphs at continent
+   scale. Each layer follows the same real longitude/latitude spine, and all
+   paint is clipped by the authoritative land polygons. */
+function paintChainReliefRibbon(ctx,chain,w,h,s,width){
+  const band=clamp(width*.67,s*.009,s*.035);
+  const trace=(dx,dy,weight,color,blur)=>{
+    ctx.save();ctx.translate(dx,dy);
+    if(!smoothGeoStroke(ctx,chain.route,w,h,s)){ctx.restore();return false;}
+    ctx.lineCap='round';ctx.lineJoin='round';
+    ctx.strokeStyle=color;ctx.lineWidth=Math.max(.9,band*weight);
+    if(blur){ctx.shadowColor=color;ctx.shadowBlur=blur;}
+    ctx.stroke();ctx.restore();return true;
+  };
+  if(!trace(band*.22,band*.36,1.8,'rgba(39,68,64,.32)',band*.82))return 0;
+  trace(0,0,1.20,chain.snow?'rgba(90,117,108,.78)':'rgba(112,102,78,.69)',0);
+  trace(-band*.22,-band*.26,.72,chain.snow?'rgba(194,208,188,.79)':'rgba(208,184,139,.70)',0);
+  trace(-band*.33,-band*.46,.28,chain.snow?'rgba(251,248,226,.92)':'rgba(251,221,168,.79)',0);
+  return 1;
+}
 function paintMountainCrests(ctx,chain,w,h,s,level,width){
   /* A few continent-defining mountain ranges stay legible at overview
      scale. Smaller ranges still wait until regional zoom; no icon stamps. */
   const continentHero=continentCrestChains.has(chain.name);
   if(level<2&&!continentHero)return 0;
+  if(level===1)return paintChainReliefRibbon(ctx,chain,w,h,s,width);
   let drawn=0;
   for(let j=0;j<chain.route.length-1;j++){
     const a=chain.route[j],b=chain.route[j+1];
