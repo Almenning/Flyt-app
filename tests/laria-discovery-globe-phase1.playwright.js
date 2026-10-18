@@ -615,7 +615,7 @@ async function runDevice(engine,label,viewport,urls){
       (label==='webkit-ipad-landscape'||label==='webkit-iphone-portrait')){
      const errorBase=[],errorTrial=[];
      const trial=await openPage(browser,urls.preview+'&discovery-art=natural-earth',viewport,errorTrial);
-     const control=await openPage(browser,urls.preview,viewport,errorBase);
+     const control=await openPage(browser,urls.preview+'&discovery-art=baseline',viewport,errorBase);
      try{
        await trial.page.waitForFunction(()=>{
          const c=document.getElementById('globe-canvas');
