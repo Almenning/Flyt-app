@@ -150,8 +150,8 @@ assert.match(preview,/if\(\(trialCarvedRelief\|\|trialNaturalEarthRelief\)&&leve
   'illustrated mountain styles must not add repeated peak glyphs over shaded relief');
 assert.match(preview,/const boundaryWarp=trialCarvedRelief&&rp\?/,
   'illustrated massif edges must follow geographically sampled irregular areas');
-assert.match(preview,/const borderAlpha=trialCarvedRelief\?/,
-  'political borders should no longer dominate a physical landscape in the art experiment');
+assert.match(preview,/const borderAlpha=\(trialCarvedRelief\|\|trialNaturalEarthRelief\)\?/,
+  'political borders should recede behind shaded physical terrain only in experiments');
 assert.match(preview,/dataset\.discoveryCarvedRelief=String\(trialCarvedRelief\)/,
   'WebKit screenshot tests must distinguish optional carved art from the stable version');
 
