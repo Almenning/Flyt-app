@@ -63,6 +63,19 @@ async function check(engine,label,viewport,url){
   assert.equal(premiumBasket.status(),200,'premium woven basket art must load');
   assert.match(premiumBasket.headers()['content-type'],/image\/svg\+xml/);
   assert.equal(await page.locator('.gm-basket-illustration').count(),3,'baskets must be real separately illustrated DOM components');
+  const calmStart=await page.evaluate(()=>{
+    const shell=document.querySelector('.gm-shell[data-gm-mode="mission"]');
+    return {
+      redundantHint:getComputedStyle(shell.querySelector('.gm-play-hint')).display,
+      visibleEmptyTags:[...shell.querySelectorAll('.gm-crate[data-gm-count="0"] .gm-crate-tag')]
+        .filter(el=>getComputedStyle(el).display!=='none').length,
+      basketNames:[...shell.querySelectorAll('.gm-crate-caption')].map(el=>el.textContent.trim())
+    };
+  });
+  assert.equal(calmStart.redundantHint,'none','speaking fox and illustrated steps must not be repeated in another instruction badge');
+  assert.equal(calmStart.visibleEmptyTags,0,'empty market baskets should show simple clear names, not tiny 0/3 labels');
+  assert.deepEqual(calmStart.basketNames,['Kurv 1','Kurv 2','Kurv 3'],'basket names remain clear');
+
   const tableArt=await page.request.get(new URL('gangemagi-market-table-premium.svg',url).href);
   assert.equal(tableArt.status(),200,'original illustrated market counter must load');
   assert.match(tableArt.headers()['content-type'],/image\/svg\+xml/);
