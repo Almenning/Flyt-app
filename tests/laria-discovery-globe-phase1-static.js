@@ -33,8 +33,6 @@ assert.match(preview,/function showContinentDiscovery\(/,'continent action must 
 assert.match(preview,/const discoveryContinentVisits=new Map\(\)/,'visiting a favourite place again must remain possible');
 assert.match(preview,/box\.dataset\.discoveryStoryStep=String\(visits\)/,
   'QA must expose a distinct optional discovery step');
-assert.match(viewCss,/laria-discovery-fox-found/,'a discovered place should have a subtle fox reaction');
-assert.match(viewCss,/prefers-reduced-motion:reduce/,'the reaction must respect reduced-motion accessibility');
 for(const name of ['Europa','Afrika','Asia','Nord-Amerika','Sør-Amerika','Oseania'])
   assert.ok(preview.includes("'"+name+"':{"),'missing curated place story for '+name);
 for(const place of ['Alpene','Sahara','Himalaya','Rocky Mountains','Andesfjellene','Korallrevet'])
@@ -57,6 +55,8 @@ assert.match(index,/const DISCOVERY_CONTINENT_ZOOM_MAX=1\.72;/,'shared zoom inpu
 assert.match(index,/window\.__lariaDiscoveryGlobePreview===true/,'the limited zoom may only apply to Oppdag');
 assert.match(index,/function activeGlobeZoomMax\(/,'wheel, pinch and buttons must share the same zoom limit');
 const viewCss=read('laer-litt-mer/discovery-globe-view-v1.css');
+assert.match(viewCss,/laria-discovery-fox-found/,'a discovered place should have a subtle fox reaction');
+assert.match(viewCss,/prefers-reduced-motion:reduce/,'the reaction must respect reduced-motion accessibility');
 assert.match(viewCss,/discovery-continent-intro/,'Oppdag’s continent invitation needs scoped presentation styling');
 assert.match(viewCss,/\[data-discovery-globe="painted-atlas-v1"\]\s*\{\s*background-image:/,
   'Oppdag atmospheric layer must draw on the actual scene, not dead pseudo-elements');
