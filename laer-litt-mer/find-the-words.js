@@ -8,7 +8,7 @@
     sol:{label:'sol',clue:'Se opp mot den lyse himmelen.',x:84,y:8,w:13,h:18},
     tre:{label:'tre',clue:'Noe høyt med grønne blader står ved stien.',x:7,y:12,w:30,h:55},
     telt:{label:'telt',clue:'Se etter et sted å sove ved leirbålet.',x:75,y:59,w:23,h:31},
-    vann:{label:'vann',clue:'Se etter det blå som glitrer mellom fjellene.',x:34,y:63,w:31,h:28},
+    vann:{label:'vann',clue:'Se etter det blå som glitrer mellom fjellene.',x:34,y:79,w:13,h:16},
     rev:{label:'rev',clue:'En liten skogsvenn hviler ved steinene.',x:62,y:73,w:13,h:18},
     sekk:{label:'sekk',clue:'Se ved stien, i nærheten av treet.',x:19,y:72,w:13,h:19},
     bat:{label:'båt',clue:'Noe flyter ved bryggen.',x:47,y:75,w:15,h:18},
@@ -77,7 +77,7 @@
       '<div class="fw-scene-bottom"><span class="fw-scenery-caption">Ta deg god tid. Det er mye å oppdage!</span>'+
       '<button type="button" class="fw-hint">💡 Vis meg et hint</button></div></div></div>'+
       '<footer class="fw-bottom"><div class="fw-companion" data-mood="idle">'+
-      '<img class="fw-fox" src="'+fox.source+'" alt="'+fox.label+'" draggable="false">'+
+      '<button type="button" class="fw-fox-button" aria-label="Spør reven om et hint"><img class="fw-fox" src="'+fox.source+'" alt="'+fox.label+'" draggable="false"></button>'+ 
       '<div class="fw-speech" role="status" aria-live="polite">Jeg blir med! Hva vil du finne først?</div></div>'+
       '<div class="fw-controls"><button type="button" class="fw-next">Ny ordjakt <span aria-hidden="true">↗</span></button>'+
       '<button type="button" class="fw-repeat">Hør oppgaven</button></div></footer></div>';
@@ -180,7 +180,7 @@
     const button=event.target.closest('button');
     if(!button||!overlay.contains(button))return;
     if(button.classList.contains('fw-back')){close();return}
-    if(button.classList.contains('fw-hint')){hint();return}
+    if(button.classList.contains('fw-hint')||button.classList.contains('fw-fox-button')){hint();return}
     if(button.classList.contains('fw-next')){nextRound();return}
     if(button.classList.contains('fw-repeat')||button.classList.contains('fw-audio')){
       say('Finn ordene. Se deg rundt i bildet, og trykk på tingene du finner.');return;
