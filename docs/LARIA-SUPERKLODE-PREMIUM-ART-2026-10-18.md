@@ -195,3 +195,22 @@ Node-statusen alene er ikke visuell premiumgodkjenning.
 2. Inspiser mobilportrett 320/390, iPad stående/liggende og Atlas ↔ Oppdag ↔ Enkel uten visuell lekkasje.
 3. Premiumrevider selve terrengillustrasjonen som en separat designoppgave, med geografisk korrekte former og gjennomgående aktiv personlig rev, før eventuell merge.
 4. Behold PR #184 som draft over #179 inntil premissene er oppfylt; ikke flett direkte til main.
+
+### Barnestyrte oppdagelsesstopp – gjennomført og kontrollert 18. oktober
+
+**Leveranse:** Seks eksisterende verdensdeler beholder samme landgeometri, kartmotor og frie rotasjon. «Se [verdensdel]» åpner nå en konkret introduksjon, og «Neste sted» viser tre valgfrie georefererte steder per verdensdel, **18 steder totalt**. Steder og fakta er kuratert i `discoveryContinentStories`, og lokal rekkefølge oppdateres ved barnets egne trykk. Ingen poeng, tvungen progresjon, quiz eller endringer i `mastery`/landdata.
+
+- Europa: Alpene, Norske fjorder, Donau
+- Afrika: Sahara, Nilen, Kongos regnskog
+- Asia: Himalaya, Gobiørkenen, Japan
+- Nord-Amerika: Rocky Mountains, De store sjøene, Mississippi
+- Sør-Amerika: Andesfjellene, Amazonas, Patagonia
+- Oseania: Korallrevet, Australias indre, New Zealand
+- Den faktisk valgte personlige reven i kortet får én kort animert reaksjon per oppdagelse; `prefers-reduced-motion` deaktiverer animasjonen. Den nye fakta-teksten har `aria-live="polite"`. Innføring av egen stemme/lyd er foreløpig **ikke** del av leveransen.
+- Kamerasentrene er sjekket mot geografiske koordinater og nærmeste av de seks verdensdelene. Zoom holdes på kontinentnivå (maks 1,72). Landtreff på den opprinnelige kartmotoren er urørt.
+- Statisk kontraktstest kontrollerer alle seks kuraterte løypene og at reduksjon av animasjon respekteres. Playwright sjekker den første invitasjonen for alle seks og kontrollerer den andre invitasjonen og dens faktiske kamerakoordinater i WebKit på stående iPhone og liggende iPad.
+- **Verifisert:** GitHub Actions `Laria Dual Globes Release QA`, kjøring [39125180113](https://github.com/Almenning/Flyt-app/actions/runs/39125180113), grønn på commit `9036cb0`. Artefakt `laria-discovery-globe-phase1-9036cb0a94ce445e3c536f484b12cca628f3ae1d` inneholder faktiske WebKit- og Chromium-skjermbilder.
+- **Visuell kontroll:** Seks stedskort fra iPad liggende og iPhone stående ble åpnet og sammenstilt. Navn, korte fakta, valgt rev og «Neste sted» er synlige på skjermbildene, også Rocky Mountains og Andesfjellene. Dermed er denne avgrensede funksjonen klar som fungerende prototype. Dette betyr **ikke** at hele SuperKlode er kunstnerisk premiumgodkjent.
+- `index.html` og `sw.js` er versjonert på nytt for ny ressurscache. Siste versjonscommit krever grønn QA på eksakt ny HEAD før videre handlinger.
+- **Åpen faglig mangel:** Antarktis er ikke tegnet med eget datagrunnlag i den eksisterende verdensdelenes landmotor, og er derfor ikke tilbudt som en syvende invitasjon. Legg bare til Antarktis med en dokumentert korrekt kystlinje/polarprojeksjon; ikke tegn en vilkårlig iskappe eller la barnet oppdage et tomt hav.
+- **Neste visuelle port:** Referansebasert premiumkunst for kontinentenes økosystemer, samt faktiske skjermbilder og ytelse fra iPad/iPhone. Hold `#184` draft, basert på `#179`; ingen merge eller publisering før både visuell og teknisk kontroll.
