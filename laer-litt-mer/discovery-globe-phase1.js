@@ -1062,6 +1062,7 @@ function discoveryDraw(){
   canvas.dataset.discoveryCarvedRelief=String(trialCarvedRelief);
   canvas.dataset.discoveryNaturalEarth=naturalEarthStatus;
   canvas.dataset.discoveryNaturalEarthPreparationMs=String(naturalEarthPreparationMs);
+  canvas.dataset.discoveryNaturalEarthSourcePx=String(naturalEarthPixels?.width||0);
   canvas.dataset.discoveryPaintCount=String(Number(canvas.dataset.discoveryPaintCount||0)+1);
   // v25 can still seed the old Tsjad showcase after selecting Oppdag.
   // Reconcile after the card update has completed, not inside its draw call.
