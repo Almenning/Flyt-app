@@ -126,3 +126,18 @@
   }
   #globe-view-toggle button{min-height:38px;padding:5px 11px;min-width:72px}
 }
+
+/* A selected country on iPad is one compact discovery card. Reserve a real
+   column for the flag, so it cannot sit on top of the facts at wide layouts. */
+@media (orientation:landscape) and (min-width:900px){
+  #world-screen.active.globe-v30[data-discovery-globe="painted-atlas-v1"] .globe-status.premium-country-selected{
+    grid-template-columns:54px minmax(0,1fr)!important;
+    align-items:center!important;
+  }
+  #world-screen.active.globe-v30[data-discovery-globe="painted-atlas-v1"] .globe-status.premium-country-selected .flag{
+    grid-column:1!important;align-self:start!important;margin-top:2px!important;
+  }
+  #world-screen.active.globe-v30[data-discovery-globe="painted-atlas-v1"] .globe-status.premium-country-selected .globe-country-copy{
+    grid-column:2!important;min-width:0!important;
+  }
+}

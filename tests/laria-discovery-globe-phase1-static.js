@@ -63,6 +63,8 @@ assert.match(preview,/simpleViewState&&\(!simpleViewRestored\|\|desiredView==='s
   'restoration must happen once per Atlas detour, but still complete on explicit Enkel selection');
 assert.match(preview,/function selectedFoxSource\(/,'the invitation must use the child’s actual selected fox source');
 assert.match(preview,/function enhanceDiscoveryCountryCard\(/,'the selected-country card must receive the discovery companion');
+assert.match(preview,/box\.classList\.add\('premium-country-selected'\)/,
+  'the selected discovery card must activate its reserved iPad flag/copy layout');
 assert.match(preview,/function discoveryCompanionText\(/,'the fox reaction must be place-aware, not generic decoration');
 assert.match(preview,/new MutationObserver\(\(\)=>\{/,'the discovery companion must react after the shared country card updates');
 assert.match(index,/id="globe-view-toggle"/,'accessible view buttons must be in the globe');

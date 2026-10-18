@@ -492,8 +492,10 @@ async function runDevice(engine,label,viewport,urls){
        assert.equal(result.terrainField,1,label+' missing coordinate-anchored continuous landscape shading: '+pose.name);
        if(pose.name==='world'&&viewport.width>=800&&viewport.height>=700)
          assert.ok(result.terrainPixels>=175,label+' iPad overview terrain remains too low resolution');
-       assert.ok(Number.isFinite(result.terrainMs)&&result.terrainMs>=0&&result.terrainMs<4000,
-         label+' landscape shader stalled the device ('+result.terrainMs+'ms) at '+pose.name);
+       /* A stationary continent paint may cost more than one animation frame,
+          but a multi-second completion is not a child-usable interaction. */
+       assert.ok(Number.isFinite(result.terrainMs)&&result.terrainMs>=0&&result.terrainMs<600,
+         label+' landscape shader exceeds the 600ms discovery budget ('+result.terrainMs+'ms) at '+pose.name);
        console.log('TERRAIN PERF',label,pose.name,result.terrainMs+'ms');
        assert.ok(result.relief>=1,label+' missing geographic mountain corridors: '+pose.name);
        assert.equal(result.selected,pose.country,label+' selection was lost at '+pose.name);

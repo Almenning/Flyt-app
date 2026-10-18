@@ -1092,6 +1092,9 @@ function enhanceDiscoveryCountryCard(){
   if(!country||!box)return false;
   const copy=box.querySelector('.globe-country-copy');if(!copy)return false;
   box.classList.remove('discovery-continent-intro');
+  /* The shared country card owns the click target. Mark the selected
+     discovery state so its reserved iPad flag/copy grid is actually active. */
+  box.classList.add('premium-country-selected');
   delete box.dataset.discoveryContinent;
   delete box.dataset.discoveryStoryStep;
   if(copy.querySelector('.discovery-country-companion'))return false;
