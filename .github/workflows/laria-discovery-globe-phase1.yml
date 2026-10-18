@@ -55,6 +55,7 @@ jobs:
         env:
           DISCOVERY_GLOBE_SCREENSHOTS: /tmp/laria-discovery-globe-phase1
           SUPERKLODE_NASA_TRIAL: '1'
+          SUPERKLODE_CARVED_TRIAL: '1'
         run: node tests/laria-discovery-globe-phase1.playwright.js
       - name: Upload comparison screenshots
         if: always()
