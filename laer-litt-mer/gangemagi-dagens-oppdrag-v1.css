@@ -126,6 +126,35 @@
   display:block;width:30px;height:43px;
 }
 .gm-shell[data-gm-mode="mission"] .gm-quest-fruit svg{display:block;width:100%;height:100%}
+/* The final step shows dynamically as many filled baskets as the mission
+   requires. Individual numbers remain in readable live text below. */
+.gm-shell[data-gm-mode="mission"] .gm-quest-filled-preview{
+ display:flex;align-items:center;justify-content:center;gap:0;
+ width:100%;height:100%;max-width:100%;
+}
+.gm-shell[data-gm-mode="mission"] .gm-quest-mini-basket{
+ position:relative;flex:0 1 35px;max-width:35px;min-width:0;height:42px;
+}
+.gm-shell[data-gm-mode="mission"] .gm-quest-mini-basket>svg{
+ display:block;width:100%;height:100%;filter:drop-shadow(0 2px 1px #7b4c2e4d);
+}
+.gm-shell[data-gm-mode="mission"] .gm-quest-mini-berries{
+ position:absolute;left:22%;width:57%;top:44%;height:25%;
+ display:flex;align-items:center;justify-content:space-around;gap:1px;
+}
+.gm-shell[data-gm-mode="mission"] .gm-quest-mini-berries i{
+ display:block;flex:1;max-width:8px;min-width:2px;aspect-ratio:.8;
+ border-radius:55% 50% 65% 65%;border:1px solid #bf423f;
+ background:linear-gradient(130deg,#ffab84,#df4c4d 70%,#a7303c);
+ box-shadow:0 1px 1px #6233285c;
+}
+@media(max-width:699px){
+ .gm-shell[data-gm-mode="mission"] .gm-quest-mini-basket{
+  flex-basis:24px;max-width:24px;height:30px;
+ }
+ .gm-shell[data-gm-mode="mission"] .gm-quest-mini-berries i{border:0}
+}
+
 .gm-shell[data-gm-mode="mission"] .gm-quest-math{
   font-size:clamp(14px,1.9vw,23px);font-weight:1000;white-space:nowrap;color:#8b512b;
 }
