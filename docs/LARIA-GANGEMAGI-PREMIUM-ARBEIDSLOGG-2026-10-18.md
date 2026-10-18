@@ -50,3 +50,13 @@ Dato: 18.10.2026
 
 ### Produktmessig vurdering
 Dette er en genuin funksjonell ombygging, ikke bare dekorasjon. Men skjermbildene viser at den virkelige scenen fortsatt ikke matcher referansens store, nærværende rev, maleriske tredimensjonale kurver og integrerte markedskomposisjon. Fortsett art-direction uten å lage en ny fasit eller erklære premium for tidlig. `PR #187` forblir **draft**, `PR #181` må ikke publiseres alene, og ingen GitHub Pages-publisering er autorisert før visuell og teknisk kvalitetsport er oppfylt.
+
+
+## Tredje illustrasjonskontroll / slutten av samme økt
+
+- `9d78bcb` ble verifisert med **grønn Chromium- og WebKit-Gangemagi QA** på seks enhetsoppsett i GitHub Actions run `39150868343`; screenshot-artifact `12144734970` hentet og undersøkt. Oppdragstavlens tredje illustrasjon viser nå henholdsvis 3 og 2 miniature kurver i testede oppdrag. Fysisk valgt kurv og første bær fungerer, og iPad stående har synlig fullføringsknapp.
+- `61732f3`: På iPhone 375px+ med nok høyde er brukerens **egen valgte rev** forstørret fra 105 × 121 til 135 × 155 CSS-piksler, uten å gjøre første-skjerm-layouten høyere. Overlapp og primærknappen må kontrolleres i neste faktiske WebKit-bilde.
+- `b0c838a`: Safari/PWA-versjonen er økt til `20261018-premium-locked2`, siden nye illustrerte JS/CSS/SVG-ressurser ellers kunne bli stående i gammel runtime-cache.
+- **Siste kodestatus:** Behold PR #187 som Draft. Kjør alle relevante eksakt-HEAD-tester på siste commit, inspiser reelle skjermbilder i mobil og nettbrett og mål samsvar mot den LÅSTE referanseillustrasjonen. Ingen publisering eller premium-merkelapp ennå.
+
+Neste visuelle prioritet etter grønn QA: et mer integrert marked med enda bedre sammenheng mellom personlig rev, trefasade, tredimensjonale kurver, dekor og mattevisning. Legg ikke til egne spillmoduser eller nye uavklarte konsepter.
