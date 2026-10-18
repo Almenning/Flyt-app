@@ -21,6 +21,9 @@ window.__lariaDiscoveryGlobePreview=false;
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 const project=(lon,lat,w,h)=>window.globeProject(lon,lat,w,h);
 const land=()=>typeof WORLD_COUNTRIES==='undefined'?[]:WORLD_COUNTRIES;
+// Natural Earth Antarctica is intentionally excluded from shared country data.
+const antarcticaGeo=window.LARIA_ANTARCTICA_GEOMETRY||null;
+const antarcticaOutline=antarcticaGeo?{geometry:antarcticaGeo}:null;
 const path=(ctx,c,w,h)=>{
   if(!c?.geometry||typeof geometryPolygons!=='function'||typeof drawProjectedLine!=='function')return false;
   for(const poly of geometryPolygons(c.geometry))for(const ring of poly)drawProjectedLine(ctx,ring,w,h);
@@ -46,6 +49,11 @@ const landscapeZones=[
   {name:'Congo rainforest',type:'rainforest',width:13,route:[[12,0],[19,-1],[26,0],[31,0]]},
   {name:'European woodlands',type:'forest',width:6,route:[[5,50],[12,51],[19,52],[27,54],[34,54]]},
   {name:'Scandinavian forests',type:'forest',width:9,route:[[7,59],[13,62],[21,65],[28,67]]},
+  /* Europe is the first authored continent. These remain geographic
+     corridors, so the extra character follows rotation and real coastlines. */
+  {name:'Norwegian fjord forests',type:'forest',width:3.2,route:[[5.4,59.4],[6.4,61.1],[7.4,62.8],[10.0,64.7]]},
+  {name:'Alpine valleys',type:'forest',width:3.4,route:[[6.1,45.8],[8.4,46.4],[10.7,46.6],[13.1,46.8]]},
+  {name:'Mediterranean hills',type:'savanna',width:4.8,route:[[-1.0,42.5],[5.8,43.1],[11.2,42.0],[16.8,41.2],[21.8,40.7]]},
   {name:'Northern Asian taiga',type:'forest',width:12,route:[[38,60],[52,60],[67,60],[83,61],[100,59],[118,58],[136,55]]},
   {name:'Southeast Asian forests',type:'rainforest',width:11,route:[[94,23],[101,18],[105,13],[110,8],[115,3]]},
   {name:'Indonesian rainforest',type:'rainforest',width:7,route:[[99,1],[107,-1],[115,-2],[121,-2]]},
@@ -157,15 +165,86 @@ function ocean(ctx,w,h,s){
   ctx.restore();
 }
 function paintLandBase(ctx,w,h,s){
-  for(const c of land()){
-    if(!c.geometry)continue;const base=continent[c.continent]||'#73986B';
-    const g=ctx.createLinearGradient(w*.25,h*.12,w*.78,h*.88);
-    g.addColorStop(0,mix(base,'#FFF7D8',.30));g.addColorStop(.50,base);g.addColorStop(1,mix(base,'#264E47',.25));
-    ctx.save();ctx.shadowColor='rgba(29,54,48,.30)';ctx.shadowBlur=Math.max(3,s*.009);ctx.shadowOffsetY=Math.max(1,s*.003);
-    ctx.beginPath();if(path(ctx,c,w,h)){ctx.fillStyle=g;ctx.fill();}ctx.restore();
-  }
+  // Countries are separate geographic hit targets, but the child should see
+  // ONE living continent. A per-country shadow made every nation look like a
+  // raised puzzle tile. Fill all authoritative polygons as a single shape,
+  // apply one soft shoreline shadow, then let the existing borders overlay.
+  ctx.save();
+  ctx.beginPath();let joined=false;
+  for(const c of land())if(c.geometry)joined=path(ctx,c,w,h)||joined;
+  if(!joined){ctx.restore();return;}
+  const base='#84A87A';
+  const g=ctx.createLinearGradient(w*.25,h*.12,w*.78,h*.88);
+  g.addColorStop(0,mix(base,'#FFF7D8',.30));
+  g.addColorStop(.50,base);
+  g.addColorStop(1,mix(base,'#264E47',.25));
+  ctx.fillStyle=g;
+  ctx.shadowColor='rgba(29,54,48,.25)';
+  ctx.shadowBlur=Math.max(3,s*.009);
+  ctx.shadowOffsetY=Math.max(1,s*.003);
+  ctx.fill();
+  ctx.restore();
   ctx.save();if(!landClip(ctx,w,h)){ctx.restore();return;}
-  const sun=ctx.createRadialGradient(w*.33,h*.22,0,w*.50,h*.50,s*.52);sun.addColorStop(0,'rgba(255,249,211,.34)');sun.addColorStop(.62,'rgba(255,244,194,.04)');sun.addColorStop(1,'rgba(38,81,57,.12)');ctx.fillStyle=sun;ctx.fillRect(0,0,w,h);ctx.restore();
+  const sun=ctx.createRadialGradient(w*.33,h*.22,0,w*.50,h*.50,s*.52);
+  sun.addColorStop(0,'rgba(255,249,211,.34)');
+  sun.addColorStop(.62,'rgba(255,244,194,.04)');
+  sun.addColorStop(1,'rgba(38,81,57,.12)');
+  ctx.fillStyle=sun;ctx.fillRect(0,0,w,h);ctx.restore();
+}
+/* A real Antarctic coastline is painted only by Oppdag. Land polygons and
+   clickable countries in the existing Enkel/Atlas engines are never changed.
+   Ice pigment is illustrative; coast contours are from Natural Earth 1:110m. */
+function paintAntarcticIce(ctx,w,h,s){
+  if(!antarcticaOutline||globeLat>26)return 0;
+  ctx.save();
+  ctx.beginPath();
+  if(!path(ctx,antarcticaOutline,w,h)){ctx.restore();return 0;}
+  /* Antarctica needs the same readable depth as every other continent.
+     Keep the true Natural Earth outline, but let blue-green shelf shadow and
+     warm snow-light define a large ice mass at continent scale. */
+  const ice=ctx.createRadialGradient(w*.38,h*.24,s*.03,w*.55,h*.55,s*.68);
+  ice.addColorStop(0,'#FFFDF0');ice.addColorStop(.31,'#EDF5EC');
+  ice.addColorStop(.63,'#CBE3DF');ice.addColorStop(.83,'#9DC8CF');
+  ice.addColorStop(1,'#639EAE');
+  ctx.fillStyle=ice;ctx.fill();
+  ctx.clip();
+  // Subtle geographically anchored snow/ice-shadow bands, not arbitrary
+  // continent-shaped decorative stamps.
+  const iceRoutes=[
+    [[-69,-66],[-61,-69],[-58,-73],[-50,-77]],
+    [[-151,-76],[-141,-79],[-132,-82],[-122,-84]],
+    [[112,-66],[111,-70],[107,-75],[99,-80]],
+    [[157,-74],[162,-78],[166,-81],[171,-84]]
+  ];
+  for(const route of iceRoutes){
+    if(!smoothGeoStroke(ctx,route,w,h,s))continue;
+    ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
+    ctx.strokeStyle='rgba(67,132,151,.34)';
+    ctx.lineWidth=Math.max(3,s*.015);ctx.stroke();
+    ctx.strokeStyle='rgba(247,252,239,.82)';
+    ctx.lineWidth=Math.max(1.2,s*.0046);ctx.stroke();
+    ctx.restore();
+  }
+  /* Wide ice shelves are geographic meridian corridors, not screen-space
+     decoration. Their translucent shadows keep the polar world legible on
+     a small phone as well as on a large iPad. */
+  for(const route of [
+    [[-176,-78],[-164,-80],[-150,-81]],
+    [[-43,-76],[-28,-79],[-12,-80]],
+    [[27,-72],[41,-75],[57,-78]],
+    [[74,-68],[90,-72],[104,-76]]
+  ]){
+    if(!smoothGeoStroke(ctx,route,w,h,s))continue;
+    ctx.save();ctx.lineCap='round';
+    ctx.strokeStyle='rgba(89,163,179,.23)';ctx.lineWidth=Math.max(5,s*.030);ctx.stroke();
+    ctx.strokeStyle='rgba(250,253,240,.46)';ctx.lineWidth=Math.max(2,s*.010);ctx.stroke();
+    ctx.restore();
+  }
+  ctx.restore();
+  ctx.save();ctx.beginPath();path(ctx,antarcticaOutline,w,h);
+  ctx.strokeStyle='rgba(248,253,241,.81)';ctx.lineWidth=Math.max(.9,s*.002);ctx.stroke();
+  ctx.restore();
+  return 1;
 }
 const colorAlpha=(hex,a)=>{
   const n=parseInt(hex.slice(1),16);
@@ -232,8 +311,8 @@ const terrainSamples=(features,step)=>features.flatMap((feature,z)=>{
 let terrainBiomeAnchors=null;
 let terrainRidgeAnchors=null;
 const terrainTint={
-  rainforest:[20,88,57],forest:[49,110,76],desert:[228,177,101],
-  savanna:[166,158,85],tundra:[156,181,165],ice:[225,243,232]
+  rainforest:[18,85,54],forest:[45,106,70],desert:[230,180,107],
+  savanna:[163,159,88],tundra:[156,181,165],ice:[225,243,232]
 };
 function terrainHash(x,y,salt){
   let n=(Math.imul(x,374761393)+Math.imul(y,668265263)+Math.imul(salt,1442695041))|0;
@@ -284,7 +363,8 @@ function paintWorldTerrain(ctx,w,h,s,level,moving){
   const key=[Math.round(globeLon*200)/200,Math.round(globeLat*200)/200,
     Math.round(globeZoom*200)/200,Math.round(s),level].join('|');
   if(!terrainFieldCache||terrainFieldCache.key!==key){
-    const pixels=level===1?128:level===2?172:208;
+    // Sharpen large iPad overviews without paying for extra pixels on phones.
+    const pixels=level===1?clamp(Math.round(s*.33),128,205):level===2?172:208;
     const startedAt=performance.now();
     const surface=document.createElement('canvas');
     surface.width=pixels;surface.height=pixels;
@@ -319,25 +399,50 @@ function paintWorldTerrain(ctx,w,h,s,level,moving){
         const leafy=bp&&(bp.kind==='rainforest'||bp.kind==='forest');
         const base=shade+mountainCut*85-mountainReach*28;
         const neutral=[118+base*.64,161+base*.75,115+base*.49];
-        const alpha=clamp(.17+biomeReach*.56+mountainReach*.18,.17,.79);
-        const mixT=clamp(biomeReach*.94,0,.96);
+        const alpha=clamp(.30+biomeReach*.61+mountainReach*.45,.28,.94);
+        const mixT=clamp(biomeReach*1.19,0,.99);
         let red=neutral[0],green=neutral[1],blue=neutral[2];
         if(tint){
           red=red*(1-mixT)+tint[0]*mixT;
           green=green*(1-mixT)+tint[1]*mixT;
           blue=blue*(1-mixT)+tint[2]*mixT;
           if(leafy){
-            const crown=canopy*(level===3?92:level===2?77:52)*biomeReach;
-            red+=crown*.52;
-            green+=crown*.76;
-            blue+=crown*.48;
+            // Overlapping sunlit crowns and shaded canopy are continuous
+            // land material in geographic space, not repeated tree symbols.
+            const crown=canopy*(level===3?92:level===2?81:67)*biomeReach;
+            const grove=terrainNoise(lon-.23,lat+.19,level===1?2.2:4.4,43)-.5;
+            const forestShade=grove*42*biomeReach;
+            red+=crown*.48+forestShade*.80;
+            green+=crown*.80+forestShade*.92;
+            blue+=crown*.43+forestShade*.49;
+          }else if(bp.kind==='desert'){
+            // Soft, angled dunes use geographic pigment variation, not a
+            // dotted icon pattern. The warm ochre remains land-clipped.
+            const dunes=terrainNoise(lon+.35,lat-.27,level===1?1.1:2.1,59)-.5;
+            const ridges=terrainNoise(lon,lat,level===1?2.1:3.7,61)-.5;
+            const sand=(dunes*.66+ridges*.34)*51*biomeReach;
+            red+=sand*.83;green+=sand*.61;blue+=sand*.30;
           }
         }
-        if(mountainReach>.06){
-          const light=mountainCut*48;
-          red+=light+mountainReach*10;
-          green+=light+mountainReach*9;
-          blue+=light+mountainReach*8;
+        if(mountainReach>.06&&rp){
+          /* Rock and snow belong to a continuous corridor around each
+             georeferenced mountain spine. Spatial noise forms lit/shaded
+             facets; these are material pigments, not peak-shaped stamps. */
+          const facets=terrainNoise(lon,lat,level===1?1.6:3.1,73)-.5;
+          const ridgeLight=terrainNoise(lon+.42,lat-.24,level===1?2.1:4.2,79)-.5;
+          const stone=rp.snow?[165,171,160]:[157,135,107];
+          const stoneWeight=clamp(mountainReach*(.57+facets*.65),0,.69);
+          const shade=mountainReach*(facets*49+ridgeLight*37);
+          red=red*(1-stoneWeight)+stone[0]*stoneWeight+shade;
+          green=green*(1-stoneWeight)+stone[1]*stoneWeight+shade*.91;
+          blue=blue*(1-stoneWeight)+stone[2]*stoneWeight+shade*.73;
+          if(rp.snow){
+            const snowFacet=clamp((terrainNoise(lon,lat,level===1?2.5:5.2,31)-.29)*2.1,0,1);
+            const snow=mountainReach*snowFacet*.58;
+            red=red*(1-snow)+247*snow;
+            green=green*(1-snow)+244*snow;
+            blue=blue*(1-snow)+223*snow;
+          }
         }
         const k=(py*pixels+px)*4;
         data[k]=clamp(red,0,255);
@@ -354,7 +459,10 @@ function paintWorldTerrain(ctx,w,h,s,level,moving){
     ctx.imageSmoothingEnabled=true;
     ctx.drawImage(terrainFieldCache.surface,(w-s)/2,(h-s)/2,s,s);
     const canvas=document.getElementById('globe-canvas');
-    if(canvas)canvas.dataset.discoveryTerrainMs=String(Math.round(terrainFieldCache.ms));
+    if(canvas){
+      canvas.dataset.discoveryTerrainMs=String(Math.round(terrainFieldCache.ms));
+      canvas.dataset.discoveryTerrainPixels=String(terrainFieldCache.surface.width);
+    }
     ctx.restore();return 1;
   }
   ctx.restore();return 0;
@@ -391,6 +499,13 @@ const mountainChains=[
  {name:'Ethiopian Highlands',width:2.4,snow:false,route:[[37.6,7.1],[38.6,10.6],[39.6,13.4]]},
  {name:'Appalachians',width:2,snow:false,route:[[-84.3,34],[-82.8,37],[-79,40],[-75.6,43.5]]}
 ];
+// A continent-first globe must have recognisable relief beyond Europe.
+// These are real coordinate paths, not fixed icons pasted on the screen.
+const continentCrestChains=new Set([
+  'Scandes','Alps','Atlas','Rockies','Andes','Himalaya',
+  'Japanese Alps','Australian ranges','Drakensberg','Southern Alps NZ'
+]);
+const continentRiverNames=new Set(['Amazonas','Nile','Mississippi','Yangtze']);
 const riverWays=[
   {name:'Amazonas',route:[[-72,-4],[-68,-4.1],[-64,-3.6],[-61,-3.4],[-58,-3],[-55,-2.8],[-52,-2],[-49.5,-1.3]]},
   {name:'Nile',route:[[31,30.5],[31.3,26],[32.1,21],[33,17],[32.4,12],[31.8,8]]},
@@ -399,31 +514,35 @@ const riverWays=[
   {name:'Yangtze',route:[[97,33.3],[102,30.7],[107,29.8],[112,30.2],[117,30.9],[121,31.1]]}
 ];
 function paintMountainCrests(ctx,chain,w,h,s,level,width){
-  if(level<2)return 0;
+  /* A few continent-defining mountain ranges stay legible at overview
+     scale. Smaller ranges still wait until regional zoom; no icon stamps. */
+  const continentHero=continentCrestChains.has(chain.name);
+  if(level<2&&!continentHero)return 0;
   let drawn=0;
   for(let j=0;j<chain.route.length-1;j++){
     const a=chain.route[j],b=chain.route[j+1];
-    const steps=Math.max(2,Math.round(Math.max(Math.abs(a[0]-b[0]),Math.abs(a[1]-b[1]))/(level===2?2.8:1.9)));
+    const spacing=level===1?1.85:(level===2?2.8:1.9);
+    const steps=Math.max(2,Math.round(Math.max(Math.abs(a[0]-b[0]),Math.abs(a[1]-b[1]))/spacing));
     for(let k=0;k<steps;k++){
       const t=(k+.42)/steps,lon=a[0]+(b[0]-a[0])*t,lat=a[1]+(b[1]-a[1])*t;
       const p=project(lon,lat,w,h);if(!p||p[2]<.2)continue;
       const seed=Math.abs(Math.sin((j*31+k*7+lat)*1.23));
-      const height=clamp(Math.max(width*(.42+seed*.22),s*(level===2?.0085:.012)),s*.007,s*.024)*(level===3?1.08:.95);
+      const height=clamp(Math.max(width*(.42+seed*.22),s*(level===1?.009:level===2?.0085:.012)),s*.006,s*.024)*(level===3?1.08:level===1?.98:.95);
       const x=p[0],y=p[1];
       ctx.save();
-      ctx.fillStyle='rgba(37,85,74,.40)';
-      ctx.beginPath();ctx.moveTo(x-height*.98,y+height*.48);
-      ctx.lineTo(x,y-height*.97);ctx.lineTo(x+height*.95,y+height*.55);
-      ctx.closePath();ctx.fill();
-      ctx.fillStyle='rgba(165,186,153,.86)';
-      ctx.beginPath();ctx.moveTo(x-height*.94,y+height*.48);
-      ctx.lineTo(x,y-height*.94);ctx.lineTo(x-height*.12,y+height*.46);
-      ctx.closePath();ctx.fill();
+      /* Do not place a row of little mountain icons on the map.  A pair of
+         irregular light/shadow contour strokes makes one continuous ridge
+         when the samples overlap along the real geographic chain. */
+      ctx.lineCap='round';ctx.lineJoin='round';
+      ctx.strokeStyle=level===1?'rgba(40,71,65,.49)':'rgba(43,79,68,.42)';ctx.lineWidth=Math.max(.8,height*.36);
+      ctx.beginPath();ctx.moveTo(x-height*.72,y+height*.35);
+      ctx.quadraticCurveTo(x-height*.18,y-height*.74,x+height*.68,y+height*.26);ctx.stroke();
+      ctx.strokeStyle=level===1?'rgba(224,234,206,.77)':'rgba(210,224,193,.68)';ctx.lineWidth=Math.max(.6,height*.15);
+      ctx.beginPath();ctx.moveTo(x-height*.62,y+height*.16);
+      ctx.quadraticCurveTo(x-height*.13,y-height*.63,x+height*.50,y+height*.08);ctx.stroke();
       if(chain.snow){
-        ctx.fillStyle='rgba(255,253,233,.89)';ctx.beginPath();
-        ctx.moveTo(x,y-height*.95);ctx.lineTo(x-height*.25,y-height*.41);
-        ctx.lineTo(x-height*.07,y-height*.51);ctx.lineTo(x+height*.15,y-height*.43);
-        ctx.closePath();ctx.fill();
+        ctx.strokeStyle='rgba(255,253,233,.72)';ctx.lineWidth=Math.max(.55,height*.11);
+        ctx.beginPath();ctx.moveTo(x-height*.15,y-height*.47);ctx.quadraticCurveTo(x,y-height*.72,x+height*.17,y-height*.43);ctx.stroke();
       }else{
         ctx.strokeStyle='rgba(230,219,163,.58)';ctx.lineWidth=Math.max(.6,height*.11);
         ctx.beginPath();ctx.moveTo(x-height*.16,y-height*.52);ctx.lineTo(x-height*.45,y+height*.15);ctx.stroke();
@@ -435,7 +554,7 @@ function paintMountainCrests(ctx,chain,w,h,s,level,width){
 }
 function paintReliefTrails(ctx,w,h,s,level,moving){
   if(moving)return 0;
-  let count=0;
+  let count=0,continentCrests=0,continentRivers=0;
   for(let c=0;c<mountainChains.length;c++){
     const chain=mountainChains[c],zone={route:chain.route,width:chain.width};
     const radius=clamp(geoBrushWidth(zone,w,h,s)*1.12,s*.008,s*.12);
@@ -466,15 +585,24 @@ function paintReliefTrails(ctx,w,h,s,level,moving){
       ctx.strokeStyle=chain.snow?'rgba(241,247,222,.23)':'rgba(231,211,156,.21)';
       ctx.lineWidth=Math.max(.60,s*.0015);ctx.stroke();ctx.restore();
     }
-    count+=1+paintMountainCrests(ctx,chain,w,h,s,level,radius*.72);
+    const crests=paintMountainCrests(ctx,chain,w,h,s,level,radius*.72);
+    if(level===1&&continentCrestChains.has(chain.name))continentCrests+=crests;
+    count+=1+crests;
   }
-  if(level>=2)for(const river of riverWays){
+  for(const river of riverWays){
+    if(level===1&&!continentRiverNames.has(river.name))continue;
     if(!smoothGeoStroke(ctx,river.route,w,h,s))continue;
     ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
-    const k=s*.0022*clamp(Math.pow(globeZoom,.14),1,1.25);
-    ctx.strokeStyle='rgba(26,110,132,.46)';ctx.lineWidth=Math.max(1,k*2.1);ctx.stroke();
-    ctx.strokeStyle='rgba(172,232,219,.73)';ctx.lineWidth=Math.max(.68,k*.88);ctx.stroke();
-    ctx.restore();count++;
+    const k=s*(level===1?.0016:.0022)*clamp(Math.pow(globeZoom,.14),1,1.25);
+    ctx.strokeStyle=level===1?'rgba(24,100,117,.42)':'rgba(26,110,132,.46)';ctx.lineWidth=Math.max(1,k*2.1);ctx.stroke();
+    ctx.strokeStyle=level===1?'rgba(169,224,217,.65)':'rgba(172,232,219,.73)';
+    ctx.lineWidth=Math.max(.68,k*.88);ctx.stroke();
+    ctx.restore();count++;if(level===1)continentRivers++;
+  }
+  const canvas=document.getElementById('globe-canvas');
+  if(canvas){
+    canvas.dataset.discoveryContinentCrests=String(continentCrests);
+    canvas.dataset.discoveryContinentRivers=String(continentRivers);
   }
   return count;
 }
@@ -487,14 +615,20 @@ function paintReliefTrails(ctx,w,h,s,level,moving){
    children zoom closer; all samples are deterministic geographic points. */
 const geoNoise=n=>{const x=Math.sin(n*78.233+19.192)*43758.5453;return x-Math.floor(x);};
 function paintGeographicTexture(ctx,w,h,s,level,moving){
-  if(moving||level===1)return 0;
+  // At continent scale the world needs recognisable natural material, not
+  // only a blurred colour field. Use fewer, gently blended geographic flecks.
+  if(moving)return 0;
   let drawn=0;
   /* Small overlapping canopy crowns create one coherent forest, not a few
      giant decorative trees. Density is tied to geographic forest corridors. */
   for(let z=0;z<landscapeZones.length;z++){
     const zone=landscapeZones[z],segments=zone.route.length-1;
     const leafy=zone.type==='rainforest'||zone.type==='forest';
-    const perZone=leafy?(level===2?33:82):(level===2?18:43);
+    /* At overview, use many overlapping small washes rather than a few
+       oversized clumps. The rainforest then reads as one painted canopy
+       and the Sahara as sand material, never as stamped map symbols. */
+    const perZone=leafy?(level===1?62:level===2?104:156):
+      (level===1?30:level===2?42:62);
     for(let i=0;i<perZone;i++){
       const t=geoNoise(z*109+i*29+9)*segments;
       const j=Math.min(segments-1,Math.floor(t)),f=t-j;
@@ -502,27 +636,32 @@ function paintGeographicTexture(ctx,w,h,s,level,moving){
       const lon=a[0]+(b[0]-a[0])*f+(geoNoise(z*307+i*17+1)-.5)*zone.width*.80;
       const lat=a[1]+(b[1]-a[1])*f+(geoNoise(z*127+i*43+4)-.5)*zone.width*.80;
       const p=project(lon,lat,w,h);if(!p||p[2]<.18)continue;
-      const k=s*(leafy?(level===2?.0078:.0105):(level===2?.005:.0075))*
+      /* At continent scale these must read as broad natural material on an
+         actual globe, not disappear into a uniformly coloured country.
+         The marks still overlap and stay land-clipped; only their visual
+         footprint is raised enough to survive the iPad overview. */
+      const k=s*(leafy?(level===1?.00545:level===2?.0053:.0037):
+        (level===1?.0057:level===2?.0059:.0052))*
         clamp(Math.pow(globeZoom,.13),1,1.27)*
         clamp(p[2]+.21,.55,1.1)*(0.67+geoNoise(i*7+z*19)*.49);
       if(p[0]<-k*3||p[0]>w+k*3||p[1]<-k*3||p[1]>h+k*3)continue;
       ctx.save();ctx.translate(p[0],p[1]);ctx.lineCap='round';ctx.lineJoin='round';
       if(leafy){
         const tropical=zone.type==='rainforest';
-        ctx.fillStyle=tropical?'rgba(23,77,56,.31)':'rgba(39,87,58,.26)';
-        ctx.beginPath();ctx.ellipse(0,k*.40,k*1.38,k*.60,.12,0,Math.PI*2);ctx.fill();
-        for(const [dx,dy,scale] of [[-.65,.08,.77],[.50,.04,.82],[-.12,-.35,.98],[.35,-.38,.61]]){
+        /* Irregular canopy flecks overlap into a forest mass.  They have no
+           trunks, silhouettes or fixed spacing, so they cannot read as icons. */
+        for(const [dx,dy,scale] of [[-.58,.09,.72],[.42,.02,.84],[-.09,-.31,.93],[.31,-.35,.56],[-.34,-.41,.48]]){
           const x=k*dx,y=k*dy,r=k*scale;
-          ctx.fillStyle=tropical?'rgba(31,103,65,.75)':'rgba(56,111,69,.73)';
+          ctx.fillStyle=tropical?'rgba(20,83,52,.47)':'rgba(42,91,57,.44)';
           ctx.beginPath();ctx.ellipse(x,y,r*.71,r*.72,-.16,0,Math.PI*2);ctx.fill();
-          ctx.fillStyle=tropical?'rgba(112,179,94,.67)':'rgba(165,194,115,.61)';
+          ctx.fillStyle=tropical?'rgba(132,190,104,.34)':'rgba(188,208,129,.32)';
           ctx.beginPath();ctx.ellipse(x-r*.22,y-r*.23,r*.38,r*.28,-.26,0,Math.PI*2);ctx.fill();
         }
       }else if(zone.type==='desert'){
-        ctx.fillStyle='rgba(242,207,136,.28)';
+        ctx.fillStyle='rgba(242,207,136,.31)';
         ctx.beginPath();ctx.ellipse(0,k*.42,k*1.14,k*.36,0,0,Math.PI*2);ctx.fill();
         for(let t=0;t<3;t++){
-          ctx.strokeStyle=t===1?'rgba(254,239,174,.75)':'rgba(163,109,52,.42)';
+          ctx.strokeStyle=t===1?'rgba(254,239,174,.71)':'rgba(163,109,52,.43)';
           ctx.lineWidth=Math.max(.55,k*.16);
           ctx.beginPath();ctx.moveTo(-k*1.06,k*(t*.29-.30));
           ctx.quadraticCurveTo(-k*.05,k*(t*.29-.90),k*1.07,k*(t*.29-.20));ctx.stroke();
@@ -674,6 +813,7 @@ function paintSmallCountries(ctx,w,h,s){
   }
 }
 function discoveryDraw(){
+  if(globeSelected)activeDiscoveryLocation=null;
   const canvas=document.getElementById('globe-canvas');if(!canvas?._cssW||!canvas?._cssH)return;
   const w=canvas._cssW,h=canvas._cssH,s=Math.min(w,h),dpr=canvas._dpr||1,ctx=canvas.getContext('2d');
   ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);ctx.save();ctx.beginPath();ctx.arc(w/2,h/2,s*.46,0,Math.PI*2);ctx.clip();
@@ -681,22 +821,29 @@ function discoveryDraw(){
   /* Pointer ownership is the reliable signal while a drag is active. */
   const moving=window.__lariaGlobeInteracting===true&&typeof globePointers!=='undefined'&&globePointers.size>0;
   ocean(ctx,w,h,s);paintLandBase(ctx,w,h,s);
-  const biomeCount=paintBiomes(ctx,w,h,s,moving);
+  /* Material pass replaces separate biome washes: the land reads as one painted surface. */
+  const biomeCount=0;
   const fieldCount=paintWorldTerrain(ctx,w,h,s,level,moving);
   /* A moving globe uses its base map without the expensive land clip for
      stationary-only detail. This saves an entire geometry pass per frame. */
   ctx.save();const validLand=!moving&&landClip(ctx,w,h);
   const textureCount=validLand?paintGeographicTexture(ctx,w,h,s,level,moving):0;
   const reliefCount=validLand?paintReliefTrails(ctx,w,h,s,level,moving):0;
-  const terrainCount=validLand?paintTerrainMarks(ctx,w,h,s,level,moving):0;
-  const landmarkCount=validLand?paintLandmarks(ctx,w,h,s,level,moving,false):0;
+  /* No landmark stamps on land: mountains and forests must belong to the terrain itself. */
+  const terrainCount=0;
+  const landmarkCount=0;
   ctx.restore();
+  const polarCount=paintAntarcticIce(ctx,w,h,s);
   const seaCount=paintLandmarks(ctx,w,h,s,level,moving,true);
   paintBorders(ctx,w,h,s);paintSmallCountries(ctx,w,h,s);
+  const discoveryLocationCount=paintDiscoveryLocation(ctx,w,h,s,moving);
   if(typeof drawGlobePulse==='function')drawGlobePulse(ctx,w,h);
   ctx.restore();
-  screen.dataset.discoveryGlobeLevel=String(level);screen.dataset.discoveryGlobe='landscapes-v2';
+  screen.dataset.discoveryGlobeLevel=String(level);screen.dataset.discoveryGlobe='painted-atlas-v1';
   canvas.dataset.discoveryRenderer='live';canvas.dataset.discoveryTerrainField=String(fieldCount);canvas.dataset.discoveryEcosystems=String(biomeCount);canvas.dataset.discoveryRelief=String(reliefCount);canvas.dataset.discoveryTexture=String(textureCount);canvas.dataset.discoveryLandmarks=String(landmarkCount+terrainCount+reliefCount+textureCount+seaCount+biomeCount+fieldCount);canvas.dataset.discoveryMoving=String(moving);
+  canvas.dataset.discoveryLocationCount=String(discoveryLocationCount);
+  canvas.dataset.discoveryLocationName=discoveryLocationCount?activeDiscoveryLocation.title:'';
+  canvas.dataset.discoveryAntarcticLand=String(polarCount);
   canvas.dataset.discoveryPaintCount=String(Number(canvas.dataset.discoveryPaintCount||0)+1);
   // v25 can still seed the old Tsjad showcase after selecting Oppdag.
   // Reconcile after the card update has completed, not inside its draw call.
@@ -746,6 +893,7 @@ function clearOffscreenDiscoverySelection(){
       '<span>Snurr på kloden og trykk på et land du vil utforske.</span></div>';
     box.onclick=null;box.style.cursor='default';
   }
+  renderDiscoveryWelcome();
   if(typeof window.drawGlobe==='function')window.drawGlobe();
   return true;
 }
@@ -756,6 +904,232 @@ let desiredView='simple';
 try{if(localStorage.getItem(preferenceKey)==='discover')desiredView='discover'}catch(_){}
 if(forcedPreview)desiredView='discover';
 const controls=[...document.querySelectorAll('#globe-view-toggle [data-globe-view]')];
+const continentZoomCap=1.72;
+/* Discovery begins at continent scale. The geographic center of the globe,
+   not an arbitrary UI carousel, determines which story invitation is visible.
+   The underlying country map remains the authoritative hit target. */
+const discoveryContinentStops=[
+  {name:'Europa',lon:13,lat:53,zoom:1.38,teaser:'Fjorder, fjell og mange land å oppdage.'},
+  {name:'Afrika',lon:19,lat:3,zoom:1.28,teaser:'Sahara, savanner og grønne regnskoger.'},
+  {name:'Asia',lon:104,lat:38,zoom:1.30,teaser:'Høye fjell, store skoger og spennende øyer.'},
+  {name:'Nord-Amerika',lon:-105,lat:43,zoom:1.30,teaser:'Store skoger, høye fjell og lange elver.'},
+  {name:'Sør-Amerika',lon:-62,lat:-14,zoom:1.30,teaser:'Amazonas, Andesfjellene og grønn regnskog.'},
+  {name:'Oseania',lon:135,lat:-25,zoom:1.30,teaser:'Australia, store hav og mange øyer.'},
+  {name:'Antarktis',lon:0,lat:-82,zoom:1.28,teaser:'Is, forskere og mange pingviner.'}
+];
+/* Child-directed discoveries at real longitude/latitude. A tap reveals a
+   fresh, optional place to explore, never a mandatory quiz or progression
+   gate. Antarktis uses its own public-domain coastlines, not a country or
+   shared-map record. */
+const discoveryContinentStories={
+ 'Europa':{
+   intro:'I Europa finner du fjorder, fjell, skoger og store hav.',
+   places:[
+     {title:'Alpene',text:'Disse fjellene strekker seg gjennom flere land.',lon:11,lat:47},
+     {title:'Norske fjorder',text:'Isbreer har gravd ut mange av fjordene i Norge.',lon:11,lat:64},
+     {title:'Donau',text:'Donau renner gjennom flere land i Europa.',lon:22,lat:46}
+   ]
+ },
+ 'Afrika':{
+   intro:'Afrika har både ørken, savanne og frodig regnskog.',
+   places:[
+     {title:'Sahara',text:'Sahara er verdens største varme ørken.',lon:13,lat:23},
+     {title:'Nilen',text:'Denne elven renner nordover gjennom Afrika.',lon:31,lat:22},
+     {title:'Kongos regnskog',text:'Her finnes en av verdens største regnskoger.',lon:23,lat:-4}
+   ]
+ },
+ 'Asia':{
+   intro:'Asia er verdens største verdensdel.',
+   places:[
+     {title:'Himalaya',text:'I Himalaya ligger verdens høyeste fjell.',lon:87,lat:29},
+     {title:'Gobiørkenen',text:'Gobi er en stor ørken der vintrene kan være kalde.',lon:104,lat:41},
+     {title:'Japan',text:'Japan består av mange øyer øst i Asia.',lon:138,lat:36}
+   ]
+ },
+ 'Nord-Amerika':{
+   intro:'Her finner du både fjellkjeder, skoger og store sjøer.',
+   places:[
+     {title:'Rocky Mountains',text:'Denne fjellkjeden strekker seg langt mot nord.',lon:-112,lat:42},
+     {title:'De store sjøene',text:'Disse innsjøene ligger mellom USA og Canada.',lon:-86,lat:43},
+     {title:'Mississippi',text:'En av Nord-Amerikas store elver renner mot sør.',lon:-91,lat:34}
+   ]
+ },
+ 'Sør-Amerika':{
+   intro:'Andesfjellene ligger vest for regnskogen i Amazonas.',
+   places:[
+     {title:'Andesfjellene',text:'En lang fjellkjede følger vestkanten av kontinentet.',lon:-70,lat:-19},
+     {title:'Amazonas',text:'Amazonas er en av verdens mest vannrike elver.',lon:-60,lat:-4},
+     {title:'Patagonia',text:'Helt i sør finner du fjell, vind og isbreer.',lon:-71,lat:-46}
+   ]
+ },
+ 'Oseania':{
+   intro:'Her er det store hav, korallrev og mange øyer.',
+   places:[
+     {title:'Korallrevet',text:'Great Barrier Reef ligger utenfor Australia.',lon:146,lat:-19},
+     {title:'Australias indre',text:'Store deler av det indre Australia er tørre.',lon:134,lat:-25},
+     {title:'New Zealand',text:'Her finnes høye fjell og store isbreer.',lon:170,lat:-42}
+   ]
+ },
+ 'Antarktis':{
+   intro:'Det isdekte kontinentet er et sted mennesker reiser for å forske.',
+   places:[
+     {title:'Antarktishalvøya',text:'Halvøya strekker seg nordover mot Sør-Amerika.',lon:-64,lat:-68},
+     {title:'Rossisen',text:'En enorm isplattform flyter på havet ved Antarktis.',lon:173,lat:-81},
+     {title:'Sørpolen',text:'Ved Sørpolen er det vinter i et halvt år.',lon:0,lat:-90}
+   ]
+ }
+};
+const discoveryContinentVisits=new Map();
+let activeDiscoveryLocation=null;
+function paintDiscoveryLocation(ctx,w,h,s,moving){
+  if(moving||!activeDiscoveryLocation)return 0;
+  const {lon,lat}=activeDiscoveryLocation;
+  const p=project(lon,lat,w,h);
+  if(!p||p[2]<.10)return 0;
+  const r=clamp(s*.014,4.5,9);
+  // A single location highlight indicates what the child is discovering.
+  // It never changes the original country hit testing or land geometry.
+  ctx.save();
+  ctx.shadowColor='rgba(255,224,120,.72)';
+  ctx.shadowBlur=r*2;
+  ctx.beginPath();ctx.arc(p[0],p[1],r,0,Math.PI*2);
+  ctx.fillStyle='#D9913C';ctx.fill();
+  ctx.shadowBlur=0;
+  ctx.strokeStyle='#FFF7D5';ctx.lineWidth=Math.max(1.4,r*.30);ctx.stroke();
+  ctx.beginPath();ctx.arc(p[0],p[1],r*.32,0,Math.PI*2);
+  ctx.fillStyle='#FFFDF0';ctx.fill();
+  ctx.restore();
+  return 1;
+}
+function showContinentDiscovery(stop,box,button){
+  if(window.__lariaDiscoveryGlobePreview!==true||globeSelected)return;
+  const story=discoveryContinentStories[stop.name];
+  if(!story)return;
+  const visits=discoveryContinentVisits.get(stop.name)||0;
+  const place=visits>0?story.places[(visits-1)%story.places.length]:null;
+  const target=place||stop;
+  activeDiscoveryLocation=place?{
+    continent:stop.name,title:place.title,lon:place.lon,lat:place.lat
+  }:null;
+  globeLon=target.lon;globeLat=target.lat;
+  if(typeof setGlobeZoom==='function')setGlobeZoom(place?1.44:stop.zoom);
+  else window.drawGlobe?.();
+  discoveryContinentVisits.set(stop.name,visits+1);
+  const copy=box.querySelector('.discovery-intro-copy');
+  if(!copy)return;
+  copy.querySelector('.discovery-intro-kicker').textContent=place?'ET STED Å OPPDAGE':'VI ER HER';
+  copy.querySelector('strong').textContent=place?place.title:stop.name;
+  copy.querySelector('.discovery-intro-teaser').textContent=place?place.text:story.intro;
+  button.textContent='Neste sted';
+  box.dataset.discoveryStoryStep=String(visits);
+  const fox=box.querySelector('.discovery-intro-fox');
+  if(fox){
+    fox.classList.remove('discovery-fox-reacting');
+    requestAnimationFrame(()=>fox.classList.add('discovery-fox-reacting'));
+  }
+  // On the shortest phones the child should still be able to see and turn
+  // the geographic globe; nothing is automatically marked completed.
+  scrollShortDiscovery(false);
+}
+function discoveryContinentForCamera(){
+  // Antarctica is land, not the nearest inhabited continent. Without this
+  // polar rule, rotating south misleadingly labels its ice as Oseania.
+  if(antarcticaOutline&&globeLat<=-61)
+    return discoveryContinentStops[discoveryContinentStops.length-1];
+  const rad=Math.PI/180,latitude=globeLat*rad;
+  let closest=discoveryContinentStops[0],best=-2;
+  for(const stop of discoveryContinentStops){
+    const targetLat=stop.lat*rad;
+    const proximity=Math.sin(latitude)*Math.sin(targetLat)+
+      Math.cos(latitude)*Math.cos(targetLat)*Math.cos((globeLon-stop.lon)*rad);
+    if(proximity>best){best=proximity;closest=stop;}
+  }
+  return closest;
+}
+const copyNodes={
+  hero:screen.querySelector('.hero-copy'),
+  hint:screen.querySelector('.globe-hint')
+};
+for(const node of Object.values(copyNodes))if(node)node.dataset.simpleCopy=node.textContent;
+function selectedFoxSource(){
+  try{
+    const avatar=state?.profile?.avatar==='girl'?'girl':'boy';
+    const source=window.LARIA_PROFILE_AVATARS?.[avatar];
+    if(typeof source==='string'&&source)return source;
+  }catch(_){}
+  return './lia-fox-explorer-home.webp';
+}
+function scrollShortDiscovery(toCard){
+  // On a short iPhone the existing globe shell scrolls to preserve the size
+  // and touch precision of the map. Screen geometry, not unreliable browser
+  // orientation media matches, determines whether this is that layout.
+  const compact=window.__lariaDiscoveryGlobePreview===true&&
+    screen.clientWidth<=350&&screen.clientHeight<=700&&
+    screen.clientHeight>=screen.clientWidth;
+  const maxScroll=Math.max(0,screen.scrollHeight-screen.clientHeight);
+  screen.dataset.discoveryScrollAttempt=String(compact)+'/'+Math.round(maxScroll);
+  if(!compact||maxScroll<=8)return;
+  // Set the scroll position immediately: on WebKit a smooth call scheduled
+  // into an offscreen canvas repaint may never advance before the card loads.
+  screen.scrollTop=toCard?maxScroll:0;
+  if(toCard)requestAnimationFrame(()=>{
+    // Selected-country card may gain its personal fox after first layout.
+    if(window.__lariaDiscoveryGlobePreview===true&&globeSelected)
+      screen.scrollTop=Math.max(0,screen.scrollHeight-screen.clientHeight);
+  });
+}
+function renderDiscoveryWelcome(){
+  if(window.__lariaDiscoveryGlobePreview!==true||globeSelected)return false;
+  const box=document.getElementById('globe-status');if(!box)return false;
+  const stop=discoveryContinentForCamera();
+  if(activeDiscoveryLocation&&activeDiscoveryLocation.continent!==stop.name)
+    activeDiscoveryLocation=null;
+  // Idle checks must not rebuild the portrait or steal keyboard focus.
+  if(box.classList.contains('discovery-continent-intro')&&
+     box.dataset.discoveryContinent===stop.name&&box.querySelector('.discovery-intro-copy'))
+    return false;
+  box.className='globe-status discovery-continent-intro';
+  box.dataset.discoveryContinent=stop.name;
+  delete box.dataset.discoveryCountryId;
+  delete box.dataset.discoveryStoryStep;
+  box.innerHTML='<div class="discovery-intro-copy">'+
+    '<span class="discovery-intro-kicker">VERDENSDEL</span>'+
+    '<strong>'+stop.name+' venter</strong>'+
+    '<span class="discovery-intro-teaser" aria-live="polite">'+stop.teaser+'</span>'+
+    '<button type="button" class="discovery-continent-button">Se '+stop.name+'</button></div>'+
+    '<img class="discovery-intro-fox" src="'+selectedFoxSource()+'" alt="Din rev er med på oppdagelsen">';
+  box.style.cursor='default';box.onclick=null;
+  const button=box.querySelector('.discovery-continent-button');
+  if(button)button.onclick=()=>showContinentDiscovery(stop,box,button);
+  return true;
+}
+function discoveryCompanionText(country){
+  const name=String(country?.name||'');
+  if(name==='Norge')return 'Se fjordene og de lange fjellryggene!';
+  if(name==='Frankrike'||name==='Italia'||name==='Sveits'||name==='Østerrike')return 'Her er Alpene like ved. Skal vi se nærmere?';
+  if(name==='Spania'||name==='Hellas')return 'Her møter grønne åser det varme havet.';
+  return 'Dette stedet vil jeg gjerne oppdage sammen med deg!';
+}
+function enhanceDiscoveryCountryCard(){
+  if(window.__lariaDiscoveryGlobePreview!==true||!globeSelected||typeof countries==='undefined')return false;
+  const country=countries[globeSelected],box=document.getElementById('globe-status');
+  if(!country||!box)return false;
+  const copy=box.querySelector('.globe-country-copy');if(!copy)return false;
+  box.classList.remove('discovery-continent-intro');
+  /* The shared country card owns the click target. Mark the selected
+     discovery state so its reserved iPad flag/copy grid is actually active. */
+  box.classList.add('premium-country-selected');
+  delete box.dataset.discoveryContinent;
+  delete box.dataset.discoveryStoryStep;
+  if(copy.querySelector('.discovery-country-companion'))return false;
+  const companion=document.createElement('div');
+  companion.className='discovery-country-companion';
+  companion.innerHTML='<img src="'+selectedFoxSource()+'" alt="Din rev">'+
+    '<span>'+discoveryCompanionText(country)+'</span>';
+  copy.appendChild(companion);
+  box.dataset.discoveryCountryId=country.id;
+  return true;
+}
 function syncButtons(){
   screen.dataset.globeView=desiredView;
   for(const btn of controls){
@@ -770,6 +1144,8 @@ const wait=()=>{
   const baseDraw=window.drawGlobe;
   window.__lariaDiscoveryGlobeBaseDraw=baseDraw;
   let activated=false;
+  let simpleViewState=null;
+  let simpleViewRestored=false;
   const restore=()=>{
     if(window.drawGlobe===discoveryDraw){
       window.drawGlobe=baseDraw;
@@ -790,14 +1166,52 @@ const wait=()=>{
         :'Den klassiske snurrbare kloden – dra, zoom og finn land.';
       if(subtitle.textContent!==expected)subtitle.textContent=expected;
     }
+    if(enabled&&!simpleViewState){
+      const status=document.getElementById('globe-status');
+      simpleViewState={lon:globeLon,lat:globeLat,zoom:globeZoom,country:globeSelected,
+        status:status?{html:status.innerHTML,className:status.className,
+          onclick:status.onclick,cursor:status.style.cursor}:null};
+    }
+    if(enabled)simpleViewRestored=false;
     window.__lariaDiscoveryGlobePreview=enabled;
+    if(copyNodes.hero)copyNodes.hero.textContent=enabled
+      ?'Velg en verdensdel, snurr på kloden og finn et land du vil oppdage.'
+      :copyNodes.hero.dataset.simpleCopy;
+    if(copyNodes.hint)copyNodes.hint.textContent=enabled
+      ?'Dra for å snurre · knip for kontinentnivå'
+      :copyNodes.hint.dataset.simpleCopy;
     if(!enabled){
+      activeDiscoveryLocation=null;
+      const displayCanvas=document.getElementById('globe-canvas');
+      if(displayCanvas){
+        displayCanvas.dataset.discoveryLocationCount='0';
+        delete displayCanvas.dataset.discoveryLocationName;
+      }
       const needsRestore=window.drawGlobe===discoveryDraw;
       if(needsRestore)restore();
-      if(desiredView==='simple'){
-        delete screen.dataset.discoveryGlobe;
-        delete screen.dataset.discoveryGlobeLevel;
+      if(simpleViewState&&(!simpleViewRestored||desiredView==='simple')){
+        const saved=simpleViewState;
+        // Atlas is a temporary detour, not an explicit choice of Enkel.
+        // Keep the original simple camera and country snapshot until the
+        // child actually chooses Enkel; Atlas may seed a legacy showcase.
+        if(desiredView==='simple')simpleViewState=null;
+        globeLon=saved.lon;globeLat=saved.lat;globeSelected=saved.country;
+        const status=document.getElementById('globe-status');
+        if(status&&saved.status){
+          status.className=saved.status.className;status.innerHTML=saved.status.html;
+          status.onclick=saved.status.onclick;status.style.cursor=saved.status.cursor;
+          delete status.dataset.discoveryCountryId;
+          delete status.dataset.discoveryStoryStep;
+        }
+        setGlobeZoom(saved.zoom);
+        simpleViewRestored=true;
       }
+      // The child can leave Oppdag for Atlas without changing the saved
+      // discover preference. Never let an inactive discovery paint marker
+      // recolour the existing map or any other globe perspective.
+      delete screen.dataset.discoveryGlobe;
+      delete screen.dataset.discoveryGlobeLevel;
+      delete screen.dataset.discoveryZoom;
       if(activated&&inClassic&&needsRestore){
         try{window.resizeGlobe();window.drawGlobe?.()}catch(error){
           window.__lariaDiscoveryGlobeLastError=String(error?.stack||error);
@@ -807,9 +1221,20 @@ const wait=()=>{
       return;
     }
     if(!activated||window.drawGlobe!==discoveryDraw){
+      /* Do not leave a close-up inherited from Enkel behind when the child
+         enters Oppdag. The cap is enforced by the shared input owner too. */
+      screen.dataset.discoveryZoom='continent-v1';
+      /* The legacy shell seeds Tsjad as a generic showcase. Oppdag opens at
+         its intentional Europe starting point instead; this is transient UI
+         selection only, never the child's saved country progress. */
+      if(!activated&&(!globeSelected||countries[globeSelected]?.name==='Tsjad')){
+        globeSelected=null;globeLon=13;globeLat=53;
+      }
+      if(typeof setGlobeZoom==='function'&&globeZoom>continentZoomCap)
+        setGlobeZoom(continentZoomCap);
       window.drawGlobe=discoveryDraw;
       try{drawGlobe=discoveryDraw}catch(_){}
-      try{window.resizeGlobe();discoveryDraw();activated=true}
+      try{window.resizeGlobe();discoveryDraw();renderDiscoveryWelcome();enhanceDiscoveryCountryCard();activated=true}
       catch(error){
         window.__lariaDiscoveryGlobeLastError=String(error?.stack||error);
         desiredView='simple';
@@ -818,6 +1243,10 @@ const wait=()=>{
         try{window.drawGlobe?.()}catch(_){}
       }
     }
+    // Recover the discovery invitation if the shared map-mode UI has
+    // replaced its card. Do not churn the DOM during a drag or idle repaint.
+    if(enabled&&!globeSelected&&window.__lariaGlobeInteracting!==true)
+      renderDiscoveryWelcome();
   };
   const chooseView=view=>{
     if(view!=='simple'&&view!=='discover')return;
@@ -832,16 +1261,49 @@ const wait=()=>{
     // The input owner already updates the rotation before these passive events.
     // Do not clear selection for a tap: only a completed drag or zoom can
     // move an old choice off the globe's current visible surface.
-    const afterDrag=()=>{
-      if(typeof globePointers!=='undefined'&&globePointers.size>0)return;
-      if(typeof globeMove==='number'&&globeMove>=8)
-        requestAnimationFrame(clearOffscreenDiscoverySelection);
+    const afterDrag=event=>{
+      // This plugin's pointerup listener can be installed *before* the shared
+      // input owner's listener. Observe selection only on the next animation
+      // frame, after the input owner has picked the country and removed its
+      // pointer. Do not duplicate or intercept the original hit-test.
+      const type=event.type,trusted=event.isTrusted;
+      requestAnimationFrame(()=>{
+        if(typeof globePointers!=='undefined'&&globePointers.size>0)return;
+        if(typeof globeMove==='number'&&globeMove>=8){
+          clearOffscreenDiscoverySelection();
+          renderDiscoveryWelcome();
+        }else if(type==='pointerup'&&trusted&&globeSelected)
+          scrollShortDiscovery(true);
+      });
     };
     canvas.addEventListener('pointerup',afterDrag,{passive:true});
     canvas.addEventListener('pointercancel',afterDrag,{passive:true});
-    canvas.addEventListener('wheel',()=>requestAnimationFrame(clearOffscreenDiscoverySelection),{passive:true});
+    canvas.addEventListener('wheel',()=>requestAnimationFrame(()=>{clearOffscreenDiscoverySelection();renderDiscoveryWelcome();}),{passive:true});
+  }
+  const status=document.getElementById('globe-status');
+  if(status){
+    let pendingCompanion=false;
+    // A selected-country card can be taller than the welcome invitation.
+    // Place the portrait selector above its measured edge, not at a fixed
+    // offset that would leave the lower part of the buttons covered.
+    const syncSelectorPosition=()=>{
+      if(window.__lariaDiscoveryGlobePreview!==true)return;
+      const bottom=Math.ceil(screen.getBoundingClientRect().bottom-status.getBoundingClientRect().top+12);
+      screen.style.setProperty('--discovery-selector-bottom',bottom+'px');
+    };
+    if(typeof ResizeObserver==='function'){
+      const cardSize=new ResizeObserver(syncSelectorPosition);
+      cardSize.observe(status);cardSize.observe(screen);
+    }
+    new MutationObserver(()=>{
+      if(pendingCompanion)return;
+      pendingCompanion=true;
+      requestAnimationFrame(()=>{pendingCompanion=false;enhanceDiscoveryCountryCard();syncSelectorPosition()});
+    }).observe(status,{childList:true,subtree:true});
   }
   controls.forEach(btn=>btn.addEventListener('click',()=>chooseView(btn.dataset.globeView)));
+  document.getElementById('reset-globe')?.addEventListener('click',()=>
+    requestAnimationFrame(renderDiscoveryWelcome));
   document.addEventListener('click',event=>{
     if(event.target?.closest?.('#globe-mode [data-globe-mode]'))
       requestAnimationFrame(()=>requestAnimationFrame(activate));
