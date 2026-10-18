@@ -39,14 +39,21 @@ function loadNaturalEarthTrial(){
       })));
       if(imgs.some(im=>im.naturalWidth!==512||im.naturalHeight!==512))
         throw new Error('Expected four 512px Mercator tiles');
+      // The WebKit globe samples <=310px per side. A 768px working raster
+      // keeps >2x source detail while reducing shader preparation work by
+      // 44% compared with the old 1024px mosaic. Original map input stays
+      // at 4x 512px and is never changed for Enkel/Kartet.
+      const size=768,tileSize=size/2;
       const canvas=document.createElement('canvas');
-      canvas.width=1024;canvas.height=1024;
+      canvas.width=size;canvas.height=size;
       const ctx=canvas.getContext('2d',{willReadFrequently:true});
       if(!ctx)throw new Error('Natural Earth tile canvas unavailable');
-      ctx.drawImage(imgs[0],0,0);ctx.drawImage(imgs[1],512,0);
-      ctx.drawImage(imgs[2],0,512);ctx.drawImage(imgs[3],512,512);
-      const rgb=ctx.getImageData(0,0,1024,1024).data;
-      const size=1024,total=size*size,brightness=new Float32Array(total);
+      ctx.drawImage(imgs[0],0,0,tileSize,tileSize);
+      ctx.drawImage(imgs[1],tileSize,0,tileSize,tileSize);
+      ctx.drawImage(imgs[2],0,tileSize,tileSize,tileSize);
+      ctx.drawImage(imgs[3],tileSize,tileSize,tileSize,tileSize);
+      const rgb=ctx.getImageData(0,0,size,size).data;
+      const total=size*size,brightness=new Float32Array(total);
       for(let i=0;i<total;i++){
         const k=i*4;
         brightness[i]=rgb[k]*.27+rgb[k+1]*.65+rgb[k+2]*.08;
@@ -79,12 +86,12 @@ function loadNaturalEarthTrial(){
       };
       // The real raster determines only light and shadow. Its pale original
       // colour has no authority over the established Læria palette.
-      const fine=boxBlur(brightness,5),broad=boxBlur(brightness,23);
+      const fine=boxBlur(brightness,4),broad=boxBlur(brightness,17);
       const hillshade=new Int8Array(total);
       for(let i=0;i<total;i++)
         hillshade[i]=Math.round(Math.max(-60,Math.min(60,
           (brightness[i]-fine[i])*2.6+(fine[i]-broad[i])*1.3)));
-      naturalEarthPixels={width:1024,height:1024,
+      naturalEarthPixels={width:size,height:size,
         bytes:rgb,hillshade};
       naturalEarthPreparationMs=Math.round(performance.now()-preparationStarted);
       naturalEarthStatus='ready';
@@ -557,16 +564,17 @@ function paintWorldTerrain(ctx,w,h,s,level,moving){
           // Mercator mosaic is resampled at the globe's real longitude and
           // latitude. It colours no sea, changes no country hit geometry,
           // and leaves Antarctica to the accurate separate polar renderer.
-          const tx=clamp(Math.floor((lon+180)/360*1024),0,1023);
+          const neSize=naturalEarthPixels.width;
+          const tx=clamp(Math.floor((lon+180)/360*neSize),0,neSize-1);
           const latitude=clamp(lat,-85,85)*terrainDegree;
           const mercatorY=(1-Math.asinh(Math.tan(latitude))/Math.PI)*.5;
-          const ty=clamp(Math.floor(mercatorY*1024),0,1023);
-          const ix=(ty*1024+tx)*4,ne=naturalEarthPixels.bytes;
+          const ty=clamp(Math.floor(mercatorY*neSize),0,neSize-1);
+          const ix=(ty*neSize+tx)*4,ne=naturalEarthPixels.bytes;
           const nr=ne[ix],ng=ne[ix+1],nb=ne[ix+2];
           // The tile's water is flat white; retain the Læria land base if a
           // 50m/110m coastline mismatch lands on one of these source pixels.
           if(nr+ng+nb<751){
-            trueReliefShade=naturalEarthPixels.hillshade[ty*1024+tx];
+            trueReliefShade=naturalEarthPixels.hillshade[ty*neSize+tx];
             alpha=.93;
           }
         }
