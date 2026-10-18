@@ -66,6 +66,11 @@ for(const name of ['Amazonas','Nile','Mississippi','Yangtze'])
 assert.match(preview,/canvas\.dataset\.discoveryContinentCrests=/,'QA needs verified overview ridge counts');
 assert.match(preview,/canvas\.dataset\.discoveryContinentRivers=/,'QA needs verified overview river counts');
 assert.match(preview,/function paintWorldTerrain\(/,'continuous terrain paint field must remain active');
+assert.match(preview,/const stoneWeight=clamp\(mountainReach/,'major mountains need continuous rock shading, not only hairline strokes');
+assert.match(preview,/const snowFacet=clamp\(/,'high-elevation regions need snow facets');
+assert.match(preview,/const pixels=level===1\?clamp\(Math.round\(s\*\.33\),128,205\)/,
+  'iPad overviews must sample terrain at a higher resolution than small phones');
+assert.match(preview,/dataset\.discoveryTerrainPixels=/,'QA must expose actual terrain resolution');
 assert.match(preview,/function paintGeographicTexture\(/,'geographic canopy and dune material must remain active');
 assert.doesNotMatch(preview,/function paintGeographicTexture\([^)]*\)\s*\{\s*if\(moving\|\|level===1\)/,
   'the continent-first globe must not lose all illustrated material at world zoom');
