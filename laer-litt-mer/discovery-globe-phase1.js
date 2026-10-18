@@ -19,6 +19,8 @@ const trialNaturalEarthRelief=new URLSearchParams(location.search).get('discover
 let naturalEarthPixels=null;
 let naturalEarthStatus=trialNaturalEarthRelief?'loading':'disabled';
 let naturalEarthPreparationMs=0;
+let naturalEarthDecodeMs=0;
+let naturalEarthProcessingMs=0;
 function loadNaturalEarthTrial(){
   if(!trialNaturalEarthRelief)return;
   const preparationStarted=performance.now();
@@ -37,6 +39,8 @@ function loadNaturalEarthTrial(){
         image.onerror=()=>reject(new Error('Could not decode '+id));
         image.src='data:image/png;base64,'+tiles[id];
       })));
+      naturalEarthDecodeMs=Math.round(performance.now()-preparationStarted);
+      const processingStarted=performance.now();
       if(imgs.some(im=>im.naturalWidth!==512||im.naturalHeight!==512))
         throw new Error('Expected four 512px Mercator tiles');
       // The WebKit globe samples <=310px per side. A 768px working raster
@@ -93,6 +97,7 @@ function loadNaturalEarthTrial(){
           (brightness[i]-fine[i])*2.6+(fine[i]-broad[i])*1.3)));
       naturalEarthPixels={width:size,height:size,
         bytes:rgb,hillshade};
+      naturalEarthProcessingMs=Math.round(performance.now()-processingStarted);
       naturalEarthPreparationMs=Math.round(performance.now()-preparationStarted);
       naturalEarthStatus='ready';
       window.LARIA_NE_SHADED_TILES=null;
@@ -1062,6 +1067,8 @@ function discoveryDraw(){
   canvas.dataset.discoveryCarvedRelief=String(trialCarvedRelief);
   canvas.dataset.discoveryNaturalEarth=naturalEarthStatus;
   canvas.dataset.discoveryNaturalEarthPreparationMs=String(naturalEarthPreparationMs);
+  canvas.dataset.discoveryNaturalEarthDecodeMs=String(naturalEarthDecodeMs);
+  canvas.dataset.discoveryNaturalEarthProcessingMs=String(naturalEarthProcessingMs);
   canvas.dataset.discoveryNaturalEarthSourcePx=String(naturalEarthPixels?.width||0);
   canvas.dataset.discoveryPaintCount=String(Number(canvas.dataset.discoveryPaintCount||0)+1);
   // v25 can still seed the old Tsjad showcase after selecting Oppdag.
