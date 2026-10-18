@@ -55,4 +55,12 @@ assert.match(index,/discovery-globe-view-v1\.css/,'switch styling must be loaded
 assert.match(index,/data-globe-view="simple"/,'simple view switch missing');
 assert.match(index,/data-globe-view="discover"/,'discovery view switch missing');
 assert.match(preview,/screen\.dataset\.mapPerspective==='globe'/,'switch cannot take over the atlas map');
+assert.match(preview,/screen\.dataset\.discoveryGlobe='painted-atlas-v1'/,
+  'Oppdag must expose the integrated painted-atlas renderer revision');
+assert.match(preview,/const terrainCount=0;/,
+  'large terrain stamp clusters must not return as a substitute for landscape');
+assert.match(preview,/const landmarkCount=0;/,
+  'landmark icons must not compete with the terrain material');
+assert.doesNotMatch(preview,/const biomeCount=paintBiomes\(/,
+  'separate biome washes must not sit on top of the integrated material pass');
 console.log('PASS dual globe static isolation and controls');
