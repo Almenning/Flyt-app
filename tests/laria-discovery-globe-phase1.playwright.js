@@ -624,13 +624,19 @@ async function runDevice(engine,label,viewport,urls){
        },null,{timeout:20000});
        const startup=await trial.page.locator('#globe-canvas').evaluate(c=>({
          ms:Number(c.dataset.discoveryNaturalEarthPreparationMs||0),
+         decodeMs:Number(c.dataset.discoveryNaturalEarthDecodeMs||0),
+         processingMs:Number(c.dataset.discoveryNaturalEarthProcessingMs||0),
          sourcePx:Number(c.dataset.discoveryNaturalEarthSourcePx||0)
        }));
        assert.equal(startup.sourcePx,768,
          label+' relief should use the 768px memory-conscious mosaic');
        assert.ok(startup.ms>0&&startup.ms<3500,
          label+' Natural Earth preparation exceeded the 3.5 s browser budget: '+JSON.stringify(startup));
-       console.log('NE PREPARATION PERF',label,startup.ms+'ms',startup.sourcePx+'px source');
+       assert.ok(startup.decodeMs>=0&&startup.processingMs>0,
+         label+' Natural Earth stage metrics missing: '+JSON.stringify(startup));
+       assert.ok(startup.decodeMs+startup.processingMs<=startup.ms+3,
+         label+' Natural Earth stage metrics inconsistent: '+JSON.stringify(startup));
+       console.log('NE PREPARATION PERF',label,JSON.stringify(startup));
        for(const pose of [
         {name:'afrika',lon:19,lat:3},
         {name:'himalaya',lon:85,lat:30},
