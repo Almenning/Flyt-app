@@ -439,31 +439,11 @@ const riverWays=[
   {name:'Danube',route:[[8.2,48],[12.5,48.4],[16.8,48.1],[20.6,45.5],[25.6,44.3],[29.6,45.2]]},
   {name:'Yangtze',route:[[97,33.3],[102,30.7],[107,29.8],[112,30.2],[117,30.9],[121,31.1]]}
 ];
-/* Connected relief replaces the tiny repeated ridge glyphs at continent
-   scale. Each layer follows the same real longitude/latitude spine, and all
-   paint is clipped by the authoritative land polygons. */
-function paintChainReliefRibbon(ctx,chain,w,h,s,width){
-  const band=clamp(width*.67,s*.009,s*.035);
-  const trace=(dx,dy,weight,color,blur)=>{
-    ctx.save();ctx.translate(dx,dy);
-    if(!smoothGeoStroke(ctx,chain.route,w,h,s)){ctx.restore();return false;}
-    ctx.lineCap='round';ctx.lineJoin='round';
-    ctx.strokeStyle=color;ctx.lineWidth=Math.max(.9,band*weight);
-    if(blur){ctx.shadowColor=color;ctx.shadowBlur=blur;}
-    ctx.stroke();ctx.restore();return true;
-  };
-  if(!trace(band*.22,band*.36,1.8,'rgba(39,68,64,.32)',band*.82))return 0;
-  trace(0,0,1.20,chain.snow?'rgba(90,117,108,.78)':'rgba(112,102,78,.69)',0);
-  trace(-band*.22,-band*.26,.72,chain.snow?'rgba(194,208,188,.79)':'rgba(208,184,139,.70)',0);
-  trace(-band*.33,-band*.46,.28,chain.snow?'rgba(251,248,226,.92)':'rgba(251,221,168,.79)',0);
-  return 1;
-}
 function paintMountainCrests(ctx,chain,w,h,s,level,width){
   /* A few continent-defining mountain ranges stay legible at overview
      scale. Smaller ranges still wait until regional zoom; no icon stamps. */
   const continentHero=continentCrestChains.has(chain.name);
   if(level<2&&!continentHero)return 0;
-  if(level===1)return paintChainReliefRibbon(ctx,chain,w,h,s,width);
   let drawn=0;
   for(let j=0;j<chain.route.length-1;j++){
     const a=chain.route[j],b=chain.route[j+1];
