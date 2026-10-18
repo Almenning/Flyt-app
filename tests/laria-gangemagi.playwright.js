@@ -199,6 +199,10 @@ async function check(engine,label,viewport,url){
   assert.equal(await page.locator('.gm-fox').getAttribute('data-mood'),'cheer');
   await page.locator('[data-gm-action="undo"]').click();
   assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[1,0,0]);
+  assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).selectedBasket,0,
+    label+' undoing one berry must keep the still-valid basket selected');
+  assert.equal(await page.locator('.gm-crate-invite').count(),0,
+    label+' do not invite a different basket after undoing in the chosen one');
   await page.locator('[data-gm-action="source"]').click();
   assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[2,0,0]);
   await page.locator('[data-gm-action="hint"]').click();
