@@ -24,7 +24,9 @@ assert.match(preview,/knip for kontinentnivå/,'child-facing zoom guidance must 
 assert.match(preview,/function renderDiscoveryWelcome\(/,'Oppdag must present a continent invitation before a country is chosen');
 assert.match(preview,/function discoveryContinentForCamera\(/,'the invitation must follow the globe camera');
 assert.match(preview,/function scrollShortDiscovery\(/,'the small-phone flow must reveal the country card');
-assert.match(preview,/event\.isTrusted&&globeSelected/,'only real child taps may auto-scroll the discovery screen');
+assert.match(preview,/const type=event.type,trusted=event.isTrusted;/,'only real child taps may auto-scroll the discovery screen');
+assert.match(preview,/type==='pointerup'&&trusted&&globeSelected/,'the selected country must be confirmed after globe input');
+assert.match(preview,/requestAnimationFrame\(\(\)=>\{\s*if\(typeof globePointers/,'the tap callback must run after the original input owner');
 assert.match(preview,/const discoveryContinentStops=\[/,'Oppdag must define grounded continent destinations');
 for(const name of ['Europa','Afrika','Asia','Nord-Amerika','Sør-Amerika','Oseania'])
   assert.ok(preview.includes("name:'"+name+"'"),'missing continent destination: '+name);
