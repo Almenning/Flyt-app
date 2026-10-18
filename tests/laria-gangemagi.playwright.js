@@ -63,6 +63,21 @@ async function check(engine,label,viewport,url){
   assert.equal(premiumBasket.status(),200,'premium woven basket art must load');
   assert.match(premiumBasket.headers()['content-type'],/image\/svg\+xml/);
   assert.equal(await page.locator('.gm-basket-illustration').count(),3,'baskets must be real separately illustrated DOM components');
+  // The quest board is an individually authored SVG illustration behind live DOM.
+  // A flat screenshot, a CSS-only box, or a missing asset does not meet the lock.
+  const paintedBoard=await page.request.get(new URL('gangemagi-quest-board-painted.svg',url).href);
+  assert.equal(paintedBoard.status(),200,'painted wooden quest board asset is available');
+  assert.match(paintedBoard.headers()['content-type'],/image\/svg\+xml/);
+  const boardMaterial=await page.locator('.gm-story.gm-quest').evaluate(el=>({
+    image:getComputedStyle(el).backgroundImage,
+    liveInstructions:el.querySelectorAll('.gm-quest-step').length,
+    dynamicHeading:el.querySelector('h2')?.textContent.trim()
+  }));
+  assert.match(boardMaterial.image,/gangemagi-quest-board-painted\.svg/,
+    label+' board must use hand-illustrated wood and flowers, not a generic CSS card');
+  assert.equal(boardMaterial.liveInstructions,3,'dynamic interactive teaching steps remain live markup');
+  assert.match(boardMaterial.dynamicHeading,/Fyll 3 kurver/);
+
   const calmStart=await page.evaluate(()=>{
     const shell=document.querySelector('.gm-shell[data-gm-mode="mission"]');
     return {
