@@ -71,10 +71,16 @@ async function check(engine,label,viewport,url){
     label+' child-sized assignment heading '+JSON.stringify(missionHeading));
   assert.equal(await page.locator('.gm-fox-art [data-avatar="girl"]').count(),1,'must render chosen full-body girl fox');
   assert.match(await page.locator('.gm-book-quick').innerText(),/0\/8/,'flower progress visible from the main scene');
-  const premiumBasket=await page.request.get(new URL('gangemagi-basket-premium.svg',url).href);
-  assert.equal(premiumBasket.status(),200,'premium woven basket art must load');
+  const premiumBasket=await page.request.get(new URL('gangemagi-basket-locked-illustration.svg',url).href);
+  assert.equal(premiumBasket.status(),200,'illustrated basket sourced from the LOCKED reference must load');
   assert.match(premiumBasket.headers()['content-type'],/image\/svg\+xml/);
-  assert.equal(await page.locator('.gm-basket-illustration').count(),3,'baskets must be real separately illustrated DOM components');
+  assert.match(await premiumBasket.text(),/data:image\/webp;base64,/,
+    'separate basket component must retain the original painterly reference material');
+  assert.equal(await page.locator('.gm-basket-illustration').count(),3,'baskets must be real independently tappable DOM elements');
+  const wickerImages=await page.locator('.gm-basket-illustration').evaluateAll(images=>
+    images.map(img=>({complete:img.complete,width:img.naturalWidth,src:img.getAttribute('src')})));
+  assert.ok(wickerImages.every(img=>img.complete&&img.width>0),
+    label+' reference wicker resource must decode in Chromium AND WebKit '+JSON.stringify(wickerImages));
   // The quest board is an individually authored SVG illustration behind live DOM.
   // A flat screenshot, a CSS-only box, or a missing asset does not meet the lock.
   const paintedBoard=await page.request.get(new URL('gangemagi-quest-board-painted.svg',url).href);
