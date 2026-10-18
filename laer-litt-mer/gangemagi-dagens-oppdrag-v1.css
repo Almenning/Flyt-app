@@ -218,7 +218,7 @@
   box-shadow:none;background:transparent;color:#9c542b;font-size:clamp(9px,1.1vw,13px);
 }
 .gm-shell[data-gm-mode="mission"] .gm-remove{
-  bottom:-17px;right:0;z-index:6;width:44px;height:44px;
+  top:0;bottom:auto;right:-6px;left:auto;z-index:6;width:44px;height:44px;
 }
 .gm-shell[data-gm-mode="mission"] .gm-play-hint{
   width:max-content;max-width:95%;margin:3px auto 2px;
@@ -336,7 +336,7 @@
  .gm-shell[data-gm-mode="mission"] .gm-crate-front{left:7%;right:7%;height:24px;border-width:2px;border-radius:9px;gap:3px}
  .gm-shell[data-gm-mode="mission"] .gm-crate-caption{font-size:10px}
  .gm-shell[data-gm-mode="mission"] .gm-crate-tag{font-size:9px}
- .gm-shell[data-gm-mode="mission"] .gm-remove{width:44px;height:44px;right:-8px;bottom:-18px}
+ .gm-shell[data-gm-mode="mission"] .gm-remove{width:44px;height:44px;right:-6px;top:0;bottom:auto}
  .gm-shell[data-gm-mode="mission"] .gm-play-hint{font-size:10px;padding:3px 7px;margin:1px auto}
  .gm-shell[data-gm-mode="mission"] .gm-math{width:100%;margin:6px auto 2px;padding:6px 7px;min-height:60px;gap:1px 5px;border-width:3px;border-radius:14px;grid-template-columns:minmax(0,1fr) minmax(93px,.4fr)}
  .gm-shell[data-gm-mode="mission"] .gm-math-label>span:first-child{font-size:11px}
