@@ -965,7 +965,11 @@ const wait=()=>{
       const needsRestore=window.drawGlobe===discoveryDraw;
       if(needsRestore)restore();
       if(simpleViewState){
-        const saved=simpleViewState;simpleViewState=null;
+        const saved=simpleViewState;
+        // Atlas is a temporary detour, not an explicit choice of Enkel.
+        // Keep the original simple camera and country snapshot until the
+        // child actually chooses Enkel; Atlas may seed a legacy showcase.
+        if(desiredView==='simple')simpleViewState=null;
         globeLon=saved.lon;globeLat=saved.lat;globeSelected=saved.country;
         const status=document.getElementById('globe-status');
         if(status&&saved.status){
