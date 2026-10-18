@@ -531,12 +531,12 @@
    font-size:clamp(23px,6.25vw,30px);margin:7px auto 9px;
  }
  .gm-shell[data-gm-mode="mission"] .gm-quest-step{
-   min-height:72px;padding:5px 3px;
+   min-height:79px;padding:6px 3px;
  }
  .gm-shell[data-gm-mode="mission"] .gm-quest-icon{height:37px}
  .gm-shell[data-gm-mode="mission"] .gm-quest-icon>svg{height:35px;width:46px}
  .gm-shell[data-gm-mode="mission"] .gm-quest-icon .gm-quest-fruit{height:32px;width:24px}
- .gm-shell[data-gm-mode="mission"] .gm-quest-step strong{font-size:11px}
+ .gm-shell[data-gm-mode="mission"] .gm-quest-step strong{font-size:12px;line-height:1.14}
  /* Larger real personal character, overlapping only the wooden margin,
     while the fox row still occupies exactly 121px in the first viewport. */
  .gm-shell[data-gm-mode="mission"] .gm-fox{height:121px}
