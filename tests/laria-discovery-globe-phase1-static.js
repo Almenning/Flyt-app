@@ -22,6 +22,8 @@ assert.match(preview,/function loadNaturalEarthTrial\(/,
   'the experimental Natural Earth tiles must not load in standard mode');
 assert.match(preview,/dataset\.discoveryNaturalEarth=naturalEarthStatus/,
   'WebKit must be able to confirm natural terrain is fully loaded');
+assert.match(preview,/dataset\.discoveryNaturalEarthPreparationMs=String\(naturalEarthPreparationMs\)/,
+  'startup time must be measurable before release on physical devices');
 assert.match(preview,/Math\.asinh\(Math\.tan\(latitude\)\)/,
   'mercator source must be sampled with correct latitude geometry');
 assert.match(nasaTrialData,/NASA Blue Marble Next Generation/,
