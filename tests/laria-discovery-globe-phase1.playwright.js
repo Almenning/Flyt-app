@@ -154,11 +154,24 @@ async function verifyShortPhoneTapFlow(page,label){
    x:rect.left+point[0],y:rect.top+point[1]};
  });
  assert.ok(setup.overflow>20,label+' short-screen layout no longer exposes a scrollable country panel');
+ await page.evaluate(()=>{
+  document.getElementById('globe-canvas').addEventListener('pointerup',event=>{
+   window.__shortPhoneQAEvent={trusted:event.isTrusted,type:event.pointerType,
+    selected:globeSelected,drag:globeMove,active:window.__lariaDiscoveryGlobePreview};
+  },{once:true});
+ });
  await page.mouse.click(setup.x,setup.y);
- await page.waitForFunction(()=>{
+ await page.waitForTimeout(700);
+ const observed=await page.evaluate(()=>{
   const screen=document.getElementById('world-screen');
-  return globeSelected==='fr'&&screen.scrollTop>20;
- },null,{timeout:7000});
+  return {selected:globeSelected,scrollTop:screen.scrollTop,
+   scrollHeight:screen.scrollHeight,clientHeight:screen.clientHeight,
+   pointer:window.__shortPhoneQAEvent||null,
+   search:document.getElementById('globe-status').innerText().slice(0,140)};
+ });
+ console.log('SHORT PHONE TAP',label,JSON.stringify({setup,observed}));
+ assert.equal(observed.selected,'fr',label+' geographic finger tap missed France');
+ assert.ok(observed.scrollTop>20,label+' country card was not revealed after tap: '+JSON.stringify(observed));
  await page.waitForTimeout(520);
  const frame=await page.evaluate(()=>{
   const screen=document.getElementById('world-screen');
