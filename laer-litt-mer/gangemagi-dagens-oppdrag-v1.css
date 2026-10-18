@@ -51,23 +51,18 @@
 .gm-shell[data-gm-mode="mission"] .gm-world:after{display:none}
 
 /* One wooden quest board, instead of three separate functional dashboards. */
+/* A coherent authored illustration is now the board material. The headline,
+   3 step illustrations, maths and accessibility text remain LIVE markup. */
 .gm-shell[data-gm-mode="mission"] .gm-story.gm-quest{
   display:block;position:relative;isolation:isolate;margin:5px auto 0;
-  width:min(100%,1050px);min-height:0;padding:14px clamp(12px,2.5vw,33px) 17px;
-  border:12px solid #a46a37;border-top-color:#c59052;border-left-color:#bd8248;
-  border-bottom-color:#76401f;border-radius:35px;
-  background:
-    repeating-linear-gradient(1deg,transparent 0 13px,rgba(148,95,40,.045) 14px 15px,transparent 16px 42px),
-    linear-gradient(150deg,#ffedc5 0%,#ffe3af 58%,#ffedcd 100%);
-  box-shadow:inset 0 0 0 3px #ffe3ad,inset 0 3px 18px #d1a46872,0 7px 0 #704122b0,0 16px 25px #5c371c49;
+  width:min(100%,1050px);min-height:0;
+  padding:26px calc(clamp(12px,2.5vw,33px) + 12px) 29px;
+  border:0;border-radius:35px;
+  background:transparent url('./gangemagi-quest-board-painted.svg') center / 100% 100% no-repeat;
+  box-shadow:0 7px 0 #70412270,0 16px 25px #5c371c3b;
 }
 .gm-shell[data-gm-mode="mission"] .gm-story.gm-quest:before,
-.gm-shell[data-gm-mode="mission"] .gm-story.gm-quest:after{
-  content:"✿";position:absolute;top:-10px;color:#fff2c5;font-size:28px;
-  text-shadow:2px 1px #567b46,-2px -1px #658c51,0 2px 6px #66441a4a;z-index:2;
-}
-.gm-shell[data-gm-mode="mission"] .gm-story.gm-quest:before{left:10px}
-.gm-shell[data-gm-mode="mission"] .gm-story.gm-quest:after{right:10px}
+.gm-shell[data-gm-mode="mission"] .gm-story.gm-quest:after{display:none}
 .gm-shell[data-gm-mode="mission"] .gm-quest-head{
   display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:3px 13px;
   padding:0;min-height:0;text-align:center;
@@ -363,7 +358,7 @@
  .gm-shell[data-gm-mode="mission"] .gm-top-progress{grid-column:3;grid-row:1;min-width:0;min-height:27px;padding:2px 4px;font-size:10px;border-width:2px;border-radius:11px}
  .gm-shell[data-gm-mode="mission"] .gm-book-quick{grid-column:4;grid-row:1/span 2;min-height:44px;min-width:44px;padding:4px;font-size:14px}
  .gm-shell[data-gm-mode="mission"] .gm-world{padding:7px 4px 7px;border-radius:19px;background-position:center 57%}
- .gm-shell[data-gm-mode="mission"] .gm-story.gm-quest{margin:4px auto 0;padding:8px 8px 9px;border-width:7px;border-radius:20px;box-shadow:inset 0 0 0 2px #ffda99,0 4px 0 #704122b0,0 9px 15px #5c371c3e}
+ .gm-shell[data-gm-mode="mission"] .gm-story.gm-quest{margin:4px auto 0;padding:15px 15px 16px;border:0;border-radius:20px;box-shadow:0 4px 0 #70412288,0 9px 15px #5c371c3e}
  .gm-shell[data-gm-mode="mission"] .gm-story.gm-quest:before,.gm-shell[data-gm-mode="mission"] .gm-story.gm-quest:after{font-size:16px;top:-5px}
  .gm-shell[data-gm-mode="mission"] .gm-quest-ribbon{font-size:13px}
  .gm-shell[data-gm-mode="mission"] .gm-story.gm-quest h2.gm-quest-callout{font-size:clamp(20px,5.65vw,30px);margin:5px auto 8px;line-height:1.06}
@@ -416,7 +411,7 @@
 }
 @media(max-width:360px) and (max-height:650px){
  .gm-shell[data-gm-mode="mission"] .gm-top{min-height:60px;grid-template-rows:25px 32px}
- .gm-shell[data-gm-mode="mission"] .gm-story.gm-quest{padding:5px 5px 6px}
+ .gm-shell[data-gm-mode="mission"] .gm-story.gm-quest{padding:12px 12px 13px}
  .gm-shell[data-gm-mode="mission"] .gm-story.gm-quest h2.gm-quest-callout{font-size:19px;margin:3px auto 5px}
  .gm-shell[data-gm-mode="mission"] .gm-quest-step{min-height:51px}
  .gm-shell[data-gm-mode="mission"] .gm-quest-icon{height:24px}
@@ -456,7 +451,7 @@
  }
 }
 @media(min-width:700px) and (max-height:900px){
- .gm-shell[data-gm-mode="mission"] .gm-story.gm-quest{padding-top:9px;padding-bottom:12px}
+ .gm-shell[data-gm-mode="mission"] .gm-story.gm-quest{padding-top:21px;padding-bottom:24px}
  .gm-shell[data-gm-mode="mission"] .gm-quest-step{min-height:71px}
  .gm-shell[data-gm-mode="mission"] .gm-fox-art{height:135px;width:125px}
  .gm-shell[data-gm-mode="mission"] .gm-crate{height:155px}
@@ -467,7 +462,7 @@
    locked wooden quest board; math and primary action remain in first view. */
 @media(min-width:900px) and (max-height:900px){
  .gm-shell[data-gm-mode="mission"] .gm-top{min-height:60px;margin-bottom:0}
- .gm-shell[data-gm-mode="mission"] .gm-story.gm-quest{padding-top:7px;padding-bottom:8px}
+ .gm-shell[data-gm-mode="mission"] .gm-story.gm-quest{padding-top:19px;padding-bottom:20px}
  .gm-shell[data-gm-mode="mission"] .gm-story.gm-quest h2.gm-quest-callout{
    margin:3px auto 6px;font-size:clamp(26px,3.4vw,39px)
  }
@@ -571,7 +566,7 @@
    action button or the three illustrated instructions. */
 @media(min-width:700px) and (max-width:899px) and (min-height:1000px){
  .gm-shell[data-gm-mode="mission"] .gm-story.gm-quest{
-   padding-top:18px;padding-bottom:17px;
+   padding-top:30px;padding-bottom:29px;
  }
  .gm-shell[data-gm-mode="mission"] .gm-story.gm-quest h2.gm-quest-callout{
    font-size:clamp(32px,4.35vw,43px);margin:8px auto 12px;
