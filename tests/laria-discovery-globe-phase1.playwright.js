@@ -537,6 +537,14 @@ async function runDevice(engine,label,viewport,urls){
          await trial.page.evaluate(move,stop);
          const normalPixels=await control.page.locator('#globe-canvas').evaluate(c=>c.toDataURL('image/png'));
          const enhancedPixels=await trial.page.locator('#globe-canvas').evaluate(c=>c.toDataURL('image/png'));
+         const qa=await trial.page.locator('#globe-canvas').evaluate(c=>({
+           pixels:Number(c.dataset.discoveryTerrainPixels||0),
+           ms:Number(c.dataset.discoveryTerrainMs||0)
+         }));
+         if(viewport.width>=800)assert.ok(qa.pixels>=300,
+           label+' NASA texture lost iPad-size geographical detail: '+JSON.stringify(qa));
+         assert.ok(qa.ms<1500,label+' high-res terrain rendered too slowly: '+JSON.stringify(qa));
+         console.log('NATURAL RELIEF PERF',label,stop.name,qa.pixels+'px',qa.ms+'ms');
          assert.notEqual(hash(normalPixels),hash(enhancedPixels),
            label+' natural relief texture had no visible pixels for '+stop.name);
          await control.page.screenshot({path:path.join(out,label+'-baseline-'+stop.name+'.png'),
