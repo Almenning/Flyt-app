@@ -611,6 +611,54 @@ async function runDevice(engine,label,viewport,urls){
        await baseline.ctx.close();
      }
    }
+   if(process.env.SUPERKLODE_NE_TRIAL==='1'&&
+      (label==='webkit-ipad-landscape'||label==='webkit-iphone-portrait')){
+     const errorBase=[],errorTrial=[];
+     const trial=await openPage(browser,urls.preview+'&discovery-art=natural-earth',viewport,errorTrial);
+     const control=await openPage(browser,urls.preview,viewport,errorBase);
+     try{
+       await trial.page.waitForFunction(()=>{
+         const c=document.getElementById('globe-canvas');
+         return window.__lariaDiscoveryGlobePreview===true&&
+           c?.dataset.discoveryNaturalEarth==='ready';
+       },null,{timeout:20000});
+       for(const pose of [
+        {name:'afrika',lon:19,lat:3},
+        {name:'himalaya',lon:85,lat:30},
+        {name:'amazonas',lon:-61,lat:-7},
+        {name:'skandinavia',lon:15,lat:63}]){
+         const focus=({lon,lat})=>{
+           globeLon=lon;globeLat=lat;globeSelected=null;
+           setGlobeZoom(1.38);drawGlobe();
+         };
+         await control.page.evaluate(focus,pose);
+         await trial.page.evaluate(focus,pose);
+         const baseline=await control.page.locator('#globe-canvas').evaluate(c=>c.toDataURL('image/png'));
+         const result=await trial.page.locator('#globe-canvas').evaluate(c=>({
+           png:c.toDataURL('image/png'),
+           pixels:Number(c.dataset.discoveryTerrainPixels||0),
+           ms:Number(c.dataset.discoveryTerrainMs||0),
+           mode:c.dataset.discoveryNaturalEarth
+         }));
+         assert.equal(result.mode,'ready',
+           label+' Natural Earth tiles not ready after camera movement');
+         assert.ok(result.pixels>=180&&result.ms>=0&&result.ms<1200,
+           label+' Natural Earth illustration failed performance gate: '+JSON.stringify(result));
+         assert.notEqual(hash(result.png),hash(baseline),
+           label+' real hillshade did not change '+pose.name);
+         console.log('NE SHADED PERF',label,pose.name,result.pixels+'px',result.ms+'ms');
+         await control.page.screenshot({path:path.join(out,label+'-ne-baseline-'+pose.name+'.png'),
+           fullPage:false,animations:'disabled'});
+         await trial.page.screenshot({path:path.join(out,label+'-ne-relief-'+pose.name+'.png'),
+           fullPage:false,animations:'disabled'});
+       }
+       assert.deepEqual(errorBase,[],label+' stable view errors');
+       assert.deepEqual(errorTrial,[],label+' Natural Earth relief view errors');
+     }finally{
+       await control.ctx.close();
+       await trial.ctx.close();
+     }
+   }
    console.log('PASS geographically correct, visually distinct ordinary/discovery globes: '+label);
  }finally{await browser.close();}
 }
