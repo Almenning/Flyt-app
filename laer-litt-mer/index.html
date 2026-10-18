@@ -3524,6 +3524,11 @@ let sessionScope={type:'norden',label:'Norden',ids:NORDIC_IDS,includeMap:true};
 let globeLon=15,globeLat=18,globeZoom=1,globeSelected=null,globeDrag=null,globeMove=0,globeMode='explore';
 const globePointers=new Map();let globePinch=null;
 const GLOBE_ZOOM_MIN=1,GLOBE_ZOOM_MAX=5;
+// Only Oppdag uses continent-scale zoom. Enkel retains the full historic range.
+const DISCOVERY_CONTINENT_ZOOM_MAX=1.72;
+function activeGlobeZoomMax(){
+  return window.__lariaDiscoveryGlobePreview===true?DISCOVERY_CONTINENT_ZOOM_MAX:GLOBE_ZOOM_MAX;
+}
 
 let globeReturnScreen='geography';
 function showScreen(name){
@@ -6313,9 +6318,10 @@ function startRecentCountryCelebration(){
   win.seen=true;saveState();globePulse={id:win.id,until:Date.now()+1700};focusCountry(win.id);
 }
 function setGlobeZoom(next){
-  globeZoom=Math.max(GLOBE_ZOOM_MIN,Math.min(GLOBE_ZOOM_MAX,next));
+  const maxZoom=activeGlobeZoomMax();
+  globeZoom=Math.max(GLOBE_ZOOM_MIN,Math.min(maxZoom,next));
   const zin=document.getElementById('globe-zoom-in'),zout=document.getElementById('globe-zoom-out');
-  if(zin)zin.disabled=globeZoom>=GLOBE_ZOOM_MAX-.01;
+  if(zin)zin.disabled=globeZoom>=maxZoom-.01;
   if(zout)zout.disabled=globeZoom<=GLOBE_ZOOM_MIN+.01;
   drawGlobe();
 }
@@ -6360,11 +6366,11 @@ function initGlobe(){const canvas=document.getElementById('globe-canvas');if(!ca
       if(globePinch.distance>0){
         const ratio=d/globePinch.distance;
         const eased=Math.pow(ratio,1.08);
-        globeZoom=Math.max(GLOBE_ZOOM_MIN,Math.min(GLOBE_ZOOM_MAX,globePinch.zoom*eased));
+        globeZoom=Math.max(GLOBE_ZOOM_MIN,Math.min(activeGlobeZoomMax(),globePinch.zoom*eased));
         const local=globeCanvasPoint(canvas,pointerMidpoint());
         if(local&&globePinch.anchor)keepGlobeAnchor(globePinch.anchor,local.x,local.y);
         const zin=document.getElementById('globe-zoom-in'),zout=document.getElementById('globe-zoom-out');
-        if(zin)zin.disabled=globeZoom>=GLOBE_ZOOM_MAX-.01;if(zout)zout.disabled=globeZoom<=GLOBE_ZOOM_MIN+.01;
+        if(zin)zin.disabled=globeZoom>=activeGlobeZoomMax()-.01;if(zout)zout.disabled=globeZoom<=GLOBE_ZOOM_MIN+.01;
         scheduleDraw();
       }
       return;
