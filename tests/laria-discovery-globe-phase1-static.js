@@ -22,7 +22,12 @@ assert.match(preview,/const continentZoomCap=1\.72;/,'Oppdag must declare its co
 assert.match(preview,/screen\.dataset\.discoveryZoom='continent-v1'/,'Oppdag must expose its intentional continent zoom mode');
 assert.match(preview,/knip for kontinentnivå/,'child-facing zoom guidance must explain the discovery scope');
 assert.match(preview,/function renderDiscoveryWelcome\(/,'Oppdag must present a continent invitation before a country is chosen');
-assert.match(preview,/Europa venter/,'the first supported discovery area must be visible in the invitation');
+assert.match(preview,/function discoveryContinentForCamera\(/,'the invitation must follow the globe camera');
+assert.match(preview,/const discoveryContinentStops=\[/,'Oppdag must define grounded continent destinations');
+for(const name of ['Europa','Afrika','Asia','Nord-Amerika','Sør-Amerika','Oseania'])
+  assert.ok(preview.includes("name:'"+name+"'"),'missing continent destination: '+name);
+assert.match(preview,/dataset\.discoveryContinent=stop\.name/,'the visible invitation must identify its continent');
+assert.match(preview,/renderDiscoveryWelcome\(\)/,'rotation must update the selected continent invitation');
 assert.match(preview,/countries\[globeSelected\]\?\.name==='Tsjad'/,'Oppdag must identify the legacy showcase by canonical country data');
 assert.match(preview,/let simpleViewState=null/,'the original simple camera and card must be restored after Oppdag');
 assert.match(preview,/function selectedFoxSource\(/,'the invitation must use the child’s actual selected fox source');
