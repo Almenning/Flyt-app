@@ -127,6 +127,14 @@ async function check(engine,label,viewport,url){
   }
   assert.equal(await page.locator('.gm-crate-invite').count(),3,
     label+' three empty baskets should invite the first tap');
+  const invitationMotion=await page.locator('.gm-crate-invite').first().evaluate(btn=>({
+    touchTarget:getComputedStyle(btn).animationName,
+    glow:getComputedStyle(btn.querySelector('.gm-basket-illustration')).animationName
+  }));
+  assert.ok(!invitationMotion.touchTarget.includes('gm-basket-invite'),
+    label+' real basket button must stay stationary and tappable '+JSON.stringify(invitationMotion));
+  assert.ok(invitationMotion.glow.includes('gm-basket-invite'),
+    label+' only the decorative basket art should pulse '+JSON.stringify(invitationMotion));
   assert.match(await page.locator('.gm-fox-message').innerText(),/Trykk på en kurv for å starte/);
   const first=await page.evaluate(()=>{
    const rect=s=>{const n=document.querySelector(s)?.getBoundingClientRect();return n?{top:n.top,bottom:n.bottom,width:n.width,height:n.height}:null;};
