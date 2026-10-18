@@ -111,6 +111,22 @@ async function check(engine,label,viewport,url){
   assert.equal(illustratedCounter,true,'interactable baskets should stand in front of their own market-scene artwork');
   assert.match(await page.locator('.gm-top-title').innerText(),/Gangemagi/);
   assert.match(await page.locator('.gm-top-progress').innerText(),/Oppdrag 1 av 8/);
+  if(viewport.width<=360){
+    const compactHeader=await page.evaluate(()=>{
+      const box=selector=>{
+        const r=document.querySelector(selector).getBoundingClientRect();
+        return {left:r.left,right:r.right,top:r.top,bottom:r.bottom};
+      };
+      return {title:box('.gm-top-title'),progress:box('.gm-top-progress'),book:box('.gm-book-quick')};
+    });
+    const overlap=(a,b)=>a.left<b.right-2&&a.right>b.left+2&&a.top<b.bottom-2&&a.bottom>b.top+2;
+    assert.equal(overlap(compactHeader.title,compactHeader.progress),false,
+      label+' title overlaps progress badge on compact iPhone '+JSON.stringify(compactHeader));
+    assert.equal(overlap(compactHeader.title,compactHeader.book),false,
+      label+' title overlaps the collection button '+JSON.stringify(compactHeader));
+  }
+  assert.equal(await page.locator('.gm-crate-invite').count(),3,
+    label+' three empty baskets should invite the first tap');
   assert.match(await page.locator('.gm-fox-message').innerText(),/Trykk på en kurv for å starte/);
   const first=await page.evaluate(()=>{
    const rect=s=>{const n=document.querySelector(s)?.getBoundingClientRect();return n?{top:n.top,bottom:n.bottom,width:n.width,height:n.height}:null;};
@@ -156,6 +172,8 @@ async function check(engine,label,viewport,url){
   assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,0,0],
     'choosing a basket cannot silently add a strawberry');
   assert.equal((await page.locator('.gm-crate-selected').count()),1,'one glowing chosen basket');
+  assert.equal(await page.locator('.gm-crate-invite').count(),0,
+    label+' remaining baskets should stop flashing after the child chooses one');
   assert.equal(await page.locator('.gm-quest-step-active[aria-current="step"][data-gm-step="2"]').count(),1,
     label+' second illustrated step guides berry placement after choosing');
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).selectedBasket,0);
@@ -192,6 +210,8 @@ async function check(engine,label,viewport,url){
     if(group<2){
       assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).selectedBasket,null,
         label+' a completed basket must release selection before the child chooses the next one');
+      assert.equal(await page.locator('.gm-crate-invite').count(),2-group,
+        label+' only unfinished baskets should invite the next choice');
       assert.equal(await page.locator('.gm-quest-step-active[aria-current="step"][data-gm-step="1"]').count(),1,
         label+' the first illustrated step should invite the next basket');
       assert.match(await page.locator('.gm-fox-message').innerText(),/Velg en ny kurv/,
