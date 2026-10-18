@@ -92,7 +92,8 @@
    // not a second copy of the equation. One mini-basket per real group.
    const filledBasketPreview='<span class="gm-quest-filled-preview" aria-hidden="true">'+
      Array.from({length:groups},()=>'<span class="gm-quest-mini-basket">'+gmBasketArt+
-       '<span class="gm-quest-mini-berries"><i></i><i></i><i></i></span></span>').join('')+
+       '<span class="gm-quest-mini-berries" style="--gm-mini-cols:'+Math.min(each,5)+'">'+
+         Array.from({length:each},()=>'<i></i>').join('')+'</span></span>').join('')+
      '</span>';
    return '<header class="gm-story gm-quest" aria-label="Dagens oppdrag">'+
      '<div class="gm-quest-head"><span class="gm-quest-ribbon">✦ Dagens oppdrag ✦</span>'+
