@@ -533,25 +533,28 @@
 /* Basket affordance is part of the game state, not a second hint box.
    Available baskets gently invite first tap; selection changes to the
    existing warm glow, then returns to unfilled baskets after one is full. */
+/* Animate only the decorative GLOW, never the clickable button position.
+   Playwright exposed a real UX problem: moving tap targets were unstable. */
 @keyframes gm-basket-invite {
-  0%,100% {transform:translateY(0)}
-  50% {transform:translateY(-3px)}
+  0%,100% {filter:drop-shadow(0 0 4px #ffe3a4) drop-shadow(0 5px 5px #59402b88)}
+  50% {filter:drop-shadow(0 0 11px #ffda7f) drop-shadow(0 5px 5px #59402b88)}
 }
 .gm-shell[data-gm-mode="mission"][data-gm-selected="null"] .gm-crate-invite{
-  animation:gm-basket-invite 2.8s ease-in-out infinite;
   cursor:pointer;
 }
-.gm-shell[data-gm-mode="mission"][data-gm-selected="null"] .gm-crate-wrap:nth-child(2) .gm-crate-invite{
+.gm-shell[data-gm-mode="mission"] .gm-crate-invite .gm-basket-illustration{
+  animation:gm-basket-invite 2.8s ease-in-out infinite;
+}
+.gm-shell[data-gm-mode="mission"] .gm-crate-wrap:nth-child(2) .gm-crate-invite .gm-basket-illustration{
   animation-delay:-.6s;
 }
-.gm-shell[data-gm-mode="mission"][data-gm-selected="null"] .gm-crate-wrap:nth-child(3) .gm-crate-invite{
+.gm-shell[data-gm-mode="mission"] .gm-crate-wrap:nth-child(3) .gm-crate-invite .gm-basket-illustration{
   animation-delay:-1.2s;
 }
-.gm-shell[data-gm-mode="mission"] .gm-crate-invite .gm-basket-illustration{
-  filter:drop-shadow(0 0 4px #ffe3a4) drop-shadow(0 5px 5px #59402b88);
-}
 @media(prefers-reduced-motion:reduce){
-  .gm-shell[data-gm-mode="mission"] .gm-crate-invite{animation:none}
+  .gm-shell[data-gm-mode="mission"] .gm-crate-invite .gm-basket-illustration{
+    animation:none;filter:drop-shadow(0 0 5px #ffe3a4) drop-shadow(0 5px 5px #59402b88);
+  }
 }
 .gm-shell[data-gm-mode="mission"] .gm-crate-selected:before{
   content:"";position:absolute;z-index:0;inset:-6px -4px -2px;
