@@ -45,7 +45,8 @@
    if(left===1)return 'Bare ett jordbær igjen!';
    if(lastAction==='add'&&lastGroup>=0&&lastGroup<state.groups){
      const count=state.counts[lastGroup];
-     if(count===state.each)return 'Kurv '+(lastGroup+1)+' er full! Du har '+amount+' jordbær i alt.';
+     if(count===state.each)return state.mode==='mission'?'Kurv '+(lastGroup+1)+' er full! Velg en ny kurv.':
+        'Kurv '+(lastGroup+1)+' er full! Du har '+amount+' jordbær i alt.';
      return count+' av '+state.each+' i kurv '+(lastGroup+1)+'. Nå har vi '+amount+' jordbær!';
    }
    if(lastAction==='remove')return 'Du tok ut ett jordbær. Nå er det '+amount+' igjen. Prøv videre!';
@@ -221,6 +222,10 @@
    const wasComplete=E.filled(state);
    state=next;hintStep=0;notice='';
    if(['next','mission','mode','reset','groups','each'].includes(action.type))selectedGroup=null;
+    // When a basket fills, return to the illustrated "choose a basket" step.
+    // Never leave the Plukk action targeted at an already full basket.
+    if(state.mode==='mission'&&action.type==='add'&&Number.isInteger(action.group)
+       &&state.counts[action.group]===state.each&&!E.filled(state))selectedGroup=null;
    lastAction=action.type;
    lastGroup=action.group!==undefined&&Number.isInteger(Number(action.group))?Number(action.group):-1;
    foxMood=E.filled(state)?'celebrate':action.type==='add'?'cheer':action.type==='remove'?'think':'curious';
@@ -324,9 +329,10 @@
    if(kind==='basket'){
      const i=Number(button.dataset.gmBasket);
      if(state.mode==='mission'){
-       selectedGroup=i;lastAction='select';lastGroup=i;hintStep=0;
-       notice=state.counts[i]===state.each?'Denne kurven er full. Velg en annen!':'';
-       foxMood='cheer';render();return;
+       const full=state.counts[i]===state.each;
+       selectedGroup=full?null:i;lastAction='select';lastGroup=i;hintStep=0;
+       notice=full?'Denne kurven er full. Velg en annen!':'';
+       foxMood=full?'help':'cheer';render();return;
      }
      if(!change({type:'add',group:i})){notice='Denne kurven er full. Prøv en annen!';render();}
      return;
