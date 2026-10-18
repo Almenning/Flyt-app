@@ -538,20 +538,27 @@
  .gm-shell[data-gm-mode="mission"] .gm-quest-step{min-height:69px;padding:3px 7px}
  .gm-shell[data-gm-mode="mission"] .gm-quest-icon{height:36px}
  .gm-shell[data-gm-mode="mission"] .gm-quest-icon>.gm-quest-wicker{height:36px;width:47px}
+ /* Wide stage: the SAVED personal fox is a foreground GUIDE, never a
+    tiny decoration beside three large market baskets. Art and bubble
+    share a bounded composition instead of increasing document height. */
  .gm-shell[data-gm-mode="mission"] .gm-scene{
-   display:grid;grid-template-columns:190px minmax(0,1fr);
-   gap:12px;align-items:center;margin:4px 18px 0;
+   display:grid;grid-template-columns:205px minmax(0,1fr);
+   gap:8px;align-items:center;margin:4px 12px 0;
  }
  .gm-shell[data-gm-mode="mission"] .gm-fox{
-   display:grid;grid-template-columns:1fr;justify-items:center;
-   align-self:center;min-width:0;width:100%;gap:0;margin:0;padding:0;
+   position:relative;display:block;align-self:center;
+   min-width:0;width:205px;height:195px;margin:0;padding:0;
  }
- .gm-shell[data-gm-mode="mission"] .gm-fox-art{width:120px;height:133px}
+ .gm-shell[data-gm-mode="mission"] .gm-fox-art{
+   position:absolute;z-index:1;left:5px;top:-25px;
+   width:190px;height:209px;pointer-events:none;
+ }
  .gm-shell[data-gm-mode="mission"] .gm-fox-bubble{
-   width:185px;max-width:100%;min-height:54px;margin:-12px 0 0;
-   padding:5px 7px;grid-template-columns:minmax(0,1fr) 44px;
+   position:absolute;z-index:2;left:-1px;bottom:0;
+   width:200px;max-width:none;min-height:57px;margin:0;
+   padding:6px 7px;grid-template-columns:minmax(0,1fr) 44px;
  }
- .gm-shell[data-gm-mode="mission"] .gm-fox-message{font-size:11px}
+ .gm-shell[data-gm-mode="mission"] .gm-fox-message{font-size:12px}
  .gm-shell[data-gm-mode="mission"] .gm-market{min-width:0;margin:0;align-self:center}
  .gm-shell[data-gm-mode="mission"] .gm-market-sign{margin:0 auto -7px;padding:5px 16px}
  .gm-shell[data-gm-mode="mission"] .gm-crates{padding:10px 4px 0;gap:8px}
@@ -717,8 +724,12 @@
  .gm-shell[data-gm-mode="mission"] .gm-quest-step{min-height:82px}
  .gm-shell[data-gm-mode="mission"] .gm-quest-icon{height:43px}
  .gm-shell[data-gm-mode="mission"] .gm-quest-icon>.gm-quest-wicker{height:43px;width:57px}
- .gm-shell[data-gm-mode="mission"] .gm-fox-art{height:157px;width:143px}
+ /* Older final override shrank the user's character back to mascot size.
+    Keep the large landscape fox, while lifting wicker without layout reflow. */
  .gm-shell[data-gm-mode="mission"] .gm-crate{height:170px;max-width:232px}
+ .gm-shell[data-gm-mode="mission"]:is([data-gm-groups="2"],[data-gm-groups="3"]) .gm-basket-illustration{
+   top:-11px;height:calc(100% + 11px);
+ }
 }
 @media(prefers-reduced-motion:reduce){
  .gm-shell[data-gm-mode="mission"] .gm-crate,
