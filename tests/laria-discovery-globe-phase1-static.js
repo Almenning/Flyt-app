@@ -28,6 +28,17 @@ assert.match(preview,/const type=event.type,trusted=event.isTrusted;/,'only real
 assert.match(preview,/type==='pointerup'&&trusted&&globeSelected/,'the selected country must be confirmed after globe input');
 assert.match(preview,/requestAnimationFrame\(\(\)=>\{\s*if\(typeof globePointers/,'the tap callback must run after the original input owner');
 assert.match(preview,/const discoveryContinentStops=\[/,'Oppdag must define grounded continent destinations');
+assert.match(preview,/const discoveryContinentStories=\{/,'each continent needs optional guided places');
+assert.match(preview,/function showContinentDiscovery\(/,'continent action must reveal a meaningful new place');
+assert.match(preview,/const discoveryContinentVisits=new Map\(\)/,'visiting a favourite place again must remain possible');
+assert.match(preview,/box\.dataset\.discoveryStoryStep=String\(visits\)/,
+  'QA must expose a distinct optional discovery step');
+assert.match(viewCss,/laria-discovery-fox-found/,'a discovered place should have a subtle fox reaction');
+assert.match(viewCss,/prefers-reduced-motion:reduce/,'the reaction must respect reduced-motion accessibility');
+for(const name of ['Europa','Afrika','Asia','Nord-Amerika','Sør-Amerika','Oseania'])
+  assert.ok(preview.includes("'"+name+"':{"),'missing curated place story for '+name);
+for(const place of ['Alpene','Sahara','Himalaya','Rocky Mountains','Andesfjellene','Korallrevet'])
+  assert.ok(preview.includes("title:'"+place+"'"),'missing geographic discovery: '+place);
 for(const name of ['Europa','Afrika','Asia','Nord-Amerika','Sør-Amerika','Oseania'])
   assert.ok(preview.includes("name:'"+name+"'"),'missing continent destination: '+name);
 assert.match(preview,/dataset\.discoveryContinent=stop\.name/,'the visible invitation must identify its continent');
