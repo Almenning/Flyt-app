@@ -12,6 +12,7 @@
  let state=load(),undo=[],hintStep=0,notice='',suppressClickUntil=0,drag=null;
  let foxMood='curious',lastAction='',lastGroup=-1;
  let returnToMath=false,bookOpen=false;
+ let selectedGroup=null; // transient UI selection, no changes to stored schema.
  const esc=x=>String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const berrySvg='<svg viewBox="0 0 48 56" aria-hidden="true" focusable="false"><defs><linearGradient id="gmB" x1=".2" x2=".85" y2="1"><stop stop-color="#ff9780"/><stop offset=".42" stop-color="#d94855"/><stop offset="1" stop-color="#9c3547"/></linearGradient></defs><path d="M24 14C11 5 2 19 6 33C10 46 19 52 24 54C30 51 41 43 43 29C45 16 34 8 24 14Z" fill="url(#gmB)" stroke="#963a46" stroke-width="2"/><path d="M24 12C14 4 9 4 7 8L15 17L4 14L9 22L23 18L38 21L44 13L31 16L40 9C36 5 29 6 24 12Z" fill="#5c9867" stroke="#407e60" stroke-width="1.4"/><path d="M24 12Q24 6 28 3" stroke="#4a7650" stroke-width="2.5" fill="none" stroke-linecap="round"/><g fill="#ffe8ac"><ellipse cx="16" cy="28" rx="1.9" ry="3.1" transform="rotate(-24 16 28)"/><ellipse cx="30" cy="27" rx="1.8" ry="3" transform="rotate(16 30 27)"/><ellipse cx="23" cy="37" rx="1.8" ry="3"/><ellipse cx="13" cy="36" rx="1.5" ry="2.5"/><ellipse cx="33" cy="37" rx="1.5" ry="2.5"/></g><path d="M11 24Q11 18 18 18" stroke="#ffb2a0" stroke-width="3" fill="none" opacity=".8" stroke-linecap="round"/></svg>';
  function load(){try{return E.normalize(JSON.parse(localStorage.getItem(KEY)||'null'));}catch(_){return E.initial();}}
@@ -31,15 +32,16 @@
      if(ix<0)return 'Du har fylt alle kurvene. Se hvordan gange og pluss henger sammen!';
      const missing=state.each-state.counts[ix];
      return hintStep===1?'Se på kurv '+(ix+1)+'. Hvor mange mangler for å få '+state.each+'?':
-       'Det mangler '+missing+' i kurv '+(ix+1)+'. Trykk på kurven for å legge i ett bær.';
+       'Det mangler '+missing+' i kurv '+(ix+1)+'. Velg kurven og trykk på Plukk et jordbær.';
    }
    if(E.filled(state))return state.mode==='mission'?E.MISSIONS[state.mission].celebrate:
      'Du laget '+state.groups+' like grupper med '+state.each+' i hver!';
    if(notice)return notice;
    const same=state.counts.length>0&&state.counts[0]>0&&state.counts.every(n=>n===state.counts[0]);
    if(same)return 'Se! '+state.groups+' kurver med '+state.counts[0]+' i hver. '+state.groups+' ganger '+state.counts[0]+' er '+amount+'!';
-   if(!amount)return state.mode==='mission'?'Trykk på en kurv! Hvert trykk legger i ett jordbær.':
+   if(!amount)return state.mode==='mission'?(selectedGroup===null?'Trykk på en kurv for å starte!':'Kurv '+(selectedGroup+1)+' er valgt. Trykk på Plukk et jordbær!'):
      'Lag ditt eget gangestykke. Du bestemmer hvor mange som skal i hver kurv.';
+   if(lastAction==='select'&&selectedGroup!==null)return 'Kurv '+(selectedGroup+1)+' er valgt! Nå kan du plukke jordbær.';
    if(left===1)return 'Bare ett jordbær igjen!';
    if(lastAction==='add'&&lastGroup>=0&&lastGroup<state.groups){
      const count=state.counts[lastGroup];
@@ -214,6 +216,7 @@
    undo.push(E.normalize(state));if(undo.length>50)undo.shift();
    const wasComplete=E.filled(state);
    state=next;hintStep=0;notice='';
+   if(['next','mission','mode','reset','groups','each'].includes(action.type))selectedGroup=null;
    lastAction=action.type;
    lastGroup=action.group!==undefined&&Number.isInteger(Number(action.group))?Number(action.group):-1;
    foxMood=E.filled(state)?'celebrate':action.type==='add'?'cheer':action.type==='remove'?'think':'curious';
@@ -280,7 +283,7 @@
      if(!Number.isInteger(index)||index<0||index>=E.MISSIONS.length)return;
      // Each selected adventure begins fresh. Undo stays inside one adventure;
      // already earned flowers remain attached to the child's saved progress.
-     state=E.apply(state,{type:'mission',index});
+     state=E.apply(state,{type:'mission',index});selectedGroup=null;
      undo=[];hintStep=0;notice='';foxMood='curious';lastAction='';lastGroup=-1;
      bookOpen=false;save();render();
      root.querySelector('.gm-top')?.scrollIntoView({behavior:'auto',block:'start'});
@@ -309,10 +312,28 @@
    if(kind==='mode'){if(button.dataset.mode!==state.mode)change({type:'mode',mode:button.dataset.mode});return;}
    if(kind==='next'){change({type:'next'});return;}
    if(kind==='factor'){change({type:button.dataset.key,value:state[button.dataset.key]+Number(button.dataset.step)});return;}
-   if(kind==='remove'){change({type:'remove',group:Number(button.dataset.group)});return;}
-   if(kind==='basket'){const i=Number(button.dataset.gmBasket);if(!change({type:'add',group:i})){notice='Denne kurven er full. Prøv en annen!';render();}return;}
+   if(kind==='remove'){
+     const i=Number(button.dataset.group);
+     if(state.mode==='mission')selectedGroup=i;
+     change({type:'remove',group:i});return;
+   }
+   if(kind==='basket'){
+     const i=Number(button.dataset.gmBasket);
+     if(state.mode==='mission'){
+       selectedGroup=i;lastAction='select';lastGroup=i;hintStep=0;
+       notice=state.counts[i]===state.each?'Denne kurven er full. Velg en annen!':'';
+       foxMood='cheer';render();return;
+     }
+     if(!change({type:'add',group:i})){notice='Denne kurven er full. Prøv en annen!';render();}
+     return;
+   }
    if(kind==='source'){
      if(Date.now()<suppressClickUntil)return;
+     if(state.mode==='mission'){
+       if(selectedGroup===null){notice='Velg en kurv først!';foxMood='help';render();return;}
+       if(!change({type:'add',group:selectedGroup})){notice='Denne kurven er full. Velg en annen!';foxMood='help';render();}
+       return;
+     }
      const ix=state.counts.findIndex(n=>n<state.each);
      if(ix>=0)change({type:'add',group:ix});
    }
@@ -323,7 +344,7 @@
  }
  function onPointerDown(event){
    const button=event.target.closest('button[data-gm-action="source"]');
-   if(!button||!root.contains(button)||button.disabled||event.button!==0)return;
+   if(!button||!root.contains(button)||button.disabled||event.button!==0||state.mode==='mission')return;
    drag={id:event.pointerId,x:event.clientX,y:event.clientY,moved:false,ghost:null};
  }
  function onPointerMove(event){
@@ -389,11 +410,11 @@
  if(entry)entry.onclick=()=>open(false);
  function openMission(index){
    if(!Number.isInteger(index)||index<0||index>=E.MISSIONS.length)return false;
-   state=E.apply(state,{type:'mission',index});
+   state=E.apply(state,{type:'mission',index});selectedGroup=null;
    undo=[];hintStep=0;notice='';foxMood='curious';lastAction='';lastGroup=-1;
-   bookOpen=false;save();open(false);return true;
+   bookOpen=false;selectedGroup=null;save();open(false);return true;
  }
  window.LARIA_GANGEMAGI=Object.freeze({version:'playable-v1',open,openMission,
-   snapshot:()=>({...E.normalize(state),equation:E.equation(state),undo:undo.length}),
-   reset:()=>{state=E.initial();save();hintStep=0;undo=[];render();}});
+   snapshot:()=>({...E.normalize(state),equation:E.equation(state),selectedBasket:selectedGroup,undo:undo.length}),
+   reset:()=>{state=E.initial();selectedGroup=null;save();hintStep=0;undo=[];render();}});
 })();
