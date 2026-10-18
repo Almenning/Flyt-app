@@ -77,9 +77,8 @@ assert.match(preview,/'Sør-Amerika':'#[0-9A-Fa-f]{6}'/,
 assert.doesNotMatch(preview,/SÃ¸r-Amerika/,'preview source has mojibake');
 assert.doesNotMatch(preview,/window\.globeZoom\b/, 'zoom is lexically scoped; window.globeZoom generates NaN drawing coordinates');
 assert.match(preview,/function paintReliefTrails\(/, 'geographic terrain trails must remain active');
-assert.match(preview,/function paintChainReliefRibbon\(/,'continent mountains need connected relief rather than repetitive stamps');
-assert.match(preview,/if\(level===1\)return paintChainReliefRibbon\(/,
-  'continent overview must use connected relief, keeping close-up rendering separate');
+assert.doesNotMatch(preview,/function paintChainReliefRibbon\(/,
+  'do not reintroduce the rejected highway-like continent crest ribbons');
 assert.match(preview,/const forestShade=grove\*42\*biomeReach/,'forest canopy needs locally shaded geographic material');
 assert.match(preview,/const sand=\(dunes\*\.66\+ridges\*\.34\)\*51\*biomeReach/,
   'desert pigments must follow geographic noise rather than decorative stamps');
