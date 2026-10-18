@@ -231,9 +231,12 @@
   background:transparent;box-shadow:none;overflow:visible;
   transition:transform .2s ease,filter .2s ease;
 }
+/* The basket is a safely isolated piece of the EXACT locked illustration.
+   Its handwoven wicker is photo-painterly; every fruit and number is still live.
+   Slight overscan restores the reference's full, generous basket silhouette. */
 .gm-shell[data-gm-mode="mission"] .gm-basket-illustration{
-  position:absolute;inset:0;width:100%;height:100%;object-fit:fill;
-  z-index:1;filter:drop-shadow(0 7px 4px #48371e52);pointer-events:none;
+  position:absolute;top:0;left:-6%;width:112%;height:100%;object-fit:fill;
+  z-index:1;filter:drop-shadow(0 7px 5px #48371e61);pointer-events:none;
 }
 .gm-shell[data-gm-mode="mission"] .gm-crate-selected .gm-basket-illustration{
   filter:drop-shadow(0 0 4px #fff7ba) drop-shadow(0 0 11px #ffc44f) drop-shadow(0 5px 5px #80512473);
@@ -259,12 +262,15 @@
   filter:drop-shadow(0 2px 2px #543c30a3);
 }
 .gm-shell[data-gm-mode="mission"] .gm-fruit-empty{display:none}
+/* Live wooden nameplate sits exactly over the reference artwork's removed
+   baked-in label. It remains correct for two, three, four or five baskets. */
 .gm-shell[data-gm-mode="mission"] .gm-crate-front{
-  position:absolute;left:12%;bottom:1%;right:12%;z-index:4;
-  height:34px;min-width:0;padding:1px 4px;border:3px solid #b98c5c;
-  border-bottom-color:#895733;border-radius:14px;
-  background:linear-gradient(#ffedca,#edd0a0);
-  box-shadow:0 3px 0 #784d2a96;display:flex;align-items:center;justify-content:center;gap:6px;
+  position:absolute;left:16%;bottom:8%;right:16%;z-index:4;
+  height:20%;min-height:24px;min-width:0;padding:1px 3px;
+  border:3px solid #b98c5c;border-bottom-color:#895733;border-radius:17px;
+  background:linear-gradient(160deg,#fff3d7,#f0d3a4);
+  box-shadow:0 3px 0 #784d2a96,inset 0 2px 2px #fff9e6;
+  display:flex;align-items:center;justify-content:center;gap:4px;
 }
 .gm-shell[data-gm-mode="mission"] .gm-crate-front:before{display:none}
 .gm-shell[data-gm-mode="mission"] .gm-crate-caption{
@@ -393,7 +399,7 @@
  .gm-shell[data-gm-mode="mission"] .gm-fruit-bed{top:35%;left:50%;width:72%;height:42%}
  .gm-shell[data-gm-mode="mission"] .gm-fruit{width:clamp(14px,5vw,23px);height:clamp(17px,5.8vw,28px)}
  .gm-shell[data-gm-mode="mission"] .gm-fruit-empty{width:11px;height:14px}
- .gm-shell[data-gm-mode="mission"] .gm-crate-front{left:7%;right:7%;height:24px;border-width:2px;border-radius:9px;gap:3px}
+ .gm-shell[data-gm-mode="mission"] .gm-crate-front{left:12%;right:12%;height:20%;min-height:24px;border-width:2px;border-radius:11px;gap:3px}
  .gm-shell[data-gm-mode="mission"] .gm-crate-caption{font-size:11px}
  .gm-shell[data-gm-mode="mission"] .gm-crate-tag{font-size:9px}
  .gm-shell[data-gm-mode="mission"] .gm-remove{width:44px;height:44px;right:-6px;top:0;bottom:auto}
