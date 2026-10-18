@@ -63,9 +63,9 @@
    const chosen=state.mode==='mission'&&selectedGroup===i;
    const interaction=state.mode==='mission'?'Velg denne kurven.':(missing?'Trykk for å legge i et jordbær.':'Kurven er full.');
    return '<div class="gm-crate-wrap"><button type="button" class="gm-crate '+(!missing?'gm-crate-full ':'')+(chosen?'gm-crate-selected':'')+'" data-gm-action="basket" data-gm-basket="'+i+'" data-gm-selected="'+chosen+'" aria-pressed="'+chosen+'" aria-label="Kurv '+(i+1)+': '+count+' av '+state.each+'. '+interaction+'">'+
-      '<img class="gm-basket-illustration" alt="" aria-hidden="true" src="gangemagi-basket-premium.svg">'+
+      (state.mode==='mission'?'<img class="gm-basket-illustration" alt="" aria-hidden="true" src="gangemagi-basket-premium.svg">':'<span class="gm-crate-handle" aria-hidden="true"></span><span class="gm-crate-caption">Kurv '+(i+1)+'</span>')+
       '<span class="gm-fruit-bed" aria-hidden="true">'+fruit(count,missing)+'</span>'+
-      '<span class="gm-crate-front" aria-hidden="true"><span class="gm-crate-caption">Kurv '+(i+1)+'</span><span class="gm-crate-tag">'+count+' / '+state.each+'</span></span>'+
+      '<span class="gm-crate-front" aria-hidden="true">'+(state.mode==='mission'?'<span class="gm-crate-caption">Kurv '+(i+1)+'</span>':'')+'<span class="gm-crate-tag">'+count+' / '+state.each+'</span></span>'+
       '</button><button type="button" class="gm-remove" data-gm-action="remove" data-group="'+i+'" aria-label="Ta ett jordbær ut av kurv '+(i+1)+'" '+(!count?'disabled':'')+'><span aria-hidden="true">−</span></button></div>';
  }
  function challengeText(){
@@ -111,8 +111,7 @@
       '<div class="gm-layout"><header class="gm-top">'+
       '<button type="button" class="gm-back" id="multiplication-lab-back" data-gm-action="back" aria-label="Tilbake til matte">‹</button>'+
       '<div class="gm-brand"><span class="gm-brand-mark">Læ<span>ria</span> ✦</span><small>TALLENGA / GANGEMAGI</small></div>'+ 
-      '<div class="gm-top-title"><h1>Gangemagi</h1><span>Et lite matteeventyr</span></div>'+ 
-      '<div class="gm-top-progress">'+(free?'Fri lek':'Oppdrag '+(state.mission+1)+' av '+E.MISSIONS.length)+'</div>'+
+      (!free?'<div class="gm-top-title"><h1>Gangemagi</h1><span>Et lite matteeventyr</span></div><div class="gm-top-progress">Oppdrag '+(state.mission+1)+' av '+E.MISSIONS.length+'</div>':'')+ 
       '<button type="button" class="gm-book-quick" data-gm-action="open-book" aria-label="Åpne Min markedsbok. '+state.wins.length+' av '+E.MISSIONS.length+' blomster samlet" title="Min markedsbok">✿ <span class="gm-book-quick-count">'+state.wins.length+'/'+E.MISSIONS.length+'</span></button>'+
       
       '</header>'+
@@ -132,7 +131,7 @@
        '<div class="gm-math"><div class="gm-math-label"><span>Dette lager du</span><span class="gm-goal">Målet: '+state.groups+' × '+state.each+'</span></div>'+
          '<div class="gm-math-equation '+(complete?'gm-equation-win':'')+'" aria-label="'+esc(equation)+'">'+esc(equation)+'</div>'+
          '<div class="gm-progress-track" role="progressbar" aria-label="Jordbær pakket" aria-valuemin="0" aria-valuemax="'+goal+'" aria-valuenow="'+sum+'"><span style="width:'+progress+'%"></span></div>'+ 
-         '<div class="gm-berry-progress"><strong>'+sum+' av '+goal+'</strong><div aria-hidden="true">'+Array.from({length:goal},(_,i)=>'<span class="gm-berry-slot '+(i<sum?'gm-berry-earned':'')+'">'+berrySvg+'</span>').join('')+'</div></div>'+
+         (!free?'<div class="gm-berry-progress"><strong>'+sum+' av '+goal+'</strong><div aria-hidden="true">'+Array.from({length:goal},(_,i)=>'<span class="gm-berry-slot '+(i<sum?'gm-berry-earned':'')+'">'+berrySvg+'</span>').join('')+'</div></div>':'')+
          '<div class="gm-math-note'+(result.multiplication?' gm-math-discovery':'')+'"'+(result.multiplication?' role="status"':'')+'>'+(result.multiplication?'✦ Like grupper: '+state.groups+' kurver med '+state.counts[0]+' bær = '+sum+'!':'Når kurvene har ulikt antall, legger vi sammen.')+'</div></div>'+
        (complete?'<div class="gm-celebration" role="status"><span aria-hidden="true">✿</span><strong>'+esc(free?'Så fint du laget det!':'Oppdraget er klart!')+'</strong><span>Du fant '+goal+' jordbær.</span></div>':'')+
        '</section>'+
