@@ -168,3 +168,30 @@ Node-statusen alene er ikke visuell premiumgodkjenning.
 - Funksjonen gjelder bare når Oppdag er aktiv, skjermen er i stående format på høyst 350 × 700, og innholdet faktisk er høyere enn skjermen. Programmatisk landfokus eller QA-oppsett skal ikke utløse rulling.
 - Ny Playwright-regresjonstest bruker et ekte browser-trykk på Frankrike ved 320 × 568 og krever at både landkort og handlinger kan leses etter automatisk rulling. Den dokumenterer også skjermbildet etter trykk.
 - **Release-port:** siste WebKit-resultat og visuelle bilder for dette passet mangler ennå; ingen merge eller publisering før de foreligger.
+
+### Terreng- og isolasjonsrevisjon (18. oktober, neste arbeidsøkt)
+
+**Verifisert i GitHub Actions**
+
+- Commit `a58e8b1`: full Laria Dual Globes Release QA grønn. Reell WebKit-simulert berøring på 320 × 568 åpner Frankrike og ruller landkortet og handlingene helt frem. På samme commit var Continuous smoke, Gangemagi og samlebok grønne.
+- Commit `bdc1009`: full geografisk browsermatrise grønn etter at kontinentdefinerende fjellkjeder (Andes, Rocky Mountains, Himalaya m.fl.) og store elver (Amazonas, Nilen, Mississippi, Yangtze) ble aktivert også på kontinentzoom. Seks verdensdelskort og landkoordinater besto.
+- Commit `8000192`: grønn matrise etter mer sammenhengende georeferert stein-/snømateriale og bedre iPad-sampling av terreng. Oppløsningen skalerer med faktisk globusstørrelse, mens små telefoner beholder 128 prøver i oversiktsbildet.
+- Commit `5cb5dc4`: grønn browsermatrise for faktisk atmosfærisk demping av bakgrunnen, lagt på eksisterende v36-storyscape i stedet for CSS-pseudoelementene som den gamle globale stilen skjuler. Sammenlikning av før/etter-bilder viser en mer synlig, roligere bakgrunn. Dempingen er begrenset til Oppdag.
+- Etter mer omfattende mode-overgangstesting avdekket `0598e03` at den opprinnelige Enkel-kamera-/landtilstanden kunne mistes ved Oppdag → Kartet → Oppdag → Enkel. Rettet ved å beholde snapshot gjennom kartavstikkeren og gjenopprette det **én gang** når Oppdag deaktiveres. Commit `d36135b` besto hele WebKit-/Chromium-matrisen med kontroll av disse overgangene.
+- Oppdag sine view-/paintmarkører fjernes også ved overgang til Kartet, uten å endre brukerens lagrede preferanse for Oppdag. Dermed arver ikke dagens kart den illustrerte bakgrunnseffekten.
+- Ingen flette til `main` eller publisering er utført. Enkel-globusens landkonturer, input, detaljzoom og faglig progresjon beholdes.
+
+**Faktiske visuelle funn**
+
+- De første fjell-/elvestrekene var for subtile. Før/etter-skår fra pikselanalyse på iPad bekreftet svært liten faktisk differanse, til tross for teknisk grønne tester. Det var derfor ikke forsvarlig å regne passet som premiumgodkjent.
+- Stein-/snøpass og riktig bakgrunnsblanding har gitt et tydeligere naturmateriale og bedre visuelt skille mellom globe og scene. Likevel er kloden fortsatt en relativt flat Canvas-illustrasjon sammenliknet med de låste premiumreferansene.
+- Dette er **godkjent som teknisk kontinentprototyp, ikke som endelig premiumillustrasjon**. En mer målrettet illustrasjons-/georefereringsprosess må bygge det kunstneriske uttrykket videre, særlig Amazonas, Andes, Himalaya og Sahara.
+- Testene bruker faktiske skjermbilder fra nettlesermotorene WebKit og Chromium med iPhone-/iPad-viewport, ikke fysisk iPhone/iPad.
+- Antarktis er foreløpig ikke en av de seks kontinentinvitasjonene; det må håndteres med korrekt geodata i et senere avgrenset arbeid, ikke ved å tegne en vilkårlig polarflate.
+
+**Neste kvalitetsport**
+
+1. Kontroller samlet grønn CI og eksakt-HEAD-skjermbilder etter siste ressurs-/PWA-versjonering.
+2. Inspiser mobilportrett 320/390, iPad stående/liggende og Atlas ↔ Oppdag ↔ Enkel uten visuell lekkasje.
+3. Premiumrevider selve terrengillustrasjonen som en separat designoppgave, med geografisk korrekte former og gjennomgående aktiv personlig rev, før eventuell merge.
+4. Behold PR #184 som draft over #179 inntil premissene er oppfylt; ikke flett direkte til main.
