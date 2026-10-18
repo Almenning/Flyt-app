@@ -44,6 +44,12 @@ assert.match(index,/window\.__lariaDiscoveryGlobePreview===true/,'the limited zo
 assert.match(index,/function activeGlobeZoomMax\(/,'wheel, pinch and buttons must share the same zoom limit');
 const viewCss=read('laer-litt-mer/discovery-globe-view-v1.css');
 assert.match(viewCss,/discovery-continent-intro/,'Oppdag’s continent invitation needs scoped presentation styling');
+assert.match(viewCss,/\[data-discovery-globe="painted-atlas-v1"\]\s*\{\s*background-image:/,
+  'Oppdag atmospheric layer must draw on the actual scene, not dead pseudo-elements');
+assert.match(viewCss,/globe-storyscape-v36-mobile\.webp/,'portrait must keep the approved storyscape artwork');
+assert.match(viewCss,/globe-storyscape-v36-tablet\.webp/,'iPad portrait must keep its original artwork');
+assert.doesNotMatch(viewCss,/\[data-discovery-globe="painted-atlas-v1"\]::before/,
+  'do not reintroduce a hidden pseudo-element as the atmospheric layer');
 assert.match(viewCss,/\.premium-globe-guide\{display:none!important\}/,'Oppdag must not show the generic fox beside the selected fox');
 assert.match(viewCss,/discovery-country-companion/,'selected countries need a compact companion treatment');
 assert.match(preview,/window\.__lariaDiscoveryGlobePreview=false;/,
