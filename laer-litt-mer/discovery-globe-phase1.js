@@ -15,7 +15,9 @@ const trialNaturalRelief=new URLSearchParams(location.search).get('discovery-rel
 // lit slopes and snow shelves replace satellite hues and tiny ridge ticks.
 // Default Oppdag and Enkel ignore this flag completely.
 const trialCarvedRelief=new URLSearchParams(location.search).get('discovery-art')==='carved';
-const trialNaturalEarthRelief=new URLSearchParams(location.search).get('discovery-art')==='natural-earth';
+// Natural Earth is the selected painted terrain for Oppdag in this draft.
+// A dedicated baseline query flag remains available for visual A/B checks.
+const trialNaturalEarthRelief=new URLSearchParams(location.search).get('discovery-art')!=='baseline';
 let naturalEarthPixels=null;
 let naturalEarthStatus=trialNaturalEarthRelief?'loading':'disabled';
 let naturalEarthPreparationMs=0;
