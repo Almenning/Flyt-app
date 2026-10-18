@@ -202,7 +202,8 @@ async function verifyContinentInvitation(page,label){
   {name:'Asia',lon:104,lat:38,zoom:1.30},
   {name:'Nord-Amerika',lon:-105,lat:43,zoom:1.30},
   {name:'Sør-Amerika',lon:-62,lat:-14,zoom:1.30},
-  {name:'Oseania',lon:135,lat:-25,zoom:1.30}
+  {name:'Oseania',lon:135,lat:-25,zoom:1.30},
+  {name:'Antarktis',lon:0,lat:-82,zoom:1.28}
  ];
  for(const stop of stops){
   await page.evaluate(({lon,lat})=>{
@@ -224,10 +225,22 @@ async function verifyContinentInvitation(page,label){
    const canvas=document.getElementById('globe-canvas');
    return {level:document.getElementById('world-screen').dataset.discoveryGlobeLevel,
     crests:Number(canvas.dataset.discoveryContinentCrests||0),
-    rivers:Number(canvas.dataset.discoveryContinentRivers||0)};
+    rivers:Number(canvas.dataset.discoveryContinentRivers||0),
+    polar:Number(canvas.dataset.discoveryAntarcticLand||0)};
   });
   assert.equal(visible.level,'1',label+' must stay at continent scale: '+stop.name);
-  assert.ok(visible.crests>0,label+' missing major mountain relief at '+stop.name+': '+JSON.stringify(visible));
+  if(stop.name!=='Antarktis')
+   assert.ok(visible.crests>0,label+' missing major mountain relief at '+stop.name+': '+JSON.stringify(visible));
+  else{
+   assert.equal(visible.polar,1,label+' Antarctic continent was not painted');
+   const ice=await page.evaluate(()=>{
+    const canvas=document.getElementById('globe-canvas'),ctx=canvas.getContext('2d');
+    const x=Math.floor(canvas.width/2),y=Math.floor(canvas.height/2);
+    return Array.from(ctx.getImageData(x,y,1,1).data);
+   });
+   assert.ok(ice[0]>140&&ice[1]>160&&ice[2]>150,
+     label+' Antarctic polar center is still ocean instead of the sourced ice land: '+JSON.stringify(ice));
+  }
   if(['Afrika','Asia','Nord-Amerika','Sør-Amerika'].includes(stop.name))
    assert.ok(visible.rivers>0,label+' missing major rivers at '+stop.name+': '+JSON.stringify(visible));
   const button=page.locator('.discovery-continent-button');
@@ -271,7 +284,8 @@ async function verifyContinentInvitation(page,label){
     'Asia':{name:'Himalaya',lon:87,lat:29},
     'Nord-Amerika':{name:'Rocky Mountains',lon:-112,lat:42},
     'Sør-Amerika':{name:'Andesfjellene',lon:-70,lat:-19},
-    'Oseania':{name:'Korallrevet',lon:146,lat:-19}
+    'Oseania':{name:'Korallrevet',lon:146,lat:-19},
+    'Antarktis':{name:'Antarktishalvøya',lon:-64,lat:-68}
    }[stop.name];
    await button.click();
    assert.equal(await page.locator('#globe-status').getAttribute('data-discovery-story-step'),'1',
