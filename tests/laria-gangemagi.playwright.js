@@ -39,6 +39,8 @@ async function check(engine,label,viewport,url){
   assert.match(await page.locator('.gm-quest-callout').innerText(),/Fyll 3 kurver med 3 jordbær i hver/);
   assert.deepEqual(await page.locator('.gm-quest-step strong').allInnerTexts(),
     ['Velg en kurv','Legg i jordbær','Se at 3 × 3 = 9'],'instructions are three real readable DOM steps');
+  assert.equal(await page.locator('.gm-quest-step-active[aria-current="step"][data-gm-step="1"]').count(),1,
+    label+' first illustrated step invites a basket choice');
   assert.equal(await page.locator('.gm-quest-steps[role="list"] [role="listitem"]').count(),3,
     'screen-reader and touch-friendly three-step instructions');
   // Quest-step labels carry actual child instructions, not decorative microcopy.
@@ -101,6 +103,8 @@ async function check(engine,label,viewport,url){
   assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,0,0],
     'choosing a basket cannot silently add a strawberry');
   assert.equal((await page.locator('.gm-crate-selected').count()),1,'one glowing chosen basket');
+  assert.equal(await page.locator('.gm-quest-step-active[aria-current="step"][data-gm-step="2"]').count(),1,
+    label+' second illustrated step guides berry placement after choosing');
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).selectedBasket,0);
   await page.locator('[data-gm-action="source"]').click();
   const firstBerryGeometry=await page.locator('[data-gm-basket="0"]').evaluate(basket=>{
@@ -132,6 +136,8 @@ async function check(engine,label,viewport,url){
   assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[1,0,0]);
   for(const [group,count] of [[0,2],[1,3],[2,3]])await selectAndPick(page,group,count);
   assert.equal((await page.locator('.gm-math-equation').innerText()).trim(),'3 × 3 = 9');
+  assert.equal(await page.locator('.gm-quest-step-active[aria-current="step"][data-gm-step="3"]').count(),1,
+    label+' final illustrated step celebrates the multiplication discovery');
   assert.match(await page.locator('.gm-math-discovery').innerText(),/Like grupper: 3 kurver med 3 bær = 9/,'multiplication has a child-readable explanation');
   assert.match(await page.locator('.gm-book-quick').innerText(),/1\/8/,'earned flowers remain visible during play');
   assert.match(await page.locator('.gm-celebration').innerText(),/Oppdraget er klart/);
