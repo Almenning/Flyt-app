@@ -60,11 +60,12 @@
  }
  function crate(i){
    const count=state.counts[i],missing=state.each-count;
-   return '<div class="gm-crate-wrap"><button type="button" class="gm-crate '+(!missing?'gm-crate-full':'')+'" data-gm-action="basket" data-gm-basket="'+i+'" aria-label="Kurv '+(i+1)+': '+count+' av '+state.each+'. '+(missing?'Trykk for å legge i ett jordbær.':'Kurven er full.')+'">'+
-      '<span class="gm-crate-handle" aria-hidden="true"></span>'+
-      '<span class="gm-crate-caption">Kurv '+(i+1)+'</span>'+
+   const chosen=state.mode==='mission'&&selectedGroup===i;
+   const interaction=state.mode==='mission'?'Velg denne kurven.':(missing?'Trykk for å legge i et jordbær.':'Kurven er full.');
+   return '<div class="gm-crate-wrap"><button type="button" class="gm-crate '+(!missing?'gm-crate-full ':'')+(chosen?'gm-crate-selected':'')+'" data-gm-action="basket" data-gm-basket="'+i+'" data-gm-selected="'+chosen+'" aria-pressed="'+chosen+'" aria-label="Kurv '+(i+1)+': '+count+' av '+state.each+'. '+interaction+'">'+
+      '<img class="gm-basket-illustration" alt="" aria-hidden="true" src="gangemagi-basket-premium.svg">'+
       '<span class="gm-fruit-bed" aria-hidden="true">'+fruit(count,missing)+'</span>'+
-      '<span class="gm-crate-front" aria-hidden="true"><span class="gm-crate-tag">'+count+' / '+state.each+'</span></span>'+
+      '<span class="gm-crate-front" aria-hidden="true"><span class="gm-crate-caption">Kurv '+(i+1)+'</span><span class="gm-crate-tag">'+count+' / '+state.each+'</span></span>'+
       '</button><button type="button" class="gm-remove" data-gm-action="remove" data-group="'+i+'" aria-label="Ta ett jordbær ut av kurv '+(i+1)+'" '+(!count?'disabled':'')+'><span aria-hidden="true">−</span></button></div>';
  }
  function challengeText(){
@@ -84,24 +85,17 @@
  function questBoard(sum,goal){
    const groups=state.groups,each=state.each,mission=E.MISSIONS[state.mission];
    const fruitArt='<span class="gm-quest-fruit">'+berrySvg+'</span>';
-   const berries=Array.from({length:Math.min(each,5)},()=>fruitArt).join('')+
-     (each>5?'<span class="gm-quest-extra">+'+(each-5)+'</span>':'');
    return '<header class="gm-story gm-quest" aria-label="Dagens oppdrag">'+
-     '<div class="gm-quest-head">'+
-       '<span class="gm-quest-flag" aria-hidden="true">⚑</span>'+
-       '<span class="gm-quest-ribbon">Dagens oppdrag</span>'+
-       '<span class="gm-quest-meta">Oppdrag '+(state.mission+1)+' av '+E.MISSIONS.length+' · '+esc(mission.heading)+'</span>'+
-       '<span class="gm-story-progress gm-quest-progress" aria-label="'+sum+' av '+goal+' jordbær pakket"><strong>'+sum+'</strong><span>av '+goal+'</span></span>'+
-     '</div>'+
+     '<div class="gm-quest-head"><span class="gm-quest-ribbon">✦ Dagens oppdrag ✦</span>'+
+     '<span class="gm-quest-meta">Oppdrag '+(state.mission+1)+' av '+E.MISSIONS.length+' · '+esc(mission.heading)+'</span></div>'+
      '<h2 class="gm-quest-callout">Fyll <em>'+groups+' '+(groups===1?'kurv':'kurver')+'</em> med <em>'+each+' jordbær</em> i hver.</h2>'+
      '<div class="gm-quest-steps" role="list" aria-label="Tre steg i oppdraget">'+
-       questStep(1,fruitArt,'Plukk jordbær')+
+       questStep(1,gmBasketArt,'Velg en kurv')+
        '<span class="gm-quest-arrow" aria-hidden="true">➜</span>'+
-       questStep(2,gmBasketArt,'Legg i '+groups+' '+(groups===1?'kurv':'kurver'))+
+       questStep(2,fruitArt+gmBasketArt,'Legg i jordbær')+
        '<span class="gm-quest-arrow" aria-hidden="true">➜</span>'+
-       questStep(3,'<span class="gm-quest-berries">'+berries+'</span>',each+' i hver kurv')+
-     '</div>'+
-   '</header>';
+       questStep(3,'<span class="gm-quest-math">'+groups+' × '+each+' = '+goal+'</span>','Se at '+groups+' × '+each+' = '+goal)+
+     '</div></header>';
  }
  function render(){
    const prevFocus=root.contains(document.activeElement)?document.activeElement:null;
@@ -113,19 +107,17 @@
    const msg=message();
    const equation=result.multiplication||result.addition;
    const active=state.mode==='mission'?'Oppdrag':'Fri lek';
-   root.innerHTML='<main class="gm-shell" data-gm-mode="'+modeClass+'" data-gm-complete="'+complete+'">'+
+   root.innerHTML='<main class="gm-shell" data-gm-mode="'+modeClass+'" data-gm-selected="'+selectedGroup+'" data-gm-complete="'+complete+'">'+
       '<div class="gm-layout"><header class="gm-top">'+
       '<button type="button" class="gm-back" id="multiplication-lab-back" data-gm-action="back" aria-label="Tilbake til matte">‹</button>'+
-      '<div class="gm-brand"><span class="gm-brand-mark">Læ<span>ria</span> ✦</span><small>TALLENGA / GANGEMAGI</small></div>'+
+      '<div class="gm-brand"><span class="gm-brand-mark">Læ<span>ria</span> ✦</span><small>TALLENGA / GANGEMAGI</small></div>'+ 
+      '<div class="gm-top-title"><h1>Gangemagi</h1><span>Et lite matteeventyr</span></div>'+ 
+      '<div class="gm-top-progress">'+(free?'Fri lek':'Oppdrag '+(state.mission+1)+' av '+E.MISSIONS.length)+'</div>'+
       '<button type="button" class="gm-book-quick" data-gm-action="open-book" aria-label="Åpne Min markedsbok. '+state.wins.length+' av '+E.MISSIONS.length+' blomster samlet" title="Min markedsbok">✿ <span class="gm-book-quick-count">'+state.wins.length+'/'+E.MISSIONS.length+'</span></button>'+
-      '<button type="button" class="gm-classic" data-gm-action="classic" aria-label="Åpne gangetabell og øving">Tabellen <span aria-hidden="true">↗</span></button>'+
+      
       '</header>'+
-      '<div class="gm-heading"><div><span class="gm-eyebrow">✿ ET LITE MATTEEVENTYR</span><h1>Gangemagi</h1><p>Plukk, pakk og oppdag hva gange betyr.</p></div>'+
-      '<div class="gm-modes" role="group" aria-label="Velg spillmåte">'+
-      '<button type="button" class="'+(!free?'selected':'')+'" data-gm-action="mode" data-mode="mission" aria-pressed="'+(!free)+'">Et oppdrag</button>'+
-      '<button type="button" class="'+(free?'selected':'')+'" data-gm-action="mode" data-mode="free" aria-pressed="'+free+'">Fri lek</button>'+
-      '</div></div>'+
-      '<section class="gm-world" aria-label="Jordbærmarkedet i Tallenga">'+
+      '<div class="gm-heading"><div><span class="gm-eyebrow">✿ ET LITE MATTEEVENTYR</span><h1>Gangemagi</h1><p>Plukk, pakk og oppdag hva gange betyr.</p></div></div>'+
+       '<section class="gm-world" aria-label="Jordbærmarkedet i Tallenga">'+
        (free?'<header class="gm-story"><div class="gm-story-main"><span class="gm-story-kicker">DU BESTEMMER</span><h2>'+esc(storyTitle())+'</h2><p>'+esc(challengeText())+'</p></div>'+
        '<span class="gm-story-progress" aria-label="'+sum+' av '+goal+' jordbær pakket"><strong>'+sum+'</strong><span>av '+goal+'</span></span></header>':questBoard(sum,goal))+
        '<div class="gm-scene"><div class="gm-fox" data-mood="'+(complete?'celebrate':hintStep?'help':foxMood)+'">'+
@@ -135,11 +127,12 @@
        '</div>'+
        '<div class="gm-market"><div class="gm-market-sign" aria-hidden="true"><span class="gm-sign-leaf">✿</span> Fra Tallengas hage <span class="gm-sign-leaf">✿</span></div>'+
        '<div class="gm-crates" style="--gm-groups:'+state.groups+';--gm-cols:'+(state.each<=5?state.each:Math.ceil(state.each/2))+'" role="group" aria-label="'+state.groups+' kurver som kan fylles med jordbær">'+state.counts.map((n,i)=>crate(i)).join('')+'</div>'+
-       '<p class="gm-play-hint">'+(complete?'Se hva du har laget! Du kan endre kurvene eller fortsette.':state.groups>=4?'Trykk på kurvene. Sveip sidelengs for å se alle.':'Trykk på en kurv for å legge i et jordbær')+'</p></div>'+
+       '<p class="gm-play-hint">'+(complete?'Se hva du har laget! Du kan endre kurvene eller fortsette.':free?(state.groups>=4?'Trykk på kurvene. Sveip sidelengs for å se alle.':'Trykk på en kurv for å legge i et jordbær'):(selectedGroup===null?'Trykk på en kurv for å starte!':'Kurv '+(selectedGroup+1)+' er valgt. Plukk et jordbær!'))+'</p></div>'+
        '</div>'+
-       '<div class="gm-math"><div class="gm-math-label"><span>Dette har du laget</span><span class="gm-goal">Målet: '+state.groups+' × '+state.each+'</span></div>'+
+       '<div class="gm-math"><div class="gm-math-label"><span>Dette lager du</span><span class="gm-goal">Målet: '+state.groups+' × '+state.each+'</span></div>'+
          '<div class="gm-math-equation '+(complete?'gm-equation-win':'')+'" aria-label="'+esc(equation)+'">'+esc(equation)+'</div>'+
-         '<div class="gm-progress-track" role="progressbar" aria-label="Jordbær pakket" aria-valuemin="0" aria-valuemax="'+goal+'" aria-valuenow="'+sum+'"><span style="width:'+progress+'%"></span></div>'+
+         '<div class="gm-progress-track" role="progressbar" aria-label="Jordbær pakket" aria-valuemin="0" aria-valuemax="'+goal+'" aria-valuenow="'+sum+'"><span style="width:'+progress+'%"></span></div>'+ 
+         '<div class="gm-berry-progress"><strong>'+sum+' av '+goal+'</strong><div aria-hidden="true">'+Array.from({length:goal},(_,i)=>'<span class="gm-berry-slot '+(i<sum?'gm-berry-earned':'')+'">'+berrySvg+'</span>').join('')+'</div></div>'+
          '<div class="gm-math-note'+(result.multiplication?' gm-math-discovery':'')+'"'+(result.multiplication?' role="status"':'')+'>'+(result.multiplication?'✦ Like grupper: '+state.groups+' kurver med '+state.counts[0]+' bær = '+sum+'!':'Når kurvene har ulikt antall, legger vi sammen.')+'</div></div>'+
        (complete?'<div class="gm-celebration" role="status"><span aria-hidden="true">✿</span><strong>'+esc(free?'Så fint du laget det!':'Oppdraget er klart!')+'</strong><span>Du fant '+goal+' jordbær.</span></div>':'')+
        '</section>'+
@@ -147,11 +140,15 @@
          (complete?
            (free?'<button type="button" class="gm-next" data-gm-action="restart">Pakk kurvene på nytt <span aria-hidden="true">↻</span></button>':
               '<button type="button" class="gm-next" data-gm-action="next">Neste oppdrag <span aria-hidden="true">➜</span></button>'):
-           '<button type="button" class="gm-pick" data-gm-action="source" aria-label="Plukk et jordbær og legg det i neste ledige kurv"><span class="gm-pick-fruit">'+berrySvg+'</span><span>Plukk et jordbær</span><small>Trykk eller dra</small></button>'+
+           '<button type="button" class="gm-pick" data-gm-action="source" aria-label="'+(free?'Plukk et jordbær og legg det i neste ledige kurv':selectedGroup===null?'Velg en kurv først':'Plukk et jordbær til kurv '+(selectedGroup+1))+'"><span class="gm-pick-fruit">'+berrySvg+'</span><span>Plukk et jordbær</span><small>'+(free?'Trykk eller dra':selectedGroup===null?'Velg kurv først':'Kurv '+(selectedGroup+1))+'</small></button>'+
            '<button type="button" class="gm-tool" data-gm-action="hint"><span aria-hidden="true">✧</span> Hint</button>')+
          '<button type="button" class="gm-tool" data-gm-action="undo" '+(!undo.length?'disabled':'')+'><span aria-hidden="true">↶</span> Angre</button>'+
        '</div>'+
-       (free?'<div class="gm-free-controls" aria-label="Lag ditt eget gangestykke">'+factor('groups','Antall kurver',state.groups,1,E.MAX_GROUPS)+factor('each','Jordbær i hver',state.each,1,E.MAX_EACH)+'</div>':'')+
+       '<nav class="gm-secondary-nav" aria-label="Andre spillvalg"><div class="gm-modes" role="group" aria-label="Velg spillmåte">'+
+        '<button type="button" class="'+(!free?'selected':'')+'" data-gm-action="mode" data-mode="mission" aria-pressed="'+(!free)+'">Et oppdrag</button>'+ 
+        '<button type="button" class="'+(free?'selected':'')+'" data-gm-action="mode" data-mode="free" aria-pressed="'+free+'">Fri lek</button></div>'+ 
+        '<button type="button" class="gm-classic" data-gm-action="classic" aria-label="Åpne gangetabellen og øving">Gangetabellen ↗</button></nav>'+ 
+        (free?'<div class="gm-free-controls" aria-label="Lag ditt eget gangestykke">'+factor('groups','Antall kurver',state.groups,1,E.MAX_GROUPS)+factor('each','Jordbær i hver',state.each,1,E.MAX_EACH)+'</div>':'')+
        '<footer class="gm-footer"><span>✿ Blomster som du har samlet, er dine for alltid</span><button type="button" data-gm-action="restart">Begynn på nytt ↻</button></footer>'+book()+
        '</div></main>';
    document.body.classList.toggle('laria-markedsbok-open',bookOpen);
