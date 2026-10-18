@@ -265,20 +265,21 @@
 .gm-shell[data-gm-mode="mission"] .gm-crate-front:before{display:none}
 .gm-shell[data-gm-mode="mission"] .gm-crate-caption{
   position:static;margin:0;padding:0;background:transparent;color:#704226;
-  font-size:clamp(10px,1.5vw,17px);white-space:nowrap;
+  font-size:clamp(12px,1.6vw,18px);font-weight:950;white-space:nowrap;
 }
 .gm-shell[data-gm-mode="mission"] .gm-crate-tag{
   min-height:22px;min-width:0;margin:0;padding:0 3px;border:0;
-  box-shadow:none;background:transparent;color:#9c542b;font-size:clamp(9px,1.1vw,13px);
+  box-shadow:none;background:transparent;color:#9c542b;font-size:clamp(10px,1.2vw,14px);
 }
+/* Empty props carry names, not tiny zero counters. All numbers remain
+   available to screen readers and visibly in the maths/progress panels. */
+.gm-shell[data-gm-mode="mission"] .gm-crate[data-gm-count="0"] .gm-crate-tag{display:none}
 .gm-shell[data-gm-mode="mission"] .gm-remove{
   top:0;bottom:auto;right:-6px;left:auto;z-index:6;width:44px;height:44px;
 }
-.gm-shell[data-gm-mode="mission"] .gm-play-hint{
-  width:max-content;max-width:95%;margin:3px auto 2px;
-  padding:5px 13px;border:2px solid #fff1d7;border-radius:21px;
-  background:#fff5e7e8;color:#68432f;font-size:clamp(10px,1.25vw,15px);
-}
+/* The speaking fox and highlighted three-step board already give the next
+   instruction. A third, floating hint card beneath the baskets repeated it. */
+.gm-shell[data-gm-mode="mission"] .gm-play-hint{display:none}
 
 /* Live addition, multiplication and pictured fruit progress. */
 .gm-shell[data-gm-mode="mission"] .gm-math{
@@ -388,10 +389,10 @@
  .gm-shell[data-gm-mode="mission"] .gm-fruit{width:clamp(14px,5vw,23px);height:clamp(17px,5.8vw,28px)}
  .gm-shell[data-gm-mode="mission"] .gm-fruit-empty{width:11px;height:14px}
  .gm-shell[data-gm-mode="mission"] .gm-crate-front{left:7%;right:7%;height:24px;border-width:2px;border-radius:9px;gap:3px}
- .gm-shell[data-gm-mode="mission"] .gm-crate-caption{font-size:10px}
+ .gm-shell[data-gm-mode="mission"] .gm-crate-caption{font-size:11px}
  .gm-shell[data-gm-mode="mission"] .gm-crate-tag{font-size:9px}
  .gm-shell[data-gm-mode="mission"] .gm-remove{width:44px;height:44px;right:-6px;top:0;bottom:auto}
- .gm-shell[data-gm-mode="mission"] .gm-play-hint{font-size:10px;padding:3px 7px;margin:1px auto}
+ /* The fox and board are the only visible next-action guidance. */
  .gm-shell[data-gm-mode="mission"] .gm-math{width:100%;margin:6px auto 2px;padding:6px 7px;min-height:60px;gap:1px 5px;border-width:3px;border-radius:14px;grid-template-columns:minmax(0,1fr) minmax(93px,.4fr)}
  .gm-shell[data-gm-mode="mission"] .gm-math-label>span:first-child{font-size:11px}
  .gm-shell[data-gm-mode="mission"] .gm-goal{font-size:9px}
@@ -490,7 +491,7 @@
  .gm-shell[data-gm-mode="mission"] .gm-market-sign{margin:0 auto -7px;padding:5px 16px}
  .gm-shell[data-gm-mode="mission"] .gm-crates{padding:10px 4px 0;gap:8px}
  .gm-shell[data-gm-mode="mission"] .gm-crate{height:148px;max-width:225px}
- .gm-shell[data-gm-mode="mission"] .gm-play-hint{margin:0 auto}
+ /* Avoid repeating the speaking fox beneath the market. */
  .gm-shell[data-gm-mode="mission"] .gm-math{
    margin:3px auto 3px;padding:6px 13px;min-height:66px;
  }
@@ -521,6 +522,9 @@
   filter:drop-shadow(0 9px 6px #452a1f77);
 }
 @media(min-width:375px) and (max-width:699px) and (min-height:780px){
+  .gm-shell[data-gm-mode="mission"] .gm-top{
+    min-height:73px;grid-template-rows:31px 39px;
+  }
  .gm-shell[data-gm-mode="mission"] .gm-story.gm-quest{
    padding-top:11px;padding-bottom:12px;
  }
