@@ -142,3 +142,12 @@ Node-statusen alene er ikke visuell premiumgodkjenning.
 - Høyeste observerte terrengpass i denne matrisen var 442 ms på stående
   iPad. Det er innenfor den nåværende testgrensen, men skal følges videre
   når nye områdespesifikke detaljer legges til.
+
+### Kontinentstyrt oppdagelsesreise – 18. oktober
+
+- Head `60498f9` besto **Laria Dual Globes Release QA** i GitHub Actions, inkludert reelle WebKit- og Chromium-skjermbilder fra seks viewportprofiler. Artefakt `laria-discovery-globe-phase1-60498f9` er lagret.
+- Visuell gjennomgang av de faktiske WebKit-bildene viser fungerende layout og kart på iPad liggende/stående og iPhone, men terrenget fremstår ennå for flatt og svakt mot den detaljrike illustrerte bakgrunnen. Dette er en **åpen premiumvurdering**, ikke lanseringsgodkjenning.
+- Oppdag hadde en konkret pedagogisk feil: kortet viste alltid «Europa venter», også når kloden var vendt mot andre verdensdeler. Dette er nå rettet med seks georefererte, kameraavhengige invitasjoner (Europa, Afrika, Asia, Nord-Amerika, Sør-Amerika og Oseania).
+- Den aktive invitasjonen følger ferdig rotasjon, kniping/musehjul og tilbakestilling; knappen «Se [verdensdel]» vender kloden mot valgt område på kontinentnivå. Landvalg, original globe og kartmotor endres ikke.
+- Ny Playwright/WebKit-regresjonstest kontrollerer navn, posisjon og zoomgrense for alle seks verdensdeler og lagrer ekstra iPad/iPhone-opptak for visuell sammenlikning.
+- **Neste port:** Vent på grønn CI og gjennomgå faktiske oppdaterte iPad/iPhone-bilder; særlig at de lengste navnene ikke overdekker kloden. Forbedre deretter terrengmaterialet i egen isolert endring hvis referansekvaliteten fortsatt ikke nås. Ingen merge eller publisering før premiumkontroll.
