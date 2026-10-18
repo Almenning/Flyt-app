@@ -66,3 +66,12 @@ Prosessering av kildens fire 512-pikslers fliser bruker nå en mosaikk på 768 �
 4. **Frys konkurrerende forsøk:** Ikke opprett flere parallelle PR-er. Hold #184 stabil, og viderefør én kandidat i #185. Ingen merge eller publisering før faglig og visuell aksept.
 
 **Beslutning:** 768-varianten beholdes foreløpig i eksperimentet fordi den sparer arbeidsminne uten synlig kvalitetskostnad. Oppstart og illustrert premiumfølelse er fortsatt uløste kvalitetsporter.
+
+
+## Fortsettelse: instrumentering og landmaske (18. oktober)
+
+- Commit `ba40671b`: Natural Earth-eksperimentet eksponerer nå separate verdier for dekoding, pikselbehandling og total klargjøring på globusens canvas-datasett. Dette er instrumentering, ikke dokumentert ytelsesgevinst.
+- Commit `673051d`: forberedt `Uint8Array`-landmaske erstatter RGB-oppslag per geografisk prøvetaking. Den opprinnelige RGBA-mosaikken holdes ikke i `naturalEarthPixels` etter klargjøring. Teoretisk redusert beholdt RGBA-datamengde er 768 × 768 × 4 byte (omtrent 2,36 MB desimalt), men faktisk minnegevinst og oppstartshastighet er ennå ikke målt.
+- GitHub Actions på eksakt `673051d`: [Dual Globes Release QA #39151393773](https://github.com/Almenning/Flyt-app/actions/runs/39151393773) **bestått**, [Continuous smoke #39151393766](https://github.com/Almenning/Flyt-app/actions/runs/39151393766) **bestått**.
+- Neste kvalitetskrav: hent nye, sammenliknbare WebKit-tall for `discoveryNaturalEarthDecodeMs`, `discoveryNaturalEarthProcessingMs` og `discoveryNaturalEarthPreparationMs`, samt total tid til interaktiv opplevelse. Bekreft ingen endring i bildeuttrykk i alle referanseområder. Gjennomfør separat vurdering på fysisk Safari før publisering.
+- **Beslutning:** fortsatt eksperiment. Ikke flett PR #185 eller PR #184 til main på bakgrunn av grønne tekniske tester alene.
