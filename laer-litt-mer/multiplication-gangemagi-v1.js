@@ -53,9 +53,11 @@
    const ix=state.counts.findIndex(n=>n<state.each);
    return 'Det går fint! Prøv kurv '+(ix+1)+' nå.';
  }
- function fruit(n,empty){
+ /* Animate the ONE newly picked berry, never replay the pop on all existing
+    berries when the live scene is re-rendered. Counting stays visually stable. */
+ function fruit(n,empty,animateLast){
    let parts='';
-   for(let i=0;i<n;i++)parts+='<span class="gm-fruit gm-fruit-pop">'+berrySvg+'</span>';
+   for(let i=0;i<n;i++)parts+='<span class="gm-fruit'+(animateLast&&i===n-1?' gm-fruit-pop':'')+'">'+berrySvg+'</span>';
    for(let i=0;i<empty;i++)parts+='<span class="gm-fruit gm-fruit-empty" aria-hidden="true"></span>';
    return parts;
  }
@@ -66,7 +68,7 @@
    const interaction=state.mode==='mission'?(chosen?'Denne kurven er valgt. Trykk på Plukk et jordbær.':missing?'Trykk her for å velge kurven.':'Denne kurven er full. Velg en annen.'):(missing?'Trykk for å legge i et jordbær.':'Kurven er full.');
    return '<div class="gm-crate-wrap"><button type="button" class="gm-crate '+(!missing?'gm-crate-full ':'')+(chosen?'gm-crate-selected ':'')+(invite?'gm-crate-invite':'')+'" data-gm-action="basket" data-gm-basket="'+i+'" data-gm-count="'+count+'" data-gm-selected="'+chosen+'" aria-pressed="'+chosen+'" aria-label="Kurv '+(i+1)+': '+count+' av '+state.each+'. '+interaction+'">'+
       (state.mode==='mission'?'<img class="gm-basket-illustration" alt="" aria-hidden="true" src="gangemagi-basket-locked-illustration.svg">':'<span class="gm-crate-handle" aria-hidden="true"></span><span class="gm-crate-caption">Kurv '+(i+1)+'</span>')+
-      '<span class="gm-fruit-bed" aria-hidden="true" style="--gm-visible-cols:'+Math.max(1,Math.min(count,5))+'">'+fruit(count,state.mode==='mission'?0:missing)+'</span>'+
+      '<span class="gm-fruit-bed" aria-hidden="true" style="--gm-visible-cols:'+Math.max(1,Math.min(count,5))+'">'+fruit(count,state.mode==='mission'?0:missing,lastAction==='add'&&lastGroup===i)+'</span>'+
       '<span class="gm-crate-front" aria-hidden="true">'+(state.mode==='mission'?'<span class="gm-crate-caption">Kurv '+(i+1)+'</span>':'')+'<span class="gm-crate-tag">'+count+' / '+state.each+'</span></span>'+
       '</button><button type="button" class="gm-remove" data-gm-action="remove" data-group="'+i+'" aria-label="Ta ett jordbær ut av kurv '+(i+1)+'" '+(!count?'disabled':'')+'><span aria-hidden="true">−</span></button></div>';
  }
