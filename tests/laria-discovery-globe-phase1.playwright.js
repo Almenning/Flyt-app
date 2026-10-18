@@ -160,7 +160,7 @@ async function verifyShortPhoneTapFlow(page,label){
     selected:globeSelected,drag:globeMove,active:window.__lariaDiscoveryGlobePreview};
   },{once:true});
  });
- await page.mouse.click(setup.x,setup.y);
+ await page.touchscreen.tap(setup.x,setup.y);
  await page.waitForTimeout(700);
  const observed=await page.evaluate(()=>{
   const screen=document.getElementById('world-screen');
@@ -174,6 +174,7 @@ async function verifyShortPhoneTapFlow(page,label){
    search:document.getElementById('globe-status').innerText.slice(0,140)};
  });
  console.log('SHORT PHONE TAP',label,JSON.stringify({setup,observed}));
+ assert.equal(observed.pointer?.type,'touch',label+' test must exercise real touch pointer input');
  assert.equal(observed.selected,'fr',label+' geographic finger tap missed France');
  assert.ok(observed.scrollTop>20,label+' country card was not revealed after tap: '+JSON.stringify(observed));
  await page.waitForTimeout(520);
