@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="470" viewBox="0 29 1200 425" role="img" aria-label="Håndtegnet oppslagstavle av tre med blader og blomster">
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="470" viewBox="0 29 1200 425" preserveAspectRatio="none" role="img" aria-label="Håndtegnet oppslagstavle av tre med blader og blomster">
 <defs>
  <linearGradient id="wood" x1="0" x2=".1" y1="0" y2="1"><stop stop-color="#ffe1a6"/><stop offset=".26" stop-color="#db9b55"/><stop offset=".58" stop-color="#c78345"/><stop offset="1" stop-color="#834822"/></linearGradient>
  <linearGradient id="grain" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#ad6b35"/><stop offset=".4" stop-color="#f3bd7c"/><stop offset=".65" stop-color="#d18e50"/><stop offset="1" stop-color="#8a502d"/></linearGradient>
