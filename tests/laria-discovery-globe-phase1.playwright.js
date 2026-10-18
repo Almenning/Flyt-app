@@ -255,6 +255,8 @@ async function verifyContinentInvitation(page,label){
    label+' continent action did not reveal the first optional discovery');
   assert.equal(await button.innerText(),'Neste sted',
    label+' there is no child-friendly continuation after entering '+stop.name);
+  assert.equal(await page.locator('#globe-canvas').getAttribute('data-discovery-location-count'),'0',
+   label+' initial continent view must not place an arbitrary marker on the map');
   assert.ok((await page.locator('.discovery-intro-teaser').innerText()).length>=28,
    label+' continent intro has no educational discovery: '+stop.name);
   await page.waitForFunction(()=>{
@@ -281,6 +283,10 @@ async function verifyContinentInvitation(page,label){
     label+' landmark not georeferenced in '+stop.name+': '+JSON.stringify(camera));
    assert.ok(camera.zoom<=1.72&&camera.zoom>=1,
     label+' landmark discovery exceeds continent zoom: '+stop.name);
+   await page.waitForFunction(name=>{
+    const canvas=document.getElementById('globe-canvas');
+    return canvas.dataset.discoveryLocationCount==='1'&&canvas.dataset.discoveryLocationName===name;
+   },nextPlace.name,{timeout:5000});
    assert.ok((await page.locator('.discovery-intro-teaser').innerText()).length>=25,
     label+' landmark fact missing in '+stop.name);
    await page.screenshot({
