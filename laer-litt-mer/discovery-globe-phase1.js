@@ -616,8 +616,12 @@ function paintGeographicTexture(ctx,w,h,s,level,moving){
       const lon=a[0]+(b[0]-a[0])*f+(geoNoise(z*307+i*17+1)-.5)*zone.width*.80;
       const lat=a[1]+(b[1]-a[1])*f+(geoNoise(z*127+i*43+4)-.5)*zone.width*.80;
       const p=project(lon,lat,w,h);if(!p||p[2]<.18)continue;
-      const k=s*(leafy?(level===1?.0042:level===2?.0037:.0032):
-        (level===1?.0045:level===2?.0042:.0048))*
+      /* At continent scale these must read as broad natural material on an
+         actual globe, not disappear into a uniformly coloured country.
+         The marks still overlap and stay land-clipped; only their visual
+         footprint is raised enough to survive the iPad overview. */
+      const k=s*(leafy?(level===1?.0071:level===2?.0053:.0037):
+        (level===1?.0074:level===2?.0059:.0052))*
         clamp(Math.pow(globeZoom,.13),1,1.27)*
         clamp(p[2]+.21,.55,1.1)*(0.67+geoNoise(i*7+z*19)*.49);
       if(p[0]<-k*3||p[0]>w+k*3||p[1]<-k*3||p[1]>h+k*3)continue;
@@ -628,16 +632,16 @@ function paintGeographicTexture(ctx,w,h,s,level,moving){
            trunks, silhouettes or fixed spacing, so they cannot read as icons. */
         for(const [dx,dy,scale] of [[-.58,.09,.72],[.42,.02,.84],[-.09,-.31,.93],[.31,-.35,.56],[-.34,-.41,.48]]){
           const x=k*dx,y=k*dy,r=k*scale;
-          ctx.fillStyle=tropical?'rgba(22,91,58,.46)':'rgba(45,99,61,.42)';
+          ctx.fillStyle=tropical?'rgba(20,83,52,.57)':'rgba(42,91,57,.53)';
           ctx.beginPath();ctx.ellipse(x,y,r*.71,r*.72,-.16,0,Math.PI*2);ctx.fill();
-          ctx.fillStyle=tropical?'rgba(126,183,99,.34)':'rgba(182,202,124,.32)';
+          ctx.fillStyle=tropical?'rgba(132,190,104,.43)':'rgba(188,208,129,.40)';
           ctx.beginPath();ctx.ellipse(x-r*.22,y-r*.23,r*.38,r*.28,-.26,0,Math.PI*2);ctx.fill();
         }
       }else if(zone.type==='desert'){
-        ctx.fillStyle='rgba(242,207,136,.28)';
+        ctx.fillStyle='rgba(242,207,136,.39)';
         ctx.beginPath();ctx.ellipse(0,k*.42,k*1.14,k*.36,0,0,Math.PI*2);ctx.fill();
         for(let t=0;t<3;t++){
-          ctx.strokeStyle=t===1?'rgba(254,239,174,.75)':'rgba(163,109,52,.42)';
+          ctx.strokeStyle=t===1?'rgba(254,239,174,.86)':'rgba(163,109,52,.55)';
           ctx.lineWidth=Math.max(.55,k*.16);
           ctx.beginPath();ctx.moveTo(-k*1.06,k*(t*.29-.30));
           ctx.quadraticCurveTo(-k*.05,k*(t*.29-.90),k*1.07,k*(t*.29-.20));ctx.stroke();
