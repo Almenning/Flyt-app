@@ -43,8 +43,47 @@ function loadNaturalEarthTrial(){
       if(!ctx)throw new Error('Natural Earth tile canvas unavailable');
       ctx.drawImage(imgs[0],0,0);ctx.drawImage(imgs[1],512,0);
       ctx.drawImage(imgs[2],0,512);ctx.drawImage(imgs[3],512,512);
+      const rgb=ctx.getImageData(0,0,1024,1024).data;
+      const size=1024,total=size*size,brightness=new Float32Array(total);
+      for(let i=0;i<total;i++){
+        const k=i*4;
+        brightness[i]=rgb[k]*.27+rgb[k+1]*.65+rgb[k+2]*.08;
+      }
+      const boxBlur=(pixels,radius)=>{
+        const temp=new Float32Array(total),result=new Float32Array(total);
+        const divisor=radius*2+1;
+        for(let y=0;y<size;y++){
+          const base=y*size;
+          let sum=0;
+          for(let p=-radius;p<=radius;p++)
+            sum+=pixels[base+Math.max(0,Math.min(size-1,p))];
+          for(let x=0;x<size;x++){
+            temp[base+x]=sum/divisor;
+            sum+=pixels[base+Math.min(size-1,x+radius+1)]-
+              pixels[base+Math.max(0,x-radius)];
+          }
+        }
+        for(let x=0;x<size;x++){
+          let sum=0;
+          for(let p=-radius;p<=radius;p++)
+            sum+=temp[Math.max(0,Math.min(size-1,p))*size+x];
+          for(let y=0;y<size;y++){
+            result[y*size+x]=sum/divisor;
+            sum+=temp[Math.min(size-1,y+radius+1)*size+x]-
+              temp[Math.max(0,y-radius)*size+x];
+          }
+        }
+        return result;
+      };
+      // The real raster determines only light and shadow. Its pale original
+      // colour has no authority over the established Læria palette.
+      const fine=boxBlur(brightness,5),broad=boxBlur(brightness,23);
+      const hillshade=new Int8Array(total);
+      for(let i=0;i<total;i++)
+        hillshade[i]=Math.round(Math.max(-60,Math.min(60,
+          (brightness[i]-fine[i])*2.6+(fine[i]-broad[i])*1.3)));
       naturalEarthPixels={width:1024,height:1024,
-        bytes:ctx.getImageData(0,0,1024,1024).data};
+        bytes:rgb,hillshade};
       naturalEarthStatus='ready';
       window.LARIA_NE_SHADED_TILES=null;
       terrainFieldCache=null;
@@ -509,6 +548,7 @@ function paintWorldTerrain(ctx,w,h,s,level,moving){
             red+=sand*.83;green+=sand*.61;blue+=sand*.30;
           }
         }
+        let trueReliefShade=0;
         if(naturalEarthPixels){
           // 50m Natural Earth II contains actual elevation-derived hillshade.
           // Mercator mosaic is resampled at the globe's real longitude and
@@ -523,11 +563,8 @@ function paintWorldTerrain(ctx,w,h,s,level,moving){
           // The tile's water is flat white; retain the Læria land base if a
           // 50m/110m coastline mismatch lands on one of these source pixels.
           if(nr+ng+nb<751){
-            const wash=.71;
-            red=red*(1-wash)+(nr*.91+11)*wash;
-            green=green*(1-wash)+(ng*.93+10)*wash;
-            blue=blue*(1-wash)+(nb*.85+14)*wash;
-            alpha=.91;
+            trueReliefShade=naturalEarthPixels.hillshade[ty*1024+tx];
+            alpha=.93;
           }
         }
         if(naturalReliefPixels){
@@ -566,25 +603,34 @@ function paintWorldTerrain(ctx,w,h,s,level,moving){
             blue=blue*(1-snow)+221*snow;
           }
         }
-        if(!trialCarvedRelief&&!trialNaturalEarthRelief&&mountainReach>.06&&rp){
+        if(!trialCarvedRelief&&mountainReach>.06&&rp){
           /* Rock and snow belong to a continuous corridor around each
              georeferenced mountain spine. Spatial noise forms lit/shaded
              facets; these are material pigments, not peak-shaped stamps. */
           const facets=terrainNoise(lon,lat,level===1?1.6:3.1,73)-.5;
           const ridgeLight=terrainNoise(lon+.42,lat-.24,level===1?2.1:4.2,79)-.5;
           const stone=rp.snow?[165,171,160]:[157,135,107];
-          const stoneWeight=clamp(mountainReach*(.57+facets*.65),0,.69);
-          const shade=mountainReach*(facets*49+ridgeLight*37);
+          const stoneWeight=clamp(mountainReach*(.57+facets*.65),0,.69)*
+            (trialNaturalEarthRelief?.46:1);
+          const shade=mountainReach*(facets*49+ridgeLight*37)*
+            (trialNaturalEarthRelief?.40:1);
           red=red*(1-stoneWeight)+stone[0]*stoneWeight+shade;
           green=green*(1-stoneWeight)+stone[1]*stoneWeight+shade*.91;
           blue=blue*(1-stoneWeight)+stone[2]*stoneWeight+shade*.73;
           if(rp.snow){
             const snowFacet=clamp((terrainNoise(lon,lat,level===1?2.5:5.2,31)-.29)*2.1,0,1);
-            const snow=mountainReach*snowFacet*.58;
+            const snow=mountainReach*snowFacet*.58*(trialNaturalEarthRelief?.52:1);
             red=red*(1-snow)+247*snow;
             green=green*(1-snow)+244*snow;
             blue=blue*(1-snow)+223*snow;
           }
+        }
+        if(trialNaturalEarthRelief&&trueReliefShade){
+          // A hand-coloured atlas with real hillshade: the original
+          // biome pigments stay intact, and measured relief supplies form.
+          red+=trueReliefShade*.91;
+          green+=trueReliefShade;
+          blue+=trueReliefShade*.86;
         }
         const k=(py*pixels+px)*4;
         data[k]=clamp(red,0,255);
