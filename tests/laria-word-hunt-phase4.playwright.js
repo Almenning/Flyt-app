@@ -52,7 +52,26 @@ async function open(page,url){
  await entry.waitFor();
  assert.equal(await entry.locator('.wh-theme-card').count(),5,'child does not see all five topic choices');
  assert.equal(await page.locator('.word-hunt-cell:visible').count(),0,'puzzle is visible before a theme is chosen');
- await entry.locator('[data-word-theme="mixed"]').click();
+ // The child must be able to TOUCH the actual first theme card on the
+ // initial screen. A locator.click() may wait indefinitely for Playwright's
+ // "stable" heuristic in 320px WebKit's nested scroll panel.
+ // Check hit-testing and minimum touch size instead of forcing a DOM click.
+ const firstTheme=entry.locator('[data-word-theme="mixed"]');
+ const touch=await firstTheme.evaluate(el=>{
+   const rect=el.getBoundingClientRect();
+   const x=Math.round(rect.left+rect.width/2),y=Math.round(rect.top+rect.height/2);
+   const top=document.elementFromPoint(x,y);
+   return {x,y,width:rect.width,height:rect.height,
+     viewportWidth:innerWidth,viewportHeight:innerHeight,
+     enabled:!el.disabled,
+     reachable:top===el||el.contains(top),
+     obstruction:top?.tagName||null};
+ });
+ assert.ok(touch.enabled&&touch.width>=44&&touch.height>=44&&
+   touch.x>=0&&touch.x<touch.viewportWidth&&
+   touch.y>=0&&touch.y<touch.viewportHeight&&touch.reachable,
+   'First Ordjakt theme cannot be touched in the opening viewport: '+JSON.stringify(touch));
+ await page.touchscreen.tap(touch.x,touch.y);
  await entry.waitFor({state:'hidden'});
  await page.locator('#word-hunt-overlay:not([hidden]) .word-hunt-cell:visible').first().waitFor();
 }
