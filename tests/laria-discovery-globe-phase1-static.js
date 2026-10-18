@@ -55,6 +55,9 @@ for(const zone of ['Norwegian fjord forests','Alpine valleys','Mediterranean hil
 assert.match(preview,/const mountainChains=\[/,'landscape engine must have connected mountain chains');
 assert.match(preview,/const europeHero=chain\.name==='Scandes'\|\|chain\.name==='Alps';/,'Europe needs a sparse continent-scale ridge silhouette');
 assert.match(preview,/function paintWorldTerrain\(/,'continuous terrain paint field must remain active');
+assert.match(preview,/function paintGeographicTexture\(/,'geographic canopy and dune material must remain active');
+assert.doesNotMatch(preview,/function paintGeographicTexture\([^)]*\)\s*\{\s*if\(moving\|\|level===1\)/,
+  'the continent-first globe must not lose all illustrated material at world zoom');
 assert.match(preview,/function terrainLatitudeIndex\(/,'terrain must index nearby geographical anchors for iPad performance');
 assert.match(preview,/terrainLatitudeIndex\(terrainSamples\(landscapeZones,6\),19\)/,'biome index must include complete search radius');
 assert.match(preview,/terrainLatitudeIndex\(terrainSamples\(mountainChains,4\.8\),6\)/,'mountain index must include complete search radius');
