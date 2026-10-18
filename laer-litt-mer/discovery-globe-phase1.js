@@ -889,7 +889,7 @@ function showContinentDiscovery(stop,box,button){
   const copy=box.querySelector('.discovery-intro-copy');
   if(!copy)return;
   copy.querySelector('.discovery-intro-kicker').textContent=place?'ET STED Å OPPDAGE':'VI ER HER';
-  copy.querySelector('strong').textContent=place.title||stop.name;
+  copy.querySelector('strong').textContent=place?place.title:stop.name;
   copy.querySelector('.discovery-intro-teaser').textContent=place?place.text:story.intro;
   button.textContent='Neste sted';
   box.dataset.discoveryStoryStep=String(visits);
