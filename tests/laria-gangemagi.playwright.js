@@ -79,6 +79,8 @@ async function check(engine,label,viewport,url){
   // A flat screenshot, a CSS-only box, or a missing asset does not meet the lock.
   const paintedBoard=await page.request.get(new URL('gangemagi-quest-board-painted.svg',url).href);
   assert.equal(paintedBoard.status(),200,'painted wooden quest board asset is available');
+  assert.match(await paintedBoard.text(),/preserveAspectRatio="none"/,
+    label+' painted board must fill its own panel, not letterbox behind the live instruction');
   assert.match(paintedBoard.headers()['content-type'],/image\/svg\+xml/);
   const boardMaterial=await page.locator('.gm-story.gm-quest').evaluate(el=>({
     image:getComputedStyle(el).backgroundImage,
