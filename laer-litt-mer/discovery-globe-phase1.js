@@ -396,6 +396,13 @@ const mountainChains=[
  {name:'Ethiopian Highlands',width:2.4,snow:false,route:[[37.6,7.1],[38.6,10.6],[39.6,13.4]]},
  {name:'Appalachians',width:2,snow:false,route:[[-84.3,34],[-82.8,37],[-79,40],[-75.6,43.5]]}
 ];
+// A continent-first globe must have recognisable relief beyond Europe.
+// These are real coordinate paths, not fixed icons pasted on the screen.
+const continentCrestChains=new Set([
+  'Scandes','Alps','Atlas','Rockies','Andes','Himalaya',
+  'Japanese Alps','Australian ranges','Drakensberg','Southern Alps NZ'
+]);
+const continentRiverNames=new Set(['Amazonas','Nile','Mississippi','Yangtze']);
 const riverWays=[
   {name:'Amazonas',route:[[-72,-4],[-68,-4.1],[-64,-3.6],[-61,-3.4],[-58,-3],[-55,-2.8],[-52,-2],[-49.5,-1.3]]},
   {name:'Nile',route:[[31,30.5],[31.3,26],[32.1,21],[33,17],[32.4,12],[31.8,8]]},
@@ -404,31 +411,30 @@ const riverWays=[
   {name:'Yangtze',route:[[97,33.3],[102,30.7],[107,29.8],[112,30.2],[117,30.9],[121,31.1]]}
 ];
 function paintMountainCrests(ctx,chain,w,h,s,level,width){
-  /* At continent scale Europe needs a recognisable silhouette, while the
-     rest of the world stays calm. The detailed ridge language still starts
-     at level 2, so this is not a return to scattered mountain icons. */
-  const europeHero=chain.name==='Scandes'||chain.name==='Alps';
-  if(level<2&&!europeHero)return 0;
+  /* A few continent-defining mountain ranges stay legible at overview
+     scale. Smaller ranges still wait until regional zoom; no icon stamps. */
+  const continentHero=continentCrestChains.has(chain.name);
+  if(level<2&&!continentHero)return 0;
   let drawn=0;
   for(let j=0;j<chain.route.length-1;j++){
     const a=chain.route[j],b=chain.route[j+1];
-    const spacing=level===1?4.9:(level===2?2.8:1.9);
+    const spacing=level===1?1.85:(level===2?2.8:1.9);
     const steps=Math.max(2,Math.round(Math.max(Math.abs(a[0]-b[0]),Math.abs(a[1]-b[1]))/spacing));
     for(let k=0;k<steps;k++){
       const t=(k+.42)/steps,lon=a[0]+(b[0]-a[0])*t,lat=a[1]+(b[1]-a[1])*t;
       const p=project(lon,lat,w,h);if(!p||p[2]<.2)continue;
       const seed=Math.abs(Math.sin((j*31+k*7+lat)*1.23));
-      const height=clamp(Math.max(width*(.42+seed*.22),s*(level===1?.007:level===2?.0085:.012)),s*.006,s*.024)*(level===3?1.08:level===1?.82:.95);
+      const height=clamp(Math.max(width*(.42+seed*.22),s*(level===1?.009:level===2?.0085:.012)),s*.006,s*.024)*(level===3?1.08:level===1?.98:.95);
       const x=p[0],y=p[1];
       ctx.save();
       /* Do not place a row of little mountain icons on the map.  A pair of
          irregular light/shadow contour strokes makes one continuous ridge
          when the samples overlap along the real geographic chain. */
       ctx.lineCap='round';ctx.lineJoin='round';
-      ctx.strokeStyle='rgba(43,79,68,.42)';ctx.lineWidth=Math.max(.8,height*.36);
+      ctx.strokeStyle=level===1?'rgba(40,71,65,.49)':'rgba(43,79,68,.42)';ctx.lineWidth=Math.max(.8,height*.36);
       ctx.beginPath();ctx.moveTo(x-height*.72,y+height*.35);
       ctx.quadraticCurveTo(x-height*.18,y-height*.74,x+height*.68,y+height*.26);ctx.stroke();
-      ctx.strokeStyle='rgba(210,224,193,.68)';ctx.lineWidth=Math.max(.6,height*.15);
+      ctx.strokeStyle=level===1?'rgba(224,234,206,.77)':'rgba(210,224,193,.68)';ctx.lineWidth=Math.max(.6,height*.15);
       ctx.beginPath();ctx.moveTo(x-height*.62,y+height*.16);
       ctx.quadraticCurveTo(x-height*.13,y-height*.63,x+height*.50,y+height*.08);ctx.stroke();
       if(chain.snow){
@@ -445,7 +451,7 @@ function paintMountainCrests(ctx,chain,w,h,s,level,width){
 }
 function paintReliefTrails(ctx,w,h,s,level,moving){
   if(moving)return 0;
-  let count=0;
+  let count=0,continentCrests=0,continentRivers=0;
   for(let c=0;c<mountainChains.length;c++){
     const chain=mountainChains[c],zone={route:chain.route,width:chain.width};
     const radius=clamp(geoBrushWidth(zone,w,h,s)*1.12,s*.008,s*.12);
@@ -476,15 +482,24 @@ function paintReliefTrails(ctx,w,h,s,level,moving){
       ctx.strokeStyle=chain.snow?'rgba(241,247,222,.23)':'rgba(231,211,156,.21)';
       ctx.lineWidth=Math.max(.60,s*.0015);ctx.stroke();ctx.restore();
     }
-    count+=1+paintMountainCrests(ctx,chain,w,h,s,level,radius*.72);
+    const crests=paintMountainCrests(ctx,chain,w,h,s,level,radius*.72);
+    if(level===1&&continentCrestChains.has(chain.name))continentCrests+=crests;
+    count+=1+crests;
   }
-  if(level>=2)for(const river of riverWays){
+  for(const river of riverWays){
+    if(level===1&&!continentRiverNames.has(river.name))continue;
     if(!smoothGeoStroke(ctx,river.route,w,h,s))continue;
     ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
-    const k=s*.0022*clamp(Math.pow(globeZoom,.14),1,1.25);
-    ctx.strokeStyle='rgba(26,110,132,.46)';ctx.lineWidth=Math.max(1,k*2.1);ctx.stroke();
-    ctx.strokeStyle='rgba(172,232,219,.73)';ctx.lineWidth=Math.max(.68,k*.88);ctx.stroke();
-    ctx.restore();count++;
+    const k=s*(level===1?.0016:.0022)*clamp(Math.pow(globeZoom,.14),1,1.25);
+    ctx.strokeStyle=level===1?'rgba(24,100,117,.42)':'rgba(26,110,132,.46)';ctx.lineWidth=Math.max(1,k*2.1);ctx.stroke();
+    ctx.strokeStyle=level===1?'rgba(169,224,217,.65)':'rgba(172,232,219,.73)';
+    ctx.lineWidth=Math.max(.68,k*.88);ctx.stroke();
+    ctx.restore();count++;if(level===1)continentRivers++;
+  }
+  const canvas=document.getElementById('globe-canvas');
+  if(canvas){
+    canvas.dataset.discoveryContinentCrests=String(continentCrests);
+    canvas.dataset.discoveryContinentRivers=String(continentRivers);
   }
   return count;
 }
