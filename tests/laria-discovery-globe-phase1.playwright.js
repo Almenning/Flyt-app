@@ -343,6 +343,8 @@ async function runDevice(engine,label,viewport,urls){
        assert.equal(afterDiscovery[key],beforeSwitch[key],label+' entering Oppdag changed '+key);
      assert.equal(afterDiscovery.zoom,1.72,label+' Oppdag must cap inherited close-ups at continent scale');
      assert.equal(afterDiscovery.stored,'discover',label+' Oppdag preference not saved');
+     assert.match(await standard.page.locator('#world-screen').evaluate(el=>getComputedStyle(el).backgroundImage),
+       /linear-gradient/,'Oppdag atmosphere is not active in WebKit: '+label);
      assert.match(await standard.page.locator('[data-premium-globe-subtitle]').innerText(),
        /Oppdag fjell, skoger, elver og ørkener/,label+' discovery subtitle still describes simple globe');
      assert.equal(await standard.page.locator('#globe-view-toggle [data-globe-view="discover"]').getAttribute('aria-pressed'),'true');
@@ -359,6 +361,8 @@ async function runDevice(engine,label,viewport,urls){
      await standard.page.evaluate(()=>setGlobeZoom(5));
      assert.equal(await standard.page.evaluate(()=>globeZoom),5,label+' Enkel lost its original full zoom');
      assert.equal(restored.stored,'simple',label+' Enkel preference not saved');
+     assert.doesNotMatch(await standard.page.locator('#world-screen').evaluate(el=>getComputedStyle(el).backgroundImage),
+       /linear-gradient/,'Oppdag atmosphere leaked into Enkel: '+label);
      assert.match(await standard.page.locator('[data-premium-globe-subtitle]').innerText(),
        /klassiske snurrbare kloden/,label+' original guidance not restored in simple mode');
      assert.deepEqual(refErrors,[],label+' ordinary globe errors');
