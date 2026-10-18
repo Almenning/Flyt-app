@@ -2,9 +2,10 @@ name: Laria Dual Globes Release QA
 
 on:
   push:
-    branches: [feat/laria-two-globes-release-20261017, feat/laria-discovery-landscapes-v2-20261017, feat/laria-superglobe-premium-art-20261018, main]
+    branches: [feat/laria-two-globes-release-20261017, feat/laria-discovery-landscapes-v2-20261017, feat/laria-superglobe-premium-art-20261018, experiment/superklode-natural-relief-20261018, main]
     paths:
       - 'laer-litt-mer/discovery-globe-phase1.js'
+      - 'laer-litt-mer/discovery-natural-relief-data-v1.js'
       - 'laer-litt-mer/discovery-globe-view-v1.css'
       - 'laer-litt-mer/sw.js'
       - 'laer-litt-mer/globe-v25-renderer.js'
@@ -13,9 +14,10 @@ on:
       - 'tests/laria-discovery-globe-phase1-static.js'
       - '.github/workflows/laria-discovery-globe-phase1.yml'
   pull_request:
-    branches: [main, feat/laria-discovery-landscapes-v2-20261017]
+    branches: [main, feat/laria-discovery-landscapes-v2-20261017, feat/laria-superglobe-premium-art-20261018]
     paths:
       - 'laer-litt-mer/discovery-globe-phase1.js'
+      - 'laer-litt-mer/discovery-natural-relief-data-v1.js'
       - 'laer-litt-mer/discovery-globe-view-v1.css'
       - 'laer-litt-mer/sw.js'
       - 'laer-litt-mer/globe-v25-renderer.js'
@@ -43,6 +45,7 @@ jobs:
       - name: Check isolated renderer contract and visual test
         run: |
           node --check laer-litt-mer/discovery-globe-phase1.js
+          node --check laer-litt-mer/discovery-natural-relief-data-v1.js
           node --check laer-litt-mer/globe-v25-renderer.js
           node --check tests/laria-discovery-globe-phase1.playwright.js
           node tests/laria-discovery-globe-phase1-static.js
@@ -51,6 +54,7 @@ jobs:
       - name: Capture exact-head iPhone and iPad evidence
         env:
           DISCOVERY_GLOBE_SCREENSHOTS: /tmp/laria-discovery-globe-phase1
+          SUPERKLODE_NASA_TRIAL: '1'
         run: node tests/laria-discovery-globe-phase1.playwright.js
       - name: Upload comparison screenshots
         if: always()
