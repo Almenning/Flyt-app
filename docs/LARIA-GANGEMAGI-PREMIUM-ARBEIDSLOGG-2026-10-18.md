@@ -33,3 +33,20 @@ Dato: 18.10.2026
 3. Fortsett med materialkvalitet på eventyrmarkedet, kurvillustrasjon, responsiv komposisjon og de levende animasjonene.
 4. Verifiser alle åtte oppdrag, fri lek og progresjonsmigrering, deretter bred QA.
 5. Hold #187 som draft til dokumentert visuelt samsvar og eksakt QA. Publiser ikke denne foreløpige implementasjonen.
+
+
+## Fortsettelse 18.10.2026 – reelle skjermbilder og barneflyt
+
+### Bekreftet teknisk og visuelt i GitHub Actions
+- `9d39d53`: Endret iPad stående fra vertikal megastakk til to kolonner (valgt personlig rev / ekte kurver). Rotårsak: etter fullføring lå «Neste oppdrag» nedenfor 820×1180-visningen. Eksakt-head Gangemagi Chromium/WebKit QA bestod etter rettingen.
+- `ad48963`: Jordbær i oppdrag rendres nå som en sentrert klynge inne i valgt kurv, ikke bundet til første venstrestilte tomme slot. Tomme kurver inneholder ingen falske bær. Ny geometritest på første bær og den øvrige 6-enhets QA **bestod**.
+- `a6e5f1a`: Originalt tegnet market-stall-underlag (`gangemagi-market-table-premium.svg`) plasseres bak reelle kurver uten å fange klikk; oppdragstrinnene følger faktisk brukerflyt (1 velg → 2 legg i → 3 oppdag), reven bekrefter hvert valg. Fullt resultat: Gangemagi WebKit/Chromium visual QA **success**, run `39150395833`, og faktiske skjermbilder i artifact `12145500449`. Ingen påstand om visuell premiumgodkjenning; bildene viser fortsatt mye ulikhet fra den låste illustrasjonen.
+- Screenshots ble hentet og gjennomgått for `a6e5f1a`. iPhone 390 og iPad portrett ser ikke lenger ut til å ha UI-kollisjon; jordbærene ligger innenfor kurvåpningen, og kurvene har en markedsforgrunn. Den personlige reven og eksakt arten er **fortsatt visuelt mindre/flatere** enn fasiten.
+
+### Ny siste implementering – venter på eksakt-head QA
+- `701c726`: Trinn 3 viser nå en dynamisk illustrasjon med én kurv per faktisk gruppe i stedet for å duplisere `3 × 3 = 9` som tekst og illustrasjon. Nye assertions verifiserer 3 grupper i første oppdrag og 2 i siste.
+- Alle åtte oppdrag, Markedsbok, fri lek, klassisk Gangetabellen, eksisterende lagringsformat og personlige revevalg skal regresjonstestes på **eksakt nyeste HEAD**.
+- Før sammenslåing: sjekk nytt WebKit-artifact, 320×568 og 390×844 samt 820×1180 / 1180×820, fullføringsknapp uten skjult scrolling, pressbar kurv og illustrerte grupper (også grupper=5), viderefør personlig rev, originalt kunstuttrykk og progresjon.
+
+### Produktmessig vurdering
+Dette er en genuin funksjonell ombygging, ikke bare dekorasjon. Men skjermbildene viser at den virkelige scenen fortsatt ikke matcher referansens store, nærværende rev, maleriske tredimensjonale kurver og integrerte markedskomposisjon. Fortsett art-direction uten å lage en ny fasit eller erklære premium for tidlig. `PR #187` forblir **draft**, `PR #181` må ikke publiseres alene, og ingen GitHub Pages-publisering er autorisert før visuell og teknisk kvalitetsport er oppfylt.
