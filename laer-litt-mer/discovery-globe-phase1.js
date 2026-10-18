@@ -18,8 +18,10 @@ const trialCarvedRelief=new URLSearchParams(location.search).get('discovery-art'
 const trialNaturalEarthRelief=new URLSearchParams(location.search).get('discovery-art')==='natural-earth';
 let naturalEarthPixels=null;
 let naturalEarthStatus=trialNaturalEarthRelief?'loading':'disabled';
+let naturalEarthPreparationMs=0;
 function loadNaturalEarthTrial(){
   if(!trialNaturalEarthRelief)return;
+  const preparationStarted=performance.now();
   const script=document.createElement('script');
   script.src='./discovery-ne-shaded-data-v1.js';
   script.async=true;
@@ -84,6 +86,7 @@ function loadNaturalEarthTrial(){
           (brightness[i]-fine[i])*2.6+(fine[i]-broad[i])*1.3)));
       naturalEarthPixels={width:1024,height:1024,
         bytes:rgb,hillshade};
+      naturalEarthPreparationMs=Math.round(performance.now()-preparationStarted);
       naturalEarthStatus='ready';
       window.LARIA_NE_SHADED_TILES=null;
       terrainFieldCache=null;
@@ -1050,6 +1053,7 @@ function discoveryDraw(){
   canvas.dataset.discoveryNaturalRelief=naturalReliefStatus;
   canvas.dataset.discoveryCarvedRelief=String(trialCarvedRelief);
   canvas.dataset.discoveryNaturalEarth=naturalEarthStatus;
+  canvas.dataset.discoveryNaturalEarthPreparationMs=String(naturalEarthPreparationMs);
   canvas.dataset.discoveryPaintCount=String(Number(canvas.dataset.discoveryPaintCount||0)+1);
   // v25 can still seed the old Tsjad showcase after selecting Oppdag.
   // Reconcile after the card update has completed, not inside its draw call.
