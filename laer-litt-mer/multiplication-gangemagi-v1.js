@@ -98,7 +98,7 @@
    return '<header class="gm-story gm-quest" aria-label="Dagens oppdrag">'+
      '<div class="gm-quest-head"><span class="gm-quest-ribbon">✦ Dagens oppdrag ✦</span>'+
      '<span class="gm-quest-meta">Oppdrag '+(state.mission+1)+' av '+E.MISSIONS.length+' · '+esc(mission.heading)+'</span></div>'+
-     '<h2 class="gm-quest-callout">Fyll <em>'+groups+' '+(groups===1?'kurv':'kurver')+'</em> med <em>'+each+' jordbær</em> i hver.</h2>'+
+     '<h2 class="gm-quest-callout"><span>Fyll <em>'+groups+' '+(groups===1?'kurv':'kurver')+'</em> med</span><span><em>'+each+' jordbær</em> i hver.</span></h2>'+
      '<div class="gm-quest-steps" role="list" aria-label="Tre steg i oppdraget">'+
        questStep(1,gmBasketArt,'Velg en kurv')+
        '<span class="gm-quest-arrow" aria-hidden="true">➜</span>'+
