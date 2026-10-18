@@ -127,12 +127,12 @@
   .gm-quest-progress strong{font-size:12px}
   .gm-quest-progress span{font-size:7px}
   .gm-story.gm-quest h2.gm-quest-callout{font-size:clamp(17px,5.4vw,20px);margin:2px 0 4px;line-height:1.02}
-  .gm-quest-step{min-height:29px;padding:2px 1px 1px;gap:0}
-  .gm-quest-icon{height:15px}
+  .gm-quest-step{min-height:33px;padding:2px 1px 1px;gap:0}
+  .gm-quest-icon{height:16px}
   .gm-quest-icon>svg{height:15px;width:24px}
   .gm-quest-fruit{width:13px;height:16px}
   .gm-quest-berries .gm-quest-fruit{width:8px;height:12px}
-  .gm-quest-step strong{font-size:8px;line-height:1}
+  .gm-quest-step strong{font-size:10px;line-height:1.06}
   .gm-quest-index{width:12px;height:12px;left:2px;top:2px;font-size:8px}
   .gm-quest-arrow{font-size:10px}
   .gm-shell[data-gm-mode="mission"] .gm-fox{min-height:48px}
