@@ -36,6 +36,13 @@ async function check(engine,label,viewport,url){
     ['Plukk jordbær','Legg i 3 kurver','3 i hver kurv'],'instructions are three real readable DOM steps');
   assert.equal(await page.locator('.gm-quest-steps[role="list"] [role="listitem"]').count(),3,
     'screen-reader and touch-friendly three-step instructions');
+  // Quest-step labels carry actual child instructions, not decorative microcopy.
+  // All device sizes must preserve >=10px instead of the prior unreadable 8px.
+  const questStepFont=await page.locator('.gm-quest-step strong').first()
+    .evaluate(el=>parseFloat(getComputedStyle(el).fontSize));
+  assert.ok(questStepFont>=10,
+    label+' three-step instructions must be legible for grade 2: '+questStepFont+'px');
+
   const missionHeading=await page.locator('.gm-quest-callout').evaluate(el=>({
     size:parseFloat(getComputedStyle(el).fontSize),bounds:el.getBoundingClientRect().toJSON(),
     panel:el.closest('.gm-quest').getBoundingClientRect().toJSON()}));
