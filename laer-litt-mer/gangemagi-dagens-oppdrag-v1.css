@@ -534,8 +534,12 @@
  .gm-shell[data-gm-mode="mission"] .gm-quest-icon>svg{height:35px;width:46px}
  .gm-shell[data-gm-mode="mission"] .gm-quest-icon .gm-quest-fruit{height:32px;width:24px}
  .gm-shell[data-gm-mode="mission"] .gm-quest-step strong{font-size:11px}
+ /* Larger real personal character, overlapping only the wooden margin,
+    while the fox row still occupies exactly 121px in the first viewport. */
+ .gm-shell[data-gm-mode="mission"] .gm-fox{height:121px}
  .gm-shell[data-gm-mode="mission"] .gm-fox-art{
-   height:121px;width:105px;
+   height:155px;width:135px;margin-top:-34px;margin-left:-9px;
+   pointer-events:none;
  }
  .gm-shell[data-gm-mode="mission"] .gm-fox-bubble{
    min-height:57px;padding:7px 8px 7px 13px;
