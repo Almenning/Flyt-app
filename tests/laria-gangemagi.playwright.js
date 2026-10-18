@@ -37,6 +37,8 @@ async function check(engine,label,viewport,url){
   assert.equal(await page.locator('.gm-quest').count(),1,label+' mission has a prominent quest panel');
   assert.match(await page.locator('.gm-quest-ribbon').innerText(),/Dagens oppdrag/);
   assert.match(await page.locator('.gm-quest-callout').innerText(),/Fyll 3 kurver med 3 jordbær i hver/);
+  assert.equal(await page.locator('.gm-quest-filled-preview .gm-quest-mini-basket').count(),3,
+    'final instructional illustration previews one filled basket per real group');
   assert.deepEqual(await page.locator('.gm-quest-step strong').allInnerTexts(),
     ['Velg en kurv','Legg i jordbær','Se at 3 × 3 = 9'],'instructions are three real readable DOM steps');
   assert.equal(await page.locator('.gm-quest-step-active[aria-current="step"][data-gm-step="1"]').count(),1,
@@ -194,6 +196,8 @@ async function check(engine,label,viewport,url){
   assert.equal(await page.locator('.gm-book-earned').count(),1,'one earned flower marked in book');
   await page.locator('[data-gm-action="select-mission"][data-index="7"]').click();
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).mission,7);
+  assert.equal(await page.locator('.gm-quest-filled-preview .gm-quest-mini-basket').count(),2,
+    'final instructional art must follow the selected two-group mission');
   assert.match(await page.locator('.gm-quest-callout').innerText(),/Fyll 2 kurver med 10 jordbær i hver/,
     'quest text and numbers follow selected authored mission');
   assert.deepEqual(await page.locator('.gm-quest-step strong').allInnerTexts(),
