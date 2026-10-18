@@ -46,6 +46,11 @@ const landscapeZones=[
   {name:'Congo rainforest',type:'rainforest',width:13,route:[[12,0],[19,-1],[26,0],[31,0]]},
   {name:'European woodlands',type:'forest',width:6,route:[[5,50],[12,51],[19,52],[27,54],[34,54]]},
   {name:'Scandinavian forests',type:'forest',width:9,route:[[7,59],[13,62],[21,65],[28,67]]},
+  /* Europe is the first authored continent. These remain geographic
+     corridors, so the extra character follows rotation and real coastlines. */
+  {name:'Norwegian fjord forests',type:'forest',width:3.2,route:[[5.4,59.4],[6.4,61.1],[7.4,62.8],[10.0,64.7]]},
+  {name:'Alpine valleys',type:'forest',width:3.4,route:[[6.1,45.8],[8.4,46.4],[10.7,46.6],[13.1,46.8]]},
+  {name:'Mediterranean hills',type:'savanna',width:4.8,route:[[-1.0,42.5],[5.8,43.1],[11.2,42.0],[16.8,41.2],[21.8,40.7]]},
   {name:'Northern Asian taiga',type:'forest',width:12,route:[[38,60],[52,60],[67,60],[83,61],[100,59],[118,58],[136,55]]},
   {name:'Southeast Asian forests',type:'rainforest',width:11,route:[[94,23],[101,18],[105,13],[110,8],[115,3]]},
   {name:'Indonesian rainforest',type:'rainforest',width:7,route:[[99,1],[107,-1],[115,-2],[121,-2]]},
@@ -399,16 +404,21 @@ const riverWays=[
   {name:'Yangtze',route:[[97,33.3],[102,30.7],[107,29.8],[112,30.2],[117,30.9],[121,31.1]]}
 ];
 function paintMountainCrests(ctx,chain,w,h,s,level,width){
-  if(level<2)return 0;
+  /* At continent scale Europe needs a recognisable silhouette, while the
+     rest of the world stays calm. The detailed ridge language still starts
+     at level 2, so this is not a return to scattered mountain icons. */
+  const europeHero=chain.name==='Scandes'||chain.name==='Alps';
+  if(level<2&&!europeHero)return 0;
   let drawn=0;
   for(let j=0;j<chain.route.length-1;j++){
     const a=chain.route[j],b=chain.route[j+1];
-    const steps=Math.max(2,Math.round(Math.max(Math.abs(a[0]-b[0]),Math.abs(a[1]-b[1]))/(level===2?2.8:1.9)));
+    const spacing=level===1?4.9:(level===2?2.8:1.9);
+    const steps=Math.max(2,Math.round(Math.max(Math.abs(a[0]-b[0]),Math.abs(a[1]-b[1]))/spacing));
     for(let k=0;k<steps;k++){
       const t=(k+.42)/steps,lon=a[0]+(b[0]-a[0])*t,lat=a[1]+(b[1]-a[1])*t;
       const p=project(lon,lat,w,h);if(!p||p[2]<.2)continue;
       const seed=Math.abs(Math.sin((j*31+k*7+lat)*1.23));
-      const height=clamp(Math.max(width*(.42+seed*.22),s*(level===2?.0085:.012)),s*.007,s*.024)*(level===3?1.08:.95);
+      const height=clamp(Math.max(width*(.42+seed*.22),s*(level===1?.007:level===2?.0085:.012)),s*.006,s*.024)*(level===3?1.08:level===1?.82:.95);
       const x=p[0],y=p[1];
       ctx.save();
       ctx.fillStyle='rgba(37,85,74,.40)';
@@ -748,6 +758,7 @@ function clearOffscreenDiscoverySelection(){
       '<span>Snurr på kloden og trykk på et land du vil utforske.</span></div>';
     box.onclick=null;box.style.cursor='default';
   }
+  renderDiscoveryWelcome();
   if(typeof window.drawGlobe==='function')window.drawGlobe();
   return true;
 }
@@ -758,6 +769,59 @@ let desiredView='simple';
 try{if(localStorage.getItem(preferenceKey)==='discover')desiredView='discover'}catch(_){}
 if(forcedPreview)desiredView='discover';
 const controls=[...document.querySelectorAll('#globe-view-toggle [data-globe-view]')];
+const continentZoomCap=1.72;
+const copyNodes={
+  hero:screen.querySelector('.hero-copy'),
+  hint:screen.querySelector('.globe-hint')
+};
+for(const node of Object.values(copyNodes))if(node)node.dataset.simpleCopy=node.textContent;
+function selectedFoxSource(){
+  try{
+    const avatar=state?.profile?.avatar==='girl'?'girl':'boy';
+    const source=window.LARIA_PROFILE_AVATARS?.[avatar];
+    if(typeof source==='string'&&source)return source;
+  }catch(_){}
+  return './lia-fox-explorer-home.webp';
+}
+function renderDiscoveryWelcome(){
+  if(window.__lariaDiscoveryGlobePreview!==true||globeSelected)return false;
+  const box=document.getElementById('globe-status');if(!box)return false;
+  box.className='globe-status discovery-continent-intro';
+  box.innerHTML='<div class="discovery-intro-copy">'+
+    '<span class="discovery-intro-kicker">FØRSTE STOPP</span>'+
+    '<strong>Europa venter</strong>'+
+    '<span>Fjorder, fjell og mange land å oppdage.</span>'+
+    '<button type="button" class="discovery-europe-button">Se Europa</button></div>'+
+    '<img class="discovery-intro-fox" src="'+selectedFoxSource()+'" alt="Din rev er med på oppdagelsen">';
+  box.style.cursor='default';box.onclick=null;
+  const button=box.querySelector('.discovery-europe-button');
+  if(button)button.onclick=()=>{
+    globeLon=13;globeLat=53;
+    if(typeof setGlobeZoom==='function')setGlobeZoom(1.38);
+    else if(typeof window.drawGlobe==='function')window.drawGlobe();
+  };
+  return true;
+}
+function discoveryCompanionText(country){
+  const name=String(country?.name||'');
+  if(name==='Norge')return 'Se fjordene og de lange fjellryggene!';
+  if(name==='Frankrike'||name==='Italia'||name==='Sveits'||name==='Østerrike')return 'Her er Alpene like ved. Skal vi se nærmere?';
+  if(name==='Spania'||name==='Hellas')return 'Her møter grønne åser det varme havet.';
+  return 'Dette stedet vil jeg gjerne oppdage sammen med deg!';
+}
+function enhanceDiscoveryCountryCard(){
+  if(window.__lariaDiscoveryGlobePreview!==true||!globeSelected||typeof countries==='undefined')return false;
+  const country=countries[globeSelected],box=document.getElementById('globe-status');
+  if(!country||!box||box.dataset.discoveryCountryId===country.id)return false;
+  const copy=box.querySelector('.globe-country-copy');if(!copy)return false;
+  const companion=document.createElement('div');
+  companion.className='discovery-country-companion';
+  companion.innerHTML='<img src="'+selectedFoxSource()+'" alt="Din rev">'+
+    '<span>'+discoveryCompanionText(country)+'</span>';
+  copy.appendChild(companion);
+  box.dataset.discoveryCountryId=country.id;
+  return true;
+}
 function syncButtons(){
   screen.dataset.globeView=desiredView;
   for(const btn of controls){
@@ -793,12 +857,19 @@ const wait=()=>{
       if(subtitle.textContent!==expected)subtitle.textContent=expected;
     }
     window.__lariaDiscoveryGlobePreview=enabled;
+    if(copyNodes.hero)copyNodes.hero.textContent=enabled
+      ?'Velg en verdensdel, snurr på kloden og finn et land du vil oppdage.'
+      :copyNodes.hero.dataset.simpleCopy;
+    if(copyNodes.hint)copyNodes.hint.textContent=enabled
+      ?'Dra for å snurre · knip for kontinentnivå'
+      :copyNodes.hint.dataset.simpleCopy;
     if(!enabled){
       const needsRestore=window.drawGlobe===discoveryDraw;
       if(needsRestore)restore();
       if(desiredView==='simple'){
         delete screen.dataset.discoveryGlobe;
         delete screen.dataset.discoveryGlobeLevel;
+        delete screen.dataset.discoveryZoom;
       }
       if(activated&&inClassic&&needsRestore){
         try{window.resizeGlobe();window.drawGlobe?.()}catch(error){
@@ -809,9 +880,20 @@ const wait=()=>{
       return;
     }
     if(!activated||window.drawGlobe!==discoveryDraw){
+      /* Do not leave a close-up inherited from Enkel behind when the child
+         enters Oppdag. The cap is enforced by the shared input owner too. */
+      screen.dataset.discoveryZoom='continent-v1';
+      /* The legacy shell seeds Tsjad as a generic showcase. Oppdag opens at
+         its intentional Europe starting point instead; this is transient UI
+         selection only, never the child's saved country progress. */
+      if(globeSelected==='tsjad'){
+        globeSelected=null;globeLon=13;globeLat=53;
+      }
+      if(typeof setGlobeZoom==='function'&&globeZoom>continentZoomCap)
+        setGlobeZoom(continentZoomCap);
       window.drawGlobe=discoveryDraw;
       try{drawGlobe=discoveryDraw}catch(_){}
-      try{window.resizeGlobe();discoveryDraw();activated=true}
+      try{window.resizeGlobe();discoveryDraw();renderDiscoveryWelcome();activated=true}
       catch(error){
         window.__lariaDiscoveryGlobeLastError=String(error?.stack||error);
         desiredView='simple';
@@ -842,6 +924,15 @@ const wait=()=>{
     canvas.addEventListener('pointerup',afterDrag,{passive:true});
     canvas.addEventListener('pointercancel',afterDrag,{passive:true});
     canvas.addEventListener('wheel',()=>requestAnimationFrame(clearOffscreenDiscoverySelection),{passive:true});
+  }
+  const status=document.getElementById('globe-status');
+  if(status){
+    let pendingCompanion=false;
+    new MutationObserver(()=>{
+      if(pendingCompanion)return;
+      pendingCompanion=true;
+      requestAnimationFrame(()=>{pendingCompanion=false;enhanceDiscoveryCountryCard()});
+    }).observe(status,{childList:true,subtree:true});
   }
   controls.forEach(btn=>btn.addEventListener('click',()=>chooseView(btn.dataset.globeView)));
   document.addEventListener('click',event=>{
