@@ -10,6 +10,18 @@ const path=require('node:path');
 const root=path.resolve(__dirname,'..');
 const read=file=>fs.readFileSync(path.join(root,file),'utf8');
 const preview=read('laer-litt-mer/discovery-globe-phase1.js');
+const nasaTrialData=read('laer-litt-mer/discovery-natural-relief-data-v1.js');
+assert.match(nasaTrialData,/NASA Blue Marble Next Generation/,
+  'experimental relief source and attribution must remain documented');
+assert.match(nasaTrialData,/data:image\/jpeg;base64,\/9j\//,
+  'the experimental texture must be self-contained without runtime CDN dependency');
+assert.match(preview,/get\('discovery-relief'\)==='nasa'/,
+  'public-domain raster experiment requires explicit query flag');
+assert.match(preview,/if\(!trialNaturalRelief\)return;/,
+  'ordinary Oppdag and Enkel must not load the experimental image');
+assert.match(preview,/canvas\.dataset\.discoveryNaturalRelief=naturalReliefStatus/,
+  'WebKit QA must detect when the relief is decoded');
+
 const polarSource=read('laer-litt-mer/discovery-antarctica-geography-v1.js');
 assert.match(polarSource,/Natural Earth 1:110m/,'Antarctic coastline must have documented public-domain provenance');
 const polarGeometry=JSON.parse(polarSource.split('window.LARIA_ANTARCTICA_GEOMETRY=')[1].trim().replace(/;$/, ''));
