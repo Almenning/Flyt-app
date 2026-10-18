@@ -374,7 +374,10 @@ function paintWorldTerrain(ctx,w,h,s,level,moving){
     ctx.imageSmoothingEnabled=true;
     ctx.drawImage(terrainFieldCache.surface,(w-s)/2,(h-s)/2,s,s);
     const canvas=document.getElementById('globe-canvas');
-    if(canvas)canvas.dataset.discoveryTerrainMs=String(Math.round(terrainFieldCache.ms));
+    if(canvas){
+      canvas.dataset.discoveryTerrainMs=String(Math.round(terrainFieldCache.ms));
+      canvas.dataset.discoveryTerrainPixels=String(terrainFieldCache.surface.width);
+    }
     ctx.restore();return 1;
   }
   ctx.restore();return 0;
