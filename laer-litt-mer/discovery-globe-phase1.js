@@ -811,6 +811,19 @@ function selectedFoxSource(){
   }catch(_){}
   return './lia-fox-explorer-home.webp';
 }
+function scrollShortDiscovery(toCard){
+  // On the shortest iPhone the existing globe shell intentionally scrolls
+  // rather than shrinking the touch globe. Reveal the result of a real tap,
+  // then let the continent action return the child to the globe.
+  const compact=window.__lariaDiscoveryGlobePreview===true&&
+    typeof matchMedia==='function'&&
+    matchMedia('(orientation:portrait) and (max-width:350px) and (max-height:700px)').matches;
+  if(!compact||screen.scrollHeight<=screen.clientHeight+8)return;
+  requestAnimationFrame(()=>{
+    screen.scrollTo({top:toCard?Math.max(0,screen.scrollHeight-screen.clientHeight):0,
+      behavior:'smooth'});
+  });
+}
 function renderDiscoveryWelcome(){
   if(window.__lariaDiscoveryGlobePreview!==true||globeSelected)return false;
   const box=document.getElementById('globe-status');if(!box)return false;
@@ -834,6 +847,7 @@ function renderDiscoveryWelcome(){
     globeLon=stop.lon;globeLat=stop.lat;
     if(typeof setGlobeZoom==='function')setGlobeZoom(stop.zoom);
     else if(typeof window.drawGlobe==='function')window.drawGlobe();
+    scrollShortDiscovery(false);
   };
   return true;
 }
@@ -976,10 +990,12 @@ const wait=()=>{
     // The input owner already updates the rotation before these passive events.
     // Do not clear selection for a tap: only a completed drag or zoom can
     // move an old choice off the globe's current visible surface.
-    const afterDrag=()=>{
+    const afterDrag=event=>{
       if(typeof globePointers!=='undefined'&&globePointers.size>0)return;
       if(typeof globeMove==='number'&&globeMove>=8)
         requestAnimationFrame(()=>{clearOffscreenDiscoverySelection();renderDiscoveryWelcome();});
+      else if(event.type==='pointerup'&&event.isTrusted&&globeSelected)
+        scrollShortDiscovery(true);
     };
     canvas.addEventListener('pointerup',afterDrag,{passive:true});
     canvas.addEventListener('pointercancel',afterDrag,{passive:true});
