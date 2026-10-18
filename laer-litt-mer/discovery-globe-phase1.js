@@ -497,7 +497,9 @@ function paintReliefTrails(ctx,w,h,s,level,moving){
    children zoom closer; all samples are deterministic geographic points. */
 const geoNoise=n=>{const x=Math.sin(n*78.233+19.192)*43758.5453;return x-Math.floor(x);};
 function paintGeographicTexture(ctx,w,h,s,level,moving){
-  if(moving||level===1)return 0;
+  // At continent scale the world needs recognisable natural material, not
+  // only a blurred colour field. Use fewer, gently blended geographic flecks.
+  if(moving)return 0;
   let drawn=0;
   /* Small overlapping canopy crowns create one coherent forest, not a few
      giant decorative trees. Density is tied to geographic forest corridors. */
@@ -506,7 +508,8 @@ function paintGeographicTexture(ctx,w,h,s,level,moving){
     const leafy=zone.type==='rainforest'||zone.type==='forest';
     /* Many small, low-contrast marks read as material.  Large repeated
        clusters made the rainforest look like a row of pasted tree icons. */
-    const perZone=leafy?(level===2?74:156):(level===2?28:62);
+    const perZone=leafy?(level===1?34:level===2?104:156):
+      (level===1?16:level===2?42:62);
     for(let i=0;i<perZone;i++){
       const t=geoNoise(z*109+i*29+9)*segments;
       const j=Math.min(segments-1,Math.floor(t)),f=t-j;
@@ -514,7 +517,8 @@ function paintGeographicTexture(ctx,w,h,s,level,moving){
       const lon=a[0]+(b[0]-a[0])*f+(geoNoise(z*307+i*17+1)-.5)*zone.width*.80;
       const lat=a[1]+(b[1]-a[1])*f+(geoNoise(z*127+i*43+4)-.5)*zone.width*.80;
       const p=project(lon,lat,w,h);if(!p||p[2]<.18)continue;
-      const k=s*(leafy?(level===2?.0024:.0032):(level===2?.0033:.0048))*
+      const k=s*(leafy?(level===1?.0042:level===2?.0037:.0032):
+        (level===1?.0045:level===2?.0042:.0048))*
         clamp(Math.pow(globeZoom,.13),1,1.27)*
         clamp(p[2]+.21,.55,1.1)*(0.67+geoNoise(i*7+z*19)*.49);
       if(p[0]<-k*3||p[0]>w+k*3||p[1]<-k*3||p[1]>h+k*3)continue;
@@ -525,9 +529,9 @@ function paintGeographicTexture(ctx,w,h,s,level,moving){
            trunks, silhouettes or fixed spacing, so they cannot read as icons. */
         for(const [dx,dy,scale] of [[-.58,.09,.72],[.42,.02,.84],[-.09,-.31,.93],[.31,-.35,.56],[-.34,-.41,.48]]){
           const x=k*dx,y=k*dy,r=k*scale;
-          ctx.fillStyle=tropical?'rgba(22,91,58,.40)':'rgba(45,99,61,.38)';
+          ctx.fillStyle=tropical?'rgba(22,91,58,.46)':'rgba(45,99,61,.42)';
           ctx.beginPath();ctx.ellipse(x,y,r*.71,r*.72,-.16,0,Math.PI*2);ctx.fill();
-          ctx.fillStyle=tropical?'rgba(126,183,99,.30)':'rgba(182,202,124,.28)';
+          ctx.fillStyle=tropical?'rgba(126,183,99,.34)':'rgba(182,202,124,.32)';
           ctx.beginPath();ctx.ellipse(x-r*.22,y-r*.23,r*.38,r*.28,-.26,0,Math.PI*2);ctx.fill();
         }
       }else if(zone.type==='desert'){
