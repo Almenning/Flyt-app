@@ -158,7 +158,7 @@ function ocean(ctx,w,h,s){
 }
 function paintLandBase(ctx,w,h,s){
   for(const c of land()){
-    if(!c.geometry)continue;const base=continent[c.continent]||'#73986B';
+    if(!c.geometry)continue;const base='#84A87A';
     const g=ctx.createLinearGradient(w*.25,h*.12,w*.78,h*.88);
     g.addColorStop(0,mix(base,'#FFF7D8',.30));g.addColorStop(.50,base);g.addColorStop(1,mix(base,'#264E47',.25));
     ctx.save();ctx.shadowColor='rgba(29,54,48,.30)';ctx.shadowBlur=Math.max(3,s*.009);ctx.shadowOffsetY=Math.max(1,s*.003);
@@ -319,8 +319,8 @@ function paintWorldTerrain(ctx,w,h,s,level,moving){
         const leafy=bp&&(bp.kind==='rainforest'||bp.kind==='forest');
         const base=shade+mountainCut*85-mountainReach*28;
         const neutral=[118+base*.64,161+base*.75,115+base*.49];
-        const alpha=clamp(.17+biomeReach*.56+mountainReach*.18,.17,.79);
-        const mixT=clamp(biomeReach*.94,0,.96);
+        const alpha=clamp(.30+biomeReach*.61+mountainReach*.22,.28,.88);
+        const mixT=clamp(biomeReach*1.04,0,.985);
         let red=neutral[0],green=neutral[1],blue=neutral[2];
         if(tint){
           red=red*(1-mixT)+tint[0]*mixT;
@@ -681,21 +681,23 @@ function discoveryDraw(){
   /* Pointer ownership is the reliable signal while a drag is active. */
   const moving=window.__lariaGlobeInteracting===true&&typeof globePointers!=='undefined'&&globePointers.size>0;
   ocean(ctx,w,h,s);paintLandBase(ctx,w,h,s);
-  const biomeCount=paintBiomes(ctx,w,h,s,moving);
+  /* Material pass replaces separate biome washes: the land reads as one painted surface. */
+  const biomeCount=0;
   const fieldCount=paintWorldTerrain(ctx,w,h,s,level,moving);
   /* A moving globe uses its base map without the expensive land clip for
      stationary-only detail. This saves an entire geometry pass per frame. */
   ctx.save();const validLand=!moving&&landClip(ctx,w,h);
   const textureCount=validLand?paintGeographicTexture(ctx,w,h,s,level,moving):0;
   const reliefCount=validLand?paintReliefTrails(ctx,w,h,s,level,moving):0;
-  const terrainCount=validLand?paintTerrainMarks(ctx,w,h,s,level,moving):0;
-  const landmarkCount=validLand?paintLandmarks(ctx,w,h,s,level,moving,false):0;
+  /* No landmark stamps on land: mountains and forests must belong to the terrain itself. */
+  const terrainCount=0;
+  const landmarkCount=0;
   ctx.restore();
   const seaCount=paintLandmarks(ctx,w,h,s,level,moving,true);
   paintBorders(ctx,w,h,s);paintSmallCountries(ctx,w,h,s);
   if(typeof drawGlobePulse==='function')drawGlobePulse(ctx,w,h);
   ctx.restore();
-  screen.dataset.discoveryGlobeLevel=String(level);screen.dataset.discoveryGlobe='landscapes-v2';
+  screen.dataset.discoveryGlobeLevel=String(level);screen.dataset.discoveryGlobe='painted-atlas-v1';
   canvas.dataset.discoveryRenderer='live';canvas.dataset.discoveryTerrainField=String(fieldCount);canvas.dataset.discoveryEcosystems=String(biomeCount);canvas.dataset.discoveryRelief=String(reliefCount);canvas.dataset.discoveryTexture=String(textureCount);canvas.dataset.discoveryLandmarks=String(landmarkCount+terrainCount+reliefCount+textureCount+seaCount+biomeCount+fieldCount);canvas.dataset.discoveryMoving=String(moving);
   canvas.dataset.discoveryPaintCount=String(Number(canvas.dataset.discoveryPaintCount||0)+1);
   // v25 can still seed the old Tsjad showcase after selecting Oppdag.
