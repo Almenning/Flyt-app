@@ -167,7 +167,7 @@ async function verifyShortPhoneTapFlow(page,label){
   return {selected:globeSelected,scrollTop:screen.scrollTop,
    scrollHeight:screen.scrollHeight,clientHeight:screen.clientHeight,
    pointer:window.__shortPhoneQAEvent||null,
-   search:document.getElementById('globe-status').innerText().slice(0,140)};
+   search:document.getElementById('globe-status').innerText.slice(0,140)};
  });
  console.log('SHORT PHONE TAP',label,JSON.stringify({setup,observed}));
  assert.equal(observed.selected,'fr',label+' geographic finger tap missed France');
