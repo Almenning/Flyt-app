@@ -64,13 +64,27 @@ async function run(engine,label,viewport,url,avatar='girl'){
     await page.waitForFunction(()=>typeof openDetail==='function'&&
       !!window.LARIA_COUNTRY_DETAIL_PREMIUM&&!!window.LARIA_GLOBE_COUNTRY_SCENE_V25,
       null,{timeout:22000});
+    // A callable runtime is not necessarily a navigable app: asynchronous
+    // Basecamp startup may still own the active screen in busy CI WebKit.
+    await page.locator('#home-screen.active .bc12').waitFor({timeout:20000});
     const before=await page.evaluate(()=>JSON.stringify({
       journey:state.journey,answerLog:state.answerLog,mastery:state.mastery
     }));
     // The product still navigates through the SAME openDetail() as the globe card.
     await page.evaluate(()=>openDetail('eg','world'));
     const card=page.locator('#detail-screen.active .country-story[data-country-detail="eg"]');
-    await card.waitFor({timeout:9000});
+    try{await card.waitFor({timeout:16000});}
+    catch(error){
+      const info=await page.evaluate(()=>({
+        active:[...document.querySelectorAll('.screen.active')].map(x=>x.id),
+        detail:document.getElementById('detail-screen')?.getAttribute('style'),
+        country:document.getElementById('detail-content')?.firstElementChild?.outerHTML.slice(0,280),
+        ready:window.LARIA_BASECAMP_DIAG,
+        canRender:typeof window.LARIA_COUNTRY_DETAIL_PREMIUM?.render,
+        jsErrors:window.__lariaCountryErrors||[]
+      }));
+      throw new Error(label+' Egypt story failed to open after Basecamp readiness: '+JSON.stringify(info)+'; '+error.message);
+    }
     await card.locator('h1').waitFor();
     assert.equal((await card.locator('h1').innerText()).trim(),'Egypt',label+' wrong country');
     assert.match(await card.locator('.country-story-tagline').innerText(),/Nilen.*pyramider/,
@@ -204,6 +218,73 @@ async function run(engine,label,viewport,url,avatar='girl'){
     assert.equal(await page.locator('#detail-screen.active .country-story-hero-art').count(),0,
       label+' generic countries must not receive wrong curated artwork');
 
+    // Real long names must not escape the illustrated panel at 320px, 390px
+    // or on short landscape phones. The country's original data and practice
+    // route remain unchanged.
+    if(viewport.width<=430||viewport.height<=520){
+      for(const [id,expected] of [
+        ['cf','Den sentralafrikanske republikk'],
+        ['ae','De forente arabiske emirater'],
+        ['do','Den dominikanske republikk']
+      ]){
+        await page.evaluate(k=>openDetail(k,'world'),id);
+        const story=page.locator('#detail-screen.active .country-story[data-country-detail="'+id+'"]');
+        await story.waitFor({timeout:9000});
+        assert.equal((await story.locator('h1').innerText()).trim(),expected);
+        // Panel bounds alone missed a lone final letter on the next line.
+        // Inspect real word rectangles, not just computed CSS declarations.
+        const words=await story.locator('h1').evaluate(el=>{
+          const node=el.firstChild,box=el.getBoundingClientRect();
+          if(!node||node.nodeType!==Node.TEXT_NODE)throw Error('Expected text-only country heading');
+          return [...node.textContent.matchAll(/\S+/gu)].map(match=>{
+            const range=document.createRange();
+            range.setStart(node,match.index);
+            range.setEnd(node,match.index+match[0].length);
+            const rects=[...range.getClientRects()].filter(r=>r.width>.5&&r.height>0);
+            return {word:match[0],lines:new Set(rects.map(r=>Math.round(r.top))).size,
+              fits:rects.every(r=>r.left>=box.left-1&&r.right<=box.right+1)};
+          });
+        });
+        assert(words.length>0&&words.every(word=>word.lines===1&&word.fits),
+          label+' '+id+' has broken or overflowing country-title words '+JSON.stringify(words));
+        const g=await story.evaluate(el=>{
+          const rect=selector=>{
+            const r=el.querySelector(selector).getBoundingClientRect();
+            return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,height:r.height};
+          };
+          return {board:rect('.country-story-board'),
+            title:rect('.country-story-title'),
+            topLine:rect('.country-story-topline'),
+            content:rect('.country-story-main'),
+            viewport:innerWidth,scrollWidth:document.documentElement.scrollWidth,
+            isLong:el.classList.contains('is-long-name')};
+        });
+        assert(g.isLong,label+' '+id+' was not classified as a long title');
+        assert(g.title.top>=g.topLine.bottom-8,label+' '+id+' title collides with status pills '+JSON.stringify(g));
+        assert(g.title.bottom<=g.board.bottom-6,label+' '+id+' title escapes painted scene '+JSON.stringify(g));
+        // Portrait stacks the facts below the scene; short landscape uses two
+        // columns. Check real separation on either axis, not vertical order alone.
+        assert(g.board.bottom<=g.content.top+3||g.board.right<=g.content.left+3,
+          label+' '+id+' painted scene overlaps facts '+JSON.stringify(g));
+        assert(g.title.left>=g.board.left-2&&g.title.right<=g.board.right+2,
+          label+' '+id+' title crosses scene edges '+JSON.stringify(g));
+        assert(g.scrollWidth<=g.viewport+2,label+' '+id+' causes horizontal scrolling '+JSON.stringify(g));
+        if(viewport.width<=340&&viewport.height>=600){
+          assert(g.title.top-g.board.top<=125,
+            label+' '+id+' wastes the small iPhone hero above the title '+JSON.stringify(g));
+          assert(g.content.top<=viewport.height*.74,
+            label+' '+id+' pushes all country facts below the first fold '+JSON.stringify(g));
+        }
+        if(['webkit-iphone-small','webkit-iphone-landscape'].includes(label)&&id==='cf'){
+          await page.screenshot({path:path.join(screenshotDir,label+'-long-name.png'),
+            animations:'disabled',fullPage:false});
+        }
+      }
+      // Practice from the generic page must still launch its actual country.
+      await page.evaluate(()=>openDetail('no','world'));
+      await page.locator('#detail-screen.active .country-story[data-country-detail="no"]').waitFor();
+    }
+
     // Original practice action continues through startCountryPractice(), not a
     // synthetic mini-quiz added by the visual redesign.
     await page.locator('.country-story-practice').click();
@@ -221,6 +302,7 @@ async function run(engine,label,viewport,url,avatar='girl'){
     for(const [engine,label,viewport,avatar] of [
       [webkit,'webkit-iphone',{width:390,height:844},'girl'],
       [webkit,'webkit-iphone-small',{width:320,height:640},'boy'],
+      [webkit,'webkit-iphone-landscape',{width:844,height:390},'girl'],
       [webkit,'webkit-ipad-portrait',{width:820,height:1180},'girl'],
       [webkit,'webkit-ipad-landscape',{width:1180,height:820},'boy'],
       [chromium,'chromium-iphone',{width:390,height:844},'girl']
