@@ -77,6 +77,10 @@ async function check(engine,label,viewport,url){
   assert.match(await premiumBasket.text(),/data:image\/webp;base64,/,
     'separate basket component must retain the original painterly reference material');
   assert.equal(await page.locator('.gm-basket-illustration').count(),3,'baskets must be real independently tappable DOM elements');
+  assert.equal(await page.locator('.gm-quest-wicker').count(),5,
+    label+' all 3 example baskets plus both teaching steps use the SAME locked illustrated wicker');
+  assert.equal(await page.locator('.gm-quest-wicker').evaluateAll(xs=>xs.every(x=>x.complete&&x.naturalWidth>0)),
+    true,label+' the locked picture-led instruction art must decode in Safari/WebKit');
   const wickerImages=await page.locator('.gm-basket-illustration').evaluateAll(images=>
     images.map(img=>({complete:img.complete,width:img.naturalWidth,src:img.getAttribute('src')})));
   assert.ok(wickerImages.every(img=>img.complete&&img.width>0),
@@ -297,6 +301,8 @@ async function check(engine,label,viewport,url){
   assert.equal(await page.locator('.gm-book-earned').count(),1,'one earned flower marked in book');
   await page.locator('[data-gm-action="select-mission"][data-index="7"]').click();
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).mission,7);
+  assert.equal(await page.locator('.gm-quest-wicker').count(),4,
+    label+' two-group illustration contains two live mini baskets and two guide baskets');
   assert.equal(await page.locator('.gm-quest-filled-preview .gm-quest-mini-basket').count(),2,
     'final instructional art must follow the selected two-group mission');
   assert.equal(await page.locator('.gm-quest-filled-preview .gm-quest-mini-berries i').count(),20,
@@ -308,6 +314,24 @@ async function check(engine,label,viewport,url){
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).undo,0,'switching adventures clears only action history');
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).wins.length,1);
   assert.equal(await page.locator('.gm-book-mission').count(),0,'book should close after selection');
+  // The five-basket mission is visually the most constrained responsive state.
+  // Preserve five clear, real basket targets and the full illustration in WebKit.
+  await page.locator('[data-gm-action="book"]').click();
+  await page.locator('[data-gm-action="select-mission"][data-index="4"]').click();
+  assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).groups,5);
+  assert.equal(await page.locator('.gm-crate').count(),5,
+    label+' five group mission retains five real independently tappable baskets');
+  assert.equal(await page.locator('.gm-quest-wicker').count(),7,
+    label+' five filled preview baskets + two illustrated instructional baskets');
+  const five=await page.locator('.gm-crate').evaluateAll(els=>({
+    width:innerWidth,scrollWidth:document.documentElement.scrollWidth,
+    labels:els.map(el=>el.querySelector('.gm-crate-caption')?.textContent.trim()),
+    tapWidths:els.map(el=>Math.round(el.getBoundingClientRect().width))
+  }));
+  assert.ok(five.scrollWidth<=five.width+4&&five.tapWidths.every(n=>n>=44),
+    label+' dense five-basket mission must fit width with 44px touch targets '+JSON.stringify(five));
+  assert.deepEqual(five.labels,['Kurv 1','Kurv 2','Kurv 3','Kurv 4','Kurv 5']);
+  await shot(page,label+'-05-five-basket-mission');
   await page.locator('[data-gm-action="book"]').click();
   await page.locator('[data-gm-action="select-mission"][data-index="0"]').click();
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).mission,0);
