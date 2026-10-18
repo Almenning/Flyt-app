@@ -928,6 +928,7 @@ const wait=()=>{
   window.__lariaDiscoveryGlobeBaseDraw=baseDraw;
   let activated=false;
   let simpleViewState=null;
+  let simpleViewRestored=false;
   const restore=()=>{
     if(window.drawGlobe===discoveryDraw){
       window.drawGlobe=baseDraw;
@@ -954,6 +955,7 @@ const wait=()=>{
         status:status?{html:status.innerHTML,className:status.className,
           onclick:status.onclick,cursor:status.style.cursor}:null};
     }
+    if(enabled)simpleViewRestored=false;
     window.__lariaDiscoveryGlobePreview=enabled;
     if(copyNodes.hero)copyNodes.hero.textContent=enabled
       ?'Velg en verdensdel, snurr på kloden og finn et land du vil oppdage.'
@@ -964,7 +966,7 @@ const wait=()=>{
     if(!enabled){
       const needsRestore=window.drawGlobe===discoveryDraw;
       if(needsRestore)restore();
-      if(simpleViewState){
+      if(simpleViewState&&(!simpleViewRestored||desiredView==='simple')){
         const saved=simpleViewState;
         // Atlas is a temporary detour, not an explicit choice of Enkel.
         // Keep the original simple camera and country snapshot until the
@@ -978,6 +980,7 @@ const wait=()=>{
           delete status.dataset.discoveryCountryId;
         }
         setGlobeZoom(saved.zoom);
+        simpleViewRestored=true;
       }
       // The child can leave Oppdag for Atlas without changing the saved
       // discover preference. Never let an inactive discovery paint marker
