@@ -582,16 +582,21 @@
    display:grid;grid-template-columns:155px minmax(0,1fr);
    align-items:center;gap:8px;margin:13px 9px 2px;
  }
+ /* The personal fox is the child's guide and a foreground character.
+    Position it within the existing scene height so neither the three-step
+    quest board nor the visible action button is pushed down. */
  .gm-shell[data-gm-mode="mission"] .gm-fox{
-   display:grid;grid-template-columns:minmax(0,1fr);justify-items:center;
-   align-self:center;min-width:0;width:100%;min-height:0;
-   gap:0;margin:0;padding:0;
+   position:relative;display:block;align-self:center;
+   min-width:0;width:100%;height:232px;min-height:0;
+   margin:0;padding:0;
  }
  .gm-shell[data-gm-mode="mission"] .gm-fox-art{
-   width:150px;height:180px;flex:initial;
+   position:absolute;top:-13px;left:-27px;
+   width:202px;height:227px;pointer-events:none;
  }
  .gm-shell[data-gm-mode="mission"] .gm-fox-bubble{
-   width:100%;max-width:155px;min-height:76px;margin:-13px 0 0;
+   position:absolute;left:-9px;bottom:-2px;
+   width:184px;max-width:none;min-height:76px;margin:0;
    padding:8px 6px;grid-template-columns:minmax(0,1fr) 44px;
  }
  .gm-shell[data-gm-mode="mission"] .gm-fox-message{font-size:12px}
