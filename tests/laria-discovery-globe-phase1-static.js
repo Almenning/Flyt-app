@@ -129,8 +129,12 @@ assert.doesNotMatch(preview,/if\(path\(ctx,c,w,h\)\)\{ctx\.fillStyle=g;ctx\.fill
 
 assert.match(preview,/const stoneWeight=clamp\(mountainReach/,'major mountains need continuous rock shading, not only hairline strokes');
 assert.match(preview,/const snowFacet=clamp\(/,'high-elevation regions need snow facets');
-assert.match(preview,/const pixels=level===1\?clamp\(Math.round\(s\*\.33\),128,205\)/,
-  'iPad overviews must sample terrain at a higher resolution than small phones');
+assert.match(preview,/const pixels=naturalReliefPixels\?/,
+  'optional natural relief is the only branch allowed to increase terrain resolution');
+assert.match(preview,/clamp\(Math.round\(s\*\.67\),180,430\)/,
+  'high-resolution experimental texture must preserve meaningful iPad map details');
+assert.match(preview,/level===1\?clamp\(Math.round\(s\*\.33\),128,205\)/,
+  'standard Oppdag must keep the original responsive low-cost shader resolution');
 assert.match(preview,/dataset\.discoveryTerrainPixels=/,'QA must expose actual terrain resolution');
 assert.match(preview,/function paintGeographicTexture\(/,'geographic canopy and dune material must remain active');
 assert.doesNotMatch(preview,/function paintGeographicTexture\([^)]*\)\s*\{\s*if\(moving\|\|level===1\)/,
