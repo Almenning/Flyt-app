@@ -289,7 +289,8 @@ function paintWorldTerrain(ctx,w,h,s,level,moving){
   const key=[Math.round(globeLon*200)/200,Math.round(globeLat*200)/200,
     Math.round(globeZoom*200)/200,Math.round(s),level].join('|');
   if(!terrainFieldCache||terrainFieldCache.key!==key){
-    const pixels=level===1?128:level===2?172:208;
+    // Sharpen large iPad overviews without paying for extra pixels on phones.
+    const pixels=level===1?clamp(Math.round(s*.33),128,205):level===2?172:208;
     const startedAt=performance.now();
     const surface=document.createElement('canvas');
     surface.width=pixels;surface.height=pixels;
@@ -324,7 +325,7 @@ function paintWorldTerrain(ctx,w,h,s,level,moving){
         const leafy=bp&&(bp.kind==='rainforest'||bp.kind==='forest');
         const base=shade+mountainCut*85-mountainReach*28;
         const neutral=[118+base*.64,161+base*.75,115+base*.49];
-        const alpha=clamp(.30+biomeReach*.61+mountainReach*.22,.28,.88);
+        const alpha=clamp(.30+biomeReach*.61+mountainReach*.45,.28,.94);
         const mixT=clamp(biomeReach*1.04,0,.985);
         let red=neutral[0],green=neutral[1],blue=neutral[2];
         if(tint){
@@ -338,11 +339,25 @@ function paintWorldTerrain(ctx,w,h,s,level,moving){
             blue+=crown*.48;
           }
         }
-        if(mountainReach>.06){
-          const light=mountainCut*48;
-          red+=light+mountainReach*10;
-          green+=light+mountainReach*9;
-          blue+=light+mountainReach*8;
+        if(mountainReach>.06&&rp){
+          /* Rock and snow belong to a continuous corridor around each
+             georeferenced mountain spine. Spatial noise forms lit/shaded
+             facets; these are material pigments, not peak-shaped stamps. */
+          const facets=terrainNoise(lon,lat,level===1?1.6:3.1,73)-.5;
+          const ridgeLight=terrainNoise(lon+.42,lat-.24,level===1?2.1:4.2,79)-.5;
+          const stone=rp.snow?[165,171,160]:[157,135,107];
+          const stoneWeight=clamp(mountainReach*(.57+facets*.65),0,.69);
+          const shade=mountainReach*(facets*49+ridgeLight*37);
+          red=red*(1-stoneWeight)+stone[0]*stoneWeight+shade;
+          green=green*(1-stoneWeight)+stone[1]*stoneWeight+shade*.91;
+          blue=blue*(1-stoneWeight)+stone[2]*stoneWeight+shade*.73;
+          if(rp.snow){
+            const snowFacet=clamp((terrainNoise(lon,lat,level===1?2.5:5.2,31)-.29)*2.1,0,1);
+            const snow=mountainReach*snowFacet*.58;
+            red=red*(1-snow)+247*snow;
+            green=green*(1-snow)+244*snow;
+            blue=blue*(1-snow)+223*snow;
+          }
         }
         const k=(py*pixels+px)*4;
         data[k]=clamp(red,0,255);
