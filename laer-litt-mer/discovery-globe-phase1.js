@@ -982,6 +982,7 @@ function enhanceDiscoveryCountryCard(){
   const copy=box.querySelector('.globe-country-copy');if(!copy)return false;
   box.classList.remove('discovery-continent-intro');
   delete box.dataset.discoveryContinent;
+  delete box.dataset.discoveryStoryStep;
   if(copy.querySelector('.discovery-country-companion'))return false;
   const companion=document.createElement('div');
   companion.className='discovery-country-companion';
@@ -1056,6 +1057,7 @@ const wait=()=>{
           status.className=saved.status.className;status.innerHTML=saved.status.html;
           status.onclick=saved.status.onclick;status.style.cursor=saved.status.cursor;
           delete status.dataset.discoveryCountryId;
+          delete status.dataset.discoveryStoryStep;
         }
         setGlobeZoom(saved.zoom);
         simpleViewRestored=true;
