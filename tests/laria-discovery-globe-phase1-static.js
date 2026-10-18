@@ -24,6 +24,13 @@ assert.match(preview,/dataset\.discoveryNaturalEarth=naturalEarthStatus/,
   'WebKit must be able to confirm natural terrain is fully loaded');
 assert.match(preview,/dataset\.discoveryNaturalEarthPreparationMs=String\(naturalEarthPreparationMs\)/,
   'startup time must be measurable before release on physical devices');
+assert.match(preview,/const size=768,tileSize=size\/2;/,
+  'Natural Earth mosaic must remain within the 768px memory and CPU budget');
+assert.match(preview,/const neSize=naturalEarthPixels\.width;/,
+  'Mercator tile sampling must use actual source width after rescaling');
+assert.match(preview,/dataset\.discoveryNaturalEarthSourcePx=String\(naturalEarthPixels\?\.width\|\|0\)/,
+  'source resolution must be measurable by WebKit');
+
 assert.match(preview,/Math\.asinh\(Math\.tan\(latitude\)\)/,
   'mercator source must be sampled with correct latitude geometry');
 assert.match(nasaTrialData,/NASA Blue Marble Next Generation/,
