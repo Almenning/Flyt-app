@@ -34,6 +34,9 @@ assert.match(preview,/dataset\.discoveryContinent=stop\.name/,'the visible invit
 assert.match(preview,/renderDiscoveryWelcome\(\)/,'rotation must update the selected continent invitation');
 assert.match(preview,/countries\[globeSelected\]\?\.name==='Tsjad'/,'Oppdag must identify the legacy showcase by canonical country data');
 assert.match(preview,/let simpleViewState=null/,'the original simple camera and card must be restored after Oppdag');
+assert.match(preview,/let simpleViewRestored=false/,'Atlas transitions must not repeatedly repaint the saved globe');
+assert.match(preview,/simpleViewState&&\(!simpleViewRestored\|\|desiredView==='simple'\)/,
+  'restoration must happen once per Atlas detour, but still complete on explicit Enkel selection');
 assert.match(preview,/function selectedFoxSource\(/,'the invitation must use the child’s actual selected fox source');
 assert.match(preview,/function enhanceDiscoveryCountryCard\(/,'the selected-country card must receive the discovery companion');
 assert.match(preview,/function discoveryCompanionText\(/,'the fox reaction must be place-aware, not generic decoration');
