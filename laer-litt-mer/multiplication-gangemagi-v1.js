@@ -315,7 +315,11 @@
        const previous=undo.pop();
        // A collected blossom stays earned even if the child experiments or undoes.
        state=E.normalize({...previous,wins:[...new Set([...previous.wins,...state.wins])]});
-       selectedGroup=null; // Undo must not retain a stale target basket.
+       // Keep the child's basket choice when undoing a berry. Only clear
+       // it when the restored state makes that target invalid or full.
+       if(state.mode!=='mission'||selectedGroup!==null&&
+         (!Number.isInteger(selectedGroup)||selectedGroup>=state.groups||
+           state.counts[selectedGroup]>=state.each))selectedGroup=null;
        save();hintStep=0;notice='';foxMood='curious';lastAction='';lastGroup=-1;render();
      }
      return;
