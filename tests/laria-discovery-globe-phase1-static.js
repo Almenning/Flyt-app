@@ -77,6 +77,13 @@ assert.match(preview,/'Sør-Amerika':'#[0-9A-Fa-f]{6}'/,
 assert.doesNotMatch(preview,/SÃ¸r-Amerika/,'preview source has mojibake');
 assert.doesNotMatch(preview,/window\.globeZoom\b/, 'zoom is lexically scoped; window.globeZoom generates NaN drawing coordinates');
 assert.match(preview,/function paintReliefTrails\(/, 'geographic terrain trails must remain active');
+assert.match(preview,/function paintChainReliefRibbon\(/,'continent mountains need connected relief rather than repetitive stamps');
+assert.match(preview,/if\(level===1\)return paintChainReliefRibbon\(/,
+  'continent overview must use connected relief, keeping close-up rendering separate');
+assert.match(preview,/const forestShade=grove\*42\*biomeReach/,'forest canopy needs locally shaded geographic material');
+assert.match(preview,/const sand=\(dunes\*\.66\+ridges\*\.34\)\*51\*biomeReach/,
+  'desert pigments must follow geographic noise rather than decorative stamps');
+
 assert.match(preview,/const landscapeZones=\[/,'ecosystems must use contiguous georeferenced corridors');
 for(const zone of ['Norwegian fjord forests','Alpine valleys','Mediterranean hills'])
   assert.ok(preview.includes(zone),'Europe needs its authored geographic corridor: '+zone);
