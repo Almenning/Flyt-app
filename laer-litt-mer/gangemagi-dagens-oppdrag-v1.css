@@ -188,19 +188,22 @@
   box-shadow:0 0 24px 12px #ffd46d8c;pointer-events:none;
 }
 .gm-shell[data-gm-mode="mission"] .gm-crate:active{transform:scale(.97)}
+/* Filled berries form a centered cluster inside the illustrated basket.
+   Former fixed empty-slot grid pinned the very first fruit to the left edge,
+   making it look painted on the basket front instead of placed inside. */
 .gm-shell[data-gm-mode="mission"] .gm-fruit-bed{
-  position:absolute;z-index:2;top:39%;left:18%;width:64%;height:38%;max-width:none;
-  display:grid;grid-template-columns:repeat(var(--gm-cols),minmax(0,1fr));
-  gap:0;align-content:center;align-items:center;justify-items:center;overflow:visible;
+  position:absolute;z-index:2;top:35%;left:50%;width:70%;height:42%;max-width:none;
+  transform:translateX(-50%);
+  display:flex;flex-wrap:wrap;justify-content:center;align-content:center;align-items:center;
+  gap:0;overflow:visible;
 }
 .gm-shell[data-gm-mode="mission"] .gm-fruit{
-  width:clamp(13px,2.8vw,32px);height:clamp(16px,3.3vw,37px);max-width:100%;
-  filter:drop-shadow(0 1px 1px #543c30a3);
+  flex:0 0 min(25px,calc(100% / var(--gm-visible-cols)));
+  width:min(25px,calc(100% / var(--gm-visible-cols)));max-width:100%;
+  height:clamp(16px,3.3vw,37px);
+  filter:drop-shadow(0 2px 2px #543c30a3);
 }
-.gm-shell[data-gm-mode="mission"] .gm-fruit-empty{
-  width:clamp(10px,2vw,20px);height:clamp(12px,2.6vw,24px);
-  opacity:.22;border:2px dotted #fbdca0;background:transparent;filter:none;
-}
+.gm-shell[data-gm-mode="mission"] .gm-fruit-empty{display:none}
 .gm-shell[data-gm-mode="mission"] .gm-crate-front{
   position:absolute;left:12%;bottom:1%;right:12%;z-index:4;
   height:34px;min-width:0;padding:1px 4px;border:3px solid #b98c5c;
@@ -330,7 +333,7 @@
  .gm-shell[data-gm-mode="mission"] .gm-crates{padding-top:13px;gap:1px;max-width:100%}
  .gm-shell[data-gm-mode="mission"] .gm-crate-wrap{padding-bottom:14px}
  .gm-shell[data-gm-mode="mission"] .gm-crate{height:clamp(112px,34vw,155px);max-width:160px}
- .gm-shell[data-gm-mode="mission"] .gm-fruit-bed{top:39%;left:15%;width:70%;height:38%}
+ .gm-shell[data-gm-mode="mission"] .gm-fruit-bed{top:35%;left:50%;width:72%;height:42%}
  .gm-shell[data-gm-mode="mission"] .gm-fruit{width:clamp(14px,5vw,23px);height:clamp(17px,5.8vw,28px)}
  .gm-shell[data-gm-mode="mission"] .gm-fruit-empty{width:11px;height:14px}
  .gm-shell[data-gm-mode="mission"] .gm-crate-front{left:7%;right:7%;height:24px;border-width:2px;border-radius:9px;gap:3px}
