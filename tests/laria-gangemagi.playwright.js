@@ -331,7 +331,33 @@ async function check(engine,label,viewport,url){
   assert.ok(five.scrollWidth<=five.width+4&&five.tapWidths.every(n=>n>=44),
     label+' dense five-basket mission must fit width with 44px touch targets '+JSON.stringify(five));
   assert.deepEqual(five.labels,['Kurv 1','Kurv 2','Kurv 3','Kurv 4','Kurv 5']);
+  const mathsLayout=async()=>{
+    return await page.locator('.gm-math').evaluate(root=>{
+      const equation=root.querySelector('.gm-math-equation'),progress=root.querySelector('.gm-berry-progress');
+      const a=equation.getBoundingClientRect(),b=progress.getBoundingClientRect();
+      const overlap=a.left<b.right-1&&a.right>b.left+1&&a.top<b.bottom-1&&a.bottom>b.top+1;
+      return {overlap,textWidth:equation.scrollWidth,availableWidth:equation.clientWidth,
+        fontSize:parseFloat(getComputedStyle(equation).fontSize),
+        progressRight:b.right,panelRight:root.getBoundingClientRect().right};
+    });
+  };
+  if(viewport.width<700){
+    const m=await mathsLayout();
+    assert.equal(m.overlap,false,label+' live 5-group addition must NOT overlap berry progress '+JSON.stringify(m));
+    assert.ok(m.textWidth<=m.availableWidth+2&&m.fontSize>=17&&m.progressRight<=m.panelRight+2,
+      label+' five-basket maths must remain legible and within the panel '+JSON.stringify(m));
+  }
   await shot(page,label+'-05-five-basket-mission');
+  await page.locator('[data-gm-action="book"]').click();
+  await page.locator('[data-gm-action="select-mission"][data-index="6"]').click();
+  assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).groups,4);
+  if(viewport.width<700){
+    const m=await mathsLayout();
+    assert.equal(m.overlap,false,label+' 4×4 addition must not intersect visual strawberry progress '+JSON.stringify(m));
+    assert.ok(m.textWidth<=m.availableWidth+2&&m.fontSize>=17,
+      label+' 4×4 addition must stay complete and child-readable '+JSON.stringify(m));
+  }
+  await shot(page,label+'-06-four-basket-mission');
   await page.locator('[data-gm-action="book"]').click();
   await page.locator('[data-gm-action="select-mission"][data-index="0"]').click();
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).mission,0);
