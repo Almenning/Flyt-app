@@ -92,11 +92,16 @@ function loadNaturalEarthTrial(){
       // colour has no authority over the established Læria palette.
       const fine=boxBlur(brightness,4),broad=boxBlur(brightness,17);
       const hillshade=new Int8Array(total);
-      for(let i=0;i<total;i++)
+      const landMask=new Uint8Array(total);
+      for(let i=0;i<total;i++){
+        const k=i*4;
+        // Preserve the original ocean/coastline mismatch safeguard, but
+        // discard the large RGBA source after the shader is prepared.
+        landMask[i]=rgb[k]+rgb[k+1]+rgb[k+2]<751?1:0;
         hillshade[i]=Math.round(Math.max(-60,Math.min(60,
           (brightness[i]-fine[i])*2.6+(fine[i]-broad[i])*1.3)));
-      naturalEarthPixels={width:size,height:size,
-        bytes:rgb,hillshade};
+      }
+      naturalEarthPixels={width:size,height:size,landMask,hillshade};
       naturalEarthProcessingMs=Math.round(performance.now()-processingStarted);
       naturalEarthPreparationMs=Math.round(performance.now()-preparationStarted);
       naturalEarthStatus='ready';
@@ -574,12 +579,11 @@ function paintWorldTerrain(ctx,w,h,s,level,moving){
           const latitude=clamp(lat,-85,85)*terrainDegree;
           const mercatorY=(1-Math.asinh(Math.tan(latitude))/Math.PI)*.5;
           const ty=clamp(Math.floor(mercatorY*neSize),0,neSize-1);
-          const ix=(ty*neSize+tx)*4,ne=naturalEarthPixels.bytes;
-          const nr=ne[ix],ng=ne[ix+1],nb=ne[ix+2];
+          const sampleIndex=ty*neSize+tx;
           // The tile's water is flat white; retain the Læria land base if a
           // 50m/110m coastline mismatch lands on one of these source pixels.
-          if(nr+ng+nb<751){
-            trueReliefShade=naturalEarthPixels.hillshade[ty*neSize+tx];
+          if(naturalEarthPixels.landMask[sampleIndex]){
+            trueReliefShade=naturalEarthPixels.hillshade[sampleIndex];
             alpha=.93;
           }
         }
