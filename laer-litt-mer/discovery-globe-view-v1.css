@@ -71,6 +71,21 @@
 #world-screen.active.globe-v30[data-discovery-globe="painted-atlas-v1"] .discovery-continent-button{justify-self:start;min-height:44px;border:0;border-radius:999px;padding:10px 15px;background:#31756A;color:#FFFDF2;font:900 13px/1.1 system-ui,-apple-system,sans-serif;box-shadow:0 3px 0 #20564E;cursor:pointer;touch-action:manipulation}
 #world-screen.active.globe-v30[data-discovery-globe="painted-atlas-v1"] .discovery-continent-button:active{transform:translateY(2px);box-shadow:0 1px 0 #20564E}
 #world-screen.active.globe-v30[data-discovery-globe="painted-atlas-v1"] .discovery-intro-fox{width:100%;max-height:104px;object-fit:contain;object-position:bottom right;align-self:end;filter:drop-shadow(0 5px 4px rgba(52,43,27,.18))}
+/* Each real discovery receives one small reaction from the child's chosen
+   fox. No perpetual wiggle; the map remains the focus. */
+#world-screen.active.globe-v30[data-discovery-globe="painted-atlas-v1"] .discovery-fox-reacting{
+  transform-origin:55% 100%;
+  animation:laria-discovery-fox-found .65s cubic-bezier(.20,.72,.36,1) 1 both;
+}
+@keyframes laria-discovery-fox-found{
+  0%{transform:translateY(0) rotate(0deg)}
+  40%{transform:translateY(-7px) rotate(-4deg)}
+  75%{transform:translateY(-2px) rotate(2deg)}
+  100%{transform:translateY(0) rotate(0deg)}
+}
+@media(prefers-reduced-motion:reduce){
+  #world-screen.active.globe-v30[data-discovery-globe="painted-atlas-v1"] .discovery-fox-reacting{animation:none!important}
+}
 #world-screen.active.globe-v30[data-discovery-globe="painted-atlas-v1"] .discovery-country-companion{
   display:flex;align-items:center;gap:5px;margin-top:5px;color:#536B54;font-size:11px;line-height:1.18
 }
