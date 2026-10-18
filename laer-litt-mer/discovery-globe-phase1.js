@@ -723,6 +723,7 @@ function paintSmallCountries(ctx,w,h,s){
   }
 }
 function discoveryDraw(){
+  if(globeSelected)activeDiscoveryLocation=null;
   const canvas=document.getElementById('globe-canvas');if(!canvas?._cssW||!canvas?._cssH)return;
   const w=canvas._cssW,h=canvas._cssH,s=Math.min(w,h),dpr=canvas._dpr||1,ctx=canvas.getContext('2d');
   ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);ctx.save();ctx.beginPath();ctx.arc(w/2,h/2,s*.46,0,Math.PI*2);ctx.clip();
@@ -744,10 +745,13 @@ function discoveryDraw(){
   ctx.restore();
   const seaCount=paintLandmarks(ctx,w,h,s,level,moving,true);
   paintBorders(ctx,w,h,s);paintSmallCountries(ctx,w,h,s);
+  const discoveryLocationCount=paintDiscoveryLocation(ctx,w,h,s,moving);
   if(typeof drawGlobePulse==='function')drawGlobePulse(ctx,w,h);
   ctx.restore();
   screen.dataset.discoveryGlobeLevel=String(level);screen.dataset.discoveryGlobe='painted-atlas-v1';
   canvas.dataset.discoveryRenderer='live';canvas.dataset.discoveryTerrainField=String(fieldCount);canvas.dataset.discoveryEcosystems=String(biomeCount);canvas.dataset.discoveryRelief=String(reliefCount);canvas.dataset.discoveryTexture=String(textureCount);canvas.dataset.discoveryLandmarks=String(landmarkCount+terrainCount+reliefCount+textureCount+seaCount+biomeCount+fieldCount);canvas.dataset.discoveryMoving=String(moving);
+  canvas.dataset.discoveryLocationCount=String(discoveryLocationCount);
+  canvas.dataset.discoveryLocationName=discoveryLocationCount?activeDiscoveryLocation.title:'';
   canvas.dataset.discoveryPaintCount=String(Number(canvas.dataset.discoveryPaintCount||0)+1);
   // v25 can still seed the old Tsjad showcase after selecting Oppdag.
   // Reconcile after the card update has completed, not inside its draw call.
@@ -875,6 +879,27 @@ const discoveryContinentStories={
  }
 };
 const discoveryContinentVisits=new Map();
+let activeDiscoveryLocation=null;
+function paintDiscoveryLocation(ctx,w,h,s,moving){
+  if(moving||!activeDiscoveryLocation)return 0;
+  const {lon,lat}=activeDiscoveryLocation;
+  const p=project(lon,lat,w,h);
+  if(!p||p[2]<.10)return 0;
+  const r=clamp(s*.014,4.5,9);
+  // A single location highlight indicates what the child is discovering.
+  // It never changes the original country hit testing or land geometry.
+  ctx.save();
+  ctx.shadowColor='rgba(255,224,120,.72)';
+  ctx.shadowBlur=r*2;
+  ctx.beginPath();ctx.arc(p[0],p[1],r,0,Math.PI*2);
+  ctx.fillStyle='#D9913C';ctx.fill();
+  ctx.shadowBlur=0;
+  ctx.strokeStyle='#FFF7D5';ctx.lineWidth=Math.max(1.4,r*.30);ctx.stroke();
+  ctx.beginPath();ctx.arc(p[0],p[1],r*.32,0,Math.PI*2);
+  ctx.fillStyle='#FFFDF0';ctx.fill();
+  ctx.restore();
+  return 1;
+}
 function showContinentDiscovery(stop,box,button){
   if(window.__lariaDiscoveryGlobePreview!==true||globeSelected)return;
   const story=discoveryContinentStories[stop.name];
@@ -882,6 +907,9 @@ function showContinentDiscovery(stop,box,button){
   const visits=discoveryContinentVisits.get(stop.name)||0;
   const place=visits>0?story.places[(visits-1)%story.places.length]:null;
   const target=place||stop;
+  activeDiscoveryLocation=place?{
+    continent:stop.name,title:place.title,lon:place.lon,lat:place.lat
+  }:null;
   globeLon=target.lon;globeLat=target.lat;
   if(typeof setGlobeZoom==='function')setGlobeZoom(place?1.44:stop.zoom);
   else window.drawGlobe?.();
@@ -949,6 +977,8 @@ function renderDiscoveryWelcome(){
   if(window.__lariaDiscoveryGlobePreview!==true||globeSelected)return false;
   const box=document.getElementById('globe-status');if(!box)return false;
   const stop=discoveryContinentForCamera();
+  if(activeDiscoveryLocation&&activeDiscoveryLocation.continent!==stop.name)
+    activeDiscoveryLocation=null;
   // Idle checks must not rebuild the portrait or steal keyboard focus.
   if(box.classList.contains('discovery-continent-intro')&&
      box.dataset.discoveryContinent===stop.name&&box.querySelector('.discovery-intro-copy'))
@@ -1043,6 +1073,12 @@ const wait=()=>{
       ?'Dra for å snurre · knip for kontinentnivå'
       :copyNodes.hint.dataset.simpleCopy;
     if(!enabled){
+      activeDiscoveryLocation=null;
+      const displayCanvas=document.getElementById('globe-canvas');
+      if(displayCanvas){
+        displayCanvas.dataset.discoveryLocationCount='0';
+        delete displayCanvas.dataset.discoveryLocationName;
+      }
       const needsRestore=window.drawGlobe===discoveryDraw;
       if(needsRestore)restore();
       if(simpleViewState&&(!simpleViewRestored||desiredView==='simple')){
