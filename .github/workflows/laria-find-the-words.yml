@@ -1,0 +1,48 @@
+name: Laria Finn ordene WebKit
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'laer-litt-mer/find-the-words*'
+      - 'laer-litt-mer/laria-navigation-v13.*'
+      - 'laer-litt-mer/index.html'
+      - 'tests/laria-find-the-words.playwright.js'
+      - '.github/workflows/laria-find-the-words.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: laria-find-words-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  picture-hunt:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Install real WebKit and Chromium browsers
+        run: npx playwright install --with-deps chromium webkit
+      - name: Verify picture hunt on iPhone and iPad
+        env:
+          FIND_WORDS_SCREENSHOTS: /tmp/laria-find-words
+        run: |
+          node --check laer-litt-mer/find-the-words.js
+          node --check tests/laria-find-the-words.playwright.js
+          node tests/laria-find-the-words.playwright.js
+      - name: Preserve screenshot evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-find-words-${{ github.sha }}
+          path: /tmp/laria-find-words
+          if-no-files-found: warn
+          retention-days: 14
