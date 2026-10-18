@@ -167,6 +167,10 @@ async function verifyShortPhoneTapFlow(page,label){
   return {selected:globeSelected,scrollTop:screen.scrollTop,
    scrollHeight:screen.scrollHeight,clientHeight:screen.clientHeight,
    pointer:window.__shortPhoneQAEvent||null,
+   scrollTrace:screen.dataset.discoveryScrollAttempt||null,
+   pointerTrace:screen.dataset.discoveryLastPointer||null,
+   media:matchMedia('(orientation:portrait) and (max-width:350px) and (max-height:700px)').matches,
+   overflow: getComputedStyle(screen).overflowY,
    search:document.getElementById('globe-status').innerText.slice(0,140)};
  });
  console.log('SHORT PHONE TAP',label,JSON.stringify({setup,observed}));
