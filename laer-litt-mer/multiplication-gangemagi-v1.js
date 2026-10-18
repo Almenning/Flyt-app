@@ -62,8 +62,9 @@
  function crate(i){
    const count=state.counts[i],missing=state.each-count;
    const chosen=state.mode==='mission'&&selectedGroup===i;
-   const interaction=state.mode==='mission'?'Velg denne kurven.':(missing?'Trykk for å legge i et jordbær.':'Kurven er full.');
-   return '<div class="gm-crate-wrap"><button type="button" class="gm-crate '+(!missing?'gm-crate-full ':'')+(chosen?'gm-crate-selected':'')+'" data-gm-action="basket" data-gm-basket="'+i+'" data-gm-count="'+count+'" data-gm-selected="'+chosen+'" aria-pressed="'+chosen+'" aria-label="Kurv '+(i+1)+': '+count+' av '+state.each+'. '+interaction+'">'+
+   const invite=state.mode==='mission'&&selectedGroup===null&&missing>0&&!E.filled(state);
+   const interaction=state.mode==='mission'?(chosen?'Denne kurven er valgt. Trykk på Plukk et jordbær.':missing?'Trykk her for å velge kurven.':'Denne kurven er full. Velg en annen.'):(missing?'Trykk for å legge i et jordbær.':'Kurven er full.');
+   return '<div class="gm-crate-wrap"><button type="button" class="gm-crate '+(!missing?'gm-crate-full ':'')+(chosen?'gm-crate-selected ':'')+(invite?'gm-crate-invite':'')+'" data-gm-action="basket" data-gm-basket="'+i+'" data-gm-count="'+count+'" data-gm-selected="'+chosen+'" aria-pressed="'+chosen+'" aria-label="Kurv '+(i+1)+': '+count+' av '+state.each+'. '+interaction+'">'+
       (state.mode==='mission'?'<img class="gm-basket-illustration" alt="" aria-hidden="true" src="gangemagi-basket-premium.svg">':'<span class="gm-crate-handle" aria-hidden="true"></span><span class="gm-crate-caption">Kurv '+(i+1)+'</span>')+
       '<span class="gm-fruit-bed" aria-hidden="true" style="--gm-visible-cols:'+Math.max(1,Math.min(count,5))+'">'+fruit(count,state.mode==='mission'?0:missing)+'</span>'+
       '<span class="gm-crate-front" aria-hidden="true">'+(state.mode==='mission'?'<span class="gm-crate-caption">Kurv '+(i+1)+'</span>':'')+'<span class="gm-crate-tag">'+count+' / '+state.each+'</span></span>'+
@@ -314,6 +315,7 @@
        const previous=undo.pop();
        // A collected blossom stays earned even if the child experiments or undoes.
        state=E.normalize({...previous,wins:[...new Set([...previous.wins,...state.wins])]});
+       selectedGroup=null; // Undo must not retain a stale target basket.
        save();hintStep=0;notice='';foxMood='curious';lastAction='';lastGroup=-1;render();
      }
      return;
