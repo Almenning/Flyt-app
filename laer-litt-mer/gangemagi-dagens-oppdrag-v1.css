@@ -380,6 +380,44 @@
  .gm-shell[data-gm-mode="mission"] .gm-crate{height:155px}
  .gm-shell[data-gm-mode="mission"] .gm-math{min-height:70px}
 }
+/* Landscape tablet stage: true use of the wide canvas, not a stacked giant phone.
+   Fox and interactive baskets form one horizontal market row beneath the
+   locked wooden quest board; math and primary action remain in first view. */
+@media(min-width:900px) and (max-height:900px){
+ .gm-shell[data-gm-mode="mission"] .gm-top{min-height:60px;margin-bottom:0}
+ .gm-shell[data-gm-mode="mission"] .gm-story.gm-quest{padding-top:7px;padding-bottom:8px}
+ .gm-shell[data-gm-mode="mission"] .gm-story.gm-quest h2.gm-quest-callout{
+   margin:3px auto 6px;font-size:clamp(26px,3.4vw,39px)
+ }
+ .gm-shell[data-gm-mode="mission"] .gm-quest-step{min-height:69px;padding:3px 7px}
+ .gm-shell[data-gm-mode="mission"] .gm-quest-icon{height:36px}
+ .gm-shell[data-gm-mode="mission"] .gm-quest-icon>svg{height:36px}
+ .gm-shell[data-gm-mode="mission"] .gm-scene{
+   display:grid;grid-template-columns:190px minmax(0,1fr);
+   gap:12px;align-items:center;margin:4px 18px 0;
+ }
+ .gm-shell[data-gm-mode="mission"] .gm-fox{
+   display:grid;grid-template-columns:1fr;justify-items:center;
+   align-self:center;min-width:0;width:100%;gap:0;margin:0;padding:0;
+ }
+ .gm-shell[data-gm-mode="mission"] .gm-fox-art{width:120px;height:133px}
+ .gm-shell[data-gm-mode="mission"] .gm-fox-bubble{
+   width:185px;max-width:100%;min-height:54px;margin:-12px 0 0;
+   padding:5px 7px;grid-template-columns:minmax(0,1fr) 44px;
+ }
+ .gm-shell[data-gm-mode="mission"] .gm-fox-message{font-size:11px}
+ .gm-shell[data-gm-mode="mission"] .gm-market{min-width:0;margin:0;align-self:center}
+ .gm-shell[data-gm-mode="mission"] .gm-market-sign{margin:0 auto -7px;padding:5px 16px}
+ .gm-shell[data-gm-mode="mission"] .gm-crates{padding:10px 4px 0;gap:8px}
+ .gm-shell[data-gm-mode="mission"] .gm-crate{height:148px;max-width:225px}
+ .gm-shell[data-gm-mode="mission"] .gm-play-hint{margin:0 auto}
+ .gm-shell[data-gm-mode="mission"] .gm-math{
+   margin:3px auto 3px;padding:6px 13px;min-height:66px;
+ }
+ .gm-shell[data-gm-mode="mission"] .gm-actions{margin-top:7px}
+ .gm-shell[data-gm-mode="mission"] .gm-pick,.gm-shell[data-gm-mode="mission"] .gm-tool{min-height:61px}
+ .gm-shell[data-gm-mode="mission"] .gm-secondary-nav{margin-top:7px}
+}
 @media(prefers-reduced-motion:reduce){
  .gm-shell[data-gm-mode="mission"] .gm-crate,
  .gm-shell[data-gm-mode="mission"] .gm-basket-illustration{animation:none;transition:none}
