@@ -10,7 +10,7 @@
  const KEY='laria-gangemagi-v1';
  const originalOpen=window.openMultiplicationLab;
  let state=load(),undo=[],hintStep=0,notice='',suppressClickUntil=0,drag=null;
- let foxMood='curious',lastAction='',lastGroup=-1;
+ let foxMood='curious',lastAction='',lastGroup=-1,justAddedGroup=-1;
  let returnToMath=false,bookOpen=false;
  let selectedGroup=null; // transient UI selection, no changes to stored schema.
  const esc=x=>String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -68,7 +68,7 @@
    const interaction=state.mode==='mission'?(chosen?'Denne kurven er valgt. Trykk på Plukk et jordbær.':missing?'Trykk her for å velge kurven.':'Denne kurven er full. Velg en annen.'):(missing?'Trykk for å legge i et jordbær.':'Kurven er full.');
    return '<div class="gm-crate-wrap"><button type="button" class="gm-crate '+(!missing?'gm-crate-full ':'')+(chosen?'gm-crate-selected ':'')+(invite?'gm-crate-invite':'')+'" data-gm-action="basket" data-gm-basket="'+i+'" data-gm-count="'+count+'" data-gm-selected="'+chosen+'" aria-pressed="'+chosen+'" aria-label="Kurv '+(i+1)+': '+count+' av '+state.each+'. '+interaction+'">'+
       (state.mode==='mission'?'<img class="gm-basket-illustration" alt="" aria-hidden="true" src="gangemagi-basket-locked-illustration.svg">':'<span class="gm-crate-handle" aria-hidden="true"></span><span class="gm-crate-caption">Kurv '+(i+1)+'</span>')+
-      '<span class="gm-fruit-bed" aria-hidden="true" style="--gm-visible-cols:'+Math.max(1,Math.min(count,5))+'">'+fruit(count,state.mode==='mission'?0:missing,lastAction==='add'&&lastGroup===i)+'</span>'+
+      '<span class="gm-fruit-bed" aria-hidden="true" style="--gm-visible-cols:'+Math.max(1,Math.min(count,5))+'">'+fruit(count,state.mode==='mission'?0:missing,justAddedGroup===i)+'</span>'+
       '<span class="gm-crate-front" aria-hidden="true">'+(state.mode==='mission'?'<span class="gm-crate-caption">Kurv '+(i+1)+'</span>':'')+'<span class="gm-crate-tag">'+count+' / '+state.each+'</span></span>'+
       '</button><button type="button" class="gm-remove" data-gm-action="remove" data-group="'+i+'" aria-label="Ta ett jordbær ut av kurv '+(i+1)+'" '+(!count?'disabled':'')+'><span aria-hidden="true">−</span></button></div>';
  }
@@ -175,6 +175,9 @@
      const old=Array.from(root.querySelectorAll('button[data-gm-action]')).find(el=>el.dataset.gmAction===focusKey.action&&(el.dataset.group||'')===(focusKey.group||'')&&(el.dataset.gmBasket||'')===(focusKey.basket||''));
      if(old&&!old.disabled)try{old.focus({preventScroll:true});}catch(_){}
    }
+   // Animation is a one-render signal, not persistent gameplay state.
+   // Hint, speech and other re-renders must not replay the previous berry pop.
+   justAddedGroup=-1;
  }
  function bookFoxMessage(){
    const n=state.wins.length;
@@ -235,6 +238,7 @@
        &&state.counts[action.group]===state.each&&!E.filled(state))selectedGroup=null;
    lastAction=action.type;
    lastGroup=action.group!==undefined&&Number.isInteger(Number(action.group))?Number(action.group):-1;
+   justAddedGroup=action.type==='add'?lastGroup:-1;
    foxMood=E.filled(state)?'celebrate':action.type==='add'?'cheer':action.type==='remove'?'think':'curious';
    save();render();
    if(!wasComplete&&E.filled(state))celebrate();
