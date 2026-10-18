@@ -21,6 +21,9 @@ window.__lariaDiscoveryGlobePreview=false;
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
 const project=(lon,lat,w,h)=>window.globeProject(lon,lat,w,h);
 const land=()=>typeof WORLD_COUNTRIES==='undefined'?[]:WORLD_COUNTRIES;
+// Natural Earth Antarctica is intentionally excluded from shared country data.
+const antarcticaGeo=window.LARIA_ANTARCTICA_GEOMETRY||null;
+const antarcticaOutline=antarcticaGeo?{geometry:antarcticaGeo}:null;
 const path=(ctx,c,w,h)=>{
   if(!c?.geometry||typeof geometryPolygons!=='function'||typeof drawProjectedLine!=='function')return false;
   for(const poly of geometryPolygons(c.geometry))for(const ring of poly)drawProjectedLine(ctx,ring,w,h);
@@ -171,6 +174,42 @@ function paintLandBase(ctx,w,h,s){
   }
   ctx.save();if(!landClip(ctx,w,h)){ctx.restore();return;}
   const sun=ctx.createRadialGradient(w*.33,h*.22,0,w*.50,h*.50,s*.52);sun.addColorStop(0,'rgba(255,249,211,.34)');sun.addColorStop(.62,'rgba(255,244,194,.04)');sun.addColorStop(1,'rgba(38,81,57,.12)');ctx.fillStyle=sun;ctx.fillRect(0,0,w,h);ctx.restore();
+}
+/* A real Antarctic coastline is painted only by Oppdag. Land polygons and
+   clickable countries in the existing Enkel/Atlas engines are never changed.
+   Ice pigment is illustrative; coast contours are from Natural Earth 1:110m. */
+function paintAntarcticIce(ctx,w,h,s){
+  if(!antarcticaOutline||globeLat>26)return 0;
+  ctx.save();
+  ctx.beginPath();
+  if(!path(ctx,antarcticaOutline,w,h)){ctx.restore();return 0;}
+  const ice=ctx.createRadialGradient(w*.34,h*.29,s*.03,w*.55,h*.55,s*.66);
+  ice.addColorStop(0,'#FCFDF2');ice.addColorStop(.45,'#E4F0E9');
+  ice.addColorStop(.79,'#C8E2DE');ice.addColorStop(1,'#96BCC5');
+  ctx.fillStyle=ice;ctx.fill();
+  ctx.clip();
+  // Subtle geographically anchored snow/ice-shadow bands, not arbitrary
+  // continent-shaped decorative stamps.
+  const iceRoutes=[
+    [[-69,-66],[-61,-69],[-58,-73],[-50,-77]],
+    [[-151,-76],[-141,-79],[-132,-82],[-122,-84]],
+    [[112,-66],[111,-70],[107,-75],[99,-80]],
+    [[157,-74],[162,-78],[166,-81],[171,-84]]
+  ];
+  for(const route of iceRoutes){
+    if(!smoothGeoStroke(ctx,route,w,h,s))continue;
+    ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
+    ctx.strokeStyle='rgba(91,150,165,.21)';
+    ctx.lineWidth=Math.max(2,s*.010);ctx.stroke();
+    ctx.strokeStyle='rgba(254,254,237,.64)';
+    ctx.lineWidth=Math.max(1,s*.0036);ctx.stroke();
+    ctx.restore();
+  }
+  ctx.restore();
+  ctx.save();ctx.beginPath();path(ctx,antarcticaOutline,w,h);
+  ctx.strokeStyle='rgba(248,253,241,.81)';ctx.lineWidth=Math.max(.9,s*.002);ctx.stroke();
+  ctx.restore();
+  return 1;
 }
 const colorAlpha=(hex,a)=>{
   const n=parseInt(hex.slice(1),16);
@@ -754,6 +793,7 @@ function discoveryDraw(){
   const terrainCount=0;
   const landmarkCount=0;
   ctx.restore();
+  const polarCount=paintAntarcticIce(ctx,w,h,s);
   const seaCount=paintLandmarks(ctx,w,h,s,level,moving,true);
   paintBorders(ctx,w,h,s);paintSmallCountries(ctx,w,h,s);
   const discoveryLocationCount=paintDiscoveryLocation(ctx,w,h,s,moving);
@@ -763,6 +803,7 @@ function discoveryDraw(){
   canvas.dataset.discoveryRenderer='live';canvas.dataset.discoveryTerrainField=String(fieldCount);canvas.dataset.discoveryEcosystems=String(biomeCount);canvas.dataset.discoveryRelief=String(reliefCount);canvas.dataset.discoveryTexture=String(textureCount);canvas.dataset.discoveryLandmarks=String(landmarkCount+terrainCount+reliefCount+textureCount+seaCount+biomeCount+fieldCount);canvas.dataset.discoveryMoving=String(moving);
   canvas.dataset.discoveryLocationCount=String(discoveryLocationCount);
   canvas.dataset.discoveryLocationName=discoveryLocationCount?activeDiscoveryLocation.title:'';
+  canvas.dataset.discoveryAntarcticLand=String(polarCount);
   canvas.dataset.discoveryPaintCount=String(Number(canvas.dataset.discoveryPaintCount||0)+1);
   // v25 can still seed the old Tsjad showcase after selecting Oppdag.
   // Reconcile after the card update has completed, not inside its draw call.
