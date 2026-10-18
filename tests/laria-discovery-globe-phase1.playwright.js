@@ -257,9 +257,9 @@ async function verifyContinentInvitation(page,label){
    label+' there is no child-friendly continuation after entering '+stop.name);
   assert.ok((await page.locator('.discovery-intro-teaser').innerText()).length>=28,
    label+' continent intro has no educational discovery: '+stop.name);
-  assert.equal(await page.locator('.discovery-intro-fox').getAttribute('class'),
-   'discovery-intro-fox discovery-fox-reacting',
-   label+' selected fox did not celebrate the discovery');
+  await page.waitForFunction(()=>{
+    return document.querySelector('.discovery-intro-fox')?.classList.contains('discovery-fox-reacting');
+   },null,{timeout:3000});
   // Test a real second discovery with its geographic location; the invitation
   // is optional, can be repeated, and must never mark a school task complete.
   if(label==='webkit-ipad-landscape'||label==='webkit-iphone-portrait'){
