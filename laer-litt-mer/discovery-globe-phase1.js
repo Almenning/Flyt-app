@@ -165,15 +165,31 @@ function ocean(ctx,w,h,s){
   ctx.restore();
 }
 function paintLandBase(ctx,w,h,s){
-  for(const c of land()){
-    if(!c.geometry)continue;const base='#84A87A';
-    const g=ctx.createLinearGradient(w*.25,h*.12,w*.78,h*.88);
-    g.addColorStop(0,mix(base,'#FFF7D8',.30));g.addColorStop(.50,base);g.addColorStop(1,mix(base,'#264E47',.25));
-    ctx.save();ctx.shadowColor='rgba(29,54,48,.30)';ctx.shadowBlur=Math.max(3,s*.009);ctx.shadowOffsetY=Math.max(1,s*.003);
-    ctx.beginPath();if(path(ctx,c,w,h)){ctx.fillStyle=g;ctx.fill();}ctx.restore();
-  }
+  // Countries are separate geographic hit targets, but the child should see
+  // ONE living continent. A per-country shadow made every nation look like a
+  // raised puzzle tile. Fill all authoritative polygons as a single shape,
+  // apply one soft shoreline shadow, then let the existing borders overlay.
+  ctx.save();
+  ctx.beginPath();let joined=false;
+  for(const c of land())if(c.geometry)joined=path(ctx,c,w,h)||joined;
+  if(!joined){ctx.restore();return;}
+  const base='#84A87A';
+  const g=ctx.createLinearGradient(w*.25,h*.12,w*.78,h*.88);
+  g.addColorStop(0,mix(base,'#FFF7D8',.30));
+  g.addColorStop(.50,base);
+  g.addColorStop(1,mix(base,'#264E47',.25));
+  ctx.fillStyle=g;
+  ctx.shadowColor='rgba(29,54,48,.25)';
+  ctx.shadowBlur=Math.max(3,s*.009);
+  ctx.shadowOffsetY=Math.max(1,s*.003);
+  ctx.fill();
+  ctx.restore();
   ctx.save();if(!landClip(ctx,w,h)){ctx.restore();return;}
-  const sun=ctx.createRadialGradient(w*.33,h*.22,0,w*.50,h*.50,s*.52);sun.addColorStop(0,'rgba(255,249,211,.34)');sun.addColorStop(.62,'rgba(255,244,194,.04)');sun.addColorStop(1,'rgba(38,81,57,.12)');ctx.fillStyle=sun;ctx.fillRect(0,0,w,h);ctx.restore();
+  const sun=ctx.createRadialGradient(w*.33,h*.22,0,w*.50,h*.50,s*.52);
+  sun.addColorStop(0,'rgba(255,249,211,.34)');
+  sun.addColorStop(.62,'rgba(255,244,194,.04)');
+  sun.addColorStop(1,'rgba(38,81,57,.12)');
+  ctx.fillStyle=sun;ctx.fillRect(0,0,w,h);ctx.restore();
 }
 /* A real Antarctic coastline is painted only by Oppdag. Land polygons and
    clickable countries in the existing Enkel/Atlas engines are never changed.
