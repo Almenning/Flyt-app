@@ -143,6 +143,39 @@ async function verifyOffscreenCountryCard(page,label){
 }
 /* A continent-first experience must follow where the child actually spins.
    Verify all six story cards and their real camera destinations in WebKit. */
+async function verifyShortPhoneTapFlow(page,label){
+ const setup=await page.evaluate(()=>{
+  const screen=document.getElementById('world-screen');
+  screen.scrollTop=0;globeLon=2;globeLat=47;globeSelected=null;setGlobeZoom(1.25);
+  const canvas=document.getElementById('globe-canvas');
+  const point=globeProject(2,47,canvas._cssW,canvas._cssH);
+  const rect=canvas.getBoundingClientRect();
+  return {overflow:screen.scrollHeight-screen.clientHeight,
+   x:rect.left+point[0],y:rect.top+point[1]};
+ });
+ assert.ok(setup.overflow>20,label+' short-screen layout no longer exposes a scrollable country panel');
+ await page.mouse.click(setup.x,setup.y);
+ await page.waitForFunction(()=>{
+  const screen=document.getElementById('world-screen');
+  return globeSelected==='fr'&&screen.scrollTop>20;
+ },null,{timeout:7000});
+ await page.waitForTimeout(520);
+ const frame=await page.evaluate(()=>{
+  const screen=document.getElementById('world-screen');
+  const card=document.getElementById('globe-status').getBoundingClientRect();
+  const actions=document.querySelector('#world-screen .globe-actions').getBoundingClientRect();
+  return {scrollTop:screen.scrollTop,cardTop:card.top,cardBottom:card.bottom,
+   actionsBottom:actions.bottom,viewport:window.innerHeight};
+ });
+ assert.ok(frame.cardTop>=-1&&frame.cardBottom<=frame.viewport+2,
+  label+' tapped country card is still clipped: '+JSON.stringify(frame));
+ assert.ok(frame.actionsBottom<=frame.viewport+2,
+  label+' actions cannot be reached after child tap: '+JSON.stringify(frame));
+ await page.screenshot({path:path.join(out,label+'-discovery-tap-card.png'),
+  fullPage:false,animations:'disabled'});
+ await page.evaluate(()=>{document.getElementById('world-screen').scrollTop=0;});
+}
+
 async function verifyContinentInvitation(page,label){
  const stops=[
   {name:'Europa',lon:13,lat:53,zoom:1.38},
@@ -318,6 +351,8 @@ async function runDevice(engine,label,viewport,urls){
        console.error('DISCOVERY BOOT DIAGNOSTIC',label,JSON.stringify(diagnostic),errors);
        throw error;
      }
+     if(label==='webkit-iphone-small-portrait')
+       await verifyShortPhoneTapFlow(discovery.page,label);
      if(label==='webkit-ipad-landscape'||label==='webkit-iphone-portrait')
        await verifyContinentInvitation(discovery.page,label);
      // A real country replaces the invitation, including its two-column CSS.
