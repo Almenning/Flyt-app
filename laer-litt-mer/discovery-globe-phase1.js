@@ -11,6 +11,10 @@
 const forcedPreview=new URLSearchParams(location.search).has('discovery-globe-preview');
 // Separate, opt-in art experiment. The default Oppdag renderer is unchanged.
 const trialNaturalRelief=new URLSearchParams(location.search).get('discovery-relief')==='nasa';
+// Second visual experiment: coordinates remain real, but broad, irregular
+// lit slopes and snow shelves replace satellite hues and tiny ridge ticks.
+// Default Oppdag and Enkel ignore this flag completely.
+const trialCarvedRelief=new URLSearchParams(location.search).get('discovery-art')==='carved';
 let naturalReliefPixels=null, naturalReliefStatus=trialNaturalRelief?'loading':'disabled';
 function loadNaturalReliefTrial(){
   if(!trialNaturalRelief)return;
@@ -331,6 +335,7 @@ const terrainSamples=(features,step)=>features.flatMap((feature,z)=>{
 });
 let terrainBiomeAnchors=null;
 let terrainRidgeAnchors=null;
+let terrainCarvedRidgeAnchors=null;
 const terrainTint={
   rainforest:[18,85,54],forest:[45,106,70],desert:[230,180,107],
   savanna:[163,159,88],tundra:[156,181,165],ice:[225,243,232]
@@ -381,6 +386,8 @@ function paintWorldTerrain(ctx,w,h,s,level,moving){
   if(moving||typeof globeInverse!=='function')return 0;
   if(!terrainBiomeAnchors)terrainBiomeAnchors=terrainLatitudeIndex(terrainSamples(landscapeZones,6),19);
   if(!terrainRidgeAnchors)terrainRidgeAnchors=terrainLatitudeIndex(terrainSamples(mountainChains,4.8),6);
+  if(trialCarvedRelief&&!terrainCarvedRidgeAnchors)
+    terrainCarvedRidgeAnchors=terrainLatitudeIndex(terrainSamples(mountainChains,3.5),13);
   const key=[Math.round(globeLon*200)/200,Math.round(globeLat*200)/200,
     Math.round(globeZoom*200)/200,Math.round(s),level].join('|');
   if(!terrainFieldCache||terrainFieldCache.key!==key){
@@ -407,7 +414,9 @@ function paintWorldTerrain(ctx,w,h,s,level,moving){
         if(!loc||!Number.isFinite(loc.lon)||!Number.isFinite(loc.lat))continue;
         const lon=loc.lon,lat=loc.lat;
         const biome=nearestTerrain(lon,lat,terrainBiomeAnchors,19);
-        const ridge=nearestTerrain(lon,lat,terrainRidgeAnchors,6);
+        const ridge=trialCarvedRelief?
+          nearestTerrain(lon,lat,terrainCarvedRidgeAnchors,13):
+          nearestTerrain(lon,lat,terrainRidgeAnchors,6);
         const bp=biome.point,rp=ridge.point;
         const warmth=terrainNoise(lon,lat,.18,2)-.5;
         const fine=terrainNoise(lon,lat,level===1?.48:.96,7)-.5;
@@ -416,7 +425,17 @@ function paintWorldTerrain(ctx,w,h,s,level,moving){
         const canopy=terrainNoise(lon,lat,level===1?1.1:level===2?3.5:7.5,29)-.5;
         const shade=(warmth*.33+fine*.26+micro*.16+canopy*.25)*145;
         const biomeReach=bp?Math.max(0,1-biome.distance/Math.max(1.7,bp.width*.69)):0;
-        const mountainReach=rp?Math.max(0,1-ridge.distance/Math.max(1,rp.width*1.35)):0;
+        // The illustrated option forms irregular mountain *areas* rather
+        // than a narrow highlighted line. Wavy geographic noise softens the
+        // bounds without inventing peaks in the wrong continent.
+        const ridgeRadius=rp?clamp(rp.width*2.9,4.5,10.7):1;
+        const boundaryWarp=trialCarvedRelief&&rp?
+          (terrainNoise(lon,lat,.39,83)-.5)*2.4+
+          (terrainNoise(lon+.14,lat-.2,1.05,89)-.5)*.76:0;
+        const broadReach=rp?clamp(1-(ridge.distance+boundaryWarp)/ridgeRadius,0,1):0;
+        const mountainReach=trialCarvedRelief?
+          broadReach*broadReach*(3-2*broadReach):
+          rp?Math.max(0,1-ridge.distance/Math.max(1,rp.width*1.35)):0;
         const mountainCut=Math.max(0,(terrainNoise(lon,lat,1.15,23)-.34)*mountainReach);
         const tint=bp?terrainTint[bp.kind]:null;
         // The base polygon's established light and colour always remain
@@ -461,7 +480,31 @@ function paintWorldTerrain(ctx,w,h,s,level,moving){
           green=green*(1-mixAmount)+(source[ix+1]*.96+15)*mixAmount;
           blue=blue*(1-mixAmount)+(source[ix+2]*.82+18)*mixAmount;
         }
-        if(mountainReach>.06&&rp){
+        if(trialCarvedRelief&&rp&&mountainReach>.012){
+          // Layered gouache: softly modelled western shadow, sunlit eastern
+          // slope and snow shelves. Draw across a geographic mountain area,
+          // not the full line geometry or a tiled array of peak icons.
+          const east=((((lon-rp.lon)+540)%360)-180)*
+            Math.max(.28,Math.cos(lat*terrainDegree));
+          const south=lat-rp.lat;
+          const lit=clamp((-east*.82+south*.57)/ridgeRadius,-1,1);
+          const facets=(terrainNoise(lon,lat,level===1?.69:1.29,97)-.5)*2;
+          const incisions=(terrainNoise(lon+.21,lat-.16,level===1?2.1:4.1,103)-.5)*2;
+          const strength=mountainReach*.76;
+          const rock=rp.snow?[107,123,114]:[131,116,84];
+          const shadow=mountainReach*(lit*82+facets*23+incisions*11);
+          red=red*(1-strength)+rock[0]*strength+shadow*.79;
+          green=green*(1-strength)+rock[1]*strength+shadow;
+          blue=blue*(1-strength)+rock[2]*strength+shadow*.80;
+          if(rp.snow){
+            const irregular=terrainNoise(lon+.08,lat,1.75,111)-.5;
+            const snow=clamp((mountainReach-.44+irregular*.28)*1.9,0,.73);
+            red=red*(1-snow)+248*snow;
+            green=green*(1-snow)+244*snow;
+            blue=blue*(1-snow)+221*snow;
+          }
+        }
+        if(!trialCarvedRelief&&mountainReach>.06&&rp){
           /* Rock and snow belong to a continuous corridor around each
              georeferenced mountain spine. Spatial noise forms lit/shaded
              facets; these are material pigments, not peak-shaped stamps. */
@@ -510,7 +553,14 @@ function paintBorders(ctx,w,h,s){
     if(!c.geometry)continue;ctx.beginPath();if(!path(ctx,c,w,h))continue;
     const selected=c.id===globeSelected;
     if(selected){ctx.save();ctx.fillStyle='rgba(255,224,137,.13)';ctx.shadowColor='rgba(255,188,36,.22)';ctx.shadowBlur=Math.max(8,s*.014);ctx.fill();ctx.restore();}
-    ctx.strokeStyle=selected?'rgba(255,253,225,.98)':`rgba(255,250,226,${globeZoom>2.4?.48:.29})`;ctx.lineWidth=selected?Math.max(1.7,s*.003):Math.max(.55,s*.0011);ctx.stroke();
+    // An exploration globe should reveal physical landscapes first;
+    // political borders return clearly at closer zoom and on country tap.
+    const borderAlpha=trialCarvedRelief?(globeZoom<1.7?.09:globeZoom<2.5?.19:.42):
+      globeZoom>2.4?.48:.29;
+    ctx.strokeStyle=selected?'rgba(255,253,225,.98)':
+      'rgba(255,250,226,'+borderAlpha+')';
+    ctx.lineWidth=selected?Math.max(1.7,s*.003):Math.max(.55,s*.0011);
+    ctx.stroke();
   }
 }
 /* Real-world mountain corridors in approximate geographic order.
@@ -554,6 +604,9 @@ function paintMountainCrests(ctx,chain,w,h,s,level,width){
   /* A few continent-defining mountain ranges stay legible at overview
      scale. Smaller ranges still wait until regional zoom; no icon stamps. */
   const continentHero=continentCrestChains.has(chain.name);
+  // The area-based painting owns the relief at this zoom. Tiny repeated
+  // ridge glyphs would undermine it, and were rejected in earlier art QA.
+  if(trialCarvedRelief&&level<=2)return 0;
   if(level<2&&!continentHero)return 0;
   let drawn=0;
   for(let j=0;j<chain.route.length-1;j++){
@@ -877,6 +930,7 @@ function discoveryDraw(){
   canvas.dataset.discoveryLocationName=discoveryLocationCount?activeDiscoveryLocation.title:'';
   canvas.dataset.discoveryAntarcticLand=String(polarCount);
   canvas.dataset.discoveryNaturalRelief=naturalReliefStatus;
+  canvas.dataset.discoveryCarvedRelief=String(trialCarvedRelief);
   canvas.dataset.discoveryPaintCount=String(Number(canvas.dataset.discoveryPaintCount||0)+1);
   // v25 can still seed the old Tsjad showcase after selecting Oppdag.
   // Reconcile after the card update has completed, not inside its draw call.
