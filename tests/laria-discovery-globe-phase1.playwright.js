@@ -622,11 +622,15 @@ async function runDevice(engine,label,viewport,urls){
          return window.__lariaDiscoveryGlobePreview===true&&
            c?.dataset.discoveryNaturalEarth==='ready';
        },null,{timeout:20000});
-       const preparation=await trial.page.locator('#globe-canvas').evaluate(c=>
-         Number(c.dataset.discoveryNaturalEarthPreparationMs||0));
-       assert.ok(preparation>0&&preparation<10000,
-         label+' Natural Earth initial load/processing is outside the 10 s QA budget: '+preparation);
-       console.log('NE PREPARATION PERF',label,preparation+'ms');
+       const startup=await trial.page.locator('#globe-canvas').evaluate(c=>({
+         ms:Number(c.dataset.discoveryNaturalEarthPreparationMs||0),
+         sourcePx:Number(c.dataset.discoveryNaturalEarthSourcePx||0)
+       }));
+       assert.equal(startup.sourcePx,768,
+         label+' relief should use the 768px memory-conscious mosaic');
+       assert.ok(startup.ms>0&&startup.ms<3500,
+         label+' Natural Earth preparation exceeded the 3.5 s browser budget: '+JSON.stringify(startup));
+       console.log('NE PREPARATION PERF',label,startup.ms+'ms',startup.sourcePx+'px source');
        for(const pose of [
         {name:'afrika',lon:19,lat:3},
         {name:'himalaya',lon:85,lat:30},
