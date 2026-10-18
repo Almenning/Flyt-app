@@ -21,6 +21,24 @@
 #globe-view-toggle button:focus-visible{
   outline:3px solid #F0A841;outline-offset:3px
 }
+/* Oppdag has one visual hero: the rotating painted world.  The existing
+   basecamp art stays present, but retreats into an atmospheric frame instead
+   of competing with the countries and terrain.  This is intentionally scoped
+   to the new renderer; Enkel keeps its approved scene byte-for-byte. */
+#world-screen.active.globe-v30[data-discovery-globe="painted-atlas-v1"]::before{
+  background:
+    radial-gradient(circle at 50% 50%,rgba(255,255,244,0) 0 32%,rgba(244,237,209,.18) 59%,rgba(20,54,47,.25) 100%),
+    linear-gradient(180deg,rgba(255,248,222,.18),rgba(28,68,52,.20))!important;
+}
+#world-screen.active.globe-v30[data-discovery-globe="painted-atlas-v1"]::after{
+  background:linear-gradient(180deg,rgba(31,69,50,0),rgba(27,61,46,.22))!important;
+}
+#world-screen.active.globe-v30[data-discovery-globe="painted-atlas-v1"] .globe-wrap{
+  filter:drop-shadow(0 23px 29px rgba(18,45,38,.31))!important;
+}
+#world-screen.active.globe-v30[data-discovery-globe="painted-atlas-v1"] #globe-canvas{
+  filter:saturate(1.08) contrast(1.035) drop-shadow(0 12px 19px rgba(18,51,48,.19))!important;
+}
 /* Portrait has a dedicated space between the globe and the country card.
    Do not place the view selector under the existing top geography mode bar. */
 @media(orientation:portrait) and (min-height:501px){
