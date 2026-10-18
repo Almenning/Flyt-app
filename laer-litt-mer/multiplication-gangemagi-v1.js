@@ -37,11 +37,11 @@
    if(E.filled(state))return state.mode==='mission'?E.MISSIONS[state.mission].celebrate:
      'Du laget '+state.groups+' like grupper med '+state.each+' i hver!';
    if(notice)return notice;
+   if(lastAction==='select'&&selectedGroup!==null)return 'Kurv '+(selectedGroup+1)+' er valgt! Nå kan du plukke jordbær.';
    const same=state.counts.length>0&&state.counts[0]>0&&state.counts.every(n=>n===state.counts[0]);
    if(same)return 'Se! '+state.groups+' kurver med '+state.counts[0]+' i hver. '+state.groups+' ganger '+state.counts[0]+' er '+amount+'!';
    if(!amount)return state.mode==='mission'?(selectedGroup===null?'Trykk på en kurv for å starte!':'Kurv '+(selectedGroup+1)+' er valgt. Trykk på Plukk et jordbær!'):
      'Lag ditt eget gangestykke. Du bestemmer hvor mange som skal i hver kurv.';
-   if(lastAction==='select'&&selectedGroup!==null)return 'Kurv '+(selectedGroup+1)+' er valgt! Nå kan du plukke jordbær.';
    if(left===1)return 'Bare ett jordbær igjen!';
    if(lastAction==='add'&&lastGroup>=0&&lastGroup<state.groups){
      const count=state.counts[lastGroup];
@@ -79,7 +79,9 @@
  /* Dagens oppdrag follows the child's real mission and never substitutes an image for play. */
  const gmBasketArt='<svg viewBox="0 0 64 54" focusable="false" aria-hidden="true"><path d="M13 24Q16 8 31 6Q48 6 51 24" fill="none" stroke="#8d542e" stroke-width="7" stroke-linecap="round"/><path d="M7 22H57L52 47Q32 57 12 47Z" fill="#c98b4c" stroke="#905b34" stroke-width="3"/><path d="M7 30H57M11 40H53M20 23L24 50M32 23V51M44 23L40 50" fill="none" stroke="#f5c886" stroke-width="3.5"/><path d="M9 23H55" stroke="#7f4a29" stroke-width="4" stroke-linecap="round"/></svg>';
  function questStep(n,art,label){
-   return '<div class="gm-quest-step" role="listitem"><span class="gm-quest-index" aria-hidden="true">'+n+'</span>'+
+   const current=E.filled(state)?3:(selectedGroup===null?1:2);
+   const active=n===current;
+   return '<div class="gm-quest-step'+(active?' gm-quest-step-active':'')+'" data-gm-step="'+n+'" role="listitem" '+(active?'aria-current="step" ':'')+'><span class="gm-quest-index" aria-hidden="true">'+n+'</span>'+
      '<span class="gm-quest-icon" aria-hidden="true">'+art+'</span><strong>'+esc(label)+'</strong></div>';
  }
  function questBoard(sum,goal){
