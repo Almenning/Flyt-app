@@ -79,7 +79,10 @@
  }
 
  /* Dagens oppdrag follows the child's real mission and never substitutes an image for play. */
- const gmBasketArt='<svg viewBox="0 0 64 54" focusable="false" aria-hidden="true"><path d="M13 24Q16 8 31 6Q48 6 51 24" fill="none" stroke="#8d542e" stroke-width="7" stroke-linecap="round"/><path d="M7 22H57L52 47Q32 57 12 47Z" fill="#c98b4c" stroke="#905b34" stroke-width="3"/><path d="M7 30H57M11 40H53M20 23L24 50M32 23V51M44 23L40 50" fill="none" stroke="#f5c886" stroke-width="3.5"/><path d="M9 23H55" stroke="#7f4a29" stroke-width="4" stroke-linecap="round"/></svg>';
+ /* All instructional baskets reuse the exact same approved wicker material
+    as the child's tappable baskets. Artwork is separate from live maths. */
+ const gmBasketArt='<img class="gm-quest-wicker" alt="" src="gangemagi-basket-locked-illustration.svg">';
+ const gmHandArt='<svg class="gm-quest-hand" viewBox="0 0 34 39" focusable="false" aria-hidden="true"><path d="M5 18q0-5 4-5t4 5V8q0-5 5-5t5 5v10q3-3 6 0q3 3 0 9l-4 7q-3 4-8 3l-10-9q-5-5-2-10Z" fill="#ffe6c5" stroke="#b9764b" stroke-width="2.5" stroke-linejoin="round"/><path d="M18 9v12M10 18v4" stroke="#d3956d" stroke-width="1.6" stroke-linecap="round"/></svg>';
  function questStep(n,art,label){
    const current=E.filled(state)?3:(selectedGroup===null?1:2);
    const active=n===current;
@@ -101,7 +104,7 @@
      '<span class="gm-quest-meta">Oppdrag '+(state.mission+1)+' av '+E.MISSIONS.length+' · '+esc(mission.heading)+'</span></div>'+
      '<h2 class="gm-quest-callout"><span>Fyll <em>'+groups+' '+(groups===1?'kurv':'kurver')+'</em> med</span> <span><em>'+each+' jordbær</em> i hver.</span></h2>'+
      '<div class="gm-quest-steps" role="list" aria-label="Tre steg i oppdraget">'+
-       questStep(1,gmBasketArt,'Velg en kurv')+
+       questStep(1,gmBasketArt+gmHandArt,'Velg en kurv')+
        '<span class="gm-quest-arrow" aria-hidden="true">➜</span>'+
        questStep(2,fruitArt+gmBasketArt,'Legg i jordbær')+
        '<span class="gm-quest-arrow" aria-hidden="true">➜</span>'+
