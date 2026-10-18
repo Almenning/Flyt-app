@@ -67,3 +67,78 @@ Når reelle skjermbilder foreligger, vurderes:
 - om kortet og valgt land får tydelig nok sammenheng
 - om den personlige reven kan få en diskret, faktisk funksjon i oppdagelsesøyeblikket
 - særskilt Norge, Alpene, Sahara, Amazonas og Japan.
+
+## Korrigerende QA – 18. oktober 2026
+
+### Dokumenterte funn på `04a5185`
+
+- GitHub-kjøring `39113056109` feilet med 21 Node-feil og appen startet
+  ikke i nettleser. Markedsbok- og samlebokjobbene feilet også før opptak;
+  ingen av disse tre kjøringene hadde nedlastbare artefakter.
+- Rotårsaken var ikke manglende browser: commit `c7f32a5` hadde erstattet
+  den komplette `index.html` med avkortet verktøyutskrift. Filen begynte
+  med `Warning: truncated output` og mistet rundt 5800 linjer appkode.
+- Globusens eksisterende nettlesertest forventet dessuten gammel
+  nærzoom, separate biomevasker og renderermerket `landscapes-v2`.
+  Disse forventningene var ikke oppdatert til den godkjente retningen.
+
+### Isolerte rettelser
+
+1. Gjenopprettet hele HTML-filen fra PR-basen `0c7071a`. Bare Oppdags
+   avgrensede zoomtak er lagt tilbake i den delte inndatafunksjonen;
+   Enkel bruker fortsatt nøyaktig originalgrensen på 5.
+2. Lagt til kontraktsjekk mot avkortet verktøyutskrift i appkilde.
+3. Oppdag identifiserer nå Tsjad fra kanoniske landdata, ikke en antatt
+   tekst-ID. Europa-starten virker i faktisk WebKit.
+4. Kamera og landkort fra Enkel lagres midlertidig og gjenopprettes ved
+   retur fra Oppdag, inkludert opprinnelig nærzoom. Ingen lagret faglig
+   fremgang eller kartdata endres.
+5. Faktisk iPhone-bilde av Norge viste at invitasjonens to-kolonnestil
+   hang igjen i landkortet og dekket kloden. Stilen fjernes ved landvalg.
+   Gjentatt valg av samme land får nøyaktig én reaksjon fra valgt rev.
+6. Det høyere landkortet kunne dekke bunnen av Enkel/Oppdag-bryteren på
+   stående iPhone. Oppdag plasserer nå bryteren over kortets målte kant.
+   Regelen gjelder ikke Enkel.
+7. Globus-QA-workflowen inkluderer nå også PR-ens faktiske målgren og
+   sjekker eksplisitt ut kandidatens head-SHA, som også navngir artefakten.
+
+### Verifikasjon og avgrensning
+
+- Fullt Node-testlag etter HTML-reparasjon: **384/384 bestått**.
+- Statisk isolasjonstest og JavaScript-syntaks: bestått.
+- Reelle lokale Playwright/WebKit-opptak er produsert og inspisert for
+  iPhone stående/liggende og iPad liggende. De viser geografisk forankret
+  terreng, Europa-inngang og fungerende landkort. Dette er emulerte
+  viewportstørrelser, ikke tester på fysiske enheter.
+- Endelig viewportmatrise og etterkontroll av bryterplassering kjøres
+  videre før full nettleserstatus kan erklæres grønn.
+- Lokal Chromium-installasjon feilet med tom/ugyldig ZIP fra den festede
+  browserens nedlastingsvert. WebKit ble installert via Playwrights
+  offisielle alternative vert. Chromium-resultat er ikke påstått.
+- Ingen endring av Enkel-rendereren, geometri, trefftesting, faginnhold,
+  progresjon eller brukerens valgte rev. Ingen merge/main-publisering.
+
+Neste steg: fullfør viewportmatrisen, inspiser stående iPad og hent ny
+CI-status/artefakter fra den reparerte draft-grenen. Den eldre grønne
+Node-statusen alene er ikke visuell premiumgodkjenning.
+
+### Globalt terreng- og mobilpass – 18. oktober 2026
+
+- Oppdag-terrenget er nå roligere og mer sammenhengende: de synlige
+  regnskogsklyngene er erstattet med små, overlappende baldakinflekker, og
+  fjellkjeder bruker lys- og skyggekonstrurer langs den reelle fjellryggen
+  fremfor en rad med trekantede fjellsymboler.
+- Tilføyelsen gjelder den globale, geografisk forankrede terrengmotoren:
+  skog, regnskog, ørken, savanne, is, elver og fjellkjeder følger fortsatt
+  koordinatene og klippes av eksisterende landgeometri.
+- Smal iPhone (320 x 568) er lagt inn som fast WebKit-mål. Den avdekket at
+  Enkel/Oppdag-bryteren kunne stjele globusens drasone. Bryteren ligger nå
+  kompakt over globusranden på akkurat denne størrelsen; den dekker verken
+  den eksisterende modusbryteren eller senteret av globusen.
+- Full Node-suite: **384/384 bestått**. Statisk dobbelt-globus-kontrakt og
+  reell WebKit-matrise bestått for 320 x 568, 390 x 844, 844 x 390,
+  1180 x 820 og 820 x 1180. Hver test kontrollerer Enkel/Oppdag-isolasjon,
+  landtreff, rotasjon, kontinentzoom, valgt rev og terrengytelse.
+- Høyeste observerte terrengpass i denne matrisen var 442 ms på stående
+  iPad. Det er innenfor den nåværende testgrensen, men skal følges videre
+  når nye områdespesifikke detaljer legges til.

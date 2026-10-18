@@ -76,6 +76,20 @@
   #world-screen.active[data-map-perspective="globe"] #globe-view-toggle{
     top:auto;bottom:200px;left:50%
   }
+  #world-screen.active[data-map-perspective="globe"][data-discovery-globe="painted-atlas-v1"] #globe-view-toggle{
+    bottom:var(--discovery-selector-bottom,216px)
+  }
+}
+/* On a 320 px iPhone there is not enough vertical room to leave the mode
+   switch between globe and card.  Keep it directly above the globe rather
+   than covering its centre, which would steal the child's rotation gesture. */
+@media(max-width:350px) and (orientation:portrait) and (min-height:501px){
+  #world-screen.active[data-map-perspective="globe"] #globe-view-toggle,
+  #world-screen.active[data-map-perspective="globe"][data-discovery-globe="painted-atlas-v1"] #globe-view-toggle{
+    /* Just below the existing globe-mode control. It may overlap the upper
+       frame of the globe, but never the control itself or the drag centre. */
+    top:160px!important;bottom:auto!important
+  }
 }
 @media(max-height:500px){
   #world-screen.active[data-map-perspective="globe"] #globe-view-toggle{

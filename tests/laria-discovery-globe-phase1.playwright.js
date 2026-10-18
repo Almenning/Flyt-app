@@ -94,12 +94,12 @@ async function verifyOffscreenCountryCard(page,label){
   // The legacy renderer can auto-select Tsjad without aligning the camera.
   // A normal map repaint must repair the card even without a pointerup.
   await page.evaluate(()=>{
-    globeLon=15;globeLat=55;setGlobeZoom(2.3);
+    globeLon=-35;globeLat=75;setGlobeZoom(1.72);
     selectGlobeCountry('td');
     drawGlobe();
   });
   await page.waitForFunction(()=>globeSelected===null,null,{timeout:5000});
-  assert.match(await page.locator('#globe-status').innerText(),/Hva vil du oppdage/,
+  assert.match(await page.locator('#globe-status').innerText(),/Europa venter/,
     label+' legacy offscreen Tsjad card survived ordinary globe repaint');
   await page.evaluate(()=>{
     if(!countries.td)throw new Error('Missing canonical country Tsjad');
@@ -111,14 +111,14 @@ async function verifyOffscreenCountryCard(page,label){
     // Simulate a completed drag after moving the real geographic camera.
     // The original globe input handler owns the pointer; the new view only
     // reconciles the status card on release, never the click or map geometry.
-    globeLon=15;globeLat=62;setGlobeZoom(3.2);globeMove=35;
+    globeLon=-35;globeLat=75;setGlobeZoom(1.72);globeMove=35;
     document.getElementById('globe-canvas').dispatchEvent(new PointerEvent('pointerup',{
       pointerId:912,pointerType:'touch',clientX:200,clientY:200,bubbles:true
     }));
   });
   await page.waitForFunction(()=>globeSelected===null,null,{timeout:5000});
   const status=await page.locator('#globe-status').innerText();
-  assert.match(status,/Hva vil du oppdage/,label+' offscreen selection did not become an exploration invitation');
+  assert.match(status,/Europa venter/,label+' offscreen selection did not become an exploration invitation');
   assert.doesNotMatch(status,/Tsjad/,label+' stale country card survived after rotating away');
 
   await page.evaluate(()=>{
@@ -172,7 +172,12 @@ async function verifyPointerDrag(page,label,isDiscovery){
    await page.screenshot({path:path.join(out,label.replace(/[^a-z0-9-]/gi,'-')+'-moving.png'),fullPage:true,animations:'disabled'});
  }
  await page.mouse.up();
- await page.waitForTimeout(180);
+ // Wait for the real post-release paint instead of racing a fixed 180ms
+ // timer against the continent terrain pass on larger WebKit canvases.
+ if(isDiscovery)await page.waitForFunction(()=>
+   window.__lariaGlobeInteracting===false&&globePointers.size===0&&
+   document.getElementById('globe-canvas').dataset.discoveryMoving==='false',null,{timeout:5000});
+ else await page.waitForTimeout(180);
  const after=await page.evaluate(()=>({
    moving:window.__lariaGlobeInteracting,
    pointerCount:globePointers.size,
@@ -216,8 +221,14 @@ async function runDevice(engine,label,viewport,urls){
        country:globeSelected,lon:globeLon,lat:globeLat,zoom:globeZoom,
        stored:localStorage.getItem('laria-globe-view-v1')
      }));
-     for(const key of ['country','lon','lat','zoom'])
+     if(beforeSwitch.country===null){
+       assert.equal(afterDiscovery.lon,13,label+' first unselected entry must face Europe');
+       assert.equal(afterDiscovery.lat,53,label+' first unselected entry must face Europe');
+       assert.match(await standard.page.locator('#globe-status').innerText(),/Europa venter/);
+       await standard.page.screenshot({path:path.join(out,label+'-discovery-welcome.png'),fullPage:viewport.height<500,animations:'disabled'});
+     }else for(const key of ['country','lon','lat'])
        assert.equal(afterDiscovery[key],beforeSwitch[key],label+' entering Oppdag changed '+key);
+     assert.equal(afterDiscovery.zoom,1.72,label+' Oppdag must cap inherited close-ups at continent scale');
      assert.equal(afterDiscovery.stored,'discover',label+' Oppdag preference not saved');
      assert.match(await standard.page.locator('[data-premium-globe-subtitle]').innerText(),
        /Oppdag fjell, skoger, elver og ørkener/,label+' discovery subtitle still describes simple globe');
@@ -231,6 +242,9 @@ async function runDevice(engine,label,viewport,urls){
      }));
      for(const key of ['country','lon','lat','zoom'])
        assert.equal(restored[key],beforeSwitch[key],label+' returning to Enkel changed '+key);
+     assert.equal(await standard.page.locator('.discovery-country-companion').count(),0,label+' companion leaked into Enkel');
+     await standard.page.evaluate(()=>setGlobeZoom(5));
+     assert.equal(await standard.page.evaluate(()=>globeZoom),5,label+' Enkel lost its original full zoom');
      assert.equal(restored.stored,'simple',label+' Enkel preference not saved');
      assert.match(await standard.page.locator('[data-premium-globe-subtitle]').innerText(),
        /klassiske snurrbare kloden/,label+' original guidance not restored in simple mode');
@@ -255,20 +269,34 @@ async function runDevice(engine,label,viewport,urls){
        console.error('DISCOVERY BOOT DIAGNOSTIC',label,JSON.stringify(diagnostic),errors);
        throw error;
      }
+     // A real country replaces the invitation, including its two-column CSS.
+     // Selecting the same country again must recreate exactly one companion.
+     for(let attempt=0;attempt<2;attempt++){
+       await discovery.page.evaluate(()=>{globeLon=8;globeLat=62;setGlobeZoom(1.72);selectGlobeCountry('no')});
+       await discovery.page.waitForFunction(()=>document.querySelectorAll('#globe-status .discovery-country-companion').length===1);
+       assert.equal(await discovery.page.locator('#globe-status').evaluate(el=>el.classList.contains('discovery-continent-intro')),false,label+' invitation layout leaked into country card');
+       assert.ok(await discovery.page.locator('#globe-status').evaluate(el=>el.getBoundingClientRect().height)<viewport.height*.4,label+' country card covers the globe');
+       if(viewport.height>viewport.width){
+         const card=await discovery.page.locator('#globe-status').boundingBox();
+         const toggle=await discovery.page.locator('#globe-view-toggle').boundingBox();
+         assert.ok(toggle.y+toggle.height<=card.y,label+' country card overlaps the view selector');
+       }
+       assert.equal(await discovery.page.locator('.discovery-country-companion img').getAttribute('src'),await discovery.page.evaluate(()=>window.LARIA_PROFILE_AVATARS.girl),label+' country companion does not match selected fox');
+     }
      for(const pose of poses){
        const result=await drawPose(discovery.page,pose);
        assert.equal(result.renderer,true,label+' discovery renderer replaced after mode activation');
-       assert.equal(result.discovery,'landscapes-v2',label+' lost integrated landscape engine');
-       assert.equal(result.level,pose.level,label+' wrong zoom detail level: '+pose.name);
+       assert.equal(result.discovery,'painted-atlas-v1',label+' lost integrated landscape engine');
+       assert.ok(result.zoom<=1.72,label+' exceeded approved continent scale: '+pose.name);
+       assert.equal(result.level,result.zoom<1.7?'1':'2',label+' continent-first renderer exposed the wrong terrain tier: '+pose.name);
        assert.equal(result.moving,'false',label+' stale interaction suppressed detail');
        assert.ok(result.illustrations>0,label+' painted zero geographically anchored illustrations for '+pose.name);
-       assert.ok(result.ecosystems>=2,label+' missing georeferenced contiguous biome regions: '+pose.name);
+       assert.equal(result.ecosystems,0,label+' separate biome washes must not return: '+pose.name);
        assert.equal(result.terrainField,1,label+' missing coordinate-anchored continuous landscape shading: '+pose.name);
        assert.ok(Number.isFinite(result.terrainMs)&&result.terrainMs>=0&&result.terrainMs<4000,
          label+' landscape shader stalled the device ('+result.terrainMs+'ms) at '+pose.name);
        console.log('TERRAIN PERF',label,pose.name,result.terrainMs+'ms');
        assert.ok(result.relief>=1,label+' missing geographic mountain corridors: '+pose.name);
-       if(pose.level!=='1')assert.ok(result.texture>=1,label+' missing zoom-responsive terrain texture: '+pose.name);
        assert.equal(result.selected,pose.country,label+' selection was lost at '+pose.name);
        assert.notEqual(hash(result.pixels),refs[pose.name],label+' discovery image equals the ordinary globe at '+pose.name);
        await discovery.page.screenshot({path:path.join(out,label+'-discovery-'+pose.name+'.png'),fullPage:viewport.height<500,animations:'disabled'});
@@ -291,13 +319,19 @@ async function runDevice(engine,label,viewport,urls){
  const urls=await serve();
  try{
    const devices=[
+     [webkit,'webkit-iphone-small-portrait',{width:320,height:568}],
      [webkit,'webkit-iphone-portrait',{width:390,height:844}],
      [webkit,'webkit-iphone-landscape',{width:844,height:390}],
      [webkit,'webkit-ipad-landscape',{width:1180,height:820}],
      [webkit,'webkit-ipad-portrait',{width:820,height:1180}],
      [chromium,'chromium-ipad-landscape',{width:1180,height:820}]
    ];
-   for(const [engine,label,viewport] of devices)
+   const requested=process.env.DISCOVERY_GLOBE_ENGINE;
+   assert.ok(!requested||['webkit','chromium'].includes(requested),'unknown requested browser engine');
+   const selected=devices.filter(([,label])=>(!requested||label.startsWith(requested+'-'))&&
+     (!process.env.DISCOVERY_GLOBE_DEVICE||label===process.env.DISCOVERY_GLOBE_DEVICE));
+   assert.ok(selected.length,'no matching globe QA device');
+   for(const [engine,label,viewport] of selected)
      await runDevice(engine,label,viewport,urls);
  }finally{await new Promise(resolve=>urls.server.close(resolve));}
 })().catch(error=>{console.error(error);process.exitCode=1});

@@ -421,19 +421,19 @@ function paintMountainCrests(ctx,chain,w,h,s,level,width){
       const height=clamp(Math.max(width*(.42+seed*.22),s*(level===1?.007:level===2?.0085:.012)),s*.006,s*.024)*(level===3?1.08:level===1?.82:.95);
       const x=p[0],y=p[1];
       ctx.save();
-      ctx.fillStyle='rgba(37,85,74,.40)';
-      ctx.beginPath();ctx.moveTo(x-height*.98,y+height*.48);
-      ctx.lineTo(x,y-height*.97);ctx.lineTo(x+height*.95,y+height*.55);
-      ctx.closePath();ctx.fill();
-      ctx.fillStyle='rgba(165,186,153,.86)';
-      ctx.beginPath();ctx.moveTo(x-height*.94,y+height*.48);
-      ctx.lineTo(x,y-height*.94);ctx.lineTo(x-height*.12,y+height*.46);
-      ctx.closePath();ctx.fill();
+      /* Do not place a row of little mountain icons on the map.  A pair of
+         irregular light/shadow contour strokes makes one continuous ridge
+         when the samples overlap along the real geographic chain. */
+      ctx.lineCap='round';ctx.lineJoin='round';
+      ctx.strokeStyle='rgba(43,79,68,.42)';ctx.lineWidth=Math.max(.8,height*.36);
+      ctx.beginPath();ctx.moveTo(x-height*.72,y+height*.35);
+      ctx.quadraticCurveTo(x-height*.18,y-height*.74,x+height*.68,y+height*.26);ctx.stroke();
+      ctx.strokeStyle='rgba(210,224,193,.68)';ctx.lineWidth=Math.max(.6,height*.15);
+      ctx.beginPath();ctx.moveTo(x-height*.62,y+height*.16);
+      ctx.quadraticCurveTo(x-height*.13,y-height*.63,x+height*.50,y+height*.08);ctx.stroke();
       if(chain.snow){
-        ctx.fillStyle='rgba(255,253,233,.89)';ctx.beginPath();
-        ctx.moveTo(x,y-height*.95);ctx.lineTo(x-height*.25,y-height*.41);
-        ctx.lineTo(x-height*.07,y-height*.51);ctx.lineTo(x+height*.15,y-height*.43);
-        ctx.closePath();ctx.fill();
+        ctx.strokeStyle='rgba(255,253,233,.72)';ctx.lineWidth=Math.max(.55,height*.11);
+        ctx.beginPath();ctx.moveTo(x-height*.15,y-height*.47);ctx.quadraticCurveTo(x,y-height*.72,x+height*.17,y-height*.43);ctx.stroke();
       }else{
         ctx.strokeStyle='rgba(230,219,163,.58)';ctx.lineWidth=Math.max(.6,height*.11);
         ctx.beginPath();ctx.moveTo(x-height*.16,y-height*.52);ctx.lineTo(x-height*.45,y+height*.15);ctx.stroke();
@@ -504,7 +504,9 @@ function paintGeographicTexture(ctx,w,h,s,level,moving){
   for(let z=0;z<landscapeZones.length;z++){
     const zone=landscapeZones[z],segments=zone.route.length-1;
     const leafy=zone.type==='rainforest'||zone.type==='forest';
-    const perZone=leafy?(level===2?33:82):(level===2?18:43);
+    /* Many small, low-contrast marks read as material.  Large repeated
+       clusters made the rainforest look like a row of pasted tree icons. */
+    const perZone=leafy?(level===2?74:156):(level===2?28:62);
     for(let i=0;i<perZone;i++){
       const t=geoNoise(z*109+i*29+9)*segments;
       const j=Math.min(segments-1,Math.floor(t)),f=t-j;
@@ -512,20 +514,20 @@ function paintGeographicTexture(ctx,w,h,s,level,moving){
       const lon=a[0]+(b[0]-a[0])*f+(geoNoise(z*307+i*17+1)-.5)*zone.width*.80;
       const lat=a[1]+(b[1]-a[1])*f+(geoNoise(z*127+i*43+4)-.5)*zone.width*.80;
       const p=project(lon,lat,w,h);if(!p||p[2]<.18)continue;
-      const k=s*(leafy?(level===2?.0078:.0105):(level===2?.005:.0075))*
+      const k=s*(leafy?(level===2?.0024:.0032):(level===2?.0033:.0048))*
         clamp(Math.pow(globeZoom,.13),1,1.27)*
         clamp(p[2]+.21,.55,1.1)*(0.67+geoNoise(i*7+z*19)*.49);
       if(p[0]<-k*3||p[0]>w+k*3||p[1]<-k*3||p[1]>h+k*3)continue;
       ctx.save();ctx.translate(p[0],p[1]);ctx.lineCap='round';ctx.lineJoin='round';
       if(leafy){
         const tropical=zone.type==='rainforest';
-        ctx.fillStyle=tropical?'rgba(23,77,56,.31)':'rgba(39,87,58,.26)';
-        ctx.beginPath();ctx.ellipse(0,k*.40,k*1.38,k*.60,.12,0,Math.PI*2);ctx.fill();
-        for(const [dx,dy,scale] of [[-.65,.08,.77],[.50,.04,.82],[-.12,-.35,.98],[.35,-.38,.61]]){
+        /* Irregular canopy flecks overlap into a forest mass.  They have no
+           trunks, silhouettes or fixed spacing, so they cannot read as icons. */
+        for(const [dx,dy,scale] of [[-.58,.09,.72],[.42,.02,.84],[-.09,-.31,.93],[.31,-.35,.56],[-.34,-.41,.48]]){
           const x=k*dx,y=k*dy,r=k*scale;
-          ctx.fillStyle=tropical?'rgba(31,103,65,.75)':'rgba(56,111,69,.73)';
+          ctx.fillStyle=tropical?'rgba(22,91,58,.40)':'rgba(45,99,61,.38)';
           ctx.beginPath();ctx.ellipse(x,y,r*.71,r*.72,-.16,0,Math.PI*2);ctx.fill();
-          ctx.fillStyle=tropical?'rgba(112,179,94,.67)':'rgba(165,194,115,.61)';
+          ctx.fillStyle=tropical?'rgba(126,183,99,.30)':'rgba(182,202,124,.28)';
           ctx.beginPath();ctx.ellipse(x-r*.22,y-r*.23,r*.38,r*.28,-.26,0,Math.PI*2);ctx.fill();
         }
       }else if(zone.type==='desert'){
@@ -812,8 +814,10 @@ function discoveryCompanionText(country){
 function enhanceDiscoveryCountryCard(){
   if(window.__lariaDiscoveryGlobePreview!==true||!globeSelected||typeof countries==='undefined')return false;
   const country=countries[globeSelected],box=document.getElementById('globe-status');
-  if(!country||!box||box.dataset.discoveryCountryId===country.id)return false;
+  if(!country||!box)return false;
   const copy=box.querySelector('.globe-country-copy');if(!copy)return false;
+  box.classList.remove('discovery-continent-intro');
+  if(copy.querySelector('.discovery-country-companion'))return false;
   const companion=document.createElement('div');
   companion.className='discovery-country-companion';
   companion.innerHTML='<img src="'+selectedFoxSource()+'" alt="Din rev">'+
@@ -836,6 +840,7 @@ const wait=()=>{
   const baseDraw=window.drawGlobe;
   window.__lariaDiscoveryGlobeBaseDraw=baseDraw;
   let activated=false;
+  let simpleViewState=null;
   const restore=()=>{
     if(window.drawGlobe===discoveryDraw){
       window.drawGlobe=baseDraw;
@@ -856,6 +861,12 @@ const wait=()=>{
         :'Den klassiske snurrbare kloden – dra, zoom og finn land.';
       if(subtitle.textContent!==expected)subtitle.textContent=expected;
     }
+    if(enabled&&!simpleViewState){
+      const status=document.getElementById('globe-status');
+      simpleViewState={lon:globeLon,lat:globeLat,zoom:globeZoom,country:globeSelected,
+        status:status?{html:status.innerHTML,className:status.className,
+          onclick:status.onclick,cursor:status.style.cursor}:null};
+    }
     window.__lariaDiscoveryGlobePreview=enabled;
     if(copyNodes.hero)copyNodes.hero.textContent=enabled
       ?'Velg en verdensdel, snurr på kloden og finn et land du vil oppdage.'
@@ -866,6 +877,17 @@ const wait=()=>{
     if(!enabled){
       const needsRestore=window.drawGlobe===discoveryDraw;
       if(needsRestore)restore();
+      if(simpleViewState){
+        const saved=simpleViewState;simpleViewState=null;
+        globeLon=saved.lon;globeLat=saved.lat;globeSelected=saved.country;
+        const status=document.getElementById('globe-status');
+        if(status&&saved.status){
+          status.className=saved.status.className;status.innerHTML=saved.status.html;
+          status.onclick=saved.status.onclick;status.style.cursor=saved.status.cursor;
+          delete status.dataset.discoveryCountryId;
+        }
+        setGlobeZoom(saved.zoom);
+      }
       if(desiredView==='simple'){
         delete screen.dataset.discoveryGlobe;
         delete screen.dataset.discoveryGlobeLevel;
@@ -886,14 +908,14 @@ const wait=()=>{
       /* The legacy shell seeds Tsjad as a generic showcase. Oppdag opens at
          its intentional Europe starting point instead; this is transient UI
          selection only, never the child's saved country progress. */
-      if(globeSelected==='tsjad'){
+      if(!activated&&(!globeSelected||countries[globeSelected]?.name==='Tsjad')){
         globeSelected=null;globeLon=13;globeLat=53;
       }
       if(typeof setGlobeZoom==='function'&&globeZoom>continentZoomCap)
         setGlobeZoom(continentZoomCap);
       window.drawGlobe=discoveryDraw;
       try{drawGlobe=discoveryDraw}catch(_){}
-      try{window.resizeGlobe();discoveryDraw();renderDiscoveryWelcome();activated=true}
+      try{window.resizeGlobe();discoveryDraw();renderDiscoveryWelcome();enhanceDiscoveryCountryCard();activated=true}
       catch(error){
         window.__lariaDiscoveryGlobeLastError=String(error?.stack||error);
         desiredView='simple';
@@ -928,10 +950,22 @@ const wait=()=>{
   const status=document.getElementById('globe-status');
   if(status){
     let pendingCompanion=false;
+    // A selected-country card can be taller than the welcome invitation.
+    // Place the portrait selector above its measured edge, not at a fixed
+    // offset that would leave the lower part of the buttons covered.
+    const syncSelectorPosition=()=>{
+      if(window.__lariaDiscoveryGlobePreview!==true)return;
+      const bottom=Math.ceil(screen.getBoundingClientRect().bottom-status.getBoundingClientRect().top+12);
+      screen.style.setProperty('--discovery-selector-bottom',bottom+'px');
+    };
+    if(typeof ResizeObserver==='function'){
+      const cardSize=new ResizeObserver(syncSelectorPosition);
+      cardSize.observe(status);cardSize.observe(screen);
+    }
     new MutationObserver(()=>{
       if(pendingCompanion)return;
       pendingCompanion=true;
-      requestAnimationFrame(()=>{pendingCompanion=false;enhanceDiscoveryCountryCard()});
+      requestAnimationFrame(()=>{pendingCompanion=false;enhanceDiscoveryCountryCard();syncSelectorPosition()});
     }).observe(status,{childList:true,subtree:true});
   }
   controls.forEach(btn=>btn.addEventListener('click',()=>chooseView(btn.dataset.globeView)));

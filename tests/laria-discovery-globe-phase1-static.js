@@ -12,6 +12,9 @@ const read=file=>fs.readFileSync(path.join(root,file),'utf8');
 const preview=read('laer-litt-mer/discovery-globe-phase1.js');
 const renderer=read('laer-litt-mer/globe-v25-renderer.js');
 const index=read('laer-litt-mer/index.html');
+assert.ok(index.startsWith('<!doctype html>'), 'the complete app shell must start at its doctype');
+assert.doesNotMatch(index,/Warning: truncated output|tokens truncated/,'transport truncation must never become app source');
+assert.ok(index.includes('function openGlobe(')&&index.includes('function showScreen(')&&index.includes('</html>'), 'the complete app runtime must survive uploads');
 
 assert.match(preview,/const forcedPreview=new URLSearchParams/, 'QA preview remains opt-in by URL');
 assert.match(preview,/window\.LARIA_SET_GLOBE_VIEW=chooseView;/,'the view switch must be live');
@@ -20,7 +23,8 @@ assert.match(preview,/screen\.dataset\.discoveryZoom='continent-v1'/,'Oppdag mus
 assert.match(preview,/knip for kontinentnivå/,'child-facing zoom guidance must explain the discovery scope');
 assert.match(preview,/function renderDiscoveryWelcome\(/,'Oppdag must present a continent invitation before a country is chosen');
 assert.match(preview,/Europa venter/,'the first supported discovery area must be visible in the invitation');
-assert.match(preview,/if\(globeSelected==='tsjad'\)/,'Oppdag must replace the legacy Tsjad showcase with its Europe entry point');
+assert.match(preview,/countries\[globeSelected\]\?\.name==='Tsjad'/,'Oppdag must identify the legacy showcase by canonical country data');
+assert.match(preview,/let simpleViewState=null/,'the original simple camera and card must be restored after Oppdag');
 assert.match(preview,/function selectedFoxSource\(/,'the invitation must use the child’s actual selected fox source');
 assert.match(preview,/function enhanceDiscoveryCountryCard\(/,'the selected-country card must receive the discovery companion');
 assert.match(preview,/function discoveryCompanionText\(/,'the fox reaction must be place-aware, not generic decoration');
