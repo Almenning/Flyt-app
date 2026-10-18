@@ -997,13 +997,19 @@ const wait=()=>{
     // Do not clear selection for a tap: only a completed drag or zoom can
     // move an old choice off the globe's current visible surface.
     const afterDrag=event=>{
-      const pointers=typeof globePointers!=='undefined'?globePointers.size:0;
-      screen.dataset.discoveryLastPointer=event.type+'/'+String(event.isTrusted)+'/'+pointers+'/'+String(globeSelected);
-      if(pointers>0)return;
-      if(typeof globeMove==='number'&&globeMove>=8)
-        requestAnimationFrame(()=>{clearOffscreenDiscoverySelection();renderDiscoveryWelcome();});
-      else if(event.type==='pointerup'&&event.isTrusted&&globeSelected)
-        scrollShortDiscovery(true);
+      // This plugin's pointerup listener can be installed *before* the shared
+      // input owner's listener. Observe selection only on the next animation
+      // frame, after the input owner has picked the country and removed its
+      // pointer. Do not duplicate or intercept the original hit-test.
+      const type=event.type,trusted=event.isTrusted;
+      requestAnimationFrame(()=>{
+        if(typeof globePointers!=='undefined'&&globePointers.size>0)return;
+        if(typeof globeMove==='number'&&globeMove>=8){
+          clearOffscreenDiscoverySelection();
+          renderDiscoveryWelcome();
+        }else if(type==='pointerup'&&trusted&&globeSelected)
+          scrollShortDiscovery(true);
+      });
     };
     canvas.addEventListener('pointerup',afterDrag,{passive:true});
     canvas.addEventListener('pointercancel',afterDrag,{passive:true});
