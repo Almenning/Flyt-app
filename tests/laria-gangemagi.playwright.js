@@ -11,6 +11,11 @@ const mime={'.html':'text/html; charset=utf-8','.js':'application/javascript; ch
 function serve(){return new Promise((resolve,reject)=>{const srv=http.createServer((req,res)=>{let name=decodeURIComponent(new URL(req.url,'http://localhost').pathname);if(name.endsWith('/'))name+='index.html';const file=path.resolve(base,'.'+name);if(!file.startsWith(base+path.sep)){res.writeHead(403);res.end();return;}fs.readFile(file,(err,buf)=>{if(err){res.writeHead(404);res.end('Not found');return;}res.setHeader('Content-Type',mime[path.extname(file)]||'application/octet-stream');res.setHeader('Cache-Control','no-store');res.end(buf);});});srv.once('error',reject);srv.listen(0,'127.0.0.1',()=>resolve({srv,url:'http://127.0.0.1:'+srv.address().port+'/laer-litt-mer/?app=laria'}));});}
 const seed={version:7,progressSchemaVersion:3,profile:{grade:2,onboarded:true,name:'Elev',avatar:'girl',setupVersion:2},mastery:{},mistakes:{},skillMastery:{},skillMistakes:{},skillLastSeen:{},masteryEvidence:{},skillEvidence:{},preferences:{sound:false,autoRead:false},lastMilestone:null,recentCountryWin:null,lastActivity:null,journey:{nodes:{},gradeWins:{},viewGrades:{}},answerLog:[],sessionLog:[],activeSession:null};
 async function shot(page,name){await fs.promises.mkdir(out,{recursive:true});await page.screenshot({path:path.join(out,name+'.png'),fullPage:true,animations:'disabled'});}
+async function selectAndPick(page,group,count){
+ await page.locator('[data-gm-action="basket"][data-gm-basket="'+group+'"]').click();
+ assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).selectedBasket,group,'the basket is selected');
+ for(let i=0;i<count;i++)await page.locator('[data-gm-action="source"]').click();
+}
 async function check(engine,label,viewport,url){
  const context=await engine.newContext({viewport,deviceScaleFactor:1,serviceWorkers:'block',isMobile:viewport.width<750,hasTouch:true});
  const page=await context.newPage(),errors=[];
@@ -33,7 +38,7 @@ async function check(engine,label,viewport,url){
   assert.match(await page.locator('.gm-quest-ribbon').innerText(),/Dagens oppdrag/);
   assert.match(await page.locator('.gm-quest-callout').innerText(),/Fyll 3 kurver med 3 jordbær i hver/);
   assert.deepEqual(await page.locator('.gm-quest-step strong').allInnerTexts(),
-    ['Plukk jordbær','Legg i 3 kurver','3 i hver kurv'],'instructions are three real readable DOM steps');
+    ['Velg en kurv','Legg i jordbær','Se at 3 × 3 = 9'],'instructions are three real readable DOM steps');
   assert.equal(await page.locator('.gm-quest-steps[role="list"] [role="listitem"]').count(),3,
     'screen-reader and touch-friendly three-step instructions');
   // Quest-step labels carry actual child instructions, not decorative microcopy.
@@ -50,6 +55,13 @@ async function check(engine,label,viewport,url){
     label+' child-sized assignment heading '+JSON.stringify(missionHeading));
   assert.equal(await page.locator('.gm-fox-art [data-avatar="girl"]').count(),1,'must render chosen full-body girl fox');
   assert.match(await page.locator('.gm-book-quick').innerText(),/0\/8/,'flower progress visible from the main scene');
+  const premiumBasket=await page.request.get(new URL('gangemagi-basket-premium.svg',url).href);
+  assert.equal(premiumBasket.status(),200,'premium woven basket art must load');
+  assert.match(premiumBasket.headers()['content-type'],/image\/svg\+xml/);
+  assert.equal(await page.locator('.gm-basket-illustration').count(),3,'baskets must be real separately illustrated DOM components');
+  assert.match(await page.locator('.gm-top-title').innerText(),/Gangemagi/);
+  assert.match(await page.locator('.gm-top-progress').innerText(),/Oppdrag 1 av 8/);
+  assert.match(await page.locator('.gm-fox-message').innerText(),/Trykk på en kurv for å starte/);
   const first=await page.evaluate(()=>{
    const rect=s=>{const n=document.querySelector(s)?.getBoundingClientRect();return n?{top:n.top,bottom:n.bottom,width:n.width,height:n.height}:null;};
    return {screen:innerWidth,height:innerHeight,scrollWidth:document.documentElement.scrollWidth,story:rect('.gm-story'),crate:rect('.gm-crate'),source:rect('.gm-pick'),math:rect('.gm-math'),read:rect('.gm-read')};
@@ -80,7 +92,13 @@ async function check(engine,label,viewport,url){
   assert.equal(touchGeometry.clipped,false,label+' first-fold Plukk action text is clipped '+JSON.stringify(touchGeometry));
   await shot(page,label+'-01-first-look');
   await page.locator('[data-gm-action="basket"][data-gm-basket="0"]').click();
-  await page.locator('[data-gm-action="basket"][data-gm-basket="0"]').click();
+  assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,0,0],
+    'choosing a basket cannot silently add a strawberry');
+  assert.equal((await page.locator('.gm-crate-selected').count()),1,'one glowing chosen basket');
+  assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).selectedBasket,0);
+  await page.locator('[data-gm-action="source"]').click();
+  await shot(page,label+'-02-one-berry');
+  await page.locator('[data-gm-action="source"]').click();
   assert.equal((await page.locator('.gm-math-equation').innerText()).trim(),'2 + 0 + 0 = 2');
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts[0],2);
   assert.match(await page.locator('.gm-fox-message').innerText(),/2 av 3 i kurv 1/);
@@ -93,9 +111,7 @@ async function check(engine,label,viewport,url){
   assert.match(await page.locator('.gm-fox-message').innerText(),/kurv/i);
   await page.locator('[data-gm-action="remove"][data-group="0"]').click();
   assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[1,0,0]);
-  for(const [group,count] of [[0,2],[1,3],[2,3]]){
-   for(let i=0;i<count;i++)await page.locator('[data-gm-action="basket"][data-gm-basket="'+group+'"]').click();
-  }
+  for(const [group,count] of [[0,2],[1,3],[2,3]])await selectAndPick(page,group,count);
   assert.equal((await page.locator('.gm-math-equation').innerText()).trim(),'3 × 3 = 9');
   assert.match(await page.locator('.gm-math-discovery').innerText(),/Like grupper: 3 kurver med 3 bær = 9/,'multiplication has a child-readable explanation');
   assert.match(await page.locator('.gm-book-quick').innerText(),/1\/8/,'earned flowers remain visible during play');
@@ -115,7 +131,7 @@ async function check(engine,label,viewport,url){
   await page.locator('[data-gm-action="undo"]').click();
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).wins.length,1,'earned blossom survives undo');
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).equation.complete,false);
-  await page.locator('[data-gm-action="basket"][data-gm-basket="2"]').click();
+  await selectAndPick(page,2,1);
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).wins.length,1,'replaying must not duplicate blossom');
   await shot(page,label+'-02-all-baskets-full');
   await page.reload({waitUntil:'domcontentloaded'});
@@ -156,7 +172,7 @@ async function check(engine,label,viewport,url){
   assert.match(await page.locator('.gm-quest-callout').innerText(),/Fyll 2 kurver med 10 jordbær i hver/,
     'quest text and numbers follow selected authored mission');
   assert.deepEqual(await page.locator('.gm-quest-step strong').allInnerTexts(),
-    ['Plukk jordbær','Legg i 2 kurver','10 i hver kurv'],'step counts match actual mission, not a screenshot');
+    ['Velg en kurv','Legg i jordbær','Se at 2 × 10 = 20'],'step counts match actual mission, not a screenshot');
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).undo,0,'switching adventures clears only action history');
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).wins.length,1);
   assert.equal(await page.locator('.gm-book-mission').count(),0,'book should close after selection');
@@ -164,7 +180,7 @@ async function check(engine,label,viewport,url){
   await page.locator('[data-gm-action="select-mission"][data-index="0"]').click();
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).mission,0);
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).equation.complete,false);
-  for(let group=0;group<3;group++)for(let j=0;j<3;j++)await page.locator('[data-gm-action="basket"][data-gm-basket="'+group+'"]').click();
+  for(let group=0;group<3;group++)await selectAndPick(page,group,3);
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).wins.length,1,'replay keeps unique flower');
   await page.locator('[data-gm-action="next"]').click();
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).groups,2);
