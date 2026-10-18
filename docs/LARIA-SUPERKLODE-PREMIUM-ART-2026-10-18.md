@@ -238,3 +238,12 @@ Node-statusen alene er ikke visuell premiumgodkjenning.
 - Reelle WebKit-skjermbilder på iPad liggende og iPhone stående er visuelt gjennomgått: kontinentformen vises, den antarktiske halvøya har markør, norsk tekst er lesbar. Dette er **ikke** fotografi av fysisk iPad/iPhone.
 - Etter siste endring av `index.html` og `sw.js` kreves ny, grønn CI på eksakt HEAD før ytterligere godkjenning.
 - **Gjenstående premiumporter:** Oppdag sin illustrative dybde, original, gjenkjennelig geografi-/økosystemkunst for alle syv kontinenter, barnets reven i hele oppdagelsesflyten, ytelse og faktisk enhetstest. Fortsett som draft PR #184 med #179 som base; ingen merge/publisering ennå.
+
+### Samlet ferdigstillelsespass – 18. oktober
+
+- PR #184 ble samordnet på eksakt GitHub-head uten å overskrive parallelt arbeid. Oppdag beholder Natural Earth-basert geometri, kontinentzoom, de sju invitasjonene, 21 valgfrie stopp og barnets valgte rev; Enkel og Kartet er ikke endret.
+- Kontinentterrenget bruker nå tette, lave og overlappende pigmentflater for skog og ørken på oversiktsnivå. Det fjerner de siste store klumpene som kunne leses som pålimte kartikoner.
+- Antarktis bruker fortsatt sin dokumenterte Natural Earth-kystlinje, men har nå en integrert isflate med geografisk projiserte skygge- og lyse isbremmer. Det gir dybde uten å innføre fiktive landformer eller berøringslag.
+- GitHub Actions `Laria Dual Globes Release QA` på `97c029ff9bc321b0795a0159ea41bc170e238429` er grønn med WebKit og Chromium. Artefakten inneholder inspiserte iPhone- og iPad-opptak i stående og liggende format, inkludert Europa, Afrika, Asia, Nord-/Sør-Amerika, Oseania og Antarktis.
+- Visuell kontroll: kontinentkort, navigasjon, personlig rev og landflate er lesbare på iPhone; iPad beholder stor, rotérbar klode som hovedmotiv. Antarktis er ikke lenger en helt flat hvit flate.
+- Før flette til `main`: vent på grønn samlet smoke-kontroll på samme commit, deretter merge og Pages-verifisering.
