@@ -820,6 +820,88 @@ const discoveryContinentStops=[
   {name:'Sør-Amerika',lon:-62,lat:-14,zoom:1.30,teaser:'Amazonas, Andesfjellene og grønn regnskog.'},
   {name:'Oseania',lon:135,lat:-25,zoom:1.30,teaser:'Australia, store hav og mange øyer.'}
 ];
+/* Child-directed discoveries at real longitude/latitude. A tap reveals a
+   fresh, optional place to explore, never a mandatory quiz or progression
+   gate. Stories are limited to the same six continents whose outlines exist
+   in the current verified country data. */
+const discoveryContinentStories={
+ 'Europa':{
+   intro:'I Europa finner du fjorder, fjell, skoger og store hav.',
+   places:[
+     {title:'Alpene',text:'Disse fjellene strekker seg gjennom flere land.',lon:11,lat:47},
+     {title:'Norske fjorder',text:'Isbreer har gravd ut mange av fjordene i Norge.',lon:11,lat:64},
+     {title:'Donau',text:'Donau renner gjennom flere land i Europa.',lon:22,lat:46}
+   ]
+ },
+ 'Afrika':{
+   intro:'Afrika har både ørken, savanne og frodig regnskog.',
+   places:[
+     {title:'Sahara',text:'Sahara er verdens største varme ørken.',lon:13,lat:23},
+     {title:'Nilen',text:'Denne elven renner nordover gjennom Afrika.',lon:31,lat:22},
+     {title:'Kongos regnskog',text:'Her finnes en av verdens største regnskoger.',lon:23,lat:-4}
+   ]
+ },
+ 'Asia':{
+   intro:'Asia er verdens største verdensdel.',
+   places:[
+     {title:'Himalaya',text:'I Himalaya ligger verdens høyeste fjell.',lon:87,lat:29},
+     {title:'Gobiørkenen',text:'Gobi er en stor ørken der vintrene kan være kalde.',lon:104,lat:41},
+     {title:'Japan',text:'Japan består av mange øyer øst i Asia.',lon:138,lat:36}
+   ]
+ },
+ 'Nord-Amerika':{
+   intro:'Her finner du både fjellkjeder, skoger og store sjøer.',
+   places:[
+     {title:'Rocky Mountains',text:'Denne fjellkjeden strekker seg langt mot nord.',lon:-112,lat:42},
+     {title:'De store sjøene',text:'Disse innsjøene ligger mellom USA og Canada.',lon:-86,lat:43},
+     {title:'Mississippi',text:'En av Nord-Amerikas store elver renner mot sør.',lon:-91,lat:34}
+   ]
+ },
+ 'Sør-Amerika':{
+   intro:'Andesfjellene ligger vest for regnskogen i Amazonas.',
+   places:[
+     {title:'Andesfjellene',text:'En lang fjellkjede følger vestkanten av kontinentet.',lon:-70,lat:-19},
+     {title:'Amazonas',text:'Amazonas er en av verdens mest vannrike elver.',lon:-60,lat:-4},
+     {title:'Patagonia',text:'Helt i sør finner du fjell, vind og isbreer.',lon:-71,lat:-46}
+   ]
+ },
+ 'Oseania':{
+   intro:'Her er det store hav, korallrev og mange øyer.',
+   places:[
+     {title:'Korallrevet',text:'Great Barrier Reef ligger utenfor Australia.',lon:146,lat:-19},
+     {title:'Australias indre',text:'Store deler av det indre Australia er tørre.',lon:134,lat:-25},
+     {title:'New Zealand',text:'Her finnes høye fjell og store isbreer.',lon:170,lat:-42}
+   ]
+ }
+};
+const discoveryContinentVisits=new Map();
+function showContinentDiscovery(stop,box,button){
+  if(window.__lariaDiscoveryGlobePreview!==true||globeSelected)return;
+  const story=discoveryContinentStories[stop.name];
+  if(!story)return;
+  const visits=discoveryContinentVisits.get(stop.name)||0;
+  const place=visits>0?story.places[(visits-1)%story.places.length]:null;
+  const target=place||stop;
+  globeLon=target.lon;globeLat=target.lat;
+  if(typeof setGlobeZoom==='function')setGlobeZoom(place?1.44:stop.zoom);
+  else window.drawGlobe?.();
+  discoveryContinentVisits.set(stop.name,visits+1);
+  const copy=box.querySelector('.discovery-intro-copy');
+  if(!copy)return;
+  copy.querySelector('.discovery-intro-kicker').textContent=place?'ET STED Å OPPDAGE':'VI ER HER';
+  copy.querySelector('strong').textContent=place.title||stop.name;
+  copy.querySelector('.discovery-intro-teaser').textContent=place?place.text:story.intro;
+  button.textContent='Neste sted';
+  box.dataset.discoveryStoryStep=String(visits);
+  const fox=box.querySelector('.discovery-intro-fox');
+  if(fox){
+    fox.classList.remove('discovery-fox-reacting');
+    requestAnimationFrame(()=>fox.classList.add('discovery-fox-reacting'));
+  }
+  // On the shortest phones the child should still be able to see and turn
+  // the geographic globe; nothing is automatically marked completed.
+  scrollShortDiscovery(false);
+}
 function discoveryContinentForCamera(){
   const rad=Math.PI/180,latitude=globeLat*rad;
   let closest=discoveryContinentStops[0],best=-2;
@@ -874,20 +956,16 @@ function renderDiscoveryWelcome(){
   box.className='globe-status discovery-continent-intro';
   box.dataset.discoveryContinent=stop.name;
   delete box.dataset.discoveryCountryId;
+  delete box.dataset.discoveryStoryStep;
   box.innerHTML='<div class="discovery-intro-copy">'+
     '<span class="discovery-intro-kicker">VERDENSDEL</span>'+
     '<strong>'+stop.name+' venter</strong>'+
-    '<span>'+stop.teaser+'</span>'+
+    '<span class="discovery-intro-teaser" aria-live="polite">'+stop.teaser+'</span>'+
     '<button type="button" class="discovery-continent-button">Se '+stop.name+'</button></div>'+
     '<img class="discovery-intro-fox" src="'+selectedFoxSource()+'" alt="Din rev er med på oppdagelsen">';
   box.style.cursor='default';box.onclick=null;
   const button=box.querySelector('.discovery-continent-button');
-  if(button)button.onclick=()=>{
-    globeLon=stop.lon;globeLat=stop.lat;
-    if(typeof setGlobeZoom==='function')setGlobeZoom(stop.zoom);
-    else if(typeof window.drawGlobe==='function')window.drawGlobe();
-    scrollShortDiscovery(false);
-  };
+  if(button)button.onclick=()=>showContinentDiscovery(stop,box,button);
   return true;
 }
 function discoveryCompanionText(country){
