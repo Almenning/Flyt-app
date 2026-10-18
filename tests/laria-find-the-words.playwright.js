@@ -57,7 +57,7 @@ async function geometry(page,label,view){
    art:bounds('.fw-art'),list:bounds('.fw-list'),back:bounds('.fw-back'),fox:bounds('.fw-fox'),
    scene:{w:img.naturalWidth,h:img.naturalHeight,complete:img.complete},
    words:[...document.querySelectorAll('.fw-word')].map(x=>x.getBoundingClientRect().height),
-   hotspot:[...document.querySelectorAll('.fw-object')].map(x=>({w:x.getBoundingClientRect().width,h:x.getBoundingClientRect().height})),
+   hotspot:[...document.querySelectorAll('.fw-object')].map(x=>{const r=x.getBoundingClientRect(),hit=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);return {id:x.dataset.fwObject,w:r.width,h:r.height,centerReachable:hit===x||x.contains(hit)};}),
    active:el?.getAttribute('role')};
  });
  assert.ok(box.art&&box.list&&box.fox&&box.back,'picture game missing art, word list or personal fox '+label);
@@ -65,6 +65,7 @@ async function geometry(page,label,view){
  assert.ok(box.scroll<=box.screen+3,'horizontal overflow '+label+': '+JSON.stringify(box));
  assert.ok(box.art.x>=-2&&box.art.x+box.art.w<=box.screen+3,'art clipped horizontally '+label);
  assert.ok(box.hotspot.every(b=>b.w>=44&&b.h>=44),'child targets too small '+label+': '+JSON.stringify(box.hotspot));
+ assert.ok(box.hotspot.every(b=>b.centerReachable),'overlapping hotspots prevent children from finding an object '+label+': '+JSON.stringify(box.hotspot));
  assert.ok(box.words.every(h=>h>=39),'word-list buttons too small '+label+': '+JSON.stringify(box.words));
  if(view.height>=750&&view.width<700){
   assert.ok(box.list.y>=0&&box.list.b<=box.height,'word list hidden below first screen '+label);
@@ -92,7 +93,7 @@ async function run(engine,label,viewport,url,avatar){
    const hint=page.locator('.fw-hint');
    await hint.click();
    assert.match(await page.locator('.fw-speech').innerText(),/Se etter/,'Fox did not offer a clue');
-   await hint.click();
+   await page.locator('.fw-fox-button').click();
    assert.equal(await page.locator('.fw-object.is-hint').count(),1,'Second hint should highlight one location');
    assert.equal(await page.locator('.fw-word.is-found').count(),0,'Hint must not automatically solve the game');
    await shot(page,label+'-first-hint');
