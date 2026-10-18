@@ -975,11 +975,12 @@ const wait=()=>{
         }
         setGlobeZoom(saved.zoom);
       }
-      if(desiredView==='simple'){
-        delete screen.dataset.discoveryGlobe;
-        delete screen.dataset.discoveryGlobeLevel;
-        delete screen.dataset.discoveryZoom;
-      }
+      // The child can leave Oppdag for Atlas without changing the saved
+      // discover preference. Never let an inactive discovery paint marker
+      // recolour the existing map or any other globe perspective.
+      delete screen.dataset.discoveryGlobe;
+      delete screen.dataset.discoveryGlobeLevel;
+      delete screen.dataset.discoveryZoom;
       if(activated&&inClassic&&needsRestore){
         try{window.resizeGlobe();window.drawGlobe?.()}catch(error){
           window.__lariaDiscoveryGlobeLastError=String(error?.stack||error);
