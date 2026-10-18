@@ -622,6 +622,11 @@ async function runDevice(engine,label,viewport,urls){
          return window.__lariaDiscoveryGlobePreview===true&&
            c?.dataset.discoveryNaturalEarth==='ready';
        },null,{timeout:20000});
+       const preparation=await trial.page.locator('#globe-canvas').evaluate(c=>
+         Number(c.dataset.discoveryNaturalEarthPreparationMs||0));
+       assert.ok(preparation>0&&preparation<10000,
+         label+' Natural Earth initial load/processing is outside the 10 s QA budget: '+preparation);
+       console.log('NE PREPARATION PERF',label,preparation+'ms');
        for(const pose of [
         {name:'afrika',lon:19,lat:3},
         {name:'himalaya',lon:85,lat:30},
@@ -652,6 +657,31 @@ async function runDevice(engine,label,viewport,urls){
          await trial.page.screenshot({path:path.join(out,label+'-ne-relief-'+pose.name+'.png'),
            fullPage:false,animations:'disabled'});
        }
+       // A real finger tap must still select the original French country
+       // polygon even when a full geographic hillshade is visible above it.
+       const point=await trial.page.evaluate(()=>{
+         globeLon=2;globeLat=47;globeSelected=null;setGlobeZoom(1.25);
+         const canvas=document.getElementById('globe-canvas');
+         const projected=globeProject(2,47,canvas._cssW,canvas._cssH);
+         const bounds=canvas.getBoundingClientRect();
+         return {x:bounds.left+projected[0],y:bounds.top+projected[1]};
+       });
+       await trial.page.touchscreen.tap(point.x,point.y);
+       await trial.page.waitForFunction(()=>globeSelected==='fr',null,{timeout:7000});
+       const selected=await trial.page.locator('#globe-status').innerText();
+       assert.match(selected,/Frankrike/i,
+         label+' geographic hillshade obscured a real country selection');
+       await trial.page.locator('#globe-view-toggle [data-globe-view="simple"]').click();
+       await trial.page.waitForFunction(()=>window.__lariaDiscoveryGlobePreview===false,
+         null,{timeout:7000});
+       assert.equal(await trial.page.locator('#world-screen').getAttribute('data-discovery-globe'),
+         null,label+' natural relief leaked into Enkel-globus');
+       await trial.page.locator('#globe-view-toggle [data-globe-view="discover"]').click();
+       await trial.page.waitForFunction(()=>{
+         return window.__lariaDiscoveryGlobePreview===true&&
+           document.getElementById('globe-canvas')?.dataset.discoveryNaturalEarth==='ready';
+       },null,{timeout:7000});
+       console.log('NE TOUCH/ISOLATION QA',label,'France selected; Enkel isolated; Oppdag restored');
        assert.deepEqual(errorBase,[],label+' stable view errors');
        assert.deepEqual(errorTrial,[],label+' Natural Earth relief view errors');
      }finally{
