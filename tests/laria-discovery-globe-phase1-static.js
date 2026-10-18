@@ -10,6 +10,14 @@ const path=require('node:path');
 const root=path.resolve(__dirname,'..');
 const read=file=>fs.readFileSync(path.join(root,file),'utf8');
 const preview=read('laer-litt-mer/discovery-globe-phase1.js');
+const polarSource=read('laer-litt-mer/discovery-antarctica-geography-v1.js');
+assert.match(polarSource,/Natural Earth 1:110m/,'Antarctic coastline must have documented public-domain provenance');
+const polarGeometry=JSON.parse(polarSource.split('window.LARIA_ANTARCTICA_GEOMETRY=')[1].trim().replace(/;$/, ''));
+assert.equal(polarGeometry.type,'MultiPolygon','Antarctica must use real vector polygons');
+assert.ok(polarGeometry.coordinates.length>=8,'polar dataset lost its geographic islands and mainland');
+const polarPoints=polarGeometry.coordinates.flat(2);
+assert.ok(polarPoints.every(p=>p.length===2&&p[1]<=-63&&p[1]>=-90),
+  'polar vertices must stay within the documented Antarctic latitude band');
 const renderer=read('laer-litt-mer/globe-v25-renderer.js');
 const index=read('laer-litt-mer/index.html');
 assert.ok(index.startsWith('<!doctype html>'), 'the complete app shell must start at its doctype');
@@ -29,6 +37,9 @@ assert.match(preview,/type==='pointerup'&&trusted&&globeSelected/,'the selected 
 assert.match(preview,/requestAnimationFrame\(\(\)=>\{\s*if\(typeof globePointers/,'the tap callback must run after the original input owner');
 assert.match(preview,/const discoveryContinentStops=\[/,'Oppdag must define grounded continent destinations');
 assert.match(preview,/const discoveryContinentStories=\{/,'each continent needs optional guided places');
+assert.match(preview,/function paintAntarcticIce\(/,'Antarctic geography must be visible on the new globe');
+assert.match(preview,/canvas\.dataset\.discoveryAntarcticLand=/,'polar rendering needs independent QA evidence');
+assert.match(preview,/if\(antarcticaOutline&&globeLat<=-61\)/,'south-polar rotation cannot be mislabeled as Oseania');
 assert.match(preview,/function showContinentDiscovery\(/,'continent action must reveal a meaningful new place');
 assert.match(preview,/function paintDiscoveryLocation\(/,'named discoveries must have a visible projected map location');
 assert.match(preview,/const p=project\(lon,lat,w,h\)/,'the discovery highlight must use the real globe projection');
@@ -37,11 +48,11 @@ assert.match(preview,/activeDiscoveryLocation=null;/,'landmark highlights must b
 assert.match(preview,/const discoveryContinentVisits=new Map\(\)/,'visiting a favourite place again must remain possible');
 assert.match(preview,/box\.dataset\.discoveryStoryStep=String\(visits\)/,
   'QA must expose a distinct optional discovery step');
-for(const name of ['Europa','Afrika','Asia','Nord-Amerika','Sør-Amerika','Oseania'])
+for(const name of ['Europa','Afrika','Asia','Nord-Amerika','Sør-Amerika','Oseania','Antarktis'])
   assert.ok(preview.includes("'"+name+"':{"),'missing curated place story for '+name);
 for(const place of ['Alpene','Sahara','Himalaya','Rocky Mountains','Andesfjellene','Korallrevet'])
   assert.ok(preview.includes("title:'"+place+"'"),'missing geographic discovery: '+place);
-for(const name of ['Europa','Afrika','Asia','Nord-Amerika','Sør-Amerika','Oseania'])
+for(const name of ['Europa','Afrika','Asia','Nord-Amerika','Sør-Amerika','Oseania','Antarktis'])
   assert.ok(preview.includes("name:'"+name+"'"),'missing continent destination: '+name);
 assert.match(preview,/dataset\.discoveryContinent=stop\.name/,'the visible invitation must identify its continent');
 assert.match(preview,/renderDiscoveryWelcome\(\)/,'rotation must update the selected continent invitation');
@@ -58,6 +69,7 @@ assert.match(index,/id="globe-view-toggle"/,'accessible view buttons must be in 
 assert.match(index,/const DISCOVERY_CONTINENT_ZOOM_MAX=1\.72;/,'shared zoom input must know the isolated Oppdag cap');
 assert.match(index,/window\.__lariaDiscoveryGlobePreview===true/,'the limited zoom may only apply to Oppdag');
 assert.match(index,/function activeGlobeZoomMax\(/,'wheel, pinch and buttons must share the same zoom limit');
+assert.match(index,/discovery-antarctica-geography-v1\.js/,'Antarctica data must load independently and before Oppdag');
 const viewCss=read('laer-litt-mer/discovery-globe-view-v1.css');
 assert.match(viewCss,/laria-discovery-fox-found/,'a discovered place should have a subtle fox reaction');
 assert.match(viewCss,/prefers-reduced-motion:reduce/,'the reaction must respect reduced-motion accessibility');
