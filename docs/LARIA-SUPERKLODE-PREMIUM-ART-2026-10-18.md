@@ -151,3 +151,12 @@ Node-statusen alene er ikke visuell premiumgodkjenning.
 - Den aktive invitasjonen følger ferdig rotasjon, kniping/musehjul og tilbakestilling; knappen «Se [verdensdel]» vender kloden mot valgt område på kontinentnivå. Landvalg, original globe og kartmotor endres ikke.
 - Ny Playwright/WebKit-regresjonstest kontrollerer navn, posisjon og zoomgrense for alle seks verdensdeler og lagrer ekstra iPad/iPhone-opptak for visuell sammenlikning.
 - **Neste port:** Vent på grønn CI og gjennomgå faktiske oppdaterte iPad/iPhone-bilder; særlig at de lengste navnene ikke overdekker kloden. Forbedre deretter terrengmaterialet i egen isolert endring hvis referansekvaliteten fortsatt ikke nås. Ingen merge eller publisering før premiumkontroll.
+
+### Seks verdensdeler verifisert, materialpass 2 i kontroll
+
+- GitHub-kjøring `39119274341` på `993bfe7` besto hele «Laria Dual Globes Release QA». WebKit/Chromium-opptak inkluderer faktisk kamera- og knappetest av alle seks verdensdeler, inkludert stående iPhone og liggende iPad.
+- Gjennomgangen viste at alle seks invitasjoner virker og at navnene får plass. «Sør-Amerika venter» brytes over to linjer på iPad liggende, men forblir inne i kortet.
+- Terrengets geografiske korrekthet er testet, men full premiumfølelse er ennå ikke oppnådd. Som neste isolerte illustrasjonspass tegnes mykere skogkroner og ørkentekstur også i zoomnivå 1, med moderat høyere kontrast i zoomnivå 2. Ingen dekorstempler, landformer eller treffsoner er endret.
+- «Se [verdensdel]»-handlingene har nå minst 44 piksler treffhøyde for barn. WebKit-testene kontrollerer størrelsen og at knappen forblir innenfor kortet.
+- Skript, stilark og service worker har fått ny versjonsidentifikator for å hindre at PWA-klienter får en blanding av gammel og ny Oppdag ved en eventuell release.
+- **Ny release-port:** Verifiser grønn GitHub QA på den nyeste committen, sammenlikn alle seks regionbilder (særlig regnskog, Sahara og Skandinavia), kontroller 320 px iPhone og tilgjengelighet på faktiske enheter før flette/publisering. Enkel og dagens kart skal aldri endres.
