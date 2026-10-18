@@ -444,6 +444,15 @@
  .gm-shell[data-gm-mode="mission"] .gm-pick,.gm-shell[data-gm-mode="mission"] .gm-tool{min-height:61px}
  .gm-shell[data-gm-mode="mission"] .gm-secondary-nav{margin-top:7px}
 }
+/* In the completed 390x844 WebKit state, the full-size "Neste oppdrag"
+   button was only 3.7px beyond the viewport after enlarging the illustration.
+   Free seven pixels by removing redundant separation, not by shrinking art,
+   instruction lettering or the touch target. */
+@media(min-width:361px) and (max-width:699px) and (min-height:701px) and (max-height:900px){
+ .gm-shell[data-gm-mode="mission"][data-gm-complete="true"] .gm-actions-complete{
+   margin-top:1px;
+ }
+}
 /* Visual review of real 18.10 WebKit captures vs locked 941x1672 reference:
    iPhone 390 / portrait iPad needed a stronger hierarchy and materially larger
    fox, interactive baskets and picture-led directions. These art-direction
