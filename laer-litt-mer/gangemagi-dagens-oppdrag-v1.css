@@ -79,8 +79,14 @@
   font-size:clamp(25px,3.7vw,46px);line-height:1.12;font-weight:1000;
   letter-spacing:-.043em;text-align:center;text-wrap:balance;
 }
+.gm-shell[data-gm-mode="mission"] .gm-story.gm-quest h2.gm-quest-callout>span{
+  display:block;max-width:100%;line-height:1.09;
+}
 .gm-shell[data-gm-mode="mission"] .gm-quest-callout em{
   font-style:normal;color:#d45a41;text-shadow:0 1px 0 #ffdfbe;
+}
+.gm-shell[data-gm-mode="mission"] .gm-quest-callout>span:first-child em{
+  color:#532d1b;text-shadow:0 1px 0 #ffedc8;
 }
 .gm-shell[data-gm-mode="mission"] .gm-quest-steps{
   display:grid;grid-template-columns:1fr 20px 1fr 20px 1fr;
