@@ -214,3 +214,12 @@ Node-statusen alene er ikke visuell premiumgodkjenning.
 - `index.html` og `sw.js` er versjonert på nytt for ny ressurscache. Siste versjonscommit krever grønn QA på eksakt ny HEAD før videre handlinger.
 - **Åpen faglig mangel:** Antarktis er ikke tegnet med eget datagrunnlag i den eksisterende verdensdelenes landmotor, og er derfor ikke tilbudt som en syvende invitasjon. Legg bare til Antarktis med en dokumentert korrekt kystlinje/polarprojeksjon; ikke tegn en vilkårlig iskappe eller la barnet oppdage et tomt hav.
 - **Neste visuelle port:** Referansebasert premiumkunst for kontinentenes økosystemer, samt faktiske skjermbilder og ytelse fra iPad/iPhone. Hold `#184` draft, basert på `#179`; ingen merge eller publisering før både visuell og teknisk kontroll.
+
+### Geografisk markering av oppdagelsessted – verifisert
+
+- Oppdag viser nå nøyaktig **én** liten gullfarget posisjonsmarkør når barnet velger et konkret sted i en verdensdel. Markøren projiseres fra samme lon/lat som den eksisterende geografiske motoren, etter tegning av landkonturene. Ingen ekstra trykklag, falske landformer, quizspørsmål eller endringer i dagens Enkel/Kartet.
+- Ingen markør ved vanlig kontinentinvitasjon. Ved et nytt landvalg eller når Oppdag deaktiveres, fjernes aktiv posisjon. Roteres kloden slik at stedet ligger bak horisonten, tegnes markøren ikke. Markøren følger geografisk rotasjon og zoom.
+- **Automatisk kvalitet:** `Laria Dual Globes Release QA` [kjøring 39125946951](https://github.com/Almenning/Flyt-app/actions/runs/39125946951) grønn på commit `2b5d654`, med WebKit/Chromium, regresjonskontroll av alle seks invitasjoner, kartmodus, personlig rev, kortskjerm og valgt markør. Artefakt `laria-discovery-globe-phase1-2b5d6544f6cefa372d75c35152ceba52440beb93`.
+- **Visuelt kontrollert:** Faktiske WebKit-bilder fra iPhone stående og iPad liggende viser gullmarkøren ved Andesfjellene og Himalaya. Markøren er lesbar, men dekker ikke fjellkonturene.
+- Etter siste `index.html`- og `sw.js`-versjonsløft må eksakt ny HEAD bestå CI igjen før endringen kan vurderes videre.
+- **Beslutning:** Dette er en funksjonelt og teknisk godkjent, barnevennlig **første oppdagelsesprototype**. Full premiumgodkjenning og publisering forblir blokkert av behovet for et mer særpreget terrenguttrykk, fysisk enhetstest og vurdering av manglende Antarktis.
