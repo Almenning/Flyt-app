@@ -149,7 +149,17 @@ async function check(engine,label,viewport,url){
   assert.match(await page.locator('.gm-fox-message').innerText(),/kurv/i);
   await page.locator('[data-gm-action="remove"][data-group="0"]').click();
   assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[1,0,0]);
-  for(const [group,count] of [[0,2],[1,3],[2,3]])await selectAndPick(page,group,count);
+  for(const [group,count] of [[0,2],[1,3],[2,3]]){
+    await selectAndPick(page,group,count);
+    if(group<2){
+      assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).selectedBasket,null,
+        label+' a completed basket must release selection before the child chooses the next one');
+      assert.equal(await page.locator('.gm-quest-step-active[aria-current="step"][data-gm-step="1"]').count(),1,
+        label+' the first illustrated step should invite the next basket');
+      assert.match(await page.locator('.gm-fox-message').innerText(),/Velg en ny kurv/,
+        label+' fox gives a short instruction to continue');
+    }
+  }
   assert.equal((await page.locator('.gm-math-equation').innerText()).trim(),'3 × 3 = 9');
   assert.equal(await page.locator('.gm-quest-step-active[aria-current="step"][data-gm-step="3"]').count(),1,
     label+' final illustrated step celebrates the multiplication discovery');
