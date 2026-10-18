@@ -251,6 +251,43 @@ async function verifyContinentInvitation(page,label){
    label+' continent action did not orient the geographic camera: '+stop.name);
   assert.ok(Math.abs(focused.zoom-stop.zoom)<.001,
    label+' continent action changed its approved scale: '+stop.name);
+  assert.equal(await page.locator('#globe-status').getAttribute('data-discovery-story-step'),'0',
+   label+' continent action did not reveal the first optional discovery');
+  assert.equal(await button.innerText(),'Neste sted',
+   label+' there is no child-friendly continuation after entering '+stop.name);
+  assert.ok((await page.locator('.discovery-intro-teaser').innerText()).length>=28,
+   label+' continent intro has no educational discovery: '+stop.name);
+  assert.equal(await page.locator('.discovery-intro-fox').getAttribute('class'),
+   'discovery-intro-fox discovery-fox-reacting',
+   label+' selected fox did not celebrate the discovery');
+  // Test a real second discovery with its geographic location; the invitation
+  // is optional, can be repeated, and must never mark a school task complete.
+  if(label==='webkit-ipad-landscape'||label==='webkit-iphone-portrait'){
+   const nextPlace={
+    'Europa':{name:'Alpene',lon:11,lat:47},
+    'Afrika':{name:'Sahara',lon:13,lat:23},
+    'Asia':{name:'Himalaya',lon:87,lat:29},
+    'Nord-Amerika':{name:'Rocky Mountains',lon:-112,lat:42},
+    'Sør-Amerika':{name:'Andesfjellene',lon:-70,lat:-19},
+    'Oseania':{name:'Korallrevet',lon:146,lat:-19}
+   }[stop.name];
+   await button.click();
+   assert.equal(await page.locator('#globe-status').getAttribute('data-discovery-story-step'),'1',
+    label+' second discovery did not advance: '+stop.name);
+   assert.equal(await page.locator('.discovery-intro-copy strong').innerText(),nextPlace.name,
+    label+' wrong landmark appeared in '+stop.name);
+   const camera=await page.evaluate(()=>({lon:globeLon,lat:globeLat,zoom:globeZoom}));
+   assert.ok(Math.abs(camera.lon-nextPlace.lon)<.001&&Math.abs(camera.lat-nextPlace.lat)<.001,
+    label+' landmark not georeferenced in '+stop.name+': '+JSON.stringify(camera));
+   assert.ok(camera.zoom<=1.72&&camera.zoom>=1,
+    label+' landmark discovery exceeds continent zoom: '+stop.name);
+   assert.ok((await page.locator('.discovery-intro-teaser').innerText()).length>=25,
+    label+' landmark fact missing in '+stop.name);
+   await page.screenshot({
+    path:path.join(out,label+'-discovery-story-'+stop.name.toLowerCase()+'.png'),
+    fullPage:false,animations:'disabled'
+   });
+  }
  }
 }
 
