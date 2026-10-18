@@ -223,3 +223,18 @@ Node-statusen alene er ikke visuell premiumgodkjenning.
 - **Visuelt kontrollert:** Faktiske WebKit-bilder fra iPhone stående og iPad liggende viser gullmarkøren ved Andesfjellene og Himalaya. Markøren er lesbar, men dekker ikke fjellkonturene.
 - Etter siste `index.html`- og `sw.js`-versjonsløft må eksakt ny HEAD bestå CI igjen før endringen kan vurderes videre.
 - **Beslutning:** Dette er en funksjonelt og teknisk godkjent, barnevennlig **første oppdagelsesprototype**. Full premiumgodkjenning og publisering forblir blokkert av behovet for et mer særpreget terrenguttrykk, fysisk enhetstest og vurdering av manglende Antarktis.
+
+### Syvende verdensdel med korrekt kystlinje, og avvist terrengforsøk – 18. oktober
+
+**Visuell kvalitetsport:**
+- En ny kontinenttegning med kraftige sammenhengende fjellbånd (`c62f95b`) besto CI, men før/etter-sammenligningen på iPad viste at Andesfjellene og Himalaya fremsto som blanke veier. Endringen ble derfor uttrykkelig avvist og tilbakeført i `f36ca78`. Regresjonstesten forbyr at akkurat denne båndteknikken kommer tilbake. Den beskjedne forbedringen i skog-/sandpigment ble beholdt.
+- Hovedkonklusjonen står fast: realistisk premiumkunst krever mer målrettet illustrasjon og geografisk forankrede terrengflater, ikke mange små CSS- eller shaderjusteringer.
+
+**Antarktis som selvstendig kontinent i Oppdag:**
+- Det tidligere dokumenterte geografiske hullet er nå lukket i **den isolerte Oppdag-prototypen**. Det ligger en offentlig tilgjengelig, geografisk korrekt kystlinje fra Natural Earth 1:110m Admin-0 i `laer-litt-mer/discovery-antarctica-geography-v1.js`. Datakilde: https://github.com/nvkelso/natural-earth-vector/blob/master/geojson/ne_110m_admin_0_countries.geojson. Lisens/status: public domain, https://www.naturalearthdata.com/about/terms-of-use/ (fri kommersiell bruk). Datagrunnlaget er generalisert og egner seg for verdensdelsoversikt, ikke presis navigasjon eller vurderinger av bevegelige isbremmer.
+- Original `WORLD_COUNTRIES`, eksisterende Enkel-globus og Kartet ble **ikke endret**. Antarktis tegnes med sitt eget kartlag bare når Oppdag er aktiv, med en egen enkel illustrert isflate og tre kort: Antarktishalvøya, Rossisen, Sørpolen.
+- Antall kontinentinvitasjoner: **7**. Antall valgfrie oppdagelsesstopp: **21** (tre i hver). Ved rotasjon langt mot sør skal Antarktis vises, ikke Oseania eller Sør-Amerika.
+- Regresjonstest i WebKit/Chromium kontrollerer kystlinjens datakilde, polygonantall og sørlige breddegrader; verifiserer at sentrum av den sørlige kloden er faktisk island og ikke blått hav; åpner Antarktis-kort og viser geografisk korrekt første stopp. Testgrunnlag: `Laria Dual Globes Release QA` https://github.com/Almenning/Flyt-app/actions/runs/39128596175 (bestått på commit `870d881`).
+- Reelle WebKit-skjermbilder på iPad liggende og iPhone stående er visuelt gjennomgått: kontinentformen vises, den antarktiske halvøya har markør, norsk tekst er lesbar. Dette er **ikke** fotografi av fysisk iPad/iPhone.
+- Etter siste endring av `index.html` og `sw.js` kreves ny, grønn CI på eksakt HEAD før ytterligere godkjenning.
+- **Gjenstående premiumporter:** Oppdag sin illustrative dybde, original, gjenkjennelig geografi-/økosystemkunst for alle syv kontinenter, barnets reven i hele oppdagelsesflyten, ytelse og faktisk enhetstest. Fortsett som draft PR #184 med #179 som base; ingen merge/publisering ennå.
