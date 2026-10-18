@@ -772,6 +772,28 @@ try{if(localStorage.getItem(preferenceKey)==='discover')desiredView='discover'}c
 if(forcedPreview)desiredView='discover';
 const controls=[...document.querySelectorAll('#globe-view-toggle [data-globe-view]')];
 const continentZoomCap=1.72;
+/* Discovery begins at continent scale. The geographic center of the globe,
+   not an arbitrary UI carousel, determines which story invitation is visible.
+   The underlying country map remains the authoritative hit target. */
+const discoveryContinentStops=[
+  {name:'Europa',lon:13,lat:53,zoom:1.38,teaser:'Fjorder, fjell og mange land å oppdage.'},
+  {name:'Afrika',lon:19,lat:3,zoom:1.28,teaser:'Sahara, savanner og grønne regnskoger.'},
+  {name:'Asia',lon:104,lat:38,zoom:1.30,teaser:'Høye fjell, store skoger og spennende øyer.'},
+  {name:'Nord-Amerika',lon:-105,lat:43,zoom:1.30,teaser:'Store skoger, høye fjell og lange elver.'},
+  {name:'Sør-Amerika',lon:-62,lat:-14,zoom:1.30,teaser:'Amazonas, Andesfjellene og grønn regnskog.'},
+  {name:'Oseania',lon:135,lat:-25,zoom:1.30,teaser:'Australia, store hav og mange øyer.'}
+];
+function discoveryContinentForCamera(){
+  const rad=Math.PI/180,latitude=globeLat*rad;
+  let closest=discoveryContinentStops[0],best=-2;
+  for(const stop of discoveryContinentStops){
+    const targetLat=stop.lat*rad;
+    const proximity=Math.sin(latitude)*Math.sin(targetLat)+
+      Math.cos(latitude)*Math.cos(targetLat)*Math.cos((globeLon-stop.lon)*rad);
+    if(proximity>best){best=proximity;closest=stop;}
+  }
+  return closest;
+}
 const copyNodes={
   hero:screen.querySelector('.hero-copy'),
   hint:screen.querySelector('.globe-hint')
@@ -788,18 +810,25 @@ function selectedFoxSource(){
 function renderDiscoveryWelcome(){
   if(window.__lariaDiscoveryGlobePreview!==true||globeSelected)return false;
   const box=document.getElementById('globe-status');if(!box)return false;
+  const stop=discoveryContinentForCamera();
+  // Idle checks must not rebuild the portrait or steal keyboard focus.
+  if(box.classList.contains('discovery-continent-intro')&&
+     box.dataset.discoveryContinent===stop.name&&box.querySelector('.discovery-intro-copy'))
+    return false;
   box.className='globe-status discovery-continent-intro';
+  box.dataset.discoveryContinent=stop.name;
+  delete box.dataset.discoveryCountryId;
   box.innerHTML='<div class="discovery-intro-copy">'+
-    '<span class="discovery-intro-kicker">FØRSTE STOPP</span>'+
-    '<strong>Europa venter</strong>'+
-    '<span>Fjorder, fjell og mange land å oppdage.</span>'+
-    '<button type="button" class="discovery-europe-button">Se Europa</button></div>'+
+    '<span class="discovery-intro-kicker">VERDENSDEL</span>'+
+    '<strong>'+stop.name+' venter</strong>'+
+    '<span>'+stop.teaser+'</span>'+
+    '<button type="button" class="discovery-continent-button">Se '+stop.name+'</button></div>'+
     '<img class="discovery-intro-fox" src="'+selectedFoxSource()+'" alt="Din rev er med på oppdagelsen">';
   box.style.cursor='default';box.onclick=null;
-  const button=box.querySelector('.discovery-europe-button');
+  const button=box.querySelector('.discovery-continent-button');
   if(button)button.onclick=()=>{
-    globeLon=13;globeLat=53;
-    if(typeof setGlobeZoom==='function')setGlobeZoom(1.38);
+    globeLon=stop.lon;globeLat=stop.lat;
+    if(typeof setGlobeZoom==='function')setGlobeZoom(stop.zoom);
     else if(typeof window.drawGlobe==='function')window.drawGlobe();
   };
   return true;
@@ -817,6 +846,7 @@ function enhanceDiscoveryCountryCard(){
   if(!country||!box)return false;
   const copy=box.querySelector('.globe-country-copy');if(!copy)return false;
   box.classList.remove('discovery-continent-intro');
+  delete box.dataset.discoveryContinent;
   if(copy.querySelector('.discovery-country-companion'))return false;
   const companion=document.createElement('div');
   companion.className='discovery-country-companion';
@@ -924,6 +954,10 @@ const wait=()=>{
         try{window.drawGlobe?.()}catch(_){}
       }
     }
+    // Recover the discovery invitation if the shared map-mode UI has
+    // replaced its card. Do not churn the DOM during a drag or idle repaint.
+    if(enabled&&!globeSelected&&window.__lariaGlobeInteracting!==true)
+      renderDiscoveryWelcome();
   };
   const chooseView=view=>{
     if(view!=='simple'&&view!=='discover')return;
@@ -941,11 +975,11 @@ const wait=()=>{
     const afterDrag=()=>{
       if(typeof globePointers!=='undefined'&&globePointers.size>0)return;
       if(typeof globeMove==='number'&&globeMove>=8)
-        requestAnimationFrame(clearOffscreenDiscoverySelection);
+        requestAnimationFrame(()=>{clearOffscreenDiscoverySelection();renderDiscoveryWelcome();});
     };
     canvas.addEventListener('pointerup',afterDrag,{passive:true});
     canvas.addEventListener('pointercancel',afterDrag,{passive:true});
-    canvas.addEventListener('wheel',()=>requestAnimationFrame(clearOffscreenDiscoverySelection),{passive:true});
+    canvas.addEventListener('wheel',()=>requestAnimationFrame(()=>{clearOffscreenDiscoverySelection();renderDiscoveryWelcome();}),{passive:true});
   }
   const status=document.getElementById('globe-status');
   if(status){
@@ -969,6 +1003,8 @@ const wait=()=>{
     }).observe(status,{childList:true,subtree:true});
   }
   controls.forEach(btn=>btn.addEventListener('click',()=>chooseView(btn.dataset.globeView)));
+  document.getElementById('reset-globe')?.addEventListener('click',()=>
+    requestAnimationFrame(renderDiscoveryWelcome));
   document.addEventListener('click',event=>{
     if(event.target?.closest?.('#globe-mode [data-globe-mode]'))
       requestAnimationFrame(()=>requestAnimationFrame(activate));
