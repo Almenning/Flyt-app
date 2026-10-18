@@ -511,6 +511,50 @@ async function runDevice(engine,label,viewport,urls){
      assert.ok(idleEnd-idleStart<=1,label+' idle preview repainted '+(idleEnd-idleStart)+' times without input');
      assert.deepEqual(errors,[],label+' discovery page errors');
    }finally{await discovery.ctx.close();}
+   if(process.env.SUPERKLODE_NASA_TRIAL==='1'&&
+     (label==='webkit-ipad-landscape'||label==='webkit-iphone-portrait')){
+     const controlErrors=[],trialErrors=[];
+     const control=await openPage(browser,urls.preview,viewport,controlErrors);
+     const trial=await openPage(browser,urls.preview+'&discovery-relief=nasa',viewport,trialErrors);
+     try{
+       await trial.page.waitForFunction(()=>{
+         const canvas=document.getElementById('globe-canvas');
+         return window.__lariaDiscoveryGlobePreview===true&&
+           canvas?.dataset.discoveryNaturalRelief==='ready';
+       },null,{timeout:18000});
+       const stops=[
+         {name:'afrika',lon:19,lat:3},
+         {name:'himalaya',lon:85,lat:30},
+         {name:'amazonas',lon:-61,lat:-7},
+         {name:'skandinavia',lon:15,lat:63}
+       ];
+       for(const stop of stops){
+         const move=({lon,lat})=>{
+           globeLon=lon;globeLat=lat;globeSelected=null;
+           setGlobeZoom(1.38);drawGlobe();
+         };
+         await control.page.evaluate(move,stop);
+         await trial.page.evaluate(move,stop);
+         const normalPixels=await control.page.locator('#globe-canvas').evaluate(c=>c.toDataURL('image/png'));
+         const enhancedPixels=await trial.page.locator('#globe-canvas').evaluate(c=>c.toDataURL('image/png'));
+         assert.notEqual(hash(normalPixels),hash(enhancedPixels),
+           label+' natural relief texture had no visible pixels for '+stop.name);
+         await control.page.screenshot({path:path.join(out,label+'-baseline-'+stop.name+'.png'),
+           fullPage:false,animations:'disabled'});
+         await trial.page.screenshot({path:path.join(out,label+'-nasa-relief-'+stop.name+'.png'),
+           fullPage:false,animations:'disabled'});
+         console.log('NATURAL RELIEF TRIAL',label,stop.name,
+           hash(normalPixels).slice(0,8),hash(enhancedPixels).slice(0,8));
+       }
+       assert.equal(await trial.page.locator('#globe-canvas').getAttribute('data-discovery-natural-relief'),
+         'ready',label+' NASA art did not finish loading');
+       assert.deepEqual(controlErrors,[],label+' baseline errors');
+       assert.deepEqual(trialErrors,[],label+' experimental texture errors');
+     }finally{
+       await control.ctx.close();
+       await trial.ctx.close();
+     }
+   }
    console.log('PASS geographically correct, visually distinct ordinary/discovery globes: '+label);
  }finally{await browser.close();}
 }
