@@ -15,6 +15,46 @@ const trialNaturalRelief=new URLSearchParams(location.search).get('discovery-rel
 // lit slopes and snow shelves replace satellite hues and tiny ridge ticks.
 // Default Oppdag and Enkel ignore this flag completely.
 const trialCarvedRelief=new URLSearchParams(location.search).get('discovery-art')==='carved';
+const trialNaturalEarthRelief=new URLSearchParams(location.search).get('discovery-art')==='natural-earth';
+let naturalEarthPixels=null;
+let naturalEarthStatus=trialNaturalEarthRelief?'loading':'disabled';
+function loadNaturalEarthTrial(){
+  if(!trialNaturalEarthRelief)return;
+  const script=document.createElement('script');
+  script.src='./discovery-ne-shaded-data-v1.js';
+  script.async=true;
+  script.onerror=()=>{naturalEarthStatus='failed-script';};
+  script.onload=async()=>{
+    const tiles=window.LARIA_NE_SHADED_TILES;
+    if(!tiles||!['nw','ne','sw','se'].every(k=>tiles[k]?.startsWith('iVBORw0')))
+      {naturalEarthStatus='missing-tiles';return;}
+    try{
+      const imgs=await Promise.all(['nw','ne','sw','se'].map(id=>new Promise((resolve,reject)=>{
+        const image=new Image();
+        image.onload=()=>resolve(image);
+        image.onerror=()=>reject(new Error('Could not decode '+id));
+        image.src='data:image/png;base64,'+tiles[id];
+      })));
+      if(imgs.some(im=>im.naturalWidth!==512||im.naturalHeight!==512))
+        throw new Error('Expected four 512px Mercator tiles');
+      const canvas=document.createElement('canvas');
+      canvas.width=1024;canvas.height=1024;
+      const ctx=canvas.getContext('2d',{willReadFrequently:true});
+      if(!ctx)throw new Error('Natural Earth tile canvas unavailable');
+      ctx.drawImage(imgs[0],0,0);ctx.drawImage(imgs[1],512,0);
+      ctx.drawImage(imgs[2],0,512);ctx.drawImage(imgs[3],512,512);
+      naturalEarthPixels={width:1024,height:1024,
+        bytes:ctx.getImageData(0,0,1024,1024).data};
+      naturalEarthStatus='ready';
+      window.LARIA_NE_SHADED_TILES=null;
+      terrainFieldCache=null;
+      if(window.__lariaDiscoveryGlobePreview===true)
+        requestAnimationFrame(()=>window.drawGlobe?.());
+    }catch(e){naturalEarthStatus='failed-decode';
+      window.__lariaNaturalEarthTrialError=String(e?.message||e);}
+  };
+  document.head.appendChild(script);
+}
 let naturalReliefPixels=null, naturalReliefStatus=trialNaturalRelief?'loading':'disabled';
 function loadNaturalReliefTrial(){
   if(!trialNaturalRelief)return;
@@ -396,6 +436,7 @@ function paintWorldTerrain(ctx,w,h,s,level,moving){
     // at iPad size. The ordinary painter retains its proven lightweight grid.
     const pixels=naturalReliefPixels?
       clamp(Math.round(s*.67),180,430):
+      naturalEarthPixels?clamp(Math.round(s*.43),180,310):
       level===1?clamp(Math.round(s*.33),128,205):level===2?172:208;
     const startedAt=performance.now();
     const surface=document.createElement('canvas');
@@ -443,7 +484,7 @@ function paintWorldTerrain(ctx,w,h,s,level,moving){
         const leafy=bp&&(bp.kind==='rainforest'||bp.kind==='forest');
         const base=shade+mountainCut*85-mountainReach*28;
         const neutral=[118+base*.64,161+base*.75,115+base*.49];
-        const alpha=clamp(.30+biomeReach*.61+mountainReach*.45,.28,.94);
+        let alpha=clamp(.30+biomeReach*.61+mountainReach*.45,.28,.94);
         const mixT=clamp(biomeReach*1.19,0,.99);
         let red=neutral[0],green=neutral[1],blue=neutral[2];
         if(tint){
@@ -466,6 +507,27 @@ function paintWorldTerrain(ctx,w,h,s,level,moving){
             const ridges=terrainNoise(lon,lat,level===1?2.1:3.7,61)-.5;
             const sand=(dunes*.66+ridges*.34)*51*biomeReach;
             red+=sand*.83;green+=sand*.61;blue+=sand*.30;
+          }
+        }
+        if(naturalEarthPixels){
+          // 50m Natural Earth II contains actual elevation-derived hillshade.
+          // Mercator mosaic is resampled at the globe's real longitude and
+          // latitude. It colours no sea, changes no country hit geometry,
+          // and leaves Antarctica to the accurate separate polar renderer.
+          const tx=clamp(Math.floor((lon+180)/360*1024),0,1023);
+          const latitude=clamp(lat,-85,85)*terrainDegree;
+          const mercatorY=(1-Math.asinh(Math.tan(latitude))/Math.PI)*.5;
+          const ty=clamp(Math.floor(mercatorY*1024),0,1023);
+          const ix=(ty*1024+tx)*4,ne=naturalEarthPixels.bytes;
+          const nr=ne[ix],ng=ne[ix+1],nb=ne[ix+2];
+          // The tile's water is flat white; retain the Læria land base if a
+          // 50m/110m coastline mismatch lands on one of these source pixels.
+          if(nr+ng+nb<751){
+            const wash=.71;
+            red=red*(1-wash)+(nr*.91+11)*wash;
+            green=green*(1-wash)+(ng*.93+10)*wash;
+            blue=blue*(1-wash)+(nb*.85+14)*wash;
+            alpha=.91;
           }
         }
         if(naturalReliefPixels){
@@ -504,7 +566,7 @@ function paintWorldTerrain(ctx,w,h,s,level,moving){
             blue=blue*(1-snow)+221*snow;
           }
         }
-        if(!trialCarvedRelief&&mountainReach>.06&&rp){
+        if(!trialCarvedRelief&&!trialNaturalEarthRelief&&mountainReach>.06&&rp){
           /* Rock and snow belong to a continuous corridor around each
              georeferenced mountain spine. Spatial noise forms lit/shaded
              facets; these are material pigments, not peak-shaped stamps. */
@@ -555,7 +617,8 @@ function paintBorders(ctx,w,h,s){
     if(selected){ctx.save();ctx.fillStyle='rgba(255,224,137,.13)';ctx.shadowColor='rgba(255,188,36,.22)';ctx.shadowBlur=Math.max(8,s*.014);ctx.fill();ctx.restore();}
     // An exploration globe should reveal physical landscapes first;
     // political borders return clearly at closer zoom and on country tap.
-    const borderAlpha=trialCarvedRelief?(globeZoom<1.7?.09:globeZoom<2.5?.19:.42):
+    const borderAlpha=(trialCarvedRelief||trialNaturalEarthRelief)?
+      (globeZoom<1.7?.09:globeZoom<2.5?.19:.42):
       globeZoom>2.4?.48:.29;
     ctx.strokeStyle=selected?'rgba(255,253,225,.98)':
       'rgba(255,250,226,'+borderAlpha+')';
@@ -606,7 +669,7 @@ function paintMountainCrests(ctx,chain,w,h,s,level,width){
   const continentHero=continentCrestChains.has(chain.name);
   // The area-based painting owns the relief at this zoom. Tiny repeated
   // ridge glyphs would undermine it, and were rejected in earlier art QA.
-  if(trialCarvedRelief&&level<=2)return 0;
+  if((trialCarvedRelief||trialNaturalEarthRelief)&&level<=2)return 0;
   if(level<2&&!continentHero)return 0;
   let drawn=0;
   for(let j=0;j<chain.route.length-1;j++){
@@ -644,6 +707,14 @@ function paintMountainCrests(ctx,chain,w,h,s,level,width){
 }
 function paintReliefTrails(ctx,w,h,s,level,moving){
   if(moving)return 0;
+  if(trialNaturalEarthRelief){
+    const canvas=document.getElementById('globe-canvas');
+    if(canvas){
+      canvas.dataset.discoveryContinentCrests='0';
+      canvas.dataset.discoveryContinentRivers='0';
+    }
+    return 1;
+  }
   let count=0,continentCrests=0,continentRivers=0;
   for(let c=0;c<mountainChains.length;c++){
     const chain=mountainChains[c],zone={route:chain.route,width:chain.width};
@@ -705,6 +776,7 @@ function paintReliefTrails(ctx,w,h,s,level,moving){
    children zoom closer; all samples are deterministic geographic points. */
 const geoNoise=n=>{const x=Math.sin(n*78.233+19.192)*43758.5453;return x-Math.floor(x);};
 function paintGeographicTexture(ctx,w,h,s,level,moving){
+  if(trialNaturalEarthRelief&&level===1)return 0;
   // At continent scale the world needs recognisable natural material, not
   // only a blurred colour field. Use fewer, gently blended geographic flecks.
   if(moving)return 0;
@@ -931,6 +1003,7 @@ function discoveryDraw(){
   canvas.dataset.discoveryAntarcticLand=String(polarCount);
   canvas.dataset.discoveryNaturalRelief=naturalReliefStatus;
   canvas.dataset.discoveryCarvedRelief=String(trialCarvedRelief);
+  canvas.dataset.discoveryNaturalEarth=naturalEarthStatus;
   canvas.dataset.discoveryPaintCount=String(Number(canvas.dataset.discoveryPaintCount||0)+1);
   // v25 can still seed the old Tsjad showcase after selecting Oppdag.
   // Reconcile after the card update has completed, not inside its draw call.
@@ -1398,6 +1471,7 @@ const wait=()=>{
   syncButtons();
   activate();
   loadNaturalReliefTrial();
+  loadNaturalEarthTrial();
   requestAnimationFrame(()=>requestAnimationFrame(activate));
   setTimeout(activate,180);
   // Does not repaint while idle; only restores the active painter after a
