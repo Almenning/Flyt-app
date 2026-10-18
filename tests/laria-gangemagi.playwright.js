@@ -39,6 +39,8 @@ async function check(engine,label,viewport,url){
   assert.match(await page.locator('.gm-quest-callout').innerText(),/Fyll 3 kurver med 3 jordbær i hver/);
   assert.equal(await page.locator('.gm-quest-filled-preview .gm-quest-mini-basket').count(),3,
     'final instructional illustration previews one filled basket per real group');
+  assert.equal(await page.locator('.gm-quest-filled-preview .gm-quest-mini-berries i').count(),9,
+    label+' three baskets really show three strawberries each');
   assert.deepEqual(await page.locator('.gm-quest-step strong').allInnerTexts(),
     ['Velg en kurv','Legg i jordbær','Se at 3 × 3 = 9'],'instructions are three real readable DOM steps');
   assert.equal(await page.locator('.gm-quest-step-active[aria-current="step"][data-gm-step="1"]').count(),1,
@@ -247,6 +249,8 @@ async function check(engine,label,viewport,url){
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).mission,7);
   assert.equal(await page.locator('.gm-quest-filled-preview .gm-quest-mini-basket').count(),2,
     'final instructional art must follow the selected two-group mission');
+  assert.equal(await page.locator('.gm-quest-filled-preview .gm-quest-mini-berries i').count(),20,
+    label+' the last adventure visibly represents two baskets of TEN berries');
   assert.match(await page.locator('.gm-quest-callout').innerText(),/Fyll 2 kurver med 10 jordbær i hver/,
     'quest text and numbers follow selected authored mission');
   assert.deepEqual(await page.locator('.gm-quest-step strong').allInnerTexts(),
