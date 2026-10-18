@@ -1,0 +1,37 @@
+# Læria: Finn ordene – arbeidslogg 18.10.2026
+
+## Låst mål
+En egen illustrert, levende **Finn ordene**-aktivitet i norskfaget, ved siden av dagens bokstav-Ordjakt.
+Barnet ser seks ord, leter etter tilhørende gjenstander i Bokskogen og trykker direkte på dem.
+Ingen ordetiketter skal være forhåndsplassert oppå svarene. Lek og oppdagelse skal være viktigere enn quiz.
+Det skal alltid være barnets faktisk valgte rev som veileder, reagerer, gir hint og feirer.
+
+## Implementert på isolert branch
+feat/laria-find-words-picture-hunt-20261018
+
+- laer-litt-mer/find-the-words.js: Egen, isolert spillmotor og dialog med 8 interaktive gjenstander, seks ord per runde, tre ordsett, forsiktig tilbakemelding på funn/distraktorer, to-trinns hint, opplesning på forespørsel, gjenopptakelse etter omlasting og fullføringsregistrering uten å berøre eksisterende Ordjakt-data.
+- laer-litt-mer/find-the-words-scene.svg: Ny original illustrasjon av skogen, sol, tre, telt, vann, rev, sekk, båt og fugl, med korrekt plasserte interaktive HTML-trykkfelt uten svartekst i selve bildet.
+- laer-litt-mer/find-the-words.css: Egen stil med enkel ordliste, illustrasjonen som hovedflate og levende personlig rev. Responsiv mobil og iPad; tastaturfokus og redusert bevegelse.
+- laer-litt-mer/index.html: Last inn to nye filer uten å endre Ordjakt.
+- laer-litt-mer/laria-navigation-v13.js og .css: Tilgjengelig fra Utforsk med egen knapp «Finn ordene i bildet» under de fire godkjente eksisterende kortene. Bevarer nøyaktig fire originalkort og deres ruter.
+- laer-litt-mer/sw.js: Ny versjon av cache for oppdaterte ressurser.
+- tests/laria-find-the-words.playwright.js: WebKit/Chromium-test av valg, ekte interaksjoner, seks funn, distraktorer, hint, valgt rev, fullføring, gjenopptakelse, retur og regresjonstest av fem opprinnelige Ordjakt-tema.
+- .github/workflows/laria-find-the-words.yml: Egen CI-jobb på PR som bruker ekte Chromium/WebKit på iPhone- og iPad-størrelser og lagrer skjermbilder.
+
+## Gjennomført kontroll
+- Alle nye JS-filer og endret navigasjon er syntaktisk kontrollert i JavaScript-parser.
+- Nye referanser til JS og CSS forekommer én gang i HTML.
+- Den opprinnelige firekorts Utforsk-matrisen er beholdt uendret.
+- Illustrasjonsfilen og script er koblet til appen. Ingen eksisterende appfiler er slettet.
+- Ingen påstand om full premiumkvalitet eller publisering før ekte browser-/visuell QA.
+
+## Kvalitetsport før publisering
+1. Åpne PR mot main og kontrollere relevant GitHub Actions-resultat.
+2. Test valgt jenterev/guttrev og alle seks funn i faktisk Chromium og WebKit på iPhone, liten iPhone og iPad stående/liggende.
+3. Inspiser reelle skjermbilder: tydelige ord og gjenstander, relevant hit-testing, ingen skjulte kontroller eller horisontal overflow, ingen dekning av personlig rev. Prioriter estetisk nærhet til godkjent «Finn ordene»-illustrasjon.
+4. Kontroller at klassisk Ordjakt fortsatt viser fem temaer og at nylig oppdatert SuperKlode og andre spill er uendret.
+5. Først etter grønne tester, visuell kontroll og avklart samordning med oppdateringer på main: merge, Pages-verifisering og publisering.
+6. Automatiseringsoppgaven «Læria Finn ordene» fortsetter hver time, dokumenterer reell fremgang og deaktiveres bare når kravene er oppfylt og publisering er kontrollert.
+
+## Etterfølgende arbeid / bevisste begrensninger
+Første runde har én original illustrert hovedscene med tre sett ord. Flere særegne miljøer, kvalitetskontroll av lys/skygge og mer variert animasjon er neste premiumiterasjon. Eksisterende lærerdata, reiser, samlebok og andre funksjoner er ikke endret. Verken brukerens eller barnets navn står i kode/asset.
