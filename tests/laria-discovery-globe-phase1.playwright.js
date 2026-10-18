@@ -217,6 +217,18 @@ async function verifyContinentInvitation(page,label){
   },stop.name,{timeout:7000});
   const card=await page.locator('#globe-status').innerText();
   assert.match(card,new RegExp(stop.name+' venter'),label+' showed the wrong continent invitation');
+  // The card alone is not enough: the globe must actually paint its defining
+  // mountain ranges, and large continents should also show major rivers.
+  const visible=await page.evaluate(()=>{
+   const canvas=document.getElementById('globe-canvas');
+   return {level:document.getElementById('world-screen').dataset.discoveryGlobeLevel,
+    crests:Number(canvas.dataset.discoveryContinentCrests||0),
+    rivers:Number(canvas.dataset.discoveryContinentRivers||0)};
+  });
+  assert.equal(visible.level,'1',label+' must stay at continent scale: '+stop.name);
+  assert.ok(visible.crests>0,label+' missing major mountain relief at '+stop.name+': '+JSON.stringify(visible));
+  if(['Afrika','Asia','Nord-Amerika','Sør-Amerika'].includes(stop.name))
+   assert.ok(visible.rivers>0,label+' missing major rivers at '+stop.name+': '+JSON.stringify(visible));
   const button=page.locator('.discovery-continent-button');
   assert.equal(await button.innerText(),'Se '+stop.name,label+' continent destination button mismatch');
   const cardBounds=await page.locator('#globe-status').boundingBox();
