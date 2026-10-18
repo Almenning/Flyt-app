@@ -141,6 +141,49 @@ async function verifyOffscreenCountryCard(page,label){
   assert.match(await page.locator('#globe-status').innerText(),/Russland/,
     label+' visible large-country card disappeared');
 }
+/* A continent-first experience must follow where the child actually spins.
+   Verify all six story cards and their real camera destinations in WebKit. */
+async function verifyContinentInvitation(page,label){
+ const stops=[
+  {name:'Europa',lon:13,lat:53,zoom:1.38},
+  {name:'Afrika',lon:19,lat:3,zoom:1.28},
+  {name:'Asia',lon:104,lat:38,zoom:1.30},
+  {name:'Nord-Amerika',lon:-105,lat:43,zoom:1.30},
+  {name:'Sør-Amerika',lon:-62,lat:-14,zoom:1.30},
+  {name:'Oseania',lon:135,lat:-25,zoom:1.30}
+ ];
+ for(const stop of stops){
+  await page.evaluate(({lon,lat})=>{
+   globeLon=lon;globeLat=lat;globeSelected=null;globeMove=20;
+   setGlobeZoom(1.2);
+   document.getElementById('globe-canvas').dispatchEvent(new PointerEvent('pointerup',{
+    pointerId:611,pointerType:'touch',bubbles:true
+   }));
+  },stop);
+  await page.waitForFunction(name=>{
+   const box=document.getElementById('globe-status');
+   return box?.classList.contains('discovery-continent-intro')&&box.dataset.discoveryContinent===name;
+  },stop.name,{timeout:7000});
+  const card=await page.locator('#globe-status').innerText();
+  assert.match(card,new RegExp(stop.name+' venter'),label+' showed the wrong continent invitation');
+  const button=page.locator('.discovery-continent-button');
+  assert.equal(await button.innerText(),'Se '+stop.name,label+' continent destination button mismatch');
+  if(label==='webkit-ipad-landscape'||label==='webkit-iphone-portrait'){
+   await page.waitForTimeout(140);
+   await page.screenshot({
+    path:path.join(out,label+'-discovery-continent-'+stop.name.toLowerCase()+'.png'),
+    fullPage:false,animations:'disabled'
+   });
+  }
+  await button.click();
+  const focused=await page.evaluate(()=>({lon:globeLon,lat:globeLat,zoom:globeZoom}));
+  assert.ok(Math.abs(focused.lon-stop.lon)<.001&&Math.abs(focused.lat-stop.lat)<.001,
+   label+' continent action did not orient the geographic camera: '+stop.name);
+  assert.ok(Math.abs(focused.zoom-stop.zoom)<.001,
+   label+' continent action changed its approved scale: '+stop.name);
+ }
+}
+
 async function verifyPointerDrag(page,label,isDiscovery){
  await page.evaluate(()=>{
    globeLon=18;globeLat=36;globeSelected=null;setGlobeZoom(2.2);
@@ -269,6 +312,8 @@ async function runDevice(engine,label,viewport,urls){
        console.error('DISCOVERY BOOT DIAGNOSTIC',label,JSON.stringify(diagnostic),errors);
        throw error;
      }
+     if(label==='webkit-ipad-landscape'||label==='webkit-iphone-portrait')
+       await verifyContinentInvitation(discovery.page,label);
      // A real country replaces the invitation, including its two-column CSS.
      // Selecting the same country again must recreate exactly one companion.
      for(let attempt=0;attempt<2;attempt++){
