@@ -348,6 +348,23 @@ async function runDevice(engine,label,viewport,urls){
      assert.match(await standard.page.locator('[data-premium-globe-subtitle]').innerText(),
        /Oppdag fjell, skoger, elver og ørkener/,label+' discovery subtitle still describes simple globe');
      assert.equal(await standard.page.locator('#globe-view-toggle [data-globe-view="discover"]').getAttribute('aria-pressed'),'true');
+     // Discover preference must not apply the illustrated background in Atlas.
+     await standard.page.locator('#globe-mode [data-globe-mode="explore"]').click();
+     await standard.page.waitForFunction(()=>{
+       const screen=document.getElementById('world-screen');
+       return screen.dataset.mapPerspective==='atlas'&&window.__lariaDiscoveryGlobePreview===false&&
+         screen.dataset.discoveryGlobe===undefined;
+     },null,{timeout:12000});
+     assert.doesNotMatch(await standard.page.locator('#world-screen').evaluate(el=>getComputedStyle(el).backgroundImage),
+       /linear-gradient/,'Oppdag atmosphere leaked into Kartet: '+label);
+     await standard.page.locator('#globe-mode [data-globe-mode="classic"]').click();
+     await standard.page.waitForFunction(()=>{
+       const screen=document.getElementById('world-screen');
+       return screen.dataset.mapPerspective==='globe'&&window.__lariaDiscoveryGlobePreview===true&&
+         screen.dataset.discoveryGlobe==='painted-atlas-v1';
+     },null,{timeout:12000});
+     assert.match(await standard.page.locator('#world-screen').evaluate(el=>getComputedStyle(el).backgroundImage),
+       /linear-gradient/,'Oppdag atmosphere failed to return after Kartet: '+label);
      await standard.page.locator('#globe-view-toggle [data-globe-view="simple"]').click();
      await standard.page.waitForFunction(()=>window.__lariaDiscoveryGlobePreview===false&&
        window.drawGlobe!==window.LARIA_DISCOVERY_GLOBE_DRAW,null,{timeout:12000});
