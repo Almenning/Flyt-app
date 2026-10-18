@@ -59,6 +59,12 @@ async function check(engine,label,viewport,url){
   assert.equal(premiumBasket.status(),200,'premium woven basket art must load');
   assert.match(premiumBasket.headers()['content-type'],/image\/svg\+xml/);
   assert.equal(await page.locator('.gm-basket-illustration').count(),3,'baskets must be real separately illustrated DOM components');
+  const tableArt=await page.request.get(new URL('gangemagi-market-table-premium.svg',url).href);
+  assert.equal(tableArt.status(),200,'original illustrated market counter must load');
+  assert.match(tableArt.headers()['content-type'],/image\/svg\+xml/);
+  const illustratedCounter=await page.locator('.gm-crates').evaluate(el=>
+    getComputedStyle(el,'::before').backgroundImage.includes('gangemagi-market-table-premium.svg'));
+  assert.equal(illustratedCounter,true,'interactable baskets should stand in front of their own market-scene artwork');
   assert.match(await page.locator('.gm-top-title').innerText(),/Gangemagi/);
   assert.match(await page.locator('.gm-top-progress').innerText(),/Oppdrag 1 av 8/);
   assert.match(await page.locator('.gm-fox-message').innerText(),/Trykk på en kurv for å starte/);
