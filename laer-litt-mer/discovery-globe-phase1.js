@@ -385,7 +385,11 @@ function paintWorldTerrain(ctx,w,h,s,level,moving){
     Math.round(globeZoom*200)/200,Math.round(s),level].join('|');
   if(!terrainFieldCache||terrainFieldCache.key!==key){
     // Sharpen large iPad overviews without paying for extra pixels on phones.
-    const pixels=level===1?clamp(Math.round(s*.33),128,205):level===2?172:208;
+    // The optional real-terrain study keeps geographically meaningful detail
+    // at iPad size. The ordinary painter retains its proven lightweight grid.
+    const pixels=naturalReliefPixels?
+      clamp(Math.round(s*.67),180,430):
+      level===1?clamp(Math.round(s*.33),128,205):level===2?172:208;
     const startedAt=performance.now();
     const surface=document.createElement('canvas');
     surface.width=pixels;surface.height=pixels;
@@ -452,7 +456,7 @@ function paintWorldTerrain(ctx,w,h,s,level,moving){
           const xx=clamp(Math.floor((lon+180)/360*nw),0,nw-1);
           const yy=clamp(Math.floor((90-lat)/180*nh),0,nh-1);
           const ix=(yy*nw+xx)*4,source=naturalReliefPixels.bytes;
-          const mixAmount=.47;
+          const mixAmount=.62;
           red=red*(1-mixAmount)+(source[ix]*.92+19)*mixAmount;
           green=green*(1-mixAmount)+(source[ix+1]*.96+15)*mixAmount;
           blue=blue*(1-mixAmount)+(source[ix+2]*.82+18)*mixAmount;
