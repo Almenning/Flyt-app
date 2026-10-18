@@ -133,12 +133,15 @@
 .gm-shell[data-gm-mode="mission"] .gm-quest-mini-basket>svg{
  display:block;width:100%;height:100%;filter:drop-shadow(0 2px 1px #7b4c2e4d);
 }
+/* The number of berry marks is ACTUAL each-count (1..10), not 3 painted
+   dots regardless of the maths. Five columns then wrap into a second row. */
 .gm-shell[data-gm-mode="mission"] .gm-quest-mini-berries{
- position:absolute;left:22%;width:57%;top:44%;height:25%;
- display:flex;align-items:center;justify-content:space-around;gap:1px;
+ position:absolute;left:20%;width:62%;top:42%;height:34%;
+ display:grid;grid-template-columns:repeat(var(--gm-mini-cols),minmax(0,1fr));
+ align-content:center;justify-items:center;gap:1px;
 }
 .gm-shell[data-gm-mode="mission"] .gm-quest-mini-berries i{
- display:block;flex:1;max-width:8px;min-width:2px;aspect-ratio:.8;
+ display:block;width:100%;max-width:6px;min-width:2px;aspect-ratio:.85;
  border-radius:55% 50% 65% 65%;border:1px solid #bf423f;
  background:linear-gradient(130deg,#ffab84,#df4c4d 70%,#a7303c);
  box-shadow:0 1px 1px #6233285c;
