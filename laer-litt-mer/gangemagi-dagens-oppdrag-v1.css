@@ -522,7 +522,7 @@
     min-height:73px;grid-template-rows:31px 39px;
   }
  .gm-shell[data-gm-mode="mission"] .gm-story.gm-quest{
-   padding-top:11px;padding-bottom:12px;
+   padding-top:18px;padding-bottom:19px;
  }
  .gm-shell[data-gm-mode="mission"] .gm-story.gm-quest h2.gm-quest-callout{
    font-size:clamp(23px,6.25vw,30px);margin:7px auto 9px;
