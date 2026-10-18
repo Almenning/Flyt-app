@@ -30,6 +30,10 @@ assert.match(preview,/requestAnimationFrame\(\(\)=>\{\s*if\(typeof globePointers
 assert.match(preview,/const discoveryContinentStops=\[/,'Oppdag must define grounded continent destinations');
 assert.match(preview,/const discoveryContinentStories=\{/,'each continent needs optional guided places');
 assert.match(preview,/function showContinentDiscovery\(/,'continent action must reveal a meaningful new place');
+assert.match(preview,/function paintDiscoveryLocation\(/,'named discoveries must have a visible projected map location');
+assert.match(preview,/const p=project\(lon,lat,w,h\)/,'the discovery highlight must use the real globe projection');
+assert.match(preview,/canvas\.dataset\.discoveryLocationCount=/,'QA must expose whether the selected place has a visible marker');
+assert.match(preview,/activeDiscoveryLocation=null;/,'landmark highlights must be removable');
 assert.match(preview,/const discoveryContinentVisits=new Map\(\)/,'visiting a favourite place again must remain possible');
 assert.match(preview,/box\.dataset\.discoveryStoryStep=String\(visits\)/,
   'QA must expose a distinct optional discovery step');
