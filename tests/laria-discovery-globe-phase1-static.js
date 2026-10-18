@@ -11,6 +11,19 @@ const root=path.resolve(__dirname,'..');
 const read=file=>fs.readFileSync(path.join(root,file),'utf8');
 const preview=read('laer-litt-mer/discovery-globe-phase1.js');
 const nasaTrialData=read('laer-litt-mer/discovery-natural-relief-data-v1.js');
+const neData=read('laer-litt-mer/discovery-ne-shaded-data-v1.js');
+assert.match(neData,/Natural Earth II with shaded relief/,
+  'Natural Earth illustration must identify its original public-domain source');
+assert.match(neData,/window\.LARIA_NE_SHADED_TILES=/,
+  'Natural Earth terrain data should be local and self-contained');
+assert.match(preview,/get\('discovery-art'\)==='natural-earth'/,
+  'Natural Earth artwork must remain explicitly opt-in');
+assert.match(preview,/function loadNaturalEarthTrial\(/,
+  'the experimental Natural Earth tiles must not load in standard mode');
+assert.match(preview,/dataset\.discoveryNaturalEarth=naturalEarthStatus/,
+  'WebKit must be able to confirm natural terrain is fully loaded');
+assert.match(preview,/Math\.asinh\(Math\.tan\(latitude\)\)/,
+  'mercator source must be sampled with correct latitude geometry');
 assert.match(nasaTrialData,/NASA Blue Marble Next Generation/,
   'experimental relief source and attribution must remain documented');
 assert.match(nasaTrialData,/data:image\/jpeg;base64,\/9j\//,
@@ -133,8 +146,8 @@ assert.match(preview,/const pixels=naturalReliefPixels\?/,
   'optional natural relief is the only branch allowed to increase terrain resolution');
 assert.match(preview,/get\('discovery-art'\)==='carved'/,
   '2.5D experiment must require an explicit flag rather than changing standard Oppdag');
-assert.match(preview,/if\(trialCarvedRelief&&level<=2\)return 0;/,
-  'carved massifs replace repeated mountain glyphs on broad continent views');
+assert.match(preview,/if\(\(trialCarvedRelief\|\|trialNaturalEarthRelief\)&&level<=2\)return 0;/,
+  'illustrated mountain styles must not add repeated peak glyphs over shaded relief');
 assert.match(preview,/const boundaryWarp=trialCarvedRelief&&rp\?/,
   'illustrated massif edges must follow geographically sampled irregular areas');
 assert.match(preview,/const borderAlpha=trialCarvedRelief\?/,
