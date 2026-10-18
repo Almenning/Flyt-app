@@ -15,7 +15,24 @@ const index=read('laer-litt-mer/index.html');
 
 assert.match(preview,/const forcedPreview=new URLSearchParams/, 'QA preview remains opt-in by URL');
 assert.match(preview,/window\.LARIA_SET_GLOBE_VIEW=chooseView;/,'the view switch must be live');
+assert.match(preview,/const continentZoomCap=1\.72;/,'Oppdag must declare its continent-scale zoom cap');
+assert.match(preview,/screen\.dataset\.discoveryZoom='continent-v1'/,'Oppdag must expose its intentional continent zoom mode');
+assert.match(preview,/knip for kontinentnivå/,'child-facing zoom guidance must explain the discovery scope');
+assert.match(preview,/function renderDiscoveryWelcome\(/,'Oppdag must present a continent invitation before a country is chosen');
+assert.match(preview,/Europa venter/,'the first supported discovery area must be visible in the invitation');
+assert.match(preview,/if\(globeSelected==='tsjad'\)/,'Oppdag must replace the legacy Tsjad showcase with its Europe entry point');
+assert.match(preview,/function selectedFoxSource\(/,'the invitation must use the child’s actual selected fox source');
+assert.match(preview,/function enhanceDiscoveryCountryCard\(/,'the selected-country card must receive the discovery companion');
+assert.match(preview,/function discoveryCompanionText\(/,'the fox reaction must be place-aware, not generic decoration');
+assert.match(preview,/new MutationObserver\(\(\)=>\{/,'the discovery companion must react after the shared country card updates');
 assert.match(index,/id="globe-view-toggle"/,'accessible view buttons must be in the globe');
+assert.match(index,/const DISCOVERY_CONTINENT_ZOOM_MAX=1\.72;/,'shared zoom input must know the isolated Oppdag cap');
+assert.match(index,/window\.__lariaDiscoveryGlobePreview===true/,'the limited zoom may only apply to Oppdag');
+assert.match(index,/function activeGlobeZoomMax\(/,'wheel, pinch and buttons must share the same zoom limit');
+const viewCss=read('laer-litt-mer/discovery-globe-view-v1.css');
+assert.match(viewCss,/discovery-continent-intro/,'Oppdag’s continent invitation needs scoped presentation styling');
+assert.match(viewCss,/\.premium-globe-guide\{display:none!important\}/,'Oppdag must not show the generic fox beside the selected fox');
+assert.match(viewCss,/discovery-country-companion/,'selected countries need a compact companion treatment');
 assert.match(preview,/window\.__lariaDiscoveryGlobePreview=false;/,
   'ordinary globe must remain the default');
 assert.match(preview,/'Sør-Amerika':'#[0-9A-Fa-f]{6}'/,
@@ -24,7 +41,10 @@ assert.doesNotMatch(preview,/SÃ¸r-Amerika/,'preview source has mojibake');
 assert.doesNotMatch(preview,/window\.globeZoom\b/, 'zoom is lexically scoped; window.globeZoom generates NaN drawing coordinates');
 assert.match(preview,/function paintReliefTrails\(/, 'geographic terrain trails must remain active');
 assert.match(preview,/const landscapeZones=\[/,'ecosystems must use contiguous georeferenced corridors');
+for(const zone of ['Norwegian fjord forests','Alpine valleys','Mediterranean hills'])
+  assert.ok(preview.includes(zone),'Europe needs its authored geographic corridor: '+zone);
 assert.match(preview,/const mountainChains=\[/,'landscape engine must have connected mountain chains');
+assert.match(preview,/const europeHero=chain\.name==='Scandes'\|\|chain\.name==='Alps';/,'Europe needs a sparse continent-scale ridge silhouette');
 assert.match(preview,/function paintWorldTerrain\(/,'continuous terrain paint field must remain active');
 assert.match(preview,/function terrainLatitudeIndex\(/,'terrain must index nearby geographical anchors for iPad performance');
 assert.match(preview,/terrainLatitudeIndex\(terrainSamples\(landscapeZones,6\),19\)/,'biome index must include complete search radius');
