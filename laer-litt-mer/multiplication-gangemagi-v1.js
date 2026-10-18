@@ -87,6 +87,12 @@
  function questBoard(sum,goal){
    const groups=state.groups,each=state.each,mission=E.MISSIONS[state.mission];
    const fruitArt='<span class="gm-quest-fruit">'+berrySvg+'</span>';
+   // The last illustrated step shows actual groups of filled mini-baskets,
+   // not a second copy of the equation. One mini-basket per real group.
+   const filledBasketPreview='<span class="gm-quest-filled-preview" aria-hidden="true">'+
+     Array.from({length:groups},()=>'<span class="gm-quest-mini-basket">'+gmBasketArt+
+       '<span class="gm-quest-mini-berries"><i></i><i></i><i></i></span></span>').join('')+
+     '</span>';
    return '<header class="gm-story gm-quest" aria-label="Dagens oppdrag">'+
      '<div class="gm-quest-head"><span class="gm-quest-ribbon">✦ Dagens oppdrag ✦</span>'+
      '<span class="gm-quest-meta">Oppdrag '+(state.mission+1)+' av '+E.MISSIONS.length+' · '+esc(mission.heading)+'</span></div>'+
@@ -96,7 +102,7 @@
        '<span class="gm-quest-arrow" aria-hidden="true">➜</span>'+
        questStep(2,fruitArt+gmBasketArt,'Legg i jordbær')+
        '<span class="gm-quest-arrow" aria-hidden="true">➜</span>'+
-       questStep(3,'<span class="gm-quest-math">'+groups+' × '+each+' = '+goal+'</span>','Se at '+groups+' × '+each+' = '+goal)+
+       questStep(3,filledBasketPreview,'Se at '+groups+' × '+each+' = '+goal)+
      '</div></header>';
  }
  function render(){
