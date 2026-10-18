@@ -9,6 +9,46 @@
  * is longitude/latitude, never a screen position.
  */
 const forcedPreview=new URLSearchParams(location.search).has('discovery-globe-preview');
+// Separate, opt-in art experiment. The default Oppdag renderer is unchanged.
+const trialNaturalRelief=new URLSearchParams(location.search).get('discovery-relief')==='nasa';
+let naturalReliefPixels=null, naturalReliefStatus=trialNaturalRelief?'loading':'disabled';
+function loadNaturalReliefTrial(){
+  if(!trialNaturalRelief)return;
+  const script=document.createElement('script');
+  script.src='./discovery-natural-relief-data-v1.js';
+  script.async=true;
+  script.onerror=()=>{naturalReliefStatus='failed-script';};
+  script.onload=()=>{
+    const uri=window.LARIA_DISCOVERY_NASA_RELIEF_DATA_URL;
+    if(!uri?.startsWith('data:image/jpeg;base64,')){
+      naturalReliefStatus='missing-image';return;
+    }
+    const img=new Image();
+    img.onerror=()=>{naturalReliefStatus='failed-image';};
+    img.onload=()=>{
+      try{
+        const surface=document.createElement('canvas');
+        surface.width=img.naturalWidth;surface.height=img.naturalHeight;
+        const context=surface.getContext('2d',{willReadFrequently:true});
+        if(!context||surface.width<1000||surface.height<500)
+          throw new Error('Unexpected public-domain texture geometry');
+        context.drawImage(img,0,0);
+        naturalReliefPixels={width:surface.width,height:surface.height,
+          bytes:context.getImageData(0,0,surface.width,surface.height).data};
+        naturalReliefStatus='ready';
+        window.LARIA_DISCOVERY_NASA_RELIEF_DATA_URL=null;
+        terrainFieldCache=null;
+        if(window.__lariaDiscoveryGlobePreview===true)
+          requestAnimationFrame(()=>window.drawGlobe?.());
+      }catch(error){
+        naturalReliefStatus='failed-decode';
+        window.__lariaNaturalReliefTrialError=String(error?.message||error);
+      }
+    };
+    img.src=uri;
+  };
+  document.head.appendChild(script);
+}
 const screen=document.getElementById('world-screen');
 const art=window.LariaGlobeArtV24;
 if(!screen||!art||typeof window.drawGlobe!=='function'||typeof window.globeProject!=='function'){
@@ -404,6 +444,18 @@ function paintWorldTerrain(ctx,w,h,s,level,moving){
             const sand=(dunes*.66+ridges*.34)*51*biomeReach;
             red+=sand*.83;green+=sand*.61;blue+=sand*.30;
           }
+        }
+        if(naturalReliefPixels){
+          // Equirectangular NASA imagery follows the SAME longitude/latitude
+          // as the original land polygons; it cannot change country targets.
+          const nw=naturalReliefPixels.width,nh=naturalReliefPixels.height;
+          const xx=clamp(Math.floor((lon+180)/360*nw),0,nw-1);
+          const yy=clamp(Math.floor((90-lat)/180*nh),0,nh-1);
+          const ix=(yy*nw+xx)*4,source=naturalReliefPixels.bytes;
+          const mixAmount=.47;
+          red=red*(1-mixAmount)+(source[ix]*.92+19)*mixAmount;
+          green=green*(1-mixAmount)+(source[ix+1]*.96+15)*mixAmount;
+          blue=blue*(1-mixAmount)+(source[ix+2]*.82+18)*mixAmount;
         }
         if(mountainReach>.06&&rp){
           /* Rock and snow belong to a continuous corridor around each
@@ -820,6 +872,7 @@ function discoveryDraw(){
   canvas.dataset.discoveryLocationCount=String(discoveryLocationCount);
   canvas.dataset.discoveryLocationName=discoveryLocationCount?activeDiscoveryLocation.title:'';
   canvas.dataset.discoveryAntarcticLand=String(polarCount);
+  canvas.dataset.discoveryNaturalRelief=naturalReliefStatus;
   canvas.dataset.discoveryPaintCount=String(Number(canvas.dataset.discoveryPaintCount||0)+1);
   // v25 can still seed the old Tsjad showcase after selecting Oppdag.
   // Reconcile after the card update has completed, not inside its draw call.
@@ -1286,6 +1339,7 @@ const wait=()=>{
   });
   syncButtons();
   activate();
+  loadNaturalReliefTrial();
   requestAnimationFrame(()=>requestAnimationFrame(activate));
   setTimeout(activate,180);
   // Does not repaint while idle; only restores the active painter after a
