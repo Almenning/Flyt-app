@@ -501,23 +501,58 @@
    min-height:63px;font-size:clamp(14px,3.9vw,19px);
  }
 }
+/* iPad portrait: compose the fox BESIDE the baskets, rather than stack a
+   huge fox above huge baskets. The previous vertical stack pushed "Neste
+   oppdrag" below 1180px after the complete-state celebration. Preserve a
+   visually substantial fox and readable tall baskets without shrinking the
+   action button or the three illustrated instructions. */
 @media(min-width:700px) and (max-width:899px) and (min-height:1000px){
  .gm-shell[data-gm-mode="mission"] .gm-story.gm-quest{
-   padding-top:22px;padding-bottom:22px;
+   padding-top:18px;padding-bottom:17px;
  }
  .gm-shell[data-gm-mode="mission"] .gm-story.gm-quest h2.gm-quest-callout{
-   font-size:clamp(33px,4.5vw,44px);margin:10px auto 16px;
+   font-size:clamp(32px,4.35vw,43px);margin:8px auto 12px;
  }
- .gm-shell[data-gm-mode="mission"] .gm-quest-step{min-height:118px}
- .gm-shell[data-gm-mode="mission"] .gm-quest-icon{height:63px}
- .gm-shell[data-gm-mode="mission"] .gm-quest-icon>svg{height:60px}
- .gm-shell[data-gm-mode="mission"] .gm-fox-art{width:190px;height:224px}
- .gm-shell[data-gm-mode="mission"] .gm-fox-bubble{min-height:72px}
- .gm-shell[data-gm-mode="mission"] .gm-fox-message{font-size:16px}
- .gm-shell[data-gm-mode="mission"] .gm-crate{height:255px;max-width:235px}
- .gm-shell[data-gm-mode="mission"] .gm-market-sign{padding:10px 22px}
- .gm-shell[data-gm-mode="mission"] .gm-math{min-height:110px;padding:15px}
- .gm-shell[data-gm-mode="mission"] .gm-math-equation{font-size:40px}
+ .gm-shell[data-gm-mode="mission"] .gm-quest-step{min-height:110px}
+ .gm-shell[data-gm-mode="mission"] .gm-quest-icon{height:59px}
+ .gm-shell[data-gm-mode="mission"] .gm-quest-icon>svg{height:57px}
+ .gm-shell[data-gm-mode="mission"] .gm-scene{
+   display:grid;grid-template-columns:155px minmax(0,1fr);
+   align-items:center;gap:8px;margin:13px 9px 2px;
+ }
+ .gm-shell[data-gm-mode="mission"] .gm-fox{
+   display:grid;grid-template-columns:minmax(0,1fr);justify-items:center;
+   align-self:center;min-width:0;width:100%;min-height:0;
+   gap:0;margin:0;padding:0;
+ }
+ .gm-shell[data-gm-mode="mission"] .gm-fox-art{
+   width:150px;height:180px;flex:initial;
+ }
+ .gm-shell[data-gm-mode="mission"] .gm-fox-bubble{
+   width:100%;max-width:155px;min-height:76px;margin:-13px 0 0;
+   padding:8px 6px;grid-template-columns:minmax(0,1fr) 44px;
+ }
+ .gm-shell[data-gm-mode="mission"] .gm-fox-message{font-size:12px}
+ .gm-shell[data-gm-mode="mission"] .gm-market{min-width:0;align-self:center}
+ .gm-shell[data-gm-mode="mission"] .gm-market-sign{
+   margin:0 auto -5px;padding:8px 13px;
+ }
+ .gm-shell[data-gm-mode="mission"] .gm-crates{
+   padding:13px 1px 0;gap:4px;
+ }
+ .gm-shell[data-gm-mode="mission"] .gm-crate{
+   height:188px;max-width:192px;
+ }
+ .gm-shell[data-gm-mode="mission"] .gm-crate-caption{font-size:12px}
+ .gm-shell[data-gm-mode="mission"] .gm-play-hint{
+   display:none; /* duplicate of the live fox message on this layout */
+ }
+ .gm-shell[data-gm-mode="mission"] .gm-math{
+   min-height:101px;margin:7px auto 3px;padding:12px 14px;
+ }
+ .gm-shell[data-gm-mode="mission"] .gm-math-equation{font-size:38px}
+ .gm-shell[data-gm-mode="mission"] .gm-actions{margin-top:9px}
+ .gm-shell[data-gm-mode="mission"] .gm-pick{min-height:68px}
 }
 @media(min-width:900px) and (max-height:900px){
  .gm-shell[data-gm-mode="mission"] .gm-quest-step{min-height:82px}
