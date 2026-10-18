@@ -847,7 +847,15 @@ function discoveryDraw(){
   canvas.dataset.discoveryPaintCount=String(Number(canvas.dataset.discoveryPaintCount||0)+1);
   // v25 can still seed the old Tsjad showcase after selecting Oppdag.
   // Reconcile after the card update has completed, not inside its draw call.
-  if(globeSelected)scheduleVisibleCountryReconciliation();
+  /* A completed repaint must never leave a country card for land that is
+     behind the horizon. This is especially important on a wide iPad, where
+     the legacy renderer can repaint before its pointer reconciliation runs.
+     Clear synchronously after the finished drawing; keep the next-frame pass
+     only for a still-visible country that is being moved by live input. */
+  if(globeSelected&&window.__lariaGlobeInteracting!==true){
+    clearOffscreenDiscoverySelection();
+    if(globeSelected)scheduleVisibleCountryReconciliation();
+  }else if(globeSelected)scheduleVisibleCountryReconciliation();
 }
 let pendingCountryReconciliation=false;
 function scheduleVisibleCountryReconciliation(){
