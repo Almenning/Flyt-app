@@ -225,10 +225,15 @@ async function check(engine,label,viewport,url){
     label+' first strawberry should sit inside the CENTER of the basket, not on one edge '+JSON.stringify(firstBerryGeometry));
   assert.ok(firstBerryGeometry.berryTop>firstBerryGeometry.basketTop,
     label+' strawberry must be inside the illustrated basket '+JSON.stringify(firstBerryGeometry));
+  assert.equal(await page.locator('.gm-fruit-pop').count(),1,
+    label+' ONLY the newly added strawberry should bounce after the first pick');
   await shot(page,label+'-02-one-berry');
   await page.locator('[data-gm-action="source"]').click();
   assert.equal((await page.locator('.gm-math-equation').innerText()).trim(),'2 + 0 + 0 = 2');
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts[0],2);
+  assert.equal(await page.locator('.gm-fruit').count(),2);
+  assert.equal(await page.locator('.gm-fruit-pop').count(),1,
+    label+' on the second pick the previous berry must remain stable');
   assert.match(await page.locator('.gm-fox-message').innerText(),/2 av 3 i kurv 1/);
   assert.equal(await page.locator('.gm-fox').getAttribute('data-mood'),'cheer');
   await page.locator('[data-gm-action="undo"]').click();
@@ -241,6 +246,8 @@ async function check(engine,label,viewport,url){
   assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[2,0,0]);
   await page.locator('[data-gm-action="hint"]').click();
   assert.match(await page.locator('.gm-fox-message').innerText(),/kurv/i);
+  assert.equal(await page.locator('.gm-fruit-pop').count(),0,
+    label+' opening a fox hint must NOT replay the last fruit animation');
   await page.locator('[data-gm-action="remove"][data-group="0"]').click();
   assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[1,0,0]);
   for(const [group,count] of [[0,2],[1,3],[2,3]]){
