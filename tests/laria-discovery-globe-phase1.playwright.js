@@ -72,6 +72,7 @@ async function drawPose(page,pose){
      texture:Number(canvas.dataset.discoveryTexture||0),
      terrainField:Number(canvas.dataset.discoveryTerrainField||0),
      terrainMs:Number(canvas.dataset.discoveryTerrainMs||0),
+     terrainPixels:Number(canvas.dataset.discoveryTerrainPixels||0),
      selected:globeSelected,
      dimensions:[canvas._cssW,canvas._cssH],
      zoom:globeZoom
@@ -411,6 +412,8 @@ async function runDevice(engine,label,viewport,urls){
          label+' continent overview lost all geographically anchored canopy/dune material');
        assert.equal(result.ecosystems,0,label+' separate biome washes must not return: '+pose.name);
        assert.equal(result.terrainField,1,label+' missing coordinate-anchored continuous landscape shading: '+pose.name);
+       if(pose.name==='world'&&viewport.width>=800&&viewport.height>=700)
+         assert.ok(result.terrainPixels>=175,label+' iPad overview terrain remains too low resolution');
        assert.ok(Number.isFinite(result.terrainMs)&&result.terrainMs>=0&&result.terrainMs<4000,
          label+' landscape shader stalled the device ('+result.terrainMs+'ms) at '+pose.name);
        console.log('TERRAIN PERF',label,pose.name,result.terrainMs+'ms');
