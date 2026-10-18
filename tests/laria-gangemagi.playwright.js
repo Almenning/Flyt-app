@@ -169,6 +169,20 @@ async function check(engine,label,viewport,url){
     assert.match(sceneLayers.mathLabel,/Dette lager du/,
       'math label remains readable below the enlarged personal fox');
   }
+  if(viewport.width>=900&&viewport.height<=900){
+    const guide=await page.evaluate(()=>{
+      const box=s=>{const r=document.querySelector(s).getBoundingClientRect();
+        return {top:r.top,bottom:r.bottom,left:r.left,right:r.right,width:r.width,height:r.height}};
+      return {fox:box('.gm-fox-art'),bubble:box('.gm-fox-bubble'),
+        firstBasket:box('.gm-crate'),math:box('.gm-math')};
+    });
+    assert.ok(guide.fox.height>=190&&guide.fox.width>=180,
+      label+' landscape fox should be a large personal guide, not a tiny mascot '+JSON.stringify(guide));
+    assert.ok(guide.fox.right<=guide.firstBasket.left+2,
+      label+' personal fox must not cover basket touch targets '+JSON.stringify(guide));
+    assert.ok(guide.fox.bottom<=guide.math.top+3&&guide.bubble.bottom<=guide.math.top+3,
+      label+' guide and speech must stay clear of live mathematical feedback '+JSON.stringify(guide));
+  }
   assert.ok(first.crate.top>=0&&first.crate.bottom<=first.height,label+' interactive crates not in the first viewport '+JSON.stringify(first));
   assert.ok(first.math.top<first.height,label+' mathematical feedback invisible '+JSON.stringify(first));
   assert.ok(first.read.height>=44,label+' read aloud target too small');
