@@ -131,6 +131,17 @@ assert.match(preview,/const stoneWeight=clamp\(mountainReach/,'major mountains n
 assert.match(preview,/const snowFacet=clamp\(/,'high-elevation regions need snow facets');
 assert.match(preview,/const pixels=naturalReliefPixels\?/,
   'optional natural relief is the only branch allowed to increase terrain resolution');
+assert.match(preview,/get\('discovery-art'\)==='carved'/,
+  '2.5D experiment must require an explicit flag rather than changing standard Oppdag');
+assert.match(preview,/if\(trialCarvedRelief&&level<=2\)return 0;/,
+  'carved massifs replace repeated mountain glyphs on broad continent views');
+assert.match(preview,/const boundaryWarp=trialCarvedRelief&&rp\?/,
+  'illustrated massif edges must follow geographically sampled irregular areas');
+assert.match(preview,/const borderAlpha=trialCarvedRelief\?/,
+  'political borders should no longer dominate a physical landscape in the art experiment');
+assert.match(preview,/dataset\.discoveryCarvedRelief=String\(trialCarvedRelief\)/,
+  'WebKit screenshot tests must distinguish optional carved art from the stable version');
+
 assert.match(preview,/clamp\(Math.round\(s\*\.67\),180,430\)/,
   'high-resolution experimental texture must preserve meaningful iPad map details');
 assert.match(preview,/level===1\?clamp\(Math.round\(s\*\.33\),128,205\)/,
