@@ -304,6 +304,10 @@ async function check(engine,label,viewport,url){
   });
   assert.deepEqual(touchGeometry.overlaps,Array(touchGeometry.overlaps.length).fill(false),label+' remove affordance must not cover numeric basket label '+JSON.stringify(touchGeometry));
   assert.equal(touchGeometry.clipped,false,label+' first-fold Plukk action text is clipped '+JSON.stringify(touchGeometry));
+  const pageCanvas=await page.evaluate(()=>[document.documentElement,document.body,
+    document.querySelector('#multiplication-lab-screen')].map(el=>getComputedStyle(el).backgroundColor));
+  assert.ok(pageCanvas.every(color=>color!=='rgba(0, 0, 0, 0)'&&color!=='rgb(255, 255, 255)'),
+    label+' entire game canvas including iPhone bottom scroll must be warm, never white '+JSON.stringify(pageCanvas));
   await shot(page,label+'-01-first-look');
   // Approved direct manipulation: tap-to-pick, tap the basket berry to take
   // it out, drag one from the fruit source, and drag it back. Invalid drops
