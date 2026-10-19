@@ -401,6 +401,10 @@
  }
  function onPointerDown(event){
    if(event.button!==0||!root.contains(event.target))return;
+   // A NEW physical pointerdown is never the browser's synthetic post-drag
+   // click. Release the old click guard immediately so quick second touches
+   // are not swallowed on Safari/WebKit or Chromium.
+   suppressClickUntil=0;
    const source=event.target.closest('button[data-gm-action="source"]');
    const berry=event.target.closest('.gm-fruit[data-gm-fruit]');
    const basket=berry?.closest('button[data-gm-action="basket"]');
