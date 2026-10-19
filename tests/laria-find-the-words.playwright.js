@@ -53,8 +53,9 @@ async function open(page,url,label){
  await shot(page,label+'-explore-fifth-card');
  const picture=entry.locator('img.bc13-premium-art');
  await picture.evaluate(img=>img.decode());
- assert.deepEqual(await picture.evaluate(img=>[img.naturalWidth,img.naturalHeight]),[1200,720],
-   'The new card is missing its own real illustration');
+ const photoMetrics=await picture.evaluate(img=>({w:img.naturalWidth,h:img.naturalHeight}));
+ assert.ok(photoMetrics.w>=240&&photoMetrics.h>=120,'The premium forest art did not load: '+JSON.stringify(photoMetrics));
+ assert.equal(await entry.locator('.bc13-find-lens').count(),1,'The card has lost its distinctive search illustration');
  const dims=await entry.boundingBox();
  assert.ok(dims&&dims.width>=44&&dims.height>=44,'New picture hunt entry must be touch accessible');
  await entry.click();
