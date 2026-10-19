@@ -377,6 +377,10 @@ async function check(engine,label,viewport,url){
   // it out, drag one from the fruit source, and drag it back. Invalid drops
   // must never change the maths. Run in both engines and every viewport.
   await page.locator('[data-gm-action="source"]').click();
+  const selectedBeforePlacement=await page.locator('[data-gm-action="basket"][data-gm-basket="0"]')
+    .getAttribute('aria-label');
+  assert.match(selectedBeforePlacement,/plukkede jordbæret/,
+    label+' held berry must be named in the basket touch guidance');
   assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,0,0],
     label+' tapping the strawberry source must NOT add fruit without a destination');
   assert.equal(await page.locator('.gm-pick-invite').count(),0,
