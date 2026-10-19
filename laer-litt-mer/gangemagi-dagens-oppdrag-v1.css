@@ -298,9 +298,9 @@
      independent 44px accessible button, revealed on focus, hover or selection. */
   opacity:0;pointer-events:none;transition:opacity .16s ease;
 }
-.gm-shell[data-gm-mode="mission"] .gm-crate-wrap:focus-within .gm-remove,
-.gm-shell[data-gm-mode="mission"] .gm-crate-wrap:hover .gm-remove,
-.gm-shell[data-gm-mode="mission"] .gm-crate-selected + .gm-remove{
+.gm-shell[data-gm-mode="mission"] .gm-crate-wrap:focus-within .gm-remove:not(:disabled),
+.gm-shell[data-gm-mode="mission"] .gm-crate-wrap:hover .gm-remove:not(:disabled),
+.gm-shell[data-gm-mode="mission"] .gm-crate-selected + .gm-remove:not(:disabled){
   opacity:1;pointer-events:auto;
 }
 /* The speaking fox and highlighted three-step board already give the next
