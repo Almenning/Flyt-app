@@ -95,6 +95,17 @@ async function geometry(page,label,view){
   assert.ok(box.art.y>=0&&box.art.y<=box.height-80,'image cannot be seen without scrolling '+label);
  }
 }
+async function dragWord(page,word,targetSelector){
+ const from=await page.locator('.fw-word[data-fw-read="'+word+'"]').boundingBox();
+ const to=await page.locator(targetSelector).boundingBox();
+ assert.ok(from&&to,'Cannot locate word tile and destination for pointer drag: '+word);
+ const start={x:from.x+from.width/2,y:from.y+from.height/2};
+ const end={x:to.x+to.width/2,y:to.y+to.height/2};
+ await page.mouse.move(start.x,start.y);
+ await page.mouse.down();
+ await page.mouse.move(end.x,end.y,{steps:12});
+ await page.mouse.up();
+}
 async function run(engine,label,viewport,url,avatar){
  const browser=await engine.launch({headless:true,args:label.startsWith('chromium')?['--no-sandbox']:[]});
  try{
@@ -199,14 +210,38 @@ async function run(engine,label,viewport,url,avatar){
    await page.locator('.fw-next').click();
    assert.equal(await page.locator('.fw-word.is-found').count(),0,'New illustrated round was not reset');
    assert.equal(await page.locator('.fw-word').count(),6);
-   await page.locator('.fw-word[data-fw-read="fugl"]').click();
+   // Pointer gestures are optional: wrong image drops give no credit;
+   // correctly dragging the text to a pictured item uses the same
+   // verification path as tap->tap matching.
+   await dragWord(page,'fugl','.fw-object[data-fw-object="sol"]');
+   assert.equal(await page.locator('.fw-word.is-found').count(),0,
+     'Wrong drag-and-drop must not award a word');
+   assert.equal(await page.locator('.fw-word.is-selected').count(),0,
+     'A mismatched drag should reset the selected word');
+   await dragWord(page,'fugl','.fw-object[data-fw-object="fugl"]');
+   assert.equal(await page.locator('.fw-word[data-fw-read="fugl"].is-found').count(),1,
+     'Dragging the correct word onto the object did not award progress');
+   assert.equal(await page.locator('.fw-drag-ghost').count(),0,
+     'Drag ghost remained after a completed drop');
+   // Dropping onto blank space should select the word for the accessible
+   // two-tap fallback, but must never count the word as found.
+   await dragWord(page,'bat','.fw-stage-label');
+   assert.equal(await page.locator('.fw-word.is-found').count(),1,
+     'A drag dropped outside an object awarded progress');
+   assert.equal(await page.locator('.fw-word[data-fw-read="bat"]').getAttribute('aria-pressed'),'true',
+     'Dragging to blank scenery should still leave the written word selected');
+   await page.locator('.fw-object[data-fw-object="bat"]').click();
+   assert.equal(await page.locator('.fw-word.is-found').count(),2,
+     'Drag fallback cannot be finished by an ordinary accessible tap');
+   await shot(page,label+'-drag-matching');
+   await page.locator('.fw-word[data-fw-read="tre"]').click();
    assert.equal(await page.locator('.fw-word.is-selected').count(),1);
    await page.locator('.fw-back').click();
    await page.reload({waitUntil:'domcontentloaded'});
    await page.waitForFunction(()=>typeof window.openFindTheWords==='function');
    await page.locator('.bc12-nav [data-camp="explore"]').click();
    await page.locator('.bc13-panel:not([hidden]) [data-bc13-action="find-words"]').click();
-   assert.equal(await page.locator('.fw-word[data-fw-read="fugl"]').getAttribute('aria-pressed'),'true',
+   assert.equal(await page.locator('.fw-word[data-fw-read="tre"]').getAttribute('aria-pressed'),'true',
      'Chosen word did not persist after exiting and reloading');
    await page.locator('.fw-back').click();
    // The separate 6x6 letter-grid mode and its five themes remain available.
