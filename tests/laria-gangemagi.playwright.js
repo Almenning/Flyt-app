@@ -149,6 +149,8 @@ async function check(engine,label,viewport,url){
     label+' child-sized assignment heading '+JSON.stringify(missionHeading));
   assert.equal(await page.locator('.gm-fox-art [data-avatar="girl"]').count(),1,'must render chosen full-body girl fox');
   assert.match(await page.locator('.gm-book-quick').innerText(),/0\/8/,'flower progress visible from the main scene');
+  assert.equal(await page.locator('.gm-book-collapsed:visible').count(),0,
+    label+' only one collection access point should remain on the mission screen');
   const premiumBasket=await page.request.get(new URL('gangemagi-basket-locked-illustration.svg',url).href);
   assert.equal(premiumBasket.status(),200,'illustrated basket sourced from the LOCKED reference must load');
   assert.match(premiumBasket.headers()['content-type'],/image\/svg\+xml/);
@@ -420,7 +422,7 @@ async function check(engine,label,viewport,url){
   await shot(page,label+'-04-market-book');
   await page.keyboard.press('Escape');
   assert.equal(await page.locator('.gm-book-open').count(),0,'Escape returns child to gameplay');
-  await page.locator('[data-gm-action="book"]').click();
+  await page.locator('[data-gm-action="open-book"]').click();
   const bookLayout=await page.evaluate(()=>{
     const scenes=[...document.querySelectorAll('.gm-book-landscape')];
     return {pageWidth:document.documentElement.scrollWidth,screenWidth:innerWidth,count:scenes.length,
@@ -451,7 +453,7 @@ async function check(engine,label,viewport,url){
      mission 4 to match the specific approved "3 baskets of 4" illustration. */
   if(label==='webkit-iphone390'||label==='chrome-ipad-landscape'){
     for(const [index,mission] of Engine.MISSIONS.entries()){
-      await page.locator('[data-gm-action="book"]').click();
+      await page.locator('[data-gm-action="open-book"]').click();
       await page.locator('[data-gm-action="select-mission"][data-index="'+index+'"]').click();
       const actual=await page.evaluate(()=>LARIA_GANGEMAGI.snapshot());
       assert.equal(actual.mission,index,'eight adventures preserve authored order');
@@ -482,7 +484,7 @@ async function check(engine,label,viewport,url){
   }
   // The five-basket mission is visually the most constrained responsive state.
   // Preserve five clear, real basket targets and the full illustration in WebKit.
-  await page.locator('[data-gm-action="book"]').click();
+  await page.locator('[data-gm-action="open-book"]').click();
   await page.locator('[data-gm-action="select-mission"][data-index="4"]').click();
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).groups,5);
   assert.equal(await page.locator('.gm-crate').count(),5,
@@ -514,7 +516,7 @@ async function check(engine,label,viewport,url){
       label+' five-basket maths must remain legible and within the panel '+JSON.stringify(m));
   }
   await shot(page,label+'-05-five-basket-mission');
-  await page.locator('[data-gm-action="book"]').click();
+  await page.locator('[data-gm-action="open-book"]').click();
   await page.locator('[data-gm-action="select-mission"][data-index="6"]').click();
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).groups,4);
   if(viewport.width<700){
@@ -524,7 +526,7 @@ async function check(engine,label,viewport,url){
       label+' 4×4 addition must stay complete and child-readable '+JSON.stringify(m));
   }
   await shot(page,label+'-06-four-basket-mission');
-  await page.locator('[data-gm-action="book"]').click();
+  await page.locator('[data-gm-action="open-book"]').click();
   await page.locator('[data-gm-action="select-mission"][data-index="0"]').click();
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).mission,0);
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).equation.complete,false);
