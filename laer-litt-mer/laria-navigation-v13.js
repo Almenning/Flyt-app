@@ -9,9 +9,9 @@ const SUBJECTS=[
 const EXPLORE=[
  ['globe','Kloden','Snurr og oppdag land','🌍'],
  ['words','Ordjakt','Finn ord i Bokskogen','🔤'],
- ['find-words','Finn ordene','Velg et ord og finn tingen i bildet','🔎'],
  ['fraction','Brøklab','Del og bygg brøker','◒'],
- ['multiply','Gangemagi','Pakk jordbær og oppdag gange','✕']
+ ['multiply','Gangemagi','Pakk jordbær og oppdag gange','✕'],
+ ['find-words','Finn ordene','Velg et ord og finn tingen i bildet','🔎']
 ];
 
 /* Approved premium card art. The existing SVG remains a reliable offline fallback.
