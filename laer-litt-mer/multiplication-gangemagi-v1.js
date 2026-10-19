@@ -152,8 +152,8 @@
        '</div>'+
        '<div class="gm-math"><div class="gm-math-label"><span>Dette lager du</span><span class="gm-goal">Målet: '+state.groups+' × '+state.each+'</span></div>'+
          '<div class="gm-math-equation '+(complete?'gm-equation-win':'')+'" aria-label="'+esc(equation)+'">'+esc(equation)+'</div>'+
-         '<div class="gm-progress-track" role="progressbar" aria-label="Jordbær pakket" aria-valuemin="0" aria-valuemax="'+goal+'" aria-valuenow="'+sum+'"><span style="width:'+progress+'%"></span></div>'+ 
-         (!free?'<div class="gm-berry-progress"><strong>'+sum+' av '+goal+'</strong><div aria-hidden="true">'+Array.from({length:goal},(_,i)=>'<span class="gm-berry-slot '+(i<sum?'gm-berry-earned':'')+'">'+berrySvg+'</span>').join('')+'</div></div>':'')+
+         (free?'<div class="gm-progress-track" role="progressbar" aria-label="Jordbær pakket" aria-valuemin="0" aria-valuemax="'+goal+'" aria-valuenow="'+sum+'"><span style="width:'+progress+'%"></span></div>':'')+
+         (!free?'<div class="gm-berry-progress" aria-label="'+sum+' av '+goal+' jordbær lagt i kurvene"><strong>'+sum+' av '+goal+'</strong></div>':'')+
          '<div class="gm-math-note'+(result.multiplication?' gm-math-discovery':'')+'"'+(result.multiplication?' role="status"':'')+'>'+(result.multiplication?'✦ Like grupper: '+state.groups+' kurver med '+state.counts[0]+' bær = '+sum+'!':'Når kurvene har ulikt antall, legger vi sammen.')+'</div></div>'+
        (complete?'<div class="gm-celebration" role="status"><span aria-hidden="true">✿</span><strong>'+esc(free?'Så fint du laget det!':'Oppdraget er klart!')+'</strong><span>Du fant '+goal+' jordbær.</span></div>':'')+
        '</section>'+
