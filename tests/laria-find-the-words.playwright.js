@@ -72,6 +72,11 @@ async function geometry(page,label,view){
   assert.ok(box.art.h>=view.height*.32,'iPad portrait art must not be a tiny side card: '+JSON.stringify(box));
   assert.ok(box.art.b<=box.height+2,'iPad portrait art must remain on first screen: '+JSON.stringify(box));
  }
+ if(view.width>=361&&view.width<=700&&view.height>=750){
+  assert.ok(box.art.h>=245,'Tall phone artwork reverted to its small 5:3 layout: '+JSON.stringify(box));
+  assert.ok(box.fox.h>=100,'Child-selected fox is too small on tall phone: '+JSON.stringify(box));
+  assert.ok(box.fox.y+box.fox.h<=box.height+2,'Fox companion is pushed below the phone viewport: '+JSON.stringify(box));
+ }
  if(view.height>=750&&view.width<700){
   assert.ok(box.list.y>=0&&box.list.b<=box.height,'word list hidden below first screen '+label);
   assert.ok(box.art.y>=0&&box.art.y<=box.height-80,'image cannot be seen without scrolling '+label);
@@ -95,6 +100,10 @@ async function run(engine,label,viewport,url,avatar){
      'Picture mode does not use the personal selected fox');
    assert.equal(await page.locator('.fw-word').count(),6);
    assert.deepEqual((await page.locator('.fw-word strong').allTextContents()).sort(),[...targetWords].sort());
+   // Browser CI has no guaranteed Norwegian voice; verify speakable controls
+   // work without asserting that CI emitted audible Norwegian speech.
+   await page.locator('.fw-word[data-fw-read="sol"]').click();
+   await page.locator('.fw-audio').click();
    const hint=page.locator('.fw-hint');
    await hint.click();
    assert.match(await page.locator('.fw-speech').innerText(),/Se etter/,'Fox did not offer a clue');
