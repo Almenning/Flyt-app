@@ -7,6 +7,12 @@
 html:has(#multiplication-lab-screen.active .gm-shell),
 body:has(#multiplication-lab-screen.active .gm-shell){background-color:#f5dfbd}
 .app:has(#multiplication-lab-screen.active .gm-shell){background:#f5dfbd}
+/* Young-home backgrounds are !important in the existing app. Override ONLY
+   on the active game, never increase the specificity of those home rules:
+   doing so also overrode unrelated journey backdrops in responsive QA. */
+.app.grade-band-young:has(#multiplication-lab-screen.active .gm-shell){
+  background:#f5dfbd!important
+}
 #multiplication-lab-screen.active:has(.gm-shell){
   padding:0!important;overflow-x:clip;background:#f5dfbd
 }
