@@ -362,6 +362,9 @@
    if(kind==='source'){
      if(Date.now()<suppressClickUntil)return;
      if(state.mode==='mission'){
+       if(selectedGroup!==null&&state.counts[selectedGroup]<state.each){
+         holdingBerry=false;change({type:'add',group:selectedGroup});return;
+       }
        holdingBerry=true;notice='Jordbæret er plukket! Trykk på en kurv, eller dra jordbæret dit.';foxMood='cheer';render();
        return;
      }
