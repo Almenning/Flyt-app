@@ -303,12 +303,15 @@ async function check(engine,label,viewport,url){
       const box=s=>{const r=document.querySelector(s).getBoundingClientRect();
         return {top:r.top,bottom:r.bottom,left:r.left,right:r.right,width:r.width,height:r.height}};
       return {fox:box('.gm-fox-art'),bubble:box('.gm-fox-bubble'),
-        firstBasket:box('.gm-crate'),math:box('.gm-math')};
+        firstBasket:box('.gm-crate'),math:box('.gm-math'),
+        speechSize:parseFloat(getComputedStyle(document.querySelector('.gm-fox-message')).fontSize)};
     });
-    assert.ok(guide.fox.height>=190&&guide.fox.width>=180,
-      label+' landscape fox should be a large personal guide, not a tiny mascot '+JSON.stringify(guide));
-    assert.ok(guide.fox.right<=guide.firstBasket.left+2,
-      label+' personal fox must not cover basket touch targets '+JSON.stringify(guide));
+    assert.ok(guide.fox.height>=225&&guide.fox.width>=225,
+      label+' iPad landscape fox must be a full personal guide, not a small icon '+JSON.stringify(guide));
+    assert.ok(guide.bubble.width>=205&&guide.speechSize>=14,
+      label+' iPad landscape speech must be readable at arm’s length '+JSON.stringify(guide));
+    assert.ok(guide.fox.right<=guide.firstBasket.left+2&&guide.bubble.right<=guide.firstBasket.left+2,
+      label+' fox and bubble must not cover any basket touch targets '+JSON.stringify(guide));
     assert.ok(guide.fox.bottom<=guide.math.top+3&&guide.bubble.bottom<=guide.math.top+3,
       label+' guide and speech must stay clear of live mathematical feedback '+JSON.stringify(guide));
   }
