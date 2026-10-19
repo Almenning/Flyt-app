@@ -16,6 +16,7 @@
   let holdingBerry=false;
  const esc=x=>String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const berrySvg='<svg viewBox="0 0 48 56" aria-hidden="true" focusable="false"><defs><linearGradient id="gmB" x1=".2" x2=".85" y2="1"><stop stop-color="#ff9780"/><stop offset=".42" stop-color="#d94855"/><stop offset="1" stop-color="#9c3547"/></linearGradient></defs><path d="M24 14C11 5 2 19 6 33C10 46 19 52 24 54C30 51 41 43 43 29C45 16 34 8 24 14Z" fill="url(#gmB)" stroke="#963a46" stroke-width="2"/><path d="M24 12C14 4 9 4 7 8L15 17L4 14L9 22L23 18L38 21L44 13L31 16L40 9C36 5 29 6 24 12Z" fill="#5c9867" stroke="#407e60" stroke-width="1.4"/><path d="M24 12Q24 6 28 3" stroke="#4a7650" stroke-width="2.5" fill="none" stroke-linecap="round"/><g fill="#ffe8ac"><ellipse cx="16" cy="28" rx="1.9" ry="3.1" transform="rotate(-24 16 28)"/><ellipse cx="30" cy="27" rx="1.8" ry="3" transform="rotate(16 30 27)"/><ellipse cx="23" cy="37" rx="1.8" ry="3"/><ellipse cx="13" cy="36" rx="1.5" ry="2.5"/><ellipse cx="33" cy="37" rx="1.5" ry="2.5"/></g><path d="M11 24Q11 18 18 18" stroke="#ffb2a0" stroke-width="3" fill="none" opacity=".8" stroke-linecap="round"/></svg>';
+ const berrySourceArt=Array.from({length:3},(_,i)=>'<span class="gm-source-berry gm-source-berry-'+i+'">'+berrySvg+'</span>').join('');
  function load(){try{return E.normalize(JSON.parse(localStorage.getItem(KEY)||'null'));}catch(_){return E.initial();}}
  function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(_){}}
  function selectedFox(){
@@ -33,7 +34,7 @@
      if(ix<0)return 'Du har fylt alle kurvene. Se hvordan gange og pluss henger sammen!';
      const missing=state.each-state.counts[ix];
      return hintStep===1?'Se på kurv '+(ix+1)+'. Hvor mange mangler for å få '+state.each+'?':
-       'Det mangler '+missing+' i kurv '+(ix+1)+'. Velg kurven og trykk på Plukk et jordbær.';
+       'Det mangler '+missing+' i kurv '+(ix+1)+'. Dra jordbær dit, eller trykk på bær og kurv.';
    }
    if(E.filled(state))return state.mode==='mission'?E.MISSIONS[state.mission].celebrate:
      'Du laget '+state.groups+' like grupper med '+state.each+' i hver!';
@@ -41,7 +42,7 @@
    if(lastAction==='select'&&selectedGroup!==null)return 'Kurv '+(selectedGroup+1)+' er valgt! Nå kan du plukke jordbær.';
    const same=state.counts.length>0&&state.counts[0]>0&&state.counts.every(n=>n===state.counts[0]);
    if(same)return 'Se! '+state.groups+' kurver med '+state.counts[0]+' i hver. '+state.groups+' ganger '+state.counts[0]+' er '+amount+'!';
-   if(!amount)return state.mode==='mission'?(selectedGroup===null?'Trykk på en kurv for å starte!':'Kurv '+(selectedGroup+1)+' er valgt. Trykk på Plukk et jordbær!'):
+   if(!amount)return state.mode==='mission'?(holdingBerry?'Nå kan du legge jordbæret i en kurv!':'Plukk et jordbær og legg det i en kurv!'):
      'Lag ditt eget gangestykke. Du bestemmer hvor mange som skal i hver kurv.';
    if(left===1)return 'Bare ett jordbær igjen!';
    if(lastAction==='add'&&lastGroup>=0&&lastGroup<state.groups){
@@ -87,7 +88,7 @@
  const gmBasketArt='<img class="gm-quest-wicker" alt="" src="gangemagi-basket-locked-illustration.svg">';
  const gmHandArt='<svg class="gm-quest-hand" viewBox="0 0 34 39" focusable="false" aria-hidden="true"><path d="M5 18q0-5 4-5t4 5V8q0-5 5-5t5 5v10q3-3 6 0q3 3 0 9l-4 7q-3 4-8 3l-10-9q-5-5-2-10Z" fill="#ffe6c5" stroke="#b9764b" stroke-width="2.5" stroke-linejoin="round"/><path d="M18 9v12M10 18v4" stroke="#d3956d" stroke-width="1.6" stroke-linecap="round"/></svg>';
  function questStep(n,art,label){
-   const current=E.filled(state)?3:(selectedGroup===null?1:2);
+   const current=E.filled(state)?3:(holdingBerry||selectedGroup!==null?2:1);
    const active=n===current;
    return '<div class="gm-quest-step'+(active?' gm-quest-step-active':'')+'" data-gm-step="'+n+'" role="listitem" '+(active?'aria-current="step" ':'')+'><span class="gm-quest-index" aria-hidden="true">'+n+'</span>'+
      '<span class="gm-quest-icon" aria-hidden="true">'+art+'</span><strong>'+esc(label)+'</strong></div>';
@@ -107,11 +108,11 @@
      '<span class="gm-quest-meta">Oppdrag '+(state.mission+1)+' av '+E.MISSIONS.length+' · '+esc(mission.heading)+'</span></div>'+
      '<h2 class="gm-quest-callout"><span>Fyll <em>'+groups+' '+(groups===1?'kurv':'kurver')+'</em> med</span> <span><em>'+each+' jordbær</em> i hver.</span></h2>'+
      '<div class="gm-quest-steps" role="list" aria-label="Tre steg i oppdraget">'+
-       questStep(1,gmBasketArt+gmHandArt,'Velg en kurv')+
+       questStep(1,fruitArt+gmHandArt,'Plukk')+
        '<span class="gm-quest-arrow" aria-hidden="true">➜</span>'+
-       questStep(2,fruitArt+gmBasketArt,'Legg i jordbær')+
+       questStep(2,fruitArt+gmBasketArt,'Legg i')+
        '<span class="gm-quest-arrow" aria-hidden="true">➜</span>'+
-       questStep(3,filledBasketPreview,'Se at '+groups+' × '+each+' = '+goal)+
+       questStep(3,filledBasketPreview,'Se gangemagien')+
      '</div></header>';
  }
  function render(){
@@ -156,7 +157,7 @@
          (complete?
            (free?'<button type="button" class="gm-next" data-gm-action="restart">Pakk kurvene på nytt <span aria-hidden="true">↻</span></button>':
               '<button type="button" class="gm-next" data-gm-action="next">Neste oppdrag <span aria-hidden="true">➜</span></button>'):
-           '<button type="button" class="gm-pick" data-gm-action="source" aria-label="'+(free?'Plukk et jordbær og legg det i neste ledige kurv':'Plukk jordbær. Dra til en kurv, eller trykk på kurven etterpå.')+'"><span class="gm-pick-fruit">'+berrySvg+'</span><span>Plukk et jordbær</span><small>'+(free?'Trykk eller dra':holdingBerry?'Trykk på en kurv':'Dra eller trykk')+'</small></button>'+
+           '<button type="button" class="gm-pick gm-strawberry-tray'+(holdingBerry?' gm-berry-held':'')+'" data-gm-action="source" aria-label="'+(free?'Plukk et jordbær og legg det i neste ledige kurv':'Plukk jordbær. Dra til en kurv, eller trykk på kurven etterpå.')+'"><span class="gm-pick-fruit" aria-hidden="true">'+berrySourceArt+'</span><span>Plukk et jordbær</span><small>'+(free?'Trykk eller dra':holdingBerry?'Trykk på en kurv':'Dra eller trykk')+'</small></button>'+
            '<button type="button" class="gm-tool" data-gm-action="hint"><span aria-hidden="true">✧</span> Hint</button>')+
          '<button type="button" class="gm-tool" data-gm-action="undo" '+(!undo.length?'disabled':'')+'><span aria-hidden="true">↶</span> Angre</button>'+
        '</div>'+
