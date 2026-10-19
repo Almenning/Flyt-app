@@ -34,7 +34,7 @@ function serve(){return new Promise((resolve,reject)=>{
  server.listen(0,'127.0.0.1',()=>resolve({server,url:'http://127.0.0.1:'+server.address().port+'/laer-litt-mer/?app=laria'}));
 })}
 async function shot(page,name){fs.mkdirSync(dir,{recursive:true});await page.screenshot({path:path.join(dir,name+'.png'),animations:'disabled',fullPage:false});}
-async function open(page,url){
+async function open(page,url,label){
  await page.goto(url,{waitUntil:'domcontentloaded'});
  await page.waitForFunction(()=>typeof window.openFindTheWords==='function'&&document.querySelector('.bc12-nav [data-camp="explore"]'),{},{timeout:30000});
  await page.locator('.bc12-nav [data-camp="explore"]').click();
@@ -48,7 +48,9 @@ async function open(page,url){
    'All five card surfaces must have equal dimensions: '+JSON.stringify(sizes));
  const entry=panel.locator('[data-bc13-action="find-words"]');
  assert.ok(await entry.isVisible(),'Find-the-words illustrated card must be visible');
+ await shot(page,label+'-explore-five-cards');
  await entry.scrollIntoViewIfNeeded();
+ await shot(page,label+'-explore-fifth-card');
  const picture=entry.locator('img.bc13-premium-art');
  await picture.evaluate(img=>img.decode());
  assert.deepEqual(await picture.evaluate(img=>[img.naturalWidth,img.naturalHeight]),[1200,720],
@@ -102,7 +104,7 @@ async function run(engine,label,viewport,url,avatar){
   await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
   await page.route('https://api.worldbank.org/**',r=>r.abort());
   try{
-   await open(page,url);
+   await open(page,url,label);
    await page.locator('.fw-scene-image').evaluate(img=>img.decode());
    await geometry(page,label,viewport);
    const foxSource=await page.locator('.fw-fox').getAttribute('src');
@@ -133,6 +135,13 @@ async function run(engine,label,viewport,url,avatar){
    await page.locator('.fw-fox-button').click();
    assert.equal(await page.locator('.fw-object.is-hint').count(),1,'Second hint should highlight the selected object');
    assert.equal(await page.locator('.fw-word.is-found').count(),0,'Hint must not automatically solve the game');
+   if(viewport.width<=360){
+     const title=await page.locator('.fw-title h1').evaluate(el=>{
+       const r=el.getBoundingClientRect();return {top:r.top,bottom:r.bottom,height:innerHeight};
+     });
+     assert.ok(title.top>=-1&&title.bottom<=title.height,
+       'Selecting a word must not auto-scroll away the title on a compact iPhone: '+JSON.stringify(title));
+   }
    await shot(page,label+'-chosen-word-hint');
    // An illustrated object not in the current word list should be explored, not punished.
    // A touch on water must hit the painted lake, not the grassy lower bank.
