@@ -67,11 +67,17 @@ async function geometry(page,label,view){
   const el=document.querySelector('.fw-art');
   const img=document.querySelector('.fw-scene-image');
   return {screen:innerWidth,height:innerHeight,scroll:document.documentElement.scrollWidth,
-   art:bounds('.fw-art'),picture:bounds('.fw-picture'),paint:bounds('.fw-scene-image'),list:bounds('.fw-list'),back:bounds('.fw-back'),fox:bounds('.fw-fox'),
+   art:bounds('.fw-art'),picture:bounds('.fw-picture'),paint:bounds('.fw-scene-image'),list:bounds('.fw-list'),back:bounds('.fw-back'),fox:bounds('.fw-fox'),next:bounds('.fw-next'),
    scene:{w:img.naturalWidth,h:img.naturalHeight,complete:img.complete},
    words:[...document.querySelectorAll('.fw-word')].map(x=>x.getBoundingClientRect().height),
     wordFonts:[...document.querySelectorAll('.fw-word strong')].map(x=>parseFloat(getComputedStyle(x).fontSize)),
    hotspot:[...document.querySelectorAll('.fw-object')].map(x=>{const r=x.getBoundingClientRect(),hit=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);return {id:x.dataset.fwObject,w:r.width,h:r.height,centerReachable:hit===x||x.contains(hit)};}),
+   longWord:(()=>{
+     const word=document.querySelector('.fw-word[data-fw-read="sommerfugl"] strong');
+     if(!word)return null;
+     const r=word.getBoundingClientRect(),marker=word.closest('button').querySelector('.fw-word-check').getBoundingClientRect();
+     return {height:r.height,lineHeight:parseFloat(getComputedStyle(word).lineHeight),right:r.right,checkLeft:marker.left};
+   })(),
    paintedPoints:(()=>{
       // Coordinates of the pictured objects at the original 1200×720 artwork ratio.
       // Check the real visible painted point, not simply the HTML button centre.
@@ -96,6 +102,16 @@ async function geometry(page,label,view){
    'Illustration and tap targets use different visible pixel bounds '+label+': '+JSON.stringify(box));
  assert.deepEqual(box.paintedPoints.filter(x=>x.id!==x.hit),[],
    'A painted object is not reachable at the point where the child sees it '+label+': '+JSON.stringify(box.paintedPoints));
+ if(box.longWord){
+  assert.ok(box.longWord.height<=box.longWord.lineHeight*1.2,
+   'Norwegian word sommerfugl wrapped into fragments '+label+': '+JSON.stringify(box.longWord));
+  assert.ok(box.longWord.right<=box.longWord.checkLeft+1,
+   'The complete written word overlaps the tick control '+label+': '+JSON.stringify(box.longWord));
+ }
+ if(view.width>=1001&&view.height>=700&&view.height<=900){
+  assert.ok(box.next&&box.next.b<=box.height+2&&box.fox.b<=box.height+2,
+   'Fox companion or next adventure is clipped below iPad landscape first fold '+label+': '+JSON.stringify(box));
+ }
  assert.ok(box.scene.complete&&box.scene.w===1200&&box.scene.h===720,'illustrated scene failed '+label+': '+JSON.stringify(box.scene));
  assert.ok(box.scroll<=box.screen+3,'horizontal overflow '+label+': '+JSON.stringify(box));
  assert.ok(box.art.x>=-2&&box.art.x+box.art.w<=box.screen+3,'art clipped horizontally '+label);
