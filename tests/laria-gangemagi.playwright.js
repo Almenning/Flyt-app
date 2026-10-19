@@ -111,10 +111,17 @@ async function check(engine,label,viewport,url){
   await page.route('https://api.worldbank.org/**',r=>r.abort());
   await page.goto(url,{waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>window.LARIA_GANGEMAGI?.version==='playable-v1');
+  // Navigate to the actual home screen before checking the home palette:
+  // the app may legitimately restore an active lab during startup.
+  await page.evaluate(()=>showScreen('home'));
+  await page.locator('#home-screen.active').waitFor();
   const homeTheme=await page.locator('.app').evaluate(el=>({
     young:el.classList.contains('grade-band-young'),
-    image:getComputedStyle(el).backgroundImage
+    image:getComputedStyle(el).backgroundImage,
+    gameActive:!!el.querySelector('#multiplication-lab-screen.active .gm-shell')
   }));
+  assert.equal(homeTheme.gameActive,false,
+    label+' the home-background check must run on Home, never inside Gangemagi');
   if(homeTheme.young)assert.notEqual(homeTheme.image,'none',
     label+' preserve the younger child’s colorful home theme when game is inactive');
   await page.evaluate(()=>window.openMultiplicationLab());
