@@ -167,6 +167,15 @@ async function run(engine,label,viewport,url,avatar){
    assert.match(await page.locator('.fw-speech').innerText(),/Se etter/,'Fox did not give the selected-word clue');
    await page.locator('.fw-fox-button').click();
    assert.equal(await page.locator('.fw-object.is-hint').count(),1,'Second hint should highlight the selected object');
+   assert.equal(await page.locator('.fw-fx .fw-target-flower[data-fx-object="sol"]').count(),1,
+    'Fox second hint must point inside the illustrated scene');
+   assert.equal(await page.locator('.fw-fx').evaluate(el=>getComputedStyle(el).pointerEvents),'none',
+    'Fox effects must not intercept taps on illustrated objects');
+   const sunTap=await page.evaluate(()=>{
+    const b=document.querySelector('[data-fw-object="sol"]').getBoundingClientRect();
+    return document.elementFromPoint(b.left+b.width/2,b.top+b.height/2)?.closest?.('[data-fw-object]')?.dataset?.fwObject||null;
+   });
+   assert.equal(sunTap,'sol','Guide glow blocks the real sun touch area');
    assert.equal(await page.locator('.fw-word.is-found').count(),0,'Hint must not automatically solve the game');
    if(viewport.width<=360){
      const title=await page.locator('.fw-title h1').evaluate(el=>{
@@ -197,6 +206,8 @@ async function run(engine,label,viewport,url,avatar){
    await page.locator('.fw-object[data-fw-object="fugl"]').click();
    assert.match(await page.locator('.fw-speech').innerText(),/Ikke helt/,
      'Wrong word-object pairing must give gentle corrective feedback');
+   assert.equal(await page.locator('.fw-fx .fw-try-ring[data-fx-object="fugl"]').count(),1,
+    'Wrong guess must show a brief gentle ripple at the pictured object');
    assert.equal(await page.locator('.fw-word.is-selected').count(),0,
      'A wrong pairing must require the child to select a word again');
    assert.equal(await page.locator('.fw-word.is-found').count(),0,'Wrong pairing awarded progress');
@@ -211,6 +222,11 @@ async function run(engine,label,viewport,url,avatar){
       'Chosen word stayed selected after it was found: '+word);
     assert.equal(await page.locator('.fw-word.is-found').count(),targetWords.indexOf(word)+1,
       'Correct chosen word-object pair did not mark progress: '+word);
+    if(word==='sol'){
+     assert.equal(await page.locator('.fw-fx .fw-success-burst[data-fx-object="sol"]').count(),1,
+      'Successful match must celebrate at the found item in the picture');
+     await shot(page,label+'-object-discovery');
+    }
    }
    assert.ok(await page.locator('#find-the-words-overlay').evaluate(el=>el.classList.contains('fw-complete')),
     'Round did not complete');
@@ -229,6 +245,7 @@ async function run(engine,label,viewport,url,avatar){
    await page.locator('.fw-back').click();
    await page.locator('.bc13-panel:not([hidden]) [data-bc13-action="find-words"]').waitFor();
    assert.equal(await page.locator('#find-the-words-overlay:not([hidden])').count(),0,'Picture mode did not close');
+   assert.equal(await page.locator('.fw-fx').locator('*').count(),0,'Fox trail remained after closing the game');
    assert.equal(await page.evaluate(()=>document.documentElement.style.overflow),'','Scroll was left locked');
    await page.reload({waitUntil:'domcontentloaded'});
    await page.waitForFunction(()=>typeof window.openFindTheWords==='function');
