@@ -557,23 +557,25 @@
     tiny decoration beside three large market baskets. Art and bubble
     share a bounded composition instead of increasing document height. */
  .gm-shell[data-gm-mode="mission"] .gm-scene{
-   display:grid;grid-template-columns:205px minmax(0,1fr);
+   display:grid;grid-template-columns:245px minmax(0,1fr);
    gap:8px;align-items:center;margin:4px 12px 0;
  }
  .gm-shell[data-gm-mode="mission"] .gm-fox{
    position:relative;display:block;align-self:center;
-   min-width:0;width:205px;height:195px;margin:0;padding:0;
+   min-width:0;width:245px;height:195px;margin:0;padding:0;
  }
  .gm-shell[data-gm-mode="mission"] .gm-fox-art{
-   position:absolute;z-index:1;left:5px;top:-25px;
-   width:190px;height:209px;pointer-events:none;
+   /* Increase the child's SAVED fox, not a substitute illustration. Its
+      foreground still stays in the left 245px column beside real baskets. */
+   position:absolute;z-index:1;left:0;top:-27px;
+   width:230px;height:227px;pointer-events:none;
  }
  .gm-shell[data-gm-mode="mission"] .gm-fox-bubble{
-   position:absolute;z-index:2;left:-1px;bottom:0;
-   width:200px;max-width:none;min-height:57px;margin:0;
-   padding:6px 7px;grid-template-columns:minmax(0,1fr) 44px;
+   position:absolute;z-index:2;left:23px;bottom:0;
+   width:215px;max-width:none;min-height:61px;margin:0;
+   padding:7px 9px;grid-template-columns:minmax(0,1fr) 44px;
  }
- .gm-shell[data-gm-mode="mission"] .gm-fox-message{font-size:13px;line-height:1.16}
+ .gm-shell[data-gm-mode="mission"] .gm-fox-message{font-size:14px;line-height:1.17}
  .gm-shell[data-gm-mode="mission"] .gm-market{min-width:0;margin:0;align-self:center}
  .gm-shell[data-gm-mode="mission"] .gm-market-sign{margin:0 auto -7px;padding:5px 16px}
  .gm-shell[data-gm-mode="mission"] .gm-crates{padding:10px 4px 0;gap:8px}
