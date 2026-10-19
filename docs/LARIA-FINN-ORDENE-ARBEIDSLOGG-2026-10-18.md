@@ -54,3 +54,11 @@ Første runde har én original illustrert hovedscene med tre sett ord. Flere sæ
 - La inn regresjonskrav om større iPhone-illustrasjon, synlig rev innenfor skjermen samt at knappene for opplesning og ord kan aktiveres uten Javascript-feil.
 - **Før publisering:** den nye eksakt-head WebKit/Chromium-runnen må bli grønn og nye skjermbilder inspiseres. Bruk den faktiske siste commit-hashen, ikke tidligere pipeline-resultater.
 - Separat Dual Globes-test har feilet på landkort etter 5 sekunder i iPad landskap. Denne PR-en endrer ingen SuperKlode-filer. Opprett separat globefiks ved behov i stedet for å blande endringer.
+
+## Sluttstatus etter PR #189 – 19.10.2026
+- PR #189 ble flettet inn i main med merge commit 1e68f9352af56c0d5af71b43cade1a937c55121e kl. 07:44:59 UTC (09:44:59 norsk tid).
+- Eksakt siste PR-head a2a1e5c5d00d9b07f6ee50caf2d59e3de1cb27a8 har GitHub Actions «Laria Finn ordene WebKit» SUCCESS (run 39217027515). Skjermbildebevis er arkivert i artifact 12170430875.
+- PR-endringene omfatter visuell iPad/iPhone-tilpassing, original illustrert scene, personlig rev og isolert ordjakt. Eksisterende Ordjakt er beholdt.
+- Samtidig «Laria Dual Globes Release QA» feiler. Den separate SuperKlode-feilen er fremdeles åpen og er ikke definert som en del av Finn ordene.
+- GitHub Pages sin offentlig tilgjengelige endestasjon kunne ikke verifiseres i denne kontrollen, fordi webleser avviste URL-ene og terminalmiljøet ikke fikk DNS-oppslag. Dermed er kode-integrasjon bekreftet, men *produksjonsutrulling/at barn kan åpne aktiviteten i publisert app* er ikke uavhengig bekreftet.
+- Automatiseringen «Læria Finn ordene» ble deaktivert tidligere. Ingen ytterligere gjentagende utviklingsjobb ble startet.
