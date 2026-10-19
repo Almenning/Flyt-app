@@ -260,6 +260,17 @@ async function check(engine,label,viewport,url){
       label+' mathematical result remains readable without redundant label');
     assert.ok(sceneLayers.equationFont>=24,
       label+' iPad portrait equation must be prominent '+JSON.stringify(sceneLayers));
+    const foxSpeech=await page.locator('.gm-fox-bubble').evaluate(el=>{
+      const style=getComputedStyle(el),tail=getComputedStyle(el,'::before');
+      const size=parseFloat(tail.width),left=parseFloat(tail.left);
+      return {arrowRight:left+size*(1+Math.SQRT2)/2,
+        textInset:parseFloat(style.paddingLeft),
+        textWidth:el.querySelector('.gm-fox-message').clientWidth,
+        textScroll:el.querySelector('.gm-fox-message').scrollWidth};
+    });
+    assert.ok(foxSpeech.arrowRight<=foxSpeech.textInset-2&&
+      foxSpeech.textScroll<=foxSpeech.textWidth+1,
+      label+' iPad portrait speech arrow may not cover letters '+JSON.stringify(foxSpeech));
   }
   if(viewport.width>=900&&viewport.height<=900){
     const guide=await page.evaluate(()=>{
