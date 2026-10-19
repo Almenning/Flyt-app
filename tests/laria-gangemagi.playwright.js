@@ -775,6 +775,62 @@ async function check(engine,label,viewport,url){
   console.log('PASS GANGEMAGI '+label);
  }finally{await context.close();}
 }
+// Landscape iPhone is an explicitly locked Safari release target, distinct
+// from iPad landscape. Its 390px height may scroll, but never horizontally.
+async function checkLandscape(engine,label,url){
+ const viewport={width:844,height:390};
+ const context=await engine.newContext({viewport,isMobile:true,hasTouch:true,
+   deviceScaleFactor:1,serviceWorkers:'block'});
+ const page=await context.newPage(),errors=[];
+ page.on('pageerror',e=>errors.push(String(e)));
+ try{
+   await page.addInitScript(s=>localStorage.setItem('laerlittmer-v2',JSON.stringify(s)),seed);
+   await page.goto(url,{waitUntil:'domcontentloaded'});
+   await page.waitForFunction(()=>window.LARIA_GANGEMAGI?.version==='playable-v1');
+   await page.evaluate(()=>window.openMultiplicationLab());
+   await page.locator('#multiplication-lab-screen.active .gm-shell').waitFor();
+   assert.match((await page.locator('.gm-quest-callout').innerText()).replace(/\\s+/g,' '),
+     /Fyll 3 kurver med 3 jordbær i hver/,label+' original task must survive short landscape');
+   assert.equal(await page.locator('.gm-crate').count(),3,
+     label+' three functional illustrated baskets survive landscape');
+   const geometry=await page.evaluate(()=>{
+     const box=s=>document.querySelector(s).getBoundingClientRect();
+     const back=box('.gm-back'),title=box('.gm-top-title'),
+       progress=box('.gm-top-progress'),book=box('.gm-book-quick');
+     const overlap=(a,b)=>a.left<b.right-2&&a.right>b.left+2&&a.top<b.bottom-2&&a.bottom>b.top+2;
+     const baskets=[...document.querySelectorAll('.gm-crate')].map(el=>el.getBoundingClientRect());
+     const source=box('.gm-market-fruit-supply .gm-pick');
+     return {width:innerWidth,scrollWidth:document.documentElement.scrollWidth,
+       topOverlap:overlap(back,title)||overlap(title,progress)||overlap(progress,book),
+       basketWidths:baskets.map(b=>b.width),sourceWidth:source.width,
+       sourceHeight:source.height,sourceTop:source.top};
+   });
+   assert.ok(geometry.scrollWidth<=geometry.width+4,
+     label+' never let the landscape page scroll sideways '+JSON.stringify(geometry));
+   assert.equal(geometry.topOverlap,false,
+     label+' landscape header must not overlap back/title/progress/collection '+JSON.stringify(geometry));
+   assert.ok(geometry.basketWidths.every(w=>w>=44)&&
+     geometry.sourceWidth>=44&&geometry.sourceHeight>=44,
+     label+' child-sized interactive props on landscape '+JSON.stringify(geometry));
+   await shot(page,label+'-01-first-look');
+   // The short viewport is deliberately scrollable. The child must still be
+   // able to find the real strawberry crate and interact using touch taps.
+   await page.locator('[data-gm-action="source"]').tap();
+   assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,0,0],
+     label+' first touch only picks one berry');
+   await page.locator('[data-gm-action="basket"][data-gm-basket="1"] .gm-crate-front').tap();
+   assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,1,0],
+     label+' second touch places exactly one berry despite scrolling');
+   assert.equal((await page.locator('.gm-math-equation').innerText()).trim(),'0 + 1 + 0 = 1',
+     label+' displayed maths follows landscape touch placement');
+   await shot(page,label+'-02-one-berry');
+   await page.locator('[data-gm-basket="1"] .gm-fruit[data-gm-fruit]').first().tap();
+   assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,0,0],
+     label+' landscape berry can be touched to remove it');
+   assert.deepEqual(errors,[],label+' landscape browser errors '+JSON.stringify(errors));
+   console.log('PASS GANGEMAGI '+label);
+ }finally{await context.close();}
+}
 (async()=>{
  auditAllEightMissions();
  const {srv,url}=await serve();
@@ -784,7 +840,9 @@ async function check(engine,label,viewport,url){
    ['webkit',webkit,[['iphone-small',{width:320,height:568}],['iphone390',{width:390,height:844}],['ipad-portrait',{width:820,height:1180}],['ipad-landscape',{width:1180,height:820}]]]
   ]){
    const browser=await browserType.launch({headless:true});
-   try{for(const [device,viewport] of devices)await check(browser,type+'-'+device,viewport,url);}finally{await browser.close();}
+   try{for(const [device,viewport] of devices)await check(browser,type+'-'+device,viewport,url);
+    await checkLandscape(browser,type+'-iphone-landscape',url);
+   }finally{await browser.close();}
   }
  }finally{await new Promise(resolve=>srv.close(resolve));}
 })().catch(err=>{console.error(err);process.exitCode=1;});
