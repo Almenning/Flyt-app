@@ -35,3 +35,13 @@ feat/laria-find-words-picture-hunt-20261018
 
 ## Etterfølgende arbeid / bevisste begrensninger
 Første runde har én original illustrert hovedscene med tre sett ord. Flere særegne miljøer, kvalitetskontroll av lys/skygge og mer variert animasjon er neste premiumiterasjon. Eksisterende lærerdata, reiser, samlebok og andre funksjoner er ikke endret. Verken brukerens eller barnets navn står i kode/asset.
+
+## Kontroll og layoutretting 19.10.2026
+- Verifisert PR #189 som draft på head f4249dc5130d86d9f828be10e7dee63380af1d96 ved oppstart.
+- GitHub Actions «Laria Finn ordene WebKit» #39167360576 på dette hodet: SUCCESS. «Laria QA» #39167360631: SUCCESS. Øvrige undersøkte kontroller var grønne bortsett fra separat «Laria Dual Globes Release QA» #39167360735.
+- Hentet og faktisk åpnet skjermbildene fra Actions-artefakt #12151242748 (WebKit iPhone 390x844, liten iPhone 320x568, iPad 820x1180, iPad liggende 1180x820 og Chromium iPad liggende).
+- Visuell inspeksjon: iPad 820x1180 hadde en for liten tospaltet illustrasjon (omtrent 520x310) og mye ubrukt plass under. iPhone 390x844 kunne også utnyttet vertikalplassen noe bedre; liten iPhone er allerede tettpakket.
+- Rettet ren CSS: iPad portrett bruker nå bred illustrasjon og en lesbar ordliste i to rader, fremfor en smal høyre-illustrasjon. Større iPhone portrett får litt mer rom til selve scenen. Ingen endringer i original Ordjakt, reisekart eller SuperKlode.
+- Utvidet faktisk WebKit/Chromium-test med kontroll om minst 83 prosent av iPad-bredden for illustrasjonen, minst 32 prosent av høyden og fortsatt synlighet på første skjerm.
+- Endringene er committet på den eksisterende PR-grenen. **Siste commit trenger ny eksakt-head CI og nye faktiske skjermbilder før merge**.
+- Den separate globe-testen feilet i iPad landskap i verifyOffscreenCountryCard() ved venting i 5000 ms etter at iPhone-testene besto. Feilen stammer fra globetesten og er ikke bevist forårsaket av «Finn ordene». Ikke endre globen i denne PR-en; behandle denne blokkeringen særskilt.
