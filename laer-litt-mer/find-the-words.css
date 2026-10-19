@@ -271,3 +271,18 @@
 @media(prefers-reduced-motion:reduce){
  .fw-overlay *{animation:none!important;transition:none!important}
 }
+
+
+/* Tall iPhones: the previous portrait-art rule was followed by the generic
+   max-width:700px rule, so its aspect ratio was overwritten. Keep the image
+   large and give the child's selected fox a genuine, visible presence.
+   Compact 320px phones retain their already verified fold-safe layout. */
+@media (min-width:361px) and (max-width:700px) and (min-height:750px) and (orientation:portrait){
+ .fw-shell{height:100svh;min-height:100svh;gap:12px}
+ .fw-art{aspect-ratio:1.4;max-height:none}
+ .fw-bottom{margin-top:auto;min-height:123px;gap:7px;align-items:center}
+ .fw-fox{width:104px;height:116px}
+ .fw-companion{gap:3px;max-width:none}
+ .fw-speech{font-size:12px;padding:9px 10px}
+ .fw-controls{align-self:center}
+}
