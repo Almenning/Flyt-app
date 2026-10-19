@@ -75,8 +75,12 @@ async function geometry(page,label,view){
    paintedPoints:(()=>{
       // Coordinates of the pictured objects at the original 1200×720 artwork ratio.
       // Check the real visible painted point, not simply the HTML button centre.
-      const points={sol:[.905,.17],tre:[.22,.395],telt:[.865,.745],vann:[.635,.64],
-       rev:[.685,.82],sekk:[.255,.815],bat:[.545,.84],fugl:[.765,.455]};
+      const garden=document.querySelector('.fw-scene-image').getAttribute('src').includes('find-the-words-garden');
+      const points=garden?
+        {eple:[.24,.412],ugle:[.40,.39],sommerfugl:[.655,.363],lykt:[.848,.456],
+         bro:[.59,.688],sopp:[.146,.846],bok:[.395,.863],pinnsvin:[.895,.866]}:
+        {sol:[.905,.17],tre:[.22,.395],telt:[.865,.745],vann:[.635,.64],
+         rev:[.685,.82],sekk:[.255,.815],bat:[.545,.84],fugl:[.765,.455]};
       const picture=document.querySelector('.fw-picture').getBoundingClientRect();
       return Object.entries(points).map(([id,[x,y]])=>{
        const hit=document.elementFromPoint(picture.left+picture.width*x,picture.top+picture.height*y);
@@ -95,6 +99,7 @@ async function geometry(page,label,view){
  assert.ok(box.scene.complete&&box.scene.w===1200&&box.scene.h===720,'illustrated scene failed '+label+': '+JSON.stringify(box.scene));
  assert.ok(box.scroll<=box.screen+3,'horizontal overflow '+label+': '+JSON.stringify(box));
  assert.ok(box.art.x>=-2&&box.art.x+box.art.w<=box.screen+3,'art clipped horizontally '+label);
+ assert.equal(box.hotspot.length,8,'Each illustrated world must expose exactly eight tappable objects '+label);
  assert.ok(box.hotspot.every(b=>b.w>=44&&b.h>=44),'child targets too small '+label+': '+JSON.stringify(box.hotspot));
  assert.ok(box.hotspot.every(b=>b.centerReachable),'overlapping hotspots prevent children from finding an object '+label+': '+JSON.stringify(box.hotspot));
  assert.ok(box.words.every(h=>h>=39),'word-list buttons too small '+label+': '+JSON.stringify(box.words));
@@ -254,41 +259,80 @@ async function run(engine,label,viewport,url,avatar){
    assert.equal(await page.locator('.fw-word.is-found').count(),6,'Picture word progress was lost on reload');
    assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('laria-find-words-v1')).rounds),1);
    await page.locator('.fw-next').click();
-   assert.equal(await page.locator('.fw-word.is-found').count(),0,'New illustrated round was not reset');
-   assert.equal(await page.locator('.fw-word').count(),6);
-   // Pointer gestures are optional: wrong image drops give no credit;
-   // correctly dragging the text to a pictured item uses the same
-   // verification path as tap->tap matching.
-   await dragWord(page,'fugl','.fw-object[data-fw-object="sol"]');
+   // Original indices 0, 1 and 2 remain unchanged for all existing saves.
+   // New adventures alternate, presenting a genuinely DIFFERENT painted world.
+   const gardenImage=page.locator('.fw-scene-image');
+   await gardenImage.evaluate(img=>img.decode());
+   assert.match(await gardenImage.getAttribute('src'),/find-the-words-garden\.svg/,
+     'The next adventure must have its own illustrated garden');
+   assert.equal(await page.locator('.fw-word.is-found').count(),0,'Garden progress did not begin cleanly');
+   assert.deepEqual((await page.locator('.fw-word strong').allTextContents()).sort(),
+     ['sommerfugl','bok','eple','ugle','bro','sopp'].sort(),
+     'New discovery environment reused the previous word list');
+   assert.equal(await page.locator('.fw-object[data-fw-object="sol"]').count(),0,
+     'Old forest hotspots leaked into the second scene');
+   await geometry(page,label+'-secret-garden',viewport);
+   await shot(page,label+'-secret-garden-first-look');
+
+   // Wrong word on a valid object, genuine Pointer Events drag, and the
+   // child-friendly drag->tap fallback must all work in the new world too.
+   await dragWord(page,'sommerfugl','.fw-object[data-fw-object="eple"]');
    assert.equal(await page.locator('.fw-word.is-found').count(),0,
-     'Wrong drag-and-drop must not award a word');
+     'Wrong garden drag incorrectly awarded a word');
    assert.equal(await page.locator('.fw-word.is-selected').count(),0,
-     'A mismatched drag should reset the selected word');
-   await dragWord(page,'fugl','.fw-object[data-fw-object="fugl"]');
-   assert.equal(await page.locator('.fw-word[data-fw-read="fugl"].is-found').count(),1,
-     'Dragging the correct word onto the object did not award progress');
-   assert.equal(await page.locator('.fw-drag-ghost').count(),0,
-     'Drag ghost remained after a completed drop');
-   // Dropping onto blank space should select the word for the accessible
-   // two-tap fallback, but must never count the word as found.
-   await dragWord(page,'bat','.fw-stage-label');
+     'Wrong garden drag must clear the selection');
+   await dragWord(page,'sommerfugl','.fw-object[data-fw-object="sommerfugl"]');
+   assert.equal(await page.locator('.fw-word[data-fw-read="sommerfugl"].is-found').count(),1,
+     'Correct butterfly drag was not recognized');
+   assert.equal(await page.locator('.fw-drag-ghost').count(),0,'Drag ghost remained in new garden');
+   await dragWord(page,'bok','.fw-stage-label');
    assert.equal(await page.locator('.fw-word.is-found').count(),1,
-     'A drag dropped outside an object awarded progress');
-   assert.equal(await page.locator('.fw-word[data-fw-read="bat"]').getAttribute('aria-pressed'),'true',
-     'Dragging to blank scenery should still leave the written word selected');
-   await page.locator('.fw-object[data-fw-object="bat"]').click();
+     'Dragging a book to empty space must not award progress');
+   assert.equal(await page.locator('.fw-word[data-fw-read="bok"]').getAttribute('aria-pressed'),'true',
+     'Unsuccessful garden drag must leave the word selected');
+   await page.locator('.fw-object[data-fw-object="bok"]').click();
    assert.equal(await page.locator('.fw-word.is-found').count(),2,
-     'Drag fallback cannot be finished by an ordinary accessible tap');
-   await shot(page,label+'-drag-matching');
-   await page.locator('.fw-word[data-fw-read="tre"]').click();
-   assert.equal(await page.locator('.fw-word.is-selected').count(),1);
+     'Chosen garden book was not found with an ordinary tap');
+   await shot(page,label+'-secret-garden-drag-matching');
+
+   await page.locator('.fw-word[data-fw-read="ugle"]').click();
    await page.locator('.fw-back').click();
    await page.reload({waitUntil:'domcontentloaded'});
    await page.waitForFunction(()=>typeof window.openFindTheWords==='function');
    await page.locator('.bc12-nav [data-camp="explore"]').click();
    await page.locator('.bc13-panel:not([hidden]) [data-bc13-action="find-words"]').click();
-   assert.equal(await page.locator('.fw-word[data-fw-read="tre"]').getAttribute('aria-pressed'),'true',
-     'Chosen word did not persist after exiting and reloading');
+   assert.match(await page.locator('.fw-scene-image').getAttribute('src'),/find-the-words-garden\.svg/,
+     'The child did not return to their saved garden');
+   assert.equal(await page.locator('.fw-word[data-fw-read="ugle"]').getAttribute('aria-pressed'),'true',
+     'Garden-selected word was lost on reload');
+   assert.equal(await page.locator('.fw-word.is-found').count(),2,
+     'Two garden discoveries were lost on reload');
+
+   for(const word of ['eple','ugle','bro','sopp']){
+    await page.locator('.fw-word[data-fw-read="'+word+'"]').click();
+    await page.locator('.fw-object[data-fw-object="'+word+'"]').click();
+   }
+   assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('laria-find-words-v1')).rounds),2,
+     'Completing two separate adventures must record two rounds');
+   await shot(page,label+'-secret-garden-complete');
+   await page.locator('.fw-next').click();
+   assert.match(await page.locator('.fw-scene-image').getAttribute('src'),/find-the-words-scene\.svg/,
+     'Adventure sequence did not alternate back to Bokskogen');
+   assert.equal(await page.locator('.fw-word[data-fw-read="fugl"]').count(),1,
+     'Original second forest word list changed after the new garden');
+
+   // Legacy v1 save compatibility: keep the child's exact old forest round.
+   await page.locator('.fw-back').click();
+   await page.evaluate(()=>localStorage.setItem('laria-find-words-active-v1',
+     JSON.stringify({version:1,round:1,found:['fugl'],completed:false,selected:'bat'})));
+   await page.reload({waitUntil:'domcontentloaded'});
+   await page.waitForFunction(()=>typeof window.openFindTheWords==='function');
+   await page.locator('.bc12-nav [data-camp="explore"]').click();
+   await page.locator('.bc13-panel:not([hidden]) [data-bc13-action="find-words"]').click();
+   assert.equal(await page.locator('.fw-word[data-fw-read="bat"]').getAttribute('aria-pressed'),'true',
+     'Old selected word did not survive new version of the game');
+   assert.equal(await page.locator('.fw-word[data-fw-read="fugl"].is-found').count(),1,
+     'Legacy found-word progress got lost');
    await page.locator('.fw-back').click();
    // The separate 6x6 letter-grid mode and its five themes remain available.
    await page.locator('.bc13-panel:not([hidden]) .bc13-card[data-bc13-action="words"]').click();
