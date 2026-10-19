@@ -1,6 +1,6 @@
 'use strict';
 /* Real WebKit/Chromium QA for the independent Finn ordene image discovery activity.
- * Runs with the actual app, selected profile fox, local SVG and four original Utforsk cards.
+ * Runs with the actual app, selected profile fox, local SVG and five equal-status Utforsk cards.
  */
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
@@ -40,9 +40,19 @@ async function open(page,url){
  await page.locator('.bc12-nav [data-camp="explore"]').click();
  const panel=page.locator('.bc13-panel:not([hidden])');
  await panel.waitFor();
- assert.equal(await panel.locator('.bc13-card').count(),4,'Existing four illustrated Utforsk activities must stay intact');
+ assert.equal(await panel.locator('.bc13-card').count(),5,'Picture hunt must be a fifth, equal-size illustrated Utforsk card');
+ const sizes=await panel.locator('.bc13-card').evaluateAll(cards=>cards.map(c=>{
+   const r=c.getBoundingClientRect();return {w:r.width,h:r.height};
+ }));
+ assert.ok(sizes.every(x=>Math.abs(x.w-sizes[0].w)<=2&&Math.abs(x.h-sizes[0].h)<=2),
+   'All five card surfaces must have equal dimensions: '+JSON.stringify(sizes));
  const entry=panel.locator('[data-bc13-action="find-words"]');
- assert.ok(await entry.isVisible(),'Find-the-words entry must be visible');
+ assert.ok(await entry.isVisible(),'Find-the-words illustrated card must be visible');
+ await entry.scrollIntoViewIfNeeded();
+ const picture=entry.locator('img.bc13-premium-art');
+ await picture.evaluate(img=>img.decode());
+ assert.deepEqual(await picture.evaluate(img=>[img.naturalWidth,img.naturalHeight]),[1200,720],
+   'The new card is missing its own real illustration');
  const dims=await entry.boundingBox();
  assert.ok(dims&&dims.width>=44&&dims.height>=44,'New picture hunt entry must be touch accessible');
  await entry.click();
