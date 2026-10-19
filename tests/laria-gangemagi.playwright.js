@@ -407,10 +407,12 @@ async function check(engine,label,viewport,url){
   assert.equal((await page.locator('.gm-crate-selected').count()),1,'one glowing chosen basket');
   assert.equal(await page.locator('.gm-crate-invite').count(),0,
     label+' remaining baskets should stop flashing after the child chooses one');
-  assert.equal(await page.locator('.gm-quest-step-active[aria-current="step"][data-gm-step="2"]').count(),1,
-    label+' second illustrated step guides berry placement after choosing');
+  assert.equal(await page.locator('.gm-quest-step-active[aria-current="step"][data-gm-step="1"]').count(),1,
+    label+' choosing a basket alone must NOT skip the real Plukk step');
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).selectedBasket,0);
   await page.locator('[data-gm-action="source"]').click();
+  assert.equal(await page.locator('.gm-quest-step-active[aria-current="step"][data-gm-step="2"]').count(),1,
+    label+' only after picking a berry does the illustrated step advance to Legg i');
   assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,0,0],
     label+' picking after an earlier basket choice still cannot add without placing');
   await page.locator('[data-gm-basket="0"] .gm-crate-front').click();
@@ -464,7 +466,7 @@ async function check(engine,label,viewport,url){
         label+' only unfinished baskets should invite the next choice');
       assert.equal(await page.locator('.gm-quest-step-active[aria-current="step"][data-gm-step="1"]').count(),1,
         label+' the first illustrated step should invite the next basket');
-      assert.match(await page.locator('.gm-fox-message').innerText(),/Velg en ny kurv/,
+      assert.match(await page.locator('.gm-fox-message').innerText(),/Plukk jordbær til en annen kurv/,
         label+' fox gives a short instruction to continue');
     }
   }
