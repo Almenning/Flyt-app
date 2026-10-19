@@ -175,6 +175,14 @@ async function run(engine,label,viewport,url,avatar){
      assert.ok(title.top>=-1&&title.bottom<=title.height,
        'Selecting a word must not auto-scroll away the title on a compact iPhone: '+JSON.stringify(title));
    }
+   // The first screen must retain the title after word selection and fox hints.
+   // On an overflowing iPad landscape WebKit may auto-scroll the header away.
+   const headerFold=await page.locator('.fw-title h1').evaluate(el=>{
+    const r=el.getBoundingClientRect();
+    return {top:r.top,bottom:r.bottom,viewport:innerHeight};
+   });
+   assert.ok(headerFold.top>=-1&&headerFold.bottom<=headerFold.viewport+1,
+    'Asking the fox for help hid the game title '+label+': '+JSON.stringify(headerFold));
    await shot(page,label+'-chosen-word-hint');
    // An illustrated object not in the current word list should be explored, not punished.
    // A touch on water must hit the painted lake, not the grassy lower bank.
