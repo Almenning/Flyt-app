@@ -114,7 +114,7 @@ async function check(engine,label,viewport,url){
   assert.equal(await page.locator('.gm-quest-filled-preview .gm-quest-mini-berries i').count(),9,
     label+' three baskets really show three strawberries each');
   assert.deepEqual(await page.locator('.gm-quest-step strong').allInnerTexts(),
-    ['Velg en kurv','Legg i jordbær','Se at 3 × 3 = 9'],'instructions are three real readable DOM steps');
+    ['Plukk','Legg i','Se gangemagien'],'instructions are three real readable DOM steps');
   assert.equal(await page.locator('.gm-quest-step-active[aria-current="step"][data-gm-step="1"]').count(),1,
     label+' first illustrated step invites a basket choice');
   assert.equal(await page.locator('.gm-quest-steps[role="list"] [role="listitem"]').count(),3,
@@ -146,7 +146,7 @@ async function check(engine,label,viewport,url){
   assert.match(await premiumBasket.text(),/data:image\/webp;base64,/,
     'separate basket component must retain the original painterly reference material');
   assert.equal(await page.locator('.gm-basket-illustration').count(),3,'baskets must be real independently tappable DOM elements');
-  assert.equal(await page.locator('.gm-quest-wicker').count(),5,
+  assert.equal(await page.locator('.gm-quest-wicker').count(),4,
     label+' all 3 example baskets plus both teaching steps use the SAME locked illustrated wicker');
   assert.equal(await page.locator('.gm-quest-wicker').evaluateAll(xs=>xs.every(x=>x.complete&&x.naturalWidth>0)),
     true,label+' the locked picture-led instruction art must decode in Safari/WebKit');
@@ -216,7 +216,7 @@ async function check(engine,label,viewport,url){
     label+' real basket button must stay stationary and tappable '+JSON.stringify(invitationMotion));
   assert.ok(invitationMotion.glow.includes('gm-basket-invite'),
     label+' only the decorative basket art should pulse '+JSON.stringify(invitationMotion));
-  assert.match(await page.locator('.gm-fox-message').innerText(),/Trykk på en kurv for å starte/);
+  assert.match(await page.locator('.gm-fox-message').innerText(),/Plukk et jordbær og legg det i en kurv/);
   const first=await page.evaluate(()=>{
    const rect=s=>{const n=document.querySelector(s)?.getBoundingClientRect();return n?{top:n.top,bottom:n.bottom,width:n.width,height:n.height}:null;};
    return {screen:innerWidth,height:innerHeight,scrollWidth:document.documentElement.scrollWidth,story:rect('.gm-story'),crate:rect('.gm-crate'),source:rect('.gm-pick'),math:rect('.gm-math'),read:rect('.gm-read')};
@@ -416,8 +416,8 @@ async function check(engine,label,viewport,url){
   assert.equal(await page.locator('.gm-book-earned').count(),1,'one earned flower marked in book');
   await page.locator('[data-gm-action="select-mission"][data-index="7"]').click();
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).mission,7);
-  assert.equal(await page.locator('.gm-quest-wicker').count(),4,
-    label+' two-group illustration contains two live mini baskets and two guide baskets');
+  assert.equal(await page.locator('.gm-quest-wicker').count(),3,
+    label+' two-group illustration contains two mini baskets and one instructional basket');
   assert.equal(await page.locator('.gm-quest-filled-preview .gm-quest-mini-basket').count(),2,
     'final instructional art must follow the selected two-group mission');
   assert.equal(await page.locator('.gm-quest-filled-preview .gm-quest-mini-berries i').count(),20,
@@ -425,7 +425,7 @@ async function check(engine,label,viewport,url){
   assert.match((await page.locator('.gm-quest-callout').innerText()).replace(/\s+/g,' '),/Fyll 2 kurver med 10 jordbær i hver/,
     'quest text and numbers follow selected authored mission');
   assert.deepEqual(await page.locator('.gm-quest-step strong').allInnerTexts(),
-    ['Velg en kurv','Legg i jordbær','Se at 2 × 10 = 20'],'step counts match actual mission, not a screenshot');
+    ['Plukk','Legg i','Se gangemagien'],'step counts match actual mission, not a screenshot');
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).undo,0,'switching adventures clears only action history');
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).wins.length,1);
   assert.equal(await page.locator('.gm-book-mission').count(),0,'book should close after selection');
@@ -446,8 +446,8 @@ async function check(engine,label,viewport,url){
         label+' illustrated strawberries and the real multiplication must agree');
       const stepTexts=await page.locator('.gm-quest-step strong').allInnerTexts();
       assert.equal(stepTexts[2],
-        'Se at '+mission.groups+' × '+mission.each+' = '+mission.groups*mission.each,
-        label+' the illustration must explain the actual exercise');
+        'Se gangemagien',
+        label+' step three invites discovery rather than giving away the answer');
       const bounds=await page.evaluate(()=>{
         const a=document.querySelector('.gm-quest-callout').getBoundingClientRect();
         const b=document.querySelector('.gm-pick').getBoundingClientRect();
@@ -469,8 +469,8 @@ async function check(engine,label,viewport,url){
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).groups,5);
   assert.equal(await page.locator('.gm-crate').count(),5,
     label+' five group mission retains five real independently tappable baskets');
-  assert.equal(await page.locator('.gm-quest-wicker').count(),7,
-    label+' five filled preview baskets + two illustrated instructional baskets');
+  assert.equal(await page.locator('.gm-quest-wicker').count(),6,
+    label+' five preview baskets + one instructional basket');
   const five=await page.locator('.gm-crate').evaluateAll(els=>({
     width:innerWidth,scrollWidth:document.documentElement.scrollWidth,
     labels:els.map(el=>el.querySelector('.gm-crate-caption')?.textContent.trim()),
