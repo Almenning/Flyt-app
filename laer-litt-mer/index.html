@@ -1339,9 +1339,10 @@
     }
 
 
-    /* Young premium v5: colors are shared, only the home gradient is scoped. */
-    .grade-band-young{--young-ink:#263750;--young-paper:#FFFDF8}
-    .grade-band-young:not(:has(#multiplication-lab-screen.active .gm-shell)){
+    /* Young premium art direction v5. The goal is paid-product polish, not more UI. */
+    .grade-band-young{
+      --young-ink:#263750;
+      --young-paper:#FFFDF8;
       background:
         radial-gradient(circle at 6% 4%,rgba(255,223,93,.44) 0 13px,transparent 14px),
         radial-gradient(circle at 95% 12%,rgba(255,137,180,.18) 0 28px,transparent 29px),
@@ -1996,9 +1997,8 @@
 
 
 
-    /* Læria young home v6. Keep its colorful home gradient on ordinary screens,
-       but do not paint it behind Gangemagi's full-width storybook canvas. */
-    .grade-band-young:not(:has(#multiplication-lab-screen.active .gm-shell)){
+    /* Læria young home v6 — grades 1–2 are a playful game entrance, not a dashboard. */
+    .grade-band-young{
       background:
         radial-gradient(circle at 8% 8%,rgba(255,220,83,.38) 0 35px,transparent 36px),
         radial-gradient(circle at 94% 13%,rgba(242,139,168,.23) 0 54px,transparent 55px),
