@@ -8,7 +8,7 @@
     sol:{label:'sol',clue:'Se opp mot den lyse himmelen.',x:84,y:8,w:13,h:18},
     tre:{label:'tre',clue:'Noe høyt med grønne blader står ved stien.',x:7,y:12,w:30,h:55},
     telt:{label:'telt',clue:'Se etter et sted å sove ved leirbålet.',x:75,y:59,w:23,h:31},
-    vann:{label:'vann',clue:'Se etter det blå som glitrer mellom fjellene.',x:34,y:79,w:13,h:16},
+    vann:{label:'vann',clue:'Se etter det blå som glitrer mellom fjellene.',x:34,y:63,w:12,h:12},
     rev:{label:'rev',clue:'En liten skogsvenn hviler ved steinene.',x:62,y:73,w:13,h:18},
     sekk:{label:'sekk',clue:'Se ved stien, i nærheten av treet.',x:19,y:72,w:13,h:19},
     bat:{label:'båt',clue:'Noe flyter ved bryggen.',x:47,y:75,w:15,h:18},
