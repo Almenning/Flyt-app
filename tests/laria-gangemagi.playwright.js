@@ -309,6 +309,13 @@ async function check(engine,label,viewport,url){
   assert.ok(pageCanvas.every(color=>color!=='rgba(0, 0, 0, 0)'&&color!=='rgb(255, 255, 255)'),
     label+' entire game canvas including iPhone bottom scroll must be warm, never white '+JSON.stringify(pageCanvas));
   await shot(page,label+'-01-first-look');
+  await page.locator('.gm-crate').first().hover();
+  const disabledRemoveStyles=await page.locator('.gm-remove:disabled').evaluateAll(buttons=>
+    buttons.map(el=>({opacity:parseFloat(getComputedStyle(el).opacity),
+      pointerEvents:getComputedStyle(el).pointerEvents})));
+  assert.ok(disabledRemoveStyles.length===3&&disabledRemoveStyles.every(x=>
+    x.opacity===0&&x.pointerEvents==='none'),
+    label+' an empty basket must not show a useless minus control '+JSON.stringify(disabledRemoveStyles));
   // Approved direct manipulation: tap-to-pick, tap the basket berry to take
   // it out, drag one from the fruit source, and drag it back. Invalid drops
   // must never change the maths. Run in both engines and every viewport.
