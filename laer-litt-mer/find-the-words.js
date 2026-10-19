@@ -12,12 +12,29 @@
     rev:{label:'rev',clue:'En liten skogsvenn hviler ved steinene.',x:62,y:73,w:13,h:18},
     sekk:{label:'sekk',clue:'Se ved stien, i nærheten av treet.',x:19,y:72,w:13,h:19},
     bat:{label:'båt',clue:'Noe flyter ved bryggen.',x:47,y:75,w:15,h:18},
-    fugl:{label:'fugl',clue:'Noe med vinger sitter i et tre.',x:70,y:37,w:13,h:17}
+    fugl:{label:'fugl',clue:'Noe med vinger sitter i et tre.',x:70,y:37,w:13,h:17},
+    eple:{label:'eple',clue:'Se etter noe rødt som vokser på et tre.',x:19,y:33,w:11,h:17},
+    ugle:{label:'ugle',clue:'En nattfugl sitter på en grein.',x:34,y:30,w:13,h:20},
+    sommerfugl:{label:'sommerfugl',clue:'Noe med fargerike vinger flyr over hagen.',x:57,y:25,w:17,h:22},
+    lykt:{label:'lykt',clue:'Se etter det som lyser fra greina.',x:79,y:31,w:14,h:27},
+    bro:{label:'bro',clue:'Hva går over vannet uten å bli vått?',x:45,y:56,w:27,h:22},
+    sopp:{label:'sopp',clue:'En rød hatt med hvite prikker står i gresset.',x:8,y:74,w:14,h:23},
+    bok:{label:'bok',clue:'Noe med sider ligger åpent ved bekken.',x:29,y:75,w:21,h:22},
+    pinnsvin:{label:'pinnsvin',clue:'Et lite dyr med pigger rusler ved elvebredden.',x:79,y:74,w:20,h:23}
   });
+  const FOREST_IDS=Object.freeze(['sol','tre','telt','vann','rev','sekk','bat','fugl']);
+  const GARDEN_IDS=Object.freeze(['eple','ugle','sommerfugl','lykt','bro','sopp','bok','pinnsvin']);
+  // The original three forest round indices never change: saved progress in
+  // version 1 remains valid. A NEW garden alternates between them when the
+  // child chooses another adventure; no forced level or locked curriculum.
+  const ROUND_ORDER=Object.freeze([0,3,1,4,2,5]);
   const ROUNDS=[
     ['sol','tre','telt','vann','rev','sekk'],
     ['fugl','bat','tre','telt','sol','sekk'],
-    ['vann','rev','fugl','bat','tre','sol']
+    ['vann','rev','fugl','bat','tre','sol'],
+    ['sommerfugl','bok','eple','ugle','bro','sopp'],
+    ['pinnsvin','lykt','bok','bro','eple','ugle'],
+    ['sopp','sommerfugl','lykt','pinnsvin','bro','eple']
   ];
   let active=null,overlay=null,previousFocus=null,previousOverflow='',reactionTimer=null;
   let hintStage=0,hintWord=null,selectedWord=null,wrongAttempts=0;
@@ -41,7 +58,7 @@
   function restore(){
     const saved=read(ACTIVE_KEY);
     active=validActive(saved)?{round:saved.round,found:new Set(saved.found),completed:saved.completed}:
-      {round:progress().rounds%ROUNDS.length,found:new Set(),completed:false};
+      {round:ROUND_ORDER[progress().rounds%ROUND_ORDER.length],found:new Set(),completed:false};
     selectedWord=typeof saved?.selected==='string'&&words().includes(saved.selected)&&
       !active.found.has(saved.selected)?saved.selected:null;
     wrongAttempts=0;
@@ -56,17 +73,25 @@
       source:api?.worldSource?.(choice)||'./lia-fox-explorer-home.webp'};
   }
   function words(){return ROUNDS[active.round]}
+  function sceneId(){return active?.round>=3?'garden':'forest'}
+  function sceneObjects(){return sceneId()==='garden'?GARDEN_IDS:FOREST_IDS}
   function objectButtons(){
-    return Object.entries(OBJECTS).map(([id,item])=>
+    return sceneObjects().map(id=>{
+      const item=OBJECTS[id];
+      return
       '<button type="button" class="fw-object" data-fw-object="'+id+'" aria-label="'+item.label+
       '" style="left:'+item.x+'%;top:'+item.y+'%;width:'+item.w+'%;height:'+item.h+'%">'+
-      '<span class="fw-pin" aria-hidden="true">✓</span></button>').join('');
+      '<span class="fw-pin" aria-hidden="true">✓</span></button>'; }).join('');
   }
   function markup(){
-    const fox=chosenFox();
+    const fox=chosenFox(),garden=sceneId()==='garden';
+    const scene= garden?'./find-the-words-garden.svg?v=20261019-magicgarden1':'./find-the-words-scene.svg?v=20261018-a';
+    const sceneAlt=garden?
+      'Magisk hage med rødt eple, ugle, sommerfugl, lykt, liten bro, sopp, bok og pinnsvin':
+      'Illustrert skog med vann, telt, sol og mange små oppdagelser';
     return '<div class="fw-shell">'+
       '<header class="fw-top"><button type="button" class="fw-back" aria-label="Tilbake til Utforsk">←</button>'+
-      '<div class="fw-title"><span class="fw-eyebrow">NORSK · BOKSKOGEN</span><h1 id="fw-title">Finn ordene</h1>'+
+      '<div class="fw-title"><span class="fw-eyebrow">NORSK · '+(garden?'DEN HEMMELIGE HAGEN':'BOKSKOGEN')+'</span><h1 id="fw-title">Finn ordene</h1>'+
       '<p>Velg et ord. Finn riktig ting!</p></div>'+
       '<button type="button" class="fw-audio" aria-label="Les opp oppgaven">♪ <span>Hør</span></button></header>'+
       '<div class="fw-layout"><aside class="fw-word-panel" aria-labelledby="fw-list-title">'+
@@ -77,7 +102,7 @@
       '<div class="fw-stage"><div class="fw-stage-label"><strong class="fw-active-target" role="status" aria-live="polite">2. Finn ordet i bildet</strong><span aria-hidden="true">✦</span></div>'+
       '<div class="fw-art" role="group" aria-label="Eventyrbilde med ting du kan finne">'+
       '<div class="fw-picture">'+
-      '<img src="./find-the-words-scene.svg?v=20261018-a" class="fw-scene-image" alt="Illustrert skog med vann, telt, sol og mange små oppdagelser" draggable="false">'+
+      '<img src="'+scene+'" class="fw-scene-image" alt="'+sceneAlt+'" draggable="false">'+
       objectButtons()+'<svg class="fw-fx" viewBox="0 0 1200 720" preserveAspectRatio="none" aria-hidden="true"></svg>'+
       '<div class="fw-celebration" hidden aria-hidden="true">✦ ✧ ✦</div></div></div>'+
       '<div class="fw-scene-bottom"><span class="fw-scenery-caption">Trykk på et ord eller dra det til tingen.</span>'+
@@ -95,7 +120,7 @@
       return '<div class="fw-list-item" role="listitem"><button type="button" class="fw-word'+
         (found?' is-found':'')+(selected?' is-selected':'')+'" data-fw-read="'+word+'" aria-pressed="'+selected+
         '" aria-label="'+item.label+(found?', allerede funnet':selected?', valgt, finn i bildet':', velg for å lete')+'">'+
-        '<span class="fw-word-icon" aria-hidden="true">'+({sol:'☀️',tre:'🌳',telt:'⛺',vann:'💧',rev:'🦊',sekk:'🎒',bat:'⛵',fugl:'🐦'}[word])+
+        '<span class="fw-word-icon" aria-hidden="true">'+({sol:'☀️',tre:'🌳',telt:'⛺',vann:'💧',rev:'🦊',sekk:'🎒',bat:'⛵',fugl:'🐦',eple:'🍎',ugle:'🦉',sommerfugl:'🦋',lykt:'🏮',bro:'🌉',sopp:'🍄',bok:'📖',pinnsvin:'🦔'}[word])+
         '</span><strong>'+item.label+'</strong><span class="fw-word-check" aria-hidden="true">'+(found?'✓':'◦')+
         '</span></button></div>';
     }).join('');
@@ -321,11 +346,15 @@
   }
   function nextRound(){
     const old=active?.round||0;
-    active={round:(old+1)%ROUNDS.length,found:new Set(),completed:false};
+    const idx=ROUND_ORDER.indexOf(old);
+    active={round:ROUND_ORDER[(idx+1)%ROUND_ORDER.length],found:new Set(),completed:false};
     clearDrag();clearSceneEffect();
     hintStage=0;hintWord=null;selectedWord=null;wrongAttempts=0;
-    persist();refresh();
-    react('greet','Nye ord! Velg eller dra et ord til riktig ting.');
+    persist();
+    // The second illustrated world has its own hotspots, word list and art.
+    // Rebuild DOM on scene change; never leave the previous world's image up.
+    overlay.innerHTML=markup();refresh();
+    react('greet',sceneId()==='garden'?'Velkommen til den hemmelige hagen! Her er helt nye ting å oppdage.':'Nye ord i Bokskogen! Velg eller dra et ord til riktig ting.');
     const first=overlay?.querySelector('.fw-word');
     first?.focus({preventScroll:true});
   }
