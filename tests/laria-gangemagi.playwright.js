@@ -4,6 +4,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
 const http=require('node:http');
+const Engine=require('../laer-litt-mer/multiplication-gangemagi-engine-v1.js');
 const {chromium,webkit}=require('playwright');
 const base=path.resolve(__dirname,'..');
 const out=process.env.QA_SCREENSHOTS||'/tmp/laria-gangemagi-v1';
@@ -11,6 +12,43 @@ const mime={'.html':'text/html; charset=utf-8','.js':'application/javascript; ch
 function serve(){return new Promise((resolve,reject)=>{const srv=http.createServer((req,res)=>{let name=decodeURIComponent(new URL(req.url,'http://localhost').pathname);if(name.endsWith('/'))name+='index.html';const file=path.resolve(base,'.'+name);if(!file.startsWith(base+path.sep)){res.writeHead(403);res.end();return;}fs.readFile(file,(err,buf)=>{if(err){res.writeHead(404);res.end('Not found');return;}res.setHeader('Content-Type',mime[path.extname(file)]||'application/octet-stream');res.setHeader('Cache-Control','no-store');res.end(buf);});});srv.once('error',reject);srv.listen(0,'127.0.0.1',()=>resolve({srv,url:'http://127.0.0.1:'+srv.address().port+'/laer-litt-mer/?app=laria'}));});}
 const seed={version:7,progressSchemaVersion:3,profile:{grade:2,onboarded:true,name:'Elev',avatar:'girl',setupVersion:2},mastery:{},mistakes:{},skillMastery:{},skillMistakes:{},skillLastSeen:{},masteryEvidence:{},skillEvidence:{},preferences:{sound:false,autoRead:false},lastMilestone:null,recentCountryWin:null,lastActivity:null,journey:{nodes:{},gradeWins:{},viewGrades:{}},answerLog:[],sessionLog:[],activeSession:null};
 async function shot(page,name){await fs.promises.mkdir(out,{recursive:true});await page.screenshot({path:path.join(out,name+'.png'),fullPage:true,animations:'disabled'});}
+/* All authored adventures must use real multiplication, unique collectibles,
+   and keep progress after replays and saved-state restoration. */
+function auditAllEightMissions(){
+ const specs=Engine.MISSIONS;
+ assert.equal(specs.length,8,'all eight locked missions must exist');
+ assert.equal(new Set(specs.map(m=>m.id)).size,8,'unique permanent flower identifiers');
+ let state=Engine.initial();
+ for(const [index,mission] of specs.entries()){
+   state=Engine.apply(state,{type:'mission',index});
+   assert.deepEqual(state.counts,Array(mission.groups).fill(0),'new mission resets fruit, not flowers');
+   for(let group=0;group<mission.groups;group++){
+     for(let berry=1;berry<=mission.each;berry++){
+       const was=Engine.total(state);
+       state=Engine.apply(state,{type:'add',group});
+       assert.equal(Engine.total(state),was+1,'one action adds exactly one strawberry');
+       assert.equal(state.counts[group],berry,'wicker contents reflect reality');
+       assert.equal(Engine.equation(state).target,
+         mission.groups+' × '+mission.each+' = '+mission.groups*mission.each,
+         'authored multiplication stays correct while exploring');
+     }
+   }
+   assert.equal(Engine.filled(state),true,'the mission can really be completed');
+   assert.equal(Engine.equation(state).multiplication,
+     mission.groups+' × '+mission.each+' = '+mission.groups*mission.each,
+     'completed multiplication is mathematically correct');
+   assert.equal(state.wins.length,index+1,'exactly one new flower per completed adventure');
+   state=Engine.normalize(JSON.parse(JSON.stringify(state)));
+   assert.equal(state.wins.length,index+1,'flower progress survives JSON restore');
+ }
+ state=Engine.apply(state,{type:'mission',index:3});
+ for(let group=0;group<state.groups;group++)
+   for(let berry=0;berry<state.each;berry++)state=Engine.apply(state,{type:'add',group});
+ assert.equal(state.wins.length,8,'replaying a favorite never duplicates a flower');
+ const free=Engine.apply(state,{type:'mode',mode:'free'});
+ assert.equal(free.wins.length,8,'free play never erases earned flowers');
+ console.log('PASS GANGEMAGI all eight missions: maths, replay, saved progress');
+}
 async function selectAndPick(page,group,count){
  await page.locator('[data-gm-action="basket"][data-gm-basket="'+group+'"]').click();
  assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).selectedBasket,group,'the basket is selected');
@@ -61,8 +99,15 @@ async function check(engine,label,viewport,url){
   // All device sizes must preserve >=10px instead of the prior unreadable 8px.
   const questStepFont=await page.locator('.gm-quest-step strong').first()
     .evaluate(el=>parseFloat(getComputedStyle(el).fontSize));
-  assert.ok(questStepFont>=10,
-    label+' three-step instructions must be legible for grade 2: '+questStepFont+'px');
+  const requiredStepSize=viewport.width>=700?14:viewport.width>=375?13:10;
+  assert.ok(questStepFont>=requiredStepSize,
+    label+' grade-two quest instructions: '+questStepFont+'px; minimum '+requiredStepSize);
+  const foxSize=await page.locator('.gm-fox-message')
+    .evaluate(el=>parseFloat(getComputedStyle(el).fontSize));
+  const requiredFoxSize=viewport.width>=700?(viewport.height>=1000?14:13):
+    viewport.width>=375?13:11;
+  assert.ok(foxSize>=requiredFoxSize,
+    label+' personal fox feedback too small: '+foxSize+'px; minimum '+requiredFoxSize);
 
   const missionHeading=await page.locator('.gm-quest-callout').evaluate(el=>({
     size:parseFloat(getComputedStyle(el).fontSize),bounds:el.getBoundingClientRect().toJSON(),
@@ -421,6 +466,7 @@ async function check(engine,label,viewport,url){
  }finally{await context.close();}
 }
 (async()=>{
+ auditAllEightMissions();
  const {srv,url}=await serve();
  try{
   for(const [type,browserType,devices] of [
