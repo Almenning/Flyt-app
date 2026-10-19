@@ -112,6 +112,13 @@ async function run(engine,label,viewport,url,avatar){
    assert.equal(await page.locator('.fw-word.is-found').count(),0,'Hint must not automatically solve the game');
    await shot(page,label+'-first-hint');
    // An illustrated object not in the current word list should be explored, not punished.
+   // A touch on water must hit the painted lake, not the grassy lower bank.
+   const lakePoint=await page.evaluate(()=>{
+     const stage=document.querySelector('.fw-art').getBoundingClientRect();
+     const water=document.querySelector('[data-fw-object="vann"]').getBoundingClientRect();
+     return (water.top+water.height*.5-stage.top)/stage.height;
+   });
+   assert.ok(lakePoint>.60&&lakePoint<.76,'Water hotspot drifted away from the visible lake: '+lakePoint);
    await page.locator('.fw-object[data-fw-object="fugl"]').click();
    assert.match(await page.locator('.fw-speech').innerText(),/Du oppdaget/,'Exploration decoy is silent');
    for(const word of targetWords){
@@ -123,6 +130,15 @@ async function run(engine,label,viewport,url,avatar){
     'Round did not complete');
    assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('laria-find-words-v1')).rounds),1,
     'Picture round incorrectly counted');
+
+   // The large accessible tree hotspot may extend beyond foliage; its found
+   // stamp must still sit on the visible canopy rather than floating in sky.
+   const treeStamp=await page.evaluate(()=>{
+     const scene=document.querySelector('.fw-art').getBoundingClientRect();
+     const p=document.querySelector('[data-fw-object="tre"] .fw-pin').getBoundingClientRect();
+     return (p.top+p.height/2-scene.top)/scene.height;
+   });
+   assert.ok(treeStamp>.25&&treeStamp<.55,'Tree success marker floats outside the canopy: '+treeStamp);
    await shot(page,label+'-all-found');
    await page.locator('.fw-back').click();
    await page.locator('.bc13-panel:not([hidden]) [data-bc13-action="find-words"]').waitFor();
