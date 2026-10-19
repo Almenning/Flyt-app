@@ -67,7 +67,10 @@ async function selectAndPick(page,group,count){
  // this remains a stable, finger-sized target on every iPhone/iPad layout.
  await page.locator('[data-gm-action="basket"][data-gm-basket="'+group+'"] .gm-crate-front').click();
  assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).selectedBasket,group,'the basket is selected');
- for(let i=0;i<count;i++)await page.locator('[data-gm-action="source"]').click();
+ for(let i=0;i<count;i++){
+  await page.locator('[data-gm-action="source"]').click();
+  await page.locator('[data-gm-action="basket"][data-gm-basket="'+group+'"] .gm-crate-front').click();
+ }
 }
 async function dragBerry(page,fromSelector,toSelector,expectTarget){
   const from=page.locator(fromSelector).first(),to=page.locator(toSelector).first();
@@ -336,6 +339,9 @@ async function check(engine,label,viewport,url){
     label+' second illustrated step guides berry placement after choosing');
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).selectedBasket,0);
   await page.locator('[data-gm-action="source"]').click();
+  assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,0,0],
+    label+' picking after an earlier basket choice still cannot add without placing');
+  await page.locator('[data-gm-basket="0"] .gm-crate-front').click();
   const firstBerryGeometry=await page.locator('[data-gm-basket="0"]').evaluate(basket=>{
     const berry=basket.querySelector('.gm-fruit:not(.gm-fruit-empty)');
     const b=basket.getBoundingClientRect(),f=berry?.getBoundingClientRect();
@@ -353,6 +359,7 @@ async function check(engine,label,viewport,url){
     label+' ONLY the newly added strawberry should bounce after the first pick');
   await shot(page,label+'-02-one-berry');
   await page.locator('[data-gm-action="source"]').click();
+  await page.locator('[data-gm-basket="0"] .gm-crate-front').click();
   assert.equal((await page.locator('.gm-math-equation').innerText()).trim(),'2 + 0 + 0 = 2');
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts[0],2);
   assert.equal(await page.locator('.gm-fruit').count(),2);
@@ -367,6 +374,7 @@ async function check(engine,label,viewport,url){
   assert.equal(await page.locator('.gm-crate-invite').count(),0,
     label+' do not invite a different basket after undoing in the chosen one');
   await page.locator('[data-gm-action="source"]').click();
+  await page.locator('[data-gm-basket="0"] .gm-crate-front').click();
   assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[2,0,0]);
   await page.locator('[data-gm-action="hint"]').click();
   assert.match(await page.locator('.gm-fox-message').innerText(),/kurv/i);
@@ -605,8 +613,9 @@ async function check(engine,label,viewport,url){
     assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).selectedBasket,0,
       label+' chapter '+(index+1)+' basket can be selected');
     await page.locator('[data-gm-action="source"]').click();
+    await page.locator('[data-gm-basket="0"] .gm-crate-front').click();
     const after=await page.evaluate(()=>LARIA_GANGEMAGI.snapshot());
-    assert.equal(after.counts[0],1,label+' chapter '+(index+1)+' one press adds exactly one berry');
+    assert.equal(after.counts[0],1,label+' chapter '+(index+1)+' one deliberate pick and placement adds exactly one berry');
     assert.equal(after.equation.total,1,label+' chapter '+(index+1)+' visible maths tracks first berry');
   }
   assert.deepEqual(errors,[],label+' browser exceptions '+JSON.stringify(errors));
