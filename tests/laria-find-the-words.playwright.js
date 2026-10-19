@@ -70,6 +70,7 @@ async function geometry(page,label,view){
    art:bounds('.fw-art'),list:bounds('.fw-list'),back:bounds('.fw-back'),fox:bounds('.fw-fox'),
    scene:{w:img.naturalWidth,h:img.naturalHeight,complete:img.complete},
    words:[...document.querySelectorAll('.fw-word')].map(x=>x.getBoundingClientRect().height),
+    wordFonts:[...document.querySelectorAll('.fw-word strong')].map(x=>parseFloat(getComputedStyle(x).fontSize)),
    hotspot:[...document.querySelectorAll('.fw-object')].map(x=>{const r=x.getBoundingClientRect(),hit=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);return {id:x.dataset.fwObject,w:r.width,h:r.height,centerReachable:hit===x||x.contains(hit)};}),
    active:el?.getAttribute('role')};
  });
@@ -80,6 +81,8 @@ async function geometry(page,label,view){
  assert.ok(box.hotspot.every(b=>b.w>=44&&b.h>=44),'child targets too small '+label+': '+JSON.stringify(box.hotspot));
  assert.ok(box.hotspot.every(b=>b.centerReachable),'overlapping hotspots prevent children from finding an object '+label+': '+JSON.stringify(box.hotspot));
  assert.ok(box.words.every(h=>h>=39),'word-list buttons too small '+label+': '+JSON.stringify(box.words));
+  if(view.width<=360)assert.ok(box.wordFonts.every(size=>size>=16),
+   'Words must remain at least 16px even on the smallest supported iPhone: '+JSON.stringify(box.wordFonts));
  if(view.width>=701&&view.width<=1000&&view.height>view.width){
   assert.ok(box.art.w>=view.width*.83,'iPad portrait art should occupy most of its width: '+JSON.stringify(box));
   assert.ok(box.art.h>=view.height*.32,'iPad portrait art must not be a tiny side card: '+JSON.stringify(box));
