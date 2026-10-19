@@ -13,6 +13,7 @@
  let foxMood='curious',lastAction='',lastGroup=-1,justAddedGroup=-1;
  let returnToMath=false,bookOpen=false;
  let selectedGroup=null; // transient UI selection, no changes to stored schema.
+  let holdingBerry=false;
  const esc=x=>String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const berrySvg='<svg viewBox="0 0 48 56" aria-hidden="true" focusable="false"><defs><linearGradient id="gmB" x1=".2" x2=".85" y2="1"><stop stop-color="#ff9780"/><stop offset=".42" stop-color="#d94855"/><stop offset="1" stop-color="#9c3547"/></linearGradient></defs><path d="M24 14C11 5 2 19 6 33C10 46 19 52 24 54C30 51 41 43 43 29C45 16 34 8 24 14Z" fill="url(#gmB)" stroke="#963a46" stroke-width="2"/><path d="M24 12C14 4 9 4 7 8L15 17L4 14L9 22L23 18L38 21L44 13L31 16L40 9C36 5 29 6 24 12Z" fill="#5c9867" stroke="#407e60" stroke-width="1.4"/><path d="M24 12Q24 6 28 3" stroke="#4a7650" stroke-width="2.5" fill="none" stroke-linecap="round"/><g fill="#ffe8ac"><ellipse cx="16" cy="28" rx="1.9" ry="3.1" transform="rotate(-24 16 28)"/><ellipse cx="30" cy="27" rx="1.8" ry="3" transform="rotate(16 30 27)"/><ellipse cx="23" cy="37" rx="1.8" ry="3"/><ellipse cx="13" cy="36" rx="1.5" ry="2.5"/><ellipse cx="33" cy="37" rx="1.5" ry="2.5"/></g><path d="M11 24Q11 18 18 18" stroke="#ffb2a0" stroke-width="3" fill="none" opacity=".8" stroke-linecap="round"/></svg>';
  function load(){try{return E.normalize(JSON.parse(localStorage.getItem(KEY)||'null'));}catch(_){return E.initial();}}
@@ -142,7 +143,7 @@
        '</div>'+
        '<div class="gm-market"><div class="gm-market-sign" aria-hidden="true"><span class="gm-sign-leaf">✿</span> Fra Tallengas hage <span class="gm-sign-leaf">✿</span></div>'+
        '<div class="gm-crates" style="--gm-groups:'+state.groups+';--gm-cols:'+(state.each<=5?state.each:Math.ceil(state.each/2))+'" role="group" aria-label="'+state.groups+' kurver som kan fylles med jordbær">'+state.counts.map((n,i)=>crate(i)).join('')+'</div>'+
-       '<p class="gm-play-hint">'+(complete?'Se hva du har laget! Du kan endre kurvene eller fortsette.':free?(state.groups>=4?'Trykk på kurvene. Sveip sidelengs for å se alle.':'Trykk på en kurv for å legge i et jordbær'):(selectedGroup===null?'Trykk på en kurv for å starte!':'Kurv '+(selectedGroup+1)+' er valgt. Plukk et jordbær!'))+'</p></div>'+
+       '<p class="gm-play-hint">'+(complete?'Se hva du har laget! Du kan endre kurvene eller fortsette.':free?(state.groups>=4?'Trykk på kurvene. Sveip sidelengs for å se alle.':'Trykk på en kurv for å legge i et jordbær'):(holdingBerry?'Trykk på kurven du vil legge jordbæret i.':'Dra jordbær til kurvene, eller trykk på jordbær og deretter en kurv.'))+'</p></div>'+
        '</div>'+
        '<div class="gm-math"><div class="gm-math-label"><span>Dette lager du</span><span class="gm-goal">Målet: '+state.groups+' × '+state.each+'</span></div>'+
          '<div class="gm-math-equation '+(complete?'gm-equation-win':'')+'" aria-label="'+esc(equation)+'">'+esc(equation)+'</div>'+
@@ -155,7 +156,7 @@
          (complete?
            (free?'<button type="button" class="gm-next" data-gm-action="restart">Pakk kurvene på nytt <span aria-hidden="true">↻</span></button>':
               '<button type="button" class="gm-next" data-gm-action="next">Neste oppdrag <span aria-hidden="true">➜</span></button>'):
-           '<button type="button" class="gm-pick" data-gm-action="source" aria-label="'+(free?'Plukk et jordbær og legg det i neste ledige kurv':selectedGroup===null?'Velg en kurv først':'Plukk et jordbær til kurv '+(selectedGroup+1))+'"><span class="gm-pick-fruit">'+berrySvg+'</span><span>Plukk et jordbær</span><small>'+(free?'Trykk eller dra':selectedGroup===null?'Velg kurv først':'Kurv '+(selectedGroup+1))+'</small></button>'+
+           '<button type="button" class="gm-pick" data-gm-action="source" aria-label="'+(free?'Plukk et jordbær og legg det i neste ledige kurv':'Plukk jordbær. Dra til en kurv, eller trykk på kurven etterpå.')+'"><span class="gm-pick-fruit">'+berrySvg+'</span><span>Plukk et jordbær</span><small>'+(free?'Trykk eller dra':holdingBerry?'Trykk på en kurv':'Dra eller trykk')+'</small></button>'+
            '<button type="button" class="gm-tool" data-gm-action="hint"><span aria-hidden="true">✧</span> Hint</button>')+
          '<button type="button" class="gm-tool" data-gm-action="undo" '+(!undo.length?'disabled':'')+'><span aria-hidden="true">↶</span> Angre</button>'+
        '</div>'+
@@ -231,7 +232,7 @@
    undo.push(E.normalize(state));if(undo.length>50)undo.shift();
    const wasComplete=E.filled(state);
    state=next;hintStep=0;notice='';
-   if(['next','mission','mode','reset','groups','each'].includes(action.type))selectedGroup=null;
+   if(['next','mission','mode','reset','groups','each'].includes(action.type)){selectedGroup=null;holdingBerry=false;}
     // When a basket fills, return to the illustrated "choose a basket" step.
     // Never leave the Plukk action targeted at an already full basket.
     if(state.mode==='mission'&&action.type==='add'&&Number.isInteger(action.group)
@@ -338,6 +339,7 @@
    if(kind==='next'){change({type:'next'});return;}
    if(kind==='factor'){change({type:button.dataset.key,value:state[button.dataset.key]+Number(button.dataset.step)});return;}
    if(kind==='remove'){
+     holdingBerry=false;
      const i=Number(button.dataset.group);
      if(state.mode==='mission')selectedGroup=i;
      change({type:'remove',group:i});return;
@@ -345,6 +347,10 @@
    if(kind==='basket'){
      const i=Number(button.dataset.gmBasket);
      if(state.mode==='mission'){
+       if(holdingBerry){holdingBerry=false;selectedGroup=i;
+         if(!change({type:'add',group:i})){notice='Denne kurven er full. Prøv en annen!';foxMood='help';render();}
+         return;
+       }
        const full=state.counts[i]===state.each;
        selectedGroup=full?null:i;lastAction='select';lastGroup=i;hintStep=0;
        notice=full?'Denne kurven er full. Velg en annen!':'';
@@ -356,8 +362,7 @@
    if(kind==='source'){
      if(Date.now()<suppressClickUntil)return;
      if(state.mode==='mission'){
-       if(selectedGroup===null){notice='Velg en kurv først!';foxMood='help';render();return;}
-       if(!change({type:'add',group:selectedGroup})){notice='Denne kurven er full. Velg en annen!';foxMood='help';render();}
+       holdingBerry=true;notice='Jordbæret er plukket! Trykk på en kurv, eller dra jordbæret dit.';foxMood='cheer';render();
        return;
      }
      const ix=state.counts.findIndex(n=>n<state.each);
@@ -370,7 +375,7 @@
  }
  function onPointerDown(event){
    const button=event.target.closest('button[data-gm-action="source"]');
-   if(!button||!root.contains(button)||button.disabled||event.button!==0||state.mode==='mission')return;
+   if(!button||!root.contains(button)||button.disabled||event.button!==0)return;
    drag={id:event.pointerId,x:event.clientX,y:event.clientY,moved:false,ghost:null};
  }
  function onPointerMove(event){
@@ -393,7 +398,11 @@
      const el=document.elementFromPoint(event.clientX,event.clientY);
      const crate=el?.closest?.('[data-gm-basket]');
      const group=crate&&root.contains(crate)?Number(crate.dataset.gmBasket):NaN;
-     if(Number.isInteger(group))change({type:'add',group});
+     if(Number.isInteger(group)){
+         holdingBerry=false;
+         if(state.mode==='mission')selectedGroup=group;
+         if(!change({type:'add',group})){notice='Denne kurven er full. Prøv en annen!';foxMood='help';render();}
+       }
    }
    clearDrag();
  }
