@@ -848,3 +848,48 @@
  .gm-shell[data-gm-mode="mission"] .gm-market-fruit-supply{margin-top:-12px;max-width:440px}
  .gm-shell[data-gm-mode="mission"] .gm-market-fruit-supply .gm-pick.gm-strawberry-tray{min-height:54px}
 }
+
+/* PREMIUM FOCUS REFINEMENT 2026-10-19
+   Actual 390px WebKit/iPad landscape screenshots had too much busy scenery
+   between the fox, wicker and child's real fruit. Keep the illustrated world
+   but soften the market area behind the real interactive items only. */
+.gm-shell[data-gm-mode="mission"] .gm-market::before{
+  content:"";position:absolute;left:-1.5%;right:-1.5%;
+  top:0;bottom:0;z-index:0;pointer-events:none;
+  border-radius:38px;
+  background:linear-gradient(180deg,#fff1d000,#ffecd530 35%,#fff0d060 100%);
+  -webkit-backdrop-filter:blur(2.25px);
+  backdrop-filter:blur(2.25px);
+}
+.gm-shell[data-gm-mode="mission"] .gm-market>.gm-crates,
+.gm-shell[data-gm-mode="mission"] .gm-market>.gm-market-fruit-supply{
+  position:relative;z-index:1;
+}
+/* The child already sees each individual berry and the live equation.
+   Repeating every berry as a tiny grey token AND a progress bar is noise.
+   Keep one legible total beside the equation, without changing stored data. */
+.gm-shell[data-gm-mode="mission"] .gm-progress-track,
+.gm-shell[data-gm-mode="mission"] .gm-berry-progress>div{
+  display:none;
+}
+.gm-shell[data-gm-mode="mission"] .gm-berry-progress{
+  min-height:37px;min-width:0;padding:4px 8px;
+  border:1px solid #eddbb8;border-radius:12px;
+  background:#fff6e3e8;box-shadow:none;
+  align-items:center;justify-content:center;
+}
+.gm-shell[data-gm-mode="mission"] .gm-berry-progress strong{
+  font-size:clamp(12px,1.35vw,18px);
+  color:#875239;white-space:nowrap;
+}
+@media(max-width:699px){
+  .gm-shell[data-gm-mode="mission"] .gm-market::before{
+    left:0;right:0;border-radius:18px;
+    -webkit-backdrop-filter:blur(1.35px);
+    backdrop-filter:blur(1.35px);
+  }
+  .gm-shell[data-gm-mode="mission"] .gm-berry-progress{
+    min-height:30px;padding:3px;
+  }
+  .gm-shell[data-gm-mode="mission"] .gm-berry-progress strong{font-size:12px}
+}
