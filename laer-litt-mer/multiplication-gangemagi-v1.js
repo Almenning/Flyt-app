@@ -39,7 +39,7 @@
    if(E.filled(state))return state.mode==='mission'?E.MISSIONS[state.mission].celebrate:
      'Du laget '+state.groups+' like grupper med '+state.each+' i hver!';
    if(notice)return notice;
-   if(lastAction==='select'&&selectedGroup!==null)return 'Kurv '+(selectedGroup+1)+' er valgt! Nå kan du plukke jordbær.';
+   if(lastAction==='select'&&selectedGroup!==null)return 'Kurv '+(selectedGroup+1)+' er valgt. Plukk et jordbær, og trykk så på kurven!';
    const same=state.counts.length>0&&state.counts[0]>0&&state.counts.every(n=>n===state.counts[0]);
    if(same)return 'Se! '+state.groups+' kurver med '+state.counts[0]+' i hver. '+state.groups+' ganger '+state.counts[0]+' er '+amount+'!';
    if(!amount)return state.mode==='mission'?(holdingBerry?'Nå kan du legge jordbæret i en kurv!':'Plukk et jordbær og legg det i en kurv!'):
@@ -67,7 +67,7 @@
    const count=state.counts[i],missing=state.each-count;
    const chosen=state.mode==='mission'&&selectedGroup===i;
    const invite=state.mode==='mission'&&selectedGroup===null&&missing>0&&!E.filled(state);
-   const interaction=state.mode==='mission'?(chosen?'Denne kurven er valgt. Trykk på Plukk et jordbær.':missing?'Trykk her for å velge kurven.':'Denne kurven er full. Velg en annen.'):(missing?'Trykk for å legge i et jordbær.':'Kurven er full.');
+   const interaction=state.mode==='mission'?(chosen?'Denne kurven er valgt. Plukk et jordbær og trykk her igjen for å legge det i.':missing?'Trykk her for å velge kurven.':'Denne kurven er full. Velg en annen.'):(missing?'Trykk for å legge i et jordbær.':'Kurven er full.');
    return '<div class="gm-crate-wrap"><button type="button" class="gm-crate '+(!missing?'gm-crate-full ':'')+(chosen?'gm-crate-selected ':'')+(invite?'gm-crate-invite':'')+'" data-gm-action="basket" data-gm-basket="'+i+'" data-gm-count="'+count+'" data-gm-selected="'+chosen+'" aria-pressed="'+chosen+'" aria-label="Kurv '+(i+1)+': '+count+' av '+state.each+'. '+interaction+'">'+
       (state.mode==='mission'?'<img class="gm-basket-illustration" alt="" aria-hidden="true" src="gangemagi-basket-locked-illustration.svg"><span class="gm-basket-inner" aria-hidden="true"></span>':'<span class="gm-crate-handle" aria-hidden="true"></span><span class="gm-crate-caption">Kurv '+(i+1)+'</span>')+
       '<span class="gm-fruit-bed" aria-hidden="true" style="--gm-visible-cols:'+Math.max(1,Math.min(count,5))+'">'+fruit(count,state.mode==='mission'?0:missing,justAddedGroup===i)+'</span>'+
@@ -88,7 +88,7 @@
  const gmBasketArt='<img class="gm-quest-wicker" alt="" src="gangemagi-basket-locked-illustration.svg">';
  const gmHandArt='<svg class="gm-quest-hand" viewBox="0 0 34 39" focusable="false" aria-hidden="true"><path d="M5 18q0-5 4-5t4 5V8q0-5 5-5t5 5v10q3-3 6 0q3 3 0 9l-4 7q-3 4-8 3l-10-9q-5-5-2-10Z" fill="#ffe6c5" stroke="#b9764b" stroke-width="2.5" stroke-linejoin="round"/><path d="M18 9v12M10 18v4" stroke="#d3956d" stroke-width="1.6" stroke-linecap="round"/></svg>';
  function questStep(n,art,label){
-   const current=E.filled(state)?3:(holdingBerry||selectedGroup!==null?2:1);
+   const current=E.filled(state)?3:(holdingBerry?2:1);
    const active=n===current;
    return '<div class="gm-quest-step'+(active?' gm-quest-step-active':'')+'" data-gm-step="'+n+'" role="listitem" '+(active?'aria-current="step" ':'')+'><span class="gm-quest-index" aria-hidden="true">'+n+'</span>'+
      '<span class="gm-quest-icon" aria-hidden="true">'+art+'</span><strong>'+esc(label)+'</strong></div>';
