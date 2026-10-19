@@ -115,6 +115,9 @@
        questStep(3,filledBasketPreview,'Se gangemagien')+
      '</div></header>';
  }
+ function fruitSupply(free){
+   return '<button type="button" class="gm-pick gm-strawberry-tray'+(holdingBerry?' gm-berry-held':'')+'" data-gm-action="source" aria-label="'+(free?'Plukk et jordbær og legg det i neste ledige kurv':'Plukk jordbær. Dra til en kurv, eller trykk på kurven etterpå.')+'"><span class="gm-pick-fruit" aria-hidden="true">'+berrySourceArt+'</span><span>Plukk et jordbær</span><small>'+(free?'Trykk eller dra':holdingBerry?'Trykk på en kurv':'Dra eller trykk')+'</small></button>';
+ }
  function render(){
    const prevFocus=root.contains(document.activeElement)?document.activeElement:null;
    const focusKey=prevFocus?.dataset?.gmAction?{action:prevFocus.dataset.gmAction,group:prevFocus.dataset.group,basket:prevFocus.dataset.gmBasket}:null;
@@ -144,6 +147,7 @@
        '</div>'+
        '<div class="gm-market"><div class="gm-market-sign" aria-hidden="true"><span class="gm-sign-leaf">✿</span> Fra Tallengas hage <span class="gm-sign-leaf">✿</span></div>'+
        '<div class="gm-crates" style="--gm-groups:'+state.groups+';--gm-cols:'+(state.each<=5?state.each:Math.ceil(state.each/2))+'" role="group" aria-label="'+state.groups+' kurver som kan fylles med jordbær">'+state.counts.map((n,i)=>crate(i)).join('')+'</div>'+
+       (!free&&!complete?'<div class="gm-market-fruit-supply">'+fruitSupply(false)+'</div>':'')+
        '<p class="gm-play-hint">'+(complete?'Se hva du har laget! Du kan endre kurvene eller fortsette.':free?(state.groups>=4?'Trykk på kurvene. Sveip sidelengs for å se alle.':'Trykk på en kurv for å legge i et jordbær'):(holdingBerry?'Trykk på kurven du vil legge jordbæret i.':'Dra jordbær til kurvene, eller trykk på jordbær og deretter en kurv.'))+'</p></div>'+
        '</div>'+
        '<div class="gm-math"><div class="gm-math-label"><span>Dette lager du</span><span class="gm-goal">Målet: '+state.groups+' × '+state.each+'</span></div>'+
@@ -157,7 +161,7 @@
          (complete?
            (free?'<button type="button" class="gm-next" data-gm-action="restart">Pakk kurvene på nytt <span aria-hidden="true">↻</span></button>':
               '<button type="button" class="gm-next" data-gm-action="next">Neste oppdrag <span aria-hidden="true">➜</span></button>'):
-           '<button type="button" class="gm-pick gm-strawberry-tray'+(holdingBerry?' gm-berry-held':'')+'" data-gm-action="source" aria-label="'+(free?'Plukk et jordbær og legg det i neste ledige kurv':'Plukk jordbær. Dra til en kurv, eller trykk på kurven etterpå.')+'"><span class="gm-pick-fruit" aria-hidden="true">'+berrySourceArt+'</span><span>Plukk et jordbær</span><small>'+(free?'Trykk eller dra':holdingBerry?'Trykk på en kurv':'Dra eller trykk')+'</small></button>'+
+           (free?fruitSupply(true):'')+
            '<button type="button" class="gm-tool" data-gm-action="hint"><span aria-hidden="true">✧</span> Hint</button>')+
          '<button type="button" class="gm-tool" data-gm-action="undo" '+(!undo.length?'disabled':'')+'><span aria-hidden="true">↶</span> Angre</button>'+
        '</div>'+
