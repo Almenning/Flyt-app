@@ -252,16 +252,10 @@ async function check(engine,label,viewport,url){
     assert.equal(overlap(compactHeader.title,compactHeader.book),false,
       label+' title overlaps the collection button '+JSON.stringify(compactHeader));
   }
-  assert.equal(await page.locator('.gm-crate-invite').count(),3,
-    label+' three empty baskets should invite the first tap');
-  const invitationMotion=await page.locator('.gm-crate-invite').first().evaluate(btn=>({
-    touchTarget:getComputedStyle(btn).animationName,
-    glow:getComputedStyle(btn.querySelector('.gm-basket-illustration')).animationName
-  }));
-  assert.ok(!invitationMotion.touchTarget.includes('gm-basket-invite'),
-    label+' real basket button must stay stationary and tappable '+JSON.stringify(invitationMotion));
-  assert.ok(invitationMotion.glow.includes('gm-basket-invite'),
-    label+' only the decorative basket art should pulse '+JSON.stringify(invitationMotion));
+  assert.equal(await page.locator('.gm-crate-invite').count(),0,
+    label+' do not draw attention to basket selection before a berry is picked');
+  assert.equal(await page.locator('.gm-pick-invite').count(),1,
+    label+' the illustrated fruit crate, not the baskets, invites the first Plukk');
   assert.match(await page.locator('.gm-fox-message').innerText(),/Plukk et jordbær og legg det i en kurv/);
   const first=await page.evaluate(()=>{
    const rect=s=>{const n=document.querySelector(s)?.getBoundingClientRect();return n?{top:n.top,bottom:n.bottom,width:n.width,height:n.height}:null;};
@@ -377,6 +371,18 @@ async function check(engine,label,viewport,url){
   await page.locator('[data-gm-action="source"]').click();
   assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,0,0],
     label+' tapping the strawberry source must NOT add fruit without a destination');
+  assert.equal(await page.locator('.gm-pick-invite').count(),0,
+    label+' once a berry is picked, the source stops inviting the first step');
+  assert.equal(await page.locator('.gm-crate-invite').count(),3,
+    label+' only a held berry should make available baskets invite placement');
+  const invitationMotion=await page.locator('.gm-crate-invite').first().evaluate(btn=>({
+    touchTarget:getComputedStyle(btn).animationName,
+    glow:getComputedStyle(btn.querySelector('.gm-basket-illustration')).animationName
+  }));
+  assert.ok(!invitationMotion.touchTarget.includes('gm-basket-invite'),
+    label+' real basket tap target must never animate its position '+JSON.stringify(invitationMotion));
+  assert.ok(invitationMotion.glow.includes('gm-basket-invite'),
+    label+' only decorative basket artwork may pulse after berry pickup '+JSON.stringify(invitationMotion));
   await page.locator('[data-gm-action="basket"][data-gm-basket="1"]').click();
   assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,1,0],
     label+' tapped strawberry + tapped basket adds exactly one');
@@ -482,8 +488,10 @@ async function check(engine,label,viewport,url){
       const filledBasketSnapshot=await page.evaluate(()=>LARIA_GANGEMAGI.snapshot());
       assert.equal(filledBasketSnapshot.selectedBasket,null,
         label+' a completed basket must release selection before the child chooses the next one '+JSON.stringify({counts:filledBasketSnapshot.counts,each:filledBasketSnapshot.each,group,holdingBerry:await page.locator('.gm-play-hint').innerText()}));
-      assert.equal(await page.locator('.gm-crate-invite').count(),2-group,
-        label+' only unfinished baskets should invite the next choice');
+      assert.equal(await page.locator('.gm-crate-invite').count(),0,
+        label+' after finishing a basket, the child first picks another berry');
+      assert.equal(await page.locator('.gm-pick-invite').count(),1,
+        label+' the real fruit crate invites next pickup without a redundant hint box');
       assert.equal(await page.locator('.gm-quest-step-active[aria-current="step"][data-gm-step="1"]').count(),1,
         label+' the first illustrated step should invite the next basket');
       assert.match(await page.locator('.gm-fox-message').innerText(),/Plukk jordbær til en annen kurv/,
