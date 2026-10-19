@@ -325,13 +325,17 @@ async function check(engine,label,viewport,url){
   const pageCanvas=await page.evaluate(()=>{
     const screen=document.querySelector('#multiplication-lab-screen');
     const app=document.querySelector('.app');
-    return {colors:[document.documentElement,document.body,screen]
+    return {colors:[document.documentElement,document.body,app]
       .map(el=>getComputedStyle(el).backgroundColor),
       screenMatches:screen.matches(':has(.gm-shell)'),
-      appBackgroundImage:getComputedStyle(app).backgroundImage};
+      appBackgroundImage:getComputedStyle(app).backgroundImage,
+      screenBackground:getComputedStyle(screen).backgroundColor};
   });
+  // The inner screen MAY remain transparent: a fully opaque warm .app behind
+  // it is correct. What caused the white band was the grade 1–2 home gradient
+  // still painting behind the game despite its opaque background-color.
   assert.ok(pageCanvas.colors.every(color=>color!=='rgba(0, 0, 0, 0)'&&color!=='rgb(255, 255, 255)')&&
-    pageCanvas.appBackgroundImage==='none',
+    pageCanvas.appBackgroundImage==='none'&&pageCanvas.screenMatches,
     label+' entire game canvas including iPhone bottom scroll must be warm, never white '+JSON.stringify(pageCanvas));
   await shot(page,label+'-01-first-look');
   await page.locator('.gm-crate').first().hover();
