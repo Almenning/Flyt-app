@@ -50,6 +50,15 @@
 #world-screen.active.globe-v30[data-discovery-globe="painted-atlas-v1"] .globe-wrap{
   filter:drop-shadow(0 23px 29px rgba(18,45,38,.31))!important;
 }
+#world-screen.active.globe-v30[data-discovery-globe="painted-atlas-v1"] .premium-globe-header::before{
+  /* The former crop came from a complete, old UI mock-up.  Oppdag must only
+     borrow atmosphere from a clean storyscape asset; otherwise a second
+     fictional globe and baked controls can leak into the live interface. */
+  background:
+    linear-gradient(90deg,#fff7e4 0%,rgba(255,247,228,.64) 34%,rgba(255,247,228,0) 70%),
+    url('./globe-storyscape-v36-landscape.webp?v=36b') 79% 38%/245% auto no-repeat!important;
+  opacity:.78!important;
+}
 #world-screen.active.globe-v30[data-discovery-globe="painted-atlas-v1"] #globe-canvas{
   filter:saturate(1.08) contrast(1.035) drop-shadow(0 12px 19px rgba(18,51,48,.19))!important;
 }
