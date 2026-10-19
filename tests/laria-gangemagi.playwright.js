@@ -63,9 +63,9 @@ function auditAllEightMissions(){
  console.log('PASS GANGEMAGI all eight missions: maths, replay, saved progress');
 }
 async function selectAndPick(page,group,count){
- // Select by the clear basket rim, not the actual berry; tapping a berry is
- // deliberately the child-friendly direct REMOVE gesture.
- await page.locator('[data-gm-action="basket"][data-gm-basket="'+group+'"]').click({position:{x:10,y:10}});
+ // Select through the basket's visible wooden nameplate: unlike the fruit,
+ // this remains a stable, finger-sized target on every iPhone/iPad layout.
+ await page.locator('[data-gm-action="basket"][data-gm-basket="'+group+'"] .gm-crate-front').click();
  assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).selectedBasket,group,'the basket is selected');
  for(let i=0;i<count;i++)await page.locator('[data-gm-action="source"]').click();
 }
