@@ -109,6 +109,9 @@
 /* Place the success stamp on the tree foliage, not the sky at the edge of
    its large accessible canopy hit area. All other objects use the default. */
 .fw-object[data-fw-object="tre"] .fw-pin{top:36%;right:50%}
+/* The wide lake is not an object with a top-right corner; show its badge
+   over the clear water even though the accessible tap target is larger. */
+.fw-object[data-fw-object="vann"] .fw-pin{top:42%;right:42%}
 .fw-celebration{
  position:absolute;z-index:3;left:45%;top:25%;font-size:48px;font-weight:900;
  color:#fff6b0;text-shadow:0 2px 10px #c18d36;pointer-events:none;
