@@ -830,6 +830,11 @@
 .gm-shell[data-gm-mode="mission"] .gm-source-berry:nth-child(4){left:54%;height:85%;z-index:2;transform:rotate(13deg)}
 .gm-shell[data-gm-mode="mission"] .gm-source-berry:nth-child(5){left:69%;height:75%;transform:rotate(21deg)}
 .gm-shell[data-gm-mode="mission"] .gm-source-berry svg{display:block;width:100%;height:100%}
+/* Invitation follows the actual child-led action, not the old basket-first UI:
+   warm light on the fruit at step 1; after picking, basket art invites step 2. */
+.gm-shell[data-gm-mode="mission"] .gm-pick.gm-pick-invite .gm-pick-fruit{
+  filter:drop-shadow(0 0 8px #ffe18cb8) drop-shadow(0 3px 3px #3e241780);
+}
 .gm-shell[data-gm-mode="mission"] .gm-pick.gm-berry-held{
   outline:3px solid #f6d77f;outline-offset:2px;
 }
