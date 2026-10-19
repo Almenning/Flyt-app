@@ -17,7 +17,7 @@ async function checkBoard(page,mode,tag){
  await board.waitFor({state:'visible',timeout:13000});
  assert.equal(await page.locator('.bc12').getAttribute('data-bc13-view'),mode,tag+' wrong chooser mode');
  const actions=await page.locator('.bc13-card').evaluateAll(nodes=>nodes.map(n=>n.dataset.bc13Action));
- assert.deepEqual(actions,mode==='travel'?['norwegian','math','english','geography']:['globe','words','find-words','fraction','multiply'],tag+' incorrect destinations');
+ assert.deepEqual(actions,mode==='travel'?['norwegian','math','english','geography']:['globe','words','fraction','multiply','find-words'],tag+' incorrect destinations');
  assert.equal(await page.locator('.bc13-scene svg').count(),mode==='explore'?5:4,tag+' must illustrate every destination');
  if(mode==='explore'){
   const photo=page.locator('.bc13-card[data-bc13-action="find-words"]');
