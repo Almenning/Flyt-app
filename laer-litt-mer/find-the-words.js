@@ -76,15 +76,15 @@
       '<p class="fw-list-foot">Trykk på ordet og finn tingen, eller dra ordet rett til bildet.</p></aside>'+
       '<div class="fw-stage"><div class="fw-stage-label"><strong class="fw-active-target" role="status" aria-live="polite">2. Finn ordet i bildet</strong><span aria-hidden="true">✦</span></div>'+
       '<div class="fw-art" role="group" aria-label="Eventyrbilde med ting du kan finne">'+
+      '<div class="fw-picture">'+
       '<img src="./find-the-words-scene.svg?v=20261018-a" class="fw-scene-image" alt="Illustrert skog med vann, telt, sol og mange små oppdagelser" draggable="false">'+
-      objectButtons()+'<div class="fw-celebration" hidden aria-hidden="true">✦ ✧ ✦</div></div>'+
+      objectButtons()+'<div class="fw-celebration" hidden aria-hidden="true">✦ ✧ ✦</div></div></div>'+
       '<div class="fw-scene-bottom"><span class="fw-scenery-caption">Trykk på et ord eller dra det til tingen.</span>'+
       '<button type="button" class="fw-hint">💡 Vis meg et hint</button></div></div></div>'+
       '<footer class="fw-bottom"><div class="fw-companion" data-mood="idle">'+
       '<button type="button" class="fw-fox-button" aria-label="Spør reven om et hint"><img class="fw-fox" src="'+fox.source+'" alt="'+fox.label+'" draggable="false"></button>'+ 
       '<div class="fw-speech" role="status" aria-live="polite">Jeg blir med! Velg et ord, så finner vi tingen.</div></div>'+
-      '<div class="fw-controls"><button type="button" class="fw-next">Ny ordjakt <span aria-hidden="true">↗</span></button>'+
-      '<button type="button" class="fw-repeat">Hør oppgaven</button></div></footer></div>';
+      '<div class="fw-controls"><button type="button" class="fw-next">Ny ordjakt <span aria-hidden="true">↗</span></button></div></footer></div>';
   }
   function refresh(){
     if(!overlay||!active)return;
