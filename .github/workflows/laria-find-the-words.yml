@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'laer-litt-mer/find-the-words*'
+      - 'laer-litt-mer/laria-navigation-v13.*'
       - 'laer-litt-mer/index.html'
       - '.github/workflows/laria-find-the-words.yml'
   pull_request:
@@ -89,10 +90,20 @@ jobs:
                curl -fsSL --max-time 15 "$base/find-the-words.css?revision=$GITHUB_SHA" -o /tmp/find-words-live.css &&
                curl -fsSL --max-time 15 "$base/find-the-words-scene.svg?revision=$GITHUB_SHA" -o /tmp/find-words-live.svg &&
                curl -fsSL --max-time 15 "$base/?app=laria&revision=$GITHUB_SHA" -o /tmp/find-words-live.html &&
-               grep -q 'root.openFindTheWords=open' /tmp/find-words-live.js &&
-               grep -q '.fw-art' /tmp/find-words-live.css &&
-               grep -q '<svg' /tmp/find-words-live.svg &&
-               grep -q 'find-the-words.js' /tmp/find-words-live.html; then
+               curl -fsSL --max-time 15 "$base/laria-navigation-v13.js?revision=$GITHUB_SHA" -o /tmp/find-words-live-navigation.js &&
+               curl -fsSL --max-time 15 "$base/laria-navigation-v13.css?revision=$GITHUB_SHA" -o /tmp/find-words-live-navigation.css &&
+               curl -fsSL --max-time 15 "$base/bokskogen-reference-bg.webp?revision=$GITHUB_SHA" -o /tmp/find-words-live-painting.webp &&
+               curl -fsSL --max-time 15 "$base/sw.js?revision=$GITHUB_SHA" -o /tmp/find-words-live-sw.js &&
+               grep -Fq 'root.openFindTheWords=open' /tmp/find-words-live.js &&
+               grep -Fq '.fw-art' /tmp/find-words-live.css &&
+               grep -Fq '<svg' /tmp/find-words-live.svg &&
+               grep -Fq '20261019-painted-card2' /tmp/find-words-live.html &&
+               grep -Fq '20261019-match-first2' /tmp/find-words-live.html &&
+               grep -Fq "find-words" /tmp/find-words-live-navigation.js &&
+               grep -Fq 'bokskogen-reference-bg.webp' /tmp/find-words-live-navigation.js &&
+               grep -Fq '.bc13-find-lens' /tmp/find-words-live-navigation.css &&
+               grep -Fq 'paintedfindcard2' /tmp/find-words-live-sw.js &&
+               test "$(wc -c < /tmp/find-words-live-painting.webp)" -gt 8000; then
               echo "PASS: Finn ordene JS, CSS, scene and Læria HTML are live on GitHub Pages."
               exit 0
             fi

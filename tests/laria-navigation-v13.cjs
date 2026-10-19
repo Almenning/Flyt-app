@@ -10,7 +10,7 @@ test('navigation v13 separates journey subjects from repeatable exploration',()=
  assert.match(html,/laria-navigation-v13\.js\?v=/);
  assert.match(html,/laria-navigation-v13\.css\?v=/);
  for(const subject of ['norwegian','math','english','geography'])assert.match(nav,new RegExp("'"+subject+"'"));
- for(const action of ['globe','fraction','words','multiply'])assert.match(nav,new RegExp("'"+action+"'"));
+ for(const action of ['globe','fraction','words','find-words','multiply'])assert.match(nav,new RegExp("'"+action+"'"));
  assert.match(nav,/geoJourneyProgress\(grade\)/);
  assert.match(nav,/journeyProgress\(subject,grade\)/);
  assert.match(nav,/window\.LARIA_MARK_BASECAMP_ORIGIN/);

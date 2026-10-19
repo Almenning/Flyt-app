@@ -74,7 +74,7 @@ async function run(engine,label,viewport){
   assert.match(await page.locator('.bc12-place[data-camp="multiply"]').getAttribute('aria-label'),/^Gangemagi/,label+' stale Home aria-label');
   await page.locator('.bc14-free').click();
   await page.locator('.bc13-panel:not([hidden]) [data-bc13-action="globe"]').waitFor({timeout:12000});
-  assert.equal(await page.locator('.bc13-card:visible').count(),4,label+' free play must keep four destinations');
+  assert.equal(await page.locator('.bc13-card:visible').count(),5,label+' free play must include all five equal-status destinations');
   const gangemagiEntry=page.locator('.bc13-card[data-bc13-action="multiply"]');
   assert.equal((await gangemagiEntry.locator('.bc13-card-copy strong').textContent()).trim(),'Gangemagi',label+' Explore card still says Gangetabell');
   assert.match(await gangemagiEntry.getAttribute('aria-label'),/^Gangemagi/,label+' stale Explore accessible name');

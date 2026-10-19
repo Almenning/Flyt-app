@@ -1,6 +1,6 @@
 'use strict';
 /* Real WebKit/Chromium QA for the independent Finn ordene image discovery activity.
- * Runs with the actual app, selected profile fox, local SVG and four original Utforsk cards.
+ * Runs with the actual app, selected profile fox, local SVG and five equal-status Utforsk cards.
  */
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
@@ -34,15 +34,28 @@ function serve(){return new Promise((resolve,reject)=>{
  server.listen(0,'127.0.0.1',()=>resolve({server,url:'http://127.0.0.1:'+server.address().port+'/laer-litt-mer/?app=laria'}));
 })}
 async function shot(page,name){fs.mkdirSync(dir,{recursive:true});await page.screenshot({path:path.join(dir,name+'.png'),animations:'disabled',fullPage:false});}
-async function open(page,url){
+async function open(page,url,label){
  await page.goto(url,{waitUntil:'domcontentloaded'});
  await page.waitForFunction(()=>typeof window.openFindTheWords==='function'&&document.querySelector('.bc12-nav [data-camp="explore"]'),{},{timeout:30000});
  await page.locator('.bc12-nav [data-camp="explore"]').click();
  const panel=page.locator('.bc13-panel:not([hidden])');
  await panel.waitFor();
- assert.equal(await panel.locator('.bc13-card').count(),4,'Existing four illustrated Utforsk activities must stay intact');
+ assert.equal(await panel.locator('.bc13-card').count(),5,'Picture hunt must be a fifth, equal-size illustrated Utforsk card');
+ const sizes=await panel.locator('.bc13-card').evaluateAll(cards=>cards.map(c=>{
+   const r=c.getBoundingClientRect();return {w:r.width,h:r.height};
+ }));
+ assert.ok(sizes.every(x=>Math.abs(x.w-sizes[0].w)<=2&&Math.abs(x.h-sizes[0].h)<=2),
+   'All five card surfaces must have equal dimensions: '+JSON.stringify(sizes));
  const entry=panel.locator('[data-bc13-action="find-words"]');
- assert.ok(await entry.isVisible(),'Find-the-words entry must be visible');
+ assert.ok(await entry.isVisible(),'Find-the-words illustrated card must be visible');
+ await shot(page,label+'-explore-five-cards');
+ await entry.scrollIntoViewIfNeeded();
+ await shot(page,label+'-explore-fifth-card');
+ const picture=entry.locator('img.bc13-premium-art');
+ await picture.evaluate(img=>img.decode());
+ const photoMetrics=await picture.evaluate(img=>({w:img.naturalWidth,h:img.naturalHeight}));
+ assert.ok(photoMetrics.w>=240&&photoMetrics.h>=120,'The premium forest art did not load: '+JSON.stringify(photoMetrics));
+ assert.equal(await entry.locator('.bc13-find-lens').count(),1,'The card has lost its distinctive search illustration');
  const dims=await entry.boundingBox();
  assert.ok(dims&&dims.width>=44&&dims.height>=44,'New picture hunt entry must be touch accessible');
  await entry.click();
@@ -92,7 +105,7 @@ async function run(engine,label,viewport,url,avatar){
   await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
   await page.route('https://api.worldbank.org/**',r=>r.abort());
   try{
-   await open(page,url);
+   await open(page,url,label);
    await page.locator('.fw-scene-image').evaluate(img=>img.decode());
    await geometry(page,label,viewport);
    const foxSource=await page.locator('.fw-fox').getAttribute('src');
@@ -100,17 +113,37 @@ async function run(engine,label,viewport,url,avatar){
      'Picture mode does not use the personal selected fox');
    assert.equal(await page.locator('.fw-word').count(),6);
    assert.deepEqual((await page.locator('.fw-word strong').allTextContents()).sort(),[...targetWords].sort());
-   // Browser CI has no guaranteed Norwegian voice; verify speakable controls
-   // work without asserting that CI emitted audible Norwegian speech.
-   await page.locator('.fw-word[data-fw-read="sol"]').click();
-   await page.locator('.fw-audio').click();
+   // Correct objects do not score until a written word has been selected.
+   await page.locator('.fw-object[data-fw-object="sol"]').click();
+   assert.equal(await page.locator('.fw-word.is-found').count(),0,
+     'Random scene taps must not award a word');
+   assert.match(await page.locator('.fw-speech').innerText(),/Velg et ord/);
    const hint=page.locator('.fw-hint');
    await hint.click();
-   assert.match(await page.locator('.fw-speech').innerText(),/Se etter/,'Fox did not offer a clue');
+   assert.match(await page.locator('.fw-speech').innerText(),/Velg først ordet/,
+     'Hints must target the selected word, not an automatic answer');
+   // CI has no guaranteed Norwegian audio output, but speech controls must
+   // remain usable without Javascript errors.
+   await page.locator('.fw-word[data-fw-read="sol"]').click();
+   assert.equal(await page.locator('.fw-word.is-selected').count(),1,'Selected word is not visibly marked');
+   assert.equal(await page.locator('.fw-word[data-fw-read="sol"]').getAttribute('aria-pressed'),'true',
+     'Selected word is missing an accessible selected state');
+   assert.match(await page.locator('.fw-active-target').innerText(),/sol/,
+     'Chosen word is not displayed as an obvious goal');
+   await page.locator('.fw-audio').click();
+   await hint.click();
+   assert.match(await page.locator('.fw-speech').innerText(),/Se etter/,'Fox did not give the selected-word clue');
    await page.locator('.fw-fox-button').click();
-   assert.equal(await page.locator('.fw-object.is-hint').count(),1,'Second hint should highlight one location');
+   assert.equal(await page.locator('.fw-object.is-hint').count(),1,'Second hint should highlight the selected object');
    assert.equal(await page.locator('.fw-word.is-found').count(),0,'Hint must not automatically solve the game');
-   await shot(page,label+'-first-hint');
+   if(viewport.width<=360){
+     const title=await page.locator('.fw-title h1').evaluate(el=>{
+       const r=el.getBoundingClientRect();return {top:r.top,bottom:r.bottom,height:innerHeight};
+     });
+     assert.ok(title.top>=-1&&title.bottom<=title.height,
+       'Selecting a word must not auto-scroll away the title on a compact iPhone: '+JSON.stringify(title));
+   }
+   await shot(page,label+'-chosen-word-hint');
    // An illustrated object not in the current word list should be explored, not punished.
    // A touch on water must hit the painted lake, not the grassy lower bank.
    const lakePoint=await page.evaluate(()=>{
@@ -122,11 +155,22 @@ async function run(engine,label,viewport,url,avatar){
    assert.ok(lakePoint.x>.59&&lakePoint.x<.75&&lakePoint.y>.60&&lakePoint.y<.76,
      'Water hotspot drifted away from the open lake: '+JSON.stringify(lakePoint));
    await page.locator('.fw-object[data-fw-object="fugl"]').click();
-   assert.match(await page.locator('.fw-speech').innerText(),/Du oppdaget/,'Exploration decoy is silent');
+   assert.match(await page.locator('.fw-speech').innerText(),/Ikke helt/,
+     'Wrong word-object pairing must give gentle corrective feedback');
+   assert.equal(await page.locator('.fw-word.is-selected').count(),0,
+     'A wrong pairing must require the child to select a word again');
+   assert.equal(await page.locator('.fw-word.is-found').count(),0,'Wrong pairing awarded progress');
+   await page.locator('.fw-object[data-fw-object="sol"]').click();
+   assert.equal(await page.locator('.fw-word.is-found').count(),0,
+     'A correct scene object without a chosen word still earned progress');
    for(const word of targetWords){
+    await page.locator('.fw-word[data-fw-read="'+word+'"]').click();
+    assert.equal(await page.locator('.fw-word.is-selected').count(),1,'Word selection missing: '+word);
     await page.locator('.fw-object[data-fw-object="'+word+'"]').click();
+    assert.equal(await page.locator('.fw-word.is-selected').count(),0,
+      'Chosen word stayed selected after it was found: '+word);
     assert.equal(await page.locator('.fw-word.is-found').count(),targetWords.indexOf(word)+1,
-      'Correct picture target did not mark the written word: '+word);
+      'Correct chosen word-object pair did not mark progress: '+word);
    }
    assert.ok(await page.locator('#find-the-words-overlay').evaluate(el=>el.classList.contains('fw-complete')),
     'Round did not complete');
@@ -155,6 +199,15 @@ async function run(engine,label,viewport,url,avatar){
    await page.locator('.fw-next').click();
    assert.equal(await page.locator('.fw-word.is-found').count(),0,'New illustrated round was not reset');
    assert.equal(await page.locator('.fw-word').count(),6);
+   await page.locator('.fw-word[data-fw-read="fugl"]').click();
+   assert.equal(await page.locator('.fw-word.is-selected').count(),1);
+   await page.locator('.fw-back').click();
+   await page.reload({waitUntil:'domcontentloaded'});
+   await page.waitForFunction(()=>typeof window.openFindTheWords==='function');
+   await page.locator('.bc12-nav [data-camp="explore"]').click();
+   await page.locator('.bc13-panel:not([hidden]) [data-bc13-action="find-words"]').click();
+   assert.equal(await page.locator('.fw-word[data-fw-read="fugl"]').getAttribute('aria-pressed'),'true',
+     'Chosen word did not persist after exiting and reloading');
    await page.locator('.fw-back').click();
    // The separate 6x6 letter-grid mode and its five themes remain available.
    await page.locator('.bc13-panel:not([hidden]) .bc13-card[data-bc13-action="words"]').click();
