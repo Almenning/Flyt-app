@@ -717,6 +717,9 @@
    width:184px;max-width:none;min-height:76px;margin:0;
    padding:8px 6px;grid-template-columns:minmax(0,1fr) 44px;
  }
+ /* On iPad portrait the rotated speech-tail had overlapped the first letter
+    of a wrapped fox sentence. Keep the triangle outside the text inset. */
+ .gm-shell[data-gm-mode="mission"] .gm-fox-bubble:before{left:-18px}
  .gm-shell[data-gm-mode="mission"] .gm-fox-message{font-size:14px;line-height:1.17}
  .gm-shell[data-gm-mode="mission"] .gm-market{min-width:0;align-self:center}
  .gm-shell[data-gm-mode="mission"] .gm-market-sign{
