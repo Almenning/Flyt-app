@@ -242,7 +242,9 @@
  .fw-repeat{display:none}
 }
 @media(max-width:360px){
- .fw-shell{padding:7px;gap:7px}
+ .fw-shell{padding:7px;gap:4px}
+ .fw-layout{gap:7px}
+ .fw-stage{gap:5px}
  .fw-title p{font-size:10px}
  .fw-word-panel{padding:6px}
  .fw-list-heading h2{font-size:18px}
