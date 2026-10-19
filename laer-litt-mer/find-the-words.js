@@ -78,8 +78,7 @@
   function objectButtons(){
     return sceneObjects().map(id=>{
       const item=OBJECTS[id];
-      return
-      '<button type="button" class="fw-object" data-fw-object="'+id+'" aria-label="'+item.label+
+      return '<button type="button" class="fw-object" data-fw-object="'+id+'" aria-label="'+item.label+
       '" style="left:'+item.x+'%;top:'+item.y+'%;width:'+item.w+'%;height:'+item.h+'%">'+
       '<span class="fw-pin" aria-hidden="true">✓</span></button>'; }).join('');
   }
