@@ -58,7 +58,7 @@
     berries when the live scene is re-rendered. Counting stays visually stable. */
  function fruit(n,empty,animateLast){
    let parts='';
-   for(let i=0;i<n;i++)parts+='<span class="gm-fruit'+(animateLast&&i===n-1?' gm-fruit-pop':'')+'">'+berrySvg+'</span>';
+   for(let i=0;i<n;i++)parts+='<span class="gm-fruit'+(animateLast&&i===n-1?' gm-fruit-pop':'')+'" data-gm-fruit="'+i+'">'+berrySvg+'</span>';
    for(let i=0;i<empty;i++)parts+='<span class="gm-fruit gm-fruit-empty" aria-hidden="true"></span>';
    return parts;
  }
@@ -296,6 +296,8 @@
    // lab/back delegates also act on the same click.
    event.preventDefault();event.stopPropagation();
    const kind=button.dataset.gmAction;
+   // A completed drag can dispatch a synthetic click on touch browsers.
+   if(Date.now()<suppressClickUntil&&(kind==='basket'||kind==='source'))return;
    if(kind==='back'){back();return;}
    if(kind==='open-book'){bookOpen=true;render();root.querySelector('.gm-book-open .gm-book-back')?.focus({preventScroll:true});return;}
    if(kind==='book'){bookOpen=!bookOpen;render();if(!bookOpen){root.querySelector('.gm-book-quick')?.focus({preventScroll:true});root.querySelector('.gm-top')?.scrollIntoView({behavior:'auto',block:'start'});}return;}
@@ -304,7 +306,7 @@
      if(!Number.isInteger(index)||index<0||index>=E.MISSIONS.length)return;
      // Each selected adventure begins fresh. Undo stays inside one adventure;
      // already earned flowers remain attached to the child's saved progress.
-     state=E.apply(state,{type:'mission',index});selectedGroup=null;
+     state=E.apply(state,{type:'mission',index});selectedGroup=null;holdingBerry=false;
      undo=[];hintStep=0;notice='';foxMood='curious';lastAction='';lastGroup=-1;
      bookOpen=false;save();render();
      root.querySelector('.gm-top')?.scrollIntoView({behavior:'auto',block:'start'});
@@ -346,6 +348,14 @@
    }
    if(kind==='basket'){
      const i=Number(button.dataset.gmBasket);
+     // Tap the actual berry to take it back out, without a separate minus action.
+     // The containing basket is still a normal accessible button and the existing
+     // large remove control is retained for keyboard / assistive technology.
+     if(event.target.closest('.gm-fruit[data-gm-fruit]')&&state.counts[i]>0){
+       holdingBerry=false;
+       if(state.mode==='mission')selectedGroup=i;
+       change({type:'remove',group:i});return;
+     }
      if(state.mode==='mission'){
        if(holdingBerry){holdingBerry=false;selectedGroup=i;
          if(!change({type:'add',group:i})){notice='Denne kurven er full. Prøv en annen!';foxMood='help';render();}
@@ -372,14 +382,30 @@
      if(ix>=0)change({type:'add',group:ix});
    }
  }
+ // Pointer events power both interactions: source -> basket adds, basket
+ // berry -> source removes. The actual maths still goes through E.apply.
+ function clearDropHighlights(){
+   root.querySelectorAll('.gm-drop-target,.gm-drop-blocked').forEach(el=>{
+     el.classList.remove('gm-drop-target','gm-drop-blocked');
+   });
+ }
  function clearDrag(){
    if(drag?.ghost?.isConnected)drag.ghost.remove();
+   clearDropHighlights();
    drag=null;
  }
  function onPointerDown(event){
-   const button=event.target.closest('button[data-gm-action="source"]');
-   if(!button||!root.contains(button)||button.disabled||event.button!==0)return;
-   drag={id:event.pointerId,x:event.clientX,y:event.clientY,moved:false,ghost:null};
+   if(event.button!==0||!root.contains(event.target))return;
+   const source=event.target.closest('button[data-gm-action="source"]');
+   const berry=event.target.closest('.gm-fruit[data-gm-fruit]');
+   const basket=berry?.closest('button[data-gm-action="basket"]');
+   if(source&&!source.disabled){
+     drag={id:event.pointerId,kind:'source',x:event.clientX,y:event.clientY,moved:false,ghost:null};
+   }else if(basket){
+     const group=Number(basket.dataset.gmBasket);
+     if(state.counts[group]>0)drag={id:event.pointerId,kind:'basket',group,
+       x:event.clientX,y:event.clientY,moved:false,ghost:null};
+   }
  }
  function onPointerMove(event){
    if(!drag||event.pointerId!==drag.id)return;
@@ -389,23 +415,49 @@
      ghost.className='gm-drag-fruit';ghost.innerHTML=berrySvg;
      document.body.appendChild(ghost);drag.ghost=ghost;
    }
-   if(drag.moved&&drag.ghost){
+   if(!drag.moved)return;
+   if(drag.ghost){
      drag.ghost.style.left=event.clientX+'px';drag.ghost.style.top=event.clientY+'px';
-     if(event.cancelable)event.preventDefault();
    }
+   clearDropHighlights();
+   const under=document.elementFromPoint(event.clientX,event.clientY);
+   if(drag.kind==='source'){
+     const basket=under?.closest?.('button[data-gm-action="basket"]');
+     if(basket&&root.contains(basket)){
+       const group=Number(basket.dataset.gmBasket);
+       basket.classList.add(state.counts[group]<state.each?'gm-drop-target':'gm-drop-blocked');
+     }
+   }else{
+     const source=under?.closest?.('button[data-gm-action="source"]');
+     if(source&&root.contains(source))source.classList.add('gm-drop-target');
+   }
+   if(event.cancelable)event.preventDefault();
  }
  function onPointerUp(event){
    if(!drag||event.pointerId!==drag.id)return;
-   if(drag.moved){
-     suppressClickUntil=Date.now()+400;
-     const el=document.elementFromPoint(event.clientX,event.clientY);
-     const crate=el?.closest?.('[data-gm-basket]');
-     const group=crate&&root.contains(crate)?Number(crate.dataset.gmBasket):NaN;
-     if(Number.isInteger(group)){
+   const current=drag;
+   if(current.moved){
+     // Without suppression, iOS can fire a second click after pointerup.
+     suppressClickUntil=Date.now()+450;
+     const under=document.elementFromPoint(event.clientX,event.clientY);
+     if(current.kind==='source'){
+       const basket=under?.closest?.('button[data-gm-action="basket"]');
+       const group=basket&&root.contains(basket)?Number(basket.dataset.gmBasket):NaN;
+       if(Number.isInteger(group)){
          holdingBerry=false;
          if(state.mode==='mission')selectedGroup=group;
-         if(!change({type:'add',group})){notice='Denne kurven er full. Prøv en annen!';foxMood='help';render();}
+         if(!change({type:'add',group})){
+           notice='Denne kurven er full. Prøv en annen!';foxMood='help';render();
+         }
        }
+     }else{
+       const source=under?.closest?.('button[data-gm-action="source"]');
+       if(source&&root.contains(source)){
+         holdingBerry=false;
+         if(state.mode==='mission')selectedGroup=current.group;
+         change({type:'remove',group:current.group});
+       }
+     }
    }
    clearDrag();
  }
@@ -430,6 +482,7 @@
  window.addEventListener('pointermove',onPointerMove,{passive:false});
  window.addEventListener('pointerup',onPointerUp);
  window.addEventListener('pointercancel',clearDrag);
+ window.addEventListener('blur',clearDrag);
  // The classic exercise can still be used. Keep a visible return route when
  // its DOM is rebuilt after changing modes/questions.
  const observer=new MutationObserver(()=>{
@@ -448,11 +501,11 @@
  if(entry)entry.onclick=()=>open(false);
  function openMission(index){
    if(!Number.isInteger(index)||index<0||index>=E.MISSIONS.length)return false;
-   state=E.apply(state,{type:'mission',index});selectedGroup=null;
+   state=E.apply(state,{type:'mission',index});selectedGroup=null;holdingBerry=false;
    undo=[];hintStep=0;notice='';foxMood='curious';lastAction='';lastGroup=-1;
    bookOpen=false;selectedGroup=null;save();open(false);return true;
  }
  window.LARIA_GANGEMAGI=Object.freeze({version:'playable-v1',open,openMission,
    snapshot:()=>({...E.normalize(state),equation:E.equation(state),selectedBasket:selectedGroup,undo:undo.length}),
-   reset:()=>{state=E.initial();selectedGroup=null;save();hintStep=0;undo=[];render();}});
+   reset:()=>{state=E.initial();selectedGroup=null;holdingBerry=false;save();hintStep=0;undo=[];render();}});
 })();
