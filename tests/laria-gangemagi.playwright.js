@@ -233,6 +233,11 @@ async function check(engine,label,viewport,url){
   const tableArt=await page.request.get(new URL('gangemagi-market-table-premium.svg',url).href);
   assert.equal(tableArt.status(),200,'original illustrated market counter must load');
   assert.match(tableArt.headers()['content-type'],/image\/svg\+xml/);
+  const tableSvg=await tableArt.text();
+  assert.match(tableSvg,/id="forest"/,
+    label+' market counter must use the locked moss-green botanical tablecloth');
+  assert.doesNotMatch(tableSvg,/id="checked"/,
+    label+' the old red checkerboard is not part of the approved market style');
   const illustratedCounter=await page.locator('.gm-crates').evaluate(el=>
     getComputedStyle(el,'::before').backgroundImage.includes('gangemagi-market-table-premium.svg'));
   assert.equal(illustratedCounter,true,'interactable baskets should stand in front of their own market-scene artwork');
