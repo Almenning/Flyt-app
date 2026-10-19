@@ -1,6 +1,12 @@
 name: Laria Finn ordene WebKit
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'laer-litt-mer/find-the-words*'
+      - 'laer-litt-mer/index.html'
+      - '.github/workflows/laria-find-the-words.yml'
   pull_request:
     branches: [main]
     paths:
@@ -46,3 +52,52 @@ jobs:
           path: /tmp/laria-find-words
           if-no-files-found: warn
           retention-days: 14
+
+  pages-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    permissions:
+      contents: read
+      pages: read
+    steps:
+      - name: Report the actual GitHub Pages publication source
+        uses: actions/github-script@v7
+        with:
+          script: |
+            try {
+              const {data} = await github.request('GET /repos/{owner}/{repo}/pages', context.repo);
+              core.info('Pages URL: ' + data.html_url);
+              core.info('Pages build type: ' + data.build_type);
+              core.info('Pages source: ' + JSON.stringify(data.source || null));
+            } catch (error) {
+              core.warning('Pages configuration unavailable: ' + error.message);
+            }
+
+  pages-live:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: picture-hunt
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Verify real published Læria resources after merge
+        shell: bash
+        run: |
+          set -eu
+          base="https://almenning.github.io/Flyt-app/laer-litt-mer"
+          for attempt in $(seq 1 42); do
+            if curl -fsSL --max-time 15 -H "Cache-Control: no-cache" "$base/find-the-words.js?revision=$GITHUB_SHA" -o /tmp/find-words-live.js &&
+               curl -fsSL --max-time 15 "$base/find-the-words.css?revision=$GITHUB_SHA" -o /tmp/find-words-live.css &&
+               curl -fsSL --max-time 15 "$base/find-the-words-scene.svg?revision=$GITHUB_SHA" -o /tmp/find-words-live.svg &&
+               curl -fsSL --max-time 15 "$base/?app=laria&revision=$GITHUB_SHA" -o /tmp/find-words-live.html &&
+               grep -q 'root.openFindTheWords=open' /tmp/find-words-live.js &&
+               grep -q '.fw-art' /tmp/find-words-live.css &&
+               grep -q '<svg' /tmp/find-words-live.svg &&
+               grep -q 'find-the-words.js' /tmp/find-words-live.html; then
+              echo "PASS: Finn ordene JS, CSS, scene and Læria HTML are live on GitHub Pages."
+              exit 0
+            fi
+            echo "Waiting for real Pages publication ($attempt/42)..."
+            sleep 10
+          done
+          echo "FAIL: Læria was not published with Finn ordene at $base." >&2
+          exit 1
