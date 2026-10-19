@@ -21,6 +21,7 @@
   ];
   let active=null,overlay=null,previousFocus=null,previousOverflow='',reactionTimer=null;
   let hintStage=0,hintWord=null,selectedWord=null,wrongAttempts=0;
+  let pointerDrag=null,dragGhost=null,lastDraggedWord=null,dragClickTimer=null;
 
   function read(key){try{return JSON.parse(root.localStorage.getItem(key)||'null')}catch(_){return null}}
   function write(key,data){try{root.localStorage.setItem(key,JSON.stringify(data))}catch(_){}}
@@ -72,12 +73,12 @@
       '<div class="fw-list-heading"><div><span class="fw-tiny">SKOGENS HEMMELIGHETER</span>'+
       '<h2 id="fw-list-title">1. Velg et ord</h2></div><span class="fw-counter"></span></div>'+
       '<div class="fw-list" role="list"></div><div class="fw-progress" aria-hidden="true"><span></span></div>'+
-      '<p class="fw-list-foot">Ord du velger, blir markert. Trykk deretter på tingen i bildet.</p></aside>'+
+      '<p class="fw-list-foot">Trykk på ordet og finn tingen, eller dra ordet rett til bildet.</p></aside>'+
       '<div class="fw-stage"><div class="fw-stage-label"><strong class="fw-active-target" role="status" aria-live="polite">2. Finn ordet i bildet</strong><span aria-hidden="true">✦</span></div>'+
       '<div class="fw-art" role="group" aria-label="Eventyrbilde med ting du kan finne">'+
       '<img src="./find-the-words-scene.svg?v=20261018-a" class="fw-scene-image" alt="Illustrert skog med vann, telt, sol og mange små oppdagelser" draggable="false">'+
       objectButtons()+'<div class="fw-celebration" hidden aria-hidden="true">✦ ✧ ✦</div></div>'+
-      '<div class="fw-scene-bottom"><span class="fw-scenery-caption">Velg et ord fra listen for å begynne!</span>'+
+      '<div class="fw-scene-bottom"><span class="fw-scenery-caption">Trykk på et ord eller dra det til tingen.</span>'+
       '<button type="button" class="fw-hint">💡 Vis meg et hint</button></div></div></div>'+
       '<footer class="fw-bottom"><div class="fw-companion" data-mood="idle">'+
       '<button type="button" class="fw-fox-button" aria-label="Spør reven om et hint"><img class="fw-fox" src="'+fox.source+'" alt="'+fox.label+'" draggable="false"></button>'+ 
@@ -102,7 +103,7 @@
     const footer=overlay.querySelector('.fw-scenery-caption');
     const label=selectedWord?OBJECTS[selectedWord].label:null;
     goal.textContent=label?'2. Finn «'+label+'» i bildet':'2. Velg et ord først';
-    footer.textContent=label?'Trykk på '+label+' i bildet. Ikke på andre ting!':'Velg et ord fra listen for å begynne.';
+    footer.textContent=label?'Finn '+label+' i bildet, eller dra ordet dit.':'Trykk på et ord eller dra det til tingen.';
     overlay.dataset.wordSelected=label?'true':'false';
     overlay.querySelector('.fw-progress span').style.width=(active.found.size/all.length*100)+'%';
     overlay.querySelectorAll('[data-fw-object]').forEach(button=>{
@@ -208,17 +209,89 @@
       hintStage=0;
     }
   }
+  /* Optional tactile shortcut: drag the written word onto the pictured item.
+     Native HTML5 drag/drop is unreliable in iPad Safari; Pointer Events work
+     on fingers, mouse and pens. The existing two-tap/keyboard path stays intact.
+     Nothing is awarded until selectObject verifies the chosen word + object. */
+  function clearDrag(){
+    if(pointerDrag?.source?.isConnected)pointerDrag.source.classList.remove('is-dragging');
+    dragGhost?.remove();dragGhost=null;
+    overlay?.classList.remove('fw-dragging');
+    overlay?.querySelectorAll('.fw-object.is-drop-target').forEach(el=>el.classList.remove('is-drop-target'));
+    pointerDrag=null;
+  }
+  function pointerDown(event){
+    if(!active||active.completed||event.button!==0||!event.isPrimary)return;
+    const source=event.target.closest?.('.fw-word[data-fw-read]');
+    const word=source?.dataset?.fwRead;
+    if(!word||!words().includes(word)||active.found.has(word))return;
+    pointerDrag={source,word,id:event.pointerId,x:event.clientX,y:event.clientY,dragging:false};
+    try{source.setPointerCapture(event.pointerId)}catch(_){}
+  }
+  function pointerMove(event){
+    const d=pointerDrag;
+    if(!d||d.id!==event.pointerId)return;
+    if(!d.dragging&&Math.hypot(event.clientX-d.x,event.clientY-d.y)<12)return;
+    if(!d.dragging){
+      d.dragging=true;
+      d.source.classList.add('is-dragging');
+      overlay.classList.add('fw-dragging');
+      dragGhost=DOC.createElement('div');
+      dragGhost.className='fw-drag-ghost';
+      dragGhost.setAttribute('aria-hidden','true');
+      dragGhost.textContent=OBJECTS[d.word].label;
+      overlay.appendChild(dragGhost);
+    }
+    if(event.cancelable)event.preventDefault();
+    dragGhost.style.left=event.clientX+'px';
+    dragGhost.style.top=event.clientY+'px';
+    const hovered=DOC.elementFromPoint(event.clientX,event.clientY)?.closest?.('[data-fw-object]');
+    overlay.querySelectorAll('.fw-object.is-drop-target').forEach(el=>el.classList.remove('is-drop-target'));
+    if(hovered&&overlay.contains(hovered))hovered.classList.add('is-drop-target');
+  }
+  function pointerUp(event){
+    const d=pointerDrag;
+    if(!d||d.id!==event.pointerId)return;
+    if(!d.dragging){clearDrag();return}
+    if(event.cancelable)event.preventDefault();
+    const target=DOC.elementFromPoint(event.clientX,event.clientY)?.closest?.('[data-fw-object]');
+    const matchingTarget=target&&overlay.contains(target)?target.dataset.fwObject:null;
+    const word=d.word;
+    lastDraggedWord=word;
+    if(dragClickTimer)root.clearTimeout(dragClickTimer);
+    dragClickTimer=root.setTimeout(()=>{lastDraggedWord=null;dragClickTimer=null},400);
+    clearDrag();
+    if(!matchingTarget){
+      // Release outside the illustration: leave a highlighted, selected word
+      // so the child can finish with a simple tap instead.
+      selectWord(word);
+      react('support','Ord valgt! Nå kan du trykke på tingen i bildet.');
+      return;
+    }
+    selectedWord=word;
+    persist();
+    selectObject(matchingTarget);
+  }
+  function pointerCancel(event){
+    if(pointerDrag&&event.pointerId===pointerDrag.id)clearDrag();
+  }
   function nextRound(){
     const old=active?.round||0;
     active={round:(old+1)%ROUNDS.length,found:new Set(),completed:false};
+    clearDrag();
     hintStage=0;hintWord=null;selectedWord=null;wrongAttempts=0;
     persist();refresh();
-    react('greet','Nye ord! Velg ett ord, så finner vi riktig ting.');
+    react('greet','Nye ord! Velg eller dra et ord til riktig ting.');
     const first=overlay?.querySelector('.fw-word');
     first?.focus({preventScroll:true});
   }
   function onClick(event){
     const button=event.target.closest('button');
+    // Some Safari versions synthesize a click on the drag source after pointerup.
+    // Never reinterpret that synthetic click as a new selected word.
+    if(lastDraggedWord&&button?.dataset?.fwRead===lastDraggedWord){
+      lastDraggedWord=null;event.preventDefault();return;
+    }
     if(!button||!overlay.contains(button))return;
     if(button.classList.contains('fw-back')){close();return}
     if(button.classList.contains('fw-hint')||button.classList.contains('fw-fox-button')){hint();return}
@@ -248,6 +321,10 @@
       overlay.setAttribute('aria-modal','true');overlay.setAttribute('aria-labelledby','fw-title');
       DOC.body.appendChild(overlay);
       overlay.addEventListener('click',onClick);
+      overlay.addEventListener('pointerdown',pointerDown);
+      overlay.addEventListener('pointermove',pointerMove);
+      overlay.addEventListener('pointerup',pointerUp);
+      overlay.addEventListener('pointercancel',pointerCancel);
       // Empty scenery taps get calm fox feedback; never deduct points or reveal a word.
       overlay.addEventListener('click',event=>{
         if(event.target.closest('.fw-art')&&!event.target.closest('.fw-object'))
@@ -266,6 +343,8 @@
   function close(){
     if(!overlay||overlay.hidden)return;
     persist();
+    clearDrag();lastDraggedWord=null;
+    if(dragClickTimer){root.clearTimeout(dragClickTimer);dragClickTimer=null}
     overlay.hidden=true;DOC.documentElement.style.overflow=previousOverflow;
     if(reactionTimer){root.clearTimeout(reactionTimer);reactionTimer=null}
     try{root.speechSynthesis?.cancel?.()}catch(_){}
