@@ -226,7 +226,7 @@
 .gm-shell[data-gm-mode="mission"] .gm-crates:before{
   content:"";position:absolute;z-index:0;left:-1%;right:-1%;
   bottom:14px;height:clamp(43px,6.2vw,84px);
-  background:url('./gangemagi-market-table-premium.svg') center bottom /100% 100% no-repeat;
+  background:url('./gangemagi-market-table-premium.svg?v=20261019-botanical1') center bottom /100% 100% no-repeat;
   pointer-events:none;filter:drop-shadow(0 8px 6px #402d2055);
 }
 .gm-shell[data-gm-mode="mission"] .gm-crate-wrap{
