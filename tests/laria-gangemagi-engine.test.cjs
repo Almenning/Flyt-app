@@ -85,3 +85,42 @@ test('Markedsbok selects any authored mission and preserves collected flowers',(
  s=E.apply(s,{type:'mission',index:0});
  assert.equal(s.mode,'mission');assert.deepEqual(s.wins,['meadow-3-3']);
 });
+
+test('Each of the eight authored missions can actually be completed and earns exactly one flower',()=>{
+ let state=E.initial();
+ for(const [index,spec] of E.MISSIONS.entries()){
+  state=E.apply(state,{type:'mission',index});
+  assert.equal(state.mission,index);
+  assert.equal(state.groups,spec.groups);
+  assert.equal(state.each,spec.each);
+  assert.deepEqual(state.counts,Array(spec.groups).fill(0));
+  assert.equal(E.target(state),spec.groups*spec.each);
+  assert.equal(E.equation(state).multiplication,null);
+  assert.equal(E.filled(state),false);
+  for(let group=0;group<spec.groups;group++){
+   for(let berry=0;berry<spec.each;berry++){
+    const before=E.total(state);
+    state=E.apply(state,{type:'add',group});
+    assert.equal(E.total(state),before+1,'one child action adds exactly one berry');
+    assert.ok(state.counts[group]<=spec.each,'basket cannot overfill');
+   }
+   if(group<spec.groups-1)assert.equal(E.filled(state),false,'no early celebration');
+  }
+  const expectedTotal=spec.groups*spec.each;
+  assert.equal(E.filled(state),true,'mission '+(index+1)+' must be completable');
+  assert.equal(E.equation(state).addition,
+    Array(spec.groups).fill(spec.each).join(' + ')+' = '+expectedTotal);
+  assert.equal(E.equation(state).multiplication,spec.groups+' × '+spec.each+' = '+expectedTotal);
+  assert.equal(state.wins.length,index+1,'exactly one new flower per unique mission');
+  assert.deepEqual(state.wins,E.MISSIONS.slice(0,index+1).map(m=>m.id));
+  state=E.apply(state,{type:'add',group:0});
+  assert.equal(E.total(state),expectedTotal,'full basket refuses extra berries');
+  assert.equal(state.wins.length,index+1,'no duplicate flowers after full basket');
+ }
+ state=E.apply(state,{type:'next'});
+ assert.equal(state.mission,0,'after eight missions new play begins at chapter start');
+ assert.deepEqual(state.counts,[0,0,0]);
+ assert.equal(state.wins.length,8,'all collected flowers survive the wraparound');
+ state=E.apply(state,{type:'mode',mode:'free'});
+ assert.equal(state.wins.length,8,'free play does not erase the magic book');
+});
