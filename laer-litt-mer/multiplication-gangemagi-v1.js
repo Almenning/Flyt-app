@@ -116,7 +116,7 @@
      '</div></header>';
  }
  function fruitSupply(free){
-   return '<button type="button" class="gm-pick gm-strawberry-tray'+(holdingBerry?' gm-berry-held':'')+'" data-gm-action="source" aria-label="'+(free?'Plukk et jordbær og legg det i neste ledige kurv':'Plukk jordbær. Dra til en kurv, eller trykk på kurven etterpå.')+'"><span class="gm-pick-fruit" aria-hidden="true">'+berrySourceArt+'</span><span>Plukk et jordbær</span><small>'+(free?'Trykk eller dra':holdingBerry?'Trykk på en kurv':'Dra eller trykk')+'</small></button>';
+   return '<button type="button" class="gm-pick gm-strawberry-tray'+(holdingBerry?' gm-berry-held':'')+'" data-gm-action="source" aria-label="'+(free?'Plukk et jordbær og legg det i neste ledige kurv':'Plukk jordbær. Dra til en kurv, eller trykk på kurven etterpå.')+'"><span class="gm-pick-fruit" aria-hidden="true">'+berrySourceArt+'</span><span>'+(free?'Plukk et jordbær':'Plukk')+'</span><small>'+(free?'Trykk eller dra':holdingBerry?'Trykk på en kurv':'Dra eller trykk')+'</small></button>';
  }
  function render(){
    const prevFocus=root.contains(document.activeElement)?document.activeElement:null;
