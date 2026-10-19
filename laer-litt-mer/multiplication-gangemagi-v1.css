@@ -1,11 +1,15 @@
 /* Læria / Gangemagi v1: self-contained original Tallenga game surface.
    No competitor assets. All characters use Læria's persistent fox system. */
 /* The app shell can be taller than Gangemagi on a scrolling iPhone.
-   Keep its surrounding canvas the same warm paper, never expose a white band. */
+   Its original .app background-image still painted a pastel/white band even
+   though background-color was warm. Replace that image ONLY while the
+   Gangemagi scene is active; leave other activities' themes untouched. */
 html:has(#multiplication-lab-screen.active .gm-shell),
-body:has(#multiplication-lab-screen.active .gm-shell),
-.app:has(#multiplication-lab-screen.active .gm-shell){background-color:#f5dfbd}
-#multiplication-lab-screen:has(.gm-shell){padding:0!important;overflow-x:clip;background-color:#f5dfbd}
+body:has(#multiplication-lab-screen.active .gm-shell){background-color:#f5dfbd}
+.app:has(#multiplication-lab-screen.active .gm-shell){background:#f5dfbd}
+#multiplication-lab-screen.active:has(.gm-shell){
+  padding:0!important;overflow-x:clip;background:#f5dfbd
+}
 #multiplication-lab-screen:has(.gm-shell) #multiplication-lab-root{width:100%}
 .gm-shell{--gm-ink:#55372d;--gm-wood:#a66d48;--gm-ivory:#fff7e7;--gm-cream:#fdf0d5;--gm-moss:#567965;--gm-coral:#c56757;--gm-light:#f9e9c6;
  position:relative;width:100%;min-height:100dvh;overflow-x:clip;color:var(--gm-ink);font-family:ui-rounded,"SF Pro Rounded","Arial Rounded MT Bold",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
