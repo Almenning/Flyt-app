@@ -739,3 +739,25 @@
  .gm-shell[data-gm-mode="mission"] .gm-crate,
  .gm-shell[data-gm-mode="mission"] .gm-basket-illustration{animation:none;transition:none}
 }
+/* DIRECT MANIPULATION 2026-10-19
+   The illustrated fruit itself is a touch target: tap to return it, or drag
+   it back to the source. Never animate the basket's actual hit area. */
+.gm-shell .gm-fruit[data-gm-fruit]{
+  pointer-events:auto;touch-action:none;cursor:grab;
+}
+.gm-shell .gm-fruit[data-gm-fruit]:active{cursor:grabbing}
+.gm-shell[data-gm-mode="mission"] .gm-crate.gm-drop-target .gm-basket-illustration{
+  filter:drop-shadow(0 0 13px #ffd75c) drop-shadow(0 8px 5px #48371e7a);
+}
+.gm-shell[data-gm-mode="mission"] .gm-crate.gm-drop-blocked .gm-basket-illustration{
+  filter:drop-shadow(0 0 7px #c96b58) drop-shadow(0 8px 5px #48371e7a);
+}
+.gm-shell .gm-pick.gm-drop-target{
+  outline:4px solid #f8d46d;outline-offset:3px;
+  filter:drop-shadow(0 0 10px #ffda74ad);
+}
+@media(prefers-reduced-motion:reduce){
+ .gm-shell[data-gm-mode="mission"] .gm-crate.gm-drop-target .gm-basket-illustration{
+   transition:none;
+ }
+}
