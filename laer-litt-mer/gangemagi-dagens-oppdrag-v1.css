@@ -396,7 +396,7 @@
  .gm-shell[data-gm-mode="mission"] .gm-story.gm-quest:before,.gm-shell[data-gm-mode="mission"] .gm-story.gm-quest:after{font-size:16px;top:-5px}
  .gm-shell[data-gm-mode="mission"] .gm-quest-ribbon{font-size:13px}
  .gm-shell[data-gm-mode="mission"] .gm-story.gm-quest h2.gm-quest-callout{font-size:clamp(20px,5.65vw,30px);margin:5px auto 8px;line-height:1.06}
- .gm-shell[data-gm-mode="mission"] .gm-quest-steps{grid-template-columns:minmax(0,1fr) 9px minmax(0,1fr) 9px minmax(0,1fr);gap:1px}
+ .gm-shell[data-gm-mode="mission"] .gm-quest-steps{grid-template-columns:minmax(0,.9fr) 9px minmax(0,.9fr) 9px minmax(0,1.2fr);gap:1px}
  .gm-shell[data-gm-mode="mission"] .gm-quest-step{min-height:74px;gap:2px;padding:5px 2px 7px;border-width:1px;border-radius:12px;justify-content:space-between}
  .gm-shell[data-gm-mode="mission"] .gm-quest-index{width:16px;height:16px;top:2px;left:2px;font-size:10px}
  .gm-shell[data-gm-mode="mission"] .gm-quest-icon{height:29px;gap:0;flex:0 0 auto}
