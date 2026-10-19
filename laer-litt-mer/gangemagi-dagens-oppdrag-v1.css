@@ -558,7 +558,7 @@
    width:200px;max-width:none;min-height:57px;margin:0;
    padding:6px 7px;grid-template-columns:minmax(0,1fr) 44px;
  }
- .gm-shell[data-gm-mode="mission"] .gm-fox-message{font-size:12px}
+ .gm-shell[data-gm-mode="mission"] .gm-fox-message{font-size:13px;line-height:1.16}
  .gm-shell[data-gm-mode="mission"] .gm-market{min-width:0;margin:0;align-self:center}
  .gm-shell[data-gm-mode="mission"] .gm-market-sign{margin:0 auto -7px;padding:5px 16px}
  .gm-shell[data-gm-mode="mission"] .gm-crates{padding:10px 4px 0;gap:8px}
@@ -636,7 +636,8 @@
  .gm-shell[data-gm-mode="mission"] .gm-quest-icon>.gm-quest-wicker{height:35px;width:46px}
  .gm-shell[data-gm-mode="mission"] .gm-quest-icon>.gm-quest-hand{height:27px;width:20px;margin-left:-8px}
  .gm-shell[data-gm-mode="mission"] .gm-quest-icon .gm-quest-fruit{height:32px;width:24px}
- .gm-shell[data-gm-mode="mission"] .gm-quest-step strong{font-size:12px;line-height:1.14}
+ /* The learning verbs must be readable by a second-grader at arm's length. */
+ .gm-shell[data-gm-mode="mission"] .gm-quest-step strong{font-size:13px;line-height:1.13}
  /* Larger real personal character, overlapping only the wooden margin,
     while the fox row still occupies exactly 121px in the first viewport. */
  .gm-shell[data-gm-mode="mission"] .gm-fox{height:121px}
@@ -647,7 +648,7 @@
  .gm-shell[data-gm-mode="mission"] .gm-fox-bubble{
    min-height:57px;padding:7px 8px 7px 13px;
  }
- .gm-shell[data-gm-mode="mission"] .gm-fox-message{font-size:12px}
+ .gm-shell[data-gm-mode="mission"] .gm-fox-message{font-size:13px;line-height:1.16}
  .gm-shell[data-gm-mode="mission"] .gm-crate{height:160px}
  .gm-shell[data-gm-mode="mission"] .gm-crate-caption{font-size:12px}
  .gm-shell[data-gm-mode="mission"] .gm-crate-front{height:29px}
@@ -675,6 +676,9 @@
    font-size:clamp(32px,4.35vw,43px);margin:8px auto 12px;
  }
  .gm-shell[data-gm-mode="mission"] .gm-quest-step{min-height:110px}
+ .gm-shell[data-gm-mode="mission"] .gm-quest-step strong{
+   font-size:15px;line-height:1.16;
+ }
  .gm-shell[data-gm-mode="mission"] .gm-quest-icon{height:59px}
  .gm-shell[data-gm-mode="mission"] .gm-quest-icon>.gm-quest-wicker{height:57px;width:75px}
  .gm-shell[data-gm-mode="mission"] .gm-scene{
@@ -698,7 +702,7 @@
    width:184px;max-width:none;min-height:76px;margin:0;
    padding:8px 6px;grid-template-columns:minmax(0,1fr) 44px;
  }
- .gm-shell[data-gm-mode="mission"] .gm-fox-message{font-size:12px}
+ .gm-shell[data-gm-mode="mission"] .gm-fox-message{font-size:14px;line-height:1.17}
  .gm-shell[data-gm-mode="mission"] .gm-market{min-width:0;align-self:center}
  .gm-shell[data-gm-mode="mission"] .gm-market-sign{
    margin:0 auto -5px;padding:8px 13px;
