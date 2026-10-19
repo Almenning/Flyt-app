@@ -28,12 +28,25 @@ function auditAllEightMissions(){
        state=Engine.apply(state,{type:'add',group});
        assert.equal(Engine.total(state),was+1,'one action adds exactly one strawberry');
        assert.equal(state.counts[group],berry,'wicker contents reflect reality');
+       if(group!==mission.groups-1||berry!==mission.each){
+         assert.equal(Engine.filled(state),false,'partial baskets never finish the mission');
+         assert.equal(state.wins.length,index,'no blossom may be earned early');
+       }
        assert.equal(Engine.equation(state).target,
          mission.groups+' × '+mission.each+' = '+mission.groups*mission.each,
          'authored multiplication stays correct while exploring');
      }
    }
    assert.equal(Engine.filled(state),true,'the mission can really be completed');
+   for(let group=0;group<mission.groups;group++){
+     const before=Engine.total(state);
+     const again=Engine.apply(state,{type:'add',group});
+     assert.equal(Engine.total(again),before,'a full basket cannot gain an extra fruit');
+     assert.equal(again.wins.length,index+1,'completed reward cannot be duplicated by extra taps');
+   }
+   assert.equal(Engine.equation(state).addition,
+     Array(mission.groups).fill(mission.each).join(' + ')+' = '+mission.groups*mission.each,
+     'finished addition must match the true strawberries in all eight adventures');
    assert.equal(Engine.equation(state).multiplication,
      mission.groups+' × '+mission.each+' = '+mission.groups*mission.each,
      'completed multiplication is mathematically correct');
