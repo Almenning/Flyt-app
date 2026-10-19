@@ -106,6 +106,9 @@
  transition:transform .25s ease,opacity .25s ease;
 }
 .fw-object.is-found .fw-pin{opacity:1;transform:scale(1)}
+/* Place the success stamp on the tree foliage, not the sky at the edge of
+   its large accessible canopy hit area. All other objects use the default. */
+.fw-object[data-fw-object="tre"] .fw-pin{top:36%;right:50%}
 .fw-celebration{
  position:absolute;z-index:3;left:45%;top:25%;font-size:48px;font-weight:900;
  color:#fff6b0;text-shadow:0 2px 10px #c18d36;pointer-events:none;
