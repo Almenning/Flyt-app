@@ -78,3 +78,26 @@ Neste visuelle prioritet etter grønn QA: et mer integrert marked med enda bedre
 - **Nettlesertest i faktiske enhetsoppsett:** `tests/laria-gangemagi.playwright.js` velger nå alle åtte oppdrag gjennom Markedsboken og kontrollerer dynamiske titler, kurv- og jordbærantall, minst 44 px trykkbredde, reelt kurvvalg, og at første «Plukk et jordbær» endrer matematikk og spilltilstand riktig. Dette gjennomføres i seks eksisterende Chromium-/WebKit-oppsett, uten å fylle artifactet med unødvendig mange skjermbilder.
 - **Avhengighet gjenopprettet:** PR #187 var utilsiktet pekt direkte mot `main`, selv om den er bygget på åpen PR #181 og skal være stablet. Endret PR #187 sin base tilbake til `feat/laria-gangemagi-dagens-oppdrag-20261017`. GitHub bekrefter at #187 igjen er `mergeable=true` mot denne basen. **PR #181 er fremdeles åpen/draft og må samordnes mot nyere main før eventuell publisering.**
 - **Kvalitetsport:** Ny kode må ha grønn smoke-test, grønn åtteoppdrags-test og nye ekte WebKit-bilder fra eksakt commit. Fortsett vurderingen av lesbarhet i 2. klasse, personlig rev, reelle trykkflater og likhet med fasiten. **Ikke flett eller publiser før komplett kvalitet er dokumentert.**
+
+
+## 19. oktober 2026 – direkte jordbærlek og visuell forenkling
+
+Låst produktkrav: `docs/LARIA-GANGEMAGI-LAAST-DIREKTE-LEK-2026-10-19.md`.
+
+Gjennomført på PR #187, separat fra `main`:
+- Aktiverte kilde-til-kurv-drag også i oppdrag; trykk på kilde og kurv fungerer som alternativ.
+- Direkte tapping på et faktisk jordbær i kurven fjerner ett bær. Et jordbær kan dras tilbake til kilden. Ordinær fjern/angre beholdes for tilgjengelighet.
+- Drop-markering fremhever gyldig kurv/kilde. Ugyldig slipp endrer ikke det matematiske antallet. Full kurv avvises av den opprinnelige spillmotoren.
+- Forenklet tretrinnsinstruksjonen til «Plukk», «Legg i», «Se gangemagien». Jordbærkilden får tre interaktive SVG-bær og treverkspalett, fremfor generisk rød legg-til-knapp.
+- Utvidet Playwright med gyldige/ugyldige drag og tap/fjern i Chromium/WebKit på små og store visninger.
+- Reell CI avdekket en test-/UX-konflikt: klikking midt i en fylt kurv treffer nå et direkte fjernbart jordbær. QA-hjelperen velger derfor kurvkanten, mens testen for direkte bærberøring bevares. Etter drag+reset måtte også midlertidig klikksperre nullstilles.
+- Dokumenterte at tidligere CI på del-commits ikke er nok til å erklære seneste HEAD bestått. Siste testresultat skal hentes igjen.
+
+Gjenstår før premiumgodkjenning:
+1. Grønne Playwright Chromium/WebKit og øvrig CI på EKSAKT siste HEAD.
+2. Faktisk bildegjennomgang mot brukerens godkjente referanse. Original binærillustrasjon er ennå ikke dokumentert som versjonert ressurs i repoet.
+3. Sjekk at bærkassen, kurver, reven, oppdrag og matematikk står i riktig visuelt hierarki på iPhone 320/390 og iPad stående/liggende.
+4. Safari/touch med reelle enheter ved anledning; Playwright-WebKit er ikke en fysisk iPad-test.
+5. Samordning av stacked PR #181/#187 mot nyeste main og deretter produksjonsverifikasjon. Ikke flett/publiser på bare teknisk grønn QA.
+
+Status: aktiv utviklingsgren. IKKE publisert eller erklært premium-ferdig.
