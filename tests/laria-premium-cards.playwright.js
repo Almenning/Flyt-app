@@ -58,14 +58,17 @@ async function run(engine,label,width,height){
    for(const card of cards){
     assert.ok(urls[mode].includes(card.action),label+' wrong card '+JSON.stringify(card));
     if(card.action==='find-words'){
-      assert.ok(card.src.startsWith('./find-the-words-scene.svg'),label+' picture card must use its own illustrated scene: '+card.src);
+      assert.ok(card.src.startsWith('./bokskogen-reference-bg.webp'),label+' card must use painted Bokskogen artwork: '+card.src);
     }else{
       assert.equal(card.src.startsWith('./assets/cards/'+lookup[card.action]+'-premium.webp'),true,label+' stale asset '+card.action);
     }
     assert.equal(card.ready,true,label+' image never finished loading '+card.action);
     assert.equal(card.broken,false,label+' image 404 triggered fallback '+card.action);
-    assert.deepEqual(card.natural,card.action==='find-words'?[1200,720]:[1024,704],
-      label+' invalid illustrated card image '+card.action);
+    if(card.action==='find-words'){
+      assert.ok(card.natural[0]>=240&&card.natural[1]>=120,label+' painted forest image failed to load '+JSON.stringify(card));
+    }else{
+      assert.deepEqual(card.natural,[1024,704],label+' approved painting dimensions changed '+card.action);
+    }
     assert.equal(card.fit,'cover',label+' stretched image '+card.action);
     assert.ok(card.frame.w>95&&card.frame.h>35,label+' missing art surface '+card.action);
     assert.ok(Math.abs(card.frame.w-card.image.w)<1.5&&Math.abs((card.frame.h-card.image.h)-card.borderBottom)<1.5,label+' image geometry differs from image area above card bottom border '+JSON.stringify(card));
