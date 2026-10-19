@@ -67,6 +67,17 @@ async function selectAndPick(page,group,count){
  assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).selectedBasket,group,'the basket is selected');
  for(let i=0;i<count;i++)await page.locator('[data-gm-action="source"]').click();
 }
+async function dragBerry(page,fromSelector,toSelector,expectTarget){
+  const from=page.locator(fromSelector).first(),to=page.locator(toSelector).first();
+  const a=await from.boundingBox(),b=await to.boundingBox();
+  assert.ok(a&&b,'source and target must both be visible for drag play');
+  await page.mouse.move(a.x+a.width/2,a.y+a.height/2);
+  await page.mouse.down();
+  await page.mouse.move(b.x+b.width/2,b.y+b.height/2,{steps:9});
+  if(expectTarget)assert.equal(await page.locator(expectTarget).count(),1,
+    'dragging over a valid target must give a visible live glow');
+  await page.mouse.up();
+}
 async function check(engine,label,viewport,url){
  const context=await engine.newContext({viewport,deviceScaleFactor:1,serviceWorkers:'block',isMobile:viewport.width<750,hasTouch:true});
  const page=await context.newPage(),errors=[];
@@ -260,6 +271,30 @@ async function check(engine,label,viewport,url){
   assert.deepEqual(touchGeometry.overlaps,Array(touchGeometry.overlaps.length).fill(false),label+' remove affordance must not cover numeric basket label '+JSON.stringify(touchGeometry));
   assert.equal(touchGeometry.clipped,false,label+' first-fold Plukk action text is clipped '+JSON.stringify(touchGeometry));
   await shot(page,label+'-01-first-look');
+  // Approved direct manipulation: tap-to-pick, tap the basket berry to take
+  // it out, drag one from the fruit source, and drag it back. Invalid drops
+  // must never change the maths. Run in both engines and every viewport.
+  await page.locator('[data-gm-action="source"]').click();
+  assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,0,0],
+    label+' tapping the strawberry source must NOT add fruit without a destination');
+  await page.locator('[data-gm-action="basket"][data-gm-basket="1"]').click();
+  assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,1,0],
+    label+' tapped strawberry + tapped basket adds exactly one');
+  await page.locator('[data-gm-basket="1"] .gm-fruit[data-gm-fruit]').first().click();
+  assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,0,0],
+    label+' touching the berry directly returns it from the basket');
+  await dragBerry(page,'[data-gm-action="source"]','[data-gm-action="basket"][data-gm-basket="2"]',
+    '.gm-crate.gm-drop-target');
+  assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,0,1],
+    label+' pointer drag from source to basket adds exactly one');
+  await dragBerry(page,'[data-gm-basket="2"] .gm-fruit[data-gm-fruit]','[data-gm-action="source"]',
+    '.gm-pick.gm-drop-target');
+  assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,0,0],
+    label+' dragging a fruit back to source removes one');
+  await dragBerry(page,'[data-gm-action="source"]','.gm-brand',null);
+  assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,0,0],
+    label+' dropping a fruit outside all baskets cannot change the maths');
+  await page.evaluate(()=>LARIA_GANGEMAGI.reset());
   await page.locator('[data-gm-action="basket"][data-gm-basket="0"]').click();
   assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,0,0],
     'choosing a basket cannot silently add a strawberry');
