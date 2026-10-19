@@ -67,14 +67,31 @@ async function geometry(page,label,view){
   const el=document.querySelector('.fw-art');
   const img=document.querySelector('.fw-scene-image');
   return {screen:innerWidth,height:innerHeight,scroll:document.documentElement.scrollWidth,
-   art:bounds('.fw-art'),list:bounds('.fw-list'),back:bounds('.fw-back'),fox:bounds('.fw-fox'),
+   art:bounds('.fw-art'),picture:bounds('.fw-picture'),paint:bounds('.fw-scene-image'),list:bounds('.fw-list'),back:bounds('.fw-back'),fox:bounds('.fw-fox'),
    scene:{w:img.naturalWidth,h:img.naturalHeight,complete:img.complete},
    words:[...document.querySelectorAll('.fw-word')].map(x=>x.getBoundingClientRect().height),
     wordFonts:[...document.querySelectorAll('.fw-word strong')].map(x=>parseFloat(getComputedStyle(x).fontSize)),
    hotspot:[...document.querySelectorAll('.fw-object')].map(x=>{const r=x.getBoundingClientRect(),hit=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);return {id:x.dataset.fwObject,w:r.width,h:r.height,centerReachable:hit===x||x.contains(hit)};}),
+   paintedPoints:(()=>{
+      // Coordinates of the pictured objects at the original 1200×720 artwork ratio.
+      // Check the real visible painted point, not simply the HTML button centre.
+      const points={sol:[.905,.17],tre:[.22,.395],telt:[.865,.745],vann:[.635,.64],
+       rev:[.685,.82],sekk:[.255,.815],bat:[.545,.84],fugl:[.765,.455]};
+      const picture=document.querySelector('.fw-picture').getBoundingClientRect();
+      return Object.entries(points).map(([id,[x,y]])=>{
+       const hit=document.elementFromPoint(picture.left+picture.width*x,picture.top+picture.height*y);
+       return {id,hit:hit?.closest?.('[data-fw-object]')?.dataset?.fwObject||null};
+      });
+    })(),
    active:el?.getAttribute('role')};
  });
- assert.ok(box.art&&box.list&&box.fox&&box.back,'picture game missing art, word list or personal fox '+label);
+ assert.ok(box.art&&box.picture&&box.paint&&box.list&&box.fox&&box.back,'picture game missing the aligned painted scene or personal fox '+label);
+ assert.ok(Math.abs(box.picture.w/box.picture.h-5/3)<.01,
+   'The interactive plane does not match the SVG native 1200:720 geometry '+label+': '+JSON.stringify(box.picture));
+ assert.ok(Math.abs(box.picture.w-box.paint.w)<2&&Math.abs(box.picture.h-box.paint.h)<2,
+   'Illustration and tap targets use different visible pixel bounds '+label+': '+JSON.stringify(box));
+ assert.deepEqual(box.paintedPoints.filter(x=>x.id!==x.hit),[],
+   'A painted object is not reachable at the point where the child sees it '+label+': '+JSON.stringify(box.paintedPoints));
  assert.ok(box.scene.complete&&box.scene.w===1200&&box.scene.h===720,'illustrated scene failed '+label+': '+JSON.stringify(box.scene));
  assert.ok(box.scroll<=box.screen+3,'horizontal overflow '+label+': '+JSON.stringify(box));
  assert.ok(box.art.x>=-2&&box.art.x+box.art.w<=box.screen+3,'art clipped horizontally '+label);
@@ -89,7 +106,8 @@ async function geometry(page,label,view){
   assert.ok(box.art.b<=box.height+2,'iPad portrait art must remain on first screen: '+JSON.stringify(box));
  }
  if(view.width>=361&&view.width<=700&&view.height>=750){
-  assert.ok(box.art.h>=245,'Tall phone artwork reverted to its small 5:3 layout: '+JSON.stringify(box));
+  assert.ok(box.picture.h>=205,'Tall phone illustration too small to see and touch: '+JSON.stringify(box));
+   assert.ok(box.wordFonts.every(n=>n>=18),'Tall phone words must be readable at 18px or larger: '+JSON.stringify(box.wordFonts));
   assert.ok(box.fox.h>=100,'Child-selected fox is too small on tall phone: '+JSON.stringify(box));
   assert.ok(box.fox.y+box.fox.h<=box.height+2,'Fox companion is pushed below the phone viewport: '+JSON.stringify(box));
  }
@@ -161,7 +179,7 @@ async function run(engine,label,viewport,url,avatar){
    // An illustrated object not in the current word list should be explored, not punished.
    // A touch on water must hit the painted lake, not the grassy lower bank.
    const lakePoint=await page.evaluate(()=>{
-     const stage=document.querySelector('.fw-art').getBoundingClientRect();
+     const stage=document.querySelector('.fw-picture').getBoundingClientRect();
      const water=document.querySelector('[data-fw-object="vann"]').getBoundingClientRect();
      return {x:(water.left+water.width*.5-stage.left)/stage.width,
        y:(water.top+water.height*.5-stage.top)/stage.height};
@@ -194,7 +212,7 @@ async function run(engine,label,viewport,url,avatar){
    // The large accessible tree hotspot may extend beyond foliage; its found
    // stamp must still sit on the visible canopy rather than floating in sky.
    const treeStamp=await page.evaluate(()=>{
-     const scene=document.querySelector('.fw-art').getBoundingClientRect();
+     const scene=document.querySelector('.fw-picture').getBoundingClientRect();
      const p=document.querySelector('[data-fw-object="tre"] .fw-pin').getBoundingClientRect();
      return (p.top+p.height/2-scene.top)/scene.height;
    });
