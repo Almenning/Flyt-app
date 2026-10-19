@@ -235,8 +235,8 @@
    if(['next','mission','mode','reset','groups','each'].includes(action.type)){selectedGroup=null;holdingBerry=false;}
     // When a basket fills, return to the illustrated "choose a basket" step.
     // Never leave the Plukk action targeted at an already full basket.
-    if(state.mode==='mission'&&action.type==='add'&&Number.isInteger(action.group)
-       &&state.counts[action.group]===state.each&&!E.filled(state))selectedGroup=null;
+    if(state.mode==='mission'&&selectedGroup!==null
+       &&state.counts[selectedGroup]>=state.each&&!E.filled(state))selectedGroup=null;
    lastAction=action.type;
    lastGroup=action.group!==undefined&&Number.isInteger(Number(action.group))?Number(action.group):-1;
    justAddedGroup=action.type==='add'?lastGroup:-1;
