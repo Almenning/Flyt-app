@@ -89,6 +89,34 @@
    object-to-hotspot drift, regardless of phone/tablet layout. */
 .fw-picture{position:relative;width:100%;aspect-ratio:5/3;isolation:isolate;overflow:hidden}
 .fw-scene-image{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;pointer-events:none;user-select:none}
+
+/* Magical guidance belongs to the world, not another info box.
+   This is the same 1200x720 SVG plane as all picture-object hit targets.
+   Pointer events stay with the real objects, including on touch Safari. */
+.fw-fx{
+ position:absolute;inset:0;width:100%;height:100%;z-index:3;
+ overflow:visible;pointer-events:none;touch-action:none;
+ filter:drop-shadow(0 1px 3px rgba(36,69,54,.2));
+}
+.fw-fx *{pointer-events:none}
+.fw-guide-glow{
+ fill:none;stroke:#fff4ae;stroke-width:15;stroke-linecap:round;
+ stroke-dasharray:12 25;opacity:.78;
+ animation:fwGuideFlow 2.2s linear infinite
+}
+.fw-guide-spark{
+ fill:none;stroke:#6caf9e;stroke-width:4;stroke-linecap:round;
+ stroke-dasharray:5 32;opacity:.95;
+ animation:fwGuideFlow 2.2s linear infinite
+}
+.fw-target-flower{transform-box:view-box;animation:fwTargetGlow 1.2s ease-in-out 2}
+.fw-success-burst{transform-box:view-box;transform-origin:center;animation:fwDiscoverySpark 1.15s ease-out forwards}
+.fw-try-ring{animation:fwTryRipple 1.1s ease-out forwards}
+@keyframes fwGuideFlow{from{stroke-dashoffset:0}to{stroke-dashoffset:-148}}
+@keyframes fwTargetGlow{50%{opacity:.5}100%{opacity:1}}
+@keyframes fwDiscoverySpark{0%{opacity:0}18%{opacity:1}100%{opacity:0}}
+@keyframes fwTryRipple{0%{opacity:.7;stroke-width:8}100%{opacity:0;stroke-width:2}}
+
 .fw-art:after{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;
  border:5px solid rgba(255,248,218,.32);border-radius:15px;
  box-shadow:inset 0 0 38px rgba(38,59,47,.2)}
