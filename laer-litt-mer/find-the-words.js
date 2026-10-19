@@ -20,7 +20,7 @@
     ['vann','rev','fugl','bat','tre','sol']
   ];
   let active=null,overlay=null,previousFocus=null,previousOverflow='',reactionTimer=null;
-  let hintStage=0,hintWord=null;
+  let hintStage=0,hintWord=null,selectedWord=null,wrongAttempts=0;
 
   function read(key){try{return JSON.parse(root.localStorage.getItem(key)||'null')}catch(_){return null}}
   function write(key,data){try{root.localStorage.setItem(key,JSON.stringify(data))}catch(_){}}
@@ -41,9 +41,12 @@
     const saved=read(ACTIVE_KEY);
     active=validActive(saved)?{round:saved.round,found:new Set(saved.found),completed:saved.completed}:
       {round:progress().rounds%ROUNDS.length,found:new Set(),completed:false};
+    selectedWord=typeof saved?.selected==='string'&&words().includes(saved.selected)&&
+      !active.found.has(saved.selected)?saved.selected:null;
+    wrongAttempts=0;
   }
   function persist(){
-    write(ACTIVE_KEY,{version:1,round:active.round,found:[...active.found],completed:active.completed});
+    write(ACTIVE_KEY,{version:1,round:active.round,found:[...active.found],completed:active.completed,selected:selectedWord});
   }
   function chosenFox(){
     const api=root.LARIA_FOX;
@@ -63,22 +66,22 @@
     return '<div class="fw-shell">'+
       '<header class="fw-top"><button type="button" class="fw-back" aria-label="Tilbake til Utforsk">←</button>'+
       '<div class="fw-title"><span class="fw-eyebrow">NORSK · BOKSKOGEN</span><h1 id="fw-title">Finn ordene</h1>'+
-      '<p>Se deg rundt i bildet. Trykk på tingene du finner!</p></div>'+
+      '<p>Velg et ord, og finn riktig ting i bildet!</p></div>'+
       '<button type="button" class="fw-audio" aria-label="Les opp oppgaven">♪ <span>Hør</span></button></header>'+
       '<div class="fw-layout"><aside class="fw-word-panel" aria-labelledby="fw-list-title">'+
       '<div class="fw-list-heading"><div><span class="fw-tiny">SKOGENS HEMMELIGHETER</span>'+
-      '<h2 id="fw-list-title">Ord å finne</h2></div><span class="fw-counter"></span></div>'+
+      '<h2 id="fw-list-title">1. Velg et ord</h2></div><span class="fw-counter"></span></div>'+
       '<div class="fw-list" role="list"></div><div class="fw-progress" aria-hidden="true"><span></span></div>'+
-      '<p class="fw-list-foot">Trykk på et ord for å høre det.</p></aside>'+
-      '<div class="fw-stage"><div class="fw-stage-label">Et eventyr i Bokskogen <span aria-hidden="true">✦</span></div>'+
+      '<p class="fw-list-foot">Ord du velger, blir markert. Trykk deretter på tingen i bildet.</p></aside>'+
+      '<div class="fw-stage"><div class="fw-stage-label"><strong class="fw-active-target" role="status" aria-live="polite">2. Finn ordet i bildet</strong><span aria-hidden="true">✦</span></div>'+
       '<div class="fw-art" role="group" aria-label="Eventyrbilde med ting du kan finne">'+
       '<img src="./find-the-words-scene.svg?v=20261018-a" class="fw-scene-image" alt="Illustrert skog med vann, telt, sol og mange små oppdagelser" draggable="false">'+
       objectButtons()+'<div class="fw-celebration" hidden aria-hidden="true">✦ ✧ ✦</div></div>'+
-      '<div class="fw-scene-bottom"><span class="fw-scenery-caption">Ta deg god tid. Det er mye å oppdage!</span>'+
+      '<div class="fw-scene-bottom"><span class="fw-scenery-caption">Velg et ord fra listen for å begynne!</span>'+
       '<button type="button" class="fw-hint">💡 Vis meg et hint</button></div></div></div>'+
       '<footer class="fw-bottom"><div class="fw-companion" data-mood="idle">'+
       '<button type="button" class="fw-fox-button" aria-label="Spør reven om et hint"><img class="fw-fox" src="'+fox.source+'" alt="'+fox.label+'" draggable="false"></button>'+ 
-      '<div class="fw-speech" role="status" aria-live="polite">Jeg blir med! Hva vil du finne først?</div></div>'+
+      '<div class="fw-speech" role="status" aria-live="polite">Jeg blir med! Velg et ord, så finner vi tingen.</div></div>'+
       '<div class="fw-controls"><button type="button" class="fw-next">Ny ordjakt <span aria-hidden="true">↗</span></button>'+
       '<button type="button" class="fw-repeat">Hør oppgaven</button></div></footer></div>';
   }
@@ -86,14 +89,21 @@
     if(!overlay||!active)return;
     const all=words();
     overlay.querySelector('.fw-list').innerHTML=all.map(word=>{
-      const item=OBJECTS[word],found=active.found.has(word);
+      const item=OBJECTS[word],found=active.found.has(word),selected=selectedWord===word;
       return '<div class="fw-list-item" role="listitem"><button type="button" class="fw-word'+
-        (found?' is-found':'')+'" data-fw-read="'+word+'" aria-label="'+item.label+(found?', funnet':'')+'">'+
+        (found?' is-found':'')+(selected?' is-selected':'')+'" data-fw-read="'+word+'" aria-pressed="'+selected+
+        '" aria-label="'+item.label+(found?', allerede funnet':selected?', valgt, finn i bildet':', velg for å lete')+'">'+
         '<span class="fw-word-icon" aria-hidden="true">'+({sol:'☀️',tre:'🌳',telt:'⛺',vann:'💧',rev:'🦊',sekk:'🎒',bat:'⛵',fugl:'🐦'}[word])+
         '</span><strong>'+item.label+'</strong><span class="fw-word-check" aria-hidden="true">'+(found?'✓':'◦')+
         '</span></button></div>';
     }).join('');
     overlay.querySelector('.fw-counter').textContent=active.found.size+' / '+all.length;
+    const goal=overlay.querySelector('.fw-active-target');
+    const footer=overlay.querySelector('.fw-scenery-caption');
+    const label=selectedWord?OBJECTS[selectedWord].label:null;
+    goal.textContent=label?'2. Finn «'+label+'» i bildet':'2. Velg et ord først';
+    footer.textContent=label?'Trykk på '+label+' i bildet. Ikke på andre ting!':'Velg et ord fra listen for å begynne.';
+    overlay.dataset.wordSelected=label?'true':'false';
     overlay.querySelector('.fw-progress span').style.width=(active.found.size/all.length*100)+'%';
     overlay.querySelectorAll('[data-fw-object]').forEach(button=>{
       const found=active.found.has(button.dataset.fwObject);
@@ -124,18 +134,43 @@
       root.speechSynthesis.speak(utterance);
     }catch(_){}
   }
+  function selectWord(word){
+    if(!active||!words().includes(word))return;
+    if(active.found.has(word)){
+      say(OBJECTS[word].label);
+      react('celebrate','Det ordet har du allerede funnet! Velg et annet.');
+      return;
+    }
+    selectedWord=word;
+    hintStage=0;hintWord=null;wrongAttempts=0;
+    persist();refresh();
+    say(OBJECTS[word].label);
+    react('curious','Nå leter vi etter '+OBJECTS[word].label+'! Finn tingen i bildet.');
+    overlay.querySelector('.fw-word.is-selected')?.focus({preventScroll:true});
+  }
   function selectObject(id){
     const item=OBJECTS[id];
     if(!item||!active)return;
-    if(!words().includes(id)){
-      react('curious','Du oppdaget '+item.label+'! Prøv å finne et ord på listen.');
+    if(!selectedWord){
+      react('support','Velg et ord fra listen først. Så kan vi lete!');
       return;
     }
     if(active.found.has(id)){
-      react('curious','Den fant du allerede. Se etter noe nytt!');
+      react('curious','Den har du allerede funnet. Prøv en annen ting!');
+      return;
+    }
+    if(id!==selectedWord){
+      const missed=OBJECTS[selectedWord].label;
+      wrongAttempts++;
+      // A wrong match cannot be brute-forced through many scene taps.
+      // The child must consciously choose an unfinished word again.
+      selectedWord=null;hintStage=0;hintWord=null;
+      persist();refresh();
+      react('support','Ikke helt! Velg «'+missed+'» igjen og se nøye etter.');
       return;
     }
     active.found.add(id);
+    selectedWord=null;wrongAttempts=0;
     hintStage=0;hintWord=null;
     if(active.found.size===words().length){
       active.completed=true;
@@ -152,8 +187,8 @@
   function hint(){
     if(!active)return;
     if(active.completed){react('celebrate','Du fant alt! Vil du gå på en ny ordjakt?');return}
-    const remaining=words().filter(word=>!active.found.has(word));
-    const id=hintWord&&remaining.includes(hintWord)?hintWord:remaining[0];
+    if(!selectedWord){react('support','Velg først ordet du vil ha hjelp til å finne.');return}
+    const id=selectedWord;
     if(!id)return;
     if(hintWord!==id){hintWord=id;hintStage=0}
     const item=OBJECTS[id];
@@ -170,9 +205,9 @@
   function nextRound(){
     const old=active?.round||0;
     active={round:(old+1)%ROUNDS.length,found:new Set(),completed:false};
-    hintStage=0;hintWord=null;
+    hintStage=0;hintWord=null;selectedWord=null;wrongAttempts=0;
     persist();refresh();
-    react('greet','Nye ord å oppdage! Jeg blir med deg.');
+    react('greet','Nye ord! Velg ett ord, så finner vi riktig ting.');
     const first=overlay?.querySelector('.fw-word');
     first?.focus({preventScroll:true});
   }
@@ -183,9 +218,9 @@
     if(button.classList.contains('fw-hint')||button.classList.contains('fw-fox-button')){hint();return}
     if(button.classList.contains('fw-next')){nextRound();return}
     if(button.classList.contains('fw-repeat')||button.classList.contains('fw-audio')){
-      say('Finn ordene. Se deg rundt i bildet, og trykk på tingene du finner.');return;
+      say('Finn ordene. Velg et ord fra listen. Finn så riktig ting i bildet.');return;
     }
-    if(button.dataset.fwRead){say(OBJECTS[button.dataset.fwRead].label);return}
+    if(button.dataset.fwRead){selectWord(button.dataset.fwRead);return}
     if(button.dataset.fwObject){selectObject(button.dataset.fwObject)}
   }
   function onKeydown(event){
@@ -210,7 +245,7 @@
       // Empty scenery taps get calm fox feedback; never deduct points or reveal a word.
       overlay.addEventListener('click',event=>{
         if(event.target.closest('.fw-art')&&!event.target.closest('.fw-object'))
-          react('support','Se nøye etter! Prøv en av tingene fra ordlisten.');
+          react('support',selectedWord?'Se etter «'+OBJECTS[selectedWord].label+'». Trykk på tingen.':'Velg et ord fra listen først.');
       });
       overlay.addEventListener('keydown',onKeydown);
     }
@@ -219,7 +254,7 @@
     restore();
     overlay.innerHTML=markup();overlay.hidden=false;
     DOC.documentElement.style.overflow='hidden';
-    refresh();react('greet','Jeg blir med! Se på ordlisten og finn tingene i bildet.');
+    refresh();react('greet',selectedWord?'Du leter etter '+OBJECTS[selectedWord].label+'. Se nøye etter!':'Velg et ord fra listen, så finner vi tingen sammen!');
     overlay.querySelector('.fw-back').focus({preventScroll:true});
   }
   function close(){
