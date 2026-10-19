@@ -812,6 +812,19 @@ async function checkLandscape(engine,label,url){
    assert.ok(geometry.basketWidths.every(w=>w>=44)&&
      geometry.sourceWidth>=44&&geometry.sourceHeight>=44,
      label+' child-sized interactive props on landscape '+JSON.stringify(geometry));
+   // Visual first-fold contract: a child in landscape must SEE the real game,
+   // not only a wooden instruction board. Vertical scrolling stays available
+   // for secondary modes, but the fruit source and baskets start on-screen.
+   const fold=await page.evaluate(()=>{
+     const rect=s=>document.querySelector(s).getBoundingClientRect();
+     return {height:innerHeight,boardBottom:rect('.gm-story.gm-quest').bottom,
+       firstBasketBottom:rect('.gm-crate').bottom,
+       sourceBottom:rect('.gm-market-fruit-supply .gm-pick').bottom,
+       mathTop:rect('.gm-math').top,mathBottom:rect('.gm-math').bottom};
+   });
+   assert.ok(fold.firstBasketBottom<=fold.height+3&&
+     fold.sourceBottom<=fold.height+3&&fold.mathTop<fold.height,
+     label+' real baskets, pickup source and live maths must enter FIRST landscape viewport '+JSON.stringify(fold));
    await shot(page,label+'-01-first-look');
    // The short viewport is deliberately scrollable. The child must still be
    // able to find the real strawberry crate and interact using touch taps.
