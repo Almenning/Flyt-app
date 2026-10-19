@@ -225,6 +225,12 @@ async function check(engine,label,viewport,url){
   });
   console.log('GANGEMAGI_FIRSTFOLD '+label+' '+JSON.stringify(first));
   assert.ok(first.scrollWidth<=first.screen+4,label+' horizontal overflow '+JSON.stringify(first));
+  assert.equal(await page.locator('.gm-market-fruit-supply .gm-pick').count(),1,
+    label+' the real strawberry supply belongs in the illustrated market');
+  assert.equal(await page.locator('.gm-basket-inner').count(),3,
+    label+' every transparent wicker basket needs a stable painted interior');
+  assert.ok(first.source.top>first.crate.top&&first.source.bottom<=first.math.top+6,
+    label+' picking strawberries must lead naturally from baskets to maths '+JSON.stringify(first));
   if(viewport.width>=700&&viewport.height>=viewport.width){
     const worldWidth=await page.locator('.gm-world').evaluate(el=>el.getBoundingClientRect().width);
     assert.ok(worldWidth>=700,label+' iPad portrait should use the full-width Tallenga scene '+worldWidth);
