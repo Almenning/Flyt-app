@@ -936,3 +936,32 @@
   }
   .gm-shell[data-gm-mode="mission"] .gm-berry-progress strong{font-size:12px}
 }
+
+/* A berry may still be put back AFTER completing an adventure. The return
+   crate materializes only while a child drags an existing berry, keeping the
+   completed illustration, collected flower and Next action uncluttered. */
+.gm-shell[data-gm-mode="mission"] .gm-market.gm-return-tray-active{z-index:9}
+.gm-shell[data-gm-mode="mission"] .gm-return-tray{
+  position:absolute;z-index:20;left:50%;bottom:-16px;transform:translateX(-50%);
+  display:flex;align-items:center;justify-content:center;gap:7px;
+  width:clamp(118px,18vw,148px);min-height:54px;padding:5px 10px;
+  border:3px solid #f7dfa6;border-bottom:5px solid #85502b;
+  border-radius:18px;background:linear-gradient(155deg,#fbe2a6,#d8aa70);
+  color:#64402c;font-size:clamp(11px,1.2vw,14px);font-weight:900;
+  box-shadow:0 7px 12px #4c2d2066, inset 0 2px #fff6d4;
+  pointer-events:auto;user-select:none;
+}
+.gm-shell[data-gm-mode="mission"] .gm-return-tray-fruit{
+  display:block;flex:0 0 25px;width:25px;height:29px;
+}
+.gm-shell[data-gm-mode="mission"] .gm-return-tray-fruit svg{display:block;width:100%;height:100%}
+.gm-shell[data-gm-mode="mission"] .gm-return-tray.gm-drop-target{
+  border-color:#fff2aa;background:linear-gradient(155deg,#fff5be,#eab96b);
+  outline:3px solid #fed366;outline-offset:3px;
+  box-shadow:0 0 18px #ffdc7acc,0 7px 12px #4c2d2066;
+}
+@media(max-width:360px){
+  .gm-shell[data-gm-mode="mission"] .gm-return-tray{
+    bottom:-8px;width:114px;min-height:47px;padding:4px 6px;font-size:11px;
+  }
+}

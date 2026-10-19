@@ -101,3 +101,11 @@ Gjenstår før premiumgodkjenning:
 5. Samordning av stacked PR #181/#187 mot nyeste main og deretter produksjonsverifikasjon. Ikke flett/publiser på bare teknisk grønn QA.
 
 Status: aktiv utviklingsgren. IKKE publisert eller erklært premium-ferdig.
+
+## 19. oktober – retur av bær også etter fullført oppdrag (PR #192)
+
+- Faktiske 320/390 WebKit- og iPad-skjermbilder fra eksakt HEAD `796c1db4` ble lastet ned fra GitHub Actions artifact `12216874427` og visuelt kontrollert. Standardstart og ferdigscenen er en sammenhengende illustrert markedsscene; fullføringsknappen vises i første skjermbilde.
+- Funnet samspillsbrudd: etter fullføring fjernes jordbærkilden av layouten, selv om den låste leken tillater å dra et bær tilbake. Direkte trykk/fjern og Angre virket, men ikke selve retur-draget.
+- Rettet uten en ny permanent knapp: ved påbegynt drag av et jordbær i et ferdig oppdrag vises en midlertidig, belyst «Legg tilbake»-kasse på markedet. Slipp der fjerner nøyaktig ett bær; kassen forsvinner umiddelbart etterpå eller ved avbrudd. Eksisterende lagring, belønninger, ligninger og Next-layout beholdes.
+- Egen browser-regresjon kjører retur etter fullført oppdrag på de seks eksisterende WebKit/Chromium-visningene, sjekker gyldig lysrespons, berøringsflate, korrekt ett-bær-retur, skjult returkasse i ro, blomster og angre/restore.
+- KVALITETSPORT: Den nye commitens samlede CI og reelle skjermbilder må verifiseres på nytt før sammenslåing. Urelatert SuperKlode-test hadde tidsavbrudd på WebKit iPad liggende på forrige SHA og er ikke endret her. Publisering er ikke utført.

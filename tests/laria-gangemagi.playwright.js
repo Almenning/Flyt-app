@@ -517,6 +517,35 @@ async function check(engine,label,viewport,url){
   assert.match(await page.locator('.gm-book-quick').innerText(),/1\/8/,'earned flowers remain visible during play');
   assert.match(await page.locator('.gm-celebration').innerText(),/Oppdraget er klart/);
   assert.equal(await page.locator('.gm-pick').count(),0,'completed tasks must not leave a disabled fruit button');
+  // Regression: finishing an adventure used to remove the supply, so a berry
+  // could not be dragged back to its source. Reveal the return crate only
+  // during a drag; keep Next and the full multiplication visible at rest.
+  assert.equal(await page.locator('.gm-return-tray').count(),0,
+    label+' completion must not add another permanent toolbar');
+  const completedFruit=await page.locator('[data-gm-basket="2"] .gm-fruit[data-gm-fruit]').first().boundingBox();
+  assert.ok(completedFruit,'full basket still holds removable real berries');
+  const cx=completedFruit.x+completedFruit.width/2,cy=completedFruit.y+completedFruit.height/2;
+  await page.mouse.move(cx,cy);
+  await page.mouse.down();
+  await page.mouse.move(cx,cy-18,{steps:5});
+  const returnTray=page.locator('.gm-return-tray');
+  assert.equal(await returnTray.count(),1,label+' return source appears only after child starts berry drag');
+  const returnBox=await returnTray.boundingBox();
+  assert.ok(returnBox&&returnBox.width>=44&&returnBox.height>=44,
+    label+' temporary berry-return target must be touch-sized');
+  await page.mouse.move(returnBox.x+returnBox.width/2,returnBox.y+returnBox.height/2,{steps:8});
+  assert.equal(await page.locator('.gm-return-tray.gm-drop-target').count(),1,
+    label+' return crate must glow when the strawberry is over it');
+  await page.mouse.up();
+  assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[3,3,2],
+    label+' returning berry after completion must remove exactly one, not reset the adventure');
+  assert.equal(await page.locator('.gm-return-tray').count(),0,
+    label+' temporary return target disappears after drop');
+  assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).wins.length,1,
+    label+' earned blossom survives removing a berry after completion');
+  await page.locator('[data-gm-action="undo"]').click();
+  assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[3,3,3],
+    label+' undo restores the completed baskets without duplicating a flower');
   assert.equal(await page.locator('.gm-actions-complete .gm-next').count(),1,'one clear next action');
   const celebrationOverlap=await page.evaluate(()=>{
     const r=s=>document.querySelector(s).getBoundingClientRect();

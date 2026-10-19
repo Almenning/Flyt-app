@@ -396,8 +396,27 @@
  }
  function clearDrag(){
    if(drag?.ghost?.isConnected)drag.ghost.remove();
+   if(drag?.returnTarget?.isConnected)drag.returnTarget.remove();
+   root.querySelector('.gm-market.gm-return-tray-active')?.classList.remove('gm-return-tray-active');
    clearDropHighlights();
    drag=null;
+ }
+ // A completed market hides the picking supply so the child's next adventure
+ // stays visually dominant. When they grab a berry to undo, reveal a real
+ // temporary return crate at the original market-supply position. It does not
+ // consume first-fold height or add a redundant permanent control.
+ function revealReturnTray(){
+   if(!drag||drag.kind!=='basket'||drag.returnTarget||!E.filled(state))return;
+   const market=root.querySelector('.gm-market');
+   if(!market)return;
+   const target=document.createElement('div');
+   target.className='gm-return-tray';
+   target.dataset.gmDrop='source';
+   target.setAttribute('aria-hidden','true');
+   target.innerHTML='<span class="gm-return-tray-fruit">'+berrySvg+'</span><strong>Legg tilbake</strong>';
+   market.classList.add('gm-return-tray-active');
+   market.appendChild(target);
+   drag.returnTarget=target;
  }
  function onPointerDown(event){
    if(event.button!==0||!root.contains(event.target))return;
@@ -425,6 +444,7 @@
      document.body.appendChild(ghost);drag.ghost=ghost;
    }
    if(!drag.moved)return;
+   if(drag.kind==='basket')revealReturnTray();
    if(drag.ghost){
      drag.ghost.style.left=event.clientX+'px';drag.ghost.style.top=event.clientY+'px';
    }
@@ -437,7 +457,7 @@
        basket.classList.add(state.counts[group]<state.each?'gm-drop-target':'gm-drop-blocked');
      }
    }else{
-     const source=under?.closest?.('button[data-gm-action="source"]');
+     const source=under?.closest?.('button[data-gm-action="source"], [data-gm-drop="source"]');
      if(source&&root.contains(source))source.classList.add('gm-drop-target');
    }
    if(event.cancelable)event.preventDefault();
@@ -460,7 +480,7 @@
          }
        }
      }else{
-       const source=under?.closest?.('button[data-gm-action="source"]');
+       const source=under?.closest?.('button[data-gm-action="source"], [data-gm-drop="source"]');
        if(source&&root.contains(source)){
          holdingBerry=false;
          if(state.mode==='mission')selectedGroup=current.group;
