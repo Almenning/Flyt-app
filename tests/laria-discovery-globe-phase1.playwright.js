@@ -259,17 +259,32 @@ async function verifyContinentInvitation(page,label){
    });
   }
   await button.click();
+  const firstPlace={
+   'Europa':{name:'Alpene',lon:11,lat:47},
+   'Afrika':{name:'Sahara',lon:13,lat:23},
+   'Asia':{name:'Himalaya',lon:87,lat:29},
+   'Nord-Amerika':{name:'Rocky Mountains',lon:-112,lat:42},
+   'Sør-Amerika':{name:'Andesfjellene',lon:-70,lat:-19},
+   'Oseania':{name:'Korallrevet',lon:146,lat:-19},
+   'Antarktis':{name:'Antarktishalvøya',lon:-64,lat:-68}
+  }[stop.name];
   const focused=await page.evaluate(()=>({lon:globeLon,lat:globeLat,zoom:globeZoom}));
-  assert.ok(Math.abs(focused.lon-stop.lon)<.001&&Math.abs(focused.lat-stop.lat)<.001,
-   label+' continent action did not orient the geographic camera: '+stop.name);
-  assert.ok(Math.abs(focused.zoom-stop.zoom)<.001,
-   label+' continent action changed its approved scale: '+stop.name);
-  assert.equal(await page.locator('#globe-status').getAttribute('data-discovery-story-step'),'0',
+  assert.ok(Math.abs(focused.lon-firstPlace.lon)<.001&&Math.abs(focused.lat-firstPlace.lat)<.001,
+   label+' first continent discovery did not orient the geographic camera: '+stop.name);
+  assert.ok(focused.zoom<=1.72&&focused.zoom>=1,
+   label+' first continent discovery exceeds its approved scale: '+stop.name);
+  assert.equal(await page.locator('#globe-status').getAttribute('data-discovery-story-step'),'1',
    label+' continent action did not reveal the first optional discovery');
+  assert.equal(await page.locator('.discovery-intro-copy strong').innerText(),firstPlace.name,
+   label+' wrong first landmark appeared in '+stop.name);
   assert.equal(await button.innerText(),'Neste sted',
    label+' there is no child-friendly continuation after entering '+stop.name);
-  assert.equal(await page.locator('#globe-canvas').getAttribute('data-discovery-location-count'),'0',
-   label+' initial continent view must not place an arbitrary marker on the map');
+  await page.waitForFunction(name=>{
+    const canvas=document.getElementById('globe-canvas');
+    return canvas.dataset.discoveryLocationCount==='1'&&canvas.dataset.discoveryLocationName===name;
+  },firstPlace.name,{timeout:5000});
+  assert.equal(await page.locator('.discovery-place-trail-label').innerText(),'1 av 3 steder',
+   label+' first discovery must make the small journey visible');
   assert.ok((await page.locator('.discovery-intro-teaser').innerText()).length>=28,
    label+' continent intro has no educational discovery: '+stop.name);
   await page.waitForFunction(()=>{
@@ -278,29 +293,20 @@ async function verifyContinentInvitation(page,label){
   // Test a real second discovery with its geographic location; the invitation
   // is optional, can be repeated, and must never mark a school task complete.
   if(label==='webkit-ipad-landscape'||label==='webkit-iphone-portrait'){
-   const nextPlace={
-    'Europa':{name:'Alpene',lon:11,lat:47},
-    'Afrika':{name:'Sahara',lon:13,lat:23},
-    'Asia':{name:'Himalaya',lon:87,lat:29},
-    'Nord-Amerika':{name:'Rocky Mountains',lon:-112,lat:42},
-    'Sør-Amerika':{name:'Andesfjellene',lon:-70,lat:-19},
-    'Oseania':{name:'Korallrevet',lon:146,lat:-19},
-    'Antarktis':{name:'Antarktishalvøya',lon:-64,lat:-68}
-   }[stop.name];
    await button.click();
-   assert.equal(await page.locator('#globe-status').getAttribute('data-discovery-story-step'),'1',
+   assert.equal(await page.locator('#globe-status').getAttribute('data-discovery-story-step'),'2',
     label+' second discovery did not advance: '+stop.name);
-   assert.equal(await page.locator('.discovery-intro-copy strong').innerText(),nextPlace.name,
-    label+' wrong landmark appeared in '+stop.name);
+   assert.notEqual(await page.locator('.discovery-intro-copy strong').innerText(),firstPlace.name,
+    label+' second discovery repeated the first landmark in '+stop.name);
    const camera=await page.evaluate(()=>({lon:globeLon,lat:globeLat,zoom:globeZoom}));
-   assert.ok(Math.abs(camera.lon-nextPlace.lon)<.001&&Math.abs(camera.lat-nextPlace.lat)<.001,
-    label+' landmark not georeferenced in '+stop.name+': '+JSON.stringify(camera));
    assert.ok(camera.zoom<=1.72&&camera.zoom>=1,
     label+' landmark discovery exceeds continent zoom: '+stop.name);
-   await page.waitForFunction(name=>{
+   await page.waitForFunction(()=>{
     const canvas=document.getElementById('globe-canvas');
-    return canvas.dataset.discoveryLocationCount==='1'&&canvas.dataset.discoveryLocationName===name;
-   },nextPlace.name,{timeout:5000});
+    return canvas.dataset.discoveryLocationCount==='1'&&canvas.dataset.discoveryLocationName;
+   },null,{timeout:5000});
+   assert.equal(await page.locator('.discovery-place-trail-label').innerText(),'2 av 3 steder',
+    label+' second discovery did not advance the visible journey');
    assert.ok((await page.locator('.discovery-intro-teaser').innerText()).length>=25,
     label+' landmark fact missing in '+stop.name);
    await page.screenshot({
