@@ -111,6 +111,12 @@ async function check(engine,label,viewport,url){
   await page.route('https://api.worldbank.org/**',r=>r.abort());
   await page.goto(url,{waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>window.LARIA_GANGEMAGI?.version==='playable-v1');
+  const homeTheme=await page.locator('.app').evaluate(el=>({
+    young:el.classList.contains('grade-band-young'),
+    image:getComputedStyle(el).backgroundImage
+  }));
+  if(homeTheme.young)assert.notEqual(homeTheme.image,'none',
+    label+' preserve the younger child’s colorful home theme when game is inactive');
   await page.evaluate(()=>window.openMultiplicationLab());
   await page.locator('#multiplication-lab-screen.active .gm-shell').waitFor();
   assert.equal(await page.locator('.gm-crate').count(),3);
