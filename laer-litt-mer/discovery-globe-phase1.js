@@ -1036,6 +1036,16 @@ const discoveryContinentStories={
 };
 const discoveryContinentVisits=new Map();
 let activeDiscoveryLocation=null;
+function discoveryTrailHtml(total,completed,current){
+  const safeTotal=Math.max(1,Number(total)||1);
+  const safeCompleted=Math.min(safeTotal,Math.max(0,Number(completed)||0));
+  const safeCurrent=Math.min(safeTotal,Math.max(1,Number(current)||1));
+  return '<div class="discovery-place-trail" role="group" aria-label="'+safeCompleted+' av '+safeTotal+' steder oppdaget">'+
+    '<span class="discovery-place-trail-label">'+safeCompleted+' av '+safeTotal+' steder</span>'+
+    '<span class="discovery-place-dots" aria-hidden="true">'+
+      Array.from({length:safeTotal},(_,index)=>'<i class="'+(index<safeCompleted?'is-found':index===safeCurrent-1?'is-next':'')+'"></i>').join('')+
+    '</span></div>';
+}
 function paintDiscoveryLocation(ctx,w,h,s,moving){
   if(moving||!activeDiscoveryLocation)return 0;
   const {lon,lat}=activeDiscoveryLocation;
@@ -1061,22 +1071,29 @@ function showContinentDiscovery(stop,box,button){
   const story=discoveryContinentStories[stop.name];
   if(!story)return;
   const visits=discoveryContinentVisits.get(stop.name)||0;
-  const place=visits>0?story.places[(visits-1)%story.places.length]:null;
-  const target=place||stop;
-  activeDiscoveryLocation=place?{
+  const placeIndex=visits%story.places.length;
+  const place=story.places[placeIndex];
+  const target=place;
+  activeDiscoveryLocation={
     continent:stop.name,title:place.title,lon:place.lon,lat:place.lat
-  }:null;
+  };
   globeLon=target.lon;globeLat=target.lat;
   if(typeof setGlobeZoom==='function')setGlobeZoom(place?1.44:stop.zoom);
   else window.drawGlobe?.();
   discoveryContinentVisits.set(stop.name,visits+1);
   const copy=box.querySelector('.discovery-intro-copy');
   if(!copy)return;
-  copy.querySelector('.discovery-intro-kicker').textContent=place?'ET STED Å OPPDAGE':'VI ER HER';
-  copy.querySelector('strong').textContent=place?place.title:stop.name;
-  copy.querySelector('.discovery-intro-teaser').textContent=place?place.text:story.intro;
-  button.textContent='Neste sted';
-  box.dataset.discoveryStoryStep=String(visits);
+  const completed=Math.min(story.places.length,visits+1);
+  const finished=completed===story.places.length;
+  copy.querySelector('.discovery-intro-kicker').textContent=finished?'TRE STEDER OPPDAGET':'ET STED Å OPPDAGE';
+  copy.querySelector('strong').textContent=place.title;
+  copy.querySelector('.discovery-intro-teaser').textContent=finished
+    ?place.text+' Nå har du sett tre steder i '+stop.name+'.'
+    :place.text;
+  const trail=copy.querySelector('.discovery-place-trail');
+  if(trail)trail.outerHTML=discoveryTrailHtml(story.places.length,completed,Math.min(story.places.length,placeIndex+2));
+  button.textContent=finished?'Se stedene igjen':'Neste sted';
+  box.dataset.discoveryStoryStep=String(completed);
   const fox=box.querySelector('.discovery-intro-fox');
   if(fox){
     fox.classList.remove('discovery-fox-reacting');
@@ -1151,6 +1168,7 @@ function renderDiscoveryWelcome(){
     '<span class="discovery-intro-kicker">VERDENSDEL</span>'+
     '<strong>'+stop.name+' venter</strong>'+
     '<span class="discovery-intro-teaser" aria-live="polite">'+stop.teaser+'</span>'+
+    discoveryTrailHtml(discoveryContinentStories[stop.name]?.places.length||3,0,1)+
     '<button type="button" class="discovery-continent-button">Se '+stop.name+'</button></div>'+
     '<img class="discovery-intro-fox" src="'+selectedFoxSource()+'" alt="Din rev er med på oppdagelsen">';
   box.style.cursor='default';box.onclick=null;
