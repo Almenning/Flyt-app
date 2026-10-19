@@ -1339,8 +1339,8 @@
     }
 
 
-    /* Young premium art direction v5. The goal is paid-product polish, not more UI. */
-    .grade-band-young{
+    /* Young premium v5: retain home palette, except behind active Gangemagi. */
+    .grade-band-young:not(:has(#multiplication-lab-screen.active .gm-shell)){
       --young-ink:#263750;
       --young-paper:#FFFDF8;
       background:
