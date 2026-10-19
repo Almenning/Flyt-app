@@ -393,11 +393,18 @@ function paintWorldTerrain(ctx,w,h,s,level,moving){
         const biomeReach=bp?Math.max(0,1-biome.distance/Math.max(1.7,bp.width*.69)):0;
         const mountainReach=rp?Math.max(0,1-ridge.distance/Math.max(1,rp.width*1.35)):0;
         const mountainCut=Math.max(0,(terrainNoise(lon,lat,1.15,23)-.34)*mountainReach);
+        /* A fixed north-west light gives the geographic noise a coherent
+           painted slope.  It is derived in longitude/latitude space, so a
+           ridge keeps its light and shadow as the child turns the globe. */
+        const reliefScale=level===1?1.34:2.38;
+        const reliefLon=terrainNoise(lon+.34,lat,reliefScale,73)-terrainNoise(lon-.34,lat,reliefScale,73);
+        const reliefLat=terrainNoise(lon,lat+.28,reliefScale,73)-terrainNoise(lon,lat-.28,reliefScale,73);
+        const reliefLight=(reliefLon*.62-reliefLat*.78)*mountainReach;
         const tint=bp?terrainTint[bp.kind]:null;
         // The base polygon's established light and colour always remain
         // visible. High relief shifts shadows, but never recolours borders.
         const leafy=bp&&(bp.kind==='rainforest'||bp.kind==='forest');
-        const base=shade+mountainCut*85-mountainReach*28;
+        const base=shade+mountainCut*85-mountainReach*32+reliefLight*94;
         const neutral=[118+base*.64,161+base*.75,115+base*.49];
         const alpha=clamp(.30+biomeReach*.61+mountainReach*.45,.28,.94);
         const mixT=clamp(biomeReach*1.19,0,.99);
@@ -431,14 +438,14 @@ function paintWorldTerrain(ctx,w,h,s,level,moving){
           const facets=terrainNoise(lon,lat,level===1?1.6:3.1,73)-.5;
           const ridgeLight=terrainNoise(lon+.42,lat-.24,level===1?2.1:4.2,79)-.5;
           const stone=rp.snow?[165,171,160]:[157,135,107];
-          const stoneWeight=clamp(mountainReach*(.57+facets*.65),0,.69);
-          const shade=mountainReach*(facets*49+ridgeLight*37);
+          const stoneWeight=clamp(mountainReach*(.62+facets*.68),0,.76);
+          const shade=mountainReach*(facets*53+ridgeLight*41)+reliefLight*52;
           red=red*(1-stoneWeight)+stone[0]*stoneWeight+shade;
           green=green*(1-stoneWeight)+stone[1]*stoneWeight+shade*.91;
           blue=blue*(1-stoneWeight)+stone[2]*stoneWeight+shade*.73;
           if(rp.snow){
             const snowFacet=clamp((terrainNoise(lon,lat,level===1?2.5:5.2,31)-.29)*2.1,0,1);
-            const snow=mountainReach*snowFacet*.58;
+            const snow=mountainReach*snowFacet*(.56+Math.max(0,reliefLight)*.42);
             red=red*(1-snow)+247*snow;
             green=green*(1-snow)+244*snow;
             blue=blue*(1-snow)+223*snow;
@@ -518,6 +525,22 @@ function paintMountainCrests(ctx,chain,w,h,s,level,width){
      scale. Smaller ranges still wait until regional zoom; no icon stamps. */
   const continentHero=continentCrestChains.has(chain.name);
   if(level<2&&!continentHero)return 0;
+  if(level===1){
+    /* One broad, continuous ridge reads as geography at continent scale.
+       The old per-segment chevrons made the Andes look like a pasted row of
+       tiny mountain symbols, even though their positions were correct. */
+    ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
+    if(!smoothGeoStroke(ctx,chain.route,w,h,s)){ctx.restore();return 0;}
+    ctx.strokeStyle=chain.snow?'rgba(48,84,76,.33)':'rgba(104,89,64,.28)';
+    ctx.lineWidth=Math.max(2.4,width*.64);ctx.stroke();
+    if(!smoothGeoStroke(ctx,chain.route,w,h,s)){ctx.restore();return 0;}
+    ctx.strokeStyle=chain.snow?'rgba(221,234,209,.34)':'rgba(222,195,142,.29)';
+    ctx.lineWidth=Math.max(1.0,width*.26);ctx.stroke();
+    if(chain.snow&&smoothGeoStroke(ctx,chain.route,w,h,s)){
+      ctx.strokeStyle='rgba(255,253,235,.34)';ctx.lineWidth=Math.max(.6,width*.085);ctx.stroke();
+    }
+    ctx.restore();return 1;
+  }
   let drawn=0;
   for(let j=0;j<chain.route.length-1;j++){
     const a=chain.route[j],b=chain.route[j+1];
