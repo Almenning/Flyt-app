@@ -507,5 +507,5 @@
  }
  window.LARIA_GANGEMAGI=Object.freeze({version:'playable-v1',open,openMission,
    snapshot:()=>({...E.normalize(state),equation:E.equation(state),selectedBasket:selectedGroup,undo:undo.length}),
-   reset:()=>{state=E.initial();selectedGroup=null;holdingBerry=false;save();hintStep=0;undo=[];render();}});
+   reset:()=>{clearDrag();suppressClickUntil=0;state=E.initial();selectedGroup=null;holdingBerry=false;save();hintStep=0;undo=[];render();}});
 })();
