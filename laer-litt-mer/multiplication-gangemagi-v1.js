@@ -47,7 +47,7 @@
    if(left===1)return 'Bare ett jordbær igjen!';
    if(lastAction==='add'&&lastGroup>=0&&lastGroup<state.groups){
      const count=state.counts[lastGroup];
-     if(count===state.each)return state.mode==='mission'?'Kurv '+(lastGroup+1)+' er full! Velg en ny kurv.':
+     if(count===state.each)return state.mode==='mission'?'Kurv '+(lastGroup+1)+' er full! Plukk jordbær til en annen kurv.':
         'Kurv '+(lastGroup+1)+' er full! Du har '+amount+' jordbær i alt.';
      return count+' av '+state.each+' i kurv '+(lastGroup+1)+'. Nå har vi '+amount+' jordbær!';
    }
