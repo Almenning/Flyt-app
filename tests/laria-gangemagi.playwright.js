@@ -494,6 +494,41 @@ async function check(engine,label,viewport,url){
   await page.locator('.mp-home-screen').waitFor();
   await page.locator('.gm-classic-return').click();
   await page.locator('.gm-shell').waitFor();
+
+  // Every authored adventure must remain a REAL, tappable scene across all
+  // six browser/viewport combinations, not just the attractive first 3 × 3.
+  // Check every chapter's mission title, pictured groups, live mathematical
+  // controls, touch widths and ability to add the FIRST fruit to a basket.
+  const allMissions=require('../laer-litt-mer/multiplication-gangemagi-engine-v1.js').MISSIONS;
+  for(const [index,spec] of allMissions.entries()){
+    await page.locator('[data-gm-action="open-book"]').click();
+    await page.locator('[data-gm-action="select-mission"][data-index="'+index+'"]').click();
+    const snapshot=await page.evaluate(()=>LARIA_GANGEMAGI.snapshot());
+    assert.equal(snapshot.mission,index,label+' chapter '+(index+1)+' mission selection');
+    assert.equal(snapshot.mode,'mission');
+    assert.equal(snapshot.groups,spec.groups);
+    assert.equal(snapshot.each,spec.each);
+    assert.deepEqual(snapshot.counts,Array(spec.groups).fill(0));
+    assert.equal(await page.locator('.gm-crate').count(),spec.groups,
+      label+' chapter '+(index+1)+' real interactive basket count');
+    assert.equal(await page.locator('.gm-quest-filled-preview .gm-quest-mini-basket').count(),spec.groups,
+      label+' chapter '+(index+1)+' illustrated group count');
+    assert.equal(await page.locator('.gm-quest-mini-berries i').count(),spec.groups*spec.each,
+      label+' chapter '+(index+1)+' pictured berry count matches the multiplication');
+    const heading=(await page.locator('.gm-quest-callout').innerText()).replace(/\s+/g,' ');
+    assert.equal(heading,'Fyll '+spec.groups+' '+(spec.groups===1?'kurv':'kurver')+
+      ' med '+spec.each+' jordbær i hver.',label+' chapter '+(index+1)+' child instruction');
+    const boxes=await page.locator('.gm-crate').evaluateAll(els=>els.map(el=>el.getBoundingClientRect().width));
+    assert.ok(boxes.every(width=>width>=44),
+      label+' chapter '+(index+1)+' each real basket has a 44px touch width: '+JSON.stringify(boxes));
+    await page.locator('[data-gm-action="basket"][data-gm-basket="0"]').click();
+    assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).selectedBasket,0,
+      label+' chapter '+(index+1)+' basket can be selected');
+    await page.locator('[data-gm-action="source"]').click();
+    const after=await page.evaluate(()=>LARIA_GANGEMAGI.snapshot());
+    assert.equal(after.counts[0],1,label+' chapter '+(index+1)+' one press adds exactly one berry');
+    assert.equal(after.equation.total,1,label+' chapter '+(index+1)+' visible maths tracks first berry');
+  }
   assert.deepEqual(errors,[],label+' browser exceptions '+JSON.stringify(errors));
   console.log('PASS GANGEMAGI '+label);
  }finally{await context.close();}
