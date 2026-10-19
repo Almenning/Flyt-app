@@ -66,8 +66,8 @@
  function crate(i){
    const count=state.counts[i],missing=state.each-count;
    const chosen=state.mode==='mission'&&selectedGroup===i;
-   const invite=state.mode==='mission'&&selectedGroup===null&&missing>0&&!E.filled(state);
-   const interaction=state.mode==='mission'?(chosen?'Denne kurven er valgt. Plukk et jordbær og trykk her igjen for å legge det i.':missing?'Trykk her for å velge kurven.':'Denne kurven er full. Velg en annen.'):(missing?'Trykk for å legge i et jordbær.':'Kurven er full.');
+   const invite=state.mode==='mission'&&holdingBerry&&selectedGroup===null&&missing>0&&!E.filled(state);
+   const interaction=state.mode==='mission'?(chosen?'Denne kurven er valgt. Plukk et jordbær og trykk her igjen for å legge det i.':missing?(holdingBerry?'Trykk her for å legge det plukkede jordbæret i kurven.':'Plukk et jordbær fra kassen først, eller velg denne kurven.'):'Denne kurven er full. Velg en annen.'):(missing?'Trykk for å legge i et jordbær.':'Kurven er full.');
    return '<div class="gm-crate-wrap"><button type="button" class="gm-crate '+(!missing?'gm-crate-full ':'')+(chosen?'gm-crate-selected ':'')+(invite?'gm-crate-invite':'')+'" data-gm-action="basket" data-gm-basket="'+i+'" data-gm-count="'+count+'" data-gm-selected="'+chosen+'" aria-pressed="'+chosen+'" aria-label="Kurv '+(i+1)+': '+count+' av '+state.each+'. '+interaction+'">'+
       (state.mode==='mission'?'<img class="gm-basket-illustration" alt="" aria-hidden="true" src="gangemagi-basket-locked-illustration.svg"><span class="gm-basket-inner" aria-hidden="true"></span>':'<span class="gm-crate-handle" aria-hidden="true"></span><span class="gm-crate-caption">Kurv '+(i+1)+'</span>')+
       '<span class="gm-fruit-bed" aria-hidden="true" style="--gm-visible-cols:'+Math.max(1,Math.min(count,5))+'">'+fruit(count,state.mode==='mission'?0:missing,justAddedGroup===i)+'</span>'+
@@ -116,7 +116,7 @@
      '</div></header>';
  }
  function fruitSupply(free){
-   return '<button type="button" class="gm-pick gm-strawberry-tray'+(holdingBerry?' gm-berry-held':'')+'" data-gm-action="source" aria-label="'+(free?'Plukk et jordbær og legg det i neste ledige kurv':'Plukk jordbær. Dra til en kurv, eller trykk på kurven etterpå.')+'"><span class="gm-pick-fruit" aria-hidden="true">'+berrySourceArt+'</span><span>'+(free?'Plukk et jordbær':'Plukk')+'</span><small>'+(free?'Trykk eller dra':holdingBerry?'Trykk på en kurv':'Dra eller trykk')+'</small></button>';
+   return '<button type="button" class="gm-pick gm-strawberry-tray'+(!free?(holdingBerry?' gm-berry-held':' gm-pick-invite'):'')+'" data-gm-action="source" aria-label="'+(free?'Plukk et jordbær og legg det i neste ledige kurv':'Plukk jordbær. Dra til en kurv, eller trykk på kurven etterpå.')+'"><span class="gm-pick-fruit" aria-hidden="true">'+berrySourceArt+'</span><span>'+(free?'Plukk et jordbær':'Plukk')+'</span><small>'+(free?'Trykk eller dra':holdingBerry?'Trykk på en kurv':'Dra eller trykk')+'</small></button>';
  }
  function render(){
    const prevFocus=root.contains(document.activeElement)?document.activeElement:null;
