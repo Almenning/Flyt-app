@@ -162,6 +162,40 @@
  .fw-controls{gap:6px}
  .fw-next,.fw-repeat{padding:9px;font-size:12px}
 }
+/* iPad portrait: the fixed two-column layout shrank the illustrated scene to
+   ~520x310 while reserving a blank lower half. Put the list into a legible,
+   two-row parchment strip and let the picture use the remaining vertical space.
+   Widths/coordinate geometry remain shared with the scene's HTML hotspots. */
+@media(min-width:701px) and (max-width:1000px) and (orientation:portrait){
+ .fw-shell{height:calc(100svh - 26px);min-height:0;gap:12px}
+ .fw-layout{display:flex;flex:1;flex-direction:column;align-items:stretch;gap:12px;min-height:0}
+ .fw-word-panel{flex:none;align-self:stretch;width:100%;padding:10px 14px 11px;border-width:3px}
+ .fw-list-heading{align-items:center;padding:0 3px 7px}
+ .fw-list-heading h2{font-size:23px}
+ .fw-tiny{display:none}
+ .fw-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px 11px}
+ .fw-word{min-height:46px;padding:5px 10px}
+ .fw-word strong{font-size:18px}
+ .fw-word-icon{width:26px;height:26px;font-size:18px;flex:none}
+ .fw-progress{height:7px;margin-top:11px}
+ .fw-list-foot{display:none}
+ .fw-stage{flex:1;min-height:0;justify-content:center;gap:7px}
+ .fw-art{flex:1;min-height:0;max-height:min(50svh,580px);aspect-ratio:auto}
+ .fw-scene-bottom{min-height:44px}
+ .fw-bottom{flex:none;min-height:82px}
+ .fw-fox{width:77px;height:79px}
+}
+/* On a tall iPhone, the original 5:3 board left a disproportionate empty
+   lower area. A modestly taller art frame, larger targets and footer use
+   the available space without moving the word list below the first fold. */
+@media(min-width:361px) and (max-width:700px) and (min-height:750px) and (orientation:portrait){
+ .fw-shell{gap:13px}
+ .fw-word-panel{padding:12px}
+ .fw-word{min-height:47px}
+ .fw-art{aspect-ratio:1.4}
+ .fw-bottom{min-height:92px}
+ .fw-fox{height:77px;width:69px}
+}
 @media(max-width:700px){
  .fw-shell{width:100%;min-height:100svh;margin:0;padding:10px;border:0;border-radius:0;gap:10px}
  .fw-top{min-height:65px;gap:9px}
