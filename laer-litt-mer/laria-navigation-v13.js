@@ -73,7 +73,7 @@ function panelMarkup(mode){
  return '<button type="button" class="bc13-close" data-bc13-action="home" aria-label="Tilbake til Hjem">←<span>Hjem</span></button>'+
  '<div class="bc13-panel-head"><span class="bc13-kicker">'+(journey?'LÆRINGSREISENE':'FRI UTFORSKING')+'</span><h2 id="bc13-panel-title">'+(journey?'Velg en eventyrverden':'Hva vil du utforske?')+'</h2><p>'+(journey?'Fire verdener å besøke. Du velger veien.':'Lek, oppdag og prøv igjen så ofte du vil.')+'</p></div>'+
  '<div class="bc13-card-grid">'+trail+cards.map(card=>'<button type="button" class="bc13-card" data-bc13-action="'+escapeText(card.action)+'" aria-label="'+escapeText(card.title)+'. '+escapeText(card.subtitle)+'. '+escapeText(card.description)+'">'+sceneMarkup(card.action)+'<span class="bc13-card-copy"><strong>'+escapeText(card.title)+'</strong><span class="bc13-card-world">'+escapeText(card.subtitle)+'</span><small>'+escapeText(card.description)+'</small>'+(journey?'<span class="bc13-progress" aria-label="'+card.progress+' prosent fullført"><i style="width:'+card.progress+'%"></i></span>':'')+'<span class="bc13-chevron" aria-hidden="true">›</span></span></button>').join('')+'</div>'+
- '<p class="bc13-footnote">'+(journey?'Du kan alltid besøke favorittstedene dine igjen.':'Alt er åpent, også det du allerede mestrer.')+'</p>';
+ '<p class="bc13-footnote">'+(journey?'Du kan alltid besøke favorittstedene dine igjen.':'<button type="button" class="bc13-picture-entry" data-bc13-action="find-words" aria-label="Finn ordene i bildet, en ny ordjakt i Bokskogen">🔎 Finn ordene i bildet <span aria-hidden="true">›</span></button>')+'</p>';
 }
 function activate(mode){
  const root=host();if(!root)return;
@@ -103,6 +103,7 @@ function openSubjectJourney(subject){
 }
 function clickAction(action){
  if(action==='home'){activate('home');return;}
+ if(action==='find-words'){window.LARIA_MARK_BASECAMP_ORIGIN?.(panelMode);window.openFindTheWords?.();return;}
  if(SUBJECTS.some(x=>x[0]===action)){window.LARIA_MARK_BASECAMP_ORIGIN?.(panelMode);openSubjectJourney(action);return;}
  const target=host()?.querySelector('.bc12-place[data-camp="'+action+'"]');
  if(target){target.click();return;}

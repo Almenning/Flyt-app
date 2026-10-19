@@ -1,0 +1,294 @@
+/* Finn ordene: illustration-first, original Læria picture hunt. Scoped to #find-the-words-overlay. */
+.fw-overlay[hidden],.fw-celebration[hidden]{display:none!important}
+.fw-overlay{
+ position:fixed;inset:0;z-index:5200;overflow:auto;overscroll-behavior:contain;
+ background:linear-gradient(145deg,rgba(20,49,43,.58),rgba(21,46,58,.80)),
+ url('./bokskogen-verden.png') center/cover no-repeat;
+ color:#34463d;font-family:ui-rounded,'Arial Rounded MT Bold',system-ui,sans-serif;
+ -webkit-overflow-scrolling:touch
+}
+.fw-overlay *{box-sizing:border-box}
+.fw-shell{
+ width:min(1300px,calc(100% - 26px));min-height:calc(100svh - 26px);margin:13px auto;padding:15px 19px;
+ display:flex;flex-direction:column;gap:14px;isolation:isolate;
+ border:5px solid #a9793f;border-radius:30px;
+ background:
+  radial-gradient(ellipse at 88% 2%,rgba(255,251,219,.95),transparent 35%),
+  radial-gradient(ellipse at 7% 94%,rgba(168,204,156,.42),transparent 41%),
+  linear-gradient(153deg,#fdf2d1,#f0dfb5 55%,#e9d5a9);
+ box-shadow:inset 0 0 0 4px rgba(255,252,229,.74),0 10px 0 #65432b,0 35px 100px rgba(19,37,31,.52)
+}
+.fw-top{display:flex;align-items:center;gap:16px;flex:none;min-height:82px}
+.fw-back,.fw-audio,.fw-hint,.fw-next,.fw-repeat{
+ font:inherit;font-weight:950;cursor:pointer;touch-action:manipulation;
+ transition:transform .12s,filter .15s,box-shadow .15s
+}
+.fw-back{
+ width:56px;height:54px;flex:none;border:2px solid #7b5032;border-radius:17px;
+ background:linear-gradient(#96633d,#67442c);color:#fff5d7;
+ box-shadow:0 5px 0 #4b2e23;font-size:29px
+}
+.fw-title{min-width:0;flex:1}
+.fw-eyebrow,.fw-tiny{font-size:11px;font-weight:1000;letter-spacing:.16em;color:#8e6337}
+.fw-title h1{
+ font-size:clamp(31px,3.3vw,46px);line-height:1.05;letter-spacing:-.045em;
+ margin:1px 0 3px;color:#65412b;text-shadow:0 2px 0 #fff8df
+}
+.fw-title p{font-size:clamp(12px,1.2vw,15px);font-weight:750;line-height:1.35;margin:0;color:#665741}
+.fw-audio{
+ padding:11px 16px;border:2px solid #a37a4a;border-radius:15px;
+ background:#fff5d8;box-shadow:0 4px 0 #cbad76;color:#755332;font-size:19px
+}
+.fw-audio span{font-size:14px}
+.fw-layout{display:grid;grid-template-columns:minmax(208px,245px) minmax(0,1fr);gap:18px;min-height:0;align-items:start;flex:1}
+.fw-word-panel{
+ min-width:0;align-self:start;padding:17px 13px 13px;
+ border:4px solid #ab7b4e;border-radius:23px;background:
+ linear-gradient(128deg,rgba(255,251,230,.95),rgba(244,222,171,.95));
+ box-shadow:inset 0 0 0 3px #ffefc8,0 7px 0 #815936,0 13px 23px rgba(72,52,33,.16)
+}
+.fw-list-heading{display:flex;align-items:center;justify-content:space-between;gap:5px;padding:1px 3px 10px}
+.fw-list-heading h2{font-size:25px;line-height:1.03;margin:3px 0 0;color:#634631;letter-spacing:-.045em}
+.fw-counter{
+ flex:none;border-radius:99px;background:#517e65;border:2px solid #93ae80;
+ padding:5px 9px;color:white;font-size:13px;font-weight:1000;min-width:45px;text-align:center
+}
+.fw-list{display:grid;gap:8px}
+.fw-word{width:100%;min-height:51px;display:flex;align-items:center;gap:9px;
+ text-align:left;padding:6px 10px;border:2px solid #e2bd83;border-radius:15px;
+ background:linear-gradient(140deg,#fffbeb,#f7dfae);box-shadow:0 3px 0 #c49a61;
+ color:#5b4935;cursor:pointer;font:inherit;touch-action:manipulation
+}
+.fw-word strong{font-size:19px;font-weight:1000;letter-spacing:-.015em;flex:1}
+.fw-word-icon{width:28px;height:28px;border-radius:10px;display:grid;place-items:center;
+ background:#edddad;color:#456e5c;font-size:20px;font-weight:950}
+.fw-word-check{width:22px;height:22px;display:grid;place-items:center;border:2px solid #d4b886;
+ border-radius:50%;color:#9a8058;font-size:17px;font-weight:1000}
+.fw-word.is-found{border-color:#90b979;background:linear-gradient(#e5f6d6,#c8e7b5);color:#3e6946}
+.fw-word.is-found .fw-word-check{background:#5a9666;border-color:#478655;color:#fff}
+.fw-word.is-found strong{text-decoration:line-through;text-decoration-thickness:1.5px;text-decoration-color:#6a9f66}
+.fw-progress{height:10px;border-radius:20px;background:#dfc89d;overflow:hidden;margin:15px 3px 0;
+ box-shadow:inset 0 2px 3px rgba(82,64,38,.22)}
+.fw-progress span{display:block;width:0;height:100%;border-radius:20px;
+ background:linear-gradient(90deg,#75ab79,#a8d583);transition:width .35s ease}
+.fw-list-foot{font-size:11px;line-height:1.3;margin:10px 3px 2px;font-weight:750;color:#80694a}
+.fw-stage{display:flex;flex-direction:column;align-items:stretch;gap:9px;min-width:0}
+.fw-stage-label{
+ font-size:16px;letter-spacing:.012em;font-weight:1000;color:#6e5134;
+ display:flex;align-items:center;justify-content:space-between;padding:0 4px
+}
+.fw-stage-label span{color:#e2ad46}
+.fw-art{
+ position:relative;width:100%;aspect-ratio:5/3;max-height:calc(100svh - 250px);
+ border:6px solid #926239;border-radius:22px;overflow:hidden;isolation:isolate;
+ background:linear-gradient(#a8d9e5,#c8d99c);
+ box-shadow:inset 0 0 0 4px #eac891,0 7px 0 #5e432e,0 21px 36px rgba(38,57,42,.2)
+}
+.fw-scene-image{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;pointer-events:none;user-select:none}
+.fw-art:after{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;
+ border:5px solid rgba(255,248,218,.32);border-radius:15px;
+ box-shadow:inset 0 0 38px rgba(38,59,47,.2)}
+.fw-object{
+ position:absolute;z-index:2;display:block;min-width:44px;min-height:44px;border:3px solid transparent;border-radius:30%;
+ background:transparent;padding:0;cursor:pointer;touch-action:manipulation;
+ -webkit-tap-highlight-color:transparent;
+}
+.fw-object:focus-visible,.fw-object.is-hint{
+ outline:4px solid #fff8cb;outline-offset:-4px;
+ background:rgba(255,248,174,.23);box-shadow:0 0 0 6px rgba(244,189,68,.85),0 0 24px 10px rgba(255,252,185,.8)
+}
+.fw-object.is-hint{animation:fwHint 1.2s ease-in-out 3}
+.fw-pin{
+ position:absolute;top:1px;right:1px;min-width:29px;height:29px;border-radius:50%;
+ background:#539460;border:3px solid #fff6d7;color:white;
+ font-size:19px;font-weight:1000;display:grid;place-items:center;
+ box-shadow:0 3px 0 rgba(33,73,44,.3);opacity:0;transform:scale(.6);
+ transition:transform .25s ease,opacity .25s ease;
+}
+.fw-object.is-found .fw-pin{opacity:1;transform:scale(1)}
+/* Place the success stamp on the tree foliage, not the sky at the edge of
+   its large accessible canopy hit area. All other objects use the default. */
+.fw-object[data-fw-object="tre"] .fw-pin{top:36%;right:50%}
+/* The wide lake is not an object with a top-right corner; show its badge
+   over the clear water even though the accessible tap target is larger. */
+.fw-object[data-fw-object="vann"] .fw-pin{top:42%;right:42%}
+.fw-celebration{
+ position:absolute;z-index:3;left:45%;top:25%;font-size:48px;font-weight:900;
+ color:#fff6b0;text-shadow:0 2px 10px #c18d36;pointer-events:none;
+ animation:fwCelebrate 1.8s both
+}
+.fw-scene-bottom{display:flex;align-items:center;justify-content:space-between;gap:11px}
+.fw-scenery-caption{font-size:13px;line-height:1.3;color:#6c5d45;font-weight:700}
+.fw-hint{
+ flex:none;min-height:46px;padding:10px 17px;border:2px solid #a87943;border-radius:14px;
+ background:linear-gradient(#fff2b5,#f6d785);color:#674c30;box-shadow:0 4px 0 #caa45a;
+ font-size:13px
+}
+.fw-bottom{display:flex;align-items:center;justify-content:space-between;gap:16px;
+ min-height:94px;padding:7px 8px 0;border-top:1px solid rgba(143,107,62,.27)}
+.fw-companion{display:flex;align-items:center;gap:9px;min-width:0;max-width:69%}
+ .fw-fox-button{display:grid;place-items:center;min-width:44px;min-height:44px;flex:none;padding:0;border:0;background:transparent;cursor:pointer;touch-action:manipulation}
+.fw-fox{width:88px;height:91px;object-fit:contain;object-position:center bottom;flex:none;
+ filter:drop-shadow(0 4px 4px rgba(80,56,41,.3));transform-origin:50% 85%}
+.fw-speech{
+ padding:12px 16px;max-width:400px;border:2px solid #dcbd84;border-radius:18px 18px 18px 6px;
+ background:linear-gradient(#fffdf0,#fce3b9);color:#564833;
+ box-shadow:0 4px 0 rgba(167,120,68,.2);font-size:clamp(12px,1.3vw,15px);font-weight:820;line-height:1.3;
+}
+.fw-companion[data-mood="greet"] .fw-fox,.fw-companion[data-mood="curious"] .fw-fox{
+ animation:fwWiggle .82s both
+}
+.fw-companion[data-mood="celebrate"] .fw-fox,.fw-companion[data-mood="complete"] .fw-fox{
+ animation:fwJump .88s both
+}
+.fw-companion[data-mood="support"] .fw-fox{animation:fwNod .8s both}
+.fw-controls{display:flex;align-items:center;gap:10px;flex:none}
+.fw-next{
+ min-height:50px;padding:11px 19px;border:2px solid #6c9863;border-radius:15px;
+ background:linear-gradient(#95c488,#57956c);color:#fffdf2;
+ box-shadow:0 5px 0 #47765a;font-size:14px
+}
+.fw-repeat{
+ min-height:48px;padding:9px 15px;border:2px solid #b29463;border-radius:15px;
+ background:#fff4d7;color:#785a36;box-shadow:0 4px 0 #c7aa74;font-size:13px
+}
+.fw-overlay button:focus-visible{outline:4px solid #5486bc;outline-offset:3px}
+.fw-overlay button:active{transform:translateY(2px)}
+@keyframes fwHint{50%{box-shadow:0 0 0 7px rgba(255,222,126,.9),0 0 34px 12px #fffbd0}}
+@keyframes fwJump{0%,100%{transform:translateY(0) rotate(0)}33%{transform:translateY(-12px) rotate(-7deg)}60%{transform:translateY(-5px) rotate(7deg)}}
+@keyframes fwWiggle{0%,100%{transform:rotate(0)}35%{transform:rotate(-3deg)}70%{transform:rotate(4deg)}}
+@keyframes fwNod{0%,100%{transform:rotate(0)}50%{transform:rotate(7deg)}}
+@keyframes fwCelebrate{0%{opacity:0;transform:translateY(30px) scale(.7)}25%{opacity:1}100%{opacity:0;transform:translateY(-100px) scale(1.5)}}
+@media(max-width:900px){
+ .fw-layout{grid-template-columns:minmax(174px,210px) minmax(0,1fr);gap:12px}
+ .fw-list-heading h2{font-size:22px}.fw-word{min-height:45px}
+ .fw-word strong{font-size:16px}
+ .fw-fox{width:70px;height:74px}
+ .fw-bottom{min-height:82px}
+ .fw-controls{gap:6px}
+ .fw-next,.fw-repeat{padding:9px;font-size:12px}
+}
+/* iPad portrait: the fixed two-column layout shrank the illustrated scene to
+   ~520x310 while reserving a blank lower half. Put the list into a legible,
+   two-row parchment strip and let the picture use the remaining vertical space.
+   Widths/coordinate geometry remain shared with the scene's HTML hotspots. */
+@media(min-width:701px) and (max-width:1000px) and (orientation:portrait){
+ .fw-shell{height:calc(100svh - 26px);min-height:0;gap:12px}
+ .fw-layout{display:flex;flex:1;flex-direction:column;align-items:stretch;gap:12px;min-height:0}
+ .fw-word-panel{flex:none;align-self:stretch;width:100%;padding:10px 14px 11px;border-width:3px}
+ .fw-list-heading{align-items:center;padding:0 3px 7px}
+ .fw-list-heading h2{font-size:23px}
+ .fw-tiny{display:none}
+ .fw-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px 11px}
+ .fw-word{min-height:46px;padding:5px 10px}
+ .fw-word strong{font-size:18px}
+ .fw-word-icon{width:26px;height:26px;font-size:18px;flex:none}
+ .fw-progress{height:7px;margin-top:11px}
+ .fw-list-foot{display:none}
+ .fw-stage{flex:1;min-height:0;justify-content:center;gap:7px}
+ .fw-art{flex:1;min-height:0;max-height:min(50svh,580px);aspect-ratio:auto}
+ .fw-scene-bottom{min-height:44px}
+ .fw-bottom{flex:none;min-height:82px}
+ .fw-fox{width:77px;height:79px}
+}
+/* On a tall iPhone, the original 5:3 board left a disproportionate empty
+   lower area. A modestly taller art frame, larger targets and footer use
+   the available space without moving the word list below the first fold. */
+@media(min-width:361px) and (max-width:700px) and (min-height:750px) and (orientation:portrait){
+ .fw-shell{gap:13px}
+ .fw-word-panel{padding:12px}
+ .fw-word{min-height:47px}
+ .fw-art{aspect-ratio:1.4}
+ .fw-bottom{min-height:92px}
+ .fw-fox{height:77px;width:69px}
+}
+@media(max-width:700px){
+ .fw-shell{width:100%;min-height:100svh;margin:0;padding:10px;border:0;border-radius:0;gap:10px}
+ .fw-top{min-height:65px;gap:9px}
+ .fw-back{height:46px;width:47px;border-radius:13px;font-size:23px}
+ .fw-eyebrow{font-size:9px;letter-spacing:.10em}
+ .fw-title h1{font-size:clamp(27px,7.8vw,36px)}
+ .fw-title p{font-size:11px}
+ .fw-audio{padding:8px 11px;min-height:44px}
+ .fw-audio span{display:none}
+ .fw-layout{grid-template-columns:1fr;gap:10px;flex:none}
+ .fw-word-panel{padding:10px;border-width:2px;border-radius:17px;box-shadow:0 3px 0 #815936}
+ .fw-list-heading{padding:0 2px 6px;align-items:center}
+ .fw-list-heading h2{display:inline;font-size:20px;margin:0}
+ .fw-tiny{display:none}
+ .fw-counter{padding:3px 7px;font-size:12px}
+ .fw-list{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+ .fw-word{min-height:44px;gap:5px;padding:5px 7px;border-width:1.5px;border-radius:10px;box-shadow:0 2px 0 #c49a61}
+ .fw-word strong{font-size:clamp(13px,3.6vw,16px)}
+ .fw-word-icon{font-size:14px;width:21px;height:24px;flex:none}
+ .fw-word-check{width:19px;height:19px;font-size:14px;flex:none}
+ .fw-list-foot{display:none}
+ .fw-progress{height:6px;margin:9px 2px 0}
+ .fw-stage{gap:7px}
+ .fw-stage-label{font-size:13px;padding:0 3px}
+ .fw-art{border-width:3px;border-radius:14px;aspect-ratio:5/3;max-height:none;box-shadow:0 4px 0 #5e432e}
+ .fw-art:after{border-width:2px}
+ .fw-object{border-width:2px}
+ .fw-pin{min-width:23px;height:23px;font-size:15px}
+ .fw-scene-bottom{gap:5px}
+ .fw-scenery-caption{font-size:11px}
+ .fw-hint{padding:7px 10px;min-height:44px;font-size:11px;white-space:nowrap;border-width:1.5px}
+ .fw-bottom{gap:8px;min-height:78px;padding:8px 0 0}
+ .fw-companion{max-width:none;flex:1;gap:5px}
+ .fw-fox{width:62px;height:68px}
+ .fw-speech{padding:7px 9px;font-size:11px;line-height:1.3;border-radius:12px}
+ .fw-controls{flex-direction:column;gap:5px}
+ .fw-next{min-height:44px;padding:6px 8px;font-size:11px;white-space:nowrap}
+ .fw-repeat{display:none}
+}
+@media(max-width:360px){
+ .fw-shell{padding:7px;gap:7px}
+ .fw-title p{font-size:10px}
+ .fw-word-panel{padding:6px}
+ .fw-list-heading h2{font-size:18px}
+ .fw-word{padding:3px 4px;gap:3px}
+ .fw-word strong{font-size:12px}
+ .fw-word-icon{display:none}
+ .fw-stage-label{display:none}
+ .fw-scenery-caption{font-size:10px;line-height:1.2}
+ .fw-bottom{min-height:66px}
+ .fw-fox{width:53px;height:58px}
+ .fw-speech{font-size:10px}
+}
+@media(max-height:520px) and (orientation:landscape){
+ .fw-shell{gap:7px;padding:8px 13px}
+ .fw-top{min-height:50px}
+ .fw-title h1{font-size:28px}
+ .fw-title p{font-size:11px}
+ .fw-layout{grid-template-columns:190px minmax(0,1fr);gap:10px}
+ .fw-word-panel{padding:8px}
+ .fw-word{min-height:39px;padding:4px}
+ .fw-word strong{font-size:14px}
+ .fw-list-heading h2{font-size:19px}
+ .fw-list-foot{display:none}
+ .fw-progress{margin-top:8px}
+ .fw-art{max-height:calc(100svh - 164px)}
+ .fw-bottom{min-height:45px;padding-top:0}
+ .fw-fox{width:48px;height:51px}
+ .fw-speech{padding:6px 9px;font-size:11px}
+ .fw-stage-label{font-size:12px}
+ .fw-scenery-caption{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+ .fw-overlay *{animation:none!important;transition:none!important}
+}
+
+
+/* Tall iPhones: the previous portrait-art rule was followed by the generic
+   max-width:700px rule, so its aspect ratio was overwritten. Keep the image
+   large and give the child's selected fox a genuine, visible presence.
+   Compact 320px phones retain their already verified fold-safe layout. */
+@media (min-width:361px) and (max-width:700px) and (min-height:750px) and (orientation:portrait){
+ .fw-shell{height:100svh;min-height:100svh;gap:12px}
+ .fw-art{aspect-ratio:1.4;max-height:none}
+ .fw-bottom{margin-top:auto;min-height:123px;gap:7px;align-items:center}
+ .fw-fox{width:104px;height:116px}
+ .fw-companion{gap:3px;max-width:none}
+ .fw-speech{font-size:12px;padding:9px 10px}
+ .fw-controls{align-self:center}
+}

@@ -136,6 +136,10 @@
  .bc13-scene{flex-basis:45px}
  .bc13-card-copy small{display:none}
 }
+.bc13-picture-entry{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:44px;width:min(100%,300px);padding:7px 13px;border:2px solid #9a7641;border-radius:14px;background:linear-gradient(#e4f4da,#b8dab3);box-shadow:0 3px 0 #a58451;color:#365d46;font:950 14px ui-rounded,system-ui,sans-serif;cursor:pointer;touch-action:manipulation}
+.bc13-picture-entry span{font-size:23px;line-height:1}
+.bc13-picture-entry:focus-visible{outline:4px solid #5486bc;outline-offset:3px}
+@media(max-width:390px){.bc13-picture-entry{font-size:12px;min-height:44px}}
 @media(prefers-reduced-motion:reduce){.bc13-panel *{animation:none!important;transition:none!important}}
 
 /* The Basecamp adult/peer controls belong to Home, not behind an opened map-board. */
