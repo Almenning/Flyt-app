@@ -148,15 +148,19 @@
    Journey retains its locked four-map layout. The grid alone scrolls on
    very short screens so it never overlaps Home's bottom navigation. */
 .bc12[data-bc13-view="explore"] .bc13-card-grid{
- grid-template-columns:repeat(3,minmax(0,1fr));
+ grid-template-columns:repeat(6,minmax(0,1fr));
  grid-template-rows:repeat(2,minmax(145px,1fr));
  overflow-x:hidden;overflow-y:auto;overscroll-behavior-y:contain;
  scrollbar-width:thin;scrollbar-color:#b3925d transparent;
  align-items:stretch;
 }
 .bc12[data-bc13-view="explore"] .bc13-card{
+ grid-column:span 2;
  height:100%;min-height:0;width:100%;align-self:stretch;
 }
+/* Center the final two cards without changing their width or height. */
+.bc12[data-bc13-view="explore"] .bc13-card:nth-of-type(4){grid-column:2/span 2}
+.bc12[data-bc13-view="explore"] .bc13-card:nth-of-type(5){grid-column:4/span 2}
 .bc12[data-bc13-view="explore"] .bc13-card[data-bc13-action="find-words"]{
  --bc13-land:#70a884;
 }
@@ -173,6 +177,8 @@
    grid-template-rows:repeat(3,minmax(118px,1fr));
    gap:10px;
  }
+ .bc12[data-bc13-view="explore"] .bc13-card{grid-column:auto}
+ .bc12[data-bc13-view="explore"] .bc13-card:nth-of-type(4){grid-column:auto}
  /* Span the final grid row, but constrain the card to exactly one column. */
  .bc12[data-bc13-view="explore"] .bc13-card[data-bc13-action="find-words"]{
    grid-column:1/-1;
@@ -193,7 +199,7 @@
 }
 @media(max-height:530px) and (orientation:landscape){
  .bc12[data-bc13-view="explore"] .bc13-card-grid{
-   grid-template-columns:repeat(3,minmax(0,1fr));
+   grid-template-columns:repeat(6,minmax(0,1fr));
    grid-template-rows:repeat(2,minmax(98px,1fr));
  }
 }
