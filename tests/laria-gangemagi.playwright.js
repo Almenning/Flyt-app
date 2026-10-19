@@ -314,6 +314,17 @@ async function check(engine,label,viewport,url){
   await dragBerry(page,'[data-gm-action="source"]','.gm-brand',null);
   assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,0,0],
     label+' dropping a fruit outside all baskets cannot change the maths');
+  // Simulated touch on a mobile WebKit/Chromium viewport, not just mouse
+  // clicks. The 2-step fallback and direct berry removal are essential on iPad.
+  if(viewport.width===390&&viewport.height===844){
+    await page.locator('[data-gm-action="source"]').tap();
+    await page.locator('[data-gm-action="basket"][data-gm-basket="1"]').tap();
+    assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,1,0],
+      label+' two real touchscreen taps pick and place exactly one berry');
+    await page.locator('[data-gm-basket="1"] .gm-fruit[data-gm-fruit]').first().tap();
+    assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,0,0],
+      label+' touchscreen tap on the berry itself removes it');
+  }
   await page.evaluate(()=>LARIA_GANGEMAGI.reset());
   await page.locator('[data-gm-action="basket"][data-gm-basket="0"]').click();
   assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,0,0],
