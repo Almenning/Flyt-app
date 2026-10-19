@@ -294,6 +294,14 @@
 .gm-shell[data-gm-mode="mission"] .gm-crate[data-gm-count="0"] .gm-crate-tag{display:none}
 .gm-shell[data-gm-mode="mission"] .gm-remove{
   top:0;bottom:auto;right:-6px;left:auto;z-index:6;width:44px;height:44px;
+  /* Direct berry tapping is the child's primary removal action. Keep the
+     independent 44px accessible button, revealed on focus, hover or selection. */
+  opacity:0;pointer-events:none;transition:opacity .16s ease;
+}
+.gm-shell[data-gm-mode="mission"] .gm-crate-wrap:focus-within .gm-remove,
+.gm-shell[data-gm-mode="mission"] .gm-crate-wrap:hover .gm-remove,
+.gm-shell[data-gm-mode="mission"] .gm-crate-selected + .gm-remove{
+  opacity:1;pointer-events:auto;
 }
 /* The speaking fox and highlighted three-step board already give the next
    instruction. A third, floating hint card beneath the baskets repeated it. */
@@ -361,6 +369,11 @@
   gap:12px;margin:14px auto 0;
 }
 .gm-shell[data-gm-mode="mission"] .gm-modes{align-self:auto}
+/* The collection is already accessible in the 48px top flower button.
+   Do not repeat a large second book card and a duplicate flower explanation. */
+.gm-shell[data-gm-mode="mission"] .gm-book-collapsed{display:none}
+.gm-shell[data-gm-mode="mission"] .gm-footer>span{display:none}
+.gm-shell[data-gm-mode="mission"] .gm-footer{justify-content:flex-end;margin-top:4px}
 .gm-shell[data-gm-mode="mission"] .gm-secondary-nav button{min-height:44px}
 
 /* Explicit breakpoints, not accumulating magic overrules. */
