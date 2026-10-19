@@ -122,12 +122,19 @@ async function check(engine,label,viewport,url){
   assert.equal(await page.locator('.gm-quest-steps[role="list"] [role="listitem"]').count(),3,
     'screen-reader and touch-friendly three-step instructions');
   // Quest-step labels carry actual child instructions, not decorative microcopy.
-  // All device sizes must preserve >=10px instead of the prior unreadable 8px.
+  // Mobile instructions must remain legible, not squeeze into microtype.
   const questStepFont=await page.locator('.gm-quest-step strong').first()
     .evaluate(el=>parseFloat(getComputedStyle(el).fontSize));
-  const requiredStepSize=viewport.width>=700?14:viewport.width>=375?13:10;
+  const requiredStepSize=viewport.width>=700?14:viewport.width>=375?13:12;
   assert.ok(questStepFont>=requiredStepSize,
     label+' grade-two quest instructions: '+questStepFont+'px; minimum '+requiredStepSize);
+  const stepGeometry=await page.locator('.gm-quest-step').evaluateAll(steps=>steps.map(step=>{
+    const text=step.querySelector('strong'),box=step.getBoundingClientRect(),labelBox=text.getBoundingClientRect();
+    return {text:text.textContent,width:text.clientWidth,scrollWidth:text.scrollWidth,
+      labelBottom:labelBox.bottom,cardBottom:box.bottom};
+  }));
+  assert.ok(stepGeometry.every(x=>x.scrollWidth<=x.width+1&&x.labelBottom<=x.cardBottom+2),
+    label+' all three step captions must fit their illustrated cards '+JSON.stringify(stepGeometry));
   const foxSize=await page.locator('.gm-fox-message')
     .evaluate(el=>parseFloat(getComputedStyle(el).fontSize));
   const requiredFoxSize=viewport.width>=700?(viewport.height>=1000?14:13):
@@ -239,12 +246,15 @@ async function check(engine,label,viewport,url){
     const sceneLayers=await page.evaluate(()=>({
       math:Number(getComputedStyle(document.querySelector('.gm-math')).zIndex),
       fox:Number(getComputedStyle(document.querySelector('.gm-fox')).zIndex),
-      mathLabel:document.querySelector('.gm-math-label>span')?.textContent.trim()
+      equation:document.querySelector('.gm-math-equation')?.textContent.trim(),
+       equationFont:parseFloat(getComputedStyle(document.querySelector('.gm-math-equation')).fontSize)
     }));
     assert.ok(sceneLayers.math>sceneLayers.fox,
-      label+' illustrated fox must not be painted over math labels '+JSON.stringify(sceneLayers));
-    assert.match(sceneLayers.mathLabel,/Dette lager du/,
-      'math label remains readable below the enlarged personal fox');
+      label+' illustrated fox must not be painted over the live equation '+JSON.stringify(sceneLayers));
+    assert.match(sceneLayers.equation,/=/,
+      label+' mathematical result remains readable without redundant label');
+    assert.ok(sceneLayers.equationFont>=24,
+      label+' iPad portrait equation must be prominent '+JSON.stringify(sceneLayers));
   }
   if(viewport.width>=900&&viewport.height<=900){
     const guide=await page.evaluate(()=>{
