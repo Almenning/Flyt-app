@@ -165,6 +165,16 @@
 @keyframes fwNod{0%,100%{transform:rotate(0)}50%{transform:rotate(7deg)}}
 @keyframes fwBreathe{0%,100%{transform:translateY(0) rotate(-.7deg)}50%{transform:translateY(-3px) rotate(.7deg)}}
 @keyframes fwCelebrate{0%{opacity:0;transform:translateY(30px) scale(.7)}25%{opacity:1}100%{opacity:0;transform:translateY(-100px) scale(1.5)}}
+/* Tight landscape devices must retain their header after a child focuses Hint.
+   Keep larger personal fox on portrait layouts, but reserve the actual first fold
+   in 1180x820 iPad landscape and laptop-sized browser windows. */
+@media(min-width:1001px) and (max-height:900px){
+ .fw-shell{padding-top:10px;padding-bottom:10px;gap:10px}
+ .fw-top{min-height:74px}
+ .fw-bottom{min-height:90px;padding-top:3px}
+ .fw-fox{width:101px;height:95px}
+ .fw-fox-button{min-height:92px}
+}
 @media(max-width:900px){
  .fw-layout{grid-template-columns:minmax(174px,210px) minmax(0,1fr);gap:12px}
  .fw-list-heading h2{font-size:22px}.fw-word{min-height:45px}
