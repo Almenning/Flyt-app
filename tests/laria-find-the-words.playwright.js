@@ -67,6 +67,11 @@ async function geometry(page,label,view){
  assert.ok(box.hotspot.every(b=>b.w>=44&&b.h>=44),'child targets too small '+label+': '+JSON.stringify(box.hotspot));
  assert.ok(box.hotspot.every(b=>b.centerReachable),'overlapping hotspots prevent children from finding an object '+label+': '+JSON.stringify(box.hotspot));
  assert.ok(box.words.every(h=>h>=39),'word-list buttons too small '+label+': '+JSON.stringify(box.words));
+ if(view.width>=701&&view.width<=1000&&view.height>view.width){
+  assert.ok(box.art.w>=view.width*.83,'iPad portrait art should occupy most of its width: '+JSON.stringify(box));
+  assert.ok(box.art.h>=view.height*.32,'iPad portrait art must not be a tiny side card: '+JSON.stringify(box));
+  assert.ok(box.art.b<=box.height+2,'iPad portrait art must remain on first screen: '+JSON.stringify(box));
+ }
  if(view.height>=750&&view.width<700){
   assert.ok(box.list.y>=0&&box.list.b<=box.height,'word list hidden below first screen '+label);
   assert.ok(box.art.y>=0&&box.art.y<=box.height-80,'image cannot be seen without scrolling '+label);
