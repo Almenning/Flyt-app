@@ -1997,8 +1997,9 @@
 
 
 
-    /* Læria young home v6 — grades 1–2 are a playful game entrance, not a dashboard. */
-    .grade-band-young{
+    /* Læria young home v6. Keep its colorful home gradient on ordinary screens,
+       but do not paint it behind Gangemagi's full-width storybook canvas. */
+    .grade-band-young:not(:has(#multiplication-lab-screen.active .gm-shell)){
       background:
         radial-gradient(circle at 8% 8%,rgba(255,220,83,.38) 0 35px,transparent 36px),
         radial-gradient(circle at 94% 13%,rgba(242,139,168,.23) 0 54px,transparent 55px),
