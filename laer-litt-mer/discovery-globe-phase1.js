@@ -525,6 +525,22 @@ function paintMountainCrests(ctx,chain,w,h,s,level,width){
      scale. Smaller ranges still wait until regional zoom; no icon stamps. */
   const continentHero=continentCrestChains.has(chain.name);
   if(level<2&&!continentHero)return 0;
+  if(level===1){
+    /* One broad, continuous ridge reads as geography at continent scale.
+       The old per-segment chevrons made the Andes look like a pasted row of
+       tiny mountain symbols, even though their positions were correct. */
+    ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
+    if(!smoothGeoStroke(ctx,chain.route,w,h,s)){ctx.restore();return 0;}
+    ctx.strokeStyle=chain.snow?'rgba(48,84,76,.33)':'rgba(104,89,64,.28)';
+    ctx.lineWidth=Math.max(2.4,width*.64);ctx.stroke();
+    if(!smoothGeoStroke(ctx,chain.route,w,h,s)){ctx.restore();return 0;}
+    ctx.strokeStyle=chain.snow?'rgba(221,234,209,.34)':'rgba(222,195,142,.29)';
+    ctx.lineWidth=Math.max(1.0,width*.26);ctx.stroke();
+    if(chain.snow&&smoothGeoStroke(ctx,chain.route,w,h,s)){
+      ctx.strokeStyle='rgba(255,253,235,.34)';ctx.lineWidth=Math.max(.6,width*.085);ctx.stroke();
+    }
+    ctx.restore();return 1;
+  }
   let drawn=0;
   for(let j=0;j<chain.route.length-1;j++){
     const a=chain.route[j],b=chain.route[j+1];
