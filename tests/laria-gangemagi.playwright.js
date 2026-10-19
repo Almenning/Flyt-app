@@ -346,8 +346,9 @@ async function check(engine,label,viewport,url){
   for(const [group,count] of [[0,2],[1,3],[2,3]]){
     await selectAndPick(page,group,count);
     if(group<2){
-      assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).selectedBasket,null,
-        label+' a completed basket must release selection before the child chooses the next one');
+      const filledBasketSnapshot=await page.evaluate(()=>LARIA_GANGEMAGI.snapshot());
+      assert.equal(filledBasketSnapshot.selectedBasket,null,
+        label+' a completed basket must release selection before the child chooses the next one '+JSON.stringify({counts:filledBasketSnapshot.counts,each:filledBasketSnapshot.each,group,holdingBerry:await page.locator('.gm-play-hint').innerText()}));
       assert.equal(await page.locator('.gm-crate-invite').count(),2-group,
         label+' only unfinished baskets should invite the next choice');
       assert.equal(await page.locator('.gm-quest-step-active[aria-current="step"][data-gm-step="1"]').count(),1,
