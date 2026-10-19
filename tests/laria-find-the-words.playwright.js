@@ -110,17 +110,30 @@ async function run(engine,label,viewport,url,avatar){
      'Picture mode does not use the personal selected fox');
    assert.equal(await page.locator('.fw-word').count(),6);
    assert.deepEqual((await page.locator('.fw-word strong').allTextContents()).sort(),[...targetWords].sort());
-   // Browser CI has no guaranteed Norwegian voice; verify speakable controls
-   // work without asserting that CI emitted audible Norwegian speech.
-   await page.locator('.fw-word[data-fw-read="sol"]').click();
-   await page.locator('.fw-audio').click();
+   // Correct objects do not score until a written word has been selected.
+   await page.locator('.fw-object[data-fw-object="sol"]').click();
+   assert.equal(await page.locator('.fw-word.is-found').count(),0,
+     'Random scene taps must not award a word');
+   assert.match(await page.locator('.fw-speech').innerText(),/Velg et ord/);
    const hint=page.locator('.fw-hint');
    await hint.click();
-   assert.match(await page.locator('.fw-speech').innerText(),/Se etter/,'Fox did not offer a clue');
+   assert.match(await page.locator('.fw-speech').innerText(),/Velg først ordet/,
+     'Hints must target the selected word, not an automatic answer');
+   // CI has no guaranteed Norwegian audio output, but speech controls must
+   // remain usable without Javascript errors.
+   await page.locator('.fw-word[data-fw-read="sol"]').click();
+   assert.equal(await page.locator('.fw-word.is-selected').count(),1,'Selected word is not visibly marked');
+   assert.equal(await page.locator('.fw-word[data-fw-read="sol"]').getAttribute('aria-pressed'),'true',
+     'Selected word is missing an accessible selected state');
+   assert.match(await page.locator('.fw-active-target').innerText(),/sol/,
+     'Chosen word is not displayed as an obvious goal');
+   await page.locator('.fw-audio').click();
+   await hint.click();
+   assert.match(await page.locator('.fw-speech').innerText(),/Se etter/,'Fox did not give the selected-word clue');
    await page.locator('.fw-fox-button').click();
-   assert.equal(await page.locator('.fw-object.is-hint').count(),1,'Second hint should highlight one location');
+   assert.equal(await page.locator('.fw-object.is-hint').count(),1,'Second hint should highlight the selected object');
    assert.equal(await page.locator('.fw-word.is-found').count(),0,'Hint must not automatically solve the game');
-   await shot(page,label+'-first-hint');
+   await shot(page,label+'-chosen-word-hint');
    // An illustrated object not in the current word list should be explored, not punished.
    // A touch on water must hit the painted lake, not the grassy lower bank.
    const lakePoint=await page.evaluate(()=>{
