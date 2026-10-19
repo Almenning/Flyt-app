@@ -380,6 +380,39 @@ async function check(engine,label,viewport,url){
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).undo,0,'switching adventures clears only action history');
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).wins.length,1);
   assert.equal(await page.locator('.gm-book-mission').count(),0,'book should close after selection');
+  /* Compare EACH actual authored mission with its equation and guide. Capture
+     mission 4 to match the specific approved "3 baskets of 4" illustration. */
+  if(label==='webkit-iphone390'||label==='chrome-ipad-landscape'){
+    for(const [index,mission] of Engine.MISSIONS.entries()){
+      await page.locator('[data-gm-action="book"]').click();
+      await page.locator('[data-gm-action="select-mission"][data-index="'+index+'"]').click();
+      const actual=await page.evaluate(()=>LARIA_GANGEMAGI.snapshot());
+      assert.equal(actual.mission,index,'eight adventures preserve authored order');
+      assert.deepEqual(actual.counts,Array(mission.groups).fill(0),
+        'switching mission starts with empty baskets and keeps flower history');
+      assert.equal(await page.locator('.gm-crate').count(),mission.groups,
+        label+' must show the authored number of clickable wicker baskets');
+      assert.equal(await page.locator('.gm-quest-mini-berries i').count(),
+        mission.groups*mission.each,
+        label+' illustrated strawberries and the real multiplication must agree');
+      const stepTexts=await page.locator('.gm-quest-step strong').allInnerTexts();
+      assert.equal(stepTexts[2],
+        'Se at '+mission.groups+' × '+mission.each+' = '+mission.groups*mission.each,
+        label+' the illustration must explain the actual exercise');
+      const bounds=await page.evaluate(()=>{
+        const a=document.querySelector('.gm-quest-callout').getBoundingClientRect();
+        const b=document.querySelector('.gm-pick').getBoundingClientRect();
+        return {width:innerWidth,height:innerHeight,scrollWidth:document.documentElement.scrollWidth,
+          headingLeft:a.left,headingRight:a.right,buttonTop:b.top,buttonBottom:b.bottom};
+      });
+      assert.ok(bounds.scrollWidth<=bounds.width+4&&bounds.headingLeft>=-1&&
+        bounds.headingRight<=bounds.width+1&&bounds.buttonTop>=0&&
+        bounds.buttonBottom<=bounds.height+3,
+        label+' mission '+(index+1)+' must fit its first screen '+JSON.stringify(bounds));
+      if(index===3)await shot(page,label+'-07-locked-reference-mission-4');
+      if(index===5)await shot(page,label+'-08-three-baskets-of-six');
+    }
+  }
   // The five-basket mission is visually the most constrained responsive state.
   // Preserve five clear, real basket targets and the full illustration in WebKit.
   await page.locator('[data-gm-action="book"]').click();
