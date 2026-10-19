@@ -351,6 +351,18 @@ async function check(engine,label,viewport,url){
   assert.ok(pageCanvas.colors.every(color=>color!=='rgba(0, 0, 0, 0)'&&color!=='rgb(255, 255, 255)')&&
     pageCanvas.appBackgroundImage==='none'&&pageCanvas.screenMatches,
     label+' entire game canvas including iPhone bottom scroll must be warm, never white '+JSON.stringify(pageCanvas));
+  const crateControl=await page.locator('.gm-market-fruit-supply .gm-pick.gm-strawberry-tray')
+    .evaluate(el=>{
+      const rect=el.getBoundingClientRect(),style=getComputedStyle(el);
+      return {width:rect.width,height:rect.height,image:style.backgroundImage,
+        berryCount:el.querySelectorAll('.gm-source-berry').length,
+        caption:el.querySelector(':scope>span:nth-child(2)')?.textContent.trim(),
+        touchAction:style.touchAction};
+    });
+  assert.ok(crateControl.width<=160&&crateControl.height>=44&&
+    crateControl.image==='none'&&crateControl.berryCount===5&&
+    crateControl.caption==='Plukk'&&crateControl.touchAction==='none',
+    label+' only the real illustrated strawberry crate is the accessible touch/drag target '+JSON.stringify(crateControl));
   await shot(page,label+'-01-first-look');
   await page.locator('.gm-crate').first().hover();
   const disabledRemoveStyles=await page.locator('.gm-remove:disabled').evaluateAll(buttons=>
