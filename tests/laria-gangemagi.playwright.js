@@ -83,6 +83,24 @@ async function dragBerry(page,fromSelector,toSelector,expectTarget){
     'dragging over a valid target must give a visible live glow');
   await page.mouse.up();
 }
+// Browser-generated touch taps are tested separately below. This additionally
+// exercises the same pointer flow with pointerType=touch while moving a berry.
+async function touchPointerDrag(page,fromSelector,toSelector){
+ return page.evaluate(({fromSelector,toSelector})=>{
+   const from=document.querySelector(fromSelector),to=document.querySelector(toSelector);
+   if(!from||!to)throw Error('Touch drag needs a real source and destination');
+   const a=from.getBoundingClientRect(),b=to.getBoundingClientRect();
+   const x=a.left+a.width/2,y=a.top+a.height/2;
+   const dx=b.left+b.width/2,dy=b.top+b.height/2;
+   const emit=(target,type,xx,yy)=>target.dispatchEvent(new PointerEvent(type,{
+     bubbles:true,cancelable:true,pointerId:71,pointerType:'touch',
+     button:0,buttons:type==='pointerup'?0:1,clientX:xx,clientY:yy
+   }));
+   emit(from,'pointerdown',x,y);
+   for(let i=1;i<=9;i++)emit(window,'pointermove',x+(dx-x)*i/9,y+(dy-y)*i/9);
+   emit(window,'pointerup',dx,dy);
+ },{fromSelector,toSelector});
+}
 async function check(engine,label,viewport,url){
  const context=await engine.newContext({viewport,deviceScaleFactor:1,serviceWorkers:'block',isMobile:viewport.width<750,hasTouch:true});
  const page=await context.newPage(),errors=[];
@@ -304,9 +322,16 @@ async function check(engine,label,viewport,url){
   });
   assert.deepEqual(touchGeometry.overlaps,Array(touchGeometry.overlaps.length).fill(false),label+' remove affordance must not cover numeric basket label '+JSON.stringify(touchGeometry));
   assert.equal(touchGeometry.clipped,false,label+' first-fold Plukk action text is clipped '+JSON.stringify(touchGeometry));
-  const pageCanvas=await page.evaluate(()=>[document.documentElement,document.body,
-    document.querySelector('#multiplication-lab-screen')].map(el=>getComputedStyle(el).backgroundColor));
-  assert.ok(pageCanvas.every(color=>color!=='rgba(0, 0, 0, 0)'&&color!=='rgb(255, 255, 255)'),
+  const pageCanvas=await page.evaluate(()=>{
+    const screen=document.querySelector('#multiplication-lab-screen');
+    const app=document.querySelector('.app');
+    return {colors:[document.documentElement,document.body,screen]
+      .map(el=>getComputedStyle(el).backgroundColor),
+      screenMatches:screen.matches(':has(.gm-shell)'),
+      appBackgroundImage:getComputedStyle(app).backgroundImage};
+  });
+  assert.ok(pageCanvas.colors.every(color=>color!=='rgba(0, 0, 0, 0)'&&color!=='rgb(255, 255, 255)')&&
+    pageCanvas.appBackgroundImage==='none',
     label+' entire game canvas including iPhone bottom scroll must be warm, never white '+JSON.stringify(pageCanvas));
   await shot(page,label+'-01-first-look');
   await page.locator('.gm-crate').first().hover();
@@ -339,6 +364,21 @@ async function check(engine,label,viewport,url){
   await dragBerry(page,'[data-gm-action="source"]','.gm-brand',null);
   assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,0,0],
     label+' dropping a fruit outside all baskets cannot change the maths');
+  assert.equal(await page.locator('.gm-source-berry').count(),5,
+    label+' five illustrated strawberries remain a real accessible supply');
+  assert.equal(await page.locator('[data-gm-action="source"]')
+    .evaluate(el=>getComputedStyle(el).touchAction),'none',
+    label+' browser must not steal finger dragging for page scroll');
+  if(viewport.width===390&&viewport.height===844){
+    await touchPointerDrag(page,'[data-gm-action="source"]',
+      '[data-gm-action="basket"][data-gm-basket="0"]');
+    assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[1,0,0],
+      label+' touch pointer drag adds exactly one fruit to selected basket');
+    await touchPointerDrag(page,'[data-gm-basket="0"] .gm-fruit[data-gm-fruit]',
+      '[data-gm-action="source"]');
+    assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,0,0],
+      label+' touch pointer drag back into source removes one fruit');
+  }
   // Simulated touch on a mobile WebKit/Chromium viewport, not just mouse
   // clicks. The 2-step fallback and direct berry removal are essential on iPad.
   if(viewport.width===390&&viewport.height===844){
