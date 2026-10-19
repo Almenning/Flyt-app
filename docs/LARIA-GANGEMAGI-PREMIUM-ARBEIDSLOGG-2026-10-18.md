@@ -116,3 +116,11 @@ Status: aktiv utviklingsgren. IKKE publisert eller erklært premium-ferdig.
 - Rettet rotårsak i ETT avgrenset responsivt layoutoppsett for kort liggende iPhone: ekte, malt oppdragstavle til venstre med tre lesbare vertikale illustrerte steg; barnets valgte rev, ekte kurver, jordbærkilde og matematikk til høyre. Samme live JS, eksisterende 8 oppdrag, lagring og berøringsflyt; ingen ny kunst eller statiske skjermbilder. Ingen endring av iPhone stående eller iPad-visninger.
 - Dedikert Playwright WebKit+Chromium landscape-regresjon krever nå reelle kurver og jordbærkilde innen første 390px viewport, synlig matematikk, ingen sideveis overflow, ingen overlapp i header, tilstrekkelige berøringsflater og faktisk touch-plukk/plassering/fjerning.
 - **KVALITETSPORT:** Layouten er et testbart forslag, IKKE godkjent. Les nye, ekte GitHub Actions-landskapsbilder og korriger reelle feil; kontroller spesielt lesbar oppgave, personlig rev og 4–5 kurver. Fortsett med én isolert PR #192. Ingen merge/publisering før eksakt-HEAD-CI og visuelt premiumkrav er bestått.
+
+## 19. oktober – kort iPhone-landskap, tett oppdrag (PR #192)
+
+- Kontroll av release-HEAD `f54e912`: 17 av 18 workflow-grupper grønne; samlet Laria QA var fortsatt i full nettleserregresjon. Ekte WebKit-bilder viser ren 3-kurv liggende layout, men det fantes ingen separat visuell QA for fem kurver eller 2 × 10.
+- Rotårsak identifisert i CSS: steg 3 hadde 49px bredt bildeområde også ved fem illustrerte minikurver, slik at hvert minibilde ble krympet. Med ti bær i ett kurvrom kunne to fulle fruktrader gå bak kurvens navneskilt på en lav liggende skjerm.
+- Isolert landscape-CSS: steg-3-illustrasjonen får 88px ved 4/5 grupper; i oppdrag med ti per kurv brukes kortere bær og høyere sentrert fruktklynge. Alle andre skjermstørrelser og oppdrag skal forbli uendret.
+- Ny faktisk Chromium/WebKit landskapstest inspiserer oppdrag 5 og 8, måler om minikurver/tekst overlapper, sjekker alle trykkflater og første skjerm, og fyller ti ekte bær ved berøring for å verifisere geometri og korrekt sum. Nye screenshot-artifacts: 03-five-baskets, 03-ten-berries og 04-ten-packed.
+- KVALITETSPORT: Nye rettelser må bestå CI på eksakt ny commit før visuell kontroll og eventuell release. Ingen merge eller publisering gjennomført.

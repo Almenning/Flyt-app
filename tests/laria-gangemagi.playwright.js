@@ -840,6 +840,61 @@ async function checkLandscape(engine,label,url){
    await page.locator('[data-gm-basket="1"] .gm-fruit[data-gm-fruit]').first().tap();
    assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,0,0],
      label+' landscape berry can be touched to remove it');
+   // The two dense mission layouts were missing from short-landscape visual QA.
+   // Test the real illustrated five-basket step and a full ten-berry basket,
+   // not only the introductory 3×3 lesson.
+   for(const spec of [{index:4,groups:5,each:2,slug:'five-baskets'},
+                      {index:7,groups:2,each:10,slug:'ten-berries'}]){
+     await page.evaluate(index=>window.LARIA_GANGEMAGI.openMission(index),spec.index);
+     const snap=await page.evaluate(()=>LARIA_GANGEMAGI.snapshot());
+     assert.equal(snap.groups,spec.groups,label+' '+spec.slug+' real basket count');
+     assert.equal(snap.each,spec.each,label+' '+spec.slug+' authored group size');
+     assert.equal(await page.locator('.gm-quest-mini-basket').count(),spec.groups);
+     assert.equal(await page.locator('.gm-quest-mini-berries i').count(),
+       spec.groups*spec.each,label+' '+spec.slug+' mini-illustrations show actual arithmetic');
+     const scene=await page.evaluate(()=>{
+       const box=selector=>document.querySelector(selector).getBoundingClientRect();
+       const mini=[...document.querySelectorAll('.gm-quest-step[data-gm-step="3"] .gm-quest-mini-basket')]
+         .map(el=>el.getBoundingClientRect());
+       const text=box('.gm-quest-step[data-gm-step="3"] strong');
+       const source=box('.gm-market-fruit-supply .gm-pick');
+       const basket=[...document.querySelectorAll('.gm-crate')].map(el=>el.getBoundingClientRect());
+       return {scrollWidth:document.documentElement.scrollWidth,screen:innerWidth,height:innerHeight,
+         labelLeft:text.left,previewRight:Math.max(...mini.map(x=>x.right)),
+         miniWidths:mini.map(x=>x.width),basketWidths:basket.map(x=>x.width),
+         basketBottom:Math.max(...basket.map(x=>x.bottom)),sourceBottom:source.bottom,
+         mathTop:box('.gm-math').top};
+     });
+     assert.ok(scene.scrollWidth<=scene.screen+4&&
+       scene.basketWidths.every(w=>w>=44)&&scene.basketBottom<=scene.height+3&&
+       scene.sourceBottom<=scene.height+3&&scene.mathTop<scene.height,
+       label+' '+spec.slug+' keeps all five/ten-berry gameplay elements in the first fold '+JSON.stringify(scene));
+     assert.ok(scene.miniWidths.every(width=>width>=14)&&scene.previewRight<=scene.labelLeft-2,
+       label+' '+spec.slug+' mini-basket art must not shrink or cover the instruction '+JSON.stringify(scene));
+     await shot(page,label+'-03-'+spec.slug);
+     if(spec.index===7){
+       for(let i=0;i<10;i++){
+         await page.locator('[data-gm-action="source"]').tap();
+         await page.locator('[data-gm-basket="0"] .gm-crate-front').tap();
+       }
+       const state=await page.evaluate(()=>LARIA_GANGEMAGI.snapshot());
+       assert.deepEqual(state.counts,[10,0],label+' ten actual berries packed into one basket');
+       assert.equal((await page.locator('.gm-math-equation').innerText()).trim(),'10 + 0 = 10');
+       const packed=await page.locator('[data-gm-basket="0"]').evaluate(basket=>{
+         const front=basket.querySelector('.gm-crate-front').getBoundingClientRect();
+         const berries=[...basket.querySelectorAll('.gm-fruit:not(.gm-fruit-empty)')]
+           .map(el=>el.getBoundingClientRect());
+         return {count:berries.length,frontTop:front.top,
+           fruitBottom:Math.max(...berries.map(b=>b.bottom)),
+           narrowest:Math.min(...berries.map(b=>b.width)),
+           basketTop:basket.getBoundingClientRect().top};
+       });
+       assert.ok(packed.count===10&&packed.narrowest>=14&&
+         packed.fruitBottom<=packed.frontTop+2,
+         label+' ten countable berries must remain above the illustrated nameplate '+JSON.stringify(packed));
+       await shot(page,label+'-04-ten-packed');
+     }
+   }
    assert.deepEqual(errors,[],label+' landscape browser errors '+JSON.stringify(errors));
    console.log('PASS GANGEMAGI '+label);
  }finally{await context.close();}

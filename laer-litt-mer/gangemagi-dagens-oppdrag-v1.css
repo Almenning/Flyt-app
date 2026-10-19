@@ -1089,6 +1089,23 @@
  .gm-shell[data-gm-mode="mission"]:is([data-gm-groups="4"],[data-gm-groups="5"]) .gm-math-equation{
    font-size:clamp(16px,2vw,21px);
  }
+ /* A five-basket illustration needs five separate mini-baskets that
+    remain distinguishable rather than shrinking into a 49px icon slot. */
+ .gm-shell[data-gm-mode="mission"]:is([data-gm-groups="4"],[data-gm-groups="5"]) .gm-quest-step[data-gm-step="3"]{
+   grid-template-columns:21px 88px minmax(0,1fr);
+ }
+ .gm-shell[data-gm-mode="mission"]:is([data-gm-groups="4"],[data-gm-groups="5"]) .gm-quest-step[data-gm-step="3"] .gm-quest-icon{
+   width:88px;
+ }
+ /* Two rows of ten real berries should sit INSIDE the wicker opening.
+    A regular 28px tall berry would otherwise disappear behind the nameplate
+    in a short (390px) landscape viewport; no changes to other missions. */
+ .gm-shell[data-gm-mode="mission"][data-gm-each="10"] .gm-fruit-bed{
+   top:32%;height:37%;
+ }
+ .gm-shell[data-gm-mode="mission"][data-gm-each="10"] .gm-fruit{
+   height:19px;
+ }
  .gm-shell[data-gm-mode="mission"] .gm-actions{margin:6px auto 0}
  .gm-shell[data-gm-mode="mission"] .gm-secondary-nav{margin-top:6px}
 }
