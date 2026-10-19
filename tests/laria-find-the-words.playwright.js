@@ -189,6 +189,15 @@ async function run(engine,label,viewport,url,avatar){
    await page.locator('.fw-next').click();
    assert.equal(await page.locator('.fw-word.is-found').count(),0,'New illustrated round was not reset');
    assert.equal(await page.locator('.fw-word').count(),6);
+   await page.locator('.fw-word[data-fw-read="fugl"]').click();
+   assert.equal(await page.locator('.fw-word.is-selected').count(),1);
+   await page.locator('.fw-back').click();
+   await page.reload({waitUntil:'domcontentloaded'});
+   await page.waitForFunction(()=>typeof window.openFindTheWords==='function');
+   await page.locator('.bc12-nav [data-camp="explore"]').click();
+   await page.locator('.bc13-panel:not([hidden]) [data-bc13-action="find-words"]').click();
+   assert.equal(await page.locator('.fw-word[data-fw-read="fugl"]').getAttribute('aria-pressed'),'true',
+     'Chosen word did not persist after exiting and reloading');
    await page.locator('.fw-back').click();
    // The separate 6x6 letter-grid mode and its five themes remain available.
    await page.locator('.bc13-panel:not([hidden]) .bc13-card[data-bc13-action="words"]').click();
