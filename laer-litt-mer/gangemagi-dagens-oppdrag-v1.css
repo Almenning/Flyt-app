@@ -785,20 +785,27 @@
    unrelated bright-red add button. These berries are real SVG children in a
    focusable/touchable source; mission arithmetic remains entirely in the DOM. */
 .gm-shell[data-gm-mode="mission"] .gm-pick.gm-strawberry-tray{
-  position:relative;isolation:isolate;touch-action:none; /* direct touch dragging */
-  background:repeating-linear-gradient(97deg,transparent 0 26px,#46280d14 27px 29px),
-    linear-gradient(174deg,#d19b65,#b7804a 55%,#8d5732);
-  border:3px solid #f4d5a2;border-bottom:7px solid #724429;
-  border-radius:17px 17px 23px 23px;
-  color:#fff9e8;text-shadow:0 1px 2px #52351d9c;
-  box-shadow:inset 0 2px 0 #f8dfb5b5,inset 0 -1px 1px #47291575,
-    0 5px 0 #79523282,0 9px 14px #79523240;
+  /* Direct play: the whole touch target is the illustrated fruit crate,
+     NOT another oversized add button with a crate drawn inside it. */
+  position:relative;isolation:isolate;touch-action:none;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:1px;padding:0;border:0;border-radius:12px;background:transparent;
+  min-width:0;max-width:none;color:#604027;box-shadow:none;text-shadow:none;
+  font-size:clamp(11px,1.3vw,14px);font-weight:900;
+}
+.gm-shell[data-gm-mode="mission"] .gm-pick.gm-strawberry-tray>span:nth-child(2){
+  display:block;flex:0 0 auto;white-space:nowrap;line-height:1.1;
+  color:#704027;text-shadow:0 1px 0 #fff3d1;font-weight:950;
+}
+.gm-shell[data-gm-mode="mission"] .gm-pick.gm-strawberry-tray small{display:none}
+.gm-shell[data-gm-mode="mission"] .gm-pick.gm-strawberry-tray:active:not(:disabled){
+  transform:none; /* Do not move the pointer origin while the berry is dragged. */
 }
 /* Wooden market crate with five live SVG berries. The foreground rim overlaps
    their stems, instead of presenting three icons on a generic push button. */
 .gm-shell[data-gm-mode="mission"] .gm-pick.gm-strawberry-tray .gm-pick-fruit{
   display:block;position:relative;isolation:isolate;flex:0 0 auto;
-  width:clamp(100px,14vw,128px);height:clamp(43px,5.4vw,61px);
+  width:clamp(94px,10vw,124px);height:clamp(40px,3.8vw,49px);
   border:3px solid #d9a36c;border-bottom:4px solid #744628;
   border-radius:17px 17px 12px 12px;
   background:radial-gradient(ellipse at 50% 25%,#57331f,#8d542c 68%,#af7742);
@@ -828,10 +835,10 @@
 }
 @media(max-width:374px){
  .gm-shell[data-gm-mode="mission"] .gm-pick.gm-strawberry-tray{
-   padding:3px 5px;gap:4px;
+   padding:0;gap:1px;
  }
  .gm-shell[data-gm-mode="mission"] .gm-pick.gm-strawberry-tray .gm-pick-fruit{
-   width:86px;height:42px;
+   width:92px;height:39px;
  }
 }
 @media(prefers-reduced-motion:reduce){
@@ -856,8 +863,8 @@
   width:min(100%,450px);margin:-8px auto 4px;padding:0 4px;
 }
 .gm-shell[data-gm-mode="mission"] .gm-market-fruit-supply .gm-pick.gm-strawberry-tray{
-  order:initial;display:flex;flex:1 1 auto;min-width:0;max-width:none;
-  width:100%;min-height:61px;margin:0;justify-content:center;
+  order:initial;display:flex;flex:0 0 auto;min-width:0;max-width:none;
+  width:clamp(120px,15vw,150px);min-height:61px;margin:0 auto;
 }
 .gm-shell[data-gm-mode="mission"][data-gm-complete="false"] .gm-actions{
   justify-content:center;
@@ -870,7 +877,7 @@
    margin:-12px auto 0;padding:0 2px;
  }
  .gm-shell[data-gm-mode="mission"] .gm-market-fruit-supply .gm-pick.gm-strawberry-tray{
-   min-height:49px;border-bottom-width:5px;
+   min-height:49px;
  }
 }
 @media(min-width:900px) and (max-height:900px){
