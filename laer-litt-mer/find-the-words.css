@@ -426,3 +426,19 @@
 @media(prefers-reduced-motion:reduce){
  .fw-word.is-dragging,.fw-art .fw-object.is-drop-target{transition:none!important}
 }
+
+/* The garden introduces authentic longer Norwegian words. Do not shrink text
+   below grade-two readability in order to fit another decorative icon. */
+.fw-overlay[data-scene="garden"] .fw-word strong{min-width:0;overflow-wrap:anywhere;line-height:1.12}
+@media (min-width:361px) and (max-width:700px) and (min-height:750px) and (orientation:portrait){
+ .fw-overlay[data-scene="garden"] .fw-word{gap:4px;padding:5px 6px}
+ .fw-overlay[data-scene="garden"] .fw-word-icon{width:23px;height:25px;font-size:18px}
+ .fw-overlay[data-scene="garden"] .fw-word-check{width:18px;height:18px}
+}
+@media(max-width:360px){
+ .fw-overlay[data-scene="garden"] .fw-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
+ .fw-overlay[data-scene="garden"] .fw-word{padding:4px 5px;min-height:44px;gap:3px}
+ .fw-overlay[data-scene="garden"] .fw-word strong{font-size:16px;letter-spacing:-.025em}
+ .fw-overlay[data-scene="garden"] .fw-word-icon{display:none}
+ .fw-overlay[data-scene="garden"] .fw-word-check{width:17px;height:17px}
+}
