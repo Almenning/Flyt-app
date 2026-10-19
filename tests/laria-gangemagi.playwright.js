@@ -789,7 +789,7 @@ async function checkLandscape(engine,label,url){
    await page.waitForFunction(()=>window.LARIA_GANGEMAGI?.version==='playable-v1');
    await page.evaluate(()=>window.openMultiplicationLab());
    await page.locator('#multiplication-lab-screen.active .gm-shell').waitFor();
-   assert.match((await page.locator('.gm-quest-callout').innerText()).replace(/\\s+/g,' '),
+   assert.match((await page.locator('.gm-quest-callout').innerText()).replace(/\s+/g,' '),
      /Fyll 3 kurver med 3 jordbær i hver/,label+' original task must survive short landscape');
    assert.equal(await page.locator('.gm-crate').count(),3,
      label+' three functional illustrated baskets survive landscape');
