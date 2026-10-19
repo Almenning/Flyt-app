@@ -9,6 +9,17 @@ Base: SuperKlode v3 / PR #179
 
 Gjøre Oppdag til en geografisk korrekt, malt oppdagelsesverden i stedet for en flat kartflate med pålagte naturikoner. Enkel-globusen skal være urørt.
 
+## Materialpass – 19. oktober 2026
+
+Direkte kontroll av publisert Oppdag i desktop-/iPad-lignende bredde bekreftet
+at navigasjon, valgt rev, kontinentinngang og landvalg fungerer, men at
+landflatene fortsatt kunne leses som et kart på en kule. Det neste avgrensede
+passet gjør derfor ikke endringer i kort, tekst eller geometri: den
+georefererte fjellmaterialmotoren får en fast nordvestlig lysretning. Den
+beregnes i longitude-/latitude-rommet, slik at lys og skygge følger terrenget
+når kloden roteres. Målet er lesbare, sammenhengende høydedrag fremfor flere
+symboler eller sterkere landgrenser.
+
 ## Implementert
 
 1. Oppdag bruker nå den georefererte terrengmodellen som primært uttrykk.
