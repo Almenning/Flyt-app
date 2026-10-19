@@ -134,7 +134,7 @@
       root.speechSynthesis.speak(utterance);
     }catch(_){}
   }
-  function selectWord(word){
+  function selectWord(word,fromKeyboard=false){
     if(!active||!words().includes(word))return;
     if(active.found.has(word)){
       say(OBJECTS[word].label);
@@ -146,7 +146,13 @@
     persist();refresh();
     say(OBJECTS[word].label);
     react('curious','Nå leter vi etter '+OBJECTS[word].label+'! Finn tingen i bildet.');
-    overlay.querySelector('.fw-word.is-selected')?.focus({preventScroll:true});
+    // WebKit may scroll the entire compact screen when a replaced button is
+    // focused after a touch tap. Only restore focus for keyboard activation.
+    if(fromKeyboard){
+      const before=overlay.scrollTop;
+      overlay.querySelector('.fw-word.is-selected')?.focus({preventScroll:true});
+      overlay.scrollTop=before;
+    }
   }
   function selectObject(id){
     const item=OBJECTS[id];
@@ -220,7 +226,7 @@
     if(button.classList.contains('fw-repeat')||button.classList.contains('fw-audio')){
       say('Finn ordene. Velg et ord fra listen. Finn så riktig ting i bildet.');return;
     }
-    if(button.dataset.fwRead){selectWord(button.dataset.fwRead);return}
+    if(button.dataset.fwRead){selectWord(button.dataset.fwRead,event.detail===0);return}
     if(button.dataset.fwObject){selectObject(button.dataset.fwObject)}
   }
   function onKeydown(event){
