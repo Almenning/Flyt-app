@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="165" viewBox="0 0 1200 165">
+ <defs>
+  <linearGradient id="ledge" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#ffe0aa"/><stop offset=".2" stop-color="#dba56f"/><stop offset=".5" stop-color="#af6e42"/><stop offset=".9" stop-color="#89532f"/></linearGradient>
+  <linearGradient id="cloth" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#fff4d8"/><stop offset=".6" stop-color="#f2dfc4"/><stop offset="1" stop-color="#d7ae8b"/></linearGradient>
+  <pattern id="checked" width="92" height="80" patternUnits="userSpaceOnUse">
+   <rect width="92" height="80" fill="url(#cloth)"/>
+   <path d="M0 0H92V40H0Z" fill="#bf4b46" opacity=".5"/>
+   <path d="M0 0H46V80H0Z" fill="#d0574f" opacity=".53"/>
+   <path d="M0 0H46V40H0Z" fill="#ae3f3c" opacity=".57"/>
+   <path d="M46 40H92V80H46Z" fill="#b84443" opacity=".58"/>
+   <path d="M0 40H92M46 0V80" stroke="#fff8d6" stroke-width="2" opacity=".6"/>
+  </pattern>
+  <clipPath id="cloth-shape"><path d="M8 43Q580 31 1192 43L1186 151Q988 142 787 151Q569 159 370 147Q177 141 16 155Z"/></clipPath>
+ </defs>
+ <path d="M15 27Q590 8 1186 25L1198 53Q583 75 1 55Z" fill="#70452c" opacity=".35"/>
+ <path d="M8 27Q594 9 1193 27L1190 63Q595 81 10 63Z" fill="url(#ledge)" stroke="#824b2d" stroke-width="8"/>
+ <path d="M22 28Q591 14 1179 28" stroke="#ffe9ba" stroke-width="7" fill="none" opacity=".95" stroke-linecap="round"/>
+ <path d="M32 56Q596 73 1170 56" stroke="#704126" stroke-width="5" fill="none" opacity=".65"/>
+ <path d="M8 43Q580 31 1192 43L1186 151Q988 142 787 151Q569 159 370 147Q177 141 16 155Z" fill="url(#checked)" stroke="#b17248" stroke-width="6"/>
+ <g clip-path="url(#cloth-shape)">
+  <path d="M5 68Q590 60 1195 71M6 103Q595 91 1193 107M7 138Q588 120 1192 137" fill="none" stroke="#fff6da" stroke-width="3.5" opacity=".48"/>
+  <path d="M12 46Q564 40 1188 49" fill="none" stroke="#9f5445" stroke-width="12" opacity=".4"/>
+  <path d="M0 146Q170 136 355 150T767 154T1200 144" fill="none" stroke="#fff1d2" stroke-width="12" opacity=".3"/>
+ </g>
+ <path d="M15 155Q183 144 375 153Q579 161 785 156Q987 145 1186 155" stroke="#824d37" stroke-width="5" fill="none" opacity=".6"/>
+ <path d="M15 152Q183 141 375 150Q579 158 785 153Q987 142 1186 152" stroke="#fff1d0" stroke-width="3" stroke-dasharray="8 6" fill="none" opacity=".75"/>
+</svg>
