@@ -45,3 +45,12 @@ Første runde har én original illustrert hovedscene med tre sett ord. Flere sæ
 - Utvidet faktisk WebKit/Chromium-test med kontroll om minst 83 prosent av iPad-bredden for illustrasjonen, minst 32 prosent av høyden og fortsatt synlighet på første skjerm.
 - Endringene er committet på den eksisterende PR-grenen. **Siste commit trenger ny eksakt-head CI og nye faktiske skjermbilder før merge**.
 - Den separate globe-testen feilet i iPad landskap i verifyOffscreenCountryCard() ved venting i 5000 ms etter at iPhone-testene besto. Feilen stammer fra globetesten og er ikke bevist forårsaket av «Finn ordene». Ikke endre globen i denne PR-en; behandle denne blokkeringen særskilt.
+
+## Avsluttende iPhone-kvalitetssikring 19.10.2026
+- Kontrollerte faktisk siste iPad/iPhone-skjermbildepakke fra «Laria Finn ordene WebKit» run 39214621641, artefakt 12169021752, på head e94f59be0910cdc31d108a9722f70fde1be93e7a. Workflow fullført med SUCCESS.
+- iPad 820x1180: ordliste i to lesbare rader og stor illustrasjon som fyller den sentrale flaten, uten horisontal avskjæring. iPad liggende: fire originale aktivitetskort er fortsatt adskilt fra den nye scenen; illustrasjonen er stor.
+- iPhone 390x844: fant en reell CSS-kaskadefeil: en generell maks 700px-regel overstyrte aspektforholdet til en tidligere, mer spesifikk regel. Den skapte unødvendig luft nederst og en for liten rev.
+- Rettet dette med en målrettet, siste media-regel kun for lange iPhone-portretter fra 361px og høyde 750px. Illustrasjonens forventede høyde øker; barnets valgte rev får et større visuelt nærvær. Kompakt iPhone 320x568 endres ikke.
+- La inn regresjonskrav om større iPhone-illustrasjon, synlig rev innenfor skjermen samt at knappene for opplesning og ord kan aktiveres uten Javascript-feil.
+- **Før publisering:** den nye eksakt-head WebKit/Chromium-runnen må bli grønn og nye skjermbilder inspiseres. Bruk den faktiske siste commit-hashen, ikke tidligere pipeline-resultater.
+- Separat Dual Globes-test har feilet på landkort etter 5 sekunder i iPad landskap. Denne PR-en endrer ingen SuperKlode-filer. Opprett separat globefiks ved behov i stedet for å blande endringer.
