@@ -116,9 +116,11 @@ async function run(engine,label,viewport,url,avatar){
    const lakePoint=await page.evaluate(()=>{
      const stage=document.querySelector('.fw-art').getBoundingClientRect();
      const water=document.querySelector('[data-fw-object="vann"]').getBoundingClientRect();
-     return (water.top+water.height*.5-stage.top)/stage.height;
+     return {x:(water.left+water.width*.5-stage.left)/stage.width,
+       y:(water.top+water.height*.5-stage.top)/stage.height};
    });
-   assert.ok(lakePoint>.60&&lakePoint<.76,'Water hotspot drifted away from the visible lake: '+lakePoint);
+   assert.ok(lakePoint.x>.59&&lakePoint.x<.75&&lakePoint.y>.60&&lakePoint.y<.76,
+     'Water hotspot drifted away from the open lake: '+JSON.stringify(lakePoint));
    await page.locator('.fw-object[data-fw-object="fugl"]').click();
    assert.match(await page.locator('.fw-speech').innerText(),/Du oppdaget/,'Exploration decoy is silent');
    for(const word of targetWords){
