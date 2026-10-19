@@ -66,7 +66,7 @@
     return '<div class="fw-shell">'+
       '<header class="fw-top"><button type="button" class="fw-back" aria-label="Tilbake til Utforsk">←</button>'+
       '<div class="fw-title"><span class="fw-eyebrow">NORSK · BOKSKOGEN</span><h1 id="fw-title">Finn ordene</h1>'+
-      '<p>Velg et ord, og finn riktig ting i bildet!</p></div>'+
+      '<p>Velg et ord. Finn riktig ting!</p></div>'+
       '<button type="button" class="fw-audio" aria-label="Les opp oppgaven">♪ <span>Hør</span></button></header>'+
       '<div class="fw-layout"><aside class="fw-word-panel" aria-labelledby="fw-list-title">'+
       '<div class="fw-list-heading"><div><span class="fw-tiny">SKOGENS HEMMELIGHETER</span>'+
