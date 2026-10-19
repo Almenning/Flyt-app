@@ -145,11 +145,22 @@ async function run(engine,label,viewport,url,avatar){
    assert.ok(lakePoint.x>.59&&lakePoint.x<.75&&lakePoint.y>.60&&lakePoint.y<.76,
      'Water hotspot drifted away from the open lake: '+JSON.stringify(lakePoint));
    await page.locator('.fw-object[data-fw-object="fugl"]').click();
-   assert.match(await page.locator('.fw-speech').innerText(),/Du oppdaget/,'Exploration decoy is silent');
+   assert.match(await page.locator('.fw-speech').innerText(),/Ikke helt/,
+     'Wrong word-object pairing must give gentle corrective feedback');
+   assert.equal(await page.locator('.fw-word.is-selected').count(),0,
+     'A wrong pairing must require the child to select a word again');
+   assert.equal(await page.locator('.fw-word.is-found').count(),0,'Wrong pairing awarded progress');
+   await page.locator('.fw-object[data-fw-object="sol"]').click();
+   assert.equal(await page.locator('.fw-word.is-found').count(),0,
+     'A correct scene object without a chosen word still earned progress');
    for(const word of targetWords){
+    await page.locator('.fw-word[data-fw-read="'+word+'"]').click();
+    assert.equal(await page.locator('.fw-word.is-selected').count(),1,'Word selection missing: '+word);
     await page.locator('.fw-object[data-fw-object="'+word+'"]').click();
+    assert.equal(await page.locator('.fw-word.is-selected').count(),0,
+      'Chosen word stayed selected after it was found: '+word);
     assert.equal(await page.locator('.fw-word.is-found').count(),targetWords.indexOf(word)+1,
-      'Correct picture target did not mark the written word: '+word);
+      'Correct chosen word-object pair did not mark progress: '+word);
    }
    assert.ok(await page.locator('#find-the-words-overlay').evaluate(el=>el.classList.contains('fw-complete')),
     'Round did not complete');
