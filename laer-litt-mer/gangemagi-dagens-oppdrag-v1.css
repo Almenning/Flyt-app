@@ -39,7 +39,7 @@
 /* The actual game world fills the scene; no app-card border around the market. */
 .gm-shell[data-gm-mode="mission"] .gm-world{
   border:0;border-radius:28px 28px 22px 22px;min-height:0;overflow:visible;
-  background:linear-gradient(180deg,rgba(255,242,207,.12),rgba(253,230,178,.01) 37%,rgba(109,92,51,.08) 76%,rgba(244,205,148,.52)),
+  background:linear-gradient(180deg,rgba(252,237,208,.51),rgba(251,233,200,.48) 38%,rgba(249,225,188,.60) 76%,rgba(247,220,174,.72)),
    url('./matte-verden.png') center 54% /cover no-repeat;
   box-shadow:inset 0 0 0 2px #fff6d6c9,0 9px 24px #82553730;
   padding:12px clamp(8px,1vw,16px) 10px;
@@ -310,8 +310,8 @@
   background:linear-gradient(135deg,#fff5dcef,#ffe3b9f8);box-shadow:0 5px 0 #b17a47a3;
 }
 .gm-shell[data-gm-mode="mission"] .gm-math-label{
-  grid-row:1;grid-column:1;display:flex;flex-direction:row;justify-content:space-between;
-  align-items:center;gap:10px;color:#684029;
+  /* The mission headline already states the target. The live equation leads. */
+  display:none;
 }
 .gm-shell[data-gm-mode="mission"] .gm-math-label>span:first-child{font-size:clamp(12px,1.6vw,19px);font-weight:1000}
 .gm-shell[data-gm-mode="mission"] .gm-goal{font-size:clamp(9px,1.1vw,13px)}
@@ -329,9 +329,7 @@
 .gm-shell[data-gm-mode="mission"] .gm-berry-progress strong{
   font-size:clamp(11px,1.6vw,17px);text-align:center;color:#8c522f;font-weight:1000;
 }
-.gm-shell[data-gm-mode="mission"] .gm-berry-progress>div{
-  display:grid;grid-template-columns:repeat(5,1fr);gap:1px;justify-items:center;align-items:center;
-}
+.gm-shell[data-gm-mode="mission"] .gm-berry-progress>div{display:none}
 .gm-shell[data-gm-mode="mission"] .gm-berry-slot{display:block;width:clamp(12px,1.75vw,20px);height:clamp(13px,2vw,23px);opacity:.2;filter:grayscale(1)}
 .gm-shell[data-gm-mode="mission"] .gm-berry-slot svg{display:block;width:100%;height:100%}
 .gm-shell[data-gm-mode="mission"] .gm-berry-earned{opacity:1;filter:none}
@@ -386,13 +384,13 @@
  .gm-shell[data-gm-mode="mission"] .gm-quest-ribbon{font-size:13px}
  .gm-shell[data-gm-mode="mission"] .gm-story.gm-quest h2.gm-quest-callout{font-size:clamp(20px,5.65vw,30px);margin:5px auto 8px;line-height:1.06}
  .gm-shell[data-gm-mode="mission"] .gm-quest-steps{grid-template-columns:minmax(0,1fr) 9px minmax(0,1fr) 9px minmax(0,1fr);gap:1px}
- .gm-shell[data-gm-mode="mission"] .gm-quest-step{min-height:61px;gap:0;padding:3px 2px;border-width:1px;border-radius:12px}
+ .gm-shell[data-gm-mode="mission"] .gm-quest-step{min-height:74px;gap:2px;padding:5px 2px 7px;border-width:1px;border-radius:12px;justify-content:space-between}
  .gm-shell[data-gm-mode="mission"] .gm-quest-index{width:16px;height:16px;top:2px;left:2px;font-size:10px}
- .gm-shell[data-gm-mode="mission"] .gm-quest-icon{height:31px;gap:0}
+ .gm-shell[data-gm-mode="mission"] .gm-quest-icon{height:29px;gap:0;flex:0 0 auto}
  .gm-shell[data-gm-mode="mission"] .gm-quest-icon>.gm-quest-wicker{height:30px;width:39px}
  .gm-shell[data-gm-mode="mission"] .gm-quest-icon>.gm-quest-hand{height:25px;width:18px;margin-left:-6px}
  .gm-shell[data-gm-mode="mission"] .gm-quest-icon .gm-quest-fruit{height:26px;width:20px}
- .gm-shell[data-gm-mode="mission"] .gm-quest-step strong{font-size:10px}
+ .gm-shell[data-gm-mode="mission"] .gm-quest-step strong{font-size:clamp(12px,3vw,13px);line-height:1.14;max-width:100%;text-wrap:pretty}
  .gm-shell[data-gm-mode="mission"] .gm-quest-math{font-size:12px}
  .gm-shell[data-gm-mode="mission"] .gm-quest-arrow{font-size:12px}
  .gm-shell[data-gm-mode="mission"] .gm-fox{
@@ -457,9 +455,7 @@
  .gm-shell[data-gm-mode="mission"]:is([data-gm-groups="4"],[data-gm-groups="5"]) .gm-berry-progress strong{
    font-size:11px;white-space:nowrap;
  }
- .gm-shell[data-gm-mode="mission"]:is([data-gm-groups="4"],[data-gm-groups="5"]) .gm-berry-progress>div{
-   display:flex;justify-content:center;align-items:center;flex-wrap:nowrap;gap:2px;min-width:0;
- }
+ .gm-shell[data-gm-mode="mission"]:is([data-gm-groups="4"],[data-gm-groups="5"]) .gm-berry-progress>div{display:none}
  .gm-shell[data-gm-mode="mission"]:is([data-gm-groups="4"],[data-gm-groups="5"]) .gm-berry-slot{
    flex:0 0 10px;width:10px;height:12px;
  }
@@ -476,8 +472,8 @@
  .gm-shell[data-gm-mode="mission"] .gm-story.gm-quest h2.gm-quest-callout{
    font-size:19px;margin:2px auto 4px;
  }
- .gm-shell[data-gm-mode="mission"] .gm-quest-step{min-height:56px}
- .gm-shell[data-gm-mode="mission"] .gm-quest-step strong{font-size:11px}
+ .gm-shell[data-gm-mode="mission"] .gm-quest-step{min-height:68px}
+ .gm-shell[data-gm-mode="mission"] .gm-quest-step strong{font-size:12px;line-height:1.14}
  .gm-shell[data-gm-mode="mission"] .gm-quest-icon{height:24px}
  .gm-shell[data-gm-mode="mission"] .gm-quest-icon>.gm-quest-wicker{height:24px;width:31px}
  .gm-shell[data-gm-mode="mission"] .gm-quest-icon>.gm-quest-hand{height:18px;width:14px;margin-left:-5px}
