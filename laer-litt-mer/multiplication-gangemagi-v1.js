@@ -377,11 +377,11 @@
    if(kind==='source'){
      if(Date.now()<suppressClickUntil)return;
      if(state.mode==='mission'){
-       if(selectedGroup!==null&&state.counts[selectedGroup]<state.each){
-         holdingBerry=false;change({type:'add',group:selectedGroup});return;
-       }
-       holdingBerry=true;notice='Jordbæret er plukket! Trykk på en kurv, eller dra jordbæret dit.';foxMood='cheer';render();
-       return;
+       // One predictable model: tapping the supply PICKS a berry, tapping the
+       // destination basket PLACES it. Never silently add to an old selection.
+       holdingBerry=true;
+       notice='Jordbæret er plukket! Trykk på kurven du vil legge det i.';
+       foxMood='cheer';render();return;
      }
      const ix=state.counts.findIndex(n=>n<state.each);
      if(ix>=0)change({type:'add',group:ix});
