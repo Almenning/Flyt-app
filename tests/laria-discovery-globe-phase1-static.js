@@ -133,6 +133,30 @@ assert.match(preview,/function smoothGeoStroke\(/,'all terrain corridors must sh
 assert.match(preview,/canvas\.dataset\.discoveryEcosystems=/,'QA must expose actual painted ecosystem count');
 assert.match(preview,/canvas\.dataset\.discoveryRelief=/,'QA must expose actual painted mountain count');
 assert.doesNotMatch(preview,/const geographicTextureZones=\[/,'no arbitrary map-filling icon rectangles');
+assert.match(preview,/function ocean\([^{]*\)\{[\s\S]*?Gentle currents retain a living ocean/,
+  'overview water must use illustrated currents rather than a cartographic latitude grid');
+assert.match(preview,/const glaze=ctx\.createLinearGradient/,
+  'the discovery ocean needs a broad light-to-depth glaze beneath its currents');
+assert.match(preview,/ctx\.lineWidth=Math\.max\(2\.2,s\*\.0072\)/,
+  'ocean currents need a broad translucent undercurrent, not only hairlines');
+assert.doesNotMatch(preview,/for\(const lat of \[-60,-30,0,30,60\]\)/,
+  'the illustrated globe must not regress to a graticule at world scale');
+assert.match(preview,/const iceFacets=\[/,
+  'Antarctica must use broad geographic ice facets instead of striped shadow bands');
+assert.doesNotMatch(preview,/const iceRoutes=\[/,
+  'the rejected thin Antarctic shadow bands must not return');
+assert.match(preview,/if\(leafy&&level===1&&smoothGeoStroke\(ctx,zone\.route,w,h,s\)\)/,
+  'overview forests must begin as connected geographic canopy corridors');
+assert.match(preview,/const perZone=leafy\?\(level===1\?38/,
+  'overview canopy detail must support the connected mass instead of becoming a dot field');
+assert.match(preview,/function paintBorders\(ctx,w,h,s,level\)/,
+  'border rendering must explicitly know the current discovery zoom level');
+assert.match(preview,/if\(!selected&&level===1\)continue/,
+  'continent overview must not be dominated by internal political borders');
+assert.match(preview,/function paintSmallCountries\(ctx,w,h,s,level\)/,
+  'tiny-country markers need the same overview discipline as borders');
+assert.match(preview,/if\(level===1&&c\.id!==globeSelected\)continue/,
+  'overview must not turn every small country into a map-dot marker');
 
 assert.match(preview,/landClip\(ctx,w,h\)/, 'land-only illustration clipping must remain active');
 assert.match(preview,/if\(!activated\|\|window\.drawGlobe!==discoveryDraw\)/, 'idle preview must not repaint on every interval tick');

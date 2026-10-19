@@ -160,8 +160,23 @@ function landClip(ctx,w,h){
 function ocean(ctx,w,h,s){
   const g=ctx.createRadialGradient(w*.35,h*.24,2,w*.54,h*.57,s*.68);
   g.addColorStop(0,'#B9F3F0');g.addColorStop(.22,'#57D3D8');g.addColorStop(.55,'#218FBD');g.addColorStop(1,'#135B91');ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
-  ctx.save();ctx.globalAlpha=.38;ctx.strokeStyle='#E1FFFF';ctx.lineWidth=Math.max(.7,s*.0013);
-  for(const lat of [-60,-30,0,30,60]){ctx.beginPath();const a=[];for(let lon=-180;lon<=180;lon+=4)a.push([lon,lat]);drawProjectedLine(ctx,a,w,h);ctx.stroke();}
+  /* A transparent water glaze gives the sea a broad, curved volume before
+     the geographic currents are added. It is clipped by discoveryDraw's
+     sphere, so it cannot spill into the storyscape behind the globe. */
+  const glaze=ctx.createLinearGradient(w*.16,h*.08,w*.84,h*.91);
+  glaze.addColorStop(0,'rgba(244,255,238,.26)');
+  glaze.addColorStop(.42,'rgba(89,214,210,.02)');
+  glaze.addColorStop(1,'rgba(9,65,122,.30)');
+  ctx.fillStyle=glaze;ctx.fillRect(0,0,w,h);
+  /* Gentle currents retain a living ocean without turning the globe into a
+     graticule. They are geographical paths, so they rotate with the world. */
+  ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
+  for(const [from,to,phase] of [[[-164,-37],[-78,-33],0],[[17,-29],[104,-25],1],[[111,18],[178,15],2],[[-150,37],[-76,41],3],[[-19,46],[54,43],4]]){
+    const route=[];
+    for(let i=0;i<=22;i++){const t=i/22;route.push([from[0]+(to[0]-from[0])*t,from[1]+(to[1]-from[1])*t+Math.sin(t*Math.PI*2+phase)*2.2]);}
+    ctx.globalAlpha=.10;ctx.strokeStyle='#A5F0E2';ctx.lineWidth=Math.max(2.2,s*.0072);drawProjectedLine(ctx,route,w,h);ctx.stroke();
+    ctx.globalAlpha=.27;ctx.strokeStyle='#E1FFFF';ctx.lineWidth=Math.max(.7,s*.00115);drawProjectedLine(ctx,route,w,h);ctx.stroke();
+  }
   ctx.restore();
 }
 function paintLandBase(ctx,w,h,s){
@@ -208,37 +223,24 @@ function paintAntarcticIce(ctx,w,h,s){
   ice.addColorStop(1,'#639EAE');
   ctx.fillStyle=ice;ctx.fill();
   ctx.clip();
-  // Subtle geographically anchored snow/ice-shadow bands, not arbitrary
-  // continent-shaped decorative stamps.
-  const iceRoutes=[
-    [[-69,-66],[-61,-69],[-58,-73],[-50,-77]],
-    [[-151,-76],[-141,-79],[-132,-82],[-122,-84]],
-    [[112,-66],[111,-70],[107,-75],[99,-80]],
-    [[157,-74],[162,-78],[166,-81],[171,-84]]
+  /* Broad ice facets make the continent read as a sculpted ice mass rather
+     than as thin striped bands. Every point is longitude/latitude anchored,
+     and the real Natural Earth outline above remains the final clip. */
+  const iceFacets=[
+    {shade:'rgba(71,143,163,.32)',light:'rgba(225,246,237,.36)',points:[[-166,-76],[-131,-78],[-105,-83],[-140,-86],[-175,-82]]},
+    {shade:'rgba(94,163,179,.28)',light:'rgba(242,251,241,.42)',points:[[-87,-68],[-53,-71],[-39,-80],[-69,-86],[-101,-80]]},
+    {shade:'rgba(84,151,171,.30)',light:'rgba(236,249,239,.38)',points:[[-24,-72],[21,-73],[45,-81],[10,-87],[-25,-82]]},
+    {shade:'rgba(70,139,160,.31)',light:'rgba(232,248,239,.37)',points:[[49,-69],[95,-71],[124,-79],[91,-85],[53,-80]]},
+    {shade:'rgba(97,169,181,.27)',light:'rgba(248,253,244,.44)',points:[[119,-70],[158,-72],[177,-80],[149,-85],[113,-80]]}
   ];
-  for(const route of iceRoutes){
-    if(!smoothGeoStroke(ctx,route,w,h,s))continue;
-    ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
-    ctx.strokeStyle='rgba(67,132,151,.34)';
-    ctx.lineWidth=Math.max(3,s*.015);ctx.stroke();
-    ctx.strokeStyle='rgba(247,252,239,.82)';
-    ctx.lineWidth=Math.max(1.2,s*.0046);ctx.stroke();
-    ctx.restore();
-  }
-  /* Wide ice shelves are geographic meridian corridors, not screen-space
-     decoration. Their translucent shadows keep the polar world legible on
-     a small phone as well as on a large iPad. */
-  for(const route of [
-    [[-176,-78],[-164,-80],[-150,-81]],
-    [[-43,-76],[-28,-79],[-12,-80]],
-    [[27,-72],[41,-75],[57,-78]],
-    [[74,-68],[90,-72],[104,-76]]
-  ]){
-    if(!smoothGeoStroke(ctx,route,w,h,s))continue;
-    ctx.save();ctx.lineCap='round';
-    ctx.strokeStyle='rgba(89,163,179,.23)';ctx.lineWidth=Math.max(5,s*.030);ctx.stroke();
-    ctx.strokeStyle='rgba(250,253,240,.46)';ctx.lineWidth=Math.max(2,s*.010);ctx.stroke();
-    ctx.restore();
+  for(const facet of iceFacets){
+    const projected=[];
+    for(const [lon,lat] of facet.points){const p=project(lon,lat,w,h);if(p&&p[2]>.06)projected.push(p);}
+    if(projected.length<3)continue;
+    ctx.save();ctx.beginPath();ctx.moveTo(projected[0][0],projected[0][1]);
+    for(let i=1;i<projected.length;i++)ctx.lineTo(projected[i][0],projected[i][1]);
+    ctx.closePath();ctx.fillStyle=facet.shade;ctx.fill();
+    ctx.strokeStyle=facet.light;ctx.lineWidth=Math.max(.7,s*.0021);ctx.stroke();ctx.restore();
   }
   ctx.restore();
   ctx.save();ctx.beginPath();path(ctx,antarcticaOutline,w,h);
@@ -475,12 +477,19 @@ function paintWorldTerrain(ctx,w,h,s,level,moving){
   ctx.restore();return 0;
 }
 
-function paintBorders(ctx,w,h,s){
+function paintBorders(ctx,w,h,s,level){
   for(const c of land()){
     if(!c.geometry)continue;ctx.beginPath();if(!path(ctx,c,w,h))continue;
     const selected=c.id===globeSelected;
     if(selected){ctx.save();ctx.fillStyle='rgba(255,224,137,.13)';ctx.shadowColor='rgba(255,188,36,.22)';ctx.shadowBlur=Math.max(8,s*.014);ctx.fill();ctx.restore();}
-    ctx.strokeStyle=selected?'rgba(255,253,225,.98)':`rgba(255,250,226,${globeZoom>2.4?.48:.29})`;ctx.lineWidth=selected?Math.max(1.7,s*.003):Math.max(.55,s*.0011);ctx.stroke();
+    /* Countries remain authoritative for touch and selection, but their
+       borders must not turn the first view into a political wall map. At
+       continent level only the selected country gets an outline; borders
+       progressively return as the child zooms toward a place. */
+    if(!selected&&level===1)continue;
+    const alpha=level===2?.15:.46;
+    ctx.strokeStyle=selected?'rgba(255,253,225,.98)':`rgba(255,250,226,${alpha})`;
+    ctx.lineWidth=selected?Math.max(1.7,s*.003):Math.max(.55,s*(level===2?.00082:.0011));ctx.stroke();
   }
 }
 /* Real-world mountain corridors in approximate geographic order.
@@ -647,10 +656,24 @@ function paintGeographicTexture(ctx,w,h,s,level,moving){
   for(let z=0;z<landscapeZones.length;z++){
     const zone=landscapeZones[z],segments=zone.route.length-1;
     const leafy=zone.type==='rainforest'||zone.type==='forest';
+    /* Overview forests are painted as connected canopy corridors first.
+       The finer crown flecks beneath merely keep the mass alive; they never
+       need to carry the shape of a continent by themselves. */
+    if(leafy&&level===1&&smoothGeoStroke(ctx,zone.route,w,h,s)){
+      const canopyWidth=clamp(geoBrushWidth(zone,w,h,s)*.92,s*.018,s*.26);
+      ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
+      ctx.strokeStyle=zone.type==='rainforest'?'rgba(20,91,57,.34)':'rgba(38,92,58,.30)';
+      ctx.lineWidth=canopyWidth;ctx.stroke();
+      if(smoothGeoStroke(ctx,zone.route,w,h,s)){
+        ctx.strokeStyle=zone.type==='rainforest'?'rgba(137,194,108,.20)':'rgba(198,211,132,.18)';
+        ctx.lineWidth=Math.max(1,canopyWidth*.36);ctx.stroke();
+      }
+      ctx.restore();drawn++;
+    }
     /* At overview, use many overlapping small washes rather than a few
        oversized clumps. The rainforest then reads as one painted canopy
        and the Sahara as sand material, never as stamped map symbols. */
-    const perZone=leafy?(level===1?62:level===2?104:156):
+    const perZone=leafy?(level===1?38:level===2?104:156):
       (level===1?30:level===2?42:62);
     for(let i=0;i<perZone;i++){
       const t=geoNoise(z*109+i*29+9)*segments;
@@ -829,9 +852,10 @@ function paintLandmarks(ctx,w,h,s,level,moving,waterOnly=false){
   }
   return painted;
 }
-function paintSmallCountries(ctx,w,h,s){
+function paintSmallCountries(ctx,w,h,s,level){
   if(typeof isTinyCountry!=='function')return;
   for(const c of land()){
+    if(level===1&&c.id!==globeSelected)continue;
     if(!isTinyCountry(c)&&c.id!==globeSelected)continue;const p=project(c.lon,c.lat,w,h);if(!p)continue;const r=c.id===globeSelected?Math.max(5.3,s*.010):Math.max(2.1,s*.0038);ctx.beginPath();ctx.arc(p[0],p[1],r,0,Math.PI*2);ctx.fillStyle=c.id===globeSelected?'#FFD65E':'#FFF3A8';ctx.fill();ctx.strokeStyle='rgba(83,63,35,.38)';ctx.lineWidth=1;ctx.stroke();
   }
 }
@@ -858,7 +882,7 @@ function discoveryDraw(){
   ctx.restore();
   const polarCount=paintAntarcticIce(ctx,w,h,s);
   const seaCount=paintLandmarks(ctx,w,h,s,level,moving,true);
-  paintBorders(ctx,w,h,s);paintSmallCountries(ctx,w,h,s);
+  paintBorders(ctx,w,h,s,level);paintSmallCountries(ctx,w,h,s,level);
   const discoveryLocationCount=paintDiscoveryLocation(ctx,w,h,s,moving);
   if(typeof drawGlobePulse==='function')drawGlobePulse(ctx,w,h);
   ctx.restore();
