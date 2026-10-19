@@ -113,6 +113,7 @@
   }
   function refresh(){
     if(!overlay||!active)return;
+    overlay.dataset.scene=sceneId();
     const all=words();
     overlay.querySelector('.fw-list').innerHTML=all.map(word=>{
       const item=OBJECTS[word],found=active.found.has(word),selected=selectedWord===word;
