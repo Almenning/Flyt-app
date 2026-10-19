@@ -23,7 +23,7 @@ Gren: `feat/laria-find-words-equal-card-select-first-20261019` (fra main `217947
 - `laria-find-the-words.playwright.js`: FEM like kort, selvstendig illustrasjon, ingen score ved tilfeldig trykk, valgt ord med aria-pressed og utheving, hint knyttet til ordet, feil match uten poeng, ny valgt match for hvert riktig funn, lagret valgt ord etter omstart, original bokstav-Ordjakt med fem temaer.
 - `laria-navigation-v13.playwright.js`: FEM Utforsk-destinasjoner og fire reisekort.
 - `laria-home-subjects-v14.playwright.js`: FEM Utforsk-kort; fire hjemfag.
-- `laria-premium-cards.playwright.js`: Verifiserer fortsatt de åtte godkjente 1024×704-WebP-bildene og én original 1200×720 SVG for «Finn ordene». Original manifest/hash-krav for de åtte godkjente bildene beholdes uendret.
+- `laria-premium-cards.playwright.js`: Bevarer verifikasjonen av de åtte opprinnelige godkjente 1024×704-WebP-bildene. «Finn ordene»-kortet bruker en eksisterende malt Bokskogen-WebP som eget motiv, med dekorativt forstørrelsesglass; filen er uavhengig av de åtte låste illustrasjonene. Selve spillscenen forblir den opprinnelige illustrerte SVG-en.
 - `laria-navigation-v13.cjs`: inkluderer ny destinasjon.
 
 ## Kvalitetsport
@@ -37,4 +37,15 @@ Gren: `feat/laria-find-words-equal-card-select-first-20261019` (fra main `217947
 
 ## Fremdriftsstatus
 
-Implementert og committet på isolert gren. Nettlesertesting og visuell kontroll på nyeste commit gjenstår; **ikke publisert**.
+**Fullført og publisert 19.10.2026.**
+
+- PR [#191](https://github.com/Almenning/Flyt-app/pull/191) er flettet inn i `main` som merge-commit `7ad906db5442b8ed8ea5dc4f5537514bc9e17ffb`.
+- Ny malerisk illustrasjon i det femte kortet: `bokskogen-reference-bg.webp` med eget forstørrelsesglass. Ingen av de åtte tidligere godkjente premiumkortfilene er erstattet eller redigert.
+- GitHub Actions på eksakt PR-head `05902f7817c42b3ee758e3622d971b16a2de9446`: «Laria Finn ordene WebKit» #39228109341 = **SUCCESS**. Full scenetest og screenshotbevis på liten iPhone (320×568), vanlig iPhone (390×844), iPad stående og liggende, samt Chromium.
+- Skjermbildene er inspisert: fem likestilte kort; valgt ord er tydelig, hintets markør peker på valgt gjenstand; ingen tap på feil objekt gir poeng. Den gamle bokstav-Ordjaktens fem temaer er fremdeles tilgjengelige i testen.
+- PR-head «Continuous smoke checks» = **SUCCESS**, og relevant «Laria Dual Globes Release QA» = **SUCCESS**. Den omfattende «Laria QA»-arbeidsflyten var fortsatt i gang ved sammenslåing. Ikke oppgi den som fullført før status er kontrollert.
+- Publisering via GitHub Pages (legacy) fra `main`-roten ble bekreftet av pages-source-jobben. GitHub Pages build og deploy på `7ad906d` besto.
+- Post-merge GitHub Actions «Laria Finn ordene WebKit» #39230381554: picture-hunt **SUCCESS** og **pages-live SUCCESS**. Sistnevnte hentet offentlig Læria HTML, ordjakt-JS/CSS, spill-SVG, nytt kortbakgrunnsbilde, Utforsk JS/CSS og Safari-cache, og bekreftet versjonsmarkørene fra publisert side.
+- Live adresse: https://almenning.github.io/Flyt-app/laer-litt-mer/?app=laria → Utforsk → Finn ordene.
+
+**Bevisst ikke inkludert:** valgfri dra-og-slipp av ord, nye scener og total premiumredesign av selve spillscenen. Denne leveransen dekker oppgradert kort og ord-først-matching; ytterligere spillkunst krever egen avgrenset iterasjon.
