@@ -1,5 +1,5 @@
 'use strict';
-/* Premium cards are eight real, separate high-resolution images, not flat SVGs. */
+/* The eight approved WebP paintings stay exact; the fifth Explore card adds an original SVG illustration. */
 const assert=require('node:assert/strict');
 const {chromium,webkit}=require('playwright');
 const seed={version:7,progressSchemaVersion:3,
@@ -10,7 +10,7 @@ const seed={version:7,progressSchemaVersion:3,
  journey:{nodes:{},gradeWins:{},viewGrades:{}},answerLog:[],sessionLog:[],activeSession:null};
 const urls={
  travel:['norwegian','math','english','geography'],
- explore:['globe','words','fraction','multiply']
+ explore:['globe','words','find-words','fraction','multiply']
 };
 const lookup={
  norwegian:'reisen/norwegian',math:'reisen/math',english:'reisen/english',geography:'reisen/geography',
@@ -32,7 +32,7 @@ async function run(engine,label,width,height){
   for(const mode of ['travel','explore']){
    await page.locator('.bc12-nav [data-camp="'+mode+'"]').click();
    await page.locator('.bc12[data-bc13-view="'+mode+'"] .bc13-card').first().waitFor({timeout:18000});
-   assert.equal(await page.locator('.bc13-card:visible').count(),4,label+' '+mode+' four gateways');
+   assert.equal(await page.locator('.bc13-card:visible').count(),mode==='explore'?5:4,label+' '+mode+' gateway count');
    const cards=await page.locator('.bc13-card').evaluateAll(async(nodes)=>{
     await Promise.all(nodes.map(async node=>{
       const img=node.querySelector('img.bc13-premium-art');
@@ -57,10 +57,15 @@ async function run(engine,label,width,height){
    }
    for(const card of cards){
     assert.ok(urls[mode].includes(card.action),label+' wrong card '+JSON.stringify(card));
-    assert.equal(card.src.startsWith('./assets/cards/'+lookup[card.action]+'-premium.webp'),true,label+' stale asset '+card.action);
+    if(card.action==='find-words'){
+      assert.ok(card.src.startsWith('./find-the-words-scene.svg'),label+' picture card must use its own illustrated scene: '+card.src);
+    }else{
+      assert.equal(card.src.startsWith('./assets/cards/'+lookup[card.action]+'-premium.webp'),true,label+' stale asset '+card.action);
+    }
     assert.equal(card.ready,true,label+' image never finished loading '+card.action);
     assert.equal(card.broken,false,label+' image 404 triggered fallback '+card.action);
-    assert.deepEqual(card.natural,[1024,704],label+' invalid premium image '+card.action);
+    assert.deepEqual(card.natural,card.action==='find-words'?[1200,720]:[1024,704],
+      label+' invalid illustrated card image '+card.action);
     assert.equal(card.fit,'cover',label+' stretched image '+card.action);
     assert.ok(card.frame.w>95&&card.frame.h>35,label+' missing art surface '+card.action);
     assert.ok(Math.abs(card.frame.w-card.image.w)<1.5&&Math.abs((card.frame.h-card.image.h)-card.borderBottom)<1.5,label+' image geometry differs from image area above card bottom border '+JSON.stringify(card));
@@ -82,7 +87,7 @@ async function run(engine,label,width,height){
     return x?.complete&&x?.naturalWidth===941&&x?.naturalHeight===1672;},null,{timeout:18000});
   assert.equal((await original.evaluate(el=>[el.naturalWidth,el.naturalHeight])).join('x'),'941x1672');
   assert.deepEqual(errors,[],label+' runtime errors');
-  console.log('[LÆRIA PREMIUM CARDS]',label,'eight distinct WebPs, sizes, progress, layout, navigation OK');
+  console.log('[LÆRIA PREMIUM CARDS]',label,'eight approved WebPs plus one illustrated SVG, geometry and navigation OK');
   await context.close();
  }finally{await browser.close()}
 }
