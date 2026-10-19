@@ -21,7 +21,7 @@
   ];
   let active=null,overlay=null,previousFocus=null,previousOverflow='',reactionTimer=null;
   let hintStage=0,hintWord=null,selectedWord=null,wrongAttempts=0;
-  let pointerDrag=null,dragGhost=null,lastDraggedWord=null,dragClickTimer=null;
+  let pointerDrag=null,dragGhost=null,lastDraggedWord=null,dragClickTimer=null,sceneEffectTimer=null;
 
   function read(key){try{return JSON.parse(root.localStorage.getItem(key)||'null')}catch(_){return null}}
   function write(key,data){try{root.localStorage.setItem(key,JSON.stringify(data))}catch(_){}}
@@ -78,7 +78,8 @@
       '<div class="fw-art" role="group" aria-label="Eventyrbilde med ting du kan finne">'+
       '<div class="fw-picture">'+
       '<img src="./find-the-words-scene.svg?v=20261018-a" class="fw-scene-image" alt="Illustrert skog med vann, telt, sol og mange små oppdagelser" draggable="false">'+
-      objectButtons()+'<div class="fw-celebration" hidden aria-hidden="true">✦ ✧ ✦</div></div></div>'+
+      objectButtons()+'<svg class="fw-fx" viewBox="0 0 1200 720" preserveAspectRatio="none" aria-hidden="true"></svg>'+
+      '<div class="fw-celebration" hidden aria-hidden="true">✦ ✧ ✦</div></div></div>'+
       '<div class="fw-scene-bottom"><span class="fw-scenery-caption">Trykk på et ord eller dra det til tingen.</span>'+
       '<button type="button" class="fw-hint">💡 Vis meg et hint</button></div></div></div>'+
       '<footer class="fw-bottom"><div class="fw-companion" data-mood="idle">'+
@@ -126,6 +127,45 @@
     if(reactionTimer)root.clearTimeout(reactionTimer);
     reactionTimer=root.setTimeout(()=>{if(buddy.isConnected)buddy.dataset.mood='idle';reactionTimer=null},1050);
   }
+  // The fox's guidance and the child's discovery happen INSIDE the illustrated
+  // scene, without intercepting a single picture tap or altering its hitboxes.
+  // Coordinates are derived from the same 1200x720 plane as the image + buttons.
+  function clearSceneEffect(){
+    if(sceneEffectTimer){root.clearTimeout(sceneEffectTimer);sceneEffectTimer=null}
+    const layer=overlay?.querySelector('.fw-fx');
+    if(layer)layer.replaceChildren();
+  }
+  function sceneEffect(id,kind){
+    const item=OBJECTS[id],layer=overlay?.querySelector('.fw-fx');
+    if(!item||!layer)return;
+    clearSceneEffect();
+    const x=Math.round((item.x+item.w/2)*12),y=Math.round((item.y+item.h/2)*7.2);
+    if(kind==='guide'){
+      // First hint is verbal. Only a second request paints this calm trail
+      // from the child's fox at the lower-left frame to the searched-for object.
+      const c1x=Math.min(x*.45+85,335),c1y=Math.max(225,y+170);
+      const c2x=Math.max(160,x-170),c2y=Math.max(115,y+112);
+      const d='M 30 704 C '+Math.round(c1x)+' '+Math.round(c1y)+', '+Math.round(c2x)+' '+Math.round(c2y)+', '+x+' '+y;
+      layer.innerHTML='<path class="fw-guide-glow" d="'+d+'"/>'+
+        '<path class="fw-guide-spark" d="'+d+'"/>'+
+        '<g class="fw-target-flower" data-fx-object="'+id+'" transform="translate('+x+' '+y+')">'+
+        '<circle r="36" fill="none" stroke="#fff9be" stroke-width="9"/>'+
+        '<circle r="46" fill="none" stroke="#6eb6a5" stroke-width="5" stroke-dasharray="12 16"/>'+
+        '<path d="M0 -61V-51M0 51V61M-61 0H-51M51 0H61" stroke="#fff5ca" stroke-width="6" stroke-linecap="round"/></g>';
+    }else if(kind==='success'){
+      const rays=Array.from({length:8},(_,i)=>{
+        const a=i*Math.PI/4,sx=Math.round(Math.cos(a)*34),sy=Math.round(Math.sin(a)*34);
+        const ex=Math.round(Math.cos(a)*60),ey=Math.round(Math.sin(a)*60);
+        return '<path d="M'+sx+' '+sy+'L'+ex+' '+ey+'" stroke="#ffe5a0" stroke-width="8" stroke-linecap="round"/>';
+      }).join('');
+      layer.innerHTML='<g class="fw-success-burst" data-fx-object="'+id+'" transform="translate('+x+' '+y+')">'+
+        '<circle r="24" fill="#fff4ad" fill-opacity=".68"/>'+rays+
+        '<circle r="19" fill="none" stroke="#fffbea" stroke-width="6"/></g>';
+    }else if(kind==='try'){
+      layer.innerHTML='<circle class="fw-try-ring" data-fx-object="'+id+'" cx="'+x+'" cy="'+y+'" r="27" fill="none" stroke="#ffebaa" stroke-width="8"/>';
+    }
+    sceneEffectTimer=root.setTimeout(clearSceneEffect,kind==='guide'?3100:1300);
+  }
   function say(text){
     if(!root.speechSynthesis||typeof root.SpeechSynthesisUtterance!=='function')return;
     try{
@@ -143,6 +183,7 @@
       return;
     }
     selectedWord=word;
+    clearSceneEffect();
     hintStage=0;hintWord=null;wrongAttempts=0;
     persist();refresh();
     say(OBJECTS[word].label);
@@ -173,6 +214,7 @@
       // The child must consciously choose an unfinished word again.
       selectedWord=null;hintStage=0;hintWord=null;
       persist();refresh();
+      sceneEffect(id,'try');
       react('support','Ikke helt! Velg «'+missed+'» igjen og se nøye etter.');
       return;
     }
@@ -190,6 +232,7 @@
       react('celebrate','Der fant du '+item.label+'! Så fint sett!');
     }
     persist();refresh();
+    sceneEffect(id,'success');
   }
   function hint(){
     if(!active)return;
@@ -205,6 +248,7 @@
     }else{
       const hotspot=overlay.querySelector('[data-fw-object="'+id+'"]');
       hotspot?.classList.add('is-hint');
+      sceneEffect(id,'guide');
       react('support','Der er et lite spor. Kan du finne '+item.label+'?');
       hintStage=0;
     }
@@ -278,7 +322,7 @@
   function nextRound(){
     const old=active?.round||0;
     active={round:(old+1)%ROUNDS.length,found:new Set(),completed:false};
-    clearDrag();
+    clearDrag();clearSceneEffect();
     hintStage=0;hintWord=null;selectedWord=null;wrongAttempts=0;
     persist();refresh();
     react('greet','Nye ord! Velg eller dra et ord til riktig ting.');
@@ -343,7 +387,7 @@
   function close(){
     if(!overlay||overlay.hidden)return;
     persist();
-    clearDrag();lastDraggedWord=null;
+    clearDrag();clearSceneEffect();lastDraggedWord=null;
     if(dragClickTimer){root.clearTimeout(dragClickTimer);dragClickTimer=null}
     overlay.hidden=true;DOC.documentElement.style.overflow=previousOverflow;
     if(reactionTimer){root.clearTimeout(reactionTimer);reactionTimer=null}
