@@ -4,6 +4,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
 const http=require('node:http');
+const Engine=require('../laer-litt-mer/multiplication-gangemagi-engine-v1.js');
 const {chromium,webkit}=require('playwright');
 const base=path.resolve(__dirname,'..');
 const out=process.env.QA_SCREENSHOTS||'/tmp/laria-gangemagi-v1';
@@ -11,6 +12,77 @@ const mime={'.html':'text/html; charset=utf-8','.js':'application/javascript; ch
 function serve(){return new Promise((resolve,reject)=>{const srv=http.createServer((req,res)=>{let name=decodeURIComponent(new URL(req.url,'http://localhost').pathname);if(name.endsWith('/'))name+='index.html';const file=path.resolve(base,'.'+name);if(!file.startsWith(base+path.sep)){res.writeHead(403);res.end();return;}fs.readFile(file,(err,buf)=>{if(err){res.writeHead(404);res.end('Not found');return;}res.setHeader('Content-Type',mime[path.extname(file)]||'application/octet-stream');res.setHeader('Cache-Control','no-store');res.end(buf);});});srv.once('error',reject);srv.listen(0,'127.0.0.1',()=>resolve({srv,url:'http://127.0.0.1:'+srv.address().port+'/laer-litt-mer/?app=laria'}));});}
 const seed={version:7,progressSchemaVersion:3,profile:{grade:2,onboarded:true,name:'Elev',avatar:'girl',setupVersion:2},mastery:{},mistakes:{},skillMastery:{},skillMistakes:{},skillLastSeen:{},masteryEvidence:{},skillEvidence:{},preferences:{sound:false,autoRead:false},lastMilestone:null,recentCountryWin:null,lastActivity:null,journey:{nodes:{},gradeWins:{},viewGrades:{}},answerLog:[],sessionLog:[],activeSession:null};
 async function shot(page,name){await fs.promises.mkdir(out,{recursive:true});await page.screenshot({path:path.join(out,name+'.png'),fullPage:true,animations:'disabled'});}
+/* All authored adventures must use real multiplication, unique collectibles,
+   and keep progress after replays and saved-state restoration. */
+function auditAllEightMissions(){
+ const specs=Engine.MISSIONS;
+ assert.equal(specs.length,8,'all eight locked missions must exist');
+ assert.equal(new Set(specs.map(m=>m.id)).size,8,'unique permanent flower identifiers');
+ let state=Engine.initial();
+ for(const [index,mission] of specs.entries()){
+   state=Engine.apply(state,{type:'mission',index});
+   assert.deepEqual(state.counts,Array(mission.groups).fill(0),'new mission resets fruit, not flowers');
+   for(let group=0;group<mission.groups;group++){
+     for(let berry=1;berry<=mission.each;berry++){
+       const was=Engine.total(state);
+       state=Engine.apply(state,{type:'add',group});
+       assert.equal(Engine.total(state),was+1,'one action adds exactly one strawberry');
+       assert.equal(state.counts[group],berry,'wicker contents reflect reality');
+       if(group!==mission.groups-1||berry!==mission.each){
+         assert.equal(Engine.filled(state),false,'partial baskets never finish the mission');
+         assert.equal(state.wins.length,index,'no blossom may be earned early');
+       }
+       assert.equal(Engine.equation(state).target,
+         mission.groups+' × '+mission.each+' = '+mission.groups*mission.each,
+         'authored multiplication stays correct while exploring');
+     }
+   }
+   assert.equal(Engine.filled(state),true,'the mission can really be completed');
+   for(let group=0;group<mission.groups;group++){
+     const before=Engine.total(state);
+     const again=Engine.apply(state,{type:'add',group});
+     assert.equal(Engine.total(again),before,'a full basket cannot gain an extra fruit');
+     assert.equal(again.wins.length,index+1,'completed reward cannot be duplicated by extra taps');
+   }
+   assert.equal(Engine.equation(state).addition,
+     Array(mission.groups).fill(mission.each).join(' + ')+' = '+mission.groups*mission.each,
+     'finished addition must match the true strawberries in all eight adventures');
+   assert.equal(Engine.equation(state).multiplication,
+     mission.groups+' × '+mission.each+' = '+mission.groups*mission.each,
+     'completed multiplication is mathematically correct');
+   assert.equal(state.wins.length,index+1,'exactly one new flower per completed adventure');
+   state=Engine.normalize(JSON.parse(JSON.stringify(state)));
+   assert.equal(state.wins.length,index+1,'flower progress survives JSON restore');
+ }
+ state=Engine.apply(state,{type:'mission',index:3});
+ for(let group=0;group<state.groups;group++)
+   for(let berry=0;berry<state.each;berry++)state=Engine.apply(state,{type:'add',group});
+ assert.equal(state.wins.length,8,'replaying a favorite never duplicates a flower');
+ const free=Engine.apply(state,{type:'mode',mode:'free'});
+ assert.equal(free.wins.length,8,'free play never erases earned flowers');
+ console.log('PASS GANGEMAGI all eight missions: maths, replay, saved progress');
+}
+async function selectAndPick(page,group,count){
+ // Select through the basket's visible wooden nameplate: unlike the fruit,
+ // this remains a stable, finger-sized target on every iPhone/iPad layout.
+ await page.locator('[data-gm-action="basket"][data-gm-basket="'+group+'"] .gm-crate-front').click();
+ assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).selectedBasket,group,'the basket is selected');
+ for(let i=0;i<count;i++){
+  await page.locator('[data-gm-action="source"]').click();
+  await page.locator('[data-gm-action="basket"][data-gm-basket="'+group+'"] .gm-crate-front').click();
+ }
+}
+async function dragBerry(page,fromSelector,toSelector,expectTarget){
+  const from=page.locator(fromSelector).first(),to=page.locator(toSelector).first();
+  const a=await from.boundingBox(),b=await to.boundingBox();
+  assert.ok(a&&b,'source and target must both be visible for drag play');
+  await page.mouse.move(a.x+a.width/2,a.y+a.height/2);
+  await page.mouse.down();
+  await page.mouse.move(b.x+b.width/2,b.y+b.height/2,{steps:9});
+  if(expectTarget)assert.equal(await page.locator(expectTarget).count(),1,
+    'dragging over a valid target must give a visible live glow');
+  await page.mouse.up();
+}
 async function check(engine,label,viewport,url){
  const context=await engine.newContext({viewport,deviceScaleFactor:1,serviceWorkers:'block',isMobile:viewport.width<750,hasTouch:true});
  const page=await context.newPage(),errors=[];
@@ -28,18 +100,191 @@ async function check(engine,label,viewport,url){
   assert.ok(bookQuickBox&&bookQuickBox.width>=44&&bookQuickBox.height>=44&&bookQuickBox.y>=0&&bookQuickBox.y+bookQuickBox.height<=viewport.height,
     label+' book shortcut should be touch-safe and visible on the first fold');
   assert.equal((await page.locator('.gm-math-equation').innerText()).trim(),'0 + 0 + 0 = 0');
-  assert.match(await page.locator('.gm-story').innerText(),/3 kurver med 3 jordbær/);
+  assert.match((await page.locator('.gm-story').innerText()).replace(/\s+/g,' '),/3 kurver med 3 jordbær/);
+  assert.equal(await page.locator('.gm-quest').count(),1,label+' mission has a prominent quest panel');
+  assert.match(await page.locator('.gm-quest-ribbon').innerText(),/Dagens oppdrag/);
+  assert.equal(await page.locator('.gm-quest-callout>span').count(),2,
+    label+' children need a deliberate two-line mission instruction');
+  assert.match((await page.locator('.gm-quest-callout').innerText()).replace(/\s+/g,' '),
+    /Fyll 3 kurver med 3 jordbær i hver/);
+  const calloutLayout=await page.locator('.gm-quest-callout').evaluate(el=>({
+    overflow:[...el.querySelectorAll(':scope>span')].some(span=>span.scrollWidth>span.clientWidth+1),
+    insidePanel:el.getBoundingClientRect().left>=el.closest('.gm-quest').getBoundingClientRect().left-1&&
+      el.getBoundingClientRect().right<=el.closest('.gm-quest').getBoundingClientRect().right+1
+  }));
+  assert.equal(calloutLayout.overflow,false,label+' mission heading must never overflow painted wood');
+  assert.equal(calloutLayout.insidePanel,true,label+' headline stays inside the illustrated board');
+  assert.equal(await page.locator('.gm-quest-filled-preview .gm-quest-mini-basket').count(),3,
+    'final instructional illustration previews one filled basket per real group');
+  assert.equal(await page.locator('.gm-quest-filled-preview .gm-quest-mini-berries i').count(),9,
+    label+' three baskets really show three strawberries each');
+  assert.deepEqual(await page.locator('.gm-quest-step strong').allInnerTexts(),
+    ['Plukk','Legg i','Se gangemagien'],'instructions are three real readable DOM steps');
+  assert.equal(await page.locator('.gm-quest-step-active[aria-current="step"][data-gm-step="1"]').count(),1,
+    label+' first illustrated step invites a basket choice');
+  assert.equal(await page.locator('.gm-quest-steps[role="list"] [role="listitem"]').count(),3,
+    'screen-reader and touch-friendly three-step instructions');
+  // Quest-step labels carry actual child instructions, not decorative microcopy.
+  // Mobile instructions must remain legible, not squeeze into microtype.
+  const questStepFont=await page.locator('.gm-quest-step strong').first()
+    .evaluate(el=>parseFloat(getComputedStyle(el).fontSize));
+  const requiredStepSize=viewport.width>=700?14:viewport.width>=375?13:12;
+  assert.ok(questStepFont>=requiredStepSize,
+    label+' grade-two quest instructions: '+questStepFont+'px; minimum '+requiredStepSize);
+  const stepGeometry=await page.locator('.gm-quest-step').evaluateAll(steps=>steps.map(step=>{
+    const text=step.querySelector('strong'),box=step.getBoundingClientRect(),labelBox=text.getBoundingClientRect();
+    return {text:text.textContent,width:text.clientWidth,scrollWidth:text.scrollWidth,
+      labelBottom:labelBox.bottom,cardBottom:box.bottom};
+  }));
+  assert.ok(stepGeometry.every(x=>x.scrollWidth<=x.width+1&&x.labelBottom<=x.cardBottom+2),
+    label+' all three step captions must fit their illustrated cards '+JSON.stringify(stepGeometry));
+  const foxSize=await page.locator('.gm-fox-message')
+    .evaluate(el=>parseFloat(getComputedStyle(el).fontSize));
+  const requiredFoxSize=viewport.width>=700?(viewport.height>=1000?14:13):
+    viewport.width>=375?13:11;
+  assert.ok(foxSize>=requiredFoxSize,
+    label+' personal fox feedback too small: '+foxSize+'px; minimum '+requiredFoxSize);
+
+  const missionHeading=await page.locator('.gm-quest-callout').evaluate(el=>({
+    size:parseFloat(getComputedStyle(el).fontSize),bounds:el.getBoundingClientRect().toJSON(),
+    panel:el.closest('.gm-quest').getBoundingClientRect().toJSON()}));
+  assert.ok(missionHeading.size>=17&&missionHeading.bounds.width>viewport.width*.65,
+    label+' child-sized assignment heading '+JSON.stringify(missionHeading));
   assert.equal(await page.locator('.gm-fox-art [data-avatar="girl"]').count(),1,'must render chosen full-body girl fox');
   assert.match(await page.locator('.gm-book-quick').innerText(),/0\/8/,'flower progress visible from the main scene');
+  assert.equal(await page.locator('.gm-book-collapsed:visible').count(),0,
+    label+' only one collection access point should remain on the mission screen');
+  const premiumBasket=await page.request.get(new URL('gangemagi-basket-locked-illustration.svg',url).href);
+  assert.equal(premiumBasket.status(),200,'illustrated basket sourced from the LOCKED reference must load');
+  assert.match(premiumBasket.headers()['content-type'],/image\/svg\+xml/);
+  assert.match(await premiumBasket.text(),/data:image\/webp;base64,/,
+    'separate basket component must retain the original painterly reference material');
+  assert.equal(await page.locator('.gm-basket-illustration').count(),3,'baskets must be real independently tappable DOM elements');
+  assert.equal(await page.locator('.gm-quest-wicker').count(),4,
+    label+' all 3 example baskets plus both teaching steps use the SAME locked illustrated wicker');
+  assert.equal(await page.locator('.gm-quest-wicker').evaluateAll(xs=>xs.every(x=>x.complete&&x.naturalWidth>0)),
+    true,label+' the locked picture-led instruction art must decode in Safari/WebKit');
+  const wickerImages=await page.locator('.gm-basket-illustration').evaluateAll(images=>
+    images.map(img=>({complete:img.complete,width:img.naturalWidth,src:img.getAttribute('src')})));
+  assert.ok(wickerImages.every(img=>img.complete&&img.width>0),
+    label+' reference wicker resource must decode in Chromium AND WebKit '+JSON.stringify(wickerImages));
+  // The quest board is an individually authored SVG illustration behind live DOM.
+  // A flat screenshot, a CSS-only box, or a missing asset does not meet the lock.
+  const paintedBoard=await page.request.get(new URL('gangemagi-quest-board-painted.svg',url).href);
+  assert.equal(paintedBoard.status(),200,'painted wooden quest board asset is available');
+  assert.match(await paintedBoard.text(),/preserveAspectRatio="none"/,
+    label+' painted board must fill its own panel, not letterbox behind the live instruction');
+  assert.match(paintedBoard.headers()['content-type'],/image\/svg\+xml/);
+  const boardMaterial=await page.locator('.gm-story.gm-quest').evaluate(el=>({
+    image:getComputedStyle(el).backgroundImage,
+    liveInstructions:el.querySelectorAll('.gm-quest-step').length,
+    dynamicHeading:el.querySelector('h2')?.textContent.trim()
+  }));
+  assert.match(boardMaterial.image,/gangemagi-quest-board-painted\.svg/,
+    label+' board must use hand-illustrated wood and flowers, not a generic CSS card');
+  assert.equal(boardMaterial.liveInstructions,3,'dynamic interactive teaching steps remain live markup');
+  assert.match(boardMaterial.dynamicHeading,/Fyll 3 kurver/);
+
+  const calmStart=await page.evaluate(()=>{
+    const shell=document.querySelector('.gm-shell[data-gm-mode="mission"]');
+    return {
+      redundantHint:getComputedStyle(shell.querySelector('.gm-play-hint')).display,
+      visibleEmptyTags:[...shell.querySelectorAll('.gm-crate[data-gm-count="0"] .gm-crate-tag')]
+        .filter(el=>getComputedStyle(el).display!=='none').length,
+      basketNames:[...shell.querySelectorAll('.gm-crate-caption')].map(el=>el.textContent.trim())
+    };
+  });
+  assert.equal(calmStart.redundantHint,'none','speaking fox and illustrated steps must not be repeated in another instruction badge');
+  assert.equal(calmStart.visibleEmptyTags,0,'empty market baskets should show simple clear names, not tiny 0/3 labels');
+  assert.deepEqual(calmStart.basketNames,['Kurv 1','Kurv 2','Kurv 3'],'basket names remain clear');
+
+  const tableArt=await page.request.get(new URL('gangemagi-market-table-premium.svg',url).href);
+  assert.equal(tableArt.status(),200,'original illustrated market counter must load');
+  assert.match(tableArt.headers()['content-type'],/image\/svg\+xml/);
+  const illustratedCounter=await page.locator('.gm-crates').evaluate(el=>
+    getComputedStyle(el,'::before').backgroundImage.includes('gangemagi-market-table-premium.svg'));
+  assert.equal(illustratedCounter,true,'interactable baskets should stand in front of their own market-scene artwork');
+  assert.match(await page.locator('.gm-top-title').innerText(),/Gangemagi/);
+  assert.match(await page.locator('.gm-top-progress').innerText(),/Oppdrag 1 av 8/);
+  if(viewport.width<=360){
+    const compactHeader=await page.evaluate(()=>{
+      const box=selector=>{
+        const r=document.querySelector(selector).getBoundingClientRect();
+        return {left:r.left,right:r.right,top:r.top,bottom:r.bottom};
+      };
+      return {title:box('.gm-top-title'),progress:box('.gm-top-progress'),book:box('.gm-book-quick')};
+    });
+    const overlap=(a,b)=>a.left<b.right-2&&a.right>b.left+2&&a.top<b.bottom-2&&a.bottom>b.top+2;
+    assert.equal(overlap(compactHeader.title,compactHeader.progress),false,
+      label+' title overlaps progress badge on compact iPhone '+JSON.stringify(compactHeader));
+    assert.equal(overlap(compactHeader.title,compactHeader.book),false,
+      label+' title overlaps the collection button '+JSON.stringify(compactHeader));
+  }
+  assert.equal(await page.locator('.gm-crate-invite').count(),3,
+    label+' three empty baskets should invite the first tap');
+  const invitationMotion=await page.locator('.gm-crate-invite').first().evaluate(btn=>({
+    touchTarget:getComputedStyle(btn).animationName,
+    glow:getComputedStyle(btn.querySelector('.gm-basket-illustration')).animationName
+  }));
+  assert.ok(!invitationMotion.touchTarget.includes('gm-basket-invite'),
+    label+' real basket button must stay stationary and tappable '+JSON.stringify(invitationMotion));
+  assert.ok(invitationMotion.glow.includes('gm-basket-invite'),
+    label+' only the decorative basket art should pulse '+JSON.stringify(invitationMotion));
+  assert.match(await page.locator('.gm-fox-message').innerText(),/Plukk et jordbær og legg det i en kurv/);
   const first=await page.evaluate(()=>{
    const rect=s=>{const n=document.querySelector(s)?.getBoundingClientRect();return n?{top:n.top,bottom:n.bottom,width:n.width,height:n.height}:null;};
    return {screen:innerWidth,height:innerHeight,scrollWidth:document.documentElement.scrollWidth,story:rect('.gm-story'),crate:rect('.gm-crate'),source:rect('.gm-pick'),math:rect('.gm-math'),read:rect('.gm-read')};
   });
   console.log('GANGEMAGI_FIRSTFOLD '+label+' '+JSON.stringify(first));
   assert.ok(first.scrollWidth<=first.screen+4,label+' horizontal overflow '+JSON.stringify(first));
+  assert.equal(await page.locator('.gm-market-fruit-supply .gm-pick').count(),1,
+    label+' the real strawberry supply belongs in the illustrated market');
+  assert.equal(await page.locator('.gm-basket-inner').count(),3,
+    label+' every transparent wicker basket needs a stable painted interior');
+  assert.ok(first.source.top>first.crate.top&&first.source.bottom<=first.math.top+6,
+    label+' picking strawberries must lead naturally from baskets to maths '+JSON.stringify(first));
   if(viewport.width>=700&&viewport.height>=viewport.width){
     const worldWidth=await page.locator('.gm-world').evaluate(el=>el.getBoundingClientRect().width);
     assert.ok(worldWidth>=700,label+' iPad portrait should use the full-width Tallenga scene '+worldWidth);
+  }
+  if(viewport.width>=700&&viewport.width<=899&&viewport.height>=1000){
+    const sceneLayers=await page.evaluate(()=>({
+      math:Number(getComputedStyle(document.querySelector('.gm-math')).zIndex),
+      fox:Number(getComputedStyle(document.querySelector('.gm-fox')).zIndex),
+      equation:document.querySelector('.gm-math-equation')?.textContent.trim(),
+       equationFont:parseFloat(getComputedStyle(document.querySelector('.gm-math-equation')).fontSize)
+    }));
+    assert.ok(sceneLayers.math>sceneLayers.fox,
+      label+' illustrated fox must not be painted over the live equation '+JSON.stringify(sceneLayers));
+    assert.match(sceneLayers.equation,/=/,
+      label+' mathematical result remains readable without redundant label');
+    assert.ok(sceneLayers.equationFont>=24,
+      label+' iPad portrait equation must be prominent '+JSON.stringify(sceneLayers));
+    const foxSpeech=await page.locator('.gm-fox-bubble').evaluate(el=>{
+      const style=getComputedStyle(el),tail=getComputedStyle(el,'::before');
+      const size=parseFloat(tail.width),left=parseFloat(tail.left);
+      return {arrowRight:left+size*(1+Math.SQRT2)/2,
+        textInset:parseFloat(style.paddingLeft),
+        textWidth:el.querySelector('.gm-fox-message').clientWidth,
+        textScroll:el.querySelector('.gm-fox-message').scrollWidth};
+    });
+    assert.ok(foxSpeech.arrowRight<=foxSpeech.textInset-2&&
+      foxSpeech.textScroll<=foxSpeech.textWidth+1,
+      label+' iPad portrait speech arrow may not cover letters '+JSON.stringify(foxSpeech));
+  }
+  if(viewport.width>=900&&viewport.height<=900){
+    const guide=await page.evaluate(()=>{
+      const box=s=>{const r=document.querySelector(s).getBoundingClientRect();
+        return {top:r.top,bottom:r.bottom,left:r.left,right:r.right,width:r.width,height:r.height}};
+      return {fox:box('.gm-fox-art'),bubble:box('.gm-fox-bubble'),
+        firstBasket:box('.gm-crate'),math:box('.gm-math')};
+    });
+    assert.ok(guide.fox.height>=190&&guide.fox.width>=180,
+      label+' landscape fox should be a large personal guide, not a tiny mascot '+JSON.stringify(guide));
+    assert.ok(guide.fox.right<=guide.firstBasket.left+2,
+      label+' personal fox must not cover basket touch targets '+JSON.stringify(guide));
+    assert.ok(guide.fox.bottom<=guide.math.top+3&&guide.bubble.bottom<=guide.math.top+3,
+      label+' guide and speech must stay clear of live mathematical feedback '+JSON.stringify(guide));
   }
   assert.ok(first.crate.top>=0&&first.crate.bottom<=first.height,label+' interactive crates not in the first viewport '+JSON.stringify(first));
   assert.ok(first.math.top<first.height,label+' mathematical feedback invisible '+JSON.stringify(first));
@@ -60,24 +305,111 @@ async function check(engine,label,viewport,url){
   assert.deepEqual(touchGeometry.overlaps,Array(touchGeometry.overlaps.length).fill(false),label+' remove affordance must not cover numeric basket label '+JSON.stringify(touchGeometry));
   assert.equal(touchGeometry.clipped,false,label+' first-fold Plukk action text is clipped '+JSON.stringify(touchGeometry));
   await shot(page,label+'-01-first-look');
+  // Approved direct manipulation: tap-to-pick, tap the basket berry to take
+  // it out, drag one from the fruit source, and drag it back. Invalid drops
+  // must never change the maths. Run in both engines and every viewport.
+  await page.locator('[data-gm-action="source"]').click();
+  assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,0,0],
+    label+' tapping the strawberry source must NOT add fruit without a destination');
+  await page.locator('[data-gm-action="basket"][data-gm-basket="1"]').click();
+  assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,1,0],
+    label+' tapped strawberry + tapped basket adds exactly one');
+  await page.locator('[data-gm-basket="1"] .gm-fruit[data-gm-fruit]').first().click();
+  assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,0,0],
+    label+' touching the berry directly returns it from the basket');
+  await dragBerry(page,'[data-gm-action="source"]','[data-gm-action="basket"][data-gm-basket="2"]',
+    '.gm-crate.gm-drop-target');
+  assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,0,1],
+    label+' pointer drag from source to basket adds exactly one');
+  await dragBerry(page,'[data-gm-basket="2"] .gm-fruit[data-gm-fruit]','[data-gm-action="source"]',
+    '.gm-pick.gm-drop-target');
+  assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,0,0],
+    label+' dragging a fruit back to source removes one');
+  await dragBerry(page,'[data-gm-action="source"]','.gm-brand',null);
+  assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,0,0],
+    label+' dropping a fruit outside all baskets cannot change the maths');
+  // Simulated touch on a mobile WebKit/Chromium viewport, not just mouse
+  // clicks. The 2-step fallback and direct berry removal are essential on iPad.
+  if(viewport.width===390&&viewport.height===844){
+    await page.locator('[data-gm-action="source"]').tap();
+    await page.locator('[data-gm-action="basket"][data-gm-basket="1"]').tap();
+    assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,1,0],
+      label+' two real touchscreen taps pick and place exactly one berry');
+    await page.locator('[data-gm-basket="1"] .gm-fruit[data-gm-fruit]').first().tap();
+    assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,0,0],
+      label+' touchscreen tap on the berry itself removes it');
+  }
+  await page.evaluate(()=>LARIA_GANGEMAGI.reset());
   await page.locator('[data-gm-action="basket"][data-gm-basket="0"]').click();
-  await page.locator('[data-gm-action="basket"][data-gm-basket="0"]').click();
+  assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,0,0],
+    'choosing a basket cannot silently add a strawberry');
+  assert.equal((await page.locator('.gm-crate-selected').count()),1,'one glowing chosen basket');
+  assert.equal(await page.locator('.gm-crate-invite').count(),0,
+    label+' remaining baskets should stop flashing after the child chooses one');
+  assert.equal(await page.locator('.gm-quest-step-active[aria-current="step"][data-gm-step="2"]').count(),1,
+    label+' second illustrated step guides berry placement after choosing');
+  assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).selectedBasket,0);
+  await page.locator('[data-gm-action="source"]').click();
+  assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,0,0],
+    label+' picking after an earlier basket choice still cannot add without placing');
+  await page.locator('[data-gm-basket="0"] .gm-crate-front').click();
+  const firstBerryGeometry=await page.locator('[data-gm-basket="0"]').evaluate(basket=>{
+    const berry=basket.querySelector('.gm-fruit:not(.gm-fruit-empty)');
+    const b=basket.getBoundingClientRect(),f=berry?.getBoundingClientRect();
+    return {basketWidth:b.width,
+      horizontalDelta:f?Math.abs((f.left+f.right)/2-(b.left+b.right)/2):Infinity,
+      berryTop:f?.top,basketTop:b.top,basketBottom:b.bottom,
+      extraEmptyFruitSlots:basket.querySelectorAll('.gm-fruit-empty').length};
+  });
+  assert.equal(firstBerryGeometry.extraEmptyFruitSlots,0,'empty basket must not render ghost placeholders');
+  assert.ok(firstBerryGeometry.horizontalDelta<firstBerryGeometry.basketWidth*.15,
+    label+' first strawberry should sit inside the CENTER of the basket, not on one edge '+JSON.stringify(firstBerryGeometry));
+  assert.ok(firstBerryGeometry.berryTop>firstBerryGeometry.basketTop,
+    label+' strawberry must be inside the illustrated basket '+JSON.stringify(firstBerryGeometry));
+  assert.equal(await page.locator('.gm-fruit-pop').count(),1,
+    label+' ONLY the newly added strawberry should bounce after the first pick');
+  await shot(page,label+'-02-one-berry');
+  await page.locator('[data-gm-action="source"]').click();
+  await page.locator('[data-gm-basket="0"] .gm-crate-front').click();
   assert.equal((await page.locator('.gm-math-equation').innerText()).trim(),'2 + 0 + 0 = 2');
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts[0],2);
+  assert.equal(await page.locator('.gm-fruit').count(),2);
+  assert.equal(await page.locator('.gm-fruit-pop').count(),1,
+    label+' on the second pick the previous berry must remain stable');
   assert.match(await page.locator('.gm-fox-message').innerText(),/2 av 3 i kurv 1/);
   assert.equal(await page.locator('.gm-fox').getAttribute('data-mood'),'cheer');
   await page.locator('[data-gm-action="undo"]').click();
   assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[1,0,0]);
+  assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).selectedBasket,0,
+    label+' undoing one berry must keep the still-valid basket selected');
+  assert.equal(await page.locator('.gm-crate-invite').count(),0,
+    label+' do not invite a different basket after undoing in the chosen one');
   await page.locator('[data-gm-action="source"]').click();
+  await page.locator('[data-gm-basket="0"] .gm-crate-front').click();
   assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[2,0,0]);
   await page.locator('[data-gm-action="hint"]').click();
   assert.match(await page.locator('.gm-fox-message').innerText(),/kurv/i);
+  assert.equal(await page.locator('.gm-fruit-pop').count(),0,
+    label+' opening a fox hint must NOT replay the last fruit animation');
   await page.locator('[data-gm-action="remove"][data-group="0"]').click();
   assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[1,0,0]);
   for(const [group,count] of [[0,2],[1,3],[2,3]]){
-   for(let i=0;i<count;i++)await page.locator('[data-gm-action="basket"][data-gm-basket="'+group+'"]').click();
+    await selectAndPick(page,group,count);
+    if(group<2){
+      const filledBasketSnapshot=await page.evaluate(()=>LARIA_GANGEMAGI.snapshot());
+      assert.equal(filledBasketSnapshot.selectedBasket,null,
+        label+' a completed basket must release selection before the child chooses the next one '+JSON.stringify({counts:filledBasketSnapshot.counts,each:filledBasketSnapshot.each,group,holdingBerry:await page.locator('.gm-play-hint').innerText()}));
+      assert.equal(await page.locator('.gm-crate-invite').count(),2-group,
+        label+' only unfinished baskets should invite the next choice');
+      assert.equal(await page.locator('.gm-quest-step-active[aria-current="step"][data-gm-step="1"]').count(),1,
+        label+' the first illustrated step should invite the next basket');
+      assert.match(await page.locator('.gm-fox-message').innerText(),/Velg en ny kurv/,
+        label+' fox gives a short instruction to continue');
+    }
   }
   assert.equal((await page.locator('.gm-math-equation').innerText()).trim(),'3 × 3 = 9');
+  assert.equal(await page.locator('.gm-quest-step-active[aria-current="step"][data-gm-step="3"]').count(),1,
+    label+' final illustrated step celebrates the multiplication discovery');
   assert.match(await page.locator('.gm-math-discovery').innerText(),/Like grupper: 3 kurver med 3 bær = 9/,'multiplication has a child-readable explanation');
   assert.match(await page.locator('.gm-book-quick').innerText(),/1\/8/,'earned flowers remain visible during play');
   assert.match(await page.locator('.gm-celebration').innerText(),/Oppdraget er klart/);
@@ -96,7 +428,7 @@ async function check(engine,label,viewport,url){
   await page.locator('[data-gm-action="undo"]').click();
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).wins.length,1,'earned blossom survives undo');
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).equation.complete,false);
-  await page.locator('[data-gm-action="basket"][data-gm-basket="2"]').click();
+  await selectAndPick(page,2,1);
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).wins.length,1,'replaying must not duplicate blossom');
   await shot(page,label+'-02-all-baskets-full');
   await page.reload({waitUntil:'domcontentloaded'});
@@ -120,7 +452,7 @@ async function check(engine,label,viewport,url){
   await shot(page,label+'-04-market-book');
   await page.keyboard.press('Escape');
   assert.equal(await page.locator('.gm-book-open').count(),0,'Escape returns child to gameplay');
-  await page.locator('[data-gm-action="book"]').click();
+  await page.locator('[data-gm-action="open-book"]').click();
   const bookLayout=await page.evaluate(()=>{
     const scenes=[...document.querySelectorAll('.gm-book-landscape')];
     return {pageWidth:document.documentElement.scrollWidth,screenWidth:innerWidth,count:scenes.length,
@@ -134,19 +466,108 @@ async function check(engine,label,viewport,url){
   assert.equal(await page.locator('.gm-book-earned').count(),1,'one earned flower marked in book');
   await page.locator('[data-gm-action="select-mission"][data-index="7"]').click();
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).mission,7);
+  assert.equal(await page.locator('.gm-quest-wicker').count(),3,
+    label+' two-group illustration contains two mini baskets and one instructional basket');
+  assert.equal(await page.locator('.gm-quest-filled-preview .gm-quest-mini-basket').count(),2,
+    'final instructional art must follow the selected two-group mission');
+  assert.equal(await page.locator('.gm-quest-filled-preview .gm-quest-mini-berries i').count(),20,
+    label+' the last adventure visibly represents two baskets of TEN berries');
+  assert.match((await page.locator('.gm-quest-callout').innerText()).replace(/\s+/g,' '),/Fyll 2 kurver med 10 jordbær i hver/,
+    'quest text and numbers follow selected authored mission');
+  assert.deepEqual(await page.locator('.gm-quest-step strong').allInnerTexts(),
+    ['Plukk','Legg i','Se gangemagien'],'step counts match actual mission, not a screenshot');
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).undo,0,'switching adventures clears only action history');
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).wins.length,1);
   assert.equal(await page.locator('.gm-book-mission').count(),0,'book should close after selection');
-  await page.locator('[data-gm-action="book"]').click();
+  /* Compare EACH actual authored mission with its equation and guide. Capture
+     mission 4 to match the specific approved "3 baskets of 4" illustration. */
+  if(label==='webkit-iphone390'||label==='chrome-ipad-landscape'){
+    for(const [index,mission] of Engine.MISSIONS.entries()){
+      await page.locator('[data-gm-action="open-book"]').click();
+      await page.locator('[data-gm-action="select-mission"][data-index="'+index+'"]').click();
+      const actual=await page.evaluate(()=>LARIA_GANGEMAGI.snapshot());
+      assert.equal(actual.mission,index,'eight adventures preserve authored order');
+      assert.deepEqual(actual.counts,Array(mission.groups).fill(0),
+        'switching mission starts with empty baskets and keeps flower history');
+      assert.equal(await page.locator('.gm-crate').count(),mission.groups,
+        label+' must show the authored number of clickable wicker baskets');
+      assert.equal(await page.locator('.gm-quest-mini-berries i').count(),
+        mission.groups*mission.each,
+        label+' illustrated strawberries and the real multiplication must agree');
+      const stepTexts=await page.locator('.gm-quest-step strong').allInnerTexts();
+      assert.equal(stepTexts[2],
+        'Se gangemagien',
+        label+' step three invites discovery rather than giving away the answer');
+      const bounds=await page.evaluate(()=>{
+        const a=document.querySelector('.gm-quest-callout').getBoundingClientRect();
+        const b=document.querySelector('.gm-pick').getBoundingClientRect();
+        return {width:innerWidth,height:innerHeight,scrollWidth:document.documentElement.scrollWidth,
+          headingLeft:a.left,headingRight:a.right,buttonTop:b.top,buttonBottom:b.bottom};
+      });
+      assert.ok(bounds.scrollWidth<=bounds.width+4&&bounds.headingLeft>=-1&&
+        bounds.headingRight<=bounds.width+1&&bounds.buttonTop>=0&&
+        bounds.buttonBottom<=bounds.height+3,
+        label+' mission '+(index+1)+' must fit its first screen '+JSON.stringify(bounds));
+      if(index===3)await shot(page,label+'-07-locked-reference-mission-4');
+      if(index===5)await shot(page,label+'-08-three-baskets-of-six');
+    }
+  }
+  // The five-basket mission is visually the most constrained responsive state.
+  // Preserve five clear, real basket targets and the full illustration in WebKit.
+  await page.locator('[data-gm-action="open-book"]').click();
+  await page.locator('[data-gm-action="select-mission"][data-index="4"]').click();
+  assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).groups,5);
+  assert.equal(await page.locator('.gm-crate').count(),5,
+    label+' five group mission retains five real independently tappable baskets');
+  assert.equal(await page.locator('.gm-quest-wicker').count(),6,
+    label+' five preview baskets + one instructional basket');
+  const five=await page.locator('.gm-crate').evaluateAll(els=>({
+    width:innerWidth,scrollWidth:document.documentElement.scrollWidth,
+    labels:els.map(el=>el.querySelector('.gm-crate-caption')?.textContent.trim()),
+    tapWidths:els.map(el=>Math.round(el.getBoundingClientRect().width))
+  }));
+  assert.ok(five.scrollWidth<=five.width+4&&five.tapWidths.every(n=>n>=44),
+    label+' dense five-basket mission must fit width with 44px touch targets '+JSON.stringify(five));
+  assert.deepEqual(five.labels,['Kurv 1','Kurv 2','Kurv 3','Kurv 4','Kurv 5']);
+  const mathsLayout=async()=>{
+    return await page.locator('.gm-math').evaluate(root=>{
+      const equation=root.querySelector('.gm-math-equation'),progress=root.querySelector('.gm-berry-progress');
+      const a=equation.getBoundingClientRect(),b=progress.getBoundingClientRect();
+      const overlap=a.left<b.right-1&&a.right>b.left+1&&a.top<b.bottom-1&&a.bottom>b.top+1;
+      return {overlap,textWidth:equation.scrollWidth,availableWidth:equation.clientWidth,
+        fontSize:parseFloat(getComputedStyle(equation).fontSize),
+        progressRight:b.right,panelRight:root.getBoundingClientRect().right};
+    });
+  };
+  if(viewport.width<700){
+    const m=await mathsLayout();
+    assert.equal(m.overlap,false,label+' live 5-group addition must NOT overlap berry progress '+JSON.stringify(m));
+    assert.ok(m.textWidth<=m.availableWidth+2&&m.fontSize>=17&&m.progressRight<=m.panelRight+2,
+      label+' five-basket maths must remain legible and within the panel '+JSON.stringify(m));
+  }
+  await shot(page,label+'-05-five-basket-mission');
+  await page.locator('[data-gm-action="open-book"]').click();
+  await page.locator('[data-gm-action="select-mission"][data-index="6"]').click();
+  assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).groups,4);
+  if(viewport.width<700){
+    const m=await mathsLayout();
+    assert.equal(m.overlap,false,label+' 4×4 addition must not intersect visual strawberry progress '+JSON.stringify(m));
+    assert.ok(m.textWidth<=m.availableWidth+2&&m.fontSize>=17,
+      label+' 4×4 addition must stay complete and child-readable '+JSON.stringify(m));
+  }
+  await shot(page,label+'-06-four-basket-mission');
+  await page.locator('[data-gm-action="open-book"]').click();
   await page.locator('[data-gm-action="select-mission"][data-index="0"]').click();
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).mission,0);
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).equation.complete,false);
-  for(let group=0;group<3;group++)for(let j=0;j<3;j++)await page.locator('[data-gm-action="basket"][data-gm-basket="'+group+'"]').click();
+  for(let group=0;group<3;group++)await selectAndPick(page,group,3);
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).wins.length,1,'replay keeps unique flower');
   await page.locator('[data-gm-action="next"]').click();
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).groups,2);
   await page.locator('[data-gm-action="mode"][data-mode="free"]').click();
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).mode,'free');
+  assert.equal(await page.locator('.gm-quest').count(),0,'free play keeps its existing independent controls');
+  assert.match(await page.locator('.gm-story').innerText(),/Ditt eget jordbærmarked/);
   await page.locator('[data-gm-action="factor"][data-key="groups"][data-step="1"]').click();
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).groups,3);
   await page.locator('[data-gm-action="basket"][data-gm-basket="0"]').click();
@@ -172,11 +593,48 @@ async function check(engine,label,viewport,url){
   await page.locator('.mp-home-screen').waitFor();
   await page.locator('.gm-classic-return').click();
   await page.locator('.gm-shell').waitFor();
+
+  // Every authored adventure must remain a REAL, tappable scene across all
+  // six browser/viewport combinations, not just the attractive first 3 × 3.
+  // Check every chapter's mission title, pictured groups, live mathematical
+  // controls, touch widths and ability to add the FIRST fruit to a basket.
+  const allMissions=require('../laer-litt-mer/multiplication-gangemagi-engine-v1.js').MISSIONS;
+  for(const [index,spec] of allMissions.entries()){
+    await page.locator('[data-gm-action="open-book"]').click();
+    await page.locator('[data-gm-action="select-mission"][data-index="'+index+'"]').click();
+    const snapshot=await page.evaluate(()=>LARIA_GANGEMAGI.snapshot());
+    assert.equal(snapshot.mission,index,label+' chapter '+(index+1)+' mission selection');
+    assert.equal(snapshot.mode,'mission');
+    assert.equal(snapshot.groups,spec.groups);
+    assert.equal(snapshot.each,spec.each);
+    assert.deepEqual(snapshot.counts,Array(spec.groups).fill(0));
+    assert.equal(await page.locator('.gm-crate').count(),spec.groups,
+      label+' chapter '+(index+1)+' real interactive basket count');
+    assert.equal(await page.locator('.gm-quest-filled-preview .gm-quest-mini-basket').count(),spec.groups,
+      label+' chapter '+(index+1)+' illustrated group count');
+    assert.equal(await page.locator('.gm-quest-mini-berries i').count(),spec.groups*spec.each,
+      label+' chapter '+(index+1)+' pictured berry count matches the multiplication');
+    const heading=(await page.locator('.gm-quest-callout').innerText()).replace(/\s+/g,' ');
+    assert.equal(heading,'Fyll '+spec.groups+' '+(spec.groups===1?'kurv':'kurver')+
+      ' med '+spec.each+' jordbær i hver.',label+' chapter '+(index+1)+' child instruction');
+    const boxes=await page.locator('.gm-crate').evaluateAll(els=>els.map(el=>el.getBoundingClientRect().width));
+    assert.ok(boxes.every(width=>width>=44),
+      label+' chapter '+(index+1)+' each real basket has a 44px touch width: '+JSON.stringify(boxes));
+    await page.locator('[data-gm-action="basket"][data-gm-basket="0"]').click();
+    assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).selectedBasket,0,
+      label+' chapter '+(index+1)+' basket can be selected');
+    await page.locator('[data-gm-action="source"]').click();
+    await page.locator('[data-gm-basket="0"] .gm-crate-front').click();
+    const after=await page.evaluate(()=>LARIA_GANGEMAGI.snapshot());
+    assert.equal(after.counts[0],1,label+' chapter '+(index+1)+' one deliberate pick and placement adds exactly one berry');
+    assert.equal(after.equation.total,1,label+' chapter '+(index+1)+' visible maths tracks first berry');
+  }
   assert.deepEqual(errors,[],label+' browser exceptions '+JSON.stringify(errors));
   console.log('PASS GANGEMAGI '+label);
  }finally{await context.close();}
 }
 (async()=>{
+ auditAllEightMissions();
  const {srv,url}=await serve();
  try{
   for(const [type,browserType,devices] of [
