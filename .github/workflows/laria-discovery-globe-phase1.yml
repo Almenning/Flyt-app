@@ -35,6 +35,19 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Preserve exact source for reproducible browser failures
+        run: |
+          mkdir -p /tmp/laria-qa-source
+          git rev-parse HEAD > /tmp/laria-qa-source/commit.txt
+          git archive --format=tar HEAD laer-litt-mer tests package.json package-lock.json | gzip -n > /tmp/laria-qa-source/source.tar.gz
+      - name: Upload tracked reproduction source
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-qa-source-${{ github.event.pull_request.head.sha || github.sha }}
+          path: /tmp/laria-qa-source
+          if-no-files-found: error
+          retention-days: 3
+          compression-level: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 22
