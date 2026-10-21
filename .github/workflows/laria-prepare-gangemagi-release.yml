@@ -1,0 +1,44 @@
+name: Laria prepare reviewed Gangemagi release
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/laria-prepare-gangemagi-release.yml'
+      - 'scripts/laria-prepare-gangemagi-release.py'
+      - 'tests/fixtures/laria-release-cache.cjs.txt'
+
+permissions:
+  contents: read
+
+jobs:
+  prepare-only:
+    if: github.repository == 'Almenning/Flyt-app' && github.event.pull_request.number == 192 && github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'feat/laria-gangemagi-premium-main-20261019'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Prepare bounded patch and real main merge without publishing
+        run: |
+          cp scripts/laria-prepare-gangemagi-release.py /tmp/laria-prepare.py
+          python3 /tmp/laria-prepare.py prepare
+      - name: Test release asset and cache behavior
+        run: node --test tests/laria-gangemagi-release-cache.test.cjs
+      - name: Create unreferenced commit objects for review only
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_HEAD: ${{ github.event.pull_request.head.sha }}
+        run: python3 /tmp/laria-prepare.py stage
+      - name: Preserve diff and unreferenced commit manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-reviewed-release-${{ github.event.pull_request.head.sha }}
+          path: /tmp/laria-release-review
+          if-no-files-found: error
+          retention-days: 3
