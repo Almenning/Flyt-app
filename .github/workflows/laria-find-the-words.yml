@@ -7,6 +7,8 @@ on:
       - 'laer-litt-mer/find-the-words*'
       - 'laer-litt-mer/laria-navigation-v13.*'
       - 'laer-litt-mer/index.html'
+      - 'tests/laria-find-the-words.playwright.js'
+      - 'tests/laria-find-words-ipad-layout.playwright.js'
       - '.github/workflows/laria-find-the-words.yml'
   pull_request:
     branches: [main]
@@ -15,6 +17,7 @@ on:
       - 'laer-litt-mer/laria-navigation-v13.*'
       - 'laer-litt-mer/index.html'
       - 'tests/laria-find-the-words.playwright.js'
+      - 'tests/laria-find-words-ipad-layout.playwright.js'
       - '.github/workflows/laria-find-the-words.yml'
   workflow_dispatch:
 
@@ -45,6 +48,12 @@ jobs:
           node --check laer-litt-mer/find-the-words.js
           node --check tests/laria-find-the-words.playwright.js
           node tests/laria-find-the-words.playwright.js
+      - name: Verify iPad companion layout and orientation changes
+        env:
+          FIND_WORDS_SCREENSHOTS: /tmp/laria-find-words
+        run: |
+          node --check tests/laria-find-words-ipad-layout.playwright.js
+          node tests/laria-find-words-ipad-layout.playwright.js
       - name: Preserve screenshot evidence
         if: always()
         uses: actions/upload-artifact@v4
