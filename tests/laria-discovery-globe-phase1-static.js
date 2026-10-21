@@ -46,8 +46,12 @@ assert.match(preview,/const p=project\(lon,lat,w,h\)/,'the discovery highlight m
 assert.match(preview,/canvas\.dataset\.discoveryLocationCount=/,'QA must expose whether the selected place has a visible marker');
 assert.match(preview,/activeDiscoveryLocation=null;/,'landmark highlights must be removable');
 assert.match(preview,/const discoveryContinentVisits=new Map\(\)/,'visiting a favourite place again must remain possible');
-assert.match(preview,/box\.dataset\.discoveryStoryStep=String\(visits\)/,
-  'QA must expose a distinct optional discovery step');
+assert.match(preview,/function discoveryTrailHtml\(/,
+  'each continent invitation must show its small optional discovery trail');
+assert.match(preview,/box\.dataset\.discoveryStoryStep=String\(completed\)/,
+  'QA must expose the completed optional discovery step');
+assert.match(preview,/finished\?'Se stedene igjen':'Neste sted'/,
+  'a completed mini-journey must invite free replay rather than stop the child');
 for(const name of ['Europa','Afrika','Asia','Nord-Amerika','Sør-Amerika','Oseania','Antarktis'])
   assert.ok(preview.includes("'"+name+"':{"),'missing curated place story for '+name);
 for(const place of ['Alpene','Sahara','Himalaya','Rocky Mountains','Andesfjellene','Korallrevet'])
@@ -76,6 +80,7 @@ const viewCss=read('laer-litt-mer/discovery-globe-view-v1.css');
 assert.match(viewCss,/laria-discovery-fox-found/,'a discovered place should have a subtle fox reaction');
 assert.match(viewCss,/prefers-reduced-motion:reduce/,'the reaction must respect reduced-motion accessibility');
 assert.match(viewCss,/discovery-continent-intro/,'Oppdag’s continent invitation needs scoped presentation styling');
+assert.match(viewCss,/discovery-place-trail/,'the continent invitation needs visible journey progress');
 assert.match(viewCss,/\[data-discovery-globe="painted-atlas-v1"\]\s*\{\s*background-image:/,
   'Oppdag atmospheric layer must draw on the actual scene, not dead pseudo-elements');
 assert.match(viewCss,/globe-storyscape-v36-mobile\.webp/,'portrait must keep the approved storyscape artwork');
