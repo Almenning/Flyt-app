@@ -133,3 +133,13 @@ Status: aktiv utviklingsgren. IKKE publisert eller erklært premium-ferdig.
 - Integrert main c7a6f388 med ekte Git-merge, inkludert nyere Finn ordene og SuperKlode. Ingen manuell overskriving av hele filer.
 - Den tidligere globustesten har passert med uendret appkode og utvidet diagnostikk; den opprinnelige tidsavbruddsårsaken er ikke endelig bevist.
 - Engangsverktøyet oppretter bare et uflettet commit-objekt. Grenflytting, samlet CI og eventuell publisering må verifiseres separat.
+
+
+## 21. oktober: handlingsbilder og samlet marked, referanserevisjon
+
+- Videreforer den gjenfunne originalen Gangemagi i Tallengas hage.png (fil-ID file_00000000ba048210a3365748b25cc26b) og den senere markedsillustrasjonen (file_000000008ab48210b7a5615e529e50af). Ingen ny spillmodell eller ny standardrev.
+- Endret eksisterende komponentregler, ikke lagt til en overstyringsfil: storre billedsteg innenfor tavlens plass, roligere trinnrammer, varmere malt tre/pergament og fysisk duk under kurver og jordbaerkilde. Kilden har storre baer og lesbart Plukk-skilt; ingen generisk legg-til-knapp.
+- Konkret revfeil: SVG-ens automatiske minste radstorrelse gjorde en 227px beholder til et 345px malt bilde pa iPad. Minmax(0,1fr) og begrensning av selve SVG-en hindrer at figuren males bak regnestykket. Personlig rev og animasjoner bevares.
+- Lokalt: seks Chromium-storrelser 320x568, 390x844, 820x1180, 1180x820, 844x390 og 1440x900 bestod alle atte oppdrag og synlig hovedhandling. Dette var en offline rendringsfixture med lagringsadapter, ikke en produksjons-/CSP-test eller WebKit-test. 13 faktiske Node-motor/cache/handler-regresjoner bestod.
+- Eksisterende Playwright-regresjon er utvidet til a male faktisk reve-SVG, storrelse pa billedsteg, jordbaerkildens motiv og fravaer av bakgrunnsuskarphet. Ny ressursversjon release2 og SW-cache bevarer oppdateringer.
+- GitHub Chromium/WebKit og full regresjon ma besta pa endelig commit; inspiser bildene mot originalene for premiumgodkjenning. Ikke merget eller publisert.

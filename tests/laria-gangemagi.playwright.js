@@ -323,6 +323,29 @@ async function check(engine,label,viewport,url){
   assert.ok(first.crate.top>=0&&first.crate.bottom<=first.height,label+' interactive crates not in the first viewport '+JSON.stringify(first));
   assert.ok(first.math.top<first.height,label+' mathematical feedback invisible '+JSON.stringify(first));
   assert.ok(first.read.height>=44,label+' read aloud target too small');
+  // The painted SVG, not just its wrapper, must remain clear of the equation.
+  // A replaced SVG's intrinsic grid min-size previously painted 345px inside
+  // the nominal 227px fox slot. Keep the real personal character contained.
+  const materialLayout=await page.evaluate(()=>{
+    const box=s=>document.querySelector(s).getBoundingClientRect();
+    const painted=box('.gm-fox-art svg'),slot=box('.gm-fox-art');
+    return {foxBottom:painted.bottom,slotBottom:slot.bottom,mathTop:box('.gm-math').top,
+      iconHeight:box('.gm-quest-icon').height,
+      sourceArtWidth:box('.gm-market-fruit-supply .gm-pick-fruit').width,
+      marketBlur:getComputedStyle(document.querySelector('.gm-market'),'::before').backdropFilter};
+  });
+  assert.ok(materialLayout.foxBottom<=materialLayout.slotBottom+2&&
+    materialLayout.foxBottom<=materialLayout.mathTop+3,
+    label+' actual personal fox must fit its slot and stay above the live equation '+JSON.stringify(materialLayout));
+  if(viewport.width>=900&&viewport.height<=900)assert.ok(materialLayout.iconHeight>=60,
+    label+' landscape iPad instructions must use large action pictures');
+  if(viewport.width>=700&&viewport.width<=899&&viewport.height>=1000)assert.ok(materialLayout.iconHeight>=68,
+    label+' portrait iPad instructions must use the existing picture area');
+  if(viewport.width>=375)assert.ok(materialLayout.sourceArtWidth>=109,
+    label+' the real strawberry supply must be visually substantial');
+  assert.ok(!materialLayout.marketBlur||materialLayout.marketBlur==='none',
+    label+' keep the market sharp; the physical table separates the playing area');
+
   if(viewport.height>=750||viewport.width<=360)assert.ok(first.source.bottom<=first.height+3,label+' primary Plukk action must be visible without scrolling '+JSON.stringify(first));
   // Visual QA: minus glyphs may not obscure numeric basket counts, and
   // the primary action label must not be clipped on the smallest iPhone.

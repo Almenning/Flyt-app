@@ -4,7 +4,7 @@
    Locked visual specification: docs/MASTERPROMPT-LARIA-GANGEMAGI-LAST-2026-10-18.md.
    Components are real HTML, independently illustrated SVG baskets and live fruit. */
 .gm-shell[data-gm-mode="mission"]{
-  --gm-wood-dark:#754221;--gm-wood:#a76b3c;--gm-parchment:#ffebc5;--gm-red:#ed6556;
+  --gm-supply-depth:54px;--gm-wood-dark:#754221;--gm-wood:#a76b3c;--gm-parchment:#ffebc5;--gm-red:#ed6556;
   background:
    radial-gradient(circle at 60% 10%,rgba(255,244,208,.74),transparent 48%),
    linear-gradient(180deg,#f9eed8 0%,#f8e2bc 70%,#f3dcb8 100%);
@@ -36,10 +36,12 @@
 .gm-shell[data-gm-mode="mission"] .gm-book-quick{min-width:48px;min-height:48px}
 .gm-shell[data-gm-mode="mission"] .gm-heading{display:none}
 
+.gm-shell[data-gm-mode="mission"][data-gm-complete="true"]{--gm-supply-depth:0px}
+
 /* The actual game world fills the scene; no app-card border around the market. */
 .gm-shell[data-gm-mode="mission"] .gm-world{
   border:0;border-radius:28px 28px 22px 22px;min-height:0;overflow:visible;
-  background:linear-gradient(180deg,rgba(252,237,208,.51),rgba(251,233,200,.48) 38%,rgba(249,225,188,.60) 76%,rgba(247,220,174,.72)),
+  background:linear-gradient(180deg,rgba(252,237,208,.23),rgba(251,233,200,.17) 38%,rgba(249,225,188,.24) 76%,rgba(247,220,174,.34)),
    url('./matte-verden.png') center 54% /cover no-repeat;
   box-shadow:inset 0 0 0 2px #fff6d6c9,0 9px 24px #82553730;
   padding:12px clamp(8px,1vw,16px) 10px;
@@ -58,8 +60,8 @@
   width:min(100%,1050px);min-height:0;
   padding:26px calc(clamp(12px,2.5vw,33px) + 12px) 29px;
   border:0;border-radius:35px;
-  background:transparent url('./gangemagi-quest-board-painted.svg') center / 100% 100% no-repeat;
-  box-shadow:0 7px 0 #70412270,0 16px 25px #5c371c3b;
+  background:transparent url('./gangemagi-quest-board-painted.svg?v=20261021-material2') center / 100% 100% no-repeat;
+  box-shadow:0 6px 12px #5c371c42;
 }
 .gm-shell[data-gm-mode="mission"] .gm-story.gm-quest:before,
 .gm-shell[data-gm-mode="mission"] .gm-story.gm-quest:after{display:none}
@@ -95,16 +97,16 @@
 .gm-shell[data-gm-mode="mission"] .gm-quest-step{
   display:flex;flex-direction:column;position:relative;align-items:center;justify-content:space-around;
   min-width:0;min-height:95px;gap:3px;padding:7px 10px;
-  border:2px solid #f7dab4;border-radius:18px;
-  background:linear-gradient(155deg,#fffaf0f5,#f9e8c9f2);
-  box-shadow:0 3px 0 #bb94635e,inset 0 1px #fff;
+  border:2px solid transparent;border-radius:18px;
+  background:linear-gradient(155deg,#fff8e5d9,#f9e8c9c2);
+  box-shadow:inset 0 1px 0 #fffaf3b3;
 }
 /* Follow the child's current action through the illustrated mission. */
 .gm-shell[data-gm-mode="mission"] .gm-quest-step-active{
   position:relative;z-index:1;
   border-color:#e5a76a;
   background:linear-gradient(155deg,#fffaf0,#ffe2ae);
-  box-shadow:0 0 0 2px #fff0c9,0 4px 0 #a86d417a,0 0 14px #efb87775;
+  box-shadow:inset 0 0 14px #f8cb7270,0 2px 5px #a86d4128;
 }
 .gm-shell[data-gm-mode="mission"] .gm-quest-step-active .gm-quest-index{
   background:linear-gradient(#ffb383,#ea674d);
@@ -118,7 +120,7 @@
 }
 .gm-shell[data-gm-mode="mission"] .gm-quest-icon{
   display:flex;align-items:center;justify-content:center;gap:1px;
-  max-width:100%;height:53px;color:#bd7951;
+  width:100%;max-width:100%;height:53px;color:#bd7951;
 }
 /* All diagrams use the same approved painted wicker art as the real baskets.
    The pointing hand and fruit stay separate, scalable vector elements. */
@@ -141,7 +143,7 @@
  width:100%;height:100%;max-width:100%;
 }
 .gm-shell[data-gm-mode="mission"] .gm-quest-mini-basket{
- position:relative;flex:0 1 35px;max-width:35px;min-width:0;height:42px;
+ position:relative;flex:0 1 52px;max-width:52px;min-width:0;height:100%;
 }
 .gm-shell[data-gm-mode="mission"] .gm-quest-mini-basket>.gm-quest-wicker{
  display:block;width:100%;height:100%;object-fit:contain;
@@ -162,7 +164,7 @@
 }
 @media(max-width:699px){
  .gm-shell[data-gm-mode="mission"] .gm-quest-mini-basket{
-  flex-basis:24px;max-width:24px;height:30px;
+  flex-basis:32px;max-width:32px;height:100%;
  }
  .gm-shell[data-gm-mode="mission"] .gm-quest-mini-berries i{border:0}
 }
@@ -191,6 +193,8 @@
   flex:0 0 auto;align-self:end;
   filter:drop-shadow(0 9px 8px #694f303a);
 }
+.gm-shell[data-gm-mode="mission"] .gm-fox-art{grid-template-rows:minmax(0,1fr);grid-template-columns:minmax(0,1fr)}
+.gm-shell[data-gm-mode="mission"] .gm-fox-art>svg.laria-fox-wardrobe-art{min-width:0;min-height:0;max-height:100%;height:100%;width:100%}
 .gm-shell[data-gm-mode="mission"] .gm-fox-bubble{
   width:auto;max-width:340px;min-height:52px;flex:1;margin:0 0 15px -9px;
   padding:8px 10px 8px 13px;gap:3px;grid-template-columns:minmax(0,1fr) 44px;
@@ -225,8 +229,8 @@
 .gm-shell[data-gm-mode="mission"] .gm-crates{position:relative;isolation:isolate}
 .gm-shell[data-gm-mode="mission"] .gm-crates:before{
   content:"";position:absolute;z-index:0;left:-1%;right:-1%;
-  bottom:14px;height:clamp(43px,6.2vw,84px);
-  background:url('./gangemagi-market-table-premium.svg?v=20261019-botanical1') center bottom /100% 100% no-repeat;
+  bottom:calc(14px - var(--gm-supply-depth));height:calc(clamp(43px,6.2vw,84px) + var(--gm-supply-depth));
+  background:url('./gangemagi-market-table-premium.svg?v=20261021-stage2') center bottom /100% 100% no-repeat;
   pointer-events:none;filter:drop-shadow(0 8px 6px #402d2055);
 }
 .gm-shell[data-gm-mode="mission"] .gm-crate-wrap{
@@ -314,8 +318,8 @@
   grid-template-rows:auto 1fr auto;gap:3px 12px;
   margin:10px auto 5px;width:min(100%,1090px);
   padding:10px clamp(12px,2vw,24px);min-height:82px;
-  border:5px solid #fff3d9;border-radius:23px;
-  background:linear-gradient(135deg,#fff5dcef,#ffe3b9f8);box-shadow:0 5px 0 #b17a47a3;
+  border:5px solid transparent;border-radius:23px;
+  background:#f9e7c7 url('./gangemagi-math-parchment.svg') center/100% 100% no-repeat;box-shadow:0 4px 6px #71452548;
 }
 .gm-shell[data-gm-mode="mission"] .gm-math-label{
   /* The mission headline already states the target. The live equation leads. */
@@ -546,9 +550,9 @@
    locked wooden quest board; math and primary action remain in first view. */
 @media(min-width:900px) and (max-height:900px){
  .gm-shell[data-gm-mode="mission"] .gm-top{min-height:60px;margin-bottom:0}
- .gm-shell[data-gm-mode="mission"] .gm-story.gm-quest{padding-top:19px;padding-bottom:20px}
+ .gm-shell[data-gm-mode="mission"] .gm-story.gm-quest{padding-top:12px;padding-bottom:12px}
  .gm-shell[data-gm-mode="mission"] .gm-story.gm-quest h2.gm-quest-callout{
-   margin:3px auto 6px;font-size:clamp(26px,3.4vw,39px)
+   margin:3px auto 4px;font-size:clamp(26px,3.4vw,39px)
  }
  .gm-shell[data-gm-mode="mission"] .gm-quest-step{min-height:69px;padding:3px 7px}
  .gm-shell[data-gm-mode="mission"] .gm-quest-icon{height:36px}
@@ -647,12 +651,12 @@
    font-size:clamp(23px,6.25vw,30px);margin:7px auto 9px;
  }
  .gm-shell[data-gm-mode="mission"] .gm-quest-step{
-   min-height:79px;padding:6px 3px;
+   min-height:79px;padding:3px 3px;
  }
- .gm-shell[data-gm-mode="mission"] .gm-quest-icon{height:37px}
- .gm-shell[data-gm-mode="mission"] .gm-quest-icon>.gm-quest-wicker{height:35px;width:46px}
- .gm-shell[data-gm-mode="mission"] .gm-quest-icon>.gm-quest-hand{height:27px;width:20px;margin-left:-8px}
- .gm-shell[data-gm-mode="mission"] .gm-quest-icon .gm-quest-fruit{height:32px;width:24px}
+ .gm-shell[data-gm-mode="mission"] .gm-quest-icon{height:45px}
+ .gm-shell[data-gm-mode="mission"] .gm-quest-icon>.gm-quest-wicker{height:45px;width:50px}
+ .gm-shell[data-gm-mode="mission"] .gm-quest-icon>.gm-quest-hand{height:33px;width:24px;margin-left:-8px}
+ .gm-shell[data-gm-mode="mission"] .gm-quest-icon .gm-quest-fruit{height:42px;width:30px}
  /* The learning verbs must be readable by a second-grader at arm's length. */
  .gm-shell[data-gm-mode="mission"] .gm-quest-step strong{font-size:13px;line-height:1.13}
  /* Larger real personal character, overlapping only the wooden margin,
@@ -687,17 +691,19 @@
    action button or the three illustrated instructions. */
 @media(min-width:700px) and (max-width:899px) and (min-height:1000px){
  .gm-shell[data-gm-mode="mission"] .gm-story.gm-quest{
-   padding-top:30px;padding-bottom:29px;
+   padding-top:24px;padding-bottom:22px;
  }
  .gm-shell[data-gm-mode="mission"] .gm-story.gm-quest h2.gm-quest-callout{
    font-size:clamp(32px,4.35vw,43px);margin:8px auto 12px;
  }
- .gm-shell[data-gm-mode="mission"] .gm-quest-step{min-height:110px}
+ .gm-shell[data-gm-mode="mission"] .gm-quest-step{min-height:116px}
  .gm-shell[data-gm-mode="mission"] .gm-quest-step strong{
    font-size:15px;line-height:1.16;
  }
- .gm-shell[data-gm-mode="mission"] .gm-quest-icon{height:59px}
- .gm-shell[data-gm-mode="mission"] .gm-quest-icon>.gm-quest-wicker{height:57px;width:75px}
+ .gm-shell[data-gm-mode="mission"] .gm-quest-icon{height:72px}
+ .gm-shell[data-gm-mode="mission"] .gm-quest-icon>.gm-quest-wicker{height:68px;width:79px}
+ .gm-shell[data-gm-mode="mission"] .gm-quest-icon .gm-quest-fruit{height:60px;width:45px}
+ .gm-shell[data-gm-mode="mission"] .gm-quest-icon>.gm-quest-hand{height:46px;width:32px}
  .gm-shell[data-gm-mode="mission"] .gm-scene{
    display:grid;grid-template-columns:155px minmax(0,1fr);
    align-items:center;gap:8px;margin:13px 9px 2px;
@@ -745,9 +751,11 @@
  .gm-shell[data-gm-mode="mission"] .gm-pick{min-height:68px}
 }
 @media(min-width:900px) and (max-height:900px){
- .gm-shell[data-gm-mode="mission"] .gm-quest-step{min-height:82px}
- .gm-shell[data-gm-mode="mission"] .gm-quest-icon{height:43px}
- .gm-shell[data-gm-mode="mission"] .gm-quest-icon>.gm-quest-wicker{height:43px;width:57px}
+ .gm-shell[data-gm-mode="mission"] .gm-quest-step{min-height:102px}
+ .gm-shell[data-gm-mode="mission"] .gm-quest-icon{height:66px}
+ .gm-shell[data-gm-mode="mission"] .gm-quest-icon>.gm-quest-wicker{height:62px;width:74px}
+ .gm-shell[data-gm-mode="mission"] .gm-quest-icon .gm-quest-fruit{height:59px;width:44px}
+ .gm-shell[data-gm-mode="mission"] .gm-quest-icon>.gm-quest-hand{height:47px;width:33px}
  /* Older final override shrank the user's character back to mascot size.
     Keep the large landscape fox, while lifting wicker without layout reflow. */
  .gm-shell[data-gm-mode="mission"] .gm-crate{height:170px;max-width:232px}
@@ -793,11 +801,12 @@
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   gap:1px;padding:0;border:0;border-radius:12px;background:transparent;
   min-width:0;max-width:none;color:#604027;box-shadow:none;text-shadow:none;
-  font-size:clamp(11px,1.3vw,14px);font-weight:900;
+  font-size:clamp(13px,1.4vw,16px);font-weight:900;
 }
 .gm-shell[data-gm-mode="mission"] .gm-pick.gm-strawberry-tray>span:nth-child(2){
   display:block;flex:0 0 auto;white-space:nowrap;line-height:1.1;
-  color:#704027;text-shadow:0 1px 0 #fff3d1;font-weight:950;
+  color:#603923;text-shadow:0 1px 0 #fff3d1;font-weight:950;
+  padding:1px 10px;background:#fff0cf;border-radius:4px 4px 8px 8px;
 }
 .gm-shell[data-gm-mode="mission"] .gm-pick.gm-strawberry-tray small{display:none}
 .gm-shell[data-gm-mode="mission"] .gm-pick.gm-strawberry-tray:active:not(:disabled){
@@ -807,7 +816,7 @@
    their stems, instead of presenting three icons on a generic push button. */
 .gm-shell[data-gm-mode="mission"] .gm-pick.gm-strawberry-tray .gm-pick-fruit{
   display:block;position:relative;isolation:isolate;flex:0 0 auto;
-  width:clamp(94px,10vw,124px);height:clamp(40px,3.8vw,49px);
+  width:clamp(110px,12vw,144px);height:clamp(43px,4vw,49px);
   border:3px solid #d9a36c;border-bottom:4px solid #744628;
   border-radius:17px 17px 12px 12px;
   background:radial-gradient(ellipse at 50% 25%,#57331f,#8d542c 68%,#af7742);
@@ -835,7 +844,7 @@
 /* Invitation follows the actual child-led action, not the old basket-first UI:
    warm light on the fruit at step 1; after picking, basket art invites step 2. */
 .gm-shell[data-gm-mode="mission"] .gm-pick.gm-pick-invite .gm-pick-fruit{
-  filter:drop-shadow(0 0 8px #ffe18cb8) drop-shadow(0 3px 3px #3e241780);
+  filter:drop-shadow(0 0 6px #ffedb3) drop-shadow(0 3px 3px #3e241780);
 }
 .gm-shell[data-gm-mode="mission"] .gm-pick.gm-berry-held{
   outline:3px solid #f6d77f;outline-offset:2px;
@@ -900,9 +909,7 @@
   content:"";position:absolute;left:-1.5%;right:-1.5%;
   top:0;bottom:0;z-index:0;pointer-events:none;
   border-radius:38px;
-  background:linear-gradient(180deg,#fff1d000,#ffecd530 35%,#fff0d060 100%);
-  -webkit-backdrop-filter:blur(2.25px);
-  backdrop-filter:blur(2.25px);
+  background:linear-gradient(180deg,#fff1d000,#fff0d014 35%,#fff0d028 100%);
 }
 .gm-shell[data-gm-mode="mission"] .gm-market>.gm-crates,
 .gm-shell[data-gm-mode="mission"] .gm-market>.gm-market-fruit-supply{
@@ -928,8 +935,7 @@
 @media(max-width:699px){
   .gm-shell[data-gm-mode="mission"] .gm-market::before{
     left:0;right:0;border-radius:18px;
-    -webkit-backdrop-filter:blur(1.35px);
-    backdrop-filter:blur(1.35px);
+
   }
   .gm-shell[data-gm-mode="mission"] .gm-berry-progress{
     min-height:30px;padding:3px;
