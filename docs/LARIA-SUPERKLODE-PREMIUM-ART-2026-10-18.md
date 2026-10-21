@@ -26,6 +26,25 @@ med én georeferert, lagvis rygglinje; de detaljrike regionale konturene
 beholdes først når barnet går nærmere. Dette er en retting av den samme
 landmaterialmotoren, ikke en ny dekorasjon.
 
+## Verdenslesning – 19. oktober 2026
+
+På kontinentskala vises ikke interne landegrenser eller smålandmarkører,
+mens hvert land fortsatt beholder samme geometri, treffflate og valgt
+tilstand. Havets rette breddegradslinjer er erstattet av få, geografisk
+forankrede strømmer. Ved regional zoom kommer grensene tilbake gradvis.
+
+## Materialpass 3 – 19. oktober 2026
+
+Dette passet løfter de tre materialene som fortsatt leste for svakt mot den
+illustrerte referansen. Havet får en dempet lys-til-dybde-glaze og brede,
+geografiske understrømmer. På oversiktsnivå males skoger først som
+sammenhengende baldakinkorridorer; de mindre kronene er bare liv i flaten,
+ikke selve skogformen. Antarktis erstatter smale skyggebånd med store,
+koordinatforankrede isfasetter, klippet av Natural Earth-kystlinjen.
+
+Ingen dekorative stempler, geografiske grenser, landtreff eller Enkel-globen
+er berørt.
+
 ## Implementert
 
 1. Oppdag bruker nå den georefererte terrengmodellen som primært uttrykk.

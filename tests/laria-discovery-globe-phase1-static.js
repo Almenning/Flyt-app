@@ -46,8 +46,12 @@ assert.match(preview,/const p=project\(lon,lat,w,h\)/,'the discovery highlight m
 assert.match(preview,/canvas\.dataset\.discoveryLocationCount=/,'QA must expose whether the selected place has a visible marker');
 assert.match(preview,/activeDiscoveryLocation=null;/,'landmark highlights must be removable');
 assert.match(preview,/const discoveryContinentVisits=new Map\(\)/,'visiting a favourite place again must remain possible');
-assert.match(preview,/box\.dataset\.discoveryStoryStep=String\(visits\)/,
-  'QA must expose a distinct optional discovery step');
+assert.match(preview,/function discoveryTrailHtml\(/,
+  'each continent invitation must show its small optional discovery trail');
+assert.match(preview,/box\.dataset\.discoveryStoryStep=String\(completed\)/,
+  'QA must expose the completed optional discovery step');
+assert.match(preview,/finished\?'Se stedene igjen':'Neste sted'/,
+  'a completed mini-journey must invite free replay rather than stop the child');
 for(const name of ['Europa','Afrika','Asia','Nord-Amerika','Sør-Amerika','Oseania','Antarktis'])
   assert.ok(preview.includes("'"+name+"':{"),'missing curated place story for '+name);
 for(const place of ['Alpene','Sahara','Himalaya','Rocky Mountains','Andesfjellene','Korallrevet'])
@@ -76,10 +80,13 @@ const viewCss=read('laer-litt-mer/discovery-globe-view-v1.css');
 assert.match(viewCss,/laria-discovery-fox-found/,'a discovered place should have a subtle fox reaction');
 assert.match(viewCss,/prefers-reduced-motion:reduce/,'the reaction must respect reduced-motion accessibility');
 assert.match(viewCss,/discovery-continent-intro/,'Oppdag’s continent invitation needs scoped presentation styling');
+assert.match(viewCss,/discovery-place-trail/,'the continent invitation needs visible journey progress');
 assert.match(viewCss,/\[data-discovery-globe="painted-atlas-v1"\]\s*\{\s*background-image:/,
   'Oppdag atmospheric layer must draw on the actual scene, not dead pseudo-elements');
 assert.match(viewCss,/globe-storyscape-v36-mobile\.webp/,'portrait must keep the approved storyscape artwork');
 assert.match(viewCss,/globe-storyscape-v36-tablet\.webp/,'iPad portrait must keep its original artwork');
+assert.match(viewCss,/premium-globe-header::before[\s\S]*globe-storyscape-v36-landscape\.webp/,
+  'Oppdag header must use clean storyscape art, never an old UI screenshot crop');
 assert.doesNotMatch(viewCss,/\[data-discovery-globe="painted-atlas-v1"\]::before/,
   'do not reintroduce a hidden pseudo-element as the atmospheric layer');
 assert.match(viewCss,/\.premium-globe-guide\{display:none!important\}/,'Oppdag must not show the generic fox beside the selected fox');
@@ -133,6 +140,30 @@ assert.match(preview,/function smoothGeoStroke\(/,'all terrain corridors must sh
 assert.match(preview,/canvas\.dataset\.discoveryEcosystems=/,'QA must expose actual painted ecosystem count');
 assert.match(preview,/canvas\.dataset\.discoveryRelief=/,'QA must expose actual painted mountain count');
 assert.doesNotMatch(preview,/const geographicTextureZones=\[/,'no arbitrary map-filling icon rectangles');
+assert.match(preview,/function ocean\([^{]*\)\{[\s\S]*?Gentle currents retain a living ocean/,
+  'overview water must use illustrated currents rather than a cartographic latitude grid');
+assert.match(preview,/const glaze=ctx\.createLinearGradient/,
+  'the discovery ocean needs a broad light-to-depth glaze beneath its currents');
+assert.match(preview,/ctx\.lineWidth=Math\.max\(2\.2,s\*\.0072\)/,
+  'ocean currents need a broad translucent undercurrent, not only hairlines');
+assert.doesNotMatch(preview,/for\(const lat of \[-60,-30,0,30,60\]\)/,
+  'the illustrated globe must not regress to a graticule at world scale');
+assert.match(preview,/const iceFacets=\[/,
+  'Antarctica must use broad geographic ice facets instead of striped shadow bands');
+assert.doesNotMatch(preview,/const iceRoutes=\[/,
+  'the rejected thin Antarctic shadow bands must not return');
+assert.match(preview,/if\(leafy&&level===1&&smoothGeoStroke\(ctx,zone\.route,w,h,s\)\)/,
+  'overview forests must begin as connected geographic canopy corridors');
+assert.match(preview,/const perZone=leafy\?\(level===1\?38/,
+  'overview canopy detail must support the connected mass instead of becoming a dot field');
+assert.match(preview,/function paintBorders\(ctx,w,h,s,level\)/,
+  'border rendering must explicitly know the current discovery zoom level');
+assert.match(preview,/if\(!selected&&level===1\)continue/,
+  'continent overview must not be dominated by internal political borders');
+assert.match(preview,/function paintSmallCountries\(ctx,w,h,s,level\)/,
+  'tiny-country markers need the same overview discipline as borders');
+assert.match(preview,/if\(level===1&&c\.id!==globeSelected\)continue/,
+  'overview must not turn every small country into a map-dot marker');
 
 assert.match(preview,/landClip\(ctx,w,h\)/, 'land-only illustration clipping must remain active');
 assert.match(preview,/if\(!activated\|\|window\.drawGlobe!==discoveryDraw\)/, 'idle preview must not repaint on every interval tick');

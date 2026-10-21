@@ -124,3 +124,12 @@ Status: aktiv utviklingsgren. IKKE publisert eller erklært premium-ferdig.
 - Isolert landscape-CSS: steg-3-illustrasjonen får 88px ved 4/5 grupper; i oppdrag med ti per kurv brukes kortere bær og høyere sentrert fruktklynge. Alle andre skjermstørrelser og oppdrag skal forbli uendret.
 - Ny faktisk Chromium/WebKit landskapstest inspiserer oppdrag 5 og 8, måler om minikurver/tekst overlapper, sjekker alle trykkflater og første skjerm, og fyller ti ekte bær ved berøring for å verifisere geometri og korrekt sum. Nye screenshot-artifacts: 03-five-baskets, 03-ten-berries og 04-ten-packed.
 - KVALITETSPORT: Nye rettelser må bestå CI på eksakt ny commit før visuell kontroll og eventuell release. Ingen merge eller publisering gjennomført.
+
+
+## 21. oktober 2026: Safari-cache og faktisk main-integrasjon
+
+- Tre endrede Gangemagi-ressurser har nye versjonerte adresser. SW-cache roteres med eget Gangemagi-suffiks.
+- Ny Node-regresjon kontrollerer ressursversjoner, oppdatering fra gammel cache og bevaring av andre appcacher.
+- Integrert main c7a6f388 med ekte Git-merge, inkludert nyere Finn ordene og SuperKlode. Ingen manuell overskriving av hele filer.
+- Den tidligere globustesten har passert med uendret appkode og utvidet diagnostikk; den opprinnelige tidsavbruddsårsaken er ikke endelig bevist.
+- Engangsverktøyet oppretter bare et uflettet commit-objekt. Grenflytting, samlet CI og eventuell publisering må verifiseres separat.
