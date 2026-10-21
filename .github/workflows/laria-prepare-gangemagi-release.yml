@@ -16,8 +16,6 @@ jobs:
     if: github.repository == 'Almenning/Flyt-app' && github.event.pull_request.number == 192 && github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'feat/laria-gangemagi-premium-main-20261019'
     runs-on: ubuntu-latest
     timeout-minutes: 8
-    permissions:
-      contents: write
     steps:
       - uses: actions/checkout@v4
         with:
@@ -30,12 +28,28 @@ jobs:
           python3 /tmp/laria-prepare.py prepare
       - name: Test release asset and cache behavior
         run: node --test tests/laria-gangemagi-release-cache.test.cjs
-      - name: Create unreferenced commit objects for review only
+      - name: Export reviewed object hashes without changing remote Git data
         env:
-          GH_TOKEN: ${{ github.token }}
           SOURCE_HEAD: ${{ github.event.pull_request.head.sha }}
-        run: python3 /tmp/laria-prepare.py stage
-      - name: Preserve diff and unreferenced commit manifest
+        run: |
+          python3 - <<'PY'
+          import base64, json, os
+          from pathlib import Path
+          out = Path('/tmp/laria-release-review')
+          data = json.loads((out/'payload.json').read_text())
+          assert data['parent'] == os.environ['SOURCE_HEAD']
+          manifest = {'parent':data['parent'],'main':data['main'],'base_tree':data['base_tree'],
+            'remote_refs_changed':False,'tree_elements':[{'path':x['path'],'mode':'100644','type':'blob','sha':x['sha']} for x in data['entries']]}
+          for item in data['entries']:
+              if item['data'] is not None and item['path'] in ('laer-litt-mer/index.html','laer-litt-mer/sw.js','tests/laria-gangemagi-release-cache.test.cjs'):
+                  target=out/'reviewed-files'/item['path']
+                  target.parent.mkdir(parents=True,exist_ok=True)
+                  target.write_bytes(base64.b64decode(item['data']))
+          (out/'manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
+          (out/'payload.json').unlink()
+          print('REVIEWED_RELEASE_MANIFEST',json.dumps(manifest))
+          PY
+      - name: Preserve reviewed diff and manifest
         uses: actions/upload-artifact@v4
         with:
           name: laria-reviewed-release-${{ github.event.pull_request.head.sha }}
