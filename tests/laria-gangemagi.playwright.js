@@ -398,6 +398,13 @@ async function check(engine,label,viewport,url){
   await page.locator('[data-gm-action="basket"][data-gm-basket="1"]').click();
   assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,1,0],
     label+' tapped strawberry + tapped basket adds exactly one');
+  await page.locator('[data-gm-action="source"]').click();
+  await page.locator('[data-gm-basket="1"] .gm-fruit[data-gm-fruit]').first().click();
+  assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,2,0],
+    label+' picking then touching visible basket contents must PLACE the held berry');
+  await page.locator('[data-gm-basket="1"] .gm-fruit[data-gm-fruit]').first().click();
+  assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,1,0],
+    label+' direct touch without a held berry still removes exactly one');
   await page.locator('[data-gm-basket="1"] .gm-fruit[data-gm-fruit]').first().click();
   assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,0,0],
     label+' touching the berry directly returns it from the basket');
@@ -434,6 +441,13 @@ async function check(engine,label,viewport,url){
     await page.locator('[data-gm-action="basket"][data-gm-basket="1"]').tap();
     assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,1,0],
       label+' two real touchscreen taps pick and place exactly one berry');
+    await page.locator('[data-gm-action="source"]').tap();
+    await page.locator('[data-gm-basket="1"] .gm-fruit[data-gm-fruit]').first().tap();
+    assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,2,0],
+      label+' picking then touching visible basket contents must PLACE the held berry');
+    await page.locator('[data-gm-basket="1"] .gm-fruit[data-gm-fruit]').first().tap();
+    assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,1,0],
+      label+' direct touch without a held berry still removes exactly one');
     await page.locator('[data-gm-basket="1"] .gm-fruit[data-gm-fruit]').first().tap();
     assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,0,0],
       label+' touchscreen tap on the berry itself removes it');

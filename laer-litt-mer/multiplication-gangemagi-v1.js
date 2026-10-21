@@ -356,7 +356,7 @@
      // Tap the actual berry to take it back out, without a separate minus action.
      // The containing basket is still a normal accessible button and the existing
      // large remove control is retained for keyboard / assistive technology.
-     if(event.target.closest('.gm-fruit[data-gm-fruit]')&&state.counts[i]>0){
+     if(!holdingBerry&&event.target.closest('.gm-fruit[data-gm-fruit]')&&state.counts[i]>0){
        holdingBerry=false;
        if(state.mode==='mission')selectedGroup=i;
        change({type:'remove',group:i});return;
