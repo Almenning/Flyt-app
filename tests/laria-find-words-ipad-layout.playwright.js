@@ -50,6 +50,11 @@ function serve() {
 
 async function inspect(page, name) {
   await page.locator('.fw-scene-image').evaluate(image => image.decode());
+  // Observe the settled viewport after rotation, not an intermediate frame.
+  await page.evaluate(async () => {
+    await document.fonts.ready;
+    await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+  });
   const layout = await page.evaluate(() => {
     const bounds = selector => {
       const node = document.querySelector(selector);
@@ -78,6 +83,11 @@ async function inspect(page, name) {
       foxSource: document.querySelector('.fw-fox').getAttribute('src')
     };
   });
+  // Save failing frames too. Without this, the first failing device disappears
+  // from the artifact precisely when its visual evidence is most useful.
+  fs.mkdirSync(output, { recursive: true });
+  fs.writeFileSync(path.join(output, name + '.json'), JSON.stringify(layout, null, 2));
+  await page.screenshot({ path: path.join(output, name + '.png'), fullPage: false, animations: 'disabled' });
   for (const key of ['title', 'picture', 'fox', 'speech', 'next']) {
     const r = layout[key];
     assert.ok(r && r.y >= -1 && r.x >= -1 && r.right <= layout.width + 1 && r.bottom <= layout.height - 6,
@@ -99,10 +109,13 @@ async function inspect(page, name) {
     assert.ok(emptyPanelTail >= 0 && emptyPanelTail <= 28,
       name + ': oversized blank panel remains below the companion: ' + emptyPanelTail);
     assert.ok(layout.picture.w >= layout.width * 0.83, name + ': portrait picture shrank');
+    assert.ok(layout.shell.bottom <= layout.height - 8,
+      name + ': the panel border is still outside the portrait screen: ' + JSON.stringify(layout.shell));
+    assert.ok(layout.words.every(word => word.h >= 54 && word.font >= 20),
+      name + ': portrait fit was achieved by shrinking the learning words');
+    assert.ok(layout.fox.h >= 149,
+      name + ': portrait fit was achieved by shrinking the personal fox');
   }
-  fs.mkdirSync(output, { recursive: true });
-  fs.writeFileSync(path.join(output, name + '.json'), JSON.stringify(layout, null, 2));
-  await page.screenshot({ path: path.join(output, name + '.png'), fullPage: false, animations: 'disabled' });
   return layout;
 }
 
@@ -141,6 +154,10 @@ async function run(engine, name, size, url) {
     await page.locator('.fw-object[data-fw-object="sommerfugl"]').click();
     assert.equal(await page.locator('.fw-word.is-found').count(), 1,
       name + ': selected word was not playable after rotating');
+    await page.setViewportSize(size);
+    await inspect(page, name + '-garden-rotated-back');
+    assert.equal(await page.locator('.fw-word.is-found').count(), 1,
+      name + ': rotating back lost the found word');
     await page.locator('.fw-back').click();
     assert.equal(await page.locator('#find-the-words-overlay:not([hidden])').count(), 0);
     assert.equal(await page.evaluate(() => document.documentElement.style.overflow), '');
@@ -155,6 +172,7 @@ async function run(engine, name, size, url) {
   try {
     await run(webkit, 'tablet-webkit-820', { width: 820, height: 1180 }, url);
     await run(webkit, 'tablet-webkit-768', { width: 768, height: 1024 }, url);
+    await run(webkit, 'tablet-webkit-810', { width: 810, height: 1080 }, url);
     await run(chromium, 'tablet-chromium-1180', { width: 1180, height: 820 }, url);
   } finally { await new Promise(resolve => server.close(resolve)); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

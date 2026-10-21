@@ -220,8 +220,18 @@
    the companion. Keep the fox directly below the picture, with no stretching
    or cropping of the shared 1200x720 image/hotspot plane. */
 @media(min-width:701px) and (max-width:1100px) and (orientation:portrait){
- .fw-shell{height:auto;min-height:0;gap:12px}
- .fw-layout{display:flex;flex:0 0 auto;flex-direction:column;align-items:stretch;gap:12px;min-height:0}
+ /* On 768x1024 iPad the full-size header and fixed gaps pushed the fox below
+    the viewport. Adapt only decorative spacing to height; keep word text,
+    touch targets, illustration geometry and the full personal fox unchanged. */
+ .fw-shell{
+  --fw-portrait-air:clamp(0px,calc(10svh - 104px),14px);
+  --fw-portrait-gap:clamp(6px,calc(5svh - 47px),12px);
+  height:auto;min-height:0;gap:var(--fw-portrait-gap);
+  padding-top:calc(8px + var(--fw-portrait-air) / 2);
+  padding-bottom:calc(8px + var(--fw-portrait-air) / 2);
+ }
+ .fw-top{min-height:calc(68px + var(--fw-portrait-air))}
+ .fw-layout{display:flex;flex:0 0 auto;flex-direction:column;align-items:stretch;gap:var(--fw-portrait-gap);min-height:0}
  .fw-word-panel{flex:none;align-self:stretch;width:100%;padding:10px 14px 11px;border-width:3px}
  .fw-list-heading{align-items:center;padding:0 3px 7px}
  .fw-list-heading h2{font-size:23px}
