@@ -1,0 +1,98 @@
+name: Laria prepare verified berry tap fix
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/laria-prepare-tap-intent.yml'
+      - 'tests/fixtures/laria-gangemagi-tap-intent.cjs.txt'
+permissions:
+  contents: read
+jobs:
+  prepare-only:
+    if: github.repository == 'Almenning/Flyt-app' && github.event.pull_request.number == 192 && github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'feat/laria-gangemagi-premium-main-20261019'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Prepare one bounded input-intent fix and regression cases
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib, difflib
+          def blob(data):
+              return hashlib.sha1(b'blob '+str(len(data)).encode()+b'\0'+data).hexdigest()
+          out=Path('/tmp/laria-tap-review');out.mkdir()
+          app=Path('laer-litt-mer/multiplication-gangemagi-v1.js')
+          before=app.read_text()
+          assert blob(app.read_bytes())=='0febde8fdee52cd0bee228627df3b0f61315c275'
+          old="if(event.target.closest('.gm-fruit[data-gm-fruit]')&&state.counts[i]>0){"
+          new="if(!holdingBerry&&event.target.closest('.gm-fruit[data-gm-fruit]')&&state.counts[i]>0){"
+          assert before.count(old)==1
+          app.write_text(before.replace(old,new))
+          assert blob(app.read_bytes())=='841557ca9b14eff4d121c92e4c799213f50baed3'
+          patch=''.join(difflib.unified_diff(before.splitlines(True),app.read_text().splitlines(True),fromfile=str(app),tofile=str(app)))
+          browser=Path('tests/laria-gangemagi.playwright.js')
+          before=browser.read_text();text=before
+          for method,anchor,indent in [
+            ('click',"    label+' tapped strawberry + tapped basket adds exactly one');",'  '),
+            ('tap',"      label+' two real touchscreen taps pick and place exactly one berry');",'    ')]:
+              assert text.count(anchor)==1
+              lines=[
+                'await page.locator(\'[data-gm-action="source"]\').'+method+'();',
+                'await page.locator(\'[data-gm-basket="1"] .gm-fruit[data-gm-fruit]\').first().'+method+'();',
+                'assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,2,0],',
+                '  label+\' picking then touching visible basket contents must PLACE the held berry\');',
+                'await page.locator(\'[data-gm-basket="1"] .gm-fruit[data-gm-fruit]\').first().'+method+'();',
+                'assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,1,0],',
+                '  label+\' direct touch without a held berry still removes exactly one\');']
+              text=text.replace(anchor,anchor+'\n'+'\n'.join(indent+line for line in lines))
+          browser.write_text(text)
+          patch+=''.join(difflib.unified_diff(before.splitlines(True),text.splitlines(True),fromfile=str(browser),tofile=str(browser)))
+          Path('tests/laria-gangemagi-tap-intent.test.cjs').write_bytes(Path('tests/fixtures/laria-gangemagi-tap-intent.cjs.txt').read_bytes())
+          (out/'patch.diff').write_text(patch)
+          PY
+      - name: Validate actual application handler and test syntax
+        run: |
+          node --check laer-litt-mer/multiplication-gangemagi-v1.js
+          node --check tests/laria-gangemagi.playwright.js
+          node --test tests/laria-gangemagi-tap-intent.test.cjs
+      - name: Store verified blobs only; no branch or workflow mutation
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          python3 - <<'PY'
+          import hashlib,json,os,subprocess,urllib.request
+          from pathlib import Path
+          assert os.environ['GITHUB_REPOSITORY']=='Almenning/Flyt-app'
+          assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()==os.environ['SOURCE_HEAD']
+          names=['laer-litt-mer/multiplication-gangemagi-v1.js','tests/laria-gangemagi.playwright.js','tests/laria-gangemagi-tap-intent.test.cjs']
+          entries=[]
+          out=Path('/tmp/laria-tap-review')
+          for name in names:
+              data=Path(name).read_bytes()
+              expected=hashlib.sha1(b'blob '+str(len(data)).encode()+b'\0'+data).hexdigest()
+              req=urllib.request.Request('https://api.github.com/repos/Almenning/Flyt-app/git/blobs',data=json.dumps({'content':data.decode(),'encoding':'utf-8'}).encode(),method='POST',headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json','Content-Type':'application/json','X-GitHub-Api-Version':'2022-11-28'})
+              with urllib.request.urlopen(req,timeout=30) as response:
+                  result=json.load(response)
+              assert result['sha']==expected
+              entries.append({'path':name,'mode':'100644','type':'blob','sha':expected})
+              target=out/'reviewed-files'/name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(data)
+          manifest={'parent':os.environ['SOURCE_HEAD'],'base_tree':subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip(),'tree_elements':entries,'remote_refs_changed':False}
+          (out/'manifest.json').write_text(json.dumps(manifest,indent=2))
+          print('REVIEWED_TAP_FIX',json.dumps(manifest))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: laria-tap-intent-review-${{ github.event.pull_request.head.sha }}
+          path: /tmp/laria-tap-review
+          if-no-files-found: error
+          retention-days: 3
