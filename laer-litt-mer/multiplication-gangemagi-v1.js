@@ -152,8 +152,9 @@
        (!free&&!complete?'<div class="gm-market-fruit-supply">'+fruitSupply(false)+'</div>':'')+
        '<p class="gm-play-hint">'+(complete?'Se hva du har laget! Du kan endre kurvene eller fortsette.':free?(state.groups>=4?'Trykk på kurvene. Sveip sidelengs for å se alle.':'Trykk på en kurv for å legge i et jordbær'):(holdingBerry?'Trykk på kurven du vil legge jordbæret i.':'Dra jordbær til kurvene, eller trykk på jordbær og deretter en kurv.'))+'</p></div>'+
        '</div>'+
-       '<div class="gm-math"><div class="gm-math-label"><span>Dette lager du</span><span class="gm-goal">Målet: '+state.groups+' × '+state.each+'</span></div>'+
+       '<div class="gm-math"><div class="gm-math-label"><span>'+(complete?'Se sammenhengen':'Oppdraget')+'</span><span class="gm-goal">'+state.groups+' × '+state.each+' = '+(complete?sum:'?')+'</span></div>'+
          '<div class="gm-math-equation '+(complete?'gm-equation-win':'')+'" aria-label="'+esc(equation)+'">'+esc(equation)+'</div>'+
+         (!free&&complete?'<div class="gm-math-addition" aria-label="Gjentatt addisjon: '+esc(result.addition)+'">'+esc(result.addition)+'</div>':'')+
          (free?'<div class="gm-progress-track" role="progressbar" aria-label="Jordbær pakket" aria-valuemin="0" aria-valuemax="'+goal+'" aria-valuenow="'+sum+'"><span style="width:'+progress+'%"></span></div>':'')+
          (!free?'<div class="gm-berry-progress" aria-label="'+sum+' av '+goal+' jordbær lagt i kurvene"><strong>'+sum+' av '+goal+'</strong></div>':'')+
          '<div class="gm-math-note'+(result.multiplication?' gm-math-discovery':'')+'"'+(result.multiplication?' role="status"':'')+'>'+(result.multiplication?'✦ Like grupper: '+state.groups+' kurver med '+state.counts[0]+' bær = '+sum+'!':'Når kurvene har ulikt antall, legger vi sammen.')+'</div></div>'+
