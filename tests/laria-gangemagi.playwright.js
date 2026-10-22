@@ -807,8 +807,15 @@ async function check(engine,label,viewport,url){
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).wins.length,1,'replay keeps unique flower');
   await page.locator('[data-gm-action="next"]').click();
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).groups,2);
+  assert.deepEqual(await page.locator('.gm-secondary-nav button strong').allInnerTexts(),
+    ['Fri lek','Markedsbok','Gangetabellen'],
+    label+' mission mode needs three real secondary choices instead of a selected mode toggle');
+  assert.equal(await page.locator('.gm-modes').count(),0,label+' remove the passive old mission/free segmented control');
   await page.locator('[data-gm-action="mode"][data-mode="free"]').click();
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).mode,'free');
+  assert.deepEqual(await page.locator('.gm-secondary-nav button strong').allInnerTexts(),
+    ['Oppdrag','Markedsbok','Gangetabellen'],
+    label+' free play must offer an obvious way back plus book and classic table');
   assert.equal(await page.locator('.gm-quest').count(),0,'free play keeps its existing independent controls');
 
   // Free play has a single-icon pickup button, not the mission's five-berry
