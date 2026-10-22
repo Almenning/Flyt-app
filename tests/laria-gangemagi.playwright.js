@@ -186,8 +186,8 @@ async function check(engine,label,viewport,url){
   const missionHeading=await page.locator('.gm-quest-callout').evaluate(el=>({
     size:parseFloat(getComputedStyle(el).fontSize),bounds:el.getBoundingClientRect().toJSON(),
     panel:el.closest('.gm-quest').getBoundingClientRect().toJSON()}));
-  assert.ok(missionHeading.size>=17&&missionHeading.bounds.width>viewport.width*.65,
-    label+' child-sized assignment heading '+JSON.stringify(missionHeading));
+  assert.ok(missionHeading.size>=17&&missionHeading.bounds.width>missionHeading.panel.width*.84,
+    label+' child-sized assignment heading must dominate its painted board while leaving the fox its own scene space '+JSON.stringify(missionHeading));
   assert.equal(await page.locator('.gm-fox-art [data-avatar="girl"]').count(),1,'must render chosen full-body girl fox');
   assert.match(await page.locator('.gm-book-quick').innerText(),/0\/8/,'flower progress visible from the main scene');
   assert.equal(await page.locator('.gm-book-collapsed:visible').count(),0,
