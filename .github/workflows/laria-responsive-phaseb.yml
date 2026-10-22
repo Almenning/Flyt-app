@@ -8,7 +8,6 @@ on:
       - 'laer-litt-mer/locked-journey-renderer.css'
       - 'laer-litt-mer/locked-journey-renderer.js'
       - 'tests/laria-responsive-phaseb-journeys.playwright.js'
-      - '.github/workflows/laria-responsive-phaseb.yml'
   workflow_dispatch:
 
 permissions:
