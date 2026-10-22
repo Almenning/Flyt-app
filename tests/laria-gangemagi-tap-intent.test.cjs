@@ -15,6 +15,9 @@ function game() {
   const window = {LARIA_GANGEMAGI_ENGINE:Engine, openMultiplicationLab(){}, addEventListener(){}};
   vm.runInNewContext(source,{window,document,localStorage:{getItem:k=>stored.get(k)||null,setItem:(k,v)=>stored.set(k,v)},
     MutationObserver:class{observe(){}},console},{filename:'multiplication-gangemagi-v1.js',timeout:1000});
+  // The real game renders when opened. Initialize this DOM-less test host
+  // before asserting its visible maths or illustrated group counts.
+  window.LARIA_GANGEMAGI.reset();
   const tap = (action,basket=0,berry=false,extra={})=>{
     const button = {dataset:{gmAction:action,gmBasket:String(basket),...extra}};
     const target = {closest:selector=>selector==='button[data-gm-action]'?button:selector.includes('.gm-fruit')&&berry?{}:null};
