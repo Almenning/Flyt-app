@@ -328,6 +328,7 @@
   min-width:0;
   padding-bottom:clamp(16px,1.8vw,24px);
 }
+.gm-shell[data-gm-mode="mission"] .gm-group-plus{display:none}
 .gm-shell[data-gm-mode="mission"] .gm-crate{
   position:relative;
   display:block;
@@ -690,6 +691,27 @@
     width:calc(100% - clamp(235px,22vw,285px));
   }
   .gm-shell[data-gm-mode="mission"] .gm-crates{padding-top:7px}
+  /* Put the addition sign in the physical gap between groups. It is scenery,
+     never a control, and makes "basket + basket + basket" visible before the
+     equation below names the same relationship with numbers. */
+  .gm-shell[data-gm-mode="mission"]:is([data-gm-groups="2"],[data-gm-groups="3"],[data-gm-groups="4"]) .gm-group-plus{
+    display:block;
+    position:absolute;
+    z-index:5;
+    right:-17px;
+    top:48%;
+    transform:translateY(-50%);
+    width:26px;
+    height:34px;
+    line-height:34px;
+    text-align:center;
+    color:#6c4026;
+    font-family:Georgia,'Times New Roman',serif;
+    font-size:34px;
+    font-weight:900;
+    text-shadow:0 2px 0 #fff0c7,0 3px 5px #5d402944;
+    pointer-events:none;
+  }
   .gm-shell[data-gm-mode="mission"] .gm-crate{height:clamp(158px,16.8vw,214px)}
   .gm-shell[data-gm-mode="mission"] .gm-market-fruit-supply{margin-top:-12px}
   .gm-shell[data-gm-mode="mission"] .gm-pick.gm-strawberry-tray{

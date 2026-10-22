@@ -329,6 +329,12 @@ async function check(engine,label,viewport,url){
       label+' iPad landscape speech must be readable at arm’s length '+JSON.stringify(guide));
     assert.ok(guide.fox.right<=guide.firstBasket.left+2&&guide.bubble.right<=guide.firstBasket.left+2,
       label+' fox and bubble must not cover any basket touch targets '+JSON.stringify(guide));
+    const groupMath=await page.locator('.gm-group-plus').evaluateAll(nodes=>nodes.map(el=>({
+      display:getComputedStyle(el).display,text:el.textContent.trim(),pointer:getComputedStyle(el).pointerEvents
+    })));
+    assert.equal(groupMath.length,2,label+' 3-group mission needs two visual addition links between real baskets');
+    assert.ok(groupMath.every(x=>x.display!=='none'&&x.text==='+'&&x.pointer==='none'),
+      label+' wide iPad must show non-interactive plus signs between the three physical groups '+JSON.stringify(groupMath));
     assert.ok(guide.fox.bottom<=guide.math.top+3&&guide.bubble.bottom<=guide.math.top+3,
       label+' guide and speech must stay clear of live mathematical feedback '+JSON.stringify(guide));
   }
