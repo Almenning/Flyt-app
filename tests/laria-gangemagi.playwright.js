@@ -755,6 +755,29 @@ async function check(engine,label,viewport,url){
   await page.locator('[data-gm-action="mode"][data-mode="free"]').click();
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).mode,'free');
   assert.equal(await page.locator('.gm-quest').count(),0,'free play keeps its existing independent controls');
+
+  // Free play has a single-icon pickup button, not the mission's five-berry
+  // crate. Stacking crate art here used to paint over the mode/factor controls.
+  const freeSupply=page.locator('[data-gm-action="source"]');
+  assert.equal(await freeSupply.locator('.gm-source-berry').count(),0,
+    label+' free play must not inherit the mission crate pile');
+  assert.equal(await freeSupply.locator('.gm-pick-fruit [data-gm-prop="berry"]').count(),1,
+    label+' free pickup button has exactly one illustrated fruit');
+  const freeProp=await freeSupply.evaluate(button=>{
+    const b=button.getBoundingClientRect();
+    const f=button.querySelector('.gm-pick-fruit svg').getBoundingClientRect();
+    return {inside:f.left>=b.left-1&&f.right<=b.right+1&&f.top>=b.top-1&&f.bottom<=b.bottom+1,
+      button:b.toJSON(),fruit:f.toJSON()};
+  });
+  assert.ok(freeProp.inside,label+' free-play fruit must stay inside its own button '+JSON.stringify(freeProp));
+  const freeBefore=(await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts;
+  await freeSupply.click();
+  assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,
+    freeBefore.map((n,i)=>n+(i===0?1:0)),label+' free pickup still adds exactly one berry');
+  await page.locator('[data-gm-action="undo"]').click();
+  assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,freeBefore,
+    label+' undo restores free play after the pickup regression');
+
   assert.match(await page.locator('.gm-story').innerText(),/Ditt eget jordbærmarked/);
   await page.locator('[data-gm-action="factor"][data-key="groups"][data-step="1"]').click();
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).groups,3);
