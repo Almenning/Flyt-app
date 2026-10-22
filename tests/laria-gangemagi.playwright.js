@@ -356,9 +356,16 @@ async function check(engine,label,viewport,url){
     materialLayout.foxBottom<=materialLayout.mathTop+3,
     label+' actual personal fox must fit its slot and stay above the live equation '+JSON.stringify(materialLayout));
   if(viewport.width>=900&&viewport.height<=900){
-    const wideBoard=await page.locator('.gm-quest-steps').evaluate(el=>getComputedStyle(el).display);
-    assert.equal(wideBoard,'none',
-      label+' wide iPad should prioritise the real market over a redundant three-card tutorial');
+    const wideBoard=await page.locator('.gm-quest-steps').evaluate(el=>({
+      display:getComputedStyle(el).display,
+      steps:el.querySelectorAll('.gm-quest-step').length,
+      visibleLabels:[...el.querySelectorAll('.gm-quest-step strong')].filter(x=>getComputedStyle(x).display!=='none').map(x=>x.textContent.trim())
+    }));
+    assert.notEqual(wideBoard.display,'none',
+      label+' wide iPad must keep the locked three-step illustrated quest explanation '+JSON.stringify(wideBoard));
+    assert.equal(wideBoard.steps,3,label+' wide iPad quest board must have exactly three authored steps');
+    assert.deepEqual(wideBoard.visibleLabels,['Plukk','Legg i','Se gangemagien'],
+      label+' wide iPad quest steps must explain the real interaction in order '+JSON.stringify(wideBoard));
     assert.ok(materialLayout.sourceArtWidth>=180,
       label+' actual strawberry market crate must be prominent, not a tiny pill '+JSON.stringify(materialLayout));
   }
