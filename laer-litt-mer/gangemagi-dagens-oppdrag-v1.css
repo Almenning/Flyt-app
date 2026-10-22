@@ -719,6 +719,7 @@
     width:185px;
   }
   .gm-shell[data-gm-mode="mission"] .gm-fox-art{width:168px;height:214px}
+  .gm-shell[data-gm-mode="mission"] .gm-fox-message{font-size:14px;line-height:1.14}
   .gm-shell[data-gm-mode="mission"] .gm-fox-bubble{
     width:177px;
     margin-top:-25px;
@@ -940,7 +941,7 @@
     margin:4px 0 0 -5px;
     padding:6px 41px 6px 8px;
   }
-  .gm-shell[data-gm-mode="mission"] .gm-fox-message{font-size:11px}
+  .gm-shell[data-gm-mode="mission"] .gm-fox-message{font-size:13px;line-height:1.1}
   .gm-shell[data-gm-mode="mission"] .gm-market{
     width:100%;
     margin:66px 0 0;
