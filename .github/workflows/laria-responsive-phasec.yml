@@ -5,14 +5,16 @@ on:
     branches: [main]
     paths:
       - 'laer-litt-mer/multiplication-premium-v2.css'
-      - 'laer-litt-mer/index.html'
-      - 'laer-litt-mer/sw.js'
       - 'tests/laria-responsive-phasec-multiplication.playwright.js'
       - '.github/workflows/laria-responsive-phasec.yml'
   workflow_dispatch:
 
 permissions:
   contents: read
+
+concurrency:
+  group: laria-responsive-phasec-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   multiplication-ipad-landscape:
