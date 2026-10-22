@@ -4,9 +4,7 @@ on:
     branches: [main]
     paths:
       - 'laer-litt-mer/geography-continent-voyage-*'
-      - 'laer-litt-mer/index.html'
       - 'tests/laria-geography-continent-voyage.*'
-      - '.github/workflows/laria-geography-chapter2-pilot.yml'
 permissions:
   contents: read
 concurrency:
