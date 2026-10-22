@@ -859,6 +859,9 @@
   .gm-shell[data-gm-mode="mission"] .gm-actions-complete .gm-next{min-width:72vw;min-height:56px}
   .gm-shell[data-gm-mode="mission"] .gm-secondary-nav{flex-wrap:wrap}
   .gm-shell[data-gm-mode="mission"] .gm-celebration{font-size:12px}
+  .gm-shell[data-gm-mode="mission"][data-gm-complete="true"] .gm-celebration{
+    margin-top:26px;
+  }
 }
 
 /* Short phone landscape is a deliberate side-by-side market, retaining real
