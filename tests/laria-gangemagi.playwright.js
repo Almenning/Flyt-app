@@ -364,7 +364,7 @@ async function check(engine,label,viewport,url){
   const materialLayout=await page.evaluate(()=>{
     const box=s=>document.querySelector(s).getBoundingClientRect();
     const painted=box('.gm-fox-art svg'),slot=box('.gm-fox-art');
-    return {foxBottom:painted.bottom,slotBottom:slot.bottom,mathTop:box('.gm-math').top,
+    return {foxBottom:painted.bottom,slotBottom:slot.bottom,foxWidth:slot.width,mathTop:box('.gm-math').top,
       iconHeight:box('.gm-quest-icon').height,
       sourceArtWidth:box('.gm-market-fruit-supply .gm-pick-fruit').width,
       marketBlur:getComputedStyle(document.querySelector('.gm-market'),'::before').backdropFilter};
@@ -388,6 +388,8 @@ async function check(engine,label,viewport,url){
   }
   if(viewport.width>=700&&viewport.width<=899&&viewport.height>=1000)assert.ok(materialLayout.iconHeight>=68,
     label+' portrait iPad instructions must use the existing picture area');
+  if(viewport.width>=361&&viewport.width<700)assert.ok(materialLayout.foxWidth>=138,
+    label+' ordinary phone must treat the selected full-body fox as a real companion, not a small icon '+JSON.stringify(materialLayout));
   if(viewport.width>=375)assert.ok(materialLayout.sourceArtWidth>=109,
     label+' the real strawberry supply must be visually substantial');
   assert.ok(!materialLayout.marketBlur||materialLayout.marketBlur==='none',
