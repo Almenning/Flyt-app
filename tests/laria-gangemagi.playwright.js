@@ -386,11 +386,15 @@ async function check(engine,label,viewport,url){
       const icon=w.querySelector('.gm-remove span').getBoundingClientRect();
       return overlaps(tag,icon);
     });
-    const label=document.querySelector('.gm-pick>span:nth-child(2)');
-    return {overlaps:baskets,clipped:label.scrollWidth>label.clientWidth+1,lettering:label.innerText};
+    const label=document.querySelector('.gm-pick>span:nth-child(2)'),labelRect=label.getBoundingClientRect();
+    return {overlaps:baskets,clipped:label.scrollWidth>label.clientWidth+1,lettering:label.innerText,
+      labelWidth:labelRect.width,labelHeight:labelRect.height};
   });
   assert.deepEqual(touchGeometry.overlaps,Array(touchGeometry.overlaps.length).fill(false),label+' remove affordance must not cover numeric basket label '+JSON.stringify(touchGeometry));
   assert.equal(touchGeometry.clipped,false,label+' first-fold Plukk action text is clipped '+JSON.stringify(touchGeometry));
+  assert.equal(touchGeometry.lettering,'Plukk et jordbær',label+' primary strawberry action must say exactly what the child can do');
+  if(!(viewport.width>=700&&viewport.width<=899&&viewport.height<700))assert.ok(touchGeometry.labelHeight>=40,
+    label+' primary strawberry action needs visual button weight '+JSON.stringify(touchGeometry));
   const pageCanvas=await page.evaluate(()=>{
     const screen=document.querySelector('#multiplication-lab-screen');
     const app=document.querySelector('.app');
@@ -417,7 +421,7 @@ async function check(engine,label,viewport,url){
   const minPhysicalCrateWidth=Math.min(250,viewport.width*.75);
   assert.ok(crateControl.width>=minPhysicalCrateWidth&&crateControl.width<=viewport.width*.96&&
     crateControl.height>=44&&crateControl.image==='none'&&crateControl.berryCount===5&&
-    crateControl.caption==='Plukk'&&crateControl.touchAction==='none',
+    crateControl.caption==='Plukk et jordbær'&&crateControl.touchAction==='none',
     label+' the real illustrated strawberry crate must be a substantial accessible touch/drag object, not the old tiny button '+JSON.stringify(crateControl));
   // The same locally served illustrations must decode in both engines.
   // Checking an Image load catches broken SVG dependencies before visual QA.
