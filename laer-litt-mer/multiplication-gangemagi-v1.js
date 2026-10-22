@@ -135,7 +135,7 @@
    const equation=!free&&sum===0?state.groups+' × '+state.each+' = ?':
      (!free&&!complete?result.addition:(result.multiplication||result.addition));
    const active=state.mode==='mission'?'Oppdrag':'Fri lek';
-   root.innerHTML='<main class="gm-shell" data-gm-mode="'+modeClass+'" data-gm-groups="'+state.groups+'" data-gm-each="'+state.each+'" data-gm-selected="'+selectedGroup+'" data-gm-complete="'+complete+'">'+
+   root.innerHTML='<main class="gm-shell" data-gm-mode="'+modeClass+'" data-gm-groups="'+state.groups+'" data-gm-each="'+state.each+'" data-gm-sum="'+sum+'" data-gm-selected="'+selectedGroup+'" data-gm-complete="'+complete+'">'+
       '<div class="gm-layout"><header class="gm-top">'+
       '<button type="button" class="gm-back" id="multiplication-lab-back" data-gm-action="back" aria-label="Tilbake til matte">‹</button>'+
       '<div class="gm-brand"><span class="gm-brand-mark">Læ<span>ria</span> ✦</span><small>TALLENGA / GANGEMAGI</small></div>'+ 

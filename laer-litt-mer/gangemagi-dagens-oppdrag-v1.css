@@ -579,6 +579,42 @@
 .gm-shell[data-gm-mode="mission"] .gm-math-note,
 .gm-shell[data-gm-mode="mission"] .gm-progress-track,
 .gm-shell[data-gm-mode="mission"] .gm-berry-progress>div{display:none}
+/* Once play has started, keep the multiplication challenge visible above
+   the live repeated addition. The child's physical grouping and both number
+   sentences are then readable at the same time. */
+.gm-shell[data-gm-mode="mission"][data-gm-complete="false"]:not([data-gm-sum="0"]) .gm-math{
+  grid-template-rows:auto auto;
+}
+.gm-shell[data-gm-mode="mission"][data-gm-complete="false"]:not([data-gm-sum="0"]) .gm-math-label{
+  grid-column:1;
+  grid-row:1;
+  display:flex;
+  align-items:baseline;
+  justify-content:center;
+  gap:8px;
+  color:#8a6148;
+  font-size:clamp(11px,1.2vw,15px);
+  font-weight:800;
+  line-height:1;
+}
+.gm-shell[data-gm-mode="mission"][data-gm-complete="false"]:not([data-gm-sum="0"]) .gm-math-label>span:first-child{
+  font-size:.78em;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.gm-shell[data-gm-mode="mission"][data-gm-complete="false"]:not([data-gm-sum="0"]) .gm-goal{
+  color:#6a3a24;
+  font-size:1.28em;
+  font-weight:1000;
+}
+.gm-shell[data-gm-mode="mission"][data-gm-complete="false"]:not([data-gm-sum="0"]) .gm-math-equation{
+  grid-column:1;
+  grid-row:2;
+}
+.gm-shell[data-gm-mode="mission"][data-gm-complete="false"]:not([data-gm-sum="0"]) .gm-berry-progress{
+  grid-column:2;
+  grid-row:1 / span 2;
+}
 .gm-shell[data-gm-mode="mission"] .gm-math-equation{
   grid-column:1;
   text-align:center;

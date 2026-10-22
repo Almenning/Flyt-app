@@ -551,6 +551,16 @@ async function check(engine,label,viewport,url){
     label+' ONLY the newly added strawberry should bounce after the first pick');
   assert.equal(await page.locator('.gm-quest-mini-berries i').count(),1,
     label+' illustrated maths must mirror the first real berry placed');
+  const liveMathBridge=await page.locator('.gm-math').evaluate(root=>{
+    const label=root.querySelector('.gm-math-label'),goal=root.querySelector('.gm-goal'),
+      equation=root.querySelector('.gm-math-equation');
+    return {labelDisplay:getComputedStyle(label).display,
+      label:label.textContent.replace(/\s+/g,' ').trim(),
+      goal:goal.textContent.trim(),equation:equation.textContent.trim()};
+  });
+  assert.ok(liveMathBridge.labelDisplay!=='none'&&liveMathBridge.goal==='3 × 3 = ?'&&
+    liveMathBridge.equation==='1 + 0 + 0 = 1',
+    label+' child must see the multiplication goal and the live addition together '+JSON.stringify(liveMathBridge));
   await shot(page,label+'-02-one-berry');
   await page.locator('[data-gm-action="source"]').click();
   await page.locator('[data-gm-basket="0"] .gm-crate-front').click();
