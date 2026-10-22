@@ -236,6 +236,12 @@ async function check(engine,label,viewport,url){
   assert.equal(calmStart.visibleEmptyTags,0,'empty market baskets should show simple clear names, not tiny 0/3 labels');
   assert.deepEqual(calmStart.basketNames,['Kurv 1','Kurv 2','Kurv 3'],'basket names remain clear');
 
+  const tallengaScene=await page.request.get(new URL('gangemagi-tallenga-market-v1.svg',url).href);
+  assert.equal(tallengaScene.status(),200,'the dedicated Tallenga strawberry-market scene must load');
+  assert.match(tallengaScene.headers()['content-type'],/image\/svg\+xml/);
+  const sceneBackground=await page.locator('.gm-world').evaluate(el=>getComputedStyle(el).backgroundImage);
+  assert.match(sceneBackground,/gangemagi-tallenga-market-v1\.svg/,
+    label+' Gangemagi must use its calm authored market scene, not the generic busy maths background');
   const tableArt=await page.request.get(new URL('gangemagi-market-table-premium.svg',url).href);
   assert.equal(tableArt.status(),200,'original illustrated market counter must load');
   assert.match(tableArt.headers()['content-type'],/image\/svg\+xml/);
@@ -344,8 +350,9 @@ async function check(engine,label,viewport,url){
     materialLayout.foxBottom<=materialLayout.mathTop+3,
     label+' actual personal fox must fit its slot and stay above the live equation '+JSON.stringify(materialLayout));
   if(viewport.width>=900&&viewport.height<=900){
-    assert.ok(materialLayout.iconHeight>=60,
-      label+' landscape iPad instructions must use large action pictures');
+    const wideBoard=await page.locator('.gm-quest-steps').evaluate(el=>getComputedStyle(el).display);
+    assert.equal(wideBoard,'none',
+      label+' wide iPad should prioritise the real market over a redundant three-card tutorial');
     assert.ok(materialLayout.sourceArtWidth>=180,
       label+' actual strawberry market crate must be prominent, not a tiny pill '+JSON.stringify(materialLayout));
   }
