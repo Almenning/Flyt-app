@@ -707,10 +707,66 @@
     padding-top:17px;
     padding-bottom:11px;
   }
-  /* On a wide iPad the child can already SEE the real berries and baskets.
-     Keep the board about the actual mission instead of repeating a three-card
-     tutorial above the game. This gives the personal fox and market the stage. */
-  .gm-shell[data-gm-mode="mission"] .gm-quest-steps{display:none}
+  /* The locked design includes a three-step visual explanation. Keep it on
+     wide iPad too, but compress it into one illustrated row so the physical
+     baskets, source and maths remain in the same first-view adventure scene. */
+  .gm-shell[data-gm-mode="mission"] .gm-quest-steps{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:8px;
+    max-width:690px;
+    margin:5px auto 0;
+  }
+  .gm-shell[data-gm-mode="mission"] .gm-quest-step{
+    display:grid;
+    grid-template-columns:32px minmax(0,1fr);
+    grid-template-rows:48px auto;
+    align-items:center;
+    min-width:0;
+    min-height:70px;
+    padding:4px 7px 5px;
+    border:1px solid #e1b47e;
+    border-radius:13px;
+    background:#fff3ddcf;
+    box-shadow:inset 0 1px #fffaf0,0 2px 3px #76503324;
+  }
+  .gm-shell[data-gm-mode="mission"] .gm-quest-index,
+  .gm-shell[data-gm-mode="mission"] .gm-quest-step strong{display:block}
+  .gm-shell[data-gm-mode="mission"] .gm-quest-index{
+    grid-column:1;
+    grid-row:1;
+    color:#cf654c;
+    font-size:16px;
+    font-weight:1000;
+    text-align:center;
+  }
+  .gm-shell[data-gm-mode="mission"] .gm-quest-icon{
+    grid-column:2;
+    grid-row:1;
+    width:100%;
+    height:48px;
+  }
+  .gm-shell[data-gm-mode="mission"] .gm-quest-icon>.gm-quest-wicker{width:62px;height:48px}
+  .gm-shell[data-gm-mode="mission"] .gm-quest-icon>.gm-quest-hand{width:24px;height:35px}
+  .gm-shell[data-gm-mode="mission"] .gm-quest-icon .gm-quest-fruit{width:31px;height:43px}
+  .gm-shell[data-gm-mode="mission"] .gm-quest-mini-basket{height:46px}
+  .gm-shell[data-gm-mode="mission"] .gm-quest-step strong{
+    grid-column:1 / -1;
+    grid-row:2;
+    color:#67412a;
+    font-size:12px;
+    line-height:1.05;
+    text-align:center;
+    white-space:nowrap;
+  }
+  .gm-shell[data-gm-mode="mission"] .gm-top-title span{
+    display:block;
+    margin-top:2px;
+    color:#8a5a3e;
+    font-size:clamp(10px,1.1vw,14px);
+    line-height:1;
+    font-weight:850;
+  }
   .gm-shell[data-gm-mode="mission"] .gm-fox{
     top:20px;
     width:300px;
@@ -722,10 +778,11 @@
     margin-left:30%;
   }
   /* Completion is the exact moment the child should SEE both number
-     sentences. Lift only the speech bubble into the fox's own column; never
-     let praise paint over the final addition/multiplication parchment. */
+     sentences. Keep praise wholly inside the left guide column rather than
+     allowing its right edge to cross onto the final maths parchment. */
   .gm-shell[data-gm-mode="mission"][data-gm-complete="true"] .gm-fox-bubble{
     margin-top:-154px;
+    margin-left:0;
   }
   .gm-shell[data-gm-mode="mission"] .gm-market,
   .gm-shell[data-gm-mode="mission"] .gm-math,
