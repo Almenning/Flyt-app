@@ -743,14 +743,14 @@
 @media(max-width:699px){
   .gm-shell[data-gm-mode="mission"] .gm-layout{padding:7px 8px calc(18px + env(safe-area-inset-bottom))}
   .gm-shell[data-gm-mode="mission"] .gm-top{
-    grid-template-columns:42px 63px 1fr auto 42px;
+    grid-template-columns:44px 63px 1fr auto 44px;
     min-height:48px;
     gap:4px;
   }
   .gm-shell[data-gm-mode="mission"] .gm-back,
   .gm-shell[data-gm-mode="mission"] .gm-book-quick{
-    min-width:40px;
-    min-height:40px;
+    min-width:44px;
+    min-height:44px;
   }
   .gm-shell[data-gm-mode="mission"] .gm-brand-mark{font-size:17px}
   .gm-shell[data-gm-mode="mission"] .gm-top-title h1{font-size:26px}
@@ -851,11 +851,11 @@
 @media(min-width:700px) and (max-width:899px) and (max-height:699px){
   .gm-shell[data-gm-mode="mission"] .gm-layout{padding:5px 8px 12px}
   .gm-shell[data-gm-mode="mission"] .gm-top{
-    grid-template-columns:42px 72px 1fr auto 42px;
+    grid-template-columns:44px 72px 1fr auto 44px;
     min-height:43px;
   }
   .gm-shell[data-gm-mode="mission"] .gm-back,
-  .gm-shell[data-gm-mode="mission"] .gm-book-quick{min-width:40px;min-height:40px}
+  .gm-shell[data-gm-mode="mission"] .gm-book-quick{min-width:44px;min-height:44px}
   .gm-shell[data-gm-mode="mission"] .gm-top-title h1{font-size:28px}
   .gm-shell[data-gm-mode="mission"] .gm-top-progress{min-height:34px;padding:4px 7px}
   .gm-shell[data-gm-mode="mission"] .gm-world{
