@@ -644,6 +644,8 @@ async function check(engine,label,viewport,url){
   assert.match(await page.locator('.gm-math-discovery').innerText(),/Like grupper: 3 kurver med 3 bær = 9/,'multiplication has a child-readable explanation');
   assert.match(await page.locator('.gm-book-quick').innerText(),/1\/8/,'earned flowers remain visible during play');
   assert.match(await page.locator('.gm-celebration').innerText(),/Oppdraget er klart/);
+  assert.match(await page.locator('.gm-celebration-copy small').innerText(),/Markedsblomst 1 av 8 · 9 jordbær pakket/,
+    label+' completion must connect mastery to the persistent market collection');
   assert.equal(await page.locator('.gm-pick').count(),0,'completed tasks must not leave a disabled fruit button');
   // Regression: finishing an adventure used to remove the supply, so a berry
   // could not be dragged back to its source. Reveal the return crate only
