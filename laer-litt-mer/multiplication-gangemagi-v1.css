@@ -44,6 +44,21 @@ body:has(#multiplication-lab-screen.active .gm-shell){background-color:#f5dfbd}
 .gm-modes{display:flex;align-self:end;gap:3px;background:#e7d8b9;padding:4px;border:2px solid #fff9e8;border-radius:19px;box-shadow:0 5px 0 #b99c7940;white-space:nowrap}
 .gm-modes button{min-height:44px;border:0;background:transparent;border-radius:14px;padding:8px 16px;font-size:13px;font-weight:950;color:#725748}
 .gm-modes button.selected{background:linear-gradient(180deg,#fff9e9,#f6dba6);color:#593c2f;box-shadow:0 3px 6px #aa865d57,inset 0 1px 0 #fff}
+.gm-secondary-nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;width:min(100%,620px);margin:10px auto 0}
+.gm-secondary-card{display:grid;grid-template-columns:28px minmax(0,1fr);align-items:center;gap:6px;min-height:52px;padding:7px 12px;border:2px solid #fff4d9;border-bottom:4px solid #b9855c;border-radius:17px;background:linear-gradient(180deg,#fff5dd,#e9c897);color:#633e2e;box-shadow:0 4px 0 #a6795652,0 7px 12px #68472d26;font-size:13px;font-weight:950;text-align:left}
+.gm-secondary-card>span{display:grid;place-items:center;width:28px;height:28px;border-radius:10px;background:#fff6dfb8;color:#bd654f;font-size:18px;font-weight:1000}
+.gm-secondary-card>strong{min-width:0;font:inherit;line-height:1.05;white-space:normal}
+.gm-secondary-card.gm-book-secondary{background:linear-gradient(180deg,#f5e6c4,#d6ad78);border-bottom-color:#8d6042}
+.gm-secondary-card.gm-classic{white-space:normal}
+@media(max-width:699px){
+ .gm-secondary-nav{gap:6px;width:100%}
+ .gm-secondary-card{grid-template-columns:22px minmax(0,1fr);min-height:50px;padding:6px 7px;border-radius:14px;font-size:clamp(10px,3vw,12px)}
+ .gm-secondary-card>span{width:22px;height:22px;border-radius:8px;font-size:15px}
+}
+@media(max-width:350px){
+ .gm-secondary-nav{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .gm-secondary-card.gm-classic{grid-column:1 / -1}
+}
 .gm-world{position:relative;isolation:isolate;min-height:420px;background:linear-gradient(180deg,rgba(255,248,228,.26),rgba(244,227,192,.10) 48%,rgba(239,225,198,.30)),url('./matte-verden.png') center 59%/cover no-repeat;overflow:hidden;
  border:5px solid #fff5dc;border-radius:30px;box-shadow:0 8px 0 #cda97b99,0 23px 49px #67584324,inset 0 0 0 2px #f4e4c4}
 .gm-world:before{content:"";position:absolute;z-index:-1;inset:0;background:linear-gradient(180deg,#fff8e84a 0,#f8e7c000 32%,#f5e5c62b 63%,#f6edd2bc 100%);pointer-events:none}
