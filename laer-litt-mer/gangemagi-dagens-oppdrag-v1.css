@@ -496,10 +496,22 @@
 .gm-shell[data-gm-mode="mission"] .gm-pick.gm-strawberry-tray>span:nth-child(2){
   position:relative;
   z-index:6;
-  margin:-3px 0 0;
-  padding:1px 16px 2px;
-  border-radius:0 0 11px 11px;
-  background:#ffefc9;
+  display:grid;
+  place-items:center;
+  min-height:44px;
+  min-width:min(82%,300px);
+  margin:-8px 0 0;
+  padding:7px 20px 8px;
+  border:2px solid #fff1cf;
+  border-bottom:4px solid #8f3d32;
+  border-radius:16px;
+  background:linear-gradient(180deg,#f06d59,#d94e45);
+  color:#fffaf0;
+  font-size:clamp(15px,1.65vw,20px);
+  line-height:1;
+  font-weight:1000;
+  text-shadow:0 2px 0 #9e3f34;
+  box-shadow:0 4px 0 #8d4938,0 7px 12px #4e2b1b42;
 }
 .gm-shell[data-gm-mode="mission"] .gm-pick.gm-strawberry-tray small{display:none}
 .gm-shell[data-gm-mode="mission"] .gm-pick.gm-strawberry-tray .gm-pick-fruit{
@@ -1131,8 +1143,18 @@
   }
   .gm-shell[data-gm-mode="mission"][data-gm-each="10"] .gm-fruit{height:22px}
   .gm-shell[data-gm-mode="mission"] .gm-market-fruit-supply{margin-top:-10px}
-  .gm-shell[data-gm-mode="mission"] .gm-pick.gm-strawberry-tray{width:130px;min-height:47px}
+  .gm-shell[data-gm-mode="mission"] .gm-pick.gm-strawberry-tray{width:150px;min-height:54px}
   .gm-shell[data-gm-mode="mission"] .gm-pick.gm-strawberry-tray .gm-pick-fruit{height:37px}
+  .gm-shell[data-gm-mode="mission"] .gm-pick.gm-strawberry-tray>span:nth-child(2){
+    min-width:138px;
+    min-height:30px;
+    margin-top:-5px;
+    padding:4px 8px 5px;
+    border-width:1px 1px 3px;
+    border-radius:10px;
+    font-size:10px;
+    white-space:nowrap;
+  }
   .gm-shell[data-gm-mode="mission"] .gm-source-berry{bottom:3px}
   .gm-shell[data-gm-mode="mission"] .gm-math{
     grid-column:2;
