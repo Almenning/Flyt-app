@@ -173,10 +173,10 @@
            '<button type="button" class="gm-tool" data-gm-action="hint"><span aria-hidden="true">✧</span> Hint</button>')+
          '<button type="button" class="gm-tool" data-gm-action="undo" '+(!undo.length?'disabled':'')+'><span aria-hidden="true">↶</span> Angre</button>'+
        '</div>'+
-       '<nav class="gm-secondary-nav" aria-label="Andre spillvalg"><div class="gm-modes" role="group" aria-label="Velg spillmåte">'+
-        '<button type="button" class="'+(!free?'selected':'')+'" data-gm-action="mode" data-mode="mission" aria-pressed="'+(!free)+'">Et oppdrag</button>'+ 
-        '<button type="button" class="'+(free?'selected':'')+'" data-gm-action="mode" data-mode="free" aria-pressed="'+free+'">Fri lek</button></div>'+ 
-        '<button type="button" class="gm-classic" data-gm-action="classic" aria-label="Åpne gangetabellen og øving">Gangetabellen ↗</button></nav>'+ 
+       '<nav class="gm-secondary-nav" aria-label="Andre spillvalg">'+
+        '<button type="button" class="gm-secondary-card gm-mode-card" data-gm-action="mode" data-mode="'+(free?'mission':'free')+'" aria-label="'+(free?'Gå tilbake til oppdrag':'Åpne fri lek')+'"><span aria-hidden="true">'+(free?'✦':'⌂')+'</span><strong>'+(free?'Oppdrag':'Fri lek')+'</strong></button>'+
+        '<button type="button" class="gm-secondary-card gm-book-secondary" data-gm-action="open-book" aria-label="Åpne Min markedsbok"><span aria-hidden="true">✿</span><strong>Markedsbok</strong></button>'+
+        '<button type="button" class="gm-classic gm-secondary-card" data-gm-action="classic" aria-label="Åpne gangetabellen og øving"><span aria-hidden="true">×</span><strong>Gangetabellen</strong></button></nav>'+ 
         (free?'<div class="gm-free-controls" aria-label="Lag ditt eget gangestykke">'+factor('groups','Antall kurver',state.groups,1,E.MAX_GROUPS)+factor('each','Jordbær i hver',state.each,1,E.MAX_EACH)+'</div>':'')+
        '<footer class="gm-footer"><span>✿ Blomster som du har samlet, er dine for alltid</span><button type="button" data-gm-action="restart">Begynn på nytt ↻</button></footer>'+book()+
        '</div></main>';
