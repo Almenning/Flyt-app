@@ -6,14 +6,16 @@ on:
     paths:
       - 'laer-litt-mer/multiplication-premium-v2.css'
       - 'laer-litt-mer/multiplication-premium-v2.js'
-      - 'laer-litt-mer/index.html'
-      - 'laer-litt-mer/sw.js'
       - 'tests/laria-responsive-phasec2-task-firstfold.playwright.js'
       - '.github/workflows/laria-responsive-phasec2.yml'
   workflow_dispatch:
 
 permissions:
   contents: read
+
+concurrency:
+  group: laria-responsive-phasec2-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   multiplication-task-firstfold:
