@@ -968,6 +968,13 @@
   }
   .gm-shell[data-gm-mode="mission"] .gm-crates{padding-top:0;gap:4px}
   .gm-shell[data-gm-mode="mission"] .gm-crate{height:106px;max-width:150px}
+  /* Two rows of five berries must sit visibly inside the wicker opening and
+     above its nameplate. Keep berry width/countability; compress only height. */
+  .gm-shell[data-gm-mode="mission"][data-gm-each="10"] .gm-fruit-bed{
+    top:20%;
+    height:46%;
+  }
+  .gm-shell[data-gm-mode="mission"][data-gm-each="10"] .gm-fruit{height:22px}
   .gm-shell[data-gm-mode="mission"] .gm-market-fruit-supply{margin-top:-10px}
   .gm-shell[data-gm-mode="mission"] .gm-pick.gm-strawberry-tray{width:130px;min-height:47px}
   .gm-shell[data-gm-mode="mission"] .gm-pick.gm-strawberry-tray .gm-pick-fruit{height:37px}
