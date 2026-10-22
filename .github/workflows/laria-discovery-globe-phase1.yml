@@ -6,9 +6,7 @@ on:
     paths:
       - 'laer-litt-mer/discovery-globe-phase1.js'
       - 'laer-litt-mer/discovery-globe-view-v1.css'
-      - 'laer-litt-mer/sw.js'
       - 'laer-litt-mer/globe-v25-renderer.js'
-      - 'laer-litt-mer/index.html'
       - 'tests/laria-discovery-globe-phase1.playwright.js'
       - 'tests/laria-discovery-globe-phase1-static.js'
       - 'tests/laria-discovery-diagnostics.cjs'
@@ -18,9 +16,7 @@ on:
     paths:
       - 'laer-litt-mer/discovery-globe-phase1.js'
       - 'laer-litt-mer/discovery-globe-view-v1.css'
-      - 'laer-litt-mer/sw.js'
       - 'laer-litt-mer/globe-v25-renderer.js'
-      - 'laer-litt-mer/index.html'
       - 'tests/laria-discovery-globe-phase1.playwright.js'
       - 'tests/laria-discovery-globe-phase1-static.js'
       - 'tests/laria-discovery-diagnostics.cjs'
@@ -28,6 +24,10 @@ on:
 
 permissions:
   contents: read
+
+concurrency:
+  group: laria-dual-globes-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   visual-prototype:
