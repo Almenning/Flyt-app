@@ -176,6 +176,23 @@ async function check(engine,label,viewport,url){
   }));
   assert.ok(stepGeometry.every(x=>x.scrollWidth<=x.width+1&&x.labelBottom<=x.cardBottom+2),
     label+' all three step captions must fit their illustrated cards '+JSON.stringify(stepGeometry));
+  if(viewport.width>=361&&viewport.width<700){
+    const phoneHierarchy=await page.evaluate(()=>{
+      const steps=document.querySelector('.gm-quest-steps'),title=document.querySelector('.gm-top-title h1'),
+        classic=document.querySelector('.gm-secondary-nav .gm-classic strong');
+      return {
+        stepsDisplay:getComputedStyle(steps).display,
+        visibleSteps:[...steps.querySelectorAll('.gm-quest-step')].filter(x=>getComputedStyle(x).display!=='none').length,
+        title:title.textContent.trim(),titleClipped:title.scrollWidth>title.clientWidth+1,
+        classic:classic?.textContent.trim(),classicClipped:classic?classic.scrollWidth>classic.clientWidth+1:true
+      };
+    });
+    assert.notEqual(phoneHierarchy.stepsDisplay,'none',
+      label+' ordinary iPhone must retain the locked three-step illustrated quest '+JSON.stringify(phoneHierarchy));
+    assert.equal(phoneHierarchy.visibleSteps,3,label+' ordinary iPhone needs all three quest steps visible');
+    assert.equal(phoneHierarchy.titleClipped,false,label+' Gangemagi title must fit the phone header '+JSON.stringify(phoneHierarchy));
+    assert.equal(phoneHierarchy.classicClipped,false,label+' Gangetabellen secondary choice must not clip '+JSON.stringify(phoneHierarchy));
+  }
   const foxSize=await page.locator('.gm-fox-message')
     .evaluate(el=>parseFloat(getComputedStyle(el).fontSize));
   const requiredFoxSize=viewport.width>=700?(viewport.height>=1000?14:13):
