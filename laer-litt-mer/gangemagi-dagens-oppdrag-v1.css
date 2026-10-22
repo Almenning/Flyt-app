@@ -27,10 +27,17 @@
   min-height:58px;
   margin:0 0 5px;
 }
+.gm-shell[data-gm-mode="mission"] .gm-top>*{min-width:0}
 .gm-shell[data-gm-mode="mission"] .gm-back,
 .gm-shell[data-gm-mode="mission"] .gm-book-quick{
   min-width:48px;
   min-height:48px;
+}
+.gm-shell[data-gm-mode="mission"] .gm-book-quick{
+  grid-column:5;
+  grid-row:1;
+  align-self:center;
+  justify-self:end;
 }
 .gm-shell[data-gm-mode="mission"] .gm-brand small,
 .gm-shell[data-gm-mode="mission"] .gm-heading,
