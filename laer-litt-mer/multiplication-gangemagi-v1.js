@@ -171,7 +171,7 @@
               '<button type="button" class="gm-next" data-gm-action="next">Neste oppdrag <span aria-hidden="true">➜</span></button>'):
            (free?fruitSupply(true):'')+
            '<button type="button" class="gm-tool" data-gm-action="hint"><span aria-hidden="true">✧</span> Hint</button>')+
-         '<button type="button" class="gm-tool" data-gm-action="undo" '+(!undo.length?'disabled':'')+'><span aria-hidden="true">↶</span> Angre</button>'+
+         (undo.length?'<button type="button" class="gm-tool" data-gm-action="undo"><span aria-hidden="true">↶</span> Angre</button>':'')+
        '</div>'+
        '<nav class="gm-secondary-nav" aria-label="Andre spillvalg">'+
         '<button type="button" class="gm-secondary-card gm-mode-card" data-gm-action="mode" data-mode="'+(free?'mission':'free')+'" aria-label="'+(free?'Gå tilbake til oppdrag':'Åpne fri lek')+'"><span aria-hidden="true">'+(free?'✦':'⌂')+'</span><strong>'+(free?'Oppdrag':'Fri lek')+'</strong></button>'+
