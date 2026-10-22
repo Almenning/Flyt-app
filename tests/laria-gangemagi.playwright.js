@@ -209,6 +209,10 @@ async function check(engine,label,viewport,url){
   assert.match(await page.locator('.gm-book-quick').innerText(),/0\/8/,'flower progress visible from the main scene');
   assert.equal(await page.locator('.gm-book-collapsed:visible').count(),0,
     label+' only one collection access point should remain on the mission screen');
+  assert.equal(await page.locator('[data-gm-action="undo"]').count(),0,
+    label+' do not show a dead Angre control before the child has done anything');
+  assert.equal(await page.locator('.gm-footer').evaluate(el=>getComputedStyle(el).display),'none',
+    label+' do not offer Begynn på nytt while the fresh mission has nothing to reset');
   const premiumBasket=await page.request.get(new URL('gangemagi-basket-locked-illustration.svg',url).href);
   assert.equal(premiumBasket.status(),200,'illustrated basket sourced from the LOCKED reference must load');
   assert.match(premiumBasket.headers()['content-type'],/image\/svg\+xml/);
