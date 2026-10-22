@@ -394,10 +394,11 @@ async function check(engine,label,viewport,url){
         caption:el.querySelector(':scope>span:nth-child(2)')?.textContent.trim(),
         touchAction:style.touchAction};
     });
-  assert.ok(crateControl.width<=160&&crateControl.height>=44&&
-    crateControl.image==='none'&&crateControl.berryCount===5&&
+  const minPhysicalCrateWidth=Math.min(250,viewport.width*.75);
+  assert.ok(crateControl.width>=minPhysicalCrateWidth&&crateControl.width<=viewport.width*.96&&
+    crateControl.height>=44&&crateControl.image==='none'&&crateControl.berryCount===5&&
     crateControl.caption==='Plukk'&&crateControl.touchAction==='none',
-    label+' only the real illustrated strawberry crate is the accessible touch/drag target '+JSON.stringify(crateControl));
+    label+' the real illustrated strawberry crate must be a substantial accessible touch/drag object, not the old tiny button '+JSON.stringify(crateControl));
   // The same locally served illustrations must decode in both engines.
   // Checking an Image load catches broken SVG dependencies before visual QA.
   const props=await page.evaluate(async()=>{
