@@ -7,7 +7,6 @@ on:
       - 'laer-litt-mer/multiplication-premium-v2.css'
       - 'laer-litt-mer/multiplication-premium-v2.js'
       - 'tests/laria-responsive-phasec2-task-firstfold.playwright.js'
-      - '.github/workflows/laria-responsive-phasec2.yml'
   workflow_dispatch:
 
 permissions:
