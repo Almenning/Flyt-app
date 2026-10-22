@@ -982,10 +982,10 @@
 
 
 /* ONE CLEAR QUEST BOARD 2026-10-22
-   The three illustrated instruction cards repeated information already given by
-   the board headline, live fox, berry tray and baskets.  Let the child enter
-   the market immediately; the live, completed maths panel remains the visual
-   bridge between equal groups, addition and multiplication. */
+   The three instruction cards repeated information already given by the board
+   headline, live fox, berry tray and baskets. Phones go straight to play. On
+   iPad, keep only a calm visual story of the real actions — no extra labels,
+   cards, counters or duplicate instructions. */
 .gm-shell[data-gm-mode="mission"] .gm-quest-steps{display:none}
 .gm-shell[data-gm-mode="mission"] .gm-story.gm-quest{padding-top:20px;padding-bottom:22px}
 
@@ -1130,4 +1130,31 @@
  }
  .gm-shell[data-gm-mode="mission"] .gm-actions{margin:6px auto 0}
  .gm-shell[data-gm-mode="mission"] .gm-secondary-nav{margin-top:6px}
+}
+
+/* On iPad, the action pictures remain a single visual bridge from fruit to
+   equal groups. This deliberately comes after the landscape composition so it
+   cannot revive the old dense instruction-card layout. */
+@media(min-width:700px){
+ .gm-shell[data-gm-mode="mission"] .gm-quest-steps{
+   display:flex;align-items:center;justify-content:center;gap:clamp(16px,3vw,42px);
+   width:min(100%,560px);margin:0 auto;
+ }
+ .gm-shell[data-gm-mode="mission"] .gm-quest-step{
+   display:flex;align-items:center;justify-content:center;min-width:0;min-height:0;
+   padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;
+ }
+ .gm-shell[data-gm-mode="mission"] .gm-quest-step-active{border:0;background:transparent;box-shadow:none}
+ .gm-shell[data-gm-mode="mission"] .gm-quest-index,
+ .gm-shell[data-gm-mode="mission"] .gm-quest-step strong,
+ .gm-shell[data-gm-mode="mission"] .gm-quest-arrow{display:none}
+ .gm-shell[data-gm-mode="mission"] .gm-quest-icon{width:clamp(92px,10vw,124px);height:62px}
+ .gm-shell[data-gm-mode="mission"] .gm-quest-icon>.gm-quest-wicker{width:76px;height:62px}
+ .gm-shell[data-gm-mode="mission"] .gm-quest-icon .gm-quest-fruit{width:40px;height:58px}
+ .gm-shell[data-gm-mode="mission"] .gm-quest-icon>.gm-quest-hand{width:30px;height:45px}
+}
+@media(min-width:700px) and (min-height:1000px){
+ .gm-shell[data-gm-mode="mission"] .gm-quest-icon{height:70px}
+ .gm-shell[data-gm-mode="mission"] .gm-quest-icon>.gm-quest-wicker{height:70px}
+ .gm-shell[data-gm-mode="mission"] .gm-quest-icon .gm-quest-fruit{height:65px}
 }
