@@ -6,7 +6,6 @@ on:
     paths:
       - 'laer-litt-mer/multiplication-premium-v2.css'
       - 'tests/laria-responsive-phasec-multiplication.playwright.js'
-      - '.github/workflows/laria-responsive-phasec.yml'
   workflow_dispatch:
 
 permissions:
