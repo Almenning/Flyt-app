@@ -128,7 +128,9 @@
    const free=state.mode==='free',modeClass=free?'free':'mission';
    const progress=Math.round(sum/goal*100);
    const msg=message();
-   const equation=result.multiplication||result.addition;
+   // The assignment starts as a question. The zero-sum is technically true,
+   // but it hides the multiplication the child is about to discover.
+   const equation=!free&&sum===0?state.groups+' × '+state.each+' = ?':(result.multiplication||result.addition);
    const active=state.mode==='mission'?'Oppdrag':'Fri lek';
    root.innerHTML='<main class="gm-shell" data-gm-mode="'+modeClass+'" data-gm-groups="'+state.groups+'" data-gm-each="'+state.each+'" data-gm-selected="'+selectedGroup+'" data-gm-complete="'+complete+'">'+
       '<div class="gm-layout"><header class="gm-top">'+
