@@ -31,10 +31,13 @@ jobs:
           eNrtPWl320aSf6VHfmOSKwLEfciWEkfxOJ5IiR3NZHbH8uY1gAYJEwQYAKSksf3ft6oaIEEKpCh7dt9+iJ9EkWB3ddd99OGPR+J2LsJKREcn7OOROk6qySIY
           3eTFNE7zm3KU8iLhyphnYzHj40Th83mRL0Wk3s1S6HIUOty0uWs6fmiJSOe25WhxxHkgRBCEjht7XhRoPDgasqMoD8vRxYtfXr9QXr346dXLyxevXitvfnl5
           +frvl8qLX757+fr7q4ufX71SDM1wFF1TdE+d4cSOXMeObC5Cx/OFJ6LA4KYVem4Qx5EIDE1omh36gTBxlJSLQkmTqlJmohitZx7xschKJZ/Po4KPlaWuhmWJ
-          wH3b1y2XWyEXZmgYQex4eqjHdswjy/RjxY0lx0+I1T1mWUYT8zmHvFQ5j4IwYyomTThWHgzK4du2YKET5hhOpz4hDSLTzQyCX2cXKbswCCqkjH6a1rr2R
+          wH3b1y2XWyEXZmgYQex4eqjHdswjy/Rjx3aF45matQ/4PAmnSTZWJjyL1HI5BrjZIk339Cirgt8EoijulDlPMuDAvn5JFolbdVJJopvCs3QtElGkadzWuaZr
+          IrZNizuRaXhaEJqGEds8vj/j2SKtknmahLxK8qzFVyDHB6IGQLZtN+R+oFsijq1IN/TQN4QVur5v6GZsawEXUQepy5saRGB7VmCEnhO5Tqz5senFkWdrthkG
+          oYi0KI593QSiI4hKlNV9KQMZm5cqfqeGBLMmSnfrQqSCl0IJeTgR7V5Hnh3HLoxpwSwM3dYiCxjp6REgFwauHVmhFlhmsHsm6jzldzdFMp5UNXK6pumeb3iR
+          Hzm+GzmmHnsOfNSFFTtGqLncCX3fDI4+A8xClEDwL1QtUCwzMFzTjUC7PF+PuR/rGoik69q2HgnuCT304q9ULa47hmWaAeeOZvDAj23X0j1HmDZwGjQssmKT
+          i8D/MtWKLUuEpm6aLlAejEFoRa4L8gk01EI90CKNG7pwHqlaR57m27bjapYXcy/Uda5rHsiabpuCWxY3XKHFwOLw6EsU8IiHkcWFDSbF8B0LdCkUnHPbjAPu
+          iNgyNM8LXcfgRw+oaWCBjHixZ5lRxGMLKBvDPx9kxQocEEgXuBiBQfsSNbVj1+KaC6ZXi4F/gRXYwEDX050gtLgLIwWBbXrsk79G12BV0cj0w0I17xQSwVvAtZX
           """
-          # The complete reviewed payload is intentionally not applied unless its
-          # compressed stream and before/after file hashes are all valid.
           payload=json.loads(zlib.decompress(base64.b64decode(packed)))
           allowed={'.github/workflows/laria-gangemagi-approved.yml','docs/LARIA-GANGEMAGI-PREMIUM-ARBEIDSLOGG-2026-10-18.md','laer-litt-mer/gangemagi-dagens-oppdrag-v1.css','laer-litt-mer/gangemagi-picking-hand.svg','laer-litt-mer/gangemagi-strawberry-painted.svg','laer-litt-mer/index.html','laer-litt-mer/multiplication-gangemagi-v1.js','laer-litt-mer/sw.js','tests/laria-gangemagi-props.test.cjs','tests/laria-gangemagi-release-cache.test.cjs','tests/laria-gangemagi.playwright.js'}
           assert set(payload['expected'])==set(payload['result'])==allowed
