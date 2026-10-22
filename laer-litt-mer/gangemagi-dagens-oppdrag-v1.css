@@ -790,7 +790,7 @@
     padding:7px 44px 7px 10px;
     border-radius:16px;
   }
-  .gm-shell[data-gm-mode="mission"] .gm-fox-message{font-size:11px}
+  .gm-shell[data-gm-mode="mission"] .gm-fox-message{font-size:13px;line-height:1.12}
   .gm-shell[data-gm-mode="mission"] .gm-market,
   .gm-shell[data-gm-mode="mission"] .gm-math,
   .gm-shell[data-gm-mode="mission"] .gm-celebration{
