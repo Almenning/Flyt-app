@@ -981,6 +981,14 @@
 }
 
 
+/* ONE CLEAR QUEST BOARD 2026-10-22
+   The three illustrated instruction cards repeated information already given by
+   the board headline, live fox, berry tray and baskets.  Let the child enter
+   the market immediately; the live, completed maths panel remains the visual
+   bridge between equal groups, addition and multiplication. */
+.gm-shell[data-gm-mode="mission"] .gm-quest-steps{display:none}
+.gm-shell[data-gm-mode="mission"] .gm-story.gm-quest{padding-top:20px;padding-bottom:22px}
+
 /* Short iPhone landscape: quest and real fruit share one fold.
    Real WebKit 844x390 screenshots showed that a full-width vertical quest
    occupied the entire first viewport, hiding baskets and the pickup crate.
