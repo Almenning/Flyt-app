@@ -312,8 +312,8 @@ async function check(engine,label,viewport,url){
         firstBasket:box('.gm-crate'),math:box('.gm-math'),
         speechSize:parseFloat(getComputedStyle(document.querySelector('.gm-fox-message')).fontSize)};
     });
-    assert.ok(guide.fox.height>=225&&guide.fox.width>=225,
-      label+' iPad landscape fox must be a full personal guide, not a small icon '+JSON.stringify(guide));
+    assert.ok(guide.fox.height>=290&&guide.fox.width>=260,
+      label+' iPad landscape actual personal fox must be a substantial guide, not a small icon '+JSON.stringify(guide));
     assert.ok(guide.bubble.width>=205&&guide.speechSize>=14,
       label+' iPad landscape speech must be readable at arm’s length '+JSON.stringify(guide));
     assert.ok(guide.fox.right<=guide.firstBasket.left+2&&guide.bubble.right<=guide.firstBasket.left+2,
@@ -338,8 +338,12 @@ async function check(engine,label,viewport,url){
   assert.ok(materialLayout.foxBottom<=materialLayout.slotBottom+2&&
     materialLayout.foxBottom<=materialLayout.mathTop+3,
     label+' actual personal fox must fit its slot and stay above the live equation '+JSON.stringify(materialLayout));
-  if(viewport.width>=900&&viewport.height<=900)assert.ok(materialLayout.iconHeight>=60,
-    label+' landscape iPad instructions must use large action pictures');
+  if(viewport.width>=900&&viewport.height<=900){
+    assert.ok(materialLayout.iconHeight>=60,
+      label+' landscape iPad instructions must use large action pictures');
+    assert.ok(materialLayout.sourceArtWidth>=180,
+      label+' actual strawberry market crate must be prominent, not a tiny pill '+JSON.stringify(materialLayout));
+  }
   if(viewport.width>=700&&viewport.width<=899&&viewport.height>=1000)assert.ok(materialLayout.iconHeight>=68,
     label+' portrait iPad instructions must use the existing picture area');
   if(viewport.width>=375)assert.ok(materialLayout.sourceArtWidth>=109,
