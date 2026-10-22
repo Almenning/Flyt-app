@@ -7,14 +7,16 @@ on:
       - 'laer-litt-mer/laria-responsive-phaseb.css'
       - 'laer-litt-mer/locked-journey-renderer.css'
       - 'laer-litt-mer/locked-journey-renderer.js'
-      - 'laer-litt-mer/index.html'
-      - 'laer-litt-mer/sw.js'
       - 'tests/laria-responsive-phaseb-journeys.playwright.js'
       - '.github/workflows/laria-responsive-phaseb.yml'
   workflow_dispatch:
 
 permissions:
   contents: read
+
+concurrency:
+  group: laria-responsive-phaseb-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   responsive-original-journeys:
