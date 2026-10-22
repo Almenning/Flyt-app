@@ -374,6 +374,19 @@
 .gm-shell[data-gm-mode="mission"] .gm-crate.gm-drop-blocked .gm-basket-illustration{
   filter:drop-shadow(0 0 9px #d26b58) drop-shadow(0 7px 5px #49311f68);
 }
+/* After the child picks a berry, only the decorative wicker breathes very
+   slightly. The real 44px+ basket hit area never moves under the finger. */
+.gm-shell[data-gm-mode="mission"] .gm-crate-invite .gm-basket-illustration{
+  transform-origin:50% 72%;
+  animation:gm-basket-invite .82s ease-in-out infinite alternate;
+}
+@keyframes gm-basket-invite{
+  from{transform:scale(.992)}
+  to{transform:scale(1.026)}
+}
+@media(prefers-reduced-motion:reduce){
+  .gm-shell[data-gm-mode="mission"] .gm-crate-invite .gm-basket-illustration{animation:none}
+}
 .gm-shell[data-gm-mode="mission"] .gm-fruit-bed{
   position:absolute;
   z-index:2;
