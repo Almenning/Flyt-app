@@ -647,12 +647,15 @@ async function check(engine,label,viewport,url){
   assert.equal(await page.locator('.gm-actions-complete .gm-next').count(),1,'one clear next action');
   const celebrationOverlap=await page.evaluate(()=>{
     const r=s=>document.querySelector(s).getBoundingClientRect();
-    const a=r('.gm-celebration'),b=r('.gm-fox-bubble');
+    const a=r('.gm-celebration'),b=r('.gm-fox-bubble'),math=r('.gm-math');
     return {overlap:a.left<b.right&&a.right>b.left&&a.top<b.bottom&&a.bottom>b.top,
-      celebrationTop:a.top,foxBottom:b.bottom,viewportHeight:innerHeight,
+      bubbleMathOverlap:b.left<math.right&&b.right>math.left&&b.top<math.bottom&&b.bottom>math.top,
+      celebrationTop:a.top,foxBottom:b.bottom,mathTop:math.top,viewportHeight:innerHeight,
       nextBottom:r('.gm-actions-complete .gm-next').bottom};
   });
   assert.equal(celebrationOverlap.overlap,false,label+' celebration must not cover the personal fox '+JSON.stringify(celebrationOverlap));
+  if(viewport.width>=900&&viewport.height<=950)assert.equal(celebrationOverlap.bubbleMathOverlap,false,
+    label+' completed iPad maths must stay fully readable beside the fox praise '+JSON.stringify(celebrationOverlap));
   if(viewport.height>=750||viewport.width<=360)assert.ok(celebrationOverlap.nextBottom<=viewport.height+3,label+' completed-child next action missing from first fold '+JSON.stringify(celebrationOverlap));
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).wins.length,1);
   await page.locator('[data-gm-action="undo"]').click();

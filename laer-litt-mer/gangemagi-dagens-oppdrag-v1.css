@@ -721,6 +721,12 @@
     margin-top:-82px;
     margin-left:30%;
   }
+  /* Completion is the exact moment the child should SEE both number
+     sentences. Lift only the speech bubble into the fox's own column; never
+     let praise paint over the final addition/multiplication parchment. */
+  .gm-shell[data-gm-mode="mission"][data-gm-complete="true"] .gm-fox-bubble{
+    margin-top:-154px;
+  }
   .gm-shell[data-gm-mode="mission"] .gm-market,
   .gm-shell[data-gm-mode="mission"] .gm-math,
   .gm-shell[data-gm-mode="mission"] .gm-celebration{
