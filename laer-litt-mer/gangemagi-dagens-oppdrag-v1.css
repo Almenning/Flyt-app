@@ -82,7 +82,7 @@
   border-radius:30px;
   background:
     linear-gradient(180deg,rgba(255,247,218,.12),rgba(108,67,38,.045)),
-    url('./gangemagi-tallenga-market-v1.svg?v=20261022-scene3') center / cover no-repeat;
+    url('./gangemagi-tallenga-market-v1.svg?v=20261022-scene4') center / cover no-repeat;
   box-shadow:inset 0 0 0 1px #8e572f52,0 10px 26px #70442143;
 }
 .gm-shell[data-gm-mode="mission"] .gm-world:before{
@@ -1079,6 +1079,27 @@
     line-height:1.02;
     text-align:center;
     white-space:normal;
+  }
+  /* The reference treats the chosen fox as a real companion, not an icon.
+     Give ordinary phones enough authored space for the full-body character
+     while preserving the source and maths in the same scroll journey. */
+  .gm-shell[data-gm-mode="mission"] .gm-fox{
+    grid-template-columns:142px minmax(0,1fr);
+    min-height:174px;
+    gap:4px;
+  }
+  .gm-shell[data-gm-mode="mission"] .gm-fox-art{
+    width:142px;
+    height:174px;
+  }
+  .gm-shell[data-gm-mode="mission"] .gm-fox-bubble{
+    width:min(100%,205px);
+    padding:11px 48px 11px 13px;
+    box-shadow:0 4px 0 #9e6a4682,0 10px 18px #58391d3b;
+  }
+  .gm-shell[data-gm-mode="mission"] .gm-fox-message{
+    font-size:13.5px;
+    line-height:1.16;
   }
   /* The fox now owns real layout space on portrait phones, so completion
      needs only normal breathing room rather than an overlap-compensation gap. */
