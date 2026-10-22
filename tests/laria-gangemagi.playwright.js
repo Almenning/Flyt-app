@@ -667,8 +667,8 @@ async function check(engine,label,viewport,url){
     label+' two-group illustration contains two mini baskets and one instructional basket');
   assert.equal(await page.locator('.gm-quest-filled-preview .gm-quest-mini-basket').count(),2,
     'final instructional art must follow the selected two-group mission');
-  assert.equal(await page.locator('.gm-quest-filled-preview .gm-quest-mini-berries i').count(),20,
-    label+' the last adventure visibly represents two baskets of TEN berries');
+  assert.equal(await page.locator('.gm-quest-filled-preview .gm-quest-mini-berries i').count(),0,
+    label+' the ten-berry adventure starts with TWO EMPTY illustrated baskets, not its answer');
   assert.match((await page.locator('.gm-quest-callout').innerText()).replace(/\s+/g,' '),/Fyll 2 kurver med 10 jordbær i hver/,
     'quest text and numbers follow selected authored mission');
   assert.deepEqual(await page.locator('.gm-quest-step strong').allInnerTexts(),
@@ -688,9 +688,8 @@ async function check(engine,label,viewport,url){
         'switching mission starts with empty baskets and keeps flower history');
       assert.equal(await page.locator('.gm-crate').count(),mission.groups,
         label+' must show the authored number of clickable wicker baskets');
-      assert.equal(await page.locator('.gm-quest-mini-berries i').count(),
-        mission.groups*mission.each,
-        label+' illustrated strawberries and the real multiplication must agree');
+      assert.equal(await page.locator('.gm-quest-mini-berries i').count(),0,
+        label+' chapter '+(index+1)+' pictured baskets must start empty before play');
       const stepTexts=await page.locator('.gm-quest-step strong').allInnerTexts();
       assert.equal(stepTexts[2],
         'Se gangemagien',
@@ -832,8 +831,8 @@ async function check(engine,label,viewport,url){
       label+' chapter '+(index+1)+' real interactive basket count');
     assert.equal(await page.locator('.gm-quest-filled-preview .gm-quest-mini-basket').count(),spec.groups,
       label+' chapter '+(index+1)+' illustrated group count');
-    assert.equal(await page.locator('.gm-quest-mini-berries i').count(),spec.groups*spec.each,
-      label+' chapter '+(index+1)+' pictured berry count matches the multiplication');
+    assert.equal(await page.locator('.gm-quest-mini-berries i').count(),0,
+      label+' chapter '+(index+1)+' pictures start empty, not with a pre-filled result');
     const heading=(await page.locator('.gm-quest-callout').innerText()).replace(/\s+/g,' ');
     assert.equal(heading,'Fyll '+spec.groups+' '+(spec.groups===1?'kurv':'kurver')+
       ' med '+spec.each+' jordbær i hver.',label+' chapter '+(index+1)+' child instruction');
@@ -848,6 +847,8 @@ async function check(engine,label,viewport,url){
     const after=await page.evaluate(()=>LARIA_GANGEMAGI.snapshot());
     assert.equal(after.counts[0],1,label+' chapter '+(index+1)+' one deliberate pick and placement adds exactly one berry');
     assert.equal(after.equation.total,1,label+' chapter '+(index+1)+' visible maths tracks first berry');
+    assert.equal(await page.locator('.gm-quest-mini-berries i').count(),1,
+      label+' chapter '+(index+1)+' the live illustration counts exactly one placed berry');
   }
   await page.evaluate(()=>showScreen('home'));
   await page.locator('#home-screen.active').waitFor();
@@ -989,6 +990,47 @@ async function checkLandscape(engine,label,url){
    console.log('PASS GANGEMAGI '+label);
  }finally{await context.close();}
 }
+
+/* The existing Læria character must be the child's real saved boy OR girl.
+   Ordinary Gangemagi tests exercise the girl; this checks the boy in the
+   SAME real WebKit browser and his original full-body source, including book. */
+async function checkBoyFox(browser,url){
+ const context=await browser.newContext({viewport:{width:1180,height:820},hasTouch:true,
+   deviceScaleFactor:1,serviceWorkers:'block',reducedMotion:'reduce'});
+ const page=await context.newPage(),errors=[];
+ page.on('pageerror',e=>errors.push(String(e)));
+ try{
+   await page.addInitScript(s=>{
+     localStorage.setItem('laerlittmer-v2',JSON.stringify(s));
+   },{...seed,profile:{...seed.profile,avatar:'boy'}});
+   await page.goto(url,{waitUntil:'domcontentloaded'});
+   await page.waitForFunction(()=>window.LARIA_GANGEMAGI?.version==='playable-v1');
+   assert.equal(await page.evaluate(()=>window.LARIA_FOX.choice()),'boy',
+     'profile-backed identity must remain the selected boy');
+   await page.evaluate(()=>window.openMultiplicationLab());
+   const fox=page.locator('.gm-fox-art svg.laria-fox-wardrobe-art[data-avatar="boy"]');
+   await fox.waitFor({state:'attached'});
+   const source=await fox.locator('image').getAttribute('href');
+   assert.match(source,/^\.\/assets\/fox\/boy-adventurer-green-vest-v1\.webp$/,
+     'the real Læria boy artwork, not a generated mascot, must be the in-world sprite');
+   assert.equal(await page.locator('.gm-fox-art [data-avatar="girl"]').count(),0,
+     'the wrong child-selected fox must not be present');
+   const image=await page.request.get(new URL(source,url).href);
+   assert.equal(image.status(),200,'the full-body boy asset must really load');
+   assert.match(image.headers()['content-type'],/image\/webp/);
+   await shot(page,'webkit-ipad-landscape-boy-fox');
+   await page.locator('[data-gm-action="open-book"]').click();
+   assert.equal(await page.locator('.gm-book-fox-art svg[data-avatar="boy"]').count(),1,
+     'the child's actual boy fox follows him into the Market Book');
+   await page.keyboard.press('Escape');
+   await page.locator('[data-gm-action="mode"][data-mode="free"]').click();
+   assert.equal(await page.locator('.gm-fox-art svg[data-avatar="boy"]').count(),1,
+     'the child's real boy fox must remain in free play');
+   assert.deepEqual(errors,[],'no boy-fox render errors in real WebKit');
+   console.log('PASS GANGEMAGI WebKit personal boy fox and Market Book');
+ }finally{await context.close()}
+}
+
 (async()=>{
  auditAllEightMissions();
  const {srv,url}=await serve();
@@ -1000,6 +1042,7 @@ async function checkLandscape(engine,label,url){
    const browser=await browserType.launch({headless:true});
    try{for(const [device,viewport] of devices)await check(browser,type+'-'+device,viewport,url);
     await checkLandscape(browser,type+'-iphone-landscape',url);
+    if(type==='webkit')await checkBoyFox(browser,url);
    }finally{await browser.close();}
   }
  }finally{await new Promise(resolve=>srv.close(resolve));}

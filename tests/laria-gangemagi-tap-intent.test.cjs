@@ -58,3 +58,32 @@ test('free-play pickup uses one fruit while missions retain the five-berry crate
   g.tap('mode',0,false,{mode:'mission'});
   assert.match(g.markup(),/gm-source-berry-4/,'mission supply remains unchanged');
 });
+
+function picturedBerries(markup){
+ return (markup.match(/<i><\/i>/g)||[]).length;
+}
+test('pictured groups grow with the actual maths instead of revealing the finished answer',()=>{
+ const g=game();
+ assert.equal(picturedBerries(g.markup()),0,'the three pictured baskets start empty');
+ assert.match(g.markup(),/3 × 3 = \?/,'the task first shows an unanswered multiplication');
+ for(let group=0;group<3;group++){
+   for(let count=1;count<=3;count++){
+     g.tap('source');g.tap('basket',group);
+     const actual=group*3+count;
+     assert.equal(picturedBerries(g.markup()),actual,
+       'one illustrated berry appears for each real berry, not the future target');
+     if(actual<9){
+       assert.doesNotMatch(g.markup(),/class="gm-math-equation gm-equation-win"/,
+         'incomplete groups must not reveal a solved multiplication');
+     }
+   }
+ }
+ assert.match(g.markup(),/3 \+ 3 \+ 3 = 9/,'repeated addition is revealed at completion');
+ assert.match(g.markup(),/3 × 3 = 9/,'multiplication follows the completed grouping');
+ g.tap('select-mission',0,false,{index:'7'});
+ assert.deepEqual(g.snapshot().counts,[0,0],
+   'selecting another mission resets baskets but preserves saved flowers');
+ assert.equal(picturedBerries(g.markup()),0,
+   'the new two-basket challenge must not show twenty berries before play');
+ assert.match(g.markup(),/2 × 10 = \?/,'a new challenge starts as a question');
+});
