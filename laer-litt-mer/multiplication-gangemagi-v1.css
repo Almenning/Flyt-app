@@ -51,12 +51,9 @@ body:has(#multiplication-lab-screen.active .gm-shell){background-color:#f5dfbd}
 .gm-secondary-card.gm-book-secondary{background:linear-gradient(180deg,#f5e6c4,#d6ad78);border-bottom-color:#8d6042}
 .gm-secondary-card.gm-classic{white-space:normal}
 @media(max-width:699px){
- .gm-secondary-nav{gap:6px;width:100%}
+ .gm-secondary-nav{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;width:min(100%,360px)}
  .gm-secondary-card{grid-template-columns:22px minmax(0,1fr);min-height:50px;padding:6px 7px;border-radius:14px;font-size:clamp(10px,3vw,12px)}
  .gm-secondary-card>span{width:22px;height:22px;border-radius:8px;font-size:15px}
-}
-@media(max-width:350px){
- .gm-secondary-nav{grid-template-columns:repeat(2,minmax(0,1fr))}
  .gm-secondary-card.gm-classic{grid-column:1 / -1}
 }
 .gm-world{position:relative;isolation:isolate;min-height:420px;background:linear-gradient(180deg,rgba(255,248,228,.26),rgba(244,227,192,.10) 48%,rgba(239,225,198,.30)),url('./matte-verden.png') center 59%/cover no-repeat;overflow:hidden;
