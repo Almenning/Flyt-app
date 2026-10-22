@@ -711,6 +711,7 @@
   justify-content:flex-end;
   margin-top:4px;
 }
+.gm-shell[data-gm-mode="mission"][data-gm-sum="0"] .gm-footer{display:none}
 .gm-shell[data-gm-mode="mission"] .gm-celebration{
   width:calc(100% - clamp(130px,18vw,260px));
   margin:8px 0 0 auto;
