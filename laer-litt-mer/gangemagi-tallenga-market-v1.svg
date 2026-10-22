@@ -52,6 +52,42 @@
 <path d="M45 80v32m119-32v32" stroke="#fff1cd" stroke-width="4"/>
 <path d="M-4 144Q98 159 211 142" fill="none" stroke="#d2ac7a" stroke-width="13"/>
 </g>
+<!-- central Tallenga lane: deliberately centred so portrait phone cropping still
+     reveals a living market behind the guide and baskets -->
+<g opacity=".86" filter="url(#shade)">
+  <g transform="translate(455 250)">
+    <path d="M0 155V58H155V155Z" fill="#f1d09b" stroke="#a37855" stroke-width="6"/>
+    <path d="M-15 62L25 18H132L171 62Z" fill="#cf735f" stroke="#fff0cf" stroke-width="6"/>
+    <path d="M18 67v90m120-90v90" stroke="#8d6548" stroke-width="8"/>
+    <rect x="53" y="88" width="48" height="67" rx="20" fill="#8a6348" stroke="#f7e5bd" stroke-width="5"/>
+    <rect x="14" y="85" width="27" height="28" rx="7" fill="#88b9bc" stroke="#fff1d2" stroke-width="5"/>
+    <rect x="115" y="85" width="27" height="28" rx="7" fill="#88b9bc" stroke="#fff1d2" stroke-width="5"/>
+  </g>
+  <g transform="translate(635 224)">
+    <path d="M0 176V63H171V176Z" fill="#f2d9a7" stroke="#a47c59" stroke-width="6"/>
+    <path d="M-13 67L30 14H145L187 67Z" fill="#6f9e92" stroke="#f8ebcb" stroke-width="6"/>
+    <path d="M17 71v106m138-106v106" stroke="#8d674a" stroke-width="8"/>
+    <rect x="58" y="104" width="56" height="72" rx="23" fill="#966849" stroke="#f8e7bf" stroke-width="5"/>
+    <rect x="14" y="96" width="31" height="31" rx="8" fill="#9bc5c2" stroke="#fff1d1" stroke-width="5"/>
+    <rect x="128" y="96" width="31" height="31" rx="8" fill="#9bc5c2" stroke="#fff1d1" stroke-width="5"/>
+    <path d="M22 143Q85 164 149 143" fill="none" stroke="#df9f75" stroke-width="13"/>
+  </g>
+  <g transform="translate(830 255)">
+    <path d="M0 145V55H146V145Z" fill="#eac690" stroke="#9c7552" stroke-width="6"/>
+    <path d="M-13 58L24 16H122L160 58Z" fill="#e2a55f" stroke="#fff0d0" stroke-width="6"/>
+    <path d="M18 62v86m111-86v86" stroke="#8d6648" stroke-width="8"/>
+    <rect x="49" y="86" width="48" height="61" rx="18" fill="#8e6347" stroke="#f7e5bd" stroke-width="5"/>
+  </g>
+</g>
+<!-- warm central lanterns survive the narrow phone crop and keep the market magical -->
+<g opacity=".88">
+  <circle cx="620" cy="391" r="42" fill="url(#lampGlow)" filter="url(#softGlow)"/>
+  <path d="M609 366h22l-4 33h-14Z" fill="#6d4935" stroke="#4f372c" stroke-width="4"/>
+  <rect x="614" y="372" width="12" height="19" rx="4" fill="#ffd67d"/>
+  <circle cx="930" cy="397" r="39" fill="url(#lampGlow)" filter="url(#softGlow)"/>
+  <path d="M920 373h21l-4 31h-13Z" fill="#6d4935" stroke="#4f372c" stroke-width="4"/>
+  <rect x="925" y="379" width="11" height="18" rx="4" fill="#ffd67d"/>
+</g>
 <!-- garden strings and distant stalls -->
 <g transform="translate(795 310)" opacity=".82">
 <path d="M-90 26Q80 66 247 -2" fill="none" stroke="#b79166" stroke-width="4"/>
