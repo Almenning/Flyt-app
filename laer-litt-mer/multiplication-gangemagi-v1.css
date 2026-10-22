@@ -111,6 +111,15 @@ body:has(#multiplication-lab-screen.active .gm-shell){background-color:#f5dfbd}
 .gm-progress-track{grid-column:1;height:9px;min-width:0;overflow:hidden;border-radius:15px;background:#ddc8a4;box-shadow:inset 0 2px 4px #9d815b40}
 .gm-progress-track span{display:block;height:100%;border-radius:15px;min-width:0;background:linear-gradient(90deg,#7cb58a,#438875);transition:width .27s cubic-bezier(.12,.73,.23,1)}
 .gm-math-note{grid-column:2;text-align:right;font-size:10px;font-weight:830;color:#6b5340}
+/* The child first meets the unfinished multiplication.  Only when the real
+   baskets are full do we place repeated addition beside the discovered answer.
+   This makes the mathematics a consequence of the play, never a pre-filled
+   answer copied from a scene illustration. */
+.gm-math-addition{grid-column:1;text-align:left;font-size:clamp(14px,2.2vw,21px);font-weight:1000;letter-spacing:-.02em;color:#846047;white-space:nowrap}
+.gm-shell[data-gm-mode="mission"][data-gm-complete="true"] .gm-math{grid-template-rows:auto auto auto}
+.gm-shell[data-gm-mode="mission"][data-gm-complete="true"] .gm-math-label{grid-row:1}
+.gm-shell[data-gm-mode="mission"][data-gm-complete="true"] .gm-math-equation{grid-row:1 / span 2}
+.gm-shell[data-gm-mode="mission"][data-gm-complete="true"] .gm-math-addition{grid-row:2}
 .gm-celebration{position:relative;z-index:2;display:flex;align-items:center;justify-content:center;gap:9px;width:fit-content;max-width:calc(100% - 26px);margin:0 auto 9px;padding:7px 16px;border-radius:16px;
  background:linear-gradient(110deg,#fff9e5f7,#f6eccdf8);border:2px solid #fff7df;box-shadow:0 4px 0 #c7a4779e,0 9px 17px #574a3436;color:#52705b;font-weight:950;font-size:13px;text-align:center}
 .gm-celebration span:first-child{font-size:24px;color:#b46a52}
@@ -204,6 +213,7 @@ body:has(#multiplication-lab-screen.active .gm-shell){background-color:#f5dfbd}
  .gm-math-label>span:first-child{font-size:10px}
  .gm-goal{font-size:9px}
  .gm-math-note{font-size:9px}
+ .gm-math-addition{font-size:clamp(12px,3.7vw,16px)}
  .gm-actions{margin-top:12px;gap:7px;flex-wrap:nowrap}
  .gm-pick{min-width:0;flex:1 1 auto;min-height:57px;border-radius:15px;padding:3px 8px;font-size:12px;gap:3px}
  .gm-pick .gm-pick-fruit{width:29px;height:40px}
