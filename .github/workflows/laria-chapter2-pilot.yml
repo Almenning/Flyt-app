@@ -6,18 +6,14 @@ on:
       - 'laer-litt-mer/chapter-expansion-v1.js'
       - 'laer-litt-mer/fortellingsdalen-*'
       - 'laer-litt-mer/norwegian-chapter-*'
-      - 'laer-litt-mer/index.html'
       - 'tests/laria-fortellingsdalen-chapter2.*'
-      - '.github/workflows/laria-chapter2-pilot.yml'
   push:
     branches: [main]
     paths:
       - 'laer-litt-mer/chapter-expansion-v1.js'
       - 'laer-litt-mer/fortellingsdalen-*'
       - 'laer-litt-mer/norwegian-chapter-*'
-      - 'laer-litt-mer/index.html'
       - 'tests/laria-fortellingsdalen-chapter2.*'
-      - '.github/workflows/laria-chapter2-pilot.yml'
 permissions:
   contents: read
 concurrency:
