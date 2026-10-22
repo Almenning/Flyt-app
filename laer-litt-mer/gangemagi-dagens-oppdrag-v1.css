@@ -670,6 +670,9 @@
     justify-content:center;
     min-width:0;
   }
+  .gm-shell[data-gm-mode="mission"] .gm-quest-icon{height:64px}
+  .gm-shell[data-gm-mode="mission"] .gm-quest-icon>.gm-quest-wicker{width:79px;height:64px}
+  .gm-shell[data-gm-mode="mission"] .gm-quest-icon .gm-quest-fruit{width:41px;height:56px}
   .gm-shell[data-gm-mode="mission"] .gm-fox{
     top:70px;
     width:270px;
@@ -708,6 +711,9 @@
     margin:0 auto;
   }
   .gm-shell[data-gm-mode="mission"] .gm-quest-step{display:flex}
+  .gm-shell[data-gm-mode="mission"] .gm-quest-icon{height:70px}
+  .gm-shell[data-gm-mode="mission"] .gm-quest-icon>.gm-quest-wicker{width:86px;height:70px}
+  .gm-shell[data-gm-mode="mission"] .gm-quest-icon .gm-quest-fruit{width:45px;height:61px}
   .gm-shell[data-gm-mode="mission"] .gm-fox{
     top:53px;
     width:185px;
