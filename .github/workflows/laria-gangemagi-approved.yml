@@ -13,6 +13,9 @@ on:
       - 'laer-litt-mer/gangemagi-market-table-premium.svg'
       - 'laer-litt-mer/gangemagi-math-parchment.svg'
       - 'laer-litt-mer/gangemagi-quest-board-painted.svg'
+      - 'laer-litt-mer/gangemagi-strawberry-painted.svg'
+      - 'laer-litt-mer/gangemagi-picking-hand.svg'
+      - 'tests/laria-gangemagi-props.test.cjs'
       - 'tests/laria-gangemagi-tap-intent.test.cjs'
       - 'tests/laria-gangemagi-release-cache.test.cjs'
       - '.github/workflows/laria-gangemagi-approved.yml'
@@ -28,6 +31,9 @@ on:
       - 'laer-litt-mer/gangemagi-market-table-premium.svg'
       - 'laer-litt-mer/gangemagi-math-parchment.svg'
       - 'laer-litt-mer/gangemagi-quest-board-painted.svg'
+      - 'laer-litt-mer/gangemagi-strawberry-painted.svg'
+      - 'laer-litt-mer/gangemagi-picking-hand.svg'
+      - 'tests/laria-gangemagi-props.test.cjs'
       - 'tests/laria-gangemagi-tap-intent.test.cjs'
       - 'tests/laria-gangemagi-release-cache.test.cjs'
       - '.github/workflows/laria-gangemagi-approved.yml'
@@ -57,7 +63,7 @@ jobs:
           test -s laer-litt-mer/gangemagi-approved-eight-scenes-20261017.webp
           node --check laer-litt-mer/multiplication-gangemagi-v1.js
           node --check tests/laria-gangemagi.playwright.js
-          node --test tests/laria-gangemagi-engine.test.cjs tests/laria-gangemagi-release-cache.test.cjs tests/laria-gangemagi-tap-intent.test.cjs
+          node --test tests/laria-gangemagi-engine.test.cjs tests/laria-gangemagi-release-cache.test.cjs tests/laria-gangemagi-tap-intent.test.cjs tests/laria-gangemagi-props.test.cjs
       - name: Install Chromium and WebKit
         run: npx playwright install --with-deps chromium webkit
       - name: Test six real viewport sizes and render book screenshots

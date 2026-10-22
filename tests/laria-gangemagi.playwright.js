@@ -388,6 +388,25 @@ async function check(engine,label,viewport,url){
     crateControl.image==='none'&&crateControl.berryCount===5&&
     crateControl.caption==='Plukk'&&crateControl.touchAction==='none',
     label+' only the real illustrated strawberry crate is the accessible touch/drag target '+JSON.stringify(crateControl));
+  // The same locally served illustrations must decode in both engines.
+  // Checking an Image load catches broken SVG dependencies before visual QA.
+  const props=await page.evaluate(async()=>{
+    const images=[...document.querySelectorAll('[data-gm-prop] image')];
+    const urls=[...new Set(images.map(el=>el.getAttribute('href')))];
+    const decoded=await Promise.all(urls.map(src=>new Promise(resolve=>{
+      const image=new Image();image.onload=()=>resolve({src,ok:image.naturalWidth>0});
+      image.onerror=()=>resolve({src,ok:false});image.src=src;
+    })));
+    return {decoded,berryCount:document.querySelectorAll('[data-gm-prop="berry"]').length,
+      handCount:document.querySelectorAll('[data-gm-prop="hand"]').length,
+      repeatedPaint:document.querySelectorAll('[id="gmB"]').length};
+  });
+  assert.equal(props.decoded.length,2,label+' two original, local play-prop illustrations');
+  assert.ok(props.decoded.every(item=>item.ok),label+' play-prop SVG must decode '+JSON.stringify(props));
+  assert.ok(props.berryCount>=7&&props.handCount===1,
+    label+' source and teaching steps share the same berry with one picking hand');
+  assert.equal(props.repeatedPaint,0,label+' repeated fruit may not duplicate gradient IDs');
+
   await shot(page,label+'-01-first-look');
   await page.locator('.gm-crate').first().hover();
   const disabledRemoveStyles=await page.locator('.gm-remove:disabled').evaluateAll(buttons=>

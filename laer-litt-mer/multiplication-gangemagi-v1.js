@@ -15,7 +15,9 @@
  let selectedGroup=null; // transient UI selection, no changes to stored schema.
   let holdingBerry=false;
  const esc=x=>String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- const berrySvg='<svg viewBox="0 0 48 56" aria-hidden="true" focusable="false"><defs><linearGradient id="gmB" x1=".2" x2=".85" y2="1"><stop stop-color="#ff9780"/><stop offset=".42" stop-color="#d94855"/><stop offset="1" stop-color="#9c3547"/></linearGradient></defs><path d="M24 14C11 5 2 19 6 33C10 46 19 52 24 54C30 51 41 43 43 29C45 16 34 8 24 14Z" fill="url(#gmB)" stroke="#963a46" stroke-width="2"/><path d="M24 12C14 4 9 4 7 8L15 17L4 14L9 22L23 18L38 21L44 13L31 16L40 9C36 5 29 6 24 12Z" fill="#5c9867" stroke="#407e60" stroke-width="1.4"/><path d="M24 12Q24 6 28 3" stroke="#4a7650" stroke-width="2.5" fill="none" stroke-linecap="round"/><g fill="#ffe8ac"><ellipse cx="16" cy="28" rx="1.9" ry="3.1" transform="rotate(-24 16 28)"/><ellipse cx="30" cy="27" rx="1.8" ry="3" transform="rotate(16 30 27)"/><ellipse cx="23" cy="37" rx="1.8" ry="3"/><ellipse cx="13" cy="36" rx="1.5" ry="2.5"/><ellipse cx="33" cy="37" rx="1.5" ry="2.5"/></g><path d="M11 24Q11 18 18 18" stroke="#ffb2a0" stroke-width="3" fill="none" opacity=".8" stroke-linecap="round"/></svg>';
+ // Standalone SVG images share one cached illustration without repeating
+ // gradient IDs in every fruit. Keep the existing SVG-sized hit surfaces.
+ const berrySvg='<svg viewBox="0 0 48 56" aria-hidden="true" focusable="false" data-gm-prop="berry"><image href="./gangemagi-strawberry-painted.svg?v=20261022-props1" width="48" height="56"/></svg>';
  const berrySourceArt=Array.from({length:5},(_,i)=>'<span class="gm-source-berry gm-source-berry-'+i+'">'+berrySvg+'</span>').join('');
  function load(){try{return E.normalize(JSON.parse(localStorage.getItem(KEY)||'null'));}catch(_){return E.initial();}}
  function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(_){}}
@@ -86,7 +88,7 @@
  /* All instructional baskets reuse the exact same approved wicker material
     as the child's tappable baskets. Artwork is separate from live maths. */
  const gmBasketArt='<img class="gm-quest-wicker" alt="" src="gangemagi-basket-locked-illustration.svg">';
- const gmHandArt='<svg class="gm-quest-hand" viewBox="0 0 34 39" focusable="false" aria-hidden="true"><path d="M5 18q0-5 4-5t4 5V8q0-5 5-5t5 5v10q3-3 6 0q3 3 0 9l-4 7q-3 4-8 3l-10-9q-5-5-2-10Z" fill="#ffe6c5" stroke="#b9764b" stroke-width="2.5" stroke-linejoin="round"/><path d="M18 9v12M10 18v4" stroke="#d3956d" stroke-width="1.6" stroke-linecap="round"/></svg>';
+ const gmHandArt='<svg class="gm-quest-hand" viewBox="0 0 34 39" focusable="false" aria-hidden="true" data-gm-prop="hand"><image href="./gangemagi-picking-hand.svg?v=20261022-props1" width="34" height="39"/></svg>';
  function questStep(n,art,label){
    const current=E.filled(state)?3:(holdingBerry?2:1);
    const active=n===current;

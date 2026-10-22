@@ -143,3 +143,14 @@ Status: aktiv utviklingsgren. IKKE publisert eller erklært premium-ferdig.
 - Lokalt: seks Chromium-storrelser 320x568, 390x844, 820x1180, 1180x820, 844x390 og 1440x900 bestod alle atte oppdrag og synlig hovedhandling. Dette var en offline rendringsfixture med lagringsadapter, ikke en produksjons-/CSP-test eller WebKit-test. 13 faktiske Node-motor/cache/handler-regresjoner bestod.
 - Eksisterende Playwright-regresjon er utvidet til a male faktisk reve-SVG, storrelse pa billedsteg, jordbaerkildens motiv og fravaer av bakgrunnsuskarphet. Ny ressursversjon release2 og SW-cache bevarer oppdateringer.
 - GitHub Chromium/WebKit og full regresjon ma besta pa endelig commit; inspiser bildene mot originalene for premiumgodkjenning. Ikke merget eller publisert.
+
+
+## 22. oktober 2026: samme illustrerte jordbær gjennom hele leken
+
+- Erstattet det flate jordbær-/håndmotivet med to originale, selvstendige SVG-illustrasjoner med lys, skygge, ujevne blader, frø og materialdetaljer. Ingen ny skjermstruktur eller konkurrerende betjening.
+- Samme bær brukes i oppdragstrinnene, jordbærkassen, kurvene og drag-visningen. Minikurvenes markeringer beholder riktig antall. Interaksjonsflater, motor og lagringsformat er uendret.
+- Illustrasjonsdefinisjoner ligger i egne bildefiler, ikke gjentatte gradient-ID-er i appens DOM. SVG-innpakning og eksisterende CSS-størrelser er beholdt.
+- Tre nye Node-regresjoner sjekker selvstendige ressurser, interne malingsreferanser, unike ID-er og bevart plasseringsprioritet. Totalt 16 motor/cache/handler/ressurstester består lokalt. Browser-regresjonen laster og dekoder begge SVG-ene i Chromium/WebKit før skjermbilder tas.
+- Isolert lokal Chromium-fixture kontrollerer åtte oppdrag i åtte vindusstørrelser med faktiske touch-handlinger. Den bruker innlagte lokale ressurser og en lagringsadapter; den er IKKE bevis for produksjons-/CSP- eller WebKit-adferd. Full app-CI og ekte WebKit-bilder kreves fortsatt på endelig commit.
+- JS/CSS-adresser og SW-cache roteres til release3 for å unngå blandede gamle og nye motiver. Ingen andre fag eller personlig rev er endret.
+- Ingen main-merge eller publisering i denne kodeleveransen.

@@ -158,9 +158,9 @@
 }
 .gm-shell[data-gm-mode="mission"] .gm-quest-mini-berries i{
  display:block;width:100%;max-width:6px;min-width:2px;aspect-ratio:.85;
- border-radius:55% 50% 65% 65%;border:1px solid #bf423f;
- background:linear-gradient(130deg,#ffab84,#df4c4d 70%,#a7303c);
- box-shadow:0 1px 1px #6233285c;
+ border:0;border-radius:0;
+ background:url("./gangemagi-strawberry-painted.svg?v=20261022-props1") center/contain no-repeat;
+ box-shadow:none;
 }
 @media(max-width:699px){
  .gm-shell[data-gm-mode="mission"] .gm-quest-mini-basket{
