@@ -10,7 +10,6 @@ on:
       - 'tests/laria-discovery-globe-phase1.playwright.js'
       - 'tests/laria-discovery-globe-phase1-static.js'
       - 'tests/laria-discovery-diagnostics.cjs'
-      - '.github/workflows/laria-discovery-globe-phase1.yml'
   pull_request:
     branches: [main, feat/laria-discovery-landscapes-v2-20261017]
     paths:
@@ -20,7 +19,6 @@ on:
       - 'tests/laria-discovery-globe-phase1.playwright.js'
       - 'tests/laria-discovery-globe-phase1-static.js'
       - 'tests/laria-discovery-diagnostics.cjs'
-      - '.github/workflows/laria-discovery-globe-phase1.yml'
 
 permissions:
   contents: read
