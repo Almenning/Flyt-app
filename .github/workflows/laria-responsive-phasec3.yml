@@ -7,7 +7,6 @@ on:
       - 'laer-litt-mer/laria-responsive-phaseb.css'
       - 'laer-litt-mer/locked-journey-renderer.js'
       - 'tests/laria-responsive-phasec3-iphone-journeys.playwright.js'
-      - '.github/workflows/laria-responsive-phasec3.yml'
   workflow_dispatch:
 
 permissions:
