@@ -82,7 +82,7 @@
   border-radius:30px;
   background:
     linear-gradient(180deg,rgba(255,247,218,.12),rgba(108,67,38,.045)),
-    url('./gangemagi-tallenga-market-v1.svg?v=20261022-scene2') center / cover no-repeat;
+    url('./gangemagi-tallenga-market-v1.svg?v=20261022-scene3') center / cover no-repeat;
   box-shadow:inset 0 0 0 1px #8e572f52,0 10px 26px #70442143;
 }
 .gm-shell[data-gm-mode="mission"] .gm-world:before{
