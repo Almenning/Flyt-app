@@ -1158,3 +1158,44 @@
  .gm-shell[data-gm-mode="mission"] .gm-quest-icon>.gm-quest-wicker{height:70px}
  .gm-shell[data-gm-mode="mission"] .gm-quest-icon .gm-quest-fruit{height:65px}
 }
+
+/* The very short phone landscape has a different constraint: all of the real
+   market must enter one fold, including five-basket missions. It keeps the
+   compact original picture-plus-label row so the mini-baskets never collide
+   with the instruction. */
+@media (min-width:700px) and (max-width:899px) and (max-height:500px){
+ .gm-shell[data-gm-mode="mission"] .gm-quest-steps{
+   display:grid;grid-template-columns:minmax(0,1fr);gap:3px;width:100%;
+ }
+ .gm-shell[data-gm-mode="mission"] .gm-quest-step{
+   display:grid;grid-template-columns:21px 49px minmax(0,1fr);
+   align-items:center;justify-content:normal;justify-items:start;
+   width:100%;min-height:50px;gap:4px;padding:3px 6px;
+   border-width:1px;border-radius:12px;
+   background:linear-gradient(155deg,#fff8e5d9,#f9e8c9c2);
+   box-shadow:inset 0 1px 0 #fffaf3b3;
+ }
+ .gm-shell[data-gm-mode="mission"] .gm-quest-step-active{
+   border-color:#e5a76a;background:linear-gradient(155deg,#fffaf0,#ffe2ae);
+   box-shadow:inset 0 0 14px #f8cb7270,0 2px 5px #a86d4128;
+ }
+ .gm-shell[data-gm-mode="mission"] .gm-quest-index{
+   position:static;display:grid;grid-column:1;width:20px;height:20px;font-size:11px;
+ }
+ .gm-shell[data-gm-mode="mission"] .gm-quest-step strong{
+   display:block;grid-column:3;font-size:13px;line-height:1.1;text-align:left;
+ }
+ .gm-shell[data-gm-mode="mission"] .gm-quest-icon{
+   grid-column:2;width:49px;max-width:100%;height:36px;
+ }
+ .gm-shell[data-gm-mode="mission"] .gm-quest-icon>.gm-quest-wicker{height:34px;width:39px}
+ .gm-shell[data-gm-mode="mission"] .gm-quest-icon>.gm-quest-hand{height:26px;width:20px;margin-left:-7px}
+ .gm-shell[data-gm-mode="mission"] .gm-quest-icon .gm-quest-fruit{height:29px;width:21px}
+ .gm-shell[data-gm-mode="mission"] .gm-quest-filled-preview{gap:0}
+ .gm-shell[data-gm-mode="mission"] .gm-quest-mini-basket{flex-basis:17px;max-width:17px;height:28px}
+ .gm-shell[data-gm-mode="mission"] .gm-quest-arrow{display:none}
+ .gm-shell[data-gm-mode="mission"]:is([data-gm-groups="4"],[data-gm-groups="5"]) .gm-quest-step[data-gm-step="3"]{
+   grid-template-columns:21px 88px minmax(0,1fr);
+ }
+ .gm-shell[data-gm-mode="mission"]:is([data-gm-groups="4"],[data-gm-groups="5"]) .gm-quest-step[data-gm-step="3"] .gm-quest-icon{width:88px}
+}
