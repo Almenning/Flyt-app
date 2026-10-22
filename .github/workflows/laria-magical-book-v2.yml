@@ -5,7 +5,6 @@ on:
       - 'laer-litt-mer/laria-magical-collection-v2.*'
       - 'laer-litt-mer/laria-collection-book-ornaments-approved.webp'
       - 'laer-litt-mer/home-basecamp-v12.js'
-      - 'laer-litt-mer/index.html'
       - 'laer-litt-mer/multiplication-gangemagi-v1.js'
       - 'tests/laria-magical-book-v2.*'
       - '.github/workflows/laria-magical-book-v2.yml'
@@ -15,12 +14,14 @@ on:
       - 'laer-litt-mer/laria-magical-collection-v2.*'
       - 'laer-litt-mer/laria-collection-book-ornaments-approved.webp'
       - 'laer-litt-mer/home-basecamp-v12.js'
-      - 'laer-litt-mer/index.html'
       - 'laer-litt-mer/multiplication-gangemagi-v1.js'
       - 'tests/laria-magical-book-v2.*'
   workflow_dispatch:
 permissions:
   contents: read
+concurrency:
+  group: laria-magical-book-v2-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   collection-visual:
     runs-on: ubuntu-latest
