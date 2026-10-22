@@ -163,7 +163,7 @@
          (free?'<div class="gm-progress-track" role="progressbar" aria-label="Jordbær pakket" aria-valuemin="0" aria-valuemax="'+goal+'" aria-valuenow="'+sum+'"><span style="width:'+progress+'%"></span></div>':'')+
          (!free?'<div class="gm-berry-progress" aria-label="'+sum+' av '+goal+' jordbær lagt i kurvene"><strong>'+sum+' av '+goal+'</strong></div>':'')+
          '<div class="gm-math-note'+(result.multiplication?' gm-math-discovery':'')+'"'+(result.multiplication?' role="status"':'')+'>'+(result.multiplication?'✦ Like grupper: '+state.groups+' kurver med '+state.counts[0]+' bær = '+sum+'!':'Når kurvene har ulikt antall, legger vi sammen.')+'</div></div>'+
-       (complete?'<div class="gm-celebration" role="status"><span aria-hidden="true">✿</span><strong>'+esc(free?'Så fint du laget det!':'Oppdraget er klart!')+'</strong><span>Du fant '+goal+' jordbær.</span></div>':'')+
+       (complete?'<div class="gm-celebration" role="status"><span class="gm-celebration-flower" aria-hidden="true">✿</span><span class="gm-celebration-copy"><strong>'+esc(free?'Så fint du laget det!':'Oppdraget er klart!')+'</strong><small>'+(free?'Du pakket '+goal+' jordbær.':'Markedsblomst '+state.wins.length+' av '+E.MISSIONS.length+' · '+goal+' jordbær pakket')+'</small></span></div>':'')+
        '</section>'+
        '<div class="gm-actions '+(complete?'gm-actions-complete':'')+'">'+
          (complete?
