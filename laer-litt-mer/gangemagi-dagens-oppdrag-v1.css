@@ -934,6 +934,14 @@
   .gm-shell[data-gm-mode="mission"] .gm-quest-icon>.gm-quest-hand{width:19px;height:26px}
   .gm-shell[data-gm-mode="mission"] .gm-quest-icon .gm-quest-fruit{width:21px;height:28px}
   .gm-shell[data-gm-mode="mission"] .gm-quest-mini-basket{flex-basis:17px;width:17px;height:28px}
+  /* Five real groups need five distinguishable mini-baskets. Widen only the
+     final visual slot instead of shrinking the objects into unreadable dots. */
+  .gm-shell[data-gm-mode="mission"]:is([data-gm-groups="4"],[data-gm-groups="5"]) .gm-quest-step[data-gm-step="3"]{
+    grid-template-columns:20px 92px minmax(0,1fr);
+  }
+  .gm-shell[data-gm-mode="mission"]:is([data-gm-groups="4"],[data-gm-groups="5"]) .gm-quest-step[data-gm-step="3"] .gm-quest-icon{
+    width:92px;
+  }
   .gm-shell[data-gm-mode="mission"] .gm-scene{
     grid-column:2;
     grid-row:1 / span 2;
