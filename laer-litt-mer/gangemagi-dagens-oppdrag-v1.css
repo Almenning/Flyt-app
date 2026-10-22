@@ -331,6 +331,14 @@
   grid-column:1;grid-row:2;text-align:center;white-space:nowrap;
   color:#704027;font-size:clamp(22px,3.7vw,45px);
 }
+.gm-shell[data-gm-mode="mission"] .gm-math-addition{display:none}
+/* At the finish line the child can read the two representations as a pair:
+   the repeated addition on its own line and the discovered multiplication
+   directly beneath it.  The total remains in the same, calm progress chip. */
+.gm-shell[data-gm-mode="mission"][data-gm-complete="true"] .gm-math{grid-template-rows:auto auto auto}
+.gm-shell[data-gm-mode="mission"][data-gm-complete="true"] .gm-math-equation{grid-column:1;grid-row:2;text-align:left}
+.gm-shell[data-gm-mode="mission"][data-gm-complete="true"] .gm-math-addition{display:block;grid-column:1;grid-row:1;text-align:left;font-size:clamp(15px,2.15vw,25px);line-height:1;font-weight:1000;color:#8a6046;white-space:nowrap}
+.gm-shell[data-gm-mode="mission"][data-gm-complete="true"] .gm-berry-progress{grid-column:2;grid-row:1/span 2}
 .gm-shell[data-gm-mode="mission"] .gm-progress-track{grid-column:1;grid-row:3;height:5px;opacity:.5}
 .gm-shell[data-gm-mode="mission"] .gm-math-note{display:none}
 .gm-shell[data-gm-mode="mission"] .gm-berry-progress{
