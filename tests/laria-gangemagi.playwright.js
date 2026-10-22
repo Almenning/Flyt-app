@@ -127,6 +127,11 @@ async function check(engine,label,viewport,url){
   // after returning instead of demanding a gradient on the .app wrapper.
   await page.evaluate(()=>window.openMultiplicationLab());
   await page.locator('#multiplication-lab-screen.active .gm-shell').waitFor();
+  // Always preserve a first-look screenshot before geometry assertions. If a
+  // later premium gate fails, reviewers still get the exact rendered scene.
+  await shot(page,label+'-00-diagnostic-first-look');
+  assert.equal(await page.locator('.gm-story.gm-quest').evaluate(el=>getComputedStyle(el).display),'block',
+    label+' mission board must not inherit the old horizontal flex story layout');
   assert.equal(await page.locator('.gm-crate').count(),3);
   const bookQuickBox=await page.locator('.gm-book-quick').boundingBox();
   assert.ok(bookQuickBox&&bookQuickBox.width>=44&&bookQuickBox.height>=44&&bookQuickBox.y>=0&&bookQuickBox.y+bookQuickBox.height<=viewport.height,

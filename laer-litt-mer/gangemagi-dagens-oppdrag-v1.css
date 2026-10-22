@@ -100,6 +100,7 @@
 .gm-shell[data-gm-mode="mission"] .gm-story.gm-quest{
   position:relative;
   z-index:3;
+  display:block;
   width:calc(100% - clamp(120px,21vw,295px));
   min-height:0;
   margin:0 0 0 auto;
