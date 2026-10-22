@@ -136,8 +136,8 @@
   display:block;width:30px;height:43px;
 }
 .gm-shell[data-gm-mode="mission"] .gm-quest-fruit svg{display:block;width:100%;height:100%}
-/* The final step shows dynamically as many filled baskets as the mission
-   requires. Individual numbers remain in readable live text below. */
+/* The final step reserves one illustrated basket per actual group;
+   berry marks appear only when the child really places them. */
 .gm-shell[data-gm-mode="mission"] .gm-quest-filled-preview{
  display:flex;align-items:center;justify-content:center;gap:0;
  width:100%;height:100%;max-width:100%;
@@ -149,8 +149,8 @@
  display:block;width:100%;height:100%;object-fit:contain;
  filter:drop-shadow(0 2px 1px #7b4c2e4d);
 }
-/* The number of berry marks is ACTUAL each-count (1..10), not 3 painted
-   dots regardless of the maths. Five columns then wrap into a second row. */
+/* Berry marks follow each basket's ACTUAL current count (0..each).
+   Five columns then wrap into a second row for larger groups. */
 .gm-shell[data-gm-mode="mission"] .gm-quest-mini-berries{
  position:absolute;left:20%;width:62%;top:42%;height:34%;
  display:grid;grid-template-columns:repeat(var(--gm-mini-cols),minmax(0,1fr));

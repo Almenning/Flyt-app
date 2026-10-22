@@ -149,8 +149,8 @@ async function check(engine,label,viewport,url){
   assert.equal(calloutLayout.insidePanel,true,label+' headline stays inside the illustrated board');
   assert.equal(await page.locator('.gm-quest-filled-preview .gm-quest-mini-basket').count(),3,
     'final instructional illustration previews one filled basket per real group');
-  assert.equal(await page.locator('.gm-quest-filled-preview .gm-quest-mini-berries i').count(),9,
-    label+' three baskets really show three strawberries each');
+  assert.equal(await page.locator('.gm-quest-filled-preview .gm-quest-mini-berries i').count(),0,
+    label+' pictured baskets must begin empty, not reveal the completed answer');
   assert.deepEqual(await page.locator('.gm-quest-step strong').allInnerTexts(),
     ['Plukk','Legg i','Se gangemagien'],'instructions are three real readable DOM steps');
   assert.equal(await page.locator('.gm-quest-step-active[aria-current="step"][data-gm-step="1"]').count(),1,
@@ -526,12 +526,16 @@ async function check(engine,label,viewport,url){
     label+' strawberry must be inside the illustrated basket '+JSON.stringify(firstBerryGeometry));
   assert.equal(await page.locator('.gm-fruit-pop').count(),1,
     label+' ONLY the newly added strawberry should bounce after the first pick');
+  assert.equal(await page.locator('.gm-quest-mini-berries i').count(),1,
+    label+' illustrated maths must mirror the first real berry placed');
   await shot(page,label+'-02-one-berry');
   await page.locator('[data-gm-action="source"]').click();
   await page.locator('[data-gm-basket="0"] .gm-crate-front').click();
   assert.equal((await page.locator('.gm-math-equation').innerText()).trim(),'2 + 0 + 0 = 2');
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts[0],2);
   assert.equal(await page.locator('.gm-fruit').count(),2);
+  assert.equal(await page.locator('.gm-quest-mini-berries i').count(),2,
+    label+' illustrated baskets must track the actual total after two placements');
   assert.equal(await page.locator('.gm-fruit-pop').count(),1,
     label+' on the second pick the previous berry must remain stable');
   assert.match(await page.locator('.gm-fox-message').innerText(),/2 av 3 i kurv 1/);
@@ -568,6 +572,10 @@ async function check(engine,label,viewport,url){
     }
   }
   assert.equal((await page.locator('.gm-math-equation').innerText()).trim(),'3 × 3 = 9');
+  assert.equal(await page.locator('.gm-quest-mini-berries i').count(),9,
+    label+' completed diagram must now display all nine actually placed berries');
+  assert.equal((await page.locator('.gm-math-addition').innerText()).trim(),'3 + 3 + 3 = 9',
+    label+' completed addition must visually connect equal baskets to multiplication');
   assert.equal(await page.locator('.gm-quest-step-active[aria-current="step"][data-gm-step="3"]').count(),1,
     label+' final illustrated step celebrates the multiplication discovery');
   assert.match(await page.locator('.gm-math-discovery').innerText(),/Like grupper: 3 kurver med 3 bær = 9/,'multiplication has a child-readable explanation');
@@ -930,8 +938,8 @@ async function checkLandscape(engine,label,url){
      assert.equal(snap.groups,spec.groups,label+' '+spec.slug+' real basket count');
      assert.equal(snap.each,spec.each,label+' '+spec.slug+' authored group size');
      assert.equal(await page.locator('.gm-quest-mini-basket').count(),spec.groups);
-     assert.equal(await page.locator('.gm-quest-mini-berries i').count(),
-       spec.groups*spec.each,label+' '+spec.slug+' mini-illustrations show actual arithmetic');
+     assert.equal(await page.locator('.gm-quest-mini-berries i').count(),0,
+       label+' '+spec.slug+' pictured baskets must start empty before play');
      const scene=await page.evaluate(()=>{
        const box=selector=>document.querySelector(selector).getBoundingClientRect();
        const mini=[...document.querySelectorAll('.gm-quest-step[data-gm-step="3"] .gm-quest-mini-basket')]
@@ -959,6 +967,8 @@ async function checkLandscape(engine,label,url){
        }
        const state=await page.evaluate(()=>LARIA_GANGEMAGI.snapshot());
        assert.deepEqual(state.counts,[10,0],label+' ten actual berries packed into one basket');
+       assert.equal(await page.locator('.gm-quest-mini-berries i').count(),10,
+         label+' illustrated ten-berry group reflects placement without showing a full solution');
        assert.equal((await page.locator('.gm-math-equation').innerText()).trim(),'10 + 0 = 10');
        const packed=await page.locator('[data-gm-basket="0"]').evaluate(basket=>{
          const front=basket.querySelector('.gm-crate-front').getBoundingClientRect();

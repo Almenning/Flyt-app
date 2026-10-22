@@ -98,12 +98,12 @@
  function questBoard(sum,goal){
    const groups=state.groups,each=state.each,mission=E.MISSIONS[state.mission];
    const fruitArt='<span class="gm-quest-fruit">'+berrySvg+'</span>';
-   // The last illustrated step shows actual groups of filled mini-baskets,
-   // not a second copy of the equation. One mini-basket per real group.
+   // The last illustrated step mirrors the child's REAL baskets as they fill.
+   // Never show the completed groups before the child has placed a berry.
    const filledBasketPreview='<span class="gm-quest-filled-preview" aria-hidden="true">'+
-     Array.from({length:groups},()=>'<span class="gm-quest-mini-basket">'+gmBasketArt+
+     state.counts.map(count=>'<span class="gm-quest-mini-basket">'+gmBasketArt+
        '<span class="gm-quest-mini-berries" style="--gm-mini-cols:'+Math.min(each,5)+'">'+
-         Array.from({length:each},()=>'<i></i>').join('')+'</span></span>').join('')+
+         Array.from({length:count},()=>'<i></i>').join('')+'</span></span>').join('')+
      '</span>';
    return '<header class="gm-story gm-quest" aria-label="Dagens oppdrag">'+
      '<div class="gm-quest-head"><span class="gm-quest-ribbon">✦ Dagens oppdrag ✦</span>'+
@@ -128,9 +128,11 @@
    const free=state.mode==='free',modeClass=free?'free':'mission';
    const progress=Math.round(sum/goal*100);
    const msg=message();
-   // The assignment starts as a question. The zero-sum is technically true,
-   // but it hides the multiplication the child is about to discover.
-   const equation=!free&&sum===0?state.groups+' × '+state.each+' = ?':(result.multiplication||result.addition);
+   // Start with the unfinished challenge. During a mission, show the real
+   // repeated addition as the baskets fill; reveal multiplication only at
+   // completion, rather than a different 3 × 1 answer mid-way through 3 × 3.
+   const equation=!free&&sum===0?state.groups+' × '+state.each+' = ?':
+     (!free&&!complete?result.addition:(result.multiplication||result.addition));
    const active=state.mode==='mission'?'Oppdrag':'Fri lek';
    root.innerHTML='<main class="gm-shell" data-gm-mode="'+modeClass+'" data-gm-groups="'+state.groups+'" data-gm-each="'+state.each+'" data-gm-selected="'+selectedGroup+'" data-gm-complete="'+complete+'">'+
       '<div class="gm-layout"><header class="gm-top">'+
