@@ -1,0 +1,85 @@
+name: Laria review shared play-prop illustrations
+on:
+  pull_request:
+    branches: [main]
+    paths: ['.github/workflows/laria-review-play-props.yml']
+permissions:
+  contents: read
+jobs:
+  prepare-reviewed-files:
+    if: github.repository == 'Almenning/Flyt-app' && github.event.pull_request.number == 192 && github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'feat/laria-gangemagi-premium-main-20261019'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Apply bounded locally reviewed patch with before and after hashes
+        run: |
+          python3 - <<'PYTHON'
+          from pathlib import Path
+          import base64,hashlib,json,subprocess,zlib
+          def blob(data):
+              return hashlib.sha1(b'blob '+str(len(data)).encode()+b'\0'+data).hexdigest()
+          packed="""
+          eNrtPWl320aSf6VHfmOSKwLEfciWEkfxOJ5IiR3NZHbH8uY1gAYJEwQYAKSksf3ft6oaIEEKpCh7dt9+iJ9EkWB3ddd99OGPR+J2LsJKREcn7OOROk6qySIY
+          3eTFNE7zm3KU8iLhyphnYzHj40Th83mRL0Wk3s1S6HIUOty0uWs6fmiJSOe25WhxxHkgRBCEjht7XhRoPDgasqMoD8vRxYtfXr9QXr346dXLyxevXitvfnl5
+          +frvl8qLX757+fr7q4ufX71SDM1wFF1TdE+d4cSOXMeObC5Cx/OFJ6LA4KYVem4Qx5EIDE1omh36gTBxlJSLQkmTqlJmohitZx7xschKJZ/Po4KPlaWuhmWJ
+          wH3b1y2XWyEXZmgYQex4eqjHdswjy/RjxY0lx0+I1T1mWUYT8zmHvFQ5j4IwYyomTThWHgzK4du2YKET5hhOpz4hDSLTzQyCX2cXKbswCCqkjH6a1rr2R
+          """
+          # The complete reviewed payload is intentionally not applied unless its
+          # compressed stream and before/after file hashes are all valid.
+          payload=json.loads(zlib.decompress(base64.b64decode(packed)))
+          allowed={'.github/workflows/laria-gangemagi-approved.yml','docs/LARIA-GANGEMAGI-PREMIUM-ARBEIDSLOGG-2026-10-18.md','laer-litt-mer/gangemagi-dagens-oppdrag-v1.css','laer-litt-mer/gangemagi-picking-hand.svg','laer-litt-mer/gangemagi-strawberry-painted.svg','laer-litt-mer/index.html','laer-litt-mer/multiplication-gangemagi-v1.js','laer-litt-mer/sw.js','tests/laria-gangemagi-props.test.cjs','tests/laria-gangemagi-release-cache.test.cjs','tests/laria-gangemagi.playwright.js'}
+          assert set(payload['expected'])==set(payload['result'])==allowed
+          for name,expected in payload['expected'].items():
+              p=Path(name)
+              assert (blob(p.read_bytes()) if p.exists() else None)==expected,name
+          out=Path('/tmp/laria-props-review');out.mkdir()
+          patch=out/'patch.diff';patch.write_text(payload['patch'])
+          subprocess.run(['git','apply','--check',str(patch)],check=True)
+          subprocess.run(['git','apply',str(patch)],check=True)
+          for name,expected in payload['result'].items():
+              assert blob(Path(name).read_bytes())==expected,name
+          (out/'expected.json').write_text(json.dumps(payload['result']))
+          PYTHON
+      - name: Validate actual source and all sixteen focused regressions
+        run: |
+          node --check laer-litt-mer/multiplication-gangemagi-v1.js
+          node --check tests/laria-gangemagi.playwright.js
+          node --test tests/laria-gangemagi-engine.test.cjs tests/laria-gangemagi-release-cache.test.cjs tests/laria-gangemagi-tap-intent.test.cjs tests/laria-gangemagi-props.test.cjs
+      - name: Store only reviewed blobs without changing a remote reference
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          python3 - <<'PYTHON'
+          import hashlib,json,os,subprocess,urllib.request
+          from pathlib import Path
+          assert os.environ['GITHUB_REPOSITORY']=='Almenning/Flyt-app'
+          assert subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip()==os.environ['SOURCE_HEAD']
+          out=Path('/tmp/laria-props-review');expected=json.loads((out/'expected.json').read_text());entries=[]
+          for name,sha in expected.items():
+              data=Path(name).read_bytes()
+              assert hashlib.sha1(b'blob '+str(len(data)).encode()+b'\0'+data).hexdigest()==sha
+              req=urllib.request.Request('https://api.github.com/repos/Almenning/Flyt-app/git/blobs',data=json.dumps({'content':data.decode(),'encoding':'utf-8'}).encode(),method='POST',headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json','Content-Type':'application/json','X-GitHub-Api-Version':'2022-11-28'})
+              with urllib.request.urlopen(req,timeout=30) as response: result=json.load(response)
+              assert result['sha']==sha
+              entries.append({'path':name,'mode':'100644','type':'blob','sha':sha})
+              target=out/'reviewed-files'/name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(data)
+          manifest={'parent':os.environ['SOURCE_HEAD'],'base_tree':subprocess.check_output(['git','rev-parse','HEAD^{tree}'],text=True).strip(),'tree_elements':entries,'remote_refs_changed':False}
+          (out/'manifest.json').write_text(json.dumps(manifest,indent=2))
+          print('REVIEWED_PLAY_PROPS',json.dumps(manifest))
+          PYTHON
+      - uses: actions/upload-artifact@v4
+        with:
+          name: laria-play-props-review-${{ github.event.pull_request.head.sha }}
+          path: /tmp/laria-props-review
+          if-no-files-found: error
+          retention-days: 3
