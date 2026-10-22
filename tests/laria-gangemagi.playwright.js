@@ -131,7 +131,7 @@ async function check(engine,label,viewport,url){
   const bookQuickBox=await page.locator('.gm-book-quick').boundingBox();
   assert.ok(bookQuickBox&&bookQuickBox.width>=44&&bookQuickBox.height>=44&&bookQuickBox.y>=0&&bookQuickBox.y+bookQuickBox.height<=viewport.height,
     label+' book shortcut should be touch-safe and visible on the first fold');
-  assert.equal((await page.locator('.gm-math-equation').innerText()).trim(),'0 + 0 + 0 = 0');
+  assert.equal((await page.locator('.gm-math-equation').innerText()).trim(),'3 × 3 = ?',\n    label+' must show the unfinished multiplication before the child starts');
   assert.match((await page.locator('.gm-story').innerText()).replace(/\s+/g,' '),/3 kurver med 3 jordbær/);
   assert.equal(await page.locator('.gm-quest').count(),1,label+' mission has a prominent quest panel');
   assert.match(await page.locator('.gm-quest-ribbon').innerText(),/Dagens oppdrag/);
