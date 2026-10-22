@@ -1021,11 +1021,11 @@ async function checkBoyFox(browser,url){
    await shot(page,'webkit-ipad-landscape-boy-fox');
    await page.locator('[data-gm-action="open-book"]').click();
    assert.equal(await page.locator('.gm-book-fox-art svg[data-avatar="boy"]').count(),1,
-     'the child's actual boy fox follows him into the Market Book');
+     'the actual boy fox follows him into the Market Book');
    await page.keyboard.press('Escape');
    await page.locator('[data-gm-action="mode"][data-mode="free"]').click();
    assert.equal(await page.locator('.gm-fox-art svg[data-avatar="boy"]').count(),1,
-     'the child's real boy fox must remain in free play');
+     'the real boy fox must remain in free play');
    assert.deepEqual(errors,[],'no boy-fox render errors in real WebKit');
    console.log('PASS GANGEMAGI WebKit personal boy fox and Market Book');
  }finally{await context.close()}
