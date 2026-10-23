@@ -704,3 +704,11 @@
 .fw-overlay[data-scene="garden"] .fw-scene-image{
  filter:saturate(1.08) contrast(1.035) brightness(1.015);
 }
+
+
+/* premium header interaction fix: decorative header must never steal taps */
+@media (min-width:901px){
+ .fw-top{pointer-events:none}
+ .fw-title{pointer-events:none}
+ .fw-back,.fw-audio{pointer-events:auto;z-index:30}
+}
