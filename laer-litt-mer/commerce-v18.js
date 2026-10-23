@@ -48,11 +48,18 @@
     try{
       return apply(await p.getProducts());
     }catch(error){
+      const storeError=String(error?.message||error||'App Store er ikke tilgjengelig.');
+      let entitlement={active:false,activeProductIds:[]};
+      // StoreKit's entitlement snapshot is independent of the product catalogue.
+      // Preserve an already verified subscriber even if products cannot be fetched.
+      try{entitlement=await p.getEntitlement()}catch(_){}
       state.checked=true;
       state.storeReady=false;
-      state.active=false;
+      state.active=!!entitlement.active;
+      state.activeProductIds=Array.isArray(entitlement.activeProductIds)?entitlement.activeProductIds:[];
       state.products=[];
-      state.error=String(error?.message||error||'App Store er ikke tilgjengelig.');
+      state.error=storeError;
+      window.dispatchEvent(new CustomEvent('laria-commerce-changed',{detail:snapshot()}));
       return snapshot();
     }
   }
@@ -96,8 +103,14 @@
       refresh();
       return false;
     }
-    if(!state.storeReady)return true; // Products are not live in App Store Connect yet: preview remains usable.
     if(state.active)return true;
+    if(!state.storeReady){
+      // A successful empty catalogue is the pre-launch preview state.
+      // A StoreKit error is different: do not fail open and grant premium.
+      if(!state.error)return true;
+      window.dispatchEvent(new CustomEvent('laria-premium-required',{detail:{feature,reason:'store-unavailable'}}));
+      return false;
+    }
     window.dispatchEvent(new CustomEvent('laria-premium-required',{detail:{feature,reason:'subscription'}}));
     return false;
   }
