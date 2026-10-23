@@ -1235,9 +1235,11 @@
   .gm-shell[data-gm-mode="mission"]:is([data-gm-groups="4"],[data-gm-groups="5"]) .gm-quest-step[data-gm-step="3"] .gm-quest-icon{
     width:92px;
   }
+  /* The play scene owns row 1. It must NOT span the mathematics row:
+     that shared grid area let the parchment intercept taps on the berry source. */
   .gm-shell[data-gm-mode="mission"] .gm-scene{
     grid-column:2;
-    grid-row:1 / span 2;
+    grid-row:1;
     margin:0;
   }
   .gm-shell[data-gm-mode="mission"] .gm-fox{
@@ -1287,10 +1289,9 @@
     grid-row:2;
     width:100%;
     min-height:47px;
-    /* The physical berry crate is still a real 54px touch target in this
-       short view. Leave it a visible, tappable lane before the maths instead
-       of letting the parchment stack over its label and intercept the tap. */
-    margin:30px 0 0;
+    /* Row 2 now follows the entire interactive market in normal grid flow.
+       Grid gap reserves breathing room without any overlapping hit targets. */
+    margin:0;
     padding:4px 8px;
     border-radius:12px;
   }
