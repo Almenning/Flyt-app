@@ -71,6 +71,7 @@ async function drawPose(page,pose){
      relief:Number(canvas.dataset.discoveryRelief||0),
      texture:Number(canvas.dataset.discoveryTexture||0),
      terrainField:Number(canvas.dataset.discoveryTerrainField||0),
+     movingMaterial:Number(canvas.dataset.discoveryMovingMaterial||0),
      terrainMs:Number(canvas.dataset.discoveryTerrainMs||0),
      terrainPixels:Number(canvas.dataset.discoveryTerrainPixels||0),
      selected:globeSelected,
@@ -337,6 +338,8 @@ async function verifyPointerDrag(page,label,isDiscovery){
    moving:window.__lariaGlobeInteracting,
    pointerCount:globePointers.size,
    marked:document.getElementById('globe-canvas').dataset.discoveryMoving,
+   movingMaterial:Number(document.getElementById('globe-canvas').dataset.discoveryMovingMaterial||0),
+   terrainField:Number(document.getElementById('globe-canvas').dataset.discoveryTerrainField||0),
    before:Number(document.getElementById('globe-canvas').dataset.dragStartLon),
    after:globeLon
  }));
@@ -345,6 +348,8 @@ async function verifyPointerDrag(page,label,isDiscovery){
  assert.equal(during.pointerCount,1,label+' active pointer was lost');
  if(isDiscovery){
    assert.equal(during.marked,'true',label+' discovery detail not suppressed while dragging');
+   assert.equal(during.terrainField,0,label+' expensive terrain field must stay disabled while dragging');
+   assert.ok(during.movingMaterial>0,label+' lightweight moving material disappeared during drag: '+JSON.stringify(during));
    await page.screenshot({path:path.join(out,label.replace(/[^a-z0-9-]/gi,'-')+'-moving.png'),fullPage:true,animations:'disabled'});
  }
  await page.mouse.up();
