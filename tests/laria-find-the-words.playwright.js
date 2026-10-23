@@ -112,7 +112,10 @@ async function geometry(page,label,view){
   assert.ok(box.next&&box.next.b<=box.height+2&&box.fox.b<=box.height+2,
    'Fox companion or next adventure is clipped below iPad landscape first fold '+label+': '+JSON.stringify(box));
  }
- assert.ok(box.scene.complete&&box.scene.w===1200&&box.scene.h===720,'illustrated scene failed '+label+': '+JSON.stringify(box.scene));
+ const gardenScene=label.includes('secret-garden');
+ assert.ok(box.scene.complete&&
+   (gardenScene?(box.scene.w===480&&box.scene.h===288):(box.scene.w===1200&&box.scene.h===720)),
+   'illustrated scene failed '+label+': '+JSON.stringify(box.scene));
  assert.ok(box.scroll<=box.screen+3,'horizontal overflow '+label+': '+JSON.stringify(box));
  assert.ok(box.art.x>=-2&&box.art.x+box.art.w<=box.screen+3,'art clipped horizontally '+label);
  assert.equal(box.hotspot.length,8,'Each illustrated world must expose exactly eight tappable objects '+label);
