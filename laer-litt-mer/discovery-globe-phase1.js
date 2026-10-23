@@ -158,8 +158,8 @@ function landClip(ctx,w,h){
   return any;
 }
 function ocean(ctx,w,h,s){
-  const g=ctx.createRadialGradient(w*.35,h*.24,2,w*.54,h*.57,s*.68);
-  g.addColorStop(0,'#B9F3F0');g.addColorStop(.22,'#57D3D8');g.addColorStop(.55,'#218FBD');g.addColorStop(1,'#135B91');ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+  const g=ctx.createRadialGradient(w*.34,h*.22,2,w*.56,h*.60,s*.70);
+  g.addColorStop(0,'#C9FAF0');g.addColorStop(.20,'#61D9D6');g.addColorStop(.54,'#1E92BA');g.addColorStop(1,'#0D4B7D');ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
   /* A transparent water glaze gives the sea a broad, curved volume before
      the geographic currents are added. It is clipped by discoveryDraw's
      sphere, so it cannot spill into the storyscape behind the globe. */
@@ -179,6 +179,25 @@ function ocean(ctx,w,h,s){
   }
   ctx.restore();
 }
+/* A globe should read as a globe before the child notices any individual
+   biome. This screen-space light is deliberately not geography: it is the
+   shared studio light around the rotating sphere. Geography still rotates
+   beneath it and all land hit-testing remains untouched. */
+function paintSphereAtmosphere(ctx,w,h,s){
+  ctx.save();
+  const light=ctx.createRadialGradient(w*.34,h*.24,s*.04,w*.50,h*.51,s*.49);
+  light.addColorStop(0,'rgba(255,255,226,.18)');
+  light.addColorStop(.54,'rgba(255,255,236,.02)');
+  light.addColorStop(.82,'rgba(13,73,82,.05)');
+  light.addColorStop(1,'rgba(5,43,66,.24)');
+  ctx.fillStyle=light;ctx.fillRect(0,0,w,h);
+  const rim=ctx.createRadialGradient(w*.50,h*.50,s*.405,w*.50,h*.50,s*.462);
+  rim.addColorStop(0,'rgba(255,255,255,0)');
+  rim.addColorStop(.76,'rgba(229,255,244,.05)');
+  rim.addColorStop(1,'rgba(238,255,238,.30)');
+  ctx.fillStyle=rim;ctx.fillRect(0,0,w,h);
+  ctx.restore();
+}
 function paintLandBase(ctx,w,h,s){
   // Countries are separate geographic hit targets, but the child should see
   // ONE living continent. A per-country shadow made every nation look like a
@@ -188,22 +207,22 @@ function paintLandBase(ctx,w,h,s){
   ctx.beginPath();let joined=false;
   for(const c of land())if(c.geometry)joined=path(ctx,c,w,h)||joined;
   if(!joined){ctx.restore();return;}
-  const base='#84A87A';
-  const g=ctx.createLinearGradient(w*.25,h*.12,w*.78,h*.88);
-  g.addColorStop(0,mix(base,'#FFF7D8',.30));
-  g.addColorStop(.50,base);
-  g.addColorStop(1,mix(base,'#264E47',.25));
+  const base='#7EA373';
+  const g=ctx.createLinearGradient(w*.22,h*.10,w*.80,h*.90);
+  g.addColorStop(0,mix(base,'#FFF0BE',.40));
+  g.addColorStop(.46,base);
+  g.addColorStop(1,mix(base,'#173F39',.34));
   ctx.fillStyle=g;
-  ctx.shadowColor='rgba(29,54,48,.25)';
-  ctx.shadowBlur=Math.max(3,s*.009);
-  ctx.shadowOffsetY=Math.max(1,s*.003);
+  ctx.shadowColor='rgba(20,48,42,.34)';
+  ctx.shadowBlur=Math.max(4,s*.013);
+  ctx.shadowOffsetY=Math.max(1.5,s*.004);
   ctx.fill();
   ctx.restore();
   ctx.save();if(!landClip(ctx,w,h)){ctx.restore();return;}
   const sun=ctx.createRadialGradient(w*.33,h*.22,0,w*.50,h*.50,s*.52);
-  sun.addColorStop(0,'rgba(255,249,211,.34)');
-  sun.addColorStop(.62,'rgba(255,244,194,.04)');
-  sun.addColorStop(1,'rgba(38,81,57,.12)');
+  sun.addColorStop(0,'rgba(255,245,196,.44)');
+  sun.addColorStop(.58,'rgba(255,238,181,.05)');
+  sun.addColorStop(1,'rgba(24,69,55,.18)');
   ctx.fillStyle=sun;ctx.fillRect(0,0,w,h);ctx.restore();
 }
 /* A real Antarctic coastline is painted only by Oppdag. Land polygons and
@@ -291,6 +310,57 @@ function paintBiomes(ctx,w,h,s,moving){
 }
 
 
+/* Continent-scale material masses. The detailed terrain field below gives
+   local texture, but a seven-year-old should also read the big geography at a
+   glance: Sahara, rainforest and major mountain belts. These are broad,
+   land-clipped strokes along the same longitude/latitude corridors already
+   used by the renderer. They are not screen-space icons. */
+function paintContinentMasses(ctx,w,h,s,level,moving){
+  if(moving||level!==1)return 0;
+  ctx.save();if(!landClip(ctx,w,h)){ctx.restore();return 0;}
+  let painted=0;
+  for(const zone of landscapeZones){
+    if(!smoothGeoStroke(ctx,zone.route,w,h,s))continue;
+    const width=clamp(geoBrushWidth(zone,w,h,s)*.72,s*.018,s*.22);
+    const tone=zone.type==='rainforest'?'rgba(7,67,38,.22)':
+      zone.type==='forest'?'rgba(27,78,45,.17)':
+      zone.type==='desert'?'rgba(225,151,50,.20)':
+      zone.type==='savanna'?'rgba(157,144,62,.13)':
+      zone.type==='tundra'?'rgba(139,171,158,.12)':
+      'rgba(229,245,236,.18)';
+    ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
+    ctx.strokeStyle=tone;ctx.lineWidth=width;
+    ctx.shadowColor=zone.type==='desert'?'rgba(120,77,29,.10)':'rgba(17,58,42,.10)';
+    ctx.shadowBlur=Math.max(5,s*.016);ctx.stroke();
+    if(smoothGeoStroke(ctx,zone.route,w,h,s)){
+      ctx.strokeStyle=zone.type==='desert'?'rgba(255,222,142,.20)':
+        zone.type==='rainforest'?'rgba(131,190,103,.10)':
+        'rgba(230,231,174,.08)';
+      ctx.lineWidth=Math.max(1.0,width*.20);ctx.shadowBlur=0;ctx.stroke();
+    }
+    ctx.restore();painted++;
+  }
+  /* Major ranges get one broad shaded shoulder plus a narrow sunlit crest.
+     This reads as relief from normal viewing distance without becoming a row
+     of mountain symbols. */
+  for(const chain of mountainChains){
+    if(!continentCrestChains.has(chain.name))continue;
+    const zone={route:chain.route,width:Math.max(2.2,chain.width*2.5)};
+    const shoulder=clamp(geoBrushWidth(zone,w,h,s)*.82,s*.018,s*.060);
+    if(!smoothGeoStroke(ctx,chain.route,w,h,s))continue;
+    ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
+    ctx.strokeStyle=chain.snow?'rgba(39,67,62,.22)':'rgba(87,69,44,.20)';
+    ctx.lineWidth=shoulder;ctx.shadowColor='rgba(23,43,37,.16)';
+    ctx.shadowBlur=Math.max(4,s*.012);ctx.stroke();
+    if(smoothGeoStroke(ctx,chain.route,w,h,s)){
+      ctx.strokeStyle=chain.snow?'rgba(242,242,211,.34)':'rgba(236,197,124,.25)';
+      ctx.lineWidth=Math.max(1.1,shoulder*.20);ctx.shadowBlur=0;ctx.stroke();
+    }
+    ctx.restore();painted++;
+  }
+  ctx.restore();return painted;
+}
+
 /* Continuous world-space terrain shading. Sampling uses globeInverse, so the
    canvas pixels are coloured from actual longitude/latitude and cannot drift
    when the child rotates or zooms the globe. This is painterly illustrative
@@ -313,8 +383,8 @@ const terrainSamples=(features,step)=>features.flatMap((feature,z)=>{
 let terrainBiomeAnchors=null;
 let terrainRidgeAnchors=null;
 const terrainTint={
-  rainforest:[18,85,54],forest:[45,106,70],desert:[230,180,107],
-  savanna:[163,159,88],tundra:[156,181,165],ice:[225,243,232]
+  rainforest:[13,78,43],forest:[37,96,58],desert:[236,174,79],
+  savanna:[171,158,73],tundra:[151,180,164],ice:[229,246,235]
 };
 function terrainHash(x,y,salt){
   let n=(Math.imul(x,374761393)+Math.imul(y,668265263)+Math.imul(salt,1442695041))|0;
@@ -408,8 +478,8 @@ function paintWorldTerrain(ctx,w,h,s,level,moving){
         const leafy=bp&&(bp.kind==='rainforest'||bp.kind==='forest');
         const base=shade+mountainCut*85-mountainReach*32+reliefLight*94;
         const neutral=[118+base*.64,161+base*.75,115+base*.49];
-        const alpha=clamp(.30+biomeReach*.61+mountainReach*.45,.28,.94);
-        const mixT=clamp(biomeReach*1.19,0,.99);
+        const alpha=clamp(.36+biomeReach*.70+mountainReach*.52,.34,.98);
+        const mixT=clamp(biomeReach*1.29,0,.99);
         let red=neutral[0],green=neutral[1],blue=neutral[2];
         if(tint){
           red=red*(1-mixT)+tint[0]*mixT;
@@ -540,13 +610,13 @@ function paintMountainCrests(ctx,chain,w,h,s,level,width){
        tiny mountain symbols, even though their positions were correct. */
     ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
     if(!smoothGeoStroke(ctx,chain.route,w,h,s)){ctx.restore();return 0;}
-    ctx.strokeStyle=chain.snow?'rgba(48,84,76,.33)':'rgba(104,89,64,.28)';
-    ctx.lineWidth=Math.max(2.4,width*.64);ctx.stroke();
+    ctx.strokeStyle=chain.snow?'rgba(42,78,70,.44)':'rgba(94,76,51,.39)';
+    ctx.lineWidth=Math.max(3.0,width*.76);ctx.stroke();
     if(!smoothGeoStroke(ctx,chain.route,w,h,s)){ctx.restore();return 0;}
-    ctx.strokeStyle=chain.snow?'rgba(221,234,209,.34)':'rgba(222,195,142,.29)';
-    ctx.lineWidth=Math.max(1.0,width*.26);ctx.stroke();
+    ctx.strokeStyle=chain.snow?'rgba(226,239,212,.45)':'rgba(235,204,137,.39)';
+    ctx.lineWidth=Math.max(1.2,width*.32);ctx.stroke();
     if(chain.snow&&smoothGeoStroke(ctx,chain.route,w,h,s)){
-      ctx.strokeStyle='rgba(255,253,235,.34)';ctx.lineWidth=Math.max(.6,width*.085);ctx.stroke();
+      ctx.strokeStyle='rgba(255,253,235,.48)';ctx.lineWidth=Math.max(.72,width*.105);ctx.stroke();
     }
     ctx.restore();return 1;
   }
@@ -662,11 +732,11 @@ function paintGeographicTexture(ctx,w,h,s,level,moving){
     if(leafy&&level===1&&smoothGeoStroke(ctx,zone.route,w,h,s)){
       const canopyWidth=clamp(geoBrushWidth(zone,w,h,s)*.92,s*.018,s*.26);
       ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
-      ctx.strokeStyle=zone.type==='rainforest'?'rgba(20,91,57,.34)':'rgba(38,92,58,.30)';
-      ctx.lineWidth=canopyWidth;ctx.stroke();
+      ctx.strokeStyle=zone.type==='rainforest'?'rgba(14,82,47,.43)':'rgba(32,86,51,.38)';
+      ctx.lineWidth=canopyWidth*1.06;ctx.stroke();
       if(smoothGeoStroke(ctx,zone.route,w,h,s)){
-        ctx.strokeStyle=zone.type==='rainforest'?'rgba(137,194,108,.20)':'rgba(198,211,132,.18)';
-        ctx.lineWidth=Math.max(1,canopyWidth*.36);ctx.stroke();
+        ctx.strokeStyle=zone.type==='rainforest'?'rgba(148,204,111,.27)':'rgba(205,220,136,.24)';
+        ctx.lineWidth=Math.max(1.2,canopyWidth*.40);ctx.stroke();
       }
       ctx.restore();drawn++;
     }
@@ -871,6 +941,7 @@ function discoveryDraw(){
   /* Material pass replaces separate biome washes: the land reads as one painted surface. */
   const biomeCount=0;
   const fieldCount=paintWorldTerrain(ctx,w,h,s,level,moving);
+  const macroCount=paintContinentMasses(ctx,w,h,s,level,moving);
   /* A moving globe uses its base map without the expensive land clip for
      stationary-only detail. This saves an entire geometry pass per frame. */
   ctx.save();const validLand=!moving&&landClip(ctx,w,h);
@@ -882,15 +953,18 @@ function discoveryDraw(){
   ctx.restore();
   const polarCount=paintAntarcticIce(ctx,w,h,s);
   const seaCount=paintLandmarks(ctx,w,h,s,level,moving,true);
-  paintBorders(ctx,w,h,s,level);paintSmallCountries(ctx,w,h,s,level);
+  paintBorders(ctx,w,h,s,level);
+  paintSphereAtmosphere(ctx,w,h,s);
+  paintSmallCountries(ctx,w,h,s,level);
   const discoveryLocationCount=paintDiscoveryLocation(ctx,w,h,s,moving);
   if(typeof drawGlobePulse==='function')drawGlobePulse(ctx,w,h);
   ctx.restore();
   screen.dataset.discoveryGlobeLevel=String(level);screen.dataset.discoveryGlobe='painted-atlas-v1';
-  canvas.dataset.discoveryRenderer='live';canvas.dataset.discoveryTerrainField=String(fieldCount);canvas.dataset.discoveryEcosystems=String(biomeCount);canvas.dataset.discoveryRelief=String(reliefCount);canvas.dataset.discoveryTexture=String(textureCount);canvas.dataset.discoveryLandmarks=String(landmarkCount+terrainCount+reliefCount+textureCount+seaCount+biomeCount+fieldCount);canvas.dataset.discoveryMoving=String(moving);
+  canvas.dataset.discoveryRenderer='live';canvas.dataset.discoveryTerrainField=String(fieldCount);canvas.dataset.discoveryMacroRelief=String(macroCount);canvas.dataset.discoveryEcosystems=String(biomeCount);canvas.dataset.discoveryRelief=String(reliefCount);canvas.dataset.discoveryTexture=String(textureCount);canvas.dataset.discoveryLandmarks=String(landmarkCount+terrainCount+reliefCount+textureCount+seaCount+biomeCount+fieldCount);canvas.dataset.discoveryMoving=String(moving);
   canvas.dataset.discoveryLocationCount=String(discoveryLocationCount);
   canvas.dataset.discoveryLocationName=discoveryLocationCount?activeDiscoveryLocation.title:'';
   canvas.dataset.discoveryAntarcticLand=String(polarCount);
+  canvas.dataset.discoveryMaterialPass='continent-premium-v3';
   canvas.dataset.discoveryPaintCount=String(Number(canvas.dataset.discoveryPaintCount||0)+1);
   // v25 can still seed the old Tsjad showcase after selecting Oppdag.
   // Reconcile after the card update has completed, not inside its draw call.
@@ -1330,6 +1404,8 @@ const wait=()=>{
   };
   window.LARIA_SET_GLOBE_VIEW=chooseView;
   const canvas=document.getElementById('globe-canvas');
+  let trustedCountryRevealPending=false;
+  let lastTrustedCountryTapAt=0;
   if(canvas){
     // The input owner already updates the rotation before these passive events.
     // Do not clear selection for a tap: only a completed drag or zoom can
@@ -1340,14 +1416,40 @@ const wait=()=>{
       // frame, after the input owner has picked the country and removed its
       // pointer. Do not duplicate or intercept the original hit-test.
       const type=event.type,trusted=event.isTrusted;
-      requestAnimationFrame(()=>{
-        if(typeof globePointers!=='undefined'&&globePointers.size>0)return;
+      if(type==='pointercancel'){
+        trustedCountryRevealPending=false;
+        return;
+      }
+      if(type!=='pointerup'||!trusted)return;
+      trustedCountryRevealPending=true;
+      lastTrustedCountryTapAt=Date.now();
+      let settleFrames=0;
+      const settleTrustedTap=()=>{
+        /* Shared input and this passive Oppdag listener may run in either
+           order in WebKit. Wait for the actual shared state, not its pointer
+           registry cleanup. A true drag cancels; a real selected country
+           reveals its card. Six frames is bounded and well below a blink. */
         if(typeof globeMove==='number'&&globeMove>=8){
+          trustedCountryRevealPending=false;
           clearOffscreenDiscoverySelection();
           renderDiscoveryWelcome();
-        }else if(type==='pointerup'&&trusted&&globeSelected)
+          return;
+        }
+        if(globeSelected){
+          trustedCountryRevealPending=false;
           scrollShortDiscovery(true);
-      });
+          return;
+        }
+        if(settleFrames++<5)requestAnimationFrame(settleTrustedTap);
+        else trustedCountryRevealPending=false;
+      };
+      requestAnimationFrame(settleTrustedTap);
+      setTimeout(()=>{
+        const recent=Date.now()-lastTrustedCountryTapAt<1200;
+        if(recent&&window.__lariaDiscoveryGlobePreview===true&&globeSelected&&
+           (typeof globeMove!=='number'||globeMove<8))
+          scrollShortDiscovery(true);
+      },90);
     };
     canvas.addEventListener('pointerup',afterDrag,{passive:true});
     canvas.addEventListener('pointercancel',afterDrag,{passive:true});
@@ -1371,7 +1473,21 @@ const wait=()=>{
     new MutationObserver(()=>{
       if(pendingCompanion)return;
       pendingCompanion=true;
-      requestAnimationFrame(()=>{pendingCompanion=false;enhanceDiscoveryCountryCard();syncSelectorPosition()});
+      requestAnimationFrame(()=>{
+        pendingCompanion=false;
+        enhanceDiscoveryCountryCard();
+        syncSelectorPosition();
+        /* WebKit may finish the shared country-card mutation before this
+           passive plugin sees the pointer registry clear. The mutation is
+           therefore the reliable final signal that a trusted tap produced a
+           real country selection. Programmatic selections never set the flag. */
+        const recentTrustedTap=Date.now()-lastTrustedCountryTapAt<1200;
+        if((trustedCountryRevealPending||recentTrustedTap)&&
+           window.__lariaDiscoveryGlobePreview===true&&globeSelected){
+          trustedCountryRevealPending=false;
+          scrollShortDiscovery(true);
+        }
+      });
     }).observe(status,{childList:true,subtree:true});
   }
   controls.forEach(btn=>btn.addEventListener('click',()=>chooseView(btn.dataset.globeView)));

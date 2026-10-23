@@ -33,8 +33,13 @@ assert.match(preview,/function renderDiscoveryWelcome\(/,'Oppdag must present a 
 assert.match(preview,/function discoveryContinentForCamera\(/,'the invitation must follow the globe camera');
 assert.match(preview,/function scrollShortDiscovery\(/,'the small-phone flow must reveal the country card');
 assert.match(preview,/const type=event.type,trusted=event.isTrusted;/,'only real child taps may auto-scroll the discovery screen');
-assert.match(preview,/type==='pointerup'&&trusted&&globeSelected/,'the selected country must be confirmed after globe input');
-assert.match(preview,/requestAnimationFrame\(\(\)=>\{\s*if\(typeof globePointers/,'the tap callback must run after the original input owner');
+assert.match(preview,/const settleTrustedTap=\(\)=>\{[\s\S]*settleFrames\+\+<5[\s\S]*requestAnimationFrame\(settleTrustedTap\)/,
+  'trusted taps must tolerate either WebKit listener order without depending on pointer-registry cleanup');
+assert.match(preview,/let trustedCountryRevealPending=false;/,'short-phone reveal must remember a trusted child tap');
+assert.match(preview,/\(trustedCountryRevealPending\|\|recentTrustedTap\)[\s\S]*window\.__lariaDiscoveryGlobePreview===true&&globeSelected/,
+  'country-card mutation must provide the WebKit fallback reveal after a recent trusted tap');
+assert.match(preview,/lastTrustedCountryTapAt=Date\.now\(\)/,
+  'trusted child taps must retain a short-lived timestamp across WebKit pointer cleanup');
 assert.match(preview,/const discoveryContinentStops=\[/,'Oppdag must define grounded continent destinations');
 assert.match(preview,/const discoveryContinentStories=\{/,'each continent needs optional guided places');
 assert.match(preview,/function paintAntarcticIce\(/,'Antarctic geography must be visible on the new globe');
@@ -144,6 +149,14 @@ assert.match(preview,/function ocean\([^{]*\)\{[\s\S]*?Gentle currents retain a 
   'overview water must use illustrated currents rather than a cartographic latitude grid');
 assert.match(preview,/const glaze=ctx\.createLinearGradient/,
   'the discovery ocean needs a broad light-to-depth glaze beneath its currents');
+assert.match(preview,/function paintSphereAtmosphere\(/,
+  'Oppdag needs a dedicated spherical light pass so the globe reads above the storyscape');
+assert.match(preview,/dataset\.discoveryMaterialPass='continent-premium-v3'/,
+  'QA must expose the macro-relief premium continent material pass');
+assert.match(preview,/function paintContinentMasses\(/,
+  'continent zoom needs broad land-clipped biome and mountain material masses');
+assert.match(preview,/dataset\.discoveryMacroRelief=/,
+  'QA must expose how many continent-scale material masses were painted');
 assert.match(preview,/ctx\.lineWidth=Math\.max\(2\.2,s\*\.0072\)/,
   'ocean currents need a broad translucent undercurrent, not only hairlines');
 assert.doesNotMatch(preview,/for\(const lat of \[-60,-30,0,30,60\]\)/,
