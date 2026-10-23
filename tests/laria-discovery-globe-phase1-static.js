@@ -149,8 +149,12 @@ assert.match(preview,/const glaze=ctx\.createLinearGradient/,
   'the discovery ocean needs a broad light-to-depth glaze beneath its currents');
 assert.match(preview,/function paintSphereAtmosphere\(/,
   'Oppdag needs a dedicated spherical light pass so the globe reads above the storyscape');
-assert.match(preview,/dataset\.discoveryMaterialPass='continent-premium-v2'/,
-  'QA must expose the strengthened premium continent material pass');
+assert.match(preview,/dataset\.discoveryMaterialPass='continent-premium-v3'/,
+  'QA must expose the macro-relief premium continent material pass');
+assert.match(preview,/function paintContinentMasses\(/,
+  'continent zoom needs broad land-clipped biome and mountain material masses');
+assert.match(preview,/dataset\.discoveryMacroRelief=/,
+  'QA must expose how many continent-scale material masses were painted');
 assert.match(preview,/ctx\.lineWidth=Math\.max\(2\.2,s\*\.0072\)/,
   'ocean currents need a broad translucent undercurrent, not only hairlines');
 assert.doesNotMatch(preview,/for\(const lat of \[-60,-30,0,30,60\]\)/,
