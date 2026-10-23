@@ -94,9 +94,11 @@
       '<p>Velg et ord. Finn riktig ting!</p></div>'+
       '<button type="button" class="fw-audio" aria-label="Les opp oppgaven">♪ <span>Hør</span></button></header>'+
       '<div class="fw-layout"><aside class="fw-word-panel" aria-labelledby="fw-list-title">'+
-      '<div class="fw-list-heading"><div><span class="fw-tiny">SKOGENS HEMMELIGHETER</span>'+
-      '<h2 id="fw-list-title">1. Velg et ord</h2></div><span class="fw-counter"></span></div>'+
+      '<div class="fw-list-heading"><div><span class="fw-tiny">'+(garden?'DEN HEMMELIGE HAGEN':'BOKSKOGEN')+'</span>'+
+      '<h2 id="fw-list-title">Finn ordene</h2></div><span class="fw-counter"></span></div>'+
+      '<p class="fw-panel-copy">Se deg rundt i '+(garden?'den hemmelige hagen':'Bokskogen')+'. Velg et ord og finn tingen i bildet.</p>'+
       '<div class="fw-list" role="list"></div><div class="fw-progress" aria-hidden="true"><span></span></div>'+
+      '<button type="button" class="fw-hint">💡 Hint</button>'+
       '<p class="fw-list-foot">Trykk på ordet og finn tingen, eller dra ordet rett til bildet.</p></aside>'+
       '<div class="fw-stage"><div class="fw-stage-label"><strong class="fw-active-target" role="status" aria-live="polite">2. Finn ordet i bildet</strong><span aria-hidden="true">✦</span></div>'+
       '<div class="fw-art" role="group" aria-label="Eventyrbilde med ting du kan finne">'+
@@ -104,8 +106,7 @@
       '<img src="'+scene+'" class="fw-scene-image" alt="'+sceneAlt+'" draggable="false">'+
       objectButtons()+'<svg class="fw-fx" viewBox="0 0 1200 720" preserveAspectRatio="none" aria-hidden="true"></svg>'+
       '<div class="fw-celebration" hidden aria-hidden="true">✦ ✧ ✦</div></div></div>'+
-      '<div class="fw-scene-bottom"><span class="fw-scenery-caption">Trykk på et ord eller dra det til tingen.</span>'+
-      '<button type="button" class="fw-hint">💡 Vis meg et hint</button></div></div></div>'+
+      '<div class="fw-scene-bottom"><span class="fw-scenery-caption">Trykk på et ord eller dra det til tingen.</span></div></div></div>'+
       '<footer class="fw-bottom"><div class="fw-companion" data-mood="idle">'+
       '<button type="button" class="fw-fox-button" aria-label="Spør reven om et hint"><img class="fw-fox" src="'+fox.source+'" alt="'+fox.label+'" draggable="false"></button>'+ 
       '<div class="fw-speech" role="status" aria-live="polite">Jeg blir med! Velg et ord, så finner vi tingen.</div></div>'+
