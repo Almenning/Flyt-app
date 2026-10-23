@@ -121,6 +121,11 @@
  function fruitSupply(free){
    return '<button type="button" class="gm-pick gm-strawberry-tray'+(!free?(holdingBerry?' gm-berry-held':' gm-pick-invite'):'')+'" data-gm-action="source" aria-label="'+(free?'Plukk et jordbær og legg det i neste ledige kurv':'Plukk et jordbær. Dra det til en kurv, eller trykk på kurven etterpå.')+'"><span class="gm-pick-fruit" aria-hidden="true">'+(free?berrySvg:berrySourceArt)+'</span><span>'+(free?'Plukk et jordbær':'Plukk et jordbær')+'</span><small>'+(free?'Trykk eller dra':holdingBerry?'Trykk på en kurv':'Dra eller trykk')+'</small></button>';
  }
+ function groupCounts(){
+   return '<div class="gm-group-counts" aria-label="Kurvene inneholder '+state.counts.join(', ')+' jordbær">'+
+     state.counts.map((count,index)=>'<span class="gm-group-count" data-gm-group-count="'+index+'"><b>'+count+'</b><small>Kurv '+(index+1)+'</small></span>').join('<i aria-hidden="true">+</i>')+
+     '</div>';
+ }
  function render(){
    const prevFocus=root.contains(document.activeElement)?document.activeElement:null;
    const focusKey=prevFocus?.dataset?.gmAction?{action:prevFocus.dataset.gmAction,group:prevFocus.dataset.group,basket:prevFocus.dataset.gmBasket}:null;
@@ -157,7 +162,7 @@
        (!free&&!complete?'<div class="gm-market-fruit-supply">'+fruitSupply(false)+'</div>':'')+
        '<p class="gm-play-hint">'+(complete?'Se hva du har laget! Du kan endre kurvene eller fortsette.':free?(state.groups>=4?'Trykk på kurvene. Sveip sidelengs for å se alle.':'Trykk på en kurv for å legge i et jordbær'):(holdingBerry?'Trykk på kurven du vil legge jordbæret i.':'Dra jordbær til kurvene, eller trykk på jordbær og deretter en kurv.'))+'</p></div>'+
        '</div>'+
-       '<div class="gm-math"><div class="gm-math-label"><span>'+(complete?'Se sammenhengen':'Oppdraget')+'</span><span class="gm-goal">'+state.groups+' × '+state.each+' = '+(complete?sum:'?')+'</span></div>'+
+       '<div class="gm-math"><div class="gm-math-label"><span>'+(complete?'Se sammenhengen':'Tell kurvene')+'</span><span class="gm-goal">'+state.groups+' × '+state.each+' = '+(complete?sum:'?')+'</span></div>'+groupCounts()+
          '<div class="gm-math-equation '+(complete?'gm-equation-win':'')+'" aria-label="'+esc(equation)+'">'+esc(equation)+'</div>'+
          (!free&&complete?'<div class="gm-math-addition" aria-label="Gjentatt addisjon: '+esc(result.addition)+'">'+esc(result.addition)+'</div>':'')+
          (free?'<div class="gm-progress-track" role="progressbar" aria-label="Jordbær pakket" aria-valuemin="0" aria-valuemax="'+goal+'" aria-valuenow="'+sum+'"><span style="width:'+progress+'%"></span></div>':'')+
