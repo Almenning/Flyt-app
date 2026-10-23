@@ -41,3 +41,10 @@ Retningen er tydeligere og nærmere den låste komposisjonen: handlingen er saml
 - Koblet nytt miljø til den ekte Gangemagi-scenen i `gangemagi-dagens-oppdrag-v1.css`. iPad-oppdragstavlens vertikale padding er redusert for å gi større visuell plass til de interaktive kurvene.
 - Ingen endringer i JavaScript, matematikk, personlig rev eller progresjon.
 - Fremdeles draft. Chromium/WebKit- og skjermbildekontroll på commit `70b496d` er nødvendig før ny visuell vurdering, merge eller publisering.
+
+
+### 23.10.2026 – illustrert merke og integrert plukkekasse (release40)
+- Ny tekstfri illustrasjon `gangemagi-title-brand-premium.svg`: ekte, håndtegnet tre- og blomstertema med Lærias tilgjengelige Gangemagi-overskrift lagt på som levende DOM.
+- Jordbærkassens frittstående, korallrøde CTA er omgjort til en fysisk treplakett på kassen. Samme ekte trykk-/draflate, matte, personlig rev og lagret progresjon.
+- Nye tester verifiserer illustrasjonsfilen, levende tekst, minimum skriftstørrelse og ekte fysisk sammenheng mellom plankefronten og den interaktive kassen. Ingen gamle tester fjernet.
+- HTML/CSS/JS og serviceworker-versjon er oppdatert til release40. **Ingen merge eller publisering før eksakt-HEAD Chromium/WebKit og manuell visuell aksept.**

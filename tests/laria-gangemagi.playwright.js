@@ -229,6 +229,21 @@ async function check(engine,label,viewport,url){
     label+' reference wicker resource must decode in Chromium AND WebKit '+JSON.stringify(wickerImages));
   // The quest board is an individually authored SVG illustration behind live DOM.
   // A flat screenshot, a CSS-only box, or a missing asset does not meet the lock.
+  if(viewport.width>=700&&viewport.height>=650){
+    const brand=await page.request.get(new URL('gangemagi-title-brand-premium.svg',url).href);
+    assert.equal(brand.status(),200,label+' ornate Tallenga sign must load');
+    assert.match(brand.headers()['content-type'],/image\/svg\+xml/);
+    assert.doesNotMatch(await brand.text(),/<text(?:\s|>)|<foreignObject(?:\s|>)/i,
+      label+' title remains editable, accessible DOM, not baked into the sign');
+    const title=await page.locator('.gm-top-title').evaluate(el=>({
+      image:getComputedStyle(el).backgroundImage,
+      text:el.querySelector('h1')?.textContent.trim(),
+      font:parseFloat(getComputedStyle(el.querySelector('h1')).fontSize)
+    }));
+    assert.match(title.image,/gangemagi-title-brand-premium\.svg/);
+    assert.equal(title.text,'Gangemagi');
+    assert.ok(title.font>=24,label+' readable wooden chapter sign '+JSON.stringify(title));
+  }
   const paintedBoard=await page.request.get(new URL('gangemagi-quest-board-painted.svg',url).href);
   assert.equal(paintedBoard.status(),200,'painted wooden quest board asset is available');
   assert.match(await paintedBoard.text(),/preserveAspectRatio="none"/,
@@ -348,6 +363,20 @@ async function check(engine,label,viewport,url){
   assert.ok(first.scrollWidth<=first.screen+4,label+' horizontal overflow '+JSON.stringify(first));
   assert.equal(await page.locator('.gm-market-fruit-supply .gm-pick').count(),1,
     label+' the real strawberry supply belongs in the illustrated market');
+  if(viewport.width>=900&&viewport.height>=650){
+    const front=await page.locator('.gm-market-fruit-supply .gm-pick').evaluate(el=>{
+      const crate=el.querySelector('.gm-pick-fruit').getBoundingClientRect();
+      const plaque=el.children[1].getBoundingClientRect();
+      const style=getComputedStyle(el.children[1]);
+      return {overlap:crate.bottom-plaque.top,plaqueHeight:plaque.height,
+        frontText:el.children[1].textContent.trim(),wood:style.backgroundImage};
+    });
+    assert.ok(front.overlap>=12&&front.plaqueHeight>=44,
+      label+' front must be a connected legible 44px+ wood plaque '+JSON.stringify(front));
+    assert.match(front.wood,/repeating-linear-gradient/,
+      label+' physical source needs illustrated wood grain, not a coral CTA');
+    assert.match(front.frontText,/Plukk et jordbær/);
+  }
   assert.equal(await page.locator('.gm-basket-inner').count(),3,
     label+' every transparent wicker basket needs a stable painted interior');
   assert.ok(first.source.top>first.crate.top&&first.source.bottom<=first.math.top+6,
