@@ -35,6 +35,9 @@ assert.match(preview,/function scrollShortDiscovery\(/,'the small-phone flow mus
 assert.match(preview,/const type=event.type,trusted=event.isTrusted;/,'only real child taps may auto-scroll the discovery screen');
 assert.match(preview,/type==='pointerup'&&trusted&&globeSelected/,'the selected country must be confirmed after globe input');
 assert.match(preview,/const settleAfterPointer=\(\)=>\{[\s\S]*settleFrames\+\+<2[\s\S]*requestAnimationFrame\(settleAfterPointer\)/,'the tap callback must tolerate shared pointer cleanup arriving one or two frames later');
+assert.match(preview,/let trustedCountryRevealPending=false;/,'short-phone reveal must remember a trusted child tap');
+assert.match(preview,/trustedCountryRevealPending&&window\.__lariaDiscoveryGlobePreview===true&&globeSelected/,
+  'country-card mutation must provide the WebKit fallback reveal after a trusted tap');
 assert.match(preview,/const discoveryContinentStops=\[/,'Oppdag must define grounded continent destinations');
 assert.match(preview,/const discoveryContinentStories=\{/,'each continent needs optional guided places');
 assert.match(preview,/function paintAntarcticIce\(/,'Antarctic geography must be visible on the new globe');
