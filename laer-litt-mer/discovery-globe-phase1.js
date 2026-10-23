@@ -310,6 +310,57 @@ function paintBiomes(ctx,w,h,s,moving){
 }
 
 
+/* Continent-scale material masses. The detailed terrain field below gives
+   local texture, but a seven-year-old should also read the big geography at a
+   glance: Sahara, rainforest and major mountain belts. These are broad,
+   land-clipped strokes along the same longitude/latitude corridors already
+   used by the renderer. They are not screen-space icons. */
+function paintContinentMasses(ctx,w,h,s,level,moving){
+  if(moving||level!==1)return 0;
+  ctx.save();if(!landClip(ctx,w,h)){ctx.restore();return 0;}
+  let painted=0;
+  for(const zone of landscapeZones){
+    if(!smoothGeoStroke(ctx,zone.route,w,h,s))continue;
+    const width=clamp(geoBrushWidth(zone,w,h,s)*.88,s*.022,s*.28);
+    const tone=zone.type==='rainforest'?'rgba(7,67,38,.30)':
+      zone.type==='forest'?'rgba(27,78,45,.23)':
+      zone.type==='desert'?'rgba(225,151,50,.28)':
+      zone.type==='savanna'?'rgba(157,144,62,.18)':
+      zone.type==='tundra'?'rgba(139,171,158,.18)':
+      'rgba(229,245,236,.24)';
+    ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
+    ctx.strokeStyle=tone;ctx.lineWidth=width;
+    ctx.shadowColor=zone.type==='desert'?'rgba(120,77,29,.13)':'rgba(17,58,42,.14)';
+    ctx.shadowBlur=Math.max(3,s*.010);ctx.stroke();
+    if(smoothGeoStroke(ctx,zone.route,w,h,s)){
+      ctx.strokeStyle=zone.type==='desert'?'rgba(255,222,142,.20)':
+        zone.type==='rainforest'?'rgba(131,190,103,.13)':
+        'rgba(230,231,174,.11)';
+      ctx.lineWidth=Math.max(1.2,width*.29);ctx.shadowBlur=0;ctx.stroke();
+    }
+    ctx.restore();painted++;
+  }
+  /* Major ranges get one broad shaded shoulder plus a narrow sunlit crest.
+     This reads as relief from normal viewing distance without becoming a row
+     of mountain symbols. */
+  for(const chain of mountainChains){
+    if(!continentCrestChains.has(chain.name))continue;
+    const zone={route:chain.route,width:Math.max(2.2,chain.width*2.5)};
+    const shoulder=clamp(geoBrushWidth(zone,w,h,s),s*.021,s*.075);
+    if(!smoothGeoStroke(ctx,chain.route,w,h,s))continue;
+    ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
+    ctx.strokeStyle=chain.snow?'rgba(39,67,62,.28)':'rgba(87,69,44,.25)';
+    ctx.lineWidth=shoulder;ctx.shadowColor='rgba(23,43,37,.20)';
+    ctx.shadowBlur=Math.max(3,s*.009);ctx.stroke();
+    if(smoothGeoStroke(ctx,chain.route,w,h,s)){
+      ctx.strokeStyle=chain.snow?'rgba(242,242,211,.42)':'rgba(236,197,124,.32)';
+      ctx.lineWidth=Math.max(1.3,shoulder*.24);ctx.shadowBlur=0;ctx.stroke();
+    }
+    ctx.restore();painted++;
+  }
+  ctx.restore();return painted;
+}
+
 /* Continuous world-space terrain shading. Sampling uses globeInverse, so the
    canvas pixels are coloured from actual longitude/latitude and cannot drift
    when the child rotates or zooms the globe. This is painterly illustrative
@@ -890,6 +941,7 @@ function discoveryDraw(){
   /* Material pass replaces separate biome washes: the land reads as one painted surface. */
   const biomeCount=0;
   const fieldCount=paintWorldTerrain(ctx,w,h,s,level,moving);
+  const macroCount=paintContinentMasses(ctx,w,h,s,level,moving);
   /* A moving globe uses its base map without the expensive land clip for
      stationary-only detail. This saves an entire geometry pass per frame. */
   ctx.save();const validLand=!moving&&landClip(ctx,w,h);
@@ -908,11 +960,11 @@ function discoveryDraw(){
   if(typeof drawGlobePulse==='function')drawGlobePulse(ctx,w,h);
   ctx.restore();
   screen.dataset.discoveryGlobeLevel=String(level);screen.dataset.discoveryGlobe='painted-atlas-v1';
-  canvas.dataset.discoveryRenderer='live';canvas.dataset.discoveryTerrainField=String(fieldCount);canvas.dataset.discoveryEcosystems=String(biomeCount);canvas.dataset.discoveryRelief=String(reliefCount);canvas.dataset.discoveryTexture=String(textureCount);canvas.dataset.discoveryLandmarks=String(landmarkCount+terrainCount+reliefCount+textureCount+seaCount+biomeCount+fieldCount);canvas.dataset.discoveryMoving=String(moving);
+  canvas.dataset.discoveryRenderer='live';canvas.dataset.discoveryTerrainField=String(fieldCount);canvas.dataset.discoveryMacroRelief=String(macroCount);canvas.dataset.discoveryEcosystems=String(biomeCount);canvas.dataset.discoveryRelief=String(reliefCount);canvas.dataset.discoveryTexture=String(textureCount);canvas.dataset.discoveryLandmarks=String(landmarkCount+terrainCount+reliefCount+textureCount+seaCount+biomeCount+fieldCount);canvas.dataset.discoveryMoving=String(moving);
   canvas.dataset.discoveryLocationCount=String(discoveryLocationCount);
   canvas.dataset.discoveryLocationName=discoveryLocationCount?activeDiscoveryLocation.title:'';
   canvas.dataset.discoveryAntarcticLand=String(polarCount);
-  canvas.dataset.discoveryMaterialPass='continent-premium-v2';
+  canvas.dataset.discoveryMaterialPass='continent-premium-v3';
   canvas.dataset.discoveryPaintCount=String(Number(canvas.dataset.discoveryPaintCount||0)+1);
   // v25 can still seed the old Tsjad showcase after selecting Oppdag.
   // Reconcile after the card update has completed, not inside its draw call.
