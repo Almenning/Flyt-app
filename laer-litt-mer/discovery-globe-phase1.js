@@ -75,6 +75,10 @@ const landscapeZones=[
   {name:'North Australian tropics',type:'savanna',width:7,route:[[124,-15],[132,-15],[140,-17]]},
   {name:'Madagascar eastern forest',type:'forest',width:4,route:[[49,-14],[48,-18],[47,-22]]}
 ];
+const movingMaterialZoneNames=new Set([
+  'Amazonas rainforest','Congo rainforest','Northern Asian taiga',
+  'Sahara dune seas','Australian outback','Greenland ice'
+]);
 const ecosystemPalette={
   forest:['#296D51','#438A60','#8CB17B'],
   rainforest:['#1E704F','#298754','#79AD69'],
@@ -216,6 +220,25 @@ function paintMovingLandMaterial(ctx,w,h,s,level){
   depth.addColorStop(.68,'rgba(18,62,57,.035)');
   depth.addColorStop(1,'rgba(18,62,57,0)');
   ctx.fillStyle=depth;ctx.fillRect(0,0,w,h);
+  /* A handful of soft continent pigments keep the world's identity while
+     moving. Each zone is one blurred-looking radial wash, never a corridor
+     stroke, so Sahara/Amazonas read as material rather than map bands. */
+  for(const zone of landscapeZones){
+    if(!movingMaterialZoneNames.has(zone.name))continue;
+    const center=zone.route[Math.floor(zone.route.length/2)];
+    const p=project(center[0],center[1],w,h);if(!p||p[2]<.17)continue;
+    const radius=clamp(geoBrushWidth(zone,w,h,s)*.58*detailScale,s*.018,s*.082);
+    ctx.save();ctx.translate(p[0],p[1]);ctx.scale(1.65,.78);
+    const wash=ctx.createRadialGradient(0,0,0,0,0,radius);
+    const centerTone=zone.type==='desert'?'rgba(228,170,79,.13)':
+      zone.type==='rainforest'?'rgba(15,79,46,.12)':
+      zone.type==='forest'?'rgba(40,92,55,.085)':
+      zone.type==='ice'?'rgba(226,244,236,.13)':
+      'rgba(157,153,82,.08)';
+    wash.addColorStop(0,centerTone);wash.addColorStop(.58,'rgba(255,255,255,.018)');wash.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=wash;ctx.beginPath();ctx.arc(0,0,radius,0,Math.PI*2);ctx.fill();
+    ctx.restore();painted++;
+  }
   for(const chain of mountainChains){
     if(!continentCrestChains.has(chain.name))continue;
     const zone={route:chain.route,width:Math.max(2.2,chain.width*2.5)};
