@@ -321,22 +321,22 @@ function paintContinentMasses(ctx,w,h,s,level,moving){
   let painted=0;
   for(const zone of landscapeZones){
     if(!smoothGeoStroke(ctx,zone.route,w,h,s))continue;
-    const width=clamp(geoBrushWidth(zone,w,h,s)*.88,s*.022,s*.28);
-    const tone=zone.type==='rainforest'?'rgba(7,67,38,.30)':
-      zone.type==='forest'?'rgba(27,78,45,.23)':
-      zone.type==='desert'?'rgba(225,151,50,.28)':
-      zone.type==='savanna'?'rgba(157,144,62,.18)':
-      zone.type==='tundra'?'rgba(139,171,158,.18)':
-      'rgba(229,245,236,.24)';
+    const width=clamp(geoBrushWidth(zone,w,h,s)*.72,s*.018,s*.22);
+    const tone=zone.type==='rainforest'?'rgba(7,67,38,.22)':
+      zone.type==='forest'?'rgba(27,78,45,.17)':
+      zone.type==='desert'?'rgba(225,151,50,.20)':
+      zone.type==='savanna'?'rgba(157,144,62,.13)':
+      zone.type==='tundra'?'rgba(139,171,158,.12)':
+      'rgba(229,245,236,.18)';
     ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
     ctx.strokeStyle=tone;ctx.lineWidth=width;
-    ctx.shadowColor=zone.type==='desert'?'rgba(120,77,29,.13)':'rgba(17,58,42,.14)';
-    ctx.shadowBlur=Math.max(3,s*.010);ctx.stroke();
+    ctx.shadowColor=zone.type==='desert'?'rgba(120,77,29,.10)':'rgba(17,58,42,.10)';
+    ctx.shadowBlur=Math.max(5,s*.016);ctx.stroke();
     if(smoothGeoStroke(ctx,zone.route,w,h,s)){
       ctx.strokeStyle=zone.type==='desert'?'rgba(255,222,142,.20)':
-        zone.type==='rainforest'?'rgba(131,190,103,.13)':
-        'rgba(230,231,174,.11)';
-      ctx.lineWidth=Math.max(1.2,width*.29);ctx.shadowBlur=0;ctx.stroke();
+        zone.type==='rainforest'?'rgba(131,190,103,.10)':
+        'rgba(230,231,174,.08)';
+      ctx.lineWidth=Math.max(1.0,width*.20);ctx.shadowBlur=0;ctx.stroke();
     }
     ctx.restore();painted++;
   }
@@ -346,15 +346,15 @@ function paintContinentMasses(ctx,w,h,s,level,moving){
   for(const chain of mountainChains){
     if(!continentCrestChains.has(chain.name))continue;
     const zone={route:chain.route,width:Math.max(2.2,chain.width*2.5)};
-    const shoulder=clamp(geoBrushWidth(zone,w,h,s),s*.021,s*.075);
+    const shoulder=clamp(geoBrushWidth(zone,w,h,s)*.82,s*.018,s*.060);
     if(!smoothGeoStroke(ctx,chain.route,w,h,s))continue;
     ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
-    ctx.strokeStyle=chain.snow?'rgba(39,67,62,.28)':'rgba(87,69,44,.25)';
-    ctx.lineWidth=shoulder;ctx.shadowColor='rgba(23,43,37,.20)';
-    ctx.shadowBlur=Math.max(3,s*.009);ctx.stroke();
+    ctx.strokeStyle=chain.snow?'rgba(39,67,62,.22)':'rgba(87,69,44,.20)';
+    ctx.lineWidth=shoulder;ctx.shadowColor='rgba(23,43,37,.16)';
+    ctx.shadowBlur=Math.max(4,s*.012);ctx.stroke();
     if(smoothGeoStroke(ctx,chain.route,w,h,s)){
-      ctx.strokeStyle=chain.snow?'rgba(242,242,211,.42)':'rgba(236,197,124,.32)';
-      ctx.lineWidth=Math.max(1.3,shoulder*.24);ctx.shadowBlur=0;ctx.stroke();
+      ctx.strokeStyle=chain.snow?'rgba(242,242,211,.34)':'rgba(236,197,124,.25)';
+      ctx.lineWidth=Math.max(1.1,shoulder*.20);ctx.shadowBlur=0;ctx.stroke();
     }
     ctx.restore();painted++;
   }
