@@ -13,14 +13,14 @@
     sekk:{label:'sekk',clue:'Se ved stien, i nærheten av treet.',x:19,y:72,w:13,h:19},
     bat:{label:'båt',clue:'Noe flyter ved bryggen.',x:47,y:75,w:15,h:18},
     fugl:{label:'fugl',clue:'Noe med vinger sitter i et tre.',x:70,y:37,w:13,h:17},
-    eple:{label:'eple',clue:'Se etter noe rødt som vokser på et tre.',x:19,y:33,w:11,h:17},
-    ugle:{label:'ugle',clue:'En nattfugl sitter på en grein.',x:34,y:30,w:13,h:20},
-    sommerfugl:{label:'sommerfugl',clue:'Noe med fargerike vinger flyr over hagen.',x:57,y:25,w:17,h:22},
-    lykt:{label:'lykt',clue:'Se etter det som lyser fra greina.',x:79,y:31,w:14,h:27},
-    bro:{label:'bro',clue:'Hva går over vannet uten å bli vått?',x:45,y:56,w:27,h:22},
-    sopp:{label:'sopp',clue:'En rød hatt med hvite prikker står i gresset.',x:8,y:74,w:14,h:23},
-    bok:{label:'bok',clue:'Noe med sider ligger åpent ved bekken.',x:29,y:75,w:21,h:22},
-    pinnsvin:{label:'pinnsvin',clue:'Et lite dyr med pigger rusler ved elvebredden.',x:79,y:74,w:20,h:23}
+    eple:{label:'eple',clue:'Se etter noe rødt som vokser på et tre.',x:7,y:5,w:18,h:24},
+    ugle:{label:'ugle',clue:'En nattfugl sitter på en grein.',x:20,y:10,w:16,h:23},
+    sommerfugl:{label:'sommerfugl',clue:'Noe med fargerike vinger flyr over hagen.',x:48,y:3,w:17,h:20},
+    lykt:{label:'lykt',clue:'Se etter det som lyser fra greina.',x:27,y:19,w:15,h:25},
+    bro:{label:'bro',clue:'Hva går over vannet uten å bli vått?',x:30,y:42,w:37,h:26},
+    sopp:{label:'sopp',clue:'En rød hatt med hvite prikker står i gresset.',x:69,y:67,w:17,h:27},
+    bok:{label:'bok',clue:'Noe med sider ligger åpent ved bekken.',x:0,y:66,w:29,h:23},
+    pinnsvin:{label:'pinnsvin',clue:'Et lite dyr med pigger rusler ved elvebredden.',x:82,y:65,w:18,h:27}
   });
   const FOREST_IDS=Object.freeze(['sol','tre','telt','vann','rev','sekk','bat','fugl']);
   const GARDEN_IDS=Object.freeze(['eple','ugle','sommerfugl','lykt','bro','sopp','bok','pinnsvin']);
@@ -84,7 +84,7 @@
   }
   function markup(){
     const fox=chosenFox(),garden=sceneId()==='garden';
-    const scene= garden?'./find-the-words-garden.svg?v=20261023-premiumgarden2':'./find-the-words-scene.svg?v=20261018-a';
+    const scene= garden?'./find-the-words-garden-premium.webp?v=20261023-premiumgarden3':'./find-the-words-scene.svg?v=20261018-a';
     const sceneAlt=garden?
       'Magisk hage med rødt eple, ugle, sommerfugl, lykt, liten bro, sopp, bok og pinnsvin':
       'Illustrert skog med vann, telt, sol og mange små oppdagelser';

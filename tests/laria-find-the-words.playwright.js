@@ -279,7 +279,7 @@ async function run(engine,label,viewport,url,avatar){
    // New adventures alternate, presenting a genuinely DIFFERENT painted world.
    const gardenImage=page.locator('.fw-scene-image');
    await gardenImage.evaluate(img=>img.decode());
-   assert.match(await gardenImage.getAttribute('src'),/find-the-words-garden\.svg/,
+   assert.match(await gardenImage.getAttribute('src'),/find-the-words-garden-premium\.webp/,
      'The next adventure must have its own illustrated garden');
    assert.equal(await page.locator('.fw-word.is-found').count(),0,'Garden progress did not begin cleanly');
    assert.deepEqual((await page.locator('.fw-word strong').allTextContents()).sort(),
@@ -317,7 +317,7 @@ async function run(engine,label,viewport,url,avatar){
    await page.waitForFunction(()=>typeof window.openFindTheWords==='function');
    await page.locator('.bc12-nav [data-camp="explore"]').click();
    await page.locator('.bc13-panel:not([hidden]) [data-bc13-action="find-words"]').click();
-   assert.match(await page.locator('.fw-scene-image').getAttribute('src'),/find-the-words-garden\.svg/,
+   assert.match(await page.locator('.fw-scene-image').getAttribute('src'),/find-the-words-garden-premium\.webp/,
      'The child did not return to their saved garden');
    assert.equal(await page.locator('.fw-word[data-fw-read="ugle"]').getAttribute('aria-pressed'),'true',
      'Garden-selected word was lost on reload');
