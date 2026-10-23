@@ -21,7 +21,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: laria-find-words-${{ github.ref }}
+  group: laria-find-words-container-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
