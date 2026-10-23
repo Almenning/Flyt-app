@@ -886,6 +886,13 @@
     margin-left:0;
   }
   .gm-shell[data-gm-mode="mission"] .gm-math{z-index:6}
+  /* Completion removes the berry supply and shortens the market, while the
+     portrait fox and speech remain absolutely positioned. Reserve their real
+     height so maths, reward and next action sit below the guide instead of
+     being painted underneath it. */
+  .gm-shell[data-gm-mode="mission"][data-gm-complete="true"] .gm-scene{
+    padding-bottom:140px;
+  }
   .gm-shell[data-gm-mode="mission"] .gm-market{padding-top:4px}
   .gm-shell[data-gm-mode="mission"] .gm-crate{height:clamp(144px,19vw,188px)}
   .gm-shell[data-gm-mode="mission"] .gm-pick.gm-strawberry-tray{
