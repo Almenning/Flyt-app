@@ -1405,6 +1405,7 @@ const wait=()=>{
   window.LARIA_SET_GLOBE_VIEW=chooseView;
   const canvas=document.getElementById('globe-canvas');
   let trustedCountryRevealPending=false;
+  let lastTrustedCountryTapAt=0;
   if(canvas){
     // The input owner already updates the rotation before these passive events.
     // Do not clear selection for a tap: only a completed drag or zoom can
@@ -1421,6 +1422,7 @@ const wait=()=>{
       }
       if(type!=='pointerup'||!trusted)return;
       trustedCountryRevealPending=true;
+      lastTrustedCountryTapAt=Date.now();
       let settleFrames=0;
       const settleTrustedTap=()=>{
         /* Shared input and this passive Oppdag listener may run in either
@@ -1442,6 +1444,12 @@ const wait=()=>{
         else trustedCountryRevealPending=false;
       };
       requestAnimationFrame(settleTrustedTap);
+      setTimeout(()=>{
+        const recent=Date.now()-lastTrustedCountryTapAt<1200;
+        if(recent&&window.__lariaDiscoveryGlobePreview===true&&globeSelected&&
+           (typeof globeMove!=='number'||globeMove<8))
+          scrollShortDiscovery(true);
+      },90);
     };
     canvas.addEventListener('pointerup',afterDrag,{passive:true});
     canvas.addEventListener('pointercancel',afterDrag,{passive:true});
@@ -1473,7 +1481,9 @@ const wait=()=>{
            passive plugin sees the pointer registry clear. The mutation is
            therefore the reliable final signal that a trusted tap produced a
            real country selection. Programmatic selections never set the flag. */
-        if(trustedCountryRevealPending&&window.__lariaDiscoveryGlobePreview===true&&globeSelected){
+        const recentTrustedTap=Date.now()-lastTrustedCountryTapAt<1200;
+        if((trustedCountryRevealPending||recentTrustedTap)&&
+           window.__lariaDiscoveryGlobePreview===true&&globeSelected){
           trustedCountryRevealPending=false;
           scrollShortDiscovery(true);
         }
