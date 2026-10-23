@@ -48,3 +48,9 @@ Retningen er tydeligere og nærmere den låste komposisjonen: handlingen er saml
 - Jordbærkassens frittstående, korallrøde CTA er omgjort til en fysisk treplakett på kassen. Samme ekte trykk-/draflate, matte, personlig rev og lagret progresjon.
 - Nye tester verifiserer illustrasjonsfilen, levende tekst, minimum skriftstørrelse og ekte fysisk sammenheng mellom plankefronten og den interaktive kassen. Ingen gamle tester fjernet.
 - HTML/CSS/JS og serviceworker-versjon er oppdatert til release40. **Ingen merge eller publisering før eksakt-HEAD Chromium/WebKit og manuell visuell aksept.**
+
+
+### 23.10.2026 – utbedret faktisk skjermbildeavvik, release41
+- Kontroll av ekte Chromium-artefakt fra `048cd0d` viste et gammelt «Et lite matteeventyr»-element malt mørkt oppå det nye treskiltet på liggende iPad. Fjernet den foreldede CSS-regelen som overstyrte den tilsiktede skjulingen. Ny Playwright-assert sikrer dette på alle store skjermformater.
+- Kort iPhone-landskap hadde mikroskopisk treplakett (10px) og nærmest usynlig jordbærkasse. Økt kun den ekte kildens avbildning og etikett til 176px, 12px tekst og 34px etikett; tatt tilsvarende dekorativ luft fra plassen foran markedet så eksisterende førstekjermskrav ikke svekkes. Tilsvarende Playwright-assert kontrollerer lesbarhet og touch.
+- Spillmotor, oppgaver, valgte rev, matematikk og progresjon er uendret. Både eksakt-HEAD Chromium/WebKit og manuell sammenligning gjenstår; PR er fortsatt draft, ikke merge/publiser.

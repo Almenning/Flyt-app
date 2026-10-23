@@ -858,14 +858,6 @@
     text-align:center;
     white-space:nowrap;
   }
-  .gm-shell[data-gm-mode="mission"] .gm-top-title span{
-    display:block;
-    margin-top:2px;
-    color:#8a5a3e;
-    font-size:clamp(10px,1.1vw,14px);
-    line-height:1;
-    font-weight:850;
-  }
   .gm-shell[data-gm-mode="mission"] .gm-fox{
     top:20px;
     width:300px;
@@ -1339,8 +1331,9 @@
   .gm-shell[data-gm-mode="mission"] .gm-fox-message{font-size:13px;line-height:1.1}
   .gm-shell[data-gm-mode="mission"] .gm-market{
     width:100%;
-    /* Recover first-fold space WITHOUT overlapping the separate math row. */
-    margin:46px 0 0;
+    /* Taller actual strawberry source, without pushing first-fold maths down.
+       Reclaim space from decorative gap, never from basket hit targets. */
+    margin:38px 0 0;
     padding:0;
   }
   .gm-shell[data-gm-mode="mission"] .gm-crates{padding-top:0;gap:4px}
@@ -1354,16 +1347,16 @@
   .gm-shell[data-gm-mode="mission"][data-gm-each="10"] .gm-fruit{height:22px}
   /* Keep the complete berry touch target above the math parchment. */
   .gm-shell[data-gm-mode="mission"] .gm-market-fruit-supply{margin-top:-20px}
-  .gm-shell[data-gm-mode="mission"] .gm-pick.gm-strawberry-tray{width:150px;min-height:54px}
-  .gm-shell[data-gm-mode="mission"] .gm-pick.gm-strawberry-tray .gm-pick-fruit{height:37px}
+  .gm-shell[data-gm-mode="mission"] .gm-pick.gm-strawberry-tray{width:176px;min-height:58px}
+  .gm-shell[data-gm-mode="mission"] .gm-pick.gm-strawberry-tray .gm-pick-fruit{height:44px}
   .gm-shell[data-gm-mode="mission"] .gm-pick.gm-strawberry-tray>span:nth-child(2){
-    min-width:138px;
-    min-height:30px;
+    min-width:164px;
+    min-height:34px;
     margin-top:-5px;
-    padding:4px 8px 5px;
+    padding:4px 9px 5px;
     border-width:1px 1px 3px;
     border-radius:10px;
-    font-size:10px;
+    font-size:12px;
     white-space:nowrap;
   }
   .gm-shell[data-gm-mode="mission"] .gm-source-berry{bottom:3px}

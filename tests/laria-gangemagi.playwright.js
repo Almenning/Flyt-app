@@ -238,11 +238,14 @@ async function check(engine,label,viewport,url){
     const title=await page.locator('.gm-top-title').evaluate(el=>({
       image:getComputedStyle(el).backgroundImage,
       text:el.querySelector('h1')?.textContent.trim(),
-      font:parseFloat(getComputedStyle(el.querySelector('h1')).fontSize)
+      font:parseFloat(getComputedStyle(el.querySelector('h1')).fontSize),
+      subtitleDisplay:getComputedStyle(el.querySelector('span')).display
     }));
     assert.match(title.image,/gangemagi-title-brand-premium\.svg/);
     assert.equal(title.text,'Gangemagi');
     assert.ok(title.font>=24,label+' readable wooden chapter sign '+JSON.stringify(title));
+    assert.equal(title.subtitleDisplay,'none',
+      label+' the obsolete subtitle must not overlap the new wooden Gangemagi sign');
   }
   const paintedBoard=await page.request.get(new URL('gangemagi-quest-board-painted.svg',url).href);
   assert.equal(paintedBoard.status(),200,'painted wooden quest board asset is available');
@@ -363,6 +366,18 @@ async function check(engine,label,viewport,url){
   assert.ok(first.scrollWidth<=first.screen+4,label+' horizontal overflow '+JSON.stringify(first));
   assert.equal(await page.locator('.gm-market-fruit-supply .gm-pick').count(),1,
     label+' the real strawberry supply belongs in the illustrated market');
+  if(viewport.width>=700&&viewport.width<=899&&viewport.height<=699){
+    const sourceLayout=await page.locator('.gm-market-fruit-supply .gm-pick').evaluate(el=>{
+      const area=el.getBoundingClientRect(),plaque=el.children[1];
+      const rect=plaque.getBoundingClientRect(),style=getComputedStyle(plaque);
+      return {width:area.width,height:area.height,font:parseFloat(style.fontSize),
+        plaqueWidth:rect.width,plaqueHeight:rect.height,sourceVisible:area.top>=0};
+    });
+    assert.ok(sourceLayout.width>=170&&sourceLayout.height>=44&&
+      sourceLayout.font>=12&&sourceLayout.plaqueWidth>=160&&sourceLayout.plaqueHeight>=34&&
+      sourceLayout.sourceVisible,
+      label+' short-landscape berries must have a visible legible physical source, not a 10px microscopic plaque '+JSON.stringify(sourceLayout));
+  }
   if(viewport.width>=900&&viewport.height>=650){
     const front=await page.locator('.gm-market-fruit-supply .gm-pick').evaluate(el=>{
       const crate=el.querySelector('.gm-pick-fruit').getBoundingClientRect();
