@@ -891,6 +891,10 @@
     width:100%;
     margin-left:0;
   }
+  /* The portrait speech bubble extends below the absolutely positioned fox.
+     Reserve real flow space so the first maths parchment never paints over
+     the child's final instruction line. */
+  .gm-shell[data-gm-mode="mission"] .gm-scene{padding-bottom:32px}
   .gm-shell[data-gm-mode="mission"] .gm-math{z-index:6}
   /* Completion removes the berry supply and shortens the market, while the
      portrait fox and speech remain absolutely positioned. Reserve their real
