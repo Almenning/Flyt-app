@@ -200,33 +200,35 @@ function paintSphereAtmosphere(ctx,w,h,s){
 }
 function paintMovingLandMaterial(ctx,w,h,s,level){
   if(level>2)return 0;
-  const detailScale=level===1?1:.72;
-  let painted=0;
-  /* Dragging should not collapse Oppdag back to a flat atlas. Reuse the
-     already-clipped land path from paintLandBase and paint only broad,
-     geography-anchored material strokes. No pixel terrain field, no shadows,
-     no extra landClip pass: this stays cheap enough for pointer movement. */
-  for(const zone of landscapeZones){
-    if(!smoothGeoStroke(ctx,zone.route,w,h,s))continue;
-    const width=clamp(geoBrushWidth(zone,w,h,s)*.52*detailScale,s*.012,s*.17);
-    ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
-    ctx.strokeStyle=zone.type==='rainforest'?'rgba(8,71,42,.18)':
-      zone.type==='forest'?'rgba(35,88,53,.15)':
-      zone.type==='desert'?'rgba(230,164,67,.17)':
-      zone.type==='savanna'?'rgba(160,149,70,.11)':
-      zone.type==='tundra'?'rgba(149,180,166,.10)':
-      'rgba(234,248,239,.12)';
-    ctx.lineWidth=width;ctx.stroke();
-    ctx.restore();painted++;
-  }
+  const detailScale=level===1?1:.78;
+  let painted=1;
+  /* Dragging should preserve the same spherical material language without
+     exposing the expensive stationary terrain field. Keep this deliberately
+     quiet: one warm land wash, one cool depth wash and only the continent-
+     defining mountain shoulders. No biome corridors or broad map bands. */
+  const warm=ctx.createRadialGradient(w*.34,h*.23,0,w*.42,h*.38,s*.40);
+  warm.addColorStop(0,'rgba(255,235,178,.15)');
+  warm.addColorStop(.58,'rgba(255,231,166,.035)');
+  warm.addColorStop(1,'rgba(255,231,166,0)');
+  ctx.fillStyle=warm;ctx.fillRect(0,0,w,h);
+  const depth=ctx.createRadialGradient(w*.72,h*.74,0,w*.62,h*.62,s*.46);
+  depth.addColorStop(0,'rgba(21,74,63,.10)');
+  depth.addColorStop(.68,'rgba(18,62,57,.035)');
+  depth.addColorStop(1,'rgba(18,62,57,0)');
+  ctx.fillStyle=depth;ctx.fillRect(0,0,w,h);
   for(const chain of mountainChains){
     if(!continentCrestChains.has(chain.name))continue;
     const zone={route:chain.route,width:Math.max(2.2,chain.width*2.5)};
     if(!smoothGeoStroke(ctx,chain.route,w,h,s))continue;
+    const shoulder=clamp(geoBrushWidth(zone,w,h,s)*.20*detailScale,s*.0045,s*.015);
     ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
-    ctx.strokeStyle=chain.snow?'rgba(238,241,218,.24)':'rgba(99,77,48,.17)';
-    ctx.lineWidth=clamp(geoBrushWidth(zone,w,h,s)*.44*detailScale,s*.009,s*.034);
-    ctx.stroke();ctx.restore();painted++;
+    ctx.strokeStyle=chain.snow?'rgba(224,235,213,.22)':'rgba(86,72,50,.16)';
+    ctx.lineWidth=shoulder;ctx.stroke();
+    if(smoothGeoStroke(ctx,chain.route,w,h,s)){
+      ctx.strokeStyle=chain.snow?'rgba(255,250,226,.18)':'rgba(229,199,143,.12)';
+      ctx.lineWidth=Math.max(.55,shoulder*.28);ctx.stroke();
+    }
+    ctx.restore();painted++;
   }
   return painted;
 }
