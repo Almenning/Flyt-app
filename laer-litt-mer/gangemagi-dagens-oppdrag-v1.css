@@ -1287,7 +1287,10 @@
     grid-row:2;
     width:100%;
     min-height:47px;
-    margin:0;
+    /* The physical berry crate is still a real 54px touch target in this
+       short view. Leave it a visible, tappable lane before the maths instead
+       of letting the parchment stack over its label and intercept the tap. */
+    margin:30px 0 0;
     padding:4px 8px;
     border-radius:12px;
   }
