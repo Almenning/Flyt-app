@@ -760,3 +760,23 @@
  .fw-fox-button{min-height:149px}
  .fw-speech{font-size:15px;padding:9px 12px}
 }
+
+
+/* 810x1080 portrait fit with full fox and learning targets */
+@media (min-width:801px) and (max-width:820px) and (max-height:1100px) and (orientation:portrait){
+ .fw-shell{gap:5px;padding-top:6px;padding-bottom:6px}
+ .fw-top{min-height:60px}
+ .fw-word-panel{padding-top:8px;padding-bottom:8px}
+ .fw-panel-copy{display:none}
+ .fw-stage{align-items:center;gap:4px}
+ .fw-art,.fw-stage-label,.fw-scene-bottom{
+  width:min(100%,686px);
+  align-self:center;
+ }
+ .fw-stage-label{min-height:30px}
+ .fw-scene-bottom{min-height:32px}
+ .fw-scenery-caption{padding-top:5px;padding-bottom:5px}
+ .fw-bottom{min-height:0;padding-top:2px;align-items:center}
+ .fw-fox{width:135px;height:149px}
+ .fw-fox-button{min-height:149px}
+}
