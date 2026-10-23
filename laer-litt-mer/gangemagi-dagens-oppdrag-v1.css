@@ -885,6 +885,7 @@
     width:100%;
     margin-left:0;
   }
+  .gm-shell[data-gm-mode="mission"] .gm-math{z-index:6}
   .gm-shell[data-gm-mode="mission"] .gm-market{padding-top:4px}
   .gm-shell[data-gm-mode="mission"] .gm-crate{height:clamp(144px,19vw,188px)}
   .gm-shell[data-gm-mode="mission"] .gm-pick.gm-strawberry-tray{
