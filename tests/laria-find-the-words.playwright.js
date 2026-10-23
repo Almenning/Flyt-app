@@ -67,17 +67,58 @@ async function geometry(page,label,view){
   const el=document.querySelector('.fw-art');
   const img=document.querySelector('.fw-scene-image');
   return {screen:innerWidth,height:innerHeight,scroll:document.documentElement.scrollWidth,
-   art:bounds('.fw-art'),list:bounds('.fw-list'),back:bounds('.fw-back'),fox:bounds('.fw-fox'),
+   art:bounds('.fw-art'),picture:bounds('.fw-picture'),paint:bounds('.fw-scene-image'),list:bounds('.fw-list'),back:bounds('.fw-back'),fox:bounds('.fw-fox'),next:bounds('.fw-next'),
    scene:{w:img.naturalWidth,h:img.naturalHeight,complete:img.complete},
    words:[...document.querySelectorAll('.fw-word')].map(x=>x.getBoundingClientRect().height),
     wordFonts:[...document.querySelectorAll('.fw-word strong')].map(x=>parseFloat(getComputedStyle(x).fontSize)),
    hotspot:[...document.querySelectorAll('.fw-object')].map(x=>{const r=x.getBoundingClientRect(),hit=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);return {id:x.dataset.fwObject,w:r.width,h:r.height,centerReachable:hit===x||x.contains(hit)};}),
+   longWord:(()=>{
+     const word=document.querySelector('.fw-word[data-fw-read="sommerfugl"] strong');
+     if(!word)return null;
+     const r=word.getBoundingClientRect(),marker=word.closest('button').querySelector('.fw-word-check').getBoundingClientRect();
+     return {height:r.height,lineHeight:parseFloat(getComputedStyle(word).lineHeight),right:r.right,checkLeft:marker.left};
+   })(),
+   paintedPoints:(()=>{
+      // Coordinates of the pictured objects at the original 1200×720 artwork ratio.
+      // Check the real visible painted point, not simply the HTML button centre.
+      const garden=document.querySelector('.fw-scene-image').getAttribute('src').includes('find-the-words-garden');
+      const points=garden?
+        {eple:[.17,.15],ugle:[.29,.23],sommerfugl:[.56,.15],lykt:[.37,.32],
+         bro:[.48,.58],sopp:[.78,.81],bok:[.18,.76],pinnsvin:[.93,.78]}:
+        {sol:[.905,.17],tre:[.22,.395],telt:[.865,.745],vann:[.635,.64],
+         rev:[.685,.82],sekk:[.255,.815],bat:[.545,.84],fugl:[.765,.455]};
+      const picture=document.querySelector('.fw-picture').getBoundingClientRect();
+      return Object.entries(points).map(([id,[x,y]])=>{
+       const hit=document.elementFromPoint(picture.left+picture.width*x,picture.top+picture.height*y);
+       return {id,hit:hit?.closest?.('[data-fw-object]')?.dataset?.fwObject||null};
+      });
+    })(),
    active:el?.getAttribute('role')};
  });
- assert.ok(box.art&&box.list&&box.fox&&box.back,'picture game missing art, word list or personal fox '+label);
- assert.ok(box.scene.complete&&box.scene.w===1200&&box.scene.h===720,'illustrated scene failed '+label+': '+JSON.stringify(box.scene));
+ assert.ok(box.art&&box.picture&&box.paint&&box.list&&box.fox&&box.back,'picture game missing the aligned painted scene or personal fox '+label);
+ assert.ok(Math.abs(box.picture.w/box.picture.h-5/3)<.01,
+   'The interactive plane does not match the SVG native 1200:720 geometry '+label+': '+JSON.stringify(box.picture));
+ assert.ok(Math.abs(box.picture.w-box.paint.w)<2&&Math.abs(box.picture.h-box.paint.h)<2,
+   'Illustration and tap targets use different visible pixel bounds '+label+': '+JSON.stringify(box));
+ assert.deepEqual(box.paintedPoints.filter(x=>x.id!==x.hit),[],
+   'A painted object is not reachable at the point where the child sees it '+label+': '+JSON.stringify(box.paintedPoints));
+ if(box.longWord){
+  assert.ok(box.longWord.height<=box.longWord.lineHeight*1.2,
+   'Norwegian word sommerfugl wrapped into fragments '+label+': '+JSON.stringify(box.longWord));
+  assert.ok(box.longWord.right<=box.longWord.checkLeft+1,
+   'The complete written word overlaps the tick control '+label+': '+JSON.stringify(box.longWord));
+ }
+ if(view.width>=1001&&view.height>=700&&view.height<=900){
+  assert.ok(box.next&&box.next.b<=box.height+2&&box.fox.b<=box.height+2,
+   'Fox companion or next adventure is clipped below iPad landscape first fold '+label+': '+JSON.stringify(box));
+ }
+ const gardenScene=label.includes('secret-garden');
+ assert.ok(box.scene.complete&&
+   (gardenScene?(box.scene.w===480&&box.scene.h===288):(box.scene.w===1200&&box.scene.h===720)),
+   'illustrated scene failed '+label+': '+JSON.stringify(box.scene));
  assert.ok(box.scroll<=box.screen+3,'horizontal overflow '+label+': '+JSON.stringify(box));
  assert.ok(box.art.x>=-2&&box.art.x+box.art.w<=box.screen+3,'art clipped horizontally '+label);
+ assert.equal(box.hotspot.length,8,'Each illustrated world must expose exactly eight tappable objects '+label);
  assert.ok(box.hotspot.every(b=>b.w>=44&&b.h>=44),'child targets too small '+label+': '+JSON.stringify(box.hotspot));
  assert.ok(box.hotspot.every(b=>b.centerReachable),'overlapping hotspots prevent children from finding an object '+label+': '+JSON.stringify(box.hotspot));
  assert.ok(box.words.every(h=>h>=39),'word-list buttons too small '+label+': '+JSON.stringify(box.words));
@@ -89,7 +130,8 @@ async function geometry(page,label,view){
   assert.ok(box.art.b<=box.height+2,'iPad portrait art must remain on first screen: '+JSON.stringify(box));
  }
  if(view.width>=361&&view.width<=700&&view.height>=750){
-  assert.ok(box.art.h>=245,'Tall phone artwork reverted to its small 5:3 layout: '+JSON.stringify(box));
+  assert.ok(box.picture.h>=205,'Tall phone illustration too small to see and touch: '+JSON.stringify(box));
+   assert.ok(box.wordFonts.every(n=>n>=18),'Tall phone words must be readable at 18px or larger: '+JSON.stringify(box.wordFonts));
   assert.ok(box.fox.h>=100,'Child-selected fox is too small on tall phone: '+JSON.stringify(box));
   assert.ok(box.fox.y+box.fox.h<=box.height+2,'Fox companion is pushed below the phone viewport: '+JSON.stringify(box));
  }
@@ -149,6 +191,15 @@ async function run(engine,label,viewport,url,avatar){
    assert.match(await page.locator('.fw-speech').innerText(),/Se etter/,'Fox did not give the selected-word clue');
    await page.locator('.fw-fox-button').click();
    assert.equal(await page.locator('.fw-object.is-hint').count(),1,'Second hint should highlight the selected object');
+   assert.equal(await page.locator('.fw-fx .fw-target-flower[data-fx-object="sol"]').count(),1,
+    'Fox second hint must point inside the illustrated scene');
+   assert.equal(await page.locator('.fw-fx').evaluate(el=>getComputedStyle(el).pointerEvents),'none',
+    'Fox effects must not intercept taps on illustrated objects');
+   const sunTap=await page.evaluate(()=>{
+    const b=document.querySelector('[data-fw-object="sol"]').getBoundingClientRect();
+    return document.elementFromPoint(b.left+b.width/2,b.top+b.height/2)?.closest?.('[data-fw-object]')?.dataset?.fwObject||null;
+   });
+   assert.equal(sunTap,'sol','Guide glow blocks the real sun touch area');
    assert.equal(await page.locator('.fw-word.is-found').count(),0,'Hint must not automatically solve the game');
    if(viewport.width<=360){
      const title=await page.locator('.fw-title h1').evaluate(el=>{
@@ -157,11 +208,19 @@ async function run(engine,label,viewport,url,avatar){
      assert.ok(title.top>=-1&&title.bottom<=title.height,
        'Selecting a word must not auto-scroll away the title on a compact iPhone: '+JSON.stringify(title));
    }
+   // The first screen must retain the title after word selection and fox hints.
+   // On an overflowing iPad landscape WebKit may auto-scroll the header away.
+   const headerFold=await page.locator('.fw-title h1').evaluate(el=>{
+    const r=el.getBoundingClientRect();
+    return {top:r.top,bottom:r.bottom,viewport:innerHeight};
+   });
+   assert.ok(headerFold.top>=-1&&headerFold.bottom<=headerFold.viewport+1,
+    'Asking the fox for help hid the game title '+label+': '+JSON.stringify(headerFold));
    await shot(page,label+'-chosen-word-hint');
    // An illustrated object not in the current word list should be explored, not punished.
    // A touch on water must hit the painted lake, not the grassy lower bank.
    const lakePoint=await page.evaluate(()=>{
-     const stage=document.querySelector('.fw-art').getBoundingClientRect();
+     const stage=document.querySelector('.fw-picture').getBoundingClientRect();
      const water=document.querySelector('[data-fw-object="vann"]').getBoundingClientRect();
      return {x:(water.left+water.width*.5-stage.left)/stage.width,
        y:(water.top+water.height*.5-stage.top)/stage.height};
@@ -171,6 +230,8 @@ async function run(engine,label,viewport,url,avatar){
    await page.locator('.fw-object[data-fw-object="fugl"]').click();
    assert.match(await page.locator('.fw-speech').innerText(),/Ikke helt/,
      'Wrong word-object pairing must give gentle corrective feedback');
+   assert.equal(await page.locator('.fw-fx .fw-try-ring[data-fx-object="fugl"]').count(),1,
+    'Wrong guess must show a brief gentle ripple at the pictured object');
    assert.equal(await page.locator('.fw-word.is-selected').count(),0,
      'A wrong pairing must require the child to select a word again');
    assert.equal(await page.locator('.fw-word.is-found').count(),0,'Wrong pairing awarded progress');
@@ -185,6 +246,11 @@ async function run(engine,label,viewport,url,avatar){
       'Chosen word stayed selected after it was found: '+word);
     assert.equal(await page.locator('.fw-word.is-found').count(),targetWords.indexOf(word)+1,
       'Correct chosen word-object pair did not mark progress: '+word);
+    if(word==='sol'){
+     assert.equal(await page.locator('.fw-fx .fw-success-burst[data-fx-object="sol"]').count(),1,
+      'Successful match must celebrate at the found item in the picture');
+     await shot(page,label+'-object-discovery');
+    }
    }
    assert.ok(await page.locator('#find-the-words-overlay').evaluate(el=>el.classList.contains('fw-complete')),
     'Round did not complete');
@@ -194,7 +260,7 @@ async function run(engine,label,viewport,url,avatar){
    // The large accessible tree hotspot may extend beyond foliage; its found
    // stamp must still sit on the visible canopy rather than floating in sky.
    const treeStamp=await page.evaluate(()=>{
-     const scene=document.querySelector('.fw-art').getBoundingClientRect();
+     const scene=document.querySelector('.fw-picture').getBoundingClientRect();
      const p=document.querySelector('[data-fw-object="tre"] .fw-pin').getBoundingClientRect();
      return (p.top+p.height/2-scene.top)/scene.height;
    });
@@ -203,6 +269,7 @@ async function run(engine,label,viewport,url,avatar){
    await page.locator('.fw-back').click();
    await page.locator('.bc13-panel:not([hidden]) [data-bc13-action="find-words"]').waitFor();
    assert.equal(await page.locator('#find-the-words-overlay:not([hidden])').count(),0,'Picture mode did not close');
+   assert.equal(await page.locator('.fw-fx').locator('*').count(),0,'Fox trail remained after closing the game');
    assert.equal(await page.evaluate(()=>document.documentElement.style.overflow),'','Scroll was left locked');
    await page.reload({waitUntil:'domcontentloaded'});
    await page.waitForFunction(()=>typeof window.openFindTheWords==='function');
@@ -211,41 +278,80 @@ async function run(engine,label,viewport,url,avatar){
    assert.equal(await page.locator('.fw-word.is-found').count(),6,'Picture word progress was lost on reload');
    assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('laria-find-words-v1')).rounds),1);
    await page.locator('.fw-next').click();
-   assert.equal(await page.locator('.fw-word.is-found').count(),0,'New illustrated round was not reset');
-   assert.equal(await page.locator('.fw-word').count(),6);
-   // Pointer gestures are optional: wrong image drops give no credit;
-   // correctly dragging the text to a pictured item uses the same
-   // verification path as tap->tap matching.
-   await dragWord(page,'fugl','.fw-object[data-fw-object="sol"]');
+   // Original indices 0, 1 and 2 remain unchanged for all existing saves.
+   // New adventures alternate, presenting a genuinely DIFFERENT painted world.
+   const gardenImage=page.locator('.fw-scene-image');
+   await gardenImage.evaluate(img=>img.decode());
+   assert.match(await gardenImage.getAttribute('src'),/find-the-words-garden-premium\.webp/,
+     'The next adventure must have its own illustrated garden');
+   assert.equal(await page.locator('.fw-word.is-found').count(),0,'Garden progress did not begin cleanly');
+   assert.deepEqual((await page.locator('.fw-word strong').allTextContents()).sort(),
+     ['sommerfugl','bok','eple','ugle','bro','sopp'].sort(),
+     'New discovery environment reused the previous word list');
+   assert.equal(await page.locator('.fw-object[data-fw-object="sol"]').count(),0,
+     'Old forest hotspots leaked into the second scene');
+   await geometry(page,label+'-secret-garden',viewport);
+   await shot(page,label+'-secret-garden-first-look');
+
+   // Wrong word on a valid object, genuine Pointer Events drag, and the
+   // child-friendly drag->tap fallback must all work in the new world too.
+   await dragWord(page,'sommerfugl','.fw-object[data-fw-object="eple"]');
    assert.equal(await page.locator('.fw-word.is-found').count(),0,
-     'Wrong drag-and-drop must not award a word');
+     'Wrong garden drag incorrectly awarded a word');
    assert.equal(await page.locator('.fw-word.is-selected').count(),0,
-     'A mismatched drag should reset the selected word');
-   await dragWord(page,'fugl','.fw-object[data-fw-object="fugl"]');
-   assert.equal(await page.locator('.fw-word[data-fw-read="fugl"].is-found').count(),1,
-     'Dragging the correct word onto the object did not award progress');
-   assert.equal(await page.locator('.fw-drag-ghost').count(),0,
-     'Drag ghost remained after a completed drop');
-   // Dropping onto blank space should select the word for the accessible
-   // two-tap fallback, but must never count the word as found.
-   await dragWord(page,'bat','.fw-stage-label');
+     'Wrong garden drag must clear the selection');
+   await dragWord(page,'sommerfugl','.fw-object[data-fw-object="sommerfugl"]');
+   assert.equal(await page.locator('.fw-word[data-fw-read="sommerfugl"].is-found').count(),1,
+     'Correct butterfly drag was not recognized');
+   assert.equal(await page.locator('.fw-drag-ghost').count(),0,'Drag ghost remained in new garden');
+   await dragWord(page,'bok','.fw-stage-label');
    assert.equal(await page.locator('.fw-word.is-found').count(),1,
-     'A drag dropped outside an object awarded progress');
-   assert.equal(await page.locator('.fw-word[data-fw-read="bat"]').getAttribute('aria-pressed'),'true',
-     'Dragging to blank scenery should still leave the written word selected');
-   await page.locator('.fw-object[data-fw-object="bat"]').click();
+     'Dragging a book to empty space must not award progress');
+   assert.equal(await page.locator('.fw-word[data-fw-read="bok"]').getAttribute('aria-pressed'),'true',
+     'Unsuccessful garden drag must leave the word selected');
+   await page.locator('.fw-object[data-fw-object="bok"]').click();
    assert.equal(await page.locator('.fw-word.is-found').count(),2,
-     'Drag fallback cannot be finished by an ordinary accessible tap');
-   await shot(page,label+'-drag-matching');
-   await page.locator('.fw-word[data-fw-read="tre"]').click();
-   assert.equal(await page.locator('.fw-word.is-selected').count(),1);
+     'Chosen garden book was not found with an ordinary tap');
+   await shot(page,label+'-secret-garden-drag-matching');
+
+   await page.locator('.fw-word[data-fw-read="ugle"]').click();
    await page.locator('.fw-back').click();
    await page.reload({waitUntil:'domcontentloaded'});
    await page.waitForFunction(()=>typeof window.openFindTheWords==='function');
    await page.locator('.bc12-nav [data-camp="explore"]').click();
    await page.locator('.bc13-panel:not([hidden]) [data-bc13-action="find-words"]').click();
-   assert.equal(await page.locator('.fw-word[data-fw-read="tre"]').getAttribute('aria-pressed'),'true',
-     'Chosen word did not persist after exiting and reloading');
+   assert.match(await page.locator('.fw-scene-image').getAttribute('src'),/find-the-words-garden-premium\.webp/,
+     'The child did not return to their saved garden');
+   assert.equal(await page.locator('.fw-word[data-fw-read="ugle"]').getAttribute('aria-pressed'),'true',
+     'Garden-selected word was lost on reload');
+   assert.equal(await page.locator('.fw-word.is-found').count(),2,
+     'Two garden discoveries were lost on reload');
+
+   for(const word of ['eple','ugle','bro','sopp']){
+    await page.locator('.fw-word[data-fw-read="'+word+'"]').click();
+    await page.locator('.fw-object[data-fw-object="'+word+'"]').click();
+   }
+   assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('laria-find-words-v1')).rounds),2,
+     'Completing two separate adventures must record two rounds');
+   await shot(page,label+'-secret-garden-complete');
+   await page.locator('.fw-next').click();
+   assert.match(await page.locator('.fw-scene-image').getAttribute('src'),/find-the-words-scene\.svg/,
+     'Adventure sequence did not alternate back to Bokskogen');
+   assert.equal(await page.locator('.fw-word[data-fw-read="fugl"]').count(),1,
+     'Original second forest word list changed after the new garden');
+
+   // Legacy v1 save compatibility: keep the child's exact old forest round.
+   await page.locator('.fw-back').click();
+   await page.evaluate(()=>localStorage.setItem('laria-find-words-active-v1',
+     JSON.stringify({version:1,round:1,found:['fugl'],completed:false,selected:'bat'})));
+   await page.reload({waitUntil:'domcontentloaded'});
+   await page.waitForFunction(()=>typeof window.openFindTheWords==='function');
+   await page.locator('.bc12-nav [data-camp="explore"]').click();
+   await page.locator('.bc13-panel:not([hidden]) [data-bc13-action="find-words"]').click();
+   assert.equal(await page.locator('.fw-word[data-fw-read="bat"]').getAttribute('aria-pressed'),'true',
+     'Old selected word did not survive new version of the game');
+   assert.equal(await page.locator('.fw-word[data-fw-read="fugl"].is-found').count(),1,
+     'Legacy found-word progress got lost');
    await page.locator('.fw-back').click();
    // The separate 6x6 letter-grid mode and its five themes remain available.
    await page.locator('.bc13-panel:not([hidden]) .bc13-card[data-bc13-action="words"]').click();

@@ -6,25 +6,30 @@ on:
     paths:
       - 'laer-litt-mer/find-the-words*'
       - 'laer-litt-mer/laria-navigation-v13.*'
+      - 'tests/laria-find-the-words.playwright.js'
+      - 'tests/laria-find-words-ipad-layout.playwright.js'
   pull_request:
     branches: [main]
     paths:
       - 'laer-litt-mer/find-the-words*'
       - 'laer-litt-mer/laria-navigation-v13.*'
       - 'tests/laria-find-the-words.playwright.js'
+      - 'tests/laria-find-words-ipad-layout.playwright.js'
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: laria-find-words-${{ github.ref }}
+  group: laria-find-words-container-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   picture-hunt:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.1-noble
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -32,8 +37,6 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - name: Install real WebKit and Chromium browsers
-        run: npx playwright install --with-deps chromium webkit
       - name: Verify picture hunt on iPhone and iPad
         env:
           FIND_WORDS_SCREENSHOTS: /tmp/laria-find-words
@@ -41,6 +44,12 @@ jobs:
           node --check laer-litt-mer/find-the-words.js
           node --check tests/laria-find-the-words.playwright.js
           node tests/laria-find-the-words.playwright.js
+      - name: Verify iPad companion layout and orientation changes
+        env:
+          FIND_WORDS_SCREENSHOTS: /tmp/laria-find-words
+        run: |
+          node --check tests/laria-find-words-ipad-layout.playwright.js
+          node tests/laria-find-words-ipad-layout.playwright.js
       - name: Preserve screenshot evidence
         if: always()
         uses: actions/upload-artifact@v4
