@@ -699,3 +699,8 @@
  .fw-speech{background:linear-gradient(#fff9e4,#efd4a3)}
  .fw-next{background:linear-gradient(#67915d,#3f7249);border-color:#426b48}
 }
+
+/* premiumgarden2-image-tone */
+.fw-overlay[data-scene="garden"] .fw-scene-image{
+ filter:saturate(1.08) contrast(1.035) brightness(1.015);
+}
