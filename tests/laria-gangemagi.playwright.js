@@ -274,7 +274,13 @@ async function check(engine,label,viewport,url){
     label+' the background must not bake in false tasks, numbers or controls');
   const sceneBackground=await page.locator('.gm-world').evaluate(el=>getComputedStyle(el).backgroundImage);
   assert.match(sceneBackground,/gangemagi-tallenga-market-premium-20261023\.svg/,
-    label+' Gangemagi must use its approved authored premium market scene, not the generic maths background');
+    label+' Gangemagi must retain its authored premium market geometry beneath the painting');
+  const paintedWorld=await page.request.get(new URL('home-math-v14.webp',url).href);
+  assert.equal(paintedWorld.status(),200,label+' the original detailed Tallenga painting must load');
+  assert.match(paintedWorld.headers()['content-type'],/image\/webp/,
+    label+' painted world is a genuine source image, not a fallback card or external dependency');
+  assert.match(sceneBackground,/home-math-v14\.webp/,
+    label+' the play scene must render Læria\'s richly illustrated Tallenga painting, not only flat vector scenery');
   const tableArt=await page.request.get(new URL('gangemagi-market-table-premium.svg',url).href);
   assert.equal(tableArt.status(),200,'original illustrated market counter must load');
   assert.match(tableArt.headers()['content-type'],/image\/svg\+xml/);
