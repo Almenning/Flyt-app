@@ -144,6 +144,10 @@ assert.match(preview,/function ocean\([^{]*\)\{[\s\S]*?Gentle currents retain a 
   'overview water must use illustrated currents rather than a cartographic latitude grid');
 assert.match(preview,/const glaze=ctx\.createLinearGradient/,
   'the discovery ocean needs a broad light-to-depth glaze beneath its currents');
+assert.match(preview,/function paintSphereAtmosphere\(/,
+  'Oppdag needs a dedicated spherical light pass so the globe reads above the storyscape');
+assert.match(preview,/dataset\.discoveryMaterialPass='continent-premium-v1'/,
+  'QA must expose the premium continent material pass');
 assert.match(preview,/ctx\.lineWidth=Math\.max\(2\.2,s\*\.0072\)/,
   'ocean currents need a broad translucent undercurrent, not only hairlines');
 assert.doesNotMatch(preview,/for\(const lat of \[-60,-30,0,30,60\]\)/,
