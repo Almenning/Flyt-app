@@ -802,6 +802,13 @@
     margin-top:-154px;
     margin-left:0;
   }
+  /* When the fruit supply disappears at completion, the market becomes
+     shorter. Reserve real scene space for the praise bubble so the final
+     addition and multiplication stay below it instead of being painted under
+     an absolutely positioned guide. */
+  .gm-shell[data-gm-mode="mission"][data-gm-complete="true"] .gm-scene{
+    padding-bottom:44px;
+  }
   .gm-shell[data-gm-mode="mission"] .gm-market,
   .gm-shell[data-gm-mode="mission"] .gm-math,
   .gm-shell[data-gm-mode="mission"] .gm-celebration{
