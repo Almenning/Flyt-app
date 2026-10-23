@@ -822,7 +822,7 @@
        earlier lane let the fox's speech and shoulder sit over the first
        basket's touch target; the market now begins after the guide instead
        of relying on visual stacking to hide that collision. */
-    width:calc(100% - clamp(275px,24vw,310px));
+    width:calc(100% - clamp(285px,25.5vw,330px));
   }
   .gm-shell[data-gm-mode="mission"] .gm-crates{padding-top:7px}
   /* Put the addition sign in the physical gap between groups. It is scenery,
