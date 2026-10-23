@@ -199,7 +199,8 @@ function paintSphereAtmosphere(ctx,w,h,s){
   ctx.restore();
 }
 function paintMovingLandMaterial(ctx,w,h,s,level){
-  if(level!==1)return 0;
+  if(level>2)return 0;
+  const detailScale=level===1?1:.72;
   let painted=0;
   /* Dragging should not collapse Oppdag back to a flat atlas. Reuse the
      already-clipped land path from paintLandBase and paint only broad,
@@ -207,7 +208,7 @@ function paintMovingLandMaterial(ctx,w,h,s,level){
      no extra landClip pass: this stays cheap enough for pointer movement. */
   for(const zone of landscapeZones){
     if(!smoothGeoStroke(ctx,zone.route,w,h,s))continue;
-    const width=clamp(geoBrushWidth(zone,w,h,s)*.52,s*.014,s*.17);
+    const width=clamp(geoBrushWidth(zone,w,h,s)*.52*detailScale,s*.012,s*.17);
     ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
     ctx.strokeStyle=zone.type==='rainforest'?'rgba(8,71,42,.18)':
       zone.type==='forest'?'rgba(35,88,53,.15)':
@@ -224,7 +225,7 @@ function paintMovingLandMaterial(ctx,w,h,s,level){
     if(!smoothGeoStroke(ctx,chain.route,w,h,s))continue;
     ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
     ctx.strokeStyle=chain.snow?'rgba(238,241,218,.24)':'rgba(99,77,48,.17)';
-    ctx.lineWidth=clamp(geoBrushWidth(zone,w,h,s)*.44,s*.010,s*.034);
+    ctx.lineWidth=clamp(geoBrushWidth(zone,w,h,s)*.44*detailScale,s*.009,s*.034);
     ctx.stroke();ctx.restore();painted++;
   }
   return painted;
