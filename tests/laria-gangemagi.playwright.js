@@ -981,7 +981,7 @@ async function check(engine,label,viewport,url){
   assert.equal(await page.locator('.gm-actions-complete .gm-next[data-gm-action="mode"][data-mode="free"]').count(),1,
     label+' child may opt into free play, rather than being pushed along');
   assert.equal(await page.locator('.gm-finale-book[data-gm-action="open-book"]').count(),1,
-    label+' the child's completed favourites remain accessible');
+    label+' the saved completed favourites remain accessible');
   const finaleLayout=await page.evaluate(()=>{
     const buttons=[...document.querySelectorAll('.gm-actions-complete button')].map(b=>b.getBoundingClientRect());
     return {overflow:document.documentElement.scrollWidth-innerWidth,
