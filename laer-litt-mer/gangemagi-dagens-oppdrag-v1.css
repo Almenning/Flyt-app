@@ -1258,7 +1258,8 @@
   .gm-shell[data-gm-mode="mission"] .gm-fox-message{font-size:13px;line-height:1.1}
   .gm-shell[data-gm-mode="mission"] .gm-market{
     width:100%;
-    margin:66px 0 0;
+    /* Recover first-fold space WITHOUT overlapping the separate math row. */
+    margin:46px 0 0;
     padding:0;
   }
   .gm-shell[data-gm-mode="mission"] .gm-crates{padding-top:0;gap:4px}
@@ -1270,7 +1271,8 @@
     height:46%;
   }
   .gm-shell[data-gm-mode="mission"][data-gm-each="10"] .gm-fruit{height:22px}
-  .gm-shell[data-gm-mode="mission"] .gm-market-fruit-supply{margin-top:-10px}
+  /* Keep the complete berry touch target above the math parchment. */
+  .gm-shell[data-gm-mode="mission"] .gm-market-fruit-supply{margin-top:-20px}
   .gm-shell[data-gm-mode="mission"] .gm-pick.gm-strawberry-tray{width:150px;min-height:54px}
   .gm-shell[data-gm-mode="mission"] .gm-pick.gm-strawberry-tray .gm-pick-fruit{height:37px}
   .gm-shell[data-gm-mode="mission"] .gm-pick.gm-strawberry-tray>span:nth-child(2){
