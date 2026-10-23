@@ -84,7 +84,7 @@
   }
   function markup(){
     const fox=chosenFox(),garden=sceneId()==='garden';
-    const scene= garden?'./find-the-words-garden.svg?v=20261019-magicgarden1':'./find-the-words-scene.svg?v=20261018-a';
+    const scene= garden?'./find-the-words-garden.svg?v=20261023-premiumgarden2':'./find-the-words-scene.svg?v=20261018-a';
     const sceneAlt=garden?
       'Magisk hage med rødt eple, ugle, sommerfugl, lykt, liten bro, sopp, bok og pinnsvin':
       'Illustrert skog med vann, telt, sol og mange små oppdagelser';
