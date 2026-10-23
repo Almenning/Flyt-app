@@ -1362,14 +1362,19 @@ const wait=()=>{
       // frame, after the input owner has picked the country and removed its
       // pointer. Do not duplicate or intercept the original hit-test.
       const type=event.type,trusted=event.isTrusted;
-      requestAnimationFrame(()=>{
-        if(typeof globePointers!=='undefined'&&globePointers.size>0)return;
+      let settleFrames=0;
+      const settleAfterPointer=()=>{
+        if(typeof globePointers!=='undefined'&&globePointers.size>0){
+          if(settleFrames++<2)requestAnimationFrame(settleAfterPointer);
+          return;
+        }
         if(typeof globeMove==='number'&&globeMove>=8){
           clearOffscreenDiscoverySelection();
           renderDiscoveryWelcome();
         }else if(type==='pointerup'&&trusted&&globeSelected)
           scrollShortDiscovery(true);
-      });
+      };
+      requestAnimationFrame(settleAfterPointer);
     };
     canvas.addEventListener('pointerup',afterDrag,{passive:true});
     canvas.addEventListener('pointercancel',afterDrag,{passive:true});
