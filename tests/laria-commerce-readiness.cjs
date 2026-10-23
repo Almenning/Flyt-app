@@ -4,6 +4,7 @@ const test=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
+const vm=require('node:vm');
 
 const root=path.resolve(__dirname,'..');
 const read=p=>fs.readFileSync(path.join(root,p),'utf8');
@@ -20,7 +21,7 @@ test('Prompt 18 commerce contract is native-verified and parent controlled',()=>
   assert.equal(nativeConfig.appId,'no.adspire.laria');
   assert.equal(nativeConfig.appName,'Læria');
 
-  assert.match(html,/commerce-v18\.js\?v=20261007-p18rc1/);
+  assert.match(html,/commerce-v18\.js\?v=20261023-store-failsafe1/);
   assert.match(html,/id="commerce-screen"/);
   assert.match(html,/id="open-commerce"/);
   assert.match(html,/id="commerce-restore"/);
@@ -60,4 +61,85 @@ test('Prompt 18 commerce contract is native-verified and parent controlled',()=>
   assert.match(workflow,/Install StoreKit 2 bridge/);
   assert.match(workflow,/node prepare-storekit\.mjs/);
   assert.match(workflow,/Build Læria simulator target/);
+});
+
+
+// Dynamic contract checks for pre-launch preview vs real StoreKit failure.
+function loadCommerce(plugin){
+  const events=[];
+  const context={
+    console,
+    CustomEvent:class CustomEvent{
+      constructor(type,init={}){this.type=type;this.detail=init.detail}
+    },
+    window:{
+      Capacitor:plugin?{Plugins:{LariaStore:plugin}}:undefined,
+      dispatchEvent:event=>events.push(event)
+    }
+  };
+  vm.runInNewContext(read('laer-litt-mer/commerce-v18.js'),context,{filename:'commerce-v18.js'});
+  return {api:context.window.LARIA_COMMERCE_V18,events};
+}
+
+test('web/PWA remains an open QA preview without the native StoreKit plugin',()=>{
+  const {api}=loadCommerce(null);
+  assert.equal(api.requirePremium('learning'),true);
+  assert.equal(api.snapshot().native,false);
+});
+
+test('successful empty App Store catalogue keeps pre-launch native preview open',async()=>{
+  const plugin={
+    getProducts:async()=>({products:[],active:false,activeProductIds:[]}),
+    getEntitlement:async()=>({active:false,activeProductIds:[]})
+  };
+  const {api}=loadCommerce(plugin);
+  const status=await api.refresh();
+  assert.equal(status.native,true);
+  assert.equal(status.storeReady,false);
+  assert.equal(status.error,null);
+  assert.equal(api.requirePremium('learning'),true);
+});
+
+test('StoreKit catalogue error fails closed for a non-subscriber',async()=>{
+  const plugin={
+    getProducts:async()=>{throw new Error('store offline')},
+    getEntitlement:async()=>({active:false,activeProductIds:[]})
+  };
+  const {api,events}=loadCommerce(plugin);
+  const status=await api.refresh();
+  assert.equal(status.storeReady,false);
+  assert.equal(status.active,false);
+  assert.match(status.error,/store offline/);
+  assert.equal(api.requirePremium('learning'),false);
+  assert.equal(events.at(-1).type,'laria-premium-required');
+  assert.equal(events.at(-1).detail.reason,'store-unavailable');
+});
+
+test('verified subscriber stays premium when product catalogue is unavailable',async()=>{
+  const monthly='no.adspire.laria.monthly';
+  const plugin={
+    getProducts:async()=>{throw new Error('store offline')},
+    getEntitlement:async()=>({active:true,activeProductIds:[monthly]})
+  };
+  const {api}=loadCommerce(plugin);
+  const status=await api.refresh();
+  assert.equal(status.storeReady,false);
+  assert.equal(status.active,true);
+  assert.deepEqual([...status.activeProductIds],[monthly]);
+  assert.match(status.error,/store offline/);
+  assert.equal(api.requirePremium('learning'),true);
+});
+
+test('available App Store products still require entitlement when inactive',async()=>{
+  const monthly='no.adspire.laria.monthly';
+  const plugin={
+    getProducts:async()=>({products:[{id:monthly,displayName:'Måned',displayPrice:'49 kr'}],active:false,activeProductIds:[]}),
+    getEntitlement:async()=>({active:false,activeProductIds:[]})
+  };
+  const {api,events}=loadCommerce(plugin);
+  const status=await api.refresh();
+  assert.equal(status.storeReady,true);
+  assert.equal(status.active,false);
+  assert.equal(api.requirePremium('learning'),false);
+  assert.equal(events.at(-1).detail.reason,'subscription');
 });
