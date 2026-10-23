@@ -265,7 +265,7 @@ async function check(engine,label,viewport,url){
       label+' iPad quest sign must leave market centre free for actual play '+JSON.stringify(storyComposition));
     assert.ok(storyComposition.titleHeight<=72,
       label+' wide tablet instructions must form one readable sentence '+JSON.stringify(storyComposition));
-    assert.ok(storyComposition.steps.every(s=>s.shown&&s.font>=11&&s.inside),
+    assert.ok(storyComposition.steps.every(s=>s.shown&&s.font>=14&&s.inside),
       label+' pictorial steps must remain visible and readable, not clipped '+JSON.stringify(storyComposition));
     assert.equal(storyComposition.miniBaskets,3,
       label+' live group preview must stay on the sign');

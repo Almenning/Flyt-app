@@ -776,13 +776,14 @@
   }
   .gm-shell[data-gm-mode="mission"] .gm-quest-step{
     display:grid;
-    /* Index, image and verb read in one row; legible visual steps. */
-    grid-template-columns:18px minmax(45px,80px) minmax(0,1fr);
-    grid-template-rows:38px;
+    /* Small picture over a genuinely legible verb. Never reduce the
+       step label below the locked grade-two 14px readability floor. */
+    grid-template-columns:24px minmax(0,1fr);
+    grid-template-rows:33px auto;
     align-items:center;
     min-width:0;
-    min-height:44px;
-    padding:3px 5px;
+    min-height:55px;
+    padding:2px 5px 3px;
     border:1px solid #e1b47e;
     border-radius:13px;
     background:#fff3ddcf;
@@ -809,12 +810,12 @@
   .gm-shell[data-gm-mode="mission"] .gm-quest-icon .gm-quest-fruit{width:25px;height:34px}
   .gm-shell[data-gm-mode="mission"] .gm-quest-mini-basket{height:34px}
   .gm-shell[data-gm-mode="mission"] .gm-quest-step strong{
-    grid-column:3;
-    grid-row:1;
+    grid-column:1 / -1;
+    grid-row:2;
     color:#67412a;
-    font-size:clamp(11.5px,1.04vw,13px);
+    font-size:14px;
     line-height:1.08;
-    text-align:left;
+    text-align:center;
     white-space:nowrap;
   }
   .gm-shell[data-gm-mode="mission"] .gm-top-title span{
