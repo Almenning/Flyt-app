@@ -142,7 +142,7 @@ async function run(engine, name, size, url) {
     await inspect(page, name + '-forest-hint');
     await page.locator('.fw-next').click();
     const garden = await inspect(page, name + '-garden');
-    assert.match(garden.svg, /find-the-words-garden\.svg/, name + ': garden scene did not load');
+    assert.match(garden.svg, /find-the-words-garden-premium\.webp/, name + ': premium garden scene did not load');
     await page.locator('.fw-word[data-fw-read="sommerfugl"]').click();
     await page.locator('.fw-hint').click();
     await page.locator('.fw-fox-button').click();
