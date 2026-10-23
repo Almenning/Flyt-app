@@ -856,7 +856,7 @@
   .gm-shell[data-gm-mode="mission"] .gm-story.gm-quest{
     width:100%;
     margin:0;
-    padding-left:clamp(150px,22vw,205px);
+    padding-left:clamp(16px,3.1vw,48px);
   }
   .gm-shell[data-gm-mode="mission"] .gm-quest-steps{
     display:flex;
