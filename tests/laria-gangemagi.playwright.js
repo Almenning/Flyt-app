@@ -257,12 +257,24 @@ async function check(engine,label,viewport,url){
   assert.equal(calmStart.visibleEmptyTags,0,'empty market baskets should show simple clear names, not tiny 0/3 labels');
   assert.deepEqual(calmStart.basketNames,['Kurv 1','Kurv 2','Kurv 3'],'basket names remain clear');
 
+  // The locked original remains available, while the playable scene now uses
+  // its own richer Tallenga painting. Verify both assets, not just a filename.
   const tallengaScene=await page.request.get(new URL('gangemagi-tallenga-market-v1.svg',url).href);
-  assert.equal(tallengaScene.status(),200,'the dedicated Tallenga strawberry-market scene must load');
+  assert.equal(tallengaScene.status(),200,'the original dedicated Tallenga market scene must remain available');
   assert.match(tallengaScene.headers()['content-type'],/image\/svg\+xml/);
+  const premiumScene=await page.request.get(new URL('gangemagi-tallenga-market-premium-20261023.svg',url).href);
+  assert.equal(premiumScene.status(),200,'the new detailed Tallenga landscape must load');
+  assert.match(premiumScene.headers()['content-type'],/image\/svg\+xml/);
+  const premiumMarkup=await premiumScene.text();
+  assert.match(premiumMarkup,/<svg[^>]+viewBox="0 0 1400 730"/,
+    label+' the premium landscape must retain a scalable wide scene, not a fixed screenshot');
+  assert.match(premiumMarkup,/aria-label="Lysere Tallenga-marked med bro, blomster, handelsboder og dybde"/,
+    label+' the detailed market must be our authored Tallenga landscape');
+  assert.doesNotMatch(premiumMarkup,/<text(?:\s|>)|<foreignObject(?:\s|>)/i,
+    label+' the background must not bake in false tasks, numbers or controls');
   const sceneBackground=await page.locator('.gm-world').evaluate(el=>getComputedStyle(el).backgroundImage);
-  assert.match(sceneBackground,/gangemagi-tallenga-market-v1\.svg/,
-    label+' Gangemagi must use its calm authored market scene, not the generic busy maths background');
+  assert.match(sceneBackground,/gangemagi-tallenga-market-premium-20261023\.svg/,
+    label+' Gangemagi must use its approved authored premium market scene, not the generic maths background');
   const tableArt=await page.request.get(new URL('gangemagi-market-table-premium.svg',url).href);
   assert.equal(tableArt.status(),200,'original illustrated market counter must load');
   assert.match(tableArt.headers()['content-type'],/image\/svg\+xml/);
