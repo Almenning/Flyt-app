@@ -75,6 +75,10 @@ const landscapeZones=[
   {name:'North Australian tropics',type:'savanna',width:7,route:[[124,-15],[132,-15],[140,-17]]},
   {name:'Madagascar eastern forest',type:'forest',width:4,route:[[49,-14],[48,-18],[47,-22]]}
 ];
+const movingMaterialZoneNames=new Set([
+  'Amazonas rainforest','Congo rainforest','Northern Asian taiga',
+  'Sahara dune seas','Australian outback','Greenland ice'
+]);
 const ecosystemPalette={
   forest:['#296D51','#438A60','#8CB17B'],
   rainforest:['#1E704F','#298754','#79AD69'],
@@ -198,7 +202,60 @@ function paintSphereAtmosphere(ctx,w,h,s){
   ctx.fillStyle=rim;ctx.fillRect(0,0,w,h);
   ctx.restore();
 }
-function paintLandBase(ctx,w,h,s){
+function paintMovingLandMaterial(ctx,w,h,s,level){
+  if(level>2)return 0;
+  const detailScale=level===1?1:.78;
+  let painted=1;
+  /* Dragging should preserve the same spherical material language without
+     exposing the expensive stationary terrain field. Keep this deliberately
+     quiet: one warm land wash, one cool depth wash and only the continent-
+     defining mountain shoulders. No biome corridors or broad map bands. */
+  const warm=ctx.createRadialGradient(w*.34,h*.23,0,w*.42,h*.38,s*.40);
+  warm.addColorStop(0,'rgba(255,235,178,.15)');
+  warm.addColorStop(.58,'rgba(255,231,166,.035)');
+  warm.addColorStop(1,'rgba(255,231,166,0)');
+  ctx.fillStyle=warm;ctx.fillRect(0,0,w,h);
+  const depth=ctx.createRadialGradient(w*.72,h*.74,0,w*.62,h*.62,s*.46);
+  depth.addColorStop(0,'rgba(21,74,63,.10)');
+  depth.addColorStop(.68,'rgba(18,62,57,.035)');
+  depth.addColorStop(1,'rgba(18,62,57,0)');
+  ctx.fillStyle=depth;ctx.fillRect(0,0,w,h);
+  /* A handful of soft continent pigments keep the world's identity while
+     moving. Each zone is one blurred-looking radial wash, never a corridor
+     stroke, so Sahara/Amazonas read as material rather than map bands. */
+  for(const zone of landscapeZones){
+    if(!movingMaterialZoneNames.has(zone.name))continue;
+    const center=zone.route[Math.floor(zone.route.length/2)];
+    const p=project(center[0],center[1],w,h);if(!p||p[2]<.17)continue;
+    const radius=clamp(geoBrushWidth(zone,w,h,s)*.58*detailScale,s*.018,s*.082);
+    ctx.save();ctx.translate(p[0],p[1]);ctx.scale(1.65,.78);
+    const wash=ctx.createRadialGradient(0,0,0,0,0,radius);
+    const centerTone=zone.type==='desert'?'rgba(228,170,79,.13)':
+      zone.type==='rainforest'?'rgba(15,79,46,.12)':
+      zone.type==='forest'?'rgba(40,92,55,.085)':
+      zone.type==='ice'?'rgba(226,244,236,.13)':
+      'rgba(157,153,82,.08)';
+    wash.addColorStop(0,centerTone);wash.addColorStop(.58,'rgba(255,255,255,.018)');wash.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=wash;ctx.beginPath();ctx.arc(0,0,radius,0,Math.PI*2);ctx.fill();
+    ctx.restore();painted++;
+  }
+  for(const chain of mountainChains){
+    if(!continentCrestChains.has(chain.name))continue;
+    const zone={route:chain.route,width:Math.max(2.2,chain.width*2.5)};
+    if(!smoothGeoStroke(ctx,chain.route,w,h,s))continue;
+    const shoulder=clamp(geoBrushWidth(zone,w,h,s)*.20*detailScale,s*.0045,s*.015);
+    ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
+    ctx.strokeStyle=chain.snow?'rgba(224,235,213,.22)':'rgba(86,72,50,.16)';
+    ctx.lineWidth=shoulder;ctx.stroke();
+    if(smoothGeoStroke(ctx,chain.route,w,h,s)){
+      ctx.strokeStyle=chain.snow?'rgba(255,250,226,.18)':'rgba(229,199,143,.12)';
+      ctx.lineWidth=Math.max(.55,shoulder*.28);ctx.stroke();
+    }
+    ctx.restore();painted++;
+  }
+  return painted;
+}
+function paintLandBase(ctx,w,h,s,moving,level){
   // Countries are separate geographic hit targets, but the child should see
   // ONE living continent. A per-country shadow made every nation look like a
   // raised puzzle tile. Fill all authoritative polygons as a single shape,
@@ -206,7 +263,7 @@ function paintLandBase(ctx,w,h,s){
   ctx.save();
   ctx.beginPath();let joined=false;
   for(const c of land())if(c.geometry)joined=path(ctx,c,w,h)||joined;
-  if(!joined){ctx.restore();return;}
+  if(!joined){ctx.restore();return 0;}
   const base='#7EA373';
   const g=ctx.createLinearGradient(w*.22,h*.10,w*.80,h*.90);
   g.addColorStop(0,mix(base,'#FFF0BE',.40));
@@ -217,13 +274,19 @@ function paintLandBase(ctx,w,h,s){
   ctx.shadowBlur=Math.max(4,s*.013);
   ctx.shadowOffsetY=Math.max(1.5,s*.004);
   ctx.fill();
-  ctx.restore();
-  ctx.save();if(!landClip(ctx,w,h)){ctx.restore();return;}
+  /* The joined country path is still current after fill(). Clip it once and
+     reuse it for both sphere lighting and the lightweight moving material.
+     This removes the old second landClip geometry pass on every frame. */
+  ctx.shadowColor='transparent';ctx.shadowBlur=0;ctx.shadowOffsetY=0;
+  ctx.clip();
   const sun=ctx.createRadialGradient(w*.33,h*.22,0,w*.50,h*.50,s*.52);
   sun.addColorStop(0,'rgba(255,245,196,.44)');
   sun.addColorStop(.58,'rgba(255,238,181,.05)');
   sun.addColorStop(1,'rgba(24,69,55,.18)');
-  ctx.fillStyle=sun;ctx.fillRect(0,0,w,h);ctx.restore();
+  ctx.fillStyle=sun;ctx.fillRect(0,0,w,h);
+  const movingMaterial=moving?paintMovingLandMaterial(ctx,w,h,s,level):0;
+  ctx.restore();
+  return movingMaterial;
 }
 /* A real Antarctic coastline is painted only by Oppdag. Land polygons and
    clickable countries in the existing Enkel/Atlas engines are never changed.
@@ -937,7 +1000,8 @@ function discoveryDraw(){
   const level=globeZoom<1.7?1:globeZoom<2.8?2:3;
   /* Pointer ownership is the reliable signal while a drag is active. */
   const moving=window.__lariaGlobeInteracting===true&&typeof globePointers!=='undefined'&&globePointers.size>0;
-  ocean(ctx,w,h,s);paintLandBase(ctx,w,h,s);
+  ocean(ctx,w,h,s);
+  const movingMaterialCount=paintLandBase(ctx,w,h,s,moving,level);
   /* Material pass replaces separate biome washes: the land reads as one painted surface. */
   const biomeCount=0;
   const fieldCount=paintWorldTerrain(ctx,w,h,s,level,moving);
@@ -960,7 +1024,7 @@ function discoveryDraw(){
   if(typeof drawGlobePulse==='function')drawGlobePulse(ctx,w,h);
   ctx.restore();
   screen.dataset.discoveryGlobeLevel=String(level);screen.dataset.discoveryGlobe='painted-atlas-v1';
-  canvas.dataset.discoveryRenderer='live';canvas.dataset.discoveryTerrainField=String(fieldCount);canvas.dataset.discoveryMacroRelief=String(macroCount);canvas.dataset.discoveryEcosystems=String(biomeCount);canvas.dataset.discoveryRelief=String(reliefCount);canvas.dataset.discoveryTexture=String(textureCount);canvas.dataset.discoveryLandmarks=String(landmarkCount+terrainCount+reliefCount+textureCount+seaCount+biomeCount+fieldCount);canvas.dataset.discoveryMoving=String(moving);
+  canvas.dataset.discoveryRenderer='live';canvas.dataset.discoveryTerrainField=String(fieldCount);canvas.dataset.discoveryMacroRelief=String(macroCount);canvas.dataset.discoveryMovingMaterial=String(movingMaterialCount);canvas.dataset.discoveryEcosystems=String(biomeCount);canvas.dataset.discoveryRelief=String(reliefCount);canvas.dataset.discoveryTexture=String(textureCount);canvas.dataset.discoveryLandmarks=String(landmarkCount+terrainCount+reliefCount+textureCount+seaCount+biomeCount+fieldCount);canvas.dataset.discoveryMoving=String(moving);
   canvas.dataset.discoveryLocationCount=String(discoveryLocationCount);
   canvas.dataset.discoveryLocationName=discoveryLocationCount?activeDiscoveryLocation.title:'';
   canvas.dataset.discoveryAntarcticLand=String(polarCount);
