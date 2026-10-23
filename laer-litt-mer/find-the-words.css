@@ -744,7 +744,7 @@
  .fw-top{min-height:60px}
  .fw-stage{align-items:center;gap:4px}
  .fw-art,.fw-stage-label,.fw-scene-bottom{
-  width:min(100%,640px);
+  width:min(100%,650px);
   align-self:center;
  }
  .fw-stage-label{min-height:30px}
