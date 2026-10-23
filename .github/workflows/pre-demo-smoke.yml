@@ -61,7 +61,7 @@ jobs:
           status=${PIPESTATUS[0]}
           exit "$status"
       - name: Verify exact-head Læria runtime before publishing
-        if: always()
+        if: ${{ !cancelled() }}
         env:
           QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
         shell: bash
