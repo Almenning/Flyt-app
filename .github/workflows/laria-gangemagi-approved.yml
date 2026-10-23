@@ -65,7 +65,20 @@ jobs:
       matrix:
         browser: [chrome, webkit]
     steps:
+      # On pull_request GitHub normally checks out refs/pull/N/merge. This
+      # contract verifies the actual branch HEAD instead of a synthetic merge.
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - name: Assert exact Gangemagi commit under test
+        shell: bash
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          actual="$(git rev-parse HEAD)"
+          echo "GANGEMAGI_TESTED_HEAD=$actual"
+          test "$actual" = "$EXPECTED_HEAD"
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -102,7 +115,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: laria-gangemagi-approved-art-${{ github.sha }}-${{ matrix.browser }}
+          name: laria-gangemagi-approved-art-${{ github.event.pull_request.head.sha || github.sha }}-${{ matrix.browser }}
           path: /tmp/laria-gangemagi-approved-visual
           retention-days: 14
           if-no-files-found: warn
