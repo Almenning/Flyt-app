@@ -27,7 +27,9 @@ concurrency:
 jobs:
   picture-hunt:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.1-noble
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -35,8 +37,6 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - name: Install real WebKit and Chromium browsers
-        run: npx playwright install --with-deps chromium webkit
       - name: Verify picture hunt on iPhone and iPad
         env:
           FIND_WORDS_SCREENSHOTS: /tmp/laria-find-words
