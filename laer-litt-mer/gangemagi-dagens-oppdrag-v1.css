@@ -807,7 +807,7 @@
      addition and multiplication stay below it instead of being painted under
      an absolutely positioned guide. */
   .gm-shell[data-gm-mode="mission"][data-gm-complete="true"] .gm-scene{
-    padding-bottom:44px;
+    padding-bottom:64px;
   }
   .gm-shell[data-gm-mode="mission"] .gm-market,
   .gm-shell[data-gm-mode="mission"] .gm-math,
