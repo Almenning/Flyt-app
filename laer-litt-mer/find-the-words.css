@@ -712,3 +712,27 @@
  .fw-title{pointer-events:none}
  .fw-back,.fw-audio{pointer-events:auto;z-index:30}
 }
+
+
+/* premium desktop header grid fix */
+@media (min-width:901px){
+ .fw-top{
+  display:grid;
+  grid-template-columns:58px minmax(0,520px) 112px;
+  align-items:center;
+  justify-content:space-between;
+  column-gap:18px;
+  width:100%;
+  padding:0;
+  pointer-events:auto;
+ }
+ .fw-back,.fw-audio{
+  position:static;
+  inset:auto;
+  transform:none;
+  z-index:auto;
+ }
+ .fw-back:active,.fw-audio:active{transform:translateY(2px)}
+ .fw-title{justify-self:center;width:100%;pointer-events:none}
+ .fw-audio{justify-self:end}
+}
