@@ -3,7 +3,6 @@ on:
   pull_request:
     branches: [main]
     paths:
-      - 'laer-litt-mer/index.html'
       - 'laer-litt-mer/chapter-expansion-*'
       - 'laer-litt-mer/chapter-fox-buddy-*'
       - 'laer-litt-mer/math-pattern-haven-*'
@@ -11,7 +10,6 @@ on:
       - 'laer-litt-mer/geography-continent-voyage-*'
       - 'tests/laria-four-chapters-integration.*'
       - 'tests/laria-chapter-fox-buddy.test.cjs'
-      - '.github/workflows/laria-four-chapters-integration.yml'
 permissions:
   contents: read
 concurrency:
