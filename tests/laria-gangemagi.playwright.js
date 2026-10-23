@@ -327,14 +327,18 @@ async function check(engine,label,viewport,url){
     const foxSpeech=await page.locator('.gm-fox-bubble').evaluate(el=>{
       const style=getComputedStyle(el),tail=getComputedStyle(el,'::before');
       const size=parseFloat(tail.width),left=parseFloat(tail.left);
+      const bubble=el.getBoundingClientRect(),math=document.querySelector('.gm-math').getBoundingClientRect();
       return {arrowRight:left+size*(1+Math.SQRT2)/2,
         textInset:parseFloat(style.paddingLeft),
         textWidth:el.querySelector('.gm-fox-message').clientWidth,
-        textScroll:el.querySelector('.gm-fox-message').scrollWidth};
+        textScroll:el.querySelector('.gm-fox-message').scrollWidth,
+        bubbleBottom:bubble.bottom,mathTop:math.top};
     });
     assert.ok(foxSpeech.arrowRight<=foxSpeech.textInset-2&&
       foxSpeech.textScroll<=foxSpeech.textWidth+1,
       label+' iPad portrait speech arrow may not cover letters '+JSON.stringify(foxSpeech));
+    assert.ok(foxSpeech.bubbleBottom<=foxSpeech.mathTop+2,
+      label+' iPad portrait maths must not cover the fox instruction '+JSON.stringify(foxSpeech));
   }
   if(viewport.width>=900&&viewport.height<=900){
     const guide=await page.evaluate(()=>{
