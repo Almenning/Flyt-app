@@ -64,7 +64,9 @@
       const spec=MISSIONS[st.mission];st.groups=spec.groups;st.each=spec.each;
       st.counts=Array(st.groups).fill(0);
     }else if(a.type==='next'){
-      st.mode='mission';st.mission=(st.mission+1)%MISSIONS.length;
+      // Chapter eight concludes the adventure; replay is the child's choice.
+      if(st.mission===MISSIONS.length-1)return st;
+      st.mode='mission';st.mission=st.mission+1;
       const spec=MISSIONS[st.mission];st.groups=spec.groups;st.each=spec.each;
       st.counts=Array(st.groups).fill(0);
     }else if(a.type==='mode'){

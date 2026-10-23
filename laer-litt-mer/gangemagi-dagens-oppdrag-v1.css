@@ -696,6 +696,26 @@
   min-height:58px;
   min-width:min(62vw,480px);
 }
+/* The eighth chapter ends with two voluntary, actual touch targets.
+   Wrap instead of shrinking the controls on narrow phones. */
+.gm-shell[data-gm-finale="true"] .gm-actions-complete{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+}
+.gm-shell[data-gm-finale="true"] .gm-actions-complete .gm-next{
+  min-width:min(100%,275px);
+  flex:1 1 275px;
+  max-width:480px;
+}
+.gm-shell[data-gm-finale="true"] .gm-finale-book{
+  min-width:152px;
+  min-height:52px;
+  flex:0 1 auto;
+}
+
 .gm-shell[data-gm-mode="mission"] .gm-secondary-nav{
   display:grid;
   grid-template-columns:repeat(3,minmax(0,1fr));

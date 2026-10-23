@@ -132,6 +132,8 @@
    const result=E.equation(state),sum=result.total,goal=E.target(state),complete=result.complete;
    const nextIndex=state.counts.findIndex(n=>n<state.each);
    const free=state.mode==='free',modeClass=free?'free':'mission';
+   const finale=!free&&complete&&state.mission===E.MISSIONS.length-1;
+   const entireMarketReady=finale&&state.wins.length===E.MISSIONS.length;
    const progress=Math.round(sum/goal*100);
    const msg=message();
    // Start with the unfinished challenge. During a mission, show the real
@@ -140,7 +142,7 @@
    const equation=!free&&sum===0?state.groups+' × '+state.each+' = ?':
      (!free&&!complete?result.addition:(result.multiplication||result.addition));
    const active=state.mode==='mission'?'Oppdrag':'Fri lek';
-   root.innerHTML='<main class="gm-shell" data-gm-mode="'+modeClass+'" data-gm-groups="'+state.groups+'" data-gm-each="'+state.each+'" data-gm-sum="'+sum+'" data-gm-selected="'+selectedGroup+'" data-gm-complete="'+complete+'">'+
+   root.innerHTML='<main class="gm-shell" data-gm-mode="'+modeClass+'" data-gm-groups="'+state.groups+'" data-gm-each="'+state.each+'" data-gm-sum="'+sum+'" data-gm-selected="'+selectedGroup+'" data-gm-complete="'+complete+'" data-gm-finale="'+finale+'">'+
       '<div class="gm-layout"><header class="gm-top">'+
       '<button type="button" class="gm-back" id="multiplication-lab-back" data-gm-action="back" aria-label="Tilbake til matte">‹</button>'+
       '<div class="gm-brand"><span class="gm-brand-mark">Læ<span>ria</span> ✦</span><small>TALLENGA / GANGEMAGI</small></div>'+ 
@@ -168,12 +170,14 @@
          (free?'<div class="gm-progress-track" role="progressbar" aria-label="Jordbær pakket" aria-valuemin="0" aria-valuemax="'+goal+'" aria-valuenow="'+sum+'"><span style="width:'+progress+'%"></span></div>':'')+
          (!free?'<div class="gm-berry-progress" aria-label="'+sum+' av '+goal+' jordbær lagt i kurvene"><strong>'+sum+' av '+goal+'</strong></div>':'')+
          '<div class="gm-math-note'+(result.multiplication?' gm-math-discovery':'')+'"'+(result.multiplication?' role="status"':'')+'>'+(result.multiplication?'✦ Like grupper: '+state.groups+' kurver med '+state.counts[0]+' bær = '+sum+'!':'Når kurvene har ulikt antall, legger vi sammen.')+'</div></div>'+
-       (complete?'<div class="gm-celebration" role="status"><span class="gm-celebration-flower" aria-hidden="true">✿</span><span class="gm-celebration-copy"><strong>'+esc(free?'Så fint du laget det!':'Oppdraget er klart!')+'</strong><small>'+(free?'Du pakket '+goal+' jordbær.':'Markedsblomst '+state.wins.length+' av '+E.MISSIONS.length+' · '+goal+' jordbær pakket')+'</small></span></div>':'')+
+       (complete?'<div class="gm-celebration" role="status"><span class="gm-celebration-flower" aria-hidden="true">✿</span><span class="gm-celebration-copy"><strong>'+esc(free?'Så fint du laget det!':finale?(entireMarketReady?'Hele markedet feirer!':'Den store høstingen er klar!'):'Oppdraget er klart!')+'</strong><small>'+(free?'Du pakket '+goal+' jordbær.':finale?(entireMarketReady?'8 av 8 oppdrag er klare. Nå kan du utforske videre!':'Du fullførte høstingen. Velg hva du vil gjøre videre.'):'Markedsblomst '+state.wins.length+' av '+E.MISSIONS.length+' · '+goal+' jordbær pakket')+'</small></span></div>':'')+
        '</section>'+
        '<div class="gm-actions '+(complete?'gm-actions-complete':'')+'">'+
          (complete?
            (free?'<button type="button" class="gm-next" data-gm-action="restart">Pakk kurvene på nytt <span aria-hidden="true">↻</span></button>':
-              '<button type="button" class="gm-next" data-gm-action="next">Neste oppdrag <span aria-hidden="true">➜</span></button>'):
+             finale?'<button type="button" class="gm-next" data-gm-action="mode" data-mode="free">Lek videre i Tallenga <span aria-hidden="true">✦</span></button>'+
+                 '<button type="button" class="gm-tool gm-finale-book" data-gm-action="open-book">Velg et oppdrag</button>':
+             '<button type="button" class="gm-next" data-gm-action="next">Neste oppdrag <span aria-hidden="true">➜</span></button>'):
            (free?fruitSupply(true):'')+
            '<button type="button" class="gm-tool" data-gm-action="hint"><span aria-hidden="true">✧</span> Hint</button>')+
          (undo.length?'<button type="button" class="gm-tool" data-gm-action="undo"><span aria-hidden="true">↶</span> Angre</button>':'')+

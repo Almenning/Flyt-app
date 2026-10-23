@@ -117,10 +117,14 @@ test('Each of the eight authored missions can actually be completed and earns ex
   assert.equal(E.total(state),expectedTotal,'full basket refuses extra berries');
   assert.equal(state.wins.length,index+1,'no duplicate flowers after full basket');
  }
- state=E.apply(state,{type:'next'});
- assert.equal(state.mission,0,'after eight missions new play begins at chapter start');
- assert.deepEqual(state.counts,[0,0,0]);
- assert.equal(state.wins.length,8,'all collected flowers survive the wraparound');
- state=E.apply(state,{type:'mode',mode:'free'});
+ const completedMarket=E.apply(state,{type:'next'});
+ assert.deepEqual(completedMarket,state,'chapter eight must not silently loop to chapter one');
+ assert.deepEqual(completedMarket.counts,[10,10],'final baskets remain visible for the celebration');
+ assert.equal(completedMarket.wins.length,8,'all collected flowers survive the finale');
+ state=E.apply(completedMarket,{type:'mode',mode:'free'});
+ assert.equal(state.mode,'free','child can choose open-ended play after the finale');
  assert.equal(state.wins.length,8,'free play does not erase the magic book');
+ state=E.apply(state,{type:'mission',index:0});
+ assert.equal(state.mission,0,'replay of the first mission is an explicit child choice');
+ assert.equal(state.wins.length,8,'replay preserves all earned flowers');
 });

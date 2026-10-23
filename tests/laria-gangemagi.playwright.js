@@ -960,6 +960,42 @@ async function check(engine,label,viewport,url){
     assert.equal(await page.locator('.gm-quest-mini-berries i').count(),1,
       label+' chapter '+(index+1)+' the live illustration counts exactly one placed berry');
   }
+  // An earned eighth flower must end at a real celebration, not silently
+  // wrap to the first chapter. The pure engine verifies actual fruit packing;
+  // here we verify the child-facing choices on every real test device.
+  await page.evaluate(ids=>{
+    const current=JSON.parse(localStorage.getItem('laria-gangemagi-v1')||'{}');
+    localStorage.setItem('laria-gangemagi-v1',JSON.stringify({
+      ...current,mode:'mission',mission:7,groups:2,each:10,
+      counts:[10,10],wins:ids
+    }));
+  },allMissions.map(m=>m.id));
+  await page.reload({waitUntil:'domcontentloaded'});
+  await page.waitForFunction(()=>window.LARIA_GANGEMAGI?.version==='playable-v1');
+  await page.evaluate(()=>window.openMultiplicationLab());
+  assert.equal(await page.locator('.gm-shell[data-gm-finale="true"]').count(),1,
+    label+' chapter eight must have an explicit celebratory scene');
+  assert.match(await page.locator('.gm-celebration-copy strong').innerText(),/Hele markedet feirer/);
+  assert.equal(await page.locator('[data-gm-action="next"]').count(),0,
+    label+' the completed market must not silently restart at chapter one');
+  assert.equal(await page.locator('.gm-actions-complete .gm-next[data-gm-action="mode"][data-mode="free"]').count(),1,
+    label+' child may opt into free play, rather than being pushed along');
+  assert.equal(await page.locator('.gm-finale-book[data-gm-action="open-book"]').count(),1,
+    label+' the child's completed favourites remain accessible');
+  const finaleLayout=await page.evaluate(()=>{
+    const buttons=[...document.querySelectorAll('.gm-actions-complete button')].map(b=>b.getBoundingClientRect());
+    return {overflow:document.documentElement.scrollWidth-innerWidth,
+      touch:buttons.map(b=>({width:b.width,height:b.height})),
+      overlap:buttons.length>1&&buttons[0].left<buttons[1].right-2&&buttons[0].right>buttons[1].left+2&&buttons[0].top<buttons[1].bottom-2&&buttons[0].bottom>buttons[1].top+2};
+  });
+  assert.ok(finaleLayout.overflow<=4&&!finaleLayout.overlap&&
+    finaleLayout.touch.every(b=>b.width>=44&&b.height>=44),
+    label+' final choices must be separated, legible and touch-sized '+JSON.stringify(finaleLayout));
+  await shot(page,label+'-09-completed-market-finale');
+  await page.locator('.gm-actions-complete .gm-next[data-gm-action="mode"][data-mode="free"]').click();
+  const afterFinale=await page.evaluate(()=>LARIA_GANGEMAGI.snapshot());
+  assert.equal(afterFinale.mode,'free','finale moves to free play only when chosen');
+  assert.equal(afterFinale.wins.length,8,'all flowers survive the free-play transition');
   await page.evaluate(()=>showScreen('home'));
   await page.locator('#home-screen.active').waitFor();
   const returnedHome=await page.locator('.app').evaluate(el=>({
