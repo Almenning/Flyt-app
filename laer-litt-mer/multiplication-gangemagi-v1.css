@@ -178,7 +178,9 @@ body:has(#multiplication-lab-screen.active .gm-shell){background-color:#f5dfbd}
 .gm-market-fruit-supply .gm-pick{width:100%;max-width:none;min-height:71px;border-color:#ffedca;border-bottom-color:#7d4c36;border-radius:18px;background:linear-gradient(180deg,#ba7057,#8d4c39);box-shadow:inset 0 1px #ffe1ba,0 6px 0 #6f432f,0 13px 18px #53372540}
 .gm-market-fruit-supply .gm-pick-fruit{width:62px;height:58px;margin-left:-4px}.gm-market-fruit-supply .gm-source-berry{display:inline-block;width:21px;height:26px;margin:-4px}.gm-market-fruit-supply .gm-source-berry svg{width:100%;height:100%}
 .gm-market-fruit-supply .gm-pick>span:nth-child(2){font-size:15px}.gm-market-fruit-supply .gm-pick small{display:block;color:#fff3d8}
-.gm-shell[data-gm-complete="false"] .gm-actions>.gm-pick{display:none}
+/* Mission supply lives inside the market. Free play keeps its own single-berry
+   pickup control below the scene, so do not hide that real interaction. */
+.gm-shell[data-gm-mode="mission"][data-gm-complete="false"] .gm-actions>.gm-pick{display:none}
 .gm-math{margin-top:9px;background:linear-gradient(135deg,#fff9e8f5,#f6e2b9f3);box-shadow:0 5px 0 #b88e6244,0 12px 22px #715b4026}
 .gm-group-counts{align-self:center}.gm-shell[data-gm-complete="true"] .gm-group-counts{display:none}
 @keyframes gm-basket-invite{0%,100%{filter:brightness(1)}50%{filter:brightness(1.08) saturate(1.07)}}
