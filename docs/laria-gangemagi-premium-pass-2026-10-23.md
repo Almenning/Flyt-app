@@ -34,3 +34,10 @@ Personlig rev, åtte oppdrag, drag/trykk/fjern/angre/hint, fri lek, Markedsbok, 
 ## Foreløpig kvalitetsvurdering
 
 Retningen er tydeligere og nærmere den låste komposisjonen: handlingen er samlet rundt markedet, og den konkrete matematikken er mer synlig. Den er ikke premiumgodkjent ennå. Spesielt må en menneskelig side-ved-side-kontroll verifisere visuell tetthet, proporsjoner og første-fold på iPad liggende før videre beslutning.
+
+
+## 23. oktober – visuell Tallenga-oppgradering
+- Laget `laer-litt-mer/gangemagi-tallenga-market-premium-20261023.svg` som nytt illustrert miljø basert på eksisterende Tallenga-SVG, med steinbro, markedsbaldakiner, blomster, varmere lys og landskapsdybde. Ingen falske kurver, tall, oppgaveknapper eller rev er bakt inn i bakgrunnen.
+- Koblet nytt miljø til den ekte Gangemagi-scenen i `gangemagi-dagens-oppdrag-v1.css`. iPad-oppdragstavlens vertikale padding er redusert for å gi større visuell plass til de interaktive kurvene.
+- Ingen endringer i JavaScript, matematikk, personlig rev eller progresjon.
+- Fremdeles draft. Chromium/WebKit- og skjermbildekontroll på commit `70b496d` er nødvendig før ny visuell vurdering, merge eller publisering.
