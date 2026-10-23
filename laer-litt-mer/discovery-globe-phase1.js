@@ -332,8 +332,8 @@ const terrainSamples=(features,step)=>features.flatMap((feature,z)=>{
 let terrainBiomeAnchors=null;
 let terrainRidgeAnchors=null;
 const terrainTint={
-  rainforest:[18,85,54],forest:[45,106,70],desert:[230,180,107],
-  savanna:[163,159,88],tundra:[156,181,165],ice:[225,243,232]
+  rainforest:[13,78,43],forest:[37,96,58],desert:[236,174,79],
+  savanna:[171,158,73],tundra:[151,180,164],ice:[229,246,235]
 };
 function terrainHash(x,y,salt){
   let n=(Math.imul(x,374761393)+Math.imul(y,668265263)+Math.imul(salt,1442695041))|0;
@@ -428,7 +428,7 @@ function paintWorldTerrain(ctx,w,h,s,level,moving){
         const base=shade+mountainCut*85-mountainReach*32+reliefLight*94;
         const neutral=[118+base*.64,161+base*.75,115+base*.49];
         const alpha=clamp(.36+biomeReach*.70+mountainReach*.52,.34,.98);
-        const mixT=clamp(biomeReach*1.19,0,.99);
+        const mixT=clamp(biomeReach*1.29,0,.99);
         let red=neutral[0],green=neutral[1],blue=neutral[2];
         if(tint){
           red=red*(1-mixT)+tint[0]*mixT;
@@ -559,13 +559,13 @@ function paintMountainCrests(ctx,chain,w,h,s,level,width){
        tiny mountain symbols, even though their positions were correct. */
     ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
     if(!smoothGeoStroke(ctx,chain.route,w,h,s)){ctx.restore();return 0;}
-    ctx.strokeStyle=chain.snow?'rgba(48,84,76,.33)':'rgba(104,89,64,.28)';
-    ctx.lineWidth=Math.max(2.4,width*.64);ctx.stroke();
+    ctx.strokeStyle=chain.snow?'rgba(42,78,70,.44)':'rgba(94,76,51,.39)';
+    ctx.lineWidth=Math.max(3.0,width*.76);ctx.stroke();
     if(!smoothGeoStroke(ctx,chain.route,w,h,s)){ctx.restore();return 0;}
-    ctx.strokeStyle=chain.snow?'rgba(221,234,209,.34)':'rgba(222,195,142,.29)';
-    ctx.lineWidth=Math.max(1.0,width*.26);ctx.stroke();
+    ctx.strokeStyle=chain.snow?'rgba(226,239,212,.45)':'rgba(235,204,137,.39)';
+    ctx.lineWidth=Math.max(1.2,width*.32);ctx.stroke();
     if(chain.snow&&smoothGeoStroke(ctx,chain.route,w,h,s)){
-      ctx.strokeStyle='rgba(255,253,235,.34)';ctx.lineWidth=Math.max(.6,width*.085);ctx.stroke();
+      ctx.strokeStyle='rgba(255,253,235,.48)';ctx.lineWidth=Math.max(.72,width*.105);ctx.stroke();
     }
     ctx.restore();return 1;
   }
@@ -681,11 +681,11 @@ function paintGeographicTexture(ctx,w,h,s,level,moving){
     if(leafy&&level===1&&smoothGeoStroke(ctx,zone.route,w,h,s)){
       const canopyWidth=clamp(geoBrushWidth(zone,w,h,s)*.92,s*.018,s*.26);
       ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
-      ctx.strokeStyle=zone.type==='rainforest'?'rgba(20,91,57,.34)':'rgba(38,92,58,.30)';
-      ctx.lineWidth=canopyWidth;ctx.stroke();
+      ctx.strokeStyle=zone.type==='rainforest'?'rgba(14,82,47,.43)':'rgba(32,86,51,.38)';
+      ctx.lineWidth=canopyWidth*1.06;ctx.stroke();
       if(smoothGeoStroke(ctx,zone.route,w,h,s)){
-        ctx.strokeStyle=zone.type==='rainforest'?'rgba(137,194,108,.20)':'rgba(198,211,132,.18)';
-        ctx.lineWidth=Math.max(1,canopyWidth*.36);ctx.stroke();
+        ctx.strokeStyle=zone.type==='rainforest'?'rgba(148,204,111,.27)':'rgba(205,220,136,.24)';
+        ctx.lineWidth=Math.max(1.2,canopyWidth*.40);ctx.stroke();
       }
       ctx.restore();drawn++;
     }
@@ -912,7 +912,7 @@ function discoveryDraw(){
   canvas.dataset.discoveryLocationCount=String(discoveryLocationCount);
   canvas.dataset.discoveryLocationName=discoveryLocationCount?activeDiscoveryLocation.title:'';
   canvas.dataset.discoveryAntarcticLand=String(polarCount);
-  canvas.dataset.discoveryMaterialPass='continent-premium-v1';
+  canvas.dataset.discoveryMaterialPass='continent-premium-v2';
   canvas.dataset.discoveryPaintCount=String(Number(canvas.dataset.discoveryPaintCount||0)+1);
   // v25 can still seed the old Tsjad showcase after selecting Oppdag.
   // Reconcile after the card update has completed, not inside its draw call.
