@@ -1122,6 +1122,11 @@
   .gm-shell[data-gm-mode="mission"][data-gm-complete="true"] .gm-fox-bubble{
     margin-top:0;
   }
+  /* 320×568 has no spare vertical canvas. Remove only decorative breathing
+     room between the physical baskets, berry supply and maths; keep every
+     touch target and illustrated object at the same size. */
+  .gm-shell[data-gm-mode="mission"] .gm-market-fruit-supply{margin-top:-16px}
+  .gm-shell[data-gm-mode="mission"] .gm-math{margin-top:0}
 }
 
 /* Short phone landscape is a deliberate side-by-side market, retaining real
