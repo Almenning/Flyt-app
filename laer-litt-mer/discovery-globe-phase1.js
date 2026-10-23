@@ -1415,24 +1415,33 @@ const wait=()=>{
       // frame, after the input owner has picked the country and removed its
       // pointer. Do not duplicate or intercept the original hit-test.
       const type=event.type,trusted=event.isTrusted;
-      if(type==='pointercancel')trustedCountryRevealPending=false;
-      else if(type==='pointerup'&&trusted)trustedCountryRevealPending=true;
+      if(type==='pointercancel'){
+        trustedCountryRevealPending=false;
+        return;
+      }
+      if(type!=='pointerup'||!trusted)return;
+      trustedCountryRevealPending=true;
       let settleFrames=0;
-      const settleAfterPointer=()=>{
-        if(typeof globePointers!=='undefined'&&globePointers.size>0){
-          if(settleFrames++<2)requestAnimationFrame(settleAfterPointer);
-          return;
-        }
+      const settleTrustedTap=()=>{
+        /* Shared input and this passive Oppdag listener may run in either
+           order in WebKit. Wait for the actual shared state, not its pointer
+           registry cleanup. A true drag cancels; a real selected country
+           reveals its card. Six frames is bounded and well below a blink. */
         if(typeof globeMove==='number'&&globeMove>=8){
           trustedCountryRevealPending=false;
           clearOffscreenDiscoverySelection();
           renderDiscoveryWelcome();
-        }else if(type==='pointerup'&&trusted&&globeSelected){
+          return;
+        }
+        if(globeSelected){
           trustedCountryRevealPending=false;
           scrollShortDiscovery(true);
+          return;
         }
+        if(settleFrames++<5)requestAnimationFrame(settleTrustedTap);
+        else trustedCountryRevealPending=false;
       };
-      requestAnimationFrame(settleAfterPointer);
+      requestAnimationFrame(settleTrustedTap);
     };
     canvas.addEventListener('pointerup',afterDrag,{passive:true});
     canvas.addEventListener('pointercancel',afterDrag,{passive:true});
