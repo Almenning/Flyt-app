@@ -54,3 +54,9 @@ Retningen er tydeligere og nærmere den låste komposisjonen: handlingen er saml
 - Kontroll av ekte Chromium-artefakt fra `048cd0d` viste et gammelt «Et lite matteeventyr»-element malt mørkt oppå det nye treskiltet på liggende iPad. Fjernet den foreldede CSS-regelen som overstyrte den tilsiktede skjulingen. Ny Playwright-assert sikrer dette på alle store skjermformater.
 - Kort iPhone-landskap hadde mikroskopisk treplakett (10px) og nærmest usynlig jordbærkasse. Økt kun den ekte kildens avbildning og etikett til 176px, 12px tekst og 34px etikett; tatt tilsvarende dekorativ luft fra plassen foran markedet så eksisterende førstekjermskrav ikke svekkes. Tilsvarende Playwright-assert kontrollerer lesbarhet og touch.
 - Spillmotor, oppgaver, valgte rev, matematikk og progresjon er uendret. Både eksakt-HEAD Chromium/WebKit og manuell sammenligning gjenstår; PR er fortsatt draft, ikke merge/publiser.
+
+
+### 23.10.2026 – rotårsak til avbrutte QA-kjøringer og matrisebasert test
+- Begge dupliserte Chromium+WebKit-kjøringer på `048cd0d` ble avbrutt rundt den opprinnelige `timeout-minutes: 18` grensen, uten at full WebKit-aksept ble bekreftet. Den første leverte likevel ekte Chromium-skjermbilder som avslørte undertitteloverlapp og for liten iPhone-landskap-kasse, rettet i release41.
+- Ny GitHub-workflow kjører **akkurat samme totale testliste** i to samtidige, separate jobber (`chrome` og `webkit`) med uendrede eksisterende assertions, men per-browser Playwright-installasjon og 30 minutters realistisk tidsramme. Hele den gamle testen kan fortsatt kjøres lokalt uten filter. Eksplisitt sluttassert bekrefter at riktig nettleser faktisk ble kjørt, og skjermbildeartefakter får unik browser-suffiks.
+- `concurrency` bruker nå faktisk feature-branch på både push og PR, slik at to identiske workflows ikke konkurrerer om ressurser. Dette fjerner duplikatarbeid uten å hoppe over noen test. PR forblir draft, ingen merge/publisering.

@@ -1250,17 +1250,27 @@ async function checkBoyFox(browser,url){
 
 (async()=>{
  auditAllEightMissions();
+ // Run the full historical suite locally with no filter. The CI matrix
+ // splits the same Chromium and WebKit scenarios onto separate runners.
+ const selected=process.env.GANGEMAGI_QA_BROWSER||'all';
+ assert.ok(['all','chrome','webkit'].includes(selected),
+   'unsupported requested browser filter: '+selected);
  const {srv,url}=await serve();
+ let browsersTested=0;
  try{
   for(const [type,browserType,devices] of [
    ['chrome',chromium,[['iphone390',{width:390,height:844}],['ipad-landscape',{width:1180,height:820}]]],
    ['webkit',webkit,[['iphone-small',{width:320,height:568}],['iphone390',{width:390,height:844}],['ipad-portrait',{width:820,height:1180}],['ipad-landscape',{width:1180,height:820}]]]
   ]){
+   if(selected!=='all'&&selected!==type)continue;
+   browsersTested++;
    const browser=await browserType.launch({headless:true});
    try{for(const [device,viewport] of devices)await check(browser,type+'-'+device,viewport,url);
     await checkLandscape(browser,type+'-iphone-landscape',url);
     if(type==='webkit')await checkBoyFox(browser,url);
    }finally{await browser.close();}
   }
+  assert.equal(browsersTested,selected==='all'?2:1,
+    'every requested browser must execute all its unchanged viewport checks');
  }finally{await new Promise(resolve=>srv.close(resolve));}
 })().catch(err=>{console.error(err);process.exitCode=1;});
