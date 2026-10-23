@@ -158,8 +158,8 @@ function landClip(ctx,w,h){
   return any;
 }
 function ocean(ctx,w,h,s){
-  const g=ctx.createRadialGradient(w*.35,h*.24,2,w*.54,h*.57,s*.68);
-  g.addColorStop(0,'#B9F3F0');g.addColorStop(.22,'#57D3D8');g.addColorStop(.55,'#218FBD');g.addColorStop(1,'#135B91');ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+  const g=ctx.createRadialGradient(w*.34,h*.22,2,w*.56,h*.60,s*.70);
+  g.addColorStop(0,'#C9FAF0');g.addColorStop(.20,'#61D9D6');g.addColorStop(.54,'#1E92BA');g.addColorStop(1,'#0D4B7D');ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
   /* A transparent water glaze gives the sea a broad, curved volume before
      the geographic currents are added. It is clipped by discoveryDraw's
      sphere, so it cannot spill into the storyscape behind the globe. */
@@ -179,6 +179,25 @@ function ocean(ctx,w,h,s){
   }
   ctx.restore();
 }
+/* A globe should read as a globe before the child notices any individual
+   biome. This screen-space light is deliberately not geography: it is the
+   shared studio light around the rotating sphere. Geography still rotates
+   beneath it and all land hit-testing remains untouched. */
+function paintSphereAtmosphere(ctx,w,h,s){
+  ctx.save();
+  const light=ctx.createRadialGradient(w*.34,h*.24,s*.04,w*.50,h*.51,s*.49);
+  light.addColorStop(0,'rgba(255,255,226,.18)');
+  light.addColorStop(.54,'rgba(255,255,236,.02)');
+  light.addColorStop(.82,'rgba(13,73,82,.05)');
+  light.addColorStop(1,'rgba(5,43,66,.24)');
+  ctx.fillStyle=light;ctx.fillRect(0,0,w,h);
+  const rim=ctx.createRadialGradient(w*.50,h*.50,s*.405,w*.50,h*.50,s*.462);
+  rim.addColorStop(0,'rgba(255,255,255,0)');
+  rim.addColorStop(.76,'rgba(229,255,244,.05)');
+  rim.addColorStop(1,'rgba(238,255,238,.30)');
+  ctx.fillStyle=rim;ctx.fillRect(0,0,w,h);
+  ctx.restore();
+}
 function paintLandBase(ctx,w,h,s){
   // Countries are separate geographic hit targets, but the child should see
   // ONE living continent. A per-country shadow made every nation look like a
@@ -188,22 +207,22 @@ function paintLandBase(ctx,w,h,s){
   ctx.beginPath();let joined=false;
   for(const c of land())if(c.geometry)joined=path(ctx,c,w,h)||joined;
   if(!joined){ctx.restore();return;}
-  const base='#84A87A';
-  const g=ctx.createLinearGradient(w*.25,h*.12,w*.78,h*.88);
-  g.addColorStop(0,mix(base,'#FFF7D8',.30));
-  g.addColorStop(.50,base);
-  g.addColorStop(1,mix(base,'#264E47',.25));
+  const base='#7EA373';
+  const g=ctx.createLinearGradient(w*.22,h*.10,w*.80,h*.90);
+  g.addColorStop(0,mix(base,'#FFF0BE',.40));
+  g.addColorStop(.46,base);
+  g.addColorStop(1,mix(base,'#173F39',.34));
   ctx.fillStyle=g;
-  ctx.shadowColor='rgba(29,54,48,.25)';
-  ctx.shadowBlur=Math.max(3,s*.009);
-  ctx.shadowOffsetY=Math.max(1,s*.003);
+  ctx.shadowColor='rgba(20,48,42,.34)';
+  ctx.shadowBlur=Math.max(4,s*.013);
+  ctx.shadowOffsetY=Math.max(1.5,s*.004);
   ctx.fill();
   ctx.restore();
   ctx.save();if(!landClip(ctx,w,h)){ctx.restore();return;}
   const sun=ctx.createRadialGradient(w*.33,h*.22,0,w*.50,h*.50,s*.52);
-  sun.addColorStop(0,'rgba(255,249,211,.34)');
-  sun.addColorStop(.62,'rgba(255,244,194,.04)');
-  sun.addColorStop(1,'rgba(38,81,57,.12)');
+  sun.addColorStop(0,'rgba(255,245,196,.44)');
+  sun.addColorStop(.58,'rgba(255,238,181,.05)');
+  sun.addColorStop(1,'rgba(24,69,55,.18)');
   ctx.fillStyle=sun;ctx.fillRect(0,0,w,h);ctx.restore();
 }
 /* A real Antarctic coastline is painted only by Oppdag. Land polygons and
@@ -408,7 +427,7 @@ function paintWorldTerrain(ctx,w,h,s,level,moving){
         const leafy=bp&&(bp.kind==='rainforest'||bp.kind==='forest');
         const base=shade+mountainCut*85-mountainReach*32+reliefLight*94;
         const neutral=[118+base*.64,161+base*.75,115+base*.49];
-        const alpha=clamp(.30+biomeReach*.61+mountainReach*.45,.28,.94);
+        const alpha=clamp(.36+biomeReach*.70+mountainReach*.52,.34,.98);
         const mixT=clamp(biomeReach*1.19,0,.99);
         let red=neutral[0],green=neutral[1],blue=neutral[2];
         if(tint){
@@ -882,7 +901,9 @@ function discoveryDraw(){
   ctx.restore();
   const polarCount=paintAntarcticIce(ctx,w,h,s);
   const seaCount=paintLandmarks(ctx,w,h,s,level,moving,true);
-  paintBorders(ctx,w,h,s,level);paintSmallCountries(ctx,w,h,s,level);
+  paintBorders(ctx,w,h,s,level);
+  paintSphereAtmosphere(ctx,w,h,s);
+  paintSmallCountries(ctx,w,h,s,level);
   const discoveryLocationCount=paintDiscoveryLocation(ctx,w,h,s,moving);
   if(typeof drawGlobePulse==='function')drawGlobePulse(ctx,w,h);
   ctx.restore();
@@ -891,6 +912,7 @@ function discoveryDraw(){
   canvas.dataset.discoveryLocationCount=String(discoveryLocationCount);
   canvas.dataset.discoveryLocationName=discoveryLocationCount?activeDiscoveryLocation.title:'';
   canvas.dataset.discoveryAntarcticLand=String(polarCount);
+  canvas.dataset.discoveryMaterialPass='continent-premium-v1';
   canvas.dataset.discoveryPaintCount=String(Number(canvas.dataset.discoveryPaintCount||0)+1);
   // v25 can still seed the old Tsjad showcase after selecting Oppdag.
   // Reconcile after the card update has completed, not inside its draw call.
