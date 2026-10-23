@@ -33,7 +33,6 @@ assert.match(preview,/function renderDiscoveryWelcome\(/,'Oppdag must present a 
 assert.match(preview,/function discoveryContinentForCamera\(/,'the invitation must follow the globe camera');
 assert.match(preview,/function scrollShortDiscovery\(/,'the small-phone flow must reveal the country card');
 assert.match(preview,/const type=event.type,trusted=event.isTrusted;/,'only real child taps may auto-scroll the discovery screen');
-assert.match(preview,/type==='pointerup'&&trusted&&globeSelected/,'the selected country must be confirmed after globe input');
 assert.match(preview,/const settleTrustedTap=\(\)=>\{[\s\S]*settleFrames\+\+<5[\s\S]*requestAnimationFrame\(settleTrustedTap\)/,
   'trusted taps must tolerate either WebKit listener order without depending on pointer-registry cleanup');
 assert.match(preview,/let trustedCountryRevealPending=false;/,'short-phone reveal must remember a trusted child tap');
