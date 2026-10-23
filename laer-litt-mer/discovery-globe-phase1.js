@@ -1352,6 +1352,7 @@ const wait=()=>{
   };
   window.LARIA_SET_GLOBE_VIEW=chooseView;
   const canvas=document.getElementById('globe-canvas');
+  let trustedCountryRevealPending=false;
   if(canvas){
     // The input owner already updates the rotation before these passive events.
     // Do not clear selection for a tap: only a completed drag or zoom can
@@ -1362,6 +1363,8 @@ const wait=()=>{
       // frame, after the input owner has picked the country and removed its
       // pointer. Do not duplicate or intercept the original hit-test.
       const type=event.type,trusted=event.isTrusted;
+      if(type==='pointercancel')trustedCountryRevealPending=false;
+      else if(type==='pointerup'&&trusted)trustedCountryRevealPending=true;
       let settleFrames=0;
       const settleAfterPointer=()=>{
         if(typeof globePointers!=='undefined'&&globePointers.size>0){
@@ -1369,10 +1372,13 @@ const wait=()=>{
           return;
         }
         if(typeof globeMove==='number'&&globeMove>=8){
+          trustedCountryRevealPending=false;
           clearOffscreenDiscoverySelection();
           renderDiscoveryWelcome();
-        }else if(type==='pointerup'&&trusted&&globeSelected)
+        }else if(type==='pointerup'&&trusted&&globeSelected){
+          trustedCountryRevealPending=false;
           scrollShortDiscovery(true);
+        }
       };
       requestAnimationFrame(settleAfterPointer);
     };
@@ -1398,7 +1404,19 @@ const wait=()=>{
     new MutationObserver(()=>{
       if(pendingCompanion)return;
       pendingCompanion=true;
-      requestAnimationFrame(()=>{pendingCompanion=false;enhanceDiscoveryCountryCard();syncSelectorPosition()});
+      requestAnimationFrame(()=>{
+        pendingCompanion=false;
+        enhanceDiscoveryCountryCard();
+        syncSelectorPosition();
+        /* WebKit may finish the shared country-card mutation before this
+           passive plugin sees the pointer registry clear. The mutation is
+           therefore the reliable final signal that a trusted tap produced a
+           real country selection. Programmatic selections never set the flag. */
+        if(trustedCountryRevealPending&&window.__lariaDiscoveryGlobePreview===true&&globeSelected){
+          trustedCountryRevealPending=false;
+          scrollShortDiscovery(true);
+        }
+      });
     }).observe(status,{childList:true,subtree:true});
   }
   controls.forEach(btn=>btn.addEventListener('click',()=>chooseView(btn.dataset.globeView)));
