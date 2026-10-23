@@ -21,7 +21,7 @@ test('Prompt 18 commerce contract is native-verified and parent controlled',()=>
   assert.equal(nativeConfig.appId,'no.adspire.laria');
   assert.equal(nativeConfig.appName,'Læria');
 
-  assert.match(html,/commerce-v18\.js\?v=20261007-p18rc1/);
+  assert.match(html,/commerce-v18\.js\?v=20261023-store-failsafe1/);
   assert.match(html,/id="commerce-screen"/);
   assert.match(html,/id="open-commerce"/);
   assert.match(html,/id="commerce-restore"/);
