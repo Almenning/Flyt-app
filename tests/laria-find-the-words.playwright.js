@@ -83,8 +83,8 @@ async function geometry(page,label,view){
       // Check the real visible painted point, not simply the HTML button centre.
       const garden=document.querySelector('.fw-scene-image').getAttribute('src').includes('find-the-words-garden');
       const points=garden?
-        {eple:[.24,.412],ugle:[.40,.39],sommerfugl:[.655,.363],lykt:[.848,.456],
-         bro:[.59,.688],sopp:[.146,.846],bok:[.395,.863],pinnsvin:[.895,.866]}:
+        {eple:[.17,.15],ugle:[.29,.23],sommerfugl:[.56,.15],lykt:[.37,.32],
+         bro:[.48,.58],sopp:[.78,.81],bok:[.18,.76],pinnsvin:[.93,.78]}:
         {sol:[.905,.17],tre:[.22,.395],telt:[.865,.745],vann:[.635,.64],
          rev:[.685,.82],sekk:[.255,.815],bat:[.545,.84],fugl:[.765,.455]};
       const picture=document.querySelector('.fw-picture').getBoundingClientRect();
