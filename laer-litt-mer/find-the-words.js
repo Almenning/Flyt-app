@@ -115,6 +115,11 @@
   function refresh(){
     if(!overlay||!active)return;
     overlay.dataset.scene=sceneId();
+    const garden=sceneId()==='garden';
+    const placeLabel=overlay.querySelector('.fw-tiny');
+    const panelCopy=overlay.querySelector('.fw-panel-copy');
+    if(placeLabel) placeLabel.textContent=garden?'DEN HEMMELIGE HAGEN':'BOKSKOGEN';
+    if(panelCopy) panelCopy.textContent='Se deg rundt i '+(garden?'den hemmelige hagen':'Bokskogen')+'. Velg et ord og finn tingen i bildet.';
     const all=words();
     overlay.querySelector('.fw-list').innerHTML=all.map(word=>{
       const item=OBJECTS[word],found=active.found.has(word),selected=selectedWord===word;
