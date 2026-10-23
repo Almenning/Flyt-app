@@ -755,7 +755,8 @@
   padding-top:2px;
   align-items:center;
  }
- .fw-fox{width:116px;height:124px}
- .fw-fox-button{min-height:124px}
+ .fw-panel-copy{display:none}
+ .fw-fox{width:135px;height:149px}
+ .fw-fox-button{min-height:149px}
  .fw-speech{font-size:15px;padding:9px 12px}
 }
