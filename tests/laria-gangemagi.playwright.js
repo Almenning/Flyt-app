@@ -243,6 +243,33 @@ async function check(engine,label,viewport,url){
     label+' board must use hand-illustrated wood and flowers, not a generic CSS card');
   assert.equal(boardMaterial.liveInstructions,3,'dynamic interactive teaching steps remain live markup');
   assert.match(boardMaterial.dynamicHeading,/Fyll 3 kurver/);
+  if(viewport.width>=1050&&viewport.height<=950){
+    const storyComposition=await page.locator('.gm-story.gm-quest').evaluate(board=>{
+      const bounds=board.getBoundingClientRect(),title=board.querySelector('h2');
+      const steps=[...board.querySelectorAll('.gm-quest-step')];
+      const preview=board.querySelector('.gm-quest-filled-preview');
+      const visibleSteps=steps.map(el=>({
+        visible:getComputedStyle(el).display!=='none',
+        font:parseFloat(getComputedStyle(el.querySelector('strong')).fontSize),
+        bounds:el.getBoundingClientRect()
+      }));
+      return {height:bounds.height,width:bounds.width,
+        titleHeight:title.getBoundingClientRect().height,
+        boardBottom:bounds.bottom,
+        steps:visibleSteps.map(v=>({shown:v.visible,font:v.font,
+           inside:v.bounds.left>=bounds.left-2&&v.bounds.right<=bounds.right+2&&
+                  v.bounds.bottom<=bounds.bottom+2})),
+        miniBaskets:preview?.querySelectorAll('.gm-quest-mini-basket').length};
+    });
+    assert.ok(storyComposition.height<=164,
+      label+' iPad quest sign must leave market centre free for actual play '+JSON.stringify(storyComposition));
+    assert.ok(storyComposition.titleHeight<=72,
+      label+' wide tablet instructions must form one readable sentence '+JSON.stringify(storyComposition));
+    assert.ok(storyComposition.steps.every(s=>s.shown&&s.font>=11&&s.inside),
+      label+' pictorial steps must remain visible and readable, not clipped '+JSON.stringify(storyComposition));
+    assert.equal(storyComposition.miniBaskets,3,
+      label+' live group preview must stay on the sign');
+  }
 
   const calmStart=await page.evaluate(()=>{
     const shell=document.querySelector('.gm-shell[data-gm-mode="mission"]');
