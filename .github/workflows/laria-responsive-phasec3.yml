@@ -6,14 +6,15 @@ on:
     paths:
       - 'laer-litt-mer/laria-responsive-phaseb.css'
       - 'laer-litt-mer/locked-journey-renderer.js'
-      - 'laer-litt-mer/index.html'
-      - 'laer-litt-mer/sw.js'
       - 'tests/laria-responsive-phasec3-iphone-journeys.playwright.js'
-      - '.github/workflows/laria-responsive-phasec3.yml'
   workflow_dispatch:
 
 permissions:
   contents: read
+
+concurrency:
+  group: laria-responsive-phasec3-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   iphone-original-journeys:

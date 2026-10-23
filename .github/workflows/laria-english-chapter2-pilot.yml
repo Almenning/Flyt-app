@@ -4,9 +4,7 @@ on:
     branches: [main]
     paths:
       - 'laer-litt-mer/english-sentence-harbor-*'
-      - 'laer-litt-mer/index.html'
       - 'tests/laria-english-sentence-harbor.*'
-      - '.github/workflows/laria-english-chapter2-pilot.yml'
 permissions:
   contents: read
 concurrency:

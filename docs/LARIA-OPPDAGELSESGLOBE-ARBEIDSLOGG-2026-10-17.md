@@ -101,3 +101,12 @@
 3. Test på fysiske iPad/iPhone Safari før publisering, og små land og øyer utover dagens tre karttreff.
 4. Arbeidsgrenen avviker fra gjeldende main og krever oppdaterings-/konfliktvurdering for senere fletting.
 5. IKKE integrer permanent «Enkel | Oppdag»-bryter, flett til main eller publiser uten uttrykkelig godkjenning.
+
+## Videreføring – 19. oktober 2026: tresteds oppdagelsessti
+
+- Flyten rundt Oppdag var visuelt forbedret, men hadde fortsatt en svak motivasjonsbue: «Neste sted» ga ingen synlig følelse av en liten reise.
+- Hvert kontinentkort viser derfor nå en valgfri, rolig sti med tre ekte geografiske stopp. Første trykk går direkte til første sted, hvert stopp oppdaterer den projiserte kartmarkøren og reven reagerer én gang.
+- Kortet viser `0 av 3`, `1 av 3` osv. med små prikker. Etter tredje stopp får barnet en kort avslutning og valget «Se stedene igjen». Det er ingen quiz, poengpress eller progresjonslås.
+- Endringen er avgrenset til Oppdag-kortets presentasjon. Landdata, landtreff, lagret fremgang og Enkel-globen er urørt.
+- Verifisert lokalt: `node tests/laria-discovery-globe-phase1-static.js`, `npm run test:node` (384/384), og `git diff --check`.
+- Neste kontroll før eventuell PR: faktisk WebKit-/Chromium-bilde og trykkflyt for invitasjon, tre stopp, replay og landvalg på iPhone/iPad.

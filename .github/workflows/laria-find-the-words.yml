@@ -6,19 +6,15 @@ on:
     paths:
       - 'laer-litt-mer/find-the-words*'
       - 'laer-litt-mer/laria-navigation-v13.*'
-      - 'laer-litt-mer/index.html'
       - 'tests/laria-find-the-words.playwright.js'
       - 'tests/laria-find-words-ipad-layout.playwright.js'
-      - '.github/workflows/laria-find-the-words.yml'
   pull_request:
     branches: [main]
     paths:
       - 'laer-litt-mer/find-the-words*'
       - 'laer-litt-mer/laria-navigation-v13.*'
-      - 'laer-litt-mer/index.html'
       - 'tests/laria-find-the-words.playwright.js'
       - 'tests/laria-find-words-ipad-layout.playwright.js'
-      - '.github/workflows/laria-find-the-words.yml'
   workflow_dispatch:
 
 permissions:

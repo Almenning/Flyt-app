@@ -61,7 +61,9 @@ jobs:
 
   laria-qa:
     runs-on: ubuntu-latest
-    timeout-minutes: 38
+    # Run 39678827816 reached the 38-minute job limit after passing the
+    # browser suite. Keep every test and its own timeout; allow final evidence.
+    timeout-minutes: 55
     steps:
       - name: Checkout
         uses: actions/checkout@v4

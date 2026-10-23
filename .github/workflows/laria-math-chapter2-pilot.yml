@@ -4,16 +4,12 @@ on:
     branches: [main]
     paths:
       - 'laer-litt-mer/math-pattern-haven-*'
-      - 'laer-litt-mer/index.html'
       - 'tests/laria-math-pattern-haven.*'
-      - '.github/workflows/laria-math-chapter2-pilot.yml'
   push:
     branches: [main]
     paths:
       - 'laer-litt-mer/math-pattern-haven-*'
-      - 'laer-litt-mer/index.html'
       - 'tests/laria-math-pattern-haven.*'
-      - '.github/workflows/laria-math-chapter2-pilot.yml'
 permissions:
   contents: read
 concurrency:

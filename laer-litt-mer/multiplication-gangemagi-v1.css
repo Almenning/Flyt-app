@@ -1,6 +1,21 @@
 /* Læria / Gangemagi v1: self-contained original Tallenga game surface.
    No competitor assets. All characters use Læria's persistent fox system. */
-#multiplication-lab-screen:has(.gm-shell){padding:0!important;overflow-x:clip}
+/* The app shell can be taller than Gangemagi on a scrolling iPhone.
+   Its original .app background-image still painted a pastel/white band even
+   though background-color was warm. Replace that image ONLY while the
+   Gangemagi scene is active; leave other activities' themes untouched. */
+html:has(#multiplication-lab-screen.active .gm-shell),
+body:has(#multiplication-lab-screen.active .gm-shell){background-color:#f5dfbd}
+.app:has(#multiplication-lab-screen.active .gm-shell){background:#f5dfbd}
+/* Young-home backgrounds are !important in the existing app. Override ONLY
+   on the active game, never increase the specificity of those home rules:
+   doing so also overrode unrelated journey backdrops in responsive QA. */
+.app.grade-band-young:has(#multiplication-lab-screen.active .gm-shell){
+  background:#f5dfbd!important
+}
+#multiplication-lab-screen.active:has(.gm-shell){
+  padding:0!important;overflow-x:clip;background:#f5dfbd
+}
 #multiplication-lab-screen:has(.gm-shell) #multiplication-lab-root{width:100%}
 .gm-shell{--gm-ink:#55372d;--gm-wood:#a66d48;--gm-ivory:#fff7e7;--gm-cream:#fdf0d5;--gm-moss:#567965;--gm-coral:#c56757;--gm-light:#f9e9c6;
  position:relative;width:100%;min-height:100dvh;overflow-x:clip;color:var(--gm-ink);font-family:ui-rounded,"SF Pro Rounded","Arial Rounded MT Bold",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
@@ -29,6 +44,18 @@
 .gm-modes{display:flex;align-self:end;gap:3px;background:#e7d8b9;padding:4px;border:2px solid #fff9e8;border-radius:19px;box-shadow:0 5px 0 #b99c7940;white-space:nowrap}
 .gm-modes button{min-height:44px;border:0;background:transparent;border-radius:14px;padding:8px 16px;font-size:13px;font-weight:950;color:#725748}
 .gm-modes button.selected{background:linear-gradient(180deg,#fff9e9,#f6dba6);color:#593c2f;box-shadow:0 3px 6px #aa865d57,inset 0 1px 0 #fff}
+.gm-secondary-nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;width:min(100%,620px);margin:10px auto 0}
+.gm-secondary-card{display:grid;grid-template-columns:28px minmax(0,1fr);align-items:center;gap:6px;min-height:52px;padding:7px 12px;border:2px solid #fff4d9;border-bottom:4px solid #b9855c;border-radius:17px;background:linear-gradient(180deg,#fff5dd,#e9c897);color:#633e2e;box-shadow:0 4px 0 #a6795652,0 7px 12px #68472d26;font-size:13px;font-weight:950;text-align:left}
+.gm-secondary-card>span{display:grid;place-items:center;width:28px;height:28px;border-radius:10px;background:#fff6dfb8;color:#bd654f;font-size:18px;font-weight:1000}
+.gm-secondary-card>strong{min-width:0;font:inherit;line-height:1.05;white-space:normal}
+.gm-secondary-card.gm-book-secondary{background:linear-gradient(180deg,#f5e6c4,#d6ad78);border-bottom-color:#8d6042}
+.gm-secondary-card.gm-classic{white-space:normal}
+@media(max-width:699px){
+ .gm-secondary-nav{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;width:min(100%,360px)}
+ .gm-secondary-card{grid-template-columns:22px minmax(0,1fr);min-height:50px;padding:6px 7px;border-radius:14px;font-size:clamp(10px,3vw,12px)}
+ .gm-secondary-card>span{width:22px;height:22px;border-radius:8px;font-size:15px}
+ .gm-secondary-card.gm-classic{grid-column:1 / -1}
+}
 .gm-world{position:relative;isolation:isolate;min-height:420px;background:linear-gradient(180deg,rgba(255,248,228,.26),rgba(244,227,192,.10) 48%,rgba(239,225,198,.30)),url('./matte-verden.png') center 59%/cover no-repeat;overflow:hidden;
  border:5px solid #fff5dc;border-radius:30px;box-shadow:0 8px 0 #cda97b99,0 23px 49px #67584324,inset 0 0 0 2px #f4e4c4}
 .gm-world:before{content:"";position:absolute;z-index:-1;inset:0;background:linear-gradient(180deg,#fff8e84a 0,#f8e7c000 32%,#f5e5c62b 63%,#f6edd2bc 100%);pointer-events:none}
@@ -96,10 +123,21 @@
 .gm-progress-track{grid-column:1;height:9px;min-width:0;overflow:hidden;border-radius:15px;background:#ddc8a4;box-shadow:inset 0 2px 4px #9d815b40}
 .gm-progress-track span{display:block;height:100%;border-radius:15px;min-width:0;background:linear-gradient(90deg,#7cb58a,#438875);transition:width .27s cubic-bezier(.12,.73,.23,1)}
 .gm-math-note{grid-column:2;text-align:right;font-size:10px;font-weight:830;color:#6b5340}
-.gm-celebration{position:relative;z-index:2;display:flex;align-items:center;justify-content:center;gap:9px;width:fit-content;max-width:calc(100% - 26px);margin:0 auto 9px;padding:7px 16px;border-radius:16px;
- background:linear-gradient(110deg,#fff9e5f7,#f6eccdf8);border:2px solid #fff7df;box-shadow:0 4px 0 #c7a4779e,0 9px 17px #574a3436;color:#52705b;font-weight:950;font-size:13px;text-align:center}
-.gm-celebration span:first-child{font-size:24px;color:#b46a52}
-.gm-celebration span:first-child{font-size:25px;color:#b46a52}
+/* The child first meets the unfinished multiplication.  Only when the real
+   baskets are full do we place repeated addition beside the discovered answer.
+   This makes the mathematics a consequence of the play, never a pre-filled
+   answer copied from a scene illustration. */
+.gm-math-addition{grid-column:1;text-align:left;font-size:clamp(14px,2.2vw,21px);font-weight:1000;letter-spacing:-.02em;color:#846047;white-space:nowrap}
+.gm-shell[data-gm-mode="mission"][data-gm-complete="true"] .gm-math{grid-template-rows:auto auto auto}
+.gm-shell[data-gm-mode="mission"][data-gm-complete="true"] .gm-math-label{grid-row:1}
+.gm-shell[data-gm-mode="mission"][data-gm-complete="true"] .gm-math-equation{grid-row:1 / span 2}
+.gm-shell[data-gm-mode="mission"][data-gm-complete="true"] .gm-math-addition{grid-row:2}
+.gm-celebration{position:relative;z-index:2;display:grid;grid-template-columns:42px minmax(0,1fr);align-items:center;gap:10px;width:fit-content;max-width:calc(100% - 26px);min-height:58px;margin:0 auto 9px;padding:7px 14px;border:2px solid #fff7df;border-bottom:4px solid #b49368;border-radius:18px;
+ background:linear-gradient(118deg,#fff9e5f7,#f4e8c7f8);box-shadow:0 4px 0 #a9815b70,0 10px 18px #574a3436;color:#52705b;text-align:left}
+.gm-celebration-flower{display:grid;place-items:center;width:42px;height:42px;border:2px solid #fff5d8;border-radius:50%;background:radial-gradient(circle at 36% 30%,#fff4c7,#e8c579 58%,#bd7759);box-shadow:inset 0 1px #fff8e7,0 3px 0 #a76a4d66;color:#9f5847;font-size:27px;font-weight:1000;line-height:1}
+.gm-celebration-copy{display:grid;gap:2px;min-width:0}
+.gm-celebration-copy strong{color:#4f725d;font-size:14px;line-height:1.05;font-weight:1000}
+.gm-celebration-copy small{color:#765743;font-size:11px;line-height:1.15;font-weight:850}
 .gm-actions{display:flex;gap:10px;align-items:stretch;flex-wrap:wrap;justify-content:center;margin:15px 0 0}
 .gm-pick{flex:1 1 260px;max-width:395px;min-height:65px;border:3px solid #ffefd2;border-bottom:7px solid #966545;
  border-radius:20px;display:flex;align-items:center;gap:9px;padding:4px 16px;color:#fff8e8;background:linear-gradient(180deg,#bd7960,#9c614d);box-shadow:0 6px 16px #87664c36;font-size:16px;font-weight:1000;text-align:left;touch-action:none!important}
@@ -189,6 +227,7 @@
  .gm-math-label>span:first-child{font-size:10px}
  .gm-goal{font-size:9px}
  .gm-math-note{font-size:9px}
+ .gm-math-addition{font-size:clamp(12px,3.7vw,16px)}
  .gm-actions{margin-top:12px;gap:7px;flex-wrap:nowrap}
  .gm-pick{min-width:0;flex:1 1 auto;min-height:57px;border-radius:15px;padding:3px 8px;font-size:12px;gap:3px}
  .gm-pick .gm-pick-fruit{width:29px;height:40px}
@@ -201,7 +240,10 @@
  .gm-free-adjust>div{gap:4px}
  .gm-free-adjust strong{font-size:19px}
  .gm-free-controls{gap:8px}
- .gm-celebration{max-width:calc(100% - 18px);margin-bottom:9px;padding:5px 9px;font-size:11px;gap:5px}
+ .gm-celebration{grid-template-columns:38px minmax(0,1fr);max-width:calc(100% - 18px);min-height:54px;margin-bottom:9px;padding:5px 9px;gap:7px}
+ .gm-celebration-flower{width:38px;height:38px;font-size:24px}
+ .gm-celebration-copy strong{font-size:13px}
+ .gm-celebration-copy small{font-size:10.5px}
  .gm-actions-complete{grid-template-columns:minmax(0,1fr) minmax(94px,.35fr);gap:8px}
  .gm-actions-complete .gm-next{font-size:15px;min-height:58px}
  .gm-actions-complete .gm-tool{min-height:58px}
@@ -251,7 +293,10 @@
  .gm-actions{margin-top:10px}
  .gm-pick,.gm-tool,.gm-next{min-height:52px}
  .gm-footer{margin-top:8px}
- .gm-celebration{padding:4px 9px;margin-bottom:6px;font-size:10px}
+ .gm-celebration{min-height:48px;padding:4px 8px;margin-bottom:6px}
+ .gm-celebration-flower{width:34px;height:34px;font-size:21px}
+ .gm-celebration-copy strong{font-size:11px}
+ .gm-celebration-copy small{font-size:9px}
  .gm-actions-complete .gm-next,.gm-actions-complete .gm-tool{min-height:48px}
 }
 @media(min-width:700px) and (max-height:690px){
@@ -303,8 +348,10 @@
  .gm-actions-complete{grid-template-columns:minmax(0,1fr) 83px;max-width:none}
  .gm-actions-complete .gm-next{min-height:51px;font-size:12px}
  .gm-actions-complete .gm-tool{min-height:51px}
- .gm-celebration{margin-bottom:4px;padding:3px 8px;font-size:10px;gap:4px}
- .gm-celebration span:first-child{font-size:17px}
+ .gm-celebration{grid-template-columns:30px minmax(0,1fr);min-height:44px;margin-bottom:4px;padding:3px 7px;gap:5px}
+ .gm-celebration-flower{width:30px;height:30px;font-size:18px}
+ .gm-celebration-copy strong{font-size:10.5px}
+ .gm-celebration-copy small{font-size:8.5px}
  .gm-footer{margin-top:6px}
 }
 @media(prefers-reduced-motion:reduce){
