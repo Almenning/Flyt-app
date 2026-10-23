@@ -691,10 +691,10 @@
  .fw-panel-copy{display:none}
  .fw-word{background:linear-gradient(145deg,#fff8e3,#efd29a);border-color:#c8995e;color:#403127}
  .fw-word strong{font-family:Georgia,'Times New Roman',serif}
- .fw-word-panel>.fw-hint{display:none}
- .fw-stage>.fw-scene-bottom>.fw-hint{
+ .fw-word-panel>.fw-hint{
   display:inline-flex;background:linear-gradient(#fbe3a8,#dda95a);border-color:#a87739
  }
+ .fw-stage>.fw-scene-bottom>.fw-hint{display:none}
  .fw-art{border-color:#76502e;box-shadow:0 4px 0 #4b311f}
  .fw-speech{background:linear-gradient(#fff9e4,#efd4a3)}
  .fw-next{background:linear-gradient(#67915d,#3f7249);border-color:#426b48}
