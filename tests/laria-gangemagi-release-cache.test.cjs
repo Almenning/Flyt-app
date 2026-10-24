@@ -3,6 +3,7 @@ const assert = require('node:assert/strict');
 const test = require('node:test');
 const fs = require('node:fs');
 const path = require('node:path');
+const crypto = require('node:crypto');
 const vm = require('node:vm');
 const root = path.resolve(__dirname, '..');
 const html = fs.readFileSync(path.join(root, 'laer-litt-mer/index.html'), 'utf8');
@@ -60,4 +61,22 @@ test('release52 mission CSS points to the locked Grovanova scene, not the old wa
   const css = fs.readFileSync(path.join(root, 'laer-litt-mer/gangemagi-dagens-oppdrag-v1.css'), 'utf8');
   assert.match(css, /gangemagi-grovanova-storybook-locked\.webp\?v=release52/);
   assert.doesNotMatch(css, /home-math-v14\.webp\?v=gangemagi-painted-world1/);
+});
+
+test('locked original Grovanova silhouette and all three approved forest trolls keep byte-exact identity', () => {
+  // These SHA-256 sums are from independently retrieved reference assets in
+  // exact-HEAD Chromium QA artifacts. A candidate painterly background can be
+  // added separately; it must never silently replace or overwrite the masters.
+  const approved = {
+    'gangemagi-grovanova-storybook-locked.webp':'5bcd89da249ef6274c1fa01aa86fed92855cff39a5494a4d7f40266f2ca104ff',
+    'assets/gangemagi-troll/storesoster.webp':'b98a5ee7f264d448da557636406080b5d8ee8aae23f32f0e41b66bf811beda89',
+    'assets/gangemagi-troll/lillesoster.webp':'ee3f14e95407c8f673ee78c8ea3afc1b782e6f2975929ce6f77b867de29db425',
+    'assets/gangemagi-troll/lillebror.webp':'7f1d9eeb293361ebb6507d024013d744d106978b72bbe4d71e2096816d9fdd11'
+  };
+  for (const [name, expected] of Object.entries(approved)) {
+    const file = fs.readFileSync(path.join(root,'laer-litt-mer',name));
+    assert.match(file.subarray(0,16).toString('ascii'), /^RIFF.{4}WEBP/s, name+' is an actual original WebP file');
+    const actual = crypto.createHash('sha256').update(file).digest('hex');
+    assert.equal(actual,expected,name+' must preserve the locked, approved pixels');
+  }
 });
