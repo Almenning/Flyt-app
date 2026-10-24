@@ -290,9 +290,11 @@
    height:auto;
    /* Object-free continuation of the master sky. No reflected logo, gear or text. */
    background:
-     radial-gradient(ellipse 44% 24% at 72% 100%,rgba(255,255,255,.20) 0%,rgba(255,255,255,.06) 44%,rgba(255,255,255,0) 74%),
-     linear-gradient(180deg,#58a4e8 0%,#4f9fe5 58%,#4597de 100%);
-   box-shadow:inset 0 -12px 18px -18px rgba(47,111,157,.55);
+     radial-gradient(ellipse 58% 44% at 8% 105%,rgba(255,252,238,.58) 0%,rgba(255,252,238,.32) 29%,rgba(255,252,238,0) 66%),
+     radial-gradient(ellipse 44% 34% at 40% 102%,rgba(255,248,230,.38) 0%,rgba(255,248,230,.16) 38%,rgba(255,248,230,0) 70%),
+     radial-gradient(ellipse 36% 28% at 82% 92%,rgba(255,239,214,.24) 0%,rgba(255,239,214,.08) 42%,rgba(255,239,214,0) 72%),
+     linear-gradient(180deg,#5ba8e9 0%,#53a2e7 55%,#4b9be3 100%);
+   box-shadow:inset 0 -14px 20px -19px rgba(47,111,157,.58);
    filter:none;
    transform:none;
  }
