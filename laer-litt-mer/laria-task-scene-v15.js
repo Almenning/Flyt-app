@@ -327,7 +327,7 @@
     const avatar=foxChoice();
     const troll=taskBand()==='young'&&!!window.LARIA_SKOGSTROLL?.enabled?.();
     const companionSrc=troll?window.LARIA_SKOGSTROLL.sourceForSubject(subject):foxSource();
-    const fox='<div class="task-fox-companion'+(troll?' laria-troll-host':'')+'" data-avatar="'+avatar+'"'+
+    const fox='<div class="task-fox-companion'+(troll?' laria-troll-host':'')+'"'+(troll?'':' data-avatar="'+avatar+'"')+
       (troll?' data-laria-troll="'+window.LARIA_SKOGSTROLL.keyFor(subject)+'"':'')+
       ' aria-hidden="true"><img src="'+attr(companionSrc)+'" alt=""><span class="task-profile-marker">'+
       (troll?'':avatar==='girl'?'✿':'✦')+'</span></div>';
