@@ -2,11 +2,28 @@
    This layer only activates after home-kjosnes-v15.js confirms that the locked
    master artwork is available. Existing Home stays untouched on asset failure. */
 
+.grade-band-young #home-screen.active:has(.bc12.bc15-locked-home){
+  min-height:100dvh!important;
+  display:grid!important;
+  place-items:center!important;
+  overflow:hidden!important;
+  background:#173f4c!important;
+}
 .grade-band-young .bc12.bc15-locked-home{
+  /* Keep the approved master at its native aspect ratio. The surrounding
+     screen may letterbox, but Grovanova and every visible hit target stay
+     geometrically identical to the locked artwork. */
+  width:min(100vw,calc(100dvh * 760 / 459))!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  aspect-ratio:760 / 459!important;
+  margin:0!important;
+  flex:none!important;
   background-color:#173f4c!important;
   background-image:url('./assets/home/kjosnes-home-tablet.webp?v=20261024-locked1')!important;
   background-position:center center!important;
-  background-size:cover!important;
+  background-size:100% 100%!important;
   background-repeat:no-repeat!important;
 }
 
@@ -99,8 +116,11 @@
 
 @media(max-width:700px) and (orientation:portrait){
   .grade-band-young .bc12.bc15-locked-home{
+    width:min(100vw,calc(100dvh * 280 / 580))!important;
+    height:auto!important;min-height:0!important;max-height:none!important;
+    aspect-ratio:280 / 580!important;
     background-image:url('./assets/home/kjosnes-home-phone.webp?v=20261024-locked1')!important;
-    background-position:center center!important;background-size:cover!important;
+    background-position:center center!important;background-size:100% 100%!important;
   }
   .grade-band-young .bc12.bc15-locked-home .bc14-subjects{
     left:4.4%!important;top:72.8%!important;width:91.2%!important;height:13.5%!important;
@@ -125,7 +145,7 @@
 @media(max-height:580px) and (orientation:landscape){
   /* Keep short landscape usable rather than stretching the approved composition beyond recognition. */
   .grade-band-young .bc12.bc15-locked-home{
-    background-size:cover!important;background-position:center center!important;
+    background-size:100% 100%!important;background-position:center center!important;
   }
 }
 
