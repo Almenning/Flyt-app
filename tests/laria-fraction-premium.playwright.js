@@ -143,21 +143,22 @@ async function run(browser,engine,label,viewport,url){
   const denominatorBeforeQuest=(await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build)).d;
   await page.locator('[data-fr-action="half-quest"]').click();
   assert.equal(await page.locator('.fr8-scene').getAttribute('data-fr8-quest'),'active');
-  while((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build)).d>2){
-    await page.locator('[data-fr-action="adjust"][data-field="d"][data-step="-1"]').click();
-  }
-  assert.equal((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build)).d,2);
+  while((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build)).d>4)await page.locator('[data-fr-action="adjust"][data-field="d"][data-step="-1"]').click();
+  while((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build)).d<4)await page.locator('[data-fr-action="adjust"][data-field="d"][data-step="1"]').click();
+  await page.locator('[data-fr-action="adjust"][data-field="n"][data-step="1"]').click();
   await page.locator('[data-fr-action="adjust"][data-field="n"][data-step="1"]').click();
   assert.equal(await page.locator('.fr8-scene').getAttribute('data-fr8-found'),'true');
-  assert.ok((await page.locator('.fr8-quest-text').innerText()).includes('1/2'));
-  assert.equal(await page.locator('.fr8-aha .fr2-pie-quest').count(),2,'the same half must be shown visually as two equivalent cakes');
+  assert.ok((await page.locator('.fr8-quest-text').innerText()).includes('2/4'));
+  assert.ok((await page.locator('.fr8-aha').innerText()).includes('2/4 = 1/2'));
+  assert.equal(await page.locator('.fr8-aha .fr2-pie-quest').count(),2,'equivalence must be shown visually');
   await photo(page,label+'-03-half-quest');
   await page.locator('[data-fr-action="adjust"][data-field="d"][data-step="1"]').click();
-  assert.match(await page.locator('.fr8-quest-text').innerText(),/partall/,'a child must not be asked to form exactly half from three equal parts');
+  assert.match(await page.locator('.fr8-quest-text').innerText(),/partall/,'an odd-denominator half cannot be exact');
+  assert.equal(await page.locator('.fr8-aha').count(),0);
   await page.locator('[data-fr-action="half-quest"]').click();
   assert.equal(await page.locator('.fr8-scene').getAttribute('data-fr8-quest'),'free');
-  assert.equal((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build)).n,1,'switching to free play must not reset the cake');
-  // Put the laboratory back exactly where the original regression sequence expects it.
+  assert.equal((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build)).n,2,'switching to free play must not reset the cake');
+  // Restore the starting free-play fraction before testing the other activities.
   await page.locator('[data-fr-action="reset"]').click();
   while((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build)).d<denominatorBeforeQuest)await page.locator('[data-fr-action="adjust"][data-field="d"][data-step="1"]').click();
   while((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build)).d>denominatorBeforeQuest)await page.locator('[data-fr-action="adjust"][data-field="d"][data-step="-1"]').click();
