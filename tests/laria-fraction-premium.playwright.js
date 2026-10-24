@@ -9,7 +9,7 @@ function server(){return new Promise((resolve,reject)=>{const srv=http.createSer
 async function photo(page,label){await fs.promises.mkdir(out,{recursive:true});await page.screenshot({path:path.join(out,label+'.png'),fullPage:true,animations:'disabled'})}
 async function run(browser,engine,label,viewport,url){
  const ctx=await browser.newContext({viewport,deviceScaleFactor:1,serviceWorkers:'block',isMobile:viewport.width<700,hasTouch:true});
- const page=await ctx.newPage(),errors=[];page.on('pageerror',e=>errors.push(String(e)));
+ const page=await ctx.newPage(),errors=[];page.setDefaultTimeout(9000);page.on('pageerror',e=>errors.push(String(e)));
  try{
   await page.addInitScript(p=>{localStorage.setItem('laerlittmer-v2',JSON.stringify(p))},profile);
   await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
@@ -321,6 +321,7 @@ async function run(browser,engine,label,viewport,url){
 async function runLandscape(browser,engine,url){
  const ctx=await browser.newContext({viewport:{width:844,height:390},deviceScaleFactor:1,serviceWorkers:'block',isMobile:true,hasTouch:true});
  const page=await ctx.newPage(),errors=[];
+ page.setDefaultTimeout(9000);
  page.on('pageerror',e=>errors.push(String(e)));
  try{
   await page.addInitScript(p=>{localStorage.setItem('laerlittmer-v2',JSON.stringify(p))},profile);
