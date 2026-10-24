@@ -7,7 +7,7 @@ const path=require('node:path');
 const {chromium,webkit}=require('playwright');
 
 const LOCKED_MASTERS=[
- {file:'laer-litt-mer/assets/home-v15/kjosnes-home-tablet.webp',bytes:282654,sha:'89d747081716d8a2cc7fc18c9e1c4ec1416aba86591adda7ceb87a56ab3cb924'},
+ {file:'laer-litt-mer/assets/home-v15/kjosnes-home-tablet.webp',bytes:459450,sha:'246edc1572d652af5c3ebf452be60db0b2f842b6afd9fd27529c04145bdf38e5'},
  {file:'laer-litt-mer/assets/home-v15/kjosnes-home-phone.webp',bytes:52882,sha:'0d804d147dc38d259c13757522907f953488f0b40dea298a8efc06055427c8f7'}
 ];
 function verifyLockedMasterFiles(){
@@ -116,7 +116,8 @@ async function run(engine,label,viewport){
      const liveCopy=rect(document.querySelector('.bc15-live-copy'));
      const navButtons=[...document.querySelectorAll('.bc12-nav button')].filter(e=>getComputedStyle(e).display!=='none').map(rect);
      const liveCopyBg=getComputedStyle(document.querySelector('.bc15-live-copy')).backgroundImage;
-     return {cards,journey,nav,liveNext,liveCopy,liveCopyBg,navButtons,scroll:document.documentElement.scrollWidth,viewport:innerWidth};
+     const scenic=getComputedStyle(document.querySelector('.bc12.bc15-locked-home'),'::before');
+     return {cards,journey,nav,liveNext,liveCopy,liveCopyBg,scenicFilter:scenic.filter,scenicBg:scenic.backgroundImage,navButtons,scroll:document.documentElement.scrollWidth,viewport:innerWidth};
    });
    assert(geom.scroll<=geom.viewport+1,label+' horizontal overflow '+JSON.stringify(geom));
    assert(geom.cards.every(r=>r.width>=44&&r.height>=44),label+' subject touch target too small '+JSON.stringify(geom.cards));
@@ -127,6 +128,8 @@ async function run(engine,label,viewport){
    assert(geom.liveCopy.width<geom.viewport*.65,label+' greeting overlay became a dashboard-sized panel '+JSON.stringify(geom.liveCopy));
    assert.doesNotMatch(geom.liveCopyBg,/rgba?\([^)]*,\s*0\./,
      label+' greeting plaque must be fully opaque so baked child-name text cannot ghost through: '+geom.liveCopyBg);
+   assert.equal(geom.scenicFilter,'none',label+' Home safe-area fill must not blur the locked artwork');
+   assert.doesNotMatch(geom.scenicBg,/url\(/,label+' Home safe-area fill must not duplicate painted navigation/artwork');
    assert(geom.navButtons.every(r=>r.width>=44&&r.height>=44),label+' nav touch target too small '+JSON.stringify(geom.navButtons));
    assert(geom.navButtons.every(r=>r.x>=-1&&r.right<=geom.viewport+1),label+' nav touch target outside viewport '+JSON.stringify(geom.navButtons));
    await page.screenshot({path:folder+'/'+label+'-home.png',fullPage:true});
