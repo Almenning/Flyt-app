@@ -42,15 +42,21 @@ async function run(engine,name,viewport,which){
   await launch(page,url+'&part=mult',which);
   await page.waitForFunction(()=>typeof window.openMultiplicationLab==='function');
   await page.evaluate(()=>window.openMultiplicationLab());
-  // The child's chosen full-body fox appears in the new game. Enter the
-  // retained classic mode before verifying its own older fox placements.
-  const companion=page.locator('#multiplication-lab-screen.active .gm-fox-art svg.laria-fox-wardrobe-art[data-avatar]');
-  await companion.waitFor({state:'visible'});
-  assert.equal(await companion.getAttribute('data-avatar'),which,name+' Gangemagi uses wrong personal fox');
-  assert.equal(await companion.getAttribute('data-fox-art'),which+'-fullbody-v1',name+' Gangemagi should display the original full-body fox');
-  const fullBodySource=await companion.locator('image').getAttribute('href');
-  const expectedSource=await page.evaluate(w=>window.LARIA_FOX.worldSource(w),which);
-  assert.equal(fullBodySource,expectedSource,name+' Gangemagi fox image must match user choice');
+  // Gangemagi mission mode is now deliberately troll-led. The three locked
+  // forest-troll assets replace the personal fox only inside this activity.
+  // Classic multiplication and the other Explore activities below must still
+  // retain the child's selected fox identity.
+  const trolls=page.locator('#multiplication-lab-screen.active [data-gm-action="troll"]');
+  await trolls.first().waitFor({state:'visible'});
+  assert.equal(await trolls.count(),3,name+' Gangemagi must show exactly the three locked forest trolls');
+  const trollSources=await trolls.locator('.gm-troll-figure img').evaluateAll(nodes=>nodes.map(n=>n.getAttribute('src')));
+  assert.deepEqual(trollSources,[
+    './assets/gangemagi-troll/storesoster.webp',
+    './assets/gangemagi-troll/lillesoster.webp',
+    './assets/gangemagi-troll/lillebror.webp'
+  ],name+' Gangemagi must use the locked troll files, not regenerated variants');
+  assert.equal(await page.locator('#multiplication-lab-screen.active .gm-fox-art').count(),0,
+    name+' Gangemagi mission must not retain the obsolete personal-fox guide beside the trolls');
   await page.screenshot({path:out+'/'+name+'-gangemagi.png',fullPage:true});
   await page.locator('#multiplication-lab-screen.active [data-gm-action="classic"]').click();
   await page.locator('#multiplication-lab-screen.active .mp-home-screen').waitFor();
