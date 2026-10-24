@@ -193,6 +193,16 @@ function queueLiveSync(host){
  });
 }
 function schedule(){requestAnimationFrame(()=>activate())}
+if(typeof window.renderAll==='function'&&!window.__LARIA_HOME_V15_RENDERALL_WRAPPED){
+ const priorRenderAll=window.renderAll;
+ window.renderAll=function(){
+   const result=priorRenderAll.apply(this,arguments);
+   const host=document.querySelector('#home-screen .bc12');
+   if(host?.classList.contains('bc15-locked-home'))queueLiveSync(host);
+   return result;
+ };
+ window.__LARIA_HOME_V15_RENDERALL_WRAPPED=true;
+}
 document.addEventListener('DOMContentLoaded',schedule,{once:true});
 const observer=new MutationObserver(mutations=>{
  const host=document.querySelector('#home-screen .bc12');
