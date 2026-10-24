@@ -5,6 +5,7 @@
 
 const TABLET_MASTER='./assets/home-v15/kjosnes-home-tablet.webp?v=20261024-premium2';
 const PHONE_MASTER='./assets/home-v15/kjosnes-home-phone.webp?v=20261024-locked1';
+const TROLL_TRIO_ART='./assets/home-v15/laria-troll-trio-v3.webp?v=20261024-locked1';
 let activeMasterSrc='';
 
 function isPhone(){return matchMedia('(max-width:700px) and (orientation:portrait)').matches}
@@ -28,7 +29,7 @@ function openTrollDialog(){
  }
  d.dataset.phone=isPhone()?'true':'false';
  const art=d.querySelector('.bc15-troll-art');
- if(art)art.style.backgroundImage='url("'+TABLET_MASTER+'")';
+ if(art)art.style.setProperty('--bc15-troll-trio','url("'+TROLL_TRIO_ART+'")');
  if(!d.open)d.showModal();
 }
 
@@ -39,6 +40,19 @@ function decoded(src){
    img.onerror=()=>reject(new Error('Could not decode Læria Home master'));
    img.src=src;
  });
+}
+
+function ensureAmbient(host){
+ let ambient=host.querySelector('.bc15-ambient');
+ if(ambient)return ambient;
+ ambient=document.createElement('div');
+ ambient.className='bc15-ambient';
+ ambient.setAttribute('aria-hidden','true');
+ ambient.innerHTML='<span class="bc15-sun-glow"></span>'+
+   '<span class="bc15-water-glints"></span>'+
+   '<span class="bc15-journey-glow"></span>';
+ host.appendChild(ambient);
+ return ambient;
 }
 
 function place(el,box,part,viewport){
@@ -107,6 +121,19 @@ function mapControlsToArtwork(host,imgW,imgH,portrait){
  place(host.querySelector('.bc12-adult-entry'),box,layout.adult,viewport);
  place(host.querySelector('.bc15-live-copy'),box,layout.liveCopy,viewport);
  place(host.querySelector('.bc15-live-next'),box,layout.liveNext,viewport);
+ const ambient=ensureAmbient(host);
+ const ambientLayout=portrait?{
+   sun:[.69,.19,.24,.18],
+   water:[.48,.43,.48,.25],
+   journey:[.76,.612,.20,.112]
+ }:{
+   sun:[.54,.18,.16,.16],
+   water:[.53,.42,.34,.24],
+   journey:[.267,.754,.065,.145]
+ };
+ place(ambient.querySelector('.bc15-sun-glow'),box,ambientLayout.sun,viewport);
+ place(ambient.querySelector('.bc15-water-glints'),box,ambientLayout.water,viewport);
+ place(ambient.querySelector('.bc15-journey-glow'),box,ambientLayout.journey,viewport);
  host.style.setProperty('--bc15-art-left',box.left+'px');
  host.style.setProperty('--bc15-art-top',box.top+'px');
  host.style.setProperty('--bc15-art-width',box.width+'px');
@@ -144,7 +171,8 @@ function syncLiveCopy(host){
 }
 
 function clearMappedControls(host){
- ['.bc14-subjects','.bc12-journey','.bc12-nav','.bc12-adult-entry'].forEach(sel=>{
+ ['.bc14-subjects','.bc12-journey','.bc12-nav','.bc12-adult-entry',
+   '.bc15-sun-glow','.bc15-water-glints','.bc15-journey-glow'].forEach(sel=>{
    const el=host.querySelector(sel);if(!el)return;
    ['left','top','width','height','right','bottom'].forEach(p=>el.style.removeProperty(p));
  });
@@ -162,7 +190,7 @@ async function activate(){
    host.style.removeProperty('--bc15-home-art');
    clearMappedControls(host);
    host.dataset.bc15Asset='ineligible';
-   host.querySelectorAll('.bc15-live-copy,.bc15-live-next').forEach(el=>el.remove());
+   host.querySelectorAll('.bc15-live-copy,.bc15-live-next,.bc15-ambient').forEach(el=>el.remove());
    return false;
  }
  host.classList.add('bc15-capable');
@@ -172,7 +200,7 @@ async function activate(){
    host.style.removeProperty('--bc15-home-art');
    clearMappedControls(host);
    host.dataset.bc15Asset='inactive';
-   host.querySelectorAll('.bc15-live-copy,.bc15-live-next').forEach(el=>el.remove());
+   host.querySelectorAll('.bc15-live-copy,.bc15-live-next,.bc15-ambient').forEach(el=>el.remove());
    return false;
  }
  const portrait=isPortrait();
@@ -193,6 +221,7 @@ async function activate(){
    const trollNav=host.querySelector('.bc12-nav [data-camp="wardrobe"]');
    if(trollNav){
      trollNav.setAttribute('aria-label','Mine troll');
+     [...trollNav.childNodes].filter(node=>node.nodeType===Node.TEXT_NODE).forEach(node=>{node.nodeValue='Mine troll';});
      if(trollNav.dataset.bc15TrollBound!=='true'){
        trollNav.dataset.bc15TrollBound='true';
        trollNav.addEventListener('click',e=>{
@@ -212,7 +241,7 @@ async function activate(){
    host.style.removeProperty('--bc15-home-art');
    clearMappedControls(host);
    host.dataset.bc15Asset='missing';
-   host.querySelectorAll('.bc15-live-copy,.bc15-live-next').forEach(el=>el.remove());
+   host.querySelectorAll('.bc15-live-copy,.bc15-live-next,.bc15-ambient').forEach(el=>el.remove());
    console.warn('[Læria Home v15] Locked master not activated.',err);
    return false;
  }

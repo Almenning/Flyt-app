@@ -8,7 +8,9 @@ const {chromium,webkit}=require('playwright');
 
 const LOCKED_MASTERS=[
  {file:'laer-litt-mer/assets/home-v15/kjosnes-home-tablet.webp',bytes:459450,sha:'246edc1572d652af5c3ebf452be60db0b2f842b6afd9fd27529c04145bdf38e5'},
- {file:'laer-litt-mer/assets/home-v15/kjosnes-home-phone.webp',bytes:52882,sha:'0d804d147dc38d259c13757522907f953488f0b40dea298a8efc06055427c8f7'}
+ {file:'laer-litt-mer/assets/home-v15/kjosnes-home-phone.webp',bytes:52882,sha:'0d804d147dc38d259c13757522907f953488f0b40dea298a8efc06055427c8f7'},
+ {file:'laer-litt-mer/assets/home-v15/laria-troll-trio-nav.webp',bytes:11448,sha:'a9937014dbefbb32096b413b49d62511aeff2ed287092b1b91fd9dee671d5137'},
+ {file:'laer-litt-mer/assets/home-v15/laria-troll-trio-v3.webp',bytes:195078,sha:'695a598b236162cf409c208c76a09e5e3d3f18ec2c7eb925bf7148c66b2883ca'}
 ];
 function verifyLockedMasterFiles(){
  for(const item of LOCKED_MASTERS){
@@ -107,6 +109,16 @@ async function run(engine,label,viewport){
    assert.equal(await page.locator('.bc12-quest:visible').count(),0,label+' old fox-letter card must not compete on Home v15');
    assert.equal(await page.locator('.bc12-place:visible').count(),0,label+' legacy activity signs must not compete');
    assert.equal(await page.locator('.safe-challenge-young:visible').count(),0,label+' legacy challenge button must stay hidden on locked Home');
+   assert.equal(await page.locator('.bc15-ambient').count(),1,label+' Home ambience layer missing');
+   assert.equal(await page.locator('.bc15-ambient>span').count(),3,label+' Home ambience must stay deliberately minimal');
+   const ambient=await page.locator('.bc15-ambient').evaluate(el=>({
+     pointer:getComputedStyle(el).pointerEvents,
+     hidden:el.getAttribute('aria-hidden'),
+     animations:[...el.children].map(child=>getComputedStyle(child).animationName)
+   }));
+   assert.equal(ambient.pointer,'none',label+' ambience must never capture taps');
+   assert.equal(ambient.hidden,'true',label+' ambience must stay decorative for assistive tech');
+   assert(ambient.animations.every(name=>name==='none'),label+' reduced-motion context must disable ambient animation '+JSON.stringify(ambient.animations));
 
    const geom=await page.evaluate(()=>{
      const rect=e=>{const r=e.getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:r.height,right:r.right,bottom:r.bottom}};
@@ -159,8 +171,13 @@ async function run(engine,label,viewport){
    const trollDialog=page.locator('#bc15-troll-dialog');
    await trollDialog.waitFor({state:'visible',timeout:8000});
    assert.equal((await trollDialog.locator('h2').innerText()).trim(),'Mine troll');
+   assert.equal((await page.locator('.bc12-nav [data-camp="wardrobe"]').innerText()).trim(),'Mine troll',
+     label+' troll navigation label must not fall back to Min rev');
    assert.doesNotMatch((await trollDialog.innerText()).toLowerCase(),/min rev|kle på din rev/,
      label+' Mine troll routed to fox wardrobe');
+   const trollArt=await trollDialog.locator('.bc15-troll-art').evaluate(el=>getComputedStyle(el).backgroundImage);
+   assert(trollArt.includes('laria-troll-trio-v3.webp'),
+     label+' Mine troll must use the locked standalone troll trio art: '+trollArt);
    await page.screenshot({path:folder+'/'+label+'-mine-troll.png',fullPage:true});
    await trollDialog.locator('.bc15-troll-close').click();
 
