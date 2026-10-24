@@ -69,9 +69,32 @@
   object-fit:contain!important;
   object-position:center bottom!important;
   filter:drop-shadow(0 4px 4px rgba(17,42,36,.23));
+  /* Original PR #211 cutouts include pale edge pixels. On cream task
+     parchment, multiply removes the rectangular matte without reauthoring
+     or regenerating the locked characters. */
+  mix-blend-mode:multiply!important;
 }
 #session-screen.task-scene[data-task-band="young"] .task-fox-companion.laria-troll-host .task-profile-marker{
   display:none!important;
+}
+/* Character size follows the illustrated first-fold scene, never the
+   answer controls. No extra card or floating avatar thumbnail. */
+@media(min-width:701px){
+  #session-screen.task-scene[data-task-band="young"] .task-visual-companion-stage .task-fox-companion.laria-troll-host{
+    right:10px!important;bottom:9px!important;top:auto!important;
+    width:132px!important;height:164px!important;
+  }
+}
+@media(max-width:700px){
+  #session-screen.task-scene[data-task-band="young"] .task-visual-companion-stage .task-fox-companion.laria-troll-host{
+    right:2px!important;bottom:7px!important;top:auto!important;
+    width:80px!important;height:103px!important;
+  }
+}
+@media(max-width:360px){
+  #session-screen.task-scene[data-task-band="young"] .task-visual-companion-stage .task-fox-companion.laria-troll-host{
+    width:62px!important;height:84px!important;
+  }
 }
 @media(prefers-reduced-motion:reduce){
   #session-screen.task-scene[data-task-band="young"] .task-fox-companion.laria-troll-host,
