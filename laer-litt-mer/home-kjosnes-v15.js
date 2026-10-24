@@ -90,7 +90,7 @@ function mapControlsToArtwork(host,imgW,imgH,portrait){
    subjects:[.353,.692,.611,.242],
    journey:[.028,.747,.304,.161],
    nav:[.711,.023,.272,.135],
-   adult:[.946,.018,.045,.075],
+   adult:[.025,.020,.205,.155],
    liveCopy:[.112,.168,.275,.125],
    liveNext:[.118,.842,.195,.036]
  };
