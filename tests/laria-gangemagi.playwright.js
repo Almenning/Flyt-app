@@ -79,7 +79,7 @@ async function selectAndPick(page,group,count){
   const troll=group%3;
   for(let i=0;i<count;i++)await chooseTrollAndPlace(page,troll,group);
 }
-async function dragBerry(async function dragBerry(page,fromSelector,toSelector,expectTarget){
+async function dragBerry(page,fromSelector,toSelector,expectTarget){
   const from=page.locator(fromSelector).first(),to=page.locator(toSelector).first();
   const a=await from.boundingBox(),b=await to.boundingBox();
   assert.ok(a&&b,'source and target must both be visible for drag play');
