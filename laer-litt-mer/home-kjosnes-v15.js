@@ -183,6 +183,15 @@ async function activate(){
  }
 }
 
+let liveSyncQueued=false;
+function queueLiveSync(host){
+ if(liveSyncQueued)return;
+ liveSyncQueued=true;
+ requestAnimationFrame(()=>{
+   liveSyncQueued=false;
+   if(host?.classList.contains('bc15-locked-home'))syncLiveCopy(host);
+ });
+}
 function schedule(){requestAnimationFrame(()=>activate())}
 document.addEventListener('DOMContentLoaded',schedule,{once:true});
 const observer=new MutationObserver(mutations=>{
@@ -190,10 +199,16 @@ const observer=new MutationObserver(mutations=>{
  if(!host)return;
  const firstMount=host.dataset.bc15Observed!=='true';
  const stateChanged=mutations.some(m=>m.type==='attributes'&&m.target===host&&(m.attributeName==='data-mode'||m.attributeName==='data-bc13-view'));
+ const contentChanged=mutations.some(m=>{
+   if(m.type!=='childList'&&m.type!=='characterData')return false;
+   const el=m.target?.nodeType===1?m.target:m.target?.parentElement;
+   return !el?.closest?.('.bc15-live-copy,.bc15-live-next');
+ });
  if(firstMount)host.dataset.bc15Observed='true';
  if(firstMount||stateChanged)activate();
+ else if(contentChanged)queueLiveSync(host);
 });
-observer.observe(document.documentElement,{subtree:true,childList:true,attributes:true,attributeFilter:['data-mode','data-bc13-view']});
+observer.observe(document.documentElement,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['data-mode','data-bc13-view']});
 const portraitMq=matchMedia('(orientation:portrait)');
 portraitMq.addEventListener?.('change',activate);
 let resizeTimer=0;
