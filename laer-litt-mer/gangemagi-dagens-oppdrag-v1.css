@@ -102,15 +102,14 @@
   padding:clamp(9px,1.2vw,17px);
   border:2px solid #fff2cc;
   border-radius:30px;
-  /* Release48 blended hybrid: retain the rich painted world for light/material depth,
-     while softer authored market architecture supplies place identity without
-     fighting the painterly material language.
-     The market layer contains scenery only; fox, baskets, berries, tasks and
-     maths stay live interactive DOM. */
+  /* Release52: Grovanova keeps the exact mountain geometry from the supplied
+     reference scene, with a softened storybook grade. Tallenga's transparent
+     market architecture remains above it, while trolls, baskets, berries,
+     tasks and maths stay live interactive DOM. */
   background:
-    linear-gradient(180deg,rgba(255,247,218,.20),rgba(255,248,214,.09) 43%,rgba(51,76,57,.17)),
+    linear-gradient(180deg,rgba(255,247,218,.17),rgba(255,248,214,.07) 42%,rgba(44,68,53,.30)),
     url('./gangemagi-tallenga-market-overlay-v2.svg?v=release47') center / cover no-repeat,
-    url('./home-math-v14.webp?v=gangemagi-painted-world1') center 51% / cover no-repeat,
+    url('./gangemagi-grovanova-storybook-locked.webp?v=release52') center 52% / cover no-repeat,
     url('./gangemagi-tallenga-market-premium-20261023.svg?v=depth1') center / cover no-repeat;
   box-shadow:inset 0 0 0 1px #8e572f52,0 10px 26px #70442143;
 }

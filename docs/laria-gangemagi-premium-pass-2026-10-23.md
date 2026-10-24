@@ -125,3 +125,12 @@ Retningen er tydeligere og nærmere den låste komposisjonen: handlingen er saml
 ### 24.10.2026 – release51: returbrettet beholder direkte bærflytting
 - Release50 gjorde markedslaget passivt utenom de aktuelle barnehandlingene, men det midlertidige returbrettet ved drag av et allerede plassert bær arvet dermed passiv pointer-events.
 - `.gm-return-tray` er nå eksplisitt interaktivt. Eksisterende QA krever at brettet blir `.gm-drop-target`, fjerner nøyaktig ett bær og lar opptjent blomst bestå.
+
+### 24.10.2026 – release52: Grovanova som låst scenegeometri
+- Gangemagi bruker nå `gangemagi-grovanova-storybook-locked.webp` som landskapsbase i mission-modus. Kilden er den innsendte Grovanova/fjord-referansen; fjellkonturen er bevart fra selve bildet i stedet for generativt tegnet om.
+- Bildet er kun beskåret/komprimert og gitt en mykere storybook-behandling. Den tidligere generiske `home-math-v14.webp`-fossen er ikke lenger mission-bakgrunn.
+- `gangemagi-tallenga-market-overlay-v2.svg` ligger fortsatt over Grovanova og gir Læria/Tallenga-markedet. Den authored markeds-SVG-en ligger fortsatt under som ekstra scenegeometri.
+- De tre låste troll-WebP-ene, kurver, jordbær, oppgavekort og matematikk er fortsatt separate live DOM-lag. Ingen karakter, tall eller kontroll er bakt inn i fjordbildet.
+- En mørkere grønn/varm foreground-glaze lar det levende markedet eie forgrunnen og toner ned strandlinjen i referansen uten å endre fjellformen.
+- Playwright krever nå at Grovanova-assetet faktisk laster, ligger under markeds-overlayen og at `home-math-v14.webp` ikke kan snike seg tilbake som Gangemagi-bakgrunn.
+- Ny exact-head Chromium/WebKit og faktiske iPad/iPhone-skjermbilder kreves før visuell sluttaksept. Ingen merge/publisering.

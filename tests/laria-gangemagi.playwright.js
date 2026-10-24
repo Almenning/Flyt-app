@@ -353,14 +353,16 @@ async function check(engine,label,viewport,url){
     label+' Gangemagi must retain its authored premium market geometry beneath the painting');
   assert.match(sceneBackground,/gangemagi-tallenga-market-overlay-v2\.svg/,
     label+' Gangemagi must render the transparent Tallenga market architecture above the painting');
-  assert.ok(sceneBackground.indexOf('gangemagi-tallenga-market-overlay-v2.svg') < sceneBackground.indexOf('home-math-v14.webp'),
-    label+' Tallenga market architecture must sit above the painted world, not remain hidden beneath it');
-  const paintedWorld=await page.request.get(new URL('home-math-v14.webp',url).href);
-  assert.equal(paintedWorld.status(),200,label+' the original detailed Tallenga painting must load');
-  assert.match(paintedWorld.headers()['content-type'],/image\/webp/,
-    label+' painted world is a genuine source image, not a fallback card or external dependency');
-  assert.match(sceneBackground,/home-math-v14\.webp/,
-    label+' the play scene must render Læria\'s richly illustrated Tallenga painting, not only flat vector scenery');
+  assert.ok(sceneBackground.indexOf('gangemagi-tallenga-market-overlay-v2.svg') < sceneBackground.indexOf('gangemagi-grovanova-storybook-locked.webp'),
+    label+' Tallenga market architecture must sit above the locked Grovanova scene, not remain hidden beneath it');
+  const grovanovaWorld=await page.request.get(new URL('gangemagi-grovanova-storybook-locked.webp',url).href);
+  assert.equal(grovanovaWorld.status(),200,label+' the geometry-locked Grovanova scene must load');
+  assert.match(grovanovaWorld.headers()['content-type'],/image\/webp/,
+    label+' Grovanova scene is a local raster source, not an external dependency');
+  assert.match(sceneBackground,/gangemagi-grovanova-storybook-locked\.webp/,
+    label+' mission world must use the supplied Grovanova geometry beneath the Tallenga market');
+  assert.doesNotMatch(sceneBackground,/home-math-v14\.webp/,
+    label+' generic waterfall painting must not replace the locked Grovanova geometry');
   const tableArt=await page.request.get(new URL('gangemagi-market-table-premium.svg',url).href);
   assert.equal(tableArt.status(),200,'original illustrated market counter must load');
   assert.match(tableArt.headers()['content-type'],/image\/svg\+xml/);
