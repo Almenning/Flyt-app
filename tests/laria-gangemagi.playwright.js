@@ -370,6 +370,32 @@ async function check(engine,label,viewport,url){
     label+' market overlay must retain the square fountain depth cue');
   assert.doesNotMatch(overlayMarkup,/<text(?:\s|>)|<foreignObject(?:\s|>)/i,
     label+' market overlay must not bake in fake tasks, labels or controls');
+  const paintedAtmosphere=await page.request.get(new URL('gangemagi-grovanova-atmosphere-v1.svg',url).href);
+  assert.equal(paintedAtmosphere.status(),200,label+' layered summer scene source must load');
+  const paintedMarkup=await paintedAtmosphere.text();
+  assert.match(paintedMarkup,/<svg[^>]+viewBox="0 0 1400 730"/,
+    label+' atmospheric illustration needs scalable iPad landscape dimensions');
+  assert.match(paintedMarkup,/id="edge-botanical-frame"/,
+    label+' premium foreground must use separate botanical scenery without modifying the locked mountain source');
+  assert.doesNotMatch(paintedMarkup,/<text(?:\\s|>)|<foreignObject(?:\\s|>)/i,
+    label+' atmosphere artwork must never bake in faux maths, characters, labels or buttons');
+  const atmosphereBackground=await page.locator('.gm-world').evaluate(el=>{
+    const s=getComputedStyle(el,'::before');
+    return {image:s.backgroundImage,visible:s.display,opacity:parseFloat(s.opacity)};
+  });
+  assert.match(atmosphereBackground.image,/gangemagi-grovanova-atmosphere-v1\\.svg/,
+    label+' artwork must be a real separate scene layer, not an unmounted asset');
+  assert.notEqual(atmosphereBackground.visible,'none',label+' summer atmosphere must render in the play scene');
+  assert.ok(atmosphereBackground.opacity>=.75,label+' summer painterly atmosphere must not become invisible');
+  if(viewport.width>=900){
+    const stage=await page.locator('.gm-troll-stage').boundingBox();
+    assert.ok(stage.width>=295&&stage.height>=214,
+      label+' iPad landscape must showcase the approved full-body trio, not miniature mascot buttons '+JSON.stringify(stage));
+  }else if(viewport.width>=700&&viewport.height>=700){
+    const stage=await page.locator('.gm-troll-stage').boundingBox();
+    assert.ok(stage.height>=196,
+      label+' iPad portrait must give the approved trolls generous illustration space '+JSON.stringify(stage));
+  }
   const sceneBackground=await page.locator('.gm-world').evaluate(el=>getComputedStyle(el).backgroundImage);
   const overlayBackground=await page.locator('.gm-world').evaluate(el=>getComputedStyle(el,'::after').backgroundImage);
   assert.match(sceneBackground,/gangemagi-grovanova-storybook-locked\.webp/,
