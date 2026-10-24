@@ -106,6 +106,16 @@ jobs:
       - name: Install selected browser binaries
         if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: npx playwright install ${{ matrix.browser == 'chrome' && 'chromium' || 'webkit' }}
+      - name: Preserve locked source artwork for exact contour comparison
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/laria-gangemagi-approved-visual/reference
+          cp laer-litt-mer/gangemagi-grovanova-storybook-locked.webp /tmp/laria-gangemagi-approved-visual/reference/grovanova-original-geometry.webp
+          cp laer-litt-mer/assets/gangemagi-troll/storesoster.webp /tmp/laria-gangemagi-approved-visual/reference/storesoster-locked.webp
+          cp laer-litt-mer/assets/gangemagi-troll/lillesoster.webp /tmp/laria-gangemagi-approved-visual/reference/lillesoster-locked.webp
+          cp laer-litt-mer/assets/gangemagi-troll/lillebror.webp /tmp/laria-gangemagi-approved-visual/reference/lillebror-locked.webp
+          (cd /tmp/laria-gangemagi-approved-visual/reference && sha256sum ./*.webp > SHA256SUMS.txt)
       - name: Test all assigned real viewport sizes and render book screenshots
         env:
           GANGEMAGI_QA_BROWSER: ${{ matrix.browser }}
