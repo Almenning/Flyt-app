@@ -133,6 +133,12 @@
   background:#fff8c9!important;border-radius:50%!important;
 }
 .grade-band-young .bc12.bc15-locked-home .bc12-nav button span{display:none!important}
+.grade-band-young .bc12.bc15-locked-home .bc14-nav-fox{
+ background-image:url("./assets/home-v15/laria-troll-trio-nav.webp?v=20261024-locked1")!important;
+ background-size:contain!important;background-repeat:no-repeat!important;background-position:center!important;
+ background-color:transparent!important;border:0!important;clip-path:none!important;
+}
+.grade-band-young .bc12.bc15-locked-home .bc14-nav-fox::after{display:none!important}
 
 /* Legacy challenge chrome is not part of the locked Home composition. */
 .grade-band-young .bc12.bc15-locked-home .safe-challenge-young{display:none!important}
@@ -178,6 +184,71 @@
   .grade-band-young .bc12.bc15-locked-home *{transition:none!important;animation:none!important}
 }
 
+/* Subtle world life. These overlays never capture input and never modify the locked artwork. */
+.grade-band-young .bc12.bc15-locked-home .bc15-ambient{
+ position:absolute;inset:0;z-index:14;pointer-events:none;overflow:hidden;
+}
+.grade-band-young .bc12.bc15-locked-home .bc15-ambient>span{
+ position:absolute;display:block;pointer-events:none;
+}
+.grade-band-young .bc12.bc15-locked-home .bc15-sun-glow{
+ border-radius:50%;
+ background:radial-gradient(circle,rgba(255,250,210,.34) 0%,rgba(255,229,151,.19) 28%,rgba(255,223,130,.07) 54%,rgba(255,223,130,0) 74%);
+ mix-blend-mode:screen;opacity:.72;
+ animation:bc15SunBreath 6.4s ease-in-out infinite;
+}
+.grade-band-young .bc12.bc15-locked-home .bc15-water-glints{
+ opacity:.28;mix-blend-mode:screen;
+ background:
+   radial-gradient(ellipse at 16% 62%,rgba(255,255,239,.8) 0 1.2%,rgba(255,255,239,0) 4.8%),
+   radial-gradient(ellipse at 42% 42%,rgba(255,246,208,.66) 0 1%,rgba(255,246,208,0) 4.2%),
+   radial-gradient(ellipse at 67% 70%,rgba(255,255,239,.72) 0 .9%,rgba(255,255,239,0) 4%),
+   radial-gradient(ellipse at 82% 32%,rgba(255,240,195,.58) 0 .8%,rgba(255,240,195,0) 3.7%);
+ animation:bc15WaterGlint 7.8s ease-in-out infinite;
+}
+.grade-band-young .bc12.bc15-locked-home .bc15-journey-glow{
+ border-radius:50%;
+ background:radial-gradient(circle,rgba(255,244,161,.26) 0%,rgba(255,224,120,.12) 38%,rgba(255,220,115,0) 72%);
+ mix-blend-mode:screen;opacity:.38;
+ animation:bc15JourneyBreath 4.8s ease-in-out infinite;
+}
+@keyframes bc15SunBreath{
+ 0%,100%{opacity:.54;transform:scale(.96)}
+ 50%{opacity:.78;transform:scale(1.04)}
+}
+@keyframes bc15WaterGlint{
+ 0%,100%{opacity:.17;transform:translate3d(-1.5%,1%,0)}
+ 46%{opacity:.34;transform:translate3d(1.5%,-1%,0)}
+ 72%{opacity:.24;transform:translate3d(.5%,.5%,0)}
+}
+@keyframes bc15JourneyBreath{
+ 0%,100%{opacity:.22;transform:scale(.94)}
+ 50%{opacity:.44;transform:scale(1.06)}
+}
+
+/* Touch feedback is brief and scene-integrated, never a separate dashboard layer. */
+.grade-band-young .bc12.bc15-locked-home .bc14-subject:active{
+ opacity:.13!important;
+ background:radial-gradient(circle at 50% 50%,rgba(255,249,207,.92),rgba(255,233,148,.32) 54%,rgba(255,233,148,0) 78%)!important;
+ outline:2px solid rgba(255,244,188,.82)!important;outline-offset:-2px!important;
+}
+.grade-band-young .bc12.bc15-locked-home .bc12-journey:active{
+ opacity:.15!important;border-radius:18px!important;
+ background:radial-gradient(circle at 87% 52%,rgba(255,247,184,.9),rgba(255,224,118,.26) 44%,rgba(255,224,118,0) 72%)!important;
+}
+.grade-band-young .bc12.bc15-locked-home .bc12-nav button:active{
+ opacity:.16!important;border-radius:13px!important;
+ background:rgba(255,239,184,.72)!important;
+}
+@media(prefers-reduced-motion:reduce){
+ .grade-band-young .bc12.bc15-locked-home :is(.bc15-sun-glow,.bc15-water-glints,.bc15-journey-glow){
+   animation:none!important;transform:none!important;
+ }
+ .grade-band-young .bc12.bc15-locked-home .bc15-sun-glow{opacity:.55}
+ .grade-band-young .bc12.bc15-locked-home .bc15-water-glints{opacity:.20}
+ .grade-band-young .bc12.bc15-locked-home .bc15-journey-glow{opacity:.28}
+}
+
 
 /* Mine troll: Home v15 must never route the child into the old fox wardrobe. */
 #bc15-troll-dialog{
@@ -196,12 +267,17 @@
  color:#68452d;font-size:31px;line-height:1;cursor:pointer
 }
 .bc15-troll-art{
- width:100%;aspect-ratio:16/9;border:3px solid #c3975e;border-radius:19px;
- background-repeat:no-repeat;background-size:280% auto;background-position:34% 48%;
+ width:100%;aspect-ratio:3/2;border:3px solid #c3975e;border-radius:19px;
+ background-image:
+   linear-gradient(180deg,rgba(111,180,214,.93) 0%,rgba(172,215,215,.88) 48%,rgba(224,204,145,.82) 100%),
+   var(--bc15-troll-trio);
+ background-repeat:no-repeat,no-repeat;
+ background-size:cover,contain;
+ background-position:center,center bottom;
  box-shadow:inset 0 0 0 2px #fff8df,0 7px 17px #5a40242c;
 }
 #bc15-troll-dialog[data-phone="true"] .bc15-troll-art{
- aspect-ratio:4/3;background-size:320% auto;background-position:34% 48%;
+ aspect-ratio:5/4;background-size:cover,contain;background-position:center,center bottom;
 }
 .bc15-troll-back{
  width:100%;min-height:48px;border:2px solid #9b6a3f;border-radius:15px;
