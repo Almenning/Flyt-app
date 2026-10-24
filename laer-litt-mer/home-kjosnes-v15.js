@@ -62,36 +62,45 @@ function place(el,box,part,viewport){
 
 function mapControlsToArtwork(host,imgW,imgH,portrait){
  const rect=host.getBoundingClientRect();
- const fit=(portrait&&rect.width>700)?'contain':'cover';
- const scale=fit==='contain'
-   ?Math.min(rect.width/imgW,rect.height/imgH)
-   :Math.max(rect.width/imgW,rect.height/imgH);
+ const artAspect=imgW/imgH;
+ const viewportAspect=rect.width/rect.height;
+ const heightScale=rect.height/imgH;
+ const maxWidthScale=(rect.width*1.06)/imgW;
+ // Preserve the locked mountain shape. Allow at most 3% crop on each side;
+ // otherwise keep the entire master and let the scenic fallback fill the frame.
+ const scale=artAspect>viewportAspect?Math.min(heightScale,maxWidthScale):heightScale;
  const box={
    width:imgW*scale,
    height:imgH*scale,
    left:(rect.width-imgW*scale)/2,
-   top:(rect.height-imgH*scale)/2
+   top:rect.height-imgH*scale
  };
- host.dataset.bc15Fit=fit;
- host.style.setProperty('background-size',fit,'important');
- host.style.setProperty('background-position','center center','important');
+ host.dataset.bc15Fit=artAspect>viewportAspect?'safe-width':'safe-height';
+ host.style.setProperty('background-size',box.width+'px '+box.height+'px, cover','important');
+ host.style.setProperty('background-position','center bottom, center center','important');
 
  const layout=portrait?{
    subjects:[.044,.728,.912,.135],
    journey:[.052,.620,.896,.098],
    nav:[.025,.900,.95,.092],
-   adult:[.855,.030,.105,.070]
+   adult:[.855,.030,.105,.070],
+   liveCopy:[.085,.155,.67,.145],
+   liveNext:[.25,.642,.45,.046]
  }:{
    subjects:[.353,.692,.611,.242],
    journey:[.028,.747,.304,.161],
    nav:[.711,.023,.272,.135],
-   adult:[.946,.018,.045,.075]
+   adult:[.946,.018,.045,.075],
+   liveCopy:[.115,.18,.285,.14],
+   liveNext:[.12,.82,.205,.048]
  };
  const viewport={width:rect.width,height:rect.height};
  place(host.querySelector('.bc14-subjects'),box,layout.subjects,viewport);
  place(host.querySelector('.bc12-journey'),box,layout.journey,viewport);
  place(host.querySelector('.bc12-nav'),box,layout.nav,viewport);
  place(host.querySelector('.bc12-adult-entry'),box,layout.adult,viewport);
+ place(host.querySelector('.bc15-live-copy'),box,layout.liveCopy,viewport);
+ place(host.querySelector('.bc15-live-next'),box,layout.liveNext,viewport);
  host.style.setProperty('--bc15-art-left',box.left+'px');
  host.style.setProperty('--bc15-art-top',box.top+'px');
  host.style.setProperty('--bc15-art-width',box.width+'px');
@@ -153,8 +162,8 @@ async function activate(){
    host.classList.add('bc15-locked-home');
    host.dataset.bc15Asset=portrait?'phone-ready':'tablet-ready';
    host.dataset.bc15Master=portrait?'portrait':'landscape';
-   mapControlsToArtwork(host,image.width,image.height,portrait);
    syncLiveCopy(host);
+   mapControlsToArtwork(host,image.width,image.height,portrait);
 
    const trollNav=host.querySelector('.bc12-nav [data-camp="wardrobe"]');
    if(trollNav){
