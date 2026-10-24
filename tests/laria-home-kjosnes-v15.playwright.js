@@ -102,7 +102,8 @@ async function run(engine,label,viewport){
      const liveNext=rect(document.querySelector('.bc15-live-next'));
      const liveCopy=rect(document.querySelector('.bc15-live-copy'));
      const navButtons=[...document.querySelectorAll('.bc12-nav button')].filter(e=>getComputedStyle(e).display!=='none').map(rect);
-     return {cards,journey,nav,liveNext,liveCopy,navButtons,scroll:document.documentElement.scrollWidth,viewport:innerWidth};
+     const liveCopyBg=getComputedStyle(document.querySelector('.bc15-live-copy')).backgroundImage;
+     return {cards,journey,nav,liveNext,liveCopy,liveCopyBg,navButtons,scroll:document.documentElement.scrollWidth,viewport:innerWidth};
    });
    assert(geom.scroll<=geom.viewport+1,label+' horizontal overflow '+JSON.stringify(geom));
    assert(geom.cards.every(r=>r.width>=44&&r.height>=44),label+' subject touch target too small '+JSON.stringify(geom.cards));
@@ -111,6 +112,8 @@ async function run(engine,label,viewport){
      geom.liveNext.y>=geom.journey.y-2&&geom.liveNext.bottom<=geom.journey.bottom+2,
      label+' journey status escaped the painted Fortsett reisen sign '+JSON.stringify({journey:geom.journey,status:geom.liveNext}));
    assert(geom.liveCopy.width<geom.viewport*.65,label+' greeting overlay became a dashboard-sized panel '+JSON.stringify(geom.liveCopy));
+   assert.doesNotMatch(geom.liveCopyBg,/rgba?\([^)]*,\s*0\./,
+     label+' greeting plaque must be fully opaque so baked child-name text cannot ghost through: '+geom.liveCopyBg);
    assert(geom.navButtons.every(r=>r.width>=44&&r.height>=44),label+' nav touch target too small '+JSON.stringify(geom.navButtons));
    assert(geom.navButtons.every(r=>r.x>=-1&&r.right<=geom.viewport+1),label+' nav touch target outside viewport '+JSON.stringify(geom.navButtons));
    await page.screenshot({path:folder+'/'+label+'-home.png',fullPage:true});
