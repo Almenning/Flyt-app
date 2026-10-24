@@ -1484,11 +1484,23 @@
    padding:0 2px
  }
  .gm-shell[data-gm-mode="mission"] .gm-fox-art{width:94px;height:116px}
+ /* The absolute sound button must not consume nearly half the message width.
+    Reserve its own bottom-right space instead of forcing one word per line. */
  .gm-shell[data-gm-mode="mission"] .gm-fox-bubble{
-   padding:8px 44px 8px 10px;
-   border-radius:15px
+   padding:7px 10px 6px;
+   border-radius:15px;
  }
- .gm-shell[data-gm-mode="mission"] .gm-fox-message{font-size:13px;line-height:1.1}
+ .gm-shell[data-gm-mode="mission"] .gm-fox-message{
+   font-size:13px;
+   line-height:1.1;
+   margin:0 0 43px;
+ }
+ .gm-shell[data-gm-mode="mission"] .gm-read{
+   top:auto;
+   bottom:5px;
+   right:6px;
+   transform:none;
+ }
  .gm-shell[data-gm-mode="mission"] .gm-market{padding-top:4px}
  .gm-shell[data-gm-mode="mission"] .gm-crates{padding-top:3px}
  .gm-shell[data-gm-mode="mission"] .gm-crate{height:108px}
