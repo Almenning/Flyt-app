@@ -273,3 +273,31 @@
    padding:3px 8px;font-size:clamp(9px,2.45vw,11.5px);
  }
 }
+
+/* Portrait uses a dedicated scenic treatment. A phone sky is not a landscape canopy,
+   and iPad portrait gets a symmetrical storybook frame instead of mismatched side bars. */
+@media(max-width:700px) and (orientation:portrait){
+ .grade-band-young .bc12.bc15-locked-home::before{
+   background:linear-gradient(90deg,#6c727b 0%,#3b74b7 18%,#327ed5 38%,#428fe6 68%,#4693e8 100%);
+   box-shadow:inset 0 -14px 20px -20px #2f6f9d;
+ }
+}
+@media(min-width:701px) and (orientation:portrait){
+ .grade-band-young .bc12.bc15-locked-home::before{
+   background:linear-gradient(90deg,#273a2d 0%,#36513c 14%,#65a7d1 34%,#76bce8 50%,#65a7d1 66%,#36513c 86%,#273a2d 100%);
+   box-shadow:inset 0 0 36px #21352a;
+ }
+ .grade-band-young .bc12.bc15-locked-home .bc15-live-copy{
+   padding:7px 14px 8px 16px;border-radius:10px 18px 18px 10px;
+   background:linear-gradient(102deg,#234b45 0%,#2f5a4c 72%,#386451 100%);
+   border:1px solid #5f806d;border-left:3px solid #d9bd79;
+   color:#fff;text-shadow:0 2px 5px #17372f;
+   box-shadow:0 7px 18px #17352d,inset 0 1px 0 #6e8c7b;
+ }
+}
+@media(orientation:landscape){
+ .grade-band-young .bc12.bc15-locked-home::after{
+   -webkit-mask-image:linear-gradient(to bottom,#bfbfbf 0,#000 10px,#000 100%);
+   mask-image:linear-gradient(to bottom,#bfbfbf 0,#000 10px,#000 100%);
+ }
+}
