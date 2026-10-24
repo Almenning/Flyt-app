@@ -538,7 +538,7 @@ function actionHandler(e){
  }
  if(a==='fox-help'){foxSpeak();return;}
   if(a==='half-quest'){u.halfQuest=!u.halfQuest;u.halfQuestWon=false;render();return;}
-  if(a==='cycle-troll'){const i=FR8_TROLLS.findIndex(x=>x.id===u.troll);u.troll=FR8_TROLLS[(i+1)%FR8_TROLLS.length].id;render();const b=document.querySelector('#'+ROOT+' .fr8-cycle-troll');b?.focus({preventScroll:true});return;}
+  if(a==='cycle-troll'){const keyboardFocus=btn.matches(':focus-visible');const i=FR8_TROLLS.findIndex(x=>x.id===u.troll);u.troll=FR8_TROLLS[(i+1)%FR8_TROLLS.length].id;render();if(keyboardFocus)document.querySelector('#'+ROOT+' .fr8-cycle-troll')?.focus({preventScroll:true});return;}
  if(a==='toggle-equivalents'){
   u.showEquivalents=!u.showEquivalents;
   if(u.showEquivalents)mark('converted',key(u.build.n,u.build.d));
