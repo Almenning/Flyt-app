@@ -25,7 +25,8 @@ async function homeReady(page,label){
  const asset=await home.getAttribute('data-bc15-asset');
  assert.match(asset,/^(phone|tablet)-ready$/,label+' locked master did not activate');
  const art=await home.evaluate(el=>getComputedStyle(el).getPropertyValue('--bc15-home-art'));
- assert.match(art,/data:image\/webp;base64,UklGR/,label+' must use the locked WebP master data');
+ const expected=label.includes('iphone')?'kjosnes-home-phone.webp':'kjosnes-home-tablet.webp';
+ assert(art.includes(expected),label+' must use the exact locked WebP master: '+art);
  return home;
 }
 
