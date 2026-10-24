@@ -77,7 +77,7 @@ function fractionSvg(n,d,kind='large',canTap=false,selected=null){
   const x0=c+r*Math.cos(a0),y0=c+r*Math.sin(a0),x1=c+r*Math.cos(a1),y1=c+r*Math.sin(a1);
   const p=den===1?'M 100 17 A 83 83 0 1 1 99.99 17 Z':'M 100 100 L '+x0.toFixed(3)+' '+y0.toFixed(3)+' A '+r+' '+r+' 0 '+(2*Math.PI/den>Math.PI?1:0)+' 1 '+x1.toFixed(3)+' '+y1.toFixed(3)+' Z';
   const chosen=Array.isArray(selected)?selected.includes(i):i<val;
-  const attr=canTap?' data-fr-action="piece" data-piece="'+i+'" role="button" tabindex="0" aria-pressed="'+chosen+'" aria-label="'+(chosen?'Fjern':'Fyll')+' del '+(i+1)+' av '+den+'"':'';
+  const attr=canTap?' class="fr8-pie-piece'+(u.lastChanged===i?' fr8-pie-new':'')+'" data-fr-action="piece" data-piece="'+i+'" role="button" tabindex="0" aria-pressed="'+chosen+'" aria-label="'+(chosen?'Fjern':'Fyll')+' del '+(i+1)+' av '+den+'"':'';
   slices+='<path d="'+p+'" fill="url(#fr2-'+(chosen?'berry':'pastry')+id+')" stroke="#9C6A48" stroke-width="3.5" stroke-linejoin="round" '+attr+'/>';
  }
  const sprinkles='<g pointer-events="none"><circle cx="80" cy="53" r="3" fill="#F5B08B" opacity=".8"/><circle cx="111" cy="65" r="2.5" fill="#F6B987" opacity=".75"/><circle cx="84" cy="142" r="2.5" fill="#F7BE96" opacity=".65"/><circle cx="100" cy="100" r="89" fill="none" stroke="#FFE6B9" stroke-width="8" stroke-dasharray="8 4"/><circle cx="100" cy="100" r="83" fill="none" stroke="#A66D44" stroke-width="2" opacity=".7"/></g>';
@@ -345,7 +345,7 @@ function build(){
    +'<div class="fr2-build-target fr5-build-target" data-fr-drop="1"><div class="fr4-build-woodhead">Kaken din</div><div class="fr2-fabric">'+fractionSvg(x.n,x.d,'builder',true,x.filled)+'</div><p>Trykk på et stykke for å fylle eller tømme det.</p></div>'
    +'<div class="fr5-build-aside"><div class="fr5-live-result fr6-result" role="status" aria-live="polite" aria-atomic="true"><span>Du har fylt</span>'+frac(x.n,x.d)+'<small>'+x.n+' av '+x.d+' like deler</small></div>'
    +'<div class="fr7-tablet-equivalents"><div class="fr7-values-heading">Samme mengde som</div>'+fractionEquivalents(x.n,x.d)+'</div>'
-   +'<div class="fr2-guide fr5-fox-mentor fr8-companion" data-fr-action="fox-help" role="button" tabindex="0" aria-label="Trykk på trollet for frivillig hjelp og opplesning">'+fr8Troll()+'<div class="fr8-companion-text"><span class="fr5-fox-bubble">'+status+' <span aria-hidden="true">🔊</span></span>'+cta('cycle-troll','↻','fr8-cycle-troll','aria-label="Bytt til neste troll"')+'</div></div></div>'
+   +'<div class="fr2-guide fr5-fox-mentor fr8-companion"><button type="button" class="fr8-speak" data-fr-action="fox-help" aria-label="Trykk på trollet for frivillig hjelp og opplesning">'+fr8Troll()+'<span class="fr5-fox-bubble">'+status+' <span aria-hidden="true">🔊</span></span></button>'+cta('cycle-troll','↻','fr8-cycle-troll','aria-label="Bytt til neste troll"')+'</div></div>'
    +'<div class="fr2-wood-tray fr5-piece-tray fr6-piece-tray"><span class="fr2-tray-title">Løse biter</span>'
    +'<div class="fr2-spare-pieces">'+(remaining.length?remaining.map(i=>cta('add',loosePieceSvg(x.d,i),'fr2-spare','data-fr-pick="1" data-piece-index="'+i+'" aria-label="Legg kakestykke '+(i+1)+' av '+x.d+' i kaken"')).join(''):'<span class="fr6-empty-tray">Alle bitene er i kaken!</span>')+'</div>'
    +'<small>Trykk eller dra en bit inn</small></div>'
@@ -428,7 +428,8 @@ function applyBuildPieces(parts,notice=''){
    if(x.n!==before&&x.n>0&&(x.n===x.d||x.d%2===0&&x.n*2===x.d)){
     try{requestAnimationFrame(()=>{
       const host=document.querySelector('#fraction-lab-root '+(u.page==='build'?'.fr5-fox-mentor':'.fr5-scene-fox'));
-      window.LARIA_FOX_PRESENCE?.react?.('celebrate',host);
+      if(u.page==='build'&&host?.querySelector('.fr8-troll'))host.classList.add('fr8-celebrate');
+       else window.LARIA_FOX_PRESENCE?.react?.('celebrate',host);
     })}catch(_){}
   }
 }
