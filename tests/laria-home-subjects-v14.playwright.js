@@ -66,6 +66,9 @@ async function run(engine,label,viewport){
    assert.equal(await page.locator('.bc12-nav [data-camp="explore"]').isVisible(),true,label+' Explore navigation hit target missing');
    assert.equal(await page.locator('.bc12-nav [data-camp="collection"]').isVisible(),true,label+' collection navigation hit target missing');
    assert.equal(await page.locator('.bc12-nav [data-camp="wardrobe"]').getAttribute('aria-label'),'Mine troll',label+' troll navigation accessible label');
+   const adult=page.locator('.bc12-adult-entry');
+   assert.equal(await adult.isVisible(),expectedMaster==='phone',
+     label+' adult hit target must exist only where the locked master paints a gear');
 
    const cards=[];
    for(const el of await page.locator('.bc14-subject').all())cards.push(await rect(el));
