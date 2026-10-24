@@ -33,6 +33,12 @@
   background-repeat:no-repeat;
 }
 
+/* During the short v14 -> v15 handoff, legacy controls must not steal taps
+   from the real subject entries. The fallback remains intact if the master fails. */
+.grade-band-young .bc12.bc15-pending .bc14-free{
+  pointer-events:none!important;
+}
+
 /* The locked master already carries the approved visual composition.
    Keep existing controls alive, but render them as semantic hit areas. */
 .grade-band-young .bc12.bc15-locked-home :is(
