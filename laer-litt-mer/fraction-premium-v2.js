@@ -28,7 +28,7 @@ const titles={explore:'Utforsk brøker',build:'Bygg en brøk',equal:'Like mye?',
 const faces={explore:'Brøker finnes overalt! Trykk på delene og se hva som skjer.',build:'Sett inn en bit. Du bestemmer hvor mye du vil bygge.',equal:'To forskjellige brøker kan vise akkurat like mye!',sort:'Sammenlign hvor stor del som er fargelagt.',convert:'Samme mengde kan skrives på tre måter.',mastery:'Det du har utforsket, kan du alltid utforske igjen.'};
 const sharedCake={n:1,d:4,filled:[0],notice:'',mode:'circle'};
 // Both views manipulate one tangible cake; changing the view never resets its fraction.
-const u={page:'build',explore:sharedCake,build:sharedCake,equal:0,equalGuess:null,sortIndex:0,sortOrder:[0,1,2],sortResult:'',sortSelected:null,convert:0,showConvertExtra:false,showEquivalents:false,halfQuest:false,halfQuestWon:false,troll:'storesoster',lastChanged:-1};
+const u={page:'build',explore:sharedCake,build:sharedCake,equal:0,equalGuess:null,sortIndex:0,sortOrder:[0,1,2],sortResult:'',sortSelected:null,convert:0,showConvertExtra:false,showEquivalents:false,showCakeMath:false,halfQuest:false,halfQuestWon:false,troll:'storesoster',lastChanged:-1};
 let svgId=0,drag=null,lastDragUntil=0;
 let returnToLockedJourney=false; // navigation-only context; not persisted
 let returnToMathSubject=false; // nested route, UI only
@@ -353,32 +353,16 @@ function fractionEquivalents(n,d){
   +(!fmt.exact?'<small class="fr7-approx-note">≈ betyr omtrent. Desimaltallet fortsetter videre.</small>':'');
 }
 function build(){
-  const x=u.build,half=x.d%2===0&&x.n*2===x.d;
-  const questStatus=u.halfQuest
-    ?(half?'Du fant en halv! '+x.n+'/'+x.d+' = 1/2. Vil du leke videre?'
-      :x.d%2!==0?'Når kaken har '+x.d+' like biter, kan du ikke lage akkurat en halv med hele biter. Prøv 2, 4 eller 6 deler.'
-      :'Kan du lage en halv kake? Fyll like mye som halvparten.')
-    :'Utforsk kaken fritt, eller prøv en liten utfordring.';
-  const status=x.n===0?'Trykk på et stykke!':x.n===x.d?'Du har én hel!':half?'Det er en halv!':x.n+' av '+x.d+'!';
-  // A tray wedge represents one exact empty sector, not an infinite generic supply.
-  const remaining=Array.from({length:x.d},(_,i)=>i).filter(i=>!x.filled.includes(i));
-  return '<section class="fr2-build fr4-build fr5-build fr6-workshop fr8-scene" data-fr8-quest="'+(u.halfQuest?'active':'free')+'" data-fr8-found="'+(u.halfQuest&&half?'true':'false')+'">'+labIntro('Brøklaben',u.halfQuest?'Kan du lage en halv kake?':'Trykk på et kakestykke og se hva som skjer!')
-   +'<div class="fr2-build-workshop fr4-build-stage fr5-build-stage fr6-stage">'+fr8Landscape()
-   +'<div class="fr2-build-target fr5-build-target" data-fr-drop="1"><div class="fr4-build-woodhead">Kaken din</div><div class="fr2-fabric">'+fractionSvg(x.n,x.d,'builder',true,x.filled)+'</div><p>Trykk på et stykke for å fylle eller tømme det.</p></div>'
-   +'<div class="fr5-build-aside"><div class="fr5-live-result fr6-result" role="status" aria-live="polite" aria-atomic="true"><span>Du har fylt</span>'+frac(x.n,x.d)+'<small>'+x.n+' av '+x.d+' like deler</small></div>'
-   +'<div class="fr7-tablet-equivalents"><div class="fr7-values-heading">Samme mengde som</div>'+fractionEquivalents(x.n,x.d)+'</div>'
-   +'<div class="fr2-guide fr5-fox-mentor fr8-companion"><button type="button" class="fr8-speak" data-fr-action="fox-help" aria-label="Trykk på trollet for frivillig hjelp og opplesning">'+fr8Troll()+'<span class="fr5-fox-bubble">'+status+' <span aria-hidden="true">🔊</span></span></button>'+cta('cycle-troll','↻','fr8-cycle-troll','aria-label="Bytt til neste troll"')+'</div></div>'
-   +'<div class="fr2-wood-tray fr5-piece-tray fr6-piece-tray"><span class="fr2-tray-title">Løse biter</span>'
-   +'<div class="fr2-spare-pieces">'+(remaining.length?remaining.map(i=>cta('add',loosePieceSvg(x.d,i),'fr2-spare','data-fr-pick="1" data-piece-index="'+i+'" aria-label="Legg kakestykke '+(i+1)+' av '+x.d+' i kaken"')).join(''):'<span class="fr6-empty-tray">Alle bitene er i kaken!</span>')+'</div>'
-   +'<small>Trykk eller dra en bit inn</small></div>'
-   +'</div><div class="fr2-controls fr4-controls fr5-controls fr6-controls">'+adjustField('n')+adjustField('d')+'</div>'
-   +'<div class="fr7-mobile-discovery">'+cta('toggle-equivalents',u.showEquivalents?'Skjul desimaltall og prosent':'Se desimaltall og prosent','fr7-equivalents-toggle','aria-expanded="'+u.showEquivalents+'" aria-controls="fr7-mobile-values"')
-   +'<div id="fr7-mobile-values" class="fr7-mobile-equivalents" '+(u.showEquivalents?'':'hidden')+'><div class="fr7-values-heading">Samme mengde som</div>'+fractionEquivalents(x.n,x.d)+'</div></div>'
-   +'<div class="fr8-quest" role="group" aria-label="Frivillig brøkoppdagelse"><span class="fr8-quest-star" aria-hidden="true">✦</span><span class="fr8-quest-text" role="status" aria-live="polite">'+questStatus+'</span>'+cta('half-quest',u.halfQuest?'Lek fritt':'Prøv en halv','fr8-quest-button','aria-pressed="'+u.halfQuest+'"')+'</div>'
-    +(u.halfQuest&&half?'<div class="fr8-aha" role="status" aria-label="Du har laget en halv, '+x.n+' av '+x.d+' er like mye som én av to"><span>'+fractionSvg(x.n,x.d,'quest')+'</span><b>'+x.n+'/'+x.d+' = 1/2</b><span>'+fractionSvg(1,2,'quest')+'</span></div>':'')
-    +'<div class="fr2-actions">'+cta('reset','Tøm kaken','fr2-secondary')+cta('next-build','Del kaken på nytt ›','fr2-primary')+'</div></section>';
+ const x=u.build,format=formatValue(x.n,x.d);
+ if(!window.LARIA_CAKE_WORLD)throw new Error('Brøklab Fjordbakeriet scene module not loaded');
+ return window.LARIA_CAKE_WORLD.render({
+   cake:x,percent:format.pct,decimal:format.dec,character:u.troll,
+   showMath:u.showCakeMath,showEquivalents:u.showEquivalents,
+   halfQuest:u.halfQuest,lastChanged:u.lastChanged,notice:x.notice,
+   adjust:adjustField,
+   pieceMarkup:(i)=>cta('add',loosePieceSvg(x.d,i),'fr2-spare','data-fr-pick="1" data-piece-index="'+i+'" aria-label="Legg kakestykke '+(i+1)+' av '+x.d+' i kaken"')
+ });
 }
-
 function eqCurrent(){return EQ[u.equal%EQ.length]}
 function equalScreen(){
  const q=eqCurrent(),l=q.a,r=q.b,isEqual=equal(l,r),answered=u.equalGuess!==null,discovered=answered&&isEqual===(u.equalGuess==='equal');
@@ -431,7 +415,7 @@ function render(){
  const liveTroll=root.querySelector('.fr8-troll'),liveTrollSrc=liveTroll?.getAttribute('src');
  svgId=0;
  const content=u.page==='home'?home():u.page==='explore'?explore():u.page==='build'?build():u.page==='equal'?equalScreen():u.page==='sort'?sorting():u.page==='convert'?convert():mastery();
- root.innerHTML='<div class="fr2-shell '+(u.page==='build'?'fr8-shell ':'')+(grade()<=2?'fr2-young':grade()<=4?'fr2-middle':'fr2-older')+'"><div class="fr2-world-art" aria-hidden="true"></div><div class="fr2-content">'+topBar()+content+screenTabs()+'</div></div>';
+ root.innerHTML='<div class="fr2-shell '+(u.page==='build'?'fr8-shell fc-shell ':'')+(grade()<=2?'fr2-young':grade()<=4?'fr2-middle':'fr2-older')+'"><div class="fr2-world-art" aria-hidden="true"></div><div class="fr2-content">'+topBar()+content+screenTabs()+'</div></div>';
  if(u.page==='build'){
    const freshWorld=root.querySelector('.fr8-landscape');
    if(liveWorld&&freshWorld)freshWorld.replaceWith(liveWorld);
@@ -537,6 +521,8 @@ function actionHandler(e){
   return;
  }
  if(a==='fox-help'){foxSpeak();return;}
+  if(a==='fc-add-one'){if(u.build.n<u.build.d)addBuildPiece('Du la til én bit! Se hvordan brøken og prosenten endres.');return;}
+  if(a==='fc-reveal-math'){if(u.build.n>=2){u.showCakeMath=!u.showCakeMath;mark('explored',key(u.build.n,u.build.d));render();}return;}
   if(a==='half-quest'){u.halfQuest=!u.halfQuest;u.halfQuestWon=false;render();return;}
   if(a==='cycle-troll'){const keyboardFocus=btn.matches(':focus-visible');const i=FR8_TROLLS.findIndex(x=>x.id===u.troll);u.troll=FR8_TROLLS[(i+1)%FR8_TROLLS.length].id;render();if(keyboardFocus)document.querySelector('#'+ROOT+' .fr8-cycle-troll')?.focus({preventScroll:true});return;}
  if(a==='toggle-equivalents'){
