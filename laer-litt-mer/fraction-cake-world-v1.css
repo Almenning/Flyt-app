@@ -310,7 +310,7 @@
  #fraction-lab-screen .fc-wood-counter{height:59%;border-top-width:8px}
  #fraction-lab-screen .fc-flower-jar{display:none}
  #fraction-lab-screen .fc-world .fc-troll{margin:0;align-self:center;gap:2px}
- #fraction-lab-screen .fc-world .fc-troll .fr8-troll{height:clamp(112px,30vw,148px);width:min(100%,103px);transform:translateX(-4px) scale(1.37);transform-origin:bottom left;pointer-events:none}
+ #fraction-lab-screen .fc-world .fc-troll .fr8-troll{height:clamp(112px,30vw,148px);width:min(100%,103px);transform:translate(-4px,13px) scale(1.24);transform-origin:bottom left;pointer-events:none}
  #fraction-lab-screen .fc-world .fc-troll .fc-troll-speech{font-size:9px;line-height:1.08;padding:3px 2px;min-height:25px}
  #fraction-lab-screen .fc-world .fc-troll .fc-troll-cycle{min-width:44px;width:100%;padding:4px 1px;height:44px;font-size:10px}
  #fraction-lab-screen .fc-world .fc-cake-stand{align-self:center;gap:0;padding:0}
@@ -444,7 +444,7 @@
    display:block;overflow:visible;
  }
  #fraction-lab-screen .fc-world .fc-troll .fr8-troll{
-   position:absolute;left:-13px;bottom:0;max-width:none;width:calc(100% + 83px);height:382px;
+   position:absolute;left:-13px;bottom:-13px;max-width:none;width:calc(100% + 83px);height:350px;
    object-fit:contain;object-position:left bottom;
  }
  #fraction-lab-screen .fc-world .fc-troll .fc-troll-speech{

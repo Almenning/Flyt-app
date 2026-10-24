@@ -22,6 +22,19 @@ async function assertFirstFold(page,label,w,h){
  assert.ok([data.cake,data.num,data.pct,data.control,data.action].every(x=>x.top>=0&&x.bottom<=h+1),label+' cake, fractions, both controls and the primary game action must share first fold '+JSON.stringify(data));
  assert.ok(data.scrollWidth<=w+3,label+' horizontal overflow '+JSON.stringify(data));
  assert.ok(data.speech&&data.stage&&data.speech.left>=data.stage.left-2&&data.speech.right<=data.stage.right+2,label+' troll speech must not be clipped by the storyworld frame '+JSON.stringify(data));
+ // Functional click tests cannot detect a face cut off by overflow:hidden.
+ // Verify the ORIGINAL full-body character remains within the visual stage.
+ if(h>=550){
+   const trollBounds=await page.evaluate(()=>{
+     const img=document.querySelector('.fc-troll .fr8-troll')?.getBoundingClientRect();
+     const stage=document.querySelector('.fc-stage')?.getBoundingClientRect();
+     return img&&stage?{top:Math.round(img.top),bottom:Math.round(img.bottom),
+       stageTop:Math.round(stage.top),stageBottom:Math.round(stage.bottom)}:null;
+   });
+   assert.ok(trollBounds&&trollBounds.top>=trollBounds.stageTop-(w>=650?12:22),
+     label+' original troll face may be clipped by the upper stage '+JSON.stringify(trollBounds));
+ }
+
  const targets=await page.locator('.fc-controls .fr2-adjust-btn, .fc-add-one, .fc-troll-cycle').evaluateAll(xs=>xs.map(x=>({label:x.getAttribute('aria-label')||x.textContent.trim(),w:x.getBoundingClientRect().width,h:x.getBoundingClientRect().height})));
  assert.ok(targets.every(x=>x.w>=44&&x.h>=44),label+' targets below 44x44 '+JSON.stringify(targets));
 }
