@@ -1174,3 +1174,31 @@
  #fraction-lab-screen .fr8-scene .fr8-pie-new,
  #fraction-lab-screen .fr8-scene .fr8-celebrate .fr8-troll{animation:none!important}
 }
+
+/* The previous full-workshop poster is explicitly disabled only in the live
+   cake workshop. Each mountain/fjord/cloud/tower is now its own active layer. */
+#fraction-lab-screen .fr8-shell .fr2-world-art{
+ background:
+   radial-gradient(circle at 91% 1%,rgba(255,226,166,.45),transparent 43%),
+   radial-gradient(circle at 8% 25%,rgba(137,185,169,.18),transparent 54%),
+   linear-gradient(180deg,#fff8e7,#f3e1c4 68%,#fff7e6) !important;
+ opacity:1;filter:none;
+}
+#fraction-lab-screen .fr8-aha{
+ display:flex;align-items:center;justify-content:center;gap:16px;
+ margin:5px 0 9px;padding:8px 13px;min-height:64px;
+ border:2px solid #d6b881;border-radius:20px;
+ background:linear-gradient(130deg,#fff9dd,#e9f2d5);
+ box-shadow:inset 0 3px 7px rgba(255,255,255,.6),0 3px 0 #bb9b72;
+ color:#5c3c27;
+}
+#fraction-lab-screen .fr8-aha b{
+ white-space:nowrap;font-size:clamp(16px,4vw,25px);
+}
+#fraction-lab-screen .fr8-aha .fr2-pie-quest{
+ display:block;width:58px;height:58px;max-width:100%;margin:auto;
+}
+@media(max-width:390px){
+ #fraction-lab-screen .fr8-aha{gap:6px;padding:7px}
+ #fraction-lab-screen .fr8-aha .fr2-pie-quest{width:44px;height:44px}
+}
