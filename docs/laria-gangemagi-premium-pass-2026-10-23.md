@@ -134,3 +134,8 @@ Retningen er tydeligere og nærmere den låste komposisjonen: handlingen er saml
 - En mørkere grønn/varm foreground-glaze lar det levende markedet eie forgrunnen og toner ned strandlinjen i referansen uten å endre fjellformen.
 - Playwright krever nå at Grovanova-assetet faktisk laster, ligger under markeds-overlayen og at `home-math-v14.webp` ikke kan snike seg tilbake som Gangemagi-bakgrunn.
 - Ny exact-head Chromium/WebKit og faktiske iPad/iPhone-skjermbilder kreves før visuell sluttaksept. Ingen merge/publisering.
+
+### 24.10.2026 – release53: jordbærkassen er ren scenery før trollvalg
+- Exact-head Chromium på release52 viste at et nested SVG-`<image>` fra jordbærkassen kunne ligge over Storesøsters faktiske trykkflate, selv om wrapperen var passiv.
+- I mission-modus er kassen kun stedet trollene plukker fra. Hele kasse-subtreet er derfor eksplisitt `pointer-events:none`; barnet skal trykke troll, deretter kurv.
+- Ingen spilllogikk eller Grovanova-scene endres. Eksisterende troll-/kurvtester må nå passere uten force-click eller svekket assertion.

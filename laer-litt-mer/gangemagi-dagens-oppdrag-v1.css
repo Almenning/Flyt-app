@@ -1920,3 +1920,14 @@
 .gm-shell[data-gm-mode="mission"] .gm-market-fruit-supply{
   pointer-events:none;
 }
+
+
+/* Release53: the strawberry crate is visual scenery in troll-first missions.
+   Chromium can otherwise target the nested SVG <image> even when the HTML
+   supply wrapper itself is passive. No descendant may steal a troll tap. */
+.gm-shell[data-gm-mode="mission"] .gm-market-fruit-supply,
+.gm-shell[data-gm-mode="mission"] .gm-market-fruit-supply *,
+.gm-shell[data-gm-mode="mission"] .gm-troll-source,
+.gm-shell[data-gm-mode="mission"] .gm-troll-source *{
+  pointer-events:none !important;
+}
