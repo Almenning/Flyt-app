@@ -73,7 +73,23 @@ async function run(browser,engine,label,viewport,url){
   }
   await photo(page,label+'-01-home');
   for(const id of ['lillesoster','lillebror','storesoster']){
-    await page.locator('[data-fr-action="cycle-troll"]').click();
+    const cycle=page.locator('[data-fr-action="cycle-troll"]');
+    try {
+      await cycle.click();
+    } catch(error){
+      const geometry=await page.evaluate(async()=>{
+        const button=document.querySelector('[data-fr-action="cycle-troll"]');
+        const points=[];
+        for(let i=0;i<7;i++){
+          const r=button?.getBoundingClientRect();
+          points.push({x:r?.x,y:r?.y,w:r?.width,h:r?.height,scrollY:window.scrollY,active:document.activeElement?.className,animation:getComputedStyle(button).animationName});
+          await new Promise(resolve=>setTimeout(resolve,80));
+        }
+        return points;
+      });
+      console.error('FR8_TROLL_CYCLE_STABILITY '+engine+' '+label+' '+id+': '+JSON.stringify(geometry));
+      throw error;
+    }
     await page.locator('.fr8-troll').evaluate(img=>img.decode());
     assert.ok((await page.locator('.fr8-troll').getAttribute('src')).endsWith('/'+id+'.webp'),label+' must show the approved '+id+' asset');
     assert.equal((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build)).n,1,'changing companions must not change mathematics');
