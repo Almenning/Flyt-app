@@ -1,6 +1,6 @@
 'use strict';
-/* Runtime proof: selected fox, not a generic picture or icon, follows the child
- * through all four approved worlds and their actual question screens. */
+/* Runtime proof: exact locked skogstroll accompany grade-2 children in four
+ * worlds while persisted boy/girl profile state remains unchanged. */
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const {chromium,webkit}=require('playwright');
@@ -43,6 +43,25 @@ async function imageIsChosen(page,selector,which,label){
   assert.match(art.source,which==='girl'?/girl-braids-blue-dress-v1\.webp$/:/boy-adventurer-green-vest-v1\.webp$/,
     label+' displayed fox does not match persisted identity');
  }
+}
+const TROLL_BY_SUBJECT={norwegian:'storesoster',math:'lillebror',english:'lillesoster',geography:'storesoster'};
+async function trollOriginal(page,selector,subject,label){
+ const image=page.locator(selector);
+ await image.waitFor({state:'attached',timeout:16000});
+ await image.evaluate(async el=>{if(!el.complete)await new Promise((resolve,reject)=>{
+   el.addEventListener('load',resolve,{once:true});el.addEventListener('error',reject,{once:true});
+ });await el.decode()});
+ const details=await image.evaluate(el=>({
+   source:el.getAttribute('src'),naturalWidth:el.naturalWidth,naturalHeight:el.naturalHeight,
+   visibility:getComputedStyle(el).visibility,display:getComputedStyle(el).display,
+   rect:el.getBoundingClientRect().toJSON()
+ }));
+ const expected=TROLL_BY_SUBJECT[subject];
+ assert(details.source.endsWith('/assets/skogstroll/'+expected+'.webp'),label+' wrong original skogstroll '+JSON.stringify(details));
+ assert(details.naturalWidth>100&&details.naturalHeight>100,label+' image missing or corrupt');
+ assert.notEqual(details.visibility,'hidden',label+' image hidden');
+ assert.notEqual(details.display,'none',label+' image not displayed');
+ assert(details.rect.width>25&&details.rect.height>30,label+' original too small '+JSON.stringify(details));
 }
 async function run(engine,name,viewport,which){
  const browser=await engine.launch({headless:true,args:engine===chromium?['--no-sandbox']:[]});
@@ -90,10 +109,16 @@ async function run(engine,name,viewport,which){
    await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').click();
    const root=page.locator('#'+target+'-screen.active .locked-journey-map[data-journey-subject="'+subject+'"]');
    await root.waitFor({timeout:16000});
-   await imageIsChosen(page,'#'+target+'-screen.active .locked-journey-profile img',which,name+' '+subject+' profile');
-   const traveler=root.locator('.locked-journey-traveler');
-   assert.equal(await traveler.getAttribute('data-avatar'),which,name+' '+subject+' traveler identity');
-   await imageIsChosen(page,'#'+target+'-screen.active .locked-journey-traveler img',which,name+' '+subject+' traveler');
+   await trollOriginal(page,'#'+target+'-screen.active .locked-journey-profile.laria-troll-host > img',subject,name+' '+subject+' profile');
+   const traveler=root.locator('.locked-journey-traveler.laria-troll-host');
+   assert.equal(await traveler.getAttribute('data-laria-troll'),TROLL_BY_SUBJECT[subject],
+     name+' '+subject+' wrong original troll');
+   await trollOriginal(page,'#'+target+'-screen.active .locked-journey-traveler.laria-troll-host > img',
+     subject,name+' '+subject+' traveler');
+   assert.equal(await traveler.locator(':scope > svg.laria-fox-wardrobe-art').count(),0,
+     name+' '+subject+' fox outfit cannot overlay locked forest-troll art');
+   assert.equal(await page.evaluate(()=>state.profile.avatar),which,
+     name+' '+subject+' character replacement modified saved profile');
    const scene=await traveler.evaluate(el=>({
     pointer:getComputedStyle(el).pointerEvents,
     border:getComputedStyle(el).borderRadius,
@@ -107,8 +132,14 @@ async function run(engine,name,viewport,which){
    const mission=page.locator('.locked-journey-overlay:not([hidden]) button[data-locked-node]:not([disabled])').first();
    await mission.waitFor({timeout:10000});await mission.click();
    await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
-   assert.equal(await page.locator('.task-fox-companion').getAttribute('data-avatar'),which,name+' '+subject+' question identity');
-   await imageIsChosen(page,'#session-screen.active .task-fox-companion img',which,name+' '+subject+' question');
+   assert.equal(await page.locator('.task-fox-companion.laria-troll-host').getAttribute('data-laria-troll'),
+     TROLL_BY_SUBJECT[subject],name+' '+subject+' wrong question troll');
+   await trollOriginal(page,'#session-screen.active .task-fox-companion.laria-troll-host > img',
+     subject,name+' '+subject+' question');
+   assert.equal(await page.locator('#session-screen.active .task-fox-companion.laria-troll-host > svg.laria-fox-wardrobe-art').count(),0,
+     name+' '+subject+' fox wardrobe was rendered on troll');
+   assert.equal(await page.evaluate(()=>state.profile.avatar),which,
+     name+' '+subject+' entering task migrated persisted profile identity');
    const taskGeometry=await page.evaluate(()=>{
     const root=document.querySelector('#session-screen.active');
     const fox=root?.querySelector('.task-fox-companion');
@@ -147,7 +178,7 @@ async function run(engine,name,viewport,which){
   }
   assert.deepEqual(errors,[],name+' uncaught errors');
   await context.close();
-  console.log('Personal fox verified',name,which,'Home + four real journeys + four tasks + reload');
+  console.log('Original forest-troll identity verified',name,which,'Home + four journeys + four tasks + unchanged saved avatar across reload');
  }finally{await browser.close()}
 }
 (async()=>{
