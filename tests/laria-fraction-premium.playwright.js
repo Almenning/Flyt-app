@@ -112,7 +112,7 @@ async function run(browser,engine,label,viewport,url){
   assert.deepEqual(await page.locator('.fr6-piece-tray .fr2-spare').evaluateAll(xs=>xs.map(x=>Number(x.dataset.pieceIndex))),[1,3],'placed piece must vanish from tray');
   await page.locator('.fr2-pie-builder [data-fr-action="piece"][data-piece="2"]').click();
   assert.deepEqual((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build)).filled,[0],'same sector removes exactly that sector');
-  await page.locator('.fr5-fox-mentor').click();
+  await page.locator('.fr8-companion .fr8-speak').click();
   assert.equal(await page.locator('.fr6-result .fr2-fraction').getAttribute('aria-label'),'1 av 4','fox hint may not change the cake');
   await page.locator('.fr6-piece-tray [data-piece-index="2"]').click();
   assert.deepEqual((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build)).filled,[0,2],'a physical wedge must fill its own position');
