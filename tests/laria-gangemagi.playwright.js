@@ -377,13 +377,13 @@ async function check(engine,label,viewport,url){
     label+' atmospheric illustration needs scalable iPad landscape dimensions');
   assert.match(paintedMarkup,/id="edge-botanical-frame"/,
     label+' premium foreground must use separate botanical scenery without modifying the locked mountain source');
-  assert.doesNotMatch(paintedMarkup,/<text(?:\\s|>)|<foreignObject(?:\\s|>)/i,
+  assert.doesNotMatch(paintedMarkup,/<text(?:\s|>)|<foreignObject(?:\s|>)/i,
     label+' atmosphere artwork must never bake in faux maths, characters, labels or buttons');
   const atmosphereBackground=await page.locator('.gm-world').evaluate(el=>{
     const s=getComputedStyle(el,'::before');
     return {image:s.backgroundImage,visible:s.display,opacity:parseFloat(s.opacity)};
   });
-  assert.match(atmosphereBackground.image,/gangemagi-grovanova-atmosphere-v1\\.svg/,
+  assert.match(atmosphereBackground.image,/gangemagi-grovanova-atmosphere-v1\.svg/,
     label+' artwork must be a real separate scene layer, not an unmounted asset');
   assert.notEqual(atmosphereBackground.visible,'none',label+' summer atmosphere must render in the play scene');
   assert.ok(atmosphereBackground.opacity>=.75,label+' summer painterly atmosphere must not become invisible');
