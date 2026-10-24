@@ -82,3 +82,9 @@ Retningen er tydeligere og nærmere den låste komposisjonen: handlingen er saml
 - Playwright krever nå både at overlayen lastes, at den har boder/bro/fontene, at den ikke inneholder bakt tekst/kontroller, og at den ligger visuelt over `home-math-v14.webp`.
 - Safari-cache bumpes direkte fra release44 til release46 fordi release45 var et forkastet mellomforsøk.
 - Ny exact-head Chromium/WebKit og manuell iPad/iPhone-kontroll er påkrevd. Dersom markedslaget gjør scenen rotete eller fortsatt ikke oppleves som et premium Tallenga-marked, skal release46 reverseres fremfor å svekke spillbarheten.
+
+### 24.10.2026 – release47: blending av markedsarkitektur
+- Release46 bestod exact-head Chromium og WebKit, men manuell kontroll viste at ideen var bedre enn utførelsen: markedsboder og hus ga riktig stedidentitet, men sentrale vektorflater lå for hardt oppå det malte landskapet på iPad.
+- Release47 endrer derfor kun overlayens visuelle styrke. Sentrale skyline-/stall-lag dempes til ca. 56–58 %, bro/fontene til ca. 48–52 %, mens kantboder, lanterner og forgrunnsawning beholdes tydeligere for å ramme inn markedet.
+- Drop-shadow-kontrast er redusert for at arkitekturen skal blende inn i den eksisterende painterly verdenen. Ingen geometri, touchflate, DOM, JavaScript, matematikk, progresjon eller oppdrag er endret.
+- Overlay-URL og Safari-cache bumpes til release47. Ny exact-head Chromium/WebKit med manuell iPad/iPhone-sammenligning kreves før release47 beholdes.
