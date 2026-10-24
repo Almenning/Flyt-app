@@ -1,0 +1,68 @@
+/* Læria skogstroll: three exact approved character cutouts in first-chapter
+   journeys and young-grade task scenes. Never retouch the locked 941x1672
+   journey maps or the Kjøsnesfjorden/Grovanova Hjem master. */
+.grade-band-young .locked-journey-profile.laria-troll-host,
+.grade-band-young .locked-journey-traveler.laria-troll-host{
+  pointer-events:none!important;
+}
+.grade-band-young .locked-journey-profile.laria-troll-host > img{
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  visibility:visible!important;
+  object-fit:cover!important;
+  object-position:center 17%!important;
+}
+.grade-band-young .locked-journey-board .locked-journey-traveler.laria-troll-host{
+  width:clamp(70px,19%,120px)!important;
+  height:auto!important;
+  aspect-ratio:4 / 5!important;
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  filter:drop-shadow(0 5px 4px rgba(19,41,29,.38))!important;
+}
+.grade-band-young .locked-journey-board .locked-journey-traveler.laria-troll-host>img{
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  object-fit:contain!important;
+  object-position:center bottom!important;
+  opacity:1!important;
+  visibility:visible!important;
+  border:0!important;
+  border-radius:0!important;
+}
+.grade-band-young .laria-troll-host > .laria-fox-wardrobe-placed,
+.grade-band-young .laria-troll-host > .laria-fox-wardrobe-art{
+  display:none!important;
+}
+#session-screen.task-scene[data-task-band="young"] .task-fox-companion.laria-troll-host{
+  border:0!important;
+  overflow:visible!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  pointer-events:none!important;
+}
+#session-screen.task-scene[data-task-band="young"] .task-fox-companion.laria-troll-host>img,
+#session-screen.task-scene[data-task-band="young"] .task-visual-companion-stage .task-fox-companion.laria-troll-host>img,
+#session-screen.task-scene[data-task-band="young"] .task-prompt-fox-stage .task-fox-companion.laria-troll-host>img{
+  display:block!important;
+  opacity:1!important;
+  visibility:visible!important;
+  width:100%!important;
+  height:100%!important;
+  object-fit:contain!important;
+  object-position:center bottom!important;
+  filter:drop-shadow(0 4px 4px rgba(17,42,36,.23));
+}
+#session-screen.task-scene[data-task-band="young"] .task-fox-companion.laria-troll-host .task-profile-marker{
+  display:none!important;
+}
+@media(prefers-reduced-motion:reduce){
+  #session-screen.task-scene[data-task-band="young"] .task-fox-companion.laria-troll-host,
+  .grade-band-young .locked-journey-traveler.laria-troll-host{
+    animation:none!important;
+    transition:none!important;
+  }
+}
