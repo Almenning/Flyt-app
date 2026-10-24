@@ -2116,7 +2116,7 @@
   z-index:0;
   inset:0;
   background:url('./gangemagi-tallenga-market-overlay-v2.svg?v=release56') center / cover no-repeat;
-  opacity:.56;
+  opacity:.62;
   mix-blend-mode:normal;
   pointer-events:none;
 }
