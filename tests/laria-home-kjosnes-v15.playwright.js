@@ -122,7 +122,7 @@ async function run(engine,label,viewport){
      const scenic=getComputedStyle(host,'::before');
      const artLeft=parseFloat(getComputedStyle(host).getPropertyValue('--bc15-art-left'))||0;
      const artWidth=parseFloat(getComputedStyle(host).getPropertyValue('--bc15-art-width'))||0;
-     return {cards,journey,nav,liveNext,liveCopy,liveCopyBg,liveNextBg,scenicFilter:scenic.filter,scenicBg:scenic.backgroundImage,scenicTransform:scenic.transform,artLeft,artWidth,navButtons,scroll:document.documentElement.scrollWidth,viewport:innerWidth};
+     return {cards,journey,nav,liveNext,liveCopy,liveCopyBg,liveNextBg,scenicFilter:scenic.filter,scenicBg:scenic.backgroundImage,artLeft,artWidth,navButtons,scroll:document.documentElement.scrollWidth,viewport:innerWidth};
    });
    assert(geom.scroll<=geom.viewport+1,label+' horizontal overflow '+JSON.stringify(geom));
    assert(geom.cards.every(r=>r.width>=44&&r.height>=44),label+' subject touch target too small '+JSON.stringify(geom.cards));
@@ -134,12 +134,8 @@ async function run(engine,label,viewport){
    assert.doesNotMatch(geom.liveCopyBg,/rgba?\([^)]*,\s*0\./,
      label+' greeting plaque must be fully opaque so baked child-name text cannot ghost through: '+geom.liveCopyBg);
    assert.equal(geom.scenicFilter,'none',label+' Home safe-area fill must not blur the locked artwork');
-   if(label.includes('iphone')){
-     assert.match(geom.scenicBg,/url\(/,label+' phone safe area must extend the exact locked artwork edge');
-     assert.match(geom.scenicTransform,/matrix\(1, 0, 0, -1/,label+' phone safe area must be a sharp vertical reflection, not an upright repeated image');
-   }else{
-     assert.doesNotMatch(geom.scenicBg,/url\(/,label+' non-phone safe-area fill must not duplicate painted navigation/artwork');
-   }
+   assert.doesNotMatch(geom.scenicBg,/url\(/,
+     label+' safe-area fill must not repeat logo, gear, text or other painted UI from the locked artwork');
    if(portrait){
      assert(geom.artLeft>=-1&&geom.artLeft+geom.artWidth<=geom.viewport+1,
        label+' portrait artwork must not crop the subject cards/navigation: '+JSON.stringify({artLeft:geom.artLeft,artWidth:geom.artWidth,viewport:geom.viewport}));
