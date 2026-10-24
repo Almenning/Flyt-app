@@ -194,7 +194,7 @@
        (!free&&!complete?'<div class="gm-market-fruit-supply">'+trollSupply()+'</div>':'')+
        '<p class="gm-play-hint">'+(complete?'Se hva du har laget! Du kan endre kurvene eller fortsette.':free?(state.groups>=4?'Trykk på kurvene. Sveip sidelengs for å se alle.':'Trykk på en kurv for å legge i et jordbær'):(holdingBerry?trollName(selectedTroll)+' er klar. Trykk på en kurv.':'Velg hvilket troll som skal plukke neste jordbær.'))+'</p></div>'+
        '</div>'+
-       '<div class="gm-math">       '<div class="gm-math"><div class="gm-math-label"><span>'+(complete?'Se sammenhengen':'Tell kurvene')+'</span><span class="gm-goal">'+state.groups+' × '+state.each+' = '+(complete?sum:'?')+'</span></div>'+groupCounts()+
+       '<div class="gm-math"><div class="gm-math-label"><span>'+(complete?'Se sammenhengen':'Tell kurvene')+'</span><span class="gm-goal">'+state.groups+' × '+state.each+' = '+(complete?sum:'?')+'</span></div>'+groupCounts()+
          '<div class="gm-math-equation '+(complete?'gm-equation-win':'')+'" aria-label="'+esc(equation)+'">'+esc(equation)+'</div>'+
          (!free&&complete?'<div class="gm-math-addition" aria-label="Gjentatt addisjon: '+esc(result.addition)+'">'+esc(result.addition)+'</div>':'')+
          (free?'<div class="gm-progress-track" role="progressbar" aria-label="Jordbær pakket" aria-valuemin="0" aria-valuemax="'+goal+'" aria-valuenow="'+sum+'"><span style="width:'+progress+'%"></span></div>':'')+
