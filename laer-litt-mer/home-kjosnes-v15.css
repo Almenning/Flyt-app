@@ -4,7 +4,7 @@
 
 .grade-band-young .bc12.bc15-locked-home{
   background-color:#173f4c!important;
-  background-image:url('./assets/home/kjosnes-home-tablet.webp?v=20261024-locked1')!important;
+  background-image:var(--bc15-home-art)!important;
   background-position:center center!important;
   background-size:cover!important;
   background-repeat:no-repeat!important;
@@ -82,7 +82,11 @@
   border:0!important;background:transparent!important;box-shadow:none!important;
   color:transparent!important;font-size:0!important;opacity:.001!important;
 }
-.grade-band-young .bc12.bc15-locked-home .bc12-nav button[data-camp="home"]{display:none!important}
+
+.grade-band-young .bc12.bc15-locked-home .bc12-nav button[data-camp="home"]{
+  position:absolute!important;left:-305%!important;top:0!important;
+  width:48px!important;height:48px!important;display:block!important;
+}
 .grade-band-young .bc12.bc15-locked-home .bc12-nav button:focus-visible{
   opacity:.24!important;outline:4px solid #fff4bd!important;outline-offset:2px!important;
   background:#fff8c9!important;border-radius:50%!important;
@@ -99,7 +103,7 @@
 
 @media(max-width:700px) and (orientation:portrait){
   .grade-band-young .bc12.bc15-locked-home{
-    background-image:url('./assets/home/kjosnes-home-phone.webp?v=20261024-locked1')!important;
+    background-image:var(--bc15-home-art)!important;
     background-position:center center!important;background-size:cover!important;
   }
   .grade-band-young .bc12.bc15-locked-home .bc14-subjects{
@@ -115,7 +119,6 @@
     width:95%!important;height:9.2%!important;
     grid-template-columns:repeat(5,1fr)!important;gap:0!important;
   }
-  .grade-band-young .bc12.bc15-locked-home .bc12-nav button[data-camp="home"]{display:block!important}
   .grade-band-young .bc12.bc15-locked-home .bc12-adult-entry{
     right:4.4%!important;top:max(3.4%,env(safe-area-inset-top))!important;
     width:46px!important;height:46px!important;
