@@ -125,6 +125,20 @@ async function run(browser,engine,label,viewport,url){
   await page.locator('[data-fr-action="next-build"]').click();
   assert.equal((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build)).n,0);
   await photo(page,label+'-03-build');
+  // A voluntary adventure cannot require completing a quest before free play.
+  assert.equal(await page.locator('.fr8-scene').getAttribute('data-fr8-quest'),'free');
+  await page.locator('[data-fr-action="half-quest"]').click();
+  assert.equal(await page.locator('.fr8-scene').getAttribute('data-fr8-quest'),'active');
+  await page.locator('[data-fr-action="adjust"][data-field="d"][data-step="-1"]').click();
+  await page.locator('[data-fr-action="adjust"][data-field="d"][data-step="-1"]').click();
+  assert.equal((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build)).d,2);
+  await page.locator('[data-fr-action="adjust"][data-field="n"][data-step="1"]').click();
+  assert.equal(await page.locator('.fr8-scene').getAttribute('data-fr8-found'),'true');
+  assert.match(await page.locator('.fr8-quest-text').innerText(),/1\\/2/);
+  await photo(page,label+'-03-half-quest');
+  await page.locator('[data-fr-action="half-quest"]').click();
+  assert.equal(await page.locator('.fr8-scene').getAttribute('data-fr8-quest'),'free');
+  assert.equal((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build)).n,1,'switching to free play must not reset the cake');
 
   await page.locator('.fr6-nav [data-page="home"]').click();
   await page.locator('.fr6-more').waitFor();
