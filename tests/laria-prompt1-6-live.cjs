@@ -31,9 +31,10 @@ async function openHomeSubject(page,subject){
  // If Home v15 is present, wait until its locked artwork owns the interaction
  // layer. Clicking during the v14 -> v15 handoff can hit the outgoing Explore card.
  const hasV15=await page.locator('script[src*="home-kjosnes-v15.js"]').count();
- if(hasV15){
+ const youngBand=await page.locator('.grade-band-young').count()>0;
+ if(hasV15&&youngBand){
    await page.waitForFunction(()=>{
-     const h=document.querySelector('.bc12');
+     const h=document.querySelector('#home-screen .bc12');
      const asset=h?.dataset.bc15Asset||'';
      const free=h?.querySelector('.bc14-free');
      const freeSafe=!free||getComputedStyle(free).display==='none'||getComputedStyle(free).pointerEvents==='none';
