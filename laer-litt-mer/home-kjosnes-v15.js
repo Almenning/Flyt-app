@@ -83,15 +83,15 @@ function mapControlsToArtwork(host,imgW,imgH,portrait){
    journey:[.052,.620,.896,.098],
    nav:[.025,.900,.95,.092],
    adult:[.855,.030,.105,.070],
-   liveCopy:tabletPortrait?[.01,.145,.62,.105]:[.01,.145,.68,.105],
-   liveNext:[.255,.655,.55,.035]
+   liveCopy:tabletPortrait?[.035,.145,.56,.095]:[.025,.145,.62,.095],
+   liveNext:tabletPortrait?[.145,.655,.71,.038]:[.14,.655,.72,.040]
  }:{
    subjects:[.353,.692,.611,.242],
    journey:[.028,.747,.304,.161],
    nav:[.711,.023,.272,.135],
    adult:[.025,.020,.205,.155],
-   liveCopy:[.112,.168,.25,.095],
-   liveNext:[.105,.842,.21,.032]
+   liveCopy:[.115,.172,.225,.085],
+   liveNext:[.073,.836,.235,.040]
  };
  const viewport={width:rect.width,height:rect.height};
  place(host.querySelector('.bc14-subjects'),box,layout.subjects,viewport);
@@ -127,8 +127,11 @@ function syncLiveCopy(host){
  }
  const place=host.querySelector('[data-camp-next]')?.textContent?.trim()||'Bokskogen';
  const rawType=host.querySelector('[data-camp-next-type]')?.textContent?.trim()||'Neste stopp';
- const type=/pågående/i.test(rawType)?'Pågående økt':'Neste stopp';
- next.textContent=type+': '+place;
+ const active=/pågående/i.test(rawType);
+ const type=active?'Pågående':'Neste stopp';
+ next.dataset.state=active?'active':'next';
+ next.textContent=type+' · '+place;
+ next.setAttribute('aria-label',rawType+': '+place);
 }
 
 function clearMappedControls(host){
