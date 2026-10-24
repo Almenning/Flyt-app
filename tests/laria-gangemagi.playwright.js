@@ -648,9 +648,10 @@ async function check(engine,label,viewport,url){
   await page.locator('[data-gm-basket="1"] .gm-fruit[data-gm-fruit]').first().click();
   assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,0,0],
     label+' direct touch still removes a placed berry');
-  await page.locator('[data-gm-action="basket"][data-gm-basket="2"] .gm-crate-front').click();
+  assert.match(await page.locator('[data-gm-action="basket"][data-gm-basket="2"]').getAttribute('aria-label'),/Velg et troll først/,
+    label+' inactive basket tells the child which step comes first');
   assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,0,0],
-    label+' basket tap before troll choice cannot silently add fruit');
+    label+' waiting for a new troll choice cannot silently change maths');
   assert.match(await page.locator('.gm-fox-message').innerText(),/Velg et troll/);
   if(viewport.width===390&&viewport.height===844){
     await page.locator('[data-gm-action="troll"][data-gm-troll="1"]').tap();
@@ -665,9 +666,10 @@ async function check(engine,label,viewport,url){
       label+' touchscreen can still remove the berry');
   }
   await page.evaluate(()=>LARIA_GANGEMAGI.reset());
-  await page.locator('[data-gm-action="basket"][data-gm-basket="0"]').click();
+  assert.match(await page.locator('[data-gm-action="basket"][data-gm-basket="0"]').getAttribute('aria-label'),/Velg et troll først/,
+    label+' reset basket remains visibly secondary to troll choice');
   assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,0,0],
-    'basket alone cannot silently add a strawberry');
+    'reset mission starts with no silent strawberry placement');
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).selectedBasket,null,
     label+' basket does not become primary choice before a troll');
   assert.equal(await page.locator('.gm-quest-step-active[aria-current="step"][data-gm-step="1"]').count(),1,
