@@ -53,15 +53,15 @@ async function checkPublishedFractionWorkshop(p,name){
  assert.equal(await p.locator('.fr6-nav .fr2-nav-item').count(),3,name+' child-first navigation has changed');
  const homeWidth=await p.evaluate(()=>[document.documentElement.scrollWidth,innerWidth]);
  assert.ok(homeWidth[0]<=homeWidth[1]+2,name+' Brøklaben home overflows phone: '+homeWidth);
- const fox=await p.locator('.fr2-guide .fr2-fox').first().evaluate(img=>({complete:img.complete,width:img.naturalWidth}));
- assert.ok(fox.complete&&fox.width>0,name+' Brøklaben fox image failed to load');
+ const troll=await p.locator('.fc-troll .fr8-troll').first().evaluate(img=>({complete:img.complete,width:img.naturalWidth,src:img.getAttribute('src')}));
+ assert.ok(troll.complete&&troll.width>0&&/fraction-trolls\/(storesoster|lillesoster|lillebror)\.webp/.test(troll.src),name+' Brøklab locked skogstroll asset failed to load');
 
  await p.locator('.fr6-nav [data-page="home"]').click();
  assert.equal(await p.locator('.fr2-home-card').count(),5,name+' supplementary games must remain available');
  await p.locator('.fr2-card-explore').click();
  assert.equal(await p.locator('.fr2-view').count(),4,name+' missing fraction representations');
  await p.locator('[data-fr-action="preset"][data-n="1"][data-d="2"]').click();
- const half=await p.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().explore);
+ const half=await p.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build); // Explore and Build now share exactly the same cake state
  assert.deepEqual([half.n,half.d],[1,2]);
  await p.locator('[data-fr-action="view"][data-view="glass"]').click();
  assert.equal(await p.locator('.fr2-glass').count(),1);
