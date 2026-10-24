@@ -3548,6 +3548,13 @@ function showScreen(name){
   document.getElementById('bottom-nav').style.display=special?'none':'grid';
   document.getElementById('topbar').style.display=special?'none':'flex';
   window.scrollTo(0,0);
+  // Mobile Safari can preserve the previous Home scroll anchor after a screen
+  // swap. Reset once more after layout so every journey/module opens at the top.
+  requestAnimationFrame(()=>{
+    window.scrollTo(0,0);
+    document.documentElement.scrollTop=0;
+    document.body.scrollTop=0;
+  });
   syncSwipeBackEdge(name);
   // Match the visible label to the actual return route, including nested geography.
   const sourcePanel=window.LARIA_BASECAMP_RETURN_VIEW?.();
