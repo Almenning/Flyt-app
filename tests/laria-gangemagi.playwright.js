@@ -617,7 +617,6 @@ async function check(engine,label,viewport,url){
   assert.equal(props.repeatedPaint,0,label+' repeated fruit may not duplicate gradient IDs');
 
   await shot(page,label+'-01-first-look');
-  await page.locator('.gm-crate').first().hover();
   const disabledRemoveStyles=await page.locator('.gm-remove:disabled').evaluateAll(buttons=>
     buttons.map(el=>({opacity:parseFloat(getComputedStyle(el).opacity),
       pointerEvents:getComputedStyle(el).pointerEvents})));
@@ -634,6 +633,8 @@ async function check(engine,label,viewport,url){
   assert.equal(picked.holdingBerry,true,label+' storesøster picked exactly one berry');
   assert.equal(await page.locator('.gm-troll-selected[data-gm-troll="0"]').count(),1,
     label+' chosen troll is visibly selected');
+  // Baskets become the second interaction step only after a troll is chosen.
+  await page.locator('.gm-crate').first().hover();
   assert.equal(await page.locator('.gm-crate-invite').count(),3,
     label+' after a troll picks, all non-full baskets invite a destination');
   await page.locator('[data-gm-action="basket"][data-gm-basket="1"] .gm-crate-front').click();
