@@ -349,12 +349,13 @@ async function check(engine,label,viewport,url){
   assert.doesNotMatch(overlayMarkup,/<text(?:\s|>)|<foreignObject(?:\s|>)/i,
     label+' market overlay must not bake in fake tasks, labels or controls');
   const sceneBackground=await page.locator('.gm-world').evaluate(el=>getComputedStyle(el).backgroundImage);
-  assert.match(sceneBackground,/gangemagi-tallenga-market-premium-20261023\.svg/,
-    label+' Gangemagi must retain its authored premium market geometry beneath the painting');
-  assert.match(sceneBackground,/gangemagi-tallenga-market-overlay-v2\.svg/,
-    label+' Gangemagi must render the transparent Tallenga market architecture above the painting');
-  assert.ok(sceneBackground.indexOf('gangemagi-tallenga-market-overlay-v2.svg') < sceneBackground.indexOf('gangemagi-grovanova-storybook-locked.webp'),
-    label+' Tallenga market architecture must sit above the locked Grovanova scene, not remain hidden beneath it');
+  const overlayBackground=await page.locator('.gm-world').evaluate(el=>getComputedStyle(el,'::after').backgroundImage);
+  assert.match(sceneBackground,/gangemagi-grovanova-storybook-locked\.webp/,
+    label+' Gangemagi must use the locked Grovanova scene as its only world background');
+  assert.doesNotMatch(sceneBackground,/gangemagi-tallenga-market-premium-20261023\.svg/,
+    label+' the superseded full market painting must not redraw the locked Grovanova silhouette');
+  assert.match(overlayBackground,/gangemagi-tallenga-market-overlay-v2\.svg/,
+    label+' Gangemagi must render the transparent Tallenga market architecture as a separate depth layer');
   const grovanovaWorld=await page.request.get(new URL('gangemagi-grovanova-storybook-locked.webp',url).href);
   assert.equal(grovanovaWorld.status(),200,label+' the geometry-locked Grovanova scene must load');
   assert.match(grovanovaWorld.headers()['content-type'],/image\/webp/,
