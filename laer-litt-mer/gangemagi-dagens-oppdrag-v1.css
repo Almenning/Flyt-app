@@ -1394,6 +1394,7 @@
   filter:drop-shadow(0 0 10px #ffda74ad);
 }
 .gm-shell[data-gm-mode="mission"] .gm-return-tray{
+  pointer-events:auto;
   position:absolute;
   z-index:20;
   left:50%;

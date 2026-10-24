@@ -121,3 +121,7 @@ Retningen er tydeligere og nærmere den låste komposisjonen: handlingen er saml
 - Interaksjonslagene er nå eksplisitte: før trollvalg er trollene første handling; når trollet holder et bær blir kurvene aktive; etter levering går hele kurvknappen tilbake til passiv, mens det faktiske bæret og minusknappen ligger øverst og kan brukes direkte.
 - Marked/kurver ligger visuelt foran trollenes nedre del. Dette lar trollene stå naturlig bak/ved kurvene uten å bli en usynlig berøringsvegg.
 - Ny Playwright-regresjon bruker elementFromPoint på midten av et faktisk plassert bær og krever at bæret, ikke et troll, eier pikselen før direkte fjerning testes.
+
+### 24.10.2026 – release51: returbrettet beholder direkte bærflytting
+- Release50 gjorde markedslaget passivt utenom de aktuelle barnehandlingene, men det midlertidige returbrettet ved drag av et allerede plassert bær arvet dermed passiv pointer-events.
+- `.gm-return-tray` er nå eksplisitt interaktivt. Eksisterende QA krever at brettet blir `.gm-drop-target`, fjerner nøyaktig ett bær og lar opptjent blomst bestå.
