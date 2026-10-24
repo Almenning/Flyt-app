@@ -53,7 +53,7 @@
     // The approved painting contains a sample portrait and "127". Cover both
     // with real local profile/progress UI so decorative pixels are never
     // presented as the child's saved avatar or earned score.
-    return '<div class="locked-journey-profile'+(troll?' laria-troll-host':'')+'" data-avatar="'+which+'"'+
+    return '<div class="locked-journey-profile'+(troll?' laria-troll-host':'')+'"'+(troll?'':' data-avatar="'+which+'"')+
       (troll?' data-laria-troll="'+window.LARIA_SKOGSTROLL.keyFor(subject)+'"':'')+
       ' aria-label="'+label+'">'+
       '<img src="'+esc(selectedAvatarSource(subject))+'" alt=""></div>'+
@@ -395,7 +395,7 @@
         // painted generic fox still requires artwork retouch before publishing.
         const point=contract.foxFootAnchor(subject,here.index);
         const troll=!!window.LARIA_SKOGSTROLL?.enabled?.();
-        return '<div class="locked-journey-traveler'+(troll?' laria-troll-host':'')+'" data-avatar="'+selectedAvatar()+'"'+
+        return '<div class="locked-journey-traveler'+(troll?' laria-troll-host':'')+'"'+(troll?'':' data-avatar="'+selectedAvatar()+'"')+
           (troll?' data-laria-troll="'+window.LARIA_SKOGSTROLL.keyFor(subject)+'"':'')+
           ' data-laria-fox-stop="'+here.index+'" style="--fox-x:'+point.x+'%;--fox-y:'+point.y+'%" aria-label="'+
           (troll?window.LARIA_SKOGSTROLL.labelForSubject(subject)+' er med på reisen':'Din rev er med på reisen')+
