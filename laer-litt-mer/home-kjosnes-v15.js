@@ -28,7 +28,7 @@ function openTrollDialog(){
  }
  d.dataset.phone=isPhone()?'true':'false';
  const art=d.querySelector('.bc15-troll-art');
- if(art&&activeMasterSrc)art.style.backgroundImage='url("'+activeMasterSrc+'")';
+ if(art)art.style.backgroundImage='url("'+TABLET_MASTER+'")';
  if(!d.open)d.showModal();
 }
 
@@ -84,15 +84,15 @@ function mapControlsToArtwork(host,imgW,imgH,portrait){
    journey:[.052,.620,.896,.098],
    nav:[.025,.900,.95,.092],
    adult:[.855,.030,.105,.070],
-   liveCopy:[.085,.155,.67,.145],
-   liveNext:[.25,.642,.45,.046]
+   liveCopy:[.01,.145,.77,.14],
+   liveNext:[.255,.655,.49,.040]
  }:{
    subjects:[.353,.692,.611,.242],
    journey:[.028,.747,.304,.161],
    nav:[.711,.023,.272,.135],
    adult:[.946,.018,.045,.075],
-   liveCopy:[.115,.18,.285,.14],
-   liveNext:[.12,.82,.205,.048]
+   liveCopy:[.112,.168,.275,.125],
+   liveNext:[.118,.842,.195,.036]
  };
  const viewport={width:rect.width,height:rect.height};
  place(host.querySelector('.bc14-subjects'),box,layout.subjects,viewport);
@@ -116,7 +116,7 @@ function syncLiveCopy(host){
    host.appendChild(live);
  }
  const title=host.querySelector('.bc12-heading h1')?.textContent?.trim()||'Hei, eventyrer!';
- const intro=host.querySelector('[data-camp-intro]')?.textContent?.trim()||'Klar for et nytt eventyr?';
+ const intro='Klar for et nytt eventyr?';
  live.querySelector('.bc15-live-greeting').textContent=title;
  live.querySelector('.bc15-live-intro').textContent=intro;
 
@@ -127,7 +127,8 @@ function syncLiveCopy(host){
    host.appendChild(next);
  }
  const place=host.querySelector('[data-camp-next]')?.textContent?.trim()||'Bokskogen';
- const type=host.querySelector('[data-camp-next-type]')?.textContent?.trim()||'Neste stopp';
+ const rawType=host.querySelector('[data-camp-next-type]')?.textContent?.trim()||'Neste stopp';
+ const type=/pågående/i.test(rawType)?'Pågående økt':'Neste stopp';
  next.textContent=type+': '+place;
 }
 
