@@ -286,17 +286,22 @@
    and iPad portrait gets a symmetrical storybook frame instead of mismatched side bars. */
 @media(max-width:700px) and (orientation:portrait){
  .grade-band-young .bc12.bc15-locked-home::before{
-   /* Extend the real phone-master edge as sky/canopy, rather than a flat blue letterbox. */
-   background:
-     radial-gradient(ellipse 46% 13% at -5% 13%,rgba(34,50,29,.96) 0%,rgba(51,74,40,.82) 40%,rgba(74,101,57,.28) 61%,rgba(74,101,57,0) 76%),
-     radial-gradient(ellipse 30% 8% at 21% 11%,rgba(247,241,217,.34) 0%,rgba(247,241,217,.14) 48%,rgba(247,241,217,0) 76%),
-     radial-gradient(ellipse 34% 8% at 71% 12%,rgba(255,238,207,.22) 0%,rgba(255,238,207,.08) 48%,rgba(255,238,207,0) 78%),
-     linear-gradient(180deg,#58a4e8 0%,#4f9fe5 58%,#4597de 100%);
-   box-shadow:inset 0 -16px 22px -22px #2e6d9b;
+   /* Reflect only the real top edge of the phone artwork into the safe area.
+      This preserves the exact canopy/sky palette without blur, AI fill or flat letterboxing. */
+   inset:0 0 auto 0;
+   height:var(--bc15-art-top,0px);
+   background-image:var(--bc15-home-art);
+   background-size:var(--bc15-art-width,100%) var(--bc15-art-height,100%);
+   background-position:center top;
+   background-repeat:no-repeat;
+   box-shadow:none;
+   filter:none;
+   transform:scaleY(-1);
+   transform-origin:center center;
  }
  .grade-band-young .bc12.bc15-locked-home::after{
-   -webkit-mask-image:linear-gradient(to bottom,rgba(0,0,0,.30) 0,#000 22px,#000 100%);
-   mask-image:linear-gradient(to bottom,rgba(0,0,0,.30) 0,#000 22px,#000 100%);
+   -webkit-mask-image:linear-gradient(to bottom,rgba(0,0,0,.38) 0,#000 18px,#000 100%);
+   mask-image:linear-gradient(to bottom,rgba(0,0,0,.38) 0,#000 18px,#000 100%);
  }
 }
 @media(min-width:701px) and (orientation:portrait){
