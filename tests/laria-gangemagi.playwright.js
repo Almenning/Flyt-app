@@ -387,6 +387,14 @@ async function check(engine,label,viewport,url){
     label+' artwork must be a real separate scene layer, not an unmounted asset');
   assert.notEqual(atmosphereBackground.visible,'none',label+' summer atmosphere must render in the play scene');
   assert.ok(atmosphereBackground.opacity>=.75,label+' summer painterly atmosphere must not become invisible');
+  if(viewport.width<900&&viewport.height>=viewport.width){
+    const priority=await page.locator('.gm-world').evaluate(el=>({
+      decor:Number(getComputedStyle(el,'::after').zIndex),
+      content:Number(getComputedStyle(el.querySelector(':scope > .gm-scene')).zIndex)
+    }));
+    assert.ok(priority.content>priority.decor,
+      label+' decorative market must not overlay the child\'s real speaking troll, baskets or touch targets '+JSON.stringify(priority));
+  }
   if(viewport.width>=900){
     const stage=await page.locator('.gm-troll-stage').boundingBox();
     assert.ok(stage.width>=295&&stage.height>=214,
