@@ -495,12 +495,14 @@ async function check(engine,label,viewport,url){
         firstBasket:box('.gm-crate'),math:box('.gm-math'),
         speechSize:parseFloat(getComputedStyle(document.querySelector('.gm-fox-message')).fontSize)};
     });
-    assert.ok(guide.fox.height>=185&&guide.fox.width>=700,
-      label+' iPad landscape locked troll trio must read as three substantial market actors '+JSON.stringify(guide));
+    assert.ok(guide.fox.height>=96&&guide.fox.width>=700,
+      label+' iPad landscape locked troll trio must remain clearly visible as small market actors '+JSON.stringify(guide));
     assert.ok(guide.bubble.width>=205&&guide.speechSize>=14,
       label+' iPad landscape speech must be readable at arm’s length '+JSON.stringify(guide));
     assert.ok(guide.fox.left<=guide.firstBasket.left+2&&guide.fox.right>=guide.firstBasket.right-2,
       label+' troll trio should span the physical basket market instead of returning to a detached guide lane '+JSON.stringify(guide));
+    assert.ok(guide.fox.bottom<=guide.firstBasket.top+2,
+      label+' small troll row must end before the live basket hit area begins '+JSON.stringify(guide));
     assert.ok(guide.bubble.right<=guide.firstBasket.left+2,
       label+' speech prompt must stay outside the first basket touch target '+JSON.stringify(guide));
     const groupMath=await page.locator('.gm-group-plus').evaluateAll(nodes=>nodes.map(el=>({

@@ -139,3 +139,10 @@ Retningen er tydeligere og nærmere den låste komposisjonen: handlingen er saml
 - Exact-head Chromium på release52 viste at et nested SVG-`<image>` fra jordbærkassen kunne ligge over Storesøsters faktiske trykkflate, selv om wrapperen var passiv.
 - I mission-modus er kassen kun stedet trollene plukker fra. Hele kasse-subtreet er derfor eksplisitt `pointer-events:none`; barnet skal trykke troll, deretter kurv.
 - Ingen spilllogikk eller Grovanova-scene endres. Eksisterende troll-/kurvtester må nå passere uten force-click eller svekket assertion.
+
+### 24.10.2026 – release54: små troll over kurvmarkedet på iPad
+- Chromium viste at et allerede plassert bær kunne ligge fysisk over Storesøsters store rektangulære trollknapp. Å gjøre bæret passivt ville ødelagt direkte fjerning og var derfor feil løsning.
+- På iPad/desktop ligger trolltrioen nå i normal flyt som en kompakt 105px rad rett over kurvmarkedet, med talehjelpen i venstre kolonne. Kurvene begynner først etter trollradens nederkant.
+- Figurenes faktiske 44px+ knapper bevares, men de små trollene står ikke lenger oppå levende bær eller minusknapper. Direkte bærfjerning og trollvalg kan derfor eksistere samtidig uten z-index-lotteri.
+- Acceptance-testen krever nå både tydelig trollrad, horisontal markedsforankring og at trollradens bunn ligger over første kurvs aktive topp.
+- Grovanova release52 og troll-/kurvlogikken er ellers uendret.

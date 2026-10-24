@@ -1931,3 +1931,58 @@
 .gm-shell[data-gm-mode="mission"] .gm-troll-source *{
   pointer-events:none !important;
 }
+
+
+/* Release54: small trolls live above the iPad market, not on top of it.
+   This preserves direct berry/removal hit targets without making either
+   interaction layer conditional or invisible. */
+@media(min-width:900px){
+  .gm-shell[data-gm-mode="mission"] .gm-fox.gm-troll-guide{
+    position:relative;
+    z-index:5;
+    left:auto;
+    top:auto;
+    display:grid;
+    grid-template-columns:minmax(220px,260px) minmax(0,1fr);
+    align-items:end;
+    gap:10px;
+    width:100%;
+    min-height:105px;
+    margin:0;
+    pointer-events:none;
+  }
+  .gm-shell[data-gm-mode="mission"] .gm-troll-stage{
+    grid-column:2;
+    grid-row:1;
+    box-sizing:border-box;
+    width:100%;
+    height:105px;
+    padding:0 14px;
+    gap:clamp(10px,1.6vw,20px);
+    pointer-events:none;
+  }
+  .gm-shell[data-gm-mode="mission"] .gm-troll-helper{
+    pointer-events:auto;
+    padding-bottom:23px;
+    transform:none !important;
+  }
+  .gm-shell[data-gm-mode="mission"] .gm-troll-figure{
+    inset:0 5px 20px;
+  }
+  .gm-shell[data-gm-mode="mission"] .gm-troll-bubble{
+    position:relative;
+    grid-column:1;
+    grid-row:1;
+    left:auto;
+    right:auto;
+    top:auto;
+    width:min(100%,250px);
+    margin:0 0 3px 4px;
+    padding:9px 48px 9px 12px;
+    pointer-events:auto;
+  }
+  .gm-shell[data-gm-mode="mission"] .gm-troll-bubble:before{display:none}
+  .gm-shell[data-gm-mode="mission"] .gm-market{
+    margin-top:0;
+  }
+}
