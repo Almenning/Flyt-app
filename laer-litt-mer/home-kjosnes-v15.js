@@ -41,13 +41,21 @@ function decoded(src){
  });
 }
 
-function place(el,box,part){
+function place(el,box,part,viewport){
  if(!el)return;
  const [x,y,w,h]=part;
- el.style.setProperty('left',(box.left+box.width*x)+'px','important');
- el.style.setProperty('top',(box.top+box.height*y)+'px','important');
- el.style.setProperty('width',(box.width*w)+'px','important');
- el.style.setProperty('height',(box.height*h)+'px','important');
+ const rawLeft=box.left+box.width*x;
+ const rawTop=box.top+box.height*y;
+ const rawRight=rawLeft+box.width*w;
+ const rawBottom=rawTop+box.height*h;
+ const left=Math.max(0,rawLeft);
+ const top=Math.max(0,rawTop);
+ const right=Math.min(viewport.width,rawRight);
+ const bottom=Math.min(viewport.height,rawBottom);
+ el.style.setProperty('left',left+'px','important');
+ el.style.setProperty('top',top+'px','important');
+ el.style.setProperty('width',Math.max(0,right-left)+'px','important');
+ el.style.setProperty('height',Math.max(0,bottom-top)+'px','important');
  el.style.setProperty('right','auto','important');
  el.style.setProperty('bottom','auto','important');
 }
@@ -79,10 +87,11 @@ function mapControlsToArtwork(host,imgW,imgH,portrait){
    nav:[.711,.023,.272,.135],
    adult:[.946,.018,.045,.075]
  };
- place(host.querySelector('.bc14-subjects'),box,layout.subjects);
- place(host.querySelector('.bc12-journey'),box,layout.journey);
- place(host.querySelector('.bc12-nav'),box,layout.nav);
- place(host.querySelector('.bc12-adult-entry'),box,layout.adult);
+ const viewport={width:rect.width,height:rect.height};
+ place(host.querySelector('.bc14-subjects'),box,layout.subjects,viewport);
+ place(host.querySelector('.bc12-journey'),box,layout.journey,viewport);
+ place(host.querySelector('.bc12-nav'),box,layout.nav,viewport);
+ place(host.querySelector('.bc12-adult-entry'),box,layout.adult,viewport);
  host.style.setProperty('--bc15-art-left',box.left+'px');
  host.style.setProperty('--bc15-art-top',box.top+'px');
  host.style.setProperty('--bc15-art-width',box.width+'px');
