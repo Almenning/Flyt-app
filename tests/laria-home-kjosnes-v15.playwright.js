@@ -7,7 +7,7 @@ const path=require('node:path');
 const {chromium,webkit}=require('playwright');
 
 const LOCKED_MASTERS=[
- {file:'laer-litt-mer/assets/home-v15/kjosnes-home-tablet.webp',bytes:59628,sha:'b5165fa109db03d947e302f165467b70a63cbaee933d0f9b71ccfce903525844'},
+ {file:'laer-litt-mer/assets/home-v15/kjosnes-home-tablet.webp',bytes:282654,sha:'89d747081716d8a2cc7fc18c9e1c4ec1416aba86591adda7ceb87a56ab3cb924'},
  {file:'laer-litt-mer/assets/home-v15/kjosnes-home-phone.webp',bytes:52882,sha:'0d804d147dc38d259c13757522907f953488f0b40dea298a8efc06055427c8f7'}
 ];
 function verifyLockedMasterFiles(){
@@ -42,6 +42,19 @@ async function homeReady(page,label){
  const portrait=label.includes('iphone')||(label.includes('ipad')&&!label.includes('landscape'));
  const expected=portrait?'kjosnes-home-phone.webp':'kjosnes-home-tablet.webp';
  assert(art.includes(expected),label+' must use the exact locked WebP master: '+art);
+ const natural=await home.evaluate(async el=>{
+   const raw=getComputedStyle(el).getPropertyValue('--bc15-home-art');
+   const src=raw.match(/url\(["']?(.*?)["']?\)/)?.[1];
+   if(!src)return {width:0,height:0,src:raw};
+   const img=new Image();
+   img.src=src;
+   await img.decode();
+   return {width:img.naturalWidth,height:img.naturalHeight,src};
+ });
+ if(!portrait){
+   assert(natural.width>=1127&&natural.height>=681,
+     label+' tablet Home master is too low-resolution and will blur when enlarged: '+JSON.stringify(natural));
+ }
  return home;
 }
 
