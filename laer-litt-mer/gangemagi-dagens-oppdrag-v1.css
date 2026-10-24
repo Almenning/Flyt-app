@@ -485,11 +485,13 @@
   pointer-events:none;
   transition:opacity .16s ease;
 }
-.gm-shell[data-gm-mode="mission"] .gm-crate-wrap:focus-within .gm-remove:not(:disabled),
-.gm-shell[data-gm-mode="mission"] .gm-crate-wrap:hover .gm-remove:not(:disabled),
-.gm-shell[data-gm-mode="mission"] .gm-crate-selected + .gm-remove:not(:disabled){
+.gm-shell[data-gm-mode="mission"] .gm-remove:not(:disabled){
+  z-index:60;
   opacity:1;
   pointer-events:auto;
+}
+.gm-shell[data-gm-mode="mission"] .gm-crate{
+  z-index:1;
 }
 
 /* Real, generous berry crate. The five live SVG berries are placed inside
