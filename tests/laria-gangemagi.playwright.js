@@ -302,8 +302,8 @@ async function check(engine,label,viewport,url){
   assert.equal(calmStart.visibleEmptyTags,0,'empty market baskets should show simple clear names, not tiny 0/3 labels');
   assert.deepEqual(calmStart.basketNames,['Kurv 1','Kurv 2','Kurv 3'],'basket names remain clear');
 
-  // The original market asset remains available, while the playable scene
-  // uses the authored premium Tallenga market as the actual visible world.
+  // The locked original remains available, while the playable scene now uses
+  // its own richer Tallenga painting. Verify both assets, not just a filename.
   const tallengaScene=await page.request.get(new URL('gangemagi-tallenga-market-v1.svg',url).href);
   assert.equal(tallengaScene.status(),200,'the original dedicated Tallenga market scene must remain available');
   assert.match(tallengaScene.headers()['content-type'],/image\/svg\+xml/);
@@ -319,9 +319,13 @@ async function check(engine,label,viewport,url){
     label+' the background must not bake in false tasks, numbers or controls');
   const sceneBackground=await page.locator('.gm-world').evaluate(el=>getComputedStyle(el).backgroundImage);
   assert.match(sceneBackground,/gangemagi-tallenga-market-premium-20261023\.svg/,
-    label+' Gangemagi must visibly use its authored premium Tallenga market');
-  assert.doesNotMatch(sceneBackground,/home-math-v14\.webp/,
-    label+' generic Home waterfall scenery must not mask the Tallenga market inside Gangemagi');
+    label+' Gangemagi must retain its authored premium market geometry beneath the painting');
+  const paintedWorld=await page.request.get(new URL('home-math-v14.webp',url).href);
+  assert.equal(paintedWorld.status(),200,label+' the original detailed Tallenga painting must load');
+  assert.match(paintedWorld.headers()['content-type'],/image\/webp/,
+    label+' painted world is a genuine source image, not a fallback card or external dependency');
+  assert.match(sceneBackground,/home-math-v14\.webp/,
+    label+' the play scene must render Læria\'s richly illustrated Tallenga painting, not only flat vector scenery');
   const tableArt=await page.request.get(new URL('gangemagi-market-table-premium.svg',url).href);
   assert.equal(tableArt.status(),200,'original illustrated market counter must load');
   assert.match(tableArt.headers()['content-type'],/image\/svg\+xml/);
