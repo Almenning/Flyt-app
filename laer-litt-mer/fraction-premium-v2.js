@@ -356,7 +356,7 @@ function build(){
   const x=u.build,half=x.d%2===0&&x.n*2===x.d;
   const questStatus=u.halfQuest
     ?(half?'Du fant en halv! '+x.n+'/'+x.d+' = 1/2. Vil du leke videre?'
-      :x.d%2!==0?'En halv krever at kaken har et partall like deler. Prøv 2, 4 eller 6 deler.'
+      :x.d%2!==0?'Når kaken har '+x.d+' like biter, kan du ikke lage akkurat en halv med hele biter. Prøv 2, 4 eller 6 deler.'
       :'Kan du lage en halv kake? Fyll like mye som halvparten.')
     :'Utforsk kaken fritt, eller prøv en liten utfordring.';
   const status=x.n===0?'Trykk på et stykke!':x.n===x.d?'Du har én hel!':half?'Det er en halv!':x.n+' av '+x.d+'!';

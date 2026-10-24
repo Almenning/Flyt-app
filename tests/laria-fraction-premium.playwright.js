@@ -18,7 +18,7 @@ async function run(browser,engine,label,viewport,url){
   await page.waitForFunction(()=>window.LARIA_FRACTION_PREMIUM?.version==='workshop-v1',{},{timeout:20000});
   // First experience: no menu and no technical prerequisites.
   await page.evaluate(()=>openFractionLab());
-  await page.locator('.fr6-workshop').waitFor();
+  await page.locator('.fr6-workshop').waitFor({timeout:20000});
   assert.equal(await page.locator('#fraction-lab-screen.active').count(),1);
   assert.equal(await page.locator('#fraction-lab-screen').getAttribute('data-explore-release'),'explore-rc1');
   assert.equal(await page.locator('.fr2-home-card').count(),0,'the cake must be playable without navigating a menu');
@@ -153,7 +153,7 @@ async function run(browser,engine,label,viewport,url){
   assert.equal(await page.locator('.fr8-aha .fr2-pie-quest').count(),2,'equivalence must be shown visually');
   await photo(page,label+'-03-half-quest');
   await page.locator('[data-fr-action="adjust"][data-field="d"][data-step="1"]').click();
-  assert.match(await page.locator('.fr8-quest-text').innerText(),/partall/,'an odd-denominator half cannot be exact');
+  assert.match(await page.locator('.fr8-quest-text').innerText(),/hele biter/,'the instruction must explain the whole-piece limitation accurately');
   assert.equal(await page.locator('.fr8-aha').count(),0);
   await page.locator('[data-fr-action="half-quest"]').click();
   assert.equal(await page.locator('.fr8-scene').getAttribute('data-fr8-quest'),'free');
@@ -330,7 +330,7 @@ async function runLandscape(browser,engine,url){
   await page.goto(url,{waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>window.LARIA_FRACTION_PREMIUM?.version==='workshop-v1',{},{timeout:20000});
   await page.evaluate(()=>openFractionLab());
-  await page.locator('.fr6-workshop').waitFor();
+  await page.locator('.fr6-workshop').waitFor({timeout:20000});
   await page.locator('.fr8-companion .fr8-troll').evaluate(img=>img.decode());
   const metric=await page.evaluate(()=>{
    const rect=q=>{const r=document.querySelector(q)?.getBoundingClientRect();return r?{left:Math.round(r.left),right:Math.round(r.right),top:Math.round(r.top),bottom:Math.round(r.bottom),width:Math.round(r.width),height:Math.round(r.height)}:null};

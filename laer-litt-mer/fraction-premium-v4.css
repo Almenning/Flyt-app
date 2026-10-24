@@ -1215,7 +1215,7 @@
  box-shadow:inset 0 3px 7px #fff6dc,0 5px 0 #956640,0 12px 18px rgba(85,55,30,.16);
 }
 #fraction-lab-screen .fr8-scene .fr6-stage{
- border:7px solid #b67c49;
+ border:min(7px,1.2vh) solid #b67c49;
  box-shadow:
   inset 0 0 0 3px rgba(255,236,191,.76),
   inset 0 9px 20px rgba(75,50,32,.2),
@@ -1279,4 +1279,20 @@
  #fraction-lab-screen .fr8-scene .fr6-stage{border-width:5px}
  #fraction-lab-screen .fr8-scene .fr6-stage::before,
  #fraction-lab-screen .fr8-scene .fr6-stage::after{width:5px}
+}
+
+/* Short portrait phones: switching companions occupies a fixed layout cell,
+   not an absolute overlay tied to the animated character bounds in WebKit. */
+@media(min-width:351px) and (max-width:600px) and (orientation:portrait){
+ #fraction-lab-screen .fr8-scene .fr8-companion{
+  display:grid;grid-template-columns:minmax(0,1fr) 44px;
+  column-gap:2px;align-items:center;justify-items:center;
+ }
+ #fraction-lab-screen .fr8-companion .fr8-speak{
+  grid-column:1;min-width:0;width:100%;
+ }
+ #fraction-lab-screen .fr8-companion .fr8-cycle-troll{
+  grid-column:2;position:static;top:auto;right:auto;
+  align-self:center;justify-self:end;transition:none;
+ }
 }
