@@ -117,12 +117,15 @@ async function run(engine,label,viewport){
      const liveCopy=rect(document.querySelector('.bc15-live-copy'));
      const navButtons=[...document.querySelectorAll('.bc12-nav button')].filter(e=>getComputedStyle(e).display!=='none').map(rect);
      const host=document.querySelector('.bc12.bc15-locked-home');
-     const liveCopyBg=getComputedStyle(document.querySelector('.bc15-live-copy')).backgroundImage;
-     const liveNextBg=getComputedStyle(document.querySelector('.bc15-live-next')).backgroundImage;
+     const liveCopyStyle=getComputedStyle(document.querySelector('.bc15-live-copy'));
+     const liveNextStyle=getComputedStyle(document.querySelector('.bc15-live-next'));
+     const liveCopyBg=liveCopyStyle.backgroundImage;
+     const liveNextBg=liveNextStyle.backgroundImage;
      const scenic=getComputedStyle(host,'::before');
      const artLeft=parseFloat(getComputedStyle(host).getPropertyValue('--bc15-art-left'))||0;
+     const artTop=parseFloat(getComputedStyle(host).getPropertyValue('--bc15-art-top'))||0;
      const artWidth=parseFloat(getComputedStyle(host).getPropertyValue('--bc15-art-width'))||0;
-     return {cards,journey,nav,liveNext,liveCopy,liveCopyBg,liveNextBg,scenicFilter:scenic.filter,scenicBg:scenic.backgroundImage,artLeft,artWidth,navButtons,scroll:document.documentElement.scrollWidth,viewport:innerWidth};
+     return {cards,journey,nav,liveNext,liveCopy,liveCopyBg,liveNextBg,liveCopyShadow:liveCopyStyle.boxShadow,liveNextShadow:liveNextStyle.boxShadow,scenicFilter:scenic.filter,scenicBg:scenic.backgroundImage,artLeft,artTop,artWidth,navButtons,scroll:document.documentElement.scrollWidth,viewport:innerWidth};
    });
    assert(geom.scroll<=geom.viewport+1,label+' horizontal overflow '+JSON.stringify(geom));
    assert(geom.cards.every(r=>r.width>=44&&r.height>=44),label+' subject touch target too small '+JSON.stringify(geom.cards));
@@ -141,6 +144,11 @@ async function run(engine,label,viewport){
        label+' portrait artwork must not crop the subject cards/navigation: '+JSON.stringify({artLeft:geom.artLeft,artWidth:geom.artWidth,viewport:geom.viewport}));
      assert.notEqual(geom.liveNextBg,'none',
        label+' portrait journey status must cover baked placeholder text instead of ghosting over it');
+     if(label.includes('iphone')){
+       assert(geom.artTop<=40,label+' phone top safe-area grew too tall: '+JSON.stringify({artTop:geom.artTop}));
+       assert.equal(geom.liveCopyShadow,'none',label+' phone greeting must read as sky, not a floating UI card');
+       assert.equal(geom.liveNextShadow,'none',label+' phone journey copy must sit flat on the painted sign');
+     }
    }
    assert(geom.navButtons.every(r=>r.width>=44&&r.height>=44),label+' nav touch target too small '+JSON.stringify(geom.navButtons));
    assert(geom.navButtons.every(r=>r.x>=-1&&r.right<=geom.viewport+1),label+' nav touch target outside viewport '+JSON.stringify(geom.navButtons));
