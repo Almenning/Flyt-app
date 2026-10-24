@@ -100,14 +100,14 @@ function mapControlsToArtwork(host,imgW,imgH,portrait){
 
  const tabletPortrait=portrait&&rect.width>700;
  const layout=portrait?{
-   subjects:[.044,.728,.912,.135],
+   subjects:[.028,.727,.971,.168],
    journey:[.052,.620,.896,.098],
    nav:[.025,.900,.95,.092],
    adult:[.855,.030,.105,.070],
    liveCopy:tabletPortrait?[.03,.138,.62,.105]:[.00,.138,.62,.105],
    liveNext:tabletPortrait?[.31,.665,.38,.026]:[.20,.666,.60,.024]
  }:{
-   subjects:[.353,.692,.611,.242],
+   subjects:[.353,.699,.611,.263],
    journey:[.028,.747,.304,.161],
    nav:[.711,.023,.272,.135],
    adult:[.025,.020,.205,.155],
