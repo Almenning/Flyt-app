@@ -140,6 +140,7 @@ async function run(browser,engine,label,viewport,url){
   await photo(page,label+'-03-build');
   // A voluntary adventure cannot require completing a quest before free play.
   assert.equal(await page.locator('.fr8-scene').getAttribute('data-fr8-quest'),'free');
+  const denominatorBeforeQuest=(await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build)).d;
   await page.locator('[data-fr-action="half-quest"]').click();
   assert.equal(await page.locator('.fr8-scene').getAttribute('data-fr8-quest'),'active');
   while((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build)).d>2){
@@ -156,6 +157,11 @@ async function run(browser,engine,label,viewport,url){
   await page.locator('[data-fr-action="half-quest"]').click();
   assert.equal(await page.locator('.fr8-scene').getAttribute('data-fr8-quest'),'free');
   assert.equal((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build)).n,1,'switching to free play must not reset the cake');
+  // Put the laboratory back exactly where the original regression sequence expects it.
+  await page.locator('[data-fr-action="reset"]').click();
+  while((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build)).d<denominatorBeforeQuest)await page.locator('[data-fr-action="adjust"][data-field="d"][data-step="1"]').click();
+  while((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build)).d>denominatorBeforeQuest)await page.locator('[data-fr-action="adjust"][data-field="d"][data-step="-1"]').click();
+  assert.equal((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build)).n,0);
 
   await page.locator('.fr6-nav [data-page="home"]').click();
   await page.locator('.fr6-more').waitFor();
@@ -323,12 +329,12 @@ async function runLandscape(browser,engine,url){
   await page.waitForFunction(()=>window.LARIA_FRACTION_PREMIUM?.version==='workshop-v1',{},{timeout:20000});
   await page.evaluate(()=>openFractionLab());
   await page.locator('.fr6-workshop').waitFor();
-  await page.locator('.fr5-fox-mentor .fr2-fox').evaluate(img=>img.decode());
+  await page.locator('.fr8-companion .fr8-troll').evaluate(img=>img.decode());
   const metric=await page.evaluate(()=>{
    const rect=q=>{const r=document.querySelector(q)?.getBoundingClientRect();return r?{left:Math.round(r.left),right:Math.round(r.right),top:Math.round(r.top),bottom:Math.round(r.bottom),width:Math.round(r.width),height:Math.round(r.height)}:null};
    return {height:innerHeight,width:innerWidth,scrollWidth:document.documentElement.scrollWidth,
     cake:rect('.fr5-build-target .fr2-pie-builder'),fraction:rect('.fr6-result .fr2-fraction'),
-    controls:rect('.fr6-workshop .fr6-controls'),fox:rect('.fr5-fox-mentor .fr2-fox')};
+    controls:rect('.fr6-workshop .fr6-controls'),fox:rect('.fr8-companion .fr8-troll')};
   });
   console.log('FRACTION_LANDSCAPE_'+engine+': '+JSON.stringify(metric));
   await photo(page,engine+'-iphone-landscape-01-workshop');
