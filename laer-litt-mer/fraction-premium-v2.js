@@ -42,7 +42,7 @@ const read=()=>{try{const o=JSON.parse(localStorage.getItem(STORE)||'{}');return
   actions:Number(o.actions)||0,updated:Number(o.updated)||0
  }}catch(_){return {explored:{},built:{},equal:{},sorted:{},converted:{},actions:0,updated:0}}};
 const progress=read();
-const fox=()=>'<img src="'+window.LARIA_FOX.worldSource(window.LARIA_FOX.choice())+'" alt="" class="fr2-fox" loading="eager" decoding="async">';
+const fox=()=>fr8Troll(); // Use only the three locked skogstroll throughout the laboratory.
 const key=(n,d)=>n+'/'+d;
 const clamp=(x,min,max)=>Math.max(min,Math.min(max,Number(x)||0));
 const equal=(a,b)=>a[0]*b[1]===b[0]*a[1];
@@ -70,8 +70,8 @@ function mark(kind,item){
 function grade(){try{return typeof currentGrade==='function'?Number(currentGrade())||2:2}catch(_){return 2}}
 const cta=(action,text,className='',extra='')=>'<button type="button" class="'+className+'" data-fr-action="'+action+'" '+extra+'>'+text+'</button>';
 function fractionSvg(n,d,kind='large',canTap=false,selected=null){
- const id=++svgId,den=Math.max(1,d),val=Math.max(0,Math.min(n,den)),r=83,c=100;
- let slices='';
+ const id=++svgId,den=Math.max(1,d),val=Math.max(0,Math.min(n,den)),r=83,c=100,bakery=(kind==='builder');
+ let slices='',toppings='';
  for(let i=0;i<den;i++){
   const a0=-Math.PI/2+2*Math.PI*i/den,a1=-Math.PI/2+2*Math.PI*(i+1)/den;
   const x0=c+r*Math.cos(a0),y0=c+r*Math.sin(a0),x1=c+r*Math.cos(a1),y1=c+r*Math.sin(a1);
@@ -79,11 +79,29 @@ function fractionSvg(n,d,kind='large',canTap=false,selected=null){
   const chosen=Array.isArray(selected)?selected.includes(i):i<val;
   const attr=canTap?' class="fr8-pie-piece'+(u.lastChanged===i?' fr8-pie-new':'')+'" data-fr-action="piece" data-piece="'+i+'" role="button" tabindex="0" aria-pressed="'+chosen+'" aria-label="'+(chosen?'Fjern':'Fyll')+' del '+(i+1)+' av '+den+'"':'';
   slices+='<path d="'+p+'" fill="url(#fr2-'+(chosen?'berry':'pastry')+id+')" stroke="#9C6A48" stroke-width="3.5" stroke-linejoin="round" '+attr+'/>';
+  // Fruit decoration never steals pointer events from the interactive sector.
+  if(bakery&&den<=8){
+    const mid=(a0+a1)/2,tx=(c+51*Math.cos(mid)).toFixed(1),ty=(c+51*Math.sin(mid)).toFixed(1);
+    toppings+='<g transform="translate('+tx+' '+ty+')" pointer-events="none">'
+      +(chosen?'<ellipse cy="4" rx="14" ry="9" fill="#622B39" opacity=".15"/>'
+        +'<circle cx="-5" cy="-3" r="7.5" fill="url(#fr8-blueberry'+id+')"/>'
+        +'<circle cx="7" cy="4" r="6.2" fill="url(#fr8-blueberry'+id+')"/>'
+        +'<circle cx="-7" cy="-5" r="1.7" fill="#C8D6EF"/>'
+        +'<circle cx="6" cy="2" r="1.4" fill="#C8D6EF"/>'
+        +'<path d="M-4 -12 Q2 -20 6 -12" fill="none" stroke="#647B46" stroke-width="3"/>'
+        :'<path d="M-9 4 Q0 -4 8 4" fill="none" stroke="#D8BA86" stroke-width="2.2" opacity=".6"/>')
+      +'</g>';
+  }
  }
- const sprinkles='<g pointer-events="none"><circle cx="80" cy="53" r="3" fill="#F5B08B" opacity=".8"/><circle cx="111" cy="65" r="2.5" fill="#F6B987" opacity=".75"/><circle cx="84" cy="142" r="2.5" fill="#F7BE96" opacity=".65"/><circle cx="100" cy="100" r="89" fill="none" stroke="#FFE6B9" stroke-width="8" stroke-dasharray="8 4"/><circle cx="100" cy="100" r="83" fill="none" stroke="#A66D44" stroke-width="2" opacity=".7"/></g>';
+ const sprinkles=bakery?
+   '<g pointer-events="none">'+Array.from({length:32},(_,i)=>{
+     const a=2*Math.PI*i/32,x=(100+86*Math.cos(a)).toFixed(1),y=(100+86*Math.sin(a)).toFixed(1);
+     return '<ellipse cx="'+x+'" cy="'+y+'" rx="6.4" ry="4.3" transform="rotate('+(i*360/32+90).toFixed(1)+' '+x+' '+y+')" fill="url(#fr8-cream'+id+')" stroke="#D6A86E" stroke-width=".7"/>';
+   }).join('')+'</g>':
+   '<g pointer-events="none"><circle cx="80" cy="53" r="3" fill="#F5B08B" opacity=".8"/><circle cx="111" cy="65" r="2.5" fill="#F6B987" opacity=".75"/><circle cx="84" cy="142" r="2.5" fill="#F7BE96" opacity=".65"/><circle cx="100" cy="100" r="89" fill="none" stroke="#FFE6B9" stroke-width="8" stroke-dasharray="8 4"/><circle cx="100" cy="100" r="83" fill="none" stroke="#A66D44" stroke-width="2" opacity=".7"/></g>';
  return '<svg class="fr2-pie fr2-pie-'+kind+(canTap?' fr2-pie-interactive':'')+'" viewBox="0 0 200 200" role="img" aria-label="'+val+' av '+den+' like deler er fylt" xmlns="http://www.w3.org/2000/svg">'
- +'<defs><radialGradient id="fr2-berry'+id+'" cx="28%" cy="23%"><stop stop-color="#F5A18C"/><stop offset=".48" stop-color="#DD6450"/><stop offset="1" stop-color="#A94138"/></radialGradient><radialGradient id="fr2-pastry'+id+'" cx="25%" cy="20%"><stop stop-color="#FFF7E7"/><stop offset=".67" stop-color="#F4DFC0"/><stop offset="1" stop-color="#D6B889"/></radialGradient><linearGradient id="fr2-crust'+id+'" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#F8D18B"/><stop offset="1" stop-color="#B47543"/></linearGradient></defs>'
- +'<ellipse cx="102" cy="182" rx="88" ry="13" fill="#6B4A32" opacity=".16"/><circle cx="100" cy="98" r="94" fill="url(#fr2-crust'+id+')" stroke="#915B36" stroke-width="4"/><circle cx="100" cy="100" r="86" fill="#FAE8C7"/>'+slices+sprinkles+'</svg>';
+ +'<defs><radialGradient id="fr2-berry'+id+'" cx="28%" cy="23%"><stop stop-color="#F5A18C"/><stop offset=".48" stop-color="#DD6450"/><stop offset="1" stop-color="#A94138"/></radialGradient><radialGradient id="fr2-pastry'+id+'" cx="25%" cy="20%"><stop stop-color="#FFF7E7"/><stop offset=".67" stop-color="#F4DFC0"/><stop offset="1" stop-color="#D6B889"/></radialGradient><linearGradient id="fr2-crust'+id+'" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#F8D18B"/><stop offset="1" stop-color="#B47543"/></linearGradient><radialGradient id="fr8-blueberry'+id+'"><stop stop-color="#8795CF"/><stop offset=".6" stop-color="#444D93"/><stop offset="1" stop-color="#24295C"/></radialGradient><radialGradient id="fr8-cream'+id+'"><stop stop-color="#FFFDF0"/><stop offset=".8" stop-color="#F5DEC0"/><stop offset="1" stop-color="#D6AB7A"/></radialGradient></defs>'
+ +'<ellipse cx="102" cy="182" rx="88" ry="13" fill="#6B4A32" opacity=".16"/><circle cx="100" cy="98" r="94" fill="url(#fr2-crust'+id+')" stroke="#915B36" stroke-width="4"/><circle cx="100" cy="100" r="86" fill="#FAE8C7"/>'+slices+toppings+sprinkles+'</svg>';
 }
 function barSvg(n,d,selected=null){
   const filled=Array.isArray(selected)?selected:Array.from({length:n},(_,i)=>i);
@@ -124,7 +142,7 @@ const FR8_TROLLS=[
 ];
 function fr8Troll(){
   const character=FR8_TROLLS.find(x=>x.id===u.troll)||FR8_TROLLS[0];
-  return '<img class="fr8-troll" src="./assets/fraction-trolls/'+character.id+'.webp" width="142" height="214" alt="" draggable="false" decoding="async" aria-hidden="true">';
+  return '<img class="fr2-fox fr8-troll" src="./assets/fraction-trolls/'+character.id+'.webp" width="142" height="214" alt="" draggable="false" decoding="async" aria-hidden="true">';
 }
 function fr8Landscape(){
   // Real, independent presentation layers. Cake/objects remain actual DOM actions.
