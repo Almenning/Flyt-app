@@ -8,8 +8,8 @@ const vm = require('node:vm');
 const root = path.resolve(__dirname, '..');
 const html = fs.readFileSync(path.join(root, 'laer-litt-mer/index.html'), 'utf8');
 const worker = fs.readFileSync(path.join(root, 'laer-litt-mer/sw.js'), 'utf8');
-const version = '20261024-gangemagi-release59';
-const suffix = '-gangemagi-premium-20261024-release59';
+const version = '20261024-gangemagi-release60';
+const suffix = '-gangemagi-premium-20261024-release60';
 const assets = ['multiplication-gangemagi-v1.css', 'gangemagi-dagens-oppdrag-v1.css', 'multiplication-gangemagi-engine-v1.js', 'multiplication-gangemagi-v1.js'];
 function workerHarness(caches, fetch) {
   const events = new Map();
