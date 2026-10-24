@@ -3,11 +3,11 @@
    master artwork is available. Existing Home stays untouched on asset failure. */
 
 .grade-band-young .bc12.bc15-locked-home{
-  background-color:#173f4c!important;
-  background-image:var(--bc15-home-art)!important;
-  background-position:center center!important;
-  background-size:cover!important;
-  background-repeat:no-repeat!important;
+  background-color:#4c9bca!important;
+  background-image:var(--bc15-home-art),linear-gradient(180deg,#55a4d3 0%,#7ab8d7 28%,#4f776f 68%,#f3e2c2 100%)!important;
+  background-position:center bottom,center center!important;
+  background-size:contain,cover!important;
+  background-repeat:no-repeat,no-repeat!important;
 }
 
 /* The locked master already carries the approved visual composition.
@@ -92,6 +92,9 @@
 }
 .grade-band-young .bc12.bc15-locked-home .bc12-nav button span{display:none!important}
 
+/* Legacy challenge chrome is not part of the locked Home composition. */
+.grade-band-young .bc12.bc15-locked-home .safe-challenge-young{display:none!important}
+
 /* Adult area remains available without competing with the locked child-facing composition. */
 .grade-band-young .bc12.bc15-locked-home .bc12-adult-entry{
   position:absolute!important;z-index:18!important;right:1.5%!important;top:1.5%!important;left:auto!important;
@@ -102,8 +105,8 @@
 
 @media(max-width:700px) and (orientation:portrait){
   .grade-band-young .bc12.bc15-locked-home{
-    background-image:var(--bc15-home-art)!important;
-    background-position:center center!important;background-size:cover!important;
+    background-image:var(--bc15-home-art),linear-gradient(180deg,#55a4d3 0%,#7ab8d7 28%,#4f776f 68%,#f3e2c2 100%)!important;
+    background-position:center bottom,center center!important;background-size:contain,cover!important;
   }
   .grade-band-young .bc12.bc15-locked-home .bc14-subjects{
     left:4.4%!important;top:72.8%!important;width:91.2%!important;height:13.5%!important;
@@ -131,7 +134,7 @@
 @media(max-height:580px) and (orientation:landscape){
   /* Keep short landscape usable rather than stretching the approved composition beyond recognition. */
   .grade-band-young .bc12.bc15-locked-home{
-    background-size:cover!important;background-position:center center!important;
+    background-position:center bottom,center center!important;
   }
 }
 
@@ -162,7 +165,7 @@
  box-shadow:inset 0 0 0 2px #fff8df,0 7px 17px #5a40242c;
 }
 #bc15-troll-dialog[data-phone="true"] .bc15-troll-art{
- aspect-ratio:4/3;background-size:155% auto;background-position:36% 52%;
+ aspect-ratio:4/3;background-size:155% auto;background-position:30% 36%;
 }
 .bc15-troll-back{
  width:100%;min-height:48px;border:2px solid #9b6a3f;border-radius:15px;
@@ -189,7 +192,7 @@
  position:absolute;z-index:17;
  left:3.0%;top:11.0%;width:28%;min-height:11%;
  padding:10px 14px 12px;border-radius:15px;
- background:linear-gradient(90deg,rgba(20,52,73,.92),rgba(20,52,73,.62) 72%,rgba(20,52,73,0));
+ background:linear-gradient(90deg,rgba(17,55,78,.98),rgba(17,55,78,.94) 78%,rgba(17,55,78,.78));
  color:#fff;text-align:left;pointer-events:none;
  text-shadow:0 2px 5px rgba(0,0,0,.42);
 }
@@ -204,7 +207,7 @@
  left:8.0%;top:84.0%;width:19.5%;min-height:2.8%;
  display:flex;align-items:center;justify-content:center;
  padding:2px 8px;border-radius:8px;
- background:rgba(239,207,150,.96);color:#4d321c;
+ background:#efcf96;color:#4d321c;border:1px solid rgba(105,66,33,.18);
  font-size:clamp(9px,.8vw,13px);font-weight:900;line-height:1.05;
  pointer-events:none;
 }
@@ -213,7 +216,7 @@
  .grade-band-young .bc12.bc15-locked-home .bc15-live-copy{
    left:6.0%;top:13.1%;width:72%;min-height:8.8%;
    padding:8px 10px 9px;border-radius:12px;
-   background:linear-gradient(90deg,rgba(19,55,81,.91),rgba(19,55,81,.57) 78%,rgba(19,55,81,0));
+   background:linear-gradient(90deg,rgba(17,55,78,.98),rgba(17,55,78,.94) 82%,rgba(17,55,78,.80));
  }
  .grade-band-young .bc12.bc15-locked-home .bc15-live-greeting{
    font-size:clamp(22px,7vw,31px);
