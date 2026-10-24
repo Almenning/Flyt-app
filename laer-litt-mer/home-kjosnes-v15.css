@@ -52,6 +52,17 @@
   pointer-events:none!important;
 }
 
+/* Locked Home v15 legacy scene suppression.
+   Keep the older Basecamp elements mounted for state and fallback, but
+   never render them over the approved master image. In particular, do not
+   accidentally resurrect the old fox when replacing the four subject portals. */
+.grade-band-young .bc12.bc15-locked-home :is(
+  .bc12-sun,.bc12-heading,.bc12-explore-ribbon,.bc12-destinations,
+  .bc12-journey-route,.bc12-you-are-here,.bc12-next-beacon,
+  .bc12-fox,.bc12-fox-call,.bc14-free,.bc12-quest,.bc12-treasure,
+  .bc12-spark
+){display:none!important}
+
 /* Home v15: replace the baked-in, low-resolution subject-card faces with
    four actual illustrated portals. The mountain/trio/master images stay immutable.
    These are the SAME semantic buttons already wired to the four subjects;
