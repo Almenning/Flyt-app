@@ -41,12 +41,22 @@ async function openHomeSubject(page,subject){
  if(await newEntry.count())await newEntry.click();
  else await page.locator('#open-'+subject).click();
 }
+async function returnFromSubjectOrJourney(page,screen,back,subject){
+ const locked=page.locator(screen+'.active .locked-journey-map[data-journey-subject="'+subject+'"] .locked-journey-back');
+ if(await locked.count()){
+   await locked.waitFor({state:'visible',timeout:16000});
+   await locked.scrollIntoViewIfNeeded();
+   await locked.click();
+ }else{
+   await page.locator(back).click();
+ }
+ await page.locator('#home-screen.active').waitFor();
+}
 async function openBack(page,open,screen,back){
  const subject=String(open).replace(/^#open-/,'');
  await openHomeSubject(page,subject);
  await page.locator(screen+'.active').waitFor();
- await page.locator(back).click();
- await page.locator('#home-screen.active').waitFor();
+ await returnFromSubjectOrJourney(page,screen,back,subject);
 }
 async function checkPublishedFractionWorkshop(p,name){
  await openHomeSubject(p,'math');
