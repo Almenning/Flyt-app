@@ -18,10 +18,17 @@
   z-index:-2;
   inset:0;
   /* Intentional scenic safe-area fill. Never repeat and blur the navigation icons. */
-  background:
-    radial-gradient(ellipse 34% 150% at 2% 112%,rgba(26,52,34,.98) 0%,rgba(42,76,49,.86) 46%,rgba(42,76,49,0) 74%),
-    radial-gradient(ellipse 38% 135% at 98% 110%,rgba(67,133,174,.34) 0%,rgba(67,133,174,0) 74%),
-    linear-gradient(180deg,#76bce8 0%,#74b9e5 58%,#5b9bc4 100%);
+  /* Match the real upper edge of the locked master: warm canopy at left, clear fjord sky at right. */
+  background:linear-gradient(90deg,
+    #3e3516 0%,
+    #543c10 12.5%,
+    #6d5a25 25%,
+    #b09450 37.5%,
+    #64a6e9 50%,
+    #59a1e7 62.5%,
+    #5399de 75%,
+    #4c95de 100%);
+  box-shadow:inset 0 -18px 24px -22px #244f5d;
   filter:none;
   transform:none;
 }
@@ -236,16 +243,16 @@
  position:absolute;z-index:17;box-sizing:border-box;
  display:flex;align-items:center;justify-content:center;
  padding:3px 9px;border-radius:6px;
- background:linear-gradient(180deg,#efcf91 0%,#ddb06c 58%,#c98e4d 100%);
- color:#4b3018;border:1px solid rgba(114,70,31,.5);
- box-shadow:inset 0 1px 0 rgba(255,246,215,.72),0 2px 5px rgba(74,45,22,.14);
+ background:linear-gradient(180deg,#efc985 0%,#e2b26b 58%,#d49a57 100%);
+ color:#4b3018;border:0;
+ box-shadow:inset 0 1px 0 #f7dca8;
  text-shadow:0 1px 0 rgba(255,246,216,.72);
  font-family:var(--laria-font-rounded,ui-rounded,'Arial Rounded MT Bold',system-ui,sans-serif);
  font-size:clamp(9px,.78vw,12.5px);font-weight:900;line-height:1.05;letter-spacing:.005em;
  pointer-events:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
 .grade-band-young .bc12.bc15-locked-home .bc15-live-next[data-state="next"]{
- background:linear-gradient(180deg,#f1d498 0%,#dfb36e 58%,#cb9250 100%);
+ background:linear-gradient(180deg,#f0cb89 0%,#e3b36c 58%,#d59b57 100%);
 }
 
 @media(max-width:700px) and (orientation:portrait){
