@@ -66,6 +66,7 @@ async function run(engine,label,viewport){
    assert(geom.cards.every(r=>r.width>=44&&r.height>=44),label+' subject touch target too small '+JSON.stringify(geom.cards));
    assert(geom.journey.width>=44&&geom.journey.height>=44,label+' journey touch target too small');
    assert(geom.navButtons.every(r=>r.width>=44&&r.height>=44),label+' nav touch target too small '+JSON.stringify(geom.navButtons));
+   assert(geom.navButtons.every(r=>r.x>=-1&&r.right<=geom.viewport+1),label+' nav touch target outside viewport '+JSON.stringify(geom.navButtons));
    await page.screenshot({path:folder+'/'+label+'-home.png',fullPage:true});
 
    /* Mine troll must not leak into the old fox wardrobe. */
