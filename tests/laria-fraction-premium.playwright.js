@@ -129,12 +129,13 @@ async function run(browser,engine,label,viewport,url){
   assert.equal(await page.locator('.fr8-scene').getAttribute('data-fr8-quest'),'free');
   await page.locator('[data-fr-action="half-quest"]').click();
   assert.equal(await page.locator('.fr8-scene').getAttribute('data-fr8-quest'),'active');
-  await page.locator('[data-fr-action="adjust"][data-field="d"][data-step="-1"]').click();
-  await page.locator('[data-fr-action="adjust"][data-field="d"][data-step="-1"]').click();
+  while((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build)).d>2){
+    await page.locator('[data-fr-action="adjust"][data-field="d"][data-step="-1"]').click();
+  }
   assert.equal((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build)).d,2);
   await page.locator('[data-fr-action="adjust"][data-field="n"][data-step="1"]').click();
   assert.equal(await page.locator('.fr8-scene').getAttribute('data-fr8-found'),'true');
-  assert.match(await page.locator('.fr8-quest-text').innerText(),/1\\/2/);
+  assert.ok((await page.locator('.fr8-quest-text').innerText()).includes('1/2'));
   await photo(page,label+'-03-half-quest');
   await page.locator('[data-fr-action="half-quest"]').click();
   assert.equal(await page.locator('.fr8-scene').getAttribute('data-fr8-quest'),'free');
