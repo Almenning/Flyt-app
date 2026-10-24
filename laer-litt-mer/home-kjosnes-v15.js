@@ -98,6 +98,30 @@ function mapControlsToArtwork(host,imgW,imgH,portrait){
  host.style.setProperty('--bc15-art-height',box.height+'px');
 }
 
+function syncLiveCopy(host){
+ let live=host.querySelector('.bc15-live-copy');
+ if(!live){
+   live=document.createElement('div');
+   live.className='bc15-live-copy';
+   live.innerHTML='<div class="bc15-live-greeting"></div><div class="bc15-live-intro"></div>';
+   host.appendChild(live);
+ }
+ const title=host.querySelector('.bc12-heading h1')?.textContent?.trim()||'Hei, eventyrer!';
+ const intro=host.querySelector('[data-camp-intro]')?.textContent?.trim()||'Klar for et nytt eventyr?';
+ live.querySelector('.bc15-live-greeting').textContent=title;
+ live.querySelector('.bc15-live-intro').textContent=intro;
+
+ let next=host.querySelector('.bc15-live-next');
+ if(!next){
+   next=document.createElement('div');
+   next.className='bc15-live-next';
+   host.appendChild(next);
+ }
+ const place=host.querySelector('[data-camp-next]')?.textContent?.trim()||'Bokskogen';
+ const type=host.querySelector('[data-camp-next-type]')?.textContent?.trim()||'Neste stopp';
+ next.textContent=type+': '+place;
+}
+
 function clearMappedControls(host){
  ['.bc14-subjects','.bc12-journey','.bc12-nav','.bc12-adult-entry'].forEach(sel=>{
    const el=host.querySelector(sel);if(!el)return;
@@ -117,6 +141,7 @@ async function activate(){
    host.style.removeProperty('--bc15-home-art');
    clearMappedControls(host);
    host.dataset.bc15Asset='inactive';
+   host.querySelectorAll('.bc15-live-copy,.bc15-live-next').forEach(el=>el.remove());
    return false;
  }
  const portrait=isPortrait();
@@ -129,6 +154,7 @@ async function activate(){
    host.dataset.bc15Asset=portrait?'phone-ready':'tablet-ready';
    host.dataset.bc15Master=portrait?'portrait':'landscape';
    mapControlsToArtwork(host,image.width,image.height,portrait);
+   syncLiveCopy(host);
 
    const trollNav=host.querySelector('.bc12-nav [data-camp="wardrobe"]');
    if(trollNav){
@@ -151,6 +177,7 @@ async function activate(){
    host.style.removeProperty('--bc15-home-art');
    clearMappedControls(host);
    host.dataset.bc15Asset='missing';
+   host.querySelectorAll('.bc15-live-copy,.bc15-live-next').forEach(el=>el.remove());
    console.warn('[Læria Home v15] Locked master not activated.',err);
    return false;
  }
