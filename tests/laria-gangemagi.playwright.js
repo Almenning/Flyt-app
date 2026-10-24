@@ -968,6 +968,22 @@ async function check(engine,label,viewport,url){
   assert.ok(five.scrollWidth<=five.width+4&&five.tapWidths.every(n=>n>=44),
     label+' dense five-basket mission must fit width with 44px touch targets '+JSON.stringify(five));
   assert.deepEqual(five.labels,['Kurv 1','Kurv 2','Kurv 3','Kurv 4','Kurv 5']);
+  if(viewport.width>=900){
+    const previewFit=await page.locator('.gm-quest-filled-preview').evaluate(preview=>{
+      const step=preview.closest('.gm-quest-step').getBoundingClientRect();
+      const baskets=[...preview.querySelectorAll('.gm-quest-mini-basket>.gm-quest-wicker')];
+      return {stepLeft:step.left,stepRight:step.right,
+        baskets:baskets.map(img=>{
+          const b=img.getBoundingClientRect();
+          return {left:b.left,right:b.right,width:b.width};
+        })};
+    });
+    assert.equal(previewFit.baskets.length,5,label+' five real miniature baskets in the illustrated instruction');
+    assert.ok(previewFit.baskets.every(b=>b.left>=previewFit.stepLeft-1&&
+      b.right<=previewFit.stepRight+1&&b.width>=16),
+      label+' all five miniature baskets must stay fully inside their iPad instruction card '+
+      JSON.stringify(previewFit));
+  }
 
   const verifyCompactFiveCounts=async()=>{
     if(viewport.width>360)return;
