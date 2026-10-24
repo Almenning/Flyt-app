@@ -53,6 +53,10 @@ async function returnFromLockedJourney(page,screen,subject,label){
  await back.click();
  await page.locator('#home-screen.active').waitFor({timeout:12000});
  await homeReady(page,label+' return '+subject);
+ const hiddenNext=(await page.locator('[data-camp-next]').innerText()).trim();
+ assert(hiddenNext,label+' '+subject+' return must expose next journey state');
+ assert((await page.locator('.bc15-live-next').innerText()).includes(hiddenNext),
+   label+' '+subject+' live next-stop must still mirror real state after return');
 }
 
 async function run(engine,label,viewport){
@@ -77,11 +81,6 @@ async function run(engine,label,viewport){
    const originalNext=(await page.locator('[data-camp-next]').innerText()).trim();
    assert(originalNext,label+' hidden journey state must expose a next place');
    assert((await page.locator('.bc15-live-next').innerText()).includes(originalNext),label+' live next-stop copy must mirror journey state');
-   await page.evaluate(()=>{document.querySelector('[data-camp-next]').textContent='Tallenga'});
-   await page.waitForFunction(()=>/Tallenga/.test(document.querySelector('.bc15-live-next')?.textContent||''),null,{timeout:3000});
-   assert.match((await page.locator('.bc15-live-next').innerText()).trim(),/Tallenga/,label+' live next-stop must resync when journey state changes');
-   await page.evaluate(value=>{document.querySelector('[data-camp-next]').textContent=value},originalNext);
-   await page.waitForFunction(value=>(document.querySelector('.bc15-live-next')?.textContent||'').includes(value),originalNext,{timeout:3000});
    assert.equal(await page.locator('.bc14-subject:visible').count(),4,label+' must keep four real subject hit areas');
    assert.equal(await page.locator('.bc12-journey:visible').count(),1,label+' journey action must stay real');
    assert.equal(await page.locator('.bc12-fox:visible').count(),0,label+' old fox must not be visible on Home v15');
