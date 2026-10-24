@@ -83,15 +83,15 @@ function mapControlsToArtwork(host,imgW,imgH,portrait){
    journey:[.052,.620,.896,.098],
    nav:[.025,.900,.95,.092],
    adult:[.855,.030,.105,.070],
-   liveCopy:tabletPortrait?[.01,.145,.48,.105]:[.01,.145,.68,.105],
-   liveNext:[.255,.655,.37,.035]
+   liveCopy:tabletPortrait?[.01,.145,.62,.105]:[.01,.145,.68,.105],
+   liveNext:[.255,.655,.55,.035]
  }:{
    subjects:[.353,.692,.611,.242],
    journey:[.028,.747,.304,.161],
    nav:[.711,.023,.272,.135],
    adult:[.025,.020,.205,.155],
    liveCopy:[.112,.168,.25,.095],
-   liveNext:[.118,.842,.16,.032]
+   liveNext:[.105,.842,.21,.032]
  };
  const viewport={width:rect.width,height:rect.height};
  place(host.querySelector('.bc14-subjects'),box,layout.subjects,viewport);
