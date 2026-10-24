@@ -75,7 +75,8 @@ function decoded(src){
 async function activate(){
  const host=document.querySelector('#home-screen .bc12');
  if(!host)return false;
- if(host.dataset.mode && host.dataset.mode!=='home'){
+ const detachedView=host.dataset.bc13View && host.dataset.bc13View!=='home';
+ if((host.dataset.mode && host.dataset.mode!=='home') || detachedView){
    host.classList.remove('bc15-locked-home');
    host.style.removeProperty('--bc15-home-art');
    host.dataset.bc15Asset='inactive';
@@ -123,7 +124,7 @@ const observer=new MutationObserver(()=>{
    activate();
  }
 });
-observer.observe(document.documentElement,{subtree:true,childList:true,attributes:true,attributeFilter:['data-mode']});
+observer.observe(document.documentElement,{subtree:true,childList:true,attributes:true,attributeFilter:['data-mode','data-bc13-view']});
 const mq=matchMedia('(max-width:700px) and (orientation:portrait)');
 mq.addEventListener?.('change',activate);
 })();
