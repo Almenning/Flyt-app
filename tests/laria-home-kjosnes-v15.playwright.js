@@ -158,8 +158,23 @@ async function run(engine,label,viewport){
    assert(geom.scroll<=geom.viewport+1,label+' horizontal overflow '+JSON.stringify(geom));
    assert(geom.cards.every(r=>r.width>=44&&r.height>=44),label+' subject touch target too small '+JSON.stringify(geom.cards));
    assert(geom.journey.width>=44&&geom.journey.height>=44,label+' journey touch target too small');
-   assert(geom.routeSubjectOpacity>.001&&geom.routeSubjectOpacity<=.09,
-     label+' route subject emphasis must be visible but subtle: '+geom.routeSubjectOpacity);
+   assert.equal(geom.routeSubjectOpacity,1,label+' premium subject portals must stay visible');
+   const portals=await page.locator('.bc14-subject').evaluateAll(buttons=>buttons.map(b=>{
+     const scene=b.querySelector('.bc14-subject-scene');
+     return {subject:b.getAttribute('data-camp'),image:getComputedStyle(scene).backgroundImage,
+       opacity:getComputedStyle(b).opacity,
+       primary:b.querySelector('.bc14-subject-copy strong')?.textContent?.trim(),
+       world:b.querySelector('.bc14-subject-copy small')?.textContent?.trim(),
+       originalHidden:getComputedStyle(scene.querySelector('img')).display};
+   }));
+   for(const [i,subject] of ['norwegian','math','english','geography'].entries()){
+     const p=portals[i];
+     assert.equal(p.subject,'subject-'+subject,label+' subject order');
+     assert(p.image.includes('/reisen/'+subject+'-premium.webp'),label+' missing premium world artwork '+JSON.stringify(p));
+     assert(p.primary&&p.world,label+' unreadable subject label '+JSON.stringify(p));
+     assert.equal(p.originalHidden,'none',label+' old illustration obscures portal');
+     assert.equal(p.opacity,'1',label+' portal is transparent');
+   }
    assert(geom.journeyOpacity>.001&&geom.journeyOpacity<=.10,
      label+' journey emphasis must be visible but subtle: '+geom.journeyOpacity);
    assert(geom.liveNext.x>=geom.journey.x-2&&geom.liveNext.right<=geom.journey.right+2&&
