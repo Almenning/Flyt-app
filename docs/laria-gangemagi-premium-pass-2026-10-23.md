@@ -107,3 +107,11 @@ Retningen er tydeligere og nærmere den låste komposisjonen: handlingen er saml
 - Release47 Tallenga-hybridbakgrunn beholdes i denne runden. Grovanova-/bakgrunnsendring behandles separat etter at trollmekanikken er visuelt verifisert.
 - Ingen merge eller publisering før ny exact-head Chromium/WebKit og ekte iPhone/iPad-skjermbilder er kontrollert.
 
+### 24.10.2026 – release49: trollene inn i selve markedet
+- De tre låste WebP-figurene beholdes uendret. Barnet velger fortsatt troll først; dette plukker ett bær uten å endre matematikken.
+- På iPad/desktop spres trollene nå over den faktiske kurvsonen i stedet for å stå som en liten separat gruppe i den gamle revelanen. Talehjelpen bruker venstre guideområde.
+- Når et troll holder et bær, slipper trollknappene gjennom pekere til kurvene. Dette følger den faktiske totrinnsoppgaven: først velg troll, deretter velg kurv, og forhindrer at karakterkunst stjeler kurvens touchmål.
+- Leveringsanimasjonen sikter nå bæret mot den kurven barnet faktisk valgte. Den matematiske tilstanden oppdateres først etter den synlige leveringen.
+- Kort 844×390-landskap beholder a516-komposisjonen og 44px+ touchmål, men får samme eksplisitte hit-layer-regel.
+- Ny Playwright-regresjon kontrollerer etter trollvalg at kurv 2, ikke trollkunst, er elementet som faktisk mottar berøringen.
+- Grovanova-bakgrunnen er fortsatt et separat visuelt arbeid. Ingen flat eller feilformet lokal prototype er lagt i repoet.

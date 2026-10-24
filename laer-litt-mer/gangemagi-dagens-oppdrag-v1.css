@@ -1784,3 +1784,116 @@
   }
 }
 
+
+
+/* Release49: troll choice owns the first interaction layer.
+   The locked troll art may visually share the market with the baskets, but
+   never steals the basket hit target after the child has chosen an actor. */
+.gm-shell[data-gm-mode="mission"] .gm-troll-figure,
+.gm-shell[data-gm-mode="mission"] .gm-troll-figure *,
+.gm-shell[data-gm-mode="mission"] .gm-troll-name{
+  pointer-events:none;
+}
+.gm-shell[data-gm-mode="mission"][data-gm-holding="true"] .gm-troll-helper,
+.gm-shell[data-gm-mode="mission"][data-gm-troll-moving="true"] .gm-troll-helper{
+  pointer-events:none;
+  cursor:default;
+}
+.gm-shell[data-gm-mode="mission"] .gm-troll-delivering .gm-troll-figure{
+  animation:gm-troll-deliver-target .44s ease-in-out both;
+}
+.gm-shell[data-gm-mode="mission"] .gm-troll-delivering .gm-troll-held-berry{
+  animation:gm-troll-berry-deliver-target .44s cubic-bezier(.24,.68,.31,1) both;
+}
+@keyframes gm-troll-deliver-target{
+  0%{transform:translate(0,0) rotate(0)}
+  55%{transform:translate(var(--gm-deliver-x,14px),var(--gm-deliver-y,6px)) rotate(2deg)}
+  100%{transform:translate(calc(var(--gm-deliver-x,14px)*.28),calc(var(--gm-deliver-y,6px)*.28)) rotate(0)}
+}
+@keyframes gm-troll-berry-deliver-target{
+  0%,24%{opacity:1;transform:translate(0,0) scale(1) rotate(-8deg)}
+  82%{opacity:1;transform:translate(var(--gm-berry-x,58px),var(--gm-berry-y,62px)) scale(.82) rotate(8deg)}
+  100%{opacity:0;transform:translate(var(--gm-berry-x,58px),var(--gm-berry-y,62px)) scale(.64) rotate(12deg)}
+}
+
+/* On iPad/desktop the trio belongs visually to the SAME market as the
+   baskets. The former fox lane becomes the speech lane; the three actual
+   locked troll buttons spread across the basket area. */
+@media(min-width:900px){
+  .gm-shell[data-gm-mode="mission"] .gm-fox.gm-troll-guide{
+    left:0;
+    top:18px;
+    width:100%;
+    align-items:stretch;
+    pointer-events:none;
+  }
+  .gm-shell[data-gm-mode="mission"] .gm-troll-stage{
+    box-sizing:border-box;
+    width:100%;
+    height:clamp(190px,20vw,238px);
+    padding:0 clamp(12px,2vw,24px) 0 clamp(285px,25.5vw,330px);
+    gap:clamp(8px,1.6vw,22px);
+    pointer-events:none;
+  }
+  .gm-shell[data-gm-mode="mission"] .gm-troll-helper{
+    pointer-events:auto;
+    padding-bottom:26px;
+  }
+  .gm-shell[data-gm-mode="mission"] .gm-troll-helper:nth-child(1){transform:translateY(10px)}
+  .gm-shell[data-gm-mode="mission"] .gm-troll-helper:nth-child(2){transform:translateY(-3px)}
+  .gm-shell[data-gm-mode="mission"] .gm-troll-helper:nth-child(3){transform:translateY(8px)}
+  .gm-shell[data-gm-mode="mission"] .gm-troll-figure{inset:0 2px 23px}
+  .gm-shell[data-gm-mode="mission"] .gm-troll-bubble{
+    position:absolute;
+    left:10px;
+    top:clamp(128px,13.2vw,158px);
+    width:min(255px,23vw);
+    margin:0;
+    padding:10px 48px 10px 13px;
+    pointer-events:auto;
+  }
+  .gm-shell[data-gm-mode="mission"] .gm-troll-bubble:before{display:none}
+}
+
+/* iPad portrait gets the same three-character composition, but keeps a
+   compact prompt floating over scenery instead of shrinking the actors. */
+@media(min-width:700px) and (max-width:899px) and (min-height:700px){
+  .gm-shell[data-gm-mode="mission"] .gm-fox.gm-troll-guide{
+    left:0;
+    top:42px;
+    width:100%;
+    pointer-events:none;
+  }
+  .gm-shell[data-gm-mode="mission"] .gm-troll-stage{
+    box-sizing:border-box;
+    width:100%;
+    height:178px;
+    padding:0 22px;
+    gap:14px;
+    pointer-events:none;
+  }
+  .gm-shell[data-gm-mode="mission"] .gm-troll-helper{pointer-events:auto}
+  .gm-shell[data-gm-mode="mission"] .gm-troll-bubble{
+    position:absolute;
+    right:8px;
+    top:-34px;
+    width:214px;
+    margin:0;
+    pointer-events:auto;
+  }
+  .gm-shell[data-gm-mode="mission"] .gm-troll-bubble:before{display:none}
+}
+
+/* The 844x390 target has almost no vertical spare room. Keep the compact
+   a516 layout, but enforce step semantics: before pickup the trolls receive
+   taps; after pickup the exact same pixels pass through to the baskets. */
+@media(min-width:700px) and (max-width:899px) and (max-height:699px){
+  .gm-shell[data-gm-mode="mission"] .gm-troll-figure,
+  .gm-shell[data-gm-mode="mission"] .gm-troll-figure *{
+    pointer-events:none;
+  }
+  .gm-shell[data-gm-mode="mission"][data-gm-holding="true"] .gm-troll-stage,
+  .gm-shell[data-gm-mode="mission"][data-gm-troll-moving="true"] .gm-troll-stage{
+    pointer-events:none;
+  }
+}

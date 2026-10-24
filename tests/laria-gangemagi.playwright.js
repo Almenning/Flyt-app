@@ -1178,6 +1178,21 @@ async function checkLandscape(engine,label,url){
    await page.locator('[data-gm-action="troll"][data-gm-troll="1"]').tap();
    assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,0,0],
      label+' first touch chooses lillesøster and picks one berry');
+    const touchLayer=await page.evaluate(()=>{
+      const basket=document.querySelector('[data-gm-action="basket"][data-gm-basket="1"]');
+      const front=basket.querySelector('.gm-crate-front').getBoundingClientRect();
+      const x=front.left+front.width/2,y=front.top+front.height/2;
+      const hit=document.elementFromPoint(x,y);
+      return {basket:!!hit?.closest?.('[data-gm-action="basket"][data-gm-basket="1"]'),
+        troll:!!hit?.closest?.('[data-gm-action="troll"]'),
+        holding:document.querySelector('.gm-shell')?.dataset.gmHolding,
+        moving:document.querySelector('.gm-shell')?.dataset.gmTrollMoving};
+    });
+    assert.equal(touchLayer.holding,'true',label+' selected troll exposes the basket interaction step');
+    assert.equal(touchLayer.troll,false,
+      label+' troll artwork must not steal the chosen basket touch target '+JSON.stringify(touchLayer));
+    assert.equal(touchLayer.basket,true,
+      label+' selected basket surface remains the actual hit target '+JSON.stringify(touchLayer));
    await page.locator('[data-gm-action="basket"][data-gm-basket="1"] .gm-crate-front').tap();
    await page.waitForFunction(()=>window.LARIA_GANGEMAGI.snapshot().counts[1]===1);
    assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,1,0],

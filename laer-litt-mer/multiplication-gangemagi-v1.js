@@ -172,7 +172,7 @@
    const equation=!free&&sum===0?state.groups+' × '+state.each+' = ?':
      (!free&&!complete?result.addition:(result.multiplication||result.addition));
    const active=state.mode==='mission'?'Oppdrag':'Fri lek';
-   root.innerHTML='<main class="gm-shell" data-gm-mode="'+modeClass+'" data-gm-groups="'+state.groups+'" data-gm-each="'+state.each+'" data-gm-sum="'+sum+'" data-gm-selected="'+selectedGroup+'" data-gm-complete="'+complete+'" data-gm-finale="'+finale+'">'+
+   root.innerHTML='<main class="gm-shell" data-gm-mode="'+modeClass+'" data-gm-groups="'+state.groups+'" data-gm-each="'+state.each+'" data-gm-sum="'+sum+'" data-gm-selected="'+selectedGroup+'" data-gm-complete="'+complete+'" data-gm-finale="'+finale+'" data-gm-holding="'+holdingBerry+'" data-gm-troll-moving="'+!!trollMove+'">'+
       '<div class="gm-layout"><header class="gm-top">'+
       '<button type="button" class="gm-back" id="multiplication-lab-back" data-gm-action="back" aria-label="Tilbake til matte">‹</button>'+
       '<div class="gm-brand"><span class="gm-brand-mark">Læ<span>ria</span> ✦</span><small>TALLENGA / GANGEMAGI</small></div>'+ 
@@ -354,13 +354,32 @@
    holdingBerry=false;selectedGroup=group;trollMove=delivery;
    notice=trollName(delivery.troll)+' legger jordbæret i kurv '+(group+1)+' …';
    lastAction='deliver';lastGroup=group;foxMood='cheer';render();
+   // Aim the visible berry at the ACTUAL chosen basket. The actor only leans
+   // a little; the berry travels from the locked troll hand into the live DOM
+   // basket before the mathematical state changes.
+   const actor=root.querySelector('.gm-troll-delivering');
+   const held=actor?.querySelector('.gm-troll-held-berry');
+   const basket=root.querySelector('[data-gm-action="basket"][data-gm-basket="'+group+'"]');
+   if(actor&&held&&basket){
+     const berryBox=held.getBoundingClientRect(),basketBox=basket.getBoundingClientRect();
+     const targetX=basketBox.left+basketBox.width/2;
+     const targetY=basketBox.top+basketBox.height*.48;
+     const dx=targetX-(berryBox.left+berryBox.width/2);
+     const dy=targetY-(berryBox.top+berryBox.height/2);
+     const leanX=Math.max(-42,Math.min(42,dx*.16));
+     const leanY=Math.max(-4,Math.min(20,dy*.10));
+     actor.style.setProperty('--gm-deliver-x',leanX.toFixed(1)+'px');
+     actor.style.setProperty('--gm-deliver-y',leanY.toFixed(1)+'px');
+     actor.style.setProperty('--gm-berry-x',dx.toFixed(1)+'px');
+     actor.style.setProperty('--gm-berry-y',dy.toFixed(1)+'px');
+   }
    trollTimer=setTimeout(()=>{
      if(trollMove!==delivery)return;
      trollMove=null;trollTimer=0;selectedGroup=null;notice='';
      if(!change({type:'add',group})){
        notice='Denne kurven er full. Prøv en annen!';foxMood='help';render();
      }
-   },360);
+   },440);
    return true;
  }
  function onClick(event){
