@@ -13,7 +13,13 @@
  let foxMood='curious',lastAction='',lastGroup=-1,justAddedGroup=-1;
  let returnToMath=false,bookOpen=false;
  let selectedGroup=null; // transient UI selection, no changes to stored schema.
-  let holdingBerry=false;
+ let holdingBerry=false;
+ let selectedTroll=null,trollMove=null,trollTimer=0;
+ const TROLLS=Object.freeze([
+   Object.freeze({id:'storesoster',name:'Storesøster',src:'./assets/gangemagi-troll/storesoster.webp'}),
+   Object.freeze({id:'lillesoster',name:'Lillesøster',src:'./assets/gangemagi-troll/lillesoster.webp'}),
+   Object.freeze({id:'lillebror',name:'Lillebror',src:'./assets/gangemagi-troll/lillebror.webp'})
+ ]);
  const esc=x=>String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  // Standalone SVG images share one cached illustration without repeating
  // gradient IDs in every fruit. Keep the existing SVG-sized hit surfaces.
@@ -29,33 +35,44 @@
    const path=window.LARIA_FOX?.worldSource?.(which)||window.LARIA_FOX?.source?.(which);
    return path?'<img src="'+esc(path)+'" alt="" aria-hidden="true">':'';
  }
+ function trollName(index){return TROLLS[index]?.name||'Trollet';}
+ function stopTrollMove(){
+   if(trollTimer)clearTimeout(trollTimer);
+   trollTimer=0;trollMove=null;
+ }
  function message(){
    const amount=E.total(state),left=E.target(state)-amount;
    if(hintStep){
      const ix=state.counts.findIndex(n=>n<state.each);
-     if(ix<0)return 'Du har fylt alle kurvene. Se hvordan gange og pluss henger sammen!';
+     if(ix<0)return 'Alle kurvene er fulle. Se hvordan gange og pluss henger sammen!';
+     if(state.mode==='mission'){
+       if(!holdingBerry)return 'Velg et troll. Trollet plukker ett jordbær for deg.';
+       return trollName(selectedTroll)+' holder et jordbær. Velg kurv '+(ix+1)+' eller en annen kurv med plass.';
+     }
      const missing=state.each-state.counts[ix];
      return hintStep===1?'Se på kurv '+(ix+1)+'. Hvor mange mangler for å få '+state.each+'?':
-       'Det mangler '+missing+' i kurv '+(ix+1)+'. Dra jordbær dit, eller trykk på bær og kurv.';
+       'Det mangler '+missing+' i kurv '+(ix+1)+'. Prøv å legge jordbær dit.';
    }
    if(E.filled(state))return state.mode==='mission'?E.MISSIONS[state.mission].celebrate:
      'Du laget '+state.groups+' like grupper med '+state.each+' i hver!';
    if(notice)return notice;
-   if(lastAction==='select'&&selectedGroup!==null)return 'Kurv '+(selectedGroup+1)+' er valgt. Plukk et jordbær, og trykk så på kurven!';
+   if(state.mode==='mission'&&holdingBerry&&selectedTroll!==null)
+     return trollName(selectedTroll)+' har plukket et jordbær. Velg hvilken kurv det skal i!';
    const same=state.counts.length>0&&state.counts[0]>0&&state.counts.every(n=>n===state.counts[0]);
    if(same)return 'Se! '+state.groups+' kurver med '+state.counts[0]+' i hver. '+state.groups+' ganger '+state.counts[0]+' er '+amount+'!';
-   if(!amount)return state.mode==='mission'?(holdingBerry?'Nå kan du legge jordbæret i en kurv!':'Plukk et jordbær og legg det i en kurv!'):
+   if(!amount)return state.mode==='mission'?'Velg et troll som skal plukke et jordbær!':
      'Lag ditt eget gangestykke. Du bestemmer hvor mange som skal i hver kurv.';
    if(left===1)return 'Bare ett jordbær igjen!';
    if(lastAction==='add'&&lastGroup>=0&&lastGroup<state.groups){
      const count=state.counts[lastGroup];
-     if(count===state.each)return state.mode==='mission'?'Kurv '+(lastGroup+1)+' er full! Plukk jordbær til en annen kurv.':
+     if(count===state.each)return state.mode==='mission'?'Kurv '+(lastGroup+1)+' er full! Velg et troll til neste jordbær.':
         'Kurv '+(lastGroup+1)+' er full! Du har '+amount+' jordbær i alt.';
      return count+' av '+state.each+' i kurv '+(lastGroup+1)+'. Nå har vi '+amount+' jordbær!';
    }
    if(lastAction==='remove')return 'Du tok ut ett jordbær. Nå er det '+amount+' igjen. Prøv videre!';
    const ix=state.counts.findIndex(n=>n<state.each);
-   return 'Det går fint! Prøv kurv '+(ix+1)+' nå.';
+   return state.mode==='mission'?'Velg et troll og hjelp det med kurv '+(ix+1)+'!':
+     'Det går fint! Prøv kurv '+(ix+1)+' nå.';
  }
  /* Animate the ONE newly picked berry, never replay the pop on all existing
     berries when the live scene is re-rendered. Counting stays visually stable. */
@@ -68,8 +85,11 @@
  function crate(i){
    const count=state.counts[i],missing=state.each-count;
    const chosen=state.mode==='mission'&&selectedGroup===i;
-   const invite=state.mode==='mission'&&holdingBerry&&selectedGroup===null&&missing>0&&!E.filled(state);
-   const interaction=state.mode==='mission'?(chosen?(holdingBerry?'Denne kurven er valgt. Trykk her for å legge i det plukkede jordbæret.':'Denne kurven er valgt. Plukk et jordbær fra kassen, eller dra det hit.'):missing?(holdingBerry?'Trykk her for å legge det plukkede jordbæret i kurven.':'Plukk et jordbær fra kassen først, eller velg denne kurven.'):'Denne kurven er full. Velg en annen.'):(missing?'Trykk for å legge i et jordbær.':'Kurven er full.');
+   const invite=state.mode==='mission'&&holdingBerry&&missing>0&&!E.filled(state);
+   const interaction=state.mode==='mission'?
+     (missing?(holdingBerry?'Trykk her, så legger '+trollName(selectedTroll)+' jordbæret i kurven.':'Velg et troll først.'):
+       'Denne kurven er full. Velg en annen.'):
+     (missing?'Trykk for å legge i et jordbær.':'Kurven er full.');
    return '<div class="gm-crate-wrap"><button type="button" class="gm-crate '+(!missing?'gm-crate-full ':'')+(chosen?'gm-crate-selected ':'')+(invite?'gm-crate-invite':'')+'" data-gm-action="basket" data-gm-basket="'+i+'" data-gm-count="'+count+'" data-gm-selected="'+chosen+'" aria-pressed="'+chosen+'" aria-label="Kurv '+(i+1)+': '+count+' av '+state.each+'. '+interaction+'">'+
       (state.mode==='mission'?'<img class="gm-basket-illustration" alt="" aria-hidden="true" src="gangemagi-basket-locked-illustration.svg"><span class="gm-basket-inner" aria-hidden="true"></span>':'<span class="gm-crate-handle" aria-hidden="true"></span><span class="gm-crate-caption">Kurv '+(i+1)+'</span>')+
       '<span class="gm-fruit-bed" aria-hidden="true" style="--gm-visible-cols:'+Math.max(1,Math.min(count,5))+'">'+fruit(count,state.mode==='mission'?0:missing,justAddedGroup===i)+'</span>'+
@@ -89,7 +109,7 @@
  /* All instructional baskets reuse the exact same approved wicker material
     as the child's tappable baskets. Artwork is separate from live maths. */
  const gmBasketArt='<img class="gm-quest-wicker" alt="" src="gangemagi-basket-locked-illustration.svg">';
- const gmHandArt='<svg class="gm-quest-hand" viewBox="0 0 34 39" focusable="false" aria-hidden="true" data-gm-prop="hand"><image href="./gangemagi-picking-hand.svg?v=20261022-props1" width="34" height="39"/></svg>';
+ const gmTrollQuestArt='<span class="gm-quest-trolls">'+TROLLS.map(t=>'<img alt="" src="'+t.src+'">').join('')+'</span>';
  function questStep(n,art,label){
    const current=E.filled(state)?3:(holdingBerry?2:1);
    const active=n===current;
@@ -99,8 +119,6 @@
  function questBoard(sum,goal){
    const groups=state.groups,each=state.each,mission=E.MISSIONS[state.mission];
    const fruitArt='<span class="gm-quest-fruit">'+berrySvg+'</span>';
-   // The last illustrated step mirrors the child's REAL baskets as they fill.
-   // Never show the completed groups before the child has placed a berry.
    const filledBasketPreview='<span class="gm-quest-filled-preview" aria-hidden="true">'+
      state.counts.map(count=>'<span class="gm-quest-mini-basket">'+gmBasketArt+
        '<span class="gm-quest-mini-berries" style="--gm-mini-cols:'+Math.min(each,5)+'">'+
@@ -111,15 +129,32 @@
      '<span class="gm-quest-meta">Oppdrag '+(state.mission+1)+' av '+E.MISSIONS.length+' · '+esc(mission.heading)+'</span></div>'+
      '<h2 class="gm-quest-callout"><span>Fyll <em>'+groups+' '+(groups===1?'kurv':'kurver')+'</em> med</span> <span><em>'+each+' jordbær</em> i hver.</span></h2>'+
      '<div class="gm-quest-steps" role="list" aria-label="Tre steg i oppdraget">'+
-       questStep(1,fruitArt+gmHandArt,'Plukk')+
+       questStep(1,gmTrollQuestArt,'Velg troll')+
        '<span class="gm-quest-arrow" aria-hidden="true">➜</span>'+
-       questStep(2,fruitArt+gmBasketArt,'Legg i')+
+       questStep(2,fruitArt+gmBasketArt,'Velg kurv')+
        '<span class="gm-quest-arrow" aria-hidden="true">➜</span>'+
        questStep(3,filledBasketPreview,'Se gangemagien')+
      '</div></header>';
  }
  function fruitSupply(free){
-   return '<button type="button" class="gm-pick gm-strawberry-tray'+(!free?(holdingBerry?' gm-berry-held':' gm-pick-invite'):'')+'" data-gm-action="source" aria-label="'+(free?'Plukk et jordbær og legg det i neste ledige kurv':'Plukk et jordbær. Dra det til en kurv, eller trykk på kurven etterpå.')+'"><span class="gm-pick-fruit" aria-hidden="true">'+(free?berrySvg:berrySourceArt)+'</span><span>'+(free?'Plukk et jordbær':'Plukk et jordbær')+'</span><small>'+(free?'Trykk eller dra':holdingBerry?'Trykk på en kurv':'Dra eller trykk')+'</small></button>';
+   return '<button type="button" class="gm-pick gm-strawberry-tray" data-gm-action="source" aria-label="Plukk et jordbær og legg det i neste ledige kurv"><span class="gm-pick-fruit" aria-hidden="true">'+berrySvg+'</span><span>Plukk et jordbær</span><small>Trykk eller dra</small></button>';
+ }
+ function trollStage(){
+   return '<div class="gm-troll-stage" role="group" aria-label="Velg hvilket troll som skal plukke jordbæret">'+
+     TROLLS.map((t,i)=>{
+       const selected=selectedTroll===i&&holdingBerry,moving=trollMove?.troll===i;
+       return '<button type="button" class="gm-troll-helper'+(selected?' gm-troll-selected':'')+(moving?' gm-troll-delivering':'')+'" data-gm-action="troll" data-gm-troll="'+i+'" aria-pressed="'+selected+'" aria-label="'+t.name+' skal plukke et jordbær" '+(trollMove?'disabled':'')+'>'+
+         '<span class="gm-troll-figure"><img src="'+t.src+'" alt="" aria-hidden="true"><span class="gm-troll-held-berry" aria-hidden="true">'+berrySvg+'</span></span>'+
+         '<span class="gm-troll-name">'+t.name+'</span></button>';
+     }).join('')+'</div>';
+ }
+ function trollSupply(){
+   return '<div class="gm-pick gm-strawberry-tray gm-troll-source" aria-label="Jordbærkassen som trollene plukker fra"><span class="gm-pick-fruit" aria-hidden="true">'+berrySourceArt+'</span><span>Jordbærkassen</span><small>Trollene plukker her</small></div>';
+ }
+ function groupCounts(){
+   return '<div class="gm-group-counts" aria-label="Kurvene inneholder '+state.counts.join(', ')+' jordbær">'+
+     state.counts.map((count,index)=>'<span class="gm-group-count" data-gm-group-count="'+index+'"><b>'+count+'</b><small>Kurv '+(index+1)+'</small></span>').join('<i aria-hidden="true">+</i>')+
+     '</div>';
  }
  function render(){
    const prevFocus=root.contains(document.activeElement)?document.activeElement:null;
@@ -127,6 +162,8 @@
    const result=E.equation(state),sum=result.total,goal=E.target(state),complete=result.complete;
    const nextIndex=state.counts.findIndex(n=>n<state.each);
    const free=state.mode==='free',modeClass=free?'free':'mission';
+   const finale=!free&&complete&&state.mission===E.MISSIONS.length-1;
+   const entireMarketReady=finale&&state.wins.length===E.MISSIONS.length;
    const progress=Math.round(sum/goal*100);
    const msg=message();
    // Start with the unfinished challenge. During a mission, show the real
@@ -135,7 +172,7 @@
    const equation=!free&&sum===0?state.groups+' × '+state.each+' = ?':
      (!free&&!complete?result.addition:(result.multiplication||result.addition));
    const active=state.mode==='mission'?'Oppdrag':'Fri lek';
-   root.innerHTML='<main class="gm-shell" data-gm-mode="'+modeClass+'" data-gm-groups="'+state.groups+'" data-gm-each="'+state.each+'" data-gm-sum="'+sum+'" data-gm-selected="'+selectedGroup+'" data-gm-complete="'+complete+'">'+
+   root.innerHTML='<main class="gm-shell" data-gm-mode="'+modeClass+'" data-gm-groups="'+state.groups+'" data-gm-each="'+state.each+'" data-gm-sum="'+sum+'" data-gm-selected="'+selectedGroup+'" data-gm-complete="'+complete+'" data-gm-finale="'+finale+'" data-gm-holding="'+holdingBerry+'" data-gm-troll-moving="'+!!trollMove+'">'+
       '<div class="gm-layout"><header class="gm-top">'+
       '<button type="button" class="gm-back" id="multiplication-lab-back" data-gm-action="back" aria-label="Tilbake til matte">‹</button>'+
       '<div class="gm-brand"><span class="gm-brand-mark">Læ<span>ria</span> ✦</span><small>TALLENGA / GANGEMAGI</small></div>'+ 
@@ -147,28 +184,30 @@
        '<section class="gm-world" aria-label="Jordbærmarkedet i Tallenga">'+
        (free?'<header class="gm-story"><div class="gm-story-main"><span class="gm-story-kicker">DU BESTEMMER</span><h2>'+esc(storyTitle())+'</h2><p>'+esc(challengeText())+'</p></div>'+
        '<span class="gm-story-progress" aria-label="'+sum+' av '+goal+' jordbær pakket"><strong>'+sum+'</strong><span>av '+goal+'</span></span></header>':questBoard(sum,goal))+
-       '<div class="gm-scene"><div class="gm-fox" data-mood="'+(complete?'celebrate':hintStep?'help':foxMood)+'">'+
-         '<div class="gm-fox-art" aria-hidden="true">'+selectedFox()+'</div>'+
-         '<div class="gm-fox-bubble"><span class="gm-fox-bubble-label">Din rev sier:</span><span class="gm-fox-message" role="status" aria-live="polite">'+esc(msg)+'</span>'+
-         '<button type="button" data-gm-action="read" class="gm-read" aria-label="Les opp det reven sier">◖))</button></div>'+
+       '<div class="gm-scene"><div class="gm-fox'+(!free?' gm-troll-guide':'')+'" data-mood="'+(complete?'celebrate':hintStep?'help':foxMood)+'">'+
+         (!free?trollStage():'<div class="gm-fox-art" aria-hidden="true">'+selectedFox()+'</div>')+
+         '<div class="gm-fox-bubble gm-troll-bubble"><span class="gm-fox-bubble-label">'+(!free?'Trollene sier:':'Din rev sier:')+'</span><span class="gm-fox-message" role="status" aria-live="polite">'+esc(msg)+'</span>'+
+         '<button type="button" data-gm-action="read" class="gm-read" aria-label="Les opp hjelpen">◖))</button></div>'+
        '</div>'+
        '<div class="gm-market"><div class="gm-market-sign" aria-hidden="true"><span class="gm-sign-leaf">✿</span> Fra Tallengas hage <span class="gm-sign-leaf">✿</span></div>'+
        '<div class="gm-crates" style="--gm-groups:'+state.groups+';--gm-cols:'+(state.each<=5?state.each:Math.ceil(state.each/2))+'" role="group" aria-label="'+state.groups+' kurver som kan fylles med jordbær">'+state.counts.map((n,i)=>crate(i)).join('')+'</div>'+
-       (!free&&!complete?'<div class="gm-market-fruit-supply">'+fruitSupply(false)+'</div>':'')+
-       '<p class="gm-play-hint">'+(complete?'Se hva du har laget! Du kan endre kurvene eller fortsette.':free?(state.groups>=4?'Trykk på kurvene. Sveip sidelengs for å se alle.':'Trykk på en kurv for å legge i et jordbær'):(holdingBerry?'Trykk på kurven du vil legge jordbæret i.':'Dra jordbær til kurvene, eller trykk på jordbær og deretter en kurv.'))+'</p></div>'+
+       (!free&&!complete?'<div class="gm-market-fruit-supply">'+trollSupply()+'</div>':'')+
+       '<p class="gm-play-hint">'+(complete?'Se hva du har laget! Du kan endre kurvene eller fortsette.':free?(state.groups>=4?'Trykk på kurvene. Sveip sidelengs for å se alle.':'Trykk på en kurv for å legge i et jordbær'):(holdingBerry?trollName(selectedTroll)+' er klar. Trykk på en kurv.':'Velg hvilket troll som skal plukke neste jordbær.'))+'</p></div>'+
        '</div>'+
-       '<div class="gm-math"><div class="gm-math-label"><span>'+(complete?'Se sammenhengen':'Oppdraget')+'</span><span class="gm-goal">'+state.groups+' × '+state.each+' = '+(complete?sum:'?')+'</span></div>'+
+       '<div class="gm-math"><div class="gm-math-label"><span>'+(complete?'Se sammenhengen':'Tell kurvene')+'</span><span class="gm-goal">'+state.groups+' × '+state.each+' = '+(complete?sum:'?')+'</span></div>'+groupCounts()+
          '<div class="gm-math-equation '+(complete?'gm-equation-win':'')+'" aria-label="'+esc(equation)+'">'+esc(equation)+'</div>'+
          (!free&&complete?'<div class="gm-math-addition" aria-label="Gjentatt addisjon: '+esc(result.addition)+'">'+esc(result.addition)+'</div>':'')+
          (free?'<div class="gm-progress-track" role="progressbar" aria-label="Jordbær pakket" aria-valuemin="0" aria-valuemax="'+goal+'" aria-valuenow="'+sum+'"><span style="width:'+progress+'%"></span></div>':'')+
          (!free?'<div class="gm-berry-progress" aria-label="'+sum+' av '+goal+' jordbær lagt i kurvene"><strong>'+sum+' av '+goal+'</strong></div>':'')+
          '<div class="gm-math-note'+(result.multiplication?' gm-math-discovery':'')+'"'+(result.multiplication?' role="status"':'')+'>'+(result.multiplication?'✦ Like grupper: '+state.groups+' kurver med '+state.counts[0]+' bær = '+sum+'!':'Når kurvene har ulikt antall, legger vi sammen.')+'</div></div>'+
-       (complete?'<div class="gm-celebration" role="status"><span class="gm-celebration-flower" aria-hidden="true">✿</span><span class="gm-celebration-copy"><strong>'+esc(free?'Så fint du laget det!':'Oppdraget er klart!')+'</strong><small>'+(free?'Du pakket '+goal+' jordbær.':'Markedsblomst '+state.wins.length+' av '+E.MISSIONS.length+' · '+goal+' jordbær pakket')+'</small></span></div>':'')+
+       (complete?'<div class="gm-celebration" role="status"><span class="gm-celebration-flower" aria-hidden="true">✿</span><span class="gm-celebration-copy"><strong>'+esc(free?'Så fint du laget det!':finale?(entireMarketReady?'Hele markedet feirer!':'Den store høstingen er klar!'):'Oppdraget er klart!')+'</strong><small>'+(free?'Du pakket '+goal+' jordbær.':finale?(entireMarketReady?'8 av 8 oppdrag er klare. Nå kan du utforske videre!':'Du fullførte høstingen. Velg hva du vil gjøre videre.'):'Markedsblomst '+state.wins.length+' av '+E.MISSIONS.length+' · '+goal+' jordbær pakket')+'</small></span></div>':'')+
        '</section>'+
        '<div class="gm-actions '+(complete?'gm-actions-complete':'')+'">'+
          (complete?
            (free?'<button type="button" class="gm-next" data-gm-action="restart">Pakk kurvene på nytt <span aria-hidden="true">↻</span></button>':
-              '<button type="button" class="gm-next" data-gm-action="next">Neste oppdrag <span aria-hidden="true">➜</span></button>'):
+             finale?'<button type="button" class="gm-next" data-gm-action="mode" data-mode="free">Lek videre i Tallenga <span aria-hidden="true">✦</span></button>'+
+                 '<button type="button" class="gm-tool gm-finale-book" data-gm-action="open-book">Velg et oppdrag</button>':
+             '<button type="button" class="gm-next" data-gm-action="next">Neste oppdrag <span aria-hidden="true">➜</span></button>'):
            (free?fruitSupply(true):'')+
            '<button type="button" class="gm-tool" data-gm-action="hint"><span aria-hidden="true">✧</span> Hint</button>')+
          (undo.length?'<button type="button" class="gm-tool" data-gm-action="undo"><span aria-hidden="true">↶</span> Angre</button>':'')+
@@ -245,7 +284,9 @@
    undo.push(E.normalize(state));if(undo.length>50)undo.shift();
    const wasComplete=E.filled(state);
    state=next;hintStep=0;notice='';
-   if(['next','mission','mode','reset','groups','each'].includes(action.type)){selectedGroup=null;holdingBerry=false;}
+   if(['next','mission','mode','reset','groups','each'].includes(action.type)){
+     stopTrollMove();selectedGroup=null;holdingBerry=false;selectedTroll=null;
+   }
     // When a basket fills, return to the illustrated "choose a basket" step.
     // Never leave the Plukk action targeted at an already full basket.
     if(state.mode==='mission'&&selectedGroup!==null
@@ -259,8 +300,8 @@
    return true;
  }
  function celebrate(){
-   const fox=root.querySelector('.gm-fox');
-   if(fox){fox.classList.remove('gm-jubilee');void fox.offsetWidth;fox.classList.add('gm-jubilee');}
+   const actor=root.querySelector('.gm-troll-stage,.gm-fox');
+   if(actor){actor.classList.remove('gm-jubilee');void actor.offsetWidth;actor.classList.add('gm-jubilee');}
    const world=root.querySelector('.gm-world');
    if(world){world.classList.remove('gm-bloom');void world.offsetWidth;world.classList.add('gm-bloom');}
  }
@@ -280,6 +321,7 @@
    try{showScreen('subject');}catch(_){}
  }
  function open(preserveOrigin=false){
+   stopTrollMove();selectedTroll=null;holdingBerry=false;selectedGroup=null;
    // Basecamp and Maths are different parents. Going to the classic submode
    // and back must retain the same parent rather than reset it.
    if(!preserveOrigin)returnToMath=!!document.querySelector('#subject-screen.active');
@@ -302,6 +344,44 @@
    originalOpen();
    if(screen)screen.dataset.returnToMathSubject=backFlag||'false';
  }
+ function startTrollDelivery(group){
+   if(state.mode!=='mission'||trollMove||!holdingBerry||selectedTroll===null)return false;
+   if(!Number.isInteger(group)||group<0||group>=state.groups)return false;
+   if(state.counts[group]>=state.each){
+     notice='Denne kurven er full. Velg en annen!';foxMood='help';render();return false;
+   }
+   const delivery={troll:selectedTroll,group};
+   holdingBerry=false;selectedGroup=group;trollMove=delivery;
+   notice=trollName(delivery.troll)+' legger jordbæret i kurv '+(group+1)+' …';
+   lastAction='deliver';lastGroup=group;foxMood='cheer';render();
+   // Aim the visible berry at the ACTUAL chosen basket. The actor only leans
+   // a little; the berry travels from the locked troll hand into the live DOM
+   // basket before the mathematical state changes.
+   const actor=root.querySelector('.gm-troll-delivering');
+   const held=actor?.querySelector('.gm-troll-held-berry');
+   const basket=root.querySelector('[data-gm-action="basket"][data-gm-basket="'+group+'"]');
+   if(actor&&held&&basket){
+     const berryBox=held.getBoundingClientRect(),basketBox=basket.getBoundingClientRect();
+     const targetX=basketBox.left+basketBox.width/2;
+     const targetY=basketBox.top+basketBox.height*.48;
+     const dx=targetX-(berryBox.left+berryBox.width/2);
+     const dy=targetY-(berryBox.top+berryBox.height/2);
+     const leanX=Math.max(-42,Math.min(42,dx*.16));
+     const leanY=Math.max(-4,Math.min(20,dy*.10));
+     actor.style.setProperty('--gm-deliver-x',leanX.toFixed(1)+'px');
+     actor.style.setProperty('--gm-deliver-y',leanY.toFixed(1)+'px');
+     actor.style.setProperty('--gm-berry-x',dx.toFixed(1)+'px');
+     actor.style.setProperty('--gm-berry-y',dy.toFixed(1)+'px');
+   }
+   trollTimer=setTimeout(()=>{
+     if(trollMove!==delivery)return;
+     trollMove=null;trollTimer=0;selectedGroup=null;notice='';
+     if(!change({type:'add',group})){
+       notice='Denne kurven er full. Prøv en annen!';foxMood='help';render();
+     }
+   },440);
+   return true;
+ }
  function onClick(event){
    const button=event.target.closest('button[data-gm-action]');
    if(!button||!root.contains(button))return;
@@ -319,7 +399,7 @@
      if(!Number.isInteger(index)||index<0||index>=E.MISSIONS.length)return;
      // Each selected adventure begins fresh. Undo stays inside one adventure;
      // already earned flowers remain attached to the child's saved progress.
-     state=E.apply(state,{type:'mission',index});selectedGroup=null;holdingBerry=false;
+     stopTrollMove();state=E.apply(state,{type:'mission',index});selectedGroup=null;holdingBerry=false;selectedTroll=null;
      undo=[];hintStep=0;notice='';foxMood='curious';lastAction='';lastGroup=-1;
      bookOpen=false;save();render();
      root.querySelector('.gm-top')?.scrollIntoView({behavior:'auto',block:'start'});
@@ -353,6 +433,14 @@
    if(kind==='mode'){if(button.dataset.mode!==state.mode)change({type:'mode',mode:button.dataset.mode});return;}
    if(kind==='next'){change({type:'next'});return;}
    if(kind==='factor'){change({type:button.dataset.key,value:state[button.dataset.key]+Number(button.dataset.step)});return;}
+   if(kind==='troll'){
+     if(state.mode!=='mission'||trollMove)return;
+     const i=Number(button.dataset.gmTroll);
+     if(!Number.isInteger(i)||i<0||i>=TROLLS.length)return;
+     selectedTroll=i;selectedGroup=null;holdingBerry=true;hintStep=0;
+     notice=trollName(i)+' plukket et jordbær. Velg en kurv!';
+     lastAction='troll';lastGroup=-1;foxMood='cheer';render();return;
+   }
    if(kind==='remove'){
      holdingBerry=false;
      const i=Number(button.dataset.group);
@@ -361,23 +449,14 @@
    }
    if(kind==='basket'){
      const i=Number(button.dataset.gmBasket);
-     // Tap the actual berry to take it back out, without a separate minus action.
-     // The containing basket is still a normal accessible button and the existing
-     // large remove control is retained for keyboard / assistive technology.
      if(!holdingBerry&&event.target.closest('.gm-fruit[data-gm-fruit]')&&state.counts[i]>0){
-       holdingBerry=false;
-       if(state.mode==='mission')selectedGroup=i;
-       change({type:'remove',group:i});return;
+       selectedGroup=i;change({type:'remove',group:i});selectedGroup=null;return;
      }
      if(state.mode==='mission'){
-       if(holdingBerry){holdingBerry=false;selectedGroup=i;
-         if(!change({type:'add',group:i})){notice='Denne kurven er full. Prøv en annen!';foxMood='help';render();}
-         return;
-       }
-       const full=state.counts[i]===state.each;
-       selectedGroup=full?null:i;lastAction='select';lastGroup=i;hintStep=0;
-       notice=full?'Denne kurven er full. Velg en annen!':'';
-       foxMood=full?'help':'cheer';render();return;
+       if(trollMove)return;
+       if(holdingBerry){startTrollDelivery(i);return;}
+       notice='Velg et troll først. Trollet plukker jordbæret for deg!';
+       selectedGroup=null;foxMood='help';render();return;
      }
      if(!change({type:'add',group:i})){notice='Denne kurven er full. Prøv en annen!';render();}
      return;
@@ -385,11 +464,7 @@
    if(kind==='source'){
      if(Date.now()<suppressClickUntil)return;
      if(state.mode==='mission'){
-       // One predictable model: tapping the supply PICKS a berry, tapping the
-       // destination basket PLACES it. Never silently add to an old selection.
-       holdingBerry=true;
-       notice='Jordbæret er plukket! Trykk på kurven du vil legge det i.';
-       foxMood='cheer';render();return;
+       notice='Velg et troll. Trollet plukker fra jordbærkassen!';foxMood='help';render();return;
      }
      const ix=state.counts.findIndex(n=>n<state.each);
      if(ix>=0)change({type:'add',group:ix});
@@ -538,11 +613,12 @@
  if(entry)entry.onclick=()=>open(false);
  function openMission(index){
    if(!Number.isInteger(index)||index<0||index>=E.MISSIONS.length)return false;
-   state=E.apply(state,{type:'mission',index});selectedGroup=null;holdingBerry=false;
+   stopTrollMove();state=E.apply(state,{type:'mission',index});selectedGroup=null;holdingBerry=false;selectedTroll=null;
    undo=[];hintStep=0;notice='';foxMood='curious';lastAction='';lastGroup=-1;
    bookOpen=false;selectedGroup=null;save();open(false);return true;
  }
  window.LARIA_GANGEMAGI=Object.freeze({version:'playable-v1',open,openMission,
-   snapshot:()=>({...E.normalize(state),equation:E.equation(state),selectedBasket:selectedGroup,undo:undo.length}),
-   reset:()=>{clearDrag();suppressClickUntil=0;state=E.initial();selectedGroup=null;holdingBerry=false;save();hintStep=0;undo=[];render();}});
+   snapshot:()=>({...E.normalize(state),equation:E.equation(state),selectedBasket:selectedGroup,
+     selectedTroll,holdingBerry,trollMoving:!!trollMove,undo:undo.length}),
+   reset:()=>{clearDrag();stopTrollMove();suppressClickUntil=0;state=E.initial();selectedGroup=null;selectedTroll=null;holdingBerry=false;save();hintStep=0;undo=[];render();}});
 })();

@@ -56,7 +56,7 @@ body:has(#multiplication-lab-screen.active .gm-shell){background-color:#f5dfbd}
  .gm-secondary-card>span{width:22px;height:22px;border-radius:8px;font-size:15px}
  .gm-secondary-card.gm-classic{grid-column:1 / -1}
 }
-.gm-world{position:relative;isolation:isolate;min-height:420px;background:linear-gradient(180deg,rgba(255,248,228,.26),rgba(244,227,192,.10) 48%,rgba(239,225,198,.30)),url('./matte-verden.png') center 59%/cover no-repeat;overflow:hidden;
+.gm-world{position:relative;isolation:isolate;min-height:420px;background:linear-gradient(180deg,rgba(255,248,228,.18),rgba(244,227,192,.04) 48%,rgba(239,225,198,.22)),url('./gangemagi-tallenga-market-v1.svg') center 59%/cover no-repeat;overflow:hidden;
  border:5px solid #fff5dc;border-radius:30px;box-shadow:0 8px 0 #cda97b99,0 23px 49px #67584324,inset 0 0 0 2px #f4e4c4}
 .gm-world:before{content:"";position:absolute;z-index:-1;inset:0;background:linear-gradient(180deg,#fff8e84a 0,#f8e7c000 32%,#f5e5c62b 63%,#f6edd2bc 100%);pointer-events:none}
 .gm-world:after{content:"";position:absolute;inset:8px;z-index:-1;border:1px solid #fffae573;border-radius:24px;pointer-events:none}
@@ -123,6 +123,10 @@ body:has(#multiplication-lab-screen.active .gm-shell){background-color:#f5dfbd}
 .gm-progress-track{grid-column:1;height:9px;min-width:0;overflow:hidden;border-radius:15px;background:#ddc8a4;box-shadow:inset 0 2px 4px #9d815b40}
 .gm-progress-track span{display:block;height:100%;border-radius:15px;min-width:0;background:linear-gradient(90deg,#7cb58a,#438875);transition:width .27s cubic-bezier(.12,.73,.23,1)}
 .gm-math-note{grid-column:2;text-align:right;font-size:10px;font-weight:830;color:#6b5340}
+.gm-group-counts{grid-column:1;display:flex;align-items:center;gap:5px;min-width:0;overflow:hidden}
+.gm-group-count{display:grid;place-items:center;gap:0;min-width:38px;padding:3px 5px 2px;border:1px solid #e7c38d;border-radius:10px;background:#fff6df;color:#745039;box-shadow:inset 0 1px #fffdfa}
+.gm-group-count b{font-size:15px;line-height:1;font-weight:1000}.gm-group-count small{font-size:8px;line-height:1.15;font-weight:900;white-space:nowrap}
+.gm-group-counts>i{font-style:normal;color:#a46a4c;font-size:15px;font-weight:1000}
 /* The child first meets the unfinished multiplication.  Only when the real
    baskets are full do we place repeated addition beside the discovered answer.
    This makes the mathematics a consequence of the play, never a pre-filled
@@ -153,6 +157,33 @@ body:has(#multiplication-lab-screen.active .gm-shell){background-color:#f5dfbd}
 .gm-actions-complete{display:grid;grid-template-columns:minmax(0,1fr) minmax(110px,.32fr);max-width:620px;margin:4px auto 0}
 .gm-actions-complete .gm-next{font-size:17px;min-height:66px;white-space:normal}
 .gm-actions-complete .gm-tool{min-height:66px}
+
+/* Tallenga composition pass: the playable market is one scene, not a row of
+   unrelated cards.  The original illustrated landscape remains visible behind
+   the real baskets, source crate and child-selected fox. */
+.gm-world{background-position:center 54%}
+.gm-scene{position:relative;z-index:1;grid-template-columns:minmax(180px,230px) minmax(0,1fr);gap:25px;margin:8px clamp(14px,2.4vw,30px) 0;padding:4px 0 2px;align-items:end}
+.gm-fox{align-self:end;padding-bottom:7px}.gm-fox-art{height:178px;width:164px}.gm-fox-bubble{max-width:218px;background:linear-gradient(130deg,#fffaf0f2,#fae8c8f2)}
+.gm-market{min-height:252px;padding:12px 8px 6px;border-radius:28px;background:linear-gradient(180deg,#fff7e62e 0%,#f8e2b02b 64%,#9a694534 100%);box-shadow:inset 0 -1px #fff8e66b}
+.gm-market:before{content:"";position:absolute;inset:auto 4% 5px;z-index:-1;height:35%;border-radius:50%;background:radial-gradient(ellipse at center,#6d4c3545,transparent 67%);filter:blur(4px);pointer-events:none}
+.gm-market-sign{position:relative;z-index:2;margin:0 auto -9px;background:linear-gradient(155deg,#f8d497,#c9915d);box-shadow:0 3px 0 #97643f,0 7px 12px #7553382b}
+.gm-crates{position:relative;z-index:1;max-width:710px;padding:25px 9px 0;gap:clamp(9px,1.8vw,19px)}
+.gm-crate-wrap{padding-bottom:29px}.gm-crate{height:177px;max-width:192px;border-color:#9b633d;background:linear-gradient(155deg,#f8dc9e,#d8a064 54%,#b87347);box-shadow:inset 0 4px 0 #fff3d0,inset 0 -12px 0 #9b613d,0 9px 0 #77503566,0 14px 22px #50372535}
+.gm-crate-selected,.gm-drop-target{transform:translateY(-4px) scale(1.018);border-color:#e7b74d!important;box-shadow:inset 0 4px 0 #fff8d7,0 0 0 5px #ffe8a27a,0 10px 0 #a36e3e,0 0 26px #f4c759a6!important}
+.gm-crate-invite{border-color:#e8bd61;box-shadow:inset 0 4px 0 #fff6d7,0 0 0 4px #ffedaf73,0 9px 0 #91624066,0 0 20px #f2ce6c83}
+/* A held berry must invite a target without moving the real tap target.
+   The pulse belongs exclusively to the decorative wicker illustration. */
+.gm-crate-invite .gm-basket-illustration{animation:gm-basket-invite 1.65s ease-in-out infinite}
+.gm-market-fruit-supply{position:relative;z-index:3;width:min(100%,288px);margin:0 0 -4px auto;transform:rotate(-1.5deg)}
+.gm-market-fruit-supply .gm-pick{width:100%;max-width:none;min-height:71px;border-color:#ffedca;border-bottom-color:#7d4c36;border-radius:18px;background:linear-gradient(180deg,#ba7057,#8d4c39);box-shadow:inset 0 1px #ffe1ba,0 6px 0 #6f432f,0 13px 18px #53372540}
+.gm-market-fruit-supply .gm-pick-fruit{width:62px;height:58px;margin-left:-4px}.gm-market-fruit-supply .gm-source-berry{display:inline-block;width:21px;height:26px;margin:-4px}.gm-market-fruit-supply .gm-source-berry svg{width:100%;height:100%}
+.gm-market-fruit-supply .gm-pick>span:nth-child(2){font-size:15px}.gm-market-fruit-supply .gm-pick small{display:block;color:#fff3d8}
+/* Mission supply lives inside the market. Free play keeps its own single-berry
+   pickup control below the scene, so do not hide that real interaction. */
+.gm-shell[data-gm-mode="mission"][data-gm-complete="false"] .gm-actions>.gm-pick{display:none}
+.gm-math{margin-top:9px;background:linear-gradient(135deg,#fff9e8f5,#f6e2b9f3);box-shadow:0 5px 0 #b88e6244,0 12px 22px #715b4026}
+.gm-group-counts{align-self:center}.gm-shell[data-gm-complete="true"] .gm-group-counts{display:none}
+@keyframes gm-basket-invite{0%,100%{filter:brightness(1)}50%{filter:brightness(1.08) saturate(1.07)}}
 .gm-free-controls{display:flex;justify-content:center;flex-wrap:wrap;gap:11px;margin:14px auto 2px}
 .gm-free-adjust{display:flex;align-items:center;justify-content:space-between;gap:15px;min-width:220px;min-height:63px;border:2px solid #fff8e8;border-radius:17px;
  background:#fff3dce9;padding:7px 9px 7px 14px;box-shadow:0 4px 0 #baa07e54}
@@ -455,3 +486,14 @@ body:has(#multiplication-lab-screen.active .gm-shell){background-color:#f5dfbd}
 .gm-book-quick-count{font:900 10px/1 ui-rounded,-apple-system,sans-serif;white-space:nowrap;color:#69452e}
 .gm-math-note.gm-math-discovery{grid-column:2;text-align:right;padding:0;border:0;background:none;color:#367357;font-size:clamp(10px,1.45vw,13px);font-weight:950;line-height:1.25}
 @media(max-width:400px){.gm-book-quick{min-width:58px;padding:0 4px}.gm-book-quick-count{font-size:9px}.gm-math-note.gm-math-discovery{font-size:10px}}
+
+/* Phone is a deliberate vertical market composition, not a scaled iPad. */
+@media(max-width:699px){
+ .gm-scene{display:grid;grid-template-columns:1fr;gap:0;margin:3px 7px 0;padding:0;align-items:stretch}
+ .gm-fox{grid-row:1;display:flex;align-items:center;justify-content:center;min-height:74px;padding:0 5px}.gm-fox-art{width:61px;height:76px}.gm-fox-bubble{width:calc(100% - 69px);max-width:310px;min-height:58px;margin:0 0 2px}
+ .gm-market{grid-row:2;min-height:208px;padding:5px 2px 3px;border-radius:20px}.gm-market-sign{font-size:9px;padding:4px 10px;margin-bottom:-5px}
+ .gm-crates{padding:16px 1px 0;gap:5px}.gm-crate{height:139px;max-width:none}.gm-crate-wrap{padding-bottom:24px}
+ .gm-market-fruit-supply{width:min(100%,250px);margin:-2px 2px 0 auto;transform:none}.gm-market-fruit-supply .gm-pick{min-height:55px;border-radius:14px;padding:2px 8px}.gm-market-fruit-supply .gm-pick-fruit{width:48px;height:44px}.gm-market-fruit-supply .gm-source-berry{width:17px;height:20px;margin:-4px}.gm-market-fruit-supply .gm-pick>span:nth-child(2){font-size:12px}.gm-market-fruit-supply .gm-pick small{font-size:9px}
+ .gm-math{grid-template-columns:minmax(110px,.86fr) minmax(145px,1.14fr);margin-top:5px}.gm-group-count{min-width:31px;padding:2px 3px}.gm-group-count b{font-size:13px}.gm-group-count small{font-size:7px}.gm-group-counts{gap:3px}.gm-group-counts>i{font-size:12px}
+}
+@media(max-width:360px){.gm-market-fruit-supply{width:218px}.gm-group-count small{display:none}.gm-group-count{min-width:24px}.gm-market{min-height:192px}}

@@ -6,10 +6,13 @@ on:
       - 'laer-litt-mer/gangemagi-markedsbok-approved-v2.css'
       - 'laer-litt-mer/gangemagi-approved-eight-scenes-20261017.webp'
       - 'laer-litt-mer/multiplication-gangemagi-v1.js'
+      - 'laer-litt-mer/multiplication-gangemagi-v1.css'
       - 'laer-litt-mer/multiplication-gangemagi-engine-v1.js'
       - 'laer-litt-mer/index.html'
       - 'tests/laria-gangemagi.playwright.js'
       - 'laer-litt-mer/gangemagi-dagens-oppdrag-v1.css'
+      - 'laer-litt-mer/gangemagi-tallenga-market-premium-20261023.svg'
+      - 'laer-litt-mer/gangemagi-tallenga-market-v1.svg'
       - 'laer-litt-mer/gangemagi-market-table-premium.svg'
       - 'laer-litt-mer/gangemagi-math-parchment.svg'
       - 'laer-litt-mer/gangemagi-quest-board-painted.svg'
@@ -24,10 +27,13 @@ on:
       - 'laer-litt-mer/gangemagi-markedsbok-approved-v2.css'
       - 'laer-litt-mer/gangemagi-approved-eight-scenes-20261017.webp'
       - 'laer-litt-mer/multiplication-gangemagi-v1.js'
+      - 'laer-litt-mer/multiplication-gangemagi-v1.css'
       - 'laer-litt-mer/multiplication-gangemagi-engine-v1.js'
       - 'laer-litt-mer/index.html'
       - 'tests/laria-gangemagi.playwright.js'
       - 'laer-litt-mer/gangemagi-dagens-oppdrag-v1.css'
+      - 'laer-litt-mer/gangemagi-tallenga-market-premium-20261023.svg'
+      - 'laer-litt-mer/gangemagi-tallenga-market-v1.svg'
       - 'laer-litt-mer/gangemagi-market-table-premium.svg'
       - 'laer-litt-mer/gangemagi-math-parchment.svg'
       - 'laer-litt-mer/gangemagi-quest-board-painted.svg'
@@ -42,16 +48,37 @@ on:
 permissions:
   contents: read
 
+# Push and pull_request for the same feature branch must not run duplicate
+# heavyweight browser jobs that repeatedly cancel screenshot collection.
 concurrency:
-  group: laria-gangemagi-art-${{ github.workflow }}-${{ github.ref }}
+  group: laria-gangemagi-art-${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 
 jobs:
   markedsbok-visual:
+    name: markedsbok-visual (${{ matrix.browser }})
     runs-on: ubuntu-latest
-    timeout-minutes: 18
+    timeout-minutes: 30
+    # The same entire viewport suite, distributed rather than serialized.
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chrome, webkit]
     steps:
+      # On pull_request GitHub normally checks out refs/pull/N/merge. This
+      # contract verifies the actual branch HEAD instead of a synthetic merge.
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - name: Assert exact Gangemagi commit under test
+        shell: bash
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          actual="$(git rev-parse HEAD)"
+          echo "GANGEMAGI_TESTED_HEAD=$actual"
+          test "$actual" = "$EXPECTED_HEAD"
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -67,7 +94,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
-          key: gangemagi-playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}-chromium-webkit
+          key: gangemagi-playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}-${{ matrix.browser }}
       - name: Validate original image and JavaScript
         run: |
           test -s laer-litt-mer/gangemagi-approved-eight-scenes-20261017.webp
@@ -75,19 +102,20 @@ jobs:
           node --check tests/laria-gangemagi.playwright.js
           node --test tests/laria-gangemagi-engine.test.cjs tests/laria-gangemagi-release-cache.test.cjs tests/laria-gangemagi-tap-intent.test.cjs tests/laria-gangemagi-props.test.cjs
       - name: Install browser system dependencies
-        run: npx playwright install-deps chromium webkit
-      - name: Install Chromium and WebKit binaries
+        run: npx playwright install-deps ${{ matrix.browser == 'chrome' && 'chromium' || 'webkit' }}
+      - name: Install selected browser binaries
         if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: npx playwright install chromium webkit
-      - name: Test six real viewport sizes and render book screenshots
+        run: npx playwright install ${{ matrix.browser == 'chrome' && 'chromium' || 'webkit' }}
+      - name: Test all assigned real viewport sizes and render book screenshots
         env:
+          GANGEMAGI_QA_BROWSER: ${{ matrix.browser }}
           QA_SCREENSHOTS: /tmp/laria-gangemagi-approved-visual
         run: node tests/laria-gangemagi.playwright.js
       - name: Preserve visual proof for child-first layout review
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: laria-gangemagi-approved-art-${{ github.sha }}
+          name: laria-gangemagi-approved-art-${{ github.event.pull_request.head.sha || github.sha }}-${{ matrix.browser }}
           path: /tmp/laria-gangemagi-approved-visual
           retention-days: 14
           if-no-files-found: warn
