@@ -294,6 +294,10 @@
      linear-gradient(180deg,#58a4e8 0%,#4d9ee7 56%,#4397df 100%);
    box-shadow:inset 0 -16px 22px -22px #2e6d9b;
  }
+ .grade-band-young .bc12.bc15-locked-home::after{
+   -webkit-mask-image:linear-gradient(to bottom,rgba(0,0,0,.30) 0,#000 22px,#000 100%);
+   mask-image:linear-gradient(to bottom,rgba(0,0,0,.30) 0,#000 22px,#000 100%);
+ }
 }
 @media(min-width:701px) and (orientation:portrait){
  .grade-band-young .bc12.bc15-locked-home::before{
