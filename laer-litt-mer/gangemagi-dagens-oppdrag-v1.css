@@ -2091,6 +2091,12 @@
   mix-blend-mode:normal;
   z-index:1;
 }
+/* On phones/portrait the live scene remains a genuine stacking context.
+   The transparent market artwork must NEVER wash over speech or touch targets. */
+.gm-shell[data-gm-mode="mission"] .gm-world>.gm-scene{
+  position:relative;
+  z-index:3;
+}
 @media (min-width:900px){
 .gm-shell[data-gm-mode="mission"] .gm-world{
   display:grid;
