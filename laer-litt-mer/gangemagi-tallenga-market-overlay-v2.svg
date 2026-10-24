@@ -18,7 +18,7 @@
 <path d="M1020 84L700 590L876 590L1132 160Z" fill="#fff0b4" opacity=".055"/>
 
 <!-- Tallenga skyline: high enough to stay visible behind the quest board on iPad. -->
-<g id="market-skyline" opacity=".56" filter="url(#softShadow)">
+<g id="market-skyline" opacity=".42" filter="url(#softShadow)">
   <g transform="translate(875 104)">
     <path d="M0 252V132L74 82L145 136V252Z" fill="url(#plaster)" stroke="#9c714e" stroke-width="6"/>
     <path d="M-18 139L73 64L165 143L144 153L74 96L3 156Z" fill="url(#terracotta)" stroke="#8f5149" stroke-width="6"/>
@@ -41,7 +41,7 @@
 </g>
 
 <!-- Three market buildings make the scene read as a village square, not a generic forest. -->
-<g id="market-stalls" opacity=".58" filter="url(#shadow)">
+<g id="market-stalls" opacity=".43" filter="url(#shadow)">
   <g transform="translate(430 248)">
     <path d="M0 165V63H164V165Z" fill="url(#plaster)" stroke="#8e6548" stroke-width="6"/>
     <path d="M-16 67L24 17H140L180 67Z" fill="url(#terracotta)" stroke="#f8dfb3" stroke-width="6"/>
@@ -93,14 +93,14 @@
 </g>
 
 <!-- Stone bridge and fountain provide a recognisable market-square depth axis. -->
-<g id="market-bridge" opacity=".48" filter="url(#softShadow)" transform="translate(715 330)">
+<g id="market-bridge" opacity=".36" filter="url(#softShadow)" transform="translate(715 330)">
   <path d="M-18 177Q151 4 335 176L332 196Q151 42-20 198Z" fill="url(#bridgeStone)" stroke="#745c49" stroke-width="8"/>
   <path d="M0 171Q160 24 320 171" fill="none" stroke="#fff0c8" stroke-width="7"/>
   <path d="M2 168L4 195M48 129L52 165M99 90L105 135M151 77L151 118M211 92L204 136M263 128L253 165M309 168L313 192" stroke="#826a54" stroke-width="6"/>
   <path d="M0 137Q151 -28 320 137" fill="none" stroke="#947456" stroke-width="8"/>
   <path d="M0 130Q155 -37 320 130" fill="none" stroke="#fff1ca" stroke-width="5"/>
 </g>
-<g id="market-fountain" opacity=".52" filter="url(#softShadow)">
+<g id="market-fountain" opacity=".40" filter="url(#softShadow)">
   <ellipse cx="842" cy="510" rx="132" ry="39" fill="url(#water)" stroke="#eadbb3" stroke-width="8"/>
   <ellipse cx="842" cy="506" rx="84" ry="19" fill="#e9f5e8" opacity=".46"/>
   <path d="M842 499Q806 459 839 423Q874 459 842 499Z" fill="#e4f5e9" opacity=".86"/>
