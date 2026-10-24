@@ -1,7 +1,7 @@
 'use strict';
-/* Regression: Home v15 is troll-led, while the child's ONE chosen fox still
-   reacts and moves through real journeys and tasks. No click may modify saved
-   progress accidentally. */
+/* Regression: the original three forest trolls move through real grade-2
+   journeys and tasks, react without blocking taps, and never modify a child's
+   persisted avatar, equipment or learning progress. */
 const assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path');
 const {chromium,webkit}=require('playwright');
@@ -66,20 +66,20 @@ async function run(engine,name,viewport,avatar){
     await page.locator('.bc14-subject[data-camp="subject-norwegian"]').click();
     const map=page.locator('#subject-screen.active .locked-journey-map');
     await map.waitFor({timeout:16000});
-    const fox=map.locator('.locked-journey-traveler');
-    // The approved PNG is deliberately decoded before the map's real fox
-    // enters the DOM; the warm loading scene has no synthetic traveler.
+    const fox=page.locator('.screen.active .locked-journey-traveler.laria-troll-host');
+    // The approved PNG is deliberately decoded before its single real
+    // movable original troll enters the DOM.
     await fox.waitFor({state:'attached',timeout:20000});
-    assert.equal(await fox.count(),1,name+' must have exactly one movable personal fox');
-    await fox.locator('svg.laria-fox-wardrobe-art .laria-fox-pose').waitFor({timeout:12000});
-    assert.equal(await fox.getAttribute('data-avatar'),avatar,name+' route changed fox identity');
-    const cameo=map.locator('.locked-journey-profile[data-avatar="'+avatar+'"]');
-    assert.equal(await cameo.count(),1,name+' chosen fox header cameo missing');
-    const cameoArt=await cameo.evaluate(el=>getComputedStyle(el,'::after').backgroundImage);
-    assert.match(cameoArt,avatar==='girl'?/girl-braids-face-v1\.webp/:/boy-adventurer-face-v1\.webp/,
-      name+' header portrait does not match the selected full-body explorer');
+    assert.equal(await fox.count(),1,name+' must have one movable original forest troll');
+    await fox.locator(':scope > img').evaluate(img=>img.decode());
+    assert.equal(await fox.getAttribute('data-laria-troll'),'storesoster',name+' Norwegian journey must use original storesøster');
+    const cameo=map.locator('.locked-journey-profile.laria-troll-host');
+    assert.equal(await cameo.count(),1,name+' original troll header cameo missing');
+    const cameoArt=await cameo.locator(':scope > img').getAttribute('src');
+    assert(cameoArt.endsWith('/assets/skogstroll/storesoster.webp'),
+      name+' header displays wrong original skogstroll');
 
-    assert.equal(await fox.locator('.laria-fox-wardrobe-art [data-gear]').count(),0,name+' unreleased clothing leaked onto journey fox');
+    assert.equal(await fox.locator(':scope > svg.laria-fox-wardrobe-art').count(),0,name+' unpublished fox clothing leaked onto a forest troll');
     const initial=await fox.evaluate(el=>({x:el.style.getPropertyValue('--fox-x'),y:el.style.getPropertyValue('--fox-y')}));
     const before=await page.evaluate(()=>JSON.stringify(JSON.parse(localStorage.getItem('laerlittmer-v2')).journey));
     await map.locator('.locked-journey-hotspot').nth(3).click();
@@ -93,8 +93,9 @@ async function run(engine,name,viewport,avatar){
     assert.equal(await fox.evaluate(el=>getComputedStyle(el).pointerEvents),'none',name+' fox steals map taps');
     await page.screenshot({path:path.join(dir,name+'-journey.png'),animations:'disabled'});
     // Visit all twenty painted landmarks without changing the learning state.
-    // There must be only one grounded, unadorned traveler on each map.
+    // There must be only one grounded, unadorned original skogstroll per map.
     const subjects=['norwegian','math','english','geography'];
+    const character={norwegian:'storesoster',math:'lillebror',english:'lillesoster',geography:'storesoster'};
     for(let subjectIndex=0;subjectIndex<subjects.length;subjectIndex++){
       const subject=subjects[subjectIndex];
       if(subjectIndex>0){
@@ -104,11 +105,15 @@ async function run(engine,name,viewport,avatar){
       }
       const activeMap=page.locator('.screen.active .locked-journey-map[data-journey-subject="'+subject+'"]');
       await activeMap.waitFor({timeout:15000});
-      const traveler=activeMap.locator('.locked-journey-traveler');
-      await traveler.locator('svg.laria-fox-wardrobe-art').waitFor({timeout:12000});
+      const traveler=page.locator('.screen.active .locked-journey-traveler.laria-troll-host');
+      await traveler.locator(':scope > img').waitFor({state:'visible',timeout:12000});
       assert.equal(await traveler.count(),1,name+' '+subject+' duplicate traveler');
-      assert.equal(await traveler.getAttribute('data-avatar'),avatar,name+' '+subject+' selected a different fox');
-      assert.equal(await traveler.locator('[data-gear]').count(),0,name+' '+subject+' exposed deferred clothing');
+      assert.equal(await traveler.getAttribute('data-laria-troll'),character[subject],
+        name+' '+subject+' selected the wrong approved troll');
+      assert.equal(await traveler.locator(':scope > svg.laria-fox-wardrobe-art').count(),0,
+        name+' '+subject+' exposed old fox clothing');
+      assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('laerlittmer-v2')).profile.avatar),avatar,
+        name+' '+subject+' artwork changed stored boy/girl profile ID');
       const cleaned=activeMap.locator('.locked-journey-fox-free');
       assert.equal(await cleaned.count(),1,name+' '+subject+' has no painted-fox removal');
       await cleaned.evaluate(img=>img.decode());
@@ -121,15 +126,20 @@ async function run(engine,name,viewport,avatar){
         // The premium sheet temporarily PORTALS the actual map fox, not a
         // duplicate mascot. Check its only rig in the sheet first, then its
         // grounded physical map position after the sheet closes.
-        const sheetFox=await traveler.evaluate(el=>{
-          const stage=el.closest('.mission-fox-stage');
-          return {stage:!!stage,oneRig:el.querySelectorAll(':scope > .laria-fox-wardrobe-placed').length,
-            width:el.getBoundingClientRect().width,interactive:getComputedStyle(el).pointerEvents};
+        const sheetTroll=await traveler.evaluate(el=>{
+          const stage=el.closest('.mission-fox-stage'),img=el.querySelector(':scope > img');
+          return {stage:!!stage,rigs:el.querySelectorAll(':scope > .laria-fox-wardrobe-placed').length,
+            width:el.getBoundingClientRect().width,interactive:getComputedStyle(el).pointerEvents,
+            natural:img?.naturalWidth,visible:img?getComputedStyle(img).visibility:null,
+            source:img?.getAttribute('src')};
         });
-        assert.equal(sheetFox.stage,true,name+' '+subject+' fox not integrated in premium mission sheet');
-        assert.equal(sheetFox.oneRig,1,name+' '+subject+' duplicated full-body rig in mission sheet');
-        assert(sheetFox.width>=35,name+' '+subject+' fox hidden or too small in mission sheet');
-        assert.equal(sheetFox.interactive,'none',name+' '+subject+' fox blocks menu taps');
+        assert.equal(sheetTroll.stage,true,name+' '+subject+' original troll not moved into premium mission sheet');
+        assert.equal(sheetTroll.rigs,0,name+' '+subject+' old full-body fox rig remained on troll');
+        assert(sheetTroll.natural>100&&sheetTroll.visible==='visible'&&
+          sheetTroll.source.endsWith('/assets/skogstroll/'+character[subject]+'.webp'),
+          name+' '+subject+' correct original troll not visible in sheet: '+JSON.stringify(sheetTroll));
+        assert(sheetTroll.width>=35,name+' '+subject+' troll hidden or too small in mission sheet');
+        assert.equal(sheetTroll.interactive,'none',name+' '+subject+' troll blocks menu taps');
         await page.locator('.locked-sheet-close').click();
         assert.equal(await traveler.evaluate(el=>!!el.closest('.locked-journey-board')),true,
           name+' '+subject+' original fox was not returned to its map');
@@ -142,10 +152,9 @@ async function run(engine,name,viewport,avatar){
           name+' '+subject+' fox clipped at stop '+stop+' '+JSON.stringify(position));
         assert.equal(position.interactive,'none',name+' '+subject+' mascot blocks destination taps');
         const visibleCharacter=await traveler.evaluate(el=>{
-          const wrapper=el.getBoundingClientRect();
-          const svg=el.querySelector(':scope > .laria-fox-wardrobe-placed');
-          if(!svg)return {missing:true};
-          const rect=svg.getBoundingClientRect();
+          const wrapper=el.getBoundingClientRect(),img=el.querySelector(':scope > img');
+          if(!img)return {missing:true};
+          const rect=img.getBoundingClientRect();
           return {missing:false,width:rect.width,height:rect.height,
             wrapperWidth:wrapper.width,wrapperHeight:wrapper.height,
             leftDelta:rect.left-wrapper.left,topDelta:rect.top-wrapper.top};
@@ -154,10 +163,10 @@ async function run(engine,name,viewport,avatar){
           Math.abs(visibleCharacter.width-visibleCharacter.wrapperWidth)<=2&&
           Math.abs(visibleCharacter.height-visibleCharacter.wrapperHeight)<=2&&
           Math.abs(visibleCharacter.leftDelta)<=2&&Math.abs(visibleCharacter.topDelta)<=2,
-          name+' '+subject+' sprite overflowed its real standing anchor at stop '+stop+
+          name+' '+subject+' original cutout overflowed its standing anchor at stop '+stop+
           ' '+JSON.stringify(visibleCharacter));
         const paintedSignOverlap=await traveler.evaluate(el=>{
-          const fox=el.querySelector(':scope > .laria-fox-wardrobe-placed').getBoundingClientRect();
+          const fox=el.querySelector(':scope > img').getBoundingClientRect();
           const signs=el.closest('.locked-journey-board').querySelectorAll('.locked-journey-hotspot');
           return [...signs].map((sign,i)=>{
             const box=sign.getBoundingClientRect();
@@ -191,9 +200,16 @@ async function run(engine,name,viewport,avatar){
     await mission.click();
     const task=page.locator('#session-screen.active .task-fox-companion');
     await task.waitFor({timeout:13000});
-    await task.locator('svg.laria-fox-wardrobe-art .laria-fox-pose').waitFor({timeout:12000});
-    assert.equal(await task.getAttribute('data-avatar'),avatar,name+' task changed fox identity');
-    assert.equal(await task.locator('.laria-fox-wardrobe-art [data-gear]').count(),0,name+' task exposed deferred clothing');
+    await task.locator(':scope > img').waitFor({state:'visible',timeout:12000});
+    assert.equal(await task.getAttribute('data-laria-troll'),'storesoster',
+      name+' Norwegian task must show original storesøster');
+    const taskImg=await task.locator(':scope > img').evaluate(img=>({src:img.getAttribute('src'),natural:img.naturalWidth}));
+    assert(taskImg.src.endsWith('/assets/skogstroll/storesoster.webp')&&taskImg.natural>100,
+      name+' task must contain decoded original skogstroll: '+JSON.stringify(taskImg));
+    assert.equal(await task.locator(':scope > svg.laria-fox-wardrobe-art').count(),0,
+      name+' task exposed old fox clothing');
+    assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('laerlittmer-v2')).profile.avatar),avatar,
+      name+' actual saved profile changed');
     for(const mood of ['curious','support','celebrate']){
       assert.equal(await page.evaluate(m=>window.LARIA_FOX_PRESENCE.react(m),mood),true);
       assert.equal(await task.getAttribute('data-laria-fox-mood'),mood,name+' task mood '+mood+' missing');
@@ -208,7 +224,7 @@ async function run(engine,name,viewport,avatar){
     await page.screenshot({path:path.join(dir,name+'-task.png'),animations:'disabled'});
     assert.deepEqual(errors,[],name+' browser errors '+JSON.stringify(errors));
     await context.close();
-    console.log('[live fox]',name,'troll-led Home + same fox identity in journeys/tasks, hidden equipment, movement, feedback, progress and tap safety OK');
+    console.log('[living skogstroll]',name,'troll-led Home + exact originals in journeys/tasks, hidden gear, movement, feedback, progress and tap safety OK');
   }finally{await browser.close()}
 }
 (async()=>{
