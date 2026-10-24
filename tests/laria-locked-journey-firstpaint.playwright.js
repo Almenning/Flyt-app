@@ -140,8 +140,15 @@ async function proof(engine,label,viewport,url){
    const gradeStrip=subject==='geography'?'#geo-journey-grade-strip':'#journey-grade-strip';
    assert.equal(await screen.locator(gradeStrip+' [data-journey-grade]').count(),10,
      label+' '+subject+' chapter grade selector was not initialized');
-   assert.equal(await screen.locator('.locked-journey-traveler[data-avatar="girl"]').count(),1,
-     label+' '+subject+' chosen companion lost during transition');
+   const key={norwegian:'storesoster',math:'lillebror',english:'lillesoster',geography:'storesoster'}[subject];
+   const companion=screen.locator('.locked-journey-traveler.laria-troll-host[data-laria-troll="'+key+'"]');
+   assert.equal(await companion.count(),1,label+' '+subject+' approved original skogstroll lost during transition');
+   const companionImg=companion.locator(':scope > img');
+   await companionImg.evaluate(img=>img.decode());
+   assert((await companionImg.getAttribute('src')).endsWith('/assets/skogstroll/'+key+'.webp'),
+     label+' '+subject+' first painting displayed wrong approved character');
+   assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('laerlittmer-v2')).profile.avatar),'girl',
+     label+' '+subject+' character art must never rewrite saved profile');
    if(subject==='geography')await assertGeographyPriority(screen,label+' decoded artwork');
    await shot(page,label+'-'+subject+'-02-approved-map');
    await screen.locator('.locked-journey-back').click();
