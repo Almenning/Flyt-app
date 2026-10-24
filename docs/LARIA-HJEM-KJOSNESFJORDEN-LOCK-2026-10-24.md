@@ -24,9 +24,10 @@ Fjellsilhuetten skal ikke regenereres, erstattes av Eggenipa eller «forbedres»
 - Opprinnelig dimensjon: 1127 × 681
 - Opprinnelig PNG SHA-256: `90c9e102ea84d24b954c6522062017bc1cdd9964a398d3cb37c7fa0203df65c7`
 - Produksjonsmaster: `laer-litt-mer/assets/home-v15/kjosnes-home-tablet.webp`
-- Produksjonsdimensjon: 760 × 459
-- Produksjons-WebP SHA-256: `b5165fa109db03d947e302f165467b70a63cbaee933d0f9b71ccfce903525844`
-- WebP-en er en nedskalert/komprimert avledning av den låste masteren; fjellform og komposisjon skal ikke endres.
+- Produksjonsdimensjon: 1127 × 681
+- Produksjons-WebP SHA-256: `89d747081716d8a2cc7fc18c9e1c4ec1416aba86591adda7ceb87a56ab3cb924`
+- WebP-en er gjenopprettet i 1127 × 681 fra den godkjente høyoppløste kilden etter at 760 × 459-versjonen ga synlig uskarp oppskalering. Fjellform og komposisjon skal ikke endres.
+- Kvalitetsregel: liggende tablet-/desktop-master skal aldri være lavere enn 1127 × 681.
 
 ### Mobil / stående
 - Opprinnelig låst mockup: `laria-home-locked-phone.png`
