@@ -73,6 +73,12 @@ function decoded(src){
 async function activate(){
  const host=document.querySelector('#home-screen .bc12');
  if(!host)return false;
+ if(host.dataset.mode && host.dataset.mode!=='home'){
+   host.classList.remove('bc15-locked-home');
+   host.style.removeProperty('--bc15-home-art');
+   host.dataset.bc15Asset='inactive';
+   return false;
+ }
  const phone=isPhone();
  try{
    const src=await decoded(await readMaster(phone?PHONE_PARTS:TABLET_PARTS,phone?'phone':'tablet'));
@@ -115,7 +121,7 @@ const observer=new MutationObserver(()=>{
    activate();
  }
 });
-observer.observe(document.documentElement,{subtree:true,childList:true});
+observer.observe(document.documentElement,{subtree:true,childList:true,attributes:true,attributeFilter:['data-mode']});
 const mq=matchMedia('(max-width:700px) and (orientation:portrait)');
 mq.addEventListener?.('change',activate);
 })();
