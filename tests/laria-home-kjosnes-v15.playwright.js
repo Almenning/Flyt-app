@@ -153,10 +153,18 @@ async function run(engine,label,viewport){
      const artLeft=parseFloat(getComputedStyle(host).getPropertyValue('--bc15-art-left'))||0;
      const artTop=parseFloat(getComputedStyle(host).getPropertyValue('--bc15-art-top'))||0;
      const artWidth=parseFloat(getComputedStyle(host).getPropertyValue('--bc15-art-width'))||0;
-     return {cards,journey,nav,liveNext,liveCopy,liveCopyBg,liveNextBg,routeSubjectOpacity:Number(routeSubjectStyle.opacity),journeyOpacity:Number(journeyStyle.opacity),liveCopyShadow:liveCopyStyle.boxShadow,liveNextShadow:liveNextStyle.boxShadow,scenicFilter:scenic.filter,scenicBg:scenic.backgroundImage,artLeft,artTop,artWidth,navButtons,scroll:document.documentElement.scrollWidth,viewport:innerWidth};
+      const artHeight=parseFloat(getComputedStyle(host).getPropertyValue('--bc15-art-height'))||0;
+      const portalUnderlay=getComputedStyle(document.querySelector('.bc14-subjects'),'::before').backgroundImage;
+     return {cards,journey,nav,liveNext,liveCopy,liveCopyBg,liveNextBg,routeSubjectOpacity:Number(routeSubjectStyle.opacity),journeyOpacity:Number(journeyStyle.opacity),liveCopyShadow:liveCopyStyle.boxShadow,liveNextShadow:liveNextStyle.boxShadow,scenicFilter:scenic.filter,scenicBg:scenic.backgroundImage,artLeft,artTop,artWidth,artHeight,portalUnderlay,navButtons,scroll:document.documentElement.scrollWidth,viewport:innerWidth};
    });
    assert(geom.scroll<=geom.viewport+1,label+' horizontal overflow '+JSON.stringify(geom));
    assert(geom.cards.every(r=>r.width>=44&&r.height>=44),label+' subject touch target too small '+JSON.stringify(geom.cards));
+   assert(geom.portalUnderlay!=='none'&&geom.portalUnderlay.includes('gradient'),
+     label+' opaque portal underlay missing: baked cards could remain visible behind new ones');
+   const expectedPortalBottom=geom.artTop+geom.artHeight*(portrait?.895:.962);
+   const actualPortalBottom=Math.max(...geom.cards.map(r=>r.bottom));
+   assert(Math.abs(actualPortalBottom-expectedPortalBottom)<=Math.max(9,geom.artHeight*.015),
+     label+' portal art stops short of baked-in card bottoms: '+JSON.stringify({actualPortalBottom,expectedPortalBottom,cards:geom.cards}));
    assert(geom.journey.width>=44&&geom.journey.height>=44,label+' journey touch target too small');
    assert.equal(geom.routeSubjectOpacity,1,label+' premium subject portals must stay visible');
    const portals=await page.locator('.bc14-subject').evaluateAll(buttons=>buttons.map(b=>{
@@ -254,6 +262,7 @@ async function run(engine,label,viewport){
  verifyLockedMasterFiles();
  for(const [label,engine,viewport] of [
    ['chromium-iphone',chromium,{width:390,height:844}],
+    ['safari-iphone-small',webkit,{width:320,height:568}],
    ['safari-iphone',webkit,{width:390,height:844}],
    ['safari-ipad',webkit,{width:820,height:1180}],
    ['safari-ipad-landscape',webkit,{width:1180,height:820}]
