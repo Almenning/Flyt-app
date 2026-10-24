@@ -91,8 +91,9 @@ async function run(engine,label,viewport){
    const liveGreeting=(await page.locator('.bc15-live-greeting').innerText()).trim();
    assert.match(liveGreeting,/Testbarn/,label+' dynamic greeting must use profile name');
    assert.doesNotMatch(liveGreeting,/Aleah/,label+' locked mockup name must not leak as live child identity');
-   assert.equal(await page.locator('.bc15-live-intro').isVisible(),false,
-     label+' live overlay must not duplicate the generic intro already baked into the locked master');
+   const portrait=!label.includes('landscape');
+   assert.equal(await page.locator('.bc15-live-intro').isVisible(),portrait,
+     label+' portrait must replace the baked intro while landscape keeps the locked intro');
    const originalNext=(await page.locator('[data-camp-next]').innerText()).trim();
    assert(originalNext,label+' hidden journey state must expose a next place');
    const liveNextText=(await page.locator('.bc15-live-next').innerText()).trim();
@@ -115,9 +116,12 @@ async function run(engine,label,viewport){
      const liveNext=rect(document.querySelector('.bc15-live-next'));
      const liveCopy=rect(document.querySelector('.bc15-live-copy'));
      const navButtons=[...document.querySelectorAll('.bc12-nav button')].filter(e=>getComputedStyle(e).display!=='none').map(rect);
+     const host=document.querySelector('.bc12.bc15-locked-home');
      const liveCopyBg=getComputedStyle(document.querySelector('.bc15-live-copy')).backgroundImage;
-     const scenic=getComputedStyle(document.querySelector('.bc12.bc15-locked-home'),'::before');
-     return {cards,journey,nav,liveNext,liveCopy,liveCopyBg,scenicFilter:scenic.filter,scenicBg:scenic.backgroundImage,navButtons,scroll:document.documentElement.scrollWidth,viewport:innerWidth};
+     const scenic=getComputedStyle(host,'::before');
+     const artLeft=parseFloat(getComputedStyle(host).getPropertyValue('--bc15-art-left'))||0;
+     const artWidth=parseFloat(getComputedStyle(host).getPropertyValue('--bc15-art-width'))||0;
+     return {cards,journey,nav,liveNext,liveCopy,liveCopyBg,scenicFilter:scenic.filter,scenicBg:scenic.backgroundImage,artLeft,artWidth,navButtons,scroll:document.documentElement.scrollWidth,viewport:innerWidth};
    });
    assert(geom.scroll<=geom.viewport+1,label+' horizontal overflow '+JSON.stringify(geom));
    assert(geom.cards.every(r=>r.width>=44&&r.height>=44),label+' subject touch target too small '+JSON.stringify(geom.cards));
@@ -130,6 +134,10 @@ async function run(engine,label,viewport){
      label+' greeting plaque must be fully opaque so baked child-name text cannot ghost through: '+geom.liveCopyBg);
    assert.equal(geom.scenicFilter,'none',label+' Home safe-area fill must not blur the locked artwork');
    assert.doesNotMatch(geom.scenicBg,/url\(/,label+' Home safe-area fill must not duplicate painted navigation/artwork');
+   if(portrait){
+     assert(geom.artLeft>=-1&&geom.artLeft+geom.artWidth<=geom.viewport+1,
+       label+' portrait artwork must not crop the subject cards/navigation: '+JSON.stringify({artLeft:geom.artLeft,artWidth:geom.artWidth,viewport:geom.viewport}));
+   }
    assert(geom.navButtons.every(r=>r.width>=44&&r.height>=44),label+' nav touch target too small '+JSON.stringify(geom.navButtons));
    assert(geom.navButtons.every(r=>r.x>=-1&&r.right<=geom.viewport+1),label+' nav touch target outside viewport '+JSON.stringify(geom.navButtons));
    await page.screenshot({path:folder+'/'+label+'-home.png',fullPage:true});
