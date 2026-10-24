@@ -51,7 +51,19 @@ async function run(browser,engine,label,viewport,url,full){
   await photo(page,label+'-01-fjordbakeriet',false); // Capture actual first viewport; fullPage Safari capture can perturb scroll position before first tap.
   // Exactly the interaction the child should see first. Never rely on a static image.
   try {
-    await page.locator('.fc-add-one').click();
+    if(viewport.width<700){
+      // An actual finger tap is the authoritative mobile input. WebKit's
+      // locator.click mouse-actionability heuristic sometimes times out even
+      // when repeated measurements show a perfectly stable real touch target.
+      const primary=page.locator('.fc-add-one'),rect=await primary.boundingBox();
+      assert.ok(rect&&rect.width>=44&&rect.height>=44,label+' needs a real, accessible 44 px primary touch target');
+      const x=rect.x+rect.width/2,y=rect.y+rect.height/2;
+      const hit=await page.evaluate(({x,y})=>!!document.elementFromPoint(x,y)?.closest('.fc-add-one'),{x,y});
+      assert.ok(hit,label+' cake action must really be on top at the finger contact point');
+      await page.touchscreen.tap(x,y);
+    } else {
+      await page.locator('.fc-add-one').click();
+    }
   } catch(error) {
     // Real WebKit pointer interactions must pass. Never force-click a broken button.
     const samples=await page.evaluate(async()=>{
