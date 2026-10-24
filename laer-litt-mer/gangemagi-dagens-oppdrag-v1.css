@@ -2166,7 +2166,7 @@
   pointer-events:auto;
 }
 .gm-shell[data-gm-mode="mission"] .gm-troll-bubble:before{display:none}
-.gm-shell[data-gm-mode="mission"] .gm-fox-message{font-size:clamp(11px,1.05vw,14px);line-height:1.16}
+.gm-shell[data-gm-mode="mission"] .gm-fox-message{font-size:clamp(13px,1.3vw,14px);line-height:1.16}
 
 /* The wicker table is the visual and mathematical centre.  The source stays
    recognisable as a physical berry crate, never a large primary CTA. */
