@@ -83,14 +83,14 @@ function mapControlsToArtwork(host,imgW,imgH,portrait){
    journey:[.052,.620,.896,.098],
    nav:[.025,.900,.95,.092],
    adult:[.855,.030,.105,.070],
-   liveCopy:tabletPortrait?[.035,.145,.53,.095]:[.025,.145,.57,.095],
+   liveCopy:tabletPortrait?[.035,.145,.53,.068]:[.025,.145,.57,.062],
    liveNext:tabletPortrait?[.145,.655,.71,.038]:[.14,.655,.72,.040]
  }:{
    subjects:[.353,.692,.611,.242],
    journey:[.028,.747,.304,.161],
    nav:[.711,.023,.272,.135],
    adult:[.025,.020,.205,.155],
-   liveCopy:[.115,.172,.225,.085],
+   liveCopy:[.115,.172,.225,.062],
    liveNext:[.073,.836,.235,.040]
  };
  const viewport={width:rect.width,height:rect.height};
@@ -118,6 +118,8 @@ function syncLiveCopy(host){
  const intro='Klar for et nytt eventyr?';
  live.querySelector('.bc15-live-greeting').textContent=title;
  live.querySelector('.bc15-live-intro').textContent=intro;
+ live.querySelector('.bc15-live-intro').setAttribute('aria-hidden','true');
+ live.setAttribute('aria-label',title+' '+intro);
 
  let next=host.querySelector('.bc15-live-next');
  if(!next){
