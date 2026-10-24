@@ -98,12 +98,13 @@ async function run(engine,label,viewport){
    await page.locator('#home-screen.active').waitFor({timeout:12000});
    await homeReady(page,label+' return journey');
 
-   /* Explore may keep its existing interface for now, but Home v15 must turn off cleanly. */
+   /* Explore keeps the existing v13 map-board for now. Home v15 must yield to it cleanly. */
    await page.locator('.bc12-nav [data-camp="explore"]').click();
-   await page.waitForFunction(()=>document.querySelector('.bc12')?.dataset.mode==='explore');
-   assert.equal(await page.locator('.bc12.bc15-locked-home').count(),0,label+' locked Home leaked into Explore');
-   await page.locator('.bc12-nav [data-camp="home"]').click();
-   await page.waitForFunction(()=>document.querySelector('.bc12')?.dataset.mode==='home');
+   await page.waitForFunction(()=>document.querySelector('.bc12')?.dataset.bc13View==='explore');
+   await page.locator('.bc13-panel:not([hidden])').waitFor({state:'visible',timeout:10000});
+   assert.equal(await page.locator('.bc12.bc15-locked-home').count(),0,label+' locked Home leaked into Explore map-board');
+   await page.locator('.bc13-close').click();
+   await page.waitForFunction(()=>document.querySelector('.bc12')?.dataset.bc13View==='home');
    await homeReady(page,label+' return explore');
 
    assert.deepEqual(errors,[],label+' page errors '+JSON.stringify(errors));
