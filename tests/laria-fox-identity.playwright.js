@@ -62,16 +62,27 @@ async function run(engine,name,viewport,which){
   await page.locator('#home-screen.active .bc14-subject:visible').first().waitFor({timeout:16000});
   assert.equal(await page.evaluate(()=>state.profile.avatar),which,name+' wrong persisted identity');
   assert.notEqual(await page.evaluate(()=>window.LARIA_FOX.source('girl')),await page.evaluate(()=>window.LARIA_FOX.source('boy')),name+' two foxes are identical');
-  await imageIsChosen(page,'.bc12-fox img',which,name+' Home');
-  if(viewport.width<600){
-   const placement=await page.evaluate(()=>{
-     const r=document.querySelector('.bc12-fox').getBoundingClientRect();
-     const first=document.querySelector('.bc14-subject').getBoundingClientRect();
-     return {foxBottom:r.bottom,firstCardTop:first.top,foxX:r.x};
-   });
-   assert.ok(placement.foxBottom<=placement.firstCardTop-5,
-     name+' personal fox covered by the Home subject cards: '+JSON.stringify(placement));
-   assert.ok(placement.foxX>=0,name+' personal fox positioned outside screen');
+  const lockedHome=await page.locator('.bc12.bc15-locked-home').count()>0;
+  if(lockedHome){
+   assert.equal(await page.locator('.bc12-fox:visible').count(),0,name+' Home v15 must not show the old fox');
+   const saved=page.locator('.bc12-fox img');
+   await saved.waitFor({state:'attached',timeout:16000});
+   await page.waitForFunction(([css,id])=>{
+    const el=document.querySelector(css);
+    return el?.complete&&el.naturalWidth>0&&el.getAttribute('src')===window.LARIA_PROFILE_AVATARS?.[id];
+   },['.bc12-fox img',which],{timeout:16000});
+  }else{
+   await imageIsChosen(page,'.bc12-fox img',which,name+' Home');
+   if(viewport.width<600){
+    const placement=await page.evaluate(()=>{
+      const r=document.querySelector('.bc12-fox').getBoundingClientRect();
+      const first=document.querySelector('.bc14-subject').getBoundingClientRect();
+      return {foxBottom:r.bottom,firstCardTop:first.top,foxX:r.x};
+    });
+    assert.ok(placement.foxBottom<=placement.firstCardTop-5,
+      name+' personal fox covered by the Home subject cards: '+JSON.stringify(placement));
+    assert.ok(placement.foxX>=0,name+' personal fox positioned outside screen');
+   }
   }
   await page.screenshot({path:folder+'/'+name+'-home.png',fullPage:true});
   for(const subject of subjects){
@@ -125,7 +136,15 @@ async function run(engine,name,viewport,which){
   await page.reload({waitUntil:'domcontentloaded'});
   await page.locator('#home-screen.active .bc14-subject:visible').first().waitFor({timeout:16000});
   assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('laerlittmer-v2')).profile.avatar),which,name+' reload lost avatar');
-  await imageIsChosen(page,'.bc12-fox img',which,name+' reloaded Home');
+  if(await page.locator('.bc12.bc15-locked-home').count()){
+   assert.equal(await page.locator('.bc12-fox:visible').count(),0,name+' reloaded Home v15 must keep old fox hidden');
+   await page.waitForFunction(id=>{
+    const el=document.querySelector('.bc12-fox img');
+    return el?.complete&&el.naturalWidth>0&&el.getAttribute('src')===window.LARIA_PROFILE_AVATARS?.[id];
+   },which,{timeout:16000});
+  }else{
+   await imageIsChosen(page,'.bc12-fox img',which,name+' reloaded Home');
+  }
   assert.deepEqual(errors,[],name+' uncaught errors');
   await context.close();
   console.log('Personal fox verified',name,which,'Home + four real journeys + four tasks + reload');

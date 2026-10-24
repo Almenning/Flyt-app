@@ -1,0 +1,258 @@
+/* Læria Hjem v15 — locked Kjøsnesfjorden / Grovanova direction.
+   This layer only activates after home-kjosnes-v15.js confirms that the locked
+   master artwork is available. Existing Home stays untouched on asset failure. */
+
+.grade-band-young .bc12.bc15-locked-home{
+  position:relative!important;
+  overflow:hidden!important;
+  isolation:isolate!important;
+  background:#4c9bca!important;
+}
+.grade-band-young .bc12.bc15-locked-home::before,
+.grade-band-young .bc12.bc15-locked-home::after{
+  content:"";
+  position:absolute;
+  pointer-events:none;
+}
+.grade-band-young .bc12.bc15-locked-home::before{
+  z-index:-2;
+  inset:-28px;
+  background-image:var(--bc15-home-art);
+  background-position:center top;
+  background-size:cover;
+  background-repeat:no-repeat;
+  filter:blur(20px) saturate(1.04) brightness(.86);
+  transform:scale(1.055);
+}
+.grade-band-young .bc12.bc15-locked-home::after{
+  z-index:-1;
+  inset:0;
+  background-image:var(--bc15-home-art);
+  background-position:center bottom;
+  background-size:var(--bc15-art-width,100%) var(--bc15-art-height,100%);
+  background-repeat:no-repeat;
+}
+
+/* V15 owns Home interaction whenever the locked master is available.
+   The legacy Explore card may remain in DOM for fallback compatibility, but it
+   must never capture taps before, during or after a v15 Home render. */
+.grade-band-young .bc12.bc15-capable:not(.bc15-fallback) .bc14-free{
+  pointer-events:none!important;
+}
+.grade-band-young .bc12.bc15-pending .bc14-free{
+  pointer-events:none!important;
+}
+
+/* The locked master already carries the approved visual composition.
+   Keep existing controls alive, but render them as semantic hit areas. */
+.grade-band-young .bc12.bc15-locked-home :is(
+  .bc12-sun,.bc12-heading,.bc12-explore-ribbon,.bc12-destinations,
+  .bc12-journey-route,.bc12-you-are-here,.bc12-next-beacon,
+  .bc12-fox,.bc12-fox-call,.bc14-free,.bc12-quest,.bc12-treasure,
+  .bc12-spark
+){
+  display:none!important;
+}
+
+.grade-band-young .bc12.bc15-locked-home .bc14-subjects{
+  display:grid!important;
+  position:absolute!important;
+  z-index:15!important;
+  left:35.3%!important;
+  top:69.2%!important;
+  width:61.1%!important;
+  height:24.2%!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  grid-template-rows:1fr!important;
+  gap:1.05%!important;
+  pointer-events:auto!important;
+}
+.grade-band-young .bc12.bc15-locked-home .bc14-subject{
+  min-width:0!important;min-height:0!important;width:100%!important;height:100%!important;
+  padding:0!important;margin:0!important;border:0!important;border-radius:12px!important;
+  background:transparent!important;box-shadow:none!important;filter:none!important;
+  opacity:.001!important;
+}
+.grade-band-young .bc12.bc15-locked-home .bc14-subject:focus-visible{
+  opacity:.22!important;
+  outline:4px solid #fff4bd!important;
+  outline-offset:2px!important;
+  background:#fff8c9!important;
+}
+.grade-band-young .bc12.bc15-locked-home .bc14-subject *{pointer-events:none!important}
+
+.grade-band-young .bc12.bc15-locked-home .bc12-journey{
+  display:block!important;
+  position:absolute!important;
+  z-index:16!important;
+  left:2.8%!important;
+  top:74.7%!important;
+  width:30.4%!important;
+  height:16.1%!important;
+  padding:0!important;margin:0!important;border:0!important;
+  background:transparent!important;box-shadow:none!important;filter:none!important;
+  transform:none!important;opacity:.001!important;
+}
+.grade-band-young .bc12.bc15-locked-home .bc12-journey::before,
+.grade-band-young .bc12.bc15-locked-home .bc12-journey>*{display:none!important}
+.grade-band-young .bc12.bc15-locked-home .bc12-journey:focus-visible{
+  opacity:.22!important;outline:4px solid #fff4bd!important;outline-offset:3px!important;
+  border-radius:20px!important;background:#fff8c9!important;
+}
+
+/* Reuse the five real navigation actions. The artwork supplies their visible chrome. */
+.grade-band-young .bc12.bc15-locked-home .bc12-nav{
+  position:absolute!important;
+  z-index:16!important;
+  left:auto!important;right:1.7%!important;top:2.3%!important;bottom:auto!important;
+  width:27.2%!important;height:13.5%!important;
+  display:grid!important;grid-template-columns:repeat(4,1fr)!important;
+  gap:2.2%!important;padding:0!important;border:0!important;border-radius:0!important;
+  background:transparent!important;box-shadow:none!important;
+}
+.grade-band-young .bc12.bc15-locked-home .bc12-nav button{
+  min-width:44px!important;min-height:44px!important;padding:0!important;
+  border:0!important;background:transparent!important;box-shadow:none!important;
+  color:transparent!important;font-size:0!important;opacity:.001!important;
+}
+
+.grade-band-young .bc12.bc15-locked-home .bc12-nav button[data-camp="home"]{
+  display:none!important;
+}
+.grade-band-young .bc12.bc15-locked-home .bc12-nav button:focus-visible{
+  opacity:.24!important;outline:4px solid #fff4bd!important;outline-offset:2px!important;
+  background:#fff8c9!important;border-radius:50%!important;
+}
+.grade-band-young .bc12.bc15-locked-home .bc12-nav button span{display:none!important}
+
+/* Legacy challenge chrome is not part of the locked Home composition. */
+.grade-band-young .bc12.bc15-locked-home .safe-challenge-young{display:none!important}
+
+/* Adult area remains available without competing with the locked child-facing composition. */
+.grade-band-young .bc12.bc15-locked-home .bc12-adult-entry{
+  position:absolute!important;z-index:18!important;right:1.5%!important;top:1.5%!important;left:auto!important;
+  width:48px!important;height:48px!important;min-width:48px!important;min-height:48px!important;
+  padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;
+  color:transparent!important;font-size:0!important;opacity:.001!important;
+}
+
+@media(max-width:700px) and (orientation:portrait){
+  .grade-band-young .bc12.bc15-locked-home .bc14-subjects{
+    left:4.4%!important;top:72.8%!important;width:91.2%!important;height:13.5%!important;
+    gap:1.4%!important;
+  }
+  .grade-band-young .bc12.bc15-locked-home .bc12-journey{
+    left:5.2%!important;top:62.0%!important;width:89.6%!important;height:9.8%!important;
+  }
+  .grade-band-young .bc12.bc15-locked-home .bc12-nav{
+    left:2.5%!important;right:auto!important;top:auto!important;
+    bottom:max(.8%,env(safe-area-inset-bottom))!important;
+    width:95%!important;height:9.2%!important;
+    grid-template-columns:repeat(5,1fr)!important;gap:0!important;
+  }
+  .grade-band-young .bc12.bc15-locked-home .bc12-nav button[data-camp="home"]{
+    display:flex!important;position:static!important;left:auto!important;top:auto!important;
+    width:auto!important;height:auto!important;
+  }
+  .grade-band-young .bc12.bc15-locked-home .bc12-adult-entry{
+    right:4.4%!important;top:max(3.4%,env(safe-area-inset-top))!important;
+    width:46px!important;height:46px!important;
+  }
+}
+
+@media(max-height:580px) and (orientation:landscape){
+  /* The sharp master keeps its geometry; only the blurred scenic fill absorbs spare space. */
+  .grade-band-young .bc12.bc15-locked-home::before{filter:blur(18px) saturate(.9) brightness(.72)}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .grade-band-young .bc12.bc15-locked-home *{transition:none!important;animation:none!important}
+}
+
+
+/* Mine troll: Home v15 must never route the child into the old fox wardrobe. */
+#bc15-troll-dialog{
+ width:min(92vw,520px);max-height:88dvh;overflow:auto;
+ border:4px solid #8b6038;border-radius:25px;padding:25px 22px 20px;
+ background:linear-gradient(155deg,#fff9e9,#f3ddb4);
+ color:#4f3825;box-shadow:0 28px 80px #112a2b80;
+ font-family:var(--laria-font-rounded,ui-rounded,'Arial Rounded MT Bold',system-ui,sans-serif);
+}
+#bc15-troll-dialog::backdrop{background:#122b38aa;backdrop-filter:blur(5px)}
+#bc15-troll-dialog h2{margin:3px 0 12px;font-size:clamp(27px,7vw,38px);letter-spacing:-.04em}
+#bc15-troll-dialog p{margin:13px auto 16px;max-width:410px;font-weight:700;line-height:1.45;color:#695039}
+.bc15-troll-eyebrow{display:block;color:#80613e;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.1em}
+.bc15-troll-close{
+ position:absolute;right:9px;top:7px;width:44px;height:44px;border:0;background:transparent;
+ color:#68452d;font-size:31px;line-height:1;cursor:pointer
+}
+.bc15-troll-art{
+ width:100%;aspect-ratio:16/9;border:3px solid #c3975e;border-radius:19px;
+ background-repeat:no-repeat;background-size:280% auto;background-position:34% 48%;
+ box-shadow:inset 0 0 0 2px #fff8df,0 7px 17px #5a40242c;
+}
+#bc15-troll-dialog[data-phone="true"] .bc15-troll-art{
+ aspect-ratio:4/3;background-size:320% auto;background-position:34% 48%;
+}
+.bc15-troll-back{
+ width:100%;min-height:48px;border:2px solid #9b6a3f;border-radius:15px;
+ background:linear-gradient(#a97843,#75502f);color:#fff2d0;font:inherit;font-weight:900;
+ box-shadow:0 4px 0 #54361f;cursor:pointer
+}
+
+
+/* Portrait uses the dedicated locked portrait master on both phone and iPad. */
+@media(orientation:portrait){
+ .grade-band-young .bc12.bc15-locked-home .bc12-nav{
+   grid-template-columns:repeat(5,minmax(0,1fr))!important;
+ }
+ .grade-band-young .bc12.bc15-locked-home .bc12-nav button[data-camp="home"]{
+   position:static!important;left:auto!important;top:auto!important;
+   width:auto!important;height:auto!important;display:block!important;
+ }
+}
+
+
+/* Dynamic copy over the locked artwork.
+   The visual master stays immutable; child-specific text stays real. */
+.grade-band-young .bc12.bc15-locked-home .bc15-live-copy{
+ position:absolute;z-index:17;
+ left:3.0%;top:11.0%;width:28%;min-height:11%;
+ padding:10px 14px 12px;border-radius:15px;
+ background:rgb(17,55,78);
+ color:#fff;text-align:left;pointer-events:none;
+ text-shadow:0 2px 5px rgba(0,0,0,.42);
+}
+.grade-band-young .bc12.bc15-locked-home .bc15-live-greeting{
+ font-size:clamp(23px,2.2vw,38px);font-weight:950;line-height:1.02;letter-spacing:-.035em;
+}
+.grade-band-young .bc12.bc15-locked-home .bc15-live-intro{
+ margin-top:5px;font-size:clamp(12px,1.05vw,18px);font-weight:800;line-height:1.2;
+}
+.grade-band-young .bc12.bc15-locked-home .bc15-live-next{
+ position:absolute;z-index:17;box-sizing:border-box;
+ left:8.0%;top:84.0%;width:19.5%;min-height:2.8%;
+ display:flex;align-items:center;justify-content:flex-start;
+ padding:1px 5px;border-radius:3px;
+ background:linear-gradient(180deg,#f8d9a0,#edbf7e);color:#4d321c;border:0;
+ font-size:clamp(9px,.8vw,13px);font-weight:900;line-height:1.05;
+ pointer-events:none;white-space:nowrap;overflow:hidden;
+}
+
+@media(max-width:700px) and (orientation:portrait){
+ .grade-band-young .bc12.bc15-locked-home .bc15-live-copy{
+   left:0;top:13%;width:70%;min-height:10%;
+   padding:8px 11px 9px;border-radius:0 12px 12px 0;
+   background:rgb(17,55,78);
+ }
+ .grade-band-young .bc12.bc15-locked-home .bc15-live-greeting{
+   font-size:clamp(22px,7vw,31px);
+ }
+ .grade-band-young .bc12.bc15-locked-home .bc15-live-intro{
+   margin-top:3px;font-size:clamp(12px,3.6vw,16px);
+ }
+ .grade-band-young .bc12.bc15-locked-home .bc15-live-next{
+   left:25%;top:65.5%;width:38%;min-height:3.5%;
+   padding:1px 5px;border-radius:3px;font-size:clamp(9px,2.7vw,12px);
+ }
+}

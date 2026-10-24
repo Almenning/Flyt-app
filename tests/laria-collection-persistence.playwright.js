@@ -41,7 +41,28 @@ async function verify(browserType,label,viewport){
     // keepsakes are visible. Previous outfit artwork is deliberately hidden.
     assert.equal(await page.locator('.bc12-nav [data-camp]').count(),5,'Keep the five main destinations');
     assert.equal(await page.evaluate(()=>window.LARIA_FOX_WARDROBE.gearPreviewEnabled),false);
-    await page.locator('.bc12-nav [data-camp="wardrobe"]').click();
+    const lockedHome=await page.locator('.bc12.bc15-locked-home').count()>0;
+    if(lockedHome){
+      await page.locator('.bc12-nav [data-camp="wardrobe"]').click();
+      const trollDialog=page.locator('#bc15-troll-dialog[open]');
+      await trollDialog.waitFor({state:'visible'});
+      assert.match(await trollDialog.locator('h2').innerText(),/Mine troll/);
+      assert.equal(await page.locator('#bc12-dialog[open].is-wardrobe').count(),0,
+        'Home v15 troll entry must not open the legacy fox wardrobe');
+      await trollDialog.locator('.bc15-troll-close').click();
+    }
+    await page.locator('.bc12-nav [data-camp="collection"]').click();
+    await page.locator('#bc12-dialog[open].is-collection .bc12-memory-grid').waitFor();
+    assert.equal(await page.locator('#bc12-dialog[open] .bc12-memory').count(),4);
+    assert.equal(await page.locator('#bc12-dialog[open] .bc12-memory-symbol svg').count(),4);
+    assert.equal(await page.locator('#bc12-dialog[open] [data-collectible-id="tallkrystall"]').getAttribute('data-owned'),'true');
+    assert.equal(await page.locator('#bc12-dialog[open] [data-collectible-id="bokskogens-fjaer"]').getAttribute('data-owned'),'false');
+    assert.equal(await page.locator('#bc12-dialog[open] .bc12-memory-intro b').innerText(),'1 av 4 minner funnet');
+    assert.equal(await page.locator('#bc12-dialog[open] .bc12-collection-tabs,#bc12-dialog[open] .bc12-equipment-card').count(),0);
+    assert.equal(await page.locator('#bc12-dialog[open] [data-wardrobe-open]').count(),1);
+    // The collection book still provides the deliberate route to the existing
+    // personal fox preview. Home v15 itself is troll-led.
+    await page.locator('#bc12-dialog[open] [data-wardrobe-open]').click();
     const foxPreview=page.locator('#bc12-dialog[open].is-wardrobe .bc12-wardrobe-preview svg[data-avatar="boy"]');
     await foxPreview.waitFor();
     assert.equal(await page.locator('#bc12-dialog[open] [data-wear],#bc12-dialog[open] [data-gear],#bc12-dialog[open] .bc12-wardrobe-grid').count(),0,'Unfinished clothing UI leaked');
@@ -64,14 +85,6 @@ async function verify(browserType,label,viewport){
     await page.screenshot({path:path.join(evidence,label+'-min-rev-uten-utstyr.png'),animations:'disabled'});
     await page.locator('#bc12-dialog[open] .bc12-close').click();
     await page.locator('.bc12-nav [data-camp="collection"]').click();
-    await page.locator('#bc12-dialog[open].is-collection .bc12-memory-grid').waitFor();
-    assert.equal(await page.locator('#bc12-dialog[open] .bc12-memory').count(),4);
-    assert.equal(await page.locator('#bc12-dialog[open] .bc12-memory-symbol svg').count(),4);
-    assert.equal(await page.locator('#bc12-dialog[open] [data-collectible-id="tallkrystall"]').getAttribute('data-owned'),'true');
-    assert.equal(await page.locator('#bc12-dialog[open] [data-collectible-id="bokskogens-fjaer"]').getAttribute('data-owned'),'false');
-    assert.equal(await page.locator('#bc12-dialog[open] .bc12-memory-intro b').innerText(),'1 av 4 minner funnet');
-    assert.equal(await page.locator('#bc12-dialog[open] .bc12-collection-tabs,#bc12-dialog[open] .bc12-equipment-card').count(),0);
-    assert.equal(await page.locator('#bc12-dialog[open] [data-wardrobe-open]').count(),1);
     const layout=await page.locator('#bc12-dialog[open]').evaluate(el=>{
       const r=el.getBoundingClientRect();return {top:r.top,bottom:r.bottom,windowHeight:innerHeight,
         scrollHeight:el.scrollHeight,clientHeight:el.clientHeight}
@@ -79,9 +92,6 @@ async function verify(browserType,label,viewport){
     assert.ok(layout.top>=-2&&layout.bottom<=layout.windowHeight+2,
       label+' collection book overflows viewport: '+JSON.stringify(layout));
     await page.screenshot({path:path.join(evidence,label+'-magisk-samlebok.png'),animations:'disabled'});
-    await page.locator('#bc12-dialog[open] [data-wardrobe-open]').click();
-    assert.equal(await page.locator('#bc12-dialog[open].is-wardrobe .bc12-wardrobe-preview svg[data-avatar="boy"]').count(),1);
-    assert.equal(await page.locator('#bc12-dialog[open] [data-gear],#bc12-dialog[open] [data-wear]').count(),0);
     await page.locator('#bc12-dialog[open] .bc12-close').click();
     assert.equal(await page.locator('#bc12-dialog[open]').count(),0);
     const first=await page.evaluate(()=>({
@@ -120,8 +130,15 @@ async function verify(browserType,label,viewport){
     await page.locator('#home-screen.active .bc12-fox svg.laria-fox-wardrobe-placed').waitFor({state:'attached',timeout:12000});
     assert.equal(await page.locator('#home-screen.active .bc12-fox [data-gear]').count(),0);
     await page.locator('.bc12-nav [data-camp="wardrobe"]').click();
-    assert.equal(await page.locator('#bc12-dialog[open] [data-gear],#bc12-dialog[open] [data-wear]').count(),0);
-    await page.locator('#bc12-dialog[open] .bc12-close').click();
+    if(await page.locator('.bc12.bc15-locked-home').count()){
+      const trollDialog=page.locator('#bc15-troll-dialog[open]');
+      await trollDialog.waitFor({state:'visible'});
+      assert.match(await trollDialog.locator('h2').innerText(),/Mine troll/);
+      await trollDialog.locator('.bc15-troll-close').click();
+    }else{
+      assert.equal(await page.locator('#bc12-dialog[open] [data-gear],#bc12-dialog[open] [data-wear]').count(),0);
+      await page.locator('#bc12-dialog[open] .bc12-close').click();
+    }
     await page.locator('.bc12-nav [data-camp="collection"]').click();
     assert.equal(await page.locator('#bc12-dialog[open] [data-collectible-id="tallkrystall"]').getAttribute('data-owned'),'true',
       'earned keepsake must remain visible after avatar change and reload');

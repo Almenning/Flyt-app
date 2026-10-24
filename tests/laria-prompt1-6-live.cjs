@@ -28,18 +28,39 @@ async function answer(page){
 }
 async function finish(page){const n=await page.evaluate(()=>sessionQuestions.length);for(let i=0;i<n;i++){await answer(page);await page.locator('#next-question').click()}await page.locator('#complete-screen.active').waitFor()}
 async function openHomeSubject(page,subject){
- // PR smoke runs against published Pages. During migration it must validate
- // the old published Home and then the new single illustrated Home alike.
+ // If Home v15 is present, wait until its locked artwork owns the interaction
+ // layer. Clicking during the v14 -> v15 handoff can hit the outgoing Explore card.
+ const hasV15=await page.locator('script[src*="home-kjosnes-v15.js"]').count();
+ const youngBand=await page.locator('.grade-band-young').count()>0;
+ if(hasV15&&youngBand){
+   await page.waitForFunction(()=>{
+     const h=document.querySelector('#home-screen .bc12');
+     const asset=h?.dataset.bc15Asset||'';
+     const free=h?.querySelector('.bc14-free');
+     const freeSafe=!free||getComputedStyle(free).display==='none'||getComputedStyle(free).pointerEvents==='none';
+     return !!h && (((/ready$/.test(asset)&&h.classList.contains('bc15-locked-home'))&&freeSafe) || asset==='missing');
+   },null,{timeout:12000});
+ }
  const newEntry=page.locator('.bc14-subject[data-camp="subject-'+subject+'"]:visible');
  if(await newEntry.count())await newEntry.click();
  else await page.locator('#open-'+subject).click();
+}
+async function returnFromSubjectOrJourney(page,screen,back,subject){
+ const locked=page.locator(screen+'.active .locked-journey-map[data-journey-subject="'+subject+'"] .locked-journey-back');
+ if(await locked.count()){
+   await locked.waitFor({state:'visible',timeout:16000});
+   await locked.scrollIntoViewIfNeeded();
+   await locked.click();
+ }else{
+   await page.locator(back).click();
+ }
+ await page.locator('#home-screen.active').waitFor();
 }
 async function openBack(page,open,screen,back){
  const subject=String(open).replace(/^#open-/,'');
  await openHomeSubject(page,subject);
  await page.locator(screen+'.active').waitFor();
- await page.locator(back).click();
- await page.locator('#home-screen.active').waitFor();
+ await returnFromSubjectOrJourney(page,screen,back,subject);
 }
 async function checkPublishedFractionWorkshop(p,name){
  await openHomeSubject(p,'math');

@@ -127,7 +127,7 @@ async function finishSession(page){
       const homeInteractiveMs=Date.now()-coldStart;
       assert.ok(homeInteractiveMs<3000,'mobile Home took too long to become interactive: '+homeInteractiveMs+'ms');
 
-      await perfPage.locator('.bc14-free').tap();
+      await perfPage.locator('.bc12-nav [data-camp="explore"]:visible').tap();
       await perfPage.locator('.bc13-panel:not([hidden]) [data-bc13-action="globe"]').waitFor();
       const tapStart=Date.now();
       await perfPage.locator('.bc13-card[data-bc13-action="globe"]').tap();
@@ -393,7 +393,7 @@ async function finishSession(page){
     assert.ok(homeLayout.journeyTop>=0&&homeLayout.journeyBottom<=844,'Fortsett reisen should fit in the initial phone view');
     assert.ok(homeLayout.scrollWidth<=homeLayout.width,'Basecamp must not scroll horizontally');
     assert.equal(await page.locator('.bc14-subject:visible').count(),4,'all four subjects must be visible on Home');
-    await page.locator('.bc14-free').click();
+    await page.locator('.bc12-nav [data-camp="explore"]:visible').click();
     await page.locator('.bc13-panel:not([hidden]) [data-bc13-action="globe"]').waitFor();
     for(const action of ['globe','fraction','words','multiply']){
       const place=page.locator('.bc13-card[data-bc13-action="'+action+'"]');

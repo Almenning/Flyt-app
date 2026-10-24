@@ -1,6 +1,7 @@
 'use strict';
-/* Regression: the child's ONE chosen fox reacts and moves between real
-   journey hotspots. No click should modify saved progress accidentally. */
+/* Regression: Home v15 is troll-led, while the child's ONE chosen fox still
+   reacts and moves through real journeys and tasks. No click may modify saved
+   progress accidentally. */
 const assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path');
 const {chromium,webkit}=require('playwright');
@@ -29,25 +30,37 @@ async function run(engine,name,viewport,avatar){
     await page.route('https://api.worldbank.org/**',r=>r.abort());
     const url=(process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria')+'&live-fox='+name;
     await page.goto(url,{waitUntil:'domcontentloaded'});
-    await page.locator('#home-screen.active .bc12-fox').waitFor({timeout:17000});
+    await page.locator('#home-screen.active .bc12').waitFor({timeout:17000});
     await page.waitForFunction(()=>!!window.LARIA_FOX_PRESENCE?.react,{timeout:15000});
     const home=page.locator('#home-screen.active .bc12-fox');
-    await page.waitForFunction(()=>document.querySelector('.bc12-fox .laria-fox-pose'),null,{timeout:12000});
+    await home.waitFor({state:'attached',timeout:12000});
     assert.equal(await page.evaluate(()=>window.LARIA_FOX_PRESENCE.activeAvatar()),avatar,name+' saved avatar changed');
-    assert.equal(await home.locator('svg.laria-fox-wardrobe-art .laria-fox-pose').count(),1,name+' missing single personal fox rig');
-    assert.equal(await home.locator('.laria-fox-wardrobe-art [data-gear]').count(),0,name+' unpublished hat leaked onto chosen fox');
     assert.equal(await page.evaluate(()=>window.LARIA_COLLECTION_STORE.snapshot().equipped.head),'oppdagerhatt',name+' hidden outfits must remain stored');
-    const source=await home.locator('svg.laria-fox-wardrobe-art image').getAttribute('href');
-    assert.match(source,avatar==='girl'?/girl-braids-blue-dress-v1\.webp$/:/boy-adventurer-green-vest-v1\.webp$/,
-      name+' must render the actual chosen full-body fox, never a portrait photo');
-    const rigType=await home.locator('svg.laria-fox-wardrobe-art').getAttribute('data-fox-art');
-    assert.equal(rigType,avatar+'-fullbody-v1',name+' character rig does not match selected full-body fox');
-    const geometry=await home.evaluate(el=>{const r=el.getBoundingClientRect();return {width:r.width,height:r.height}});
-    assert(geometry.height>=geometry.width*1.3,name+' character was squashed into a portrait circle '+JSON.stringify(geometry));
-    assert.equal(await home.evaluate(el=>getComputedStyle(el).borderRadius),'0px',
-      name+' full-body companion should never sit in the old round portrait frame');
-    assert.equal(await page.evaluate(()=>window.LARIA_FOX_PRESENCE.react('greet')),true);
-    assert.equal(await home.getAttribute('data-laria-fox-mood'),'greet');
+    const lockedHome=await page.locator('#home-screen.active .bc12.bc15-locked-home').count()>0;
+    if(lockedHome){
+      assert.equal(await home.isVisible(),false,name+' Home v15 must be led by the locked troll trio, not the old fox');
+      assert.equal(await page.locator('.bc12-nav [data-camp="wardrobe"]').getAttribute('aria-label'),'Mine troll',
+        name+' Home v15 must expose the troll entry');
+      assert.equal(await home.getAttribute('data-avatar'),avatar,name+' hidden fox identity must stay synchronized behind troll Home');
+      assert.equal(await page.evaluate(()=>window.LARIA_FOX_PRESENCE.react('greet')),true);
+      assert.equal(await home.getAttribute('data-laria-fox-mood'),'greet',
+        name+' hidden fox presence state must remain ready for journey handoff');
+    }else{
+      await page.waitForFunction(()=>document.querySelector('.bc12-fox .laria-fox-pose'),null,{timeout:12000});
+      assert.equal(await home.locator('svg.laria-fox-wardrobe-art .laria-fox-pose').count(),1,name+' missing single personal fox rig');
+      assert.equal(await home.locator('.laria-fox-wardrobe-art [data-gear]').count(),0,name+' unpublished hat leaked onto chosen fox');
+      const source=await home.locator('svg.laria-fox-wardrobe-art image').getAttribute('href');
+      assert.match(source,avatar==='girl'?/girl-braids-blue-dress-v1\.webp$/:/boy-adventurer-green-vest-v1\.webp$/,
+        name+' must render the actual chosen full-body fox, never a portrait photo');
+      const rigType=await home.locator('svg.laria-fox-wardrobe-art').getAttribute('data-fox-art');
+      assert.equal(rigType,avatar+'-fullbody-v1',name+' character rig does not match selected full-body fox');
+      const geometry=await home.evaluate(el=>{const r=el.getBoundingClientRect();return {width:r.width,height:r.height}});
+      assert(geometry.height>=geometry.width*1.3,name+' character was squashed into a portrait circle '+JSON.stringify(geometry));
+      assert.equal(await home.evaluate(el=>getComputedStyle(el).borderRadius),'0px',
+        name+' full-body companion should never sit in the old round portrait frame');
+      assert.equal(await page.evaluate(()=>window.LARIA_FOX_PRESENCE.react('greet')),true);
+      assert.equal(await home.getAttribute('data-laria-fox-mood'),'greet');
+    }
     await page.screenshot({path:path.join(dir,name+'-home.png'),animations:'disabled'});
 
     await page.locator('.bc14-subject[data-camp="subject-norwegian"]').click();
@@ -195,7 +208,7 @@ async function run(engine,name,viewport,avatar){
     await page.screenshot({path:path.join(dir,name+'-task.png'),animations:'disabled'});
     assert.deepEqual(errors,[],name+' browser errors '+JSON.stringify(errors));
     await context.close();
-    console.log('[live fox]',name,'same identity, hidden saved equipment, movement, feedback, progress and tap safety OK');
+    console.log('[live fox]',name,'troll-led Home + same fox identity in journeys/tasks, hidden equipment, movement, feedback, progress and tap safety OK');
   }finally{await browser.close()}
 }
 (async()=>{
