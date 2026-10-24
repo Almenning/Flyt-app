@@ -17,7 +17,9 @@ const PHONE_PARTS=[
  './assets/home-v15/phone.b64',
  './assets/home-v15/phone.b64.02',
  './assets/home-v15/phone.b64.03',
- './assets/home-v15/phone.b64.04'
+ './assets/home-v15/phone.b64.04',
+ './assets/home-v15/phone.b64.05',
+ './assets/home-v15/phone.b64.06'
 ];
 
 const cache=new Map();
