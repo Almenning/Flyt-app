@@ -14,13 +14,14 @@ const count=(page,selector)=>page.locator(selector).count();
 const pct=page=>page.locator('.fc-percent-equality b').innerText();
 async function assertFirstFold(page,label,w,h){
  const data=await page.evaluate(()=>{
-  const rect=s=>{const r=document.querySelector(s)?.getBoundingClientRect();return r?{top:Math.round(r.top),bottom:Math.round(r.bottom),height:Math.round(r.height),width:Math.round(r.width)}:null};
-  return {cake:rect('.fc-cake-svg'),num:rect('.fc-number'),pct:rect('.fc-percent-equality'),control:rect('.fc-controls'),action:rect('.fc-add-one'),width:innerWidth,height:innerHeight,scrollWidth:document.documentElement.scrollWidth};
+  const rect=s=>{const r=document.querySelector(s)?.getBoundingClientRect();return r?{left:Math.round(r.left),right:Math.round(r.right),top:Math.round(r.top),bottom:Math.round(r.bottom),height:Math.round(r.height),width:Math.round(r.width)}:null};
+  return {cake:rect('.fc-cake-svg'),num:rect('.fc-number'),pct:rect('.fc-percent-equality'),control:rect('.fc-controls'),action:rect('.fc-add-one'),speech:rect('.fc-troll-speech'),stage:rect('.fc-stage'),width:innerWidth,height:innerHeight,scrollWidth:document.documentElement.scrollWidth};
  });
  assert.ok(data.cake&&data.num&&data.pct&&data.control&&data.action,label+' missing an essential real component '+JSON.stringify(data));
  assert.ok(data.cake.width >= (w<360?120:130),label+' cake must remain large enough to play '+JSON.stringify(data));
  assert.ok([data.cake,data.num,data.pct,data.control,data.action].every(x=>x.top>=0&&x.bottom<=h+1),label+' cake, fractions, both controls and the primary game action must share first fold '+JSON.stringify(data));
  assert.ok(data.scrollWidth<=w+3,label+' horizontal overflow '+JSON.stringify(data));
+ assert.ok(data.speech&&data.stage&&data.speech.left>=data.stage.left-2&&data.speech.right<=data.stage.right+2,label+' troll speech must not be clipped by the storyworld frame '+JSON.stringify(data));
  const targets=await page.locator('.fc-controls .fr2-adjust-btn, .fc-add-one, .fc-troll-cycle').evaluateAll(xs=>xs.map(x=>({label:x.getAttribute('aria-label')||x.textContent.trim(),w:x.getBoundingClientRect().width,h:x.getBoundingClientRect().height})));
  assert.ok(targets.every(x=>x.w>=44&&x.h>=44),label+' targets below 44x44 '+JSON.stringify(targets));
 }

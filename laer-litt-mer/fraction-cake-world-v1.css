@@ -424,7 +424,7 @@
    object-fit:contain;object-position:left bottom;
  }
  #fraction-lab-screen .fc-world .fc-troll .fc-troll-speech{
-   position:absolute;bottom:0;left:0;z-index:3;min-height:34px;
+   position:absolute;bottom:0;left:24px;z-index:3;min-height:34px;
    width:max-content;max-width:170px;padding:4px 6px;font-size:12px;line-height:1.1;
  }
  #fraction-lab-screen .fc-world .fc-troll .fc-troll-cycle{
