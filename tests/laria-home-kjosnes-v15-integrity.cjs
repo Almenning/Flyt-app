@@ -36,10 +36,13 @@ test('Hjem v15 keeps the approved Kjøsnesfjorden masters byte-for-byte locked',
 test('Hjem v15 keeps fail-safe activation and exact locked asset references',()=>{
   const css=fs.readFileSync(path.join(root,'laer-litt-mer/home-kjosnes-v15.css'),'utf8');
   const js=fs.readFileSync(path.join(root,'laer-litt-mer/home-kjosnes-v15.js'),'utf8');
+  const index=fs.readFileSync(path.join(root,'laer-litt-mer/index.html'),'utf8');
   assert.match(css,/kjosnes-home-tablet\.webp\?v=20261024-locked1/);
   assert.match(css,/kjosnes-home-phone\.webp\?v=20261024-locked1/);
   assert.match(css,/aspect-ratio:760 \/ 459/,'tablet master geometry must stay proportional');
   assert.match(css,/aspect-ratio:280 \/ 580/,'phone master geometry must stay proportional');
   assert.match(js,/unsupported-portrait/,'unapproved tablet portrait must retain the previous Home');
   assert.match(js,/host\.classList\.remove\('bc15-locked-home'\)/,'asset failure must fall back safely');
+  assert.match(index,/home-kjosnes-v15\.css\?v=20261024-locked1/,'index must load the locked Home stylesheet');
+  assert.match(index,/home-kjosnes-v15\.js\?v=20261024-locked1/,'index must load the locked Home activation script');
 });
