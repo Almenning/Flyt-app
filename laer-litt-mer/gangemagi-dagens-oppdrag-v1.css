@@ -2057,6 +2057,7 @@
  * treatment above.  No game state, action, hit target or stored data is
  * changed here; this is only the final visual composition of existing DOM.
  */
+@media (min-width:900px){
 .gm-shell[data-gm-mode="mission"] .gm-world{
   display:grid;
   grid-template-columns:minmax(218px,25%) minmax(0,1fr);
@@ -2210,10 +2211,11 @@
   box-shadow:0 5px 8px #49311f45;
 }
 .gm-shell[data-gm-mode="mission"] .gm-math-equation{font-size:clamp(25px,3.2vw,42px)}
+}
 
 /* Portrait is deliberately re-authored as a reading order, never a shrunken
    landscape.  The compact 320px first-fold contract above remains intact. */
-@media(min-width:361px) and (max-width:899px){
+@media(min-width:361px) and (max-width:899px) and (orientation:portrait){
   .gm-shell[data-gm-mode="mission"] .gm-world{
     display:flex;
     flex-direction:column;
