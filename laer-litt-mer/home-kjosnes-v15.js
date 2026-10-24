@@ -83,7 +83,7 @@ function mapControlsToArtwork(host,imgW,imgH,portrait){
    journey:[.052,.620,.896,.098],
    nav:[.025,.900,.95,.092],
    adult:[.855,.030,.105,.070],
-   liveCopy:tabletPortrait?[.035,.145,.56,.095]:[.025,.145,.62,.095],
+   liveCopy:tabletPortrait?[.035,.145,.53,.095]:[.025,.145,.57,.095],
    liveNext:tabletPortrait?[.145,.655,.71,.038]:[.14,.655,.72,.040]
  }:{
    subjects:[.353,.692,.611,.242],
