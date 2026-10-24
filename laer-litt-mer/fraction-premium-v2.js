@@ -28,7 +28,7 @@ const titles={explore:'Utforsk brøker',build:'Bygg en brøk',equal:'Like mye?',
 const faces={explore:'Brøker finnes overalt! Trykk på delene og se hva som skjer.',build:'Sett inn en bit. Du bestemmer hvor mye du vil bygge.',equal:'To forskjellige brøker kan vise akkurat like mye!',sort:'Sammenlign hvor stor del som er fargelagt.',convert:'Samme mengde kan skrives på tre måter.',mastery:'Det du har utforsket, kan du alltid utforske igjen.'};
 const sharedCake={n:1,d:4,filled:[0],notice:'',mode:'circle'};
 // Both views manipulate one tangible cake; changing the view never resets its fraction.
-const u={page:'build',explore:sharedCake,build:sharedCake,equal:0,equalGuess:null,sortIndex:0,sortOrder:[0,1,2],sortResult:'',sortSelected:null,convert:0,showConvertExtra:false,showEquivalents:false};
+const u={page:'build',explore:sharedCake,build:sharedCake,equal:0,equalGuess:null,sortIndex:0,sortOrder:[0,1,2],sortResult:'',sortSelected:null,convert:0,showConvertExtra:false,showEquivalents:false,halfQuest:false,halfQuestWon:false};
 let svgId=0,drag=null,lastDragUntil=0;
 let returnToLockedJourney=false; // navigation-only context; not persisted
 let returnToMathSubject=false; // nested route, UI only
@@ -311,10 +311,11 @@ function fractionEquivalents(n,d){
 }
 function build(){
   const x=u.build,half=x.d%2===0&&x.n*2===x.d;
+  const questStatus=u.halfQuest?(half?'Du fant en halv! '+x.n+'/'+x.d+' = 1/2. Vil du leke videre?':'Kan du lage en halv kake? Fyll like mye som halvparten.'):'Utforsk kaken fritt, eller prøv en liten utfordring.';
   const status=x.n===0?'Trykk på et stykke!':x.n===x.d?'Du har én hel!':half?'Det er en halv!':x.n+' av '+x.d+'!';
   // A tray wedge represents one exact empty sector, not an infinite generic supply.
   const remaining=Array.from({length:x.d},(_,i)=>i).filter(i=>!x.filled.includes(i));
-  return '<section class="fr2-build fr4-build fr5-build fr6-workshop">'+labIntro('Brøklaben','Trykk på et kakestykke og se hva som skjer!')
+  return '<section class="fr2-build fr4-build fr5-build fr6-workshop fr8-scene" data-fr8-quest="'+(u.halfQuest?'active':'free')+'" data-fr8-found="'+(u.halfQuest&&half?'true':'false')+'">'+labIntro('Brøklaben',u.halfQuest?'Kan du lage en halv kake?':'Trykk på et kakestykke og se hva som skjer!')
    +'<div class="fr2-build-workshop fr4-build-stage fr5-build-stage fr6-stage">'
    +'<div class="fr2-build-target fr5-build-target" data-fr-drop="1"><div class="fr4-build-woodhead">Kaken din</div><div class="fr2-fabric">'+fractionSvg(x.n,x.d,'builder',true,x.filled)+'</div><p>Trykk på et stykke for å fylle eller tømme det.</p></div>'
    +'<div class="fr5-build-aside"><div class="fr5-live-result fr6-result" role="status" aria-live="polite" aria-atomic="true"><span>Du har fylt</span>'+frac(x.n,x.d)+'<small>'+x.n+' av '+x.d+' like deler</small></div>'
@@ -326,7 +327,8 @@ function build(){
    +'</div><div class="fr2-controls fr4-controls fr5-controls fr6-controls">'+adjustField('n')+adjustField('d')+'</div>'
    +'<div class="fr7-mobile-discovery">'+cta('toggle-equivalents',u.showEquivalents?'Skjul desimaltall og prosent':'Se desimaltall og prosent','fr7-equivalents-toggle','aria-expanded="'+u.showEquivalents+'" aria-controls="fr7-mobile-values"')
    +'<div id="fr7-mobile-values" class="fr7-mobile-equivalents" '+(u.showEquivalents?'':'hidden')+'><div class="fr7-values-heading">Samme mengde som</div>'+fractionEquivalents(x.n,x.d)+'</div></div>'
-   +'<div class="fr2-actions">'+cta('reset','Tøm kaken','fr2-secondary')+cta('next-build','Del kaken på nytt ›','fr2-primary')+'</div></section>';
+   +'<div class="fr8-quest" role="group" aria-label="Frivillig brøkoppdagelse"><span class="fr8-quest-star" aria-hidden="true">✦</span><span class="fr8-quest-text" role="status" aria-live="polite">'+questStatus+'</span>'+cta('half-quest',u.halfQuest?'Lek fritt':'Prøv en halv','fr8-quest-button','aria-pressed="'+u.halfQuest+'"')+'</div>'
+    +'<div class="fr2-actions">'+cta('reset','Tøm kaken','fr2-secondary')+cta('next-build','Del kaken på nytt ›','fr2-primary')+'</div></section>';
 }
 
 function eqCurrent(){return EQ[u.equal%EQ.length]}
@@ -396,7 +398,8 @@ function applyBuildPieces(parts,notice=''){
   x.notice=notice;
   render();
   // The selected fox reacts at meaningful discoveries, not after every tap.
-  if(x.n!==before&&x.n>0&&(x.n===x.d||x.d%2===0&&x.n*2===x.d)){
+  if(u.halfQuest&&x.d%2===0&&x.n*2===x.d)u.halfQuestWon=true;
+   if(x.n!==before&&x.n>0&&(x.n===x.d||x.d%2===0&&x.n*2===x.d)){
     try{requestAnimationFrame(()=>{
       const host=document.querySelector('#fraction-lab-root '+(u.page==='build'?'.fr5-fox-mentor':'.fr5-scene-fox'));
       window.LARIA_FOX_PRESENCE?.react?.('celebrate',host);
@@ -473,6 +476,7 @@ function actionHandler(e){
   return;
  }
  if(a==='fox-help'){foxSpeak();return;}
+  if(a==='half-quest'){u.halfQuest=!u.halfQuest;u.halfQuestWon=false;render();return;}
  if(a==='toggle-equivalents'){
   u.showEquivalents=!u.showEquivalents;
   if(u.showEquivalents)mark('converted',key(u.build.n,u.build.d));
