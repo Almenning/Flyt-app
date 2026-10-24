@@ -33,8 +33,12 @@
   background-repeat:no-repeat;
 }
 
-/* During the short v14 -> v15 handoff, legacy controls must not steal taps
-   from the real subject entries. The fallback remains intact if the master fails. */
+/* V15 owns Home interaction whenever the locked master is available.
+   The legacy Explore card may remain in DOM for fallback compatibility, but it
+   must never capture taps before, during or after a v15 Home render. */
+.grade-band-young .bc12.bc15-capable:not(.bc15-fallback) .bc14-free{
+  pointer-events:none!important;
+}
 .grade-band-young .bc12.bc15-pending .bc14-free{
   pointer-events:none!important;
 }
