@@ -28,8 +28,15 @@ async function answer(page){
 }
 async function finish(page){const n=await page.evaluate(()=>sessionQuestions.length);for(let i=0;i<n;i++){await answer(page);await page.locator('#next-question').click()}await page.locator('#complete-screen.active').waitFor()}
 async function openHomeSubject(page,subject){
- // PR smoke runs against published Pages. During migration it must validate
- // the old published Home and then the new single illustrated Home alike.
+ // If Home v15 is present, wait until its locked artwork owns the interaction
+ // layer. Clicking during the v14 -> v15 handoff can hit the outgoing Explore card.
+ const hasV15=await page.locator('script[src*="home-kjosnes-v15.js"]').count();
+ if(hasV15){
+   await page.waitForFunction(()=>{
+     const h=document.querySelector('.bc12');
+     return !!h && (/ready$/.test(h.dataset.bc15Asset||'') || h.dataset.bc15Asset==='missing');
+   },null,{timeout:12000});
+ }
  const newEntry=page.locator('.bc14-subject[data-camp="subject-'+subject+'"]:visible');
  if(await newEntry.count())await newEntry.click();
  else await page.locator('#open-'+subject).click();
