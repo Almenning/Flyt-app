@@ -974,3 +974,58 @@
       0 10px 15px rgba(84,51,31,.12);
   }
 }
+
+
+/* Adventure prototype (24 Oct): built from interactive layers, NEVER a
+   full-scene image with invisible click targets. Do not alter other labs. */
+#fraction-lab-screen .fr8-scene .fr6-stage{
+  position:relative;isolation:isolate;
+  background:
+    radial-gradient(ellipse at 52% 4%,rgba(255,245,205,.42),transparent 62%),
+    linear-gradient(165deg,rgba(251,228,180,.30),rgba(156,103,64,.19)),
+    repeating-linear-gradient(92deg,rgba(90,55,36,.06) 0 2px,transparent 2px 27px);
+  border-color:#bd885a;
+}
+#fraction-lab-screen .fr8-scene .fr5-build-target{
+  background:
+    radial-gradient(circle at 50% 45%,rgba(255,254,236,.98),rgba(242,215,172,.97) 74%),
+    linear-gradient(145deg,#f9ead1,#e7c196);
+  box-shadow:inset 0 4px 13px rgba(255,255,255,.75),0 6px 0 rgba(133,81,43,.35);
+}
+#fraction-lab-screen .fr8-scene .fr2-pie-builder{
+  filter:drop-shadow(0 9px 8px rgba(91,52,29,.38));
+}
+#fraction-lab-screen .fr8-scene [data-fr-action="piece"]:focus-visible{
+  outline:4px solid #17699f;outline-offset:3px;
+}
+#fraction-lab-screen .fr8-quest{
+  position:relative;display:flex;align-items:center;gap:11px;min-width:0;
+  margin:8px 0 4px;padding:9px 12px;
+  background:linear-gradient(160deg,#fff9e6,#f4deb6);
+  border:2px solid #dfb67b;border-bottom-width:4px;
+  border-radius:18px;color:#593b27;
+  box-shadow:0 4px 9px rgba(85,54,30,.1);
+}
+#fraction-lab-screen .fr8-quest-star{font-size:23px;color:#b77b34;flex:none}
+#fraction-lab-screen .fr8-quest-text{font-weight:850;line-height:1.25;font-size:clamp(12px,3vw,16px);flex:1;min-width:0}
+#fraction-lab-screen .fr8-quest-button{
+  flex:none;min-width:110px;min-height:44px;padding:7px 10px;
+  background:linear-gradient(#e9f4d9,#bcdda2);border:2px solid #8aad77;
+  border-bottom-width:4px;border-radius:13px;color:#314e2d;
+  font-weight:900;font-size:clamp(12px,2.8vw,14px);cursor:pointer;
+}
+#fraction-lab-screen .fr8-quest-button:focus-visible{outline:3px solid #16699d;outline-offset:3px}
+#fraction-lab-screen .fr8-scene[data-fr8-found="true"] .fr8-quest{
+  background:linear-gradient(145deg,#fff9db,#e9f4d3);border-color:#8db873;
+}
+#fraction-lab-screen .fr8-scene[data-fr8-found="true"] .fr8-quest-star{
+  color:#5b913d;animation:fr8-discovery 900ms ease-in-out 1;
+}
+@keyframes fr8-discovery{0%,100%{transform:scale(1)}45%{transform:scale(1.3) rotate(20deg)}}
+@media(max-width:390px){
+ #fraction-lab-screen .fr8-quest{gap:6px;padding:7px 8px}
+ #fraction-lab-screen .fr8-quest-button{min-width:91px}
+}
+@media(prefers-reduced-motion:reduce){
+ #fraction-lab-screen .fr8-scene .fr8-quest-star{animation:none!important}
+}
