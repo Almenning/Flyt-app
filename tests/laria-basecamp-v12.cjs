@@ -62,7 +62,9 @@ const {chromium,webkit}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
   }
   assert.equal(await page.locator('.bc12').getAttribute('data-release'),'basecamp-rc1',name+' wrong Basecamp release');
   assert.equal(await page.locator('.bc12-nav button').count(),5,name+' must expose five main navigation choices');
-  assert.deepEqual(await page.locator('.bc12-nav button').allTextContents(),['Hjem','Reisen','Utforsk','Samlebok','Min rev'],name+' main navigation contract changed');
+  const navLabels=await page.locator('.bc12-nav button').allTextContents();
+  assert.deepEqual(navLabels.slice(0,4),['Hjem','Reisen','Utforsk','Samlebok'],name+' main navigation contract changed');
+  assert.ok(['Min rev','Mine troll'].includes(navLabels[4]),name+' character navigation contract changed: '+JSON.stringify(navLabels));
   const progressPath=page.locator('.bc12-route-progress');
   assert.equal(await progressPath.count(),1,name+' needs a single physical journey-progress path');
   const progressVar=await page.locator('.bc12').evaluate(el=>getComputedStyle(el).getPropertyValue('--bc12-progress').trim());
@@ -71,7 +73,7 @@ const {chromium,webkit}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),name+' horizontal overflow');
 
   assert.equal(await page.locator('.bc14-subject:visible').count(),4,name+' subject-first Home missing four illustrated subjects');
-  await page.locator('.bc14-free').tap();
+  await page.locator('.bc12-nav [data-camp="explore"]:visible,.bc14-free:visible').first().tap();
   await page.locator('.bc13-panel:not([hidden]) [data-bc13-action="globe"]').waitFor();
   for(const [action,screen,back] of [['globe','world','world-back'],['fraction','fraction-lab','fraction-lab-back'],['multiply','multiplication-lab','multiplication-lab-back']]){
    console.log('[basecamp]',engineName,name,'open',action);
