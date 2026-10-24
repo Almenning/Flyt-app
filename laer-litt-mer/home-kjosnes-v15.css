@@ -218,8 +218,9 @@
    like part of the scene rather than a dashboard pasted on top. */
 .grade-band-young .bc12.bc15-locked-home .bc15-live-copy{
  position:absolute;z-index:17;box-sizing:border-box;
- padding:9px 15px 10px 17px;border-radius:16px 22px 22px 16px;
- background:linear-gradient(104deg,rgba(13,52,64,.90) 0%,rgba(13,55,66,.76) 70%,rgba(13,55,66,.30) 100%);
+ display:flex;align-items:center;
+ padding:7px 15px 8px 17px;border-radius:16px 22px 22px 16px;
+ background:linear-gradient(104deg,rgba(13,52,64,.96) 0%,rgba(13,55,66,.88) 70%,rgba(13,55,66,.48) 100%);
  border:1px solid rgba(255,239,199,.28);border-left:2px solid rgba(255,226,166,.54);
  color:#fff;text-align:left;pointer-events:none;
  text-shadow:0 2px 5px rgba(0,0,0,.38);
@@ -230,29 +231,26 @@
 .grade-band-young .bc12.bc15-locked-home .bc15-live-greeting{
  font-size:clamp(21px,1.95vw,34px);font-weight:950;line-height:1.02;letter-spacing:-.035em;
 }
-.grade-band-young .bc12.bc15-locked-home .bc15-live-intro{
- margin-top:4px;font-size:clamp(11px,.95vw,16px);font-weight:800;line-height:1.18;
- color:rgba(255,249,229,.92);
-}
+.grade-band-young .bc12.bc15-locked-home .bc15-live-intro{display:none!important}
 .grade-band-young .bc12.bc15-locked-home .bc15-live-next{
  position:absolute;z-index:17;box-sizing:border-box;
  display:flex;align-items:center;justify-content:center;
  padding:3px 9px;border-radius:999px;
- background:linear-gradient(180deg,rgba(92,59,29,.93),rgba(58,36,19,.94));
- color:#fff1c7;border:1px solid rgba(255,219,151,.58);
+ background:linear-gradient(180deg,#62401f,#3d2817);
+ color:#fff1c7;border:1px solid rgba(255,219,151,.68);
  box-shadow:0 3px 8px rgba(47,28,14,.22),inset 0 1px 0 rgba(255,255,255,.12);
  text-shadow:0 1px 2px rgba(42,25,12,.55);
  font-size:clamp(9px,.76vw,12px);font-weight:900;line-height:1.05;letter-spacing:.005em;
  pointer-events:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
 .grade-band-young .bc12.bc15-locked-home .bc15-live-next[data-state="next"]{
- background:linear-gradient(180deg,rgba(77,70,34,.91),rgba(48,47,24,.93));
+ background:linear-gradient(180deg,#57502a,#37351d);
 }
 
 @media(max-width:700px) and (orientation:portrait){
  .grade-band-young .bc12.bc15-locked-home .bc15-live-copy{
-   padding:8px 11px 9px 13px;border-radius:0 16px 16px 0;
-   background:linear-gradient(98deg,rgba(13,52,64,.92) 0%,rgba(13,55,66,.74) 72%,rgba(13,55,66,.28) 100%);
+   padding:7px 11px 7px 13px;border-radius:0 16px 16px 0;
+   background:linear-gradient(98deg,rgba(13,52,64,.97) 0%,rgba(13,55,66,.89) 72%,rgba(13,55,66,.50) 100%);
    border-left:0;border-right:1px solid rgba(255,239,199,.24);
  }
  .grade-band-young .bc12.bc15-locked-home .bc15-live-greeting{
