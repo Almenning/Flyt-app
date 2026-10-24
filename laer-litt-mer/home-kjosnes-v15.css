@@ -423,3 +423,40 @@
    mask-image:linear-gradient(to bottom,#bfbfbf 0,#000 10px,#000 100%);
  }
 }
+
+
+/* Home guidance polish — keeps the locked master intact while making the child's
+   next action legible inside the illustrated world rather than adding dashboard UI. */
+.grade-band-young .bc12.bc15-locked-home .bc14-subject.bc15-route-subject{
+  opacity:.055!important;
+  background:radial-gradient(ellipse at 50% 58%,rgba(255,249,205,.88) 0%,rgba(255,231,150,.28) 47%,rgba(255,231,150,0) 76%)!important;
+  outline:2px solid rgba(255,244,188,.42)!important;
+  outline-offset:-3px!important;
+}
+.grade-band-young .bc12.bc15-locked-home .bc12-journey[data-bc15-state="active"]{
+  opacity:.065!important;
+  border-radius:20px!important;
+  background:radial-gradient(ellipse at 84% 52%,rgba(255,250,191,.96) 0%,rgba(255,224,118,.32) 45%,rgba(255,224,118,0) 76%)!important;
+}
+.grade-band-young .bc12.bc15-locked-home .bc12-journey[data-bc15-state="next"]{
+  opacity:.04!important;
+  border-radius:20px!important;
+  background:radial-gradient(ellipse at 84% 52%,rgba(255,247,184,.76) 0%,rgba(255,224,118,.20) 44%,rgba(255,224,118,0) 74%)!important;
+}
+.grade-band-young .bc12.bc15-locked-home[data-bc15-route-state="active"] .bc15-journey-glow{
+  opacity:.52;
+}
+.grade-band-young .bc12.bc15-locked-home[data-bc15-route-state="next"] .bc15-journey-glow{
+  opacity:.34;
+}
+@media(hover:hover) and (pointer:fine){
+  .grade-band-young .bc12.bc15-locked-home .bc14-subject:hover{
+    opacity:.085!important;
+    background:radial-gradient(ellipse at 50% 58%,rgba(255,250,214,.92) 0%,rgba(255,229,143,.31) 50%,rgba(255,229,143,0) 78%)!important;
+  }
+  .grade-band-young .bc12.bc15-locked-home .bc12-journey:hover{
+    opacity:.09!important;
+    border-radius:20px!important;
+    background:radial-gradient(ellipse at 84% 52%,rgba(255,251,204,.96) 0%,rgba(255,225,120,.36) 46%,rgba(255,225,120,0) 77%)!important;
+  }
+}
