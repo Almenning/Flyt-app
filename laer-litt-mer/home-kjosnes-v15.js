@@ -117,12 +117,13 @@ async function activate(){
 
 function schedule(){requestAnimationFrame(()=>activate())}
 document.addEventListener('DOMContentLoaded',schedule,{once:true});
-const observer=new MutationObserver(()=>{
+const observer=new MutationObserver(mutations=>{
  const host=document.querySelector('#home-screen .bc12');
- if(host && host.dataset.bc15Observed!=='true'){
-   host.dataset.bc15Observed='true';
-   activate();
- }
+ if(!host)return;
+ const firstMount=host.dataset.bc15Observed!=='true';
+ const stateChanged=mutations.some(m=>m.type==='attributes'&&m.target===host&&(m.attributeName==='data-mode'||m.attributeName==='data-bc13-view'));
+ if(firstMount)host.dataset.bc15Observed='true';
+ if(firstMount||stateChanged)activate();
 });
 observer.observe(document.documentElement,{subtree:true,childList:true,attributes:true,attributeFilter:['data-mode','data-bc13-view']});
 const mq=matchMedia('(max-width:700px) and (orientation:portrait)');
