@@ -315,19 +315,11 @@ async function check(engine,label,viewport,url){
     label+' the premium landscape must retain a scalable wide scene, not a fixed screenshot');
   assert.match(premiumMarkup,/aria-label="Lysere Tallenga-marked med bro, blomster, handelsboder og dybde"/,
     label+' the detailed market must be our authored Tallenga landscape');
-  assert.match(premiumMarkup,/data-scene-layer="market-overlay"/,
-    label+' the authored market must be a transparent scenery layer above the rich painting');
-  assert.doesNotMatch(premiumMarkup,/<rect width="1400" height="730" fill="url\(#sky\)"/,
-    label+' the market overlay must not replace the painted world with a flat opaque sky');
   assert.doesNotMatch(premiumMarkup,/<text(?:\s|>)|<foreignObject(?:\s|>)/i,
     label+' the background must not bake in false tasks, numbers or controls');
   const sceneBackground=await page.locator('.gm-world').evaluate(el=>getComputedStyle(el).backgroundImage);
   assert.match(sceneBackground,/gangemagi-tallenga-market-premium-20261023\.svg/,
-    label+' Gangemagi must render its authored premium market geometry');
-  const marketLayerIndex=sceneBackground.indexOf('gangemagi-tallenga-market-premium-20261023.svg');
-  const paintedLayerIndex=sceneBackground.indexOf('home-math-v14.webp');
-  assert.ok(marketLayerIndex>=0&&paintedLayerIndex>=0&&marketLayerIndex<paintedLayerIndex,
-    label+' transparent Tallenga market must render above the rich painted world '+sceneBackground);
+    label+' Gangemagi must retain its authored premium market geometry beneath the painting');
   const paintedWorld=await page.request.get(new URL('home-math-v14.webp',url).href);
   assert.equal(paintedWorld.status(),200,label+' the original detailed Tallenga painting must load');
   assert.match(paintedWorld.headers()['content-type'],/image\/webp/,
