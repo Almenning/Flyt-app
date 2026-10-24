@@ -149,7 +149,7 @@ function syncLiveCopy(host){
    host.appendChild(live);
  }
  const title=host.querySelector('.bc12-heading h1')?.textContent?.trim()||'Hei, eventyrer!';
- const intro='Klar for et nytt eventyr?';
+ const intro='Hvor skal vi dra i dag?';
  live.querySelector('.bc15-live-greeting').textContent=title;
  live.querySelector('.bc15-live-intro').textContent=intro;
  live.querySelector('.bc15-live-intro').setAttribute('aria-hidden','true');
@@ -165,9 +165,27 @@ function syncLiveCopy(host){
  const rawType=host.querySelector('[data-camp-next-type]')?.textContent?.trim()||'Neste stopp';
  const active=/pågående/i.test(rawType);
  const type=active?'Pågående':'Neste stopp';
+ const routeSubject=String(host.getAttribute('data-journey-subject')||'').trim().toLowerCase();
  next.dataset.state=active?'active':'next';
+ next.dataset.subject=routeSubject||'unknown';
  next.textContent=type+' · '+place;
  next.setAttribute('aria-label',rawType+': '+place);
+
+ host.dataset.bc15RouteState=active?'active':'next';
+ host.dataset.bc15RouteSubject=routeSubject||'unknown';
+ const journey=host.querySelector('.bc12-journey');
+ if(journey){
+   journey.dataset.bc15State=active?'active':'next';
+   journey.setAttribute('aria-label',type+': '+place);
+ }
+ host.querySelectorAll('.bc14-subject').forEach(button=>{
+   const isRoute=!!routeSubject && button.getAttribute('data-camp')==='subject-'+routeSubject;
+   button.classList.toggle('bc15-route-subject',isRoute);
+   if(isRoute)button.setAttribute('aria-current','step');
+   else button.removeAttribute('aria-current');
+ });
+ const journeyGlow=host.querySelector('.bc15-journey-glow');
+ if(journeyGlow)journeyGlow.dataset.state=active?'active':'next';
 }
 
 function clearMappedControls(host){
@@ -179,6 +197,13 @@ function clearMappedControls(host){
  host.style.removeProperty('background-size');
  host.style.removeProperty('background-position');
  ['--bc15-art-left','--bc15-art-top','--bc15-art-width','--bc15-art-height'].forEach(p=>host.style.removeProperty(p));
+ delete host.dataset.bc15RouteState;
+ delete host.dataset.bc15RouteSubject;
+ host.querySelector('.bc12-journey')?.removeAttribute('data-bc15-state');
+ host.querySelectorAll('.bc14-subject.bc15-route-subject').forEach(button=>{
+   button.classList.remove('bc15-route-subject');
+   button.removeAttribute('aria-current');
+ });
 }
 
 async function activate(){
