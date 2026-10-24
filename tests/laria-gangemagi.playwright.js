@@ -206,6 +206,24 @@ async function check(engine,label,viewport,url){
     viewport.width>=375?13:11;
   assert.ok(foxSize>=requiredFoxSize,
     label+' personal fox feedback too small: '+foxSize+'px; minimum '+requiredFoxSize);
+  if(viewport.width<=360){
+    const tinySpeech=await page.locator('.gm-troll-bubble').evaluate(bubble=>{
+      const msg=bubble.querySelector('.gm-fox-message');
+      const read=bubble.querySelector('.gm-read');
+      const text=msg.getBoundingClientRect(),sound=read.getBoundingClientRect(),panel=bubble.getBoundingClientRect();
+      const lineHeight=parseFloat(getComputedStyle(msg).lineHeight);
+      return {textWidth:text.width,lines:text.height/lineHeight,
+        textBottom:text.bottom,soundTop:sound.top,
+        soundWidth:sound.width,soundHeight:sound.height,
+        bubbleBottom:panel.bottom};
+    });
+    assert.ok(tinySpeech.textWidth>=115&&tinySpeech.lines<=5,
+      label+' 320px child instruction must not become an unreadable one-word-per-line column '+JSON.stringify(tinySpeech));
+    assert.ok(tinySpeech.textBottom<=tinySpeech.soundTop+2&&
+      tinySpeech.soundWidth>=44&&tinySpeech.soundHeight>=44&&
+      tinySpeech.bubbleBottom>=tinySpeech.soundTop+tinySpeech.soundHeight-2,
+      label+' 320px spoken instruction must not overlap its 44px sound control '+JSON.stringify(tinySpeech));
+  }
 
   const missionHeading=await page.locator('.gm-quest-callout').evaluate(el=>({
     size:parseFloat(getComputedStyle(el).fontSize),bounds:el.getBoundingClientRect().toJSON(),
