@@ -2221,6 +2221,20 @@
   box-shadow:0 5px 8px #49311f45;
 }
 .gm-shell[data-gm-mode="mission"] .gm-math-equation{font-size:clamp(25px,3.2vw,42px)}
+/* Release56 completion is a fourth, full-width market line. The old
+   auto-placed celebration collapsed into the narrow troll column on iPad
+   and hid its message in a tall, unreadable vertical strip. */
+.gm-shell[data-gm-mode="mission"][data-gm-complete="true"] .gm-celebration{
+  grid-column:2;
+  grid-row:4;
+  justify-self:center;
+  align-self:center;
+  box-sizing:border-box;
+  width:min(100%,620px);
+  max-width:100%;
+  min-height:58px;
+  margin:4px auto 4px;
+}
 }
 
 /* Portrait is deliberately re-authored as a reading order, never a shrunken
