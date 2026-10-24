@@ -2059,18 +2059,18 @@
  */
 .gm-shell[data-gm-mode="mission"] .gm-world{
   background:
-    linear-gradient(180deg,rgba(255,248,221,.18),rgba(255,246,211,.03) 42%,rgba(39,65,48,.34)),
+    linear-gradient(180deg,rgba(255,246,224,.12),rgba(255,235,198,.08) 42%,rgba(67,117,79,.18)),
     url('./gangemagi-grovanova-storybook-locked.webp?v=release56') center 54% / cover no-repeat;
 }
 .gm-shell[data-gm-mode="mission"] .gm-world:after{
   background:url('./gangemagi-tallenga-market-overlay-v2.svg?v=release56') center / cover no-repeat;
-  opacity:.34;
-  mix-blend-mode:soft-light;
+  opacity:.62;
+  mix-blend-mode:normal;
 }
 @media (min-width:900px){
 .gm-shell[data-gm-mode="mission"] .gm-world{
   display:grid;
-  grid-template-columns:minmax(218px,25%) minmax(0,1fr);
+  grid-template-columns:minmax(238px,27%) minmax(0,1fr);
   grid-template-rows:auto minmax(205px,1fr) auto;
   grid-template-areas:
     "guide quest"
@@ -2081,7 +2081,7 @@
   padding:clamp(10px,1.3vw,18px);
   border-radius:32px;
   background:
-    linear-gradient(180deg,rgba(255,248,221,.18),rgba(255,246,211,.03) 42%,rgba(39,65,48,.34)),
+    linear-gradient(180deg,rgba(255,246,224,.12),rgba(255,235,198,.08) 42%,rgba(67,117,79,.18)),
     url('./gangemagi-grovanova-storybook-locked.webp?v=release56') center 54% / cover no-repeat;
 }
 /* The authored market is a quiet atmospheric layer.  It must never redraw
@@ -2092,8 +2092,8 @@
   z-index:0;
   inset:0;
   background:url('./gangemagi-tallenga-market-overlay-v2.svg?v=release56') center / cover no-repeat;
-  opacity:.34;
-  mix-blend-mode:soft-light;
+  opacity:.62;
+  mix-blend-mode:normal;
   pointer-events:none;
 }
 .gm-shell[data-gm-mode="mission"] .gm-world:before{display:none}
@@ -2170,6 +2170,8 @@
   transform:none !important;
 }
 .gm-shell[data-gm-mode="mission"] .gm-troll-figure{inset:0 0 22px}
+.gm-shell[data-gm-mode="mission"] .gm-troll-figure>img{transform:scale(1.08)}
+.gm-shell[data-gm-mode="mission"] .gm-troll-selected .gm-troll-figure>img{transform:translateY(-5px) scale(1.13)}
 .gm-shell[data-gm-mode="mission"] .gm-troll-name{
   min-height:22px;
   padding:3px 5px;
@@ -2252,6 +2254,7 @@
 /* Portrait is deliberately re-authored as a reading order, never a shrunken
    landscape.  The compact 320px first-fold contract above remains intact. */
 @media(min-width:361px) and (max-width:899px) and (orientation:portrait){
+  /* Warm, visible Tallenga scenery without painting over the Grovanova outline. */
   .gm-shell[data-gm-mode="mission"] .gm-world{
     display:flex;
     flex-direction:column;
@@ -2260,7 +2263,7 @@
     border-radius:24px;
     background-position:center center;
   }
-  .gm-shell[data-gm-mode="mission"] .gm-world:after{opacity:.28;background-position:center center}
+  .gm-shell[data-gm-mode="mission"] .gm-world:after{opacity:.49;background-position:center center;mix-blend-mode:normal}
   .gm-shell[data-gm-mode="mission"] .gm-story.gm-quest{
     width:100%;
     padding:13px 13px 10px;
