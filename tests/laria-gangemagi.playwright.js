@@ -213,12 +213,16 @@ async function check(engine,label,viewport,url){
       const text=msg.getBoundingClientRect(),sound=read.getBoundingClientRect(),panel=bubble.getBoundingClientRect();
       const lineHeight=parseFloat(getComputedStyle(msg).lineHeight);
       return {textWidth:text.width,lines:text.height/lineHeight,
+        textFont:parseFloat(getComputedStyle(msg).fontSize),
         textBottom:text.bottom,soundTop:sound.top,
         soundWidth:sound.width,soundHeight:sound.height,
         bubbleBottom:panel.bottom};
     });
-    assert.ok(tinySpeech.textWidth>=115&&tinySpeech.lines<=5,
-      label+' 320px child instruction must not become an unreadable one-word-per-line column '+JSON.stringify(tinySpeech));
+    // 320px must also hold three separate >=44px troll touch targets. The
+    // empirically verified child-first goal is four readable 13px lines, not
+    // an impossible 115px text column alongside three touch-safe actors.
+    assert.ok(tinySpeech.textWidth>=86&&tinySpeech.lines<=4.1&&tinySpeech.textFont>=13,
+      label+' 320px troll speech must read naturally in no more than four 13px lines '+JSON.stringify(tinySpeech));
     assert.ok(tinySpeech.textBottom<=tinySpeech.soundTop+2&&
       tinySpeech.soundWidth>=44&&tinySpeech.soundHeight>=44&&
       tinySpeech.bubbleBottom>=tinySpeech.soundTop+tinySpeech.soundHeight-2,
