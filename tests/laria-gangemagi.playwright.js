@@ -317,9 +317,27 @@ async function check(engine,label,viewport,url){
     label+' the detailed market must be our authored Tallenga landscape');
   assert.doesNotMatch(premiumMarkup,/<text(?:\s|>)|<foreignObject(?:\s|>)/i,
     label+' the background must not bake in false tasks, numbers or controls');
+  const marketOverlay=await page.request.get(new URL('gangemagi-tallenga-market-overlay-v2.svg',url).href);
+  assert.equal(marketOverlay.status(),200,label+' transparent Tallenga market overlay must load');
+  assert.match(marketOverlay.headers()['content-type'],/image\/svg\+xml/);
+  const overlayMarkup=await marketOverlay.text();
+  assert.match(overlayMarkup,/<svg[^>]+viewBox="0 0 1400 730"/,
+    label+' market overlay must retain the wide scalable Tallenga composition');
+  assert.match(overlayMarkup,/id="market-stalls"/,
+    label+' market overlay must contain authored stall architecture');
+  assert.match(overlayMarkup,/id="market-bridge"/,
+    label+' market overlay must retain the stone bridge depth cue');
+  assert.match(overlayMarkup,/id="market-fountain"/,
+    label+' market overlay must retain the square fountain depth cue');
+  assert.doesNotMatch(overlayMarkup,/<text(?:\s|>)|<foreignObject(?:\s|>)/i,
+    label+' market overlay must not bake in fake tasks, labels or controls');
   const sceneBackground=await page.locator('.gm-world').evaluate(el=>getComputedStyle(el).backgroundImage);
   assert.match(sceneBackground,/gangemagi-tallenga-market-premium-20261023\.svg/,
     label+' Gangemagi must retain its authored premium market geometry beneath the painting');
+  assert.match(sceneBackground,/gangemagi-tallenga-market-overlay-v2\.svg/,
+    label+' Gangemagi must render the transparent Tallenga market architecture above the painting');
+  assert.ok(sceneBackground.indexOf('gangemagi-tallenga-market-overlay-v2.svg') < sceneBackground.indexOf('home-math-v14.webp'),
+    label+' Tallenga market architecture must sit above the painted world, not remain hidden beneath it');
   const paintedWorld=await page.request.get(new URL('home-math-v14.webp',url).href);
   assert.equal(paintedWorld.status(),200,label+' the original detailed Tallenga painting must load');
   assert.match(paintedWorld.headers()['content-type'],/image\/webp/,
