@@ -16,13 +16,14 @@
 }
 .grade-band-young .bc12.bc15-locked-home::before{
   z-index:-2;
-  inset:-28px;
-  background-image:var(--bc15-home-art);
-  background-position:center top;
-  background-size:cover;
-  background-repeat:no-repeat;
-  filter:blur(20px) saturate(1.04) brightness(.86);
-  transform:scale(1.055);
+  inset:0;
+  /* Intentional scenic safe-area fill. Never repeat and blur the navigation icons. */
+  background:
+    radial-gradient(ellipse 34% 150% at 2% 112%,rgba(26,52,34,.98) 0%,rgba(42,76,49,.86) 46%,rgba(42,76,49,0) 74%),
+    radial-gradient(ellipse 38% 135% at 98% 110%,rgba(67,133,174,.34) 0%,rgba(67,133,174,0) 74%),
+    linear-gradient(180deg,#76bce8 0%,#74b9e5 58%,#5b9bc4 100%);
+  filter:none;
+  transform:none;
 }
 .grade-band-young .bc12.bc15-locked-home::after{
   z-index:-1;
@@ -31,6 +32,7 @@
   background-position:center bottom;
   background-size:var(--bc15-art-width,100%) var(--bc15-art-height,100%);
   background-repeat:no-repeat;
+  filter:saturate(1.02) contrast(1.012);
 }
 
 /* V15 owns Home interaction whenever the locked master is available.
@@ -161,8 +163,8 @@
 }
 
 @media(max-height:580px) and (orientation:landscape){
-  /* The sharp master keeps its geometry; only the blurred scenic fill absorbs spare space. */
-  .grade-band-young .bc12.bc15-locked-home::before{filter:blur(18px) saturate(.9) brightness(.72)}
+  /* Small landscape viewports keep the same intentional safe-area extension without blur. */
+  .grade-band-young .bc12.bc15-locked-home::before{filter:none}
 }
 
 @media(prefers-reduced-motion:reduce){
@@ -214,44 +216,45 @@
 
 
 /* Dynamic copy over the locked artwork.
-   Polish 1 keeps the approved master immutable and makes the live UI feel
-   like part of the scene rather than a dashboard pasted on top. */
+   Polish 2 uses the same illustrated wood language as the painted Home controls. */
 .grade-band-young .bc12.bc15-locked-home .bc15-live-copy{
  position:absolute;z-index:17;box-sizing:border-box;
  display:flex;align-items:center;
- padding:7px 15px 8px 17px;border-radius:16px 22px 22px 16px;
- background:linear-gradient(104deg,#234b45 0%,#2f5a4c 68%,#386451 100%);
- border:1px solid rgba(255,239,199,.28);border-left:2px solid rgba(255,226,166,.54);
- color:#fff;text-align:left;pointer-events:none;
- text-shadow:0 2px 5px rgba(0,0,0,.38);
- box-shadow:0 8px 22px rgba(5,27,36,.17),inset 0 1px 0 rgba(255,255,255,.08);
- -webkit-backdrop-filter:blur(3px) saturate(.88);
- backdrop-filter:blur(3px) saturate(.88);
+ padding:6px 15px 7px 17px;border-radius:10px 14px 12px 10px;
+ background:linear-gradient(180deg,#ddb878 0%,#c99555 54%,#b77d42 100%);
+ border:1px solid #8f5b2e;border-left:4px solid #74451f;
+ color:#3f2917;text-align:left;pointer-events:none;
+ text-shadow:0 1px 0 rgba(255,244,211,.62);
+ box-shadow:0 6px 14px rgba(53,35,18,.22),inset 0 1px 0 rgba(255,246,218,.58),inset 0 -1px 0 rgba(103,62,29,.24);
 }
 .grade-band-young .bc12.bc15-locked-home .bc15-live-greeting{
- font-size:clamp(21px,1.95vw,34px);font-weight:950;line-height:1.02;letter-spacing:-.035em;
+ font-family:var(--laria-font-rounded,ui-rounded,'Arial Rounded MT Bold',system-ui,sans-serif);
+ font-size:clamp(20px,1.85vw,32px);font-weight:950;line-height:1.02;letter-spacing:-.03em;
 }
 .grade-band-young .bc12.bc15-locked-home .bc15-live-intro{display:none!important}
 .grade-band-young .bc12.bc15-locked-home .bc15-live-next{
  position:absolute;z-index:17;box-sizing:border-box;
  display:flex;align-items:center;justify-content:center;
- padding:3px 9px;border-radius:999px;
- background:linear-gradient(180deg,#62401f,#3d2817);
- color:#fff1c7;border:1px solid rgba(255,219,151,.68);
- box-shadow:0 3px 8px rgba(47,28,14,.22),inset 0 1px 0 rgba(255,255,255,.12);
- text-shadow:0 1px 2px rgba(42,25,12,.55);
- font-size:clamp(9px,.76vw,12px);font-weight:900;line-height:1.05;letter-spacing:.005em;
+ padding:3px 9px;border-radius:6px;
+ background:linear-gradient(180deg,#efcf91 0%,#ddb06c 58%,#c98e4d 100%);
+ color:#4b3018;border:1px solid rgba(114,70,31,.5);
+ box-shadow:inset 0 1px 0 rgba(255,246,215,.72),0 2px 5px rgba(74,45,22,.14);
+ text-shadow:0 1px 0 rgba(255,246,216,.72);
+ font-family:var(--laria-font-rounded,ui-rounded,'Arial Rounded MT Bold',system-ui,sans-serif);
+ font-size:clamp(9px,.78vw,12.5px);font-weight:900;line-height:1.05;letter-spacing:.005em;
  pointer-events:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
 .grade-band-young .bc12.bc15-locked-home .bc15-live-next[data-state="next"]{
- background:linear-gradient(180deg,#57502a,#37351d);
+ background:linear-gradient(180deg,#f1d498 0%,#dfb36e 58%,#cb9250 100%);
 }
 
 @media(max-width:700px) and (orientation:portrait){
  .grade-band-young .bc12.bc15-locked-home .bc15-live-copy{
-   padding:7px 11px 7px 13px;border-radius:0 16px 16px 0;
+   padding:7px 11px 7px 13px;border-radius:0 14px 14px 0;
    background:linear-gradient(98deg,#234b45 0%,#2f5a4c 70%,#386451 100%);
    border-left:0;border-right:1px solid rgba(255,239,199,.24);
+   color:#fff;text-shadow:0 2px 5px rgba(0,0,0,.38);
+   box-shadow:0 6px 16px rgba(5,27,36,.17),inset 0 1px 0 rgba(255,255,255,.08);
  }
  .grade-band-young .bc12.bc15-locked-home .bc15-live-greeting{
    font-size:clamp(21px,6.4vw,29px);
