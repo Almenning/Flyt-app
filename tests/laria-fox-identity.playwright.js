@@ -1,6 +1,7 @@
 'use strict';
-/* Runtime proof: selected fox, not a generic picture or icon, follows the child
- * through all four approved worlds and their actual question screens. */
+/* Transition proof: v15 Home uses the locked troll trio. The existing selected
+ * fox identity must still survive untouched through all four journeys/tasks
+ * until those surfaces receive their own troll migration. */
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const {chromium,webkit}=require('playwright');
@@ -62,16 +63,24 @@ async function run(engine,name,viewport,which){
   await page.locator('#home-screen.active .bc14-subject:visible').first().waitFor({timeout:16000});
   assert.equal(await page.evaluate(()=>state.profile.avatar),which,name+' wrong persisted identity');
   assert.notEqual(await page.evaluate(()=>window.LARIA_FOX.source('girl')),await page.evaluate(()=>window.LARIA_FOX.source('boy')),name+' two foxes are identical');
-  await imageIsChosen(page,'.bc12-fox img',which,name+' Home');
-  if(viewport.width<600){
-   const placement=await page.evaluate(()=>{
-     const r=document.querySelector('.bc12-fox').getBoundingClientRect();
-     const first=document.querySelector('.bc14-subject').getBoundingClientRect();
-     return {foxBottom:r.bottom,firstCardTop:first.top,foxX:r.x};
-   });
-   assert.ok(placement.foxBottom<=placement.firstCardTop-5,
-     name+' personal fox covered by the Home subject cards: '+JSON.stringify(placement));
-   assert.ok(placement.foxX>=0,name+' personal fox positioned outside screen');
+  const lockedHome=await page.locator('#home-screen.active .bc12').evaluate(el=>el.classList.contains('bc15-locked-home'));
+  if(lockedHome){
+   assert.equal(await page.locator('#home-screen.active .bc12').getAttribute('data-bc15-asset'),'ready',name+' locked troll master missing');
+   assert.equal(await page.locator('#home-screen.active .bc12-fox').isVisible(),false,name+' selected fox leaked over troll Home');
+   assert.equal(await page.locator('#home-screen.active .bc12-nav [data-camp="wardrobe"]').getAttribute('aria-label'),'Mine troll',
+     name+' Home navigation did not transition to trolls');
+  }else{
+   await imageIsChosen(page,'.bc12-fox img',which,name+' Home');
+   if(viewport.width<600){
+    const placement=await page.evaluate(()=>{
+      const r=document.querySelector('.bc12-fox').getBoundingClientRect();
+      const first=document.querySelector('.bc14-subject').getBoundingClientRect();
+      return {foxBottom:r.bottom,firstCardTop:first.top,foxX:r.x};
+    });
+    assert.ok(placement.foxBottom<=placement.firstCardTop-5,
+      name+' personal fox covered by the Home subject cards: '+JSON.stringify(placement));
+    assert.ok(placement.foxX>=0,name+' personal fox positioned outside screen');
+   }
   }
   await page.screenshot({path:folder+'/'+name+'-home.png',fullPage:true});
   for(const subject of subjects){
@@ -125,10 +134,14 @@ async function run(engine,name,viewport,which){
   await page.reload({waitUntil:'domcontentloaded'});
   await page.locator('#home-screen.active .bc14-subject:visible').first().waitFor({timeout:16000});
   assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('laerlittmer-v2')).profile.avatar),which,name+' reload lost avatar');
-  await imageIsChosen(page,'.bc12-fox img',which,name+' reloaded Home');
+  const lockedReload=await page.locator('#home-screen.active .bc12').evaluate(el=>el.classList.contains('bc15-locked-home'));
+  if(lockedReload){
+   assert.equal(await page.locator('#home-screen.active .bc12-fox').isVisible(),false,name+' fox leaked back onto troll Home after reload');
+   assert.equal(await page.locator('#home-screen.active .bc12').getAttribute('data-bc15-asset'),'ready',name+' troll master lost after reload');
+  }else await imageIsChosen(page,'.bc12-fox img',which,name+' reloaded Home');
   assert.deepEqual(errors,[],name+' uncaught errors');
   await context.close();
-  console.log('Personal fox verified',name,which,'Home + four real journeys + four tasks + reload');
+  console.log('Identity transition verified',name,which,'troll Home/legacy portrait + four fox journeys + four fox tasks + reload');
  }finally{await browser.close()}
 }
 (async()=>{
