@@ -48,6 +48,8 @@ async function run(browser,engine,label,viewport,url,full){
   const picture=await page.locator('.fc-landscape img, .fc-troll img').evaluateAll(async xs=>Promise.all(xs.map(async el=>{await el.decode();return {src:el.getAttribute('src'),width:el.naturalWidth}})));
   assert.ok(picture.length>=5&&picture.every(x=>x.width>0),label+' original scenery and troll art must load '+JSON.stringify(picture));
   assert.equal(await count(page,'.fc-cake-front'),1,'original buttercream is a separate noninteractive layer, not a frozen cake');
+   const illustratedControls=await page.locator('.fc-controls .fr2-adjust').first().evaluate(el=>getComputedStyle(el).backgroundImage);
+   assert.match(illustratedControls,/controls-carved-board\.webp/,'real buttons must sit on the illustrated, blank wooden board');
   assert.equal(await page.locator('.fc-story-title h1').innerText(),'Brøklaben','illustrated hanging sign keeps an accessible title');
   assert.equal(await page.locator('.fc-cake-front').getAttribute('pointer-events'),'none','scenic cake edging must never block individual piece taps');
   assert.ok(picture.some(x=>x.src.includes('skala-window.webp')),'Skåla must remain recognizable as an independent scenic layer');

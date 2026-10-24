@@ -198,8 +198,12 @@
 }
 #fraction-lab-screen .fc-world .fc-controls .fr2-adjust{
  display:flex;flex-direction:column;align-items:center;justify-content:center;
- min-height:89px;gap:3px;padding:4px 6px;margin:0;border:5px ridge #98602f;
- border-radius:18px;background:repeating-linear-gradient(176deg,#613b2714 0 2px,transparent 2px 21px),linear-gradient(155deg,#f6c78d,#dda46c);
+ min-height:89px;gap:3px;padding:4px 6px;margin:0;border:4px solid #8e582f;
+ border-radius:18px;
+ /* Independent carved board from the user's locked artwork. Live text,
+    values and 44px buttons remain accessible DOM, not image hotspots. */
+ background:url("./assets/fraction-scene/controls-carved-board.webp") center/100% 100% no-repeat,
+   linear-gradient(155deg,#f6c78d,#dda46c);
  box-shadow:0 4px 0 #75462b,0 8px 12px #4a28194d;
 }
 #fraction-lab-screen .fc-world .fc-controls .fr2-adjust-heading{margin:0;line-height:1.15;text-align:center}
