@@ -3,11 +3,34 @@
    master artwork is available. Existing Home stays untouched on asset failure. */
 
 .grade-band-young .bc12.bc15-locked-home{
-  background-color:#4c9bca!important;
-  background-image:var(--bc15-home-art),var(--bc15-home-art)!important;
-  background-position:center bottom,center center!important;
-  background-size:contain,cover!important;
-  background-repeat:no-repeat,no-repeat!important;
+  position:relative!important;
+  overflow:hidden!important;
+  isolation:isolate!important;
+  background:#4c9bca!important;
+}
+.grade-band-young .bc12.bc15-locked-home::before,
+.grade-band-young .bc12.bc15-locked-home::after{
+  content:"";
+  position:absolute;
+  pointer-events:none;
+}
+.grade-band-young .bc12.bc15-locked-home::before{
+  z-index:-2;
+  inset:-28px;
+  background-image:var(--bc15-home-art);
+  background-position:center center;
+  background-size:cover;
+  background-repeat:no-repeat;
+  filter:blur(22px) saturate(.92) brightness(.76);
+  transform:scale(1.055);
+}
+.grade-band-young .bc12.bc15-locked-home::after{
+  z-index:-1;
+  inset:0;
+  background-image:var(--bc15-home-art);
+  background-position:center bottom;
+  background-size:var(--bc15-art-width,100%) var(--bc15-art-height,100%);
+  background-repeat:no-repeat;
 }
 
 /* The locked master already carries the approved visual composition.
@@ -104,10 +127,6 @@
 }
 
 @media(max-width:700px) and (orientation:portrait){
-  .grade-band-young .bc12.bc15-locked-home{
-    background-image:var(--bc15-home-art),var(--bc15-home-art)!important;
-    background-position:center bottom,center center!important;background-size:contain,cover!important;
-  }
   .grade-band-young .bc12.bc15-locked-home .bc14-subjects{
     left:4.4%!important;top:72.8%!important;width:91.2%!important;height:13.5%!important;
     gap:1.4%!important;
@@ -132,10 +151,8 @@
 }
 
 @media(max-height:580px) and (orientation:landscape){
-  /* Keep short landscape usable rather than stretching the approved composition beyond recognition. */
-  .grade-band-young .bc12.bc15-locked-home{
-    background-position:center bottom,center center!important;
-  }
+  /* The sharp master keeps its geometry; only the blurred scenic fill absorbs spare space. */
+  .grade-band-young .bc12.bc15-locked-home::before{filter:blur(18px) saturate(.9) brightness(.72)}
 }
 
 @media(prefers-reduced-motion:reduce){
@@ -192,7 +209,7 @@
  position:absolute;z-index:17;
  left:3.0%;top:11.0%;width:28%;min-height:11%;
  padding:10px 14px 12px;border-radius:15px;
- background:linear-gradient(90deg,rgba(17,55,78,.98),rgba(17,55,78,.94) 78%,rgba(17,55,78,.78));
+ background:rgb(17,55,78);
  color:#fff;text-align:left;pointer-events:none;
  text-shadow:0 2px 5px rgba(0,0,0,.42);
 }
