@@ -1139,3 +1139,38 @@
  #fraction-lab-screen .fr8-scene .fr8-troll,
  #fraction-lab-screen .fr8-scene .fr8-cloud{animation:none!important;transition:none!important}
 }
+
+/* Active character is a semantic help button, and character cycling is separate. */
+#fraction-lab-screen .fr8-companion{position:relative}
+#fraction-lab-screen .fr8-companion .fr8-speak{
+ appearance:none;border:0;background:transparent;cursor:pointer;
+ display:flex;flex-direction:column;justify-content:center;align-items:center;
+ min-width:0;max-width:100%;padding:0;margin:0;
+ color:inherit;font:inherit;
+}
+#fraction-lab-screen .fr8-companion .fr8-speak:focus-visible{
+ outline:3px solid #17699f;outline-offset:3px;border-radius:16px;
+}
+#fraction-lab-screen .fr8-companion .fr8-cycle-troll{top:3px;right:0}
+#fraction-lab-screen .fr8-scene .fr8-pie-new{
+ transform-box:fill-box;transform-origin:center;
+ animation:fr8-piece-set 330ms cubic-bezier(.2,1.25,.4,1) both;
+}
+#fraction-lab-screen .fr8-scene .fr8-celebrate .fr8-troll{
+ animation:fr8-companion-joy 690ms cubic-bezier(.2,1.4,.35,1);
+}
+@keyframes fr8-piece-set{
+ 0%{opacity:.58;transform:scale(.91)}65%{opacity:1;transform:scale(1.045)}100%{transform:scale(1)}
+}
+@keyframes fr8-companion-joy{
+ 0%,100%{transform:translateY(0) rotate(0)}
+ 34%{transform:translateY(-8px) rotate(-2deg)}
+ 68%{transform:translateY(-2px) rotate(2deg)}
+}
+@media(max-height:710px) and (max-width:600px){
+ #fraction-lab-screen .fr8-companion .fr8-cycle-troll{top:0;right:-5px}
+}
+@media(prefers-reduced-motion:reduce){
+ #fraction-lab-screen .fr8-scene .fr8-pie-new,
+ #fraction-lab-screen .fr8-scene .fr8-celebrate .fr8-troll{animation:none!important}
+}
