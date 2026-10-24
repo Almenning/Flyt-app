@@ -618,7 +618,7 @@ async function check(engine,label,viewport,url){
     '.gm-pick.gm-drop-target');
   assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,0,0],
     label+' dragging a fruit back to source removes one');
-  await dragBerry(page,'[data-gm-action="source"]','.gm-brand',null);
+  await dragBerry(page,'[data-gm-action="source"]','.gm-top-title',null);
   assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,0,0],
     label+' dropping a fruit outside all baskets cannot change the maths');
   assert.equal(await page.locator('.gm-source-berry').count(),5,
