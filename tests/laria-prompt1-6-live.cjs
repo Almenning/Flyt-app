@@ -34,7 +34,8 @@ async function openHomeSubject(page,subject){
  if(hasV15){
    await page.waitForFunction(()=>{
      const h=document.querySelector('.bc12');
-     return !!h && (/ready$/.test(h.dataset.bc15Asset||'') || h.dataset.bc15Asset==='missing');
+     const asset=h?.dataset.bc15Asset||'';
+     return !!h && ((/ready$/.test(asset)&&h.classList.contains('bc15-locked-home')) || asset==='missing');
    },null,{timeout:12000});
  }
  const newEntry=page.locator('.bc14-subject[data-camp="subject-'+subject+'"]:visible');
