@@ -3,7 +3,7 @@
 (function(){
 'use strict';
 
-const TABLET_MASTER='./assets/home-v15/kjosnes-home-tablet.webp?v=20261024-locked1';
+const TABLET_MASTER='./assets/home-v15/kjosnes-home-tablet.webp?v=20261024-hires1';
 const PHONE_MASTER='./assets/home-v15/kjosnes-home-phone.webp?v=20261024-locked1';
 let activeMasterSrc='';
 
