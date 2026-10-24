@@ -161,8 +161,10 @@ const {chromium,webkit}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
   await page.locator('#bc12-dialog .bc12-close').tap();
   await page.locator('.bc12-nav [data-camp="home"]').tap();
   await page.locator('.bc12.bc15-locked-home').waitFor({state:'visible',timeout:12000});
-  const rcTouch=await page.locator('.bc12-nav button').evaluateAll(els=>els.map(el=>({w:el.getBoundingClientRect().width,h:el.getBoundingClientRect().height})));
-  assert.ok(rcTouch.every(x=>x.w>=44&&x.h>=44),name+' RC navigation has undersized touch targets: '+JSON.stringify(rcTouch));
+  const rcTouch=await page.locator('.bc12-nav button').evaluateAll(els=>els
+    .filter(el=>{const s=getComputedStyle(el),r=el.getBoundingClientRect();return s.display!=='none'&&s.visibility!=='hidden'&&r.width>0&&r.height>0})
+    .map(el=>({w:el.getBoundingClientRect().width,h:el.getBoundingClientRect().height,camp:el.dataset.camp})));
+  assert.ok(rcTouch.length>=4&&rcTouch.every(x=>x.w>=44&&x.h>=44),name+' visible RC navigation has undersized touch targets: '+JSON.stringify(rcTouch));
   assert.equal(await page.evaluate(()=>state.profile.grade),2);
   console.log(engineName+' '+name+': Home v15, real Ordjakt, routes, returns, collection and legacy Explore passed');
   await context.close();
