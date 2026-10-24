@@ -187,14 +187,27 @@ async function answerCurrent(page){
     await young.waitForFunction(()=>document.documentElement.dataset.safeChallengeRelease==='challenge-rc1');
     await young.locator('.bc12').waitFor({state:'visible'});
     const youngEntry=young.locator('.safe-challenge-young');
-    await youngEntry.waitFor({state:'visible'});
+    const hasV15=await young.locator('script[src*="home-kjosnes-v15.js"]').count();
+    if(hasV15){
+      await young.waitForFunction(()=>{
+        const h=document.querySelector('.bc12'),asset=h?.dataset.bc15Asset||'';
+        return !!h && ((/ready$/.test(asset)&&h.classList.contains('bc15-locked-home')) || asset==='missing');
+      },null,{timeout:12000});
+    }
+    const lockedHome=await young.locator('.bc12.bc15-locked-home').count()>0;
     const navFit=await young.evaluate(()=>{
-      const nav=document.querySelector('.bc12-nav'),btn=document.querySelector('.safe-challenge-young'),r=nav.getBoundingClientRect(),b=btn.getBoundingClientRect();
-      return {vw:innerWidth,scroll:document.documentElement.scrollWidth,navLeft:r.left,navRight:r.right,btnH:b.height};
+      const nav=document.querySelector('.bc12-nav'),r=nav.getBoundingClientRect();
+      return {vw:innerWidth,scroll:document.documentElement.scrollWidth,navLeft:r.left,navRight:r.right};
     });
-    assert.ok(navFit.scroll<=navFit.vw+1,'young challenge entry causes horizontal overflow: '+JSON.stringify(navFit));
+    assert.ok(navFit.scroll<=navFit.vw+1,'young Home causes horizontal overflow: '+JSON.stringify(navFit));
     assert.ok(navFit.navLeft>=-1&&navFit.navRight<=navFit.vw+1,'young nav exceeds viewport: '+JSON.stringify(navFit));
-    assert.ok(navFit.btnH>=44,'young challenge tap target too small: '+navFit.btnH);
+    if(lockedHome){
+      assert.equal(await youngEntry.isVisible(),false,'locked Home v15 must not show legacy challenge chrome');
+    }else{
+      await youngEntry.waitFor({state:'visible'});
+      const btnH=await youngEntry.evaluate(btn=>btn.getBoundingClientRect().height);
+      assert.ok(btnH>=44,'young challenge tap target too small: '+btnH);
+    }
 
     await youngCtx.close();await receiverCtx.close();await senderCtx.close();
     console.log('Laria Prompt 16 safe challenge verification passed');
