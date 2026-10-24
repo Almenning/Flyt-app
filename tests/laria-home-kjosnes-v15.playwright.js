@@ -78,6 +78,8 @@ async function run(engine,label,viewport){
    const liveGreeting=(await page.locator('.bc15-live-greeting').innerText()).trim();
    assert.match(liveGreeting,/Testbarn/,label+' dynamic greeting must use profile name');
    assert.doesNotMatch(liveGreeting,/Aleah/,label+' locked mockup name must not leak as live child identity');
+   assert.equal(await page.locator('.bc15-live-intro').isVisible(),false,
+     label+' live overlay must not duplicate the generic intro already baked into the locked master');
    const originalNext=(await page.locator('[data-camp-next]').innerText()).trim();
    assert(originalNext,label+' hidden journey state must expose a next place');
    const liveNextText=(await page.locator('.bc15-live-next').innerText()).trim();
