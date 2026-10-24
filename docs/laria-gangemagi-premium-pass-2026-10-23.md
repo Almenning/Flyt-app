@@ -68,3 +68,10 @@ Retningen er tydeligere og nærmere den låste komposisjonen: handlingen er saml
 - Nye Playwright-asserts kontrollerer faktisk tekstklipping og alle fem tall både før og etter at ett jordbær er lagt i. Ny eksakt-HEAD Chromium/WebKit-gjennomgang og oppdaterte screenshots kreves før godkjenning.
 - Release42 bumpes både i HTML, service worker og cache-test, slik at Safari laster ny CSS fremfor eldre release41-variant.
 - Premiumavvik består: high-detail `home-math-v14.webp` med foss/skog ligger over Tallenga-markeds-SVG og gjengir ikke den låste markedsplassen med sollys, bro, boder og 2.5D-dybde. Original brukergodkjent PNG er ikke vedlagt repoet. Ingen merge/publisering.
+
+### 24.10.2026 – release43: Tallenga-markedet blir faktisk synlig
+- Release42 på eksakt HEAD `3635e940d6e56b6fb7b6b41c850589196e4a93b4` bestod dedikert Gangemagi Chromium og WebKit. WebKit-artefakt `12549280684` og Chromium-artefakt `12549445040` ble hentet og inspisert.
+- 320×568 er rettet: hele «Gangemagi»-tittelen er synlig, alle fem kurvtallene får plass og delvis oppdrag viser korrekt `1 + 0 + 0 + 0 + 0 = 1`.
+- Visuell kontroll viste fortsatt det største premiumavviket: `home-math-v14.webp` lå som øverste bildelag og maskerte den dedikerte Tallenga-markedsillustrasjonen med foss/skog.
+- Release43 fjerner kun dette generiske Home-bildelaget fra Gangemagi mission-verdenen. Den eksisterende `gangemagi-tallenga-market-premium-20261023.svg` blir synlig hovedscene; spillmotor, personlig rev, kurver, jordbærkilde, matematikk, åtte oppdrag og progresjon er uendret.
+- Playwright-kontrakten skjerpes: premium Tallenga-SVG må være aktiv bakgrunn, og `home-math-v14.webp` får ikke maskere markedet inne i Gangemagi. Ny exact-HEAD Chromium/WebKit og ekte iPhone/iPad-bilder kreves før release43 kan godkjennes.
