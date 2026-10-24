@@ -415,17 +415,17 @@ function enter(next){
  try{document.getElementById(ROOT)?.scrollIntoView({block:'start',behavior:'instant'})}catch(_){}
 }
 function applyBuildPieces(parts,notice=''){
-  const x=u.build,before=x.n;
+  const x=u.build,before=x.n,previous=x.filled.slice();
   x.filled=[...new Set(parts)].filter(i=>Number.isInteger(i)&&i>=0&&i<x.d).sort((a,b)=>a-b);
   x.n=x.filled.length;
+  u.lastChanged=x.filled.find(i=>!previous.includes(i))??-1;
   if(x.n>0)mark('built',key(x.n,x.d));
   if(u.page==='explore')mark('explored',key(x.n,x.d));
   x.notice=notice;
   render();
-  // The selected fox reacts at meaningful discoveries, not after every tap.
+  // React only to real, mathematically meaningful discoveries.
   if(u.halfQuest&&x.d%2===0&&x.n*2===x.d)u.halfQuestWon=true;
-   u.lastChanged=([...x.filled].find(i=>!document.querySelector('#fraction-lab-root .fr2-pie-builder [data-piece="'+i+'"][aria-pressed="true"]'))??-1);
-   if(x.n!==before&&x.n>0&&(x.n===x.d||x.d%2===0&&x.n*2===x.d)){
+  if(x.n!==before&&x.n>0&&(x.n===x.d||x.d%2===0&&x.n*2===x.d)){
     try{requestAnimationFrame(()=>{
       const host=document.querySelector('#fraction-lab-root '+(u.page==='build'?'.fr5-fox-mentor':'.fr5-scene-fox'));
       if(u.page==='build'&&host?.querySelector('.fr8-troll'))host.classList.add('fr8-celebrate');
