@@ -2047,3 +2047,222 @@
     padding-bottom:0;
   }
 }
+
+/*
+ * Release56 — one reconstructed Gangemagi scene
+ *
+ * Grovanova is the place, the locked trio are the actors, and the baskets
+ * are the child's mathematical stage.  This deliberately replaces the
+ * accumulated "guide lane + small troll strip + independent market card"
+ * treatment above.  No game state, action, hit target or stored data is
+ * changed here; this is only the final visual composition of existing DOM.
+ */
+.gm-shell[data-gm-mode="mission"] .gm-world{
+  display:grid;
+  grid-template-columns:minmax(218px,25%) minmax(0,1fr);
+  grid-template-rows:auto minmax(205px,1fr) auto;
+  grid-template-areas:
+    "guide quest"
+    "guide market"
+    "guide maths";
+  gap:7px clamp(10px,1.5vw,21px);
+  overflow:hidden;
+  padding:clamp(10px,1.3vw,18px);
+  border-radius:32px;
+  background:
+    linear-gradient(180deg,rgba(255,248,221,.18),rgba(255,246,211,.03) 42%,rgba(39,65,48,.34)),
+    url('./gangemagi-grovanova-storybook-locked.webp?v=release56') center 54% / cover no-repeat;
+}
+/* The authored market is a quiet atmospheric layer.  It must never redraw
+   the locked mountain silhouette or compete with the live baskets. */
+.gm-shell[data-gm-mode="mission"] .gm-world:after{
+  content:"";
+  position:absolute;
+  z-index:0;
+  inset:0;
+  background:url('./gangemagi-tallenga-market-overlay-v2.svg?v=release56') center / cover no-repeat;
+  opacity:.34;
+  mix-blend-mode:soft-light;
+  pointer-events:none;
+}
+.gm-shell[data-gm-mode="mission"] .gm-world:before{display:none}
+.gm-shell[data-gm-mode="mission"] .gm-world>header,
+.gm-shell[data-gm-mode="mission"] .gm-world>.gm-scene,
+.gm-shell[data-gm-mode="mission"] .gm-world>.gm-market,
+.gm-shell[data-gm-mode="mission"] .gm-world>.gm-math{
+  position:relative;
+  z-index:1;
+}
+
+/* A compact, warm instruction board belongs above the play field. */
+.gm-shell[data-gm-mode="mission"] .gm-story.gm-quest{
+  grid-area:quest;
+  width:auto;
+  min-height:0;
+  margin:0;
+  padding:clamp(12px,1.35vw,18px) clamp(16px,2vw,29px) clamp(10px,1.1vw,14px);
+  border-radius:27px;
+  box-shadow:0 7px 13px #4f321f52;
+}
+.gm-shell[data-gm-mode="mission"] .gm-story.gm-quest h2.gm-quest-callout{
+  max-width:760px;
+  margin:3px auto 5px;
+  font-size:clamp(24px,2.65vw,38px);
+  line-height:1.06;
+}
+
+/* The three exact locked character assets become the left foreground group,
+   with room for their bodies and names — not thumbnail controls. */
+.gm-shell[data-gm-mode="mission"] .gm-scene{
+  grid-area:guide;
+  display:flex;
+  align-self:stretch;
+  min-width:0;
+  margin:0;
+  padding:0;
+}
+.gm-shell[data-gm-mode="mission"] .gm-fox.gm-troll-guide{
+  position:relative;
+  z-index:2;
+  display:flex;
+  flex:1 1 auto;
+  flex-direction:column;
+  align-items:stretch;
+  justify-content:flex-end;
+  width:100%;
+  min-height:0;
+  margin:0;
+  padding:0;
+  pointer-events:none;
+}
+.gm-shell[data-gm-mode="mission"] .gm-troll-stage{
+  width:100%;
+  height:clamp(188px,19vw,236px);
+  min-height:188px;
+  padding:0 clamp(2px,.5vw,8px);
+  gap:clamp(3px,.8vw,11px);
+  pointer-events:none;
+}
+.gm-shell[data-gm-mode="mission"] .gm-troll-helper{
+  padding-bottom:27px;
+  pointer-events:auto;
+  transform:none !important;
+}
+.gm-shell[data-gm-mode="mission"] .gm-troll-figure{inset:0 0 22px}
+.gm-shell[data-gm-mode="mission"] .gm-troll-name{
+  min-height:22px;
+  padding:3px 5px;
+  border-width:1px;
+  font-size:clamp(8px,.85vw,11px);
+}
+.gm-shell[data-gm-mode="mission"] .gm-troll-bubble{
+  position:relative;
+  width:auto;
+  min-height:52px;
+  margin:0 2px 2px;
+  padding:8px 43px 8px 10px;
+  border-radius:16px;
+  pointer-events:auto;
+}
+.gm-shell[data-gm-mode="mission"] .gm-troll-bubble:before{display:none}
+.gm-shell[data-gm-mode="mission"] .gm-fox-message{font-size:clamp(11px,1.05vw,14px);line-height:1.16}
+
+/* The wicker table is the visual and mathematical centre.  The source stays
+   recognisable as a physical berry crate, never a large primary CTA. */
+.gm-shell[data-gm-mode="mission"] .gm-market{
+  grid-area:market;
+  align-self:end;
+  width:auto;
+  margin:0;
+  padding:0;
+}
+.gm-shell[data-gm-mode="mission"] .gm-crates{
+  padding:0 4px clamp(3px,.5vw,7px);
+  gap:clamp(6px,1.1vw,14px);
+}
+.gm-shell[data-gm-mode="mission"] .gm-crates:before{bottom:4px;height:clamp(49px,5.6vw,72px)}
+.gm-shell[data-gm-mode="mission"] .gm-crate{height:clamp(130px,14.2vw,178px);max-width:225px}
+.gm-shell[data-gm-mode="mission"] .gm-market-fruit-supply{
+  width:min(76%,390px);
+  margin:-9px auto 0;
+}
+.gm-shell[data-gm-mode="mission"] .gm-pick.gm-strawberry-tray{
+  width:100%;
+  min-height:clamp(67px,7vw,86px);
+}
+.gm-shell[data-gm-mode="mission"] .gm-pick.gm-strawberry-tray .gm-pick-fruit{height:clamp(55px,5.9vw,73px)}
+.gm-shell[data-gm-mode="mission"] .gm-pick.gm-strawberry-tray>span:nth-child(2){
+  min-height:32px;
+  margin:-20px 0 0;
+  padding:5px 17px 6px;
+  font-size:clamp(12px,1.25vw,15px);
+}
+
+/* The live number sentence follows the physical market in a single calm
+   parchment.  It supports the scene instead of competing for its attention. */
+.gm-shell[data-gm-mode="mission"] .gm-math{
+  grid-area:maths;
+  width:auto;
+  min-height:68px;
+  margin:0;
+  padding:8px clamp(13px,1.7vw,22px);
+  border-radius:18px;
+  box-shadow:0 5px 8px #49311f45;
+}
+.gm-shell[data-gm-mode="mission"] .gm-math-equation{font-size:clamp(25px,3.2vw,42px)}
+
+/* Portrait is deliberately re-authored as a reading order, never a shrunken
+   landscape.  The compact 320px first-fold contract above remains intact. */
+@media(min-width:361px) and (max-width:899px){
+  .gm-shell[data-gm-mode="mission"] .gm-world{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    padding:8px;
+    border-radius:24px;
+    background-position:center center;
+  }
+  .gm-shell[data-gm-mode="mission"] .gm-world:after{opacity:.28;background-position:center center}
+  .gm-shell[data-gm-mode="mission"] .gm-story.gm-quest{
+    width:100%;
+    padding:13px 13px 10px;
+    border-radius:21px;
+  }
+  .gm-shell[data-gm-mode="mission"] .gm-story.gm-quest h2.gm-quest-callout{
+    font-size:clamp(24px,6.1vw,34px);
+  }
+  .gm-shell[data-gm-mode="mission"] .gm-scene{display:block;width:100%;padding:0}
+  .gm-shell[data-gm-mode="mission"] .gm-fox.gm-troll-guide{
+    display:grid;
+    grid-template-columns:1fr;
+    grid-template-rows:165px auto;
+    gap:3px;
+    min-height:218px;
+    padding:0 3px;
+  }
+  .gm-shell[data-gm-mode="mission"] .gm-troll-stage{
+    width:100%;
+    height:165px;
+    min-height:165px;
+    padding:0 clamp(15px,8vw,70px);
+    gap:clamp(7px,3vw,17px);
+  }
+  .gm-shell[data-gm-mode="mission"] .gm-troll-helper{padding-bottom:22px}
+  .gm-shell[data-gm-mode="mission"] .gm-troll-figure{inset:0 2px 19px}
+  .gm-shell[data-gm-mode="mission"] .gm-troll-name{font-size:9px;min-height:20px}
+  .gm-shell[data-gm-mode="mission"] .gm-troll-bubble{
+    width:min(100%,430px);
+    min-height:50px;
+    justify-self:center;
+    margin:0 auto;
+  }
+  .gm-shell[data-gm-mode="mission"] .gm-market,
+  .gm-shell[data-gm-mode="mission"] .gm-math{width:100%;margin:0}
+  .gm-shell[data-gm-mode="mission"] .gm-market{padding:0}
+  .gm-shell[data-gm-mode="mission"] .gm-crates{padding-top:0}
+  .gm-shell[data-gm-mode="mission"] .gm-crate{height:clamp(120px,34vw,164px)}
+  .gm-shell[data-gm-mode="mission"] .gm-market-fruit-supply{width:min(82%,420px);margin:-7px auto 0}
+  .gm-shell[data-gm-mode="mission"] .gm-pick.gm-strawberry-tray{min-height:72px}
+  .gm-shell[data-gm-mode="mission"] .gm-pick.gm-strawberry-tray .gm-pick-fruit{height:58px}
+  .gm-shell[data-gm-mode="mission"] .gm-math{min-height:64px}
+}
