@@ -8,7 +8,7 @@ const base=path.resolve(__dirname,'..'),out=process.env.FRACTION_QA_SCREENSHOTS|
 const mime={'.html':'text/html; charset=utf-8','.js':'application/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.webp':'image/webp','.png':'image/png','.svg':'image/svg+xml','.json':'application/json'};
 const profile={version:7,progressSchemaVersion:3,profile:{grade:2,onboarded:true,name:'Elev',avatar:'boy',setupVersion:2},mastery:{},mistakes:{},skillMastery:{},skillMistakes:{},skillLastSeen:{},masteryEvidence:{},skillEvidence:{},preferences:{sound:false,autoRead:false},lastMilestone:null,recentCountryWin:null,lastActivity:null,journey:{nodes:{},gradeWins:{},viewGrades:{}},answerLog:[],sessionLog:[],activeSession:null};
 function server(){return new Promise((resolve,reject)=>{const srv=http.createServer((req,res)=>{let name=decodeURIComponent(new URL(req.url,'http://localhost').pathname);if(name.endsWith('/'))name+='index.html';const f=path.resolve(base,'.'+name);if(!f.startsWith(base+path.sep)){res.writeHead(403);res.end('Forbidden');return}fs.readFile(f,(err,buf)=>{if(err){res.writeHead(404);res.end('Not found');return}res.setHeader('Content-Type',mime[path.extname(f)]||'application/octet-stream');res.setHeader('Cache-Control','no-store');res.end(buf)})});srv.once('error',reject);srv.listen(0,'127.0.0.1',()=>resolve({srv,url:'http://127.0.0.1:'+srv.address().port+'/laer-litt-mer/?app=laria'}))})}
-async function photo(page,label){await fs.promises.mkdir(out,{recursive:true});await page.screenshot({path:path.join(out,label+'.png'),fullPage:true,animations:'disabled'})}
+async function photo(page,label,fullPage=true){await fs.promises.mkdir(out,{recursive:true});await page.screenshot({path:path.join(out,label+'.png'),fullPage,animations:'disabled'})}
 const cakeState=page=>page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build);
 const count=(page,selector)=>page.locator(selector).count();
 const pct=page=>page.locator('.fc-percent-equality b').innerText();
@@ -48,7 +48,7 @@ async function run(browser,engine,label,viewport,url,full){
   assert.ok(picture.length>=5&&picture.every(x=>x.width>0),label+' original scenery and troll art must load '+JSON.stringify(picture));
   assert.ok(picture.some(x=>x.src.includes('skala-window.webp')),'Skåla must remain recognizable as an independent scenic layer');
   await assertFirstFold(page,label,viewport.width,viewport.height);
-  await photo(page,label+'-01-fjordbakeriet');
+  await photo(page,label+'-01-fjordbakeriet',false); // Capture actual first viewport; fullPage Safari capture can perturb scroll position before first tap.
   // Exactly the interaction the child should see first. Never rely on a static image.
   await page.locator('.fc-add-one').click();
   assert.deepEqual((await cakeState(page)).filled,[0,1]);
