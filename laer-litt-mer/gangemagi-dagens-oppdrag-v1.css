@@ -2122,6 +2122,18 @@
   line-height:1.06;
 }
 
+/* The five-basket preview must shrink WITH its teaching card rather than
+   draw the fifth wicker basket outside the card on iPad landscape. */
+.gm-shell[data-gm-mode="mission"] .gm-quest-filled-preview{
+  width:100%;
+  min-width:0;
+}
+.gm-shell[data-gm-mode="mission"] .gm-quest-mini-basket{
+  flex:1 1 0;
+  min-width:0;
+  max-width:48px;
+}
+
 /* The three exact locked character assets become the left foreground group,
    with room for their bodies and names — not thumbnail controls. */
 .gm-shell[data-gm-mode="mission"] .gm-scene{
