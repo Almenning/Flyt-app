@@ -2183,7 +2183,8 @@
 .gm-shell[data-gm-mode="mission"] .gm-market{
   grid-area:market;
   align-self:end;
-  width:auto;
+  justify-self:stretch;
+  width:100%;
   margin:0;
   padding:0;
 }
@@ -2193,6 +2194,7 @@
 }
 .gm-shell[data-gm-mode="mission"] .gm-crates:before{bottom:4px;height:clamp(49px,5.6vw,72px)}
 .gm-shell[data-gm-mode="mission"] .gm-crate{height:clamp(130px,14.2vw,178px);max-width:225px}
+.gm-shell[data-gm-mode="mission"] .gm-crate-front{min-height:44px}
 .gm-shell[data-gm-mode="mission"] .gm-market-fruit-supply{
   width:min(76%,390px);
   margin:-9px auto 0;
