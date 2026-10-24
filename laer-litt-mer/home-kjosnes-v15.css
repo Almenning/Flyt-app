@@ -169,3 +169,15 @@
  background:linear-gradient(#a97843,#75502f);color:#fff2d0;font:inherit;font-weight:900;
  box-shadow:0 4px 0 #54361f;cursor:pointer
 }
+
+
+/* Portrait uses the dedicated locked portrait master on both phone and iPad. */
+@media(orientation:portrait){
+ .grade-band-young .bc12.bc15-locked-home .bc12-nav{
+   grid-template-columns:repeat(5,minmax(0,1fr))!important;
+ }
+ .grade-band-young .bc12.bc15-locked-home .bc12-nav button[data-camp="home"]{
+   position:static!important;left:auto!important;top:auto!important;
+   width:auto!important;height:auto!important;display:block!important;
+ }
+}
