@@ -67,9 +67,24 @@ async function run(engine,label,viewport){
 
    const cards=[];
    for(const el of await page.locator('.bc14-subject').all())cards.push(await rect(el));
+   const host=await rect(page.locator('#home-screen.active .bc12'));
    const journey=await rect(page.locator('.bc12-journey'));
    const nav=await rect(page.locator('.bc12-nav'));
    const scroll=await page.evaluate(()=>document.documentElement.scrollWidth);
+   const master=expectedMaster==='phone'
+     ? {ratio:280/580,subjects:{left:.044,top:.728},journey:{left:.052,top:.620}}
+     : {ratio:760/459,subjects:{left:.353,top:.692},journey:{left:.028,top:.747}};
+   const near=(actual,expected,tolerance=4)=>Math.abs(actual-expected)<=tolerance;
+   assert(Math.abs(host.width/host.height-master.ratio)<.006,
+     label+' locked master aspect ratio changed '+JSON.stringify(host));
+   assert(near(cards[0].x,host.x+host.width*master.subjects.left),
+     label+' first subject hit area drifted from locked artwork '+JSON.stringify({host,first:cards[0]}));
+   assert(near(cards[0].y,host.y+host.height*master.subjects.top),
+     label+' subject row drifted vertically from locked artwork '+JSON.stringify({host,first:cards[0]}));
+   assert(near(journey.x,host.x+host.width*master.journey.left),
+     label+' journey hit area drifted from visible button '+JSON.stringify({host,journey}));
+   assert(near(journey.y,host.y+host.height*master.journey.top),
+     label+' journey hit area drifted vertically from visible button '+JSON.stringify({host,journey}));
    assert(scroll<=viewport.width+1,label+' horizontal overflow');
    assert(cards.every(r=>r.width>=44&&r.height>=44&&r.x>=-1&&r.right<=viewport.width+1),label+' clipped/tiny v15 subject target '+JSON.stringify(cards));
    assert(journey.width>=44&&journey.height>=44,label+' v15 journey target too small '+JSON.stringify(journey));
