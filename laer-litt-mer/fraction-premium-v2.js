@@ -336,7 +336,11 @@ function fractionEquivalents(n,d){
 }
 function build(){
   const x=u.build,half=x.d%2===0&&x.n*2===x.d;
-  const questStatus=u.halfQuest?(half?'Du fant en halv! '+x.n+'/'+x.d+' = 1/2. Vil du leke videre?':'Kan du lage en halv kake? Fyll like mye som halvparten.'):'Utforsk kaken fritt, eller prøv en liten utfordring.';
+  const questStatus=u.halfQuest
+    ?(half?'Du fant en halv! '+x.n+'/'+x.d+' = 1/2. Vil du leke videre?'
+      :x.d%2!==0?'En halv krever at kaken har et partall like deler. Prøv 2, 4 eller 6 deler.'
+      :'Kan du lage en halv kake? Fyll like mye som halvparten.')
+    :'Utforsk kaken fritt, eller prøv en liten utfordring.';
   const status=x.n===0?'Trykk på et stykke!':x.n===x.d?'Du har én hel!':half?'Det er en halv!':x.n+' av '+x.d+'!';
   // A tray wedge represents one exact empty sector, not an infinite generic supply.
   const remaining=Array.from({length:x.d},(_,i)=>i).filter(i=>!x.filled.includes(i));
@@ -353,6 +357,7 @@ function build(){
    +'<div class="fr7-mobile-discovery">'+cta('toggle-equivalents',u.showEquivalents?'Skjul desimaltall og prosent':'Se desimaltall og prosent','fr7-equivalents-toggle','aria-expanded="'+u.showEquivalents+'" aria-controls="fr7-mobile-values"')
    +'<div id="fr7-mobile-values" class="fr7-mobile-equivalents" '+(u.showEquivalents?'':'hidden')+'><div class="fr7-values-heading">Samme mengde som</div>'+fractionEquivalents(x.n,x.d)+'</div></div>'
    +'<div class="fr8-quest" role="group" aria-label="Frivillig brøkoppdagelse"><span class="fr8-quest-star" aria-hidden="true">✦</span><span class="fr8-quest-text" role="status" aria-live="polite">'+questStatus+'</span>'+cta('half-quest',u.halfQuest?'Lek fritt':'Prøv en halv','fr8-quest-button','aria-pressed="'+u.halfQuest+'"')+'</div>'
+    +(u.halfQuest&&half?'<div class="fr8-aha" role="status" aria-label="Du har laget en halv, '+x.n+' av '+x.d+' er like mye som én av to"><span>'+fractionSvg(x.n,x.d,'quest')+'</span><b>'+x.n+'/'+x.d+' = 1/2</b><span>'+fractionSvg(1,2,'quest')+'</span></div>':'')
     +'<div class="fr2-actions">'+cta('reset','Tøm kaken','fr2-secondary')+cta('next-build','Del kaken på nytt ›','fr2-primary')+'</div></section>';
 }
 
@@ -401,9 +406,20 @@ function mastery(){
  +'<div class="fr2-next-suggestion"><span aria-hidden="true">🗺️</span><div><small>Prøv dette neste</small><strong>'+titles[next]+'</strong><p>Alle aktivitetene er åpne, også dem du kjenner godt.</p></div>'+cta('go','›','fr2-next-arrow','data-page="'+next+'" aria-label="Åpne '+titles[next]+'"')+'</div>'+mascot('Nysgjerrighet er superkraften din!')+'</section>';
 }
 function render(){
- const root=document.getElementById(ROOT);if(!root)return;svgId=0;
+ const root=document.getElementById(ROOT);if(!root)return;
+ // Keep the sky, clouds and approved companion in place while the cake updates.
+ // A whole-screen replacement would restart all movement after every touch.
+ const liveWorld=root.querySelector('.fr8-landscape');
+ const liveTroll=root.querySelector('.fr8-troll'),liveTrollSrc=liveTroll?.getAttribute('src');
+ svgId=0;
  const content=u.page==='home'?home():u.page==='explore'?explore():u.page==='build'?build():u.page==='equal'?equalScreen():u.page==='sort'?sorting():u.page==='convert'?convert():mastery();
  root.innerHTML='<div class="fr2-shell '+(u.page==='build'?'fr8-shell ':'')+(grade()<=2?'fr2-young':grade()<=4?'fr2-middle':'fr2-older')+'"><div class="fr2-world-art" aria-hidden="true"></div><div class="fr2-content">'+topBar()+content+screenTabs()+'</div></div>';
+ if(u.page==='build'){
+   const freshWorld=root.querySelector('.fr8-landscape');
+   if(liveWorld&&freshWorld)freshWorld.replaceWith(liveWorld);
+   const freshTroll=root.querySelector('.fr8-troll');
+   if(liveTroll&&freshTroll&&liveTrollSrc===freshTroll.getAttribute('src'))freshTroll.replaceWith(liveTroll);
+ }
 }
 function enter(next){
  if(!Object.prototype.hasOwnProperty.call(titles,next)&&next!=='home')return;
