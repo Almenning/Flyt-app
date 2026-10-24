@@ -78,9 +78,13 @@ async function run(engine,label,viewport){
    const liveGreeting=(await page.locator('.bc15-live-greeting').innerText()).trim();
    assert.match(liveGreeting,/Testbarn/,label+' dynamic greeting must use profile name');
    assert.doesNotMatch(liveGreeting,/Aleah/,label+' locked mockup name must not leak as live child identity');
+   assert.equal(await page.locator('.bc15-live-intro').isVisible(),false,
+     label+' live overlay must not duplicate the generic intro already baked into the locked master');
    const originalNext=(await page.locator('[data-camp-next]').innerText()).trim();
    assert(originalNext,label+' hidden journey state must expose a next place');
-   assert((await page.locator('.bc15-live-next').innerText()).includes(originalNext),label+' live next-stop copy must mirror journey state');
+   const liveNextText=(await page.locator('.bc15-live-next').innerText()).trim();
+   assert(liveNextText.includes(originalNext),label+' live next-stop copy must mirror journey state');
+   assert.match(liveNextText,/^(Pågående|Neste stopp) · /,label+' journey status must use the compact integrated label');
    assert.equal(await page.locator('.bc14-subject:visible').count(),4,label+' must keep four real subject hit areas');
    assert.equal(await page.locator('.bc12-journey:visible').count(),1,label+' journey action must stay real');
    assert.equal(await page.locator('.bc12-fox:visible').count(),0,label+' old fox must not be visible on Home v15');
@@ -95,12 +99,21 @@ async function run(engine,label,viewport){
      const cards=[...document.querySelectorAll('.bc14-subject')].map(rect);
      const journey=rect(document.querySelector('.bc12-journey'));
      const nav=rect(document.querySelector('.bc12-nav'));
+     const liveNext=rect(document.querySelector('.bc15-live-next'));
+     const liveCopy=rect(document.querySelector('.bc15-live-copy'));
      const navButtons=[...document.querySelectorAll('.bc12-nav button')].filter(e=>getComputedStyle(e).display!=='none').map(rect);
-     return {cards,journey,nav,navButtons,scroll:document.documentElement.scrollWidth,viewport:innerWidth};
+     const liveCopyBg=getComputedStyle(document.querySelector('.bc15-live-copy')).backgroundImage;
+     return {cards,journey,nav,liveNext,liveCopy,liveCopyBg,navButtons,scroll:document.documentElement.scrollWidth,viewport:innerWidth};
    });
    assert(geom.scroll<=geom.viewport+1,label+' horizontal overflow '+JSON.stringify(geom));
    assert(geom.cards.every(r=>r.width>=44&&r.height>=44),label+' subject touch target too small '+JSON.stringify(geom.cards));
    assert(geom.journey.width>=44&&geom.journey.height>=44,label+' journey touch target too small');
+   assert(geom.liveNext.x>=geom.journey.x-2&&geom.liveNext.right<=geom.journey.right+2&&
+     geom.liveNext.y>=geom.journey.y-2&&geom.liveNext.bottom<=geom.journey.bottom+2,
+     label+' journey status escaped the painted Fortsett reisen sign '+JSON.stringify({journey:geom.journey,status:geom.liveNext}));
+   assert(geom.liveCopy.width<geom.viewport*.65,label+' greeting overlay became a dashboard-sized panel '+JSON.stringify(geom.liveCopy));
+   assert.doesNotMatch(geom.liveCopyBg,/rgba?\([^)]*,\s*0\./,
+     label+' greeting plaque must be fully opaque so baked child-name text cannot ghost through: '+geom.liveCopyBg);
    assert(geom.navButtons.every(r=>r.width>=44&&r.height>=44),label+' nav touch target too small '+JSON.stringify(geom.navButtons));
    assert(geom.navButtons.every(r=>r.x>=-1&&r.right<=geom.viewport+1),label+' nav touch target outside viewport '+JSON.stringify(geom.navButtons));
    await page.screenshot({path:folder+'/'+label+'-home.png',fullPage:true});
