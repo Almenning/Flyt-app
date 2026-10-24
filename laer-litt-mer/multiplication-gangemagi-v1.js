@@ -451,7 +451,6 @@
      if(ix>=0)change({type:'add',group:ix});
    }
  }
- }
  // Pointer events power both interactions: source -> basket adds, basket
  // berry -> source removes. The actual maths still goes through E.apply.
  function clearDropHighlights(){
