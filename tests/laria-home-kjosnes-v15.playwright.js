@@ -2,7 +2,21 @@
 /* Exact-head proof for Læria Home v15: locked Kjøsnesfjorden masters + real controls. */
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
+const crypto=require('node:crypto');
+const path=require('node:path');
 const {chromium,webkit}=require('playwright');
+
+const LOCKED_MASTERS=[
+ {file:'laer-litt-mer/assets/home-v15/kjosnes-home-tablet.webp',bytes:59628,sha:'b5165fa109db03d947e302f165467b70a63cbaee933d0f9b71ccfce903525844'},
+ {file:'laer-litt-mer/assets/home-v15/kjosnes-home-phone.webp',bytes:52882,sha:'0d804d147dc38d259c13757522907f953488f0b40dea298a8efc06055427c8f7'}
+];
+function verifyLockedMasterFiles(){
+ for(const item of LOCKED_MASTERS){
+   const buf=fs.readFileSync(path.resolve(item.file));
+   assert.equal(buf.length,item.bytes,item.file+' byte length changed');
+   assert.equal(crypto.createHash('sha256').update(buf).digest('hex'),item.sha,item.file+' locked SHA-256 changed');
+ }
+}
 const folder=process.env.HOME_V15_SCREENSHOTS||'/tmp/laria-home-v15';
 fs.mkdirSync(folder,{recursive:true});
 
@@ -25,7 +39,8 @@ async function homeReady(page,label){
  const asset=await home.getAttribute('data-bc15-asset');
  assert.match(asset,/^(phone|tablet)-ready$/,label+' locked master did not activate');
  const art=await home.evaluate(el=>getComputedStyle(el).getPropertyValue('--bc15-home-art'));
- const expected=label.includes('iphone')?'kjosnes-home-phone.webp':'kjosnes-home-tablet.webp';
+ const portrait=label.includes('iphone')||(label.includes('ipad')&&!label.includes('landscape'));
+ const expected=portrait?'kjosnes-home-phone.webp':'kjosnes-home-tablet.webp';
  assert(art.includes(expected),label+' must use the exact locked WebP master: '+art);
  return home;
 }
@@ -116,6 +131,7 @@ async function run(engine,label,viewport){
 }
 
 (async()=>{
+ verifyLockedMasterFiles();
  for(const [label,engine,viewport] of [
    ['chromium-iphone',chromium,{width:390,height:844}],
    ['safari-iphone',webkit,{width:390,height:844}],
