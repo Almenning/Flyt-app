@@ -101,6 +101,20 @@ async function run(engine,label,viewport){
    const liveNextText=(await page.locator('.bc15-live-next').innerText()).trim();
    assert(liveNextText.includes(originalNext),label+' live next-stop copy must mirror journey state');
    assert.match(liveNextText,/^(Pågående|Neste stopp) · /,label+' journey status must use the compact integrated label');
+   const routeSubjectName=(await home.getAttribute('data-journey-subject')||'').trim();
+   const routeSubject=page.locator('.bc14-subject.bc15-route-subject');
+   assert(routeSubjectName,label+' Home must expose the current journey subject');
+   assert.equal(await routeSubject.count(),1,label+' must emphasize exactly one journey subject');
+   assert.equal(await routeSubject.getAttribute('data-camp'),'subject-'+routeSubjectName,
+     label+' emphasized subject must match the current journey');
+   assert.equal(await routeSubject.getAttribute('aria-current'),'step',
+     label+' emphasized subject must expose its current-step semantics');
+   const routeState=await home.getAttribute('data-bc15-route-state');
+   assert.match(routeState,/^(active|next)$/,label+' route state missing');
+   assert.equal(await page.locator('.bc12-journey').getAttribute('data-bc15-state'),routeState,
+     label+' journey emphasis state must mirror Home route state');
+   if(portrait)assert.equal((await page.locator('.bc15-live-intro').innerText()).trim(),'Hvor skal vi dra i dag?',
+     label+' portrait invitation must keep the approved child-facing Home copy');
    assert.equal(await page.locator('.bc14-subject:visible').count(),4,label+' must keep four real subject hit areas');
    assert.equal(await page.locator('.bc12-journey:visible').count(),1,label+' journey action must stay real');
    assert.equal(await page.locator('.bc12-fox:visible').count(),0,label+' old fox must not be visible on Home v15');
@@ -129,6 +143,8 @@ async function run(engine,label,viewport){
      const liveCopy=rect(document.querySelector('.bc15-live-copy'));
      const navButtons=[...document.querySelectorAll('.bc12-nav button')].filter(e=>getComputedStyle(e).display!=='none').map(rect);
      const host=document.querySelector('.bc12.bc15-locked-home');
+     const routeSubjectStyle=getComputedStyle(document.querySelector('.bc14-subject.bc15-route-subject'));
+     const journeyStyle=getComputedStyle(document.querySelector('.bc12-journey'));
      const liveCopyStyle=getComputedStyle(document.querySelector('.bc15-live-copy'));
      const liveNextStyle=getComputedStyle(document.querySelector('.bc15-live-next'));
      const liveCopyBg=liveCopyStyle.backgroundImage;
@@ -137,11 +153,15 @@ async function run(engine,label,viewport){
      const artLeft=parseFloat(getComputedStyle(host).getPropertyValue('--bc15-art-left'))||0;
      const artTop=parseFloat(getComputedStyle(host).getPropertyValue('--bc15-art-top'))||0;
      const artWidth=parseFloat(getComputedStyle(host).getPropertyValue('--bc15-art-width'))||0;
-     return {cards,journey,nav,liveNext,liveCopy,liveCopyBg,liveNextBg,liveCopyShadow:liveCopyStyle.boxShadow,liveNextShadow:liveNextStyle.boxShadow,scenicFilter:scenic.filter,scenicBg:scenic.backgroundImage,artLeft,artTop,artWidth,navButtons,scroll:document.documentElement.scrollWidth,viewport:innerWidth};
+     return {cards,journey,nav,liveNext,liveCopy,liveCopyBg,liveNextBg,routeSubjectOpacity:Number(routeSubjectStyle.opacity),journeyOpacity:Number(journeyStyle.opacity),liveCopyShadow:liveCopyStyle.boxShadow,liveNextShadow:liveNextStyle.boxShadow,scenicFilter:scenic.filter,scenicBg:scenic.backgroundImage,artLeft,artTop,artWidth,navButtons,scroll:document.documentElement.scrollWidth,viewport:innerWidth};
    });
    assert(geom.scroll<=geom.viewport+1,label+' horizontal overflow '+JSON.stringify(geom));
    assert(geom.cards.every(r=>r.width>=44&&r.height>=44),label+' subject touch target too small '+JSON.stringify(geom.cards));
    assert(geom.journey.width>=44&&geom.journey.height>=44,label+' journey touch target too small');
+   assert(geom.routeSubjectOpacity>.001&&geom.routeSubjectOpacity<=.09,
+     label+' route subject emphasis must be visible but subtle: '+geom.routeSubjectOpacity);
+   assert(geom.journeyOpacity>.001&&geom.journeyOpacity<=.10,
+     label+' journey emphasis must be visible but subtle: '+geom.journeyOpacity);
    assert(geom.liveNext.x>=geom.journey.x-2&&geom.liveNext.right<=geom.journey.right+2&&
      geom.liveNext.y>=geom.journey.y-2&&geom.liveNext.bottom<=geom.journey.bottom+2,
      label+' journey status escaped the painted Fortsett reisen sign '+JSON.stringify({journey:geom.journey,status:geom.liveNext}));
