@@ -90,10 +90,12 @@ async function run(browser,engine,label,viewport,url){
   }
   // Keyboard interaction must remain on the same tactile control after
   // replacing the fraction DOM. Children must be able to press twice.
+  await page.evaluate(()=>{window.__fr8WorldBefore=document.querySelector('.fr8-landscape');window.__fr8TrollBefore=document.querySelector('.fr8-troll')});
   const up=page.locator('.fr6-controls [data-fr-action="adjust"][data-field="n"][data-step="1"]');
   await up.focus();
   await page.keyboard.press('Enter');
   assert.equal(await page.locator('.fr6-result .fr2-fraction').getAttribute('aria-label'),'2 av 4');
+  assert.ok(await page.evaluate(()=>window.__fr8WorldBefore===document.querySelector('.fr8-landscape')&&window.__fr8TrollBefore===document.querySelector('.fr8-troll')),label+' live landscape and troll must NOT restart on every cake interaction');
   assert.ok(await up.evaluate(el=>document.activeElement===el),label+' lost focus after teller increase');
   const down=page.locator('.fr6-controls [data-fr-action="adjust"][data-field="n"][data-step="-1"]');
   await down.focus();
@@ -147,7 +149,10 @@ async function run(browser,engine,label,viewport,url){
   await page.locator('[data-fr-action="adjust"][data-field="n"][data-step="1"]').click();
   assert.equal(await page.locator('.fr8-scene').getAttribute('data-fr8-found'),'true');
   assert.ok((await page.locator('.fr8-quest-text').innerText()).includes('1/2'));
+  assert.equal(await page.locator('.fr8-aha .fr2-pie-quest').count(),2,'the same half must be shown visually as two equivalent cakes');
   await photo(page,label+'-03-half-quest');
+  await page.locator('[data-fr-action="adjust"][data-field="d"][data-step="1"]').click();
+  assert.match(await page.locator('.fr8-quest-text').innerText(),/partall/,'a child must not be asked to form exactly half from three equal parts');
   await page.locator('[data-fr-action="half-quest"]').click();
   assert.equal(await page.locator('.fr8-scene').getAttribute('data-fr8-quest'),'free');
   assert.equal((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build)).n,1,'switching to free play must not reset the cake');
