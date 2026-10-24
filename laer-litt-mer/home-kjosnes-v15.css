@@ -273,18 +273,26 @@
    color:#f8edd0;text-shadow:0 1px 3px rgba(0,0,0,.32);
  }
  .grade-band-young .bc12.bc15-locked-home .bc15-live-next{
-   padding:0 5px;border:0;border-radius:0;background:transparent!important;
-   box-shadow:none;color:#4b3018;text-shadow:0 1px 0 rgba(255,238,196,.78);
-   font-size:clamp(9px,2.5vw,11.5px);
+   padding:1px 6px 2px;border:0;border-radius:3px;
+   background:linear-gradient(180deg,#efc37d 0%,#e8b86f 100%)!important;
+   box-shadow:inset 0 1px 0 rgba(255,235,190,.58);
+   color:#4b3018;text-shadow:0 1px 0 rgba(255,238,196,.72);
+   font-size:clamp(9px,2.45vw,11.3px);
  }
+
 }
 
 /* Portrait uses a dedicated scenic treatment. A phone sky is not a landscape canopy,
    and iPad portrait gets a symmetrical storybook frame instead of mismatched side bars. */
 @media(max-width:700px) and (orientation:portrait){
  .grade-band-young .bc12.bc15-locked-home::before{
-   background:linear-gradient(90deg,#6c727b 0%,#3b74b7 18%,#327ed5 38%,#428fe6 68%,#4693e8 100%);
-   box-shadow:inset 0 -14px 20px -20px #2f6f9d;
+   /* Extend the real phone-master edge as sky/canopy, rather than a flat blue letterbox. */
+   background:
+     radial-gradient(ellipse 42% 150% at -4% 118%,rgba(35,52,31,.98) 0%,rgba(53,78,43,.86) 34%,rgba(73,101,58,.34) 52%,rgba(73,101,58,0) 68%),
+     radial-gradient(ellipse 36% 62% at 25% 108%,rgba(246,240,216,.30) 0%,rgba(246,240,216,.12) 43%,rgba(246,240,216,0) 72%),
+     radial-gradient(ellipse 38% 64% at 73% 111%,rgba(255,239,209,.18) 0%,rgba(255,239,209,0) 70%),
+     linear-gradient(180deg,#58a4e8 0%,#4d9ee7 56%,#4397df 100%);
+   box-shadow:inset 0 -16px 22px -22px #2e6d9b;
  }
 }
 @media(min-width:701px) and (orientation:portrait){
@@ -304,7 +312,9 @@
    display:block!important;margin-top:5px;color:#f6ead0;font-size:clamp(12px,1.8vw,17px);font-weight:800;
  }
  .grade-band-young .bc12.bc15-locked-home .bc15-live-next{
-   border:0;border-radius:0;background:transparent!important;box-shadow:none;
+   border:0;border-radius:3px;
+   background:linear-gradient(180deg,#efc37d 0%,#e8b86f 100%)!important;
+   box-shadow:inset 0 1px 0 rgba(255,235,190,.58);
    color:#4b3018;text-shadow:0 1px 0 rgba(255,238,196,.78);
  }
 }
