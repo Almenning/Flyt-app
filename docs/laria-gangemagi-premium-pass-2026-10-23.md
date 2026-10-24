@@ -68,3 +68,9 @@ Retningen er tydeligere og nærmere den låste komposisjonen: handlingen er saml
 - Nye Playwright-asserts kontrollerer faktisk tekstklipping og alle fem tall både før og etter at ett jordbær er lagt i. Ny eksakt-HEAD Chromium/WebKit-gjennomgang og oppdaterte screenshots kreves før godkjenning.
 - Release42 bumpes både i HTML, service worker og cache-test, slik at Safari laster ny CSS fremfor eldre release41-variant.
 - Premiumavvik består: high-detail `home-math-v14.webp` med foss/skog ligger over Tallenga-markeds-SVG og gjengir ikke den låste markedsplassen med sollys, bro, boder og 2.5D-dybde. Original brukergodkjent PNG er ikke vedlagt repoet. Ingen merge/publisering.
+
+### 24.10.2026 – release44: 320×568 får hele læringssløyfen i første skjerm
+- Visuell kontroll av release42 viste at fullsidebildet var ryddig, men `GANGEMAGI_FIRSTFOLD` på liten iPhone målte mattefeltets bunn til ca. 627 px i en 568 px viewport. Barnet så dermed kurver og jordbærkilde, men ikke hele mattefeltet uten scroll.
+- Dette er et reelt avvik fra den låste kontrakten om at aktiv kurv, fysisk plukkekilde og matematisk konsekvens skal være forståelig i første skjerm.
+- Kun `<=360px / <=650px` komprimeres: mindre dekorativ padding, en fortsatt fullfigur men smalere revekolonne, 108 px illustrerte kurver og 70 px fysisk jordbærkilde. Ingen touchkontroll går under 44 px, og spillmotor/progresjon er urørt.
+- Playwright krever nå eksplisitt store nok kurver, touch-sikker kilde og at hele mattefeltet ligger innenfor 320×568-viewporten. Ny eksakt-HEAD Chromium/WebKit og ekte skjermbilder kreves.

@@ -1452,3 +1452,47 @@
  .gm-shell[data-gm-mode="mission"][data-gm-groups="5"][data-gm-complete="true"] .gm-math-equation{grid-column:1;grid-row:2}
  .gm-shell[data-gm-mode="mission"][data-gm-groups="5"][data-gm-complete="true"] .gm-berry-progress{grid-row:2}
 }
+
+/* 320×568 first-fold contract: keep the whole direct-manipulation loop
+   visible before scrolling. Compress decorative breathing room only; baskets,
+   berry source and controls remain comfortably above the 44px touch floor. */
+@media(max-width:360px) and (max-height:650px){
+ .gm-shell[data-gm-mode="mission"] .gm-layout{padding-top:4px}
+ .gm-shell[data-gm-mode="mission"] .gm-world{padding:5px}
+ .gm-shell[data-gm-mode="mission"] .gm-story.gm-quest{
+   padding:10px 11px 8px;
+   border-radius:19px
+ }
+ .gm-shell[data-gm-mode="mission"] .gm-quest-ribbon{font-size:11px;line-height:1}
+ .gm-shell[data-gm-mode="mission"] .gm-story.gm-quest h2.gm-quest-callout{
+   margin:2px auto 0;
+   font-size:clamp(22px,7.4vw,25px);
+   line-height:1.02
+ }
+ .gm-shell[data-gm-mode="mission"] .gm-scene{margin-top:0}
+ .gm-shell[data-gm-mode="mission"] .gm-fox{
+   grid-template-columns:94px minmax(0,1fr);
+   min-height:116px;
+   gap:4px;
+   margin-bottom:0;
+   padding:0 2px
+ }
+ .gm-shell[data-gm-mode="mission"] .gm-fox-art{width:94px;height:116px}
+ .gm-shell[data-gm-mode="mission"] .gm-fox-bubble{
+   padding:8px 44px 8px 10px;
+   border-radius:15px
+ }
+ .gm-shell[data-gm-mode="mission"] .gm-fox-message{font-size:13px;line-height:1.1}
+ .gm-shell[data-gm-mode="mission"] .gm-market{padding-top:4px}
+ .gm-shell[data-gm-mode="mission"] .gm-crates{padding-top:3px}
+ .gm-shell[data-gm-mode="mission"] .gm-crate{height:108px}
+ .gm-shell[data-gm-mode="mission"] .gm-pick.gm-strawberry-tray{
+   min-height:70px;
+   width:min(82vw,360px)
+ }
+ .gm-shell[data-gm-mode="mission"] .gm-pick.gm-strawberry-tray .gm-pick-fruit{height:59px}
+ .gm-shell[data-gm-mode="mission"] .gm-math{
+   min-height:60px;
+   padding:6px 10px
+ }
+}

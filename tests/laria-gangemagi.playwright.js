@@ -373,6 +373,14 @@ async function check(engine,label,viewport,url){
   });
   console.log('GANGEMAGI_FIRSTFOLD '+label+' '+JSON.stringify(first));
   assert.ok(first.scrollWidth<=first.screen+4,label+' horizontal overflow '+JSON.stringify(first));
+  if(viewport.width<=360&&viewport.height<=650){
+    assert.ok(first.crate&&first.crate.height>=96,
+      label+' compact first fold must keep large recognisable baskets '+JSON.stringify(first));
+    assert.ok(first.source&&first.source.height>=44,
+      label+' compact first fold must keep a touch-safe physical berry source '+JSON.stringify(first));
+    assert.ok(first.math&&first.math.bottom<=first.height+1,
+      label+' compact first fold must show the complete maths parchment before scrolling '+JSON.stringify(first));
+  }
   assert.equal(await page.locator('.gm-market-fruit-supply .gm-pick').count(),1,
     label+' the real strawberry supply belongs in the illustrated market');
   if(viewport.width>=700&&viewport.width<=899&&viewport.height<=699){
