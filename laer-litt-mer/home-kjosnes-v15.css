@@ -260,9 +260,7 @@
    display:flex;flex-direction:column;align-items:flex-start;justify-content:center;
    padding:8px 14px 9px 17px;border:0;border-radius:0;
    /* Replace the baked child name with painted sky, not another UI card. */
-   background:
-     radial-gradient(ellipse 30% 70% at 44% 18%,rgba(255,255,255,.34) 0%,rgba(255,255,255,.12) 34%,rgba(255,255,255,0) 68%),
-     linear-gradient(96deg,#438dcc 0%,#59a2dc 64%,#67afe4 82%,rgba(103,175,228,0) 100%);
+   background:linear-gradient(96deg,#3f86c6 0%,#5198d2 58%,#63a9df 100%);
    color:#fff;text-shadow:0 2px 4px rgba(19,56,91,.62);
    box-shadow:none;
  }
@@ -275,13 +273,15 @@
    color:#fff7df;text-shadow:0 1px 3px rgba(20,59,94,.66);
  }
  .grade-band-young .bc12.bc15-locked-home .bc15-live-next{
-   padding:0 4px;border:0;border-radius:0;
-   background:transparent!important;box-shadow:none!important;
+   padding:0 4px;border:0;border-radius:1px;
+   /* Match the painted sign so placeholder copy is covered without a visible UI pill. */
+   background:linear-gradient(180deg,#efb774 0%,#f1ad68 100%)!important;
+   box-shadow:none!important;
    color:#5a351b;text-shadow:0 1px 0 rgba(255,236,190,.92);
    font-size:clamp(9px,2.35vw,10.8px);font-weight:900;
  }
  .grade-band-young .bc12.bc15-locked-home .bc15-live-next[data-state="next"]{
-   background:transparent!important;
+   background:linear-gradient(180deg,#efb774 0%,#f1ad68 100%)!important;
  }
 }
 
