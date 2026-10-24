@@ -354,6 +354,7 @@
 .gm-shell[data-gm-mode="mission"] .gm-crate-wrap{
   position:relative;
   z-index:1;
+  isolation:isolate;
   min-width:0;
   padding-bottom:clamp(16px,1.8vw,24px);
 }
@@ -475,7 +476,7 @@
 .gm-shell[data-gm-mode="mission"] .gm-crate[data-gm-count="0"] .gm-crate-tag{display:none}
 .gm-shell[data-gm-mode="mission"] .gm-remove{
   position:absolute;
-  z-index:6;
+  z-index:30;
   top:-2px;
   right:-5px;
   width:44px;
@@ -1689,6 +1690,40 @@
     height:25px;
     right:-2px;
   }
+}
+@media(min-width:361px) and (max-width:699px){
+  .gm-shell[data-gm-mode="mission"] .gm-fox.gm-troll-guide{
+    grid-template-columns:1fr;
+    grid-template-rows:150px auto;
+    align-items:start;
+    gap:4px;
+    min-height:204px;
+    padding:0 2px;
+  }
+  .gm-shell[data-gm-mode="mission"] .gm-troll-stage{
+    width:100%;
+    height:150px;
+    gap:4px;
+  }
+  .gm-shell[data-gm-mode="mission"] .gm-troll-helper{
+    padding-bottom:22px;
+  }
+  .gm-shell[data-gm-mode="mission"] .gm-troll-figure{
+    inset:0 0 19px;
+  }
+  .gm-shell[data-gm-mode="mission"] .gm-troll-name{
+    min-height:20px;
+    padding:3px 6px;
+    font-size:9px;
+  }
+  .gm-shell[data-gm-mode="mission"] .gm-troll-bubble{
+    width:100%;
+    max-width:none;
+    min-height:50px;
+    justify-self:stretch;
+    padding:8px 48px 8px 12px;
+  }
+  .gm-shell[data-gm-mode="mission"] .gm-troll-bubble:before{display:none}
 }
 @media(max-width:360px){
   .gm-shell[data-gm-mode="mission"] .gm-fox.gm-troll-guide{
