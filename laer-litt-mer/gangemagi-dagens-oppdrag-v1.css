@@ -2074,15 +2074,27 @@
     linear-gradient(180deg,rgba(255,246,224,.12),rgba(255,235,198,.08) 42%,rgba(67,117,79,.18)),
     url('./gangemagi-grovanova-storybook-locked.webp?v=release56') center 54% / cover no-repeat;
 }
+.gm-shell[data-gm-mode="mission"] .gm-world:before{
+  content:"";
+  display:block;
+  position:absolute;
+  inset:0;
+  z-index:0;
+  border-radius:inherit;
+  background:url('./gangemagi-grovanova-atmosphere-v1.svg?v=release60') center / cover no-repeat;
+  opacity:.86;
+  pointer-events:none;
+}
 .gm-shell[data-gm-mode="mission"] .gm-world:after{
   background:url('./gangemagi-tallenga-market-overlay-v2.svg?v=release56') center / cover no-repeat;
-  opacity:.62;
+  opacity:.53;
   mix-blend-mode:normal;
+  z-index:1;
 }
 @media (min-width:900px){
 .gm-shell[data-gm-mode="mission"] .gm-world{
   display:grid;
-  grid-template-columns:minmax(238px,27%) minmax(0,1fr);
+  grid-template-columns:minmax(268px,31.5%) minmax(0,1fr);
   grid-template-rows:auto minmax(205px,1fr) auto;
   grid-template-areas:
     "guide quest"
@@ -2104,17 +2116,17 @@
   z-index:0;
   inset:0;
   background:url('./gangemagi-tallenga-market-overlay-v2.svg?v=release56') center / cover no-repeat;
-  opacity:.62;
+  opacity:.56;
   mix-blend-mode:normal;
   pointer-events:none;
 }
-.gm-shell[data-gm-mode="mission"] .gm-world:before{display:none}
+.gm-shell[data-gm-mode="mission"] .gm-world:before{display:block;z-index:0;opacity:.86}
 .gm-shell[data-gm-mode="mission"] .gm-world>header,
 .gm-shell[data-gm-mode="mission"] .gm-world>.gm-scene,
 .gm-shell[data-gm-mode="mission"] .gm-world>.gm-market,
 .gm-shell[data-gm-mode="mission"] .gm-world>.gm-math{
   position:relative;
-  z-index:1;
+  z-index:2;
 }
 
 /* A compact, warm instruction board belongs above the play field. */
@@ -2123,15 +2135,15 @@
   width:auto;
   min-height:0;
   margin:0;
-  padding:clamp(12px,1.35vw,18px) clamp(16px,2vw,29px) clamp(10px,1.1vw,14px);
+  padding:clamp(10px,1.1vw,14px) clamp(14px,1.7vw,22px) clamp(8px,.9vw,12px);
   border-radius:27px;
   box-shadow:0 7px 13px #4f321f52;
 }
 .gm-shell[data-gm-mode="mission"] .gm-story.gm-quest h2.gm-quest-callout{
   max-width:760px;
   margin:3px auto 5px;
-  font-size:clamp(24px,2.65vw,38px);
-  line-height:1.06;
+  font-size:clamp(23px,2.35vw,32px);
+  line-height:1.08;
 }
 
 /* The five-basket preview must shrink WITH its teaching card rather than
@@ -2170,8 +2182,8 @@
 }
 .gm-shell[data-gm-mode="mission"] .gm-troll-stage{
   width:100%;
-  height:clamp(188px,19vw,236px);
-  min-height:188px;
+  height:clamp(214px,22.4vw,264px);
+  min-height:214px;
   padding:0 clamp(2px,.5vw,8px);
   gap:clamp(3px,.8vw,11px);
   pointer-events:none;
@@ -2182,8 +2194,8 @@
   transform:none !important;
 }
 .gm-shell[data-gm-mode="mission"] .gm-troll-figure{inset:0 0 22px}
-.gm-shell[data-gm-mode="mission"] .gm-troll-figure>img{transform:scale(1.08)}
-.gm-shell[data-gm-mode="mission"] .gm-troll-selected .gm-troll-figure>img{transform:translateY(-5px) scale(1.13)}
+.gm-shell[data-gm-mode="mission"] .gm-troll-figure>img{transform:scale(1.06)}
+.gm-shell[data-gm-mode="mission"] .gm-troll-selected .gm-troll-figure>img{transform:translateY(-6px) scale(1.12)}
 .gm-shell[data-gm-mode="mission"] .gm-troll-name{
   min-height:22px;
   padding:3px 5px;
@@ -2318,4 +2330,33 @@
   .gm-shell[data-gm-mode="mission"] .gm-pick.gm-strawberry-tray{min-height:72px}
   .gm-shell[data-gm-mode="mission"] .gm-pick.gm-strawberry-tray .gm-pick-fruit{height:58px}
   .gm-shell[data-gm-mode="mission"] .gm-math{min-height:64px}
+}
+
+/* Premium scene: living characters and inviting physical baskets.
+   This is an authored layer above the locked geometry, not a replacement. */
+@keyframes gm-premium-breathe{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-3px)}
+}
+.gm-shell[data-gm-mode="mission"] .gm-troll-helper:not(.gm-troll-delivering) .gm-troll-figure{
+  animation:gm-premium-breathe 4.6s ease-in-out infinite;
+}
+.gm-shell[data-gm-mode="mission"] .gm-troll-helper:nth-child(2) .gm-troll-figure{animation-delay:-1.35s}
+.gm-shell[data-gm-mode="mission"] .gm-troll-helper:nth-child(3) .gm-troll-figure{animation-delay:-2.65s}
+.gm-shell[data-gm-mode="mission"][data-gm-holding="true"] .gm-crate:not(:disabled){
+  filter:drop-shadow(0 0 10px rgba(255,223,125,.35));
+}
+@media(min-width:700px) and (max-width:899px) and (orientation:portrait){
+  .gm-shell[data-gm-mode="mission"] .gm-fox.gm-troll-guide{
+    grid-template-rows:202px auto;
+    min-height:255px;
+  }
+  .gm-shell[data-gm-mode="mission"] .gm-troll-stage{
+    height:202px;
+    min-height:202px;
+    padding:0 clamp(14px,7vw,56px);
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .gm-shell[data-gm-mode="mission"] .gm-troll-helper .gm-troll-figure{animation:none!important}
 }
