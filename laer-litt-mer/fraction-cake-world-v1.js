@@ -118,7 +118,7 @@
     const questText=c.halfQuest
       ?(half?'Du fant en halv! '+n+'/'+d+' = 1/2.':d%2?'Med '+d+' like biter kan du ikke lage en halv med hele kakestykker.':'Kan du lage en halv kake?')
       :'Du bestemmer. Her kan du leke fritt.';
-    const hint=n===0?'Prøv den første biten!':n===d?'Se! Nå har du en hel kake!':hasAddition?'Du har '+n+' av '+d+' deler!':'Vil du legge til en bit?';
+    const hint=n===0?'Prøv den første biten!':n===d?'Se! Nå har du en hel kake!':half?'Se! '+n+'/'+d+' er en halv kake!':hasAddition?'Du har '+n+' av '+d+' deler!':'Vil du legge til en bit?';
     const math=hasAddition ? `<div class="fc-discovery" id="fc-math-discovery" ${c.showMath?'':'hidden'} role="region" aria-label="Oppdag addisjon og gange">
       <div class="fc-discovery-card"><span class="fc-discovery-title">Legg sammen</span><strong>${nPrev}/${d} + 1/${d} = ${n}/${d}</strong></div>
       <div class="fc-discovery-card"><span class="fc-discovery-title">Like biter, mange ganger</span><strong>${n} × 1/${d} = ${n}/${d}</strong></div>

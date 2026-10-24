@@ -93,6 +93,9 @@ async function run(browser,engine,label,viewport,url,full){
   assert.deepEqual((await cakeState(page)).filled,[0,1]);
   assert.equal(await page.locator('.fc-number').getAttribute('aria-label'),'2 av 4');
   assert.equal(await pct(page),'50 %');
+  await page.locator('.fc-troll.fr8-celebrate').waitFor({state:'attached',timeout:2500});
+  assert.match(await page.locator('.fc-troll-speech').innerText(),/en halv kake/,'the child discovers half through the active troll');
+  assert.equal(await page.locator('.fc-troll.fr8-celebrate').evaluate(el=>getComputedStyle(el,'::before').pointerEvents),'none','sparkles must never intercept a finger tap');
   assert.equal(await count(page,'.fc-wedge[aria-pressed="true"]'),2);
   assert.equal(await count(page,'.fr2-spare'),2);
   assert.equal(await count(page,'.fc-discovery'),1);
