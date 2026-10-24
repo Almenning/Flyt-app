@@ -3,7 +3,7 @@
 (function(){
 'use strict';
 
-const TABLET_MASTER='./assets/home-v15/kjosnes-home-tablet.webp?v=20261024-hires1';
+const TABLET_MASTER='./assets/home-v15/kjosnes-home-tablet.webp?v=20261024-premium2';
 const PHONE_MASTER='./assets/home-v15/kjosnes-home-phone.webp?v=20261024-locked1';
 let activeMasterSrc='';
 
@@ -84,7 +84,7 @@ function mapControlsToArtwork(host,imgW,imgH,portrait){
    nav:[.025,.900,.95,.092],
    adult:[.855,.030,.105,.070],
    liveCopy:tabletPortrait?[.035,.145,.53,.068]:[.025,.145,.57,.062],
-   liveNext:tabletPortrait?[.145,.655,.71,.038]:[.14,.655,.72,.040]
+   liveNext:tabletPortrait?[.23,.655,.54,.036]:[.20,.655,.60,.036]
  }:{
    subjects:[.353,.692,.611,.242],
    journey:[.028,.747,.304,.161],
