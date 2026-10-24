@@ -60,6 +60,8 @@ async function run(engine,label,viewport){
    assert.match(bg,new RegExp('kjosnes-home-'+expectedMaster+'\\.webp'),label+' wrong background master '+bg);
    assert.equal(await page.locator('.bc12-heading').isVisible(),false,label+' live v14 heading must not compete with locked master');
    assert.equal(await page.locator('.bc14-free').isVisible(),false,label+' duplicate free-play CTA must stay hidden in locked v15');
+   const challenge=page.locator('.safe-challenge-young');
+   if(await challenge.count())assert.equal(await challenge.isVisible(),false,label+' legacy challenge must not cover locked v15 artwork');
    assert.equal(await page.locator('.bc12-journey').isVisible(),true,label+' journey hit target missing');
    assert.equal(await page.locator('.bc12-nav [data-camp="explore"]').isVisible(),true,label+' Explore navigation hit target missing');
    assert.equal(await page.locator('.bc12-nav [data-camp="collection"]').isVisible(),true,label+' collection navigation hit target missing');
