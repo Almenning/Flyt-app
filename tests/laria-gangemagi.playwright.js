@@ -486,6 +486,19 @@ async function check(engine,label,viewport,url){
       label+' iPad portrait troll speech must keep every letter readable '+JSON.stringify(foxSpeech));
     assert.ok(foxSpeech.bubbleBottom<=foxSpeech.mathTop+2,
       label+' iPad portrait maths must not cover the fox instruction '+JSON.stringify(foxSpeech));
+    const portraitActors=await page.evaluate(()=>{
+      const stage=document.querySelector('.gm-troll-stage').getBoundingClientRect();
+      const basket=document.querySelector('.gm-crate').getBoundingClientRect();
+      const helpers=[...document.querySelectorAll('[data-gm-action="troll"]')].map(el=>{
+        const r=el.getBoundingClientRect(); return {width:r.width,height:r.height};
+      });
+      return {stageTop:stage.top,stageBottom:stage.bottom,stageHeight:stage.height,
+        basketTop:basket.top,helpers};
+    });
+    assert.ok(portraitActors.stageHeight>=140&&portraitActors.stageBottom<=portraitActors.basketTop+2,
+      label+' iPad portrait small troll row must finish above the live baskets '+JSON.stringify(portraitActors));
+    assert.ok(portraitActors.helpers.every(x=>x.width>=44&&x.height>=44),
+      label+' iPad portrait keeps child-sized troll selectors '+JSON.stringify(portraitActors));
   }
   if(viewport.width>=900&&viewport.height<=900){
     const guide=await page.evaluate(()=>{

@@ -146,3 +146,9 @@ Retningen er tydeligere og nærmere den låste komposisjonen: handlingen er saml
 - Figurenes faktiske 44px+ knapper bevares, men de små trollene står ikke lenger oppå levende bær eller minusknapper. Direkte bærfjerning og trollvalg kan derfor eksistere samtidig uten z-index-lotteri.
 - Acceptance-testen krever nå både tydelig trollrad, horisontal markedsforankring og at trollradens bunn ligger over første kurvs aktive topp.
 - Grovanova release52 og troll-/kurvlogikken er ellers uendret.
+
+### 24.10.2026 – release55: iPad-portrett får samme trolllogikk som landskap
+- Ferskt WebKit-bilde på release54 viste at trollene funksjonelt var korrekte, men kroppene lå bak kurvene i iPad-portrett. Det så ut som trollene sto nedi kurvene.
+- Portrett bruker nå en 150px trollrad i normal dokumentflyt over kurvmarkedet, med talehjelpen på egen linje under trollene. Kurvene starter først etter trollrad og beskjed.
+- Alle tre trollknappene beholder minimum 44px touchmål. Ny QA krever at trollradens bunn ligger over første kurvs topp.
+- iPhone og kort landskap endres ikke. Grovanova, markedsoverlay, matematikk og leveringsmotor er uendret.
