@@ -70,11 +70,17 @@ function mapControlsToArtwork(host,imgW,imgH,portrait){
  // edges because the four subject cards and bottom navigation are part of the artwork.
  // Landscape may use at most 3% crop on each side; scenic fill absorbs spare space.
  const scale=artAspect>viewportAspect?Math.min(heightScale,maxWidthScale):heightScale;
+ const phonePortrait=portrait&&rect.width<=700;
+ const artWidth=imgW*scale;
+ const artHeight=imgH*scale;
+ const spareY=Math.max(0,rect.height-artHeight);
  const box={
-   width:imgW*scale,
-   height:imgH*scale,
-   left:(rect.width-imgW*scale)/2,
-   top:rect.height-imgH*scale
+   width:artWidth,
+   height:artHeight,
+   left:(rect.width-artWidth)/2,
+   // Phones keep the whole master and split spare height between sky and the
+   // cream navigation continuation. Other layouts preserve the locked bottom alignment.
+   top:phonePortrait?spareY*.44:rect.height-artHeight
  };
  host.dataset.bc15Fit=artAspect>viewportAspect?'safe-width':'safe-height';
 
