@@ -82,7 +82,7 @@
         <radialGradient id="fc-plate" cx="25%" cy="20%"><stop stop-color="#e3b57e"/><stop offset=".54" stop-color="#a16c40"/><stop offset="1" stop-color="#673a22"/></radialGradient>
       </defs>
       <ellipse cx="147" cy="265" rx="127" ry="22" fill="#321d13" opacity=".25"/>
-      <ellipse cx="145" cy="158" rx="136" ry="124" fill="#53311f" opacity=".44"/>
+      <!-- Physical original-illustration cake front supersedes the schematic plate halo. -->
       <ellipse cx="145" cy="156" rx="131" ry="121" fill="url(#fc-plate)" stroke="#704329" stroke-width="5"/>
       <ellipse cx="145" cy="152" rx="123" ry="116" fill="none" stroke="#e6b778" stroke-width="3" stroke-dasharray="14 4 5 5" opacity=".75"/>
       ${flower(30,198,.78)}${flower(254,208,.8)}${flower(156,261,.55)}
