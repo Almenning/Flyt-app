@@ -45,6 +45,16 @@ async function homeReady(page,label){
  return home;
 }
 
+async function returnFromLockedJourney(page,screen,subject,label){
+ const root='#'+screen+'-screen.active';
+ const back=page.locator(root+' .locked-journey-map[data-journey-subject="'+subject+'"] .locked-journey-back');
+ await back.waitFor({state:'visible',timeout:16000});
+ await back.scrollIntoViewIfNeeded();
+ await back.click();
+ await page.locator('#home-screen.active').waitFor({timeout:12000});
+ await homeReady(page,label+' return '+subject);
+}
+
 async function run(engine,label,viewport){
  const browser=await engine.launch({headless:true,args:label.startsWith('chromium')?['--no-sandbox']:[]});
  try{
@@ -106,25 +116,23 @@ async function run(engine,label,viewport){
    await trollDialog.locator('.bc15-troll-close').click();
 
    /* Every subject gateway remains functional under the locked artwork. */
-   for(const [subject,screen,back] of [
-     ['norwegian','subject','subject-back'],
-     ['math','subject','subject-back'],
-     ['english','subject','subject-back'],
-     ['geography','geography','geography-back']
+   for(const [subject,screen] of [
+     ['norwegian','subject'],
+     ['math','subject'],
+     ['english','subject'],
+     ['geography','geography']
    ]){
      await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').click();
      await page.locator('#'+screen+'-screen.active').waitFor({timeout:15000});
-     await page.locator('#'+back).click();
-     await page.locator('#home-screen.active').waitFor({timeout:12000});
-     await homeReady(page,label+' return '+subject);
+     await returnFromLockedJourney(page,screen,subject,label);
    }
 
-   /* Reisen stays a true primary action. */
+   /* Reisen stays a true primary action and uses the same locked-journey return flow. */
+   const journeySubject=await home.getAttribute('data-journey-subject')||'norwegian';
    await page.locator('.bc12-journey').click();
-   await page.locator('#subject-screen.active').waitFor({timeout:15000});
-   await page.locator('#subject-back').click();
-   await page.locator('#home-screen.active').waitFor({timeout:12000});
-   await homeReady(page,label+' return journey');
+   const journeyScreen=journeySubject==='geography'?'geography':'subject';
+   await page.locator('#'+journeyScreen+'-screen.active').waitFor({timeout:15000});
+   await returnFromLockedJourney(page,journeyScreen,journeySubject,label+' primary journey');
 
    /* Explore keeps the existing v13 map-board for now. Home v15 must yield to it cleanly. */
    await page.locator('.bc12-nav [data-camp="explore"]').click();
