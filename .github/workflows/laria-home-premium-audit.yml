@@ -1,0 +1,73 @@
+name: Laria Home Premium Audit
+
+on:
+  push:
+    branches:
+      - qa/laria-home-premium-audit-20261023
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'laer-litt-mer/**'
+      - 'tests/laria-navigation-v13.playwright.js'
+      - 'tests/laria-home-subjects-v14.playwright.js'
+      - '.github/workflows/laria-home-premium-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: laria-home-premium-audit-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  home-premium-audit:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.1-noble
+    timeout-minutes: 12
+    steps:
+      - name: Checkout exact source
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install pinned dependencies
+        run: npm ci
+      - name: Start exact-head local server
+        shell: bash
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/laria-home-audit-http.log 2>&1 &
+          for i in {1..30}; do
+            if curl --fail --silent http://127.0.0.1:8765/laer-litt-mer/?app=laria >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/laria-home-audit-http.log
+          exit 1
+      - name: Capture Basecamp travel and explore
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+          NAV_QA_SCREENSHOTS: /tmp/laria-navigation-v13
+        run: |
+          node --check tests/laria-navigation-v13.playwright.js
+          node tests/laria-navigation-v13.playwright.js
+      - name: Capture subject-first Home
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+          HOME_V14_SCREENSHOTS: /tmp/laria-home-v14
+        run: |
+          node --check tests/laria-home-subjects-v14.playwright.js
+          node tests/laria-home-subjects-v14.playwright.js
+      - name: Upload Home and Basecamp visual evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-home-premium-audit-${{ github.sha }}
+          path: |
+            /tmp/laria-navigation-v13
+            /tmp/laria-home-v14
+          if-no-files-found: warn
+          retention-days: 7
