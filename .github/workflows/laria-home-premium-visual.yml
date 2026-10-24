@@ -1,0 +1,67 @@
+name: Laria Home Premium visual QA
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'laer-litt-mer/home-kjosnes-v15.css'
+      - 'laer-litt-mer/home-kjosnes-v15.js'
+      - 'laer-litt-mer/index.html'
+      - 'laer-litt-mer/assets/home-v15/**'
+      - 'laer-litt-mer/assets/cards/reisen/**'
+      - 'tests/laria-home-kjosnes-v15.playwright.js'
+      - '.github/workflows/laria-home-premium-visual.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: laria-home-premium-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  home-premium:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.1-noble
+    timeout-minutes: 14
+    steps:
+      - name: Checkout exact PR head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install pinned app dependencies
+        run: npm ci
+      - name: Check Home syntax and exact SHA
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check laer-litt-mer/home-kjosnes-v15.js
+          node --check tests/laria-home-kjosnes-v15.playwright.js
+          echo "Testing exact HEAD $(git rev-parse HEAD)"
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+      - name: Render iPhone and iPad Home in Chromium and WebKit
+        shell: bash
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+          HOME_V15_SCREENSHOTS: /tmp/laria-home-premium
+        run: |
+          set -euo pipefail
+          python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/laria-home-http.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          node -e 'const http=require("node:http");let n=0;const check=()=>http.get("http://127.0.0.1:8765/laer-litt-mer/?app=laria",res=>res.resume()).on("error",()=>n++<30?setTimeout(check,200):process.exit(1));check()'
+          node tests/laria-home-kjosnes-v15.playwright.js
+      - name: Archive actual Home screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-home-premium-${{ github.event.pull_request.head.sha || github.sha }}
+          path: /tmp/laria-home-premium
+          if-no-files-found: warn
+          retention-days: 14
