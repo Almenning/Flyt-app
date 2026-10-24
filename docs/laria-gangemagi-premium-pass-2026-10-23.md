@@ -74,3 +74,11 @@ Retningen er tydeligere og nærmere den låste komposisjonen: handlingen er saml
 - Dette er et reelt avvik fra den låste kontrakten om at aktiv kurv, fysisk plukkekilde og matematisk konsekvens skal være forståelig i første skjerm.
 - Kun `<=360px / <=650px` komprimeres: mindre dekorativ padding, en fortsatt fullfigur men smalere revekolonne, 108 px illustrerte kurver og 70 px fysisk jordbærkilde. Ingen touchkontroll går under 44 px, og spillmotor/progresjon er urørt.
 - Playwright krever nå eksplisitt store nok kurver, touch-sikker kilde og at hele mattefeltet ligger innenfor 320×568-viewporten. Ny eksakt-HEAD Chromium/WebKit og ekte skjermbilder kreves.
+
+### 24.10.2026 – release46: rikt Tallenga-marked over den validerte malte verdenen
+- Release45-crop-forsøket ble forkastet og reversert fordi flytting av `home-math-v14.webp` ikke løste premiumgapet. Release44-layout og spillflyt ble bevart.
+- Release46 angriper den dokumenterte rotårsaken i stedet: den detaljerte malte verdenen beholdes for lys, materialdybde og atmosfære, mens et nytt transparent `gangemagi-tallenga-market-overlay-v2.svg` legges **over** maleriet med markedsboder, tårn, bro, fontene, lanterner, girlandere og forgrunnsbaldakiner.
+- Overlayen inneholder ingen tekst, rev, kurver, jordbærkilde, oppgaveknapper eller matematikk. Alt barnet kan bruke forblir ekte DOM og eksisterende spillmotor/progresjon er urørt.
+- Playwright krever nå både at overlayen lastes, at den har boder/bro/fontene, at den ikke inneholder bakt tekst/kontroller, og at den ligger visuelt over `home-math-v14.webp`.
+- Safari-cache bumpes direkte fra release44 til release46 fordi release45 var et forkastet mellomforsøk.
+- Ny exact-head Chromium/WebKit og manuell iPad/iPhone-kontroll er påkrevd. Dersom markedslaget gjør scenen rotete eller fortsatt ikke oppleves som et premium Tallenga-marked, skal release46 reverseres fremfor å svekke spillbarheten.
