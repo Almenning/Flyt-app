@@ -35,7 +35,11 @@ for(const name of ['home-basecamp-v12.js','journey-world-premium.js','laria-task
  assert.doesNotMatch(source,/return '\.\/lia-fox-explorer\.webp';/,'static companion in '+name);
 }
 const fraction=file('fraction-premium-v2.js');
-assert.match(fraction,/LARIA_FOX\.worldSource/,'Brøklab must start with the chosen full-body fox, not a portrait flash');
+assert.match(fraction,/FR8_TROLLS/,'Brøklab must use the locked skogstroll trio');
+for(const id of ['storesoster','lillesoster','lillebror'])assert.ok(fraction.includes("id:'"+id+"'"),'Missing approved '+id+' companion');
+const cakeWorld=file('fraction-cake-world-v1.js');
+assert.match(cakeWorld,/assets\\/fraction-trolls\\/\\$\\{character\\}/,'Interactive Brøklab scene must render the locked troll art');
+assert.match(cakeWorld,/data-fr-action="piece"/,'Cake must use real interactive pieces');
 assert.doesNotMatch(fraction,/src="\.\/lia-fox-explorer-home\.webp"/,'generic picture survives in Brøklab');
 assert.match(api.worldSource('girl'),/girl-braids-blue-dress-v1\.webp/);
 assert.match(api.worldSource('boy'),/boy-adventurer-green-vest-v1\.webp/);
