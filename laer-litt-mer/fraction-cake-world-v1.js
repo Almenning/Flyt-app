@@ -12,52 +12,86 @@
 
   // Each wedge owns a distinct tap and keyboard action. Berry and icing paths
   // have pointer-events:none so decoration can never steal a slice tap.
+  // An illustrated physical cake, not a decorative fraction chart. Each sector
+  // is still the original, independently accessible mathematical action.
   function cakeSvg({n,d,filled,lastChanged}) {
-    const angle = i => -Math.PI/2 + 2*Math.PI*i/d;
-    const path = (index, radius=109,cy=132) => {
-      const a=angle(index), b=angle(index+1);
-      const p=v=>[145+radius*Math.cos(v),cy+radius*Math.sin(v)].map(x=>x.toFixed(2));
-      const start=p(a),end=p(b);
-      return `M145 ${cy} L${start[0]} ${start[1]} A${radius} ${radius} 0 ${d===2?0:(2*Math.PI/d>Math.PI?1:0)} 1 ${end[0]} ${end[1]} Z`;
+    const cx=145,cy=130,r=108,depth=17;
+    const angle=i=>-Math.PI/2+i*Math.PI*2/d;
+    const point=(a,rad=r,shift=0)=>[(cx+rad*Math.cos(a)).toFixed(2),(cy+rad*Math.sin(a)+shift).toFixed(2)];
+    const wedgePath=i=>{
+      const a=angle(i),b=angle(i+1),start=point(a),end=point(b);
+      return `M${cx} ${cy} L${start.join(' ')} A${r} ${r} 0 ${d===1?1:0} 1 ${end.join(' ')} Z`;
     };
+    const sidePath=i=>{
+      const a=angle(i),b=angle(i+1),start=point(a),end=point(b),shiftedEnd=point(b,r,depth),shiftedStart=point(a,r,depth);
+      return `M${start.join(' ')} A${r} ${r} 0 0 1 ${end.join(' ')} L${shiftedEnd.join(' ')} A${r} ${r} 0 0 0 ${shiftedStart.join(' ')} Z`;
+    };
+    const sides=Array.from({length:d},(_,i)=>{
+      const a=(angle(i)+angle(i+1))/2;
+      if(Math.sin(a)<-.03)return '';
+      const on=filled.includes(i);
+      return `<path class="fc-slice-crust" pointer-events="none" d="${sidePath(i)}" fill="url(#${on?'fc-jam-side':'fc-biscuit-side'})" stroke="#7b4529" stroke-width="2"/>`;
+    }).join('');
     const pieces=Array.from({length:d},(_,i)=>{
-      const on=filled.includes(i), a=(angle(i)+angle(i+1))/2;
-      const ux=(145+62*Math.cos(a)).toFixed(1),uy=(132+62*Math.sin(a)).toFixed(1);
-      const berries=on&&d<=8?`<g pointer-events="none" transform="translate(${ux} ${uy})">
-        <ellipse rx="23" ry="16" cy="4" fill="#791c35" opacity=".24"/>
-        <circle cx="-12" cy="-3" r="10" fill="url(#fc-berry)"/><circle cx="8" cy="5" r="11" fill="url(#fc-berry)"/>
-        <circle cx="2" cy="-12" r="8" fill="url(#fc-berry)"/>
-        <circle cx="-16" cy="-7" r="2.4" fill="#fcb6ab" opacity=".75"/>
-        <circle cx="5" cy="-15" r="2.2" fill="#fcb6ab" opacity=".7"/>
-        <path d="M-1 -18 Q4 -30 11 -23" fill="none" stroke="#578b49" stroke-width="4"/>
-        </g>`:on?`<circle pointer-events="none" cx="${ux}" cy="${uy}" r="${Math.max(3,11-d/2)}" fill="#7d273e" stroke="#e69a8d" stroke-width="1.5"/>`:
-        `<g pointer-events="none" transform="translate(${ux} ${uy})"><path d="M-11 7 Q-8 -12 1 0 Q9 -13 12 7 Q2 13 -11 7" fill="#a2b87a" stroke="#789b55" stroke-width="1.5"/></g>`;
+      const on=filled.includes(i),a=(angle(i)+angle(i+1))/2;
+      const ux=(cx+62*Math.cos(a)).toFixed(2),uy=(cy+62*Math.sin(a)).toFixed(2);
+      const ornament=on&&d<=8?`<g pointer-events="none" transform="translate(${ux} ${uy})">
+         <ellipse cy="8" rx="23" ry="15" fill="#5e1d30" opacity=".24"/>
+         <circle cx="-12" cy="-4" r="11" fill="url(#fc-berry)"/>
+         <circle cx="9" cy="3" r="12" fill="url(#fc-berry)"/>
+         <circle cx="1" cy="-12" r="9" fill="url(#fc-berry)"/>
+         <circle cx="-16" cy="-8" r="2.4" fill="#ffc8ca" opacity=".84"/>
+         <circle cx="5" cy="-15" r="2.3" fill="#ffc8ca" opacity=".8"/>
+         <path d="M-2 -22 Q4 -32 12 -24" fill="none" stroke="#6a9452" stroke-width="4"/>
+         <path d="M-2 -22 Q-14 -29 -17 -21 Q-10 -18 -2 -22" fill="#708e42"/>
+         <circle cx="18" cy="-15" r="4.2" fill="#fff3d5"/>
+         <circle cx="17" cy="-19" r="4.2" fill="#fff3d5"/>
+         <circle cx="13" cy="-17" r="4.2" fill="#fff3d5"/>
+         <circle cx="17" cy="-17" r="2" fill="#dfab39"/>
+       </g>`:on?`<g pointer-events="none"><circle cx="${ux}" cy="${uy}" r="${Math.max(3,11-d/2)}" fill="#943449" stroke="#eaa29a" stroke-width="1.5"/></g>`:
+       `<g pointer-events="none" transform="translate(${ux} ${uy})">
+          <path d="M0 3 Q-14 -8 -15 3 Q-8 12 0 3 M0 3 Q14 -8 15 3 Q8 12 0 3" fill="#8fae63" stroke="#57793e" stroke-width="1.25"/>
+          <path d="M0 4 Q1 -10 3 -15" fill="none" stroke="#68824c" stroke-width="2"/>
+        </g>`;
       return `<g class="fc-wedge ${on?'is-filled':'is-empty'} ${i===lastChanged?'fc-just-placed':''}" role="button" tabindex="0" data-fr-action="piece" data-piece="${i}" aria-label="${on?'Ta ut':'Legg inn'} kakestykke ${i+1} av ${d}" aria-pressed="${on}">
-        <path class="fc-wedge-side" d="${path(i,109,142)}" fill="${on?'#983b32':'#cf9e66'}" stroke="#7f492e" stroke-width="2"/>
-        <path d="${path(i)}" fill="${on?'url(#fc-jam-art)':'url(#fc-vanilla-art)'}" stroke="#a96d46" stroke-width="2.8"/>
-        <path d="${path(i,102)}" fill="none" stroke="${on?'#ff8d85':'#fff9e9'}" stroke-width="4" opacity=".6"/>
-        ${berries}
+        <path d="${wedgePath(i)}" fill="${on?'url(#fc-jam-art)':'url(#fc-vanilla-art)'}" stroke="#a26745" stroke-width="2.2" stroke-linejoin="round"/>
+        <path d="${wedgePath(i)}" fill="none" stroke="${on?'#f7a0a0':'#fff7dd'}" stroke-width="3.2" opacity=".55"/>
+        ${ornament}
       </g>`;
     }).join('');
-    const border=Array.from({length:36},(_,i)=>{
-      const a=i*Math.PI*2/36;
-      return `<ellipse pointer-events="none" cx="${(145+113*Math.cos(a)).toFixed(1)}" cy="${(132+113*Math.sin(a)).toFixed(1)}" rx="6.8" ry="5" transform="rotate(${(a*180/Math.PI+90).toFixed(1)} ${(145+113*Math.cos(a)).toFixed(1)} ${(132+113*Math.sin(a)).toFixed(1)})" fill="url(#fc-piping)" stroke="#e1b787" stroke-width=".8"/>`;
+    const creamBorder=Array.from({length:38},(_,i)=>{
+      const a=i*2*Math.PI/38,edge=point(a,111),x=+edge[0],y=+edge[1];
+      const rx=i%4===0?7.2:6.6,ry=i%3===0?6:5.3;
+      return `<g pointer-events="none" transform="translate(${x} ${y}) rotate(${(a*180/Math.PI+90).toFixed(1)})">
+       <ellipse rx="${rx}" ry="${ry}" fill="url(#fc-piping)" stroke="#d7aa75" stroke-width=".65"/>
+       <path d="M-4 -1 Q0 -5 4 -1" fill="none" stroke="#fffdf2" stroke-width="1.7" opacity=".8"/>
+       </g>`;
     }).join('');
-    return `<svg class="fr2-pie fr2-pie-builder fr2-pie-interactive fc-cake-svg" viewBox="0 0 290 288" role="group" aria-label="Kaken er delt i ${d} like store kakestykker, ${n} er fylt" xmlns="http://www.w3.org/2000/svg">
+    const flower=(x,y,scale)=>`<g transform="translate(${x} ${y}) scale(${scale})" pointer-events="none">
+      ${Array.from({length:6},(_,i)=>`<ellipse cx="0" cy="-6" rx="3.5" ry="6.5" transform="rotate(${i*60})" fill="${i%2?'#f9d7ec':'#e7a7cb'}" stroke="#a47484" stroke-width=".4"/>`).join('')}
+      <circle r="3.2" fill="#e9be58" stroke="#9b7130" stroke-width="1"/>
+     </g>`;
+    return `<svg class="fr2-pie fr2-pie-builder fr2-pie-interactive fc-cake-svg" viewBox="0 0 290 300" role="group" aria-label="Kaken er delt i ${d} like store kakestykker, ${n} er fylt" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <pattern id="fc-jam-art" patternUnits="userSpaceOnUse" width="180" height="150"><image href="${art}berry-texture.webp" x="0" y="0" width="180" height="150" preserveAspectRatio="xMidYMid slice"/></pattern>
+        <pattern id="fc-jam-art" patternUnits="userSpaceOnUse" width="170" height="150"><image href="${art}berry-texture.webp" x="0" y="0" width="170" height="150" preserveAspectRatio="xMidYMid slice"/></pattern>
         <pattern id="fc-vanilla-art" patternUnits="userSpaceOnUse" width="188" height="126"><image href="${art}vanilla-texture.webp" x="0" y="0" width="188" height="126" preserveAspectRatio="xMidYMid slice"/></pattern>
-        <radialGradient id="fc-jam" cx="30%" cy="18%"><stop stop-color="#ffaaa0"/><stop offset=".4" stop-color="#e34c58"/><stop offset="1" stop-color="#9e2943"/></radialGradient>
-        <radialGradient id="fc-cream" cx="25%" cy="20%"><stop stop-color="#fffdf2"/><stop offset=".7" stop-color="#fff0d4"/><stop offset="1" stop-color="#f0c58f"/></radialGradient>
-        <radialGradient id="fc-berry"><stop stop-color="#c75982"/><stop offset=".45" stop-color="#722b68"/><stop offset="1" stop-color="#321c4d"/></radialGradient>
-        <radialGradient id="fc-piping" cx="25%" cy="22%"><stop stop-color="#fffefa"/><stop offset=".63" stop-color="#ffedd7"/><stop offset="1" stop-color="#d4ab77"/></radialGradient>
-        <linearGradient id="fc-plate" x1="0" x2=".2" y1="0" y2="1"><stop stop-color="#fbe3ab"/><stop offset=".48" stop-color="#b77b48"/><stop offset="1" stop-color="#774a2d"/></linearGradient>
+        <linearGradient id="fc-jam-side" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#d16d62"/><stop offset=".52" stop-color="#b75c40"/><stop offset="1" stop-color="#702b2d"/></linearGradient>
+        <linearGradient id="fc-biscuit-side" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#fceac6"/><stop offset=".42" stop-color="#edcf94"/><stop offset="1" stop-color="#b57742"/></linearGradient>
+        <radialGradient id="fc-berry"><stop stop-color="#c85f86"/><stop offset=".5" stop-color="#812d69"/><stop offset="1" stop-color="#341a46"/></radialGradient>
+        <radialGradient id="fc-piping" cx="25%" cy="20%"><stop stop-color="#fffefa"/><stop offset=".7" stop-color="#fff0d8"/><stop offset="1" stop-color="#d9a978"/></radialGradient>
+        <radialGradient id="fc-plate" cx="25%" cy="20%"><stop stop-color="#e3b57e"/><stop offset=".54" stop-color="#a16c40"/><stop offset="1" stop-color="#673a22"/></radialGradient>
       </defs>
-      <ellipse cx="148" cy="262" rx="126" ry="21" fill="#44210f" opacity=".35"/>
-      <ellipse cx="145" cy="153" rx="140" ry="121" fill="url(#fc-plate)" stroke="#7d4f29" stroke-width="6"/>
-      <ellipse cx="145" cy="142" rx="126" ry="121" fill="#a66e43" opacity=".75"/>
-      <circle cx="145" cy="141" r="117" fill="#f9d7a1" stroke="#9c633e" stroke-width="8"/>
-      ${pieces}${border}
+      <ellipse cx="147" cy="265" rx="127" ry="22" fill="#321d13" opacity=".25"/>
+      <ellipse cx="145" cy="158" rx="136" ry="124" fill="#53311f" opacity=".44"/>
+      <ellipse cx="145" cy="156" rx="131" ry="121" fill="url(#fc-plate)" stroke="#704329" stroke-width="5"/>
+      <ellipse cx="145" cy="152" rx="123" ry="116" fill="none" stroke="#e6b778" stroke-width="3" stroke-dasharray="14 4 5 5" opacity=".75"/>
+      ${flower(30,198,.78)}${flower(254,208,.8)}${flower(156,261,.55)}
+      <g class="fc-cake-volume">${sides}</g>
+      <g class="fc-cake-top">${pieces}</g>
+      <g class="fc-cake-buttercream">${creamBorder}</g>
+      <!-- Original-illustration buttercream and biscuit front, independent of the mathematical wedges. -->
+      <image class="fc-cake-front" href="${art}cake-front.webp" x="-8" y="39" width="305" height="252" pointer-events="none" preserveAspectRatio="none"/>
+      <ellipse cx="145" cy="155" rx="119" ry="117" fill="none" stroke="#fff3df" stroke-width="2" opacity=".6" pointer-events="none"/>
     </svg>`;
   }
   function oneFraction(n,d,cls='') {
@@ -65,13 +99,13 @@
   }
   function landscape() {
     return `<div class="fr8-landscape fc-landscape" aria-hidden="true">
-      <div class="fc-interior-light"></div><img class="fc-scenery fc-middle-shelf" src="${art}shelf-detail.webp" alt="" draggable="false" />
+      <div class="fc-interior-light"></div><img class="fc-scenery fc-middle-shelf" src="${art}bakery-shelf-premium.webp" alt="" draggable="false" />
       <img class="fc-scenery fc-warm-oven" src="${art}warm-oven.webp" alt="" draggable="false"/>
       <div class="fc-mountain-window"><img class="fr8-skala" src="${art}skala-window.webp" alt="" draggable="false"/><div class="fr8-cloud fc-cloud-one"></div><div class="fr8-cloud fc-cloud-two"></div></div>
       <img class="fc-ivy-art" src="${art}hanging-vines.webp" alt="" draggable="false"/>
       <div class="fc-window-glow"></div>
       <div class="fc-lantern fc-lantern-left"></div>
-      <div class="fc-wood-counter"></div><img class="fc-berries-bowl" src="${art}berries-bowl.webp" alt="" draggable="false"/>
+      <div class="fc-wood-counter"></div><img class="fc-baking-jars" src="${art}baking-jars.webp" alt="" draggable="false"/><img class="fc-floral-foreground" src="${art}floral-table-edge.webp" alt="" draggable="false"/><img class="fc-berries-bowl" src="${art}berries-bowl.webp" alt="" draggable="false"/>
       <img class="fc-flower-jar" src="${art}wood-flowers.webp" alt="" draggable="false"/>
     </div>`;
   }

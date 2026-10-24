@@ -47,6 +47,9 @@ async function run(browser,engine,label,viewport,url,full){
   assert.equal(await count(page,'.fr2-spare'),3,'the tray contains only empty pieces');
   const picture=await page.locator('.fc-landscape img, .fc-troll img').evaluateAll(async xs=>Promise.all(xs.map(async el=>{await el.decode();return {src:el.getAttribute('src'),width:el.naturalWidth}})));
   assert.ok(picture.length>=5&&picture.every(x=>x.width>0),label+' original scenery and troll art must load '+JSON.stringify(picture));
+  assert.equal(await count(page,'.fc-cake-front'),1,'original buttercream is a separate noninteractive layer, not a frozen cake');
+  assert.equal(await page.locator('.fc-story-title h1').innerText(),'Brøklaben','illustrated hanging sign keeps an accessible title');
+  assert.equal(await page.locator('.fc-cake-front').getAttribute('pointer-events'),'none','scenic cake edging must never block individual piece taps');
   assert.ok(picture.some(x=>x.src.includes('skala-window.webp')),'Skåla must remain recognizable as an independent scenic layer');
   await assertFirstFold(page,label,viewport.width,viewport.height);
   await photo(page,label+'-01-fjordbakeriet',false); // Capture actual first viewport; fullPage Safari capture can perturb scroll position before first tap.
