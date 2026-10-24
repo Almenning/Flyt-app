@@ -28,6 +28,7 @@ Fjellsilhuetten skal ikke regenereres, erstattes av Eggenipa eller «forbedres»
 - Produksjons-WebP SHA-256: `246edc1572d652af5c3ebf452be60db0b2f842b6afd9fd27529c04145bdf38e5`
 - WebP-en er gjenopprettet i 1127 × 681 fra den godkjente høyoppløste kilden og lagret med WebP q100. 760 × 459-versjonen ga synlig uskarp oppskalering. Fjellform og komposisjon skal ikke endres.
 - Kvalitetsregel: liggende tablet-/desktop-master skal aldri være lavere enn 1127 × 681. Safe-area-fyll skal ikke lages ved å blure eller duplisere masterillustrasjonen.
+- Portrettregel: mobil/iPad-portrett skal vise hele bredden av den låste phone-masteren uten side-crop. Fagkort eller navigasjon skal aldri kuttes i høyre/venstre kant.
 
 ### Mobil / stående
 - Opprinnelig låst mockup: `laria-home-locked-phone.png`
