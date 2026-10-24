@@ -146,7 +146,7 @@ async function activate(){
  if(!host)return false;
  const detachedView=host.dataset.bc13View && host.dataset.bc13View!=='home';
  if((host.dataset.mode && host.dataset.mode!=='home') || detachedView){
-   host.classList.remove('bc15-locked-home');
+   host.classList.remove('bc15-locked-home','bc15-pending');
    host.style.removeProperty('--bc15-home-art');
    clearMappedControls(host);
    host.dataset.bc15Asset='inactive';
@@ -155,11 +155,14 @@ async function activate(){
  }
  const portrait=isPortrait();
  const master=portrait?PHONE_MASTER:TABLET_MASTER;
+ host.classList.add('bc15-pending');
+ host.dataset.bc15Asset='loading';
  try{
    const image=await decoded(master);
    activeMasterSrc=image.src;
    host.style.setProperty('--bc15-home-art','url("'+image.src+'")');
    host.classList.add('bc15-locked-home');
+   host.classList.remove('bc15-pending');
    host.dataset.bc15Asset=portrait?'phone-ready':'tablet-ready';
    host.dataset.bc15Master=portrait?'portrait':'landscape';
    syncLiveCopy(host);
@@ -182,7 +185,7 @@ async function activate(){
    if(adult)adult.setAttribute('aria-label','Hold inne for voksenområdet');
    return true;
  }catch(err){
-   host.classList.remove('bc15-locked-home');
+   host.classList.remove('bc15-locked-home','bc15-pending');
    host.style.removeProperty('--bc15-home-art');
    clearMappedControls(host);
    host.dataset.bc15Asset='missing';
