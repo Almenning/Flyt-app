@@ -9,7 +9,7 @@ function server(){return new Promise((resolve,reject)=>{const srv=http.createSer
 async function photo(page,label){await fs.promises.mkdir(out,{recursive:true});await page.screenshot({path:path.join(out,label+'.png'),fullPage:true,animations:'disabled'})}
 async function run(browser,engine,label,viewport,url){
  const ctx=await browser.newContext({viewport,deviceScaleFactor:1,serviceWorkers:'block',isMobile:viewport.width<700,hasTouch:true});
- const page=await ctx.newPage(),errors=[];page.on('pageerror',e=>errors.push(String(e)));
+ const page=await ctx.newPage(),errors=[];page.setDefaultTimeout(9000);page.on('pageerror',e=>errors.push(String(e)));
  try{
   await page.addInitScript(p=>{localStorage.setItem('laerlittmer-v2',JSON.stringify(p))},profile);
   await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
@@ -18,7 +18,7 @@ async function run(browser,engine,label,viewport,url){
   await page.waitForFunction(()=>window.LARIA_FRACTION_PREMIUM?.version==='workshop-v1',{},{timeout:20000});
   // First experience: no menu and no technical prerequisites.
   await page.evaluate(()=>openFractionLab());
-  await page.locator('.fr6-workshop').waitFor();
+  await page.locator('.fr6-workshop').waitFor({timeout:20000});
   assert.equal(await page.locator('#fraction-lab-screen.active').count(),1);
   assert.equal(await page.locator('#fraction-lab-screen').getAttribute('data-explore-release'),'explore-rc1');
   assert.equal(await page.locator('.fr2-home-card').count(),0,'the cake must be playable without navigating a menu');
@@ -35,18 +35,22 @@ async function run(browser,engine,label,viewport,url){
 
   assert.deepEqual((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build)).filled,[0]);
   assert.deepEqual(await page.locator('.fr6-piece-tray .fr2-spare').evaluateAll(xs=>xs.map(x=>Number(x.dataset.pieceIndex))),[1,2,3]);
-  await page.locator('.fr5-fox-mentor .fr2-fox').evaluate(img=>img.decode());
+  // The live workshop uses the locked trio, one real character asset at a time.
+  await page.locator('.fr8-companion .fr8-troll').evaluate(img=>img.decode());
+  assert.ok((await page.locator('.fr8-companion .fr8-troll').getAttribute('src')).endsWith('/storesoster.webp'));
+  assert.equal(await page.locator('.fr8-landscape .fr8-skala').count(),1,'Skåla is a live scene layer, not a poster background');
+  assert.equal(await page.locator('.fr8-landscape .fr8-cloud').count(),2,'independent scenic motion layers');
   const firstFold=await page.evaluate(()=>{
     const rect=selector=>document.querySelector(selector)?.getBoundingClientRect();
     const cake=rect('.fr5-build-target .fr2-pie-builder'),value=rect('.fr6-result .fr2-fraction'),controls=rect('.fr6-workshop .fr6-controls');
-    const fox=document.querySelector('.fr5-fox-mentor .fr2-fox');
+    const fox=document.querySelector('.fr8-companion .fr8-troll');
     const equivalents=rect('.fr7-tablet-equivalents');
     return {
       cakeVisible:!!cake&&cake.width>100&&cake.top>=0&&cake.bottom<=innerHeight,
       fractionVisible:!!value&&value.height>65&&value.top>=0&&value.bottom<=innerHeight,
       controlsVisible:!!controls&&controls.top>=0&&controls.bottom<=innerHeight,
       fractionAboveControls:!!value&&!!controls&&value.bottom<controls.top,
-      correctFox:!!fox&&fox.getAttribute('src')===window.LARIA_FOX.worldSource(window.LARIA_FOX.choice())&&fox.complete&&fox.naturalWidth>0,
+      correctFox:!!fox&&fox.getAttribute('src')?.endsWith('/storesoster.webp')&&fox.complete&&fox.naturalWidth>0,
       equivalentsBesideCake:innerWidth<700||(!!equivalents&&equivalents.top>=0&&equivalents.bottom<=innerHeight&&equivalents.left>cake.right-3),
       controlsHeight:controls?.height,
       viewportHeight:innerHeight,cakeBottom:Math.round(cake?.bottom||0),fractionBottom:Math.round(value?.bottom||0),controlsTop:Math.round(controls?.top||0),controlsBottom:Math.round(controls?.bottom||0),
@@ -55,7 +59,7 @@ async function run(browser,engine,label,viewport,url){
   });
   if(label.includes('tiny'))await photo(page,label+'-00-first-fold-diagnostic');
   assert.ok(firstFold.cakeVisible&&firstFold.fractionVisible&&firstFold.controlsVisible&&firstFold.fractionAboveControls&&firstFold.correctFox&&firstFold.equivalentsBesideCake&&firstFold.noOverflow,
-    label+' first viewport must show cake, 1/4, both controls and personal fox: '+JSON.stringify(firstFold));
+    label+' first viewport must show cake, 1/4, both controls and the locked skogstroll: '+JSON.stringify(firstFold));
   assert.ok(firstFold.controlsHeight>=58,'real controls must remain touchable');
   const tablet=viewport.width>=700;
   // The cake is still the whole first interaction on a phone.
@@ -68,6 +72,29 @@ async function run(browser,engine,label,viewport,url){
     assert.ok(usableWidth>=900,label+' premium iPad landscape workshop must use its available width: '+usableWidth);
   }
   await photo(page,label+'-01-home');
+  for(const id of ['lillesoster','lillebror','storesoster']){
+    const cycle=page.locator('[data-fr-action="cycle-troll"]');
+    try {
+      await cycle.click();
+    } catch(error){
+      const geometry=await page.evaluate(async()=>{
+        const button=document.querySelector('[data-fr-action="cycle-troll"]');
+        const points=[];
+        for(let i=0;i<7;i++){
+          const r=button?.getBoundingClientRect();
+          points.push({x:r?.x,y:r?.y,w:r?.width,h:r?.height,scrollY:window.scrollY,active:document.activeElement?.className,animation:getComputedStyle(button).animationName});
+          await new Promise(resolve=>setTimeout(resolve,80));
+        }
+        return points;
+      });
+      console.error('FR8_TROLL_CYCLE_STABILITY '+engine+' '+label+' '+id+': '+JSON.stringify(geometry));
+      throw error;
+    }
+    await page.locator('.fr8-troll').evaluate(img=>img.decode());
+    assert.ok((await page.locator('.fr8-troll').getAttribute('src')).endsWith('/'+id+'.webp'),label+' must show the approved '+id+' asset');
+    assert.equal((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build)).n,1,'changing companions must not change mathematics');
+  }
+  await photo(page,label+'-01-trolls-cycle');
   if(tablet){
     assert.deepEqual(await page.locator('.fr7-tablet-equivalents .fr7-equivalent-tile strong').allTextContents(),['0,25','25 %']);
   }else{
@@ -79,10 +106,12 @@ async function run(browser,engine,label,viewport,url){
   }
   // Keyboard interaction must remain on the same tactile control after
   // replacing the fraction DOM. Children must be able to press twice.
+  await page.evaluate(()=>{window.__fr8WorldBefore=document.querySelector('.fr8-landscape');window.__fr8TrollBefore=document.querySelector('.fr8-troll')});
   const up=page.locator('.fr6-controls [data-fr-action="adjust"][data-field="n"][data-step="1"]');
   await up.focus();
   await page.keyboard.press('Enter');
   assert.equal(await page.locator('.fr6-result .fr2-fraction').getAttribute('aria-label'),'2 av 4');
+  assert.ok(await page.evaluate(()=>window.__fr8WorldBefore===document.querySelector('.fr8-landscape')&&window.__fr8TrollBefore===document.querySelector('.fr8-troll')),label+' live landscape and troll must NOT restart on every cake interaction');
   assert.ok(await up.evaluate(el=>document.activeElement===el),label+' lost focus after teller increase');
   const down=page.locator('.fr6-controls [data-fr-action="adjust"][data-field="n"][data-step="-1"]');
   await down.focus();
@@ -101,7 +130,7 @@ async function run(browser,engine,label,viewport,url){
   assert.deepEqual(await page.locator('.fr6-piece-tray .fr2-spare').evaluateAll(xs=>xs.map(x=>Number(x.dataset.pieceIndex))),[1,3],'placed piece must vanish from tray');
   await page.locator('.fr2-pie-builder [data-fr-action="piece"][data-piece="2"]').click();
   assert.deepEqual((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build)).filled,[0],'same sector removes exactly that sector');
-  await page.locator('.fr5-fox-mentor').click();
+  await page.locator('.fr8-companion .fr8-speak').click();
   assert.equal(await page.locator('.fr6-result .fr2-fraction').getAttribute('aria-label'),'1 av 4','fox hint may not change the cake');
   await page.locator('.fr6-piece-tray [data-piece-index="2"]').click();
   assert.deepEqual((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build)).filled,[0,2],'a physical wedge must fill its own position');
@@ -125,6 +154,31 @@ async function run(browser,engine,label,viewport,url){
   await page.locator('[data-fr-action="next-build"]').click();
   assert.equal((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build)).n,0);
   await photo(page,label+'-03-build');
+  // A voluntary adventure cannot require completing a quest before free play.
+  assert.equal(await page.locator('.fr8-scene').getAttribute('data-fr8-quest'),'free');
+  const denominatorBeforeQuest=(await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build)).d;
+  await page.locator('[data-fr-action="half-quest"]').click();
+  assert.equal(await page.locator('.fr8-scene').getAttribute('data-fr8-quest'),'active');
+  while((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build)).d>4)await page.locator('[data-fr-action="adjust"][data-field="d"][data-step="-1"]').click();
+  while((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build)).d<4)await page.locator('[data-fr-action="adjust"][data-field="d"][data-step="1"]').click();
+  await page.locator('[data-fr-action="adjust"][data-field="n"][data-step="1"]').click();
+  await page.locator('[data-fr-action="adjust"][data-field="n"][data-step="1"]').click();
+  assert.equal(await page.locator('.fr8-scene').getAttribute('data-fr8-found'),'true');
+  assert.ok((await page.locator('.fr8-quest-text').innerText()).includes('2/4'));
+  assert.ok((await page.locator('.fr8-aha').innerText()).includes('2/4 = 1/2'));
+  assert.equal(await page.locator('.fr8-aha .fr2-pie-quest').count(),2,'equivalence must be shown visually');
+  await photo(page,label+'-03-half-quest');
+  await page.locator('[data-fr-action="adjust"][data-field="d"][data-step="1"]').click();
+  assert.match(await page.locator('.fr8-quest-text').innerText(),/hele biter/,'the instruction must explain the whole-piece limitation accurately');
+  assert.equal(await page.locator('.fr8-aha').count(),0);
+  await page.locator('[data-fr-action="half-quest"]').click();
+  assert.equal(await page.locator('.fr8-scene').getAttribute('data-fr8-quest'),'free');
+  assert.equal((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build)).n,2,'switching to free play must not reset the cake');
+  // Restore the starting free-play fraction before testing the other activities.
+  await page.locator('[data-fr-action="reset"]').click();
+  while((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build)).d<denominatorBeforeQuest)await page.locator('[data-fr-action="adjust"][data-field="d"][data-step="1"]').click();
+  while((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build)).d>denominatorBeforeQuest)await page.locator('[data-fr-action="adjust"][data-field="d"][data-step="-1"]').click();
+  assert.equal((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build)).n,0);
 
   await page.locator('.fr6-nav [data-page="home"]').click();
   await page.locator('.fr6-more').waitFor();
@@ -283,6 +337,7 @@ async function run(browser,engine,label,viewport,url){
 async function runLandscape(browser,engine,url){
  const ctx=await browser.newContext({viewport:{width:844,height:390},deviceScaleFactor:1,serviceWorkers:'block',isMobile:true,hasTouch:true});
  const page=await ctx.newPage(),errors=[];
+ page.setDefaultTimeout(9000);
  page.on('pageerror',e=>errors.push(String(e)));
  try{
   await page.addInitScript(p=>{localStorage.setItem('laerlittmer-v2',JSON.stringify(p))},profile);
@@ -291,13 +346,13 @@ async function runLandscape(browser,engine,url){
   await page.goto(url,{waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>window.LARIA_FRACTION_PREMIUM?.version==='workshop-v1',{},{timeout:20000});
   await page.evaluate(()=>openFractionLab());
-  await page.locator('.fr6-workshop').waitFor();
-  await page.locator('.fr5-fox-mentor .fr2-fox').evaluate(img=>img.decode());
+  await page.locator('.fr6-workshop').waitFor({timeout:20000});
+  await page.locator('.fr8-companion .fr8-troll').evaluate(img=>img.decode());
   const metric=await page.evaluate(()=>{
    const rect=q=>{const r=document.querySelector(q)?.getBoundingClientRect();return r?{left:Math.round(r.left),right:Math.round(r.right),top:Math.round(r.top),bottom:Math.round(r.bottom),width:Math.round(r.width),height:Math.round(r.height)}:null};
    return {height:innerHeight,width:innerWidth,scrollWidth:document.documentElement.scrollWidth,
     cake:rect('.fr5-build-target .fr2-pie-builder'),fraction:rect('.fr6-result .fr2-fraction'),
-    controls:rect('.fr6-workshop .fr6-controls'),fox:rect('.fr5-fox-mentor .fr2-fox')};
+    controls:rect('.fr6-workshop .fr6-controls'),fox:rect('.fr8-companion .fr8-troll')};
   });
   console.log('FRACTION_LANDSCAPE_'+engine+': '+JSON.stringify(metric));
   await photo(page,engine+'-iphone-landscape-01-workshop');
