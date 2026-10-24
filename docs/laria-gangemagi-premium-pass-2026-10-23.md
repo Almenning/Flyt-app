@@ -88,3 +88,22 @@ Retningen er tydeligere og nærmere den låste komposisjonen: handlingen er saml
 - Release47 endrer derfor kun overlayens visuelle styrke. Sentrale skyline-/stall-lag dempes til ca. 56–58 %, bro/fontene til ca. 48–52 %, mens kantboder, lanterner og forgrunnsawning beholdes tydeligere for å ramme inn markedet.
 - Drop-shadow-kontrast er redusert for at arkitekturen skal blende inn i den eksisterende painterly verdenen. Ingen geometri, touchflate, DOM, JavaScript, matematikk, progresjon eller oppdrag er endret.
 - Overlay-URL og Safari-cache bumpes til release47. Ny exact-head Chromium/WebKit med manuell iPad/iPhone-sammenligning kreves før release47 beholdes.
+
+### 24.10.2026 – Release48 – låste skogstroll blir aktive medspillere
+- De tre godkjente karakterfilene er lagt inn som **identiske originalbytes**, ikke regenererte varianter:
+  - `assets/gangemagi-troll/storesoster.webp` – Git blob `a8fba47e272e2856bd78b92fb262146506e828ed`
+  - `assets/gangemagi-troll/lillesoster.webp` – Git blob `37fd94b3d0fd5319db05e4d1aea609e96d69351f`
+  - `assets/gangemagi-troll/lillebror.webp` – Git blob `fcf59aad90e0c9dacca025d76cd352a924ef7120`
+- Oppdragsmodus endres fra «barnet plukker og legger bæret» til **«barnet velger – trollet utfører»**:
+  1. Barnet velger ett av de tre trollene.
+  2. Det valgte trollet vises med ett jordbær.
+  3. Barnet velger en kurv.
+  4. Trollet gjør en kort leveringsbevegelse.
+  5. Først etter leveringen sendes samme eksisterende `add`-handling til Gangemagi-motoren, og matematikk/kurvtall oppdateres.
+- Ett troll er ikke låst til én kurv. Alle tre kan levere til alle kurver, slik at samme trio fungerer også i oppdrag med fire og fem grupper.
+- Direkte berøring av et jordbær i en kurv beholdes for å ta det ut igjen. Fri lek beholder den eksisterende direkte jordbærkilden og den lagrede personlige reven; Markedsbok beholder også reven. Dette avgrenser endringen til selve Gangemagi-oppdraget.
+- Jordbærkassen beholdes som fysisk, illustrert kilde i scenen, men er ikke lenger barnets hovedknapp i oppdrag.
+- Release48 legger til QA for eksakte trollfiler, 44 px+ trollvalg, troll→kurv-flyt, at trollvalg alene aldri endrer matematikk, og at én levering gir nøyaktig ett bær.
+- Release47 Tallenga-hybridbakgrunn beholdes i denne runden. Grovanova-/bakgrunnsendring behandles separat etter at trollmekanikken er visuelt verifisert.
+- Ingen merge eller publisering før ny exact-head Chromium/WebKit og ekte iPhone/iPad-skjermbilder er kontrollert.
+
