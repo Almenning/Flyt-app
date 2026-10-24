@@ -1088,7 +1088,7 @@
  display:block;object-fit:contain;object-position:center bottom;
  width:clamp(61px,18vw,112px);height:clamp(70px,20vw,124px);max-width:100%;
  filter:drop-shadow(0 5px 4px rgba(57,44,30,.28));flex:none;
- transform-origin:center bottom;animation:fr8-breathe 4s ease-in-out infinite;
+ transform-origin:center bottom; /* Idle geometry stays still for reliable Safari touch targets; celebrate on true discovery. */
 }
 #fraction-lab-screen .fr8-companion .fr8-companion-text{
  position:relative;display:flex;align-items:center;justify-content:center;
@@ -1124,7 +1124,8 @@
 @keyframes fr8-breathe{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
 @keyframes fr8-cloud-drift{from{transform:translateX(-7px)}to{transform:translateX(22px)}}
 @media(min-width:700px){
- #fraction-lab-screen .fr8-companion .fr8-troll{width:132px;height:148px}
+ /* Width alone misclassifies 844x390 landscape phones as tablets. */
+ #fraction-lab-screen .fr8-companion .fr8-troll{width:min(132px,19vh);height:min(148px,22vh)}
 }
 @media(min-width:900px) and (orientation:landscape){
  #fraction-lab-screen .fr8-companion .fr8-troll{width:176px;height:191px}
@@ -1250,7 +1251,8 @@
  box-shadow:inset 0 0 0 3px #fff5db,0 6px 0 rgba(114,74,43,.33);
 }
 #fraction-lab-screen .fr8-scene .fr8-companion{
- filter:drop-shadow(0 5px 5px rgba(39,52,47,.15));
+ /* Avoid a continuously composited filtered ancestor around the cycle button on WebKit. */
+ filter:none;
 }
 #fraction-lab-screen .fr8-scene .fr8-companion::after{
  content:"";position:absolute;z-index:-1;bottom:26px;
