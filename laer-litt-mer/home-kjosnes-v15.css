@@ -72,10 +72,23 @@
   left:35.3%!important;top:69.2%!important;width:61.1%!important;height:24.2%!important;
   grid-template-columns:repeat(4,minmax(0,1fr))!important;
   grid-template-rows:1fr!important;gap:1.05%!important;
+  isolation:isolate!important;
+  background:#21372e!important;
+  border-radius:15px!important;
   pointer-events:auto!important
 }
+/* The locked Home master contains the former four cards, including their text
+   and pale rounded edges. The opaque forest/wood underlay removes those baked
+   pixels from the gaps so a child never sees two rows of cards or labels. */
+.grade-band-young .bc12.bc15-locked-home .bc14-subjects::before{
+  content:"";position:absolute;z-index:0;inset:-3px;
+  background:radial-gradient(ellipse at 40% 0%,#967347 0%,#324435 32%,#162d29 92%);
+  border-radius:16px;
+  box-shadow:inset 0 1px 0 #e7c68a80,0 2px 5px #1526207a;
+  pointer-events:none;
+}
 .grade-band-young .bc12.bc15-locked-home .bc14-subject{
-  position:relative!important;display:block!important;isolation:isolate!important;
+  position:relative!important;z-index:1!important;display:block!important;isolation:isolate!important;
   min-width:0!important;min-height:0!important;width:100%!important;height:100%!important;
   padding:3px!important;margin:0!important;
   border:2px solid #6f4929!important;border-radius:15px 16px 14px 15px!important;
