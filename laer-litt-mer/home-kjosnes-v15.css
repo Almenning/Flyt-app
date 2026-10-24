@@ -36,7 +36,7 @@
   z-index:-1;
   inset:0;
   background-image:var(--bc15-home-art);
-  background-position:center bottom;
+  background-position:center var(--bc15-art-top,0px);
   background-size:var(--bc15-art-width,100%) var(--bc15-art-height,100%);
   background-repeat:no-repeat;
   filter:saturate(1.02) contrast(1.012);
@@ -285,6 +285,10 @@
 /* Portrait uses a dedicated scenic treatment. A phone sky is not a landscape canopy,
    and iPad portrait gets a symmetrical storybook frame instead of mismatched side bars. */
 @media(max-width:700px) and (orientation:portrait){
+ .grade-band-young .bc12.bc15-locked-home{
+   /* The painted bottom navigation continues naturally into the phone safe area. */
+   background:#fff7e9!important;
+ }
  .grade-band-young .bc12.bc15-locked-home::before{
    inset:0 0 auto 0;
    height:var(--bc15-art-top,0px);
