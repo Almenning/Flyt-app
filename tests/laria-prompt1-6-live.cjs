@@ -35,7 +35,9 @@ async function openHomeSubject(page,subject){
    await page.waitForFunction(()=>{
      const h=document.querySelector('.bc12');
      const asset=h?.dataset.bc15Asset||'';
-     return !!h && ((/ready$/.test(asset)&&h.classList.contains('bc15-locked-home')) || asset==='missing');
+     const free=h?.querySelector('.bc14-free');
+     const freeSafe=!free||getComputedStyle(free).display==='none'||getComputedStyle(free).pointerEvents==='none';
+     return !!h && (((/ready$/.test(asset)&&h.classList.contains('bc15-locked-home'))&&freeSafe) || asset==='missing');
    },null,{timeout:12000});
  }
  const newEntry=page.locator('.bc14-subject[data-camp="subject-'+subject+'"]:visible');
