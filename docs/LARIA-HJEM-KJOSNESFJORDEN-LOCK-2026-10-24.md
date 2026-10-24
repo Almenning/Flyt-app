@@ -20,7 +20,8 @@ Fjellsilhuetten skal ikke regenereres, erstattes av Eggenipa eller «forbedres»
 ## Låste masterfiler
 
 ### iPad / liggende
-- Fil: `laria-home-locked-tablet.png`
+- Opprinnelig låst fil: `laria-home-locked-tablet.png`
+- Produksjonsmaster: `laer-litt-mer/assets/home-v15/kjosnes-home-tablet.webp`
 - Dimensjon: 1127 × 681
 - SHA-256: `90c9e102ea84d24b954c6522062017bc1cdd9964a398d3cb37c7fa0203df65c7`
 
@@ -28,7 +29,7 @@ Fjellsilhuetten skal ikke regenereres, erstattes av Eggenipa eller «forbedres»
 - Opprinnelig låst mockup: `laria-home-locked-phone.png`
 - Opprinnelig dimensjon: 354 × 733
 - Opprinnelig SHA-256: `10bc123ab007c9119a73236fc981befc8d157d7df0cca580f3c6a7da706ff053`
-- Produksjonsmaster: ren crop uten telefonramme/notch, lagret i repo som WebP-base64-delene `assets/home-v15/phone.b64*`
+- Produksjonsmaster: `laer-litt-mer/assets/home-v15/kjosnes-home-phone.webp`, ren crop uten telefonramme/notch
 - Produksjonsdimensjon: 340 × 641
 - Produksjons-WebP SHA-256: `0d804d147dc38d259c13757522907f953488f0b40dea298a8efc06055427c8f7`
 - Cropen endrer ikke fjellform, fjord, troll eller innhold; den fjerner kun mockupens fysiske telefonramme og ytre marg.

@@ -1,28 +1,10 @@
 /* Læria Hjem v15 — locked Kjøsnesfjorden / Grovanova masters.
-   The approved artwork is stored as small base64 text chunks so GitHub can keep
-   the exact pixels without regenerating the mountain. */
+   Approved artwork is stored as immutable WebP assets. The mountain is never regenerated. */
 (function(){
 'use strict';
 
-const TABLET_PARTS=[
- './assets/home-v15/tablet.b64.01',
- './assets/home-v15/tablet.b64.02',
- './assets/home-v15/tablet.b64.03',
- './assets/home-v15/tablet.b64.04',
- './assets/home-v15/tablet.b64.05',
- './assets/home-v15/tablet.b64.06',
- './assets/home-v15/tablet.b64.07'
-];
-const PHONE_PARTS=[
- './assets/home-v15/phone.b64',
- './assets/home-v15/phone.b64.02',
- './assets/home-v15/phone.b64.03',
- './assets/home-v15/phone.b64.04',
- './assets/home-v15/phone.b64.05',
- './assets/home-v15/phone.b64.06'
-];
-
-const cache=new Map();
+const TABLET_MASTER='./assets/home-v15/kjosnes-home-tablet.webp?v=20261024-locked1';
+const PHONE_MASTER='./assets/home-v15/kjosnes-home-phone.webp?v=20261024-locked1';
 let activeMasterSrc='';
 
 function openTrollDialog(){
@@ -48,21 +30,6 @@ function openTrollDialog(){
 }
 function isPhone(){return matchMedia('(max-width:700px) and (orientation:portrait)').matches}
 
-async function readMaster(parts,key){
- if(cache.has(key))return cache.get(key);
- const task=Promise.all(parts.map(async path=>{
-   const res=await fetch(path,{cache:'force-cache'});
-   if(!res.ok)throw new Error('Missing Læria Home master: '+path);
-   return (await res.text()).trim();
- })).then(chunks=>{
-   const b64=chunks.join('');
-   if(!b64.startsWith('UklGR'))throw new Error('Invalid Læria Home WebP master: '+key);
-   return 'data:image/webp;base64,'+b64;
- });
- cache.set(key,task);
- return task;
-}
-
 function decoded(src){
  return new Promise((resolve,reject)=>{
    const img=new Image();
@@ -84,7 +51,7 @@ async function activate(){
  }
  const phone=isPhone();
  try{
-   const src=await decoded(await readMaster(phone?PHONE_PARTS:TABLET_PARTS,phone?'phone':'tablet'));
+   const src=await decoded(phone?PHONE_MASTER:TABLET_MASTER);
    activeMasterSrc=src;
    host.style.setProperty('--bc15-home-art','url("'+src+'")');
    host.classList.add('bc15-locked-home');
