@@ -2057,6 +2057,16 @@
  * treatment above.  No game state, action, hit target or stored data is
  * changed here; this is only the final visual composition of existing DOM.
  */
+.gm-shell[data-gm-mode="mission"] .gm-world{
+  background:
+    linear-gradient(180deg,rgba(255,248,221,.18),rgba(255,246,211,.03) 42%,rgba(39,65,48,.34)),
+    url('./gangemagi-grovanova-storybook-locked.webp?v=release56') center 54% / cover no-repeat;
+}
+.gm-shell[data-gm-mode="mission"] .gm-world:after{
+  background:url('./gangemagi-tallenga-market-overlay-v2.svg?v=release56') center / cover no-repeat;
+  opacity:.34;
+  mix-blend-mode:soft-light;
+}
 @media (min-width:900px){
 .gm-shell[data-gm-mode="mission"] .gm-world{
   display:grid;
