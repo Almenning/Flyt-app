@@ -84,8 +84,7 @@
 }
 
 .grade-band-young .bc12.bc15-locked-home .bc12-nav button[data-camp="home"]{
-  position:absolute!important;left:-305%!important;top:0!important;
-  width:48px!important;height:48px!important;display:block!important;
+  display:none!important;
 }
 .grade-band-young .bc12.bc15-locked-home .bc12-nav button:focus-visible{
   opacity:.24!important;outline:4px solid #fff4bd!important;outline-offset:2px!important;
@@ -118,6 +117,10 @@
     bottom:max(.8%,env(safe-area-inset-bottom))!important;
     width:95%!important;height:9.2%!important;
     grid-template-columns:repeat(5,1fr)!important;gap:0!important;
+  }
+  .grade-band-young .bc12.bc15-locked-home .bc12-nav button[data-camp="home"]{
+    display:flex!important;position:static!important;left:auto!important;top:auto!important;
+    width:auto!important;height:auto!important;
   }
   .grade-band-young .bc12.bc15-locked-home .bc12-adult-entry{
     right:4.4%!important;top:max(3.4%,env(safe-area-inset-top))!important;
