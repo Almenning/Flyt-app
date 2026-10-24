@@ -144,6 +144,15 @@ function clearMappedControls(host){
 async function activate(){
  const host=document.querySelector('#home-screen .bc12');
  if(!host)return false;
+ const youngBand=!!document.querySelector('.grade-band-young');
+ if(!youngBand){
+   host.classList.remove('bc15-capable','bc15-locked-home','bc15-pending','bc15-fallback');
+   host.style.removeProperty('--bc15-home-art');
+   clearMappedControls(host);
+   host.dataset.bc15Asset='ineligible';
+   host.querySelectorAll('.bc15-live-copy,.bc15-live-next').forEach(el=>el.remove());
+   return false;
+ }
  host.classList.add('bc15-capable');
  const detachedView=host.dataset.bc13View && host.dataset.bc13View!=='home';
  if((host.dataset.mode && host.dataset.mode!=='home') || detachedView){
