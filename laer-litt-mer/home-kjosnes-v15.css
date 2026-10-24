@@ -4,7 +4,7 @@
 
 .grade-band-young .bc12.bc15-locked-home{
   background-color:#4c9bca!important;
-  background-image:var(--bc15-home-art),linear-gradient(180deg,#55a4d3 0%,#7ab8d7 28%,#4f776f 68%,#f3e2c2 100%)!important;
+  background-image:var(--bc15-home-art),var(--bc15-home-art)!important;
   background-position:center bottom,center center!important;
   background-size:contain,cover!important;
   background-repeat:no-repeat,no-repeat!important;
@@ -105,7 +105,7 @@
 
 @media(max-width:700px) and (orientation:portrait){
   .grade-band-young .bc12.bc15-locked-home{
-    background-image:var(--bc15-home-art),linear-gradient(180deg,#55a4d3 0%,#7ab8d7 28%,#4f776f 68%,#f3e2c2 100%)!important;
+    background-image:var(--bc15-home-art),var(--bc15-home-art)!important;
     background-position:center bottom,center center!important;background-size:contain,cover!important;
   }
   .grade-band-young .bc12.bc15-locked-home .bc14-subjects{
@@ -207,16 +207,16 @@
  left:8.0%;top:84.0%;width:19.5%;min-height:2.8%;
  display:flex;align-items:center;justify-content:flex-start;
  padding:1px 5px;border-radius:3px;
- background:#f4cc91;color:#4d321c;border:0;
+ background:linear-gradient(180deg,#f8d9a0,#edbf7e);color:#4d321c;border:0;
  font-size:clamp(9px,.8vw,13px);font-weight:900;line-height:1.05;
  pointer-events:none;white-space:nowrap;overflow:hidden;
 }
 
 @media(max-width:700px) and (orientation:portrait){
  .grade-band-young .bc12.bc15-locked-home .bc15-live-copy{
-   left:0;top:13%;width:78%;min-height:12%;
+   left:0;top:13%;width:70%;min-height:10%;
    padding:8px 11px 9px;border-radius:0 12px 12px 0;
-   background:rgba(17,55,78,.98);
+   background:rgb(17,55,78);
  }
  .grade-band-young .bc12.bc15-locked-home .bc15-live-greeting{
    font-size:clamp(22px,7vw,31px);
@@ -225,7 +225,7 @@
    margin-top:3px;font-size:clamp(12px,3.6vw,16px);
  }
  .grade-band-young .bc12.bc15-locked-home .bc15-live-next{
-   left:25%;top:65.5%;width:49%;min-height:4%;
+   left:25%;top:65.5%;width:38%;min-height:3.5%;
    padding:1px 5px;border-radius:3px;font-size:clamp(9px,2.7vw,12px);
  }
 }
