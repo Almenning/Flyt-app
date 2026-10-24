@@ -61,6 +61,10 @@ async function run(engine,label,viewport){
    await page.goto(base+'&home-v15='+label,{waitUntil:'domcontentloaded'});
 
    const home=await homeReady(page,label);
+   const liveGreeting=(await page.locator('.bc15-live-greeting').innerText()).trim();
+   assert.match(liveGreeting,/Testbarn/,label+' dynamic greeting must use profile name');
+   assert.doesNotMatch(liveGreeting,/Aleah/,label+' locked mockup name must not leak as live child identity');
+   assert.match((await page.locator('.bc15-live-next').innerText()).trim(),/Bokskogen/,label+' live next-stop copy must mirror journey state');
    assert.equal(await page.locator('.bc14-subject:visible').count(),4,label+' must keep four real subject hit areas');
    assert.equal(await page.locator('.bc12-journey:visible').count(),1,label+' journey action must stay real');
    assert.equal(await page.locator('.bc12-fox:visible').count(),0,label+' old fox must not be visible on Home v15');
