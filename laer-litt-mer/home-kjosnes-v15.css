@@ -220,7 +220,7 @@
  position:absolute;z-index:17;box-sizing:border-box;
  display:flex;align-items:center;
  padding:7px 15px 8px 17px;border-radius:16px 22px 22px 16px;
- background:linear-gradient(104deg,rgba(13,52,64,.96) 0%,rgba(13,55,66,.88) 70%,rgba(13,55,66,.48) 100%);
+ background:linear-gradient(104deg,#234b45 0%,#2f5a4c 68%,#386451 100%);
  border:1px solid rgba(255,239,199,.28);border-left:2px solid rgba(255,226,166,.54);
  color:#fff;text-align:left;pointer-events:none;
  text-shadow:0 2px 5px rgba(0,0,0,.38);
@@ -250,7 +250,7 @@
 @media(max-width:700px) and (orientation:portrait){
  .grade-band-young .bc12.bc15-locked-home .bc15-live-copy{
    padding:7px 11px 7px 13px;border-radius:0 16px 16px 0;
-   background:linear-gradient(98deg,rgba(13,52,64,.97) 0%,rgba(13,55,66,.89) 72%,rgba(13,55,66,.50) 100%);
+   background:linear-gradient(98deg,#234b45 0%,#2f5a4c 70%,#386451 100%);
    border-left:0;border-right:1px solid rgba(255,239,199,.24);
  }
  .grade-band-young .bc12.bc15-locked-home .bc15-live-greeting{
