@@ -41,9 +41,16 @@ Fjellsilhuetten skal ikke regenereres, erstattes av Eggenipa eller «forbedres»
 - Cropen endrer ikke fjellform, fjord, troll eller innhold; den fjerner kun mockupens fysiske telefonramme og ytre marg.
 
 ### Låst trolltrio
-- Fil: `laria-troll-trio-transparent-v3.png`
-- Dimensjon: 443 × 431
-- SHA-256: `1e2ab79d4b53e09233ab95bdcc1947501a85c47803e282a73ac8b92ef2688cc9`
+- Opprinnelig triofil: `laria-troll-trio-transparent-v3.png`
+- Opprinnelig dimensjon: 443 × 431
+- Opprinnelig SHA-256: `1e2ab79d4b53e09233ab95bdcc1947501a85c47803e282a73ac8b92ef2688cc9`
+- Dialogasset: `laer-litt-mer/assets/home-v15/laria-troll-trio-v3.webp`
+- Dialogasset dimensjon: 900 × 600
+- Dialogasset SHA-256: `695a598b236162cf409c208c76a09e5e3d3f18ec2c7eb925bf7148c66b2883ca`
+- Navikon: `laer-litt-mer/assets/home-v15/laria-troll-trio-nav.webp`
+- Navikon dimensjon: 180 × 96
+- Navikon SHA-256: `a9937014dbefbb32096b413b49d62511aeff2ed287092b1b91fd9dee671d5137`
+- Begge avledningene er kompositt av de tre låste enkeltkarakterene; ingen nye ansikt eller klær er generert.
 
 ## Produktretning
 
@@ -54,6 +61,9 @@ Fjellsilhuetten skal ikke regenereres, erstattes av Eggenipa eller «forbedres»
 - Hovednavigasjonen beholdes funksjonelt.
 - Eksisterende progresjon og aktivitetstilstand skal ikke nullstilles eller omskrives av redesignen.
 - Andre skjermer beholder foreløpig eksisterende rev/logikk til de redesignes eksplisitt.
+- Hjem kan ha lavmælt ambient liv (solglød, fjordglimt og CTA-glød), men det skal aldri flytte, deformere eller regenerere den låste illustrasjonen.
+- Ambient-laget skal være rent dekorativt, aldri fange input, og alle animasjoner skal deaktiveres ved `prefers-reduced-motion`.
+- Berøringsfeedback skal være kortvarig og sceneintegrert; ingen nye dashboardkort eller konkurrerende primærhandlinger.
 
 ## Teknisk sikkerhetsregel
 
