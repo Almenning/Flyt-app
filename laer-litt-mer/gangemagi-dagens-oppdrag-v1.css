@@ -2125,14 +2125,12 @@
 /* The three exact locked character assets become the left foreground group,
    with room for their bodies and names — not thumbnail controls. */
 .gm-shell[data-gm-mode="mission"] .gm-scene{
-  grid-area:guide;
-  display:flex;
-  align-self:stretch;
-  min-width:0;
-  margin:0;
-  padding:0;
+  /* The real market is a child of gm-scene. Promote both children to
+     grid items so the basket field occupies its authored market column. */
+  display:contents;
 }
 .gm-shell[data-gm-mode="mission"] .gm-fox.gm-troll-guide{
+  grid-area:guide;
   position:relative;
   z-index:2;
   display:flex;
