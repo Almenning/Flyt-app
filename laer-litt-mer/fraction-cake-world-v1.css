@@ -139,7 +139,7 @@
  background:linear-gradient(160deg,#ffecc8,#d8a46d);box-shadow:0 3px 0 #935f39;
  font-family:Georgia,serif;font-size:clamp(13px,1.6vw,19px);font-weight:900;text-shadow:0 1px #fff7d8;
 }
-#fraction-lab-screen .fc-world .fc-cake-stand .fc-cake-surface{display:flex;align-items:center;justify-content:center;width:100%;min-width:0}
+#fraction-lab-screen .fc-world .fc-cake-stand .fc-cake-surface{display:flex;align-items:center;justify-content:center;width:100%;min-width:0;background:transparent;box-shadow:none;border:0;border-radius:0}
 #fraction-lab-screen .fc-world .fc-cake-stand .fc-cake-svg{
  display:block;position:relative;z-index:2;width:min(100%,358px);max-width:358px;height:auto;
  overflow:visible;filter:drop-shadow(0 13px 10px #391f0f55);cursor:pointer;touch-action:manipulation;
