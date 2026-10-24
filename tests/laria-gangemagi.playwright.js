@@ -509,24 +509,34 @@ async function check(engine,label,viewport,url){
         firstBasket:box('.gm-crate'),math:box('.gm-math'),
         speechSize:parseFloat(getComputedStyle(document.querySelector('.gm-fox-message')).fontSize)};
     });
-    assert.ok(guide.fox.height>=96&&guide.fox.width>=700,
-      label+' iPad landscape locked troll trio must remain clearly visible as small market actors '+JSON.stringify(guide));
+    assert.ok(guide.fox.height>=185&&guide.fox.width>=210,
+      label+' Release56 locked troll trio needs a readable full-height left foreground group '+JSON.stringify(guide));
     assert.ok(guide.bubble.width>=205&&guide.speechSize>=14,
       label+' iPad landscape speech must be readable at arm’s length '+JSON.stringify(guide));
-    assert.ok(guide.fox.left<=guide.firstBasket.left+2&&guide.fox.right>=guide.firstBasket.right-2,
-      label+' troll trio should span the physical basket market instead of returning to a detached guide lane '+JSON.stringify(guide));
-    assert.ok(guide.fox.bottom<=guide.firstBasket.top+2,
-      label+' small troll row must end before the live basket hit area begins '+JSON.stringify(guide));
-    assert.ok(guide.bubble.right<=guide.firstBasket.left+2,
-      label+' speech prompt must stay outside the first basket touch target '+JSON.stringify(guide));
+    // Release56 supersedes the earlier horizontal troll row: the trio and
+    // speech now own a real left foreground lane, separate from live baskets.
+    const apart=(a,b)=>a.right<=b.left-6||a.left>=b.right+6||
+      a.bottom<=b.top-6||a.top>=b.bottom+6;
+    assert.ok(guide.fox.right<=guide.firstBasket.left-8&&
+      guide.fox.right<=guide.math.left-8,
+      label+' locked actors must stay in the left foreground, outside the playable basket and maths lanes '+JSON.stringify(guide));
+    assert.ok(apart(guide.fox,guide.firstBasket)&&
+      apart(guide.bubble,guide.firstBasket)&&
+      apart(guide.fox,guide.math)&&
+      apart(guide.bubble,guide.math),
+      label+' no troll or spoken instruction may cover the live basket or mathematical touch/read surfaces '+JSON.stringify(guide));
+    assert.ok(guide.fox.top>=guide.firstBasket.top-12&&
+      guide.fox.bottom<=guide.math.bottom+3,
+      label+' full-height troll actors must remain inside the illustrated market scene '+JSON.stringify(guide));
     const groupMath=await page.locator('.gm-group-plus').evaluateAll(nodes=>nodes.map(el=>({
       display:getComputedStyle(el).display,text:el.textContent.trim(),pointer:getComputedStyle(el).pointerEvents
     })));
     assert.equal(groupMath.length,2,label+' 3-group mission needs two visual addition links between real baskets');
     assert.ok(groupMath.every(x=>x.display!=='none'&&x.text==='+'&&x.pointer==='none'),
       label+' wide iPad must show non-interactive plus signs between the three physical groups '+JSON.stringify(groupMath));
-    assert.ok(guide.fox.bottom<=guide.math.top+3&&guide.bubble.bottom<=guide.math.top+3,
-      label+' troll guide and speech must stay clear of live mathematical feedback '+JSON.stringify(guide));
+    assert.ok(guide.bubble.right<=guide.math.left-8&&
+      guide.bubble.bottom<=guide.math.bottom+3,
+      label+' speech stays readable within the separate left foreground lane '+JSON.stringify(guide));
   }
   assert.ok(first.crate.top>=0&&first.crate.bottom<=first.height,label+' interactive crates not in the first viewport '+JSON.stringify(first));
   assert.ok(first.math.top<first.height,label+' mathematical feedback invisible '+JSON.stringify(first));
@@ -537,14 +547,18 @@ async function check(engine,label,viewport,url){
   const materialLayout=await page.evaluate(()=>{
     const box=s=>document.querySelector(s).getBoundingClientRect();
     const actor=box('.gm-troll-stage'),slot=box('.gm-troll-stage');
-    return {foxBottom:actor.bottom,slotBottom:slot.bottom,foxWidth:slot.width,mathTop:box('.gm-math').top,
+    const math=box('.gm-math');
+    return {foxBottom:actor.bottom,slotBottom:slot.bottom,foxWidth:slot.width,
+      foxRight:actor.right,mathLeft:math.left,mathTop:math.top,
       iconHeight:box('.gm-quest-icon').height,
       sourceArtWidth:box('.gm-market-fruit-supply .gm-pick-fruit').width,
       marketBlur:getComputedStyle(document.querySelector('.gm-market'),'::before').backdropFilter};
   });
   assert.ok(materialLayout.foxBottom<=materialLayout.slotBottom+2&&
-    materialLayout.foxBottom<=materialLayout.mathTop+3,
-    label+' locked troll trio must fit its slot and stay above the live equation '+JSON.stringify(materialLayout));
+    (materialLayout.foxBottom<=materialLayout.mathTop+3||
+      (viewport.width>=900&&viewport.height<=900&&
+        materialLayout.foxRight<=materialLayout.mathLeft-6)),
+    label+' locked trolls must fit their slot without overlapping the live equation in either layout '+JSON.stringify(materialLayout));
   if(viewport.width>=900&&viewport.height<=900){
     const wideBoard=await page.locator('.gm-quest-steps').evaluate(el=>({
       display:getComputedStyle(el).display,
