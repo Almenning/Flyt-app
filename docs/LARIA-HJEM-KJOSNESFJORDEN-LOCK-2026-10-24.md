@@ -29,6 +29,7 @@ Fjellsilhuetten skal ikke regenereres, erstattes av Eggenipa eller «forbedres»
 - WebP-en er gjenopprettet i 1127 × 681 fra den godkjente høyoppløste kilden og lagret med WebP q100. 760 × 459-versjonen ga synlig uskarp oppskalering. Fjellform og komposisjon skal ikke endres.
 - Kvalitetsregel: liggende tablet-/desktop-master skal aldri være lavere enn 1127 × 681. Safe-area-fyll skal ikke lages ved å blure eller duplisere masterillustrasjonen.
 - Portrettregel: mobil/iPad-portrett skal vise hele bredden av den låste phone-masteren uten side-crop. Fagkort eller navigasjon skal aldri kuttes i høyre/venstre kant.
+- Mobilhierarki: ekstra vertikal safe-area skal holdes kort øverst og primært absorberes av den kremfargede navigasjonsforlengelsen nederst. Live-hilsen skal lese som del av himmelen, og live-reisestatus som del av det malte treskiltet, ikke som egne UI-kort.
 
 ### Mobil / stående
 - Opprinnelig låst mockup: `laria-home-locked-phone.png`

@@ -80,7 +80,7 @@ function mapControlsToArtwork(host,imgW,imgH,portrait){
    left:(rect.width-artWidth)/2,
    // Phones keep the whole master and split spare height between sky and the
    // cream navigation continuation. Other layouts preserve the locked bottom alignment.
-   top:phonePortrait?spareY*.44:rect.height-artHeight
+   top:phonePortrait?spareY*.30:rect.height-artHeight
  };
  host.dataset.bc15Fit=artAspect>viewportAspect?'safe-width':'safe-height';
 
@@ -91,7 +91,7 @@ function mapControlsToArtwork(host,imgW,imgH,portrait){
    nav:[.025,.900,.95,.092],
    adult:[.855,.030,.105,.070],
    liveCopy:tabletPortrait?[.03,.138,.62,.105]:[.00,.138,.62,.105],
-   liveNext:tabletPortrait?[.31,.665,.38,.026]:[.22,.665,.56,.026]
+   liveNext:tabletPortrait?[.31,.665,.38,.026]:[.20,.666,.60,.024]
  }:{
    subjects:[.353,.692,.611,.242],
    journey:[.028,.747,.304,.161],
