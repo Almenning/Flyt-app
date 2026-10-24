@@ -92,31 +92,31 @@
     </div>` : '';
     return `<section class="fr2-build fr4-build fr5-build fr6-workshop fr8-scene fc-world" data-fr8-quest="${c.halfQuest?'active':'free'}" data-fr8-found="${c.halfQuest&&half?'true':'false'}" data-fc-world="1">
       <div class="fc-story-title"><h1>Brøklaben</h1><p>Trykk på kaken og se hva som skjer!</p></div>
-      <div class="fr6-stage fc-stage">
+      <div class="fc-stage">
         ${landscape()}
-        <div class="fr2-guide fr5-fox-mentor fr8-companion fc-troll">
+        <div class="fc-troll">
           <button type="button" class="fr8-speak fc-troll-help" data-fr-action="fox-help" aria-label="Trykk på trollet for å høre forklaring">
             <img class="fr2-fox fr8-troll" src="./assets/fraction-trolls/${character}.webp" width="175" height="220" alt="" draggable="false" decoding="async" aria-hidden="true"/>
             <span class="fr5-fox-bubble fc-troll-speech" role="status">${hint}</span>
           </button>
           <button type="button" class="fr8-cycle-troll fc-troll-cycle" data-fr-action="cycle-troll" aria-label="Bytt mellom de tre skogstrollene">Bytt troll ↻</button>
         </div>
-        <div class="fr2-build-target fr5-build-target fc-cake-stand" data-fr-drop="1">
+        <div class="fr2-build-target fc-cake-stand" data-fr-drop="1">
           <span class="fc-cake-label">Din magiske kake</span>
           <div class="fr2-fabric fc-cake-surface">${cakeSvg({n,d,filled:x.filled,lastChanged:c.lastChanged})}</div>
           <p class="fc-cake-hint">Trykk på et kakestykke</p>
         </div>
-        <div class="fr5-live-result fr6-result fc-story-sign" role="status" aria-live="polite" aria-atomic="true">
+        <div class="fr6-result fc-story-sign" role="status" aria-live="polite" aria-atomic="true">
           <span class="fc-result-label">Du har</span>
           ${oneFraction(n,d)}
           <span class="fc-percent-equality" aria-label="Det er ${percent} av hele kaken">= <b>${percent}</b></span>
           <span class="fc-result-caption">av hele kaken</span>
         </div>
-        <div class="fr2-wood-tray fr5-piece-tray fr6-piece-tray fc-piece-tray">
+        <div class="fc-piece-tray">
           <span class="fr2-tray-title fc-tray-title">Kakestykker</span>
           <div class="fr2-spare-pieces fc-pieces">${remaining.length?remaining.map(i=>c.pieceMarkup(i)).join(''):'<span class="fr6-empty-tray">Alle bitene er i kaken!</span>'}</div>
         </div>
-        <div class="fr2-controls fr4-controls fr5-controls fr6-controls fc-controls">${c.adjust('n')}${c.adjust('d')}</div>
+        <div class="fc-controls">${c.adjust('n')}${c.adjust('d')}</div>
         <div class="fc-primary-actions">
           <button type="button" class="fc-add-one" data-fr-action="fc-add-one" ${n===d?'disabled':''} aria-label="Legg til ett kakestykke">${n===d?'Hele kaken er fylt!':'＋ Legg til én bit'}</button>
           <div class="fc-action-tools">
