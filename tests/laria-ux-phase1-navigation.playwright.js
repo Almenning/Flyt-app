@@ -165,7 +165,9 @@ async function run(engine,label,width,height){
     // A mission must return to its world, not jump to the wrong app section.
     await page.locator('.bc13-card[data-bc13-action="norwegian"]').click();
     await screen(page,'subject');
-    await page.locator('#subject-screen.active .locked-journey-hotspot').first().click();
+    const norwegianStop=page.locator('#subject-screen.active .locked-journey-hotspot.state-current').first();
+    await norwegianStop.waitFor({state:'visible',timeout:16000});
+    await norwegianStop.click();
     const firstTask=page.locator('#subject-screen.active .locked-journey-overlay:not([hidden]) [data-locked-node]:not([disabled])').first();
     await firstTask.waitFor({state:'visible',timeout:12000});
     await firstTask.click();
