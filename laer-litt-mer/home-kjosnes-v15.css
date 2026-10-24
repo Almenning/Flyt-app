@@ -286,8 +286,8 @@
    and iPad portrait gets a symmetrical storybook frame instead of mismatched side bars. */
 @media(max-width:700px) and (orientation:portrait){
  .grade-band-young .bc12.bc15-locked-home::before{
-   inset:0;
-   height:auto;
+   inset:0 0 auto 0;
+   height:var(--bc15-art-top,0px);
    /* Object-free continuation of the master sky. No reflected logo, gear or text. */
    background:
      radial-gradient(ellipse 58% 44% at 8% 105%,rgba(255,252,238,.58) 0%,rgba(255,252,238,.32) 29%,rgba(255,252,238,0) 66%),
