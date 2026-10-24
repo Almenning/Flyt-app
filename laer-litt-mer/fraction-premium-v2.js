@@ -441,14 +441,19 @@ function applyBuildPieces(parts,notice=''){
   if(u.page==='explore')mark('explored',key(x.n,x.d));
   x.notice=notice;
   render();
-  // React only to real, mathematically meaningful discoveries.
+  // React only to a meaningful mathematical discovery. Keep this synchronous
+  // in Fjordbakeriet: throttled requestAnimationFrame in WebKit sometimes delayed
+  // the child-facing feedback until after the user had already moved on.
   if(u.halfQuest&&x.d%2===0&&x.n*2===x.d)u.halfQuestWon=true;
   if(x.n!==before&&x.n>0&&(x.n===x.d||x.d%2===0&&x.n*2===x.d)){
-    try{requestAnimationFrame(()=>{
-      const host=document.querySelector('#fraction-lab-root '+(u.page==='build'?'.fc-troll':'.fr5-scene-fox'));
-      if(u.page==='build'&&host?.querySelector('.fr8-troll'))host.classList.add('fr8-celebrate');
-       else window.LARIA_FOX_PRESENCE?.react?.('celebrate',host);
-    })}catch(_){}
+    try{
+      if(u.page==='build'){
+        const host=document.querySelector('#fraction-lab-root .fc-troll');
+        if(host?.querySelector('.fr8-troll'))host.classList.add('fr8-celebrate');
+      }else{
+        requestAnimationFrame(()=>window.LARIA_FOX_PRESENCE?.react?.('celebrate',document.querySelector('#fraction-lab-root .fr5-scene-fox')));
+      }
+    }catch(_){}
   }
 }
 function addBuildPiece(notice='Du la til én del!',pieceIndex=null){
