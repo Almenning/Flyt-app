@@ -35,18 +35,22 @@ async function run(browser,engine,label,viewport,url){
 
   assert.deepEqual((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build)).filled,[0]);
   assert.deepEqual(await page.locator('.fr6-piece-tray .fr2-spare').evaluateAll(xs=>xs.map(x=>Number(x.dataset.pieceIndex))),[1,2,3]);
-  await page.locator('.fr5-fox-mentor .fr2-fox').evaluate(img=>img.decode());
+  // The live workshop uses the locked trio, one real character asset at a time.
+  await page.locator('.fr8-companion .fr8-troll').evaluate(img=>img.decode());
+  assert.ok((await page.locator('.fr8-companion .fr8-troll').getAttribute('src')).endsWith('/storesoster.webp'));
+  assert.equal(await page.locator('.fr8-landscape .fr8-skala').count(),1,'Skåla is a live scene layer, not a poster background');
+  assert.equal(await page.locator('.fr8-landscape .fr8-cloud').count(),2,'independent scenic motion layers');
   const firstFold=await page.evaluate(()=>{
     const rect=selector=>document.querySelector(selector)?.getBoundingClientRect();
     const cake=rect('.fr5-build-target .fr2-pie-builder'),value=rect('.fr6-result .fr2-fraction'),controls=rect('.fr6-workshop .fr6-controls');
-    const fox=document.querySelector('.fr5-fox-mentor .fr2-fox');
+    const fox=document.querySelector('.fr8-companion .fr8-troll');
     const equivalents=rect('.fr7-tablet-equivalents');
     return {
       cakeVisible:!!cake&&cake.width>100&&cake.top>=0&&cake.bottom<=innerHeight,
       fractionVisible:!!value&&value.height>65&&value.top>=0&&value.bottom<=innerHeight,
       controlsVisible:!!controls&&controls.top>=0&&controls.bottom<=innerHeight,
       fractionAboveControls:!!value&&!!controls&&value.bottom<controls.top,
-      correctFox:!!fox&&fox.getAttribute('src')===window.LARIA_FOX.worldSource(window.LARIA_FOX.choice())&&fox.complete&&fox.naturalWidth>0,
+      correctFox:!!fox&&fox.getAttribute('src')?.endsWith('/storesoster.webp')&&fox.complete&&fox.naturalWidth>0,
       equivalentsBesideCake:innerWidth<700||(!!equivalents&&equivalents.top>=0&&equivalents.bottom<=innerHeight&&equivalents.left>cake.right-3),
       controlsHeight:controls?.height,
       viewportHeight:innerHeight,cakeBottom:Math.round(cake?.bottom||0),fractionBottom:Math.round(value?.bottom||0),controlsTop:Math.round(controls?.top||0),controlsBottom:Math.round(controls?.bottom||0),
@@ -55,7 +59,7 @@ async function run(browser,engine,label,viewport,url){
   });
   if(label.includes('tiny'))await photo(page,label+'-00-first-fold-diagnostic');
   assert.ok(firstFold.cakeVisible&&firstFold.fractionVisible&&firstFold.controlsVisible&&firstFold.fractionAboveControls&&firstFold.correctFox&&firstFold.equivalentsBesideCake&&firstFold.noOverflow,
-    label+' first viewport must show cake, 1/4, both controls and personal fox: '+JSON.stringify(firstFold));
+    label+' first viewport must show cake, 1/4, both controls and the locked skogstroll: '+JSON.stringify(firstFold));
   assert.ok(firstFold.controlsHeight>=58,'real controls must remain touchable');
   const tablet=viewport.width>=700;
   // The cake is still the whole first interaction on a phone.
@@ -68,6 +72,13 @@ async function run(browser,engine,label,viewport,url){
     assert.ok(usableWidth>=900,label+' premium iPad landscape workshop must use its available width: '+usableWidth);
   }
   await photo(page,label+'-01-home');
+  for(const id of ['lillesoster','lillebror','storesoster']){
+    await page.locator('[data-fr-action="cycle-troll"]').click();
+    await page.locator('.fr8-troll').evaluate(img=>img.decode());
+    assert.ok((await page.locator('.fr8-troll').getAttribute('src')).endsWith('/'+id+'.webp'),label+' must show the approved '+id+' asset');
+    assert.equal((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build)).n,1,'changing companions must not change mathematics');
+  }
+  await photo(page,label+'-01-trolls-cycle');
   if(tablet){
     assert.deepEqual(await page.locator('.fr7-tablet-equivalents .fr7-equivalent-tile strong').allTextContents(),['0,25','25 %']);
   }else{
