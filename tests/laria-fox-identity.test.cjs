@@ -38,7 +38,7 @@ const fraction=file('fraction-premium-v2.js');
 assert.match(fraction,/FR8_TROLLS/,'Brøklab must use the locked skogstroll trio');
 for(const id of ['storesoster','lillesoster','lillebror'])assert.ok(fraction.includes("id:'"+id+"'"),'Missing approved '+id+' companion');
 const cakeWorld=file('fraction-cake-world-v1.js');
-assert.match(cakeWorld,/assets\\/fraction-trolls\\/\\$\\{character\\}/,'Interactive Brøklab scene must render the locked troll art');
+assert.ok(cakeWorld.includes('assets/fraction-trolls/${character}'),'Interactive Brøklab must load the approved troll art, not a new portrait');
 assert.match(cakeWorld,/data-fr-action="piece"/,'Cake must use real interactive pieces');
 assert.doesNotMatch(fraction,/src="\.\/lia-fox-explorer-home\.webp"/,'generic picture survives in Brøklab');
 assert.match(api.worldSource('girl'),/girl-braids-blue-dress-v1\.webp/);
