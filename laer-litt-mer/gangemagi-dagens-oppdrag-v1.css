@@ -1420,3 +1420,35 @@
   .gm-shell[data-gm-mode="mission"] *,
   .gm-shell .gm-fruit[data-gm-fruit]{animation:none!important;transition:none!important}
 }
+
+/* 320px WebKit acceptance: the redundant wordmark steals the title column.
+   Retain the complete Gangemagi name and both 44px+ header controls. */
+@media(max-width:360px){
+ .gm-shell[data-gm-mode="mission"] .gm-brand{display:none}
+ .gm-shell[data-gm-mode="mission"] .gm-top{grid-template-columns:44px minmax(0,1fr) 61px 58px}
+ .gm-shell[data-gm-mode="mission"] .gm-top-title{grid-column:2;grid-row:1;justify-self:stretch;min-width:0}
+ .gm-shell[data-gm-mode="mission"] .gm-top-title h1{font-size:clamp(19px,6.3vw,21px);letter-spacing:-.055em}
+ .gm-shell[data-gm-mode="mission"] .gm-top-progress{grid-column:3;grid-row:1}
+ .gm-shell[data-gm-mode="mission"] .gm-book-quick{grid-column:4;grid-row:1}
+
+ /* Five visible numerical groups previously occupied only the narrow left
+    math column, clipping the fifth count behind overflow:hidden. */
+ .gm-shell[data-gm-mode="mission"][data-gm-groups="5"] .gm-math{grid-template-columns:minmax(0,1fr) auto;gap:2px 5px}
+ .gm-shell[data-gm-mode="mission"][data-gm-groups="5"] .gm-group-counts{
+   grid-column:1 / -1;grid-row:2;justify-content:center;overflow:visible;gap:2px
+ }
+ .gm-shell[data-gm-mode="mission"][data-gm-groups="5"] .gm-group-count{min-width:24px;padding:2px 3px}
+ .gm-shell[data-gm-mode="mission"][data-gm-groups="5"] .gm-group-counts>i{font-size:12px}
+ .gm-shell[data-gm-mode="mission"][data-gm-groups="5"] .gm-math-equation{
+   grid-column:1;grid-row:1;font-size:clamp(19px,6.3vw,23px)
+ }
+ .gm-shell[data-gm-mode="mission"][data-gm-groups="5"] .gm-berry-progress{grid-column:2;grid-row:1}
+ .gm-shell[data-gm-mode="mission"][data-gm-groups="5"][data-gm-complete="false"]:not([data-gm-sum="0"]) .gm-math-equation{
+   grid-column:1 / -1;grid-row:2;font-size:clamp(17px,5.4vw,18px)
+ }
+ .gm-shell[data-gm-mode="mission"][data-gm-groups="5"][data-gm-complete="false"]:not([data-gm-sum="0"]) .gm-berry-progress{grid-column:2;grid-row:1}
+ .gm-shell[data-gm-mode="mission"][data-gm-groups="5"][data-gm-complete="false"]:not([data-gm-sum="0"]) .gm-group-counts{grid-row:3}
+ .gm-shell[data-gm-mode="mission"][data-gm-groups="5"][data-gm-complete="true"] .gm-math-addition{grid-column:1 / -1;grid-row:1;font-size:15px}
+ .gm-shell[data-gm-mode="mission"][data-gm-groups="5"][data-gm-complete="true"] .gm-math-equation{grid-column:1;grid-row:2}
+ .gm-shell[data-gm-mode="mission"][data-gm-groups="5"][data-gm-complete="true"] .gm-berry-progress{grid-row:2}
+}
