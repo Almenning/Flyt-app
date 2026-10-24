@@ -22,7 +22,8 @@ test('play-prop integration uses locked trolls and keeps one factual berry sourc
  assert.doesNotMatch(source,/data-gm-prop="hand"/);
  assert.match(source,/gangemagi-strawberry-painted\.svg\?v=20261022-props1/);
  for(const name of ['storesoster','lillesoster','lillebror']){
-   assert.match(source,new RegExp('assets/gangemagi-troll/'+name+'\\\\.webp'));
+   assert.ok(source.includes('./assets/gangemagi-troll/'+name+'.webp'),
+     'mission references exact locked troll path: '+name);
    assert.ok(fs.existsSync(path.join(dir,'assets/gangemagi-troll',name+'.webp')),
      'locked troll asset exists: '+name);
  }
