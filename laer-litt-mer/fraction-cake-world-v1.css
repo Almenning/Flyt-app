@@ -187,6 +187,8 @@
 }
 #fraction-lab-screen .fc-world .fc-piece-tray .fr2-spare{flex:0 0 45px;width:45px;height:52px;min-height:44px;padding:0;border-radius:11px;background:linear-gradient(#fffae7,#e1ac73);box-shadow:0 3px 0 #965d32;border:2px solid #d2a06a;touch-action:none}
 #fraction-lab-screen .fc-world .fc-piece-tray .fr2-loose-piece{height:43px;max-width:44px}
+#fraction-lab-screen .fc-world .fc-piece-tray{min-height:56px}
+#fraction-lab-screen .fc-world .fc-piece-tray .fr2-spare{position:relative;z-index:3}
 #fraction-lab-screen .fc-world .fc-piece-tray .fr6-empty-tray{font-size:12px;text-align:center}
 #fraction-lab-screen .fc-world .fc-controls{
  grid-area:controls;display:grid;grid-template-columns:1fr 1fr;align-self:end;
@@ -319,7 +321,7 @@
  #fraction-lab-screen .fc-shell .fr6-nav{margin-top:6px}
 }
 @media(max-width:360px) and (orientation:portrait){
- #fraction-lab-screen .fc-world .fc-stage{grid-template-columns:minmax(53px,.3fr) minmax(136px,1fr) minmax(73px,.35fr);grid-template-rows:minmax(130px,auto) 46px 84px 45px;row-gap:3px;padding-top:19px}
+ #fraction-lab-screen .fc-world .fc-stage{grid-template-columns:minmax(53px,.3fr) minmax(136px,1fr) minmax(73px,.35fr);grid-template-rows:minmax(130px,auto) minmax(57px,auto) minmax(86px,auto) 46px;row-gap:5px;padding-top:19px}
  #fraction-lab-screen .fc-world .fc-cake-stand .fc-cake-svg{width:min(100%,163px)}
  #fraction-lab-screen .fc-world .fc-troll .fr8-troll{height:89px}
  #fraction-lab-screen .fc-world .fc-controls .fr2-adjust{min-height:82px}
