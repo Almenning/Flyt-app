@@ -286,22 +286,19 @@
    and iPad portrait gets a symmetrical storybook frame instead of mismatched side bars. */
 @media(max-width:700px) and (orientation:portrait){
  .grade-band-young .bc12.bc15-locked-home::before{
-   /* Reflect only the real top edge of the phone artwork into the safe area.
-      This preserves the exact canopy/sky palette without blur, AI fill or flat letterboxing. */
-   inset:0 0 auto 0;
-   height:var(--bc15-art-top,0px);
-   background-image:var(--bc15-home-art);
-   background-size:var(--bc15-art-width,100%) var(--bc15-art-height,100%);
-   background-position:center top;
-   background-repeat:no-repeat;
-   box-shadow:none;
+   inset:0;
+   height:auto;
+   /* Object-free continuation of the master sky. No reflected logo, gear or text. */
+   background:
+     radial-gradient(ellipse 44% 24% at 72% 100%,rgba(255,255,255,.20) 0%,rgba(255,255,255,.06) 44%,rgba(255,255,255,0) 74%),
+     linear-gradient(180deg,#58a4e8 0%,#4f9fe5 58%,#4597de 100%);
+   box-shadow:inset 0 -12px 18px -18px rgba(47,111,157,.55);
    filter:none;
-   transform:scaleY(-1);
-   transform-origin:center center;
+   transform:none;
  }
  .grade-band-young .bc12.bc15-locked-home::after{
-   -webkit-mask-image:linear-gradient(to bottom,rgba(0,0,0,.38) 0,#000 18px,#000 100%);
-   mask-image:linear-gradient(to bottom,rgba(0,0,0,.38) 0,#000 18px,#000 100%);
+   -webkit-mask-image:linear-gradient(to bottom,rgba(0,0,0,.34) 0,#000 18px,#000 100%);
+   mask-image:linear-gradient(to bottom,rgba(0,0,0,.34) 0,#000 18px,#000 100%);
  }
 }
 @media(min-width:701px) and (orientation:portrait){
