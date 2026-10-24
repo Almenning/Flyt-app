@@ -356,6 +356,14 @@ async function check(engine,label,viewport,url){
     label+' the superseded full market painting must not redraw the locked Grovanova silhouette');
   assert.match(overlayBackground,/gangemagi-tallenga-market-overlay-v2\.svg/,
     label+' Gangemagi must render the transparent Tallenga market architecture as a separate depth layer');
+  if(viewport.width>=361){
+    const atmosphere=await page.locator('.gm-world').evaluate(el=>{
+      const overlay=getComputedStyle(el,'::after');
+      return {opacity:parseFloat(overlay.opacity),blend:overlay.mixBlendMode};
+    });
+    assert.ok(atmosphere.opacity>=(viewport.width>=900?0.60:0.45)&&atmosphere.blend==='normal',
+      label+' Tallenga market architecture must remain visibly painted over the locked fjord rather than vanish in soft-light '+JSON.stringify(atmosphere));
+  }
   const grovanovaWorld=await page.request.get(new URL('gangemagi-grovanova-storybook-locked.webp',url).href);
   assert.equal(grovanovaWorld.status(),200,label+' the geometry-locked Grovanova scene must load');
   assert.match(grovanovaWorld.headers()['content-type'],/image\/webp/,
