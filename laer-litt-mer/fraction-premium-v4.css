@@ -1202,3 +1202,79 @@
  #fraction-lab-screen .fr8-aha{gap:6px;padding:7px}
  #fraction-lab-screen .fr8-aha .fr2-pie-quest{width:44px;height:44px}
 }
+
+/* Scene acceptance pass: controls belong to the woodwork, not to white SaaS
+   panels pasted onto a photograph. Recede the cake panel into the landscape
+   without sacrificing contrast or the 44px controls. */
+#fraction-lab-screen .fr8-shell .fr5-lab-intro{
+ border:3px solid #bb8c5c;
+ background:
+   repeating-linear-gradient(174deg,rgba(120,79,48,.05) 0px 2px,transparent 2px 23px),
+   linear-gradient(165deg,#fff0d1,#e8b984);
+ box-shadow:inset 0 3px 7px #fff6dc,0 5px 0 #956640,0 12px 18px rgba(85,55,30,.16);
+}
+#fraction-lab-screen .fr8-scene .fr6-stage{
+ border:7px solid #b67c49;
+ box-shadow:
+  inset 0 0 0 3px rgba(255,236,191,.76),
+  inset 0 9px 20px rgba(75,50,32,.2),
+  0 8px 0 #835432,0 15px 23px rgba(75,50,32,.27);
+}
+#fraction-lab-screen .fr8-scene .fr6-stage::before,
+#fraction-lab-screen .fr8-scene .fr6-stage::after{
+ content:"";position:absolute;z-index:3;pointer-events:none;
+ top:0;bottom:0;width:9px;
+ background:linear-gradient(90deg,#84512f,#c09260,#ffe0a5,#96603b);
+ box-shadow:0 0 0 1px rgba(95,56,29,.24);
+}
+#fraction-lab-screen .fr8-scene .fr6-stage::before{left:0}
+#fraction-lab-screen .fr8-scene .fr6-stage::after{right:0;transform:scaleX(-1)}
+#fraction-lab-screen .fr8-scene .fr5-build-target{
+ border:2px solid rgba(255,242,208,.52);
+ background:
+   radial-gradient(ellipse at 46% 47%,rgba(255,249,224,.92),rgba(255,245,218,.64) 65%,rgba(248,230,199,.25) 96%);
+ box-shadow:none;
+ backdrop-filter:none;
+}
+#fraction-lab-screen .fr8-scene .fr5-build-target .fr4-build-woodhead{
+ border:2px solid rgba(151,104,61,.9);
+ background:linear-gradient(150deg,#f7dfaf,#dba568);
+ box-shadow:0 3px 0 rgba(116,76,43,.27);
+}
+#fraction-lab-screen .fr8-scene .fr5-live-result{
+ border:4px ridge #d4a56a;
+ border-radius:21px 21px 27px 27px;
+ background:
+  repeating-linear-gradient(172deg,rgba(181,123,70,.045) 0px 1px,transparent 1px 18px),
+  radial-gradient(ellipse at 47% 18%,#fffdf4,#f8e7c4 81%,#ebc391);
+ box-shadow:inset 0 0 0 3px #fff5db,0 6px 0 rgba(114,74,43,.33);
+}
+#fraction-lab-screen .fr8-scene .fr8-companion{
+ filter:drop-shadow(0 5px 5px rgba(39,52,47,.15));
+}
+#fraction-lab-screen .fr8-scene .fr8-companion::after{
+ content:"";position:absolute;z-index:-1;bottom:26px;
+ width:90%;height:22px;border-radius:50%;
+ background:radial-gradient(ellipse,rgba(39,66,44,.38),transparent 70%);
+ pointer-events:none;
+}
+#fraction-lab-screen .fr8-scene .fr2-wood-tray{
+ background:
+  repeating-linear-gradient(168deg,rgba(125,71,38,.08) 0px 3px,transparent 3px 24px),
+  linear-gradient(166deg,#eac08d,#c58a52);
+ border-color:#815133;
+}
+#fraction-lab-screen .fr8-scene .fr8-quest{
+ border-color:#bd8c5b;
+ background:
+  repeating-linear-gradient(178deg,rgba(149,93,48,.045) 0px 1px,transparent 1px 20px),
+  linear-gradient(140deg,#fff4d3,#ecc48f);
+}
+#fraction-lab-screen .fr8-scene[data-fr8-found="true"] .fr8-quest{
+ background:linear-gradient(145deg,#fff9db,#e5f1d2);border-color:#80ad65;
+}
+@media(max-width:390px){
+ #fraction-lab-screen .fr8-scene .fr6-stage{border-width:5px}
+ #fraction-lab-screen .fr8-scene .fr6-stage::before,
+ #fraction-lab-screen .fr8-scene .fr6-stage::after{width:5px}
+}
