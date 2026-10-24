@@ -46,16 +46,16 @@ function place(el,box,part,viewport){
  const [x,y,w,h]=part;
  const rawLeft=box.left+box.width*x;
  const rawTop=box.top+box.height*y;
- const rawRight=rawLeft+box.width*w;
- const rawBottom=rawTop+box.height*h;
- const left=Math.max(0,rawLeft);
- const top=Math.max(0,rawTop);
- const right=Math.min(viewport.width,rawRight);
- const bottom=Math.min(viewport.height,rawBottom);
+ const rawWidth=box.width*w;
+ const rawHeight=box.height*h;
+ const width=Math.min(rawWidth,viewport.width);
+ const height=Math.min(rawHeight,viewport.height);
+ const left=Math.min(Math.max(0,rawLeft),Math.max(0,viewport.width-width));
+ const top=Math.min(Math.max(0,rawTop),Math.max(0,viewport.height-height));
  el.style.setProperty('left',left+'px','important');
  el.style.setProperty('top',top+'px','important');
- el.style.setProperty('width',Math.max(0,right-left)+'px','important');
- el.style.setProperty('height',Math.max(0,bottom-top)+'px','important');
+ el.style.setProperty('width',width+'px','important');
+ el.style.setProperty('height',height+'px','important');
  el.style.setProperty('right','auto','important');
  el.style.setProperty('bottom','auto','important');
 }
