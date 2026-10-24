@@ -76,15 +76,14 @@ function mapControlsToArtwork(host,imgW,imgH,portrait){
    top:rect.height-imgH*scale
  };
  host.dataset.bc15Fit=artAspect>viewportAspect?'safe-width':'safe-height';
- host.style.setProperty('background-size',box.width+'px '+box.height+'px, cover','important');
- host.style.setProperty('background-position','center bottom, center center','important');
 
+ const tabletPortrait=portrait&&rect.width>700;
  const layout=portrait?{
    subjects:[.044,.728,.912,.135],
    journey:[.052,.620,.896,.098],
    nav:[.025,.900,.95,.092],
    adult:[.855,.030,.105,.070],
-   liveCopy:[.01,.145,.68,.105],
+   liveCopy:tabletPortrait?[.01,.145,.48,.105]:[.01,.145,.68,.105],
    liveNext:[.255,.655,.37,.035]
  }:{
    subjects:[.353,.692,.611,.242],
