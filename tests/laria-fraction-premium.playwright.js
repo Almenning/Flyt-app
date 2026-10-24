@@ -19,7 +19,7 @@ async function assertFirstFold(page,label,w,h){
  });
  assert.ok(data.cake&&data.num&&data.pct&&data.control&&data.action,label+' missing an essential real component '+JSON.stringify(data));
  assert.ok(data.cake.width >= (w<360?120:130),label+' cake must remain large enough to play '+JSON.stringify(data));
- assert.ok([data.cake,data.num,data.pct,data.control].every(x=>x.top>=0&&x.bottom<=h+1),label+' important objects must share first fold '+JSON.stringify(data));
+ assert.ok([data.cake,data.num,data.pct,data.control,data.action].every(x=>x.top>=0&&x.bottom<=h+1),label+' cake, fractions, both controls and the primary game action must share first fold '+JSON.stringify(data));
  assert.ok(data.scrollWidth<=w+3,label+' horizontal overflow '+JSON.stringify(data));
  const targets=await page.locator('.fc-controls .fr2-adjust-btn, .fc-add-one, .fc-troll-cycle').evaluateAll(xs=>xs.map(x=>({label:x.getAttribute('aria-label')||x.textContent.trim(),w:x.getBoundingClientRect().width,h:x.getBoundingClientRect().height})));
  assert.ok(targets.every(x=>x.w>=44&&x.h>=44),label+' targets below 44x44 '+JSON.stringify(targets));
@@ -50,7 +50,28 @@ async function run(browser,engine,label,viewport,url,full){
   await assertFirstFold(page,label,viewport.width,viewport.height);
   await photo(page,label+'-01-fjordbakeriet',false); // Capture actual first viewport; fullPage Safari capture can perturb scroll position before first tap.
   // Exactly the interaction the child should see first. Never rely on a static image.
-  await page.locator('.fc-add-one').click();
+  try {
+    await page.locator('.fc-add-one').click();
+  } catch(error) {
+    // Real WebKit pointer interactions must pass. Never force-click a broken button.
+    const samples=await page.evaluate(async()=>{
+      const element=document.querySelector('.fc-add-one'),items=[];
+      for(let i=0;i<12;i++){
+        const r=element?.getBoundingClientRect();
+        const style=element?getComputedStyle(element):null;
+        items.push({i,x:r?.x,y:r?.y,width:r?.width,height:r?.height,scrollY:window.scrollY,
+          vvHeight:window.visualViewport?.height,docHeight:document.documentElement.scrollHeight,
+          vis:style?.visibility,display:style?.display,transform:style?.transform,
+          scrollBehavior:getComputedStyle(document.documentElement).scrollBehavior,
+          topHit:r?document.elementFromPoint(Math.max(0,r.x+r.width/2),Math.max(0,Math.min(innerHeight-1,r.y+r.height/2)))?.className:null});
+        await new Promise(done=>setTimeout(done,100));
+      }
+      return items;
+    });
+    console.error('BRØKLAB_SAFARI_ADD_ONE_STABILITY '+engine+' '+label+' '+JSON.stringify(samples));
+    await photo(page,label+'-ERROR-before-first-action',false);
+    throw error;
+  }
   assert.deepEqual((await cakeState(page)).filled,[0,1]);
   assert.equal(await page.locator('.fc-number').getAttribute('aria-label'),'2 av 4');
   assert.equal(await pct(page),'50 %');
