@@ -445,7 +445,7 @@ function applyBuildPieces(parts,notice=''){
   if(u.halfQuest&&x.d%2===0&&x.n*2===x.d)u.halfQuestWon=true;
   if(x.n!==before&&x.n>0&&(x.n===x.d||x.d%2===0&&x.n*2===x.d)){
     try{requestAnimationFrame(()=>{
-      const host=document.querySelector('#fraction-lab-root '+(u.page==='build'?'.fr5-fox-mentor':'.fr5-scene-fox'));
+      const host=document.querySelector('#fraction-lab-root '+(u.page==='build'?'.fc-troll':'.fr5-scene-fox'));
       if(u.page==='build'&&host?.querySelector('.fr8-troll'))host.classList.add('fr8-celebrate');
        else window.LARIA_FOX_PRESENCE?.react?.('celebrate',host);
     })}catch(_){}
