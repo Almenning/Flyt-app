@@ -14,7 +14,7 @@ function game() {
     getElementById:id=>id==='multiplication-lab-root'?root:null};
   const window = {LARIA_GANGEMAGI_ENGINE:Engine, openMultiplicationLab(){}, addEventListener(){}};
   vm.runInNewContext(source,{window,document,localStorage:{getItem:k=>stored.get(k)||null,setItem:(k,v)=>stored.set(k,v)},
-    MutationObserver:class{observe(){}},console},{filename:'multiplication-gangemagi-v1.js',timeout:1000});
+    MutationObserver:class{observe(){}},console,setTimeout:fn=>{fn();return 1;},clearTimeout(){}},{filename:'multiplication-gangemagi-v1.js',timeout:1000});
   // The real game renders when opened. Initialize this DOM-less test host
   // before asserting its visible maths or illustrated group counts.
   window.LARIA_GANGEMAGI.reset();
@@ -23,33 +23,45 @@ function game() {
     const target = {closest:selector=>selector==='button[data-gm-action]'?button:selector.includes('.gm-fruit')&&berry?{}:null};
     handlers.get('click')({target,preventDefault(){},stopPropagation(){}});
   };
-  return {tap,markup:()=>root.innerHTML,snapshot:()=>JSON.parse(JSON.stringify(window.LARIA_GANGEMAGI.snapshot()))};
+  const place=(troll,group,berry=false)=>{
+    tap('troll',0,false,{gmTroll:String(troll)});
+    tap('basket',group,berry);
+  };
+  return {tap,place,markup:()=>root.innerHTML,snapshot:()=>JSON.parse(JSON.stringify(window.LARIA_GANGEMAGI.snapshot()))};
 }
-test('picking then touching an existing berry PLACES the held berry in that basket',()=>{
+test('choosing a troll then a basket places exactly one berry',()=>{
   const g=game();
-  g.tap('source');g.tap('basket',0);
+  g.place(0,0);
   assert.deepEqual(g.snapshot().counts,[1,0,0]);
-  g.tap('source');g.tap('basket',0,true);
+  g.tap('troll',0,false,{gmTroll:'1'});
+  assert.equal(g.snapshot().holdingBerry,true,'lillesøster holds one berry before a destination');
+  assert.deepEqual(g.snapshot().counts,[1,0,0],'choosing a troll alone never changes maths');
+  g.tap('basket',0,true);
   assert.deepEqual(g.snapshot().counts,[2,0,0],
-    'the visible contents are part of the destination, not a surprise remove button while holding a berry');
+    'touching existing basket contents still means PLACE while a troll holds a berry');
   assert.equal(g.snapshot().equation.total,2);
   g.tap('basket',0,true);
   assert.deepEqual(g.snapshot().counts,[1,0,0],
-    'without a held berry the same direct touch still removes one berry');
+    'without a held berry direct touch removes one berry');
 });
-test('placing a held berry onto a full basket never removes an existing berry',()=>{
+test('a full basket rejects a troll delivery without losing existing berries',()=>{
   const g=game();
-  for(let i=0;i<3;i++){g.tap('source');g.tap('basket',0);}
-  g.tap('source');g.tap('basket',0,true);
-  assert.deepEqual(g.snapshot().counts,[3,0,0],'a full basket rejects a fourth berry without changing the contents');
+  for(let i=0;i<3;i++)g.place(i%3,0);
+  g.tap('troll',0,false,{gmTroll:'0'});
   g.tap('basket',0,true);
-  assert.deepEqual(g.snapshot().counts,[2,0,0],'ordinary direct removal remains available after the rejected placement');
+  assert.deepEqual(g.snapshot().counts,[3,0,0],
+    'full basket rejects a fourth berry without changing contents');
+  assert.equal(g.snapshot().holdingBerry,true,'rejected delivery keeps the berry with the troll');
+  g.tap('basket',1);
+  assert.deepEqual(g.snapshot().counts,[3,1,0],'held berry can be redirected to another basket');
+  g.tap('basket',0,true);
+  assert.deepEqual(g.snapshot().counts,[2,1,0],'ordinary direct removal remains available afterwards');
 });
 
-test('free-play pickup uses one fruit while missions retain the five-berry crate',()=>{
+test('free-play keeps direct pickup while missions use the troll-operated five-berry crate',()=>{
   const g=game();
-  g.tap('source');
   assert.match(g.markup(),/gm-source-berry-4/);
+  assert.doesNotMatch(g.markup(),/data-gm-action="source"/,'mission crate is not a direct action');
   g.tap('mode',0,false,{mode:'free'});
   assert.equal(g.snapshot().mode,'free');
   assert.doesNotMatch(g.markup(),/gm-source-berry/);
@@ -71,7 +83,7 @@ test('pictured groups grow with the actual maths instead of revealing the finish
  assert.match(g.markup(),/3 × 3 = \?/,'the task first shows an unanswered multiplication');
  for(let group=0;group<3;group++){
    for(let count=1;count<=3;count++){
-     g.tap('source');g.tap('basket',group);
+     g.place((group+count)%3,group);
      const actual=group*3+count;
      assert.equal(picturedBerries(g.markup()),actual,
        'one illustrated berry appears for each real berry, not the future target');
