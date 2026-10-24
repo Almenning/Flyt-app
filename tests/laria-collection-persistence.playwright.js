@@ -92,7 +92,7 @@ async function verify(browserType,label,viewport){
     assert.ok(layout.top>=-2&&layout.bottom<=layout.windowHeight+2,
       label+' collection book overflows viewport: '+JSON.stringify(layout));
     await page.screenshot({path:path.join(evidence,label+'-magisk-samlebok.png'),animations:'disabled'});
-
+    await page.locator('#bc12-dialog[open] .bc12-close').click();
     assert.equal(await page.locator('#bc12-dialog[open]').count(),0);
     const first=await page.evaluate(()=>({
       avatar:state.profile.avatar,
