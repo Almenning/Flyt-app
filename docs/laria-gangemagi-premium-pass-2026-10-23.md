@@ -115,3 +115,9 @@ Retningen er tydeligere og nærmere den låste komposisjonen: handlingen er saml
 - Kort 844×390-landskap beholder a516-komposisjonen og 44px+ touchmål, men får samme eksplisitte hit-layer-regel.
 - Ny Playwright-regresjon kontrollerer etter trollvalg at kurv 2, ikke trollkunst, er elementet som faktisk mottar berøringen.
 - Grovanova-bakgrunnen er fortsatt et separat visuelt arbeid. Ingen flat eller feilformet lokal prototype er lagt i repoet.
+
+### 24.10.2026 – release50: riktig berøringslag mellom troll og kurver
+- Release49 gjorde de tre låste trollene til aktive figurer i selve markedet. Ekte Chromium-QA avdekket at det store trollknapp-rektangelet kunne ligge over et allerede plassert jordbær selv om figuren så riktig ut.
+- Interaksjonslagene er nå eksplisitte: før trollvalg er trollene første handling; når trollet holder et bær blir kurvene aktive; etter levering går hele kurvknappen tilbake til passiv, mens det faktiske bæret og minusknappen ligger øverst og kan brukes direkte.
+- Marked/kurver ligger visuelt foran trollenes nedre del. Dette lar trollene stå naturlig bak/ved kurvene uten å bli en usynlig berøringsvegg.
+- Ny Playwright-regresjon bruker elementFromPoint på midten av et faktisk plassert bær og krever at bæret, ikke et troll, eier pikselen før direkte fjerning testes.

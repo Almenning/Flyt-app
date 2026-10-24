@@ -645,6 +645,17 @@ async function check(engine,label,viewport,url){
     label+' troll delivery adds exactly one strawberry');
   assert.equal((await page.locator('.gm-math-equation').innerText()).trim(),'0 + 1 + 0 = 1',
     label+' maths follows completed troll delivery');
+  const placedBerryHit=await page.locator('[data-gm-basket="1"] .gm-fruit[data-gm-fruit]').first().evaluate(el=>{
+    const r=el.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2;
+    const hit=document.elementFromPoint(x,y);
+    return {fruit:!!hit?.closest?.('.gm-fruit[data-gm-fruit]'),
+      troll:!!hit?.closest?.('[data-gm-action="troll"]'),
+      basket:!!hit?.closest?.('[data-gm-action="basket"]')};
+  });
+  assert.equal(placedBerryHit.fruit,true,
+    label+' placed berry must own its actual pixel hit target '+JSON.stringify(placedBerryHit));
+  assert.equal(placedBerryHit.troll,false,
+    label+' locked troll artwork may not cover a placed berry '+JSON.stringify(placedBerryHit));
   await page.locator('[data-gm-basket="1"] .gm-fruit[data-gm-fruit]').first().click();
   assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,0,0],
     label+' direct touch still removes a placed berry');

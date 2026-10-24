@@ -1897,3 +1897,26 @@
     pointer-events:none;
   }
 }
+
+/* Release50: explicit interaction stacking for troll-first play.
+   The trio may stand behind the physical baskets without becoming a giant
+   invisible click shield. Each step owns only the surface the child needs. */
+.gm-shell[data-gm-mode="mission"] .gm-market{
+  z-index:6;
+  pointer-events:none;
+}
+.gm-shell[data-gm-mode="mission"] .gm-crate{
+  pointer-events:none;
+}
+.gm-shell[data-gm-mode="mission"][data-gm-holding="true"] .gm-crate{
+  pointer-events:auto;
+}
+.gm-shell[data-gm-mode="mission"] .gm-fruit[data-gm-fruit],
+.gm-shell[data-gm-mode="mission"] .gm-remove:not(:disabled){
+  position:relative;
+  z-index:70;
+  pointer-events:auto;
+}
+.gm-shell[data-gm-mode="mission"] .gm-market-fruit-supply{
+  pointer-events:none;
+}
