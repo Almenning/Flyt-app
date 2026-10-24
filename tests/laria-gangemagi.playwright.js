@@ -723,7 +723,8 @@ async function check(engine,label,viewport,url){
   await chooseTrollAndPlace(page,0,0);
   assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[2,0,0]);
   await page.locator('[data-gm-action="hint"]').click();
-  assert.match(await page.locator('.gm-fox-message').innerText(),/kurv/i);
+  assert.match(await page.locator('.gm-fox-message').innerText(),/troll/i,
+    label+' hint returns the child to the new first step: choose a troll');
   assert.equal(await page.locator('.gm-fruit-pop').count(),0,
     label+' opening a fox hint must NOT replay the last fruit animation');
   await page.locator('[data-gm-action="remove"][data-group="0"]').click();

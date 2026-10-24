@@ -1513,7 +1513,7 @@
   align-items:end;
   gap:2px;
   width:100%;
-  height:clamp(180px,24vw,300px);
+  height:clamp(290px,26vw,310px);
   margin:0;
   pointer-events:auto;
 }
