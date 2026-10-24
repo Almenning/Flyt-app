@@ -412,6 +412,38 @@
 
 /* iPad landscape: leave the physical primary cake action visible in the first viewport. */
 @media(min-width:901px) and (min-height:501px){
- #fraction-lab-screen .fc-world .fc-troll .fc-troll-speech{min-height:34px;max-width:150px;padding:4px 5px;font-size:12px;line-height:1.1}
- #fraction-lab-screen .fc-world .fc-troll{margin-bottom:0;gap:2px}
+ #fraction-lab-screen .fc-world .fc-troll{
+   position:relative;display:block;align-self:end;height:364px;min-height:0;margin:0;overflow:visible;
+ }
+ #fraction-lab-screen .fc-world .fc-troll .fc-troll-help{
+   position:absolute;inset:-2px 0 45px -12px;width:calc(100% + 18px);height:calc(100% - 43px);
+   display:block;overflow:visible;
+ }
+ #fraction-lab-screen .fc-world .fc-troll .fr8-troll{
+   position:absolute;left:0;bottom:0;max-width:none;width:calc(100% + 46px);height:350px;
+   object-fit:contain;object-position:left bottom;
+ }
+ #fraction-lab-screen .fc-world .fc-troll .fc-troll-speech{
+   position:absolute;bottom:0;left:0;z-index:3;min-height:34px;
+   width:max-content;max-width:170px;padding:4px 6px;font-size:12px;line-height:1.1;
+ }
+ #fraction-lab-screen .fc-world .fc-troll .fc-troll-cycle{
+   position:absolute!important;bottom:0;left:24px;z-index:4;
+ }
+}
+
+/* Original approved Fjordbakeri sign frame. The dynamic fraction/procent remain
+   actual DOM text and the frame cannot intercept the child’s actions. */
+@media (min-width:650px) and (min-height:501px){
+ #fraction-lab-screen .fc-world .fc-story-sign{
+  border:0;
+  background:url("./assets/fraction-scene/sign-frame.webp") center/100% 100% no-repeat,
+   linear-gradient(135deg,#fff9de,#f5dda9);
+  box-shadow:0 7px 10px #36210c44;
+ }
+ #fraction-lab-screen .fc-world .fc-story-sign:before{content:none}
+ #fraction-lab-screen .fc-world .fc-story-sign .fc-result-label{
+  position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+  clip-path:inset(50%);white-space:nowrap;border:0;
+ }
 }
