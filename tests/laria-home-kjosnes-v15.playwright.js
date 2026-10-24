@@ -88,6 +88,7 @@ async function run(engine,label,viewport){
    assert.equal(await page.locator('.bc14-free:visible').count(),0,label+' duplicate Explore card must not compete on Home v15');
    assert.equal(await page.locator('.bc12-quest:visible').count(),0,label+' old fox-letter card must not compete on Home v15');
    assert.equal(await page.locator('.bc12-place:visible').count(),0,label+' legacy activity signs must not compete');
+   assert.equal(await page.locator('.safe-challenge-young:visible').count(),0,label+' legacy challenge button must stay hidden on locked Home');
 
    const geom=await page.evaluate(()=>{
      const rect=e=>{const r=e.getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:r.height,right:r.right,bottom:r.bottom}};
