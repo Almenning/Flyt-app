@@ -33,7 +33,9 @@ async function checkBoard(page,mode,tag){
     cards:[...document.querySelectorAll('.bc13-card')].map(bounds),scroll:document.documentElement.scrollWidth,viewport:innerWidth};
  });
  assert(positions.board.x>=0&&positions.board.x+positions.board.width<=positions.viewport+1,tag+' board clipped horizontally: '+JSON.stringify(positions));
- assert(positions.board.y+positions.board.height<=positions.nav.y+4,tag+' map-board hides bottom navigation: '+JSON.stringify(positions));
+ const overlapX=Math.max(0,Math.min(positions.board.x+positions.board.width,positions.nav.x+positions.nav.width)-Math.max(positions.board.x,positions.nav.x));
+ const overlapY=Math.max(0,Math.min(positions.board.y+positions.board.height,positions.nav.y+positions.nav.height)-Math.max(positions.board.y,positions.nav.y));
+ assert(overlapX*overlapY<=4,tag+' map-board overlaps main navigation: '+JSON.stringify(positions));
  assert(positions.cards.every(b=>b.width>=75&&b.height>=75),tag+' destination has too small tap area: '+JSON.stringify(positions.cards));
  assert(positions.close.width>=44&&positions.close.height>=44,tag+' Home return target must be at least 44px: '+JSON.stringify(positions.close));
  assert(positions.scroll<=positions.viewport+1,tag+' horizontal scroll');
