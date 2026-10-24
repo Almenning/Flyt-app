@@ -352,6 +352,15 @@ async function check(engine,label,viewport,url){
       label+' title overlaps progress badge on compact iPhone '+JSON.stringify(compactHeader));
     assert.equal(overlap(compactHeader.title,compactHeader.book),false,
       label+' title overlaps the collection button '+JSON.stringify(compactHeader));
+    const narrowHeading=await page.locator('.gm-top-title h1').evaluate(el=>({
+      text:el.textContent.trim(),clipped:el.scrollWidth>el.clientWidth+1,
+      font:parseFloat(getComputedStyle(el).fontSize)
+    }));
+    assert.equal(narrowHeading.text,'Gangemagi');
+    assert.ok(!narrowHeading.clipped&&narrowHeading.font>=19,
+      label+' whole game title must be readable at 320px '+JSON.stringify(narrowHeading));
+    assert.equal(await page.locator('.gm-brand').evaluate(el=>getComputedStyle(el).display),'none',
+      label+' redundant Læria wordmark must not steal game-title space');
   }
   assert.equal(await page.locator('.gm-crate-invite').count(),0,
     label+' do not draw attention to basket selection before a berry is picked');
@@ -895,6 +904,23 @@ async function check(engine,label,viewport,url){
   assert.ok(five.scrollWidth<=five.width+4&&five.tapWidths.every(n=>n>=44),
     label+' dense five-basket mission must fit width with 44px touch targets '+JSON.stringify(five));
   assert.deepEqual(five.labels,['Kurv 1','Kurv 2','Kurv 3','Kurv 4','Kurv 5']);
+
+  const verifyCompactFiveCounts=async()=>{
+    if(viewport.width>360)return;
+    const counts=await page.locator('.gm-group-counts').evaluate(el=>{
+      const frame=el.closest('.gm-math').getBoundingClientRect();
+      const nodes=[...el.querySelectorAll('.gm-group-count')];
+      return {count:nodes.length,plus:el.querySelectorAll(':scope>i').length,
+        overflow:el.scrollWidth-el.clientWidth,
+        inside:nodes.every(n=>{const r=n.getBoundingClientRect();return r.left>=frame.left-1&&r.right<=frame.right+1;}),
+        values:nodes.map(n=>n.querySelector('b')?.textContent.trim())};
+    });
+    assert.equal(counts.count,5,label+' five numeric basket counts must exist');
+    assert.equal(counts.plus,4,label+' four addition separators must exist');
+    assert.ok(counts.overflow<=1&&counts.inside,
+      label+' no clipped fifth group on 320px maths parchment '+JSON.stringify(counts));
+  };
+  await verifyCompactFiveCounts();
   const mathsLayout=async()=>{
     return await page.locator('.gm-math').evaluate(root=>{
       const equation=root.querySelector('.gm-math-equation'),progress=root.querySelector('.gm-berry-progress');
@@ -912,6 +938,17 @@ async function check(engine,label,viewport,url){
       label+' five-basket maths must remain legible and within the panel '+JSON.stringify(m));
   }
   await shot(page,label+'-05-five-basket-mission');
+  if(viewport.width<=360){
+    await page.locator('[data-gm-action="source"]').click();
+    await page.locator('[data-gm-action="basket"][data-gm-basket="0"] .gm-crate-front').click();
+    assert.equal((await page.locator('.gm-math-equation').innerText()).trim(),'1 + 0 + 0 + 0 + 0 = 1',
+      label+' first actual berry updates all five numeric groups');
+    await verifyCompactFiveCounts();
+    const partial=await mathsLayout();
+    assert.ok(partial.textWidth<=partial.availableWidth+2&&partial.fontSize>=17,
+      label+' partial five-group equation remains readable '+JSON.stringify(partial));
+    await shot(page,label+'-05-five-basket-one-berry');
+  }
   await page.locator('[data-gm-action="open-book"]').click();
   await page.locator('[data-gm-action="select-mission"][data-index="6"]').click();
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).groups,4);
