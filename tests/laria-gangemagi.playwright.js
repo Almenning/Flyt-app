@@ -842,7 +842,12 @@ async function check(engine,label,viewport,url){
     return {overlap:a.left<b.right&&a.right>b.left&&a.top<b.bottom&&a.bottom>b.top,
       bubbleMathOverlap:b.left<math.right&&b.right>math.left&&b.top<math.bottom&&b.bottom>math.top,
       foxMathOverlap:fox.left<math.right&&fox.right>math.left&&fox.top<math.bottom&&fox.bottom>math.top,
-      celebrationTop:a.top,foxBottom:fox.bottom,bubbleBottom:b.bottom,mathTop:math.top,viewportHeight:innerHeight,
+      celebrationTop:a.top,celebrationLeft:a.left,celebrationRight:a.right,
+      celebrationWidth:a.width,mathLeft:math.left,mathRight:math.right,
+      mathBottom:math.bottom,foxBottom:fox.bottom,bubbleBottom:b.bottom,
+      mathTop:math.top,viewportHeight:innerHeight,
+      noteWidth:document.querySelector('.gm-celebration-copy').clientWidth,
+      noteScrollWidth:document.querySelector('.gm-celebration-copy').scrollWidth,
       nextBottom:r('.gm-actions-complete .gm-next').bottom};
   });
   assert.equal(celebrationOverlap.overlap,false,label+' celebration must not cover the personal fox '+JSON.stringify(celebrationOverlap));
@@ -851,6 +856,12 @@ async function check(engine,label,viewport,url){
       label+' completed iPad maths must stay fully readable beside the fox praise '+JSON.stringify(celebrationOverlap));
     assert.equal(celebrationOverlap.foxMathOverlap,false,
       label+' completed iPad personal fox must not stand on the final maths parchment '+JSON.stringify(celebrationOverlap));
+    assert.ok(celebrationOverlap.celebrationWidth>=400&&
+      celebrationOverlap.celebrationTop>=celebrationOverlap.mathBottom+1&&
+      celebrationOverlap.celebrationLeft>=celebrationOverlap.mathLeft-2&&
+      celebrationOverlap.celebrationRight<=celebrationOverlap.mathRight+2&&
+      celebrationOverlap.noteScrollWidth<=celebrationOverlap.noteWidth+1,
+      label+' completed iPad celebration must read as a full-width line below the mathematics '+JSON.stringify(celebrationOverlap));
   }
   if(viewport.height>=750||viewport.width<=360)assert.ok(celebrationOverlap.nextBottom<=viewport.height+3,label+' completed-child next action missing from first fold '+JSON.stringify(celebrationOverlap));
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).wins.length,1);
@@ -1144,13 +1155,25 @@ async function check(engine,label,viewport,url){
     label+' the saved completed favourites remain accessible');
   const finaleLayout=await page.evaluate(()=>{
     const buttons=[...document.querySelectorAll('.gm-actions-complete button')].map(b=>b.getBoundingClientRect());
+    const c=document.querySelector('.gm-celebration').getBoundingClientRect();
+    const m=document.querySelector('.gm-math').getBoundingClientRect();
+    const copy=document.querySelector('.gm-celebration-copy');
     return {overflow:document.documentElement.scrollWidth-innerWidth,
       touch:buttons.map(b=>({width:b.width,height:b.height})),
-      overlap:buttons.length>1&&buttons[0].left<buttons[1].right-2&&buttons[0].right>buttons[1].left+2&&buttons[0].top<buttons[1].bottom-2&&buttons[0].bottom>buttons[1].top+2};
+      overlap:buttons.length>1&&buttons[0].left<buttons[1].right-2&&buttons[0].right>buttons[1].left+2&&buttons[0].top<buttons[1].bottom-2&&buttons[0].bottom>buttons[1].top+2,
+      finaleBanner:{left:c.left,right:c.right,top:c.top,width:c.width,
+        mathLeft:m.left,mathRight:m.right,mathBottom:m.bottom,
+        textWidth:copy.clientWidth,textScroll:copy.scrollWidth}};
   });
   assert.ok(finaleLayout.overflow<=4&&!finaleLayout.overlap&&
     finaleLayout.touch.every(b=>b.width>=44&&b.height>=44),
     label+' final choices must be separated, legible and touch-sized '+JSON.stringify(finaleLayout));
+  if(viewport.width>=900&&viewport.height<=950){
+    const b=finaleLayout.finaleBanner;
+    assert.ok(b.width>=400&&b.left>=b.mathLeft-2&&b.right<=b.mathRight+2&&
+      b.top>=b.mathBottom+1&&b.textScroll<=b.textWidth+1,
+      label+' final iPad market celebration must stay legible below the completed maths '+JSON.stringify(finaleLayout));
+  }
   await shot(page,label+'-09-completed-market-finale');
   await page.locator('.gm-actions-complete .gm-next[data-gm-action="mode"][data-mode="free"]').click();
   const afterFinale=await page.evaluate(()=>LARIA_GANGEMAGI.snapshot());
