@@ -43,14 +43,14 @@
 #fraction-lab-screen .fc-world .fc-stage{
   --fc-pad:clamp(10px,1.2vw,18px);
   position:relative;z-index:1;display:grid;
-  grid-template-columns:minmax(128px,.26fr) minmax(205px,1fr) minmax(158px,.31fr);
+  grid-template-columns:minmax(210px,.48fr) minmax(285px,1fr) minmax(195px,.35fr);
   grid-template-areas:
     'troll cake sign'
     'tray controls controls'
     'tray actions actions';
-  grid-template-rows:minmax(278px,1fr) auto auto;
+  grid-template-rows:minmax(310px,1fr) auto auto;
   align-items:end;column-gap:clamp(7px,1.5vw,20px);row-gap:10px;
-  width:100%;min-height:535px;overflow:hidden;
+  width:100%;min-height:580px;overflow:hidden;
   padding:43px var(--fc-pad) 19px;
   border:8px ridge #a76a39;border-radius:29px;
   background:linear-gradient(120deg,#a16a40,#e9bd7b 47%,#b8875a);
@@ -65,14 +65,14 @@
     repeating-linear-gradient(89deg,#57351c0b 0 2px,transparent 2px 46px),
     linear-gradient(130deg,#84522e,#b57943 32%,#eec38a 70%,#b77a49);
 }
-#fraction-lab-screen .fc-middle-shelf{position:absolute;top:6%;left:26%;width:47%;height:50%;object-fit:fill;opacity:.76}
+#fraction-lab-screen .fc-middle-shelf{position:absolute;top:8%;left:23%;width:41%;height:34%;object-fit:cover;opacity:.93}
 #fraction-lab-screen .fc-berries-bowl{position:absolute;bottom:13%;left:0;width:17%;max-width:165px;pointer-events:none;opacity:.75}
 #fraction-lab-screen .fc-interior-light{
  position:absolute;inset:0;
  background:radial-gradient(ellipse at 48% 45%,rgba(255,240,193,.60) 0%,rgba(255,216,147,.14) 35%,rgba(88,49,29,.18) 91%);
 }
 #fraction-lab-screen .fc-scenery{position:absolute;pointer-events:none;user-select:none}
-#fraction-lab-screen .fc-warm-oven{position:absolute;left:-1%;top:0;width:25%;height:84%;object-fit:fill;opacity:.93}
+#fraction-lab-screen .fc-warm-oven{position:absolute;left:-1%;top:0;width:23%;height:72%;object-fit:fill;opacity:.94}
 #fraction-lab-screen .fc-mountain-window{
  position:absolute;right:-.4%;top:0;width:42%;height:79%;overflow:hidden;
  border-left:8px solid #8a552f;border-bottom:5px solid #96572e;
@@ -86,7 +86,7 @@
 }
 #fraction-lab-screen .fc-cloud-one{left:12%;top:20%;width:25%;height:8%}
 #fraction-lab-screen .fc-cloud-two{left:46%;top:31%;width:17%;height:6%;animation-delay:-12s}
-#fraction-lab-screen .fc-ivy-art{position:absolute;left:0;right:0;top:-1px;width:100%;height:45px;object-fit:cover;object-position:top;opacity:.94}
+#fraction-lab-screen .fc-ivy-art{position:absolute;left:0;right:0;top:-1px;width:100%;height:65px;object-fit:cover;object-position:top;opacity:.94}
 #fraction-lab-screen .fc-window-glow{position:absolute;right:35%;top:14%;width:12%;height:40%;filter:blur(21px);background:#fff2be44;transform:rotate(20deg)}
 #fraction-lab-screen .fc-lantern{position:absolute;top:45px;width:18px;height:42px;border:3px solid #b57c37;border-radius:15px 15px 8px 8px;background:radial-gradient(circle,#fffddd 4%,#ffcb67 42%,#ab6536 94%);box-shadow:0 0 22px 6px #ffd28477}
 #fraction-lab-screen .fc-lantern-left{left:27%}
@@ -111,7 +111,7 @@
  padding:0;min-width:0;max-width:100%;cursor:pointer;color:inherit;
 }
 #fraction-lab-screen .fc-world .fc-troll .fr8-troll{
- width:min(100%,195px);height:clamp(185px,21vw,255px);object-fit:contain;
+ width:min(100%,275px);height:clamp(235px,30vw,355px);object-fit:contain;
  filter:drop-shadow(0 8px 5px #32190866);animation:none!important;
 }
 #fraction-lab-screen .fc-world .fc-troll .fc-troll-speech{
@@ -140,7 +140,7 @@
 }
 #fraction-lab-screen .fc-world .fc-cake-stand .fc-cake-surface{display:flex;align-items:center;justify-content:center;width:100%;min-width:0}
 #fraction-lab-screen .fc-world .fc-cake-stand .fc-cake-svg{
- display:block;position:relative;z-index:2;width:min(100%,345px);max-width:345px;height:auto;
+ display:block;position:relative;z-index:2;width:min(100%,378px);max-width:378px;height:auto;
  overflow:visible;filter:drop-shadow(0 13px 10px #391f0f55);cursor:pointer;touch-action:manipulation;
 }
 #fraction-lab-screen .fc-world .fc-cake-stand .fc-wedge{cursor:pointer;outline:none;touch-action:manipulation}
@@ -153,7 +153,7 @@
 #fraction-lab-screen .fc-world .fc-story-sign{
  grid-area:sign;display:flex;flex-direction:column;justify-content:center;align-items:center;
  align-self:center;justify-self:center;width:min(100%,210px);
- min-height:240px;padding:14px 8px;margin:0;
+ min-height:265px;padding:14px 8px;margin:0;
  border:7px ridge #ad783f;border-radius:21px;
  background:repeating-linear-gradient(172deg,#ffffff14 0 1px,transparent 1px 18px),linear-gradient(135deg,#fff9de,#ebcb91);
  box-shadow:0 8px 0 #754221,0 16px 19px #36210c69,inset 0 0 0 3px #fff9d9;
@@ -261,8 +261,8 @@
    school dashboard. Percent always sits beside the cake. */
 @media (min-width:650px) and (max-width:900px){
  #fraction-lab-screen .fc-world .fc-stage{grid-template-columns:minmax(115px,.24fr) minmax(215px,1fr) minmax(140px,.29fr);grid-template-rows:minmax(260px,1fr) auto auto;min-height:505px;gap:9px;padding-top:40px}
- #fraction-lab-screen .fc-world .fc-cake-stand .fc-cake-svg{width:min(100%,302px)}
- #fraction-lab-screen .fc-world .fc-troll .fr8-troll{height:197px}
+ #fraction-lab-screen .fc-world .fc-cake-stand .fc-cake-svg{width:min(100%,335px)}
+ #fraction-lab-screen .fc-world .fc-troll .fr8-troll{height:238px}
  #fraction-lab-screen .fc-world .fc-story-sign{min-height:212px}
 }
 /* The first fold is built for portrait phones, not shrunken iPad cards. */
@@ -286,7 +286,7 @@
  #fraction-lab-screen .fc-wood-counter{height:59%;border-top-width:8px}
  #fraction-lab-screen .fc-flower-jar{display:none}
  #fraction-lab-screen .fc-world .fc-troll{margin:0;align-self:center;gap:2px}
- #fraction-lab-screen .fc-world .fc-troll .fr8-troll{height:clamp(89px,22vw,126px);width:min(100%,90px)}
+ #fraction-lab-screen .fc-world .fc-troll .fr8-troll{height:clamp(112px,30vw,148px);width:min(100%,103px)}
  #fraction-lab-screen .fc-world .fc-troll .fc-troll-speech{font-size:9px;line-height:1.08;padding:3px 2px;min-height:25px}
  #fraction-lab-screen .fc-world .fc-troll .fc-troll-cycle{min-width:44px;width:100%;padding:4px 1px;height:44px;font-size:10px}
  #fraction-lab-screen .fc-world .fc-cake-stand{align-self:center;gap:0;padding:0}
@@ -323,7 +323,7 @@
 @media(max-width:360px) and (orientation:portrait){
  #fraction-lab-screen .fc-world .fc-stage{grid-template-columns:minmax(53px,.3fr) minmax(136px,1fr) minmax(73px,.35fr);grid-template-rows:minmax(130px,auto) minmax(57px,auto) minmax(86px,auto) 46px;row-gap:5px;padding-top:19px}
  #fraction-lab-screen .fc-world .fc-cake-stand .fc-cake-svg{width:min(100%,163px)}
- #fraction-lab-screen .fc-world .fc-troll .fr8-troll{height:89px}
+ #fraction-lab-screen .fc-world .fc-troll .fr8-troll{height:100px}
  #fraction-lab-screen .fc-world .fc-controls .fr2-adjust{min-height:82px}
  #fraction-lab-screen .fc-world .fc-primary-actions .fc-add-one{font-size:11px}
  #fraction-lab-screen .fc-world .fc-story-sign{min-height:129px}
@@ -402,4 +402,10 @@
 }
 #fraction-lab-screen .fc-shell .fc-add-one{
  position:relative;z-index:3;touch-action:manipulation;
+}
+
+/* Keep every live math interaction, but avoid costly infinite blurred-sky repaints on narrow Safari viewports. */
+@media(max-width:649px){
+ #fraction-lab-screen .fc-shell .fc-cloud-one,
+ #fraction-lab-screen .fc-shell .fc-cloud-two{animation:none!important;filter:none;opacity:.2}
 }
