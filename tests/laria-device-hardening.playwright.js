@@ -104,9 +104,9 @@ async function verifyBasecamp(page,label,width,height){
   assertInViewport(adult,width,height,label+' adult entry');
   assertTap(adult,label+' adult entry');
 
-  // Home is absent from the painted tablet navigation, but deliberately
-  // present in phone portrait. Four other destinations always remain.
-  const showHome=width<=700 && height>width;
+  // The dedicated portrait artwork has five nav destinations on both phones
+  // and iPads. The landscape master shows four destinations without Home.
+  const showHome=height>width;
   assert.equal(await page.locator('.bc12-nav [data-camp="home"]').isVisible(),showHome,
     label+' locked navigation home-slot visibility mismatch');
   for(const camp of ['travel','explore','collection','wardrobe']){
