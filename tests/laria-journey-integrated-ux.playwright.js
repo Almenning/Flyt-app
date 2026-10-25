@@ -22,6 +22,12 @@ async function run(engine,label,viewport){
   for(const [subject,world] of Object.entries(worlds)){
    const screen=subject==='geography'?'geography':'subject';
    await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').click();
+   if(subject==='norwegian'){
+     // Norsk now opens Eggenipa by design; the unchanged Bokskogen map
+     // remains an explicit, child-reachable activity.
+     await page.locator('#eggenipa-world').waitFor({state:'visible',timeout:16000});
+     await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
+   }
    if(subject==='math'){
      // The math journey data is still present, but children now enter Tallvika
      // directly and the old map remains intentionally hidden.
