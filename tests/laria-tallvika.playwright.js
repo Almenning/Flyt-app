@@ -16,7 +16,13 @@ async function run(browserType,label,viewport){
   const browser=await browserType.launch({headless:true,args:browserType===chromium?['--no-sandbox']:[]});
   try{
     const context=await browser.newContext({viewport,isMobile:viewport.width<=480,hasTouch:true,reducedMotion:'reduce',serviceWorkers:'block'});
-    await context.addInitScript(value=>localStorage.setItem('laerlittmer-v2',JSON.stringify(value)),seed);
+    // Seed only a fresh browser profile. The persistence assertion below
+    // reloads the page; overwriting storage on every navigation makes the
+    // test itself discard the child's legitimately saved troll selection.
+    await context.addInitScript(value=>{
+      if(!localStorage.getItem('laerlittmer-v2'))
+        localStorage.setItem('laerlittmer-v2',JSON.stringify(value));
+    },seed);
     const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
     await page.route('https://raw.githubusercontent.com/**',route=>route.abort());await page.route('https://api.worldbank.org/**',route=>route.abort());
     await enter(page);await shot(page,label);
