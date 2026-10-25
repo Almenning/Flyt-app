@@ -90,8 +90,16 @@
     mapVisible=true;
     if(root)root.hidden=true;
     if(screen.classList.contains('eggenipa-active'))screen.classList.remove('eggenipa-active');
-    // Re-render the original map for the selected view grade, including higher
-    // grades. This does not modify saved learning evidence or completed nodes.
+    // The approved locked map may still be decoding its large image. Its
+    // renderWaiting() fast path reuses existing markup and does not restore
+    // display classes that the landing intentionally removed. Restore the
+    // original map view state here before calling the unmodified renderer.
+    // This fixes fast first taps on Bokskogen without touching child progress.
+    if(grade()<=2){
+      screen.classList.add('locked-journey-active','locked-journey-subject-norwegian','premium-journey-active');
+      document.body.classList.add('locked-journey-subject-norwegian');
+    }
+    // Keep the original map engine and all existing node/grade state.
     bridge()?.setJourneyViewGrade?.('norwegian',grade(),true);
     let returnButton=document.getElementById('eggenipa-map-return');
     if(!returnButton){
