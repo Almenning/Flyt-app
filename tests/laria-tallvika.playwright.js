@@ -37,6 +37,23 @@ async function run(browserType,label,viewport){
     assert.equal(shell.padding,0,label+' must not retain the hidden bottom navigation gutter');
     assert.equal(shell.background,'rgb(247, 240, 223)',label+' must match Tallvika cream below the scene');
     if(viewport.width<=480){
+      // Inspect the real last viewport fold, not only a container's style:
+      // legacy fixed navigation can cover an otherwise correctly painted page.
+      const footer=await page.evaluate(()=>{
+        const point=[Math.round(innerWidth/2),Math.round(innerHeight-36)];
+        const stack=document.elementsFromPoint(...point).slice(0,10).map(el=>{
+          const style=getComputedStyle(el),box=el.getBoundingClientRect();
+          return {tag:el.tagName,id:el.id,cls:String(el.className).slice(0,95),bg:style.backgroundColor,
+            bgImage:style.backgroundImage.slice(0,80),position:style.position,
+            rect:{top:Math.round(box.top),bottom:Math.round(box.bottom)}};
+        });
+        return {point,html:getComputedStyle(document.documentElement).backgroundColor,
+          body:getComputedStyle(document.body).backgroundColor,
+          app:getComputedStyle(document.querySelector('.app')).backgroundColor,stack};
+      });
+      console.log('[TALLVIKA_FOOTER_AUDIT]',label,JSON.stringify(footer));
+    }
+    if(viewport.width<=480){
       // The locked landscape carries both the world sign and the house labels.
       // Cropping it on narrow portrait phones cuts off the approved artwork.
       assert.ok(Math.abs(art.h-art.w*941/1672)<3,label+' must show the entire uncropped Tallvika artwork on portrait phones');
