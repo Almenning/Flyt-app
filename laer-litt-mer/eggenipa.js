@@ -28,7 +28,7 @@
   }
   function portal(action){
     return '<button type="button" class="eg-portal eg-portal-'+action.id+'" data-eg="'+action.id+'" aria-label="'+safe('Åpne '+action.name)+
-      '"><span class="eg-portal-art"><img src="'+action.image+'" loading="lazy" alt="" draggable="false"></span>'+
+      '"><span class="eg-portal-art"><img src="'+action.image+'" loading="eager" alt="" draggable="false"></span>'+
       '<span class="eg-portal-copy"><strong>'+action.name+'</strong><small>'+action.copy+'</small></span>'+
       '<span class="eg-portal-arrow" aria-hidden="true">›</span></button>';
   }
