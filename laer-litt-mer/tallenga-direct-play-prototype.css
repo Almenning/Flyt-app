@@ -31,10 +31,13 @@
  background:linear-gradient(0deg,rgba(20,63,57,.12),transparent 52%),url('./tallenga-fjord-scene-v1.svg') center center/cover no-repeat,#abd4dc;
 }
 #subject-screen.tlp-active .tlp-scene:after{background:linear-gradient(90deg,rgba(19,52,48,.77) 0%,rgba(18,59,50,.40) 38%,rgba(26,80,58,.07) 85%)}
-#subject-screen .tlp-game-art{position:relative;background-color:#dde9da;background-image:url('./tallenga-fjord-scene-v1.svg');background-size:cover;background-position:center}
-#subject-screen .tlp-art-multiply{background-position:25% 75%;background-color:#95b9a0}
-#subject-screen .tlp-art-fraction{background-position:62% 68%;background-color:#b3c5a7}
-#subject-screen .tlp-art-table{background-position:85% 60%;background-color:#b3d0d8}
+/* Three existing *activity* worlds, not three crops of the same fjord.
+   No troll character images are composited into these cards. */
+#subject-screen .tlp-game-art{position:relative;background-color:#dde9da;background-size:cover;background-position:center;background-repeat:no-repeat}
+#subject-screen .tlp-art-multiply{background-image:url('./gangemagi-tallenga-market-v1.svg');background-position:center 51%;background-color:#92b49a}
+#subject-screen .tlp-art-fraction{background-image:url('./fraction-workshop-scene.svg');background-position:center 48%;background-color:#dec198}
+#subject-screen .tlp-art-table{background-image:url('./math-pattern-haven-storymap-v1.svg');background-position:center 63%;background-color:#9cc3b1}
+#subject-screen .tlp-game-art::before{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(130deg,rgba(17,63,52,.44) 0%,rgba(38,72,53,.1) 50%,transparent 84%)}
 #subject-screen .tlp-math-glyph{position:absolute;z-index:2;top:14%;left:9%;color:#fff8d6;text-shadow:0 3px 10px #1a544a,0 1px 2px #183c37;font-size:clamp(28px,5vw,58px);font-weight:950}
 #subject-screen .tlp-card-caption{position:absolute;z-index:2;right:10%;bottom:12%;padding:5px 8px;border-radius:999px;background:rgba(24,65,53,.72);color:#fff8e4;font-size:11px;font-weight:900;letter-spacing:.04em;text-shadow:none}
 #subject-screen .tlp-next{position:relative;overflow:hidden;background:linear-gradient(90deg,rgba(246,236,212,.97),rgba(238,236,209,.91)),url('./tallenga-fjord-scene-v1.svg') center 68%/cover no-repeat}
