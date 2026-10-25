@@ -98,6 +98,15 @@ async function run(engine,label,viewport){
       assert.equal(await task.count(),1,label+' '+subject+' task duplicated or lost troll');
       assert.equal(await task.getAttribute('data-laria-troll'),id,label+' wrong task troll');
       await originalImage(task.locator(':scope > img'),id,label+' '+subject+' task');
+      const cutout=await task.locator(':scope > img').evaluate(img=>{
+        const s=getComputedStyle(img);
+        return {shadow:s.boxShadow,background:s.backgroundColor,blend:s.mixBlendMode,filter:s.filter,
+          border:s.borderTopWidth};
+      });
+      assert.equal(cutout.shadow,'none',label+' '+subject+' obsolete rectangular portrait-shadow around original cutout');
+      assert.equal(cutout.blend,'normal',label+' '+subject+' original colours altered by multiply/blend');
+      assert.equal(cutout.background,'rgba(0, 0, 0, 0)',label+' '+subject+' original transparent image got an opaque background');
+      assert.equal(cutout.border,'0px',label+' '+subject+' portrait border was painted around original troll');
       assert.equal(await task.locator(':scope > svg.laria-fox-wardrobe-art').count(),0,label+' fox costume leaked onto task troll');
       await page.screenshot({path:path.join(out,label+'-'+subject+'-task.png'),animations:'disabled'});
       const state=await page.evaluate(()=>JSON.parse(localStorage.getItem('laerlittmer-v2')));

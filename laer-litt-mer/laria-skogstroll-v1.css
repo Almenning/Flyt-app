@@ -72,11 +72,14 @@
   height:100%!important;
   object-fit:contain!important;
   object-position:center bottom!important;
-  filter:drop-shadow(0 4px 4px rgba(17,42,36,.23));
-  /* Original PR #211 cutouts include pale edge pixels. On cream task
-     parchment, multiply removes the rectangular matte without reauthoring
-     or regenerating the locked characters. */
-  mix-blend-mode:multiply!important;
+  /* The source WebP already has genuine transparent pixels. The rectangular
+     sticker/matte came from the retired fox portrait rule
+     (laria-fox-identity.css: box-shadow on the <img> element), NOT from
+     the original troll artwork. Never blend or recolour these originals. */
+  background:transparent!important;
+  box-shadow:none!important;
+  mix-blend-mode:normal!important;
+  filter:none!important;
 }
 #session-screen.task-scene[data-task-band="young"] .task-fox-companion.laria-troll-host .task-profile-marker{
   display:none!important;
