@@ -27,6 +27,17 @@ async function run(engine,label,viewport){
      // remains an explicit, child-reachable activity.
      await page.locator('#eggenipa-world').waitFor({state:'visible',timeout:16000});
      await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
+     const diagnostic=await page.evaluate(()=>{
+       const screen=document.getElementById('subject-screen');
+       const host=document.getElementById('journey-map');
+       const section=document.getElementById('subject-journey-section');
+       return {screen:screen?.className,subject:screen?.dataset.subject,
+         body:document.body.className,rootHidden:document.getElementById('eggenipa-world')?.hidden,
+         mapClass:host?.className,mapDisplay:host&&getComputedStyle(host).display,
+         sectionDisplay:section&&getComputedStyle(section).display,
+         mapParent:host?.parentElement?.id,returnButton:!!document.getElementById('eggenipa-map-return')};
+     });
+     console.log('[NORSK_BOKSKOGEN_DIRECT_PORTAL]',label,JSON.stringify(diagnostic));
    }
    if(subject==='math'){
      // The math journey data is still present, but children now enter Tallvika
