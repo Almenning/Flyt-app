@@ -81,10 +81,32 @@ async function run(engine,engineName,label,width,height,url){
   await page.screenshot({path:path.join(out,engineName+'-'+label+'-tallenga.png'),fullPage:true,animations:'disabled'});
   await page.locator('[data-tlp="multiply"]').click();
   await page.locator('#multiplication-lab-screen.active').waitFor();
+  const gameBefore=await page.evaluate(()=>window.LARIA_GANGEMAGI.snapshot().counts[0]);
+  await page.locator('[data-gm-action="source"]').click();
+  await page.locator('[data-gm-action="basket"][data-gm-basket="0"]').click();
+  assert.equal((await page.evaluate(()=>window.LARIA_GANGEMAGI.snapshot().counts[0])),gameBefore+1,
+    label+' one berry must add exactly one to the real game state');
+  if(engineName==='webkit'){
+    await page.screenshot({path:path.join(out,'webkit-'+label+'-gangemagi-play.png'),fullPage:true,animations:'disabled'});
+  }
+  await page.locator('.gm-back, [data-gm-action="back"]').first().click();
+  await page.locator('#tallenga-direct-play:visible').waitFor();
+  await page.locator('[data-tlp="multiply"]').click();
+  await page.locator('#multiplication-lab-screen.active').waitFor();
+  assert.equal((await page.evaluate(()=>window.LARIA_GANGEMAGI.snapshot().counts[0])),gameBefore+1,
+    label+' game state must survive returning to Tallenga and re-opening');
   await page.locator('.gm-back, [data-gm-action="back"]').first().click();
   await page.locator('#tallenga-direct-play:visible').waitFor();
   await page.locator('[data-tlp="fraction"]').click();
   await page.locator('#fraction-lab-screen.active').waitFor();
+  const beforeFraction=await page.locator('.fr6-result .fr2-fraction').getAttribute('aria-label');
+  assert.equal(beforeFraction,'1 av 4',label+' Brøklab must start with a real quarter cake');
+  await page.locator('.fr6-controls [data-fr-action="adjust"][data-field="n"][data-step="1"]').click();
+  assert.equal(await page.locator('.fr6-result .fr2-fraction').getAttribute('aria-label'),'2 av 4',
+    label+' Brøklab cake and fraction must respond to a real math action');
+  if(engineName==='webkit'){
+    await page.screenshot({path:path.join(out,'webkit-'+label+'-broklab-play.png'),fullPage:true,animations:'disabled'});
+  }
   // The fraction premium screen has an existing back contract to math.
   await page.locator('[data-fr-action="back"]').first().click();
   await page.locator('#tallenga-direct-play:visible').waitFor();
