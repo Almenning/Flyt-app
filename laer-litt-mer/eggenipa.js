@@ -186,5 +186,5 @@
   });
   observer.observe(screen,{attributes:true,attributeFilter:['class','data-subject']});
   if(isActive())build();
-  window.LARIA_EGGENIPA=Object.freeze({build,openMap,closeMap,art:ART});
+  window.LARIA_EGGENIPA=Object.freeze({build,openMap,closeMap,isMapOpen:()=>mapVisible,art:ART});
 })();

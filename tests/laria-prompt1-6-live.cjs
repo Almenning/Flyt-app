@@ -46,6 +46,11 @@ async function openHomeSubject(page,subject){
  else await page.locator('#open-'+subject).click();
 }
 async function returnFromSubjectOrJourney(page,screen,back,subject){
+ if(subject==='norwegian' && await page.locator('#eggenipa-world:visible').count()){
+   await page.locator('#eggenipa-world [data-eg="home"]').click();
+   await page.locator('#home-screen.active').waitFor();
+   return;
+ }
  if(subject==='math' && await page.locator('#tallvika-world:visible').count()){
    await page.locator('#tallvika-world [data-tv="back"]:visible').click();
    await page.locator('#home-screen.active').waitFor();
@@ -146,8 +151,11 @@ async function existing(engine,name){
  await p.locator('#subject-screen.active').waitFor();
  await returnFromSubjectOrJourney(p,'#subject-screen','#subject-back','math');
  await openBack(p,'#open-geography','#geography-screen','#geography-back');
- await openHomeSubject(p,'norwegian');await p.locator('#subject-screen.active').waitFor();await p.locator('#start-subject-session').click();await p.locator('#session-screen.active').waitFor();await finish(p);
- await p.locator('#complete-home').click();await p.locator('#subject-screen.active').waitFor();await p.locator('#subject-back').click();await p.locator('#home-screen.active').waitFor();
+ await openHomeSubject(p,'norwegian');await p.locator('#eggenipa-world:visible').waitFor();
+ await p.locator('#eggenipa-world [data-eg="next"]:not([disabled])').click();
+ await p.locator('#session-screen.active').waitFor();await finish(p);
+ await p.locator('#complete-home').click();await p.locator('#eggenipa-world:visible').waitFor();
+ await returnFromSubjectOrJourney(p,'#subject-screen','#subject-back','norwegian');
  await openHomeSubject(p,'geography');await p.locator('#geography-screen.active').waitFor();await p.locator('#open-world').click();await p.locator('#world-screen.active').waitFor();
  await p.locator('#globe-mode [data-globe-mode="classic"]').waitFor();
  for(const m of ['explore','mine','classic']){await p.locator('#globe-mode [data-globe-mode="'+m+'"]').click();await p.waitForFunction(x=>document.getElementById('world-screen')?.dataset.premiumGlobeMode===x,m)}

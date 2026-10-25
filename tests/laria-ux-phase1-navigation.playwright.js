@@ -157,6 +157,8 @@ async function run(engine,label,width,height){
     // A mission must return to its world, not jump to the wrong app section.
     await page.locator('.bc13-card[data-bc13-action="norwegian"]').click();
     await screen(page,'subject');
+    await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
+    await page.locator('#eggenipa-world [data-eg="map"]').click();
     const norwegianStop=page.locator('#subject-screen.active .locked-journey-hotspot.state-current').first();
     await norwegianStop.waitFor({state:'visible',timeout:16000});
     await norwegianStop.click();

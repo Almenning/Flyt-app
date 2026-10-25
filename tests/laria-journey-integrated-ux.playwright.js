@@ -96,7 +96,14 @@ async function run(engine,label,viewport){
    await page.locator('#close-session').click();
    await root.waitFor({timeout:16000});
    assert.equal(await page.locator('#session-screen.active').count(),0,label+' task did not close');
-   await root.locator('.locked-journey-back').click();
+   if(subject==='norwegian'){
+     await page.locator('#eggenipa-map-return:visible').click();
+     await page.locator('#eggenipa-world:visible').waitFor({timeout:12000});
+     assert.equal(await root.isVisible(),false,label+' map remained visible after Eggenipa return');
+     await page.locator('#eggenipa-world [data-eg="home"]').click();
+   }else{
+     await root.locator('.locked-journey-back').click();
+   }
    await page.locator('#home-screen.active .bc14-subject').first().waitFor({timeout:12000});
   }
   assert.deepEqual(errors,[],label+' javascript exceptions');

@@ -106,6 +106,10 @@ async function run(engine,name,viewport,which){
      await page.locator('#home-screen.active').waitFor({timeout:14000});
      continue;
    }
+   if(subject==='norwegian'){
+     await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
+     await page.locator('#eggenipa-world [data-eg="map"]').click();
+   }
    const root=page.locator('#'+target+'-screen.active .locked-journey-map[data-journey-subject="'+subject+'"]');
    await root.waitFor({timeout:16000});
    await imageIsChosen(page,'#'+target+'-screen.active .locked-journey-profile img',which,name+' '+subject+' profile');

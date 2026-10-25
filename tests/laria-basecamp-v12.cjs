@@ -142,8 +142,12 @@ const {chromium,webkit}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
 
   await page.locator('.bc12-nav [data-camp="home"]').tap();
   await page.locator('.bc12-journey').tap();
-  await page.locator('#subject-screen.active .locked-journey-map[data-journey-subject="norwegian"] .locked-journey-back').waitFor({timeout:16000});
-  await page.locator('#subject-screen.active .locked-journey-back').tap();
+  await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
+  await page.locator('#eggenipa-world [data-eg="map"]').tap();
+  await page.locator('#subject-screen.active .locked-journey-map[data-journey-subject="norwegian"]').waitFor({state:'visible',timeout:16000});
+  await page.locator('#eggenipa-map-return:visible').tap();
+  await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
+  await page.locator('#eggenipa-world [data-eg="home"]').tap();
   await page.locator('.bc12.bc15-locked-home').waitFor({state:'visible',timeout:12000});
   await page.locator('.bc12-nav [data-camp="collection"]').tap();
   await page.getByRole('heading',{name:'Lærias magiske samlebok'}).waitFor();

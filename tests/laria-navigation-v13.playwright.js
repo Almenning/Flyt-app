@@ -62,6 +62,10 @@ async function run(engine,label,viewport){
    ['geography','geography']]){
    await page.locator('[data-bc13-action="'+subject+'"]').click();
    await page.locator('#'+screen+'-screen.active').waitFor({timeout:10000});
+   if(subject==='norwegian'){
+     await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
+     await page.locator('#eggenipa-world [data-eg="map"]').click();
+   }
    if(subject==='math'){
      const tallvika=page.locator('#subject-screen.active #tallvika-world');
      await tallvika.waitFor({state:'visible',timeout:16000});
