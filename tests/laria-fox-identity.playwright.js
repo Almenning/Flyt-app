@@ -108,7 +108,7 @@ async function run(engine,name,viewport,which){
    }
    if(subject==='norwegian'){
      await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
-     await page.locator('#eggenipa-world [data-eg="map"]').click();
+     await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
    }
    const root=page.locator('#'+target+'-screen.active .locked-journey-map[data-journey-subject="'+subject+'"]');
    await root.waitFor({timeout:16000});

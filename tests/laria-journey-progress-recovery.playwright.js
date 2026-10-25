@@ -247,7 +247,7 @@ async function run(engine,label,viewport){
      // Resumed missions start on Home; the map origin is not persisted.
      // Reopen Bokskogen to verify real saved node progress after completion.
      await page.locator('#eggenipa-world:visible').waitFor({timeout:18000});
-     await page.locator('#eggenipa-world [data-eg="map"]').click();
+     await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
    }
    await page.locator(base).waitFor({timeout:18000});
    const after=await progress(page,subject);

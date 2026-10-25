@@ -246,7 +246,7 @@ async function finishSession(page){
           await p.locator('#home-screen.active .bc12').waitFor();
           await p.evaluate(()=>openSubject('norwegian'));
           await p.locator('#eggenipa-world:visible').waitFor({timeout:16000});
-          await p.locator('#eggenipa-world [data-eg="map"]').click();
+          await p.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
           await p.locator('#subject-screen.active .locked-journey-map[data-journey-subject="norwegian"]').waitFor({state:'visible',timeout:16000});
           const travelerImg=p.locator('#subject-screen.active .locked-journey-profile[data-avatar="girl"] img');
           await travelerImg.waitFor({state:'visible',timeout:16000});
@@ -660,7 +660,7 @@ async function finishSession(page){
     await page.evaluate(()=>openSubject('norwegian'));
     await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
     assert.equal(await page.locator('#subject-title').textContent(),'Norsk');
-    await page.locator('#eggenipa-world [data-eg="map"]').click();
+    await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
     await page.locator('#subject-screen.active .locked-journey-map[data-journey-subject="norwegian"]').waitFor({state:'visible',timeout:16000});
     await page.locator('#journey-map.locked-journey-map[data-journey-subject="norwegian"] .locked-journey-image').waitFor({timeout:16000});
     assert.equal(await page.locator('#journey-map .locked-journey-image').count(),1,'Bokskogen should use one exact approved source image');

@@ -71,7 +71,7 @@ async function returnFromLockedJourney(page,screen,subject,label){
    await back.click();
  }else if(subject==='norwegian'){
    await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
-   await page.locator('#eggenipa-world [data-eg="map"]').click();
+   await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
    await page.locator(root+' .locked-journey-map[data-journey-subject="norwegian"]').waitFor({state:'visible',timeout:16000});
    await page.locator('#eggenipa-map-return:visible').click();
    await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});

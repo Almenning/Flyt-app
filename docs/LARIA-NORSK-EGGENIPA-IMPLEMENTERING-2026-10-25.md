@@ -8,11 +8,15 @@ Brukerens siste, godkjente Eggenipa-landskap er eneste visuelle fasit. Den oppla
 
 37cbb6b2baf62c16f974ee59a63b8c9f6e80a30f6add2801a8bec363a321fff3
 
-**UTESTÅENDE BINÆRLEVERANSE:** Den eksakte PNG-originalen må lastes opp under
-laer-litt-mer/assets/norsk/eggenipa-master-laast-20261025.png.
-Det er ikke tillatt å regenerere, retusjere, bytte fjellform eller bruke en omtrentlig illustrasjon i stedet. Omforming til separate, optimaliserte nettversjoner er mulig senere, men aldri som eneste lagret original eller uten visuell kontroll. Originalen er tilgjengelig i ChatGPT-samtalen, men ikke overført til GitHub i dette endringssettet.
+**ORIGINALFIL LEVERT OG VERIFISERT:** Eksakt godkjent PNG-original ligger nå i
+`laer-litt-mer/assets/norsk/eggenipa-master-laast-20261025.png`,
+Git-blob `538a6cf71f426f511ed85864d9647bb6cb650657`, kildecommit `b8140ea1538aee0311f963321be6cda7754640ee`.
+Lokalt sjekket SHA-256 og dimensjoner 1672 × 941 stemmer med låst fasit; CI-kontrollen er bestått.
+Ingen regenerering, retusjering eller endret fjellform er tillatt. Behold originalen uendret også ved senere optimaliserte avledede nettbilder.
 
-CI kjører en binær SHA-256-/dimensjonskontroll. LARIA_EGGENIPA_RELEASE_GATE=1 krever fysisk original. Uten den **skal PR holdes i draft og ikke merges**.
+CI kjører binær SHA-256-/dimensjonskontroll, og `LARIA_EGGENIPA_RELEASE_GATE=1` krever fysisk original.
+**Originalkontroll er nødvendig, men ikke tilstrekkelig for publisering:** hele regresjonspakken,
+fysisk Safari-test og brukers uttrykkelige godkjenning av faktisk implementert UI gjenstår.
 
 ## Gjennomført i denne PR-en
 
@@ -57,3 +61,6 @@ CI kjører en binær SHA-256-/dimensjonskontroll. LARIA_EGGENIPA_RELEASE_GATE=1 
 - 25.10: Baseline main SHA 32ea548fe61f8d8130b5107f10e413120293b554. Tallvika PR #223 og trollpilot #224 er åpne draft-PR-er.
 - 25.10: Egen Norsk-gren, ny responsiv direktespill-forside, ordaktiviteter, opprinnelig Bokskogen-kart og klassetrinnkobling.
 - 25.10: Startet isolerte kontrakt- og WebKit/Chromium-tester. CI-release-gate vil være blokkert frem til godkjent PNG er sjekket inn.
+
+- 26.10: PR #226 commit `7dd66bd6edac692d2b074d1acf1f573ad50b20f7`: rettet overlapp mellom native Bokskogen-tilbake og Eggenipa-retur, skilt fullføringsdestinasjon (Bokskogen ved aktivt kart, Eggenipa etter omstart), og migrert gamle end-to-end-tester til å faktisk besøke Eggenipa-portalen før det gamle kartet. Egen Eggenipa-CI + fire verdener + iOS-bygg bestått på denne commit; hovedregresjon pågår.
+- 26.10: Visuell gjennomgang av 16 faktiske Chromium/WebKit-skjermbilder fra fire viewporter (inkludert uendret original-Bokskogen-kart). Eggenipa-forsiden samsvarer på tvers av motorene. Det gamle Bokskogen-kartet har fortsatt eget portrettorientert lerret i iPhone liggende; dette regnes som separat visuell begrensning og krever manuell vurdering før lansering.
