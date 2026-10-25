@@ -8,6 +8,8 @@ async function shot(page,name){if(output){fs.mkdirSync(output,{recursive:true});
 async function inWorldComparison(page,label){
   if(!output)return;
   const image=page.locator('#tallvika-world .tv-companion[data-troll-id="storesoster"] img');
+  const closeBox=await page.locator('#tallvika-world .tv-companion').boundingBox();
+  assert.ok(closeBox,label+' Storesøster close-up box is missing before comparison');
   const after=await image.getAttribute('src');
   // Capture the old locked source and the new source-derived scene treatment
   // in the exact same live browser composition. This changes no saved state.
@@ -20,9 +22,7 @@ async function inWorldComparison(page,label){
   // A Tallvika rebuild can replace the companion node while Playwright waits
   // for locator stability. Crop the current page from its measured box instead
   // of holding a locator across that asynchronous render.
-  const box=await page.locator('#tallvika-world .tv-companion').boundingBox();
-  assert.ok(box,label+' Storesøster close-up box is missing');
-  await page.screenshot({path:path.join(output,label+'-storesoster-closeup-after.png'),animations:'disabled',clip:{x:Math.max(0,box.x-12),y:Math.max(0,box.y-12),width:box.width+24,height:box.height+24}});
+  await page.screenshot({path:path.join(output,label+'-storesoster-closeup-after.png'),animations:'disabled',clip:{x:Math.max(0,closeBox.x-12),y:Math.max(0,closeBox.y-12),width:closeBox.width+24,height:closeBox.height+24}});
 }
 async function enter(page){
   await page.goto(url,{waitUntil:'domcontentloaded',timeout:90000});
