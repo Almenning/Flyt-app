@@ -21,6 +21,10 @@
   background:transparent!important;
   box-shadow:none!important;
   filter:drop-shadow(0 5px 4px rgba(19,41,29,.38))!important;
+  /* foxFootAnchor values identify the painted path under the character's feet.
+     The old circular avatar incorrectly centered on the stop, covering its sign.
+     Anchor the troll by its feet above the touch landmark instead. */
+  transform:translate(-50%,-100%)!important;
 }
 .grade-band-young .locked-journey-board .locked-journey-traveler.laria-troll-host>img{
   display:block!important;

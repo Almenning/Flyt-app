@@ -68,3 +68,11 @@ jobs:
           path: /tmp/laria-skogstroll-proof
           if-no-files-found: warn
           retention-days: 14
+      - name: Preserve original character assets for visual transparency inspection
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-skogstroll-originals-${{ github.event.pull_request.head.sha || github.sha }}
+          path: laer-litt-mer/assets/skogstroll/*.webp
+          if-no-files-found: error
+          retention-days: 14
