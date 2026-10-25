@@ -67,7 +67,22 @@ async function run(engine,label,viewport){
      continue;
    }
    const root=page.locator('#'+screen+'-screen.active .locked-journey-map[data-journey-subject="'+subject+'"]');
-   await root.waitFor({timeout:16000});
+   try{
+     await root.waitFor({state:'visible',timeout:16000});
+   }catch(error){
+     const after=await page.evaluate(()=>{
+       const screen=document.getElementById('subject-screen'),map=document.getElementById('journey-map');
+       const section=document.getElementById('subject-journey-section'),eg=document.getElementById('eggenipa-world');
+       const s=el=>el?{className:el.className,display:getComputedStyle(el).display,
+         visibility:getComputedStyle(el).visibility,hidden:el.hidden,
+         subject:el.dataset.journeySubject,waiting:el.dataset.journeyWaiting,
+         box:[Math.round(el.getBoundingClientRect().width),Math.round(el.getBoundingClientRect().height)]}:null;
+       return {screen:s(screen),map:s(map),section:s(section),eggenipa:s(eg),
+         mapVisible:!!window.LARIA_EGGENIPA?.openMap,returnButton:!!document.getElementById('eggenipa-map-return')};
+     });
+     console.error('[NORSK_BOKSKOGEN_TIMEOUT]',label,JSON.stringify(after));
+     throw error;
+   }
    await root.locator('.locked-journey-hotspot.state-current').first().click();
    const mission=page.locator('.locked-journey-overlay:not([hidden]) button[data-locked-node]:not([disabled])').first();
    await mission.waitFor({timeout:10000});
