@@ -74,18 +74,16 @@ async function run(engine,label){
     }
 
     await page.locator('.bc14-subject[data-camp="subject-math"]').click();
-    const map=page.locator('#subject-screen.active .locked-journey-map[data-journey-subject="math"]');
-    await map.waitFor({timeout:14000});
-    await map.locator('[data-locked-place="2"]').click();
-    const labSheet=page.locator('.locked-journey-overlay:not([hidden]) .locked-journey-sheet.is-mission');
-    await labSheet.waitFor({timeout:8000});
-    assert.equal((await labSheet.locator('h2').innerText()).trim(),'Brøklaben');
-    assert.match(await labSheet.locator('.mission-head-copy p').innerText(),/brøker/i);
-    assert.equal(await labSheet.locator('.mission-primary[data-locked-existing="fraction-lab"]').count(),1,
-      label+' Brøklaben free play is not the primary action');
-    assert.equal(await labSheet.locator('.mission-primary[data-locked-node]').count(),0,
-      label+' Brøklaben fabricated a hidden graded mission');
-    await labSheet.locator('.locked-sheet-close').click();
+    const tv=page.locator('#subject-screen.active #tallvika-world');
+    await tv.waitFor({state:'visible',timeout:16000});
+    assert.equal(await tv.locator('.tv-hotspot').count(),3,label+' Math houses missing');
+    const before=await page.evaluate(()=>JSON.stringify(state.journey.nodes));
+    await tv.locator('[data-tv="fraction"]:visible').first().click();
+    await page.locator('#fraction-lab-screen.active .fr6-workshop').waitFor({timeout:12000});
+    assert.equal(await page.locator('.fr2-home-card').count(),0,label+' Brøklab must be free');
+    await page.locator('#fraction-lab-back').click();
+    await tv.waitFor({state:'visible',timeout:12000});
+    assert.equal(await page.evaluate(()=>JSON.stringify(state.journey.nodes)),before,label+' Brøklab changed progress');
 
     const launch=await page.evaluate(()=>{
       startJourneyNode('math','addisjon100',2);

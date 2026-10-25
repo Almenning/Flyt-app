@@ -130,25 +130,17 @@ async function run(engine,label,width,height){
     await edgeBack(page,label+' multiplication exit');
     await panel(page,'multiply');
 
-    // From Reisen: the painted journey back arrow and edge gesture agree.
+    // Visible Math navigation uses Tallvika, not the retired Tallenga map.
     await page.locator('.bc12-nav [data-camp="travel"]').click();
     await page.locator('.bc13-card[data-bc13-action="math"]').click();
     await screen(page,'subject');
-    const painted=page.locator('#subject-screen.active .locked-journey-back');
-    await painted.waitFor({state:'visible',timeout:20000});
-    assert.match(await painted.getAttribute('aria-label'),/Reisen/,label+' wrong journey return destination');
-    await screenshot(page,label+'-math-journey');
-    // Edge back first dismisses a chosen stop's sheet, preserving the world.
-    await page.locator('#subject-screen.active .locked-journey-hotspot.state-current').first().click();
-    const missionSheet=page.locator('#subject-screen.active .locked-journey-overlay:not([hidden])');
-    await missionSheet.waitFor({state:'visible',timeout:12000});
-    await edgeBack(page,label+' journey mission sheet');
-    await missionSheet.waitFor({state:'hidden',timeout:12000});
-    await screen(page,'subject');
-    await edgeBack(page,label+' journey');
+    const tv=page.locator('#subject-screen.active #tallvika-world');
+    await tv.waitFor({state:'visible',timeout:16000});
+    assert.equal(await tv.locator('[data-tv="back"]').isVisible(),true,label+' no Math return');
+    await screenshot(page,label+'-math-tallvika');
+    await edgeBack(page,label+' Tallvika');
     await panel(page,'math');
-    assert.equal(await page.locator('.bc12').getAttribute('data-bc13-view'),'travel',
-      label+' journey swipe lost Reisen');
+    assert.equal(await page.locator('.bc12').getAttribute('data-bc13-view'),'travel',label+' swipe lost Reisen');
 
     // Geografi -> Kloden -> Geografi -> Reisen: no skipped parent.
     await page.locator('.bc13-card[data-bc13-action="geography"]').click();

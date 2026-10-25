@@ -1,0 +1,60 @@
+name: Læria Tallvika – WebKit og Chromium
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'laer-litt-mer/tallvika.*'
+      - 'laer-litt-mer/assets/tallvika/**'
+      - 'laer-litt-mer/assets/gangemagi-troll/**'
+      - 'laer-litt-mer/index.html'
+      - 'laer-litt-mer/sw.js'
+      - 'tests/laria-tallvika*'
+  push:
+    branches: [main]
+    paths:
+      - 'laer-litt-mer/tallvika.*'
+      - 'laer-litt-mer/assets/tallvika/**'
+      - 'laer-litt-mer/assets/gangemagi-troll/**'
+      - 'laer-litt-mer/index.html'
+      - 'laer-litt-mer/sw.js'
+      - 'tests/laria-tallvika*'
+
+permissions:
+  contents: read
+
+jobs:
+  tallvika:
+    runs-on: ubuntu-latest
+    timeout-minutes: 24
+    container: mcr.microsoft.com/playwright:v1.62.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: 22, cache: npm}
+      - run: npm ci
+      - name: Verify Tallvika data contract
+        run: node tests/laria-tallvika-contract.test.cjs
+      - name: Start exact-head server
+        run: python3 -m http.server 8765 --directory . >/tmp/tallvika-http.log 2>&1 &
+      - name: Capture iPhone and iPad in Chromium and WebKit
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+          LARIA_TALLVIKA_SCREENSHOTS: /tmp/laria-tallvika
+        run: node tests/laria-tallvika.playwright.js
+      - name: Upload exact repo source image for visual integrity
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-tallvika-original-art-${{ github.sha }}
+          path: laer-litt-mer/assets/tallvika/tallvika-master-laast-20261025.png
+          if-no-files-found: error
+          retention-days: 7
+      - name: Upload visual evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-tallvika-${{ github.sha }}
+          path: /tmp/laria-tallvika
+          if-no-files-found: warn
+          retention-days: 14

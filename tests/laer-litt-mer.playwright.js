@@ -748,53 +748,31 @@ async function finishSession(page){
       state=prev.state;sessionQuestions=prev.questions;sessionScope=prev.scope;qIndex=prev.index;currentAnswered=prev.answered;sessionCorrect=prev.correct;
       saveState();delete window.__mathTapBackup;
     });
+    // Tallvika is the actual Math entrance. Retain old progression data, but
+    // never test a hidden Tallenga map as if it were still the child-facing UI.
     await page.evaluate(()=>document.getElementById('open-math').click());
-    await page.locator('#journey-map.locked-journey-map[data-journey-subject="math"] .locked-journey-image').waitFor({timeout:16000});
-    assert.equal(await page.locator('#journey-map').getAttribute('data-journey-release'),'journey-rc1');
-    assert.equal(await page.locator('#journey-map .locked-journey-image').getAttribute('src'),'./locked-journeys/tallenga-locked-20261010.png');
-    assert.equal(await page.locator('#journey-map .locked-journey-hotspot').count(),5,'Tallenga uses five original destinations');
-    assert.equal(await page.locator('#journey-map .locked-journey-hotspot.state-current').count(),1);
-    assert.equal(await page.locator('#journey-map .locked-journey-live-progress').count(),1,'current math progress should cover painted sample score');
-    assert.equal(await page.locator('#journey-now-card').isVisible(),false);
-    assert.equal(await page.locator('#journey-collection').isVisible(),false);
-    await page.waitForTimeout(250);
-    const mathNextPosition=await page.locator('#journey-map .locked-journey-hotspot.state-current').evaluate(el=>el.getBoundingClientRect().top);
-    assert.ok(mathNextPosition>=0&&mathNextPosition<844,'Tallenga should show the next mission in the mobile viewport');
-    await page.locator('#journey-map .locked-journey-hotspot.state-current').click();
-    await page.locator('.locked-journey-overlay:not([hidden]) .mission-primary[data-locked-node]:not([disabled])').first().click();
+    const tallvika=page.locator('#subject-screen.active #tallvika-world');
+    await tallvika.waitFor({state:'visible',timeout:16000});
+    assert.equal(await tallvika.locator('.tv-hotspot').count(),3,'Tallvika must show all three direct-play houses');
+    assert.equal(await page.locator('#journey-map').isVisible(),false,'the retired Math journey artwork must stay hidden');
+    const mathNextId=await page.evaluate(()=>journeyRecommendedNode('math',2)?.id);
+    assert.ok(mathNextId,'Tallvika must preserve the existing recommended Math mission');
+    const tallvikaNext=tallvika.locator('[data-tv="next"]');
+    assert.equal(await tallvikaNext.isEnabled(),true,'optional Tallvika missions must remain playable');
+    await tallvikaNext.click();
     await page.locator('#session-screen.active').waitFor();
+    assert.equal(await page.evaluate(()=>sessionScope?.journeyNode),mathNextId,'Tallvika must open the original progression node');
     assert.equal(await page.locator('#journey-mission-backdrop').isVisible(),false);
-    assert.equal(await page.locator('#geography-screen').isVisible(),false);
     await page.locator('#close-session').click();
-    await page.locator('#subject-screen.active .locked-journey-map').waitFor();
-    const future=page.locator('#journey-map .locked-journey-hotspot.state-future');
-    assert.ok(await future.count()>=1,'Tallenga should keep later areas locked');
-    await future.first().click();
-    assert.equal(await page.locator('.locked-journey-overlay:not([hidden]) [data-locked-node]:not([disabled])').count(),0,'future core missions cannot start');
-    await page.locator('.locked-sheet-close').click();
-
-    const peekBefore=await page.evaluate(()=>({pct:journeyProgress('math',2).pct,goal:dailyGoal().done,answers:subjectAnswered('math')}));
-    let peekFound=false;
-    for(let i=0;i<await future.count();i++){
-      await future.nth(i).click();
-      const button=page.locator('.locked-journey-overlay:not([hidden]) [data-locked-preview]');
-      if(await button.count()){await button.click();peekFound=true;break}
-      await page.locator('.locked-sheet-close').click();
-    }
-    assert.equal(peekFound,true,'Tallenga must retain progress-neutral preview of immediately next area');
-    await page.locator('#session-screen.active').waitFor();
-    const peekScope=await page.evaluate(()=>({type:sessionScope.type,previewOnly:sessionScope.previewOnly,practiceOnly:sessionScope.practiceOnly,count:sessionQuestions.length}));
-    assert.equal(peekScope.type,'journey-preview');
-    assert.equal(peekScope.previewOnly,true);
-    assert.equal(peekScope.practiceOnly,true);
-    assert.ok(peekScope.count>=1);
-    await answerCurrent(page);
-    const peekLogged=await page.evaluate(()=>state.answerLog.at(-1));
-    assert.equal(peekLogged.countsForLearning,false);
-    await page.locator('#close-session').click();
-    await page.locator('#subject-screen.active').waitFor();
-    const peekAfter=await page.evaluate(()=>({pct:journeyProgress('math',2).pct,goal:dailyGoal().done,answers:subjectAnswered('math')}));
-    assert.deepEqual(peekAfter,peekBefore);
+    await tallvika.waitFor({state:'visible',timeout:16000});
+    const mathLegacy=await page.evaluate(()=>{
+      const model=journeyModel('math',2),progress=journeyProgress('math',2);
+      return {areas:model.areas.length,nodes:model.nodes.length,total:progress.total,
+        recommended:journeyRecommendedNode('math',2)?.id};
+    });
+    assert.ok(mathLegacy.areas>=2&&mathLegacy.nodes>=5&&mathLegacy.total>=5,
+      'Tallvika must not delete previously authored Maths missions');
+    assert.equal(mathLegacy.recommended,mathNextId,'exploring the mission must not advance graded progress');
 
     // Trophy completion must award the world's collectible, and the final trophy must genuinely round the grade.
     const journeyRewardCheck=await page.evaluate(()=>{
@@ -860,15 +838,12 @@ async function finishSession(page){
 
     const mathModules=await page.locator('#subject-modules .subject-module strong').allTextContents();
     assert.deepEqual(mathModules,['Tall og regning']);
-    // Young locked Tallenga has the Brøklaben as an illustrated landmark, not
-    // a duplicate Experiments dashboard below the map. Its actual tap must work.
-    const lockedTallenga=(await page.locator('#subject-screen.active .locked-journey-map').count())===1;
-    assert.equal(await page.locator('#math-lab-entry').isVisible(),!lockedTallenga);
+    // The three Tallvika houses replace Math's hidden legacy module cards.
+    const tallvikaActive=(await page.locator('#subject-screen.active #tallvika-world:visible').count())===1;
+    assert.equal(tallvikaActive,true,'Math must return to its Tallvika world after the mission');
+    assert.equal(await page.locator('#math-lab-entry').isVisible(),false);
     const labBefore=await page.evaluate(()=>({goal:dailyGoal().done,answers:subjectAnswered('math')}));
-    if(lockedTallenga){
-      await page.locator('#subject-screen.active .locked-journey-hotspot[data-locked-place="2"]').click();
-      await page.locator('.locked-journey-overlay:not([hidden]) [data-locked-existing="fraction-lab"]').click();
-    }else await page.locator('#open-fraction-lab').click();
+    await page.locator('#tallvika-world [data-tv="fraction"]:visible').first().click();
     await page.locator('#fraction-lab-screen.active').waitFor();
     assert.equal(await page.locator('#fraction-lab-screen').getAttribute('data-explore-release'),'explore-rc1');
     assert.equal((await page.locator('.fr5-lab-intro h1').first().textContent()).trim(),'Brøklaben');
@@ -929,12 +904,10 @@ async function finishSession(page){
 
     // Premium gangetabell: every table remains open, short practice is guided,
     // and free visual exploration never masquerades as a completed school test.
-    assert.equal(await page.locator('#open-multiplication-lab').isVisible(),!lockedTallenga);
+    assert.equal(await page.locator('#open-multiplication-lab').isVisible(),false,'Tallvika replaces the old Maths lab card');
     const multBefore=await page.evaluate(()=>({goal:dailyGoal().done,answers:subjectAnswered('math')}));
-    // The existing multiplication engine stays available from Utforsk, but
-    // cannot be reached through the intentionally hidden legacy card here.
-    if(lockedTallenga)await page.evaluate(()=>window.openMultiplicationLab());
-    else await page.locator('#open-multiplication-lab').click();
+    // Enter Gangemagi through the real Tallvika house, not hidden legacy controls.
+    await page.locator('#tallvika-world [data-tv="multiply"]:visible').first().click();
     await page.locator('#multiplication-lab-screen.active').waitFor();
     await page.locator('[data-gm-action="classic"]').click();
     await page.locator('#multiplication-lab-screen.active .mp-home-screen').waitFor();
@@ -997,7 +970,7 @@ async function finishSession(page){
     await page.evaluate(()=>startLearningSession('math','numbers','Tall og regning'));
     assert.equal(await page.evaluate(()=>sessionQuestions.length),5);
     await page.locator('#close-session').click();
-    await page.locator('#journey-map .locked-journey-back').click();
+    await page.locator('#tallvika-world [data-tv="back"]:visible').click();
 
     // English: no premature grammar, but real sentences and reading are available.
     await page.evaluate(()=>document.getElementById('open-english').click());
@@ -1504,23 +1477,17 @@ async function finishSession(page){
       saveState();setTab('home');
     });
     await page.evaluate(()=>document.getElementById('open-math').click());
-    // The approved original PNG loads asynchronously. Wait for the completed
-    // interactive scene rather than asserting during its premium loading cover.
-    await page.waitForFunction(()=>{
-      const map=document.querySelector('#subject-screen.active #journey-map');
-      const img=map?.querySelector('.locked-journey-image');
-      return map?.dataset.journeySubject==='math'&&img?.complete&&
-        img.naturalWidth===941&&img.naturalHeight===1672&&
-        !map.querySelector('.locked-journey-art-guard');
-    },null,{timeout:20000});
-    assert.equal(await page.locator('#journey-grade-strip [data-journey-grade]').count(),10);
-    await page.locator('#journey-map .locked-journey-options').click();
-    await page.locator('.locked-journey-overlay:not([hidden]) [data-locked-grade="3"]').click();
+    await page.locator('#subject-screen.active #tallvika-world').waitFor({state:'visible',timeout:16000});
+    assert.equal(await page.locator('#tallvika-world [data-tv-grade]').count(),10,
+      'Tallvika must preserve the ability to explore other classes');
+    await page.locator('#tallvika-world [data-tv="grade"]').click();
+    await page.locator('#tallvika-world .tv-grade-dialog[open]').waitFor();
+    await page.locator('#tallvika-world [data-tv-grade="3"]').click();
     const selectedJourney=await page.evaluate(()=>({
       profile:currentGrade(),
       view:journeyViewGrade('math'),
-      activeText:document.querySelector('#journey-grade-strip .journey-grade-choice.active')?.textContent||'',
-      note:document.getElementById('journey-grade-note')?.textContent||''
+      activeText:document.querySelector('#tallvika-world .tv-grade-option.selected')?.textContent||'',
+      note:document.querySelector('#tallvika-world .tv-grade-note')?.textContent||''
     }));
     assert.equal(selectedJourney.profile,2);
     assert.equal(selectedJourney.view,3);

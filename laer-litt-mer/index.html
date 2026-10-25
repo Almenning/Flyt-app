@@ -2709,7 +2709,7 @@
       <div id="fraction-lab-root"></div>
     </section>
 
-    <section class="screen" id="multiplication-lab-screen" aria-label="Gangemagi i Tallenga">
+    <section class="screen" id="multiplication-lab-screen" aria-label="Gangemagi i Tallvika">
       <div id="multiplication-lab-root"></div>
     </section>
 
@@ -3712,6 +3712,13 @@ function appBack(){
   const mission=document.getElementById('journey-mission-backdrop');if(mission&&!mission.hidden){closeJourneyMission();return true}
 
   const current=activeScreenName();
+  // Tallvika's real Home button preserves the Basecamp/Reisen origin. The
+  // legacy hidden subject-back button unconditionally calls setTab('home')
+  // and would discard this origin on an iOS edge swipe.
+  if(current==='subject'&&document.querySelector('#subject-screen.active.tallvika-active')){
+    const tallvikaBack=document.querySelector('#tallvika-world [data-tv="back"]');
+    if(tallvikaBack){tallvikaBack.click();return true;}
+  }
   // One source of truth: a swipe performs the active screen's own back action.
   // In the labs this also respects their internal pages before exiting.
   const visibleBack={
@@ -4655,7 +4662,7 @@ function subjectLongTermMasteredSkills(subject,grade=currentGrade()){
 
 const GRADE2_FIRST_JOURNEYS=Object.freeze({
   norwegian:Object.freeze({title:'Bokskogen'}),
-  math:Object.freeze({title:'Tallenga'}),
+  math:Object.freeze({title:'Tallvika'}),
   english:Object.freeze({title:'Ordlandsbyen'}),
   geography:Object.freeze({title:'Nordlysleiren'})
 });
@@ -5394,7 +5401,7 @@ function journeyGrowthStageV7(pct,complete=false){
 }
 function journeyWorldFlavorV7(subject,index){
   const names={
-    math:['Tallenga','Regnebyen','Mønsterfjellet','Formdalen'],
+    math:['Tallvika','Regnebyen','Mønsterfjellet','Formdalen'],
     norwegian:['Bokskogen','Ordbyen','Lesefjellet','Fortellerdalen'],
     english:['Wordwood','Hello Harbour','Story Hills','World Gate'],
     geography:['Nordlysleiren','Europahavna','Verdensfjellet','Kompassøya']
@@ -5757,7 +5764,7 @@ function renderHomeContinue(){
   const wrap=document.getElementById('home-continue-wrap');if(!wrap)return;
   wrap.hidden=false;
   const eye=document.getElementById('home-continue-eyebrow'),young=currentGrade()<=2;
-  const worldNames={norwegian:'Bokskogen',math:'Tallenga',english:'Ordlandsbyen',geography:'Nordlysleiren'};
+  const worldNames={norwegian:'Bokskogen',math:'Tallvika',english:'Ordlandsbyen',geography:'Nordlysleiren'};
   const homeSubject=state.activeSession?.scope?.subject||state.lastActivity?.subject||'geography';
   wrap.dataset.subject=['norwegian','math','english'].includes(homeSubject)?homeSubject:'geography';
   const active=state.activeSession?.scope;
@@ -6696,7 +6703,7 @@ function finishSession(){
   }
   document.getElementById('complete-next').textContent=sessionScope?.previewOnly?'Gå tilbake til hovedreisen når du er klar.':practiceOnly?'Vil du prøve én gang til, kan du gjøre det så mange ganger du vil.':chapterDone?'Første eventyr er ferdig. Reisekartet kan spilles igjen, og Utforsk er alltid åpent.':result.gradeCompleted?'Alle verdener på trinnet er fullført. Repetisjon gjør kunnskapen sterkere over tid.':result.journeyReward?'Neste verden er åpnet i hovedreisen.':nextTeaserForScope();
   const backLabel=sessionScope?.subject&&sessionScope.subject!=='geography'?(SUBJECTS[sessionScope.subject]?.title||'faget'):'Geografi';
-  document.getElementById('complete-home').textContent=(sessionScope?.type==='journey'||sessionScope?.type==='geo-journey')?'Tilbake til reisekartet 🗺️':result.gradeCompleted?'Se troféet 🏆':result.journeyReward?'Se neste verden 🗺️':currentGrade()<=2?'Se hva jeg kan ⭐':'Tilbake til '+backLabel+' ⭐';
+  document.getElementById('complete-home').textContent=(sessionScope?.type==='journey'||sessionScope?.type==='geo-journey')?(sessionScope?.subject==='math'?'Tilbake til Tallvika 🌿':'Tilbake til reisekartet 🗺️'):result.gradeCompleted?'Se troféet 🏆':result.journeyReward?'Se neste verden 🗺️':currentGrade()<=2?'Se hva jeg kan ⭐':'Tilbake til '+backLabel+' ⭐';
   document.getElementById('complete-repeat').style.display=lastCompletedQuestions.length?'block':'none';
   showScreen('complete');
 }
@@ -6982,6 +6989,20 @@ if(needsProfileSetup||!state.profile.onboarded||!state.profile.grade){
   setTab('home');
   renderHomeContinue();
 }
+// Narrow public bridge for Tallvika. The world is presentation-only and must
+// use the existing state and navigation functions rather than duplicate them.
+window.LARIA_TALLVIKA_BRIDGE={
+  state:()=>state,
+  save:()=>saveState(),
+  currentGrade:()=>currentGrade(),
+  journeyViewGrade:subject=>journeyViewGrade(subject),
+  setJourneyViewGrade:(subject,grade,rerender)=>setJourneyViewGrade(subject,grade,rerender),
+  journeyProgress:(subject,grade)=>journeyProgress(subject,grade),
+  journeyRecommendedNode:(subject,grade)=>journeyRecommendedNode(subject,grade),
+  startJourneyNode:(subject,id,grade)=>startJourneyNode(subject,id,grade),
+  startJourneyChallenge:subject=>startJourneyChallenge(subject),
+  setTab:tab=>setTab(tab)
+};
 </script>
 <!-- Prompt 18 commercial content depth: extends the active subject pools before presentation runtimes. -->
 <!-- Active Læria runtimes. Preserve this order: wrappers intentionally compose in sequence. -->
@@ -6995,7 +7016,7 @@ if(needsProfileSetup||!state.profile.onboarded||!state.profile.grade){
 <script src="./multiplication-pick-play-v1.js?v=20261011-personalfox2" defer></script>
 <script src="./multiplication-premium-v2.js?v=20261014-phasec2-firstfold1" defer></script>
 <script src="./multiplication-gangemagi-engine-v1.js?v=20261017-markedsbok1" defer></script>
-<script src="./multiplication-gangemagi-v1.js?v=20261023-gangemagi-release37" defer></script>
+<script src="./multiplication-gangemagi-v1.js?v=20261025-tallvika-brand1" defer></script>
 <!-- Journey / Bokskogen -->
 <script src="./bokskogen-world.js?v=20261007-p15rc1" defer></script>
 <script src="./journey-learning-system-v1.js?v=20261016-language-system1" defer></script>
@@ -7025,8 +7046,8 @@ if(needsProfileSetup||!state.profile.onboarded||!state.profile.grade){
 <script defer src="./home-kjosnes-v15.js?v=20261024-alive1"></script>
 <!-- Shared inner-screen helpers + task scene -->
 <script src="./laria-unified-v13.js?v=20261006-assets1" defer></script>
-<script src="./laria-navigation-v13.js?v=20261019-painted-card2" defer></script>
-<script src="./laria-task-scene-v15.js?v=20261014-feedback-voice1" defer></script>
+<script src="./laria-navigation-v13.js?v=20261025-tallvika-brand1" defer></script>
+<script src="./laria-task-scene-v15.js?v=20261025-tallvika-brand1" defer></script>
 <script src="./laria-fox-presence.js?v=20261011-livefoxart1" defer></script>
 
 <!-- Kloden: art primitives must load before the active renderer. -->
@@ -7037,6 +7058,9 @@ if(needsProfileSetup||!state.profile.onboarded||!state.profile.grade){
 <script src="./globe-v25-renderer.js?v=20261015-discoveries1" defer></script>
 <script src="./laria-country-detail-premium-v1.js?v=20261015-discoveries1" defer></script>
 <script src="./atlas-perspective-v1.js?v=20261012-deepzoom32" defer></script>
+<!-- Tallvika: locked landscape and direct-play layer. It owns no learning data. -->
+<link rel="stylesheet" href="./tallvika.css?v=20261025-production5-large-taps">
+<script src="./tallvika.js?v=20261025-production5-grade-cleanup" defer></script>
 <!-- Public-domain polar geometry is scoped to the new Oppdag renderer only. -->
 <script src="./discovery-antarctica-geography-v1.js?v=20261018-ne110-polar1" defer></script>
 <script src="./discovery-globe-phase1.js?v=20261018-antarctica-ne110-1" defer></script>

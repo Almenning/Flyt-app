@@ -47,6 +47,15 @@ async function run(engine,label,viewport){
    const screen=subject==='geography'?'geography':'subject';
    await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').click();
    await page.locator('#'+screen+'-screen.active').waitFor({timeout:16000});
+   if(subject==='math'){
+     const tv=page.locator('#subject-screen.active #tallvika-world');
+     await tv.waitFor({state:'visible',timeout:16000});
+     assert.equal(await tv.locator('.tv-hotspot').count(),3,label+' Tallvika houses missing');
+     assert.ok(await page.evaluate(()=>journeyModel('math',2).nodes.length)>=7,label+' original Math node IDs removed');
+     await tv.locator('[data-tv="back"]').click();
+     await page.locator('#home-screen.active').waitFor({timeout:12000});
+     continue;
+   }
    // A map host exists immediately for the approved loading frame. Geometry
    // must be inspected only once the exact 941x1672 interactive map is ready.
    await page.waitForFunction(s=>{
@@ -209,7 +218,7 @@ async function run(engine,label,viewport){
    await page.locator('#home-screen.active').waitFor({timeout:16000});
   }
   assert.deepEqual(errors,[],label+' page errors '+JSON.stringify(errors));
-  console.log('[locked geometry]',label,JSON.stringify(viewport),'4 subjects, 20 spots, mission routing, progress persistence OK');
+  console.log('[locked geometry]',label,JSON.stringify(viewport),'three original map worlds plus Tallvika, mission routing and progress persistence OK');
   await ctx.close();
  }finally{await browser.close()}
 }

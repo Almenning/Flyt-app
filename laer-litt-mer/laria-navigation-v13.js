@@ -2,7 +2,7 @@
 (()=>{'use strict';
 const SUBJECTS=[
  ['norwegian','Norsk','Bokskogen','Les, bygg ord og oppdag historier','📖'],
- ['math','Matte','Tallenga','Tall, mønstre og oppdrag','✦'],
+ ['math','Matte','Tallvika','Tall, mønstre og oppdrag','✦'],
  ['english','Engelsk','Ordlandsbyen','Ord, setninger og nye oppdagelser','💬'],
  ['geography','Geografi','Nordlysleiren','Land, flagg og kart','🧭']
 ];

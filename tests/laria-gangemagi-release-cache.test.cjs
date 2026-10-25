@@ -7,9 +7,17 @@ const vm = require('node:vm');
 const root = path.resolve(__dirname, '..');
 const html = fs.readFileSync(path.join(root, 'laer-litt-mer/index.html'), 'utf8');
 const worker = fs.readFileSync(path.join(root, 'laer-litt-mer/sw.js'), 'utf8');
+// The Gangemagi stylesheets retain their approved visual release, while the
+// JavaScript has a newer Tallvika branding release. Test each real asset URL
+// instead of incorrectly requiring all assets to share the same cache key.
 const version = '20261023-gangemagi-release37';
 const suffix = '-gangemagi-premium-20261023-release37';
-const assets = ['multiplication-gangemagi-v1.css', 'gangemagi-dagens-oppdrag-v1.css', 'multiplication-gangemagi-v1.js'];
+const releases = Object.freeze({
+  'multiplication-gangemagi-v1.css': version,
+  'gangemagi-dagens-oppdrag-v1.css': version,
+  'multiplication-gangemagi-v1.js': '20261025-tallvika-brand1'
+});
+const assets = Object.keys(releases);
 function workerHarness(caches, fetch) {
   const events = new Map();
   const self = {location:{origin:'https://example.test'}, clients:{claim:async()=>{}}, skipWaiting:async()=>{},
@@ -22,7 +30,7 @@ test('all changed Gangemagi entry assets have distinct release URLs', () => {
     const escaped = asset.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const occurrences = [...html.matchAll(new RegExp('(?:href|src)="\\./'+escaped+'\\?v=([^"]+)"','g'))];
     assert.equal(occurrences.length,1,asset+' must be loaded once');
-    assert.equal(occurrences[0][1],version,asset+' must not reuse an older cache key');
+    assert.equal(occurrences[0][1],releases[asset],asset+' must use the explicitly approved release key');
   }
   assert.ok(worker.match(/^const CACHE='([^']+)';/)[1].endsWith(suffix));
 });

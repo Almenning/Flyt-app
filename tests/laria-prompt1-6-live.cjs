@@ -46,6 +46,11 @@ async function openHomeSubject(page,subject){
  else await page.locator('#open-'+subject).click();
 }
 async function returnFromSubjectOrJourney(page,screen,back,subject){
+ if(subject==='math' && await page.locator('#tallvika-world:visible').count()){
+   await page.locator('#tallvika-world [data-tv="back"]:visible').click();
+   await page.locator('#home-screen.active').waitFor();
+   return;
+ }
  const locked=page.locator(screen+'.active .locked-journey-map[data-journey-subject="'+subject+'"] .locked-journey-back');
  if(await locked.count()){
    await locked.waitFor({state:'visible',timeout:16000});
@@ -65,7 +70,7 @@ async function openBack(page,open,screen,back){
 async function checkPublishedFractionWorkshop(p,name){
  await openHomeSubject(p,'math');
  await p.locator('#subject-screen.active').waitFor();
- await p.locator('#open-fraction-lab').click();
+ await p.locator('#tallvika-world [data-tv="fraction"]:visible').first().click();
  await p.locator('#fraction-lab-screen.active').waitFor();
  await p.locator('.fr6-workshop').waitFor();
  assert.equal(await p.evaluate(()=>window.LARIA_FRACTION_PREMIUM?.version),'workshop-v1',name+' still has old Brøklab code');
@@ -112,8 +117,7 @@ async function checkPublishedFractionWorkshop(p,name){
  await p.locator('.fr2-nav-item[data-page="build"]').click();
  await p.locator('#fraction-lab-back').click();
  await p.locator('#subject-screen.active').waitFor();
- await p.locator('#subject-back').click();
- await p.locator('#home-screen.active').waitFor();
+ await returnFromSubjectOrJourney(p,'#subject-screen','#subject-back','math');
  console.log('PASS child-first Brøklaben in '+name+': instant cake, supplementary experiments, 1/2, conversions, progress, back navigation');
 }
 async function existing(engine,name){
@@ -130,7 +134,7 @@ async function existing(engine,name){
  // Return to the immediate Math screen when arriving from a Math module.
  await openHomeSubject(p,'math');
  await p.locator('#subject-screen.active').waitFor();
- await p.locator('#open-multiplication-lab').click();
+ await p.locator('#tallvika-world [data-tv="multiply"]:visible').first().click();
  await p.locator('#multiplication-lab-screen.active').waitFor();
  await p.locator('#multiplication-lab-screen.active [data-gm-action="classic"]').click();
  await p.locator('#multiplication-lab-screen.active .mp-home-screen').waitFor();
@@ -140,8 +144,7 @@ async function existing(engine,name){
  assert.equal(gameOrigin,'subject',name+' returning from classic should preserve the Maths origin');
  await p.locator('#multiplication-lab-screen.active .gm-back').click();
  await p.locator('#subject-screen.active').waitFor();
- await p.locator('#subject-back').click();
- await p.locator('#home-screen.active').waitFor();
+ await returnFromSubjectOrJourney(p,'#subject-screen','#subject-back','math');
  await openBack(p,'#open-geography','#geography-screen','#geography-back');
  await openHomeSubject(p,'norwegian');await p.locator('#subject-screen.active').waitFor();await p.locator('#start-subject-session').click();await p.locator('#session-screen.active').waitFor();await finish(p);
  await p.locator('#complete-home').click();await p.locator('#subject-screen.active').waitFor();await p.locator('#subject-back').click();await p.locator('#home-screen.active').waitFor();

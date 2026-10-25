@@ -1,4 +1,4 @@
-/* Læria · Gangemagi: a first-playable, original Tallenga activity.
+/* Læria · Gangemagi: a first-playable, original Tallvika activity.
  * The existing multiplication suite remains available through "Tabell og øving".
  * All presentation is local; no user profiling or remote assets.
  */
@@ -138,13 +138,13 @@
    root.innerHTML='<main class="gm-shell" data-gm-mode="'+modeClass+'" data-gm-groups="'+state.groups+'" data-gm-each="'+state.each+'" data-gm-sum="'+sum+'" data-gm-selected="'+selectedGroup+'" data-gm-complete="'+complete+'">'+
       '<div class="gm-layout"><header class="gm-top">'+
       '<button type="button" class="gm-back" id="multiplication-lab-back" data-gm-action="back" aria-label="Tilbake til matte">‹</button>'+
-      '<div class="gm-brand"><span class="gm-brand-mark">Læ<span>ria</span> ✦</span><small>TALLENGA / GANGEMAGI</small></div>'+ 
+      '<div class="gm-brand"><span class="gm-brand-mark">Læ<span>ria</span> ✦</span><small>TALLVIKA / GANGEMAGI</small></div>'+ 
       (!free?'<div class="gm-top-title"><h1>Gangemagi</h1><span>Et lite matteeventyr</span></div><div class="gm-top-progress">Oppdrag '+(state.mission+1)+' av '+E.MISSIONS.length+'</div>':'')+ 
       '<button type="button" class="gm-book-quick" data-gm-action="open-book" aria-label="Åpne Min markedsbok. '+state.wins.length+' av '+E.MISSIONS.length+' blomster samlet" title="Min markedsbok">✿ <span class="gm-book-quick-count">'+state.wins.length+'/'+E.MISSIONS.length+'</span></button>'+
       
       '</header>'+
       '<div class="gm-heading"><div><span class="gm-eyebrow">✿ ET LITE MATTEEVENTYR</span><h1>Gangemagi</h1><p>Plukk, pakk og oppdag hva gange betyr.</p></div></div>'+
-       '<section class="gm-world" aria-label="Jordbærmarkedet i Tallenga">'+
+       '<section class="gm-world" aria-label="Jordbærmarkedet i Tallvika">'+
        (free?'<header class="gm-story"><div class="gm-story-main"><span class="gm-story-kicker">DU BESTEMMER</span><h2>'+esc(storyTitle())+'</h2><p>'+esc(challengeText())+'</p></div>'+
        '<span class="gm-story-progress" aria-label="'+sum+' av '+goal+' jordbær pakket"><strong>'+sum+'</strong><span>av '+goal+'</span></span></header>':questBoard(sum,goal))+
        '<div class="gm-scene"><div class="gm-fox" data-mood="'+(complete?'celebrate':hintStep?'help':foxMood)+'">'+
@@ -152,7 +152,7 @@
          '<div class="gm-fox-bubble"><span class="gm-fox-bubble-label">Din rev sier:</span><span class="gm-fox-message" role="status" aria-live="polite">'+esc(msg)+'</span>'+
          '<button type="button" data-gm-action="read" class="gm-read" aria-label="Les opp det reven sier">◖))</button></div>'+
        '</div>'+
-       '<div class="gm-market"><div class="gm-market-sign" aria-hidden="true"><span class="gm-sign-leaf">✿</span> Fra Tallengas hage <span class="gm-sign-leaf">✿</span></div>'+
+       '<div class="gm-market"><div class="gm-market-sign" aria-hidden="true"><span class="gm-sign-leaf">✿</span> Fra Tallvikas hage <span class="gm-sign-leaf">✿</span></div>'+
        '<div class="gm-crates" style="--gm-groups:'+state.groups+';--gm-cols:'+(state.each<=5?state.each:Math.ceil(state.each/2))+'" role="group" aria-label="'+state.groups+' kurver som kan fylles med jordbær">'+state.counts.map((n,i)=>crate(i)).join('')+'</div>'+
        (!free&&!complete?'<div class="gm-market-fruit-supply">'+fruitSupply(false)+'</div>':'')+
        '<p class="gm-play-hint">'+(complete?'Se hva du har laget! Du kan endre kurvene eller fortsette.':free?(state.groups>=4?'Trykk på kurvene. Sveip sidelengs for å se alle.':'Trykk på en kurv for å legge i et jordbær'):(holdingBerry?'Trykk på kurven du vil legge jordbæret i.':'Dra jordbær til kurvene, eller trykk på jordbær og deretter en kurv.'))+'</p></div>'+
@@ -218,7 +218,7 @@
      '<div class="gm-book-v2-world"><div class="gm-book-v2-inner">'+
        '<header class="gm-book-intro">'+
          '<div class="gm-book-fox-art" aria-hidden="true">'+selectedFox()+'</div>'+
-         '<div class="gm-book-intro-copy"><span class="gm-book-overline">✦ EVENTYRBOK FRA TALLENGA ✦</span>'+
+         '<div class="gm-book-intro-copy"><span class="gm-book-overline">✦ EVENTYRBOK FRA TALLVIKA ✦</span>'+
          '<h2>Min markedsbok</h2><p>Her kan du velge et eventyr og spille det så mange ganger du vil. Jeg blir med deg!</p></div>'+
          '<div class="gm-book-trophy" role="img" aria-label="'+n+' av '+total+' magiske blomster samlet">'+
            '<span class="gm-book-trophy-flower" aria-hidden="true">✿</span>'+
