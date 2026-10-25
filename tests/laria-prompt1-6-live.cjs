@@ -70,7 +70,7 @@ async function openBack(page,open,screen,back){
 async function checkPublishedFractionWorkshop(p,name){
  await openHomeSubject(p,'math');
  await p.locator('#subject-screen.active').waitFor();
- await p.locator('#open-fraction-lab').click();
+ await p.locator('#tallvika-world [data-tv="fraction"]:visible').first().click();
  await p.locator('#fraction-lab-screen.active').waitFor();
  await p.locator('.fr6-workshop').waitFor();
  assert.equal(await p.evaluate(()=>window.LARIA_FRACTION_PREMIUM?.version),'workshop-v1',name+' still has old Brøklab code');
@@ -134,7 +134,7 @@ async function existing(engine,name){
  // Return to the immediate Math screen when arriving from a Math module.
  await openHomeSubject(p,'math');
  await p.locator('#subject-screen.active').waitFor();
- await p.locator('#open-multiplication-lab').click();
+ await p.locator('#tallvika-world [data-tv="multiply"]:visible').first().click();
  await p.locator('#multiplication-lab-screen.active').waitFor();
  await p.locator('#multiplication-lab-screen.active [data-gm-action="classic"]').click();
  await p.locator('#multiplication-lab-screen.active .mp-home-screen').waitFor();

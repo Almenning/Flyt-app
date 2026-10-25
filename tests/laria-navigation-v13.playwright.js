@@ -62,9 +62,17 @@ async function run(engine,label,viewport){
    ['geography','geography']]){
    await page.locator('[data-bc13-action="'+subject+'"]').click();
    await page.locator('#'+screen+'-screen.active').waitFor({timeout:10000});
-   // The verified PNG renderer replaces the legacy map asynchronously after
-   // its source image is decoded. Wait for its own back control so the test
-   // cannot capture a legacy button that becomes hidden between wait/click.
+   if(subject==='math'){
+     const tallvika=page.locator('#subject-screen.active #tallvika-world');
+     await tallvika.waitFor({state:'visible',timeout:16000});
+     assert.equal(await tallvika.locator('.tv-hotspot').count(),3,label+' Tallvika must have three house destinations');
+     const back=tallvika.locator('[data-tv="back"]');
+     const size=await back.boundingBox();
+     assert.ok(size&&size.width>=44&&size.height>=44,label+' Tallvika return touch area too small');
+     await page.screenshot({path:folder+'/'+label+'-math-back-reachable.png',fullPage:false});
+     await back.click();
+   }else{
+   // Non-Math subjects continue to use their approved painted journey maps.
    const journeyBack=page.locator('#'+screen+'-screen.active .locked-journey-map[data-journey-subject="'+subject+'"] .locked-journey-back');
    await journeyBack.waitFor({state:'visible',timeout:16000});
    // Return from the actual painted mission, which is below the fold on
@@ -86,6 +94,7 @@ async function run(engine,label,viewport){
      await floatingBack.click();
    }else{
      await journeyBack.click();
+   }
    }
    try{
      await page.locator('#home-screen.active').waitFor({timeout:10000});
@@ -113,7 +122,7 @@ async function run(engine,label,viewport){
    await page.locator('#'+screen+'-screen.active').waitFor({timeout:13000});
    if(action==='multiply'){
     assert.equal((await page.locator('#multiplication-lab-screen.active .gm-heading h1').innerText()).trim(),'Gangemagi',label+' should open Gangemagi');
-    assert.equal(await page.locator('#multiplication-lab-screen').getAttribute('aria-label'),'Gangemagi i Tallenga',label+' accessible title mismatch');
+    assert.equal(await page.locator('#multiplication-lab-screen').getAttribute('aria-label'),'Gangemagi i Tallvika',label+' accessible title mismatch');
    }
    if(action==='globe'){
     await page.waitForFunction(()=>document.getElementById('world-screen')?.dataset.mapPerspective==='globe'&&document.getElementById('world-screen')?.dataset.premiumGlobeMode==='classic',{timeout:8000});
