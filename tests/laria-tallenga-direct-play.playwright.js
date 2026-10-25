@@ -130,9 +130,15 @@ async function run(engine,engineName,label,width,height,url){
   await page.locator('#session-screen.active').waitFor();
   assert.equal(await page.evaluate(()=>sessionScope.subject),'math');
   await page.evaluate(()=>openSubject('math'));
+  // The old painted journey must be created on demand, not behind the
+  // direct-play content. The previous source contract is still preserved.
+  assert.equal(await page.locator('#subject-screen.locked-journey-active').count(),0,
+    'direct-play must not boot the legacy map rendering layer');
   await page.locator('[data-tlp="original"]').click();
   assert.equal(await page.locator('#subject-screen.tlp-active').count(),0);
-  assert.equal(await page.locator('#journey-map').count(),1);
+  await page.locator('#journey-map:visible').waitFor();
+  await page.locator('#subject-screen.locked-journey-active').waitFor();
+  assert.equal(await page.locator('#journey-map').getAttribute('data-journey-subject'),'math');
   assert.deepEqual(errors,[],'runtime page errors');
   console.log('PASS '+engineName+' '+label);
  }finally{await context.close();await browser.close();}
