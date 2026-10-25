@@ -151,6 +151,15 @@ jobs:
           assert (root/'storesoster-local-mesh-NOT-APPROVED.mp4').stat().st_size>100000
           print('PASS: original-pixel local deformation only; phase 1 remains BLOCKED')
           PY
+      - name: Validate artist-editable ORA intake and reject source changes
+        run: |
+          python tools/rigging/storesoster_ora_intake.py \
+            --source laer-litt-mer/assets/gangemagi-troll/storesoster.webp \
+            --ora /tmp/laria-storesoster-fase1/artist-handoff-v2/Laria_Storesoster_V2_Artist_Handoff_NOT_APPROVED.ora \
+            --output /tmp/laria-storesoster-fase1/ora-import-qa
+          python tests/test_storesoster_ora_intake.py \
+            laer-litt-mer/assets/gangemagi-troll/storesoster.webp \
+            /tmp/laria-storesoster-fase1/artist-handoff-v2/Laria_Storesoster_V2_Artist_Handoff_NOT_APPROVED.ora
       - name: Upload editable ORA, layer masks and factual movement report
         if: always()
         uses: actions/upload-artifact@v4
