@@ -67,6 +67,15 @@ async function run(browserType,engine,name,viewport){
     }));
     assert.ok(overflow.scroll<=overflow.width+2,name+' has horizontal overflow');
 
+    // Open Bokskogen immediately after entering Norsk, before changing
+    // grade or waiting for the legacy map art. This used to leave an
+    // existing but CSS-hidden map when renderWaiting() short-circuited.
+    await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
+    await page.locator('#subject-screen.active .locked-journey-map[data-journey-subject="norwegian"]')
+      .waitFor({state:'visible',timeout:18000});
+    await page.locator('#eggenipa-map-return').click();
+    await page.locator('#eggenipa-world').waitFor({state:'visible',timeout:15000});
+
     await page.locator('.eg-grade').click();
     await page.locator('#eggenipa-world .eg-grade-dialog[open]').waitFor();
     assert.equal(await page.locator('#eggenipa-world [data-eg-grade]').count(),10,name+' grade choices');
