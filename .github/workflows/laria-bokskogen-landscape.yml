@@ -1,0 +1,48 @@
+name: Laria Bokskogen compact landscape diagnostic
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'tests/laria-responsive-phasea-bokskogen.playwright.js'
+      - 'laer-litt-mer/index.html'
+      - 'laer-litt-mer/locked-journey-renderer.css'
+      - 'laer-litt-mer/laria-responsive-phaseb.css'
+      - '.github/workflows/laria-bokskogen-landscape.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  webkit-compact-landscape:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.1-noble
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Verify exact commit and syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          node --check tests/laria-responsive-phasea-bokskogen.playwright.js
+      - name: Bokskogen Safari/WebKit compact-device regression (real assertion)
+        env:
+          LARIA_RESPONSIVE_PHASEA_IMAGES: /tmp/laria-bokskogen-diagnostics
+        run: node tests/laria-responsive-phasea-bokskogen.playwright.js
+      - name: Save actual device screenshots including failures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-bokskogen-compact-${{ github.event.pull_request.head.sha || github.sha }}
+          path: /tmp/laria-bokskogen-diagnostics
+          if-no-files-found: warn
+          retention-days: 14
