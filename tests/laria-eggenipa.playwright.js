@@ -42,6 +42,15 @@ async function run(browserType,engine,name,viewport){
     await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
     await page.route('https://api.worldbank.org/**',r=>r.abort());
     await enter(page);
+    // All three primary activities are visible content, not deferred
+    // below-the-fold decorations. Full-page captures can otherwise show a
+    // blank third card despite a successful navigation contract.
+    const decoded=await page.locator('#eggenipa-world .eg-portal-art img').evaluateAll(async images=>{
+      await Promise.all(images.map(image=>image.decode()));
+      return images.map(image=>[image.complete,image.naturalWidth,image.naturalHeight]);
+    });
+    assert.ok(decoded.length===3&&decoded.every(([complete,w,h])=>complete&&w>0&&h>0),
+      name+' all activity cards must have decoded art '+JSON.stringify(decoded));
     const pre=await page.evaluate(()=>structuredClone(JSON.parse(localStorage.getItem('laerlittmer-v2'))?.journey?.nodes||{}));
     assert.equal(await page.locator('#eggenipa-world .eg-portal').count(),3,name+' must show three illustrated places');
     assert.equal(await page.locator('#subject-screen').evaluate(el=>el.classList.contains('locked-journey-active')),false,
