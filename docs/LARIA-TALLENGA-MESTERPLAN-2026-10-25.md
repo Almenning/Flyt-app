@@ -5,6 +5,9 @@
 **Kanonisk utviklingsløp:** draft-PR #220 i Almenning/Flyt-app.  
 **Arbeidsprinsipp:** Referanse → kildelag → ferdig design → godkjenning → implementering → verifisering. Ikke motsatt.
 
+> **FASE 1 PÅBEGYNT 25.10.2026:** Den låste 512×1024-varianten av alle tre trollene er funnet som egne WebP-originalrenderinger i PR #208 og importert byte-eksakt til PR #220 under `laer-litt-mer/assets/gangemagi-troll/`. Disse er i *nøytral positur*, ulik de mindre 420px-handlingsposeringene under `assets/skogstroll/`. De eksisterende OpenRaster-/riggingstudiene fra #208 og deres separate tester er også importert. Fase 1 er **IKKE BESTÅTT**: malte/skjulte skulder-/stofflag, flere ansikts- og hodekomponenter og eksplisitt visuell godkjenning mangler. Se `docs/LARIA-STORESOSTER-FASE1-KILDEKONTROLL-2026-10-25.md`. PNG/WebP pixel-paritet er foreløpig ikke attestert.
+
+
 ## A. Mål og ufravikelige krav
 
 Bygg Tallenga som Lærias første helhetlige premium fagforside for matematikk på iPad, først i liggende format, senere stående iPad og iPhone. Barnet skal møte et sammenhengende, varmt illustrert eventyrlandskap, de tre eksakt godkjente skogstrollene og direkte inngang til **Gangemagi**, **Brøklab** og **Gangetabellen**. **Neste eventyr** er et frivillig tillegg og skal aldri blokkere frilek.

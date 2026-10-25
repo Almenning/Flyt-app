@@ -3,6 +3,9 @@
 Date: 25 October 2026. Scope: draft PR #220 and related draft TrollActor PR #219.
 Status: **CHARACTER ASSET GATE CLOSED**. Technical storybook depth planes and direct-play navigation can be tested without characters. This file is **not** permission to integrate an unapproved actor.
 
+> **SOURCE CORRECTION 25 OCTOBER 2026:** This table protects the SMALL 420px **action-pose** trio, not the neutral source masters. The separate 512×1024 **neutral-pose** versions from draft PR #208 have now been copied byte-for-byte into PR #220 under `laer-litt-mer/assets/gangemagi-troll/{storesoster,lillesoster,lillebror}.webp`, with independent hashes. Storesøster has an existing reproducible 6-layer OpenRaster *study*, where the missing shoulder underpaint is deliberately EMPTY; it is NOT animation-ready art. Do not substitute either pose family for the other. The user-library 512×1024 PNG originals are visually consistent in pose but their full pixel identity cannot be claimed without raw PNG comparison. Follow `docs/LARIA-STORESOSTER-FASE1-KILDEKONTROLL-2026-10-25.md` and the primary master plan before art promotion.
+
+
 ## Non-negotiable visual identity
 
 The approved three characters (storesøster, lillesøster, lillebror) are defined by the locked original image files and previously approved illustrations. Preserve each face, expression, hair, outfit, colors, accessories, proportions, silhouette and relationship to the other characters **exactly**. Do not "reimagine" or regenerate a visually similar replacement.
