@@ -33,6 +33,7 @@ on:
       - 'tools/rigging/**'
       - 'tests/test_storesoster_openraster_layers.py'
       - 'tests/test_storesoster_art_integrity.py'
+      - 'tests/test_storesoster_pose_import.py'
       - 'docs/LARIA-STORESOSTER-ARMLAG-STUDIE-2026-10-25.md'
       - '.github/workflows/laria-gangemagi-approved.yml'
   pull_request:
@@ -62,6 +63,7 @@ on:
       - 'tools/rigging/**'
       - 'tests/test_storesoster_openraster_layers.py'
       - 'tests/test_storesoster_art_integrity.py'
+      - 'tests/test_storesoster_pose_import.py'
       - 'docs/LARIA-STORESOSTER-ARMLAG-STUDIE-2026-10-25.md'
       - '.github/workflows/laria-gangemagi-approved.yml'
   workflow_dispatch:
@@ -216,6 +218,9 @@ jobs:
           assert report['safe_to_integrate'] is False
           print('PASS: locked source geometry verified; experimental anatomy STILL NOT APPROVED')
           PY
+      - name: Exercise import of artist underpaint in isolated pose review only
+        run: |
+          python tests/test_storesoster_pose_import.py             laer-litt-mer/assets/gangemagi-troll/storesoster.webp             /tmp/laria-storesoster-layer-kit/artist-import-check
       - name: Preserve original-faithful non-production editable layers
         uses: actions/upload-artifact@v4
         with:

@@ -7,6 +7,7 @@ from pathlib import Path
 import numpy as np
 from PIL import Image, ImageDraw
 from storesoster_arm_layer_study import LOCKED_SHA256, SHOULDER_PIVOT, SIZE, split_original
+from storesoster_art_integrity import verify as verify_hidden_layer
 
 HTML='''<!doctype html><html lang="no"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Læria · Storesøster bevegelser (ikke godkjent)</title>
@@ -31,7 +32,7 @@ document.querySelectorAll('button[data-angle]').forEach(x=>x.addEventListener('c
 Promise.all(Object.values(im).map(x=>x.decode())).then(draw);
 </script></html>'''
 
-def build(source, output):
+def build(source, output, underpaint=None):
     source,output=Path(source),Path(output)
     digest=hashlib.sha256(source.read_bytes()).hexdigest()
     if digest!=LOCKED_SHA256: raise ValueError('STOP: original character hash changed')
@@ -40,16 +41,26 @@ def build(source, output):
     _,arm,body=split_original(original)
     if not np.array_equal(np.asarray(original),np.asarray(Image.alpha_composite(body,arm))):
         raise AssertionError('Neutral character is not pixel-identical to original')
-    src=np.asarray(original);height,width=src.shape[:2]
-    y,x=np.mgrid[:height,:width]
-    hx=np.clip(x-35,45,116);dx=np.clip(x+98,240,345)
-    dy=np.where(y<470,np.clip(y-22,350,465),np.clip(y+68,510,665))
-    hair=src[y,hx,:3].astype('float32');fabric=src[dy,dx,:3].astype('float32')
-    mix=np.clip((x-152)/36,0,1)[...,None]
-    patch_array=np.zeros_like(src)
-    patch_array[:,:,:3]=(hair*(1-mix)+fabric*mix).astype('uint8')
-    patch_array[:,:,3]=np.asarray(arm.getchannel('A'))
-    patch=Image.fromarray(patch_array,'RGBA')
+    if underpaint is not None:
+        # Use the exact same identity gate that rejects whole new trolls.
+        # This only allows a review, NEVER automatic promotion to production.
+        verified=verify_hidden_layer(source, underpaint)
+        if not verified['geometry_integrity_pass']:
+            raise AssertionError('New hidden artwork changes the locked character')
+        patch=Image.open(underpaint).convert('RGBA')
+        candidate_origin='imported-layer-only'
+    else:
+        src=np.asarray(original);height,width=src.shape[:2]
+        y,x=np.mgrid[:height,:width]
+        hx=np.clip(x-35,45,116);dx=np.clip(x+98,240,345)
+        dy=np.where(y<470,np.clip(y-22,350,465),np.clip(y+68,510,665))
+        hair=src[y,hx,:3].astype('float32');fabric=src[dy,dx,:3].astype('float32')
+        mix=np.clip((x-152)/36,0,1)[...,None]
+        patch_array=np.zeros_like(src)
+        patch_array[:,:,:3]=(hair*(1-mix)+fabric*mix).astype('uint8')
+        patch_array[:,:,3]=np.asarray(arm.getchannel('A'))
+        patch=Image.fromarray(patch_array,'RGBA')
+        candidate_origin='experimental-source-texture-DRAFT'
     output.mkdir(parents=True,exist_ok=True)
     for filename,image in [('01-locked-original.png',original),('02-original-arm.png',arm),
                            ('03-body.png',body),('04-hidden-fabric-DRAFT.png',patch)]:
@@ -69,7 +80,9 @@ def build(source, output):
     sheet.save(output/'05-arm-motion-proof-NOT-APPROVED.png')
     (output/'review.html').write_text(HTML,encoding='utf8')
     report={'locked_source_sha256':digest,'neutral_exact':True,'independent_shoulder_pivot':list(SHOULDER_PIVOT),
-            'candidate_hidden_art':True,'anatomically_approved':False,'premium_ready':False,
+            'candidate_hidden_art':True,'candidate_origin':candidate_origin,
+            'art_import_passed_identity_gate':underpaint is not None,
+            'anatomically_approved':False,'premium_ready':False,
             'integrated_in_app':False,'required_next':'artist-authored hidden shoulder, cloth, hair and anatomically correct hand'}
     (output/'premium-readiness.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf8')
     return report
@@ -77,5 +90,6 @@ def build(source, output):
 if __name__=='__main__':
     parser=argparse.ArgumentParser()
     parser.add_argument('--source',required=True);parser.add_argument('--output',required=True)
+    parser.add_argument('--underpaint',help='Optional 512x1024 PNG painted ONLY under the original arm')
     args=parser.parse_args()
-    print(json.dumps(build(args.source,args.output),indent=2))
+    print(json.dumps(build(args.source,args.output,args.underpaint),indent=2))

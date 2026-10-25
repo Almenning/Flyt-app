@@ -105,3 +105,27 @@ visuelle porter er bestått. Den foreløpige teksturprøven godkjennes ikke som
 produksjonskunst selv om den dekker alle registrerte hull.
 
 Ingen originaler eller aktiv Gangemagi-figur endres av denne kontrollen.
+
+
+## Fremtidige originaltro kunstlag kan nå testes uten spillendringer
+
+`storesoster_pose_lab.py` støtter `--underpaint PATH_TO_PNG`.
+Før en ny 512×1024 PNG importeres i laboratoriet, kjøres identitetslåsen
+som avviser alle lag som maler utenfor originalarmens skjulte område eller
+forandrer synlige kildepiksler i nøytral positur. Det opprettes deretter
+fem bevegelsesbilder og en interaktiv `review.html`.
+
+Eksempel etter at en illustratør har ferdigtegnet et lag:
+
+```bash
+python tools/rigging/storesoster_pose_lab.py \
+  --source laer-litt-mer/assets/gangemagi-troll/storesoster.webp \
+  --underpaint /path/to/artist-painted-hidden-layer.png \
+  --output /tmp/storesoster-art-review
+```
+
+`tests/test_storesoster_pose_import.py` validerer både riktig import
+og avvisning av en ny helfigur. Alle slike importer er eksplisitt
+`premium_ready=false`, `anatomically_approved=false` og
+`integrated_in_app=false`. Visuell vurdering av skuldre/hender og
+bekreftelse fra bruker kreves uansett før en senere integrasjon i Gangemagi.
