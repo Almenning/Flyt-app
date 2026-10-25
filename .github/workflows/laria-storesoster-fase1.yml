@@ -36,7 +36,7 @@ jobs:
         with:
           python-version: '3.12'
       - name: Install pure artwork auditing tools
-        run: python -m pip install --disable-pip-version-check Pillow numpy
+        run: python -m pip install --disable-pip-version-check Pillow numpy opencv-python-headless
       - name: Identify BOTH locked reference pose sets without substitutions
         shell: bash
         run: |
@@ -126,6 +126,30 @@ jobs:
           assert d['source_pixels_regenerated'] is False
           assert d['premium_ready'] is False and d['integrated_in_app'] is False
           print('PASS V2 source-only artist handoff; BLOCKED for app and rigging.')
+          PY
+      - name: Generate isolated original-pixel micro-motion video proof
+        run: |
+          python tools/rigging/storesoster_local_mesh_feasibility.py \
+            --source laer-litt-mer/assets/gangemagi-troll/storesoster.webp \
+            --arm /tmp/laria-storesoster-fase1/artist-handoff-v2/05-original-arm-V2-mask.png \
+            --output /tmp/laria-storesoster-fase1/mesh-motion-study
+      - name: Enforce explicit non-approval of the local mesh study
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('/tmp/laria-storesoster-fase1/mesh-motion-study')
+          report=json.loads((root/'readiness.json').read_text())
+          assert report['neutral_pixel_exact'] is True
+          assert report['original_untouched'] is True
+          assert report['max_tested_local_shift_pixels'] < 20
+          assert report['frames'] > 100
+          for key in ('full_wave_approved','natural_celebration_approved',
+                      'visually_approved','safari_or_webkit_verified',
+                      'integrated_in_app','premium_ready'):
+              assert report[key] is False, key
+          assert (root/'storesoster-local-mesh-NOT-APPROVED.mp4').stat().st_size>100000
+          print('PASS: original-pixel local deformation only; phase 1 remains BLOCKED')
           PY
       - name: Upload editable ORA, layer masks and factual movement report
         if: always()
