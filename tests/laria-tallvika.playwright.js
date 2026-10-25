@@ -11,6 +11,8 @@ async function enter(page){
   await page.locator('#tallvika-world').waitFor({state:'visible',timeout:18000});
   assert.equal(await page.locator('#subject-screen').evaluate(el=>el.classList.contains('locked-journey-active')),false,
     'Tallvika must not inherit the legacy journey display:none contract');
+  assert.equal(await page.locator('#subject-screen').evaluate(el=>el.classList.contains('premium-journey-active')),false,
+    'Tallvika must clear the retired premium journey view state');
 }
 async function run(browserType,label,viewport){
   const browser=await browserType.launch({headless:true,args:browserType===chromium?['--no-sandbox']:[]});
@@ -36,6 +38,15 @@ async function run(browserType,label,viewport){
     }));
     assert.equal(shell.padding,0,label+' must not retain the hidden bottom navigation gutter');
     assert.equal(shell.background,'rgb(247, 240, 223)',label+' must match Tallvika cream below the scene');
+    assert.equal(await page.locator('#subject-screen').evaluate(el=>getComputedStyle(el).backgroundColor),
+      'rgb(247, 240, 223)',label+' must not expose the former dark journey background');
+    await page.locator('#tallvika-world [data-tv="grade"]').click();
+    await page.locator('#tallvika-world .tv-grade-dialog[open]').waitFor();
+    assert.equal(await page.locator('#tallvika-world [data-tv-grade]').count(),10,label+' grade options missing');
+    await page.locator('#tallvika-world [data-tv-grade="3"]').click();
+    assert.deepEqual(await page.evaluate(()=>[window.LARIA_TALLVIKA_BRIDGE.currentGrade(),window.LARIA_TALLVIKA_BRIDGE.journeyViewGrade('math')]),[2,3],label+' grade view must not change the profile');
+    await page.locator('#tallvika-world [data-tv="grade"]').click();
+    await page.locator('#tallvika-world .tv-grade-dialog[open] [data-tv-grade="2"]').click();
     if(viewport.width<=480){
       // Inspect the real last viewport fold, not only a container's style:
       // legacy fixed navigation can cover an otherwise correctly painted page.

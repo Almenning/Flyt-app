@@ -1477,23 +1477,17 @@ async function finishSession(page){
       saveState();setTab('home');
     });
     await page.evaluate(()=>document.getElementById('open-math').click());
-    // The approved original PNG loads asynchronously. Wait for the completed
-    // interactive scene rather than asserting during its premium loading cover.
-    await page.waitForFunction(()=>{
-      const map=document.querySelector('#subject-screen.active #journey-map');
-      const img=map?.querySelector('.locked-journey-image');
-      return map?.dataset.journeySubject==='math'&&img?.complete&&
-        img.naturalWidth===941&&img.naturalHeight===1672&&
-        !map.querySelector('.locked-journey-art-guard');
-    },null,{timeout:20000});
-    assert.equal(await page.locator('#journey-grade-strip [data-journey-grade]').count(),10);
-    await page.locator('#journey-map .locked-journey-options').click();
-    await page.locator('.locked-journey-overlay:not([hidden]) [data-locked-grade="3"]').click();
+    await page.locator('#subject-screen.active #tallvika-world').waitFor({state:'visible',timeout:16000});
+    assert.equal(await page.locator('#tallvika-world [data-tv-grade]').count(),10,
+      'Tallvika must preserve the ability to explore other classes');
+    await page.locator('#tallvika-world [data-tv="grade"]').click();
+    await page.locator('#tallvika-world .tv-grade-dialog[open]').waitFor();
+    await page.locator('#tallvika-world [data-tv-grade="3"]').click();
     const selectedJourney=await page.evaluate(()=>({
       profile:currentGrade(),
       view:journeyViewGrade('math'),
-      activeText:document.querySelector('#journey-grade-strip .journey-grade-choice.active')?.textContent||'',
-      note:document.getElementById('journey-grade-note')?.textContent||''
+      activeText:document.querySelector('#tallvika-world .tv-grade-option.selected')?.textContent||'',
+      note:document.querySelector('#tallvika-world .tv-grade-note')?.textContent||''
     }));
     assert.equal(selectedJourney.profile,2);
     assert.equal(selectedJourney.view,3);

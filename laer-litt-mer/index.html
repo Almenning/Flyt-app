@@ -6989,6 +6989,7 @@ window.LARIA_TALLVIKA_BRIDGE={
   save:()=>saveState(),
   currentGrade:()=>currentGrade(),
   journeyViewGrade:subject=>journeyViewGrade(subject),
+  setJourneyViewGrade:(subject,grade,rerender)=>setJourneyViewGrade(subject,grade,rerender),
   journeyProgress:(subject,grade)=>journeyProgress(subject,grade),
   journeyRecommendedNode:(subject,grade)=>journeyRecommendedNode(subject,grade),
   startJourneyNode:(subject,id,grade)=>startJourneyNode(subject,id,grade),
@@ -7051,8 +7052,8 @@ window.LARIA_TALLVIKA_BRIDGE={
 <script src="./laria-country-detail-premium-v1.js?v=20261015-discoveries1" defer></script>
 <script src="./atlas-perspective-v1.js?v=20261012-deepzoom32" defer></script>
 <!-- Tallvika: locked landscape and direct-play layer. It owns no learning data. -->
-<link rel="stylesheet" href="./tallvika.css?v=20261025-production3-cream-shell">
-<script src="./tallvika.js?v=20261025-production4-viewcleanup" defer></script>
+<link rel="stylesheet" href="./tallvika.css?v=20261025-production4-grade-dialog">
+<script src="./tallvika.js?v=20261025-production5-grade-cleanup" defer></script>
 <!-- Public-domain polar geometry is scoped to the new Oppdag renderer only. -->
 <script src="./discovery-antarctica-geography-v1.js?v=20261018-ne110-polar1" defer></script>
 <script src="./discovery-globe-phase1.js?v=20261018-antarctica-ne110-1" defer></script>
