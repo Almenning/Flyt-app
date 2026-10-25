@@ -32,7 +32,24 @@ async function run(engine,engineName,label,width,height,url){
   await page.goto(url+'&tallenga=prototype',{waitUntil:'domcontentloaded'});
   await page.locator('#home-screen.active').waitFor();
   await page.locator('.bc14-subject[data-camp="subject-math"]:visible').click();
-  await page.locator('#tallenga-direct-play:visible').waitFor();
+  await page.waitForTimeout(300);
+  const diag=await page.evaluate(()=>({
+   url:location.href,
+   prototype:typeof window.LARIA_TALLENGA_PROTOTYPE,
+   openSubject:typeof window.openSubject,
+   subjectActive:document.getElementById('subject-screen')?.classList.contains('active'),
+   subjectKey:document.getElementById('subject-screen')?.dataset.subject,
+   screenClasses:document.getElementById('subject-screen')?.className,
+   previewExists:!!document.getElementById('tallenga-direct-play'),
+   previewStyle:document.getElementById('tallenga-direct-play')?getComputedStyle(document.getElementById('tallenga-direct-play')).display:null,
+   currentActive:document.querySelector('.screen.active')?.id,
+   scriptPresent:!!document.querySelector('script[src*="tallenga-direct-play-prototype"]'),
+   errorMessage:document.querySelector('.toast')?.textContent
+  }));
+  console.log('TALLENGA_DIAG '+engineName+' '+label+' '+JSON.stringify(diag)+' PAGE_ERRORS='+JSON.stringify(errors));
+  assert(diag.prototype==='object'&&diag.subjectActive&&diag.previewExists&&diag.screenClasses.includes('tlp-active'),
+   'Matte did not open Tallenga; '+JSON.stringify(diag)+' errors '+JSON.stringify(errors));
+  await page.locator('#tallenga-direct-play:visible').waitFor({timeout:4000});
   assert.equal(await page.locator('.tlp-troll-trio .tlp-actor').count(),3);
   const sources=await page.locator('.tlp-troll-trio .tlp-actor').evaluateAll(els=>els.map(x=>x.getAttribute('src')));
   assert.deepEqual(sources,['./assets/skogstroll/storesoster.webp','./assets/skogstroll/lillesoster.webp','./assets/skogstroll/lillebror.webp']);
