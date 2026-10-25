@@ -85,3 +85,12 @@ Den nye **OpenRaster (.ora)**-leveransen inneholder 10 ekte redigerbare lag: lå
 **Visuell og funksjonell konklusjon:** Lokal meshbevegelse er lovende for blunk, pust og små reaksjoner, men **full vinking og naturlig jubel er fortsatt IKKE bestått**. For store avvik forvrenges håndens anatomi; de opprinnelig manglende skulder-/stoff-/hårlagene er ikke ferdigmalt. De fem kravene i mesterplanen kan dermed ikke merkes godkjent. Ingen endring i aktiv Læria-app eller Gangemagi. **PORT 1 BLOKKERT.**
 
 **Videre:** Behold mikrobevegelse som en separat mulighet, men prioritér originaltro malte skjulte lag og hånd-/armledd i anatomisk riktige stillinger. Ikke slipp neste fase eller endre kravene bare fordi små bevegelser ser greie ut.
+
+
+## Fase 1.7: originaltro leverandørreferanse for alle tre troll (25.10.2026)
+
+**Formål:** Gi illustratøren en ordentlig kildereferanse, i stedet for å be vedkommende gjette hvilke av to godkjente positurer som skal brukes. `tools/rigging/skogstroll_original_pose_reference.py` pakker seks **byte-identiske** WebP-originaler fra begge familier og lager et side-ved-side-kontaktark i **original pikselstørrelse**, uten oppskalering, interpolasjon eller nyskaping.
+
+Pakke og bildekontroll kjøres gjennom `.github/workflows/laria-storesoster-fase1.yml`, som også eksporterer ORA-grunnlaget, kildehash, posekontroll og testsvar. Kontaktarket viser hvorfor neutral 512×1024 og 420px action-posering er forskjellige, og hvorfor en bytteanimasjon ville gitt synlig stil-/posebrudd.
+
+**Dette er leverandørgrunnlag, ikke animasjon:** PNG-versus-WebP-pixelparitet er fortsatt ikke verifisert; bibliotekets ekte PNG-råfiler kan ikke materialiseres i denne prosjektkoblingen. Korrekt rekonstruerte anatomilag bak armen og eksplisitt visuell godkjenning mangler. **PORT 1 fortsatt BLOKKERT; ingen merge/publisering.**
