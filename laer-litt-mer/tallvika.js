@@ -80,7 +80,12 @@
   const observer = new MutationObserver(() => {
     const active = screen.classList.contains('active') && screen.dataset.subject === 'math';
     if (active) build();
-    else if (screen.classList.contains('tallvika-active')) screen.classList.remove('tallvika-active');
+    else {
+      if (screen.classList.contains('tallvika-active')) screen.classList.remove('tallvika-active');
+      // The same DOM screen hosts the other three subjects. Leaving Math must
+      // remove our world, otherwise it reappears in other journeys as residue.
+      document.getElementById('tallvika-world')?.remove();
+    }
   });
   observer.observe(screen,{attributes:true,attributeFilter:['class','data-subject']});
   if (screen.classList.contains('active') && screen.dataset.subject === 'math') build();
