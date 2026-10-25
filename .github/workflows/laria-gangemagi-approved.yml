@@ -184,6 +184,22 @@ jobs:
           python tests/test_storesoster_openraster_layers.py \
             laer-litt-mer/assets/gangemagi-troll/storesoster.webp \
             /tmp/laria-storesoster-layer-kit
+      - name: Build visually auditable shoulder pivot and underpaint study
+        run: |
+          python tools/rigging/storesoster_pose_lab.py \
+            --source laer-litt-mer/assets/gangemagi-troll/storesoster.webp \
+            --output /tmp/laria-storesoster-layer-kit/pose-laboratorium
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('/tmp/laria-storesoster-layer-kit/pose-laboratorium')
+          r=json.loads((p/'premium-readiness.json').read_text())
+          assert r['neutral_exact'] and not r['premium_ready']
+          assert not r['integrated_in_app'] and not r['anatomically_approved']
+          for f in ['review.html','05-arm-motion-proof-NOT-APPROVED.png','04-hidden-fabric-DRAFT.png']:
+              assert (p/f).is_file() and (p/f).stat().st_size>1000
+          print('PASS: independent shoulder pivot and unapproved art gate')
+          PY
       - name: Preserve original-faithful non-production editable layers
         uses: actions/upload-artifact@v4
         with:

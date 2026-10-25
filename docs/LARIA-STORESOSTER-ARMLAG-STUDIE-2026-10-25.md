@@ -66,3 +66,19 @@ forblir tomt. En separat GitHub Actions-jobb lager en nedlastbar .ora-fil og
 PNG-bevis. Artifaktet er et **malergrunnlag**, ikke et ferdig animasjonslag,
 og skal ikke koples inn i spillet foer illustrasjon er ferdigstilt og visuelt
 godkjent. Live `source-bones-v2` beholdes urort.
+
+## Separat bevegelseslaboratorium (25. oktober)
+
+`tools/rigging/storesoster_pose_lab.py` bygger nå en **interaktiv HTML-prøve**
+med riktig original i nøytral positur, separat arm rundt skulderpunktet
+`(177,397)`, og mulighet til å inspisere ±12° og ±25°. Den viser både
+ekte hull uten underliggende bildekunst og en **ikke godkjent** kildebasert
+utfyllingsprøve. Det opprettes PNG-kontaktark, redigerbare bildelag og en
+maskinlesbar statusrapport. Automatisk kodekontroll krever
+`premium_ready=false` og `integrated_in_app=false`.
+
+Dette er **ikke en ferdig premiumfigur**: Sammenstillingen viser fortsatt
+unaturlige skjøter og manglende anatomisk riktige skulder-/stofflag.
+Ingen produksjonsfigur endres. Målet er å kontrollere nettopp slike feil
+før illustratørarbeid og senere implementering. CI-artefaktet kan lastes
+ned og åpnes lokalt ved å pakke ut og åpne `pose-laboratorium/review.html`.
