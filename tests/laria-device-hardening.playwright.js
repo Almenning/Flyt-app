@@ -65,63 +65,117 @@ function assertTap(r,label){
 }
 
 async function verifyBasecamp(page,label,width,height){
-  await page.locator('.bc12').waitFor({state:'visible'});
-  assert.equal(await page.locator('.bc12-nav button').count(),5,label+' Basecamp must show five real navigation targets');
-  assert.deepEqual(await page.locator('.bc12-nav button').allTextContents(),
-    ['Hjem','Reisen','Utforsk','Samlebok','Min rev'],label+' Basecamp navigation labels changed');
-  await noOverflow(page,label+' home');
+  // Young Home v15 is a single locked painting with accessible, transparent
+  // interaction regions. The former Basecamp buttons remain in DOM but several
+  // are deliberately hidden; do not revive obsolete chrome to pass QA.
+  const home=page.locator('#home-screen.active .bc12.bc15-locked-home');
+  await home.waitFor({state:'visible',timeout:20000});
+  const art=await home.evaluate(el=>({
+    asset:el.dataset.bc15Asset,
+    width:parseFloat(el.style.getPropertyValue('--bc15-art-width')),
+    height:parseFloat(el.style.getPropertyValue('--bc15-art-height')),
+    background:el.style.getPropertyValue('--bc15-home-art')
+  }));
+  assert.ok(['phone-ready','tablet-ready'].includes(art.asset) &&
+    art.width>100 && art.height>100 && art.background.includes('home-'),
+    label+' must render the approved Home v15 master: '+JSON.stringify(art));
+  await noOverflow(page,label+' locked Home v15');
+  const nav=page.locator('.bc12-nav button');
+  assert.equal(await nav.count(),5,label+' Home v15 retains five semantic navigation targets');
+  assert.deepEqual(await nav.allTextContents(),
+    ['Hjem','Reisen','Utforsk','Samlebok','Mine troll'],
+    label+' locked Home v15 navigation identity changed');
 
-  const challenge=await rect(page,'.safe-challenge-young');
-  assertInViewport(challenge,width,height,label+' challenge');
-  assertTap(challenge,label+' challenge');
+  // All four painted subjects must have functional accessible hit areas
+  // sitting over the locked illustration, not replacement artwork/cards.
+  const subjects=['norwegian','math','english','geography'];
+  for(const subject of subjects){
+    const selector='.bc14-subject[data-camp="subject-'+subject+'"]';
+    const box=await rect(page,selector);
+    assertInViewport(box,width,height,label+' '+subject+' illustrated hit area');
+    assertTap(box,label+' '+subject+' illustrated hit area');
+    assert.equal(await page.locator(selector).getAttribute('aria-label')!==null,true,
+      label+' '+subject+' requires an accessible subject name');
+  }
+  const journey=await rect(page,'.bc12-journey');
+  assertInViewport(journey,width,height,label+' illustrated journey');
+  assertTap(journey,label+' illustrated journey');
+  const adult=await rect(page,'.bc12-adult-entry');
+  assertInViewport(adult,width,height,label+' adult entry');
+  assertTap(adult,label+' adult entry');
 
-  for(const sel of ['.bc12-nav [data-camp="home"]','.bc12-nav [data-camp="travel"]','.bc12-nav [data-camp="explore"]','.bc12-nav [data-camp="collection"]','.bc12-nav [data-camp="wardrobe"]']){
-    const r=await rect(page,sel);assertInViewport(r,width,height,label+' '+sel);assertTap(r,label+' '+sel);
+  // The dedicated portrait artwork has five nav destinations on both phones
+  // and iPads. The landscape master shows four destinations without Home.
+  const showHome=height>width;
+  assert.equal(await page.locator('.bc12-nav [data-camp="home"]').isVisible(),showHome,
+    label+' locked navigation home-slot visibility mismatch');
+  for(const camp of ['travel','explore','collection','wardrobe']){
+    const selector='.bc12-nav [data-camp="'+camp+'"]';
+    const box=await rect(page,selector);
+    assertInViewport(box,width,height,label+' '+camp+' artwork-aligned navigation');
+    assertTap(box,label+' '+camp+' artwork-aligned navigation');
   }
 
-  // Real child-facing wardrobe is the fifth destination, not a decorative label.
-  await page.locator('.bc12-nav [data-camp="wardrobe"]').tap();
-  await page.locator('#bc12-dialog[open].is-wardrobe .bc12-wardrobe-preview svg').waitFor();
-  const wardrobeClose=await rect(page,'#bc12-dialog .bc12-close');
-  assertTap(wardrobeClose,label+' wardrobe close');
+  // Legacy challenge button was explicitly removed from the locked painting,
+  // not accidentally clipped. Feature logic is checked through its own API.
+  await page.waitForFunction(()=>!!window.LARIA_SAFE_CHALLENGE?.open);
+  assert.equal(await page.locator('.safe-challenge-young').isVisible(),false,
+    label+' must not overlay legacy challenge chrome on locked Home');
+  await page.evaluate(()=>window.LARIA_SAFE_CHALLENGE.open());
+  const challengeDialog=page.locator('#safe-challenge-dialog[open]');
+  await challengeDialog.waitFor();
+  const challengeClose=await rect(page,'#sc-close');
+  assertTap(challengeClose,label+' challenge API dialog close');
+  await page.locator('#sc-close').tap();
+  await challengeDialog.waitFor({state:'hidden'});
+
+  // Real dialogs must come from the four working artwork-aligned controls.
+  await page.locator('.bc12-nav [data-camp="collection"]').tap();
+  await page.locator('#bc12-dialog[open].is-collection .bc12-memory-grid').waitFor();
+  const collectionClose=await rect(page,'#bc12-dialog .bc12-close');
+  assertTap(collectionClose,label+' collection close');
   await page.locator('#bc12-dialog .bc12-close').tap();
   await page.locator('#bc12-dialog[open]').waitFor({state:'hidden'});
 
-  await page.locator('.safe-challenge-young').tap();
-  const dialog=page.locator('#safe-challenge-dialog[open]');
-  await dialog.waitFor();
-  await noOverflow(page,label+' challenge dialog');
-  const dr=await rect(page,'#safe-challenge-dialog');
-  assert.ok(dr.w<=width-8,label+' challenge dialog wider than viewport: '+JSON.stringify(dr));
-  assert.ok(dr.h<=height-8,label+' challenge dialog taller than viewport: '+JSON.stringify(dr));
-  const close=await rect(page,'#sc-close');assertTap(close,label+' challenge close');
-  await page.locator('#sc-close').tap();
-  await dialog.waitFor({state:'hidden'});
+  await page.locator('.bc12-nav [data-camp="wardrobe"]').tap();
+  await page.locator('#bc15-troll-dialog[open] .bc15-troll-art').waitFor();
+  assert.equal(await page.locator('#bc15-troll-dialog h2').textContent(),'Mine troll');
+  const trollClose=await rect(page,'#bc15-troll-dialog .bc15-troll-close');
+  assertTap(trollClose,label+' troll dialog close');
+  await page.locator('#bc15-troll-dialog .bc15-troll-close').tap();
+  await page.locator('#bc15-troll-dialog[open]').waitFor({state:'hidden'});
 
-  await page.locator('.bc14-free').tap();
+  // Verify Explore -> classic globe -> back, without the hidden old free card.
+  await page.locator('.bc12-nav [data-camp="explore"]').tap();
+  await page.locator('.bc13-card[data-bc13-action="globe"]').waitFor({state:'visible'});
   await page.locator('.bc13-card[data-bc13-action="globe"]').tap();
   await page.locator('#world-screen.active').waitFor();
   await noOverflow(page,label+' globe');
-  const back=await rect(page,'#world-back');assertTap(back,label+' globe back');
+  const back=await rect(page,'#world-back');
+  assertTap(back,label+' globe back');
   await page.locator('#world-back').tap();
   await page.locator('#home-screen.active').waitFor();
-
   await page.locator('.bc12-nav [data-camp="home"]').tap();
+  await home.waitFor({state:'visible'});
+
+  // Verify the painted journey area, subject mission and return. This also
+  // asserts that navigation state is not lost when Home v15 activates again.
   await page.locator('.bc12-journey').tap();
   await page.locator('#subject-screen.active').waitFor();
   await page.locator('#subject-screen.active .locked-journey-map[data-journey-subject="norwegian"] .locked-journey-back').waitFor({state:'visible',timeout:16000});
   await noOverflow(page,label+' subject');
-  const home=await rect(page,'#subject-screen.active .locked-journey-back');assertTap(home,label+' subject home');
+  const subjectBack=await rect(page,'#subject-screen.active .locked-journey-back');
+  assertTap(subjectBack,label+' subject back');
   await page.locator('#subject-screen.active .locked-journey-back').tap();
-  await page.locator('#home-screen.active').waitFor();
+  await home.waitFor({state:'visible'});
 
-  // Edge-back must preserve the real Basecamp origin contract.
-  await page.locator('.bc14-free').tap();
-  await page.locator('.bc13-card[data-bc13-action="globe"]').tap();
-  await page.locator('#world-screen.active').waitFor();
+  // Actual subject-gateway tap must work, not merely pass size checks.
+  await page.locator('.bc14-subject[data-camp="subject-math"]').tap();
+  await page.locator('#subject-screen.active').waitFor();
+  await noOverflow(page,label+' math');
   await page.evaluate(()=>appBack());
-  await page.locator('#home-screen.active').waitFor();
-  await noOverflow(page,label+' appBack home');
+  await home.waitFor({state:'visible'});
+  await noOverflow(page,label+' return to locked Home');
 }
 
 async function verifyOlderHome(page,label,width,height,grade){

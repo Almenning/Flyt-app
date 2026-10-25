@@ -1,0 +1,52 @@
+name: Laria locked Home v15 device QA
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'tests/laria-device-hardening.playwright.js'
+      - 'laer-litt-mer/home-kjosnes-v15.*'
+      - 'laer-litt-mer/home-basecamp-v12.*'
+      - 'laer-litt-mer/home-subjects-v14.*'
+      - 'laer-litt-mer/safe-challenge.js'
+      - '.github/workflows/laria-home-v15-device-qa.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: laria-home-v15-device-qa-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  home-device-matrix:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.1-noble
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Verify exact PR HEAD and test syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          node --check tests/laria-device-hardening.playwright.js
+      - name: Verify current locked Home and grade-specific device flows
+        env:
+          QA_SCREENSHOTS: /tmp/laria-home-v15-device
+        run: node tests/laria-device-hardening.playwright.js
+      - name: Upload actual Chromium/WebKit screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-home-v15-device-${{ github.event.pull_request.head.sha || github.sha }}
+          path: /tmp/laria-home-v15-device
+          retention-days: 14
+          if-no-files-found: warn

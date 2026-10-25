@@ -1,0 +1,57 @@
+name: Laria Tallenga direct-play QA
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'laer-litt-mer/tallenga-direct-play-prototype.*'
+      - 'laer-litt-mer/tallenga-fjord-scene-v1.svg'
+      - 'laer-litt-mer/tallenga-fjord-background-v2.svg'
+      - 'laer-litt-mer/tallenga-fjord-foreground-v2.svg'
+      - 'laer-litt-mer/fraction-workshop-card-preview.svg'
+      - 'laer-litt-mer/assets/skogstroll/**'
+      - 'laer-litt-mer/index.html'
+      - 'tests/laria-tallenga-direct-play.playwright.js'
+      - 'tests/laria-locked-skogstroll-identity.test.js'
+      - 'docs/LARIA-TALLENGA-*.md'
+      - '.github/workflows/laria-tallenga-direct-play.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  tallenga-direct-play:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.1-noble
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Verify exact HEAD and JavaScript syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          node --check laer-litt-mer/tallenga-direct-play-prototype.js
+          node --check tests/laria-tallenga-direct-play.playwright.js
+          node --check tests/laria-locked-skogstroll-identity.test.js
+      - name: Protect identity-locked original forest trolls
+        run: node tests/laria-locked-skogstroll-identity.test.js
+      - name: Test Chromium and actual WebKit engine for iPhone/iPad
+        env:
+          TALLENGA_QA_SCREENSHOTS: /tmp/laria-tallenga-direct
+        run: node tests/laria-tallenga-direct-play.playwright.js
+      - name: Save browser screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tallenga-direct-play-${{ github.event.pull_request.head.sha || github.sha }}
+          path: /tmp/laria-tallenga-direct
+          retention-days: 14
+          if-no-files-found: warn

@@ -556,6 +556,17 @@
   }
   renderSubjectJourney=function(){
     const screen=screenFor(false),subject=activeSubject;
+    // Direct-play Tallenga is a real alternative presentation, not an
+    // invisible illustrated map still decoding beneath CSS. Skip the heavy
+    // journey renderer only while its explicit comparison mode is off.
+    // Do not mutate chapter IDs, progress, the default experience or other
+    // subjects. The approved map is rendered on demand by "Vis gammelt kart".
+    if(subject==='math'&&window.LARIA_TALLENGA_PROTOTYPE?.enabled&&
+       screen?.dataset.tlpOriginal!=='true'){
+      screen.classList.remove('locked-journey-active','premium-journey-active');
+      clearJourneyContext();
+      return;
+    }
     if(usesApprovedArt(subject)){
       if(ensureOriginalArt(subject)){
         if(renderLocked(subject,false))return;

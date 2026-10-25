@@ -1,0 +1,196 @@
+/* Tallenga direct-play prototype - completely scoped and URL gated */
+#subject-screen.tlp-active{min-height:100vh;background:#f9f3e7;padding:0!important;max-width:none!important;color:#493923;overflow:visible}
+#subject-screen.tlp-active > :not(.tlp){display:none!important}
+#subject-screen .tlp{display:none}
+#subject-screen.tlp-active .tlp{display:block}
+.tlp{font-family:inherit;color:#463a2d;--tlp-ink:#4d3a27}
+.tlp button{font:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.tlp button:focus-visible{outline:4px solid #268a94;outline-offset:4px}
+.tlp-scene{position:relative;min-height:clamp(280px,39vw,410px);overflow:hidden;isolation:isolate;background:linear-gradient(0deg,rgba(18,70,50,.27),transparent 42%),url('./assets/cards/reisen/math-premium.webp') center 43%/cover no-repeat,#85b5a6;border-radius:0 0 44px 44px}
+.tlp-scene:after{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,rgba(19,58,43,.78) 0%,rgba(19,58,43,.51) 41%,transparent 85%);pointer-events:none}
+.tlp-top{position:relative;z-index:3;display:flex;gap:12px;align-items:center;justify-content:space-between;padding:20px max(18px,calc((100vw - 1150px)/2));color:#fff7e2}
+.tlp-back,.tlp-original{border:1.5px solid #ffffff99;border-radius:999px;background:#234d3dbb;color:#fffdf0;padding:10px 16px;min-height:46px;font-weight:850}
+.tlp-original{font-size:12px}.tlp-logo{font-size:12px;font-weight:950;letter-spacing:.15em;text-shadow:0 2px 4px #172d24}
+.tlp-intro{position:relative;z-index:2;max-width:1130px;margin:24px auto 0;padding:0 26px 90px;color:#fff8e5;text-shadow:0 2px 12px #25382ca3}
+.tlp-eyebrow{display:block;font-size:11px;font-weight:950;letter-spacing:.16em}.tlp-intro h1{margin:5px 0 6px;font-size:clamp(32px,5vw,63px);line-height:1.06;letter-spacing:-.045em;color:#fff9e8}.tlp-intro p{font-size:clamp(17px,2vw,23px);font-weight:700;margin:0;max-width:460px;color:#fff9ed}
+.tlp-landscape-caption{position:absolute;bottom:16px;left:23px;color:#fff9eb;font-size:12px;font-weight:950;letter-spacing:.07em;text-shadow:0 3px 8px #173f2c}.tlp-landscape-caption span{color:#ffe5a0}
+.tlp-content{max-width:1150px;margin:auto;padding:27px 24px 56px}.tlp-choose{display:flex;justify-content:space-between;align-items:end;gap:15px;margin-bottom:17px}
+.tlp-choose .tlp-eyebrow,.tlp-next .tlp-eyebrow{color:#8e6437}.tlp-choose h2{font-size:clamp(23px,3vw,33px);margin:4px 0 0;letter-spacing:-.03em;color:#493923}.tlp-choose p{font-size:14px;color:#766550;font-weight:750;margin:0}
+.tlp-games{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}
+.tlp-game{display:flex;flex-direction:column;text-align:left;overflow:hidden;border-radius:24px;border:2px solid #e3cfaa;background:#fffaf0;box-shadow:0 4px 0 #d5c298,0 14px 26px #795c391f;color:#473929;padding:0;min-width:0;transition:transform .18s,box-shadow .18s,border-color .18s}.tlp-game:active{transform:translateY(3px);box-shadow:0 1px 0 #d5c298,0 7px 15px #795c391f}.tlp-game:hover{border-color:#cdae77;box-shadow:0 5px 0 #c9b183,0 18px 30px #72532c29}
+.tlp-game-art{display:block;aspect-ratio:1.55;background:#d9e7bc;overflow:hidden}.tlp-game-art img{width:100%;height:100%;object-fit:cover;display:block}
+.tlp-game-copy{position:relative;display:grid;gap:8px;padding:17px 18px 18px}.tlp-game-copy strong{font-size:clamp(21px,2.6vw,29px);letter-spacing:-.04em;line-height:1.1}.tlp-game-copy small{color:#6c5d49;font-size:14px;font-weight:700;line-height:1.38}
+.tlp-cta{display:flex;align-items:center;justify-content:space-between;min-height:46px;gap:8px;margin-top:8px;padding:5px 6px 5px 13px;border:1.5px solid #c8d9ae;border-radius:14px;background:linear-gradient(180deg,#f1f7e6,#e0edcc);box-shadow:inset 0 1px #fffef3;font-size:13px;font-weight:950;color:#315d44}.tlp-cta b{display:grid;flex:0 0 34px;place-items:center;width:34px;height:34px;border-radius:11px;background:#3d7658;color:#fff7de;font-size:23px;line-height:1}
+.tlp-next{display:grid;grid-template-columns:62px 1fr auto;align-items:center;gap:16px;margin-top:26px;padding:20px 22px;background:#f0e5cd;border:2px solid #e6d5b4;border-radius:25px}.tlp-next-symbol{display:grid;place-items:center;width:58px;height:58px;background:#fff9df;color:#ab7c43;font-size:36px;border-radius:21px}.tlp-next h2{font-size:23px;margin:3px 0;color:#4c3829}.tlp-next p{margin:0;color:#695b45;font-size:14px;font-weight:700}.tlp-next button{min-height:50px;padding:12px 19px;border:1.5px solid #295d48;border-radius:16px;background:linear-gradient(180deg,#4c8966,#356f52);box-shadow:inset 0 1px #85b294,0 3px 0 #285c44;color:#fff8e4;font-weight:900}.tlp-next button:active{transform:translateY(2px);box-shadow:inset 0 1px #85b294,0 1px 0 #285c44}.tlp-next button:disabled{opacity:.72;cursor:default;box-shadow:none}.tlp-next button span{font-size:22px;margin-left:10px}.tlp-note{text-align:center;margin:24px 0 0;font-size:13px;font-weight:700;color:#85715c}
+@media(max-width:700px){.tlp-scene{min-height:320px;border-radius:0 0 27px 27px}.tlp-top{padding:12px}.tlp-logo{letter-spacing:.06em;font-size:10px}.tlp-original{font-size:10px;padding:8px 10px}.tlp-back{padding:8px 12px}.tlp-intro{padding:12px 15px 130px;margin:13px 0 0}.tlp-intro h1{font-size:35px}.tlp-intro p{font-size:17px;max-width:220px}.tlp-landscape-caption{font-size:10px;left:13px;bottom:13px}.tlp-content{padding:24px 13px 40px}.tlp-choose{display:block}.tlp-choose p{margin-top:5px}.tlp-games{grid-template-columns:1fr;gap:12px}.tlp-game{display:grid;grid-template-columns:43% 1fr;min-height:146px;border-radius:20px}.tlp-game-art{height:100%;aspect-ratio:auto}.tlp-game-copy{padding:13px 12px;align-content:center}.tlp-game-copy strong{font-size:23px}.tlp-game-copy small{font-size:13px}.tlp-cta{margin-top:4px}.tlp-next{grid-template-columns:44px 1fr;gap:10px;padding:14px}.tlp-next-symbol{width:42px;height:42px;font-size:28px}.tlp-next h2{font-size:19px}.tlp-next button{grid-column:1/-1;width:100%}}
+@media(min-width:701px) and (max-height:750px){.tlp-scene{min-height:270px}.tlp-intro{margin:5px auto 0;padding-bottom:45px}.tlp-content{padding-top:16px}.tlp-game-art{aspect-ratio:2.1}.tlp-game-copy{padding:12px 16px}}
+@media(prefers-reduced-motion:reduce){.tlp-game{transition:none}}
+
+/* Fjord-world hero: Ryssdalshorn-inspired broad summit, a handcrafted scenic SVG, not a replacement for Kjøsnesfjorden/Grovanova. */
+#subject-screen.tlp-active .tlp-scene{
+ background:linear-gradient(0deg,rgba(20,63,57,.12),transparent 52%),url('./tallenga-fjord-scene-v1.svg') center center/cover no-repeat,#abd4dc;
+}
+#subject-screen.tlp-active .tlp-scene:after{background:linear-gradient(90deg,rgba(19,52,48,.77) 0%,rgba(18,59,50,.40) 38%,rgba(26,80,58,.07) 85%)}
+/* Three existing *activity* worlds, not three crops of the same fjord.
+   No troll character images are composited into these cards. */
+#subject-screen .tlp-game-art{position:relative;background-color:#dde9da;background-size:cover;background-position:center;background-repeat:no-repeat}
+#subject-screen .tlp-art-multiply{background-image:url('./gangemagi-tallenga-market-v1.svg');background-position:center 51%;background-color:#92b49a}
+#subject-screen .tlp-art-fraction{background-image:url('./fraction-workshop-card-preview.svg');background-position:8% center;background-color:#dec198}
+#subject-screen .tlp-art-table{background-image:url('./math-pattern-haven-storymap-v1.svg');background-position:center 63%;background-color:#9cc3b1}
+#subject-screen .tlp-game-art::before{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(130deg,rgba(17,63,52,.27) 0%,rgba(38,72,53,.07) 50%,transparent 84%)}
+#subject-screen .tlp-game-art::after{content:'';position:absolute;inset:8px;z-index:1;pointer-events:none;border:1px solid rgba(255,250,220,.49);border-radius:13px}
+#subject-screen .tlp-math-glyph{position:absolute;z-index:2;top:16px;left:16px;display:grid;place-items:center;min-width:68px;height:68px;padding:5px 12px;border:2px solid rgba(255,244,201,.77);border-radius:19px 9px 19px 9px;background:linear-gradient(160deg,rgba(36,89,71,.95),rgba(31,73,58,.87));color:#fff6ce;text-shadow:0 1px 2px #183c37;font-size:clamp(25px,3.2vw,41px);font-weight:950;box-shadow:inset 0 1px rgba(255,255,255,.35),0 3px 8px rgba(27,52,42,.22)}
+#subject-screen .tlp-card-caption{position:absolute;z-index:2;right:13px;bottom:14px;padding:6px 10px;border:1px solid rgba(255,251,222,.73);border-radius:11px;background:linear-gradient(180deg,rgba(255,247,211,.95),rgba(236,224,184,.94));color:#365943;font-size:11px;font-weight:950;letter-spacing:.02em;text-shadow:none;box-shadow:0 2px 5px rgba(24,47,36,.16)}
+#subject-screen .tlp-next{position:relative;overflow:hidden;background:linear-gradient(90deg,rgba(246,236,212,.97),rgba(238,236,209,.91)),url('./tallenga-fjord-scene-v1.svg') center 68%/cover no-repeat}
+#subject-screen .tlp-next>*{position:relative}
+@media(max-width:700px){
+ #subject-screen.tlp-active .tlp-scene{min-height:330px}
+ #subject-screen .tlp-intro{padding-bottom:145px}
+ #subject-screen .tlp-math-glyph{font-size:25px;min-width:49px;height:49px;padding:3px 8px;top:10px;left:10px;border-radius:15px 7px 15px 7px}
+}
+
+/* The locked journey's fullscreen CSS intentionally hides every sibling of
+   #subject-journey-section with !important. When Tallenga direct-play is opted
+   into, only its own sibling is restored; other subjects retain the original
+   map contract and the legacy journey remains intact for comparison. */
+#subject-screen.active.locked-journey-active.locked-journey-subject-math.tlp-active > #tallenga-direct-play.tlp{
+  display:block!important;
+  visibility:visible;
+  width:100%;
+  min-height:100%;
+  position:relative;
+  z-index:1;
+}
+#subject-screen.active.locked-journey-active.tlp-active > :not(#tallenga-direct-play){
+  display:none!important;
+}
+
+/* Actual WebKit screenshots at 58777a7 exposed old journey art bleeding through.
+   Isolate this prototype from the existing immersive map canvas. */
+html:has(#subject-screen.active.tlp-active),
+body:has(#subject-screen.active.tlp-active){
+  background:#f8f1e3!important;
+}
+body:has(#subject-screen.active.tlp-active) .app{
+  background:#f8f1e3!important;
+  background-image:none!important;
+  width:100%;
+  max-width:none;
+  overflow-x:clip;
+}
+#subject-screen.active.locked-journey-active.locked-journey-subject-math.tlp-active{
+  background:#f8f1e3!important;
+  background-image:none!important;
+  padding:0!important;
+  margin:0!important;
+}
+#subject-screen.active.locked-journey-active.locked-journey-subject-math.tlp-active > #subject-journey-section{
+  display:none!important;
+  visibility:hidden!important;
+}
+#subject-screen.active.tlp-active .tlp .tlp-intro h1{
+  color:#fff9e8!important;
+  text-shadow:0 3px 12px rgba(18,48,44,.9)!important;
+}
+#subject-screen.active.tlp-active .tlp .tlp-intro p{
+  color:#fff8e8!important;
+  text-shadow:0 2px 8px rgba(17,44,41,.9)!important;
+}
+#subject-screen.active.tlp-active .tlp .tlp-choose h2,
+#subject-screen.active.tlp-active .tlp .tlp-next h2{
+  color:#4b3b28!important;
+  text-shadow:none!important;
+}
+#subject-screen.active.tlp-active .tlp .tlp-choose p,
+#subject-screen.active.tlp-active .tlp .tlp-note{
+  color:#65533e!important;
+  text-shadow:none!important;
+}
+#subject-screen.active.tlp-active .tlp-choose .tlp-eyebrow{
+  color:#79532b!important;
+}
+#subject-screen.active.tlp-active .tlp-content{
+  background:#f8f1e3;
+}
+
+
+/* Post-WebKit premium polish: quiet landscape framing and a clearer subject title. */
+#subject-screen.active.tlp-active .tlp-scene{
+  box-shadow:inset 0 -16px 26px rgba(37,83,60,.18);
+}
+#subject-screen.active.tlp-active .tlp-scene:before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+  background:radial-gradient(ellipse at 74% 15%,rgba(255,239,179,.4),transparent 52%),
+    linear-gradient(0deg,rgba(29,76,52,.12),transparent 48%);
+}
+#subject-screen.active.tlp-active .tlp-intro{position:relative;z-index:2}
+#subject-screen.active.tlp-active .tlp-intro h1{
+  font-size:clamp(38px,5.2vw,65px);
+  font-weight:950;
+  letter-spacing:-.045em;
+  line-height:1.08;
+}
+#subject-screen.active.tlp-active .tlp-choose h2{
+  font-size:clamp(24px,3vw,33px);
+  line-height:1.14;
+}
+#subject-screen.active.tlp-active .tlp-game{
+  border-color:#e3cfaa;
+  box-shadow:0 4px 0 #d5c298,0 14px 26px rgba(71,66,38,.14);
+}
+#subject-screen.active.tlp-active .tlp-game:active{
+  box-shadow:0 1px 0 #d5c298,0 7px 15px rgba(71,66,38,.14);
+}
+#subject-screen.active.tlp-active .tlp-game:focus-visible{
+  outline:4px solid #147a88;
+  outline-offset:5px;
+}
+@media(max-width:700px){
+  #subject-screen.active.tlp-active .tlp-intro h1{font-size:39px}
+}
+
+/* v2 stage-depth contract: identical SVG art, split at the painted meadow.
+   Future actors belong INSIDE .tlp-stage-actors, never atop a completed bitmap.
+   The actor plane is empty until layered, identity-locked characters exist. */
+#subject-screen.active.tlp-active .tlp-scene{
+  background-image:linear-gradient(0deg,rgba(20,63,57,.12),transparent 52%),url('./tallenga-fjord-background-v2.svg')!important;
+  /* WebKit did not inherit the position of the replaced background-image
+     layer. Explicit values guarantee that the painted image, the occluding
+     foreground and the reserved actor plane share one 1500 x 680 viewport. */
+  background-position:center center,center center!important;
+  background-size:cover,cover!important;
+  background-repeat:no-repeat,no-repeat!important;
+}
+#subject-screen.active.tlp-active .tlp-stage-actors,
+#subject-screen.active.tlp-active .tlp-stage-foreground{
+  position:absolute;inset:0;pointer-events:none;
+  background-size:cover;background-position:center;background-repeat:no-repeat;
+}
+#subject-screen.active.tlp-active .tlp-stage-actors{z-index:1}
+#subject-screen.active.tlp-active .tlp-stage-foreground{
+  background-image:url('./tallenga-fjord-foreground-v2.svg');z-index:3;
+}
+#subject-screen.active.tlp-active .tlp-landscape-caption{z-index:4}
+
+/* QA #220: deliberate crops that reveal the PLAY activity, not arbitrary scenery.
+   On narrow cards the market stall sits near the right edge of the SVG and
+   the bakery's physical cake is in the lower portion of the tall workshop art. */
+#subject-screen.active.tlp-active .tlp-art-multiply{background-position:82% center}
+#subject-screen.active.tlp-active .tlp-art-fraction{background-position:8% center}
+#subject-screen.active.tlp-active .tlp-art-table{background-position:center 70%}
+#subject-screen.active.tlp-active .tlp-card-caption{
+  max-width:calc(100% - 18px);
+  line-height:1.18;
+  text-align:center;
+  overflow-wrap:normal;
+  white-space:normal;
+}
+@media(min-width:701px) and (max-width:1024px) and (orientation:portrait){
+  #subject-screen.active.tlp-active .tlp-scene{min-height:clamp(378px,42vw,435px)}
+  #subject-screen.active.tlp-active .tlp-game-art{aspect-ratio:1.25}
+  #subject-screen.active.tlp-active .tlp-content{padding-top:30px}
+}

@@ -58,6 +58,9 @@ async function proof(engine,label,viewport,url){
    return image?.complete&&image.naturalWidth===941&&image.naturalHeight===1672&&
      !document.querySelector('#subject-screen.active .locked-journey-art-guard');
   },{timeout:30000});
+  // Renderer deliberately centers the current mission in short landscape
+  // viewports after two frames and a 180ms fallback. Check the settled scene.
+  if(viewport.width>viewport.height)await page.waitForTimeout(260);
   const geometry=await page.evaluate(()=>{
    const screen=document.querySelector('#subject-screen.active');
    const app=document.querySelector('.app');
@@ -66,19 +69,53 @@ async function proof(engine,label,viewport,url){
    const board=document.querySelector('#subject-screen.active .locked-journey-board');
    const image=document.querySelector('#subject-screen.active .locked-journey-image');
    const sb=screen.getBoundingClientRect(),bb=board.getBoundingClientRect(),ib=image.getBoundingClientRect();
+   const current=screen.querySelector('.locked-journey-hotspot.state-current');
+   const currentRect=current?.getBoundingClientRect();
    const style=getComputedStyle(screen),journeyStyle=getComputedStyle(journeySection),mapStyle=getComputedStyle(map),appStyle=getComputedStyle(app),boardStyle=getComputedStyle(board);
    return {screen:{top:sb.top,height:sb.height},board:{top:bb.top,width:bb.width,height:bb.height},
     imageRatio:ib.width/ib.height,boardRatio:bb.width/bb.height,appPaddingBottom:appStyle.paddingBottom,
+    currentStop:currentRect?{top:currentRect.top,bottom:currentRect.bottom,width:currentRect.width,height:currentRect.height}:null,
     screenBackground:style.backgroundImage,journeyBackground:journeyStyle.backgroundImage,appBackground:appStyle.backgroundImage,borderRadius:boardStyle.borderTopLeftRadius,
     journey:{display:journeyStyle.display,marginTop:journeyStyle.marginTop,paddingTop:journeyStyle.paddingTop,gap:journeyStyle.gap},
     map:{display:mapStyle.display,marginTop:mapStyle.marginTop,paddingTop:mapStyle.paddingTop},
     visibleChildren:[...screen.children].filter(node=>getComputedStyle(node).display!=='none').map(node=>({id:node.id,className:node.className,top:node.getBoundingClientRect().top,height:node.getBoundingClientRect().height})),
     overflow:document.documentElement.scrollWidth-innerWidth,
+    scroll:{windowY:window.scrollY,windowX:window.scrollX,htmlY:document.documentElement.scrollTop,
+      bodyY:document.body.scrollTop,visualTop:window.visualViewport?.offsetTop,
+      activeElement:document.activeElement?.outerHTML?.slice(0,170),
+      screenOffsetTop:screen.offsetTop, appTop:app.getBoundingClientRect().top,
+      scrollBehavior:getComputedStyle(document.documentElement).scrollBehavior,
+      overflowAnchor:getComputedStyle(document.documentElement).overflowAnchor},
     hotspots:[...document.querySelectorAll('#subject-screen.active .locked-journey-hotspot')].map(node=>{
      const r=node.getBoundingClientRect();return {w:r.width,h:r.height};
     })};
   });
-  assert.equal(geometry.screen.top,0,label+' journey must start at the viewport edge');
+  await fs.promises.mkdir(out,{recursive:true});
+  // Capture a failure BEFORE asserting so WebKit's scroll anchoring is visible.
+  if(label.includes('landscape')){
+    console.log('BOKSKOGEN_LANDSCAPE_GEOMETRY '+JSON.stringify(geometry));
+    await page.screenshot({path:path.join(out,label+'-before-top-assert.png'),animations:'disabled'});
+  }
+  if(viewport.width<=viewport.height){
+    assert.ok(Math.abs(geometry.screen.top)<=1,
+      label+' portrait map must start at the viewport edge: '+JSON.stringify(geometry.scroll));
+  }else{
+    // In short landscape, the *approved renderer* intentionally scrolls to
+    // the current mission. A negative top is correct if the stage still covers
+    // the screen and the child can see the next task and return safely.
+    assert.ok(geometry.screen.top<=1&&geometry.screen.top+geometry.screen.height>=viewport.height-1,
+      label+' landscape map must cover the visible viewport: '+JSON.stringify(geometry));
+    const stop=geometry.currentStop;
+    assert.ok(stop&&stop.top>=0&&stop.bottom<=viewport.height,
+      label+' next illustrated mission is not reachable in landscape: '+JSON.stringify(geometry));
+    if(geometry.screen.top<-44){
+      await screen.locator('.locked-journey-floating-back').waitFor({state:'visible',timeout:5000});
+      const back=await screen.locator('.locked-journey-floating-back').boundingBox();
+      assert.ok(back&&back.width>=44&&back.height>=44&&back.x>=0&&back.y>=0
+        &&back.x+back.width<=viewport.width&&back.y+back.height<=viewport.height,
+        label+' scrolled landscape journey has no usable return target: '+JSON.stringify(back));
+    }
+  }
   // WebKit can resolve 100dvh a fraction below the integer viewport after
   // device-scale rounding (for example 843.984375px for an 844px viewport).
   // One CSS pixel is below visual precision and avoids treating that rounding
@@ -91,7 +128,8 @@ async function proof(engine,label,viewport,url){
   assert.equal(geometry.borderRadius,'0px',label+' map edge introduced a pale rounded seam');
   assert.ok(Math.abs(geometry.boardRatio-941/1672)<.003&&Math.abs(geometry.imageRatio-941/1672)<.003,
     label+' approved map was stretched or cropped '+JSON.stringify(geometry));
-  assert.equal(geometry.board.top,0,label+' map was offset below a blank header '+JSON.stringify(geometry));
+  assert.ok(Math.abs(geometry.board.top-geometry.screen.top)<=1,
+    label+' map has a blank header above the illustrated stage '+JSON.stringify(geometry));
   assert.ok(geometry.overflow<=1,label+' horizontal overflow '+JSON.stringify(geometry));
   assert.equal(geometry.hotspots.length,5,label+' mission locations changed');
   assert.ok(geometry.hotspots.every(hit=>hit.w>=44&&hit.h>=44),label+' a map touch target fell below 44px');
