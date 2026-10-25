@@ -5,9 +5,12 @@ on:
     paths:
       - 'laer-litt-mer/tallenga-direct-play-prototype.*'
       - 'laer-litt-mer/tallenga-fjord-scene-v1.svg'
+      - 'laer-litt-mer/tallenga-fjord-background-v2.svg'
+      - 'laer-litt-mer/tallenga-fjord-foreground-v2.svg'
       - 'laer-litt-mer/assets/skogstroll/**'
       - 'laer-litt-mer/index.html'
       - 'tests/laria-tallenga-direct-play.playwright.js'
+      - 'tests/laria-locked-skogstroll-identity.test.js'
       - '.github/workflows/laria-tallenga-direct-play.yml'
   workflow_dispatch:
 permissions:
@@ -35,6 +38,9 @@ jobs:
           test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
           node --check laer-litt-mer/tallenga-direct-play-prototype.js
           node --check tests/laria-tallenga-direct-play.playwright.js
+          node --check tests/laria-locked-skogstroll-identity.test.js
+      - name: Protect identity-locked original forest trolls
+        run: node tests/laria-locked-skogstroll-identity.test.js
       - name: Test Chromium and actual WebKit engine for iPhone/iPad
         env:
           TALLENGA_QA_SCREENSHOTS: /tmp/laria-tallenga-direct
