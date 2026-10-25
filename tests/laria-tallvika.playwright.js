@@ -9,6 +9,8 @@ async function enter(page){
   await page.goto(url,{waitUntil:'domcontentloaded',timeout:90000});
   const tile=page.locator('.bc14-subject[data-camp="subject-math"]');await tile.waitFor({timeout:18000});await tile.click();
   await page.locator('#tallvika-world').waitFor({state:'visible',timeout:18000});
+  assert.equal(await page.locator('#subject-screen').evaluate(el=>el.classList.contains('locked-journey-active')),false,
+    'Tallvika must not inherit the legacy journey display:none contract');
 }
 async function run(browserType,label,viewport){
   const browser=await browserType.launch({headless:true,args:browserType===chromium?['--no-sandbox']:[]});

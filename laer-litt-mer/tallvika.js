@@ -24,6 +24,13 @@
   };
   function build() {
     if (screen.dataset.subject !== 'math' || !screen.classList.contains('active')) return;
+    // The existing journey renderer marks Math's old journey as active before
+    // Tallvika takes over the subject screen. Its responsive CSS deliberately
+    // hides every direct child except the old journey map. Clear that stale
+    // view state rather than adding specificity wars or touching journey data.
+    if (screen.classList.contains('locked-journey-active')) {
+      screen.classList.remove('locked-journey-active', 'locked-journey-subject-math');
+    }
     const selected = selection(), troll = trolls[selected], name = (app()?.state()?.profile?.name || '').trim();
     const {p,n,grade} = progress();
     let root = document.getElementById('tallvika-world');
