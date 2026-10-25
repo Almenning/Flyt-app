@@ -19,16 +19,20 @@
     const src=esc(opt.src||'');
     const mood=moods.has(opt.mood)?opt.mood:'idle';
     if(!src)return '';
-    return '<span class="troll-actor" style="--troll-source:url(\''+src+'\')" data-troll-actor="'+id+'" data-troll-mood="'+mood+'" data-troll-rig="crop-v1" role="img" aria-label="'+name+'">'+
+    return '<span class="troll-actor" style="--troll-source:url(\''+src+'\')" data-troll-actor="'+id+'" data-troll-mood="'+mood+'" data-troll-rig="source-bones-v2" role="img" aria-label="'+name+'">'+
       '<img class="troll-actor__fallback" src="'+src+'" alt="" aria-hidden="true">'+
       '<span class="troll-actor__rig" aria-hidden="true">'+
         '<span class="troll-actor__part troll-actor__legs"></span>'+
-        '<span class="troll-actor__part troll-actor__torso"></span>'+
-        '<span class="troll-actor__part troll-actor__arm troll-actor__arm--left"></span>'+
-        '<span class="troll-actor__part troll-actor__arm troll-actor__arm--right"></span>'+
-        '<span class="troll-actor__part troll-actor__head"></span>'+
-        '<span class="troll-actor__part troll-actor__hair"></span>'+
-        '<span class="troll-actor__blink"><i></i><i></i></span>'+
+        '<span class="troll-actor__body-rig">'+
+          '<span class="troll-actor__part troll-actor__torso"></span>'+
+          '<span class="troll-actor__part troll-actor__arm troll-actor__arm--left"></span>'+
+          '<span class="troll-actor__part troll-actor__arm troll-actor__arm--right"></span>'+
+          '<span class="troll-actor__head-rig">'+
+            '<span class="troll-actor__part troll-actor__head"></span>'+
+            '<span class="troll-actor__part troll-actor__hair"></span>'+
+            '<span class="troll-actor__blink"><i></i><i></i></span>'+
+          '</span>'+
+        '</span>'+
         '<span class="troll-actor__sparkles"><i></i><i></i><i></i></span>'+
       '</span></span>';
   }

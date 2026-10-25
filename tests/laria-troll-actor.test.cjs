@@ -15,7 +15,7 @@ test('TrollActor exposes the six pilot reactions and keeps an exact static reser
  assert.deepEqual([...actor.moods],['idle','wave','think','hint','celebrate','support']);
  const markup=actor.render({id:'storesoster',name:'Storesøster',src:'./assets/gangemagi-troll/storesoster.webp',mood:'idle'});
  assert.match(markup,/class="troll-actor__fallback" src="\.\/assets\/gangemagi-troll\/storesoster\.webp"/);
- assert.match(markup,/data-troll-rig="crop-v1"/);
+ assert.match(markup,/data-troll-rig="source-bones-v2"/);
  assert.doesNotMatch(markup,/https?:\/\//,'the character layer may not fetch remote or generated art');
  assert.equal((markup.match(/<img /g)||[]).length,1,'one original image is retained as the static reserve');
 });
@@ -36,6 +36,16 @@ test('the greeting follows the actual arm animation with a real timer fallback',
    'a fallback must protect reduced motion and detached animation parts');
  assert.match(game,/clearGuideTimer\(\);[\s\S]*guideMood=mood;/,
    'a new gesture must invalidate prior pending state transitions');
+});
+test('body bones join head, arms and blink while anchored boots remain separate',()=>{
+ const markup=actorApi().render({id:'storesoster',src:'./assets/gangemagi-troll/storesoster.webp'});
+ assert.match(markup,/troll-actor__body-rig/,'torso has one shared articulated parent');
+ assert.match(markup,/troll-actor__head-rig/,'head and eye lids use one bone');
+ assert.ok(markup.indexOf('troll-actor__legs')<markup.indexOf('troll-actor__body-rig'),
+  'anchored feet render independently beneath body');
+ assert.match(actorCss,/\[data-troll-mood="idle"\] \.troll-actor__body-rig\{animation:troll-idle-body/);
+ assert.doesNotMatch(actorCss,/\[data-troll-mood="idle"\] \.troll-actor__legs\{animation:/,
+  'ground contact must never breathe');
 });
 test('rig uses composited source crops, respects reduced motion, and is loaded before Gangemagi',()=>{
  assert.match(actorCss,/background:var\(--troll-source\) center bottom \/ contain no-repeat/);

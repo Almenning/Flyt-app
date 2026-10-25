@@ -100,7 +100,7 @@ async function record(browser,name,url,viewport){
   assert.equal(opening,'wave',name+': greeting did not actually start on game entry');
   const actor=page.locator('[data-troll-actor="storesoster"]');
   await actor.waitFor();
-  assert.equal(await actor.getAttribute('data-troll-rig'),'crop-v1');
+  assert.equal(await actor.getAttribute('data-troll-rig'),'source-bones-v2');
   await actor.locator('img.troll-actor__fallback').evaluate(img=>img.decode());
   const source=await actor.locator('img.troll-actor__fallback').getAttribute('src');
   assert.equal(source,'./assets/gangemagi-troll/storesoster.webp',
@@ -109,14 +109,16 @@ async function record(browser,name,url,viewport){
   await visibleState(page,'idle');
   await shot(page,name+'-02-idle');
   const movement=await actor.evaluate(node=>({
-   head:getComputedStyle(node.querySelector('.troll-actor__head')).animationName,
+   head:getComputedStyle(node.querySelector('.troll-actor__head-rig')).animationName,
    hair:getComputedStyle(node.querySelector('.troll-actor__hair')).animationName,
+   body:getComputedStyle(node.querySelector('.troll-actor__body-rig')).animationName,
    legs:getComputedStyle(node.querySelector('.troll-actor__legs')).animationName,
    arm:getComputedStyle(node.querySelector('.troll-actor__arm--left')).animationName
   }));
   assert.match(movement.head,/troll-idle-head/,name+' head is static during rest');
   assert.match(movement.hair,/troll-idle-hair/,name+' hair is static during rest');
-  assert.match(movement.legs,/troll-idle-body/,name+' body is static during rest');
+  assert.match(movement.body,/troll-idle-body/,name+' torso is static during rest');
+  assert.equal(movement.legs,'none',name+' feet must remain firmly planted');
   await page.waitForTimeout(500);
   await page.locator('[data-gm-action="hint"]').click();
   await observedState(page,'think');

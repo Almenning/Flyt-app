@@ -144,8 +144,8 @@ async function check(engine,label,viewport,url){
   await page.locator('#multiplication-lab-screen.active .gm-shell').waitFor();
   const pilotActor=page.locator('[data-troll-actor="storesoster"]');
   assert.equal(await pilotActor.count(),1,label+' must mount exactly one living Storesøster pilot');
-  assert.equal(await pilotActor.getAttribute('data-troll-rig'),'crop-v1',
-    label+' must use the reusable multi-part TrollActor rig, not a whole-image bounce');
+  assert.equal(await pilotActor.getAttribute('data-troll-rig'),'source-bones-v2',
+    label+' must use the joint-driven source-rig, not a whole-image bounce');
   // Always preserve a first-look screenshot before geometry assertions.
   await shot(page,label+'-00-diagnostic-first-look');
   // Verify the REAL transition to idle, not a wall-clock guess relative to a
