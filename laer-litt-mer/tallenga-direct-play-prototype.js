@@ -86,5 +86,24 @@
   if(name==='subject'&&screen.dataset.subject==='math'&&screen.dataset.tlpOriginal!=='true')build();
   return result;
  };
+ // The app calls its lexically scoped openSubject/showScreen functions directly.
+ // Wrapping window.openSubject does not intercept those local calls. Observe
+ // the actual subject screen state instead; this keeps the navigation core intact.
+ let wasMathActive=false;
+ const observer=new MutationObserver(()=>{
+  const active=screen.classList.contains('active')&&screen.dataset.subject==='math';
+  if(!active){wasMathActive=false;return;}
+  if(screen.dataset.tlpOriginal==='true')return;
+  if(!wasMathActive||!screen.classList.contains('tlp-active')){
+   wasMathActive=true;
+   build();
+  }
+ });
+ observer.observe(screen,{attributes:true,attributeFilter:['class','data-subject']});
+ document.addEventListener('click',event=>{
+  const homeMath=event.target.closest?.('.bc14-subject[data-camp="subject-math"], .bc13-card[data-bc13-action="math"]');
+  if(homeMath)screen.dataset.tlpOriginal='false';
+ },true);
+ if(screen.classList.contains('active')&&screen.dataset.subject==='math')build();
  window.LARIA_TALLENGA_PROTOTYPE={enabled:true,render:build};
 })();
