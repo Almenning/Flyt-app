@@ -30,6 +30,12 @@ async function run(browserType,label,viewport){
     assert.equal(await page.locator('.tv-scene').evaluate(el=>getComputedStyle(el).backgroundImage.includes('tallvika-master-laast-20261025.png')),true,label+' uses the locked landscape');
     const art=await page.locator('.tv-scene').evaluate(el=>({w:el.getBoundingClientRect().width,h:el.getBoundingClientRect().height,scroll:document.documentElement.scrollWidth,client:document.documentElement.clientWidth}));
     assert.ok(art.w>250,label+' has a visible world');assert.ok(art.scroll<=art.client+2,label+' has no horizontal overflow');
+    const shell=await page.locator('.app').evaluate(el=>({
+      padding:parseFloat(getComputedStyle(el).paddingBottom),
+      background:getComputedStyle(el).backgroundColor
+    }));
+    assert.equal(shell.padding,0,label+' must not retain the hidden bottom navigation gutter');
+    assert.equal(shell.background,'rgb(247, 240, 223)',label+' must match Tallvika cream below the scene');
     if(viewport.width<=480){
       // The locked landscape carries both the world sign and the house labels.
       // Cropping it on narrow portrait phones cuts off the approved artwork.
@@ -39,8 +45,20 @@ async function run(browserType,label,viewport){
     }
     await page.locator('[data-tv="choose"]').first().click();await page.locator('.tv-dialog[open]').waitFor();
     assert.equal(await page.locator('[data-tv-troll]').count(),3,label+' offers all three locked trolls');
-    await page.locator('[data-tv-troll="lillebror"]').click();
-    assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('laerlittmer-v2')).profile.tallvikaTroll),'lillebror',label+' persists selected troll');
+    // Every original forest troll must be selectable, render from its own
+    // approved image, and persist without changing the child's learning data.
+    for(const id of ['storesoster','lillesoster','lillebror']){
+      if(id!=='storesoster'){
+        await page.locator('#tallvika-world [data-tv="choose"]').click();
+        await page.locator('.tv-dialog[open]').waitFor();
+      }
+      await page.locator('[data-tv-troll="'+id+'"]').click();
+      assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('laerlittmer-v2')).profile.tallvikaTroll),id,label+' does not persist '+id);
+      const image=page.locator('#tallvika-world .tv-companion img');
+      assert.ok((await image.getAttribute('src')).includes('/'+id+'.webp'),label+' shows wrong troll for '+id);
+      await image.evaluate(img=>img.decode());
+      if(viewport.width<=480&&output)await shot(page,label+'-'+id);
+    }
     await page.reload({waitUntil:'domcontentloaded',timeout:90000});await page.locator('.bc14-subject[data-camp="subject-math"]').click();await page.locator('#tallvika-world').waitFor();
     assert.match(await page.locator('.tv-companion').getAttribute('aria-label'),/Lillebror/,label+' restores selected troll');
     await page.locator('[data-tv="fraction"]:visible').first().click();await page.locator('#fraction-lab-screen.active').waitFor({timeout:12000});

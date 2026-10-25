@@ -1,4 +1,9 @@
-/* One isolated responsive world; the locked master image is never composited or altered. */
+/* One isolated responsive world; the locked master image is never composited or altered.
+   The old .app shell reserves 96px for a bottom nav hidden on Subject screens.
+   Clear that unused gutter in Tallvika and match its cream background. */
+.app:has(#subject-screen.tallvika-active){padding-bottom:0;background:#f7f0df}
+.app:has(#subject-screen.tallvika-active)::before,
+.app:has(#subject-screen.tallvika-active)::after{display:none}
 #subject-screen.tallvika-active{display:block!important;max-width:none!important;padding:0!important;background:#f7f0df;min-height:100dvh}
 #subject-screen.tallvika-active>:not(#tallvika-world){display:none!important}
 #tallvika-world{font-family:ui-rounded,"SF Pro Rounded",system-ui,sans-serif;color:#382719;background:#f7f0df;padding-bottom:48px}
