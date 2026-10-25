@@ -59,6 +59,14 @@ Reaksjonene er knyttet til Gangemagis eksisterende hendelser. Matematikkmotoren,
 - Videotesten eksporterer nå også korte, game-only MP4-opptak. Tidligere lange WebM-opptak inkluderte mye oppstart av Hjem før selve Gangemagi.
 - **Viktig:** En tidligere KI-generert sammenligningsillustrasjon er ikke fotobevis på appens utseende. Benytt kun original WebP + Chromium/WebKit-skjermbilder og videoartefakter fra eksakt HEAD ved visuell godkjenning.
 
+## Bildeidentitet og kvalitetsbevis – 25. oktober
+
+Kvalitetsporten utvides med en automatisk sammenligning av **det faktiske pikselrenderet av storesøster i hvilestilling** og den **eksakt godkjente originale WebP-filen** med lik størrelse, uten animasjoner. Rapporten måler synlige RGB-avvik bare innenfor figurens opprinnelige bildepiksler. Ved mer enn 5 % vesentlig forskjellig figurareal feiler testen; dette hindrer utilsiktet figurbytte, synlige hull eller overmaling i den stillegående hvilestillingen. Både de to originale browser-skjermbildene og en JSON-rapport følger testartefaktene. En lav avviksprosent er **ikke** bevis på gode bevegelsesledd i raske posisjoner.
+
+GitHub Actions installerer FFmpeg for å levere **korte, ekte MP4-spillopptak**, i tillegg til original WebM; MP4 er obligatorisk i kvalitetsløpet. Animasjonsvideo tas fra WebKit på iPhone stående/liggende og iPad stående/liggende, samt Chromium på mobil. Dette er emulerte viewports i nettlesermotorene, ikke bevis på fysisk iPhone/iPad Safari.
+
+Det tidligere avsnittet om at ingen nettlesere kunne startes beskrev bare den opprinnelige pilotens lokale miljø. GitHub Actions har siden klart full Chromium og WebKit QA, men siste kommitt må alltid testes separat.
+
 ## Ikke godkjent ennå
 
 Denne arbeidsrunden kunne ikke starte Chromium eller WebKit. Playwright-pakkene finnes, men nettleserbinariene mangler i arbeidsmiljøet. Det er derfor **ikke** tatt ekte iPhone-/iPad-skjermbilder eller videoopptak her, og piloten er ikke visuelt godkjent.

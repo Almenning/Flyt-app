@@ -126,10 +126,19 @@ jobs:
           cp laer-litt-mer/assets/gangemagi-troll/lillesoster.webp /tmp/laria-gangemagi-approved-visual/reference/lillesoster-locked.webp
           cp laer-litt-mer/assets/gangemagi-troll/lillebror.webp /tmp/laria-gangemagi-approved-visual/reference/lillebror-locked.webp
           (cd /tmp/laria-gangemagi-approved-visual/reference && sha256sum ./*.webp > SHA256SUMS.txt)
+      - name: Install MP4 encoder for real browser-motion evidence
+        shell: bash
+        run: |
+          if ! command -v ffmpeg >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq ffmpeg
+          fi
+          ffmpeg -version | head -n 1
       - name: Record real Storesøster gestures in actual Chromium and WebKit
         env:
           GANGEMAGI_QA_BROWSER: ${{ matrix.browser }}
           QA_SCREENSHOTS: /tmp/laria-gangemagi-approved-visual
+          REQUIRE_TROLL_MP4: '1'
         run: node tests/laria-troll-actor-motion.playwright.js
       - name: Test all assigned real viewport sizes and render book screenshots
         env:

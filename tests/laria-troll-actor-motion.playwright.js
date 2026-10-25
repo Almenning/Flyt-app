@@ -85,6 +85,90 @@ async function openAndTrack(page){
 async function shot(page,name){
  await page.screenshot({path:path.join(out,name+'.png'),fullPage:false});
 }
+/* Source-identity gate: compare the actual DOM-composited resting actor to
+ * the exact same original WebP, at identical native 1:2 aspect ratio. The
+ * screenshots are evidence, not AI-generated concept art. This test catches
+ * accidental holes, colored overlays or a swapped character source. */
+async function auditSourceArtwork(page,name){
+ const proof=page.locator('#laria-storesoster-identity-proof');
+ const source=await page.evaluate(()=>{
+  const live=document.querySelector('#multiplication-lab-screen.active [data-troll-actor="storesoster"]');
+  const src=live?.querySelector('img.troll-actor__fallback')?.getAttribute('src');
+  if(!src)throw Error('Approved in-game Storesøster source not mounted');
+  document.getElementById('laria-storesoster-identity-proof')?.remove();
+  document.getElementById('laria-storesoster-identity-style')?.remove();
+  const style=document.createElement('style');
+  style.id='laria-storesoster-identity-style';
+  style.textContent='#laria-storesoster-identity-proof .troll-actor, #laria-storesoster-identity-proof .troll-actor *{animation:none!important;transition:none!important}';
+  document.head.appendChild(style);
+  const host=document.createElement('div');
+  host.id='laria-storesoster-identity-proof';
+  host.style.cssText='position:fixed;left:0;top:0;width:180px;height:360px;z-index:2147483647;pointer-events:none;background:white;overflow:hidden';
+  const approved=document.createElement('img');
+  approved.dataset.original=true;
+  approved.src=src;
+  approved.style.cssText='display:block;position:absolute;inset:0;width:100%;height:100%;object-fit:contain';
+  const animated=document.createElement('div');
+  animated.dataset.rig=true;
+  animated.style.cssText='display:none;position:absolute;inset:0;width:100%;height:100%';
+  animated.innerHTML=window.LARIA_TROLL_ACTOR.render({id:'identity-proof',name:'Storesøster',src,mood:'idle'});
+  host.append(approved,animated);
+  document.body.appendChild(host);
+  return src;
+ });
+ try{
+  await proof.locator('[data-original]').evaluate(img=>img.decode());
+  const original=await proof.screenshot({path:path.join(out,name+'-06-locked-source-identity.png'),animations:'disabled'});
+  await page.evaluate(()=>{
+   const host=document.getElementById('laria-storesoster-identity-proof');
+   host.querySelector('[data-original]').style.display='none';
+   host.querySelector('[data-rig]').style.display='block';
+  });
+  const rig=await proof.screenshot({path:path.join(out,name+'-07-resting-actor-identity.png'),animations:'disabled'});
+  const diff=await page.evaluate(async values=>{
+   const images=await Promise.all(values.map(async bytes=>{
+    const img=new Image();
+    img.src='data:image/png;base64,'+bytes;
+    await img.decode();
+    const canvas=document.createElement('canvas');
+    canvas.width=img.naturalWidth;canvas.height=img.naturalHeight;
+    const ctx=canvas.getContext('2d',{willReadFrequently:true});
+    ctx.drawImage(img,0,0);
+    return {width:canvas.width,height:canvas.height,pixels:ctx.getImageData(0,0,canvas.width,canvas.height).data};
+   }));
+   if(images[0].width!==images[1].width||images[0].height!==images[1].height)
+    throw Error('Original and rig evidence dimensions differ');
+   let colored=0,significantMismatch=0,totalChannelError=0;
+   const before=images[0].pixels,after=images[1].pixels;
+   for(let i=0;i<before.length;i+=4){
+    // The proof has a WHITE opaque backdrop. Restrict comparison to source
+    // figure pixels; blank canvas cannot dilute an identity discrepancy.
+    const sourceInk=765-before[i]-before[i+1]-before[i+2];
+    if(sourceInk<=40)continue;
+    colored++;
+    const delta=Math.abs(before[i]-after[i])+Math.abs(before[i+1]-after[i+1])+Math.abs(before[i+2]-after[i+2]);
+    totalChannelError+=delta;
+    if(delta>135)significantMismatch++;
+   }
+   return {width:images[0].width,height:images[0].height,
+    sourceInkPixels:colored,mismatchedPixels:significantMismatch,
+    mismatchedPct:colored?Number((100*significantMismatch/colored).toFixed(2)):100,
+    meanRGBError:colored?Number((totalChannelError/(colored*3)).toFixed(2)):255};
+  },[original.toString('base64'),rig.toString('base64')]);
+  await fs.promises.writeFile(path.join(out,name+'-08-source-identity-report.json'),
+   JSON.stringify({name,source,rig:'source-bones-v2',...diff,thresholdPct:5},null,2));
+  assert.ok(diff.sourceInkPixels>12000,name+' source mask unexpectedly empty');
+  assert.ok(diff.mismatchedPct<=5,
+   name+' the resting actor visibly departs from the locked source: '+diff.mismatchedPct+'%');
+  console.log('PASS LOCKED CHARACTER IDENTITY',name,'mismatch',diff.mismatchedPct+'%',
+   'mean RGB drift',diff.meanRGBError);
+ }finally{
+  await page.evaluate(()=>{
+   document.getElementById('laria-storesoster-identity-proof')?.remove();
+   document.getElementById('laria-storesoster-identity-style')?.remove();
+  });
+ }
+}
 async function record(browser,name,url,viewport){
  const context=await browser.newContext({
   viewport,deviceScaleFactor:1,hasTouch:true,isMobile:viewport.width<=700,
@@ -115,6 +199,7 @@ async function record(browser,name,url,viewport){
   await shot(page,name+'-01-greeting');
   await visibleState(page,'idle');
   await shot(page,name+'-02-idle');
+  await auditSourceArtwork(page,name);
   const movement=await actor.evaluate(node=>({
    head:getComputedStyle(node.querySelector('.troll-actor__head-rig')).animationName,
    hair:getComputedStyle(node.querySelector('.troll-actor__hair')).animationName,
@@ -211,9 +296,16 @@ async function record(browser,name,url,viewport){
     '-ss',String(gameStartSec),'-i',raw,'-an','-c:v','libx264',
     '-preset','veryfast','-crf','21','-movflags','+faststart',mp4],
     {encoding:'utf8',timeout:120000});
-   if(ffmpeg.status!==0)
-    console.warn('Optional game-only MP4 conversion unavailable:',String(ffmpeg.stderr||ffmpeg.error||'').slice(-350));
-   else console.log('RECORDED GAME-ONLY TROLL VIDEO',mp4,'from',gameStartSec,'seconds');
+   if(ffmpeg.status!==0){
+    const reason=String(ffmpeg.stderr||ffmpeg.error||'').slice(-350);
+    if(process.env.REQUIRE_TROLL_MP4==='1')
+     throw Error('Required game-only MP4 evidence could not be created: '+reason);
+    console.warn('Optional game-only MP4 conversion unavailable:',reason);
+   }else{
+    const stat=await fs.promises.stat(mp4);
+    assert.ok(stat.size>10000,'Game-only MP4 must contain actual browser frames');
+    console.log('RECORDED GAME-ONLY TROLL VIDEO',mp4,'from',gameStartSec,'seconds');
+   }
    // The Playwright context also stores a randomly named original webm.
    // Remove only that duplicate; preserve named raw video and MP4 proof.
    try{
@@ -263,6 +355,8 @@ async function reducedMotion(browser,url){
   for(const [name,type,cases] of [
    ['chrome',chromium,[['iphone390',{width:390,height:844}]]],
    ['webkit',webkit,[['iphone390',{width:390,height:844}],
+     ['iphone-landscape',{width:844,height:390}],
+     ['ipad-portrait',{width:820,height:1180}],
      ['ipad-landscape',{width:1180,height:820}]]]
   ]){
    if(requested!=='all'&&requested!==name)continue;
