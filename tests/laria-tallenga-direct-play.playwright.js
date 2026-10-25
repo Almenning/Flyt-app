@@ -95,6 +95,18 @@ async function run(engine,engineName,label,width,height,url){
   await page.locator('#multiplication-lab-screen.active').waitFor();
   assert.equal((await page.evaluate(()=>window.LARIA_GANGEMAGI.snapshot().counts[0])),gameBefore+1,
     label+' game state must survive returning to Tallenga and re-opening');
+  // Test persisted math, not merely the in-memory game scene. The independent
+  // Gangemagi storage schema must survive a real page reload.
+  const savedCount=await page.evaluate(()=>JSON.parse(localStorage.getItem('laria-gangemagi-v1')||'null')?.counts?.[0]);
+  assert.equal(savedCount,gameBefore+1,label+' basket change not saved to localStorage');
+  await page.reload({waitUntil:'domcontentloaded'});
+  await page.locator('#home-screen.active').waitFor();
+  await page.locator('.bc14-subject[data-camp="subject-math"]:visible').click();
+  await page.locator('#tallenga-direct-play:visible').waitFor();
+  await page.locator('[data-tlp="multiply"]').click();
+  await page.locator('#multiplication-lab-screen.active').waitFor();
+  assert.equal((await page.evaluate(()=>window.LARIA_GANGEMAGI.snapshot().counts[0])),gameBefore+1,
+    label+' saved basket must survive a full browser reload and return to Tallenga');
   await page.locator('.gm-back, [data-gm-action="back"]').first().click();
   await page.locator('#tallenga-direct-play:visible').waitFor();
   await page.locator('[data-tlp="fraction"]').click();
