@@ -72,3 +72,16 @@ Den nye **OpenRaster (.ora)**-leveransen inneholder 10 ekte redigerbare lag: lå
 **Visuell dom:** Masken er bedre presisert og dokumentasjonen er produksjonsklar som **illustratørbrief**. Den er ikke et ferdig animert skogstroll. Automatisk motivutfylling ble testet separat, men skapte smurt pels/hår/stoff og rester av fingre; den ble **forkastet og ikke integrert**.
 
 **Videre port:** Rekonstruer faktisk skjult hår, skulder og stofflag bak originalarmen, kontroller naturlig ledd og hånd i alle fem stillinger. Ansikt/hår/klær/proposjoner må forbli eksakt godkjent i nøytral visning; enhver ny malt skulder er en egen visuell godkjenning. **Fase 1 fortsatt BLOKKERT. Ingen fase 2, merge eller publisering.**
+
+
+## Fase 1.3: avgrenset 2D-pikselmesh – ikke et godkjent animasjonslag (25.10.2026)
+
+**Faktisk funn:** Å rotere hele den utskilte armen med ett skulderpivot gir synlige hull og urealistisk hud, hår og klesstoff selv med klonet/Poisson-utfylt underlag. Kildebaserte utfyllingsforsøk ble **visuelt forkastet** og ikke innført som appkunst. En alternativ oppdeling med albuerotasjon ga synlige skjøter og dobbelt hånd/fingre og ble forkastet.
+
+**Ny isolert teknisk prototype:** `tools/rigging/storesoster_local_mesh_feasibility.py` deformerer et **begrenset, vektet område av de godkjente 512×1024 originalpikslene**, uten å skille ut huden fra skyggen eller male nytt ansikt. Et lite ansiktsområde kan komprimeres vertikalt for blunk; hånden kan beveges forsiktig (maks kontrollert kildepikselforskyvning: 14,44 px i prøve). Den originale stillingen returnerer alle RGBA-piksler byte-ekvivalent etter dekoding og nøytral koordinatavbildning. Dette er **ikke** et substitutt for fullstendig kroppsdelsrigging.
+
+**Maskintest på eksakt commit `139f240`:** [Laria Storesoster Phase 1 source & mesh QA](https://github.com/Almenning/Flyt-app/actions/runs/40192937670) BESTÅTT. [Video, V2-OpenRaster og manifest fra faktisk CI](https://github.com/Almenning/Flyt-app/actions/runs/40192937670/artifacts/12598767294). 174 videobilder ved 16 fps viser nøytral positur, blunk og avgrenset hånd-/armmikrobevegelse. Videoen er **rendret i Python/OpenCV**, ikke tatt fra fysisk iPad/iPhone eller WebKit. WebGL-visning kunne ikke verifiseres i det lokale begrensede nettlesermiljøet.
+
+**Visuell og funksjonell konklusjon:** Lokal meshbevegelse er lovende for blunk, pust og små reaksjoner, men **full vinking og naturlig jubel er fortsatt IKKE bestått**. For store avvik forvrenges håndens anatomi; de opprinnelig manglende skulder-/stoff-/hårlagene er ikke ferdigmalt. De fem kravene i mesterplanen kan dermed ikke merkes godkjent. Ingen endring i aktiv Læria-app eller Gangemagi. **PORT 1 BLOKKERT.**
+
+**Videre:** Behold mikrobevegelse som en separat mulighet, men prioritér originaltro malte skjulte lag og hånd-/armledd i anatomisk riktige stillinger. Ikke slipp neste fase eller endre kravene bare fordi små bevegelser ser greie ut.
