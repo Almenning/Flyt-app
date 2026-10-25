@@ -144,6 +144,12 @@ async function run(engine,label,viewport){
    const before=await progress(page,subject);
    const screen=subject==='geography'?'geography':'subject';
    await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').click();
+   if(subject==='norwegian'){
+     // Norwegian direct play now starts at Eggenipa; the same original
+     // missions and node IDs are reachable through the Bokskogen portal.
+     await page.locator('#eggenipa-world').waitFor({state:'visible',timeout:16000});
+     await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
+   }
    const isTallvika=subject==='math';
    const base=isTallvika?'#subject-screen.active #tallvika-world':
      '#'+screen+'-screen.active .locked-journey-map[data-journey-subject="'+subject+'"]';
