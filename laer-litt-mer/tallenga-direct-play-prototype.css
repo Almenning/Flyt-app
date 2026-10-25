@@ -80,3 +80,51 @@
 #subject-screen.active.locked-journey-active.tlp-active > :not(#tallenga-direct-play){
   display:none!important;
 }
+
+/* Actual WebKit screenshots at 58777a7 exposed old journey art bleeding through.
+   Isolate this prototype from the existing immersive map canvas. */
+html:has(#subject-screen.active.tlp-active),
+body:has(#subject-screen.active.tlp-active){
+  background:#f8f1e3!important;
+}
+body:has(#subject-screen.active.tlp-active) .app{
+  background:#f8f1e3!important;
+  background-image:none!important;
+  width:100%;
+  max-width:none;
+  overflow-x:clip;
+}
+#subject-screen.active.locked-journey-active.locked-journey-subject-math.tlp-active{
+  background:#f8f1e3!important;
+  background-image:none!important;
+  padding:0!important;
+  margin:0!important;
+}
+#subject-screen.active.locked-journey-active.locked-journey-subject-math.tlp-active > #subject-journey-section{
+  display:none!important;
+  visibility:hidden!important;
+}
+#subject-screen.active.tlp-active .tlp .tlp-intro h1{
+  color:#fff9e8!important;
+  text-shadow:0 3px 12px rgba(18,48,44,.9)!important;
+}
+#subject-screen.active.tlp-active .tlp .tlp-intro p{
+  color:#fff8e8!important;
+  text-shadow:0 2px 8px rgba(17,44,41,.9)!important;
+}
+#subject-screen.active.tlp-active .tlp .tlp-choose h2,
+#subject-screen.active.tlp-active .tlp .tlp-next h2{
+  color:#4b3b28!important;
+  text-shadow:none!important;
+}
+#subject-screen.active.tlp-active .tlp .tlp-choose p,
+#subject-screen.active.tlp-active .tlp .tlp-note{
+  color:#65533e!important;
+  text-shadow:none!important;
+}
+#subject-screen.active.tlp-active .tlp-choose .tlp-eyebrow{
+  color:#79532b!important;
+}
+#subject-screen.active.tlp-active .tlp-content{
+  background:#f8f1e3;
+}
