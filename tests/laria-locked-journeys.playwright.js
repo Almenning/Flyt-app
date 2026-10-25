@@ -47,6 +47,12 @@ async function run(engine,label,viewport){
    const screen=subject==='geography'?'geography':'subject';
    await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').click();
    await page.locator('#'+screen+'-screen.active').waitFor({timeout:16000});
+   if(subject==='norwegian'){
+     // New Norsk landing is intentionally the direct-play Eggenipa world.
+     // Inspect the original map by opening its real Bokskogen portal.
+     await page.locator('#eggenipa-world').waitFor({state:'visible',timeout:16000});
+     await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
+   }
    if(subject==='math'){
      const tv=page.locator('#subject-screen.active #tallvika-world');
      await tv.waitFor({state:'visible',timeout:16000});
