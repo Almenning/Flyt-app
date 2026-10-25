@@ -17,7 +17,12 @@ async function inWorldComparison(page,label){
   await image.evaluate((img,src)=>{img.src=src},after);
   await image.evaluate(img=>img.decode());
   await shot(page,label+'-storesoster-after');
-  await page.locator('#tallvika-world .tv-companion').screenshot({path:path.join(output,label+'-storesoster-closeup-after.png'),animations:'disabled'});
+  // A Tallvika rebuild can replace the companion node while Playwright waits
+  // for locator stability. Crop the current page from its measured box instead
+  // of holding a locator across that asynchronous render.
+  const box=await page.locator('#tallvika-world .tv-companion').boundingBox();
+  assert.ok(box,label+' Storesøster close-up box is missing');
+  await page.screenshot({path:path.join(output,label+'-storesoster-closeup-after.png'),animations:'disabled',clip:{x:Math.max(0,box.x-12),y:Math.max(0,box.y-12),width:box.width+24,height:box.height+24}});
 }
 async function enter(page){
   await page.goto(url,{waitUntil:'domcontentloaded',timeout:90000});
