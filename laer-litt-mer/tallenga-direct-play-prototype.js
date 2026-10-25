@@ -16,8 +16,10 @@
   if(screen.dataset.subject!=='math'||!screen.classList.contains('active'))return;
   const data=progress(),p=data.p,n=data.n;
   const name=typeof state?.profile?.name==='string'?state.profile.name.trim():''; 
-  const upcoming=data.active?'Fortsett der du slapp':p?.complete?'Et nytt eventyr venter':n?.title||'Prøv et nytt oppdrag';
-  const description=data.active?'Du har allerede begynt på et oppdrag.':p?.complete?'Første kapittel er fullført. Favorittene dine er fortsatt åpne.':n?'En kort utfordring du kan prøve når du vil.':'Utforsk Tallenga i ditt eget tempo.';
+  const upcoming=data.active?'Fortsett der du slapp':p?.complete?'Et bonusoppdrag venter':n?.title||'Utforsk fritt i Tallenga';
+  const description=data.active?'Du har allerede begynt på et oppdrag.':p?.complete?'Første kapittel er fullført. Lekene er fortsatt åpne, og du kan prøve en ekstra utfordring.':n?'En kort utfordring du kan prøve når du vil.':'Alle lekene er åpne. Utforsk i ditt eget tempo.';
+  const nextReady=Boolean(data.active||p?.complete||n);
+  const nextLabel=data.active?'Fortsett oppdraget':p?.complete?'Prøv bonusoppdraget':n?'Start oppdraget':'Ingen nye oppdrag ennå';
   let el=host();
   if(!el){el=document.createElement('section');el.id='tallenga-direct-play';el.className='tlp';el.setAttribute('aria-label','Tallenga, Matte og lek');screen.insertBefore(el,screen.firstChild);}
   el.innerHTML=`<div class="tlp-scene">
@@ -32,7 +34,7 @@
    <button class="tlp-game tlp-fraction" type="button" data-tlp="fraction"><span class="tlp-game-art tlp-art-fraction"><span class="tlp-math-glyph">¾</span><span class="tlp-card-caption">Brøkverkstedet</span></span><span class="tlp-game-copy"><strong>Brøklab</strong><small>Del opp, bygg og prøv selv</small><span class="tlp-cta">Prøv brøker <b>›</b></span></span></button>
    <button class="tlp-game tlp-table" type="button" data-tlp="table"><span class="tlp-game-art tlp-art-table"><span class="tlp-math-glyph">3 × 4</span><span class="tlp-card-caption">Mønsterhagen</span></span><span class="tlp-game-copy"><strong>Gangetabellen</strong><small>Utforsk tall og mønstre</small><span class="tlp-cta">Se mønstrene <b>›</b></span></span></button>
   </div>
-  <section class="tlp-next" aria-label="Valgfritt neste eventyr"><div class="tlp-next-symbol" aria-hidden="true">✧</div><div class="tlp-next-copy"><span class="tlp-eyebrow">ET EVENTYR NÅR DU VIL</span><h2>${esc(upcoming)}</h2><p>${esc(description)}</p></div><button type="button" data-tlp="next">Fortsett eventyret <span aria-hidden="true">›</span></button></section>
+  <section class="tlp-next" aria-label="Valgfritt neste eventyr"><div class="tlp-next-symbol" aria-hidden="true">✧</div><div class="tlp-next-copy"><span class="tlp-eyebrow">ET EVENTYR NÅR DU VIL</span><h2>${esc(upcoming)}</h2><p>${esc(description)}</p></div><button type="button" data-tlp="next" ${nextReady?'':'disabled aria-disabled="true"'}>${esc(nextLabel)} <span aria-hidden="true">›</span></button></section>
   <p class="tlp-note">Du kan spille favorittene dine så mange ganger du vil.</p>
   </div>`;
   screen.classList.add('tlp-active');
