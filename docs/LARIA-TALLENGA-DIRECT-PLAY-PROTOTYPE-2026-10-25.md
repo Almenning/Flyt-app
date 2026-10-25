@@ -55,3 +55,13 @@ Kode innført på isolert branch. Formell Chromium- og WebKit-kjøring og skjerm
 - Eksisterende Gangemagi, Brøklab og Gangetabell er koblet til tre synlige, separate kort. `Neste eventyr` bruker eksisterende recommended-node uten dataendringer.
 - Dedikert Playwright-test i `tests/laria-tallenga-direct-play.playwright.js` og GitHub Actions `.github/workflows/laria-tallenga-direct-play.yml` tester i Chromium og WebKit på iPhone og iPad og arkiverer faktiske screenshots.
 - Fremdeles bare `?tallenga=prototype` i PR #220. Ingen merge/publisering til main. Testkjøring/visuell godkjenning skal kontrolleres på eksakt HEAD før integrasjon med de parallelle draft-PR-ene.
+
+
+## Oppfølging: premiumknapper, bildeutsnitt og korrekt kapittelspråk (25.10.2026)
+
+- De tre aktivitetskortene beholder sine fungerende native `button`-handlinger og sine egne etablerte miljøer. Illustrasjonene er ikke erstattet med nye troll eller nye tilfeldige karaktervarianter.
+- Handlingsfeltet i hvert kort er nå et tydelig, stort, illustrert knappfelt. Matematikksymbolene er særskilte medalljonger, og hele kortet er fortsatt trykkbart. Testen krever minst 44 px høyde på handlingsfeltet og 44 x 44 px på medalljongen i iPhone/iPad-oppsettene.
+- Brøklab-kortet bruker `fraction-workshop-card-preview.svg`, en egen **ikke-destruktiv utsnittskopi** av det eksisterende `fraction-workshop-scene.svg`. Kilden til den faktiske Brøklab-aktiviteten er uendret; kortet viser selve brøkkaken tydeligere.
+- Valgfritt kapittel-/oppdragsfelt sier nå «Start oppdraget» når et anbefalt oppdrag finnes, «Fortsett oppdraget» ved aktiv økt og «Prøv bonusoppdraget» når første kapittel er fullført. Når ingen ny oppgave finnes, er knappen deaktivert fremfor å være død.
+- Ingen endring i lagret progresjon, spillmotor, klassisk matematikktabell, Kloden eller fagreisene som ikke er aktivert med `?tallenga=prototype`.
+- **Fortsetter som kun utprøving.** Nyeste GitHub Actions/WebKit-bilder, faktisk bruk med barn og særskilt visuell godkjenning kreves før merge. Karakterlaget forblir tomt frem til en ekte lagdelt original og riggingpilot foreligger.
