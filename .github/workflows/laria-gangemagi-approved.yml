@@ -1,7 +1,12 @@
 name: Laria Gangemagi approved Markedsbok visual QA
 
 on:
+  # Feature branches must run only once, via pull_request. A second delayed
+  # push run used to cancel half-finished visual QA on the same exact commit.
+  # Keep push protection for the default branch after eventual merge.
   push:
+    branches:
+      - main
     paths:
       - 'laer-litt-mer/gangemagi-markedsbok-approved-v2.css'
       - 'laer-litt-mer/gangemagi-approved-eight-scenes-20261017.webp'
@@ -56,8 +61,8 @@ on:
 permissions:
   contents: read
 
-# Push and pull_request for the same feature branch must not run duplicate
-# heavyweight browser jobs that repeatedly cancel screenshot collection.
+# Feature branches are tested by pull_request only; main uses push.
+# The concurrency guard still discards superseded commits on either lane.
 concurrency:
   group: laria-gangemagi-art-${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true

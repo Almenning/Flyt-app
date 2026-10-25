@@ -67,6 +67,19 @@ GitHub Actions installerer FFmpeg for å levere **korte, ekte MP4-spillopptak**,
 
 Det tidligere avsnittet om at ingen nettlesere kunne startes beskrev bare den opprinnelige pilotens lokale miljø. GitHub Actions har siden klart full Chromium og WebKit QA, men siste kommitt må alltid testes separat.
 
+## Verifisert pikselidentitet og stabil CI
+
+På commit `567536b` ga den automatiske original-vs-hvilestilling-sammenligningen følgende eksakte resultater ved 180×360 piksler:
+- Chromium, iPhone 390: **0,17 %** signifikant pikselavvik, gjennomsnittlig RGB-avvik 2,51.
+- WebKit, iPhone 390 / iPhone liggende / iPad stående: **0,08 %** signifikant pikselavvik, gjennomsnittlig RGB-avvik 0,35.
+- Den avbrutte WebKit-kjøringen rakk ikke å levere alle artefakter for iPad liggende. Ingen samlet grønn kontroll skal hevdes for denne kjøringen.
+
+WebM og ferdig transkodede MP4 ble faktisk produsert. Original og rendret hvilestilling er også lagret som **ekte browser-skjermbilder**, ikke genererte konseptbilder.
+
+En separat GitHub-konfigurasjonsfeil ble funnet: `push` og `pull_request` utløste forsinkede parallelle kjøringer på samme feature branch, og concurrency-regelen avbrøt en delvis fullført test etter at videoene var tatt. Workflow er derfor endret slik at **feature-grener kjøres bare via `pull_request`**, mens `push` kontrollerer `main` etter fremtidig merge.
+
+Dette må fortsatt avsluttes med grønn test på den nyeste eksakte HEAD. Pikselidentitet i hvile er ikke tilstrekkelig for å godkjenne anatomi, armledd eller ansiktsuttrykk i bevegelse.
+
 ## Ikke godkjent ennå
 
 Denne arbeidsrunden kunne ikke starte Chromium eller WebKit. Playwright-pakkene finnes, men nettleserbinariene mangler i arbeidsmiljøet. Det er derfor **ikke** tatt ekte iPhone-/iPad-skjermbilder eller videoopptak her, og piloten er ikke visuelt godkjent.
