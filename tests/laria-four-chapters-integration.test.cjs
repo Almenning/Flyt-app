@@ -78,7 +78,9 @@ test('the integrated app uses all four developer gates without a public chapter 
   assert.ok(html.includes(flag),'missing gated pilot '+flag);
  for(const file of ['chapter-expansion-v1','math-pattern-haven-v1','english-sentence-harbor-v1','geography-continent-voyage-v1'])
   assert.ok(html.includes('<script src="./'+file+'.js'),'unloaded module '+file);
- assert.match(html,/word-hunt\.js\?v=20261017-[a-z0-9-]+/);
+ assert.match(html,/word-hunt\.js\?v=20261025-skogstroll-freeplay1/);
+ assert.match(html,/find-the-words\.js\?v=20261025-skogstroll-freeplay1/);
+ assert.match(html,/laria-skogstroll-v1\.js\?v=20261025-freeplay1/);
  assert.match(html,/word-hunt\.css\?v=20261017-[a-z0-9-]+/);
  assert.match(html,/chapterProgress:\{\.\.\.\(parsed\.journey\?\.chapterProgress\|\|\{\}\)\}/);
 });
