@@ -560,7 +560,7 @@ function checkLine(path){
     ui.missCount++;
     if(ui.missCount>=4&&!ui.helpOffered){
       ui.helpOffered=true;
-      companionSay('Skal vi prøve et hint sammen? Trykk på reven når du vil!','curious','offer');
+      companionSay('Skal vi prøve et hint sammen? Trykk på '+(useSkogstroll()?'skogstrollet':'reven')+' når du vil!','curious','offer');
     }else foxReact(repeated?'repeated':near?'near':'wrong');
     status('Ikke et av ordene denne gangen. Prøv en annen retning.');
     return;

@@ -110,3 +110,13 @@
     transition:none!important;
   }
 }
+
+/* Exact transparent forest trolls in both Norwegian word games. */
+.word-hunt-overlay.is-skogstroll .word-hunt-fox,
+.word-hunt-overlay.is-skogstroll .wh-theme-fox,
+.word-hunt-overlay.is-skogstroll .word-hunt-companion-fox,
+#find-the-words-overlay .fw-companion.is-skogstroll .fw-fox{
+  border:0!important;border-radius:0!important;box-shadow:none!important;
+  background:transparent!important;object-fit:contain!important;
+  mix-blend-mode:normal!important;object-position:center bottom!important;
+}
