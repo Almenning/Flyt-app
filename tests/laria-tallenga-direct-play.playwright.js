@@ -54,6 +54,25 @@ async function run(engine,engineName,label,width,height,url){
   // data. Showing them as hero or card cut-outs would violate the art gate.
   assert.equal(await page.locator('.tlp-troll-trio, .tlp-game-art img').count(),0);
   assert.equal(await page.locator('.tlp-game:visible').count(),3);
+  // Each math activity needs its OWN working illustration rather than three
+  // crops of the same generic mountain. Validate both reference and bytes.
+  const activityArt=await page.evaluate(async()=>{
+    const expected=[
+      ['multiply','gangemagi-tallenga-market-v1.svg'],
+      ['fraction','fraction-workshop-scene.svg'],
+      ['table','math-pattern-haven-storymap-v1.svg']
+    ];
+    return await Promise.all(expected.map(async([action,file])=>{
+      const node=document.querySelector('.tlp-game[data-tlp="'+action+'"] .tlp-game-art');
+      const background=node?getComputedStyle(node).backgroundImage:'none';
+      const res=await fetch('./'+file,{cache:'no-store'});
+      const parsed=new DOMParser().parseFromString(await res.text(),'image/svg+xml');
+      return {action,file,background,status:res.status,isSvg:parsed.documentElement.tagName==='svg',
+        parseError:!!parsed.querySelector('parsererror')};
+    }));
+  });
+  assert(activityArt.every(a=>a.background.includes(a.file)&&a.status===200&&a.isSvg&&!a.parseError),
+    'every activity needs a distinct loadable SVG artwork: '+JSON.stringify(activityArt));
   // Three stage planes share the SAME natural 1500x680 world coordinates.
   // Layered character assets remain deliberately absent until approved.
   const stage=await page.evaluate(()=>{
