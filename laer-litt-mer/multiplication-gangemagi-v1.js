@@ -346,8 +346,11 @@
      screen.dataset.gmReturnOrigin=returnToMath?'subject':'basecamp';
      screen.setAttribute('data-explore-release','explore-rc1');
    }
-   hintStep=0;notice='';foxMood='curious';lastAction='';lastGroup=-1;bookOpen=false;guideMood='wave';render();startGuideGreeting();
+   hintStep=0;notice='';foxMood='curious';lastAction='';lastGroup=-1;bookOpen=false;guideMood='wave';
+   // The greeting belongs to the child's visible arrival in Gangemagi. Activate
+   // the screen first: slower WebKit layouts must not spend it while mounting.
    try{showScreen('multiplication-lab');}catch(_){}
+   render();startGuideGreeting();
  }
  function speak(){
    if(!('speechSynthesis' in window))return;
