@@ -23,14 +23,14 @@
   el.innerHTML=`<div class="tlp-scene">
    <div class="tlp-top"><button type="button" class="tlp-back" data-tlp="back" aria-label="Tilbake til Hjem">‹ <span>Hjem</span></button><span class="tlp-logo">LÆRIA · MATTE</span><button type="button" class="tlp-original" data-tlp="original">Vis gammelt kart</button></div>
    <div class="tlp-intro"><span class="tlp-eyebrow">VELKOMMEN TIL TALLENGA</span><h1>${name?'Hei, '+esc(name)+'!':'Velkommen!'}</h1><p>Hva har du lyst til å leke med i dag?</p></div>
-   <div class="tlp-troll" aria-label="De tre skogstrollene følger deg i Tallenga"><img src="./assets/home-v15/laria-troll-trio-v3.webp" alt="De tre skogstrollene" /></div>
+   <div class="tlp-troll-trio" role="img" aria-label="De tre godkjente skogstrollene er med på eventyret"><img class="tlp-actor tlp-actor-sister" src="./assets/skogstroll/storesoster.webp" alt="" /><img class="tlp-actor tlp-actor-middle" src="./assets/skogstroll/lillesoster.webp" alt="" /><img class="tlp-actor tlp-actor-brother" src="./assets/skogstroll/lillebror.webp" alt="" /></div>
    <div class="tlp-landscape-caption">Tallenga <span>✦</span> Der tall blir eventyr</div>
   </div>
   <div class="tlp-content"><header class="tlp-choose"><div><span class="tlp-eyebrow">VELG EN LEK</span><h2>Finn noe morsomt å gjøre</h2></div><p>Alle lekene er åpne. Du bestemmer selv.</p></header>
   <div class="tlp-games">
-   <button class="tlp-game tlp-gangemagi" type="button" data-tlp="multiply"><span class="tlp-game-art"><img src="./assets/cards/utforsk/multiply-premium.webp" alt="" /></span><span class="tlp-game-copy"><strong>Gangemagi</strong><small>Plukk, pakk og oppdag gange</small><span class="tlp-cta">La oss leke <b>›</b></span></span></button>
-   <button class="tlp-game tlp-fraction" type="button" data-tlp="fraction"><span class="tlp-game-art"><img src="./assets/cards/utforsk/fraction-premium.webp" alt="" /></span><span class="tlp-game-copy"><strong>Brøklab</strong><small>Del opp, bygg og prøv selv</small><span class="tlp-cta">Prøv brøker <b>›</b></span></span></button>
-   <button class="tlp-game tlp-table" type="button" data-tlp="table"><span class="tlp-game-art"><img src="./home-math-v14.webp" alt="" /></span><span class="tlp-game-copy"><strong>Gangetabellen</strong><small>Utforsk tall og mønstre</small><span class="tlp-cta">Se mønstrene <b>›</b></span></span></button>
+   <button class="tlp-game tlp-gangemagi" type="button" data-tlp="multiply"><span class="tlp-game-art tlp-art-multiply"><span class="tlp-math-glyph">×</span><img src="./assets/skogstroll/storesoster.webp" alt="" /></span><span class="tlp-game-copy"><strong>Gangemagi</strong><small>Plukk, pakk og oppdag gange</small><span class="tlp-cta">La oss leke <b>›</b></span></span></button>
+   <button class="tlp-game tlp-fraction" type="button" data-tlp="fraction"><span class="tlp-game-art tlp-art-fraction"><span class="tlp-math-glyph">¾</span><img src="./assets/skogstroll/lillesoster.webp" alt="" /></span><span class="tlp-game-copy"><strong>Brøklab</strong><small>Del opp, bygg og prøv selv</small><span class="tlp-cta">Prøv brøker <b>›</b></span></span></button>
+   <button class="tlp-game tlp-table" type="button" data-tlp="table"><span class="tlp-game-art tlp-art-table"><span class="tlp-math-glyph">3 × 4</span><img src="./assets/skogstroll/lillebror.webp" alt="" /></span><span class="tlp-game-copy"><strong>Gangetabellen</strong><small>Utforsk tall og mønstre</small><span class="tlp-cta">Se mønstrene <b>›</b></span></span></button>
   </div>
   <section class="tlp-next" aria-label="Valgfritt neste eventyr"><div class="tlp-next-symbol" aria-hidden="true">✧</div><div class="tlp-next-copy"><span class="tlp-eyebrow">ET EVENTYR NÅR DU VIL</span><h2>${esc(upcoming)}</h2><p>${esc(description)}</p></div><button type="button" data-tlp="next">Fortsett eventyret <span aria-hidden="true">›</span></button></section>
   <p class="tlp-note">Du kan spille favorittene dine så mange ganger du vil.</p>
@@ -44,10 +44,13 @@
  function original(){screen.classList.remove('tlp-active');screen.dataset.tlpOriginal='true';screen.querySelector('#subject-back')?.focus({preventScroll:true});}
  function table(){
   if(typeof window.openMultiplicationLab!=='function')return;
-  window.openMultiplicationLab();
-  // Classic learning table is the existing mathematics laboratory; do not
-  // fabricate a separate engine or write to progress.
-  const table=document.querySelector('#multiplication-lab-root [data-mult-variant="table"]');
+  // Gangemagi's classic entrance is the existing 10 x 10 exploration.
+  // Keep the mathematics engine and persisted progress exactly as they are.
+  const openClassic=window.LARIA_MULT_CLASSIC_OPEN||window.openMultiplicationLab;
+  openClassic();
+  const explore=document.querySelector('#multiplication-lab-root .mp-menu-explore');
+  if(explore)explore.click();
+  const table=document.querySelector('#multiplication-lab-root .mp-explore-tab[data-mode="table"]');
   if(table)table.click();
  }
  function next(){
