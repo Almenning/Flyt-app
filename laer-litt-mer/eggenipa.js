@@ -120,8 +120,10 @@
     if(action==='home'){
       if(!window.LARIA_RETURN_TO_BASECAMP?.())bridge()?.setTab?.('home');
     }else if(action==='words'){
+      btn.focus({preventScroll:true});
       window.openWordHunt?.();
     }else if(action==='find'){
+      btn.focus({preventScroll:true});
       window.openFindTheWords?.();
     }else if(action==='map'){
       openMap();
