@@ -100,7 +100,11 @@
       returnButton.id='eggenipa-map-return';
       returnButton.textContent='← Til Eggenipa';
       returnButton.setAttribute('aria-label','Tilbake til Norsk ved Eggenipa');
-      document.getElementById('subject-journey-section')?.appendChild(returnButton);
+      // The legacy journey map creates its own stacking/paint context; placing
+      // this fixed control inside that context makes its Back button intercept
+      // pointer events. Attach at document level so it is reliably operable.
+      returnButton.addEventListener('click',()=>{if(isActive())closeMap();});
+      document.body.appendChild(returnButton);
     }
     returnButton.hidden=false;
   }
