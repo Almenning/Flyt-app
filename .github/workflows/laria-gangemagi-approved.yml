@@ -6,6 +6,8 @@ on:
       - 'laer-litt-mer/gangemagi-markedsbok-approved-v2.css'
       - 'laer-litt-mer/gangemagi-approved-eight-scenes-20261017.webp'
       - 'laer-litt-mer/multiplication-gangemagi-v1.js'
+      - 'laer-litt-mer/troll-actor-v1.js'
+      - 'laer-litt-mer/troll-actor-v1.css'
       - 'laer-litt-mer/multiplication-gangemagi-v1.css'
       - 'laer-litt-mer/multiplication-gangemagi-engine-v1.js'
       - 'laer-litt-mer/index.html'
@@ -21,12 +23,15 @@ on:
       - 'tests/laria-gangemagi-props.test.cjs'
       - 'tests/laria-gangemagi-tap-intent.test.cjs'
       - 'tests/laria-gangemagi-release-cache.test.cjs'
+      - 'tests/laria-troll-actor.test.cjs'
       - '.github/workflows/laria-gangemagi-approved.yml'
   pull_request:
     paths:
       - 'laer-litt-mer/gangemagi-markedsbok-approved-v2.css'
       - 'laer-litt-mer/gangemagi-approved-eight-scenes-20261017.webp'
       - 'laer-litt-mer/multiplication-gangemagi-v1.js'
+      - 'laer-litt-mer/troll-actor-v1.js'
+      - 'laer-litt-mer/troll-actor-v1.css'
       - 'laer-litt-mer/multiplication-gangemagi-v1.css'
       - 'laer-litt-mer/multiplication-gangemagi-engine-v1.js'
       - 'laer-litt-mer/index.html'
@@ -42,6 +47,7 @@ on:
       - 'tests/laria-gangemagi-props.test.cjs'
       - 'tests/laria-gangemagi-tap-intent.test.cjs'
       - 'tests/laria-gangemagi-release-cache.test.cjs'
+      - 'tests/laria-troll-actor.test.cjs'
       - '.github/workflows/laria-gangemagi-approved.yml'
   workflow_dispatch:
 
@@ -99,8 +105,9 @@ jobs:
         run: |
           test -s laer-litt-mer/gangemagi-approved-eight-scenes-20261017.webp
           node --check laer-litt-mer/multiplication-gangemagi-v1.js
+          node --check laer-litt-mer/troll-actor-v1.js
           node --check tests/laria-gangemagi.playwright.js
-          node --test tests/laria-gangemagi-engine.test.cjs tests/laria-gangemagi-release-cache.test.cjs tests/laria-gangemagi-tap-intent.test.cjs tests/laria-gangemagi-props.test.cjs
+          node --test tests/laria-gangemagi-engine.test.cjs tests/laria-gangemagi-release-cache.test.cjs tests/laria-gangemagi-tap-intent.test.cjs tests/laria-gangemagi-props.test.cjs tests/laria-troll-actor.test.cjs
       - name: Install browser system dependencies
         run: npx playwright install-deps ${{ matrix.browser == 'chrome' && 'chromium' || 'webkit' }}
       - name: Install selected browser binaries

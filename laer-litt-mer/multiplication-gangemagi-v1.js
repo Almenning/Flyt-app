@@ -15,6 +15,7 @@
  let selectedGroup=null; // transient UI selection, no changes to stored schema.
  let holdingBerry=false;
  let selectedTroll=null,trollMove=null,trollTimer=0;
+ let guideMood='wave',guideTimer=0;
  const TROLLS=Object.freeze([
    Object.freeze({id:'storesoster',name:'Storesøster',src:'./assets/gangemagi-troll/storesoster.webp'}),
    Object.freeze({id:'lillesoster',name:'Lillesøster',src:'./assets/gangemagi-troll/lillesoster.webp'}),
@@ -36,6 +37,15 @@
    return path?'<img src="'+esc(path)+'" alt="" aria-hidden="true">':'';
  }
  function trollName(index){return TROLLS[index]?.name||'Trollet';}
+ function clearGuideTimer(){if(guideTimer)clearTimeout(guideTimer);guideTimer=0;}
+ function setGuideMood(mood,settleAfter=0){
+   guideMood=mood;
+   const actor=root.querySelector('[data-troll-actor="storesoster"]');
+   window.LARIA_TROLL_ACTOR?.setMood?.(actor,mood);
+   clearGuideTimer();
+   if(settleAfter)guideTimer=setTimeout(()=>setGuideMood('idle'),settleAfter);
+ }
+ function startGuideGreeting(){setGuideMood('wave',1450);}
  function stopTrollMove(){
    if(trollTimer)clearTimeout(trollTimer);
    trollTimer=0;trollMove=null;
@@ -143,8 +153,11 @@
    return '<div class="gm-troll-stage" role="group" aria-label="Velg hvilket troll som skal plukke jordbæret">'+
      TROLLS.map((t,i)=>{
        const selected=selectedTroll===i&&holdingBerry,moving=trollMove?.troll===i;
+       const figure=i===0&&window.LARIA_TROLL_ACTOR?.render?
+         window.LARIA_TROLL_ACTOR.render({id:t.id,name:t.name,src:t.src,mood:guideMood}):
+         '<img src="'+t.src+'" alt="" aria-hidden="true">';
        return '<button type="button" class="gm-troll-helper'+(selected?' gm-troll-selected':'')+(moving?' gm-troll-delivering':'')+'" data-gm-action="troll" data-gm-troll="'+i+'" aria-pressed="'+selected+'" aria-label="'+t.name+' skal plukke et jordbær" '+(trollMove?'disabled':'')+'>'+
-         '<span class="gm-troll-figure"><img src="'+t.src+'" alt="" aria-hidden="true"><span class="gm-troll-held-berry" aria-hidden="true">'+berrySvg+'</span></span>'+
+         '<span class="gm-troll-figure">'+figure+'<span class="gm-troll-held-berry" aria-hidden="true">'+berrySvg+'</span></span>'+
          '<span class="gm-troll-name">'+t.name+'</span></button>';
      }).join('')+'</div>';
  }
@@ -296,7 +309,9 @@
    justAddedGroup=action.type==='add'?lastGroup:-1;
    foxMood=E.filled(state)?'celebrate':action.type==='add'?'cheer':action.type==='remove'?'think':'curious';
    save();render();
-   if(!wasComplete&&E.filled(state))celebrate();
+   if(!wasComplete&&E.filled(state)){celebrate();setGuideMood('celebrate',1400);}
+   else if(action.type==='add')setGuideMood('celebrate',850);
+   else if(action.type==='remove')setGuideMood('think',700);
    return true;
  }
  function celebrate(){
@@ -321,7 +336,7 @@
    try{showScreen('subject');}catch(_){}
  }
  function open(preserveOrigin=false){
-   stopTrollMove();selectedTroll=null;holdingBerry=false;selectedGroup=null;
+   stopTrollMove();clearGuideTimer();selectedTroll=null;holdingBerry=false;selectedGroup=null;
    // Basecamp and Maths are different parents. Going to the classic submode
    // and back must retain the same parent rather than reset it.
    if(!preserveOrigin)returnToMath=!!document.querySelector('#subject-screen.active');
@@ -331,7 +346,7 @@
      screen.dataset.gmReturnOrigin=returnToMath?'subject':'basecamp';
      screen.setAttribute('data-explore-release','explore-rc1');
    }
-   hintStep=0;notice='';foxMood='curious';lastAction='';lastGroup=-1;bookOpen=false;render();
+   hintStep=0;notice='';foxMood='curious';lastAction='';lastGroup=-1;bookOpen=false;guideMood='wave';render();startGuideGreeting();
    try{showScreen('multiplication-lab');}catch(_){}
  }
  function speak(){
@@ -348,7 +363,7 @@
    if(state.mode!=='mission'||trollMove||!holdingBerry||selectedTroll===null)return false;
    if(!Number.isInteger(group)||group<0||group>=state.groups)return false;
    if(state.counts[group]>=state.each){
-     notice='Denne kurven er full. Velg en annen!';foxMood='help';render();return false;
+     notice='Denne kurven er full. Velg en annen!';foxMood='help';render();setGuideMood('support',900);return false;
    }
    const delivery={troll:selectedTroll,group};
    holdingBerry=false;selectedGroup=group;trollMove=delivery;
@@ -414,7 +429,12 @@
    if(kind==='classic'){nextOpen();return;}
    if(kind==='back-from-classic'){open(true);return;}
    if(kind==='read'){speak();return;}
-   if(kind==='hint'){hintStep=Math.min(2,hintStep+1);notice='';foxMood='help';render();speak();return;}
+   if(kind==='hint'){
+     hintStep=Math.min(2,hintStep+1);notice='';foxMood='help';render();
+     setGuideMood('think');
+     clearGuideTimer();guideTimer=setTimeout(()=>setGuideMood('hint',1200),430);
+     speak();return;
+   }
    if(kind==='undo'){
      if(undo.length){
        const previous=undo.pop();
@@ -439,7 +459,8 @@
      if(!Number.isInteger(i)||i<0||i>=TROLLS.length)return;
      selectedTroll=i;selectedGroup=null;holdingBerry=true;hintStep=0;
      notice=trollName(i)+' plukket et jordbær. Velg en kurv!';
-     lastAction='troll';lastGroup=-1;foxMood='cheer';render();return;
+     lastAction='troll';lastGroup=-1;foxMood='cheer';render();
+     setGuideMood(i===0?'wave':'idle',i===0?800:0);return;
    }
    if(kind==='remove'){
      holdingBerry=false;
@@ -456,7 +477,7 @@
        if(trollMove)return;
        if(holdingBerry){startTrollDelivery(i);return;}
        notice='Velg et troll først. Trollet plukker jordbæret for deg!';
-       selectedGroup=null;foxMood='help';render();return;
+       selectedGroup=null;foxMood='help';render();setGuideMood('support',850);return;
      }
      if(!change({type:'add',group:i})){notice='Denne kurven er full. Prøv en annen!';render();}
      return;

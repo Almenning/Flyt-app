@@ -134,9 +134,18 @@ async function check(engine,label,viewport,url){
   // after returning instead of demanding a gradient on the .app wrapper.
   await page.evaluate(()=>window.openMultiplicationLab());
   await page.locator('#multiplication-lab-screen.active .gm-shell').waitFor();
+  const pilotActor=page.locator('[data-troll-actor="storesoster"]');
+  assert.equal(await pilotActor.count(),1,label+' must mount exactly one living Storesøster pilot');
+  assert.equal(await pilotActor.getAttribute('data-troll-rig'),'crop-v1',
+    label+' must use the reusable multi-part TrollActor rig, not a whole-image bounce');
+  assert.equal(await pilotActor.getAttribute('data-troll-mood'),'wave',
+    label+' Storesøster must greet the child when Gangemagi opens');
   // Always preserve a first-look screenshot before geometry assertions. If a
   // later premium gate fails, reviewers still get the exact rendered scene.
   await shot(page,label+'-00-diagnostic-first-look');
+  await page.waitForTimeout(1550);
+  assert.equal(await pilotActor.getAttribute('data-troll-mood'),'idle',
+    label+' Storesøster must settle into her living idle state after greeting');
   assert.equal(await page.locator('.gm-story.gm-quest').evaluate(el=>getComputedStyle(el).display),'block',
     label+' mission board must not inherit the old horizontal flex story layout');
   assert.equal(await page.locator('.gm-crate').count(),3);
@@ -835,6 +844,12 @@ async function check(engine,label,viewport,url){
   await chooseTrollAndPlace(page,0,0);
   assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[2,0,0]);
   await page.locator('[data-gm-action="hint"]').click();
+  assert.equal(await pilotActor.getAttribute('data-troll-mood'),'think',
+    label+' a real hint request starts with Storesøster thinking');
+  await page.waitForTimeout(470);
+  assert.equal(await pilotActor.getAttribute('data-troll-mood'),'hint',
+    label+' a real hint request must move from thinking to a helping gesture');
+  await shot(page,label+'-troll-hint');
   assert.match(await page.locator('.gm-fox-message').innerText(),/troll/i,
     label+' hint returns the child to the new first step: choose a troll');
   assert.equal(await page.locator('.gm-fruit-pop').count(),0,

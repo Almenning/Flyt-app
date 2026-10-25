@@ -8,9 +8,9 @@ const vm = require('node:vm');
 const root = path.resolve(__dirname, '..');
 const html = fs.readFileSync(path.join(root, 'laer-litt-mer/index.html'), 'utf8');
 const worker = fs.readFileSync(path.join(root, 'laer-litt-mer/sw.js'), 'utf8');
-const version = '20261024-gangemagi-release61';
-const suffix = '-gangemagi-premium-20261024-release61';
-const assets = ['multiplication-gangemagi-v1.css', 'gangemagi-dagens-oppdrag-v1.css', 'multiplication-gangemagi-engine-v1.js', 'multiplication-gangemagi-v1.js'];
+const version = '20261025-troll-pilot1';
+const suffix = '-gangemagi-premium-20261025-trollpilot1';
+const assets = ['multiplication-gangemagi-v1.css', 'gangemagi-dagens-oppdrag-v1.css', 'troll-actor-v1.css', 'multiplication-gangemagi-engine-v1.js', 'troll-actor-v1.js', 'multiplication-gangemagi-v1.js'];
 function workerHarness(caches, fetch) {
   const events = new Map();
   const self = {location:{origin:'https://example.test'}, clients:{claim:async()=>{}}, skipWaiting:async()=>{},
