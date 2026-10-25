@@ -39,7 +39,7 @@
       <header class="tv-top"><button type="button" data-tv="back" aria-label="Tilbake til Hjem">‹ <span>Hjem</span></button><span>LÆRIA · MATTE</span><button type="button" data-tv="choose">Velg skogstroll</button></header>
       <div class="tv-scene">
         <div class="tv-scene-copy"><p>${name ? 'Hei, '+esc(name)+'!' : 'Velkommen!'}</p><h1>Tallvika</h1><span>Velg et hus, og lek med tall.</span></div>
-        <div class="tv-companion" aria-label="Valgt følgesvenn: ${troll.name}"><img src="${troll.src}" alt="${troll.name}"><button type="button" data-tv="choose">${troll.name} · bytt</button></div>
+        <div class="tv-companion" aria-label="Valgt følgesvenn: ${troll.name}"><img src="${troll.src}" alt="${troll.name}"></div>
         <button type="button" class="tv-hotspot tv-hotspot-multiply" data-tv="multiply" aria-label="Åpne Gangemagi"><b>Gangemagi</b><span>×</span></button>
         <button type="button" class="tv-hotspot tv-hotspot-fraction" data-tv="fraction" aria-label="Åpne Brøklab"><b>Brøklab</b><span>¼</span></button>
         <button type="button" class="tv-hotspot tv-hotspot-table" data-tv="table" aria-label="Åpne Gangetabellen"><b>Gangetabellen</b><span>×</span></button>
