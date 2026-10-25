@@ -310,6 +310,29 @@ body:has(#subject-screen.tallvika-active){background:#f7f0df!important}
   .tv-troll-grid img{height:158px}
   .tv-troll-grid em{font-size:8px;top:6px;right:5px;padding:4px}
 }
+/* Visit feedback is local to this screen, never progress or a gate. */
+.tv-portal-card.tv-visited{
+  border-color:#6b946b;box-shadow:0 5px 0 #b3c5a1,0 12px 18px #4463482b
+}
+.tv-portal-card.tv-visited .tv-portal-art::after{
+  content:"Sist besøkt";position:absolute;right:8px;top:9px;
+  border:1px solid #d2d7ab;border-radius:99px;
+  background:#f4f7e7eb;padding:5px 8px;color:#456548;
+  font-size:9px;font-weight:850;letter-spacing:.02em
+}
+/* Breadcrumbs live inside game headers: no extra screen or delay. */
+#fraction-lab-screen .fr2-brand .tv-origin-breadcrumb,
+#multiplication-lab-screen .mp-brand .tv-origin-breadcrumb{
+  display:block;white-space:nowrap;margin-top:3px;font-size:9px;
+  font-weight:850;line-height:1.15;letter-spacing:.045em;
+  color:#93633a;text-shadow:none
+}
+@media(max-width:360px){
+  #fraction-lab-screen .fr2-brand .tv-origin-breadcrumb,
+  #multiplication-lab-screen .mp-brand .tv-origin-breadcrumb{
+    font-size:8px;letter-spacing:0
+  }
+}
 @media(prefers-reduced-motion:reduce){
   .tv-portal-card,.tv-hotspot-cue,.tv-portal-art{transition:none}
 }

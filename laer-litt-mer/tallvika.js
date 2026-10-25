@@ -22,6 +22,63 @@
     try { const grade = app()?.journeyViewGrade?.('math') || app()?.currentGrade?.() || 2; return {grade, p:app()?.journeyProgress?.('math', grade), n:app()?.journeyRecommendedNode?.('math', grade)}; }
     catch (_) { return {grade:2,p:null,n:null}; }
   };
+  // View-only routing: never store navigation in the learning profile.
+  const activityNames={multiply:'Gangemagi',fraction:'Brøklab',table:'Gangetabellen'};
+  let entryContext=null,lastVisited=null;
+  const activityScreen=action=>document.getElementById(action==='fraction'
+    ?'fraction-lab-screen':'multiplication-lab-screen');
+  function returnFromActivity(action){
+    const lab=activityScreen(action);
+    if(!activityNames[action]||lab?.dataset.tvOrigin!==action||
+      entryContext?.action!==action)return false;
+    const previous=entryContext,previousVisited=lastVisited;
+    delete lab.dataset.tvOrigin;
+    if(action==='table')delete lab.dataset.mpDirectTallvika;
+    entryContext=null;lastVisited=action;
+    try{
+      if(typeof window.openSubject!=='function')throw new Error('No maths route');
+      window.openSubject('math');
+    }catch(_){
+      lab.dataset.tvOrigin=action;
+      entryContext=previous;lastVisited=previousVisited;
+      return false;
+    }
+    // App navigation scrolls to the top. Restore the child's prior place
+    // afterwards, and restore focus for keyboard / assistive navigation.
+    requestAnimationFrame(()=>{
+      const selector=previous.source==='scene'
+        ?'.tv-scene .tv-hotspot[data-tv="'+action+'"]'
+        :'.tv-mobile-actions .tv-portal-card[data-tv="'+action+'"]';
+      const button=document.querySelector('#tallvika-world '+selector);
+      if(button)try{button.focus({preventScroll:true})}catch(_){}
+      window.scrollTo(0,previous.scrollY||0);
+    });
+    return true;
+  }
+  function beginActivity(action,button){
+    const lab=activityScreen(action);
+    if(!activityNames[action]||!lab)return false;
+    entryContext={action,source:button.classList.contains('tv-hotspot')?'scene':'card',
+      scrollY:Math.max(0,window.scrollY||document.documentElement.scrollTop||0)};
+    lab.dataset.tvOrigin=action;
+    let started=false;
+    try{
+      if(action==='multiply'&&typeof window.openMultiplicationLab==='function')
+        window.openMultiplicationLab();
+      else if(action==='fraction'&&typeof window.openFractionLab==='function')
+        window.openFractionLab();
+      else if(action==='table'&&window.LARIA_MULT_PREMIUM?.openTableFromTallvika?.()!==true)
+        throw new Error('Missing 10x10 table entry');
+      started=lab.classList.contains('active');
+    }catch(_){started=false;}
+    if(started)return true;
+    delete lab.dataset.tvOrigin;
+    if(action==='table')delete lab.dataset.mpDirectTallvika;
+    entryContext=null;
+    const note=document.getElementById('tv-navigation-note');
+    if(note)note.textContent='Vi fikk ikke åpnet '+activityNames[action]+'. Prøv igjen.';
+    return false;
+  }
   function build() {
     if (screen.dataset.subject !== 'math' || !screen.classList.contains('active')) return;
     // The existing journey renderer marks Math's old journey as active before
@@ -43,7 +100,7 @@
     // Only re-render when the visible, persisted world state really changed.
     const renderKey = JSON.stringify({
       selected,grade,ownGrade,name,next:n?.id||null,nextTitle:n?.title||null,
-      done:p?.done||0,total:p?.total||0,complete:!!p?.complete
+      done:p?.done||0,total:p?.total||0,complete:!!p?.complete,lastVisited
     });
     if (root.dataset.tvRenderKey === renderKey && screen.classList.contains('tallvika-active')) return;
     root.dataset.tvRenderKey = renderKey;
@@ -69,19 +126,19 @@
           <div class="tv-scene-footer" aria-hidden="true"><span class="tv-scene-dot"></span>Et lite eventyrland for store oppdagelser<span class="tv-scene-line"></span><span class="tv-scene-mark">✦</span></div>
         </div>
         <div class="tv-dock">
-          <div class="tv-dock-intro"><span class="tv-kicker">VELG ET STED</span><h1>Hvor vil du leke?</h1><p>Trykk på et hus i bildet, eller velg et av kortene.</p></div>
+          <div class="tv-dock-intro"><span class="tv-kicker">VELG ET STED</span><h1>Hvor vil du leke?</h1><p>${lastVisited?'Tilbake fra '+activityNames[lastVisited]+'. Velg det du har lyst til!':'Trykk på et hus i bildet, eller velg et av kortene.'}</p></div>
           <div class="tv-mobile-actions" aria-label="Tallvikas aktiviteter">
-            <button type="button" class="tv-portal-card" data-tv="multiply" aria-label="Åpne Gangemagi, plukk og pakk med gange">
+            <button type="button" class="tv-portal-card${lastVisited==='multiply'?' tv-visited':''}" data-tv="multiply" aria-label="Åpne Gangemagi, plukk og pakk med gange">
               <span class="tv-portal-art tv-portal-art-multiply" aria-hidden="true"><span class="tv-portal-badge">×</span></span>
               <span class="tv-portal-copy"><span class="tv-portal-kicker">MAGISK MATTE</span><b>Gangemagi</b><small>Plukk og pakk med gange</small></span>
               <span class="tv-portal-arrow" aria-hidden="true">↗</span>
             </button>
-            <button type="button" class="tv-portal-card" data-tv="fraction" aria-label="Åpne Brøklab, del opp og prøv selv">
+            <button type="button" class="tv-portal-card${lastVisited==='fraction'?' tv-visited':''}" data-tv="fraction" aria-label="Åpne Brøklab, del opp og prøv selv">
               <span class="tv-portal-art tv-portal-art-fraction" aria-hidden="true"><span class="tv-portal-badge">¼</span></span>
               <span class="tv-portal-copy"><span class="tv-portal-kicker">LEK OG OPPDAG</span><b>Brøklab</b><small>Del opp, bygg og prøv selv</small></span>
               <span class="tv-portal-arrow" aria-hidden="true">↗</span>
             </button>
-            <button type="button" class="tv-portal-card" data-tv="table" aria-label="Åpne Gangetabellen, utforsk mønstre">
+            <button type="button" class="tv-portal-card${lastVisited==='table'?' tv-visited':''}" data-tv="table" aria-label="Åpne Gangetabellen, utforsk mønstre">
               <span class="tv-portal-art tv-portal-art-table" aria-hidden="true"><span class="tv-portal-badge">10×</span></span>
               <span class="tv-portal-copy"><span class="tv-portal-kicker">FINN MØNSTRE</span><b>Gangetabellen</b><small>Utforsk tallene på din måte</small></span>
               <span class="tv-portal-arrow" aria-hidden="true">↗</span>
@@ -104,13 +161,6 @@
     root.querySelectorAll('.tv-dialog').forEach(dialog=>dialog.addEventListener('click',
       event => { if (event.target === event.currentTarget) event.currentTarget.close(); }));
   }
-  function openTable(){
-    // Use the actual classic Gangetabellen state machine, not the Gangemagi
-    // wrapper and a timer that tries to click invisible obsolete menu nodes.
-    if (window.LARIA_MULT_PREMIUM?.openTableFromTallvika?.() === true) return;
-    const notice = document.getElementById('tv-navigation-note');
-    if (notice) notice.textContent = 'Vi fikk ikke åpnet Gangetabellen. Prøv igjen.';
-  }
   screen.addEventListener('click', event => {
     const button = event.target.closest('[data-tv]');
     if (!button || !screen.contains(button)) return;
@@ -118,9 +168,8 @@
     if (action === 'back') { if (!window.LARIA_RETURN_TO_BASECAMP?.()) app()?.setTab?.('home'); }
     if (action === 'choose') document.querySelector('#tallvika-world .tv-dialog:not(.tv-grade-dialog)')?.showModal();
     if (action === 'grade') document.querySelector('#tallvika-world .tv-grade-dialog')?.showModal();
-    if (action === 'multiply') window.openMultiplicationLab?.();
-    if (action === 'fraction') window.openFractionLab?.();
-    if (action === 'table') openTable();
+    if (action === 'multiply'||action === 'fraction'||action === 'table')
+      beginActivity(action,button);
     if (action === 'next') { const {p,n,grade}=progress(); if (p?.complete) app()?.startJourneyChallenge?.('math'); else if(n) app()?.startJourneyNode?.('math',n.id,grade); }
   });
   screen.addEventListener('click', event => {
@@ -149,5 +198,5 @@
   });
   observer.observe(screen,{attributes:true,attributeFilter:['class','data-subject']});
   if (screen.classList.contains('active') && screen.dataset.subject === 'math') build();
-  window.LARIA_TALLVIKA = {build, trolls};
+  window.LARIA_TALLVIKA = {build,trolls,returnFromActivity};
 })();
