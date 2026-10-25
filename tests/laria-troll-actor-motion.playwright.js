@@ -123,23 +123,36 @@ async function record(browser,name,url,viewport){
   await observedState(page,'hint');
   await shot(page,name+'-03-hint');
   await visibleState(page,'idle');
+  // The lesson requires TROLL first, THEN basket. A basket is deliberately
+  // not touchable before pickup; never force-click a disabled learning step.
+  // Fill the first basket using exactly three genuine berry deliveries.
+  for(let berry=1;berry<=3;berry++){
+   const before=await page.evaluate(()=>window.__lariaTrollTrace.filter(s=>s.mood==='celebrate').length);
+   const previousWaves=await page.evaluate(()=>window.__lariaTrollTrace.filter(s=>s.mood==='wave').length);
+   await page.locator('[data-gm-action="troll"][data-gm-troll="0"]').click();
+   if(berry===1)await page.waitForFunction(n=>
+     window.__lariaTrollTrace.filter(s=>s.mood==='wave').length>n,
+     previousWaves,{timeout:3000});
+   await page.locator('[data-gm-action="basket"][data-gm-basket="0"] .gm-crate-front').click();
+   await page.waitForFunction(n=>window.LARIA_GANGEMAGI.snapshot().counts[0]===n,
+    berry,{timeout:6500});
+   await page.waitForFunction(n=>window.__lariaTrollTrace.filter(s=>s.mood==='celebrate').length>n,
+    before,{timeout:3500});
+   if(berry===1)await shot(page,name+'-04-berry-celebration');
+  }
+  // A full basket WITH a selected troll is the genuine reachable path to
+  // supportive feedback. Preserve the rule that empty selections are blocked.
+  await page.locator('[data-gm-action="troll"][data-gm-troll="0"]').click();
   await page.locator('[data-gm-action="basket"][data-gm-basket="0"] .gm-crate-front').click();
   await observedState(page,'support');
-  await shot(page,name+'-04-support');
+  await shot(page,name+'-05-full-basket-support');
   await visibleState(page,'idle');
-  await page.locator('[data-gm-action="troll"][data-gm-troll="0"]').click();
-  await observedState(page,'wave');
-  await page.locator('[data-gm-action="basket"][data-gm-basket="0"] .gm-crate-front').click();
-  await page.waitForFunction(()=>window.LARIA_GANGEMAGI.snapshot().counts[0]===1,
-   null,{timeout:6500});
-  await observedState(page,'celebrate');
-  await shot(page,name+'-05-berry-celebration');
   const progress=await page.evaluate(()=>{
    const saved=JSON.parse(localStorage.getItem('laria-gangemagi-v1'));
    const profile=JSON.parse(localStorage.getItem('laerlittmer-v2')).profile;
    return {counts:saved.counts,avatar:profile.avatar,grade:profile.grade};
   });
-  assert.equal(progress.counts[0],1,name+': original math engine lost the berry');
+  assert.equal(progress.counts[0],3,name+': exact three-berry basket arithmetic changed');
   assert.equal(progress.avatar,'girl',name+': existing child identity was rewritten');
   assert.equal(progress.grade,2,name+': grade state was rewritten');
   assert.deepEqual(errors,[],name+' unexpected browser errors');
