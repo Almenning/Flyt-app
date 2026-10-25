@@ -65,9 +65,9 @@ Neste tekniske steg etter visuell godkjenning er:
 ## QA-status
 
 - Statisk kontrakt: lagt til for kildeavledet asset, scenejordkontakt og cache-busting.
-- Nettleserpakken er klargjort for Chromium og WebKit i iPhone/iPad stående og liggende, inkludert test av lagret trollvalg.
+- Nettleserpakken kjørte grønt i GitHub Actions (run `40233278211`) i Chromium og WebKit for iPhone/iPad stående og liggende, inkludert test av lagret trollvalg, ingen horisontal overflow og åpning av Brøklab/Gangetabellen.
 - Testen lager, når den kjører i CI, en faktisk før-/etter-sammenligning i nøyaktig samme Tallvika-komposisjon ved å vise den låste originalen én gang og deretter gjenopprette den kildeavledede sceneversjonen. Den lager også eget helbilde og nærstudie av storesøster. Artefaktet heter `laria-tallvika-<sha>`.
-- Den aktuelle arbeidscontaineren mangler Playwrights Chromium/WebKit-binærer. Installasjonsforsøk feilet fordi nedlastingen ble avbrutt/ugyldig. Derfor finnes det **ikke** påståtte browser- eller fysiske iOS-skjermbilder fra denne kjøringen.
+- Den lokale arbeidscontaineren manglet Playwrights Chromium/WebKit-binærer, men GitHub Actions-kjøringen over leverte faktiske nettleserskjermbilder. Artefaktet `laria-tallvika-9e999ecf9abd18615f1defb72fa9644e14d76bcb` inneholder før-/etterbilder og nærstudier.
 - Ingen fysisk iPhone/iPad/Safari-test er gjort eller påstått.
 
 ## Visuell beslutning
