@@ -35,7 +35,7 @@
    No troll character images are composited into these cards. */
 #subject-screen .tlp-game-art{position:relative;background-color:#dde9da;background-size:cover;background-position:center;background-repeat:no-repeat}
 #subject-screen .tlp-art-multiply{background-image:url('./gangemagi-tallenga-market-v1.svg');background-position:center 51%;background-color:#92b49a}
-#subject-screen .tlp-art-fraction{background-image:url('./fraction-workshop-scene.svg');background-position:center 48%;background-color:#dec198}
+#subject-screen .tlp-art-fraction{background-image:url('./fraction-workshop-card-preview.svg');background-position:8% center;background-color:#dec198}
 #subject-screen .tlp-art-table{background-image:url('./math-pattern-haven-storymap-v1.svg');background-position:center 63%;background-color:#9cc3b1}
 #subject-screen .tlp-game-art::before{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(130deg,rgba(17,63,52,.27) 0%,rgba(38,72,53,.07) 50%,transparent 84%)}
 #subject-screen .tlp-game-art::after{content:'';position:absolute;inset:8px;z-index:1;pointer-events:none;border:1px solid rgba(255,250,220,.49);border-radius:13px}
@@ -180,7 +180,7 @@ body:has(#subject-screen.active.tlp-active) .app{
    On narrow cards the market stall sits near the right edge of the SVG and
    the bakery's physical cake is in the lower portion of the tall workshop art. */
 #subject-screen.active.tlp-active .tlp-art-multiply{background-position:82% center}
-#subject-screen.active.tlp-active .tlp-art-fraction{background-position:center 93%}
+#subject-screen.active.tlp-active .tlp-art-fraction{background-position:8% center}
 #subject-screen.active.tlp-active .tlp-art-table{background-position:center 70%}
 #subject-screen.active.tlp-active .tlp-card-caption{
   max-width:calc(100% - 18px);
