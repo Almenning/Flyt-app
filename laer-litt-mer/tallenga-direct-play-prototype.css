@@ -148,3 +148,20 @@ body:has(#subject-screen.active.tlp-active) .app{
 @media(max-width:700px){
   #subject-screen.active.tlp-active .tlp-intro h1{font-size:39px}
 }
+
+/* v2 stage-depth contract: identical SVG art, split at the painted meadow.
+   Future actors belong INSIDE .tlp-stage-actors, never atop a completed bitmap.
+   The actor plane is empty until layered, identity-locked characters exist. */
+#subject-screen.active.tlp-active .tlp-scene{
+  background-image:linear-gradient(0deg,rgba(20,63,57,.12),transparent 52%),url('./tallenga-fjord-background-v2.svg')!important;
+}
+#subject-screen.active.tlp-active .tlp-stage-actors,
+#subject-screen.active.tlp-active .tlp-stage-foreground{
+  position:absolute;inset:0;pointer-events:none;
+  background-size:cover;background-position:center;background-repeat:no-repeat;
+}
+#subject-screen.active.tlp-active .tlp-stage-actors{z-index:1}
+#subject-screen.active.tlp-active .tlp-stage-foreground{
+  background-image:url('./tallenga-fjord-foreground-v2.svg');z-index:3;
+}
+#subject-screen.active.tlp-active .tlp-landscape-caption{z-index:4}
