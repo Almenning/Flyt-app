@@ -54,6 +54,24 @@ async function run(engine,engineName,label,width,height,url){
   const sources=await page.locator('.tlp-troll-trio .tlp-actor').evaluateAll(els=>els.map(x=>x.getAttribute('src')));
   assert.deepEqual(sources,['./assets/skogstroll/storesoster.webp','./assets/skogstroll/lillesoster.webp','./assets/skogstroll/lillebror.webp']);
   assert.equal(await page.locator('.tlp-game:visible').count(),3);
+  // Check visually significant painted layers, not merely game-button routing.
+  const artwork=await page.evaluate(()=>{
+    const root=document.querySelector('#subject-screen');
+    const el=document.querySelector('#tallenga-direct-play');
+    const intro=document.querySelector('.tlp-intro h1');
+    const legacy=document.querySelector('#subject-journey-section');
+    const shell=document.querySelector('.app');
+    return {preview:getComputedStyle(el).display,
+      legacy:getComputedStyle(legacy).display,
+      background:getComputedStyle(shell).backgroundImage,
+      subjectBackground:getComputedStyle(root).backgroundImage,
+      title:getComputedStyle(intro).color,
+      mobileWidth:document.documentElement.scrollWidth,
+      viewport:window.innerWidth};
+  });
+  assert.equal(artwork.legacy,'none','old journey must not appear below Tallenga: '+JSON.stringify(artwork));
+  assert.equal(artwork.background,'none','old journey photo must not bleed through Tallenga: '+JSON.stringify(artwork));
+  assert(artwork.mobileWidth<=artwork.viewport+4,'no horizontal overflow '+JSON.stringify(artwork));
   const images=await page.locator('.tlp-troll-trio img, .tlp-game-art img').evaluateAll(els=>els.map(i=>({src:i.getAttribute('src'),ready:i.complete&&i.naturalWidth>0})));
   assert(images.every(i=>i.ready),'original image failed '+JSON.stringify(images));
   const sizes=await page.evaluate(()=>({inner:innerWidth,scroll:document.documentElement.scrollWidth,targets:[...document.querySelectorAll('#tallenga-direct-play button')].map(b=>({w:b.getBoundingClientRect().width,h:b.getBoundingClientRect().height}))}));
