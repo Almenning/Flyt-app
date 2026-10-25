@@ -54,6 +54,14 @@ async function run(browserType,engine,name,viewport){
     // Continue interaction QA while art handoff is pending, but fail release at the end.
     if(image.naturalWidth!==1672||image.naturalHeight!==941)missingArtwork.push(name);
     assert.ok(image.visibleWidth>300,name+' landscape too small');
+    assert.equal(await page.locator('.eg-world-label').isVisible(),false,
+      name+' must not cover the locked landscape with illegible heading text');
+    if(viewport.width<=480){
+      const rows=await page.locator('#eggenipa-world .eg-portal').evaluateAll(els=>
+        els.map(el=>Math.round(el.getBoundingClientRect().height)));
+      assert.ok(Math.max(...rows)-Math.min(...rows)<=2,
+        name+' must not stretch Bokskogen card beyond other activities: '+rows.join(','));
+    }
     const overflow=await page.evaluate(()=>({
       scroll:document.documentElement.scrollWidth,width:document.documentElement.clientWidth
     }));
