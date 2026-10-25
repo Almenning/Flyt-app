@@ -41,7 +41,14 @@
   if(typeof window.LARIA_RETURN_TO_BASECAMP==='function'&&window.LARIA_RETURN_TO_BASECAMP())return;
   if(typeof setTab==='function')setTab('home');else showScreen('home');
  }
- function original(){screen.classList.remove('tlp-active');screen.dataset.tlpOriginal='true';screen.querySelector('#subject-back')?.focus({preventScroll:true});}
+ function original(){
+  screen.dataset.tlpOriginal='true';
+  screen.classList.remove('tlp-active');
+  // The map renderer is intentionally bypassed during direct play. Trigger
+  // it only when the parent explicitly requests the approved original map.
+  if(typeof renderSubjectJourney==='function')renderSubjectJourney();
+  screen.querySelector('#subject-back')?.focus({preventScroll:true});
+ }
  function table(){
   if(typeof window.openMultiplicationLab!=='function')return;
   // Gangemagi's classic entrance is the existing 10 x 10 exploration.
