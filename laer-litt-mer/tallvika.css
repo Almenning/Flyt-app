@@ -128,11 +128,11 @@ body:has(#subject-screen.tallvika-active){background:#f7f0df!important}
   .tv-portal-card:hover .tv-portal-art{filter:saturate(1.11) brightness(1.035)}
 }
 .tv-portal-card:focus-visible .tv-portal-art{filter:saturate(1.11) brightness(1.035)}
-#tallvika-world:has(.tv-portal-card[data-tv="multiply"]:is(:hover,:focus-visible))
+#tallvika-world:has(.tv-portal-card[data-tv="multiply"]:is(:hover,:focus))
   .tv-hotspot-multiply .tv-hotspot-cue,
-#tallvika-world:has(.tv-portal-card[data-tv="fraction"]:is(:hover,:focus-visible))
+#tallvika-world:has(.tv-portal-card[data-tv="fraction"]:is(:hover,:focus))
   .tv-hotspot-fraction .tv-hotspot-cue,
-#tallvika-world:has(.tv-portal-card[data-tv="table"]:is(:hover,:focus-visible))
+#tallvika-world:has(.tv-portal-card[data-tv="table"]:is(:hover,:focus))
   .tv-hotspot-table .tv-hotspot-cue{
   box-shadow:0 0 0 5px #fff6c99c,0 3px 0 #8f5824,0 10px 26px #2b1b1166;
   transform:scale(1.07) translateY(-2px)

@@ -42,3 +42,16 @@ Gjennomgang av faktiske Chromium-/WebKit-bilder av den publiserte Tallvika viser
 Reell 2D-lagbasert trollpilot (først storesøster) må følge eksisterende kunstkontrakt i issue #221, testes med idle, vinke, tenke, hint og juble i Gangemagi på ekte Safari/WebKit, og først deretter integreres i Tallvika. Navigasjonen skal kunne ta imot TrollActor uten å endre barnets lagrede identitet.
 
 Låst prioritet: bedre barneopplevelse og kvalitetsriktig karakterkunst foran antall funksjoner.
+
+## Fase 2: spillruting og sammenhengende valg (samme draft-PR)
+
+- **Bekreftet feil:** «Gangetabellen» fra Tallvika kalte Gangemagi sin wrapper og forsøkte så å klikke en gammel `.mp-menu-explore`, som ikke finnes i Gangemagi. Dermed åpnet ikke 10 × 10-tabellen pålitelig.
+- Ny avgrenset inngang `LARIA_MULT_PREMIUM.openTableFromTallvika()` åpner eksisterende 10 × 10-tabellmotor direkte med `page='explore', mode='table'`. Matematikken og tidligere progresjon endres ikke.
+- Ett trykk på «tilbake» fra denne direkte tabellvisningen returnerer til Tallvika. Andre innganger til klassisk gangetabell beholder opprinnelig navigasjon.
+- Gangemagi åpner fortsatt jordbærmarkedet, Brøklab sin eksisterende lab. Ingen ekstra bekreftelsesskjerm.
+- Illustrerte aktivitetshytter og tilhørende trykksoner på fjordlandskapet har felles markering ved peker- eller tastaturfokus, uten endret bakgrunn eller karakter.
+- Hvis tabellen ikke kan åpnes, vises feilmelding på Tallvika fremfor å sende barnet til et annet spill.
+- Chromium-/WebKit-regresjon tester tabell med 100 celler, respons (2 × 3 = 6), direkte retur, fortsatt separat Gangemagi og uendret `state.journey`.
+- Endret ressursversjon og serviceworker-cache hindrer at eldre motor eller Tallvika-script brukes etter senere publisering.
+
+**Skogstrollene er utenfor denne fasen.** Ingen karakterfiler, rigging eller animasjoner endres; eget arbeid fortsetter i separat tråd og PR #220 / issue #221.
