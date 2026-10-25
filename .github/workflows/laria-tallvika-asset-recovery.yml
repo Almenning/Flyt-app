@@ -1,0 +1,40 @@
+name: Laria Tallvika recover verified locked PNG
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'tools/asset-recovery/tallvika-20261025/**'
+      - 'tools/asset-recovery/reconstruct_tallvika.py'
+      - 'tests/tallvika-master-integrity.test.cjs'
+      - '.github/workflows/laria-tallvika-asset-recovery.yml'
+permissions:
+  contents: write
+jobs:
+  recover-asset:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/laria-tallvika-production-20261025
+          fetch-depth: 0
+          persist-credentials: true
+      - name: Restore approved clean image, verify all 941 scanlines
+        run: |
+          python3 tools/asset-recovery/reconstruct_tallvika.py
+          node tests/tallvika-master-integrity.test.cjs
+      - name: Commit verified full source to this PR only
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add laer-litt-mer/assets/tallvika/tallvika-master-laast-20261025.png
+          if git diff --cached --quiet; then
+            echo "Full image already present; no replacement needed"
+            exit 0
+          fi
+          test "$(git diff --cached --name-only)" = "laer-litt-mer/assets/tallvika/tallvika-master-laast-20261025.png"
+          git commit -m "fix(tallvika): restore complete approved image instead of truncated PNG"
+          git push origin "HEAD:refs/heads/feat/laria-tallvika-production-20261025"
