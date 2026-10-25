@@ -60,7 +60,7 @@ async function run(engine,label){
     });
     assert.equal(setup.overview.complete,true,label+' four first adventures were not complete');
     assert.deepEqual(setup.titles,{
-      math:'Tallenga',norwegian:'Bokskogen',english:'Ordlandsbyen',geography:'Nordlysleiren'
+      math:'Tallvika',norwegian:'Bokskogen',english:'Ordlandsbyen',geography:'Nordlysleiren'
     });
 
     await page.evaluate(()=>setTab('progress'));
@@ -73,21 +73,13 @@ async function run(engine,label){
       label+' Progress card still presents chapter 1 as completed grade 2');
 
     await page.evaluate(()=>openSubject('math'));
-    await page.locator('#subject-screen.active').waitFor({timeout:10000});
-    assert.match((await page.locator('#subject-continue-eyebrow').innerText()).trim(),/^Første eventyr rundet$/i);
-    assert.match(await page.locator('#subject-mission-title').innerText(),/Tallenga fullført/);
-    assert.doesNotMatch(await page.locator('#subject-mission-title').innerText(),/2\. klasse fullført/i);
-
-    const mathMap=page.locator('#subject-screen.active .locked-journey-map[data-journey-subject="math"]');
-    await mathMap.waitFor({timeout:14000});
-    const gradeButton=mathMap.locator('[data-locked-place="4"]');
-    await gradeButton.click();
-    const mathSheet=page.locator('.locked-journey-overlay:not([hidden]) .locked-journey-sheet.is-mission');
-    await mathSheet.waitFor({timeout:8000});
-    const mathSheetText=await mathSheet.innerText();
-    assert.match(mathSheetText,/Første eventyr er fullført!/);
-    assert.doesNotMatch(mathSheetText,/Hele reisen er fullført!/);
-    await mathSheet.locator('.locked-sheet-close').click();
+    const tv=page.locator('#subject-screen.active #tallvika-world');
+    await tv.waitFor({state:'visible',timeout:12000});
+    const chapter=await page.evaluate(()=>({complete:journeyProgress('math',2).complete,grade:currentGrade(),title:journeyChapterInfo('math',2)?.title}));
+    assert.equal(chapter.complete,true,label+' Math chapter incomplete');
+    assert.equal(chapter.grade,2,label+' profile grade changed');
+    assert.equal(chapter.title,'Tallvika');
+    assert.match(await tv.locator('.tv-next').innerText(),/Bonusoppdraget venter/,label+' no voluntary replay');
 
     await page.evaluate(()=>{renderGeographyContinue();showScreen('geography')});
     await page.locator('#geography-screen.active').waitFor({timeout:10000});
@@ -123,8 +115,8 @@ async function run(engine,label){
     });
     await page.locator('#complete-screen.active').waitFor({timeout:10000});
     const completeText=await page.locator('#complete-screen').innerText();
-    assert.match(completeText,/Du har fullført det første eventyret i Tallenga!/);
-    assert.match(completeText,/Tallenga · første eventyr fullført!/);
+    assert.match(completeText,/Du har fullført det første eventyret i Tallvika!/);
+    assert.match(completeText,/Tallvika · første eventyr fullført!/);
     assert.match(completeText,/Første eventyr er ferdig/);
     assert.doesNotMatch(completeText,/2\. klasse (?:er )?(?:rundet|fullført)|hele 2\. klasse|Alle verdener på trinnet/i,
       label+' completion screen still claims the grade is complete');
