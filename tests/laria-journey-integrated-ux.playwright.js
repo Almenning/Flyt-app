@@ -7,7 +7,7 @@ const seed={version:7,progressSchemaVersion:3,profile:{grade:2,onboarded:true,na
  mastery:{},mistakes:{},skillMastery:{},skillMistakes:{},skillLastSeen:{},masteryEvidence:{},skillEvidence:{},
  preferences:{sound:false,autoRead:false},lastMilestone:null,recentCountryWin:null,lastActivity:null,
  journey:{nodes:{},gradeWins:{},viewGrades:{}},answerLog:[],sessionLog:[],activeSession:null};
-const worlds={norwegian:'Bokskogen',math:'Tallenga',english:'Ordlandsbyen',geography:'Nordlysleiren'};
+const worlds={norwegian:'Bokskogen',math:'Tallvika',english:'Ordlandsbyen',geography:'Nordlysleiren'};
 async function run(engine,label,viewport){
  const browser=await engine.launch({headless:true,args:engine===chromium?['--no-sandbox']:[]});
  try{
@@ -22,6 +22,25 @@ async function run(engine,label,viewport){
   for(const [subject,world] of Object.entries(worlds)){
    const screen=subject==='geography'?'geography':'subject';
    await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').click();
+   if(subject==='math'){
+     // The math journey data is still present, but children now enter Tallvika
+     // directly and the old map remains intentionally hidden.
+     const tv=page.locator('#subject-screen.active #tallvika-world');
+     await tv.waitFor({state:'visible',timeout:16000});
+     assert.equal(await tv.locator('.tv-hotspot').count(),3,label+' missing math houses');
+     const next=tv.locator('[data-tv="next"]');
+     assert.equal(await next.isEnabled(),true,label+' next math mission must remain reachable');
+     await next.click();
+     await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
+     const state=await page.evaluate(()=>({subject:sessionScope?.subject,question:sessionQuestions[qIndex]?.prompt}));
+     assert.equal(state.subject,'math',label+' math learning engine lost');
+     assert.ok(state.question,label+' missing math question');
+     await page.locator('#close-session').click();
+     await tv.waitFor({state:'visible',timeout:16000});
+     await tv.locator('[data-tv="back"]').click();
+     await page.locator('#home-screen.active .bc14-subject').first().waitFor({timeout:12000});
+     continue;
+   }
    const root=page.locator('#'+screen+'-screen.active .locked-journey-map[data-journey-subject="'+subject+'"]');
    await root.waitFor({timeout:16000});
    await root.locator('.locked-journey-hotspot.state-current').first().click();
