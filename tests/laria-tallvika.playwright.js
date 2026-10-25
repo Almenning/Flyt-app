@@ -5,6 +5,20 @@ const seed={version:7,progressSchemaVersion:3,profile:{grade:2,onboarded:true,na
 const url=process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria';
 const output=process.env.LARIA_TALLVIKA_SCREENSHOTS;
 async function shot(page,name){if(output){fs.mkdirSync(output,{recursive:true});await page.screenshot({path:path.join(output,name+'.png'),animations:'disabled',fullPage:true});}}
+async function inWorldComparison(page,label){
+  if(!output)return;
+  const image=page.locator('#tallvika-world .tv-companion[data-troll-id="storesoster"] img');
+  const after=await image.getAttribute('src');
+  // Capture the old locked source and the new source-derived scene treatment
+  // in the exact same live browser composition. This changes no saved state.
+  await image.evaluate((img,src)=>{img.src=src},'./assets/gangemagi-troll/storesoster.webp');
+  await image.evaluate(img=>img.decode());
+  await shot(page,label+'-storesoster-before');
+  await image.evaluate((img,src)=>{img.src=src},after);
+  await image.evaluate(img=>img.decode());
+  await shot(page,label+'-storesoster-after');
+  await page.locator('#tallvika-world .tv-companion').screenshot({path:path.join(output,label+'-storesoster-closeup-after.png'),animations:'disabled'});
+}
 async function enter(page){
   await page.goto(url,{waitUntil:'domcontentloaded',timeout:90000});
   const tile=page.locator('.bc14-subject[data-camp="subject-math"]');await tile.waitFor({timeout:18000});await tile.click();
@@ -27,7 +41,7 @@ async function run(browserType,label,viewport){
     },seed);
     const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
     await page.route('https://raw.githubusercontent.com/**',route=>route.abort());await page.route('https://api.worldbank.org/**',route=>route.abort());
-    await enter(page);await shot(page,label);
+    await enter(page);await shot(page,label);await inWorldComparison(page,label);
     assert.equal(await page.locator('.tv-scene').count(),1,label+' renders one locked Tallvika scene');
     assert.equal(await page.locator('.tv-scene').evaluate(el=>getComputedStyle(el).backgroundImage.includes('tallvika-master-laast-20261025.png')),true,label+' uses the locked landscape');
     const art=await page.locator('.tv-scene').evaluate(el=>({w:el.getBoundingClientRect().width,h:el.getBoundingClientRect().height,scroll:document.documentElement.scrollWidth,client:document.documentElement.clientWidth}));
@@ -83,7 +97,9 @@ async function run(browserType,label,viewport){
       await page.locator('[data-tv-troll="'+id+'"]').click();
       assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('laerlittmer-v2')).profile.tallvikaTroll),id,label+' does not persist '+id);
       const image=page.locator('#tallvika-world .tv-companion img');
-      assert.ok((await image.getAttribute('src')).includes('/'+id+'.webp'),label+' shows wrong troll for '+id);
+      const src=await image.getAttribute('src');
+      assert.ok(id==='storesoster'?src.includes('/storesoster-inworld-v1.webp'):src.includes('/'+id+'.webp'),label+' shows wrong troll for '+id);
+      assert.equal(await page.locator('#tallvika-world .tv-companion').getAttribute('data-troll-treatment'),id==='storesoster'?'inworld-v1':'locked-original',label+' must keep the intended source treatment');
       await image.evaluate(img=>img.decode());
       if(viewport.width<=480&&output)await shot(page,label+'-'+id);
     }

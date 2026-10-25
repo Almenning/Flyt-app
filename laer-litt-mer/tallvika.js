@@ -3,9 +3,12 @@
 (() => {
   'use strict';
   const trolls = {
-    storesoster:{name:'Storesøster',src:'./assets/gangemagi-troll/storesoster.webp'},
-    lillesoster:{name:'Lillesøster',src:'./assets/gangemagi-troll/lillesoster.webp'},
-    lillebror:{name:'Lillebror',src:'./assets/gangemagi-troll/lillebror.webp'}
+    // The original source stays the selection/reference image.  Storesøster's
+    // Tallvika render is a documented, source-derived material treatment with
+    // the exact same silhouette; it is not a replacement character design.
+    storesoster:{name:'Storesøster',src:'./assets/gangemagi-troll/storesoster.webp',sceneSrc:'./assets/tallvika/storesoster-inworld-v1.webp',sceneTreatment:'inworld-v1'},
+    lillesoster:{name:'Lillesøster',src:'./assets/gangemagi-troll/lillesoster.webp',sceneSrc:'./assets/gangemagi-troll/lillesoster.webp',sceneTreatment:'locked-original'},
+    lillebror:{name:'Lillebror',src:'./assets/gangemagi-troll/lillebror.webp',sceneSrc:'./assets/gangemagi-troll/lillebror.webp',sceneTreatment:'locked-original'}
   };
   const screen = document.getElementById('subject-screen');
   if (!screen) return;
@@ -41,7 +44,7 @@
       <header class="tv-top"><button type="button" data-tv="back" aria-label="Tilbake til Hjem">‹ <span>Hjem</span></button><span>LÆRIA · MATTE</span><div class="tv-top-actions"><button type="button" data-tv="grade" aria-label="Velg klassetrinn">${grade}. klasse</button><button type="button" data-tv="choose">Velg skogstroll</button></div></header>
       <div class="tv-scene">
         <div class="tv-scene-copy"><p>${name ? 'Hei, '+esc(name)+'!' : 'Velkommen!'}</p><h1>Tallvika</h1><span>Velg et hus, og lek med tall.</span></div>
-        <div class="tv-companion" aria-label="Valgt følgesvenn: ${troll.name}"><img src="${troll.src}" alt="${troll.name}"></div>
+        <div class="tv-companion" data-troll-id="${selected}" data-troll-treatment="${troll.sceneTreatment}" aria-label="Valgt følgesvenn: ${troll.name}"><span class="tv-companion__ground" aria-hidden="true"></span><img src="${troll.sceneSrc}" alt="${troll.name}"></div>
         <button type="button" class="tv-hotspot tv-hotspot-multiply" data-tv="multiply" aria-label="Åpne Gangemagi"><b>Gangemagi</b><span>×</span></button>
         <button type="button" class="tv-hotspot tv-hotspot-fraction" data-tv="fraction" aria-label="Åpne Brøklab"><b>Brøklab</b><span>¼</span></button>
         <button type="button" class="tv-hotspot tv-hotspot-table" data-tv="table" aria-label="Åpne Gangetabellen"><b>Gangetabellen</b><span>×</span></button>
