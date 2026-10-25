@@ -30,6 +30,9 @@ on:
       - 'tests/laria-gangemagi-release-cache.test.cjs'
       - 'tests/laria-troll-actor.test.cjs'
       - 'tests/laria-troll-actor-motion.playwright.js'
+      - 'tools/rigging/**'
+      - 'tests/test_storesoster_openraster_layers.py'
+      - 'docs/LARIA-STORESOSTER-ARMLAG-STUDIE-2026-10-25.md'
       - '.github/workflows/laria-gangemagi-approved.yml'
   pull_request:
     paths:
@@ -55,6 +58,9 @@ on:
       - 'tests/laria-gangemagi-release-cache.test.cjs'
       - 'tests/laria-troll-actor.test.cjs'
       - 'tests/laria-troll-actor-motion.playwright.js'
+      - 'tools/rigging/**'
+      - 'tests/test_storesoster_openraster_layers.py'
+      - 'docs/LARIA-STORESOSTER-ARMLAG-STUDIE-2026-10-25.md'
       - '.github/workflows/laria-gangemagi-approved.yml'
   workflow_dispatch:
 
@@ -158,3 +164,30 @@ jobs:
           path: /tmp/laria-gangemagi-approved-visual
           retention-days: 14
           if-no-files-found: warn
+
+  storesoster-layer-source:
+    name: Storesoster editable source kit - not production art
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install source art export dependencies
+        run: python -m pip install --disable-pip-version-check Pillow numpy
+      - name: Verify exact original pixels and generate editable layer kit
+        run: |
+          python tests/test_storesoster_openraster_layers.py \
+            laer-litt-mer/assets/gangemagi-troll/storesoster.webp \
+            /tmp/laria-storesoster-layer-kit
+      - name: Preserve original-faithful non-production editable layers
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-storesoster-editable-layers-${{ github.event.pull_request.head.sha || github.sha }}
+          path: /tmp/laria-storesoster-layer-kit
+          retention-days: 14
+          if-no-files-found: error

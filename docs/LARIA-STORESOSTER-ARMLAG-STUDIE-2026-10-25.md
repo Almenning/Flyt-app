@@ -49,3 +49,20 @@ Rive eller tilsvarende 2D-rigging kan kobles på *etter* at disse lagene er reko
 - **Ingen** riggutvidelse/utrulling til andre troll, merge eller publisering før brukerens uttrykkelige visuelle godkjenning.
 
 Dagens aktive `source-bones-v2` beholdes som **begrenset, eksisterende pilot** mens art-lagene forberedes. Studien er ikke integrert som en ny animasjon i spillet. All animasjonskvalitet bedømmes fra faktisk render og video, ikke AI-genererte statusillustrasjoner.
+
+## Reproduksjon: redigerbar lagpakke (25. oktober)
+
+Det finnes nå et eget, ikke-produksjonsklart **OpenRaster (.ora)**-prosjekt:
+`tools/rigging/storesoster_openraster_layers.py`. Prosjektet kan aapnes i
+Krita eller GIMP, og inneholder hele godkjent original som skjult referanse,
+original kropp uten arm, armen paa eget lag, et bevisst **tomt** lag for
+skjult skulder og stoff, samt skjulte hjelpelag for rotasjonspunkt og
+manglende bakgrunn. Ingen nye kropps-/ansiktsdeler er generert.
+
+Testen `tests/test_storesoster_openraster_layers.py` kontrollerer at samtlige
+synlige originalpiksler settes tilbake ved 0 grader, at kildehash matcher,
+OpenRaster-lagene faktisk er redigerbare og at uferdig skjult anatomi
+forblir tomt. En separat GitHub Actions-jobb lager en nedlastbar .ora-fil og
+PNG-bevis. Artifaktet er et **malergrunnlag**, ikke et ferdig animasjonslag,
+og skal ikke koples inn i spillet foer illustrasjon er ferdigstilt og visuelt
+godkjent. Live `source-bones-v2` beholdes urort.
