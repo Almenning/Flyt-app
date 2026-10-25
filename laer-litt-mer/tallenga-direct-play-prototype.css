@@ -64,3 +64,19 @@
  #subject-screen .tlp-troll-trio .tlp-actor-brother{animation:tlpBreathe 4.9s ease-in-out infinite 1.9s}
  @keyframes tlpBreathe{0%,100%{translate:0 0}50%{translate:0 -3px}}
 }
+
+/* The locked journey's fullscreen CSS intentionally hides every sibling of
+   #subject-journey-section with !important. When Tallenga direct-play is opted
+   into, only its own sibling is restored; other subjects retain the original
+   map contract and the legacy journey remains intact for comparison. */
+#subject-screen.active.locked-journey-active.tlp-active > #tallenga-direct-play{
+  display:block!important;
+  visibility:visible;
+  width:100%;
+  min-height:100%;
+  position:relative;
+  z-index:1;
+}
+#subject-screen.active.locked-journey-active.tlp-active > :not(#tallenga-direct-play){
+  display:none!important;
+}
