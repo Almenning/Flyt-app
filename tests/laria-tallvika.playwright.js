@@ -56,6 +56,8 @@ async function run(browserType,label,viewport){
       label+' must use original, unmodified image on each portal');
     const art=await page.locator('.tv-scene').evaluate(el=>({w:el.getBoundingClientRect().width,h:el.getBoundingClientRect().height,scroll:document.documentElement.scrollWidth,client:document.documentElement.clientWidth}));
     assert.ok(art.w>250,label+' has a visible world');assert.ok(art.scroll<=art.client+2,label+' has no horizontal overflow');
+    assert.equal(await page.locator('.tv-dock-intro h1').evaluate(el=>getComputedStyle(el).color),
+      'rgb(73, 48, 30)',label+' generic legacy blue heading leaked into Tallvika');
     const layout=await page.evaluate(()=>{
       const stage=document.querySelector('.tv-stage').getBoundingClientRect();
       const dock=document.querySelector('.tv-dock').getBoundingClientRect();
@@ -64,6 +66,8 @@ async function run(browserType,label,viewport){
     });
     if(viewport.width>=1030||(viewport.width>=701&&viewport.height<=550)){
       assert.ok(layout.stage.right<=layout.dock.left+2,label+' landscape portal dock overlaps painting');
+      if(viewport.width>=1030)assert.ok(art.w>=viewport.width*.58,
+        label+' world is still compressed by the former 1000px app shell');
       assert.ok(Math.abs(layout.stage.top-layout.dock.top)<55,label+' landscape should show portals beside the world');
     }else{
       assert.ok(layout.dock.top>=layout.stage.bottom-2,label+' portrait portal panel must follow the uncropped art');
