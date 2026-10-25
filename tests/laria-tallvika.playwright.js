@@ -30,8 +30,35 @@ async function run(browserType,label,viewport){
     await enter(page);await shot(page,label);
     assert.equal(await page.locator('.tv-scene').count(),1,label+' renders one locked Tallvika scene');
     assert.equal(await page.locator('.tv-scene').evaluate(el=>getComputedStyle(el).backgroundImage.includes('tallvika-master-laast-20261025.png')),true,label+' uses the locked landscape');
+    // The destination library is an illustrated, accessible part of the world
+    // at every screen size, not generic text-only cards or hidden legacy links.
+    const portalCards=page.locator('#tallvika-world .tv-mobile-actions .tv-portal-card');
+    assert.equal(await portalCards.count(),3,label+' must expose three premium activity portals');
+    const portalAudit=await portalCards.evaluateAll(nodes=>nodes.map(node=>{
+      const r=node.getBoundingClientRect();
+      const art=node.querySelector('.tv-portal-art');
+      return {name:node.getAttribute('aria-label'),height:r.height,width:r.width,
+        image:art?getComputedStyle(art).backgroundImage:'none',artHeight:art?.getBoundingClientRect().height};
+    }));
+    assert(portalAudit.every(item=>item.height>=90&&item.width>=180&&item.artHeight>=85),
+      label+' illustrated tap targets too small: '+JSON.stringify(portalAudit));
+    assert(portalAudit.every(item=>item.name?.startsWith('Åpne ')&&
+      item.image.includes('tallvika-master-laast-20261025.png')),
+      label+' must use original, unmodified image on each portal');
     const art=await page.locator('.tv-scene').evaluate(el=>({w:el.getBoundingClientRect().width,h:el.getBoundingClientRect().height,scroll:document.documentElement.scrollWidth,client:document.documentElement.clientWidth}));
     assert.ok(art.w>250,label+' has a visible world');assert.ok(art.scroll<=art.client+2,label+' has no horizontal overflow');
+    const layout=await page.evaluate(()=>{
+      const stage=document.querySelector('.tv-stage').getBoundingClientRect();
+      const dock=document.querySelector('.tv-dock').getBoundingClientRect();
+      return {stage:{top:stage.top,bottom:stage.bottom,right:stage.right},
+        dock:{top:dock.top,left:dock.left}};
+    });
+    if(viewport.width>=1030||(viewport.width>=701&&viewport.height<=550)){
+      assert.ok(layout.stage.right<=layout.dock.left+2,label+' landscape portal dock overlaps painting');
+      assert.ok(Math.abs(layout.stage.top-layout.dock.top)<55,label+' landscape should show portals beside the world');
+    }else{
+      assert.ok(layout.dock.top>=layout.stage.bottom-2,label+' portrait portal panel must follow the uncropped art');
+    }
     const shell=await page.locator('.app').evaluate(el=>({
       padding:parseFloat(getComputedStyle(el).paddingBottom),
       background:getComputedStyle(el).backgroundColor
@@ -89,9 +116,13 @@ async function run(browserType,label,viewport){
     }
     await page.reload({waitUntil:'domcontentloaded',timeout:90000});await page.locator('.bc14-subject[data-camp="subject-math"]').click();await page.locator('#tallvika-world').waitFor();
     assert.match(await page.locator('.tv-companion').getAttribute('aria-label'),/Lillebror/,label+' restores selected troll');
-    await page.locator('[data-tv="fraction"]:visible').first().click();await page.locator('#fraction-lab-screen.active').waitFor({timeout:12000});
+    // Exercise the illustrated destination button itself, not only
+    // invisible hotspots embedded in the original painting.
+    await page.locator('.tv-mobile-actions [data-tv="fraction"]').click();
+    await page.locator('#fraction-lab-screen.active').waitFor({timeout:12000});
     await page.locator('#fraction-lab-back').click();await page.locator('#tallvika-world').waitFor({timeout:12000});
-    await page.locator('[data-tv="table"]:visible').first().click();await page.locator('#multiplication-lab-screen.active').waitFor({timeout:12000});
+    await page.locator('.tv-mobile-actions [data-tv="table"]').click();
+    await page.locator('#multiplication-lab-screen.active').waitFor({timeout:12000});
     assert.deepEqual(errors,[],label+' emits no page errors');
     await context.close();
   } finally {await browser.close();}
