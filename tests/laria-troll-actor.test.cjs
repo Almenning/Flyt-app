@@ -4,12 +4,25 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
 const vm=require('node:vm');
+const crypto=require('node:crypto');
 const root=path.resolve(__dirname,'..');
 const actorSource=fs.readFileSync(path.join(root,'laer-litt-mer/troll-actor-v1.js'),'utf8');
 const actorCss=fs.readFileSync(path.join(root,'laer-litt-mer/troll-actor-v1.css'),'utf8');
 const game=fs.readFileSync(path.join(root,'laer-litt-mer/multiplication-gangemagi-v1.js'),'utf8');
 const html=fs.readFileSync(path.join(root,'laer-litt-mer/index.html'),'utf8');
 function actorApi(){const sandbox={window:{}};vm.runInNewContext(actorSource,sandbox,{filename:'troll-actor-v1.js'});return sandbox.window.LARIA_TROLL_ACTOR;}
+test('all three locked skogstroll originals remain byte-identical',()=>{
+ const approved={
+  storesoster:'b98a5ee7f264d448da557636406080b5d8ee8aae23f32f0e41b66bf811beda89',
+  lillesoster:'ee3f14e95407c8f673ee78c8ea3afc1b782e6f2975929ce6f77b867de29db425',
+  lillebror:'7f1d9eeb293361ebb6507d024013d744d106978b72bbe4d71e2096816d9fdd11'
+ };
+ for(const [name,expectedHash] of Object.entries(approved)){
+  const file=path.join(root,'laer-litt-mer/assets/gangemagi-troll',name+'.webp');
+  const actual=crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
+  assert.equal(actual,expectedHash,name+' must retain the EXACT approved source pixels');
+ }
+});
 test('TrollActor exposes the six pilot reactions and keeps an exact static reserve',()=>{
  const actor=actorApi();
  assert.deepEqual([...actor.moods],['idle','wave','think','hint','celebrate','support']);
