@@ -5,6 +5,7 @@ const path=require('node:path');
 const {chromium,webkit}=require('playwright');
 const url=process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria';
 const out=process.env.LARIA_EGGENIPA_SCREENSHOTS;
+const missingArtwork=[];
 const profile={
   version:7,progressSchemaVersion:3,
   profile:{grade:2,onboarded:true,name:'Eggenipa QA',avatar:'girl',setupVersion:2},
@@ -50,8 +51,8 @@ async function run(browserType,engine,name,viewport){
       naturalWidth:img.naturalWidth,naturalHeight:img.naturalHeight,
       visibleWidth:img.getBoundingClientRect().width
     }));
-    assert.deepEqual([image.naturalWidth,image.naturalHeight],[1672,941],
-      name+' must load exact locked landscape (upload original PNG before merge)');
+    // Continue interaction QA while art handoff is pending, but fail release at the end.
+    if(image.naturalWidth!==1672||image.naturalHeight!==941)missingArtwork.push(name);
     assert.ok(image.visibleWidth>300,name+' landscape too small');
     const overflow=await page.evaluate(()=>({
       scroll:document.documentElement.scrollWidth,width:document.documentElement.clientWidth
@@ -106,4 +107,6 @@ async function run(browserType,engine,name,viewport){
       await run(type,engine,engine+'-'+name,viewport);
     }
   }
+  assert.deepEqual(missingArtwork,[],
+    'Locked Eggenipa master image missing in these viewports. Upload the SHA-verified original before merge.');
 })().catch(error=>{console.error(error);process.exitCode=1});
