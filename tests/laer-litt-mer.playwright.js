@@ -246,11 +246,14 @@ async function finishSession(page){
           await p.locator('#home-screen.active .bc12').waitFor();
           await p.evaluate(()=>openSubject('norwegian'));
           await p.locator('#subject-screen.active').waitFor();
-          const travelerImg=p.locator('#subject-screen.active .locked-journey-profile[data-avatar="girl"] img');
+          const travelerImg=p.locator('#subject-screen.active .locked-journey-profile.laria-troll-host[data-laria-troll="storesoster"] img');
           await travelerImg.waitFor({state:'visible',timeout:16000});
+          await travelerImg.evaluate(img=>img.decode());
           const travelerSrc=await travelerImg.getAttribute('src');
-          const expectedTravelerSrc=await p.evaluate(()=>window.LARIA_PROFILE_AVATARS?.girl||'./lia-fox-explorer-home.webp');
-          assert.equal(travelerSrc,expectedTravelerSrc,'Bokskogen must display the saved revejente avatar over the approved artwork');
+          assert.equal(travelerSrc,'./assets/skogstroll/storesoster.webp',
+            'Bokskogen must display the exact approved storesøster artwork');
+          assert.equal(await p.evaluate(()=>state.profile.avatar),'girl',
+            'skogstroll must preserve the existing saved girl profile');
 
           await p.evaluate(()=>{
             sessionScope={type:'subject',subject:'norwegian',module:'reading',label:'Norsk',grade:2};
@@ -261,11 +264,15 @@ async function finishSession(page){
           await p.locator('#session-screen.active').waitFor();
           const taskFox=p.locator('.task-fox-companion');
           await taskFox.waitFor();
-          assert.equal(await taskFox.getAttribute('data-avatar'),'girl','Oppgavescene fox did not follow saved revejente choice');
+          assert.equal(await taskFox.getAttribute('data-laria-troll'),'storesoster',
+            'Norsk task should show the approved storesøster skogstroll');
+          assert.equal(await p.evaluate(()=>state.profile.avatar),'girl',
+            'entering the troll scene changed the persisted girl profile');
           const taskMarker=taskFox.locator('.task-profile-marker');
 
                     await taskMarker.waitFor({state:'hidden'});
-          assert.equal((await taskMarker.textContent()).trim(),'✿','Oppgavescene revejente has no visible profile marker');
+          assert.equal((await taskMarker.textContent()).trim(),'',
+            'the former fox profile marker must not be drawn over the skogstroll');
           await p.evaluate(()=>{state.activeSession=null;currentAnswered=null;setTab('home')});
           await p.locator('#home-screen.active .bc12').waitFor();
         }
@@ -1109,12 +1116,16 @@ async function finishSession(page){
       assert.equal(await page.locator('#session-screen').getAttribute('data-task-band'),'young',subject+' grade 2 should use young task specialization');
       assert.equal(await page.locator('.laria-task-card').count(),1,subject+' should render exactly one premium task card');
       assert.equal(await page.locator('.task-fox-companion img').count(),1,subject+' needs one in-world fox companion');
-      // The task companion is now the child's chosen profile fox, not the
-      // previously hard-coded mascot. Compare identity without dumping a
-      // large embedded WebP data URI into test logs on failure.
-      const personalFox=await page.locator('.task-fox-companion img').evaluate(img=>
-        img.getAttribute('src')===window.LARIA_FOX.source(window.LARIA_FOX.choice()));
-      assert.equal(personalFox,true,subject+' must use the selected persistent fox');
+      // Grade 1-2 uses the original subject-specific skogstroll, independent
+      // of the saved boy/girl profile. Do not rewrite that profile or add a
+      // competing fox outfit on top of the immutable figure.
+      const correctTroll=await page.locator('.task-fox-companion img').evaluate((img,subject)=>{
+        return img.getAttribute('src')===window.LARIA_SKOGSTROLL.sourceForSubject(subject)&&
+          img.naturalWidth>100&&getComputedStyle(img).visibility==='visible'&&
+          img.parentElement.classList.contains('laria-troll-host')&&
+          !img.parentElement.querySelector('svg.laria-fox-wardrobe-art');
+      },subject);
+      assert.equal(correctTroll,true,subject+' must use the original approved skogstroll');
       assert.ok((await page.locator('.answer,.letter-tile,.word-tile,.sequence-tile,#math-input,#quiz-map-canvas').count())>0,subject+' task scene has no active interaction');
       await page.locator('#close-session').click();
     }
@@ -1180,10 +1191,14 @@ async function finishSession(page){
       });
       const fox=page.locator('.task-fox-companion');
       assert.equal(await page.locator('#session-screen').getAttribute('data-task-fox-release'),'fox-rc1',label+' missing Prompt 13 fox release');
-      assert.equal(await fox.getAttribute('data-avatar'),'girl',label+' TaskScene fox did not follow saved avatar state');
-      const foxIsChosen=await fox.locator('img').evaluate(img=>
-        img.getAttribute('src')===window.LARIA_FOX.source(window.LARIA_FOX.choice()));
-      assert.equal(foxIsChosen,true,label+' TaskScene fox must be the saved revejente');
+      assert.equal(await fox.getAttribute('data-laria-troll'),'storesoster',
+        label+' Norwegian task must show storesøster');
+      const correctTroll=await fox.locator('img').evaluate(img=>
+        img.getAttribute('src')===window.LARIA_SKOGSTROLL.sourceForSubject('norwegian')&&
+        img.complete&&img.naturalWidth>100&&getComputedStyle(img).visibility==='visible');
+      assert.equal(correctTroll,true,label+' TaskScene must use exact original storesøster');
+      assert.equal(await page.evaluate(()=>state.profile.avatar),'girl',
+        label+' selecting the fixed subject troll rewrote the saved profile');
       const layout=await page.evaluate(()=>{
         const rect=s=>document.querySelector(s)?.getBoundingClientRect();
         const f=rect('.task-fox-companion'),q=rect('.question'),a=rect('.task-interaction');
@@ -1197,7 +1212,9 @@ async function finishSession(page){
       // The single personalised fox now reacts through LARIA_FOX_PRESENCE,
       // not the retired fox-correct CSS class. Assert the visible companion's
       // actual mood and that it settles without duplicating its artwork.
-      await fox.locator('svg.laria-fox-wardrobe-art .laria-fox-pose').waitFor({timeout:12000});
+      await fox.locator(':scope > img').evaluate(img=>img.decode());
+      assert.equal(await fox.locator(':scope > svg.laria-fox-wardrobe-art').count(),0,
+        label+' obsolete fox art covered the skogstroll');
       const beforeCount=await page.evaluate(()=>state.answerLog.length);
       await page.locator('.answer[data-answer="katt"]').click();
       await page.waitForFunction(()=>
@@ -1205,8 +1222,8 @@ async function finishSession(page){
         null,{polling:25,timeout:1500});
       assert.equal(await fox.getAttribute('data-laria-fox-mood'),'celebrate',
         label+' selected fox did not celebrate the correct answer');
-      assert.equal(await fox.locator('svg.laria-fox-wardrobe-art .laria-fox-pose').count(),1,
-        label+' correct answer created a duplicate fox pose');
+      assert.equal(await fox.locator(':scope > img').count(),1,
+        label+' correct answer duplicated or removed the original skogstroll');
       const answerResult=await page.evaluate(()=>({count:state.answerLog.length,last:state.answerLog[state.answerLog.length-1]}));
       assert.equal(answerResult.count,beforeCount+1,label+' correct answer should create exactly one normal progress record');
       assert.equal(answerResult.last.correct,true,label+' correct answer progress record changed');
