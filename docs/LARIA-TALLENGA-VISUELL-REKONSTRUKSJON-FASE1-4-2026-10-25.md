@@ -1,6 +1,20 @@
 # Tallenga: visuell rekonstruksjon – fase 1–4 (25.10.2026)
 
-Status: **klar for visuell godkjenning, ikke merge/publiser.** Arbeidet er
+> **Oppdatert status (samme dato): Ikke visuelt godkjent.** Denne rapportens
+> opprinnelige faser var en ressursrevisjon, ikke en ferdig premiumrekonstruksjon.
+> Senere arbeid i draft-PR #220 har lagt inn **tre ulike motiv for aktivitetene**,
+> laget to synkroniserte fjord-SVG-er (bakgrunn/forgrunn) med et **tomt**
+> mellomliggende karakterlag, og bestått reelle Chromium/WebKit-tester på
+> commit `293eaad`. De flate trolloriginalene er ikke satt inn igjen.
+> Det finnes fortsatt **ingen godkjent rigget trollfigur** og ingen godkjent
+> endelig premiumillustrasjon. Kilden og kravene til nye karakterlag er samlet
+> i `docs/LARIA-TALLENGA-TROLL-RIG-ASSET-CONTRACT-2026-10-25.md`.
+> `tests/laria-locked-skogstroll-identity.test.js` hindrer endring av
+> godkjente originalfiler. **Ikke merge eller publiser.**
+
+
+
+Historisk første gjennomgang: **ingen visuell godkjenning, ikke merge/publiser.** Arbeidet er
 begrenset til draft-PR #220 og aktiveres fortsatt bare med
 `?tallenga=prototype`.
 
