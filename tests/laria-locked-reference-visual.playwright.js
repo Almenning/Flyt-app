@@ -49,6 +49,18 @@ async function check(engine,label,viewport){
    const screen=subject==='geography'?'geography':'subject';
    await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').click();
    await page.locator('#'+screen+'-screen.active').waitFor();
+   if(subject==='math'){
+     // Tallvika's wide original is covered by the dedicated PNG-integrity
+     // and eight-viewport WebKit/Chromium raster checks.
+     const tv=page.locator('#subject-screen.active #tallvika-world');
+     await tv.waitFor({state:'visible',timeout:16000});
+     assert.equal(await tv.locator('.tv-hotspot').count(),3,label+' missing Math houses');
+     assert.match(await tv.locator('.tv-scene').evaluate(el=>getComputedStyle(el).backgroundImage),
+       /tallvika-master-laast-20261025\.png/,label+' wrong original Math art');
+     await tv.locator('[data-tv="back"]').click();
+     await page.locator('#home-screen.active').waitFor();
+     continue;
+   }
    await page.waitForFunction(s=>{
     const host=document.querySelector('.screen.active .locked-journey-map');
     const image=host?.querySelector('.locked-journey-image');

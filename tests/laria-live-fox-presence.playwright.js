@@ -92,9 +92,10 @@ async function run(engine,name,viewport,avatar){
     assert.equal(after,before,name+' fox movement must not fake mastery');
     assert.equal(await fox.evaluate(el=>getComputedStyle(el).pointerEvents),'none',name+' fox steals map taps');
     await page.screenshot({path:path.join(dir,name+'-journey.png'),animations:'disabled'});
-    // Visit all twenty painted landmarks without changing the learning state.
+    // Visit the fifteen remaining painted landmarks without changing the learning state.
     // There must be only one grounded, unadorned traveler on each map.
-    const subjects=['norwegian','math','english','geography'];
+    // Math now uses the approved original forest trolls rather than the legacy fox map.
+    const subjects=['norwegian','english','geography'];
     for(let subjectIndex=0;subjectIndex<subjects.length;subjectIndex++){
       const subject=subjects[subjectIndex];
       if(subjectIndex>0){

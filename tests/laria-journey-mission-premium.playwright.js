@@ -55,6 +55,22 @@ async function run(engine,label,viewport,url){
   await page.locator('.bc14-subject[data-camp="subject-norwegian"]').waitFor({timeout:20000});
   for(const subject of ['norwegian','math','english','geography']){
    await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').click();
+   if(subject==='math'){
+     const tv=page.locator('#subject-screen.active #tallvika-world');
+     await tv.waitFor({state:'visible',timeout:16000});
+     const before=await page.evaluate(()=>JSON.stringify(state.journey));
+     const next=await page.evaluate(()=>journeyRecommendedNode('math',2)?.id);
+     assert.ok(next,label+' original Math node missing');
+     await tv.locator('[data-tv="next"]').click();
+     await page.locator('#session-screen.active').waitFor({timeout:14000});
+     assert.equal(await page.evaluate(()=>sessionScope.journeyNode),next,label+' Math route changed original node');
+     await page.locator('#close-session').click();
+     await tv.waitFor({state:'visible',timeout:12000});
+     assert.equal(await page.evaluate(()=>JSON.stringify(state.journey)),before,label+' opening mission changed progress');
+     await tv.locator('[data-tv="back"]').click();
+     await page.locator('#home-screen.active .bc14-subject').first().waitFor({timeout:12000});
+     continue;
+   }
    const map=page.locator('#'+(subject==='geography'?'geography':'subject')+'-screen.active .locked-journey-map[data-journey-subject="'+subject+'"]');
    await map.waitFor({timeout:14000});
    const firstStop=map.locator('.locked-journey-hotspot').first();

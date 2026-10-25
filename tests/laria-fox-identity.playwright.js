@@ -88,6 +88,24 @@ async function run(engine,name,viewport,which){
   for(const subject of subjects){
    const target=subject==='geography'?'geography':'subject';
    await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').click();
+   if(subject==='math'){
+     // The child's Tallvika friend is an original troll, rather than the
+     // retired fox on the old Math map. Profile data itself remains intact.
+     const tv=page.locator('#subject-screen.active #tallvika-world');
+     await tv.waitFor({state:'visible',timeout:16000});
+     const original=tv.locator('.tv-companion img');
+     assert.match(await original.getAttribute('src'),/gangemagi-troll\/storesoster\.webp$/,name+' incorrect original troll');
+     await original.evaluate(img=>img.decode());
+     await page.screenshot({path:folder+'/'+name+'-math-tallvika.png',fullPage:true});
+     await tv.locator('[data-tv="next"]').click();
+     await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
+     assert.equal(await page.locator('.task-fox-companion').getAttribute('data-avatar'),which,name+' profile avatar changed');
+     await page.locator('#close-session').click();
+     await tv.waitFor({state:'visible',timeout:14000});
+     await tv.locator('[data-tv="back"]').click();
+     await page.locator('#home-screen.active').waitFor({timeout:14000});
+     continue;
+   }
    const root=page.locator('#'+target+'-screen.active .locked-journey-map[data-journey-subject="'+subject+'"]');
    await root.waitFor({timeout:16000});
    await imageIsChosen(page,'#'+target+'-screen.active .locked-journey-profile img',which,name+' '+subject+' profile');

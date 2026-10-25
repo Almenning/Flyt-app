@@ -13,7 +13,7 @@ const seed={
  lastMilestone:null,recentCountryWin:null,lastActivity:null,
  journey:{nodes:{},gradeWins:{},viewGrades:{}},answerLog:[],sessionLog:[],activeSession:null
 };
-const titles={norwegian:'Bokskogen',math:'Tallenga',english:'Ordlandsbyen',geography:'Nordlysleiren'};
+const titles={norwegian:'Bokskogen',math:'Tallvika',english:'Ordlandsbyen',geography:'Nordlysleiren'};
 async function verify(engine,label,viewport){
  const browser=await engine.launch({headless:true,args:engine===chromium?['--no-sandbox']:[]});
  try{
@@ -51,6 +51,22 @@ async function verify(engine,label,viewport){
   for(const [subject,title] of Object.entries(titles)){
    const screen=subject==='geography'?'geography':'subject';
    await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').click();
+   if(subject==='math'){
+     const tv=page.locator('#subject-screen.active #tallvika-world');
+     await tv.waitFor({state:'visible',timeout:16000});
+     assert.equal(await tv.locator('.tv-hotspot').count(),3,label+' Tallvika activity entries');
+     const old=await page.evaluate(id=>({
+       checkpoint:state.journey.nodes[journeyNodeKey('math',2,id)],
+       progress:journeyProgress('math',2),
+       next:journeyRecommendedNode('math',2)?.id
+     }),marked.math.id);
+     assert.equal(old.checkpoint?.passed,true,label+' saved Math checkpoint missing');
+     assert.ok(old.progress.total>0&&old.next,label+' original Math progress unavailable');
+     assert.equal(await tv.locator('[data-tv="next"]').isEnabled(),true);
+     await tv.locator('[data-tv="back"]').click();
+     await page.locator('#home-screen.active').waitFor({timeout:16000});
+     continue;
+   }
    const root=page.locator('#'+screen+'-screen.active .locked-journey-map');
    await root.waitFor({timeout:16000});
    await page.waitForFunction(s=>{
@@ -111,7 +127,7 @@ async function verify(engine,label,viewport){
   assert.deepEqual(await page.evaluate(()=>JSON.parse(localStorage.getItem('laerlittmer-v2')).journey.nodes),before,
    label+' journey navigation altered saved child progress');
   assert.deepEqual(errors,[],label+' runtime errors');
-  console.log('[locked real-PNG persistence]',label,'4 old checkpoints, 4 maps, replay and reload OK');
+  console.log('[locked real-PNG persistence]',label,'four checkpoints, three original maps plus Tallvika, replay and reload OK');
   await context.close();
  }finally{await browser.close();}
 }
