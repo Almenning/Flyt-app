@@ -62,15 +62,31 @@ async function run(engine,engineName,label,width,height,url){
     const actor=document.querySelector('.tlp-stage-actors');
     const front=document.querySelector('.tlp-stage-foreground');
     const foreStyle=front&&getComputedStyle(front);
+    // The hero uses two CSS background layers: a tint gradient followed by
+    // the actual image. The foreground uses one image. Compare image to image.
+    const imageLayer=v=>v.split(',').at(-1).trim();
     return {back:back.backgroundImage,actors:actor?.children.length,front:foreStyle?.backgroundImage,
-      backgroundPosition:back.backgroundPosition,foregroundPosition:foreStyle?.backgroundPosition,
-      foregroundSize:foreStyle?.backgroundSize};
+      backgroundPosition:imageLayer(back.backgroundPosition),foregroundPosition:foreStyle?.backgroundPosition,
+      backgroundSize:imageLayer(back.backgroundSize),foregroundSize:foreStyle?.backgroundSize};
   });
   assert.match(stage.back,/tallenga-fjord-background-v2\.svg/,'painted backdrop layer must be active');
   assert.match(stage.front,/tallenga-fjord-foreground-v2\.svg/,'front meadow must occlude future actors');
   assert.equal(stage.actors,0,'No low-res cardboard trolls may be placed in actor depth plane');
-  assert.equal(stage.backgroundPosition,stage.foregroundPosition,'foreground alignment must match background');
+  assert.equal(stage.backgroundPosition,stage.foregroundPosition,'foreground alignment must match actual background image, not tint gradient');
+  assert.equal(stage.backgroundSize,stage.foregroundSize,'both painted layers must share the same crop/scale');
   assert.equal(stage.foregroundSize,'cover');
+  const layerFiles=await page.evaluate(async()=>{
+    const files=['tallenga-fjord-background-v2.svg','tallenga-fjord-foreground-v2.svg'];
+    return Promise.all(files.map(async file=>{
+      const response=await fetch('./'+file,{cache:'no-store'});
+      const source=await response.text();
+      const svg=new DOMParser().parseFromString(source,'image/svg+xml').documentElement;
+      return {file,status:response.status,tag:svg.tagName,viewBox:svg.getAttribute('viewBox'),
+        parseError:!!svg.querySelector('parsererror')};
+    }));
+  });
+  assert(layerFiles.every(x=>x.status===200&&x.tag==='svg'&&x.viewBox==='0 0 1500 680'&&!x.parseError),
+    'painted backdrop and foreground must both be valid, aligned SVG images: '+JSON.stringify(layerFiles));
   // Check visually significant painted layers, not merely game-button routing.
   const artwork=await page.evaluate(()=>{
     const root=document.querySelector('#subject-screen');
