@@ -69,7 +69,7 @@
           <div class="tv-scene-footer" aria-hidden="true"><span class="tv-scene-dot"></span>Et lite eventyrland for store oppdagelser<span class="tv-scene-line"></span><span class="tv-scene-mark">✦</span></div>
         </div>
         <div class="tv-dock">
-          <div class="tv-dock-intro"><span class="tv-kicker">VELG ET STED</span><h1>Hvor vil du leke?</h1><p>Tre hytter fulle av tallmagi. Du bestemmer!</p></div>
+          <div class="tv-dock-intro"><span class="tv-kicker">VELG ET STED</span><h1>Hvor vil du leke?</h1><p>Trykk på et hus i bildet, eller velg et av kortene.</p></div>
           <div class="tv-mobile-actions" aria-label="Tallvikas aktiviteter">
             <button type="button" class="tv-portal-card" data-tv="multiply" aria-label="Åpne Gangemagi, plukk og pakk med gange">
               <span class="tv-portal-art tv-portal-art-multiply" aria-hidden="true"><span class="tv-portal-badge">×</span></span>

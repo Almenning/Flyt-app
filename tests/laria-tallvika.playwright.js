@@ -86,6 +86,22 @@ async function run(browserType,label,viewport){
     assert.equal(shell.background,'rgb(247, 240, 223)',label+' must match Tallvika cream below the scene');
     assert.equal(await page.locator('#subject-screen').evaluate(el=>getComputedStyle(el).backgroundColor),
       'rgb(247, 240, 223)',label+' must not expose the former dark journey background');
+    if(viewport.width<=480){
+      // Painted houses on small iPhones must open the actual games,
+      // even though their arrow ornaments are hidden for legibility.
+      const spots=await page.locator('#tallvika-world .tv-scene .tv-hotspot').evaluateAll(nodes=>
+        nodes.map(node=>{const r=node.getBoundingClientRect();return {
+          action:node.dataset.tv,width:r.width,height:r.height,
+          display:getComputedStyle(node).display
+        }}));
+      assert.equal(spots.length,3,label+' lost one of the three painted houses');
+      assert(spots.every(x=>x.width>=44&&x.height>=44&&x.display!=='none'),
+        label+' painted houses are not tappable on phones: '+JSON.stringify(spots));
+      await page.locator('.tv-scene .tv-hotspot[data-tv="multiply"]').click();
+      await page.locator('#multiplication-lab-screen.active .gm-shell').waitFor({timeout:14000});
+      await page.locator('#multiplication-lab-back').click();
+      await page.locator('#subject-screen.active #tallvika-world').waitFor({state:'visible',timeout:14000});
+    }
     await page.locator('#tallvika-world [data-tv="grade"]').click();
     await page.locator('#tallvika-world .tv-grade-dialog[open]').waitFor();
     assert.equal(await page.locator('#tallvika-world [data-tv-grade]').count(),10,label+' grade options missing');

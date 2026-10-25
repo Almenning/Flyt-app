@@ -260,7 +260,14 @@ body:has(#subject-screen.tallvika-active){background:#f7f0df!important}
   .tv-top-actions{gap:6px}
   .tv-main{padding:0;gap:7px}
   .tv-scene{border-radius:0;box-shadow:none}
-  .tv-hotspot{display:none}
+  /* On small phones, the houses themselves remain large tap targets.
+     Decorative arrows disappear, but actual destinations do not. */
+  .tv-hotspot{display:grid}
+  .tv-hotspot-cue{display:none}
+  .tv-hotspot:focus-visible{
+    outline:3px solid #fff0b4;outline-offset:-3px;
+    background:#fff9d115
+  }
   .tv-scene-footer{display:none}
   .tv-scene-copy{display:none!important}
   .tv-companion{width:13.5%;height:46%}
