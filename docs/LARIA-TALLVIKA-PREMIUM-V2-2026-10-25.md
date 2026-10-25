@@ -66,3 +66,7 @@ Låst prioritet: bedre barneopplevelse og kvalitetsriktig karakterkunst foran an
 - Den utvidede Playwright-testen dekker både direkte bilderuter og aktivitetskort, korrekt retur fra interne undermoduser, tilgjengelige returlabels, lagret progresjon, gjenopprettet fokus og scroll, samt at besøksmarkeringen ikke lagres etter reload.
 
 **Karakterutvikling er avgrenset bort**. Ingen troll-/reveillustrasjoner, rigging eller animasjonsfiler berøres.
+
+## Fase 4: presise utsnitt i aktivitetshyttene
+
+En egen kontroll av faktiske WebKit-skjermbilder og originalens geometri viste at Brøklab-kortet skar midt gjennom det malte butikkskiltet; det samme kunne skje for Gangetabellen. CSS-vinduene er derfor flyttet litt ned: Brøklab 80 %, Gangetabellen 75 %. Gangemagi beholder eksisterende fokus på gangestykker/arbeidsbenk. Dette er *kun bildeposisjon*, ikke rekonstruksjon, AI-genererte varianter eller inngrep i det låste originalmotivet. Nye Chromium-/WebKit-skjermbilder må sammenlignes før visuell godkjenning.
