@@ -34,7 +34,15 @@ async function run(engine,label,viewport){
        return {screen:screen?.className,subject:screen?.dataset.subject,
          body:document.body.className,rootHidden:document.getElementById('eggenipa-world')?.hidden,
          mapClass:host?.className,mapDisplay:host&&getComputedStyle(host).display,
+         mapVisibility:host&&getComputedStyle(host).visibility,
+         mapRect:host&&Object.fromEntries(['x','y','width','height'].map(k=>[k,Math.round(host.getBoundingClientRect()[k])])),
+         mapWaiting:host?.dataset.journeyWaiting,mapFailed:host?.dataset.journeyFailed,
+         mapChildCount:host?.children.length,
          sectionDisplay:section&&getComputedStyle(section).display,
+         sectionVisibility:section&&getComputedStyle(section).visibility,
+         sectionRect:section&&Object.fromEntries(['width','height'].map(k=>[k,Math.round(section.getBoundingClientRect()[k])])),
+         screenDisplay:screen&&getComputedStyle(screen).display,
+         screenRect:screen&&Object.fromEntries(['width','height'].map(k=>[k,Math.round(screen.getBoundingClientRect()[k])])),
          mapParent:host?.parentElement?.id,returnButton:!!document.getElementById('eggenipa-map-return')};
      });
      console.log('[NORSK_BOKSKOGEN_DIRECT_PORTAL]',label,JSON.stringify(diagnostic));
