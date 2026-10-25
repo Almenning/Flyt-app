@@ -23,6 +23,7 @@
   el.innerHTML=`<div class="tlp-scene">
    <div class="tlp-top"><button type="button" class="tlp-back" data-tlp="back" aria-label="Tilbake til Hjem">‹ <span>Hjem</span></button><span class="tlp-logo">LÆRIA · MATTE</span><button type="button" class="tlp-original" data-tlp="original">Vis gammelt kart</button></div>
    <div class="tlp-intro"><span class="tlp-eyebrow">${name?'HEI, '+esc(name.toLocaleUpperCase('nb-NO'))+'! · ':''}VELKOMMEN TIL TALLENGA</span><h1>Matematikk</h1><p>Hva har du lyst til å leke med i dag?</p></div>
+   <div class="tlp-stage-actors" aria-hidden="true"></div><div class="tlp-stage-foreground" aria-hidden="true"></div>
    <div class="tlp-landscape-caption">Tallenga <span>✦</span> Der tall blir eventyr</div>
   </div>
   <div class="tlp-content"><header class="tlp-choose"><div><span class="tlp-eyebrow">VELG EN LEK</span><h2>Finn noe morsomt å gjøre</h2></div><p>Alle lekene er åpne. Du bestemmer selv.</p></header>
