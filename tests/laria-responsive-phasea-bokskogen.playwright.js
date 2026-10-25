@@ -50,6 +50,8 @@ async function proof(engine,label,viewport,url){
   await page.route('https://api.worldbank.org/**',route=>route.abort());
   await page.goto(url+'&responsive-phase-a='+label,{waitUntil:'domcontentloaded'});
   await page.locator('.bc14-subject[data-camp="subject-norwegian"]:visible').click();
+  await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
+  await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
   const screen=page.locator('#subject-screen.active');
   const map=screen.locator('.locked-journey-map[data-journey-subject="norwegian"]');
   await map.waitFor({state:'visible',timeout:30000});

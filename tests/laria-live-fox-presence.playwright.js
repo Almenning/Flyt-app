@@ -64,6 +64,8 @@ async function run(engine,name,viewport,avatar){
     await page.screenshot({path:path.join(dir,name+'-home.png'),animations:'disabled'});
 
     await page.locator('.bc14-subject[data-camp="subject-norwegian"]').click();
+     await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
+     await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
     const map=page.locator('#subject-screen.active .locked-journey-map');
     await map.waitFor({timeout:16000});
     const fox=map.locator('.locked-journey-traveler');
@@ -184,6 +186,8 @@ async function run(engine,name,viewport,avatar){
     // all four worlds, not via a test-only bypass.
     await page.locator('.screen.active .locked-journey-back').click();
     await page.locator('#home-screen.active .bc14-subject[data-camp="subject-norwegian"]').click();
+     await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
+     await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
     await map.waitFor({timeout:15000});
     const current=map.locator('.locked-journey-hotspot.state-current').first();
     await current.click();

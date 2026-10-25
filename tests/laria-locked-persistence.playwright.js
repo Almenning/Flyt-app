@@ -51,6 +51,10 @@ async function verify(engine,label,viewport){
   for(const [subject,title] of Object.entries(titles)){
    const screen=subject==='geography'?'geography':'subject';
    await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').click();
+    if(subject==='norwegian'){
+      await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
+      await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
+    }
    if(subject==='math'){
      const tv=page.locator('#subject-screen.active #tallvika-world');
      await tv.waitFor({state:'visible',timeout:16000});

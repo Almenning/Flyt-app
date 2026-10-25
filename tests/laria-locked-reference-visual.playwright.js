@@ -49,6 +49,10 @@ async function check(engine,label,viewport){
    const screen=subject==='geography'?'geography':'subject';
    await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').click();
    await page.locator('#'+screen+'-screen.active').waitFor();
+    if(subject==='norwegian'){
+      await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
+      await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
+    }
    if(subject==='math'){
      // Tallvika's wide original is covered by the dedicated PNG-integrity
      // and eight-viewport WebKit/Chromium raster checks.

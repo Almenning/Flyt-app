@@ -108,6 +108,8 @@ async function verifyBasecamp(page,label,width,height){
 
   await page.locator('.bc12-nav [data-camp="home"]').tap();
   await page.locator('.bc12-journey').tap();
+   await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
+   await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').tap();
   await page.locator('#subject-screen.active').waitFor();
   await page.locator('#subject-screen.active .locked-journey-map[data-journey-subject="norwegian"] .locked-journey-back').waitFor({state:'visible',timeout:16000});
   await noOverflow(page,label+' subject');
