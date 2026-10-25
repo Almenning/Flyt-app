@@ -19,6 +19,15 @@ async function match(page,selector,which,label,world=false){
  },[selector,which,world],{timeout:17000});
  assert.equal(await img.evaluate(el=>getComputedStyle(el).visibility),'visible',label+' hidden image');
 }
+async function matchTroll(page,selector,activity,label){
+ const img=page.locator(selector).first();await img.waitFor({timeout:17000});
+ await page.waitForFunction(([s,a])=>{
+  const el=document.querySelector(s);
+  return !!el&&el.complete&&el.naturalWidth>100&&
+    el.getAttribute('src')===window.LARIA_SKOGSTROLL.sourceForActivity(a)&&
+    getComputedStyle(el).visibility==='visible';
+ },[selector,activity],{timeout:17000});
+}
 async function launch(page,url,which){
  await page.goto(url,{waitUntil:'domcontentloaded'});
  await page.locator('#home-screen.active .bc14-subject:visible').first().waitFor({timeout:17000});
@@ -65,15 +74,17 @@ async function run(engine,name,viewport,which){
   await page.waitForFunction(()=>typeof window.openWordHunt==='function');
   await page.evaluate(()=>window.openWordHunt());
   await page.locator('.word-hunt-theme-picker:not([hidden])').waitFor();
-  await match(page,'.wh-theme-fox',which,name+' Ordjakt entrance');
+  await matchTroll(page,'.wh-theme-fox','wordHunt',name+' Ordjakt entrance');
   await page.locator('.word-hunt-theme-picker [data-word-theme="mixed"]').click();
   await page.locator('.word-hunt-cell:visible').first().waitFor();
-  await match(page,'.word-hunt-fox',which,name+' Ordjakt game');
-  await match(page,'.word-hunt-companion-fox',which,name+' Ordjakt personal in-world fox',true);
+  await matchTroll(page,'.word-hunt-fox','wordHunt',name+' Ordjakt game');
+  await matchTroll(page,'.word-hunt-companion-fox','wordHunt',name+' Ordjakt original troll');
   assert.equal(await page.locator('.word-hunt-companion').getAttribute('data-avatar'),which,
     name+' companion identity does not match the saved child profile');
   assert.equal(await page.locator('.word-hunt-companion-fox').count(),1,
-    name+' must show one personal fox, not generic duplicates');
+    name+' must show exactly one approved original troll');
+  assert.equal(await page.locator('.word-hunt-companion').getAttribute('data-laria-troll'),'storesoster',
+    name+' Word Hunt must show original storesøster');
   assert.equal(await page.locator('.word-hunt-companion-hint').count(),1);
   await page.locator('.word-hunt-companion-hint').click();
   assert.equal(await page.locator('.word-hunt-cell.is-hint-start').count(),1,

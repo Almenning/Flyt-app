@@ -164,9 +164,12 @@ async function run(engine,label,viewport,url,avatar){
    await open(page,url,label);
    await page.locator('.fw-scene-image').evaluate(img=>img.decode());
    await geometry(page,label,viewport);
-   const foxSource=await page.locator('.fw-fox').getAttribute('src');
-   assert.match(foxSource,avatar==='girl'?/girl-braids-blue-dress/:/boy-adventurer-green-vest/,
-     'Picture mode does not use the personal selected fox');
+   const trollSource=await page.locator('.fw-fox').getAttribute('src');
+   assert.equal(trollSource,'./assets/skogstroll/lillesoster.webp','Finn ordene must show original lillesøster');
+   await page.locator('.fw-fox').evaluate(img=>img.decode());
+   assert.equal(await page.locator('.fw-fox-button').getAttribute('aria-label'),'Spør skogstrollet om et hint');
+   assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('laerlittmer-v2')).profile.avatar),avatar,
+     'Original troll art must not rewrite the saved child profile');
    assert.equal(await page.locator('.fw-word').count(),6);
    assert.deepEqual((await page.locator('.fw-word strong').allTextContents()).sort(),[...targetWords].sort());
    // Correct objects do not score until a written word has been selected.
