@@ -11,9 +11,9 @@ assert.match(js,/storesoster/);assert.match(js,/lillesoster/);assert.match(js,/l
 assert.match(js,/tallvikaTroll/);
 assert.match(js,/openMultiplicationLab/);assert.match(js,/openFractionLab/);
 assert.match(css,/tallvika-master-laast-20261025\.png/);
-assert.match(js,/class="tv-portal-card\\$\\{lastVisited===/);
+assert.match(js,/class="tv-portal-card\$\{lastVisited===/);
 assert.match(js,/returnFromActivity/);
-assert.match(css,/\\.tv-portal-card\\.tv-visited/);
+assert.match(css,/\.tv-portal-card\.tv-visited/);
 assert.match(js,/class="tv-main"/);
 assert.match(css,/\.tv-portal-art-(?:multiply|fraction|table)/);
 assert.match(css,/prefers-reduced-motion/);
