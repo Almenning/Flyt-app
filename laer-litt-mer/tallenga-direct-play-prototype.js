@@ -22,7 +22,7 @@
   if(!el){el=document.createElement('section');el.id='tallenga-direct-play';el.className='tlp';el.setAttribute('aria-label','Tallenga, Matte og lek');screen.insertBefore(el,screen.firstChild);}
   el.innerHTML=`<div class="tlp-scene">
    <div class="tlp-top"><button type="button" class="tlp-back" data-tlp="back" aria-label="Tilbake til Hjem">‹ <span>Hjem</span></button><span class="tlp-logo">LÆRIA · MATTE</span><button type="button" class="tlp-original" data-tlp="original">Vis gammelt kart</button></div>
-   <div class="tlp-intro"><span class="tlp-eyebrow">VELKOMMEN TIL TALLENGA</span><h1>${name?'Hei, '+esc(name)+'!':'Velkommen!'}</h1><p>Hva har du lyst til å leke med i dag?</p></div>
+   <div class="tlp-intro"><span class="tlp-eyebrow">${name?'HEI, '+esc(name.toLocaleUpperCase('nb-NO'))+'! · ':''}VELKOMMEN TIL TALLENGA</span><h1>Matematikk</h1><p>Hva har du lyst til å leke med i dag?</p></div>
    <div class="tlp-troll-trio" role="img" aria-label="De tre godkjente skogstrollene er med på eventyret"><img class="tlp-actor tlp-actor-sister" src="./assets/skogstroll/storesoster.webp" alt="" /><img class="tlp-actor tlp-actor-middle" src="./assets/skogstroll/lillesoster.webp" alt="" /><img class="tlp-actor tlp-actor-brother" src="./assets/skogstroll/lillebror.webp" alt="" /></div>
    <div class="tlp-landscape-caption">Tallenga <span>✦</span> Der tall blir eventyr</div>
   </div>
