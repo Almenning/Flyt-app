@@ -33,3 +33,12 @@ Produktforsøk: Er en levende fagforside med direkte inngang til lekene bedre en
 
 ## Status
 Kode innført på isolert branch. Formell Chromium- og WebKit-kjøring og skjermbilder er ikke gjennomført i denne iterasjonen. Merge og publisering er sperret i påvente av tester og produktgodkjenning.
+
+
+## Oppdatering 25.10.2026: fjordscene og låste troll
+- Den håndkomponerte fjord-/fjellillustrasjonen `tallenga-fjord-scene-v1.svg` er inspirert av brukerens referansefoto av Ryssdalshornet. Den er en selvstendig Tallenga-scene, **ikke** Kjøsnesfjorden/Grovanova og gjør ikke krav på fotografisk eksakt fjellsilhuett.
+- De tre godkjente og identiske originalfigurene er kopiert som Git-blob-SHA fra PR #218/#211: `assets/skogstroll/storesoster.webp` (`5d5f80c15e367bbd4600013057c7820a7b2e2adb`), `lillesoster.webp` (`661107cd231a72b14aeca4f7bc3c826130734576`) og `lillebror.webp` (`5f92c89319ec372b980c75eb3d538a4f4f851a7c`). Disse filene er ikke regenerert, malt om eller erstattet.
+- Både tre separate herofigurer og spillkort bruker kun de godkjente filene. Ingen syntetiske troll i produksjonsmarkup. Rolig dekorativ bevegelse av figurcontainere er **ikke** 2D-rigging; den separate levende-TrollActor-piloten krever egen godkjenning og må ikke påstås ferdig her.
+- Eksisterende Gangemagi, Brøklab og Gangetabell er koblet til tre synlige, separate kort. `Neste eventyr` bruker eksisterende recommended-node uten dataendringer.
+- Dedikert Playwright-test i `tests/laria-tallenga-direct-play.playwright.js` og GitHub Actions `.github/workflows/laria-tallenga-direct-play.yml` tester i Chromium og WebKit på iPhone og iPad og arkiverer faktiske screenshots.
+- Fremdeles bare `?tallenga=prototype` i PR #220. Ingen merge/publisering til main. Testkjøring/visuell godkjenning skal kontrolleres på eksakt HEAD før integrasjon med de parallelle draft-PR-ene.
