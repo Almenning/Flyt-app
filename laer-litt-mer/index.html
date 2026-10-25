@@ -3712,6 +3712,13 @@ function appBack(){
   const mission=document.getElementById('journey-mission-backdrop');if(mission&&!mission.hidden){closeJourneyMission();return true}
 
   const current=activeScreenName();
+  // Tallvika's real Home button preserves the Basecamp/Reisen origin. The
+  // legacy hidden subject-back button unconditionally calls setTab('home')
+  // and would discard this origin on an iOS edge swipe.
+  if(current==='subject'&&document.querySelector('#subject-screen.active.tallvika-active')){
+    const tallvikaBack=document.querySelector('#tallvika-world [data-tv="back"]');
+    if(tallvikaBack){tallvikaBack.click();return true;}
+  }
   // One source of truth: a swipe performs the active screen's own back action.
   // In the labs this also respects their internal pages before exiting.
   const visibleBack={
