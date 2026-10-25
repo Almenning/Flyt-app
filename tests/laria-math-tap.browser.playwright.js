@@ -69,7 +69,12 @@ async function run(browser,engine,device,width,height,url){
     assert.deepEqual((await choices.evaluateAll(els=>els.map(x=>x.dataset.answer))).sort(),['8','80','82']);
     assert.equal(await page.locator('#math-input').count(),0,'no typing or mobile keyboard');
     assert.equal(await page.locator('.laria-task-card').count(),1,'preserve premium task scene');
-    await page.waitForFunction(()=>!!document.querySelector('.task-prompt-fox-stage .laria-fox-wardrobe-art[data-fox-art="boy-fullbody-v1"]'));
+    await page.waitForFunction(()=>{
+      const el=document.querySelector('.task-prompt-fox-stage .task-fox-companion.laria-troll-host[data-laria-troll="lillebror"] > img');
+      return !!el&&el.complete&&el.naturalWidth>100&&getComputedStyle(el).visibility==='visible';
+    });
+    assert.equal(await page.evaluate(()=>state.profile.avatar),'boy',
+      'switching presentation to the locked troll cannot rewrite the saved profile');
     const layout=await page.evaluate(()=>{
       const nodes=[...document.querySelectorAll('.young-math-option')];
       const fox=document.querySelector('.task-prompt-fox-stage > .task-fox-companion');
@@ -83,7 +88,8 @@ async function run(browser,engine,device,width,height,url){
         read:document.querySelector('.task-card-head .read-aloud')?.getBoundingClientRect().toJSON(),
         foxHosts:document.querySelectorAll('#session-screen .task-fox-companion').length,
         foxRigs:fox?.querySelectorAll('.laria-fox-wardrobe-art').length,
-        profile:fox?.dataset.avatar,
+        figure:fox?.dataset.lariaTroll,
+        profile:state.profile.avatar,
         font:nodes.map(n=>parseFloat(getComputedStyle(n).fontSize)),
         columns:getComputedStyle(document.querySelector('.young-math-answers')).gridTemplateColumns
       };
@@ -94,27 +100,35 @@ async function run(browser,engine,device,width,height,url){
     assert.ok(layout.rects.every(x=>x.height>=58),'tap targets too small: '+JSON.stringify(layout));
     assert.ok(layout.rects[0].y===layout.rects[1].y&&layout.rects[1].y===layout.rects[2].y,
       'choices should be three in one row: '+JSON.stringify(layout));
-    assert.equal(layout.foxHosts,1,'there must be exactly one selected fox');
-    assert.equal(layout.foxRigs,1,'wardrobe must render exactly one full-body character');
-    assert.equal(layout.profile,'boy','boy profile must use the selected boy fox');
+    assert.equal(layout.foxHosts,1,'there must be exactly one visible character');
+    assert.equal(layout.foxRigs,0,'no obsolete fox outfit may cover the original troll');
+    assert.equal(layout.figure,'lillebror','math must show the locked little-brother skogstroll');
+    assert.equal(layout.profile,'boy','changing artwork must preserve the child profile');
     assert.ok(layout.fox&&layout.fox.width>=(height<=540?70:width<=360?72:88)&&layout.fox.height>=(height<=540?110:width<=360?110:130)
       &&layout.fox.top>=0&&layout.fox.right<=layout.screen+4
       &&layout.fox.bottom<Math.min(...layout.rects.map(x=>x.top)),
-      'full-body fox must be large and never cover any touch target: '+JSON.stringify(layout));
+      'skogstroll must be large and never cover any touch target: '+JSON.stringify(layout));
     assert.ok(layout.question&&layout.question.right<=layout.fox.left+3,
-      'fox must be beside the question rather than pasted over its text: '+JSON.stringify(layout));
+      'skogstroll must be beside the question rather than pasted over its text: '+JSON.stringify(layout));
     assert.ok(!layout.read||layout.read.bottom<=layout.fox.top+4,
-      'fox must not obscure the read-aloud control: '+JSON.stringify(layout));
+      'skogstroll must not obscure the read-aloud control: '+JSON.stringify(layout));
     assert.ok(layout.rects.every(r=>r.bottom<=height+4),
       'young child must see the full answer row without scrolling: '+JSON.stringify({device,height,layout}));
     await capture(page,engine,device,'01-choices');
-    // The same task is rendered with the other saved profile choice. No
-    // generic companion, extra overlay, duplicated fox or lost answer options.
+    // The other saved profile choice retains the same fixed subject troll.
+    // Neither changing avatar nor rerendering can duplicate the companion or
+    // erase answers and persisted profile data.
     await page.evaluate(()=>{state.profile.avatar='girl';renderQuestion()});
     await page.waitForFunction(()=>{
       const fox=document.querySelector('.task-prompt-fox-stage > .task-fox-companion');
-      return fox?.dataset.avatar==='girl'&&!!fox.querySelector('.laria-fox-wardrobe-art[data-fox-art="girl-fullbody-v1"]');
+      const img=fox?.querySelector(':scope > img');
+      return fox?.dataset.lariaTroll==='lillebror'&&img?.complete&&img.naturalWidth>100&&
+        img.getAttribute('src')?.endsWith('/assets/skogstroll/lillebror.webp')&&
+        getComputedStyle(img).visibility==='visible'&&
+        !fox.querySelector('.laria-fox-wardrobe-art');
     });
+    assert.equal(await page.evaluate(()=>state.profile.avatar),'girl',
+      'changing profile avatar must persist without modifying the subject troll');
     assert.equal(await page.locator('#session-screen .task-fox-companion').count(),1,'changing avatar must not add another mascot');
     assert.equal(await page.locator('.young-math-option').count(),3,'switching fox must retain all answer choices');
     await capture(page,engine,device,'01-girl');

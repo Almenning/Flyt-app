@@ -39,5 +39,5 @@ test('locked and alternate journey renderers disambiguate grade-2 completion',()
 
 test('changed renderers are cache-busted in the live app',()=>{
   assert.match(html,/journey-world-premium\.js\?v=20261016-chapter1-completion1/);
-  assert.match(html,/locked-journey-renderer\.js\?v=20261016-chapter1-completion1/);
+  assert.match(html,/locked-journey-renderer\.js\?v=20261024-skogstroll-walk1/);
 });

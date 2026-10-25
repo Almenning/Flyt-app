@@ -67,10 +67,15 @@
     write(ACTIVE_KEY,{version:1,round:active.round,found:[...active.found],completed:active.completed,selected:selectedWord});
   }
   function chosenFox(){
+    const saved=root.LARIA_FOX?.choice?.()||'boy';
+    const troll=root.LARIA_SKOGSTROLL;
+    if(troll?.enabled?.())return {
+      choice:saved,troll:true,label:troll.labelForActivity('findTheWords'),
+      source:troll.sourceForActivity('findTheWords')
+    };
     const api=root.LARIA_FOX;
-    const choice=api?.choice?.()||'boy';
-    return {choice,label:api?.label?.(choice)||'Din rev',
-      source:api?.worldSource?.(choice)||'./lia-fox-explorer-home.webp'};
+    return {choice:saved,troll:false,label:api?.label?.(saved)||'Din rev',
+      source:api?.worldSource?.(saved)||'./lia-fox-explorer-home.webp'};
   }
   function words(){return ROUNDS[active.round]}
   function sceneId(){return active?.round>=3?'garden':'forest'}
@@ -107,8 +112,8 @@
       objectButtons()+'<svg class="fw-fx" viewBox="0 0 1200 720" preserveAspectRatio="none" aria-hidden="true"></svg>'+
       '<div class="fw-celebration" hidden aria-hidden="true">✦ ✧ ✦</div></div></div>'+
       '<div class="fw-scene-bottom"><span class="fw-scenery-caption">Trykk på et ord eller dra det til tingen.</span></div></div></div>'+
-      '<footer class="fw-bottom"><div class="fw-companion" data-mood="idle">'+
-      '<button type="button" class="fw-fox-button" aria-label="Spør reven om et hint"><img class="fw-fox" src="'+fox.source+'" alt="'+fox.label+'" draggable="false"></button>'+ 
+      '<footer class="fw-bottom"><div class="fw-companion'+(fox.troll?' is-skogstroll':'')+'" data-mood="idle">'+
+      '<button type="button" class="fw-fox-button" aria-label="'+(fox.troll?'Spør skogstrollet om et hint':'Spør reven om et hint')+'"><img class="fw-fox" src="'+fox.source+'" alt="'+fox.label+'" draggable="false"></button>'+ 
       '<div class="fw-speech" role="status" aria-live="polite">Jeg blir med! Velg et ord, så finner vi tingen.</div></div>'+
       '<div class="fw-controls"><button type="button" class="fw-next">Ny ordjakt <span aria-hidden="true">↗</span></button></div></footer></div>';
   }

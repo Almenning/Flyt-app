@@ -19,7 +19,8 @@
   function selectedAvatar(){
     try{return state?.profile?.avatar==='girl'?'girl':'boy'}catch(_){return 'boy'}
   }
-  function selectedAvatarSource(){
+  function selectedAvatarSource(subject){
+    if(window.LARIA_SKOGSTROLL?.enabled?.())return window.LARIA_SKOGSTROLL.sourceForSubject(subject);
     const which=selectedAvatar();
     try{
       if(typeof avatarSrc==='function')return avatarSrc(which);
@@ -45,13 +46,17 @@
       '" width="'+w+'" height="'+h+'" style="left:'+px(x,941)+';top:'+px(y,1672)+
       ';width:'+px(w,941)+';height:'+px(h,1672)+'">';
   }
-  function liveProfileMarkup(progress){
-    const which=selectedAvatar(),label=which==='girl'?'Din valgte revejente':'Din valgte revegutt';
+  function liveProfileMarkup(progress,subject){
+    const which=selectedAvatar(),troll=!!window.LARIA_SKOGSTROLL?.enabled?.();
+    const label=troll?window.LARIA_SKOGSTROLL.labelForSubject(subject):
+      which==='girl'?'Din valgte revejente':'Din valgte revegutt';
     // The approved painting contains a sample portrait and "127". Cover both
     // with real local profile/progress UI so decorative pixels are never
     // presented as the child's saved avatar or earned score.
-    return '<div class="locked-journey-profile" data-avatar="'+which+'" aria-label="'+label+'">'+
-      '<img src="'+esc(selectedAvatarSource())+'" alt=""></div>'+
+    return '<div class="locked-journey-profile'+(troll?' laria-troll-host':'')+'"'+(troll?'':' data-avatar="'+which+'"')+
+      (troll?' data-laria-troll="'+window.LARIA_SKOGSTROLL.keyFor(subject)+'"':'')+
+      ' aria-label="'+label+'">'+
+      '<img src="'+esc(selectedAvatarSource(subject))+'" alt=""></div>'+
       '<div class="locked-journey-live-progress" role="status" aria-label="'+esc(progress.done+' av '+progress.total+' oppdrag fullført i denne reisen')+'">'+
       '<span aria-hidden="true">★</span><b>'+progress.done+' / '+progress.total+'</b></div>';
   }
@@ -313,7 +318,7 @@
         '</small></span><b aria-hidden="true">➜</b></button>':'';
     const intro=stage.progress.complete&&finished?(chapterOne?'Første eventyr er fullført!':'Hele reisen er fullført!'):
       finished?'Du klarte oppdraget!':
-      lead?'Reven er klar. Er du?':
+      lead?(window.LARIA_SKOGSTROLL?.enabled?.()?'Skogstrollet er klart. Er du?':'Reven er klar. Er du?'):
       place.total===0?'Et nytt sted å utforske.':
       'Dette stedet venter på deg.';
     const support=stage.progress.complete&&finished?(chapterOne?'Alle hovedoppdrag i første eventyr er gjennomført. Du kan alltid spille igjen.':'Alle hovedoppdrag er gjennomført. Du kan alltid spille igjen.'):
@@ -381,7 +386,7 @@
     host.innerHTML='<section class="locked-journey-board" aria-label="'+esc(def.subjectLabel+' – '+def.title+', interaktivt eventyrkart')+'">'+
       '<img class="locked-journey-image" src="./'+esc(def.asset)+'" alt="" draggable="false" width="941" height="1672">'+
       foxFreeOverlayMarkup(subject)+
-      liveProfileMarkup(s.progress)+
+      liveProfileMarkup(s.progress,subject)+
       (places.length?(()=>{
         // A completed journey still has its personal fox at the last reached stop.
         const here=places.find(p=>p.recommended)||[...places].reverse().find(p=>p.done>0)||places[0];
@@ -389,7 +394,13 @@
         // The reusable character is positioned by its feet. The original
         // painted generic fox still requires artwork retouch before publishing.
         const point=contract.foxFootAnchor(subject,here.index);
-        return '<div class="locked-journey-traveler" data-avatar="'+selectedAvatar()+'" data-laria-fox-stop="'+here.index+'" style="--fox-x:'+point.x+'%;--fox-y:'+point.y+'%" aria-label="Din rev er med på reisen"><img src="'+esc(selectedAvatarSource())+'" alt=""><span class="locked-fox-label">Min rev</span></div>';
+        const troll=!!window.LARIA_SKOGSTROLL?.enabled?.();
+        return '<div class="locked-journey-traveler'+(troll?' laria-troll-host':'')+'"'+(troll?'':' data-avatar="'+selectedAvatar()+'"')+
+          (troll?' data-laria-troll="'+window.LARIA_SKOGSTROLL.keyFor(subject)+'"':'')+
+          ' data-laria-fox-stop="'+here.index+'" style="--fox-x:'+point.x+'%;--fox-y:'+point.y+'%" aria-label="'+
+          (troll?window.LARIA_SKOGSTROLL.labelForSubject(subject)+' er med på reisen':'Din rev er med på reisen')+
+          '"><img src="'+esc(selectedAvatarSource(subject))+'" alt=""><span class="locked-fox-label">'+
+          (troll?'Skogstroll':'Min rev')+'</span></div>';
       })():'')+
       '<div class="locked-journey-hits">'+places.map(p=>placeButton(subject,p,model,s.firstOpen)).join('')+'</div>'+
       '<button type="button" class="locked-journey-back" aria-label="Tilbake til '+(window.LARIA_BASECAMP_RETURN_VIEW?.()==='travel'?'Reisen':window.LARIA_BASECAMP_RETURN_VIEW?.()==='explore'?'Utforsk':'Hjem')+'"></button>'+

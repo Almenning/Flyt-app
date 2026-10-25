@@ -1,0 +1,122 @@
+/* Læria skogstroll: three exact approved character cutouts in first-chapter
+   journeys and young-grade task scenes. Never retouch the locked 941x1672
+   journey maps or the Kjøsnesfjorden/Grovanova Hjem master. */
+.grade-band-young .locked-journey-profile.laria-troll-host,
+.grade-band-young .locked-journey-traveler.laria-troll-host{
+  pointer-events:none!important;
+}
+.grade-band-young .locked-journey-profile.laria-troll-host > img{
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  visibility:visible!important;
+  object-fit:cover!important;
+  object-position:center 17%!important;
+}
+.grade-band-young .locked-journey-board .locked-journey-traveler.laria-troll-host{
+  width:clamp(70px,19%,120px)!important;
+  height:auto!important;
+  aspect-ratio:4 / 5!important;
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  filter:drop-shadow(0 5px 4px rgba(19,41,29,.38))!important;
+  /* foxFootAnchor values identify the painted path under the character's feet.
+     The old circular avatar incorrectly centered on the stop, covering its sign.
+     Anchor the troll by its feet above the touch landmark instead. */
+  transform:translate(-50%,-100%)!important;
+}
+.grade-band-young .locked-journey-board .locked-journey-traveler.laria-troll-host>img{
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  object-fit:contain!important;
+  object-position:center bottom!important;
+  opacity:1!important;
+  visibility:visible!important;
+  border:0!important;
+  border-radius:0!important;
+}
+.grade-band-young .laria-troll-host > .laria-fox-wardrobe-placed,
+.grade-band-young .laria-troll-host > .laria-fox-wardrobe-art{
+  display:none!important;
+}
+/* In a mission sheet the SAME traveler is moved out of the map. The
+   retired fox sheet deliberately hides its profile image to show the SVG rig.
+   A troll has no fox rig: restore its genuine original cutout in that portal. */
+#subject-screen .locked-journey-sheet.is-mission .mission-fox-stage .locked-journey-traveler.laria-troll-host>img,
+#geography-screen .locked-journey-sheet.is-mission .mission-fox-stage .locked-journey-traveler.laria-troll-host>img{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  width:100%!important;
+  height:100%!important;
+  object-fit:contain!important;
+  object-position:center bottom!important;
+}
+
+#session-screen.task-scene[data-task-band="young"] .task-fox-companion.laria-troll-host{
+  border:0!important;
+  overflow:visible!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  pointer-events:none!important;
+}
+#session-screen.task-scene[data-task-band="young"] .task-fox-companion.laria-troll-host>img,
+#session-screen.task-scene[data-task-band="young"] .task-visual-companion-stage .task-fox-companion.laria-troll-host>img,
+#session-screen.task-scene[data-task-band="young"] .task-prompt-fox-stage .task-fox-companion.laria-troll-host>img{
+  display:block!important;
+  opacity:1!important;
+  visibility:visible!important;
+  width:100%!important;
+  height:100%!important;
+  object-fit:contain!important;
+  object-position:center bottom!important;
+  /* The source WebP already has genuine transparent pixels. The rectangular
+     sticker/matte came from the retired fox portrait rule
+     (laria-fox-identity.css: box-shadow on the <img> element), NOT from
+     the original troll artwork. Never blend or recolour these originals. */
+  background:transparent!important;
+  box-shadow:none!important;
+  mix-blend-mode:normal!important;
+  filter:none!important;
+}
+#session-screen.task-scene[data-task-band="young"] .task-fox-companion.laria-troll-host .task-profile-marker{
+  display:none!important;
+}
+/* Character size follows the illustrated first-fold scene, never the
+   answer controls. No extra card or floating avatar thumbnail. */
+@media(min-width:701px){
+  #session-screen.task-scene[data-task-band="young"] .task-visual-companion-stage .task-fox-companion.laria-troll-host{
+    right:10px!important;bottom:9px!important;top:auto!important;
+    width:132px!important;height:164px!important;
+  }
+}
+@media(max-width:700px){
+  #session-screen.task-scene[data-task-band="young"] .task-visual-companion-stage .task-fox-companion.laria-troll-host{
+    right:2px!important;bottom:7px!important;top:auto!important;
+    width:80px!important;height:103px!important;
+  }
+}
+@media(max-width:360px){
+  #session-screen.task-scene[data-task-band="young"] .task-visual-companion-stage .task-fox-companion.laria-troll-host{
+    width:62px!important;height:84px!important;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  #session-screen.task-scene[data-task-band="young"] .task-fox-companion.laria-troll-host,
+  .grade-band-young .locked-journey-traveler.laria-troll-host{
+    animation:none!important;
+    transition:none!important;
+  }
+}
+
+/* Exact transparent forest trolls in both Norwegian word games. */
+.word-hunt-overlay.is-skogstroll .word-hunt-fox,
+.word-hunt-overlay.is-skogstroll .wh-theme-fox,
+.word-hunt-overlay.is-skogstroll .word-hunt-companion-fox,
+#find-the-words-overlay .fw-companion.is-skogstroll .fw-fox{
+  border:0!important;border-radius:0!important;box-shadow:none!important;
+  background:transparent!important;object-fit:contain!important;
+  mix-blend-mode:normal!important;object-position:center bottom!important;
+}

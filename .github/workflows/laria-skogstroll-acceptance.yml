@@ -1,0 +1,78 @@
+name: Laria Skogstroll journeys and tasks
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'laer-litt-mer/laria-skogstroll-v1.*'
+      - 'laer-litt-mer/assets/skogstroll/**'
+      - 'laer-litt-mer/locked-journey-renderer.js'
+      - 'laer-litt-mer/laria-task-scene-v15.js'
+      - 'laer-litt-mer/laria-fox-wardrobe.js'
+      - 'laer-litt-mer/index.html'
+      - 'tests/laria-skogstroll-journeys.playwright.js'
+      - '.github/workflows/laria-skogstroll-acceptance.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: laria-skogstroll-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  original-trolls:
+    runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.62.1-noble
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install pinned dependencies
+        run: npm ci
+      - name: Verify exact PR HEAD and JavaScript syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          test "$(git rev-parse HEAD)" = "${{ github.event.pull_request.head.sha || github.sha }}"
+          node --check laer-litt-mer/laria-skogstroll-v1.js
+          node --check laer-litt-mer/locked-journey-renderer.js
+          node --check laer-litt-mer/laria-task-scene-v15.js
+          node --check laer-litt-mer/laria-fox-wardrobe.js
+          node --check tests/laria-skogstroll-journeys.playwright.js
+      - name: Real four-world journey and task acceptance in Chromium/WebKit
+        shell: bash
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+          LARIA_TROLL_SCREENSHOTS: /tmp/laria-skogstroll-proof
+        run: |
+          set -euo pipefail
+          python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/laria-troll-http.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          node -e 'const http=require("node:http");let n=0;const check=()=>http.get("http://127.0.0.1:8765/laer-litt-mer/?app=laria",res=>res.resume()).on("error",()=>n++<30?setTimeout(check,200):process.exit(1));check()'
+          node tests/laria-skogstroll-journeys.playwright.js
+      - name: Save actual screenshots of all four journeys and tasks
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-skogstroll-journeys-${{ github.event.pull_request.head.sha || github.sha }}
+          path: /tmp/laria-skogstroll-proof
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Preserve original character assets for visual transparency inspection
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-skogstroll-originals-${{ github.event.pull_request.head.sha || github.sha }}
+          path: laer-litt-mer/assets/skogstroll/*.webp
+          if-no-files-found: error
+          retention-days: 14

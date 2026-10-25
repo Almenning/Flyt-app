@@ -86,7 +86,8 @@ function measure(page){
    imageFit:getComputedStyle(img).objectFit,
    imageOriginal:[img.naturalWidth,img.naturalHeight],
    subject:map.dataset.journeySubject,
-   fox:map.querySelectorAll('.locked-journey-traveler[data-avatar="girl"]').length,
+   troll:map.querySelectorAll('.locked-journey-traveler.laria-troll-host[data-laria-troll="'+
+     ({norwegian:'storesoster',math:'lillebror',english:'lillesoster',geography:'storesoster'}[map.dataset.journeySubject]||'')+'"]').length,
    hits:points.map(rect),labels:points.map(node=>node.getAttribute('aria-label')),
    nonMapChildren:children,
    globePresent:!!oldGlobe,
@@ -146,7 +147,7 @@ async function validate(page,subject,label,view,screen){
  assert(g.horizontalOverflow<=2,label+' horizontal overflow '+g.horizontalOverflow);
  assert(g.hits.length===5&&g.hits.every(x=>x.width>=44&&x.height>=44),
   label+' five usable mission touch targets not retained '+JSON.stringify(g.hits));
- assert(g.fox===1,label+' selected personal fox missing or duplicated');
+ assert(g.troll===1,label+' original approved skogstroll missing or duplicated');
  assert(g.labels.every(t=>t?.includes('Sted ')),label+' mission labels inaccessible');
  if(subject!=='geography'){
   assert.equal(g.nonMapChildren.length,0,

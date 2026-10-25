@@ -67,22 +67,27 @@ async function run(engine,name,viewport,url){
    },{subject,question});
    const label=name+' '+subject;
    await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:12000});
-   assert.equal(await page.locator('#session-screen .task-fox-companion').count(),1,label+' duplicate fox');
-   // The legacy profile is hidden from the first paint in BOTH text-only
-   // and illustrated tasks. Wait for the selected full-body wardrobe SVG,
-   // then capture evidence; otherwise a screenshot can freeze the fallback
-   // portrait during the requestAnimationFrame composition handoff.
-   await page.waitForFunction(visual=>{
-    const fox=document.querySelector('#session-screen.active .task-fox-companion');
-    const original=fox?.querySelector('img');
-    const rig=fox?.querySelector('svg.laria-fox-wardrobe-placed[data-fox-art="girl-fullbody-v1"]');
-    const marker=fox?.querySelector('.task-profile-marker');
-    return !!original&&!!rig&&getComputedStyle(original).visibility==='hidden'&&
-      rig.getBoundingClientRect().width>30&&rig.getBoundingClientRect().height>40&&
-      (!visual||!marker||getComputedStyle(marker).display==='none');
-   },!!question.visual,{timeout:15000});
-   assert.equal(await page.locator('#session-screen .task-fox-companion .laria-fox-wardrobe-placed').count(),1,
-    label+' duplicate or missing chosen full-body fox');
+   const trollFor={norwegian:'storesoster',math:'lillebror',english:'lillesoster',geography:'storesoster'}[subject];
+   const companion=page.locator('#session-screen .task-fox-companion.laria-troll-host');
+   assert.equal(await companion.count(),1,label+' must have one approved forest-troll companion');
+   assert.equal(await companion.getAttribute('data-laria-troll'),trollFor,label+' wrong original skogstroll');
+   // Verify genuine visible original artwork instead of waiting on a retired
+   // fox outfit rig. Keep first-paint no-flash, single-character and geometry checks.
+   await page.waitForFunction(({troll,visual})=>{
+     const host=document.querySelector('#session-screen.active .task-fox-companion.laria-troll-host');
+     const img=host?.querySelector(':scope > img');
+     const marker=host?.querySelector('.task-profile-marker');
+     return img?.complete&&img.naturalWidth>100&&img.naturalHeight>100&&
+       img.getAttribute('src')?.endsWith('/assets/skogstroll/'+troll+'.webp')&&
+       getComputedStyle(img).visibility==='visible'&&
+       img.getBoundingClientRect().width>30&&img.getBoundingClientRect().height>40&&
+       host.querySelectorAll(':scope > svg.laria-fox-wardrobe-placed').length===0&&
+       (!visual||!marker||getComputedStyle(marker).display==='none');
+   },{troll:trollFor,visual:!!question.visual},{timeout:15000});
+   assert.equal(await page.locator('#session-screen .task-fox-companion.laria-troll-host svg.laria-fox-wardrobe-placed').count(),0,
+     label+' duplicate fox layer leaked into original troll scene');
+   assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('laerlittmer-v2')).profile.avatar),'girl',
+     label+' character replacement modified persisted child identity');
    const first=await page.evaluate(()=>{
     const progress=document.querySelector('#session-screen .session-progress');
     const read=document.querySelector('#session-screen .read-aloud');

@@ -52,43 +52,161 @@
   pointer-events:none!important;
 }
 
-/* The locked master already carries the approved visual composition.
-   Keep existing controls alive, but render them as semantic hit areas. */
+/* Locked Home v15 legacy scene suppression.
+   Keep the older Basecamp elements mounted for state and fallback, but
+   never render them over the approved master image. In particular, do not
+   accidentally resurrect the old fox when replacing the four subject portals. */
 .grade-band-young .bc12.bc15-locked-home :is(
   .bc12-sun,.bc12-heading,.bc12-explore-ribbon,.bc12-destinations,
   .bc12-journey-route,.bc12-you-are-here,.bc12-next-beacon,
   .bc12-fox,.bc12-fox-call,.bc14-free,.bc12-quest,.bc12-treasure,
   .bc12-spark
-){
-  display:none!important;
-}
+){display:none!important}
 
+/* Home v15: replace the baked-in, low-resolution subject-card faces with
+   four actual illustrated portals. The mountain/trio/master images stay immutable.
+   These are the SAME semantic buttons already wired to the four subjects;
+   only their visual faces become independently rendered, sharp and responsive. */
 .grade-band-young .bc12.bc15-locked-home .bc14-subjects{
-  display:grid!important;
-  position:absolute!important;
-  z-index:15!important;
-  left:35.3%!important;
-  top:69.2%!important;
-  width:61.1%!important;
-  height:24.2%!important;
+  display:grid!important;position:absolute!important;z-index:15!important;
+  left:35.3%!important;top:69.2%!important;width:61.1%!important;height:24.2%!important;
   grid-template-columns:repeat(4,minmax(0,1fr))!important;
-  grid-template-rows:1fr!important;
-  gap:1.05%!important;
-  pointer-events:auto!important;
+  grid-template-rows:1fr!important;gap:1.05%!important;
+  isolation:isolate!important;
+  background:#21372e!important;
+  border-radius:15px!important;
+  pointer-events:auto!important
+}
+/* The locked Home master contains the former four cards, including their text
+   and pale rounded edges. The opaque forest/wood underlay removes those baked
+   pixels from the gaps so a child never sees two rows of cards or labels. */
+.grade-band-young .bc12.bc15-locked-home .bc14-subjects::before{
+  content:"";position:absolute;z-index:0;inset:-3px;
+  background:radial-gradient(ellipse at 40% 0%,#967347 0%,#324435 32%,#162d29 92%);
+  border-radius:16px;
+  box-shadow:inset 0 1px 0 #e7c68a80,0 2px 5px #1526207a;
+  pointer-events:none;
 }
 .grade-band-young .bc12.bc15-locked-home .bc14-subject{
+  position:relative!important;z-index:1!important;display:block!important;isolation:isolate!important;
   min-width:0!important;min-height:0!important;width:100%!important;height:100%!important;
-  padding:0!important;margin:0!important;border:0!important;border-radius:12px!important;
-  background:transparent!important;box-shadow:none!important;filter:none!important;
-  opacity:.001!important;
+  padding:3px!important;margin:0!important;
+  border:2px solid #6f4929!important;border-radius:15px 16px 14px 15px!important;
+  background:linear-gradient(140deg,#ffe2a5 0%,#bd864a 55%,#79502d 100%)!important;
+  color:#fff9e7!important;opacity:1!important;filter:none!important;overflow:hidden!important;
+  box-shadow:inset 0 0 0 1px #f5d49c,0 3px 0 #51341d,0 6px 15px #1c252650!important;
+  transform:translateY(0)!important;
+  transition:transform .16s ease,box-shadow .16s ease,filter .16s ease!important;
+  touch-action:manipulation!important;cursor:pointer!important
 }
-.grade-band-young .bc12.bc15-locked-home .bc14-subject:focus-visible{
-  opacity:.22!important;
-  outline:4px solid #fff4bd!important;
-  outline-offset:2px!important;
-  background:#fff8c9!important;
+.grade-band-young .bc12.bc15-locked-home .bc14-subject::before{
+  content:"";position:absolute;left:9%;top:1px;width:46%;height:2px;z-index:4;
+  border-radius:50%;background:linear-gradient(90deg,#fff0c800,#fff7daaf,#fff0c800);
+  pointer-events:none
 }
+.grade-band-young .bc12.bc15-locked-home .bc14-subject::after{
+  content:"›";position:absolute;right:7px;bottom:10px;z-index:5;pointer-events:none;
+  display:grid;place-items:center;width:24px;height:24px;border-radius:50%;
+  border:1px solid #f5dfac;background:linear-gradient(#fff9e8,#ebd5a8);
+  color:#65462a;font-size:25px;font-weight:850;line-height:1;
+  box-shadow:0 2px 5px #081b1c55
+}
+.grade-band-young .bc12.bc15-locked-home .bc14-subject-scene{
+  position:absolute!important;display:block!important;
+  inset:3px!important;width:auto!important;height:auto!important;
+  margin:0!important;border:1px solid #ffe5b499!important;
+  border-radius:10px 11px 9px 10px!important;
+  background-size:cover!important;background-repeat:no-repeat!important;
+  box-shadow:inset 0 0 0 1px #ffedca44!important;
+  overflow:hidden!important
+}
+.grade-band-young .bc12.bc15-locked-home .bc14-norwegian .bc14-subject-scene{
+  background-image:linear-gradient(180deg,#ffe9aa13,transparent 47%,#091e1d44),url("./assets/cards/reisen/norwegian-premium.webp")!important;
+  background-position:center,50% 48%!important
+}
+.grade-band-young .bc12.bc15-locked-home .bc14-math .bc14-subject-scene{
+  background-image:linear-gradient(180deg,#fff2c61e,transparent 45%,#182c2449),url("./assets/cards/reisen/math-premium.webp")!important;
+  background-position:center,50% 56%!important
+}
+.grade-band-young .bc12.bc15-locked-home .bc14-english .bc14-subject-scene{
+  background-image:linear-gradient(180deg,#ffe7b017,transparent 48%,#261a2640),url("./assets/cards/reisen/english-premium.webp")!important;
+  background-position:center,54% 52%!important
+}
+.grade-band-young .bc12.bc15-locked-home .bc14-geography .bc14-subject-scene{
+  background-image:linear-gradient(180deg,#e5e7ff0b,transparent 49%,#071d2f60),url("./assets/cards/reisen/geography-premium.webp")!important;
+  background-position:center,48% 42%!important
+}
+/* The v14 artwork remains in the DOM for fallback mode, but cannot appear on
+   top of the new scene, duplicate text, or create a second click target. */
+.grade-band-young .bc12.bc15-locked-home .bc14-subject-scene>svg,
+.grade-band-young .bc12.bc15-locked-home .bc14-subject-scene>img,
+.grade-band-young .bc12.bc15-locked-home .bc14-emblem{
+  display:none!important
+}
+.grade-band-young .bc12.bc15-locked-home .bc14-vignette{
+  position:absolute!important;inset:0!important;display:block!important;
+  background:radial-gradient(ellipse at 30% 9%,#ffefb544,transparent 60%),linear-gradient(180deg,transparent 48%,#08191e80 100%)!important;
+  box-shadow:none!important;pointer-events:none!important
+}
+.grade-band-young .bc12.bc15-locked-home .bc14-subject-copy{
+  display:flex!important;position:absolute!important;z-index:3!important;
+  left:4px!important;right:4px!important;bottom:4px!important;top:auto!important;
+  width:auto!important;min-height:0!important;max-width:none!important;
+  margin:0!important;padding:25px 29px 5px 6px!important;gap:2px!important;
+  box-sizing:border-box!important;flex-direction:column!important;
+  align-items:flex-start!important;justify-content:flex-end!important;
+  text-align:left!important;pointer-events:none!important;
+  border-radius:0 0 8px 8px!important;
+  background:linear-gradient(180deg,transparent 0%,#081b1db3 57%,#081b1de8 100%)!important;
+  text-shadow:0 1px 3px #071920!important
+}
+.grade-band-young .bc12.bc15-locked-home .bc14-subject-copy strong{
+  display:block!important;max-width:100%!important;color:#fff9ea!important;
+  font-size:clamp(14px,1.7vw,22px)!important;font-weight:950!important;
+  line-height:1.06!important;letter-spacing:-.02em!important;
+  text-shadow:0 2px 3px #07171bdd!important
+}
+.grade-band-young .bc12.bc15-locked-home .bc14-subject-copy small{
+  display:block!important;max-width:100%!important;color:#f8e9c7!important;
+  font-size:clamp(9px,1.1vw,13px)!important;font-weight:800!important;
+  line-height:1.08!important;letter-spacing:-.01em!important;
+  text-shadow:0 1px 3px #07171bdd!important
+}
+.grade-band-young .bc12.bc15-locked-home .bc14-entry{display:none!important}
 .grade-band-young .bc12.bc15-locked-home .bc14-subject *{pointer-events:none!important}
+.grade-band-young .bc12.bc15-locked-home .bc14-subject:focus-visible{
+  opacity:1!important;outline:3px solid #fff3a3!important;outline-offset:3px!important;
+  box-shadow:0 0 0 5px #3e6e6b,0 4px 0 #57351e!important
+}
+@media(max-width:700px) and (orientation:portrait){
+  .grade-band-young .bc12.bc15-locked-home .bc14-subject{
+    border-radius:11px 11px 10px 10px!important;padding:2px!important;
+    border-width:2px!important
+  }
+  .grade-band-young .bc12.bc15-locked-home .bc14-subject-scene{
+    inset:2px!important;border-radius:7px!important
+  }
+  .grade-band-young .bc12.bc15-locked-home .bc14-subject-copy{
+    left:2px!important;right:2px!important;bottom:2px!important;
+    padding:15px 2px 5px 3px!important;gap:2px!important
+  }
+  .grade-band-young .bc12.bc15-locked-home .bc14-subject-copy strong{
+    font-size:clamp(12px,3.45vw,15px)!important
+  }
+  .grade-band-young .bc12.bc15-locked-home .bc14-subject-copy small{
+    font-size:clamp(8px,2.4vw,10px)!important
+  }
+  .grade-band-young .bc12.bc15-locked-home .bc14-subject::after{display:none!important}
+}
+@media(min-width:701px) and (orientation:portrait){
+  .grade-band-young .bc12.bc15-locked-home .bc14-subject-copy{
+    padding-right:6px!important
+  }
+  .grade-band-young .bc12.bc15-locked-home .bc14-subject::after{display:none!important}
+}
+@media(prefers-reduced-motion:reduce){
+  .grade-band-young .bc12.bc15-locked-home .bc14-subject{transition:none!important}
+}
 
 .grade-band-young .bc12.bc15-locked-home .bc12-journey{
   display:block!important;
@@ -228,10 +346,10 @@
 
 /* Touch feedback is brief and scene-integrated, never a separate dashboard layer. */
 .grade-band-young .bc12.bc15-locked-home .bc14-subject:active{
- opacity:.13!important;
- background:radial-gradient(circle at 50% 50%,rgba(255,249,207,.92),rgba(255,233,148,.32) 54%,rgba(255,233,148,0) 78%)!important;
- outline:2px solid rgba(255,244,188,.82)!important;outline-offset:-2px!important;
+  opacity:1!important;transform:translateY(2px) scale(.992)!important;
+  box-shadow:inset 0 0 0 1px #f8dca7,0 1px 0 #51341d,0 2px 6px #1c252650!important
 }
+
 .grade-band-young .bc12.bc15-locked-home .bc12-journey:active{
  opacity:.15!important;border-radius:18px!important;
  background:radial-gradient(circle at 87% 52%,rgba(255,247,184,.9),rgba(255,224,118,.26) 44%,rgba(255,224,118,0) 72%)!important;
@@ -422,4 +540,46 @@
    -webkit-mask-image:linear-gradient(to bottom,#bfbfbf 0,#000 10px,#000 100%);
    mask-image:linear-gradient(to bottom,#bfbfbf 0,#000 10px,#000 100%);
  }
+}
+
+
+/* Home guidance polish — keeps the locked master intact while making the child's
+   next action legible inside the illustrated world rather than adding dashboard UI. */
+.grade-band-young .bc12.bc15-locked-home .bc14-subject.bc15-route-subject{
+  opacity:1!important;border-color:#fff0a5!important;
+  box-shadow:inset 0 0 0 1px #ffe5ad,0 3px 0 #694125,0 0 0 2px #fff2b864,0 0 16px #ffdb79b8!important
+}
+.grade-band-young .bc12.bc15-locked-home .bc14-subject.bc15-route-subject .bc14-subject-scene{
+  filter:saturate(1.08) brightness(1.05)!important
+}
+
+.grade-band-young .bc12.bc15-locked-home .bc12-journey[data-bc15-state="active"]{
+  opacity:.065!important;
+  border-radius:20px!important;
+  background:radial-gradient(ellipse at 84% 52%,rgba(255,250,191,.96) 0%,rgba(255,224,118,.32) 45%,rgba(255,224,118,0) 76%)!important;
+}
+.grade-band-young .bc12.bc15-locked-home .bc12-journey[data-bc15-state="next"]{
+  opacity:.04!important;
+  border-radius:20px!important;
+  background:radial-gradient(ellipse at 84% 52%,rgba(255,247,184,.76) 0%,rgba(255,224,118,.20) 44%,rgba(255,224,118,0) 74%)!important;
+}
+.grade-band-young .bc12.bc15-locked-home[data-bc15-route-state="active"] .bc15-journey-glow{
+  opacity:.52;
+}
+.grade-band-young .bc12.bc15-locked-home[data-bc15-route-state="next"] .bc15-journey-glow{
+  opacity:.34;
+}
+@media(hover:hover) and (pointer:fine){
+  .grade-band-young .bc12.bc15-locked-home .bc14-subject:hover{
+    opacity:1!important;transform:translateY(-2px)!important;
+    box-shadow:inset 0 0 0 1px #ffe4aa,0 5px 0 #51341d,0 11px 22px #14252880!important;
+    filter:brightness(1.06)!important
+  }
+
+
+  .grade-band-young .bc12.bc15-locked-home .bc12-journey:hover{
+    opacity:.09!important;
+    border-radius:20px!important;
+    background:radial-gradient(ellipse at 84% 52%,rgba(255,251,204,.96) 0%,rgba(255,225,120,.36) 46%,rgba(255,225,120,0) 77%)!important;
+  }
 }

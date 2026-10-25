@@ -100,7 +100,10 @@ async function inspect(page, name) {
     name + ': scene objects became unreachable: ' + JSON.stringify(layout.targets));
   assert.ok(layout.words.every(word => word.h >= 44 && word.font >= 16 && word.right <= layout.width + 1),
     name + ': unreadable or clipped word targets: ' + JSON.stringify(layout.words));
-  assert.match(layout.foxSource, /girl-braids-blue-dress/, name + ': chosen fox identity changed');
+  assert.equal(layout.foxSource, './assets/skogstroll/lillesoster.webp',
+    name + ': Finn ordene must display the exact original lillesøster');
+  assert.equal(await page.evaluate(() => JSON.parse(localStorage.getItem('laerlittmer-v2')).profile.avatar),'girl',
+    name + ': the original troll must not alter the persisted child profile');
   if (layout.height > layout.width) {
     const gap = layout.companion.y - layout.sceneBottom.bottom;
     assert.ok(gap >= 0 && gap <= 32,

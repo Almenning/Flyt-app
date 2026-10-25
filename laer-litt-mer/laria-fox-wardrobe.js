@@ -102,7 +102,7 @@
     var avatar=choice(),current=inventory();
     var signature=avatar+'|world-art-v3|'+JSON.stringify(current.equipped||{});
     root.document.querySelectorAll(SELECTORS).forEach(function(img){
-      var parent=img.parentElement;if(!parent)return;
+      var parent=img.parentElement;if(!parent||parent.classList.contains('laria-troll-host'))return;
       if(img.dataset.lariaWardrobeSignature===signature&&parent.querySelector(':scope > .laria-fox-wardrobe-art'))return;
       parent.querySelector(':scope > .laria-fox-wardrobe-art')?.remove();
       var slot=root.document.createElement('div');
@@ -128,6 +128,7 @@
       position();
     });
     root.document.querySelectorAll(SELECTORS).forEach(function(img){
+      if(img.parentElement?.classList.contains('laria-troll-host'))return;
       var art=img.parentElement?.querySelector(':scope > .laria-fox-wardrobe-placed');
       if(!art)return;
       var ir=img.getBoundingClientRect(),pr=img.parentElement.getBoundingClientRect();

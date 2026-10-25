@@ -87,7 +87,7 @@ async function validateStage(page,subject,label,viewport,screen){
    bodyContext:document.body.className,
    visibleOutside,activeSubject:map.dataset.journeySubject,
    originalMarkup:map.dataset.lockedIllustration,
-   foxCount:map.querySelectorAll('.locked-journey-traveler[data-avatar="girl"]').length,
+   forestTrollCount:map.querySelectorAll('.locked-journey-traveler.laria-troll-host[data-laria-troll]').length,
    hotspots:markers.map(node=>rect(node)),hotspotLabels:markers.map(node=>node.getAttribute('aria-label')),
    horizontalOverflow:document.documentElement.scrollWidth-innerWidth,
    pageScrollHeight:document.documentElement.scrollHeight
@@ -109,7 +109,7 @@ async function validateStage(page,subject,label,viewport,screen){
  assert(data.board.right<=width+1&&data.board.x>=-1,label+' map is clipped horizontally');
  assert(data.horizontalOverflow<=2,label+' document has horizontal overflow '+data.horizontalOverflow);
  assert.equal(data.hotspots.length,5,label+' lost mapped landmarks');
- assert.equal(data.foxCount,1,label+' chosen fox is missing or duplicated');
+ assert.equal(data.forestTrollCount,1,label+' approved original forest troll is missing or duplicated');
  assert(data.hotspotLabels.every(s=>s&&s.includes('Sted ')),label+' landmark accessible names missing');
  assert(data.hotspots.every(hit=>hit.w>=44&&hit.h>=44&&hit.x>=data.board.x-2&&
    hit.right<=data.board.right+2&&hit.y>=data.board.y-2&&hit.bottom<=data.board.bottom+2),

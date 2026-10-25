@@ -70,8 +70,8 @@ async function selectTopic(page,topic,label,fromEntry=false){
   assert.ok(piece.complete&&piece.width===160&&piece.height===169,label+' failed to load premium topic illustration: '+JSON.stringify(piece));
   assert.ok(piece.bg==='none',label+' missing approved Bokskogen scene: '+JSON.stringify(piece));
  }
- assert.equal(await picker.locator('.wh-theme-fox').evaluate(img=>img.currentSrc===window.LARIA_FOX.source(window.LARIA_FOX.choice())),true,
-  'chosen fox did not follow child to theme picker');
+ assert.equal(await picker.locator('.wh-theme-fox').evaluate(img=>img.getAttribute('src')===window.LARIA_SKOGSTROLL.sourceForActivity('wordHunt')),true,
+  'original storesøster absent from theme picker');
  await shot(page,label+'-choose-'+topic);
  const selectedCard=page.locator('.word-hunt-theme-picker [data-word-theme="'+topic+'"]');
  await selectedCard.click();
@@ -179,8 +179,9 @@ async function verify(engine,launcher,label,viewport,url){
    // Ordjakt uses the chosen girl's original in-world fox, never a generated lookalike.
    const fox=page.locator('.word-hunt-companion');
    assert.equal(await fox.getAttribute('data-avatar'),'girl');
+   assert.equal(await fox.getAttribute('data-laria-troll'),'storesoster',label+' missing exact troll companion identity');
    assert.equal(await fox.locator('.word-hunt-companion-fox').getAttribute('src'),
-     await page.evaluate(()=>window.LARIA_FOX.worldSource(window.LARIA_FOX.choice())));
+     await page.evaluate(()=>window.LARIA_SKOGSTROLL.sourceForActivity('wordHunt')));
    assert.equal(await fox.locator('.word-hunt-companion-hint').count(),1);
    assert.equal(await fox.locator('.word-hunt-companion-cheer').count(),1);
    const foxGeometry=await fox.evaluate(host=>{
