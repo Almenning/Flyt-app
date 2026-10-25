@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="680" viewBox="0 0 1500 680">
+<defs><linearGradient id="sky" x2="0" y2="1"><stop stop-color="#a6d7e9"/><stop offset=".68" stop-color="#f4dfa9"/><stop offset="1" stop-color="#eaf0cf"/></linearGradient><linearGradient id="mount" x2=".4" y2="1"><stop stop-color="#80999a"/><stop offset=".46" stop-color="#74888b"/><stop offset="1" stop-color="#476f62"/></linearGradient><linearGradient id="fjord" x2="0" y2="1"><stop stop-color="#86b7b0"/><stop offset="1" stop-color="#43899a"/></linearGradient><linearGradient id="front" x2="0" y2="1"><stop stop-color="#90b28b"/><stop offset="1" stop-color="#4d8361"/></linearGradient></defs>
+<rect width="1500" height="680" fill="url(#sky)"/><circle cx="1205" cy="105" r="80" fill="#fff6c7" opacity=".75"/>
+<g fill="#fffaf2" opacity=".7"><ellipse cx="160" cy="95" rx="145" ry="28"/><ellipse cx="315" cy="122" rx="110" ry="20"/><ellipse cx="970" cy="115" rx="100" ry="24"/></g>
+<path d="M0 310 100 260 205 320 318 245 392 303 535 170 648 295 764 247 850 300 966 235 1078 307 1200 214 1320 294 1415 240 1500 302V440H0Z" fill="#9bb2a4"/>
+<!-- Broad, asymmetric two-crest mountain inspired by Ryssdalshorn's actual massing, not an AI-replacement of Grovanova. -->
+<path d="M345 405 470 292 548 201 617 148 665 105 715 115 749 103 785 137 826 191 878 227 922 274 1029 399Z" fill="url(#mount)"/>
+<path d="M548 201 617 148 665 105 715 115 749 103 785 137 826 191 797 176 778 185 754 156 721 179 690 145 659 179 640 153 601 212 580 204Z" fill="#fbfaf0"/>
+<path d="M548 201 601 212 640 153 665 181 614 270 556 310ZM721 179 754 156 778 185 797 176 835 225 792 215 762 244 735 218Z" fill="#b4c8c4" opacity=".68"/>
+<path d="M470 292 548 201 580 204 556 310 650 275 604 405H390ZM826 191 878 227 922 274 1029 399 805 399 850 302Z" fill="#496b63" opacity=".5"/>
+<path d="M0 370 Q180 350 360 384T740 367T1160 370T1500 354V505H0Z" fill="#56877c"/>
+<path d="M0 433Q260 425 530 446T1080 437T1500 432V585H0Z" fill="url(#fjord)"/>
+<path d="M0 455Q150 463 260 457T530 462T850 453T1240 460T1500 455M0 510Q300 504 600 511T1200 512T1500 507" fill="none" stroke="#d5efdb" stroke-width="3" opacity=".43"/>
+<!-- Village on the shoreline, intentionally light details -->
+<path d="M0 417Q125 381 237 416T431 418L460 440H0Z" fill="#6a9471"/>
+<g stroke="#85694b" stroke-width="3"><path d="M52 390l19-22 21 22v33H52Z" fill="#f9e8c4"/><path d="M51 390l20-24 22 24Z" fill="#bd735a"/><path d="M111 382l22-26 26 26v44h-48Z" fill="#f2ead2"/><path d="M108 384l25-31 27 31Z" fill="#a9564d"/><path d="M191 401l26-27 32 27v30h-58Z" fill="#f2e2bf"/><path d="M188 400l29-30 34 30Z" fill="#ad7560"/><path d="M296 392l26-31 29 31v40h-55Z" fill="#f9e9cf"/><path d="M294 393l28-34 31 34Z" fill="#bd6657"/></g>
+<g fill="#475e49"><rect x="74" y="408" width="8" height="14"/><rect x="128" y="400" width="9" height="23"/><rect x="220" y="407" width="12" height="22"/><rect x="322" y="403" width="12" height="23"/></g>
+<path d="M0 576 Q210 538 380 575T770 564T1140 570T1500 545V680H0Z" fill="url(#front)"/>
+<path d="M0 636Q300 593 540 646T1100 637T1500 610V680H0Z" fill="#52774f" opacity=".63"/>
+<g fill="#f9d376"><circle cx="154" cy="601" r="5"/><circle cx="178" cy="618" r="4"/><circle cx="1250" cy="625" r="5"/><circle cx="1324" cy="604" r="4"/></g>
+<g fill="#eeac9c"><circle cx="192" cy="624" r="4"/><circle cx="1380" cy="615" r="5"/></g>
+<path d="M0 0h1500v680H0Z" fill="none" stroke="#fff6dc" stroke-width="8" opacity=".13"/>
+</svg>
