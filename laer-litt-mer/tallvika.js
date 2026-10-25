@@ -44,7 +44,10 @@
       </div>
       <section class="tv-next"><div><small>NESTE EVENTYR · HELT FRIVILLIG</small><b>${p?.complete ? 'Bonusoppdraget venter' : n?.title || 'Et nytt oppdrag venter'}</b><span>Du kan alltid bli værende og spille favorittene dine.</span></div><button type="button" data-tv="next" ${n||p?.complete?'':'disabled'}>Prøv ›</button></section>
       <dialog class="tv-dialog" aria-label="Velg ditt skogstroll"><form method="dialog"><button class="tv-dialog-close" aria-label="Lukk">×</button><p>DIN FØLGESVENN</p><h2>Hvem skal bli med til Tallvika?</h2><span>Du kan bytte når du vil.</span><div class="tv-troll-grid">${Object.entries(trolls).map(([id,item]) => `<button type="button" class="${id===selected?'selected':''}" data-tv-troll="${id}" aria-pressed="${id===selected}"><img src="${item.src}" alt=""><b>${item.name}</b>${id===selected?'<em>Valgt</em>':''}</button>`).join('')}</div></form></dialog>`;
-    screen.classList.add('tallvika-active');
+    // Never mutate an observed attribute when its value is already correct.
+    // Repeating classList.add() can itself fire another MutationObserver record
+    // even if the token was present, starving DOMContentLoaded across Læria.
+    if (!screen.classList.contains('tallvika-active')) screen.classList.add('tallvika-active');
     root.querySelector('.tv-dialog').addEventListener('click', event => { if (event.target === event.currentTarget) event.currentTarget.close(); });
   }
   function openTable(){
@@ -69,7 +72,8 @@
   });
   const observer = new MutationObserver(() => {
     const active = screen.classList.contains('active') && screen.dataset.subject === 'math';
-    if (active) build(); else screen.classList.remove('tallvika-active');
+    if (active) build();
+    else if (screen.classList.contains('tallvika-active')) screen.classList.remove('tallvika-active');
   });
   observer.observe(screen,{attributes:true,attributeFilter:['class','data-subject']});
   if (screen.classList.contains('active') && screen.dataset.subject === 'math') build();
