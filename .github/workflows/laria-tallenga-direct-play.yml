@@ -11,6 +11,7 @@ on:
       - 'laer-litt-mer/index.html'
       - 'tests/laria-tallenga-direct-play.playwright.js'
       - 'tests/laria-locked-skogstroll-identity.test.js'
+      - 'docs/LARIA-TALLENGA-*.md'
       - '.github/workflows/laria-tallenga-direct-play.yml'
   workflow_dispatch:
 permissions:
