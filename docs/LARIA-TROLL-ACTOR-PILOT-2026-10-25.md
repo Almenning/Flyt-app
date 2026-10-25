@@ -51,6 +51,14 @@ Reaksjonene er knyttet til Gangemagis eksisterende hendelser. Matematikkmotoren,
 - Cache-versjoner for alle berørte Gangemagi-ressurser og service-worker-cache er oppdatert.
 - Statisk kontraktstest verifiserer seks tilstander, original reservefil, ingen ekstern/generert karakterbane, redusert bevegelse og korrekt lastrekkefølge.
 
+## Oppdatering 25. oktober: rigg og nettleserbevis
+
+- Eksisterende PR #208: først `crop-v1`, deretter `source-bones-v2` (commit `31bd0a3`). Hode, hår, armer og øyelokk følger nå en felles overkroppsrigg, mens føtter/støvler ligger fast.
+- Den dedikerte Gangemagi-testen ble **grønn i både Chromium og WebKit** på v2. iOS-bygg, Brøklab WebKit, reisenavigasjon og innholdskontroll besto også.
+- Kvalitetsgjennomgang av de faktiske videoene fant at øyelokkselementene hadde permanent `opacity:0`: en animasjon på foreldreelementet ga dermed aldri synlige blunk. Rettet ved å animere hvert øyelokk og dokumentere faktisk open/closed computed opacity på browsernivå (kommende test av siste HEAD).
+- Videotesten eksporterer nå også korte, game-only MP4-opptak. Tidligere lange WebM-opptak inkluderte mye oppstart av Hjem før selve Gangemagi.
+- **Viktig:** En tidligere KI-generert sammenligningsillustrasjon er ikke fotobevis på appens utseende. Benytt kun original WebP + Chromium/WebKit-skjermbilder og videoartefakter fra eksakt HEAD ved visuell godkjenning.
+
 ## Ikke godkjent ennå
 
 Denne arbeidsrunden kunne ikke starte Chromium eller WebKit. Playwright-pakkene finnes, men nettleserbinariene mangler i arbeidsmiljøet. Det er derfor **ikke** tatt ekte iPhone-/iPad-skjermbilder eller videoopptak her, og piloten er ikke visuelt godkjent.

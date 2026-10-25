@@ -8,6 +8,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
 const http=require('node:http');
+const {spawnSync}=require('node:child_process');
 const {chromium,webkit}=require('playwright');
 const base=path.resolve(__dirname,'..');
 const out=path.join(process.env.QA_SCREENSHOTS||'/tmp/laria-gangemagi-approved-visual','living-troll-proof');
@@ -90,6 +91,8 @@ async function record(browser,name,url,viewport){
   serviceWorkers:'block',recordVideo:{dir:out,size:{width:viewport.width,height:viewport.height}}
  });
  const page=await context.newPage();
+ const videoOrigin=Date.now(); // the untrimmed recording begins at page creation
+ let gameStartSec=0;
  const video=page.video();
  const errors=[];
  page.on('pageerror',error=>errors.push(String(error)));
@@ -97,6 +100,10 @@ async function record(browser,name,url,viewport){
  try{
   await start(page,url);
   const opening=await openAndTrack(page);
+  // CI startup can show Home for many seconds before Gangemagi has mounted.
+  // Preserve the raw browser recording, but also export a reviewable MP4
+  // that begins just before the ACTUAL on-screen greeting.
+  gameStartSec=Math.max(0,Math.floor((Date.now()-videoOrigin)/100)/10-.8);
   assert.equal(opening,'wave',name+': greeting did not actually start on game entry');
   const actor=page.locator('[data-troll-actor="storesoster"]');
   await actor.waitFor();
@@ -113,12 +120,39 @@ async function record(browser,name,url,viewport){
    hair:getComputedStyle(node.querySelector('.troll-actor__hair')).animationName,
    body:getComputedStyle(node.querySelector('.troll-actor__body-rig')).animationName,
    legs:getComputedStyle(node.querySelector('.troll-actor__legs')).animationName,
+   blink:getComputedStyle(node.querySelector('.troll-actor__blink i')).animationName,
    arm:getComputedStyle(node.querySelector('.troll-actor__arm--left')).animationName
   }));
   assert.match(movement.head,/troll-idle-head/,name+' head is static during rest');
   assert.match(movement.hair,/troll-idle-hair/,name+' hair is static during rest');
   assert.match(movement.body,/troll-idle-body/,name+' torso is static during rest');
   assert.equal(movement.legs,'none',name+' feet must remain firmly planted');
+  assert.match(movement.blink,/troll-blink/,name+' eyelids have no real animation');
+  // Verify actual computed opacity at OPEN and CLOSED positions of the CSS
+  // animation. This catches the old bug: animating a parent while its eyelid
+  // children remained permanently opacity:0. No screenshot of a fake state.
+  const blink=await actor.evaluate(async node=>{
+   const lids=[...node.querySelectorAll('.troll-actor__blink i')];
+   const animations=lids.map(lid=>lid.getAnimations().find(anim=>anim.animationName==='troll-blink'));
+   if(animations.some(anim=>!anim))return {error:'no per-eye browser animations'};
+   animations.forEach(anim=>{anim.pause();anim.currentTime=0;});
+   await new Promise(requestAnimationFrame);
+   const open=lids.map(lid=>Number(getComputedStyle(lid).opacity));
+   animations.forEach(anim=>{anim.currentTime=630;});
+   await new Promise(requestAnimationFrame);
+   const closed=lids.map(lid=>Number(getComputedStyle(lid).opacity));
+   return {open,closed};
+  });
+  assert.ok(!blink.error,name+' '+blink.error);
+  assert.ok(blink.open.every(opacity=>opacity<.1),
+   name+' the original eye pixels must remain visible at rest');
+  assert.ok(blink.closed.every(opacity=>opacity>.7),
+   name+' both eyelids must visibly close (not opacity:0)');
+  await shot(page,name+'-02-eyelids-closed');
+  await actor.evaluate(node=>node.querySelectorAll('.troll-actor__blink i').forEach(lid=>{
+   const anim=lid.getAnimations().find(a=>a.animationName==='troll-blink');
+   if(anim){anim.currentTime=0;anim.play();}
+  }));
   await page.waitForTimeout(500);
   await page.locator('[data-gm-action="hint"]').click();
   await observedState(page,'think');
@@ -168,7 +202,25 @@ async function record(browser,name,url,viewport){
  }finally{
   await context.close();
   if(video){
-   await video.saveAs(path.join(out,name+'-real-gestures.webm'));
+   const raw=path.join(out,name+'-real-gestures.webm');
+   await video.saveAs(raw);
+   // A short, browser-authentic clip is far easier to inspect than a video
+   // dominated by 10-20 seconds of Home-loading on slower Safari/WebKit.
+   const mp4=path.join(out,name+'-game-only.mp4');
+   const ffmpeg=spawnSync('ffmpeg',['-hide_banner','-loglevel','error','-y',
+    '-ss',String(gameStartSec),'-i',raw,'-an','-c:v','libx264',
+    '-preset','veryfast','-crf','21','-movflags','+faststart',mp4],
+    {encoding:'utf8',timeout:120000});
+   if(ffmpeg.status!==0)
+    console.warn('Optional game-only MP4 conversion unavailable:',String(ffmpeg.stderr||ffmpeg.error||'').slice(-350));
+   else console.log('RECORDED GAME-ONLY TROLL VIDEO',mp4,'from',gameStartSec,'seconds');
+   // The Playwright context also stores a randomly named original webm.
+   // Remove only that duplicate; preserve named raw video and MP4 proof.
+   try{
+    const originalPath=await video.path();
+    if(originalPath!==raw&&path.dirname(originalPath)===out)
+     await fs.promises.unlink(originalPath);
+   }catch(_){}
   }
  }
 }
@@ -189,11 +241,15 @@ async function reducedMotion(browser,url){
    const css=node=>getComputedStyle(el.querySelector(node));
    return {fallbackOpacity:css('.troll-actor__fallback').opacity,
     rigDisplay:css('.troll-actor__rig').display,
-    armAnimation:css('.troll-actor__arm--left').animationName};
+    armAnimation:css('.troll-actor__arm--left').animationName,
+    blinkAnimation:css('.troll-actor__blink i').animationName,
+    blinkOpacity:css('.troll-actor__blink i').opacity};
   });
   assert.equal(styles.fallbackOpacity,'1','reduced motion must display approved intact image');
   assert.equal(styles.rigDisplay,'none','reduced motion must disable the crop rig');
   assert.equal(styles.armAnimation,'none','reduced motion must not animate the arm');
+  assert.equal(styles.blinkAnimation,'none','reduced motion must disable eye animation');
+  assert.equal(styles.blinkOpacity,'0','reduced motion must show original eye pixels');
   await visibleState(page,'idle');
   console.log('PASS LIVE TROLL REDUCED MOTION');
  }finally{await context.close()}

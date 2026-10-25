@@ -47,6 +47,15 @@ test('body bones join head, arms and blink while anchored boots remain separate'
  assert.doesNotMatch(actorCss,/\[data-troll-mood="idle"\] \.troll-actor__legs\{animation:/,
   'ground contact must never breathe');
 });
+test('actual eyelids animate while the original face stays fully visible between blinks',()=>{
+ assert.match(actorCss,/\[data-troll-mood="idle"\] \.troll-actor__blink i\{animation:troll-blink 5\.7s/,
+   'CSS animation must target each eyelid, not an invisible parent');
+ assert.doesNotMatch(actorCss,/\[data-troll-mood="idle"\] \.troll-actor__blink\{/,
+   'the overlay container must not substitute for animating the eyelids');
+ assert.match(actorCss,/--troll-blink-tilt:-5deg/);
+ assert.match(actorCss,/--troll-blink-tilt:5deg/);
+ assert.match(actorCss,/@keyframes troll-blink\{/);
+});
 test('rig uses composited source crops, respects reduced motion, and is loaded before Gangemagi',()=>{
  assert.match(actorCss,/background:var\(--troll-source\) center bottom \/ contain no-repeat/);
  assert.match(actorCss,/@media\(prefers-reduced-motion:reduce\)/);
