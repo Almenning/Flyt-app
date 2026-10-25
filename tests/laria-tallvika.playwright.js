@@ -33,7 +33,16 @@ async function run(browserType,label,viewport){
     // The destination library is an illustrated, accessible part of the world
     // at every screen size, not generic text-only cards or hidden legacy links.
     const portalCards=page.locator('#tallvika-world .tv-mobile-actions .tv-portal-card');
+    await page.waitForFunction(()=>{
+      const cards=[...document.querySelectorAll('#tallvika-world .tv-mobile-actions .tv-portal-card')];
+      return cards.length===3&&cards.every(card=>card.isConnected&&card.getBoundingClientRect().width>=180);
+    },null,{timeout:16000});
     assert.equal(await portalCards.count(),3,label+' must expose three premium activity portals');
+    assert.equal(await page.evaluate(()=>{
+      const original=document.querySelector('.tv-portal-card');
+      window.LARIA_TALLVIKA.build();
+      return original===document.querySelector('.tv-portal-card');
+    }),true,label+' redundant legacy screen update detached live portal buttons');
     const portalAudit=await portalCards.evaluateAll(nodes=>nodes.map(node=>{
       const r=node.getBoundingClientRect();
       const art=node.querySelector('.tv-portal-art');
