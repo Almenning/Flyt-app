@@ -1,7 +1,13 @@
 /* One isolated responsive world; the locked master image is never composited or altered.
    The old .app shell reserves 96px for a bottom nav hidden on Subject screens.
    Clear that unused gutter in Tallvika and match its cream background. */
-.app:has(#subject-screen.tallvika-active){padding-bottom:0;background:#f7f0df}
+/* Several legacy journey/Home themes set the .app and body backgrounds with
+   !important. Override those ONLY while the Tallvika view is active, because
+   the old illustrated atmosphere otherwise leaks through the transparent
+   unused 96px footer, even though the bottom nav itself is hidden. */
+html:has(#subject-screen.tallvika-active),
+body:has(#subject-screen.tallvika-active){background:#f7f0df!important}
+.app:has(#subject-screen.tallvika-active){padding-bottom:0!important;background:#f7f0df!important}
 .app:has(#subject-screen.tallvika-active)::before,
 .app:has(#subject-screen.tallvika-active)::after{display:none}
 #subject-screen.tallvika-active{display:block!important;max-width:none!important;padding:0!important;background:#f7f0df;min-height:100dvh}
