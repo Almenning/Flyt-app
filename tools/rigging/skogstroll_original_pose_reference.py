@@ -83,7 +83,7 @@ def build(output):
 
     w=1340
     header=150
-    row=1125
+    row=1180
     h=header+3*row+78
     sheet=Image.new("RGBA",(w,h),WHITE)
     draw=ImageDraw.Draw(sheet)
@@ -108,7 +108,7 @@ def build(output):
         sheet.alpha_composite(action, (747+(420-action.width)//2,y0+92+(1024-action.height)//2))
         draw.rectangle(left_box,outline=(135,103,76,255),width=2)
         draw.rectangle(right_box,outline=(135,103,76,255),width=2)
-        draw.text((80,y0+1091), "Do not swap images during character animation.",font=f15,fill=(142,66,61,255))
+        draw.text((80,y0+1130), "Do not swap images during character animation.",font=f15,fill=(142,66,61,255))
     sheet.convert("RGB").save(output/"locked-troll-source-pose-comparison.png",optimize=True)
 
     manifest={"purpose":"Strictly source/pose comparison; NO new characters, animation, or art approval",
