@@ -28,8 +28,15 @@ async function run(browserType,label,viewport){
     await enter(page);await shot(page,label);
     assert.equal(await page.locator('.tv-scene').count(),1,label+' renders one locked Tallvika scene');
     assert.equal(await page.locator('.tv-scene').evaluate(el=>getComputedStyle(el).backgroundImage.includes('tallvika-master-laast-20261025.png')),true,label+' uses the locked landscape');
-    const art=await page.locator('.tv-scene').evaluate(el=>({w:el.getBoundingClientRect().width,scroll:document.documentElement.scrollWidth,client:document.documentElement.clientWidth}));
+    const art=await page.locator('.tv-scene').evaluate(el=>({w:el.getBoundingClientRect().width,h:el.getBoundingClientRect().height,scroll:document.documentElement.scrollWidth,client:document.documentElement.clientWidth}));
     assert.ok(art.w>250,label+' has a visible world');assert.ok(art.scroll<=art.client+2,label+' has no horizontal overflow');
+    if(viewport.width<=480){
+      // The locked landscape carries both the world sign and the house labels.
+      // Cropping it on narrow portrait phones cuts off the approved artwork.
+      assert.ok(Math.abs(art.h-art.w*941/1672)<3,label+' must show the entire uncropped Tallvika artwork on portrait phones');
+      assert.equal(await page.locator('.tv-scene-copy').isVisible(),false,label+' must not duplicate the painted world sign');
+      assert.equal(await page.locator('.tv-mobile-actions [data-tv]').count(),3,label+' keeps all three accessible activity buttons');
+    }
     await page.locator('[data-tv="choose"]').first().click();await page.locator('.tv-dialog[open]').waitFor();
     assert.equal(await page.locator('[data-tv-troll]').count(),3,label+' offers all three locked trolls');
     await page.locator('[data-tv-troll="lillebror"]').click();
