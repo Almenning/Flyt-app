@@ -71,7 +71,7 @@
       '<button class="eg-scene-hit eg-scene-find" data-eg="find" aria-label="Åpne Finn ordene ved hagen" type="button"><span>Finn ordene</span></button>'+
       '<button class="eg-scene-hit eg-scene-map" data-eg="map" aria-label="Åpne Bokskogen ved biblioteket" type="button"><span>Bokskogen</span></button>'+
       '</section>'+
-      '<div class="eg-intro"><div><small>VELG HVOR DU VIL GÅ</small><h2>Tre steder å utforske</h2></div>'+
+      '<div class="eg-intro"><div><small>VELG HVOR DU VIL GÅ</small><h2>Oppdag Eggenipa</h2></div>'+
       '<p>Du bestemmer. Spill favorittene dine så mange ganger du vil.</p></div>'+
       '<nav class="eg-portals" aria-label="Norskaktiviteter">'+actions.map(portal).join('')+'</nav>'+
       '<section class="eg-next" aria-label="Neste frivillige oppdrag"><div><small>NESTE EVENTYR · HELT FRIVILLIG</small>'+
