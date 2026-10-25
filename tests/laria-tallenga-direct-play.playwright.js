@@ -54,6 +54,23 @@ async function run(engine,engineName,label,width,height,url){
   // data. Showing them as hero or card cut-outs would violate the art gate.
   assert.equal(await page.locator('.tlp-troll-trio, .tlp-game-art img').count(),0);
   assert.equal(await page.locator('.tlp-game:visible').count(),3);
+  // Three stage planes share the SAME natural 1500x680 world coordinates.
+  // Layered character assets remain deliberately absent until approved.
+  const stage=await page.evaluate(()=>{
+    const sc=document.querySelector('.tlp-scene');
+    const back=getComputedStyle(sc);
+    const actor=document.querySelector('.tlp-stage-actors');
+    const front=document.querySelector('.tlp-stage-foreground');
+    const foreStyle=front&&getComputedStyle(front);
+    return {back:back.backgroundImage,actors:actor?.children.length,front:foreStyle?.backgroundImage,
+      backgroundPosition:back.backgroundPosition,foregroundPosition:foreStyle?.backgroundPosition,
+      foregroundSize:foreStyle?.backgroundSize};
+  });
+  assert.match(stage.back,/tallenga-fjord-background-v2\.svg/,'painted backdrop layer must be active');
+  assert.match(stage.front,/tallenga-fjord-foreground-v2\.svg/,'front meadow must occlude future actors');
+  assert.equal(stage.actors,0,'No low-res cardboard trolls may be placed in actor depth plane');
+  assert.equal(stage.backgroundPosition,stage.foregroundPosition,'foreground alignment must match background');
+  assert.equal(stage.foregroundSize,'cover');
   // Check visually significant painted layers, not merely game-button routing.
   const artwork=await page.evaluate(()=>{
     const root=document.querySelector('#subject-screen');
