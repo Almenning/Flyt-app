@@ -74,11 +74,23 @@ async function proof(engine,label,viewport,url){
     map:{display:mapStyle.display,marginTop:mapStyle.marginTop,paddingTop:mapStyle.paddingTop},
     visibleChildren:[...screen.children].filter(node=>getComputedStyle(node).display!=='none').map(node=>({id:node.id,className:node.className,top:node.getBoundingClientRect().top,height:node.getBoundingClientRect().height})),
     overflow:document.documentElement.scrollWidth-innerWidth,
+    scroll:{windowY:window.scrollY,windowX:window.scrollX,htmlY:document.documentElement.scrollTop,
+      bodyY:document.body.scrollTop,visualTop:window.visualViewport?.offsetTop,
+      activeElement:document.activeElement?.outerHTML?.slice(0,170),
+      screenOffsetTop:screen.offsetTop, appTop:app.getBoundingClientRect().top,
+      scrollBehavior:getComputedStyle(document.documentElement).scrollBehavior,
+      overflowAnchor:getComputedStyle(document.documentElement).overflowAnchor},
     hotspots:[...document.querySelectorAll('#subject-screen.active .locked-journey-hotspot')].map(node=>{
      const r=node.getBoundingClientRect();return {w:r.width,h:r.height};
     })};
   });
-  assert.equal(geometry.screen.top,0,label+' journey must start at the viewport edge');
+  await fs.promises.mkdir(out,{recursive:true});
+  // Capture a failure BEFORE asserting so WebKit's scroll anchoring is visible.
+  if(label.includes('landscape')){
+    console.log('BOKSKOGEN_LANDSCAPE_GEOMETRY '+JSON.stringify(geometry));
+    await page.screenshot({path:path.join(out,label+'-before-top-assert.png'),animations:'disabled'});
+  }
+  assert.equal(geometry.screen.top,0,label+' journey must start at the viewport edge; '+JSON.stringify(geometry.scroll));
   // WebKit can resolve 100dvh a fraction below the integer viewport after
   // device-scale rounding (for example 843.984375px for an 844px viewport).
   // One CSS pixel is below visual precision and avoids treating that rounding
