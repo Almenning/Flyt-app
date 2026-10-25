@@ -24,7 +24,6 @@ async function run(engine,engineName,label,width,height,url){
  const context=await browser.newContext({viewport:{width,height},isMobile:width<600,hasTouch:true,serviceWorkers:'block',reducedMotion:'reduce'});
  const page=await context.newPage(),errors=[];
  page.on('pageerror',error=>errors.push(String(error)));
- page.on('response',response=>{if(response.url().includes('/assets/skogstroll/')&&response.status()!==200)errors.push('missing troll '+response.url());});
  await page.addInitScript(data=>localStorage.setItem('laerlittmer-v2',JSON.stringify(data)),seed);
  await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
  await page.route('https://api.worldbank.org/**',r=>r.abort());
@@ -50,9 +49,10 @@ async function run(engine,engineName,label,width,height,url){
   assert(diag.prototype==='object'&&diag.subjectActive&&diag.previewExists&&diag.screenClasses.includes('tlp-active'),
    'Matte did not open Tallenga; '+JSON.stringify(diag)+' errors '+JSON.stringify(errors));
   await page.locator('#tallenga-direct-play:visible').waitFor({timeout:4000});
-  assert.equal(await page.locator('.tlp-troll-trio .tlp-actor').count(),3);
-  const sources=await page.locator('.tlp-troll-trio .tlp-actor').evaluateAll(els=>els.map(x=>x.getAttribute('src')));
-  assert.deepEqual(sources,['./assets/skogstroll/storesoster.webp','./assets/skogstroll/lillesoster.webp','./assets/skogstroll/lillebror.webp']);
+  // The original troll files are deliberately not composited into this scene.
+  // They are flattened, low-resolution WebPs with baked ground and no rig/layer
+  // data. Showing them as hero or card cut-outs would violate the art gate.
+  assert.equal(await page.locator('.tlp-troll-trio, .tlp-game-art img').count(),0);
   assert.equal(await page.locator('.tlp-game:visible').count(),3);
   // Check visually significant painted layers, not merely game-button routing.
   const artwork=await page.evaluate(()=>{
@@ -72,8 +72,6 @@ async function run(engine,engineName,label,width,height,url){
   assert.equal(artwork.legacy,'none','old journey must not appear below Tallenga: '+JSON.stringify(artwork));
   assert.equal(artwork.background,'none','old journey photo must not bleed through Tallenga: '+JSON.stringify(artwork));
   assert(artwork.mobileWidth<=artwork.viewport+4,'no horizontal overflow '+JSON.stringify(artwork));
-  const images=await page.locator('.tlp-troll-trio img, .tlp-game-art img').evaluateAll(els=>els.map(i=>({src:i.getAttribute('src'),ready:i.complete&&i.naturalWidth>0})));
-  assert(images.every(i=>i.ready),'original image failed '+JSON.stringify(images));
   const sizes=await page.evaluate(()=>({inner:innerWidth,scroll:document.documentElement.scrollWidth,targets:[...document.querySelectorAll('#tallenga-direct-play button')].map(b=>({w:b.getBoundingClientRect().width,h:b.getBoundingClientRect().height}))}));
   assert(sizes.scroll<=sizes.inner+4,'horizontal overflow '+JSON.stringify(sizes));
   assert(sizes.targets.every(x=>x.h>=44),'small buttons '+JSON.stringify(sizes));
