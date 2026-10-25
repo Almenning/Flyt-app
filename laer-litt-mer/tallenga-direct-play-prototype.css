@@ -171,3 +171,22 @@ body:has(#subject-screen.active.tlp-active) .app{
   background-image:url('./tallenga-fjord-foreground-v2.svg');z-index:3;
 }
 #subject-screen.active.tlp-active .tlp-landscape-caption{z-index:4}
+
+/* QA #220: deliberate crops that reveal the PLAY activity, not arbitrary scenery.
+   On narrow cards the market stall sits near the right edge of the SVG and
+   the bakery's physical cake is in the lower portion of the tall workshop art. */
+#subject-screen.active.tlp-active .tlp-art-multiply{background-position:82% center}
+#subject-screen.active.tlp-active .tlp-art-fraction{background-position:center 93%}
+#subject-screen.active.tlp-active .tlp-art-table{background-position:center 70%}
+#subject-screen.active.tlp-active .tlp-card-caption{
+  max-width:calc(100% - 18px);
+  line-height:1.18;
+  text-align:center;
+  overflow-wrap:normal;
+  white-space:normal;
+}
+@media(min-width:701px) and (max-width:1024px) and (orientation:portrait){
+  #subject-screen.active.tlp-active .tlp-scene{min-height:clamp(378px,42vw,435px)}
+  #subject-screen.active.tlp-active .tlp-game-art{aspect-ratio:1.25}
+  #subject-screen.active.tlp-active .tlp-content{padding-top:30px}
+}
