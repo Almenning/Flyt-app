@@ -65,6 +65,12 @@ async function run(browserType,label,viewport){
         dock:{top:dock.top,left:dock.left}};
     });
     if(viewport.width>=1030||(viewport.width>=701&&viewport.height<=550)){
+      // Keyboard focus connects the activity card to its painted hut;
+      // this also makes the navigation discoverable without hover.
+      await page.locator('.tv-portal-card[data-tv="fraction"]').focus();
+      assert.equal(await page.locator('.tv-hotspot-fraction .tv-hotspot-cue').evaluate(
+        el=>getComputedStyle(el).transform!=='none'),true,label+' portal focus did not highlight the matching hut');
+      await page.locator('.tv-portal-card[data-tv="fraction"]').evaluate(el=>el.blur());
       assert.ok(layout.stage.right<=layout.dock.left+2,label+' landscape portal dock overlaps painting');
       if(viewport.width>=1030)assert.ok(art.w>=viewport.width*.58,
         label+' world is still compressed by the former 1000px app shell');
@@ -134,8 +140,36 @@ async function run(browserType,label,viewport){
     await page.locator('.tv-mobile-actions [data-tv="fraction"]').click();
     await page.locator('#fraction-lab-screen.active').waitFor({timeout:12000});
     await page.locator('#fraction-lab-back').click();await page.locator('#tallvika-world').waitFor({timeout:12000});
+    // Core regression: Gangetabellen is a separate activity from Gangemagi.
+    // Opening the table from Tallvika must skip Gangemagi and the legacy
+    // launcher, immediately showing the 10 x 10 interactive explorer.
+    const journeyBeforeTable=await page.evaluate(()=>JSON.stringify(state.journey));
     await page.locator('.tv-mobile-actions [data-tv="table"]').click();
-    await page.locator('#multiplication-lab-screen.active').waitFor({timeout:12000});
+    await page.locator('#multiplication-lab-screen.active .mp-explore-screen').waitFor({timeout:12000});
+    const tableState=await page.evaluate(()=>window.LARIA_MULT_PREMIUM.snapshot());
+    assert.equal(tableState.page,'explore',label+' Gangetabellen opened an extra launcher');
+    assert.equal(tableState.mode,'table',label+' Gangetabellen opened the wrong explore mode');
+    assert.equal(await page.locator('.mp-explore-tab[data-mode="table"][aria-pressed="true"]').count(),1,
+      label+' table mode must be selected');
+    assert.equal(await page.locator('.mp-times-grid button.mp-grid-cell').count(),100,
+      label+' table must contain all 100 multiplication answers');
+    assert.equal(await page.locator('#multiplication-lab-screen.active .gm-shell').count(),0,
+      label+' the table entry wrongly opened Gangemagi');
+    await page.locator('.mp-grid-cell[data-row="2"][data-col="3"]').click();
+    assert.equal((await page.locator('.mp-inspector-equation b').innerText()).trim(),'2 × 3 = 6',
+      label+' interactive 10 x 10 table did not respond to a cell');
+    await page.locator('#multiplication-lab-back').click();
+    await page.locator('#subject-screen.active #tallvika-world').waitFor({state:'visible',timeout:12000});
+    assert.equal(await page.evaluate(()=>JSON.stringify(state.journey)),journeyBeforeTable,
+      label+' direct table exploration changed the journey progress');
+    // The adjacent house is the original Gangemagi game, not a duplicate
+    // of the classic table. A return from the table must not poison this route.
+    await page.locator('.tv-mobile-actions [data-tv="multiply"]').click();
+    await page.locator('#multiplication-lab-screen.active .gm-shell').waitFor({timeout:12000});
+    assert.equal(await page.locator('.mp-explore-screen').count(),0,
+      label+' Gangemagi was replaced by the previous table');
+    await page.locator('#multiplication-lab-back').click();
+    await page.locator('#subject-screen.active #tallvika-world').waitFor({state:'visible',timeout:12000});
     assert.deepEqual(errors,[],label+' emits no page errors');
     await context.close();
   } finally {await browser.close();}

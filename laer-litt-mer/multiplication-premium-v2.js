@@ -173,7 +173,17 @@ function onClick(event){
  const root=document.getElementById(ROOT),target=event.target.closest('button[data-mp-action]');if(!target||!root?.contains(target))return;
  const action=target.dataset.mpAction,page=target.dataset.page,n=Number(target.dataset.table);
  if(action==='go'){if(page==='practice')return begin();if(page==='explore')stateBox.active='table';stateBox.page=page;render();scrollTop();return}
- if(action==='back'){if(stateBox.page==='home'){
+ if(action==='back'){
+   // Tallvika's Gangetabellen portal lands directly in the interactive table.
+   // A single Back returns to the exact Maths world, without a redundant
+   // Gangetabellen start menu. Every other original entry retains its flow.
+   const parent=document.getElementById('multiplication-lab-screen');
+   if(parent?.dataset.mpDirectTallvika==='true'&&stateBox.page==='explore'){
+     delete parent.dataset.mpDirectTallvika;
+     try{openSubject('math')}catch(_){try{showScreen('subject')}catch(_){}}
+     return;
+   }
+   if(stateBox.page==='home'){
    const screen=document.getElementById('multiplication-lab-screen');
    if(screen?.dataset.returnToMathSubject==='true'){
      screen.dataset.returnToMathSubject='false';
@@ -202,11 +212,35 @@ const root=document.getElementById(ROOT);if(root&&!root.dataset.mpV2Bound){root.
 window.LARIA_MULT_PICK_PLAY?.mount(root,render);
 window.openMultiplicationLab=function(){
  const screen=document.getElementById('multiplication-lab-screen');
- if(screen)screen.dataset.returnToMathSubject=String(!!document.querySelector('#subject-screen.active'));
+ // Another entry to this game must not inherit Tallvika's one-tap return.
+ if(screen){
+   delete screen.dataset.mpDirectTallvika;
+   screen.dataset.returnToMathSubject=String(!!document.querySelector('#subject-screen.active'));
+ }
  screen?.setAttribute('data-explore-release','explore-rc1');
  stateBox.page='home';stateBox.showHints=false;stateBox.showSummary=false;render();
  try{showScreen('multiplication-lab')}catch(_){}
 };
-window.LARIA_MULT_PREMIUM={version:'illustrated-v2',open:window.openMultiplicationLab,stats:()=>JSON.parse(JSON.stringify(saved)),snapshot:()=>({page:stateBox.page,mode:stateBox.active,theme:currentIllustrationTheme(),a:stateBox.a,b:stateBox.b,row:stateBox.row,col:stateBox.col,round:stateBox.round.map(q=>Object.assign({},q)),index:stateBox.idx,firstTry:stateBox.firstTry,answer:stateBox.answer})};
+// Explicit child-facing entry. The Gangemagi wrapper replaces
+// window.openMultiplicationLab at runtime, so a DOM click through the old
+// menu can silently open the wrong game. Do not rely on setTimeout or DOM
+// selectors in Tallvika for changing classic game state.
+function openTableFromTallvika(){
+ const screen=document.getElementById('multiplication-lab-screen');
+ if(!screen||!document.getElementById(ROOT))return false;
+ screen.dataset.returnToMathSubject='true';
+ screen.dataset.mpDirectTallvika='true';
+ screen.setAttribute('data-explore-release','explore-rc1');
+ stateBox.page='explore';
+ stateBox.active='table';
+ stateBox.showHints=false;
+ stateBox.showSummary=false;
+ render();
+ try{showScreen('multiplication-lab');return true}
+ catch(_){delete screen.dataset.mpDirectTallvika;return false}
+}
+window.LARIA_MULT_PREMIUM={version:'illustrated-v2',open:window.openMultiplicationLab,
+ openTableFromTallvika,stats:()=>JSON.parse(JSON.stringify(saved)),
+ snapshot:()=>({page:stateBox.page,mode:stateBox.active,theme:currentIllustrationTheme(),a:stateBox.a,b:stateBox.b,row:stateBox.row,col:stateBox.col,round:stateBox.round.map(q=>Object.assign({},q)),index:stateBox.idx,firstTry:stateBox.firstTry,answer:stateBox.answer})};
 const entry=document.getElementById('open-multiplication-lab');if(entry)entry.onclick=window.openMultiplicationLab;
 })();

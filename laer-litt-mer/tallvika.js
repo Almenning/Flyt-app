@@ -92,6 +92,7 @@
             <div class="tv-next-content"><small>NESTE EVENTYR · HELT FRIVILLIG</small><b>${p?.complete ? 'Bonusoppdraget venter' : n?.title || 'Et nytt oppdrag venter'}</b><span>Fortsett når du har lyst.</span></div>
             <button type="button" data-tv="next" ${n||p?.complete?'':'disabled'}>Utforsk ↗</button>
           </section>
+          <p class="tv-navigation-note" id="tv-navigation-note" role="alert" aria-live="assertive"></p>
         </div>
       </main>
       <dialog class="tv-dialog" aria-label="Velg ditt skogstroll"><form method="dialog"><button class="tv-dialog-close" aria-label="Lukk">×</button><p>DIN FØLGESVENN</p><h2>Hvem skal bli med til Tallvika?</h2><span>Du kan bytte når du vil.</span><div class="tv-troll-grid">${Object.entries(trolls).map(([id,item]) => `<button type="button" class="${id===selected?'selected':''}" data-tv-troll="${id}" aria-pressed="${id===selected}"><img src="${item.src}" alt=""><b>${item.name}</b>${id===selected?'<em>Valgt</em>':''}</button>`).join('')}</div></form></dialog>
@@ -104,8 +105,11 @@
       event => { if (event.target === event.currentTarget) event.currentTarget.close(); }));
   }
   function openTable(){
-    window.openMultiplicationLab?.();
-    setTimeout(() => { document.querySelector('#multiplication-lab-root .mp-menu-explore')?.click(); document.querySelector('#multiplication-lab-root .mp-explore-tab[data-mode="table"]')?.click(); }, 0);
+    // Use the actual classic Gangetabellen state machine, not the Gangemagi
+    // wrapper and a timer that tries to click invisible obsolete menu nodes.
+    if (window.LARIA_MULT_PREMIUM?.openTableFromTallvika?.() === true) return;
+    const notice = document.getElementById('tv-navigation-note');
+    if (notice) notice.textContent = 'Vi fikk ikke åpnet Gangetabellen. Prøv igjen.';
   }
   screen.addEventListener('click', event => {
     const button = event.target.closest('[data-tv]');
