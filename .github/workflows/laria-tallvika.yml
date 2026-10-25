@@ -42,6 +42,14 @@ jobs:
           QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
           LARIA_TALLVIKA_SCREENSHOTS: /tmp/laria-tallvika
         run: node tests/laria-tallvika.playwright.js
+      - name: Upload exact repo source image for visual integrity
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-tallvika-original-art-${{ github.sha }}
+          path: laer-litt-mer/assets/tallvika/tallvika-master-laast-20261025.png
+          if-no-files-found: error
+          retention-days: 7
       - name: Upload visual evidence
         if: always()
         uses: actions/upload-artifact@v4

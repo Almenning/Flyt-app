@@ -36,9 +36,9 @@ async function run(browserType,label,viewport){
     assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('laerlittmer-v2')).profile.tallvikaTroll),'lillebror',label+' persists selected troll');
     await page.reload({waitUntil:'domcontentloaded',timeout:90000});await page.locator('.bc14-subject[data-camp="subject-math"]').click();await page.locator('#tallvika-world').waitFor();
     assert.match(await page.locator('.tv-companion').getAttribute('aria-label'),/Lillebror/,label+' restores selected troll');
-    await page.locator('[data-tv="fraction"]').last().click();await page.locator('#fraction-lab-screen.active').waitFor({timeout:12000});
+    await page.locator('[data-tv="fraction"]:visible').first().click();await page.locator('#fraction-lab-screen.active').waitFor({timeout:12000});
     await page.locator('#fraction-lab-back').click();await page.locator('#tallvika-world').waitFor({timeout:12000});
-    await page.locator('[data-tv="table"]').last().click();await page.locator('#multiplication-lab-screen.active').waitFor({timeout:12000});
+    await page.locator('[data-tv="table"]:visible').first().click();await page.locator('#multiplication-lab-screen.active').waitFor({timeout:12000});
     assert.deepEqual(errors,[],label+' emits no page errors');
     await context.close();
   } finally {await browser.close();}
