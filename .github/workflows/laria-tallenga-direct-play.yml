@@ -7,6 +7,7 @@ on:
       - 'laer-litt-mer/tallenga-fjord-scene-v1.svg'
       - 'laer-litt-mer/tallenga-fjord-background-v2.svg'
       - 'laer-litt-mer/tallenga-fjord-foreground-v2.svg'
+      - 'laer-litt-mer/fraction-workshop-card-preview.svg'
       - 'laer-litt-mer/assets/skogstroll/**'
       - 'laer-litt-mer/index.html'
       - 'tests/laria-tallenga-direct-play.playwright.js'
