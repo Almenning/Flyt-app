@@ -52,3 +52,23 @@ Kjøringene er tekniske godkjenningsporter, ikke attest på visuell premiumkvali
 4. Få eksakt godkjenning mot originalfiguren og bevis på faktisk animasjon på Safari/WebKit iPad/iPhone før integrasjon i Gangemagi.
 
 **PORT 1: BLOKKERT** frem til punktene er oppfylt. **Ikke merge, ikke publiser.**
+
+
+## Fase 1.2: presisjonskontroll av fingre og illustratøroverlevering (25.10.2026)
+
+**Implementert på draft-gren – ikke i barnets app:** `tools/rigging/storesoster_art_handoff_v2.py`. Kildeidentiteten og alle seks originalfiler er uendret.
+
+Den opprinnelige armmasken tok ikke med alle fingertuppene som krysser belte og grønt blad. Den etterlot en synlig «spøkelseshånd» i underlaget ved armrotasjon. V2 gjør en **begrenset kildefargebasert maskekorreksjon på 454 piksler** i håndområdet, uten noen ny illustrert figur. V2-masken må fortsatt kontrolleres visuelt av illustratør før rigging.
+
+Den nye **OpenRaster (.ora)**-leveransen inneholder 10 ekte redigerbare lag: låst fullfigur som skjult referanse, pivot- og hullguider, bevegelig kildearm, **fire separate TOMME male-lag** (hår, erme, kjole, midje), originalkropp og skjult farge-/materialguide. Materialfargene er hjelpelag og er IKKE ferdigmalte klær eller hud.
+
+**Kontrollresultat på source-HEAD `91f61f8`:**
+- Neutral (0°): **null endrede synlige RGBA-piksler** og eksakt fullpiksel likhet mellom original og sammensatt figur.
+- Original armmaske: 11 502 kildepiksler. Revidert maske: +454 gjennomgåelsespliktige fingertuppiksler.
+- Umalte områder ved armbevegelse: −25° **4 960**, −12° **2 494**, 0° **0**, +12° **2 503**, +25° **4 976** piksler.
+- [Kilde- og kunsteksport CI: BESTÅTT](https://github.com/Almenning/Flyt-app/actions/runs/40191085397).
+- [Last ned GitHub Actions-pakke](https://github.com/Almenning/Flyt-app/actions/runs/40191085397/artifacts/12598466032) med `.ora`, originale kildepiksler, 5 faktiske poseutsnitt, materialguide og maskinlesbar rapport.
+
+**Visuell dom:** Masken er bedre presisert og dokumentasjonen er produksjonsklar som **illustratørbrief**. Den er ikke et ferdig animert skogstroll. Automatisk motivutfylling ble testet separat, men skapte smurt pels/hår/stoff og rester av fingre; den ble **forkastet og ikke integrert**.
+
+**Videre port:** Rekonstruer faktisk skjult hår, skulder og stofflag bak originalarmen, kontroller naturlig ledd og hånd i alle fem stillinger. Ansikt/hår/klær/proposjoner må forbli eksakt godkjent i nøytral visning; enhver ny malt skulder er en egen visuell godkjenning. **Fase 1 fortsatt BLOKKERT. Ingen fase 2, merge eller publisering.**
