@@ -68,7 +68,7 @@ async function verifyBasecamp(page,label,width,height){
   await page.locator('.bc12').waitFor({state:'visible'});
   assert.equal(await page.locator('.bc12-nav button').count(),5,label+' Basecamp must show five real navigation targets');
   assert.deepEqual(await page.locator('.bc12-nav button').allTextContents(),
-    ['Hjem','Reisen','Utforsk','Samlebok','Min rev'],label+' Basecamp navigation labels changed');
+    ['Hjem','Reisen','Utforsk','Samlebok','Mine troll'],label+' Basecamp navigation labels changed');
   await noOverflow(page,label+' home');
 
   const challenge=await rect(page,'.safe-challenge-young');
