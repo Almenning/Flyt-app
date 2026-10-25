@@ -59,7 +59,7 @@ async function run(engine,engineName,label,width,height,url){
   const activityArt=await page.evaluate(async()=>{
     const expected=[
       ['multiply','gangemagi-tallenga-market-v1.svg'],
-      ['fraction','fraction-workshop-scene.svg'],
+      ['fraction','fraction-workshop-card-preview.svg'],
       ['table','math-pattern-haven-storymap-v1.svg']
     ];
     return await Promise.all(expected.map(async([action,file])=>{
@@ -127,6 +127,16 @@ async function run(engine,engineName,label,width,height,url){
   const sizes=await page.evaluate(()=>({inner:innerWidth,scroll:document.documentElement.scrollWidth,targets:[...document.querySelectorAll('#tallenga-direct-play button')].map(b=>({w:b.getBoundingClientRect().width,h:b.getBoundingClientRect().height}))}));
   assert(sizes.scroll<=sizes.inner+4,'horizontal overflow '+JSON.stringify(sizes));
   assert(sizes.targets.every(x=>x.h>=44),'small buttons '+JSON.stringify(sizes));
+  // The primary card affordance is a real, large painted CTA within the
+  // single native button, not a tiny arrow or decorative inactive label.
+  const controls=await page.evaluate(()=>[...document.querySelectorAll('#tallenga-direct-play .tlp-game')].map(card=>{
+    const cta=card.querySelector('.tlp-cta'),crest=card.querySelector('.tlp-math-glyph');
+    return {action:card.dataset.tlp,ctaHeight:cta?.getBoundingClientRect().height,
+      ctaBackground:cta?getComputedStyle(cta).backgroundImage:'',
+      crestWidth:crest?.getBoundingClientRect().width,crestHeight:crest?.getBoundingClientRect().height};
+  }));
+  assert(controls.length===3&&controls.every(x=>x.ctaHeight>=44&&x.crestWidth>=44&&x.crestHeight>=44&&x.ctaBackground!=='none'),
+    'premium controls must be tactile and readable on every viewport: '+JSON.stringify(controls));
   await fs.promises.mkdir(out,{recursive:true});
   await page.screenshot({path:path.join(out,engineName+'-'+label+'-tallenga.png'),fullPage:true,animations:'disabled'});
   await page.locator('[data-tlp="multiply"]').click();
