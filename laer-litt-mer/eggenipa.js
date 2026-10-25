@@ -158,10 +158,26 @@
     bridge()?.setJourneyViewGrade?.('norwegian',g,true);
     build();
   });
+  // Starting an original Bokskogen mission activates the shared session
+  // screen. The map must survive that temporary screen change so closing or
+  // completing the mission returns to the place the child actually entered.
+  // A real exit to Home or another subject still destroys the map state.
+  const withinMapLearning=()=>[
+    'session-screen','complete-screen','fraction-lab-screen','multiplication-lab-screen'
+  ].some(id=>document.getElementById(id)?.classList.contains('active'));
   const observer=new MutationObserver(()=>{
     if(isActive()){
-      if(!mapVisible)build();
+      if(mapVisible){
+        const back=document.getElementById('eggenipa-map-return');
+        if(back)back.hidden=false;
+      }else build();
     }else{
+      if(mapVisible&&screen.dataset.subject==='norwegian'&&withinMapLearning()){
+        // A body-level return control should never float over a question.
+        const back=document.getElementById('eggenipa-map-return');
+        if(back)back.hidden=true;
+        return;
+      }
       mapVisible=false;
       document.getElementById('eggenipa-map-return')?.remove();
       if(screen.classList.contains('eggenipa-active'))screen.classList.remove('eggenipa-active');
