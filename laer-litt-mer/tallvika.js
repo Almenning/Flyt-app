@@ -37,6 +37,16 @@
     const {p,n,grade} = progress(), ownGrade = Number(app()?.currentGrade?.() || grade);
     let root = document.getElementById('tallvika-world');
     if (!root) { root = document.createElement('section'); root.id='tallvika-world'; root.setAttribute('aria-label','Tallvika, matematikkverden'); screen.insertBefore(root, screen.firstChild); }
+    // The legacy journey system may re-set screen classes while opening Maths.
+    // Replacing identical innerHTML on each observer callback would detach
+    // buttons under the pointer, especially on iPhone landscape WebKit.
+    // Only re-render when the visible, persisted world state really changed.
+    const renderKey = JSON.stringify({
+      selected,grade,ownGrade,name,next:n?.id||null,nextTitle:n?.title||null,
+      done:p?.done||0,total:p?.total||0,complete:!!p?.complete
+    });
+    if (root.dataset.tvRenderKey === renderKey && screen.classList.contains('tallvika-active')) return;
+    root.dataset.tvRenderKey = renderKey;
     root.innerHTML = `
 
       <header class="tv-top">
