@@ -28,10 +28,20 @@
   function keyFor(subject){
     return subjects[String(subject||'').toLowerCase()]||'storesoster';
   }
+  // The two distinct Norwegian word games should not always reuse the same
+  // companion. Assignments are stable and never written to the child profile.
+  const activities=Object.freeze({
+    wordHunt:'storesoster',
+    findTheWords:'lillesoster'
+  });
   function source(key){return artwork[key]||artwork.storesoster;}
   function sourceForSubject(subject){return source(keyFor(subject));}
   function labelForSubject(subject){return 'Skogstrollet '+names[keyFor(subject)];}
+  function keyForActivity(activity){return activities[String(activity||'')]||'storesoster';}
+  function sourceForActivity(activity){return source(keyForActivity(activity));}
+  function labelForActivity(activity){return 'Skogstrollet '+names[keyForActivity(activity)];}
   root.LARIA_SKOGSTROLL=Object.freeze({
-    enabled,keyFor,source,sourceForSubject,labelForSubject,subjects,artwork
+    enabled,keyFor,source,sourceForSubject,labelForSubject,
+    keyForActivity,sourceForActivity,labelForActivity,subjects,activities,artwork
   });
 })(window);
