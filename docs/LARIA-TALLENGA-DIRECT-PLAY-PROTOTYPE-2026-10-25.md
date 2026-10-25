@@ -1,5 +1,18 @@
 # Tallenga direkte lek: isolert prototype (25.10.2026)
 
+> **AKTUELL STATUS (25.10.2026, superseder tidlig prototypetekst nedenfor):**
+> Matematikkforsiden har nå egne motiver for Gangemagi, Brøklab og
+> Gangetabellen samt separate SVG-dybdelag i Tallenga-scenen.
+> **De låste trollene er fjernet fra komposisjonen**, ikke godkjent integrert
+> eller animert. De tilgjengelige originalene er flate små WebP-filer uten
+> redigerbare kroppsdeler. Ikke bygg flere innlimte figurvarianter.
+> Et nytt identitets- og riggingkrav finnes i
+> `docs/LARIA-TALLENGA-TROLL-RIG-ASSET-CONTRACT-2026-10-25.md`.
+> De tidligere statusavsnittene under er historiske. **Ingen visuell
+> sluttgodkjenning, merge eller publisering foreligger.**
+
+
+
 ## Formål
 Produktforsøk: Er en levende fagforside med direkte inngang til lekene bedre enn et obligatorisk fem-steders reisekart?
 
