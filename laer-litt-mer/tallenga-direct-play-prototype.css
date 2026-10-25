@@ -154,6 +154,12 @@ body:has(#subject-screen.active.tlp-active) .app{
    The actor plane is empty until layered, identity-locked characters exist. */
 #subject-screen.active.tlp-active .tlp-scene{
   background-image:linear-gradient(0deg,rgba(20,63,57,.12),transparent 52%),url('./tallenga-fjord-background-v2.svg')!important;
+  /* WebKit did not inherit the position of the replaced background-image
+     layer. Explicit values guarantee that the painted image, the occluding
+     foreground and the reserved actor plane share one 1500 x 680 viewport. */
+  background-position:center center,center center!important;
+  background-size:cover,cover!important;
+  background-repeat:no-repeat,no-repeat!important;
 }
 #subject-screen.active.tlp-active .tlp-stage-actors,
 #subject-screen.active.tlp-active .tlp-stage-foreground{
