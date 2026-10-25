@@ -3719,6 +3719,14 @@ function appBack(){
     const tallvikaBack=document.querySelector('#tallvika-world [data-tv="back"]');
     if(tallvikaBack){tallvikaBack.click();return true;}
   }
+  // Eggenipa has its own navigation inside the shared subject screen.
+  if(current==='subject'&&document.querySelector('#subject-screen.active.eggenipa-active')){
+    const back=document.querySelector('#eggenipa-world [data-eg="home"]');
+    if(back){back.click();return true;}
+  }
+  if(current==='subject'&&document.querySelector('#subject-screen.active #eggenipa-map-return')){
+    document.getElementById('eggenipa-map-return').click();return true;
+  }
   // One source of truth: a swipe performs the active screen's own back action.
   // In the labs this also respects their internal pages before exiting.
   const visibleBack={
@@ -6703,7 +6711,7 @@ function finishSession(){
   }
   document.getElementById('complete-next').textContent=sessionScope?.previewOnly?'Gå tilbake til hovedreisen når du er klar.':practiceOnly?'Vil du prøve én gang til, kan du gjøre det så mange ganger du vil.':chapterDone?'Første eventyr er ferdig. Reisekartet kan spilles igjen, og Utforsk er alltid åpent.':result.gradeCompleted?'Alle verdener på trinnet er fullført. Repetisjon gjør kunnskapen sterkere over tid.':result.journeyReward?'Neste verden er åpnet i hovedreisen.':nextTeaserForScope();
   const backLabel=sessionScope?.subject&&sessionScope.subject!=='geography'?(SUBJECTS[sessionScope.subject]?.title||'faget'):'Geografi';
-  document.getElementById('complete-home').textContent=(sessionScope?.type==='journey'||sessionScope?.type==='geo-journey')?(sessionScope?.subject==='math'?'Tilbake til Tallvika 🌿':'Tilbake til reisekartet 🗺️'):result.gradeCompleted?'Se troféet 🏆':result.journeyReward?'Se neste verden 🗺️':currentGrade()<=2?'Se hva jeg kan ⭐':'Tilbake til '+backLabel+' ⭐';
+  document.getElementById('complete-home').textContent=(sessionScope?.type==='journey'||sessionScope?.type==='geo-journey')?(sessionScope?.subject==='math'?'Tilbake til Tallvika 🌿':sessionScope?.subject==='norwegian'?'Tilbake til Eggenipa 🌿':'Tilbake til reisekartet 🗺️'):result.gradeCompleted?'Se troféet 🏆':result.journeyReward?'Se neste verden 🗺️':currentGrade()<=2?'Se hva jeg kan ⭐':'Tilbake til '+backLabel+' ⭐';
   document.getElementById('complete-repeat').style.display=lastCompletedQuestions.length?'block':'none';
   showScreen('complete');
 }
@@ -7039,8 +7047,8 @@ window.LARIA_TALLVIKA_BRIDGE={
 <script src="./locked-journey-renderer.js?v=20261016-chapter1-completion1" defer></script>
 <!-- Free play + Home -->
 <script src="./word-hunt-themes.js?v=20261016-themes1" defer></script>
-<script src="./word-hunt.js?v=20261017-visible-fox-guidance1" defer></script>
-<script src="./find-the-words.js?v=20261023-premium-garden2" defer></script>
+<script src="./word-hunt.js?v=20261025-eggenipa-origin1" defer></script>
+<script src="./find-the-words.js?v=20261025-eggenipa-origin1" defer></script>
 <script src="./laria-magical-collection-v2.js?v=20261017-diorama2" defer></script>
 <script src="./home-basecamp-v12.js?v=20261017-magicalbook1" defer></script>
 <script defer src="./home-kjosnes-v15.js?v=20261024-alive1"></script>
