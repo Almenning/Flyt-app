@@ -62,10 +62,19 @@ async function homeReady(page,label){
 
 async function returnFromLockedJourney(page,screen,subject,label){
  const root='#'+screen+'-screen.active';
- const back=page.locator(root+' .locked-journey-map[data-journey-subject="'+subject+'"] .locked-journey-back');
- await back.waitFor({state:'visible',timeout:16000});
- await back.scrollIntoViewIfNeeded();
- await back.click();
+ if(subject==='math'){
+   // Tallvika is now the real Math landing, not the hidden former map.
+   const world=page.locator(root+' #tallvika-world');
+   await world.waitFor({state:'visible',timeout:16000});
+   const back=world.locator('[data-tv="back"]');
+   await back.waitFor({state:'visible'});
+   await back.click();
+ }else{
+   const back=page.locator(root+' .locked-journey-map[data-journey-subject="'+subject+'"] .locked-journey-back');
+   await back.waitFor({state:'visible',timeout:16000});
+   await back.scrollIntoViewIfNeeded();
+   await back.click();
+ }
  await page.locator('#home-screen.active').waitFor({timeout:12000});
  await homeReady(page,label+' return '+subject);
  const hiddenNext=(await page.locator('[data-camp-next]').innerText()).trim();

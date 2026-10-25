@@ -8,7 +8,7 @@ const seed={
  preferences:{sound:false,autoRead:false},lastMilestone:null,recentCountryWin:null,lastActivity:null,
  journey:{nodes:{},gradeWins:{},viewGrades:{}},answerLog:[],sessionLog:[],activeSession:null
 };
-const worlds={norwegian:'Bokskogen',math:'Tallenga',english:'Ordlandsbyen',geography:'Nordlysleiren'};
+const worlds={norwegian:'Bokskogen',math:'Tallvika',english:'Ordlandsbyen',geography:'Nordlysleiren'};
 
 async function answerCurrent(page){
   const q=await page.evaluate(()=>{const x=sessionQuestions[qIndex];return x?{type:x.type,answer:x.answer}:null});
@@ -144,18 +144,27 @@ async function run(engine,label,viewport){
    const before=await progress(page,subject);
    const screen=subject==='geography'?'geography':'subject';
    await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').click();
-   const base='#'+screen+'-screen.active .locked-journey-map[data-journey-subject="'+subject+'"]';
+   const isTallvika=subject==='math';
+   const base=isTallvika?'#subject-screen.active #tallvika-world':
+     '#'+screen+'-screen.active .locked-journey-map[data-journey-subject="'+subject+'"]';
    const root=page.locator(base);
    await root.waitFor({timeout:18000});
-   await root.locator('.locked-journey-hotspot.state-current').first().click();
+   if(!isTallvika)await root.locator('.locked-journey-hotspot.state-current').first().click();
    const recommended=await page.evaluate(s=>{
     const node=s==='geography'?geoJourneyRecommendedNode(2):journeyRecommendedNode(s,2);
     return node?.id||null;
    },subject);
    assert.ok(recommended,label+' missing recommended node for '+subject);
-   const mission=page.locator('.locked-journey-overlay:not([hidden]) button[data-locked-node="'+recommended+'"]:not([disabled])');
-   await mission.waitFor({timeout:10000});
-   await mission.click();
+   if(isTallvika){
+     const advance=root.locator('[data-tv="next"]');
+     await advance.waitFor({state:'visible',timeout:10000});
+     assert.equal(await advance.isEnabled(),true,label+' Math continue must remain available');
+     await advance.click();
+   }else{
+     const mission=page.locator('.locked-journey-overlay:not([hidden]) button[data-locked-node="'+recommended+'"]:not([disabled])');
+     await mission.waitFor({timeout:10000});
+     await mission.click();
+   }
    await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
    assert.equal((await page.locator('.task-world-chip').innerText()).trim(),world,label+' wrong world '+subject);
    const started=await activeSnapshot(page);
@@ -203,7 +212,8 @@ async function run(engine,label,viewport){
    }
    await page.locator('#complete-screen.active').waitFor({timeout:16000});
    const completeLabel=(await page.locator('#complete-home').innerText()).trim();
-   assert.match(completeLabel,/Tilbake til reisekartet/,label+' completion action points elsewhere for '+subject);
+   assert.match(completeLabel,isTallvika?/Tallvika/:/Tilbake til reisekartet/,
+     label+' completion action points elsewhere for '+subject);
    const finished=await page.evaluate(s=>{
     const grade=2,node=lastCompletedScope?.journeyNode;
     const key=journeyNodeKey(s,grade,node),rec=state.journey.nodes[key];
@@ -224,8 +234,17 @@ async function run(engine,label,viewport){
    const after=await progress(page,subject);
    assert.ok(after.done>before.done,label+' '+world+' progress failed to advance: '+JSON.stringify({before,after}));
    assert.equal(after.sessionCount,before.sessionCount+1);
-   assert.match((await root.locator('.locked-journey-live-progress').innerText()),new RegExp('\\b'+after.done+'\\s*/\\s*'+after.total+'\\b'));
-   await returnFromJourney(page,root,label,subject);
+   if(isTallvika){
+     const nextTitle=await page.evaluate(()=>journeyRecommendedNode('math',2)?.title||'');
+     assert.ok(nextTitle,label+' next math mission missing after completion');
+     assert.match((await root.locator('.tv-next').innerText()),new RegExp(nextTitle),
+       label+' Tallvika did not show the newly unlocked next mission');
+     await root.locator('[data-tv="back"]').click();
+     await page.locator('#home-screen.active').waitFor({timeout:16000});
+   }else{
+     assert.match((await root.locator('.locked-journey-live-progress').innerText()),new RegExp('\\b'+after.done+'\\s*/\\s*'+after.total+'\\b'));
+     await returnFromJourney(page,root,label,subject);
+   }
    const nextPaintedPlace=await page.evaluate(s=>{
     const p=s==='geography'?geoJourneyProgress(2):journeyProgress(s,2);
     const next=s==='geography'?geoJourneyRecommendedNode(2):journeyRecommendedNode(s,2);
