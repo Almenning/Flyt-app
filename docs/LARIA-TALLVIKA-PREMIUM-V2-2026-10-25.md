@@ -55,3 +55,14 @@ Låst prioritet: bedre barneopplevelse og kvalitetsriktig karakterkunst foran an
 - Endret ressursversjon og serviceworker-cache hindrer at eldre motor eller Tallvika-script brukes etter senere publisering.
 
 **Skogstrollene er utenfor denne fasen.** Ingen karakterfiler, rigging eller animasjoner endres; eget arbeid fortsetter i separat tråd og PR #220 / issue #221.
+
+## Fase 3: sammenhengende aktivitetshytter og én returlogikk
+
+- Start fra Tallvika registrerer bare flyktig visningstilstand (aktivt hus, om barnet valgte selve huset eller et aktivitetskort, og scrollposisjonen). Ingen endringer i læringslagring.
+- Tilbakeknappen i **Gangemagi**, **Brøklab** og **Gangetabellen** leder tilbake til Tallvika i ett trykk når aktiviteten ble startet der, også når barnet har besøkt en intern side i Brøklab eller den klassiske tabellens «Min mestring». Andre innganger beholder etablerte regler.
+- Ved retur gjenopprettes scroll og tastaturfokus på samme inngang, og siste besøkte hytte vises kort som «Sist besøkt». Huset kan spilles på nytt uten venting eller utløsing av nye belønninger.
+- «Tallvika / Brøklab» og «Tallvika / Gangetabellen» vises som diskret brødsmule i de eksisterende spilloverskriftene. Gangemagi har allerede sin Tallvika-merking.
+- Ingen ekstra overgangsskjerm, automatisk fremdrift, forsinkelser eller helskjermsanimasjon før barnet kan leke.
+- Den utvidede Playwright-testen dekker både direkte bilderuter og aktivitetskort, korrekt retur fra interne undermoduser, tilgjengelige returlabels, lagret progresjon, gjenopprettet fokus og scroll, samt at besøksmarkeringen ikke lagres etter reload.
+
+**Karakterutvikling er avgrenset bort**. Ingen troll-/reveillustrasjoner, rigging eller animasjonsfiler berøres.
