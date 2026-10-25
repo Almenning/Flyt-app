@@ -99,8 +99,12 @@ async function run(browserType,label,viewport){
         label+' painted houses are not tappable on phones: '+JSON.stringify(spots));
       await page.locator('.tv-scene .tv-hotspot[data-tv="multiply"]').click();
       await page.locator('#multiplication-lab-screen.active .gm-shell').waitFor({timeout:14000});
+      assert.equal(await page.locator('#multiplication-lab-back').getAttribute('aria-label'),
+        'Tilbake til Tallvika',label+' painted Gangemagi back has wrong destination');
       await page.locator('#multiplication-lab-back').click();
       await page.locator('#subject-screen.active #tallvika-world').waitFor({state:'visible',timeout:14000});
+      await page.locator('.tv-portal-card.tv-visited[data-tv="multiply"]').waitFor();
+      await page.waitForFunction(()=>document.activeElement?.classList.contains('tv-hotspot'));
     }
     await page.locator('#tallvika-world [data-tv="grade"]').click();
     await page.locator('#tallvika-world .tv-grade-dialog[open]').waitFor();
@@ -151,11 +155,29 @@ async function run(browserType,label,viewport){
     }
     await page.reload({waitUntil:'domcontentloaded',timeout:90000});await page.locator('.bc14-subject[data-camp="subject-math"]').click();await page.locator('#tallvika-world').waitFor();
     assert.match(await page.locator('.tv-companion').getAttribute('aria-label'),/Lillebror/,label+' restores selected troll');
+    assert.equal(await page.locator('.tv-portal-card.tv-visited').count(),0,
+      label+' return highlight must not be stored as learning progress');
     // Exercise the illustrated destination button itself, not only
     // invisible hotspots embedded in the original painting.
+    // Restore scroll/focus and leave Brøklab in ONE action, even when the
+    // child is on another internal tab. No forced tutorial or start menu.
+    await page.locator('.tv-mobile-actions [data-tv="fraction"]').scrollIntoViewIfNeeded();
+    const previousWorldScroll=await page.evaluate(()=>window.scrollY);
+    const beforeFraction=await page.evaluate(()=>JSON.stringify(state.journey));
     await page.locator('.tv-mobile-actions [data-tv="fraction"]').click();
-    await page.locator('#fraction-lab-screen.active').waitFor({timeout:12000});
-    await page.locator('#fraction-lab-back').click();await page.locator('#tallvika-world').waitFor({timeout:12000});
+    await page.locator('#fraction-lab-screen.active .fr6-workshop').waitFor({timeout:12000});
+    assert.equal(await page.locator('#fraction-lab-back').getAttribute('aria-label'),
+      'Tilbake til Tallvika',label+' fraction back must name the real destination');
+    assert.match(await page.locator('.fr2-top .tv-origin-breadcrumb').innerText(),/TALLVIKA \/ BRØKLAB/);
+    await page.locator('.fr2-nav [data-fr-action="go"][data-page="home"]').click();
+    await page.locator('#fraction-lab-screen.active .fr2-home-card').first().waitFor({timeout:12000});
+    await page.locator('#fraction-lab-back').click();
+    await page.locator('#subject-screen.active #tallvika-world').waitFor({state:'visible',timeout:12000});
+    await page.locator('.tv-portal-card.tv-visited[data-tv="fraction"]').waitFor();
+    await page.waitForFunction(()=>document.activeElement?.dataset.tv==='fraction');
+    await page.waitForFunction(y=>Math.abs(window.scrollY-y)<130,previousWorldScroll,{timeout:12000});
+    assert.equal(await page.evaluate(()=>JSON.stringify(state.journey)),beforeFraction,
+      label+' entering and exiting Brøklab must not modify chapter progress');
     // Core regression: Gangetabellen is a separate activity from Gangemagi.
     // Opening the table from Tallvika must skip Gangemagi and the legacy
     // launcher, immediately showing the 10 x 10 interactive explorer.
@@ -174,8 +196,16 @@ async function run(browserType,label,viewport){
     await page.locator('.mp-grid-cell[data-row="2"][data-col="3"]').click();
     assert.equal((await page.locator('.mp-inspector-equation b').innerText()).trim(),'2 × 3 = 6',
       label+' interactive 10 x 10 table did not respond to a cell');
+    assert.equal(await page.locator('#multiplication-lab-back').getAttribute('aria-label'),
+      'Tilbake til Tallvika',label+' direct table back has wrong destination');
+    assert.match(await page.locator('.mp-top .tv-origin-breadcrumb').innerText(),/TALLVIKA \/ GANGETABELLEN/);
+    // Even from a different internal page, Back leaves in one tap.
+    await page.locator('.mp-nav [data-mp-action="go"][data-page="mastery"]').click();
+    await page.locator('#multiplication-lab-screen.active .mp-mastery-screen').waitFor({timeout:12000});
     await page.locator('#multiplication-lab-back').click();
     await page.locator('#subject-screen.active #tallvika-world').waitFor({state:'visible',timeout:12000});
+    await page.locator('.tv-portal-card.tv-visited[data-tv="table"]').waitFor();
+    await page.waitForFunction(()=>document.activeElement?.dataset.tv==='table');
     assert.equal(await page.evaluate(()=>JSON.stringify(state.journey)),journeyBeforeTable,
       label+' direct table exploration changed the journey progress');
     // The adjacent house is the original Gangemagi game, not a duplicate
@@ -184,8 +214,12 @@ async function run(browserType,label,viewport){
     await page.locator('#multiplication-lab-screen.active .gm-shell').waitFor({timeout:12000});
     assert.equal(await page.locator('.mp-explore-screen').count(),0,
       label+' Gangemagi was replaced by the previous table');
+    assert.equal(await page.locator('#multiplication-lab-back').getAttribute('aria-label'),
+      'Tilbake til Tallvika',label+' Gangemagi back lost Tallvika context');
     await page.locator('#multiplication-lab-back').click();
     await page.locator('#subject-screen.active #tallvika-world').waitFor({state:'visible',timeout:12000});
+    await page.locator('.tv-portal-card.tv-visited[data-tv="multiply"]').waitFor();
+    await page.waitForFunction(()=>document.activeElement?.dataset.tv==='multiply');
     assert.deepEqual(errors,[],label+' emits no page errors');
     await context.close();
   } finally {await browser.close();}
