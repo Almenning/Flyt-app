@@ -104,8 +104,8 @@ body:has(#subject-screen.eggenipa-active){background:#f4eee0!important}
  .eg-intro h2{font-size:26px}
  .eg-intro p{margin-top:4px;font-size:13px}
  .eg-portals{grid-template-columns:1fr;gap:12px;padding:0 14px}
- .eg-portal{display:grid;grid-template-columns:40% 1fr;min-height:112px;border-radius:19px}
- .eg-portal-art{height:100%;min-height:112px}
+ .eg-portal{display:grid;grid-template-columns:40% 1fr;height:112px;min-height:112px;border-radius:19px}
+ .eg-portal-art{height:112px;min-height:0}
  .eg-portal-copy{align-self:center;padding:11px 25px 12px 13px}
  .eg-portal-copy strong{font-size:22px}
  .eg-portal-copy small{font-size:12px}
