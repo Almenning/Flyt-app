@@ -23,7 +23,10 @@ body:has(#subject-screen.eggenipa-active){background:#f4eee0!important}
 .eg-grade{font-weight:900;font-size:13px}
 .eg-hero{width:min(100%,1672px);margin:auto;position:relative;isolation:isolate;aspect-ratio:1672 / 941;overflow:hidden;background:#8aa9a2}
 .eg-master{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block}
-.eg-world-label{position:absolute;z-index:3;top:5%;left:3.8%;max-width:310px;color:#fff9e8;text-shadow:0 2px 8px #385445,0 1px 3px #385445}
+/* The approved mountain, treehouse and library must remain visually legible.
+   The previous overlaid title inherited dark global heading styles and was
+   unreadable over the tree. Put the title in the accessible intro below. */
+.eg-world-label{display:none}
 .eg-world-label small{font-weight:950;font-size:clamp(9px,1vw,14px);letter-spacing:.13em}
 .eg-world-label h1{font-size:clamp(32px,4.8vw,66px);font-weight:1000;letter-spacing:-.055em;line-height:1.03;margin:4px 0}
 .eg-world-label p{font-weight:900;font-size:clamp(11px,1.18vw,17px);margin:5px 0}
