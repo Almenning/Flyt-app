@@ -28,6 +28,15 @@ test('pilot uses only the locked Storesøster image and maps real Gangemagi even
  assert.match(game,/setGuideMood\('support',900\)/,'full basket response is supportive');
  assert.doesNotMatch(actorSource,/imagegen|openai|fetch\(/i,'no regenerated character or remote animation path');
 });
+test('the greeting follows the actual arm animation with a real timer fallback',()=>{
+ assert.match(game,/event\.animationName==='troll-wave-arm'/,
+   'visual gesture completion must restore idle when the arm animation ends');
+ assert.match(game,/guideWaveEnd=\{part,done\}/,'the transition listener must be removable');
+ assert.match(game,/Math\.max\(1500,settleAfter\)/,
+   'a fallback must protect reduced motion and detached animation parts');
+ assert.match(game,/clearGuideTimer\(\);[\s\S]*guideMood=mood;/,
+   'a new gesture must invalidate prior pending state transitions');
+});
 test('rig uses composited source crops, respects reduced motion, and is loaded before Gangemagi',()=>{
  assert.match(actorCss,/background:var\(--troll-source\) center bottom \/ contain no-repeat/);
  assert.match(actorCss,/@media\(prefers-reduced-motion:reduce\)/);

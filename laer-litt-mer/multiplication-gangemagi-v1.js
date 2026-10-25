@@ -15,7 +15,7 @@
  let selectedGroup=null; // transient UI selection, no changes to stored schema.
  let holdingBerry=false;
  let selectedTroll=null,trollMove=null,trollTimer=0;
- let guideMood='wave',guideTimer=0;
+ let guideMood='wave',guideTimer=0,guideWaveEnd=null;
  const TROLLS=Object.freeze([
    Object.freeze({id:'storesoster',name:'Storesøster',src:'./assets/gangemagi-troll/storesoster.webp'}),
    Object.freeze({id:'lillesoster',name:'Lillesøster',src:'./assets/gangemagi-troll/lillesoster.webp'}),
@@ -37,13 +37,37 @@
    return path?'<img src="'+esc(path)+'" alt="" aria-hidden="true">':'';
  }
  function trollName(index){return TROLLS[index]?.name||'Trollet';}
- function clearGuideTimer(){if(guideTimer)clearTimeout(guideTimer);guideTimer=0;}
+ function clearGuideTimer(){
+   if(guideTimer)clearTimeout(guideTimer);
+   guideTimer=0;
+   if(guideWaveEnd){
+     guideWaveEnd.part.removeEventListener('animationend',guideWaveEnd.done);
+     guideWaveEnd=null;
+   }
+ }
  function setGuideMood(mood,settleAfter=0){
+   clearGuideTimer();
    guideMood=mood;
    const actor=root.querySelector('[data-troll-actor="storesoster"]');
    window.LARIA_TROLL_ACTOR?.setMood?.(actor,mood);
-   clearGuideTimer();
-   if(settleAfter)guideTimer=setTimeout(()=>setGuideMood('idle'),settleAfter);
+   if(!settleAfter)return;
+   if(mood==='wave'){
+     // When the arm actually finishes its real WebKit animation, restore
+     // breathing immediately. A fallback covers reduced-motion, DOM redraws
+     // and browsers that do not dispatch animationend reliably.
+     const part=actor?.querySelector('.troll-actor__arm--left');
+     if(part){
+       const done=event=>{
+         if(event.target===part&&event.animationName==='troll-wave-arm')
+           setGuideMood('idle');
+       };
+       part.addEventListener('animationend',done);
+       guideWaveEnd={part,done};
+     }
+   }
+   // Do not cut off the real 1.25-second arm gesture after selecting a troll.
+   const duration=mood==='wave'?Math.max(1500,settleAfter):settleAfter;
+   guideTimer=setTimeout(()=>setGuideMood('idle'),duration);
  }
  function startGuideGreeting(){setGuideMood('wave',1450);}
  function stopTrollMove(){

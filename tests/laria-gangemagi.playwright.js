@@ -132,20 +132,27 @@ async function check(engine,label,viewport,url){
     label+' the home-background check must run on Home, never inside Gangemagi');
   // Home's artwork can live on nested layers; compare its original paint
   // after returning instead of demanding a gradient on the .app wrapper.
-  await page.evaluate(()=>window.openMultiplicationLab());
+  // Observe the greeting in the SAME browser task as opening Gangemagi.
+  // A screenshot or WebKit image decoding can legitimately outlast the wave,
+  // so reading state only after the viewport has settled is not a valid test.
+  const openingMood=await page.evaluate(()=>{
+    window.openMultiplicationLab();
+    return document.querySelector('#multiplication-lab-screen.active [data-troll-actor="storesoster"]')?.dataset.trollMood||null;
+  });
+  assert.equal(openingMood,'wave',
+    label+' Storesøster must actually greet the child upon opening Gangemagi');
   await page.locator('#multiplication-lab-screen.active .gm-shell').waitFor();
   const pilotActor=page.locator('[data-troll-actor="storesoster"]');
   assert.equal(await pilotActor.count(),1,label+' must mount exactly one living Storesøster pilot');
   assert.equal(await pilotActor.getAttribute('data-troll-rig'),'crop-v1',
     label+' must use the reusable multi-part TrollActor rig, not a whole-image bounce');
-  assert.equal(await pilotActor.getAttribute('data-troll-mood'),'wave',
-    label+' Storesøster must greet the child when Gangemagi opens');
-  // Always preserve a first-look screenshot before geometry assertions. If a
-  // later premium gate fails, reviewers still get the exact rendered scene.
+  // Always preserve a first-look screenshot before geometry assertions.
   await shot(page,label+'-00-diagnostic-first-look');
-  await page.waitForTimeout(1550);
-  assert.equal(await pilotActor.getAttribute('data-troll-mood'),'idle',
-    label+' Storesøster must settle into her living idle state after greeting');
+  // Verify the REAL transition to idle, not a wall-clock guess relative to a
+  // potentially slow WebKit screenshot. Five seconds remains a strict bound.
+  await page.waitForFunction(()=>
+    document.querySelector('#multiplication-lab-screen.active [data-troll-actor="storesoster"]')?.dataset.trollMood==='idle',
+    null,{timeout:5000});
   assert.equal(await page.locator('.gm-story.gm-quest').evaluate(el=>getComputedStyle(el).display),'block',
     label+' mission board must not inherit the old horizontal flex story layout');
   assert.equal(await page.locator('.gm-crate').count(),3);
