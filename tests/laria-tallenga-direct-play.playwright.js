@@ -137,11 +137,46 @@ async function run(engine,engineName,label,width,height,url){
   console.log('PASS '+engineName+' '+label);
  }finally{await context.close();await browser.close();}
 }
+
+async function checkUnflaggedOriginal(engine,engineName,url){
+ // A separate fresh browser context proves that default Læria never sees
+ // any prototype UI or modified chapter navigation.
+ const browser=await engine.launch({headless:true,...(engineName==='chromium'?{args:['--no-sandbox']}:{})});
+ const context=await browser.newContext({viewport:{width:820,height:1180},hasTouch:true,serviceWorkers:'block',reducedMotion:'reduce'});
+ const page=await context.newPage();
+ const errors=[];
+ page.on('pageerror',error=>errors.push(String(error)));
+ await page.addInitScript(data=>localStorage.setItem('laerlittmer-v2',JSON.stringify(data)),seed);
+ await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
+ await page.route('https://api.worldbank.org/**',r=>r.abort());
+ try{
+   await page.goto(url,{waitUntil:'domcontentloaded'});
+   await page.locator('#home-screen.active').waitFor();
+   assert.equal(await page.evaluate(()=>window.LARIA_TALLENGA_PROTOTYPE),undefined,
+     engineName+' default launch must not enable the prototype');
+   await page.locator('.bc14-subject[data-camp="subject-math"]:visible').click();
+   await page.locator('#subject-screen.active').waitFor();
+   await page.locator('#journey-map:visible').waitFor();
+   assert.equal(await page.locator('#tallenga-direct-play').count(),0,
+     engineName+' default math journey must not mount direct-play markup');
+   assert.equal(await page.locator('#journey-map').getAttribute('data-journey-subject'),'math');
+   await page.evaluate(()=>openSubject('norwegian'));
+   assert.equal(await page.locator('#subject-screen.active').getAttribute('data-subject'),'norwegian');
+   await page.evaluate(()=>openSubject('english'));
+   assert.equal(await page.locator('#subject-screen.active').getAttribute('data-subject'),'english');
+   assert.equal(await page.locator('#tallenga-direct-play').count(),0);
+   assert.equal(await page.locator('#open-world').count(),1,'existing Kloden entrance must remain installed');
+   assert.deepEqual(errors,[],engineName+' default experience page errors');
+   console.log('PASS '+engineName+' default no-prototype regression');
+ }finally{await context.close();await browser.close();}
+}
+
 (async()=>{
  const {server,url}=await serve();
  try{
   for(const [e,n] of [[chromium,'chromium'],[webkit,'webkit']]){
    for(const [label,w,h] of [['iphone',390,844],['ipad-portrait',820,1180],['ipad-landscape',1180,820]])await run(e,n,label,w,h,url);
+   await checkUnflaggedOriginal(e,n,url);
   }
  }finally{server.close();}
 })().catch(e=>{console.error(e);process.exitCode=1;});
