@@ -69,7 +69,7 @@
    #subject-journey-section with !important. When Tallenga direct-play is opted
    into, only its own sibling is restored; other subjects retain the original
    map contract and the legacy journey remains intact for comparison. */
-#subject-screen.active.locked-journey-active.tlp-active > #tallenga-direct-play{
+#subject-screen.active.locked-journey-active.locked-journey-subject-math.tlp-active > #tallenga-direct-play.tlp{
   display:block!important;
   visibility:visible;
   width:100%;
