@@ -1,0 +1,117 @@
+name: Laria Storesoster phase 1 source and editable OpenRaster audit
+
+on:
+  pull_request:
+    paths:
+      - 'laer-litt-mer/assets/gangemagi-troll/**'
+      - 'laer-litt-mer/assets/skogstroll/**'
+      - 'tools/rigging/**'
+      - 'tests/test_storesoster_*.py'
+      - 'docs/LARIA-STORESOSTER-FASE1-KILDEKONTROLL-2026-10-25.md'
+      - '.github/workflows/laria-storesoster-fase1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: laria-storesoster-art-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  editable-art-not-approved:
+    name: Storesoster exact source and editable art studies
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - name: Check exact pull-request commit
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pure artwork auditing tools
+        run: python -m pip install --disable-pip-version-check Pillow numpy
+      - name: Identify BOTH locked reference pose sets without substitutions
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/laria-storesoster-fase1
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib, json
+          from PIL import Image
+          families = [
+            ('neutral-512', Path('laer-litt-mer/assets/gangemagi-troll'), {
+             'storesoster':'a8fba47e272e2856bd78b92fb262146506e828ed',
+             'lillesoster':'37fd94b3d0fd5319db05e4d1aea609e96d69351f',
+             'lillebror':'fcf59aad90e0c9dacca025d76cd352a924ef7120'}),
+            ('small-action-pose', Path('laer-litt-mer/assets/skogstroll'), {
+             'storesoster':'5d5f80c15e367bbd4600013057c7820a7b2e2adb',
+             'lillesoster':'661107cd231a72b14aeca4f7bc3c826130734576',
+             'lillebror':'5f92c89319ec372b980c75eb3d538a4f4f851a7c'})
+          ]
+          records=[]
+          for family,root,checks in families:
+            for name,want in checks.items():
+              src=root/(name+'.webp')
+              raw=src.read_bytes()
+              digest=hashlib.sha1(b'blob '+str(len(raw)).encode()+b'\0'+raw).hexdigest()
+              assert digest==want, 'Identity source changed: '+str(src)
+              with Image.open(src) as art:
+                size=art.size
+                if family=='neutral-512': assert size==(512,1024)
+                else: assert size[1]==420
+                bands=art.getbands()
+              records.append({'family':family,'name':name,'path':str(src),
+                'dimensions':list(size),'bands':list(bands),'bytes':len(raw),
+                'git_blob_sha1':digest,'sha256':hashlib.sha256(raw).hexdigest()})
+          target=Path('/tmp/laria-storesoster-fase1/art-source-manifest.json')
+          target.write_text(json.dumps({'library_png_pixel_parity_verified':False,
+             'layered_character_ready':False,'references':records},indent=2)+'\n')
+          print('PASS: six original references unchanged, two different pose sets.')
+          PY
+      - name: Produce a real OpenRaster source with intentionally EMPTY hidden anatomy
+        run: |
+          python tests/test_storesoster_openraster_layers.py \
+            laer-litt-mer/assets/gangemagi-troll/storesoster.webp \
+            /tmp/laria-storesoster-fase1/editable-art
+      - name: Prove existing source identity cannot be silently redrawn
+        run: |
+          python tests/test_storesoster_art_integrity.py \
+            laer-litt-mer/assets/gangemagi-troll/storesoster.webp
+      - name: Run isolated movement and artist underpaint import proofs
+        run: |
+          python tests/test_storesoster_pose_import.py \
+            laer-litt-mer/assets/gangemagi-troll/storesoster.webp \
+            /tmp/laria-storesoster-fase1/artist-proof
+      - name: Assert the artwork is NOT production-ready
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          dest=Path('/tmp/laria-storesoster-fase1/editable-art')
+          d=json.loads((dest/'rig-readiness.json').read_text())
+          assert d['original_visible_pixels_preserved'] is True
+          assert not d['hidden_anatomy_reconstructed']
+          assert not d['art_approved']
+          assert not d['integrated_in_app']
+          assert d['experimental_rotations']['0']['unpainted_pixels']==0
+          for angle in ('-25','-12','12','25'):
+            assert d['experimental_rotations'][angle]['unpainted_pixels']>1000
+          assert any(f.suffix=='.ora' for f in dest.iterdir())
+          print('PASS source fidelity; BLOCKED premium art: missing anatomy.')
+          PY
+      - name: Upload editable ORA, layer masks and factual movement report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-storesoster-PHASE1-NOT-APPROVED-${{ github.event.pull_request.head.sha || github.sha }}
+          path: /tmp/laria-storesoster-fase1
+          retention-days: 14
+          if-no-files-found: warn
