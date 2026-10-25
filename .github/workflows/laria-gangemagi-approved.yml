@@ -32,6 +32,7 @@ on:
       - 'tests/laria-troll-actor-motion.playwright.js'
       - 'tools/rigging/**'
       - 'tests/test_storesoster_openraster_layers.py'
+      - 'tests/test_storesoster_art_integrity.py'
       - 'docs/LARIA-STORESOSTER-ARMLAG-STUDIE-2026-10-25.md'
       - '.github/workflows/laria-gangemagi-approved.yml'
   pull_request:
@@ -60,6 +61,7 @@ on:
       - 'tests/laria-troll-actor-motion.playwright.js'
       - 'tools/rigging/**'
       - 'tests/test_storesoster_openraster_layers.py'
+      - 'tests/test_storesoster_art_integrity.py'
       - 'docs/LARIA-STORESOSTER-ARMLAG-STUDIE-2026-10-25.md'
       - '.github/workflows/laria-gangemagi-approved.yml'
   workflow_dispatch:
@@ -199,6 +201,20 @@ jobs:
           for f in ['review.html','05-arm-motion-proof-NOT-APPROVED.png','04-hidden-fabric-DRAFT.png']:
               assert (p/f).is_file() and (p/f).stat().st_size>1000
           print('PASS: independent shoulder pivot and unapproved art gate')
+          PY
+      - name: Reject replacement characters and validate draft underpaint identity
+        run: |
+          python tests/test_storesoster_art_integrity.py             laer-litt-mer/assets/gangemagi-troll/storesoster.webp
+          python tools/rigging/storesoster_art_integrity.py             --source laer-litt-mer/assets/gangemagi-troll/storesoster.webp             --underpaint /tmp/laria-storesoster-layer-kit/pose-laboratorium/04-hidden-fabric-DRAFT.png             --report /tmp/laria-storesoster-layer-kit/pose-laboratorium/source-integrity-only-DRAFT.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report=json.loads(Path('/tmp/laria-storesoster-layer-kit/pose-laboratorium/source-integrity-only-DRAFT.json').read_text())
+          assert report['geometry_integrity_pass'] is True
+          assert report['visual_anatomy_approved'] is False
+          assert report['premium_ready'] is False
+          assert report['safe_to_integrate'] is False
+          print('PASS: locked source geometry verified; experimental anatomy STILL NOT APPROVED')
           PY
       - name: Preserve original-faithful non-production editable layers
         uses: actions/upload-artifact@v4

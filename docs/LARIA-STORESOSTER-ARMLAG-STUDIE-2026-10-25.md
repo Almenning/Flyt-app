@@ -82,3 +82,26 @@ unaturlige skjøter og manglende anatomisk riktige skulder-/stofflag.
 Ingen produksjonsfigur endres. Målet er å kontrollere nettopp slike feil
 før illustratørarbeid og senere implementering. CI-artefaktet kan lastes
 ned og åpnes lokalt ved å pakke ut og åpne `pose-laboratorium/review.html`.
+
+
+## Identitetslås for nye illustrasjonslag
+
+Før et framtidig malelag legges i en rigg, kontrollerer
+`tools/rigging/storesoster_art_integrity.py` den **eksakte låste originalen**:
+- Kilden må beholde original SHA-256 og oppløsning 512×1024.
+- Nye piksler får bare ligge i den delen som **den godkjente armen dekker**
+  i nøytral stilling. Ikke på ansikt, hår, kjole, øyne eller andre synlige partier.
+- Nøytral sammenstilling av original kropp, kandidatunderlag og original arm
+  må bevare ALLE synlige RGBA-piksler og alfasilhuetten eksakt.
+- Rapporten viser hvor mange kildepiksler som var eksponert ved ±12° og
+  ±25°, og hvor mye av disse som blir dekket av underlaget.
+
+`tests/test_storesoster_art_integrity.py` prøver at både fremmed ansiktspiksel
+og helfigurutskiftning avvises. En kandidat kan tilfredsstille geometrien,
+men fortsatt ha **stygg eller feil anatomi**. Derfor er
+`visual_anatomy_approved=false`, `premium_ready=false` og
+`safe_to_integrate=false` **ALLTID** i rapporten fram til egne manuelle,
+visuelle porter er bestått. Den foreløpige teksturprøven godkjennes ikke som
+produksjonskunst selv om den dekker alle registrerte hull.
+
+Ingen originaler eller aktiv Gangemagi-figur endres av denne kontrollen.
