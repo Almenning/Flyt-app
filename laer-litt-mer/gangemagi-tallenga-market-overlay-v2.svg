@@ -1,0 +1,136 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 730" role="img" aria-label="Transparent Tallenga market architecture overlay">
+<defs>
+  <linearGradient id="plaster" x2="0" y2="1"><stop stop-color="#ffe3b0"/><stop offset="1" stop-color="#d7ad79"/></linearGradient>
+  <linearGradient id="terracotta" x2="0" y2="1"><stop stop-color="#ef9a78"/><stop offset=".58" stop-color="#c96858"/><stop offset="1" stop-color="#9f5148"/></linearGradient>
+  <linearGradient id="tealRoof" x2="0" y2="1"><stop stop-color="#94c0ae"/><stop offset=".55" stop-color="#5e9587"/><stop offset="1" stop-color="#3f716c"/></linearGradient>
+  <linearGradient id="wood" x2="0" y2="1"><stop stop-color="#d9ad72"/><stop offset=".48" stop-color="#b27e50"/><stop offset="1" stop-color="#765038"/></linearGradient>
+  <linearGradient id="bridgeStone" x2=".25" y2="1"><stop stop-color="#eed8ae"/><stop offset=".52" stop-color="#c9aa83"/><stop offset="1" stop-color="#92745b"/></linearGradient>
+  <linearGradient id="water" x2=".25" y2="1"><stop stop-color="#d7eee2"/><stop offset=".52" stop-color="#7ebbb0"/><stop offset="1" stop-color="#4d8d88"/></linearGradient>
+  <radialGradient id="goldGlow"><stop stop-color="#fff4bd" stop-opacity=".96"/><stop offset=".38" stop-color="#f9c969" stop-opacity=".42"/><stop offset="1" stop-color="#e69e3f" stop-opacity="0"/></radialGradient>
+  <radialGradient id="sunWash"><stop stop-color="#fff1b7" stop-opacity=".32"/><stop offset=".58" stop-color="#ffe5a5" stop-opacity=".11"/><stop offset="1" stop-color="#ffe5a5" stop-opacity="0"/></radialGradient>
+  <filter id="shadow" x="-30%" y="-30%" width="160%" height="180%"><feDropShadow dx="0" dy="11" stdDeviation="11" flood-color="#4c392a" flood-opacity=".16"/></filter>
+  <filter id="softShadow" x="-30%" y="-30%" width="160%" height="180%"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#4c392a" flood-opacity=".12"/></filter>
+  <filter id="glow"><feGaussianBlur stdDeviation="16"/></filter>
+</defs>
+
+<!-- Warm light integrates the authored architecture into the painted world. -->
+<ellipse cx="1045" cy="170" rx="430" ry="300" fill="url(#sunWash)"/>
+<path d="M1020 84L700 590L876 590L1132 160Z" fill="#fff0b4" opacity=".055"/>
+
+<!-- Tallenga skyline: high enough to stay visible behind the quest board on iPad. -->
+<g id="market-skyline" opacity=".42" filter="url(#softShadow)">
+  <g transform="translate(875 104)">
+    <path d="M0 252V132L74 82L145 136V252Z" fill="url(#plaster)" stroke="#9c714e" stroke-width="6"/>
+    <path d="M-18 139L73 64L165 143L144 153L74 96L3 156Z" fill="url(#terracotta)" stroke="#8f5149" stroke-width="6"/>
+    <rect x="54" y="166" width="41" height="86" rx="17" fill="#8a5d40" stroke="#f6ddb2" stroke-width="5"/>
+    <rect x="18" y="161" width="29" height="36" rx="9" fill="#8ebabc" stroke="#fff0cf" stroke-width="5"/>
+    <rect x="105" y="161" width="29" height="36" rx="9" fill="#8ebabc" stroke="#fff0cf" stroke-width="5"/>
+    <path d="M55 83V18L76 -22L98 18V83Z" fill="#e9c083" stroke="#956749" stroke-width="6"/>
+    <path d="M43 21L76 -36L112 21Z" fill="#c95f55" stroke="#8d4d46" stroke-width="6"/>
+    <circle cx="76" cy="42" r="13" fill="#fff0b4" stroke="#956749" stroke-width="5"/>
+    <path d="M76 -36v-25" stroke="#80523d" stroke-width="6" stroke-linecap="round"/>
+    <path d="M76 -62l20 9-20 8Z" fill="#e7a34b"/>
+  </g>
+  <g transform="translate(1090 250)">
+    <path d="M0 151V57L98 3L198 61V151Z" fill="url(#plaster)" stroke="#9c714e" stroke-width="6"/>
+    <path d="M-15 64L99 -19L219 64L197 75L101 10L13 80Z" fill="url(#terracotta)" stroke="#8f5149" stroke-width="6"/>
+    <rect x="76" y="88" width="50" height="63" rx="20" fill="#8a5d40" stroke="#f5deb4" stroke-width="5"/>
+    <rect x="28" y="81" width="33" height="34" rx="9" fill="#91bfc0" stroke="#fff0cf" stroke-width="5"/>
+    <rect x="145" y="81" width="33" height="34" rx="9" fill="#91bfc0" stroke="#fff0cf" stroke-width="5"/>
+  </g>
+</g>
+
+<!-- Three market buildings make the scene read as a village square, not a generic forest. -->
+<g id="market-stalls" opacity=".43" filter="url(#shadow)">
+  <g transform="translate(430 248)">
+    <path d="M0 165V63H164V165Z" fill="url(#plaster)" stroke="#8e6548" stroke-width="6"/>
+    <path d="M-16 67L24 17H140L180 67Z" fill="url(#terracotta)" stroke="#f8dfb3" stroke-width="6"/>
+    <rect x="17" y="72" width="12" height="96" rx="6" fill="#765039"/>
+    <rect x="135" y="72" width="12" height="96" rx="6" fill="#765039"/>
+    <rect x="57" y="99" width="51" height="66" rx="20" fill="#80573e" stroke="#f7dfb7" stroke-width="5"/>
+    <rect x="18" y="91" width="29" height="29" rx="8" fill="#8eb8ba" stroke="#fff0ce" stroke-width="5"/>
+    <rect x="118" y="91" width="29" height="29" rx="8" fill="#8eb8ba" stroke="#fff0ce" stroke-width="5"/>
+    <rect x="7" y="145" width="150" height="28" rx="8" fill="url(#wood)" stroke="#795038" stroke-width="6"/>
+  </g>
+  <g transform="translate(620 218)">
+    <path d="M0 187V68H181V187Z" fill="url(#plaster)" stroke="#8e6548" stroke-width="6"/>
+    <path d="M-15 71L31 13H151L197 71Z" fill="url(#tealRoof)" stroke="#f5dfb6" stroke-width="6"/>
+    <rect x="18" y="76" width="12" height="112" rx="6" fill="#765039"/>
+    <rect x="151" y="76" width="12" height="112" rx="6" fill="#765039"/>
+    <rect x="62" y="111" width="58" height="76" rx="23" fill="#83593f" stroke="#f7dfb7" stroke-width="5"/>
+    <rect x="17" y="101" width="32" height="32" rx="9" fill="#93bdbb" stroke="#fff0ce" stroke-width="5"/>
+    <rect x="134" y="101" width="32" height="32" rx="9" fill="#93bdbb" stroke="#fff0ce" stroke-width="5"/>
+    <path d="M14 153Q90 177 166 153" fill="none" stroke="#df9b70" stroke-width="13"/>
+  </g>
+  <g transform="translate(826 252)">
+    <path d="M0 154V59H151V154Z" fill="url(#plaster)" stroke="#8e6548" stroke-width="6"/>
+    <path d="M-14 62L25 15H126L166 62Z" fill="#e5a15d" stroke="#f8dfb3" stroke-width="6"/>
+    <rect x="18" y="67" width="11" height="90" rx="6" fill="#765039"/>
+    <rect x="123" y="67" width="11" height="90" rx="6" fill="#765039"/>
+    <rect x="51" y="95" width="49" height="62" rx="18" fill="#80573e" stroke="#f7dfb7" stroke-width="5"/>
+    <rect x="8" y="137" width="136" height="28" rx="8" fill="url(#wood)" stroke="#795038" stroke-width="6"/>
+  </g>
+</g>
+
+<!-- Side stalls frame the play area without baking in fake interactive baskets or berries. -->
+<g id="market-edge-stalls" opacity=".76" filter="url(#shadow)">
+  <g transform="translate(180 336)">
+    <path d="M0 100V37H230V100" fill="url(#plaster)" stroke="#765039" stroke-width="9"/>
+    <path d="M-18 41L24 -18H203L248 41Z" fill="#f5d7a9" stroke="#81583f" stroke-width="7"/>
+    <path d="M-5 39L31 -7H74L52 39ZM101 39L111 -7H156L172 39ZM220 39L193 -7H205L248 39Z" fill="url(#terracotta)"/>
+    <path d="M52 39L74 -7H111L101 39ZM172 39L156 -7H193L220 39Z" fill="#fff0c9"/>
+    <path d="M7 43v104m217-104v104" stroke="#7b533b" stroke-width="11"/>
+    <rect x="17" y="87" width="197" height="43" rx="9" fill="url(#wood)" stroke="#704832" stroke-width="6"/>
+  </g>
+  <g transform="translate(1160 332)">
+    <path d="M24 116V42H248V116" fill="url(#plaster)" stroke="#765039" stroke-width="9"/>
+    <path d="M2 51L39 -7H231L272 51Z" fill="#f6dbb1" stroke="#81583f" stroke-width="7"/>
+    <path d="M12 48L45 1H82L61 48ZM98 48L110 1H147L160 48ZM193 48L179 1H217L258 48Z" fill="url(#terracotta)"/>
+    <path d="M61 48L82 1H110L98 48ZM160 48L147 1H179L193 48Z" fill="#fff0c9"/>
+    <path d="M29 53v148m219-148v148" stroke="#7b533b" stroke-width="11"/>
+    <rect x="44" y="103" width="182" height="49" rx="9" fill="url(#wood)" stroke="#704832" stroke-width="6"/>
+  </g>
+</g>
+
+<!-- Stone bridge and fountain provide a recognisable market-square depth axis. -->
+<g id="market-bridge" opacity=".36" filter="url(#softShadow)" transform="translate(715 330)">
+  <path d="M-18 177Q151 4 335 176L332 196Q151 42-20 198Z" fill="url(#bridgeStone)" stroke="#745c49" stroke-width="8"/>
+  <path d="M0 171Q160 24 320 171" fill="none" stroke="#fff0c8" stroke-width="7"/>
+  <path d="M2 168L4 195M48 129L52 165M99 90L105 135M151 77L151 118M211 92L204 136M263 128L253 165M309 168L313 192" stroke="#826a54" stroke-width="6"/>
+  <path d="M0 137Q151 -28 320 137" fill="none" stroke="#947456" stroke-width="8"/>
+  <path d="M0 130Q155 -37 320 130" fill="none" stroke="#fff1ca" stroke-width="5"/>
+</g>
+<g id="market-fountain" opacity=".40" filter="url(#softShadow)">
+  <ellipse cx="842" cy="510" rx="132" ry="39" fill="url(#water)" stroke="#eadbb3" stroke-width="8"/>
+  <ellipse cx="842" cy="506" rx="84" ry="19" fill="#e9f5e8" opacity=".46"/>
+  <path d="M842 499Q806 459 839 423Q874 459 842 499Z" fill="#e4f5e9" opacity=".86"/>
+  <path d="M842 494Q819 461 841 435Q860 461 842 494Z" fill="#fff" opacity=".56"/>
+  <ellipse cx="842" cy="512" rx="151" ry="52" fill="none" stroke="#fff0c7" stroke-width="5" opacity=".44"/>
+</g>
+
+<!-- Bunting and lanterns signal a living market without adding fake controls. -->
+<g id="market-bunting" opacity=".72">
+  <path d="M462 340Q748 389 1060 313" fill="none" stroke="#8f6b4f" stroke-width="4"/>
+  <path d="M518 351l20 34 22-29M612 366l19 33 22-29M713 373l20 34 22-34M824 364l19 32 22-39M942 339l20 32 22-40" fill="#e8886d" stroke="#f7d7a5" stroke-width="3"/>
+</g>
+<g id="market-lanterns" opacity=".78">
+  <circle cx="592" cy="397" r="48" fill="url(#goldGlow)" filter="url(#glow)"/>
+  <path d="M580 369h24l-4 36h-16Z" fill="#5e3d2e" stroke="#3f2d25" stroke-width="4"/>
+  <rect x="585" y="376" width="14" height="20" rx="4" fill="#ffd77e"/>
+  <circle cx="975" cy="398" r="44" fill="url(#goldGlow)" filter="url(#glow)"/>
+  <path d="M964 372h23l-4 34h-15Z" fill="#5e3d2e" stroke="#3f2d25" stroke-width="4"/>
+  <rect x="969" y="379" width="13" height="19" rx="4" fill="#ffd77e"/>
+</g>
+
+<!-- Foreground framing creates parallax while leaving the actual game objects live in DOM. -->
+<g id="market-foreground" opacity=".80" pointer-events="none">
+  <path d="M-32 -17H374L324 82L-28 75Z" fill="url(#terracotta)" stroke="#97503f" stroke-width="8"/>
+  <path d="M8 -13H60L44 83H-7ZM96 -13H140L130 83H82ZM181 -13H230L220 87H164ZM270 -13H316L310 88H249Z" fill="#ffedbb"/>
+  <path d="M-27 79Q13 110 48 80Q84 111 118 83Q151 117 182 87Q215 113 249 84Q279 116 322 81" fill="none" stroke="#b45a46" stroke-width="12" stroke-linecap="round"/>
+  <g transform="translate(1180 -14)">
+    <path d="M0 0h292v108H0Z" fill="url(#terracotta)" stroke="#8e5a42" stroke-width="7"/>
+    <path d="M14 2h46L52 108H7ZM101 2h46v106h-46ZM187 2h46l8 106h-46ZM270 2h40v106h-40Z" fill="#fff0c9"/>
+    <path d="M0 110Q35 142 72 112Q106 146 140 110Q173 147 205 110Q244 146 288 112" fill="none" stroke="#f5c78c" stroke-width="12" stroke-linecap="round"/>
+  </g>
+</g>
+</svg>

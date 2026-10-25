@@ -16,12 +16,20 @@ for(const name of ['gangemagi-strawberry-painted.svg','gangemagi-picking-hand.sv
    assert.ok(ids.includes(ref[1]),'paint reference exists: '+ref[1]);
  });
 }
-test('play-prop integration preserves the real interaction and uses cache-versioned local art',()=>{
+test('play-prop integration uses locked trolls and keeps one factual berry source',()=>{
  const source=fs.readFileSync(path.join(dir,'multiplication-gangemagi-v1.js'),'utf8');
- assert.match(source,/data-gm-prop="berry"/);assert.match(source,/data-gm-prop="hand"/);
+ assert.match(source,/data-gm-prop="berry"/);
+ assert.doesNotMatch(source,/data-gm-prop="hand"/);
  assert.match(source,/gangemagi-strawberry-painted\.svg\?v=20261022-props1/);
- assert.match(source,/gangemagi-picking-hand\.svg\?v=20261022-props1/);
+ for(const name of ['storesoster','lillesoster','lillebror']){
+   assert.ok(source.includes('./assets/gangemagi-troll/'+name+'.webp'),
+     'mission references exact locked troll path: '+name);
+   assert.ok(fs.existsSync(path.join(dir,'assets/gangemagi-troll',name+'.webp')),
+     'locked troll asset exists: '+name);
+ }
+ assert.match(source,/data-gm-action="troll"/);
+ assert.match(source,/function startTrollDelivery\(group\)/);
  assert.doesNotMatch(source,/id="gmB"/);
  assert.match(source,/if\(!holdingBerry&&event\.target\.closest/,
-   'placing a held berry must still take priority over removal');
+   'a held troll berry still takes priority over direct removal');
 });

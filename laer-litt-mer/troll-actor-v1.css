@@ -1,0 +1,79 @@
+/* Læria TrollActor v2 - parent/child bones from the locked original source.
+ * A real animation hierarchy joins shoulders, neck and hair to the moving
+ * torso while keeping both feet planted. It is still a FLAT SOURCE crop-rig,
+ * not the approved final animator-layered character art. No source pixel edits.
+ * Only opacity and transforms animate. Always validate Safari/WebKit. */
+.troll-actor{position:relative;display:block;width:100%;height:100%;isolation:isolate;contain:layout paint;pointer-events:none}
+.troll-actor img{display:block;width:100%;height:100%;object-fit:contain;object-position:center bottom;user-select:none;-webkit-user-drag:none}
+.troll-actor__fallback{position:absolute;inset:0;z-index:0;filter:drop-shadow(0 10px 9px #49321f66)}
+.troll-actor__rig{position:absolute;inset:0;z-index:1;display:block}
+.troll-actor__body-rig{position:absolute;inset:0;z-index:2;display:block;transform-origin:50% 72%;will-change:transform}
+.troll-actor__head-rig{position:absolute;inset:0;z-index:3;display:block;transform-origin:50% 37%;will-change:transform}
+.troll-actor__part{position:absolute;inset:0;display:block;overflow:hidden;will-change:transform;transform:translateZ(0);background:var(--troll-source) center bottom / contain no-repeat}
+/* These are deliberately conservative seams around the original silhouette.
+   They separate only pieces that can move without redrawing the character. */
+.troll-actor__legs{z-index:1;clip-path:polygon(20% 56%,80% 56%,100% 100%,0 100%)}
+.troll-actor__torso{clip-path:polygon(23% 31%,76% 31%,83% 66%,77% 77%,25% 77%,17% 63%)}
+.troll-actor__head{z-index:3;clip-path:ellipse(37% 27% at 50% 22%)}
+.troll-actor__hair{z-index:4;clip-path:polygon(14% 3%,86% 3%,93% 52%,71% 47%,64% 34%,36% 34%,28% 47%,7% 52%);transform-origin:50% 30%}
+.troll-actor__arm{z-index:2;transform-origin:50% 42%}
+.troll-actor__arm--left{clip-path:polygon(7% 32%,47% 32%,51% 63%,8% 65%);transform-origin:37% 38%}
+.troll-actor__arm--right{clip-path:polygon(48% 39%,89% 38%,91% 67%,47% 64%);transform-origin:66% 43%}
+/* The fallback gives us an immediate full character. Once the rig is painted,
+   it steps away; a zero-motion image is still available in the markup. */
+.troll-actor__fallback{opacity:0}
+.troll-actor__blink{position:absolute;z-index:6;left:0;top:0;width:100%;height:100%;pointer-events:none}
+/* Eye landmarks are mapped to the approved 512x1024 source, not a guessed
+ * generic face. Eyelid overlays move with the head bone, never float. */
+/* The eyelids, not their transparent parent, animate. Each lid is anchored
+ * over its original eye and retains the correct tilt in ALL keyframes.
+ * At rest no overlay pixels are visible: the locked face is unchanged. */
+.troll-actor__blink i{position:absolute;height:2.8%;border-radius:50%;background:linear-gradient(180deg,#e5a181 2%,#d98d72 48%,#9c5c49 56%,#eda88d 92%);opacity:0;transform:rotate(var(--troll-blink-tilt,0deg)) scaleY(.05);transform-origin:center}
+.troll-actor__blink i:first-child{--troll-blink-tilt:-5deg;left:37.7%;top:22.1%;width:14%}
+.troll-actor__blink i:last-child{--troll-blink-tilt:5deg;left:58%;top:20.5%;width:12.5%}
+.troll-actor__sparkles{position:absolute;z-index:7;inset:0;pointer-events:none;opacity:0}
+.troll-actor__sparkles i{position:absolute;width:7%;aspect-ratio:1;background:radial-gradient(circle,#fff8bd 0 20%,#efba56 24% 40%,transparent 44%);filter:drop-shadow(0 1px 1px #6b3d2070);transform:scale(.3);opacity:0}
+.troll-actor__sparkles i:nth-child(1){left:11%;top:23%}.troll-actor__sparkles i:nth-child(2){right:9%;top:31%}.troll-actor__sparkles i:nth-child(3){left:46%;top:8%}
+
+@keyframes troll-idle-body{0%,100%{transform:translateY(0) scaleY(1)}48%{transform:translateY(-.6%) scaleY(1.004)}55%{transform:translateY(-.4%) scaleY(.999)}}
+@keyframes troll-idle-head{0%,17%,100%{transform:rotate(0) translate(0,0)}28%{transform:rotate(-1.8deg) translate(-1.2%,.3%)}54%{transform:rotate(.9deg) translate(.8%,0)}76%{transform:rotate(1.4deg) translate(1%,.4%)}}
+@keyframes troll-idle-hair{0%,100%{transform:rotate(0) translateY(0)}35%{transform:rotate(-.45deg) translate(-.2%,.2%)}71%{transform:rotate(.45deg) translate(.2%,.1%)}}
+@keyframes troll-blink{0%,8%,15%,100%{opacity:0;transform:rotate(var(--troll-blink-tilt,0deg)) scaleY(.05)}10%,12%{opacity:.93;transform:rotate(var(--troll-blink-tilt,0deg)) scaleY(1)}}
+@keyframes troll-wave-arm{0%,100%{transform:rotate(0) translate(0,0)}20%{transform:rotate(-18deg) translate(-2%,-6%)}38%{transform:rotate(-30deg) translate(-5%,-11%)}54%{transform:rotate(-20deg) translate(-3%,-8%)}70%{transform:rotate(-31deg) translate(-5%,-11%)}}
+@keyframes troll-wave-head{0%,100%{transform:rotate(0)}38%,68%{transform:rotate(4deg) translate(1%,-1%)}}
+@keyframes troll-think{0%,100%{transform:rotate(0) translate(0,0)}46%{transform:rotate(-6deg) translate(-4%,2%)}75%{transform:rotate(-4deg) translate(-3%,1%)}}
+@keyframes troll-hint-arm{0%,100%{transform:rotate(0)}45%{transform:rotate(10deg) translate(4%,-3%)}}
+@keyframes troll-celebrate-body{0%,100%{transform:translateY(0) scale(1)}32%{transform:translateY(-2.1%) scale(1.015)}57%{transform:translateY(-.5%) scale(1.006)}}
+@keyframes troll-celebrate-left{0%,100%{transform:rotate(0)}32%,58%{transform:rotate(-24deg) translate(-5%,-11%)}}
+@keyframes troll-celebrate-right{0%,100%{transform:rotate(0)}32%,58%{transform:rotate(22deg) translate(5%,-9%)}}
+@keyframes troll-sparkle{0%,100%{transform:scale(.25) rotate(0);opacity:0}35%,70%{transform:scale(1) rotate(45deg);opacity:1}}
+@keyframes troll-support{0%,100%{transform:rotate(0) translate(0,0)}42%{transform:rotate(4deg) translate(2%,1%)}70%{transform:rotate(-1.5deg)}}
+
+/* The boots and flowered ground never jump or breathe. Torso owns neck,
+ * shoulders and head as a hierarchical parent, so facial parts follow
+ * breathing/celebration rather than drifting away from the collar. */
+.troll-actor[data-troll-mood="idle"] .troll-actor__body-rig{animation:troll-idle-body 4.8s cubic-bezier(.42,0,.38,1) infinite}
+.troll-actor[data-troll-mood="idle"] .troll-actor__head-rig{animation:troll-idle-head 10.4s ease-in-out infinite}
+.troll-actor[data-troll-mood="idle"] .troll-actor__hair{animation:troll-idle-hair 6.1s ease-in-out infinite}
+.troll-actor[data-troll-mood="idle"] .troll-actor__blink i{animation:troll-blink 5.7s ease-in-out infinite}
+.troll-actor[data-troll-mood="wave"] .troll-actor__arm--left{animation:troll-wave-arm 1.25s cubic-bezier(.28,.76,.28,1) 1 both}
+.troll-actor[data-troll-mood="wave"] .troll-actor__head-rig{animation:troll-wave-head 1.25s ease-in-out 1 both}
+.troll-actor[data-troll-mood="think"] .troll-actor__head-rig{animation:troll-think .85s ease-in-out 1 both}
+.troll-actor[data-troll-mood="hint"] .troll-actor__arm--right{animation:troll-hint-arm 1.15s ease-in-out 1 both}
+.troll-actor[data-troll-mood="hint"] .troll-actor__head-rig{animation:troll-think 1.15s ease-in-out 1 both}
+.troll-actor[data-troll-mood="celebrate"] .troll-actor__body-rig{animation:troll-celebrate-body 1.05s cubic-bezier(.22,.8,.33,1) 1 both}
+.troll-actor[data-troll-mood="celebrate"] .troll-actor__arm--left{animation:troll-celebrate-left 1.05s ease-out 1 both}
+.troll-actor[data-troll-mood="celebrate"] .troll-actor__arm--right{animation:troll-celebrate-right 1.05s ease-out 1 both}
+.troll-actor[data-troll-mood="celebrate"] .troll-actor__sparkles{animation:troll-sparkle 1.05s ease-out 1 both}
+.troll-actor[data-troll-mood="celebrate"] .troll-actor__sparkles i{animation:troll-sparkle .75s ease-out 1 both}
+.troll-actor[data-troll-mood="celebrate"] .troll-actor__sparkles i:nth-child(2){animation-delay:.12s}
+.troll-actor[data-troll-mood="celebrate"] .troll-actor__sparkles i:nth-child(3){animation-delay:.23s}
+.troll-actor[data-troll-mood="support"] .troll-actor__head-rig{animation:troll-support .8s ease-out 1 both}
+.troll-actor[data-troll-mood="support"] .troll-actor__body-rig{animation:troll-support .8s ease-out 1 both}
+@media(prefers-reduced-motion:reduce){.troll-actor *, .troll-actor{animation:none!important;transition:none!important}.troll-actor__fallback{opacity:1}.troll-actor__rig{display:none}}
+
+/* Gangemagi mounts Storesøster in an existing button. The actor remains
+   entirely inside that button's visual figure; all real touch geometry stays
+   on the surrounding .gm-troll-helper. */
+.gm-shell[data-gm-mode="mission"] .gm-troll-figure>.troll-actor{filter:drop-shadow(0 10px 9px #49321f66);transform-origin:50% 92%;transition:transform .18s ease,filter .18s ease}
+.gm-shell[data-gm-mode="mission"] .gm-troll-selected .gm-troll-figure>.troll-actor{transform:translateY(-5px) scale(1.035);filter:drop-shadow(0 13px 10px #49321f75) drop-shadow(0 0 9px #ffe49299)}

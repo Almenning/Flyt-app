@@ -1,15 +1,25 @@
 name: Laria Gangemagi approved Markedsbok visual QA
 
 on:
+  # Feature branches must run only once, via pull_request. A second delayed
+  # push run used to cancel half-finished visual QA on the same exact commit.
+  # Keep push protection for the default branch after eventual merge.
   push:
+    branches:
+      - main
     paths:
       - 'laer-litt-mer/gangemagi-markedsbok-approved-v2.css'
       - 'laer-litt-mer/gangemagi-approved-eight-scenes-20261017.webp'
       - 'laer-litt-mer/multiplication-gangemagi-v1.js'
+      - 'laer-litt-mer/troll-actor-v1.js'
+      - 'laer-litt-mer/troll-actor-v1.css'
+      - 'laer-litt-mer/multiplication-gangemagi-v1.css'
       - 'laer-litt-mer/multiplication-gangemagi-engine-v1.js'
       - 'laer-litt-mer/index.html'
       - 'tests/laria-gangemagi.playwright.js'
       - 'laer-litt-mer/gangemagi-dagens-oppdrag-v1.css'
+      - 'laer-litt-mer/gangemagi-tallenga-market-premium-20261023.svg'
+      - 'laer-litt-mer/gangemagi-tallenga-market-v1.svg'
       - 'laer-litt-mer/gangemagi-market-table-premium.svg'
       - 'laer-litt-mer/gangemagi-math-parchment.svg'
       - 'laer-litt-mer/gangemagi-quest-board-painted.svg'
@@ -18,16 +28,28 @@ on:
       - 'tests/laria-gangemagi-props.test.cjs'
       - 'tests/laria-gangemagi-tap-intent.test.cjs'
       - 'tests/laria-gangemagi-release-cache.test.cjs'
+      - 'tests/laria-troll-actor.test.cjs'
+      - 'tests/laria-troll-actor-motion.playwright.js'
+      - 'tools/rigging/**'
+      - 'tests/test_storesoster_openraster_layers.py'
+      - 'tests/test_storesoster_art_integrity.py'
+      - 'tests/test_storesoster_pose_import.py'
+      - 'docs/LARIA-STORESOSTER-ARMLAG-STUDIE-2026-10-25.md'
       - '.github/workflows/laria-gangemagi-approved.yml'
   pull_request:
     paths:
       - 'laer-litt-mer/gangemagi-markedsbok-approved-v2.css'
       - 'laer-litt-mer/gangemagi-approved-eight-scenes-20261017.webp'
       - 'laer-litt-mer/multiplication-gangemagi-v1.js'
+      - 'laer-litt-mer/troll-actor-v1.js'
+      - 'laer-litt-mer/troll-actor-v1.css'
+      - 'laer-litt-mer/multiplication-gangemagi-v1.css'
       - 'laer-litt-mer/multiplication-gangemagi-engine-v1.js'
       - 'laer-litt-mer/index.html'
       - 'tests/laria-gangemagi.playwright.js'
       - 'laer-litt-mer/gangemagi-dagens-oppdrag-v1.css'
+      - 'laer-litt-mer/gangemagi-tallenga-market-premium-20261023.svg'
+      - 'laer-litt-mer/gangemagi-tallenga-market-v1.svg'
       - 'laer-litt-mer/gangemagi-market-table-premium.svg'
       - 'laer-litt-mer/gangemagi-math-parchment.svg'
       - 'laer-litt-mer/gangemagi-quest-board-painted.svg'
@@ -36,22 +58,50 @@ on:
       - 'tests/laria-gangemagi-props.test.cjs'
       - 'tests/laria-gangemagi-tap-intent.test.cjs'
       - 'tests/laria-gangemagi-release-cache.test.cjs'
+      - 'tests/laria-troll-actor.test.cjs'
+      - 'tests/laria-troll-actor-motion.playwright.js'
+      - 'tools/rigging/**'
+      - 'tests/test_storesoster_openraster_layers.py'
+      - 'tests/test_storesoster_art_integrity.py'
+      - 'tests/test_storesoster_pose_import.py'
+      - 'docs/LARIA-STORESOSTER-ARMLAG-STUDIE-2026-10-25.md'
       - '.github/workflows/laria-gangemagi-approved.yml'
   workflow_dispatch:
 
 permissions:
   contents: read
 
+# Feature branches are tested by pull_request only; main uses push.
+# The concurrency guard still discards superseded commits on either lane.
 concurrency:
-  group: laria-gangemagi-art-${{ github.workflow }}-${{ github.ref }}
+  group: laria-gangemagi-art-${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 
 jobs:
   markedsbok-visual:
+    name: markedsbok-visual (${{ matrix.browser }})
     runs-on: ubuntu-latest
-    timeout-minutes: 18
+    timeout-minutes: 30
+    # The same entire viewport suite, distributed rather than serialized.
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chrome, webkit]
     steps:
+      # On pull_request GitHub normally checks out refs/pull/N/merge. This
+      # contract verifies the actual branch HEAD instead of a synthetic merge.
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - name: Assert exact Gangemagi commit under test
+        shell: bash
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          actual="$(git rev-parse HEAD)"
+          echo "GANGEMAGI_TESTED_HEAD=$actual"
+          test "$actual" = "$EXPECTED_HEAD"
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -67,27 +117,114 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
-          key: gangemagi-playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}-chromium-webkit
+          key: gangemagi-playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}-${{ matrix.browser }}
       - name: Validate original image and JavaScript
         run: |
           test -s laer-litt-mer/gangemagi-approved-eight-scenes-20261017.webp
           node --check laer-litt-mer/multiplication-gangemagi-v1.js
+          node --check laer-litt-mer/troll-actor-v1.js
           node --check tests/laria-gangemagi.playwright.js
-          node --test tests/laria-gangemagi-engine.test.cjs tests/laria-gangemagi-release-cache.test.cjs tests/laria-gangemagi-tap-intent.test.cjs tests/laria-gangemagi-props.test.cjs
+          node --check tests/laria-troll-actor-motion.playwright.js
+          node --test tests/laria-gangemagi-engine.test.cjs tests/laria-gangemagi-release-cache.test.cjs tests/laria-gangemagi-tap-intent.test.cjs tests/laria-gangemagi-props.test.cjs tests/laria-troll-actor.test.cjs
       - name: Install browser system dependencies
-        run: npx playwright install-deps chromium webkit
-      - name: Install Chromium and WebKit binaries
+        run: npx playwright install-deps ${{ matrix.browser == 'chrome' && 'chromium' || 'webkit' }}
+      - name: Install selected browser binaries
         if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: npx playwright install chromium webkit
-      - name: Test six real viewport sizes and render book screenshots
+        run: npx playwright install ${{ matrix.browser == 'chrome' && 'chromium' || 'webkit' }}
+      - name: Preserve locked source artwork for exact contour comparison
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/laria-gangemagi-approved-visual/reference
+          cp laer-litt-mer/gangemagi-grovanova-storybook-locked.webp /tmp/laria-gangemagi-approved-visual/reference/grovanova-original-geometry.webp
+          cp laer-litt-mer/assets/gangemagi-troll/storesoster.webp /tmp/laria-gangemagi-approved-visual/reference/storesoster-locked.webp
+          cp laer-litt-mer/assets/gangemagi-troll/lillesoster.webp /tmp/laria-gangemagi-approved-visual/reference/lillesoster-locked.webp
+          cp laer-litt-mer/assets/gangemagi-troll/lillebror.webp /tmp/laria-gangemagi-approved-visual/reference/lillebror-locked.webp
+          (cd /tmp/laria-gangemagi-approved-visual/reference && sha256sum ./*.webp > SHA256SUMS.txt)
+      - name: Install MP4 encoder for real browser-motion evidence
+        shell: bash
+        run: |
+          if ! command -v ffmpeg >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq ffmpeg
+          fi
+          ffmpeg -version | head -n 1
+      - name: Record real Storesøster gestures in actual Chromium and WebKit
         env:
+          GANGEMAGI_QA_BROWSER: ${{ matrix.browser }}
+          QA_SCREENSHOTS: /tmp/laria-gangemagi-approved-visual
+          REQUIRE_TROLL_MP4: '1'
+        run: node tests/laria-troll-actor-motion.playwright.js
+      - name: Test all assigned real viewport sizes and render book screenshots
+        env:
+          GANGEMAGI_QA_BROWSER: ${{ matrix.browser }}
           QA_SCREENSHOTS: /tmp/laria-gangemagi-approved-visual
         run: node tests/laria-gangemagi.playwright.js
       - name: Preserve visual proof for child-first layout review
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: laria-gangemagi-approved-art-${{ github.sha }}
+          name: laria-gangemagi-approved-art-${{ github.event.pull_request.head.sha || github.sha }}-${{ matrix.browser }}
           path: /tmp/laria-gangemagi-approved-visual
           retention-days: 14
           if-no-files-found: warn
+
+  storesoster-layer-source:
+    name: Storesoster editable source kit - not production art
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install source art export dependencies
+        run: python -m pip install --disable-pip-version-check Pillow numpy
+      - name: Verify exact original pixels and generate editable layer kit
+        run: |
+          python tests/test_storesoster_openraster_layers.py \
+            laer-litt-mer/assets/gangemagi-troll/storesoster.webp \
+            /tmp/laria-storesoster-layer-kit
+      - name: Build visually auditable shoulder pivot and underpaint study
+        run: |
+          python tools/rigging/storesoster_pose_lab.py \
+            --source laer-litt-mer/assets/gangemagi-troll/storesoster.webp \
+            --output /tmp/laria-storesoster-layer-kit/pose-laboratorium
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('/tmp/laria-storesoster-layer-kit/pose-laboratorium')
+          r=json.loads((p/'premium-readiness.json').read_text())
+          assert r['neutral_exact'] and not r['premium_ready']
+          assert not r['integrated_in_app'] and not r['anatomically_approved']
+          for f in ['review.html','05-arm-motion-proof-NOT-APPROVED.png','04-hidden-fabric-DRAFT.png']:
+              assert (p/f).is_file() and (p/f).stat().st_size>1000
+          print('PASS: independent shoulder pivot and unapproved art gate')
+          PY
+      - name: Reject replacement characters and validate draft underpaint identity
+        run: |
+          python tests/test_storesoster_art_integrity.py             laer-litt-mer/assets/gangemagi-troll/storesoster.webp
+          python tools/rigging/storesoster_art_integrity.py             --source laer-litt-mer/assets/gangemagi-troll/storesoster.webp             --underpaint /tmp/laria-storesoster-layer-kit/pose-laboratorium/04-hidden-fabric-DRAFT.png             --report /tmp/laria-storesoster-layer-kit/pose-laboratorium/source-integrity-only-DRAFT.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report=json.loads(Path('/tmp/laria-storesoster-layer-kit/pose-laboratorium/source-integrity-only-DRAFT.json').read_text())
+          assert report['geometry_integrity_pass'] is True
+          assert report['visual_anatomy_approved'] is False
+          assert report['premium_ready'] is False
+          assert report['safe_to_integrate'] is False
+          print('PASS: locked source geometry verified; experimental anatomy STILL NOT APPROVED')
+          PY
+      - name: Exercise import of artist underpaint in isolated pose review only
+        run: |
+          python tests/test_storesoster_pose_import.py             laer-litt-mer/assets/gangemagi-troll/storesoster.webp             /tmp/laria-storesoster-layer-kit/artist-import-check
+      - name: Preserve original-faithful non-production editable layers
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-storesoster-editable-layers-${{ github.event.pull_request.head.sha || github.sha }}
+          path: /tmp/laria-storesoster-layer-kit
+          retention-days: 14
+          if-no-files-found: error

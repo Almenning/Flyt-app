@@ -62,15 +62,22 @@ function auditAllEightMissions(){
  assert.equal(free.wins.length,8,'free play never erases earned flowers');
  console.log('PASS GANGEMAGI all eight missions: maths, replay, saved progress');
 }
-async function selectAndPick(page,group,count){
- // Select through the basket's visible wooden nameplate: unlike the fruit,
- // this remains a stable, finger-sized target on every iPhone/iPad layout.
- await page.locator('[data-gm-action="basket"][data-gm-basket="'+group+'"] .gm-crate-front').click();
- assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).selectedBasket,group,'the basket is selected');
- for(let i=0;i<count;i++){
-  await page.locator('[data-gm-action="source"]').click();
+async function chooseTrollAndPlace(page,troll,group){
+  const before=await page.evaluate(()=>LARIA_GANGEMAGI.snapshot());
+  await page.locator('[data-gm-action="troll"][data-gm-troll="'+troll+'"]').click();
+  const picked=await page.evaluate(()=>LARIA_GANGEMAGI.snapshot());
+  assert.equal(picked.selectedTroll,troll,'chosen locked troll is recorded for the placement');
+  assert.equal(picked.holdingBerry,true,'choosing a troll picks exactly one berry before a destination exists');
+  assert.deepEqual(picked.counts,before.counts,'troll choice alone cannot change the maths');
   await page.locator('[data-gm-action="basket"][data-gm-basket="'+group+'"] .gm-crate-front').click();
- }
+  await page.waitForFunction(({group,expected})=>window.LARIA_GANGEMAGI.snapshot().counts[group]===expected,
+    {group,expected:before.counts[group]+1});
+  assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).holdingBerry,false,
+    'berry leaves the troll hand after delivery');
+}
+async function selectAndPick(page,group,count){
+  const troll=group%3;
+  for(let i=0;i<count;i++)await chooseTrollAndPlace(page,troll,group);
 }
 async function dragBerry(page,fromSelector,toSelector,expectTarget){
   const from=page.locator(fromSelector).first(),to=page.locator(toSelector).first();
@@ -125,11 +132,27 @@ async function check(engine,label,viewport,url){
     label+' the home-background check must run on Home, never inside Gangemagi');
   // Home's artwork can live on nested layers; compare its original paint
   // after returning instead of demanding a gradient on the .app wrapper.
-  await page.evaluate(()=>window.openMultiplicationLab());
+  // Observe the greeting in the SAME browser task as opening Gangemagi.
+  // A screenshot or WebKit image decoding can legitimately outlast the wave,
+  // so reading state only after the viewport has settled is not a valid test.
+  const openingMood=await page.evaluate(()=>{
+    window.openMultiplicationLab();
+    return document.querySelector('#multiplication-lab-screen.active [data-troll-actor="storesoster"]')?.dataset.trollMood||null;
+  });
+  assert.equal(openingMood,'wave',
+    label+' Storesøster must actually greet the child upon opening Gangemagi');
   await page.locator('#multiplication-lab-screen.active .gm-shell').waitFor();
-  // Always preserve a first-look screenshot before geometry assertions. If a
-  // later premium gate fails, reviewers still get the exact rendered scene.
+  const pilotActor=page.locator('[data-troll-actor="storesoster"]');
+  assert.equal(await pilotActor.count(),1,label+' must mount exactly one living Storesøster pilot');
+  assert.equal(await pilotActor.getAttribute('data-troll-rig'),'source-bones-v2',
+    label+' must use the joint-driven source-rig, not a whole-image bounce');
+  // Always preserve a first-look screenshot before geometry assertions.
   await shot(page,label+'-00-diagnostic-first-look');
+  // Verify the REAL transition to idle, not a wall-clock guess relative to a
+  // potentially slow WebKit screenshot. Five seconds remains a strict bound.
+  await page.waitForFunction(()=>
+    document.querySelector('#multiplication-lab-screen.active [data-troll-actor="storesoster"]')?.dataset.trollMood==='idle',
+    null,{timeout:5000});
   assert.equal(await page.locator('.gm-story.gm-quest').evaluate(el=>getComputedStyle(el).display),'block',
     label+' mission board must not inherit the old horizontal flex story layout');
   assert.equal(await page.locator('.gm-crate').count(),3);
@@ -157,7 +180,7 @@ async function check(engine,label,viewport,url){
   assert.equal(await page.locator('.gm-quest-filled-preview .gm-quest-mini-berries i').count(),0,
     label+' pictured baskets must begin empty, not reveal the completed answer');
   assert.deepEqual(await page.locator('.gm-quest-step strong').allInnerTexts(),
-    ['Plukk','Legg i','Se gangemagien'],'instructions are three real readable DOM steps');
+    ['Velg troll','Velg kurv','Se gangemagien'],'instructions are three real readable DOM steps');
   assert.equal(await page.locator('.gm-quest-step-active[aria-current="step"][data-gm-step="1"]').count(),1,
     label+' first illustrated step invites a basket choice');
   assert.equal(await page.locator('.gm-quest-steps[role="list"] [role="listitem"]').count(),3,
@@ -199,13 +222,45 @@ async function check(engine,label,viewport,url){
     viewport.width>=375?13:11;
   assert.ok(foxSize>=requiredFoxSize,
     label+' personal fox feedback too small: '+foxSize+'px; minimum '+requiredFoxSize);
+  if(viewport.width<=360){
+    const tinySpeech=await page.locator('.gm-troll-bubble').evaluate(bubble=>{
+      const msg=bubble.querySelector('.gm-fox-message');
+      const read=bubble.querySelector('.gm-read');
+      const text=msg.getBoundingClientRect(),sound=read.getBoundingClientRect(),panel=bubble.getBoundingClientRect();
+      const lineHeight=parseFloat(getComputedStyle(msg).lineHeight);
+      return {textWidth:text.width,lines:text.height/lineHeight,
+        textFont:parseFloat(getComputedStyle(msg).fontSize),
+        textBottom:text.bottom,soundTop:sound.top,
+        soundWidth:sound.width,soundHeight:sound.height,
+        bubbleBottom:panel.bottom};
+    });
+    // 320px must also hold three separate >=44px troll touch targets. The
+    // empirically verified child-first goal is four readable 13px lines, not
+    // an impossible 115px text column alongside three touch-safe actors.
+    assert.ok(tinySpeech.textWidth>=86&&tinySpeech.lines<=4.1&&tinySpeech.textFont>=13,
+      label+' 320px troll speech must read naturally in no more than four 13px lines '+JSON.stringify(tinySpeech));
+    assert.ok(tinySpeech.textBottom<=tinySpeech.soundTop+2&&
+      tinySpeech.soundWidth>=44&&tinySpeech.soundHeight>=44&&
+      tinySpeech.bubbleBottom>=tinySpeech.soundTop+tinySpeech.soundHeight-2,
+      label+' 320px spoken instruction must not overlap its 44px sound control '+JSON.stringify(tinySpeech));
+  }
 
   const missionHeading=await page.locator('.gm-quest-callout').evaluate(el=>({
     size:parseFloat(getComputedStyle(el).fontSize),bounds:el.getBoundingClientRect().toJSON(),
     panel:el.closest('.gm-quest').getBoundingClientRect().toJSON()}));
   assert.ok(missionHeading.size>=17&&missionHeading.bounds.width>missionHeading.panel.width*.84,
     label+' child-sized assignment heading must dominate its painted board while leaving the fox its own scene space '+JSON.stringify(missionHeading));
-  assert.equal(await page.locator('.gm-fox-art [data-avatar="girl"]').count(),1,'must render chosen full-body girl fox');
+  assert.equal(await page.locator('.gm-fox-art').count(),0,'mission scene uses the locked troll trio instead of a fox sprite');
+  assert.equal(await page.locator('[data-gm-action="troll"]').count(),3,'all three locked forest trolls are real choices');
+  const lockedTrolls=await page.locator('[data-gm-action="troll"] img').evaluateAll(images=>
+    images.map(img=>({src:img.getAttribute('src'),complete:img.complete,width:img.naturalWidth,height:img.naturalHeight})));
+  assert.deepEqual(lockedTrolls.map(x=>x.src),[
+    './assets/gangemagi-troll/storesoster.webp',
+    './assets/gangemagi-troll/lillesoster.webp',
+    './assets/gangemagi-troll/lillebror.webp'
+  ],label+' mission must use the exact locked trio assets');
+  assert.ok(lockedTrolls.every(x=>x.complete&&x.width===512&&x.height===1024),
+    label+' locked troll WebPs must decode at original 512×1024 size '+JSON.stringify(lockedTrolls));
   assert.match(await page.locator('.gm-book-quick').innerText(),/0\/8/,'flower progress visible from the main scene');
   assert.equal(await page.locator('.gm-book-collapsed:visible').count(),0,
     label+' only one collection access point should remain on the mission screen');
@@ -229,6 +284,24 @@ async function check(engine,label,viewport,url){
     label+' reference wicker resource must decode in Chromium AND WebKit '+JSON.stringify(wickerImages));
   // The quest board is an individually authored SVG illustration behind live DOM.
   // A flat screenshot, a CSS-only box, or a missing asset does not meet the lock.
+  if(viewport.width>=700&&viewport.height>=650){
+    const brand=await page.request.get(new URL('gangemagi-title-brand-premium.svg',url).href);
+    assert.equal(brand.status(),200,label+' ornate Tallenga sign must load');
+    assert.match(brand.headers()['content-type'],/image\/svg\+xml/);
+    assert.doesNotMatch(await brand.text(),/<text(?:\s|>)|<foreignObject(?:\s|>)/i,
+      label+' title remains editable, accessible DOM, not baked into the sign');
+    const title=await page.locator('.gm-top-title').evaluate(el=>({
+      image:getComputedStyle(el).backgroundImage,
+      text:el.querySelector('h1')?.textContent.trim(),
+      font:parseFloat(getComputedStyle(el.querySelector('h1')).fontSize),
+      subtitleDisplay:getComputedStyle(el.querySelector('span')).display
+    }));
+    assert.match(title.image,/gangemagi-title-brand-premium\.svg/);
+    assert.equal(title.text,'Gangemagi');
+    assert.ok(title.font>=24,label+' readable wooden chapter sign '+JSON.stringify(title));
+    assert.equal(title.subtitleDisplay,'none',
+      label+' the obsolete subtitle must not overlap the new wooden Gangemagi sign');
+  }
   const paintedBoard=await page.request.get(new URL('gangemagi-quest-board-painted.svg',url).href);
   assert.equal(paintedBoard.status(),200,'painted wooden quest board asset is available');
   assert.match(await paintedBoard.text(),/preserveAspectRatio="none"/,
@@ -243,6 +316,33 @@ async function check(engine,label,viewport,url){
     label+' board must use hand-illustrated wood and flowers, not a generic CSS card');
   assert.equal(boardMaterial.liveInstructions,3,'dynamic interactive teaching steps remain live markup');
   assert.match(boardMaterial.dynamicHeading,/Fyll 3 kurver/);
+  if(viewport.width>=1050&&viewport.height<=950){
+    const storyComposition=await page.locator('.gm-story.gm-quest').evaluate(board=>{
+      const bounds=board.getBoundingClientRect(),title=board.querySelector('h2');
+      const steps=[...board.querySelectorAll('.gm-quest-step')];
+      const preview=board.querySelector('.gm-quest-filled-preview');
+      const visibleSteps=steps.map(el=>({
+        visible:getComputedStyle(el).display!=='none',
+        font:parseFloat(getComputedStyle(el.querySelector('strong')).fontSize),
+        bounds:el.getBoundingClientRect()
+      }));
+      return {height:bounds.height,width:bounds.width,
+        titleHeight:title.getBoundingClientRect().height,
+        boardBottom:bounds.bottom,
+        steps:visibleSteps.map(v=>({shown:v.visible,font:v.font,
+           inside:v.bounds.left>=bounds.left-2&&v.bounds.right<=bounds.right+2&&
+                  v.bounds.bottom<=bounds.bottom+2})),
+        miniBaskets:preview?.querySelectorAll('.gm-quest-mini-basket').length};
+    });
+    assert.ok(storyComposition.height<=164,
+      label+' iPad quest sign must leave market centre free for actual play '+JSON.stringify(storyComposition));
+    assert.ok(storyComposition.titleHeight<=72,
+      label+' wide tablet instructions must form one readable sentence '+JSON.stringify(storyComposition));
+    assert.ok(storyComposition.steps.every(s=>s.shown&&s.font>=14&&s.inside),
+      label+' pictorial steps must remain visible and readable, not clipped '+JSON.stringify(storyComposition));
+    assert.equal(storyComposition.miniBaskets,3,
+      label+' live group preview must stay on the sign');
+  }
 
   const calmStart=await page.evaluate(()=>{
     const shell=document.querySelector('.gm-shell[data-gm-mode="mission"]');
@@ -257,12 +357,93 @@ async function check(engine,label,viewport,url){
   assert.equal(calmStart.visibleEmptyTags,0,'empty market baskets should show simple clear names, not tiny 0/3 labels');
   assert.deepEqual(calmStart.basketNames,['Kurv 1','Kurv 2','Kurv 3'],'basket names remain clear');
 
+  // The locked original remains available, while the playable scene now uses
+  // its own richer Tallenga painting. Verify both assets, not just a filename.
   const tallengaScene=await page.request.get(new URL('gangemagi-tallenga-market-v1.svg',url).href);
-  assert.equal(tallengaScene.status(),200,'the dedicated Tallenga strawberry-market scene must load');
+  assert.equal(tallengaScene.status(),200,'the original dedicated Tallenga market scene must remain available');
   assert.match(tallengaScene.headers()['content-type'],/image\/svg\+xml/);
+  const premiumScene=await page.request.get(new URL('gangemagi-tallenga-market-premium-20261023.svg',url).href);
+  assert.equal(premiumScene.status(),200,'the new detailed Tallenga landscape must load');
+  assert.match(premiumScene.headers()['content-type'],/image\/svg\+xml/);
+  const premiumMarkup=await premiumScene.text();
+  assert.match(premiumMarkup,/<svg[^>]+viewBox="0 0 1400 730"/,
+    label+' the premium landscape must retain a scalable wide scene, not a fixed screenshot');
+  assert.match(premiumMarkup,/aria-label="Lysere Tallenga-marked med bro, blomster, handelsboder og dybde"/,
+    label+' the detailed market must be our authored Tallenga landscape');
+  assert.doesNotMatch(premiumMarkup,/<text(?:\s|>)|<foreignObject(?:\s|>)/i,
+    label+' the background must not bake in false tasks, numbers or controls');
+  const marketOverlay=await page.request.get(new URL('gangemagi-tallenga-market-overlay-v2.svg',url).href);
+  assert.equal(marketOverlay.status(),200,label+' transparent Tallenga market overlay must load');
+  assert.match(marketOverlay.headers()['content-type'],/image\/svg\+xml/);
+  const overlayMarkup=await marketOverlay.text();
+  assert.match(overlayMarkup,/<svg[^>]+viewBox="0 0 1400 730"/,
+    label+' market overlay must retain the wide scalable Tallenga composition');
+  assert.match(overlayMarkup,/id="market-stalls"/,
+    label+' market overlay must contain authored stall architecture');
+  assert.match(overlayMarkup,/id="market-bridge"/,
+    label+' market overlay must retain the stone bridge depth cue');
+  assert.match(overlayMarkup,/id="market-fountain"/,
+    label+' market overlay must retain the square fountain depth cue');
+  assert.doesNotMatch(overlayMarkup,/<text(?:\s|>)|<foreignObject(?:\s|>)/i,
+    label+' market overlay must not bake in fake tasks, labels or controls');
+  const paintedAtmosphere=await page.request.get(new URL('gangemagi-grovanova-atmosphere-v1.svg',url).href);
+  assert.equal(paintedAtmosphere.status(),200,label+' layered summer scene source must load');
+  const paintedMarkup=await paintedAtmosphere.text();
+  assert.match(paintedMarkup,/<svg[^>]+viewBox="0 0 1400 730"/,
+    label+' atmospheric illustration needs scalable iPad landscape dimensions');
+  assert.match(paintedMarkup,/id="edge-botanical-frame"/,
+    label+' premium foreground must use separate botanical scenery without modifying the locked mountain source');
+  assert.doesNotMatch(paintedMarkup,/<text(?:\s|>)|<foreignObject(?:\s|>)/i,
+    label+' atmosphere artwork must never bake in faux maths, characters, labels or buttons');
+  const atmosphereBackground=await page.locator('.gm-world').evaluate(el=>{
+    const s=getComputedStyle(el,'::before');
+    return {image:s.backgroundImage,visible:s.display,opacity:parseFloat(s.opacity)};
+  });
+  assert.match(atmosphereBackground.image,/gangemagi-grovanova-atmosphere-v1\.svg/,
+    label+' artwork must be a real separate scene layer, not an unmounted asset');
+  assert.notEqual(atmosphereBackground.visible,'none',label+' summer atmosphere must render in the play scene');
+  assert.ok(atmosphereBackground.opacity>=.75,label+' summer painterly atmosphere must not become invisible');
+  if(viewport.width<900&&viewport.height>=viewport.width){
+    const priority=await page.locator('.gm-world').evaluate(el=>({
+      decor:Number(getComputedStyle(el,'::after').zIndex),
+      content:Number(getComputedStyle(el.querySelector(':scope > .gm-scene')).zIndex)
+    }));
+    assert.ok(priority.content>priority.decor,
+      label+' decorative market must not overlay the child\'s real speaking troll, baskets or touch targets '+JSON.stringify(priority));
+  }
+  if(viewport.width>=900){
+    const stage=await page.locator('.gm-troll-stage').boundingBox();
+    assert.ok(stage.width>=295&&stage.height>=214,
+      label+' iPad landscape must showcase the approved full-body trio, not miniature mascot buttons '+JSON.stringify(stage));
+  }else if(viewport.width>=700&&viewport.height>=700){
+    const stage=await page.locator('.gm-troll-stage').boundingBox();
+    assert.ok(stage.height>=196,
+      label+' iPad portrait must give the approved trolls generous illustration space '+JSON.stringify(stage));
+  }
   const sceneBackground=await page.locator('.gm-world').evaluate(el=>getComputedStyle(el).backgroundImage);
-  assert.match(sceneBackground,/gangemagi-tallenga-market-v1\.svg/,
-    label+' Gangemagi must use its calm authored market scene, not the generic busy maths background');
+  const overlayBackground=await page.locator('.gm-world').evaluate(el=>getComputedStyle(el,'::after').backgroundImage);
+  assert.match(sceneBackground,/gangemagi-grovanova-storybook-locked\.webp/,
+    label+' Gangemagi must use the locked Grovanova scene as its only world background');
+  assert.doesNotMatch(sceneBackground,/gangemagi-tallenga-market-premium-20261023\.svg/,
+    label+' the superseded full market painting must not redraw the locked Grovanova silhouette');
+  assert.match(overlayBackground,/gangemagi-tallenga-market-overlay-v2\.svg/,
+    label+' Gangemagi must render the transparent Tallenga market architecture as a separate depth layer');
+  if(viewport.width>=361){
+    const atmosphere=await page.locator('.gm-world').evaluate(el=>{
+      const overlay=getComputedStyle(el,'::after');
+      return {opacity:parseFloat(overlay.opacity),blend:overlay.mixBlendMode};
+    });
+    assert.ok(atmosphere.opacity>=(viewport.width>=900?0.60:0.45)&&atmosphere.blend==='normal',
+      label+' Tallenga market architecture must remain visibly painted over the locked fjord rather than vanish in soft-light '+JSON.stringify(atmosphere));
+  }
+  const grovanovaWorld=await page.request.get(new URL('gangemagi-grovanova-storybook-locked.webp',url).href);
+  assert.equal(grovanovaWorld.status(),200,label+' the geometry-locked Grovanova scene must load');
+  assert.match(grovanovaWorld.headers()['content-type'],/image\/webp/,
+    label+' Grovanova scene is a local raster source, not an external dependency');
+  assert.match(sceneBackground,/gangemagi-grovanova-storybook-locked\.webp/,
+    label+' mission world must use the supplied Grovanova geometry beneath the Tallenga market');
+  assert.doesNotMatch(sceneBackground,/home-math-v14\.webp/,
+    label+' generic waterfall painting must not replace the locked Grovanova geometry');
   const tableArt=await page.request.get(new URL('gangemagi-market-table-premium.svg',url).href);
   assert.equal(tableArt.status(),200,'original illustrated market counter must load');
   assert.match(tableArt.headers()['content-type'],/image\/svg\+xml/);
@@ -289,20 +470,67 @@ async function check(engine,label,viewport,url){
       label+' title overlaps progress badge on compact iPhone '+JSON.stringify(compactHeader));
     assert.equal(overlap(compactHeader.title,compactHeader.book),false,
       label+' title overlaps the collection button '+JSON.stringify(compactHeader));
+    const narrowHeading=await page.locator('.gm-top-title h1').evaluate(el=>({
+      text:el.textContent.trim(),clipped:el.scrollWidth>el.clientWidth+1,
+      font:parseFloat(getComputedStyle(el).fontSize)
+    }));
+    assert.equal(narrowHeading.text,'Gangemagi');
+    assert.ok(!narrowHeading.clipped&&narrowHeading.font>=19,
+      label+' whole game title must be readable at 320px '+JSON.stringify(narrowHeading));
+    assert.equal(await page.locator('.gm-brand').evaluate(el=>getComputedStyle(el).display),'none',
+      label+' redundant Læria wordmark must not steal game-title space');
   }
   assert.equal(await page.locator('.gm-crate-invite').count(),0,
     label+' do not draw attention to basket selection before a berry is picked');
-  assert.equal(await page.locator('.gm-pick-invite').count(),1,
-    label+' the illustrated fruit crate, not the baskets, invites the first Plukk');
-  assert.match(await page.locator('.gm-fox-message').innerText(),/Plukk et jordbær og legg det i en kurv/);
+  assert.equal(await page.locator('.gm-pick-invite').count(),0,
+    label+' mission fruit crate is scenery/source material, not the child action');
+  assert.match(await page.locator('.gm-fox-message').innerText(),/Velg et troll/);
+  const trollTargets=await page.locator('[data-gm-action="troll"]').evaluateAll(buttons=>
+    buttons.map(el=>{const r=el.getBoundingClientRect();return {width:r.width,height:r.height};}));
+  assert.ok(trollTargets.every(x=>x.width>=44&&x.height>=44),
+    label+' every troll choice is touch-safe '+JSON.stringify(trollTargets));
   const first=await page.evaluate(()=>{
    const rect=s=>{const n=document.querySelector(s)?.getBoundingClientRect();return n?{top:n.top,bottom:n.bottom,width:n.width,height:n.height}:null;};
    return {screen:innerWidth,height:innerHeight,scrollWidth:document.documentElement.scrollWidth,story:rect('.gm-story'),crate:rect('.gm-crate'),source:rect('.gm-pick'),math:rect('.gm-math'),read:rect('.gm-read')};
   });
   console.log('GANGEMAGI_FIRSTFOLD '+label+' '+JSON.stringify(first));
   assert.ok(first.scrollWidth<=first.screen+4,label+' horizontal overflow '+JSON.stringify(first));
+  if(viewport.width<=360&&viewport.height<=650){
+    assert.ok(first.crate&&first.crate.height>=96,
+      label+' compact first fold must keep large recognisable baskets '+JSON.stringify(first));
+    assert.ok(first.source&&first.source.height>=44,
+      label+' compact first fold must keep a touch-safe physical berry source '+JSON.stringify(first));
+    assert.ok(first.math&&first.math.bottom<=first.height+1,
+      label+' compact first fold must show the complete maths parchment before scrolling '+JSON.stringify(first));
+  }
   assert.equal(await page.locator('.gm-market-fruit-supply .gm-pick').count(),1,
     label+' the real strawberry supply belongs in the illustrated market');
+  if(viewport.width>=700&&viewport.width<=899&&viewport.height<=699){
+    const sourceLayout=await page.locator('.gm-market-fruit-supply .gm-pick').evaluate(el=>{
+      const area=el.getBoundingClientRect(),plaque=el.children[1];
+      const rect=plaque.getBoundingClientRect(),style=getComputedStyle(plaque);
+      return {width:area.width,height:area.height,font:parseFloat(style.fontSize),
+        plaqueWidth:rect.width,plaqueHeight:rect.height,sourceVisible:area.top>=0};
+    });
+    assert.ok(sourceLayout.width>=170&&sourceLayout.height>=44&&
+      sourceLayout.font>=12&&sourceLayout.plaqueWidth>=160&&sourceLayout.plaqueHeight>=34&&
+      sourceLayout.sourceVisible,
+      label+' short-landscape berries must have a visible legible physical source, not a 10px microscopic plaque '+JSON.stringify(sourceLayout));
+  }
+  if(viewport.width>=900&&viewport.height>=650){
+    const front=await page.locator('.gm-market-fruit-supply .gm-pick').evaluate(el=>{
+      const crate=el.querySelector('.gm-pick-fruit').getBoundingClientRect();
+      const plaque=el.children[1].getBoundingClientRect();
+      const style=getComputedStyle(el.children[1]);
+      return {overlap:crate.bottom-plaque.top,plaqueHeight:plaque.height,
+        frontText:el.children[1].textContent.trim(),wood:style.backgroundImage};
+    });
+    assert.ok(front.overlap>=12&&front.plaqueHeight>=44,
+      label+' front must be a connected legible 44px+ wood plaque '+JSON.stringify(front));
+    assert.match(front.wood,/repeating-linear-gradient/,
+      label+' physical source needs illustrated wood grain, not a coral CTA');
+    assert.match(front.frontText,/Jordbærkassen/);
+  }
   assert.equal(await page.locator('.gm-basket-inner').count(),3,
     label+' every transparent wicker basket needs a stable painted interior');
   assert.ok(first.source.top>first.crate.top&&first.source.bottom<=first.math.top+6,
@@ -328,40 +556,67 @@ async function check(engine,label,viewport,url){
       const style=getComputedStyle(el),tail=getComputedStyle(el,'::before');
       const size=parseFloat(tail.width),left=parseFloat(tail.left);
       const bubble=el.getBoundingClientRect(),math=document.querySelector('.gm-math').getBoundingClientRect();
-      return {arrowRight:left+size*(1+Math.SQRT2)/2,
+      return {tailDisplay:tail.display,arrowRight:left+size*(1+Math.SQRT2)/2,
         textInset:parseFloat(style.paddingLeft),
         textWidth:el.querySelector('.gm-fox-message').clientWidth,
         textScroll:el.querySelector('.gm-fox-message').scrollWidth,
         bubbleBottom:bubble.bottom,mathTop:math.top};
     });
-    assert.ok(foxSpeech.arrowRight<=foxSpeech.textInset-2&&
+    assert.ok((foxSpeech.tailDisplay==='none'||foxSpeech.arrowRight<=foxSpeech.textInset-2)&&
       foxSpeech.textScroll<=foxSpeech.textWidth+1,
-      label+' iPad portrait speech arrow may not cover letters '+JSON.stringify(foxSpeech));
+      label+' iPad portrait troll speech must keep every letter readable '+JSON.stringify(foxSpeech));
     assert.ok(foxSpeech.bubbleBottom<=foxSpeech.mathTop+2,
       label+' iPad portrait maths must not cover the fox instruction '+JSON.stringify(foxSpeech));
+    const portraitActors=await page.evaluate(()=>{
+      const stage=document.querySelector('.gm-troll-stage').getBoundingClientRect();
+      const basket=document.querySelector('.gm-crate').getBoundingClientRect();
+      const helpers=[...document.querySelectorAll('[data-gm-action="troll"]')].map(el=>{
+        const r=el.getBoundingClientRect(); return {width:r.width,height:r.height};
+      });
+      return {stageTop:stage.top,stageBottom:stage.bottom,stageHeight:stage.height,
+        basketTop:basket.top,helpers};
+    });
+    assert.ok(portraitActors.stageHeight>=140&&portraitActors.stageBottom<=portraitActors.basketTop+2,
+      label+' iPad portrait small troll row must finish above the live baskets '+JSON.stringify(portraitActors));
+    assert.ok(portraitActors.helpers.every(x=>x.width>=44&&x.height>=44),
+      label+' iPad portrait keeps child-sized troll selectors '+JSON.stringify(portraitActors));
   }
   if(viewport.width>=900&&viewport.height<=900){
     const guide=await page.evaluate(()=>{
       const box=s=>{const r=document.querySelector(s).getBoundingClientRect();
         return {top:r.top,bottom:r.bottom,left:r.left,right:r.right,width:r.width,height:r.height}};
-      return {fox:box('.gm-fox-art'),bubble:box('.gm-fox-bubble'),
+      return {fox:box('.gm-troll-stage'),bubble:box('.gm-fox-bubble'),
         firstBasket:box('.gm-crate'),math:box('.gm-math'),
         speechSize:parseFloat(getComputedStyle(document.querySelector('.gm-fox-message')).fontSize)};
     });
-    assert.ok(guide.fox.height>=290&&guide.fox.width>=260,
-      label+' iPad landscape actual personal fox must be a substantial guide, not a small icon '+JSON.stringify(guide));
+    assert.ok(guide.fox.height>=185&&guide.fox.width>=210,
+      label+' Release56 locked troll trio needs a readable full-height left foreground group '+JSON.stringify(guide));
     assert.ok(guide.bubble.width>=205&&guide.speechSize>=14,
       label+' iPad landscape speech must be readable at arm’s length '+JSON.stringify(guide));
-    assert.ok(guide.fox.right<=guide.firstBasket.left+2&&guide.bubble.right<=guide.firstBasket.left+2,
-      label+' fox and bubble must not cover any basket touch targets '+JSON.stringify(guide));
+    // Release56 supersedes the earlier horizontal troll row: the trio and
+    // speech now own a real left foreground lane, separate from live baskets.
+    const apart=(a,b)=>a.right<=b.left-6||a.left>=b.right+6||
+      a.bottom<=b.top-6||a.top>=b.bottom+6;
+    assert.ok(guide.fox.right<=guide.firstBasket.left-8&&
+      guide.fox.right<=guide.math.left-8,
+      label+' locked actors must stay in the left foreground, outside the playable basket and maths lanes '+JSON.stringify(guide));
+    assert.ok(apart(guide.fox,guide.firstBasket)&&
+      apart(guide.bubble,guide.firstBasket)&&
+      apart(guide.fox,guide.math)&&
+      apart(guide.bubble,guide.math),
+      label+' no troll or spoken instruction may cover the live basket or mathematical touch/read surfaces '+JSON.stringify(guide));
+    assert.ok(guide.fox.top>=guide.firstBasket.top-12&&
+      guide.fox.bottom<=guide.math.bottom+3,
+      label+' full-height troll actors must remain inside the illustrated market scene '+JSON.stringify(guide));
     const groupMath=await page.locator('.gm-group-plus').evaluateAll(nodes=>nodes.map(el=>({
       display:getComputedStyle(el).display,text:el.textContent.trim(),pointer:getComputedStyle(el).pointerEvents
     })));
     assert.equal(groupMath.length,2,label+' 3-group mission needs two visual addition links between real baskets');
     assert.ok(groupMath.every(x=>x.display!=='none'&&x.text==='+'&&x.pointer==='none'),
       label+' wide iPad must show non-interactive plus signs between the three physical groups '+JSON.stringify(groupMath));
-    assert.ok(guide.fox.bottom<=guide.math.top+3&&guide.bubble.bottom<=guide.math.top+3,
-      label+' guide and speech must stay clear of live mathematical feedback '+JSON.stringify(guide));
+    assert.ok(guide.bubble.right<=guide.math.left-8&&
+      guide.bubble.bottom<=guide.math.bottom+3,
+      label+' speech stays readable within the separate left foreground lane '+JSON.stringify(guide));
   }
   assert.ok(first.crate.top>=0&&first.crate.bottom<=first.height,label+' interactive crates not in the first viewport '+JSON.stringify(first));
   assert.ok(first.math.top<first.height,label+' mathematical feedback invisible '+JSON.stringify(first));
@@ -371,15 +626,19 @@ async function check(engine,label,viewport,url){
   // the nominal 227px fox slot. Keep the real personal character contained.
   const materialLayout=await page.evaluate(()=>{
     const box=s=>document.querySelector(s).getBoundingClientRect();
-    const painted=box('.gm-fox-art svg'),slot=box('.gm-fox-art');
-    return {foxBottom:painted.bottom,slotBottom:slot.bottom,foxWidth:slot.width,mathTop:box('.gm-math').top,
+    const actor=box('.gm-troll-stage'),slot=box('.gm-troll-stage');
+    const math=box('.gm-math');
+    return {foxBottom:actor.bottom,slotBottom:slot.bottom,foxWidth:slot.width,
+      foxRight:actor.right,mathLeft:math.left,mathTop:math.top,
       iconHeight:box('.gm-quest-icon').height,
       sourceArtWidth:box('.gm-market-fruit-supply .gm-pick-fruit').width,
       marketBlur:getComputedStyle(document.querySelector('.gm-market'),'::before').backdropFilter};
   });
   assert.ok(materialLayout.foxBottom<=materialLayout.slotBottom+2&&
-    materialLayout.foxBottom<=materialLayout.mathTop+3,
-    label+' actual personal fox must fit its slot and stay above the live equation '+JSON.stringify(materialLayout));
+    (materialLayout.foxBottom<=materialLayout.mathTop+3||
+      (viewport.width>=900&&viewport.height<=900&&
+        materialLayout.foxRight<=materialLayout.mathLeft-6)),
+    label+' locked trolls must fit their slot without overlapping the live equation in either layout '+JSON.stringify(materialLayout));
   if(viewport.width>=900&&viewport.height<=900){
     const wideBoard=await page.locator('.gm-quest-steps').evaluate(el=>({
       display:getComputedStyle(el).display,
@@ -389,7 +648,7 @@ async function check(engine,label,viewport,url){
     assert.notEqual(wideBoard.display,'none',
       label+' wide iPad must keep the locked three-step illustrated quest explanation '+JSON.stringify(wideBoard));
     assert.equal(wideBoard.steps,3,label+' wide iPad quest board must have exactly three authored steps');
-    assert.deepEqual(wideBoard.visibleLabels,['Plukk','Legg i','Se gangemagien'],
+    assert.deepEqual(wideBoard.visibleLabels,['Velg troll','Velg kurv','Se gangemagien'],
       label+' wide iPad quest steps must explain the real interaction in order '+JSON.stringify(wideBoard));
     assert.ok(materialLayout.sourceArtWidth>=180,
       label+' actual strawberry market crate must be prominent, not a tiny pill '+JSON.stringify(materialLayout));
@@ -397,7 +656,7 @@ async function check(engine,label,viewport,url){
   if(viewport.width>=700&&viewport.width<=899&&viewport.height>=1000)assert.ok(materialLayout.iconHeight>=68,
     label+' portrait iPad instructions must use the existing picture area');
   if(viewport.width>=361&&viewport.width<700)assert.ok(materialLayout.foxWidth>=138,
-    label+' ordinary phone must treat the selected full-body fox as a real companion, not a small icon '+JSON.stringify(materialLayout));
+    label+' ordinary phone must keep the locked troll trio visibly present '+JSON.stringify(materialLayout));
   if(viewport.width>=375)assert.ok(materialLayout.sourceArtWidth>=109,
     label+' the real strawberry supply must be visually substantial');
   assert.ok(!materialLayout.marketBlur||materialLayout.marketBlur==='none',
@@ -419,7 +678,7 @@ async function check(engine,label,viewport,url){
   });
   assert.deepEqual(touchGeometry.overlaps,Array(touchGeometry.overlaps.length).fill(false),label+' remove affordance must not cover numeric basket label '+JSON.stringify(touchGeometry));
   assert.equal(touchGeometry.clipped,false,label+' first-fold Plukk action text is clipped '+JSON.stringify(touchGeometry));
-  assert.equal(touchGeometry.lettering,'Plukk et jordbær',label+' primary strawberry action must say exactly what the child can do');
+  assert.equal(touchGeometry.lettering,'Jordbærkassen',label+' primary strawberry action must say exactly what the child can do');
   if(!(viewport.width>=700&&viewport.width<=899&&viewport.height<700))assert.ok(touchGeometry.labelHeight>=40,
     label+' primary strawberry action needs visual button weight '+JSON.stringify(touchGeometry));
   const pageCanvas=await page.evaluate(()=>{
@@ -443,13 +702,13 @@ async function check(engine,label,viewport,url){
       return {width:rect.width,height:rect.height,image:style.backgroundImage,
         berryCount:el.querySelectorAll('.gm-source-berry').length,
         caption:el.querySelector(':scope>span:nth-child(2)')?.textContent.trim(),
-        touchAction:style.touchAction};
+        touchAction:style.touchAction,pointerEvents:style.pointerEvents,tag:el.tagName};
     });
   const minPhysicalCrateWidth=Math.min(250,viewport.width*.75);
   assert.ok(crateControl.width>=minPhysicalCrateWidth&&crateControl.width<=viewport.width*.96&&
     crateControl.height>=44&&crateControl.image==='none'&&crateControl.berryCount===5&&
-    crateControl.caption==='Plukk et jordbær'&&crateControl.touchAction==='none',
-    label+' the real illustrated strawberry crate must be a substantial accessible touch/drag object, not the old tiny button '+JSON.stringify(crateControl));
+    crateControl.caption==='Jordbærkassen'&&crateControl.pointerEvents==='none'&&crateControl.tag==='DIV',
+    label+' strawberry crate stays substantial while troll choices own the interaction '+JSON.stringify(crateControl));
   // The same locally served illustrations must decode in both engines.
   // Checking an Image load catches broken SVG dependencies before visual QA.
   const props=await page.evaluate(async()=>{
@@ -463,115 +722,88 @@ async function check(engine,label,viewport,url){
       handCount:document.querySelectorAll('[data-gm-prop="hand"]').length,
       repeatedPaint:document.querySelectorAll('[id="gmB"]').length};
   });
-  assert.equal(props.decoded.length,2,label+' two original, local play-prop illustrations');
+  assert.equal(props.decoded.length,1,label+' berry is the shared SVG prop after trolls replace the generic picking hand');
   assert.ok(props.decoded.every(item=>item.ok),label+' play-prop SVG must decode '+JSON.stringify(props));
-  assert.ok(props.berryCount>=7&&props.handCount===1,
-    label+' source and teaching steps share the same berry with one picking hand');
+  assert.ok(props.berryCount>=7&&props.handCount===0,
+    label+' exact troll images replace the generic picking-hand illustration');
   assert.equal(props.repeatedPaint,0,label+' repeated fruit may not duplicate gradient IDs');
 
   await shot(page,label+'-01-first-look');
-  await page.locator('.gm-crate').first().hover();
   const disabledRemoveStyles=await page.locator('.gm-remove:disabled').evaluateAll(buttons=>
     buttons.map(el=>({opacity:parseFloat(getComputedStyle(el).opacity),
       pointerEvents:getComputedStyle(el).pointerEvents})));
   assert.ok(disabledRemoveStyles.length===3&&disabledRemoveStyles.every(x=>
     x.opacity===0&&x.pointerEvents==='none'),
     label+' an empty basket must not show a useless minus control '+JSON.stringify(disabledRemoveStyles));
-  // Approved direct manipulation: tap-to-pick, tap the basket berry to take
-  // it out, drag one from the fruit source, and drag it back. Invalid drops
-  // must never change the maths. Run in both engines and every viewport.
-  await page.locator('[data-gm-action="source"]').click();
-  const selectedBeforePlacement=await page.locator('[data-gm-action="basket"][data-gm-basket="0"]')
-    .getAttribute('aria-label');
-  assert.match(selectedBeforePlacement,/plukkede jordbæret/,
-    label+' held berry must be named in the basket touch guidance');
-  assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,0,0],
-    label+' tapping the strawberry source must NOT add fruit without a destination');
-  assert.equal(await page.locator('.gm-pick-invite').count(),0,
-    label+' once a berry is picked, the source stops inviting the first step');
+  // Child-directed troll play: choose a locked troll, then choose a basket.
+  assert.equal(await page.locator('[data-gm-action="source"]').count(),0,
+    label+' mission must not expose the old direct berry-source action');
+  await page.locator('[data-gm-action="troll"][data-gm-troll="0"]').click();
+  let picked=await page.evaluate(()=>LARIA_GANGEMAGI.snapshot());
+  assert.deepEqual(picked.counts,[0,0,0],label+' troll choice alone cannot add fruit');
+  assert.equal(picked.selectedTroll,0,label+' storesøster is the chosen helper');
+  assert.equal(picked.holdingBerry,true,label+' storesøster picked exactly one berry');
+  assert.equal(await page.locator('.gm-troll-selected[data-gm-troll="0"]').count(),1,
+    label+' chosen troll is visibly selected');
+  // Baskets become the second interaction step only after a troll is chosen.
+  await page.locator('.gm-crate').first().hover();
   assert.equal(await page.locator('.gm-crate-invite').count(),3,
-    label+' only a held berry should make available baskets invite placement');
-  const invitationMotion=await page.locator('.gm-crate-invite').first().evaluate(btn=>({
-    touchTarget:getComputedStyle(btn).animationName,
-    glow:getComputedStyle(btn.querySelector('.gm-basket-illustration')).animationName
-  }));
-  assert.ok(!invitationMotion.touchTarget.includes('gm-basket-invite'),
-    label+' real basket tap target must never animate its position '+JSON.stringify(invitationMotion));
-  assert.ok(invitationMotion.glow.includes('gm-basket-invite'),
-    label+' only decorative basket artwork may pulse after berry pickup '+JSON.stringify(invitationMotion));
-  await page.locator('[data-gm-action="basket"][data-gm-basket="1"]').click();
+    label+' after a troll picks, all non-full baskets invite a destination');
+  await page.locator('[data-gm-action="basket"][data-gm-basket="1"] .gm-crate-front').click();
+  assert.equal(await page.locator('.gm-troll-delivering').count(),1,
+    label+' troll visibly performs delivery before maths changes');
+  await page.waitForFunction(()=>window.LARIA_GANGEMAGI.snapshot().counts[1]===1);
   assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,1,0],
-    label+' tapped strawberry + tapped basket adds exactly one');
-  await page.locator('[data-gm-action="source"]').click();
-  await page.locator('[data-gm-basket="1"] .gm-fruit[data-gm-fruit]').first().click();
-  assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,2,0],
-    label+' picking then touching visible basket contents must PLACE the held berry');
-  await page.locator('[data-gm-basket="1"] .gm-fruit[data-gm-fruit]').first().click();
-  assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,1,0],
-    label+' direct touch without a held berry still removes exactly one');
+    label+' troll delivery adds exactly one strawberry');
+  assert.equal((await page.locator('.gm-math-equation').innerText()).trim(),'0 + 1 + 0 = 1',
+    label+' maths follows completed troll delivery');
+  const placedBerryHit=await page.locator('[data-gm-basket="1"] .gm-fruit[data-gm-fruit]').first().evaluate(el=>{
+    const r=el.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2;
+    const hit=document.elementFromPoint(x,y);
+    return {fruit:!!hit?.closest?.('.gm-fruit[data-gm-fruit]'),
+      troll:!!hit?.closest?.('[data-gm-action="troll"]'),
+      basket:!!hit?.closest?.('[data-gm-action="basket"]')};
+  });
+  assert.equal(placedBerryHit.fruit,true,
+    label+' placed berry must own its actual pixel hit target '+JSON.stringify(placedBerryHit));
+  assert.equal(placedBerryHit.troll,false,
+    label+' locked troll artwork may not cover a placed berry '+JSON.stringify(placedBerryHit));
   await page.locator('[data-gm-basket="1"] .gm-fruit[data-gm-fruit]').first().click();
   assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,0,0],
-    label+' touching the berry directly returns it from the basket');
-  await dragBerry(page,'[data-gm-action="source"]','[data-gm-action="basket"][data-gm-basket="2"]',
-    '.gm-crate.gm-drop-target');
-  assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,0,1],
-    label+' pointer drag from source to basket adds exactly one');
-  await dragBerry(page,'[data-gm-basket="2"] .gm-fruit[data-gm-fruit]','[data-gm-action="source"]',
-    '.gm-pick.gm-drop-target');
+    label+' direct touch still removes a placed berry');
+  assert.match(await page.locator('[data-gm-action="basket"][data-gm-basket="2"]').getAttribute('aria-label'),/Velg et troll først/,
+    label+' inactive basket tells the child which step comes first');
   assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,0,0],
-    label+' dragging a fruit back to source removes one');
-  await dragBerry(page,'[data-gm-action="source"]','.gm-brand',null);
-  assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,0,0],
-    label+' dropping a fruit outside all baskets cannot change the maths');
-  assert.equal(await page.locator('.gm-source-berry').count(),5,
-    label+' five illustrated strawberries remain a real accessible supply');
-  assert.equal(await page.locator('[data-gm-action="source"]')
-    .evaluate(el=>getComputedStyle(el).touchAction),'none',
-    label+' browser must not steal finger dragging for page scroll');
+    label+' waiting for a new troll choice cannot silently change maths');
+  assert.match(await page.locator('.gm-fox-message').innerText(),/Velg et troll/);
   if(viewport.width===390&&viewport.height===844){
-    await touchPointerDrag(page,'[data-gm-action="source"]',
-      '[data-gm-action="basket"][data-gm-basket="0"]');
-    assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[1,0,0],
-      label+' touch pointer drag adds exactly one fruit to selected basket');
-    await touchPointerDrag(page,'[data-gm-basket="0"] .gm-fruit[data-gm-fruit]',
-      '[data-gm-action="source"]');
-    assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,0,0],
-      label+' touch pointer drag back into source removes one fruit');
-  }
-  // Simulated touch on a mobile WebKit/Chromium viewport, not just mouse
-  // clicks. The 2-step fallback and direct berry removal are essential on iPad.
-  if(viewport.width===390&&viewport.height===844){
-    await page.locator('[data-gm-action="source"]').tap();
-    await page.locator('[data-gm-action="basket"][data-gm-basket="1"]').tap();
+    await page.locator('[data-gm-action="troll"][data-gm-troll="1"]').tap();
+    assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).holdingBerry,true,
+      label+' touchscreen troll choice picks one berry');
+    await page.locator('[data-gm-action="basket"][data-gm-basket="1"] .gm-crate-front').tap();
+    await page.waitForFunction(()=>window.LARIA_GANGEMAGI.snapshot().counts[1]===1);
     assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,1,0],
-      label+' two real touchscreen taps pick and place exactly one berry');
-    await page.locator('[data-gm-action="source"]').tap();
-    await page.locator('[data-gm-basket="1"] .gm-fruit[data-gm-fruit]').first().tap();
-    assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,2,0],
-      label+' picking then touching visible basket contents must PLACE the held berry');
-    await page.locator('[data-gm-basket="1"] .gm-fruit[data-gm-fruit]').first().tap();
-    assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,1,0],
-      label+' direct touch without a held berry still removes exactly one');
+      label+' touchscreen troll + basket performs one delivery');
     await page.locator('[data-gm-basket="1"] .gm-fruit[data-gm-fruit]').first().tap();
     assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,0,0],
-      label+' touchscreen tap on the berry itself removes it');
+      label+' touchscreen can still remove the berry');
   }
   await page.evaluate(()=>LARIA_GANGEMAGI.reset());
-  await page.locator('[data-gm-action="basket"][data-gm-basket="0"]').click();
+  assert.match(await page.locator('[data-gm-action="basket"][data-gm-basket="0"]').getAttribute('aria-label'),/Velg et troll først/,
+    label+' reset basket remains visibly secondary to troll choice');
   assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,0,0],
-    'choosing a basket cannot silently add a strawberry');
-  assert.equal((await page.locator('.gm-crate-selected').count()),1,'one glowing chosen basket');
-  assert.equal(await page.locator('.gm-crate-invite').count(),0,
-    label+' remaining baskets should stop flashing after the child chooses one');
+    'reset mission starts with no silent strawberry placement');
+  assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).selectedBasket,null,
+    label+' basket does not become primary choice before a troll');
   assert.equal(await page.locator('.gm-quest-step-active[aria-current="step"][data-gm-step="1"]').count(),1,
-    label+' choosing a basket alone must NOT skip the real Plukk step');
-  assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).selectedBasket,0);
-  await page.locator('[data-gm-action="source"]').click();
+    label+' first step remains troll choice');
+  await page.locator('[data-gm-action="troll"][data-gm-troll="0"]').click();
   assert.equal(await page.locator('.gm-quest-step-active[aria-current="step"][data-gm-step="2"]').count(),1,
-    label+' only after picking a berry does the illustrated step advance to Legg i');
+    label+' choosing a troll advances to Velg kurv');
   assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,0,0],
-    label+' picking after an earlier basket choice still cannot add without placing');
+    label+' choosing storesøster still does not change maths');
   await page.locator('[data-gm-basket="0"] .gm-crate-front').click();
+  await page.waitForFunction(()=>window.LARIA_GANGEMAGI.snapshot().counts[0]===1);
   const firstBerryGeometry=await page.locator('[data-gm-basket="0"]').evaluate(basket=>{
     const berry=basket.querySelector('.gm-fruit:not(.gm-fruit-empty)');
     const b=basket.getBoundingClientRect(),f=berry?.getBoundingClientRect();
@@ -600,8 +832,7 @@ async function check(engine,label,viewport,url){
     liveMathBridge.equation==='1 + 0 + 0 = 1',
     label+' child must see the multiplication goal and the live addition together '+JSON.stringify(liveMathBridge));
   await shot(page,label+'-02-one-berry');
-  await page.locator('[data-gm-action="source"]').click();
-  await page.locator('[data-gm-basket="0"] .gm-crate-front').click();
+  await chooseTrollAndPlace(page,0,0);
   assert.equal((await page.locator('.gm-math-equation').innerText()).trim(),'2 + 0 + 0 = 2');
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts[0],2);
   assert.equal(await page.locator('.gm-fruit').count(),2);
@@ -613,15 +844,21 @@ async function check(engine,label,viewport,url){
   assert.equal(await page.locator('.gm-fox').getAttribute('data-mood'),'cheer');
   await page.locator('[data-gm-action="undo"]').click();
   assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[1,0,0]);
-  assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).selectedBasket,0,
-    label+' undoing one berry must keep the still-valid basket selected');
+  assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).selectedBasket,null,
+    label+' undo returns to neutral troll choice rather than silently selecting a basket');
   assert.equal(await page.locator('.gm-crate-invite').count(),0,
     label+' do not invite a different basket after undoing in the chosen one');
-  await page.locator('[data-gm-action="source"]').click();
-  await page.locator('[data-gm-basket="0"] .gm-crate-front').click();
+  await chooseTrollAndPlace(page,0,0);
   assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[2,0,0]);
   await page.locator('[data-gm-action="hint"]').click();
-  assert.match(await page.locator('.gm-fox-message').innerText(),/kurv/i);
+  assert.equal(await pilotActor.getAttribute('data-troll-mood'),'think',
+    label+' a real hint request starts with Storesøster thinking');
+  await page.waitForTimeout(470);
+  assert.equal(await pilotActor.getAttribute('data-troll-mood'),'hint',
+    label+' a real hint request must move from thinking to a helping gesture');
+  await shot(page,label+'-troll-hint');
+  assert.match(await page.locator('.gm-fox-message').innerText(),/troll/i,
+    label+' hint returns the child to the new first step: choose a troll');
   assert.equal(await page.locator('.gm-fruit-pop').count(),0,
     label+' opening a fox hint must NOT replay the last fruit animation');
   await page.locator('[data-gm-action="remove"][data-group="0"]').click();
@@ -634,12 +871,12 @@ async function check(engine,label,viewport,url){
         label+' a completed basket must release selection before the child chooses the next one '+JSON.stringify({counts:filledBasketSnapshot.counts,each:filledBasketSnapshot.each,group,holdingBerry:await page.locator('.gm-play-hint').innerText()}));
       assert.equal(await page.locator('.gm-crate-invite').count(),0,
         label+' after finishing a basket, the child first picks another berry');
-      assert.equal(await page.locator('.gm-pick-invite').count(),1,
-        label+' the real fruit crate invites next pickup without a redundant hint box');
+      assert.equal(await page.locator('[data-gm-action="troll"]').count(),3,
+        label+' after a full basket all three troll choices remain available');
       assert.equal(await page.locator('.gm-quest-step-active[aria-current="step"][data-gm-step="1"]').count(),1,
         label+' the first illustrated step should invite the next basket');
-      assert.match(await page.locator('.gm-fox-message').innerText(),/Plukk jordbær til en annen kurv/,
-        label+' fox gives a short instruction to continue');
+      assert.match(await page.locator('.gm-fox-message').innerText(),/Velg et troll/,
+        label+' guide returns to troll choice after a completed basket');
     }
   }
   assert.equal((await page.locator('.gm-math-equation').innerText()).trim(),'3 × 3 = 9');
@@ -687,11 +924,16 @@ async function check(engine,label,viewport,url){
   assert.equal(await page.locator('.gm-actions-complete .gm-next').count(),1,'one clear next action');
   const celebrationOverlap=await page.evaluate(()=>{
     const r=s=>document.querySelector(s).getBoundingClientRect();
-    const a=r('.gm-celebration'),b=r('.gm-fox-bubble'),fox=r('.gm-fox-art'),math=r('.gm-math');
+    const a=r('.gm-celebration'),b=r('.gm-fox-bubble'),fox=r('.gm-troll-stage'),math=r('.gm-math');
     return {overlap:a.left<b.right&&a.right>b.left&&a.top<b.bottom&&a.bottom>b.top,
       bubbleMathOverlap:b.left<math.right&&b.right>math.left&&b.top<math.bottom&&b.bottom>math.top,
       foxMathOverlap:fox.left<math.right&&fox.right>math.left&&fox.top<math.bottom&&fox.bottom>math.top,
-      celebrationTop:a.top,foxBottom:fox.bottom,bubbleBottom:b.bottom,mathTop:math.top,viewportHeight:innerHeight,
+      celebrationTop:a.top,celebrationLeft:a.left,celebrationRight:a.right,
+      celebrationWidth:a.width,mathLeft:math.left,mathRight:math.right,
+      mathBottom:math.bottom,foxBottom:fox.bottom,bubbleBottom:b.bottom,
+      mathTop:math.top,viewportHeight:innerHeight,
+      noteWidth:document.querySelector('.gm-celebration-copy').clientWidth,
+      noteScrollWidth:document.querySelector('.gm-celebration-copy').scrollWidth,
       nextBottom:r('.gm-actions-complete .gm-next').bottom};
   });
   assert.equal(celebrationOverlap.overlap,false,label+' celebration must not cover the personal fox '+JSON.stringify(celebrationOverlap));
@@ -700,6 +942,12 @@ async function check(engine,label,viewport,url){
       label+' completed iPad maths must stay fully readable beside the fox praise '+JSON.stringify(celebrationOverlap));
     assert.equal(celebrationOverlap.foxMathOverlap,false,
       label+' completed iPad personal fox must not stand on the final maths parchment '+JSON.stringify(celebrationOverlap));
+    assert.ok(celebrationOverlap.celebrationWidth>=400&&
+      celebrationOverlap.celebrationTop>=celebrationOverlap.mathBottom+1&&
+      celebrationOverlap.celebrationLeft>=celebrationOverlap.mathLeft-2&&
+      celebrationOverlap.celebrationRight<=celebrationOverlap.mathRight+2&&
+      celebrationOverlap.noteScrollWidth<=celebrationOverlap.noteWidth+1,
+      label+' completed iPad celebration must read as a full-width line below the mathematics '+JSON.stringify(celebrationOverlap));
   }
   if(viewport.height>=750||viewport.width<=360)assert.ok(celebrationOverlap.nextBottom<=viewport.height+3,label+' completed-child next action missing from first fold '+JSON.stringify(celebrationOverlap));
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).wins.length,1);
@@ -753,7 +1001,7 @@ async function check(engine,label,viewport,url){
   assert.match((await page.locator('.gm-quest-callout').innerText()).replace(/\s+/g,' '),/Fyll 2 kurver med 10 jordbær i hver/,
     'quest text and numbers follow selected authored mission');
   assert.deepEqual(await page.locator('.gm-quest-step strong').allInnerTexts(),
-    ['Plukk','Legg i','Se gangemagien'],'step counts match actual mission, not a screenshot');
+    ['Velg troll','Velg kurv','Se gangemagien'],'step counts match actual mission, not a screenshot');
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).undo,0,'switching adventures clears only action history');
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).wins.length,1);
   assert.equal(await page.locator('.gm-book-mission').count(),0,'book should close after selection');
@@ -806,6 +1054,39 @@ async function check(engine,label,viewport,url){
   assert.ok(five.scrollWidth<=five.width+4&&five.tapWidths.every(n=>n>=44),
     label+' dense five-basket mission must fit width with 44px touch targets '+JSON.stringify(five));
   assert.deepEqual(five.labels,['Kurv 1','Kurv 2','Kurv 3','Kurv 4','Kurv 5']);
+  if(viewport.width>=900){
+    const previewFit=await page.locator('.gm-quest-filled-preview').evaluate(preview=>{
+      const step=preview.closest('.gm-quest-step').getBoundingClientRect();
+      const baskets=[...preview.querySelectorAll('.gm-quest-mini-basket>.gm-quest-wicker')];
+      return {stepLeft:step.left,stepRight:step.right,
+        baskets:baskets.map(img=>{
+          const b=img.getBoundingClientRect();
+          return {left:b.left,right:b.right,width:b.width};
+        })};
+    });
+    assert.equal(previewFit.baskets.length,5,label+' five real miniature baskets in the illustrated instruction');
+    assert.ok(previewFit.baskets.every(b=>b.left>=previewFit.stepLeft-1&&
+      b.right<=previewFit.stepRight+1&&b.width>=16),
+      label+' all five miniature baskets must stay fully inside their iPad instruction card '+
+      JSON.stringify(previewFit));
+  }
+
+  const verifyCompactFiveCounts=async()=>{
+    if(viewport.width>360)return;
+    const counts=await page.locator('.gm-group-counts').evaluate(el=>{
+      const frame=el.closest('.gm-math').getBoundingClientRect();
+      const nodes=[...el.querySelectorAll('.gm-group-count')];
+      return {count:nodes.length,plus:el.querySelectorAll(':scope>i').length,
+        overflow:el.scrollWidth-el.clientWidth,
+        inside:nodes.every(n=>{const r=n.getBoundingClientRect();return r.left>=frame.left-1&&r.right<=frame.right+1;}),
+        values:nodes.map(n=>n.querySelector('b')?.textContent.trim())};
+    });
+    assert.equal(counts.count,5,label+' five numeric basket counts must exist');
+    assert.equal(counts.plus,4,label+' four addition separators must exist');
+    assert.ok(counts.overflow<=1&&counts.inside,
+      label+' no clipped fifth group on 320px maths parchment '+JSON.stringify(counts));
+  };
+  await verifyCompactFiveCounts();
   const mathsLayout=async()=>{
     return await page.locator('.gm-math').evaluate(root=>{
       const equation=root.querySelector('.gm-math-equation'),progress=root.querySelector('.gm-berry-progress');
@@ -823,6 +1104,16 @@ async function check(engine,label,viewport,url){
       label+' five-basket maths must remain legible and within the panel '+JSON.stringify(m));
   }
   await shot(page,label+'-05-five-basket-mission');
+  if(viewport.width<=360){
+    await chooseTrollAndPlace(page,0,0);
+    assert.equal((await page.locator('.gm-math-equation').innerText()).trim(),'1 + 0 + 0 + 0 + 0 = 1',
+      label+' first actual berry updates all five numeric groups');
+    await verifyCompactFiveCounts();
+    const partial=await mathsLayout();
+    assert.ok(partial.textWidth<=partial.availableWidth+2&&partial.fontSize>=17,
+      label+' partial five-group equation remains readable '+JSON.stringify(partial));
+    await shot(page,label+'-05-five-basket-one-berry');
+  }
   await page.locator('[data-gm-action="open-book"]').click();
   await page.locator('[data-gm-action="select-mission"][data-index="6"]').click();
   assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).groups,4);
@@ -931,17 +1222,65 @@ async function check(engine,label,viewport,url){
     const boxes=await page.locator('.gm-crate').evaluateAll(els=>els.map(el=>el.getBoundingClientRect().width));
     assert.ok(boxes.every(width=>width>=44),
       label+' chapter '+(index+1)+' each real basket has a 44px touch width: '+JSON.stringify(boxes));
-    await page.locator('[data-gm-action="basket"][data-gm-basket="0"]').click();
-    assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).selectedBasket,0,
-      label+' chapter '+(index+1)+' basket can be selected');
-    await page.locator('[data-gm-action="source"]').click();
+    await page.locator('[data-gm-action="troll"][data-gm-troll="'+(index%3)+'"]').click();
+    assert.equal((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).selectedTroll,index%3,
+      label+' chapter '+(index+1)+' troll can be selected');
     await page.locator('[data-gm-basket="0"] .gm-crate-front').click();
+    await page.waitForFunction(()=>window.LARIA_GANGEMAGI.snapshot().counts[0]===1);
     const after=await page.evaluate(()=>LARIA_GANGEMAGI.snapshot());
     assert.equal(after.counts[0],1,label+' chapter '+(index+1)+' one deliberate pick and placement adds exactly one berry');
     assert.equal(after.equation.total,1,label+' chapter '+(index+1)+' visible maths tracks first berry');
     assert.equal(await page.locator('.gm-quest-mini-berries i').count(),1,
       label+' chapter '+(index+1)+' the live illustration counts exactly one placed berry');
   }
+  // An earned eighth flower must end at a real celebration, not silently
+  // wrap to the first chapter. The pure engine verifies actual fruit packing;
+  // here we verify the child-facing choices on every real test device.
+  await page.evaluate(ids=>{
+    const current=JSON.parse(localStorage.getItem('laria-gangemagi-v1')||'{}');
+    localStorage.setItem('laria-gangemagi-v1',JSON.stringify({
+      ...current,mode:'mission',mission:7,groups:2,each:10,
+      counts:[10,10],wins:ids
+    }));
+  },allMissions.map(m=>m.id));
+  await page.reload({waitUntil:'domcontentloaded'});
+  await page.waitForFunction(()=>window.LARIA_GANGEMAGI?.version==='playable-v1');
+  await page.evaluate(()=>window.openMultiplicationLab());
+  assert.equal(await page.locator('.gm-shell[data-gm-finale="true"]').count(),1,
+    label+' chapter eight must have an explicit celebratory scene');
+  assert.match(await page.locator('.gm-celebration-copy strong').innerText(),/Hele markedet feirer/);
+  assert.equal(await page.locator('[data-gm-action="next"]').count(),0,
+    label+' the completed market must not silently restart at chapter one');
+  assert.equal(await page.locator('.gm-actions-complete .gm-next[data-gm-action="mode"][data-mode="free"]').count(),1,
+    label+' child may opt into free play, rather than being pushed along');
+  assert.equal(await page.locator('.gm-finale-book[data-gm-action="open-book"]').count(),1,
+    label+' the saved completed favourites remain accessible');
+  const finaleLayout=await page.evaluate(()=>{
+    const buttons=[...document.querySelectorAll('.gm-actions-complete button')].map(b=>b.getBoundingClientRect());
+    const c=document.querySelector('.gm-celebration').getBoundingClientRect();
+    const m=document.querySelector('.gm-math').getBoundingClientRect();
+    const copy=document.querySelector('.gm-celebration-copy');
+    return {overflow:document.documentElement.scrollWidth-innerWidth,
+      touch:buttons.map(b=>({width:b.width,height:b.height})),
+      overlap:buttons.length>1&&buttons[0].left<buttons[1].right-2&&buttons[0].right>buttons[1].left+2&&buttons[0].top<buttons[1].bottom-2&&buttons[0].bottom>buttons[1].top+2,
+      finaleBanner:{left:c.left,right:c.right,top:c.top,width:c.width,
+        mathLeft:m.left,mathRight:m.right,mathBottom:m.bottom,
+        textWidth:copy.clientWidth,textScroll:copy.scrollWidth}};
+  });
+  assert.ok(finaleLayout.overflow<=4&&!finaleLayout.overlap&&
+    finaleLayout.touch.every(b=>b.width>=44&&b.height>=44),
+    label+' final choices must be separated, legible and touch-sized '+JSON.stringify(finaleLayout));
+  if(viewport.width>=900&&viewport.height<=950){
+    const b=finaleLayout.finaleBanner;
+    assert.ok(b.width>=400&&b.left>=b.mathLeft-2&&b.right<=b.mathRight+2&&
+      b.top>=b.mathBottom+1&&b.textScroll<=b.textWidth+1,
+      label+' final iPad market celebration must stay legible below the completed maths '+JSON.stringify(finaleLayout));
+  }
+  await shot(page,label+'-09-completed-market-finale');
+  await page.locator('.gm-actions-complete .gm-next[data-gm-action="mode"][data-mode="free"]').click();
+  const afterFinale=await page.evaluate(()=>LARIA_GANGEMAGI.snapshot());
+  assert.equal(afterFinale.mode,'free','finale moves to free play only when chosen');
+  assert.equal(afterFinale.wins.length,8,'all flowers survive the free-play transition');
   await page.evaluate(()=>showScreen('home'));
   await page.locator('#home-screen.active').waitFor();
   const returnedHome=await page.locator('.app').evaluate(el=>({
@@ -1007,14 +1346,30 @@ async function checkLandscape(engine,label,url){
      fold.sourceBottom<=fold.height+3&&fold.mathTop<fold.height,
      label+' real baskets, pickup source and live maths must enter FIRST landscape viewport '+JSON.stringify(fold));
    await shot(page,label+'-01-first-look');
-   // The short viewport is deliberately scrollable. The child must still be
-   // able to find the real strawberry crate and interact using touch taps.
-   await page.locator('[data-gm-action="source"]').tap();
+   // The short viewport is deliberately scrollable. The child still chooses
+   // a troll first and then a real basket with touch taps.
+   await page.locator('[data-gm-action="troll"][data-gm-troll="1"]').tap();
    assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,0,0],
-     label+' first touch only picks one berry');
+     label+' first touch chooses lillesøster and picks one berry');
+    const touchLayer=await page.evaluate(()=>{
+      const basket=document.querySelector('[data-gm-action="basket"][data-gm-basket="1"]');
+      const front=basket.querySelector('.gm-crate-front').getBoundingClientRect();
+      const x=front.left+front.width/2,y=front.top+front.height/2;
+      const hit=document.elementFromPoint(x,y);
+      return {basket:!!hit?.closest?.('[data-gm-action="basket"][data-gm-basket="1"]'),
+        troll:!!hit?.closest?.('[data-gm-action="troll"]'),
+        holding:document.querySelector('.gm-shell')?.dataset.gmHolding,
+        moving:document.querySelector('.gm-shell')?.dataset.gmTrollMoving};
+    });
+    assert.equal(touchLayer.holding,'true',label+' selected troll exposes the basket interaction step');
+    assert.equal(touchLayer.troll,false,
+      label+' troll artwork must not steal the chosen basket touch target '+JSON.stringify(touchLayer));
+    assert.equal(touchLayer.basket,true,
+      label+' selected basket surface remains the actual hit target '+JSON.stringify(touchLayer));
    await page.locator('[data-gm-action="basket"][data-gm-basket="1"] .gm-crate-front').tap();
+   await page.waitForFunction(()=>window.LARIA_GANGEMAGI.snapshot().counts[1]===1);
    assert.deepEqual((await page.evaluate(()=>LARIA_GANGEMAGI.snapshot())).counts,[0,1,0],
-     label+' second touch places exactly one berry despite scrolling');
+     label+' second touch lets the troll place exactly one berry despite scrolling');
    assert.equal((await page.locator('.gm-math-equation').innerText()).trim(),'0 + 1 + 0 = 1',
      label+' displayed maths follows landscape touch placement');
    await shot(page,label+'-02-one-berry');
@@ -1054,10 +1409,7 @@ async function checkLandscape(engine,label,url){
        label+' '+spec.slug+' mini-basket art must not shrink or cover the instruction '+JSON.stringify(scene));
      await shot(page,label+'-03-'+spec.slug);
      if(spec.index===7){
-       for(let i=0;i<10;i++){
-         await page.locator('[data-gm-action="source"]').tap();
-         await page.locator('[data-gm-basket="0"] .gm-crate-front').tap();
-       }
+       for(let i=0;i<10;i++)await chooseTrollAndPlace(page,i%3,0);
        const state=await page.evaluate(()=>LARIA_GANGEMAGI.snapshot());
        assert.deepEqual(state.counts,[10,0],label+' ten actual berries packed into one basket');
        assert.equal(await page.locator('.gm-quest-mini-berries i').count(),10,
@@ -1100,24 +1452,24 @@ async function checkBoyFox(browser,url){
    assert.equal(await page.evaluate(()=>window.LARIA_FOX.choice()),'boy',
      'profile-backed identity must remain the selected boy');
    await page.evaluate(()=>window.openMultiplicationLab());
-   const fox=page.locator('.gm-fox-art svg.laria-fox-wardrobe-art[data-avatar="boy"]');
-   await fox.waitFor({state:'attached'});
-   const source=await fox.locator('image').getAttribute('href');
-   assert.match(source,/^\.\/assets\/fox\/boy-adventurer-green-vest-v1\.webp$/,
-     'the real Læria boy artwork, not a generated mascot, must be the in-world sprite');
-   assert.equal(await page.locator('.gm-fox-art [data-avatar="girl"]').count(),0,
-     'the wrong child-selected fox must not be present');
-   const image=await page.request.get(new URL(source,url).href);
-   assert.equal(image.status(),200,'the full-body boy asset must really load');
-   assert.match(image.headers()['content-type'],/image\/webp/);
-   await shot(page,'webkit-ipad-landscape-boy-fox');
+   assert.equal(await page.locator('.gm-fox-art').count(),0,
+     'Gangemagi mission uses the locked troll trio instead of the saved fox');
+   assert.equal(await page.locator('[data-gm-action="troll"]').count(),3,
+     'all three locked troll helpers are available for the boy profile too');
+   const trollSources=await page.locator('[data-gm-action="troll"] img').evaluateAll(xs=>xs.map(x=>x.getAttribute('src')));
+   assert.deepEqual(trollSources,[
+     './assets/gangemagi-troll/storesoster.webp',
+     './assets/gangemagi-troll/lillesoster.webp',
+     './assets/gangemagi-troll/lillebror.webp'
+   ],'profile choice must not alter the locked mission trio');
+   await shot(page,'webkit-ipad-landscape-boy-profile-troll-mission');
    await page.locator('[data-gm-action="open-book"]').click();
    assert.equal(await page.locator('.gm-book-fox-art svg[data-avatar="boy"]').count(),1,
-     'the actual boy fox follows him into the Market Book');
+     'the actual saved boy fox remains in the Market Book');
    await page.keyboard.press('Escape');
    await page.locator('[data-gm-action="mode"][data-mode="free"]').click();
    assert.equal(await page.locator('.gm-fox-art svg[data-avatar="boy"]').count(),1,
-     'the real boy fox must remain in free play');
+     'the real boy fox remains in free play');
    assert.deepEqual(errors,[],'no boy-fox render errors in real WebKit');
    console.log('PASS GANGEMAGI WebKit personal boy fox and Market Book');
  }finally{await context.close()}
@@ -1125,17 +1477,27 @@ async function checkBoyFox(browser,url){
 
 (async()=>{
  auditAllEightMissions();
+ // Run the full historical suite locally with no filter. The CI matrix
+ // splits the same Chromium and WebKit scenarios onto separate runners.
+ const selected=process.env.GANGEMAGI_QA_BROWSER||'all';
+ assert.ok(['all','chrome','webkit'].includes(selected),
+   'unsupported requested browser filter: '+selected);
  const {srv,url}=await serve();
+ let browsersTested=0;
  try{
   for(const [type,browserType,devices] of [
    ['chrome',chromium,[['iphone390',{width:390,height:844}],['ipad-landscape',{width:1180,height:820}]]],
    ['webkit',webkit,[['iphone-small',{width:320,height:568}],['iphone390',{width:390,height:844}],['ipad-portrait',{width:820,height:1180}],['ipad-landscape',{width:1180,height:820}]]]
   ]){
+   if(selected!=='all'&&selected!==type)continue;
+   browsersTested++;
    const browser=await browserType.launch({headless:true});
    try{for(const [device,viewport] of devices)await check(browser,type+'-'+device,viewport,url);
     await checkLandscape(browser,type+'-iphone-landscape',url);
     if(type==='webkit')await checkBoyFox(browser,url);
    }finally{await browser.close();}
   }
+  assert.equal(browsersTested,selected==='all'?2:1,
+    'every requested browser must execute all its unchanged viewport checks');
  }finally{await new Promise(resolve=>srv.close(resolve));}
 })().catch(err=>{console.error(err);process.exitCode=1;});
