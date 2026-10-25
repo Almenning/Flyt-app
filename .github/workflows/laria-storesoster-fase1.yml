@@ -107,6 +107,26 @@ jobs:
           assert any(f.suffix=='.ora' for f in dest.iterdir())
           print('PASS source fidelity; BLOCKED premium art: missing anatomy.')
           PY
+      - name: Prepare V2 painter handoff with source-only fingertip mask correction
+        run: |
+          python tools/rigging/storesoster_art_handoff_v2.py \
+            --source laer-litt-mer/assets/gangemagi-troll/storesoster.webp \
+            --output /tmp/laria-storesoster-fase1/artist-handoff-v2
+      - name: Reject premature V2 animation approval
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('/tmp/laria-storesoster-fase1/artist-handoff-v2/source-mask-readiness.json').read_text())
+          assert d['neutral_rgba_visible_pixel_changes'] == 0
+          assert d['added_original_fingertip_mask_pixels'] > 100
+          assert d['missing_pixels_per_angle']['0'] == 0
+          assert all(d['missing_pixels_per_angle'][a] > 1000 for a in ('-25','-12','12','25'))
+          assert d['paint_layers_intentionally_empty']
+          assert d['source_pixels_regenerated'] is False
+          assert d['premium_ready'] is False and d['integrated_in_app'] is False
+          print('PASS V2 source-only artist handoff; BLOCKED for app and rigging.')
+          PY
       - name: Upload editable ORA, layer masks and factual movement report
         if: always()
         uses: actions/upload-artifact@v4
