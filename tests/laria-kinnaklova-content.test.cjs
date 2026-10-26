@@ -16,7 +16,7 @@ const englishPool=new Function('choiceQuestion','makeEnglishBuild','shuffle','CU
     subject,skill,prompt,answer,options,type:'learning-choice',...extra
   }),
   (answer,visual)=>({
-    subject:'english',skill:'spelling',type:'build-word',answer,visual,
+    subject:'english',skill:'spelling',type:'build-word',prompt:'Build the word',answer,visual,
     letters:String(answer).split('').map((l,id)=>({l,id}))
   }),
   arr=>arr,
