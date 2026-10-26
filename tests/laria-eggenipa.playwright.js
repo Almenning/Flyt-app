@@ -133,6 +133,15 @@ async function run(browserType,engine,name,viewport){
       const b=window.LARIA_TALLVIKA_BRIDGE;
       return [b.currentGrade(),b.journeyViewGrade('norwegian')];
     }),[2,3],name+' grade choice must not change profile grade');
+    // Higher grades retain the original classic journey, whose existing
+    // subject-back control must still return to this Eggenipa subject page.
+    await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
+    const classicBack=page.locator('#subject-screen.active #subject-back');
+    await classicBack.waitFor({state:'visible',timeout:12000});
+    assert.equal(await classicBack.getAttribute('aria-label'),'Tilbake til Eggenipa',
+      name+' classic grade-3 back must return to Norwegian landing');
+    await classicBack.click();
+    await page.locator('#eggenipa-world').waitFor({state:'visible',timeout:12000});
     await page.locator('.eg-grade').click();
     await page.locator('#eggenipa-world [data-eg-grade="2"]').click();
 
