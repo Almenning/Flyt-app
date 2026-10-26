@@ -123,6 +123,12 @@ async function check(engine,label,viewport){
    await page.locator('.locked-journey-overlay:not([hidden])').waitFor();
    await page.locator('.locked-sheet-close').click();
    await board.locator('.locked-journey-back').click();
+   if(subject==='norwegian'){
+     // The approved Bokskogen PNG is unchanged; only the first return
+     // destination now goes through Eggenipa before Home.
+     await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
+     await page.locator('#eggenipa-world [data-eg="home"]').click();
+   }
    await page.locator('#home-screen.active').waitFor();
   }
   assert.deepEqual(errors,[],label+' runtime errors');
