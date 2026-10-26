@@ -115,19 +115,15 @@
       document.body.appendChild(returnButton);
     }
     returnButton.hidden=false;
-    // The portal may be below the fold. A view swap inside the *same*
-    // #subject-screen does not run showScreen()'s normal Safari scroll reset.
-    // A click/focus scroll can also re-assert its former offset after layout.
-    // Reset both the viewport and scrolling element, once now and again on
-    // the next painted frame. Do not move the locked map or its hotspots.
-    const resetMapScroll=()=>{
-      if(!isActive()||!mapVisible)return;
-      window.scrollTo({left:0,top:0,behavior:'instant'});
-      document.documentElement.scrollTop=0;
-      document.body.scrollTop=0;
-    };
-    resetMapScroll();
-    requestAnimationFrame(resetMapScroll);
+    // Entering Bokskogen from a lower portal must not retain Eggenipa's
+    // previous page scroll. The original journey renderer may then move the
+    // viewport *to the child's current stop*, particularly on short
+    // landscape devices. That is intentional and must not be undone by a
+    // second competing requestAnimationFrame scroll reset.
+    document.activeElement?.blur?.();
+    window.scrollTo({left:0,top:0,behavior:'instant'});
+    document.documentElement.scrollTop=0;
+    document.body.scrollTop=0;
   }
   function closeMap(){
     mapVisible=false;
