@@ -62,6 +62,16 @@ test('Only three original forest trolls, with byte-identical repository assets',
    const blob=crypto.createHash('sha1').update('blob '+buffer.length+'\0').update(buffer).digest('hex');
    assert.equal(blob,sha,id+' approved original changed unexpectedly');
  }
+ // Storesøster uses the previously visual-approved painted variant; the
+ // underlying 512×1024 identity original stays unchanged.
+ const approvedScene=app('assets/kinnaklova/storesoster-inworld-approved-20261026.webp');
+ assert.ok(fs.existsSync(approvedScene),'Copied approved Storesøster scene asset missing');
+ const sceneBuf=fs.readFileSync(approvedScene);
+ assert.equal(crypto.createHash('sha1').update('blob '+sceneBuf.length+'\0').update(sceneBuf).digest('hex'),
+   'cff7b5710401f33fa4798d40e8935cb77eb40b44',
+   'Kinnaklova storesøster must match approved #224 art byte-for-byte');
+ assert.match(js,/storesoster-inworld-approved-20261026\.webp/);
+ assert.match(js,/c\.sceneSrc\|\|c\.src/);
  assert.doesNotMatch(js,/assets\/fox\/|lia-fox|chapter-fox|avatarSrc|Math\.random/i);
  assert.doesNotMatch(css,/@keyframes.*ki-troll|\.ki-troll.*animation:/s);
  assert.match(css,/#kinnaklova-world:not\(\[data-ki-art="ready"\]\) \.ki-companions/);
