@@ -76,6 +76,29 @@ test('Only three original forest trolls, with byte-identical repository assets',
  assert.doesNotMatch(css,/@keyframes.*ki-troll|\.ki-troll.*animation:/s);
  assert.match(css,/#kinnaklova-world:not\(\[data-ki-art="ready"\]\) \.ki-companions/);
 });
+test('Forest troll placements do not obscure approved words on painted signs',()=>{
+ const zones={
+   words:[23.1,74.2,40.5,82.0],
+   sentences:[63.2,50.0,79.1,57.5],
+   reading:[82.1,67.7,99.1,79.0]
+ };
+ const captures={
+   storesoster:/\.ki-troll-storesoster\{left:([\d.]+)%;top:([\d.]+)%;width:([\d.]+)%;height:([\d.]+)%\}/,
+   lillebror:/\.ki-troll-lillebror\{left:([\d.]+)%;top:([\d.]+)%;width:([\d.]+)%;height:([\d.]+)%\}/,
+   lillesoster:/\.ki-troll-lillesoster\{right:([\d.]+)%;top:([\d.]+)%;width:([\d.]+)%;height:([\d.]+)%\}/
+ };
+ for(const [id,regex] of Object.entries(captures)){
+   const match=css.match(regex);
+   assert.ok(match,id+' position missing from CSS');
+   const [p,t,w,h]=match.slice(1).map(Number);
+   const left=id==='lillesoster'?100-p-w:p;
+   const box=[left,t,left+w,t+h];
+   for(const [name,sign] of Object.entries(zones)){
+     const overlap=box[0]<sign[2]&&box[2]>sign[0]&&box[1]<sign[3]&&box[3]>sign[1];
+     assert.equal(overlap,false,id+' would cover the locked '+name+' sign: '+box.join(','));
+   }
+ }
+});
 test('Words, Sentences and Reading use existing real English learning modules',()=>{
  for(const [id,module] of [['words','words'],['sentences','sentences'],['reading','reading']]){
    assert.match(js,new RegExp("id:'"+id+"'"));
