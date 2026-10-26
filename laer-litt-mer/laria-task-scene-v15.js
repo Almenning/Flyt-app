@@ -321,7 +321,15 @@
     const mode=cardMode(q);
     const layout=youngMathChoice(q)?'young-math-choice-layout':answerLayout(q);
     const visual=taskVisualMarkup(q);
-    const passage=q.passage?'<div class="learning-passage">'+text(q.passage)+'</div>':'';
+    // The three direct Kinnaklova portals have replaced the old English map.
+    // Journey/other-subject task scenes keep their existing world identity.
+    const directKinnaklova=subject==='english'&&sessionScope?.type==='subject'&&
+      ['words','sentences','reading'].includes(sessionScope?.module);
+    const readingStory=directKinnaklova&&q.skill==='reading'&&
+      typeof q.passage==='string'&&q.passage.trim().length>0;
+    const passage=q.passage?(readingStory
+      ?'<section class="learning-passage ki-reading-story" aria-label="Engelsk historie">'+text(q.passage)+'</section>'
+      :'<div class="learning-passage">'+text(q.passage)+'</div>'):'';
     const readButton=readAloudButton(q);
     const finalQuestion=position===total;
     const avatar=foxChoice();
@@ -334,11 +342,13 @@
     const visualWithFox=visual?'<div class="task-visual-companion-stage">'+visual+fox+'</div>':fox;
     const questionScene=inlineFox?
       '<div class="task-prompt-fox-stage"><div class="question">'+text(prompt)+'</div>'+fox+'</div>':
-      '<div class="question">'+text(prompt)+'</div>'+passage+visualWithFox;
+      readingStory
+        ?passage+'<div class="question ki-reading-question">'+text(prompt)+'</div>'+visualWithFox
+        :'<div class="question">'+text(prompt)+'</div>'+passage+visualWithFox;
 
     wrap.innerHTML=
       '<article class="laria-task-card '+mode+' '+layout+' '+(inlineFox?'task-inline-fox ':'')+taskTypeClass(q)+'">'+
-        '<div class="task-world-chip">'+text(sceneName(subject))+'</div>'+
+        '<div class="task-world-chip">'+text(directKinnaklova?'Kinnaklova':sceneName(subject))+'</div>'+
         '<div class="task-card-head"><div class="qtype">'+subjectName(subject)+' · '+text(String(gradeLabel).toUpperCase())+'</div>'+readButton+'</div>'+
         questionScene+
         '<div class="task-interaction">'+(subject==='geography'?geographyInteractionMarkup(q):interactionMarkup(q))+'</div>'+
