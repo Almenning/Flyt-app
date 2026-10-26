@@ -88,3 +88,11 @@ Mangler konkret:
 
 ### Integrasjonstest for Egen Engelsk-versjon
 GitHub Actions `Læria Kinnaklova – Engelsk WebKit og Chromium` tester åtte virtuelle kombinasjoner (iPhone/iPad, stående/liggende, Chromium/WebKit). Dette er automatiserte nettlesere, ikke fysiske enheter. Integrert fire-fag-test har også vært grønn på tidligere PR-head, men eksakt siste head må kontrolleres separat når hele arbeidspakken er klar.
+
+## 26.10.2026 – Engelsk aktivitetspresisjon i Kinnaklova
+
+**Feil rettet:** De tre merkede inngangene kunne tidligere føre til en adaptiv femoppgaversøkt som supplerte fra andre engelskkategorier selv når valgt modul hadde mer enn fem egne oppgaver. Det gjorde at for eksempel Reading kunne inneholde Words. Kinnaklova bruker nå den eksisterende spørsmålsmotoren med `strictModule=true`; for modulene **Words**, **Sentences** og **Reading** blir utvalget hentet fra kategorien som barnet faktisk trykket på, så lenge minst fem passende spørsmål finnes. Nåværende motor håndterer både friske spørsmål, repeterte spørsmål ved cooldown og lagret læringsprogresjon uendret. Fallback til bredere utvalg er bevart for trinn som faktisk mangler tilstrekkelig innhold (blant annet Reading i 1. klasse), uten kunstig å merke et trinn som ferdig.
+
+**Avgrensning:** Dette er en eksplisitt valgfri parameter i `buildLearningQuestions`/`startLearningSession`, kun aktivert fra Kinnaklova. Matte, Norsk, Geografi, eldre Engelsk-ruter og datamodell har samme standardflyt som før.
+
+**Tester:** Kontraktstest verifiserer at Kinnaklova sender `strictModule=true`; Chromium/WebKit-suiten kontrollerer at alle fem oppgavene i hver valgte økt har riktig faglig `skill`, ikke bare riktig `sessionScope.module`. Den nyeste CI-kjøringen må fortsatt kontrolleres på eksakt PR-head før funksjonen anses grønn. Separat visuell release gate skal fortsatt avvise merge til ren bakgrunn uten forkastede troll og endelig godkjent scenekomposisjon er på plass.
