@@ -219,12 +219,32 @@ async function run(engine,label,viewport){
      await returnFromLockedJourney(page,screen,subject,label);
    }
 
-   /* Reisen stays a true primary action and uses the same locked-journey return flow. */
+   /* "Fortsett reisen" prioritizes a saved unfinished activity over the
+      decorative journey map. Verify actual resume semantics on this path. */
+   const pending=await page.evaluate(()=>state.activeSession?.scope?
+     {subject:state.activeSession.scope.subject,module:state.activeSession.scope.module,
+      index:state.activeSession.qIndex}:null);
    const journeySubject=await home.getAttribute('data-journey-subject')||'norwegian';
    await page.locator('.bc12-journey').click();
-   const journeyScreen=journeySubject==='geography'?'geography':'subject';
-   await page.locator('#'+journeyScreen+'-screen.active').waitFor({timeout:15000});
-   await returnFromLockedJourney(page,journeyScreen,journeySubject,label+' primary journey');
+   if(pending){
+     await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:15000});
+     const resumed=await page.evaluate(()=>({subject:sessionScope?.subject,module:sessionScope?.module,index:qIndex}));
+     assert.deepEqual(resumed,pending,label+' Home journey changed interrupted question');
+     await page.locator('#close-session').click();
+     if(pending.subject==='norwegian'){
+       await page.locator('#eggenipa-world:visible').waitFor({timeout:15000});
+       await page.locator('#eggenipa-world [data-eg="home"]').click();
+       await page.locator('#home-screen.active').waitFor({timeout:12000});
+       await homeReady(page,label+' resumed reading');
+     }else{
+       const screen=pending.subject==='geography'?'geography':'subject';
+       await returnFromLockedJourney(page,screen,pending.subject,label+' resumed journey');
+     }
+   }else{
+     const journeyScreen=journeySubject==='geography'?'geography':'subject';
+     await page.locator('#'+journeyScreen+'-screen.active').waitFor({timeout:15000});
+     await returnFromLockedJourney(page,journeyScreen,journeySubject,label+' primary journey');
+   }
 
    /* Explore keeps the existing v13 map-board for now. Home v15 must yield to it cleanly. */
    await page.locator('.bc12-nav [data-camp="explore"]').click();

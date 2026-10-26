@@ -94,3 +94,10 @@ Brukeren godkjente den eksakte Eggenipa-illustrasjonen, men avviste resten av de
 - Dyrevenner-kortet og temaikonet bruker nå den **allerede eksisterende** illustrasjonen `find-the-words-garden-premium.webp` med ugle, pinnsvin og sommerfugl, i samme naturstil som Eggenipa. Original Eggenipa PNG uendret; ingen generering av alternativ trollkarakter eller endring av ord-/rundemotor.
 - Temapakkens lille ikon er oppdatert fra gammel rev til ugle; Blandede ord viser «Eggenipa» i stedet for Bokskogen. De fire andre temaenes godkjente bilder er bevart.
 - Den detaljerte Word Hunt Chromium/WebKit-testen kontrollerer alle fem bildespor og deres faktiske pikselmål (Dyrevenner 480×288, øvrige 160×169), inkludert at alle lokalbilder dekodes. 
+
+### 26.10 – Samlet regresjonsrettelse etter c4961e5
+
+- Faktisk Finn ordene-WebKit viste at hintberøring igjen fungerer i de større visningene, men på 320×568 scrollet tittelen 7 px ut av viewport ved hjelp. En sticky toppseksjon på svært smale telefoner beholder tittelen synlig uten å krympe de viktige berøringsflatene.
+- Progress-recovery-testen brukte tvetydig `[data-eg=reading]` (både sceneknapp og aktivitetskort). Endret til eksplisitt `.eg-portal[data-eg=reading]` slik at ekte klikknavigasjon fortsatt testes.
+- Device-hardening og Journey-mission-premium oppdateres til nye barnevalg Ordjakt, Finn ordene, Lesekroken. Testene sikrer fortsatt lesemotor, navigasjon, profil og historiske journey-ID-er; Engelsk/Matte/Geografi beholder sine gamle tester.
+- Home v15 `Fortsett reisen` gjenopptar faktisk lagret aktiv norskøkt direkte når den finnes; test krever eksakt fag, modul og oppgaveindeks fremfor gammelt kartmål. Fysisk WebKit krever senere godkjenning. Draft PR, ikke publisert.

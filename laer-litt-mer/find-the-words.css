@@ -820,3 +820,9 @@
  .fw-overlay .fw-hint-label{font-size:11px}
  .fw-overlay .fw-speech{max-width:calc(100% - 78px)}
 }
+
+/* Tiny portrait phones must keep the title readable while the child
+   scrolls to the 44px game controls; do not shrink any touch target. */
+@media(max-width:360px) and (orientation:portrait){
+ .fw-overlay .fw-top{position:sticky;top:0;z-index:31;padding:3px 4px 6px;border-radius:0 0 12px 12px;background:linear-gradient(180deg,#fff2cf,#f8e7c1);box-shadow:0 3px 10px rgba(64,42,27,.15)}
+}
