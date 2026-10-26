@@ -31,7 +31,7 @@ async function run(browserType,engine,name,viewport){
   const browser=await browserType.launch({headless:true,args:engine==='chromium'?['--no-sandbox']:[]});
   try{
     const context=await browser.newContext({
-      viewport,hasTouch:true,isMobile:viewport.width<=480,reducedMotion:'reduce',serviceWorkers:'block'
+      viewport,hasTouch:true,isMobile:name.includes('iphone'),reducedMotion:'reduce',serviceWorkers:'block'
     });
     await context.addInitScript(value=>{
       if(!localStorage.getItem('laerlittmer-v2'))
@@ -82,6 +82,11 @@ async function run(browserType,engine,name,viewport){
     await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
     await page.locator('#subject-screen.active .locked-journey-map[data-journey-subject="norwegian"]')
       .waitFor({state:'visible',timeout:18000});
+    const mapOrigin=await page.locator('#subject-screen').evaluate(element=>({
+      top:element.getBoundingClientRect().top,scrollY:window.scrollY
+    }));
+    assert.ok(Math.abs(mapOrigin.top)<=1,
+      name+' Bokskogen must open at the viewport origin after the lower Eggenipa portal: '+JSON.stringify(mapOrigin));
     await page.locator('#eggenipa-map-return').click();
     await page.locator('#eggenipa-world').waitFor({state:'visible',timeout:15000});
 
