@@ -12,10 +12,32 @@ const state={
  skillEvidence:{},preferences:{sound:false,autoRead:false},lastActivity:null,
  journey:{nodes:{},gradeWins:{},viewGrades:{},chapterProgress:{}},answerLog:[],sessionLog:[],activeSession:null
 };
-async function shot(page,label){
+async function shot(page,label,fullPage=false){
  if(!out)return;
  fs.mkdirSync(out,{recursive:true});
- await page.screenshot({path:path.join(out,label+'.png'),animations:'disabled',fullPage:true});
+ // A full-page screenshot can relocate position:fixed overlays below
+ // the long Eggenipa page in WebKit. Capture the actual visible fold for
+ // activity dialogs, and the full illustration only for the world page.
+ await page.screenshot({path:path.join(out,label+'.png'),animations:'disabled',fullPage});
+}
+async function assertOverlayInViewport(page,selector,backSelector,label){
+ const snapshot=await page.locator(selector).evaluate((el,backSelector)=>{
+  const r=el.getBoundingClientRect(),b=el.querySelector(backSelector)?.getBoundingClientRect();
+  const x=b?(b.left+b.right)/2:null,y=b?(b.top+b.bottom)/2:null;
+  const target=x!==null?document.elementFromPoint(x,y):null;
+  return {position:getComputedStyle(el).position,top:r.top,left:r.left,right:r.right,
+    bottom:r.bottom,width:innerWidth,height:innerHeight,
+    back:b?{x,y,width:b.width,height:b.height,
+      hit:!!target&&(target===el.querySelector(backSelector)||el.querySelector(backSelector)?.contains(target))}:null};
+ },backSelector);
+ assert.equal(snapshot.position,'fixed',label+' activity must cover the viewport');
+ assert.ok(Math.abs(snapshot.left)<=2&&Math.abs(snapshot.top)<=2&&
+   snapshot.right>=snapshot.width-2&&snapshot.bottom>=snapshot.height-2,
+   label+' activity overlay is offset or cropped: '+JSON.stringify(snapshot));
+ assert.ok(snapshot.back&&snapshot.back.width>=44&&snapshot.back.height>=44&&
+   snapshot.back.x>=0&&snapshot.back.x<=snapshot.width&&
+   snapshot.back.y>=0&&snapshot.back.y<=snapshot.height&&snapshot.back.hit,
+   label+' return control is not accessible in the first visible fold: '+JSON.stringify(snapshot));
 }
 async function run(engine,browserType,view,viewport){
  const browser=await browserType.launch({headless:true,args:engine==='chromium'?['--no-sandbox']:[]});
@@ -51,12 +73,13 @@ async function run(engine,browserType,view,viewport){
     assert.deepEqual(hits.map(x=>x.name),['words','find','reading']);
     assert.ok(hits.every(x=>x.display!=='none'&&x.r.width>=44&&x.r.height>=44),label+' unusable hotspots');
   }
-  await shot(page,label+'-eggenipa');
+  await shot(page,label+'-eggenipa',true);
 
   await page.locator('#eggenipa-world .eg-portal[data-eg="words"]').tap();
   await page.locator('#word-hunt-overlay:not([hidden]) .word-hunt-theme-picker:not([hidden])').waitFor({timeout:12000});
   assert.equal(await page.locator('#word-hunt-overlay .wh-theme-close').getAttribute('aria-label'),'Tilbake til Norsk',
     label+' theme back button names the wrong return world');
+  await assertOverlayInViewport(page,'#word-hunt-overlay','.wh-theme-close',label+' Ordjakt');
   assert.equal(await page.locator('#word-hunt-overlay img[src*="/assets/fox/"],#word-hunt-overlay img[src*="lia-fox"]').count(),0,
     label+' old fox image in Ordjakt');
   await shot(page,label+'-ordjakt-theme');
@@ -67,11 +90,15 @@ async function run(engine,browserType,view,viewport){
   await page.locator('#find-the-words-overlay:not([hidden])').waitFor({timeout:12000});
   assert.equal(await page.locator('#find-the-words-overlay .fw-back').getAttribute('aria-label'),'Tilbake til Norsk',
     label+' Finn ordene back button names the wrong return world');
+  await assertOverlayInViewport(page,'#find-the-words-overlay','.fw-back',label+' Finn ordene');
   assert.equal(await page.locator('#find-the-words-overlay .fw-fox').evaluate(el=>el.tagName),'SPAN',
     label+' old static fox image in Finn ordene');
   // Check the actual screen hit target, not just existence in the DOM.
   // The previous absolute fox layout let footer/next buttons steal taps.
   const help=page.locator('#find-the-words-overlay .fw-fox-button');
+  // The footer is scrollable on a short phone. Do not let scroll-into-view
+  // conceal a broken first fold when validating the fixed dialog itself.
+  await shot(page,label+'-finn-ordene-firstfold');
   await help.scrollIntoViewIfNeeded();
   const touch=await help.evaluate(el=>{
     const r=el.getBoundingClientRect();

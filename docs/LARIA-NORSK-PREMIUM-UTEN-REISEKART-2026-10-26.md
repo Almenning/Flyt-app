@@ -187,3 +187,10 @@ Brukeren godkjente den eksakte Eggenipa-illustrasjonen, men avviste resten av de
 
 - «Gangemagi approved Markedsbok visual QA» ble rød på `24d1389`, `fc9ab02` og etterfølgende Norsk-commits, selv om alle Chromium-visninger hadde bestått. Loggen viste at WebKit ikke kunne starte fordi `libicudata.so.74` manglet på `ubuntu-latest`; dette er en ABI-/runner-feil uavhengig av læringskode.
 - Workflow-runner er derfor **pinnet til `ubuntu-24.04`**, der riktig ICU er tilgjengelig via Playwrights eksisterende `install-deps`. Cache-nøkkelen inkluderer nå `ubuntu2404` for å unngå gjenbruk på tvers av inkompatible verts-OS. Ingen spillmotor, illustrasjon, progresjon eller annet fags oppførsel endres. Resultatet må kontrolleres med ny GitHub Actions-kjøring.
+
+
+### 26.10 – korrekt skjermbildebevis for modaler på liggende iPhone
+
+- Ved gjennomgang av ekte WebKit-skjermbilder oppdaget vi at `fullPage:true` kunne gi et misvisende bilde der en `position:fixed` ordlek tilsynelatende begynte nedenfor den lange Eggenipa-forsiden. Tester brukte også `scrollIntoViewIfNeeded()` før de kontrollerte Hint-knappen, noe som skjulte feil i første synlige skjerm.
+- Eggenipa QA tar nå **viewport-skjermbilder** av Ordjakt, Finn ordene og Lesekroken, mens selve Eggenipa-forsiden fortsatt fotograferes i full høyde. Før scrolling testes at begge ordlekenes faktiske overlay er fastlåst til hele viewporten, og at tilbakeknappen har reell 44×44-treffflate i den synlige første folden. Det tas eget første-fold-bilde av Finn ordene før eventuell automatisk scrolling til hjelp.
+- Dette endrer ingen fungerende appkomponent eller godkjent illustrasjon. Bruk faktiske resultatmål for å avgjøre om CSS-fikser trengs, ikke artefakt fra fullPage-opptak.
