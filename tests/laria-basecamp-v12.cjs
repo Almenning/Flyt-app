@@ -145,7 +145,14 @@ const {chromium,webkit}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
   await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
   await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').tap();
   await page.locator('#subject-screen.active .locked-journey-map[data-journey-subject="norwegian"]').waitFor({state:'visible',timeout:16000});
-  await page.locator('#eggenipa-map-return:visible').tap();
+  // Use the original Bokskogen arrow, not the removed overlay that
+  // obscured the painted settings button. The floating arrow is available
+  // when the original arrow is scrolled outside the viewport.
+  const bokNative=page.locator('#subject-screen.active .locked-journey-back');
+  const bokFloating=page.locator('#subject-screen.active .locked-journey-floating-back');
+  const bokReturn=await bokFloating.isVisible()?bokFloating:bokNative;
+  assert.equal(await bokReturn.getAttribute('aria-label'),'Tilbake til Eggenipa',name+' Bokskogen return should target Eggenipa');
+  await bokReturn.tap();
   await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
   await page.locator('#eggenipa-world [data-eg="home"]').tap();
   await page.locator('.bc12.bc15-locked-home').waitFor({state:'visible',timeout:12000});
