@@ -87,6 +87,49 @@ async function run(browserType,label,viewport){
     assert.ok(art.w>250,label+' has a visible world');assert.ok(art.scroll<=art.client+2,label+' has no horizontal overflow');
     assert.equal(await page.locator('.tv-dock-intro h1').evaluate(el=>getComputedStyle(el).color),
       'rgb(73, 48, 30)',label+' generic legacy blue heading leaked into Tallvika');
+    // The original painting contains a real-looking 'Neste eventyr' sign.
+    // A child must be able to tap it, with the same voluntary destination as
+    // the separate journey card; no extra modal or duplicated mission logic.
+    const paintedNext=page.locator('.tv-scene-next');
+    const cardNext=page.locator('.tv-next [data-tv="next"]');
+    assert.equal(await paintedNext.count(),1,label+' painted next-event sign is not interactive');
+    assert.equal(await paintedNext.isDisabled(),await cardNext.isDisabled(),
+      label+' scene and card do not agree on voluntary journey availability');
+    const signGeometry=await paintedNext.evaluate(el=>{
+      const b=el.getBoundingClientRect(),s=el.closest('.tv-scene').getBoundingClientRect();
+      const table=el.closest('.tv-scene').querySelector('.tv-hotspot-table').getBoundingClientRect();
+      return {w:b.width,h:b.height,left:(b.left-s.left)/s.width,top:(b.top-s.top)/s.height,
+        overlapsTable:!(b.left>=table.right||b.right<=table.left||b.top>=table.bottom||b.bottom<=table.top)};
+    });
+    assert(signGeometry.w>=44&&signGeometry.h>=44&&signGeometry.left>.78&&signGeometry.top>.75&&
+      !signGeometry.overlapsTable,
+      label+' next-event sign tap area misses painting or blocks Gangetabellen: '+JSON.stringify(signGeometry));
+    if(!await paintedNext.isDisabled()){
+      await page.evaluate(()=>{
+        const bridge=window.LARIA_TALLVIKA_BRIDGE;
+        window.__tvNextEvents=[];
+        window.__tvNextOriginal={node:bridge.startJourneyNode,bonus:bridge.startJourneyChallenge};
+        bridge.startJourneyNode=(...args)=>window.__tvNextEvents.push({kind:'node',args});
+        bridge.startJourneyChallenge=(...args)=>window.__tvNextEvents.push({kind:'bonus',args});
+      });
+      try{
+        await paintedNext.click();
+        await cardNext.click();
+        const events=await page.evaluate(()=>window.__tvNextEvents);
+        assert.equal(events.length,2,label+' journey sign and card must both open the existing route');
+        assert.deepEqual(events[0],events[1],
+          label+' painting and card must open the exact same voluntary quest');
+        assert.equal(events[0].args[0],'math',label+' sign opened a different subject');
+      }finally{
+        await page.evaluate(()=>{
+          const original=window.__tvNextOriginal;
+          if(!original)return;
+          const bridge=window.LARIA_TALLVIKA_BRIDGE;
+          bridge.startJourneyNode=original.node;bridge.startJourneyChallenge=original.bonus;
+          delete window.__tvNextOriginal;delete window.__tvNextEvents;
+        });
+      }
+    }
     const layout=await page.evaluate(()=>{
       const stage=document.querySelector('.tv-stage').getBoundingClientRect();
       const dock=document.querySelector('.tv-dock').getBoundingClientRect();

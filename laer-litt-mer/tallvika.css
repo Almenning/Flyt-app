@@ -73,6 +73,23 @@ body:has(#subject-screen.tallvika-active){background:#f7f0df!important}
 .tv-hotspot-multiply{left:2%;top:25%;width:26%;height:39%}
 .tv-hotspot-fraction{left:34%;top:33%;width:29%;height:40%}
 .tv-hotspot-table{right:2%;top:35%;width:25%;height:40%}
+/* The existing, painted 'Neste eventyr' sign is an inviting real touch target.
+   No new visual art overlays the locked landscape; the action is shared with
+   the optional journey card further down the screen. */
+.tv-scene-next{
+  position:absolute;z-index:5;right:0;bottom:3%;width:19%;height:17%;
+  min-width:44px;min-height:44px;border:0;border-radius:12px;
+  padding:0;background:transparent;cursor:pointer;touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent
+}
+.tv-scene-next:disabled{cursor:default}
+@media(hover:hover){
+  .tv-scene-next:not(:disabled):hover{box-shadow:inset 0 0 0 3px #fff3bd91}
+}
+.tv-scene-next:focus-visible{
+  outline:4px solid #376f54;outline-offset:-4px;
+  box-shadow:inset 0 0 0 3px #fff7c8
+}
 .tv-hotspot b,.tv-hotspot .tv-hotspot-hidden{
   position:absolute;width:1px;height:1px;padding:0;margin:-1px;
   overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0

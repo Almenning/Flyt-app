@@ -134,6 +134,11 @@
             <button type="button" class="tv-hotspot tv-hotspot-multiply" data-tv="multiply" aria-label="Åpne Gangemagi"><span class="tv-hotspot-cue" aria-hidden="true">↗</span><b>Gangemagi</b></button>
             <button type="button" class="tv-hotspot tv-hotspot-fraction" data-tv="fraction" aria-label="Åpne Brøklab"><span class="tv-hotspot-cue" aria-hidden="true">↗</span><b>Brøklab</b></button>
             <button type="button" class="tv-hotspot tv-hotspot-table" data-tv="table" aria-label="Åpne Gangetabellen"><span class="tv-hotspot-cue" aria-hidden="true">↗</span><b>Gangetabellen</b></button>
+            <!-- The painted 'Neste eventyr' sign already looks like a link.
+                 Reuse the existing voluntary journey action, without a new step. -->
+            <button type="button" class="tv-scene-next" data-tv="next"
+              aria-label="${p?.complete ? 'Åpne frivillig bonusoppdrag i matte' : n ? 'Åpne neste matteoppdrag: '+esc(n.title || 'Neste eventyr') : 'Ingen nye matteoppdrag tilgjengelig'}"
+              ${n||p?.complete?'':'disabled'}></button>
           </div>
           <div class="tv-scene-footer" aria-hidden="true"><span class="tv-scene-dot"></span>Et lite eventyrland for store oppdagelser<span class="tv-scene-line"></span><span class="tv-scene-mark">✦</span></div>
         </div>

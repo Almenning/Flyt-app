@@ -49,3 +49,12 @@ I `Laria Gangemagi approved Markedsbok visual QA` på `642e409` feilet GitHub-jo
 **Rotrettelse:** Gangemagi-arbeidsflyten bruker nå samme offisielle, versjonslåste Playwright-container `mcr.microsoft.com/playwright:v1.62.1-noble` som den allerede grønne Tallvika-jobben. Stale nettleser-cache og `install-deps` er fjernet; arbeidsflyten sjekker eksplisitt at begge nettlesere finnes, men beholder de opprinnelige seks skjermstørrelsene, åtte oppdrag, Node-testene og bildeopplasting. Ingen spill-/UI-filer, Norsk, originalillustrasjoner eller lagrede data er endret.
 
 **Kvalitetsport:** Krev en ny faktisk grønn WebKit/Chromium-kjøring på samme siste commit. En grønn Tallvika-test alene erstatter ikke denne kontrollen.
+
+
+### 26.10 – Aktivt, malt «Neste eventyr»-skilt
+
+Den godkjente Tallvika-illustrasjonen inneholder et tydelig, malt skilt med teksten «Neste eventyr» og en pil. Skiltet var imidlertid bare dekor: Barnet kunne trykke på de tre husene, men ikke på det like inviterende oppdragsskiltet. Dette brøt den direkte utforskningsflyten.
+
+**Tiltak:** Legg et transparent, semantisk button-treffområde over skiltet (minst 44×44 CSS-px), tilgjengelig med berøring, mus og tastatur. Det deler eksisterende `data-tv="next"`-ruting med den frivillige oppdragsknappen. Når neste kapittel mangler, er både skilt og knapp deaktivert. Det legges **ingen nye bilder, ikoner, animasjoner eller oppgaver** inn i verdenen. Eksisterende tre hus-knapper berøres ikke.
+
+**QA:** Egen Chromium/WebKit-test på iPhone og iPad måler faktisk treffområde, at skiltet ligger på den nedre høyre delen av originalbildet uten å overlappe Gangetabellen, lik disabled-tilstand og samme mål i den eksisterende matte-rutingen. Eksisterende spill-, lagrings-, returruting- og øvrig QA beholdes. Inntil nye tester er grønne på siste commit er dette ikke klart for merge/publisering.
