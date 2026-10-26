@@ -207,3 +207,9 @@ Brukeren godkjente den eksakte Eggenipa-illustrasjonen, men avviste resten av de
 - Etter gjennomgang av fullstendige WebKit-skjermbilder fra commit `3680645` viste faktisk *første fold* på 844 × 390 bare toppen av Eggenipa-illustrasjonen. Ingen av de tre aktivitetsnavnene var synlige nok til enkel direkte lek, selv om nedoverrulling var mulig. Dette er en reell visuell/navigasjonsmessig mangel, ikke et testartefakt.
 - Innenfor kun kort liggende mobil (701–900 px bredde, høyde <= 500 px) er de **eksisterende** sceneknappene endret fra bunn- til toppjusterte etiketter. Tre naturlige steder i bildet har nå synlige etiketter uten at den originale Eggenipa-masteren, sceneplasseringer, bildedimensjon, lagret fremgang eller læringsmotoren er endret.
 - Ny WebKit/Chromium-test krever at alle tre etiketter i 844×390 vises helt på den første skjermen med minst 44×44 målbar berøringsflate, og at `elementFromPoint` treffer riktig knapp. Den lagrer også særskilt viewport-skjermbilde `eggenipa-landscape-firstfold` til visuell vurdering.
+
+### 26.10 – QA-ruting for de opprinnelige premiumkortene
+
+- Ved samlet regresjon på `e80e88c` besto `laria-mapboard` sine tidligere delkontroller, men `tests/laria-premium-cards.playwright.js` stoppet fordi siste del fortsatt klikket `#eggenipa-world .eg-portal[data-eg="map"]`. Den portalen ble bevisst fjernet fra godkjent Norsk-forside, så dette var et foreldet testpremiss.
+- Testen kontrollerer nå det låste Eggenipa-masterbildet (1672×941), **akkurat tre** direkte aktiviteter, fravær av gammel Bokskogen-kartvisning og at Norsk-kortet faktisk åpner Lesekroken med korrekt `sessionScope`, før retur til Eggenipa. Samme fem Chromium/WebKit-visninger blir bevart.
+- Læringsdata, bilder, appkode, lagret fremgang og øvrige fag er uendret. CI må bestå på ny PR-head før teknisk publiseringsgodkjenning.

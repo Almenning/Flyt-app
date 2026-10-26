@@ -81,18 +81,32 @@ async function run(engine,label,width,height){
    assert.ok(layout.document<=layout.width+4,label+' '+mode+' horizontal overflow '+JSON.stringify(layout));
    assert.ok(layout.nav?.width>0,label+' missing bottom nav');
   }
-  // Ensure the new panel art does not affect the original, locked 941x1672 journey maps.
+  // The approved Norsk route is Eggenipa with three direct activities, NOT
+  // the retired Bokskogen journey map. Card QA must check that real route.
   await page.locator('.bc12-nav [data-camp="travel"]').click();
   await page.locator('.bc13-card[data-bc13-action="norwegian"]').click();
-   await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
-   await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
-  const original=page.locator('#subject-screen.active .locked-journey-image');
-  await original.waitFor({timeout:18000});
-  await page.waitForFunction(()=>{const x=document.querySelector('#subject-screen.active .locked-journey-image');
-    return x?.complete&&x?.naturalWidth===941&&x?.naturalHeight===1672;},null,{timeout:18000});
-  assert.equal((await original.evaluate(el=>[el.naturalWidth,el.naturalHeight])).join('x'),'941x1672');
+  await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
+  const original=await page.locator('#eggenipa-world .eg-master').evaluate(async img=>{
+    await img.decode();
+    return {width:img.naturalWidth,height:img.naturalHeight};
+  });
+  assert.deepEqual(original,{width:1672,height:941},
+    label+' changed the locked Eggenipa master artwork');
+  const destinations=await page.locator('#eggenipa-world .eg-portal').evaluateAll(nodes=>
+    nodes.map(node=>node.dataset.eg));
+  assert.deepEqual(destinations,['words','find','reading'],
+    label+' did not open the three approved Norsk activities');
+  assert.equal(await page.locator('#subject-screen.active .locked-journey-map:visible').count(),0,
+    label+' retired Norwegian map is still visible');
+  await page.locator('#eggenipa-world .eg-portal[data-eg="reading"]').click();
+  await page.locator('#session-screen.active').waitFor({timeout:16000});
+  const session=await page.evaluate(()=>({subject:sessionScope?.subject,module:sessionScope?.module}));
+  assert.equal(session.subject,'norwegian',label+' wrong subject after Norsk card');
+  assert.equal(session.module,'reading',label+' Norsk card did not open Lesekroken');
+  await page.locator('#close-session').click();
+  await page.locator('#eggenipa-world:visible').waitFor({timeout:12000});
   assert.deepEqual(errors,[],label+' runtime errors');
-  console.log('[LÆRIA PREMIUM CARDS]',label,'eight approved WebPs plus one illustrated SVG, geometry and navigation OK');
+  console.log('[LÆRIA PREMIUM CARDS]',label,'eight approved WebPs, picture-hunt art, Eggenipa master and direct Lesekroken navigation OK');
   await context.close();
  }finally{await browser.close()}
 }
