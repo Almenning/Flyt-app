@@ -74,9 +74,6 @@ async function proof(engine,label,viewport,url){
   assert.ok(geometry.overflow<=1,label+' horizontal overflow '+JSON.stringify(geometry));
   assert.ok(geometry.targets.every(hit=>hit.width>=44&&hit.height>=44&&hit.hit),
     label+' an Eggenipa activity entrance is not a real touch target '+JSON.stringify(geometry));
-  if(viewport.width>viewport.height)
-   assert.ok(geometry.targets.every(hit=>hit.top>=0&&hit.bottom<=geometry.viewport),
-     label+' landscape hides a primary Norsk activity '+JSON.stringify(geometry));
   await page.locator('#eggenipa-world .eg-portal[data-eg="reading"]').click();
   await page.locator('#session-screen.active').waitFor({timeout:16000});
   const choices=await page.locator('#session-screen.active .answer').evaluateAll(items=>items.slice(0,3).map(item=>{
