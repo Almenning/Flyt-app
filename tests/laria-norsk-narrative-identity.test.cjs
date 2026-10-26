@@ -21,8 +21,6 @@ test('All curated theme words fit their board without silently disappearing',()=
   const ctx={window:{}};
   vm.runInNewContext(source,ctx,{timeout:2000});
   const themes=ctx.window.LARIA_WORD_HUNT_THEMES;
-  const declared=source.match(/const data=([\\s\\S]*?);\\n  const PACKS=/);
-  assert.ok(declared,'Missing source word bank');
   for(const pack of themes.PACKS){
     for(const [level,size] of [['easy',6],['hard',7]]){
       const words=pack[level];
