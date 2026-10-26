@@ -4511,7 +4511,16 @@ function renderJourneyGradeStrip(subject,hostId,noteId,selectedGrade){
   if(note)note.textContent=selectedGrade===mine
     ?'Dette er ditt klassetrinn. Du kan også prøve andre trinn uten å endre profilen.'
     :'Du utforsker '+GRADE_CONFIG[selectedGrade].label+'. Ditt klassetrinn er fortsatt '+GRADE_CONFIG[mine].label+'.';
-  requestAnimationFrame(()=>host.querySelector('.journey-grade-choice.active')?.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'}));
+  // Center the chosen grade *horizontally inside its own strip*. Calling
+  // scrollIntoView() here also scrolls the whole page vertically after
+  // Eggenipa opens Bokskogen from a below-the-fold portal. That deferred
+  // smooth document scroll can undo navigation's 0px reset in Safari/Chromium.
+  requestAnimationFrame(()=>{
+    const selected=host.querySelector('.journey-grade-choice.active');
+    if(!selected||!host.isConnected||host.clientWidth===0)return;
+    const item=selected.getBoundingClientRect(),box=host.getBoundingClientRect();
+    host.scrollTo({left:host.scrollLeft+item.left-box.left-(box.width-item.width)/2,behavior:'smooth'});
+  });
 }
 function journeyNodeKey(subject,grade,nodeId){return subject+':'+grade+':'+nodeId}
 function journeyNodeRecord(node){ensureJourneyState();return state.journey.nodes[journeyNodeKey(node.subject,node.grade,node.id)]||{}}
