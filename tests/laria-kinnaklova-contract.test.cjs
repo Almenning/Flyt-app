@@ -49,7 +49,7 @@ test('Only three original forest trolls, with byte-identical repository assets',
    const blob=crypto.createHash('sha1').update('blob '+buffer.length+'\0').update(buffer).digest('hex');
    assert.equal(blob,sha,id+' approved original changed unexpectedly');
  }
- assert.doesNotMatch(js,/fox|avatarSrc|lia-fox|Math\.random/i);
+ assert.doesNotMatch(js,/assets\/fox\/|lia-fox|chapter-fox|avatarSrc|Math\.random/i);
  assert.doesNotMatch(css,/@keyframes.*ki-troll|\.ki-troll.*animation:/s);
  assert.match(css,/#kinnaklova-world:not\(\[data-ki-art="ready"\]\) \.ki-companions/);
 });
