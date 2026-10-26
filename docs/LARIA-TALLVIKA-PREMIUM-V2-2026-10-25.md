@@ -87,3 +87,14 @@ En kontroll av **faktiske WebKit-skjermbilder** fra PR #223, commit `3df3d71`, v
 **Avgrenset rettelse:** Behold original PNG uendret. Bruk et tettere utsnitt av selve regnetavlen på 650 % ved liggende iPad/telefon og 560 % på stående telefon; stående iPad beholder sitt allerede rene 340 %-utsnitt. Skjermbildesimulering direkte fra den originale PNG-en er sammenlignet for alle fire visningsformer. En egen WebKit/Chromium-regresjon måler hvilket vertikalt kildeintervall som faktisk vises og avviser utilsiktet gjensyn av skilt-tekst. Tallvikas CSS-release-URL og serviceworker-cache er revidert for å unngå gammel CSS etter publisering, uten å endre Gangemagis egne godkjente ressursnøkler.
 
 **Kvalitetsport:** Kontrakt/CI og ferske Chromium-/WebKit-skjermbilder på eksakt siste head må være grønne og vurderes. Dette er en **draft-forbedring**, ikke visuell godkjenning og ikke merge/publisering. Skogtrollenes originalfiler, navigasjon, læringsmotorer og lagret progresjon er uendret.
+
+
+## Fase 7: fjern unødvendig nettleserinstallasjon fra smoke-jobben (26.10.2026)
+
+Publiseringskontrollen ble unødig langsom fordi `pre-demo-smoke.yml` installerte Chromium/WebKit og systemavhengigheter fra eksterne pakkekilder ved hver PR-kjøring. Tallvikas egen grønne `laria-tallvika.yml` bruker allerede den forhåndsbygde `mcr.microsoft.com/playwright:v1.62.1-noble`-containeren, som samsvarer med prosjektets pin `playwright: 1.62.1`.
+
+**Tiltak:** Bruk samme låste container bare for `smoke`-jobben. Erstatt `npx playwright install --with-deps` med en rask sjekk av at begge eksekverbare nettlesere finnes. Behold alle Node-, Basecamp-, nettleser-, edge- og publiseringskontroller, med samme fail-/gatingsemantikk. Pages-bygg- og deploy-jobbene endres ikke.
+
+**Kontroll:** Workflowsyntaks skal gjennom GitHub Actions, og `Continuous smoke checks`, full Laria QA og de øvrige PR-testene må fullføres på den nye siste commiten. Dette er en CI-pålitelighetsforbedring, ikke en påstand om fullført produktgodkjenning. PR #226 berører også samme workflow og krever konfliktavklaring hvis begge senere merges.
+
+**Verifiseringsgrense:** Ingen publisering eller merge som følge av denne endringen uten grønn CI på siste kandidat og låst visuell aksept.

@@ -16,6 +16,9 @@ jobs:
   smoke:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    # Same pinned browser/runtime image as the already verified Tallvika job.
+    # Avoid apt/network-dependent browser installation on every PR run.
+    container: mcr.microsoft.com/playwright:v1.62.1-noble
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -31,8 +34,9 @@ jobs:
           while IFS= read -r -d '' file; do
             node --check "$file"
           done < <(find . -maxdepth 2 -type f \( -name '*.js' -o -name '*.mjs' \) -not -path './.git/*' -print0)
-      - name: Install browser engines for Læria runtime verification
-        run: npx playwright install --with-deps chromium webkit
+      - name: Verify pinned Chromium and WebKit are preinstalled
+        run: |
+          node -e "const fs=require('node:fs'); const p=require('playwright'); for(const k of ['chromium','webkit']) { if(!fs.existsSync(p[k].executablePath())) throw Error(k+' missing in pinned Playwright image'); }"
       - name: Run complete Node test suite
         run: npm run test:node
       - name: Run Læria local browser verification
