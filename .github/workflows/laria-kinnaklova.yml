@@ -13,7 +13,9 @@ on:
       - "tests/laria-journey-integrated-ux.playwright.js"
       - "tools/kinnaklova/**"
   push:
-    branches: [main]
+    # GitHub App commits on this feature branch may not emit pull_request
+    # workflow runs. Execute exact-head QA on branch pushes before merging.
+    branches: [main, feat/laria-engelsk-kinnaklova-20261026]
     paths:
       - "laer-litt-mer/kinnaklova.*"
       - "laer-litt-mer/assets/kinnaklova/**"
