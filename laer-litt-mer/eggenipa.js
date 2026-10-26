@@ -147,11 +147,53 @@
     build();
     window.scrollTo(0,0);
   }
-  // Capture before the legacy renderer's own click action; only affect a
-  // Norwegian journey explicitly opened through Eggenipa.
+  // Real iPad touch QA exposed a browser hit-test race: pointerdown and
+  // pointerup landed on the painted Bokskogen back button, but scroll/layout
+  // changed before the compatibility click, retargeting that click to SECTION.
+  // A child-facing back action must not depend on that delayed click.
+  // Activate on a *completed* matching touch/stylus press, never on down or
+  // a canceled drag. Mouse and keyboard keep the ordinary click path.
+  const backControl=target=>target?.closest?.(
+    '.locked-journey-back,.locked-journey-floating-back,#subject-back');
+  let backPress=null;
+  let subsequentTouchClick=null;
+  screen.addEventListener('pointerdown',event=>{
+    // A new gesture invalidates an unmatched compatibility-click marker.
+    subsequentTouchClick=null;
+    backPress=null;
+    if(!isActive()||!mapVisible||!['touch','pen'].includes(event.pointerType))return;
+    const control=backControl(event.target);
+    if(control)backPress={id:event.pointerId,control,x:event.clientX,y:event.clientY};
+  },true);
+  screen.addEventListener('pointercancel',event=>{
+    if(backPress?.id===event.pointerId)backPress=null;
+  },true);
+  screen.addEventListener('pointerup',event=>{
+    const press=backPress;
+    if(!press||press.id!==event.pointerId)return;
+    backPress=null;
+    if(!isActive()||!mapVisible||backControl(event.target)!==press.control)return;
+    if(Math.hypot(event.clientX-press.x,event.clientY-press.y)>32)return;
+    subsequentTouchClick={at:performance.now(),x:event.clientX,y:event.clientY};
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    closeMap();
+  },true);
+  // Swallow only the compatibility click from the same touch position. Without
+  // this, the retired map's onclick can fire after closeMap() and jump to Home.
   screen.addEventListener('click',event=>{
+    if(subsequentTouchClick){
+      const touch=subsequentTouchClick;
+      subsequentTouchClick=null;
+      if(performance.now()-touch.at<900&&
+         Math.hypot(event.clientX-touch.x,event.clientY-touch.y)<=32){
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        return;
+      }
+    }
     if(!isActive()||!mapVisible)return;
-    if(!event.target.closest?.('.locked-journey-back,.locked-journey-floating-back,#subject-back'))return;
+    if(!backControl(event.target))return;
     event.preventDefault();
     event.stopImmediatePropagation();
     closeMap();

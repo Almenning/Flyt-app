@@ -33,6 +33,10 @@ async function returnFromBokskogen(page,name){
   if(await floating.isVisible())await floating.tap();
   else await back.tap();
   await page.locator('#eggenipa-world').waitFor({state:'visible',timeout:15000});
+  assert.equal(await page.locator('#subject-screen.active').getAttribute('data-subject'),'norwegian',
+    name+' back tap must remain on Norsk, not jump to Home');
+  assert.equal(await page.evaluate(()=>window.LARIA_EGGENIPA.isMapOpen()),false,
+    name+' back tap left Bokskogen map open');
 }
 async function enter(page){
   await page.goto(url,{waitUntil:'domcontentloaded',timeout:90000});
@@ -94,6 +98,18 @@ async function run(browserType,engine,name,viewport){
     // grade or waiting for the legacy map art. This used to leave an
     // existing but CSS-hidden map when renderWaiting() short-circuited.
     await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
+    await page.locator('#subject-screen.active .locked-journey-map[data-journey-subject="norwegian"]')
+      .waitFor({state:'visible',timeout:18000});
+    // An immediate real touch on the painted arrow must work even while the
+    // map's first paint, sticky back controls and scroll anchors are settling.
+    await page.waitForFunction(()=>
+      document.querySelector('#subject-screen.active .locked-journey-back')
+        ?.getAttribute('aria-label')==='Tilbake til Eggenipa',null,{timeout:12000});
+    await page.locator('#subject-screen.active .locked-journey-back').tap();
+    await page.locator('#eggenipa-world:visible').waitFor({timeout:12000});
+    assert.equal(await page.evaluate(()=>window.LARIA_EGGENIPA.isMapOpen()),false,
+      name+' immediate touch return kept the map open');
+    await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').tap();
     await page.locator('#subject-screen.active .locked-journey-map[data-journey-subject="norwegian"]')
       .waitFor({state:'visible',timeout:18000});
     // Bokskogen deliberately centers the child's current illustrated stop

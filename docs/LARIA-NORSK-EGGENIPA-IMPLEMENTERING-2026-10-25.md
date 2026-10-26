@@ -23,7 +23,7 @@ fysisk Safari-test og brukers uttrykkelige godkjenning av faktisk implementert U
 1. eggenipa.js og eggenipa.css: ny illustrasjonsdrevet Norsk-forside. Originalfilen rendres uendret som image. Berøringssoner og aktivitetsportaler ligger over / utenfor illustrasjonen som egne HTML-elementer med fokusmarkering. Ingen endring av oppgaveinnhold, læringsmotor eller lagret progresjon.
 2. **Finn ordene** åpnes via eksisterende openFindTheWords.
 3. **Ordjakt** åpnes via eksisterende openWordHunt.
-4. **Bokskogen** åpner det uendrede kartet for valgt klassetrinn. En tydelig «Til Eggenipa»-knapp returnerer til fagforsiden.
+4. **Bokskogen** åpner det uendrede kartet for valgt klassetrinn. Kartets opprinnelige tilbakepil (og eksisterende flytende tilbakepil ved scrolling) returnerer til Eggenipa. Ingen overlappende ekstra-knapp over kartets innstillinger.
 5. «Neste eventyr» bruker eksisterende journeyRecommendedNode, startJourneyNode, startJourneyChallenge. Frivillig.
 6. Klassetrinnsvalg oppdaterer journey.viewGrades.norwegian, **ikke** elevens registrerte klassetrinn. Kapittel-2-preview er fortsatt internt styrt.
 7. Tilbake fra Finn ordene/Ordjakt på Norsk-forsiden går til Norsk; direkte bruk fra Hjem/Utforsk beholder opprinnelig retur.
@@ -73,3 +73,12 @@ fysisk Safari-test og brukers uttrykkelige godkjenning av faktisk implementert U
 - Eggenipa-testmatrisen bruker na mobilmodus pa iPhone ogsa i liggende stilling, og kontrollerer at det opprinnelige Bokskogen-kartet starter ved toppen av skjermen. Testcommit [`1aedb29`](https://github.com/Almenning/Flyt-app/commit/1aedb2951b949121269fba7feec0a1eab7daa077).
 - Bildet er krysskontrollert mot originalen i prosjektet: RGB PNG 1672x941, SHA-256 `37cbb6b2baf62c16f974ee59a63b8c9f6e80a30f6add2801a8bec363a321fff3`.
 - Nyeste full CI er **ikke ferdig** ved dokumentasjonstidspunktet. **Ingen merge eller publisering**, og fysisk Safari / eksplisitt UI-godkjenning star fortsatt igjen.
+
+
+### 26.10 – konkret rotårsak og rettelse av berøringsretur
+
+- Smoke-testen [40275727356](https://github.com/Almenning/Flyt-app/actions/runs/40275727356) på `c7d7941` beviste at Eggenipa og Bokskogen ble åpnet som forventet. På iPad liggende landet `pointerdown` **og** `pointerup` på riktig `.locked-journey-back`, men det etterfølgende kompatibilitets-`click` fikk mål **`SECTION`** mens kartet var åpent. Testen feilet ikke på læring eller navigasjon inn til Norsk; touch-returen ble borte mellom pointerup og click, i forbindelse med scroll-/layoutendring.
+- Produktrettelse i `eggenipa.js`: Fullfør touch/penn-trykk ved `pointerup` bare når berøringen startet og sluttet på *samme* tilbakekontroll og ikke ble kansellert/flyttet utenfor rimelig bevegelse. Undertrykk kun etterfølgende syntetisk klikk fra den samme koordinaten, så den eldre kartmotoren ikke sender barnet rett til Hjem. Mus, tastatur og klassetrinnsretur beholder eksisterende `click`-vei.
+- Egen Eggenipa Chromium/WebKit-test bruker nå ekte `tap()` og dekker en **umiddelbar** retur under kartets første rendring i tillegg til retur etter visning av kartinnstillinger. Testen bekrefter at barnet forblir i Norsk og at karttilstanden er lukket. Full smoke-test registrerer hendelsesmål og legger ved feilskjermbilde når berøringsretur svikter.
+- JS-queryversjon og service-worker-cache oppdatert for den framtidige Safari-publiseringen. Original PNG, eksisterende aktiviteter, node-ID-er og lagret progresjon er uendret.
+- **Publiseringsport:** Ny eksakt-head CI i Chromium/WebKit og full Læria-regresjon skal gjennomføres på nytt etter denne rettelsen; fysisk Safari og brukerens endelige UI-godkjenning kreves fortsatt. Ingen merge/publisering før grønt og kontrollert.
