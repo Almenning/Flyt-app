@@ -46,3 +46,32 @@ Dette er en **bindende designlås for illustrasjonskomposisjonen**, ikke godkjen
 **Viktig avvik i gjeldende kode:** Den første CSS-prototypen i denne PR-en er ikke den nå godkjente illustrasjonskomposisjonen. Den skal ikke brukes som visuell fasit eller publiseres. Ny implementasjon skal reprodusere den låste illustrasjonen og bare erstatte feilaktige troll.
 
 Maskinlesbar designlås: `docs/LARIA-KINNAKLOVA-VISUAL-LOCK-2026-10-26.json`.
+
+## FASE 2, faktisk implementasjon 26.10.2026
+
+Dette overstyrer den HISTORISKE beskrivelsen av den første CSS-prototypen ovenfor. Implementeringen i draft-PR #229 er nå art-first og bygger ikke lenger en alternativ kystscene av CSS-elementer.
+
+### Gjennomført
+1. `kinnaklova.js` og `kinnaklova.css` viser én enkeltstående låst bakgrunn (format **1672 × 941**) gjennom `ki-master`, ikke en annen variant av Kinnaklova. Dobbeltinnhold (nye bannere og skilt laget av HTML) er fjernet; den malte scenen selv er fasit.
+2. Gjennomsiktige, tilgjengelige trykkflater er lagt over de tre nøyaktige skiltene i referansen: `Words`, `Sentences`, `Reading`, samt tilbakeknappen. På iPhone vises i stedet store kort under ukroppet illustrasjon.
+3. Alle tre tidligere godkjente originalkilder er knyttet til separate karakterlag: `storesoster.webp`, `lillebror.webp` og `lillesoster.webp`. Ingen nye troll, rev eller CSS-bobbing. Disse lagene skjules automatisk når ren bakgrunnsillustrasjon ikke er godkjent/tilgjengelig. Dette er en implementert struktur, **ikke godkjent endelig karakterintegrasjon**.
+4. De tre engelske kortene er koblet til eksisterende læringsmotor (engelsk ordforråd, setninger og lesing), lagret økt kan gjenopptas, og retur til Hjem (og iOS-back) følger samme navigasjon som i Matte/Norsk.
+5. Engelsk-seksjonen har nå eget Playwright-oppsett for Chromium og WebKit med iPhone og iPad stående/liggende, samt eksplisitt bevaringstest for læringsdata og originalbildenes Git-SHA.
+6. Integrert fire-fag-test oppdatert til å respektere at Engelsk nå åpner **Kinnaklova** direkte. Det gamle Ordlandsbyen-kartet skal ikke være et krav i barnets Engelsk-start.
+7. CI-feilen i første Kinnaklova-test fra `git diff --check HEAD^ HEAD` er adressert med `fetch-depth: 2`.
+8. Et deterministisk importverktøy og en pixel-preservation-test er etablert: `tools/kinnaklova/import_clean_art.py` og `tools/kinnaklova/verify_locked_scene.py`.
+
+### Ekstern kunstleveranse som fortsatt blokkerer full visuell implementasjon
+Det låste 1672×941-PNG-bildet finnes som fil i Læria-samtalen, men er **ikke** importert inn i GitHub-repositoriet. Bildet har tre forkastede troll innbakt i selve pikslene. Derfor ville det være direkte feil å publisere dette bildet som bakgrunn og lime originale troll oppå.
+
+Mangler konkret:
+- Ren, tappløs bakgrunn som har de tre forkastede figurene fjernet, og er pikselidentisk utenfor de helt avgrensede endringsfeltene.
+- Kontrollert kunstbehandling av områdene bak de forkastede figurene. `verify_locked_scene.py` kontrollerer at malte bygninger, fjell, skilt og resten av scenen ikke røres. **Testen alene kan ikke erklære retusjeringen visuelt godkjent.**
+- Import via `python3 tools/kinnaklova/import_clean_art.py --locked-reference <fil> --cleaned-png <fil>`. Verktøyet lager tapsfri WebP og låser SHA-256, men setter alltid `clean_master_visual_approved=false`.
+- Bildet må inn som `laer-litt-mer/assets/kinnaklova/kinnaklova-scene-clean-approved-20261026.webp`. Når bakgrunnen er tilgjengelig kan den eksisterende koden vise de godkjente originale trollene, men dette er ikke automatisk garanti for naturlig plassering/animasjon.
+- Reell skjermbildegjennomgang av hele scenen med **riktige** karakterer før merge/publisering.
+
+### Kvalitetsport
+`LARIA_KINNAKLOVA_RELEASE_GATE=1 node --test tests/laria-kinnaklova-contract.test.cjs` må **feile** så lenge ren bakgrunn eller visuell godkjenning mangler. Denne porten er ment å forhindre at utkastet publiseres bare fordi navigasjon og spørsmål fungerer.
+
+**Konfliktbeskyttelse:** Ingen portering av arbeid fra Matte PR #227, Norsk PR #228 eller trolleanimasjon PR #224 til Engelsk-PR-en uten koordinert merge. Gjenbruk bare de identitetslåste karakterfilene allerede på `main`.
