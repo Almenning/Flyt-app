@@ -86,13 +86,28 @@ async function verifyBasecamp(page,label,width,height){
     const r=await rect(page,sel);assertInViewport(r,width,height,label+' '+sel);assertTap(r,label+' '+sel);
   }
 
-  // Real child-facing wardrobe is the fifth destination, not a decorative label.
+  // Grade 1-2 has the approved Kjøsnesfjorden "Mine troll" modal.
+  // Older/legacy Home keeps the actual fox wardrobe dialog. Verify the
+  // destination the child really sees rather than an obsolete modal selector.
   await page.locator('.bc12-nav [data-camp="wardrobe"]').tap();
-  await page.locator('#bc12-dialog[open].is-wardrobe .bc12-wardrobe-preview svg').waitFor();
-  const wardrobeClose=await rect(page,'#bc12-dialog .bc12-close');
-  assertTap(wardrobeClose,label+' wardrobe close');
-  await page.locator('#bc12-dialog .bc12-close').tap();
-  await page.locator('#bc12-dialog[open]').waitFor({state:'hidden'});
+  if(navigationLabels[4]==='Mine troll'){
+    const trollDialog=page.locator('#bc15-troll-dialog[open]');
+    await trollDialog.waitFor({state:'visible',timeout:10000});
+    assert.equal(await trollDialog.locator('h2').innerText(),'Mine troll',
+      label+' character destination lost its approved title');
+    assert.ok(await trollDialog.locator('.bc15-troll-art').count()===1,
+      label+' original troll trio must be shown');
+    const trollClose=await rect(page,'#bc15-troll-dialog .bc15-troll-close');
+    assertTap(trollClose,label+' troll dialog close');
+    await page.locator('#bc15-troll-dialog .bc15-troll-close').tap();
+    await trollDialog.waitFor({state:'hidden'});
+  }else{
+    await page.locator('#bc12-dialog[open].is-wardrobe .bc12-wardrobe-preview svg').waitFor();
+    const wardrobeClose=await rect(page,'#bc12-dialog .bc12-close');
+    assertTap(wardrobeClose,label+' wardrobe close');
+    await page.locator('#bc12-dialog .bc12-close').tap();
+    await page.locator('#bc12-dialog[open]').waitFor({state:'hidden'});
+  }
 
   await page.locator('.safe-challenge-young').tap();
   const dialog=page.locator('#safe-challenge-dialog[open]');
