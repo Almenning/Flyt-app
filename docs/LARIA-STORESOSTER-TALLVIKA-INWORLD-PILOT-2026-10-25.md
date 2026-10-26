@@ -31,7 +31,7 @@ Alle tre er flate transparente rasterfiler. Det finnes ingen PSD, ORA, Rive-fil 
 - Ingen generering, ny ansiktsgeometri, omskapt klær eller endret positur.
 - Behandlingen er begrenset til forsiktig støydemping av overflatedetaljer, lavere kontrast/metning, svak varm dagslysbalanse og svært lav stofftekstur.
 
-Formålet er å dempe hudglans og fotorealistisk mikrotekstur uten å late som vi har en ny, godkjent karaktertegning. Kilden beholdes alltid som `src` i karaktervelgeren; bare Tallvika-scenens storesøster bruker den dokumenterte avledningen.
+Formålet er å dempe hudglans og fotorealistisk mikrotekstur uten å late som vi har en ny, godkjent karaktertegning. Den originale kilden beholdes uendret i `trolls.storesoster.src`. Etter visuell brukergodkjenning bruker både karaktervelger og Tallvika-scene den samme `sceneSrc` med malerisk storesøster. Dermed skifter ikke figuren utseende når den velges.
 
 ## Sceneintegrasjon
 
@@ -45,7 +45,7 @@ Dette er bevisst ikke en «filter-stabel» som forsøker å skjule en dårlig fi
 
 ## Lagret valg og avgrensning
 
-`profile.tallvikaTroll` er fortsatt den eneste lagrede Tallvika-velgeren. Tallvika presenterer alle tre originalene i velgeren. Når verdien er `storesoster`, bruker scenen `storesoster-inworld-v1.webp`; de to andre bruker sine originale WebP-filer uten visuelle endringer. Matematikk, aktiviteter og progresjon er ikke endret.
+`profile.tallvikaTroll` er fortsatt den eneste lagrede Tallvika-velgeren. Tallvikas velger viser den godkjente maleriske storesøsteren og de to andre skogstrollenes uendrede originaler. Når verdien er `storesoster`, bruker scenen `storesoster-inworld-v1.webp`; de to andre bruker sine originale WebP-filer uten visuelle endringer. Matematikk, aktiviteter og progresjon er ikke endret.
 
 Dette er foreløpig **ikke** en app-global karakterprofil. Den eksisterende appprofilen bruker fortsatt revevalget. Fase 5 krever en bevisst migrering/produktbeslutning etter den visuelle godkjenningen, slik at det ikke oppstår en tilfeldig blanding av rev og troll i resten av appen.
 
@@ -93,3 +93,9 @@ Kun under eksisterende mobile layout `@media(max-width:700px)` skaleres **stores
 Ny eksakt-HEAD Chromium+WebKit-test inkluderer nå også 320×568 kompakt iPhone i tillegg til 390×844 og større skjermstørrelser; geometriske forhold sjekker at storesøsteren faktisk blir større uten å flyttes over hytteskilt og at føttene fortsatt står på stien. Testsuiten produserer faktiske skjermbilder for visuell kontroll.
 
 **Stoppunkt:** Dette er kun kode-/layoutpilot, ikke endelig visuell godkjenning. Ikke merge/publiser før reelle bilder er gjennomgått og brukeren har godkjent. Issue #221 for separate anatomiske illustrasjonslag/ekte rigging gjenstår uendret.
+
+## 26.10.2026 – Karaktervelger og scene viser samme Storesøster
+
+Karaktervelgeren bruker nå `item.sceneSrc` for alle tre valg. Resultatet er en eksakt forhåndsvisning av figurens Tallvika-utseende, inkludert brukerens godkjente maleriske storesøster. Uendrede kildefiler beholdes i `item.src`, og ingen bildepiksler eller karaktergeometrier er endret. De to andre trollene bruker sine låste originalbilder i både velger og scene.
+
+Chromium/WebKit-QA kontrollerer de tre bildefilstiene, dekoding, minst 44×44 px trykkflate, og lagret valg på mobil og iPad. Ved skjermbildekjøring tas også bilde av velgeren. `tallvika.js` har fått separat cacheversjon. Ingen endringer i matematikk, profilformat eller navigasjon; rigging krever fortsatt originale illustrerte kroppslag, issue #221.

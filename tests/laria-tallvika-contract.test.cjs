@@ -5,7 +5,7 @@ const root=path.join(__dirname,'..','laer-litt-mer');
 const read=name=>fs.readFileSync(path.join(root,name),'utf8');
 const html=read('index.html'),js=read('tallvika.js'),css=read('tallvika.css');
 assert.match(html,/tallvika\.css\?v=20261026-storesoster-approved1/);
-assert.match(html,/tallvika\.js\?v=20261026-storesoster-approved1/);
+assert.match(html,/tallvika\.js\?v=20261026-storesoster-picker2/);
 assert.match(html,/math:Object\.freeze\(\{title:'Tallvika'\}\)/);
 assert.match(js,/storesoster/);assert.match(js,/lillesoster/);assert.match(js,/lillebror/);
 assert.match(js,/tallvikaTroll/);
@@ -32,6 +32,8 @@ for(const [id,hash] of Object.entries(originalTrollSha)){
  assert.equal(sha256('assets/gangemagi-troll/'+id+'.webp'),hash,id+' original changed unexpectedly');
 }
 assert.match(js,/approved-painterly-20261026/);
+assert.ok(js.includes("<img src=\"${item.sceneSrc}\" alt=\"\">"), 'picker and scene must use the exact same user-approved image');
+assert.ok(!js.includes("<img src=\"${item.src}\" alt=\"\">"), 'picker must not show outdated Storesøster');
 assert.doesNotMatch(css,/brightness\(\.985\) saturate\(\.95\)/);
 assert.match(css,/\.tv-companion\[data-troll-id="storesoster"\]\{left:55\.5%;bottom:12\.5%;width:13\.2%;height:43\.5%\}/,
   'the only mobile-size change must be scoped to the user-approved Storesøster');

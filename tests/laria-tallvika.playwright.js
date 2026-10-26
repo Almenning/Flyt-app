@@ -91,6 +91,17 @@ async function run(browserType,label,viewport){
     }
     await page.locator('[data-tv="choose"]').first().click();await page.locator('.tv-dialog[open]').waitFor();
     assert.equal(await page.locator('[data-tv-troll]').count(),3,label+' offers all three locked trolls');
+    // Preview should match the saved Tallvika scene artwork, not a stale portrait.
+    const expectedPreview={storesoster:'storesoster-inworld-approved-20261026.webp',lillesoster:'lillesoster.webp',lillebror:'lillebror.webp'};
+    for(const [id,filename] of Object.entries(expectedPreview)){
+      const card=page.locator('#tallvika-world [data-tv-troll="'+id+'"]');
+      const portrait=card.locator('img'), src=await portrait.getAttribute('src');
+      assert.ok(src.endsWith('/'+filename),label+' picker has wrong image for '+id);
+      await portrait.evaluate(img=>img.decode());
+      const box=await card.boundingBox();
+      assert.ok(box&&box.width>=44&&box.height>=44,label+' picker tap target too small for '+id);
+    }
+    if(output && viewport.width<=480) await shot(page,label+'-troll-picker');
     // Every original forest troll must be selectable, render from its own
     // approved image, and persist without changing the child's learning data.
     for(const id of ['storesoster','lillesoster','lillebror']){

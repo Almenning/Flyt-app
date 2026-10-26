@@ -3,10 +3,9 @@
 (() => {
   'use strict';
   const trolls = {
-    // The original source stays the selection/reference image.  Storesøster's
-    // The 26 October 2026 user-approved painterly portrait is losslessly
-    // encoded for Tallvika. Selection portraits and the other two trolls
-    // continue to use the byte-locked original artwork.
+    // Keep src as the byte-locked reference artwork. The picker previews
+    // sceneSrc, so the child sees exactly the same character after selection.
+    // Lillesøster and lillebror continue to use their unchanged originals.
     storesoster:{name:'Storesøster',src:'./assets/gangemagi-troll/storesoster.webp',sceneSrc:'./assets/tallvika/storesoster-inworld-approved-20261026.webp',sceneTreatment:'approved-painterly-20261026'},
     lillesoster:{name:'Lillesøster',src:'./assets/gangemagi-troll/lillesoster.webp',sceneSrc:'./assets/gangemagi-troll/lillesoster.webp',sceneTreatment:'locked-original'},
     lillebror:{name:'Lillebror',src:'./assets/gangemagi-troll/lillebror.webp',sceneSrc:'./assets/gangemagi-troll/lillebror.webp',sceneTreatment:'locked-original'}
@@ -56,7 +55,7 @@
         <button type="button" data-tv="table"><b>Gangetabellen</b><span>Utforsk mønstre ›</span></button>
       </div>
       <section class="tv-next"><div><small>NESTE EVENTYR · HELT FRIVILLIG</small><b>${p?.complete ? 'Bonusoppdraget venter' : n?.title || 'Et nytt oppdrag venter'}</b><span>Du kan alltid bli værende og spille favorittene dine.</span></div><button type="button" data-tv="next" ${n||p?.complete?'':'disabled'}>Prøv ›</button></section>
-      <dialog class="tv-dialog" aria-label="Velg ditt skogstroll"><form method="dialog"><button class="tv-dialog-close" aria-label="Lukk">×</button><p>DIN FØLGESVENN</p><h2>Hvem skal bli med til Tallvika?</h2><span>Du kan bytte når du vil.</span><div class="tv-troll-grid">${Object.entries(trolls).map(([id,item]) => `<button type="button" class="${id===selected?'selected':''}" data-tv-troll="${id}" aria-pressed="${id===selected}"><img src="${item.src}" alt=""><b>${item.name}</b>${id===selected?'<em>Valgt</em>':''}</button>`).join('')}</div></form></dialog>
+      <dialog class="tv-dialog" aria-label="Velg ditt skogstroll"><form method="dialog"><button class="tv-dialog-close" aria-label="Lukk">×</button><p>DIN FØLGESVENN</p><h2>Hvem skal bli med til Tallvika?</h2><span>Du kan bytte når du vil.</span><div class="tv-troll-grid">${Object.entries(trolls).map(([id,item]) => `<button type="button" class="${id===selected?'selected':''}" data-tv-troll="${id}" aria-pressed="${id===selected}"><img src="${item.sceneSrc}" alt=""><b>${item.name}</b>${id===selected?'<em>Valgt</em>':''}</button>`).join('')}</div></form></dialog>
       <dialog class="tv-dialog tv-grade-dialog" aria-label="Velg klassetrinn"><form method="dialog"><button class="tv-dialog-close" aria-label="Lukk">×</button><p>UTFORSK I DITT TEMPO</p><h2>Velg klassetrinn</h2><span class="tv-grade-note">${grade===ownGrade?'Dette er ditt klassetrinn. Du kan også utforske andre trinn.':'Du utforsker '+grade+'. klasse. Ditt klassetrinn er fortsatt '+ownGrade+'. klasse.'}</span><div class="tv-grade-grid">${Array.from({length:10},(_,i)=>{const g=i+1;return '<button type="button" class="tv-grade-option'+(g===grade?' selected':'')+'" data-tv-grade="'+g+'" aria-pressed="'+(g===grade)+'" aria-label="'+g+'. klasse"><b>'+g+'.</b><small>'+(g===ownGrade?'Mitt trinn':g===grade?'Valgt':'Utforsk')+'</small></button>';}).join('')}</div></form></dialog>`;
     // Never mutate an observed attribute when its value is already correct.
     // Repeating classList.add() can itself fire another MutationObserver record
