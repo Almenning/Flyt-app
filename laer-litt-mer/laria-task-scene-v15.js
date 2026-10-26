@@ -332,14 +332,13 @@
       :'<div class="learning-passage">'+text(q.passage)+'</div>'):'';
     const readButton=readAloudButton(q);
     const finalQuestion=position===total;
-    const avatar=foxChoice();
-    const fox='<div class="task-fox-companion" data-avatar="'+avatar+'" aria-hidden="true"><img src="'+attr(foxSource())+'" alt=""><span class="task-profile-marker">'+(avatar==='girl'?'✿':'✦')+'</span></div>';
-    // A number-choice question has no illustration to stand beside.
-    // Give the ONE selected full-body fox a real place next to the prompt,
-    // not an absolutely positioned thumbnail stuck to the card's corner.
-    // The wardrobe/presence engine still owns its sprite and reactions.
-    const inlineFox=taskBand()==='young'&&!visual&&!passage;
-    const visualWithFox=visual?'<div class="task-visual-companion-stage">'+visual+fox+'</div>':fox;
+    // Kinnaklova retired the fox. Do not render or fetch it in any direct
+    // English portal; the approved live TrollActor will own this slot later.
+    // Keep legacy fox identity and reactions untouched in other subjects.
+    const avatar=directKinnaklova?null:foxChoice();
+    const fox=directKinnaklova?'':'<div class="task-fox-companion" data-avatar="'+avatar+'" aria-hidden="true"><img src="'+attr(foxSource())+'" alt=""><span class="task-profile-marker">'+(avatar==='girl'?'✿':'✦')+'</span></div>';
+    const inlineFox=!directKinnaklova&&taskBand()==='young'&&!visual&&!passage;
+    const visualWithFox=visual?(directKinnaklova?visual:'<div class="task-visual-companion-stage">'+visual+fox+'</div>'):fox;
     const questionScene=inlineFox?
       '<div class="task-prompt-fox-stage"><div class="question">'+text(prompt)+'</div>'+fox+'</div>':
       readingStory
