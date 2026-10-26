@@ -19,7 +19,8 @@ test('All six missing early-Norsk word images use real, local SVG paths',()=>{
   assert.match(svg,/<svg[^>]+task-illustration-norsk-object/);
   assert.match(svg,/viewBox="0 0 260 180"/);
   assert.ok(svg.length>550,symbol+' illustration is empty');
-  assert(!svg.includes('<image')&&!svg.includes('<script')&&!svg.includes('http://'));
+  assert(!svg.includes('<image')&&!svg.includes('<script')&&!svg.includes('href='),
+   'Inline SVG must not load external assets');
  }
  assert.equal(art.svgFor('🐶'),'','Existing dog illustration must stay untouched');
 });
