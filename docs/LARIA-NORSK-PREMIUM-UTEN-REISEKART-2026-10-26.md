@@ -29,3 +29,10 @@ Brukeren godkjente den eksakte Eggenipa-illustrasjonen, men avviste resten av de
 - Finn ordene har ikke lenger karakterbildet som hintknapp, og åpningen krever ikke den gamle LARIA_FOX-tjenesten. Dramekanikk, ord-/objekthotspots, progresjon, støtte og lyd beholdes.
 - Begge lekene har samme godkjente Eggenipa-landskap som atmosfærisk bakgrunn, men bakgrunns-PNG er uendret. Godkjente, levende skogstroll integreres først ved en kvalitetsklar TrollActor, ikke ved å lime inn statiske figurer.
 - Delte Norsk-øvelser, full nettleser-QA og gamle fox-/kartbaserte forventninger i testpakken gjenstår.
+
+
+## Direkte-aktivitetstester på ny UI
+
+- Erstatter den gamle Eggenipa-testens krav om kartretur med 8 faktiske Chromium/WebKit-varianter som kontrollerer tre berørbare steder, fire aktivitetsvisninger, old-map fravær, bevart profil/journey-data og direkte Lesekroken-oppgaver.
+- Følger også en lagret påbegynt norskøkt gjennom Avslutt → Eggenipa → Fortsett, uten ny oppgavemotor. Bruker riktig læringsrettighet, ikke geografiens startSession.
+- Oppdatert statisk release-kontrakt: påkrevd direktelesing og ingen synlig Bokskogen-CTA.

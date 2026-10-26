@@ -7025,7 +7025,12 @@ window.LARIA_TALLVIKA_BRIDGE={
   // Norwegian premium landing uses the existing question engine directly.
   // No new progress schema or journey map is created.
   startLearningSession:(subject,module,label)=>startLearningSession(subject,module,label),
-  resumeSession:()=>startSession(),
+  // Resume only an existing Norsk session using the correct learning gate.
+  resumeSession:()=>{
+    if(!window.LARIA_COMMERCE_V18?.requirePremium?.('learning'))return;
+    if(!loadActiveSession()||sessionScope?.subject!=='norwegian')return;
+    showScreen('session');renderQuestion();
+  },
   setTab:tab=>setTab(tab)
 };
 </script>
