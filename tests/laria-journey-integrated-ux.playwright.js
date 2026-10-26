@@ -43,7 +43,7 @@ async function run(engine,label,viewport){
          sectionRect:section&&Object.fromEntries(['width','height'].map(k=>[k,Math.round(section.getBoundingClientRect()[k])])),
          screenDisplay:screen&&getComputedStyle(screen).display,
          screenRect:screen&&Object.fromEntries(['width','height'].map(k=>[k,Math.round(screen.getBoundingClientRect()[k])])),
-         mapParent:host?.parentElement?.id,returnButton:!!document.getElementById('eggenipa-map-return')};
+         mapParent:host?.parentElement?.id,paintedBack:host?.querySelector('.locked-journey-back')?.getAttribute('aria-label')};
      });
      console.log('[NORSK_BOKSKOGEN_DIRECT_PORTAL]',label,JSON.stringify(diagnostic));
    }
@@ -78,7 +78,7 @@ async function run(engine,label,viewport){
          subject:el.dataset.journeySubject,waiting:el.dataset.journeyWaiting,
          box:[Math.round(el.getBoundingClientRect().width),Math.round(el.getBoundingClientRect().height)]}:null;
        return {screen:s(screen),map:s(map),section:s(section),eggenipa:s(eg),
-         mapVisible:!!window.LARIA_EGGENIPA?.openMap,returnButton:!!document.getElementById('eggenipa-map-return')};
+         mapVisible:window.LARIA_EGGENIPA?.isMapOpen?.(),paintedBack:map?.querySelector('.locked-journey-back')?.getAttribute('aria-label')};
      });
      console.error('[NORSK_BOKSKOGEN_TIMEOUT]',label,JSON.stringify(after));
      throw error;
@@ -97,7 +97,10 @@ async function run(engine,label,viewport){
    await root.waitFor({timeout:16000});
    assert.equal(await page.locator('#session-screen.active').count(),0,label+' task did not close');
    if(subject==='norwegian'){
-     await page.locator('#eggenipa-map-return:visible').click();
+     const paintedBack=root.locator('.locked-journey-back');
+     assert.equal(await paintedBack.getAttribute('aria-label'),'Tilbake til Eggenipa',
+      label+' painted map back must return to the actual Norwegian landing');
+     await paintedBack.click();
      await page.locator('#eggenipa-world:visible').waitFor({timeout:12000});
      assert.equal(await root.isVisible(),false,label+' map remained visible after Eggenipa return');
      await page.locator('#eggenipa-world [data-eg="home"]').click();
