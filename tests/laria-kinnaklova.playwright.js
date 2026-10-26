@@ -34,6 +34,23 @@ async function takeActivity(page,action,label){
  }));
  assert.equal(result.subject,'english',label+' wrong subject after '+action);
  assert.equal(result.module,action,label+' wrong module after '+action);
+ const speechLanguage=await page.evaluate(()=>{
+   const scene=document.querySelector('#session-screen.active .laria-task-card');
+   const question=scene?.querySelector('.question');
+   const choices=scene?.querySelector('.task-interaction');
+   const q=sessionQuestions?.[qIndex];
+   return {
+     prompt:question?.getAttribute('lang'),answers:choices?.getAttribute('lang'),
+     question:question?.textContent?.trim()||'',answerLanguage:q?.answerLanguage||null
+   };
+ });
+ const norwegianPrompt=/^(?:Hva|Hvilket|Hvilken|Velg|Finn|Hvor)\b/i.test(speechLanguage.question);
+ const expectedAnswers=speechLanguage.answerLanguage==='nb'||/på norsk\??\s*$/i.test(speechLanguage.question)
+   ?'nb':'en';
+ assert.equal(speechLanguage.prompt,norwegianPrompt?'nb':'en',
+   label+' '+action+' VoiceOver question language is incorrect');
+ assert.equal(speechLanguage.answers,expectedAnswers,
+   label+' '+action+' VoiceOver answer language is incorrect');
  // Direct Kinnaklova has no retired fox actor; the real troll rig arrives
  // as a separately approved art layer, not a static mascot substitution.
  assert.equal(await page.locator('#session-screen.active .task-fox-companion').count(),0,
