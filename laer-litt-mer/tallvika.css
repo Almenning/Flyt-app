@@ -445,3 +445,13 @@ body:has(#subject-screen.tallvika-active){background:#f7f0df!important}
   .tv-next button{min-height:44px;padding:0 9px;font-size:12px}
   #tallvika-world{padding-bottom:12px}
 }
+
+/* Compact landscape iPads have narrower portal art windows than 1194px.
+   A fixed 650% crop re-exposes fragments of the painted hut sign below 1160px.
+   Adapt the shared original image crop, without touching the painting itself. */
+@media(min-width:1000px) and (max-width:1160px) and (orientation:landscape) and (min-height:720px){
+  .tv-portal-art-table{
+    background-size:100% 100%,780% auto;
+    background-position:center,98% 78%;
+  }
+}

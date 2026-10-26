@@ -93,15 +93,15 @@ async function run(browserType,label,viewport){
       return {stage:{top:stage.top,bottom:stage.bottom,right:stage.right},
         dock:{top:dock.top,left:dock.left}};
     });
-    if(viewport.width>=1030||(viewport.width>=701&&viewport.height<=550)){
+    const tabletLandscape=viewport.width>=1000&&viewport.width<=1400&&
+      viewport.width>viewport.height&&viewport.height>=720;
+    if(tabletLandscape||viewport.width>=1030||(viewport.width>=701&&viewport.height<=550)){
       // Keyboard focus connects the activity card to its painted hut;
       // this also makes the navigation discoverable without hover.
       await page.locator('.tv-portal-card[data-tv="fraction"]').focus();
       assert.equal(await page.locator('.tv-hotspot-fraction .tv-hotspot-cue').evaluate(
         el=>getComputedStyle(el).transform!=='none'),true,label+' portal focus did not highlight the matching hut');
       await page.locator('.tv-portal-card[data-tv="fraction"]').evaluate(el=>el.blur());
-      const tabletLandscape=viewport.width>=1000&&viewport.width<=1400&&
-        viewport.width>viewport.height&&viewport.height>=720;
       if(tabletLandscape){
         // The approved world is larger, but keeps the complete source painting
         // visible. Three games and the optional next quest must also fit.
@@ -322,4 +322,4 @@ async function run(browserType,label,viewport){
     await context.close();
   } finally {await browser.close();}
 }
-(async()=>{for(const [label,viewport] of [['iphone-portrait',{width:390,height:844}],['iphone-landscape',{width:844,height:390}],['ipad-portrait',{width:834,height:1112}],['ipad-landscape',{width:1194,height:834}]]){await run(chromium,'chromium-'+label,viewport);await run(webkit,'webkit-'+label,viewport);}})().catch(error=>{console.error(error);process.exitCode=1});
+(async()=>{for(const [label,viewport] of [['iphone-portrait',{width:390,height:844}],['iphone-landscape',{width:844,height:390}],['ipad-portrait',{width:834,height:1112}],['ipad-mini-landscape',{width:1024,height:768}],['ipad-landscape',{width:1194,height:834}],['ipad-pro-landscape',{width:1366,height:1024}]]){await run(chromium,'chromium-'+label,viewport);await run(webkit,'webkit-'+label,viewport);}})().catch(error=>{console.error(error);process.exitCode=1});

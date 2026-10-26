@@ -31,3 +31,12 @@ Viderefør den testede visuelle Tallvika V2 og eksplisitt én-trykks ruting mell
 ### Kortlesbarhet i iPad liggende – kontroll mot første skjermbilde
 
 Et faktisk Chromium-bilde fra den nye 1194×834-komposisjonen viste at de to første aktivitetsbeskrivelsene la de siste ordene for tett inntil den overlappende pilknappen. Avviket skyldtes at kortenes tekstkolonne ikke reserverte plass til den absoluttposisjonerte pilen, ikke feil i bildet. Matte-spesifikk rotkorrigering: gi tekstkolonnen styrt fleksbredde og null minimumsbredde, reserver 14px høyresone i beskrivelsen og løft tekststørrelsen til 13px. Ny Playwright-kontroll måler faktisk høyresikker sone og hindrer både tekst-/piloverlapp og klipping ved line-wrap. Ingen spillmotorer, kunst eller andre fag berøres.
+
+
+### 26.10: Responsiv regresjon for liten og stor iPad i landskap
+
+Den dedikerte Tallvika-matrisen dekket tidligere bare 1194×834. Nå inkluderes **1024×768** og **1366×1024** i både Chromium og WebKit, med de samme spill-, lagrings- og originale bildekontraktene. Sjekken for førsteskjerm (minst 76 % landskapsbredde, alle fire inviterende valg synlige, ingen horisontal eller vertikal unødig scrolling) gjelder nå for samtlige tre nettbrett-størrelser.
+
+**Rotårsak ved mindre bredde:** Gangetabellens foto-vindu bruker et kraftig utsnitt av én og samme malte kildefil. Med uendret 650 % bakgrunn ved 1024 px blir kildeintervallet for høyt og kan vise avkuttede malte skilt. Begrenset, originaltro tilpasning til 780 % for 1000–1160 px holder utsnittet på tavlen. Den eksisterende strenge Playwright-sjekken for kildekoordinater (innenfor 490–815) validerer dette uten å endre originalfilen. Ingen endring i iPhone, Norsk, spillmotorer, troll eller data.
+
+**Status:** Dette er en ny testkandidat. Resultater og ferske WebKit-skjermbilder må kontrolleres på eksakt commit før premiumvurdering.
