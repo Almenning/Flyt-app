@@ -58,3 +58,15 @@ test('Ordjakt rejects saved boards missing target words rather than trapping a c
   assert.match(hunt,/localStorage\.removeItem\(ROUND_KEY\)/,
     'Invalid saved puzzle must be discarded for a new playable round');
 });
+
+test('Ordjakt storage writes fail safely in restrictive Safari environments',()=>{
+  const hunt=fs.readFileSync(path.resolve(__dirname,'../laer-litt-mer/word-hunt.js'),'utf8');
+  for(const name of ['saveTheme','saveRound']){
+    const start=hunt.indexOf('function '+name+'()');
+    const end=hunt.indexOf('\nfunction ',start+1);
+    assert.ok(start>=0,'Missing '+name);
+    const body=hunt.slice(start,end<0?undefined:end);
+    assert.match(body,/try\s*\{/,'Missing protected storage write in '+name);
+    assert.match(body,/catch\s*\(_\)/,'Missing storage failure fallback in '+name);
+  }
+});
