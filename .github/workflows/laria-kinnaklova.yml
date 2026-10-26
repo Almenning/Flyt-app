@@ -1,24 +1,74 @@
-name: Læria Kinnaklova English draft QA
+name: Læria Kinnaklova – Engelsk WebKit og Chromium
 on:
   pull_request:
+    branches: [main]
     paths:
-      - "laer-litt-mer/kinnaklova.js"
-      - "laer-litt-mer/kinnaklova.css"
-      - "laer-litt-mer/index.html"
-      - "tests/laria-kinnaklova-contract.test.cjs"
       - ".github/workflows/laria-kinnaklova.yml"
-  workflow_dispatch:
+      - "laer-litt-mer/kinnaklova.*"
+      - "laer-litt-mer/assets/kinnaklova/**"
+      - "laer-litt-mer/assets/gangemagi-troll/**"
+      - "laer-litt-mer/index.html"
+      - "docs/LARIA-KINNAKLOVA-VISUAL-LOCK-2026-10-26.json"
+      - "tests/laria-kinnaklova*"
+      - "tests/laria-journey-integrated-ux.playwright.js"
+  push:
+    branches: [main]
+    paths:
+      - "laer-litt-mer/kinnaklova.*"
+      - "laer-litt-mer/assets/kinnaklova/**"
+      - "laer-litt-mer/index.html"
+      - "tests/laria-kinnaklova*"
+permissions:
+  contents: read
 jobs:
-  english-contract:
+  kinnaklova-contract:
     runs-on: ubuntu-latest
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - name: English Kinnaklova syntax and wiring
+      - name: Validate Kinnaklova source and exact character identity
         run: |
           node --check laer-litt-mer/kinnaklova.js
           node --test tests/laria-kinnaklova-contract.test.cjs
-      - name: Validate diff whitespace
+      - name: Validate committed diff whitespace
         run: git diff --check HEAD^ HEAD
+  kinnaklova-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    container: mcr.microsoft.com/playwright:v1.62.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: 22, cache: npm}
+      - run: npm ci
+      - name: Serve exact PR commit
+        run: python3 -m http.server 8765 --directory . >/tmp/kinnaklova-http.log 2>&1 &
+      - name: Verify direct English learning in iPhone and iPad WebKit and Chromium
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+          LARIA_KINNAKLOVA_SCREENSHOTS: /tmp/laria-kinnaklova
+        run: node tests/laria-kinnaklova.playwright.js
+      - name: Upload Kinnaklova device screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-kinnaklova-devices
+          path: /tmp/laria-kinnaklova
+          if-no-files-found: warn
+          retention-days: 14
+  kinnaklova-art-release-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: 22}
+      - name: Block merge if clean locked master is absent or unapproved
+        env:
+          LARIA_KINNAKLOVA_RELEASE_GATE: "1"
+        run: node --test tests/laria-kinnaklova-contract.test.cjs
