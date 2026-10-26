@@ -181,3 +181,9 @@ Brukeren godkjente den eksakte Eggenipa-illustrasjonen, men avviste resten av de
 ### 26.10 – fikset overstyring av «Nye ord» etter komponentbygging
 
 - Første Chromium-E2E etter oppryddingen avdekket at knappen fortsatt ble vist som «Ny ordjakt» selv om HTML-templaten sa «Nye ord». Rotårsaken var `refresh()`, som setter `fw-next.textContent` etter initial render. Begge kildene bruker nå «Nye ord» mens runden pågår, mens fullført runde fortsatt tilbyr «Oppdag på nytt». Browser-testen av reell gjengitt tekst beholdes som regresjonsport.
+
+
+### 26.10 – CI-runner: WebKit manglet systembibliotek
+
+- «Gangemagi approved Markedsbok visual QA» ble rød på `24d1389`, `fc9ab02` og etterfølgende Norsk-commits, selv om alle Chromium-visninger hadde bestått. Loggen viste at WebKit ikke kunne starte fordi `libicudata.so.74` manglet på `ubuntu-latest`; dette er en ABI-/runner-feil uavhengig av læringskode.
+- Workflow-runner er derfor **pinnet til `ubuntu-24.04`**, der riktig ICU er tilgjengelig via Playwrights eksisterende `install-deps`. Cache-nøkkelen inkluderer nå `ubuntu2404` for å unngå gjenbruk på tvers av inkompatible verts-OS. Ingen spillmotor, illustrasjon, progresjon eller annet fags oppførsel endres. Resultatet må kontrolleres med ny GitHub Actions-kjøring.

@@ -48,7 +48,9 @@ concurrency:
 
 jobs:
   markedsbok-visual:
-    runs-on: ubuntu-latest
+    # The pinned Playwright WebKit binary requires libicudata.so.74.
+    # ubuntu-latest moved beyond that ABI and crashes before app QA starts.
+    runs-on: ubuntu-24.04
     timeout-minutes: 18
     steps:
       - uses: actions/checkout@v4
@@ -67,7 +69,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
-          key: gangemagi-playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}-chromium-webkit
+          key: gangemagi-playwright-${{ runner.os }}-ubuntu2404-${{ steps.playwright-version.outputs.version }}-chromium-webkit
       - name: Validate original image and JavaScript
         run: |
           test -s laer-litt-mer/gangemagi-approved-eight-scenes-20261017.webp
