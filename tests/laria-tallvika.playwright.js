@@ -110,7 +110,7 @@ async function run(browserType,label,viewport){
           const dock=document.querySelector('.tv-dock').getBoundingClientRect();
           const cards=[...document.querySelectorAll('.tv-portal-card')].map(el=>{
             const r=el.getBoundingClientRect();
-            return {top:r.top,bottom:r.bottom,left:r.left,right:r.right};
+            return {top:r.top,bottom:r.bottom,left:r.left,right:r.right,layoutTop:el.offsetTop};
           });
           const next=document.querySelector('.tv-next').getBoundingClientRect();
           return {art:{width:art.width,height:art.height},dockTop:dock.top,
@@ -123,10 +123,15 @@ async function run(browserType,label,viewport){
           label+' must not crop or stretch the approved Tallvika artwork');
         assert.ok(layout.dock.top>=layout.stage.bottom-3,
           label+' landscape portal row must follow, not overlap, the painting');
-        assert.ok(fold.cards.every(x=>Math.abs(x.top-fold.cards[0].top)<3&&x.bottom<=viewport.height+26),
+        // The card deliberately rises by 3px on hover. offsetTop tests actual
+        // grid placement rather than confusing that interaction with a row gap.
+        assert.ok(fold.cards.every(x=>x.layoutTop===fold.cards[0].layoutTop&&
+          x.bottom<=viewport.height+26),
           label+' three activities must share a visible bottom row: '+JSON.stringify(fold));
-        assert.ok(Math.abs(fold.next.top-fold.cards[0].top)<3&&fold.next.bottom<=viewport.height+26,
+        assert.ok(Math.abs(fold.next.top-fold.cards[0].top)<5&&fold.next.bottom<=viewport.height+26,
           label+' optional quest must stay visible beside the activities: '+JSON.stringify(fold));
+        assert.ok(fold.scrollHeight<=viewport.height+8,
+          label+' premium iPad landscape first fold must not require scrolling: '+JSON.stringify(fold));
         console.log('[TALLVIKA_IPAD_LANDSCAPE_FIRST_FOLD]',label,JSON.stringify(fold));
       }else{
         assert.ok(layout.stage.right<=layout.dock.left+2,label+' landscape portal dock overlaps painting');
