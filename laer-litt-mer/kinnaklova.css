@@ -149,3 +149,31 @@ html:has(#subject-screen.kinnaklova-active),body:has(#subject-screen.kinnaklova-
  .ki-card-copy small{font-size:12px}
 }
 @media(prefers-reduced-motion:reduce){.ki-card{transition:none}}
+
+/* The direct Reading activity opens as a little storybook.
+   Scoped to the semantic story class; other subjects and activities stay as-is. */
+#session-screen .ki-reading-story{
+ position:relative;max-width:760px;margin:8px auto 20px;
+ padding:43px clamp(18px,3.8vw,30px) 23px;
+ border:2px solid #d8c4a0;border-radius:22px;
+ background:linear-gradient(160deg,#fffdf5,#fff5e3);
+ box-shadow:0 5px 0 #d6c09a,0 12px 24px rgba(88,65,41,.10);
+ color:#3e382f;font-family:ui-rounded,system-ui,sans-serif;
+ font-weight:730;font-size:clamp(19px,2.25vw,24px);line-height:1.6;
+ overflow-wrap:break-word;white-space:normal
+}
+#session-screen .ki-reading-story::before{
+ content:"📖  LES HISTORIEN";position:absolute;left:clamp(18px,3.8vw,30px);top:15px;
+ font-size:11px;font-weight:900;line-height:1.2;letter-spacing:.10em;
+ color:#856f4d
+}
+#session-screen .ki-reading-question{
+ margin:7px auto 14px;max-width:760px;color:#423829
+}
+@media(max-height:480px) and (orientation:landscape){
+ #session-screen .ki-reading-story{
+  margin:4px auto 11px;padding:30px 16px 13px;font-size:18px;line-height:1.43;
+  border-radius:15px
+ }
+ #session-screen .ki-reading-story::before{left:16px;top:9px;font-size:10px}
+}
