@@ -157,7 +157,7 @@ test('Live Kinnaklova task scene keeps English story first with correct screen-r
 
 test('Draft does not request Kinnaklova art before exact hash approval',()=>{
  assert.ok(js.includes('const HAS_CLEAN_MASTER='),'Need positive art gating before adding image src');
- assert.ok(js.includes("(HAS_CLEAN_MASTER?' src=\"'+ART+'\'\"':'')")===false||js.includes("HAS_CLEAN_MASTER?' src="),
+ assert.ok(js.includes(`(HAS_CLEAN_MASTER?' src="'+ART+'"':'')`),
    'The master image src must be conditional on its approved SHA');
  assert.match(js,/APPROVED_ART_SHA256===REJECTED_REFERENCE_SHA256/);
 });
