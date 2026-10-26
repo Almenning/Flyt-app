@@ -90,6 +90,27 @@ async function run(browserType,engine,name,viewport){
     const mapOrigin=await page.locator('#subject-screen').evaluate(element=>({
       top:element.getBoundingClientRect().top,scrollY:window.scrollY
     }));
+    if(Math.abs(mapOrigin.top)>1){
+      // Diagnostic only on failed geometry: distinguish an ignored scroll
+      // command from a later focus/anchor restoration. Never pass the test
+      // based on this manual probe or change the expected 0px origin.
+      const diagnostic=await page.evaluate(()=>{
+        const screen=document.getElementById('subject-screen');
+        const root=document.getElementById('eggenipa-world');
+        const before=scrollY;
+        window.scrollTo({top:0,left:0,behavior:'instant'});
+        document.documentElement.scrollTop=0;
+        document.body.scrollTop=0;
+        return {before,after:scrollY,screenSubject:screen?.dataset.subject,
+          screenActive:screen?.classList.contains('active'),
+          mapState:window.LARIA_EGGENIPA?.isMapOpen?.(),
+          rootHidden:root?.hidden,activeElement:document.activeElement?.outerHTML.slice(0,220),
+          scrollingElement:document.scrollingElement?.tagName,
+          scrollBehavior:getComputedStyle(document.documentElement).scrollBehavior,
+          subjectOffset:screen?.getBoundingClientRect().top};
+      });
+      console.error('[EGGENIPA_SCROLL_DIAG]',name,JSON.stringify(diagnostic));
+    }
     assert.ok(Math.abs(mapOrigin.top)<=1,
       name+' Bokskogen must open at the viewport origin after the lower Eggenipa portal: '+JSON.stringify(mapOrigin));
     await page.locator('#eggenipa-map-return').click();
