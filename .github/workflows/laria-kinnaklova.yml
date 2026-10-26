@@ -17,6 +17,7 @@ on:
     # workflow runs. Execute exact-head QA on branch pushes before merging.
     branches: [main, feat/laria-engelsk-kinnaklova-20261026]
     paths:
+      - ".github/workflows/laria-kinnaklova.yml"
       - "laer-litt-mer/kinnaklova.*"
       - "laer-litt-mer/assets/kinnaklova/**"
       - "laer-litt-mer/index.html"
