@@ -70,3 +70,11 @@ test('Ordjakt storage writes fail safely in restrictive Safari environments',()=
     assert.match(body,/catch\s*\(_\)/,'Missing storage failure fallback in '+name);
   }
 });
+
+test('Ordjakt JavaScript and theme pack versions invalidate old Safari caches',()=>{
+  const html=fs.readFileSync(path.resolve(__dirname,'../laer-litt-mer/index.html'),'utf8');
+  const sw=fs.readFileSync(path.resolve(__dirname,'../laer-litt-mer/sw.js'),'utf8');
+  assert.match(html,/word-hunt-themes\.js\?v=20261026-norsk-themes2/);
+  assert.match(html,/word-hunt\.js\?v=20261026-norsk-recovery2/);
+  assert.match(sw,/norsk-wordhunt-recovery2/);
+});
