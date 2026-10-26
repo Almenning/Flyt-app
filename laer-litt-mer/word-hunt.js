@@ -40,6 +40,19 @@ function restoreRound(){
        !Array.isArray(data.words)||data.words.length!==count||
        new Set(data.words).size!==count||!data.words.every(w=>allowedWords.has(w))||
        !Array.isArray(data.found)||data.found.length>=count)throw Error('Invalid saved word hunt');
+    // A damaged saved puzzle may have valid dimensions and allowed words but
+    // lack one of its answers. Reject it instead of trapping the child.
+    const directions=data.level==='easy'?[[0,1],[1,0]]:
+      [[0,1],[1,0],[0,-1],[-1,0],[1,1],[1,-1],[-1,1],[-1,-1]];
+    const containsWord=word=>{
+      for(let r=0;r<size;r++)for(let c=0;c<size;c++)for(const [dr,dc] of directions){
+        const endR=r+dr*(word.length-1),endC=c+dc*(word.length-1);
+        if(endR<0||endC<0||endR>=size||endC>=size)continue;
+        if([...word].every((letter,i)=>data.grid[r+dr*i][c+dc*i]===letter))return true;
+      }
+      return false;
+    };
+    if(!data.words.every(containsWord))throw Error('Saved puzzle has missing answers');
     const found=new Map();
     for(const item of data.found){
       if(!Array.isArray(item)||item.length!==2)throw Error('Invalid found word');
