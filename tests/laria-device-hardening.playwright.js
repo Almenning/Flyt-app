@@ -67,8 +67,15 @@ function assertTap(r,label){
 async function verifyBasecamp(page,label,width,height){
   await page.locator('.bc12').waitFor({state:'visible'});
   assert.equal(await page.locator('.bc12-nav button').count(),5,label+' Basecamp must show five real navigation targets');
-  assert.deepEqual(await page.locator('.bc12-nav button').allTextContents(),
-    ['Hjem','Reisen','Utforsk','Samlebok','Min rev'],label+' Basecamp navigation labels changed');
+  // The fifth destination is still the saved character/wardrobe control.
+  // Tallvika's troll rollout may rename its visible label to "Mine troll",
+  // while older Basecamp builds still say "Min rev". Do not mistake that
+  // intentional copy migration for a missing or unusable navigation target.
+  const navigationLabels=(await page.locator('.bc12-nav button').allTextContents()).map(s=>s.trim());
+  assert.deepEqual(navigationLabels.slice(0,4),
+    ['Hjem','Reisen','Utforsk','Samlebok'],label+' Basecamp core navigation labels changed');
+  assert.ok(['Min rev','Mine troll'].includes(navigationLabels[4]),
+    label+' fifth character destination is missing or mislabeled: '+JSON.stringify(navigationLabels));
   await noOverflow(page,label+' home');
 
   const challenge=await rect(page,'.safe-challenge-young');
