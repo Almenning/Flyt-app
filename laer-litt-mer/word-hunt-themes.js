@@ -7,10 +7,10 @@
 })(typeof window==='object'?window:(typeof globalThis==='object'?globalThis:null),function(){
   'use strict';
   const data=[
-    {id:'mixed',title:'Blandede ord',short:'Blandet',icon:'✨',description:'Litt av alt fra Bokskogen.',
+    {id:'mixed',title:'Blandede ord',short:'Blandet',icon:'✨',description:'Litt av alt fra Eggenipa.',
       easy:['SOL','MUS','REV','BOK','IS','MAT','HUS','BIL','TRE','SKO','LYS','HAV','FISK','KATT','BALL','LEK','UGLE','EPLE','TROLL','KART','BÆR','ELG','VANN','OST','BIE','HARE','ROM','KONGE','BRØD','HEKS','SEBRA','SLOTT'],
       hard:['SKOG','BRO','KART','VANN','LYKT','REVEN','FJELL','VENN','LEKE','TALL','PIZZA','BLOMST','STJERNE','SPRÅK','ORD','BOKA','MONSTER','KANIN','EVENTYR','PANTER','NØKKEL','PORTAL','MIDDAG','GROTTE','TIGER','SVERIGE','ITALIA','BANAN','KJØTT','HJORT']},
-    {id:'animals',title:'Dyrevenner',short:'Dyr',icon:'🦊',description:'Møt dyrene som bor i skogen.',
+    {id:'animals',title:'Dyrevenner',short:'Dyr',icon:'🦉',description:'Møt ugler, pinnsvin og andre dyrevenner.',
       easy:['REV','MUS','UGLE','HUND','KATT','HEST','KU','FISK','LAM','AND','ELG','BIE','HARE','GEIT','LØVE','SEBRA','EKORN','KANIN','HVAL','TIGER','MAUR','FUGL','ORM','RÅDYR'],
       hard:['BJØRN','HJORT','EKORN','KANIN','ROVDYR','PANTER','SEBRA','TIGER','PINGVIN','GREVING','GEITER','HVALEN','FUGLER','MAUREN','FROSKE','DYRENE','KATTEN','REVENE','HUNDEN','HESTER','BJØRNER','KRABBE']},
     {id:'magic',title:'Eventyr og magi',short:'Magi',icon:'🪄',description:'Oppdag slott, troll og magiske skatter.',

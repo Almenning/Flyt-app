@@ -49,7 +49,13 @@ async function selectTopic(page,topic,label,fromEntry=false){
  assert.ok(await picker.locator('.wh-theme-card.selected').count()===1);
  // Every scene is a local, small painted WebP, not a remote dependency.
  await picker.locator('.wh-theme-card img').first().evaluate(img=>img.decode());
- const valid=await picker.locator('.wh-theme-card img').evaluateAll(imgs=>imgs.every(img=>img.src.includes('/assets/word-hunt/themes/')&&img.src.includes('.webp?v=20261017-painted1')&&img.getAttribute('alt')===''));
+ const valid=await picker.locator('.wh-theme-card img').evaluateAll(imgs=>imgs.every(img=>{
+  const name=img.closest('[data-word-theme]')?.dataset.wordTheme;
+  const expected=name==='animals'?
+    '/find-the-words-garden-premium.webp?v=20261026-dyrevenner1':
+    '/assets/word-hunt/themes/'+name+'.webp?v=20261017-painted1';
+  return !!name&&img.src.includes(expected)&&img.getAttribute('alt')==='';
+ }));
  assert.ok(valid,label+' broken illustrated topic assets');
  const art=await picker.locator('.wh-theme-card img').evaluateAll(async imgs=>{
   // WebKit can defer loading cards in a horizontal mid-game selector.
@@ -63,12 +69,14 @@ async function selectTopic(page,topic,label,fromEntry=false){
       img.addEventListener('error',()=>{clearTimeout(limit);reject(new Error('Theme image failed: '+img.src))},{once:true});
     });
   }));
-  return imgs.map(img=>({width:img.naturalWidth,height:img.naturalHeight,
+  return imgs.map(img=>({theme:img.closest('[data-word-theme]')?.dataset.wordTheme,width:img.naturalWidth,height:img.naturalHeight,
    bg:getComputedStyle(img).backgroundImage,complete:img.complete}));
  });
  for(const piece of art){
-  assert.ok(piece.complete&&piece.width===160&&piece.height===169,label+' failed to load premium topic illustration: '+JSON.stringify(piece));
-  assert.ok(piece.bg==='none',label+' missing approved Bokskogen scene: '+JSON.stringify(piece));
+  const expected=piece.theme==='animals'?[480,288]:[160,169];
+  assert.ok(piece.complete&&piece.width===expected[0]&&piece.height===expected[1],
+    label+' failed to load premium topic illustration: '+JSON.stringify(piece));
+  assert.ok(piece.bg==='none',label+' missing painted theme scene: '+JSON.stringify(piece));
  }
  assert.equal(await picker.locator('.wh-theme-fox').evaluate(el=>el.tagName),'SPAN',
   'Old fox art remains in the Eggenipa theme picker');

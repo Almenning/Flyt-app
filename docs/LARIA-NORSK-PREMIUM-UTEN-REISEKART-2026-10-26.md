@@ -86,3 +86,11 @@ Brukeren godkjente den eksakte Eggenipa-illustrasjonen, men avviste resten av de
 - Alle koder syntaktisk validert før commit; nye CI-resultater må kontrollere den reelle flyten.
 
 - Tillegg fra **faktisk** Chromium-iPhone i [Eggenipa CI #40294561521](https://github.com/Almenning/Flyt-app/actions/runs/40294561521): Et rettplassert hint (68×66px, x=44/y=735) hadde `document.elementFromPoint` lik `.fw-bottom`, ikke hintknappen. Årsak var `pointer-events:none` på foreldre-container `.fw-companion` uten eksplisitt `pointer-events:auto` på hintbarnet på mobil. Dette er fikset på selve interaktive knappen i alle skjermformater; e2e-testen kontrollerer faktisk treff, ikke bare bounding box. 
+
+
+### 26.10 – synlig gammel rev i Ordjakt-temakort fjernet
+
+- Faktisk Chromium-iPhone-skjermbilde av `Ordjakt → Velg din ordjakt` viste en stor gammel revefigur i kortet **Dyrevenner**. Symbolfjerning fra hint var dermed ikke tilstrekkelig for brukers krav.
+- Dyrevenner-kortet og temaikonet bruker nå den **allerede eksisterende** illustrasjonen `find-the-words-garden-premium.webp` med ugle, pinnsvin og sommerfugl, i samme naturstil som Eggenipa. Original Eggenipa PNG uendret; ingen generering av alternativ trollkarakter eller endring av ord-/rundemotor.
+- Temapakkens lille ikon er oppdatert fra gammel rev til ugle; Blandede ord viser «Eggenipa» i stedet for Bokskogen. De fire andre temaenes godkjente bilder er bevart.
+- Den detaljerte Word Hunt Chromium/WebKit-testen kontrollerer alle fem bildespor og deres faktiske pikselmål (Dyrevenner 480×288, øvrige 160×169), inkludert at alle lokalbilder dekodes. 

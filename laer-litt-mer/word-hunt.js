@@ -302,14 +302,21 @@ function giveHint(){
   ui.helpOffered=true;
 }
 
+// The approved Eggenipa garden already depicts an owl, hedgehog and
+// butterfly. Reuse that premium scene for Dyrevenner rather than showing
+// the retired static fox illustration on the child-facing theme card.
+function themeArtwork(id){
+  return id==='animals'?'./find-the-words-garden-premium.webp?v=20261026-dyrevenner1':
+    './assets/word-hunt/themes/'+id+'.webp?v=20261017-painted1';
+}
 function themePickerMarkup(){
   return '<section class="word-hunt-theme-picker" hidden role="dialog" aria-modal="true" aria-labelledby="wh-theme-heading">'+
     '<div class="wh-theme-panel"><button type="button" class="wh-theme-close" aria-label="Lukk temavalget">×</button>'+
     '<span class="wh-theme-fox" aria-hidden="true">✦</span>'+
     '<span class="wh-theme-eyebrow">Læria · Eggenipa</span><h2 id="wh-theme-heading">Velg din ordjakt</h2>'+
-    '<p>Velg et eventyr. Ett trykk, så er jakten i gang!</p><div class="wh-theme-cards" role="group" aria-label="Velg et av fem ordtemaer">'+
+    '<p>Velg et tema. Ett trykk, så er ordjakten i gang!</p><div class="wh-theme-cards" role="group" aria-label="Velg et av fem ordtemaer">'+
     THEMES.list().map(pack=>'<button type="button" class="wh-theme-card" data-word-theme="'+pack.id+'" aria-pressed="false">'+
-      '<img alt="" src="./assets/word-hunt/themes/'+pack.id+'.webp?v=20261017-painted1" loading="lazy">'+
+      '<img alt="" src="'+themeArtwork(pack.id)+'" loading="lazy">'+
       '<strong>'+pack.title+'</strong><small>'+pack.description+'</small><span class="wh-theme-card-go" aria-hidden="true">Utforsk ›</span><span class="wh-theme-card-check" aria-hidden="true">Sist valgt</span></button>').join('')+
     '</div><button type="button" class="wh-theme-start">Fortsett med sist valgte tema <span aria-hidden="true">▶</span></button></div></section>';
 }
@@ -582,7 +589,7 @@ function render(resetStatus=true){
   mobile.querySelector('.word-hunt-mobile-label').textContent=pack.short;
   mobile.dataset.theme=pack.id;
   mobile.setAttribute('aria-label','Velg ordtema. Nå: '+pack.title);
-  root.querySelector('.word-hunt-theme-icon').setAttribute('src','./assets/word-hunt/themes/'+pack.id+'.webp?v=20261017-painted1');
+  root.querySelector('.word-hunt-theme-icon').setAttribute('src',themeArtwork(pack.id));
   root.querySelector('.word-hunt-theme-open').setAttribute('aria-label','Velg ordtema. Nå: '+pack.title);
   const rounds=Number(stats().rounds||0);
   root.querySelector('.word-hunt-rounds').textContent=rounds===1?'Du har fullført 1 ordjakt':'Du har fullført '+rounds+' ordjakter';
