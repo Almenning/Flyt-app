@@ -71,8 +71,28 @@ async function run(engine,label,viewport){
      await tallvika.waitFor({state:'visible',timeout:16000});
      assert.equal(await tallvika.locator('.tv-hotspot').count(),3,label+' Tallvika must have three house destinations');
      const back=tallvika.locator('[data-tv="back"]');
+     // The world container can become visible before WebKit has finished the
+     // subject-mode transition and exposed its header. Wait for the *real*
+     // control before measuring it, not just for the outer scenery.
+     try{
+       await back.waitFor({state:'visible',timeout:12000});
+     }catch(error){
+       const debug=await page.evaluate(()=>{
+         const subject=document.getElementById('subject-screen');
+         const root=document.getElementById('tallvika-world');
+         const button=root?.querySelector('[data-tv="back"]');
+         const inspect=el=>el?{display:getComputedStyle(el).display,visibility:getComputedStyle(el).visibility,
+           rect:el.getBoundingClientRect().toJSON()}:null;
+         return {screenSubject:subject?.dataset.subject,screenClasses:subject?.className,
+           world:inspect(root),returnControl:inspect(button),
+           activeScreens:[...document.querySelectorAll('.screen.active')].map(el=>el.id)};
+       });
+       throw new Error(label+' Tallvika return control never became visible: '+
+         JSON.stringify(debug)+'; '+error.message);
+     }
      const size=await back.boundingBox();
-     assert.ok(size&&size.width>=44&&size.height>=44,label+' Tallvika return touch area too small');
+     assert.ok(size&&size.width>=44&&size.height>=44,
+       label+' Tallvika return touch area too small: '+JSON.stringify(size));
      await page.screenshot({path:folder+'/'+label+'-math-back-reachable.png',fullPage:false});
      await back.click();
    }else{
