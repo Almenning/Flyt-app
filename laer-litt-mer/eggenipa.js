@@ -115,15 +115,19 @@
       document.body.appendChild(returnButton);
     }
     returnButton.hidden=false;
-    // The portal may be below the fold. When it swaps to the full-bleed
-    // Bokskogen stage, Safari otherwise keeps that old scroll offset and
-    // places the actual map origin above the viewport (especially landscape).
-    // Reset after the original renderer is activated, without altering map
-    // coordinates, learning state or the locked illustration.
-    window.scrollTo(0,0);
-    requestAnimationFrame(()=>{
-      if(isActive()&&mapVisible)window.scrollTo(0,0);
-    });
+    // The portal may be below the fold. A view swap inside the *same*
+    // #subject-screen does not run showScreen()'s normal Safari scroll reset.
+    // A click/focus scroll can also re-assert its former offset after layout.
+    // Reset both the viewport and scrolling element, once now and again on
+    // the next painted frame. Do not move the locked map or its hotspots.
+    const resetMapScroll=()=>{
+      if(!isActive()||!mapVisible)return;
+      window.scrollTo({left:0,top:0,behavior:'instant'});
+      document.documentElement.scrollTop=0;
+      document.body.scrollTop=0;
+    };
+    resetMapScroll();
+    requestAnimationFrame(resetMapScroll);
   }
   function closeMap(){
     mapVisible=false;
