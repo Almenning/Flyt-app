@@ -53,7 +53,8 @@ function symbolArt(){
  return '<svg class="mp-island" viewBox="0 0 240 140" fill="none" aria-hidden="true"><defs><linearGradient id="mpIslandLand" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#B9D387"/><stop offset="1" stop-color="#548C68"/></linearGradient><linearGradient id="mpIslandWater" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#A0E3EA"/><stop offset="1" stop-color="#579DBD"/></linearGradient></defs><ellipse cx="118" cy="119" rx="106" ry="19" fill="#5c8796" opacity=".17"/><path d="M14 94Q60 115 109 93Q176 70 222 92L209 121Q147 146 29 116Z" fill="url(#mpIslandWater)"/><path d="M22 91Q51 50 106 55Q164 37 222 90Q175 123 96 113Q49 118 22 91Z" fill="url(#mpIslandLand)" stroke="#55865D" stroke-width="3"/><path d="M53 89Q110 66 171 86" stroke="#F5E2A5" stroke-width="9" stroke-linecap="round" stroke-dasharray="11 10"/><path d="M114 57V21" stroke="#8B5A35" stroke-width="4"/><path d="M118 20L150 31L118 39Z" fill="#E77853"/><path d="M48 83L61 38L74 83Z" fill="#4B9764"/><path d="M41 70L61 29L80 70Z" fill="#65A46D"/><path d="M178 96L191 43L205 96Z" fill="#4F8D60"/><path d="M170 78L191 30L214 78Z" fill="#6CA878"/><rect x="89" y="72" width="31" height="26" rx="4" fill="#AB7448" stroke="#70462D" stroke-width="3"/><rect x="94" y="64" width="27" height="18" rx="2" fill="#DCA56B" stroke="#8D5937" stroke-width="3"/><path d="M93 82H116" stroke="#79502F" stroke-width="4"/><circle cx="106" cy="78" r="5" fill="#F7C85D"/></svg>';
 }
 function mascot(message,small=false){return '<div class="mp-mascot '+(small?'mp-mascot-small':'')+'"><img src="'+foxSrc()+'" alt="" loading="lazy"><div class="mp-bubble">'+message+'<span class="mp-heart" aria-hidden="true">♥</span></div></div>'}
-function top(){return '<header class="mp-top"><div class="mp-top-left">'+btn('back','‹','mp-back','id="multiplication-lab-back" aria-label="Tilbake"')+'<span class="mp-brand">Læria<span class="mp-brand-star">✦</span></span></div><div class="mp-top-right"><span class="mp-avatar" aria-hidden="true"><img src="'+foxSrc()+'" alt=""></span><span class="mp-star-count" aria-label="'+saved.stars+' stjerner">★ <b>'+saved.stars+'</b></span></div></header>'}
+function top(){const fromTallvika=document.getElementById('multiplication-lab-screen')?.dataset.tvOrigin==='table';
+ return '<header class="mp-top"><div class="mp-top-left">'+btn('back','‹','mp-back','id="multiplication-lab-back" aria-label="'+(fromTallvika?'Tilbake til Tallvika':'Tilbake')+'"')+'<span class="mp-brand">Læria<span class="mp-brand-star">✦</span>'+(fromTallvika?'<span class="tv-origin-breadcrumb">TALLVIKA / GANGETABELLEN</span>':'')+'</span></div><div class="mp-top-right"><span class="mp-avatar" aria-hidden="true"><img src="'+foxSrc()+'" alt=""></span><span class="mp-star-count" aria-label="'+saved.stars+' stjerner">★ <b>'+saved.stars+'</b></span></div></header>'}
 function heading(t,s){return '<div class="mp-heading"><h1>'+t+'</h1><p>'+s+'</p></div>'}
 function travel(progressCount=0,total=8){let circles='';for(let i=0;i<total;i++)circles+='<span class="mp-travel-node '+(i<progressCount?'done':'')+'">'+(i<progressCount?'★':'')+'</span>';return '<div class="mp-travel"><div class="mp-travel-scene" aria-hidden="true">🌲 ⛰️</div><div class="mp-travel-main"><span>'+(stateBox.page==='practice'?'Oppgave '+(stateBox.idx+1)+' av 8':'Din læringsreise')+'</span><div class="mp-travel-nodes">'+circles+'</div></div><div class="mp-travel-treasure" aria-hidden="true">🗝️</div></div>'}
 function menuCard(page,titleText,subtitle,art){return btn('go','<span class="mp-menu-copy"><strong>'+titleText+'</strong><small>'+subtitle+'</small></span><span class="mp-menu-art mp-art-'+page+'">'+art+'</span><span class="mp-arrow" aria-hidden="true">›</span>','mp-menu-card mp-menu-'+page,'data-page="'+page+'"')}
@@ -173,7 +174,18 @@ function onClick(event){
  const root=document.getElementById(ROOT),target=event.target.closest('button[data-mp-action]');if(!target||!root?.contains(target))return;
  const action=target.dataset.mpAction,page=target.dataset.page,n=Number(target.dataset.table);
  if(action==='go'){if(page==='practice')return begin();if(page==='explore')stateBox.active='table';stateBox.page=page;render();scrollTop();return}
- if(action==='back'){if(stateBox.page==='home'){
+ if(action==='back'){
+   if(window.LARIA_TALLVIKA?.returnFromActivity?.('table'))return;
+   // Tallvika's Gangetabellen portal lands directly in the interactive table.
+   // A single Back returns to the exact Maths world, without a redundant
+   // Gangetabellen start menu. Every other original entry retains its flow.
+   const parent=document.getElementById('multiplication-lab-screen');
+   if(parent?.dataset.mpDirectTallvika==='true'&&stateBox.page==='explore'){
+     delete parent.dataset.mpDirectTallvika;
+     try{openSubject('math')}catch(_){try{showScreen('subject')}catch(_){}}
+     return;
+   }
+   if(stateBox.page==='home'){
    const screen=document.getElementById('multiplication-lab-screen');
    if(screen?.dataset.returnToMathSubject==='true'){
      screen.dataset.returnToMathSubject='false';
@@ -202,11 +214,35 @@ const root=document.getElementById(ROOT);if(root&&!root.dataset.mpV2Bound){root.
 window.LARIA_MULT_PICK_PLAY?.mount(root,render);
 window.openMultiplicationLab=function(){
  const screen=document.getElementById('multiplication-lab-screen');
- if(screen)screen.dataset.returnToMathSubject=String(!!document.querySelector('#subject-screen.active'));
+ // Another entry to this game must not inherit Tallvika's one-tap return.
+ if(screen){
+   delete screen.dataset.mpDirectTallvika;
+   screen.dataset.returnToMathSubject=String(!!document.querySelector('#subject-screen.active'));
+ }
  screen?.setAttribute('data-explore-release','explore-rc1');
  stateBox.page='home';stateBox.showHints=false;stateBox.showSummary=false;render();
  try{showScreen('multiplication-lab')}catch(_){}
 };
-window.LARIA_MULT_PREMIUM={version:'illustrated-v2',open:window.openMultiplicationLab,stats:()=>JSON.parse(JSON.stringify(saved)),snapshot:()=>({page:stateBox.page,mode:stateBox.active,theme:currentIllustrationTheme(),a:stateBox.a,b:stateBox.b,row:stateBox.row,col:stateBox.col,round:stateBox.round.map(q=>Object.assign({},q)),index:stateBox.idx,firstTry:stateBox.firstTry,answer:stateBox.answer})};
+// Explicit child-facing entry. The Gangemagi wrapper replaces
+// window.openMultiplicationLab at runtime, so a DOM click through the old
+// menu can silently open the wrong game. Do not rely on setTimeout or DOM
+// selectors in Tallvika for changing classic game state.
+function openTableFromTallvika(){
+ const screen=document.getElementById('multiplication-lab-screen');
+ if(!screen||!document.getElementById(ROOT))return false;
+ screen.dataset.returnToMathSubject='true';
+ screen.dataset.mpDirectTallvika='true';
+ screen.setAttribute('data-explore-release','explore-rc1');
+ stateBox.page='explore';
+ stateBox.active='table';
+ stateBox.showHints=false;
+ stateBox.showSummary=false;
+ render();
+ try{showScreen('multiplication-lab');return true}
+ catch(_){delete screen.dataset.mpDirectTallvika;return false}
+}
+window.LARIA_MULT_PREMIUM={version:'illustrated-v2',open:window.openMultiplicationLab,
+ openTableFromTallvika,stats:()=>JSON.parse(JSON.stringify(saved)),
+ snapshot:()=>({page:stateBox.page,mode:stateBox.active,theme:currentIllustrationTheme(),a:stateBox.a,b:stateBox.b,row:stateBox.row,col:stateBox.col,round:stateBox.round.map(q=>Object.assign({},q)),index:stateBox.idx,firstTry:stateBox.firstTry,answer:stateBox.answer})};
 const entry=document.getElementById('open-multiplication-lab');if(entry)entry.onclick=window.openMultiplicationLab;
 })();

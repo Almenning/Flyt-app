@@ -46,7 +46,9 @@ async function open(page,url){
  await page.goto(url,{waitUntil:'domcontentloaded'});
  await page.waitForFunction(()=>window.LARIA_MULT_PREMIUM?.version==='illustrated-v2',null,{timeout:18000});
  // Real entry route, matching the child-facing navigation contract.
- await page.locator('.bc14-free:visible').click();
+ // Maths uses Tallvika, so the retired free-practice shortcut is hidden.
+ // Reach Gangemagi through the child-facing Utforsk activity route.
+ await page.locator('.bc12-nav [data-camp="explore"]').click();
  await page.locator('.bc13-card[data-bc13-action="multiply"]:visible').click();
  await page.locator('#multiplication-lab-screen.active .gm-shell').waitFor({state:'visible'});
  // Validate the retained full classic practice in its own mode, not via the new child start screen.

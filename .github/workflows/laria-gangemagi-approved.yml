@@ -50,6 +50,9 @@ jobs:
   markedsbok-visual:
     runs-on: ubuntu-latest
     timeout-minutes: 18
+    # Pin browser binaries and Linux libraries to the verified Playwright runtime.
+    # Ubuntu-latest with a cached WPE browser can miss libicudata.so.74.
+    container: mcr.microsoft.com/playwright:v1.62.1-noble
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -58,27 +61,15 @@ jobs:
           cache: npm
       - name: Install pinned dependencies
         run: npm ci
-      - name: Resolve Playwright cache key
-        id: playwright-version
-        shell: bash
-        run: echo "version=$(node -p "require('./node_modules/playwright/package.json').version")" >> "$GITHUB_OUTPUT"
-      - name: Cache Chromium and WebKit binaries
-        id: playwright-cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: gangemagi-playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}-chromium-webkit
       - name: Validate original image and JavaScript
         run: |
           test -s laer-litt-mer/gangemagi-approved-eight-scenes-20261017.webp
           node --check laer-litt-mer/multiplication-gangemagi-v1.js
           node --check tests/laria-gangemagi.playwright.js
           node --test tests/laria-gangemagi-engine.test.cjs tests/laria-gangemagi-release-cache.test.cjs tests/laria-gangemagi-tap-intent.test.cjs tests/laria-gangemagi-props.test.cjs
-      - name: Install browser system dependencies
-        run: npx playwright install-deps chromium webkit
-      - name: Install Chromium and WebKit binaries
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: npx playwright install chromium webkit
+      - name: Verify pinned Chromium and WebKit runtime
+        run: |
+          node -e "const fs=require('node:fs'); const p=require('playwright'); for(const key of ['chromium','webkit']) { const exe=p[key].executablePath(); if(!fs.existsSync(exe)) throw Error(key+' browser missing: '+exe); }"
       - name: Test six real viewport sizes and render book screenshots
         env:
           QA_SCREENSHOTS: /tmp/laria-gangemagi-approved-visual
