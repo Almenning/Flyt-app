@@ -69,3 +69,11 @@ Brukeren godkjente den eksakte Eggenipa-illustrasjonen, men avviste resten av de
 - Rettelse: hintknappen til venstre for «Ny ordjakt» på landskap/desktop, og tilbake i normal flexflyt på mobil/iPad-portrett. Ingen endring i oppgaver, hintlogikk, bilder eller lagringsformat.
 - Ny E2E-kontrakt: På alle åtte Chromium/WebKit-visninger må hintknappen være minst 44×44 og faktisk treffbar i sentrum via `document.elementFromPoint`, og deretter svare på ekte `tap()`.
 - Ikke godkjent før den nye Eggenipa- og Finn ordene-CI er grønne.
+
+
+### 26.10 – migrert gammelt testgrunnlag til direkte Norsk
+
+- CI på `ad6f4fd` bekreftet at Home, Basecamp smoke, generisk Læria smoke, fire-kapittel pilot og task-polish fremdeles antok synlig Bokskogen-kart, «Neste eventyr» eller statisk rev. Disse forventningene strider mot den eksplisitt nye barneflyten.
+- Oppdaterte disse kontraktene til faktisk Ordjakt/Finn ordene/Lesekroken, valgt klassetrinn, tilgjengelige leseoppgaver, retur til Eggenipa og bevart lagret avatar-identitet (uten å vise reven i Norsk). For andre fag beholdes gamle kontrakter uendret.
+- Fire-kapittel pilot tester fortsatt den eksisterende interne kapittelmoteren via eksplisitt developer-flag og programmatisk intern knapp; testen krever samtidig at piloten **ikke er synlig** i ordinær Norsk. Ingen endring av gammel kapittelprogresjon eller ID-er.
+- Syntaksen er kontrollert på alle endrede JS-tester; browser-QA kjøres på nytt før nye visuelle beslutninger.

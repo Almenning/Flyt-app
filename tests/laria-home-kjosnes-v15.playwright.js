@@ -70,18 +70,22 @@ async function returnFromLockedJourney(page,screen,subject,label){
    await back.waitFor({state:'visible'});
    await back.click();
  }else if(subject==='norwegian'){
-   await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
-   await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
-   await page.locator(root+' .locked-journey-map[data-journey-subject="norwegian"]').waitFor({state:'visible',timeout:16000});
-   // Bokskogen's original controls return to Eggenipa. The former
-   // fixed overlay was removed because it blocked the map's settings.
-   const native=page.locator(root+' .locked-journey-back');
-   const floating=page.locator(root+' .locked-journey-floating-back');
-   const back=await floating.isVisible()?floating:native;
-   assert.equal(await back.getAttribute('aria-label'),'Tilbake til Eggenipa',label+' native return target');
-   await back.click();
-   await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
-   await page.locator('#eggenipa-world [data-eg="home"]').click();
+   const world=page.locator('#eggenipa-world:visible');
+   await world.waitFor({timeout:16000});
+   assert.deepEqual(await world.locator('.eg-portal').evaluateAll(nodes=>nodes.map(n=>n.dataset.eg)),
+     ['words','find','reading'],label+' Norsk has not switched to direct learning activities');
+   assert.equal(await page.locator('#subject-screen.active .locked-journey-map:visible').count(),0,
+     label+' retired Bokskogen map unexpectedly visible');
+   await world.locator('.eg-portal[data-eg="reading"]').click();
+   await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
+   const learning=await page.evaluate(()=>({subject:sessionScope?.subject,module:sessionScope?.module,
+     question:sessionQuestions[qIndex]?.prompt}));
+   assert.equal(learning.subject,'norwegian');
+   assert.equal(learning.module,'reading',label+' Lesekroken must use the Norwegian reading engine');
+   assert.ok(learning.question,label+' reading mission did not load a question');
+   await page.locator('#close-session').click();
+   await world.waitFor({timeout:16000});
+   await world.locator('[data-eg="home"]').click();
  }else{
    const back=page.locator(root+' .locked-journey-map[data-journey-subject="'+subject+'"] .locked-journey-back');
    await back.waitFor({state:'visible',timeout:16000});

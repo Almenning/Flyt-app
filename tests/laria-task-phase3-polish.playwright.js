@@ -67,22 +67,29 @@ async function run(engine,name,viewport,url){
    },{subject,question});
    const label=name+' '+subject;
    await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:12000});
-   assert.equal(await page.locator('#session-screen .task-fox-companion').count(),1,label+' duplicate fox');
-   // The legacy profile is hidden from the first paint in BOTH text-only
-   // and illustrated tasks. Wait for the selected full-body wardrobe SVG,
-   // then capture evidence; otherwise a screenshot can freeze the fallback
-   // portrait during the requestAnimationFrame composition handoff.
-   await page.waitForFunction(visual=>{
-    const fox=document.querySelector('#session-screen.active .task-fox-companion');
-    const original=fox?.querySelector('img');
-    const rig=fox?.querySelector('svg.laria-fox-wardrobe-placed[data-fox-art="girl-fullbody-v1"]');
-    const marker=fox?.querySelector('.task-profile-marker');
-    return !!original&&!!rig&&getComputedStyle(original).visibility==='hidden'&&
-      rig.getBoundingClientRect().width>30&&rig.getBoundingClientRect().height>40&&
-      (!visual||!marker||getComputedStyle(marker).display==='none');
-   },!!question.visual,{timeout:15000});
-   assert.equal(await page.locator('#session-screen .task-fox-companion .laria-fox-wardrobe-placed').count(),1,
-    label+' duplicate or missing chosen full-body fox');
+   if(subject==='norwegian'){
+     assert.equal(await page.locator('#session-screen.active .task-fox-companion').count(),0,
+       label+' retired fox must be absent from Norsk task scene');
+     const guide=page.locator('#session-screen.active .task-norsk-guide');
+     await guide.waitFor({state:'visible',timeout:15000});
+     assert.equal(await guide.count(),1,label+' Norsk has duplicate helper guides');
+     assert.ok((await guide.boundingBox())?.width>=30,label+' Norsk guidance symbol is missing');
+   }else{
+     assert.equal(await page.locator('#session-screen .task-fox-companion').count(),1,label+' duplicate fox');
+     // Other subjects still retain their own original full-body figure until
+     // their separately approved visual migrations ship.
+     await page.waitForFunction(visual=>{
+       const fox=document.querySelector('#session-screen.active .task-fox-companion');
+       const original=fox?.querySelector('img');
+       const rig=fox?.querySelector('svg.laria-fox-wardrobe-placed[data-fox-art="girl-fullbody-v1"]');
+       const marker=fox?.querySelector('.task-profile-marker');
+       return !!original&&!!rig&&getComputedStyle(original).visibility==='hidden'&&
+         rig.getBoundingClientRect().width>30&&rig.getBoundingClientRect().height>40&&
+         (!visual||!marker||getComputedStyle(marker).display==='none');
+     },!!question.visual,{timeout:15000});
+     assert.equal(await page.locator('#session-screen .task-fox-companion .laria-fox-wardrobe-placed').count(),1,
+       label+' duplicate or missing chosen full-body fox');
+   }
    const first=await page.evaluate(()=>{
     const progress=document.querySelector('#session-screen .session-progress');
     const read=document.querySelector('#session-screen .read-aloud');

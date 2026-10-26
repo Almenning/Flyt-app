@@ -246,13 +246,18 @@ async function finishSession(page){
           await p.locator('#home-screen.active .bc12').waitFor();
           await p.evaluate(()=>openSubject('norwegian'));
           await p.locator('#eggenipa-world:visible').waitFor({timeout:16000});
-          await p.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
-          await p.locator('#subject-screen.active .locked-journey-map[data-journey-subject="norwegian"]').waitFor({state:'visible',timeout:16000});
-          const travelerImg=p.locator('#subject-screen.active .locked-journey-profile[data-avatar="girl"] img');
-          await travelerImg.waitFor({state:'visible',timeout:16000});
-          const travelerSrc=await travelerImg.getAttribute('src');
-          const expectedTravelerSrc=await p.evaluate(()=>window.LARIA_PROFILE_AVATARS?.girl||'./lia-fox-explorer-home.webp');
-          assert.equal(travelerSrc,expectedTravelerSrc,'Bokskogen must display the saved revejente avatar over the approved artwork');
+          assert.deepEqual(await p.locator('#eggenipa-world .eg-portal')
+            .evaluateAll(els=>els.map(x=>x.dataset.eg)),['words','find','reading'],
+            'Norsk lost direct Eggenipa learning choices');
+          assert.equal(await p.locator('#subject-screen.active .locked-journey-map:visible').count(),0,
+            'Retired Bokskogen map still visible');
+          assert.equal(await p.evaluate(()=>state.profile.avatar),'girl',
+            'Stored avatar preference changed when removing old Norwegian fox');
+          await p.locator('#eggenipa-world [data-eg="reading"]').click();
+          await p.locator('#session-screen.active .laria-task-card').waitFor();
+          assert.equal(await p.evaluate(()=>sessionScope?.module),'reading','Norsk reading module changed');
+          await p.locator('#close-session').click();
+          await p.locator('#eggenipa-world:visible').waitFor();
 
           await p.evaluate(()=>{
             sessionScope={type:'subject',subject:'norwegian',module:'reading',label:'Norsk',grade:2};
@@ -261,13 +266,12 @@ async function finishSession(page){
             showScreen('session');renderQuestion();
           });
           await p.locator('#session-screen.active').waitFor();
-          const taskFox=p.locator('.task-fox-companion');
-          await taskFox.waitFor();
-          assert.equal(await taskFox.getAttribute('data-avatar'),'girl','Oppgavescene fox did not follow saved revejente choice');
-          const taskMarker=taskFox.locator('.task-profile-marker');
-
-                    await taskMarker.waitFor({state:'hidden'});
-          assert.equal((await taskMarker.textContent()).trim(),'✿','Oppgavescene revejente has no visible profile marker');
+          assert.equal(await p.locator('#session-screen.active .task-fox-companion').count(),0,
+            'Old fox should be absent from Norsk task scene');
+          assert.equal(await p.locator('#session-screen.active .task-norsk-guide').count(),1,
+            'Norsk must display one accessible neutral hint guide');
+          assert.equal(await p.evaluate(()=>state.profile.avatar),'girl',
+            'Removing the Norwegian visual fox must not alter profile data');
           await p.evaluate(()=>{state.activeSession=null;currentAnswered=null;setTab('home')});
           await p.locator('#home-screen.active .bc12').waitFor();
         }
