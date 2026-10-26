@@ -132,6 +132,12 @@ async function run(engine,label,viewport){
      await journeyBack.click();
    }
    }
+   if(subject==='norwegian'){
+     // Painted Bokskogen back returns to Norsk. Returning from Norsk then
+     // restores the original Travel/Explore panel and basecamp state.
+     await page.locator('#eggenipa-world').waitFor({state:'visible',timeout:10000});
+     await page.locator('#eggenipa-world .eg-home').click();
+   }
    try{
      await page.locator('#home-screen.active').waitFor({timeout:10000});
    }catch(error){
