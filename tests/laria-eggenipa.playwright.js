@@ -146,6 +146,8 @@ async function run(engine,browserType,view,viewport){
     label+' legacy fox is still inside the Norwegian lesson');
   assert.equal(await page.locator('#session-screen.active .task-norsk-guide').count(),1,
     label+' neutral Norwegian guide missing');
+  assert.equal(await page.locator('#session-screen.active .task-norsk-guide').getAttribute('aria-label'),'Få et hint',
+    label+' Norsk should offer a real, accessible hint');
   // Short landscape Safari must make the answers reachable without scrolling
   // or guessing below the fold. Inspect actual layout and real hit targets.
   if(view==='iphone-landscape'){

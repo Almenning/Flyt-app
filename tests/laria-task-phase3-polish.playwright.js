@@ -73,7 +73,22 @@ async function run(engine,name,viewport,url){
      const guide=page.locator('#session-screen.active .task-norsk-guide');
      await guide.waitFor({state:'visible',timeout:15000});
      assert.equal(await guide.count(),1,label+' Norsk has duplicate helper guides');
-     assert.ok((await guide.boundingBox())?.width>=30,label+' Norsk guidance symbol is missing');
+     assert.ok((await guide.boundingBox())?.width>=44,label+' Norsk hint button is too small');
+     assert.equal(await guide.evaluate(el=>el.tagName),'BUTTON',label+' hint must be interactive');
+     assert.equal(await guide.getAttribute('aria-expanded'),'false');
+     const beforeHint=await page.evaluate(()=>({index:qIndex,answered:currentAnswered}));
+     await guide.click();
+     const help=page.locator('#task-norsk-hint');
+     await help.waitFor({state:'visible'});
+     assert.match(await help.innerText(),/Se nøye på bildet/,'first hint should encourage looking');
+     await guide.click();
+     assert.match(await help.innerText(),/starter med H/,'second hint should offer starting sound');
+     assert.doesNotMatch(await help.innerText(),/HUND/,'hint must not reveal the answer');
+     assert.deepEqual(await page.evaluate(()=>({index:qIndex,answered:currentAnswered})),beforeHint,
+       'hint altered the real question state');
+     await guide.click();
+     await help.waitFor({state:'hidden'});
+     assert.equal(await guide.getAttribute('aria-expanded'),'false');
    }else{
      assert.equal(await page.locator('#session-screen .task-fox-companion').count(),1,label+' duplicate fox');
      // Other subjects still retain their own original full-body figure until

@@ -213,3 +213,12 @@ Brukeren godkjente den eksakte Eggenipa-illustrasjonen, men avviste resten av de
 - Ved samlet regresjon på `e80e88c` besto `laria-mapboard` sine tidligere delkontroller, men `tests/laria-premium-cards.playwright.js` stoppet fordi siste del fortsatt klikket `#eggenipa-world .eg-portal[data-eg="map"]`. Den portalen ble bevisst fjernet fra godkjent Norsk-forside, så dette var et foreldet testpremiss.
 - Testen kontrollerer nå det låste Eggenipa-masterbildet (1672×941), **akkurat tre** direkte aktiviteter, fravær av gammel Bokskogen-kartvisning og at Norsk-kortet faktisk åpner Lesekroken med korrekt `sessionScope`, før retur til Eggenipa. Samme fem Chromium/WebKit-visninger blir bevart.
 - Læringsdata, bilder, appkode, lagret fremgang og øvrige fag er uendret. CI må bestå på ny PR-head før teknisk publiseringsgodkjenning.
+
+
+### 26.10 – Lesekroken: første egentlige premiumrunde
+
+- Bruker har godkjent hele Eggenipa-forsiden og de tre inngangene. **Ikke endre Eggenipa-masteren eller kartløse navigasjonen.** Neste arbeid er de faktiske aktivitetene.
+- Lesekroken hadde fortsatt en stor, passiv stjerne som ikke kunne hjelpe ved vanskelige oppgaver. Den er nå en **ekte, tastatur-/berøringsvennlig hintknapp** med to pedagogiske trinn: observer/les på nytt, deretter startlyd ved illustrerte ordoppgaver (uten å avsløre svaret). Tredje trykk skjuler rådet. Meldingen er tilgjengelig med `role=status`; hintet endrer verken `qIndex`, `currentAnswered`, svarvurdering eller lagret progresjon.
+- Norsk har fått en avgrenset eventyrbokstil i egen CSS-kilde, lastet **etter** de generelle ung-barn-stilene: brun bokmerke, varmere pergament, diskré ramme på eksisterende oppgaveillustrasjoner, og et integrert hjelpeelement med god nok berøringsflate. Den opprinnelige tegningen/korrekt fasit brukes fortsatt. Ingen uautoriserte trolltegninger eller rev er lagt til.
+- Tester for pedagogisk hint, hint uten fasitlekkasje, uendret svarstatus, riktig 44 px berøringsflate, korrekt feiring og retur er utvidet. Spesiallayout for liggende iPhone beholder allerede avtalte svarmål og høyde.
+- **Viktig:** Dette er en fase i premiumombyggingen, ikke ferdig visuell godkjenning av Lesekroken.

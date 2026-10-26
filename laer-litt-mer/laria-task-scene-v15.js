@@ -83,6 +83,41 @@
     });
   }
 
+  // A real, child-directed helper for Norsk. First hint prompts observation;
+  // a second hint gives a starting sound for illustrated single-word answers.
+  // Neither advances the lesson, marks an answer, nor changes saved progress.
+  function norskHintCopy(q,step){
+    if(step===1){
+      if(q?.visual)return 'Se nøye på bildet. Hva er det du kjenner igjen?';
+      if(q?.passage)return 'Les teksten en gang til. Hvilke ord hjelper deg å forstå svaret?';
+      if(q?.type==='build-word')return 'Si ordet sakte. Hør etter én lyd om gangen.';
+      if(q?.type==='sentence-order')return 'Les ordene høyt. Hvilket ord kan starte setningen?';
+      return 'Les oppgaven rolig én gang til. Hvilket svar passer best?';
+    }
+    if(q?.visual&&typeof q.answer==='string'){
+      const first=Array.from(q.answer.trim())[0]||'';
+      if(/^[a-zæøå]$/i.test(first))return 'Lytt etter første lyd. Ordet starter med '+first.toUpperCase()+'.';
+    }
+    if(q?.passage)return 'Finn setningen i teksten som forteller mest om svaret.';
+    if(q?.type==='build-word')return 'Prøv én bokstav om gangen. Du kan endre valget ditt.';
+    return 'Se på svarene igjen. Kan du finne et som ikke passer?';
+  }
+  function bindNorskHint(wrap,q){
+    const guide=wrap.querySelector('.task-norsk-guide');
+    const message=wrap.querySelector('#task-norsk-hint');
+    if(!guide||!message)return;
+    let step=0;
+    guide.addEventListener('click',()=>{
+      // Third activation closes the little storybook hint, so it never
+      // remains pinned across a question or covers choices unnecessarily.
+      step=step===2?0:step+1;
+      message.hidden=step===0;
+      message.textContent=step?norskHintCopy(q,step):'';
+      guide.setAttribute('aria-expanded',String(step>0));
+      guide.setAttribute('aria-label',step===0?'Få et hint':step===1?'Få et hint til':'Skjul hint');
+    });
+  }
+
   const PREMIUM_VISUAL_KEYS=Object.freeze(['🏠','🐱','🐶','📘','🍎','🚗','⛵','🌳','☀️','🌙','🐟','⚽']);
   window.LARIA_TASK_PREMIUM_VISUALS=PREMIUM_VISUAL_KEYS.slice();
 
@@ -337,7 +372,7 @@
     // In Norsk use a discrete symbol until the approved TrollActor is rigged.
     // Other subjects continue to use their existing selected avatar.
     const fox=subject==='norwegian'
-      ?'<div class="task-norsk-guide" aria-hidden="true"><span>✦</span></div>'
+      ?'<div class="task-norsk-helper"><button class="task-norsk-guide" type="button" aria-label="Få et hint" aria-controls="task-norsk-hint" aria-expanded="false"><span aria-hidden="true">✦</span><small aria-hidden="true">Hint</small></button><p class="task-norsk-hint" id="task-norsk-hint" role="status" aria-live="polite" hidden></p></div>'
       :'<div class="task-fox-companion" data-avatar="'+avatar+'" aria-hidden="true"><img src="'+attr(foxSource())+'" alt=""><span class="task-profile-marker">'+(avatar==='girl'?'✿':'✦')+'</span></div>';
     // A number-choice question has no illustration to stand beside.
     // Give the ONE selected full-body fox a real place next to the prompt,
@@ -350,7 +385,8 @@
       '<div class="question">'+text(prompt)+'</div>'+passage+visualWithFox;
 
     wrap.innerHTML=
-      '<article class="laria-task-card '+mode+' '+layout+' '+(inlineFox?'task-inline-fox ':'')+taskTypeClass(q)+'">'+
+      '<article class="laria-task-card '+mode+' '+layout+' '+(inlineFox?'task-inline-fox ':'')+(subject==='norwegian'?'task-norsk-storybook ':'')+taskTypeClass(q)+'">'+
+        (subject==='norwegian'?'<div class="task-norsk-bookmark" aria-hidden="true">✦ <span>LESEKROKEN</span> ✦</div>':'')+
         '<div class="task-world-chip">'+text(sceneName(subject))+'</div>'+
         '<div class="task-card-head"><div class="qtype">'+subjectName(subject)+' · '+text(String(gradeLabel).toUpperCase())+'</div>'+readButton+'</div>'+
         questionScene+
@@ -362,7 +398,10 @@
     if(subject==='geography')bindGeographyInteraction(q,wrap);
     else bindInteraction(q,wrap);
     // Other subjects are handled by LARIA_FOX_PRESENCE. Norsk has no fox.
-    if(subject==='norwegian')bindNorskGuideReaction(wrap.querySelector('.task-interaction'));
+    if(subject==='norwegian'){
+      bindNorskGuideReaction(wrap.querySelector('.task-interaction'));
+      bindNorskHint(wrap,q);
+    }
     const next=wrap.querySelector('#next-question');
     if(next)next.onclick=nextQuestion;
     bindReadAloud(q);
