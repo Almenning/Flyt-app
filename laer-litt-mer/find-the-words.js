@@ -143,7 +143,7 @@
       button.setAttribute('aria-pressed',String(found));
     });
     const next=overlay.querySelector('.fw-next');
-    next.textContent=active.completed?'Oppdag på nytt ↗':'Ny ordjakt ↗';
+    next.textContent=active.completed?'Oppdag på nytt ↗':'Nye ord ↗';
     overlay.classList.toggle('fw-complete',active.completed);
   }
   function react(mood,message){

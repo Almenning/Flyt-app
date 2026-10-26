@@ -176,3 +176,8 @@ Brukeren godkjente den eksakte Eggenipa-illustrasjonen, men avviste resten av de
 - Skjermbilde- og DOM-gjennomgang viste at «Tilbake»-knappen i Finn ordene og Ordjakts temavelger fortsatt var merket «Tilbake til Utforsk» også når barnet kom direkte fra Eggenipa. Den eksisterende rutefunksjonen returnerte allerede korrekt, men opplest/tilgjengelig navn var feil.
 - Bruker nå samme observerte inngangsfokus som returfunksjonen for å vise «Tilbake til Norsk» fra Eggenipa og beholde «Tilbake til Utforsk» når lekene er åpnet fra Utforsk. Ingen endring i faktisk retur, lagrede økter, spillmotor eller profil.
 - Chromium/WebKit-kontraktene tester begge returveiene eksplisitt; script-cacheversjoner oppdatert for Safari.
+
+
+### 26.10 – fikset overstyring av «Nye ord» etter komponentbygging
+
+- Første Chromium-E2E etter oppryddingen avdekket at knappen fortsatt ble vist som «Ny ordjakt» selv om HTML-templaten sa «Nye ord». Rotårsaken var `refresh()`, som setter `fw-next.textContent` etter initial render. Begge kildene bruker nå «Nye ord» mens runden pågår, mens fullført runde fortsatt tilbyr «Oppdag på nytt». Browser-testen av reell gjengitt tekst beholdes som regresjonsport.
