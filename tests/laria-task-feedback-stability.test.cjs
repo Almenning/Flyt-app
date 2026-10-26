@@ -75,6 +75,7 @@ test('Fox presence remains separate from the single Norwegian answer guide',()=>
   assert(sceneJs.includes('let celebrated=false'),'each new Norwegian question must suppress repeated celebrations');
   assert(sceneJs.includes('currentAnswered?.correct===true'),'Norsk guide must celebrate only a genuinely correct answer');
   assert(sceneJs.includes('bindNorskHint(wrap,q)'),'Norsk hints must be connected to real question events');
+  assert(sceneJs.includes('closeHint();'),'Answered tasks must dismiss old Norwegian hints');
   assert(sceneJs.includes("aria-controls=\"task-norsk-hint\""),'Norsk hint must be an accessible button');
   assert(sceneJs.includes("step=step===2?0:step+1"),'Norsk hint must close without affecting progress');
   assert.match(sceneJs,/task-hear-word/,'English pronunciation must be preserved');

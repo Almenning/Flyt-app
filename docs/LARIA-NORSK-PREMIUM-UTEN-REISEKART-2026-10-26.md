@@ -247,3 +247,10 @@ Brukeren godkjente den eksakte Eggenipa-illustrasjonen, men avviste resten av de
 
 - Node-regresjonen hadde 407 av 408 grønne. Den siste feilen skyldtes at testkontrakten krevde én spesifikk kodelinje for Norsk-hjelperen, mens den fungerende implementasjonen bruker en blokk med både reaksjon og hint. Testen krever nå samme fagvakt og handling uavhengig av kodelinjeskift.
 - Geometritesten forsøkte å åpne en Bokskogen-portal som etter avtale er fjernet. Nå kontrolleres i stedet Eggenipas tre direkte aktiviteter, at det gamle kartet ikke dukker opp, at opprinnelige node-ID-er fortsatt eksisterer i den lagrede modellen, og at besøk på forsiden ikke endrer barnets fremgang. De resterende fagkartene beholder alle geometrikravene.
+
+
+### 26.10 – første samling med premium-objekter + lukking av hint ved svar
+
+- Fem kjente Norsk-objekter som tidligere ble rendret med plattformavhengige emoji, har nå lokale, fargekoordinerte SVG-illustrasjoner i det **eksisterende** `premiumIllustrationSvg`-biblioteket: sko, tog, ost, mus og ku. Alle deler av den godkjente Eggenipa-forsiden, spillenes læringsdata/fasit, figurer og lagring er urørt. Andre fag beholder sin opprinnelige rendering, og de eksisterende 12 ikonene er bevart.
+- Hintkortet i Lesekroken lukkes nå når et svar faktisk er gitt. Det skjuler dermed ikke riktig/feil-tilbakemeldingen. Åpning/lukking av hint og riktig svarreaksjon testes fortsatt i WebKit/Chromium. Nettlesertesten kontrollerer at alle fem nye tegninger vises som ekte vektorgrafikk, ikke emoji, og lagrer et skjermbilde av sko.
+- CSS og oppgavekortgeometri er ikke endret. Dette er en avgrenset premiumforbedring før full visuell godkjenning.

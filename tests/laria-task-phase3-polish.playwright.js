@@ -174,9 +174,16 @@ async function run(engine,name,viewport,url){
      };
    });
    const anchoredBefore=await geometry();
+   if(subject==='norwegian'){
+     await page.locator('#session-screen.active .task-norsk-guide').click();
+     await page.locator('#task-norsk-hint').waitFor({state:'visible'});
+   }
    await page.locator('#session-screen .answer[data-answer="'+question.answer+'"]').click();
    if(subject==='norwegian'){
      const guide=page.locator('#session-screen.active .task-norsk-guide');
+     await page.locator('#task-norsk-hint').waitFor({state:'hidden'});
+     assert.equal(await guide.getAttribute('aria-expanded'),'false',
+       label+' Norsk hint must close immediately when answer is given');
      await page.waitForFunction(()=>document.querySelector('#session-screen.active .task-norsk-guide')?.classList.contains('fox-correct'),
        null,{polling:25,timeout:1000});
      assert.equal(await guide.count(),1,label+' correct answer duplicated the Norsk guide');
@@ -214,6 +221,26 @@ async function run(engine,name,viewport,url){
    await page.screenshot({path:path.join(shots,name+'-'+subject+'-02-complete-answer.png'),animations:'disabled',fullPage:true});
    await page.locator('#next-question').click();
    await page.locator('#complete-screen.active').waitFor({timeout:10000});
+  }
+  // Supplemental art test: real, rendered images rather than fallback emoji.
+  for(const [symbol,kind] of [['👟','shoe'],['🚆','train'],['🧀','cheese'],['🐭','mouse'],['🐄','cow']]){
+    await page.evaluate(({symbol})=>{
+      sessionQuestions=[{subject:'norwegian',type:'learning-choice',skill:'word-picture',
+        prompt:'Hvilket ord passer til bildet?',visual:symbol,answer:'ord',options:['ord','annet']}];
+      sessionScope={type:'subject',subject:'norwegian',grade:2,label:'Lesekroken',practiceOnly:true};
+      qIndex=0;currentAnswered=null;state.activeSession={startedAt:Date.now()};
+      showScreen('session');renderQuestion();
+    },{symbol});
+    const artwork=page.locator('#session-screen.active .task-illustration-norsk-object');
+    await artwork.waitFor({state:'visible',timeout:12000});
+    assert.equal(await artwork.getAttribute('data-norsk-object'),kind,
+      name+' wrong illustration identity for '+kind);
+    assert.equal(await page.locator('#session-screen.active [data-task-visual-kind="fallback"]').count(),0,
+      name+' Norsk '+kind+' fell back to emoji');
+    const bound=await artwork.boundingBox();
+    assert.ok(bound&&bound.width>=70&&bound.height>=40,name+' '+kind+' vector is too small');
+    if(kind==='shoe')await page.screenshot({
+      path:path.join(shots,name+'-norsk-shoe-premium.png'),animations:'disabled',fullPage:false});
   }
   assert.deepEqual(errors,[],name+' uncaught runtime error');
   await context.close();
