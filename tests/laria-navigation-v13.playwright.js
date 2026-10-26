@@ -90,9 +90,21 @@ async function run(engine,label,viewport){
        throw new Error(label+' Tallvika return control never became visible: '+
          JSON.stringify(debug)+'; '+error.message);
      }
-     const size=await back.boundingBox();
-     assert.ok(size&&size.width>=44&&size.height>=44,
-       label+' Tallvika return touch area too small: '+JSON.stringify(size));
+     // The subject MutationObserver can replace the entire Tallvika header
+     // between waitFor(visible) and a separate boundingBox() call. WebKit
+     // reported null for a *detached old node*, not a measured small target.
+     // Re-resolve the current locator and read its dimensions in one browser
+     // evaluation. Keep the strict 44x44 and in-viewport checks.
+     const size=await back.evaluate(node=>{
+       const r=node.getBoundingClientRect(),style=getComputedStyle(node);
+       return {x:r.x,y:r.y,width:r.width,height:r.height,
+         display:style.display,visibility:style.visibility,
+         viewport:{width:innerWidth,height:innerHeight}};
+     });
+     assert.ok(size.width>=44&&size.height>=44&&size.display!=='none'&&
+       size.visibility==='visible'&&size.x>=-1&&size.y>=-1&&
+       size.x+size.width<=size.viewport.width+1&&size.y+size.height<=size.viewport.height+1,
+       label+' Tallvika return touch area inaccessible: '+JSON.stringify(size));
      await page.screenshot({path:folder+'/'+label+'-math-back-reachable.png',fullPage:false});
      await back.click();
    }else{
