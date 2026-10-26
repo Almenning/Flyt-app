@@ -30,12 +30,15 @@ async function takeActivity(page,action,label){
  await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
  const result=await page.evaluate(()=>({
    subject:sessionScope?.subject,module:sessionScope?.module,
-   count:sessionQuestions?.length,question:sessionQuestions?.[qIndex]?.prompt
+   count:sessionQuestions?.length,question:sessionQuestions?.[qIndex]?.prompt,skills:sessionQuestions?.map(q=>q.skill)
  }));
  assert.equal(result.subject,'english',label+' wrong subject after '+action);
  assert.equal(result.module,action,label+' wrong module after '+action);
  assert.ok(result.count>=5,label+' missing real learning questions in '+action);
  assert.ok(result.question,label+' empty question in '+action);
+ const permitted={words:['words','numbers','spelling','vocabulary'],sentences:['sentence','phrases'],reading:['reading']};
+ assert.ok(result.skills.every(skill=>permitted[action].includes(skill)),
+   label+' '+action+' unexpectedly contains unrelated English skill: '+result.skills.join(','));
  return result;
 }
 async function run(browserType,name,viewport){
