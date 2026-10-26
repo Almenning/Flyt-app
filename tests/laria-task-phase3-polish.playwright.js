@@ -239,8 +239,21 @@ async function run(engine,name,viewport,url){
       name+' Norsk '+kind+' fell back to emoji');
     const bound=await artwork.boundingBox();
     assert.ok(bound&&bound.width>=70&&bound.height>=40,name+' '+kind+' vector is too small');
-    if(kind==='shoe')await page.screenshot({
-      path:path.join(shots,name+'-norsk-shoe-premium.png'),animations:'disabled',fullPage:false});
+    if(kind==='shoe'){
+      if(viewport.width>=701&&viewport.height>=600){
+        const alignment=await page.locator('#session-screen.active .laria-task-card').evaluate(card=>{
+          const row=card.querySelector('.answers'),buttons=[...row.querySelectorAll('.answer')];
+          const c=card.getBoundingClientRect(),r=row.getBoundingClientRect();
+          return {cardCenter:c.left+c.width/2,rowCenter:r.left+r.width/2,
+            count:buttons.length,columns:getComputedStyle(row).gridTemplateColumns};
+        });
+        assert.equal(alignment.count,2,name+' expected two answers');
+        assert.ok(Math.abs(alignment.cardCenter-alignment.rowCenter)<20,
+          name+' two Norwegian choices should be centered: '+JSON.stringify(alignment));
+      }
+      await page.screenshot({
+        path:path.join(shots,name+'-norsk-shoe-premium.png'),animations:'disabled',fullPage:false});
+    }
   }
   // Every remaining early-Norsk word object must be true illustration art.
   for(const [symbol,id] of [['🍦','icecream'],['🧢','cap'],['🐑','sheep'],['☕','cup'],['🛏️','bed'],['🦊','fox-animal']]){

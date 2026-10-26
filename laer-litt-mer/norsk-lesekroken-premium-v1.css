@@ -100,3 +100,12 @@
 @media(prefers-reduced-motion:reduce){
  #session-screen.task-scene[data-task-subject="norwegian"] .task-norsk-guide{transition:none}
 }
+/* Center only the two-choice Norsk task on tablet-sized viewports.
+   The shared young-task rule otherwise reserves an empty third column. */
+@media (min-width:701px) and (min-height:600px) {
+ #session-screen.task-scene[data-task-subject="norwegian"]
+ .task-norsk-storybook.short-answers .answers:has(> .answer:nth-child(2):last-child) {
+   grid-template-columns:repeat(2,minmax(0,1fr))!important;
+   width:min(100%,520px);margin-inline:auto;
+ }
+}

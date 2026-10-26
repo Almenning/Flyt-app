@@ -262,3 +262,9 @@ Brukeren godkjente den eksakte Eggenipa-illustrasjonen, men avviste resten av de
 - Ytterligere **seks bildeord** for Norsk 1.–2. trinn har nå isolerte, lokale SVG-er med samme fargepalett og linjestil: iskrem, lue, sau, kopp, seng og rev som *læringsobjekt*, ikke appens maskot. Sammen med de eksisterende illustrasjonene dekker det den opprinnelige 24-ords bilde-/bokstavbanken uten avhengighet til OS-emoji.
 - Ny kilde `norsk-object-extras-v1.js` lastes før oppgavescenen, behandler ingen lagring, fasiter, nettverk eller navigasjon. WebKit/Chromium-testen krever ekte SVG-render for seks ord og at et tilsvarende symbol i Engelsk fortsatt vises slik det gjorde før. Én ny Node-kontrakt verifiserer modulens isolasjon.
 - Godkjent Eggenipa, originale troll, læringsdata og tidligere lagrede økter er uendret. Neste krav før visuell godkjenning: kontroll av faktiske skjermbilder i iPad/iPhone Safari.
+
+
+### 26.10 – to svarvalg skal være symmetriske på iPad
+
+- Faktisk WebKit-bilde fra Lesekroken i liggende iPad viste at en oppgave med to svar lå skjevt til venstre; den delte short-answers-regelen reserverte en tredje tom kolonne. Den dedikerte Norsk-CSS-en bruker nå to sentrerte kolonner bare når det er nøyaktig to knapper på iPad. Tre svarvalg, mobilvisninger og andre fag er uendret.
+- Eksisterende Chromium/WebKit-oppgavetest kontrollerer at raden er sentrert på iPad og tar nytt skjermbilde.
