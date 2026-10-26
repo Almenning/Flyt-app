@@ -78,12 +78,21 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Install Pillow for pixel-integrity checks
-        run: python -m pip install 'Pillow>=11,<13'
+      - name: Install image verification and optional artist preview tools
+        run: python -m pip install 'Pillow>=11,<13' 'numpy>=2,<3' 'opencv-python-headless>=4.10,<5'
       - name: Verify character masks and immutable painted signs
         run: |
           python -m unittest discover -s tools/kinnaklova -p 'test_*.py' -v
-          python -m py_compile tools/kinnaklova/verify_locked_scene.py tools/kinnaklova/import_clean_art.py
+          python -m py_compile tools/kinnaklova/verify_locked_scene.py tools/kinnaklova/import_clean_art.py tools/kinnaklova/prepare_art_candidates.py
+      - name: Export non-approved pixel mask handoff
+        run: python tools/kinnaklova/prepare_art_candidates.py --mask-only --output-dir /tmp/kinnaklova-handoff
+      - name: Upload strict edit mask and sign exclusion guide
+        uses: actions/upload-artifact@v4
+        with:
+          name: kinnaklova-artist-handoff
+          path: /tmp/kinnaklova-handoff
+          retention-days: 14
+          if-no-files-found: error
   kinnaklova-art-release-gate:
     runs-on: ubuntu-latest
     timeout-minutes: 10
