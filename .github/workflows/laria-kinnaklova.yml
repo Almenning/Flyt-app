@@ -9,6 +9,7 @@ on:
       - "laer-litt-mer/assets/kinnaklova/**"
       - "laer-litt-mer/assets/gangemagi-troll/**"
       - "laer-litt-mer/index.html"
+      - "laer-litt-mer/laria-task-scene-v15.js"
       - "docs/LARIA-KINNAKLOVA-VISUAL-LOCK-2026-10-26.json"
       - "tests/laria-kinnaklova*"
       - "tests/laria-journey-integrated-ux.playwright.js"
@@ -23,6 +24,7 @@ on:
       - "laer-litt-mer/laria-task-scene-v15.js"
       - "laer-litt-mer/assets/kinnaklova/**"
       - "laer-litt-mer/index.html"
+      - "laer-litt-mer/laria-task-scene-v15.js"
       - "tests/laria-kinnaklova*"
       - "tools/kinnaklova/**"
 permissions:

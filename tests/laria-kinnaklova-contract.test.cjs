@@ -141,3 +141,12 @@ test('Artwork release gate blocks missing, mismatched, or uncertified clean mast
  }
 
 });
+
+test('Live Kinnaklova task scene keeps English story first with correct screen-reader language',()=>{
+ const live=fs.readFileSync(app('laria-task-scene-v15.js'),'utf8');
+ assert.match(live,/directKinnaklova&&q\.skill==='reading'/);
+ assert.match(live,/<section class="learning-passage ki-reading-story" lang="en"/);
+ assert.match(live,/<div class="question ki-reading-question" lang="en"/);
+ assert.match(live,/\?passage\+'<div class="question ki-reading-question"/);
+ assert.match(html,/laria-task-scene-v15\.js\?v=[^"]*kinnaklova-reading2/);
+});
