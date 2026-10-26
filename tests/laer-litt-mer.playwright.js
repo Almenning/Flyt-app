@@ -660,44 +660,62 @@ async function finishSession(page){
     assert.match(await page.locator('.onboard-step[data-step="0"] .hero-copy').textContent(),/Velg reven din, skriv navnet ditt og start reisen/i);
     assert.equal(await page.locator('.onboard-step[data-step="0"] .grade-question').count(),1,'grade choice must remain on the same onboarding screen');
 
-    // Norsk 1.–2.: Eggenipa comes first, Bokskogen remains reachable.
+    // Norsk 1.–2.: three direct activities. Bokskogen is retired from the
+    // child's visible UI, but all historical journey nodes remain intact.
+    const norwegianBefore=await page.evaluate(()=>({
+      nodes:structuredClone(state.journey.nodes),
+      avatar:state.profile.avatar,
+      grade:state.profile.grade,
+      sessions:state.sessionLog.length
+    }));
     await page.evaluate(()=>openSubject('norwegian'));
-    await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
+    const eggenipa=page.locator('#eggenipa-world:visible');
+    await eggenipa.waitFor({timeout:16000});
     assert.equal(await page.locator('#subject-title').textContent(),'Norsk');
-    await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
-    await page.locator('#subject-screen.active .locked-journey-map[data-journey-subject="norwegian"]').waitFor({state:'visible',timeout:16000});
-    await page.locator('#journey-map.locked-journey-map[data-journey-subject="norwegian"] .locked-journey-image').waitFor({timeout:16000});
-    assert.equal(await page.locator('#journey-map .locked-journey-image').count(),1,'Bokskogen should use one exact approved source image');
-    assert.equal(await page.locator('#journey-map .locked-journey-hotspot').count(),5,'Bokskogen should expose all five painted destinations');
-    assert.equal(await page.locator('#journey-map .locked-journey-hotspot.state-current').count(),1,'exactly one painted destination should be next');
-    assert.equal(await page.locator('#journey-map').getAttribute('data-journey-release'),'journey-rc1');
-    assert.equal(Number(await page.locator('#journey-map').getAttribute('data-journey-core-stops')),11,'Bokskogen RC must expose 11 distinct core destinations');
-    assert.equal(await page.locator('#journey-map .locked-journey-back').isVisible(),true);
-    assert.equal(await page.locator('#journey-map .locked-journey-options').isVisible(),true);
-    assert.match(await page.locator('#journey-map .locked-journey-live-progress').innerText(),/^★\s*0\s*\/\s*11$/);
-    assert.equal(await page.locator('#subject-screen > .detail-back').isVisible(),false,'world-first Bokskogen must not leak the old page back button below the map');
-    assert.equal(await page.locator('#subject-modules').isVisible(),false,'the old module dashboard should not compete with the game board');
-    await page.waitForTimeout(450);
-    const bokNextPosition=await page.locator('#journey-map .locked-journey-hotspot.state-current').evaluate(el=>el.getBoundingClientRect().top);
-    assert.ok(bokNextPosition>=0&&bokNextPosition<844,'Bokskogen must open with the next destination in the mobile viewport');
+    assert.deepEqual(await eggenipa.locator('.eg-portal').evaluateAll(els=>els.map(x=>x.dataset.eg)),
+      ['words','find','reading'],'Norsk must provide three direct activities');
+    assert.equal(await page.locator('#subject-screen.active .locked-journey-map:visible').count(),0,
+      'old Bokskogen journey map must not be child-facing');
+    assert.equal(await eggenipa.locator('[data-eg="map"],[data-eg="next"]').count(),0,
+      'old journey button appeared on approved Eggenipa art');
+    assert.equal(await page.locator('#subject-modules').isVisible(),false,
+      'old module dashboard must not compete with Eggenipa');
 
-    await page.locator('#journey-map .locked-journey-hotspot.state-current').click();
-    assert.equal(await page.locator('#journey-mission-backdrop').isVisible(),false,'map click must open the exercise directly');
-    await page.locator('.locked-journey-overlay:not([hidden]) .mission-primary[data-locked-node]:not([disabled])').first().click();
-    await page.locator('#session-screen.active').waitFor();
-    assert.equal(await page.evaluate(()=>sessionScope.type),'journey');
-    assert.equal(await page.evaluate(()=>sessionScope.subject),'norwegian');
+    // The same reading engine still starts real questions and records a
+    // completed practice round, but must NOT overwrite journey nodes.
+    await eggenipa.locator('.eg-portal[data-eg="reading"]').click();
+    await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
+    const reading=await page.evaluate(()=>({
+      type:sessionScope?.type,
+      subject:sessionScope?.subject,
+      module:sessionScope?.module,
+      question:sessionQuestions[qIndex]?.prompt
+    }));
+    assert.equal(reading.type,'subject','Lesekroken must use free-choice learning, not an old map node');
+    assert.equal(reading.subject,'norwegian');
+    assert.equal(reading.module,'reading');
+    assert.ok(reading.question,'Lesekroken must contain a real reading question');
+    assert.equal(await page.locator('#session-screen.active .task-fox-companion').count(),0,
+      'the retired fox must not appear in Norwegian reading tasks');
     await finishSession(page);
-    assert.match(await page.locator('#complete-area').textContent(),/Norsk/);
+    await page.locator('#complete-screen.active').waitFor();
     await page.locator('#complete-home').click();
-    await page.locator('#subject-screen.active').waitFor();
-    await page.locator('#journey-map.locked-journey-map[data-journey-subject="norwegian"] .locked-journey-image').waitFor({timeout:16000});
-    assert.equal(await page.locator('#journey-map .locked-journey-image').isVisible(),true,'the approved Bokskogen original should remain visible after completing a session');
-    // The native Bokskogen back arrow returns to Norsk's Eggenipa landing.
-    // Only its separate Hjem action should leave the Norwegian subject.
-    await page.locator('#journey-map .locked-journey-back').click();
-    await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
-    await page.locator('#eggenipa-world [data-eg="home"]').click();
+    await eggenipa.waitFor({timeout:16000});
+    const norwegianAfter=await page.evaluate(()=>({
+      nodes:state.journey.nodes,
+      avatar:state.profile.avatar,
+      grade:state.profile.grade,
+      sessions:state.sessionLog.length
+    }));
+    assert.deepEqual(norwegianAfter.nodes,norwegianBefore.nodes,
+      'direct reading changed previously saved journey data');
+    assert.equal(norwegianAfter.avatar,norwegianBefore.avatar,
+      'Norsk replaced the saved character identity');
+    assert.equal(norwegianAfter.grade,norwegianBefore.grade,
+      'Norsk changed the selected grade');
+    assert.equal(norwegianAfter.sessions,norwegianBefore.sessions+1,
+      'completed reading round was not recorded exactly once');
+    await eggenipa.locator('[data-eg="home"]').click();
     await page.locator('#home-screen.active').waitFor();
     assert.equal(await page.locator('.bc12-journey').isVisible(),true);
 

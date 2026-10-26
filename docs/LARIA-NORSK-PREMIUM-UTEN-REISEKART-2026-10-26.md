@@ -119,3 +119,10 @@ Brukeren godkjente den eksakte Eggenipa-illustrasjonen, men avviste resten av de
 
 - Rotårsaker bekreftet i CI på `0b4726a`: Mobil-/iPad-testen kontrollerte profil fra `window.state` selv om appens lagrede profil er kilde til sannhet (`laerlittmer-v2`), navigasjonstesten forventet fortsatt fjernet Bokskogen-kart, og to generelle smoke-tester brukte en tvetydig `data-eg=reading`-selektor som traff både motivknapp og aktivitetskort.
 - Korrigert: test lagret profil direkte i localStorage, naviger reelt via Eggenipa → Lesekroken → Eggenipa i reisebrett-smoke, og klikk spesifikt det synlige Lesekroken-aktivitetskortet. Bevarer fortsatt sterke sjekker på profilidentitet, kartfravær, oppgavelasting og retur.
+
+
+### 26.10 – smoke-test uten det avviklede Bokskogen-kartet
+
+- På PR-head `a0bcccb74` var **Continuous smoke** rød fordi `tests/laer-litt-mer.playwright.js` linje 667 krevde `[data-eg="map"]`, som bevisst er fjernet. Rotårsaken var utdaterte testforventninger, ikke ny funksjonsfeil.
+- Testens komplette gamle mapflyt er erstattet med sterke krav til tre direkte porter, fravær av kart og gammel oppgavedashboard, faktisk Lesekroken-oppgavesett og gjennomført økt, én loggført fullføring, uendret `journey.nodes`, klassetrinn og lagret avatar, samt ekte retur til Hjem.
+- Øvrige fag, dataformat og Eggenipa-masterillustrasjon er urørt. Testen skal være grønn på CI før denne deloppgaven regnes ferdig.
