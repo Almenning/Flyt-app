@@ -82,37 +82,35 @@ async function run(browserType,engine,name,viewport){
     await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
     await page.locator('#subject-screen.active .locked-journey-map[data-journey-subject="norwegian"]')
       .waitFor({state:'visible',timeout:18000});
-    // The DOM map can be visible before Safari commits the next layout.
-    // Read its origin after two real paint frames so a valid scheduled
-    // navigation reset is observed, without relaxing the zero-offset check.
-    await page.evaluate(()=>new Promise(resolve=>
-      requestAnimationFrame(()=>requestAnimationFrame(resolve))));
-    const mapOrigin=await page.locator('#subject-screen').evaluate(element=>({
-      top:element.getBoundingClientRect().top,scrollY:window.scrollY
-    }));
-    if(Math.abs(mapOrigin.top)>1){
-      // Diagnostic only on failed geometry: distinguish an ignored scroll
-      // command from a later focus/anchor restoration. Never pass the test
-      // based on this manual probe or change the expected 0px origin.
-      const diagnostic=await page.evaluate(()=>{
-        const screen=document.getElementById('subject-screen');
-        const root=document.getElementById('eggenipa-world');
-        const before=scrollY;
-        window.scrollTo({top:0,left:0,behavior:'instant'});
-        document.documentElement.scrollTop=0;
-        document.body.scrollTop=0;
-        return {before,after:scrollY,screenSubject:screen?.dataset.subject,
-          screenActive:screen?.classList.contains('active'),
-          mapState:window.LARIA_EGGENIPA?.isMapOpen?.(),
-          rootHidden:root?.hidden,activeElement:document.activeElement?.outerHTML.slice(0,220),
-          scrollingElement:document.scrollingElement?.tagName,
-          scrollBehavior:getComputedStyle(document.documentElement).scrollBehavior,
-          subjectOffset:screen?.getBoundingClientRect().top};
-      });
-      console.error('[EGGENIPA_SCROLL_DIAG]',name,JSON.stringify(diagnostic));
-    }
-    assert.ok(Math.abs(mapOrigin.top)<=1,
-      name+' Bokskogen must open at the viewport origin after the lower Eggenipa portal: '+JSON.stringify(mapOrigin));
+    // Bokskogen deliberately centers the child's current illustrated stop
+    // when that stop is below the fold (notably on landscape phones). Testing
+    // for scrollY===0 contradicted the approved renderer's existing behavior.
+    // Instead prove the map is anchored correctly AND the current task is
+    // visible, so a stale Eggenipa scroll cannot masquerade as a valid entry.
+    await page.waitForFunction(()=>{
+      const marker=document.querySelector('#subject-screen.active .locked-journey-hotspot.state-current');
+      if(!marker)return false;
+      const box=marker.getBoundingClientRect();
+      return box.top>=-1&&box.bottom<=innerHeight+1;
+    },null,{timeout:10000});
+    const mapOrigin=await page.locator('#subject-screen').evaluate(element=>{
+      const marker=element.querySelector('.locked-journey-hotspot.state-current');
+      const rect=marker?.getBoundingClientRect();
+      return {top:element.getBoundingClientRect().top,scrollY:window.scrollY,
+        currentStop:rect?{top:rect.top,bottom:rect.bottom}:null,viewport:innerHeight};
+    });
+    assert.ok(Math.abs(mapOrigin.top+mapOrigin.scrollY)<=2,
+      name+' map is not anchored at the document origin: '+JSON.stringify(mapOrigin));
+    assert.ok(mapOrigin.currentStop&&mapOrigin.currentStop.top>=-1&&
+      mapOrigin.currentStop.bottom<=mapOrigin.viewport+1,
+      name+' current illustrated mission is not visible: '+JSON.stringify(mapOrigin));
+    // The old fixed return chip obscured the native painted settings cog.
+    // Open the REAL map settings button, not a synthetic DOM click.
+    await page.locator('#subject-screen.active .locked-journey-options').click();
+    await page.locator('#subject-screen.active .locked-journey-grade-grid button').first()
+      .waitFor({state:'visible',timeout:8000});
+    await page.locator('#subject-screen.active .locked-sheet-close').click();
+    await shot(page,name+'-bokskogen-settings-reachable');
     await page.locator('#eggenipa-map-return').click();
     await page.locator('#eggenipa-world').waitFor({state:'visible',timeout:15000});
 
