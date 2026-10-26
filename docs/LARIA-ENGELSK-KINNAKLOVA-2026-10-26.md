@@ -75,3 +75,16 @@ Mangler konkret:
 `LARIA_KINNAKLOVA_RELEASE_GATE=1 node --test tests/laria-kinnaklova-contract.test.cjs` må **feile** så lenge ren bakgrunn eller visuell godkjenning mangler. Denne porten er ment å forhindre at utkastet publiseres bare fordi navigasjon og spørsmål fungerer.
 
 **Konfliktbeskyttelse:** Ingen portering av arbeid fra Matte PR #227, Norsk PR #228 eller trolleanimasjon PR #224 til Engelsk-PR-en uten koordinert merge. Gjenbruk bare de identitetslåste karakterfilene allerede på `main`.
+
+## FASE 3 – 26.10.2026: ekte godkjent Storesøster og strengere bildeport
+
+- Gjenbrukte **den nøyaktig godkjente maleriske Storesøster-filen** fra den åpne in-world-piloten PR #224, uten ny generering eller endret karaktergeometri. Git blob `cff7b5710401f33fa4798d40e8935cb77eb40b44` er nå installert byteidentisk på `laer-litt-mer/assets/kinnaklova/storesoster-inworld-approved-20261026.webp`. Den opprinnelige identitetsfilen `assets/gangemagi-troll/storesoster.webp` er urørt og fremdeles registrert som autoritativ original.
+- Storesøsters Kinnaklova-scene bruker `sceneSrc` for denne godkjente, maleriske varianten. Lillesøster og lillebror bruker sine originale låste filer. Dette er **ikke** et krav om å merge trolleanimasjons-PR-en og overfører ingen JS/CSS derfra.
+- Skjerpet sikkerhet i `kinnaklova.js`: tidlig kontroll bare av bredde/høyde var utilstrekkelig. Nå må `APPROVED_ART_SHA256` være eksplisitt fylt med en annen SHA-256 enn den avviste originalreferansen, og bildebytene må hashes med `crypto.subtle.digest('SHA-256')`. Uten full match blir verken ren bakgrunn, karakterlag eller malte trykkflater synlige. Det blir dermed ikke mulig å aktivere feil troll bare ved å gi bildet et godkjent filnavn.
+- Egen WebKit/Chromium-regresjonstest sender inn en *annen gyldig 1672×941-bildefil* og bekrefter at den stenges ute selv med helt riktige mål. De tre reelle læringsaktivitetene skal fortsatt kunne brukes i draft-modus via kortene under scenen.
+- Alle malte hotspots har minimum 44 px berøringsflate på store skjermbredder. Kinnaklova JS/CSS og tjenestearbeideren har fått nye cacheversjoner slik at en fremtidig publisering ikke holder fast på eldre innhold.
+- **Fortsatt blokkert av visuell kunst:** ren, godkjent illustrasjon uten de tre forkastede figurene må leveres. Lokal automatisk strukturinpainting er ikke kvalitetsgodkjent; store retusjerte områder ville blitt uklare og ville ikke oppnå premiumstandarden. Den opprinnelige Kinnaklova-komposisjonen forblir eksakt fasit.
+- Ingen endringer i spørsmål, læringsprogresjon, map data eller annen fagforside. Ingen merge/publisering uten art-master og grønn eksakt-HEAD QA.
+
+### Integrasjonstest for Egen Engelsk-versjon
+GitHub Actions `Læria Kinnaklova – Engelsk WebKit og Chromium` tester åtte virtuelle kombinasjoner (iPhone/iPad, stående/liggende, Chromium/WebKit). Dette er automatiserte nettlesere, ikke fysiske enheter. Integrert fire-fag-test har også vært grønn på tidligere PR-head, men eksakt siste head må kontrolleres separat når hele arbeidspakken er klar.
