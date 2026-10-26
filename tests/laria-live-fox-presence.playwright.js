@@ -102,6 +102,12 @@ async function run(engine,name,viewport,avatar){
       const subject=subjects[subjectIndex];
       if(subjectIndex>0){
         await page.locator('.screen.active .locked-journey-back').click();
+        if(subjects[subjectIndex-1]==='norwegian'){
+          // Bokskogen now returns to Eggenipa, then Home.
+          await page.locator('#eggenipa-world:visible').waitFor({timeout:12000});
+          assert.equal(await page.locator('#subject-screen.active').getAttribute('data-subject'),'norwegian');
+          await page.locator('#eggenipa-world [data-eg="home"]').click();
+        }
         await page.locator('#home-screen.active .bc14-subject[data-camp="subject-'+subject+'"]').waitFor({timeout:12000});
         await page.locator('#home-screen.active .bc14-subject[data-camp="subject-'+subject+'"]').click();
       }
