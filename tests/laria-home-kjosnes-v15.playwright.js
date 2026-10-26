@@ -69,6 +69,19 @@ async function returnFromLockedJourney(page,screen,subject,label){
    const back=world.locator('[data-tv="back"]');
    await back.waitFor({state:'visible'});
    await back.click();
+ }else if(subject==='norwegian'){
+   await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
+   await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
+   await page.locator(root+' .locked-journey-map[data-journey-subject="norwegian"]').waitFor({state:'visible',timeout:16000});
+   // Bokskogen's original controls return to Eggenipa. The former
+   // fixed overlay was removed because it blocked the map's settings.
+   const native=page.locator(root+' .locked-journey-back');
+   const floating=page.locator(root+' .locked-journey-floating-back');
+   const back=await floating.isVisible()?floating:native;
+   assert.equal(await back.getAttribute('aria-label'),'Tilbake til Eggenipa',label+' native return target');
+   await back.click();
+   await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
+   await page.locator('#eggenipa-world [data-eg="home"]').click();
  }else{
    const back=page.locator(root+' .locked-journey-map[data-journey-subject="'+subject+'"] .locked-journey-back');
    await back.waitFor({state:'visible',timeout:16000});

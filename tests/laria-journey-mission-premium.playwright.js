@@ -55,6 +55,10 @@ async function run(engine,label,viewport,url){
   await page.locator('.bc14-subject[data-camp="subject-norwegian"]').waitFor({timeout:20000});
   for(const subject of ['norwegian','math','english','geography']){
    await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').click();
+    if(subject==='norwegian'){
+      await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
+      await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
+    }
    if(subject==='math'){
      const tv=page.locator('#subject-screen.active #tallvika-world');
      await tv.waitFor({state:'visible',timeout:16000});
@@ -164,6 +168,10 @@ async function run(engine,label,viewport,url){
    await page.reload({waitUntil:'domcontentloaded'});
    await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').waitFor({timeout:20000});
    await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').click();
+    if(subject==='norwegian'){
+      await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
+      await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
+    }
    const afterReload=page.locator('#'+(subject==='geography'?'geography':'subject')+'-screen.active .locked-journey-map[data-journey-subject="'+subject+'"]');
    await afterReload.waitFor({timeout:14000});
    await afterReload.locator('.locked-journey-hotspot').first().click();
@@ -197,6 +205,15 @@ async function run(engine,label,viewport,url){
    assert.equal(await afterReload.locator('.locked-journey-board > .locked-journey-traveler').count(),1,
       label+' '+subject+' fox was not returned to the illustrated map');
    await afterReload.locator('.locked-journey-back').click();
+   if(subject==='norwegian'){
+     // Norwegian now returns from Bokskogen to its approved Eggenipa
+     // landing, then to Home. All persisted progress assertions above
+     // remain unchanged.
+     await page.locator('#eggenipa-world:visible').waitFor({timeout:12000});
+     assert.equal(await page.locator('#subject-screen.active').getAttribute('data-subject'),'norwegian',
+       label+' Bokskogen returned to wrong subject');
+     await page.locator('#eggenipa-world [data-eg="home"]').click();
+   }
    await page.locator('#home-screen.active .bc14-subject').first().waitFor({timeout:12000});
   }
   assert.deepEqual(errors,[],label+' javascript exceptions');

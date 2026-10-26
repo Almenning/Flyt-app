@@ -100,6 +100,19 @@ async function activeSnapshot(page){
 // Exercise the reachable return control. Tall journey artwork can leave the
 // original back hotspot offscreen, while the fixed iPad return stays visible.
 async function returnFromJourney(page,root,label,subject){
+ if(subject==='norwegian'){
+   // Return through the actual Bokskogen control, which may become a
+   // floating back action after the renderer focuses the current stop.
+   const native=root.locator('.locked-journey-back');
+   const floating=root.locator('.locked-journey-floating-back');
+   const back=await floating.isVisible()?floating:native;
+   assert.equal(await back.getAttribute('aria-label'),'Tilbake til Eggenipa',label+' native Bokskogen return');
+   await back.click();
+   await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
+   await page.locator('#eggenipa-world [data-eg="home"]').click();
+   await page.locator('#home-screen.active').waitFor({timeout:16000});
+   return;
+ }
  const native=root.locator('.locked-journey-back');
  const floating=root.locator('.locked-journey-floating-back');
  const useFloating=await floating.isVisible();
@@ -144,6 +157,12 @@ async function run(engine,label,viewport){
    const before=await progress(page,subject);
    const screen=subject==='geography'?'geography':'subject';
    await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').click();
+   if(subject==='norwegian'){
+     // Norwegian direct play now starts at Eggenipa; the same original
+     // missions and node IDs are reachable through the Bokskogen portal.
+     await page.locator('#eggenipa-world').waitFor({state:'visible',timeout:16000});
+     await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
+   }
    const isTallvika=subject==='math';
    const base=isTallvika?'#subject-screen.active #tallvika-world':
      '#'+screen+'-screen.active .locked-journey-map[data-journey-subject="'+subject+'"]';
@@ -212,7 +231,7 @@ async function run(engine,label,viewport){
    }
    await page.locator('#complete-screen.active').waitFor({timeout:16000});
    const completeLabel=(await page.locator('#complete-home').innerText()).trim();
-   assert.match(completeLabel,isTallvika?/Tallvika/:/Tilbake til reisekartet/,
+   assert.match(completeLabel,isTallvika?/Tallvika/:subject==='norwegian'?/Tilbake til Eggenipa/:/Tilbake til reisekartet/,
      label+' completion action points elsewhere for '+subject);
    const finished=await page.evaluate(s=>{
     const grade=2,node=lastCompletedScope?.journeyNode;
@@ -230,6 +249,12 @@ async function run(engine,label,viewport){
    assert.equal(finished.last.countsTowardGoal,true,label+' fresh mission did not count toward daily goal');
    assert.equal(finished.goal,1,label+' daily goal not updated after completion');
    await page.locator('#complete-home').click();
+   if(subject==='norwegian'){
+     // Resumed missions start on Home; the map origin is not persisted.
+     // Reopen Bokskogen to verify real saved node progress after completion.
+     await page.locator('#eggenipa-world:visible').waitFor({timeout:18000});
+     await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
+   }
    await page.locator(base).waitFor({timeout:18000});
    const after=await progress(page,subject);
    assert.ok(after.done>before.done,label+' '+world+' progress failed to advance: '+JSON.stringify({before,after}));

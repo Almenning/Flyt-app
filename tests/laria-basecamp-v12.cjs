@@ -140,10 +140,114 @@ const {chromium,webkit}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
   assert(await page.locator('.word-hunt-word.found').count()>=1,name+' Ordjakt selection did not register');
   await page.locator('.word-hunt-back').tap();await hunt.waitFor({state:'hidden'});
 
+  // Instrument a real post-Ordjakt Home -> Norsk tap. A click on an
+  // illustrated iPad hotspot can succeed syntactically while the resulting
+  // screen is wrong. Record event targets and page state if the route fails.
+  await page.evaluate(()=>{
+    window.__norskRouteTrace=[];
+    for(const type of ['pointerdown','pointerup','click']){
+      document.addEventListener(type,event=>{
+        const node=event.target?.closest?.('[data-camp],[data-bc13-action],[data-eg]');
+        if(!node)return;
+        window.__norskRouteTrace.push({
+          type,target:node.getAttribute('data-camp')||node.getAttribute('data-bc13-action')||node.getAttribute('data-eg'),
+          active:document.querySelector('.screen.active')?.id||null,
+          panel:document.querySelector('#home-screen .bc12')?.dataset.bc13View||null
+        });
+      },true);
+    }
+  });
   await page.locator('.bc12-nav [data-camp="home"]').tap();
-  await page.locator('.bc12-journey').tap();
-  await page.locator('#subject-screen.active .locked-journey-map[data-journey-subject="norwegian"] .locked-journey-back').waitFor({timeout:16000});
-  await page.locator('#subject-screen.active .locked-journey-back').tap();
+  // "Fortsett reisen" tracks the most recent subject, which may be Maths.
+  // Enter Norsk through its explicit, real Home card.
+  const norsk=page.locator('#home-screen.active .bc14-subject[data-camp="subject-norwegian"]');
+  await norsk.waitFor({state:'visible',timeout:12000});
+  await norsk.tap();
+  try{
+    await page.locator('#eggenipa-world:visible').waitFor({timeout:12000});
+  }catch(error){
+    const details=await page.evaluate(()=>{
+      const home=document.querySelector('#home-screen .bc12');
+      const screen=document.getElementById('subject-screen');
+      const eg=document.getElementById('eggenipa-world');
+      const norwegian=document.querySelector('.bc14-subject[data-camp="subject-norwegian"]');
+      const rect=norwegian?.getBoundingClientRect();
+      const target=rect?document.elementFromPoint(rect.left+rect.width/2,rect.top+rect.height/2):null;
+      return {
+        active:document.querySelector('.screen.active')?.id||null,
+        subject:screen?.dataset.subject||null,
+        subjectClass:screen?.className||null,
+        eggenipaPresent:!!eg,eggenipaHidden:eg?.hidden??null,eggenipaVisible:eg?getComputedStyle(eg).display:null,
+        homeMode:home?.dataset.mode||null,homePanel:home?.dataset.bc13View||null,
+        lockedHome:home?.classList.contains('bc15-locked-home'),homeAsset:home?.dataset.bc15Asset||null,
+        basecampOrigin:window.LARIA_BASECAMP_RETURN_VIEW?.()??null,
+        clickedCardRect:rect?{x:rect.x,y:rect.y,w:rect.width,h:rect.height}:null,
+        coveringNode:target?.outerHTML?.slice(0,260)||null,
+        events:window.__norskRouteTrace||[],
+        pageErrors:window.__norskRouteErrors||[]
+      };
+    });
+    await page.screenshot({path:`${screenshots}/${engineName}-${name}-norsk-route-failure.png`,fullPage:true});
+    throw new Error('Home -> Norsk after Ordjakt failed: '+JSON.stringify(details)+'; '+error.message);
+  }
+  await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').tap();
+  await page.locator('#subject-screen.active .locked-journey-map[data-journey-subject="norwegian"]').waitFor({state:'visible',timeout:16000});
+  // Use the original Bokskogen arrow, not the removed overlay that
+  // obscured the painted settings button. The floating arrow is available
+  // when the original arrow is scrolled outside the viewport.
+  const bokNative=page.locator('#subject-screen.active .locked-journey-back');
+  const bokFloating=page.locator('#subject-screen.active .locked-journey-floating-back');
+  const bokReturn=await bokFloating.isVisible()?bokFloating:bokNative;
+  assert.equal(await bokReturn.getAttribute('aria-label'),'Tilbake til Eggenipa',name+' Bokskogen return should target Eggenipa');
+  // Record the *actual touch/click target*. Prior smoke runs intermittently
+  // received tap() without returning from Bokskogen. Don't replace this
+  // with evaluate(click) or a retry: that would conceal a child-facing bug.
+  await page.evaluate(()=>{
+    window.__egBackTrace=[];
+    for(const type of ['pointerdown','pointerup','click']){
+      document.addEventListener(type,event=>{
+        const button=event.target?.closest?.('.locked-journey-back,.locked-journey-floating-back');
+        const active=document.querySelector('.screen.active')?.id||null;
+        window.__egBackTrace.push({
+          type,hit:button?.className||null,
+          label:button?.getAttribute('aria-label')||null,
+          active,screenSubject:document.getElementById('subject-screen')?.dataset.subject||null,
+          isMapOpen:window.LARIA_EGGENIPA?.isMapOpen?.()??null,
+          targetTag:event.target?.tagName||null
+        });
+      },true);
+    }
+  });
+  const touchedBack=await bokReturn.evaluate(el=>({
+    kind:el.className,connected:el.isConnected,aria:el.getAttribute('aria-label')
+  }));
+  await bokReturn.tap();
+  try{
+    await page.locator('#eggenipa-world:visible').waitFor({timeout:12000});
+  }catch(error){
+    const debug=await page.evaluate(()=>{
+      const screen=document.getElementById('subject-screen');
+      const root=document.getElementById('eggenipa-world');
+      const map=document.querySelector('#subject-screen .locked-journey-map');
+      const rect=screen?.getBoundingClientRect();
+      return {
+        active:document.querySelector('.screen.active')?.id||null,
+        subject:screen?.dataset.subject||null,
+        className:screen?.className||null,
+        eggenipaPresent:!!root,eggenipaHidden:root?.hidden??null,
+        eggenipaDisplay:root?getComputedStyle(root).display:null,
+        mapVisible:map?getComputedStyle(map).display:null,
+        mapFlag:window.LARIA_EGGENIPA?.isMapOpen?.()??null,
+        origin:window.LARIA_BASECAMP_RETURN_VIEW?.()??null,
+        screenRect:rect?{top:rect.top,height:rect.height}:null,
+        scrollY:window.scrollY,events:window.__egBackTrace||[],
+        nativeLabel:document.querySelector('.locked-journey-back')?.getAttribute('aria-label')||null
+      };
+    });
+    await page.screenshot({path:`${screenshots}/${engineName}-${name}-bokskogen-return-failure.png`,fullPage:true});
+    throw new Error('Real Bokskogen -> Eggenipa touch return failed: '+JSON.stringify({touchedBack,...debug})+'; '+error.message);
+  }
+  await page.locator('#eggenipa-world [data-eg="home"]').tap();
   await page.locator('.bc12.bc15-locked-home').waitFor({state:'visible',timeout:12000});
   await page.locator('.bc12-nav [data-camp="collection"]').tap();
   await page.getByRole('heading',{name:'Lærias magiske samlebok'}).waitFor();

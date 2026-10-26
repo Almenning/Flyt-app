@@ -1,0 +1,118 @@
+/* Norsk Eggenipa: isolated art-first world, never mutate the locked painting. */
+html:has(#subject-screen.eggenipa-active),
+body:has(#subject-screen.eggenipa-active){background:#f4eee0!important}
+.app:has(#subject-screen.eggenipa-active){background:#f4eee0!important;padding-bottom:0!important}
+.app:has(#subject-screen.eggenipa-active)::before,
+.app:has(#subject-screen.eggenipa-active)::after{display:none!important}
+#subject-screen.eggenipa-active{
+  display:block!important;max-width:none!important;min-height:100dvh;
+  margin:0!important;padding:0!important;background:#f4eee0!important
+}
+#subject-screen.eggenipa-active>:not(#eggenipa-world){display:none!important}
+#subject-screen.eggenipa-active>#eggenipa-world{display:block!important}
+#eggenipa-world{font-family:ui-rounded,"SF Pro Rounded",system-ui,sans-serif;color:#3d3027;background:#f4eee0;padding-bottom:38px}
+#eggenipa-world *{box-sizing:border-box}
+.eg-top{width:min(100%,1500px);height:66px;padding:0 24px;margin:auto;display:flex;align-items:center;gap:16px;justify-content:space-between}
+.eg-top-label{font-size:12px;letter-spacing:.16em;font-weight:950;color:#5d5949}
+.eg-home,.eg-grade{
+  appearance:none;border:2px solid #dac79c;border-radius:999px;
+  background:#fff9e9;color:#483c2d;min-height:48px;padding:0 18px;
+  font-family:inherit;font-size:14px;font-weight:850;line-height:1.2;cursor:pointer
+}
+.eg-home{font-weight:950;font-size:15px}
+.eg-grade{font-weight:900;font-size:13px}
+.eg-hero{width:min(100%,1672px);margin:auto;position:relative;isolation:isolate;aspect-ratio:1672 / 941;overflow:hidden;background:#8aa9a2}
+.eg-master{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block}
+/* The approved mountain, treehouse and library must remain visually legible.
+   The previous overlaid title inherited dark global heading styles and was
+   unreadable over the tree. Put the title in the accessible intro below. */
+.eg-world-label{display:none}
+.eg-world-label small{font-weight:950;font-size:clamp(9px,1vw,14px);letter-spacing:.13em}
+.eg-world-label h1{font-size:clamp(32px,4.8vw,66px);font-weight:1000;letter-spacing:-.055em;line-height:1.03;margin:4px 0}
+.eg-world-label p{font-weight:900;font-size:clamp(11px,1.18vw,17px);margin:5px 0}
+.eg-scene-hit{position:absolute;z-index:2;border:0;border-radius:24px;background:transparent;cursor:pointer;min-width:44px;min-height:44px;display:flex;align-items:flex-end;justify-content:center;padding:12px}
+.eg-scene-hit span{display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;padding:8px 17px;min-height:45px;border:2px solid #8b5e35;border-radius:15px;background:linear-gradient(#f8deac,#e6b979);color:#4a3524;text-shadow:0 1px #ffedc8;box-shadow:0 4px 0 #8e673d,0 8px 18px #27231a77;font-size:clamp(12px,1.3vw,19px);font-weight:1000;letter-spacing:-.01em;transform:rotate(-1deg)}
+.eg-scene-hit:hover{background:rgba(255,246,204,.13);box-shadow:inset 0 0 0 3px rgba(255,248,221,.28)}
+.eg-scene-words{left:0;top:10%;width:31%;height:65%}
+.eg-scene-find{left:30%;top:51%;width:38%;height:48%}
+.eg-scene-map{right:0;top:29%;width:30%;height:66%}
+.eg-intro{max-width:1290px;margin:22px auto 15px;padding:0 20px;display:flex;align-items:end;justify-content:space-between;gap:24px}
+.eg-intro small,.eg-next small{font-weight:950;letter-spacing:.12em;font-size:12px;color:#97734d}
+.eg-intro h2{font-weight:1000;font-size:clamp(24px,2.6vw,34px);margin:4px 0 0;letter-spacing:-.04em}
+.eg-intro p{font-size:14px;font-weight:750;color:#76624d;margin:0 0 5px}
+.eg-portals{max-width:1290px;padding:0 20px;margin:auto;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.eg-portal{
+  appearance:none;position:relative;min-height:218px;padding:0;display:flex;
+  flex-direction:column;align-items:stretch;text-align:left;
+  border:2px solid #d9c49f;border-radius:24px;overflow:hidden;
+  color:#443326;background:#fff9ed;box-shadow:0 5px 0 #d3bc91,0 12px 19px rgba(69,57,35,.10);
+  cursor:pointer;transition:transform .15s ease,box-shadow .15s ease
+}
+.eg-portal-art{display:block;height:132px;overflow:hidden;background:#dbd6c4}
+.eg-portal-art img{display:block;width:100%;height:100%;object-fit:cover}
+.eg-portal-copy{padding:14px 48px 17px 17px;display:grid;gap:3px}
+.eg-portal-copy strong{font-weight:1000;letter-spacing:-.035em;font-size:clamp(20px,2vw,26px)}
+.eg-portal-copy small{font-size:14px;font-weight:740;color:#7d644d}
+.eg-portal-arrow{position:absolute;right:16px;bottom:13px;font-size:28px;font-weight:900;color:#926c47}
+.eg-next{
+  max-width:1250px;margin:25px auto 0;padding:18px 22px;display:flex;align-items:center;justify-content:space-between;gap:18px;
+  background:linear-gradient(110deg,#fff8e8,#ebdbb6);border:2px solid #d5ba87;border-radius:23px
+}
+.eg-next h2{font-size:21px;letter-spacing:-.025em;margin:3px 0;color:#4d3727}
+.eg-next p{font-size:13px;font-weight:700;color:#79624a;margin:0}
+.eg-next button{background:#386e57;border:2px solid #386e57;border-radius:17px;min-height:48px;padding:10px 18px;font-size:14px;font-weight:900;color:#fff;cursor:pointer}
+.eg-next button:disabled{opacity:.52;cursor:not-allowed}
+.eg-preview{display:block;margin:15px auto;border-radius:14px;background:#fff8dc;border:2px solid #bda57d;padding:12px 19px;font-weight:900}
+.eg-grade-dialog{
+  width:min(790px,94vw);max-height:88dvh;overflow:auto;
+  border:none;border-radius:28px;padding:0;color:#473b2e;background:#fff9eb;
+  box-shadow:0 22px 80px #2d322bcc
+}
+.eg-grade-dialog::backdrop{background:rgba(28,41,35,.65)}
+.eg-grade-dialog form{position:relative;padding:28px;text-align:center}
+.eg-grade-dialog form>small{color:#96724a;font-size:12px;font-weight:950;letter-spacing:.13em}
+.eg-grade-dialog h2{font-size:32px;font-weight:950;letter-spacing:-.035em;margin:6px 0}
+.eg-grade-dialog p{color:#735c46;font-weight:700;margin:0}
+.eg-dialog-close{position:absolute;right:14px;top:12px;border:0;border-radius:50%;min-width:48px;min-height:48px;background:#f0e0c3;color:#503e2b;font-size:27px;cursor:pointer}
+.eg-grade-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-top:22px}
+.eg-grade-grid button{background:#fff;border:2px solid #dfca9e;color:#42362b;min-height:68px;border-radius:15px;cursor:pointer;display:grid;place-items:center;gap:0;padding:8px}
+.eg-grade-grid button.selected{border-color:#397959;background:#e5f2e4;box-shadow:inset 0 0 0 2px #b9d8bd}
+.eg-grade-grid strong{font-size:20px}.eg-grade-grid small{font-size:10px;font-weight:800;color:#806751}
+#eggenipa-world :is(button):focus-visible{outline:4px solid #376c57;outline-offset:3px}
+@media(hover:hover){
+ .eg-portal:hover{transform:translateY(-3px);box-shadow:0 8px 0 #d3bc91,0 16px 22px rgba(69,57,35,.14)}
+}
+.eg-portal:active{transform:translateY(2px);box-shadow:0 3px 0 #d3bc91}
+@media(max-width:700px){
+ .eg-top{height:58px;padding:0 12px}
+ .eg-top-label{font-size:10px;letter-spacing:.08em}
+ .eg-home,.eg-grade{min-height:46px;padding:0 11px;font-size:12px}
+ .eg-hero{aspect-ratio:1672/941}
+ .eg-world-label{left:4%;top:4%;max-width:195px}
+ .eg-world-label h1{font-size:clamp(22px,7vw,33px)}
+ .eg-world-label small{font-size:9px}
+ .eg-world-label p{font-size:10px}
+ .eg-scene-hit{display:none}
+ .eg-intro{margin:17px auto 11px;display:block;padding:0 14px}
+ .eg-intro h2{font-size:26px}
+ .eg-intro p{margin-top:4px;font-size:13px}
+ .eg-portals{grid-template-columns:1fr;gap:12px;padding:0 14px}
+ .eg-portal{display:grid;grid-template-columns:40% 1fr;height:112px;min-height:112px;border-radius:19px}
+ .eg-portal-art{height:112px;min-height:0}
+ .eg-portal-copy{align-self:center;padding:11px 25px 12px 13px}
+ .eg-portal-copy strong{font-size:22px}
+ .eg-portal-copy small{font-size:12px}
+ .eg-portal-arrow{right:10px;bottom:auto;top:32%;font-size:26px}
+ .eg-next{margin:16px 14px 0;align-items:stretch;display:grid;gap:12px;padding:16px}
+ .eg-next h2{font-size:19px}
+ .eg-next button{width:100%}
+ .eg-grade-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .eg-grade-dialog form{padding:20px 15px}
+}
+@media(min-width:701px) and (max-width:1040px){
+ .eg-portals{gap:10px}
+ .eg-portal{min-height:190px}
+ .eg-portal-art{height:115px}
+ .eg-next{margin-left:20px;margin-right:20px}
+}
+@media(prefers-reduced-motion:reduce){.eg-portal{transition:none}}

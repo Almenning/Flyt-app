@@ -51,6 +51,10 @@ async function verify(engine,label,viewport){
   for(const [subject,title] of Object.entries(titles)){
    const screen=subject==='geography'?'geography':'subject';
    await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').click();
+    if(subject==='norwegian'){
+      await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
+      await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
+    }
    if(subject==='math'){
      const tv=page.locator('#subject-screen.active #tallvika-world');
      await tv.waitFor({state:'visible',timeout:16000});
@@ -122,6 +126,11 @@ async function verify(engine,label,viewport){
    }
    assert(replayable,label+' '+title+' lost checkpoint ID '+marked[subject].id);
    await root.locator('.locked-journey-back').click();
+   if(subject==='norwegian'){
+     // Preserve saved checkpoint data through Bokskogen -> Eggenipa -> Home.
+     await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
+     await page.locator('#eggenipa-world [data-eg="home"]').click();
+   }
    await page.locator('#home-screen.active').waitFor({timeout:16000});
   }
   assert.deepEqual(await page.evaluate(()=>JSON.parse(localStorage.getItem('laerlittmer-v2')).journey.nodes),before,

@@ -75,12 +75,14 @@ jobs:
             sleep 0.5
           done
           npm run test:laria-live
-      - name: Upload browser test log
+      - name: Upload browser test log and actual Basecamp captures
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: browser-test-log-${{ github.run_id }}
-          path: browser-test.log
+          path: |
+            browser-test.log
+            /tmp/laria-v12-qa/
           if-no-files-found: ignore
           retention-days: 7
 

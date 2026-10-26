@@ -245,7 +245,9 @@ async function finishSession(page){
           await p.evaluate(()=>setTab('home'));
           await p.locator('#home-screen.active .bc12').waitFor();
           await p.evaluate(()=>openSubject('norwegian'));
-          await p.locator('#subject-screen.active').waitFor();
+          await p.locator('#eggenipa-world:visible').waitFor({timeout:16000});
+          await p.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
+          await p.locator('#subject-screen.active .locked-journey-map[data-journey-subject="norwegian"]').waitFor({state:'visible',timeout:16000});
           const travelerImg=p.locator('#subject-screen.active .locked-journey-profile[data-avatar="girl"] img');
           await travelerImg.waitFor({state:'visible',timeout:16000});
           const travelerSrc=await travelerImg.getAttribute('src');
@@ -654,10 +656,12 @@ async function finishSession(page){
     assert.match(await page.locator('.onboard-step[data-step="0"] .hero-copy').textContent(),/Velg reven din, skriv navnet ditt og start reisen/i);
     assert.equal(await page.locator('.onboard-step[data-step="0"] .grade-question').count(),1,'grade choice must remain on the same onboarding screen');
 
-    // Norsk 1.–2.: the child enters the approved locked Bokskogen journey.
+    // Norsk 1.–2.: Eggenipa comes first, Bokskogen remains reachable.
     await page.evaluate(()=>openSubject('norwegian'));
-    await page.locator('#subject-screen.active').waitFor();
+    await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
     assert.equal(await page.locator('#subject-title').textContent(),'Norsk');
+    await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
+    await page.locator('#subject-screen.active .locked-journey-map[data-journey-subject="norwegian"]').waitFor({state:'visible',timeout:16000});
     await page.locator('#journey-map.locked-journey-map[data-journey-subject="norwegian"] .locked-journey-image').waitFor({timeout:16000});
     assert.equal(await page.locator('#journey-map .locked-journey-image').count(),1,'Bokskogen should use one exact approved source image');
     assert.equal(await page.locator('#journey-map .locked-journey-hotspot').count(),5,'Bokskogen should expose all five painted destinations');
@@ -685,7 +689,11 @@ async function finishSession(page){
     await page.locator('#subject-screen.active').waitFor();
     await page.locator('#journey-map.locked-journey-map[data-journey-subject="norwegian"] .locked-journey-image').waitFor({timeout:16000});
     assert.equal(await page.locator('#journey-map .locked-journey-image').isVisible(),true,'the approved Bokskogen original should remain visible after completing a session');
+    // The native Bokskogen back arrow returns to Norsk's Eggenipa landing.
+    // Only its separate Hjem action should leave the Norwegian subject.
     await page.locator('#journey-map .locked-journey-back').click();
+    await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
+    await page.locator('#eggenipa-world [data-eg="home"]').click();
     await page.locator('#home-screen.active').waitFor();
     assert.equal(await page.locator('.bc12-journey').isVisible(),true);
 

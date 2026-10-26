@@ -67,27 +67,68 @@ function assertTap(r,label){
 async function verifyBasecamp(page,label,width,height){
   await page.locator('.bc12').waitFor({state:'visible'});
   assert.equal(await page.locator('.bc12-nav button').count(),5,label+' Basecamp must show five real navigation targets');
-  assert.deepEqual(await page.locator('.bc12-nav button').allTextContents(),
-    ['Hjem','Reisen','Utforsk','Samlebok','Min rev'],label+' Basecamp navigation labels changed');
+  // The fifth destination is still the saved character/wardrobe control.
+  // Tallvika's troll rollout may rename its visible label to "Mine troll",
+  // while older Basecamp builds still say "Min rev". Do not mistake that
+  // intentional copy migration for a missing or unusable navigation target.
+  const navigationLabels=(await page.locator('.bc12-nav button').allTextContents()).map(s=>s.trim());
+  assert.deepEqual(navigationLabels.slice(0,4),
+    ['Hjem','Reisen','Utforsk','Samlebok'],label+' Basecamp core navigation labels changed');
+  assert.ok(['Min rev','Mine troll'].includes(navigationLabels[4]),
+    label+' fifth character destination is missing or mislabeled: '+JSON.stringify(navigationLabels));
   await noOverflow(page,label+' home');
 
-  const challenge=await rect(page,'.safe-challenge-young');
-  assertInViewport(challenge,width,height,label+' challenge');
-  assertTap(challenge,label+' challenge');
+  const lockedHome=await page.locator('.bc12').evaluate(el=>el.classList.contains('bc15-locked-home'));
+  // Approved Kjøsnesfjorden Home deliberately hides the legacy challenge
+  // badge. Test the actual painted Home surface and the dialog separately.
+  if(lockedHome){
+    assert.equal(await page.locator('.safe-challenge-young').isVisible(),false,
+      label+' locked Home unexpectedly exposes deprecated challenge badge');
+  }else{
+    const challenge=await rect(page,'.safe-challenge-young');
+    assertInViewport(challenge,width,height,label+' challenge');
+    assertTap(challenge,label+' challenge');
+  }
 
   for(const sel of ['.bc12-nav [data-camp="home"]','.bc12-nav [data-camp="travel"]','.bc12-nav [data-camp="explore"]','.bc12-nav [data-camp="collection"]','.bc12-nav [data-camp="wardrobe"]']){
+    if(lockedHome&&sel.includes('[data-camp="home"]')&&width>height){
+      assert.equal(await page.locator(sel).isVisible(),false,
+        label+' landscape locked Home should not expose duplicate Home target');
+      continue;
+    }
     const r=await rect(page,sel);assertInViewport(r,width,height,label+' '+sel);assertTap(r,label+' '+sel);
   }
 
-  // Real child-facing wardrobe is the fifth destination, not a decorative label.
+  // Grade 1-2 has the approved Kjøsnesfjorden "Mine troll" modal.
+  // Older/legacy Home keeps the actual fox wardrobe dialog. Verify the
+  // destination the child really sees rather than an obsolete modal selector.
   await page.locator('.bc12-nav [data-camp="wardrobe"]').tap();
-  await page.locator('#bc12-dialog[open].is-wardrobe .bc12-wardrobe-preview svg').waitFor();
-  const wardrobeClose=await rect(page,'#bc12-dialog .bc12-close');
-  assertTap(wardrobeClose,label+' wardrobe close');
-  await page.locator('#bc12-dialog .bc12-close').tap();
-  await page.locator('#bc12-dialog[open]').waitFor({state:'hidden'});
+  if(navigationLabels[4]==='Mine troll'){
+    const trollDialog=page.locator('#bc15-troll-dialog[open]');
+    await trollDialog.waitFor({state:'visible',timeout:10000});
+    assert.equal(await trollDialog.locator('h2').innerText(),'Mine troll',
+      label+' character destination lost its approved title');
+    assert.ok(await trollDialog.locator('.bc15-troll-art').count()===1,
+      label+' original troll trio must be shown');
+    const trollClose=await rect(page,'#bc15-troll-dialog .bc15-troll-close');
+    assertTap(trollClose,label+' troll dialog close');
+    await page.locator('#bc15-troll-dialog .bc15-troll-close').tap();
+    await trollDialog.waitFor({state:'hidden'});
+  }else{
+    await page.locator('#bc12-dialog[open].is-wardrobe .bc12-wardrobe-preview svg').waitFor();
+    const wardrobeClose=await rect(page,'#bc12-dialog .bc12-close');
+    assertTap(wardrobeClose,label+' wardrobe close');
+    await page.locator('#bc12-dialog .bc12-close').tap();
+    await page.locator('#bc12-dialog[open]').waitFor({state:'hidden'});
+  }
 
-  await page.locator('.safe-challenge-young').tap();
+  if(lockedHome){
+    // Existing challenge API still exercises the same safe dialog without
+    // changing the child-facing locked illustration.
+    await page.evaluate(()=>window.LARIA_SAFE_CHALLENGE.open());
+  }else{
+    await page.locator('.safe-challenge-young').tap();
+  }
   const dialog=page.locator('#safe-challenge-dialog[open]');
   await dialog.waitFor();
   await noOverflow(page,label+' challenge dialog');
@@ -98,7 +139,9 @@ async function verifyBasecamp(page,label,width,height){
   await page.locator('#sc-close').tap();
   await dialog.waitFor({state:'hidden'});
 
-  await page.locator('.bc14-free').tap();
+  // The v15 Home uses the illustrated Explore navigation, not the retired
+  // .bc14-free tile which has intentionally been removed.
+  await page.locator('.bc12-nav [data-camp="explore"]').tap();
   await page.locator('.bc13-card[data-bc13-action="globe"]').tap();
   await page.locator('#world-screen.active').waitFor();
   await noOverflow(page,label+' globe');
@@ -106,17 +149,36 @@ async function verifyBasecamp(page,label,width,height){
   await page.locator('#world-back').tap();
   await page.locator('#home-screen.active').waitFor();
 
-  await page.locator('.bc12-nav [data-camp="home"]').tap();
-  await page.locator('.bc12-journey').tap();
+  // After visiting the globe, return using the actual visible panel action.
+  // The Home nav item is intentionally absent from the landscape master.
+  const explorerClose=page.locator('.bc13-close:visible');
+  if(await explorerClose.count())await explorerClose.tap();
+  else{
+    const homeNav=page.locator('.bc12-nav [data-camp="home"]');
+    if(await homeNav.isVisible())await homeNav.tap();
+    else assert.equal(await page.locator('.bc12').getAttribute('data-bc13-view'),'home',
+      label+' no available return to Home from globe');
+  }
+  // After visiting the globe, a personalized "Fortsett reisen" may
+  // correctly follow Geografi. Select Norsk for this subject geometry QA.
+  await page.locator('.bc14-subject[data-camp="subject-norwegian"]').tap();
+   await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
+   await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').tap();
   await page.locator('#subject-screen.active').waitFor();
   await page.locator('#subject-screen.active .locked-journey-map[data-journey-subject="norwegian"] .locked-journey-back').waitFor({state:'visible',timeout:16000});
   await noOverflow(page,label+' subject');
   const home=await rect(page,'#subject-screen.active .locked-journey-back');assertTap(home,label+' subject home');
   await page.locator('#subject-screen.active .locked-journey-back').tap();
+  await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
+  assert.equal(await page.locator('#subject-screen.active').getAttribute('data-subject'),'norwegian',
+    label+' Bokskogen must return to Norsk landing');
+  await page.locator('#eggenipa-world [data-eg="home"]').tap();
   await page.locator('#home-screen.active').waitFor();
 
   // Edge-back must preserve the real Basecamp origin contract.
-  await page.locator('.bc14-free').tap();
+  // The v15 Home uses the illustrated Explore navigation, not the retired
+  // .bc14-free tile which has intentionally been removed.
+  await page.locator('.bc12-nav [data-camp="explore"]').tap();
   await page.locator('.bc13-card[data-bc13-action="globe"]').tap();
   await page.locator('#world-screen.active').waitFor();
   await page.evaluate(()=>appBack());

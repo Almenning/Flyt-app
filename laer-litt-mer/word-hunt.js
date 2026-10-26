@@ -621,7 +621,11 @@ function closeWordHunt(){
   root.hidden=true;
   document.documentElement.style.overflow=previousOverflow;
   ui.drag=null;ui.tapStart=null;
-  if(typeof window.LARIA_RETURN_TO_BASECAMP==='function')window.LARIA_RETURN_TO_BASECAMP();
+  // When opened from Norsk's Eggenipa subject, return to that subject;
+  // only direct Basecamp entry should jump back to the Home/Utforsk panel.
+  const fromEggenipa=!!previousFocus?.closest?.('#eggenipa-world')&&
+    !!document.querySelector('#subject-screen.active.eggenipa-active');
+  if(!fromEggenipa&&typeof window.LARIA_RETURN_TO_BASECAMP==='function')window.LARIA_RETURN_TO_BASECAMP();
   const origin=previousFocus;
   previousFocus=null;previousOverflow='';
   // The illustrated Utforsk chooser is re-rendered on return, so the

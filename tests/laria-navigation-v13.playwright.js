@@ -62,13 +62,61 @@ async function run(engine,label,viewport){
    ['geography','geography']]){
    await page.locator('[data-bc13-action="'+subject+'"]').click();
    await page.locator('#'+screen+'-screen.active').waitFor({timeout:10000});
+   if(subject==='norwegian'){
+     await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
+     await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
+   }
    if(subject==='math'){
      const tallvika=page.locator('#subject-screen.active #tallvika-world');
      await tallvika.waitFor({state:'visible',timeout:16000});
      assert.equal(await tallvika.locator('.tv-hotspot').count(),3,label+' Tallvika must have three house destinations');
      const back=tallvika.locator('[data-tv="back"]');
-     const size=await back.boundingBox();
-     assert.ok(size&&size.width>=44&&size.height>=44,label+' Tallvika return touch area too small');
+     // The world container can become visible before WebKit has finished the
+     // subject-mode transition and exposed its header. Wait for the *real*
+     // control before measuring it, not just for the outer scenery.
+     try{
+       await back.waitFor({state:'visible',timeout:12000});
+     }catch(error){
+       const debug=await page.evaluate(()=>{
+         const subject=document.getElementById('subject-screen');
+         const root=document.getElementById('tallvika-world');
+         const button=root?.querySelector('[data-tv="back"]');
+         const inspect=el=>el?{display:getComputedStyle(el).display,visibility:getComputedStyle(el).visibility,
+           rect:el.getBoundingClientRect().toJSON()}:null;
+         return {screenSubject:subject?.dataset.subject,screenClasses:subject?.className,
+           world:inspect(root),returnControl:inspect(button),
+           activeScreens:[...document.querySelectorAll('.screen.active')].map(el=>el.id)};
+       });
+       throw new Error(label+' Tallvika return control never became visible: '+
+         JSON.stringify(debug)+'; '+error.message);
+     }
+     // Rendering Tallvika for unrelated subject-screen class changes used
+     // to detach the live back button between the visibility and tap checks.
+     // Keep an actual DOM identity assertion so a future observer regression
+     // cannot silently reintroduce that intermittent WebKit failure.
+     const stable=await page.evaluate(async()=>{
+       const subject=document.getElementById('subject-screen');
+       const previous=document.querySelector('#tallvika-world [data-tv="back"]');
+       subject.classList.add('qa-tallvika-render-stability');
+       await new Promise(resolve=>setTimeout(resolve,0));
+       const afterAdd=document.querySelector('#tallvika-world [data-tv="back"]');
+       subject.classList.remove('qa-tallvika-render-stability');
+       await new Promise(resolve=>setTimeout(resolve,0));
+       return previous===afterAdd&&previous===document.querySelector('#tallvika-world [data-tv="back"]');
+     });
+     assert.equal(stable,true,label+' Tallvika back must survive unrelated subject-screen mutations');
+     // Read geometry on the live button (not a cached ElementHandle); preserve
+     // the strict 44x44 and full-viewport checks for real accessibility.
+     const size=await back.evaluate(node=>{
+       const r=node.getBoundingClientRect(),style=getComputedStyle(node);
+       return {x:r.x,y:r.y,width:r.width,height:r.height,
+         display:style.display,visibility:style.visibility,
+         viewport:{width:innerWidth,height:innerHeight}};
+     });
+     assert.ok(size.width>=44&&size.height>=44&&size.display!=='none'&&
+       size.visibility==='visible'&&size.x>=-1&&size.y>=-1&&
+       size.x+size.width<=size.viewport.width+1&&size.y+size.height<=size.viewport.height+1,
+       label+' Tallvika return touch area inaccessible: '+JSON.stringify(size));
      await page.screenshot({path:folder+'/'+label+'-math-back-reachable.png',fullPage:false});
      await back.click();
    }else{
@@ -95,6 +143,12 @@ async function run(engine,label,viewport){
    }else{
      await journeyBack.click();
    }
+   }
+   if(subject==='norwegian'){
+     // Painted Bokskogen back returns to Norsk. Returning from Norsk then
+     // restores the original Travel/Explore panel and basecamp state.
+     await page.locator('#eggenipa-world').waitFor({state:'visible',timeout:10000});
+     await page.locator('#eggenipa-world .eg-home').click();
    }
    try{
      await page.locator('#home-screen.active').waitFor({timeout:10000});

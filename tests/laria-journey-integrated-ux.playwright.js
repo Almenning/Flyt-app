@@ -22,6 +22,31 @@ async function run(engine,label,viewport){
   for(const [subject,world] of Object.entries(worlds)){
    const screen=subject==='geography'?'geography':'subject';
    await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').click();
+   if(subject==='norwegian'){
+     // Norsk now opens Eggenipa by design; the unchanged Bokskogen map
+     // remains an explicit, child-reachable activity.
+     await page.locator('#eggenipa-world').waitFor({state:'visible',timeout:16000});
+     await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
+     const diagnostic=await page.evaluate(()=>{
+       const screen=document.getElementById('subject-screen');
+       const host=document.getElementById('journey-map');
+       const section=document.getElementById('subject-journey-section');
+       return {screen:screen?.className,subject:screen?.dataset.subject,
+         body:document.body.className,rootHidden:document.getElementById('eggenipa-world')?.hidden,
+         mapClass:host?.className,mapDisplay:host&&getComputedStyle(host).display,
+         mapVisibility:host&&getComputedStyle(host).visibility,
+         mapRect:host&&Object.fromEntries(['x','y','width','height'].map(k=>[k,Math.round(host.getBoundingClientRect()[k])])),
+         mapWaiting:host?.dataset.journeyWaiting,mapFailed:host?.dataset.journeyFailed,
+         mapChildCount:host?.children.length,
+         sectionDisplay:section&&getComputedStyle(section).display,
+         sectionVisibility:section&&getComputedStyle(section).visibility,
+         sectionRect:section&&Object.fromEntries(['width','height'].map(k=>[k,Math.round(section.getBoundingClientRect()[k])])),
+         screenDisplay:screen&&getComputedStyle(screen).display,
+         screenRect:screen&&Object.fromEntries(['width','height'].map(k=>[k,Math.round(screen.getBoundingClientRect()[k])])),
+         mapParent:host?.parentElement?.id,paintedBack:host?.querySelector('.locked-journey-back')?.getAttribute('aria-label')};
+     });
+     console.log('[NORSK_BOKSKOGEN_DIRECT_PORTAL]',label,JSON.stringify(diagnostic));
+   }
    if(subject==='math'){
      // The math journey data is still present, but children now enter Tallvika
      // directly and the old map remains intentionally hidden.
@@ -42,7 +67,22 @@ async function run(engine,label,viewport){
      continue;
    }
    const root=page.locator('#'+screen+'-screen.active .locked-journey-map[data-journey-subject="'+subject+'"]');
-   await root.waitFor({timeout:16000});
+   try{
+     await root.waitFor({state:'visible',timeout:16000});
+   }catch(error){
+     const after=await page.evaluate(()=>{
+       const screen=document.getElementById('subject-screen'),map=document.getElementById('journey-map');
+       const section=document.getElementById('subject-journey-section'),eg=document.getElementById('eggenipa-world');
+       const s=el=>el?{className:el.className,display:getComputedStyle(el).display,
+         visibility:getComputedStyle(el).visibility,hidden:el.hidden,
+         subject:el.dataset.journeySubject,waiting:el.dataset.journeyWaiting,
+         box:[Math.round(el.getBoundingClientRect().width),Math.round(el.getBoundingClientRect().height)]}:null;
+       return {screen:s(screen),map:s(map),section:s(section),eggenipa:s(eg),
+         mapVisible:window.LARIA_EGGENIPA?.isMapOpen?.(),paintedBack:map?.querySelector('.locked-journey-back')?.getAttribute('aria-label')};
+     });
+     console.error('[NORSK_BOKSKOGEN_TIMEOUT]',label,JSON.stringify(after));
+     throw error;
+   }
    await root.locator('.locked-journey-hotspot.state-current').first().click();
    const mission=page.locator('.locked-journey-overlay:not([hidden]) button[data-locked-node]:not([disabled])').first();
    await mission.waitFor({timeout:10000});
@@ -56,7 +96,17 @@ async function run(engine,label,viewport){
    await page.locator('#close-session').click();
    await root.waitFor({timeout:16000});
    assert.equal(await page.locator('#session-screen.active').count(),0,label+' task did not close');
-   await root.locator('.locked-journey-back').click();
+   if(subject==='norwegian'){
+     const paintedBack=root.locator('.locked-journey-back');
+     assert.equal(await paintedBack.getAttribute('aria-label'),'Tilbake til Eggenipa',
+      label+' painted map back must return to the actual Norwegian landing');
+     await paintedBack.click();
+     await page.locator('#eggenipa-world:visible').waitFor({timeout:12000});
+     assert.equal(await root.isVisible(),false,label+' map remained visible after Eggenipa return');
+     await page.locator('#eggenipa-world [data-eg="home"]').click();
+   }else{
+     await root.locator('.locked-journey-back').click();
+   }
    await page.locator('#home-screen.active .bc14-subject').first().waitFor({timeout:12000});
   }
   assert.deepEqual(errors,[],label+' javascript exceptions');

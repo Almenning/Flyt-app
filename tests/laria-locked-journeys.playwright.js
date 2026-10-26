@@ -47,6 +47,12 @@ async function run(engine,label,viewport){
    const screen=subject==='geography'?'geography':'subject';
    await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').click();
    await page.locator('#'+screen+'-screen.active').waitFor({timeout:16000});
+   if(subject==='norwegian'){
+     // New Norsk landing is intentionally the direct-play Eggenipa world.
+     // Inspect the original map by opening its real Bokskogen portal.
+     await page.locator('#eggenipa-world').waitFor({state:'visible',timeout:16000});
+     await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
+   }
    if(subject==='math'){
      const tv=page.locator('#subject-screen.active #tallvika-world');
      await tv.waitFor({state:'visible',timeout:16000});
@@ -215,6 +221,10 @@ async function run(engine,label,viewport){
    assert.deepEqual(launched?.args,subject==='geography'?[selectedId,2]:[subject,selectedId,2],label+' existing mission ID and grade must survive');
    await page.screenshot({path:output+'/'+label+'-'+subject+'-test-geometry.png',fullPage:true});
    await page.locator(base+' .locked-journey-back').click();
+   if(subject==='norwegian'){
+    await page.locator('#eggenipa-world').waitFor({state:'visible',timeout:12000});
+    await page.locator('#eggenipa-world .eg-home').click();
+   }
    await page.locator('#home-screen.active').waitFor({timeout:16000});
   }
   assert.deepEqual(errors,[],label+' page errors '+JSON.stringify(errors));

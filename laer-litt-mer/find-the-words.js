@@ -427,7 +427,10 @@
     overlay.hidden=true;DOC.documentElement.style.overflow=previousOverflow;
     if(reactionTimer){root.clearTimeout(reactionTimer);reactionTimer=null}
     try{root.speechSynthesis?.cancel?.()}catch(_){}
-    if(typeof root.LARIA_RETURN_TO_BASECAMP==='function')root.LARIA_RETURN_TO_BASECAMP();
+    // Entry from Eggenipa should return to the Norwegian subject, not Home.
+    const fromEggenipa=!!previousFocus?.closest?.('#eggenipa-world')&&
+      !!DOC.querySelector('#subject-screen.active.eggenipa-active');
+    if(!fromEggenipa&&typeof root.LARIA_RETURN_TO_BASECAMP==='function')root.LARIA_RETURN_TO_BASECAMP();
     const origin=previousFocus;
     previousFocus=null;previousOverflow='';
     const fallback=DOC.querySelector('.bc13-panel:not([hidden]) [data-bc13-action="find-words"]');

@@ -84,6 +84,8 @@ async function run(engine,label,width,height){
   // Ensure the new panel art does not affect the original, locked 941x1672 journey maps.
   await page.locator('.bc12-nav [data-camp="travel"]').click();
   await page.locator('.bc13-card[data-bc13-action="norwegian"]').click();
+   await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
+   await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
   const original=page.locator('#subject-screen.active .locked-journey-image');
   await original.waitFor({timeout:18000});
   await page.waitForFunction(()=>{const x=document.querySelector('#subject-screen.active .locked-journey-image');

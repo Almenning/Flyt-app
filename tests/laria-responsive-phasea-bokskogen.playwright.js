@@ -50,6 +50,8 @@ async function proof(engine,label,viewport,url){
   await page.route('https://api.worldbank.org/**',route=>route.abort());
   await page.goto(url+'&responsive-phase-a='+label,{waitUntil:'domcontentloaded'});
   await page.locator('.bc14-subject[data-camp="subject-norwegian"]:visible').click();
+  await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
+  await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
   const screen=page.locator('#subject-screen.active');
   const map=screen.locator('.locked-journey-map[data-journey-subject="norwegian"]');
   await map.waitFor({state:'visible',timeout:30000});
@@ -58,6 +60,15 @@ async function proof(engine,label,viewport,url){
    return image?.complete&&image.naturalWidth===941&&image.naturalHeight===1672&&
      !document.querySelector('#subject-screen.active .locked-journey-art-guard');
   },{timeout:30000});
+  // The legacy journey intentionally scrolls to the current stop on short
+  // landscape screens. Wait for that behavior instead of asserting that a
+  // correctly focused illustrated map must be at scrollY=0.
+  await page.waitForFunction(()=>{
+   const stop=document.querySelector('#subject-screen.active .locked-journey-hotspot.state-current');
+   if(!stop)return false;
+   const r=stop.getBoundingClientRect();
+   return r.top>=-1&&r.bottom<=innerHeight+1;
+  },null,{timeout:12000});
   const geometry=await page.evaluate(()=>{
    const screen=document.querySelector('#subject-screen.active');
    const app=document.querySelector('.app');
@@ -67,7 +78,10 @@ async function proof(engine,label,viewport,url){
    const image=document.querySelector('#subject-screen.active .locked-journey-image');
    const sb=screen.getBoundingClientRect(),bb=board.getBoundingClientRect(),ib=image.getBoundingClientRect();
    const style=getComputedStyle(screen),journeyStyle=getComputedStyle(journeySection),mapStyle=getComputedStyle(map),appStyle=getComputedStyle(app),boardStyle=getComputedStyle(board);
-   return {screen:{top:sb.top,height:sb.height},board:{top:bb.top,width:bb.width,height:bb.height},
+   const stop=screen.querySelector('.locked-journey-hotspot.state-current')?.getBoundingClientRect();
+   return {scrollY:window.scrollY,
+    currentStop:stop?{top:stop.top,bottom:stop.bottom}:null,viewport:innerHeight,
+    screen:{top:sb.top,height:sb.height},board:{top:bb.top,width:bb.width,height:bb.height},
     imageRatio:ib.width/ib.height,boardRatio:bb.width/bb.height,appPaddingBottom:appStyle.paddingBottom,
     screenBackground:style.backgroundImage,journeyBackground:journeyStyle.backgroundImage,appBackground:appStyle.backgroundImage,borderRadius:boardStyle.borderTopLeftRadius,
     journey:{display:journeyStyle.display,marginTop:journeyStyle.marginTop,paddingTop:journeyStyle.paddingTop,gap:journeyStyle.gap},
@@ -78,7 +92,13 @@ async function proof(engine,label,viewport,url){
      const r=node.getBoundingClientRect();return {w:r.width,h:r.height};
     })};
   });
-  assert.equal(geometry.screen.top,0,label+' journey must start at the viewport edge');
+  assert.ok(Math.abs(geometry.screen.top+geometry.scrollY)<=2,
+   label+' journey is offset in document layout (not a current-stop focus): '+JSON.stringify(geometry));
+  assert.ok(geometry.currentStop&&geometry.currentStop.top>=-1&&geometry.currentStop.bottom<=geometry.viewport+1,
+   label+' current illustrated stop is outside the screen: '+JSON.stringify(geometry));
+  if(viewport.height>=viewport.width)
+   assert.ok(Math.abs(geometry.screen.top)<=1,
+    label+' portrait journey unexpectedly begins below the viewport: '+JSON.stringify(geometry));
   // WebKit can resolve 100dvh a fraction below the integer viewport after
   // device-scale rounding (for example 843.984375px for an 844px viewport).
   // One CSS pixel is below visual precision and avoids treating that rounding
@@ -91,7 +111,8 @@ async function proof(engine,label,viewport,url){
   assert.equal(geometry.borderRadius,'0px',label+' map edge introduced a pale rounded seam');
   assert.ok(Math.abs(geometry.boardRatio-941/1672)<.003&&Math.abs(geometry.imageRatio-941/1672)<.003,
     label+' approved map was stretched or cropped '+JSON.stringify(geometry));
-  assert.equal(geometry.board.top,0,label+' map was offset below a blank header '+JSON.stringify(geometry));
+  assert.ok(Math.abs(geometry.board.top-geometry.screen.top)<=1,
+   label+' map has blank header space before the painted board '+JSON.stringify(geometry));
   assert.ok(geometry.overflow<=1,label+' horizontal overflow '+JSON.stringify(geometry));
   assert.equal(geometry.hotspots.length,5,label+' mission locations changed');
   assert.ok(geometry.hotspots.every(hit=>hit.w>=44&&hit.h>=44),label+' a map touch target fell below 44px');

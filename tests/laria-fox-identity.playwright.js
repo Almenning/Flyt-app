@@ -106,6 +106,10 @@ async function run(engine,name,viewport,which){
      await page.locator('#home-screen.active').waitFor({timeout:14000});
      continue;
    }
+   if(subject==='norwegian'){
+     await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
+     await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
+   }
    const root=page.locator('#'+target+'-screen.active .locked-journey-map[data-journey-subject="'+subject+'"]');
    await root.waitFor({timeout:16000});
    await imageIsChosen(page,'#'+target+'-screen.active .locked-journey-profile img',which,name+' '+subject+' profile');
@@ -149,6 +153,14 @@ async function run(engine,name,viewport,which){
    await page.screenshot({path:folder+'/'+name+'-'+subject+'-task.png',fullPage:true,animations:'disabled'});
    await page.locator('#close-session').click();await root.waitFor({timeout:16000});
    await root.locator('.locked-journey-back').click();
+   if(subject==='norwegian'){
+     // Bokskogen now belongs to Eggenipa. The approved return is through
+     // the Norwegian subject landing, never directly back to Home.
+     await page.locator('#eggenipa-world:visible').waitFor({timeout:12000});
+     assert.equal(await page.locator('#subject-screen.active').getAttribute('data-subject'),'norwegian',
+       name+' Bokskogen return changed the subject');
+     await page.locator('#eggenipa-world [data-eg="home"]').click();
+   }
    await page.locator('#home-screen.active .bc14-subject[data-camp="subject-'+subject+'"]:visible').waitFor({timeout:12000});
   }
   await page.reload({waitUntil:'domcontentloaded'});

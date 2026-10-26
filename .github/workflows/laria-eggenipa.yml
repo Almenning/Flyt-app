@@ -1,0 +1,92 @@
+name: Læria Eggenipa Norsk – WebKit og Chromium
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/laria-eggenipa.yml'
+      - 'laer-litt-mer/eggenipa.*'
+      - 'laer-litt-mer/assets/norsk/**'
+      - 'laer-litt-mer/index.html'
+      - 'laer-litt-mer/word-hunt.js'
+      - 'laer-litt-mer/find-the-words.js'
+      - 'laer-litt-mer/sw.js'
+      - 'tests/laria-eggenipa*'
+      - 'tests/laria-device-hardening.playwright.js'
+      - 'tests/laria-journey-mission-premium.playwright.js'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/laria-eggenipa.yml'
+      - 'laer-litt-mer/eggenipa.*'
+      - 'laer-litt-mer/assets/norsk/**'
+      - 'laer-litt-mer/index.html'
+      - 'laer-litt-mer/word-hunt.js'
+      - 'laer-litt-mer/find-the-words.js'
+      - 'laer-litt-mer/sw.js'
+      - 'tests/laria-eggenipa*'
+      - 'tests/laria-device-hardening.playwright.js'
+      - 'tests/laria-journey-mission-premium.playwright.js'
+
+permissions:
+  contents: read
+
+jobs:
+  eggenipa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    container: mcr.microsoft.com/playwright:v1.62.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: 22, cache: npm}
+      - run: npm ci
+      - name: Verify unchanged learning-state contract
+        run: node --test tests/laria-eggenipa-contract.test.cjs
+      - name: Start exact-commit test server
+        run: python3 -m http.server 8765 --directory . >/tmp/eggenipa-server.log 2>&1 &
+      - name: Capture iPhone/iPad in Chromium and WebKit
+        env:
+          QA_URL: http://127.0.0.1:8765/laer-litt-mer/?app=laria
+          LARIA_EGGENIPA_SCREENSHOTS: /tmp/laria-eggenipa
+        run: node tests/laria-eggenipa.playwright.js
+      - name: Upload visual evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-eggenipa-screenshots-${{ github.sha }}
+          path: /tmp/laria-eggenipa
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Verify exact original art is available before release
+        if: always()
+        env:
+          LARIA_EGGENIPA_RELEASE_GATE: '1'
+        run: node --test tests/laria-eggenipa-contract.test.cjs
+      - name: Verify integrated Home geometry and mission return
+        env:
+          QA_SCREENSHOTS: /tmp/laria-eggenipa-device-matrix
+          MISSION_QA_SCREENSHOTS: /tmp/laria-eggenipa-mission-matrix
+        run: |
+          node --check tests/laria-device-hardening.playwright.js
+          node --check tests/laria-journey-mission-premium.playwright.js
+          node tests/laria-device-hardening.playwright.js
+          node tests/laria-journey-mission-premium.playwright.js
+      - name: Upload integrated device and mission screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-eggenipa-release-matrix-${{ github.sha }}
+          path: |
+            /tmp/laria-eggenipa-device-matrix
+            /tmp/laria-eggenipa-mission-matrix
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Upload original artwork for review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-eggenipa-original-${{ github.sha }}
+          path: laer-litt-mer/assets/norsk/eggenipa-master-laast-20261025.png
+          if-no-files-found: warn
+          retention-days: 14
