@@ -113,7 +113,7 @@ async function run(engine,name,viewport,which){
        ['words','find','reading'],name+' Norwegian direct play is missing');
      assert.equal(await page.locator('#subject-screen.active .locked-journey-map:visible').count(),0,
        name+' retired Norwegian journey map is visible');
-     await eg.locator('[data-eg="reading"]').click();
+     await eg.locator('.eg-portal[data-eg="reading"]').click();
      await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
      assert.equal(await page.evaluate(()=>sessionScope?.module),'reading',name+' wrong reading module');
      assert.equal(await page.locator('#session-screen.active .task-fox-companion').count(),0,
