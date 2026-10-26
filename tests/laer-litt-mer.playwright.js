@@ -854,7 +854,7 @@ async function finishSession(page){
     await page.locator('#tallvika-world [data-tv="fraction"]:visible').first().click();
     await page.locator('#fraction-lab-screen.active').waitFor();
     assert.equal(await page.locator('#fraction-lab-screen').getAttribute('data-explore-release'),'explore-rc1');
-    assert.equal((await page.locator('.fr5-lab-intro h1').first().textContent()).trim(),'Brøklaben');
+    assert.equal((await page.locator('.fc-story-title h1').first().textContent()).trim(),'Brøklaben');
     assert.equal(await page.locator('.fr2-home-card').count(),0,'child enters the cake, not a menu');
      assert.equal(await page.locator('.fr6-result .fr2-fraction').getAttribute('aria-label'),'1 av 4');
     const fractionFit=await page.evaluate(()=>{
@@ -878,7 +878,7 @@ async function finishSession(page){
     await page.locator('[data-fr-action="reset"]').click();
     await page.locator('[data-fr-action="add"]').first().click();
     assert.equal((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot())).build.n,1);
-    await page.locator('.fr2-pie-builder path[data-fr-action="piece"][data-piece="1"]').click();
+    await page.locator('.fc-cake-svg .fc-wedge[data-fr-action="piece"][data-piece="1"]').click();
     assert.equal((await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot())).build.n,2,'each tapped piece should change the count by one');
     await page.locator('.fr2-nav-item[data-page="home"]').click();
     await page.locator('.fr2-card-equal').click();

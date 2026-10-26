@@ -1,5 +1,5 @@
 'use strict';
-/* Real browser regression for the selected fox in existing Explore activities. */
+/* Brøklab uses approved skogstroll; preserve child's fox across other Explore activities. */
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const {chromium,webkit}=require('playwright');
@@ -37,7 +37,21 @@ async function run(engine,name,viewport,which){
   await launch(page,url,which);
   await page.waitForFunction(()=>typeof openFractionLab==='function');
   await page.evaluate(()=>openFractionLab());
-  await match(page,'.fr2-guide .fr2-fox',which,name+' Brøklab',true);
+  // The locked skogstroll are independent of the former personal fox.
+  // Verify the original assets and do not allow character switching to reset math.
+  const labTroll=page.locator('#fraction-lab-screen.active .fc-troll img.fr8-troll');
+  await labTroll.waitFor({state:'visible',timeout:17000});
+  await labTroll.evaluate(img=>img.decode());
+  assert.equal(await labTroll.getAttribute('src'),'./assets/fraction-trolls/storesoster.webp',
+    name+' Brøklab must show the approved original storesøster');
+  const cakeBefore=await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build);
+  await page.locator('#fraction-lab-screen.active .fc-troll-cycle').click();
+  assert.equal(await page.locator('#fraction-lab-screen.active .fc-troll img.fr8-troll').getAttribute('src'),
+    './assets/fraction-trolls/lillesoster.webp',name+' must cycle through approved original characters');
+  assert.deepEqual(await page.evaluate(()=>LARIA_FRACTION_PREMIUM.snapshot().build),cakeBefore,
+    'character change must preserve the current fraction');
+  assert.equal(await page.evaluate(()=>state.profile.avatar),which,
+    name+' Brøklab must not overwrite the personal fox in other activities');
   await page.screenshot({path:out+'/'+name+'-broklab.png',fullPage:true});
   await launch(page,url+'&part=mult',which);
   await page.waitForFunction(()=>typeof window.openMultiplicationLab==='function');
