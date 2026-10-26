@@ -79,3 +79,12 @@ Full `Laria QA` på `f9fa707` hadde 10 av 11 workflow-kontroller grønne, men `l
 **Testrettelse uten produktendring:** Etter rekonstruert samling og ny innlasting må barnets valgte `girl`-profil fortsatt være lagret. I Home v15 åpnes den **synlige** samleboken og deretter `Min rev`, som skal vise nøyaktig én `svg[data-avatar="girl"]` og ingen ikke-utgitte klær. For eldre Home-visninger beholdes kravet om én korrekt sammensatt rev direkte på Hjem. Tidligere testkrav til opptjente eiendeler, avvisning av falske data, frivillig utstyr, all læringshistorikk og ingen dobbeltutbetaling er beholdt uendret.
 
 **Kvalitetsport:** Full QA må bestå på den nye eksakte HEAD før merge. Rettelsen må aldri brukes som begrunnelse for å overse reelt datatap eller for å kalle statiske troll fullverdige levende premiumfigurer.
+
+
+### 26.10 – Publiseringsblokkering i full QA: utdaterte Ubuntu-avhengigheter
+
+Etter rettelsen for synlig `Min rev`-visning på `9401060` bestod 9/11 PR-workflows (herunder iOS, Tallvika Chromium/WebKit, Brøklab, Gangemagi, Eggenipa, Samlebok og integrert reise). `Laria QA` ble deretter blokkert av **GitHub-runnerens nettleserinstallasjon**, ikke av en påvist appfeil. Jobb `laria-task-phase3-polish` ble automatisk avbrutt etter ti minutter under `npx playwright install --with-deps chromium webkit`, mens `azure.archive.ubuntu.com` brukte flere minutter på hver font-/WPE-pakke (185 nye pakker, 142 MB). De øvrige lange browser-jobbene ble tilsvarende forsinket. De fire aktuelle runnerne brukte `ubuntu-latest`/resolute som ikke er identisk med Playwrights verifiserte runtime.
+
+**Rotrettelse:** Alle seks relevante QA-jobber med Playwright-basert Chromium/WebKit bruker nå **samme offisielle Playwright-container `mcr.microsoft.com/playwright:v1.62.1-noble`** som allerede er grønn i Tallvika, Gangemagi og smoke. Den store installasjonen av Linux-avhengigheter er fjernet. Hver jobb bekrefter nå eksplisitt at den låste Chromium- og WebKit-binæren eksisterer etter `npm ci`, før de opprinnelige testene startes.
+
+**Ingen kvalitetssvekkelse:** Alle funksjonelle/visuelle tester og screenshot-artefakter, jobbtidsgrenser, kontroll av læringsprogresjon, lagring og originalbilder beholdes. Ingen appfunksjon eller data endres; dette er kun CI-infrastruktur. Full PR-matrise må kjøres på **ny head** før merge, og GitHub Pages-deploy må verifiseres etterpå. Sikkerhetsgrenen for rollback beholdes.

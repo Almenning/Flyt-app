@@ -30,6 +30,9 @@ jobs:
   country-story:
     runs-on: ubuntu-latest
     timeout-minutes: 14
+    # Use the verified Playwright 1.62.1 image. The Ubuntu resolute mirror
+    # stalled downloading 185 WPE dependencies and cancelled a 10-min QA job.
+    container: mcr.microsoft.com/playwright:v1.62.1-noble
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -40,8 +43,9 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
-      - name: Install browsers
-        run: npx playwright install --with-deps chromium webkit
+      - name: Verify pinned Chromium and WebKit runtime
+        run: |
+          node -e "const fs=require('node:fs');const p=require('playwright');for(const browser of ['chromium','webkit']) { const exe=p[browser].executablePath();if(!fs.existsSync(exe))throw Error(browser+' missing '+exe) }"
       - name: Verify illustrated country detail on iPhone and iPad
         env:
           COUNTRY_STORY_QA_SCREENSHOTS: /tmp/laria-country-story
@@ -64,6 +68,9 @@ jobs:
     # Run 39678827816 reached the 38-minute job limit after passing the
     # browser suite. Keep every test and its own timeout; allow final evidence.
     timeout-minutes: 55
+    # Use the verified Playwright 1.62.1 image. The Ubuntu resolute mirror
+    # stalled downloading 185 WPE dependencies and cancelled a 10-min QA job.
+    container: mcr.microsoft.com/playwright:v1.62.1-noble
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -80,8 +87,9 @@ jobs:
       - name: Static and Node regression suite
         run: npm run test:node
 
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium webkit
+      - name: Verify pinned Chromium and WebKit runtime
+        run: |
+          node -e "const fs=require('node:fs');const p=require('playwright');for(const browser of ['chromium','webkit']) { const exe=p[browser].executablePath();if(!fs.existsSync(exe))throw Error(browser+' missing '+exe) }"
 
       - name: Verify Plukk og tell in iPhone and iPad Chromium and WebKit
         env:
@@ -256,6 +264,9 @@ jobs:
     # Full WebKit phone + tablet mission matrix added; the previous 12-minute
     # budget cancelled the job after tests passed, before persistence checks.
     timeout-minutes: 20
+    # Use the verified Playwright 1.62.1 image. The Ubuntu resolute mirror
+    # stalled downloading 185 WPE dependencies and cancelled a 10-min QA job.
+    container: mcr.microsoft.com/playwright:v1.62.1-noble
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -268,8 +279,9 @@ jobs:
         run: npm ci
       - name: Verify eight painted premium images against locked manifest
         run: node tests/laria-premium-art-integrity.cjs
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium webkit
+      - name: Verify pinned Chromium and WebKit runtime
+        run: |
+          node -e "const fs=require('node:fs');const p=require('playwright');for(const browser of ['chromium','webkit']) { const exe=p[browser].executablePath();if(!fs.existsSync(exe))throw Error(browser+' missing '+exe) }"
       - name: Start exact-head local server
         run: |
           python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/laria-nav-http.log 2>&1 &
@@ -455,6 +467,9 @@ jobs:
   laria-globe-mode-touch:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    # Use the verified Playwright 1.62.1 image. The Ubuntu resolute mirror
+    # stalled downloading 185 WPE dependencies and cancelled a 10-min QA job.
+    container: mcr.microsoft.com/playwright:v1.62.1-noble
     steps:
       - name: Checkout exact PR source
         uses: actions/checkout@v4
@@ -465,8 +480,9 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
-      - name: Install Chromium and WebKit
-        run: npx playwright install --with-deps chromium webkit
+      - name: Verify pinned Chromium and WebKit runtime
+        run: |
+          node -e "const fs=require('node:fs');const p=require('playwright');for(const browser of ['chromium','webkit']) { const exe=p[browser].executablePath();if(!fs.existsSync(exe))throw Error(browser+' missing '+exe) }"
       - name: Verify genuine globe button taps and preserved geometry
         env:
           QA_SCREENSHOTS: /tmp/laria-globe-mode-touch
@@ -498,6 +514,9 @@ jobs:
   laria-journey-progress-recovery:
     runs-on: ubuntu-latest
     timeout-minutes: 16
+    # Use the verified Playwright 1.62.1 image. The Ubuntu resolute mirror
+    # stalled downloading 185 WPE dependencies and cancelled a 10-min QA job.
+    container: mcr.microsoft.com/playwright:v1.62.1-noble
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -510,8 +529,9 @@ jobs:
         run: npm ci
       - name: Check journey recovery test syntax
         run: node --check tests/laria-journey-progress-recovery.playwright.js
-      - name: Install browsers
-        run: npx playwright install --with-deps chromium webkit
+      - name: Verify pinned Chromium and WebKit runtime
+        run: |
+          node -e "const fs=require('node:fs');const p=require('playwright');for(const browser of ['chromium','webkit']) { const exe=p[browser].executablePath();if(!fs.existsSync(exe))throw Error(browser+' missing '+exe) }"
       - name: Start exact-head local server
         run: |
           python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/laria-recovery-http.log 2>&1 &
@@ -530,6 +550,9 @@ jobs:
   laria-task-phase3-polish:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    # Use the verified Playwright 1.62.1 image. The Ubuntu resolute mirror
+    # stalled downloading 185 WPE dependencies and cancelled a 10-min QA job.
+    container: mcr.microsoft.com/playwright:v1.62.1-noble
     steps:
       - name: Checkout exact PR source
         uses: actions/checkout@v4
@@ -544,8 +567,9 @@ jobs:
         run: |
           node --check laer-litt-mer/laria-task-scene-v15.js
           node --check tests/laria-task-phase3-polish.playwright.js
-      - name: Install Chromium and WebKit
-        run: npx playwright install --with-deps chromium webkit
+      - name: Verify pinned Chromium and WebKit runtime
+        run: |
+          node -e "const fs=require('node:fs');const p=require('playwright');for(const browser of ['chromium','webkit']) { const exe=p[browser].executablePath();if(!fs.existsSync(exe))throw Error(browser+' missing '+exe) }"
       - name: Verify four-subject premium task scene on iPhone and iPad
         env:
           LARIA_TASK_POLISH_SHOTS: /tmp/laria-task-phase3-polish
