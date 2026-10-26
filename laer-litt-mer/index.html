@@ -6295,8 +6295,19 @@ function renderLearningQuestion(){
   document.getElementById('session-count').textContent=shortMission?`Oppdrag ${qIndex+1} av ${sessionQuestions.length}`:(qIndex+1)+'/'+sessionQuestions.length;
   const wrap=document.getElementById('question-wrap');
   const label=q.subject==='norwegian'?'Norsk':q.subject==='math'?'Matte':q.subject==='english'?'English':'Geografi';
-  let html='<div class="question-tools"><div class="qtype">'+label+' · '+GRADE_CONFIG[currentGrade()].label+'</div>'+readAloudButton(q)+'</div><div class="question">'+q.prompt+'</div>';
-  if(q.passage)html+='<div class="learning-passage">'+q.passage+'</div>';
+  // Only the direct English Reading module uses the story-first page.
+  // The child reads the passage before answering, matching spoken order.
+  const kiReading=q.subject==='english'&&q.skill==='reading'&&
+    sessionScope?.type==='subject'&&sessionScope?.module==='reading'&&
+    typeof q.passage==='string'&&q.passage.trim().length>0;
+  let html='<div class="question-tools"><div class="qtype">'+label+' · '+GRADE_CONFIG[currentGrade()].label+'</div>'+readAloudButton(q)+'</div>';
+  if(kiReading){
+    html+='<section class="learning-passage ki-reading-story" aria-label="Engelsk historie">'+escapeAttr(q.passage)+'</section>';
+    html+='<div class="question ki-reading-question">'+escapeAttr(q.prompt)+'</div>';
+  }else{
+    html+='<div class="question">'+q.prompt+'</div>';
+    if(q.passage)html+='<div class="learning-passage">'+q.passage+'</div>';
+  }
   if(q.visual)html+='<div class="big-flag">'+q.visual+'</div>';
   if(q.type==='build-word'){
     html+='<div class="letter-slots" id="letter-slots"></div><div class="letter-helper" id="letter-helper" aria-live="polite">Trykk på en rute og en bokstav, eller dra bokstaven dit.</div><div class="letter-bank">'+q.letters.map((x,i)=>'<button type="button" class="letter-tile" data-idx="'+i+'" aria-label="Bokstav '+x.l+'">'+x.l+'</button>').join('')+'</div><button class="secondary" id="check-build" type="button">Sjekk ordet</button>';
@@ -6686,7 +6697,9 @@ function updateAnswerPronunciation(q,correct){
   button.onclick=available?()=>speakEnglishWord(word):null;
 }
 function readAloudButton(q){
-  return currentGrade()<=2&&canSpeak()?'<button type="button" class="read-aloud" id="read-aloud" aria-pressed="false" aria-label="Les opp spørsmålet">🔊 Les opp</button>':'';
+  const label=q?.subject==='english'&&q?.skill==='reading'
+    ?'Les opp historien og spørsmålet':'Les opp spørsmålet';
+  return currentGrade()<=2&&canSpeak()?'<button type="button" class="read-aloud" id="read-aloud" aria-pressed="false" aria-label="'+label+'">🔊 Les opp</button>':'';
 }
 function bindReadAloud(q){
   const b=document.getElementById('read-aloud');
