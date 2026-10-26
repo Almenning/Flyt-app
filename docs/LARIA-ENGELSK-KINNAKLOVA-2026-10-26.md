@@ -114,3 +114,10 @@ En målrettet kontroll av `englishPool` avslørte fire ugyldige Reading-spørsm�
 ## 26.10.2026 – Reading-variasjon på 2. trinn
 
 Barnets viktigste trinn hadde kun fem engelske lesetekster, noe som gjorde Reading identisk etter én økt. Jeg har supplert med **åtte nye, korte kystfortellinger** knyttet til Kinnaklova-motivet (rødt hus, øyer, sjøfugl, kirke, skjell, fjell, bølger og steinmur). Samlet har 2. klasse nå minst 13 forskjellige lesetekster. Alle har ett direkte forståelsesspørsmål med et gyldig fasitsvar, og beholdes i den eksisterende adaptive spørsmålsmotoren. Ingen tvungen rekkefølge, nytt kapittel eller nye progresjonsdata. Innholdskontrakten kontrollerer både svar, unik lesetekst og faktisk Kinnaklova-tilknytning. Øvrige klassetrinn endres ikke.
+
+## 26.10.2026 – Fortsettelse Engelsk (2): Sentences og synlig Reading
+
+- Innenfor uendret Words/Sentences/Reading-struktur er **åtte enkle setningspuslespill** lagt til kun på 2. trinn. De bruker Kinnaklovas allerede låste motiv (båt, bølger, sjøfugl, fjell, kirke, skjell og steinmur), uten å endre grafikk eller andre trinn. Sentences har nå minst 17 unike øvelser og bevarer fri repetisjon og gjeldende fremgang.
+- Innholdskontrakten sikrer at alle ordbrikker bygger nøyaktig riktig setning, at oppgavene er unike, alderspassende og inneholder minst åtte kystmotiver.
+- Chromium/WebKit-QA har fått eksplisitt kontroll av at barnets faktiske Reading-tekst er synlig på oppgavekortet, samsvarer med den valgte teksten og ikke skaper horisontal scrolling. Det lagres også skjermbilde av Reading på iPhone/iPad stående/liggende. For 1. klasse verifiseres også at den første minifortellingen vises.
+- Ingen endring i låst illustrasjon eller trollidentitet; kunstporten forblir med hensikt rød og PR #229 forblir draft til godkjent ren kunst finnes.

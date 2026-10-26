@@ -81,3 +81,19 @@ test('Kinnaklova 2nd-grade Reading offers more than one set of coastal stories',
   assert.ok(stories.some(q=>/white church|mountains|stone wall/i.test(q.passage)),
     'The Reading discoveries should connect to the approved Kinnaklova coastal setting');
 });
+
+
+test('Kinnaklova 2nd-grade Sentences has repeatable coastal discoveries',()=>{
+  const questions=englishPool(2,'sentences');
+  assert.ok(questions.length>=17,'Second-grade Sentences should not repeat after two sessions');
+  const builders=questions.filter(q=>q.type==='sentence-order');
+  const answers=new Set(builders.map(q=>q.answer));
+  assert.equal(answers.size,builders.length,'Each sentence-building puzzle must be unique');
+  assert.ok(builders.filter(q=>/boat|waves|bird|sea|mountains|church|shell|wall/i.test(q.answer)).length>=8,
+    'The new sentence puzzles should belong to the approved Kinnaklova coastal world');
+  for(const q of builders){
+    assert.ok(q.words.every(word=>typeof word==='string'&&word.length>0));
+    assert.equal(q.words.join(' '),q.answer,'Word tiles must form the intended sentence');
+    assert.ok(q.words.length<=7,'Sentence puzzle too long for grade two');
+  }
+});

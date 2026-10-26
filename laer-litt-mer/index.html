@@ -5003,6 +5003,20 @@ function englishPool(grade,module){
       ];
       for(const [prompt,answer,options,passage] of coastReads)
         add('reading',prompt,answer,options,{passage});
+      // More choices within the SAME Sentences activity, not a new
+      // journey or a forced curriculum step. Every line can be rebuilt
+      // from the exact word tiles shown to the child.
+      const coastSentences=[
+        ['I see a red boat.',['I','see','a','red','boat.']],
+        ['We can hear the waves.',['We','can','hear','the','waves.']],
+        ['A white bird can fly.',['A','white','bird','can','fly.']],
+        ['The sea is blue.',['The','sea','is','blue.']],
+        ['There are two mountains.',['There','are','two','mountains.']],
+        ['The small church is white.',['The','small','church','is','white.']],
+        ['My sister finds a shell.',['My','sister','finds','a','shell.']],
+        ['The boat is near the wall.',['The','boat','is','near','the','wall.']]
+      ];
+      for(const [answer,words] of coastSentences)sent(answer,words);
     }
 
   }else if(grade<=4){

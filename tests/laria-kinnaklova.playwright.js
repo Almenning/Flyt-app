@@ -135,6 +135,17 @@ async function run(browserType,name,viewport){
   await page.locator('#close-session').click();
   await world.waitFor({state:'visible',timeout:16000});
   await takeActivity(page,'reading',name);
+  const passage=page.locator('#session-screen.active .learning-passage');
+  await passage.waitFor({state:'visible',timeout:10000});
+  const displayed=(await passage.textContent()||'').trim();
+  const selected=await page.evaluate(()=>sessionQuestions?.[qIndex]?.passage||'');
+  assert.equal(displayed,selected,name+' Reading text was not actually rendered for the child');
+  const readingOverflow=await page.evaluate(()=>({
+    scroll:document.documentElement.scrollWidth,viewport:document.documentElement.clientWidth
+  }));
+  assert.ok(readingOverflow.scroll<=readingOverflow.viewport+2,
+    name+' Reading spills off screen '+JSON.stringify(readingOverflow));
+  await shot(page,name+'-reading');
   await page.locator('#close-session').click();
   await world.waitFor({state:'visible',timeout:16000});
   await shot(page,name+'-return');
@@ -204,6 +215,9 @@ async function firstGradeReading(engine,label){
    label+' first-grade Reading content is missing or too complex');
   assert.ok(new Set(stories.map(q=>q.passage)).size===5,
    label+' same Reading story repeated in one session');
+  const firstText=await page.locator('#session-screen.active .learning-passage').textContent();
+  assert.equal(firstText.trim(),stories[0].passage,
+    label+' first-grade Reading story is not actually visible on the task card');
   console.log('[KINNAKLOVA] '+label+' grade 1: five short Reading stories verified');
   await context.close();
  }finally{await browser.close()}
