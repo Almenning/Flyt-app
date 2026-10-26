@@ -328,7 +328,7 @@
     const readingStory=directKinnaklova&&q.skill==='reading'&&
       typeof q.passage==='string'&&q.passage.trim().length>0;
     const passage=q.passage?(readingStory
-      ?'<section class="learning-passage ki-reading-story" aria-label="Engelsk historie">'+text(q.passage)+'</section>'
+      ?'<section class="learning-passage ki-reading-story" lang="en" aria-label="Engelsk historie">'+text(q.passage)+'</section>'
       :'<div class="learning-passage">'+text(q.passage)+'</div>'):'';
     const readButton=readAloudButton(q);
     const finalQuestion=position===total;
@@ -343,7 +343,7 @@
     const questionScene=inlineFox?
       '<div class="task-prompt-fox-stage"><div class="question">'+text(prompt)+'</div>'+fox+'</div>':
       readingStory
-        ?passage+'<div class="question ki-reading-question">'+text(prompt)+'</div>'+visualWithFox
+        ?passage+'<div class="question ki-reading-question" lang="en">'+text(prompt)+'</div>'+visualWithFox
         :'<div class="question">'+text(prompt)+'</div>'+passage+visualWithFox;
 
     wrap.innerHTML=
