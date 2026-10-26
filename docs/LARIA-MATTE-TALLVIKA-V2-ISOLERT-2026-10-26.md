@@ -40,3 +40,12 @@ Den dedikerte Tallvika-matrisen dekket tidligere bare 1194×834. Nå inkluderes 
 **Rotårsak ved mindre bredde:** Gangetabellens foto-vindu bruker et kraftig utsnitt av én og samme malte kildefil. Med uendret 650 % bakgrunn ved 1024 px blir kildeintervallet for høyt og kan vise avkuttede malte skilt. Begrenset, originaltro tilpasning til 780 % for 1000–1160 px holder utsnittet på tavlen. Den eksisterende strenge Playwright-sjekken for kildekoordinater (innenfor 490–815) validerer dette uten å endre originalfilen. Ingen endring i iPhone, Norsk, spillmotorer, troll eller data.
 
 **Status:** Dette er en ny testkandidat. Resultater og ferske WebKit-skjermbilder må kontrolleres på eksakt commit før premiumvurdering.
+
+
+### 26.10: Ryddet reell WebKit-miljøblokkering for Gangemagi-QA
+
+I `Laria Gangemagi approved Markedsbok visual QA` på `642e409` feilet GitHub-jobb `121533746557` etter tre **beståtte Chromium-visninger** og godkjent matte-/progresjonskontrakt: WebKit MiniBrowser kunne ikke starte fordi systembiblioteket `libicudata.so.74` manglet. Dette er en inkompatibilitet mellom ubestemt `ubuntu-latest`, Playwrights WPE og cache av browser-binarier, ikke en påvist feil i Gangemagis kode.
+
+**Rotrettelse:** Gangemagi-arbeidsflyten bruker nå samme offisielle, versjonslåste Playwright-container `mcr.microsoft.com/playwright:v1.62.1-noble` som den allerede grønne Tallvika-jobben. Stale nettleser-cache og `install-deps` er fjernet; arbeidsflyten sjekker eksplisitt at begge nettlesere finnes, men beholder de opprinnelige seks skjermstørrelsene, åtte oppdrag, Node-testene og bildeopplasting. Ingen spill-/UI-filer, Norsk, originalillustrasjoner eller lagrede data er endret.
+
+**Kvalitetsport:** Krev en ny faktisk grønn WebKit/Chromium-kjøring på samme siste commit. En grønn Tallvika-test alene erstatter ikke denne kontrollen.
