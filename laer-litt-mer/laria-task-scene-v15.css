@@ -1643,13 +1643,13 @@ body.laria-task-scene-open .app:after{
   min-height:0!important;padding:8px 14px 12px;border-radius:19px;
  }
  #session-screen.task-scene[data-task-subject="norwegian"] .task-card-head{
-  min-height:28px;gap:6px;
+  min-height:44px;gap:6px;
  }
  #session-screen.task-scene[data-task-subject="norwegian"] .qtype{
   padding:4px 9px;font-size:8px;
  }
  #session-screen.task-scene[data-task-subject="norwegian"] .read-aloud{
-  min-height:32px;padding:5px 9px;
+  min-height:44px;padding:5px 9px;
  }
  #session-screen.task-scene[data-task-subject="norwegian"] .question{
   margin:3px auto 2px;font-size:clamp(21px,2.85vw,25px);line-height:1.08;

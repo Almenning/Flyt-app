@@ -104,6 +104,15 @@ async function run(engine,browserType,view,viewport){
   // or guessing below the fold. Inspect actual layout and real hit targets.
   if(view==='iphone-landscape'){
     await shot(page,label+'-lesekroken-landscape-firstfold');
+    const readTarget=await page.locator('#session-screen.active .read-aloud').evaluate(el=>{
+      const r=el.getBoundingClientRect();
+      const hit=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);
+      return {width:r.width,height:r.height,y:r.top,bottom:r.bottom,viewport:innerHeight,
+        hit:hit===el||el.contains(hit)};
+    });
+    assert.ok(readTarget.width>=44&&readTarget.height>=44&&readTarget.y>=0&&
+      readTarget.bottom<=readTarget.viewport+1&&readTarget.hit,
+      label+' Les opp must be a real 44px touch target: '+JSON.stringify(readTarget));
     const cardLayout=await page.evaluate(()=>{
       const selectors={
         screen:'#session-screen.active',top:'#session-screen .session-top',

@@ -1111,13 +1111,22 @@ async function finishSession(page){
       assert.equal(await page.locator('#session-screen').getAttribute('data-task-subject'),subject,subject+' wrong task-scene subject');
       assert.equal(await page.locator('#session-screen').getAttribute('data-task-band'),'young',subject+' grade 2 should use young task specialization');
       assert.equal(await page.locator('.laria-task-card').count(),1,subject+' should render exactly one premium task card');
-      assert.equal(await page.locator('.task-fox-companion img').count(),1,subject+' needs one in-world fox companion');
-      // The task companion is now the child's chosen profile fox, not the
-      // previously hard-coded mascot. Compare identity without dumping a
-      // large embedded WebP data URI into test logs on failure.
-      const personalFox=await page.locator('.task-fox-companion img').evaluate(img=>
-        img.getAttribute('src')===window.LARIA_FOX.source(window.LARIA_FOX.choice()));
-      assert.equal(personalFox,true,subject+' must use the selected persistent fox');
+      if(subject==='norwegian'){
+        assert.equal(await page.locator('.task-fox-companion img').count(),0,
+          'Norsk must not render the retired fox');
+        const guide=page.locator('#session-screen.active .task-norsk-guide');
+        await guide.waitFor({state:'visible',timeout:12000});
+        const bounds=await guide.boundingBox();
+        assert.ok(bounds&&bounds.width>=44&&bounds.height>=44,
+          'Norsk lost its visible, child-friendly help indicator');
+      }else{
+        // Identity requirements for the three subjects not migrated to Eggenipa.
+        assert.equal(await page.locator('.task-fox-companion img').count(),1,
+          subject+' needs one in-world fox companion');
+        const personalFox=await page.locator('.task-fox-companion img').evaluate(img=>
+          img.getAttribute('src')===window.LARIA_FOX.source(window.LARIA_FOX.choice()));
+        assert.equal(personalFox,true,subject+' must use the selected persistent fox');
+      }
       assert.ok((await page.locator('.answer,.letter-tile,.word-tile,.sequence-tile,#math-input,#quiz-map-canvas').count())>0,subject+' task scene has no active interaction');
       await page.locator('#close-session').click();
     }

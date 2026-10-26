@@ -752,29 +752,29 @@
  }
  #session-screen.task-scene[data-task-band="young"][data-task-subject="norwegian"] .task-card-head{
   display:flex!important;flex-direction:row!important;align-items:center!important;
-  justify-content:space-between!important;min-height:32px!important;height:32px!important;
+  justify-content:space-between!important;min-height:44px!important;height:44px!important;
   padding:0!important;gap:6px!important;
  }
  #session-screen.task-scene[data-task-band="young"][data-task-subject="norwegian"] .qtype{
   padding:4px 9px!important;font-size:9px!important;white-space:nowrap!important;
  }
  #session-screen.task-scene[data-task-band="young"][data-task-subject="norwegian"] .read-aloud{
-  min-height:32px!important;padding:4px 9px!important;
+  min-height:44px!important;padding:4px 9px!important;
  }
  #session-screen.task-scene[data-task-band="young"][data-task-subject="norwegian"] .question{
   margin:3px auto 2px!important;font-size:clamp(21px,2.8vw,25px)!important;
   line-height:1.08!important;
  }
  #session-screen.task-scene[data-task-band="young"][data-task-subject="norwegian"] .task-visual-row{
-  min-height:90px!important;height:90px!important;width:100%!important;
+  min-height:78px!important;height:78px!important;width:100%!important;
   margin:1px auto 3px!important;
  }
  #session-screen.task-scene[data-task-band="young"][data-task-subject="norwegian"] .task-object-stage{
-  min-height:86px!important;height:86px!important;width:min(100%,270px)!important;
+  min-height:74px!important;height:74px!important;width:min(100%,270px)!important;
   overflow:hidden!important;
  }
  #session-screen.task-scene[data-task-band="young"][data-task-subject="norwegian"] .task-illustration{
-  max-height:82px!important;width:min(100%,150px)!important;
+  max-height:70px!important;width:min(100%,150px)!important;
  }
  #session-screen.task-scene[data-task-band="young"][data-task-subject="norwegian"] .task-interaction{
   margin-top:4px!important;

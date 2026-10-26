@@ -137,3 +137,12 @@ Brukeren godkjente den eksakte Eggenipa-illustrasjonen, men avviste resten av de
 - Neste Chromium-landskapstest på `a6f773e` viste svarenes første rad ved y=497–560 mens fysisk viewport var 390px; det betyr at knapper ikke var synlige i første fold. `task-visual-companion-stage` plasserte den dekorative guiden i blokk **under** 5:3-scenen og økte kortets høyde. Den korte Norsk-varianten viser nå illustrasjon og hjelpesymbol side ved side i grid; ny QA-artifakt lagrer første viewport **før** layoutassertion, og logger posisjoner/min-høyder for kort/scene/svar ved nye feil.
 
 - Dokumentert rotårsak i Chromium-landskap på `2336444`: første svar på y433, fordi `laria-task-young-v18.css` (lastes etter `laria-task-scene-v15.css`) eksplisitt krevde `min-height:215px!important` for illustrasjonen og en **flex-column**-topp med 44px opplesningsknapp. Den yngre barnestilen overstyrte Norsk sitt svar- og illustrasjonsoppsett. I stedet for flere tilfeldige globale justeringer er det lagt inn et snevert `[data-task-band=young][data-task-subject=norwegian]` unntak direkte i **kilden til denne regelen**: toppstripe på én linje, 90px scene og 46px svar. Kun kort landskap 701–950px/≤520px påvirkes; de øvrige fagene forblir uendret. CSS URL-versjonen i index er økt for Safari-cache.
+
+
+### 26.10 – opplesning og felles navigasjonsregresjon (påfølgende QA)
+
+- På `a527138` besto Eggenipa i Chromium/WebKit, også de tre synlige lesesvarene i kort iPhone-landskap. `laria-task-phase3-polish` avdekket derimot at «Les opp» var bare 32 px høy; dette var en faktisk berøringsflatefeil i den bevisst kompakte Norsk-CSS-en.
+- Hevet «Les opp» og toppstripen til 44 px i CSS-kildene. Redusert illustrasjonsradens høyde tilsvarende i den svært lave iPhone-landskapsvarianten, slik at de tre svarene fortsatt skal få plass over bretten. Eggenipa-testen kontrollerer nå også virkelig treffpunkt for opplesning.
+- `Continuous smoke` forventet feilaktig en rev i Norsk; testen kontrollerer nå Norsk sitt synlige magiske hjelpesymbol, mens krav til korrekt valgt personlig rev beholdes for øvrige fag.
+- `laria-ux-phase1-navigation` forsøkte å åpne den avviklede Bokskogen-portalen. Testen følger nå Reisen → Eggenipa → Lesekroken → Eggenipa → Reisen med faktisk kantsveip, og krever alle tre direkte aktivitetsinnganger.
+- Ingen endring i originalillustrasjon, læringsdata eller den øvrige produktflyten. Verifiser samtlige tester på ny PR-head før publiseringsvurdering.
