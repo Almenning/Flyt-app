@@ -1137,8 +1137,14 @@ async function finishSession(page){
 
     // Prompt 12: the locked grade 1–2 object set must use the premium SVG illustration system,
     // stay responsive on phone/tablet, and rendering art must never mutate learning progress.
-    const prompt12Visuals=['🏠','🐱','🐶','📘','🍎','🚗','⛵','🌳','☀️','🌙','🐟','⚽'];
-    assert.deepEqual(await page.evaluate(()=>window.LARIA_TASK_PREMIUM_VISUALS),prompt12Visuals,'Prompt 12 premium visual registry changed');
+    const prompt12Baseline=['🏠','🐱','🐶','📘','🍎','🚗','⛵','🌳','☀️','🌙','🐟','⚽'];
+    const norskObjectExtensions=['👟','🚆','🧀','🐭','🐄'];
+    const prompt12Visuals=[...prompt12Baseline,...norskObjectExtensions];
+    const registeredVisuals=await page.evaluate(()=>window.LARIA_TASK_PREMIUM_VISUALS);
+    assert.deepEqual(registeredVisuals.slice(0,prompt12Baseline.length),prompt12Baseline,
+      'Prompt 12 original premium illustrations changed');
+    assert.deepEqual(registeredVisuals,prompt12Visuals,
+      'Norwegian word-picture illustration expansions are missing or duplicated');
     const progressBeforeIllustrations=await page.evaluate(()=>JSON.stringify({
       answerLog:state.answerLog,journey:state.journey,skillMastery:state.skillMastery,mastery:state.mastery
     }));
