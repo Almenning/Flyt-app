@@ -163,6 +163,19 @@ async function run(browserType,engine,name,viewport){
     await shot(page,name+'-original-bokskogen');
     await returnFromBokskogen(page,name);
 
+    // The native iOS left-edge back gesture calls appBack(), not the painted
+    // map button. Both must follow Bokskogen -> Eggenipa -> Home, without
+    // changing learning records or forcing a new character selection.
+    await page.locator('.eg-portal[data-eg="map"]').click();
+    await page.locator('#subject-screen.active .locked-journey-map[data-journey-subject="norwegian"]')
+      .waitFor({state:'visible',timeout:12000});
+    assert.equal(await page.evaluate(()=>window.LARIA_EGGENIPA.isMapOpen()),true,
+      name+' Bokskogen edge-back precondition missing');
+    await page.evaluate(()=>appBack());
+    await page.locator('#eggenipa-world:visible').waitFor({timeout:12000});
+    assert.equal(await page.evaluate(()=>window.LARIA_EGGENIPA.isMapOpen()),false,
+      name+' iOS edge-back must close Bokskogen before leaving Norsk');
+
     const post=await page.evaluate(()=>JSON.parse(localStorage.getItem('laerlittmer-v2'))?.journey?.nodes||{});
     assert.deepEqual(post,pre,name+' no activities or grade selection may reset learning progress');
     assert.deepEqual(errors,[],name+' runtime errors');
