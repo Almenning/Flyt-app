@@ -133,4 +133,9 @@ test('Artwork release gate blocks missing, mismatched, or uncertified clean mast
  }
  assert.equal(sha,allowed,'Clean Kinnaklova painting differs from user-approved master');
  assert.equal(locked.implementation?.clean_master_visual_approved,true,'Art must be reviewed');
+ if(process.env.LARIA_KINNAKLOVA_RELEASE_GATE==='1'){
+   assert.equal(locked.implementation?.release_approval,true,
+     'Final Kinnaklova scene with all three original trolls and device screenshots needs explicit owner sign-off');
+ }
+
 });
