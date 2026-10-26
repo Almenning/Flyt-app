@@ -78,7 +78,11 @@ async function run(browserType,name,viewport){
     id:el.dataset.kiCharacter,src:el.getAttribute('src')
   })));
   assert.deepEqual(documents.map(el=>el.id),['storesoster','lillebror','lillesoster']);
-  assert.ok(documents.every(el=>el.src.endsWith('/'+el.id+'.webp')));
+  assert.deepEqual(documents.map(el=>el.src),[
+    './assets/kinnaklova/storesoster-inworld-approved-20261026.webp',
+    './assets/gangemagi-troll/lillebror.webp',
+    './assets/gangemagi-troll/lillesoster.webp'
+  ],name+' must use the already painted approved Storesøster and unchanged other originals');
   if(art.ready){
     assert.equal(await page.evaluate(()=>window.LARIA_KINNAKLOVA.ready()),true);
     assert.equal(await world.locator('.ki-companions').isVisible(),true);
