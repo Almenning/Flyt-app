@@ -19,8 +19,21 @@ test('Ordjakt reactions do not revive retired fox or Bokskogen narrator',()=>{
 
 test('All curated theme words fit their board without silently disappearing',()=>{
   const ctx={window:{}};
-  vm.runInNewContext(source,ctx,{timeout:2000});
+  // Inspect the source bank before PACKS filters words by board size.
+  // Otherwise a typo longer than the grid disappears silently and passes QA.
+  const instrumented=source.replace('  const PACKS=Object.freeze(',
+    '  window.__LARIA_RAW_WORD_PACKS=data;\n  const PACKS=Object.freeze(');
+  assert.notEqual(instrumented,source,'Raw word-bank inspection hook missing');
+  vm.runInNewContext(instrumented,ctx,{timeout:2000});
   const themes=ctx.window.LARIA_WORD_HUNT_THEMES;
+  const raw=ctx.window.__LARIA_RAW_WORD_PACKS;
+  assert.equal(raw.length,themes.PACKS.length);
+  for(let i=0;i<raw.length;i++){
+    for(const level of ['easy','hard']){
+      assert.deepEqual(Array.from(raw[i][level]),Array.from(themes.PACKS[i][level]),
+        raw[i].id+'/'+level+' silently loses invalid or oversized words');
+    }
+  }
   for(const pack of themes.PACKS){
     for(const [level,size] of [['easy',6],['hard',7]]){
       const words=pack[level];
