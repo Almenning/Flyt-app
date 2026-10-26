@@ -16,6 +16,7 @@
   const safe=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\u0027':'&#39;'}[ch]));
   let mapVisible=false;
   let root=null;
+  let mapBackObserver=null;
   const isActive=()=>screen.classList.contains('active')&&screen.dataset.subject==='norwegian';
   const grade=()=>bridge()?.journeyViewGrade?.('norwegian')||bridge()?.currentGrade?.()||2;
   function getProgress(){
@@ -85,6 +86,15 @@
       '<div class="eg-grade-grid">'+gradeOptions(displayGrade,mine)+'</div></form></dialog>';
     if(!screen.classList.contains('eggenipa-active'))screen.classList.add('eggenipa-active');
   }
+  // The painted Bokskogen map already has a large back arrow and an
+  // accessible floating back action when scrolled. Reuse these controls to
+  // return to Eggenipa instead of covering its title/settings with a
+  // second fixed button.
+  function updateMapReturnLabels(){
+    if(!mapVisible||!isActive())return;
+    screen.querySelectorAll('.locked-journey-back,.locked-journey-floating-back')
+      .forEach(button=>button.setAttribute('aria-label','Tilbake til Eggenipa'));
+  }
   function openMap(){
     if(!isActive())return;
     mapVisible=true;
@@ -101,20 +111,15 @@
     }
     // Keep the original map engine and all existing node/grade state.
     bridge()?.setJourneyViewGrade?.('norwegian',grade(),true);
-    let returnButton=document.getElementById('eggenipa-map-return');
-    if(!returnButton){
-      returnButton=document.createElement('button');
-      returnButton.type='button';
-      returnButton.id='eggenipa-map-return';
-      returnButton.textContent='← Til Eggenipa';
-      returnButton.setAttribute('aria-label','Tilbake til Norsk ved Eggenipa');
-      // The legacy journey map creates its own stacking/paint context; placing
-      // this fixed control inside that context makes its Back button intercept
-      // pointer events. Attach at document level so it is reliably operable.
-      returnButton.addEventListener('click',()=>{if(isActive())closeMap();});
-      document.body.appendChild(returnButton);
+    mapBackObserver?.disconnect();
+    const journeyHost=document.getElementById('journey-map');
+    if(journeyHost){
+      // Original renderer can replace map controls after artwork decoding.
+      // Observe the control DOM only, never modify progress/profile data.
+      mapBackObserver=new MutationObserver(updateMapReturnLabels);
+      mapBackObserver.observe(journeyHost,{childList:true});
     }
-    returnButton.hidden=false;
+    updateMapReturnLabels();
     // Entering Bokskogen from a lower portal must not retain Eggenipa's
     // previous page scroll. The original journey renderer may then move the
     // viewport *to the child's current stop*, particularly on short
@@ -127,14 +132,22 @@
   }
   function closeMap(){
     mapVisible=false;
-    document.getElementById('eggenipa-map-return')?.remove();
+    mapBackObserver?.disconnect();
+    mapBackObserver=null;
     if(root)root.hidden=false;
     build();
     window.scrollTo(0,0);
   }
+  // Capture before the legacy renderer's own click action; only affect a
+  // Norwegian journey explicitly opened through Eggenipa.
   screen.addEventListener('click',event=>{
-    const back=event.target.closest?.('#eggenipa-map-return');
-    if(back&&isActive()){closeMap();return;}
+    if(!isActive()||!mapVisible)return;
+    if(!event.target.closest?.('.locked-journey-back,.locked-journey-floating-back'))return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    closeMap();
+  },true);
+  screen.addEventListener('click',event=>{
     const btn=event.target.closest?.('#eggenipa-world [data-eg]');
     if(!btn||!isActive()||mapVisible)return;
     const action=btn.dataset.eg;
@@ -176,19 +189,17 @@
   ].some(id=>document.getElementById(id)?.classList.contains('active'));
   const observer=new MutationObserver(()=>{
     if(isActive()){
-      if(mapVisible){
-        const back=document.getElementById('eggenipa-map-return');
-        if(back)back.hidden=false;
-      }else build();
+      if(mapVisible)updateMapReturnLabels();
+      else build();
     }else{
       if(mapVisible&&screen.dataset.subject==='norwegian'&&withinMapLearning()){
-        // A body-level return control should never float over a question.
-        const back=document.getElementById('eggenipa-map-return');
-        if(back)back.hidden=true;
+        // Keep the map as the return destination during its learning task.
+        // Native controls are already hidden with the inactive subject screen.
         return;
       }
       mapVisible=false;
-      document.getElementById('eggenipa-map-return')?.remove();
+      mapBackObserver?.disconnect();
+      mapBackObserver=null;
       if(screen.classList.contains('eggenipa-active'))screen.classList.remove('eggenipa-active');
       if(root){root.remove();root=null;}
     }
