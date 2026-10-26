@@ -125,9 +125,12 @@ async function run(engine,name,viewport,which){
      await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
      assert.deepEqual(await page.evaluate(()=>({subject:sessionScope?.subject,module:sessionScope?.module})),
        {subject:'english',module:'words'},name+' wrong English portal scope');
-     assert.equal(await page.locator('.task-fox-companion').getAttribute('data-avatar'),which,
-       name+' English task lost saved avatar choice');
-     await imageIsChosen(page,'#session-screen.active .task-fox-companion img',which,name+' English task');
+     // Kinnaklova no longer mounts the retired fox in a task. The selected
+     // profile remains untouched for old journeys and future approved TrollActor.
+     assert.equal(await page.locator('#session-screen.active .task-fox-companion').count(),0,
+       name+' Kinnaklova must not show the retired fox');
+     assert.equal(await page.evaluate(()=>state.profile.avatar),which,
+       name+' English task changed the saved profile');
      await page.screenshot({path:folder+'/'+name+'-english-task.png',fullPage:true,animations:'disabled'});
      await page.locator('#close-session').click();
      await world.waitFor({state:'visible',timeout:16000});
