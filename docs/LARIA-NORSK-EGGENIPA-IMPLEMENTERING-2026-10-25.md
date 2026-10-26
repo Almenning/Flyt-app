@@ -82,3 +82,9 @@ fysisk Safari-test og brukers uttrykkelige godkjenning av faktisk implementert U
 - Egen Eggenipa Chromium/WebKit-test bruker nå ekte `tap()` og dekker en **umiddelbar** retur under kartets første rendring i tillegg til retur etter visning av kartinnstillinger. Testen bekrefter at barnet forblir i Norsk og at karttilstanden er lukket. Full smoke-test registrerer hendelsesmål og legger ved feilskjermbilde når berøringsretur svikter.
 - JS-queryversjon og service-worker-cache oppdatert for den framtidige Safari-publiseringen. Original PNG, eksisterende aktiviteter, node-ID-er og lagret progresjon er uendret.
 - **Publiseringsport:** Ny eksakt-head CI i Chromium/WebKit og full Læria-regresjon skal gjennomføres på nytt etter denne rettelsen; fysisk Safari og brukerens endelige UI-godkjenning kreves fortsatt. Ingen merge/publisering før grønt og kontrollert.
+
+### 26.10 – berørbare steder i motivet, egen QA
+
+- Utvidet `tests/laria-eggenipa.playwright.js` med ekte `tap()` på tre steder i det godkjente landskapet (trehytten/Ordjakt, hagen/Finn ordene, biblioteket/Bokskogen). Gjelder iPad stående/liggende og iPhone liggende. På smale telefoner beholdes eksisterende test av de synlige aktivitetskortene.
+- Kontrollerer samtidig at alle tre aktive berøringssonene er minst 44 × 44 piksler og ligger innenfor skjermbredden. Etter aktivitetene kontrolleres returen til Eggenipa, uten nye oppgavedata eller endringer av originalbildet.
+- Dette er en testutvidelse, ikke en UI-endring. Endelig status krever grønn Chromium/WebKit-CI på denne committen og fortsatt fysisk Safari- og brukergodkjenning før publisering.

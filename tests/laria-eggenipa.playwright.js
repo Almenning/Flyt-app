@@ -74,6 +74,37 @@ async function run(browserType,engine,name,viewport){
     assert.equal(await page.locator('#subject-screen').evaluate(el=>el.classList.contains('locked-journey-active')),false,
       name+' must not inherit hidden legacy journey view');
     await shot(page,name+'-firstfold');
+    // On iPad and landscape phones the painted treehouse, garden and
+    // library are actual touch destinations. The three cards below are an
+    // alternative, not the only usable entrance to Norwegian activities.
+    if(viewport.width>700){
+      const hitRects=await page.locator('#eggenipa-world .eg-scene-hit').evaluateAll(buttons=>
+        buttons.map(button=>{
+          const box=button.getBoundingClientRect();
+          return {name:button.dataset.eg,visible:getComputedStyle(button).display!=='none',
+            width:box.width,height:box.height,left:box.left,right:box.right};
+        }));
+      assert.deepEqual(hitRects.map(hit=>hit.name),['words','find','map'],
+        name+' the locked landscape lost one of its three interactive places');
+      assert.ok(hitRects.every(hit=>hit.visible&&hit.width>=44&&hit.height>=44&&
+        hit.left>=-1&&hit.right<=viewport.width+1),
+        name+' painted scene hotzones must be usable touch targets: '+JSON.stringify(hitRects));
+
+      await page.locator('#eggenipa-world .eg-scene-words').tap();
+      await page.locator('#word-hunt-overlay:not([hidden])').waitFor({state:'visible',timeout:15000});
+      await page.locator('#word-hunt-overlay .wh-theme-close').tap();
+      await page.locator('#eggenipa-world:visible').waitFor({timeout:12000});
+
+      await page.locator('#eggenipa-world .eg-scene-find').tap();
+      await page.locator('#find-the-words-overlay:not([hidden])').waitFor({state:'visible',timeout:15000});
+      await page.locator('#find-the-words-overlay .fw-back').tap();
+      await page.locator('#eggenipa-world:visible').waitFor({timeout:12000});
+
+      await page.locator('#eggenipa-world .eg-scene-map').tap();
+      await page.locator('#subject-screen.active .locked-journey-map[data-journey-subject="norwegian"]')
+        .waitFor({state:'visible',timeout:18000});
+      await returnFromBokskogen(page,name+' painted map entrance');
+    }
     const image=await page.locator('#eggenipa-world .eg-master').evaluate(img=>({
       naturalWidth:img.naturalWidth,naturalHeight:img.naturalHeight,
       visibleWidth:img.getBoundingClientRect().width
