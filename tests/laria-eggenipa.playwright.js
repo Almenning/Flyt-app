@@ -98,7 +98,14 @@ async function run(engine,browserType,view,viewport){
   assert.equal(await page.locator('#word-hunt-overlay img[src*="/assets/fox/"],#word-hunt-overlay img[src*="lia-fox"]').count(),0,
     label+' old fox image in Ordjakt');
   await shot(page,label+'-ordjakt-theme');
-  await page.locator('#word-hunt-overlay .wh-theme-close').tap();
+  // Check the real board, not only its initial theme-picker back label.
+  await page.locator('#word-hunt-overlay .wh-theme-card[data-word-theme="animals"]').tap();
+  await page.locator('#word-hunt-overlay .word-hunt-board:visible').waitFor({timeout:12000});
+  assert.equal(await page.locator('#word-hunt-overlay .word-hunt-back').getAttribute('aria-label'),'Tilbake til Norsk',
+    label+' board back button should return to Eggenipa');
+  assert.equal(await page.locator('#word-hunt-overlay .word-hunt-title small').innerText(),'NORSK · EGGENIPA',
+    label+' Ordjakt board lost its Norwegian world identity');
+  await page.locator('#word-hunt-overlay .word-hunt-back').tap();
   await page.locator('#eggenipa-world:visible').waitFor({timeout:12000});
 
   await page.locator('#eggenipa-world .eg-portal[data-eg="find"]').tap();

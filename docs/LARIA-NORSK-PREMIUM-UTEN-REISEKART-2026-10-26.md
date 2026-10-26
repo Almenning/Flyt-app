@@ -229,3 +229,9 @@ Brukeren godkjente den eksakte Eggenipa-illustrasjonen, men avviste resten av de
 - Ved **første inngang fra Eggenipa for et barn uten tidligere Finn ordene-økt** åpnes nå den eksisterende premiumhagen (runde 3), deretter de to andre hagerundene før de tre originale skogrundene. Alle korrekt registrerte ord, eksisterende objektkoordinater, drag og touch-håndtering for hagen forblir som før.
 - Eldre lagrede økter har **prioritet og endres ikke**; de bevarer gamle runde-ID-er og gammel runderekkefølge. Valgt runde/ny premium-rekkefølge legges som et bakoverkompatibelt valgfritt `track:'eggenipa'`-felt i den eksisterende aktive runde-nøkkelen. Fra Utforsk fungerer den opprinnelige inngangen akkurat som før.
 - Ny Eggenipa Chromium/WebKit-regresjon krever håndmalt hage ved første inngang og faktisk persistens ved retur. Alle øvrige Finn ordene-tester fortsetter å teste gamle runder og lagring gjennom Utforsk.
+
+### 26.10 – Ordjakt: ekte verdensidentitet også på selve spillebrettet
+
+- Temavelgeren sa allerede riktig «Tilbake til Norsk» ved inngang fra Eggenipa, men det påfølgende bokstavbrettet hadde fortsatt den generiske skjermleserteksten «Tilbake til Læria» og overskriften «LEK & UTFORSK». Det kunne skjule riktig returpunkt i spillflyten.
+- Inngangsfokuset brukes nå konsistent på **begge** skjermene: fra Eggenipa får brettet «NORSK · EGGENIPA» og «Tilbake til Norsk»; fra Utforsk beholdes «LEK & UTFORSK» og «Tilbake til Utforsk». Gjenbruker den eksisterende returmekanismen, uten å endre ordspill, samlebok, hint eller progresjon.
+- Browser-regresjon i Eggenipa tester faktisk oppstart av ordspillbrettet og retur til Norsk, ikke bare temavelgeren. Samme kontroll fra Utforsk er lagt til eksisterende tematest.

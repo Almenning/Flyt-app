@@ -38,6 +38,10 @@ async function open(page,url){
  assert.equal(await page.locator('#word-hunt-overlay').evaluate(el=>el.classList.contains('is-theme-entry')),true);
  assert.equal(await first.locator('.wh-theme-close').getAttribute('aria-label'),'Tilbake til Utforsk',
    'Ordjakt entered from Utforsk must name its actual back destination');
+ assert.equal(await page.locator('#word-hunt-overlay .word-hunt-back').getAttribute('aria-label'),'Tilbake til Utforsk',
+   'Ordjakt board back button must follow the original Utforsk entry');
+ assert.equal(await page.locator('#word-hunt-overlay .word-hunt-title small').innerText(),'LEK & UTFORSK',
+   'Direct Utforsk entry must not masquerade as a Norsk lesson');
  const back=await first.locator('.wh-theme-close').evaluate(el=>{
   const r=el.getBoundingClientRect();
   const x=(r.left+r.right)/2,y=(r.top+r.bottom)/2;

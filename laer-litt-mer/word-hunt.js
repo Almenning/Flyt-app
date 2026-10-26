@@ -337,6 +337,10 @@ function revealSelectedTheme(){
   const center=strip.scrollLeft+(card.left-frame.left)-(strip.clientWidth-card.width)/2;
   strip.scrollLeft=Math.max(0,Math.min(center,strip.scrollWidth-strip.clientWidth));
 }
+function enteredFromEggenipa(){
+  return !!previousFocus?.closest?.('#eggenipa-world')&&
+    !!document.querySelector('#subject-screen.active.eggenipa-active');
+}
 function showThemePicker(entry=false){
   const root=overlay(),picker=root.querySelector('.word-hunt-theme-picker');
   if(!picker.hidden)return;
@@ -353,9 +357,7 @@ function showThemePicker(entry=false){
   root.querySelector('.word-hunt-shell').inert=true;
   const back=picker.querySelector('.wh-theme-close');
   back.textContent=entry?'←':'×';
-  const fromNorsk=!!previousFocus?.closest?.('#eggenipa-world')&&
-    !!document.querySelector('#subject-screen.active.eggenipa-active');
-  back.setAttribute('aria-label',entry?(fromNorsk?'Tilbake til Norsk':'Tilbake til Utforsk'):'Lukk temavalget');
+  back.setAttribute('aria-label',entry?(enteredFromEggenipa()?'Tilbake til Norsk':'Tilbake til Utforsk'):'Lukk temavalget');
   const continueButton=picker.querySelector('.wh-theme-start');
   const canResume=ui.grid.length>0&&!ui.completed;
   continueButton.hidden=Boolean(entry&&!canResume);
@@ -607,6 +609,9 @@ function openWordHunt(){
   const root=overlay();if(!root.hidden)return;
   previousOverflow=document.documentElement.style.overflow;
   previousFocus=document.activeElement;
+  const origin=enteredFromEggenipa()?'Norsk':'Utforsk';
+  root.querySelector('.word-hunt-back').setAttribute('aria-label','Tilbake til '+origin);
+  root.querySelector('.word-hunt-title small').textContent=origin==='Norsk'?'NORSK · EGGENIPA':'LEK & UTFORSK';
   // Theme selection is the first thing the child sees, every time.
   // Returning players may resume the last unfinished board, also after reload.
   if(!ui.grid.length)restoreRound();
@@ -625,8 +630,7 @@ function closeWordHunt(){
   ui.drag=null;ui.tapStart=null;
   // When opened from Norsk's Eggenipa subject, return to that subject;
   // only direct Basecamp entry should jump back to the Home/Utforsk panel.
-  const fromEggenipa=!!previousFocus?.closest?.('#eggenipa-world')&&
-    !!document.querySelector('#subject-screen.active.eggenipa-active');
+  const fromEggenipa=enteredFromEggenipa();
   if(!fromEggenipa&&typeof window.LARIA_RETURN_TO_BASECAMP==='function')window.LARIA_RETURN_TO_BASECAMP();
   const origin=previousFocus;
   previousFocus=null;previousOverflow='';
