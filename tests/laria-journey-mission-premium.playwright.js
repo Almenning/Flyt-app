@@ -75,6 +75,37 @@ async function run(engine,label,viewport,url){
      await page.locator('#home-screen.active .bc14-subject').first().waitFor({timeout:12000});
      continue;
    }
+   if(subject==='english'){
+     // English intentionally opens the child-facing Kinnaklova world,
+     // not the retired Ordlandsbyen mission sheet.
+     const world=page.locator('#subject-screen.active #kinnaklova-world');
+     await world.waitFor({state:'visible',timeout:16000});
+     assert.equal(await world.locator('.ki-card').count(),3,
+       label+' Kinnaklova must offer Words, Sentences and Reading');
+     assert.equal(await page.locator('#subject-screen.active .locked-journey-map:visible').count(),0,
+       label+' English unexpectedly reopened the retired map');
+     const before=await page.evaluate(()=>JSON.stringify(state.journey));
+     await world.locator('.ki-card[data-ki="sentences"]').click();
+     await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
+     const session=await page.evaluate(()=>({
+       subject:sessionScope?.subject,module:sessionScope?.module,
+       questions:sessionQuestions?.length,skills:sessionQuestions?.map(q=>q.skill)
+     }));
+     assert.equal(session.subject,'english',label+' activity opened the wrong subject');
+     assert.equal(session.module,'sentences',label+' activity opened the wrong module');
+     assert.ok(session.questions>=5,label+' Sentences lacks enough real questions');
+     assert.ok(session.skills.every(skill=>['sentence','phrases'].includes(skill)),
+       label+' Sentences mixed in unrelated question categories');
+     await page.locator('#close-session').click();
+     await world.waitFor({state:'visible',timeout:16000});
+     assert.equal(await page.evaluate(()=>JSON.stringify(state.journey)),before,
+       label+' entering a direct English activity changed hidden journey progress');
+     const back=world.locator('.ki-utility [data-ki="home"]');
+     if(await back.isVisible())await back.click();
+     else await world.locator('.ki-painted-home').click();
+     await page.locator('#home-screen.active .bc14-subject').first().waitFor({timeout:16000});
+     continue;
+   }
    const map=page.locator('#'+(subject==='geography'?'geography':'subject')+'-screen.active .locked-journey-map[data-journey-subject="'+subject+'"]');
    await map.waitFor({timeout:14000});
    const firstStop=map.locator('.locked-journey-hotspot').first();
