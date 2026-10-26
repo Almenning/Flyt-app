@@ -32,7 +32,7 @@
     // The previous Bokskogen renderer shares this screen. Hide its visual
     // classes, but never delete its learning IDs or stored progress.
     for(const flag of ['locked-journey-active','locked-journey-subject-norwegian','premium-journey-active']){
-      screen.classList.remove(flag);
+      if(screen.classList.contains(flag))screen.classList.remove(flag);
     }
     if(!root){
       root=document.createElement('section');
@@ -47,7 +47,7 @@
     // Do not rebuild buttons under a finger during unrelated class changes.
     const nextIdentity=[profileGrade,greeting,resume].join('|');
     if(identity===nextIdentity&&root.firstElementChild){
-      screen.classList.add('eggenipa-active');
+      if(!screen.classList.contains('eggenipa-active'))screen.classList.add('eggenipa-active');
       root.hidden=false;
       return;
     }
@@ -65,7 +65,7 @@
       '<nav class="eg-portals" aria-label="Velg en norskaktivitet">'+actions.map(portal).join('')+'</nav>'+
       (resume?'<section class="eg-resume" aria-label="Pågående norskøkt"><p>Du har en norskøkt du kan fortsette når du vil.</p>'+
         '<button type="button" data-eg="resume">Fortsett økten ›</button></section>':'');
-    screen.classList.add('eggenipa-active');
+    if(!screen.classList.contains('eggenipa-active'))screen.classList.add('eggenipa-active');
     root.hidden=false;
   }
   screen.addEventListener('click',event=>{
