@@ -101,3 +101,9 @@ Brukeren godkjente den eksakte Eggenipa-illustrasjonen, men avviste resten av de
 - Progress-recovery-testen brukte tvetydig `[data-eg=reading]` (både sceneknapp og aktivitetskort). Endret til eksplisitt `.eg-portal[data-eg=reading]` slik at ekte klikknavigasjon fortsatt testes.
 - Device-hardening og Journey-mission-premium oppdateres til nye barnevalg Ordjakt, Finn ordene, Lesekroken. Testene sikrer fortsatt lesemotor, navigasjon, profil og historiske journey-ID-er; Engelsk/Matte/Geografi beholder sine gamle tester.
 - Home v15 `Fortsett reisen` gjenopptar faktisk lagret aktiv norskøkt direkte når den finnes; test krever eksakt fag, modul og oppgaveindeks fremfor gammelt kartmål. Fysisk WebKit krever senere godkjenning. Draft PR, ikke publisert.
+
+### 26.10 – fullført Lesekroken returnerer til Eggenipa
+
+- [Laria QA på 4588534](https://github.com/Almenning/Flyt-app/actions/runs/40296288595) avslørte at `#complete-home` i vanlig norskøkt på 2. trinn gikk til fremgangssiden: etter faktisk fullført Lesekroken åpnet **ikke** Eggenipa. Dette var en reell navigasjonsfeil i felles fullføringsfunksjon, ikke feil test.
+- Endret kun `scope.subject==='norwegian'` i `complete-home`-håndtereren slik at direkte leseøkt åpner `openSubject('norwegian')` og returnerer til Eggenipa. Oppdatert knappeetikett til «Tilbake til Eggenipa 🌿». Kartbaserte og andre fags eksisterende ruting beholdes.
+- Regresjonstesten `laria-journey-progress-recovery.playwright.js` krever allerede at fullført Lesekroken lukker aktiv økt, fører barnet tilbake til Eggenipa, ikke tilbyr falsk «Fortsett», og bevarer `journey.nodes` etter reload.
