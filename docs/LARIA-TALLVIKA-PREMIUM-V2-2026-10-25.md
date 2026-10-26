@@ -98,3 +98,14 @@ Publiseringskontrollen ble unødig langsom fordi `pre-demo-smoke.yml` installert
 **Kontroll:** Workflowsyntaks skal gjennom GitHub Actions, og `Continuous smoke checks`, full Laria QA og de øvrige PR-testene må fullføres på den nye siste commiten. Dette er en CI-pålitelighetsforbedring, ikke en påstand om fullført produktgodkjenning. PR #226 berører også samme workflow og krever konfliktavklaring hvis begge senere merges.
 
 **Verifiseringsgrense:** Ingen publisering eller merge som følge av denne endringen uten grønn CI på siste kandidat og låst visuell aksept.
+
+
+## Fase 8: rydde opprinnelse ved avbrutt spill (26.10.2026)
+
+Oppdaget et navigasjonsavvik i Tallvikas flyktige foreldreruting: `entryContext` og `data-tv-origin` ble tidligere bare ryddet ved spillenes synlige Tilbake-knapp. Hvis en aktivitet ble forlatt via annen appnavigasjon, kunne neste uavhengige spillstart derfor feilaktig arve «Tilbake til Tallvika».
+
+**Rotrettelse:** Én observatør per faktisk mattelab rydder bare når den aktive labskjermen deaktiveres uten ordinær Tallvika-retur. Mottar laben ny aktiv tilstand i samme skjermbytte, beholdes konteksten. Ordinær spillintern navigasjon og Tilbake-flyt påvirkes ikke. For direct Gangetabell resettes også `data-mp-direct-tallvika`. Ingen endringer i læringsmotorer, lagring eller figurkunst.
+
+**Regresjon:** Ekte WebKit i liggende iPad-viewport simulerer at barnet forlater både Gangemagi og Brøklab via appnavigasjon, starter dem igjen uavhengig og kontrollerer at det gamle Tallvika-returmålet ikke gjenoppstår. Alle tidligere 8 nettleser-/lagrings-/returkontroller beholdes. Tallvika-scriptets ressursversjon og serviceworker-cache er revidert.
+
+**Kvalitetsport:** Fersk QA på siste commit og visuell godkjenning før merge/publisering. Ingen automatisk lansering.

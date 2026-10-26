@@ -27,6 +27,18 @@
   let entryContext=null,lastVisited=null;
   const activityScreen=action=>document.getElementById(action==='fraction'
     ?'fraction-lab-screen':'multiplication-lab-screen');
+  // An activity can be exited through Home/edge navigation rather than its
+  // explicit Back button. Expire that origin when its lab actually closes;
+  // otherwise a later independent visit could be incorrectly sent to Tallvika.
+  new Set(['fraction','multiply'].map(activityScreen).filter(Boolean)).forEach(lab=>{
+    new MutationObserver(()=>{
+      if(!entryContext || activityScreen(entryContext.action)!==lab ||
+          lab.classList.contains('active'))return;
+      delete lab.dataset.tvOrigin;
+      if(entryContext.action==='table')delete lab.dataset.mpDirectTallvika;
+      entryContext=null;
+    }).observe(lab,{attributes:true,attributeFilter:['class']});
+  });
   function returnFromActivity(action){
     const lab=activityScreen(action);
     if(!activityNames[action]||lab?.dataset.tvOrigin!==action||

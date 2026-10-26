@@ -249,6 +249,28 @@ async function run(browserType,label,viewport){
     await page.locator('#subject-screen.active #tallvika-world').waitFor({state:'visible',timeout:12000});
     await page.locator('.tv-portal-card.tv-visited[data-tv="multiply"]').waitFor();
     await page.waitForFunction(()=>document.activeElement?.dataset.tv==='multiply');
+    if(label==='webkit-ipad-landscape'){
+      // Leaving via app navigation is different from tapping the game's Back.
+      // The next independent visit must not inherit an abandoned Tallvika route.
+      for(const action of ['multiply','fraction']){
+        const lab=action==='fraction'?'fraction-lab-screen':'multiplication-lab-screen';
+        const visible=action==='fraction'?'.fr6-workshop':'.gm-shell';
+        await page.locator('.tv-mobile-actions [data-tv="'+action+'"]').click();
+        await page.locator('#'+lab+'.active '+visible).waitFor({timeout:15000});
+        await page.evaluate(()=>showScreen('home'));
+        await page.waitForFunction(id=>!document.getElementById(id)?.classList.contains('active'),lab);
+        await page.waitForFunction(id=>!document.getElementById(id)?.dataset.tvOrigin,lab);
+        assert.equal(await page.locator('#'+lab).getAttribute('data-tv-origin'),null,
+          label+' abandoned '+action+' visit kept an incorrect Tallvika origin');
+        await page.evaluate(id=>id==='fraction'?window.openFractionLab():window.openMultiplicationLab(),action);
+        await page.locator('#'+lab+'.active '+visible).waitFor({timeout:15000});
+        const back=await page.locator('#'+(action==='fraction'?'fraction':'multiplication')+'-lab-back').getAttribute('aria-label');
+        assert.notEqual(back,'Tilbake til Tallvika',
+          label+' independent '+action+' entry inherited an old parent route');
+        await page.evaluate(()=>{showScreen('home');openSubject('math')});
+        await page.locator('#tallvika-world').waitFor({state:'visible',timeout:15000});
+      }
+    }
     assert.deepEqual(errors,[],label+' emits no page errors');
     await context.close();
   } finally {await browser.close();}
