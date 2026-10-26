@@ -34,6 +34,12 @@ async function takeActivity(page,action,label){
  }));
  assert.equal(result.subject,'english',label+' wrong subject after '+action);
  assert.equal(result.module,action,label+' wrong module after '+action);
+ // Direct Kinnaklova has no retired fox actor; the real troll rig arrives
+ // as a separately approved art layer, not a static mascot substitution.
+ assert.equal(await page.locator('#session-screen.active .task-fox-companion').count(),0,
+   label+' '+action+' still renders the retired fox');
+ assert.equal(await page.evaluate(()=>state.profile.avatar),'girl',
+   label+' '+action+' changed the saved profile identity');
  assert.ok(result.count>=5,label+' missing real learning questions in '+action);
  assert.ok(result.question,label+' empty question in '+action);
  const permitted={words:['words','numbers','spelling','vocabulary'],sentences:['sentence','phrases'],reading:['reading']};
