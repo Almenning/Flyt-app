@@ -9,6 +9,10 @@
   const screen=document.getElementById('subject-screen');
   if(!screen)return;
   const ART='./assets/kinnaklova/kinnaklova-scene-clean-approved-20261026.webp';
+  // Fill only after a pixel-locked clean master has been inspected and approved.
+  // A 1672x941 file that still contains the rejected characters is NOT valid.
+  const APPROVED_ART_SHA256='';
+  const REJECTED_REFERENCE_SHA256='3b1d6b6e6c9908dd31c519593504ac22dd2c7473ef05fa51ecd57885cdc6e035';
   const CHARACTERS=Object.freeze([
     {id:'storesoster',name:'Storesøster',src:'./assets/gangemagi-troll/storesoster.webp'},
     {id:'lillebror',name:'Lillebror',src:'./assets/gangemagi-troll/lillebror.webp'},
@@ -32,14 +36,31 @@
     screen.insertBefore(root,screen.firstChild);
     return root;
   }
-  function onArtStatus(image){
+  async function onArtStatus(image){
     if(!root||!image.isConnected)return;
-    const ready=image.complete&&image.naturalWidth===1672&&image.naturalHeight===941;
-    root.dataset.kiArt=ready?'ready':image.complete?'missing':'loading';
-    const failure=root.querySelector('.ki-art-unavailable');
-    if(failure)failure.hidden=ready||!image.complete;
-    // Never reveal a scene where unapproved, baked-in troll art is showing:
-    // only the clean, reviewed painting can activate the approved characters.
+    const setStatus=(status)=>{
+      if(!root?.contains(image))return;
+      root.dataset.kiArt=status;
+      const failure=root.querySelector('.ki-art-unavailable');
+      if(failure)failure.hidden=status==='ready'||status==='loading';
+    };
+    if(!image.complete){setStatus('loading');return;}
+    if(image.naturalWidth!==1672||image.naturalHeight!==941){
+      setStatus('missing');return;
+    }
+    // Fail closed until the CLEAN art has its own approved SHA. Never use
+    // the reference SHA: it proves that the three rejected trolls are baked in.
+    if(!/^[0-9a-f]{64}$/.test(APPROVED_ART_SHA256) ||
+        APPROVED_ART_SHA256===REJECTED_REFERENCE_SHA256){
+      setStatus('unapproved');return;
+    }
+    try{
+      const response=await fetch(ART,{cache:'no-store'});
+      if(!response.ok||!globalThis.crypto?.subtle)throw Error('Art integrity unavailable');
+      const digest=await globalThis.crypto.subtle.digest('SHA-256',await response.arrayBuffer());
+      const actual=Array.from(new Uint8Array(digest),b=>b.toString(16).padStart(2,'0')).join('');
+      setStatus(actual===APPROVED_ART_SHA256?'ready':'unapproved');
+    }catch(_){setStatus('unapproved');}
   }
   function portal(action){
     return '<button type="button" class="ki-card ki-card-'+action.id+'" data-ki="'+action.id+
