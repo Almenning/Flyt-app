@@ -109,3 +109,16 @@ Oppdaget et navigasjonsavvik i Tallvikas flyktige foreldreruting: `entryContext`
 **Regresjon:** Ekte WebKit i liggende iPad-viewport simulerer at barnet forlater både Gangemagi og Brøklab via appnavigasjon, starter dem igjen uavhengig og kontrollerer at det gamle Tallvika-returmålet ikke gjenoppstår. Alle tidligere 8 nettleser-/lagrings-/returkontroller beholdes. Tallvika-scriptets ressursversjon og serviceworker-cache er revidert.
 
 **Kvalitetsport:** Fersk QA på siste commit og visuell godkjenning før merge/publisering. Ingen automatisk lansering.
+
+
+## Fase 9: faktisk regressjonsfeil i kort liggende WebKit (26.10.2026)
+
+**Publiseringsstopp:** Full `Laria QA` feilet på commit `7fc737b`, job `121425295827`, i `tests/laria-responsive-phasea-bokskogen.playwright.js:66`. Bokskogens oppdragsmarkør ble ikke fullt synlig i WebKit 844×390 etter én 350ms automatisk scroll. Det samme skjedde i `Continuous smoke checks`, men nettlesersuiten hadde `continue-on-error: true`, slik at smoke-jobben feilaktig ble rapportert grønn.
+
+**Rotrettelse:** `bokskogen-world.js` beholder eksisterende 350ms startscroll, men kontrollerer faktisk synlighet etter layout på korte liggende skjermer. Hvis markøren ligger utenfor visningsområdet, justeres scroll mot sentrum med to avgrensede etterkontroller og WebKit-støttet `scrollIntoView` ved behov. Bare aktiv Bokskogen-reise justeres, og oppdragsdata, illustrationer og ordinær portrettnavigasjon endres ikke.
+
+**Riktig gate:** `pre-demo-smoke.yml` lar ikke lenger `npm run test:browser` feile uten å stoppe smoke-arbeidsflyten. Den tidligere konkrete feilen var reproduserbar i full QA **og** smoke; det var ikke grunnlag for å kalle alle kvalitetskontroller grønne.
+
+**Diagnostikk:** WebKit-testen beholder sitt opprinnelige strenge synlighetskrav, og logger ved feil både `scrollY`, dokumenthøyde, viewport, om gjeldende stopp finnes og reell stopplassering. Skjermbilde lagres ved feil. Slik skjules ingen layoutfeil bak en høyere timeout.
+
+**Videre kvalitetsport:** Ingen merge eller publisering før alle relevante arbeidsflyter faktisk er grønne på samme siste commit og visuell godkjenning foreligger. Ingen troll-/Gangemagi-/mattemotorfiler er endret.

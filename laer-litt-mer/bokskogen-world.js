@@ -725,15 +725,37 @@
       };
     });
 
-    // Enter the journey beside the next destination, with the traveler and
-    // nearby landscape in view. Navigation resets scroll after rendering.
-    setTimeout(()=>{
-      if(!screen?.classList.contains('active'))return;
+    // Enter beside the next destination, after navigation resets page scroll.
+    // On short landscape Safari screens, a single delayed scroll can race with
+    // layout/scroll restoration and leave the first mission below the fold.
+    // Recheck the actual element bounds, not a guessed image coordinate.
+    const compactLandscape=window.innerWidth>window.innerHeight&&window.innerHeight<=500;
+    const alignCurrentPlace=()=>{
+      if(!screen?.classList.contains('active')||!host.isConnected)return;
       const target=host.querySelector('.bok-v10-place.state-current');
       const world=host.querySelector('.bok-v15-world');
-      if(target&&world&&world.clientHeight>window.innerHeight-24)window.scrollTo({top:window.scrollY+target.getBoundingClientRect().top-window.innerHeight*.67,behavior:'auto'});
-      else window.scrollTo(0,0);
-    },350);
+      if(!target||!world)return;
+      if(world.clientHeight<=window.innerHeight-24){
+        window.scrollTo(0,0);return;
+      }
+      const rect=target.getBoundingClientRect();
+      if(compactLandscape&&rect.top>=-2&&rect.bottom<=window.innerHeight+2)return;
+      const desiredTop=compactLandscape
+        ?(window.innerHeight-rect.height)/2
+        :window.innerHeight*.67;
+      window.scrollTo({top:Math.max(0,window.scrollY+rect.top-desiredTop),behavior:'auto'});
+      // WebKit can make the window-scroll calculation before its short
+      // landscape layout settles. Only on that device, use native element
+      // alignment when the requested stop is still outside the viewport.
+      if(compactLandscape)requestAnimationFrame(()=>{
+        if(!screen.classList.contains('active')||!target.isConnected)return;
+        const after=target.getBoundingClientRect();
+        if(after.top<0||after.bottom>window.innerHeight)
+          target.scrollIntoView({block:'center',inline:'nearest',behavior:'auto'});
+      });
+    };
+    setTimeout(alignCurrentPlace,350);
+    if(compactLandscape)[700,1200].forEach(delay=>setTimeout(alignCurrentPlace,delay));
 
     const finish=document.getElementById('journey-finish');
     if(finish)finish.style.display='none';

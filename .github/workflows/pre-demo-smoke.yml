@@ -56,8 +56,8 @@ jobs:
             sleep 0.5
           done
           node tests/laria-basecamp-v12.cjs
+      # A failed browser regression is a failed release gate, never a green job.
       - name: Run general repository browser suite
-        continue-on-error: true
         shell: bash
         run: |
           set +e

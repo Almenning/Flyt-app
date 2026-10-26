@@ -63,12 +63,31 @@ async function proof(engine,label,viewport,url){
   // viewport scroll from a real blank header / offset stage regression.
   const compactLandscape=viewport.width>viewport.height&&viewport.height<=500;
   if(compactLandscape){
-    await page.waitForFunction(()=>{
-      const stop=document.querySelector('#subject-screen.active .bok-v10-place.state-current');
-      if(!stop)return false;
-      const rect=stop.getBoundingClientRect();
-      return rect.top>=-2&&rect.bottom<=innerHeight+2;
-    },null,{timeout:6000});
+    try{
+      await page.waitForFunction(()=>{
+        const stop=document.querySelector('#subject-screen.active .bok-v10-place.state-current');
+        if(!stop)return false;
+        const rect=stop.getBoundingClientRect();
+        return rect.top>=-2&&rect.bottom<=innerHeight+2;
+      },null,{timeout:6000});
+    }catch(error){
+      // A real viewport failure must fail the release gate, but report enough
+      // geometry to distinguish missing current state from broken scrolling.
+      const diagnostic=await page.evaluate(()=>{
+        const stop=document.querySelector('#subject-screen.active .bok-v10-place.state-current');
+        const world=document.querySelector('#subject-screen.active .bok-v15-world');
+        const r=stop?.getBoundingClientRect();
+        const doc=document.scrollingElement||document.documentElement;
+        return {innerWidth,innerHeight,scrollY,scrollHeight:doc.scrollHeight,
+          clientHeight:doc.clientHeight,screenActive:!!document.querySelector('#subject-screen.active'),
+          hasCurrent:!!stop,worldHeight:world?.clientHeight,
+          current:r?{top:r.top,bottom:r.bottom,height:r.height}:null};
+      });
+      console.error('BOKSKOGEN_COMPACT_LANDSCAPE_DIAGNOSTIC',label,JSON.stringify(diagnostic));
+      await fs.promises.mkdir(out,{recursive:true});
+      await page.screenshot({path:path.join(out,label+'-failed-viewport.png'),animations:'disabled'}).catch(()=>{});
+      throw error;
+    }
   }
   const geometry=await page.evaluate(()=>{
    const screen=document.querySelector('#subject-screen.active');
