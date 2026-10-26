@@ -39,8 +39,10 @@ html:has(#subject-screen.kinnaklova-active),body:has(#subject-screen.kinnaklova-
  /* Keep the three original identities and pixels; no CSS pseudo-animation. */
 }
 .ki-troll-storesoster{left:9.2%;top:59.4%;width:10.2%;height:28.0%}
-.ki-troll-lillebror{left:55.7%;top:42.0%;width:8.6%;height:25.0%}
-.ki-troll-lillesoster{right:8.7%;top:52.2%;width:9.2%;height:22.8%}
+/* Place all three companions on existing terrain without covering the
+   exact painted words on the approved signs. No change to backdrop pixels. */
+.ki-troll-lillebror{left:52.7%;top:38.7%;width:9.5%;height:21.4%}
+.ki-troll-lillesoster{right:8.7%;top:48.3%;width:9.2%;height:19.2%}
 /* The title, wooden signs, breadcrumb and dotted route are *painted in
    the locked art*. We only position invisible interaction surfaces. */
 .ki-painted-hit{
