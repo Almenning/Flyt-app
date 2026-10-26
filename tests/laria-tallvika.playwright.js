@@ -5,6 +5,24 @@ const seed={version:7,progressSchemaVersion:3,profile:{grade:2,onboarded:true,na
 const url=process.env.QA_URL||'http://127.0.0.1:8765/laer-litt-mer/?app=laria';
 const output=process.env.LARIA_TALLVIKA_SCREENSHOTS;
 async function shot(page,name){if(output){fs.mkdirSync(output,{recursive:true});await page.screenshot({path:path.join(output,name+'.png'),animations:'disabled',fullPage:true});}}
+async function inWorldComparison(page,label){
+  if(!output)return;
+  const image=page.locator('#tallvika-world .tv-companion[data-troll-id="storesoster"] img');
+  const closeBox=await page.locator('#tallvika-world .tv-companion').boundingBox();
+  const after=await image.getAttribute('src');
+  // Capture the old locked source and the new source-derived scene treatment
+  // in the exact same live browser composition. This changes no saved state.
+  await image.evaluate((img,src)=>{img.src=src},'./assets/gangemagi-troll/storesoster.webp');
+  await image.evaluate(img=>img.decode());
+  await shot(page,label+'-storesoster-before');
+  await image.evaluate((img,src)=>{img.src=src},after);
+  await image.evaluate(img=>img.decode());
+  await shot(page,label+'-storesoster-after');
+  // A Tallvika rebuild can replace the companion node while Playwright waits
+  // for locator stability. Crop the current page from its measured box instead
+  // of holding a locator across that asynchronous render.
+  if(closeBox)await page.screenshot({path:path.join(output,label+'-storesoster-closeup-after.png'),animations:'disabled',clip:{x:Math.max(0,closeBox.x-12),y:Math.max(0,closeBox.y-12),width:closeBox.width+24,height:closeBox.height+24}});
+}
 async function enter(page){
   await page.goto(url,{waitUntil:'domcontentloaded',timeout:90000});
   const tile=page.locator('.bc14-subject[data-camp="subject-math"]');await tile.waitFor({timeout:18000});await tile.click();
@@ -27,7 +45,7 @@ async function run(browserType,label,viewport){
     },seed);
     const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
     await page.route('https://raw.githubusercontent.com/**',route=>route.abort());await page.route('https://api.worldbank.org/**',route=>route.abort());
-    await enter(page);await shot(page,label);
+    await enter(page);await shot(page,label);await inWorldComparison(page,label);
     assert.equal(await page.locator('.tv-scene').count(),1,label+' renders one locked Tallvika scene');
     assert.equal(await page.locator('.tv-scene').evaluate(el=>getComputedStyle(el).backgroundImage.includes('tallvika-master-laast-20261025.png')),true,label+' uses the locked landscape');
     const art=await page.locator('.tv-scene').evaluate(el=>({w:el.getBoundingClientRect().width,h:el.getBoundingClientRect().height,scroll:document.documentElement.scrollWidth,client:document.documentElement.clientWidth}));
@@ -43,10 +61,16 @@ async function run(browserType,label,viewport){
     await page.locator('#tallvika-world [data-tv="grade"]').click();
     await page.locator('#tallvika-world .tv-grade-dialog[open]').waitFor();
     assert.equal(await page.locator('#tallvika-world [data-tv-grade]').count(),10,label+' grade options missing');
+    assert.equal(await page.evaluate(()=>document.activeElement?.getAttribute('data-tv-grade')),'2',
+      label+' grade modal should focus the currently selected class');
     await page.locator('#tallvika-world [data-tv-grade="3"]').click();
     assert.deepEqual(await page.evaluate(()=>[window.LARIA_TALLVIKA_BRIDGE.currentGrade(),window.LARIA_TALLVIKA_BRIDGE.journeyViewGrade('math')]),[2,3],label+' grade view must not change the profile');
+    assert.equal(await page.evaluate(()=>document.activeElement?.getAttribute('data-tv')),'grade',
+      label+' grade selection must return focus to the new class picker trigger');
     await page.locator('#tallvika-world [data-tv="grade"]').click();
     await page.locator('#tallvika-world .tv-grade-dialog[open] [data-tv-grade="2"]').click();
+    assert.equal(await page.evaluate(()=>document.activeElement?.getAttribute('data-tv')),'grade',
+      label+' grade focus must survive restoring the original class');
     if(viewport.width<=480){
       // Inspect the real last viewport fold, not only a container's style:
       // legacy fixed navigation can cover an otherwise correctly painted page.
@@ -73,18 +97,87 @@ async function run(browserType,label,viewport){
     }
     await page.locator('[data-tv="choose"]').first().click();await page.locator('.tv-dialog[open]').waitFor();
     assert.equal(await page.locator('[data-tv-troll]').count(),3,label+' offers all three locked trolls');
+    assert.equal(await page.evaluate(()=>document.activeElement?.getAttribute('data-tv-troll')),'storesoster',
+      label+' troll picker should focus the selected companion');
+    // Preview should match the saved Tallvika scene artwork, not a stale portrait.
+    const expectedPreview={storesoster:'storesoster-inworld-approved-20261026.webp',lillesoster:'lillesoster.webp',lillebror:'lillebror.webp'};
+    for(const [id,filename] of Object.entries(expectedPreview)){
+      const card=page.locator('#tallvika-world [data-tv-troll="'+id+'"]');
+      const portrait=card.locator('img'), src=await portrait.getAttribute('src');
+      assert.ok(src.endsWith('/'+filename),label+' picker has wrong image for '+id);
+      await portrait.evaluate(img=>img.decode());
+      const box=await card.boundingBox();
+      assert.ok(box&&box.width>=44&&box.height>=44,label+' picker tap target too small for '+id);
+    }
+    const picker=page.locator('#tallvika-world .tv-dialog:not(.tv-grade-dialog)[open]');
+    const pickerRect=await picker.boundingBox();
+    assert.ok(pickerRect&&pickerRect.y>=-1&&pickerRect.y+pickerRect.height<=viewport.height+1,
+      label+' character picker must fit inside the viewport');
+    assert.equal(await picker.evaluate(el=>getComputedStyle(el).overflowY),'auto',
+      label+' character picker must be scrollable on short screens');
+    if(viewport.width<=480){
+      const geometry=await picker.evaluate(el=>{
+        const h=el.querySelector('h2').getBoundingClientRect(),c=el.querySelector('.tv-dialog-close').getBoundingClientRect();
+        return {headingTop:h.top,closeBottom:c.bottom};
+      });
+      assert.ok(geometry.headingTop>=geometry.closeBottom+5,
+        label+' close control must not overlap the character picker title');
+    }
+    if(viewport.height<=450 && viewport.width>480){
+      const visibility=await picker.evaluate(el=>{
+        const dialog=el.getBoundingClientRect();
+        return [...el.querySelectorAll('.tv-troll-grid button')].map(button=>{
+          const card=button.getBoundingClientRect(),caption=button.querySelector('b').getBoundingClientRect();
+          return {buttonBottom:card.bottom,captionBottom:caption.bottom,dialogBottom:dialog.bottom};
+        });
+      });
+      for(const item of visibility){
+        assert.ok(item.buttonBottom<=item.dialogBottom-4,label+' character card is clipped on landscape');
+        assert.ok(item.captionBottom<=item.dialogBottom-6,label+' character name is clipped on landscape');
+      }
+    }
+    if(output && (viewport.width<=480||viewport.height<=450)) await shot(page,label+'-troll-picker');
     // Every original forest troll must be selectable, render from its own
     // approved image, and persist without changing the child's learning data.
     for(const id of ['storesoster','lillesoster','lillebror']){
       if(id!=='storesoster'){
         await page.locator('#tallvika-world [data-tv="choose"]').click();
         await page.locator('.tv-dialog[open]').waitFor();
+        assert.equal(await page.evaluate(()=>document.activeElement?.getAttribute('data-tv-troll')),
+          ['storesoster','lillesoster','lillebror'][['storesoster','lillesoster','lillebror'].indexOf(id)-1],
+          label+' troll picker does not restore current saved selection');
       }
       await page.locator('[data-tv-troll="'+id+'"]').click();
       assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('laerlittmer-v2')).profile.tallvikaTroll),id,label+' does not persist '+id);
+      assert.equal(await page.evaluate(()=>document.activeElement?.getAttribute('data-tv')),'choose',
+        label+' focus lost when companion change rebuilt Tallvika');
       const image=page.locator('#tallvika-world .tv-companion img');
-      assert.ok((await image.getAttribute('src')).includes('/'+id+'.webp'),label+' shows wrong troll for '+id);
+      const src=await image.getAttribute('src');
+      assert.ok(id==='storesoster'?src.includes('/storesoster-inworld-approved-20261026.webp'):src.includes('/'+id+'.webp'),label+' shows wrong troll for '+id);
+      assert.equal(await page.locator('#tallvika-world .tv-companion').getAttribute('data-troll-treatment'),id==='storesoster'?'approved-painterly-20261026':'locked-original',label+' must keep the intended source treatment');
       await image.evaluate(img=>img.decode());
+      if(id==='storesoster'){
+        const imageInfo=await image.evaluate(img=>({width:img.naturalWidth,height:img.naturalHeight,filter:getComputedStyle(img).filter}));
+        assert.equal(imageInfo.width,512,label+' storesoster approved art width');
+        assert.equal(imageInfo.height,1024,label+' storesoster approved art height');
+        assert.ok(!['brightness(', 'saturate(', 'contrast('].some(fn=>imageInfo.filter.includes(fn)),label+' approved artwork must retain its colours');
+        if(viewport.width<=480){
+          const placement=await page.locator('#tallvika-world .tv-companion').evaluate(el=>{
+            const scene=el.closest('.tv-scene').getBoundingClientRect(),box=el.getBoundingClientRect();
+            return {left:(box.left-scene.left)/scene.width,top:(box.top-scene.top)/scene.height,
+              width:box.width/scene.width,height:box.height/scene.height,
+              bottom:(scene.bottom-box.bottom)/scene.height};
+          });
+          // On portrait phones the unchanged entire panorama shrinks ~3×.
+          // Enlarge only the approved Storesøster's foreground placement:
+          // don't shrink her with the original iPad percentage dimensions.
+          assert.ok(placement.height>=.42&&placement.height<=.45,label+' Storesøster must be large enough to recognise on a phone');
+          assert.ok(placement.width>=.13&&placement.width<=.14,label+' portrait companion footprint is expected');
+          assert.ok(placement.left>=.54&&placement.left<=.57,label+' leave the painted Brøklab sign legible');
+          assert.ok(placement.top>=.42&&placement.top<=.47,label+' companion remains grounded in the lower path');
+          assert.ok(placement.bottom>=.11&&placement.bottom<=.14,label+' companion feet remain on the path');
+        }
+      }
       if(viewport.width<=480&&output)await shot(page,label+'-'+id);
     }
     await page.reload({waitUntil:'domcontentloaded',timeout:90000});await page.locator('.bc14-subject[data-camp="subject-math"]').click();await page.locator('#tallvika-world').waitFor();
@@ -96,4 +189,4 @@ async function run(browserType,label,viewport){
     await context.close();
   } finally {await browser.close();}
 }
-(async()=>{for(const [label,viewport] of [['iphone-portrait',{width:390,height:844}],['iphone-landscape',{width:844,height:390}],['ipad-portrait',{width:834,height:1112}],['ipad-landscape',{width:1194,height:834}]]){await run(chromium,'chromium-'+label,viewport);await run(webkit,'webkit-'+label,viewport);}})().catch(error=>{console.error(error);process.exitCode=1});
+(async()=>{for(const [label,viewport] of [['iphone-compact',{width:320,height:568}],['iphone-portrait',{width:390,height:844}],['iphone-small-landscape',{width:568,height:320}],['iphone-landscape',{width:844,height:390}],['ipad-portrait',{width:834,height:1112}],['ipad-landscape',{width:1194,height:834}]]){await run(chromium,'chromium-'+label,viewport);await run(webkit,'webkit-'+label,viewport);}})().catch(error=>{console.error(error);process.exitCode=1});

@@ -3,9 +3,12 @@
 (() => {
   'use strict';
   const trolls = {
-    storesoster:{name:'Storesøster',src:'./assets/gangemagi-troll/storesoster.webp'},
-    lillesoster:{name:'Lillesøster',src:'./assets/gangemagi-troll/lillesoster.webp'},
-    lillebror:{name:'Lillebror',src:'./assets/gangemagi-troll/lillebror.webp'}
+    // Keep src as the byte-locked reference artwork. The picker previews
+    // sceneSrc, so the child sees exactly the same character after selection.
+    // Lillesøster and lillebror continue to use their unchanged originals.
+    storesoster:{name:'Storesøster',src:'./assets/gangemagi-troll/storesoster.webp',sceneSrc:'./assets/tallvika/storesoster-inworld-approved-20261026.webp',sceneTreatment:'approved-painterly-20261026'},
+    lillesoster:{name:'Lillesøster',src:'./assets/gangemagi-troll/lillesoster.webp',sceneSrc:'./assets/gangemagi-troll/lillesoster.webp',sceneTreatment:'locked-original'},
+    lillebror:{name:'Lillebror',src:'./assets/gangemagi-troll/lillebror.webp',sceneSrc:'./assets/gangemagi-troll/lillebror.webp',sceneTreatment:'locked-original'}
   };
   const screen = document.getElementById('subject-screen');
   if (!screen) return;
@@ -41,7 +44,7 @@
       <header class="tv-top"><button type="button" data-tv="back" aria-label="Tilbake til Hjem">‹ <span>Hjem</span></button><span>LÆRIA · MATTE</span><div class="tv-top-actions"><button type="button" data-tv="grade" aria-label="Velg klassetrinn">${grade}. klasse</button><button type="button" data-tv="choose">Velg skogstroll</button></div></header>
       <div class="tv-scene">
         <div class="tv-scene-copy"><p>${name ? 'Hei, '+esc(name)+'!' : 'Velkommen!'}</p><h1>Tallvika</h1><span>Velg et hus, og lek med tall.</span></div>
-        <div class="tv-companion" aria-label="Valgt følgesvenn: ${troll.name}"><img src="${troll.src}" alt="${troll.name}"></div>
+        <div class="tv-companion" data-troll-id="${selected}" data-troll-treatment="${troll.sceneTreatment}" aria-label="Valgt følgesvenn: ${troll.name}"><span class="tv-companion__ground" aria-hidden="true"></span><img src="${troll.sceneSrc}" alt="${troll.name}"></div>
         <button type="button" class="tv-hotspot tv-hotspot-multiply" data-tv="multiply" aria-label="Åpne Gangemagi"><b>Gangemagi</b><span>×</span></button>
         <button type="button" class="tv-hotspot tv-hotspot-fraction" data-tv="fraction" aria-label="Åpne Brøklab"><b>Brøklab</b><span>¼</span></button>
         <button type="button" class="tv-hotspot tv-hotspot-table" data-tv="table" aria-label="Åpne Gangetabellen"><b>Gangetabellen</b><span>×</span></button>
@@ -52,7 +55,7 @@
         <button type="button" data-tv="table"><b>Gangetabellen</b><span>Utforsk mønstre ›</span></button>
       </div>
       <section class="tv-next"><div><small>NESTE EVENTYR · HELT FRIVILLIG</small><b>${p?.complete ? 'Bonusoppdraget venter' : n?.title || 'Et nytt oppdrag venter'}</b><span>Du kan alltid bli værende og spille favorittene dine.</span></div><button type="button" data-tv="next" ${n||p?.complete?'':'disabled'}>Prøv ›</button></section>
-      <dialog class="tv-dialog" aria-label="Velg ditt skogstroll"><form method="dialog"><button class="tv-dialog-close" aria-label="Lukk">×</button><p>DIN FØLGESVENN</p><h2>Hvem skal bli med til Tallvika?</h2><span>Du kan bytte når du vil.</span><div class="tv-troll-grid">${Object.entries(trolls).map(([id,item]) => `<button type="button" class="${id===selected?'selected':''}" data-tv-troll="${id}" aria-pressed="${id===selected}"><img src="${item.src}" alt=""><b>${item.name}</b>${id===selected?'<em>Valgt</em>':''}</button>`).join('')}</div></form></dialog>
+      <dialog class="tv-dialog" aria-label="Velg ditt skogstroll"><form method="dialog"><button class="tv-dialog-close" aria-label="Lukk">×</button><p>DIN FØLGESVENN</p><h2>Hvem skal bli med til Tallvika?</h2><span>Du kan bytte når du vil.</span><div class="tv-troll-grid">${Object.entries(trolls).map(([id,item]) => `<button type="button" class="${id===selected?'selected':''}" data-tv-troll="${id}" aria-pressed="${id===selected}"><img src="${item.sceneSrc}" alt=""><b>${item.name}</b>${id===selected?'<em>Valgt</em>':''}</button>`).join('')}</div></form></dialog>
       <dialog class="tv-dialog tv-grade-dialog" aria-label="Velg klassetrinn"><form method="dialog"><button class="tv-dialog-close" aria-label="Lukk">×</button><p>UTFORSK I DITT TEMPO</p><h2>Velg klassetrinn</h2><span class="tv-grade-note">${grade===ownGrade?'Dette er ditt klassetrinn. Du kan også utforske andre trinn.':'Du utforsker '+grade+'. klasse. Ditt klassetrinn er fortsatt '+ownGrade+'. klasse.'}</span><div class="tv-grade-grid">${Array.from({length:10},(_,i)=>{const g=i+1;return '<button type="button" class="tv-grade-option'+(g===grade?' selected':'')+'" data-tv-grade="'+g+'" aria-pressed="'+(g===grade)+'" aria-label="'+g+'. klasse"><b>'+g+'.</b><small>'+(g===ownGrade?'Mitt trinn':g===grade?'Valgt':'Utforsk')+'</small></button>';}).join('')}</div></form></dialog>`;
     // Never mutate an observed attribute when its value is already correct.
     // Repeating classList.add() can itself fire another MutationObserver record
@@ -70,8 +73,18 @@
     if (!button || !screen.contains(button)) return;
     const action = button.dataset.tv;
     if (action === 'back') { if (!window.LARIA_RETURN_TO_BASECAMP?.()) app()?.setTab?.('home'); }
-    if (action === 'choose') document.querySelector('#tallvika-world .tv-dialog:not(.tv-grade-dialog)')?.showModal();
-    if (action === 'grade') document.querySelector('#tallvika-world .tv-grade-dialog')?.showModal();
+    if (action === 'choose' || action === 'grade') {
+      const dialog = document.querySelector(action === 'choose'
+        ? '#tallvika-world .tv-dialog:not(.tv-grade-dialog)'
+        : '#tallvika-world .tv-grade-dialog');
+      if (dialog && !dialog.open) {
+        dialog.showModal();
+        // Start at the child's existing selection, not an unrelated close button.
+        dialog.querySelector(action === 'choose'
+          ? '.tv-troll-grid button.selected' : '.tv-grade-grid button.selected')
+          ?.focus({preventScroll:true});
+      }
+    }
     if (action === 'multiply') window.openMultiplicationLab?.();
     if (action === 'fraction') window.openFractionLab?.();
     if (action === 'table') openTable();
@@ -80,7 +93,12 @@
   screen.addEventListener('click', event => {
     const button = event.target.closest('[data-tv-troll]');
     if (!button) return;
-    saveTroll(button.dataset.tvTroll); document.querySelector('#tallvika-world .tv-dialog')?.close(); build();
+    saveTroll(button.dataset.tvTroll);
+    document.querySelector('#tallvika-world .tv-dialog:not(.tv-grade-dialog)')?.close();
+    build();
+    // build() replaces the original trigger node, so restore keyboard focus
+    // to its fresh replacement without scrolling the child away from the scene.
+    document.querySelector('#tallvika-world [data-tv="choose"]')?.focus({preventScroll:true});
   });
   screen.addEventListener('click', event => {
     const button = event.target.closest('[data-tv-grade]');
@@ -90,6 +108,7 @@
     app()?.setJourneyViewGrade?.('math',grade,false);
     document.querySelector('#tallvika-world .tv-grade-dialog')?.close();
     build();
+    document.querySelector('#tallvika-world [data-tv="grade"]')?.focus({preventScroll:true});
   });
   const observer = new MutationObserver(() => {
     const active = screen.classList.contains('active') && screen.dataset.subject === 'math';
