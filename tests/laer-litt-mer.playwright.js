@@ -1107,6 +1107,10 @@ async function finishSession(page){
       await page.evaluate(s=>document.querySelector(s).click(),starter);
       if(subject==='geography'){
         await page.evaluate(()=>{geoTheme='country';syncGeoThemeButtons();startGeographyTheme()});
+      }else if(subject==='english'){
+        // Follow the live Kinnaklova portal, not the retired mixed English
+        // shortcut that still preserves legacy chapter-journey behavior.
+        await page.locator('#subject-screen.active #kinnaklova-world .ki-card[data-ki="words"]').click();
       }else{
         await page.evaluate(s=>startLearningSession(s,null,SUBJECTS[s]?.mission||'Blandet'),subject);
       }
@@ -1115,13 +1119,23 @@ async function finishSession(page){
       assert.equal(await page.locator('#session-screen').getAttribute('data-task-subject'),subject,subject+' wrong task-scene subject');
       assert.equal(await page.locator('#session-screen').getAttribute('data-task-band'),'young',subject+' grade 2 should use young task specialization');
       assert.equal(await page.locator('.laria-task-card').count(),1,subject+' should render exactly one premium task card');
-      assert.equal(await page.locator('.task-fox-companion img').count(),1,subject+' needs one in-world fox companion');
-      // The task companion is now the child's chosen profile fox, not the
-      // previously hard-coded mascot. Compare identity without dumping a
-      // large embedded WebP data URI into test logs on failure.
-      const personalFox=await page.locator('.task-fox-companion img').evaluate(img=>
-        img.getAttribute('src')===window.LARIA_FOX.source(window.LARIA_FOX.choice()));
-      assert.equal(personalFox,true,subject+' must use the selected persistent fox');
+      if(subject==='english'){
+        // The approved Kinnaklova world is troll-led. The real TrollActor is
+        // a separate art deliverable; never reintroduce the retired fox.
+        assert.equal(await page.locator('.task-fox-companion').count(),0,
+          'Kinnaklova Words must not render the retired fox');
+        assert.equal((await page.locator('#session-screen.active .task-world-chip').innerText()).trim(),
+          'Kinnaklova','The direct English task must display its actual world name');
+        assert.equal(await page.evaluate(()=>sessionScope?.module),'words',
+          'The real Words portal must retain its selected activity');
+      }else{
+        assert.equal(await page.locator('.task-fox-companion img').count(),1,
+          subject+' needs its existing profile actor');
+        // Other worlds still preserve the selected legacy profile identity.
+        const personalFox=await page.locator('.task-fox-companion img').evaluate(img=>
+          img.getAttribute('src')===window.LARIA_FOX.source(window.LARIA_FOX.choice()));
+        assert.equal(personalFox,true,subject+' must use the selected persistent profile');
+      }
       assert.ok((await page.locator('.answer,.letter-tile,.word-tile,.sequence-tile,#math-input,#quiz-map-canvas').count())>0,subject+' task scene has no active interaction');
       await page.locator('#close-session').click();
     }
