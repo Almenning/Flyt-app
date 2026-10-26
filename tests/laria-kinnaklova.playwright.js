@@ -245,6 +245,18 @@ async function firstGradeReading(engine,label){
     const question=document.querySelector('#session-screen.active .ki-reading-question');
     return !!(story&&question&&(story.compareDocumentPosition(question)&Node.DOCUMENT_POSITION_FOLLOWING));
   });
+  if(!storyFirst){
+    const debug=await page.evaluate(()=>({
+      scope:typeof sessionScope==='object'?sessionScope:null,
+      skill:sessionQuestions?.[qIndex]?.skill,
+      type:sessionQuestions?.[qIndex]?.type,
+      story:document.querySelector('#session-screen.active .ki-reading-story')?.outerHTML?.slice(0,300)||null,
+      question:document.querySelector('#session-screen.active .ki-reading-question')?.outerHTML?.slice(0,300)||null,
+      activeScreen:document.querySelector('#session-screen')?.className,
+      markup:document.querySelector('#question-wrap')?.innerHTML?.slice(0,650)
+    }));
+    console.error('[KINNAKLOVA] grade 1 story-order details',JSON.stringify(debug));
+  }
   assert.equal(storyFirst,true,label+' first-grade story must also come before the question');
   console.log('[KINNAKLOVA] '+label+' grade 1: five short Reading stories verified');
   await context.close();
