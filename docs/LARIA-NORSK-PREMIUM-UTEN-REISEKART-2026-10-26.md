@@ -146,3 +146,11 @@ Brukeren godkjente den eksakte Eggenipa-illustrasjonen, men avviste resten av de
 - `Continuous smoke` forventet feilaktig en rev i Norsk; testen kontrollerer nå Norsk sitt synlige magiske hjelpesymbol, mens krav til korrekt valgt personlig rev beholdes for øvrige fag.
 - `laria-ux-phase1-navigation` forsøkte å åpne den avviklede Bokskogen-portalen. Testen følger nå Reisen → Eggenipa → Lesekroken → Eggenipa → Reisen med faktisk kantsveip, og krever alle tre direkte aktivitetsinnganger.
 - Ingen endring i originalillustrasjon, læringsdata eller den øvrige produktflyten. Verifiser samtlige tester på ny PR-head før publiseringsvurdering.
+
+
+### 26.10 – Norsk hjelper reagerer på faktiske læringsresultater
+
+- Reell kodefeil funnet: `laria-task-scene-v15.js` viste det nye magiske Norsk-symbolet, men den eksisterende reaksjonskoblingen var aldri aktivert. Bare de andre fagenes separate `LARIA_FOX_PRESENCE` kunne derfor feire riktige svar.
+- Ny Norsk-avgrenset kobling lytter på ekte svar-interaksjoner og gir korrekt svar én kort `fox-correct`-reaksjon (620 ms), uten å knytte gamle rev eller ikke-godkjente troll til Norsk. Opplesning, Neste og andre knapper kan ikke utløse reaksjonen; tastaturaktiverte knapper fungerer gjennom ordinært klikk.
+- `laria-task-phase3-polish` kontrollerer nå at hjelpesymbolet faktisk feirer riktig svar, at det finnes bare ett symbol, og at reaksjonen opphører. Det eldre Prompt 13-regresjonskravet for valgt rev og reaksjon kjøres nå på Engelsk, som fortsatt skal beholde samme fungerende rev frem til separat migrering.
+- JS-URL versjonert for Safari/service-worker. Ingen læringsdata, Eggenipa-master eller andre fag er endret.

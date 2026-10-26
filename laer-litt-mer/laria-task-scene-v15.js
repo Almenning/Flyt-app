@@ -55,23 +55,27 @@
     try{return (typeof state!=='undefined'&&state?.profile?.avatar==='girl')?'girl':'boy'}catch(_){return 'boy'}
   }
   function foxSource(){return window.LARIA_FOX.source(foxChoice());}
-  function reactFox(correct){
-    const fox=document.querySelector('#session-screen.task-scene .task-fox-companion,#session-screen.task-scene .task-norsk-guide');
-    if(!fox)return;
-    fox.classList.remove('fox-correct');
-    if(!correct)return;
-    void fox.offsetWidth;
-    fox.classList.add('fox-correct');
-    window.setTimeout(()=>fox.classList.remove('fox-correct'),620);
+  // Norsk uses a neutral helper until the separately approved TrollActor exists.
+  // The shared fox-presence engine deliberately does not own this symbol, so
+  // successful answers must trigger its one short reaction here instead.
+  function reactNorskGuide(){
+    const guide=document.querySelector('#session-screen.task-scene[data-task-subject="norwegian"] .task-norsk-guide');
+    if(!guide)return;
+    guide.classList.remove('fox-correct');
+    void guide.offsetWidth;
+    guide.classList.add('fox-correct');
+    window.setTimeout(()=>guide.classList.remove('fox-correct'),620);
   }
-  function bindFoxReaction(wrap){
-    if(!wrap||wrap.dataset.foxReactionBound==='true')return;
-    wrap.dataset.foxReactionBound='true';
-    const sync=()=>{
-      if(typeof currentAnswered!=='undefined'&&currentAnswered?.correct===true)reactFox(true);
-    };
-    wrap.addEventListener('click',sync);
-    wrap.addEventListener('keydown',e=>{if(e.key==='Enter')sync()});
+  function bindNorskGuideReaction(wrap){
+    if(!wrap||wrap.dataset.norskGuideReactionBound==='true')return;
+    wrap.dataset.norskGuideReactionBound='true';
+    // A real answer interaction updates currentAnswered before its click
+    // bubbles to this wrapper. Ignore Read aloud, Next and unrelated controls.
+    // Keyboard-activated buttons also emit click, so no duplicate key handler.
+    wrap.addEventListener('click',event=>{
+      if(!event.target.closest?.('.task-interaction'))return;
+      if(typeof currentAnswered!=='undefined'&&currentAnswered?.correct===true)reactNorskGuide();
+    });
   }
 
   const PREMIUM_VISUAL_KEYS=Object.freeze(['🏠','🐱','🐶','📘','🍎','🚗','⛵','🌳','☀️','🌙','🐟','⚽']);
@@ -352,7 +356,8 @@
 
     if(subject==='geography')bindGeographyInteraction(q,wrap);
     else bindInteraction(q,wrap);
-    // LARIA_FOX_PRESENCE owns answer reactions; do not trigger a competing animation.
+    // Other subjects are handled by LARIA_FOX_PRESENCE. Norsk has no fox.
+    if(subject==='norwegian')bindNorskGuideReaction(wrap);
     const next=wrap.querySelector('#next-question');
     if(next)next.onclick=nextQuestion;
     bindReadAloud(q);

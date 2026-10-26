@@ -160,6 +160,14 @@ async function run(engine,name,viewport,url){
    });
    const anchoredBefore=await geometry();
    await page.locator('#session-screen .answer[data-answer="'+question.answer+'"]').click();
+   if(subject==='norwegian'){
+     const guide=page.locator('#session-screen.active .task-norsk-guide');
+     await page.waitForFunction(()=>document.querySelector('#session-screen.active .task-norsk-guide')?.classList.contains('fox-correct'),
+       null,{polling:25,timeout:1000});
+     assert.equal(await guide.count(),1,label+' correct answer duplicated the Norsk guide');
+     await page.waitForFunction(()=>!document.querySelector('#session-screen.active .task-norsk-guide')?.classList.contains('fox-correct'),
+       null,{polling:50,timeout:2400});
+   }
    const anchoredAfter=await geometry();
    assert(Math.abs(anchoredAfter.cardY-anchoredBefore.cardY)<=3,
      label+' response recentered task by '+(anchoredAfter.cardY-anchoredBefore.cardY)+

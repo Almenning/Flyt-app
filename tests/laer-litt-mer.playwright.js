@@ -1177,16 +1177,16 @@ async function finishSession(page){
     assert.equal(progressAfterIllustrations,progressBeforeIllustrations,'Prompt 12 illustration rendering changed learning progress');
     await page.locator('#close-session').click();
 
-    // Prompt 13: TaskScene fox must stay in-world, follow the saved avatar state,
+    // Prompt 13: subjects retaining a fox must keep avatar identity and reactions,
     // avoid covering the question/answers, and react briefly only after a correct answer.
     async function assertPrompt13Fox(width,height,label){
       await page.setViewportSize({width,height});
       await page.evaluate(()=>{
         state.profile.avatar='girl';saveState();
         sessionQuestions=[{
-          subject:'norwegian',skill:'word-picture',type:'learning-choice',
-          prompt:'Hvilket ord passer til bildet?',answer:'katt',options:['katt','hund','hus'],
-          visual:'🐱',curriculum:CURRICULUM.norwegian
+          subject:'english',skill:'vocabulary',type:'learning-choice',
+          prompt:'Which word matches the picture?',answer:'cat',options:['cat','dog','house'],
+          visual:'🐱',curriculum:CURRICULUM.english
         }];
         qIndex=0;currentAnswered=null;showScreen('session');renderQuestion();
       });
@@ -1211,7 +1211,7 @@ async function finishSession(page){
       // actual mood and that it settles without duplicating its artwork.
       await fox.locator('svg.laria-fox-wardrobe-art .laria-fox-pose').waitFor({timeout:12000});
       const beforeCount=await page.evaluate(()=>state.answerLog.length);
-      await page.locator('.answer[data-answer="katt"]').click();
+      await page.locator('.answer[data-answer="cat"]').click();
       await page.waitForFunction(()=>
         document.querySelector('#session-screen.active .task-fox-companion')?.dataset.lariaFoxMood==='celebrate',
         null,{polling:25,timeout:1500});
