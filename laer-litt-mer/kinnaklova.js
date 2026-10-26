@@ -143,7 +143,9 @@
       bridge()?.resumeSession?.('english');
     }else{
       const activity=ACTIONS.find(item=>item.id===action);
-      if(activity)bridge()?.startLearningSession?.('english',activity.module,activity.name);
+      // The sign the child chose determines the subject of all five questions.
+      // Fallback to mixed play only when that grade lacks enough module tasks.
+      if(activity)bridge()?.startLearningSession?.('english',activity.module,activity.name,true);
     }
   });
   // The same host is used by Norsk and Matte. A detached English scene must
