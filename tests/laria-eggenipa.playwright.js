@@ -82,6 +82,11 @@ async function run(browserType,engine,name,viewport){
     await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
     await page.locator('#subject-screen.active .locked-journey-map[data-journey-subject="norwegian"]')
       .waitFor({state:'visible',timeout:18000});
+    // The DOM map can be visible before Safari commits the next layout.
+    // Read its origin after two real paint frames so a valid scheduled
+    // navigation reset is observed, without relaxing the zero-offset check.
+    await page.evaluate(()=>new Promise(resolve=>
+      requestAnimationFrame(()=>requestAnimationFrame(resolve))));
     const mapOrigin=await page.locator('#subject-screen').evaluate(element=>({
       top:element.getBoundingClientRect().top,scrollY:window.scrollY
     }));
