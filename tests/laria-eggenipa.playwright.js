@@ -80,6 +80,12 @@ async function run(engine,browserType,view,viewport){
   assert.equal(question.module,'reading',label+' wrong reading module');
   assert.equal(question.grade,2,label+' profile grade changed');
   assert.ok(question.text,label+' missing reading question');
+  assert.equal(await page.locator('#session-screen.active .task-world-chip').textContent(),'Eggenipa',
+    label+' old Bokskogen name remains in reading lesson');
+  assert.equal(await page.locator('#session-screen.active .task-fox-companion').count(),0,
+    label+' legacy fox is still inside the Norwegian lesson');
+  assert.equal(await page.locator('#session-screen.active .task-norsk-guide').count(),1,
+    label+' neutral Norwegian guide missing');
   await shot(page,label+'-lesekroken');
   await page.locator('#close-session').tap();
   await page.locator('#eggenipa-world:visible').waitFor({timeout:12000});

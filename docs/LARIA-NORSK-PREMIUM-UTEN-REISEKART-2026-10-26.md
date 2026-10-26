@@ -36,3 +36,10 @@ Brukeren godkjente den eksakte Eggenipa-illustrasjonen, men avviste resten av de
 - Erstatter den gamle Eggenipa-testens krav om kartretur med 8 faktiske Chromium/WebKit-varianter som kontrollerer tre berørbare steder, fire aktivitetsvisninger, old-map fravær, bevart profil/journey-data og direkte Lesekroken-oppgaver.
 - Følger også en lagret påbegynt norskøkt gjennom Avslutt → Eggenipa → Fortsett, uten ny oppgavemotor. Bruker riktig læringsrettighet, ikke geografiens startSession.
 - Oppdatert statisk release-kontrakt: påkrevd direktelesing og ingen synlig Bokskogen-CTA.
+
+## Fase 3: Lesekroken og felles oppgavescene
+
+- Delt oppgavescene viser Eggenipa i stedet for Bokskogen i Norsk-oppgaver, uten endringer i andre fag.
+- Gammel oppgaverev erstattet kun for Norsk med nøytral magisk hjelpeindikator. Reaksjon på riktig svar beholdes.
+- Norsk-oppgavescene bruker den originale Eggenipa-illustrasjonen som bakgrunn og en tilpasset grønn/gull-palett.
+- Chromium/WebKit-testen kontrollerer Lesekroken, riktig oppgavetekst, fravær av revebilder og riktig navnemerking.

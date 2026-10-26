@@ -38,9 +38,9 @@
   }
   function sceneName(subject){
     if(Number(currentGrade())<=2){
-      return subject==='english'?'Ordlandsbyen':subject==='math'?'Tallvika':subject==='geography'?'Nordlysleiren':'Bokskogen';
+      return subject==='english'?'Ordlandsbyen':subject==='math'?'Tallvika':subject==='geography'?'Nordlysleiren':'Eggenipa';
     }
-    return subject==='english'?'Ordlandsbyen':subject==='math'?'Tallriket':subject==='geography'?'Oppdagelsesriket':'Bokskogen';
+    return subject==='english'?'Ordlandsbyen':subject==='math'?'Tallriket':subject==='geography'?'Oppdagelsesriket':'Eggenipa';
   }
   function subjectName(subject){
     return subject==='english'?'ENGELSK':subject==='math'?'MATTE':subject==='geography'?'GEOGRAFI':'NORSK';
@@ -56,7 +56,7 @@
   }
   function foxSource(){return window.LARIA_FOX.source(foxChoice());}
   function reactFox(correct){
-    const fox=document.querySelector('#session-screen.task-scene .task-fox-companion');
+    const fox=document.querySelector('#session-screen.task-scene .task-fox-companion,#session-screen.task-scene .task-norsk-guide');
     if(!fox)return;
     fox.classList.remove('fox-correct');
     if(!correct)return;
@@ -325,7 +325,11 @@
     const readButton=readAloudButton(q);
     const finalQuestion=position===total;
     const avatar=foxChoice();
-    const fox='<div class="task-fox-companion" data-avatar="'+avatar+'" aria-hidden="true"><img src="'+attr(foxSource())+'" alt=""><span class="task-profile-marker">'+(avatar==='girl'?'✿':'✦')+'</span></div>';
+    // In Norsk use a discrete symbol until the approved TrollActor is rigged.
+    // Other subjects continue to use their existing selected avatar.
+    const fox=subject==='norwegian'
+      ?'<div class="task-norsk-guide" aria-hidden="true"><span>✦</span></div>'
+      :'<div class="task-fox-companion" data-avatar="'+avatar+'" aria-hidden="true"><img src="'+attr(foxSource())+'" alt=""><span class="task-profile-marker">'+(avatar==='girl'?'✿':'✦')+'</span></div>';
     // A number-choice question has no illustration to stand beside.
     // Give the ONE selected full-body fox a real place next to the prompt,
     // not an absolutely positioned thumbnail stuck to the card's corner.

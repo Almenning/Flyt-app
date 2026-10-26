@@ -85,8 +85,8 @@ body.laria-task-scene-open #bottom-nav{
   --task-answer-shadow:#8e5c28;
 }
 #session-screen.task-scene[data-task-subject="norwegian"]{
-  --task-world:url("./bokskogen-verden.png");
-  --task-sky:#8fcfdc;
+  --task-world:url("./assets/norsk/eggenipa-master-laast-20261025.png");
+  --task-sky:#9cbfb1;
   --task-ink:#183f53;
   --task-ink-soft:#5c706f;
   --task-accent:#bd8739;
@@ -1576,4 +1576,44 @@ body.laria-task-scene-open .app:after{
 #session-screen.task-scene .task-fox-companion[data-avatar="girl"] .task-profile-marker{
   color:#d86f78;
   background:#fff3ef;
+}
+
+
+/* Eggenipa Norsk: no static legacy fox; other subjects are untouched. */
+#session-screen.task-scene[data-task-subject="norwegian"]{
+ --task-ink:#294a42;--task-ink-soft:#64745e;
+ --task-accent:#c99850;--task-accent-dark:#76512e;
+ --task-progress:#7aa879;--task-answer:#fffaf0;
+ --task-answer-edge:#bda16d;--task-answer-shadow:#866642
+}
+#session-screen.task-scene[data-task-subject="norwegian"] .task-norsk-guide{
+ display:grid;place-items:center;position:relative;
+ justify-self:center;align-self:center;width:clamp(72px,11vw,115px);height:clamp(72px,11vw,115px);
+ min-width:65px;min-height:65px;border:3px solid #b99257;border-radius:30px;
+ background:radial-gradient(circle at 35% 25%,#fff8d7,#e5c88d 63%,#a47b49);
+ box-shadow:inset 0 2px 7px rgba(255,255,255,.68),0 9px 0 rgba(96,70,42,.55),0 15px 24px rgba(37,55,42,.28);
+ pointer-events:none
+}
+#session-screen.task-scene[data-task-subject="norwegian"] .task-norsk-guide span{
+ font:900 clamp(38px,6vw,67px)/1 Georgia,serif;color:#527653;text-shadow:0 2px 0 rgba(255,255,223,.75)
+}
+#session-screen.task-scene[data-task-subject="norwegian"] .task-prompt-fox-stage{
+ display:grid;grid-template-columns:minmax(0,1fr) clamp(70px,12vw,116px);
+ gap:clamp(8px,2vw,20px);align-items:center
+}
+#session-screen.task-scene[data-task-subject="norwegian"] .task-visual-companion-stage .task-norsk-guide{
+ position:relative;margin:10px 0 0 auto
+}
+#session-screen.task-scene[data-task-subject="norwegian"] .task-norsk-guide.fox-correct{
+ animation:norskGuideCelebrate .65s ease-in-out
+}
+@keyframes norskGuideCelebrate{45%{transform:translateY(-7px) scale(1.055);filter:brightness(1.12)}}
+@media(max-width:700px){
+ #session-screen.task-scene[data-task-subject="norwegian"] .task-prompt-fox-stage{grid-template-columns:minmax(0,1fr) 76px}
+ #session-screen.task-scene[data-task-subject="norwegian"] .task-norsk-guide{
+  width:72px;height:72px;min-height:65px;border-radius:24px
+ }
+}
+@media(prefers-reduced-motion:reduce){
+ #session-screen.task-scene[data-task-subject="norwegian"] .task-norsk-guide.fox-correct{animation:none}
 }
