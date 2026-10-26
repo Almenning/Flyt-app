@@ -79,9 +79,9 @@ async function proof(engine,label,viewport,url){
     await portal.scrollIntoViewIfNeeded();
     const touch=await portal.evaluate(node=>{
       const r=node.getBoundingClientRect(),target=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);
-      return {top:r.top,bottom:r.bottom,width:r.width,height:r.height,hit:target===node||node.contains(target)};
+      return {top:r.top,bottom:r.bottom,width:r.width,height:r.height,viewport:innerHeight,hit:target===node||node.contains(target)};
     });
-    assert.ok(touch.top>=0&&touch.bottom<=innerHeight&&touch.hit,
+    assert.ok(touch.top>=0&&touch.bottom<=touch.viewport&&touch.hit,
       label+' Eggenipa '+activity+' entrance is not reachable after normal scroll '+JSON.stringify(touch));
   }
   await page.locator('#eggenipa-world .eg-portal[data-eg="reading"]').click();
