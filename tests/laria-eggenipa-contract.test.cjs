@@ -37,7 +37,12 @@ test('All three existing activities remain direct and independent',()=>{
     assert.match(js,pattern,key+' must use an established runtime');
   }
   for(const id of ['words','find','map'])assert.match(js,new RegExp("id:'"+id+"'"));
-  assert.match(js,/document\.getElementById\('eggenipa-map-return'\)/);
+  // Only one back route: reuse the map's painted back and floating back
+  // on 1.–2. trinn; retain the classic subject back on higher grades.
+  assert.match(js,/locked-journey-back,.locked-journey-floating-back,#subject-back/);
+  assert.match(js,/Tilbake til Eggenipa/);
+  assert.doesNotMatch(js,/getElementById\\('eggenipa-map-return'\\)/);
+  assert.doesNotMatch(css,/#eggenipa-map-return\\{/);
 });
 
 test('Artwork stays an external unchanged source, not generated on screen',()=>{
