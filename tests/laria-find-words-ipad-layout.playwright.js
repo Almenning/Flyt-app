@@ -82,7 +82,7 @@ async function inspect(page, name) {
       svg: document.querySelector('.fw-scene-image').getAttribute('src'),
       guideLabel:document.querySelector('.fw-fox-button')?.getAttribute('aria-label'),
        guideSymbol:document.querySelector('.fw-fox')?.textContent?.trim(),
-       avatar:window.state?.profile?.avatar||null,
+       avatar:(()=>{try{return JSON.parse(localStorage.getItem('laerlittmer-v2'))?.profile?.avatar||null}catch{return null}})(),
        guideHit:(()=>{
          const button=document.querySelector('.fw-fox-button');
          const r=button?.getBoundingClientRect();

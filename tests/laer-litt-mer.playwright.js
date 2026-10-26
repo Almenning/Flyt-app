@@ -253,7 +253,7 @@ async function finishSession(page){
             'Retired Bokskogen map still visible');
           assert.equal(await p.evaluate(()=>state.profile.avatar),'girl',
             'Stored avatar preference changed when removing old Norwegian fox');
-          await p.locator('#eggenipa-world [data-eg="reading"]').click();
+          await p.locator('#eggenipa-world .eg-portal[data-eg="reading"]').click();
           await p.locator('#session-screen.active .laria-task-card').waitFor();
           assert.equal(await p.evaluate(()=>sessionScope?.module),'reading','Norsk reading module changed');
           await p.locator('#close-session').click();

@@ -156,7 +156,7 @@ async function existing(engine,name){
  assert.deepEqual(portals,['words','find','reading'],name+' direct Norsk activity choices missing');
  assert.equal(await p.locator('#subject-screen.active .locked-journey-map:visible').count(),0,
    name+' retired Norsk map is still visible');
- await p.locator('#eggenipa-world [data-eg="reading"]').click();
+ await p.locator('#eggenipa-world .eg-portal[data-eg="reading"]').click();
  await p.locator('#session-screen.active').waitFor();
  assert.equal(await p.evaluate(()=>sessionScope?.module),'reading',name+' Lesekroken must enter real reading module');
  await finish(p);

@@ -114,3 +114,8 @@ Brukeren godkjente den eksakte Eggenipa-illustrasjonen, men avviste resten av de
 - [Eggenipa-tema #40296288672](https://github.com/Almenning/Flyt-app/actions/runs/40296288672) besto Chromium Mac, men WebKit iPad rapporterte ustabilt temakort (30 sekunders mislykket klikking). Fjernet hover-translate på `.wh-theme-card` og beholdt fargerespons uten flytting av berøringsflaten.
 - [Finn ordene iPad #40296288579](https://github.com/Almenning/Flyt-app/actions/runs/40296288579) hadde en foreldet bildekontroll for revefigur. Krever nå bevart brukerprofil, synlig magisk hint, `aria-label`, minst 44x44 px og faktisk sentertreff med `elementFromPoint`. Eksisterende krav til ord, bilder, skjermstørrelser og orienteringsskifte beholdes.
 - Oppdateringen endrer ingen data, oppgaver, Eggenipa-illustrasjon eller andre fag. Chromium/WebKit-kjøringen må godkjennes før merge.
+
+### 26.10 – CI etter neste Norsk-visuelle iterasjon
+
+- Rotårsaker bekreftet i CI på `0b4726a`: Mobil-/iPad-testen kontrollerte profil fra `window.state` selv om appens lagrede profil er kilde til sannhet (`laerlittmer-v2`), navigasjonstesten forventet fortsatt fjernet Bokskogen-kart, og to generelle smoke-tester brukte en tvetydig `data-eg=reading`-selektor som traff både motivknapp og aktivitetskort.
+- Korrigert: test lagret profil direkte i localStorage, naviger reelt via Eggenipa → Lesekroken → Eggenipa i reisebrett-smoke, og klikk spesifikt det synlige Lesekroken-aktivitetskortet. Bevarer fortsatt sterke sjekker på profilidentitet, kartfravær, oppgavelasting og retur.
