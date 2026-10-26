@@ -72,8 +72,18 @@ async function proof(engine,label,viewport,url){
     overflow:document.documentElement.scrollWidth-innerWidth};
   });
   assert.ok(geometry.overflow<=1,label+' horizontal overflow '+JSON.stringify(geometry));
-  assert.ok(geometry.targets.every(hit=>hit.width>=44&&hit.height>=44&&hit.hit),
-    label+' an Eggenipa activity entrance is not a real touch target '+JSON.stringify(geometry));
+  assert.ok(geometry.targets.every(hit=>hit.width>=44&&hit.height>=44),
+    label+' an Eggenipa activity entrance is undersized '+JSON.stringify(geometry));
+  for(const activity of ['words','find','reading']){
+    const portal=page.locator('#eggenipa-world .eg-portal[data-eg="'+activity+'"]');
+    await portal.scrollIntoViewIfNeeded();
+    const touch=await portal.evaluate(node=>{
+      const r=node.getBoundingClientRect(),target=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);
+      return {top:r.top,bottom:r.bottom,width:r.width,height:r.height,hit:target===node||node.contains(target)};
+    });
+    assert.ok(touch.top>=0&&touch.bottom<=innerHeight&&touch.hit,
+      label+' Eggenipa '+activity+' entrance is not reachable after normal scroll '+JSON.stringify(touch));
+  }
   await page.locator('#eggenipa-world .eg-portal[data-eg="reading"]').click();
   await page.locator('#session-screen.active').waitFor({timeout:16000});
   const choices=await page.locator('#session-screen.active .answer').evaluateAll(items=>items.slice(0,3).map(item=>{
