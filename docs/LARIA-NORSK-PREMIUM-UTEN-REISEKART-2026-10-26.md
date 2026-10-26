@@ -60,3 +60,12 @@ Brukeren godkjente den eksakte Eggenipa-illustrasjonen, men avviste resten av de
 - Feil i Chromium/WebKit: Barnet kunne trykke Norsk, men appens hovedtråd hang fordi Eggenipa observerte egne CSS-klasseendringer og skrev de samme klassene på nytt. Rettet ved å kontrollere om hver klasse faktisk endres før add/remove.
 - Streng Node-kontrakt hindrer tilbakefall av denne observer-løkken; øvrige tidligere fox-identitetstester gjelder fortsatt andre fag, men den nye Norsk-leken må vise hint uten statisk rev.
 - Eksisterende fire-kapittel-test godtar nyere versjonerte Ordjakt-skript og CSS; alle progresjons- og dataisolasjonstester beholdes.
+
+
+### 26.10 – Finn ordene: egen berørbar hjelpekontroll
+
+- Funn i PR #228 CI på `ad6f4fd`: Eggenipa WebKit/Chromium og Finn ordene WebKit stoppet fordi `.fw-fox-button` fikk berøringen oppfanget av `.fw-bottom` eller `.fw-controls .fw-next`. Dette var en **ekte layoutfeil**, ikke en gammel testforventning.
+- Rotårsak: premium CSS beholdt høyrejustert **absolutt** hintknapp fra den utgåtte revefiguren, samtidig som «Ny ordjakt» lå i samme hjørne. På skjermbredder under 901px var absoluttposisjoneringen også arvet selv om foteren ble en flexrad.
+- Rettelse: hintknappen til venstre for «Ny ordjakt» på landskap/desktop, og tilbake i normal flexflyt på mobil/iPad-portrett. Ingen endring i oppgaver, hintlogikk, bilder eller lagringsformat.
+- Ny E2E-kontrakt: På alle åtte Chromium/WebKit-visninger må hintknappen være minst 44×44 og faktisk treffbar i sentrum via `document.elementFromPoint`, og deretter svare på ekte `tap()`.
+- Ikke godkjent før den nye Eggenipa- og Finn ordene-CI er grønne.

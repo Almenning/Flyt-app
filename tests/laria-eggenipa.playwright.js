@@ -65,7 +65,21 @@ async function run(engine,browserType,view,viewport){
   await page.locator('#find-the-words-overlay:not([hidden])').waitFor({timeout:12000});
   assert.equal(await page.locator('#find-the-words-overlay .fw-fox').evaluate(el=>el.tagName),'SPAN',
     label+' old static fox image in Finn ordene');
-  await page.locator('#find-the-words-overlay .fw-fox-button').tap();
+  // Check the actual screen hit target, not just existence in the DOM.
+  // The previous absolute fox layout let footer/next buttons steal taps.
+  const help=page.locator('#find-the-words-overlay .fw-fox-button');
+  await help.scrollIntoViewIfNeeded();
+  const touch=await help.evaluate(el=>{
+    const r=el.getBoundingClientRect();
+    const x=r.left+r.width/2,y=r.top+r.height/2;
+    const target=document.elementFromPoint(x,y);
+    return {x,y,width:r.width,height:r.height,viewportWidth:innerWidth,
+      viewportHeight:innerHeight,target:target?.className||target?.tagName,
+      canTap:target===el||el.contains(target)};
+  });
+  assert.ok(touch.canTap&&touch.width>=44&&touch.height>=44,
+    label+' Finn ordene hint is obscured by the footer or next control: '+JSON.stringify(touch));
+  await help.tap();
   await shot(page,label+'-finn-ordene');
   await page.locator('#find-the-words-overlay .fw-back').tap();
   await page.locator('#eggenipa-world:visible').waitFor({timeout:12000});

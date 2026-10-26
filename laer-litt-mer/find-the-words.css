@@ -794,6 +794,19 @@
 .fw-overlay .fw-fox{display:grid!important;place-items:center;width:auto!important;height:auto!important;min-height:0!important;
  font:900 34px/1 Georgia,serif;color:#577253;text-shadow:0 2px #fffbe8;object-fit:initial!important}
 .fw-overlay .fw-hint-label{font:900 13px/1.1 ui-rounded,system-ui,sans-serif;color:#59472f}
+/* A genuine touch regression: the old floating fox was right-aligned on
+   top of the "Ny ordjakt" action. The new hint is a separate left-hand
+   action, while the next-round control remains right-aligned. Neither
+   button may cover the other's hit area on landscape iPad or desktop. */
+@media(min-width:901px){
+ .fw-overlay .fw-fox-button{left:0;right:auto;bottom:0}
+}
+@media(max-width:900px){
+ /* Compact layouts use normal flex flow. Absolute positioning inherited
+    from the retired fox placed the hint outside its own footer and let
+    the footer/next control intercept real iPhone and portrait iPad taps. */
+ .fw-overlay .fw-fox-button{position:relative;inset:auto;flex:none}
+}
 .fw-overlay .fw-companion{pointer-events:none}
 .fw-overlay .fw-speech{max-width:calc(100% - 100px);font-weight:850}
 @media(max-width:700px){
