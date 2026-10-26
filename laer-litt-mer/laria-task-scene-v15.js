@@ -339,18 +339,24 @@
     const fox=directKinnaklova?'':'<div class="task-fox-companion" data-avatar="'+avatar+'" aria-hidden="true"><img src="'+attr(foxSource())+'" alt=""><span class="task-profile-marker">'+(avatar==='girl'?'✿':'✦')+'</span></div>';
     const inlineFox=!directKinnaklova&&taskBand()==='young'&&!visual&&!passage;
     const visualWithFox=visual?(directKinnaklova?visual:'<div class="task-visual-companion-stage">'+visual+fox+'</div>'):fox;
+    // The page is Norwegian, but Kinnaklova's choices and sentence tiles are
+    // generally English. Give VoiceOver the correct language without changing
+    // the spoken prompt or mispronouncing a Norwegian translation as English.
+    const norwegianPrompt=/^(?:Hva|Hvilket|Hvilken|Velg|Finn|Hvor)\b/i.test(prompt);
+    const promptLanguage=directKinnaklova?(norwegianPrompt?'nb':'en'):'';
+    const answerLanguage=directKinnaklova?(/på norsk\??\s*$/i.test(prompt)?'nb':'en'):'';
     const questionScene=inlineFox?
       '<div class="task-prompt-fox-stage"><div class="question">'+text(prompt)+'</div>'+fox+'</div>':
       readingStory
         ?passage+'<div class="question ki-reading-question" lang="en">'+text(prompt)+'</div>'+visualWithFox
-        :'<div class="question">'+text(prompt)+'</div>'+passage+visualWithFox;
+        :'<div class="question"'+(directKinnaklova?' lang="'+promptLanguage+'"':'')+'>'+text(prompt)+'</div>'+passage+visualWithFox;
 
     wrap.innerHTML=
       '<article class="laria-task-card '+mode+' '+layout+' '+(inlineFox?'task-inline-fox ':'')+taskTypeClass(q)+'">'+
         '<div class="task-world-chip">'+text(directKinnaklova?'Kinnaklova':sceneName(subject))+'</div>'+
         '<div class="task-card-head"><div class="qtype">'+subjectName(subject)+' · '+text(String(gradeLabel).toUpperCase())+'</div>'+readButton+'</div>'+
         questionScene+
-        '<div class="task-interaction">'+(subject==='geography'?geographyInteractionMarkup(q):interactionMarkup(q))+'</div>'+
+        '<div class="task-interaction"'+(directKinnaklova?' lang="'+answerLanguage+'"':'')+'>'+(subject==='geography'?geographyInteractionMarkup(q):interactionMarkup(q))+'</div>'+
         '<div class="feedback" id="feedback" role="status" aria-live="polite" aria-atomic="true"><strong id="feedback-title"></strong><p id="feedback-copy"></p>'+(subject==='english'?'<button class="task-hear-word" id="task-hear-word" type="button" hidden aria-label="Hør engelsk uttale">🔊 Hør engelsk</button>':'')+'</div>'+
         '<button class="primary next" id="next-question" type="button" aria-label="'+(finalQuestion?'Fullfør oppdraget':'Neste oppgave')+'">'+(finalQuestion?'Fullfør':'Neste')+'</button>'+
       '</article>';
