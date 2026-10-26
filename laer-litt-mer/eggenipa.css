@@ -113,6 +113,13 @@ body:has(#subject-screen.eggenipa-active){background:#f4eee0!important}
  .eg-grade-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
  .eg-grade-dialog form{padding:20px 15px}
 }
+/* A short iPhone in landscape shows only the first 390px of Eggenipa.
+   Keep the original full mountain painting and real scene hotspots; bring
+   their existing caption labels into the visible fold, close to each place.
+   No fixed toolbar, cropped art, duplicate controls or forced scroll. */
+@media(min-width:701px) and (max-width:900px) and (max-height:500px) and (orientation:landscape){
+ .eg-scene-hit{align-items:flex-start;padding-top:8px}
+}
 @media(min-width:701px) and (max-width:1040px){
  .eg-portals{gap:10px}
  .eg-portal{min-height:190px}

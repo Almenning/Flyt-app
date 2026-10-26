@@ -73,6 +73,21 @@ async function run(engine,browserType,view,viewport){
     assert.deepEqual(hits.map(x=>x.name),['words','find','reading']);
     assert.ok(hits.every(x=>x.display!=='none'&&x.r.width>=44&&x.r.height>=44),label+' unusable hotspots');
   }
+  if(view==='iphone-landscape'){
+    // Children should see and reach all three labeled worlds in the first
+    // fold, even though the untouched master painting extends below it.
+    const firstFold=await page.locator('#eggenipa-world .eg-scene-hit').evaluateAll(list=>list.map(button=>{
+      const text=button.querySelector('span'),r=text.getBoundingClientRect();
+      const x=(r.left+r.right)/2,y=(r.top+r.bottom)/2;
+      const target=document.elementFromPoint(x,y);
+      return {name:button.dataset.eg,top:r.top,bottom:r.bottom,width:r.width,height:r.height,
+        viewport:innerHeight,hit:target===button||button.contains(target)};
+    }));
+    assert.ok(firstFold.length===3&&firstFold.every(x=>
+      x.width>=44&&x.height>=44&&x.top>=0&&x.bottom<=x.viewport-2&&x.hit),
+      label+' landscape Eggenipa hides the primary learning choices: '+JSON.stringify(firstFold));
+    await shot(page,label+'-eggenipa-landscape-firstfold');
+  }
   await shot(page,label+'-eggenipa',true);
 
   await page.locator('#eggenipa-world .eg-portal[data-eg="words"]').tap();

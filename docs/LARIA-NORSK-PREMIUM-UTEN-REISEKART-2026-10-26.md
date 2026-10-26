@@ -201,3 +201,9 @@ Brukeren godkjente den eksakte Eggenipa-illustrasjonen, men avviste resten av de
 - Ny førstefold-test på `680daff` oppdaget en reell tilgjengelighetsfeil i **Ordjakt**: i Chromium iPhone stående var temavelgerens tilbakeknapp bare `39×39` piksler. Overlegget dekket korrekt hele viewporten (`position:fixed; 390×844`), så det tidligere helside-skjermbildet var misvisende og trengte ikke global CSS-fiks.
 - Rotårsaken var den spesifikke eksisterende mobilregelen i `word-hunt.css` for `.is-theme-entry .wh-theme-close`. Denne regelen er nå endret fra 39 til 44 px med minimumsbredde og -høyde i **samme kilderegel**, uten flere globale overstyringer. Temavelgeren beholder samme visuelle identitet og plassering.
 - Ordjakts egen Chromium/WebKit-test krever nå korrekt 44×44 og ekte `elementFromPoint` på synlig knapp fra Utforsk. Eggenipa-testen dekker samme krav ved åpning fra Norsk. CSS-URL versjonert for Safari.
+
+### 26.10 – synlige portaler i kort liggende iPhone
+
+- Etter gjennomgang av fullstendige WebKit-skjermbilder fra commit `3680645` viste faktisk *første fold* på 844 × 390 bare toppen av Eggenipa-illustrasjonen. Ingen av de tre aktivitetsnavnene var synlige nok til enkel direkte lek, selv om nedoverrulling var mulig. Dette er en reell visuell/navigasjonsmessig mangel, ikke et testartefakt.
+- Innenfor kun kort liggende mobil (701–900 px bredde, høyde <= 500 px) er de **eksisterende** sceneknappene endret fra bunn- til toppjusterte etiketter. Tre naturlige steder i bildet har nå synlige etiketter uten at den originale Eggenipa-masteren, sceneplasseringer, bildedimensjon, lagret fremgang eller læringsmotoren er endret.
+- Ny WebKit/Chromium-test krever at alle tre etiketter i 844×390 vises helt på den første skjermen med minst 44×44 målbar berøringsflate, og at `elementFromPoint` treffer riktig knapp. Den lagrer også særskilt viewport-skjermbilde `eggenipa-landscape-firstfold` til visuell vurdering.
