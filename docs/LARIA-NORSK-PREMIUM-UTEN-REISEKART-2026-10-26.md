@@ -241,3 +241,9 @@ Brukeren godkjente den eksakte Eggenipa-illustrasjonen, men avviste resten av de
 
 - Den forrige statiske stjernen sto i en egen begrenset scene. En semantisk wrapper rundt den nye hintknappen kunne ellers gi en ekstra vertikal rad under illustrasjonen og skyve svarene ned på iPad. Premium-stilarket plasserer nå wrapperen **absolutt innenfor det eksisterende illustrasjonsområdet**, med oppgave og svar uendret i dokumentflyten.
 - På svært kort liggende iPhone følger hjelperen derimot den allerede godkjente to-kolonners scenegeometrien og forblir et vanlig gridelement. Hintboblen er fortsatt et kort, ikke-blokkerende overlay. Dette er en kildefikset layoutregel, ikke generell CSS-justering.
+
+
+### 26.10 – to blokkeringer i eksisterende QA ryddet
+
+- Node-regresjonen hadde 407 av 408 grønne. Den siste feilen skyldtes at testkontrakten krevde én spesifikk kodelinje for Norsk-hjelperen, mens den fungerende implementasjonen bruker en blokk med både reaksjon og hint. Testen krever nå samme fagvakt og handling uavhengig av kodelinjeskift.
+- Geometritesten forsøkte å åpne en Bokskogen-portal som etter avtale er fjernet. Nå kontrolleres i stedet Eggenipas tre direkte aktiviteter, at det gamle kartet ikke dukker opp, at opprinnelige node-ID-er fortsatt eksisterer i den lagrede modellen, og at besøk på forsiden ikke endrer barnets fremgang. De resterende fagkartene beholder alle geometrikravene.

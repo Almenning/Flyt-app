@@ -48,10 +48,20 @@ async function run(engine,label,viewport){
    await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').click();
    await page.locator('#'+screen+'-screen.active').waitFor({timeout:16000});
    if(subject==='norwegian'){
-     // New Norsk landing is intentionally the direct-play Eggenipa world.
-     // Inspect the original map by opening its real Bokskogen portal.
-     await page.locator('#eggenipa-world').waitFor({state:'visible',timeout:16000});
-     await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
+     const world=page.locator('#eggenipa-world:visible');
+     await world.waitFor({timeout:16000});
+     assert.deepEqual(await world.locator('.eg-portal').evaluateAll(nodes=>nodes.map(el=>el.dataset.eg)),
+       ['words','find','reading'],label+' Norsk has lost its approved activities');
+     assert.equal(await page.locator('#subject-screen.active .locked-journey-map:visible').count(),0,
+       label+' removed Bokskogen map returned');
+     assert.ok(await page.evaluate(()=>journeyModel('norwegian',2).nodes.length)>=7,
+       label+' previously saved Norsk journey IDs were removed');
+     const before=await page.evaluate(()=>JSON.stringify(JSON.parse(localStorage.getItem('laerlittmer-v2')).journey));
+     await world.locator('.eg-home').click();
+     await page.locator('#home-screen.active').waitFor({timeout:12000});
+     assert.equal(await page.evaluate(()=>JSON.stringify(JSON.parse(localStorage.getItem('laerlittmer-v2')).journey)),before,
+       label+' entering Eggenipa fabricated history');
+     continue;
    }
    if(subject==='math'){
      const tv=page.locator('#subject-screen.active #tallvika-world');
@@ -221,10 +231,6 @@ async function run(engine,label,viewport){
    assert.deepEqual(launched?.args,subject==='geography'?[selectedId,2]:[subject,selectedId,2],label+' existing mission ID and grade must survive');
    await page.screenshot({path:output+'/'+label+'-'+subject+'-test-geometry.png',fullPage:true});
    await page.locator(base+' .locked-journey-back').click();
-   if(subject==='norwegian'){
-    await page.locator('#eggenipa-world').waitFor({state:'visible',timeout:12000});
-    await page.locator('#eggenipa-world .eg-home').click();
-   }
    await page.locator('#home-screen.active').waitFor({timeout:16000});
   }
   assert.deepEqual(errors,[],label+' page errors '+JSON.stringify(errors));
