@@ -36,6 +36,36 @@ MASKS = {
 }
 
 
+# The three painted activity signs must remain pixel-identical even if a broad
+# troll polygon overlaps their borders. Cropping or repainting a sign is NEVER
+# part of an approved troll-removal operation.
+PROTECTED_SIGNS = {
+    "words": (383, 703, 683, 805),
+    "sentences": (1049, 469, 1304, 555),
+    "reading": (1352, 639, 1633, 743),
+}
+
+
+def allowed_change_mask(size):
+    """Return a byte-exact edit whitelist, excluding the approved sign pixels."""
+    allowed = Image.new("L", size, 0)
+    painter = ImageDraw.Draw(allowed)
+    for polygon in MASKS.values():
+        painter.polygon(polygon, fill=255)
+    for box in PROTECTED_SIGNS.values():
+        painter.rectangle(box, fill=0)
+    return allowed
+
+
+def channel_exact_difference(a, b):
+    """Maximum RGB-channel difference; converting to grey can hide 1-LSB edits."""
+    diff = ImageChops.difference(a.convert("RGB"), b.convert("RGB"))
+    return ImageChops.lighter(
+        ImageChops.lighter(diff.getchannel("R"), diff.getchannel("G")),
+        diff.getchannel("B"),
+    )
+
+
 def sha256(data):
     return hashlib.sha256(data).hexdigest()
 
@@ -54,20 +84,19 @@ def main():
         size = (expected["pixel_width"], expected["pixel_height"])
         if original.size != size or cleaned.size != size:
             raise SystemExit(f"FAILED: canvas size must stay {size}, got {original.size} and {cleaned.size}")
-        # The source is RGB; converting a lossless WebP to RGB is pixel-exact.
-        diff = ImageChops.difference(original.convert("RGB"), cleaned.convert("RGB")).convert("L")
-        outside = Image.new("L", size, 255)
-        painter = ImageDraw.Draw(outside)
-        for poly in MASKS.values():
-            painter.polygon(poly, fill=0)
+        # Match all three RGB channels EXACTLY outside the approved edit mask.
+        diff = channel_exact_difference(original, cleaned)
+        allowed = allowed_change_mask(size)
+        outside = ImageChops.invert(allowed)
         unauthorized = ImageChops.multiply(diff, outside)
         bbox = unauthorized.getbbox()
         if bbox:
             count = sum(bool(value) for value in unauthorized.getdata())
-            raise SystemExit(f"FAILED: {count} pixels OUTSIDE rejected-troll masks changed; bounding box {bbox}")
+            raise SystemExit(f"FAILED: {count} pixels OUTSIDE allowed masks OR ON LOCKED SIGNS changed; bounding box {bbox}")
         for name,poly in MASKS.items():
             region = Image.new("L", size, 0)
             ImageDraw.Draw(region).polygon(poly, fill=255)
+            region = ImageChops.multiply(region, allowed)
             count = sum(bool(value) for value in ImageChops.multiply(diff, region).getdata())
             if count < 900:
                 raise SystemExit(f"FAILED: {name} is virtually unchanged ({count} pixels); rejected baked troll may remain")
