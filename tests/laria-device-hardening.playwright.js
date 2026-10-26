@@ -159,7 +159,9 @@ async function verifyBasecamp(page,label,width,height){
     else assert.equal(await page.locator('.bc12').getAttribute('data-bc13-view'),'home',
       label+' no available return to Home from globe');
   }
-  await page.locator('.bc12-journey').tap();
+  // After visiting the globe, a personalized "Fortsett reisen" may
+  // correctly follow Geografi. Select Norsk for this subject geometry QA.
+  await page.locator('.bc14-subject[data-camp="subject-norwegian"]').tap();
    await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
    await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').tap();
   await page.locator('#subject-screen.active').waitFor();
