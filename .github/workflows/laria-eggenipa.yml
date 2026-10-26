@@ -12,6 +12,8 @@ on:
       - 'laer-litt-mer/find-the-words.js'
       - 'laer-litt-mer/sw.js'
       - 'tests/laria-eggenipa*'
+      - 'tests/laria-device-hardening.playwright.js'
+      - 'tests/laria-journey-mission-premium.playwright.js'
   push:
     branches: [main]
     paths:
@@ -23,6 +25,8 @@ on:
       - 'laer-litt-mer/find-the-words.js'
       - 'laer-litt-mer/sw.js'
       - 'tests/laria-eggenipa*'
+      - 'tests/laria-device-hardening.playwright.js'
+      - 'tests/laria-journey-mission-premium.playwright.js'
 
 permissions:
   contents: read
@@ -59,6 +63,25 @@ jobs:
         env:
           LARIA_EGGENIPA_RELEASE_GATE: '1'
         run: node --test tests/laria-eggenipa-contract.test.cjs
+      - name: Verify integrated Home geometry and mission return
+        env:
+          QA_SCREENSHOTS: /tmp/laria-eggenipa-device-matrix
+          MISSION_QA_SCREENSHOTS: /tmp/laria-eggenipa-mission-matrix
+        run: |
+          node --check tests/laria-device-hardening.playwright.js
+          node --check tests/laria-journey-mission-premium.playwright.js
+          node tests/laria-device-hardening.playwright.js
+          node tests/laria-journey-mission-premium.playwright.js
+      - name: Upload integrated device and mission screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: laria-eggenipa-release-matrix-${{ github.sha }}
+          path: |
+            /tmp/laria-eggenipa-device-matrix
+            /tmp/laria-eggenipa-mission-matrix
+          if-no-files-found: warn
+          retention-days: 14
       - name: Upload original artwork for review
         if: always()
         uses: actions/upload-artifact@v4
