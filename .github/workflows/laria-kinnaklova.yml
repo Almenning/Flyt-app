@@ -13,9 +13,11 @@ on:
       - "tests/laria-journey-integrated-ux.playwright.js"
       - "tools/kinnaklova/**"
   push:
-    # Temporary isolated QA lane. Remove before merging this stacked PR.
-    branches: [main, feat/laria-kinnaklova-reading-language-20261026]
+    # GitHub App commits on this feature branch may not emit pull_request
+    # workflow runs. Execute exact-head QA on branch pushes before merging.
+    branches: [main, feat/laria-engelsk-kinnaklova-20261026]
     paths:
+      - ".github/workflows/laria-kinnaklova.yml"
       - "laer-litt-mer/kinnaklova.*"
       - "laer-litt-mer/assets/kinnaklova/**"
       - "laer-litt-mer/index.html"
