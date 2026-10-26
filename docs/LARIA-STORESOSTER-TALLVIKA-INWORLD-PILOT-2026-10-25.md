@@ -99,3 +99,7 @@ Ny eksakt-HEAD Chromium+WebKit-test inkluderer nå også 320×568 kompakt iPhone
 Karaktervelgeren bruker nå `item.sceneSrc` for alle tre valg. Resultatet er en eksakt forhåndsvisning av figurens Tallvika-utseende, inkludert brukerens godkjente maleriske storesøster. Uendrede kildefiler beholdes i `item.src`, og ingen bildepiksler eller karaktergeometrier er endret. De to andre trollene bruker sine låste originalbilder i både velger og scene.
 
 Chromium/WebKit-QA kontrollerer de tre bildefilstiene, dekoding, minst 44×44 px trykkflate, og lagret valg på mobil og iPad. Ved skjermbildekjøring tas også bilde av velgeren. `tallvika.js` har fått separat cacheversjon. Ingen endringer i matematikk, profilformat eller navigasjon; rigging krever fortsatt originale illustrerte kroppslag, issue #221.
+
+## 26.10.2026 – Velgerens mobiloverlapp fjernet
+
+Faktiske Chromium/WebKit-skjermbilder viste at lukkeknappen kunne ligge over overskriften i karaktervelgeren ved 320/390 px bredde. Det er lagt til et avgrenset 66 px topprom for trollvelgerens form på smale skjermer; øvrig karakterstørrelse, kunst og profiler er uendret. Alle Tallvika-dialoger har nå en maksimal høyde som passer faktisk visningshøyde, med scrolling ved behov (særlig iPhone liggende). Browser-QA sjekker at lukkeknappen ikke overlapper overskriften, at dialogen holder seg innenfor vinduet, og tar et ekstra bilde av velgeren på iPhone liggende. Ingen merge/publisering uten visuell kontroll og grønn CI.

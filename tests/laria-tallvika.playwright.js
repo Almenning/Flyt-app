@@ -101,7 +101,21 @@ async function run(browserType,label,viewport){
       const box=await card.boundingBox();
       assert.ok(box&&box.width>=44&&box.height>=44,label+' picker tap target too small for '+id);
     }
-    if(output && viewport.width<=480) await shot(page,label+'-troll-picker');
+    const picker=page.locator('#tallvika-world .tv-dialog:not(.tv-grade-dialog)[open]');
+    const pickerRect=await picker.boundingBox();
+    assert.ok(pickerRect&&pickerRect.y>=-1&&pickerRect.y+pickerRect.height<=viewport.height+1,
+      label+' character picker must fit inside the viewport');
+    assert.equal(await picker.evaluate(el=>getComputedStyle(el).overflowY),'auto',
+      label+' character picker must be scrollable on short screens');
+    if(viewport.width<=480){
+      const geometry=await picker.evaluate(el=>{
+        const h=el.querySelector('h2').getBoundingClientRect(),c=el.querySelector('.tv-dialog-close').getBoundingClientRect();
+        return {headingTop:h.top,closeBottom:c.bottom};
+      });
+      assert.ok(geometry.headingTop>=geometry.closeBottom+5,
+        label+' close control must not overlap the character picker title');
+    }
+    if(output && (viewport.width<=480||viewport.height<=450)) await shot(page,label+'-troll-picker');
     // Every original forest troll must be selectable, render from its own
     // approved image, and persist without changing the child's learning data.
     for(const id of ['storesoster','lillesoster','lillebror']){
