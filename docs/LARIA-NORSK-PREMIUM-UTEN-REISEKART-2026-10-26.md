@@ -43,3 +43,9 @@ Brukeren godkjente den eksakte Eggenipa-illustrasjonen, men avviste resten av de
 - Gammel oppgaverev erstattet kun for Norsk med nøytral magisk hjelpeindikator. Reaksjon på riktig svar beholdes.
 - Norsk-oppgavescene bruker den originale Eggenipa-illustrasjonen som bakgrunn og en tilpasset grønn/gull-palett.
 - Chromium/WebKit-testen kontrollerer Lesekroken, riktig oppgavetekst, fravær av revebilder og riktig navnemerking.
+
+## Fase 4: unngå å rendre gammelt kart ved Norsk-inngang
+
+- Eldre renderSubjectJourney kjørte automatisk ved openSubject('norwegian') og senere innholdshendelser, selv om den visuelle reisen var skjult. Det kunne konkurrere om klasser og bildekoding under åpning.
+- Norsk bruker nå eksisterende fagmotor uten kart-renderingen. Matte, Engelsk og Geografi beholder opprinnelige renderstier.
+- Hjem-kortets tilgjengelige navn sier nå Eggenipa, ikke Bokskogen. Gamle reisedata forblir lagret.

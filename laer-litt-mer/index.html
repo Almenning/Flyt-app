@@ -4496,7 +4496,7 @@ function setJourneyViewGrade(subject,grade,rerender=true){
   state.journey.viewGrades[subject]=grade;saveState();
   if(!rerender)return grade;
   if(subject==='geography'){renderGeographyContinue();return grade}
-  if(activeSubject===subject){renderSubjectJourney();renderSubjectContinue();renderSubjectModules()}
+  if(activeSubject===subject){if(subject!=='norwegian')renderSubjectJourney();renderSubjectContinue();renderSubjectModules()}
   return grade;
 }
 function subjectGradeComplete(subject,grade){
@@ -4769,7 +4769,7 @@ function openSubject(subject){
   const bannerIcon=document.getElementById('subject-banner-icon');if(bannerIcon)bannerIcon.textContent=s.icon;
   document.getElementById('subject-grade-label').textContent=GRADE_CONFIG[currentGrade()].label;
   const labEntry=document.getElementById('math-lab-entry');if(labEntry)labEntry.hidden=subject!=='math';
-  renderSubjectModules();renderSubjectJourney();renderSubjectContinue();showScreen('subject');
+  renderSubjectModules();if(subject!=='norwegian')renderSubjectJourney();renderSubjectContinue();showScreen('subject');
   // The approved locked Tallenga journey hides #subject-modules. A private
   // preview launcher must therefore live directly in the visible subject
   // screen, not in the hidden free-practice area.
@@ -4874,7 +4874,7 @@ window.addEventListener('norwegian-content-ready',()=>{
   try{
     renderAll();
     if(activeScreenName()==='subject'&&activeSubject==='norwegian'){
-      renderSubjectModules();renderSubjectJourney();renderSubjectContinue();
+      renderSubjectModules();renderSubjectContinue();
     }
   }catch(_){}
 });
@@ -6993,7 +6993,7 @@ renderAll();updateOnboarding();
 // norwegian-content.js is deferred. Refresh journey-derived UI after deferred local content has executed.
 document.addEventListener('DOMContentLoaded',()=>{
   renderAll();
-  if(activeScreenName()==='subject'&&activeSubject){renderSubjectModules();renderSubjectJourney();renderSubjectContinue()}
+  if(activeScreenName()==='subject'&&activeSubject){renderSubjectModules();if(activeSubject!=='norwegian')renderSubjectJourney();renderSubjectContinue()}
   if(activeScreenName()==='geography')renderGeographyContinue();
 });
 const needsProfileSetup=Number(state.profile.setupVersion||0)<1||!String(state.profile.name||'').trim()||(state.profile.avatar!=='boy'&&state.profile.avatar!=='girl');
@@ -7076,7 +7076,7 @@ window.LARIA_TALLVIKA_BRIDGE={
 <script defer src="./home-kjosnes-v15.js?v=20261024-alive1"></script>
 <!-- Shared inner-screen helpers + task scene -->
 <script src="./laria-unified-v13.js?v=20261006-assets1" defer></script>
-<script src="./laria-navigation-v13.js?v=20261025-tallvika-brand1" defer></script>
+<script src="./laria-navigation-v13.js?v=20261026-norsk-no-map1" defer></script>
 <script src="./laria-task-scene-v15.js?v=20261026-norsk-guide1" defer></script>
 <script src="./laria-fox-presence.js?v=20261011-livefoxart1" defer></script>
 

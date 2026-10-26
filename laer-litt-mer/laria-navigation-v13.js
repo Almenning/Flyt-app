@@ -1,7 +1,7 @@
 /* Læria navigation v13: a clear separation between journeys and free exploration. */
 (()=>{'use strict';
 const SUBJECTS=[
- ['norwegian','Norsk','Bokskogen','Les, bygg ord og oppdag historier','📖'],
+ ['norwegian','Norsk','Eggenipa','Les, bygg ord og oppdag historier','📖'],
  ['math','Matte','Tallvika','Tall, mønstre og oppdrag','✦'],
  ['english','Engelsk','Ordlandsbyen','Ord, setninger og nye oppdagelser','💬'],
  ['geography','Geografi','Nordlysleiren','Land, flagg og kart','🧭']
