@@ -43,5 +43,28 @@
     "Ikke bruk flate dårlig utklippede troll eller CSS-bobbing som erstatning for kvalitetsrik karakterintegrasjon",
     "Endelig komposisjon og originaltro troll må godkjennes visuelt før merge og publisering",
     "Eksisterende engelsk læringsmotor, progresjon og Norsk/Matte/Geografi forblir urørt"
-  ]
+  ],
+  "implementation": {
+    "status": "staged-in-draft-awaiting-clean-art",
+    "scene_asset": "laer-litt-mer/assets/kinnaklova/kinnaklova-scene-clean-approved-20261026.webp",
+    "scene_asset_source": "The exact user-approved 1672x941 reference, with ONLY the three rejected trolls locally removed. Never show the original with the rejected trolls baked in.",
+    "clean_master_sha256": null,
+    "clean_master_visual_approved": false,
+    "pixel_integrity_check": "python3 tools/kinnaklova/verify_locked_scene.py --reference <locked-image-file> --candidate laer-litt-mer/assets/kinnaklova/kinnaklova-scene-clean-approved-20261026.webp",
+    "render_layer": "laer-litt-mer/kinnaklova.js / kinnaklova.css",
+    "expected_art_dimensions": [
+      1672,
+      941
+    ],
+    "approved_trolls_embedded": false,
+    "approved_trolls_as_independent_sources": true,
+    "troll_display_order": [
+      "storesoster",
+      "lillebror",
+      "lillesoster"
+    ],
+    "art_gate": "MUST fail without lossless cleaned background and separate user-verified identity/integration",
+    "release_approval": false,
+    "ci": "test:laria-kinnaklova contract, Playwright iPad/iPhone Chromium/WebKit, separate art release gate"
+  }
 }
