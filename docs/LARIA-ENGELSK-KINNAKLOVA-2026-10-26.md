@@ -96,3 +96,7 @@ GitHub Actions `Læria Kinnaklova – Engelsk WebKit og Chromium` tester åtte v
 **Avgrensning:** Dette er en eksplisitt valgfri parameter i `buildLearningQuestions`/`startLearningSession`, kun aktivert fra Kinnaklova. Matte, Norsk, Geografi, eldre Engelsk-ruter og datamodell har samme standardflyt som før.
 
 **Tester:** Kontraktstest verifiserer at Kinnaklova sender `strictModule=true`; Chromium/WebKit-suiten kontrollerer at alle fem oppgavene i hver valgte økt har riktig faglig `skill`, ikke bare riktig `sessionScope.module`. Den nyeste CI-kjøringen må fortsatt kontrolleres på eksakt PR-head før funksjonen anses grønn. Separat visuell release gate skal fortsatt avvise merge til ren bakgrunn uten forkastede troll og endelig godkjent scenekomposisjon er på plass.
+
+## 26.10.2026 – Minifortellinger for 1. trinn
+
+Tidligere hadde `Reading` ingen egne spørsmål i 1. klasse; den bevarte fallbacken blandet dermed inn andre engelske oppgavetyper. Nå har 1. klasse åtte svært korte mikrotekster med ett tydelig tekstforståelsesspørsmål hver. Eksempler er farge på en ball, et kjæledyr, en båt på sjøen og en enkel handling. Ingen nye progresjonsdata, tvangsgjennomføring eller reisekart. Felles læringsmotor håndterer repetisjon. Egen Chromium/WebKit-kontroll sikrer at alle fem oppgaver i en Reading-økt faktisk har `skill=reading`, inneholder lesetekst og ikke gjentar samme tekst internt. Engelsk for 2. klasse og oppover beholdes uendret.

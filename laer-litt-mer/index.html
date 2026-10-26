@@ -4971,6 +4971,22 @@ function englishPool(grade,module){
     add('words','What is this?','fish',['fish','book','car'],{visual:'🐟'});add('words','What is this?','car',['car','boat','house'],{visual:'🚗'});add('words','What is this?','boat',['boat','book','ball'],{visual:'⛵'});add('words','What is this?','book',['book','fish','sun'],{visual:'📘'});add('words','What colour is the sun?','yellow',['yellow','green','blue'],{visual:'☀️'});
     q.push(makeEnglishBuild('CAT','🐱'));q.push(makeEnglishBuild('SUN','☀️'));q.push(makeEnglishBuild('FISH','🐟'));
     add('phrases','How are you?','I am fine.',['I am fine.','Seven.','Blue.']);add('phrases','What do you say in the morning?','Good morning!',['Good morning!','Good night!','Thank you!']);add('sentence','Choose the correct sentence.','I have a red ball.',['I have a red ball.','I red have ball.','Have I ball red.']);add('sentence','Choose the correct sentence.','The dog is big.',['The dog is big.','Dog the big is.','The dog big are.']);sent('I like apples.',['I','like','apples.']);sent('She has a book.',['She','has','a','book.']);sent('This is my dog.',['This','is','my','dog.']);sent('The sun is yellow.',['The','sun','is','yellow.']);sent('I can see a boat.',['I','can','see','a','boat.']);
+    if(grade===1){
+      // Picture-free first readers: one short situation, one answer children
+      // can find directly in the text. No pressure to unlock a journey map.
+      const firstReads=[
+        ['What colour is the ball?','Red',['Red','Blue','Green'],'I see a red ball. It is big.'],
+        ['What pet does Tom have?','A cat',['A cat','A dog','A fish'],'Tom has a cat. The cat is black.'],
+        ['How is the day?','Hot',['Hot','Cold','Rainy'],'The sun is up. It is hot.'],
+        ['What is blue?','The cup',['The cup','The bed','The car'],'Mia has a cup. It is blue.'],
+        ['What can the dog do?','Run and jump',['Run and jump','Fly and sing','Read a book'],'A dog can run. It can jump.'],
+        ['What do I eat?','An apple',['An apple','A cookie','A banana'],'I have two apples. I eat one.'],
+        ['Where is the boat?','On the sea',['On the sea','In a tree','At school'],'A boat is on the sea. It is small.'],
+        ['Who comes in?','A cat',['A cat','A bird','A dog'],'Dad opens the door. A cat comes in.']
+      ];
+      for(const [prompt,answer,options,passage] of firstReads)
+        add('reading',prompt,answer,options,{passage});
+    }
     if(grade>=2){add('reading','Where is Ben going?','To school',['To school','To London','To bed'],{passage:'Ben puts on his jacket and walks to school with his sister.'});add('reading','What colour is the kite?','Yellow',['Yellow','Green','Black'],{passage:'Emma has a yellow kite. She flies it in the park.'});add('reading','Who has a dog?','Sam',['Sam','Mia','Dad'],{passage:'Sam has a small dog. The dog is called Max.'});add('reading','What does Lily eat?','An apple',['An apple','A sandwich','A banana'],{passage:'Lily opens her lunch box and eats an apple.'});add('reading','Where is the cat?','On the chair',['On the chair','Under the bed','In the garden'],{passage:'The cat sleeps on the chair next to Tom.'});}
   }else if(grade<=4){
     ['hungry','happy','quiet','before','always'].forEach((w,i)=>{const data=[['sulten','trøtt','rask'],['glad','sint','våt'],['stille','høy','varm'],['før','etter','aldri'],['alltid','sjelden','kanskje']][i];add('vocabulary','What does “'+w+'” mean?',data[0],data)});

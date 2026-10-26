@@ -180,8 +180,39 @@ async function rejectPoisonedSameSizeArt(){
  }finally{await browser.close()}
 }
 
+// A one-grade-lower profile must get actual Reading tasks, never random
+// Words/Sentences content falsely presented as "Reading" on Kinnaklova.
+async function firstGradeReading(engine,label){
+ const browser=await engine.launch({headless:true,args:engine===chromium?['--no-sandbox']:[]});
+ try{
+  const grade1=JSON.parse(JSON.stringify(seed));
+  grade1.profile.grade=1;
+  const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,serviceWorkers:'block'});
+  await context.addInitScript(s=>localStorage.setItem('laerlittmer-v2',JSON.stringify(s)),grade1);
+  const page=await context.newPage();
+  await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
+  await page.route('https://api.worldbank.org/**',r=>r.abort());
+  await page.goto(url,{waitUntil:'domcontentloaded',timeout:90000});
+  await visitEnglish(page);
+  await takeActivity(page,'reading',label+' first grade');
+  const stories=await page.evaluate(()=>sessionQuestions.map(q=>({
+   skill:q.skill,type:q.type,passage:q.passage,options:q.options
+  })));
+  assert.equal(stories.length,5,label+' first-grade Reading must have five real stories');
+  assert.ok(stories.every(q=>q.skill==='reading'&&q.type==='learning-choice'&&
+   typeof q.passage==='string'&&q.passage.split(' ').length<=17),
+   label+' first-grade Reading content is missing or too complex');
+  assert.ok(new Set(stories.map(q=>q.passage)).size===5,
+   label+' same Reading story repeated in one session');
+  console.log('[KINNAKLOVA] '+label+' grade 1: five short Reading stories verified');
+  await context.close();
+ }finally{await browser.close()}
+}
+
 (async()=>{
  await rejectPoisonedSameSizeArt();
+ await firstGradeReading(chromium,'chromium');
+ await firstGradeReading(webkit,'webkit');
  for(const [label,viewport] of [
    ['iphone-portrait',{width:390,height:844}],
    ['iphone-landscape',{width:844,height:390}],
