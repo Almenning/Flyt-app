@@ -53,6 +53,35 @@ async function run(engine,label,viewport){
      await page.locator('#eggenipa-world').waitFor({state:'visible',timeout:16000});
      await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
    }
+   if(subject==='english'){
+     // Direct Kinnaklova replaces the invisible Ordlandsbyen map. Assert
+     // that real portals work and no old journey stop is fabricated.
+     const world=page.locator('#subject-screen.active #kinnaklova-world');
+     await world.waitFor({state:'visible',timeout:16000});
+     assert.deepEqual(await world.locator('.ki-card').evaluateAll(cards=>cards.map(card=>card.dataset.ki)),
+       ['words','sentences','reading'],label+' three real Kinnaklova portals');
+     assert.equal(await page.locator('#subject-screen.active .locked-journey-map:visible').count(),0,
+       label+' retired English journey must remain hidden');
+     assert.ok(await page.evaluate(()=>journeyModel('english',2).nodes.length)>0,
+       label+' legacy English progress data must still exist');
+     const journeyBefore=await page.evaluate(()=>JSON.stringify(state.journey?.nodes||{}));
+     await world.locator('.ki-card[data-ki="words"]').click();
+     await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
+     assert.deepEqual(await page.evaluate(()=>({
+       type:sessionScope?.type,subject:sessionScope?.subject,module:sessionScope?.module,
+       questions:sessionQuestions?.length
+     })),{type:'subject',subject:'english',module:'words',questions:5},
+       label+' Kinnaklova Words must open five actual English questions');
+     await page.locator('#close-session').click();
+     await world.waitFor({state:'visible',timeout:16000});
+     assert.equal(await page.evaluate(()=>JSON.stringify(state.journey?.nodes||{})),journeyBefore,
+       label+' direct learning must not fabricate old journey-node completions');
+     const back=world.locator('.ki-utility [data-ki="home"]');
+     if(await back.isVisible())await back.click();
+     else await world.locator('.ki-painted-home').click();
+     await page.locator('#home-screen.active').waitFor({timeout:16000});
+     continue;
+   }
    if(subject==='math'){
      const tv=page.locator('#subject-screen.active #tallvika-world');
      await tv.waitFor({state:'visible',timeout:16000});

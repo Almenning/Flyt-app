@@ -991,7 +991,16 @@ async function finishSession(page){
     assert.equal(await page.evaluate(()=>sessionQuestions.length),5);
     assert.equal(await page.evaluate(()=>new Set(sessionQuestions.map(q=>q.prompt+'|'+q.answer)).size),5);
     await page.locator('#close-session').click();
-    await page.locator('#journey-map .locked-journey-back').click();
+    // Old Ordlandsbyen map navigation is hidden by Kinnaklova. Follow the
+    // real return control instead and assert all direct activity portals.
+    const englishWorld=page.locator('#subject-screen.active #kinnaklova-world');
+    await englishWorld.waitFor({state:'visible',timeout:16000});
+    assert.deepEqual(await englishWorld.locator('.ki-card').evaluateAll(cards=>cards.map(card=>card.dataset.ki)),
+      ['words','sentences','reading'],'English must retain its three child-facing choices');
+    const englishHome=englishWorld.locator('.ki-utility [data-ki="home"]');
+    if(await englishHome.isVisible())await englishHome.click();
+    else await englishWorld.locator('.ki-painted-home').click();
+    await page.locator('#home-screen.active').waitFor({timeout:16000});
 
     // Geography: default Land must work on a young grade.
     await page.evaluate(()=>document.getElementById('open-geography').click());
