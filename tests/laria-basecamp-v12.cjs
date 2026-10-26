@@ -141,7 +141,10 @@ const {chromium,webkit}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
   await page.locator('.word-hunt-back').tap();await hunt.waitFor({state:'hidden'});
 
   await page.locator('.bc12-nav [data-camp="home"]').tap();
-  await page.locator('.bc12-journey').tap();
+  // "Fortsett reisen" tracks the child's most recent subject, and may
+  // correctly open Maths after the multiplication exercise above. Select
+  // Norsk explicitly for this Eggenipa-specific route regression.
+  await page.locator('.bc14-subject[data-camp="subject-norwegian"]').tap();
   await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
   await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').tap();
   await page.locator('#subject-screen.active .locked-journey-map[data-journey-subject="norwegian"]').waitFor({state:'visible',timeout:16000});
