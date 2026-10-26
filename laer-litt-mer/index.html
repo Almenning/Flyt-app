@@ -3724,8 +3724,12 @@ function appBack(){
     const back=document.querySelector('#eggenipa-world [data-eg="home"]');
     if(back){back.click();return true;}
   }
-  if(current==='subject'&&document.querySelector('#subject-screen.active #eggenipa-map-return')){
-    document.getElementById('eggenipa-map-return').click();return true;
+  // Eggenipa reuses the original Bokskogen map controls. On a physical
+  // iPhone/iPad edge gesture there is no click event on the painted back
+  // arrow, so ask the active Norwegian landing to close its map directly.
+  // Never skip the Eggenipa return destination for an iOS edge swipe.
+  if(current==='subject'&&window.LARIA_EGGENIPA?.isMapOpen?.()){
+    window.LARIA_EGGENIPA.closeMap();return true;
   }
   // One source of truth: a swipe performs the active screen's own back action.
   // In the labs this also respects their internal pages before exiting.
