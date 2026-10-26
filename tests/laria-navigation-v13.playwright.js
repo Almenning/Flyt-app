@@ -90,11 +90,23 @@ async function run(engine,label,viewport){
        throw new Error(label+' Tallvika return control never became visible: '+
          JSON.stringify(debug)+'; '+error.message);
      }
-     // The subject MutationObserver can replace the entire Tallvika header
-     // between waitFor(visible) and a separate boundingBox() call. WebKit
-     // reported null for a *detached old node*, not a measured small target.
-     // Re-resolve the current locator and read its dimensions in one browser
-     // evaluation. Keep the strict 44x44 and in-viewport checks.
+     // Rendering Tallvika for unrelated subject-screen class changes used
+     // to detach the live back button between the visibility and tap checks.
+     // Keep an actual DOM identity assertion so a future observer regression
+     // cannot silently reintroduce that intermittent WebKit failure.
+     const stable=await page.evaluate(async()=>{
+       const subject=document.getElementById('subject-screen');
+       const previous=document.querySelector('#tallvika-world [data-tv="back"]');
+       subject.classList.add('qa-tallvika-render-stability');
+       await new Promise(resolve=>setTimeout(resolve,0));
+       const afterAdd=document.querySelector('#tallvika-world [data-tv="back"]');
+       subject.classList.remove('qa-tallvika-render-stability');
+       await new Promise(resolve=>setTimeout(resolve,0));
+       return previous===afterAdd&&previous===document.querySelector('#tallvika-world [data-tv="back"]');
+     });
+     assert.equal(stable,true,label+' Tallvika back must survive unrelated subject-screen mutations');
+     // Read geometry on the live button (not a cached ElementHandle); preserve
+     // the strict 44x44 and full-viewport checks for real accessibility.
      const size=await back.evaluate(node=>{
        const r=node.getBoundingClientRect(),style=getComputedStyle(node);
        return {x:r.x,y:r.y,width:r.width,height:r.height,
