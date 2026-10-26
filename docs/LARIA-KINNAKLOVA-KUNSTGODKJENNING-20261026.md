@@ -1,8 +1,8 @@
 # Læria Engelsk / Kinnaklova – visuell kunstkontroll
 
-**Dato:** 26. oktober 2026  
-**Vurdert PR:** [#229](https://github.com/Almenning/Flyt-app/pull/229)  
-**Eksakt vurdert commit:** `eb3754c89b5d712e318efa935c4fcf8eb6f5a80f`  
+**Dato:** 26. oktober 2026
+**Vurdert PR:** [#229](https://github.com/Almenning/Flyt-app/pull/229)
+**Eksakt vurdert commit:** `eb3754c89b5d712e318efa935c4fcf8eb6f5a80f`
 **Beslutning:** **IKKE GODKJENT FOR PUBLISERING**. Komposisjonen er fortsatt låst og delgodkjent. Kunstporten skal forbli lukket.
 
 ## Vurdert materiale
