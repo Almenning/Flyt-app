@@ -108,7 +108,7 @@
       '<p class="fw-panel-copy">Se deg rundt i '+(garden?'den hemmelige hagen':'Eggenipas skog')+'. Velg et ord og finn tingen i bildet.</p>'+
       '<div class="fw-list" role="list"></div><div class="fw-progress" aria-hidden="true"><span></span></div>'+
       '<p class="fw-list-foot">Trykk på ordet og finn tingen, eller dra ordet rett til bildet.</p></aside>'+
-      '<div class="fw-stage"><div class="fw-stage-label"><strong class="fw-active-target" role="status" aria-live="polite">2. Finn ordet i bildet</strong><span aria-hidden="true">✦</span></div>'+
+      '<div class="fw-stage"><div class="fw-stage-label"><strong class="fw-active-target" role="status" aria-live="polite">1. Velg et ord</strong><span aria-hidden="true">✦</span></div>'+
       '<div class="fw-art" role="group" aria-label="Eventyrbilde med ting du kan finne">'+
       '<div class="fw-picture">'+
       '<img src="'+scene+'" class="fw-scene-image" alt="'+sceneAlt+'" draggable="false">'+
@@ -142,7 +142,7 @@
     const goal=overlay.querySelector('.fw-active-target');
     const footer=overlay.querySelector('.fw-scenery-caption');
     const label=selectedWord?OBJECTS[selectedWord].label:null;
-    goal.textContent=label?'2. Finn «'+label+'» i bildet':'2. Velg et ord først';
+    goal.textContent=label?'2. Finn «'+label+'» i bildet':'1. Velg et ord';
     footer.textContent=label?'Finn '+label+' i bildet, eller dra ordet dit.':'Trykk på et ord eller dra det til tingen.';
     overlay.dataset.wordSelected=label?'true':'false';
     overlay.querySelector('.fw-progress span').style.width=(active.found.size/all.length*100)+'%';

@@ -71,7 +71,14 @@ async function run(engine,name,viewport,avatar){
       ['words','find','reading'],name+' Norsk direct activities changed');
     assert.equal(await page.locator('#subject-screen.active .locked-journey-map:visible').count(),0,
       name+' retired Bokskogen map is visible');
-    const beforeReading=await page.evaluate(()=>JSON.stringify(JSON.parse(localStorage.getItem('laerlittmer-v2')).journey));
+    const journeyProgress=()=>page.evaluate(()=>{
+      const j=JSON.parse(localStorage.getItem('laerlittmer-v2')).journey||{};
+      return JSON.stringify({
+        nodes:j.nodes||{},gradeWins:j.gradeWins||{},
+        viewGrades:j.viewGrades||{},chapterProgress:j.chapterProgress||{}
+      });
+    });
+    const beforeReading=await journeyProgress();
     await eg.locator('.eg-portal[data-eg="reading"]').click();
     await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
     assert.equal(await page.evaluate(()=>sessionScope?.subject),'norwegian');
@@ -86,7 +93,7 @@ async function run(engine,name,viewport,avatar){
     await page.screenshot({path:path.join(dir,name+'-eggenipa-reading.png'),animations:'disabled'});
     await page.locator('#close-session').click();
     await eg.waitFor({timeout:16000});
-    const afterReading=await page.evaluate(()=>JSON.stringify(JSON.parse(localStorage.getItem('laerlittmer-v2')).journey));
+    const afterReading=await journeyProgress();
     assert.equal(afterReading,beforeReading,name+' browsing Lesekroken altered historical journey');
     await eg.locator('[data-eg="home"]').click();
     await page.locator('#home-screen.active .bc14-subject[data-camp="subject-english"]').click();

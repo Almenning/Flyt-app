@@ -60,6 +60,8 @@ async function open(page,url,label){
  assert.ok(dims&&dims.width>=44&&dims.height>=44,'New picture hunt entry must be touch accessible');
  await entry.click();
  await page.locator('#find-the-words-overlay:not([hidden])').waitFor();
+ assert.equal(await page.locator('.fw-active-target').innerText(),'1. Velg et ord',
+   'The first picture-hunt step must be numbered 1 before selection');
  assert.equal(await page.locator('#find-the-words-overlay .fw-back').getAttribute('aria-label'),'Tilbake til Utforsk',
    'Finn ordene entered from Utforsk must name its actual back destination');
 }
@@ -192,8 +194,8 @@ async function run(engine,label,viewport,url,avatar){
    assert.equal(await page.locator('.fw-word.is-selected').count(),1,'Selected word is not visibly marked');
    assert.equal(await page.locator('.fw-word[data-fw-read="sol"]').getAttribute('aria-pressed'),'true',
      'Selected word is missing an accessible selected state');
-   assert.match(await page.locator('.fw-active-target').innerText(),/sol/,
-     'Chosen word is not displayed as an obvious goal');
+   assert.equal(await page.locator('.fw-active-target').innerText(),'2. Finn «sol» i bildet',
+     'Selecting a word must advance the picture-hunt prompt to step 2');
    await page.locator('.fw-audio').click();
    await hint.click();
    assert.match(await page.locator('.fw-speech').innerText(),/Se etter/,
