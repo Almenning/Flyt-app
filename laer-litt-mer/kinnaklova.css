@@ -30,6 +30,7 @@ html:has(#subject-screen.kinnaklova-active),body:has(#subject-screen.kinnaklova-
  position:absolute;inset:0;display:block;width:100%;height:100%;
  object-fit:contain;user-select:none;-webkit-user-select:none
 }
+#kinnaklova-world:not([data-ki-art="ready"]) .ki-master{visibility:hidden}
 .ki-companions{position:absolute;inset:0;z-index:3;pointer-events:none}
 #kinnaklova-world:not([data-ki-art="ready"]) .ki-companions{visibility:hidden}
 .ki-troll{
@@ -45,7 +46,7 @@ html:has(#subject-screen.kinnaklova-active),body:has(#subject-screen.kinnaklova-
 .ki-painted-hit{
  position:absolute;z-index:5;appearance:none;
  background:transparent;color:transparent;border:0;border-radius:18px;
- padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent
+ padding:0;cursor:pointer;min-height:44px;min-width:44px;-webkit-tap-highlight-color:transparent
 }
 #kinnaklova-world:not([data-ki-art="ready"]) .ki-painted-hit{
  visibility:hidden;pointer-events:none
