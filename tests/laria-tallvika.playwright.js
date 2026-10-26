@@ -109,7 +109,7 @@ async function run(browserType,label,viewport){
         const imageInfo=await image.evaluate(img=>({width:img.naturalWidth,height:img.naturalHeight,filter:getComputedStyle(img).filter}));
         assert.equal(imageInfo.width,512,label+' storesoster approved art width');
         assert.equal(imageInfo.height,1024,label+' storesoster approved art height');
-        assert.doesNotMatch(imageInfo.filter,/brightness\\(|saturate\\(|contrast\\(/,label+' approved artwork must retain its colours');
+        assert.ok(!['brightness(', 'saturate(', 'contrast('].some(fn=>imageInfo.filter.includes(fn)),label+' approved artwork must retain its colours');
       }
       if(viewport.width<=480&&output)await shot(page,label+'-'+id);
     }
