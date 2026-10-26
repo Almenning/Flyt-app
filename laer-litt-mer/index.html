@@ -3719,6 +3719,11 @@ function appBack(){
     const tallvikaBack=document.querySelector('#tallvika-world [data-tv="back"]');
     if(tallvikaBack){tallvikaBack.click();return true;}
   }
+  // English uses a direct Kinnaklova hub rather than the retired map.
+  if(current==='subject'&&document.querySelector('#subject-screen.active.kinnaklova-active')){
+    const back=document.querySelector('#kinnaklova-world [data-ki="home"]');
+    if(back){back.click();return true;}
+  }
   // Eggenipa has its own navigation inside the shared subject screen.
   if(current==='subject'&&document.querySelector('#subject-screen.active.eggenipa-active')){
     const back=document.querySelector('#eggenipa-world [data-eg="home"]');
@@ -7022,6 +7027,12 @@ window.LARIA_TALLVIKA_BRIDGE={
   journeyRecommendedNode:(subject,grade)=>journeyRecommendedNode(subject,grade),
   startJourneyNode:(subject,id,grade)=>startJourneyNode(subject,id,grade),
   startJourneyChallenge:subject=>startJourneyChallenge(subject),
+  startLearningSession:(subject,module,label)=>startLearningSession(subject,module,label),
+  resumeSession:(expectedSubject)=>{
+    if(!window.LARIA_COMMERCE_V18?.requirePremium?.('learning'))return;
+    if(!loadActiveSession()||sessionScope?.subject!==expectedSubject)return;
+    showScreen('session');renderQuestion();
+  },
   setTab:tab=>setTab(tab)
 };
 </script>
@@ -7085,6 +7096,9 @@ window.LARIA_TALLVIKA_BRIDGE={
 <!-- Norsk: locked Eggenipa painting, direct-play subject screen. No new learning state. -->
 <link rel="stylesheet" href="./eggenipa.css?v=20261025-first-integration1">
 <script src="./eggenipa.js?v=20261026-touchback1" defer></script>
+<!-- Engelsk Kinnaklova: private standalone direct-play preview. Does not alter learning state. -->
+<link rel="stylesheet" href="./kinnaklova.css?v=20261026-eng1">
+<script src="./kinnaklova.js?v=20261026-eng1" defer></script>
 <!-- Public-domain polar geometry is scoped to the new Oppdag renderer only. -->
 <script src="./discovery-antarctica-geography-v1.js?v=20261018-ne110-polar1" defer></script>
 <script src="./discovery-globe-phase1.js?v=20261018-antarctica-ne110-1" defer></script>
