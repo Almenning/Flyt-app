@@ -94,6 +94,15 @@
     if(!mapVisible||!isActive())return;
     screen.querySelectorAll('.locked-journey-back,.locked-journey-floating-back')
       .forEach(button=>button.setAttribute('aria-label','Tilbake til Eggenipa'));
+    // Older grades use the original non-illustrated journey, which has the
+    // normal subject-back button rather than a painted-map back arrow.
+    if(grade()>2){
+      const back=document.getElementById('subject-back');
+      if(back){
+        back.textContent='← Eggenipa';
+        back.setAttribute('aria-label','Tilbake til Eggenipa');
+      }
+    }
   }
   function openMap(){
     if(!isActive())return;
@@ -142,7 +151,7 @@
   // Norwegian journey explicitly opened through Eggenipa.
   screen.addEventListener('click',event=>{
     if(!isActive()||!mapVisible)return;
-    if(!event.target.closest?.('.locked-journey-back,.locked-journey-floating-back'))return;
+    if(!event.target.closest?.('.locked-journey-back,.locked-journey-floating-back,#subject-back'))return;
     event.preventDefault();
     event.stopImmediatePropagation();
     closeMap();
