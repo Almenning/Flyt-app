@@ -38,6 +38,14 @@ async function open(page,url){
  assert.equal(await page.locator('#word-hunt-overlay').evaluate(el=>el.classList.contains('is-theme-entry')),true);
  assert.equal(await first.locator('.wh-theme-close').getAttribute('aria-label'),'Tilbake til Utforsk',
    'Ordjakt entered from Utforsk must name its actual back destination');
+ const back=await first.locator('.wh-theme-close').evaluate(el=>{
+  const r=el.getBoundingClientRect();
+  const x=(r.left+r.right)/2,y=(r.top+r.bottom)/2;
+  const top=document.elementFromPoint(x,y);
+  return {width:r.width,height:r.height,x,y,viewport:innerHeight,hit:top===el||el.contains(top)};
+ });
+ assert.ok(back.width>=44&&back.height>=44&&back.y>=0&&back.y<=back.viewport&&back.hit,
+   'Ordjakt mobile theme chooser lost a true 44x44 first-fold back target: '+JSON.stringify(back));
 }
 async function selectTopic(page,topic,label,fromEntry=false){
  if(!fromEntry){

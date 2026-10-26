@@ -194,3 +194,10 @@ Brukeren godkjente den eksakte Eggenipa-illustrasjonen, men avviste resten av de
 - Ved gjennomgang av ekte WebKit-skjermbilder oppdaget vi at `fullPage:true` kunne gi et misvisende bilde der en `position:fixed` ordlek tilsynelatende begynte nedenfor den lange Eggenipa-forsiden. Tester brukte også `scrollIntoViewIfNeeded()` før de kontrollerte Hint-knappen, noe som skjulte feil i første synlige skjerm.
 - Eggenipa QA tar nå **viewport-skjermbilder** av Ordjakt, Finn ordene og Lesekroken, mens selve Eggenipa-forsiden fortsatt fotograferes i full høyde. Før scrolling testes at begge ordlekenes faktiske overlay er fastlåst til hele viewporten, og at tilbakeknappen har reell 44×44-treffflate i den synlige første folden. Det tas eget første-fold-bilde av Finn ordene før eventuell automatisk scrolling til hjelp.
 - Dette endrer ingen fungerende appkomponent eller godkjent illustrasjon. Bruk faktiske resultatmål for å avgjøre om CSS-fikser trengs, ikke artefakt fra fullPage-opptak.
+
+
+### 26.10 – reell iPhone-feil: tilbakeknappen i temavelger var 39 px
+
+- Ny førstefold-test på `680daff` oppdaget en reell tilgjengelighetsfeil i **Ordjakt**: i Chromium iPhone stående var temavelgerens tilbakeknapp bare `39×39` piksler. Overlegget dekket korrekt hele viewporten (`position:fixed; 390×844`), så det tidligere helside-skjermbildet var misvisende og trengte ikke global CSS-fiks.
+- Rotårsaken var den spesifikke eksisterende mobilregelen i `word-hunt.css` for `.is-theme-entry .wh-theme-close`. Denne regelen er nå endret fra 39 til 44 px med minimumsbredde og -høyde i **samme kilderegel**, uten flere globale overstyringer. Temavelgeren beholder samme visuelle identitet og plassering.
+- Ordjakts egen Chromium/WebKit-test krever nå korrekt 44×44 og ekte `elementFromPoint` på synlig knapp fra Utforsk. Eggenipa-testen dekker samme krav ved åpning fra Norsk. CSS-URL versjonert for Safari.

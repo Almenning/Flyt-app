@@ -1023,7 +1023,7 @@
     margin:6px 0 12px;font-size:12px;padding:0 18px;
   }
   .word-hunt-overlay.is-theme-entry .wh-theme-close{
-    top:7px;right:8px;width:39px;height:39px;font-size:23px;
+    top:7px;right:8px;width:44px;height:44px;min-width:44px;min-height:44px;font-size:23px;
   }
   .word-hunt-overlay.is-theme-entry .wh-theme-cards{
     display:grid;
