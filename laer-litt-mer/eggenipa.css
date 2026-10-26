@@ -78,21 +78,11 @@ body:has(#subject-screen.eggenipa-active){background:#f4eee0!important}
 .eg-grade-grid button{background:#fff;border:2px solid #dfca9e;color:#42362b;min-height:68px;border-radius:15px;cursor:pointer;display:grid;place-items:center;gap:0;padding:8px}
 .eg-grade-grid button.selected{border-color:#397959;background:#e5f2e4;box-shadow:inset 0 0 0 2px #b9d8bd}
 .eg-grade-grid strong{font-size:20px}.eg-grade-grid small{font-size:10px;font-weight:800;color:#806751}
-#eggenipa-world :is(button):focus-visible,
-#eggenipa-map-return:focus-visible{outline:4px solid #376c57;outline-offset:3px}
+#eggenipa-world :is(button):focus-visible{outline:4px solid #376c57;outline-offset:3px}
 @media(hover:hover){
  .eg-portal:hover{transform:translateY(-3px);box-shadow:0 8px 0 #d3bc91,0 16px 22px rgba(69,57,35,.14)}
 }
 .eg-portal:active{transform:translateY(2px);box-shadow:0 3px 0 #d3bc91}
-#eggenipa-map-return{
-  /* Keep the native painted settings control at the upper right operable.
-     An earlier upper-right return pill intercepted it on narrow viewports. */
-  position:fixed;z-index:950;top:max(64px,calc(env(safe-area-inset-top) + 56px));
-  left:50%;right:auto;transform:translateX(-50%);
-  min-height:48px;border:2px solid #caa96d;border-radius:999px;
-  padding:9px 17px;background:#fff5de;color:#493628;font-size:14px;font-weight:950;cursor:pointer;
-  box-shadow:0 5px 15px rgba(35,29,20,.24)
-}
 @media(max-width:700px){
  .eg-top{height:58px;padding:0 12px}
  .eg-top-label{font-size:10px;letter-spacing:.08em}
