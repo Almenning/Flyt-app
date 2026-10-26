@@ -4966,14 +4966,80 @@ function englishPool(grade,module){
     add('words','What is this?','fish',['fish','book','car'],{visual:'🐟'});add('words','What is this?','car',['car','boat','house'],{visual:'🚗'});add('words','What is this?','boat',['boat','book','ball'],{visual:'⛵'});add('words','What is this?','book',['book','fish','sun'],{visual:'📘'});add('words','What colour is the sun?','yellow',['yellow','green','blue'],{visual:'☀️'});
     q.push(makeEnglishBuild('CAT','🐱'));q.push(makeEnglishBuild('SUN','☀️'));q.push(makeEnglishBuild('FISH','🐟'));
     add('phrases','How are you?','I am fine.',['I am fine.','Seven.','Blue.']);add('phrases','What do you say in the morning?','Good morning!',['Good morning!','Good night!','Thank you!']);add('sentence','Choose the correct sentence.','I have a red ball.',['I have a red ball.','I red have ball.','Have I ball red.']);add('sentence','Choose the correct sentence.','The dog is big.',['The dog is big.','Dog the big is.','The dog big are.']);sent('I like apples.',['I','like','apples.']);sent('She has a book.',['She','has','a','book.']);sent('This is my dog.',['This','is','my','dog.']);sent('The sun is yellow.',['The','sun','is','yellow.']);sent('I can see a boat.',['I','can','see','a','boat.']);
+    if(grade===1){
+      // Picture-free first readers: one short situation, one answer children
+      // can find directly in the text. No pressure to unlock a journey map.
+      const firstReads=[
+        ['What colour is the ball?','Red',['Red','Blue','Green'],'I see a red ball. It is big.'],
+        ['What pet does Tom have?','A cat',['A cat','A dog','A fish'],'Tom has a cat. The cat is black.'],
+        ['How is the day?','Hot',['Hot','Cold','Rainy'],'The sun is up. It is hot.'],
+        ['What is blue?','The cup',['The cup','The bed','The car'],'Mia has a cup. It is blue.'],
+        ['What can the dog do?','Run and jump',['Run and jump','Fly and sing','Read a book'],'A dog can run. It can jump.'],
+        ['What do I eat?','An apple',['An apple','A cookie','A banana'],'I have two apples. I eat one.'],
+        ['Where is the boat?','On the sea',['On the sea','In a tree','At school'],'A boat is on the sea. It is small.'],
+        ['Who comes in?','A cat',['A cat','A bird','A dog'],'Dad opens the door. A cat comes in.']
+      ];
+      for(const [prompt,answer,options,passage] of firstReads)
+        add('reading',prompt,answer,options,{passage});
+    }
     if(grade>=2){add('reading','Where is Ben going?','To school',['To school','To London','To bed'],{passage:'Ben puts on his jacket and walks to school with his sister.'});add('reading','What colour is the kite?','Yellow',['Yellow','Green','Black'],{passage:'Emma has a yellow kite. She flies it in the park.'});add('reading','Who has a dog?','Sam',['Sam','Mia','Dad'],{passage:'Sam has a small dog. The dog is called Max.'});add('reading','What does Lily eat?','An apple',['An apple','A sandwich','A banana'],{passage:'Lily opens her lunch box and eats an apple.'});add('reading','Where is the cat?','On the chair',['On the chair','Under the bed','In the garden'],{passage:'The cat sleeps on the chair next to Tom.'});}
+    if(grade===2){
+      // A second-grader can revisit Kinnaklova for a fresh, readable small
+      // discovery without repeating the same five Reading passages forever.
+      const coastReads=[
+        ['What colour is the door?','Blue',['Blue','Green','Yellow'],'Mia sees a little red house by the sea. The door is blue.'],
+        ['What does the boat pass?','Two islands',['Two islands','A school','A farm'],'A small boat sails on the sea. It passes two islands.'],
+        ['What does the bird do?','Flies over the water',['Flies over the water','Sleeps in a tree','Reads a book'],'A white bird sits on a rock. Then it flies over the water.'],
+        ['What is next to the path?','A church',['A church','A castle','A shop'],'Ella walks along a path. A little white church is next to it.'],
+        ['How many shells does Lily find?','Three',['Three','Two','Five'],'Lily finds three shells on the beach. She gives one to Max.'],
+        ['What is between the mountains?','A gap',['A gap','A house','A bridge'],'Ben sees two tall mountains. There is a gap between them.'],
+        ['What does Max hear?','Waves',['Waves','Music','Rain'],'Max sits on the grass with Dad. They listen to the waves.'],
+        ['Where is the red boat?','Near the stone wall',['Near the stone wall','Behind the school','In a tree'],'A red boat comes home. It stops near the stone wall.']
+      ];
+      for(const [prompt,answer,options,passage] of coastReads)
+        add('reading',prompt,answer,options,{passage});
+      // More choices within the SAME Sentences activity, not a new
+      // journey or a forced curriculum step. Every line can be rebuilt
+      // from the exact word tiles shown to the child.
+      const coastSentences=[
+        ['I see a red boat.',['I','see','a','red','boat.']],
+        ['We can hear the waves.',['We','can','hear','the','waves.']],
+        ['A white bird can fly.',['A','white','bird','can','fly.']],
+        ['The sea is blue.',['The','sea','is','blue.']],
+        ['There are two mountains.',['There','are','two','mountains.']],
+        ['The small church is white.',['The','small','church','is','white.']],
+        ['My sister finds a shell.',['My','sister','finds','a','shell.']],
+        ['The boat is near the wall.',['The','boat','is','near','the','wall.']]
+      ];
+      for(const [answer,words] of coastSentences)sent(answer,words);
+      // Words is a place to discover the same coast through language.
+      // Norwegian prompts keep these new words accessible to early readers,
+      // while correct-answer feedback reinforces the English/Norwegian pair.
+      const coastWords=[
+        ['hav','sea',['sea','sky','sun'],'🌊'],
+        ['fugl','bird',['bird','book','boat'],'🐦'],
+        ['øy','island',['island','garden','house'],'🏝️'],
+        ['skjell','shell',['shell','shoe','star'],'🐚'],
+        ['stein','rock',['rock','rain','road'],'🪨'],
+        ['fjell','mountain',['mountain','market','morning'],'⛰️'],
+        ['kirke','church',['church','chair','cheese'],'⛪'],
+        ['vann','water',['water','window','winter'],'💧'],
+        ['bølge','wave',['wave','wall','wheel'],'🌊'],
+        ['krabbe','crab',['crab','cat','car'],'🦀']
+      ];
+      for(const [norwegianMeaning,englishWord,options,visual] of coastWords){
+        add('words','Hva heter «'+norwegianMeaning+'» på engelsk?',
+          englishWord,options,{visual,englishWord,norwegianMeaning});
+      }
+    }
+
   }else if(grade<=4){
-    ['hungry','happy','quiet','before','always'].forEach((w,i)=>{const data=[['sulten','trøtt','rask'],['glad','sint','våt'],['stille','høy','varm'],['før','etter','aldri'],['alltid','sjelden','kanskje']][i];add('vocabulary','What does “'+w+'” mean?',data[0],data)});
+    ['hungry','happy','quiet','before','always'].forEach((w,i)=>{const data=[['sulten','trøtt','rask'],['glad','sint','våt'],['stille','høy','varm'],['før','etter','aldri'],['alltid','sjelden','kanskje']][i];add('vocabulary','What does “'+w+'” mean?',data[0],data,{answerLanguage:'nb'})});
     add('verbs','Choose the verb.','run',['run','blue','table','happy']);add('grammar','Choose the correct form.','She likes apples.',['She likes apples.','She like apples.','She liking apples.']);add('pronouns','Tom and Mia = ...','they',['they','he','she','it']);add('grammar','Choose the correct word: I ___ a bike.','have',['have','has','is','are']);add('past-tense','Yesterday I ___ home.','walked',['walked','walk','walking','walks']);
     sent('We play football.',['We','play','football.']);sent('My sister reads books.',['My','sister','reads','books.']);add('sentence','Choose the correct question.','Where do you live?',['Where do you live?','Where you do live?','Do where live you?']);add('phrases','What can you say when you meet someone?','Nice to meet you.',['Nice to meet you.','Good night yesterday.','I am a table.']);add('sentence','Choose the correct sentence.','There are two cats.',['There are two cats.','There is two cats.','Two cats there is.']);
     add('reading','Why does Ben take an umbrella?','Because it is raining',['Because it is raining','Because it is hot','Because he is swimming'],{passage:'Rain hits the window. Ben takes his umbrella before he leaves.'});add('reading','What is Ava looking for?','Her keys',['Her keys','Her shoes','Her book'],{passage:'Ava checks her bag and the table. She cannot find her keys.'});add('reading','Where do they eat lunch?','In the park',['In the park','At school','On a bus'],{passage:'The family walks to the park and eats lunch under a tree.'});add('reading','What did Max win?','A race',['A race','A book','A bike'],{passage:'Max ran faster than everyone else and won the school race.'});add('reading','How is the weather?','Cold',['Cold','Hot','Sunny'],{passage:'Snow covers the ground and Ella wears a thick coat.'});
   }else if(grade<=7){
-    ['difficult','careful','improve','journey','environment'].forEach((w,i)=>{const data=[['hard','easy','tiny'],['forsiktig','rask','sulten'],['forbedre','glemme','stanse'],['reise','måltid','regel'],['miljø','lekse','butikk']][i];add('vocabulary','What is the closest meaning of “'+w+'”?',data[0],data)});
+    ['difficult','careful','improve','journey','environment'].forEach((w,i)=>{const data=[['hard','easy','tiny'],['forsiktig','rask','sulten'],['forbedre','glemme','stanse'],['reise','måltid','regel'],['miljø','lekse','butikk']][i];add('vocabulary','What is the closest meaning of “'+w+'”?',data[0],data,{answerLanguage:i===0?'en':'nb'})});
     add('past-tense','Yesterday I ___ to school.','went',['went','go','gone','going']);add('pronouns','Emma and I = ...','we',['we','they','she','it']);add('grammar','Choose the correct sentence.','He has lived here for two years.',['He has lived here for two years.','He live here for two years.','He living here two years.']);add('grammar','Choose the correct comparative.','This book is better.',['This book is better.','This book is gooder.','This book is best than.']);add('verbs','Choose the modal verb.','should',['should','school','slow','show']);
     sent('We are going to London.',['We','are','going','to','London.']);sent('She finished her homework yesterday.',['She','finished','her','homework','yesterday.']);add('sentence','Choose the best reply: “Could you help me?”','Of course.',['Of course.','Yesterday.','Blue.']);add('sentence','Choose the correct question.','Have you seen this film?',['Have you seen this film?','You have seen this film?','Seen have you this film?']);add('sentence','Choose the correct sentence.','I would like some water.',['I would like some water.','I would likes water.','I like would some water.']);
     add('reading','Why did Maya stay inside?','Because it was raining',['Because it was raining','Because she was hungry','Because it was dark'],{passage:'It rained all afternoon, so Maya stayed inside and finished her book.'});add('reading','What is the main idea?','Exercise can improve health',['Exercise can improve health','Running is the only sport','Everyone must exercise daily'],{passage:'Regular movement can strengthen the body, improve sleep and help people feel better.'});add('reading','What can we infer about Liam?','He is nervous',['He is nervous','He is asleep','He is angry'],{passage:'Liam checks his notes again and takes a deep breath before his presentation.'});add('reading','Why is the library closed?','It is being renovated',['It is being renovated','It is Sunday','There are no books'],{passage:'The library will reopen next month after workers finish the renovation.'});add('reading','Which detail supports the main point?','Plastic can harm sea animals',['Plastic can harm sea animals','The ocean is blue','Boats are fast'],{passage:'Plastic waste can remain in the ocean for years and can harm animals that eat it.'});
@@ -4981,7 +5047,7 @@ function englishPool(grade,module){
     ['reliable','significant','approach','evidence','consequence'].forEach((w,i)=>{const data=[['trustworthy','temporary','silent'],['important','tiny','accidental'],['method','holiday','colour'],['proof','rumour','joke'],['result','question','beginning']][i];add('vocabulary','What is the closest meaning of “'+w+'”?',data[0],data)});
     add('grammar','Choose the correct conditional sentence.','If I had time, I would help.',['If I had time, I would help.','If I have time, I would helped.','If I had time, I will helped.']);add('grammar','Which sentence uses the present perfect?','She has finished her work.',['She has finished her work.','She finished yesterday.','She is finishing now.','She will finish.']);add('grammar','Choose the correct passive sentence.','The bridge was built in 1990.',['The bridge was built in 1990.','The bridge built in 1990.','The bridge was build in 1990.']);add('grammar','Choose the correct relative pronoun.','The person who called me ...',['who','where','when','what']);add('grammar','Choose the correct form.','I wish I knew the answer.',['I wish I knew the answer.','I wish I know the answer.','I wish I knowing the answer.']);
     sent('Technology can change how we learn.',['Technology','can','change','how','we','learn.']);sent('She would have called if she had known.',['She','would','have','called','if','she','had','known.']);add('sentence','Choose the most formal sentence.','I would appreciate your response.',['I would appreciate your response.','Text me back, okay?','Answer me now!']);add('sentence','Choose the clearest sentence.','The results suggest that the method worked.',['The results suggest that the method worked.','Results thing method worked maybe.','Worked the method results.']);add('sentence','Choose the correct connector.','However, the results were different.',['However, the results were different.','Because the results were different however.','Results however because different.']);
-    add('reading','What is the main point?','Technology can help, but it should be used thoughtfully.',['Technology can help, but it should be used thoughtfully.','All technology is harmful.','Schools should ban computers.'],{passage:'Digital tools can make learning easier, but they can also distract us. The best results come when we use them for a clear purpose.'});add('reading','What does the writer suggest?','Check evidence before sharing claims',['Share first and check later','Trust every headline','Ignore all online information'],{passage:'A dramatic claim may spread quickly online. Before sharing it, look for evidence and check who published it.'});add('reading','Which statement is supported by the text?','Sleep can affect concentration',['Sleep never matters','Everyone needs exactly eight hours','Only children need sleep'],{passage:'Research links adequate sleep with attention and memory, although individual sleep needs vary.'});add('reading','Why does the author mention both benefits and risks?','To present a balanced view',['To tell a joke','To avoid a topic','To advertise a product'],{passage:'Social media can help people stay connected, but it can also increase distraction and spread misleading information.'});add('reading','What is the tone of the passage?','Cautious',['Celebratory','Angry','Comical'],{passage:'The early results are promising, but more data is needed before firm conclusions can be drawn.'});
+    add('reading','What is the main point?','Technology can help, but it should be used thoughtfully.',['Technology can help, but it should be used thoughtfully.','All technology is harmful.','Schools should ban computers.'],{passage:'Digital tools can make learning easier, but they can also distract us. The best results come when we use them for a clear purpose.'});add('reading','What does the writer suggest?','Check evidence before sharing claims',['Check evidence before sharing claims','Share first and check later','Trust every headline','Ignore all online information'],{passage:'A dramatic claim may spread quickly online. Before sharing it, look for evidence and check who published it.'});add('reading','Which statement is supported by the text?','Sleep can affect concentration',['Sleep can affect concentration','Sleep never matters','Everyone needs exactly eight hours','Only children need sleep'],{passage:'Research links adequate sleep with attention and memory, although individual sleep needs vary.'});add('reading','Why does the author mention both benefits and risks?','To present a balanced view',['To present a balanced view','To tell a joke','To avoid a topic','To advertise a product'],{passage:'Social media can help people stay connected, but it can also increase distraction and spread misleading information.'});add('reading','What is the tone of the passage?','Cautious',['Cautious','Celebratory','Angry','Comical'],{passage:'The early results are promising, but more data is needed before firm conclusions can be drawn.'});
   }
   const filter={words:new Set(['words','numbers','vocabulary','spelling']),sentences:new Set(['sentence','phrases']),reading:new Set(['reading']),grammar:new Set(['grammar','past-tense','pronouns','verbs'])};
   return module&&filter[module]?q.filter(x=>filter[module].has(x.skill)):q;
