@@ -6302,8 +6302,8 @@ function renderLearningQuestion(){
     typeof q.passage==='string'&&q.passage.trim().length>0;
   let html='<div class="question-tools"><div class="qtype">'+label+' · '+GRADE_CONFIG[currentGrade()].label+'</div>'+readAloudButton(q)+'</div>';
   if(kiReading){
-    html+='<section class="learning-passage ki-reading-story" aria-label="Engelsk historie">'+escapeAttr(q.passage)+'</section>';
-    html+='<div class="question ki-reading-question">'+escapeAttr(q.prompt)+'</div>';
+    html+='<section class="learning-passage ki-reading-story" lang="en" aria-label="Engelsk historie">'+escapeAttr(q.passage)+'</section>';
+    html+='<div class="question ki-reading-question" lang="en">'+escapeAttr(q.prompt)+'</div>';
   }else{
     html+='<div class="question">'+q.prompt+'</div>';
     if(q.passage)html+='<div class="learning-passage">'+q.passage+'</div>';

@@ -150,6 +150,8 @@ async function run(browserType,name,viewport){
       story:!!story,question:!!question,
       before:!!(story&&question&&(story.compareDocumentPosition(question)&Node.DOCUMENT_POSITION_FOLLOWING)),
       label:story?.getAttribute('aria-label'),
+      storyLang:story?.getAttribute('lang'),
+      questionLang:question?.getAttribute('lang'),
       pageWidth:story?.getBoundingClientRect().width,
       viewportWidth:document.documentElement.clientWidth
     };
@@ -157,6 +159,13 @@ async function run(browserType,name,viewport){
   assert.ok(order.story&&order.question&&order.before,
     name+' must show the Reading story before asking the question');
   assert.equal(order.label,'Engelsk historie');
+  assert.equal(order.storyLang,'en',name+' story must be announced in English by screen readers');
+  assert.equal(order.questionLang,'en',name+' question must be announced in English by screen readers');
+  const speechOrder=await page.evaluate(()=>speechSegmentsForQuestion(sessionQuestions[qIndex]).slice(0,2));
+  assert.deepEqual(speechOrder[0],{text:selected,lang:'en-GB'},
+    name+' reading audio must start with the actual English story');
+  assert.equal(speechOrder[1]?.lang,'en-GB',
+    name+' English question must use an English voice');
   assert.ok(order.pageWidth<=order.viewportWidth+2,
     name+' storybook must fit the narrow viewport');
   const readButton=page.locator('#session-screen.active #read-aloud');
@@ -246,6 +255,11 @@ async function firstGradeReading(engine,label){
     return !!(story&&question&&(story.compareDocumentPosition(question)&Node.DOCUMENT_POSITION_FOLLOWING));
   });
   assert.equal(storyFirst,true,label+' first-grade story must also come before the question');
+  assert.equal(await page.locator('#session-screen.active .ki-reading-story').getAttribute('lang'),'en');
+  assert.equal(await page.locator('#session-screen.active .ki-reading-question').getAttribute('lang'),'en');
+  const spoken=await page.evaluate(()=>speechSegmentsForQuestion(sessionQuestions[qIndex]));
+  assert.deepEqual(spoken[0],{text:stories[0].passage,lang:'en-GB'},
+    label+' first-grade read-aloud must begin with the English story');
   console.log('[KINNAKLOVA] '+label+' grade 1: five short Reading stories verified');
   await context.close();
  }finally{await browser.close()}
