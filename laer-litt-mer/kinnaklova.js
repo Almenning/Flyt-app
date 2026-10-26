@@ -28,6 +28,13 @@
   const escapeText=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   let root=null;
   let renderKey='';
+  let verifiedArtUrl=null;
+  function revokeArt(){
+    if(verifiedArtUrl){
+      URL.revokeObjectURL(verifiedArtUrl);
+      verifiedArtUrl=null;
+    }
+  }
   function ensureRoot(){
     if(root&&root.isConnected)return root;
     root=document.createElement('section');
@@ -57,9 +64,21 @@
     try{
       const response=await fetch(ART,{cache:'no-store'});
       if(!response.ok||!globalThis.crypto?.subtle)throw Error('Art integrity unavailable');
-      const digest=await globalThis.crypto.subtle.digest('SHA-256',await response.arrayBuffer());
+      const bytes=await response.arrayBuffer();
+      const digest=await globalThis.crypto.subtle.digest('SHA-256',bytes);
       const actual=Array.from(new Uint8Array(digest),b=>b.toString(16).padStart(2,'0')).join('');
-      setStatus(actual===APPROVED_ART_SHA256?'ready':'unapproved');
+      if(actual!==APPROVED_ART_SHA256){setStatus('unapproved');return;}
+      // The browser must display *these same verified bytes*, not an
+      // independently cached <img src> from an old Safari/service-worker build.
+      const trustedURL=URL.createObjectURL(new Blob([bytes],{type:'image/webp'}));
+      if(!root?.contains(image)){URL.revokeObjectURL(trustedURL);return;}
+      revokeArt();
+      verifiedArtUrl=trustedURL;
+      image.src=trustedURL;
+      try{await image.decode();}
+      catch(_){setStatus('unapproved');revokeArt();return;}
+      if(!root?.contains(image))return;
+      setStatus(image.naturalWidth===1672&&image.naturalHeight===941?'ready':'unapproved');
     }catch(_){setStatus('unapproved');}
   }
   function portal(action){
@@ -87,6 +106,7 @@
       return;
     }
     renderKey=key;
+    revokeArt();
     host.innerHTML=
       '<header class="ki-utility"><button type="button" data-ki="home" aria-label="Tilbake til Hjem">‹ Hjem</button>'+
       '<span>ENGELSK · KINNAKLOVA</span><span class="ki-grade">'+grade+'. klasse</span></header>'+
@@ -132,7 +152,7 @@
     if(isActive())build();
     else{
       if(screen.classList.contains('kinnaklova-active'))screen.classList.remove('kinnaklova-active');
-      if(root){root.remove();root=null;renderKey='';}
+      if(root){root.remove();root=null;renderKey='';revokeArt();}
     }
   });
   observer.observe(screen,{attributes:true,attributeFilter:['class','data-subject']});
