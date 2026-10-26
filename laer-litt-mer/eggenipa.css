@@ -85,7 +85,10 @@ body:has(#subject-screen.eggenipa-active){background:#f4eee0!important}
 }
 .eg-portal:active{transform:translateY(2px);box-shadow:0 3px 0 #d3bc91}
 #eggenipa-map-return{
-  position:fixed;z-index:950;top:max(16px,env(safe-area-inset-top));right:max(16px,env(safe-area-inset-right));left:auto;
+  /* Keep the native painted settings control at the upper right operable.
+     An earlier upper-right return pill intercepted it on narrow viewports. */
+  position:fixed;z-index:950;top:max(64px,calc(env(safe-area-inset-top) + 56px));
+  left:50%;right:auto;transform:translateX(-50%);
   min-height:48px;border:2px solid #caa96d;border-radius:999px;
   padding:9px 17px;background:#fff5de;color:#493628;font-size:14px;font-weight:950;cursor:pointer;
   box-shadow:0 5px 15px rgba(35,29,20,.24)
