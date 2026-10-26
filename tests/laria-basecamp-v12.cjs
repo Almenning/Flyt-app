@@ -140,12 +140,56 @@ const {chromium,webkit}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
   assert(await page.locator('.word-hunt-word.found').count()>=1,name+' Ordjakt selection did not register');
   await page.locator('.word-hunt-back').tap();await hunt.waitFor({state:'hidden'});
 
+  // Instrument a real post-Ordjakt Home -> Norsk tap. A click on an
+  // illustrated iPad hotspot can succeed syntactically while the resulting
+  // screen is wrong. Record event targets and page state if the route fails.
+  await page.evaluate(()=>{
+    window.__norskRouteTrace=[];
+    for(const type of ['pointerdown','pointerup','click']){
+      document.addEventListener(type,event=>{
+        const node=event.target?.closest?.('[data-camp],[data-bc13-action],[data-eg]');
+        if(!node)return;
+        window.__norskRouteTrace.push({
+          type,target:node.getAttribute('data-camp')||node.getAttribute('data-bc13-action')||node.getAttribute('data-eg'),
+          active:document.querySelector('.screen.active')?.id||null,
+          panel:document.querySelector('#home-screen .bc12')?.dataset.bc13View||null
+        });
+      },true);
+    }
+  });
   await page.locator('.bc12-nav [data-camp="home"]').tap();
-  // "Fortsett reisen" tracks the child's most recent subject, and may
-  // correctly open Maths after the multiplication exercise above. Select
-  // Norsk explicitly for this Eggenipa-specific route regression.
-  await page.locator('.bc14-subject[data-camp="subject-norwegian"]').tap();
-  await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
+  // "Fortsett reisen" tracks the most recent subject, which may be Maths.
+  // Enter Norsk through its explicit, real Home card.
+  const norsk=page.locator('#home-screen.active .bc14-subject[data-camp="subject-norwegian"]');
+  await norsk.waitFor({state:'visible',timeout:12000});
+  await norsk.tap();
+  try{
+    await page.locator('#eggenipa-world:visible').waitFor({timeout:12000});
+  }catch(error){
+    const details=await page.evaluate(()=>{
+      const home=document.querySelector('#home-screen .bc12');
+      const screen=document.getElementById('subject-screen');
+      const eg=document.getElementById('eggenipa-world');
+      const norwegian=document.querySelector('.bc14-subject[data-camp="subject-norwegian"]');
+      const rect=norwegian?.getBoundingClientRect();
+      const target=rect?document.elementFromPoint(rect.left+rect.width/2,rect.top+rect.height/2):null;
+      return {
+        active:document.querySelector('.screen.active')?.id||null,
+        subject:screen?.dataset.subject||null,
+        subjectClass:screen?.className||null,
+        eggenipaPresent:!!eg,eggenipaHidden:eg?.hidden??null,eggenipaVisible:eg?getComputedStyle(eg).display:null,
+        homeMode:home?.dataset.mode||null,homePanel:home?.dataset.bc13View||null,
+        lockedHome:home?.classList.contains('bc15-locked-home'),homeAsset:home?.dataset.bc15Asset||null,
+        basecampOrigin:window.LARIA_BASECAMP_RETURN_VIEW?.()??null,
+        clickedCardRect:rect?{x:rect.x,y:rect.y,w:rect.width,h:rect.height}:null,
+        coveringNode:target?.outerHTML?.slice(0,260)||null,
+        events:window.__norskRouteTrace||[],
+        pageErrors:window.__norskRouteErrors||[]
+      };
+    });
+    await page.screenshot({path:`${screenshots}/${engineName}-${name}-norsk-route-failure.png`,fullPage:true});
+    throw new Error('Home -> Norsk after Ordjakt failed: '+JSON.stringify(details)+'; '+error.message);
+  }
   await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').tap();
   await page.locator('#subject-screen.active .locked-journey-map[data-journey-subject="norwegian"]').waitFor({state:'visible',timeout:16000});
   // Use the original Bokskogen arrow, not the removed overlay that
