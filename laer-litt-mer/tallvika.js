@@ -73,8 +73,18 @@
     if (!button || !screen.contains(button)) return;
     const action = button.dataset.tv;
     if (action === 'back') { if (!window.LARIA_RETURN_TO_BASECAMP?.()) app()?.setTab?.('home'); }
-    if (action === 'choose') document.querySelector('#tallvika-world .tv-dialog:not(.tv-grade-dialog)')?.showModal();
-    if (action === 'grade') document.querySelector('#tallvika-world .tv-grade-dialog')?.showModal();
+    if (action === 'choose' || action === 'grade') {
+      const dialog = document.querySelector(action === 'choose'
+        ? '#tallvika-world .tv-dialog:not(.tv-grade-dialog)'
+        : '#tallvika-world .tv-grade-dialog');
+      if (dialog && !dialog.open) {
+        dialog.showModal();
+        // Start at the child's existing selection, not an unrelated close button.
+        dialog.querySelector(action === 'choose'
+          ? '.tv-troll-grid button.selected' : '.tv-grade-grid button.selected')
+          ?.focus({preventScroll:true});
+      }
+    }
     if (action === 'multiply') window.openMultiplicationLab?.();
     if (action === 'fraction') window.openFractionLab?.();
     if (action === 'table') openTable();
@@ -83,7 +93,12 @@
   screen.addEventListener('click', event => {
     const button = event.target.closest('[data-tv-troll]');
     if (!button) return;
-    saveTroll(button.dataset.tvTroll); document.querySelector('#tallvika-world .tv-dialog')?.close(); build();
+    saveTroll(button.dataset.tvTroll);
+    document.querySelector('#tallvika-world .tv-dialog:not(.tv-grade-dialog)')?.close();
+    build();
+    // build() replaces the original trigger node, so restore keyboard focus
+    // to its fresh replacement without scrolling the child away from the scene.
+    document.querySelector('#tallvika-world [data-tv="choose"]')?.focus({preventScroll:true});
   });
   screen.addEventListener('click', event => {
     const button = event.target.closest('[data-tv-grade]');
@@ -93,6 +108,7 @@
     app()?.setJourneyViewGrade?.('math',grade,false);
     document.querySelector('#tallvika-world .tv-grade-dialog')?.close();
     build();
+    document.querySelector('#tallvika-world [data-tv="grade"]')?.focus({preventScroll:true});
   });
   const observer = new MutationObserver(() => {
     const active = screen.classList.contains('active') && screen.dataset.subject === 'math';

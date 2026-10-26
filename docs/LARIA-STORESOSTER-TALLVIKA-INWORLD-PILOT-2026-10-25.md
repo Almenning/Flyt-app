@@ -107,3 +107,7 @@ Faktiske Chromium/WebKit-skjermbilder viste at lukkeknappen kunne ligge over ove
 ## 26.10.2026 – Tre fullt synlige trollvalg på liggende iPhone
 
 Etter faktisk WebKit-QA av dialogfixen var overskriften fri på portrett, men alle tre navnefelt forsvant under dialogens bunn på 844×390. På skjerm med høyde opptil 480 px og liggende orientering reduseres derfor **kun trollvelgerens** interne topprom, portretthøyder og kortmarginer. Ingen karakterillustrasjoner endres og alle tre valg forblir minst 44×44 px. Testene verifiserer at både figurkort og navn ligger helt synlig innenfor dialogen ved 568×320 og 844×390 på Chromium og WebKit. Ingen merge/publisering før QA og visuell kontroll.
+
+## 26.10.2026 – Stabilt tastaturfokus etter figur- og klassetrinnsvalg
+
+Etter figurvalg eller klassetrinnsvalg erstatter `build()` hele Tallvika-visningen, inkludert den opprinnelige `Velg skogstroll`-/`Velg klassetrinn`-knappen. Uten eksplisitt fokusrestaurering mister brukere med tastatur/bryterstyring posisjonen i appen. Vi setter nå fokus på tilsvarende *ny* knapp etter rebuild, med `preventScroll:true`, og fokuserer det aktive valget når en dialog åpnes. Denne endringen rører ikke karakterkunst, berøringsflater, valgnøkler, progresjon eller matematikk. Regresjonstester i Chromium og WebKit skal bekrefte fokus etter valg av alle tre troll og etter 2.→3.→2. klassetrinn, uten sidehopp. Arbeidet forblir i draft PR #224.

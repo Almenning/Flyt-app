@@ -61,10 +61,16 @@ async function run(browserType,label,viewport){
     await page.locator('#tallvika-world [data-tv="grade"]').click();
     await page.locator('#tallvika-world .tv-grade-dialog[open]').waitFor();
     assert.equal(await page.locator('#tallvika-world [data-tv-grade]').count(),10,label+' grade options missing');
+    assert.equal(await page.evaluate(()=>document.activeElement?.getAttribute('data-tv-grade')),'2',
+      label+' grade modal should focus the currently selected class');
     await page.locator('#tallvika-world [data-tv-grade="3"]').click();
     assert.deepEqual(await page.evaluate(()=>[window.LARIA_TALLVIKA_BRIDGE.currentGrade(),window.LARIA_TALLVIKA_BRIDGE.journeyViewGrade('math')]),[2,3],label+' grade view must not change the profile');
+    assert.equal(await page.evaluate(()=>document.activeElement?.getAttribute('data-tv')),'grade',
+      label+' grade selection must return focus to the new class picker trigger');
     await page.locator('#tallvika-world [data-tv="grade"]').click();
     await page.locator('#tallvika-world .tv-grade-dialog[open] [data-tv-grade="2"]').click();
+    assert.equal(await page.evaluate(()=>document.activeElement?.getAttribute('data-tv')),'grade',
+      label+' grade focus must survive restoring the original class');
     if(viewport.width<=480){
       // Inspect the real last viewport fold, not only a container's style:
       // legacy fixed navigation can cover an otherwise correctly painted page.
@@ -91,6 +97,8 @@ async function run(browserType,label,viewport){
     }
     await page.locator('[data-tv="choose"]').first().click();await page.locator('.tv-dialog[open]').waitFor();
     assert.equal(await page.locator('[data-tv-troll]').count(),3,label+' offers all three locked trolls');
+    assert.equal(await page.evaluate(()=>document.activeElement?.getAttribute('data-tv-troll')),'storesoster',
+      label+' troll picker should focus the selected companion');
     // Preview should match the saved Tallvika scene artwork, not a stale portrait.
     const expectedPreview={storesoster:'storesoster-inworld-approved-20261026.webp',lillesoster:'lillesoster.webp',lillebror:'lillebror.webp'};
     for(const [id,filename] of Object.entries(expectedPreview)){
@@ -135,9 +143,14 @@ async function run(browserType,label,viewport){
       if(id!=='storesoster'){
         await page.locator('#tallvika-world [data-tv="choose"]').click();
         await page.locator('.tv-dialog[open]').waitFor();
+        assert.equal(await page.evaluate(()=>document.activeElement?.getAttribute('data-tv-troll')),
+          ['storesoster','lillesoster','lillebror'][['storesoster','lillesoster','lillebror'].indexOf(id)-1],
+          label+' troll picker does not restore current saved selection');
       }
       await page.locator('[data-tv-troll="'+id+'"]').click();
       assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('laerlittmer-v2')).profile.tallvikaTroll),id,label+' does not persist '+id);
+      assert.equal(await page.evaluate(()=>document.activeElement?.getAttribute('data-tv')),'choose',
+        label+' focus lost when companion change rebuilt Tallvika');
       const image=page.locator('#tallvika-world .tv-companion img');
       const src=await image.getAttribute('src');
       assert.ok(id==='storesoster'?src.includes('/storesoster-inworld-approved-20261026.webp'):src.includes('/'+id+'.webp'),label+' shows wrong troll for '+id);

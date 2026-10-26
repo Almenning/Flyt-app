@@ -5,10 +5,14 @@ const root=path.join(__dirname,'..','laer-litt-mer');
 const read=name=>fs.readFileSync(path.join(root,name),'utf8');
 const html=read('index.html'),js=read('tallvika.js'),css=read('tallvika.css');
 assert.match(html,/tallvika\.css\?v=20261026-storesoster-picker-dialog4/);
-assert.match(html,/tallvika\.js\?v=20261026-storesoster-picker2/);
+assert.match(html,/tallvika\.js\?v=20261026-storesoster-focus3/);
 assert.match(html,/math:Object\.freeze\(\{title:'Tallvika'\}\)/);
 assert.match(js,/storesoster/);assert.match(js,/lillesoster/);assert.match(js,/lillebror/);
 assert.match(js,/tallvikaTroll/);
+assert.match(js,/querySelector\(action === 'choose'/, 'dialog must identify current selection by kind');
+assert.match(js,/\.focus\(\{preventScroll:true\}\)/, 'selection returns keyboard focus without scrolling');
+assert.match(js,/document\.querySelector\('#tallvika-world \[data-tv=\\"choose\\"\]'\)/,
+  'character selection should restore focus to refreshed trigger');
 assert.match(js,/storesoster-inworld-approved-20261026\.webp/);
 assert.match(css,/tv-companion__ground/);
 assert.match(js,/openMultiplicationLab/);assert.match(js,/openFractionLab/);
