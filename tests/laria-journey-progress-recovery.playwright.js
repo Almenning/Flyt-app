@@ -101,7 +101,13 @@ async function activeSnapshot(page){
 // original back hotspot offscreen, while the fixed iPad return stays visible.
 async function returnFromJourney(page,root,label,subject){
  if(subject==='norwegian'){
-   await page.locator('#eggenipa-map-return:visible').click();
+   // Return through the actual Bokskogen control, which may become a
+   // floating back action after the renderer focuses the current stop.
+   const native=root.locator('.locked-journey-back');
+   const floating=root.locator('.locked-journey-floating-back');
+   const back=await floating.isVisible()?floating:native;
+   assert.equal(await back.getAttribute('aria-label'),'Tilbake til Eggenipa',label+' native Bokskogen return');
+   await back.click();
    await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
    await page.locator('#eggenipa-world [data-eg="home"]').click();
    await page.locator('#home-screen.active').waitFor({timeout:16000});
