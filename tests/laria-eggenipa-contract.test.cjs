@@ -65,3 +65,11 @@ test('Release gate: exact 1672x941 Eggenipa original is present and SHA-256 veri
   const actual=crypto.createHash('sha256').update(file).digest('hex');
   assert.equal(actual,EXPECTED_SHA,'Not the approved exact original; do not regenerate or retouch');
 });
+
+test('Eggenipa observer cannot schedule a class mutation loop',()=>{
+ const guarded=/if\(!screen\.classList\.contains\('eggenipa-active'\)\)screen\.classList\.add\('eggenipa-active'\)/g;
+ assert.equal([...js.matchAll(guarded)].length,2,
+  'Every build path must check the class before changing it');
+ assert.match(js,/if\(screen\.classList\.contains\(flag\)\)screen\.classList\.remove\(flag\)/,
+  'Do not emit an absent-class mutation inside MutationObserver callbacks');
+});

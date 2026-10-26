@@ -54,3 +54,9 @@ Brukeren godkjente den eksakte Eggenipa-illustrasjonen, men avviste resten av de
 
 - De siste barnevise hjelpeinvitasjonene i Ordjakt sier nå «Hint», ikke «reven».
 - Oppdatert full WordHunt-test: beholder 44px-trykkflater, respons ved feil og riktig, levende brett, 4/5 ord, progresjon og repetisjon, men krever Eggenipa-bakgrunn og magisk symbol fremfor gammelt revebilde.
+
+## Rotårsaksrettelse og tester
+
+- Feil i Chromium/WebKit: Barnet kunne trykke Norsk, men appens hovedtråd hang fordi Eggenipa observerte egne CSS-klasseendringer og skrev de samme klassene på nytt. Rettet ved å kontrollere om hver klasse faktisk endres før add/remove.
+- Streng Node-kontrakt hindrer tilbakefall av denne observer-løkken; øvrige tidligere fox-identitetstester gjelder fortsatt andre fag, men den nye Norsk-leken må vise hint uten statisk rev.
+- Eksisterende fire-kapittel-test godtar nyere versjonerte Ordjakt-skript og CSS; alle progresjons- og dataisolasjonstester beholdes.
