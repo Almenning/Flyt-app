@@ -21,3 +21,11 @@ Brukeren godkjente den eksakte Eggenipa-illustrasjonen, men avviste resten av de
 4. Chromium/WebKit-skjermbilder fra iPhone/iPad stående og liggende, sammenlign med illustrasjonsfasit, full Læria-regresjon før visuell godkjenning og publisering.
 
 **Avgrensning:** Norsk-prioritert. Matte-PR #223 og trollpiloter #219/#224 endres ikke. All utvikling skjer i en draft-PR; produksjonen fra PR #226 er foreløpig uendret.
+
+
+## Videreført: gamle statiske følgere fjernet fra de to norsklekene
+
+- Ordjakt bruker nå en abstrakt magisk hjelpekontroll i stedet for gamle revebilder på startsiden, hintkontrollen og følgesvennplassen. Temaer, rutenett, hint og lagring er bevart.
+- Finn ordene har ikke lenger karakterbildet som hintknapp, og åpningen krever ikke den gamle LARIA_FOX-tjenesten. Dramekanikk, ord-/objekthotspots, progresjon, støtte og lyd beholdes.
+- Begge lekene har samme godkjente Eggenipa-landskap som atmosfærisk bakgrunn, men bakgrunns-PNG er uendret. Godkjente, levende skogstroll integreres først ved en kvalitetsklar TrollActor, ikke ved å lime inn statiske figurer.
+- Delte Norsk-øvelser, full nettleser-QA og gamle fox-/kartbaserte forventninger i testpakken gjenstår.

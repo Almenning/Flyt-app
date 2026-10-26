@@ -66,12 +66,7 @@
   function persist(){
     write(ACTIVE_KEY,{version:1,round:active.round,found:[...active.found],completed:active.completed,selected:selectedWord});
   }
-  function chosenFox(){
-    const api=root.LARIA_FOX;
-    const choice=api?.choice?.()||'boy';
-    return {choice,label:api?.label?.(choice)||'Din rev',
-      source:api?.worldSource?.(choice)||'./lia-fox-explorer-home.webp'};
-  }
+  // Hint and progress are independent of the retired static companion.
   function words(){return ROUNDS[active.round]}
   function sceneId(){return active?.round>=3?'garden':'forest'}
   function sceneObjects(){return sceneId()==='garden'?GARDEN_IDS:FOREST_IDS}
@@ -83,20 +78,20 @@
       '<span class="fw-pin" aria-hidden="true">✓</span></button>'; }).join('');
   }
   function markup(){
-    const fox=chosenFox(),garden=sceneId()==='garden';
+    const garden=sceneId()==='garden';
     const scene= garden?'./find-the-words-garden-premium.webp?v=20261023-premiumgarden3':'./find-the-words-scene.svg?v=20261018-a';
     const sceneAlt=garden?
       'Magisk hage med rødt eple, ugle, sommerfugl, lykt, liten bro, sopp, bok og pinnsvin':
       'Illustrert skog med vann, telt, sol og mange små oppdagelser';
     return '<div class="fw-shell">'+
       '<header class="fw-top"><button type="button" class="fw-back" aria-label="Tilbake til Utforsk">←</button>'+
-      '<div class="fw-title"><span class="fw-eyebrow">NORSK · '+(garden?'DEN HEMMELIGE HAGEN':'BOKSKOGEN')+'</span><h1 id="fw-title">Finn ordene</h1>'+
+      '<div class="fw-title"><span class="fw-eyebrow">NORSK · '+(garden?'DEN HEMMELIGE HAGEN':'EGGENIPAS SKOG')+'</span><h1 id="fw-title">Finn ordene</h1>'+
       '<p>Velg et ord. Finn riktig ting!</p></div>'+
       '<button type="button" class="fw-audio" aria-label="Les opp oppgaven">♪ <span>Hør</span></button></header>'+
       '<div class="fw-layout"><aside class="fw-word-panel" aria-labelledby="fw-list-title">'+
-      '<div class="fw-list-heading"><div><span class="fw-tiny">'+(garden?'DEN HEMMELIGE HAGEN':'BOKSKOGEN')+'</span>'+
+      '<div class="fw-list-heading"><div><span class="fw-tiny">'+(garden?'DEN HEMMELIGE HAGEN':'EGGENIPAS SKOG')+'</span>'+
       '<h2 id="fw-list-title">Finn ordene</h2></div><span class="fw-counter"></span></div>'+
-      '<p class="fw-panel-copy">Se deg rundt i '+(garden?'den hemmelige hagen':'Bokskogen')+'. Velg et ord og finn tingen i bildet.</p>'+
+      '<p class="fw-panel-copy">Se deg rundt i '+(garden?'den hemmelige hagen':'Eggenipas skog')+'. Velg et ord og finn tingen i bildet.</p>'+
       '<div class="fw-list" role="list"></div><div class="fw-progress" aria-hidden="true"><span></span></div>'+
       '<button type="button" class="fw-hint">💡 Hint</button>'+
       '<p class="fw-list-foot">Trykk på ordet og finn tingen, eller dra ordet rett til bildet.</p></aside>'+
@@ -108,7 +103,7 @@
       '<div class="fw-celebration" hidden aria-hidden="true">✦ ✧ ✦</div></div></div>'+
       '<div class="fw-scene-bottom"><span class="fw-scenery-caption">Trykk på et ord eller dra det til tingen.</span></div></div></div>'+
       '<footer class="fw-bottom"><div class="fw-companion" data-mood="idle">'+
-      '<button type="button" class="fw-fox-button" aria-label="Spør reven om et hint"><img class="fw-fox" src="'+fox.source+'" alt="'+fox.label+'" draggable="false"></button>'+ 
+      '<button type="button" class="fw-fox-button" aria-label="Få et hint"><span class="fw-fox" aria-hidden="true">✦</span><span class="fw-hint-label" aria-hidden="true">Hint</span></button>'+ 
       '<div class="fw-speech" role="status" aria-live="polite">Jeg blir med! Velg et ord, så finner vi tingen.</div></div>'+
       '<div class="fw-controls"><button type="button" class="fw-next">Ny ordjakt <span aria-hidden="true">↗</span></button></div></footer></div>';
   }
@@ -118,8 +113,8 @@
     const garden=sceneId()==='garden';
     const placeLabel=overlay.querySelector('.fw-tiny');
     const panelCopy=overlay.querySelector('.fw-panel-copy');
-    if(placeLabel) placeLabel.textContent=garden?'DEN HEMMELIGE HAGEN':'BOKSKOGEN';
-    if(panelCopy) panelCopy.textContent='Se deg rundt i '+(garden?'den hemmelige hagen':'Bokskogen')+'. Velg et ord og finn tingen i bildet.';
+    if(placeLabel) placeLabel.textContent=garden?'DEN HEMMELIGE HAGEN':'EGGENIPAS SKOG';
+    if(panelCopy) panelCopy.textContent='Se deg rundt i '+(garden?'den hemmelige hagen':'Eggenipas skog')+'. Velg et ord og finn tingen i bildet.';
     const all=words();
     overlay.querySelector('.fw-list').innerHTML=all.map(word=>{
       const item=OBJECTS[word],found=active.found.has(word),selected=selectedWord===word;
@@ -360,7 +355,7 @@
     // The second illustrated world has its own hotspots, word list and art.
     // Rebuild DOM on scene change; never leave the previous world's image up.
     overlay.innerHTML=markup();refresh();
-    react('greet',sceneId()==='garden'?'Velkommen til den hemmelige hagen! Her er helt nye ting å oppdage.':'Nye ord i Bokskogen! Velg eller dra et ord til riktig ting.');
+    react('greet',sceneId()==='garden'?'Velkommen til den hemmelige hagen! Her er helt nye ting å oppdage.':'Nye ord ved Eggenipa! Velg eller dra et ord til riktig ting.');
     const first=overlay?.querySelector('.fw-word');
     first?.focus({preventScroll:true});
   }
@@ -393,7 +388,7 @@
     }
   }
   function open(){
-    if(!DOC||!root.LARIA_FOX)return;
+    if(!DOC)return;
     if(!overlay){
       overlay=DOC.createElement('section');overlay.id='find-the-words-overlay';
       overlay.className='fw-overlay';overlay.hidden=true;overlay.setAttribute('role','dialog');
