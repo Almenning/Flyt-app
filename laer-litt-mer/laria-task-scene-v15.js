@@ -66,15 +66,20 @@
     guide.classList.add('fox-correct');
     window.setTimeout(()=>guide.classList.remove('fox-correct'),620);
   }
-  function bindNorskGuideReaction(wrap){
-    if(!wrap||wrap.dataset.norskGuideReactionBound==='true')return;
-    wrap.dataset.norskGuideReactionBound='true';
-    // A real answer interaction updates currentAnswered before its click
-    // bubbles to this wrapper. Ignore Read aloud, Next and unrelated controls.
-    // Keyboard-activated buttons also emit click, so no duplicate key handler.
-    wrap.addEventListener('click',event=>{
-      if(!event.target.closest?.('.task-interaction'))return;
-      if(typeof currentAnswered!=='undefined'&&currentAnswered?.correct===true)reactNorskGuide();
+  function bindNorskGuideReaction(interaction){
+    if(!interaction||interaction.dataset.norskGuideReactionBound==='true')return;
+    interaction.dataset.norskGuideReactionBound='true';
+    // The interaction node is replaced on every question, unlike #question-wrap.
+    // Suppress duplicate celebration within one question, but reset for the next.
+    let celebrated=false;
+    interaction.addEventListener('click',event=>{
+      if(celebrated||!event.target.closest?.('button,[role="button"]'))return;
+      // The answer handler updates currentAnswered before the click bubbles.
+      // Read aloud, navigation and taps outside answer controls do not trigger.
+      if(typeof currentAnswered!=='undefined'&&currentAnswered?.correct===true){
+        celebrated=true;
+        reactNorskGuide();
+      }
     });
   }
 
@@ -357,7 +362,7 @@
     if(subject==='geography')bindGeographyInteraction(q,wrap);
     else bindInteraction(q,wrap);
     // Other subjects are handled by LARIA_FOX_PRESENCE. Norsk has no fox.
-    if(subject==='norwegian')bindNorskGuideReaction(wrap);
+    if(subject==='norwegian')bindNorskGuideReaction(wrap.querySelector('.task-interaction'));
     const next=wrap.querySelector('#next-question');
     if(next)next.onclick=nextQuestion;
     bindReadAloud(q);

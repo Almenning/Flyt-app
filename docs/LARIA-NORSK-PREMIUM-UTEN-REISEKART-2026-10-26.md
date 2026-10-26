@@ -154,3 +154,11 @@ Brukeren godkjente den eksakte Eggenipa-illustrasjonen, men avviste resten av de
 - Ny Norsk-avgrenset kobling lytter på ekte svar-interaksjoner og gir korrekt svar én kort `fox-correct`-reaksjon (620 ms), uten å knytte gamle rev eller ikke-godkjente troll til Norsk. Opplesning, Neste og andre knapper kan ikke utløse reaksjonen; tastaturaktiverte knapper fungerer gjennom ordinært klikk.
 - `laria-task-phase3-polish` kontrollerer nå at hjelpesymbolet faktisk feirer riktig svar, at det finnes bare ett symbol, og at reaksjonen opphører. Det eldre Prompt 13-regresjonskravet for valgt rev og reaksjon kjøres nå på Engelsk, som fortsatt skal beholde samme fungerende rev frem til separat migrering.
 - JS-URL versjonert for Safari/service-worker. Ingen læringsdata, Eggenipa-master eller andre fag er endret.
+
+
+### 26.10 – riktig reaksjon per oppgave, full statisk kontrakt
+
+- På `24d1389` viste CI at 407 av 408 Node-tester var grønne; eneste feil var en foreldet tekstbasert kontrakt som fortsatt krevde at *alle* fag kun brukte `LARIA_FOX_PRESENCE`. Kontrakten tester nå korrekt fagdeling: Norsk har egen magisk svarreaksjon; øvrige fag beholder eksisterende revekobling.
+- Samtidig ble en potensiell repetisjonsfeil rettet: en listener på permanente `#question-wrap` kunne feire flere ganger etter et riktig svar. Listeneren festes nå til nye `.task-interaction` for hver oppgave og stopper etter første riktige reaksjon. Neste oppgave får egen listener; opplesning og navigasjon er utenfor.
+- Nettlesertesten kontrollerer også at oppgave 2 feirer riktig svar, og at symbolet går tilbake til hvile. CSS, figurer, Eggenipa-original og læringsdata er urørt.
+- Separat Gangemagi-CI feilet etter tre grønne Chromium-størrelser fordi WebKit ikke startet uten `libicudata.so.74` på runneren. Det er et miljøavvik, ikke dokumentert appregresjon. Krever separat verifisering.

@@ -187,6 +187,14 @@ async function run(engine,name,viewport,url){
    assert.equal(await page.locator('#next-question').innerText(),'Fullfør');
    assert.equal(await page.locator('#next-question').getAttribute('aria-label'),'Fullfør oppdraget');
    await page.locator('#session-screen .answer[data-answer="'+question.answer+'"]').click();
+   if(subject==='norwegian'){
+     await page.waitForFunction(()=>document.querySelector('#session-screen.active .task-norsk-guide')?.classList.contains('fox-correct'),
+       null,{polling:25,timeout:1000});
+     assert.equal(await page.locator('#session-screen.active .task-norsk-guide').count(),1,
+       label+' next task duplicated the Norsk guide');
+     await page.waitForFunction(()=>!document.querySelector('#session-screen.active .task-norsk-guide')?.classList.contains('fox-correct'),
+       null,{polling:50,timeout:2400});
+   }
    assert.match(await page.locator('#feedback-title').innerText(),/Riktig/);
    await page.screenshot({path:path.join(shots,name+'-'+subject+'-02-complete-answer.png'),animations:'disabled',fullPage:true});
    await page.locator('#next-question').click();

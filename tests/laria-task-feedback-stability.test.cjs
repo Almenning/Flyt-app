@@ -67,10 +67,14 @@ test('New task card is anchored and scrolls instead of re-centering on feedback'
   assert.match(sceneJs,/scrollHost\.scrollTop=0/);
   assert.match(sceneJs,/normalizeLegacyYoungEnglish\(q\)/);
 });
-test('Single selected fox already owns answer reactions',()=>{
-  assert(!sceneJs.includes('    bindFoxReaction(wrap);'),'duplicate reaction listener was reintroduced');
-  assert.match(sceneJs,/LARIA_FOX_PRESENCE owns answer reactions/);
-  assert.match(sceneJs,/task-hear-word/);
+test('Fox presence remains separate from the single Norwegian answer guide',()=>{
+  assert(!sceneJs.includes('    bindFoxReaction(wrap);'),'duplicate legacy fox reaction listener was reintroduced');
+  assert(sceneJs.includes('LARIA_FOX_PRESENCE'),'other subjects must retain established fox presence');
+  assert(sceneJs.includes("if(subject==='norwegian')bindNorskGuideReaction(wrap.querySelector('.task-interaction'));"),
+    'Norsk reaction must bind to each new answer interaction');
+  assert(sceneJs.includes('let celebrated=false'),'each new Norwegian question must suppress repeated celebrations');
+  assert(sceneJs.includes('currentAnswered?.correct===true'),'Norsk guide must celebrate only a genuinely correct answer');
+  assert.match(sceneJs,/task-hear-word/,'English pronunciation must be preserved');
   assert(!html.includes("textContent=correct?(currentGrade()<=2?'🦊 ⭐ Riktig!'"),'feedback emoji portrait leaked back');
 });
 test('Norwegian instructions and English pronunciation use separate voices',()=>{
