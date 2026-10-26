@@ -25,6 +25,18 @@ test('English Kinnaklova is a subject-only presentation over unchanged learning 
 test('Approved scene is one painted 1672x941 image with mapped transparent targets',()=>{
  assert.equal(locked.state,'composition-approved-except-characters');
  assert.equal(locked.reference.sha256,'3b1d6b6e6c9908dd31c519593504ac22dd2c7473ef05fa51ecd57885cdc6e035');
+ // Approval must be explicit in BOTH manifest and browser code. A correctly
+ // sized, renamed copy of the rejected reference is not a clean art asset.
+ const browserHash=js.match(/const APPROVED_ART_SHA256='([^']*)'/)?.[1];
+ assert.ok(browserHash!==undefined,'Browser must gate by SHA-256');
+ if(locked.implementation?.clean_master_visual_approved){
+   assert.equal(browserHash,locked.implementation.clean_master_sha256);
+ }else{
+   assert.equal(browserHash,'','Draft must never render a scene by size alone');
+ }
+ assert.match(js,/globalThis\.crypto\.subtle\.digest\('SHA-256'/);
+ assert.match(js,/APPROVED_ART_SHA256===REJECTED_REFERENCE_SHA256/);
+ assert.match(css,/#kinnaklova-world:not\(\[data-ki-art="ready"\]\) \.ki-master\{visibility:hidden\}/);
  assert.match(js,/kinnaklova-scene-clean-approved-20261026\.webp/);
  assert.match(js,/naturalWidth===1672&&image\.naturalHeight===941/);
  assert.match(js,/ki-master/);
@@ -33,6 +45,7 @@ test('Approved scene is one painted 1672x941 image with mapped transparent targe
  assert.match(css,/ki-painted-words/);
  assert.match(css,/ki-painted-sentences/);
  assert.match(css,/ki-painted-reading/);
+ assert.match(css,/min-height:44px;min-width:44px/);
  assert.doesNotMatch(js,/ki-peak|ki-sky|ki-lighthouse|ki-house|ki-island/);
  assert.doesNotMatch(css,/\.ki-peak|\.ki-sky|\.ki-lighthouse|\.ki-island/);
 });
