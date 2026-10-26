@@ -28,8 +28,10 @@ async function returnFromBokskogen(page,name){
     name+' redundant fixed return overlay must not obscure the painted map');
   const floating=page.locator('#subject-screen.active .locked-journey-floating-back');
   const back=page.locator('#subject-screen.active .locked-journey-back');
-  if(await floating.isVisible())await floating.click();
-  else await back.click();
+  // A child taps this painted control. Synthetic mouse clicks previously
+  // missed an intermittent iPad touch-return failure in full Basecamp QA.
+  if(await floating.isVisible())await floating.tap();
+  else await back.tap();
   await page.locator('#eggenipa-world').waitFor({state:'visible',timeout:15000});
 }
 async function enter(page){
