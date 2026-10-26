@@ -36,7 +36,7 @@ jobs:
       - name: Validate Kinnaklova source and exact character identity
         run: |
           node --check laer-litt-mer/kinnaklova.js
-          node --test tests/laria-kinnaklova-contract.test.cjs
+          node --test tests/laria-kinnaklova-*.test.cjs
       - name: Validate committed diff whitespace
         run: git diff --check HEAD^ HEAD
   kinnaklova-browser:
