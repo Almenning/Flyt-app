@@ -136,7 +136,7 @@
             <button type="button" class="tv-hotspot tv-hotspot-table" data-tv="table" aria-label="Åpne Gangetabellen"><span class="tv-hotspot-cue" aria-hidden="true">↗</span><b>Gangetabellen</b></button>
             <!-- The painted 'Neste eventyr' sign already looks like a link.
                  Reuse the existing voluntary journey action, without a new step. -->
-            <button type="button" class="tv-scene-next" data-tv="next"
+            <button type="button" class="tv-scene-next" data-tv="next-sign"
               aria-label="${p?.complete ? 'Åpne frivillig bonusoppdrag i matte' : n ? 'Åpne neste matteoppdrag: '+esc(n.title || 'Neste eventyr') : 'Ingen nye matteoppdrag tilgjengelig'}"
               ${n||p?.complete?'':'disabled'}></button>
           </div>
@@ -187,7 +187,7 @@
     if (action === 'grade') document.querySelector('#tallvika-world .tv-grade-dialog')?.showModal();
     if (action === 'multiply'||action === 'fraction'||action === 'table')
       beginActivity(action,button);
-    if (action === 'next') { const {p,n,grade}=progress(); if (p?.complete) app()?.startJourneyChallenge?.('math'); else if(n) app()?.startJourneyNode?.('math',n.id,grade); }
+    if (action === 'next' || action === 'next-sign') { const {p,n,grade}=progress(); if (p?.complete) app()?.startJourneyChallenge?.('math'); else if(n) app()?.startJourneyNode?.('math',n.id,grade); }
   });
   screen.addEventListener('click', event => {
     const button = event.target.closest('[data-tv-troll]');

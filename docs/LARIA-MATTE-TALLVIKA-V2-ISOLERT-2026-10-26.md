@@ -58,3 +58,8 @@ Den godkjente Tallvika-illustrasjonen inneholder et tydelig, malt skilt med teks
 **Tiltak:** Legg et transparent, semantisk button-treffområde over skiltet (minst 44×44 CSS-px), tilgjengelig med berøring, mus og tastatur. Det deler eksisterende `data-tv="next"`-ruting med den frivillige oppdragsknappen. Når neste kapittel mangler, er både skilt og knapp deaktivert. Det legges **ingen nye bilder, ikoner, animasjoner eller oppgaver** inn i verdenen. Eksisterende tre hus-knapper berøres ikke.
 
 **QA:** Egen Chromium/WebKit-test på iPhone og iPad måler faktisk treffområde, at skiltet ligger på den nedre høyre delen av originalbildet uten å overlappe Gangetabellen, lik disabled-tilstand og samme mål i den eksisterende matte-rutingen. Eksisterende spill-, lagrings-, returruting- og øvrig QA beholdes. Inntil nye tester er grønne på siste commit er dette ikke klart for merge/publisering.
+
+
+#### Oppfølgingsrettelse: unikt handlingsnavn (26.10)
+
+Integrert WebKit-QA [run #40313772700](https://github.com/Almenning/Flyt-app/actions/runs/40313772700) avdekket at gjenbruk av `data-tv="next"` på selve bildet brøt den etablerte kontrakten om **én** `[data-tv="next"]` i Tallvika: `locator.isEnabled` fant to elementer. Det var ikke en WebKit-miljøfeil. **Rotrettelse:** Det malte skiltet har nå unikt `data-tv="next-sign"`, mens både `next-sign` og eksisterende `next` går til identisk, frivillig matteoppdrag i samme event-delegering. Den gamle primærknappen og dens automatiske testselektor forblir uendret. Ny Tallvika-test kontrollerer fortsatt at begge innganger fungerer likt, og integrert QA må bli grønn på ny head før merge.
