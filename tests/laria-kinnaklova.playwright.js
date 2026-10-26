@@ -94,6 +94,8 @@ async function run(browserType,name,viewport){
     assert.equal(await page.evaluate(()=>window.LARIA_KINNAKLOVA.ready()),false);
     assert.equal(await world.locator('.ki-companions').isVisible(),false,
       name+' must not reveal trolls over a missing/unclean background');
+    assert.equal(await world.locator('.ki-master').isVisible(),false,
+      name+' must never flash an unapproved painted background');
     await world.locator('.ki-art-unavailable:visible').waitFor();
   }
   const overflow=await page.evaluate(()=>({
@@ -138,7 +140,41 @@ async function run(browserType,name,viewport){
   await context.close();
  }finally{await browser.close();}
 }
+async function rejectPoisonedSameSizeArt(){
+ const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
+ try{
+  const context=await browser.newContext({viewport:{width:1194,height:834},serviceWorkers:'block'});
+  await context.addInitScript(initial=>{
+   localStorage.setItem('laerlittmer-v2',JSON.stringify(initial));
+  },seed);
+  const page=await context.newPage();
+  const unrelatedImage=path.join(__dirname,'..','laer-litt-mer','assets','norsk','eggenipa-master-laast-20261025.png');
+  // A valid image with the exact right dimensions, but not the approved
+  // clean Kinnaklova master, must not activate painted signs or troll layers.
+  await page.route('**/assets/kinnaklova/kinnaklova-scene-clean-approved-20261026.webp',
+    route=>route.fulfill({path:unrelatedImage,contentType:'image/png'}));
+  await page.route('https://raw.githubusercontent.com/**',r=>r.abort());
+  await page.route('https://api.worldbank.org/**',r=>r.abort());
+  await page.goto(url,{waitUntil:'domcontentloaded',timeout:90000});
+  await visitEnglish(page);
+  const painted=page.locator('#kinnaklova-world .ki-master');
+  await page.waitForFunction(()=>{
+   const el=document.querySelector('#kinnaklova-world .ki-master');
+   return el?.complete&&el.naturalWidth===1672&&el.naturalHeight===941;
+  },null,{timeout:15000});
+  assert.equal(await page.locator('#kinnaklova-world').getAttribute('data-ki-art'),'unapproved');
+  assert.equal(await painted.isVisible(),false,'Wrong 1672x941 art must be invisible');
+  assert.equal(await page.locator('#kinnaklova-world .ki-companions').isVisible(),false);
+  assert.equal(await page.locator('#kinnaklova-world .ki-painted-words').isVisible(),false);
+  assert.equal(await page.locator('#kinnaklova-world .ki-card').count(),3,
+   'Even with incorrect art, real English activities must remain reachable');
+  console.log('[KINNAKLOVA] exact-size unapproved art blocked in Chromium');
+  await context.close();
+ }finally{await browser.close()}
+}
+
 (async()=>{
+ await rejectPoisonedSameSizeArt();
  for(const [label,viewport] of [
    ['iphone-portrait',{width:390,height:844}],
    ['iphone-landscape',{width:844,height:390}],
