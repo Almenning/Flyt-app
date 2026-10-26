@@ -107,7 +107,9 @@ test('Words, Sentences and Reading use existing real English learning modules',(
    assert.match(js,new RegExp("id:'"+id+"'"));
    assert.match(js,new RegExp("module:'"+module+"'"));
  }
- assert.match(js,/startLearningSession\?\.\('english',activity\.module,activity\.name\)/);
+ assert.match(js,/startLearningSession\?\.\('english',activity\.module,activity\.name,true\)/);
+ assert.match(html,/function startLearningSession\(subject,module,label,strictModule=false\)/);
+ assert.match(html,/strictModule&&focused\.length>=5\?\[\]/);
  assert.match(js,/resumeSession\?\.\('english'\)/);
  assert.match(js,/locked-journey-subject-english/);
  assert.match(css,/@media\(max-width:700px\)/);
