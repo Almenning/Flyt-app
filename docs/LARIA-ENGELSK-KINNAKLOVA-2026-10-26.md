@@ -121,3 +121,9 @@ Barnets viktigste trinn hadde kun fem engelske lesetekster, noe som gjorde Readi
 - Innholdskontrakten sikrer at alle ordbrikker bygger nøyaktig riktig setning, at oppgavene er unike, alderspassende og inneholder minst åtte kystmotiver.
 - Chromium/WebKit-QA har fått eksplisitt kontroll av at barnets faktiske Reading-tekst er synlig på oppgavekortet, samsvarer med den valgte teksten og ikke skaper horisontal scrolling. Det lagres også skjermbilde av Reading på iPhone/iPad stående/liggende. For 1. klasse verifiseres også at den første minifortellingen vises.
 - Ingen endring i låst illustrasjon eller trollidentitet; kunstporten forblir med hensikt rød og PR #229 forblir draft til godkjent ren kunst finnes.
+
+## 26.10.2026 – Egen Engelsk (2)-gren: språk for skjermleser og høytlesning
+
+- Den nye Kinnaklova-Reading-flaten beholder story-first-rekkefølgen, men både fortelling og tilhørende spørsmål er nå eksplisitt merket med HTML-språket `en`, slik at VoiceOver og andre skjermlesere ikke automatisk forsøker norsk uttale av engelsk tekst.
+- Egen Chromium/WebKit-QA bekrefter både språkmerkingen og at TTS-segmentene leser selve engelske fortellingen først (`en-GB`) i første og andre klasse. Øvrige fag og oppgavetyper er urørt.
+- Endringen ligger isolert i `feat/laria-kinnaklova-reading-language-20261026`, basert på draft #229, for å unngå samtidige endringer i samme Engelsk-gren. Den låste bildefilens publiseringssperre er uendret.
