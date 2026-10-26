@@ -205,6 +205,15 @@ async function run(engine,label,viewport,url){
    assert.equal(await afterReload.locator('.locked-journey-board > .locked-journey-traveler').count(),1,
       label+' '+subject+' fox was not returned to the illustrated map');
    await afterReload.locator('.locked-journey-back').click();
+   if(subject==='norwegian'){
+     // Norwegian now returns from Bokskogen to its approved Eggenipa
+     // landing, then to Home. All persisted progress assertions above
+     // remain unchanged.
+     await page.locator('#eggenipa-world:visible').waitFor({timeout:12000});
+     assert.equal(await page.locator('#subject-screen.active').getAttribute('data-subject'),'norwegian',
+       label+' Bokskogen returned to wrong subject');
+     await page.locator('#eggenipa-world [data-eg="home"]').click();
+   }
    await page.locator('#home-screen.active .bc14-subject').first().waitFor({timeout:12000});
   }
   assert.deepEqual(errors,[],label+' javascript exceptions');
