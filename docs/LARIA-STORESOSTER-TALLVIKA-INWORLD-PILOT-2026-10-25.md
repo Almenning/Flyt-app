@@ -83,3 +83,13 @@ Ny GitHub-asset: `laer-litt-mer/assets/tallvika/storesoster-inworld-approved-202
 Kun storesøsterens **Tallvika-scene** bruker den godkjente filen; opprinnelig karaktervelger, andre troll og læringsmotor er uendret. Overflødig `brightness/saturate`-CSS er fjernet for storesøsteren, slik at den godkjente fargetonen ikke endres ved visning. Kontaktskyggen bevares. Node- og Playwright-kontrakter er utvidet for å låse hash, riktig bildevalg og bildedimensjoner. Serviceworker-cache versjonert for å motvirke gammel asset.
 
 **Skille mellom portene:** Det er nå godkjent **karakterdesign** og kodekobling i draft-PR, men ikke endelig visuell QA av det nye faktiske nettleserbildet. Ikke merge eller publiser før Chromium/WebKit-skjermbilder fra eksakt HEAD og visuell kontroll. Ekte 2D-rigging er fortsatt blokkert av uillustrert skjult anatomi i issue #221; ORA-skisselag er ikke bevis for rigging.
+
+## 26.10.2026 – Synlig Storesøster i smalt mobilpanorama (responsiv korrektur)
+
+Utgangspunkt: faktisk WebKit 390×844 fra godkjent art-HEAD viser Storesøster liten, fordi original iPad-relative figurareal (9,3 % bred / 31,4 % høy) nedskaleres sammen med hele det låste 1672×941-landskapet. Ingen feil i PNG-en eller karaktervalget.
+
+Kun under eksisterende mobile layout `@media(max-width:700px)` skaleres **storesøster alene** til 13,2 % bred / 43,5 % høy; `left:55.5%`, `bottom:12.5%`. Figurens horisontale midtpunkt endres nesten ikke, hun forblir på den nedre steinbroen, og alle tre malte hyttenavnene og Tallvika-skiltet ligger uforandret i samme ukroppede master. Andre troll beholder helt uendret CSS og originalbilder; alle læringsmotorer, lagring og kontroller er uberørt.
+
+Ny eksakt-HEAD Chromium+WebKit-test inkluderer nå også 320×568 kompakt iPhone i tillegg til 390×844 og større skjermstørrelser; geometriske forhold sjekker at storesøsteren faktisk blir større uten å flyttes over hytteskilt og at føttene fortsatt står på stien. Testsuiten produserer faktiske skjermbilder for visuell kontroll.
+
+**Stoppunkt:** Dette er kun kode-/layoutpilot, ikke endelig visuell godkjenning. Ikke merge/publiser før reelle bilder er gjennomgått og brukeren har godkjent. Issue #221 for separate anatomiske illustrasjonslag/ekte rigging gjenstår uendret.

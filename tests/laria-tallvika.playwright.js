@@ -110,6 +110,22 @@ async function run(browserType,label,viewport){
         assert.equal(imageInfo.width,512,label+' storesoster approved art width');
         assert.equal(imageInfo.height,1024,label+' storesoster approved art height');
         assert.ok(!['brightness(', 'saturate(', 'contrast('].some(fn=>imageInfo.filter.includes(fn)),label+' approved artwork must retain its colours');
+        if(viewport.width<=480){
+          const placement=await page.locator('#tallvika-world .tv-companion').evaluate(el=>{
+            const scene=el.closest('.tv-scene').getBoundingClientRect(),box=el.getBoundingClientRect();
+            return {left:(box.left-scene.left)/scene.width,top:(box.top-scene.top)/scene.height,
+              width:box.width/scene.width,height:box.height/scene.height,
+              bottom:(scene.bottom-box.bottom)/scene.height};
+          });
+          // On portrait phones the unchanged entire panorama shrinks ~3×.
+          // Enlarge only the approved Storesøster's foreground placement:
+          // don't shrink her with the original iPad percentage dimensions.
+          assert.ok(placement.height>=.42&&placement.height<=.45,label+' Storesøster must be large enough to recognise on a phone');
+          assert.ok(placement.width>=.13&&placement.width<=.14,label+' portrait companion footprint is expected');
+          assert.ok(placement.left>=.54&&placement.left<=.57,label+' leave the painted Brøklab sign legible');
+          assert.ok(placement.top>=.42&&placement.top<=.47,label+' companion remains grounded in the lower path');
+          assert.ok(placement.bottom>=.11&&placement.bottom<=.14,label+' companion feet remain on the path');
+        }
       }
       if(viewport.width<=480&&output)await shot(page,label+'-'+id);
     }
@@ -122,4 +138,4 @@ async function run(browserType,label,viewport){
     await context.close();
   } finally {await browser.close();}
 }
-(async()=>{for(const [label,viewport] of [['iphone-portrait',{width:390,height:844}],['iphone-landscape',{width:844,height:390}],['ipad-portrait',{width:834,height:1112}],['ipad-landscape',{width:1194,height:834}]]){await run(chromium,'chromium-'+label,viewport);await run(webkit,'webkit-'+label,viewport);}})().catch(error=>{console.error(error);process.exitCode=1});
+(async()=>{for(const [label,viewport] of [['iphone-compact',{width:320,height:568}],['iphone-portrait',{width:390,height:844}],['iphone-landscape',{width:844,height:390}],['ipad-portrait',{width:834,height:1112}],['ipad-landscape',{width:1194,height:834}]]){await run(chromium,'chromium-'+label,viewport);await run(webkit,'webkit-'+label,viewport);}})().catch(error=>{console.error(error);process.exitCode=1});

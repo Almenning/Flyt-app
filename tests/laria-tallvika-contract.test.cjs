@@ -33,4 +33,6 @@ for(const [id,hash] of Object.entries(originalTrollSha)){
 }
 assert.match(js,/approved-painterly-20261026/);
 assert.doesNotMatch(css,/brightness\(\.985\) saturate\(\.95\)/);
+assert.match(css,/\.tv-companion\[data-troll-id="storesoster"\]\{left:55\.5%;bottom:12\.5%;width:13\.2%;height:43\.5%\}/,
+  'the only mobile-size change must be scoped to the user-approved Storesøster');
 console.log('Tallvika contract passed');
