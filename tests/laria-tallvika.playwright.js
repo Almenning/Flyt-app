@@ -46,14 +46,29 @@ async function run(browserType,label,viewport){
     const portalAudit=await portalCards.evaluateAll(nodes=>nodes.map(node=>{
       const r=node.getBoundingClientRect();
       const art=node.querySelector('.tv-portal-art');
+      const detail=node.querySelector('.tv-portal-copy small');
+      const eyebrow=node.querySelector('.tv-portal-kicker');
+      const title=node.querySelector('.tv-portal-copy b');
       return {name:node.getAttribute('aria-label'),height:r.height,width:r.width,
-        image:art?getComputedStyle(art).backgroundImage:'none',artHeight:art?.getBoundingClientRect().height};
+        image:art?getComputedStyle(art).backgroundImage:'none',artHeight:art?.getBoundingClientRect().height,
+        detailPx:parseFloat(getComputedStyle(detail).fontSize),
+        eyebrowPx:parseFloat(getComputedStyle(eyebrow).fontSize),
+        titlePx:parseFloat(getComputedStyle(title).fontSize)};
     }));
     assert(portalAudit.every(item=>item.height>=90&&item.width>=180&&item.artHeight>=85),
       label+' illustrated tap targets too small: '+JSON.stringify(portalAudit));
     assert(portalAudit.every(item=>item.name?.startsWith('Åpne ')&&
       item.image.includes('tallvika-master-laast-20261025.png')),
       label+' must use original, unmodified image on each portal');
+    assert(portalAudit.every(x=>x.detailPx>=12&&x.eyebrowPx>=10&&x.titlePx>=18),
+      label+' activity card typography is too small: '+JSON.stringify(portalAudit));
+    if(viewport.width>700){
+      const cues=await page.locator('#tallvika-world .tv-scene .tv-hotspot-cue').evaluateAll(nodes=>
+        nodes.map(n=>({w:n.getBoundingClientRect().width,h:n.getBoundingClientRect().height})));
+      assert.equal(cues.length,3,label+' missing original house affordances');
+      assert(cues.every(x=>x.w<=34&&x.h<=34),
+        label+' activity markers cover too much of the painted houses: '+JSON.stringify(cues));
+    }
     const art=await page.locator('.tv-scene').evaluate(el=>({w:el.getBoundingClientRect().width,h:el.getBoundingClientRect().height,scroll:document.documentElement.scrollWidth,client:document.documentElement.clientWidth}));
     assert.ok(art.w>250,label+' has a visible world');assert.ok(art.scroll<=art.client+2,label+' has no horizontal overflow');
     assert.equal(await page.locator('.tv-dock-intro h1').evaluate(el=>getComputedStyle(el).color),

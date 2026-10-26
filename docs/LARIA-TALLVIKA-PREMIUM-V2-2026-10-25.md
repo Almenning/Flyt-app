@@ -70,3 +70,9 @@ Låst prioritet: bedre barneopplevelse og kvalitetsriktig karakterkunst foran an
 ## Fase 4: presise utsnitt i aktivitetshyttene
 
 En egen kontroll av faktiske WebKit-skjermbilder og originalens geometri viste at Brøklab-kortet skar midt gjennom det malte butikkskiltet; det samme kunne skje for Gangetabellen. CSS-vinduene er derfor flyttet litt ned: Brøklab 80 %, Gangetabellen 75 %. Gangemagi beholder eksisterende fokus på gangestykker/arbeidsbenk. Dette er *kun bildeposisjon*, ikke rekonstruksjon, AI-genererte varianter eller inngrep i det låste originalmotivet. Nye Chromium-/WebKit-skjermbilder må sammenlignes før visuell godkjenning.
+
+## Fase 5: lesbare aktiviteter og mer diskrete innganger (26.10.2026)
+
+Faktiske WebKit-bilder fra PR #223 viste 10–11 px beskrivelser på aktivitetshyttene i liggende visninger og store kremfargede pilmerker som skygget for maleriet. Størrelsene justeres i eksisterende grunn- og breakpointregler: minst 12 px beskrivelser og 10 px aktivitetsetiketter, med litt større forklaring på iPhone. Dekorative huspiler reduseres fra 36 til 30 px, mens trykkflatene fortsatt er de samme store knappene. QA kontrollerer størrelsene direkte i Chromium/WebKit. Ingen illustrasjon, skogstroll eller spillmotor er endret.
+
+Samtidig er Bokskogen-testen korrigert fordi kort iPhone-landskap tilsiktet ruller til gjeldende oppdrag etter 350 ms. Testen verifiserer nå kartets dokumentposisjon og at oppdraget er synlig. Koden for Norsk er uendret. Full Laria QA på eksakt commit gjenstår.
