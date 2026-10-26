@@ -268,7 +268,7 @@ function scheduleCompanionOffer(){
     const current=document.getElementById('word-hunt-overlay');
     ui.companionTimer=null;
     if(!current||current.hidden||ui.completed||!current.querySelector('.word-hunt-theme-picker').hidden)return;
-    if(!ui.hintsUsed)companionSay('Vil du ha en ledetråd? Trykk på reven for et hint!','curious','offer');
+    if(!ui.hintsUsed)companionSay('Vil du ha en ledetråd? Trykk på Hint for å få hjelp!','curious','offer');
   },45000);
 }
 function hintSay(message,mood){
@@ -522,7 +522,7 @@ function checkLine(path){
     ui.missCount++;
     if(ui.missCount>=4&&!ui.helpOffered){
       ui.helpOffered=true;
-      companionSay('Skal vi prøve et hint sammen? Trykk på reven når du vil!','curious','offer');
+      companionSay('Skal vi prøve et hint sammen? Trykk på Hint når du vil!','curious','offer');
     }else foxReact(repeated?'repeated':near?'near':'wrong');
     status('Ikke et av ordene denne gangen. Prøv en annen retning.');
     return;

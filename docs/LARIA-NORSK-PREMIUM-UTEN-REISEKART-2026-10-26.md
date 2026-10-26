@@ -49,3 +49,8 @@ Brukeren godkjente den eksakte Eggenipa-illustrasjonen, men avviste resten av de
 - Eldre renderSubjectJourney kjørte automatisk ved openSubject('norwegian') og senere innholdshendelser, selv om den visuelle reisen var skjult. Det kunne konkurrere om klasser og bildekoding under åpning.
 - Norsk bruker nå eksisterende fagmotor uten kart-renderingen. Matte, Engelsk og Geografi beholder opprinnelige renderstier.
 - Hjem-kortets tilgjengelige navn sier nå Eggenipa, ikke Bokskogen. Gamle reisedata forblir lagret.
+
+## Fase 5: ordjakttekst og full regresjon
+
+- De siste barnevise hjelpeinvitasjonene i Ordjakt sier nå «Hint», ikke «reven».
+- Oppdatert full WordHunt-test: beholder 44px-trykkflater, respons ved feil og riktig, levende brett, 4/5 ord, progresjon og repetisjon, men krever Eggenipa-bakgrunn og magisk symbol fremfor gammelt revebilde.
