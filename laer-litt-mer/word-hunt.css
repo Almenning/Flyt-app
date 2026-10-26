@@ -700,7 +700,9 @@
   color:#33475c;font-family:inherit;text-align:center;cursor:pointer;touch-action:manipulation;
   transition:transform .14s ease,border-color .14s,box-shadow .14s;
 }
-.wh-theme-card:hover{transform:translateY(-2px)}
+/* Keep child touch geometry still on iPad WebKit: a 2px :hover
+   translate made the pressed card wobble and Playwright found it unstable. */
+.wh-theme-card:hover{transform:none;filter:brightness(1.035)}
 .wh-theme-card.selected{
   border-color:#c28b24;box-shadow:0 0 0 3px #ffdc6e,0 5px 0 #a87c30,0 12px 20px #8d68262c;
 }

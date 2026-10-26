@@ -107,3 +107,10 @@ Brukeren godkjente den eksakte Eggenipa-illustrasjonen, men avviste resten av de
 - [Laria QA på 4588534](https://github.com/Almenning/Flyt-app/actions/runs/40296288595) avslørte at `#complete-home` i vanlig norskøkt på 2. trinn gikk til fremgangssiden: etter faktisk fullført Lesekroken åpnet **ikke** Eggenipa. Dette var en reell navigasjonsfeil i felles fullføringsfunksjon, ikke feil test.
 - Endret kun `scope.subject==='norwegian'` i `complete-home`-håndtereren slik at direkte leseøkt åpner `openSubject('norwegian')` og returnerer til Eggenipa. Oppdatert knappeetikett til «Tilbake til Eggenipa 🌿». Kartbaserte og andre fags eksisterende ruting beholdes.
 - Regresjonstesten `laria-journey-progress-recovery.playwright.js` krever allerede at fullført Lesekroken lukker aktiv økt, fører barnet tilbake til Eggenipa, ikke tilbyr falsk «Fortsett», og bevarer `journey.nodes` etter reload.
+
+
+### 26.10 – stabil temavelger og fysisk treff på hintsymbolet
+
+- [Eggenipa-tema #40296288672](https://github.com/Almenning/Flyt-app/actions/runs/40296288672) besto Chromium Mac, men WebKit iPad rapporterte ustabilt temakort (30 sekunders mislykket klikking). Fjernet hover-translate på `.wh-theme-card` og beholdt fargerespons uten flytting av berøringsflaten.
+- [Finn ordene iPad #40296288579](https://github.com/Almenning/Flyt-app/actions/runs/40296288579) hadde en foreldet bildekontroll for revefigur. Krever nå bevart brukerprofil, synlig magisk hint, `aria-label`, minst 44x44 px og faktisk sentertreff med `elementFromPoint`. Eksisterende krav til ord, bilder, skjermstørrelser og orienteringsskifte beholdes.
+- Oppdateringen endrer ingen data, oppgaver, Eggenipa-illustrasjon eller andre fag. Chromium/WebKit-kjøringen må godkjennes før merge.
