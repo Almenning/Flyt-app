@@ -55,6 +55,8 @@ async function run(engine,browserType,view,viewport){
 
   await page.locator('#eggenipa-world .eg-portal[data-eg="words"]').tap();
   await page.locator('#word-hunt-overlay:not([hidden]) .word-hunt-theme-picker:not([hidden])').waitFor({timeout:12000});
+  assert.equal(await page.locator('#word-hunt-overlay .wh-theme-close').getAttribute('aria-label'),'Tilbake til Norsk',
+    label+' theme back button names the wrong return world');
   assert.equal(await page.locator('#word-hunt-overlay img[src*="/assets/fox/"],#word-hunt-overlay img[src*="lia-fox"]').count(),0,
     label+' old fox image in Ordjakt');
   await shot(page,label+'-ordjakt-theme');
@@ -63,6 +65,8 @@ async function run(engine,browserType,view,viewport){
 
   await page.locator('#eggenipa-world .eg-portal[data-eg="find"]').tap();
   await page.locator('#find-the-words-overlay:not([hidden])').waitFor({timeout:12000});
+  assert.equal(await page.locator('#find-the-words-overlay .fw-back').getAttribute('aria-label'),'Tilbake til Norsk',
+    label+' Finn ordene back button names the wrong return world');
   assert.equal(await page.locator('#find-the-words-overlay .fw-fox').evaluate(el=>el.tagName),'SPAN',
     label+' old static fox image in Finn ordene');
   // Check the actual screen hit target, not just existence in the DOM.

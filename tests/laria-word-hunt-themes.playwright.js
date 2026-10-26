@@ -36,6 +36,8 @@ async function open(page,url){
  assert.equal(await first.locator('.wh-theme-card').count(),5,'Ordjakt must show all five topics on entry');
  assert.equal(await page.locator('.word-hunt-cell:visible').count(),0,'letter board must stay hidden until a topic is selected');
  assert.equal(await page.locator('#word-hunt-overlay').evaluate(el=>el.classList.contains('is-theme-entry')),true);
+ assert.equal(await first.locator('.wh-theme-close').getAttribute('aria-label'),'Tilbake til Utforsk',
+   'Ordjakt entered from Utforsk must name its actual back destination');
 }
 async function selectTopic(page,topic,label,fromEntry=false){
  if(!fromEntry){

@@ -353,7 +353,9 @@ function showThemePicker(entry=false){
   root.querySelector('.word-hunt-shell').inert=true;
   const back=picker.querySelector('.wh-theme-close');
   back.textContent=entry?'←':'×';
-  back.setAttribute('aria-label',entry?'Tilbake til Utforsk':'Lukk temavalget');
+  const fromNorsk=!!previousFocus?.closest?.('#eggenipa-world')&&
+    !!document.querySelector('#subject-screen.active.eggenipa-active');
+  back.setAttribute('aria-label',entry?(fromNorsk?'Tilbake til Norsk':'Tilbake til Utforsk'):'Lukk temavalget');
   const continueButton=picker.querySelector('.wh-theme-start');
   const canResume=ui.grid.length>0&&!ui.completed;
   continueButton.hidden=Boolean(entry&&!canResume);

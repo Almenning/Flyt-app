@@ -77,6 +77,10 @@
       '" style="left:'+item.x+'%;top:'+item.y+'%;width:'+item.w+'%;height:'+item.h+'%">'+
       '<span class="fw-pin" aria-hidden="true">✓</span></button>'; }).join('');
   }
+  function returnsToNorsk(){
+    return !!previousFocus?.closest?.('#eggenipa-world')&&
+      !!DOC.querySelector('#subject-screen.active.eggenipa-active');
+  }
   function markup(){
     const garden=sceneId()==='garden';
     const scene= garden?'./find-the-words-garden-premium.webp?v=20261023-premiumgarden3':'./find-the-words-scene.svg?v=20261018-a';
@@ -84,7 +88,7 @@
       'Magisk hage med rødt eple, ugle, sommerfugl, lykt, liten bro, sopp, bok og pinnsvin':
       'Illustrert skog med vann, telt, sol og mange små oppdagelser';
     return '<div class="fw-shell">'+
-      '<header class="fw-top"><button type="button" class="fw-back" aria-label="Tilbake til Utforsk">←</button>'+
+      '<header class="fw-top"><button type="button" class="fw-back" aria-label="Tilbake til '+(returnsToNorsk()?'Norsk':'Utforsk')+'">←</button>'+
       '<div class="fw-title"><span class="fw-eyebrow">NORSK · '+(garden?'DEN HEMMELIGE HAGEN':'EGGENIPAS SKOG')+'</span><h1 id="fw-title">Finn ordene</h1>'+
       '<p>Velg et ord. Finn riktig ting!</p></div>'+
       '<button type="button" class="fw-audio" aria-label="Les opp oppgaven">♪ <span>Hør</span></button></header>'+
@@ -422,8 +426,7 @@
     if(reactionTimer){root.clearTimeout(reactionTimer);reactionTimer=null}
     try{root.speechSynthesis?.cancel?.()}catch(_){}
     // Entry from Eggenipa should return to the Norwegian subject, not Home.
-    const fromEggenipa=!!previousFocus?.closest?.('#eggenipa-world')&&
-      !!DOC.querySelector('#subject-screen.active.eggenipa-active');
+    const fromEggenipa=returnsToNorsk();
     if(!fromEggenipa&&typeof root.LARIA_RETURN_TO_BASECAMP==='function')root.LARIA_RETURN_TO_BASECAMP();
     const origin=previousFocus;
     previousFocus=null;previousOverflow='';

@@ -169,3 +169,10 @@ Brukeren godkjente den eksakte Eggenipa-illustrasjonen, men avviste resten av de
 - Reelle WebKit/Chromium-skjermbilder viste samme handling to ganger i Finn ordene: én «💡 Hint» i ordpanelet og én magisk «Hint» i foteren. Dette skaper unødvendige valg, særlig på iPhone. Den ekstra knappen er fjernet fra komponentens HTML-kilde; foteren beholder tilgjengelig hjelpekontroll med minst 44×44 px og samme eksisterende totrinnshint (først verbal ledetråd, så markering i illustrasjonen).
 - «Ny ordjakt» i Finn ordene er endret til «Nye ord» slik at barnet ikke tror knappen navigerer til den separate aktiviteten Ordjakt. Oppgaven fortsetter med eksisterende `nextRound()`, uten endring av bildekoordinater, hintlogikk, fremgang eller lokal lagring.
 - Faktiske totrinnshint og navigasjonstester for iPhone/iPad i Chromium/WebKit er oppdatert til den ene hjelpekontrollen. Testene krever uttrykkelig at duplikatet ikke kan komme tilbake. Script-URL er versjonert for Safari-cache. Ingen CSS-overstyringer er lagt til.
+
+
+### 26.10 – navn på returdestinasjon, ikke feil fagside
+
+- Skjermbilde- og DOM-gjennomgang viste at «Tilbake»-knappen i Finn ordene og Ordjakts temavelger fortsatt var merket «Tilbake til Utforsk» også når barnet kom direkte fra Eggenipa. Den eksisterende rutefunksjonen returnerte allerede korrekt, men opplest/tilgjengelig navn var feil.
+- Bruker nå samme observerte inngangsfokus som returfunksjonen for å vise «Tilbake til Norsk» fra Eggenipa og beholde «Tilbake til Utforsk» når lekene er åpnet fra Utforsk. Ingen endring i faktisk retur, lagrede økter, spillmotor eller profil.
+- Chromium/WebKit-kontraktene tester begge returveiene eksplisitt; script-cacheversjoner oppdatert for Safari.

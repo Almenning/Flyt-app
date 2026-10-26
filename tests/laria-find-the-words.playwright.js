@@ -60,6 +60,8 @@ async function open(page,url,label){
  assert.ok(dims&&dims.width>=44&&dims.height>=44,'New picture hunt entry must be touch accessible');
  await entry.click();
  await page.locator('#find-the-words-overlay:not([hidden])').waitFor();
+ assert.equal(await page.locator('#find-the-words-overlay .fw-back').getAttribute('aria-label'),'Tilbake til Utforsk',
+   'Finn ordene entered from Utforsk must name its actual back destination');
 }
 async function geometry(page,label,view){
  const box=await page.evaluate(()=>{
