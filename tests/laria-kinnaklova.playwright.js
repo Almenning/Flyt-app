@@ -196,7 +196,11 @@ async function rejectPoisonedSameSizeArt(){
   await context.addInitScript(initial=>{
    localStorage.setItem('laerlittmer-v2',JSON.stringify(initial));
   },seed);
-  const page=await context.newPage();
+  const page=await context.newPage(),artRequests=[];
+  page.on('request',request=>{
+   if(request.url().includes('kinnaklova-scene-clean-approved-20261026.webp'))
+    artRequests.push(request.url());
+  });
   const unrelatedImage=path.join(__dirname,'..','laer-litt-mer','assets','norsk','eggenipa-master-laast-20261025.png');
   // A valid image with the exact right dimensions, but not the approved
   // clean Kinnaklova master, must not activate painted signs or troll layers.
@@ -207,17 +211,29 @@ async function rejectPoisonedSameSizeArt(){
   await page.goto(url,{waitUntil:'domcontentloaded',timeout:90000});
   await visitEnglish(page);
   const painted=page.locator('#kinnaklova-world .ki-master');
-  await page.waitForFunction(()=>{
-   const el=document.querySelector('#kinnaklova-world .ki-master');
-   return el?.complete&&el.naturalWidth===1672&&el.naturalHeight===941;
-  },null,{timeout:15000});
-  assert.equal(await page.locator('#kinnaklova-world').getAttribute('data-ki-art'),'unapproved');
+  const source=await painted.getAttribute('src');
+  if(source===null){
+   // Before human approval: no missing-asset fetches, no rejected characters,
+   // and the normal Words/Sentences/Reading cards remain fully available.
+   assert.deepEqual(artRequests,[],'Draft must not request an unapproved clean background');
+   assert.equal(await page.locator('#kinnaklova-world').getAttribute('data-ki-art'),'missing');
+   await page.locator('#kinnaklova-world .ki-art-unavailable:visible').waitFor();
+  }else{
+   // Once a clean master SHA is approved, same-size art with incorrect bytes
+   // must still be rejected by the browser's exact SHA-256 protection.
+   await page.waitForFunction(()=>{
+    const el=document.querySelector('#kinnaklova-world .ki-master');
+    return el?.complete&&el.naturalWidth===1672&&el.naturalHeight===941;
+   },null,{timeout:15000});
+   assert.ok(artRequests.length>=1,'Release asset should be requested only with a locked SHA');
+   assert.equal(await page.locator('#kinnaklova-world').getAttribute('data-ki-art'),'unapproved');
+  }
   assert.equal(await painted.isVisible(),false,'Wrong 1672x941 art must be invisible');
   assert.equal(await page.locator('#kinnaklova-world .ki-companions').isVisible(),false);
   assert.equal(await page.locator('#kinnaklova-world .ki-painted-words').isVisible(),false);
   assert.equal(await page.locator('#kinnaklova-world .ki-card').count(),3,
    'Even with incorrect art, real English activities must remain reachable');
-  console.log('[KINNAKLOVA] exact-size unapproved art blocked in Chromium');
+  console.log('[KINNAKLOVA] missing or poisoned art correctly blocked in Chromium');
   await context.close();
  }finally{await browser.close()}
 }

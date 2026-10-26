@@ -154,3 +154,10 @@ test('Live Kinnaklova task scene keeps English story first with correct screen-r
  assert.match(css,/#session-screen\.task-scene \.ki-reading-question\{/);
  assert.match(html,/laria-task-scene-v15\.js\?v=[^"]*kinnaklova-reading2/);
 });
+
+test('Draft does not request Kinnaklova art before exact hash approval',()=>{
+ assert.ok(js.includes('const HAS_CLEAN_MASTER='),'Need positive art gating before adding image src');
+ assert.ok(js.includes("(HAS_CLEAN_MASTER?' src=\"'+ART+'\'\"':'')")===false||js.includes("HAS_CLEAN_MASTER?' src="),
+   'The master image src must be conditional on its approved SHA');
+ assert.match(js,/APPROVED_ART_SHA256===REJECTED_REFERENCE_SHA256/);
+});

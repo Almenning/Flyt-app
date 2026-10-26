@@ -13,6 +13,10 @@
   // A 1672x941 file that still contains the rejected characters is NOT valid.
   const APPROVED_ART_SHA256='';
   const REJECTED_REFERENCE_SHA256='3b1d6b6e6c9908dd31c519593504ac22dd2c7473ef05fa51ecd57885cdc6e035';
+  // Draft background is intentionally absent. Do not request an unapproved
+  // asset, throw HTTP 404s or display it before pixel-locked verification.
+  const HAS_CLEAN_MASTER=/^[0-9a-f]{64}$/.test(APPROVED_ART_SHA256)&&
+    APPROVED_ART_SHA256!==REJECTED_REFERENCE_SHA256;
   const CHARACTERS=Object.freeze([
     {id:'storesoster',name:'Storesøster',src:'./assets/gangemagi-troll/storesoster.webp',sceneSrc:'./assets/kinnaklova/storesoster-inworld-approved-20261026.webp'},
     {id:'lillebror',name:'Lillebror',src:'./assets/gangemagi-troll/lillebror.webp'},
@@ -111,7 +115,7 @@
       '<header class="ki-utility"><button type="button" data-ki="home" aria-label="Tilbake til Hjem">‹ Hjem</button>'+
       '<span>ENGELSK · KINNAKLOVA</span><span class="ki-grade">'+grade+'. klasse</span></header>'+
       '<div class="ki-stage" role="group" aria-label="Kinnaklova med Words, Sentences og Reading">'+
-      '<img class="ki-master" src="'+ART+'" alt="Kinnaklova med Kinn kyrkje, klokketårnet, sjøen og de karakteristiske tvillingtoppene" width="1672" height="941" draggable="false" decoding="async">'+
+      '<img class="ki-master"'+(HAS_CLEAN_MASTER?' src="'+ART+'"':'')+' alt="Kinnaklova med Kinn kyrkje, klokketårnet, sjøen og de karakteristiske tvillingtoppene" width="1672" height="941" draggable="false" decoding="async">'+
       '<div class="ki-art-unavailable" hidden role="status"><strong>Den låste Kinnaklova-illustrasjonen mangler i denne utviklingsversjonen.</strong>'+
       '<span>Import av ren bakgrunn er nødvendig før visuell godkjenning og publisering.</span></div>'+
       '<div class="ki-companions" aria-label="De tre godkjente skogstrollene">'+
