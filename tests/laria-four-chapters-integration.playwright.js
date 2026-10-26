@@ -87,7 +87,13 @@ async function run(type,label,viewport){
   assert.ok(await page.locator('.fd-feedback').count());
   await shot(page,label+'-norwegian');
   await go(page,'math');
-  await page.locator('[data-laria-math-chapter2-preview="1"]').click();
+  // Tallvika deliberately hides the chapter-two development launcher from
+  // children. Retain coverage of that *internal* pilot without promoting
+  // a hidden testing affordance to public navigation.
+  const mathPilot=page.locator('[data-laria-math-chapter2-preview="1"]');
+  assert.equal(await mathPilot.isVisible(),false,
+    label+' internal Math chapter-two preview is visible to children');
+  await mathPilot.evaluate(el=>el.click());
   await page.locator('[data-mh-act="stage"][data-mh-stage="speildammen"]').click();
   const mhHint=page.locator('[data-mh-act="hint"]');
   assert.equal(await mhHint.getAttribute('aria-expanded'),'false');
