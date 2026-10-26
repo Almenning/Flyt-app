@@ -1,0 +1,23 @@
+# Norsk premium: Eggenipa uten reisekart
+
+## Ny godkjent produktretning 26.10.2026
+
+Brukeren godkjente den eksakte Eggenipa-illustrasjonen, men avviste resten av den tidligere Norsk-opplevelsen: Bokskogen-reisekartet/eventyrstien skal bort fra barnets vanlige Norsk-visning, og gamle revemotiver skal vekk fra Norsk-aktivitetene. Samme sammenhengende premium-eventyruttrykk som i den nye Matte-retningen. **Ingen ny illustrasjon av Eggenipa, reven eller trollene genereres.**
+
+## Implementert fase 1
+
+- Behold eksakt godkjent masterillustrasjon og hotspot-plasseringene.
+- Tre direkte aktiviteter: **Ordjakt**, **Finn ordene**, **Lesekroken**. Biblioteket på høyre side åpner nå eksisterende \`startLearningSession('norwegian','reading','Lesekroken')\` i stedet for Bokskogen-kartet.
+- Fjernet synlige koblinger til Bokskogens kart, klassetrinns-kartdialog, frivillig reise/neste oppdrag og forhåndsvisning av nytt reisekapittel på Norsk-forsiden.
+- Gammel læringsmotor, gamle journey-ID-er, profilklassetrinn, fullført progresjon, lagrede svar og økter bevares. Gamle kartfiler slettes **ikke** fordi andre læringssystemer fortsatt refererer til dem; denne endringen gjelder presentasjon og navigasjon for Norsk.
+- «Fortsett økten» tilbys direkte fra Eggenipa hvis det allerede finnes en lagret norskøkt. Brukerens profilklassetrinn brukes av den eksisterende motoren; ikke vis en fristende velger som gir andre oppgaver enn valgt trinn.
+- Fortsetter å bruke ekte HTML-knapper over scenen og aktivitetskort for touch/tilgjengelighet. Ingen statiske dyr limes inn i bakgrunnsbildet.
+
+## Neste arbeid innen samme draft-PR
+
+1. Fjern den gamle revepresentasjonen fra Ordjakt, Finn ordene og vanlige norskøvelser uten å bryte eksisterende hint, opplesning, fremgang eller berøringsflater.
+2. Premium visuell og pedagogisk rekonstruksjon med konsistent Eggenipa-preg; integrer de **allerede låste** skogstrollene først når kvalitetssikret gjenbrukbart TrollActor fra parallelle PR-er faktisk er klart. Ingen dårlig PNG-påliming.
+3. Oppdater alle gamle kartforutsetninger i automatisk QA til direkte Norsk-aktiviteter, og bevar regresjonsdekning av data.
+4. Chromium/WebKit-skjermbilder fra iPhone/iPad stående og liggende, sammenlign med illustrasjonsfasit, full Læria-regresjon før visuell godkjenning og publisering.
+
+**Avgrensning:** Norsk-prioritert. Matte-PR #223 og trollpiloter #219/#224 endres ikke. All utvikling skjer i en draft-PR; produksjonen fra PR #226 er foreløpig uendret.

@@ -35,7 +35,11 @@ body:has(#subject-screen.eggenipa-active){background:#f4eee0!important}
 .eg-scene-hit:hover{background:rgba(255,246,204,.13);box-shadow:inset 0 0 0 3px rgba(255,248,221,.28)}
 .eg-scene-words{left:0;top:10%;width:31%;height:65%}
 .eg-scene-find{left:30%;top:51%;width:38%;height:48%}
-.eg-scene-map{right:0;top:29%;width:30%;height:66%}
+.eg-scene-reading{right:0;top:29%;width:30%;height:66%}
+.eg-resume{max-width:1250px;margin:20px auto 26px;padding:16px 22px;display:flex;align-items:center;justify-content:space-between;gap:16px;border:2px solid #d5ba87;border-radius:23px;background:linear-gradient(115deg,#fff9e9,#eadcba)}
+.eg-resume p{color:#604d3a;font-size:15px;font-weight:750;margin:0}
+.eg-resume button{min-height:48px;padding:10px 20px;border:2px solid #386e57;border-radius:16px;background:#386e57;color:#fff;font:inherit;font-weight:900;cursor:pointer}
+@media(max-width:700px){.eg-resume{display:grid;gap:9px;margin:14px;padding:13px}.eg-resume button{width:100%}}
 .eg-intro{max-width:1290px;margin:22px auto 15px;padding:0 20px;display:flex;align-items:end;justify-content:space-between;gap:24px}
 .eg-intro small,.eg-next small{font-weight:950;letter-spacing:.12em;font-size:12px;color:#97734d}
 .eg-intro h2{font-weight:1000;font-size:clamp(24px,2.6vw,34px);margin:4px 0 0;letter-spacing:-.04em}

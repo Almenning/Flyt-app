@@ -1,6 +1,6 @@
-/* Eggenipa is a presentation-only Norwegian subject landing.
- * Do not alter learning records, the approved Bokskogen map, or other subjects.
- * Locked art is external: assets/norsk/eggenipa-master-laast-20261025.png.
+/* Norsk premium: Eggenipa is the locked visual home, not a journey map.
+ * Keeps existing learning data, questions and saved profile untouched.
+ * Artwork SHA-256 remains fixed by tests/laria-eggenipa-contract.test.cjs.
  */
 (() => {
   'use strict';
@@ -8,254 +8,96 @@
   if(!screen)return;
   const ART='./assets/norsk/eggenipa-master-laast-20261025.png';
   const actions=[
-    {id:'words',name:'Ordjakt',copy:'Finn og bygg ord',image:'./assets/cards/utforsk/words-premium.webp'},
-    {id:'find',name:'Finn ordene',copy:'Oppdag ting i bildene',image:'./find-the-words-garden-premium.webp'},
-    {id:'map',name:'Bokskogen',copy:'Utforsk oppdragene dine',image:'./bokskogen-atlas32.webp'}
+    {id:'words',name:'Ordjakt',copy:'Oppdag skjulte ord',image:'./assets/cards/utforsk/words-premium.webp'},
+    {id:'find',name:'Finn ordene',copy:'Finn tingene i bildene',image:'./find-the-words-garden-premium.webp'},
+    {id:'reading',name:'Lesekroken',copy:'Les, forstå og oppdag',image:'./assets/cards/reisen/norwegian-premium.webp'}
   ];
   const bridge=()=>window.LARIA_TALLVIKA_BRIDGE;
   const safe=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\u0027':'&#39;'}[ch]));
-  let mapVisible=false;
-  let root=null;
-  let mapBackObserver=null;
   const isActive=()=>screen.classList.contains('active')&&screen.dataset.subject==='norwegian';
-  const grade=()=>bridge()?.journeyViewGrade?.('norwegian')||bridge()?.currentGrade?.()||2;
-  function getProgress(){
-    try{
-      const g=grade();
-      return {g,completed:bridge()?.journeyProgress?.('norwegian',g)?.complete||false,
-        progress:bridge()?.journeyProgress?.('norwegian',g),
-        recommended:bridge()?.journeyRecommendedNode?.('norwegian',g)};
-    }catch(_){return {g:2,completed:false,progress:null,recommended:null};}
-  }
+  let root=null;
+  let identity='';
   function portal(action){
-    return '<button type="button" class="eg-portal eg-portal-'+action.id+'" data-eg="'+action.id+'" aria-label="'+safe('Åpne '+action.name)+
-      '"><span class="eg-portal-art"><img src="'+action.image+'" loading="eager" alt="" draggable="false"></span>'+
+    return '<button type="button" class="eg-portal eg-portal-'+action.id+'" data-eg="'+action.id+
+      '" aria-label="'+safe('Åpne '+action.name)+'">'+
+      '<span class="eg-portal-art"><img src="'+action.image+'" loading="eager" alt="" draggable="false"></span>'+
       '<span class="eg-portal-copy"><strong>'+action.name+'</strong><small>'+action.copy+'</small></span>'+
       '<span class="eg-portal-arrow" aria-hidden="true">›</span></button>';
   }
-  function gradeOptions(g,mine){
-    return Array.from({length:10},(_,i)=>{
-      const current=i+1;
-      return '<button type="button" data-eg-grade="'+current+'" class="'+(g===current?'selected':'')+
-        '" aria-pressed="'+(g===current)+'"><strong>'+current+'.</strong><small>'+
-        (current===mine?'Mitt trinn':current===g?'Valgt':'Utforsk')+'</small></button>';
-    }).join('');
+  function isNorwegianSession(state){
+    return state?.activeSession?.scope?.subject==='norwegian';
   }
   function build(){
-    if(!isActive()||mapVisible)return;
-    const app=bridge();
-    // Existing journey renderers sometimes leave visual-state classes on the
-    // shared #subject-screen. Remove only those style flags, not data.
-    const flags=['locked-journey-active','locked-journey-subject-norwegian','premium-journey-active'];
-    for(const flag of flags)if(screen.classList.contains(flag))screen.classList.remove(flag);
-    const state=app?.state?.(),mine=Number(app?.currentGrade?.()||2);
-    const p=getProgress(),displayGrade=p.g;
-    const recommended=p.recommended;
-    const greeting=String(state?.profile?.name||'').trim();
+    if(!isActive())return;
+    // The previous Bokskogen renderer shares this screen. Hide its visual
+    // classes, but never delete its learning IDs or stored progress.
+    for(const flag of ['locked-journey-active','locked-journey-subject-norwegian','premium-journey-active']){
+      screen.classList.remove(flag);
+    }
     if(!root){
       root=document.createElement('section');
       root.id='eggenipa-world';
-      root.setAttribute('aria-label','Eggenipa, norskverdenen');
+      root.setAttribute('aria-label','Norsk ved Eggenipa');
       screen.insertBefore(root,screen.firstChild);
     }
-    const nextLabel=p.completed?'Prøv et bonusoppdrag':recommended?.title||'Oppdag neste oppdrag';
-    const available=Boolean(recommended||p.completed);
-    const showChapters=mine===2&&window.LARIA_CHAPTER_EXPANSION?.previewEnabled?.(location.search);
+    const data=bridge()?.state?.();
+    const profileGrade=Number(bridge()?.currentGrade?.()||2);
+    const greeting=String(data?.profile?.name||'').trim();
+    const resume=isNorwegianSession(data);
+    // Do not rebuild buttons under a finger during unrelated class changes.
+    const nextIdentity=[profileGrade,greeting,resume].join('|');
+    if(identity===nextIdentity&&root.firstElementChild){
+      screen.classList.add('eggenipa-active');
+      root.hidden=false;
+      return;
+    }
+    identity=nextIdentity;
     root.innerHTML=
       '<header class="eg-top"><button type="button" class="eg-home" data-eg="home" aria-label="Tilbake til Hjem">← <span>Hjem</span></button>'+
-      '<span class="eg-top-label">LÆRIA · NORSK</span><button type="button" class="eg-grade" data-eg="grade" aria-label="Velg klassetrinn">'+displayGrade+'. klasse</button></header>'+
-      '<section class="eg-hero" aria-label="Eventyr ved Eggenipa">'+
-      '<img class="eg-master" src="'+ART+'" width="1672" height="941" alt="Illustrert eventyrlandskap ved Eggenipa, med fjord, magisk trehytte, blomster, bro og bibliotek" draggable="false">'+
-      '<div class="eg-world-label"><small>NORSK · VELG DIN EGEN VEI</small><h1>Eggenipa</h1>'+
-      '<p>'+(greeting?'Hei, '+safe(greeting)+'! ':'')+'Her bor ordene og historiene.</p></div>'+
-      '<button class="eg-scene-hit eg-scene-words" data-eg="words" aria-label="Åpne Ordjakt i trehytta" type="button"><span>Ordjakt</span></button>'+
-      '<button class="eg-scene-hit eg-scene-find" data-eg="find" aria-label="Åpne Finn ordene ved hagen" type="button"><span>Finn ordene</span></button>'+
-      '<button class="eg-scene-hit eg-scene-map" data-eg="map" aria-label="Åpne Bokskogen ved biblioteket" type="button"><span>Bokskogen</span></button>'+
-      '</section>'+
-      '<div class="eg-intro"><div><small>VELG HVOR DU VIL GÅ</small><h2>Oppdag Eggenipa</h2></div>'+
-      '<p>Du bestemmer. Spill favorittene dine så mange ganger du vil.</p></div>'+
-      '<nav class="eg-portals" aria-label="Norskaktiviteter">'+actions.map(portal).join('')+'</nav>'+
-      '<section class="eg-next" aria-label="Neste frivillige oppdrag"><div><small>NESTE EVENTYR · HELT FRIVILLIG</small>'+
-      '<h2>'+safe(nextLabel)+'</h2><p>Du kan alltid bli i favorittleken din.</p></div>'+
-      '<button type="button" data-eg="next" '+(available?'':'disabled')+' aria-label="Start neste frivillige norskoppdrag">Prøv oppdraget ›</button></section>'+
-      (showChapters?'<button class="eg-preview" type="button" data-eg="chapters">Mine eventyr · testversjon</button>':'')+
-      '<dialog class="eg-grade-dialog" aria-label="Velg klassetrinn"><form method="dialog">'+
-      '<button type="submit" class="eg-dialog-close" aria-label="Lukk">×</button>'+
-      '<small>UTFORSK I DITT TEMPO</small><h2>Velg klassetrinn</h2>'+
-      '<p>Du kan utforske andre trinn uten å endre profilen din.</p>'+
-      '<div class="eg-grade-grid">'+gradeOptions(displayGrade,mine)+'</div></form></dialog>';
-    if(!screen.classList.contains('eggenipa-active'))screen.classList.add('eggenipa-active');
+      '<span class="eg-top-label">LÆRIA · NORSK</span><span class="eg-grade" aria-label="Oppgaver tilpasset '+profileGrade+'. klasse">'+profileGrade+'. klasse</span></header>'+
+      '<section class="eg-hero" aria-label="Eggenipa og tre steder å leke">'+
+      '<img class="eg-master" src="'+ART+'" width="1672" height="941" alt="Illustrert landskap ved Eggenipa med fjord, trehytte, blomster, bro og bibliotek" draggable="false">'+
+      '<button type="button" class="eg-scene-hit eg-scene-words" data-eg="words" aria-label="Åpne Ordjakt i trehytta"><span>Ordjakt</span></button>'+
+      '<button type="button" class="eg-scene-hit eg-scene-find" data-eg="find" aria-label="Åpne Finn ordene ved hagen"><span>Finn ordene</span></button>'+
+      '<button type="button" class="eg-scene-hit eg-scene-reading" data-eg="reading" aria-label="Åpne Lesekroken ved biblioteket"><span>Lesekroken</span></button></section>'+
+      '<div class="eg-intro"><div><small>VELG DIN EGEN VEI</small><h2>Hva vil du oppdage?</h2></div>'+
+      '<p>'+(greeting?'Hei, '+safe(greeting)+'! ':'')+'Velg det du liker. Du kan alltid prøve igjen.</p></div>'+
+      '<nav class="eg-portals" aria-label="Velg en norskaktivitet">'+actions.map(portal).join('')+'</nav>'+
+      (resume?'<section class="eg-resume" aria-label="Pågående norskøkt"><p>Du har en norskøkt du kan fortsette når du vil.</p>'+
+        '<button type="button" data-eg="resume">Fortsett økten ›</button></section>':'');
+    screen.classList.add('eggenipa-active');
+    root.hidden=false;
   }
-  // The painted Bokskogen map already has a large back arrow and an
-  // accessible floating back action when scrolled. Reuse these controls to
-  // return to Eggenipa instead of covering its title/settings with a
-  // second fixed button.
-  function updateMapReturnLabels(){
-    if(!mapVisible||!isActive())return;
-    screen.querySelectorAll('.locked-journey-back,.locked-journey-floating-back')
-      .forEach(button=>button.setAttribute('aria-label','Tilbake til Eggenipa'));
-    // Older grades use the original non-illustrated journey, which has the
-    // normal subject-back button rather than a painted-map back arrow.
-    if(grade()>2){
-      const back=document.getElementById('subject-back');
-      if(back){
-        back.textContent='← Eggenipa';
-        back.setAttribute('aria-label','Tilbake til Eggenipa');
-      }
-    }
-  }
-  function openMap(){
-    if(!isActive())return;
-    mapVisible=true;
-    if(root)root.hidden=true;
-    if(screen.classList.contains('eggenipa-active'))screen.classList.remove('eggenipa-active');
-    // The approved locked map may still be decoding its large image. Its
-    // renderWaiting() fast path reuses existing markup and does not restore
-    // display classes that the landing intentionally removed. Restore the
-    // original map view state here before calling the unmodified renderer.
-    // This fixes fast first taps on Bokskogen without touching child progress.
-    if(grade()<=2){
-      screen.classList.add('locked-journey-active','locked-journey-subject-norwegian','premium-journey-active');
-      document.body.classList.add('locked-journey-subject-norwegian');
-    }
-    // Keep the original map engine and all existing node/grade state.
-    bridge()?.setJourneyViewGrade?.('norwegian',grade(),true);
-    mapBackObserver?.disconnect();
-    const journeyHost=document.getElementById('journey-map');
-    if(journeyHost){
-      // Original renderer can replace map controls after artwork decoding.
-      // Observe the control DOM only, never modify progress/profile data.
-      mapBackObserver=new MutationObserver(updateMapReturnLabels);
-      mapBackObserver.observe(journeyHost,{childList:true});
-    }
-    updateMapReturnLabels();
-    // Entering Bokskogen from a lower portal must not retain Eggenipa's
-    // previous page scroll. The original journey renderer may then move the
-    // viewport *to the child's current stop*, particularly on short
-    // landscape devices. That is intentional and must not be undone by a
-    // second competing requestAnimationFrame scroll reset.
-    document.activeElement?.blur?.();
-    window.scrollTo({left:0,top:0,behavior:'instant'});
-    document.documentElement.scrollTop=0;
-    document.body.scrollTop=0;
-  }
-  function closeMap(){
-    mapVisible=false;
-    mapBackObserver?.disconnect();
-    mapBackObserver=null;
-    if(root)root.hidden=false;
-    build();
-    window.scrollTo(0,0);
-  }
-  // Real iPad touch QA exposed a browser hit-test race: pointerdown and
-  // pointerup landed on the painted Bokskogen back button, but scroll/layout
-  // changed before the compatibility click, retargeting that click to SECTION.
-  // A child-facing back action must not depend on that delayed click.
-  // Activate on a *completed* matching touch/stylus press, never on down or
-  // a canceled drag. Mouse and keyboard keep the ordinary click path.
-  const backControl=target=>target?.closest?.(
-    '.locked-journey-back,.locked-journey-floating-back,#subject-back');
-  let backPress=null;
-  let subsequentTouchClick=null;
-  screen.addEventListener('pointerdown',event=>{
-    // A new gesture invalidates an unmatched compatibility-click marker.
-    subsequentTouchClick=null;
-    backPress=null;
-    if(!isActive()||!mapVisible||!['touch','pen'].includes(event.pointerType))return;
-    const control=backControl(event.target);
-    if(control)backPress={id:event.pointerId,control,x:event.clientX,y:event.clientY};
-  },true);
-  screen.addEventListener('pointercancel',event=>{
-    if(backPress?.id===event.pointerId)backPress=null;
-  },true);
-  screen.addEventListener('pointerup',event=>{
-    const press=backPress;
-    if(!press||press.id!==event.pointerId)return;
-    backPress=null;
-    if(!isActive()||!mapVisible||backControl(event.target)!==press.control)return;
-    if(Math.hypot(event.clientX-press.x,event.clientY-press.y)>32)return;
-    subsequentTouchClick={at:performance.now(),x:event.clientX,y:event.clientY};
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    closeMap();
-  },true);
-  // Swallow only the compatibility click from the same touch position. Without
-  // this, the retired map's onclick can fire after closeMap() and jump to Home.
   screen.addEventListener('click',event=>{
-    if(subsequentTouchClick){
-      const touch=subsequentTouchClick;
-      subsequentTouchClick=null;
-      if(performance.now()-touch.at<900&&
-         Math.hypot(event.clientX-touch.x,event.clientY-touch.y)<=32){
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        return;
-      }
-    }
-    if(!isActive()||!mapVisible)return;
-    if(!backControl(event.target))return;
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    closeMap();
-  },true);
-  screen.addEventListener('click',event=>{
-    const btn=event.target.closest?.('#eggenipa-world [data-eg]');
-    if(!btn||!isActive()||mapVisible)return;
-    const action=btn.dataset.eg;
+    const button=event.target.closest?.('#eggenipa-world [data-eg]');
+    if(!button||!isActive())return;
+    const action=button.dataset.eg;
     if(action==='home'){
       if(!window.LARIA_RETURN_TO_BASECAMP?.())bridge()?.setTab?.('home');
     }else if(action==='words'){
-      btn.focus({preventScroll:true});
+      button.focus({preventScroll:true});
       window.openWordHunt?.();
     }else if(action==='find'){
-      btn.focus({preventScroll:true});
+      button.focus({preventScroll:true});
       window.openFindTheWords?.();
-    }else if(action==='map'){
-      openMap();
-    }else if(action==='grade'){
-      root?.querySelector('.eg-grade-dialog')?.showModal();
-    }else if(action==='next'){
-      const p=getProgress();
-      if(p.completed)bridge()?.startJourneyChallenge?.('norwegian');
-      else if(p.recommended)bridge()?.startJourneyNode?.('norwegian',p.recommended.id,p.g);
-    }else if(action==='chapters'){
-      document.querySelector('[data-laria-chapter2-preview]')?.click();
+    }else if(action==='reading'){
+      bridge()?.startLearningSession?.('norwegian','reading','Lesekroken');
+    }else if(action==='resume'){
+      bridge()?.resumeSession?.();
     }
   });
-  screen.addEventListener('click',event=>{
-    const button=event.target.closest?.('#eggenipa-world [data-eg-grade]');
-    if(!button||!isActive()||mapVisible)return;
-    const g=Number(button.dataset.egGrade);
-    if(!Number.isInteger(g)||g<1||g>10)return;
-    root?.querySelector('.eg-grade-dialog')?.close();
-    bridge()?.setJourneyViewGrade?.('norwegian',g,true);
-    build();
-  });
-  // Starting an original Bokskogen mission activates the shared session
-  // screen. The map must survive that temporary screen change so closing or
-  // completing the mission returns to the place the child actually entered.
-  // A real exit to Home or another subject still destroys the map state.
-  const withinMapLearning=()=>[
-    'session-screen','complete-screen','fraction-lab-screen','multiplication-lab-screen'
-  ].some(id=>document.getElementById(id)?.classList.contains('active'));
+  // Only the active Norwegian subject owns this artwork. After a direct
+  // reading session the normal app navigation re-enters this same landing.
   const observer=new MutationObserver(()=>{
-    if(isActive()){
-      if(mapVisible)updateMapReturnLabels();
-      else build();
-    }else{
-      if(mapVisible&&screen.dataset.subject==='norwegian'&&withinMapLearning()){
-        // Keep the map as the return destination during its learning task.
-        // Native controls are already hidden with the inactive subject screen.
-        return;
-      }
-      mapVisible=false;
-      mapBackObserver?.disconnect();
-      mapBackObserver=null;
+    if(isActive())build();
+    else{
       if(screen.classList.contains('eggenipa-active'))screen.classList.remove('eggenipa-active');
-      if(root){root.remove();root=null;}
+      if(root){root.remove();root=null;identity='';}
     }
   });
   observer.observe(screen,{attributes:true,attributeFilter:['class','data-subject']});
   if(isActive())build();
-  window.LARIA_EGGENIPA=Object.freeze({build,openMap,closeMap,isMapOpen:()=>mapVisible,art:ART});
+  // Read-only compatibility for older app-back integrations. The discarded
+  // journey map is never opened by the new Norsk screen.
+  window.LARIA_EGGENIPA=Object.freeze({build,isMapOpen:()=>false,art:ART});
 })();
