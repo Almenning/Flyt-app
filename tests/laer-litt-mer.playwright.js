@@ -689,7 +689,11 @@ async function finishSession(page){
     await page.locator('#subject-screen.active').waitFor();
     await page.locator('#journey-map.locked-journey-map[data-journey-subject="norwegian"] .locked-journey-image').waitFor({timeout:16000});
     assert.equal(await page.locator('#journey-map .locked-journey-image').isVisible(),true,'the approved Bokskogen original should remain visible after completing a session');
+    // The native Bokskogen back arrow returns to Norsk's Eggenipa landing.
+    // Only its separate Hjem action should leave the Norwegian subject.
     await page.locator('#journey-map .locked-journey-back').click();
+    await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
+    await page.locator('#eggenipa-world [data-eg="home"]').click();
     await page.locator('#home-screen.active').waitFor();
     assert.equal(await page.locator('.bc12-journey').isVisible(),true);
 
