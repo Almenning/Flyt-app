@@ -145,6 +145,10 @@ test('Artwork release gate blocks missing, mismatched, or uncertified clean mast
 test('Live Kinnaklova task scene keeps English story first with correct screen-reader language',()=>{
  const live=fs.readFileSync(app('laria-task-scene-v15.js'),'utf8');
  assert.match(live,/directKinnaklova&&q\.skill==='reading'/);
+ // The live task renderer must never insert the old fox for Kinnaklova.
+ assert.match(live,/const fox=directKinnaklova\?'':/);
+ assert.match(live,/const inlineFox=!directKinnaklova&&/);
+ assert.match(live,/const visualWithFox=visual\?\(directKinnaklova\?visual:/);
  assert.match(live,/<section class="learning-passage ki-reading-story" lang="en"/);
  assert.match(live,/<div class="question ki-reading-question" lang="en"/);
  assert.match(live,/\?passage\+'<div class="question ki-reading-question"/);
