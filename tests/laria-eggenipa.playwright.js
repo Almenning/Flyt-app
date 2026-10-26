@@ -103,6 +103,22 @@ async function run(engine,browserType,view,viewport){
   // Short landscape Safari must make the answers reachable without scrolling
   // or guessing below the fold. Inspect actual layout and real hit targets.
   if(view==='iphone-landscape'){
+    await shot(page,label+'-lesekroken-landscape-firstfold');
+    const cardLayout=await page.evaluate(()=>{
+      const selectors={
+        screen:'#session-screen.active',top:'#session-screen .session-top',
+        wrap:'#question-wrap',card:'.laria-task-card',head:'.task-card-head',
+        question:'.question',scene:'.task-visual-companion-stage',
+        illustration:'.task-visual-row',guide:'.task-norsk-guide',
+        interaction:'.task-interaction'
+      };
+      return Object.fromEntries(Object.entries(selectors).map(([name,selector])=>{
+        const el=document.querySelector(selector),r=el?.getBoundingClientRect();
+        return [name,r?{y:Math.round(r.y),h:Math.round(r.height),
+          display:getComputedStyle(el).display,
+          minHeight:getComputedStyle(el).minHeight}:null];
+      }));
+    });
     const choices=await page.locator('#session-screen.active .answer').evaluateAll(items=>
       items.slice(0,3).map(item=>{
         const r=item.getBoundingClientRect();
@@ -112,7 +128,7 @@ async function run(engine,browserType,view,viewport){
       }));
     assert.equal(choices.length,3,label+' Lesekroken must offer three real touch choices');
     assert.ok(choices.every(a=>a.w>=44&&a.h>=44&&a.y>=0&&a.bottom<=a.viewport+1&&a.hit),
-      label+' short landscape Lesekroken obscures answers: '+JSON.stringify(choices));
+      label+' short landscape Lesekroken obscures answers: '+JSON.stringify({choices,cardLayout}));
   }
   await shot(page,label+'-lesekroken');
   await page.locator('#close-session').tap();

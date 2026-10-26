@@ -1654,8 +1654,17 @@ body.laria-task-scene-open .app:after{
  #session-screen.task-scene[data-task-subject="norwegian"] .question{
   margin:3px auto 2px;font-size:clamp(21px,2.85vw,25px);line-height:1.08;
  }
- #session-screen.task-scene[data-task-subject="norwegian"] .task-visual-row{
-  min-height:90px;width:min(100%,360px);margin:1px auto 3px;
+ #session-screen.task-scene[data-task-subject="norwegian"] .task-visual-companion-stage{
+  /* Picture and helper are peers, not two vertically stacked blocks. */
+  width:min(100%,430px);display:grid;grid-template-columns:minmax(0,1fr) 62px;
+  align-items:center;column-gap:9px;margin:0 auto;
+ }
+ #session-screen.task-scene[data-task-subject="norwegian"] .task-visual-row,
+ #session-screen.task-scene[data-task-subject="norwegian"] .task-visual-companion-stage .task-visual-row{
+  width:100%;min-height:90px;margin:1px 0 3px;
+ }
+ #session-screen.task-scene[data-task-subject="norwegian"] .task-visual-companion-stage .task-norsk-guide{
+  margin:0!important;justify-self:center;align-self:center;
  }
  #session-screen.task-scene[data-task-subject="norwegian"] .task-object-stage{
   width:min(100%,270px)!important;min-height:87px!important;max-height:91px;
