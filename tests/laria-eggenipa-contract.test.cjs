@@ -41,8 +41,8 @@ test('All three existing activities remain direct and independent',()=>{
   // on 1.–2. trinn; retain the classic subject back on higher grades.
   assert.match(js,/locked-journey-back,.locked-journey-floating-back,#subject-back/);
   assert.match(js,/Tilbake til Eggenipa/);
-  assert.doesNotMatch(js,/getElementById\\('eggenipa-map-return'\\)/);
-  assert.doesNotMatch(css,/#eggenipa-map-return\\{/);
+  assert.ok(!js.includes('eggenipa-map-return'),'must not render a duplicate fixed map back');
+  assert.ok(!css.includes('#eggenipa-map-return'),'must not style a duplicate return overlay');
 });
 
 test('Artwork stays an external unchanged source, not generated on screen',()=>{
