@@ -5,11 +5,15 @@ const KEY='laria-wordhunt-v1';
 const ROUND_KEY='laria-wordhunt-unfinished-round-v1';
 let ui={level:'easy',theme:'mixed',themeChoice:'mixed',size:6,grid:[],words:[],recentWords:[],found:new Map(),drag:null,tapStart:null,completed:false,magicSeen:false,magicTimer:null,pickerFocus:null,entryPickerActive:false,hintsUsed:0,companionTimer:null,feedbackTimer:null,foxSequence:0,lastMissAt:0,lastFoundWord:null,missCount:0,helpOffered:false};
 function stats(){try{return THEMES.normalizeProgress(JSON.parse(localStorage.getItem(KEY)||'{}'))}catch(_){return THEMES.normalizeProgress(null)}}
-function saveTheme(){const s=stats();s.theme=ui.theme;localStorage.setItem(KEY,JSON.stringify(s))}
+function saveTheme(){
+  try{const s=stats();s.theme=ui.theme;localStorage.setItem(KEY,JSON.stringify(s))}
+  catch(_){/* Playing remains available when Safari storage is disabled. */}
+}
 function saveRound(){
   const s=stats(),firstSticker=s.themeRounds[ui.theme]===0;
   s.rounds+=1;s.theme=ui.theme;s.themeRounds[ui.theme]+=1;
-  localStorage.setItem(KEY,JSON.stringify(s));
+  try{localStorage.setItem(KEY,JSON.stringify(s))}
+  catch(_){/* Do not interrupt a completed puzzle when storage is unavailable. */}
   return firstSticker;
 }
 
