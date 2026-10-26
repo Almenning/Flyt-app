@@ -25,6 +25,14 @@ MASKS = {
         (133, 567), (232, 558), (322, 587), (380, 653),
         (380, 751), (330, 806), (151, 803), (110, 729)
     ],
+    "rejected_words_hand": [
+        # The original left polygon missed the pointing hand near x=410.
+        # Keep this narrow so the approved church wall remains untouched.
+        (324, 628), (337, 623), (352, 632), (370, 637),
+        (383, 637), (398, 635), (417, 637), (425, 645),
+        (422, 653), (413, 658), (397, 664), (382, 668),
+        (365, 671), (348, 672), (332, 665), (321, 658)
+    ],
     "rejected_sentences_troll": [
         (941, 411), (1015, 409), (1074, 448), (1071, 507),
         (1040, 541), (928, 535), (911, 479)
@@ -32,6 +40,12 @@ MASKS = {
     "rejected_reading_troll": [
         (1438, 533), (1516, 532), (1595, 592), (1585, 656),
         (1535, 673), (1404, 667), (1381, 597)
+    ],
+    "rejected_reading_foot": [
+        # Original right mask left a leg/foot visible above Reading.
+        (1552, 609), (1573, 609), (1585, 614), (1604, 624),
+        (1610, 638), (1610, 651), (1594, 661),
+        (1575, 663), (1557, 654)
     ]
 }
 
@@ -42,7 +56,10 @@ MASKS = {
 PROTECTED_SIGNS = {
     "words": (383, 703, 683, 805),
     "sentences": (1049, 469, 1304, 555),
-    "reading": (1352, 639, 1633, 743),
+    # Preserve the actual painted Reading sign; the rejected troll foot
+    # and book sit just above the wooden plaque. Protecting all of y>=639
+    # previously made it impossible to remove the foot.
+    "reading": (1352, 665, 1633, 743),
 }
 
 

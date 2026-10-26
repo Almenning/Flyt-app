@@ -11,6 +11,7 @@ on:
       - "docs/LARIA-KINNAKLOVA-VISUAL-LOCK-2026-10-26.json"
       - "tests/laria-kinnaklova*"
       - "tests/laria-journey-integrated-ux.playwright.js"
+      - "tools/kinnaklova/**"
   push:
     branches: [main]
     paths:
@@ -18,6 +19,7 @@ on:
       - "laer-litt-mer/assets/kinnaklova/**"
       - "laer-litt-mer/index.html"
       - "tests/laria-kinnaklova*"
+      - "tools/kinnaklova/**"
 permissions:
   contents: read
 jobs:
@@ -61,6 +63,20 @@ jobs:
           path: /tmp/laria-kinnaklova
           if-no-files-found: warn
           retention-days: 14
+  kinnaklova-mask-unit-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Pillow for pixel-integrity checks
+        run: python -m pip install 'Pillow>=11,<13'
+      - name: Verify character masks and immutable painted signs
+        run: |
+          python -m unittest discover -s tools/kinnaklova -p 'test_*.py' -v
+          python -m py_compile tools/kinnaklova/verify_locked_scene.py tools/kinnaklova/import_clean_art.py
   kinnaklova-art-release-gate:
     runs-on: ubuntu-latest
     timeout-minutes: 10
