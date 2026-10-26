@@ -30,7 +30,7 @@
   const BY_ID=new Map(PACKS.map(pack=>[pack.id,pack]));
   const EFFECTS=Object.freeze({
     UGLE:['🦉','En ugle hilser fra tretoppene.'],
-    REV:['🦊','Reven kjenner igjen en venn!'],
+    REV:['🦊','Et vennlig spor dukker opp mellom trærne!'],
     KATT:['🐈','En katt titter frem i skogen.'],
     HUND:['🐕','Et vennlig bjeff høres langt borte.'],
     FISK:['🐟','Noe glitrer under vannet.'],
@@ -45,18 +45,18 @@
     EPLE:['🍎','Et rødt eple faller fra et tre.'],
     BANAN:['🍌','En gul overraskelse dukker opp.'],
     PIZZA:['🍕','En duft av pizza sprer seg.'],
-    NORGE:['🇳🇴','Reven finner Norge på kartet.'],
+    NORGE:['🇳🇴','Norge lyser opp på kartet.'],
     KART:['🗺️','Et nytt spor vises på kartet.'],
-    JAPAN:['🌸','Reven drømmer om Japan.'],
+    JAPAN:['🌸','Et nytt eventyr venter i Japan.'],
     VERDEN:['🌍','Hele verden venter på å bli oppdaget.'],
     FJELL:['⛰️','Fjerne fjell blir synlige mellom trærne.']
   });
   const THEME_MOMENTS=Object.freeze({
-    mixed:['✨','Bokstavene glitrer i Bokskogen.'],
+    mixed:['✨','Bokstavene glitrer ved Eggenipa.'],
     animals:['🐾','Et lite dyrespor dukker opp mellom trærne.'],
     magic:['🌟','En magisk gnist svever over stien.'],
     food:['🍯','Det lukter noe godt fra skogshytta.'],
-    world:['🧭','Reven oppdager et nytt spor i verden.']
+    world:['🧭','Et nytt spor dukker opp på verdenskartet.']
   });
   const clamp=n=>Number.isFinite(Number(n))?Math.max(0,Math.min(100000,Math.floor(Number(n)))):0;
   function normalizeProgress(raw){
