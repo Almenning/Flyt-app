@@ -77,3 +77,10 @@ Brukeren godkjente den eksakte Eggenipa-illustrasjonen, men avviste resten av de
 - Oppdaterte disse kontraktene til faktisk Ordjakt/Finn ordene/Lesekroken, valgt klassetrinn, tilgjengelige leseoppgaver, retur til Eggenipa og bevart lagret avatar-identitet (uten å vise reven i Norsk). For andre fag beholdes gamle kontrakter uendret.
 - Fire-kapittel pilot tester fortsatt den eksisterende interne kapittelmoteren via eksplisitt developer-flag og programmatisk intern knapp; testen krever samtidig at piloten **ikke er synlig** i ordinær Norsk. Ingen endring av gammel kapittelprogresjon eller ID-er.
 - Syntaksen er kontrollert på alle endrede JS-tester; browser-QA kjøres på nytt før nye visuelle beslutninger.
+
+
+### 26.10 – lesefremgang og profilidentitet, uavhengig av gammel reise
+
+- `laria-journey-progress-recovery.playwright.js` tester nå norskøkt som **direkte Lesekroken-modul**, ikke gammelt nodeoppdrag: spørsmål og fasit, avbrutt/lagret svar, reload, synlig «Fortsett økten», eksakt gjenopptatt spørsmål, fullføring, sessionLog, bevart klassetrinn/avatar og **uforandrede historiske `journey.nodes`**. Engelsk/Geografi/Matte fortsetter sine tidligere, sterke oppdrags- og progresjonstester.
+- `laria-fox-identity.playwright.js`: For Norsk kreves 0 gamle revebilder i lesescenen, ett hjelpesymbol og identisk lagret avatarvalg; de andre fagene beholder uendrede figurtests. Vist og kontrollert før/etter reload med screenshots.
+- Alle koder syntaktisk validert før commit; nye CI-resultater må kontrollere den reelle flyten.
