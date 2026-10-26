@@ -11,7 +11,7 @@ assert.match(js,/storesoster/);assert.match(js,/lillesoster/);assert.match(js,/l
 assert.match(js,/tallvikaTroll/);
 assert.match(js,/querySelector\(action === 'choose'/, 'dialog must identify current selection by kind');
 assert.match(js,/\.focus\(\{preventScroll:true\}\)/, 'selection returns keyboard focus without scrolling');
-assert.match(js,/document\.querySelector\('#tallvika-world \[data-tv=\\"choose\\"\]'\)/,
+assert.ok(js.includes(`document.querySelector('#tallvika-world [data-tv="choose"]')`),
   'character selection should restore focus to refreshed trigger');
 assert.match(js,/storesoster-inworld-approved-20261026\.webp/);
 assert.match(css,/tv-companion__ground/);
