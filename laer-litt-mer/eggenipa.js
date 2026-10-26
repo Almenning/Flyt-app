@@ -115,6 +115,15 @@
       document.body.appendChild(returnButton);
     }
     returnButton.hidden=false;
+    // The portal may be below the fold. When it swaps to the full-bleed
+    // Bokskogen stage, Safari otherwise keeps that old scroll offset and
+    // places the actual map origin above the viewport (especially landscape).
+    // Reset after the original renderer is activated, without altering map
+    // coordinates, learning state or the locked illustration.
+    window.scrollTo(0,0);
+    requestAnimationFrame(()=>{
+      if(isActive()&&mapVisible)window.scrollTo(0,0);
+    });
   }
   function closeMap(){
     mapVisible=false;
