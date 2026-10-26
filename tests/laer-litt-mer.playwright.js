@@ -377,8 +377,25 @@ async function finishSession(page){
     const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
     const page=await context.newPage();
     page.__base=url;
+    // Kinnaklova's locked CLEAN master is intentionally absent in this
+    // draft. Record its exact missing URL instead of suppressing generic 404s.
+    // Every other missing resource, JS exception and console error must fail.
+    const knownMissingArt404=[];
+    const browser404Messages=[];
+    const expectedCleanArt='/assets/kinnaklova/kinnaklova-scene-clean-approved-20261026.webp';
+    page.on('response',response=>{
+      if(response.status()!==404)return;
+      const url=new URL(response.url());
+      if(url.pathname===expectedCleanArt)knownMissingArt404.push(url.href);
+      else errors.push('Unexpected HTTP 404: '+url.href);
+    });
     page.on('pageerror',e=>errors.push('pageerror: '+e.message));
-    page.on('console',m=>{if(m.type()==='error')errors.push('console: '+m.text())});
+    page.on('console',m=>{
+      if(m.type()!=='error')return;
+      if(m.text()==='Failed to load resource: the server responded with a status of 404 (Not Found)'){
+        browser404Messages.push(m.text());
+      }else errors.push('console: '+m.text());
+    });
     await page.route('https://raw.githubusercontent.com/**',r=>r.fulfill({status:200,contentType:'application/json',body:'{"type":"FeatureCollection","features":[]}'}));
     await page.route('https://api.worldbank.org/**',r=>r.fulfill({status:200,contentType:'application/json',body:'[{},[]]'}));
 
@@ -1621,8 +1638,12 @@ async function finishSession(page){
     assert.match(await page.locator('#grade-round-title').textContent(),/fire første eventyr fullført/i);
     assert.doesNotMatch(await page.locator('#grade-round-title').textContent(),/2\. klasse rundet|kjerneløp/i);
 
+    // Matching every browser 404 to the exact non-published art URL means
+    // no unrelated broken assets can hide behind the draft image exemption.
+    assert.equal(browser404Messages.length,knownMissingArt404.length,
+      'Browser 404 messages must match only the intentionally missing clean Kinnaklova art');
     assert.deepEqual(errors,[]);
-    console.log('laer-litt-mer browser QA passed');
+    console.log('laer-litt-mer browser QA passed; intentional draft-art 404s:',knownMissingArt404.length);
   }finally{
     await browser.close();
     await new Promise(resolve=>server.close(resolve));
