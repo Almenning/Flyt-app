@@ -97,3 +97,25 @@ test('Kinnaklova 2nd-grade Sentences has repeatable coastal discoveries',()=>{
     assert.ok(q.words.length<=7,'Sentence puzzle too long for grade two');
   }
 });
+
+test('Kinnaklova 2nd-grade Words teaches ten distinct coastal words with feedback',()=>{
+  const questions=englishPool(2,'words');
+  const coast=questions.filter(q=>q.norwegianMeaning&&q.englishWord&&q.skill==='words');
+  assert.equal(coast.length,10,'Keep all ten coastal vocabulary discoveries available');
+  const meanings=new Set(),answers=new Set();
+  for(const q of coast){
+    assert.match(q.prompt,/^Hva heter «.+» på engelsk\?$/);
+    assert.ok(q.prompt.includes(q.norwegianMeaning));
+    assert.equal(q.answer,q.englishWord);
+    assert.ok(q.options.includes(q.englishWord));
+    assert.equal(new Set(q.options).size,q.options.length);
+    assert.equal(q.options.length,3,'Three accessible choices for early readers');
+    assert.ok(q.visual&&q.visual.length>0,'Coastal vocabulary needs a visual hint');
+    assert.ok(!meanings.has(q.norwegianMeaning),'Repeated Norwegian concept');
+    assert.ok(!answers.has(q.englishWord),'Repeated English translation');
+    meanings.add(q.norwegianMeaning);answers.add(q.englishWord);
+  }
+  assert.ok(['sea','bird','island','shell','mountain','church'].every(w=>answers.has(w)));
+  assert.equal(englishPool(1,'words').filter(q=>q.norwegianMeaning&&q.skill==='words').length,0,
+    'Second-grade coastal vocabulary must not leak into first grade');
+});
