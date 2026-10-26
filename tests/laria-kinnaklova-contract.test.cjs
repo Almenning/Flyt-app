@@ -35,6 +35,9 @@ test('Approved scene is one painted 1672x941 image with mapped transparent targe
    assert.equal(browserHash,'','Draft must never render a scene by size alone');
  }
  assert.match(js,/globalThis\.crypto\.subtle\.digest\('SHA-256'/);
+ assert.match(js,/URL\.createObjectURL\(new Blob\(\[bytes\]/);
+ assert.match(js,/image\.src=trustedURL/);
+ assert.match(js,/URL\.revokeObjectURL\(verifiedArtUrl\)/);
  assert.match(js,/APPROVED_ART_SHA256===REJECTED_REFERENCE_SHA256/);
  assert.match(css,/#kinnaklova-world:not\(\[data-ki-art="ready"\]\) \.ki-master\{visibility:hidden\}/);
  assert.match(js,/kinnaklova-scene-clean-approved-20261026\.webp/);
