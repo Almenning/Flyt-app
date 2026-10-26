@@ -7,13 +7,17 @@ const mime={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8',
 function serve(){return new Promise((resolve,reject)=>{const server=http.createServer((req,res)=>{let url=new URL(req.url,'http://localhost').pathname;if(url.endsWith('/'))url+='index.html';const file=path.resolve(base,'.'+decodeURIComponent(url));if(!file.startsWith(base+path.sep)){res.writeHead(403);res.end();return}fs.readFile(file,(err,content)=>{if(err){res.writeHead(404);res.end('Missing');return}res.setHeader('Content-Type',mime[path.extname(file)]||'application/octet-stream');res.setHeader('Cache-Control','no-store');res.end(content)})});server.once('error',reject);server.listen(0,'127.0.0.1',()=>resolve({server,url:'http://127.0.0.1:'+server.address().port+'/laer-litt-mer/?app=laria'}))})}
 async function image(page,id){await fs.promises.mkdir(screens,{recursive:true});await page.screenshot({path:path.join(screens,id+'.png'),fullPage:true,animations:'disabled'})}
 async function openClassicPick(page){
-  // Every entry, including after reload, must follow the same child-visible route.
-  await page.evaluate(()=>window.openMultiplicationLab());
-  await page.locator('#multiplication-lab-screen.active .gm-shell').waitFor();
-  await page.locator('[data-gm-action="classic"]').click();
-  await page.locator('#multiplication-lab-screen.active .mp-home-screen').waitFor();
-  await page.locator('.mp-menu-explore').click();
-  await page.locator('.mp-explore-screen').waitFor();
+  // The approved child-visible route begins at Tallvika, not the legacy
+  // Gangemagi secondary navigation below the first phone viewport.
+  // Validate the actual illustrated entry after first load and after reload.
+  await page.locator('.bc14-subject[data-camp="subject-math"]').click();
+  await page.locator('#subject-screen.active #tallvika-world').waitFor({state:'visible'});
+  await page.locator('#tallvika-world .tv-mobile-actions .tv-portal-card[data-tv="table"]').click();
+  await page.locator('#multiplication-lab-screen.active .mp-explore-screen').waitFor();
+  assert.equal(await page.locator('.mp-explore-tab[data-mode="table"][aria-pressed="true"]').count(),1,
+    'Tallvika must enter the interactive 10x10 table without a second launcher');
+  assert.equal(await page.locator('#multiplication-lab-screen.active .mp-grid-cell').count(),100,
+    'Direct table entry must retain all 100 multiplication cells');
 }
 async function open(page,url){
   await page.goto(url,{waitUntil:'domcontentloaded'});

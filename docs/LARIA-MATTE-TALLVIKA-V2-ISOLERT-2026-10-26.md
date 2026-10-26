@@ -63,3 +63,10 @@ Den godkjente Tallvika-illustrasjonen inneholder et tydelig, malt skilt med teks
 #### Oppfølgingsrettelse: unikt handlingsnavn (26.10)
 
 Integrert WebKit-QA [run #40313772700](https://github.com/Almenning/Flyt-app/actions/runs/40313772700) avdekket at gjenbruk av `data-tv="next"` på selve bildet brøt den etablerte kontrakten om **én** `[data-tv="next"]` i Tallvika: `locator.isEnabled` fant to elementer. Det var ikke en WebKit-miljøfeil. **Rotrettelse:** Det malte skiltet har nå unikt `data-tv="next-sign"`, mens både `next-sign` og eksisterende `next` går til identisk, frivillig matteoppdrag i samme event-delegering. Den gamle primærknappen og dens automatiske testselektor forblir uendret. Ny Tallvika-test kontrollerer fortsatt at begge innganger fungerer likt, og integrert QA må bli grønn på ny head før merge.
+
+### 26.10 – Full QA: Plukk og tell følger faktisk Tallvika-inngang
+
+`Laria QA` på `e473021` feilet i `tests/laria-pick-play.browser.playwright.js:13` etter at både iPhone og iPad i Chromium hadde bestått alle 10 verdenene, matte, fire oppdrag og lagring. Testen startet med å kalle `window.openMultiplicationLab()` programmatisk og forsøkte deretter å klikke Gangemagis gamle sekundærknapp `[data-gm-action="classic"]` nedenfor mobilens første skjerm; WebKit fikk `locator.click Timeout` før `Plukk og tell` ble nådd. Den godkjente Tallvika-forsiden gir nå en **direkte synlig Gangetabellen-inngang**, og denne gamle, programmatisk åpnede omveien var ikke lenger representativ for barnets hovedflyt.
+
+**Retting:** Den eksisterende omfattende testen åpner nå Matte fra Home, klikker det illustrerte `Gangetabellen`-kortet i Tallvika, og krever umiddelbart aktiv 10×10-tabell med 100 ruter og valgt `table`-modus før `Plukk og tell` åpnes. Nøyaktig samme barnesynlige inngang brukes etter reload, slik at progresjon og lagring fortsatt verifiseres. Ingen produktkode, illustrasjon, spillmotor eller andre fag er endret av denne QA-rettelsen. Full WebKit/Chromium-test på nyeste commit kreves før merge, og feilen er ikke skjult med `force`, høyere timeout eller `continue-on-error`.
+
