@@ -81,7 +81,7 @@ async function proof(engine,label,viewport,url){
    const stop=screen.querySelector('.locked-journey-hotspot.state-current')?.getBoundingClientRect();
    return {scrollY:window.scrollY,
     currentStop:stop?{top:stop.top,bottom:stop.bottom}:null,viewport:innerHeight,
-    screen:{top:sb.top,height:sb.height},board:{top:bb.top,width:bb.width,height},
+    screen:{top:sb.top,height:sb.height},board:{top:bb.top,width:bb.width,height:bb.height},
     imageRatio:ib.width/ib.height,boardRatio:bb.width/bb.height,appPaddingBottom:appStyle.paddingBottom,
     screenBackground:style.backgroundImage,journeyBackground:journeyStyle.backgroundImage,appBackground:appStyle.backgroundImage,borderRadius:boardStyle.borderTopLeftRadius,
     journey:{display:journeyStyle.display,marginTop:journeyStyle.marginTop,paddingTop:journeyStyle.paddingTop,gap:journeyStyle.gap},
