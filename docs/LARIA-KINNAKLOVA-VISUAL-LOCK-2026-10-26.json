@@ -1,0 +1,47 @@
+{
+  "product": "Læria",
+  "subject": "english",
+  "world": "Kinnaklova",
+  "approved_at": "2026-10-26",
+  "state": "composition-approved-except-characters",
+  "approval_statement": "Trollene er feil, men lås resten.",
+  "reference": {
+    "filename": "laria_kinnaklova_visual_reference_locked_except_trolls_20261026.png",
+    "source": "Illustrasjon i Læria-prosjektets samtale 2026-10-26, generert etter Kinn kyrkje/Kinnaklova-fotoreferanse",
+    "generation_id": "f4130f98-830e-4e25-aecc-0f73a8971e13",
+    "pixel_width": 1672,
+    "pixel_height": 941,
+    "sha256": "3b1d6b6e6c9908dd31c519593504ac22dd2c7473ef05fa51ecd57885cdc6e035",
+    "status": "Exact user-approved composition reference, with characters explicitly rejected. Binary remains in the conversation output; not yet committed to the repository."
+  },
+  "immutable": [
+    "Overordnet komposisjon, kameraperspektiv og 1672x941 breddeformat",
+    "Kinnaklovas gjenkjennelige kløft og tvillingtopper i bakgrunnen, bratt fjellside til venstre, blå sjø og skjær",
+    "Kinn kyrkje, kirkegården, gravsteiner, tørrmurer, klokketårn og det røde huset, med innbyrdes plassering",
+    "Himmel, dagslys, fargepalett, dybde, vegetasjon, blomster og øvrig landskap",
+    "Læria-logo, toppnavigasjon Engelsk > Utforsk, treskilt med Oppdag Kinnaklova, undertittel",
+    "Aktivitetsknapper Words, Sentences, Reading i sine relative posisjoner, treskiltstilen og grønne piler",
+    "Den prikkete stien som binder aktivitetene sammen"
+  ],
+  "rejected": [
+    "Alle tre tegnede troll i referanseillustrasjonen: identitet, ansikter, hår, klær og proporsjoner er ikke godkjent",
+    "Eventuelle figurer med reveutseende"
+  ],
+  "only_allowed_changes": [
+    "Erstatt alle tre avviste troll med de tre tidligere identitetsgodkjente originaltrollene, uten ny karakterdesign",
+    "Lokal reparasjon av bakgrunn kun der de avviste trollene faktisk dekker motivet, og nødvendig minimal integrasjon med lys/underlag",
+    "Nødvendige tekniske interaktive lag og responsiv posisjonering som bevarer den godkjente visuelle komposisjonen"
+  ],
+  "locked_character_source_files": [
+    "laer-litt-mer/assets/gangemagi-troll/storesoster.webp",
+    "laer-litt-mer/assets/gangemagi-troll/lillesoster.webp",
+    "laer-litt-mer/assets/gangemagi-troll/lillebror.webp"
+  ],
+  "integration_rules": [
+    "Ingen helhetlig regenerering av landskapet eller omplassering av godkjente landemerker/skilt",
+    "Ikke behold de avviste trollene innbakt i det endelige bakgrunnsbildet",
+    "Ikke bruk flate dårlig utklippede troll eller CSS-bobbing som erstatning for kvalitetsrik karakterintegrasjon",
+    "Endelig komposisjon og originaltro troll må godkjennes visuelt før merge og publisering",
+    "Eksisterende engelsk læringsmotor, progresjon og Norsk/Matte/Geografi forblir urørt"
+  ]
+}
