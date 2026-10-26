@@ -100,6 +100,20 @@ async function run(engine,browserType,view,viewport){
     label+' legacy fox is still inside the Norwegian lesson');
   assert.equal(await page.locator('#session-screen.active .task-norsk-guide').count(),1,
     label+' neutral Norwegian guide missing');
+  // Short landscape Safari must make the answers reachable without scrolling
+  // or guessing below the fold. Inspect actual layout and real hit targets.
+  if(view==='iphone-landscape'){
+    const choices=await page.locator('#session-screen.active .answer').evaluateAll(items=>
+      items.slice(0,3).map(item=>{
+        const r=item.getBoundingClientRect();
+        const target=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2);
+        return {text:item.textContent.trim(),x:r.x,y:r.y,w:r.width,h:r.height,
+          bottom:r.bottom,viewport:innerHeight,hit:target===item||item.contains(target)};
+      }));
+    assert.equal(choices.length,3,label+' Lesekroken must offer three real touch choices');
+    assert.ok(choices.every(a=>a.w>=44&&a.h>=44&&a.y>=0&&a.bottom<=a.viewport+1&&a.hit),
+      label+' short landscape Lesekroken obscures answers: '+JSON.stringify(choices));
+  }
   await shot(page,label+'-lesekroken');
   await page.locator('#close-session').tap();
   await page.locator('#eggenipa-world:visible').waitFor({timeout:12000});

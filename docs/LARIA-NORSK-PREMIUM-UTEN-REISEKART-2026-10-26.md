@@ -126,3 +126,10 @@ Brukeren godkjente den eksakte Eggenipa-illustrasjonen, men avviste resten av de
 - På PR-head `a0bcccb74` var **Continuous smoke** rød fordi `tests/laer-litt-mer.playwright.js` linje 667 krevde `[data-eg="map"]`, som bevisst er fjernet. Rotårsaken var utdaterte testforventninger, ikke ny funksjonsfeil.
 - Testens komplette gamle mapflyt er erstattet med sterke krav til tre direkte porter, fravær av kart og gammel oppgavedashboard, faktisk Lesekroken-oppgavesett og gjennomført økt, én loggført fullføring, uendret `journey.nodes`, klassetrinn og lagret avatar, samt ekte retur til Hjem.
 - Øvrige fag, dataformat og Eggenipa-masterillustrasjon er urørt. Testen skal være grønn på CI før denne deloppgaven regnes ferdig.
+
+
+### 26.10 – Lesekroken skal fungere i liggende iPhone uten skjulte svar
+
+- Visuell inspeksjon av ekte Chromium/WebKit-captures fra PR #228 viser at et kort landskapsformat (844×390) viste spørsmålet, men skjøv alle tre svar under første skjerm. Slik skjult funksjonalitet bryter med ambisjonen om barnevennlig premium.
+- En **kun Norsk-skopet** og høydeavgrenset CSS-variant komprimerer toppstripe, spørsmålsmarger, illustrasjonsramme og hjelpesymbol, og bruker 3 svar i én rad med minimum 44px trykkflate. Ved lange tekstoppgaver tillates rulling. Ingen endring i læringsmotor, andre fag eller godkjent masterbilde.
+- Ny Playwright-kontrakt for Chromium/WebKit iPhone liggende krever tre virkelige svar, alle innenfor 390px-viewporten, minimum 44×44 og med reelt `elementFromPoint` på svarene. Først etter grønne tester regnes dette som verifisert.
