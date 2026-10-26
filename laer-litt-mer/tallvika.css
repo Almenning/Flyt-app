@@ -21,15 +21,15 @@ body:has(#subject-screen.tallvika-active){background:#f7f0df!important}
    or water. The in-world bitmap is source-derived (not generated) and this
    CSS supplies only scene lighting/contact: scale, cast shadow and grounding.
    Other locked trolls still use their unmodified approved source until the
-   Storesøster treatment is visually approved. */
+   the finished rig and in-app composition are approved. */
 .tv-companion{position:absolute;z-index:4;left:58.1%;bottom:14.7%;width:9.3%;height:31.4%;display:flex;align-items:end;justify-content:center;pointer-events:none;isolation:isolate}
 .tv-companion__ground{position:absolute;z-index:0;left:7%;right:4%;bottom:1.8%;height:8%;border-radius:50%;background:radial-gradient(ellipse,rgba(70,47,24,.42) 0 26%,rgba(73,52,31,.21) 42%,rgba(73,52,31,0) 73%);filter:blur(2.5px);transform:rotate(-5deg) scaleX(1.12);mix-blend-mode:multiply}
 .tv-companion img{position:relative;z-index:1;width:auto;height:100%;max-width:100%;object-fit:contain;transform-origin:50% 96%;filter:drop-shadow(1px 3px 1px rgba(67,49,29,.20)) drop-shadow(-2px 4px 5px rgba(67,49,29,.17))}
 /* This adjustment intentionally does not sculpt or recolour a character in
-   CSS. The companion asset has already received its documented offline
-   material treatment; the small daylight wash only matches its placement in
-   the locked Tallvika sun direction. */
-.tv-companion[data-troll-id="storesoster"] img{filter:brightness(.985) saturate(.95) drop-shadow(1px 3px 1px rgba(67,49,29,.20)) drop-shadow(-2px 4px 5px rgba(67,49,29,.17))}
+   CSS. Storesøster now uses the lossless, user-approved painterly asset. Keep
+   its approved RGB values intact; only cast/contact shadow is composited
+   for placement in Tallvika. */
+.tv-companion[data-troll-id="storesoster"] img{filter:drop-shadow(1px 3px 1px rgba(67,49,29,.20)) drop-shadow(-2px 4px 5px rgba(67,49,29,.17))}
 .tv-top-actions{display:flex;align-items:center;gap:8px}
 .tv-grade-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;margin-top:20px}
 .tv-grade-option{min-height:67px;display:grid;place-items:center;gap:1px;border:2px solid #e4c990;border-radius:14px;background:#fffaf0;color:#51391f;font-weight:900;cursor:pointer;padding:7px}

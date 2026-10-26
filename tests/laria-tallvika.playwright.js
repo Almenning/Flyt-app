@@ -102,9 +102,15 @@ async function run(browserType,label,viewport){
       assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('laerlittmer-v2')).profile.tallvikaTroll),id,label+' does not persist '+id);
       const image=page.locator('#tallvika-world .tv-companion img');
       const src=await image.getAttribute('src');
-      assert.ok(id==='storesoster'?src.includes('/storesoster-inworld-v1.webp'):src.includes('/'+id+'.webp'),label+' shows wrong troll for '+id);
-      assert.equal(await page.locator('#tallvika-world .tv-companion').getAttribute('data-troll-treatment'),id==='storesoster'?'inworld-v1':'locked-original',label+' must keep the intended source treatment');
+      assert.ok(id==='storesoster'?src.includes('/storesoster-inworld-approved-20261026.webp'):src.includes('/'+id+'.webp'),label+' shows wrong troll for '+id);
+      assert.equal(await page.locator('#tallvika-world .tv-companion').getAttribute('data-troll-treatment'),id==='storesoster'?'approved-painterly-20261026':'locked-original',label+' must keep the intended source treatment');
       await image.evaluate(img=>img.decode());
+      if(id==='storesoster'){
+        const imageInfo=await image.evaluate(img=>({width:img.naturalWidth,height:img.naturalHeight,filter:getComputedStyle(img).filter}));
+        assert.equal(imageInfo.width,512,label+' storesoster approved art width');
+        assert.equal(imageInfo.height,1024,label+' storesoster approved art height');
+        assert.doesNotMatch(imageInfo.filter,/brightness\\(|saturate\\(|contrast\\(/,label+' approved artwork must retain its colours');
+      }
       if(viewport.width<=480&&output)await shot(page,label+'-'+id);
     }
     await page.reload({waitUntil:'domcontentloaded',timeout:90000});await page.locator('.bc14-subject[data-camp="subject-math"]').click();await page.locator('#tallvika-world').waitFor();

@@ -4,9 +4,10 @@
   'use strict';
   const trolls = {
     // The original source stays the selection/reference image.  Storesøster's
-    // Tallvika render is a documented, source-derived material treatment with
-    // the exact same silhouette; it is not a replacement character design.
-    storesoster:{name:'Storesøster',src:'./assets/gangemagi-troll/storesoster.webp',sceneSrc:'./assets/tallvika/storesoster-inworld-v1.webp',sceneTreatment:'inworld-v1'},
+    // The 26 October 2026 user-approved painterly portrait is losslessly
+    // encoded for Tallvika. Selection portraits and the other two trolls
+    // continue to use the byte-locked original artwork.
+    storesoster:{name:'Storesøster',src:'./assets/gangemagi-troll/storesoster.webp',sceneSrc:'./assets/tallvika/storesoster-inworld-approved-20261026.webp',sceneTreatment:'approved-painterly-20261026'},
     lillesoster:{name:'Lillesøster',src:'./assets/gangemagi-troll/lillesoster.webp',sceneSrc:'./assets/gangemagi-troll/lillesoster.webp',sceneTreatment:'locked-original'},
     lillebror:{name:'Lillebror',src:'./assets/gangemagi-troll/lillebror.webp',sceneSrc:'./assets/gangemagi-troll/lillebror.webp',sceneTreatment:'locked-original'}
   };

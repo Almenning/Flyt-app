@@ -73,3 +73,13 @@ Neste tekniske steg etter visuell godkjenning er:
 ## Visuell beslutning
 
 **Anbefaling: Ikke godkjenn eller rull ut til de to andre ennå.** Piloten er et reelt, reversibelt sammenligningsgrunnlag som reduserer de konkret påviste problemene (for stort ansikt, feil dybde og manglende kontakt med bakken), men brukerens visuelle vurdering av faktisk Tallvika-render må fortsatt være godkjenningsporten. Den erstatter ikke behovet for framtidige illustratørlag før ekte figuranimasjon.
+
+## 26.10.2026 – Godkjent malerisk sceneillustrasjon montert som egen PR-ressurs
+
+Brukeren godkjente **akkurat** `storesoster_inworld_paintover_CANDIDATE.png` som storesøsters visuelle sceneuttrykk (SHA-256 `b131de3b94bfd6ae60ab5f7a104d26a3ffb4eeb18f3c1593ca9bc51d7f887955`, 512×1024 RGBA). PNG-originalen ligger uendret i Lærias private filbibliotek under `/Læria/Skogstroll/storesoster_inworld_APPROVED_2026-10-26.png`.
+
+Ny GitHub-asset: `laer-litt-mer/assets/tallvika/storesoster-inworld-approved-20261026.webp` er en **pixelidentisk, tapsfri WebP-avledning** av denne PNG-en. SHA-256 `80ae8a1ea0b43ebc2d8c0b12fb0e5cd588bce1882fd9d52819d3ac7ef4d85e67`; mål: 512×1024. Både RGBA-piksler og figurens transparentmaske er kontrollert identiske lokalt. Git blob SHA-1 `cff7b5710401f33fa4798d40e8935cb77eb40b44` er verifisert byte-eksakt mot overført data.
+
+Kun storesøsterens **Tallvika-scene** bruker den godkjente filen; opprinnelig karaktervelger, andre troll og læringsmotor er uendret. Overflødig `brightness/saturate`-CSS er fjernet for storesøsteren, slik at den godkjente fargetonen ikke endres ved visning. Kontaktskyggen bevares. Node- og Playwright-kontrakter er utvidet for å låse hash, riktig bildevalg og bildedimensjoner. Serviceworker-cache versjonert for å motvirke gammel asset.
+
+**Skille mellom portene:** Det er nå godkjent **karakterdesign** og kodekobling i draft-PR, men ikke endelig visuell QA av det nye faktiske nettleserbildet. Ikke merge eller publiser før Chromium/WebKit-skjermbilder fra eksakt HEAD og visuell kontroll. Ekte 2D-rigging er fortsatt blokkert av uillustrert skjult anatomi i issue #221; ORA-skisselag er ikke bevis for rigging.
