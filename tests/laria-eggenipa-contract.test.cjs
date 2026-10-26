@@ -32,7 +32,7 @@ test('Norsk Eggenipa is registered only as an isolated presentation layer',()=>{
 
 test('Three independent Norsk activities, no journey map in the child UI',()=>{
   for(const [key,pattern] of Object.entries({
-    find:/window\.openFindTheWords\?\.\(\)/,
+    find:/window\.openFindTheWords\?\.\(\{preferPremium:true\}\)/,
     words:/window\.openWordHunt\?\.\(\)/,
     reading:/startLearningSession\?\.\('norwegian','reading','Lesekroken'\)/
   }))assert.match(js,pattern,key+' must use an established engine');

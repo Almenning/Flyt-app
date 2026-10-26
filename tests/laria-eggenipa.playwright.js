@@ -103,6 +103,9 @@ async function run(engine,browserType,view,viewport){
 
   await page.locator('#eggenipa-world .eg-portal[data-eg="find"]').tap();
   await page.locator('#find-the-words-overlay:not([hidden])').waitFor({timeout:12000});
+  assert.match(await page.locator('#find-the-words-overlay .fw-scene-image').getAttribute('src'),
+    /find-the-words-garden-premium\.webp/,
+    label+' fresh Eggenipa play should open the painted garden, not the old flat forest');
   assert.equal(await page.locator('#find-the-words-overlay .fw-back').getAttribute('aria-label'),'Tilbake til Norsk',
     label+' Finn ordene back button names the wrong return world');
   await assertOverlayInViewport(page,'#find-the-words-overlay','.fw-back',label+' Finn ordene');
@@ -129,6 +132,9 @@ async function run(engine,browserType,view,viewport){
   await shot(page,label+'-finn-ordene');
   await page.locator('#find-the-words-overlay .fw-back').tap();
   await page.locator('#eggenipa-world:visible').waitFor({timeout:12000});
+  const pictureSave=await page.evaluate(()=>JSON.parse(localStorage.getItem('laria-find-words-active-v1')));
+  assert.equal(pictureSave.round,3,label+' painted garden round did not persist');
+  assert.equal(pictureSave.track,'eggenipa',label+' premium round selection was not saved');
 
   await page.locator('#eggenipa-world .eg-portal[data-eg="reading"]').tap();
   await page.locator('#session-screen.active').waitFor({timeout:14000});

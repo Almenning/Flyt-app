@@ -79,7 +79,7 @@
       window.openWordHunt?.();
     }else if(action==='find'){
       button.focus({preventScroll:true});
-      window.openFindTheWords?.();
+      window.openFindTheWords?.({preferPremium:true});
     }else if(action==='reading'){
       bridge()?.startLearningSession?.('norwegian','reading','Lesekroken');
     }else if(action==='resume'){

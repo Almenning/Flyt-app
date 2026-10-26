@@ -28,6 +28,10 @@
   // version 1 remains valid. A NEW garden alternates between them when the
   // child chooses another adventure; no forced level or locked curriculum.
   const ROUND_ORDER=Object.freeze([0,3,1,4,2,5]);
+  // Old saved rounds keep their exact IDs and rotation. For a completely new
+  // child entering through approved Eggenipa, begin with the fully painted
+  // garden and offer its three word sets before the legacy illustrated forest.
+  const PREMIUM_ORDER=Object.freeze([3,4,5,0,1,2]);
   const ROUNDS=[
     ['sol','tre','telt','vann','rev','sekk'],
     ['fugl','bat','tre','telt','sol','sekk'],
@@ -55,16 +59,22 @@
       typeof saved.completed==='boolean'&&
       saved.completed===(saved.found.length===ROUNDS[saved.round].length);
   }
-  function restore(){
+  function restore(preferPremium=false){
     const saved=read(ACTIVE_KEY);
-    active=validActive(saved)?{round:saved.round,found:new Set(saved.found),completed:saved.completed}:
-      {round:ROUND_ORDER[progress().rounds%ROUND_ORDER.length],found:new Set(),completed:false};
+    const existing=validActive(saved);
+    const newEggenipaAdventure=preferPremium===true&&!existing&&progress().rounds===0;
+    active=existing
+      ?{round:saved.round,found:new Set(saved.found),completed:saved.completed,
+        track:saved.track==='eggenipa'?'eggenipa':undefined}
+      :{round:newEggenipaAdventure?PREMIUM_ORDER[0]:ROUND_ORDER[progress().rounds%ROUND_ORDER.length],
+        found:new Set(),completed:false,track:newEggenipaAdventure?'eggenipa':undefined};
     selectedWord=typeof saved?.selected==='string'&&words().includes(saved.selected)&&
       !active.found.has(saved.selected)?saved.selected:null;
     wrongAttempts=0;
   }
   function persist(){
-    write(ACTIVE_KEY,{version:1,round:active.round,found:[...active.found],completed:active.completed,selected:selectedWord});
+    write(ACTIVE_KEY,{version:1,round:active.round,found:[...active.found],completed:active.completed,
+      selected:selectedWord,track:active.track});
   }
   // Hint and progress are independent of the retired static companion.
   function words(){return ROUNDS[active.round]}
@@ -350,8 +360,9 @@
   }
   function nextRound(){
     const old=active?.round||0;
-    const idx=ROUND_ORDER.indexOf(old);
-    active={round:ROUND_ORDER[(idx+1)%ROUND_ORDER.length],found:new Set(),completed:false};
+    const sequence=active?.track==='eggenipa'?PREMIUM_ORDER:ROUND_ORDER;
+    const idx=sequence.indexOf(old);
+    active={round:sequence[(idx+1)%sequence.length],found:new Set(),completed:false,track:active?.track};
     clearDrag();clearSceneEffect();
     hintStage=0;hintWord=null;selectedWord=null;wrongAttempts=0;
     persist();
@@ -390,7 +401,7 @@
       event.preventDefault();first.focus({preventScroll:true});
     }
   }
-  function open(){
+  function open(options){
     if(!DOC)return;
     if(!overlay){
       overlay=DOC.createElement('section');overlay.id='find-the-words-overlay';
@@ -411,7 +422,7 @@
     }
     if(!overlay.hidden)return;
     previousFocus=DOC.activeElement;previousOverflow=DOC.documentElement.style.overflow;
-    restore();
+    restore(options?.preferPremium===true && returnsToNorsk());
     overlay.innerHTML=markup();overlay.hidden=false;
     DOC.documentElement.style.overflow='hidden';
     refresh();react('greet',selectedWord?'Du leter etter '+OBJECTS[selectedWord].label+'. Se nøye etter!':'Velg et ord fra listen, så finner vi tingen sammen!');

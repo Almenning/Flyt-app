@@ -222,3 +222,10 @@ Brukeren godkjente den eksakte Eggenipa-illustrasjonen, men avviste resten av de
 - Norsk har fått en avgrenset eventyrbokstil i egen CSS-kilde, lastet **etter** de generelle ung-barn-stilene: brun bokmerke, varmere pergament, diskré ramme på eksisterende oppgaveillustrasjoner, og et integrert hjelpeelement med god nok berøringsflate. Den opprinnelige tegningen/korrekt fasit brukes fortsatt. Ingen uautoriserte trolltegninger eller rev er lagt til.
 - Tester for pedagogisk hint, hint uten fasitlekkasje, uendret svarstatus, riktig 44 px berøringsflate, korrekt feiring og retur er utvidet. Spesiallayout for liggende iPhone beholder allerede avtalte svarmål og høyde.
 - **Viktig:** Dette er en fase i premiumombyggingen, ikke ferdig visuell godkjenning av Lesekroken.
+
+### 26.10 – Finn ordene: den malte hagen først fra Norsk
+
+- Skjermbildene viste at «Finn ordene» fra Eggenipa åpnet det **gamle flate SVG-skogsmotivet** selv om appen allerede har en langt mer premium, håndillustrert hemmelig hage med ekte riktig plasserte hotspots. Eggenipa-portalen forhåndsviser faktisk hagen. Visuell logikk og forventning ble dermed brutt.
+- Ved **første inngang fra Eggenipa for et barn uten tidligere Finn ordene-økt** åpnes nå den eksisterende premiumhagen (runde 3), deretter de to andre hagerundene før de tre originale skogrundene. Alle korrekt registrerte ord, eksisterende objektkoordinater, drag og touch-håndtering for hagen forblir som før.
+- Eldre lagrede økter har **prioritet og endres ikke**; de bevarer gamle runde-ID-er og gammel runderekkefølge. Valgt runde/ny premium-rekkefølge legges som et bakoverkompatibelt valgfritt `track:'eggenipa'`-felt i den eksisterende aktive runde-nøkkelen. Fra Utforsk fungerer den opprinnelige inngangen akkurat som før.
+- Ny Eggenipa Chromium/WebKit-regresjon krever håndmalt hage ved første inngang og faktisk persistens ved retur. Alle øvrige Finn ordene-tester fortsetter å teste gamle runder og lagring gjennom Utforsk.
