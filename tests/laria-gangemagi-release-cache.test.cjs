@@ -32,7 +32,9 @@ test('all changed Gangemagi entry assets have distinct release URLs', () => {
     assert.equal(occurrences.length,1,asset+' must be loaded once');
     assert.equal(occurrences[0][1],releases[asset],asset+' must use the explicitly approved release key');
   }
-  assert.ok(worker.match(/^const CACHE='([^']+)';/)[1].endsWith(suffix));
+  const activeCache=worker.match(/^const CACHE='([^']+)';/)[1];
+  assert.ok(activeCache.includes(suffix),'Gangemagi cache release segment must be retained');
+  assert.ok(activeCache.endsWith('-kinnaklova-identityguard2'),'Kinnaklova SHA gate requires the current release cache');
 });
 test('activation removes old Laria caches but preserves unrelated application caches', async () => {
   const active = worker.match(/^const CACHE='([^']+)';/)[1];
