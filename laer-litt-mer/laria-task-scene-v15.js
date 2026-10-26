@@ -344,7 +344,9 @@
     // the spoken prompt or mispronouncing a Norwegian translation as English.
     const norwegianPrompt=/^(?:Hva|Hvilket|Hvilken|Velg|Finn|Hvor)\b/i.test(prompt);
     const promptLanguage=directKinnaklova?(norwegianPrompt?'nb':'en'):'';
-    const answerLanguage=directKinnaklova?(/på norsk\??\s*$/i.test(prompt)?'nb':'en'):'';
+    const answerLanguage=directKinnaklova?(
+      q.answerLanguage==='nb'||/på norsk\??\s*$/i.test(prompt)?'nb':'en'
+    ):'';
     const questionScene=inlineFox?
       '<div class="task-prompt-fox-stage"><div class="question">'+text(prompt)+'</div>'+fox+'</div>':
       readingStory
