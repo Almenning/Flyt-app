@@ -49,3 +49,12 @@ test('All curated theme words fit their board without silently disappearing',()=
     assert.ok(themes.get(theme).hard.includes(word),word+' must remain playable');
   }
 });
+
+test('Ordjakt rejects saved boards missing target words rather than trapping a child',()=>{
+  const hunt=fs.readFileSync(path.resolve(__dirname,'../laer-litt-mer/word-hunt.js'),'utf8');
+  assert.match(hunt,/const containsWord=word=>/);
+  assert.match(hunt,/data\.words\.every\(containsWord\)/);
+  assert.match(hunt,/throw Error\('Saved puzzle has missing answers'\)/);
+  assert.match(hunt,/localStorage\.removeItem\(ROUND_KEY\)/,
+    'Invalid saved puzzle must be discarded for a new playable round');
+});
