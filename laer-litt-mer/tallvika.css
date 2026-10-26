@@ -406,13 +406,22 @@ body:has(#subject-screen.tallvika-active){background:#f7f0df!important}
     background-position:center,98% 78%;
   }
   .tv-portal-copy{
+    flex:1;
+    min-width:0;
     min-height:108px;
     align-content:center;
     padding:9px 25px 9px 10px;
   }
   .tv-portal-kicker{font-size:10px}
   .tv-portal-copy b{font-size:19px}
-  .tv-portal-copy small{font-size:12px;line-height:1.25}
+  /* The arrow sits over the lower-right corner. Reserve its visual width for
+     copy rather than letting the sentence disappear beneath the tap cue. */
+  .tv-portal-copy small{
+    font-size:13px;
+    line-height:1.25;
+    padding-right:14px;
+    overflow-wrap:break-word;
+  }
   .tv-portal-badge{
     left:7px;top:7px;min-width:29px;width:29px;height:29px;
     border-radius:10px;font-size:18px;

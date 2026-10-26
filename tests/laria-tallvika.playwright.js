@@ -132,6 +132,18 @@ async function run(browserType,label,viewport){
           label+' optional quest must stay visible beside the activities: '+JSON.stringify(fold));
         assert.ok(fold.scrollHeight<=viewport.height+8,
           label+' premium iPad landscape first fold must not require scrolling: '+JSON.stringify(fold));
+        const descriptions=await page.locator('.tv-portal-card').evaluateAll(cards=>
+          cards.map(card=>{
+            const small=card.querySelector('.tv-portal-copy small');
+            const arrow=card.querySelector('.tv-portal-arrow');
+            const rect=small.getBoundingClientRect();
+            const padding=parseFloat(getComputedStyle(small).paddingRight)||0;
+            return {label:card.dataset.tv,detailPx:parseFloat(getComputedStyle(small).fontSize),
+              safeTextRight:rect.right-padding,arrowLeft:arrow.getBoundingClientRect().left,
+              contentFits:small.scrollHeight<=small.clientHeight+1};
+          }));
+        assert.ok(descriptions.every(x=>x.detailPx>=13&&x.safeTextRight<=x.arrowLeft-2&&x.contentFits),
+          label+' illustrated cards have clipped or arrow-obscured instructions: '+JSON.stringify(descriptions));
         console.log('[TALLVIKA_IPAD_LANDSCAPE_FIRST_FOLD]',label,JSON.stringify(fold));
       }else{
         assert.ok(layout.stage.right<=layout.dock.left+2,label+' landscape portal dock overlaps painting');

@@ -26,3 +26,8 @@ Viderefør den testede visuelle Tallvika V2 og eksplisitt én-trykks ruting mell
 **Løsning, kun Matte:** På nettbrett i liggende format (1000–1400 CSS-px bredde, høyde minst 720) går siden over til et vertikalt komponert oppslag. Hele originalbildet beholdes i 1672:941, men vokser etter tilgjengelig skjermhøyde. Under følger en kort, synlig oppdragsrad: de tre eksisterende illustrerte portalene og det frivillige neste oppdraget. Ingen ekstra aktiviteter, ny kunst, dataendringer eller scrollkrav for å nå de tre valgene. iPad portrett, iPhone og øvrig desktop beholder sine eksisterende løsninger.
 
 **Test:** Den eksisterende Playwright WebKit/Chromium-matrisen utvides med håndfaste første-skjerm-målinger: bildet må være minst 76 % av viewportbredden, ha uendret kildeaspekt, aktivitetene skal ligge på én rad under landskapet og oppdraget skal være synlig på første skjerm. Ved feil skal testen feile, ikke akseptere en kosmetisk CSS-override. Skjermbilder samles fra eksakt commit. Kvalitetsgodkjenning følger etter faktisk gjennomsyn, ikke bare kodeendring.
+
+
+### Kortlesbarhet i iPad liggende – kontroll mot første skjermbilde
+
+Et faktisk Chromium-bilde fra den nye 1194×834-komposisjonen viste at de to første aktivitetsbeskrivelsene la de siste ordene for tett inntil den overlappende pilknappen. Avviket skyldtes at kortenes tekstkolonne ikke reserverte plass til den absoluttposisjonerte pilen, ikke feil i bildet. Matte-spesifikk rotkorrigering: gi tekstkolonnen styrt fleksbredde og null minimumsbredde, reserver 14px høyresone i beskrivelsen og løft tekststørrelsen til 13px. Ny Playwright-kontroll måler faktisk høyresikker sone og hindrer både tekst-/piloverlapp og klipping ved line-wrap. Ingen spillmotorer, kunst eller andre fag berøres.
