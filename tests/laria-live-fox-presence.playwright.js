@@ -94,10 +94,10 @@ async function run(engine,name,viewport,avatar){
     assert.equal(after,before,name+' fox movement must not fake mastery');
     assert.equal(await fox.evaluate(el=>getComputedStyle(el).pointerEvents),'none',name+' fox steals map taps');
     await page.screenshot({path:path.join(dir,name+'-journey.png'),animations:'disabled'});
-    // Visit the fifteen remaining painted landmarks without changing the learning state.
-    // There must be only one grounded, unadorned traveler on each map.
-    // Math now uses the approved original forest trolls rather than the legacy fox map.
-    const subjects=['norwegian','english','geography'];
+    // Visit the remaining legacy Norwegian/Geography maps without changing learning.
+    // English now has three direct Kinnaklova activities, NOT a fox journey.
+    // Math already uses original forest trolls instead of the retired map.
+    const subjects=['norwegian','geography'];
     for(let subjectIndex=0;subjectIndex<subjects.length;subjectIndex++){
       const subject=subjects[subjectIndex];
       if(subjectIndex>0){
@@ -188,9 +188,37 @@ async function run(engine,name,viewport,avatar){
       assert.equal(afterMap,beforeMap,name+' '+subject+' fox movement changed learning progression');
       await page.screenshot({path:path.join(dir,name+'-'+subject+'-final-stop.png'),animations:'disabled'});
     }
-    // Return through ordinary navigation and launch a real task after touring
-    // all four worlds, not via a test-only bypass.
+    // The former English fox map is retired. Test the real Kinnaklova portal
+    // and make sure its task has no fox, without changing saved journey data.
     await page.locator('.screen.active .locked-journey-back').click();
+    await page.locator('#home-screen.active .bc14-subject[data-camp="subject-english"]').click();
+    const kinnaklova=page.locator('#subject-screen.active #kinnaklova-world');
+    await kinnaklova.waitFor({state:'visible',timeout:16000});
+    assert.equal(await page.locator('#subject-screen.active .locked-journey-map:visible').count(),0,
+      name+' retired English fox map returned');
+    assert.deepEqual(await kinnaklova.locator('.ki-card').evaluateAll(cards=>cards.map(x=>x.dataset.ki)),
+      ['words','sentences','reading'],name+' Kinnaklova direct activities unavailable');
+    const beforeEnglishJourney=await page.evaluate(()=>JSON.stringify(
+      JSON.parse(localStorage.getItem('laerlittmer-v2')).journey));
+    await kinnaklova.locator('.ki-card[data-ki="words"]').click();
+    await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
+    assert.equal(await page.locator('#session-screen.active .task-fox-companion').count(),0,
+      name+' Kinnaklova Words still displays the retired fox');
+    assert.equal(await page.evaluate(()=>state.profile.avatar),avatar,
+      name+' Kinnaklova changed stored profile identity');
+    await page.screenshot({path:path.join(dir,name+'-kinnaklova-words.png'),animations:'disabled'});
+    await page.locator('#close-session').click();
+    await kinnaklova.waitFor({state:'visible',timeout:16000});
+    const englishBack=kinnaklova.locator('.ki-utility [data-ki="home"]');
+    if(await englishBack.isVisible())await englishBack.click();
+    else await kinnaklova.locator('.ki-painted-home').click();
+    await page.locator('#home-screen.active').waitFor({timeout:16000});
+    assert.equal(await page.evaluate(()=>JSON.stringify(
+      JSON.parse(localStorage.getItem('laerlittmer-v2')).journey)),beforeEnglishJourney,
+      name+' playing English accidentally changed legacy journey mastery');
+
+    // Return through ordinary navigation and launch the Norwegian fox task,
+    // proving old journeys remain intact while Kinnaklova has retired the fox.
     await page.locator('#home-screen.active .bc14-subject[data-camp="subject-norwegian"]').click();
      await page.locator('#eggenipa-world:visible').waitFor({timeout:16000});
      await page.locator('#eggenipa-world .eg-portal[data-eg="map"]').click();
@@ -219,7 +247,7 @@ async function run(engine,name,viewport,avatar){
     await page.screenshot({path:path.join(dir,name+'-task.png'),animations:'disabled'});
     assert.deepEqual(errors,[],name+' browser errors '+JSON.stringify(errors));
     await context.close();
-    console.log('[live fox]',name,'troll-led Home + same fox identity in journeys/tasks, hidden equipment, movement, feedback, progress and tap safety OK');
+    console.log('[live fox]',name,'legacy Norwegian/Geography fox plus fox-free Kinnaklova and unchanged progress OK');
   }finally{await browser.close()}
 }
 (async()=>{
