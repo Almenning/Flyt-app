@@ -115,6 +115,19 @@ async function run(browserType,label,viewport){
       assert.ok(geometry.headingTop>=geometry.closeBottom+5,
         label+' close control must not overlap the character picker title');
     }
+    if(viewport.height<=450 && viewport.width>480){
+      const visibility=await picker.evaluate(el=>{
+        const dialog=el.getBoundingClientRect();
+        return [...el.querySelectorAll('.tv-troll-grid button')].map(button=>{
+          const card=button.getBoundingClientRect(),caption=button.querySelector('b').getBoundingClientRect();
+          return {buttonBottom:card.bottom,captionBottom:caption.bottom,dialogBottom:dialog.bottom};
+        });
+      });
+      for(const item of visibility){
+        assert.ok(item.buttonBottom<=item.dialogBottom-4,label+' character card is clipped on landscape');
+        assert.ok(item.captionBottom<=item.dialogBottom-6,label+' character name is clipped on landscape');
+      }
+    }
     if(output && (viewport.width<=480||viewport.height<=450)) await shot(page,label+'-troll-picker');
     // Every original forest troll must be selectable, render from its own
     // approved image, and persist without changing the child's learning data.
@@ -163,4 +176,4 @@ async function run(browserType,label,viewport){
     await context.close();
   } finally {await browser.close();}
 }
-(async()=>{for(const [label,viewport] of [['iphone-compact',{width:320,height:568}],['iphone-portrait',{width:390,height:844}],['iphone-landscape',{width:844,height:390}],['ipad-portrait',{width:834,height:1112}],['ipad-landscape',{width:1194,height:834}]]){await run(chromium,'chromium-'+label,viewport);await run(webkit,'webkit-'+label,viewport);}})().catch(error=>{console.error(error);process.exitCode=1});
+(async()=>{for(const [label,viewport] of [['iphone-compact',{width:320,height:568}],['iphone-portrait',{width:390,height:844}],['iphone-small-landscape',{width:568,height:320}],['iphone-landscape',{width:844,height:390}],['ipad-portrait',{width:834,height:1112}],['ipad-landscape',{width:1194,height:834}]]){await run(chromium,'chromium-'+label,viewport);await run(webkit,'webkit-'+label,viewport);}})().catch(error=>{console.error(error);process.exitCode=1});

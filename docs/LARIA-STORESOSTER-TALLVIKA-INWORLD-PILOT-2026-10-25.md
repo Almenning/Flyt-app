@@ -103,3 +103,7 @@ Chromium/WebKit-QA kontrollerer de tre bildefilstiene, dekoding, minst 44×44 px
 ## 26.10.2026 – Velgerens mobiloverlapp fjernet
 
 Faktiske Chromium/WebKit-skjermbilder viste at lukkeknappen kunne ligge over overskriften i karaktervelgeren ved 320/390 px bredde. Det er lagt til et avgrenset 66 px topprom for trollvelgerens form på smale skjermer; øvrig karakterstørrelse, kunst og profiler er uendret. Alle Tallvika-dialoger har nå en maksimal høyde som passer faktisk visningshøyde, med scrolling ved behov (særlig iPhone liggende). Browser-QA sjekker at lukkeknappen ikke overlapper overskriften, at dialogen holder seg innenfor vinduet, og tar et ekstra bilde av velgeren på iPhone liggende. Ingen merge/publisering uten visuell kontroll og grønn CI.
+
+## 26.10.2026 – Tre fullt synlige trollvalg på liggende iPhone
+
+Etter faktisk WebKit-QA av dialogfixen var overskriften fri på portrett, men alle tre navnefelt forsvant under dialogens bunn på 844×390. På skjerm med høyde opptil 480 px og liggende orientering reduseres derfor **kun trollvelgerens** interne topprom, portretthøyder og kortmarginer. Ingen karakterillustrasjoner endres og alle tre valg forblir minst 44×44 px. Testene verifiserer at både figurkort og navn ligger helt synlig innenfor dialogen ved 568×320 og 844×390 på Chromium og WebKit. Ingen merge/publisering før QA og visuell kontroll.

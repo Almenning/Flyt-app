@@ -53,3 +53,14 @@ body:has(#subject-screen.tallvika-active){background:#f7f0df!important}
 /* The compact picker reserves vertical space for its 48px close button.
    All dialogs remain scrollable in short landscape viewports; only the
    portrait picker form gains the extra header spacing, not the artwork. */
+
+/* Short landscape devices deserve fully visible character choices, not
+   three portrait-size cards whose labels require hidden vertical scrolling.
+   Only the troll-picker contents change; other dialogs and art are untouched. */
+@media(max-height:480px) and (orientation:landscape){
+  .tv-dialog:not(.tv-grade-dialog) form{padding:12px 12px 14px}
+  .tv-dialog:not(.tv-grade-dialog) h2{font-size:clamp(23px,4vw,30px)}
+  .tv-dialog:not(.tv-grade-dialog) .tv-troll-grid{margin-top:8px;gap:10px}
+  .tv-dialog:not(.tv-grade-dialog) .tv-troll-grid button{min-height:160px;padding:6px 5px 8px;font-size:14px}
+  .tv-dialog:not(.tv-grade-dialog) .tv-troll-grid img{height:125px}
+}

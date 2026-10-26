@@ -4,7 +4,7 @@ const path=require('node:path');
 const root=path.join(__dirname,'..','laer-litt-mer');
 const read=name=>fs.readFileSync(path.join(root,name),'utf8');
 const html=read('index.html'),js=read('tallvika.js'),css=read('tallvika.css');
-assert.match(html,/tallvika\.css\?v=20261026-storesoster-picker-dialog3/);
+assert.match(html,/tallvika\.css\?v=20261026-storesoster-picker-dialog4/);
 assert.match(html,/tallvika\.js\?v=20261026-storesoster-picker2/);
 assert.match(html,/math:Object\.freeze\(\{title:'Tallvika'\}\)/);
 assert.match(js,/storesoster/);assert.match(js,/lillesoster/);assert.match(js,/lillebror/);
@@ -36,6 +36,8 @@ assert.ok(css.includes('max-height:calc(100dvh - 24px);overflow-y:auto'),
   'the character dialog must be scrollable on short phone screens');
 assert.ok(css.includes('.tv-dialog:not(.tv-grade-dialog) form{padding-top:66px}'),
   'compact character picker must reserve room for its close button');
+assert.ok(css.includes('@media(max-height:480px) and (orientation:landscape)'),
+  'short landscape viewports need fully visible character options');
 assert.ok(js.includes("<img src=\"${item.sceneSrc}\" alt=\"\">"), 'picker and scene must use the exact same user-approved image');
 assert.ok(!js.includes("<img src=\"${item.src}\" alt=\"\">"), 'picker must not show outdated Storesøster');
 assert.doesNotMatch(css,/brightness\(\.985\) saturate\(\.95\)/);
