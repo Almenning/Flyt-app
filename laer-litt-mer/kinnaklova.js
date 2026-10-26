@@ -14,7 +14,7 @@
   const APPROVED_ART_SHA256='';
   const REJECTED_REFERENCE_SHA256='3b1d6b6e6c9908dd31c519593504ac22dd2c7473ef05fa51ecd57885cdc6e035';
   const CHARACTERS=Object.freeze([
-    {id:'storesoster',name:'Storesøster',src:'./assets/gangemagi-troll/storesoster.webp'},
+    {id:'storesoster',name:'Storesøster',src:'./assets/gangemagi-troll/storesoster.webp',sceneSrc:'./assets/kinnaklova/storesoster-inworld-approved-20261026.webp'},
     {id:'lillebror',name:'Lillebror',src:'./assets/gangemagi-troll/lillebror.webp'},
     {id:'lillesoster',name:'Lillesøster',src:'./assets/gangemagi-troll/lillesoster.webp'}
   ]);
@@ -95,7 +95,7 @@
       '<div class="ki-art-unavailable" hidden role="status"><strong>Den låste Kinnaklova-illustrasjonen mangler i denne utviklingsversjonen.</strong>'+
       '<span>Import av ren bakgrunn er nødvendig før visuell godkjenning og publisering.</span></div>'+
       '<div class="ki-companions" aria-label="De tre godkjente skogstrollene">'+
-      CHARACTERS.map(c=>'<img class="ki-troll ki-troll-'+c.id+'" data-ki-character="'+c.id+'" src="'+c.src+
+      CHARACTERS.map(c=>'<img class="ki-troll ki-troll-'+c.id+'" data-ki-character="'+c.id+'" src="'+(c.sceneSrc||c.src)+
        '" alt="'+c.name+'" draggable="false" loading="eager">').join('')+
       '</div>'+
       '<button type="button" class="ki-painted-hit ki-painted-home" data-ki="home" aria-label="Tilbake til Hjem"></button>'+
