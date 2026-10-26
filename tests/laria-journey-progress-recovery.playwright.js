@@ -8,7 +8,7 @@ const seed={
  preferences:{sound:false,autoRead:false},lastMilestone:null,recentCountryWin:null,lastActivity:null,
  journey:{nodes:{},gradeWins:{},viewGrades:{}},answerLog:[],sessionLog:[],activeSession:null
 };
-const worlds={norwegian:'Bokskogen',math:'Tallvika',english:'Ordlandsbyen',geography:'Nordlysleiren'};
+const worlds={norwegian:'Bokskogen',math:'Tallvika',english:'Kinnaklova',geography:'Nordlysleiren'};
 
 async function answerCurrent(page){
   const q=await page.evaluate(()=>{const x=sessionQuestions[qIndex];return x?{type:x.type,answer:x.answer}:null});
@@ -136,6 +136,79 @@ async function returnFromJourney(page,root,label,subject){
  }
 }
 
+// English deliberately enters Kinnaklova through real Words/Sentences/Reading,
+// not a hidden Ordlandsbyen map. Validate actual saved skill evidence and
+// interrupted-session recovery instead of pretending direct play unlocks map nodes.
+async function recoverEnglishDirect(page,label,before){
+ const world=page.locator('#subject-screen.active #kinnaklova-world');
+ await world.waitFor({state:'visible',timeout:18000});
+ assert.equal(await world.locator('.ki-card').count(),3,label+' missing English learning places');
+ const previousNodes=await page.evaluate(()=>JSON.stringify(state.journey?.nodes||{}));
+ await world.locator('.ki-card[data-ki="words"]').click();
+ await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
+ const started=await activeSnapshot(page);
+ assert.equal(started.scope,'subject',label+' English uses direct skill learning');
+ assert.equal(started.subject,'english',label+' wrong subject');
+ assert.equal(started.node,undefined,label+' direct English must not fake a journey node');
+ assert.ok(started.ids.length>=5,label+' Words has insufficient questions');
+ await answerCurrent(page);
+ const answered=await activeSnapshot(page);
+ assert.equal(answered.index,0);
+ assert.equal(answered.correct,1);
+ assert.equal(answered.answered,true);
+ await page.locator('#close-session').click();
+ await world.waitFor({state:'visible',timeout:16000});
+ const left=await activeSnapshot(page);
+ assert.deepEqual(left,answered,label+' closing English quiz lost saved question');
+ assert.equal((await progress(page,'english')).sessionCount,before.sessionCount,
+  label+' partial English activity counted as completed');
+ await page.reload({waitUntil:'domcontentloaded'});
+ await page.locator('.bc14-subject[data-camp="subject-english"]').waitFor({timeout:20000});
+ assert.deepEqual(await activeSnapshot(page),answered,
+  label+' refresh discarded the interrupted English Words session');
+ await page.locator('.bc14-subject[data-camp="subject-english"]').click();
+ const live=page.locator('#subject-screen.active #kinnaklova-world');
+ await live.locator('.ki-resume [data-ki="resume"]').waitFor({state:'visible',timeout:16000});
+ await live.locator('.ki-resume [data-ki="resume"]').click();
+ await page.locator('#session-screen.active .laria-task-card').waitFor({timeout:16000});
+ assert.deepEqual(await activeSnapshot(page),answered,
+  label+' Kinnaklova Resume did not restore exact English question/answer');
+ await page.locator('#next-question:visible').click();
+ for(let i=1;i<started.ids.length;i++){
+   await answerCurrent(page);
+   await page.locator('#next-question:visible').click();
+ }
+ await page.locator('#complete-screen.active').waitFor({timeout:16000});
+ assert.match(await page.locator('#complete-home').innerText(),/Tilbake til Kinnaklova/,
+  label+' English completion must return child to Kinnaklova, not a progress dashboard');
+ const result=await page.evaluate(()=>({
+   active:state.activeSession,last:state.sessionLog.at(-1),
+   journeyNodes:JSON.stringify(state.journey?.nodes||{}),
+   skillAnswers:state.answerLog.filter(q=>q.subject==='english').length
+ }));
+ assert.equal(result.active,null,label+' completed English task was not cleared');
+ assert.equal(result.last.correct,result.last.total,label+' correct English answers not counted');
+ assert.equal(result.last.total,started.ids.length,label+' wrong English session size');
+ assert.equal(result.skillAnswers,started.ids.length,label+' English answer evidence lost');
+ assert.equal(result.journeyNodes,previousNodes,
+  label+' direct English must not silently modify hidden Ordlandsbyen journey nodes');
+ const after=await progress(page,'english');
+ assert.equal(after.sessionCount,before.sessionCount+1);
+ assert.ok(after.answerCount>=before.answerCount+started.ids.length);
+ assert.equal(after.done,before.done,
+  label+' direct English must not claim a hidden map stop is completed');
+ await page.locator('#complete-home').click();
+ await live.waitFor({state:'visible',timeout:16000});
+ const back=live.locator('.ki-utility [data-ki="home"]');
+ if(await back.isVisible())await back.click();
+ else await live.locator('.ki-painted-home').click();
+ await page.locator('#home-screen.active').waitFor({timeout:16000});
+ await page.reload({waitUntil:'domcontentloaded'});
+ await page.locator('.bc14-subject[data-camp="subject-english"]').waitFor({timeout:18000});
+ assert.deepEqual(await progress(page,'english'),after,label+' English skill progress not durable');
+ console.log('[progress recovery]',label,'english',JSON.stringify({finished:after.sessionCount,answers:after.answerCount}));
+}
+
 async function run(engine,label,viewport){
  const browser=await engine.launch({headless:true,args:engine===chromium?['--no-sandbox']:[]});
  try{
@@ -157,6 +230,10 @@ async function run(engine,label,viewport){
    const before=await progress(page,subject);
    const screen=subject==='geography'?'geography':'subject';
    await page.locator('.bc14-subject[data-camp="subject-'+subject+'"]').click();
+   if(subject==='english'){
+     await recoverEnglishDirect(page,label,before);
+     continue;
+   }
    if(subject==='norwegian'){
      // Norwegian direct play now starts at Eggenipa; the same original
      // missions and node IDs are reachable through the Bokskogen portal.
