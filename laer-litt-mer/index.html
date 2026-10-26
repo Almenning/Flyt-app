@@ -5004,10 +5004,13 @@ function validLearningQuestion(q){
   return false;
 }
 
-function buildLearningQuestions(subject,module,allowCooldown=false){
+function buildLearningQuestions(subject,module,allowCooldown=false,strictModule=false){
   const getPool=(m)=>subjectPoolForGrade(subject,currentGrade(),m);
   const focused=module?getPool(module).filter(validLearningQuestion):[];
-  const mixed=getPool(null).filter(validLearningQuestion),seen=new Set(),pool=[];
+  // Kinnaklova's painted activity signs describe real learning categories.
+  // Preserve that promise when a module has enough questions. Allow the
+  // existing mixed fallback for an unavailable/too-small module (grade 1 Reading).
+  const mixed=(strictModule&&focused.length>=5?[]:getPool(null).filter(validLearningQuestion)),seen=new Set(),pool=[];
   for(const q of [...focused,...mixed]){
     const sig=questionIdentity(q),cooling=questionOnCooldown(q);if(seen.has(sig)||(cooling&&!allowCooldown))continue;
     seen.add(sig);q._focused=focused.includes(q);q.practiceRepeat=!!cooling;
@@ -5691,12 +5694,12 @@ function renderSubjectJourney(){
   document.getElementById('journey-review').onclick=()=>startJourneyReview(activeSubject,viewGrade);
   document.getElementById('journey-challenge').onclick=()=>startJourneyChallenge(activeSubject,viewGrade);
 }
-function startLearningSession(subject,module,label){
+function startLearningSession(subject,module,label,strictModule=false){
   if(!window.LARIA_COMMERCE_V18?.requirePremium?.('learning'))return;
   sessionScope={type:'subject',subject,module:module||null,label:(SUBJECTS[subject]?.title||subject)+' · '+(label||'Blandet'),grade:currentGrade()};
   state.lastActivity={kind:'subject',subject,module:module||null,label:label||SUBJECTS[subject]?.mission||'Blandet'};
-  const fresh=buildLearningQuestions(subject,module);
-  const all=fresh.length<5?buildLearningQuestions(subject,module,true):fresh;
+  const fresh=buildLearningQuestions(subject,module,false,strictModule);
+  const all=fresh.length<5?buildLearningQuestions(subject,module,true,strictModule):fresh;
   sessionQuestions=topUpSessionQuestions(fresh,all,5);
   sessionScope.practiceOnly=sessionQuestions.length>0&&sessionQuestions.every(q=>q.practiceRepeat);
   if(sessionQuestions.length<5){toast('Fant ikke nok oppgaver akkurat nå.');return}
@@ -7031,7 +7034,7 @@ window.LARIA_TALLVIKA_BRIDGE={
   journeyRecommendedNode:(subject,grade)=>journeyRecommendedNode(subject,grade),
   startJourneyNode:(subject,id,grade)=>startJourneyNode(subject,id,grade),
   startJourneyChallenge:subject=>startJourneyChallenge(subject),
-  startLearningSession:(subject,module,label)=>startLearningSession(subject,module,label),
+  startLearningSession:(subject,module,label,strictModule=false)=>startLearningSession(subject,module,label,strictModule),
   resumeSession:(expectedSubject)=>{
     if(!window.LARIA_COMMERCE_V18?.requirePremium?.('learning'))return;
     if(!loadActiveSession()||sessionScope?.subject!==expectedSubject)return;
