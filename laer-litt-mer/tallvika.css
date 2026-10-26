@@ -410,7 +410,7 @@ body:has(#subject-screen.tallvika-active){background:#f7f0df!important}
     align-content:center;
     padding:9px 25px 9px 10px;
   }
-  .tv-portal-kicker{font-size:9px}
+  .tv-portal-kicker{font-size:10px}
   .tv-portal-copy b{font-size:19px}
   .tv-portal-copy small{font-size:12px;line-height:1.25}
   .tv-portal-badge{
