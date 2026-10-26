@@ -38,7 +38,7 @@ test('Approved scene is one painted 1672x941 image with mapped transparent targe
  assert.match(js,/APPROVED_ART_SHA256===REJECTED_REFERENCE_SHA256/);
  assert.match(css,/#kinnaklova-world:not\(\[data-ki-art="ready"\]\) \.ki-master\{visibility:hidden\}/);
  assert.match(js,/kinnaklova-scene-clean-approved-20261026\.webp/);
- assert.match(js,/naturalWidth===1672&&image\.naturalHeight===941/);
+ assert.match(js,/naturalWidth!==1672\|\|image\.naturalHeight!==941/);
  assert.match(js,/ki-master/);
  assert.match(js,/ki-painted-hit/);
  assert.match(css,/aspect-ratio:1672 \/ 941/);
