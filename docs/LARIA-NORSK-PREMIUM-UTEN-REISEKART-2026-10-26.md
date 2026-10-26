@@ -235,3 +235,9 @@ Brukeren godkjente den eksakte Eggenipa-illustrasjonen, men avviste resten av de
 - Temavelgeren sa allerede riktig «Tilbake til Norsk» ved inngang fra Eggenipa, men det påfølgende bokstavbrettet hadde fortsatt den generiske skjermleserteksten «Tilbake til Læria» og overskriften «LEK & UTFORSK». Det kunne skjule riktig returpunkt i spillflyten.
 - Inngangsfokuset brukes nå konsistent på **begge** skjermene: fra Eggenipa får brettet «NORSK · EGGENIPA» og «Tilbake til Norsk»; fra Utforsk beholdes «LEK & UTFORSK» og «Tilbake til Utforsk». Gjenbruker den eksisterende returmekanismen, uten å endre ordspill, samlebok, hint eller progresjon.
 - Browser-regresjon i Eggenipa tester faktisk oppstart av ordspillbrettet og retur til Norsk, ikke bare temavelgeren. Samme kontroll fra Utforsk er lagt til eksisterende tematest.
+
+
+### 26.10 – riktig plassering av Lesekrokens interaktive hjelper
+
+- Den forrige statiske stjernen sto i en egen begrenset scene. En semantisk wrapper rundt den nye hintknappen kunne ellers gi en ekstra vertikal rad under illustrasjonen og skyve svarene ned på iPad. Premium-stilarket plasserer nå wrapperen **absolutt innenfor det eksisterende illustrasjonsområdet**, med oppgave og svar uendret i dokumentflyten.
+- På svært kort liggende iPhone følger hjelperen derimot den allerede godkjente to-kolonners scenegeometrien og forblir et vanlig gridelement. Hintboblen er fortsatt et kort, ikke-blokkerende overlay. Dette er en kildefikset layoutregel, ikke generell CSS-justering.

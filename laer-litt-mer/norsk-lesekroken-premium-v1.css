@@ -22,6 +22,13 @@
   position:relative;z-index:8;display:grid;place-items:center;justify-self:center;align-self:center;
   min-width:62px;min-height:65px
 }
+/* With an illustration, the helper belongs beside the drawing rather than
+   occupying a second full-height row beneath it (particularly on iPad).
+   Short landscape is the exception: its existing two-column task grid needs
+   the helper as a normal second column. */
+#session-screen.task-scene[data-task-subject="norwegian"] .task-visual-companion-stage > .task-norsk-helper{
+  position:absolute;right:8px;bottom:14px
+}
 #session-screen.task-scene[data-task-subject="norwegian"] .task-norsk-guide {
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
   margin:0!important;padding:4px!important;cursor:pointer;pointer-events:auto;
@@ -78,6 +85,9 @@
 }
 @media(orientation:landscape) and (min-width:701px) and (max-height:520px){
  #session-screen.task-scene[data-task-subject="norwegian"] .task-norsk-bookmark{display:none}
+ #session-screen.task-scene[data-task-subject="norwegian"] .task-visual-companion-stage > .task-norsk-helper{
+   position:relative;right:auto;bottom:auto
+ }
  #session-screen.task-scene[data-task-subject="norwegian"] .task-norsk-helper{min-height:54px;min-width:54px}
  #session-screen.task-scene[data-task-subject="norwegian"] .task-norsk-guide{
    min-width:52px;min-height:52px;width:52px;height:52px;border-radius:17px
