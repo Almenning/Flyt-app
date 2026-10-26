@@ -70,8 +70,8 @@ async function selectTopic(page,topic,label,fromEntry=false){
   assert.ok(piece.complete&&piece.width===160&&piece.height===169,label+' failed to load premium topic illustration: '+JSON.stringify(piece));
   assert.ok(piece.bg==='none',label+' missing approved Bokskogen scene: '+JSON.stringify(piece));
  }
- assert.equal(await picker.locator('.wh-theme-fox').evaluate(img=>img.currentSrc===window.LARIA_FOX.source(window.LARIA_FOX.choice())),true,
-  'chosen fox did not follow child to theme picker');
+ assert.equal(await picker.locator('.wh-theme-fox').evaluate(el=>el.tagName),'SPAN',
+  'Old fox art remains in the Eggenipa theme picker');
  await shot(page,label+'-choose-'+topic);
  const selectedCard=page.locator('.word-hunt-theme-picker [data-word-theme="'+topic+'"]');
  await selectedCard.click();
@@ -176,11 +176,10 @@ async function verify(engine,launcher,label,viewport,url){
    assert.equal(await page.locator('.word-hunt-targets-count').innerText(),'0 av 4');
    assert.equal(await page.locator('.word-hunt-status').isVisible(),false,
      label+' redundant idle guide card is still covering the fox');
-   // Ordjakt uses the chosen girl's original in-world fox, never a generated lookalike.
+   // The hint/celebration channel remains, with no static old fox picture.
    const fox=page.locator('.word-hunt-companion');
-   assert.equal(await fox.getAttribute('data-avatar'),'girl');
-   assert.equal(await fox.locator('.word-hunt-companion-fox').getAttribute('src'),
-     await page.evaluate(()=>window.LARIA_FOX.worldSource(window.LARIA_FOX.choice())));
+   assert.equal(await fox.getAttribute('data-norsk-guide'),'magic');
+   assert.equal(await fox.locator('.word-hunt-companion-fox').evaluate(el=>el.tagName),'SPAN');
    assert.equal(await fox.locator('.word-hunt-companion-hint').count(),1);
    assert.equal(await fox.locator('.word-hunt-companion-cheer').count(),1);
    const foxGeometry=await fox.evaluate(host=>{
@@ -197,16 +196,17 @@ async function verify(engine,launcher,label,viewport,url){
      };
      return {stage,art,controls,layout,fit:getComputedStyle(artEl).objectFit};
    });
-   assert.equal(foxGeometry.fit,'contain',label+' fox art lost contain behavior');
+   assert.ok(foxGeometry.art&&foxGeometry.stage,label+' missing Norwegian help stage');
    const stable=foxGeometry.layout;
-   const minFoxWidth=viewport.width>700?120:(viewport.width<=350?60:75);
-   assert.ok(stable.stageWidth>=minFoxWidth&&stable.stageHeight>=90&&
-     stable.width>=minFoxWidth&&stable.height>=90,
-     label+' invisible or tiny personal fox stage: '+JSON.stringify(foxGeometry));
+   const minGuideWidth=viewport.width>700?70:55;
+   const minGuideHeight=viewport.width>700?70:55;
+   assert.ok(stable.stageWidth>=minGuideWidth&&stable.stageHeight>=minGuideHeight&&
+     stable.width>=minGuideWidth&&stable.height>=minGuideHeight,
+     label+' invisible or too-small magic guide: '+JSON.stringify(foxGeometry));
    assert.ok(stable.left>=-1.5&&stable.top>=-1.5&&
      stable.left+stable.width<=stable.stageWidth+1.5&&
      stable.top+stable.height<=stable.stageHeight+1.5,
-     label+' full-body image grows beyond its fox stage: '+JSON.stringify(foxGeometry));
+     label+' magic guide grows beyond its own stage: '+JSON.stringify(foxGeometry));
    if(viewport.width>700){
      assert.ok(foxGeometry.stage.bottom<=foxGeometry.controls.top+2,
        label+' fox stage occupies the iPad/Mac help buttons: '+JSON.stringify(foxGeometry));
