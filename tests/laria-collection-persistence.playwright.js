@@ -162,15 +162,33 @@ async function verify(browserType,label,viewport){
     assert.equal(safe.equipped.head,null);
     assert.ok(safe.ownedIds.includes('oppdagerhatt'),
       'previous owned item must be reconstructed from still-present learning');
-    // Wardrobe composition is intentionally scheduled on requestAnimationFrame
-    // after state recovery. Wait for the real selected character layer rather
-    // than inspecting the DOM before the first post-reload render frame.
-    const homeFox=page.locator('#home-screen.active .bc12-fox');
-    await homeFox.locator(':scope > svg.laria-fox-wardrobe-placed').waitFor({state:'attached',timeout:12000});
-    assert.equal(await homeFox.locator(':scope > svg.laria-fox-wardrobe-placed').count(),1,
-      'home selected fox must have exactly one composited art layer');
-    assert.equal(await homeFox.locator(':scope > svg.laria-fox-wardrobe-placed').getAttribute('data-avatar'),'girl',
-      'reloading recovered inventory must preserve the selected girl fox');
+    // The locked Home v15 is troll-led and deliberately hides the legacy
+    // .bc12-fox, so an invisible SVG is not a child-visible release contract.
+    // Verify the selected girl in the actual Min rev preview reached from
+    // the collection book after invalid inventory was repaired and reloaded.
+    await page.locator('#home-screen.active .bc14-subject').first().waitFor({timeout:18000});
+    assert.equal(await page.evaluate(()=>state.profile.avatar),'girl',
+      'invalid inventory recovery must not change the chosen girl fox');
+    if(lockedHome){
+      await page.locator('#home-screen.active .bc12.bc15-locked-home').waitFor({timeout:18000});
+      await page.locator('#home-screen.active .bc12-nav [data-camp="collection"]').click();
+      await page.locator('#bc12-dialog[open].is-collection [data-wardrobe-open]').click();
+      const visibleFox=page.locator('#bc12-dialog[open].is-wardrobe .bc12-wardrobe-preview svg[data-avatar="girl"]');
+      await visibleFox.waitFor({state:'visible',timeout:12000});
+      assert.equal(await visibleFox.count(),1,
+        'collection must show exactly one selected girl fox after invalid save recovery');
+      assert.equal(await page.locator('#bc12-dialog[open].is-wardrobe [data-gear],#bc12-dialog[open].is-wardrobe [data-wear]').count(),0,
+        'unreleased wardrobe accessories must stay hidden after recovery');
+      await page.locator('#bc12-dialog[open] .bc12-close').click();
+    }else{
+      // Older Home is still fox-led; retain the exact composited art contract.
+      const homeFox=page.locator('#home-screen.active .bc12-fox');
+      const art=homeFox.locator(':scope > svg.laria-fox-wardrobe-placed');
+      await art.waitFor({state:'attached',timeout:12000});
+      assert.equal(await art.count(),1,'legacy Home must keep one composited fox');
+      assert.equal(await art.getAttribute('data-avatar'),'girl',
+        'legacy Home must preserve the selected girl fox');
+    }
     await context.close();
     console.log('Collection inventory persistent',label,viewport);
   }finally{await browser.close();}

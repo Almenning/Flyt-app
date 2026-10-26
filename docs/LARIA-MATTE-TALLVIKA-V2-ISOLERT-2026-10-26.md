@@ -70,3 +70,12 @@ Integrert WebKit-QA [run #40313772700](https://github.com/Almenning/Flyt-app/act
 
 **Retting:** Den eksisterende omfattende testen åpner nå Matte fra Home, klikker det illustrerte `Gangetabellen`-kortet i Tallvika, og krever umiddelbart aktiv 10×10-tabell med 100 ruter og valgt `table`-modus før `Plukk og tell` åpnes. Nøyaktig samme barnesynlige inngang brukes etter reload, slik at progresjon og lagring fortsatt verifiseres. Ingen produktkode, illustrasjon, spillmotor eller andre fag er endret av denne QA-rettelsen. Full WebKit/Chromium-test på nyeste commit kreves før merge, og feilen er ikke skjult med `force`, høyere timeout eller `continue-on-error`.
 
+
+
+### 26.10: Full QA – samlebokens reelle, synlige avatar etter ugyldig lagring
+
+Full `Laria QA` på `f9fa707` hadde 10 av 11 workflow-kontroller grønne, men `laria-mapboard` feilet i `tests/laria-collection-persistence.playwright.js:169` på en usynlig `svg.laria-fox-wardrobe-placed` under `#home-screen` etter at testen med vilje skrev ugyldige samlingsdata og lastet inn siden. Både denne testen og selve `laria-fox-wardrobe.js` er byteidentiske med produksjons-`main`. Den låste Home v15 er godkjent som **trollbasert**, og `.bc12-fox` er bevisst visuelt skjult. Det gamle Home-overlayet er derfor ikke et meningsfullt kriterium for hva barnet faktisk kan se.
+
+**Testrettelse uten produktendring:** Etter rekonstruert samling og ny innlasting må barnets valgte `girl`-profil fortsatt være lagret. I Home v15 åpnes den **synlige** samleboken og deretter `Min rev`, som skal vise nøyaktig én `svg[data-avatar="girl"]` og ingen ikke-utgitte klær. For eldre Home-visninger beholdes kravet om én korrekt sammensatt rev direkte på Hjem. Tidligere testkrav til opptjente eiendeler, avvisning av falske data, frivillig utstyr, all læringshistorikk og ingen dobbeltutbetaling er beholdt uendret.
+
+**Kvalitetsport:** Full QA må bestå på den nye eksakte HEAD før merge. Rettelsen må aldri brukes som begrunnelse for å overse reelt datatap eller for å kalle statiske troll fullverdige levende premiumfigurer.
