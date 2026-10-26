@@ -58,6 +58,18 @@ async function proof(engine,label,viewport,url){
    return image?.complete&&image.naturalWidth===941&&image.naturalHeight===1672&&
      !document.querySelector('#subject-screen.active .locked-journey-art-guard');
   },{timeout:30000});
+  // Bokskogen intentionally moves a short landscape phone to the current
+  // painted mission after a 350ms entrance timer. Distinguish that useful
+  // viewport scroll from a real blank header / offset stage regression.
+  const compactLandscape=viewport.width>viewport.height&&viewport.height<=500;
+  if(compactLandscape){
+    await page.waitForFunction(()=>{
+      const stop=document.querySelector('#subject-screen.active .bok-v10-place.state-current');
+      if(!stop)return false;
+      const rect=stop.getBoundingClientRect();
+      return rect.top>=-2&&rect.bottom<=innerHeight+2;
+    },null,{timeout:6000});
+  }
   const geometry=await page.evaluate(()=>{
    const screen=document.querySelector('#subject-screen.active');
    const app=document.querySelector('.app');
@@ -67,7 +79,10 @@ async function proof(engine,label,viewport,url){
    const image=document.querySelector('#subject-screen.active .locked-journey-image');
    const sb=screen.getBoundingClientRect(),bb=board.getBoundingClientRect(),ib=image.getBoundingClientRect();
    const style=getComputedStyle(screen),journeyStyle=getComputedStyle(journeySection),mapStyle=getComputedStyle(map),appStyle=getComputedStyle(app),boardStyle=getComputedStyle(board);
-   return {screen:{top:sb.top,height:sb.height},board:{top:bb.top,width:bb.width,height:bb.height},
+   const stop=document.querySelector('#subject-screen.active .bok-v10-place.state-current')?.getBoundingClientRect();
+   return {scrollY:window.scrollY,screen:{top:sb.top,height:sb.height},
+    board:{top:bb.top,width:bb.width,height:bb.height},
+    currentStop:stop?{top:stop.top,bottom:stop.bottom}:null,
     imageRatio:ib.width/ib.height,boardRatio:bb.width/bb.height,appPaddingBottom:appStyle.paddingBottom,
     screenBackground:style.backgroundImage,journeyBackground:journeyStyle.backgroundImage,appBackground:appStyle.backgroundImage,borderRadius:boardStyle.borderTopLeftRadius,
     journey:{display:journeyStyle.display,marginTop:journeyStyle.marginTop,paddingTop:journeyStyle.paddingTop,gap:journeyStyle.gap},
@@ -78,7 +93,21 @@ async function proof(engine,label,viewport,url){
      const r=node.getBoundingClientRect();return {w:r.width,h:r.height};
     })};
   });
-  assert.equal(geometry.screen.top,0,label+' journey must start at the viewport edge');
+  // The MAP must begin at document y=0, not necessarily viewport y=0:
+  // on compact landscape the app scrolls to the next usable landmark so
+  // children do not arrive at a screen dominated by a tall portrait header.
+  // Looking only at getBoundingClientRect().top incorrectly treats a
+  // deliberate scroll as a -556px positioning defect.
+  assert.ok(Math.abs(geometry.screen.top+geometry.scrollY)<=1,
+    label+' journey must begin at document edge '+JSON.stringify(geometry));
+  if(!compactLandscape){
+    assert.ok(Math.abs(geometry.screen.top)<=1,
+      label+' portrait journey unexpectedly scrolled on entry');
+  }else{
+    assert.ok(geometry.currentStop&&geometry.currentStop.top>=-2&&
+      geometry.currentStop.bottom<=viewport.height+2,
+      label+' compact landscape must show its current mission '+JSON.stringify(geometry));
+  }
   // WebKit can resolve 100dvh a fraction below the integer viewport after
   // device-scale rounding (for example 843.984375px for an 844px viewport).
   // One CSS pixel is below visual precision and avoids treating that rounding
@@ -91,7 +120,8 @@ async function proof(engine,label,viewport,url){
   assert.equal(geometry.borderRadius,'0px',label+' map edge introduced a pale rounded seam');
   assert.ok(Math.abs(geometry.boardRatio-941/1672)<.003&&Math.abs(geometry.imageRatio-941/1672)<.003,
     label+' approved map was stretched or cropped '+JSON.stringify(geometry));
-  assert.equal(geometry.board.top,0,label+' map was offset below a blank header '+JSON.stringify(geometry));
+  assert.ok(Math.abs(geometry.board.top+geometry.scrollY)<=1,
+    label+' map was offset below a blank header '+JSON.stringify(geometry));
   assert.ok(geometry.overflow<=1,label+' horizontal overflow '+JSON.stringify(geometry));
   assert.equal(geometry.hotspots.length,5,label+' mission locations changed');
   assert.ok(geometry.hotspots.every(hit=>hit.w>=44&&hit.h>=44),label+' a map touch target fell below 44px');
